@@ -15,6 +15,7 @@ private:
   edm::InputTag inputTag_;          // input tag identifying product containing pixel clusters
   bool          saveTag_;           // whether to save this tag
   unsigned int  min_clusters_;      // minimum number of clusters
+  unsigned int  max_clusters_;      // maximum number of clusters
 
 };
 
@@ -34,10 +35,13 @@ private:
 HLTPixelActivityFilter::HLTPixelActivityFilter(const edm::ParameterSet& config) :
   inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
   saveTag_      (config.getUntrackedParameter<bool>("saveTag", false)),
-  min_clusters_ (config.getParameter<unsigned int>("minClusters"))
+  min_clusters_ (config.getParameter<unsigned int>("minClusters")),
+  max_clusters_ (config.getParameter<unsigned int>("maxClusters"))
 {
   LogDebug("") << "Using the " << inputTag_ << " input collection";
-  LogDebug("") << "Requesting " << min_clusters_ << " clusters";
+  LogDebug("") << "Requesting at least " << min_clusters_ << " clusters";
+  if(max_clusters_ > 0) 
+    LogDebug("") << "...but no more than " << max_clusters_ << " clusters";
 
   // register your products
   produces<trigger::TriggerFilterObjectWithRefs>();
@@ -66,9 +70,11 @@ bool HLTPixelActivityFilter::filter(edm::Event& event, const edm::EventSetup& iS
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > clusterColl;
   event.getByLabel(inputTag_, clusterColl);
 
-  unsigned int clusterSize = clusterColl->size();
+  unsigned int clusterSize = clusterColl->dataSize();
   LogDebug("") << "Number of clusters accepted: " << clusterSize;
   bool accept = (clusterSize >= min_clusters_);
+  if(max_clusters_ > 0) 
+    accept &= (clusterSize <= max_clusters_);
 
   // put filter object into the Event
   event.put(filterobject);

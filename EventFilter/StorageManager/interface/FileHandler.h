@@ -1,4 +1,4 @@
-// $Id: FileHandler.h,v 1.10 2010/03/19 13:24:30 mommsen Exp $
+// $Id: FileHandler.h,v 1.11 2010/05/17 15:59:09 mommsen Exp $
 /// @file: FileHandler.h 
 
 #ifndef StorageManager_FileHandler_h
@@ -24,8 +24,8 @@ namespace stor {
    * Abstract representation of a physical file
    *
    * $Author: mommsen $
-   * $Revision: 1.10 $
-   * $Date: 2010/03/19 13:24:30 $
+   * $Revision: 1.11 $
+   * $Date: 2010/05/17 15:59:09 $
    */
 
   class FileHandler
@@ -50,12 +50,12 @@ namespace stor {
     /**
      * Returns true if the file has not seen any recent events
      */
-    virtual bool tooOld(const utils::time_point_t currentTime = utils::getCurrentTime()) = 0;
+    bool tooOld(const utils::time_point_t currentTime = utils::getCurrentTime());
 
     /**
      * Returns true if the file corresponds to the given lumi section
      */
-    virtual bool isFromLumiSection(const uint32_t lumiSection) = 0;
+    bool isFromLumiSection(const uint32_t lumiSection);
 
     /**
      * Returns true if the additional data size would push the file size

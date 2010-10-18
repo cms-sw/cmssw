@@ -71,7 +71,9 @@ import FWCore.ParameterSet.Config as cms
 ''' % process.HLTConfigVersion.tableName.value())
 
 if 'A' in process.streams.__dict__:
-  for dataset in process.streams.__dict__['A']:
+  ds = process.streams.__dict__['A']
+  ds.sort()
+  for dataset in ds:
     dump.write( dumpDataset(process, 'A', dataset) )
 
 dump.close()

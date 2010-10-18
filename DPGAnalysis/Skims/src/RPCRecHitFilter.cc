@@ -127,18 +127,18 @@ bool RPCRecHitFilter::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
   iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
     
   
-  map< int  , int > numberOfRecHitsBarrel;
-  map< int  , int > numberOfDigisBarrel;
-  map< int  , int > numberOfRecHitsEndcap;
-  map< int  , int > numberOfDigisEndcap;
+  std::map <int  , int > numberOfRecHitsBarrel;
+  std::map <int  , int > numberOfDigisBarrel;
+  std::map <int  , int > numberOfRecHitsEndcap;
+  std::map <int  , int > numberOfDigisEndcap;
   
-  map< pair < int  , int > , vector<RPCDetId> > numberOfRecHitsSameWheelSameSector;
-  map< pair < int  , int > , vector<RPCDetId> > numberOfDigisSameWheelSameSector;
-  map< pair < int  , int > , vector<RPCDetId> > numberOfHitsSameDiskSectorPositive;
-  map< pair < int  , int > , vector<RPCDetId> > numberOfHitsSameDiskSectorNegative;
+  std::map <pair < int  , int > , std::vector<RPCDetId> > numberOfRecHitsSameWheelSameSector;
+  std::map <pair < int  , int > , std::vector<RPCDetId> > numberOfDigisSameWheelSameSector;
+  std::map <pair < int  , int > , std::vector<RPCDetId> > numberOfHitsSameDiskSectorPositive;
+  std::map <pair < int  , int > , std::vector<RPCDetId> > numberOfHitsSameDiskSectorNegative;
   
   
-  const vector<  RPCRoll * > rls = rpcGeo->rolls();
+  const std::vector<  RPCRoll * > rls = rpcGeo->rolls();
   
   bool condition = true;
   
@@ -161,7 +161,7 @@ bool RPCRecHitFilter::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
 	
     for(RecHitsIt = rpcRecHitRange.first; RecHitsIt!=rpcRecHitRange.second; ++RecHitsIt){
       
-      //cout<< " roll is "<< did << " bx recHit is " << RecHitsIt->BunchX()<< " event number " <<eventNumber  <<endl;
+      //std::cout<< " roll is "<< did << " bx recHit is " << RecHitsIt->BunchX()<< " event number " <<eventNumber  <<std::endl;
       
       if(did.region()==0){
 	
@@ -222,14 +222,14 @@ bool RPCRecHitFilter::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
       bool cond2 = false;
       bool cond3 = false;
 
-      map < int,  bool >vectorBarrelCands;
-      map < int,  bool >vectorEndcapCandsPositive;
-      map < int, bool >vectorEndcapCandsNegative;
+      std::map < int,  bool >vectorBarrelCands;
+      std::map < int,  bool >vectorEndcapCandsPositive;
+      std::map < int, bool >vectorEndcapCandsNegative;
  
       bool veto = false; 
       
       // barrel
-      for ( map< pair < int , int > , vector < RPCDetId> >::const_iterator iter = numberOfRecHitsSameWheelSameSector.begin();iter != numberOfRecHitsSameWheelSameSector.end();++iter){
+      for ( std::map <pair < int , int > , std::vector < RPCDetId> >::const_iterator iter = numberOfRecHitsSameWheelSameSector.begin();iter != numberOfRecHitsSameWheelSameSector.end();++iter){
 
 	vectorBarrelCands[1] = false; 
 	vectorBarrelCands[2] = false; 
@@ -253,7 +253,7 @@ bool RPCRecHitFilter::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
  
  
       // endcap positive
-      for ( map< pair < int ,int >, vector < RPCDetId> >::const_iterator iter = numberOfHitsSameDiskSectorPositive.begin(); iter != numberOfHitsSameDiskSectorPositive.end(); ++iter){
+      for ( std::map <pair < int ,int >, std::vector < RPCDetId> >::const_iterator iter = numberOfHitsSameDiskSectorPositive.begin(); iter != numberOfHitsSameDiskSectorPositive.end(); ++iter){
 
 	vectorEndcapCandsPositive[1] = false; 
 	vectorEndcapCandsPositive[2] = false; 
@@ -278,7 +278,7 @@ bool RPCRecHitFilter::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
       } 
 
       // endcap negative
-      for ( map< pair < int ,int >, vector < RPCDetId> >::const_iterator iter = numberOfHitsSameDiskSectorNegative.begin(); iter != numberOfHitsSameDiskSectorNegative.end(); ++iter){
+      for ( std::map <pair < int ,int >, std::vector < RPCDetId> >::const_iterator iter = numberOfHitsSameDiskSectorNegative.begin(); iter != numberOfHitsSameDiskSectorNegative.end(); ++iter){
 
 	vectorEndcapCandsNegative[1] = false; 
 	vectorEndcapCandsNegative[2] = false; 

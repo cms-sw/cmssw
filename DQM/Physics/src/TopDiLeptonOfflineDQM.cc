@@ -8,9 +8,7 @@
 
 namespace TopDiLeptonOffline {
 
-  MonitorEnsemble::MonitorEnsemble(const char* label, const edm::ParameterSet& cfg) : 
-   label_(label), elecIso_(0), elecSelect_(0), muonIso_(0), muonSelect_(0), jetIDSelect_(0), 
-   lowerEdge_(-1.), upperEdge_(-1.), elecMuLogged_(0), diMuonLogged_(0), diElecLogged_(0)
+  MonitorEnsemble::MonitorEnsemble(const char* label, const edm::ParameterSet& cfg) : label_(label), lowerEdge_(-1.), upperEdge_(-1.)
   {
     // sources have to be given; this PSet is not optional
     edm::ParameterSet sources=cfg.getParameter<edm::ParameterSet>("sources");
@@ -60,18 +58,6 @@ namespace TopDiLeptonOffline {
       if( jetExtras.existsAs<std::string>("jetCorrector") ){
 	jetCorrector_= jetExtras.getParameter<std::string>("jetCorrector");
       }
-      // read jetID information if it exists
-      if(jetExtras.existsAs<edm::ParameterSet>("jetID")){
-	edm::ParameterSet jetID=jetExtras.getParameter<edm::ParameterSet>("jetID");
-	jetIDLabel_ =jetID.getParameter<edm::InputTag>("label");
-	jetIDSelect_= new StringCutObjectSelector<reco::JetID>(jetID.getParameter<std::string>("select"));
-      }
-      // select is optional; in case it's not found no
-      // selection will be applied (only implemented for 
-      // CaloJets at the moment)
-      if( jetExtras.existsAs<std::string>("select") ){
-	jetSelect_= jetExtras.getParameter<std::string>("select");
-      }
     }
     // triggerExtras are optional; they may be omitted or empty
     if( cfg.existsAs<edm::ParameterSet>("triggerExtras") ){
@@ -83,7 +69,7 @@ namespace TopDiLeptonOffline {
     // massExtras is optional; in case it's not found no mass
     // window cuts are applied for the same flavor monitor
     // histograms
-    if( cfg.existsAs<edm::ParameterSet>("massExtras") ){
+    if( cfg.existsAs<std::string>("massExtras") ){
       edm::ParameterSet massExtras=cfg.getParameter<edm::ParameterSet>("massExtras");
       lowerEdge_= massExtras.getParameter<double>("lowerEdge");
       upperEdge_= massExtras.getParameter<double>("upperEdge");
@@ -231,22 +217,11 @@ namespace TopDiLeptonOffline {
     hists_["dPhiLep1MET_" ] = store_->book1D("DPhiLep1MET" , "#Delta#phi(lep1,MET)"    ,       32,   0.,      3.2);
     // deltaPhi of 1. jet and MET
     hists_["dPhiJet1MET_" ] = store_->book1D("DPhiJet1MET" , "#Delta#phi(jet1,MET)"    ,       32,   0.,      3.2);
-    // selected dimuon events
-    hists_["diMuonLogger_"] = store_->book2D("DiMuonLogger", "Logged DiMuon Events"    ,        8,   0.,       8.,   10,   0.,   10.);
-    // selected dielec events
-    hists_["diElecLogger_"] = store_->book2D("DiElecLogger", "Logged DiElec Events"    ,        8,   0.,       8.,   10,   0.,   10.);
-    // selected elemu events
-    hists_["elecMuLogger_"] = store_->book2D("ElecMuLogger", "Logged ElecMu Events"    ,        8,   0.,       8.,   10,   0.,   10.);
-
-    // set bin labels for trigger monitoring
-    loggerBinLabels(std::string("diMuonLogger_")); 
-    loggerBinLabels(std::string("diElecLogger_")); 
-    loggerBinLabels(std::string("elecMuLogger_"));
     return;
   }
 
   void 
-  MonitorEnsemble::fill(const edm::Event& event, const edm::EventSetup& setup)
+  MonitorEnsemble::fill(const edm::Event& event, const edm::EventSetup& setup) const
   {
     // fetch trigger event if configured such 
     edm::Handle<edm::TriggerResults> triggerTable;
@@ -269,12 +244,12 @@ namespace TopDiLeptonOffline {
 	fill("muonDelZ_" , muon->globalTrack()->vz());
 	fill("muonDelXY_", muon->globalTrack()->vx(), muon->globalTrack()->vy());
 	// apply preselection
-	if(!muonSelect_ || (*muonSelect_)(*muon)){
+	if((*muonSelect_)(*muon)){
 	  double isolationTrk = muon->pt()/(muon->pt()+muon->isolationR03().sumPt);
 	  double isolationCal = muon->pt()/(muon->pt()+muon->isolationR03().emEt+muon->isolationR03().hadEt);
 	  double isolationRel = (muon->isolationR03().sumPt+muon->isolationR03().emEt+muon->isolationR03().hadEt)/muon->pt();
 	  fill("muonTrkIso_" , isolationTrk); fill("muonCalIso_" , isolationCal); fill("muonRelIso_" , isolationRel);
-	  if(!muonIso_ || (*muonIso_)(*muon)) isoMuons.push_back(&(*muon));
+	  if((*muonIso_)(*muon)) isoMuons.push_back(&(*muon));
 	}
       }
     }
@@ -295,15 +270,15 @@ namespace TopDiLeptonOffline {
     edm::Handle<edm::View<reco::GsfElectron> > elecs; event.getByLabel(elecs_, elecs);
     for(edm::View<reco::GsfElectron>::const_iterator elec=elecs->begin(); elec!=elecs->end(); ++elec){
       // restrict to electrons with good electronId
-      int idx = elec-elecs->begin();
-      if( electronId_.label().empty() ? true : (*electronId)[elecs->refAt(idx)]>0.99 ){
+      int index = elec-elecs->begin();
+      if( electronId_.label().empty() ? true : (*electronId)[elecs->refAt(index)]>0.99 ){
 	// apply preselection
-	if(!elecSelect_ || (*elecSelect_)(*elec)){
+	if((*elecSelect_)(*elec)){
 	  double isolationTrk = elec->pt()/(elec->pt()+elec->dr03TkSumPt());
-	  double isolationCal = elec->pt()/(elec->pt()+elec->dr03EcalRecHitSumEt()+elec->dr03HcalTowerSumEt());
-	  double isolationRel = (elec->dr03TkSumPt()+elec->dr03EcalRecHitSumEt()+elec->dr03HcalTowerSumEt())/elec->pt();
+	  double isolationCal = elec->pt()/(elec->pt()+elec->dr04EcalRecHitSumEt()+elec->dr04HcalTowerSumEt());
+	  double isolationRel = (elec->dr03TkSumPt()+elec->dr04EcalRecHitSumEt()+elec->dr04HcalTowerSumEt())/elec->pt();
 	  fill("elecTrkIso_" , isolationTrk); fill("elecCalIso_" , isolationCal); fill("elecRelIso_" , isolationRel);
-	  if(!elecIso_ || (*elecIso_)(*elec)) isoElecs.push_back(&(*elec));
+	  if((*elecIso_)(*elec)) isoElecs.push_back(&(*elec));
 	}
       }
     }
@@ -317,6 +292,9 @@ namespace TopDiLeptonOffline {
     ------------------------------------------------------------
     */
 
+    unsigned int mult30=0;
+    // buffer leadingJets
+    std::vector<reco::Jet> leadingJets;
     const JetCorrector* corrector=0;
     if(!jetCorrector_.empty()){
       // check whether a jet correcto is in the event setup or not
@@ -324,63 +302,45 @@ namespace TopDiLeptonOffline {
 	corrector = JetCorrector::getJetCorrector(jetCorrector_, setup);
       }
       else{
-	edm::LogVerbatim( "TopDiLeptonOfflineDQM" ) 
-	  << "\n"
-	  << "------------------------------------------------------------------------------------- \n"
-	  << " No JetCorrectionsRecord available from EventSetup:                                   \n" 
-	  << "  - Jets will not be corrected.                                                       \n"
-	  << "  - If you want to change this add the following lines to your cfg file:              \n"
-	  << "                                                                                      \n"
-	  << "  ## load jet corrections                                                             \n"
-	  << "  process.load(\"JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff\") \n"
-	  << "  process.prefer(\"ak5CaloL2L3\")                                                     \n"
-	  << "                                                                                      \n"
-	  << "------------------------------------------------------------------------------------- \n";
+	//edm::LogVerbatim( "TopDiLeptonOfflineDQM" ) 
+	//  << "\n"
+	//  << "------------------------------------------------------------------------------------- \n"
+	//  << " No JetCorrectionsRecord available from EventSetup:                                   \n" 
+	//  << "  - Jets will not be corrected.                                                       \n"
+	//  << "  - If you want to change this add the following                                      \n"
+	//  << "    lines to your cfg file:                                                           \n"
+	//  << "                                                                                      \n"
+	//  << "  ## load jet corrections                                                             \n"
+	//  << "  process.load(\"JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff\") \n"
+	//  << "  process.prefer(\"ak5CaloL2L3\")                                                     \n"
+	//  << "                                                                                      \n"
+	//  << "------------------------------------------------------------------------------------- \n";
       }
     }
-
-    unsigned int mult=0;
-    // buffer leadingJets
-    std::vector<reco::Jet> leadingJets;
     edm::Handle<edm::View<reco::Jet> > jets; event.getByLabel(jets_, jets);
-    edm::Handle<reco::JetIDValueMap> jetID; if(jetIDSelect_){ event.getByLabel(jetIDLabel_, jetID);}
     for(edm::View<reco::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
-      unsigned int idx=jet-jets->begin();
-      if( jetIDSelect_ && dynamic_cast<const reco::CaloJet*>(jets->refAt(idx).get())){
-	if(!(*jetIDSelect_)((*jetID)[jets->refAt(idx)])) continue;
-      }
-      // chekc additional jet selection for calo, pf and bare reco jets
-      if(dynamic_cast<const reco::CaloJet*>(&*jet)){
-	reco::CaloJet sel = dynamic_cast<const reco::CaloJet&>(*jet); sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
-	StringCutObjectSelector<reco::CaloJet> jetSelect(jetSelect_); if(!jetSelect(sel)){ continue;}
-      }
-      else if(dynamic_cast<const reco::PFJet*>(&*jet)){
-	reco::PFJet sel= dynamic_cast<const reco::PFJet&>(*jet); sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
-	StringCutObjectSelector<reco::PFJet> jetSelect(jetSelect_); if(!jetSelect(sel)) continue;
-      } 
-      else{
-	reco::Jet sel = *jet; sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
-	StringCutObjectSelector<reco::Jet> jetSelect(jetSelect_); if(!jetSelect(sel)) continue;
-      }
-      // check for overlaps
+      //check for overlap with the selected electrons
       bool overlap=false;
+      unsigned int index=jet-jets->begin();
       for(std::vector<const reco::GsfElectron*>::const_iterator elec=isoElecs.begin(); elec!=isoElecs.end(); ++elec){
 	if(reco::deltaR((*elec)->eta(), (*elec)->phi(), jet->eta(), jet->phi())<0.4){overlap=true; break;}
-      } if(overlap){continue;}
-      // prepare jet to fill monitor histograms
-      reco::Jet monitorJet=*jet; monitorJet.scaleEnergy(corrector ?  corrector->correction(*jet) : 1.);
-      ++mult; // determine jet multiplicity
-      if(idx==0) {
-	leadingJets.push_back(monitorJet);
-	fill("jet1Pt_"    , monitorJet.pt());
-	fill("jet1PtRaw_" , jet->pt() );
-	fill("jet1Eta_"   , jet->eta());
       }
-      if(idx==1) {
-	leadingJets.push_back(monitorJet);
-	fill("jet2Pt_"    , monitorJet.pt());
-	fill("jet2PtRaw_" , jet->pt() );
-	fill("jet2Eta_"   , jet->eta());
+      if(!overlap){
+	// determine jet correction scale
+	reco::Jet correctedJet=*jet; correctedJet.scaleEnergy(corrector ?  corrector->correction(*jet) : 1.);
+	if(correctedJet.pt()>30) {++mult30;} // determine jet multiplicity
+	if(index==0) {
+	  leadingJets.push_back(correctedJet);
+	  fill("jet1Pt_"    , correctedJet.pt());
+	  fill("jet1PtRaw_" , jet->pt() );
+	  fill("jet1Eta_"   , jet->eta());
+	}
+	if(index==1) {
+	  leadingJets.push_back(correctedJet);
+	  fill("jet2Pt_"    , correctedJet.pt());
+	  fill("jet2PtRaw_" , jet->pt() );
+	  fill("jet2Eta_"   , jet->eta());
+	}
       }
     }
     if(leadingJets.size()>1){
@@ -399,7 +359,7 @@ namespace TopDiLeptonOffline {
 	}
       }
     }
-    fill("jetMult_", mult);
+    fill("jetMult_", mult30);
     
     /* 
     ------------------------------------------------------------
@@ -409,15 +369,12 @@ namespace TopDiLeptonOffline {
     ------------------------------------------------------------
     */
 
-    // buffer for event logging 
-    reco::MET caloMET;
     for(std::vector<edm::InputTag>::const_iterator met_=mets_.begin(); met_!=mets_.end(); ++met_){
       edm::Handle<edm::View<reco::MET> > met; event.getByLabel(*met_, met);
       if(met->begin()!=met->end()){
 	unsigned int idx=met_-mets_.begin();
-	if(idx==0){
-	  caloMET=*met->begin(); 
-	  fill("metCalo_", met->begin()->et());
+	if(idx==0){ 
+	  fill("metCalo_"     , met->begin()->et());
 	  if(!leadingJets.empty()){
 	    fill("dEtaJet1MET_" , leadingJets[0].eta()-met->begin()->eta());
 	    fill("dPhiJet1MET_" , reco::deltaPhi(leadingJets[0].phi(), met->begin()->phi()));
@@ -455,7 +412,7 @@ namespace TopDiLeptonOffline {
     if( decayChannel(isoMuons, isoElecs) == ELECMU ){
       fill("decayChannel_", 0.5);
       double mass = (isoElecs[0]->p4()+isoMuons[0]->p4()).mass();
-      if( (lowerEdge_==-1. && upperEdge_==-1.) || (lowerEdge_<mass && mass<upperEdge_) ){
+      if( (lowerEdge_==-1. && upperEdge_==-1.) || (lowerEdge_<mass && mass>upperEdge_) ){
 	fill("dEtaL1L2_"  , isoElecs[0]->eta()-isoMuons[0]->eta()); 
 	fill("sumEtaL1L2_", (isoElecs[0]->eta()+isoMuons[0]->eta())/2); 
 	fill("dPhiL1L2_"  , reco::deltaPhi(isoElecs[0]->phi(), isoMuons[0]->eta())); 
@@ -464,22 +421,8 @@ namespace TopDiLeptonOffline {
 	fill("lep2Pt_", isoElecs[0]->pt()>isoMuons[0]->pt() ? isoMuons[0]->pt() : isoElecs[0]->pt());
 	// fill plots for trigger monitoring
 	if(!triggerTable_.label().empty()) fill(event, *triggerTable, "elecMu", elecMuPaths_);
-	if(elecMuLogged_<=hists_.find("elecMuLogger_")->second->getNbinsY()){
-	  // log runnumber, lumi block, event number & some
-	  // more pysics infomation for interesting events
-	  fill("elecMuLogger_", 0.5, elecMuLogged_+0.5, event.eventAuxiliary().run()); 
-	  fill("elecMuLogger_", 1.5, elecMuLogged_+0.5, event.eventAuxiliary().luminosityBlock()); 
-	  fill("elecMuLogger_", 2.5, elecMuLogged_+0.5, event.eventAuxiliary().event()); 
-	  fill("elecMuLogger_", 3.5, elecMuLogged_+0.5, isoMuons[0]->pt()); 
-	  fill("elecMuLogger_", 4.5, elecMuLogged_+0.5, isoElecs[0]->pt()); 
-	  if(leadingJets.size()>0) fill("elecMuLogger_", 5.5, elecMuLogged_+0.5, leadingJets[0].pt()); 
-	  if(leadingJets.size()>1) fill("elecMuLogger_", 6.5, elecMuLogged_+0.5, leadingJets[1].pt()); 
-	  fill("elecMuLogger_", 7.5, elecMuLogged_+0.5, caloMET.et()); 
-	  ++elecMuLogged_; 
-	}
       }
     }
-
     // DIMUON channel
     if( decayChannel(isoMuons, isoElecs) == DIMUON ){
       fill("decayChannel_", 1.5);
@@ -487,7 +430,7 @@ namespace TopDiLeptonOffline {
       double mass = (isoMuons[0]->p4()+isoMuons[1]->p4()).mass();
       fill(charge<0 ? "invMass_"    : "invMassWC_"    , mass       );
       fill(charge<0 ? "invMassLog_" : "invMassWCLog_" , log10(mass));
-      if((lowerEdge_==-1. && upperEdge_==-1.) || (lowerEdge_<mass && mass<upperEdge_) ){
+      if((lowerEdge_==-1. && upperEdge_==-1.) || (lowerEdge_<mass && mass>upperEdge_) ){
 	fill("dEtaL1L2"  , isoMuons[0]->eta()-isoMuons[1]->eta() );
 	fill("sumEtaL1L2", (isoMuons[0]->eta()+isoMuons[1]->eta())/2);
 	fill("dPhiL1L2"  , reco::deltaPhi(isoMuons[0]->phi(),isoMuons[1]->phi()) );
@@ -495,22 +438,8 @@ namespace TopDiLeptonOffline {
 	fill("lep1Pt_", isoMuons[0]->pt()); fill("lep2Pt_", isoMuons[1]->pt()); 
 	// fill plots for trigger monitoring
 	if(!triggerTable_.label().empty()) fill(event, *triggerTable, "diMuon", diMuonPaths_);
-	if(diMuonLogged_<=hists_.find("diMuonLogger_")->second->getNbinsY()){
-	  // log runnumber, lumi block, event number & some
-	  // more pysics infomation for interesting events
-	  fill("diMuonLogger_", 0.5, diMuonLogged_+0.5, event.eventAuxiliary().run()); 
-	  fill("diMuonLogger_", 1.5, diMuonLogged_+0.5, event.eventAuxiliary().luminosityBlock()); 
-	  fill("diMuonLogger_", 2.5, diMuonLogged_+0.5, event.eventAuxiliary().event()); 
-	  fill("diMuonLogger_", 3.5, diMuonLogged_+0.5, isoMuons[0]->pt()); 
-	  fill("diMuonLogger_", 4.5, diMuonLogged_+0.5, isoMuons[1]->pt()); 
-	  if(leadingJets.size()>0) fill("diMuonLogger_", 5.5, diMuonLogged_+0.5, leadingJets[0].pt()); 
-	  if(leadingJets.size()>1) fill("diMuonLogger_", 6.5, diMuonLogged_+0.5, leadingJets[1].pt()); 
-	  fill("diMuonLogger_", 7.5, diMuonLogged_+0.5, caloMET.et()); 
-	  ++diMuonLogged_; 
-	}
       }
     }
-
     // DIELEC channel
     if( decayChannel(isoMuons, isoElecs) == DIELEC ){
       int charge = isoElecs[0]->charge()*isoElecs[1]->charge();
@@ -518,27 +447,14 @@ namespace TopDiLeptonOffline {
       fill("decayChannel_", 2.5);
       fill(charge<0 ? "invMass_"    : "invMassWC_"    , mass       );
       fill(charge<0 ? "invMassLog_" : "invMassWCLog_" , log10(mass));
-      if((lowerEdge_==-1. && upperEdge_==-1.) || (lowerEdge_<mass && mass<upperEdge_) ){
+      if((lowerEdge_==-1. && upperEdge_==-1.) || (lowerEdge_<mass && mass>upperEdge_) ){
 	fill("dEtaL1L2"  , isoElecs[0]->eta()-isoElecs[1]->eta() );
 	fill("sumEtaL1L2", (isoElecs[0]->eta()+isoElecs[1]->eta())/2);
 	fill("dPhiL1L2"  , reco::deltaPhi(isoElecs[0]->phi(),isoElecs[1]->phi()) );
 	fill("elecPt_", isoElecs[0]->pt()); fill("elecPt_", isoElecs[1]->pt()); 
 	fill("lep1Pt_", isoElecs[0]->pt()); fill("lep2Pt_", isoElecs[1]->pt()); 
-	if(diElecLogged_<=hists_.find("diElecLogger_")->second->getNbinsY()){
-	  // log runnumber, lumi block, event number & some
-	  // more pysics infomation for interesting events
-	  fill("diElecLogger_", 0.5, diElecLogged_+0.5, event.eventAuxiliary().run()); 
-	  fill("diElecLogger_", 1.5, diElecLogged_+0.5, event.eventAuxiliary().luminosityBlock()); 
-	  fill("diElecLogger_", 2.5, diElecLogged_+0.5, event.eventAuxiliary().event()); 
-	  fill("diElecLogger_", 3.5, diElecLogged_+0.5, isoElecs[0]->pt()); 
-	  fill("diElecLogger_", 4.5, diElecLogged_+0.5, isoElecs[1]->pt()); 
-	  if(leadingJets.size()>0) fill("diElecLogger_", 5.5, diElecLogged_+0.5, leadingJets[0].pt()); 
-	  if(leadingJets.size()>1) fill("diElecLogger_", 6.5, diElecLogged_+0.5, leadingJets[1].pt()); 
-	  fill("diElecLogger_", 7.5, diElecLogged_+0.5, caloMET.et()); 
-	  ++diElecLogged_; 
-	}
       }
-   }
+    }
   }
   
 }

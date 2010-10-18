@@ -16,12 +16,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 14:47:03 EDT 2008
-// $Id: FWItemAccessorFactory.h,v 1.5 2010/06/03 19:26:58 chrjones Exp $
+// $Id: FWItemAccessorFactory.h,v 1.2 2008/11/06 22:05:23 amraktad Exp $
 //
 
 // system include files
 #include <boost/shared_ptr.hpp>
-#include <string>
 
 // user include files
 
@@ -37,14 +36,7 @@ public:
 
    // ---------- const member functions ---------------------
    boost::shared_ptr<FWItemAccessorBase> accessorFor(const TClass*) const;
-   static bool hasAccessor(const TClass *iClass, std::string &result);
-   static bool hasTVirtualCollectionProxy(const TClass *iClass);
-   static bool hasMemberTVirtualCollectionProxy(const TClass *iClass,
-                                                TClass *&oMember,
-                                                size_t& oOffset);
-   
-   static bool classAccessedAsCollection(const TClass*);
-   
+
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
@@ -57,5 +49,6 @@ private:
    // ---------- member data --------------------------------
 
 };
+
 
 #endif

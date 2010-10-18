@@ -14,13 +14,15 @@
 class OHltRateCounter {
  public:
 
-  OHltRateCounter(unsigned int size);
+  OHltRateCounter(unsigned int size, unsigned int l1size);
   virtual ~OHltRateCounter(){};
 
   bool isNewRunLS(int Run,int LumiBlock);
   void addRunLS(int Run,int LumiBlock);
   void incrRunLSCount(int Run,int LumiBlock,int iTrig, int incr=1);
   void incrRunLSTotCount(int Run,int LumiBlock, int incr=1);
+  void updateRunLSRefPrescale(int Run, int LumiBlock, int iTrig, int refprescale);
+  void updateRunLSRefL1Prescale(int Run, int LumiBlock, int iL1Trig, int refl1prescale); 
   int getIDofRunLSCounter(int Run,int LumiBlock);
 
   // Helper functions
@@ -86,6 +88,7 @@ class OHltRateCounter {
   
   // Data
   std::vector<int> iCount;
+  std::vector<int> iL1Count;
   std::vector<int> sPureCount;
   std::vector<int> pureCount;
   std::vector< std::vector<int> > overlapCount;
@@ -94,6 +97,8 @@ class OHltRateCounter {
 
   std::vector< std::vector<int> > perLumiSectionCount;
   std::vector<int> perLumiSectionTotCount;
+  std::vector< std::vector<int> > perLumiSectionRefPrescale;
+  std::vector< std::vector<int> > perLumiSectionRefL1Prescale;
   std::vector<int> runID;
   std::vector<int> lumiSection;
 

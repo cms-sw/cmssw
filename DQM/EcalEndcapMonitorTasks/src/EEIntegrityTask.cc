@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2010/05/30 17:30:25 $
- * $Revision: 1.54 $
+ * $Date: 2010/06/14 15:00:39 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  *
  */
@@ -22,9 +22,9 @@
 
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EEIntegrityTask.h>
+#include "DQM/EcalEndcapMonitorTasks/interface/EEIntegrityTask.h"
 
 EEIntegrityTask::EEIntegrityTask(const edm::ParameterSet& ps){
 

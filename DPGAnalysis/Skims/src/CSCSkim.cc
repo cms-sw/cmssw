@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Schmitt
 //         Created:  Sat Jul 12 17:43:33 CEST 2008
-// $Id: CSCSkim.cc,v 1.8 2009/03/26 09:25:04 schmittm Exp $
+// $Id: CSCSkim.cc,v 1.9 2009/12/18 00:03:10 wmtan Exp $
 //
 //
 //======================================================================
@@ -63,8 +63,8 @@ CSCSkim::CSCSkim(const edm::ParameterSet& pset)
   // Get the various input parameters
   bool isSimulation = false;
   isSimulation       = pset.getUntrackedParameter<bool>("isSimulation",false);
-  outputFileName     = pset.getUntrackedParameter<string>("outputFileName","outputSkim.root");
-  histogramFileName  = pset.getUntrackedParameter<string>("histogramFileName","histos.root");
+  outputFileName     = pset.getUntrackedParameter<std::string>("outputFileName","outputSkim.root");
+  histogramFileName  = pset.getUntrackedParameter<std::string>("histogramFileName","histos.root");
   typeOfSkim              = pset.getUntrackedParameter<int>("typeOfSkim",1);
   nLayersWithHitsMinimum  = pset.getUntrackedParameter<int>("nLayersWithHitsMinimum",3);
   minimumHitChambers      = pset.getUntrackedParameter<int>("minimumHitChambers",1);
@@ -179,7 +179,7 @@ CSCSkim::endJob() {
     << "\n\n\t====== CSCSkim ==========================================================\n"
     << "\t\ttype of skim ...............................\t" << typeOfSkim << "\n"
     << "\t\tevents analyzed ..............\t" << nEventsAnalyzed << "\n"
-    << "\t\tevents selected ..............\t" << nEventsSelected << "\tfraction= " << fraction << endl
+    << "\t\tevents selected ..............\t" << nEventsSelected << "\tfraction= " << fraction << std::endl
     << "\t\tevents chambers both sides ...\t" << nEventsChambersBothSides << "\n"
     << "\t\tevents w/ overlaps .......... \t" << nEventsOverlappingChambers << "\n"
     << "\t\tevents lots of hit chambers . \t" << nEventsMessy << "\n"
@@ -451,24 +451,24 @@ bool CSCSkim::doCSCSkimming(edm::Handle<CSCRecHit2DCollection> cscRecHits, edm::
   LogDebug("[CSCSkim]") << "----- nRecHits = " << nRecHits
 		       << "\tnChambersWithMinimalHits = " << nChambersWithMinimalHits
 		       << "\tnSegments = " << nSegments 
-		       << "\tselect? " << selectEvent << endl;
+		       << "\tselect? " << selectEvent << std::endl;
 
   /*
   if ((nChambersWithMinimalHitsPOS >= minimumHitChambers) && (nChambersWithMinimalHitsNEG >= minimumHitChambers)) {
-    cout << "\n==========================================================================\n"
+    std::cout << "\n==========================================================================\n"
 	 << "\tinteresting event - chambers hit on both sides\n"
 	 << "\t  " <<  nEventsAnalyzed
-	 << "\trun " << iRun << "\tevent " << iEvent << endl;
-    cout << "----- nRecHits = " << nRecHits
+	 << "\trun " << iRun << "\tevent " << iEvent << std::endl;
+    std::cout << "----- nRecHits = " << nRecHits
 	 << "\tnChambersWithMinimalHits = " << nChambersWithMinimalHits
 	 << "\tnSegments = " << nSegments 
-	 << "\tselect? " << selectEvent << endl;
+	 << "\tselect? " << selectEvent << std::endl;
     for (int i = 0; i < 600; i++) {
       if (cntRecHit[i] > 0) {
-	cout << "\t\t" << i << "\tcntRecHit= " << cntRecHit[i] << endl;
+	cout << "\t\t" << i << "\tcntRecHit= " << cntRecHit[i] << std::endl;
       }
     }
-    cout << "==========================================================================\n\n" ;
+    std::cout << "==========================================================================\n\n" ;
   }
   */
 
@@ -520,10 +520,10 @@ bool CSCSkim::doOverlapSkimming(edm::Handle<CSCSegmentCollection> cscSegments){
     LocalPoint localPos = (*it).localPosition();
     float segX     = localPos.x();
     float segY     = localPos.y();
-    cout << "E/S/R/Ch: " << kEndcap << "/" << kStation << "/" << kRing << "/" << kChamber
+    std::cout << "E/S/R/Ch: " << kEndcap << "/" << kStation << "/" << kRing << "/" << kChamber
 	 << "\tnhits/chisq: " << nhits << "/" << chisq
 	 << "\tX/Y: " << segX << "/" << segY
-	 << "\tgood? " << goodSegment << endl;
+	 << "\tgood? " << goodSegment << std::endl;
     */
 
     // count
@@ -662,24 +662,24 @@ bool CSCSkim::doMessyEventSkimming(edm::Handle<CSCRecHit2DCollection> cscRecHits
   LogDebug("[CSCSkim]") << "----- nRecHits = " << nRecHits
 		       << "\tnChambersWithMinimalHits = " << nChambersWithMinimalHits
 		       << "\tnSegments = " << nSegments 
-		       << "\tselect? " << selectEvent << endl;
+		       << "\tselect? " << selectEvent << std::endl;
 
   /*
   if (selectEvent) {
-    cout << "\n==========================================================================\n"
+    std::cout << "\n==========================================================================\n"
 	 << "\tmessy event!\n"
 	 << "\t  " <<  nEventsAnalyzed
-	 << "\trun " << iRun << "\tevent " << iEvent << endl;
-    cout << "----- nRecHits = " << nRecHits
+	 << "\trun " << iRun << "\tevent " << iEvent << std::endl;
+    std::cout << "----- nRecHits = " << nRecHits
 	 << "\tnChambersWithMinimalHits = " << nChambersWithMinimalHits
 	 << "\tnSegments = " << nSegments 
-	 << "\tselect? " << selectEvent << endl;
+	 << "\tselect? " << selectEvent << std::endl;
     for (int i = 0; i < 600; i++) {
       if (cntRecHit[i] > 0) {
-	cout << "\t\t" << i << "\tcntRecHit= " << cntRecHit[i] << endl;
+	cout << "\t\t" << i << "\tcntRecHit= " << cntRecHit[i] << std::endl;
       }
     }
-    cout << "==========================================================================\n\n" ;
+    std::cout << "==========================================================================\n\n" ;
   }
   */
 
@@ -820,15 +820,15 @@ bool CSCSkim::doDTOverlap(Handle<CSCSegmentCollection> cscSegments) {
   }
   /*
   if (matchup) {
-    cout << "\tYYY looks like a good event.  Select!\n";
-    cout << "-- pos endcap --\n"
+    std::cout << "\tYYY looks like a good event.  Select!\n";
+    std::cout << "-- pos endcap --\n"
 	 << "ME1/3: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEP13[k];}
-    cout << "\nME2/2: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEP22[k];}
-    cout << "\nME3/2: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEP32[k];}
-    cout << endl;
+    for (int k=0; k<36; ++k) {std::cout << " " << setw(3) << cntMEP13[k];}
+    std::cout << "\nME2/2: ";
+    for (int k=0; k<36; ++k) {std::cout << " " << setw(3) << cntMEP22[k];}
+    std::cout << "\nME3/2: ";
+    for (int k=0; k<36; ++k) {std::cout << " " << setw(3) << cntMEP32[k];}
+    std::cout << std::endl;
   }
   */
 
@@ -953,32 +953,32 @@ bool CSCSkim::doHaloLike(Handle<CSCSegmentCollection> cscSegments) {
   }
   /*
   if (matchup) {
-    cout << "\tYYY looks like a good event.  Select!\n";
-    cout << "-- pos endcap --\n"
+    std::cout << "\tYYY looks like a good event.  Select!\n";
+    std::cout << "-- pos endcap --\n"
 	 << "ME1/1: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEP11[k];}
-    cout << "\nME1/2: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEP12[k];}
-    cout << "\nME2/1: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEP21[k];}
-    cout << "\nME3/1: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEP31[k];}
-    cout << "\nME4/1: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEP41[k];}
-    cout << endl;
-    cout << "-- neg endcap --\n"
+    for (int k=0; k<36; ++k) {std::cout << " " << setw(3) << cntMEP11[k];}
+    std::cout << "\nME1/2: ";
+    for (int k=0; k<36; ++k) {std::cout << " " << setw(3) << cntMEP12[k];}
+    std::cout << "\nME2/1: ";
+    for (int k=0; k<36; ++k) {std::cout << " " << setw(3) << cntMEP21[k];}
+    std::cout << "\nME3/1: ";
+    for (int k=0; k<36; ++k) {std::cout << " " << setw(3) << cntMEP31[k];}
+    std::cout << "\nME4/1: ";
+    for (int k=0; k<36; ++k) {std::cout << " " << setw(3) << cntMEP41[k];}
+    std::cout << std::endl;
+    std::cout << "-- neg endcap --\n"
 	 << "ME1/1: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEN11[k];}
-    cout << "\nME1/2: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEN12[k];}
-    cout << "\nME2/1: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEN21[k];}
-    cout << "\nME3/1: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEN31[k];}
-    cout << "\nME4/1: ";
-    for (int k=0; k<36; ++k) {cout << " " << setw(3) << cntMEN41[k];}
-    cout << endl;
-    cout << "\tn Analyzed = " << nEventsAnalyzed << "\tn Halo-like = " << nEventsHaloLike << endl;
+    for (int k=0; k<36; ++k) {std::cout << " " << setw(3) << cntMEN11[k];}
+    std::cout << "\nME1/2: ";
+    for (int k=0; k<36; ++k) {std::cout << " " << setw(3) << cntMEN12[k];}
+    std::cout << "\nME2/1: ";
+    for (int k=0; k<36; ++k) {std::cout << " " << setw(3) << cntMEN21[k];}
+    std::cout << "\nME3/1: ";
+    for (int k=0; k<36; ++k) {std::cout << " " << setw(3) << cntMEN31[k];}
+    std::cout << "\nME4/1: ";
+    for (int k=0; k<36; ++k) {std::cout << " " << setw(3) << cntMEN41[k];}
+    std::cout << std::endl;
+    std::cout << "\tn Analyzed = " << nEventsAnalyzed << "\tn Halo-like = " << nEventsHaloLike << std::endl;
   }
   */
 

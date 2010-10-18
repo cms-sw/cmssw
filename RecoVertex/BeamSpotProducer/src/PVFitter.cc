@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: PVFitter.cc,v 1.14 2010/06/18 19:36:10 yumiceva Exp $
+   version $Id: PVFitter.cc,v 1.13 2010/06/09 19:19:24 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -47,7 +47,7 @@ ________________________________________________________________**/
 //   return ts;
 // }
 
-PVFitter::PVFitter(const edm::ParameterSet& iConfig): ftree_(0)
+PVFitter::PVFitter(const edm::ParameterSet& iConfig)
 {
 
   debug_             = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("Debug");
@@ -73,6 +73,7 @@ PVFitter::PVFitter(const edm::ParameterSet& iConfig): ftree_(0)
 
   hPVx = new TH2F("hPVx","PVx vs PVz distribution",200,-maxVtxR_, maxVtxR_, 200, -maxVtxZ_, maxVtxZ_);
   hPVy = new TH2F("hPVy","PVy vs PVz distribution",200,-maxVtxR_, maxVtxR_, 200, -maxVtxZ_, maxVtxZ_);
+  
 }
 
 PVFitter::~PVFitter() {
@@ -165,15 +166,7 @@ void PVFitter::readEvent(const edm::Event& iEvent)
           pvData.posCorr[1] = pv->covariance(0,2)/pv->xError()/pv->zError();
           pvData.posCorr[2] = pv->covariance(1,2)/pv->yError()/pv->zError();
           pvStore_.push_back(pvData);
-          
-	  if(ftree_ != 0){
-	    theBeamSpotTreeData_.run(iEvent.id().run());
-	    theBeamSpotTreeData_.lumi(iEvent.luminosityBlock());
-	    theBeamSpotTreeData_.bunchCrossing(bx);
-	    theBeamSpotTreeData_.pvData(pvData);
-	    ftree_->Fill();
-	  }
-	  
+
 	  if (fFitPerBunchCrossing) bxMap_[bx].push_back(pvData);
 
       }
@@ -183,11 +176,6 @@ void PVFitter::readEvent(const edm::Event& iEvent)
     
   
 
-}
-
-void PVFitter::setTree(TTree* tree){
-  ftree_ = tree;
-  theBeamSpotTreeData_.branch(ftree_);
 }
 
 bool PVFitter::runBXFitter() {

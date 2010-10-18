@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:21:45 EDT 2008
-// $Id: Context.h,v 1.13 2010/05/31 13:01:24 amraktad Exp $
+// $Id: Context.h,v 1.5 2009/04/07 13:58:31 chrjones Exp $
 //
 
 // system include files
@@ -25,15 +25,11 @@
 
 // forward declarations
 class TEveTrackPropagator;
-class TEveCaloDataHist;
-class TEveCaloDataVec;
-
 class FWModelChangeManager;
 class FWSelectionManager;
 class FWEventItemsManager;
 class FWColorManager;
 class FWMagField;
-class DetIdToMatrix;
 
 namespace fireworks {
 class Context {
@@ -45,8 +41,6 @@ public:
            FWColorManager* iColorM);
    virtual ~Context();
 
-   void  setGeom(const DetIdToMatrix* x) { m_geom = x; }
- 
    // ---------- const member functions ---------------------
    FWModelChangeManager* modelChangeManager() const {
       return m_changeManager;
@@ -62,28 +56,13 @@ public:
    FWColorManager* colorManager() const {
       return m_colorManager;
    }
+   // ---------- static member functions --------------------
 
-   TEveTrackPropagator* getTrackPropagator()        const { return m_propagator;        }
-   TEveTrackPropagator* getTrackerTrackPropagator() const { return m_trackerPropagator; }
-   TEveTrackPropagator* getMuonTrackPropagator()    const { return m_muonPropagator;    }
 
-   FWMagField*          getField()             const { return m_magField; }
-
-   TEveCaloDataHist*    getCaloData()   const { return m_caloData; }
-   TEveCaloDataVec*     getCaloDataHF() const { return m_caloDataHF; }
-
-  const  DetIdToMatrix* getGeom()  const { return m_geom; }   
+   TEveTrackPropagator* getTrackPropagator() const { return m_propagator; }
+   FWMagField*          getField()           const { return m_magField; }
 
    // ---------- member functions ---------------------------
-
-   // ---------- static member  ---------------------------
-
-   static const float s_ecalR;
-   static const float s_ecalZ;
-   static const float s_transitionAngle;
-
-  void initEveElements();
-  void deleteEveElements();
 
 private:
    Context(const Context&); // stop default
@@ -95,16 +74,8 @@ private:
    FWEventItemsManager  *m_eventItemsManager;
    FWColorManager       *m_colorManager;
 
-   const DetIdToMatrix  *m_geom;
-
    TEveTrackPropagator  *m_propagator;
-   TEveTrackPropagator  *m_trackerPropagator;
-   TEveTrackPropagator  *m_muonPropagator;
-
    FWMagField           *m_magField;
-
-   TEveCaloDataHist     *m_caloData;
-   TEveCaloDataVec      *m_caloDataHF;
 };
 }
 

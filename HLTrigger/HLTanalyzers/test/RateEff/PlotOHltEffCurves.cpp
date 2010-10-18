@@ -24,7 +24,6 @@ void OHltTree::PlotOHltEffCurves(OHltConfig *cfg,TString hlteffmode,TString ohlt
   Float_t recophi[500];
   Int_t mctruthpid = -1;
 
-
   if(ohltobject == "muon")
     {
       nhlt=NohMuL3;
@@ -136,11 +135,34 @@ void OHltTree::PlotOHltEffCurves(OHltConfig *cfg,TString hlteffmode,TString ohlt
       }
       mctruthpid = 21; // gluons - probably should be GenJets or something
     }
+  else if(ohltobject == "pion") 
+    { 
+      nhlt=NohPixelTracksL3; 
+      for(int i=0;i<nhlt;i++){ 
+        hltpt[i] = ohPixelTracksL3Pt[i]; 
+        hlteta[i] = ohPixelTracksL3Eta[i]; 
+        hltphi[i] = ohPixelTracksL3Phi[i]; 
+      } 
+      if (cfg->selectBranchL1extra) nl1= NL1IsolEm; 
+      for(int i=0;i<nl1;i++){ 
+        l1pt[i] = L1IsolEmEt[i]; 
+        l1eta[i] = L1IsolEmEta[i]; 
+        l1phi[i] = L1IsolEmPhi[i]; 
+      } 
+      if (cfg->selectBranchReco) nrec=NrecoElec; 
+      for(int i=0;i<nrec;i++){ 
+        recopt[i] = recoElecEt[i]; 
+        recoeta[i] = recoElecEta[i]; 
+        recophi[i] = recoElecPhi[i]; 
+      } 
+      mctruthpid = 211; 
+    } 
+
   // Now really make efficiency curves
 
   Int_t pass = 0;
   Float_t etacutforpt = 3.0;
-  Float_t ptcutforeta = 5.0;
+  Float_t ptcutforeta = 0.0;
   Float_t drmatch = 0.5;
 
   // Do efficiency of HLT/GEN

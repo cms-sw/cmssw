@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWTableViewManager.h,v 1.6 2010/03/03 17:19:02 eulisse Exp $
+// $Id: FWTableViewManager.h,v 1.5 2009/09/24 14:55:25 chrjones Exp $
 //
 
 // system include files
@@ -67,7 +67,6 @@ public:
    // ---------- member functions ---------------------------
    virtual void            newItem(const FWEventItem*);
    void                    destroyItem(const FWEventItem *item);
-   void                    removeAllItems(void);
    FWViewBase *            buildView(TEveWindowSlot *iParent);
    const Items &           items() const { return m_items; }
    TableSpecs::iterator    tableFormats(const Reflex::Type &key);

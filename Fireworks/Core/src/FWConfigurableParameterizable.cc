@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Mar 16 12:01:36 EDT 2008
-// $Id: FWConfigurableParameterizable.cc,v 1.3 2009/01/23 21:35:42 amraktad Exp $
+// $Id: FWConfigurableParameterizable.cc,v 1.2 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -17,6 +17,7 @@
 #include "Fireworks/Core/interface/FWConfigurableParameterizable.h"
 #include "Fireworks/Core/interface/FWParameterBase.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
+
 
 //
 // constants, enums and typedefs

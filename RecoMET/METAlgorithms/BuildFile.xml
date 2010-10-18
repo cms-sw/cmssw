@@ -13,7 +13,8 @@
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="DataFormats/L1GlobalMuonTrigger"/>
-<use   name="DataFormats/MuonReco"/>	
+<use   name="DataFormats/MuonReco"/>
+<use   name="DataFormats/ParticleFlowReco"/>	
 <export>
   <lib   name="1"/>
 </export>

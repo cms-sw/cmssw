@@ -69,16 +69,16 @@ void HLTInspect::analyze(const edm::Event& iEvent, const edm::EventSetup& c)
 	const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTR);
 	hlNames_=triggerNames.triggerNames();
       }
-      cout << "HLTInspect: Run " << irun << " Ev " << ievt << " LB " << ils << " BX " << bx << " Type "<<trigger_type<< " Acc: " ;
+      std::cout << "HLTInspect: Run " << irun << " Ev " << ievt << " LB " << ils << " BX " << bx << " Type "<<trigger_type<< " Acc: " ;
       const unsigned int n(hlNames_.size());
       for (unsigned int i=0; i!=n; ++i) 
 	    {
 	      if (HLTR->accept(i)) 
 		{
-		  cout << hlNames_[i] << ",";
+		  std::cout << hlNames_[i] << ",";
 		}
 	    }
-	  cout << endl;
+	  std::cout << std::endl;
 	}
       
     

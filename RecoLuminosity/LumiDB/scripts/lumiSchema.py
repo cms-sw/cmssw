@@ -10,6 +10,7 @@ def createLumi(dbsession):
     schema=dbsession.nominalSchema()
     db=dbUtil.dbUtil(schema)
     #cms run summary table
+    
     cmsrunsummary=coral.TableDescription()
     cmsrunsummary.setName( nameDealer.cmsrunsummaryTableName() )
     cmsrunsummary.insertColumn('RUNNUM','unsigned int')
@@ -155,6 +156,36 @@ def createLumi(dbsession):
     lumihltresult.insertColumn( 'HLTPATH','float' )
     lumihltresult.insertColumn( 'RECORDEDLUMI','float' )
     db.createTable(lumihltresult,False)
+    
+    #lumivalidation table
+    lumivalidation=coral.TableDescription()
+    lumivalidation.setName( nameDealer.lumivalidationTableName() )
+    lumivalidation.insertColumn( 'RUNNUM','unsigned int' )
+    lumivalidation.insertColumn( 'CMSLSNUM','unsigned int' )
+    lumivalidation.insertColumn( 'FLAG','string' )
+    lumivalidation.insertColumn( 'COMMENT','string' )
+    lumivalidation.setPrimaryKey(('RUNNUM','CMSLSNUM'))
+    lumivalidation.setNotNullConstraint('FLAG',True)
+    
+    db.createTable(lumivalidation,False)
+    dbsession.transaction().commit()
+    
+def createValidation(dbsession):
+    '''
+    lumivalidation table
+    '''
+    dbsession.transaction().start(False)
+    schema=dbsession.nominalSchema()
+    db=dbUtil.dbUtil(schema)
+    lumivalidation=coral.TableDescription()
+    lumivalidation.setName( nameDealer.lumivalidationTableName() )
+    lumivalidation.insertColumn( 'RUNNUM','unsigned int' )
+    lumivalidation.insertColumn( 'CMSLSNUM','unsigned int' )
+    lumivalidation.insertColumn( 'FLAG','string' )
+    lumivalidation.insertColumn( 'COMMENT','string' )
+    lumivalidation.setPrimaryKey(('RUNNUM','CMSLSNUM'))
+    lumivalidation.setNotNullConstraint('FLAG',True)
+    db.createTable(lumivalidation,False)
     dbsession.transaction().commit()
     
 def dropLumi(dbsession):
@@ -170,6 +201,7 @@ def dropLumi(dbsession):
     db.dropTable( nameDealer.trghltMapTableName() )
     db.dropTable( nameDealer.lumiresultTableName() )
     db.dropTable( nameDealer.lumihltresultTableName() )
+    db.dropTable( nameDealer.lumivalidationTableName() )
     dbsession.transaction().commit()
     
 def describeLumi(dbsession):
@@ -200,8 +232,9 @@ def main():
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Lumi DB schema operations.")
     # add the arguments
     parser.add_argument('-c',dest='connect',action='store',required=True,help='connect string to lumiDB')
-    parser.add_argument('-P',dest='authpath',action='store',help='path to authentication file')    
+    parser.add_argument('-P',dest='authpath',action='store',help='path to authentication file')
     parser.add_argument('action',choices=['create','drop','describe','addindex','dropindex'],help='action on the schema')
+    parser.add_argument('--validationTab',dest='validationTab',action='store_true',help='validation table only')
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug mode')
     # parse arguments
@@ -215,7 +248,10 @@ def main():
         os.environ['CORAL_AUTH_PATH']=args.authpath
     session=svc.connect(connectstring,accessMode=coral.access_Update)
     if args.action == 'create':
-       createLumi(session)
+       if args.validationTab:
+           createValidation(session)
+       else:
+           createLumi(session)
     if args.action == 'drop':
        dropLumi(session)
     if args.action == 'describe':

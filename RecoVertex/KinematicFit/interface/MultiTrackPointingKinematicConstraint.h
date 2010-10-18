@@ -14,9 +14,9 @@
  *
  * 
  *  Kirill Prokofiev, March 2004
- *  MultiTrack version: Lars Perchalla, Philip Sauerland, Dec 2009
+ *  MultiTrack version including propagation to linearization point: Lars Perchalla, Philip Sauerland, Dec 2009
  */
-//mother constructed from daughters. no propagation in field in this version!
+//mother constructed from daughters. including propagation in field.
 
 class MultiTrackPointingKinematicConstraint : public MultiTrackKinematicConstraint
 {
@@ -29,21 +29,21 @@ public:
 	 * equations at the point where the input
 	 * particles are defined.
 	 */
-	virtual AlgebraicVector value(const vector<KinematicState> states, const GlobalPoint& point) const;
+	virtual AlgebraicVector value(const std::vector<KinematicState> states, const GlobalPoint& point) const;
 	
 	/**
 	 * Returns a matrix of derivatives of
 	 * constraint equations w.r.t. 
 	 * particle parameters
 	 */
-	virtual AlgebraicMatrix parametersDerivative(const vector<KinematicState> states, const GlobalPoint& point) const;
+	virtual AlgebraicMatrix parametersDerivative(const std::vector<KinematicState> states, const GlobalPoint& point) const;
 	
 	/**
 	 * Returns a matrix of derivatives of
 	 * constraint equations w.r.t. 
 	 * vertex position
 	 */
-	virtual AlgebraicMatrix positionDerivative(const vector<KinematicState> states, const GlobalPoint& point) const;
+	virtual AlgebraicMatrix positionDerivative(const std::vector<KinematicState> states, const GlobalPoint& point) const;
 	
 	/**
 	 * Number of equations per track used for the fit

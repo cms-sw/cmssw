@@ -1,11 +1,14 @@
-// $Id: ResourceMonitorCollection.cc,v 1.34 2010/04/12 15:25:05 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.36 2010/07/20 15:16:57 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
+#include <stdio.h>
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/statfs.h>
+#include <fcntl.h>
 #include <dirent.h>
 #include <fnmatch.h>
 #include <pwd.h>
@@ -564,6 +567,26 @@ namespace {
     return (result == 0 && filestat.st_uid == uid);
   }
 
+  bool isMaster(const char* pid)
+  {
+    // Adapted from procps::minimal::stat2proc
+    char buf[800]; // about 40 fields, 64-bit decimal is about 20 chars
+    int fd;
+    int ppid = 0;
+    std::ostringstream statfile;
+    statfile << "/proc/" << pid << "/stat";
+    snprintf(buf, 32, statfile.str().c_str(), pid);
+    if ( (fd = open(buf, O_RDONLY, 0) ) == -1 ) return false;
+    int num = read(fd, buf, sizeof buf - 1);
+    if(num<80) return false;
+    buf[num] = '\0';
+    char* tmp = strrchr(buf, ')');  // split into "PID (cmd" and "<rest>"
+    num = sscanf(tmp + 4,           // skip ') %c '
+      "%d", &ppid);
+    close(fd);
+    return ( num == 1 && ppid == 1 ); // scan succeeded and parent pid is 1
+  }
+
   bool grep(const std::string& cmdline, const std::string& name)
   {
     
@@ -603,7 +626,8 @@ int ResourceMonitorCollection::getProcessCount(const std::string& processName, c
     cmdline << "/proc/" << namelist[n]->d_name << "/cmdline";
 
     if ( grep(cmdline.str(), processName) &&
-      (uid < 0 || matchUid(cmdline.str(), uid)) )
+      (uid < 0 || matchUid(cmdline.str(), uid)) &&
+      isMaster(namelist[n]->d_name) )
     {
       ++count;
     }

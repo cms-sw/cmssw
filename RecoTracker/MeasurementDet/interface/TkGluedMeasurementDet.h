@@ -39,9 +39,6 @@ private:
 
 
   template<typename Collector>
-  void doubleMatch(const TrajectoryStateOnSurface& ts, Collector & collector) const;
-
-  template<typename Collector>
   void collectRecHits(const TrajectoryStateOnSurface&, Collector &coll) const;
 
   class HitCollectorForRecHits {

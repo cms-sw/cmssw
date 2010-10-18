@@ -1,3 +1,55 @@
+2010-10-06 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-03-02
+	* Add LastLumi to EoR record.
+
+2010-09-28 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-03-01
+	* Use faster Adler32 algorithm from zlib instead of f/w version.
+	* Inline a couple of methods in ChainData.
+	* Properly handle corrupted error events when faulty event stream is enabled.
+
+2010-09-09 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-03-00
+	* Handle error streamer files as other streamers, i.e. open a
+	  new file for each LS and close it when receiving the EoLS signal
+	  or passing the normal timeout. This requires that the actual LS
+	  is encoded also in error events, which is done from
+	  EventFilter/ShmBuffer V00-08-05 tag onwards.
+	* Fix monitoring of number of lumi sections and EoLS signals.
+
+2010-09-02 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-02-08
+	* EoLS msg from EVM does not have an initial header as other SM msg do.
+	  Thus, reset this faulty bit in order to not discard the EoLS msg.
+
+2010-08-23 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-02-07
+	* Do not leave the /proc file handle open when checking
+	  for master processes.
+
+2010-08-23 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-02-06
+	* Incomplete/wrong tag. Do not use!
+
+2010-08-06 William Tanenbaum <wmtan@fnal.gov>
+
+	* tag V06-02-05
+	* Remove improper using directives in headers and add namespace
+	  qualifiers, typedefs, or proper using directives.
+	* Convert BuildFiles to XML
+
+2010-07-20 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-02-04
+	* When counting processes, only consider master processes,
+	  i.e. those with PPID 1.
+
 2010-07-01 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-02-03
@@ -63,6 +115,17 @@
 	  This requires the new IOPool/Streamer data format.
 	* First round of refactoring of the consumer handling code to
 	  make it usable for the SM proxy server.
+
+2010-08-24 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-10-05
+	* Backport fix for /proc file handler to branch_3_5_x.
+
+2010-07-20 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-10-04
+	* When counting processes, only consider master processes,
+	  i.e. those with PPID 1.
 
 2010-06-25 Remi Mommsen <Remigius.Mommsen@cern.ch>
 

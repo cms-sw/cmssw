@@ -152,32 +152,6 @@ double IsoDeposit::maxWithin(double coneSize, const AbsVetos& vetos, bool skipDe
 	return algoWithin<MaxAlgo>(coneSize, vetos, skipDepositVeto);
 }
 
-double IsoDeposit::nearestDR(double coneSize, const AbsVetos& vetos, bool skipDepositVeto) const 
-{
-  using namespace reco::isodeposit;
-  double result = coneSize;
-  typedef AbsVetos::const_iterator IV;
-
-  IV ivEnd = vetos.end();
-
-  Distance maxDistance = {coneSize,999.};
-  typedef DepositsMultimap::const_iterator IM;
-  IM imLoc = theDeposits.upper_bound( maxDistance ); 
-  for (IM im = theDeposits.begin(); im != imLoc; ++im) {
-    bool vetoed = false;
-    Direction dirDep = theDirection+im->first;
-    for ( IV iv = vetos.begin(); iv < ivEnd; ++iv) {
-      if ((*iv)->veto(dirDep.eta(), dirDep.phi(), im->second)) { vetoed = true;  break; }
-    }
-    if (!vetoed) {
-       if (skipDepositVeto || (dirDep.deltaR(theVeto.vetoDir) > theVeto.dR)) {
-          result = ( dirDep.deltaR(theVeto.vetoDir) < result ) ? dirDep.deltaR(theVeto.vetoDir) : result;
-        }
-    }
-  }
-  return result;
-}
-
 std::string IsoDeposit::print() const {
   std::ostringstream str;
   str<<"Direction : "<<theDirection.print()<<std::endl;

@@ -1,5 +1,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DQM/BeamMonitor/plugins/TKStatus.h"
 #include <iostream>

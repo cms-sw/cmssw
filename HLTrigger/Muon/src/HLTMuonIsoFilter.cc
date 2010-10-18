@@ -35,7 +35,7 @@ HLTMuonIsoFilter::HLTMuonIsoFilter(const edm::ParameterSet& iConfig) :
    saveTag_  (iConfig.getUntrackedParameter<bool> ("SaveTag",false))
 {
   std::stringstream tags;
-  for (uint i=0;i!=depTag_.size();++i)
+  for (unsigned int i=0;i!=depTag_.size();++i)
     tags<<" IsoTag["<<i<<"] : "<<depTag_[i].encode()<<" \n";
    LogDebug("HLTMuonIsoFilter") << " candTag : " << candTag_.encode()
 				<< "\n" << tags 
@@ -94,21 +94,21 @@ HLTMuonIsoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    
    //get hold of energy deposition
-   uint nDep=depTag_.size();
+   unsigned int nDep=depTag_.size();
    std::vector< Handle<edm::ValueMap<reco::IsoDeposit> > > depMap(nDep);
    Handle<edm::ValueMap<bool> > decisionMap;
    muonisolation::MuIsoBaseIsolator::DepositContainer isoContainer(nDep);
    if (theDepositIsolator){
-     for (uint i=0;i!=nDep;++i) iEvent.getByLabel (depTag_[i],depMap[i]);
+     for (unsigned int i=0;i!=nDep;++i) iEvent.getByLabel (depTag_[i],depMap[i]);
    }else{
      iEvent.getByLabel(depTag_.front(), decisionMap);
    }
    
    // look at all mucands,  check cuts and add to filter object
    int nIsolatedMu = 0;
-   uint nMu=mucands->size();
+   unsigned int nMu=mucands->size();
    std::vector<bool> isos(nMu, false);
-   uint iMu=0;
+   unsigned int iMu=0;
    for (; iMu<nMu; iMu++) {
      RecoChargedCandidateRef candref(mucands,iMu);
      
@@ -120,7 +120,7 @@ HLTMuonIsoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
      if (theDepositIsolator){
        //get the deposits
-       for(uint iDep=0;iDep!=nDep;++iDep){
+       for(unsigned int iDep=0;iDep!=nDep;++iDep){
 	 const edm::ValueMap<reco::IsoDeposit> ::value_type & muonDeposit = (*(depMap[iDep]))[tk];
 	 LogDebug("HLTMuonIsoFilter") << " Muon with q*pt= " << tk->charge()*tk->pt() << ", eta= " << tk->eta() << "; has deposit["<<iDep<<"]: " << muonDeposit.print();
 	 isoContainer[iDep] = muonisolation::MuIsoBaseIsolator::DepositAndVetos(&muonDeposit);
@@ -170,8 +170,8 @@ HLTMuonIsoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 bool HLTMuonIsoFilter::triggerdByPreviousLevel(const reco::RecoChargedCandidateRef & candref, const std::vector<reco::RecoChargedCandidateRef>& vcands){
   bool ok=false;
-  uint i=0;
-  uint i_max=vcands.size();
+  unsigned int i=0;
+  unsigned int i_max=vcands.size();
   for (;i!=i_max;++i){
     if (candref == vcands[i]) { ok=true; break;}
   }

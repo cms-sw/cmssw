@@ -1,4 +1,4 @@
-// $Id: Starting.cc,v 1.8 2009/09/29 07:57:56 mommsen Exp $
+// $Id: Starting.cc,v 1.9 2010/03/19 13:24:05 mommsen Exp $
 /// @file: Starting.cc
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
@@ -64,7 +64,7 @@ void Starting::do_exitActionWork()
 
 string Starting::do_stateName() const
 {
-  return string( "Starting" );
+  return std::string( "Starting" );
 }
 
 void Starting::do_moveToFailedState( xcept::Exception& exception ) const

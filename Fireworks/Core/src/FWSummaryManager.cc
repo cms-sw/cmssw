@@ -8,12 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:32 EST 2008
-// $Id: FWSummaryManager.cc,v 1.21 2010/06/15 18:20:22 chrjones Exp $
+// $Id: FWSummaryManager.cc,v 1.17 2009/10/05 08:30:51 amraktad Exp $
 //
 
 // system include files
 #include <boost/bind.hpp>
-
+//#include "TGPack.h"
 #include "TGFrame.h"
 
 // user include files
@@ -56,8 +56,8 @@ m_itemChanged(false)
    sm->selectionChanged_.connect(boost::bind(&FWSummaryManager::selectionChanged,this,_1));
    eim->newItem_.connect(boost::bind(&FWSummaryManager::newItem,
                                      this, _1) );
-   eim->goingToClearItems_.connect(boost::bind(&FWSummaryManager::removeAllItems, this));
-   eim->goingToClearItems_.connect(boost::bind(&FWModelChangeManager::itemsGoingToBeClearedSlot, cm));
+   eim->goingToClearItems_.connect(boost::bind(&FWSummaryManager::removeAllItems,this));
+
 
    m_pack = new TGVerticalFrame(iParent);
    m_pack->SetLayoutManager( new FWCompactVerticalLayout(m_pack));
@@ -133,15 +133,12 @@ FWSummaryManager::removeAllItems()
        it != itEnd;
        ++it) {
       if(0!=*it) {
-         m_pack->HideFrame(*it);
          m_pack->RemoveFrame(*it);
          delete *it;
          *it=0;
       }
    }
    m_collectionWidgets.clear();
-   m_pack->Layout();
-   gClient->NeedRedraw(m_pack);
 }
 
 void

@@ -9,6 +9,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 using namespace edm;
+using namespace std;
 using namespace reco;
 using namespace muonisolation;
 
@@ -16,7 +17,7 @@ using namespace muonisolation;
 
 CandViewExtractor::CandViewExtractor( const ParameterSet& par ) :
   theCandViewTag(par.getParameter<edm::InputTag>("inputCandView")),
-  theDepositLabel(par.getUntrackedParameter<std::string>("DepositLabel")),
+  theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
   theDiff_r(par.getParameter<double>("Diff_r")),
   theDiff_z(par.getParameter<double>("Diff_z")),
   theDR_Max(par.getParameter<double>("DR_Max")),

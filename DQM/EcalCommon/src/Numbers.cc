@@ -1,26 +1,24 @@
-// $Id: Numbers.cc,v 1.71 2010/03/08 20:55:39 dellaric Exp $
+// $Id: Numbers.cc,v 1.75 2010/08/09 09:00:15 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.71 $
-  \date $Date: 2010/03/08 20:55:39 $
+  \version $Revision: 1.75 $
+  \date $Date: 2010/08/09 09:00:15 $
 */
 
 #include <sstream>
 #include <iomanip>
 
-#include <DataFormats/EcalDetId/interface/EBDetId.h>
-#include <DataFormats/EcalDetId/interface/EEDetId.h>
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include <DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h>
-#include <DataFormats/EcalDetId/interface/EcalScDetId.h>
-#include <DataFormats/EcalDetId/interface/EcalElectronicsId.h>
-#include <DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h>
-#include <DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h>
-
-#include "FWCore/Framework/interface/NoRecordException.h"
+#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalScDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
+#include "DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h"
+#include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
@@ -50,8 +48,8 @@ void Numbers::initGeometry( const edm::EventSetup& setup, bool verbose ) {
 
   Numbers::init = true;
 
-  edm::ESHandle< EcalElectronicsMapping > handle;
-  setup.get< EcalMappingRcd >().get(handle);
+  edm::ESHandle<EcalElectronicsMapping> handle;
+  setup.get<EcalMappingRcd>().get(handle);
   Numbers::map = handle.product();
 
   edm::ESHandle<EcalTrigTowerConstituentsMap> handleTT;
@@ -411,6 +409,29 @@ int Numbers::iSM( const EcalPnDiodeDetId& id ) throw( std::runtime_error ) {
 
 //-------------------------------------------------------------------------
 
+int Numbers::iSM( const EcalScDetId& id ) throw( std::runtime_error ) {
+
+    std::pair<int, int> dccsc = Numbers::map->getDCCandSC( id );
+
+    int idcc = dccsc.first;
+
+  // EE-
+  if( idcc >=  1 && idcc <=  9 ) return( idcc );
+
+  // EB-/EB+
+  if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
+
+  // EE+
+  if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
+
+  std::ostringstream s;
+  s << "Wrong DCC id: dcc = " << idcc;
+  throw( std::runtime_error( s.str() ) );
+
+}
+
+//-------------------------------------------------------------------------
+
 int Numbers::iSM( const EcalDCCHeaderBlock& id, const EcalSubdetector subdet ) throw( std::runtime_error ) {
 
   int idcc = id.id();
@@ -427,6 +448,16 @@ int Numbers::iSM( const EcalDCCHeaderBlock& id, const EcalSubdetector subdet ) t
   std::ostringstream s;
   s << "Wrong DCC id: dcc = " << idcc;
   throw( std::runtime_error( s.str() ) );
+
+}
+
+//-------------------------------------------------------------------------
+
+int Numbers::iSC( const EcalScDetId& id ) throw( std::runtime_error ) {
+
+    std::pair<int, int> dccsc = Numbers::map->getDCCandSC( id );
+
+    return dccsc.second;
 
 }
 
@@ -764,9 +795,9 @@ std::vector<DetId>* Numbers::crystals( const EcalElectronicsId& id ) throw( std:
   if( Numbers::map ) {
 
     int idcc = id.dccId();
-    int itt = id.towerId();
+    int isc = id.towerId();
 
-    return Numbers::crystals( idcc, itt );
+    return Numbers::crystals( idcc, isc );
 
   } else {
 
@@ -780,14 +811,14 @@ std::vector<DetId>* Numbers::crystals( const EcalElectronicsId& id ) throw( std:
 
 //-------------------------------------------------------------------------
 
-std::vector<DetId>* Numbers::crystals( int idcc, int itt ) throw( std::runtime_error ) {
+std::vector<DetId>* Numbers::crystals( int idcc, int isc ) throw( std::runtime_error ) {
 
   if( Numbers::map ) {
 
-    int index = 100*(idcc-1) + (itt-1);
+    int index = 100*(idcc-1) + (isc-1);
 
     if ( Numbers::crystalsDCC_[index].size() == 0 ) {
-      Numbers::crystalsDCC_[index] = Numbers::map->dccTowerConstituents( idcc, itt );
+      Numbers::crystalsDCC_[index] = Numbers::map->dccTowerConstituents( idcc, isc );
     }
 
     return &(Numbers::crystalsDCC_[index]);

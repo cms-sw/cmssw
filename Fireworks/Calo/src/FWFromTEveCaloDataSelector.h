@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Oct 23 14:44:32 CDT 2009
-// $Id: FWFromTEveCaloDataSelector.h,v 1.6 2010/06/02 17:34:04 amraktad Exp $
+// $Id: FWFromTEveCaloDataSelector.h,v 1.2 2009/10/28 14:39:59 chrjones Exp $
 //
 
 // system include files
@@ -24,20 +24,31 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWFromEveSelectorBase.h"
-#include "Fireworks/Calo/src/FWFromSliceSelector.h"
 
 // forward declarations
+class TH2F;
 class FWEventItem;
 class FWModelChangeManager;
 
-//==============================================================================
+class FWFromSliceSelector {
+public:
+   FWFromSliceSelector( TH2F* iHist,
+                       const FWEventItem*);
+   void doSelect(const TEveCaloData::CellId_t&);
+   void doUnselect(const TEveCaloData::CellId_t&);
+   void clear();
+   FWModelChangeManager* changeManager() const;
+private:
+    TH2F* m_hist;
+   const FWEventItem* m_item;
+};
 
 class FWFromTEveCaloDataSelector : public FWFromEveSelectorBase
 {
 
 public:
    FWFromTEveCaloDataSelector(TEveCaloData*);
-   virtual ~FWFromTEveCaloDataSelector();
+   //virtual ~FWFromTEveCaloDataSelector();
    
    // ---------- const member functions ---------------------
    
@@ -45,20 +56,20 @@ public:
    
    // ---------- member functions ---------------------------
    void doSelect();
-   void doUnselect();   
-
-   void addSliceSelector(int iSlice, FWFromSliceSelector*);
-   void resetSliceSelector(int iSlice);
+   void doUnselect();
+   
+   void addSliceSelector(int iSlice, const FWFromSliceSelector&);
 private:
    FWFromTEveCaloDataSelector(const FWFromTEveCaloDataSelector&); // stop default
    
    const FWFromTEveCaloDataSelector& operator=(const FWFromTEveCaloDataSelector&); // stop default
    
    // ---------- member data --------------------------------
-   std::vector<FWFromSliceSelector*> m_sliceSelectors;
-   TEveCaloData* m_data; // cached
+   std::vector<FWFromSliceSelector> m_sliceSelectors;
+   TEveCaloData* m_data;
    FWModelChangeManager* m_changeManager;
-  
+   
+
 };
 
 

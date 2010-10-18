@@ -146,6 +146,7 @@ class HLTEcalResonanceFilter : public HLTFilter {
       double selePtPairEndCap_region2_;
       double selePtGammaEndCap_region3_; 
       double selePtPairEndCap_region3_;
+      double selePtPairMaxEndCap_region3_;
       double seleMinvMaxEndCap_;
       double seleMinvMinEndCap_;
       double seleS4S9GammaEndCap_;

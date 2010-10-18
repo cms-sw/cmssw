@@ -8,7 +8,6 @@
 SiPixelHistoryDQMService::SiPixelHistoryDQMService(const edm::ParameterSet& iConfig,const edm::ActivityRegistry& aReg)
 : DQMHistoryServiceBase::DQMHistoryServiceBase(iConfig, aReg), iConfig_(iConfig)
 {
-  //setSeperator("@@#@@"); // Change the seperator used in DB
   edm::LogInfo("SiPixelHistoryDQMService") <<  "[SiPixelHistoryDQMService::SiPixelHistoryDQMService]";
 }
 
@@ -61,14 +60,14 @@ uint32_t SiPixelHistoryDQMService::returnDetComponent(const MonitorElement* ME){
 //Example on how to define an user function for the statistic extraction
 bool SiPixelHistoryDQMService::setDBLabelsForUser  (std::string& keyName, std::vector<std::string>& userDBContent, std::string& quantity){
   if (quantity == "user_ymean") {
-    userDBContent.push_back(keyName+fSep+std::string("yMean"));
-    userDBContent.push_back(keyName+fSep+std::string("yError"));
+    userDBContent.push_back(keyName+std::string("@")+std::string("yMean"));
+    userDBContent.push_back(keyName+std::string("@")+std::string("yError"));
   } else if (quantity == "user_A") {
-    userDBContent.push_back(keyName+fSep+std::string("NTracksPixOverAll"));
-    userDBContent.push_back(keyName+fSep+std::string("NTracksPixOverAllError"));
+    userDBContent.push_back(keyName+std::string("@")+std::string("NTracksPixOverAll"));
+    userDBContent.push_back(keyName+std::string("@")+std::string("NTracksPixOverAllError"));
   } else if (quantity == "user_B") {
-    userDBContent.push_back(keyName+fSep+std::string("NTracksFPixOverBPix"));
-    userDBContent.push_back(keyName+fSep+std::string("NTracksFPixOverBPixError"));
+    userDBContent.push_back(keyName+std::string("@")+std::string("NTracksFPixOverBPix"));
+    userDBContent.push_back(keyName+std::string("@")+std::string("NTracksFPixOverBPixError"));
   } else {
     edm::LogError("SiPixelHistoryDQMService") << "ERROR: quantity does not exist in SiPixelHistoryDQMService::setDBValuesForUser(): " << quantity;
     return false;

@@ -4,8 +4,8 @@
 /*
  * \file DQMEventInfo.h
  *
- * $Date: 2010/07/01 22:02:12 $
- * $Revision: 1.15 $
+ * $Date: 2009/11/06 09:54:55 $
+ * $Revision: 1.13 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -54,9 +54,6 @@ private:
   DQMStore *dbe_;
 
   edm::ParameterSet parameters_;
-  std::string nameProcess_;
-  std::string eventInfoFolder_;
-  
 //  timeval currentTime_, lastUpdateTime_, lastAvgTime_;
 //  timeval runStartTime_;
 //  float evtRateWindow_;
@@ -75,7 +72,7 @@ private:
   MonitorElement * eventId_;
   MonitorElement * lumisecId_;
   MonitorElement * eventTimeStamp_;
-
+  
   //////////////////////////////////////////////////////////////////
   ///These MEs are either static or updated upon each analyze() call
   //////////////////////////////////////////////////////////////////
@@ -92,7 +89,7 @@ private:
   MonitorElement * cmsswVer_;          ///CMSSW version run for this job
   MonitorElement * dqmPatch_;          ///DQM patch version for this job
   MonitorElement * errSummary_;        ///Subdetector-specific error summary (float)
-  MonitorElement * errSummaryEtaPhi_;  ///Subdetector-specific etaPhi summary (float)
+  MonitorElement * errSummaryEtaPhi_;     ///Subdetector-specific etaPhi summary (float)
   MonitorElement * errSummarySegment_[10];
 };
 

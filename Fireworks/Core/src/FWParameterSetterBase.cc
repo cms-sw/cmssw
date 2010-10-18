@@ -8,12 +8,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:16:20 EST 2008
-// $Id: FWParameterSetterBase.cc,v 1.11 2010/05/06 18:03:08 amraktad Exp $
+// $Id: FWParameterSetterBase.cc,v 1.9 2010/03/16 14:45:22 amraktad Exp $
 //
 
 // system include files
 #include "Reflex/Type.h"
 #include "Reflex/Object.h"
+#include "TGedFrame.h"
 
 #include <assert.h>
 #include <iostream>
@@ -25,7 +26,6 @@
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
 #include "Fireworks/Core/interface/FWParameterBase.h"
 #include "Fireworks/Core/interface/FWParameterSetterEditorBase.h"
-#include "Fireworks/Core/interface/fwLog.h"
 
 //
 // constants, enums and typedefs
@@ -98,7 +98,7 @@ FWParameterSetterBase::makeSetterFor(FWParameterBase* iParam)
    if( itFind == s_paramToSetterMap.end() ) {
       ROOT::Reflex::Type paramClass( ROOT::Reflex::Type::ByTypeInfo(typeid(*iParam)) );
       if(paramClass == ROOT::Reflex::Type() ) {
-         fwLog(fwlog::kError) << " the type "<<typeid(*iParam).name()<< " is not known to REFLEX" <<std::endl;
+         std::cout << "PROGRAMMING ERROR: the type "<<typeid(*iParam).name()<< " is not known to REFLEX" <<std::endl;
       }
       assert(paramClass != ROOT::Reflex::Type() );
 
@@ -126,7 +126,7 @@ FWParameterSetterBase::makeSetterFor(FWParameterBase* iParam)
 
       ROOT::Reflex::Type setterClass( ROOT::Reflex::Type::ByName( name ) );
       if(setterClass == ROOT::Reflex::Type() ) {
-         fwLog(fwlog::kError) << " the type "<<name<< " is not known to REFLEX" <<std::endl;
+         std::cout << "PROGRAMMING ERROR: the type "<<name<< " is not known to REFLEX" <<std::endl;
       }
       assert(setterClass != ROOT::Reflex::Type());
 

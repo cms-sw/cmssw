@@ -1,5 +1,15 @@
 <TESTSCONFIGURATION> 
 <!-- MODIFIED VERSION: reordered, only all active tests, with computed band limits (ROBERTO) -->
+<!-- QTESTS for PIXEL DETECTOR: -->
+<!-- YRange for relative FED occupancy: -->
+<QTEST name="Yrange:FEDs:average_ndigis" activate="true"> 
+     <TYPE>ContentsYRange</TYPE> 
+     <PARAM name="useEmptyBins">1</PARAM>
+     <PARAM name="error">0.98</PARAM> 
+     <PARAM name="warning">0.98</PARAM> 
+     <PARAM name="ymin">0.6</PARAM> 
+     <PARAM name="ymax">1.6</PARAM> 
+</QTEST>
 <!-- QTESTS for BARREL: -->
 <!-- YRange in BARREL: -->
 <!-- adc in PixelBarrel: -->
@@ -8,7 +18,7 @@
      <PARAM name="useEmptyBins">0</PARAM>
      <PARAM name="error">0.50</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">75,</PARAM> 
+     <PARAM name="ymin">75.</PARAM> 
      <PARAM name="ymax">105.</PARAM> 
 </QTEST>
 <!-- ndigis in PixelBarrel: -->
@@ -239,6 +249,10 @@
      <PARAM name="xmax">11.3</PARAM> 
 </QTEST>
 <!-- LINKS between Quality Tests and Monitoring Elements: -->
+<!-- LINKS for PIXEL DETECTOR: -->
+<LINK name="*ixel/averageDigiOccupancy"> 
+  <TestName activate="true">Yrange:FEDs:average_ndigis</TestName> 
+</LINK>
 <!-- LINKS for BARREL: -->
 <!-- YRange in BARREL: -->
 <LINK name="*Barrel/SUMDIG_adc_*"> 

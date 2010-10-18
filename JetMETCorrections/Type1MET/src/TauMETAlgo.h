@@ -27,7 +27,7 @@
 typedef math::XYZTLorentzVector LorentzVector;
 typedef math::XYZPoint Point;
 
-using namespace std;
+
 class TauMETAlgo 
 {
  public:
@@ -35,14 +35,14 @@ class TauMETAlgo
   virtual ~TauMETAlgo();
 
   virtual void run(edm::Event&, const edm::EventSetup&,
-		   edm::Handle<PFTauCollection>,edm::Handle<CaloJetCollection>,double,double,
-                   const JetCorrector&,const std::vector<CaloMET>&,double,double,double,
-                   bool,double,bool,double,bool,double,bool,std::vector<CaloMET>* corrMET);
+		   edm::Handle<reco::PFTauCollection>,edm::Handle<reco::CaloJetCollection>,double,double,
+                   const JetCorrector&,const std::vector<reco::CaloMET>&,double,double,double,
+                   bool,double,bool,double,bool,double,bool,std::vector<reco::CaloMET>* corrMET);
 
   virtual void run(edm::Event&, const edm::EventSetup&,
-		   edm::Handle<PFTauCollection>,edm::Handle<CaloJetCollection>,double,double,
-                   const JetCorrector&,const std::vector<MET>&,double,double,double,
-                   bool,double,bool,double,bool,double,bool,std::vector<MET>* corrMET);
+		   edm::Handle<reco::PFTauCollection>,edm::Handle<reco::CaloJetCollection>,double,double,
+                   const JetCorrector&,const std::vector<reco::MET>&,double,double,double,
+                   bool,double,bool,double,bool,double,bool,std::vector<reco::MET>* corrMET);
 
 };
 

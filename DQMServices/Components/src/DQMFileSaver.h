@@ -22,7 +22,7 @@ protected:
   virtual void endJob(void);
 
 private:
-  void saveForOffline(const std::string &workflow, int run, int lumi=0);
+  void saveForOffline(const std::string &workflow, int run, int lumi);
   void saveForOnline(const std::string &suffix, const std::string &rewrite);
   void saveJobReport(const std::string &filename);
 

@@ -1919,15 +1919,10 @@ def doTestsForReport(cells,reports):
     #if meddy>3: res.append(testEntry("BIG_MED_DYDZ",scope,"median d(dy/dz)=%f>3 mrad"%meddy,"SEVERE"))
 
     # check residuals far from zero
-    isDTst4 = False
-    if postal_address[0] == "DT" and postal_address[2]==4: isDTst4 = True
-    dx, dy, dpy, dpz = 10.*r.deltax.value, 0., 1000.*r.deltaphiy.value, 1000.*r.deltaphiz.value
-    if not isDTst4: dy = 10.*r.deltay.value
-    if dx>0.2:   res.append(testEntry("BIG_LAST_ITR_DX",scope,"dx=%f>0.2 mm"%dx,"CRITICAL"))
-    if dy>0.2:   res.append(testEntry("BIG_LAST_ITR_DY",scope,"dy=%f>0.2 mm"%dy,"CRITICAL"))
-    if dpy>0.2:   res.append(testEntry("BIG_LAST_ITR_DPHIY",scope,"dphiy=%f>0.2 mrad"%dpy,"CRITICAL"))
-    if dpz>0.2:   res.append(testEntry("BIG_LAST_ITR_DPHIZ",scope,"dphiz=%f>0.2 mrad"%dpz,"CRITICAL"))
-    #if ddx>0.03: res.append(testEntry("BIG_DX",scope,"dphix=%f>0.03 mrad"%ddx,"CRITICAL"))
+    dx, ddx = 10.*r.deltax.value, 1000.*r.deltaphix.value
+    #dy, ddy = 10.*r.deltay.value, 1000.*r.deltaphiy.value
+    if dx>0.3:   res.append(testEntry("BIG_DX",scope,"dx=%f>0.3 mm"%dx,"CRITICAL"))
+    if ddx>0.03: res.append(testEntry("BIG_DX",scope,"dphix=%f>0.03 mrad"%ddx,"CRITICAL"))
 
     addToTestResults(c,res)
 
@@ -2246,21 +2241,16 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
         else: the2d = hist2dweight
 
         hist = weights.Clone()
-        hist.Reset()
         skip = 1
         if widebins:
             hist.Rebin(10)
             skip = 10
 
-        #f = ROOT.TF1("g", "gaus", -40., 40)
         for i in xrange(0, int(weights.GetNbinsX()), skip):
             tmp = the2d.ProjectionY("tmp", i+1, i + skip)
-            if tmp.GetEntries() > 1:
-                #tmp.Fit("g","LNq")
+            if tmp.GetEntries() > 2:
                 hist.SetBinContent(i/skip+1, tmp.GetMean())
-                hist.SetBinError(i/skip+1, ROOT.TMath.StudentQuantile(0.841345,tmp.GetEntries()) * tmp.GetRMS() / sqrt(tmp.GetEntries()))
-                #hist.SetBinError(i/skip+1, tmp.GetRMS() / sqrt(tmp.GetEntries()))
-                #hist.SetBinError(i/skip+1, f.GetParameter(2))
+                hist.SetBinError(i/skip+1, tmp.GetRMS() / sqrt(tmp.GetEntries()))
             else:
                 #hist.SetBinContent(i/skip+1, 2000.)
                 #hist.SetBinError(i/skip+1, 1000.)
@@ -2319,8 +2309,7 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
     if fitsine and "vsphi" in name:
         global fitsine_const, fitsine_sin, fitsine_cos, fitsine_chi2, fitsine_ndf
         f = ROOT.TF1("f", "[0] + [1]*sin(x) + [2]*cos(x)", -pi, pi)
-        #hist.Fit(f,"N")
-        hist.Fit(f,"NE")
+        hist.Fit(f,"Nq")
         f.SetLineColor(ROOT.kRed)
         fitsine_const = f.GetParameter(0), f.GetParError(0)
         fitsine_sin = f.GetParameter(1), f.GetParError(1)
@@ -2483,8 +2472,7 @@ def mapNameToId(name):
   return None
 
 
-def curvatureplot(tfiles, name, param, mode="from2d", window=15., widebins=False, title="", fitgauss=False, fitconst=False, fitline=False, reset_palette=False):
-# "param" may be one of "deltax" (Delta x position residuals), "deltadxdz" (Delta (dx/dz) angular residuals), "curverr" (Delta x * d(Delta q/pT)/d(Delta x) = Delta q/pT in the absence of misalignment)
+def curvatureplot(tfiles, name, param, mode="from2d", window=15., widebins=False, title="", fitgauss=False, reset_palette=True):
     tdrStyle.SetOptTitle(1)
     tdrStyle.SetTitleBorderSize(0)
     tdrStyle.SetOptStat(0)
@@ -2493,35 +2481,12 @@ def curvatureplot(tfiles, name, param, mode="from2d", window=15., widebins=False
 
     c1.Clear()
     if reset_palette: set_palette("blues")
-    global hist, histCOPY, hist2d, tline1, tline2, tline3, tline4, tline5
-
-    hdir = "AlignmentMonitorMuonVsCurvature/iter1/"
-
-    if name not in ("all", "top", "bottom"):
-        hsuffix = "_%s_%s" % (name, param)
-        prof = tfiles[0].Get(hdir+"tprofile"+hsuffix).Clone("tprofile_"+hsuffix)
-        hist2d = tfiles[0].Get(hdir+"th2f"+hsuffix).Clone("th2f_"+hsuffix)
-        for tfile in tfiles[1:]:
-            prof.Add(tfile.Get(hdir+"tprofile"+hsuffix))
-            hist2d.Add(tfile.Get(hdir+"th2f"+hsuffix))
-    else:
-        prof = None
-        hist2d = None
-        for wheel in "m2", "m1", "z", "p1", "p2":
-            if name == "all": sectors = "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"
-            elif name == "top": sectors = "01", "02", "03", "04", "05", "06"
-            elif name == "bottom": sectors = "07", "08", "09", "10", "11", "12"
-            else: raise Exception
-
-            for sector in sectors:
-                hsuffix = "_%s_%s" % ("wheel%s_sector%s" % (wheel, sector), param)
-                for tfile in tfiles:
-                    if prof is None:
-                        prof = tfiles[0].Get(hdir+"tprofile"+hsuffix).Clone("tprofile_"+hsuffix)
-                        hist2d = tfiles[0].Get(hdir+"th2f"+hsuffix).Clone("tprofile_"+hsuffix)
-                    else:
-                        prof.Add(tfile.Get(hdir+"tprofile"+hsuffix))
-                        hist2d.Add(tfile.Get(hdir+"th2f"+hsuffix))
+    global hist, histCOPY, hist2d, tline1, tline2, tline3, tline4
+    prof = tfiles[0].Get("AlignmentMonitorMuonVsCurvature/iter1/tprofile_%s_%s" % (name, param)).Clone()
+    hist2d = tfiles[0].Get("AlignmentMonitorMuonVsCurvature/iter1/th2f_%s_%s" % (name, param)).Clone()
+    for tfile in tfiles[1:]:
+        prof.Add(tfile.Get("AlignmentMonitorMuonVsCurvature/iter1/tprofile_%s_%s" % (name, param)))
+        hist2d.Add(tfile.Get("AlignmentMonitorMuonVsCurvature/iter1/th2f_%s_%s" % (name, param)))
 
     hist = ROOT.TH1F("hist", "", prof.GetNbinsX(), prof.GetBinLowEdge(1), -prof.GetBinLowEdge(1))
     for i in xrange(1, prof.GetNbinsX()+1):
@@ -2530,61 +2495,38 @@ def curvatureplot(tfiles, name, param, mode="from2d", window=15., widebins=False
 
     if mode == "plain":
         hist = prof
+
     elif mode == "from2d":
         skip = 1
         if widebins:
             hist.Rebin(5)
             skip = 5
+
         for i in xrange(0, int(prof.GetNbinsX()), skip):
             tmp = hist2d.ProjectionY("tmp", i+1, i + skip)
-            if tmp.GetEntries() > 1:
+            if tmp.GetEntries() > 2:
                 hist.SetBinContent(i/skip+1, tmp.GetMean())
-                hist.SetBinError(i/skip+1, ROOT.TMath.StudentQuantile(0.841345,tmp.GetEntries()) * tmp.GetRMS() / sqrt(tmp.GetEntries()))
-                #hist.SetBinError(i/skip+1, tmp.GetRMS() / sqrt(tmp.GetEntries()))
+                hist.SetBinError(i/skip+1, tmp.GetRMS() / sqrt(tmp.GetEntries()))
             else:
-                #hist.SetBinContent(i/skip+1, 2000.)
-                #hist.SetBinError(i/skip+1, 1000.)
-                hist.SetBinContent(i/skip+1, 0.)
-                hist.SetBinError(i/skip+1, 0.)
+                hist.SetBinContent(i/skip+1, 2000.)
+                hist.SetBinError(i/skip+1, 1000.)
+
     else:
         raise Exception
-
 
     if fitgauss:
         f = ROOT.TF1("f", "[0] + [1]*exp(-x**2/2/0.01**2)", hist.GetBinLowEdge(1), -hist.GetBinLowEdge(1))
         f.SetParameters(0, 0., 0.01)
         hist.Fit(f, "q")
-        f.SetLineColor(ROOT.kRed)
+        hist.GetFunction("f").SetLineColor(ROOT.kRed)
         global fitgauss_diff, fitgauss_chi2, fitgauss_ndf
 #         fitter = ROOT.TVirtualFitter.GetFitter()
-#         fitgauss_diff = f.GetParameter(0) - f.GetParameter(1), \
-#                         sqrt(f.GetParError(0)**2 + f.GetParError(1)**2 + 2.*fitter.GetCovarianceMatrixElement(0, 1))
-        fitgauss_diff = f.GetParameter(1), f.GetParError(1)
-        fitgauss_chi2 = f.GetChisquare()
-        fitgauss_ndf = f.GetNDF()
-
-    global fitline_intercept, fitline_slope
-    if fitconst:
-        f = ROOT.TF1("f", "[0]", hist.GetBinLowEdge(1), -hist.GetBinLowEdge(1))
-        hist.Fit(f, "q")
-        f.SetLineColor(ROOT.kRed)
-        fitline_intercept = f.GetParameter(0), f.GetParError(0)
-
-    if fitline:
-        f = ROOT.TF1("f", "[0] + [1]*x", hist.GetBinLowEdge(1), -hist.GetBinLowEdge(1))
-        hist.Fit(f, "qNE")
-        f.SetLineColor(ROOT.kRed)
-        global f2, f3
-        f2 = ROOT.TF1("2", "[0] + [1]*x", hist.GetBinLowEdge(1), -hist.GetBinLowEdge(1))
-        f3 = ROOT.TF1("2", "[0] + [1]*x", hist.GetBinLowEdge(1), -hist.GetBinLowEdge(1))
-        f2.SetParameters(f.GetParameter(0), f.GetParameter(1) + f.GetParError(1))
-        f3.SetParameters(f.GetParameter(0), f.GetParameter(1) - f.GetParError(1))
-        f2.SetLineColor(ROOT.kRed)
-        f3.SetLineColor(ROOT.kRed)
-        f2.SetLineStyle(2)
-        f3.SetLineStyle(2)
-        fitline_intercept = f.GetParameter(0), f.GetParError(0)
-        fitline_slope = f.GetParameter(1), f.GetParError(1)
+#         fitgauss_diff = hist.GetFunction("f").GetParameter(0) - hist.GetFunction("f").GetParameter(1), \
+#                         sqrt(hist.GetFunction("f").GetParError(0)**2 + \ 
+#                         hist.GetFunction("f").GetParError(1)**2 + 2.*fitter.GetCovarianceMatrixElement(0, 1))
+        fitgauss_diff = hist.GetFunction("f").GetParameter(1), hist.GetFunction("f").GetParError(1)
+        fitgauss_chi2 = hist.GetFunction("f").GetChisquare()
+        fitgauss_ndf = hist.GetFunction("f").GetNDF()
 
     hist.SetAxisRange(-window, window, "Y")
     hist.SetMarkerStyle(20)
@@ -2612,26 +2554,17 @@ def curvatureplot(tfiles, name, param, mode="from2d", window=15., widebins=False
     histCOPY = hist.Clone()
     histCOPY.SetXTitle("")
     histCOPY.SetYTitle("")
-
     if widebins:
         histCOPY.Draw("samee1")
         histCOPY.Draw("sameaxis")
     else:
         histCOPY.Draw("same")
         histCOPY.Draw("sameaxis")
-
-    if fitline:
-        f.Draw("same")
-        #f2.Draw("same")
-        #f3.Draw("same")
-
     tline1 = ROOT.TLine(hist.GetBinLowEdge(1), -window, hist.GetBinLowEdge(1), window)
     tline2 = ROOT.TLine(hist.GetBinLowEdge(1), window, -hist.GetBinLowEdge(1), window)
     tline3 = ROOT.TLine(-hist.GetBinLowEdge(1), window, -hist.GetBinLowEdge(1), -window)
     tline4 = ROOT.TLine(-hist.GetBinLowEdge(1), -window, hist.GetBinLowEdge(1), -window)
-    tline5 = ROOT.TLine(-hist.GetBinLowEdge(1), 0., hist.GetBinLowEdge(1), 0.)
-    for t in tline1, tline2, tline3, tline4, tline5: t.Draw()
-
+    for t in tline1, tline2, tline3, tline4: t.Draw()
 
 def curvatureDTsummary(tfiles, window=15., pdgSfactor=False):
     global h, gm2, gm1, gz, gp1, gp2, tlegend
@@ -3686,7 +3619,6 @@ def segdiffvsphi(tfiles, reports, component, wheel, window=5., excludesectors=()
     gtemp_23_phi, gtemp_23_val, gtemp_23_err, gtemp_23_val2, gtemp_23_err2 = [], [], [], [], []
     gtemp_34_phi, gtemp_34_val, gtemp_34_err, gtemp_34_val2, gtemp_34_err2 = [], [], [], [], []
     for sector in xrange(1, 12+1):
-        #print sector
         r1_found, r2_found, r3_found, r4_found = False, False, False, False
         for r1 in reports:
             if r1.postal_address == ("DT", wheel, 1, sector):
@@ -3704,14 +3636,11 @@ def segdiffvsphi(tfiles, reports, component, wheel, window=5., excludesectors=()
             if r4.postal_address == ("DT", wheel, 4, sector):
                 r4_found = True
                 break
-        #print "rfounds: ", r1_found, r2_found, r3_found, r4_found
         
         if sector not in excludesectors:
             if r1_found and r2_found and r1.status == "PASS" and r2.status == "PASS":
                 phi, val, err, val2, err2, fit1, fit2, fit3 = segdiff(tfiles, component, 12, wheel=wheel, sector=sector)
-                #print "segdif 12", phi, val, err, val2, err2, fit1, fit2, fit3
                 if fit1 == 0 and fit2 == 0 and fit3 == 0:
-                #if fit1 == 0 and fit2 == 0:
                     gtemp_12_phi.append(phi)
                     gtemp_12_val.append(val)
                     gtemp_12_err.append(err)
@@ -3719,9 +3648,7 @@ def segdiffvsphi(tfiles, reports, component, wheel, window=5., excludesectors=()
                     gtemp_12_err2.append(err2)
             if r2_found and r3_found and r2.status == "PASS" and r3.status == "PASS":
                 phi, val, err, val2, err2, fit1, fit2, fit3 = segdiff(tfiles, component, 23, wheel=wheel, sector=sector)
-                #print "segdif 23", phi, val, err, val2, err2, fit1, fit2, fit3
                 if fit1 == 0 and fit2 == 0 and fit3 == 0:
-                #if fit1 == 0 and fit2 == 0:
                     gtemp_23_phi.append(phi)
                     gtemp_23_val.append(val)
                     gtemp_23_err.append(err)
@@ -3730,18 +3657,13 @@ def segdiffvsphi(tfiles, reports, component, wheel, window=5., excludesectors=()
             if component[:4] == "dt13":
                 if r3_found and r4_found and r3.status == "PASS" and r4.status == "PASS":
                     phi, val, err, val2, err2, fit1, fit2, fit3 = segdiff(tfiles, component, 34, wheel=wheel, sector=sector)
-                    #print "segdif 34", phi, val, err, val2, err2, fit1, fit2, fit3
                     if fit1 == 0 and fit2 == 0 and fit3 == 0:
-                    #if fit1 == 0 and fit2 == 0:
                         gtemp_34_phi.append(phi)
                         gtemp_34_val.append(val)
                         gtemp_34_err.append(err)
                         gtemp_34_val2.append(val2)
                         gtemp_34_err2.append(err2)
 
-    #print "len(gtemp_12_phi) ", len(gtemp_12_phi)
-    #print "len(gtemp_23_phi) ",len(gtemp_23_phi)
-    #print "len(gtemp_34_phi) ",len(gtemp_34_phi)
     if len(gtemp_12_phi) > 0:
         gtemp_12 = ROOT.TGraphErrors(len(gtemp_12_phi), array.array("d", gtemp_12_phi), array.array("d", gtemp_12_val), 
                                      array.array("d", [0.] * len(gtemp_12_phi)), array.array("d", gtemp_12_err))

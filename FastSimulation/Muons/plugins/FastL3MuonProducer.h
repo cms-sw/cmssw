@@ -9,12 +9,13 @@
  *   starting from a L2 reonstructed muon and from pixel seeded
  *   tracks (by default - the latter is configuratble)
  *
- *   $Date: 2008/03/14 19:12:07 $
- *   $Revision: 1.2 $
+ *   $Date: 2009/03/16 15:46:50 $
+ *   $Revision: 1.3 $
  *   \author  P. Janot - CERN
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 

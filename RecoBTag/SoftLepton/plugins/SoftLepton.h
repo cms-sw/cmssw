@@ -16,7 +16,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.h,v 1.11 2010/02/20 21:00:43 wmtan Exp $
+// $Id: SoftLepton.h,v 1.12 2010/02/26 18:16:18 saout Exp $
 //
 
 // system include files
@@ -65,12 +65,6 @@ public:
       const reco::Vertex              & primaryVertex
   ) const;
 
-  enum VertexType {
-    VERTEX_NOMINAL,         // nominal beamspot
-    VERTEX_BEAMSPOT,        // reconstructed beamspot
-    VERTEX_PRIMARY          // reconstructed primary vertex
-  };
-
 protected:
   // generic interface, using a TrackRefVector for lepton tracks
 
@@ -107,7 +101,6 @@ private:
   unsigned int  m_refineJetAxis;
   double        m_deltaRCut;
   double        m_chi2Cut;
-  VertexType    m_pvType;       // vertex type
   
   // specific for reco::Muons
   muon::SelectionType m_muonSelection;

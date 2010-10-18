@@ -413,7 +413,7 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
   // container for subsystem's leading candidate
   const int ncorr = 3;
-  float LeadCandVal[DEnsys][ncorr] = {{(float)nullVal}};
+  float LeadCandVal[DEnsys][ncorr] = {{nullVal}};
   for(int i=0; i<DEnsys; i++) 
     for(int j=0; j<ncorr; j++)
       LeadCandVal[i][j]=nullVal;
@@ -445,14 +445,14 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       //if(cid!=RCTem)  continue;
       //if(cid!=RCTrgn) continue;
     }
-//     if(sid==GCT) { 
-//       // For the moment just include EM and jet objects, energy sums being debugged in the expert DQM first.
-//       if(cid!=GCTisolaem && 
-//          cid!=GCTnoisoem &&
-//          cid!=GCTcenjets &&
-//          cid!=GCTforjets &&
-//          cid!=GCTtaujets) continue;
-//     } 
+    if(sid==GCT) { 
+      // For the moment just include EM and jet objects, energy sums being debugged in the expert DQM first.
+      if(cid!=GCTisolaem && 
+         cid!=GCTnoisoem &&
+         cid!=GCTcenjets &&
+         cid!=GCTforjets &&
+         cid!=GCTtaujets) continue;
+    }      
     if(sid==DTP) {
       //tbd cols:th,ph; plots per wheel
       //if(it->x3()!=0) continue;

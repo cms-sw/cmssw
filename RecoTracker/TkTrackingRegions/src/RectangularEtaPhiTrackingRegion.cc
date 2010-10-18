@@ -297,8 +297,8 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
   if (!est) return result;
 
   bool measurementMethod = false;
-  if ( theTemporaryFix > 0.5) measurementMethod = true;
-  if ( theTemporaryFix > -0.5 &&
+  if ( theMeasurementTrackerUsage > 0.5) measurementMethod = true;
+  if ( theMeasurementTrackerUsage > -0.5 &&
        !(detLayer->subDetector() == GeomDetEnumerators::PixelBarrel ||
          detLayer->subDetector() == GeomDetEnumerators::PixelEndcap) ) measurementMethod = true;
 
@@ -326,7 +326,7 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
   StraightLinePropagator prop( magField, alongMomentum);
 
   edm::ESHandle<MeasurementTracker> measurementTrackerESH;
-  es.get<CkfComponentsRecord>().get(measurementTrackerESH);
+  es.get<CkfComponentsRecord>().get(theMeasurementTrackerName, measurementTrackerESH); 
   const MeasurementTracker * measurementTracker = measurementTrackerESH.product(); 
   measurementTracker->update(ev);
 

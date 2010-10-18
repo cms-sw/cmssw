@@ -151,17 +151,18 @@ class WidgetContainer(ConnectableWidget, ConnectableWidgetOwner):
                 child.move(xPos, yPos)
                 yPos += child.height() + self.getDistance("topMargin")
                 
-    def widgetMoved(self, widget):
+    def widgetDragged(self, widget):
         """ Call autosize().
         
         Overwritten function of ConnectableWidgetOwner.
         """
         if self.autosizeEnabled():
             self.autosize()
-        for connection in [child for child in self.children() if isinstance(child, PortConnection)]:
-            connection.updateConnection()
+        # not sure this is still needed (2010-07-06), remove if possible
+        #for connection in [child for child in self.children() if isinstance(child, PortConnection)]:
+        #    connection.updateConnection()
             
-        ConnectableWidgetOwner.widgetMoved(self, widget)
+        ConnectableWidgetOwner.widgetDragged(self, widget)
     
     def mouseDoubleClickEvent(self, event):
         """ Call toggleCollapse().
@@ -180,7 +181,7 @@ class WidgetContainer(ConnectableWidget, ConnectableWidgetOwner):
     def mouseMoveEvent(self, event):
         if bool(event.buttons() & Qt.LeftButton):
             VispaWidget.mouseMoveEvent(self, event)
-        elif self._menuWidget:
+        elif self.menu():
             self.positionizeMenuWidget()
         
         if event.pos().y() <= self.getDistance("titleFieldBottom"):
@@ -227,7 +228,7 @@ class WidgetContainer(ConnectableWidget, ConnectableWidgetOwner):
             self.setColors(self.PEN_COLOR, self.PEN_COLOR, None)
             
         self.autosize()
-        self.widgetMoved(self)
+        self.widgetDragged(self)
         
     def showMenu(self):
         if self._collapseMenuButton:

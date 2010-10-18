@@ -20,6 +20,21 @@ metJESCorIC5CaloJet = cms.EDProducer("Type1MET",
                                    corrector = cms.string('ic5CaloL2L3')
                                    )
 
+metJESCorAK5PFJet = cms.EDProducer("Type1MET",
+                                   inputUncorJetsLabel = cms.string('ak5PFJets'),
+                                   jetEMfracLimit = cms.double(0.9),
+                                   metType = cms.string('PFMET'),
+                                   jetPTthreshold = cms.double(1.0),
+                                   inputUncorMetLabel = cms.string('pfMet'),
+                                   UscaleA = cms.double(1.5),
+                                   UscaleB = cms.double(1.8),
+                                   UscaleC = cms.double(-0.06),
+                                   useTypeII = cms.bool(False),
+                                   hasMuonsCorr = cms.bool(False),
+                                   corrector = cms.string('ak5PFL2L3')
+                                   )
+
+
 metJESCorKT4CaloJet = metJESCorIC5CaloJet.clone()
 metJESCorKT4CaloJet.inputUncorJetsLabel = "kt4CaloJets"
 metJESCorKT4CaloJet.corrector           = "kt4CaloL2L3"

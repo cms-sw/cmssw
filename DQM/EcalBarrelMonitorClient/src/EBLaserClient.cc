@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2010/06/01 10:47:52 $
- * $Revision: 1.271 $
+ * $Date: 2010/08/07 19:34:19 $
+ * $Revision: 1.276 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -35,16 +35,15 @@
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
 #endif
 
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
+#include "DQM/EcalCommon/interface/Masks.h"
 
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
-#include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
+#include "DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h"
 
 EBLaserClient::EBLaserClient(const edm::ParameterSet& ps) {
 
@@ -1529,29 +1528,21 @@ void EBLaserClient::analyze(void) {
     if ( debug_ ) std::cout << "EBLaserClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
-  uint64_t bits01 = 0;
-  bits01 |= EcalErrorDictionary::getMask("LASER_MEAN_WARNING");
-  bits01 |= EcalErrorDictionary::getMask("LASER_RMS_WARNING");
-  bits01 |= EcalErrorDictionary::getMask("LASER_MEAN_OVER_PN_WARNING");
-  bits01 |= EcalErrorDictionary::getMask("LASER_RMS_OVER_PN_WARNING");
+  uint32_t bits01 = 0;
+  bits01 |= 1 << EcalDQMStatusHelper::LASER_MEAN_ERROR;
+  bits01 |= 1 << EcalDQMStatusHelper::LASER_RMS_ERROR;
 
-  uint64_t bits02 = 0;
-  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_WARNING");
-  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_RMS_WARNING");
-  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_ERROR");
-  bits02 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_RMS_ERROR");
+  uint32_t bits02 = 0;
+  bits02 |= 1 << EcalDQMStatusHelper::LASER_TIMING_MEAN_ERROR;
+  bits02 |= 1 << EcalDQMStatusHelper::LASER_TIMING_RMS_ERROR;
 
-  uint64_t bits03 = 0;
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_MEAN_WARNING");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_RMS_WARNING");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_MEAN_ERROR");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_RMS_ERROR");
+  uint32_t bits03 = 0;
+  bits03 |= 1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR;
+  bits03 |= 1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_RMS_ERROR;
 
-  uint64_t bits04 = 0;
-  bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_WARNING");
-  bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_WARNING");
-  bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_ERROR");
-  bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_ERROR");
+  uint32_t bits04 = 0;
+  bits04 |= 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR;
+  bits04 |= 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_RMS_ERROR;
 
   char histo[200];
 
@@ -2079,6 +2070,13 @@ void EBLaserClient::analyze(void) {
 
         }
 
+        if ( Masks::maskChannel(ism, ie, ip, bits01, EcalBarrel) ) {
+          UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
+          UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
+          UtilsClient::maskBinContent( meg03_[ism-1], ie, ip );
+          UtilsClient::maskBinContent( meg04_[ism-1], ie, ip );
+        }
+
         if ( update02 ) {
 
           int ic = Numbers::icEB(ism, ie, ip);
@@ -2403,6 +2401,20 @@ void EBLaserClient::analyze(void) {
         if ( mepnprms08_[ism-1] ) mepnprms08_[ism-1]->Fill(rms16);
       }
 
+      if ( Masks::maskPn(ism, i, bits01|bits03, EcalBarrel) ) {
+        UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
+        UtilsClient::maskBinContent( meg06_[ism-1], i, 1 );
+        UtilsClient::maskBinContent( meg07_[ism-1], i, 1 );
+        UtilsClient::maskBinContent( meg08_[ism-1], i, 1 );
+      }
+
+      if ( Masks::maskPn(ism, i, bits01|bits04, EcalBarrel) ) {
+        UtilsClient::maskBinContent( meg09_[ism-1], i, 1 );
+        UtilsClient::maskBinContent( meg10_[ism-1], i, 1 );
+        UtilsClient::maskBinContent( meg11_[ism-1], i, 1 );
+        UtilsClient::maskBinContent( meg12_[ism-1], i, 1 );
+      }
+
     }
 
     for ( int i = 1; i <= 10; i++ ) {
@@ -2442,109 +2454,6 @@ void EBLaserClient::analyze(void) {
     }
 
   }
-
-#ifdef WITH_ECAL_COND_DB
-  if ( EcalErrorMask::mapCrystalErrors_.size() != 0 ) {
-    map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
-    for (m = EcalErrorMask::mapCrystalErrors_.begin(); m != EcalErrorMask::mapCrystalErrors_.end(); m++) {
-
-      if ( (m->second).getErrorBits() & bits01 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EB_crystal_number") != 0 ) continue;
-
-        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-        if (iter == superModules_.end()) continue;
-
-        int ic = ecid.getID2();
-        int ie = (ic-1)/20 + 1;
-        int ip = (ic-1)%20 + 1;
-
-        UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
-        UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
-        UtilsClient::maskBinContent( meg03_[ism-1], ie, ip );
-        UtilsClient::maskBinContent( meg04_[ism-1], ie, ip );
-
-      }
-
-    }
-  }
-
-  if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
-    map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-    for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
-
-      if ( (m->second).getErrorBits() & bits01 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
-
-        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-        if (iter == superModules_.end()) continue;
-
-        int itt = ecid.getID2();
-        int iet = (itt-1)/4 + 1;
-        int ipt = (itt-1)%4 + 1;
-
-        for ( int ie = 5*(iet-1)+1; ie <= 5*iet; ie++ ) {
-          for ( int ip = 5*(ipt-1)+1; ip <= 5*ipt; ip++ ) {
-            UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
-            UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
-            UtilsClient::maskBinContent( meg03_[ism-1], ie, ip );
-            UtilsClient::maskBinContent( meg04_[ism-1], ie, ip );
-          }
-        }
-
-      }
-
-    }
-  }
-
-  if ( EcalErrorMask::mapPNErrors_.size() != 0 ) {
-    map<EcalLogicID, RunPNErrorsDat>::const_iterator m;
-    for (m = EcalErrorMask::mapPNErrors_.begin(); m != EcalErrorMask::mapPNErrors_.end(); m++) {
-
-      if ( (m->second).getErrorBits() & (bits01|bits02) ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EB_LM_PN") != 0 ) continue;
-
-        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-        if (iter == superModules_.end()) continue;
-
-        int i = ecid.getID2() + 1;
-
-        UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
-        UtilsClient::maskBinContent( meg06_[ism-1], i, 1 );
-        UtilsClient::maskBinContent( meg07_[ism-1], i, 1 );
-        UtilsClient::maskBinContent( meg08_[ism-1], i, 1 );
-
-      }
-
-      if ( (m->second).getErrorBits() & (bits01|bits04) ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EB_LM_PN") != 0 ) continue;
-
-        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-        if (iter == superModules_.end()) continue;
-
-        int i = ecid.getID2() + 1;
-
-        UtilsClient::maskBinContent( meg09_[ism-1], i, 1 );
-        UtilsClient::maskBinContent( meg10_[ism-1], i, 1 );
-        UtilsClient::maskBinContent( meg11_[ism-1], i, 1 );
-        UtilsClient::maskBinContent( meg12_[ism-1], i, 1 );
-
-      }
-
-    }
-  }
-#endif
 
 }
 

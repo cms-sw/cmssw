@@ -5,10 +5,6 @@ from PyQt4.QtCore import QCoreApplication
 
 from Vispa.Plugins.Browser.BrowserPlugin import BrowserPlugin
 from Vispa.Plugins.Browser.BrowserTab import BrowserTab
-from Vispa.Plugins.ConfigEditor.ConfigEditorTab import ConfigEditorTab
-from Vispa.Plugins.ConfigEditor.ConfigEditorTabController import ConfigEditorTabController
-from Vispa.Plugins.ConfigEditor.ConfigEditorBoxView import ConnectionStructureView
-from Vispa.Plugins.ConfigEditor.ConfigEditorBoxView import SequenceStructureView
 from Vispa.Main.Exceptions import NoCurrentTabControllerException
 from Vispa.Main.Exceptions import PluginIgnoredException
 
@@ -16,6 +12,11 @@ try:
     from Vispa.Plugins.ConfigEditor.ConfigDataAccessor import ConfigDataAccessor
 except Exception,e:
     raise PluginIgnoredException("cannot import CMSSW: " + str(e))
+
+from Vispa.Plugins.ConfigEditor.ConfigEditorTab import ConfigEditorTab
+from Vispa.Plugins.ConfigEditor.ConfigEditorTabController import ConfigEditorTabController
+from Vispa.Plugins.ConfigEditor.ConfigEditorBoxView import ConnectionStructureView
+from Vispa.Plugins.ConfigEditor.ConfigEditorBoxView import SequenceStructureView
 
 class ConfigEditorPlugin(BrowserPlugin):
     """ The ConfigEditorPlugin opens config files in a ConfigEditorTab.

@@ -1,5 +1,6 @@
 import logging
 import sys
+import os.path
 
 from PyQt4.QtCore import Qt,SIGNAL,QCoreApplication,QSize
 from PyQt4.QtGui import QTableWidget,QTableWidgetItem,QCheckBox,QWidget,QSpinBox,QHBoxLayout,QVBoxLayout,QLineEdit,QSizePolicy,QTextEdit,QTextOption,QFrame,QToolButton,QPalette,QComboBox, QFileDialog,QTextCursor,QInputDialog,QPushButton,QGridLayout,QIcon,QHeaderView,QMessageBox
@@ -57,6 +58,8 @@ class PropertyView(QTableWidget, AbstractView):
         self._operationId = 0
         self._updatingFlag=0
         self.updateIni = False
+        self._currentCategoryName = ""
+        self._relativePath=None
         self.setSortingEnabled(False)
         self.verticalHeader().hide()
         self.setSelectionMode(QTableWidget.NoSelection)
@@ -139,6 +142,7 @@ class PropertyView(QTableWidget, AbstractView):
         self.setItem(self.lastRow(), 0, LabelItem(name, Qt.lightGray))
         self.setItem(self.lastRow(), 1, LabelItem("", Qt.lightGray))
         self.verticalHeader().resizeSection(self.rowCount() - 1, Property.DEFAULT_HEIGHT)
+        return name
 
     def setReadOnly(self, readOnly):
         """ Sets all properties in the PropertyView to read-only.
@@ -241,11 +245,13 @@ class PropertyView(QTableWidget, AbstractView):
         # do not use threads here since this may lead to crashes
         for property in self.dataAccessor().properties(self.dataObject()):
             if property[0] == "Category":
-                self.addCategory(property[1])
+                self._currentCategoryName = self.addCategory(property[1])
             else:
-                propertyWidget=PropertyView.propertyWidgetFromProperty(property)
+                propertyWidget=PropertyView.propertyWidgetFromProperty(property, self._currentCategoryName)
                 if propertyWidget:
                     self.append(propertyWidget)
+                if isinstance(propertyWidget,(FileProperty,FileVectorProperty)):
+                    propertyWidget.useRelativePaths(self._relativePath)
                 if isinstance(propertyWidget,QCheckBox):
                     propertyWidget.setChecked(property[2],False)      # strange, QCheckBox forgets its state on append in Qt 4.4.4
         if not self._readOnly and self._showAddDeleteButtonFlag:
@@ -256,28 +262,28 @@ class PropertyView(QTableWidget, AbstractView):
         return self._operationId==operationId
 
     #@staticmethod
-    def propertyWidgetFromProperty(property):
+    def propertyWidgetFromProperty(property, categoryName=None):
         """ Create a property widget from a property tuple.
         
         This function is static in order to be used by other view, e.g. TableView.
         """
         propertyWidget=None
         if property[0] == "String":
-            propertyWidget=StringProperty(property[1], property[2])
+            propertyWidget=StringProperty(property[1], property[2], categoryName)
         elif property[0] == "MultilineString":
-            propertyWidget=StringProperty(property[1], property[2], True)
+            propertyWidget=StringProperty(property[1], property[2], categoryName, True)
         elif property[0] == "File":
-            propertyWidget=FileProperty(property[1], property[2])
+            propertyWidget=FileProperty(property[1], property[2], categoryName)
         elif property[0] == "FileVector":
-            propertyWidget=FileVectorProperty(property[1], property[2])
+            propertyWidget=FileVectorProperty(property[1], property[2], categoryName)
         elif property[0] == "Boolean":
-            propertyWidget = BooleanProperty(property[1], property[2])
+            propertyWidget = BooleanProperty(property[1], property[2], categoryName)
         elif property[0] == "Integer":
-            propertyWidget=IntegerProperty(property[1], property[2])
+            propertyWidget=IntegerProperty(property[1], property[2], categoryName)
         elif property[0] == "Double":
-            propertyWidget=DoubleProperty(property[1], property[2])
+            propertyWidget=DoubleProperty(property[1], property[2], categoryName)
         elif property[0] == "DropDown":
-            propertyWidget=DropDownProperty(property[1], property[2], property[6])
+            propertyWidget=DropDownProperty(property[1], property[2], property[6], categoryName)
         else:
             logging.error(__name__+": propertyWidgetFromProperty() - Unknown property type "+str(property[0]))
             return None
@@ -297,14 +303,17 @@ class PropertyView(QTableWidget, AbstractView):
         """
         if self.dataAccessor() and not self._ignoreValueChangeFlag:
             bad=False
-            if property.value() != self.dataAccessor().propertyValue(self.dataObject(), property.name()):
-                if isinstance(property.value(),ValueError):
-                    result=str(property.value())
+            newvalue = property.value()
+            oldValue = self.dataAccessor().propertyValue(self.dataObject(), property.name())
+            if newvalue != oldValue:
+                if isinstance(newvalue,ValueError):
+                    result=str(newvalue)
                 else:
-                    result=self.dataAccessor().setProperty(self.dataObject(), property.name(), property.value())
+                    result=self.dataAccessor().setProperty(self.dataObject(), property.name(), newvalue, property.categoryName())
                 if result==True:
-                    self.emit(SIGNAL('valueChanged'),property.name())
+                    self.emit(SIGNAL('valueChanged'),property.name(), newvalue, oldValue, property.categoryName())
                 else:
+                    print "valueChanged() result = ", result, type(result)
                     property.setToolTip(result)
                     QMessageBox.critical(self.parent(), 'Error', result)
                     bad=True
@@ -344,9 +353,11 @@ class PropertyView(QTableWidget, AbstractView):
             return
         if self.dataAccessor():
             if self.dataAccessor().addProperty(self.dataObject(), name, value, type):
-                property=PropertyView.propertyWidgetFromProperty((type,name,value,None,False,True))
+                property=self.propertyWidgetFromProperty((type,name,value,None,False,True), self._currentCategoryName)
                 if property:
                     self.append(property)
+                if isinstance(property,(FileProperty,FileVectorProperty)):
+                    property.useRelativePaths(self._relativePath)
                 self.sender()._lineedit.setText("")
                 property.setFocus()
                 self.emit(SIGNAL('propertyAdded'),property.name())
@@ -360,6 +371,8 @@ class PropertyView(QTableWidget, AbstractView):
         if item.property():
             item.property().labelDoubleClicked()
 
+    def useRelativePaths(self,path):
+        self._relativePath=path
 
 class LabelItem(QTableWidgetItem):
     """ A QTableWidgetItem with a convenient constructor. 
@@ -394,11 +407,12 @@ class Property(object):
     USER_INFO = "General property"
     DEFAULT_HEIGHT = 20
     
-    def __init__(self, name):
+    def __init__(self, name, categoryName=None):
         self.setName(name)
         self.setUserInfo(self.USER_INFO)
         self._propertyView = None
         self._deletable=False
+        self._categoryName = categoryName
         
     def setName(self, name):
         """ Sets the name of this property.
@@ -409,6 +423,9 @@ class Property(object):
         """ Return the name of this property.
         """
         return self._name
+    
+    def categoryName(self):
+        return self._categoryName
     
     def setDeletable(self,deletable):
         self._deletable=deletable
@@ -486,10 +503,10 @@ class BooleanProperty(Property, QCheckBox):
     
     USER_INFO = "Enable / Disable"
     
-    def __init__(self, name, value):
+    def __init__(self, name, value, categoryName=None):
         """ Constructor.
         """
-        Property.__init__(self, name)
+        Property.__init__(self, name, categoryName)
         QCheckBox.__init__(self)
         self.connect(self, SIGNAL('stateChanged(int)'), self.valueChanged)
     
@@ -521,10 +538,10 @@ class DropDownProperty(Property, QComboBox):
     
     USER_INFO = "Drop down field"
     
-    def __init__(self, name, value, values):
+    def __init__(self, name, value, values, categoryName=None):
         """ Constructor.
         """
-        Property.__init__(self, name)
+        Property.__init__(self, name, categoryName)
         QComboBox.__init__(self)
         self._values=values
         for v in values:
@@ -564,10 +581,10 @@ class TextEditWithButtonProperty(Property, QWidget):
     BUTTON_LABEL = ''
     AUTOHIDE_BUTTON = True
     
-    def __init__(self, name, value, multiline=False):
+    def __init__(self, name, value, categoryName=None, multiline=False):
         """ The constructor creates a QHBoxLayout and calls createLineEdit(), createTextEdit() and createButton(). 
         """
-        Property.__init__(self, name)
+        Property.__init__(self, name, categoryName)
         QWidget.__init__(self)
         self._lineEdit = None
         self._textEdit = None
@@ -791,9 +808,9 @@ class StringProperty(TextEditWithButtonProperty):
     
     AUTHIDE_BUTTON = False
     
-    def __init__(self, name, value, multiline=None):
+    def __init__(self, name, value, categoryName=None, multiline=None):
         """ Constructor """
-        TextEditWithButtonProperty.__init__(self, name, value, (multiline or str(value).count("\n")>0))
+        TextEditWithButtonProperty.__init__(self, name, value, categoryName, (multiline or str(value).count("\n")>0))
 
     def setMultiline(self,multiline):
         TextEditWithButtonProperty.setMultiline(self,multiline)
@@ -831,19 +848,19 @@ class IntegerProperty(Property,QWidget):
     
     USER_INFO = "Integer field"
     
-    def __init__(self, name, value):
+    def __init__(self, name, value, categoryName=None):
         """ Constructor
         """
-        Property.__init__(self, name)
+        Property.__init__(self, name, categoryName)
         QWidget.__init__(self)
         self.setLayout(QHBoxLayout())
         self.layout().setSpacing(0)
         self.layout().setContentsMargins(0, 0, 0, 0)
         
         self._spinbox=QSpinBox()
-        #maxint = sys.maxint     # does not work on Mac OS X (Snow Leopard 10.6.2), confusion between 32 and 64 bit limits
-        maxint = 2**31
-        self._spinbox.setRange(-maxint+1, maxint-1)
+        #self.maxint = sys.maxint     # does not work on Mac OS X (Snow Leopard 10.6.2), confusion between 32 and 64 bit limits
+        self.maxint = 2**31
+        self._spinbox.setRange(-self.maxint+1, self.maxint-1)
         self._spinbox.setFrame(False)
         self.layout().addWidget(self._spinbox)
         self.setFocusProxy(self._spinbox)
@@ -876,7 +893,7 @@ class IntegerProperty(Property,QWidget):
     
     def setValue(self,value):
         self.disconnect(self._spinbox, SIGNAL('valueChanged(int)'), self.valueChanged)
-        self._spinbox.setValue(value)
+        self._spinbox.setValue(value % self.maxint)
         self.connect(self._spinbox, SIGNAL('valueChanged(int)'), self.valueChanged)
         self._lineedit.setText(str(value))
     
@@ -888,10 +905,10 @@ class DoubleProperty(TextEditWithButtonProperty):
     
     AUTHIDE_BUTTON = False
     
-    def __init__(self, name, value):
+    def __init__(self, name, value, categoryName=None):
         """ Constructor
         """
-        TextEditWithButtonProperty.__init__(self, name, value)
+        TextEditWithButtonProperty.__init__(self, name, value, categoryName=None)
         
     def createButton(self):
         """ Do not create a button."""
@@ -926,20 +943,31 @@ class FileProperty(TextEditWithButtonProperty):
     USER_INFO = "Select a file. Double click on label to open file."
     BUTTON_LABEL = '...'
     
-    def __init__(self, name, value):
-        TextEditWithButtonProperty.__init__(self, name, value)
+    def __init__(self, name, value, categoryName=None):
+        TextEditWithButtonProperty.__init__(self, name, value, categoryName)
         self.button().setToolTip(self.userInfo())
         
     def buttonClicked(self, checked=False):
-        """ Shows the file selection dialog. """ 
+        """ Shows the file selection dialog. """
+        if self.value()!="":
+            if self._relativePath:
+                dir=os.path.join(self._relativePath,self.value())
+            else:
+                dir=self.value()
+        else:
+            dir=QCoreApplication.instance().getLastOpenLocation()
         filename = QFileDialog.getSaveFileName(
                                                self,
                                                'Select a file',
-                                               self.value(),
+                                               dir,
                                                '',
                                                None,
                                                QFileDialog.DontConfirmOverwrite)
         if not filename.isEmpty():
+            filename=str(filename)
+            if self._relativePath:
+                if filename.startswith(self._relativePath):
+                    filename=filename[len(self._relativePath):].lstrip("/")
             self.setValue(filename)
             self.textEdit().emit(SIGNAL('editingFinished()'))
             
@@ -948,6 +976,9 @@ class FileProperty(TextEditWithButtonProperty):
         """
         if isinstance(self.propertyView().parent(), AbstractTab):
             self.propertyView().parent().mainWindow().application().doubleClickOnFile(self.value())
+
+    def useRelativePaths(self,path):
+        self._relativePath=path
 
 
 class FileVectorProperty(TextEditWithButtonProperty):
@@ -959,14 +990,16 @@ class FileVectorProperty(TextEditWithButtonProperty):
     USER_INFO = "Edit list of files."
     BUTTON_LABEL = '...'
     
-    def __init__(self, name, value):
-        TextEditWithButtonProperty.__init__(self, name, value)
+    def __init__(self, name, value, categoryName=None):
+        TextEditWithButtonProperty.__init__(self, name, value, categoryName)
         self.button().setToolTip(self.userInfo())
         
     def buttonClicked(self, checked=False):
         """ Shows the file selection dialog. """
         if type(self._originalValue)==type(()) and len(self._originalValue)>0:
             dir=os.path.dirname(self._originalValue[0])
+        elif self._relativePath:
+            dir=self._relativePath
         else:
             dir=QCoreApplication.instance().getLastOpenLocation()
         fileList = QFileDialog.getOpenFileNames(
@@ -977,9 +1010,20 @@ class FileVectorProperty(TextEditWithButtonProperty):
                                                None,
                                                QFileDialog.DontConfirmOverwrite)
         fileNames=[str(f) for f in fileList]
+        if self._relativePath:
+            nfileNames=[]
+            for v in fileNames:
+                if v.startswith(self._relativePath):
+                    nfileNames+=[v[len(self._relativePath):].lstrip("/")]
+                else:
+                    nfileNames+=[v]
+            fileNames=nfileNames
         if len(fileNames)>0:
             self.setValue(fileNames)
             self.textEdit().emit(SIGNAL('editingFinished()'))
 
     def isBusy(self):
         return self._updatingFlag>0
+
+    def useRelativePaths(self,path):
+        self._relativePath=path

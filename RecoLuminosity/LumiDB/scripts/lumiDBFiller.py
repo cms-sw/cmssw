@@ -7,10 +7,14 @@ lumilogpath=''
 
 def isCollisionRun(run,authpath=''):
     itIs = False
+    itIsAlso = False
     command = 'dumpRunInfo.py -c oracle://cms_omds_lb/cms_runinfo -P '+authpath+' -r '+run+' --collision-only l1key | wc'
     statusAndOutput = commands.getstatusoutput(command)
     if statusAndOutput[1].split('   ')[2] == '2': itIs = True
-    return itIs
+    command = 'dumpRunInfo.py -c oracle://cms_omds_lb/cms_runinfo -P '+authpath+' -r '+run+' --collision-only hltkey | wc'
+    statusAndOutput = commands.getstatusoutput(command)
+    if statusAndOutput[1].split('   ')[2] == '2': itIsAlso = True
+    return itIs and itIsAlso 
 
 def getRunnumberFromFileName(lumifilename):
     runnumber=int(lumifilename.split('_')[4])
@@ -84,6 +88,12 @@ def main():
             
         # applying normalization
         command = 'applyCalibration.py -c '+args.connect+' -norm '+ args.normalization +' -r '+run+' -P '+ lumiauthpath+' run'
+        statusAndOutput = commands.getstatusoutput(command)
+        logFile.write(command+'\n')
+        logFile.write(statusAndOutput[1])
+        # apply default validation
+        selectstring='"{'+run+':[]}"'
+        command = 'lumiValidate.py -c '+args.connect+' -P '+ lumiauthpath+' -runls '+selectstring+' update' 
         statusAndOutput = commands.getstatusoutput(command)
         logFile.write(command+'\n')
         logFile.write(statusAndOutput[1])

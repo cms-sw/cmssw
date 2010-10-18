@@ -9,6 +9,7 @@ simCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag("mixData","MuonCS
 #
 #simRpcTriggerDigis.label = cms.InputTag("simMuonRPCDigis")
 simRpcTriggerDigis.label = 'mixData'
+simRpcTechTrigDigis.RPCDigiLabel = 'mixData'
 
 
 

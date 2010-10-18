@@ -51,7 +51,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('step3 nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -69,7 +69,7 @@ process.options = cms.untracked.PSet(
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'GR10_P_V6::All'
+process.GlobalTag.globaltag = 'GR_R_38X_V9::All'
 
 # Path and EndPath definitions
 process.edmtome_step = cms.Path(process.EDMtoME)

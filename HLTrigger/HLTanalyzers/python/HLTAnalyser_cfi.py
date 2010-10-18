@@ -26,12 +26,13 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     l1extramc                       = cms.string('hltL1extraParticles'),
     l1extramu                       = cms.string('hltL1extraParticles'),
     hltresults                      = cms.InputTag("TriggerResults::HLT"),
+    HLTProcessName                  = cms.string("HLT"),
     
     ### reconstructed objects
     genjets                         = cms.InputTag("iterativeCone5GenJets"),
     genmet                          = cms.InputTag("genMet"),
     recjets                         = cms.InputTag("hltIterativeCone5CaloJets"),
-    reccorjets                      = cms.InputTag("hltMCJetCorJetIcone5"),
+    reccorjets                      = cms.InputTag("hltMCJetCorJetIcone5Regional"),
     recmet                          = cms.InputTag("hltMet"),
     ht                              = cms.InputTag("hltHtMet"),
     calotowers                      = cms.InputTag("hltTowerMakerForAll"),
@@ -55,8 +56,11 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     HcalNonIsoPho                   = cms.InputTag("hltL1NonIsolatedPhotonHcalIsol"),
     IsoPhoTrackIsol                 = cms.InputTag("hltL1IsoPhotonHollowTrackIsol"),
     NonIsoPhoTrackIsol              = cms.InputTag("hltL1NonIsoPhotonHollowTrackIsol"),
-    HcalIsoEle                      = cms.InputTag("hltL1IsolatedElectronHcalIsol"),
-    HcalNonIsoEle                   = cms.InputTag("hltL1NonIsolatedElectronHcalIsol"),
+    HcalIsoEle                      = cms.InputTag("hltL1IsolatedPhotonHcalForHE"),
+    HcalNonIsoEle                   = cms.InputTag("hltL1NonIsolatedPhotonHcalForHE"),
+    SpikeCleaningIsol               = cms.InputTag("hltL1IsoR9shape"),
+    SpikeCleaningNonIsol            = cms.InputTag("hltL1NonIsoR9shape"),            
+
     ### egamma - standard or startup windows                         
     IsoElectrons                    = cms.InputTag("hltPixelMatchElectronsL1Iso"),
     NonIsoElectrons                 = cms.InputTag("hltPixelMatchElectronsL1NonIso"),
@@ -84,7 +88,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     
     ### b-jet OpenHLT related objects
     CommonBJetsL2                   = cms.InputTag("hltIterativeCone5CaloJets"),
-    CorrectedBJetsL2                = cms.InputTag("hltMCJetCorJetIcone5"),
+    CorrectedBJetsL2                = cms.InputTag("hltMCJetCorJetIcone5Regional"),
     LifetimeBJetsL25                = cms.InputTag("openHltBLifetimeL25BJetTags"),
     LifetimeBJetsL3                 = cms.InputTag("openHltBLifetimeL3BJetTags"),
     LifetimeBJetsL25Relaxed         = cms.InputTag("openHltBLifetimeL25BJetTags"),
@@ -107,7 +111,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     IsoPixelTrackVertices       = cms.InputTag("hltPixelVertices"),    
 
     ### Track settings
-    PixelTracksL3               = cms.InputTag("hltPixelCands"),                         
+    PixelTracksL3               = cms.InputTag("hltPixelCandsForMinBias"),                         
 
     ### Calo tower settings
     caloTowerThreshold          = cms.double( 2.0 ),

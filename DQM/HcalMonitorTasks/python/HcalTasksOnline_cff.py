@@ -9,6 +9,7 @@ from DQM.HcalMonitorTasks.HcalBeamMonitor_cfi          import *
 from DQM.HcalMonitorTasks.HcalRawDataMonitor_cfi       import *
 from DQM.HcalMonitorTasks.HcalTrigPrimMonitor_cfi      import *
 from DQM.HcalMonitorTasks.HcalDataIntegrityTask_cfi    import *
+from DQM.HcalMonitorTasks.HcalCoarsePedestalMonitor_cfi import *
 
 from DQM.HcalMonitorTasks.HcalDetDiagLaserMonitor_cfi  import *
 from DQM.HcalMonitorTasks.HcalDetDiagPedestalMonitor_cfi import*
@@ -26,6 +27,7 @@ hcalDeadCellMonitor.online        = True
 hcalBeamMonitor.online            = True
 hcalTrigPrimMonitor.online        = True
 hcalNZSMonitor.online             = True
+hcalCoarsePedestalMonitor.online  = True
 # The following tasks are not yet run online
 hcalDetDiagLEDMonitor.online      = True
 hcalDetDiagPedestalMonitor.online = True
@@ -42,6 +44,7 @@ hcalDeadCellMonitor.subSystemFolder        = "Hcal/"
 hcalBeamMonitor.subSystemFolder            = "Hcal/"
 hcalTrigPrimMonitor.subSystemFolder        = "Hcal/"
 hcalNZSMonitor.subSystemFolder             = "Hcal/"
+hcalCoarsePedestalMonitor.subSystemFolder  = "Hcal/"
 # The following tasks are not yet run online
 hcalDetDiagLEDMonitor.subSystemFolder      = "Hcal/"
 hcalDetDiagPedestalMonitor.subSystemFolder = "Hcal/"
@@ -60,6 +63,7 @@ hcalTrigPrimMonitor.AllowedCalibTypes        =  [0]
 hcalNZSMonitor.AllowedCalibTypes             =  [0]
 hcalDetDiagNoiseMonitor.AllowedCalibTypes    =  [0]
 hcalDetDiagTimingMonitor.AllowedCalibTypes   =  [0]
+hcalCoarsePedestalMonitor.AllowedCalibTypes  =  [1]
 
 # Skip out of order lumi sections for hot, dead, beam monitors
 hcalRawDataMonitor.skipOutOfOrderLS         =  False

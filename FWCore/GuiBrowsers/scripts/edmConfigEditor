@@ -1,16 +1,29 @@
 #! /usr/bin/env python
-import unittest
-import os.path
+import os
 import sys
-
 import logging
-#logging.root.setLevel(logging.DEBUG)
 
-distBaseDirectory=os.path.abspath(os.path.expandvars("$CMSSW_BASE/python/FWCore/GuiBrowsers"))
-if not os.path.exists(distBaseDirectory) or not "Vispa" in os.listdir(distBaseDirectory):
-    distBaseDirectory=os.path.abspath(os.path.expandvars("$CMSSW_RELEASE_BASE/python/FWCore/GuiBrowsers"))
+import signal
 
-sys.path.append(distBaseDirectory)
+import ConfigParser
+import optparse
+import webbrowser
+import math
+import unittest
+import time
+
+try:
+    distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
+    if not os.path.exists(distBaseDirectory) or not "Vispa" in os.listdir(distBaseDirectory):
+        distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(__file__),"../python"))
+    if not os.path.exists(distBaseDirectory) or not "Vispa" in os.listdir(distBaseDirectory):
+        distBaseDirectory=os.path.abspath(os.path.expandvars("$CMSSW_BASE/python/FWCore/GuiBrowsers"))
+    if not os.path.exists(distBaseDirectory) or not "Vispa" in os.listdir(distBaseDirectory):
+        distBaseDirectory=os.path.abspath(os.path.expandvars("$CMSSW_RELEASE_BASE/python/FWCore/GuiBrowsers"))
+except Exception:
+    distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]),".."))
+
+sys.path.insert(0,distBaseDirectory)
 from Vispa.Main.Directories import *
 distBinaryBaseDirectory=os.path.join(baseDirectory,"dist")
 sys.path.append(distBinaryBaseDirectory)
@@ -31,12 +44,8 @@ QCoreApplication.addLibraryPath(qt_plugins_path)
 
 setWebsiteUrl('http://twiki.cern.ch/twiki/bin/view/CMS/SWGuideConfigEditor')
 
-from Vispa.Main.Application import Application
-#Application.NO_PROCESS_EVENTS=True
-from Vispa.Share.ThreadChain import ThreadChain
-#ThreadChain.NO_THREADS_FLAG=True
-
-from Vispa.Share import Profiling
+from Vispa.Main.Application import *
+from Vispa.Plugins.ConfigEditor.ConfigEditorPlugin import *
 
 if __name__ == "__main__":
     if not os.path.exists(preferencesDirectory):
@@ -45,6 +54,10 @@ if __name__ == "__main__":
             os.mkdir(preferencesDirectory)
         except IOError:
             print "Directory could not be created. No logging."
-    app=Application(sys.argv)
+    app = Application(sys.argv)
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
     app.mainWindow().setWindowTitle("ConfigEditor")
+    #for plugin in app.plugins():
+    #    if plugin.__class__.__name__=="ConfigEditorPlugin":
+    #        tab=plugin.newFile()
     app.run()

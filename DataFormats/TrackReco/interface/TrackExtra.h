@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackExtra.h,v 1.27 2008/05/05 17:49:10 jmuelmen Exp $
+ * \version $Id: TrackExtra.h,v 1.28 2010/06/29 10:49:10 hegner Exp $
  *
  */
 #include <Rtypes.h>
@@ -49,7 +49,16 @@ namespace reco {
       seedDir_(anyDirection),
       seedRef_(),
       trackResiduals_()
-    { }
+   {
+     index idx = 0;
+     for( index i = 0; i < dimension; ++ i ) {
+       for( index j = 0; j <= i; ++ j ) {
+         outerCovariance_[ idx ] = 0;
+         innerCovariance_[ idx ] = 0;
+         ++idx;
+       }
+     }
+   }
 
     /// constructor from outermost/innermost position and momentum and Seed information
     TrackExtra( const Point & outerPosition, const Vector & outerMomentum, bool ok ,

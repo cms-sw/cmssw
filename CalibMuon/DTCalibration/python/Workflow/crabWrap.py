@@ -1,6 +1,6 @@
-import os,time,sys
-from crab import Crab,common,parseOptions,CrabException
-from crabStatusFromReport import crabStatusFromReport
+import time,sys
+from crab import *
+import common
 
 def computeSummaryCRAB260(up_task):
     """
@@ -84,15 +84,13 @@ def summaryServer(self):
     upTask = common._db.getTask()  
     return computeSummary(upTask)
 
-"""
 # Add method to Status classes
 import Status
 import StatusServer
 Status.Status.summary = summaryStandAlone
 StatusServer.StatusServer.summary = summaryServer
-"""
 
-def crabAction(options, action = None):
+def crabActionCRAB260(options, action = None):
 
     options = parseOptions(options)
 
@@ -103,12 +101,13 @@ def crabAction(options, action = None):
         crab.run()
         if action: result = action(crab)
         del crab
-        print 'Log file is %s%s.log'%(common.work_space.logDir(),common.prog_name) 
+        #print 'Log file is %s%s.log'%(common.work_space.logDir(),common.prog_name)  
+        #print '\n##############################  E N D  ####################################\n'
     except CrabException, e:
         del crab
-        #print '\n' + common.prog_name + ': ' + str(e) + '\n' 
-        raise
-        
+        #print '\n' + common.prog_name + ': ' + str(e) + '\n'
+        pass
+    pass
     if (common.logger): common.logger.delete()
 
     if result: return result
@@ -134,6 +133,8 @@ def crabActionCRAB251(options, action = None):
 
     if result: return result
 
+crabAction = crabActionCRAB260
+
 def crabCreate(dir = '.', crabCfg_name = 'crab.cfg'):
 
     cwd = os.getcwd()
@@ -154,76 +155,32 @@ def crabSubmit(project):
 
     return
 
-def crabStatus(project):
+def checkStatus(project, threshold = 95.0):
     options = ['-status']
     if project:
         options.append('-c')
         options.append(project)
 
     def action(crab):
-        #act = '-status'
-        #return crab.actions[act].summary()
-        xml = crab.cfg_params.get("USER.xml_report",'')
-        return common.work_space.shareDir() + xml
-        
-    xmlreport = crabAction(options,action)
-    status = crabStatusFromReport(xmlreport)
- 
-    return status
+        act = '-status'
+        return crab.actions[act].summary()
 
-def convertStatus(status):
-    """
-    doneStatus = ['Done','Done (success)','Cleared','Retrieved']
-    failedStatus = ['Aborted','Done (failed)','Killed','Cancelled']
-    ignoreStatus = ['Created']
-    """
-    doneStatus = ['SD','E']
-    failedStatus = ['A','DA','K']
-    runningStatus = ['R']
-    ignoreStatus = ['C']
-    sumDone = 0.0
-    sumFailed = 0.0
-    sumRunning = 0.0
-    sumIgnore = 0.0
-    for key in status:
-        if key in doneStatus: sumDone += status[key]
-        if key in failedStatus: sumFailed += status[key]
-        if key in runningStatus: sumRunning += status[key]
-        if key in ignoreStatus: sumIgnore += status[key]
-
-    # frac(done)' = N*frac(done)/(N - N*frac(ignore)) = frac(done)/(1 - frac(ignore))
-    fracDone = 100.0*sumDone/(100.0 - sumIgnore)
-    fracFailed = 100.0*sumFailed/(100.0 - sumIgnore)
-    fracRun = 100.0*sumRunning/(100.0 - sumIgnore)
-
-    result = {'Finished':fracDone,
-              'Failed':fracFailed,
-              'Running':fracRun}
-
-    return result 
-
-def checkStatus(project, threshold = 95.0):
-
-    status = crabStatus(project)
- 
+    status = crabAction(options,action)
     print "Percentage of jobs per status:"
-    maxLength = max( [len(x) for x in status] )
     for item in status:
-        print "%*s: %.0f%%" % (maxLength,item,status[item])
-
-
-    statusNew = convertStatus(status)
-       
-    print "Relative percentage finished: %.0f%%" % statusNew['Finished']
-    print "Relative percentage failed  : %.0f%%" % statusNew['Failed']
-    print "Relative percentage running : %.0f%%" % statusNew['Running']
+        print "%s %.2f"%(item,status[item])
 
     finished = False
-    # Condition for stopping
-    #if fracFailed > 50.0: raise RuntimeError,'Too many jobs have failed (%.0f%%).' % fracFailed
+    #if status.has_key('Done') and status['Done'] > threshold: finished = True
+    if status.has_key('Done') and status['Done'] > 50.0:
+        ignoreStatus = ['Created']
+        sum = 0.0
+        for item in ignoreStatus:
+            if status.has_key(item): sum += status[item]
 
-    # Condition for considering it finished
-    if statusNew['Finished'] > threshold: finished = True 
+        # frac(done)' = N*frac(done)/(N - N*frac(ignore)) = frac(done)/(1 - frac(ignore))
+        per_new = 100.0*status['Done']/(100.0 - sum)
+        if per_new > threshold: finished = True 
 
     return finished
 
@@ -248,65 +205,6 @@ def crabWatch(action,project = None, threshold = 95.0):
     action(project)
   
     return
-
-def initCrabEnvironment():
-    pythonpathenv = os.environ['PYTHONPATH']
-    pythonpathbegin = pythonpathenv.split(':')[0]
-    pythonpathend = pythonpathenv.split(':')[-1]
-
-    indexBegin = sys.path.index(pythonpathbegin)
-    if os.environ.has_key('CRABPSETPYTHON'): sys.path.insert( indexBegin, os.environ['CRABPSETPYTHON'] )
-    if os.environ.has_key('CRABDLSAPIPYTHON'): sys.path.insert( indexBegin, os.environ['CRABDLSAPIPYTHON'] )
-    if os.environ.has_key('CRABDBSAPIPYTHON'): sys.path.insert( indexBegin, os.environ['CRABDBSAPIPYTHON'] )
-
-    if os.environ['SCRAM_ARCH'].find('32') != -1 and os.environ.has_key('CRABPYSQLITE'):
-        sys.path.insert( indexBegin, os.environ['CRABPYSQLITE'] )
-    elif os.environ['SCRAM_ARCH'].find('64') != -1 and os.environ.has_key('CRABPYSQLITE64'):
-        sys.path.insert( indexBegin, os.environ['CRABPYSQLITE64'] )
-
-    indexEnd = sys.path.index(pythonpathend) + 1
-    if os.environ.has_key('CRABPYTHON'):
-        if indexEnd >= len(sys.path): sys.path.append( os.environ['CRABPYTHON'] )
-        else: sys.path.insert( indexEnd, os.environ['CRABPYTHON'] )
-
-    #print sys.path
-
-    os.environ['LD_LIBRARY_PATH'] = os.environ['GLITE_LOCATION'] + '/lib' + ':' + os.environ['LD_LIBRARY_PATH']
-    os.environ['VOMS_PROXY_INFO_DONT_VERIFY_AC'] = '1'
-    #print os.environ['LD_LIBRARY_PATH']
-    #print os.environ['VOMS_PROXY_INFO_DONT_VERIFY_AC'] 
-    
-    """ 
-    export LD_LIBRARY_PATH=${GLITE_LOCATION}/lib:${LD_LIBRARY_PATH}
-    export VOMS_PROXY_INFO_DONT_VERIFY_AC=1
-    """
-   
-    ## Get rid of some useless warning
-    try:
-        import warnings
-        warnings.simplefilter("ignore", RuntimeWarning)
-        # import socket
-        # socket.setdefaulttimeout(15) # Default timeout in seconds
-    except ImportError:
-        pass # too bad, you'll get the warning
-
-    # Remove libraries which over-ride CRAB libs and DBS_CONFIG setting
-    badPaths = []
-    if os.environ.has_key('DBSCMD_HOME'): # CMSSW's DBS, remove last bit of path
-        badPaths.append('/'.join(os.environ['DBSCMD_HOME'].split('/')[:-1]))
-    if os.environ.has_key('DBS_CLIENT_CONFIG'):
-        del os.environ['DBS_CLIENT_CONFIG']
-
-    def pathIsGood(checkPath):
-        """
-        Filter function for badPaths
-        """
-        for badPath in badPaths:
-            if checkPath.find(badPath) != -1:
-                return False
-        return True
-
-    sys.path = filter(pathIsGood, sys.path)
 
 def run(project = None, threshold = 95.0):
 

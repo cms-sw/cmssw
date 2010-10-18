@@ -1,4 +1,4 @@
-// $Id: Halted.cc,v 1.8 2009/08/28 16:41:26 mommsen Exp $
+// $Id: Halted.cc,v 1.9 2009/09/29 07:57:56 mommsen Exp $
 /// @file: Halted.cc
 
 #include "EventFilter/StorageManager/interface/Notifier.h"
@@ -38,7 +38,7 @@ Halted::~Halted()
 
 string Halted::do_stateName() const
 {
-  return string( "Halted" );
+  return std::string( "Halted" );
 }
 
 void Halted::do_moveToFailedState( xcept::Exception& exception ) const

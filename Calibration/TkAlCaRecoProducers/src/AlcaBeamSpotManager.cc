@@ -1,8 +1,8 @@
 /** \class AlcaBeamSpotManager
  *  No description available.
  *
- *  $Date: 2010/06/29 16:27:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/06/30 20:49:57 $
+ *  $Revision: 1.3 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
 
@@ -146,10 +146,26 @@ void AlcaBeamSpotManager::createWeightedPayloads(void){
         pair<float,float> adelta1;																												  		    
         pair<float,float> adelta2;																												  		    
         pair<float,float> adelta;																												  
+        pair<float,float> adelta1dxdz;
+        pair<float,float> adelta2dxdz;
+        pair<float,float> adelta1dydz;
+        pair<float,float> adelta2dydz;
+        pair<float,float> adelta1widthX;
+        pair<float,float> adelta2widthX;
+        pair<float,float> adelta1widthY;
+        pair<float,float> adelta2widthY;
 
-        //Checking X																														  		    
-        limit = currentBS->second.BeamWidthX()/3.;																										  		    
-        adelta1 = delta(currentBS->second.x0(), currentBS->second.x0Error(), nextBS->second.x0(), nextBS->second.x0Error());																	  		    
+        // define minimum limit
+        float min_limit = 0.0025;
+        
+        // limit for x and y
+        limit = currentBS->second.BeamWidthX()/2.;																										  		    
+        if(limit < min_limit){
+	  limit = min_limit;
+        }
+	
+	//check movements in X																														  		    
+	adelta1 = delta(currentBS->second.x0(), currentBS->second.x0Error(), nextBS->second.x0(), nextBS->second.x0Error());																	  		    
         adelta2 = pair<float,float>(0.,1.e9);																													    
         if (nextNextBS->second.type() != -1){																											  		    
             adelta2 = delta(nextBS->second.x0(), nextBS->second.x0Error(), nextNextBS->second.x0(), nextNextBS->second.x0Error());																  		    
@@ -161,18 +177,31 @@ void AlcaBeamSpotManager::createWeightedPayloads(void){
         	<< " positive, " << (adelta1.first+adelta2.first) << " limit=" << limit << endl;																				  		    
         	deltaX = true;  																												  		    
             }
-            else if( deltaX && adelta1.first*adelta2.first<=0 && fabs(adelta1.first/adelta2.first) > 0.55 && fabs(adelta1.first/adelta2.first) < 1.45){ 													  		    
+            else if( deltaX && adelta1.first*adelta2.first<=0 && fabs(adelta1.first/adelta2.first) > 0.33 && fabs(adelta1.first/adelta2.first) < 3){ 													  		    
               LogInfo("AlcaBeamSpotManager")																											  		    
         	<< " negative, " << adelta1.first/adelta2.first << endl;																							  		    
         	deltaX = false; 																												  		    
             }
         }																															  
 
-        //Checking Y																														  		    
+        //calculating all deltas																														  		    
+        adelta1dxdz = delta(currentBS->second.dxdz(), currentBS->second.dxdzError(), nextBS->second.dxdz(), nextBS->second.dxdzError());
+        adelta2dxdz = pair<float,float>(0.,1.e9);
+        adelta1dydz = delta(currentBS->second.dydz(), currentBS->second.dydzError(), nextBS->second.dydz(), nextBS->second.dydzError());
+        adelta2dydz = pair<float,float>(0.,1.e9);
+        adelta1widthX = delta(currentBS->second.BeamWidthX(), currentBS->second.BeamWidthXError(), nextBS->second.BeamWidthX(), nextBS->second.BeamWidthXError());
+        adelta2widthX = pair<float,float>(0.,1.e9);
+        adelta1widthY = delta(currentBS->second.BeamWidthY(), currentBS->second.BeamWidthYError(), nextBS->second.BeamWidthY(), nextBS->second.BeamWidthYError());
+        adelta2widthY = pair<float,float>(0.,1.e9);
+        //check movements in Y																														  		    
         adelta1 = delta(currentBS->second.y0(), currentBS->second.y0Error(), nextBS->second.y0(), nextBS->second.y0Error());																			    
         adelta2 = pair<float,float>(0.,1.e9);																													    
         if( nextNextBS->second.type() != BeamSpot::Unknown){																										  	    
           adelta2 = delta(nextBS->second.y0(), nextBS->second.y0Error(), nextNextBS->second.y0(), nextNextBS->second.y0Error());																  		    
+          adelta2dxdz = delta(nextBS->second.dxdz(), nextBS->second.dxdzError(), nextNextBS->second.dxdz(), nextNextBS->second.dxdzError());
+          adelta2dydz = delta(nextBS->second.dydz(), nextBS->second.dydzError(), nextNextBS->second.dydz(), nextNextBS->second.dydzError());
+          adelta2widthX = delta(nextBS->second.BeamWidthX(), nextBS->second.BeamWidthXError(), nextNextBS->second.BeamWidthX(), nextNextBS->second.BeamWidthXError());
+          adelta2widthY = delta(nextBS->second.BeamWidthY(), nextBS->second.BeamWidthYError(), nextNextBS->second.BeamWidthY(), nextNextBS->second.BeamWidthYError());
         }																															  		    
         bool deltaY = (deltaSig(adelta1.first,adelta1.second) > 3.5 && adelta1.first >= limit)?true:false;																			  		    
         if(iteration < beamSpotMap_.size()-2){  																										  		    
@@ -181,13 +210,13 @@ void AlcaBeamSpotManager::createWeightedPayloads(void){
               << " positive, " << (adelta1.first+adelta2.first) << " limit=" << limit << endl;  																						  
               deltaY = true;																															  
           }
-          else if( deltaY && adelta1.first*adelta2.first<=0 && fabs(adelta1.first/adelta2.first) > 0.55 && fabs(adelta1.first/adelta2.first) < 1.45){																  
+          else if( deltaY && adelta1.first*adelta2.first<=0 && fabs(adelta1.first/adelta2.first) > 0.33 && fabs(adelta1.first/adelta2.first) < 3){																  
             LogInfo("AlcaBeamSpotManager")																													  
               << " negative, " << adelta1.first/adelta2.first << endl;  																									  
               deltaY = false;																															  
           }
                 																																  
-          limit = currentBS->second.sigmaZ()/3.;														    														
+          limit = currentBS->second.sigmaZ()/2.;														    														
           adelta = delta(currentBS->second.z0(), currentBS->second.z0Error(), nextBS->second.z0(), nextBS->second.z0Error());					    														
           bool deltaZ = (deltaSig(adelta.first,adelta.second) > 3.5 && adelta1.first >= limit)?true:false;							    														
 
@@ -196,15 +225,27 @@ void AlcaBeamSpotManager::createWeightedPayloads(void){
 
           adelta = delta(currentBS->second.dxdz(), currentBS->second.dxdzError(), nextBS->second.dxdz(), nextBS->second.dxdzError());				    														      
           bool deltadxdz   = (deltaSig(adelta.first,adelta.second) > 5.0)?true:false;										    														
+          if(deltadxdz && (adelta1dxdz.first*adelta2dxdz.first)<=0 && fabs(adelta1dxdz.first/adelta2dxdz.first) > 0.33 && fabs(adelta1dxdz.first/adelta2dxdz.first) < 3){
+            deltadxdz = false;
+	  }
 
           adelta = delta(currentBS->second.dydz(), currentBS->second.dydzError(), nextBS->second.dydz(), nextBS->second.dydzError());				    														      
           bool deltadydz   = (deltaSig(adelta.first,adelta.second) > 5.0)?true:false;										    														
+          if(deltadydz && (adelta1dydz.first*adelta2dydz.first)<=0 && fabs(adelta1dydz.first/adelta2dydz.first) > 0.33 && fabs(adelta1dydz.first/adelta2dydz.first) < 3){
+            deltadydz = false;
+	  }
 
           adelta = delta(currentBS->second.BeamWidthX(), currentBS->second.BeamWidthXError(), nextBS->second.BeamWidthX(), nextBS->second.BeamWidthXError());	    														
           bool deltawidthX = (deltaSig(adelta.first,adelta.second) > 5.0)?true:false;										    														
+          if(deltawidthX && (adelta1widthX.first*adelta2widthX.first)<=0 && fabs(adelta1widthX.first/adelta2widthX.first) > 0.33 && fabs(adelta1widthX.first/adelta2widthX.first) < 3){
+            deltawidthX = false;
+	  }
 
           adelta = delta(currentBS->second.BeamWidthY(), currentBS->second.BeamWidthYError(), nextBS->second.BeamWidthY(), nextBS->second.BeamWidthYError());	    														
           bool deltawidthY = (deltaSig(adelta.first,adelta.second) > 5.0)?true:false;										    														
+          if(deltawidthY && (adelta1widthY.first*adelta2widthY.first)<=0 && fabs(adelta1widthY.first/adelta2widthY.first) > 0.33 && fabs(adelta1widthY.first/adelta2widthY.first) < 3){
+            deltawidthY = false;
+	  }
 
           if (deltaX || deltaY || deltaZ || deltasigmaZ || deltadxdz || deltadydz || deltawidthX || deltawidthY){						    														
             docreate = true;  																    														

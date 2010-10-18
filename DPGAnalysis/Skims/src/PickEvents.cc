@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Henry Schmitt
 //         Created:  Mon Sep 15 19:36:37 CEST 2008
-// $Id: PickEvents.cc,v 1.2 2009/03/27 14:01:32 malgeri Exp $
+// $Id: PickEvents.cc,v 1.3 2009/12/18 00:03:10 wmtan Exp $
 //         Modified: 27/03/2009 Luca Malgeri
 //                   reading external file, defining selection syntax
 //
@@ -98,7 +98,7 @@ PickEvents::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    for (unsigned int cond=0; cond<whattodo.size();cond++)
      {
-       //       string what;
+       //       std::string what;
        if ( kRun>=startrun[cond] && 
 	    kRun<=endrun[cond]   &&
 	    kEvent>=startevent[cond] && 
@@ -120,11 +120,11 @@ PickEvents::beginJob()
 {
   using namespace std;
 
-  string line;
-  string buf;
+  std::string line;
+  std::string buf;
 
-  stringstream ss;
-  vector<string> tokens;
+  std::stringstream ss;
+  std::vector<std::string> tokens;
 
   nEventsAnalyzed = 0;
   nEventsSelected = 0;
@@ -143,13 +143,13 @@ PickEvents::beginJob()
 	  while (ss>>buf)
 	    {
 	      tokens.push_back(buf);
-	      //	      cout << buf << endl;
+	      //	      std::cout << buf << std::endl;
 	    }	      
-	  // cout << tokens.size() << endl;
+	  // std::cout << tokens.size() << std::endl;
 	  if (tokens.size()<3)
 	    {
-	      //	      cout << "strange selection line:" << line << endl;
-	      //	      cout << "skipping it" << endl;
+	      //	      std::cout << "strange selection line:" << line << std::endl;
+	      //	      std::cout << "skipping it" << std::endl;
 	      continue;
 	    }
 	  if(tokens[0]=="-" || tokens[0]=="+")
@@ -161,10 +161,10 @@ PickEvents::beginJob()
 	      // start with run selecion
 	      int loc=tokens[1].find(":",0);
 
-	      string first=tokens[1].substr(0,loc);
+	      std::string first=tokens[1].substr(0,loc);
 	      startrun.push_back((edm::RunNumber_t)atoi(first.c_str()));
 
-	      string last=tokens[1].substr(loc+1,tokens[1].size());
+	      std::string last=tokens[1].substr(loc+1,tokens[1].size());
 	      if (last=="infty")
 		endrun.push_back(std::numeric_limits<unsigned int>::max());
 	      else
@@ -187,27 +187,27 @@ PickEvents::beginJob()
 	}
       listfile.close();
       // printout summary
-      cout << "Summary from list of run/event number selection" << endl;
+      std::cout << "Summary from list of run/event number selection" << std::endl;
       for (unsigned int cond=0; cond<whattodo.size();cond++)
 	{
-	  string what;
+	  std::string what;
 	  if(whattodo[cond]) what="select";
 	  else what="reject";
-	  cout << what << " "; 
-	  cout << "from run " << startrun[cond] << " to run " << endrun[cond] << " ";
-	  cout << "from eve " << startevent[cond] << " to eve " << endevent[cond] << endl; 
+	  std::cout << what << " "; 
+	  std::cout << "from run " << startrun[cond] << " to run " << endrun[cond] << " ";
+	  std::cout << "from eve " << startevent[cond] << " to eve " << endevent[cond] << std::endl; 
 	}
     }
 
-  else cout << "Unable to open file"; 
+  else std::cout << "Unable to open file"; 
 
 }
 void 
 PickEvents::endJob() {
   using namespace std;
-  cout << "================================================\n"
-       << "  n Events Analyzed ............... " << nEventsAnalyzed << endl
-       << "  n Events Selected ............... " << nEventsSelected<< endl
+  std::cout << "================================================\n"
+       << "  n Events Analyzed ............... " << nEventsAnalyzed << std::endl
+       << "  n Events Selected ............... " << nEventsSelected<< std::endl
        << "================================================\n\n" ;
 }
 

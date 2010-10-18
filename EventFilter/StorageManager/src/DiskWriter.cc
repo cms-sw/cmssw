@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.22 2010/03/19 17:33:54 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.23 2010/05/11 18:02:25 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include <algorithm>
@@ -313,6 +313,7 @@ void DiskWriter::writeEndOfRunMarker() const
   std::ostringstream str;
   str << "LScount:" << lumiSectionsSeenStats.getSampleCount()
     << "\tEoLScount:" << eolsSeenStats.getSampleCount()
+    << "\tLastLumi:" << lumiSectionsSeenStats.getLastSampleValue()
     << "\tEoR";
   _dbFileHandler->write(str.str());
 }

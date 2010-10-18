@@ -1,0 +1,9 @@
+<use name=rootrflx>
+<lib name=Eve>
+<lib name=Geom>
+<use name=Fireworks/Core>
+<export>
+  <lib name=FireworksElectrons>
+  <use name=Fireworks/Core>
+  <use name=rootrflx>
+</export>

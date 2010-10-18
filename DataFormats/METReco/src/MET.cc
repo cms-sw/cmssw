@@ -17,6 +17,7 @@ MET::MET()
 {
   sumet = 0.0;
   elongit = 0.0;
+  signif_dxx=signif_dyy=signif_dyx=signif_dxy=0.;
 }
 //---------------------------------------------------------------------------
 

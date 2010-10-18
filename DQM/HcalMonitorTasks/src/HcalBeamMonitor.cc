@@ -2,6 +2,9 @@
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 #include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Run.h"
 
 #include <iomanip>
 #include <cmath>

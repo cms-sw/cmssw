@@ -41,9 +41,6 @@ public:
    *  clusterizer that accepts holes.
    *  A strip may also be missing anywhere in the cluster, including the 
    *  edge, to record a dead/noisy channel.
-   *
-   *  You can find the special meanings of values { 0, 254, 255} in section 3.4.1 of
-   *  http://www.te.rl.ac.uk/esdg/cms-fed/firmware/Documents/FE_FPGA_Technical_Description.pdf
    */
   const std::vector<uint8_t>&  amplitudes() const {return amplitudes_;}
 
