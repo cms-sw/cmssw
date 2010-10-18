@@ -1,4 +1,3 @@
-HLTriggerFirstPath
 HLT_HIActivityHF_Coincidence3
 HLT_HIActivityHF_Single3
 HLT_HIActivityPixel_SingleTrack
@@ -30,7 +29,6 @@ HLT_HIUpcMu_Core
 HLT_EcalCalibration
 HLT_HIHcalCalibration
 HLTriggerFinalPath
-HLTAnalyzerEndpath
 HLTOutput
 ExpressOutput
 AlCaHIOutput
@@ -39,3 +37,5 @@ HLTDQMOutput
 HLTDQMResultsOutput
 HLTMONOutput
 NanoDSTOutput
+HLTriggerFirstPath
+HLTAnalyzerEndpath
