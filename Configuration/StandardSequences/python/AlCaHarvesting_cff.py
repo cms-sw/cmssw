@@ -29,8 +29,8 @@ ALCAHARVESTBeamSpotByLumi = alcaBeamSpotHarvester.clone()
 ALCAHARVESTBeamSpotByLumi.AlcaBeamSpotHarvesterParameters.BeamSpotOutputBase = cms.untracked.string("lumibased")
 ALCAHARVESTBeamSpotByLumi.AlcaBeamSpotHarvesterParameters.outputRecordName = cms.untracked.string("BeamSpotObjectsRcdByLumi")
 ALCAHARVESTBeamSpotByLumi.metadataOfflineDropBox.destDB = cms.untracked.string("oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT")
-ALCAHARVESTBeamSpotByLumi.metadataOfflineDropBox.tag    = cms.untracked.string("BeamSpotObjects_PCL_byLumi_v0_offline")
-ALCAHARVESTBeamSpotByLumi.metadataOfflineDropBox.DuplicateTagPROMPT    = cms.untracked.string("BeamSpotObjects_PCL_byLumi_v0_prompt")
+ALCAHARVESTBeamSpotByLumi.metadataOfflineDropBox.tag    = cms.untracked.string("BeamSpotObjects_PCL_byLumi_v0_prompt")
+ALCAHARVESTBeamSpotByLumi.metadataOfflineDropBox.DuplicateTagPROMPT    = cms.untracked.string("")
 ALCAHARVESTBeamSpotByLumi_dbOutput = cms.PSet(record = cms.string('BeamSpotObjectsRcdByLumi'),
                                              tag = cms.string('BeamSpotObject_ByLumi'),
                                              timetype   = cms.untracked.string('lumiid'))
