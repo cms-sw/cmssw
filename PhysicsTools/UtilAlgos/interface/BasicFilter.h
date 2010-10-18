@@ -42,7 +42,7 @@ namespace edm {
   class BasicFilter {
   public:
     /// default constructor
-    BasicFilter(const edm::ParameterSet& cfg);
+    BasicFilter(const edm::ParameterSet& cfg){};
     /// default destructor
     virtual ~BasicFilter(){};
     
