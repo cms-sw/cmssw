@@ -26,8 +26,20 @@ zmumuSaMassHistogram = cms.EDAnalyzer(
    # name = cms.untracked.string("zMass")    
     )
 
+### Primary vertex info
 
-### paths for loose cuts, not notIso ones, not 1HLT and 2HLT: only ZGolden, zMuSta, zMuTk, zMuTrackerMuon and ZGoldenSameCharge...
+eventVtxInfoNtuple = cms.EDProducer(
+    "EventVtxInfoNtupleDumper",
+    primaryVertices=cms.InputTag("offlinePrimaryVertices")
+)
+
+# path for dumping vtx info in the ntuple
+generalEventInfoPath = cms.Path(
+    eventVtxInfoNtuple
+    )
+
+
+### paths for loose cuts, not notIso ones, not 1HLT and 2HLT: only ZGolden, zMuSta, zMuTk, zMuTrackerMuon and ZGoldenSameCharge..
 
 goodZToMuMuPathLoose = cms.Path(
     
