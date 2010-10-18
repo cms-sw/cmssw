@@ -103,7 +103,8 @@ lumi::Lumi2DB::isLumiDataValid(lumi::Lumi2DB::LumiResult::iterator lumiBeg,lumi:
   lumi::Lumi2DB::LumiResult::iterator lumiIt;
   int nBad=0;
   for(lumiIt=lumiBeg;lumiIt!=lumiEnd;++lumiIt){
-    if(lumiIt->instlumi<=0.0){
+    //std::cout<<"instlumi before calib "<<lumiIt->instlumi<<std::endl;
+    if(lumiIt->instlumi<=1.0e-8){//cut before calib
       ++nBad;
     }
   }
