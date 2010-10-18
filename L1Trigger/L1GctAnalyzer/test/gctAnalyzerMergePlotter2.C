@@ -44,19 +44,19 @@ void gctAnalyzerMergePlotter2()
   PlotWrite(input,output,outfolder,TString("cenJetsRank"),TString(basedata+cenjet+"cenJetD_Rank"),TString(baseemu+cenjet+"cenJetE_Rank"),"E_{T}","Central Jet candidates",0,0);
   PlotWrite(input,output,outfolder,TString("cenJetsEta"),TString(basedata+cenjet+"cenJetD_EtEtaPhi"),TString(baseemu+cenjet+"cenJetE_EtEtaPhi"),"#eta","Central Jet candidates",0,0,"eta");
   PlotWrite(input,output,outfolder,TString("cenJetsPhi"),TString(basedata+cenjet+"cenJetD_EtEtaPhi"),TString(baseemu+cenjet+"cenJetE_EtEtaPhi"),"#phi","Central Jet candidates",0,0,"phi");
-  PlotWriteErrors(input,output,outfolder,TString("cenJets_errorFlag"),TString(baseerrorhist+"cenJet_errorFlag"));
+  PlotWriteErrors(input,output,outfolder,TString("cenJet_errorFlag"),TString(baseerrorhist+"cenJet_errorFlag"));
 
   //Tau Jets
   PlotWrite(input,output,outfolder,TString("tauJetsRank"),TString(basedata+taujet+"tauJetD_Rank"),TString(baseemu+taujet+"tauJetE_Rank"),"E_{T}","Tau-Jet candidates",0,0);
   PlotWrite(input,output,outfolder,TString("tauJetsEta"),TString(basedata+taujet+"tauJetD_EtEtaPhi"),TString(baseemu+taujet+"tauJetE_EtEtaPhi"),"#eta","Tau-Jet candidates",0,0,"eta");
   PlotWrite(input,output,outfolder,TString("tauJetsPhi"),TString(basedata+taujet+"tauJetD_EtEtaPhi"),TString(baseemu+taujet+"tauJetE_EtEtaPhi"),"#phi","Tau-Jet candidates",0,0,"phi");
-  PlotWriteErrors(input,output,outfolder,TString("tauJets_errorFlag"),TString(baseerrorhist+"tauJet_errorFlag"));
+  PlotWriteErrors(input,output,outfolder,TString("tauJet_errorFlag"),TString(baseerrorhist+"tauJet_errorFlag"));
 
   //Forward Jets
   PlotWrite(input,output,outfolder,TString("forJetsRank"),TString(basedata+forjet+"forJetD_Rank"),TString(baseemu+forjet+"forJetE_Rank"),"E_{T}","Forward Jet candidates",0,0);
   PlotWrite(input,output,outfolder,TString("forJetsEta"),TString(basedata+forjet+"forJetD_EtEtaPhi"),TString(baseemu+forjet+"forJetE_EtEtaPhi"),"#eta","Forward Jet candidates",0,0,"eta");
   PlotWrite(input,output,outfolder,TString("forJetsPhi"),TString(basedata+forjet+"forJetD_EtEtaPhi"),TString(baseemu+forjet+"forJetE_EtEtaPhi"),"#phi","Forward Jet candidates",0,0,"phi");
-  PlotWriteErrors(input,output,outfolder,TString("forJets_errorFlag"),TString(baseerrorhist+"forJet_errorFlag"));
+  PlotWriteErrors(input,output,outfolder,TString("forJet_errorFlag"),TString(baseerrorhist+"forJet_errorFlag"));
 
   //HF Ring Sums
   PlotWrite(input,output,outfolder,TString("hfRingSum1+"),TString(basedata+hfrings+"hfRingSumD_1+"),TString(baseemu+hfrings+"hfRingSumE_1+"),"Ring 1+ E_{T} Sum","Events",0,0);
