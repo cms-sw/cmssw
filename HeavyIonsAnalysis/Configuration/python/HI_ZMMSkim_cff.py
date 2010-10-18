@@ -21,7 +21,7 @@ muonFilter = cms.EDFilter("MuonCountFilter",
 
 dimuonMassCut = cms.EDProducer("CandViewShallowCloneCombiner",
     checkCharge = cms.bool(True),
-    cut = cms.string(' mass > 60 & mass < 120 & charge=0'),
+    cut = cms.string(' 60 < mass < 120'),
     decay = cms.string("muonSelector@+ muonSelector@-")
     )
 

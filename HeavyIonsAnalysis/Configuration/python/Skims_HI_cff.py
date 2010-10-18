@@ -43,3 +43,16 @@ SKIMStreamZMM = cms.FilteredStream(
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
     )
+
+#####################
+
+from HeavyIonsAnalysis.Configuration.HI_ZEESkim_cff import *
+zEESkimPath = cms.Path( zEESkimSequence )
+SKIMStreamZEE = cms.FilteredStream(
+    responsible = 'HI PAG',
+    name = 'ZEE',
+    paths = (zEESkimPath),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
