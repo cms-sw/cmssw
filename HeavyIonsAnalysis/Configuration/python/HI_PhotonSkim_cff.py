@@ -31,7 +31,7 @@ photonSkimSequence = cms.Sequence(hltPhotonHI
                                   )
 
 # select pairs around Z mass
-photonCombiner = cms.EDFilter("CandViewShallowCloneCombiner",
+photonCombiner = cms.EDProducer("CandViewShallowCloneCombiner",
   checkCharge = cms.bool(False),
   cut = cms.string('60 < mass < 120'),
   decay = cms.string('goodPhotons goodPhotons')
