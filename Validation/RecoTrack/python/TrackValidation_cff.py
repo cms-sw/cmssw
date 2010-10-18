@@ -82,7 +82,8 @@ trackValidator.useLogPt=cms.untracked.bool(True)
 #trackValidator.maxpT = cms.double(3)
 #trackValidator.nintpT = cms.int32(40)
 
-tracksValidation = cms.Sequence(cutsRecoTracksHp*
+# the track selectors
+tracksValidationSelectors = cms.Sequence( cutsRecoTracksHp*
                                 cutsRecoTracksZero*
                                 cutsRecoTracksZeroHp*
                                 cutsRecoTracksFirst*
@@ -94,6 +95,11 @@ tracksValidation = cms.Sequence(cutsRecoTracksHp*
                                 cutsRecoTracksFourth*
                                 cutsRecoTracksFourthHp*
                                 cutsRecoTracksFifth*
-                                cutsRecoTracksFifthHp*
-                                trackValidator)
+                                cutsRecoTracksFifthHp )
+
+tracksValidation = cms.Sequence( tracksValidationSelectors * trackValidator)
+
+# for FS, selectors go into separate "prevalidation" sequence
+# (this fixes the "no EDProducer in EndPath" problem)
+tracksValidationFS = cms.Sequence( trackValidator )
 
