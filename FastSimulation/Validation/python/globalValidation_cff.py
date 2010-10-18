@@ -23,10 +23,10 @@ from DQMOffline.RecoB.dqmAnalyzer_cff import *
 #bTagValidation.jetMCSrc = 'IC5byValAlgo'
 #bTagValidation.etaRanges = cms.vdouble(0.0, 1.1, 2.4)
 
-globalAssociation = cms.Sequence(trackingParticles+recoMuonAssociationFastSim)
+globalAssociation = cms.Sequence(trackingParticles + recoMuonAssociationFastSim + tracksValidationSelectors)
 
 globalValidation = cms.Sequence(trackingTruthValid
-                                +tracksValidation
+                                +tracksValidationFS
                                 +METRelValSequence
                                 +recoMuonValidationFastSim
                                 +muIsoVal_seq
