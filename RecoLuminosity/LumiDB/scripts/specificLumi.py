@@ -239,12 +239,12 @@ if __name__ == '__main__':
     q=session.nominalSchema().newQuery()
     runsperfillFromDB=lumiQueryAPI.runsByfillrange(q,int(min(fillstoprocess)),int(max(fillstoprocess)))
     del q
-    print 'runsperfillFromDB ',runsperfillFromDB
+    #print 'runsperfillFromDB ',runsperfillFromDB
     runtimes={}
     runs=runsperfillFromDB.values()#list of lists
     allruns=[item for sublist in runs for item in sublist]
     allruns.sort()
-    print 'allruns ',allruns
+    #print 'allruns ',allruns
     for run in allruns:
         q=session.nominalSchema().newQuery()
         runtimes[run]=lumiQueryAPI.runsummaryByrun(q,run)[3]
