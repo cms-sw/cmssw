@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.53 2010/04/27 09:58:15 gbauer Exp $
+# $Id: setup_sm.sh,v 1.54 2010/06/01 14:33:59 babar Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh
@@ -148,7 +148,7 @@ startcopyworker () {
     fi
     
     su - cmsprod -c "$t0control stop" >/dev/null 2>&1
-    su - cmsprod -c "NCOPYWORKER=6 $t0control start"
+    su - cmsprod -c "$t0control start"
 }
 
 startinjectworker () {
