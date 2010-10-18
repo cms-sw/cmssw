@@ -41,7 +41,7 @@ int  EcalChannelStatusXMLTranslator::readXML(const std::string& filename,
 
   DOMDocument* xmlDoc = parser->getDocument();
   if (!xmlDoc) {
-    cout << "EcalChannelStatusXMLTranslator::Error parsing document" << endl;
+    std::cout << "EcalChannelStatusXMLTranslator::Error parsing document" << std::endl;
     return -1;
   }
 

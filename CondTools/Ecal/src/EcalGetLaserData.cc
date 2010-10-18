@@ -11,7 +11,7 @@
 //
 // Original Author:  Vladlen Timciuc
 //         Created:  Wed Jul  4 13:55:56 CEST 2007
-// $Id: EcalGetLaserData.cc,v 1.4 2009/12/17 23:26:04 wmtan Exp $
+// $Id: EcalGetLaserData.cc,v 1.5 2009/12/21 14:22:03 ebecheva Exp $
 //
 //
 
@@ -42,7 +42,6 @@
 
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 
 //
 // constants, enums and typedefs
@@ -134,9 +133,9 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
 	  if (hi<static_cast<int>(laserRatiosMap.size())) {
 	    apdpnpair = laserRatiosMap[hi];
 	    std::cout << "A sample value of APDPN pair EB : " 
-		      << hi << " : " << apdpnpair.p1 << " , " << apdpnpair.p2 << endl;	  	  
+		      << hi << " : " << apdpnpair.p1 << " , " << apdpnpair.p2 << std::endl;	  	  
 	  } else {
-	    edm::LogError("EcalGetLaserData") << "error with laserRatiosMap!" << endl;     
+	    edm::LogError("EcalGetLaserData") << "error with laserRatiosMap!" << std::endl;     
 	  }
 	  
 	}
@@ -155,9 +154,9 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
 	  if (hi< static_cast<int>(laserRatiosMap.size())) {
 	    apdpnpair = laserRatiosMap[hi];
 	    std::cout << "A sample value of APDPN pair EE+ : " 
-		      << hi << " : " << apdpnpair.p1 << " , " << apdpnpair.p2 << endl;
+		      << hi << " : " << apdpnpair.p1 << " , " << apdpnpair.p2 << std::endl;
 	  } else {
-	    edm::LogError("EcalGetLaserData") << "error with laserRatiosMap!" << endl;     
+	    edm::LogError("EcalGetLaserData") << "error with laserRatiosMap!" << std::endl;     
 	  }
 	  
 	  if (!EEDetId::validDetId(iX,iY,-1))
@@ -168,9 +167,9 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
 	  if (hi< static_cast<int>(laserRatiosMap.size())) {
 	    apdpnpair = laserRatiosMap[hi];
 	    std::cout << "A sample value of APDPN pair EE- : " 
-		      << hi << " : " << apdpnpair.p1 << " , " << apdpnpair.p2 << endl;
+		      << hi << " : " << apdpnpair.p1 << " , " << apdpnpair.p2 << std::endl;
 	  } else {
-	    edm::LogError("EcalGetLaserData") << "error with laserRatiosMap!" << endl;     
+	    edm::LogError("EcalGetLaserData") << "error with laserRatiosMap!" << std::endl;     
 	  }
 	}
       }
@@ -178,10 +177,10 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
       for(int i=0; i<92; i++){
 	timestamp = laserTimeMap[i];  
 	std::cout << "A value of timestamp pair : "  
-		  << i << " " << timestamp.t1.value() << " , " << timestamp.t2.value() << endl;	
+		  << i << " " << timestamp.t1.value() << " , " << timestamp.t2.value() << std::endl;	
       }
       
-      std::cout <<".. just retrieved the last valid record from DB "<< endl;
+      std::cout <<".. just retrieved the last valid record from DB "<< std::endl;
 
     } else if(container == "EcalLaserAPDPNRatiosRef") { 
 
@@ -202,10 +201,10 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
 	  
 	  if (hi< static_cast<int>(laserRefMap.size())) {
 	    apdpnref = laserRefMap[hi];
-	    cout << "A sample value of APDPN Reference value EB : "  
-		 << hi << " : " << apdpnref << endl;	  	  
+	    std::cout << "A sample value of APDPN Reference value EB : "  
+		 << hi << " : " << apdpnref << std::endl;	  	  
 	  } else { 
-	    edm::LogError("EcalGetLaserData") << "error with laserRefMap!" << endl;     
+	    edm::LogError("EcalGetLaserData") << "error with laserRefMap!" << std::endl;     
 	  }	  	  
 	}
       }
@@ -222,11 +221,11 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
 	  
 	  if (hi< static_cast<int>(laserRefMap.size())) {
 	    apdpnref = laserRefMap[hi];
-	    cout << "A sample value of APDPN Reference value EE+ : "  
-		 << hi << " : " << apdpnref << endl;	  	  		  
+	    std::cout << "A sample value of APDPN Reference value EE+ : "  
+		 << hi << " : " << apdpnref << std::endl;	  	  		  
 	    
 	  } else { 
-	    edm::LogError("EcalGetLaserData") << "error with laserRefMap!" << endl;     
+	    edm::LogError("EcalGetLaserData") << "error with laserRefMap!" << std::endl;     
 	  }
 	  
 	  if (!EEDetId::validDetId(iX,iY,-1))
@@ -236,15 +235,15 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
 	  
 	  if (hi< static_cast<int>(laserRefMap.size())) {
 	    apdpnref = laserRefMap[hi];
-	    cout << "A sample value of APDPN Reference value EE- : "  
-		 << hi << " : " << apdpnref << endl;	  	 
+	    std::cout << "A sample value of APDPN Reference value EE- : "  
+		 << hi << " : " << apdpnref << std::endl;	  	 
 	  } else { 
-	    edm::LogError("EcalGetLaserData") << "error with laserRefMap!" << endl;     
+	    edm::LogError("EcalGetLaserData") << "error with laserRefMap!" << std::endl;     
 	  }	      
 	}
       }
       
-      cout << "... just retrieved the last valid record from DB "<< endl;
+      std::cout << "... just retrieved the last valid record from DB "<< std::endl;
       
     } else if (container == "EcalLaserAlphas") { 
 
@@ -266,9 +265,9 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
 	  
 	  if (hi< static_cast<int>(laserAlphaMap.size())) {
 	    alpha = laserAlphaMap[hi];
-	    cout << " A sample value of Alpha value EB : " << hi << " : " << alpha << endl;
+	    std::cout << " A sample value of Alpha value EB : " << hi << " : " << alpha << std::endl;
 	  } else {
-	    edm::LogError("EcalGetLaserData") << "error with laserAlphaMap!" << endl;     
+	    edm::LogError("EcalGetLaserData") << "error with laserAlphaMap!" << std::endl;     
 	  }	  
 	}
       }
@@ -285,9 +284,9 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
 	  
 	  if (hi< static_cast<int>(laserAlphaMap.size())) {
 	    alpha = laserAlphaMap[hi];
-	    cout << " A sample value of Alpha value EE+ : " << hi << " : " << alpha << endl;  
+	    std::cout << " A sample value of Alpha value EE+ : " << hi << " : " << alpha << std::endl;  
 	  } else {
-	    edm::LogError("EcalGetLaserData") << "error with laserAlphaMap!" << endl;     
+	    edm::LogError("EcalGetLaserData") << "error with laserAlphaMap!" << std::endl;     
 	  }	  	      
 	  
 
@@ -298,14 +297,14 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
 	  
 	  if (hi< static_cast<int>(laserAlphaMap.size())) {
 	    alpha = laserAlphaMap[hi];
-	    cout << " A sample value of Alpha value EE- : " << hi << " : " << alpha << endl;
+	    std::cout << " A sample value of Alpha value EE- : " << hi << " : " << alpha << std::endl;
 	  } else {
-	    edm::LogError("EcalGetLaserData") << "error with laserAlphaMap!" << endl;     
+	    edm::LogError("EcalGetLaserData") << "error with laserAlphaMap!" << std::endl;     
 	  }	  
 	}
       }
       
-      cout <<"... just retrieved the last valid record from DB "<< endl;
+      std::cout <<"... just retrieved the last valid record from DB "<< std::endl;
 
     } else {
       edm::LogError("EcalGetLaserData") << "Cannot retrieve for container: " 

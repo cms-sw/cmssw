@@ -26,9 +26,6 @@
 #include <vector>
 #include <time.h>
 
-using namespace std;
-using namespace oracle::occi;
-
 namespace edm {
   class ParameterSet;
   class Event;

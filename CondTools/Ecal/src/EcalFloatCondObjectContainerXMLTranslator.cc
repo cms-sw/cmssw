@@ -38,7 +38,7 @@ EcalFloatCondObjectContainerXMLTranslator::readXML(const string& filename,
   
 
   if (!xmlDoc) {
-    cout << "EcalFloatCondObjectContainerXMLTranslator::Error parsing document" << endl;
+    std::cout << "EcalFloatCondObjectContainerXMLTranslator::Error parsing document" << std::endl;
     return -1;
   }
 

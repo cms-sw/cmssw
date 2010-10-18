@@ -44,11 +44,6 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
-
-
-using namespace std;
-using namespace oracle::occi;
-
 namespace edm {
   class ParameterSet;
   class Event;

@@ -79,8 +79,8 @@ void popcon::EcalTPGWeightGroupHandler::getNewObjects()
 	
 	if (!econn)
 	  {
-	    cout << " connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<endl;
-	    //	    cerr << e.what() << endl;
+	    std::cout << " connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<std::endl;
+	    //	    cerr << e.what() << std::endl;
 	    throw cms::Exception("OMDS not available");
 	  } 
 
@@ -110,7 +110,7 @@ void popcon::EcalTPGWeightGroupHandler::getNewObjects()
 	  min_run=max_since+1; // we have to add 1 to the last transferred one
 	}
 
-	std::cout<<"m_i_run_number"<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since<< endl;
+	std::cout<<"m_i_run_number"<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since<< std::endl;
 
 	unsigned int max_run=m_lastRun;
 	edm::LogInfo("EcalTPGWeightGroupHandler") << "min_run= " << min_run << " max_run= " << max_run;
@@ -121,13 +121,13 @@ void popcon::EcalTPGWeightGroupHandler::getNewObjects()
 	std::vector<RunIOV> run_vec=  my_list.getRuns();
 	size_t num_runs=run_vec.size();
 
-	std::cout <<"number of runs is : "<< num_runs<< endl;
+	std::cout <<"number of runs is : "<< num_runs<< std::endl;
 	
 	unsigned int irun=0;
 	if(num_runs>0){
         
           // going to query the ecal logic id 
-	  vector<EcalLogicID> my_StripEcalLogicId_EE;
+	  std::vector<EcalLogicID> my_StripEcalLogicId_EE;
 	  my_StripEcalLogicId_EE = econn->getEcalLogicIDSetOrdered( "ECAL_readout_strip",
 						    1, 2000,
 						    1, 70,
@@ -145,13 +145,13 @@ void popcon::EcalTPGWeightGroupHandler::getNewObjects()
 	    std::cout<<" run= "<<irun<<std::endl;
 
 	    // retrieve the data :
-	    map<EcalLogicID, RunTPGConfigDat> dataset;
+	    std::map<EcalLogicID, RunTPGConfigDat> dataset;
 	    econn->fetchDataSet(&dataset, &run_vec[kr]);
 	    
 	    std::string the_config_tag="";
 	    int the_config_version=0;
 	    
-	    map< EcalLogicID,  RunTPGConfigDat>::const_iterator it;
+	    std::map< EcalLogicID,  RunTPGConfigDat>::const_iterator it;
 	    
 	    int nr=0;
 	    for( it=dataset.begin(); it!=dataset.end(); it++ )
@@ -173,7 +173,7 @@ void popcon::EcalTPGWeightGroupHandler::getNewObjects()
 
 
 	    if((the_config_tag != m_i_tag || the_config_version != m_i_version ) && nr>0 ) {
-	      std::cout<<"the tag is different from last transferred run ... retrieving last config set from DB"<<endl;
+	      std::cout<<"the tag is different from last transferred run ... retrieving last config set from DB"<<std::endl;
 
 	      FEConfigMainInfo fe_main_info;
 	      fe_main_info.setConfigTag(the_config_tag);
@@ -193,12 +193,12 @@ void popcon::EcalTPGWeightGroupHandler::getNewObjects()
 	    	  FEConfigWeightInfo fe_w_info;
 	    	  fe_w_info.setId(wId);
 	    	  econn-> fetchConfigSet(&fe_w_info);
-	    	  map<EcalLogicID, FEConfigWeightDat> dataset_TpgW;
+	    	  std::map<EcalLogicID, FEConfigWeightDat> dataset_TpgW;
 	    	  econn->fetchDataSet(&dataset_TpgW, &fe_w_info);
 
 
 	    	  EcalTPGWeightGroup* weightG = new EcalTPGWeightGroup;
-	    	  typedef map<EcalLogicID, FEConfigWeightDat>::const_iterator CIfesli;
+	    	  typedef std::map<EcalLogicID, FEConfigWeightDat>::const_iterator CIfesli;
 	    	  EcalLogicID ecid_xt;
 	    	  int weightGroup;
 	    	  int icells=0;
@@ -257,7 +257,7 @@ void popcon::EcalTPGWeightGroupHandler::getNewObjects()
 		      
 		      } else {
 			std::cout <<" these may be the additional towers TCC/TT "
-				  << id1<<"/"<<id2<<endl;
+				  << id1<<"/"<<id2<<std::endl;
 		      }
 		      	
 	              ++icells;    
@@ -292,7 +292,7 @@ void popcon::EcalTPGWeightGroupHandler::getNewObjects()
 	      catch (std::exception &e) { 
 		std::cout << "ERROR: THIS CONFIG DOES NOT EXIST: tag=" <<the_config_tag
 			  <<" version="<<the_config_version<< std::endl;
-		cout << e.what() << endl;
+		std::cout << e.what() << std::endl;
 		m_i_run_number=irun;
 
 	      }
@@ -340,19 +340,19 @@ void  popcon::EcalTPGWeightGroupHandler::readFromFile(const char* inputFile) {
 
   fgets(line,255,inpFile);
   m_i_tag=to_string(line);
-  str << "gen tag " << m_i_tag << endl ;  // should I use this? 
+  str << "gen tag " << m_i_tag << std::endl ;  // should I use this? 
 
   fgets(line,255,inpFile);
   m_i_version=atoi(line);
-  str << "version= " << m_i_version << endl ;  
+  str << "version= " << m_i_version << std::endl ;  
 
   fgets(line,255,inpFile);
   m_i_run_number=atoi(line);
-  str << "run_number= " << m_i_run_number << endl ;  
+  str << "run_number= " << m_i_run_number << std::endl ;  
 
   fgets(line,255,inpFile);
   m_i_weightGroup=atoi(line);
-  str << "weightGroup_config= " << m_i_weightGroup << endl ;  
+  str << "weightGroup_config= " << m_i_weightGroup << std::endl ;  
 
     
   fclose(inpFile);           // close inp. file
@@ -363,12 +363,12 @@ void  popcon::EcalTPGWeightGroupHandler::writeFile(const char* inputFile) {
   //-------------------------------------------------------------
   
   
-  ofstream myfile;
+  std::ofstream myfile;
   myfile.open (inputFile);
-  myfile << m_i_tag <<endl;
-  myfile << m_i_version <<endl;
-  myfile << m_i_run_number <<endl;
-  myfile << m_i_weightGroup <<endl;
+  myfile << m_i_tag <<std::endl;
+  myfile << m_i_version <<std::endl;
+  myfile << m_i_run_number <<std::endl;
+  myfile << m_i_weightGroup <<std::endl;
 
   myfile.close();
 

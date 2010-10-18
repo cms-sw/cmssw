@@ -15,8 +15,6 @@ namespace edm {
   class EventSetup;
 }
 
-using namespace std;
-
 class  EcalDBCopy : public edm::EDAnalyzer {
  public:
   explicit  EcalDBCopy(const edm::ParameterSet& iConfig );

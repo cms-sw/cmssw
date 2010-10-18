@@ -65,8 +65,8 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 	
 	if (!econn)
 	  {
-	    cout << " connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<endl;
-	    //	    cerr << e.what() << endl;
+	    std::cout << " connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<std::endl;
+	    //	    cerr << e.what() << std::endl;
 	    throw cms::Exception("OMDS not available");
 	  } 
 
@@ -93,7 +93,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 	  min_run=m_firstRun;
 	}
 	
-	std::cout<<"m_i_run_number"<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since<< endl;
+	std::cout<<"m_i_run_number"<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since<< std::endl;
 
 	if(min_run<max_since) {
 	  min_run=  max_since+1; // we have to add 1 to the last transferred one
@@ -109,7 +109,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 	std::vector<RunIOV> run_vec=  my_list.getRuns();
 	size_t num_runs=run_vec.size();
 
-	std::cout <<"number of runs is : "<< num_runs<< endl;
+	std::cout <<"number of runs is : "<< num_runs<< std::endl;
 
 	unsigned int irun;
 	if(num_runs>0){
@@ -123,13 +123,13 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 	    std::cout<<" run= "<<irun<<std::endl;
             
 	    // retrieve the data :
-	    map<EcalLogicID, RunTPGConfigDat> dataset;
+	    std::map<EcalLogicID, RunTPGConfigDat> dataset;
 	    econn->fetchDataSet(&dataset, &run_vec[kr]);
 	    
 	    std::string the_config_tag="";
 	    int the_config_version=0;
 	    
-	    map< EcalLogicID,  RunTPGConfigDat>::const_iterator it;
+	    std::map< EcalLogicID,  RunTPGConfigDat>::const_iterator it;
 	    
 	    int nr=0;
 	    for( it=dataset.begin(); it!=dataset.end(); it++ )
@@ -151,7 +151,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 
 
 	    if((the_config_tag != m_i_tag || the_config_version != m_i_version ) && nr>0 ) {
-	      std::cout<<"the tag is different from last transferred run ... retrieving last config set from DB"<<endl;
+	      std::cout<<"the tag is different from last transferred run ... retrieving last config set from DB"<<std::endl;
 
 	      FEConfigMainInfo fe_main_info;
 	      fe_main_info.setConfigTag(the_config_tag);
@@ -170,8 +170,8 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 		
 		if ((linId != m_i_physClin) || (fgrId != m_i_physCfgr) || (lutId != m_i_physClut) ) {
 	          
-		  std::cout<<"one of the parameters: linId, LutId or fgrId is different from" <<endl;
-		  std::cout<<"last transferred run ..."<<endl;
+		  std::cout<<"one of the parameters: linId, LutId or fgrId is different from" <<std::endl;
+		  std::cout<<"last transferred run ..."<<std::endl;
  
 	          FEConfigLinInfo fe_physLin_info;
 	    	  FEConfigFgrInfo fe_physFgr_info;
@@ -183,18 +183,18 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 		  econn-> fetchConfigSet(&fe_physLin_info);
 	          econn-> fetchConfigSet(&fe_physFgr_info);
 		  econn-> fetchConfigSet(&fe_physLut_info);
-	          map<EcalLogicID, FEConfigLinParamDat> dataset_TpgPhysicsLin;
-	          map<EcalLogicID, FEConfigLUTParamDat> dataset_TpgPhysicsLut;
-		  map<EcalLogicID, FEConfigFgrParamDat> dataset_TpgPhysicsFgr;
+	          std::map<EcalLogicID, FEConfigLinParamDat> dataset_TpgPhysicsLin;
+	          std::map<EcalLogicID, FEConfigLUTParamDat> dataset_TpgPhysicsLut;
+		  std::map<EcalLogicID, FEConfigFgrParamDat> dataset_TpgPhysicsFgr;
 		  
 		  econn->fetchDataSet(&dataset_TpgPhysicsLin, &fe_physLin_info);
 		  econn->fetchDataSet(&dataset_TpgPhysicsLut, &fe_physLut_info);
 		  econn->fetchDataSet(&dataset_TpgPhysicsFgr, &fe_physFgr_info);
 
 	          EcalTPGPhysicsConst* physC = new EcalTPGPhysicsConst;
-                  typedef map<EcalLogicID, FEConfigLinParamDat>::const_iterator CIfeLin;
-	          typedef map<EcalLogicID, FEConfigLUTParamDat>::const_iterator CIfeLUT;
-	          typedef map<EcalLogicID, FEConfigFgrParamDat>::const_iterator CIfeFgr;
+                  typedef std::map<EcalLogicID, FEConfigLinParamDat>::const_iterator CIfeLin;
+	          typedef std::map<EcalLogicID, FEConfigLUTParamDat>::const_iterator CIfeLUT;
+	          typedef std::map<EcalLogicID, FEConfigFgrParamDat>::const_iterator CIfeFgr;
 
 		  EcalLogicID ecidLin_xt;
 		  EcalLogicID ecidLut_xt;
@@ -203,14 +203,14 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 		  FEConfigLUTParamDat rd_physLut;
 		  FEConfigFgrParamDat rd_physFgr;
 	    	  
-		  map<int,float> EtSatLinEB;
-		  map<int,float> EtSatLinEE;
-		  typedef map<int,float>::const_iterator itEtSat;
+		  std::map<int,float> EtSatLinEB;
+		  std::map<int,float> EtSatLinEE;
+		  typedef std::map<int,float>::const_iterator itEtSat;
 		  
-		  map<int,EcalTPGPhysicsConst::Item> temporaryMapEB;
-		  map<int,EcalTPGPhysicsConst::Item> temporaryMapEE;
-		  typedef map<int,EcalTPGPhysicsConst::Item>::iterator iterEB;
-		  typedef map<int,EcalTPGPhysicsConst::Item>::iterator iterEE;
+		  std::map<int,EcalTPGPhysicsConst::Item> temporaryMapEB;
+		  std::map<int,EcalTPGPhysicsConst::Item> temporaryMapEE;
+		  typedef std::map<int,EcalTPGPhysicsConst::Item>::iterator iterEB;
+		  typedef std::map<int,EcalTPGPhysicsConst::Item>::iterator iterEE;
 		  
                  
 		  for (CIfeLin p0 = dataset_TpgPhysicsLin.begin(); p0 != dataset_TpgPhysicsLin.end(); p0++) 
@@ -222,11 +222,11 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 
 		    if(ecid_nameLin=="EB") {
 		      DetId eb(DetId::Ecal, EcalBarrel);	      
-		      EtSatLinEB.insert(make_pair(eb.rawId(),rd_physLin.getETSat()));  
+		      EtSatLinEB.insert(std::make_pair(eb.rawId(),rd_physLin.getETSat()));  
 		    }
 		    else if (ecid_nameLin=="EE"){
 		    DetId ee(DetId::Ecal, EcalEndcap);		      
-		      EtSatLinEE.insert(make_pair(ee.rawId(),rd_physLin.getETSat()));
+		      EtSatLinEE.insert(std::make_pair(ee.rawId(),rd_physLin.getETSat()));
 		    }
 		  }   
 
@@ -258,7 +258,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
     			    item.FG_highThreshold=0; 
     			    item.FG_lowRatio=0; 
     			    item.FG_highRatio=0; 
-		            temporaryMapEB.insert(make_pair(eb.rawId(),item));
+		            temporaryMapEB.insert(std::make_pair(eb.rawId(),item));
 			  }
 			  else throw cms::Exception("The values of the ETSatLin and ETSatLut are different.");
 		        }
@@ -287,7 +287,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
     			    item.FG_highThreshold=0; 
     			    item.FG_lowRatio=0; 
     			    item.FG_highRatio=0;
-	                    temporaryMapEE.insert( make_pair(ee.rawId(),item) );
+	                    temporaryMapEE.insert( std::make_pair(ee.rawId(),item) );
 			  }
 			  else throw cms::Exception("The values of the ETSatLin and ETSatLut are different.");
 		        }
@@ -392,7 +392,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 	      catch (std::exception &e) { 
 		std::cout << "ERROR: THIS CONFIG DOES NOT EXIST: tag=" <<the_config_tag
 			  <<" version="<<the_config_version<< std::endl;
-		cout << e.what() << endl;
+		std::cout << e.what() << std::endl;
 		m_i_run_number=irun;
 
 	      }
@@ -441,27 +441,27 @@ void  popcon::EcalTPGPhysicsConstHandler::readFromFile(const char* inputFile) {
 
   fgets(line,255,inpFile);
   m_i_tag=to_string(line);
-  str << "gen tag " << m_i_tag << endl ;  // should I use this? 
+  str << "gen tag " << m_i_tag << std::endl ;  // should I use this? 
 
   fgets(line,255,inpFile);
   m_i_version=atoi(line);
-  str << "version= " << m_i_version << endl ;  
+  str << "version= " << m_i_version << std::endl ;  
 
   fgets(line,255,inpFile);
   m_i_run_number=atoi(line);
-  str << "run_number= " << m_i_run_number << endl ;  
+  str << "run_number= " << m_i_run_number << std::endl ;  
 
   fgets(line,255,inpFile);
   m_i_physClin=atoi(line);
-  str << "physClin_config= " << m_i_physClin << endl ;  
+  str << "physClin_config= " << m_i_physClin << std::endl ;  
 
   fgets(line,255,inpFile);
   m_i_physClut=atoi(line);
-  str << "physClut_config= " << m_i_physClut << endl ;  
+  str << "physClut_config= " << m_i_physClut << std::endl ;  
   
   fgets(line,255,inpFile);
   m_i_physCfgr=atoi(line);
-  str << "physCfgr_config= " << m_i_physCfgr << endl ;  
+  str << "physCfgr_config= " << m_i_physCfgr << std::endl ;  
     
   fclose(inpFile);           // close inp. file
 
@@ -471,14 +471,14 @@ void  popcon::EcalTPGPhysicsConstHandler::writeFile(const char* inputFile) {
   //-------------------------------------------------------------
   
   
-  ofstream myfile;
+  std::ofstream myfile;
   myfile.open (inputFile);
-  myfile << m_i_tag <<endl;
-  myfile << m_i_version <<endl;
-  myfile << m_i_run_number <<endl;
-  myfile << m_i_physClin <<endl;
-  myfile << m_i_physClut <<endl;
-  myfile << m_i_physCfgr <<endl;
+  myfile << m_i_tag <<std::endl;
+  myfile << m_i_version <<std::endl;
+  myfile << m_i_run_number <<std::endl;
+  myfile << m_i_physClin <<std::endl;
+  myfile << m_i_physClut <<std::endl;
+  myfile << m_i_physCfgr <<std::endl;
 
   myfile.close();
 

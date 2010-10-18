@@ -82,7 +82,7 @@ void popcon::EcalTPGSlidingWindowHandler::getNewObjects()
 	
 	if (!econn)
 	{
-	    cout << " connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass;
+	    std::cout << " connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass;
 	    throw cms::Exception("OMDS not available");
 	} 
 
@@ -112,7 +112,7 @@ void popcon::EcalTPGSlidingWindowHandler::getNewObjects()
 	  min_run=max_since+1; // we have to add 1 to the last transferred one
 	} 
 
-	std::cout<<"m_i_run_number"<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since<< endl;
+	std::cout<<"m_i_run_number"<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since<< std::endl;
 
 
 	unsigned int max_run=m_lastRun;
@@ -125,13 +125,13 @@ void popcon::EcalTPGSlidingWindowHandler::getNewObjects()
 	std::vector<RunIOV> run_vec=  my_list.getRuns();
 	size_t num_runs=run_vec.size();
 	
-	std::cout <<"number of runs is : "<< num_runs<< endl;
+	std::cout <<"number of runs is : "<< num_runs<< std::endl;
              	
         unsigned int irun=0;
 	if(num_runs>0){
 
 	  // going to query the ecal logic id 
-	    vector<EcalLogicID> my_StripEcalLogicId_EE;
+	    std::vector<EcalLogicID> my_StripEcalLogicId_EE;
 	    my_StripEcalLogicId_EE = econn->getEcalLogicIDSetOrdered( "ECAL_readout_strip",
 						    1, 1000,
 						    1, 70,
@@ -178,7 +178,7 @@ void popcon::EcalTPGSlidingWindowHandler::getNewObjects()
 	    // here we should check if it is the same as previous run.
 	
             if((the_config_tag != m_i_tag || the_config_version != m_i_version ) && nr>0 ) {
-	      std::cout<<"the tag is different from last transferred run ... retrieving last config set from DB"<<endl;
+	      std::cout<<"the tag is different from last transferred run ... retrieving last config set from DB"<<std::endl;
 
 	      FEConfigMainInfo fe_main_info;
 	      fe_main_info.setConfigTag(the_config_tag);
@@ -266,7 +266,7 @@ void popcon::EcalTPGSlidingWindowHandler::getNewObjects()
 
 		      } else {
 			std::cout <<" these may be the additional towers TCC/TT "
-				  << id1<<"/"<<id2<<endl;
+				  << id1<<"/"<<id2<<std::endl;
 		      }
 	      	      
 
@@ -350,19 +350,19 @@ void  popcon::EcalTPGSlidingWindowHandler::readFromFile(const char* inputFile) {
 
   fgets(line,255,inpFile);
   m_i_tag=to_string(line);
-  str << "gen tag " << m_i_tag << endl ;  // should I use this? 
+  str << "gen tag " << m_i_tag << std::endl ;  // should I use this? 
 
   fgets(line,255,inpFile);
   m_i_version=atoi(line);
-  str << "version= " << m_i_version << endl ;  
+  str << "version= " << m_i_version << std::endl ;  
 
   fgets(line,255,inpFile);
   m_i_run_number=atoi(line);
-  str << "run_number= " << m_i_run_number << endl ;  
+  str << "run_number= " << m_i_run_number << std::endl ;  
 
   fgets(line,255,inpFile);
   m_i_sliding=atoi(line);
-  str << "sliding_config= " << m_i_sliding << endl ;  
+  str << "sliding_config= " << m_i_sliding << std::endl ;  
 
     
   fclose(inpFile);           // close inp. file
@@ -373,12 +373,12 @@ void  popcon::EcalTPGSlidingWindowHandler::writeFile(const char* inputFile) {
   //-------------------------------------------------------------
   
   
-  ofstream myfile;
+  std::ofstream myfile;
   myfile.open (inputFile);
-  myfile << m_i_tag <<endl;
-  myfile << m_i_version <<endl;
-  myfile << m_i_run_number <<endl;
-  myfile << m_i_sliding <<endl;
+  myfile << m_i_tag <<std::endl;
+  myfile << m_i_version <<std::endl;
+  myfile << m_i_run_number <<std::endl;
+  myfile << m_i_sliding <<std::endl;
 
   myfile.close();
 

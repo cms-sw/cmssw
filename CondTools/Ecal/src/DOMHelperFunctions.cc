@@ -1,7 +1,7 @@
 /**
  *  \file Implementation of helper functions
  *
- *  $Id: DOMHelperFunctions.cc,v 1.2 2009/10/28 13:34:46 argiro Exp $
+ *  $Id: DOMHelperFunctions.cc,v 1.3 2010/07/29 16:38:48 fay Exp $
  */
 
 
@@ -62,7 +62,7 @@ const DetId xuti::readCellId(xercesc::DOMElement* node){
   if (ix   && iy  && zside){return EEDetId(ix,iy,zside);}
   if (ixSC && iySC && zside){return EcalScDetId(ixSC, iySC, zside);}
   
-  cerr<<"XMLCell: error reading cell, missing field ?"<<endl;
+  cerr<<"XMLCell: error reading cell, missing field ?"<<std::endl;
   return 0;
  
 }
@@ -226,7 +226,7 @@ int xuti::readHeader(const std::string& filename,EcalCondHeader& header ){
   
 
   if (!xmlDoc) {
-    cout << "Error parsing document" << endl;
+    std::cout << "Error parsing document" << std::endl;
     return -1;
   }
 

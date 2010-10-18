@@ -27,60 +27,60 @@ popcon::EcalDCSHandler::~EcalDCSHandler()
 {
 }
 
-void popcon::EcalDCSHandler::printHVDataSet( const map<EcalLogicID, RunDCSHVDat>* dataset, 
+void popcon::EcalDCSHandler::printHVDataSet( const std::map<EcalLogicID, RunDCSHVDat>* dataset, 
 					     int limit = 0 ) const
 {
-  cout << "==========printDataSet()" << endl;
+  std::cout << "==========printDataSet()" << std::endl;
   if (dataset->size() == 0) {
-    cout << "No data in map!" << endl;
+    std::cout << "No data in map!" << std::endl;
   }
   EcalLogicID ecid;
   RunDCSHVDat hv;
   
   int count = 0;
-  typedef map< EcalLogicID, RunDCSHVDat >::const_iterator CI;
+  typedef std::map< EcalLogicID, RunDCSHVDat >::const_iterator CI;
   for (CI p = dataset->begin(); p != dataset->end(); ++p) {
     count++;
     if (limit && count > limit) { return; }
     ecid = p->first;
     hv  = p->second;
     
-    cout << "SM:                     " << ecid.getID1() << endl;
-    cout << "Channel:                " << ecid.getID2() << endl;
-    cout << "HV:                     " << hv.getHV() << endl;
-    cout << "HV nominal:             " << hv.getHVNominal() << endl;
-    cout << "HV status:              " << hv.getStatus() << endl;
-    cout << "========================" << endl;
+    std::cout << "SM:                     " << ecid.getID1() << std::endl;
+    std::cout << "Channel:                " << ecid.getID2() << std::endl;
+    std::cout << "HV:                     " << hv.getHV() << std::endl;
+    std::cout << "HV nominal:             " << hv.getHVNominal() << std::endl;
+    std::cout << "HV status:              " << hv.getStatus() << std::endl;
+    std::cout << "========================" << std::endl;
   }
-  cout << endl;
+  std::cout << std::endl;
 }
 
-void popcon::EcalDCSHandler::printLVDataSet( const map<EcalLogicID, RunDCSLVDat>* dataset, 
+void popcon::EcalDCSHandler::printLVDataSet( const std::map<EcalLogicID, RunDCSLVDat>* dataset, 
 					     int limit = 0 ) const
 {
-  cout << "==========printDataSet()" << endl;
+  std::cout << "==========printDataSet()" << std::endl;
   if (dataset->size() == 0) {
-    cout << "No data in map!" << endl;
+    std::cout << "No data in map!" << std::endl;
   }
   EcalLogicID ecid;
   RunDCSLVDat lv;
   
   int count = 0;
-  typedef map< EcalLogicID, RunDCSLVDat >::const_iterator CI;
+  typedef std::map< EcalLogicID, RunDCSLVDat >::const_iterator CI;
   for (CI p = dataset->begin(); p != dataset->end(); ++p) {
     count++;
     if (limit && count > limit) { return; }
     ecid = p->first;
     lv  = p->second;
     
-    cout << "SM:                     " << ecid.getID1() << endl;
-    cout << "Channel:                " << ecid.getID2() << endl;
-    cout << "LV:                     " << lv.getLV() << endl;
-    cout << "LV nominal:             " << lv.getLVNominal() << endl;
-    cout << "LV status:              " << lv.getStatus() << endl;
-    cout << "========================" << endl;
+    std::cout << "SM:                     " << ecid.getID1() << std::endl;
+    std::cout << "Channel:                " << ecid.getID2() << std::endl;
+    std::cout << "LV:                     " << lv.getLV() << std::endl;
+    std::cout << "LV nominal:             " << lv.getLVNominal() << std::endl;
+    std::cout << "LV status:              " << lv.getStatus() << std::endl;
+    std::cout << "========================" << std::endl;
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 
 uint16_t popcon::EcalDCSHandler::OffDBStatus( uint16_t dbStatus , int pos ) {
@@ -159,11 +159,11 @@ uint16_t  popcon::EcalDCSHandler::updateLV( RunDCSLVDat* lv, uint16_t dbStatus) 
   return result; 
 }
 
-bool popcon::EcalDCSHandler::insertHVDataSetToOffline( const map<EcalLogicID, RunDCSHVDat>* dataset, EcalDCSTowerStatus* dcs_temp ) const
+bool popcon::EcalDCSHandler::insertHVDataSetToOffline( const std::map<EcalLogicID, RunDCSHVDat>* dataset, EcalDCSTowerStatus* dcs_temp ) const
 {
   bool result=false; 
   if (dataset->size() == 0) {
-    cout << "No data in map!" << endl;
+    std::cout << "No data in std::map!" << std::endl;
   }
   EcalLogicID ecid;
   RunDCSHVDat hv;
@@ -501,17 +501,17 @@ int * popcon::EcalDCSHandler::LVLogicIDToDetID(int sm, int chan) const {
 }
 
 
-bool popcon::EcalDCSHandler::insertLVDataSetToOffline( const map<EcalLogicID, RunDCSLVDat>* dataset, EcalDCSTowerStatus* dcs_temp , std::vector<EcalLogicID> my_EELVchan ) const
+bool popcon::EcalDCSHandler::insertLVDataSetToOffline( const std::map<EcalLogicID, RunDCSLVDat>* dataset, EcalDCSTowerStatus* dcs_temp , std::vector<EcalLogicID> my_EELVchan ) const
 {
   bool result= false; 
   if (dataset->size() == 0) {
-    cout << "No data in map!" << endl;
+    std::cout << "No data in map!" << std::endl;
   }
   EcalLogicID ecid;
   RunDCSLVDat lv;
 
 
-  typedef map< EcalLogicID, RunDCSLVDat >::const_iterator CI;
+  typedef std::map< EcalLogicID, RunDCSLVDat >::const_iterator CI;
   for (CI p = dataset->begin(); p != dataset->end(); ++p) {
 
     ecid = p->first;
@@ -634,9 +634,9 @@ void popcon::EcalDCSHandler::getNewObjects()
 	unsigned long long max_since= 1;
 
 	max_since=tagInfo().lastInterval.first;
-	std::cout << "max_since : "  << max_since << endl;
+	std::cout << "max_since : "  << max_since << std::endl;
 	Ref dcs_db = lastPayload();
-	std::cout << "retrieved last payload "  << endl;
+	std::cout << "retrieved last payload "  << std::endl;
 	
 	// we copy the last valid record to a temporary object 
 	EcalDCSTowerStatus* dcs_temp = new EcalDCSTowerStatus();
@@ -658,7 +658,7 @@ void popcon::EcalDCSHandler::getNewObjects()
 		EcalDCSTowerStatus::const_iterator it =dcs_db->find(ebid.rawId());
 		if ( it != dcs_db->end() ) {
 		} else {
-		  std::cout<<"*** error channel not found: j/i="<<j<<"/"<<i << endl;
+		  std::cout<<"*** error channel not found: j/i="<<j<<"/"<<i << std::endl;
 		}
 		
                 dcs_temp->setValue( ebid, dbStatus );
@@ -693,21 +693,21 @@ void popcon::EcalDCSHandler::getNewObjects()
 
 
 	econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
-	cout << "Connection done" << endl;
+	std::cout << "Connection done" << std::endl;
 	
 	if (!econn)
 	  {
-	    cout << " Problem with OMDS: connection parameters " <<m_sid <<"/"<<m_user<<endl;
+	    std::cout << " Problem with OMDS: connection parameters " <<m_sid <<"/"<<m_user<<std::endl;
 	    throw cms::Exception("OMDS not available");
 	  } 
 
 
 
-	cout << "Retrieving last run from ONLINE DB ... " << endl;
-	map<EcalLogicID, RunDat> rundat;
+	std::cout << "Retrieving last run from ONLINE DB ... " << std::endl;
+	std::map<EcalLogicID, RunDat> rundat;
 	RunIOV rp ;
 	run_t runmax=10000000;
-	string location_p5="P5_Co";
+	std::string location_p5="P5_Co";
 	econn->fetchValidDataSet(&rundat , &rp, location_p5 ,runmax);
 	
 	unsigned long long  irun=(unsigned long long) rp.getRunNumber();
@@ -720,36 +720,36 @@ void popcon::EcalDCSHandler::getNewObjects()
 
 	  // get the map of the EE LV channels to EE crystals 
 
-	  cout << "Retrieving endcap channel list from ONLINE DB ... " << endl;
+	  std::cout << "Retrieving endcap channel list from ONLINE DB ... " << std::endl;
 	  
 	  std::vector<EcalLogicID> my_EELVchan= econn->getEcalLogicIDSetOrdered( "EE_crystal_number", 1,4,
 						 1, 200, EcalLogicID::NULLID, EcalLogicID::NULLID,
 						 "EE_LV_channel", 12 ) ;
 
-	  cout << "done endcap channel list  ... " << endl;
+	  std::cout << "done endcap channel list  ... " << std::endl;
 
 	  // retrieve from last value data record 	
 	  // always call this method at first run
 
-	  map<EcalLogicID, RunDCSHVDat> dataset;
+	  std::map<EcalLogicID, RunDCSHVDat> dataset;
 	  RunIOV *r = NULL;
 	  econn->fetchDataSet(&dataset, r);
 	  
 	  if (!dataset.size()) {
-	    throw(runtime_error("Zero rows read back"));
+	    throw(std::runtime_error("Zero rows read back"));
 	  }
 	  
 	  
-	  if(lot_of_printout) cout << "read OK" << endl;
+	  if(lot_of_printout) std::cout << "read OK" << std::endl;
 	  if(lot_of_printout) printHVDataSet(&dataset,10);
 	  
-	  map<EcalLogicID, RunDCSLVDat> dataset_lv;
+	  std::map<EcalLogicID, RunDCSLVDat> dataset_lv;
 	  econn->fetchDataSet(&dataset_lv, r);
 	  
 	  if (!dataset_lv.size()) {
-	    throw(runtime_error("Zero rows read back"));
+	    throw(std::runtime_error("Zero rows read back"));
 	  }
-	  if(lot_of_printout) cout << "read OK" << endl;
+	  if(lot_of_printout) std::cout << "read OK" << std::endl;
 	  if(lot_of_printout) printLVDataSet(&dataset_lv);
 	  
 	  bool somediff_hv= insertHVDataSetToOffline(&dataset, dcs_temp );
@@ -762,19 +762,19 @@ void popcon::EcalDCSHandler::getNewObjects()
 		    t_now_gmt.setToCurrentGMTime();
 		    uint64_t tsincetemp= t_now_gmt.microsTime()/1000000 ;
 		    uint64_t tsince = tsincetemp<< 32; 
-		    cout << "Generating popcon record for time " << tsincetemp << "..." << flush;
+		    std::cout << "Generating popcon record for time " << tsincetemp << "..." << std::flush;
 	    
 	    */
 
-	    cout << "Generating popcon record for run " << irun << "..." << flush;
+	    std::cout << "Generating popcon record for run " << irun << "..." << std::flush;
     
 	    // this is for timestamp
 	    //	    m_to_transfer.push_back(std::make_pair((EcalDCSTowerStatus*)dcs_temp,tsince));
-	    //	    ss << "Time=" << t_now_gmt.str() << "_DCSchanged_"<<endl; 
+	    //	    ss << "Time=" << t_now_gmt.str() << "_DCSchanged_"<<std::endl; 
 
 	    // this is for run number 
 	    m_to_transfer.push_back(std::make_pair((EcalDCSTowerStatus*)dcs_temp,irun));
-	    ss << "Run=" << irun << "_DCSchanged_"<<endl; 
+	    ss << "Run=" << irun << "_DCSchanged_"<<std::endl; 
 
 	    m_userTextLog = ss.str()+";";
 
@@ -783,8 +783,8 @@ void popcon::EcalDCSHandler::getNewObjects()
 	    // Tm t_now_gmt;
             // t_now_gmt.setToCurrentGMTime();
 
-	    cout<< "Run DCS record was the same as previous run " << endl;
-	    ss << "Run=" << irun << "_DCSchanged_"<<endl; 
+	    std::cout<< "Run DCS record was the same as previous run " << std::endl;
+	    ss << "Run=" << irun << "_DCSchanged_"<<std::endl; 
 	    m_userTextLog = ss.str()+";";
 	    
 	    delete dcs_temp; 
@@ -841,7 +841,7 @@ void popcon::EcalDCSHandler::getNewObjects()
 			EcalDCSTowerStatus::const_iterator it =dcs_temp->find(ebid.rawId());
 			if ( it != dcs_temp->end() ) {
 			} else {
-			  std::cout<<"*** error channel not found: j/i="<<j<<"/"<<i << endl;
+			  std::cout<<"*** error channel not found: j/i="<<j<<"/"<<i << std::endl;
 			}
 			
 			dcs_pop->setValue( ebid, dbStatus );
@@ -876,11 +876,11 @@ void popcon::EcalDCSHandler::getNewObjects()
 		uint64_t tsince = tsincetemp<< 32; 
 		Tm tnew(t_pair.microsTime());
 		
-		cout << "Generating popcon record for time " << tsince << "HRF time " << tnew.str() << "..." << flush;
+		std::cout << "Generating popcon record for time " << tsince << "HRF time " << tnew.str() << "..." << std::flush;
 		
 		m_to_transfer.push_back(std::make_pair((EcalDCSTowerStatus*)dcs_pop,tsince));
 		
-		ss << "Time=" << tnew.str() << "_DCSchanged_"<<endl; 
+		ss << "Time=" << tnew.str() << "_DCSchanged_"<<std::endl; 
 		m_userTextLog = ss.str()+";";
 		
 		

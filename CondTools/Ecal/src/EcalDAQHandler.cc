@@ -132,7 +132,7 @@ int iyy[18][41][3] = {
 popcon::EcalDAQHandler::EcalDAQHandler(const edm::ParameterSet & ps)
   :    m_name(ps.getUntrackedParameter<std::string>("name","EcalDAQHandler")) {
 
-  cout << "EcalDAQ Source handler constructor\n" << endl;
+  std::cout << "EcalDAQ Source handler constructor\n" << std::endl;
   m_firstRun =(unsigned long)atoi( ps.getParameter<std::string>("firstRun").c_str());
   m_lastRun  =(unsigned long)atoi( ps.getParameter<std::string>("lastRun").c_str());
   m_sid      = ps.getParameter<std::string>("OnlineDBSID");
@@ -142,7 +142,7 @@ popcon::EcalDAQHandler::EcalDAQHandler(const edm::ParameterSet & ps)
   m_runtype  = ps.getParameter<std::string>("runtype"); 
   m_gentag   = ps.getParameter<std::string>("gentag"); 
 
-  cout << m_sid << "/" << m_user << endl;
+  std::cout << m_sid << "/" << m_user << std::endl;
 
 }
 
@@ -170,11 +170,11 @@ void popcon::EcalDAQHandler::getNewObjects() {
   max_since = tagInfo().lastInterval.first;
 
   // this is the last object in the DB 
-  cout << " max_since : "  << max_since << endl;
+  std::cout << " max_since : "  << max_since << std::endl;
 
 
   Ref daq_db = lastPayload();
-  std::cout << "retrieved last payload "  << endl;
+  std::cout << "retrieved last payload "  << std::endl;
 
   // we copy the last valid record to a temporary object peds
   EcalDAQTowerStatus* daq_temp = new EcalDAQTowerStatus();
@@ -199,10 +199,10 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	  EcalDAQTowerStatus::const_iterator it =daq_db->find(ebid.rawId());
 	  if ( it != daq_db->end() ) {
 	  } else {
-	    std::cout<<"*** error channel not found: eta/phi ="<< ieta << "/" << iphi << endl;
+	    std::cout<<"*** error channel not found: eta/phi ="<< ieta << "/" << iphi << std::endl;
 	  }
 	  daq_temp->setValue( ebid, dbStatus );
-	  if(dbStatus != 0) cout << "barrel side " << k << " phi " << iphi << " eta " << ieta << " status " << dbStatus << endl;
+	  if(dbStatus != 0) std::cout << "barrel side " << k << " phi " << iphi << " eta " << ieta << " status " << dbStatus << std::endl;
 	}
       }  // end loop over ieta
     }  // end loop over iphi
@@ -221,7 +221,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	  } 
 	  oldEEStatus[ix - 1][iy -1][k] = dbStatus;
 	  daq_temp->setValue( eeid, dbStatus );
-	  if(dbStatus != 0) cout << "endcap side " << k << " x " << ix << " y " << iy << " status " << dbStatus << endl;
+	  if(dbStatus != 0) std::cout << "endcap side " << k << " x " << ix << " y " << iy << " status " << dbStatus << std::endl;
 	}
       }  // end loop over iy
     }  // end loop over ix
@@ -230,12 +230,12 @@ void popcon::EcalDAQHandler::getNewObjects() {
   // now read the actual status from the online DB
 
 
-  cout << "Retrieving DAQ status from OMDS DB ... " << endl;
+  std::cout << "Retrieving DAQ status from OMDS DB ... " << std::endl;
   econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
-  cout << "Connection done" << endl;
+  std::cout << "Connection done" << std::endl;
 	
   if (!econn) {
-    cout << " Problem with OMDS: connection parameters " << m_sid << "/" << m_user << "/" << m_pass << endl;
+    std::cout << " Problem with OMDS: connection parameters " << m_sid << "/" << m_user << "/" << m_pass << std::endl;
     throw cms::Exception("OMDS not available");
   }
 
@@ -258,15 +258,15 @@ void popcon::EcalDAQHandler::getNewObjects() {
   } 
   else { min_run=(int)m_firstRun; }
   int max_run=(int)m_lastRun;
-  cout << "min_run " << min_run << " max_run " << max_run << endl;
+  std::cout << "min_run " << min_run << " max_run " << max_run << std::endl;
 
   RunList my_list; 
   my_list = econn->fetchRunListByLocation(my_runtag, min_run, max_run, my_locdef); 
 	      
-  vector<RunIOV> run_vec = my_list.getRuns();
+  std::vector<RunIOV> run_vec = my_list.getRuns();
   int num_runs = run_vec.size();
 
-  cout << " number of runs is : " << num_runs << endl;
+  std::cout << " number of runs is : " << num_runs << std::endl;
        
   unsigned long irun=0;
   if(num_runs > 0){
@@ -277,7 +277,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
   
     bool debug = false;
     //    for(int kr = 0; kr < num_runs; kr++){
-    int krmax = min(num_runs, 1000);
+    int krmax = std::min(num_runs, 1000);
     for(int kr = 0; kr < krmax; kr++){
       if(m_to_transfer.size() < 20 ) {
 
@@ -303,22 +303,22 @@ void popcon::EcalDAQHandler::getNewObjects() {
 
 
       // these are the online conditions DB classes        readout FEDs 
-      map<EcalLogicID, RunDat> fed_dat;
+      std::map<EcalLogicID, RunDat> fed_dat;
       econn->fetchDataSet(&fed_dat, &run_vec[kr]);
 
       // these are the online conditions DB classes        unread FEs
-      typedef map<EcalLogicID, RunDat>::const_iterator fedIter;
+      typedef std::map<EcalLogicID, RunDat>::const_iterator fedIter;
       //      EcalLogicID ecid_xt;
       RunDat rdat_fe;
       EcalLogicID idfed;
 
-      map<EcalLogicID, RunFEConfigDat> feconfig;
+      std::map<EcalLogicID, RunFEConfigDat> feconfig;
       econn->fetchDataSet(&feconfig, &run_vec[kr]);
 
       if(fed_dat.size() == 0 || feconfig.size() == 0) {
-	cout << " run " << irun << " tag " << run_vec[kr].getRunTag().getGeneralTag()
-	     << " Run type " << run_vec[kr].getRunTag().getRunTypeDef().getRunType()
-	     << " feconfig and/or read FED size = 0, leaving..." << endl;
+	std::cout << " run " << irun << " tag " << run_vec[kr].getRunTag().getGeneralTag()
+	          << " Run type " << run_vec[kr].getRunTag().getRunTypeDef().getRunType()
+	          << " feconfig and/or read FED size = 0, leaving..." << std::endl;
 	continue;
       }
 
@@ -334,13 +334,13 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	  int z = 0;
 	  if(idfed.getLogicID()<2000000000){// eb 
 	    sm = idfed.getID1();
-	    //	    cout << " EB " << sm;
+	    //	    std::cout << " EB " << sm;
 	    SM[sm - 1] = 1;
 	  }
 	  else {                            // ee
 	    z = idfed.getID1();
 	    sm = idfed.getID2();
-	    //	    cout << " EE " << z << " " << sm;
+	    //	    std::cout << " EE " << z << " " << sm;
 	    int izz = z;
 	    if(z == -1) izz = 0;
 	    Sect[izz][sm - 1] = 1;
@@ -355,7 +355,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	// mark all TT/SC in the not read out FEDs
 	for(int sm = 0; sm < 36; sm++)                      // barrel
 	  if(SM[sm] != 1) {
-	    //cout << " missing EB " << sm + 1 << endl;
+	    //std::cout << " missing EB " << sm + 1 << std::endl;
 	    if(sm < 18) 
 	      for(int tt = 0; tt < 68; tt++)
 		newEBStatus[iphiEB[sm][tt] - 1][ietaEB[sm][tt] - 1][0] = 1;
@@ -366,7 +366,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	for(int z = 0; z < 2; z++)                      // endcaps
 	  for(int sec = 0; sec < 9; sec++)
 	    if(Sect[z][sec] != 1) {
-	      //cout << " missing EE " << z << " " << sec + 1 << endl;
+	      //std::cout << " missing EE " << z << " " << sec + 1 << std::endl;
 	      int sec18 = sec;
 	      if(z == 1) sec18 = sec + 9;
 	      for(int sc = 0 ; sc < 41; sc++) {
@@ -383,7 +383,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	    }  // not read out sector
       }   // not all FED are read out
 
-      typedef map<EcalLogicID, RunFEConfigDat>::const_iterator feConfIter;
+      typedef std::map<EcalLogicID, RunFEConfigDat>::const_iterator feConfIter;
       //      EcalLogicID ecid_xt;
       RunFEConfigDat rd_fe;
   
@@ -406,7 +406,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
       unsigned NbadTT = 0;
 
       /*      if(myTT == 0) {
-		cout << " myTT = 0" << endl;
+		std::cout << " myTT = 0" << std::endl;
 		continue;
       }
       else {
@@ -419,11 +419,11 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	NbadTT = badTT_dat.size();
       }
 
-      /*      cout << " run " << irun << " tag " << run_vec[kr].getRunTag().getGeneralTag()
+      /*      std::cout << " run " << irun << " tag " << run_vec[kr].getRunTag().getGeneralTag()
 	   << " Run type " << run_vec[kr].getRunTag().getRunTypeDef().getRunType()
 	   << " number of read FEDs " << fed_dat.size()
 	   << " number of bad FEs " << NbadTT
-	   << " fe_conf_id " << fe_conf_id << endl;
+	   << " fe_conf_id " << fe_conf_id << std::endl;
       */
 
       //      *daqFile  << " run " << irun << " bad TT number " << NbadTT << "\n" << "Towers : ";
@@ -433,83 +433,83 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	//	int SM = badTT_dat[iTT].getSMId();  // SM always 0!
 	int side = 0; // EB/EE-
 	//*daqFile << fed_id << "/" << tt_id << " ";
-	//	cout << fed_id << "/" << tt_id << "/" << SM << "/" ;
-	// cout << fed_id << "/" << tt_id << "/";
+	//	std::cout << fed_id << "/" << tt_id << "/" << SM << "/" ;
+	// std::cout << fed_id << "/" << tt_id << "/";
 	if(fed_id >= 610 && fed_id <= 645) { // barrel
 	  if(tt_id > 68) {
-	    //cout << " Problem in Fed " << fed_id << " TT " << tt_id << " Give up " << endl;
+	    //std::cout << " Problem in Fed " << fed_id << " TT " << tt_id << " Give up " << std::endl;
 	    continue;
 	  }
 	  if(fed_id > 627) side = +1;  // EB+
-	  if(debug) cout << " phi " << iphiEB[fed_id - 610][tt_id - 1] 
+	  if(debug) std::cout << " phi " << iphiEB[fed_id - 610][tt_id - 1] 
 	       << " eta " << ietaEB[fed_id - 610][tt_id - 1] 
-	       << " side " << side << endl;
+	       << " side " << side << std::endl;
 	  newEBStatus[iphiEB[fed_id - 610][tt_id - 1] - 1][ietaEB[fed_id - 610][tt_id - 1] - 1][side] = 1;
 	}
 	else if(fed_id <= 609 || (fed_id >= 646 && fed_id <= 654)) { // endcap
 	  if(tt_id > 41) {
-	    //cout << " Problem in Fed " << fed_id << " SC " << tt_id << " Give up " << endl;
+	    //std::cout << " Problem in Fed " << fed_id << " SC " << tt_id << " Give up " << std::endl;
 	    continue;
 	  }
 	  if(fed_id < 610) {  // EE-
-	    if(debug) cout << " x " << ixx[fed_id - 601][tt_id - 1][0]
+	    if(debug) std::cout << " x " << ixx[fed_id - 601][tt_id - 1][0]
 		 << " y " << iyy[fed_id - 601][tt_id - 1][0];
 	    newEEStatus[ixx[fed_id - 601][tt_id - 1][0] - 1][iyy[fed_id - 601][tt_id - 1][0] - 1][side] = 1;
 	    if(ixx[fed_id - 601][tt_id - 1][1] != 0) {  // partial SC
-	      if(debug) cout << " x2 " << ixx[fed_id - 601][tt_id - 1][1]
+	      if(debug) std::cout << " x2 " << ixx[fed_id - 601][tt_id - 1][1]
 		   << " y2 " << iyy[fed_id - 601][tt_id - 1][1];
 	      newEEStatus[ixx[fed_id - 601][tt_id - 1][1] - 1][iyy[fed_id - 601][tt_id - 1][1] - 1][side] = 1;
 	      if(ixx[fed_id - 601][tt_id - 1][2] != 0) {  // partial SC
-		if(debug) cout << " x3 " << ixx[fed_id - 601][tt_id - 1][2]
+		if(debug) std::cout << " x3 " << ixx[fed_id - 601][tt_id - 1][2]
 		     << " y3 " << iyy[fed_id - 601][tt_id - 1][2];
 		newEEStatus[ixx[fed_id - 601][tt_id - 1][2] - 1][iyy[fed_id - 601][tt_id - 1][2] - 1][side] = 1;
 	      }
 	    }
-	    if(debug) cout << " side " << side << endl;
+	    if(debug) std::cout << " side " << side << std::endl;
 	  }
 	  else {  // EE+
 	    side = +1;
-	    if(debug) cout << " x " << ixx[fed_id - 637][tt_id - 1][0]
+	    if(debug) std::cout << " x " << ixx[fed_id - 637][tt_id - 1][0]
 		 << " y " << iyy[fed_id - 637][tt_id - 1][0];
 	    newEEStatus[ixx[fed_id - 637][tt_id - 1][0] - 1][iyy[fed_id - 637][tt_id - 1][0] - 1][side] = 1;
 	    if(ixx[fed_id - 637][tt_id - 1][1] != 0) {  // partial SC
-	      if(debug) cout << " x2 " << ixx[fed_id - 637][tt_id - 1][1]
+	      if(debug) std::cout << " x2 " << ixx[fed_id - 637][tt_id - 1][1]
 		   << " y2 " << iyy[fed_id - 637][tt_id - 1][1];
 	      newEEStatus[ixx[fed_id - 637][tt_id - 1][1] - 1][iyy[fed_id - 637][tt_id - 1][1] - 1][side] = 1;
 	      if(ixx[fed_id - 637][tt_id - 1][2] != 0) {  // partial SC
-		if(debug) cout << " x3 " << ixx[fed_id - 637][tt_id - 1][2]
+		if(debug) std::cout << " x3 " << ixx[fed_id - 637][tt_id - 1][2]
 		     << " y3 " << iyy[fed_id - 637][tt_id - 1][2];
 		newEEStatus[ixx[fed_id - 637][tt_id - 1][2] - 1][iyy[fed_id - 637][tt_id - 1][2] - 1][side] = 1;
 	      }
 	    }
-	    if(debug) cout << " side " << side << endl;
+	    if(debug) std::cout << " side " << side << std::endl;
 	  }
 	}
 	else {
-	  cout << " Strange Fed " << fed_id << " TT/SC " << tt_id << " Give up " << endl;
+	  std::cout << " Strange Fed " << fed_id << " TT/SC " << tt_id << " Give up " << std::endl;
 	  continue;
 	}
       } // end loop over iTT
-      if(debug) cout << endl;
-      //*daqFile  << endl;
+      if(debug) std::cout << std::endl;
+      //*daqFile  << std::endl;
       for(int k = 0 ; k < 2; k++ ) {
 	int iz = -1;
 	if(k == 1) iz = 1;
-	if(debug) cout << " Side : " << k << " barrel " << endl;       // barrel
+	if(debug) std::cout << " Side : " << k << " barrel " << std::endl;       // barrel
 	for(int iphi = 0 ; iphi < 72; iphi++) {
 	  for(int ieta = 0 ; ieta < 17; ieta++) {
 	    if(newEBStatus[iphi][ieta][k] != oldEBStatus[iphi][ieta][k]) {
 	      somediff = true;
 	      EcalTrigTowerDetId ebid(iz, EcalBarrel, ieta + 1, iphi + 1);
 	      daq_temp->setValue( ebid, newEBStatus[iphi][ieta][k]);
-	      if(debug) cout << " change in EB side " << iz << " phi " << iphi +1 << " eta " << ieta + 1 << endl;
+	      if(debug) std::cout << " change in EB side " << iz << " phi " << iphi +1 << " eta " << ieta + 1 << std::endl;
 	    }  // new status
-	    if(debug) cout << newEBStatus[iphi][ieta][k] << " " ;
+	    if(debug) std::cout << newEBStatus[iphi][ieta][k] << " " ;
 	    oldEBStatus[iphi][ieta][k] = newEBStatus[iphi][ieta][k];
 	  }
-	  if(debug) cout << endl;
+	  if(debug) std::cout << std::endl;
 	}
-	if(debug) cout << " endcaps " << endl;                         // endcap
+	if(debug) std::cout << " endcaps " << std::endl;                         // endcap
 	for(int iy = 0 ; iy < 20; iy++) {
 	  for(int ix = 0 ; ix < 20; ix++) {
 	    if (EcalScDetId::validDetId(ix + 1, iy + 1, iz )){
@@ -517,16 +517,16 @@ void popcon::EcalDAQHandler::getNewObjects() {
 		somediff = true;
 		EcalScDetId eeid(ix + 1, iy + 1, iz);
 		daq_temp->setValue( eeid, newEEStatus[ix][iy][k]);
-		if(debug) cout << " change in EE side " << iz << " x " << ix +1 << " y " << iy + 1 << endl;
+		if(debug) std::cout << " change in EE side " << iz << " x " << ix +1 << " y " << iy + 1 << std::endl;
 	      }  // new status
-	      if(debug) cout << newEEStatus[ix][iy][k] << " " ;
+	      if(debug) std::cout << newEEStatus[ix][iy][k] << " " ;
 	      oldEEStatus[ix][iy][k] = newEEStatus[ix][iy][k];
 	    }  // valid SC
 	    else {
-	      if(debug) cout << ". ";
+	      if(debug) std::cout << ". ";
 	    }
 	  }
-	  if(debug) cout << endl;
+	  if(debug) std::cout << std::endl;
 	}
       }  // loop over side
 
@@ -570,17 +570,17 @@ void popcon::EcalDAQHandler::getNewObjects() {
 	
 
 
-	cout << "Generating popcon record for run "<< irun << endl;
+	std::cout << "Generating popcon record for run "<< irun << std::endl;
 
 	m_to_transfer.push_back(std::make_pair((EcalDAQTowerStatus*)daq_pop, irun));
 
-	ss << "Run=" << irun << "_DAQchanged_"<<endl; 
+	ss << "Run=" << irun << "_DAQchanged_"<<std::endl; 
 	m_userTextLog = ss.str()+";";
       } // some change found
       else {
 	
-	cout<< "Run DAQ record was the same as previous run " << endl;
-	ss << "Run=" << irun << "_DAQunchanged_"<<endl; 
+	std::cout<< "Run DAQ record was the same as previous run " << std::endl;
+	ss << "Run=" << irun << "_DAQunchanged_"<<std::endl; 
 	m_userTextLog = ss.str()+";";
 
       }  // no change

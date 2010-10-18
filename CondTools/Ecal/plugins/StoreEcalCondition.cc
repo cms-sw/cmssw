@@ -15,6 +15,8 @@
 #include <unistd.h> 
 
 using std::string;
+using std::cout;
+using std::endl;
 
 StoreEcalCondition::StoreEcalCondition(const edm::ParameterSet& iConfig) {
 
@@ -1106,7 +1108,7 @@ StoreEcalCondition::readEcalChannelStatusFromFile(const char* inputFile)
 	      }
 	    else if (EBorEE == "EE")
 	      {
-		//		chStatus=1;
+		chStatus=1;
 		EEDetId aEEDetId=EEDetId::unhashIndex(hashedIndex);
 		status->setValue( aEEDetId, chStatus );
 	      }

@@ -15,8 +15,6 @@ namespace edm {
   class EventSetup;
 }
 
-using namespace std;
-
 class  ESDBCopy : public edm::EDAnalyzer {
  public:
   explicit  ESDBCopy(const edm::ParameterSet& iConfig );

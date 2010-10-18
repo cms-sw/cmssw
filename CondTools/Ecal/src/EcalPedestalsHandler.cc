@@ -61,12 +61,12 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 
 	unsigned int max_since=0;
 	max_since=static_cast<unsigned int>(tagInfo().lastInterval.first);
-	std::cout << "max_since : "  << max_since << endl;
+	std::cout << "max_since : "  << max_since << std::endl;
 	Ref ped_db = lastPayload();
 	
 	// we copy the last valid record to a temporary object peds
 	EcalPedestals* peds = new EcalPedestals();
-	std::cout << "retrieved last payload "  << endl;
+	std::cout << "retrieved last payload "  << std::endl;
 
 	for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
 	  if(iEta==0) continue;
@@ -147,13 +147,13 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 
 	// here we retrieve all the runs after the last from online DB 
 
-	cout << "Retrieving run list from ONLINE DB ... " << endl;
+	std::cout << "Retrieving run list from ONLINE DB ... " << std::endl;
 	econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
-	cout << "Connection done" << endl;
+	std::cout << "Connection done" << std::endl;
 	
 	if (!econn)
 	  {
-	    cout << " Problem with OMDS: connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<endl;
+	    std::cout << " Problem with OMDS: connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<std::endl;
 	    throw cms::Exception("OMDS not available");
 	  } 
 
@@ -194,7 +194,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
       
 	std::vector<MonRunIOV> mon_run_vec=  mon_list.getRuns();
 	size_t mon_runs=mon_run_vec.size();
-	cout <<"number of Mon runs is : "<< mon_runs<< endl;
+	std::cout <<"number of Mon runs is : "<< mon_runs<< std::endl;
 
 	if(mon_runs>0){
 
@@ -202,7 +202,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 
 	    unsigned int irun=static_cast<unsigned int>(mon_run_vec[kr].getRunIOV().getRunNumber());
 	  
-	    cout << "retrieve the data for run number: "<< mon_run_vec[kr].getRunIOV().getRunNumber() << endl;
+	    std::cout << "retrieve the data for run number: "<< mon_run_vec[kr].getRunIOV().getRunNumber() << std::endl;
 	  
 	    if (mon_run_vec[kr].getSubRunNumber() <=1){ 
 
@@ -210,10 +210,10 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 	      RunIOV runiov_prime = mon_run_vec[kr].getRunIOV();
 	      
 	      // retrieve the pedestals from OMDS for this run 
-	      map<EcalLogicID, MonPedestalsDat> dataset_mon;
+	      std::map<EcalLogicID, MonPedestalsDat> dataset_mon;
 	      econn->fetchDataSet(&dataset_mon, &mon_run_vec[kr]);
-	      cout <<"OMDS record for run "<<irun  <<" is made of "<< dataset_mon.size() << endl;
-	      typedef map<EcalLogicID, MonPedestalsDat>::const_iterator CImon;
+	      std::cout <<"OMDS record for run "<<irun  <<" is made of "<< dataset_mon.size() << std::endl;
+	      typedef std::map<EcalLogicID, MonPedestalsDat>::const_iterator CImon;
 	      EcalLogicID ecid_xt;
 	      MonPedestalsDat  rd_ped;
 
@@ -240,8 +240,8 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 
 		if(!checkPedestal(&item) ){
 		  nbad++;
-		  if(nbad<50) cout <<"BAD LIST: channel " << sm_num << "/" << xt_num << "/"<< yt_num 
-				   <<  "ped/rms "<<item.mean_x12<< "/"<< item.rms_x12 << endl;
+		  if(nbad<50) std::cout <<"BAD LIST: channel " << sm_num << "/" << xt_num << "/"<< yt_num 
+				   <<  "ped/rms "<<item.mean_x12<< "/"<< item.rms_x12 << std::endl;
 		}
 	      }
 	    
@@ -325,7 +325,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 		
 		}
 	      
-		cout << "Generating popcon record for run " << irun << "..." << flush;
+		std::cout << "Generating popcon record for run " << irun << "..." << std::flush;
 		
 		// now I copy peds in pedtemp and I ship pedtemp to popcon
 		// if I use always the same peds I always overwrite
@@ -356,7 +356,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 			pedtemp->insert(std::make_pair(ebdetid.rawId(),item));
 			if((iEta==-1 || iEta==1) && iPhi==20){
 			  float x=aped.mean_x12 ;
-			  cout<< "channel:" <<iEta<<"/"<<iPhi<< "/" << hiee << " ped mean 12="<< x << endl;
+			  std::cout<< "channel:" <<iEta<<"/"<<iPhi<< "/" << hiee << " ped mean 12="<< x << std::endl;
 			}
 		      }
 		  }
@@ -405,15 +405,15 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 		m_to_transfer.push_back(std::make_pair((EcalPedestals*)pedtemp,snc));
 	      
 
-		ss << "Run=" << irun << "_WAS_GOOD_"<<endl; 
+		ss << "Run=" << irun << "_WAS_GOOD_"<<std::endl; 
 		m_userTextLog = ss.str()+";";
 		
 	      
 	      
 		} else {
 		  
-		  cout<< "Run was BAD !!!! not sent to the DB number of bad channels="<<nbad << endl;
-		  ss << "Run=" << irun << "_WAS_BAD_"<<endl; 
+		  std::cout<< "Run was BAD !!!! not sent to the DB number of bad channels="<<nbad << std::endl;
+		  ss << "Run=" << irun << "_WAS_BAD_"<<std::endl; 
 		  m_userTextLog = ss.str()+";";
 		}
 	    }
@@ -434,10 +434,10 @@ void popcon::EcalPedestalsHandler::getNewObjectsH2()
 {
 	unsigned int max_since=0;
 	max_since=static_cast<unsigned int>(tagInfo().lastInterval.first);
-	std::cout << "max_since : "  << max_since << endl;
+	std::cout << "max_since : "  << max_since << std::endl;
 	Ref ped_db = lastPayload();
 	
-	std::cout << "retrieved last payload "  << endl;
+	std::cout << "retrieved last payload "  << std::endl;
 
 
 	// we copy the last valid record to a temporary object peds
@@ -470,27 +470,27 @@ void popcon::EcalPedestalsHandler::getNewObjectsH2()
 	      item.mean_x12 = aped.mean_x12;
 	      item.rms_x12  = aped.rms_x12;
 	      peds->insert(std::make_pair(eedetidpos.rawId(),item));
-	      if(iX==ixmin && iY==iymin) cout<<"ped12 " << item.mean_x12<< endl;  
+	      if(iX==ixmin && iY==iymin) std::cout<<"ped12 " << item.mean_x12<< std::endl;  
 	      
 	    }
 	  }
 	}
 	
 
-	cout <<"WOW: we just retrieved the last valid record from DB "<< endl;
+	std::cout <<"WOW: we just retrieved the last valid record from DB "<< std::endl;
 
 
 	// here we retrieve all the runs after the last from online DB 
 
-	cout << "Retrieving run list from ONLINE DB ... " << endl;
+	std::cout << "Retrieving run list from ONLINE DB ... " << std::endl;
 	
-	cout << "Making connection..." << flush;
+	std::cout << "Making connection..." << std::flush;
 	econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
-	cout << "Done." << endl;
+	std::cout << "Done." << std::endl;
 
 	if (!econn)
 	  {
-	    cout << " connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<endl;
+	    std::cout << " connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<std::endl;
 	    throw cms::Exception("OMDS not available");
 	  } 
 
@@ -526,7 +526,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsH2()
       
 	std::vector<MonRunIOV> mon_run_vec=  mon_list.getRuns();
 	size_t mon_runs=mon_run_vec.size();
-	cout <<"number of Mon runs is : "<< mon_runs<< endl;
+	std::cout <<"number of Mon runs is : "<< mon_runs<< std::endl;
 
 	if(mon_runs>0){
 
@@ -534,10 +534,10 @@ void popcon::EcalPedestalsHandler::getNewObjectsH2()
 
 	    unsigned int irun=static_cast<unsigned int>(mon_run_vec[kr].getRunIOV().getRunNumber());
 	  
-	    cout << "here is first sub run : "<< mon_run_vec[kr].getSubRunNumber() << endl;
-	    cout << "here is the run number: "<< mon_run_vec[kr].getRunIOV().getRunNumber() << endl;
+	    std::cout << "here is first sub run : "<< mon_run_vec[kr].getSubRunNumber() << std::endl;
+	    std::cout << "here is the run number: "<< mon_run_vec[kr].getRunIOV().getRunNumber() << std::endl;
 	  
-	    cout <<" retrieve the data for a given run"<< endl;
+	    std::cout <<" retrieve the data for a given run"<< std::endl;
 	  
 	    if (mon_run_vec[kr].getSubRunNumber() <=1){ 
 
@@ -546,10 +546,10 @@ void popcon::EcalPedestalsHandler::getNewObjectsH2()
 	      RunIOV runiov_prime = mon_run_vec[kr].getRunIOV();
 	      
 	      // retrieve the pedestals from OMDS for this run 
-	      map<EcalLogicID, MonPedestalsDat> dataset_mon;
+	      std::map<EcalLogicID, MonPedestalsDat> dataset_mon;
 	      econn->fetchDataSet(&dataset_mon, &mon_run_vec[kr]);
-	      cout <<"OMDS record for run "<<irun  <<" is made of "<< dataset_mon.size() << endl;
-	      typedef map<EcalLogicID, MonPedestalsDat>::const_iterator CImon;
+	      std::cout <<"OMDS record for run "<<irun  <<" is made of "<< dataset_mon.size() << std::endl;
+	      typedef std::map<EcalLogicID, MonPedestalsDat>::const_iterator CImon;
 	      EcalLogicID ecid_xt;
 	      MonPedestalsDat  rd_ped;
 	      
@@ -586,10 +586,10 @@ void popcon::EcalPedestalsHandler::getNewObjectsH2()
 		// otherwise we keep the old value 
 		
 		peds->insert(std::make_pair(eedetidpos.rawId(),item));
-		if(ix==ixmin && iy==iymin) cout<<"ped12 " << item.mean_x12<< endl;  
+		if(ix==ixmin && iy==iymin) std::cout<<"ped12 " << item.mean_x12<< std::endl;  
 	      }
 	    
-	      cout << "Generating popcon record for run " << irun << "..." << flush;
+	      std::cout << "Generating popcon record for run " << irun << "..." << std::flush;
 
 
 	      // now I copy peds in pedtemp and I ship pedtemp to popcon
@@ -618,7 +618,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsH2()
 		      item.rms_x12  = aped.rms_x12;
 		      // here I copy the last valid value in the pedtemp object
 		      pedtemp->insert(std::make_pair(eedetidpos.rawId(),item));
-		      if(iX==ixmin && iY==iymin) cout<<"ped12 " << item.mean_x12<< endl;  
+		      if(iX==ixmin && iY==iymin) std::cout<<"ped12 " << item.mean_x12<< std::endl;  
 		    }
 		}
 	      }

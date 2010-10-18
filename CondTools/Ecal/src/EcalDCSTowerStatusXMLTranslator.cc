@@ -22,7 +22,7 @@ int  EcalDCSTowerStatusXMLTranslator::readXML(const std::string& filename,
 					  EcalCondHeader& header,
 					  EcalDCSTowerStatus& record){
 
-  cout << " DCSTowerStatus should not be filled out from an xml file ..." << endl;
+  std::cout << " DCSTowerStatus should not be filled out from an xml file ..." << std::endl;
   XMLPlatformUtils::Initialize();
 
   XercesDOMParser* parser = new XercesDOMParser;
@@ -34,7 +34,7 @@ int  EcalDCSTowerStatusXMLTranslator::readXML(const std::string& filename,
 
   DOMDocument* xmlDoc = parser->getDocument();
   if (!xmlDoc) {
-    cout << "EcalDCSTowerStatusXMLTranslator::Error parsing document" << endl;
+    std::cout << "EcalDCSTowerStatusXMLTranslator::Error parsing document" << std::endl;
     return -1;
   }
 
@@ -95,7 +95,7 @@ std::string EcalDCSTowerStatusXMLTranslator::dumpXML(const EcalCondHeader& heade
   DOMElement* root = doc->getDocumentElement();
 
   xuti::writeHeader(root,header);
-  cout << " barrel size " << record.barrelItems().size() << endl;
+  std::cout << " barrel size " << record.barrelItems().size() << std::endl;
   if (!record.barrelItems().size()) return std::string();
   for(uint cellid = 0;
       cellid < EcalTrigTowerDetId::kEBTotalTowers;
@@ -107,7 +107,7 @@ std::string EcalDCSTowerStatusXMLTranslator::dumpXML(const EcalCondHeader& heade
     WriteNodeWithValue(cellnode, DCSStatusCode_tag, record[rawid].getStatusCode());
   } 
 
-  cout << " endcap size " << record.endcapItems().size() << endl;
+  std::cout << " endcap size " << record.endcapItems().size() << std::endl;
   if (!record.endcapItems().size()) return std::string();
   for(uint cellid = 0;
       cellid < EcalTrigTowerDetId::kEETotalTowers;
@@ -129,7 +129,7 @@ std::string EcalDCSTowerStatusXMLTranslator::dumpXML(const EcalCondHeader& heade
 void EcalDCSTowerStatusXMLTranslator::plot(std::string fn, const EcalDCSTowerStatus& record){
   std::ofstream fout(fn.c_str());
   int valEB[34][72];
-  cout << " barrel size " << record.barrelItems().size() << endl;
+  std::cout << " barrel size " << record.barrelItems().size() << std::endl;
   if (!record.barrelItems().size()) return;
   for(uint cellid = 0;
       cellid < EcalTrigTowerDetId::kEBTotalTowers;
@@ -145,11 +145,11 @@ void EcalDCSTowerStatusXMLTranslator::plot(std::string fn, const EcalDCSTowerSta
   for(int line = 0; line < 34; line++) {
     for(int iphi = 0; iphi < 72; iphi++)
       fout << valEB[line][iphi] << " ";
-    fout << endl;
-    if(line == 16) fout << endl;
+    fout << std::endl;
+    if(line == 16) fout << std::endl;
   }
 
-  cout << " endcap size " << record.endcapItems().size() << endl;
+  std::cout << " endcap size " << record.endcapItems().size() << std::endl;
   if (!record.endcapItems().size()) return;
   int valEE[2][20][20];
   for(int k = 0 ; k < 2; k++ ) 
@@ -166,23 +166,23 @@ void EcalDCSTowerStatusXMLTranslator::plot(std::string fn, const EcalDCSTowerSta
       int side = rawid.zside();
       int iz = side;
       if(side == -1) iz = 0;
-      if(ix < 0 || ix > 19) cout << " Pb in ix " << ix << endl;
-      if(iy < 0 || iy > 19) cout << " Pb in iy " << iy << endl;
+      if(ix < 0 || ix > 19) std::cout << " Pb in ix " << ix << std::endl;
+      if(iy < 0 || iy > 19) std::cout << " Pb in iy " << iy << std::endl;
       valEE[iz][ix][iy] = record[rawid].getStatusCode();
     }
   }
   for(int k = 0 ; k < 2; k++ ) {
     int iz = -1;
     if(k == 1) iz = 1;
-    fout << " Side : " << iz << endl;
+    fout << " Side : " << iz << std::endl;
     for(int line = 0; line < 20; line++) {
       for(int ix = 0 ; ix < 20; ix++) {
 	if(valEE[k][ix][line] < 0) fout << " . ";
 	else fout << setw(2) << valEE[k][ix][line] << " ";
       }
-      fout << endl;
+      fout << std::endl;
     }
-    fout << endl;
+    fout << std::endl;
   }
 
   return;

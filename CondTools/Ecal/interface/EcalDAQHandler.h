@@ -38,9 +38,6 @@
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
 
-using namespace std;
-using namespace oracle::occi;
-
 namespace edm {
   class ParameterSet;
   class Event;
@@ -64,13 +61,13 @@ namespace popcon {
     private:
       unsigned long m_firstRun ;
       unsigned long m_lastRun ;		
-      string m_sid;
-      string m_user;
-      string m_pass;
-      string m_name;
-      string m_location;
-      string m_runtype;
-      string m_gentag;
+      std::string m_sid;
+      std::string m_user;
+      std::string m_pass;
+      std::string m_name;
+      std::string m_location;
+      std::string m_runtype;
+      std::string m_gentag;
     };
 }
 #endif

@@ -26,8 +26,6 @@
 
 #include <vector>
 
-
-
 ESDBCopy::ESDBCopy(const edm::ParameterSet& iConfig) :
   m_timetype(iConfig.getParameter<std::string>("timetype")),
   m_cacheIDs(),
@@ -118,14 +116,14 @@ void ESDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container)
     edm::ESHandle<ESPedestals> handle;
     evtSetup.get<ESPedestalsRcd>().get(handle);
     const ESPedestals* obj = handle.product();
-    cout << "ped pointer is: "<< obj<< endl;
+    std::cout << "ped pointer is: "<< obj<< std::endl;
     dbOutput->createNewIOV<const ESPedestals>( new ESPedestals(*obj), dbOutput->beginOfTime(),dbOutput->endOfTime(),recordName);
 
   }  else if (container == "ESADCToGeVConstant") {
     edm::ESHandle<ESADCToGeVConstant> handle;
     evtSetup.get<ESADCToGeVConstantRcd>().get(handle);
     const ESADCToGeVConstant* obj = handle.product();
-    cout << "adc pointer is: "<< obj<< endl;
+    std::cout << "adc pointer is: "<< obj<< std::endl;
 
    dbOutput->createNewIOV<const ESADCToGeVConstant>( new ESADCToGeVConstant(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
@@ -134,7 +132,7 @@ void ESDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container)
     edm::ESHandle<ESChannelStatus> handle;
     evtSetup.get<ESChannelStatusRcd>().get(handle);
     const ESChannelStatus* obj = handle.product();
-    cout << "channel status pointer is: "<< obj<< endl;
+    std::cout << "channel status pointer is: "<< obj<< std::endl;
 
    dbOutput->createNewIOV<const ESChannelStatus>( new ESChannelStatus(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
@@ -144,7 +142,7 @@ else if (container == "ESIntercalibConstants") {
     edm::ESHandle<ESIntercalibConstants> handle;
     evtSetup.get<ESIntercalibConstantsRcd>().get(handle);
     const ESIntercalibConstants* obj = handle.product();
-    cout << "inter pointer is: "<< obj<< endl;
+    std::cout << "inter pointer is: "<< obj<< std::endl;
    dbOutput->createNewIOV<const ESIntercalibConstants>( new ESIntercalibConstants(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
 
@@ -152,14 +150,14 @@ else if (container == "ESIntercalibConstants") {
     edm::ESHandle<ESWeightStripGroups> handle;
     evtSetup.get<ESWeightStripGroupsRcd>().get(handle);
     const ESWeightStripGroups* obj = handle.product();
-    cout << "weight pointer is: "<< obj<< endl;
+    std::cout << "weight pointer is: "<< obj<< std::endl;
    dbOutput->createNewIOV<const ESWeightStripGroups>( new ESWeightStripGroups(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
   } else if (container == "ESTBWeights") {
     edm::ESHandle<ESTBWeights> handle;
     evtSetup.get<ESTBWeightsRcd>().get(handle);
     const ESTBWeights* obj = handle.product();
-    cout << "tbweight pointer is: "<< obj<< endl;
+    std::cout << "tbweight pointer is: "<< obj<< std::endl;
    dbOutput->createNewIOV<const ESTBWeights>( new ESTBWeights(*obj), dbOutput->beginOfTime(),dbOutput->endOfTime(),recordName);
 
 
@@ -167,5 +165,5 @@ else if (container == "ESIntercalibConstants") {
     throw cms::Exception("Unknown container");
   }
 
-  cout<< "ESDBCopy wrote " << recordName << endl;
+  std::cout<< "ESDBCopy wrote " << recordName << std::endl;
 }

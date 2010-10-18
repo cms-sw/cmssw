@@ -35,8 +35,6 @@ namespace edm {
   class EventSetup;
 }
 
-using namespace std;
-
 class  EcalTestDevDB : public edm::EDAnalyzer {
  public:
   explicit  EcalTestDevDB(const edm::ParameterSet& iConfig );

@@ -37,10 +37,6 @@
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
-
-using namespace std;
-using namespace oracle::occi;
-
 namespace edm {
   class ParameterSet;
   class Event;
@@ -60,8 +56,8 @@ namespace popcon
                         EcalTPGLutGroupHandler(edm::ParameterSet const & );
 			~EcalTPGLutGroupHandler(); 
 			
-			std::map<string, int> makeTTEBDetId();
-			std::map<string, int> makeTTEEDetId();
+			std::map<std::string, int> makeTTEBDetId();
+			std::map<std::string, int> makeTTEEDetId();
 			
 			void getNewObjects();
 			
@@ -96,7 +92,7 @@ namespace popcon
                         std::string m_name;
 			unsigned int m_runnr;
 			std::string m_runtype;
-			string m_i_tag;
+			std::string m_i_tag;
 			int m_i_version;
 			unsigned int m_i_run_number;
 			int m_i_lutGroup;

@@ -59,9 +59,6 @@
 
 #include "TProfile2D.h"
 
-using namespace std;
-using namespace oracle::occi;
-
 namespace edm {
   class ParameterSet;
   class Event;
@@ -94,7 +91,7 @@ namespace popcon {
       float checkPedestalRMSGain1( EcalPedestals::Item* item );
       
       // check which laser sectors are on
-      void nBadLaserModules( map<EcalLogicID, MonLaserBlueDat> dataset_mon );
+      void nBadLaserModules( std::map<EcalLogicID, MonLaserBlueDat> dataset_mon );
 
       // to mask channels reading from pedestal
       void pedOnlineMasking();
@@ -106,9 +103,9 @@ namespace popcon {
       void daqOut(RunIOV myRun);
 
       // real analysis
-      void pedAnalysis( map<EcalLogicID, MonPedestalsDat> dataset_mon, map<EcalLogicID, MonCrystalConsistencyDat> wrongGain_mon );
-      void laserAnalysis( map<EcalLogicID, MonLaserBlueDat> dataset_mon );
-      void cosmicsAnalysis( map<EcalLogicID, MonPedestalsOnlineDat> pedestalO_mon, map<EcalLogicID, MonCrystalConsistencyDat> wrongGain_mon, map<EcalLogicID, MonLaserBlueDat> laser_mon, map<EcalLogicID, MonOccupancyDat> occupancy_mon );
+      void pedAnalysis( std::map<EcalLogicID, MonPedestalsDat> dataset_mon, std::map<EcalLogicID, MonCrystalConsistencyDat> wrongGain_mon );
+      void laserAnalysis( std::map<EcalLogicID, MonLaserBlueDat> dataset_mon );
+      void cosmicsAnalysis( std::map<EcalLogicID, MonPedestalsOnlineDat> pedestalO_mon, std::map<EcalLogicID, MonCrystalConsistencyDat> wrongGain_mon, std::map<EcalLogicID, MonLaserBlueDat> laser_mon, std::map<EcalLogicID, MonOccupancyDat> occupancy_mon );
       
     private:
       
@@ -140,10 +137,10 @@ namespace popcon {
       ofstream *daqFile;
       ofstream *daqFile2;
 
-      map<DetId, float> maskedOnlinePedEB, maskedOnlinePedEE;
-      map<DetId, float> maskedPedEB, maskedPedEE;
-      map<DetId, float> maskedLaserEB, maskedLaserEE;
-      map<DetId, float> maskedPhysicsEB, maskedPhysicsEE;
+      std::map<DetId, float> maskedOnlinePedEB, maskedOnlinePedEE;
+      std::map<DetId, float> maskedPedEB, maskedPedEE;
+      std::map<DetId, float> maskedLaserEB, maskedLaserEE;
+      std::map<DetId, float> maskedPhysicsEB, maskedPhysicsEE;
 
       TProfile2D *newBadEB_;
       TProfile2D *newBadEEP_;

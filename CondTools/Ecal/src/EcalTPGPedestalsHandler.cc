@@ -67,15 +67,15 @@ void popcon::EcalTPGPedestalsHandler::getNewObjects()
 	edm::LogInfo("EcalTPGPedestalsHandler")<< "Retrieved last payload ";
 
         // here we retrieve all the runs after the last from online DB 
-    	edm::LogInfo("EcalTPGPedestalsHandler")<< "Retrieving run list from ONLINE DB ... " << endl;
+    	edm::LogInfo("EcalTPGPedestalsHandler")<< "Retrieving run list from ONLINE DB ... " << std::endl;
 
-    	edm::LogInfo("EcalTPGPedestalsHandler") << "Making connection..." << flush;
+    	edm::LogInfo("EcalTPGPedestalsHandler") << "Making connection..." << std::flush;
     	econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
-    	edm::LogInfo("EcalTPGPedestalsHandler") << "Done." << endl;
+    	edm::LogInfo("EcalTPGPedestalsHandler") << "Done." << std::endl;
         
 	if (!econn)
 	{
-	  cout << " Connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<endl;
+	  std::cout << " Connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<std::endl;
           throw cms::Exception("OMDS not available");
     	} 
       
@@ -105,7 +105,7 @@ void popcon::EcalTPGPedestalsHandler::getNewObjects()
 	  min_run=  max_since+1; // we have to add 1 to the last transferred one
 	} 
 
-	std::cout<<"m_i_run_number"<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since<< endl;
+	std::cout<<"m_i_run_number"<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since<< std::endl;
 
 	unsigned int max_run=m_lastRun;
 	edm::LogInfo("EcalTPGPedestalsHandler") <<"min_run= " << min_run << " max_run = " << max_run;
@@ -115,7 +115,7 @@ void popcon::EcalTPGPedestalsHandler::getNewObjects()
 	std::vector<RunIOV> run_vec=  my_list.getRuns();
 	size_t num_runs=run_vec.size();
 	
-	std::cout <<"number of runs is : "<< num_runs<< endl;
+	std::cout <<"number of runs is : "<< num_runs<< std::endl;
         
 	unsigned int irun=0;
 		
@@ -130,13 +130,13 @@ void popcon::EcalTPGPedestalsHandler::getNewObjects()
 
 	   
             // retrieve the data :
-            map<EcalLogicID, RunTPGConfigDat> dataset;
+            std::map<EcalLogicID, RunTPGConfigDat> dataset;
             econn->fetchDataSet(&dataset, &run_vec[kr]);
 
             std::string the_config_tag="";
 	    int the_config_version=0;
 
-            map< EcalLogicID,  RunTPGConfigDat>::const_iterator it;
+            std::map< EcalLogicID,  RunTPGConfigDat>::const_iterator it;
 
             int nr=0;
             for ( it=dataset.begin(); it!=dataset.end(); it++ )
@@ -158,7 +158,7 @@ void popcon::EcalTPGPedestalsHandler::getNewObjects()
 
 
 	    if((the_config_tag != m_i_tag || the_config_version != m_i_version ) && nr>0 ) {
-	      std::cout<<"the tag is different from last transferred run ... retrieving last config set from DB"<<endl;
+	      std::cout<<"the tag is different from last transferred run ... retrieving last config set from DB"<<std::endl;
 
 	      FEConfigMainInfo fe_main_info;
 	      fe_main_info.setConfigTag(the_config_tag);
@@ -177,12 +177,12 @@ void popcon::EcalTPGPedestalsHandler::getNewObjects()
 		  FEConfigPedInfo fe_ped_info;
 		  fe_ped_info.setId(pedId);
 		  econn-> fetchConfigSet(&fe_ped_info);
-		  map<EcalLogicID, FEConfigPedDat> dataset_TpgPed;
+		  std::map<EcalLogicID, FEConfigPedDat> dataset_TpgPed;
 		  econn->fetchDataSet(&dataset_TpgPed, &fe_ped_info);
 		  
 		  // NB new 
 		  EcalTPGPedestals* peds = new EcalTPGPedestals;
-		  typedef map<EcalLogicID, FEConfigPedDat>::const_iterator CIfeped;
+		  typedef std::map<EcalLogicID, FEConfigPedDat>::const_iterator CIfeped;
 		  EcalLogicID ecid_xt;
 		  FEConfigPedDat  rd_ped;
 		  int icells=0;
@@ -252,7 +252,7 @@ void popcon::EcalTPGPedestalsHandler::getNewObjects()
 	      catch (std::exception &e) { 
 		std::cout << "ERROR: THIS CONFIG DOES NOT EXIST: tag=" <<the_config_tag
 			  <<" version="<<the_config_version<< std::endl;
-		cout << e.what() << endl;
+		std::cout << e.what() << std::endl;
 		m_i_run_number=irun;
 
 	      }
@@ -303,19 +303,19 @@ void  popcon::EcalTPGPedestalsHandler::readFromFile(const char* inputFile) {
 
   fgets(line,255,inpFile);
   m_i_tag=to_string(line);
-  str << "gen tag " << m_i_tag << endl ;  // should I use this? 
+  str << "gen tag " << m_i_tag << std::endl ;  // should I use this? 
 
   fgets(line,255,inpFile);
   m_i_version=atoi(line);
-  str << "version= " << m_i_version << endl ;  
+  str << "version= " << m_i_version << std::endl ;  
 
   fgets(line,255,inpFile);
   m_i_run_number=atoi(line);
-  str << "run_number= " << m_i_run_number << endl ;  
+  str << "run_number= " << m_i_run_number << std::endl ;  
 
   fgets(line,255,inpFile);
   m_i_ped=atoi(line);
-  str << "ped_config= " << m_i_ped << endl ;  
+  str << "ped_config= " << m_i_ped << std::endl ;  
 
     
   fclose(inpFile);           // close inp. file
@@ -326,12 +326,12 @@ void  popcon::EcalTPGPedestalsHandler::writeFile(const char* inputFile) {
   //-------------------------------------------------------------
   
   
-  ofstream myfile;
+  std::ofstream myfile;
   myfile.open (inputFile);
-  myfile << m_i_tag <<endl;
-  myfile << m_i_version <<endl;
-  myfile << m_i_run_number <<endl;
-  myfile << m_i_ped <<endl;
+  myfile << m_i_tag <<std::endl;
+  myfile << m_i_version <<std::endl;
+  myfile << m_i_run_number <<std::endl;
+  myfile << m_i_ped <<std::endl;
 
   myfile.close();
 

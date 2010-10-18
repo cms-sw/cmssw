@@ -36,13 +36,6 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
-
-
-
-
-using namespace std;
-using namespace oracle::occi;
-
 namespace edm {
   class ParameterSet;
   class Event;
@@ -62,7 +55,7 @@ namespace popcon
 			
 			void getNewObjects();
 			
-			std::map<string, int> makeTTEEDetId();
+			std::map<std::string, int> makeTTEEDetId();
 			
 			std::string id() const { return m_name;}
 			
@@ -93,7 +86,7 @@ namespace popcon
                         std::string m_name;
 			unsigned int m_runnr;
 			std::string m_runtype;
-			string m_i_tag;
+			std::string m_i_tag;
 			int m_i_version;
 			unsigned int m_i_run_number;
 			int m_i_badTT;

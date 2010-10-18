@@ -8,8 +8,6 @@
 
 #include<iostream>
 
-
-
 popcon::EcalLaserHandler::EcalLaserHandler(const edm::ParameterSet & ps) 
   :    m_name(ps.getUntrackedParameter<std::string>("name","EcalLaserHandler")) {
 
@@ -34,7 +32,7 @@ bool popcon::EcalLaserHandler::checkAPDPN(float x, float old_x)
 {
   bool result=true;
   if(x<=0 || x>20) result=false;
-  if((old_x!=1.000 && old_x!=0) && abs(x-old_x)/old_x>100.00) result=false; 
+  if((old_x!=1.000 && old_x!=0) && std::abs(x-old_x)/old_x>100.00) result=false; 
   return result;
 }
 
@@ -48,17 +46,17 @@ void popcon::EcalLaserHandler::getNewObjects()
 
   bool alot_of_printout=false; //usually it was True: FIXME! Put it in the PSet, please
   unsigned long long max_since= 1;
-  string payloadtoken = "";
+  std::string payloadtoken = "";
 
   // here popcon tells us which is the last since of the last object in the offline DB
   max_since=tagInfo().lastInterval.first;
-  std::cout << "max_since : "  << max_since << endl;
+  std::cout << "max_since : "  << max_since << std::endl;
 
   payloadtoken = tagInfo().lastPayloadToken;
-  std::cout << " payloadtoken : " << payloadtoken << endl;
+  std::cout << " payloadtoken : " << payloadtoken << std::endl;
   Ref payload= lastPayload();
 
-  std::cout << "retrieved last payload "  << endl;
+  std::cout << "retrieved last payload "  << std::endl;
   
 
   // we will copy the last valid record to a temporary object apdpns_temp
@@ -71,10 +69,10 @@ void popcon::EcalLaserHandler::getNewObjects()
 
 
   const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap& laserRatiosMap = payload->getLaserMap(); 
-  std::cout << "payload->getLaserMap():  OK " << endl;
+  std::cout << "payload->getLaserMap():  OK " << std::endl;
   const EcalLaserAPDPNRatios::EcalLaserTimeStampMap& laserTimeMap = payload->getTimeMap(); 
-  std::cout << "payload->getTimeMap():  OK " << endl;
-  std::cout << "going to access objects in the last payload "  << endl;
+  std::cout << "payload->getTimeMap():  OK " << std::endl;
+  std::cout << "going to access objects in the last payload "  << std::endl;
 
 
   // loop through barrel
@@ -92,12 +90,12 @@ void popcon::EcalLaserHandler::getNewObjects()
 	  apdpnpair_temp.p2 = apdpnpair.p2;
 	  apdpnpair_temp.p3 = apdpnpair.p3;
 	  apdpns_temp->setValue(ebdetid, apdpnpair_temp);
-	  if (alot_of_printout && hiee%500 == 0 )std::cout <<"hiee = "<< ebdetid.rawId() << "    p1 = " << apdpnpair.p1  <<"    p2 = " << apdpnpair.p2 <<"    p3 = "<<apdpnpair.p3 <<endl;
+	  if (alot_of_printout && hiee%500 == 0 )std::cout <<"hiee = "<< ebdetid.rawId() << "    p1 = " << apdpnpair.p1  <<"    p2 = " << apdpnpair.p2 <<"    p3 = "<<apdpnpair.p3 <<std::endl;
 	}
     }
   }
   
-  std::cout << "going to access Endcap objects in the last payload "  << endl;
+  std::cout << "going to access Endcap objects in the last payload "  << std::endl;
 
 
   // loop through ecal endcap      
@@ -115,10 +113,10 @@ void popcon::EcalLaserHandler::getNewObjects()
 	    apdpnpair_temp.p2 = apdpnpair.p2;
 	    apdpnpair_temp.p3 = apdpnpair.p3;
 	    apdpns_temp->setValue(eedetidpos, apdpnpair_temp);
-	    if (alot_of_printout&& hi%500 == 0 )std::cout <<"hiee = "<< eedetidpos.rawId() << "    p1 = " << apdpnpair.p1  <<"    p2 = " << apdpnpair.p2 <<"    p3 = "<<apdpnpair.p3 <<endl;
+	    if (alot_of_printout&& hi%500 == 0 )std::cout <<"hiee = "<< eedetidpos.rawId() << "    p1 = " << apdpnpair.p1  <<"    p2 = " << apdpnpair.p2 <<"    p3 = "<<apdpnpair.p3 <<std::endl;
 	    
 	  } else {
-	    edm::LogError("EcalLaserHandler") << "error with laserRatiosMap!" << endl;     
+	    edm::LogError("EcalLaserHandler") << "error with laserRatiosMap!" << std::endl;     
 	  }
 	  
 	  EEDetId eedetidneg(iX,iY,-1);
@@ -134,7 +132,7 @@ void popcon::EcalLaserHandler::getNewObjects()
 	   
 	    
 	  } else {
-	    edm::LogError("EcalLaserHandler") << "error with laserRatiosMap!" << endl;     
+	    edm::LogError("EcalLaserHandler") << "error with laserRatiosMap!" << std::endl;     
 	  }
 	  
 	}
@@ -157,28 +155,28 @@ void popcon::EcalLaserHandler::getNewObjects()
     timestamp_temp.t1 = timestamp.t1;
     timestamp_temp.t2 = timestamp.t2;
     timestamp_temp.t3 = timestamp.t3;
-    if(alot_of_printout)    std::cout << "    t1 = " << timestamp.t1.value()  << "    t2 = " << timestamp.t2.value() << "    t3 = " << timestamp.t3.value() << endl;
+    if(alot_of_printout)    std::cout << "    t1 = " << timestamp.t1.value()  << "    t2 = " << timestamp.t2.value() << "    t3 = " << timestamp.t3.value() << std::endl;
     apdpns_temp->setTime(i,timestamp_temp);
 
     if(t_min<timestamp.t3   ) t_min=timestamp.t3;
   }
   
-  cout <<"WOW: we just retrieved the last valid record from DB "<< endl;
-  cout <<"this is the t_min "<< t_min.value()<< endl;
+  std::cout <<"WOW: we just retrieved the last valid record from DB "<< std::endl;
+  std::cout <<"this is the t_min "<< t_min.value()<< std::endl;
 
 
 
 
   // here we retrieve all the runs after the last from online DB 
   
-  cout << "Retrieving run list from ONLINE DB ... " << endl;
+  std::cout << "Retrieving run list from ONLINE DB ... " << std::endl;
   try {
-    cout << "Making connection..." << flush;
+    std::cout << "Making connection..." << std::flush;
     econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
-    cout << "Done." << endl;
-  } catch (runtime_error &e) {
-    cout << " connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<endl;
-    cerr << e.what() << endl;
+    std::cout << "Done." << std::endl;
+  } catch (std::runtime_error &e) {
+    std::cout << " connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<std::endl;
+    std::cerr << e.what() << std::endl;
     throw cms::Exception("OMDS not available");
   } 
 
@@ -214,7 +212,7 @@ void popcon::EcalLaserHandler::getNewObjects()
   
   std::vector<LMFRunIOV> lmf_run_vec=  lmf_list.getRuns();
   int lmf_runs=lmf_run_vec.size();
-  cout <<"number of LMF runs is : "<< lmf_runs<< endl;
+  std::cout <<"number of LMF runs is : "<< lmf_runs<< std::endl;
 
   if(lmf_runs>0){
 
@@ -251,11 +249,11 @@ void popcon::EcalLaserHandler::getNewObjects()
 	  n_taken=n;
 	  std::cout<<n<< " previous sequence = "<<onlineSeq_vec[n_taken].getSequenceNumber()<< "previous run="
 		   <<onlineSeq_vec[n_taken].getRunIOV().getRunNumber()<<" lmr number ="<<onlineSeq_vec[n_taken].getLMRNumber()
-		   <<"since="<<the_zero_since<<endl;
+		   <<"since="<<the_zero_since<<std::endl;
 	}
       } 
       std::cout<< "*** previous sequence = "<<onlineSeq_vec[n_taken].getSequenceNumber()<< "previous run="
-	       <<onlineSeq_vec[n_taken].getRunIOV().getRunNumber()<<" lmr number ="<<onlineSeq_vec[n_taken].getLMRNumber()<<endl;
+	       <<onlineSeq_vec[n_taken].getRunIOV().getRunNumber()<<" lmr number ="<<onlineSeq_vec[n_taken].getLMRNumber()<<std::endl;
     } else {
       the_zero_since=0;
     }
@@ -271,11 +269,11 @@ void popcon::EcalLaserHandler::getNewObjects()
 
 
     // get the Ecal Logic Ids of the ECAL LMR and their crystals
-    vector<EcalLogicID> crystals_EB  = econn->getEcalLogicIDSetOrdered( "EB_crystal_number",
+    std::vector<EcalLogicID> crystals_EB  = econn->getEcalLogicIDSetOrdered( "EB_crystal_number",
 									1,36,1,1700,
 									EcalLogicID::NULLID,EcalLogicID::NULLID,
 									"ECAL_LMR", 4 );
-    vector<EcalLogicID> crystals_EE  = econn->getEcalLogicIDSetOrdered( "EE_crystal_number",
+    std::vector<EcalLogicID> crystals_EE  = econn->getEcalLogicIDSetOrdered( "EE_crystal_number",
 									-1,1,-120,120,
 									-120,120,
 									"ECAL_LMR", 4 );
@@ -293,7 +291,7 @@ void popcon::EcalLaserHandler::getNewObjects()
 
     for(int kt=0; kt<lmf_runs; kt++){
       nsubruns[kt]=lmf_run_vec[kt].getSubRunNumber();
-      //  std::cout<< "nsubr="<<nsubruns[kt]<<endl;
+      //  std::cout<< "nsubr="<<nsubruns[kt]<<std::endl;
       int iseq=lmf_run_vec[kt].getSequenceNumber();
       int i_lmr=lmf_run_vec[kt].getLMRNumber();
       unsigned long long irun=static_cast<unsigned long long>(lmf_run_vec[kt].getRunIOV().getRunNumber());
@@ -361,12 +359,12 @@ void popcon::EcalLaserHandler::getNewObjects()
 	    
       // retrieve the APDPNs from OMDS for this run 
       
-      map<EcalLogicID, LMFLaserPrimDat > dataset_lmf;
+      std::map<EcalLogicID, LMFLaserPrimDat > dataset_lmf;
       econn->fetchDataSet(&dataset_lmf, &lmf_run_vec[kr]);
-      // cout <<"OMDS record for run "<<irun  <<" is made of "<< dataset_lmf.size() << " records"<< endl;
+      // std::cout <<"OMDS record for run "<<irun  <<" is made of "<< dataset_lmf.size() << " records"<< std::endl;
       
       
-      typedef map<EcalLogicID, LMFLaserPrimDat>::const_iterator CIlmf;
+      typedef std::map<EcalLogicID, LMFLaserPrimDat>::const_iterator CIlmf;
       EcalLogicID ecid_xt;
       
       LMFLaserPrimDat rd_apdnorm;
@@ -401,7 +399,7 @@ void popcon::EcalLaserHandler::getNewObjects()
 	    apdpns_temp->setValue(ebdetid, apdpnpair_temp);
 	    updated_channels[hiee]=1;
 	    ich++;
-	    if (alot_of_printout & (ich<2)) std::cout<< "updating channel "<< x<<endl;
+	    if (alot_of_printout & (ich<2)) std::cout<< "updating channel "<< x<<std::endl;
 	  } else {
 	    // FC here we must decide what to do.
 	    ich_bad++;
@@ -410,7 +408,7 @@ void popcon::EcalLaserHandler::getNewObjects()
 	    apdpnpair_temp.p3 = apdpnpair.p3;
             apdpns_temp->setValue(ebdetid, apdpnpair_temp);
 	    updated_channels[hiee]=2; // 2 means channel was bad and we propagate the old value 
-	    if (alot_of_printout & (ich_bad<10)) std::cout<< "NOT updating channel with APD/PN="<< x <<" "<< old_x <<endl;
+	    if (alot_of_printout & (ich_bad<10)) std::cout<< "NOT updating channel with APD/PN="<< x <<" "<< old_x <<std::endl;
 	  }
 
 	} else { 
@@ -434,9 +432,9 @@ void popcon::EcalLaserHandler::getNewObjects()
 	  updated_channels[hiee+61200]=1;
 	}
       }    
-       if (alot_of_printout ) std::cout << "ich="<<ich<<" ich_bad="<<ich_bad<<endl;
+       if (alot_of_printout ) std::cout << "ich="<<ich<<" ich_bad="<<ich_bad<<std::endl;
 
-      if(i_lmr==1 || i_lmr == last_lmr[kr] ) std::cout << "timestamp for run"<<lmf_run_vec[kr].getRunIOV().getRunNumber() <<"."<<iseq<<"/"<<last_lmr[kr] <<" LMR "<< i_lmr << " to "<<time_lmf_subrun_micro << endl; 
+      if(i_lmr==1 || i_lmr == last_lmr[kr] ) std::cout << "timestamp for run"<<lmf_run_vec[kr].getRunIOV().getRunNumber() <<"."<<iseq<<"/"<<last_lmr[kr] <<" LMR "<< i_lmr << " to "<<time_lmf_subrun_micro << std::endl; 
       const EcalLaserAPDPNRatios::EcalLaserTimeStampMap& laserTimeMap = apdpns_temp->getTimeMap();
       EcalLaserAPDPNRatios::EcalLaserTimeStamp timestamp = laserTimeMap[i_lmr-1];
       EcalLaserAPDPNRatios::EcalLaserTimeStamp timestamp_temp;
@@ -449,7 +447,7 @@ void popcon::EcalLaserHandler::getNewObjects()
       // corresponding crystals and eventually 
       // extends the values to the new interval
 
-      //      vector<EcalLogicID> this_group=  crystals_by_LMR.find(i_lmr);
+      //      std::vector<EcalLogicID> this_group=  crystals_by_LMR.find(i_lmr);
       
     
 
@@ -457,7 +455,7 @@ void popcon::EcalLaserHandler::getNewObjects()
 
 	// this is the last subrun of a run we save to offline DB 
 	
-	cout << "Generating popcon record for run " << irun << "..." << endl;
+	std::cout << "Generating popcon record for run " << irun << "..." << std::endl;
 	
 	
 	// now I copy apdpns_temp in apdpns_popcon and I ship apdpns_popcon to popcon
@@ -493,7 +491,7 @@ void popcon::EcalLaserHandler::getNewObjects()
 		  
 		  apdpns_popcon->setValue(ebdetid, apdpnpair_temp);
 		} else {
-		  edm::LogError("EcalLaserHandler") << "error with laserRatiosMap!" << endl;
+		  edm::LogError("EcalLaserHandler") << "error with laserRatiosMap!" << std::endl;
 		}
 		
 	      }
@@ -516,7 +514,7 @@ void popcon::EcalLaserHandler::getNewObjects()
 		  apdpns_popcon->setValue(eedetidpos, apdpnpair_temp);
 		  
 		} else {
-		  edm::LogError("EcalLaserHandler") << "error with laserRatiosMap!" << endl;     
+		  edm::LogError("EcalLaserHandler") << "error with laserRatiosMap!" << std::endl;     
 		}
 		
 		EEDetId eedetidneg(iX,iY,-1);
@@ -531,7 +529,7 @@ void popcon::EcalLaserHandler::getNewObjects()
 		  apdpns_popcon->setValue(eedetidneg, apdpnpair_temp);
 		  
 		} else {
-		  edm::LogError("EcalLaserHandler") << "error with laserRatiosMap!" << endl;     
+		  edm::LogError("EcalLaserHandler") << "error with laserRatiosMap!" << std::endl;     
 		}
 		
 	      }
@@ -592,7 +590,7 @@ void popcon::EcalLaserHandler::getNewObjects()
 
 	t_early_old=t_early;
 
-	std::cout <<" chosen : "<< t_early << endl;
+	std::cout <<" chosen : "<< t_early << std::endl;
 
 	m_to_transfer.push_back(std::make_pair(apdpns_popcon,t_early));
 	run_saved++; 

@@ -35,7 +35,7 @@ int  EcalPedestalsXMLTranslator::readXML(const std::string& filename,
 
   DOMDocument* xmlDoc = parser->getDocument();
   if (!xmlDoc) {
-    cout << "EcalPedestalsXMLTranslator::Error parsing document" << endl;
+    std::cout << "EcalPedestalsXMLTranslator::Error parsing document" << std::endl;
     return -1;
   }
 
@@ -47,7 +47,7 @@ int  EcalPedestalsXMLTranslator::readXML(const std::string& filename,
 
   int chan = 0;
   while(cellnode) {
-    //    cout << " Channel " << chan << endl;
+    //    std::cout << " Channel " << chan << std::endl;
     float mean12 = 0;
     float mean6 = 0;
     float mean1 = 0;
@@ -55,33 +55,33 @@ int  EcalPedestalsXMLTranslator::readXML(const std::string& filename,
     float rms6 = 0;
     float rms1 = 0;
     DetId detid = readCellId(dynamic_cast<DOMElement*>(cellnode));
-    //    cout << " readCell Id Channel " << chan << " tag " << mean12_tag << endl;
+    //    std::cout << " readCell Id Channel " << chan << " tag " << mean12_tag << std::endl;
 
     DOMNode* mean12_node = getChildNode(cellnode,mean12_tag);
     GetNodeData(mean12_node,mean12);
-    //    cout << " tag " << mean12_tag << " mean12 " << mean12 << endl;
+    //    std::cout << " tag " << mean12_tag << " mean12 " << mean12 << std::endl;
 
     DOMNode* mean6_node = getChildNode(cellnode,mean6_tag);
     GetNodeData(mean6_node,mean6);
-    //    cout << " tag " << mean6_tag << " mean6 " << mean6 << endl;
+    //    std::cout << " tag " << mean6_tag << " mean6 " << mean6 << std::endl;
 
     DOMNode* mean1_node = getChildNode(cellnode,mean1_tag);
     GetNodeData(mean1_node,mean1);
-    //    cout << " tag " << mean1_tag << " mean1 " << mean1 << endl;
+    //    std::cout << " tag " << mean1_tag << " mean1 " << mean1 << std::endl;
 
     DOMNode* rms12_node = getChildNode(cellnode,rms12_tag);
     GetNodeData(rms12_node,rms12);
-    //    cout << " tag 12 " << rms12_tag << " rms 12 " << rms12 << endl;
+    //    std::cout << " tag 12 " << rms12_tag << " rms 12 " << rms12 << std::endl;
 
     DOMNode* rms6_node = getChildNode(cellnode,rms6_tag);
     GetNodeData(rms6_node,rms6);
-    //    cout << " tag 6 " << rms6_tag << " rms 6 " << rms6 << endl;
+    //    std::cout << " tag 6 " << rms6_tag << " rms 6 " << rms6 << std::endl;
 
     DOMNode* rms1_node = getChildNode(cellnode,rms1_tag);
-    //    cout << " tag 1 " << rms1_tag << endl;
+    //    std::cout << " tag 1 " << rms1_tag << std::endl;
 
     GetNodeData(rms1_node,rms1);
-    //    cout << " Channel " << chan << " mean12 " << mean12 << " rms 1 " << rms1 << endl;
+    //    std::cout << " Channel " << chan << " mean12 " << mean12 << " rms 1 " << rms1 << std::endl;
     record[detid].mean_x12 = mean12;
     record[detid].mean_x6 = mean6;
     record[detid].mean_x1 = mean1;
@@ -98,7 +98,7 @@ int  EcalPedestalsXMLTranslator::readXML(const std::string& filename,
 
   delete parser;
   XMLPlatformUtils::Terminate();
-  cout << " nb of channels found in xml file " << chan << endl;
+  std::cout << " nb of channels found in xml file " << chan << std::endl;
   return 0;
  }
 

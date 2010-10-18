@@ -33,12 +33,6 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
-
-
-
-
-using namespace std;
-
 class EcalMappingElectronicsHandler : public popcon::PopConSourceHandler<EcalMappingElectronics>
 {
  public:

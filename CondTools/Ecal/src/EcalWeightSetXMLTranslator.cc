@@ -37,7 +37,7 @@ int  EcalWeightSetXMLTranslator::readXML(const std::string& filename,
 
   DOMDocument* xmlDoc = parser->getDocument();
   if (!xmlDoc) {
-    cout << "EcalWeightSetXMLTranslator::Error parsing document" << endl;
+    std::cout << "EcalWeightSetXMLTranslator::Error parsing document" << std::endl;
     return -1;
   }
 

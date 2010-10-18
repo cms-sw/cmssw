@@ -127,7 +127,7 @@ float popcon::EcalChannelStatusHandler::checkPedestalRMSGain1( EcalPedestals::It
 // START LASER ROUTINES 
 
 // choose 'good' EB and EE light modules. Based on DQM infos 
-void popcon::EcalChannelStatusHandler::nBadLaserModules( map<EcalLogicID, MonLaserBlueDat> dataset_mon ) {
+void popcon::EcalChannelStatusHandler::nBadLaserModules( std::map<EcalLogicID, MonLaserBlueDat> dataset_mon ) {
   
   // NB: EcalLogicId, sm_num = ecid_xt.getID1() --> for barrel is 1->18 = EB+; 19->36 = EB-  
   // NB: EcalLogicId, sm_num = ecid_xt.getID1() --> for endcap is 1=Z+, -1=Z- ;              
@@ -153,7 +153,7 @@ void popcon::EcalChannelStatusHandler::nBadLaserModules( map<EcalLogicID, MonLas
     }}
 
   
-  typedef map<EcalLogicID, MonLaserBlueDat>::const_iterator CImon;
+  typedef std::map<EcalLogicID, MonLaserBlueDat>::const_iterator CImon;
   EcalLogicID ecid_xt;
   MonLaserBlueDat rd_blue;
 
@@ -244,13 +244,13 @@ void popcon::EcalChannelStatusHandler::nBadLaserModules( map<EcalLogicID, MonLas
   for (int theSm=0; theSm<36; theSm++){
     for (int theLM=0; theLM<2; theLM++){
       if (isEBRef1[theSm][theLM] && isEBRef2[theSm][theLM]) isGoodLaserEBSm[theSm][theLM] = true; 
-      // cout << "Barrel: SM " << theSm << ", LM " << theLM << ": good = " << isGoodLaserEBSm[theSm][theLM] << endl;
+      // std::cout << "Barrel: SM " << theSm << ", LM " << theLM << ": good = " << isGoodLaserEBSm[theSm][theLM] << std::endl;
     }}
   
   for (int theSector=0; theSector<18; theSector++){
     for (int theLM=0; theLM<2; theLM++){
       if (isEERef1[theSector][theLM] && isEERef2[theSector][theLM]) isGoodLaserEESm[theSector][theLM] = true; 
-      // cout << "Endcap: SM " << theSector << ", LM " << theLM << ": good = " << isGoodLaserEESm[theSector][theLM] << endl;
+      // std::cout << "Endcap: SM " << theSector << ", LM " << theLM << ": good = " << isGoodLaserEESm[theSector][theLM] << std::endl;
     }}
 }
 
@@ -266,12 +266,12 @@ void popcon::EcalChannelStatusHandler::pedOnlineMasking() {
   bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR");
   bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR");
   
-  map<EcalLogicID, RunCrystalErrorsDat> theMask;
+  std::map<EcalLogicID, RunCrystalErrorsDat> theMask;
   EcalErrorMask::fetchDataSet(&theMask);
   
   if ( theMask.size()!=0 ) {
 
-    map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
+    std::map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
     for (m=theMask.begin(); m!=theMask.end(); m++) {
       
       EcalLogicID ecid_xt = m->first;
@@ -283,11 +283,11 @@ void popcon::EcalChannelStatusHandler::pedOnlineMasking() {
 
 	if(ecid_xt.getName()=="EB_crystal_number") {
 	  EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);	      
-	  maskedOnlinePedEB.insert(pair<DetId, float>(ebdetid, 9999.));
+	  maskedOnlinePedEB.insert(std::pair<DetId, float>(ebdetid, 9999.));
 	} else {
 	  if(EEDetId::validDetId(xt_num,yt_num,sm_num)){
 	    EEDetId eedetid(xt_num,yt_num,sm_num);
-	    maskedOnlinePedEE.insert(pair<DetId, float>(eedetid, 9999.));
+	    maskedOnlinePedEE.insert(std::pair<DetId, float>(eedetid, 9999.));
 	  }}}
     }
   }
@@ -310,12 +310,12 @@ void popcon::EcalChannelStatusHandler::pedMasking() {
   bits03 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_RMS_ERROR");
   bits03 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_ERROR");  
 
-  map<EcalLogicID, RunCrystalErrorsDat> theMask;
+  std::map<EcalLogicID, RunCrystalErrorsDat> theMask;
   EcalErrorMask::fetchDataSet(&theMask);
   
   if ( theMask.size()!=0 ) {
 
-    map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
+    std::map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
     for (m=theMask.begin(); m!=theMask.end(); m++) {
       
       EcalLogicID ecid_xt = m->first;
@@ -327,11 +327,11 @@ void popcon::EcalChannelStatusHandler::pedMasking() {
 
 	if(ecid_xt.getName()=="EB_crystal_number") {
 	  EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);	      
-	  maskedPedEB.insert(pair<DetId, float>(ebdetid, 9999.));
+	  maskedPedEB.insert(std::pair<DetId, float>(ebdetid, 9999.));
 	} else {
 	  if(EEDetId::validDetId(xt_num,yt_num,sm_num)){
 	    EEDetId eedetid(xt_num,yt_num,sm_num);
-	    maskedPedEE.insert(pair<DetId, float>(eedetid, 9999.));
+	    maskedPedEE.insert(std::pair<DetId, float>(eedetid, 9999.));
 	  }}}
     }
   }
@@ -348,12 +348,12 @@ void popcon::EcalChannelStatusHandler::laserMasking() {
   bits03 |= EcalErrorDictionary::getMask("LASER_MEAN_TIMING_WARNING");
   bits03 |= EcalErrorDictionary::getMask("LASER_RMS_TIMING_WARNING");
 
-  map<EcalLogicID, RunCrystalErrorsDat> theMask;
+  std::map<EcalLogicID, RunCrystalErrorsDat> theMask;
   EcalErrorMask::fetchDataSet(&theMask);
   
   if ( theMask.size()!=0 ) {
 
-    map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
+    std::map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
     for (m=theMask.begin(); m!=theMask.end(); m++) {
       
       EcalLogicID ecid_xt = m->first;
@@ -365,11 +365,11 @@ void popcon::EcalChannelStatusHandler::laserMasking() {
 
 	if(ecid_xt.getName()=="EB_crystal_number") {
 	  EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);	      
-	  maskedLaserEB.insert(pair<DetId, float>(ebdetid, 9999.));
+	  maskedLaserEB.insert(std::pair<DetId, float>(ebdetid, 9999.));
 	} else {
 	  if(EEDetId::validDetId(xt_num,yt_num,sm_num)){
 	    EEDetId eedetid(xt_num,yt_num,sm_num);
-	    maskedLaserEE.insert(pair<DetId, float>(eedetid, 9999.));
+	    maskedLaserEE.insert(std::pair<DetId, float>(eedetid, 9999.));
 	  }}}
     }
   }
@@ -382,12 +382,12 @@ void popcon::EcalChannelStatusHandler::physicsMasking() {
   bits03 |= EcalErrorDictionary::getMask("PHYSICS_BAD_CHANNEL_WARNING");
   bits03 |= EcalErrorDictionary::getMask("PHYSICS_BAD_CHANNEL_ERROR");
 
-  map<EcalLogicID, RunCrystalErrorsDat> theMask;
+  std::map<EcalLogicID, RunCrystalErrorsDat> theMask;
   EcalErrorMask::fetchDataSet(&theMask);
   
   if ( theMask.size()!=0 ) {
 
-    map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
+    std::map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
     for (m=theMask.begin(); m!=theMask.end(); m++) {
       
       EcalLogicID ecid_xt = m->first;
@@ -399,11 +399,11 @@ void popcon::EcalChannelStatusHandler::physicsMasking() {
 
 	if(ecid_xt.getName()=="EB_crystal_number") {
 	  EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);	      
-	  maskedPhysicsEB.insert(pair<DetId, float>(ebdetid, 9999.));
+	  maskedPhysicsEB.insert(std::pair<DetId, float>(ebdetid, 9999.));
 	} else {
 	  if(EEDetId::validDetId(xt_num,yt_num,sm_num)){
 	    EEDetId eedetid(xt_num,yt_num,sm_num);
-	    maskedPhysicsEE.insert(pair<DetId, float>(eedetid, 9999.));
+	    maskedPhysicsEE.insert(std::pair<DetId, float>(eedetid, 9999.));
 	  }}}
     }
   }
@@ -414,10 +414,10 @@ void popcon::EcalChannelStatusHandler::physicsMasking() {
 // START DAQ EXCLUDED FEDs ROUTINES
 void popcon::EcalChannelStatusHandler::daqOut(RunIOV myRun) {
   
-  map<EcalLogicID, RunFEConfigDat> feconfig;
+  std::map<EcalLogicID, RunFEConfigDat> feconfig;
   econn->fetchDataSet(&feconfig, &myRun);
   
-  typedef map<EcalLogicID, RunFEConfigDat>::const_iterator feConfIter;
+  typedef std::map<EcalLogicID, RunFEConfigDat>::const_iterator feConfIter;
   EcalLogicID ecid_xt;
   RunFEConfigDat rd_fe;
   
@@ -445,7 +445,7 @@ void popcon::EcalChannelStatusHandler::daqOut(RunIOV myRun) {
   for(size_t iTT=0; iTT<badTT_dat.size(); iTT++){
     int fed_id = badTT_dat[iTT].getFedId();
     int tt_id  = badTT_dat[iTT].getTTId();
-    if (tt_id<69) *daqFile << fed_id << " " << tt_id << endl;
+    if (tt_id<69) *daqFile << fed_id << " " << tt_id << std::endl;
     
     // taking the channel list for towers out of daq
     if((fed_id<=609 || fed_id>=646) && tt_id<69) { // endcap    
@@ -470,7 +470,7 @@ void popcon::EcalChannelStatusHandler::daqOut(RunIOV myRun) {
 	int zt2    = (log_id/1000000)%10;
 	if (zt2==0) zSide = -1;
 	if (zt2==2) zSide = 1;
-	*daqFile2 << xt2 << " " << yt2 << " " << zSide << endl;
+	*daqFile2 << xt2 << " " << yt2 << " " << zSide << std::endl;
       }
     }
     
@@ -490,7 +490,7 @@ void popcon::EcalChannelStatusHandler::daqOut(RunIOV myRun) {
 	int log_id  = ecid_xt.getLogicID();
 	int xt2_num = log_id%10000;
 	EBDetId ebdetid(sm_num,xt2_num,EBDetId::SMCRYSTALMODE);
-	*daqFile2 << ebdetid.hashedIndex() << endl;
+	*daqFile2 << ebdetid.hashedIndex() << std::endl;
       } 
     }
   }
@@ -507,19 +507,19 @@ void popcon::EcalChannelStatusHandler::daqOut(RunIOV myRun) {
 // ----------------------------------------------------------
 // LOCAL pedestal runs  
 
-void popcon::EcalChannelStatusHandler::pedAnalysis( map<EcalLogicID, MonPedestalsDat> dataset_mon, map<EcalLogicID, MonCrystalConsistencyDat> wrongGain_mon ) {
+void popcon::EcalChannelStatusHandler::pedAnalysis( std::map<EcalLogicID, MonPedestalsDat> dataset_mon, std::map<EcalLogicID, MonCrystalConsistencyDat> wrongGain_mon ) {
 
   // to take the list of masked crystals
   pedMasking();
 
   // to iterate
-  map<DetId,float>::const_iterator theIter;
+  std::map<DetId,float>::const_iterator theIter;
   
   // logic id
   EcalLogicID ecid_xt;
   
   // to check all problems except gain zero
-  typedef map<EcalLogicID, MonPedestalsDat>::const_iterator CImon;
+  typedef std::map<EcalLogicID, MonPedestalsDat>::const_iterator CImon;
   MonPedestalsDat rd_ped;
   
   for (CImon p = dataset_mon.begin(); p != dataset_mon.end(); p++) {
@@ -575,7 +575,7 @@ void popcon::EcalChannelStatusHandler::pedAnalysis( map<EcalLogicID, MonPedestal
 	*ResFileEB << thisFed           << "\t\t" << ebdetid.ic()     << "\t\t" << ebdetid.hashedIndex() << "\t\t" 
 		   << ped_item.mean_x12 << "\t\t" << ped_item.rms_x12 << "\t\t"
 		   << ped_item.mean_x6  << "\t\t" << ped_item.rms_x6  << "\t\t"
-		   << ped_item.mean_x1  << "\t\t" << ped_item.rms_x1  << endl;
+		   << ped_item.mean_x1  << "\t\t" << ped_item.rms_x1  << std::endl;
 
 	
 	// file with new problems only
@@ -587,7 +587,7 @@ void popcon::EcalChannelStatusHandler::pedAnalysis( map<EcalLogicID, MonPedestal
 	  *ResFileNewEB << thisFed           << "\t\t" << ebdetid.ic()     << "\t\t" << ebdetid.hashedIndex() << "\t\t" 
 			<< ped_item.mean_x12 << "\t\t" << ped_item.rms_x12 << "\t\t"
 			<< ped_item.mean_x6  << "\t\t" << ped_item.rms_x6  << "\t\t"
-			<< ped_item.mean_x1  << "\t\t" << ped_item.rms_x1  << endl;
+			<< ped_item.mean_x1  << "\t\t" << ped_item.rms_x1  << std::endl;
 	}
 	
       } else {      
@@ -600,7 +600,7 @@ void popcon::EcalChannelStatusHandler::pedAnalysis( map<EcalLogicID, MonPedestal
 		     << eedetid.zside()   << "\t\t" << eedetid.hashedIndex()  << "\t\t"  		     
 		     << ped_item.mean_x12 << "\t\t" << ped_item.rms_x12 << "\t\t"
 		     << ped_item.mean_x6  << "\t\t" << ped_item.rms_x6  << "\t\t"
-		     << ped_item.mean_x1  << "\t\t" << ped_item.rms_x1  << endl;
+		     << ped_item.mean_x1  << "\t\t" << ped_item.rms_x1  << std::endl;
 	  
 	  bool isOld=false;
 	  for(theIter=maskedPedEE.begin(); theIter!=maskedPedEE.end(); ++theIter) {
@@ -612,7 +612,7 @@ void popcon::EcalChannelStatusHandler::pedAnalysis( map<EcalLogicID, MonPedestal
 			  << eedetid.zside()   << "\t\t" << eedetid.hashedIndex()  << "\t\t"  		     
 			  << ped_item.mean_x12 << "\t\t" << ped_item.rms_x12 << "\t\t"
 			  << ped_item.mean_x6  << "\t\t" << ped_item.rms_x6  << "\t\t"
-			  << ped_item.mean_x1  << "\t\t" << ped_item.rms_x1  << endl;
+			  << ped_item.mean_x1  << "\t\t" << ped_item.rms_x1  << std::endl;
 	  }
 	}
       }
@@ -622,7 +622,7 @@ void popcon::EcalChannelStatusHandler::pedAnalysis( map<EcalLogicID, MonPedestal
   
   
   // to check if a crystal is at gain zero in at least 1000 events (which is not the best! fixme)   
-  typedef map<EcalLogicID, MonCrystalConsistencyDat>::const_iterator WGmonIter;
+  typedef std::map<EcalLogicID, MonCrystalConsistencyDat>::const_iterator WGmonIter;
   MonCrystalConsistencyDat rd_wgain;
   
   for (WGmonIter p = wrongGain_mon.begin(); p != wrongGain_mon.end(); p++) {
@@ -638,7 +638,7 @@ void popcon::EcalChannelStatusHandler::pedAnalysis( map<EcalLogicID, MonPedestal
 	EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);
 	EcalElectronicsId elecId = ecalElectronicsMap_.getElectronicsId(ebdetid);
 	int thisFed = 600+elecId.dccId();	
-	*ResFileEB << thisFed  << "\t\t"  << ebdetid.ic() << "\t\t" << ebdetid.hashedIndex() << "\t\t" << "at gain zero"  << endl; 		   
+	*ResFileEB << thisFed  << "\t\t"  << ebdetid.ic() << "\t\t" << ebdetid.hashedIndex() << "\t\t" << "at gain zero"  << std::endl; 		   
 		   
 	// file with new problems only
 	bool isOld=false;
@@ -646,7 +646,7 @@ void popcon::EcalChannelStatusHandler::pedAnalysis( map<EcalLogicID, MonPedestal
 	  if ((*theIter).first==ebdetid) isOld=true;
 	}
 	if (!isOld) { 
-	  *ResFileNewEB << thisFed << "\t\t"  << ebdetid.ic() << "\t\t" << ebdetid.hashedIndex() << "\t\t" << "at gain zero"  << endl; 		   
+	  *ResFileNewEB << thisFed << "\t\t"  << ebdetid.ic() << "\t\t" << ebdetid.hashedIndex() << "\t\t" << "at gain zero"  << std::endl; 		   
 	}
 
       } else {      
@@ -657,7 +657,7 @@ void popcon::EcalChannelStatusHandler::pedAnalysis( map<EcalLogicID, MonPedestal
 	  *ResFileEE << thisFed                << "\t\t" << eedetid.ix()    << "\t\t" 
 		     << eedetid.iy()           << "\t\t" << eedetid.zside() << "\t\t" 		     
 		     << eedetid.hashedIndex()  << "\t\t"  		      
-		     << "at gain zero"    << endl; 
+		     << "at gain zero"    << std::endl; 
 
 	  bool isOld=false;
 	  for(theIter=maskedPedEE.begin(); theIter!=maskedPedEE.end(); ++theIter) {
@@ -667,7 +667,7 @@ void popcon::EcalChannelStatusHandler::pedAnalysis( map<EcalLogicID, MonPedestal
 	    *ResFileNewEE << thisFed                << "\t\t" << eedetid.ix()    << "\t\t" 
 			  << eedetid.iy()           << "\t\t" << eedetid.zside() << "\t\t" 		     
 			  << eedetid.hashedIndex()  << "\t\t"  		      
-			  << "at gain zero"    << endl; 
+			  << "at gain zero"    << std::endl; 
 	  }
 	}
       }   
@@ -681,15 +681,15 @@ void popcon::EcalChannelStatusHandler::pedAnalysis( map<EcalLogicID, MonPedestal
 //
 // LOCAL laser runs
 
-void popcon::EcalChannelStatusHandler::laserAnalysis( map<EcalLogicID, MonLaserBlueDat> dataset_mon ) { 
+void popcon::EcalChannelStatusHandler::laserAnalysis( std::map<EcalLogicID, MonLaserBlueDat> dataset_mon ) { 
   
   // to take the list of masked crystals
   laserMasking();
 
   // to iterate
-  map<DetId,float>::const_iterator theIter;
+  std::map<DetId,float>::const_iterator theIter;
 
-  typedef map<EcalLogicID, MonLaserBlueDat>::const_iterator CImon;
+  typedef std::map<EcalLogicID, MonLaserBlueDat>::const_iterator CImon;
   EcalLogicID ecid_xt;
   MonLaserBlueDat rd_blue;
   
@@ -761,21 +761,21 @@ void popcon::EcalChannelStatusHandler::laserAnalysis( map<EcalLogicID, MonLaserB
     if (status_now>0) { 
       if(ecid_xt.getName()=="EB_crystal_number") {
 	EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);	      
-	*ResFileEB << theFed  << "\t\t" << ebdetid.ic() << "\t\t" << ebdetid.hashedIndex() << "\t\t" << myApdMean << endl;		   
+	*ResFileEB << theFed  << "\t\t" << ebdetid.ic() << "\t\t" << ebdetid.hashedIndex() << "\t\t" << myApdMean << std::endl;		   
 	
 	// file with new problems only
 	bool isOld=false;
 	for(theIter=maskedLaserEB.begin(); theIter!=maskedLaserEB.end(); ++theIter) {
 	  if ((*theIter).first==ebdetid) isOld=true;
 	}
-	if (!isOld) { *ResFileNewEB << thisFed << "\t\t" << ebdetid.ic() << "\t\t" << ebdetid.hashedIndex() << "\t\t" << myApdMean << endl; }
+	if (!isOld) { *ResFileNewEB << thisFed << "\t\t" << ebdetid.ic() << "\t\t" << ebdetid.hashedIndex() << "\t\t" << myApdMean << std::endl; }
 	
       } else {      
 	if(EEDetId::validDetId(xt_num,yt_num,sm_num)){
 	  EEDetId eedetid(xt_num,yt_num,sm_num);
 	  *ResFileEE << theFed        << "\t\t" << eedetid.ix()        << "\t\t" 
 		     << eedetid.iy()  << "\t\t" << eedetid.zside()     << "\t\t" 
-		     << eedetid.hashedIndex()   << "\t\t" << myApdMean << endl;
+		     << eedetid.hashedIndex()   << "\t\t" << myApdMean << std::endl;
 	  
 	  // file with new problems only
 	  bool isOld=false;
@@ -785,7 +785,7 @@ void popcon::EcalChannelStatusHandler::laserAnalysis( map<EcalLogicID, MonLaserB
 	  if (!isOld) {
 	    *ResFileEE << theFed        << "\t\t" << eedetid.ix()        << "\t\t" 
 		       << eedetid.iy()  << "\t\t" << eedetid.zside()     << "\t\t" 
-		       << eedetid.hashedIndex()   << "\t\t" << myApdMean << endl; 
+		       << eedetid.hashedIndex()   << "\t\t" << myApdMean << std::endl; 
 	  }
 	}       
       }      
@@ -799,27 +799,27 @@ void popcon::EcalChannelStatusHandler::laserAnalysis( map<EcalLogicID, MonLaserB
 //
 // COSMICS/PHYSICS ANALYSIS: infos from pedestal online, laser and occupancy analysis
 
-void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPedestalsOnlineDat> pedestalO_mon, 
-							map<EcalLogicID, MonCrystalConsistencyDat> wrongGain_mon, 
-							map<EcalLogicID, MonLaserBlueDat> laser_mon, 
-							map<EcalLogicID, MonOccupancyDat> occupancy_mon ) { 
+void popcon::EcalChannelStatusHandler::cosmicsAnalysis( std::map<EcalLogicID, MonPedestalsOnlineDat> pedestalO_mon, 
+							std::map<EcalLogicID, MonCrystalConsistencyDat> wrongGain_mon, 
+							std::map<EcalLogicID, MonLaserBlueDat> laser_mon, 
+							std::map<EcalLogicID, MonOccupancyDat> occupancy_mon ) { 
 
   // to take the list of masked crystals for the diffrent analyses
   pedOnlineMasking();
   laserMasking();
   physicsMasking();
   
-  map<DetId,float>::const_iterator theIter;
-  map<DetId, float> badPedOnEB,        badPedOnEE;
-  map<DetId, float> badPedOnRmsEB,     badPedOnRmsEE;
-  map<DetId, float> badGainEB,         badGainEE;
-  map<DetId, float> badLaserEB,        badLaserEE;  
-  map<DetId, float> badOccHighEB,      badOccHighEE;  
+  std::map<DetId,float>::const_iterator theIter;
+  std::map<DetId, float> badPedOnEB,        badPedOnEE;
+  std::map<DetId, float> badPedOnRmsEB,     badPedOnRmsEE;
+  std::map<DetId, float> badGainEB,         badGainEE;
+  std::map<DetId, float> badLaserEB,        badLaserEE;  
+  std::map<DetId, float> badOccHighEB,      badOccHighEE;  
 
-  typedef map<EcalLogicID, MonPedestalsOnlineDat>::const_iterator CImonPedO;  
-  typedef map<EcalLogicID, MonCrystalConsistencyDat>::const_iterator CImonCons;
-  typedef map<EcalLogicID, MonOccupancyDat>::const_iterator CImonOcc;
-  typedef map<EcalLogicID, MonLaserBlueDat>::const_iterator CImonLaser;
+  typedef std::map<EcalLogicID, MonPedestalsOnlineDat>::const_iterator CImonPedO;  
+  typedef std::map<EcalLogicID, MonCrystalConsistencyDat>::const_iterator CImonCons;
+  typedef std::map<EcalLogicID, MonOccupancyDat>::const_iterator CImonOcc;
+  typedef std::map<EcalLogicID, MonLaserBlueDat>::const_iterator CImonLaser;
   MonPedestalsOnlineDat    rd_ped0;  
   MonCrystalConsistencyDat rd_wgain;
   MonOccupancyDat          rd_occ;
@@ -868,16 +868,16 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 	EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);	      
 	theIter = badPedOnEB.find(ebdetid);
 	if (theIter==badPedOnEB.end()) {
-	  badPedOnEB.insert   (pair<DetId, float>(ebdetid, rd_ped0.getADCMeanG12()));
-	  badPedOnRmsEB.insert(pair<DetId, float>(ebdetid, rd_ped0.getADCRMSG12()));	  
+	  badPedOnEB.insert   (std::pair<DetId, float>(ebdetid, rd_ped0.getADCMeanG12()));
+	  badPedOnRmsEB.insert(std::pair<DetId, float>(ebdetid, rd_ped0.getADCRMSG12()));	  
 	}
       } else {      
 	if(EEDetId::validDetId(xt_num,yt_num,sm_num)){
 	  EEDetId eedetid(xt_num,yt_num,sm_num);
 	  theIter = badPedOnEE.find(eedetid);
 	  if (theIter==badPedOnEE.end()) {   
-	    badPedOnEE.insert   (pair<DetId, float>(eedetid, rd_ped0.getADCMeanG12()));
-	    badPedOnRmsEE.insert(pair<DetId, float>(eedetid, rd_ped0.getADCRMSG12()));	  
+	    badPedOnEE.insert   (std::pair<DetId, float>(eedetid, rd_ped0.getADCMeanG12()));
+	    badPedOnRmsEE.insert(std::pair<DetId, float>(eedetid, rd_ped0.getADCRMSG12()));	  
 	  }
 	}
       }    
@@ -901,12 +901,12 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
       if(ecid_xt.getName()=="EB_crystal_number") {
 	EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);	      
 	theIter = badGainEB.find(ebdetid);
-	if (theIter==badGainEB.end()) badGainEB.insert(pair<DetId, float>(ebdetid, 999.));
+	if (theIter==badGainEB.end()) badGainEB.insert(std::pair<DetId, float>(ebdetid, 999.));
       } else {      
 	if(EEDetId::validDetId(xt_num,yt_num,sm_num)){
 	  EEDetId eedetid(xt_num,yt_num,sm_num);
 	  theIter = badGainEE.find(eedetid);
-	  if (theIter==badGainEE.end()) badGainEE.insert(pair<DetId, float>(eedetid, 999.));	  
+	  if (theIter==badGainEE.end()) badGainEE.insert(std::pair<DetId, float>(eedetid, 999.));	  
 	}    
       }
     }
@@ -940,12 +940,12 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
       if(ecid_xt.getName()=="EB_crystal_number") {
 	EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);	      
 	theIter = badOccHighEB.find(ebdetid);
-	if (theIter==badOccHighEB.end()) badOccHighEB.insert(pair<DetId, float>(ebdetid, occAvg));
+	if (theIter==badOccHighEB.end()) badOccHighEB.insert(std::pair<DetId, float>(ebdetid, occAvg));
       } else {      
 	if(EEDetId::validDetId(xt_num,yt_num,sm_num)){
 	  EEDetId eedetid(xt_num,yt_num,sm_num);
 	  theIter = badOccHighEE.find(eedetid);
-	  if (theIter==badOccHighEE.end()) badOccHighEE.insert(pair<DetId, float>(eedetid, occAvg));
+	  if (theIter==badOccHighEE.end()) badOccHighEE.insert(std::pair<DetId, float>(eedetid, occAvg));
 	}
       }    
     }
@@ -1022,12 +1022,12 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
       if(ecid_xt.getName()=="EB_crystal_number") {
 	EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);	      
 	theIter = badLaserEB.find(ebdetid);
-	if (theIter==badLaserEB.end()) badLaserEB.insert(pair<DetId, float>(ebdetid, myApdMean));
+	if (theIter==badLaserEB.end()) badLaserEB.insert(std::pair<DetId, float>(ebdetid, myApdMean));
       } else {      
 	if(EEDetId::validDetId(xt_num,yt_num,sm_num)){
 	  EEDetId eedetid(xt_num,yt_num,sm_num);
 	  theIter = badLaserEE.find(eedetid);
-	  if (theIter==badLaserEE.end()) badLaserEE.insert(pair<DetId, float>(eedetid, myApdMean));
+	  if (theIter==badLaserEE.end()) badLaserEE.insert(std::pair<DetId, float>(eedetid, myApdMean));
 	}
       }    
     } 
@@ -1035,11 +1035,11 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 
 
   // check if the crystal is in the vector and fill the summary file
-  map<DetId, float>::const_iterator theIterPedOn;
-  map<DetId, float>::const_iterator theIterPedOnRms;
-  map<DetId, float>::const_iterator theIterGain;
-  map<DetId, float>::const_iterator theIterLaser;
-  map<DetId, float>::const_iterator theIterOccHigh;
+  std::map<DetId, float>::const_iterator theIterPedOn;
+  std::map<DetId, float>::const_iterator theIterPedOnRms;
+  std::map<DetId, float>::const_iterator theIterGain;
+  std::map<DetId, float>::const_iterator theIterLaser;
+  std::map<DetId, float>::const_iterator theIterOccHigh;
 
 
   // EB, first check - loop over pedestal online
@@ -1081,13 +1081,13 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
       *ResFileEB << thisFed     << "\t\t" << ebdetid.ic()     << "\t\t" << ebdetid.hashedIndex() << "\t\t" 		 
 		 << thePedOn    << "\t\t" << thePedOnRms      << "\t\t" 
 		 << "gainZero"  << "\t\t" << theLaser         << "\t\t" 
-		 << theOccHigh  << endl;
+		 << theOccHigh  << std::endl;
       
       if (isNew) { 
 	*ResFileNewEB << thisFed     << "\t\t" << ebdetid.ic()     << "\t\t" << ebdetid.hashedIndex() << "\t\t" 		 
 		      << thePedOn    << "\t\t" << thePedOnRms      << "\t\t" 
 		      << "gainZero"  << "\t\t" << theLaser         << "\t\t" 
-		      << theOccHigh  << endl;
+		      << theOccHigh  << std::endl;
 	
 	float thisEtaFill=float(0);
 	if (ebdetid.ieta()>0) thisEtaFill = ebdetid.ieta() - 0.5;
@@ -1098,13 +1098,13 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
       *ResFileEB << thisFed     << "\t\t" << ebdetid.ic()     << "\t\t" << ebdetid.hashedIndex() << "\t\t" 		 
 		 << thePedOn    << "\t\t" << thePedOnRms      << "\t\t" 
 		 << theGain     << "\t\t" << theLaser         << "\t\t" 
-		 << theOccHigh  << endl;
+		 << theOccHigh  << std::endl;
       
       if (isNew) { 
 	*ResFileNewEB << thisFed     << "\t\t" << ebdetid.ic()     << "\t\t" << ebdetid.hashedIndex() << "\t\t" 		 
 		      << thePedOn    << "\t\t" << thePedOnRms      << "\t\t" 
 		      << theGain     << "\t\t" << theLaser         << "\t\t" 
-		      << theOccHigh  << endl;
+		      << theOccHigh  << std::endl;
 
 	float thisEtaFill=float(0);
 	if (ebdetid.ieta()>0) thisEtaFill = ebdetid.ieta() - 0.5;
@@ -1155,13 +1155,13 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
       *ResFileEB << thisFed     << "\t\t" << ebdetid.ic()     << "\t\t" << ebdetid.hashedIndex() << "\t\t" 		 
 		 << thePedOn    << "\t\t" << thePedOnRms      << "\t\t" 
 		 << "gainZero"  << "\t\t" << theLaser         << "\t\t" 
-		 << theOccHigh  << endl;
+		 << theOccHigh  << std::endl;
 
       if (isNew) { 
 	*ResFileNewEB << thisFed     << "\t\t" << ebdetid.ic()     << "\t\t" << ebdetid.hashedIndex() << "\t\t" 		 
 		      << thePedOn    << "\t\t" << thePedOnRms      << "\t\t" 
 		      << "gainZero"  << "\t\t" << theLaser         << "\t\t" 
-		      << theOccHigh  << endl;
+		      << theOccHigh  << std::endl;
 
 	float thisEtaFill=float(0);
 	if (ebdetid.ieta()>0) thisEtaFill = ebdetid.ieta() - 0.5;
@@ -1172,13 +1172,13 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
       *ResFileEB << thisFed     << "\t\t" << ebdetid.ic()     << "\t\t" << ebdetid.hashedIndex() << "\t\t" 		 
 		 << thePedOn    << "\t\t" << thePedOnRms      << "\t\t" 
 		 << theGain     << "\t\t" << theLaser         << "\t\t" 
-		 << theOccHigh  << endl;
+		 << theOccHigh  << std::endl;
       
       if (isNew) { 
 	*ResFileNewEB << thisFed     << "\t\t" << ebdetid.ic()     << "\t\t" << ebdetid.hashedIndex() << "\t\t" 		 
 		      << thePedOn    << "\t\t" << thePedOnRms      << "\t\t" 
 		      << theGain     << "\t\t" << theLaser         << "\t\t" 
-		      << theOccHigh  << endl;
+		      << theOccHigh  << std::endl;
 
 	float thisEtaFill=float(0);
 	if (ebdetid.ieta()>0) thisEtaFill = ebdetid.ieta() - 0.5;
@@ -1224,13 +1224,13 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
       *ResFileEB << thisFed     << "\t\t" << ebdetid.ic()     << "\t\t" << ebdetid.hashedIndex() << "\t\t" 		 
 		 << thePedOn    << "\t\t" << thePedOnRms      << "\t\t" 
 		 << "gainZero"  << "\t\t" << theLaser         << "\t\t" 
-		 << theOccHigh  << endl;
+		 << theOccHigh  << std::endl;
       
       if (isNew) { 
 	*ResFileNewEB << thisFed     << "\t\t" << ebdetid.ic()     << "\t\t" << ebdetid.hashedIndex() << "\t\t" 		 
 		      << thePedOn    << "\t\t" << thePedOnRms      << "\t\t" 
 		      << "gainZero"  << "\t\t" << theLaser         << "\t\t" 
-		      << theOccHigh  << endl;
+		      << theOccHigh  << std::endl;
 
 	float thisEtaFill=float(0);
 	if (ebdetid.ieta()>0) thisEtaFill = ebdetid.ieta() - 0.5;
@@ -1241,13 +1241,13 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
       *ResFileEB << thisFed     << "\t\t" << ebdetid.ic()     << "\t\t" << ebdetid.hashedIndex() << "\t\t" 		 
 		 << thePedOn    << "\t\t" << thePedOnRms      << "\t\t" 
 		 << theGain     << "\t\t" << theLaser         << "\t\t" 
-		 << theOccHigh  << endl;
+		 << theOccHigh  << std::endl;
       
       if (isNew) { 
 	*ResFileNewEB << thisFed     << "\t\t" << ebdetid.ic()     << "\t\t" << ebdetid.hashedIndex() << "\t\t" 		 
 		      << thePedOn    << "\t\t" << thePedOnRms      << "\t\t" 
 		      << theGain     << "\t\t" << theLaser         << "\t\t" 
-		      << theOccHigh  << endl;
+		      << theOccHigh  << std::endl;
 
 	float thisEtaFill=float(0);
 	if (ebdetid.ieta()>0) thisEtaFill = ebdetid.ieta() - 0.5;
@@ -1288,13 +1288,13 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
     *ResFileEB << thisFed     << "\t\t" << ebdetid.ic()     << "\t\t" << ebdetid.hashedIndex() << "\t\t" 		 
 	       << thePedOn    << "\t\t" << thePedOnRms      << "\t\t" 
 	       << "gainZero"  << "\t\t" << theLaser         << "\t\t" 
-	       << theOccHigh  << endl;
+	       << theOccHigh  << std::endl;
     
     if (isNew) { 
       *ResFileNewEB << thisFed     << "\t\t" << ebdetid.ic()     << "\t\t" << ebdetid.hashedIndex() << "\t\t" 		 
 		    << thePedOn    << "\t\t" << thePedOnRms      << "\t\t" 
 		    << "gainZero"  << "\t\t" << theLaser         << "\t\t" 
-		    << theOccHigh  << endl;
+		    << theOccHigh  << std::endl;
 
       float thisEtaFill=float(0);
       if (ebdetid.ieta()>0) thisEtaFill = ebdetid.ieta() - 0.5;
@@ -1346,7 +1346,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 		 << eedetid.hashedIndex()  << "\t\t"  		     
 		 << thePedOn               << "\t\t" << thePedOnRms      << "\t\t" 
 		 << "gainZero"             << "\t\t" << theLaser         << "\t\t" 
-		 << theOccHigh             << endl;
+		 << theOccHigh             << std::endl;
 
       if (isNew) {
 	*ResFileNewEE << thisFed                << "\t\t" << eedetid.ix()     << "\t\t" 
@@ -1354,7 +1354,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 		      << eedetid.hashedIndex()  << "\t\t"  		     
 		      << thePedOn               << "\t\t" << thePedOnRms      << "\t\t" 
 		      << "gainZero"             << "\t\t" << theLaser         << "\t\t" 
-		      << theOccHigh             << endl;
+		      << theOccHigh             << std::endl;
 
 	if (eedetid.zside()>0) newBadEEP_ -> Fill( (eedetid.ix()-0.5), (eedetid.iy()-0.5), 4);
 	if (eedetid.zside()<0) newBadEEM_ -> Fill( (eedetid.ix()-0.5), (eedetid.iy()-0.5), 4);
@@ -1365,7 +1365,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 		 << eedetid.hashedIndex()  << "\t\t"  		     
 		 << thePedOn               << "\t\t" << thePedOnRms      << "\t\t" 
 		 << theGain                << "\t\t" << theLaser         << "\t\t" 
-		 << theOccHigh             << endl;
+		 << theOccHigh             << std::endl;
 
       if (isNew) {
 	*ResFileNewEE << thisFed                << "\t\t" << eedetid.ix()     << "\t\t" 
@@ -1373,7 +1373,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 		      << eedetid.hashedIndex()  << "\t\t"  		     
 		      << thePedOn               << "\t\t" << thePedOnRms      << "\t\t" 
 		      << theGain                << "\t\t" << theLaser         << "\t\t" 
-		      << theOccHigh             << endl;
+		      << theOccHigh             << std::endl;
 	
 	if (eedetid.zside()>0) newBadEEP_ -> Fill( (eedetid.ix()-0.5), (eedetid.iy()-0.5), 4);
 	if (eedetid.zside()<0) newBadEEM_ -> Fill( (eedetid.ix()-0.5), (eedetid.iy()-0.5), 4);
@@ -1423,7 +1423,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 		 << eedetid.hashedIndex()  << "\t\t" 		 
 		 << thePedOn     << "\t\t" << thePedOnRms      << "\t\t" 
 		 << "gainZero"   << "\t\t" << theLaser         << "\t\t" 
-		 << theOccHigh   << endl;
+		 << theOccHigh   << std::endl;
 
       if (isNew) { 
 	*ResFileNewEE << thisFed      << "\t\t" << eedetid.ix()     << "\t\t"    
@@ -1431,7 +1431,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 		      << eedetid.hashedIndex()  << "\t\t" 		 
 		      << thePedOn     << "\t\t" << thePedOnRms      << "\t\t" 
 		      << "gainZero"   << "\t\t" << theLaser         << "\t\t" 
-		      << theOccHigh   << endl;
+		      << theOccHigh   << std::endl;
 
 	if (eedetid.zside()>0) newBadEEP_ -> Fill( (eedetid.ix()-0.5), (eedetid.iy()-0.5), 4);
 	if (eedetid.zside()<0) newBadEEM_ -> Fill( (eedetid.ix()-0.5), (eedetid.iy()-0.5), 4);
@@ -1442,7 +1442,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 		 << eedetid.hashedIndex()  << "\t\t" 		 
 		 << thePedOn     << "\t\t" << thePedOnRms      << "\t\t" 
 		 << theGain      << "\t\t" << theLaser         << "\t\t" 
-		 << theOccHigh   << endl;
+		 << theOccHigh   << std::endl;
 
       if (isNew) { 
 	*ResFileNewEE << thisFed      << "\t\t" << eedetid.ix()     << "\t\t"    
@@ -1450,7 +1450,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 		      << eedetid.hashedIndex()  << "\t\t" 		 
 		      << thePedOn     << "\t\t" << thePedOnRms      << "\t\t" 
 		      << theGain      << "\t\t" << theLaser         << "\t\t" 
-		      << theOccHigh   << endl;
+		      << theOccHigh   << std::endl;
 
 	if (eedetid.zside()>0) newBadEEP_ -> Fill( (eedetid.ix()-0.5), (eedetid.iy()-0.5), 4);
 	if (eedetid.zside()<0) newBadEEM_ -> Fill( (eedetid.ix()-0.5), (eedetid.iy()-0.5), 4);
@@ -1496,7 +1496,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 		 << eedetid.hashedIndex()  << "\t\t" 		 
 		 << thePedOn     << "\t\t" << thePedOnRms      << "\t\t" 
 		 << "gainZero"   << "\t\t" << theLaser         << "\t\t" 
-		 << theOccHigh   << endl;
+		 << theOccHigh   << std::endl;
 
       if (isNew) { 
 	*ResFileNewEE << thisFed      << "\t\t" << eedetid.ix()     << "\t\t"    
@@ -1504,7 +1504,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 		      << eedetid.hashedIndex()  << "\t\t" 		 
 		      << thePedOn     << "\t\t" << thePedOnRms      << "\t\t" 
 		      << "gainZero"   << "\t\t" << theLaser         << "\t\t" 
-		      << theOccHigh   << endl;
+		      << theOccHigh   << std::endl;
 
 	if (eedetid.zside()>0) newBadEEP_ -> Fill( (eedetid.ix()-0.5), (eedetid.iy()-0.5), 4);
 	if (eedetid.zside()<0) newBadEEM_ -> Fill( (eedetid.ix()-0.5), (eedetid.iy()-0.5), 4);
@@ -1515,7 +1515,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 		 << eedetid.hashedIndex()  << "\t\t" 		 
 		 << thePedOn     << "\t\t" << thePedOnRms      << "\t\t" 
 		 << theGain      << "\t\t" << theLaser         << "\t\t" 
-		 << theOccHigh   << endl;
+		 << theOccHigh   << std::endl;
       
       if (isNew) { 
 	*ResFileNewEE << thisFed      << "\t\t" << eedetid.ix()     << "\t\t"    
@@ -1523,7 +1523,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 		      << eedetid.hashedIndex()  << "\t\t" 		 
 		      << thePedOn     << "\t\t" << thePedOnRms      << "\t\t" 
 		      << theGain      << "\t\t" << theLaser         << "\t\t" 
-		      << theOccHigh   << endl;
+		      << theOccHigh   << std::endl;
 	
 	if (eedetid.zside()>0) newBadEEP_ -> Fill( (eedetid.ix()-0.5), (eedetid.iy()-0.5), 4);
 	if (eedetid.zside()<0) newBadEEM_ -> Fill( (eedetid.ix()-0.5), (eedetid.iy()-0.5), 4);
@@ -1563,7 +1563,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 	       << eedetid.hashedIndex()  << "\t\t" 		 
 	       << thePedOn     << "\t\t" << thePedOnRms      << "\t\t" 
 	       << "gainZero"   << "\t\t" << theLaser         << "\t\t" 
-	       << theOccHigh   << endl;
+	       << theOccHigh   << std::endl;
     
     if (isNew) { 
       *ResFileNewEE << thisFed      << "\t\t" << eedetid.ix()     << "\t\t"    
@@ -1571,7 +1571,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis( map<EcalLogicID, MonPede
 		    << eedetid.hashedIndex()  << "\t\t" 		 
 		    << thePedOn     << "\t\t" << thePedOnRms      << "\t\t" 
 		    << "gainZero"   << "\t\t" << theLaser         << "\t\t" 
-		    << theOccHigh   << endl;
+		    << theOccHigh   << std::endl;
 
       if (eedetid.zside()>0) newBadEEP_ -> Fill( (eedetid.ix()-0.5), (eedetid.iy()-0.5), 4);
       if (eedetid.zside()<0) newBadEEM_ -> Fill( (eedetid.ix()-0.5), (eedetid.iy()-0.5), 4);
@@ -1591,14 +1591,14 @@ void popcon::EcalChannelStatusHandler::getNewObjects() {
   // here we retrieve all the runs of a given type after the last from online DB   
   unsigned int max_since=0;
   max_since=static_cast<unsigned int>(tagInfo().lastInterval.first);
-  std::cout << "max_since : "  << max_since << endl;
+  std::cout << "max_since : "  << max_since << std::endl;
 
-  cout << "Retrieving run list from ONLINE DB ... " << endl;
+  std::cout << "Retrieving run list from ONLINE DB ... " << std::endl;
   econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
-  cout << "Connection done" << endl;
+  std::cout << "Connection done" << std::endl;
   
   if (!econn) { 
-    cout << " Problem with OMDS: connection parameters " << m_sid << "/" << m_user << "/" << m_pass << endl;
+    std::cout << " Problem with OMDS: connection parameters " << m_sid << "/" << m_user << "/" << m_pass << std::endl;
     throw cms::Exception("OMDS not available");
   } 
 
@@ -1646,50 +1646,50 @@ void popcon::EcalChannelStatusHandler::getNewObjects() {
   // preparing the output files
   char outfile[800];
   sprintf(outfile,"BadChannelsEB_run%d.txt",min_run);
-  ResFileEB    = new ofstream(outfile,ios::out);
+  ResFileEB    = new ofstream(outfile,std::ios::out);
   sprintf(outfile,"BadChannelsEE_run%d.txt",min_run);
-  ResFileEE    = new ofstream(outfile,ios::out);
+  ResFileEE    = new ofstream(outfile,std::ios::out);
   sprintf(outfile,"BadNewChannelsEB_run%d.txt",min_run);
-  ResFileNewEB = new ofstream(outfile,ios::out);
+  ResFileNewEB = new ofstream(outfile,std::ios::out);
   sprintf(outfile,"BadNewChannelsEE_run%d.txt",min_run);
-  ResFileNewEE = new ofstream(outfile,ios::out);
+  ResFileNewEE = new ofstream(outfile,std::ios::out);
   sprintf(outfile,"DaqConfig_run%d.txt",min_run);
-  daqFile = new ofstream(outfile,ios::out);
+  daqFile = new ofstream(outfile,std::ios::out);
   sprintf(outfile,"DaqConfig_channels_run%d.txt",min_run);
-  daqFile2 = new ofstream(outfile,ios::out);
+  daqFile2 = new ofstream(outfile,std::ios::out);
 
-  *daqFile  << "fed" << "\t\t" << "tower" << endl; 
+  *daqFile  << "fed" << "\t\t" << "tower" << std::endl; 
 
   if (m_runtype=="PEDESTAL") { 
     *ResFileEB << "Fed"         << "\t\t"   << "Ic"     << "\t\t" << "hIndex"   << "\t\t"   	       
 	       << "MeanG12"     << "\t\t"   << "RmsG12" << "\t\t" 
 	       << "MeanG6"      << "\t\t"   << "RmsG6"  << "\t\t" 
-	       << "MeanG1"      << "\t\t"   << "RmsG1"  << endl;
+	       << "MeanG1"      << "\t\t"   << "RmsG1"  << std::endl;
 
     *ResFileEE << "Fed"         << "\t\t"   << "Ix"     << "\t\t" 
 	       << "Iy"          << "\t\t"   << "Iz"     << "\t\t" << "hIndex"   << "\t\t"
 	       << "MeanG12"     << "\t\t"   << "RmsG12" << "\t\t" 
 	       << "MeanG6"      << "\t\t"   << "RmsG6"  << "\t\t" 
-	       << "MeanG1"      << "\t\t"   << "RmsG1"  << endl;
+	       << "MeanG1"      << "\t\t"   << "RmsG1"  << std::endl;
 
     *ResFileNewEB << "Fed"         << "\t\t"   << "Ic"     << "\t\t" << "hIndex"   << "\t\t"   	       
 		  << "MeanG12"     << "\t\t"   << "RmsG12" << "\t\t" 
 		  << "MeanG6"      << "\t\t"   << "RmsG6"  << "\t\t" 
-		  << "MeanG1"      << "\t\t"   << "RmsG1"  << endl;
+		  << "MeanG1"      << "\t\t"   << "RmsG1"  << std::endl;
 
     *ResFileNewEE << "Fed"         << "\t\t"   << "Ix"     << "\t\t" 
 		  << "Iy"          << "\t\t"   << "Iz"     << "\t\t" << "hIndex"   << "\t\t"
 		  << "MeanG12"     << "\t\t"   << "RmsG12" << "\t\t" 
 		  << "MeanG6"      << "\t\t"   << "RmsG6"  << "\t\t" 
-		  << "MeanG1"      << "\t\t"   << "RmsG1"  << endl;
+		  << "MeanG1"      << "\t\t"   << "RmsG1"  << std::endl;
   }
   
 
   if (m_runtype=="LASER") {   
-    *ResFileEB    << "Fed" << "\t\t" << "Ic" << "\t\t" << "hIndex" << "\t\t" << "apd" << endl;
-    *ResFileEE    << "Fed" << "\t\t" << "Ix" << "\t\t" << "Iy"     << "\t\t" << "Iz"  << "\t\t" << "hIndex" << "\t\t" << "apd"  << endl;	       
-    *ResFileNewEB << "Fed" << "\t\t" << "Ic" << "\t\t" << "hIndex" << "\t\t" << "apd" << endl;
-    *ResFileNewEE << "Fed" << "\t\t" << "Ix" << "\t\t" << "Iy"     << "\t\t" << "Iz"  << "\t\t" << "hIndex" << "\t\t" << "apd"  << endl;	       
+    *ResFileEB    << "Fed" << "\t\t" << "Ic" << "\t\t" << "hIndex" << "\t\t" << "apd" << std::endl;
+    *ResFileEE    << "Fed" << "\t\t" << "Ix" << "\t\t" << "Iy"     << "\t\t" << "Iz"  << "\t\t" << "hIndex" << "\t\t" << "apd"  << std::endl;	       
+    *ResFileNewEB << "Fed" << "\t\t" << "Ic" << "\t\t" << "hIndex" << "\t\t" << "apd" << std::endl;
+    *ResFileNewEE << "Fed" << "\t\t" << "Ix" << "\t\t" << "Iy"     << "\t\t" << "Iz"  << "\t\t" << "hIndex" << "\t\t" << "apd"  << std::endl;	       
   }
 
 
@@ -1698,24 +1698,24 @@ void popcon::EcalChannelStatusHandler::getNewObjects() {
     *ResFileEB << "Fed"             << "\t\t"   << "Ic"            << "\t\t" << "hIndex"   << "\t\t"   
 	       << "pedOnline"       << "\t\t"   << "pedOnlineRMS " << "\t\t" 
 	       << "gain0"           << "\t\t"   << "apd"           << "\t\t" 
-	       << "highThrOcc"      << "\t\t"   << endl;
+	       << "highThrOcc"      << "\t\t"   << std::endl;
 
     *ResFileEE << "Fed"             << "\t\t"   << "Ix" 
 	       << "Iy"              << "\t\t"   << "Iz"            << "\t\t" << "hIndex"   << "\t\t"
 	       << "pedOnline"       << "\t\t"   << "pedOnlineRMS " << "\t\t" 
 	       << "gain0"           << "\t\t"   << "apd"           << "\t\t" 
-	       << "highThrOcc"      << "\t\t"   << endl;
+	       << "highThrOcc"      << "\t\t"   << std::endl;
 
     *ResFileNewEB << "Fed"             << "\t\t"   << "Ic"            << "\t\t" << "hIndex"   << "\t\t"   
 		  << "pedOnline"       << "\t\t"   << "pedOnlineRMS " << "\t\t" 
 		  << "gain0"           << "\t\t"   << "apd"           << "\t\t" 
-		  << "highThrOcc"      << "\t\t"   << endl;
+		  << "highThrOcc"      << "\t\t"   << std::endl;
     
     *ResFileNewEE << "Fed"             << "\t\t"   << "Ix" 
 		  << "Iy"              << "\t\t"   << "Iz"            << "\t\t" << "hIndex"   << "\t\t"
 		  << "pedOnline"       << "\t\t"   << "pedOnlineRMS " << "\t\t" 
 		  << "gain0"           << "\t\t"   << "apd"           << "\t\t" 
-		  << "highThrOcc"      << "\t\t"   << endl;
+		  << "highThrOcc"      << "\t\t"   << std::endl;
   }
 
 
@@ -1726,11 +1726,11 @@ void popcon::EcalChannelStatusHandler::getNewObjects() {
   // analysis for the wanted runs
   std::vector<MonRunIOV> mon_run_vec = mon_list.getRuns();
   int mon_runs = mon_run_vec.size();
-  cout << "number of Mon runs is " << mon_runs << endl;
-  if(mon_runs==0) cout << "PROBLEM! 0 runs analyzed by DQM" << endl;
-  if(mon_runs==0) ss   << "PROBLEM! 0 runs analyzed by DQM" << endl;
+  std::cout << "number of Mon runs is " << mon_runs << std::endl;
+  if(mon_runs==0) std::cout << "PROBLEM! 0 runs analyzed by DQM" << std::endl;
+  if(mon_runs==0) ss   << "PROBLEM! 0 runs analyzed by DQM" << std::endl;
 
-  // initialize maps with masked channels
+  // initialize std::maps with masked channels
   maskedOnlinePedEB.clear();
   maskedOnlinePedEE.clear();
   maskedPedEB.clear();
@@ -1741,7 +1741,7 @@ void popcon::EcalChannelStatusHandler::getNewObjects() {
   maskedPhysicsEE.clear();
 
     // to iterate
-  map<DetId,float>::const_iterator theIter;
+  std::map<DetId,float>::const_iterator theIter;
   
   // using db info written by DQM
   if(mon_runs>0){   
@@ -1750,7 +1750,7 @@ void popcon::EcalChannelStatusHandler::getNewObjects() {
       
       unsigned long iDqmRun=(unsigned long) mon_run_vec[dqmRun].getRunIOV().getRunNumber();  
       
-      cout << "retrieve the DQM data for run number: " << iDqmRun << ", subrun number: " << mon_run_vec[dqmRun].getSubRunNumber() << endl;
+      std::cout << "retrieve the DQM data for run number: " << iDqmRun << ", subrun number: " << mon_run_vec[dqmRun].getSubRunNumber() << std::endl;
 
       
       if (mon_run_vec[dqmRun].getSubRunNumber()==mon_runs){      // fixme: check it still works after DMQ soft reset modifications
@@ -1765,8 +1765,8 @@ void popcon::EcalChannelStatusHandler::getNewObjects() {
 	RunIOV runiov_prime = mon_run_vec[dqmRun].getRunIOV();
 	
 
-	// here we read the list of masked channel in the DB for this run and create masked channels maps
-	cout << "Fetching masked channels from DB" << endl;
+	// here we read the list of masked channel in the DB for this run and create masked channels std::maps
+	std::cout << "Fetching masked channels from DB" << std::endl;
 	EcalErrorMask::readDB(econn, &runiov_prime);
 
 
@@ -1780,22 +1780,22 @@ void popcon::EcalChannelStatusHandler::getNewObjects() {
 	if (m_runtype=="PEDESTAL") {   
 
 	  // retrieve the pedestals from OMDS for this run 
-	  map<EcalLogicID, MonPedestalsDat> dataset_mon;    
+	  std::map<EcalLogicID, MonPedestalsDat> dataset_mon;    
 	  econn->fetchDataSet(&dataset_mon, &mon_run_vec[dqmRun]);
-	  cout << "running pedestal analysis" << endl;
-	  cout << "OMDS record for pedestals, run " << iDqmRun << " is made of " << dataset_mon.size() << " entries" << endl;
+	  std::cout << "running pedestal analysis" << std::endl;
+	  std::cout << "OMDS record for pedestals, run " << iDqmRun << " is made of " << dataset_mon.size() << " entries" << std::endl;
 
 	  // retrieve the crystal consistency from OMDS for this run 
-	  map<EcalLogicID, MonCrystalConsistencyDat> wrongGain_mon;
+	  std::map<EcalLogicID, MonCrystalConsistencyDat> wrongGain_mon;
 	  econn->fetchDataSet(&wrongGain_mon, &mon_run_vec[dqmRun]);
-	  cout << "OMDS record for consistency, run " << iDqmRun << " is made of " << wrongGain_mon.size() << " entries" << endl;
+	  std::cout << "OMDS record for consistency, run " << iDqmRun << " is made of " << wrongGain_mon.size() << " entries" << std::endl;
 
 	  // check if enough data and perform analysis
 	  if (dataset_mon.size()>0) { 
 	    pedAnalysis( dataset_mon, wrongGain_mon );
 	  } else {
-	    cout << "Not enought data for pedestal analysis" << endl;
-	    ss   << "Not enought data for pedestal analysis" << endl;
+	    std::cout << "Not enought data for pedestal analysis" << std::endl;
+	    ss   << "Not enought data for pedestal analysis" << std::endl;
 	  }	  
 	}
 	
@@ -1805,18 +1805,18 @@ void popcon::EcalChannelStatusHandler::getNewObjects() {
 	if (m_runtype=="LASER") {   
 	    
 	  // retrieve the APD / PNs from OMDS for this run 
-	  map<EcalLogicID, MonLaserBlueDat > dataset_mon;
+	  std::map<EcalLogicID, MonLaserBlueDat > dataset_mon;
 	  econn->fetchDataSet(&dataset_mon, &mon_run_vec[dqmRun]);
-	  cout << "running the laser analysis based on DQM data" << endl;
-	  cout << "OMDS record for run " << iDqmRun << " is made of " << dataset_mon.size() << " records" << endl;	      
+	  std::cout << "running the laser analysis based on DQM data" << std::endl;
+	  std::cout << "OMDS record for run " << iDqmRun << " is made of " << dataset_mon.size() << " records" << std::endl;	      
 	  
 	  // check if enough data and select good light modules / perform analysis
 	  if (dataset_mon.size()>0) { 
 	    nBadLaserModules( dataset_mon );
 	    laserAnalysis( dataset_mon );
 	  } else {
-	    cout << "Not enought data for dqm-based laser analysis" << endl;
-	    ss   << "Not enought data for dqm-based laser analysis" << endl;
+	    std::cout << "Not enought data for dqm-based laser analysis" << std::endl;
+	    ss   << "Not enought data for dqm-based laser analysis" << std::endl;
 	  }
 	}
 	
@@ -1826,40 +1826,40 @@ void popcon::EcalChannelStatusHandler::getNewObjects() {
 	if (m_runtype=="COSMIC" || m_runtype=="BEAM" || m_runtype=="PHYSICS" || m_runtype=="HALO" || m_runtype=="GLOBAL_COSMICS" ) {   
 
 	  // retrieve the pedestal online from OMDS for this run 
-	  map<EcalLogicID, MonPedestalsOnlineDat> pedonline_mon;    
+	  std::map<EcalLogicID, MonPedestalsOnlineDat> pedonline_mon;    
 	  econn->fetchDataSet(&pedonline_mon, &mon_run_vec[dqmRun]);
-	  cout << "running pedestal online analysis" << endl;
-	  cout << "OMDS record for pedestals, run " << iDqmRun << " is made of " << pedonline_mon.size() << endl;
+	  std::cout << "running pedestal online analysis" << std::endl;
+	  std::cout << "OMDS record for pedestals, run " << iDqmRun << " is made of " << pedonline_mon.size() << std::endl;
 
 	  // retrieve the crystal consistency from OMDS for this run 
-	  map<EcalLogicID, MonCrystalConsistencyDat> wrongGain_mon;
+	  std::map<EcalLogicID, MonCrystalConsistencyDat> wrongGain_mon;
 	  econn->fetchDataSet(&wrongGain_mon, &mon_run_vec[dqmRun]);
-	  cout << "OMDS record for consistency, run " << iDqmRun << " is made of " << wrongGain_mon.size() << " entries" << endl;
+	  std::cout << "OMDS record for consistency, run " << iDqmRun << " is made of " << wrongGain_mon.size() << " entries" << std::endl;
 	  
 	  // retrieve the occupancy info from OMDS for this run 
-	  map<EcalLogicID, MonOccupancyDat> occupancy_mon;
+	  std::map<EcalLogicID, MonOccupancyDat> occupancy_mon;
 	  econn->fetchDataSet(&occupancy_mon, &mon_run_vec[dqmRun]);
-	  cout << "OMDS record for occupancy, run " << iDqmRun << " is made of " << occupancy_mon.size() << endl;
+	  std::cout << "OMDS record for occupancy, run " << iDqmRun << " is made of " << occupancy_mon.size() << std::endl;
 
 	  // retrieve the APD / PNs from OMDS for this run 
-	  map<EcalLogicID, MonLaserBlueDat > laser_mon;
+	  std::map<EcalLogicID, MonLaserBlueDat > laser_mon;
 	  econn->fetchDataSet(&laser_mon, &mon_run_vec[dqmRun]);
-	  cout << "running laser analysis" << endl;
-	  cout << "OMDS record for laser, run " << iDqmRun << " is made of " << laser_mon.size() << " records" << endl;	     
+	  std::cout << "running laser analysis" << std::endl;
+	  std::cout << "OMDS record for laser, run " << iDqmRun << " is made of " << laser_mon.size() << " records" << std::endl;	     
 
 
 	  // check if enough data in all the categories and do the analysis
 	  if (pedonline_mon.size()<=0) { 
-	    cout << "Not enought data for pedestal online analysis" << endl; 
-	    ss   << "Not enought data for pedestal online analysis" << endl; 
+	    std::cout << "Not enought data for pedestal online analysis" << std::endl; 
+	    ss   << "Not enought data for pedestal online analysis" << std::endl; 
 	  }
 	  if (occupancy_mon.size()<=0) { 
-	    cout << "Not enought data for occupancy analysis" << endl;       
-	    ss   << "Not enought data for occupancy analysis" << endl; 
+	    std::cout << "Not enought data for occupancy analysis" << std::endl;       
+	    ss   << "Not enought data for occupancy analysis" << std::endl; 
 	  }
 	  if (laser_mon.size()<=0) { 
-	    cout << "Not enought data for laser analysis" << endl;
-	    ss   << "Not enought data for laser analysis" << endl;
+	    std::cout << "Not enought data for laser analysis" << std::endl;
+	    ss   << "Not enought data for laser analysis" << std::endl;
 	  }
 	  if ( pedonline_mon.size()>0 || occupancy_mon.size()>0 || wrongGain_mon.size()>0 || laser_mon.size()>0 ) {
 	    nBadLaserModules( laser_mon );

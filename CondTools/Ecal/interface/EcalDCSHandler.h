@@ -39,10 +39,6 @@
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
-
-using namespace std;
-using namespace oracle::occi;
-
 namespace edm {
   class ParameterSet;
   class Event;
@@ -59,12 +55,12 @@ namespace popcon
 		public:
                         EcalDCSHandler(edm::ParameterSet const & );
 			~EcalDCSHandler(); 
-			void printHVDataSet( const map<EcalLogicID, RunDCSHVDat>* dataset,int ) const;
-			void printLVDataSet( const map<EcalLogicID, RunDCSLVDat>* dataset,int ) const ;
+			void printHVDataSet( const std::map<EcalLogicID, RunDCSHVDat>* dataset,int ) const;
+			void printLVDataSet( const std::map<EcalLogicID, RunDCSLVDat>* dataset,int ) const ;
 			uint16_t  updateHV( RunDCSHVDat* hv, uint16_t dbStatus, int modo=0) const ; 
 			uint16_t  updateLV( RunDCSLVDat* lv, uint16_t dbStatus) const ; 
-			bool  insertHVDataSetToOffline( const map<EcalLogicID, RunDCSHVDat>* dataset, EcalDCSTowerStatus* dcs_temp ) const;
-			bool  insertLVDataSetToOffline( const map<EcalLogicID, RunDCSLVDat>* dataset, EcalDCSTowerStatus* dcs_temp, std::vector<EcalLogicID> ) const;
+			bool  insertHVDataSetToOffline( const std::map<EcalLogicID, RunDCSHVDat>* dataset, EcalDCSTowerStatus* dcs_temp ) const;
+			bool  insertLVDataSetToOffline( const std::map<EcalLogicID, RunDCSLVDat>* dataset, EcalDCSTowerStatus* dcs_temp, std::vector<EcalLogicID> ) const;
 
 			void getNewObjects();
 			std::string id() const { return m_name;}

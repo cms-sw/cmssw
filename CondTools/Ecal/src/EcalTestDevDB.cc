@@ -89,11 +89,11 @@ void EcalTestDevDB::analyze( const edm::Event& evt, const edm::EventSetup& evtSe
  
       // Arguments 0 0 mean infinite IOV
       if (m_firstRun == 0 && m_lastRun == 0) {
-	cout << "Infinite IOV mode" << endl;
+	std::cout << "Infinite IOV mode" << std::endl;
 	irun = edm::IOVSyncValue::endOfTime().eventID().run();
       }
 
-      cout << "Starting Transaction for run " << irun << "..." << flush;
+      std::cout << "Starting Transaction for run " << irun << "..." << std::flush;
     
       if (container == "EcalPedestals") {
 	EcalPedestals* condObject= generateEcalPedestals();
@@ -204,7 +204,7 @@ void EcalTestDevDB::analyze( const edm::Event& evt, const edm::EventSetup& evtSe
 	  dbOutput->appendSinceTime<const EcalLaserAlphas>( condObject, irun , recordName);
 	}
       } else {
-	cout << "it does not work yet for " << container << "..." << flush;
+	std::cout << "it does not work yet for " << container << "..." << std::flush;
 	
       }
       
@@ -383,7 +383,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
     APDPNpair.p1= (double(1)+1/double(log(exp(1)+double((i_run-m_firstRun)*10))))/double(2);
     APDPNpair.p2= (double(1)+1/double(log(exp(1)+double((i_run-m_firstRun)*10)+double(10))))/double(2);
     APDPNpair.p3= double(0);
-    cout << i_run << " " << m_firstRun << " " << APDPNpair.p1 << " " << APDPNpair.p2 << std::endl;
+    std::cout << i_run << " " << m_firstRun << " " << APDPNpair.p1 << " " << APDPNpair.p2 << std::endl;
 
     for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
       if(iEta==0) continue;
@@ -397,7 +397,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
 	if (hi< static_cast<int>(laser->getLaserMap().size())) {
 	  laser->setValue(hi, APDPNpair);
 	} else {
-	  edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << endl;     	  
+	  edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << std::endl;     	  
 	  continue;
 	}
       }
@@ -418,7 +418,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
 	if (hi< static_cast<int>(laser->getLaserMap().size())) {
 	  laser->setValue(hi, APDPNpair);
 	} else {
-	  edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << endl;     	  
+	  edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << std::endl;     	  
 	  continue;
 	}
 	
@@ -432,7 +432,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
 	if (hi< static_cast<int>(laser->getLaserMap().size())) {
 	  laser->setValue(hi, APDPNpair);
 	} else {
-	      edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << endl;     	  
+	      edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << std::endl;     	  
 	      continue;
 	}
       }
@@ -446,7 +446,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
  	laser->setTime(i, TimeStamp);
 	//std::cout << " Timestamp for " << i << " : " << TimeStamp.t1.value() << " , " << TimeStamp.t2.value() << std::endl;
       } else {
- 	edm::LogError("EcalTestDevDB") << "error with laser Map (time)!" << endl;     	  
+ 	edm::LogError("EcalTestDevDB") << "error with laser Map (time)!" << std::endl;     	  
  	continue;
       }
     }
@@ -456,7 +456,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
     APDPNpair.p1= (double(1)+1/double(log(exp(1)+double((i_run-m_firstRun)*10))))/double(2);
     APDPNpair.p2= (double(1)+1/double(log(exp(1)+double((i_run-m_firstRun)*10)+double(10))))/double(2);
     APDPNpair.p3= double(0);
-    cout << i_run << " " << m_firstRun << " " << APDPNpair.p1 << " " << APDPNpair.p2 << std::endl;
+    std::cout << i_run << " " << m_firstRun << " " << APDPNpair.p1 << " " << APDPNpair.p2 << std::endl;
 
     for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
       if(iEta==0) continue;
@@ -467,7 +467,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
 	if (hi< static_cast<int>(laser->getLaserMap().size())) {
 	  laser->setValue(hi, APDPNpair);
 	} else {
-	  edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << endl;     	  
+	  edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << std::endl;     	  
 	}
       }
     }
@@ -483,7 +483,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
 	if (hi< static_cast<int>(laser->getLaserMap().size())) {
 	  laser->setValue(hi, APDPNpair);
 	} else {
-	  edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << endl;     	  
+	  edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << std::endl;     	  
 	  continue;
 	}
 	
@@ -495,7 +495,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
 	if (hi< static_cast<int>(laser->getLaserMap().size())) {
 	  laser->setValue(hi, APDPNpair);
 	} else {
-	  edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << endl;     	  
+	  edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << std::endl;     	  
 	  continue;
 	}
       }	  	  
@@ -509,7 +509,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
  	laser->setTime(i, TimeStamp);
 	//std::cout << " Timestamp for " << i << " : " << TimeStamp.t1.value() << " , " << TimeStamp.t2.value() << std::endl;
       } else {
- 	edm::LogError("EcalTestDevDB") << "error with laser Map (time)!" << endl;     	  
+ 	edm::LogError("EcalTestDevDB") << "error with laser Map (time)!" << std::endl;     	  
  	continue;
       }
     }
@@ -540,7 +540,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatiosRef() {
       if (hi< static_cast<int>(laser->getMap().size())) {
 	laser->setValue(hi, APDPNref);
       } else {
-	edm::LogError("EcalTestDevDB") << "error with laser Map (ref)!" << endl;     	  
+	edm::LogError("EcalTestDevDB") << "error with laser Map (ref)!" << std::endl;     	  
       }
       
     }
@@ -559,7 +559,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatiosRef() {
       if (hi< static_cast<int>(laser->getMap().size())) {
 	laser->setValue(hi, APDPNref);
       } else {
-	edm::LogError("EcalTestDevDB") << "error with laser Map (ref)!" << endl;     	  
+	edm::LogError("EcalTestDevDB") << "error with laser Map (ref)!" << std::endl;     	  
       }
       
       if (!EEDetId::validDetId(iX,iY,-1))
@@ -572,7 +572,7 @@ EcalTestDevDB::generateEcalLaserAPDPNRatiosRef() {
       if (hi< static_cast<int>(laser->getMap().size())) {
 	laser->setValue(hi, APDPNref);
       } else {
-	edm::LogError("EcalTestDevDB") << "error with laser Map (ref)!" << endl;     	  
+	edm::LogError("EcalTestDevDB") << "error with laser Map (ref)!" << std::endl;     	  
       }
     }	
   }
@@ -599,7 +599,7 @@ EcalTestDevDB::generateEcalLaserAlphas() {
       if (hi< static_cast<int>(laser->getMap().size())) {
 	laser->setValue(hi, Alpha);
       } else {
-	edm::LogError("EcalTestDevDB") << "error with laser Map (alpha)!" << endl;     	        
+	edm::LogError("EcalTestDevDB") << "error with laser Map (alpha)!" << std::endl;     	        
       }
     }
   }
@@ -617,7 +617,7 @@ EcalTestDevDB::generateEcalLaserAlphas() {
       if (hi< static_cast<int>(laser->getMap().size())) {
 	laser->setValue(hi, Alpha);
       } else {
-	edm::LogError("EcalTestDevDB") << "error with laser Map (alpha)!" << endl;     	  
+	edm::LogError("EcalTestDevDB") << "error with laser Map (alpha)!" << std::endl;     	  
       }
       
       if (!EEDetId::validDetId(iX,iY,-1))
@@ -629,7 +629,7 @@ EcalTestDevDB::generateEcalLaserAlphas() {
       if (hi< static_cast<int>(laser->getMap().size())) {
 	laser->setValue(hi, Alpha);
       } else {
-	edm::LogError("EcalTestDevDB") << "error with laser Map (alpha)!" << endl;     	  
+	edm::LogError("EcalTestDevDB") << "error with laser Map (alpha)!" << std::endl;     	  
       }
     }
   }
