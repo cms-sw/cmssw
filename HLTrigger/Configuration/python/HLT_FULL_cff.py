@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_8_5/HLT/V133 (CMSSW_3_8_1_HLT22)
+# /dev/CMSSW_3_8_5/HLT/V139 (CMSSW_3_8_1_HLT22)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_5/HLT/V133')
+  tableName = cms.string('/dev/CMSSW_3_8_5/HLT/V139')
 )
 
 streams = cms.PSet( 
@@ -134,7 +134,10 @@ datasets = cms.PSet(
     'HLT_HIPhoton15_Core',
     'HLT_HIUpcEcal_Core',
     'HLT_HIUpcMu_Core' ),
-  HIExpressPhysics = cms.vstring( 'HLT_HIMinBiasPixel_SingleTrack' ),
+  HIExpressPhysics = cms.vstring( 'HLT_HICentralityVeto',
+    'HLT_HIJet35U',
+    'HLT_HIL1DoubleMuOpen',
+    'HLT_HIPhoton15' ),
   HcalHPDNoise = cms.vstring( 'HLT_GlobalRunHPDNoise',
     'HLT_TechTrigHCALNoise' ),
   HcalNZS = cms.vstring( 'HLT_HcalNZS',
@@ -183,6 +186,7 @@ datasets = cms.PSet(
     'HLT_PixelTracks_Multiplicity100',
     'HLT_PixelTracks_Multiplicity70',
     'HLT_PixelTracks_Multiplicity85',
+    'HLT_Random',
     'HLT_StoppedHSCP20_v3',
     'HLT_StoppedHSCP35_v3',
     'HLT_ZeroBias',

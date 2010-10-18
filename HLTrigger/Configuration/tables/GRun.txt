@@ -190,6 +190,7 @@ HLTriggerFinalPath
 HLTOutput
 ExpressOutput
 AlCaOutput
+AlCaPPOutput
 DQMOutput
 HLTDQMOutput
 HLTDQMResultsOutput

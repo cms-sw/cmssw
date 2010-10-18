@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_8_5/GRun/V21 (CMSSW_3_8_1_HLT22)
+# /dev/CMSSW_3_8_5/GRun/V27 (CMSSW_3_8_1_HLT22)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_5/GRun/V21')
+  tableName = cms.string('/dev/CMSSW_3_8_5/GRun/V27')
 )
 
 streams = cms.PSet( 
@@ -156,6 +156,7 @@ datasets = cms.PSet(
     'HLT_PixelTracks_Multiplicity100',
     'HLT_PixelTracks_Multiplicity70',
     'HLT_PixelTracks_Multiplicity85',
+    'HLT_Random',
     'HLT_StoppedHSCP20_v3',
     'HLT_StoppedHSCP35_v3',
     'HLT_ZeroBias',

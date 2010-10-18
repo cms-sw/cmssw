@@ -26,11 +26,13 @@ HLT_HIMinBiasBSC_Core
 HLT_HIPhoton15_Core
 HLT_HIUpcEcal_Core
 HLT_HIUpcMu_Core
-HLT_EcalCalibration
 HLT_HIHcalCalibration
+HLT_EcalCalibration
+HLT_LogMonitor
 HLTriggerFinalPath
 HLTOutput
 ExpressOutput
+AlCaOutput
 AlCaHIOutput
 DQMOutput
 HLTDQMOutput
