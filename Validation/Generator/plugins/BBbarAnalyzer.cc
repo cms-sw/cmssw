@@ -6,7 +6,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: BBbarAnalyzer.cc,v 1.1 2009/11/10 18:52:45 rwolf Exp $
+// $Id: BBbarAnalyzer.cc,v 1.2 2010/01/06 12:39:48 fabstoec Exp $
 //
 //
 
@@ -48,7 +48,7 @@ BBbarAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // std::vector<HepMC::GenParticle*> muons;   
    //muons.resize(0);
    //for(HepMC::GenEvent::particle_iterator it = evt->particles_begin(); it != evt->particles_end(); ++it) {
-   // if(abs((*it)->pdg_id())==13 && (*it)->status()==1) {
+   // if(std::abs((*it)->pdg_id())==13 && (*it)->status()==1) {
    //   muons.push_back(*it);
    // }
    // }

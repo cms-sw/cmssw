@@ -69,7 +69,7 @@ void MCValidation::genparticles(const CandidateCollection &genParticles){ //GenP
 
     outfile << " pid " << pid << " pmass " << pmass << " pst " << pst << endl ;
     
-    switch(abs(pid)){
+    switch(std::abs(pid)){
       
       case     11 : { // e+ OR e-
       
@@ -128,7 +128,7 @@ void MCValidation::genparticles(const CandidateCollection &genParticles){ //GenP
 	    double dpt = dau->pt(), deta = dau->eta(), dphi = dau->phi();// dmass = dau->mass();
 	    // double dvx = dau->vx(), dvy = dau->vy(), dvz = dau->vz();
 	    
-	    if(abs(did) == 11 && dst==1){
+	    if(std::abs(did) == 11 && dst==1){
 	      dau_e_pT_->Fill(dpt) ; 
 	      if(dch>0){
   	        dau_eP_eta_->Fill(deta); dau_eP_phi_->Fill(dphi) ;
@@ -137,7 +137,7 @@ void MCValidation::genparticles(const CandidateCollection &genParticles){ //GenP
 	      } 	
 	    }  
 	    
-	    if(abs(did)== 13 && dst==1){ 
+	    if(std::abs(did)== 13 && dst==1){ 
               dau_mu_pT_->Fill(dpt); 
 	      if(dch>0){
   	        dau_muP_eta_->Fill(deta); dau_muP_phi_->Fill(dphi) ;
@@ -169,7 +169,7 @@ void MCValidation::genparticles(const CandidateCollection &genParticles){ //GenP
 	    double dpt = dau->pt(), deta = dau->eta(), dphi = dau->phi(); //dmass = dau->mass();
 	    //double dvx = dau->vx(), dvy = dau->vy(), dvz = dau->vz();
 	    
-	    if(abs(did) == 11 && dst==1){
+	    if(std::abs(did) == 11 && dst==1){
 	      dau_e_pT_->Fill(dpt) ; 
 	      if(dch>0){
   	        dau_eP_eta_->Fill(deta); dau_eP_phi_->Fill(dphi) ;
@@ -178,7 +178,7 @@ void MCValidation::genparticles(const CandidateCollection &genParticles){ //GenP
 	      } 	
 	    }  
 	    
-	    if(abs(did)== 13 && dst==1){ 
+	    if(std::abs(did)== 13 && dst==1){ 
               dau_mu_pT_->Fill(dpt); 
 	      if(dch>0){
   	        dau_muP_eta_->Fill(deta); dau_muP_phi_->Fill(dphi) ;
@@ -210,7 +210,7 @@ void MCValidation::genparticles(const CandidateCollection &genParticles){ //GenP
 	    double dpt = dau->pt(), deta = dau->eta(), dphi = dau->phi();// dmass = dau->mass();
 	    //double dvx = dau->vx(), dvy = dau->vy(), dvz = dau->vz();
 	    
-	    if(abs(did) == 11 && dst==1){
+	    if(std::abs(did) == 11 && dst==1){
 	      dau_e_pT_->Fill(dpt) ; 
 	      if(dch>0){
   	        dau_eP_eta_->Fill(deta); dau_eP_phi_->Fill(dphi) ;
@@ -219,7 +219,7 @@ void MCValidation::genparticles(const CandidateCollection &genParticles){ //GenP
 	      } 	
 	    }  
 	    
-	    if(abs(did)== 13 && dst==1){ 
+	    if(std::abs(did)== 13 && dst==1){ 
               dau_mu_pT_->Fill(dpt); 
 	      if(dch>0){
   	        dau_muP_eta_->Fill(deta); dau_muP_phi_->Fill(dphi) ;
@@ -255,7 +255,7 @@ void MCValidation::genparticles(const CandidateCollection &genParticles){ //GenP
 	    double dpt = dau->pt(), deta = dau->eta(), dphi = dau->phi(); //dmass = dau->mass();
 	      //	    double dvx = dau->vx(), dvy = dau->vy(), dvz = dau->vz();
 	    
-	    if(abs(did) == 11 && dst==1){
+	    if(std::abs(did) == 11 && dst==1){
 	      dau_e_pT_->Fill(dpt) ; 
 	      if(dch>0){
   	        dau_eP_eta_->Fill(deta); dau_eP_phi_->Fill(dphi) ;
@@ -264,7 +264,7 @@ void MCValidation::genparticles(const CandidateCollection &genParticles){ //GenP
 	      } 	
 	    }  
 	    
-	    if(abs(did)== 13 && dst==1){ 
+	    if(std::abs(did)== 13 && dst==1){ 
               dau_mu_pT_->Fill(dpt); 
 	      if(dch>0){
   	        dau_muP_eta_->Fill(deta); dau_muP_phi_->Fill(dphi) ;

@@ -6,7 +6,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: MuMuAnalyzer.cc,v 1.1 2009/11/10 18:52:45 rwolf Exp $
+// $Id: MuMuAnalyzer.cc,v 1.2 2010/01/06 12:39:47 fabstoec Exp $
 //
 //
 
@@ -77,7 +77,7 @@ MuMuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // std::vector<HepMC::GenParticle*> muons;   
    //muons.resize(0);
    //for(HepMC::GenEvent::particle_iterator it = evt->particles_begin(); it != evt->particles_end(); ++it) {
-   // if(abs((*it)->pdg_id())==13 && (*it)->status()==1) {
+   // if(std::abs((*it)->pdg_id())==13 && (*it)->status()==1) {
    //   muons.push_back(*it);
    // }
    // }
@@ -121,11 +121,11 @@ typedef std::vector<reco::GenJet> GenJetCollection;
       int motherID1 = 0 ;
       //  int motherID2 = 0 ; 
       
-      if(abs(id) == 23)
+      if(std::abs(id) == 23)
       {
         ZPt_histo->Fill(sqrt(p.px()*p.px() + p.py()*p.py()));
       }
-      if(abs(id) != 13) continue;
+      if(std::abs(id) != 13) continue;
       for ( size_t moth1=0; moth1 < NMoth; moth1++ )
 	{
 	  motherID1 = (p.mother(moth1))->pdgId();
@@ -139,7 +139,7 @@ typedef std::vector<reco::GenJet> GenJetCollection;
 	      elecPz.push_back(p.pz());
 	    }
 	}
-      //if(abs(id) == 13 && sqrt(p.px()*p.px()+p.py()*p.py()) > 20 )  elec++;
+      //if(std::abs(id) == 13 && sqrt(p.px()*p.px()+p.py()*p.py()) > 20 )  elec++;
     }
   if (elec > 1) 
     { 
@@ -148,7 +148,7 @@ typedef std::vector<reco::GenJet> GenJetCollection;
 	  const Candidate & p1 = (*genPart)[elec1];
 	  int id1 = p1.pdgId();
 	  //int motherId1 = p1.mother()->pdgId;
-	  if(abs(id1) != 13) continue;
+	  if(std::abs(id1) != 13) continue;
 	  //TLorentzVector momentum = p1.momentum();
 	  //cout <<" PT = " << sqrt(p1.px()*p1.px() +p1.py()*p1.py()) <<  endl;
 	  for(size_t elec2 = elec1; elec2 < genPart->size(); elec2++)
@@ -156,7 +156,7 @@ typedef std::vector<reco::GenJet> GenJetCollection;
 	      const Candidate & p2 = (*genPart)[elec2];
 	      int id2 = p2.pdgId();
 	      //int motherId2 = p2->mother(0); 
-	      if(abs(id2) != 13) continue;
+	      if(std::abs(id2) != 13) continue;
 	    }
 	}
 

@@ -6,7 +6,7 @@
 //
 // Original Author:  Kenneth Smith
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: NewAnalyzer.cc,v 1.1 2009/11/10 18:52:45 rwolf Exp $
+// $Id: NewAnalyzer.cc,v 1.2 2010/01/06 12:39:47 fabstoec Exp $
 //
 //
 
@@ -120,7 +120,7 @@ NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // std::vector<HepMC::GenParticle*> muons;   
    //muons.resize(0);
    //for(HepMC::GenEvent::particle_iterator it = evt->particles_begin(); it != evt->particles_end(); ++it) {
-   // if(abs((*it)->pdg_id())==13 && (*it)->status()==1) {
+   // if(std::abs((*it)->pdg_id())==13 && (*it)->status()==1) {
    //   muons.push_back(*it);
    // }
    // }
@@ -174,14 +174,14 @@ NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       size_t NMoth = p.numberOfMothers() ;
       int motherID1 = 0 ;
       //int motherID2 = 0 ; 
-      if(abs(id) == 23)
+      if(std::abs(id) == 23)
 	{
 	  //ZPt_histo->Fill(sqrt(p.px()*p.px() + p.py()*p.py()));
 	  ZEta_histo->Fill(p.eta());
 	  ZRap_histo->Fill(p.rapidity());
 	  ZpT = p.pt();
 	}
-      if(abs(id) != 15) continue;
+      if(std::abs(id) != 15) continue;
       int chd = 0;
       taur++;
       //cout << "Checking daughters" << endl;

@@ -70,7 +70,7 @@ TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(i = mcEvent->particles_begin(); i!= mcEvent->particles_end(); i++){
       int id = (*i)->pdg_id();
 
-      if(abs(id) != 15) continue;
+      if(std::abs(id) != 15) continue;
       
       
       int motherId  = 0;
@@ -84,7 +84,7 @@ TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
       }
 
-      if( abs(motherId) != 37 ) continue;
+      if( std::abs(motherId) != 37 ) continue;
 
       HepMC::FourVector p4 = (*i)->momentum();
       LvectorTau = math::XYZTLorentzVector(p4.px(),p4.py(),p4.pz(),p4.e());
@@ -101,13 +101,13 @@ TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  HepMC::FourVector fv = (*iChild)->momentum();
 	  math::XYZTLorentzVector p(fv.px(),fv.py(),fv.pz(),fv.e());
 
-	  if( abs(childId) == 12 || abs(childId) == 14 || abs(childId) == 16){
+	  if( std::abs(childId) == 12 || std::abs(childId) == 14 || std::abs(childId) == 16){
 	    if((*iChild)->status() == 1 && childId*id > 0) {
 	      visibleTau -= p;
 	    }
 	  }
 
-	  if( abs(childId) == 11 || abs(childId) == 13 ){
+	  if( std::abs(childId) == 11 || std::abs(childId) == 13 ){
 	    lepton = true;
 	    LvectorLep = p;
 
@@ -115,7 +115,7 @@ TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	  }
 	  
-	  if( abs(childId) == 211 ){ // pi+,rho+
+	  if( std::abs(childId) == 211 ){ // pi+,rho+
 	    if(p.P() > leadingTrack.P()) leadingTrack = p;
 	  }
 	  
