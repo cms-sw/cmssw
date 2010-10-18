@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
 
 '''
 
@@ -64,12 +65,14 @@ _combinatoricTauConfig = cms.PSet(
     name = cms.string("combinatoric"),
     plugin = cms.string("RecoTauBuilderCombinatoricPlugin"),
     pfCandSrc = cms.InputTag("particleFlow"),
+    qualityCuts = PFTauQualityCuts.signalQualityCuts,
+    primaryVertexSrc = cms.InputTag("offlinePrimaryVertices"),
     decayModes = cms.VPSet(
         combinatoricDecayModeConfigs.config1prong0pi0,
         combinatoricDecayModeConfigs.config1prong1pi0,
         combinatoricDecayModeConfigs.config1prong2pi0,
         combinatoricDecayModeConfigs.config3prong0pi0,
-        combinatoricDecayModeConfigs.config3prong1pi0,
+        #combinatoricDecayModeConfigs.config3prong1pi0,
     )
 )
 

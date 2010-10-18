@@ -29,7 +29,7 @@ class PFJet;
 class RecoTauPiZero;
 namespace tau {
 
-class RecoTauPiZeroBuilderPlugin : public RecoTauNamedPlugin {
+class RecoTauPiZeroBuilderPlugin : public RecoTauEventHolderPlugin {
   public:
     // Return a vector of pointers
     typedef boost::ptr_vector<RecoTauPiZero> PiZeroVector;
@@ -37,10 +37,12 @@ class RecoTauPiZeroBuilderPlugin : public RecoTauNamedPlugin {
     // allows us to safely release the ptr_vector in the virtual function
     typedef std::auto_ptr<PiZeroVector> return_type;
     explicit RecoTauPiZeroBuilderPlugin(const edm::ParameterSet& pset):
-        RecoTauNamedPlugin(pset) {}
+        RecoTauEventHolderPlugin(pset) {}
     virtual ~RecoTauPiZeroBuilderPlugin() {}
     /// Build a collection of piZeros from objects in the input jet
     virtual return_type operator()(const PFJet&) const = 0;
+    /// Hook called at the beginning of the event.
+    virtual void beginEvent() {};
 };
 
 class RecoTauPiZeroQualityPlugin : public RecoTauNamedPlugin {

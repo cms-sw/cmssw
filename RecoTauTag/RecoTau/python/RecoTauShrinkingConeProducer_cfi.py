@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
 
 '''
 
@@ -10,6 +11,8 @@ See PFT-08-001 for a description of the algorithm.
 
 _shrinkingConeRecoTausConfig = cms.PSet(
     name = cms.string("shrinkingCone"),
+    primaryVertexSrc = cms.InputTag("offlinePrimaryVertices"),
+    qualityCuts = PFTauQualityCuts.signalQualityCuts,
     pfCandSrc = cms.InputTag("particleFlow"),
     plugin = cms.string("RecoTauBuilderConePlugin"),
     leadObjectPt = cms.double(5.0),
@@ -30,6 +33,17 @@ shrinkingConeRecoTaus = cms.EDProducer(
         _shrinkingConeRecoTausConfig
     ),
     modifiers = cms.VPSet(
+        cms.PSet(
+            name = cms.string('twoprong'),
+            plugin = cms.string("RecoTauTwoProngFilter"),
+            minPtFractionForSecondProng = cms.double(0.1),  
+        ),
+        cms.PSet(
+            name = cms.string('filterphotons'),
+            plugin = cms.string("RecoTauPhotonFilter"),
+            minPtFractionSinglePhotons  = cms.double(0.10), 
+            minPtFractionPiZeroes       = cms.double(0.15), 
+        ),
         # Electron rejection
         cms.PSet(
             name = cms.string("shrinkingConeElectronRej"),
