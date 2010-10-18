@@ -217,17 +217,21 @@ if __name__ == '__main__':
             if len(allfillsFromDB)==0:
                 print 'no fill found in DB, exit'
                 sys.exit(-1)
-            allfillsFromDB.sort()
+            if len(allfillsFromDB)!=0:
+                allfillsFromDB.sort()
             if len(allfillsFromFile) != 0:
                 allfillsFromFile.sort()
+            print 'allfillsFromFile ',allfillsFromFile
             if max(allfillsFromDB)>max(allfillsFromFile) : #need not to be one to one match because data can be deleted in DB
-                print 'found new fill'
+                print 'found new fill '
                 for fill in allfillsFromDB:
                     if fill>max(allfillsFromFile):
                         fillstoprocess.append(fill)
+            else:
+                print 'no new fill' 
+                fillstoprocess+=allfillsFromFile[-1]
             #if len(allfillsFromFile)>5: #reprocess anyway old fills
             #    fillstoprocess+=allfillsFromFile[-5:]
-            fillstoprocess+=allfillsFromFile[-1]
         else:
             fillstoprocess=allfillsFromDB #process everything from scratch
     #print 'fillstoprocess ',fillstoprocess
