@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2009/12/01 17:33:06 $
- ** $Revision: 1.22 $
+ ** $Date: 2010/01/13 16:35:14 $
+ ** $Revision: 1.23 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
@@ -205,8 +205,8 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
 
 	if ( deltaPhi > pi )  deltaPhi -= twopi;
 	if ( deltaPhi < -pi) deltaPhi += twopi;
-	deltaPhi=pow(deltaPhi,2);
-	deltaEta=pow(deltaEta,2);
+	deltaPhi=std::pow(deltaPhi,2);
+	deltaEta=std::pow(deltaEta,2);
 	float delta = sqrt( deltaPhi+deltaEta);
 	if ( delta<0.1 && delta < minDelta ) {
 	  minDelta=delta;

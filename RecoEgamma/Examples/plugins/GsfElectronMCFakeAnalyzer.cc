@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCFakeAnalyzer.cc,v 1.5 2009/12/14 23:22:32 chamont Exp $
+// $Id: GsfElectronMCFakeAnalyzer.cc,v 1.6 2010/09/21 17:06:15 chamont Exp $
 //
 //
 
@@ -1320,7 +1320,7 @@ GsfElectronMCFakeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
         double dphi = gsfIter->phi()-moIter->phi();
         if (std::abs(dphi)>CLHEP::pi)
          dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
-	double deltaR = sqrt(pow((gsfIter->eta()-moIter->eta()),2) + pow(dphi,2));
+	double deltaR = sqrt(std::pow((gsfIter->eta()-moIter->eta()),2) + std::pow(dphi,2));
 	if ( deltaR < deltaR_ ){
 	//if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
 	//(gsfIter->charge() > 0.) ){

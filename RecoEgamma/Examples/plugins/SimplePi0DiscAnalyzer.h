@@ -10,7 +10,7 @@
 // Original Author:  A. Kyriakis NCSR "Demokritos" Athens
 //                    D Maletic, "Vinca" Belgrade
 //         Created:   Mar 27 13:22:06 CEST 2009
-// $Id: SimplePi0DiscAnalyzer.h,v 1.6 2009/03/06 12:42:16 chamont Exp $
+// $Id: SimplePi0DiscAnalyzer.h,v 1.1 2009/05/26 10:46:01 akyriaki Exp $
 //
 //
 
@@ -41,10 +41,6 @@ class TH1I;
 class TProfile;
 class TTree;
 
-using namespace std;
-using namespace reco;
-using namespace edm;
-
 class SimplePi0DiscAnalyzer : public edm::EDAnalyzer
 {
  public:
@@ -61,10 +57,10 @@ class SimplePi0DiscAnalyzer : public edm::EDAnalyzer
 
      // ----------member data ---------------------------
 
-     string photonCollectionProducer_;
-     string photonCollection_;
+     std::string photonCollectionProducer_;
+     std::string photonCollection_;
 
-     string outputFile_;
+     std::string outputFile_;
      TFile*  rootFile_;
 
      TH1F* hConv_ntracks_;

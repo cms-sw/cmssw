@@ -256,8 +256,8 @@ void SimpleConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::Eve
 
       if ( deltaPhi > Geom::pi()  ) deltaPhi -= Geom::twoPi();
       if ( deltaPhi < -Geom::pi() ) deltaPhi += Geom::twoPi();
-      deltaPhi=pow(deltaPhi,2);
-      deltaEta=pow(deltaEta,2);
+      deltaPhi=std::pow(deltaPhi,2);
+      deltaEta=std::pow(deltaEta,2);
       float delta =  deltaPhi+deltaEta ;
       if (  delta >= etaPhiDistance  )  REJECTED=true;
 

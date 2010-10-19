@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: DQMAnalyzer.cc,v 1.3 2009/12/01 16:30:42 chamont Exp $
+// $Id: DQMAnalyzer.cc,v 1.4 2010/02/26 18:47:24 wdd Exp $
 //
 //
 
@@ -881,7 +881,7 @@ DQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           double dphi = gsfIter->phi()-moIter->phi() ;
           if (fabs(dphi)>CLHEP::pi)
            { dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi ; }
-          double deltaR = sqrt(pow((moIter->eta()-gsfIter->eta()),2) + pow(dphi,2)) ;
+          double deltaR = sqrt(std::pow((moIter->eta()-gsfIter->eta()),2) + std::pow(dphi,2)) ;
           if ( deltaR < deltaR_ )
            {
             //if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&

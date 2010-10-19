@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.48 2010/01/06 16:37:32 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.49 2010/09/21 17:06:15 chamont Exp $
 //
 //
 
@@ -1851,7 +1851,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         double dphi = gsfIter->phi()-mcIter->phi();
         if (std::abs(dphi)>CLHEP::pi)
          dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
-    	double deltaR = sqrt(pow((gsfIter->eta()-mcIter->eta()),2) + pow(dphi,2));
+    	double deltaR = sqrt(std::pow((gsfIter->eta()-mcIter->eta()),2) + std::pow(dphi,2));
 	if ( deltaR < deltaR_ ){
 	  double mc_charge = mcIter->pdgId() == 11 ? -1. : 1. ;
 	  h_ele_ChargeMnChargeTrue  -> Fill( std::abs(gsfIter->charge()-mc_charge));
@@ -1939,7 +1939,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         double dphi = gsfIter->phi()-mcIter->phi();
         if (std::abs(dphi)>CLHEP::pi)
          dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
-    	double deltaR = sqrt(pow((gsfIter->eta()-mcIter->eta()),2) + pow(dphi,2));
+    	double deltaR = sqrt(std::pow((gsfIter->eta()-mcIter->eta()),2) + std::pow(dphi,2));
 	if ( deltaR < deltaR_ ){
 	  if ( ( (mcIter->pdgId() == 11) && (gsfIter->charge() < 0.) ) ||
 	       ( (mcIter->pdgId() == -11) && (gsfIter->charge() > 0.) ) )

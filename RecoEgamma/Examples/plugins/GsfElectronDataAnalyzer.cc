@@ -14,7 +14,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.cc,v 1.37 2010/02/26 19:15:16 wdd Exp $
+// $Id: GsfElectronDataAnalyzer.cc,v 1.38 2010/09/21 17:06:15 chamont Exp $
 //
 //
 
@@ -1407,7 +1407,7 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	double dphi = gsfIter->phi()-moIter->phi();
         if (std::abs(dphi)>CLHEP::pi)
          dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
-    	double deltaR = sqrt(pow((moIter->eta()-gsfIter->eta()),2) + pow(dphi,2));
+    	double deltaR = sqrt(std::pow((moIter->eta()-gsfIter->eta()),2) + std::pow(dphi,2));
 	if ( deltaR < deltaR_ ){
 	//if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
 	//(gsfIter->charge() > 0.) ){

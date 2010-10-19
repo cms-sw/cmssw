@@ -547,7 +547,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
         double dphi = phi-pAssSim.phi();
         if (std::abs(dphi)>CLHEP::pi)
          dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
-	double deltaR = sqrt(pow((eta-pAssSim.eta()),2) + pow(dphi,2));
+	double deltaR = sqrt(std::pow((eta-pAssSim.eta()),2) + std::pow(dphi,2));
 	if ( deltaR < 0.15 ){
 //	if ( deltaR < 0.3 ){
 	//if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
@@ -595,7 +595,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
         double dphi = phi-pAssSim.phi();
         if (std::abs(dphi)>CLHEP::pi)
          dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
-	double deltaR = sqrt(pow((eta-pAssSim.eta()),2) + pow(dphi,2));
+	double deltaR = sqrt(std::pow((eta-pAssSim.eta()),2) + std::pow(dphi,2));
 	if (gsfIter->isEcalDriven()) {
 	if ( deltaR < 0.15 ){
 //	if ( deltaR < 0.3 ){
@@ -638,7 +638,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
         double dphi = phi-pAssSim.phi();
         if (std::abs(dphi)>CLHEP::pi)
          dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
-	double deltaR = sqrt(pow((eta-pAssSim.eta()),2) + pow(dphi,2));
+	double deltaR = sqrt(std::pow((eta-pAssSim.eta()),2) + std::pow(dphi,2));
 	if (gsfIter->isTrackerDriven()) {
 	if ( deltaR < 0.15 ){
 //	if ( deltaR < 0.3 ){

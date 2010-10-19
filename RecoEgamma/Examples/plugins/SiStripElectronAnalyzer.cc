@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:49:38 EDT 2006
-// $Id: SiStripElectronAnalyzer.cc,v 1.11 2009/03/26 11:02:31 charlot Exp $
+// $Id: SiStripElectronAnalyzer.cc,v 1.12 2010/09/21 17:06:15 chamont Exp $
 //
 
 // system include files
@@ -426,7 +426,7 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     phi2bar= phi2bar /eTotSuperCluster ;
     double phiWidth = phi2bar - phibar*phibar ;
     if(phiWidth>0.) {
-      phiWidth = pow(phiWidth,0.5);
+      phiWidth = std::pow(phiWidth,0.5);
     }else{
       phiWidth =0.;
     }
@@ -537,7 +537,7 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     phi2bar=phi2bar/eTotSuperCluster ;
     double phiWidth = phi2bar - phibar*phibar ;
     if(phiWidth>0.) {
-      phiWidth = pow(phiWidth,0.5);
+      phiWidth = std::pow(phiWidth,0.5);
     }else{
       phiWidth =0.;
     }
