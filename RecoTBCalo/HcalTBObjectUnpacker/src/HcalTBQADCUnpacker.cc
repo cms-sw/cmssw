@@ -69,7 +69,7 @@ struct ClassicQADCDataFormat {
   };
 
 // Sets the pedestal and gain
-void HcalTBQADCUnpacker::setCalib(const vector<vector<string> >& calibLines_) {
+void HcalTBQADCUnpacker::setCalib(const std::vector<std::vector<std::string> >& calibLines_) {
 // The default pedestal and gain
 	for(int i=0;i<N_QADCS_ALLOWED*32;i++)
 	 {
