@@ -36,6 +36,10 @@ TkBfield::TkBfield(std::string fld) {
 }
 
 namespace {
+
+  template<typename T>
+  inline void ffunkti(T u, T * __restrict__ ff) __attribute__((always_inline)) __attribute__ ((pure));
+ 
   template<typename T>
   inline void ffunkti(T u, T * __restrict__ ff) {
     // Function and its 3 derivatives
