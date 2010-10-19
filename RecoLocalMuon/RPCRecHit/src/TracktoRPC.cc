@@ -61,13 +61,13 @@ int distsector2(int sector1,int sector2){
   if(sector2==13) sector2=4;
   if(sector2==14) sector2=10;
   
-  int distance = abs(sector1 - sector2);
+  int distance = std::abs(sector1 - sector2);
   if(distance>6) distance = 12-distance;
   return distance;
 }
 
 int distwheel2(int wheel1,int wheel2){
-  int distance = abs(wheel1 - wheel2);
+  int distance = std::abs(wheel1 - wheel2);
   return distance;
 }
 ObjectMap2CSC* ObjectMap2CSC::mapInstance = NULL;
@@ -173,7 +173,7 @@ double MaxD=999.;
 for (TrackCollection::const_iterator track = alltracks->begin(); track !=alltracks->end(); track++)
 {
  Trajectories trajectories = theTrackTransformer->transform(*track);
- if(debug) cout << "Building Trajectory from Track. " << endl;
+ if(debug) std::cout << "Building Trajectory from Track. " << std::endl;
 
  std::vector<uint32_t> rpcrolls;
  std::vector<uint32_t> rpcrolls2; 
@@ -186,10 +186,10 @@ for (TrackCollection::const_iterator track = alltracks->begin(); track !=alltrac
  if(tInY > tOuY) { float temp=tOuY; tOuY=tInY; tInY=temp; }
  if(tInZ > tOuZ) { float temp=tOuZ; tOuZ=tInZ; tInZ=temp; }
 
- if(debug) cout << "in (x,y,z): ("<< tInX <<", "<< tInY <<", "<< tInZ << ")" << endl;
- if(debug) cout << "out (x,y,z): ("<< tOuX <<", "<< tOuY <<", "<< tOuZ << ")" << endl;
+ if(debug) std::cout << "in (x,y,z): ("<< tInX <<", "<< tInY <<", "<< tInZ << ")" << std::endl;
+ if(debug) std::cout << "out (x,y,z): ("<< tOuX <<", "<< tOuY <<", "<< tOuZ << ")" << std::endl;
 
-if(debug) cout << "1. Search expeted RPC roll detid !!" << endl;
+if(debug) std::cout << "1. Search expeted RPC roll detid !!" << std::endl;
 for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(); hit++)
  {
     if((*hit)->isValid())
@@ -230,14 +230,14 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
                     {
                       rpcrollCounter[rollasociated->id().rawId()]++;
                       bool check = true;
-                      vector<uint32_t>::iterator rpcroll;
+                      std::vector<uint32_t>::iterator rpcroll;
                       for( rpcroll=rpcrolls.begin() ; rpcroll < rpcrolls.end(); rpcroll++ )
                       if(rollasociated->id().rawId()== *rpcroll) check=false; 
                       if(check==true)
                       {
                         rpcrolls.push_back(rollasociated->id().rawId());
                         RPCGeomServ servId(rollasociated->id().rawId());
-                        if(debug) cout << "1\t Barrel RPC roll" << rollasociated->id().rawId() << " "<< servId.name().c_str() <<endl;
+                        if(debug) std::cout << "1\t Barrel RPC roll" << rollasociated->id().rawId() << " "<< servId.name().c_str() <<std::endl;
                       }
                     }
 	      	}                                 
@@ -282,24 +282,24 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
                     {
                       rpcrollCounter[rollasociated->id().rawId()]++;
                       bool check = true;
-                      vector<uint32_t>::iterator rpcroll;
+                      std::vector<uint32_t>::iterator rpcroll;
                       for( rpcroll=rpcrolls.begin() ; rpcroll < rpcrolls.end(); rpcroll++ )
                       if(rollasociated->id().rawId()==*rpcroll) check=false; 
                       if(check==true)
                       {
                         rpcrolls.push_back(rollasociated->id().rawId());
                         RPCGeomServ servId(rollasociated->id().rawId());
-                        if(debug) cout << "1\t Forward RPC roll" << rollasociated->id().rawId() << " "<< servId.name().c_str() <<endl;
+                        if(debug) std::cout << "1\t Forward RPC roll" << rollasociated->id().rawId() << " "<< servId.name().c_str() <<std::endl;
                       }
                     }
 	      	}
              }
           }
-       } else { if(debug) cout << "1\t The hit is not DT/CSC's.   " << endl;} 
+       } else { if(debug) std::cout << "1\t The hit is not DT/CSC's.   " << std::endl;} 
     }
  }
- if(debug) cout << "First step OK!!\n2. Search nearest DT/CSC sufrace!!" << endl;
- vector<uint32_t>::iterator rpcroll;
+ if(debug) std::cout << "First step OK!!\n2. Search nearest DT/CSC sufrace!!" << std::endl;
+ std::vector<uint32_t>::iterator rpcroll;
  for( rpcroll=rpcrolls.begin() ; rpcroll < rpcrolls.end(); rpcroll++ )
  {
     RPCDetId rpcid(*rpcroll);
@@ -335,7 +335,7 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
                {
                    dtcscid=geomDet->geographicalId().rawId();
                    distance = distanceN;
-                   if(debug) cout << "2\t DT "<< dtcscid << " Wheel : " << Wh << " station : " << St << " sector : " << Se << endl; 
+                   if(debug) std::cout << "2\t DT "<< dtcscid << " Wheel : " << Wh << " station : " << St << " sector : " << Se << std::endl; 
                }
             }
             else if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::CSC)
@@ -354,7 +354,7 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
                {
                    dtcscid=geomDet->geographicalId().rawId();
                    distance = distanceN;
-                   if(debug) cout << "2\t CSC " <<dtcscid <<" region : " << En << " station : " << St << " Ring : " << Ri << " chamber : " << Ch <<endl;
+                   if(debug) std::cout << "2\t CSC " <<dtcscid <<" region : " << En << " station : " << St << " Ring : " << Ri << " chamber : " << Ch <<std::endl;
                }
             } 
          }
@@ -365,13 +365,13 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
        rpcNdtcsc[*rpcroll] = dtcscid;
     }
  } 
- if(debug) cout << "Second step OK!! \n3. Propagate to RPC from DT/CSC!!" << endl;  
+ if(debug) std::cout << "Second step OK!! \n3. Propagate to RPC from DT/CSC!!" << std::endl;  
  //std::map<uint32_t, int> rpcput;
- vector<uint32_t>::iterator rpcroll2;
+ std::vector<uint32_t>::iterator rpcroll2;
  for( rpcroll2=rpcrolls2.begin() ; rpcroll2 < rpcrolls2.end(); rpcroll2++ )
  {
     bool check = true;
-    vector<uint32_t>::iterator rpcput_;
+    std::vector<uint32_t>::iterator rpcput_;
     for( rpcput_=rpcput.begin() ; rpcput_ < rpcput.end(); rpcput_++ )
     if(*rpcroll2==*rpcput_) check = false;
 
@@ -420,8 +420,8 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
                       RPCRecHit RPCPoint(*rpcroll2,0,LocalPoint(locx,locy,locz));
 
                       RPCGeomServ servId(*rpcroll2);
-                      if(debug) cout << "3\t Barrel Expected RPC " << servId.name().c_str() <<
-                        " \tLocalposition X: " << locx << ", Y: "<< locy << " GlobalPosition(x,y,z) (" << rpcGPX <<", "<< rpcGPY <<", " << rpcGPZ << ")"<< endl;        
+                      if(debug) std::cout << "3\t Barrel Expected RPC " << servId.name().c_str() <<
+                        " \tLocalposition X: " << locx << ", Y: "<< locy << " GlobalPosition(x,y,z) (" << rpcGPX <<", "<< rpcGPY <<", " << rpcGPZ << ")"<< std::endl;        
                       RPCPointVector.clear();
                       RPCPointVector.push_back(RPCPoint);
                       _ThePoints->put(*rpcroll2,RPCPointVector.begin(),RPCPointVector.end());
@@ -473,8 +473,8 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
                    {
                       RPCRecHit RPCPoint(*rpcroll2,0,LocalPoint(locx,locy,locz));
                       RPCGeomServ servId(*rpcroll2);
-                      if(debug) cout << "3\t Forward Expected RPC " << servId.name().c_str() <<
-                        " \tLocalposition X: " << locx << ", Y: "<< locy << " GlobalPosition(x,y,z) (" << rpcGPX <<", "<< rpcGPY <<", " << rpcGPZ << ")"<< endl;
+                      if(debug) std::cout << "3\t Forward Expected RPC " << servId.name().c_str() <<
+                        " \tLocalposition X: " << locx << ", Y: "<< locy << " GlobalPosition(x,y,z) (" << rpcGPX <<", "<< rpcGPY <<", " << rpcGPZ << ")"<< std::endl;
                       RPCPointVector.clear();
                       RPCPointVector.push_back(RPCPoint);
                       _ThePoints->put(*rpcroll2,RPCPointVector.begin(),RPCPointVector.end());
@@ -487,7 +487,7 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
         }
     }
  }
- if(debug) cout << "last steps OK!! " << endl; 
+ if(debug) std::cout << "last steps OK!! " << std::endl; 
 }
 }
 

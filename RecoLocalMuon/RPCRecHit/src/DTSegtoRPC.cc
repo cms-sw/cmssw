@@ -57,13 +57,13 @@ int distsector(int sector1,int sector2){
   if(sector2==13) sector2=4;
   if(sector2==14) sector2=10;
   
-  int distance = abs(sector1 - sector2);
+  int distance = std::abs(sector1 - sector2);
   if(distance>6) distance = 12-distance;
   return distance;
 }
 
 int distwheel(int wheel1,int wheel2){
-  int distance = abs(wheel1 - wheel2);
+  int distance = std::abs(wheel1 - wheel2);
   return distance;
 }
 

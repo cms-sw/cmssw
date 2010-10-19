@@ -4,8 +4,8 @@
 /** \class RPCRecHitProducer
  *  Module for RPCRecHit production. 
  *  
- *  $Date: 2008/12/04 16:13:52 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/02/20 21:01:00 $
+ *  $Revision: 1.5 $
  *  \author M. Maggim -- INFN Bari
  */
 
@@ -61,7 +61,7 @@ private:
 
   // The reconstruction algorithm
   RPCRecHitBaseAlgo *theAlgo;
-//   static string theAlgoName;
+//   static std::string theAlgoName;
 
   RPCMaskedStrips* RPCMaskedStripsObj;
   // Object with mask-strips-vector for all the RPC Detectors
