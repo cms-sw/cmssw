@@ -158,8 +158,9 @@ def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=N
     return result           
 
 def main():
+    allowedscales=['linear','log','both']
     c=constants()
-    parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Plot integrated luminosity as function of the time variable of choice")
+    parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Plot integrated luminosity as function of the time variable of choice",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     # add required arguments
     parser.add_argument('-c',dest='connect',action='store',required=True,help='connect string to lumiDB')
     # add optional arguments
@@ -167,12 +168,13 @@ def main():
     parser.add_argument('-n',dest='normfactor',action='store',help='normalization factor (optional, default to 1.0)')
     parser.add_argument('-i',dest='inputfile',action='store',help='lumi range selection file (optional)')
     parser.add_argument('-o',dest='outputfile',action='store',help='csv outputfile name (optional)')
-    parser.add_argument('-lumiversion',dest='lumiversion',action='store',help='lumi data version, optional for all, default 0001')
+    parser.add_argument('-lumiversion',dest='lumiversion',default='0001',action='store',required=False,help='lumi data version')
     parser.add_argument('-begin',dest='begin',action='store',help='begin value of x-axi (required)')
     parser.add_argument('-end',dest='end',action='store',help='end value of x-axi (optional). Default to the maximum exists DB')
     parser.add_argument('-beamenergy',dest='beamenergy',action='store',type=float,required=False,help='beamenergy (in GeV) selection criteria,e.g. 3.5e3')
     parser.add_argument('-beamfluctuation',dest='beamfluctuation',action='store',type=float,required=False,help='allowed fraction of beamenergy to fluctuate, e.g. 0.1')
     parser.add_argument('-beamstatus',dest='beamstatus',action='store',required=False,help='selection criteria beam status,e.g. STABLE BEAMS')
+    parser.add_argument('-yscale',dest='yscale',action='store',required=False,default='linear',help='y_scale')
     parser.add_argument('-hltpath',dest='hltpath',action='store',help='specific hltpath to calculate the recorded luminosity. If specified aoverlays the recorded luminosity for the hltpath on the plot')
     parser.add_argument('-batch',dest='batch',action='store',help='graphical mode to produce PNG file. Specify graphical file here. Default to lumiSum.png')
     parser.add_argument('--annotateboundary',dest='annotateboundary',action='store_true',help='annotate boundary run numbers')
@@ -323,9 +325,13 @@ def main():
         exit
     runList.sort()
     #print 'runList ',runList
-    #print 'runDict ', runDict               
+    #print 'runDict ', runDict
+    
     fig=Figure(figsize=(8,6),dpi=100)
     m=matplotRender.matplotRender(fig)
+    
+    logfig=Figure(figsize=(8,6),dpi=100)
+    mlog=matplotRender.matplotRender(logfig)
     
     if args.action == 'run':
         result={}        
@@ -348,7 +354,8 @@ def main():
             ydata['Recorded'].append(recorded)
             if args.outputfile and (delivered!=0 or recorded!=0):
                 reporter.writeRow([run,result[run][0],result[run][1]])                
-        m.plotSumX_Run(xdata,ydata)
+        m.plotSumX_Run(xdata,ydata,yscale='linear')
+        mlog.plotSumX_Run(xdata,ydata,yscale='log')
     elif args.action == 'fill':        
         lumiDict={}
         lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation)
@@ -374,7 +381,8 @@ def main():
                 if args.outputfile :
                     reporter.writeRow([fill,run,lumiDict[run][0],lumiDict[run][1]])   
         #print 'input fillDict ',len(fillDict.keys()),fillDict
-        m.plotSumX_Fill(xdata,ydata,fillDict)
+        m.plotSumX_Fill(xdata,ydata,fillDict,yscale='linear')
+        mlog.plotSumX_Fill(xdata,ydata,fillDict,yscale='log')
     elif args.action == 'time' : 
         lumiDict={}
         lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation)
@@ -397,7 +405,8 @@ def main():
             xdata[run]=[starttime,stoptime]
             if args.outputfile :
                 reporter.writeRow([run,starttime,stoptime,lumiDict[run][0],lumiDict[run][1]])
-        m.plotSumX_Time(xdata,ydata,minTime,maxTime,hltpath=hltpath,annotateBoundaryRunnum=args.annotateboundary)
+        m.plotSumX_Time(xdata,ydata,minTime,maxTime,hltpath=hltpath,annotateBoundaryRunnum=args.annotateboundary,yscale='linear')
+        mlog.plotSumX_Time(xdata,ydata,minTime,maxTime,hltpath=hltpath,annotateBoundaryRunnum=args.annotateboundary,yscale='log')
     elif args.action == 'perday':
         daydict={}#{day:[[run,cmslsnum,lsstarttime,delivered,recorded]]}
         #print 'input selectionDict ',selectionDict
@@ -438,16 +447,32 @@ def main():
         #print 'beginfo ',beginfo
         #print 'endinfo ',endinfo
         #print resultbyday
-        m.plotPerdayX_Time(days,resultbyday,minTime,maxTime,boundaryInfo=[beginfo,endinfo],annotateBoundaryRunnum=args.annotateboundary)
+        m.plotPerdayX_Time(days,resultbyday,minTime,maxTime,boundaryInfo=[beginfo,endinfo],annotateBoundaryRunnum=args.annotateboundary,yscale='linear')
+        mlog.plotPerdayX_Time(days,resultbyday,minTime,maxTime,boundaryInfo=[beginfo,endinfo],annotateBoundaryRunnum=args.annotateboundary,yscale='log')
     else:
         raise Exception,'must specify the type of x-axi'
 
     del session
     del svc
-    if args.batch:
+
+    if args.batch and args.yscale=='linear':
         m.drawPNG(args.batch)
-    if args.interactive:
+    elif args.batch and args.yscale=='log':
+        mlog.drawPNG(args.batch)
+    elif args.batch and args.yscale=='both':
+        m.drawPNG(args.batch)
+        basename,extension=os.path.splitext(args.batch)
+        logfilename=basename+'_log'+extension        
+        mlog.drawPNG(logfilename)
+    else:
+        raise Exception('unsupported yscale for batch mode : '+args.yscale)
+    if not args.interactive:
+        return
+    if args.interactive is True and args.yscale=='linear':
         m.drawInteractive()
-    
+    elif args.interactive is True and args.yscale=='log':
+        mlog.drawInteractive()
+    else:
+        raise Exception('unsupported yscale for interactive mode : '+args.yscale)
 if __name__=='__main__':
     main()
