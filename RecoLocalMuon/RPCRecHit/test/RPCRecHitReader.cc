@@ -142,7 +142,7 @@ void RPCRecHitReader::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
     }
 
     float radius = 413.675;
-    float crd = sqrt(pow((cntr10.x()-cntr11.x()),2)+pow((cntr10.y()-cntr11.y()),2));
+    float crd = sqrt(std::pow((cntr10.x()-cntr11.x()),2)+std::pow((cntr10.y()-cntr11.y()),2));
     _phi = 2*asin(crd/(2*radius));
   }
 
