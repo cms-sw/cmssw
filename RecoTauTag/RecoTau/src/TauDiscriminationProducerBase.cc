@@ -1,5 +1,7 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 
+using namespace reco;
+
 // default constructor; must not be called
 template<class TauType, class TauDiscriminator>
 TauDiscriminationProducerBase<TauType, TauDiscriminator>::TauDiscriminationProducerBase()
@@ -10,17 +12,17 @@ TauDiscriminationProducerBase<TauType, TauDiscriminator>::TauDiscriminationProdu
 
 //--- standard constructor from PSet
 template<class TauType, class TauDiscriminator>
-TauDiscriminationProducerBase<TauType, TauDiscriminator>::TauDiscriminationProducerBase(const ParameterSet& iConfig)
+TauDiscriminationProducerBase<TauType, TauDiscriminator>::TauDiscriminationProducerBase(const edm::ParameterSet& iConfig)
 {   
    // tau collection to discriminate
-   TauProducer_        = iConfig.getParameter<InputTag>(getProducerString<TauType>());
+   TauProducer_        = iConfig.getParameter<edm::InputTag>(getProducerString<TauType>());
 
    // prediscriminant operator 
    // require the tau to pass the following prediscriminants
-   const ParameterSet& prediscriminantConfig = iConfig.getParameter<ParameterSet>("Prediscriminants");
+   const edm::ParameterSet& prediscriminantConfig = iConfig.getParameter<edm::ParameterSet>("Prediscriminants");
 
    // determine boolean operator used on the prediscriminants
-   string pdBoolOperator = prediscriminantConfig.getParameter<string>("BooleanOperator");
+   std::string pdBoolOperator = prediscriminantConfig.getParameter<std::string>("BooleanOperator");
    // convert string to lowercase
    transform(pdBoolOperator.begin(), pdBoolOperator.end(), pdBoolOperator.begin(), ::tolower);
 
@@ -38,14 +40,14 @@ TauDiscriminationProducerBase<TauType, TauDiscriminator>::TauDiscriminationProdu
    }
 
    // get the list of prediscriminants
-   vector<string> prediscriminantsNames = prediscriminantConfig.getParameterNamesForType<ParameterSet>();
+   std::vector<std::string> prediscriminantsNames = prediscriminantConfig.getParameterNamesForType<edm::ParameterSet>();
 
-   for( vector<string>::const_iterator iDisc  = prediscriminantsNames.begin();
+   for( std::vector<std::string>::const_iterator iDisc  = prediscriminantsNames.begin();
                                        iDisc != prediscriminantsNames.end(); ++iDisc )
    {
-      const ParameterSet& iPredisc = prediscriminantConfig.getParameter<ParameterSet>(*iDisc);
-      const InputTag& label        = iPredisc.getParameter<InputTag>("Producer");
-      double cut                   = iPredisc.getParameter<double>("cut");
+      const edm::ParameterSet& iPredisc = prediscriminantConfig.getParameter<edm::ParameterSet>(*iDisc);
+      const edm::InputTag& label        = iPredisc.getParameter<edm::InputTag>("Producer");
+      double cut                        = iPredisc.getParameter<double>("cut");
 
       TauDiscInfo thisDiscriminator;
       thisDiscriminator.label = label;
@@ -60,17 +62,17 @@ TauDiscriminationProducerBase<TauType, TauDiscriminator>::TauDiscriminationProdu
 }
 
 template<class TauType, class TauDiscriminator>
-void TauDiscriminationProducerBase<TauType, TauDiscriminator>::produce(Event& event, const EventSetup& eventSetup)
+void TauDiscriminationProducerBase<TauType, TauDiscriminator>::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 {
    // setup function - does nothing in base, but can be overridden to retrieve PV or other stuff
    beginEvent(event, eventSetup);
 
    // retrieve the tau collection to discriminate
-   Handle<TauCollection> taus;
+   edm::Handle<TauCollection> taus;
    event.getByLabel(TauProducer_, taus);
 
    // output product
-   auto_ptr<TauDiscriminator> output(new TauDiscriminator(TauRefProd(taus)));
+   std::auto_ptr<TauDiscriminator> output(new TauDiscriminator(TauRefProd(taus)));
 
    size_t nTaus = taus->size();
 
@@ -132,8 +134,8 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator>::produce(Event& ev
 }
 
 // template specialiazation to get the correct (Calo/PF)TauProducer names
-template<> string getProducerString<PFTau>()   { return "PFTauProducer"; }
-template<> string getProducerString<CaloTau>() { return "CaloTauProducer"; }
+template<> std::string getProducerString<PFTau>()   { return "PFTauProducer"; }
+template<> std::string getProducerString<CaloTau>() { return "CaloTauProducer"; }
 
 // compile our desired types and make available to linker
 template class TauDiscriminationProducerBase<PFTau, PFTauDiscriminator>;

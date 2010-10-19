@@ -184,11 +184,11 @@ HPSPFRecoTauAlgorithm::buildOneProngStrip(const reco::PFTauTagInfoRef& tagInfo,c
               //calculate the cone size : For the strip use it as one candidate !
               double tauCone=0.0;
               if(coneMetric_ =="angle")
-                tauCone=max(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),(*hadron)->p4())),
-                            fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip)));
+                tauCone=std::max(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),(*hadron)->p4())),
+                                 fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip)));
               else if(coneMetric_ == "DR")
-                tauCone=max(ROOT::Math::VectorUtil::DeltaR(tau.p4(),(*hadron)->p4()),
-                            ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip));
+                tauCone=std::max(ROOT::Math::VectorUtil::DeltaR(tau.p4(),(*hadron)->p4()),
+                                 ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip));
 
               if(emConstituents.size()>0)
                 for(PFCandidateRefVector::const_iterator j=emConstituents.begin();j!=emConstituents.end();++j)  {
@@ -288,14 +288,14 @@ HPSPFRecoTauAlgorithm::buildOneProngTwoStrips(const reco::PFTauTagInfoRef& tagIn
                   //calculate the cone size from the reconstructed Objects
                   double tauCone=1000.0;
                   if(coneMetric_ =="angle") {
-                    tauCone=max(max(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),(*hadron)->p4())),
-                                    fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip1))),
-                                fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip2)));
+                    tauCone=std::max(std::max(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),(*hadron)->p4())),
+                                              fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip1))),
+                                              fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip2)));
                   }
                   else if(coneMetric_ =="DR") {
-                    tauCone=max(max((ROOT::Math::VectorUtil::DeltaR(tau.p4(),(*hadron)->p4())),
-                                    (ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip1))),
-                                (ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip2)));
+                    tauCone=std::max(std::max((ROOT::Math::VectorUtil::DeltaR(tau.p4(),(*hadron)->p4())),
+                                              (ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip1))),
+                                              (ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip2)));
 
                   }
 
@@ -368,7 +368,7 @@ HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo,con
 
           //check charge Compatibility and lead track
           int charge=h1->charge()+h2->charge()+h3->charge();
-          if(abs(charge)==1 && h1->pt()>leadPionThreshold_)
+          if(std::abs(charge)==1 && h1->pt()>leadPionThreshold_)
             //check the track refs
             if(h1->trackRef()!=h2->trackRef()&&h1->trackRef()!=h3->trackRef()&&h2->trackRef()!=h3->trackRef())
             {
@@ -388,15 +388,15 @@ HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo,con
                   double tauCone = 10000.0;
                   if(coneMetric_=="DR")
                   {
-                    tauCone = max(ROOT::Math::VectorUtil::DeltaR(tau.p4(),h1->p4()),
-                                  max(ROOT::Math::VectorUtil::DeltaR(tau.p4(),h2->p4()),
-                                      ROOT::Math::VectorUtil::DeltaR(tau.p4(),h3->p4())));
+                    tauCone = std::max(ROOT::Math::VectorUtil::DeltaR(tau.p4(),h1->p4()),
+                              std::max(ROOT::Math::VectorUtil::DeltaR(tau.p4(),h2->p4()),
+                                       ROOT::Math::VectorUtil::DeltaR(tau.p4(),h3->p4())));
                   }
                   else if(coneMetric_=="angle")
                   {
-                    tauCone =max(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),h1->p4())),
-                                 max(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),h2->p4())),
-                                     fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),h3->p4()))));
+                    tauCone =std::max(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),h1->p4())),
+                             std::max(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),h2->p4())),
+                                      fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),h3->p4()))));
                   }
 
                   //Set The PFTau
@@ -612,7 +612,7 @@ HPSPFRecoTauAlgorithm::applyElectronRejection(reco::PFTau& tau,double stripEnerg
       tau.setbremsRecoveryEOverPLead(leadCharged->ecalEnergy()/track->p());
       tau.setecalStripSumEOverPLead((leadCharged->ecalEnergy()-stripEnergy)/track->p());
       bool electronDecision;
-      if(abs(leadCharged->pdgId())==11)
+      if(std::abs(leadCharged->pdgId())==11)
         electronDecision=true;
       else
         electronDecision=false;

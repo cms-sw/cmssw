@@ -28,21 +28,17 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
-using namespace std;
-using namespace reco;
-using namespace edm;
-
 class  CaloRecoTauAlgorithm  {
  public:
   CaloRecoTauAlgorithm();  
-  CaloRecoTauAlgorithm(const ParameterSet& iConfig);
+  CaloRecoTauAlgorithm(const edm::ParameterSet& iConfig);
   ~CaloRecoTauAlgorithm(){}
   void setTransientTrackBuilder(const TransientTrackBuilder*);
   void setMagneticField(const MagneticField*);
-  CaloTau buildCaloTau(Event&,const EventSetup&,const CaloTauTagInfoRef&,const Vertex&); 
-  vector<DetId> mySelectedDetId_;
+  reco::CaloTau buildCaloTau(edm::Event&,const edm::EventSetup&,const reco::CaloTauTagInfoRef&,const reco::Vertex&); 
+  std::vector<DetId> mySelectedDetId_;
  private:
-  vector<CaloTowerDetId> getCaloTowerneighbourDetIds(const CaloSubdetectorGeometry*,CaloTowerDetId);
+  std::vector<CaloTowerDetId> getCaloTowerneighbourDetIds(const CaloSubdetectorGeometry*,CaloTowerDetId);
   const TransientTrackBuilder* TransientTrackBuilder_;
   const MagneticField* MagneticField_;
   double LeadTrack_minPt_;
@@ -52,24 +48,24 @@ class  CaloRecoTauAlgorithm  {
   bool UseTrackLeadTrackDZconstraint_;
   double TrackLeadTrack_maxDZ_;
   double ECALRecHit_minEt_;
-  string MatchingConeMetric_;
-  string MatchingConeSizeFormula_;
+  std::string MatchingConeMetric_;
+  std::string MatchingConeSizeFormula_;
   double MatchingConeSize_min_;
   double MatchingConeSize_max_;
-  string TrackerSignalConeMetric_;
-  string TrackerSignalConeSizeFormula_;
+  std::string TrackerSignalConeMetric_;
+  std::string TrackerSignalConeSizeFormula_;
   double TrackerSignalConeSize_min_;
   double TrackerSignalConeSize_max_;
-  string TrackerIsolConeMetric_;
-  string TrackerIsolConeSizeFormula_;
+  std::string TrackerIsolConeMetric_;
+  std::string TrackerIsolConeSizeFormula_;
   double TrackerIsolConeSize_min_;
   double TrackerIsolConeSize_max_;
-  string ECALSignalConeMetric_;
-  string ECALSignalConeSizeFormula_;
+  std::string ECALSignalConeMetric_;
+  std::string ECALSignalConeSizeFormula_;
   double ECALSignalConeSize_min_;
   double ECALSignalConeSize_max_;
-  string ECALIsolConeMetric_;
-  string ECALIsolConeSizeFormula_;
+  std::string ECALIsolConeMetric_;
+  std::string ECALIsolConeSizeFormula_;
   double ECALIsolConeSize_min_;
   double ECALIsolConeSize_max_;
   double AreaMetric_recoElements_maxabsEta_;
@@ -77,7 +73,7 @@ class  CaloRecoTauAlgorithm  {
 
   TFormula myTrackerSignalConeSizeTFormula,myTrackerIsolConeSizeTFormula, myECALSignalConeSizeTFormula, myECALIsolConeSizeTFormula,myMatchingConeSizeTFormula; 
   
-InputTag EBRecHitsLabel_,EERecHitsLabel_,ESRecHitsLabel_; 
+edm::InputTag EBRecHitsLabel_,EERecHitsLabel_,ESRecHitsLabel_; 
 
 };
 #endif 

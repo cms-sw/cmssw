@@ -1,6 +1,8 @@
 #include "RecoTauTag/RecoTau/interface/PFRecoTauTagInfoAlgorithm.h"
 
-PFRecoTauTagInfoAlgorithm::PFRecoTauTagInfoAlgorithm(const ParameterSet& parameters){
+using namespace reco;
+
+PFRecoTauTagInfoAlgorithm::PFRecoTauTagInfoAlgorithm(const edm::ParameterSet& parameters){
   // parameters of the considered charged hadr. PFCandidates, based on their rec. tk properties :
   ChargedHadronsAssociationCone_      = parameters.getParameter<double>("ChargedHadrCand_AssociationCone");
   ChargedHadrCand_tkminPt_            = parameters.getParameter<double>("ChargedHadrCand_tkminPt");

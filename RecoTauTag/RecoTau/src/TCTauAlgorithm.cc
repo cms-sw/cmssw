@@ -10,6 +10,8 @@
 #include "Math/VectorUtil.h"
 using namespace ROOT::Math;
 
+using namespace reco;
+
 TCTauAlgorithm::TCTauAlgorithm(){
 	init();
 }
@@ -45,11 +47,11 @@ void TCTauAlgorithm::inputConfig(const edm::ParameterSet& iConfig){
 	signalCone         = iConfig.getParameter<double>("SignalConeSize");
 	ecalCone	   = iConfig.getParameter<double>("EcalConeSize");
 
-	EcalRecHitsEB_input= iConfig.getParameter<InputTag>("EBRecHitCollection");
-	EcalRecHitsEE_input= iConfig.getParameter<InputTag>("EERecHitCollection");
-	HBHERecHits_input  = iConfig.getParameter<InputTag>("HBHERecHitCollection");
-	HORecHits_input    = iConfig.getParameter<InputTag>("HORecHitCollection");
-	HFRecHits_input    = iConfig.getParameter<InputTag>("HFRecHitCollection");
+	EcalRecHitsEB_input= iConfig.getParameter<edm::InputTag>("EBRecHitCollection");
+	EcalRecHitsEE_input= iConfig.getParameter<edm::InputTag>("EERecHitCollection");
+	HBHERecHits_input  = iConfig.getParameter<edm::InputTag>("HBHERecHitCollection");
+	HORecHits_input    = iConfig.getParameter<edm::InputTag>("HORecHitCollection");
+	HFRecHits_input    = iConfig.getParameter<edm::InputTag>("HFRecHitCollection");
 
 	edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
   	trackAssociatorParameters.loadParameters( pset );
@@ -85,7 +87,7 @@ void TCTauAlgorithm::eventSetup(const edm::Event& iEvent,const edm::EventSetup& 
         transientTrackBuilder = builder.product();
 
         // geometry initialization
-        ESHandle<CaloGeometry> geometry;
+        edm::ESHandle<CaloGeometry> geometry;
         iSetup.get<CaloGeometryRecord>().get(geometry);
 
 
@@ -133,7 +135,7 @@ math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& c
 
 	XYZVector momentum(0,0,0);
 	int prongCounter = 0;
-        RefVector<TrackCollection>::const_iterator iTrack;
+        edm::RefVector<TrackCollection>::const_iterator iTrack;
         for(iTrack = associatedTracks.begin(); iTrack!= associatedTracks.end(); ++iTrack){
 		double DR = ROOT::Math::VectorUtil::DeltaR(leadTk->momentum(),(*iTrack)->momentum());
 		if(DR < signalCone) {
@@ -147,13 +149,13 @@ math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& c
 
 	if(! (ltrackEcalHitPoint.Rho() > 0 && ltrackEcalHitPoint.Rho() < 9999) ) return p4;
 
-        pair<XYZVector,XYZVector> caloClusters = getClusterEnergy(caloJet,ltrackEcalHitPoint,signalCone);
+        std::pair<XYZVector,XYZVector> caloClusters = getClusterEnergy(caloJet,ltrackEcalHitPoint,signalCone);
 	XYZVector EcalCluster = caloClusters.first;
         XYZVector HcalCluster = caloClusters.second;
 
 	double eCaloOverTrack = (EcalCluster.R()+HcalCluster.R()-momentum.R())/momentum.R();
 
-        pair<XYZVector,XYZVector> caloClustersPhoton = getClusterEnergy(caloJet,ltrackEcalHitPoint,ecalCone);
+        std::pair<XYZVector,XYZVector> caloClustersPhoton = getClusterEnergy(caloJet,ltrackEcalHitPoint,ecalCone);
         XYZVector EcalClusterPhoton = caloClustersPhoton.first;
 
 	math::XYZTLorentzVector p4photons(0,0,0,EcalClusterPhoton.R() - EcalCluster.R());
@@ -216,8 +218,8 @@ XYZVector TCTauAlgorithm::trackEcalHitPoint(const TransientTrack& transientTrack
         GlobalPoint ecalHitPosition(0,0,0);
 
         double maxTowerEt = 0;
-	vector<CaloTowerPtr> towers = caloJet.getCaloConstituents();
-        for(vector<CaloTowerPtr>::const_iterator iTower = towers.begin();
+	std::vector<CaloTowerPtr> towers = caloJet.getCaloConstituents();
+        for(std::vector<CaloTowerPtr>::const_iterator iTower = towers.begin();
                                                  iTower!= towers.end(); ++iTower){
                 if((*iTower)->et() > maxTowerEt){
                         maxTowerEt = (*iTower)->et();
@@ -249,17 +251,17 @@ XYZVector TCTauAlgorithm::trackEcalHitPoint(const Track& track){
 	return XYZVector(0,0,0);
 }
 
-pair<XYZVector,XYZVector> TCTauAlgorithm::getClusterEnergy(const CaloJet& caloJet,XYZVector& trackEcalHitPoint,double cone){
+std::pair<XYZVector,XYZVector> TCTauAlgorithm::getClusterEnergy(const CaloJet& caloJet,XYZVector& trackEcalHitPoint,double cone){
 
         XYZVector ecalCluster(0,0,0);
         XYZVector hcalCluster(0,0,0);
 
-        vector<CaloTowerPtr> towers = caloJet.getCaloConstituents();
+        std::vector<CaloTowerPtr> towers = caloJet.getCaloConstituents();
 
-        for(vector<CaloTowerPtr>::const_iterator iTower = towers.begin();
+        for(std::vector<CaloTowerPtr>::const_iterator iTower = towers.begin();
                                                  iTower!= towers.end(); ++iTower){
-                vector<XYZVector> ECALCells;
-                vector<XYZVector> HCALCells;
+                std::vector<XYZVector> ECALCells;
+                std::vector<XYZVector> HCALCells;
 
                 size_t numRecHits = (**iTower).constituentsSize();
 
@@ -336,7 +338,7 @@ pair<XYZVector,XYZVector> TCTauAlgorithm::getClusterEnergy(const CaloJet& caloJe
                         }
                 }
 
-		vector<XYZVector>::const_iterator i;
+		std::vector<XYZVector>::const_iterator i;
                 for(i = ECALCells.begin(); i != ECALCells.end(); ++i) {
 			double DR = ROOT::Math::VectorUtil::DeltaR(trackEcalHitPoint,*i);
                         if( DR < cone ) ecalCluster += *i;
@@ -346,7 +348,7 @@ pair<XYZVector,XYZVector> TCTauAlgorithm::getClusterEnergy(const CaloJet& caloJe
                         if( DR < cone ) hcalCluster += *i;
                 }
 	}
-        return pair<XYZVector,XYZVector> (ecalCluster,hcalCluster);
+        return std::pair<XYZVector,XYZVector> (ecalCluster,hcalCluster);
 }
 
 XYZVector TCTauAlgorithm::getCellMomentum(const CaloCellGeometry* cell,double& energy){

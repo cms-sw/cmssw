@@ -42,11 +42,6 @@
 
 #include "Math/VectorUtil.h"
 
-using namespace ROOT::Math;
-using namespace std;
-using namespace reco;
-using namespace edm;
-
 class TCTauAlgorithm {
     public:
         enum  {TCAlgoUndetermined,
@@ -62,7 +57,7 @@ class TCTauAlgorithm {
         ~TCTauAlgorithm();
 
 	math::XYZTLorentzVector recalculateEnergy(const reco::CaloTau&);
-	math::XYZTLorentzVector recalculateEnergy(const reco::CaloJet&,const TrackRef&,const TrackRefVector&);
+	math::XYZTLorentzVector recalculateEnergy(const reco::CaloJet&,const reco::TrackRef&,const reco::TrackRefVector&);
 
 	void inputConfig(const edm::ParameterSet& iConfig);
 	void eventSetup(const edm::Event&,const edm::EventSetup&);
@@ -82,10 +77,10 @@ class TCTauAlgorithm {
 
         void init();
 
-	XYZVector                 trackEcalHitPoint(const TransientTrack&,const CaloJet&);
-	XYZVector		  trackEcalHitPoint(const Track&);
-	pair<XYZVector,XYZVector> getClusterEnergy(const CaloJet&,XYZVector&,double);
-	XYZVector                 getCellMomentum(const CaloCellGeometry*,double&);
+	math::XYZVector                 trackEcalHitPoint(const reco::TransientTrack&,const reco::CaloJet&);
+	math::XYZVector		  trackEcalHitPoint(const reco::Track&);
+	std::pair<math::XYZVector,math::XYZVector> getClusterEnergy(const reco::CaloJet&,math::XYZVector&,double);
+	math::XYZVector                 getCellMomentum(const CaloCellGeometry*,double&);
 
 
         int all,
@@ -108,11 +103,11 @@ class TCTauAlgorithm {
 		etHcalOverTrackMin,
 		etHcalOverTrackMax;
 
-        InputTag EcalRecHitsEB_input;
-        InputTag EcalRecHitsEE_input;
-        InputTag HBHERecHits_input;
-        InputTag HORecHits_input;
-        InputTag HFRecHits_input;
+        edm::InputTag EcalRecHitsEB_input;
+        edm::InputTag EcalRecHitsEE_input;
+        edm::InputTag HBHERecHits_input;
+        edm::InputTag HORecHits_input;
+        edm::InputTag HFRecHits_input;
 
         const CaloSubdetectorGeometry* EB;
         const CaloSubdetectorGeometry* EE;
@@ -121,12 +116,12 @@ class TCTauAlgorithm {
         const CaloSubdetectorGeometry* HO;
         const CaloSubdetectorGeometry* HF;
 
-        Handle<EBRecHitCollection>   EBRecHits;
-        Handle<EERecHitCollection>   EERecHits;
+        edm::Handle<EBRecHitCollection>   EBRecHits;
+        edm::Handle<EERecHitCollection>   EERecHits;
 
-        Handle<HBHERecHitCollection> HBHERecHits;
-        Handle<HORecHitCollection>   HORecHits;
-        Handle<HFRecHitCollection>   HFRecHits;
+        edm::Handle<HBHERecHitCollection> HBHERecHits;
+        edm::Handle<HORecHitCollection>   HORecHits;
+        edm::Handle<HFRecHitCollection>   HFRecHits;
 };
 #endif
 

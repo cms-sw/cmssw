@@ -18,19 +18,21 @@
 
 #include <string>
 
+using namespace reco;
+
 template<class TauType, class TauDiscriminator>
 class TauDiscriminationAgainstMuon : public TauDiscriminationProducerBase<TauType, TauDiscriminator>
 {
  public:
   // setup framework types for this tautype
-  typedef vector<TauType>    TauCollection; 
-  typedef Ref<TauCollection> TauRef;    
+  typedef std::vector<TauType>    TauCollection; 
+  typedef edm::Ref<TauCollection> TauRef;    
 
-  explicit TauDiscriminationAgainstMuon(const ParameterSet&);
+  explicit TauDiscriminationAgainstMuon(const edm::ParameterSet&);
   ~TauDiscriminationAgainstMuon() {} 
 
   // called at the beginning of every event
-  void beginEvent(const Event&, const EventSetup&);
+  void beginEvent(const edm::Event&, const edm::EventSetup&);
 
   double discriminate(const TauRef&);
 
@@ -50,7 +52,7 @@ class TauDiscriminationAgainstMuon : public TauDiscriminationProducerBase<TauTyp
 };
 
 template<class TauType, class TauDiscriminator>
-TauDiscriminationAgainstMuon<TauType, TauDiscriminator>::TauDiscriminationAgainstMuon(const ParameterSet& cfg)
+TauDiscriminationAgainstMuon<TauType, TauDiscriminator>::TauDiscriminationAgainstMuon(const edm::ParameterSet& cfg)
   : TauDiscriminationProducerBase<TauType, TauDiscriminator>(cfg) 
 {
   //if ( cfg.exists("muonSource") ) muonSource_ = cfg.getParameter<edm::InputTag>("muonSource");
@@ -72,7 +74,7 @@ TauDiscriminationAgainstMuon<TauType, TauDiscriminator>::TauDiscriminationAgains
 }
 
 template<class TauType, class TauDiscriminator>
-void TauDiscriminationAgainstMuon<TauType, TauDiscriminator>::beginEvent(const Event& evt, const EventSetup& evtSetup)
+void TauDiscriminationAgainstMuon<TauType, TauDiscriminator>::beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup)
 {
   evt.getByLabel(muonSource_, muons_);	
 }		

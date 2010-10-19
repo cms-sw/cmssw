@@ -1,7 +1,9 @@
 #include "RecoTauTag/RecoTau/interface/CaloRecoTauTagInfoAlgorithm.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-CaloRecoTauTagInfoAlgorithm::CaloRecoTauTagInfoAlgorithm(const ParameterSet& parameters){
+using namespace reco;
+
+CaloRecoTauTagInfoAlgorithm::CaloRecoTauTagInfoAlgorithm(const edm::ParameterSet& parameters){
   // parameters of the considered rec. Tracks (catched through a JetTracksAssociation object) :
   tkminPt_                            = parameters.getParameter<double>("tkminPt");
   tkminPixelHitsn_                    = parameters.getParameter<int>("tkminPixelHitsn");
@@ -17,15 +19,15 @@ CaloRecoTauTagInfoAlgorithm::CaloRecoTauTagInfoAlgorithm(const ParameterSet& par
     tkQuality_ = reco::TrackBase::qualityByName(parameters.getParameter<std::string>("tkQuality"));
   }
   // parameters of the considered EcalRecHits 
-  BarrelBasicClusters_                = parameters.getParameter<InputTag>("BarrelBasicClustersSource"); 
-  EndcapBasicClusters_                = parameters.getParameter<InputTag>("EndcapBasicClustersSource"); 
+  BarrelBasicClusters_                = parameters.getParameter<edm::InputTag>("BarrelBasicClustersSource"); 
+  EndcapBasicClusters_                = parameters.getParameter<edm::InputTag>("EndcapBasicClustersSource"); 
   // parameters of the considered neutral ECAL BasicClusters
   ECALBasicClustersAroundCaloJet_DRConeSize_      = parameters.getParameter<double>("ECALBasicClustersAroundCaloJet_DRConeSize");
   ECALBasicClusterminE_                           = parameters.getParameter<double>("ECALBasicClusterminE");
   ECALBasicClusterpropagTrack_matchingDRConeSize_ = parameters.getParameter<double>("ECALBasicClusterpropagTrack_matchingDRConeSize");
 }
   
-CaloTauTagInfo CaloRecoTauTagInfoAlgorithm::buildCaloTauTagInfo(Event& theEvent,const EventSetup& theEventSetup,const CaloJetRef& theCaloJet,const TrackRefVector& theTracks,const Vertex& thePV){
+CaloTauTagInfo CaloRecoTauTagInfoAlgorithm::buildCaloTauTagInfo(edm::Event& theEvent,const edm::EventSetup& theEventSetup,const CaloJetRef& theCaloJet,const TrackRefVector& theTracks,const Vertex& thePV){
   CaloTauTagInfo resultExtended;
   resultExtended.setcalojetRef(theCaloJet);
 
@@ -37,12 +39,12 @@ CaloTauTagInfo CaloRecoTauTagInfoAlgorithm::buildCaloTauTagInfo(Event& theEvent,
   
   //resultExtended.setpositionAndEnergyECALRecHits(getPositionAndEnergyEcalRecHits(theEvent,theEventSetup,theCaloJet));
 
-  vector<BasicClusterRef> theNeutralEcalBasicClusters=getNeutralEcalBasicClusters(theEvent,theEventSetup,theCaloJet,theFilteredTracks,ECALBasicClustersAroundCaloJet_DRConeSize_,ECALBasicClusterminE_,ECALBasicClusterpropagTrack_matchingDRConeSize_);
+  std::vector<BasicClusterRef> theNeutralEcalBasicClusters=getNeutralEcalBasicClusters(theEvent,theEventSetup,theCaloJet,theFilteredTracks,ECALBasicClustersAroundCaloJet_DRConeSize_,ECALBasicClusterminE_,ECALBasicClusterpropagTrack_matchingDRConeSize_);
   resultExtended.setneutralECALBasicClusters(theNeutralEcalBasicClusters);
   
   return resultExtended; 
 }
-CaloTauTagInfo CaloRecoTauTagInfoAlgorithm::buildCaloTauTagInfo(Event& theEvent,const EventSetup& theEventSetup,const JetBaseRef& theJet,const TrackRefVector& theTracks,const Vertex& thePV){
+CaloTauTagInfo CaloRecoTauTagInfoAlgorithm::buildCaloTauTagInfo(edm::Event& theEvent,const edm::EventSetup& theEventSetup,const JetBaseRef& theJet,const TrackRefVector& theTracks,const Vertex& thePV){
   CaloTauTagInfo resultExtended;
   resultExtended.setJetRef(theJet);
 
@@ -57,25 +59,25 @@ CaloTauTagInfo CaloRecoTauTagInfoAlgorithm::buildCaloTauTagInfo(Event& theEvent,
   //reco::JPTJetRef const theJPTJetRef = theJet.castTo<reco::JPTJetRef>();
   //reco::CaloJetRef const theCaloJet = (theJPTJetRef->getCaloJetRef()).castTo<reco::CaloJetRef>();
   reco::CaloJetRef const theCaloJet = resultExtended.calojetRef();
-  vector<BasicClusterRef> theNeutralEcalBasicClusters=getNeutralEcalBasicClusters(theEvent,theEventSetup,theCaloJet,theFilteredTracks,ECALBasicClustersAroundCaloJet_DRConeSize_,ECALBasicClusterminE_,ECALBasicClusterpropagTrack_matchingDRConeSize_);
+  std::vector<BasicClusterRef> theNeutralEcalBasicClusters=getNeutralEcalBasicClusters(theEvent,theEventSetup,theCaloJet,theFilteredTracks,ECALBasicClustersAroundCaloJet_DRConeSize_,ECALBasicClusterminE_,ECALBasicClusterpropagTrack_matchingDRConeSize_);
   resultExtended.setneutralECALBasicClusters(theNeutralEcalBasicClusters);
 
   return resultExtended;
 }
 /*
-vector<pair<math::XYZPoint,float> > CaloRecoTauTagInfoAlgorithm::getPositionAndEnergyEcalRecHits(Event& theEvent,const EventSetup& theEventSetup,const CaloJetRef& theCaloJet){
-  vector<pair<math::XYZPoint,float> > thePositionAndEnergyEcalRecHits;
-  vector<CaloTowerPtr> theCaloTowers=theCaloJet->getCaloConstituents();
+std::vector<std::pair<math::XYZPoint,float> > CaloRecoTauTagInfoAlgorithm::getPositionAndEnergyEcalRecHits(edm::Event& theEvent,const edm::EventSetup& theEventSetup,const CaloJetRef& theCaloJet){
+  std::vector<std::pair<math::XYZPoint,float> > thePositionAndEnergyEcalRecHits;
+  std::vector<CaloTowerPtr> theCaloTowers=theCaloJet->getCaloConstituents();
   ESHandle<CaloGeometry> theCaloGeometry;
   theEventSetup.get<CaloGeometryRecord>().get(theCaloGeometry);
   const CaloSubdetectorGeometry* theCaloSubdetectorGeometry;  
-  Handle<EBRecHitCollection> EBRecHits;
-  Handle<EERecHitCollection> EERecHits; 
-  Handle<ESRecHitCollection> ESRecHits; 
+  edm::Handle<EBRecHitCollection> EBRecHits;
+  edm::Handle<EERecHitCollection> EERecHits; 
+  edm::Handle<ESRecHitCollection> ESRecHits; 
   theEvent.getByLabel(EBRecHitsLabel_,EBRecHits);
   theEvent.getByLabel(EERecHitsLabel_,EERecHits);
   theEvent.getByLabel(ESRecHitsLabel_,ESRecHits);
-  for(vector<CaloTowerPtr>::const_iterator i_Tower=theCaloTowers.begin();i_Tower!=theCaloTowers.end();i_Tower++){
+  for(std::vector<CaloTowerPtr>::const_iterator i_Tower=theCaloTowers.begin();i_Tower!=theCaloTowers.end();i_Tower++){
     size_t numRecHits = (**i_Tower).constituentsSize();
     for(size_t j=0;j<numRecHits;j++) {
       DetId RecHitDetID=(**i_Tower).constituent(j);      
@@ -115,12 +117,12 @@ vector<pair<math::XYZPoint,float> > CaloRecoTauTagInfoAlgorithm::getPositionAndE
 }
 */
 
-vector<DetId> CaloRecoTauTagInfoAlgorithm::getVectorDetId(const CaloJetRef& theCaloJet){
-  vector<CaloTowerPtr> theCaloTowers=theCaloJet->getCaloConstituents();
-  vector<DetId> myDetIds;
+std::vector<DetId> CaloRecoTauTagInfoAlgorithm::getVectorDetId(const CaloJetRef& theCaloJet){
+  std::vector<CaloTowerPtr> theCaloTowers=theCaloJet->getCaloConstituents();
+  std::vector<DetId> myDetIds;
   myDetIds.clear();
 
-  for(vector<CaloTowerPtr>::const_iterator i_Tower=theCaloTowers.begin();i_Tower!=theCaloTowers.end();i_Tower++){
+  for(std::vector<CaloTowerPtr>::const_iterator i_Tower=theCaloTowers.begin();i_Tower!=theCaloTowers.end();i_Tower++){
     size_t numRecHits = (**i_Tower).constituentsSize();
     for(size_t j=0;j<numRecHits;j++) {
       DetId RecHitDetID=(**i_Tower).constituent(j);      
@@ -132,9 +134,9 @@ vector<DetId> CaloRecoTauTagInfoAlgorithm::getVectorDetId(const CaloJetRef& theC
 }
 
 
-vector<BasicClusterRef> CaloRecoTauTagInfoAlgorithm::getNeutralEcalBasicClusters(Event& theEvent,const EventSetup& theEventSetup,const CaloJetRef& theCaloJet,const TrackRefVector& theTracks,float theECALBasicClustersAroundCaloJet_DRConeSize,float theECALBasicClusterminE,float theECALBasicClusterpropagTrack_matchingDRConeSize){
-  vector<math::XYZPoint> thepropagTracksECALSurfContactPoints;
-  ESHandle<MagneticField> theMF;
+std::vector<BasicClusterRef> CaloRecoTauTagInfoAlgorithm::getNeutralEcalBasicClusters(edm::Event& theEvent,const edm::EventSetup& theEventSetup,const CaloJetRef& theCaloJet,const TrackRefVector& theTracks,float theECALBasicClustersAroundCaloJet_DRConeSize,float theECALBasicClusterminE,float theECALBasicClusterpropagTrack_matchingDRConeSize){
+  std::vector<math::XYZPoint> thepropagTracksECALSurfContactPoints;
+  edm::ESHandle<MagneticField> theMF;
   theEventSetup.get<IdealMagneticFieldRecord>().get(theMF);
   const MagneticField* theMagField=theMF.product();
   for(TrackRefVector::const_iterator i_Track=theTracks.begin();i_Track!=theTracks.end();i_Track++){
@@ -144,9 +146,9 @@ vector<BasicClusterRef> CaloRecoTauTagInfoAlgorithm::getNeutralEcalBasicClusters
   
   math::XYZPoint aCaloJetFakePosition((*theCaloJet).px(),(*theCaloJet).py(),(*theCaloJet).pz());
     
-  vector<BasicClusterRef> theBasicClusters; 
+  std::vector<BasicClusterRef> theBasicClusters; 
   
-  Handle<BasicClusterCollection> theBarrelBCCollection;
+  edm::Handle<BasicClusterCollection> theBarrelBCCollection;
   //  theEvent.getByLabel("islandBasicClusters","islandBarrelBasicClusters",theBarrelBCCollection);
   theEvent.getByLabel(BarrelBasicClusters_,theBarrelBCCollection);
   for(unsigned int i_BC=0;i_BC!=theBarrelBCCollection->size();i_BC++) { 
@@ -154,7 +156,7 @@ vector<BasicClusterRef> CaloRecoTauTagInfoAlgorithm::getNeutralEcalBasicClusters
     if (theBasicClusterRef.isNull()) continue;  
     if (ROOT::Math::VectorUtil::DeltaR(aCaloJetFakePosition,(*theBasicClusterRef).position())<=theECALBasicClustersAroundCaloJet_DRConeSize && (*theBasicClusterRef).energy()>=theECALBasicClusterminE) theBasicClusters.push_back(theBasicClusterRef);
   }
-  Handle<BasicClusterCollection> theEndcapBCCollection;
+  edm::Handle<BasicClusterCollection> theEndcapBCCollection;
   //  theEvent.getByLabel("islandBasicClusters","islandEndcapBasicClusters",theEndcapBCCollection);
   theEvent.getByLabel(EndcapBasicClusters_,theEndcapBCCollection);
   for(unsigned int j_BC=0;j_BC!=theEndcapBCCollection->size();j_BC++) { 
@@ -163,12 +165,12 @@ vector<BasicClusterRef> CaloRecoTauTagInfoAlgorithm::getNeutralEcalBasicClusters
     if (ROOT::Math::VectorUtil::DeltaR(aCaloJetFakePosition,(*theBasicClusterRef).position())<=theECALBasicClustersAroundCaloJet_DRConeSize && (*theBasicClusterRef).energy()>=theECALBasicClusterminE) theBasicClusters.push_back(theBasicClusterRef);
   }  
   
-  vector<BasicClusterRef> theNeutralBasicClusters=theBasicClusters;  
-  vector<BasicClusterRef>::iterator kmatchedBasicCluster;
-  for (vector<math::XYZPoint>::iterator ipropagTrackECALSurfContactPoint=thepropagTracksECALSurfContactPoints.begin();ipropagTrackECALSurfContactPoint!=thepropagTracksECALSurfContactPoints.end();ipropagTrackECALSurfContactPoint++) {
+  std::vector<BasicClusterRef> theNeutralBasicClusters=theBasicClusters;  
+  std::vector<BasicClusterRef>::iterator kmatchedBasicCluster;
+  for (std::vector<math::XYZPoint>::iterator ipropagTrackECALSurfContactPoint=thepropagTracksECALSurfContactPoints.begin();ipropagTrackECALSurfContactPoint!=thepropagTracksECALSurfContactPoints.end();ipropagTrackECALSurfContactPoint++) {
     double theMatchedEcalBasicClusterpropagTrack_minDR=theECALBasicClusterpropagTrack_matchingDRConeSize;
     bool Track_matchedwithEcalBasicCluster=false;
-    for (vector<BasicClusterRef>::iterator jBasicCluster=theNeutralBasicClusters.begin();jBasicCluster!=theNeutralBasicClusters.end();jBasicCluster++) {
+    for (std::vector<BasicClusterRef>::iterator jBasicCluster=theNeutralBasicClusters.begin();jBasicCluster!=theNeutralBasicClusters.end();jBasicCluster++) {
       if(ROOT::Math::VectorUtil::DeltaR((*ipropagTrackECALSurfContactPoint),(**jBasicCluster).position())<theMatchedEcalBasicClusterpropagTrack_minDR){
       	Track_matchedwithEcalBasicCluster=true;
 	theMatchedEcalBasicClusterpropagTrack_minDR=ROOT::Math::VectorUtil::DeltaR((*ipropagTrackECALSurfContactPoint),(**jBasicCluster).position());

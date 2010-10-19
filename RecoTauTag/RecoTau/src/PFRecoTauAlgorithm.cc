@@ -11,8 +11,10 @@
 #define PFTauAlgo_Track_minPt_           (0.0)
 #define PFTauAlgo_ChargedHadrCand_minPt_ (0.0)
 
+using namespace reco;
+
 PFRecoTauAlgorithm::PFRecoTauAlgorithm() : PFRecoTauAlgorithmBase(){}  
-PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig):PFRecoTauAlgorithmBase(iConfig){
+PFRecoTauAlgorithm::PFRecoTauAlgorithm(const edm::ParameterSet& iConfig):PFRecoTauAlgorithmBase(iConfig){
    LeadPFCand_minPt_                   = iConfig.getParameter<double>("LeadPFCand_minPt"); 
 
    UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ 
@@ -25,32 +27,32 @@ PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig):PFRecoTauAlg
    UseTrackLeadTrackDZconstraint_      = iConfig.getParameter<bool>("UseTrackLeadTrackDZconstraint");
    TrackLeadTrack_maxDZ_               = iConfig.getParameter<double>("TrackLeadTrack_maxDZ");
 
-   MatchingConeMetric_                 = iConfig.getParameter<string>("MatchingConeMetric");
-   MatchingConeSizeFormula_            = iConfig.getParameter<string>("MatchingConeSizeFormula");
+   MatchingConeMetric_                 = iConfig.getParameter<std::string>("MatchingConeMetric");
+   MatchingConeSizeFormula_            = iConfig.getParameter<std::string>("MatchingConeSizeFormula");
    MatchingConeSize_min_               = iConfig.getParameter<double>("MatchingConeSize_min");
    MatchingConeSize_max_               = iConfig.getParameter<double>("MatchingConeSize_max");
-   TrackerSignalConeMetric_            = iConfig.getParameter<string>("TrackerSignalConeMetric");
-   TrackerSignalConeSizeFormula_       = iConfig.getParameter<string>("TrackerSignalConeSizeFormula");
+   TrackerSignalConeMetric_            = iConfig.getParameter<std::string>("TrackerSignalConeMetric");
+   TrackerSignalConeSizeFormula_       = iConfig.getParameter<std::string>("TrackerSignalConeSizeFormula");
    TrackerSignalConeSize_min_          = iConfig.getParameter<double>("TrackerSignalConeSize_min");
    TrackerSignalConeSize_max_          = iConfig.getParameter<double>("TrackerSignalConeSize_max");
-   TrackerIsolConeMetric_              = iConfig.getParameter<string>("TrackerIsolConeMetric"); 
-   TrackerIsolConeSizeFormula_         = iConfig.getParameter<string>("TrackerIsolConeSizeFormula"); 
+   TrackerIsolConeMetric_              = iConfig.getParameter<std::string>("TrackerIsolConeMetric"); 
+   TrackerIsolConeSizeFormula_         = iConfig.getParameter<std::string>("TrackerIsolConeSizeFormula"); 
    TrackerIsolConeSize_min_            = iConfig.getParameter<double>("TrackerIsolConeSize_min");
    TrackerIsolConeSize_max_            = iConfig.getParameter<double>("TrackerIsolConeSize_max");
-   ECALSignalConeMetric_               = iConfig.getParameter<string>("ECALSignalConeMetric");
-   ECALSignalConeSizeFormula_          = iConfig.getParameter<string>("ECALSignalConeSizeFormula");    
+   ECALSignalConeMetric_               = iConfig.getParameter<std::string>("ECALSignalConeMetric");
+   ECALSignalConeSizeFormula_          = iConfig.getParameter<std::string>("ECALSignalConeSizeFormula");    
    ECALSignalConeSize_min_             = iConfig.getParameter<double>("ECALSignalConeSize_min");
    ECALSignalConeSize_max_             = iConfig.getParameter<double>("ECALSignalConeSize_max");
-   ECALIsolConeMetric_                 = iConfig.getParameter<string>("ECALIsolConeMetric");
-   ECALIsolConeSizeFormula_            = iConfig.getParameter<string>("ECALIsolConeSizeFormula");      
+   ECALIsolConeMetric_                 = iConfig.getParameter<std::string>("ECALIsolConeMetric");
+   ECALIsolConeSizeFormula_            = iConfig.getParameter<std::string>("ECALIsolConeSizeFormula");      
    ECALIsolConeSize_min_               = iConfig.getParameter<double>("ECALIsolConeSize_min");
    ECALIsolConeSize_max_               = iConfig.getParameter<double>("ECALIsolConeSize_max");
-   HCALSignalConeMetric_               = iConfig.getParameter<string>("HCALSignalConeMetric");
-   HCALSignalConeSizeFormula_          = iConfig.getParameter<string>("HCALSignalConeSizeFormula");    
+   HCALSignalConeMetric_               = iConfig.getParameter<std::string>("HCALSignalConeMetric");
+   HCALSignalConeSizeFormula_          = iConfig.getParameter<std::string>("HCALSignalConeSizeFormula");    
    HCALSignalConeSize_min_             = iConfig.getParameter<double>("HCALSignalConeSize_min");
    HCALSignalConeSize_max_             = iConfig.getParameter<double>("HCALSignalConeSize_max");
-   HCALIsolConeMetric_                 = iConfig.getParameter<string>("HCALIsolConeMetric");
-   HCALIsolConeSizeFormula_            = iConfig.getParameter<string>("HCALIsolConeSizeFormula");      
+   HCALIsolConeMetric_                 = iConfig.getParameter<std::string>("HCALIsolConeMetric");
+   HCALIsolConeSizeFormula_            = iConfig.getParameter<std::string>("HCALIsolConeSizeFormula");      
    HCALIsolConeSize_min_               = iConfig.getParameter<double>("HCALIsolConeSize_min");
    HCALIsolConeSize_max_               = iConfig.getParameter<double>("HCALIsolConeSize_max");
 
@@ -71,7 +73,7 @@ PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig):PFRecoTauAlg
    EcalStripSumE_deltaPhiOverQ_maxValue_ = iConfig.getParameter<double>("EcalStripSumE_deltaPhiOverQ_maxValue");
    maximumForElectrionPreIDOutput_       = iConfig.getParameter<double>("maximumForElectrionPreIDOutput");
 
-   DataType_ = iConfig.getParameter<string>("DataType");
+   DataType_ = iConfig.getParameter<std::string>("DataType");
 
    //TFormula computation
    myMatchingConeSizeTFormula      = TauTagTools::computeConeSizeTFormula(MatchingConeSizeFormula_,"Matching cone size");
@@ -90,7 +92,7 @@ PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig):PFRecoTauAlg
 PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, const Vertex& myPV)
 {
    PFJetRef myPFJet=(*myPFTauTagInfoRef).pfjetRef();  // catch a ref to the initial PFJet  
-   PFTau myPFTau(numeric_limits<int>::quiet_NaN(),myPFJet->p4());   // create the PFTau
+   PFTau myPFTau(std::numeric_limits<int>::quiet_NaN(),myPFJet->p4());   // create the PFTau
 
    myPFTau.setpfTauTagInfoRef(myPFTauTagInfoRef);
 
@@ -277,7 +279,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
          else 
             rPhi = Rphi_;
 
-         pair<PFCandidateRefVector,PFCandidateRefVector> elementsInOutEllipse = 
+         std::pair<PFCandidateRefVector,PFCandidateRefVector> elementsInOutEllipse = 
             myPFTauElementsOperators.PFGammaCandsInOutEllipse(myIsolPFGammaCands, *myleadPFCand, rPhi, myECALSignalConeSize, MaxEtInEllipse_);
 
          PFCandidateRefVector elementsInEllipse = elementsInOutEllipse.first;
@@ -398,7 +400,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
 
                double deltaR   = ROOT::Math::VectorUtil::DeltaR(myElecTrkEcalPos,candPos);
                double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myElecTrkEcalPos,candPos);
-               double deltaEta = abs(myElecTrkEcalPos.eta()-candPos.eta());
+               double deltaEta = std::abs(myElecTrkEcalPos.eta()-candPos.eta());
                double deltaPhiOverQ = deltaPhi/(double)myElecTrk->charge();
 
                if (myPFCands[i]->ecalEnergy() >= EcalStripSumE_minClusEnergy_ && deltaEta < EcalStripSumE_deltaEta_ &&
@@ -455,7 +457,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
                         ecalPosV.push_back(clusPos);
                         myECALenergy += en;
                         double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myElecTrkEcalPos,clusPos);
-                        double deltaEta = abs(myElecTrkEcalPos.eta()-clusPos.eta());
+                        double deltaEta = std::abs(myElecTrkEcalPos.eta()-clusPos.eta());
                         double deltaPhiOverQ = deltaPhi/(double)myElecTrk->charge();
                         if (en >= EcalStripSumE_minClusEnergy_ && deltaEta<EcalStripSumE_deltaEta_ && deltaPhiOverQ > EcalStripSumE_deltaPhiOverQ_minValue_ && deltaPhiOverQ < EcalStripSumE_deltaPhiOverQ_maxValue_) { 
                            myStripClusterE += en;

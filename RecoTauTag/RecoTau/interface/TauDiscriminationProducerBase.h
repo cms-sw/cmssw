@@ -43,20 +43,16 @@
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
 
-using namespace edm;
-using namespace reco;
-using namespace std;
-
 template<class TauType, class TauDiscriminator>
-class TauDiscriminationProducerBase : public EDProducer {
+class TauDiscriminationProducerBase : public edm::EDProducer {
    public:
       // setup framework types for this tautype
-      typedef vector<TauType>        TauCollection; 
-      typedef Ref<TauCollection>     TauRef;        
-      typedef RefProd<TauCollection> TauRefProd;    
+      typedef std::vector<TauType>        TauCollection; 
+      typedef edm::Ref<TauCollection>     TauRef;        
+      typedef edm::RefProd<TauCollection> TauRefProd;    
 
       // standard constructor from PSet
-      explicit TauDiscriminationProducerBase(const ParameterSet& iConfig);
+      explicit TauDiscriminationProducerBase(const edm::ParameterSet& iConfig);
 
       // default constructor must not be called - it will throw an exception derived! 
       // classes must call the parameterset constructor.
@@ -64,33 +60,33 @@ class TauDiscriminationProducerBase : public EDProducer {
 
       virtual ~TauDiscriminationProducerBase(){} 
 
-      void produce(Event&, const EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&);
 
       // called at the beginning of every event
-      virtual void beginEvent(const Event& evt, const EventSetup& evtSetup) { /*override if desired*/ }
+      virtual void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup) { /*override if desired*/ }
 
       // abstract functions implemented in derived classes.  
       virtual double discriminate(const TauRef& tau) = 0;
 
       struct TauDiscInfo {
-         InputTag label;
-         Handle<TauDiscriminator> handle;
+         edm::InputTag label;
+         edm::Handle<TauDiscriminator> handle;
          double cut;
-         void fill(const Event& evt) { evt.getByLabel(label, handle); };
+         void fill(const edm::Event& evt) { evt.getByLabel(label, handle); };
       };
 
    protected:
       double prediscriminantFailValue_; //value given to taus that fail prediscriminants
 
    private:
-      InputTag TauProducer_;
-      vector<TauDiscInfo> prediscriminants_;
+      edm::InputTag TauProducer_;
+      std::vector<TauDiscInfo> prediscriminants_;
       uint8_t andPrediscriminants_;  // select boolean operation on prediscriminants (and = 0x01, or = 0x00)
 };
 
 // define our implementations
-typedef TauDiscriminationProducerBase<PFTau, PFTauDiscriminator>     PFTauDiscriminationProducerBase;
-typedef TauDiscriminationProducerBase<CaloTau, CaloTauDiscriminator> CaloTauDiscriminationProducerBase;
+typedef TauDiscriminationProducerBase<reco::PFTau, reco::PFTauDiscriminator>     PFTauDiscriminationProducerBase;
+typedef TauDiscriminationProducerBase<reco::CaloTau, reco::CaloTauDiscriminator> CaloTauDiscriminationProducerBase;
 
 /// helper function retrieve the correct cfi getter string (ie PFTauProducer) for this tau type
 template<class TauType> std::string getProducerString()

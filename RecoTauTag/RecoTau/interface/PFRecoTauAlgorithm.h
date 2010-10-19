@@ -18,18 +18,14 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauAlgorithmBase.h"
 
-using namespace std;
-using namespace reco;
-using namespace edm;
-
 class  PFRecoTauAlgorithm  : public PFRecoTauAlgorithmBase {
  public:
   PFRecoTauAlgorithm();
-  PFRecoTauAlgorithm(const ParameterSet&);
+  PFRecoTauAlgorithm(const edm::ParameterSet&);
   ~PFRecoTauAlgorithm(){}
   
   // PFRecTrackCollection: Temporary until integrated to PFCandidate
-  PFTau buildPFTau(const PFTauTagInfoRef&,const Vertex&); 
+  reco::PFTau buildPFTau(const reco::PFTauTagInfoRef&,const reco::Vertex&); 
  private:
   bool checkPos(std::vector<math::XYZPoint>,math::XYZPoint) const;
 
@@ -40,32 +36,32 @@ class  PFRecoTauAlgorithm  : public PFRecoTauAlgorithmBase {
 
   bool     UseTrackLeadTrackDZconstraint_;
   double   TrackLeadTrack_maxDZ_;
-  string   MatchingConeMetric_;
-  string   MatchingConeSizeFormula_;
+  std::string   MatchingConeMetric_;
+  std::string   MatchingConeSizeFormula_;
   double   MatchingConeSize_min_;
   double   MatchingConeSize_max_;
-  string   TrackerSignalConeMetric_;
-  string   TrackerSignalConeSizeFormula_;
+  std::string   TrackerSignalConeMetric_;
+  std::string   TrackerSignalConeSizeFormula_;
   double   TrackerSignalConeSize_min_;
   double   TrackerSignalConeSize_max_;
-  string   TrackerIsolConeMetric_;
-  string   TrackerIsolConeSizeFormula_;
+  std::string   TrackerIsolConeMetric_;
+  std::string   TrackerIsolConeSizeFormula_;
   double   TrackerIsolConeSize_min_;
   double   TrackerIsolConeSize_max_;
-  string   ECALSignalConeMetric_;
-  string   ECALSignalConeSizeFormula_;
+  std::string   ECALSignalConeMetric_;
+  std::string   ECALSignalConeSizeFormula_;
   double   ECALSignalConeSize_min_;
   double   ECALSignalConeSize_max_;
-  string   ECALIsolConeMetric_;
-  string   ECALIsolConeSizeFormula_;
+  std::string   ECALIsolConeMetric_;
+  std::string   ECALIsolConeSizeFormula_;
   double   ECALIsolConeSize_min_;
   double   ECALIsolConeSize_max_;
-  string   HCALSignalConeMetric_;
-  string   HCALSignalConeSizeFormula_;
+  std::string   HCALSignalConeMetric_;
+  std::string   HCALSignalConeSizeFormula_;
   double   HCALSignalConeSize_min_;
   double   HCALSignalConeSize_max_;
-  string   HCALIsolConeMetric_;
-  string   HCALIsolConeSizeFormula_;
+  std::string   HCALIsolConeMetric_;
+  std::string   HCALIsolConeSizeFormula_;
   double   HCALIsolConeSize_min_;
   double   HCALIsolConeSize_max_;
   double   AreaMetric_recoElements_maxabsEta_;
@@ -78,7 +74,7 @@ class  PFRecoTauAlgorithm  : public PFRecoTauAlgorithmBase {
   uint32_t ChargedHadrCand_IsolAnnulus_minNhits_;
   uint32_t Track_IsolAnnulus_minNhits_;
 
-  string   DataType_;
+  std::string   DataType_;
 
   double   ElecPreIDLeadTkMatch_maxDR_;
   double   EcalStripSumE_minClusEnergy_;

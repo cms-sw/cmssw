@@ -3,8 +3,10 @@
 
 #include "DataFormats/JetReco/interface/JetCollection.h"
 
+using namespace reco;
+
 CaloRecoTauAlgorithm::CaloRecoTauAlgorithm() : TransientTrackBuilder_(0),MagneticField_(0),chargedpi_mass_(0.13957018){}  
-CaloRecoTauAlgorithm::CaloRecoTauAlgorithm(const ParameterSet& iConfig) : TransientTrackBuilder_(0),MagneticField_(0),chargedpi_mass_(0.13957018){
+CaloRecoTauAlgorithm::CaloRecoTauAlgorithm(const edm::ParameterSet& iConfig) : TransientTrackBuilder_(0),MagneticField_(0),chargedpi_mass_(0.13957018){
   LeadTrack_minPt_                    = iConfig.getParameter<double>("LeadTrack_minPt");
   Track_minPt_                        = iConfig.getParameter<double>("Track_minPt");
   IsolationTrack_minPt_               = iConfig.getParameter<double>("IsolationTrack_minPt");
@@ -13,30 +15,30 @@ CaloRecoTauAlgorithm::CaloRecoTauAlgorithm(const ParameterSet& iConfig) : Transi
   TrackLeadTrack_maxDZ_               = iConfig.getParameter<double>("TrackLeadTrack_maxDZ");
   ECALRecHit_minEt_                   = iConfig.getParameter<double>("ECALRecHit_minEt");       
   
-  MatchingConeMetric_                 = iConfig.getParameter<string>("MatchingConeMetric");
-  MatchingConeSizeFormula_            = iConfig.getParameter<string>("MatchingConeSizeFormula");
+  MatchingConeMetric_                 = iConfig.getParameter<std::string>("MatchingConeMetric");
+  MatchingConeSizeFormula_            = iConfig.getParameter<std::string>("MatchingConeSizeFormula");
   MatchingConeSize_min_               = iConfig.getParameter<double>("MatchingConeSize_min");
   MatchingConeSize_max_               = iConfig.getParameter<double>("MatchingConeSize_max");
-  TrackerSignalConeMetric_            = iConfig.getParameter<string>("TrackerSignalConeMetric");
-  TrackerSignalConeSizeFormula_       = iConfig.getParameter<string>("TrackerSignalConeSizeFormula");
+  TrackerSignalConeMetric_            = iConfig.getParameter<std::string>("TrackerSignalConeMetric");
+  TrackerSignalConeSizeFormula_       = iConfig.getParameter<std::string>("TrackerSignalConeSizeFormula");
   TrackerSignalConeSize_min_          = iConfig.getParameter<double>("TrackerSignalConeSize_min");
   TrackerSignalConeSize_max_          = iConfig.getParameter<double>("TrackerSignalConeSize_max");
-  TrackerIsolConeMetric_              = iConfig.getParameter<string>("TrackerIsolConeMetric"); 
-  TrackerIsolConeSizeFormula_         = iConfig.getParameter<string>("TrackerIsolConeSizeFormula"); 
+  TrackerIsolConeMetric_              = iConfig.getParameter<std::string>("TrackerIsolConeMetric"); 
+  TrackerIsolConeSizeFormula_         = iConfig.getParameter<std::string>("TrackerIsolConeSizeFormula"); 
   TrackerIsolConeSize_min_            = iConfig.getParameter<double>("TrackerIsolConeSize_min");
   TrackerIsolConeSize_max_            = iConfig.getParameter<double>("TrackerIsolConeSize_max");
-  ECALSignalConeMetric_               = iConfig.getParameter<string>("ECALSignalConeMetric");
-  ECALSignalConeSizeFormula_          = iConfig.getParameter<string>("ECALSignalConeSizeFormula");    
+  ECALSignalConeMetric_               = iConfig.getParameter<std::string>("ECALSignalConeMetric");
+  ECALSignalConeSizeFormula_          = iConfig.getParameter<std::string>("ECALSignalConeSizeFormula");    
   ECALSignalConeSize_min_             = iConfig.getParameter<double>("ECALSignalConeSize_min");
   ECALSignalConeSize_max_             = iConfig.getParameter<double>("ECALSignalConeSize_max");
-  ECALIsolConeMetric_                 = iConfig.getParameter<string>("ECALIsolConeMetric");
-  ECALIsolConeSizeFormula_            = iConfig.getParameter<string>("ECALIsolConeSizeFormula");      
+  ECALIsolConeMetric_                 = iConfig.getParameter<std::string>("ECALIsolConeMetric");
+  ECALIsolConeSizeFormula_            = iConfig.getParameter<std::string>("ECALIsolConeSizeFormula");      
   ECALIsolConeSize_min_               = iConfig.getParameter<double>("ECALIsolConeSize_min");
   ECALIsolConeSize_max_               = iConfig.getParameter<double>("ECALIsolConeSize_max");
   
-  EBRecHitsLabel_                     = iConfig.getParameter<InputTag>("EBRecHitsSource"); 
-  EERecHitsLabel_                     = iConfig.getParameter<InputTag>("EERecHitsSource"); 
-  ESRecHitsLabel_                     = iConfig.getParameter<InputTag>("ESRecHitsSource"); 
+  EBRecHitsLabel_                     = iConfig.getParameter<edm::InputTag>("EBRecHitsSource"); 
+  EERecHitsLabel_                     = iConfig.getParameter<edm::InputTag>("EERecHitsSource"); 
+  ESRecHitsLabel_                     = iConfig.getParameter<edm::InputTag>("ESRecHitsSource"); 
 
 
 
@@ -54,11 +56,11 @@ CaloRecoTauAlgorithm::CaloRecoTauAlgorithm(const ParameterSet& iConfig) : Transi
 void CaloRecoTauAlgorithm::setTransientTrackBuilder(const TransientTrackBuilder* x){TransientTrackBuilder_=x;}
 void CaloRecoTauAlgorithm::setMagneticField(const MagneticField* x){MagneticField_=x;} 
 
-CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetup,const CaloTauTagInfoRef& myCaloTauTagInfoRef,const Vertex& myPV){
+CaloTau CaloRecoTauAlgorithm::buildCaloTau(edm::Event& iEvent,const edm::EventSetup& iSetup,const CaloTauTagInfoRef& myCaloTauTagInfoRef,const Vertex& myPV){
   CaloJetRef myCaloJet=(*myCaloTauTagInfoRef).calojetRef(); // catch a ref to the initial CaloJet  
-  const vector<CaloTowerPtr> myCaloTowers=(*myCaloJet).getCaloConstituents();
+  const std::vector<CaloTowerPtr> myCaloTowers=(*myCaloJet).getCaloConstituents();
   JetBaseRef jetRef = myCaloTauTagInfoRef->jetRef();
-  CaloTau myCaloTau(numeric_limits<int>::quiet_NaN(),jetRef->p4()); // create the CaloTau with the corrected Lorentz-vector
+  CaloTau myCaloTau(std::numeric_limits<int>::quiet_NaN(),jetRef->p4()); // create the CaloTau with the corrected Lorentz-vector
   
   myCaloTau.setcaloTauTagInfoRef(myCaloTauTagInfoRef);
   
@@ -92,19 +94,19 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetu
 	double myleadTrackHCAL3x3hottesthitDEta=0.;
 	double myleadTrackHCAL3x3hottesthitEt=0.;
 	double myleadTrackHCAL3x3hitsEtSum=0.;
-	ESHandle<CaloGeometry> myCaloGeometry;
+	edm::ESHandle<CaloGeometry> myCaloGeometry;
 	iSetup.get<CaloGeometryRecord>().get(myCaloGeometry);
 	const CaloSubdetectorGeometry* myCaloSubdetectorGeometry=(*myCaloGeometry).getSubdetectorGeometry(DetId::Calo,CaloTowerDetId::SubdetId);
 	CaloTowerDetId mypropagleadTrack_closestCaloTowerId((*myCaloSubdetectorGeometry).getClosestCell(GlobalPoint(mypropagleadTrackECALSurfContactPoint.x(),
 														    mypropagleadTrackECALSurfContactPoint.y(),
 														    mypropagleadTrackECALSurfContactPoint.z())));
-	vector<CaloTowerDetId> mypropagleadTrack_closestCaloTowerNeighbourIds=getCaloTowerneighbourDetIds(myCaloSubdetectorGeometry,mypropagleadTrack_closestCaloTowerId);
-	for(vector<CaloTowerPtr>::const_iterator iCaloTower=myCaloTowers.begin();iCaloTower!=myCaloTowers.end();iCaloTower++){
+	std::vector<CaloTowerDetId> mypropagleadTrack_closestCaloTowerNeighbourIds=getCaloTowerneighbourDetIds(myCaloSubdetectorGeometry,mypropagleadTrack_closestCaloTowerId);
+	for(std::vector<CaloTowerPtr>::const_iterator iCaloTower=myCaloTowers.begin();iCaloTower!=myCaloTowers.end();iCaloTower++){
 	  CaloTowerDetId iCaloTowerId((**iCaloTower).id());
 	  bool CaloTower_inside3x3matrix=false;
 	  if (iCaloTowerId==mypropagleadTrack_closestCaloTowerId) CaloTower_inside3x3matrix=true;
 	  if (!CaloTower_inside3x3matrix){
-	    for(vector<CaloTowerDetId>::const_iterator iCaloTowerDetId=mypropagleadTrack_closestCaloTowerNeighbourIds.begin();iCaloTowerDetId!=mypropagleadTrack_closestCaloTowerNeighbourIds.end();iCaloTowerDetId++){
+	    for(std::vector<CaloTowerDetId>::const_iterator iCaloTowerDetId=mypropagleadTrack_closestCaloTowerNeighbourIds.begin();iCaloTowerDetId!=mypropagleadTrack_closestCaloTowerNeighbourIds.end();iCaloTowerDetId++){
 	      if (iCaloTowerId==(*iCaloTowerDetId)){ 
 		CaloTower_inside3x3matrix=true;
 		break;
@@ -149,7 +151,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetu
       int mySignalTks_qsum=0;       
       for(int i=0;i<(int)mySignalTks.size();i++){
 	mySignalTks_qsum+=mySignalTks[i]->charge();
-	math::XYZTLorentzVector mychargedpicand_fromTk_LorentzVect(mySignalTks[i]->momentum().x(),mySignalTks[i]->momentum().y(),mySignalTks[i]->momentum().z(),sqrt(pow((double)mySignalTks[i]->momentum().r(),2)+pow(chargedpi_mass_,2)));
+	math::XYZTLorentzVector mychargedpicand_fromTk_LorentzVect(mySignalTks[i]->momentum().x(),mySignalTks[i]->momentum().y(),mySignalTks[i]->momentum().z(),sqrt(std::pow((double)mySignalTks[i]->momentum().r(),2)+std::pow(chargedpi_mass_,2)));
 	mySignalTksInvariantMass+=mychargedpicand_fromTk_LorentzVect;
       }
       myCaloTau.setCharge(mySignalTks_qsum);    
@@ -169,15 +171,15 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetu
 
 
     //getting the EcalRecHits. Just take them all
-  vector<pair<math::XYZPoint,float> > thePositionAndEnergyEcalRecHits;
+  std::vector<std::pair<math::XYZPoint,float> > thePositionAndEnergyEcalRecHits;
   mySelectedDetId_.clear();
-  //  vector<CaloTowerPtr> theCaloTowers=myCaloJet->getCaloConstituents();
-  ESHandle<CaloGeometry> theCaloGeometry;
+  //  std::vector<CaloTowerPtr> theCaloTowers=myCaloJet->getCaloConstituents();
+  edm::ESHandle<CaloGeometry> theCaloGeometry;
   iSetup.get<CaloGeometryRecord>().get(theCaloGeometry);
   const CaloSubdetectorGeometry* theCaloSubdetectorGeometry;  
-  Handle<EBRecHitCollection> EBRecHits;
-  Handle<EERecHitCollection> EERecHits; 
-  Handle<ESRecHitCollection> ESRecHits; 
+  edm::Handle<EBRecHitCollection> EBRecHits;
+  edm::Handle<EERecHitCollection> EERecHits; 
+  edm::Handle<ESRecHitCollection> ESRecHits; 
   iEvent.getByLabel(EBRecHitsLabel_,EBRecHits);
   iEvent.getByLabel(EERecHitsLabel_,EERecHits);
   iEvent.getByLabel(ESRecHitsLabel_,ESRecHits);
@@ -189,7 +191,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetu
     const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(theRecHit->id());  
     math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
     if(ROOT::Math::VectorUtil::DeltaR(myCaloJetdir,theRecHitCell_XYZPoint) < maxDeltaR){
-      pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
+      std::pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
       thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
       mySelectedDetId_.push_back(theRecHit->id());
     }
@@ -200,7 +202,7 @@ for(EERecHitCollection::const_iterator theRecHit = EERecHits->begin();theRecHit 
     const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(theRecHit->id());  
     math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
     if(ROOT::Math::VectorUtil::DeltaR(myCaloJetdir,theRecHitCell_XYZPoint) < maxDeltaR){
-      pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
+      std::pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
       thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
       mySelectedDetId_.push_back(theRecHit->id());
     }
@@ -210,14 +212,14 @@ for(EERecHitCollection::const_iterator theRecHit = EERecHits->begin();theRecHit 
     const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(theRecHit->id());  
     math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
     if(ROOT::Math::VectorUtil::DeltaR(myCaloJetdir,theRecHitCell_XYZPoint) < maxDeltaR){
-      pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
+      std::pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
       thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
       mySelectedDetId_.push_back(theRecHit->id());
     }
  }
 
   /*
-  for(vector<CaloTowerPtr>::const_iterator i_Tower=theCaloTowers.begin();i_Tower!=theCaloTowers.end();i_Tower++){
+  for(std::vector<CaloTowerPtr>::const_iterator i_Tower=theCaloTowers.begin();i_Tower!=theCaloTowers.end();i_Tower++){
     size_t numRecHits = (**i_Tower).constituentsSize();
     for(size_t j=0;j<numRecHits;j++) {
       DetId RecHitDetID=(**i_Tower).constituent(j);      
@@ -231,7 +233,7 @@ for(EERecHitCollection::const_iterator theRecHit = EERecHits->begin();theRecHit 
 	  EBRecHitCollection::const_iterator theRecHit=EBRecHits->find(EcalID);
 	  const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(RecHitDetID);
 	  math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
-	  pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
+	  std::pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
 	  thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
 	}else if((EcalSubdetector)RecHitDetID.subdetId()==EcalEndcap){
 	  theCaloSubdetectorGeometry = theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
@@ -239,7 +241,7 @@ for(EERecHitCollection::const_iterator theRecHit = EERecHits->begin();theRecHit 
 	  EERecHitCollection::const_iterator theRecHit=EERecHits->find(EcalID);	    
 	  const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(RecHitDetID);
 	  math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
-	  pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
+	  std::pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
 	  thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
 	}else if((EcalSubdetector)RecHitDetID.subdetId()==EcalPreshower){
 	  theCaloSubdetectorGeometry = theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);
@@ -248,7 +250,7 @@ for(EERecHitCollection::const_iterator theRecHit = EERecHits->begin();theRecHit 
 	  const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(RecHitDetID);
 	
 	  math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
-	  pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
+	  std::pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
 	  thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
 	}	 
       }	
@@ -259,8 +261,8 @@ for(EERecHitCollection::const_iterator theRecHit = EERecHits->begin();theRecHit 
     // setting sum of Et of the isolation annulus ECAL RecHits
     float myIsolEcalRecHits_EtSum=0.;
 
-    vector< pair<math::XYZPoint,float> > myIsolPositionAndEnergyEcalRecHits=myCaloTauElementsOperators.EcalRecHitsInAnnulus((*myleadTk).momentum(),ECALSignalConeMetric_,myECALSignalConeSize,ECALIsolConeMetric_,myECALIsolConeSize,ECALRecHit_minEt_,thePositionAndEnergyEcalRecHits);
-    for(vector< pair<math::XYZPoint,float> >::const_iterator iEcalRecHit=myIsolPositionAndEnergyEcalRecHits.begin();iEcalRecHit!=myIsolPositionAndEnergyEcalRecHits.end();iEcalRecHit++){
+    std::vector< std::pair<math::XYZPoint,float> > myIsolPositionAndEnergyEcalRecHits=myCaloTauElementsOperators.EcalRecHitsInAnnulus((*myleadTk).momentum(),ECALSignalConeMetric_,myECALSignalConeSize,ECALIsolConeMetric_,myECALIsolConeSize,ECALRecHit_minEt_,thePositionAndEnergyEcalRecHits);
+    for(std::vector< std::pair<math::XYZPoint,float> >::const_iterator iEcalRecHit=myIsolPositionAndEnergyEcalRecHits.begin();iEcalRecHit!=myIsolPositionAndEnergyEcalRecHits.end();iEcalRecHit++){
       myIsolEcalRecHits_EtSum+=(*iEcalRecHit).second*fabs(sin((*iEcalRecHit).first.theta()));
     }
     myCaloTau.setisolationECALhitsEtSum(myIsolEcalRecHits_EtSum);    
@@ -270,14 +272,14 @@ for(EERecHitCollection::const_iterator theRecHit = EERecHits->begin();theRecHit 
   math::XYZTLorentzVector alternatLorentzVect(0.,0.,0.,0.);
   for(TrackRefVector::iterator iTrack=myTks.begin();iTrack!=myTks.end();iTrack++) {
     // build a charged pion candidate Lorentz vector from a Track
-    math::XYZTLorentzVector iChargedPionCand_XYZTLorentzVect((**iTrack).momentum().x(),(**iTrack).momentum().y(),(**iTrack).momentum().z(),sqrt(pow((double)(**iTrack).momentum().r(),2)+pow(chargedpi_mass_,2)));
+    math::XYZTLorentzVector iChargedPionCand_XYZTLorentzVect((**iTrack).momentum().x(),(**iTrack).momentum().y(),(**iTrack).momentum().z(),sqrt(std::pow((double)(**iTrack).momentum().r(),2)+std::pow(chargedpi_mass_,2)));
     myTks_XYZTLorentzVect+=iChargedPionCand_XYZTLorentzVect;
     alternatLorentzVect+=iChargedPionCand_XYZTLorentzVect;
   }
   myCaloTau.setTracksInvariantMass(myTks_XYZTLorentzVect.mass());
 
-  vector<BasicClusterRef> myneutralECALBasicClusters=(*myCaloTauTagInfoRef).neutralECALBasicClusters();
-  for(vector<BasicClusterRef>::const_iterator iBasicCluster=myneutralECALBasicClusters.begin();iBasicCluster!=myneutralECALBasicClusters.end();iBasicCluster++) {
+  std::vector<BasicClusterRef> myneutralECALBasicClusters=(*myCaloTauTagInfoRef).neutralECALBasicClusters();
+  for(std::vector<BasicClusterRef>::const_iterator iBasicCluster=myneutralECALBasicClusters.begin();iBasicCluster!=myneutralECALBasicClusters.end();iBasicCluster++) {
     // build a gamma candidate Lorentz vector from a neutral ECAL BasicCluster
     double iGammaCand_px=(**iBasicCluster).energy()*sin((**iBasicCluster).position().theta())*cos((**iBasicCluster).position().phi());
     double iGammaCand_py=(**iBasicCluster).energy()*sin((**iBasicCluster).position().theta())*sin((**iBasicCluster).position().phi());
@@ -300,24 +302,24 @@ for(EERecHitCollection::const_iterator theRecHit = EERecHits->begin();theRecHit 
   return myCaloTau;  
 }
 
-vector<CaloTowerDetId> CaloRecoTauAlgorithm::getCaloTowerneighbourDetIds(const CaloSubdetectorGeometry* myCaloSubdetectorGeometry,CaloTowerDetId myCaloTowerDetId){
+std::vector<CaloTowerDetId> CaloRecoTauAlgorithm::getCaloTowerneighbourDetIds(const CaloSubdetectorGeometry* myCaloSubdetectorGeometry,CaloTowerDetId myCaloTowerDetId){
   CaloTowerTopology myCaloTowerTopology;
-  vector<CaloTowerDetId> myCaloTowerneighbourDetIds;
-  vector<DetId> northDetIds=myCaloTowerTopology.north(myCaloTowerDetId);
-  vector<DetId> westDetIds=myCaloTowerTopology.west(myCaloTowerDetId);
-  vector<DetId> northwestDetIds,southwestDetIds;
+  std::vector<CaloTowerDetId> myCaloTowerneighbourDetIds;
+  std::vector<DetId> northDetIds=myCaloTowerTopology.north(myCaloTowerDetId);
+  std::vector<DetId> westDetIds=myCaloTowerTopology.west(myCaloTowerDetId);
+  std::vector<DetId> northwestDetIds,southwestDetIds;
   if (westDetIds.size()>0){
     northwestDetIds=myCaloTowerTopology.north(westDetIds[0]);
     southwestDetIds=myCaloTowerTopology.south(westDetIds[(int)westDetIds.size()-1]);
   }
-  vector<DetId> southDetIds=myCaloTowerTopology.south(myCaloTowerDetId);
-  vector<DetId> eastDetIds=myCaloTowerTopology.east(myCaloTowerDetId);
-  vector<DetId> northeastDetIds,southeastDetIds;
+  std::vector<DetId> southDetIds=myCaloTowerTopology.south(myCaloTowerDetId);
+  std::vector<DetId> eastDetIds=myCaloTowerTopology.east(myCaloTowerDetId);
+  std::vector<DetId> northeastDetIds,southeastDetIds;
   if (eastDetIds.size()>0){
     northeastDetIds=myCaloTowerTopology.north(eastDetIds[0]);
     southeastDetIds=myCaloTowerTopology.south(eastDetIds[(int)eastDetIds.size()-1]);
   }
-  vector<DetId> myneighbourDetIds=northDetIds;
+  std::vector<DetId> myneighbourDetIds=northDetIds;
   myneighbourDetIds.insert(myneighbourDetIds.end(),westDetIds.begin(),westDetIds.end());
   myneighbourDetIds.insert(myneighbourDetIds.end(),northwestDetIds.begin(),northwestDetIds.end());
   myneighbourDetIds.insert(myneighbourDetIds.end(),southwestDetIds.begin(),southwestDetIds.end());
@@ -325,7 +327,7 @@ vector<CaloTowerDetId> CaloRecoTauAlgorithm::getCaloTowerneighbourDetIds(const C
   myneighbourDetIds.insert(myneighbourDetIds.end(),eastDetIds.begin(),eastDetIds.end());
   myneighbourDetIds.insert(myneighbourDetIds.end(),northeastDetIds.begin(),northeastDetIds.end());
   myneighbourDetIds.insert(myneighbourDetIds.end(),southeastDetIds.begin(),southeastDetIds.end());
-  for(vector<DetId>::const_iterator iDetId=myneighbourDetIds.begin();iDetId!=myneighbourDetIds.end();iDetId++){
+  for(std::vector<DetId>::const_iterator iDetId=myneighbourDetIds.begin();iDetId!=myneighbourDetIds.end();iDetId++){
     CaloTowerDetId iCaloTowerId(*iDetId);
     myCaloTowerneighbourDetIds.push_back(iCaloTowerId);
   }

@@ -30,24 +30,20 @@
 
 #include "DataFormats/JetReco/interface/JetCollection.h"
 
-using namespace std;
-using namespace reco;
-using namespace edm;
-
 class  CaloRecoTauTagInfoAlgorithm  {
  public:
   CaloRecoTauTagInfoAlgorithm(){}  
-  CaloRecoTauTagInfoAlgorithm(const ParameterSet& parameters);
+  CaloRecoTauTagInfoAlgorithm(const edm::ParameterSet& parameters);
   ~CaloRecoTauTagInfoAlgorithm(){}
-  CaloTauTagInfo buildCaloTauTagInfo(Event&,const EventSetup&,const CaloJetRef&,const TrackRefVector&,const Vertex&); 
-  CaloTauTagInfo buildCaloTauTagInfo(Event&,const EventSetup&,const JetBaseRef&,const TrackRefVector&,const Vertex&);
-  vector<DetId> getVectorDetId(const CaloJetRef&);
+  reco::CaloTauTagInfo buildCaloTauTagInfo(edm::Event&,const edm::EventSetup&,const reco::CaloJetRef&,const reco::TrackRefVector&,const reco::Vertex&); 
+  reco::CaloTauTagInfo buildCaloTauTagInfo(edm::Event&,const edm::EventSetup&,const reco::JetBaseRef&,const reco::TrackRefVector&,const reco::Vertex&);
+  std::vector<DetId> getVectorDetId(const reco::CaloJetRef&);
 
  private:  
-  //  vector<pair<math::XYZPoint,float> > getPositionAndEnergyEcalRecHits(Event&,const EventSetup&,const CaloJetRef&);
+  //  std::vector<std::pair<math::XYZPoint,float> > getPositionAndEnergyEcalRecHits(edm::Event&,const edm::EventSetup&,const reco::CaloJetRef&);
 
-  vector<BasicClusterRef> getNeutralEcalBasicClusters(Event&,const EventSetup& theEventSetup,const CaloJetRef&,const TrackRefVector&,float theECALBasicClustersAroundCaloJet_DRConeSize,float theECALBasicClusterminE,float theECALBasicClusterpropagTrack_matchingDRConeSize);
-  TrackRefVector filterTracksByQualityBit(const TrackRefVector& tracks, reco::TrackBase::TrackQuality quality) const;
+  std::vector<reco::BasicClusterRef> getNeutralEcalBasicClusters(edm::Event&,const edm::EventSetup& theEventSetup,const reco::CaloJetRef&,const reco::TrackRefVector&,float theECALBasicClustersAroundCaloJet_DRConeSize,float theECALBasicClusterminE,float theECALBasicClusterpropagTrack_matchingDRConeSize);
+  reco::TrackRefVector filterTracksByQualityBit(const reco::TrackRefVector& tracks, reco::TrackBase::TrackQuality quality) const;
   //
   double tkminPt_;
   int tkminPixelHitsn_;
@@ -66,8 +62,8 @@ class  CaloRecoTauTagInfoAlgorithm  {
   double ECALBasicClusterpropagTrack_matchingDRConeSize_;
 
   // 
-  InputTag EBRecHitsLabel_,EERecHitsLabel_,ESRecHitsLabel_; 
-  InputTag BarrelBasicClusters_,EndcapBasicClusters_;
+  edm::InputTag EBRecHitsLabel_,EERecHitsLabel_,ESRecHitsLabel_; 
+  edm::InputTag BarrelBasicClusters_,EndcapBasicClusters_;
 };
 #endif 
 

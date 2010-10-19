@@ -12,16 +12,12 @@
 
 #include "RecoTauTag/TauTagTools/interface/TauTagTools.h"
 
-using namespace std;
-using namespace reco;
-using namespace edm;
-
 class  PFRecoTauTagInfoAlgorithm  {
  public:
   PFRecoTauTagInfoAlgorithm(){}
-  PFRecoTauTagInfoAlgorithm(const ParameterSet&);
+  PFRecoTauTagInfoAlgorithm(const edm::ParameterSet&);
   ~PFRecoTauTagInfoAlgorithm(){}
-  PFTauTagInfo buildPFTauTagInfo(const PFJetRef&,const PFCandidateRefVector&,const TrackRefVector&,const Vertex&); 
+  reco::PFTauTagInfo buildPFTauTagInfo(const reco::PFJetRef&,const reco::PFCandidateRefVector&,const reco::TrackRefVector&,const reco::Vertex&); 
  private: 
   double ChargedHadrCand_tkminPt_;
   int ChargedHadrCand_tkminPixelHitsn_;
