@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import FWCore.ParameterSet.Config as cms
+
 # This line is only necessary when running on fastSim
 SimTracksCollection = cms.untracked.InputTag("famosSimHits"),
 # This must be set to true when using events generated with Sherpa

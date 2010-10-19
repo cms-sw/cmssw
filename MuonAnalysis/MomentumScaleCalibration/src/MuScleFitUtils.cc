@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2010/08/03 10:52:00 $
- *  $Revision: 1.41 $
+ *  $Date: 2010/09/28 14:44:22 $
+ *  $Revision: 1.42 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -598,12 +598,14 @@ double MuScleFitUtils::massResolution( const lorentzVector& mu1,
   double sigma_phi2 = resolutionFunction->sigmaPhi( pt2,eta2,parval );
   double sigma_cotgth1 = resolutionFunction->sigmaCotgTh( pt1,eta1,parval );
   double sigma_cotgth2 = resolutionFunction->sigmaCotgTh( pt2,eta2,parval );
+  double cov_pt1pt2 = resolutionFunction->covPt1Pt2( pt1, eta1, pt2, eta2, parval );
 
   // Sigma_Pt is defined as a relative sigmaPt/Pt for this reason we need to
   // multiply it by pt.
   double mass_res = sqrt(pow(dmdpt1*sigma_pt1*pt1,2)+pow(dmdpt2*sigma_pt2*pt2,2)+
   			 pow(dmdphi1*sigma_phi1,2)+pow(dmdphi2*sigma_phi2,2)+
-  			 pow(dmdcotgth1*sigma_cotgth1,2)+pow(dmdcotgth2*sigma_cotgth2,2));
+  			 pow(dmdcotgth1*sigma_cotgth1,2)+pow(dmdcotgth2*sigma_cotgth2,2)+
+  			 2*dmdpt1*dmdpt2*cov_pt1pt2);
 
   // if( sigma_cotgth1 < 0 || sigma_cotgth2 < 0 ) {
   //   std::cout << "WARNING: sigma_cotgth1 = " << sigma_cotgth1 << std::endl;
@@ -1039,11 +1041,15 @@ double MuScleFitUtils::massProb( const double & mass, const double & resEta, con
     }
     if( PStotTemp != PStotTemp ) {
       std::cout << "ERROR: PStotTemp = nan!!!!!!!!!" << std::endl;
+      int parnumber = (int)(parResol.size()+parScale.size()+crossSectionHandler->parNum()+parBgr.size());
       for( int i=0; i<6; ++i ) {
         std::cout << "PS[i] = " << PS[i] << std::endl;
         if( PS[i] != PS[i] ) {
           std::cout << "mass = " << mass << std::endl;
           std::cout << "massResol = " << massResol << std::endl;
+	  for( int j=0; j<parnumber; ++j ) {
+	    std::cout << "parval["<<j<<"] = " << parval[j] << std::endl;
+	  }
         }
       }
     }
@@ -1299,11 +1305,17 @@ void MuScleFitUtils::minimizeLikelihood()
   int n_times = 0;
   // n_times = number of loops required to unlock all parameters.
 
+  if (debug>19) std::cout << "Before scale parNum" << std::endl;
   int scaleParNum = scaleFunction->parNum();
-  edm::LogInfo("minimizeLikelihood") << "number of parameters for scaleFunction = " << scaleParNum << std::endl;
-  edm::LogInfo("minimizeLikelihood") << "number of parameters for resolutionFunction = " << resParNum << std::endl;
-  edm::LogInfo("minimizeLikelihood") << "number of parameters for cross section = " << crossSectionHandler->parNum() << std::endl;
-  edm::LogInfo("minimizeLikelihood") << "number of parameters for backgroundFunction = " << parBgr.size() << std::endl;
+  if (debug>19) std::cout << "After scale parNum" << std::endl;
+  // edm::LogInfo("minimizeLikelihood") << "number of parameters for scaleFunction = " << scaleParNum << std::endl;
+  // edm::LogInfo("minimizeLikelihood") << "number of parameters for resolutionFunction = " << resParNum << std::endl;
+  // edm::LogInfo("minimizeLikelihood") << "number of parameters for cross section = " << crossSectionHandler->parNum() << std::endl;
+  // edm::LogInfo("minimizeLikelihood") << "number of parameters for backgroundFunction = " << parBgr.size() << std::endl;
+  std::cout << "number of parameters for scaleFunction = " << scaleParNum << std::endl;
+  std::cout << "number of parameters for resolutionFunction = " << resParNum << std::endl;
+  std::cout << "number of parameters for cross section = " << crossSectionHandler->parNum() << std::endl;
+  std::cout << "number of parameters for backgroundFunction = " << parBgr.size() << std::endl;
   // edm::LogInfo("minimizeLikelihood") << "number of parameters for backgroundFunction = " << backgroundFunction->parNum() << std::endl;
 
   for (int i=0; i<parnumber; i++) {
@@ -1733,6 +1745,7 @@ extern "C" void likelihood( int& npar, double* grad, double& fval, double* xval,
         if( MuScleFitUtils::debug > 0 ) {
           std::cout << "WARNING: corrMass = " << corrMass << " outside window, this will cause a discontinuity in the likelihood. Consider increasing the safety bands which are now set to 90% of the normalization window to avoid this problem" << std::endl;
           std::cout << "Original mass was = " << mass << std::endl;
+	  std::cout << "WARNING: massResol = " << massResol << " outside window" << std::endl;
         }
 	evtsoutlik += 1;
       }
@@ -1777,6 +1790,7 @@ extern "C" void likelihood( int& npar, double* grad, double& fval, double* xval,
 //           MuScleFitUtils::rminPtr_->mnexcm("SET ERR", normalizationArg, 1, ierror);
 //         }
         MuScleFitUtils::rminPtr_->mnexcm("SET ERR", normalizationArg, 1, ierror);
+	std::cout << "oldNormalization = " << MuScleFitUtils::oldNormalization_ << " new = " << normalizationArg[0] << std::endl;
         MuScleFitUtils::oldNormalization_ = normalizationArg[0];
         MuScleFitUtils::normalizationChanged_ += 1;
       }

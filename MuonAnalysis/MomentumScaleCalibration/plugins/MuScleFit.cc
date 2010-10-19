@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/09/28 14:45:38 $
-//  $Revision: 1.94 $
+//  $Date: 2010/10/07 17:12:22 $
+//  $Revision: 1.95 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -911,10 +911,11 @@ bool MuScleFit::checkDeltaR(reco::Particle::LorentzVector& genMu, reco::Particle
                        ((recMu.Eta()-genMu.Eta()) * (recMu.Eta()-genMu.Eta())));
   if(deltaR<0.01)
     return true;
-  else
+  else if( debug_ > 0 ) {
     std::cout<<"Reco muon "<<recMu<<" with eta "<<recMu.Eta()<<" and phi "<<recMu.Phi()<<std::endl
 	<<" DOES NOT MATCH with generated muon from resonance: "<<std::endl
 	<<genMu<<" with eta "<<genMu.Eta()<<" and phi "<<genMu.Phi()<<std::endl;
+  }
   return false;
 }
 

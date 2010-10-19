@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2010/05/25 10:26:05 $
- *  $Revision: 1.23 $
+ *  $Date: 2010/07/13 10:52:35 $
+ *  $Revision: 1.24 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -887,7 +887,7 @@ class HResolutionVSPart : public Histograms
     hResoVSPt_Endc_20_  = new TH2F( name+"_ResoVSPt_Endc_2.0", "resolution VS pt Endcap (1.7<eta<2.0)", 200, 0, maxPt, 200, yMinPt, yMaxPt );
     hResoVSPt_Endc_24_  = new TH2F( name+"_ResoVSPt_Endc_2.4", "resolution VS pt Endcap (2.0<eta<2.4)", 200, 0, maxPt, 200, yMinPt, yMaxPt );
     hResoVSPt_Ovlap_ = new TH2F( name+"_ResoVSPt_Ovlap", "resolution VS pt overlap", 200, 0, maxPt, 200, yMinPt, yMaxPt );
-    hResoVSEta_      = new TH2F( name+"_ResoVSEta", "resolution VS eta", 60, -3, 3, 200, yMinEta, yMaxEta );
+    hResoVSEta_      = new TH2F( name+"_ResoVSEta", "resolution VS eta", 200, -3, 3, 200, yMinEta, yMaxEta );
     hResoVSTheta_    = new TH2F( name+"_ResoVSTheta", "resolution VS theta", 30, 0, TMath::Pi(), 200, yMinEta, yMaxEta );
     hResoVSPhiPlus_  = new TH2F( name+"_ResoVSPhiPlus", "resolution VS phi mu+", 14, -3.2, 3.2, 200, -1, 1 );
     hResoVSPhiMinus_ = new TH2F( name+"_ResoVSPhiMinus", "resolution VS phi mu-", 14, -3.2, 3.2, 200, -1, 1 );
@@ -1189,10 +1189,10 @@ class HLikelihoodVSPart : public Histograms
 class HFunctionResolution : public Histograms
 {
  public:
-  HFunctionResolution(TFile * outputFile, const TString & name, const double ptMax = 100) : Histograms(outputFile, name) {
+  HFunctionResolution(TFile * outputFile, const TString & name, const double & ptMax = 100, const int totBinsY = 200) : Histograms(outputFile, name) {
     name_ = name;
-    totBinsX_ = 100;
-    totBinsY_ = 60;
+    totBinsX_ = 200;
+    totBinsY_ = totBinsY;
     xMin_ = 0.;
     yMin_ = -3.0;
     double xMax = ptMax;
@@ -1247,7 +1247,8 @@ class HFunctionResolution : public Histograms
     delete hResoVSPhiMinus_prof_;
     delete hResoVSPhi_prof_;
   }
-  virtual void Fill(const reco::Particle::LorentzVector & p4, const double & resValue, const int charge) { 
+  virtual void Fill(const reco::Particle::LorentzVector & p4, const double & resValue, const int charge) {
+    if( resValue != resValue ) return;
     hReso_->Fill(resValue);
 
     // Fill the arrays with the resolution value and count
@@ -1396,7 +1397,8 @@ public:
     }
     delete[] histoVarianceCheck_;
   }
-  virtual void Fill(const reco::Particle::LorentzVector & p4, const double & resValue, const int charge) { 
+  virtual void Fill(const reco::Particle::LorentzVector & p4, const double & resValue, const int charge) {
+    if( resValue != resValue ) return;
     // Need to convert the (x,y) values to the array indeces
     int xIndex = getXindex(p4.Pt());
     int yIndex = getYindex(p4.Eta());

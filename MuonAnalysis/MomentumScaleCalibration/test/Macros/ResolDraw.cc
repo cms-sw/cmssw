@@ -153,7 +153,7 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
             h2->RebinX(rebinX);
             xBins /= rebinX;
 	  }
-          else if( xBins > 50 ) {
+          else if( xBins > 500 ) {
             h2->RebinX(2);
             xBins /= 2;
           }

@@ -98,7 +98,7 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
 
   // (M_reco-M_gen)/M_gen vs (pt, eta) of the muons from MC
   mapHisto_["hDeltaMassOverGenMassVsPt"] = new HTH2D( outputFile, "DeltaMassOverGenMassVsPt", "DeltaMassOverGenMassVsPt", "DeltaMassOverGenMass", 200, 0, maxPt, 200, -0.2, 0.2 );
-  mapHisto_["hDeltaMassOverGenMassVsEta"] = new HTH2D( outputFile, "DeltaMassOverGenMassVsEta", "DeltaMassOverGenMassVsEta", "DeltaMassOverGenMass", 60, -3.2, 3.2, 200, -0.2, 0.2 );
+  mapHisto_["hDeltaMassOverGenMassVsEta"] = new HTH2D( outputFile, "DeltaMassOverGenMassVsEta", "DeltaMassOverGenMassVsEta", "DeltaMassOverGenMass", 200, -3., 3., 200, -0.2, 0.2 );
 
   // Square of mass resolution vs (pt, eta) of the muons from MC
   mapHisto_["hMassResolutionVsPtEta"] = new HCovarianceVSxy( "Mass", "Mass", 100, 0., maxPt, 60, -3, 3, outputFile->mkdir("MassCovariance") );

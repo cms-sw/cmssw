@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: ResolutionAnalyzer.h,v 1.11 2010/03/29 18:15:57 demattia Exp $
+// $Id: ResolutionAnalyzer.h,v 1.12 2010/10/07 17:12:22 demattia Exp $
 //
 //
 
@@ -116,6 +116,8 @@ private:
 
   TString treeFileName_;
   int32_t maxEvents_;
+  
+  double ptMax_;
   
   HCovarianceVSxy * massResolutionVsPtEta_;
   TH2D * recoPtVsgenPt_;

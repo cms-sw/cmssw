@@ -22,9 +22,11 @@ ResolutionAnalyzer::ResolutionAnalyzer(const edm::ParameterSet& iConfig) :
   theRootFileName_( iConfig.getUntrackedParameter<std::string>("OutputFileName") ),
   theCovariancesRootFileName_( iConfig.getUntrackedParameter<std::string>("InputFileName") ),
   debug_( iConfig.getUntrackedParameter<bool>( "Debug" ) ),
-  readCovariances_( iConfig.getUntrackedParameter<bool>( "ReadCovariances" ) ),
+  resonance_( iConfig.getParameter<bool>("Resonance") ),
+  readCovariances_( iConfig.getParameter<bool>( "ReadCovariances" ) ),
   treeFileName_( iConfig.getParameter<std::string>("InputTreeName") ),
-  maxEvents_( iConfig.getParameter<int>("MaxEvents") )
+  maxEvents_( iConfig.getParameter<int>("MaxEvents") ),
+  ptMax_( iConfig.getParameter<double>("PtMax") )
 {
   //now do what ever initialization is needed
 
@@ -46,7 +48,6 @@ ResolutionAnalyzer::ResolutionAnalyzer(const edm::ParameterSet& iConfig) :
   fillHistoMap();
 
   eventCounter_ = 0;
-  resonance_ = iConfig.getUntrackedParameter<bool>( "Resonance" );
 }
 
 
@@ -66,6 +67,10 @@ ResolutionAnalyzer::~ResolutionAnalyzer()
 // ------------ method called to for each event  ------------
 void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
+
+  std::cout << "starting" << std::endl;
+
+  lorentzVector nullLorentzVector(0, 0, 0, 0);
 
   RootTreeHandler rootTreeHandler;
   typedef std::vector<std::pair<lorentzVector,lorentzVector> > MuonPairVector;
@@ -135,7 +140,8 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     // -----------------------------------
     // check if the recoMuons match the genMuons
     // if( MuScleFitUtils::ResFound && checkDeltaR(simMu.first,recMu1) && checkDeltaR(simMu.second,recMu2) ) {
-    if( MuScleFitUtils::ResFound && checkDeltaR(genPair->first,recMu1) && checkDeltaR(genPair->second,recMu2) ) {
+    if( genPair->first != nullLorentzVector && genPair->second != nullLorentzVector &&
+        checkDeltaR(genPair->first,recMu1) && checkDeltaR(genPair->second,recMu2) ) {
 
       double recoMass = (recMu1+recMu2).mass();
       double genMass = (genPair->first + genPair->second).mass();
@@ -227,6 +233,7 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
         double massRes4 = 0.;
         double massRes5 = 0.;
         double massRes6 = 0.;
+	double massResPtAndPt12 = 0.;
 
         for( int i=0; i<2; ++i ) {
 
@@ -271,107 +278,68 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
           // Pt term from function
           mapHisto_["MassResolutionPtFromFunction"]->Fill( *(recMu[i]), ( MuScleFitUtils::resolutionFunctionForVec->sigmaPt((recMu[i])->Pt(), (recMu[i])->Eta(), MuScleFitUtils::parResol) )*pow(dmdpt[i],2), charge[i] );
 
-          if( i == 0 ) {
-            fullMassRes =
-              ptVariance*pow(dmdpt[i],2) +
-              cotgThetaVariance*pow(dmdcotgth[i],2) +
-              phiVariance*pow(dmdphi[i],2) +
+          fullMassRes +=
+            ptVariance*pow(dmdpt[i],2) +
+            cotgThetaVariance*pow(dmdcotgth[i],2) +
+            phiVariance*pow(dmdphi[i],2) +
 
-              // These are worth twice the others since there are: pt1-phi1, phi1-pt1, pt2-phi2, phi2-pt2
-              2*pt_cotgTheta*dmdpt[i]*dmdcotgth[i] +
-              2*pt_phi*dmdpt[i]*dmdphi[i] +
-              2*cotgTheta_phi*dmdcotgth[i]*dmdphi[i] +
+            // These are worth twice the others since there are: pt1-phi1, phi1-pt1, pt2-phi2, phi2-pt2
+            2*pt_cotgTheta*dmdpt[i]*dmdcotgth[i] +
+            2*pt_phi*dmdpt[i]*dmdphi[i] +
+            2*cotgTheta_phi*dmdcotgth[i]*dmdphi[i] +
 
-              pt1_pt2*dmdpt[0]*dmdpt[1] +
-              cotgTheta1_cotgTheta2*dmdcotgth[0]*dmdcotgth[1] +
-              phi1_phi2*dmdphi[0]*dmdphi[1] +
+            pt1_pt2*dmdpt[0]*dmdpt[1] +
+            cotgTheta1_cotgTheta2*dmdcotgth[0]*dmdcotgth[1] +
+            phi1_phi2*dmdphi[0]*dmdphi[1] +
 
-              // These are filled twice, because of the two combinations
-              pt12_cotgTheta21*dmdpt[0]*dmdcotgth[1] +
-              pt12_cotgTheta21*dmdpt[1]*dmdcotgth[0] +
-              pt12_phi21*dmdpt[0]*dmdphi[1] +
-              pt12_phi21*dmdpt[1]*dmdphi[0] +
-              cotgTheta12_phi21*dmdcotgth[0]*dmdphi[1] +
-              cotgTheta12_phi21*dmdcotgth[1]*dmdphi[0];
+            // These are filled twice, because of the two combinations
+            pt12_cotgTheta21*dmdpt[0]*dmdcotgth[1] +
+            pt12_cotgTheta21*dmdpt[1]*dmdcotgth[0] +
+            pt12_phi21*dmdpt[0]*dmdphi[1] +
+            pt12_phi21*dmdpt[1]*dmdphi[0] +
+            cotgTheta12_phi21*dmdcotgth[0]*dmdphi[1] +
+            cotgTheta12_phi21*dmdcotgth[1]*dmdphi[0];
 
-            massRes1 = ptVariance*pow(dmdpt[i],2);
-            massRes2 = massRes1 + pt1_pt2*dmdpt[0]*dmdpt[1];
-            massRes3 = massRes2 + cotgThetaVariance*pow(dmdcotgth[i],2) +
-              phiVariance*pow(dmdphi[i],2);
-            massRes4 = massRes3 + 2*pt_cotgTheta*dmdpt[i]*dmdcotgth[i] +
-              2*pt_phi*dmdpt[i]*dmdphi[i] +
-              2*cotgTheta_phi*dmdcotgth[i]*dmdphi[i];
-            massRes5 = massRes4 + cotgTheta1_cotgTheta2*dmdcotgth[0]*dmdcotgth[1] +
-              phi1_phi2*dmdphi[0]*dmdphi[1];
-            massRes6 = massRes5 + pt12_cotgTheta21*dmdpt[0]*dmdcotgth[1] +
-              pt12_cotgTheta21*dmdpt[1]*dmdcotgth[0] +
-              pt12_phi21*dmdpt[0]*dmdphi[1] +
-              pt12_phi21*dmdpt[1]*dmdphi[0] +
-              cotgTheta12_phi21*dmdcotgth[0]*dmdphi[1] +
-              cotgTheta12_phi21*dmdcotgth[1]*dmdphi[0];
-          }
-          else {
-            fullMassRes +=
-              ptVariance*pow(dmdpt[i],2) +
-              cotgThetaVariance*pow(dmdcotgth[i],2) +
-              phiVariance*pow(dmdphi[i],2) +
+	  massRes1 += ptVariance*pow(dmdpt[i],2);
+	  massRes2 += ptVariance*pow(dmdpt[i],2) +
+	    cotgThetaVariance*pow(dmdcotgth[i],2);
+	  massRes3 += ptVariance*pow(dmdpt[i],2) +
+	    cotgThetaVariance*pow(dmdcotgth[i],2) +
+	    phiVariance*pow(dmdphi[i],2);
+	  massRes4 += ptVariance*pow(dmdpt[i],2) +
+	    cotgThetaVariance*pow(dmdcotgth[i],2) +
+	    phiVariance*pow(dmdphi[i],2) +
+	    pt1_pt2*dmdpt[0]*dmdpt[1] +
+	    2*pt_cotgTheta*dmdpt[i]*dmdcotgth[i] +
+	    2*pt_phi*dmdpt[i]*dmdphi[i] +
+	    2*cotgTheta_phi*dmdcotgth[i]*dmdphi[i];
+	  massRes5 += ptVariance*pow(dmdpt[i],2) +
+	    cotgThetaVariance*pow(dmdcotgth[i],2) +
+	    phiVariance*pow(dmdphi[i],2) +
+	    pt1_pt2*dmdpt[0]*dmdpt[1] +
+	    2*pt_cotgTheta*dmdpt[i]*dmdcotgth[i] +
+	    2*pt_phi*dmdpt[i]*dmdphi[i] +
+	    2*cotgTheta_phi*dmdcotgth[i]*dmdphi[i] +
+	    cotgTheta1_cotgTheta2*dmdcotgth[0]*dmdcotgth[1] +
+	    phi1_phi2*dmdphi[0]*dmdphi[1];
+	  massRes6 += ptVariance*pow(dmdpt[i],2) +
+	    cotgThetaVariance*pow(dmdcotgth[i],2) +
+	    phiVariance*pow(dmdphi[i],2) +
+	    pt1_pt2*dmdpt[0]*dmdpt[1] +
+	    2*pt_cotgTheta*dmdpt[i]*dmdcotgth[i] +
+	    2*pt_phi*dmdpt[i]*dmdphi[i] +
+	    2*cotgTheta_phi*dmdcotgth[i]*dmdphi[i] +
+	    cotgTheta1_cotgTheta2*dmdcotgth[0]*dmdcotgth[1] +
+	    phi1_phi2*dmdphi[0]*dmdphi[1] +
+	    pt12_cotgTheta21*dmdpt[0]*dmdcotgth[1] +
+	    pt12_cotgTheta21*dmdpt[1]*dmdcotgth[0] +
+	    pt12_phi21*dmdpt[0]*dmdphi[1] +
+	    pt12_phi21*dmdpt[1]*dmdphi[0] +
+	    cotgTheta12_phi21*dmdcotgth[0]*dmdphi[1] +
+	    cotgTheta12_phi21*dmdcotgth[1]*dmdphi[0];
 
-              // These are worth twice the others since there are: pt1-phi1, phi1-pt1, pt2-phi2, phi2-pt2
-              2*pt_cotgTheta*dmdpt[i]*dmdcotgth[i] +
-              2*pt_phi*dmdpt[i]*dmdphi[i] +
-              2*cotgTheta_phi*dmdcotgth[i]*dmdphi[i] +
+	  massResPtAndPt12 += ptVariance*pow(dmdpt[i],2) + pt1_pt2*dmdpt[0]*dmdpt[1];
 
-              pt1_pt2*dmdpt[0]*dmdpt[1] +
-              cotgTheta1_cotgTheta2*dmdcotgth[0]*dmdcotgth[1] +
-              phi1_phi2*dmdphi[0]*dmdphi[1] +
-
-              // These are filled twice, because of the two combinations
-              pt12_cotgTheta21*dmdpt[0]*dmdcotgth[1] +
-              pt12_cotgTheta21*dmdpt[1]*dmdcotgth[0] +
-              pt12_phi21*dmdpt[0]*dmdphi[1] +
-              pt12_phi21*dmdpt[1]*dmdphi[0] +
-              cotgTheta12_phi21*dmdcotgth[0]*dmdphi[1] +
-              cotgTheta12_phi21*dmdcotgth[1]*dmdphi[0];
-
-            massRes1 += ptVariance*pow(dmdpt[i],2);
-            massRes2 += ptVariance*pow(dmdpt[i],2) +
-              pt1_pt2*dmdpt[0]*dmdpt[1];
-            massRes3 += ptVariance*pow(dmdpt[i],2) +
-              pt1_pt2*dmdpt[0]*dmdpt[1] +
-              cotgThetaVariance*pow(dmdcotgth[i],2) +
-              phiVariance*pow(dmdphi[i],2);
-            massRes4 += ptVariance*pow(dmdpt[i],2) +
-              pt1_pt2*dmdpt[0]*dmdpt[1] +
-              cotgThetaVariance*pow(dmdcotgth[i],2) +
-              phiVariance*pow(dmdphi[i],2) +
-              2*pt_cotgTheta*dmdpt[i]*dmdcotgth[i] +
-              2*pt_phi*dmdpt[i]*dmdphi[i] +
-              2*cotgTheta_phi*dmdcotgth[i]*dmdphi[i];
-            massRes5 += ptVariance*pow(dmdpt[i],2) +
-              pt1_pt2*dmdpt[0]*dmdpt[1] +
-              cotgThetaVariance*pow(dmdcotgth[i],2) +
-              phiVariance*pow(dmdphi[i],2) +
-              2*pt_cotgTheta*dmdpt[i]*dmdcotgth[i] +
-              2*pt_phi*dmdpt[i]*dmdphi[i] +
-              2*cotgTheta_phi*dmdcotgth[i]*dmdphi[i] +
-              cotgTheta1_cotgTheta2*dmdcotgth[0]*dmdcotgth[1] +
-              phi1_phi2*dmdphi[0]*dmdphi[1];
-            massRes6 += ptVariance*pow(dmdpt[i],2) +
-              pt1_pt2*dmdpt[0]*dmdpt[1] +
-              cotgThetaVariance*pow(dmdcotgth[i],2) +
-              phiVariance*pow(dmdphi[i],2) +
-              2*pt_cotgTheta*dmdpt[i]*dmdcotgth[i] +
-              2*pt_phi*dmdpt[i]*dmdphi[i] +
-              2*cotgTheta_phi*dmdcotgth[i]*dmdphi[i] +
-              cotgTheta1_cotgTheta2*dmdcotgth[0]*dmdcotgth[1] +
-              phi1_phi2*dmdphi[0]*dmdphi[1] +
-              pt12_cotgTheta21*dmdpt[0]*dmdcotgth[1] +
-              pt12_cotgTheta21*dmdpt[1]*dmdcotgth[0] +
-              pt12_phi21*dmdpt[0]*dmdphi[1] +
-              pt12_phi21*dmdpt[1]*dmdphi[0] +
-              cotgTheta12_phi21*dmdcotgth[0]*dmdphi[1] +
-              cotgTheta12_phi21*dmdcotgth[1]*dmdphi[0];
-          }
           // Derivatives
           mapHisto_["DerivativePt"]->Fill( *(recMu[i]), dmdpt[i], charge[i] );
           mapHisto_["DerivativeCotgTheta"]->Fill( *(recMu[i]), dmdcotgth[i], charge[i] );
@@ -393,6 +361,8 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
         mapHisto_["MassRes5"]->Fill( *(recMu[1]), massRes5, charge[1] );
         mapHisto_["MassRes6"]->Fill( *(recMu[0]), massRes6, charge[0] );
         mapHisto_["MassRes6"]->Fill( *(recMu[1]), massRes6, charge[1] );
+        mapHisto_["MassResPtAndPt12"]->Fill( *(recMu[0]), massResPtAndPt12, charge[0] );
+        mapHisto_["MassResPtAndPt12"]->Fill( *(recMu[1]), massResPtAndPt12, charge[1] );
       }
       else {
         // Fill the covariances histograms
@@ -495,8 +465,7 @@ void ResolutionAnalyzer::fillHistoMap() {
 
   // Covariances between muons kinematic quantities
   // ----------------------------------------------
-  double ptMax = 200.;
-  if (TString(outputFile_->GetName()).Contains("Y")) ptMax = 40.;
+  double ptMax = ptMax_;
 
   // Mass resolution
   // ---------------
@@ -514,35 +483,34 @@ void ResolutionAnalyzer::fillHistoMap() {
 
   // Muons resolutions from resolution functions
   // -------------------------------------------
-  mapHisto_["hFunctionResolMass"]      = new HFunctionResolution (outputFile_, "hFunctionResolMass", ptMax);
-  mapHisto_["hFunctionResolPt"]        = new HFunctionResolution (outputFile_, "hFunctionResolPt", ptMax);
-  mapHisto_["hFunctionResolCotgTheta"] = new HFunctionResolution (outputFile_, "hFunctionResolCotgTheta", ptMax);
-  mapHisto_["hFunctionResolPhi"]       = new HFunctionResolution (outputFile_, "hFunctionResolPhi", ptMax);
+  int totBinsY = 60;
+  mapHisto_["hFunctionResolMass"]      = new HFunctionResolution (outputFile_, "hFunctionResolMass", ptMax, totBinsY);
+  mapHisto_["hFunctionResolPt"]        = new HFunctionResolution (outputFile_, "hFunctionResolPt", ptMax, totBinsY);
+  mapHisto_["hFunctionResolCotgTheta"] = new HFunctionResolution (outputFile_, "hFunctionResolCotgTheta", ptMax, totBinsY);
+  mapHisto_["hFunctionResolPhi"]       = new HFunctionResolution (outputFile_, "hFunctionResolPhi", ptMax, totBinsY);
 
   if( readCovariances_ ) {
     // Covariances read from file. Used to compare the terms in the expression of mass error
     mapHisto_["ReadCovariances"] = new HCovarianceVSParts ( theCovariancesRootFileName_, "Covariance" );
-
-    double ptMax = 40.;
 
     // Variances
     mapHisto_["MassResolutionPt"]                    = new HFunctionResolutionVarianceCheck(outputFile_,"functionResolMassPt", ptMax);
     mapHisto_["MassResolutionCotgTheta"]             = new HFunctionResolutionVarianceCheck(outputFile_,"functionResolMassCotgTheta", ptMax);
     mapHisto_["MassResolutionPhi"]                   = new HFunctionResolutionVarianceCheck(outputFile_,"functionResolMassPhi", ptMax);
     // Covariances
-    mapHisto_["MassResolutionPt-CotgTheta"]          = new HFunctionResolution(outputFile_,"functionResolMassPt-CotgTheta", ptMax);
-    mapHisto_["MassResolutionPt-Phi"]                = new HFunctionResolution(outputFile_,"functionResolMassPt-Phi", ptMax);
-    mapHisto_["MassResolutionCotgTheta-Phi"]         = new HFunctionResolution(outputFile_,"functionResolMassCotgTheta-Phi", ptMax);
-    mapHisto_["MassResolutionPt1-Pt2"]               = new HFunctionResolution(outputFile_,"functionResolMassPt1-Pt2", ptMax);
-    mapHisto_["MassResolutionCotgTheta1-CotgTheta2"] = new HFunctionResolution(outputFile_,"functionResolMassCotgTheta1-CotgTheta2", ptMax);
-    mapHisto_["MassResolutionPhi1-Phi2"]             = new HFunctionResolution(outputFile_,"functionResolMassPhi1-Phi2", ptMax);
-    mapHisto_["MassResolutionPt12-CotgTheta21"]      = new HFunctionResolution(outputFile_,"functionResolMassPt12-CotgTheta21", ptMax);
-    mapHisto_["MassResolutionPt12-Phi21"]            = new HFunctionResolution(outputFile_,"functionResolMassPt12-Phi21", ptMax);
-    mapHisto_["MassResolutionCotgTheta12-Phi21"]     = new HFunctionResolution(outputFile_,"functionResolMassCotgTheta12-Phi21", ptMax);
+    mapHisto_["MassResolutionPt-CotgTheta"]          = new HFunctionResolution(outputFile_,"functionResolMassPt-CotgTheta", ptMax, totBinsY);
+    mapHisto_["MassResolutionPt-Phi"]                = new HFunctionResolution(outputFile_,"functionResolMassPt-Phi", ptMax, totBinsY);
+    mapHisto_["MassResolutionCotgTheta-Phi"]         = new HFunctionResolution(outputFile_,"functionResolMassCotgTheta-Phi", ptMax, totBinsY);
+    mapHisto_["MassResolutionPt1-Pt2"]               = new HFunctionResolution(outputFile_,"functionResolMassPt1-Pt2", ptMax, totBinsY);
+    mapHisto_["MassResolutionCotgTheta1-CotgTheta2"] = new HFunctionResolution(outputFile_,"functionResolMassCotgTheta1-CotgTheta2", ptMax, totBinsY);
+    mapHisto_["MassResolutionPhi1-Phi2"]             = new HFunctionResolution(outputFile_,"functionResolMassPhi1-Phi2", ptMax, totBinsY);
+    mapHisto_["MassResolutionPt12-CotgTheta21"]      = new HFunctionResolution(outputFile_,"functionResolMassPt12-CotgTheta21", ptMax, totBinsY);
+    mapHisto_["MassResolutionPt12-Phi21"]            = new HFunctionResolution(outputFile_,"functionResolMassPt12-Phi21", ptMax, totBinsY);
+    mapHisto_["MassResolutionCotgTheta12-Phi21"]     = new HFunctionResolution(outputFile_,"functionResolMassCotgTheta12-Phi21", ptMax, totBinsY);
 
-    mapHisto_["sigmaPtFromVariance"]                 = new HFunctionResolution(outputFile_,"sigmaPtFromVariance", ptMax);
-    mapHisto_["sigmaCotgThetaFromVariance"]          = new HFunctionResolution(outputFile_,"sigmaCotgThetaFromVariance", ptMax);
-    mapHisto_["sigmaPhiFromVariance"]                = new HFunctionResolution(outputFile_,"sigmaPhiFromVariance", ptMax);
+    mapHisto_["sigmaPtFromVariance"]                 = new HFunctionResolution(outputFile_,"sigmaPtFromVariance", ptMax, totBinsY);
+    mapHisto_["sigmaCotgThetaFromVariance"]          = new HFunctionResolution(outputFile_,"sigmaCotgThetaFromVariance", ptMax, totBinsY);
+    mapHisto_["sigmaPhiFromVariance"]                = new HFunctionResolution(outputFile_,"sigmaPhiFromVariance", ptMax, totBinsY);
 
     // Derivatives
     mapHisto_["DerivativePt"]                        = new HFunctionResolution(outputFile_,"derivativePt", ptMax);
@@ -559,6 +527,7 @@ void ResolutionAnalyzer::fillHistoMap() {
     mapHisto_["MassRes4"]                            = new HFunctionResolution(outputFile_, "massRes4", ptMax);
     mapHisto_["MassRes5"]                            = new HFunctionResolution(outputFile_, "massRes5", ptMax);
     mapHisto_["MassRes6"]                            = new HFunctionResolution(outputFile_, "massRes6", ptMax);
+    mapHisto_["MassResPtAndPt12"]                    = new HFunctionResolution(outputFile_, "massResPtAndPt12", ptMax);
   }
   else {
     mapHisto_["Covariances"] = new HCovarianceVSParts ( outputFile_, "Covariance", ptMax );

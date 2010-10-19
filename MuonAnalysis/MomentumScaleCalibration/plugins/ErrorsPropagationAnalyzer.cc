@@ -195,7 +195,7 @@ void ErrorsPropagationAnalyzer::fillHistograms()
   rootTreeHandler.readTree(maxEvents_, treeFileName_, &savedPair, 0);
   // rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &savedPair, &(MuScleFitUtils::genPair));
 
-  // resolutionFunctionBase<std::vector<double> > * resolutionFunctionForVec = resolutionFunctionVecService( resolFitType_ );
+  resolutionFunctionBase<std::vector<double> > * resolutionFunctionForVec = resolutionFunctionVecService( resolFitType_ );
   MuScleFitUtils::resolutionFunction = resolutionFunctionService( resolFitType_ );
   MuScleFitUtils::debugMassResol_ = false;
   MuScleFitUtils::debug = 0;
@@ -223,20 +223,20 @@ void ErrorsPropagationAnalyzer::fillHistograms()
     if( pt1 == 0 && pt2 == 0 && eta1 == 0 && eta2 == 0 ) continue;
 
 
-    double sigmaPt1 = sigmaPt( eta1 );
-    double sigmaPt2 = sigmaPt( eta2 );
+    // double sigmaPt1 = sigmaPt( eta1 );
+    // double sigmaPt2 = sigmaPt( eta2 );
 
-    double sigmaPtPlusErr1 = sigmaPt1 + sigmaPt.sigma(eta1);
-    double sigmaPtPlusErr2 = sigmaPt2 + sigmaPt.sigma(eta2);
-    double sigmaPtMinusErr1 = sigmaPt1 - sigmaPt.sigma(eta1);
-    double sigmaPtMinusErr2 = sigmaPt2 - sigmaPt.sigma(eta2);
+    // double sigmaPtPlusErr1 = sigmaPt1 + sigmaPt.sigma(eta1);
+    // double sigmaPtPlusErr2 = sigmaPt2 + sigmaPt.sigma(eta2);
+    // double sigmaPtMinusErr1 = sigmaPt1 - sigmaPt.sigma(eta1);
+    // double sigmaPtMinusErr2 = sigmaPt2 - sigmaPt.sigma(eta2);
 
-    // double sigmaPt1 = resolutionFunctionForVec->sigmaPt( pt1,eta1,parameters_ );
-    // double sigmaPt2 = resolutionFunctionForVec->sigmaPt( pt2,eta2,parameters_ );
-    // double sigmaPtPlusErr1 = resolutionFunctionForVec->sigmaPt( pt1,eta1,valuePlusError_ );
-    // double sigmaPtPlusErr2 = resolutionFunctionForVec->sigmaPt( pt2,eta2,valuePlusError_ );
-    // double sigmaPtMinusErr1 = resolutionFunctionForVec->sigmaPt( pt1,eta1,valueMinusError_ );
-    // double sigmaPtMinusErr2 = resolutionFunctionForVec->sigmaPt( pt2,eta2,valueMinusError_ );
+    double sigmaPt1 = resolutionFunctionForVec->sigmaPt( pt1,eta1,parameters_ );
+    double sigmaPt2 = resolutionFunctionForVec->sigmaPt( pt2,eta2,parameters_ );
+    double sigmaPtPlusErr1 = sigmaPt1 + resolutionFunctionForVec->sigmaPtError( pt1,eta1,parameters_,errors_);
+    double sigmaPtPlusErr2 = sigmaPt2 + resolutionFunctionForVec->sigmaPtError( pt2,eta2,parameters_,errors_ );
+    double sigmaPtMinusErr1 = sigmaPt1 - resolutionFunctionForVec->sigmaPtError( pt1,eta1,parameters_,errors_ );
+    double sigmaPtMinusErr2 = sigmaPt2 - resolutionFunctionForVec->sigmaPtError( pt2,eta2,parameters_,errors_ );
 
     double sigmaMass = MuScleFitUtils::massResolution( it->first, it->second, parameters_ );
     double sigmaMassPlusErr = MuScleFitUtils::massResolution( it->first, it->second, valuePlusError_ );
