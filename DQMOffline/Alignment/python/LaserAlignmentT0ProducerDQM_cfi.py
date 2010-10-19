@@ -1,4 +1,3 @@
-
 import FWCore.ParameterSet.Config as cms
 
 LaserAlignmentT0ProducerDQM = cms.EDAnalyzer( "LaserAlignmentT0ProducerDQM",
@@ -7,22 +6,22 @@ LaserAlignmentT0ProducerDQM = cms.EDAnalyzer( "LaserAlignmentT0ProducerDQM",
     cms.PSet(
       DigiLabel = cms.string( 'ZeroSuppressed' ),
       DigiType = cms.string( 'Processed' ),
-      DigiProducer = cms.string( 'siStripDigis' )
+      DigiProducer = cms.string( 'ALCARECOTkAlLASsiStripDigis' )
     ), 
     cms.PSet(
       DigiLabel = cms.string( 'VirginRaw' ),
       DigiType = cms.string( 'Raw' ),
-      DigiProducer = cms.string( 'siStripDigis' )
+      DigiProducer = cms.string( 'ALCARECOTkAlLASsiStripDigis' )
     ), 
     cms.PSet(
       DigiLabel = cms.string( 'ProcessedRaw' ),
       DigiType = cms.string( 'Raw' ),
-      DigiProducer = cms.string( 'siStripDigis' )
+      DigiProducer = cms.string( 'ALCARECOTkAlLASsiStripDigis' )
     ), 
     cms.PSet(
       DigiLabel = cms.string( 'ScopeMode' ),
       DigiType = cms.string( 'Raw' ),
-      DigiProducer = cms.string( 'siStripDigis' )
+      DigiProducer = cms.string( 'ALCARECOTkAlLASsiStripDigis' )
     )
   ),
 

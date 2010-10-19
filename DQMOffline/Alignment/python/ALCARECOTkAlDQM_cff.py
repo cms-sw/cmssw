@@ -279,10 +279,11 @@ ALCARECOTkAlLASDigiDQM= DQMOffline.Alignment.LaserAlignmentT0ProducerDQM_cfi.Las
     LowerAdcThreshold = 15,
     UpperAdcThreshold = 220,
     DigiProducerList = cms.VPSet(
-    cms.PSet(DigiLabel = cms.string( 'ZeroSuppressed' ),
-             DigiType = cms.string( 'Processed' ),
-             DigiProducer = cms.string( 'laserAlignmentT0Producer' )
-             )
+        cms.PSet(
+            DigiLabel = cms.string( 'ZeroSuppressed' ),
+            DigiType = cms.string( 'Processed' ),
+            DigiProducer = cms.string( 'ALCARECOTkAlLAST0Producer' )
+        )
     )
 )
 ALCARECOTkAlLASDQM = cms.Sequence( ALCARECOTkAlLASDigiDQM )
