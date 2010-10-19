@@ -51,7 +51,7 @@ def totalLumivstime(c,p='.',i='',o='.',begTime="03/30/10 10:00:00.00",endTime=No
     '''
     plotoutname='totallumivstime.png'
     textoutname='totallumivstime.csv'
-    elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin','"'+begTime+'"','-batch',os.path.join(o,plotoutname),'time']
+    elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin','"'+begTime+'"','-batch',os.path.join(o,plotoutname),'-yscale both','time']
     if selectionfile:
         elements.append('-i')
         elements.append(selectionfile)
@@ -163,7 +163,7 @@ def totalLumivsRun(c,p='.',i='',o='',begRun="132440",endRun=None,selectionfile=N
     '''
     plotoutname='totallumivsrun.png'
     textoutname='totallumivsrun.csv'
-    elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin',begRun,'-batch',os.path.join(o,plotoutname),'run']
+    elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin',begRun,'-batch',os.path.join(o,plotoutname),'-yscale both','run']
     if endRun:
         elements.append('-end')
         elements.append(endRun)
@@ -196,7 +196,7 @@ def totalLumivsFill(c,p='.',i='',o='',begFill="1005",endFill=None,selectionfile=
     '''
     plotoutname='totallumivsfill.png'
     textoutname='totallumivsfill.csv'
-    elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin',begFill,'-batch',os.path.join(o,plotoutname),'fill']
+    elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin',begFill,'-batch',os.path.join(o,plotoutname),'-yscale both','fill']
     if endFill:
         elements.append('-end')
         elements.append(endFill)
