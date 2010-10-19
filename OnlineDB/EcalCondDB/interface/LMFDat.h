@@ -1,6 +1,7 @@
 #ifndef LMFDAT_H
 #define LMFDAT_H
 
+
 /*
  Copyright (c) Giovanni.Organtini@roma1.infn.it 2010
  */
@@ -65,28 +66,31 @@ class LMFDat : public LMFUnique {
     return *this;
   }
 
-  std::vector<float> getData(int id) {
-    return m_data[id];
-  }
-  std::vector<float> operator[](int id) {
-    return m_data[id];
-  }
-  std::vector<float> getData(const EcalLogicID &id) {
-    return m_data[id.getLogicID()];
-  }
-  std::map<int, std::vector<float> > getData() {
-    return m_data;
-  }
   std::map<unsigned int, std::string> getReverseMap() const;
-  float getData(int id, int k) {
-    return m_data[id][k];
-  }
-  float getData(const EcalLogicID &id, int k) {
-    return m_data[id.getLogicID()][k];
-  }
-  float getData(const EcalLogicID &id, const std::string &key) {
-    return m_data[id.getLogicID()][m_keys[key]];
-  }
+
+  /* UNSAFE methods returning data for a given logic_id */
+  std::vector<float> getData(int id);
+  std::vector<float> operator[](int id);
+  std::vector<float> getData(const EcalLogicID &id);
+
+  /* SAFE methods returning data for a given logic_id */
+  bool getData(int id, std::vector<float> &ret);
+  bool getData(const EcalLogicID &id, std::vector<float> &ret);
+
+  /* methods returning the whole map between logic_id and data */
+  std::map<int, std::vector<float> > getData();
+
+  /* UNSAFE methods returning a field of a given logic_id */
+  float getData(int id, unsigned int k);
+  float getData(const EcalLogicID &id, unsigned int k);
+  float getData(const EcalLogicID &id, const std::string &key);
+
+  /* SAFE methods returning a field of a given logic_id */
+  bool getData(int id, unsigned int k, float &ret);
+  bool getData(const EcalLogicID &id, unsigned int k, float &ret);
+  bool getData(int id, const std::string &key, float &ret);
+  bool getData(const EcalLogicID &id, const std::string &key, float &ret);
+
   std::list<int> getLogicIds() {
     std::list<int> l;
     std::map<int, std::vector<float> >::const_iterator i = m_data.begin();
@@ -97,6 +101,7 @@ class LMFDat : public LMFUnique {
     }
     return l;
   }
+
   std::map<std::string, unsigned int> getKeys() {
     return m_keys;
   }

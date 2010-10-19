@@ -494,3 +494,88 @@ bool LMFDat::check() {
   }
   return ret;
 }
+
+/* unsafe methods */
+
+std::vector<float> LMFDat::getData(int id) {
+  std::vector<float> ret;
+  if (m_data.find(id) != m_data.end()) {
+    ret = m_data[id];
+  }
+  return ret;
+}
+
+std::vector<float> LMFDat::operator[](int id) {
+  return getData(id);
+}
+
+std::vector<float> LMFDat::getData(const EcalLogicID &id) {
+  return getData(id.getLogicID());
+}
+
+/* safe methods */
+
+bool LMFDat::getData(int id, std::vector<float> &ret) {
+  bool retval = false;
+  if (m_data.find(id) != m_data.end()) {
+    ret= m_data[id];
+    retval = true;
+  }
+  return retval;
+}
+
+bool LMFDat::getData(const EcalLogicID &id, std::vector<float> &ret) {
+  return getData(id.getLogicID(), ret);
+}
+
+/* all data */
+
+std::map<int, std::vector<float> > LMFDat::getData() {
+  return m_data;
+}
+
+/* unsafe */
+
+float LMFDat::getData(int id, unsigned int k) {
+  return m_data[id][k];
+}
+
+float LMFDat::getData(const EcalLogicID &id, unsigned int k) {
+  return getData(id.getLogicID(), k);
+}
+
+float LMFDat::getData(const EcalLogicID &id, const std::string &key) {
+  return getData(id.getLogicID(), m_keys[key]);
+}
+
+/* safe */
+
+bool LMFDat::getData(int id, unsigned int k, float &ret) {
+  bool retval = false;
+  std::vector<float> v;
+  retval = getData(id, v);
+  if ((retval) && (v.size() > k)) {
+    ret= v[k];
+    retval = true;
+  } else {
+    retval = false;
+  }
+  return retval;
+}
+
+bool LMFDat::getData(const EcalLogicID &id, unsigned int k, float &ret) {
+  return getData(id.getLogicID(), k, ret);
+}
+
+bool LMFDat::getData(int id, const std::string &key, float &ret) {
+  bool retval = false;
+  if (m_keys.find(key) != m_keys.end()) {
+    retval = getData(id, m_keys[key], ret); 
+  }
+  return retval;
+}
+
+bool LMFDat::getData(const EcalLogicID &id, const std::string &key, float &ret)
+{
+  return getData(id.getLogicID(), key, ret);
+}

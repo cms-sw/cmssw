@@ -1,6 +1,6 @@
 #include "OnlineDB/EcalCondDB/interface/LMFCorrCoefDat.h"
 
-/*
+
 LMFCorrCoefDat::LMFCorrCoefDat(): LMFDat() {
   init();
 }
@@ -126,4 +126,4 @@ bool LMFCorrCoefDat::isValid() {
 }
 
 
-*/
+
