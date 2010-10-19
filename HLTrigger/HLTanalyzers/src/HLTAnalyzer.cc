@@ -5,7 +5,6 @@
 #include <boost/foreach.hpp>
 
 #include "HLTrigger/HLTanalyzers/interface/HLTAnalyzer.h"
-#include "RecoHI/HiEgammaAlgos/interface/HiPhotonType.h"
 #include "HLTMessages.h"
 
 typedef std::pair<const char *, const edm::InputTag *> MissingCollectionInfo;
@@ -158,7 +157,12 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
 
   _DoHeavyIon = runParameters.getUntrackedParameter<bool>("DoHeavyIon",false);
   _DoCentrality = _DoHeavyIon;
-
+  _DoMC = runParameters.getUntrackedParameter<bool>("DoMC",true);
+  _DoAlCa = runParameters.getUntrackedParameter<bool>("DoAlCa",true);
+  _DoTracks = runParameters.getUntrackedParameter<bool>("DoTracks",true);
+  _DoVertex = runParameters.getUntrackedParameter<bool>("DoVertex",true);
+  _DoJets = runParameters.getUntrackedParameter<bool>("DoJets",true);
+  _DoMuons = runParameters.getUntrackedParameter<bool>("DoMuons",true);
   _DoL1Muons = runParameters.getUntrackedParameter<bool>("DoL1Muons",true);
   _DoL2Muons = runParameters.getUntrackedParameter<bool>("DoL2Muons",true);
   _DoL3Muons = runParameters.getUntrackedParameter<bool>("DoL3Muons",true);
@@ -181,18 +185,16 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   cout << "\n Setting HltTree weight to " << treeWeight << " = " << xSection_ << "*" << filterEff_ << " (cross section * gen filter efficiency)\n" << endl;
 
   // Setup the different analysis
-  jet_analysis_.setup(conf, HltTree);
-
+  if(_DoJets) jet_analysis_.setup(conf, HltTree);
   if(_DoBJets) bjet_analysis_.setup(conf, HltTree);
   if(_DoHeavyIon) hi_analysis_.setup(conf, HltTree);
-
-  elm_analysis_.setup(conf, HltTree);
-  muon_analysis_.setup(conf, HltTree);
-  alca_analysis_.setup(conf, HltTree); 
-  track_analysis_.setup(conf, HltTree);
-  mct_analysis_.setup(conf, HltTree);
-  hlt_analysis_.setup(conf, HltTree);
-  vrt_analysis_.setup(conf, HltTree);
+  if(_DoSuperClusters || _DoElectrons) elm_analysis_.setup(conf, HltTree);
+  if(_DoMuons) muon_analysis_.setup(conf, HltTree);
+  if(_DoAlCa) alca_analysis_.setup(conf, HltTree); 
+  if(_DoTracks) track_analysis_.setup(conf, HltTree);
+  if(_DoMC) mct_analysis_.setup(conf, HltTree);
+  if(_DoHLT) hlt_analysis_.setup(conf, HltTree);
+  if(_DoVertex) vrt_analysis_.setup(conf, HltTree);
   evt_header_.setup(HltTree);
 }
 
@@ -215,7 +217,6 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 
   // These declarations create handles to the types of records that you want
   // to retrieve from event "iEvent".
-
   edm::Handle<reco::CaloJetCollection>                    recjets;
   edm::Handle<reco::CaloJetCollection>                    reccorjets;
   edm::Handle<reco::GenJetCollection>                     genjets;
@@ -316,7 +317,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
    edm::InputTag ecalRechitEETag (string("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
    EcalClusterLazyTools* lazyTools = 0;
    if(_DoElectrons) lazyTools = new EcalClusterLazyTools( iEvent, iSetup, ecalRechitEBTag, ecalRechitEETag);
-   
+
   edm::ESHandle<MagneticField>                theMagField;
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
@@ -344,7 +345,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   getCollection( iEvent, missing, recoBeamSpotHandle,       BSProducer_ ,          "Beam Spot handle");
   // gets its position
   reco::BeamSpot::Point BSPosition(0,0,0);
-  BSPosition = recoBeamSpotHandle->position();
+  if(recoBeamSpotHandle.isValid()) BSPosition = recoBeamSpotHandle->position();
 
   getCollection( iEvent, missing, recjets,         recjets_,           kRecjets );
   getCollection( iEvent, missing, reccorjets,      reccorjets_,        kRecCorjets );
@@ -388,7 +389,6 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   getCollection( iEvent, missing, simTracks,       simhits_,           kSimhit );
   getCollection( iEvent, missing, simVertices,     simhits_,           kSimhit );
   getCollection( iEvent, missing, genEventInfo,    genEventInfo_,      kGenEventInfo );
-  
 
   if(_DoHeavyIon){
      getCollection( iEvent, missing, centrality,               CentralityTag_,                 "Centrality");
@@ -474,7 +474,6 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   if (genEventInfo.isValid()) {ptHat=genEventInfo->qScale();}
 
   // PhotonMCAna
-  HiPhotonType hiPhotonType(mctruth);
 
   // print missing collections
   if (not missing.empty() and (errCnt < errMax())) {
@@ -499,7 +498,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 			 iEvent,
 			 HltTree);
 
-
+  if(_DoJets)
   jet_analysis_.analyze(
     recjets,
     reccorjets,
@@ -511,7 +510,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     caloTowers,
     towerThreshold_,
     HltTree);
-  
+
+  if(_DoMuons)
   muon_analysis_.analyze(
 			 muon,
 			 l1extmu,
@@ -524,6 +524,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 			 BSPosition,
 			 HltTree);
   
+  if(_DoPhotons || _DoSuperClusters)
    elm_analysis_.analyze(
      barrelPhotons,
      endcapPhotons,
@@ -563,14 +564,15 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
      eIDValueMap,
      HltTree);
 
+  if(_DoMC)
   mct_analysis_.analyze(
     mctruth,
     ptHat,
     simTracks,
     simVertices,
-    hiPhotonType,
     HltTree);
   
+  if(_DoAlCa)
   alca_analysis_.analyze(  
     ebrechits,  
     eerechits,  
@@ -590,6 +592,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     l1CaloGeom,
     HltTree);  
 
+  if(_DoTracks)
   track_analysis_.analyze( 
     isopixeltracksL3, 
     isopixeltracksL2,
@@ -597,6 +600,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     pixeltracksL3, 
     HltTree); 
 
+  if(_DoHLT)
   hlt_analysis_.analyze(
     hltresults,
     l1extemi,
@@ -627,13 +631,12 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 			 hPerformanceBJetsL3,
 			 HltTree);
 
-
+  if(_DoVertex)
   vrt_analysis_.analyze(
      recoVertexs, 
      HltTree);
 
   evt_header_.analyze(iEvent, HltTree);
-
 
   // std::cout << " Ending Event Analysis" << std::endl;
   // After analysis, fill the variables tree

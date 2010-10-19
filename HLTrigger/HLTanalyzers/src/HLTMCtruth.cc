@@ -102,8 +102,9 @@ void HLTMCtruth::analyze(
 			 const double        & pthat,
 			 const edm::Handle<std::vector<SimTrack> > & simTracks,
 			 const edm::Handle<std::vector<SimVertex> > & simVertices,
-			 HiPhotonType & hiPhotonType,
 			 TTree* HltTree) {
+
+  HiPhotonType hiPhotonType(mctruth);
 
    if(_Debug) std::cout << " Beginning HLTMCtruth " << std::endl;
 

@@ -176,14 +176,21 @@ private:
   double _EtaMin,_EtaMax;
   TFile* m_file; // pointer to Histogram file
 
+  bool _DoMC;
+  bool _DoHLT;
+  bool _DoVertex;
   bool _DoHeavyIon;
+  bool _DoAlCa;
 
+  bool _DoTracks;
+  bool _DoJets;
   bool _DoPhotons;
   bool _DoSuperClusters;
   bool _DoElectrons;
 
   bool _DoBJets;
 
+  bool _DoMuons;
   bool _DoL1Muons;
   bool _DoL2Muons;
   bool _DoL3Muons;

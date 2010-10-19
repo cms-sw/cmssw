@@ -41,7 +41,6 @@ public:
 	       const double        & pthat,
 	       const edm::Handle<std::vector<SimTrack> > & simTracks,
 	       const edm::Handle<std::vector<SimVertex> > & simVertices,
-	       HiPhotonType & hiPhotonType, 
  	       TTree* tree);
 
 private:
