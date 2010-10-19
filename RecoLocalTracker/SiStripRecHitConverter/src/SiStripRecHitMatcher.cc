@@ -103,13 +103,20 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
        p++) collector.push_back(*p);
 }
 
+namespace {
+  // FIXME for c++0X
+  inline void pb(std::vector<SiStripMatchedRecHit2D*> & v, SiStripMatchedRecHit2D* h) {
+    v.push_back(h);
+  }
+}
+
 void
 SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
 			     SimpleHitIterator begin, SimpleHitIterator end,
 			     std::vector<SiStripMatchedRecHit2D*> & collector, 
 			     const GluedGeomDet* gluedDet,
 			     LocalVector trackdirection) const {
-  Collector result(boost::bind(&std::vector<SiStripMatchedRecHit2D*>::push_back,boost::ref(collector),
+  Collector result(boost::bind(&pb,boost::ref(collector),
 			     boost::bind(&SiStripMatchedRecHit2D::clone,_1)));
   match(monoRH,begin,end,result,gluedDet,trackdirection);
 }
@@ -301,9 +308,9 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
 
     double diff=(c1*s2-c2*s1);
     double invdet2=1/(diff*diff*l1*l2);
-    float xx=invdet2*(sigmap12*s2*s2*l2+sigmap22*s1*s1*l1);
+    float xx= invdet2*(sigmap12*s2*s2*l2+sigmap22*s1*s1*l1);
     float xy=-invdet2*(sigmap12*c2*s2*l2+sigmap22*c1*s1*l1);
-    float yy=invdet2*(sigmap12*c2*c2*l2+sigmap22*c1*c1*l1);
+    float yy= invdet2*(sigmap12*c2*c2*l2+sigmap22*c1*c1*l1);
     LocalError error(xx,xy,yy);
 
     if((gluedDet->surface()).bounds().inside(position,error,scale_)){ //if it is inside the gluedet bonds
