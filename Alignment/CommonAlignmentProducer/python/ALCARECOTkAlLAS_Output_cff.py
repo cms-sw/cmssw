@@ -1,14 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-# output block for alcastream laserAlignmentT0Producer
-# output module 
+# output block for LAS AlCaReco
 OutALCARECOTkAlLAS_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOTkAlLAS')
     ),
     outputCommands = cms.untracked.vstring(
-                                           'keep *_laserAlignmentT0Producer_*_*',
-                                           'keep *_MEtoEDMConverter_*_*')
+        'keep *_ALCARECOTkAlLAST0Producer_*_*', 
+        'keep DcsStatuss_scalersRawToDigi_*_*',
+        'keep *_MEtoEDMConverter_*_*')
 )
 
 import copy
