@@ -33,12 +33,12 @@ using namespace std;
 
 class CaloRecoTauProducer : public EDProducer {
  public:
-  explicit CaloRecoTauProducer(const ParameterSet& iConfig);
+  explicit CaloRecoTauProducer(const edm::ParameterSet& iConfig);
   ~CaloRecoTauProducer();
-  virtual void produce(Event&,const EventSetup&);
+  virtual void produce(edm::Event&,const edm::EventSetup&);
  private:
-  InputTag CaloRecoTauTagInfoProducer_;
-  InputTag PVProducer_;
+  edm::InputTag CaloRecoTauTagInfoProducer_;
+  edm::InputTag PVProducer_;
   double smearedPVsigmaX_;
   double smearedPVsigmaY_;
   double smearedPVsigmaZ_;
@@ -46,9 +46,9 @@ class CaloRecoTauProducer : public EDProducer {
   CaloRecoTauAlgorithm* CaloRecoTauAlgo_;
 };
 
-CaloRecoTauProducer::CaloRecoTauProducer(const ParameterSet& iConfig){
-  CaloRecoTauTagInfoProducer_  = iConfig.getParameter<InputTag>("CaloRecoTauTagInfoProducer");
-  PVProducer_                  = iConfig.getParameter<InputTag>("PVProducer");
+CaloRecoTauProducer::CaloRecoTauProducer(const edm::ParameterSet& iConfig){
+  CaloRecoTauTagInfoProducer_  = iConfig.getParameter<edm::InputTag>("CaloRecoTauTagInfoProducer");
+  PVProducer_                  = iConfig.getParameter<edm::InputTag>("PVProducer");
   smearedPVsigmaX_             = iConfig.getParameter<double>("smearedPVsigmaX");
   smearedPVsigmaY_             = iConfig.getParameter<double>("smearedPVsigmaY");
   smearedPVsigmaZ_             = iConfig.getParameter<double>("smearedPVsigmaZ");	
@@ -61,21 +61,21 @@ CaloRecoTauProducer::~CaloRecoTauProducer(){
   delete CaloRecoTauAlgo_;
 }
   
-void CaloRecoTauProducer::produce(Event& iEvent,const EventSetup& iSetup){
+void CaloRecoTauProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
 
   auto_ptr<CaloTauCollection> resultCaloTau(new CaloTauCollection);
   auto_ptr<DetIdCollection> selectedDetIds(new DetIdCollection);
  
-  ESHandle<TransientTrackBuilder> myTransientTrackBuilder;
+  edm::ESHandle<TransientTrackBuilder> myTransientTrackBuilder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",myTransientTrackBuilder);
   CaloRecoTauAlgo_->setTransientTrackBuilder(myTransientTrackBuilder.product());
   
-  ESHandle<MagneticField> myMF;
+  edm::ESHandle<MagneticField> myMF;
   iSetup.get<IdealMagneticFieldRecord>().get(myMF);
   CaloRecoTauAlgo_->setMagneticField(myMF.product());
     
   // query a rec/sim PV
-  Handle<VertexCollection> thePVs;
+  edm::Handle<VertexCollection> thePVs;
   iEvent.getByLabel(PVProducer_,thePVs);
   const VertexCollection vertCollection=*(thePVs.product());
   Vertex thePV;
@@ -91,7 +91,7 @@ void CaloRecoTauProducer::produce(Event& iEvent,const EventSetup& iSetup){
     thePV=Vertex(SimPVPoint,SimPVError,1,1,1);    
   }
   
-  Handle<CaloTauTagInfoCollection> theCaloTauTagInfoCollection;
+  edm::Handle<CaloTauTagInfoCollection> theCaloTauTagInfoCollection;
   iEvent.getByLabel(CaloRecoTauTagInfoProducer_,theCaloTauTagInfoCollection);
   int iinfo=0;
   for(CaloTauTagInfoCollection::const_iterator i_info=theCaloTauTagInfoCollection->begin();i_info!=theCaloTauTagInfoCollection->end();i_info++) { 

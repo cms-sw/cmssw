@@ -14,8 +14,8 @@ using namespace std;
 
 class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBase  {
    public:
-      explicit PFRecoTauDiscriminationByIsolation(const ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig), 
-                                                                               qualityCuts_(iConfig.getParameter<ParameterSet>("qualityCuts"))  // retrieve quality cuts 
+      explicit PFRecoTauDiscriminationByIsolation(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig), 
+                                                                               qualityCuts_(iConfig.getParameter<edm::ParameterSet>("qualityCuts"))  // retrieve quality cuts 
       {   
          includeTracks_         = iConfig.getParameter<bool>("ApplyDiscriminationByTrackerIsolation");
          includeGammas_         = iConfig.getParameter<bool>("ApplyDiscriminationByECALIsolation");
@@ -29,12 +29,12 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
          applyRelativeSumPtCut_ = iConfig.getParameter<bool>("applyRelativeSumPtCut");
          maximumRelativeSumPt_  = iConfig.getParameter<double>("relativeSumPtCut");
 
-         pvProducer_            = iConfig.getParameter<InputTag>("PVProducer");
+         pvProducer_            = iConfig.getParameter<edm::InputTag>("PVProducer");
       }
 
       ~PFRecoTauDiscriminationByIsolation(){}
 
-      void beginEvent(const Event& evt, const EventSetup& evtSetup);
+      void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup);
       double discriminate(const PFTauRef& pfTau);
 
    private:
@@ -52,18 +52,18 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
       bool applyRelativeSumPtCut_;
       double maximumRelativeSumPt_;
 
-      InputTag pvProducer_;
+      edm::InputTag pvProducer_;
 
       Vertex currentPV_;
 };
 
-void PFRecoTauDiscriminationByIsolation::beginEvent(const Event& event, const EventSetup& eventSetup)
+void PFRecoTauDiscriminationByIsolation::beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup)
 {
    // NB: The use of the PV in this context is necessitated by its use in applying quality cuts to the
    // different objects in the isolation cone
    
    // get the PV for this event
-   Handle<VertexCollection> primaryVertices;
+   edm::Handle<VertexCollection> primaryVertices;
    event.getByLabel(pvProducer_, primaryVertices);
 
    // take the highest pt primary vertex in the event
@@ -89,7 +89,7 @@ void PFRecoTauDiscriminationByIsolation::beginEvent(const Event& event, const Ev
 double PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau)
 {
    // collect the objects we are working with (ie tracks, tracks+gammas, etc)
-   vector<LeafCandidate> isoObjects;
+   std::vector<LeafCandidate> isoObjects;
 
    if( includeTracks_ )
    {
@@ -112,7 +112,7 @@ double PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau)
    if( applySumPtCut_ || applyRelativeSumPtCut_ )
    {
       reco::Particle::LorentzVector totalP4;
-      for(vector<LeafCandidate>::const_iterator iIsoObject  = isoObjects.begin();
+      for(std::vector<LeafCandidate>::const_iterator iIsoObject  = isoObjects.begin();
             iIsoObject != isoObjects.end(); 
             ++iIsoObject)
       {
@@ -135,8 +135,8 @@ double PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau)
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationByIsolation);
 
 /*
-void PFRecoTauDiscriminationByIsolation::produce(Event& iEvent,const EventSetup& iEventSetup){
-  Handle<PFTauCollection> thePFTauCollection;
+void PFRecoTauDiscriminationByIsolation::produce(edm::Event& iEvent,const edm::EventSetup& iEventSetup){
+  edm::Handle<PFTauCollection> thePFTauCollection;
   iEvent.getByLabel(PFTauProducer_,thePFTauCollection);
   
   // fill the AssociationVector object

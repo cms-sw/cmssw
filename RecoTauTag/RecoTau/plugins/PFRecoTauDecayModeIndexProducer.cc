@@ -14,21 +14,23 @@
 #include "DataFormats/TauReco/interface/PFTauDecayMode.h"
 #include "DataFormats/TauReco/interface/PFTauDecayModeAssociation.h"
 
+using namespace reco;
+
 class PFRecoTauDecayModeIndexProducer : public PFTauDiscriminationProducerBase {
    public:
-      explicit PFRecoTauDecayModeIndexProducer(const ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig) {   
-         PFTauDecayModeProducer_     = iConfig.getParameter<InputTag>("PFTauDecayModeProducer");
+      explicit PFRecoTauDecayModeIndexProducer(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig) {   
+         PFTauDecayModeProducer_     = iConfig.getParameter<edm::InputTag>("PFTauDecayModeProducer");
       }
       ~PFRecoTauDecayModeIndexProducer(){} 
       double discriminate(const PFTauRef& thePFTauRef);
-      void beginEvent(const Event& evt, const EventSetup& evtSetup);
+      void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup);
    private:
-      InputTag PFTauDecayModeProducer_;
-      Handle<PFTauDecayModeAssociation> decayModes_; // holds the PFTauDecayModes for the current event
+      edm::InputTag PFTauDecayModeProducer_;
+      edm::Handle<PFTauDecayModeAssociation> decayModes_; // holds the PFTauDecayModes for the current event
 };
 
 
-void PFRecoTauDecayModeIndexProducer::beginEvent(const Event& event, const EventSetup& evtSetup)
+void PFRecoTauDecayModeIndexProducer::beginEvent(const edm::Event& event, const edm::EventSetup& evtSetup)
 {
    // Get the PFTau Decay Modes
    event.getByLabel(PFTauDecayModeProducer_, decayModes_);

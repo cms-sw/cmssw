@@ -36,22 +36,22 @@ using namespace std;
 
 class CaloRecoTauTagInfoProducer : public EDProducer {
  public:
-  explicit CaloRecoTauTagInfoProducer(const ParameterSet&);
+  explicit CaloRecoTauTagInfoProducer(const edm::ParameterSet&);
   ~CaloRecoTauTagInfoProducer();
-  virtual void produce(Event&,const EventSetup&);
+  virtual void produce(edm::Event&,const edm::EventSetup&);
  private:
   CaloRecoTauTagInfoAlgorithm* CaloRecoTauTagInfoAlgo_;
-  InputTag CaloJetTracksAssociatorProducer_;
-  InputTag PVProducer_;
+  edm::InputTag CaloJetTracksAssociatorProducer_;
+  edm::InputTag PVProducer_;
   double smearedPVsigmaX_;
   double smearedPVsigmaY_;
   double smearedPVsigmaZ_;  
 };
 
 
-CaloRecoTauTagInfoProducer::CaloRecoTauTagInfoProducer(const ParameterSet& iConfig){
-  CaloJetTracksAssociatorProducer_ = iConfig.getParameter<InputTag>("CaloJetTracksAssociatorProducer");
-  PVProducer_                    = iConfig.getParameter<InputTag>("PVProducer");
+CaloRecoTauTagInfoProducer::CaloRecoTauTagInfoProducer(const edm::ParameterSet& iConfig){
+  CaloJetTracksAssociatorProducer_ = iConfig.getParameter<edm::InputTag>("CaloJetTracksAssociatorProducer");
+  PVProducer_                    = iConfig.getParameter<edm::InputTag>("PVProducer");
   smearedPVsigmaX_               = iConfig.getParameter<double>("smearedPVsigmaX");
   smearedPVsigmaY_               = iConfig.getParameter<double>("smearedPVsigmaY");
   smearedPVsigmaZ_               = iConfig.getParameter<double>("smearedPVsigmaZ");	
@@ -64,12 +64,12 @@ CaloRecoTauTagInfoProducer::~CaloRecoTauTagInfoProducer(){
   delete CaloRecoTauTagInfoAlgo_;
 }
 
-void CaloRecoTauTagInfoProducer::produce(Event& iEvent,const EventSetup& iSetup){
-  Handle<JetTracksAssociationCollection> theCaloJetTracksAssociatorCollection;
+void CaloRecoTauTagInfoProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
+  edm::Handle<JetTracksAssociationCollection> theCaloJetTracksAssociatorCollection;
   iEvent.getByLabel(CaloJetTracksAssociatorProducer_,theCaloJetTracksAssociatorCollection);
   
   // query a rec/sim PV
-  Handle<VertexCollection> thePVs;
+  edm::Handle<VertexCollection> thePVs;
   iEvent.getByLabel(PVProducer_,thePVs);
   const VertexCollection vertCollection=*(thePVs.product());
   Vertex thePV;
@@ -82,7 +82,7 @@ void CaloRecoTauTagInfoProducer::produce(Event& iEvent,const EventSetup& iSetup)
 //    CaloTauTagInfo myCaloTauTagInfo=CaloRecoTauTagInfoAlgo_->buildCaloTauTagInfo(iEvent,iSetup,(*iAssoc).first.castTo<CaloJetRef>(),(*iAssoc).second,thePV);
     CaloTauTagInfo myCaloTauTagInfo=CaloRecoTauTagInfoAlgo_->buildCaloTauTagInfo(iEvent,iSetup,(*iAssoc).first,(*iAssoc).second,thePV);
     extCollection->push_back(myCaloTauTagInfo);
-    //    vector<DetId> myDets = CaloRecoTauTagInfoAlgo_->getVectorDetId((*iAssoc).first.castTo<CaloJetRef>());
+    //    std::vector<DetId> myDets = CaloRecoTauTagInfoAlgo_->getVectorDetId((*iAssoc).first.castTo<CaloJetRef>());
 
       //Saving the selectedDetIds
     //    for(unsigned int i=0; i<myDets.size();i++)

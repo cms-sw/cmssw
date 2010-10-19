@@ -9,9 +9,11 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 
+using namespace reco;
+
 class CaloRecoTauDiscriminationByLeadingTrackPtCut : public CaloTauDiscriminationProducerBase {
    public:
-      explicit CaloRecoTauDiscriminationByLeadingTrackPtCut(const ParameterSet& iConfig):CaloTauDiscriminationProducerBase(iConfig){   
+      explicit CaloRecoTauDiscriminationByLeadingTrackPtCut(const edm::ParameterSet& iConfig):CaloTauDiscriminationProducerBase(iConfig){   
          minPtLeadTrack_ = iConfig.getParameter<double>("MinPtLeadingTrack");
       }
       ~CaloRecoTauDiscriminationByLeadingTrackPtCut(){} 
@@ -36,7 +38,7 @@ double CaloRecoTauDiscriminationByLeadingTrackPtCut::discriminate(const CaloTauR
 DEFINE_FWK_MODULE(CaloRecoTauDiscriminationByLeadingTrackPtCut);
    
 /*
-   Handle<CaloTauCollection> theCaloTauCollection;
+   edm::Handle<CaloTauCollection> theCaloTauCollection;
    iEvent.getByLabel(CaloTauProducer_,theCaloTauCollection);
 
    double theleadTrackPtCutDiscriminator = 0.;

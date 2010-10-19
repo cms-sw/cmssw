@@ -29,8 +29,8 @@ class TCRecoTauProducer : public edm::EDProducer {
         TCTauAlgorithm*  tcTauAlgorithm;
 };
 
-TCRecoTauProducer::TCRecoTauProducer(const ParameterSet& iConfig){
-  	caloRecoTauProducer = iConfig.getParameter<InputTag>("CaloRecoTauProducer");
+TCRecoTauProducer::TCRecoTauProducer(const edm::ParameterSet& iConfig){
+  	caloRecoTauProducer = iConfig.getParameter<edm::InputTag>("CaloRecoTauProducer");
 	tcTauAlgorithm = new TCTauAlgorithm(iConfig);
 
   	produces<CaloTauCollection>();
@@ -39,11 +39,11 @@ TCRecoTauProducer::~TCRecoTauProducer(){
   	delete tcTauAlgorithm;
 }
   
-void TCRecoTauProducer::produce(Event& iEvent,const EventSetup& iSetup){
+void TCRecoTauProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
 
-  	auto_ptr<CaloTauCollection> tcTauCollection(new CaloTauCollection);
+  	std::auto_ptr<CaloTauCollection> tcTauCollection(new CaloTauCollection);
 
-	Handle<CaloTauCollection> theCaloTauHandle;
+	edm::Handle<CaloTauCollection> theCaloTauHandle;
 	iEvent.getByLabel(caloRecoTauProducer,theCaloTauHandle);
 
 	tcTauAlgorithm->eventSetup(iEvent,iSetup);

@@ -11,9 +11,11 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include <string>
 
+using namespace reco;
+
 class PFRecoTauDiscriminationAgainstMuon : public PFTauDiscriminationProducerBase {
    public:
-      explicit PFRecoTauDiscriminationAgainstMuon(const ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig) {   
+      explicit PFRecoTauDiscriminationAgainstMuon(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig) {   
          discriminatorOption_  = iConfig.getParameter<std::string>("discriminatorOption");  
          a  = iConfig.getParameter<double>("a");  
          b  = iConfig.getParameter<double>("b");  

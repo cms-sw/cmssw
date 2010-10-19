@@ -7,9 +7,11 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
+using namespace reco;
+
 class PFRecoTauDiscriminationAgainstElectron : public PFTauDiscriminationProducerBase  {
    public:
-      explicit PFRecoTauDiscriminationAgainstElectron(const ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig) {   
+      explicit PFRecoTauDiscriminationAgainstElectron(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig) {   
 
          emFraction_maxValue_              = iConfig.getParameter<double>("EmFraction_maxValue");
          applyCut_emFraction_              = iConfig.getParameter<bool>("ApplyCut_EmFraction");
@@ -50,7 +52,7 @@ class PFRecoTauDiscriminationAgainstElectron : public PFTauDiscriminationProduce
 
    private:
       bool isInEcalCrack(double) const; 
-      InputTag PFTauProducer_;
+      edm::InputTag PFTauProducer_;
       bool applyCut_emFraction_;
       double emFraction_maxValue_;   
       bool applyCut_hcalTotOverPLead_;

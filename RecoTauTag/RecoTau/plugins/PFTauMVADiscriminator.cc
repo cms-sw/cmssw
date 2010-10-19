@@ -13,7 +13,7 @@
 //
 // Original Author:  Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
 //         Created:  Fri Aug 15 11:22:14 PDT 2008
-// $Id: PFTauMVADiscriminator.cc,v 1.2 2009/09/04 21:34:24 friis Exp $
+// $Id: PFTauMVADiscriminator.cc,v 1.3 2010/02/11 00:18:31 friis Exp $
 //
 //
 
@@ -36,6 +36,7 @@
 #include "PhysicsTools/MVAComputer/interface/MVAComputerCache.h"
 
 using namespace PFTauDiscriminants;
+using namespace reco;
 
 class PFTauMVADiscriminator : public PFTauDiscriminationProducerBase {
    public:
@@ -43,60 +44,60 @@ class PFTauMVADiscriminator : public PFTauDiscriminationProducerBase {
       ~PFTauMVADiscriminator();
 
       struct  MVAComputerFromDB {
-         string                                 computerName;
+         std::string                                 computerName;
          PhysicsTools::MVAComputerCache*        computer;
          double                                 userCut;
       };
 
-      typedef vector<MVAComputerFromDB>    MVAList;
-      typedef map<int, MVAList::iterator> DecayModeToMVAMap;
+      typedef std::vector<MVAComputerFromDB>    MVAList;
+      typedef std::map<int, MVAList::iterator> DecayModeToMVAMap;
 
-      void beginEvent(const Event&, const EventSetup&); // called at the beginning of each event
+      void beginEvent(const edm::Event&, const edm::EventSetup&); // called at the beginning of each event
       double discriminate(const PFTauRef&);             // called on every tau in input collection
 
    private:
-      InputTag                  pfTauDecayModeSrc_;
+      edm::InputTag                  pfTauDecayModeSrc_;
       bool                      remapOutput_;      // TMVA defaults output to (-1, 1).  Option to remap to (0, 1)
       bool                      applyCut_;         //Specify whether to output the MVA value, or whether to use 
                                                    // the cuts specified in the DecayMode VPSet specified in the cfg file 
       DecayModeToMVAMap         computerMap_;      //Maps decay mode to MVA implementation
       MVAList                   computers_;
-      string                    dbLabel_;
+      std::string               dbLabel_;
       DiscriminantList          myDiscriminants_;  // collection of functions to compute the discriminants
       PFTauDiscriminantManager  discriminantManager_;
 
-      Handle<PFTauDecayModeAssociation> pfTauDecayModes; // Handle to PFTauDecayModes for current event
+      edm::Handle<PFTauDecayModeAssociation> pfTauDecayModes; // edm::Handle to PFTauDecayModes for current event
 
       std::vector<PhysicsTools::Variable::Value>        mvaComputerInput_;
 };
 
 PFTauMVADiscriminator::PFTauMVADiscriminator(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig)
 {
-   pfTauDecayModeSrc_        = iConfig.getParameter<InputTag>("pfTauDecayModeSrc");
+   pfTauDecayModeSrc_        = iConfig.getParameter<edm::InputTag>("pfTauDecayModeSrc");
    remapOutput_              = iConfig.getParameter<bool>("RemapOutput");
    applyCut_                 = iConfig.getParameter<bool>("MakeBinaryDecision");
    prediscriminantFailValue_ = iConfig.getParameter<double>("prefailValue"); //defined in base class
-   dbLabel_                  = iConfig.getParameter<string>("dbLabel");
+   dbLabel_                  = iConfig.getParameter<std::string>("dbLabel");
 
    // build the decaymode->computer map
-   vector<ParameterSet> decayModeMap = iConfig.getParameter<vector<ParameterSet> >("computers");
+   std::vector<edm::ParameterSet> decayModeMap = iConfig.getParameter<std::vector<edm::ParameterSet> >("computers");
    computers_.reserve(decayModeMap.size());
-   for(vector<ParameterSet>::const_iterator iComputer  = decayModeMap.begin(); iComputer != decayModeMap.end(); ++iComputer)
+   for(std::vector<edm::ParameterSet>::const_iterator iComputer  = decayModeMap.begin(); iComputer != decayModeMap.end(); ++iComputer)
    {
       MVAComputerFromDB toInsert;
-      toInsert.computerName = iComputer->getParameter<string>("computerName");
+      toInsert.computerName = iComputer->getParameter<std::string>("computerName");
       toInsert.userCut      = iComputer->getParameter<double>("cut");
       toInsert.computer     = new PhysicsTools::MVAComputerCache();
       MVAList::iterator computerJustAdded = computers_.insert(computers_.end(), toInsert); //add this computer to the end of the list
 
       //populate the map
-      vector<int> associatedDecayModes = iComputer->getParameter<vector<int> >("decayModeIndices");
-      for(vector<int>::const_iterator iDecayMode  = associatedDecayModes.begin();
+      std::vector<int> associatedDecayModes = iComputer->getParameter<std::vector<int> >("decayModeIndices");
+      for(std::vector<int>::const_iterator iDecayMode  = associatedDecayModes.begin();
                                       iDecayMode != associatedDecayModes.end();
                                     ++iDecayMode)
       {
          //map this integer specifying the decay mode to the MVA comptuer we just added to the list
-         pair<DecayModeToMVAMap::iterator, bool> insertResult = computerMap_.insert(make_pair(*iDecayMode, computerJustAdded));
+         std::pair<DecayModeToMVAMap::iterator, bool> insertResult = computerMap_.insert(std::make_pair(*iDecayMode, computerJustAdded));
 
          //make sure we aren't double mapping a decay mode
          if(insertResult.second == false) { //indicates that the current key (decaymode) has already been entered!
@@ -126,7 +127,7 @@ PFTauMVADiscriminator::~PFTauMVADiscriminator()
 }
 
 // ------------ method called at the beginning of every event by base class
-void PFTauMVADiscriminator::beginEvent(const Event& iEvent, const EventSetup& iSetup)
+void PFTauMVADiscriminator::beginEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    // load the PFTauDecayModes
    iEvent.getByLabel(pfTauDecayModeSrc_, pfTauDecayModes);
@@ -140,7 +141,7 @@ void PFTauMVADiscriminator::beginEvent(const Event& iEvent, const EventSetup& iS
                          iMVAComputer != computers_.end();
                        ++iMVAComputer)
    {
-      string nameToGet = iMVAComputer->computerName;
+      std::string nameToGet = iMVAComputer->computerName;
       iMVAComputer->computer->update<TauMVAFrameworkDBRcd>(dbLabel_.c_str(), iSetup, nameToGet.c_str());
    } 
 }

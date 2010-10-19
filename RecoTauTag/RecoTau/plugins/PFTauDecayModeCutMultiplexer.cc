@@ -20,11 +20,13 @@
 //
 // Original Author:  Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
 //         Created:  Thurs, April 16, 2009
-// $Id: PFTauDecayModeCutMultiplexer.cc,v 1.1.2.1 2009/09/02 23:00:15 friis Exp $
+// $Id: PFTauDecayModeCutMultiplexer.cc,v 1.2 2009/09/04 21:34:24 friis Exp $
 //
 //
 
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
+
+using namespace reco;
 
 class PFTauDecayModeCutMultiplexer : public PFTauDiscriminationProducerBase {
    public:
@@ -32,57 +34,57 @@ class PFTauDecayModeCutMultiplexer : public PFTauDiscriminationProducerBase {
       ~PFTauDecayModeCutMultiplexer(){}
 
       struct  ComputerAndCut {
-         string computerName;
+         std::string computerName;
          double userCut;
       };
 
-      typedef vector<ComputerAndCut>    CutList;
-      typedef map<int, CutList::iterator> DecayModeToCutMap;
+      typedef std::vector<ComputerAndCut>    CutList;
+      typedef std::map<int, CutList::iterator> DecayModeToCutMap;
 
       double discriminate(const PFTauRef& thePFTau);
-      void beginEvent(const Event& event, const EventSetup& eventSetup);
+      void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup);
 
    private:
       // PFTau discriminator continaing the decaymode index of the tau collection
-      InputTag                  pfTauDecayModeIndexSrc_;
+      edm::InputTag                  pfTauDecayModeIndexSrc_;
 
       // Discriminant to multiplex cut on
-      InputTag                  discriminantToMultiplex_;
+      edm::InputTag                  discriminantToMultiplex_;
 
       DecayModeToCutMap         computerMap_;      //Maps decay mode to MVA implementation
       CutList                   computers_;
 
-      Handle<PFTauDiscriminator> pfTauDecayModeIndices; // holds the decay mode indices for the taus in the current event
-      Handle<PFTauDiscriminator> targetDiscriminant;    // holds the discirminant values of the discriminant we will multiplex for the current event
+      edm::Handle<PFTauDiscriminator> pfTauDecayModeIndices; // holds the decay mode indices for the taus in the current event
+      edm::Handle<PFTauDiscriminator> targetDiscriminant;    // holds the discirminant values of the discriminant we will multiplex for the current event
 };
 
 PFTauDecayModeCutMultiplexer::PFTauDecayModeCutMultiplexer(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig)
 {
-   pfTauDecayModeIndexSrc_  = iConfig.getParameter<InputTag>("PFTauDecayModeSrc");
-   discriminantToMultiplex_ = iConfig.getParameter<InputTag>("PFTauDiscriminantToMultiplex");
+   pfTauDecayModeIndexSrc_  = iConfig.getParameter<edm::InputTag>("PFTauDecayModeSrc");
+   discriminantToMultiplex_ = iConfig.getParameter<edm::InputTag>("PFTauDiscriminantToMultiplex");
 
    //get the computer/decay mode map
-   vector<ParameterSet> decayModeMap = iConfig.getParameter<vector<ParameterSet> >("computers");
+   std::vector<edm::ParameterSet> decayModeMap = iConfig.getParameter<std::vector<edm::ParameterSet> >("computers");
    computers_.reserve(decayModeMap.size());
 
    // for each decay mode MVA implementation (which may correspond to multiple decay modes, map the decay modes to the correct MVA computer
-   for(vector<ParameterSet>::const_iterator iComputer  = decayModeMap.begin();
+   for(std::vector<edm::ParameterSet>::const_iterator iComputer  = decayModeMap.begin();
                                             iComputer != decayModeMap.end();
                                           ++iComputer)
    {
       ComputerAndCut toInsert;
-      toInsert.computerName = iComputer->getParameter<string>("computerName");
+      toInsert.computerName = iComputer->getParameter<std::string>("computerName");
       toInsert.userCut      = iComputer->getParameter<double>("cut");
       CutList::iterator computerJustAdded = computers_.insert(computers_.end(), toInsert); //add this computer to the end of the list
 
       //populate the map
-      vector<int> associatedDecayModes = iComputer->getParameter<vector<int> >("decayModeIndices");
-      for(vector<int>::const_iterator iDecayMode  = associatedDecayModes.begin();
+      std::vector<int> associatedDecayModes = iComputer->getParameter<std::vector<int> >("decayModeIndices");
+      for(std::vector<int>::const_iterator iDecayMode  = associatedDecayModes.begin();
                                       iDecayMode != associatedDecayModes.end();
                                     ++iDecayMode)
       {
          //map this integer specifying the decay mode to the MVA comptuer we just added to the list
-         pair<DecayModeToCutMap::iterator, bool> insertResult = computerMap_.insert(make_pair(*iDecayMode, computerJustAdded));
+         std::pair<DecayModeToCutMap::iterator, bool> insertResult = computerMap_.insert(std::make_pair(*iDecayMode, computerJustAdded));
 
          //make sure we aren't double mapping a decay mode
          if(insertResult.second == false) { //indicates that the current key (decaymode) has already been entered!

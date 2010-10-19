@@ -7,9 +7,11 @@
  * Authors : Simone Gennai (SNS), Evan Friis (UC Davis)
  */
 
+using namespace reco;
+
 class PFRecoTauDiscriminationByLeadingObjectPtCut : public PFTauDiscriminationProducerBase  {
    public:
-      explicit PFRecoTauDiscriminationByLeadingObjectPtCut(const ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig){   
+      explicit PFRecoTauDiscriminationByLeadingObjectPtCut(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig){   
          chargedOnly_     = iConfig.getParameter<bool>("UseOnlyChargedHadrons");
          minPtLeadObject_ = iConfig.getParameter<double>("MinPtLeadingObject");
       }
@@ -51,8 +53,8 @@ double PFRecoTauDiscriminationByLeadingObjectPtCut::discriminate(const PFTauRef&
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationByLeadingObjectPtCut);
 
 /*
-void PFRecoTauDiscriminationByLeadingPionPtCut::produce(Event& iEvent,const EventSetup& iEventSetup){
-   Handle<PFTauCollection> thePFTauCollection;
+void PFRecoTauDiscriminationByLeadingPionPtCut::produce(edm::Event& iEvent,const edm::EventSetup& iEventSetup){
+   edm::Handle<PFTauCollection> thePFTauCollection;
    iEvent.getByLabel(PFTauProducer_,thePFTauCollection);
 
 

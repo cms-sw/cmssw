@@ -44,15 +44,15 @@ typedef reco::Particle::LorentzVector LorentzVector;
 class PFRecoTauDecayModeDeterminator : public EDProducer {
  public:
 
-  typedef list<CompositeCandidate>                    compCandList;
-  typedef list<CompositeCandidate>::reverse_iterator  compCandRevIter;
+  typedef std::list<CompositeCandidate>                    compCandList;
+  typedef std::list<CompositeCandidate>::reverse_iterator  compCandRevIter;
 
   void mergePiZeroes(compCandList&, compCandRevIter);
   void mergePiZeroesByBestMatch(compCandList&);
 
-  explicit PFRecoTauDecayModeDeterminator(const ParameterSet& iConfig);
+  explicit PFRecoTauDecayModeDeterminator(const edm::ParameterSet& iConfig);
   ~PFRecoTauDecayModeDeterminator();
-  virtual void produce(Event&,const EventSetup&);
+  virtual void produce(edm::Event&,const edm::EventSetup&);
 
  protected:
   const double chargedPionMass;
@@ -68,7 +68,7 @@ class PFRecoTauDecayModeDeterminator : public EDProducer {
 
  private:
   PFCandCommonVertexFitterBase* vertexFitter_;
-  InputTag              PFTauProducer_;
+  edm::InputTag              PFTauProducer_;
   AddFourMomenta        addP4;
   uint32_t              maxPhotonsToMerge_;             //number of photons allowed in a merged pi0
   double                maxPiZeroMass_;             
@@ -87,8 +87,8 @@ class PFRecoTauDecayModeDeterminator : public EDProducer {
   TauTagTools::sortByAscendingPt<CompositeCandidate>    candAscendingSorter;
 };
 
-PFRecoTauDecayModeDeterminator::PFRecoTauDecayModeDeterminator(const ParameterSet& iConfig):chargedPionMass(0.13957),neutralPionMass(0.13497){
-  PFTauProducer_                = iConfig.getParameter<InputTag>("PFTauProducer");
+PFRecoTauDecayModeDeterminator::PFRecoTauDecayModeDeterminator(const edm::ParameterSet& iConfig):chargedPionMass(0.13957),neutralPionMass(0.13497){
+  PFTauProducer_                = iConfig.getParameter<edm::InputTag>("PFTauProducer");
   maxPhotonsToMerge_            = iConfig.getParameter<uint32_t>("maxPhotonsToMerge");
   maxPiZeroMass_                = iConfig.getParameter<double>("maxPiZeroMass");             
   mergeLowPtPhotonsFirst_       = iConfig.getParameter<bool>("mergeLowPtPhotonsFirst");
@@ -138,7 +138,7 @@ void PFRecoTauDecayModeDeterminator::mergePiZeroes(compCandList& input, compCand
       LorentzVector toAddFourVect               = potentialMatch->p4();
       combinationCandidate                      = seedFourVector + toAddFourVect;
       float combinationCandidateMass            = combinationCandidate.M();
-      float differenceToTruePiZeroMass          = abs(combinationCandidateMass - neutralPionMass);
+      float differenceToTruePiZeroMass          = std::abs(combinationCandidateMass - neutralPionMass);
       if(combinationCandidateMass < maxPiZeroMass_ && differenceToTruePiZeroMass < closestInvariantMassDifference)
       {
          closestInvariantMassDifference = differenceToTruePiZeroMass;
@@ -180,9 +180,9 @@ void PFRecoTauDecayModeDeterminator::mergePiZeroesByBestMatch(compCandList& inpu
    if(!input.size()) //nothing to merge... (NOTE: this line is necessary, as for size_t x, x in [0, +inf), x < -1 = true)
       return;
 
-   vector<compCandList::iterator> gammas;       // iterators to all the gammas.  needed as we are using a list for compatability
+   std::vector<compCandList::iterator> gammas;       // iterators to all the gammas.  needed as we are using a list for compatability
                                                 // with the original merging algorithm, and this implementation requires random access
-   vector<gammaMatchContainer> matches;
+   std::vector<gammaMatchContainer> matches;
 
    // populate the list of gammas
    for(compCandList::iterator iGamma = input.begin(); iGamma != input.end(); ++iGamma)
@@ -197,7 +197,7 @@ void PFRecoTauDecayModeDeterminator::mergePiZeroesByBestMatch(compCandList& inpu
          LorentzVector piZeroAB = gammas[gammaA]->p4() + gammas[gammaB]->p4();
          //different to true pizero mass
          double piZeroABMass               = piZeroAB.M();
-         double differenceToTruePiZeroMass = abs(piZeroABMass - neutralPionMass);
+         double differenceToTruePiZeroMass = std::abs(piZeroABMass - neutralPionMass);
 
          if(piZeroABMass < maxPiZeroMass_)
          {
@@ -214,7 +214,7 @@ void PFRecoTauDecayModeDeterminator::mergePiZeroesByBestMatch(compCandList& inpu
    //the pairs whose mass is closest to the true pi0 mass are now at the beginning
    //of this vector
 
-   for(vector<gammaMatchContainer>::iterator iMatch  = matches.begin(); 
+   for(std::vector<gammaMatchContainer>::iterator iMatch  = matches.begin(); 
                                              iMatch != matches.end();
                                            ++iMatch)
    {
@@ -238,10 +238,10 @@ void PFRecoTauDecayModeDeterminator::mergePiZeroesByBestMatch(compCandList& inpu
 
 }
 
-void PFRecoTauDecayModeDeterminator::produce(Event& iEvent,const EventSetup& iSetup){
+void PFRecoTauDecayModeDeterminator::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
 
-  ESHandle<TransientTrackBuilder> myTransientTrackBuilder;
-  ESHandle<MagneticField> myMF;
+  edm::ESHandle<TransientTrackBuilder> myTransientTrackBuilder;
+  edm::ESHandle<MagneticField> myMF;
 
   if (refitTracks_)
   {
@@ -249,7 +249,7 @@ void PFRecoTauDecayModeDeterminator::produce(Event& iEvent,const EventSetup& iSe
      iSetup.get<IdealMagneticFieldRecord>().get(myMF);
   }
 
-  Handle<PFTauCollection> thePFTauCollection;
+  edm::Handle<PFTauCollection> thePFTauCollection;
   iEvent.getByLabel(PFTauProducer_,thePFTauCollection);
 
   auto_ptr<PFTauDecayModeAssociation> result(new PFTauDecayModeAssociation(PFTauRefProd(thePFTauCollection)));
@@ -268,8 +268,8 @@ void PFRecoTauDecayModeDeterminator::produce(Event& iEvent,const EventSetup& iSe
      LorentzVector totalFourVector;                       //contains non-filtered stuff only.
 
      //shallow clone everything
-     vector<ShallowCloneCandidate>    chargedCandidates;
-     list<CompositeCandidate>         gammaCandidates;
+     std::vector<ShallowCloneCandidate>    chargedCandidates;
+     std::list<CompositeCandidate>         gammaCandidates;
      VertexCompositeCandidate         chargedCandsToAdd;  
      CompositeCandidate               filteredStuff;      //empty for now.
 
@@ -369,7 +369,7 @@ void PFRecoTauDecayModeDeterminator::produce(Event& iEvent,const EventSetup& iSe
 
 
      CompositeCandidate mergedPiZerosToAdd;
-     for( list<CompositeCandidate>::iterator iGamma  = gammaCandidates.begin();
+     for( std::list<CompositeCandidate>::iterator iGamma  = gammaCandidates.begin();
                                              iGamma != gammaCandidates.end();
                                            ++iGamma)
      {

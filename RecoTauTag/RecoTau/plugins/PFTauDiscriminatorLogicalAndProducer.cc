@@ -14,16 +14,18 @@
  * Authors : Michele Pioppi, Evan Friis (UC Davis)
  */
 
+using namespace reco;
+
 class PFTauDiscriminatorLogicalAndProducer : public PFTauDiscriminationProducerBase {
    public:
-      explicit PFTauDiscriminatorLogicalAndProducer(const ParameterSet&);
+      explicit PFTauDiscriminatorLogicalAndProducer(const edm::ParameterSet&);
       ~PFTauDiscriminatorLogicalAndProducer(){};
       double discriminate(const PFTauRef& pfTau);
    private:
       double passResult_;
 };
 
-PFTauDiscriminatorLogicalAndProducer::PFTauDiscriminatorLogicalAndProducer(const ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig)
+PFTauDiscriminatorLogicalAndProducer::PFTauDiscriminatorLogicalAndProducer(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig)
 {
    passResult_               = iConfig.getParameter<double>("PassValue");
    prediscriminantFailValue_ = iConfig.getParameter<double>("FailValue"); //defined in base class

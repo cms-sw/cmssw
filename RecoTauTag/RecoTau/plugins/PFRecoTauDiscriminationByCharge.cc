@@ -9,9 +9,11 @@
  * Authors : Michele Pioppi, Evan Friis (UC Davis)
  */
 
+using namespace reco;
+
 class PFRecoTauDiscriminationByCharge : public PFTauDiscriminationProducerBase  {
    public:
-      explicit PFRecoTauDiscriminationByCharge(const ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig){   
+      explicit PFRecoTauDiscriminationByCharge(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig){   
          chargeReq_        = iConfig.getParameter<uint32_t>("AbsChargeReq");
          oneOrThreeProng_  = iConfig.getParameter<bool>("ApplyOneOrThreeProngCut");
       }
@@ -25,7 +27,7 @@ class PFRecoTauDiscriminationByCharge : public PFTauDiscriminationProducerBase  
 double PFRecoTauDiscriminationByCharge::discriminate(const PFTauRef& thePFTauRef)
 {
    uint16_t nSigTk        =  thePFTauRef->signalPFChargedHadrCands().size();
-   bool chargeok          =  (abs(thePFTauRef->charge()) == int(chargeReq_));
+   bool chargeok          =  (std::abs(thePFTauRef->charge()) == int(chargeReq_));
    bool oneOrThreeProngOK =  ( (nSigTk==1) || (nSigTk==3) || !oneOrThreeProng_ );
 
    return ( (chargeok && oneOrThreeProngOK) ? 1. : 0. );

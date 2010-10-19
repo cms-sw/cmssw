@@ -11,10 +11,12 @@
  *                Evan Friis (UC Davis)
  */
 
+using namespace reco;
+
 class CaloRecoTauDiscriminationAgainstElectron : public  CaloTauDiscriminationProducerBase {
    public:
-      explicit CaloRecoTauDiscriminationAgainstElectron(const ParameterSet& iConfig):CaloTauDiscriminationProducerBase(iConfig){   
-         CaloTauProducer_                            = iConfig.getParameter<InputTag>("CaloTauProducer");
+      explicit CaloRecoTauDiscriminationAgainstElectron(const edm::ParameterSet& iConfig):CaloTauDiscriminationProducerBase(iConfig){   
+         CaloTauProducer_                            = iConfig.getParameter<edm::InputTag>("CaloTauProducer");
          leadTrack_HCAL3x3hitsEtSumOverPt_minvalue_  = iConfig.getParameter<double>("leadTrack_HCAL3x3hitsEtSumOverPt_minvalue");  
          ApplyCut_maxleadTrackHCAL3x3hottesthitDEta_ = iConfig.getParameter<bool>("ApplyCut_maxleadTrackHCAL3x3hottesthitDEta");
          maxleadTrackHCAL3x3hottesthitDEta_          = iConfig.getParameter<double>("maxleadTrackHCAL3x3hottesthitDEta");
@@ -22,17 +24,17 @@ class CaloRecoTauDiscriminationAgainstElectron : public  CaloTauDiscriminationPr
       }
       ~CaloRecoTauDiscriminationAgainstElectron(){} 
       double discriminate(const CaloTauRef& theCaloTauRef);
-      void beginEvent(const Event& event, const EventSetup& eventSetup);
+      void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup);
    private:  
-      ESHandle<MagneticField> theMagneticField;
-      InputTag CaloTauProducer_;
+      edm::ESHandle<MagneticField> theMagneticField;
+      edm::InputTag CaloTauProducer_;
       double leadTrack_HCAL3x3hitsEtSumOverPt_minvalue_;   
       bool ApplyCut_maxleadTrackHCAL3x3hottesthitDEta_;
       double maxleadTrackHCAL3x3hottesthitDEta_;
       bool ApplyCut_leadTrackavoidsECALcrack_;
 };
 
-void CaloRecoTauDiscriminationAgainstElectron::beginEvent(const Event& event, const EventSetup& eventSetup)
+void CaloRecoTauDiscriminationAgainstElectron::beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup)
 {
    if (ApplyCut_leadTrackavoidsECALcrack_)
    {
@@ -72,8 +74,8 @@ double CaloRecoTauDiscriminationAgainstElectron::discriminate(const CaloTauRef& 
 }
 
    /*
-void CaloRecoTauDiscriminationAgainstElectron::produce(Event& iEvent,const EventSetup& iEventSetup){
-  Handle<CaloTauCollection> theCaloTauCollection;
+void CaloRecoTauDiscriminationAgainstElectron::produce(edm::Event& iEvent,const edm::EventSetup& iEventSetup){
+  edm::Handle<CaloTauCollection> theCaloTauCollection;
   iEvent.getByLabel(CaloTauProducer_,theCaloTauCollection);
 
   // fill the AssociationVector object
@@ -94,7 +96,7 @@ void CaloRecoTauDiscriminationAgainstElectron::produce(Event& iEvent,const Event
     }
     if (ApplyCut_leadTrackavoidsECALcrack_){
       // optional selection : ask that leading track - ECAL inner surface contact point does not fall inside any ECAL eta crack 
-      ESHandle<MagneticField> theMagneticField;
+      edm::ESHandle<MagneticField> theMagneticField;
       iEventSetup.get<IdealMagneticFieldRecord>().get(theMagneticField);
       math::XYZPoint thepropagleadTrackECALSurfContactPoint=TauTagTools::propagTrackECALSurfContactPoint(theMagneticField.product(),(*theCaloTauRef).leadTrack());
       if(thepropagleadTrackECALSurfContactPoint.R()==0. ||

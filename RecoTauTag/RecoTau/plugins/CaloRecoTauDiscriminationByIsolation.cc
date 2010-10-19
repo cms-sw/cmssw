@@ -6,9 +6,11 @@
 
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 
+using namespace reco;
+
 class CaloRecoTauDiscriminationByIsolation : public CaloTauDiscriminationProducerBase {
  public:
-  explicit CaloRecoTauDiscriminationByIsolation(const ParameterSet& iConfig):CaloTauDiscriminationProducerBase(iConfig){   
+  explicit CaloRecoTauDiscriminationByIsolation(const edm::ParameterSet& iConfig):CaloTauDiscriminationProducerBase(iConfig){   
     applyDiscriminationByTrackerIsolation_ = iConfig.getParameter<bool>("ApplyDiscriminationByTrackerIsolation");
     TrackerIsolAnnulus_maximumOccupancy_   = iConfig.getParameter<unsigned>("TrackerIsolAnnulus_maximumOccupancy");   
     

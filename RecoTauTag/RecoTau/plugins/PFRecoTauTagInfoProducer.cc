@@ -34,9 +34,9 @@ using namespace std;
 
 class PFRecoTauTagInfoProducer : public EDProducer {
  public:
-  explicit PFRecoTauTagInfoProducer(const ParameterSet& iConfig);
+  explicit PFRecoTauTagInfoProducer(const edm::ParameterSet& iConfig);
   ~PFRecoTauTagInfoProducer();
-  virtual void produce(Event&,const EventSetup&);
+  virtual void produce(edm::Event&,const edm::EventSetup&);
  private:
   PFRecoTauTagInfoAlgorithm* PFRecoTauTagInfoAlgo_;
   edm::InputTag PFCandidateProducer_;
@@ -47,7 +47,7 @@ class PFRecoTauTagInfoProducer : public EDProducer {
   double smearedPVsigmaZ_;  
 };
 
-PFRecoTauTagInfoProducer::PFRecoTauTagInfoProducer(const ParameterSet& iConfig){
+PFRecoTauTagInfoProducer::PFRecoTauTagInfoProducer(const edm::ParameterSet& iConfig){
 
   PFCandidateProducer_                = iConfig.getParameter<edm::InputTag>("PFCandidateProducer");
   PFJetTracksAssociatorProducer_      = iConfig.getParameter<edm::InputTag>("PFJetTracksAssociatorProducer");
@@ -62,11 +62,11 @@ PFRecoTauTagInfoProducer::~PFRecoTauTagInfoProducer(){
   delete PFRecoTauTagInfoAlgo_;
 }
 
-void PFRecoTauTagInfoProducer::produce(Event& iEvent, const EventSetup& iSetup){
-  Handle<JetTracksAssociationCollection> thePFJetTracksAssociatorCollection;
+void PFRecoTauTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+  edm::Handle<JetTracksAssociationCollection> thePFJetTracksAssociatorCollection;
   iEvent.getByLabel(PFJetTracksAssociatorProducer_,thePFJetTracksAssociatorCollection);
   // *** access the PFCandidateCollection in the event in order to retrieve the PFCandidateRefVector which constitutes each PFJet
-  Handle<PFCandidateCollection> thePFCandidateCollection;
+  edm::Handle<PFCandidateCollection> thePFCandidateCollection;
   iEvent.getByLabel(PFCandidateProducer_,thePFCandidateCollection);
   PFCandidateRefVector thePFCandsInTheEvent;
   for(unsigned int i_PFCand=0;i_PFCand!=thePFCandidateCollection->size();i_PFCand++) { 
@@ -74,7 +74,7 @@ void PFRecoTauTagInfoProducer::produce(Event& iEvent, const EventSetup& iSetup){
   }
   // ***
   // query a rec/sim PV
-  Handle<VertexCollection> thePVs;
+  edm::Handle<VertexCollection> thePVs;
   iEvent.getByLabel(PVProducer_,thePVs);
   const VertexCollection vertCollection=*(thePVs.product());
   math::XYZPoint V(0,0,-1000.);
