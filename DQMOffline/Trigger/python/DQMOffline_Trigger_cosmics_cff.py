@@ -90,4 +90,4 @@ offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*muonFullOfflineDQM*
 
 
 triggerCosmicOfflineDQMSource =  cms.Sequence(l1temumonitor*l1tmonitor*onlineHLTSource*offlineHLTSource)
-
+triggerCosmicOfflineDQMSource.remove(jetMETHLTOfflineSource)

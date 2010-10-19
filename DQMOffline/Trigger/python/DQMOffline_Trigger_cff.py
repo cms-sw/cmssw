@@ -94,4 +94,6 @@ dqmEnvHLT.subSystemFolder = 'HLT'
 offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*muonFullOfflineDQM*HLTTauDQMOffline*jetMETHLTOfflineSource*TnPEfficiency*dqmEnvHLT)
 
 triggerOfflineDQMSource =  cms.Sequence(l1temumonitor*l1tmonitor*onlineHLTSource*offlineHLTSource)
+  
+triggerOfflineDQMSource.remove(jetMETHLTOfflineSource)
  
