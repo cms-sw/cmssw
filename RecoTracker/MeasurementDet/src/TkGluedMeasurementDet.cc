@@ -46,6 +46,10 @@ TkGluedMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
 
 struct take_address { template<typename T> const T * operator()(const T &val) const { return &val; } };
 
+#include "DataFormats/Math/interface/SSEVec.h"
+#ifdef CMS_USE_SSE
+#define DOUBLE_MATCH
+#endif
 
 #ifdef DOUBLE_MATCH
 template<typename Collector>
