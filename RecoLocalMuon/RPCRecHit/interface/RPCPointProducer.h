@@ -39,8 +39,8 @@ class RPCPointProducer : public edm::EDProducer {
       double MaxDrb4;
       double MaxDistanceBetweenSegments;
       double ExtrapolatedRegion;
-      ParameterSet trackTransformerParam;
-      ParameterSet serviceParameters;
+      edm::ParameterSet trackTransformerParam;
+      edm::ParameterSet serviceParameters;
       // ----------member data ---------------------------
 };
 

@@ -54,8 +54,6 @@
 //#include "RecoLocalMuon/RPCRecHit/interface/DTSegtoRPC.h"
 //#include "RecoLocalMuon/RPCRecHit/interface/CSCSegtoRPC.h"
 
-using namespace edm;
-using namespace std;
 using reco::MuonCollection;
 using reco::TrackCollection;
 typedef std::vector<Trajectory> Trajectories;
