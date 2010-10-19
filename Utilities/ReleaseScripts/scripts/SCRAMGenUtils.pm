@@ -607,6 +607,19 @@ sub readBuildFile ()
     my $xml=$doc2xml->convert($bfile);
     $input = join("",@$xml);
   }
+  else
+  {
+    my $ref;
+    if(open($ref,$bfile))
+    {
+      while(my $l=<$ref>)
+      {
+        chomp $l;
+        if ($l=~/^\s*(#.*|)$/){next;}
+        $input.="$l ";
+      }
+    }
+  }
   my $xml = SCRAM::Plugins::DocParser->new();
   $xml->parse($bfile,$input);
   if ($raw){return $xml->{output};}
