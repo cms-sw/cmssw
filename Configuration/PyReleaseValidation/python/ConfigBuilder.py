@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.242 $"
+__version__ = "$Revision: 1.243 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -37,6 +37,7 @@ defaultOptions.filtername = ''
 defaultOptions.lazy_download = False
 defaultOptions.custom_conditions = ''
 defaultOptions.hltProcess = ''
+defaultOptions.inlineEventContent = True
 
 # the pile up map
 pileupMap = {'156BxLumiPileUp': 2.0,
@@ -266,10 +267,12 @@ class ConfigBuilder(object):
 		setattr(self.process,outputModuleName+'_step',cms.EndPath(outputModule))
 		path=getattr(self.process,outputModuleName+'_step')
 		self.schedule.append(path)
-		
-		def doNotInlineEventContent(instance,label = "process."+streamType+"EventContent.outputCommands"):
-			return label
-		outputModule.outputCommands.__dict__["dumpPython"] = doNotInlineEventContent
+
+		if not self._options.inlineEventContent:
+			def doNotInlineEventContent(instance,label = "process."+streamType+"EventContent.outputCommands"):
+				return label
+			outputModule.outputCommands.__dict__["dumpPython"] = doNotInlineEventContent
+			
 		result+="\nprocess."+outputModuleName+" = "+outputModule.dumpPython()
 		
 	return result
@@ -634,9 +637,10 @@ class ConfigBuilder(object):
 
 
 	    if isinstance(stream.content,str):
-		    def doNotInlineEventContent(instance,label = "process."+stream.content+".outputCommands"):
-			    return label
-		    output.outputCommands = getattr(self.process,stream.content)
+		    if not self._options.inlineEventContent:
+			    def doNotInlineEventContent(instance,label = "process."+stream.content+".outputCommands"):
+				    return label
+			    output.outputCommands = getattr(self.process,stream.content)
 		    output.outputCommands.__dict__["dumpPython"] = doNotInlineEventContent
 	    else:
 		    output.outputCommands = stream.content
@@ -1194,7 +1198,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.242 $"),
+					    (version=cms.untracked.string("$Revision: 1.243 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
