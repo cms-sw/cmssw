@@ -3,6 +3,7 @@
 namespace PFTauDiscriminants
 {
 using namespace std;
+using namespace reco;
 
 typedef std::vector<const reco::Candidate*> candPtrVector;
 
@@ -164,7 +165,7 @@ PFTauDiscriminantManager::mainTrack()
          return NULL;
       }
 
-      vector<const reco::Candidate*> myChargedCandidates = getDecayMode()->chargedPionCandidates();
+      std::vector<const reco::Candidate*> myChargedCandidates = getDecayMode()->chargedPionCandidates();
       size_t nTracks = myChargedCandidates.size();
       if (!nTracks) 
       {
@@ -343,7 +344,7 @@ PFTauDiscriminantManager::buildMVAComputerLink(std::vector<PhysicsTools::Variabl
 vector<const reco::Candidate*>
 PFTauDiscriminantManager::getLeafDaughters(const reco::Candidate* input) 
 {
-   vector<const reco::Candidate*> output;
+   std::vector<const reco::Candidate*> output;
 
    //check for validity
    if(!input)   
@@ -356,7 +357,7 @@ PFTauDiscriminantManager::getLeafDaughters(const reco::Candidate* input)
    {
       for(size_t iDaughter = 0; iDaughter < nDaughters; ++iDaughter)
       {
-         vector<const reco::Candidate*> leafsOnThisBranch = getLeafDaughters(input->daughter(iDaughter));
+         std::vector<const reco::Candidate*> leafsOnThisBranch = getLeafDaughters(input->daughter(iDaughter));
          output.insert(output.end(), leafsOnThisBranch.begin(), leafsOnThisBranch.end());
       }
    }

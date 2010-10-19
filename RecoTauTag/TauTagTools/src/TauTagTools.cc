@@ -1,5 +1,8 @@
 #include "RecoTauTag/TauTagTools/interface/TauTagTools.h"
 
+using namespace reco;
+using std::string;
+
 namespace TauTagTools{
 
    double computeDeltaR(const math::XYZVector& vec1, const math::XYZVector& vec2) 
@@ -31,9 +34,9 @@ TFormula computeConeSizeTFormula(const string& ConeSizeFormula,const char* error
   ConeSizeTFormula.SetTitle(ConeSizeFormulaStr.data()); // the function definition is actually stored in the "Title" data-member of the TFormula object
   int errorFlag = ConeSizeTFormula.Compile();
   if (errorFlag!= 0) {
-    throw cms::Exception("") << "\n unsupported functional Form for " << errorMessage << " " << ConeSizeFormula << endl
+    throw cms::Exception("") << "\n unsupported functional Form for " << errorMessage << " " << ConeSizeFormula << std::endl
 			     << "Please check that the Definition in \"" << ConeSizeTFormula.GetName() << "\" only contains the variables \"E\" or \"ET\""
-			     << " and Functions that are supported by ROOT's TFormular Class." << endl;
+			     << " and Functions that are supported by ROOT's TFormular Class." << std::endl;
   }else return ConeSizeTFormula;
 }
 void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){

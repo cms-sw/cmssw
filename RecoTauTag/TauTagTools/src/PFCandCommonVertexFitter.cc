@@ -12,9 +12,9 @@ void PFCandCommonVertexFitterBase::set(VertexCompositeCandidate & c) const {
       << "B-Field was not set up PFCandCommonVertexFitter.\n"
       << "the following method must be called before fitting a candidate:\n"
       << " PFCandCommonVertexFitter:.set( const MagneticField * )" << endl;
-  vector<TransientTrack> tracks;
-  vector<Candidate *> daughters;
-  vector<RecoCandidate::TrackType> trackTypes;
+  std::vector<TransientTrack> tracks;
+  std::vector<Candidate *> daughters;
+  std::vector<RecoCandidate::TrackType> trackTypes;
   fill(tracks, daughters, trackTypes, c);
   assert(tracks.size() == daughters.size());
   TransientVertex vertex;
@@ -22,9 +22,9 @@ void PFCandCommonVertexFitterBase::set(VertexCompositeCandidate & c) const {
     tracks = vertex.refittedTracks();    
     Candidate::Point vtx(vertex.position());
     c.setVertex(vtx);
-    vector<TransientTrack>::const_iterator trackIt = tracks.begin(), tracksEnd = tracks.end();
-    vector<Candidate *>::const_iterator daughterIt = daughters.begin();
-    vector<RecoCandidate::TrackType>::const_iterator trackTypeIt = trackTypes.begin();
+    std::vector<TransientTrack>::const_iterator trackIt = tracks.begin(), tracksEnd = tracks.end();
+    std::vector<Candidate *>::const_iterator daughterIt = daughters.begin();
+    std::vector<RecoCandidate::TrackType>::const_iterator trackTypeIt = trackTypes.begin();
     Candidate::LorentzVector mp4(0, 0, 0, 0);
     for(; trackIt != tracksEnd; ++ trackIt, ++ daughterIt, ++trackTypeIt) {
       const Track & track = trackIt->track();
@@ -55,9 +55,9 @@ void PFCandCommonVertexFitterBase::set(VertexCompositeCandidate & c) const {
   }
 }
 
-void PFCandCommonVertexFitterBase::fill(vector<TransientTrack> & tracks, 
-				      vector<Candidate *> & daughters,
-				      vector<RecoCandidate::TrackType> & trackTypes,
+void PFCandCommonVertexFitterBase::fill(std::vector<TransientTrack> & tracks, 
+				      std::vector<Candidate *> & daughters,
+				      std::vector<RecoCandidate::TrackType> & trackTypes,
 				      Candidate & c) const {
   size_t nDau = c.numberOfDaughters();
   for(unsigned int j = 0; j < nDau ; ++j) {

@@ -8,8 +8,6 @@
 #include "RecoTauTag/TauTagTools/interface/TauTagTools.h"
 #include "TTree.h"
 
-using namespace std;
-
 namespace PFTauDiscriminants
 {
 
@@ -20,9 +18,9 @@ class PFTauDiscriminantManager {
       PFTauDiscriminantManager();
       ~PFTauDiscriminantManager();
 
-      typedef vector<const reco::Candidate*> candPtrVector;
+      typedef std::vector<const reco::Candidate*> candPtrVector;
       //maps string (discriminant name, ( (discriminantComputer), links)
-      typedef map<string, Discriminant* const> discriminantHolder;
+      typedef std::map<std::string, Discriminant* const> discriminantHolder;
       /// add a discriminant 
       void addDiscriminant(Discriminant* const aDiscriminant);
       /// add a set of branches ot the TTree 
@@ -49,13 +47,13 @@ class PFTauDiscriminantManager {
       /// get the 'main' track (track computed for relevancy to tau decay resonances) (ie pi- in pi+pi+pi-)
       const reco::Candidate*      mainTrack();
       /// accessed by Discriminant classes (caches to prevent multiple sorts)
-      const vector<const reco::Candidate*>& signalObjectsSortedByPt();
-      const vector<const reco::Candidate*>& signalObjectsSortedByDR();
-      const vector<const reco::Candidate*>& outlierObjectsSortedByPt();
-      const vector<const reco::Candidate*>& outlierObjectsSortedByDR();
+      const std::vector<const reco::Candidate*>& signalObjectsSortedByPt();
+      const std::vector<const reco::Candidate*>& signalObjectsSortedByDR();
+      const std::vector<const reco::Candidate*>& outlierObjectsSortedByPt();
+      const std::vector<const reco::Candidate*>& outlierObjectsSortedByDR();
 
       /// return the lowest level constituent candidates of a composite candidate
-      static vector<const reco::Candidate*> getLeafDaughters(const reco::Candidate* input);
+      static std::vector<const reco::Candidate*> getLeafDaughters(const reco::Candidate* input);
 
       /// 
       candPtrVector                         filterByCharge(const candPtrVector& input, bool isCharged) const;

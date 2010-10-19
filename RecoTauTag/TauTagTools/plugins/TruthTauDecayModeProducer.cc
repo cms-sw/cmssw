@@ -15,7 +15,7 @@ Description: Produces reco::PFTauDecayModes corresponding to MonteCarlo objects
 //
 // Original Author:  Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
 //         Created:  Thu Sep 1 06:19:05 PST 2008
-// $Id: TruthTauDecayModeProducer.cc,v 1.4 2009/05/05 13:35:51 friis Exp $
+// $Id: TruthTauDecayModeProducer.cc,v 1.5 2009/09/02 23:04:50 friis Exp $
 //
 //
 
@@ -93,14 +93,14 @@ TruthTauDecayModeProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
    using namespace std;
    using namespace reco;
 
-   vector<tauObjectsHolder> tausToAdd_;
+   std::vector<tauObjectsHolder> tausToAdd_;
 
    /* **********************************************
     * **********  True Tau Case          ***********
     * ********************************************** */
    if (iAmSignal_)
    {
-      Handle<RefToBaseVector<reco::Candidate> > decayedMCTaus;
+      edm::Handle<RefToBaseVector<reco::Candidate> > decayedMCTaus;
       iEvent.getByLabel(inputTag_, decayedMCTaus);
       for(edm::RefToBaseVector<reco::Candidate>::const_iterator iterGen = decayedMCTaus->begin();
             iterGen != decayedMCTaus->end();
@@ -125,20 +125,20 @@ TruthTauDecayModeProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
    /* **********************************************
     * **********  QCD Case               ***********
     * ********************************************** */
-      Handle<GenJetCollection> genJets;
+      edm::Handle<GenJetCollection> genJets;
       iEvent.getByLabel(inputTag_, genJets);
       for(GenJetCollection::const_iterator aGenJet = genJets->begin(); aGenJet != genJets->end(); ++aGenJet)
       {
          // get all constituents
-         vector<const GenParticle*> theJetConstituents = aGenJet->getGenConstituents();
+         std::vector<const GenParticle*> theJetConstituents = aGenJet->getGenConstituents();
 
          tauObjectsHolder tempTauHolder;
          // filter the constituents
-         for( vector<const GenParticle*>::const_iterator aCandidate = theJetConstituents.begin();
+         for( std::vector<const GenParticle*>::const_iterator aCandidate = theJetConstituents.begin();
                aCandidate != theJetConstituents.end();
                ++aCandidate)
          {
-            int pdgId = abs((*aCandidate)->pdgId());
+            int pdgId = std::abs((*aCandidate)->pdgId());
             const Candidate* theCandidate = static_cast<const Candidate*>(*aCandidate);
             //filter nus
             if (pdgId == 16 || pdgId == 12 || pdgId == 14)
@@ -159,16 +159,16 @@ TruthTauDecayModeProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
    }
 
    //output collection
-   std::auto_ptr<vector<PFTauDecayMode> > pOut( new vector<PFTauDecayMode> );
-   for(vector<tauObjectsHolder>::const_iterator iTempTau  = tausToAdd_.begin();
+   std::auto_ptr<vector<PFTauDecayMode> > pOut( new std::vector<PFTauDecayMode> );
+   for(std::vector<tauObjectsHolder>::const_iterator iTempTau  = tausToAdd_.begin();
                                                 iTempTau != tausToAdd_.end();
                                               ++iTempTau)
    {
       double leadTrackPt  = 0.;
       double leadTrackEta = 0.;
       VertexCompositeCandidate chargedObjectsToAdd;
-      const vector<const Candidate*>* chargedObjects = &(iTempTau->chargedObjects);
-      for(vector<const Candidate*>::const_iterator iCharged  = chargedObjects->begin();
+      const std::vector<const Candidate*>* chargedObjects = &(iTempTau->chargedObjects);
+      for(std::vector<const Candidate*>::const_iterator iCharged  = chargedObjects->begin();
                                                    iCharged != chargedObjects->end();
                                                  ++iCharged)
       {
@@ -184,8 +184,8 @@ TruthTauDecayModeProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       addP4.set(chargedObjectsToAdd);
 
       CompositeCandidate neutralPionsToAdd;
-      const vector<const Candidate*>* neutralObjects = &(iTempTau->neutralObjects);
-      for(vector<const Candidate*>::const_iterator iNeutral  = neutralObjects->begin();
+      const std::vector<const Candidate*>* neutralObjects = &(iTempTau->neutralObjects);
+      for(std::vector<const Candidate*>::const_iterator iNeutral  = neutralObjects->begin();
                                                    iNeutral != neutralObjects->end();
                                                  ++iNeutral)
       {
@@ -196,7 +196,7 @@ TruthTauDecayModeProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       Particle::LorentzVector myFourVector = chargedObjectsToAdd.p4();
       myFourVector += neutralPionsToAdd.p4();
 
-      if(leadTrackPt > leadTrackPtCut_ && abs(leadTrackEta) < leadTrackEtaCut_ && myFourVector.pt() > totalPtCut_ && abs(myFourVector.eta()) < totalEtaCut_)
+      if(leadTrackPt > leadTrackPtCut_ && std::abs(leadTrackEta) < leadTrackEtaCut_ && myFourVector.pt() > totalPtCut_ && std::abs(myFourVector.eta()) < totalEtaCut_)
       {
          //TODO: add vertex fitting
          CompositeCandidate theOutliers;

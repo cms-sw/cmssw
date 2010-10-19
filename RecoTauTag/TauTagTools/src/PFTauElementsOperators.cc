@@ -1,5 +1,8 @@
 #include "RecoTauTag/TauTagTools/interface/PFTauElementsOperators.h"
 
+using namespace reco;
+using std::string;
+
  PFTauElementsOperators::PFTauElementsOperators(PFTau& thePFTau): TauElementsOperators(thePFTau),AreaMetric_recoElements_maxabsEta_(2.5){
    PFJetRef_=thePFTau.pfTauTagInfoRef()->pfjetRef();
    PFCands_=thePFTau.pfTauTagInfoRef()->PFCands();
@@ -62,8 +65,8 @@ PFCandidateRefVector PFTauElementsOperators::PFNeutrHadrCandsInCone(const math::
 }
 
 // Function to get elements inside ellipse here ... EELL
-pair<PFCandidateRefVector, PFCandidateRefVector> PFTauElementsOperators::PFGammaCandsInOutEllipse(const PFCandidateRefVector PFGammaCands_, const PFCandidate leadCand_, double rPhi, double rEta, double maxPt) const{
-  pair<PFCandidateRefVector,PFCandidateRefVector> myPFGammaCandsInEllipse = PFCandidatesInEllipse_(leadCand_, rPhi, rEta, PFGammaCands_);
+std::pair<PFCandidateRefVector, PFCandidateRefVector> PFTauElementsOperators::PFGammaCandsInOutEllipse(const PFCandidateRefVector PFGammaCands_, const PFCandidate leadCand_, double rPhi, double rEta, double maxPt) const{
+  std::pair<PFCandidateRefVector,PFCandidateRefVector> myPFGammaCandsInEllipse = PFCandidatesInEllipse_(leadCand_, rPhi, rEta, PFGammaCands_);
   PFCandidateRefVector thePFGammaCandsInEllipse = myPFGammaCandsInEllipse.first;
   PFCandidateRefVector thePFGammaCandsOutEllipse = myPFGammaCandsInEllipse.second;
   PFCandidateRefVector theFilteredPFGammaCandsInEllipse;
@@ -71,7 +74,7 @@ pair<PFCandidateRefVector, PFCandidateRefVector> PFTauElementsOperators::PFGamma
     if((**iPFGammaCand).pt() <= maxPt) theFilteredPFGammaCandsInEllipse.push_back(*iPFGammaCand);
     else thePFGammaCandsOutEllipse.push_back(*iPFGammaCand);
   }
-  pair<PFCandidateRefVector, PFCandidateRefVector> theFilteredPFGammaCandsInOutEllipse(theFilteredPFGammaCandsInEllipse, thePFGammaCandsOutEllipse);
+  std::pair<PFCandidateRefVector, PFCandidateRefVector> theFilteredPFGammaCandsInOutEllipse(theFilteredPFGammaCandsInEllipse, thePFGammaCandsOutEllipse);
   
   return theFilteredPFGammaCandsInOutEllipse;
 }
@@ -315,7 +318,7 @@ PFTauElementsOperators::computeInsideOutContents(const PFCandidateRefVector& the
 
    //create vector of indexes as RefVectors can't use STL algos?
    unsigned int numberOfCandidates = filteredCands.size();
-   vector<uint32_t> filteredCandIndexes(numberOfCandidates);
+   std::vector<uint32_t> filteredCandIndexes(numberOfCandidates);
    for(uint32_t theIndex = 0; theIndex < numberOfCandidates; theIndex++)
       filteredCandIndexes[theIndex] = theIndex;
    
@@ -325,7 +328,7 @@ PFTauElementsOperators::computeInsideOutContents(const PFCandidateRefVector& the
    sort(filteredCandIndexes.begin(), filteredCandIndexes.end(), myAngularSorter);
 
    PFCandidateRefVector sortedCands;
-   for(vector<uint32_t>::const_iterator theSortedIndex = filteredCandIndexes.begin();
+   for(std::vector<uint32_t>::const_iterator theSortedIndex = filteredCandIndexes.begin();
                                         theSortedIndex != filteredCandIndexes.end();
                                         ++theSortedIndex)
    {

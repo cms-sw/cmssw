@@ -15,11 +15,10 @@
 
 #include "RecoTauTag/TauTagTools/interface/Discriminants.h"
 
-using namespace std;
 namespace PFTauDiscriminants {
 class DiscriminantList {
    public:
-      typedef vector<Discriminant*> collection;
+      typedef std::vector<Discriminant*> collection;
       typedef collection::const_iterator const_iterator;
       DiscriminantList();
       ~DiscriminantList();

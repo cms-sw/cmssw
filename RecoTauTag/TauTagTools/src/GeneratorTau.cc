@@ -17,7 +17,7 @@ GeneratorTau::getLeadTrack() const
 const reco::GenParticle*
 GeneratorTau::findLeadTrack()
 {
-   vector<const reco::GenParticle*>::const_iterator thePion = genChargedPions_.begin();
+   std::vector<const reco::GenParticle*>::const_iterator thePion = genChargedPions_.begin();
    double maxPt = 0;
    const reco::GenParticle* output = NULL;
    for (; thePion != genChargedPions_.end(); ++thePion)
@@ -33,10 +33,10 @@ GeneratorTau::findLeadTrack()
 }
 
 float 
-GeneratorTau::getOpeningAngle(const vector<const reco::GenParticle*>& theCollection) const
+GeneratorTau::getOpeningAngle(const std::vector<const reco::GenParticle*>& theCollection) const
 {
    double output = 0;
-   vector<const reco::GenParticle*>::const_iterator theObject = theCollection.begin();
+   std::vector<const reco::GenParticle*>::const_iterator theObject = theCollection.begin();
    for (; theObject != theCollection.end(); ++theObject)
    {
       if (output < angleFinder(theLeadTrack_->p4(), (*theObject)->p4()))
@@ -61,7 +61,7 @@ GeneratorTau::tauDecayModeEnum
 GeneratorTau::computeDecayMode(const reco::GenParticle* theTau)
 {
    //return kUndefined if not a tau
-   if (theTau == NULL || abs(theTau->pdgId()) != 15 || theTau->status() != 2)
+   if (theTau == NULL || std::abs(theTau->pdgId()) != 15 || theTau->status() != 2)
       return kUndefined;
 
    //edm::LogInfo("GeneratorTau") << "Compute decay mode: Is final state! Classifiying the " << theTau->numberOfDaughters() << " daughters..";
@@ -86,7 +86,7 @@ GeneratorTau::computeDecayMode(const reco::GenParticle* theTau)
    for (std::vector<const reco::GenParticle* >::const_iterator decayProduct = pdgDecayProductTypes.begin();
          decayProduct != pdgDecayProductTypes.end(); ++decayProduct)
    {
-      int pdg_id = abs( (*decayProduct)->pdgId() );
+      int pdg_id = std::abs( (*decayProduct)->pdgId() );
       //edm::LogInfo("GeneratorTau") << "Has decay product w/ PDG ID: " << pdg_id;
       if (pdg_id == 11) numElectrons++;
       else if (pdg_id == 13) numMuons++;
@@ -148,7 +148,7 @@ GeneratorTau::decayToPDGClassification(const reco::GenParticle* theParticle, std
    if (theParticle) 
    {
       //edm::LogInfo("Debug") << "It's non-null";
-      int pdgId = abs(theParticle->pdgId());
+      int pdgId = std::abs(theParticle->pdgId());
       //edm::LogInfo("Debug") << "PDGID = " << pdgId << " Status = " << theStatus;
       if (theParticle->status() == 1 || pdgId == 211 || pdgId == 111 || pdgId == 11 || pdgId == 13)
       {
@@ -220,12 +220,12 @@ GeneratorTau::init()
       computeStableDecayProducts(this, stableDecayProducts_);
       //from the stable products, fill the lists
       //edm::LogInfo("GeneratorTau") << "Found " << stableDecayProducts_.size() << " stable decay products, filtering.";
-      for (vector<const reco::GenParticle*>::const_iterator iter = stableDecayProducts_.begin();
+      for (std::vector<const reco::GenParticle*>::const_iterator iter = stableDecayProducts_.begin();
             iter != stableDecayProducts_.end();
             ++iter)
       {
          //fill vectors 
-         int pdg_id = abs( (*iter)->pdgId() );
+         int pdg_id = std::abs( (*iter)->pdgId() );
          if (pdg_id == 16 || pdg_id == 12 || pdg_id == 14)
             genNus_.push_back( (*iter) );
          else  {
@@ -243,11 +243,11 @@ GeneratorTau::init()
 
 
 
-vector<LorentzVector>
-GeneratorTau::convertMCVectorToLorentzVectors(const vector<const reco::GenParticle*>& theList) const
+std::vector<LorentzVector>
+GeneratorTau::convertMCVectorToLorentzVectors(const std::vector<const reco::GenParticle*>& theList) const
 {
-   vector<LorentzVector> output;
-   vector<const reco::GenParticle*>::const_iterator theParticle;
+   std::vector<LorentzVector> output;
+   std::vector<const reco::GenParticle*>::const_iterator theParticle;
    for (theParticle = theList.begin(); theParticle != theList.end(); ++theParticle)
    {
       output.push_back( (*theParticle)->p4() );
@@ -255,69 +255,69 @@ GeneratorTau::convertMCVectorToLorentzVectors(const vector<const reco::GenPartic
    return output;
 }
 
-vector<const reco::Candidate*>
+std::vector<const reco::Candidate*>
 GeneratorTau::getGenChargedPions() const
 {
-   vector<const reco::Candidate*> output;
-   vector<const GenParticle*>::const_iterator iter;
+   std::vector<const reco::Candidate*> output;
+   std::vector<const GenParticle*>::const_iterator iter;
    for (iter = genChargedPions_.begin(); iter != genChargedPions_.end(); ++iter)
       output.push_back(static_cast<const reco::Candidate*>(*iter));
    return output;
 }
       
-vector<const reco::Candidate*>
+std::vector<const reco::Candidate*>
 GeneratorTau::getGenNeutralPions() const
 {
-   vector<const reco::Candidate*> output;
-   vector<const GenParticle*>::const_iterator iter;
+   std::vector<const reco::Candidate*> output;
+   std::vector<const GenParticle*>::const_iterator iter;
    for (iter = genNeutralPions_.begin(); iter != genNeutralPions_.end(); ++iter)
       output.push_back(static_cast<const reco::Candidate*>(*iter));
    return output;
 }
 
-vector<const reco::Candidate*>
+std::vector<const reco::Candidate*>
 GeneratorTau::getGenGammas() const
 {
-   vector<const reco::Candidate*> output;
-   vector<const GenParticle*>::const_iterator iter;
+   std::vector<const reco::Candidate*> output;
+   std::vector<const GenParticle*>::const_iterator iter;
    for (iter = genGammas_.begin(); iter != genGammas_.end(); ++iter)
       output.push_back(static_cast<const reco::Candidate*>(*iter));
    return output;
 }
 
-vector<const reco::Candidate*>
+std::vector<const reco::Candidate*>
 GeneratorTau::getStableDecayProducts() const
 {
-   vector<const reco::Candidate*> output;
-   vector<const GenParticle*>::const_iterator iter;
+   std::vector<const reco::Candidate*> output;
+   std::vector<const GenParticle*>::const_iterator iter;
    for (iter = stableDecayProducts_.begin(); iter != stableDecayProducts_.end(); ++iter)
       output.push_back(static_cast<const reco::Candidate*>(*iter));
    return output;
 }
 
-vector<const reco::Candidate*>
+std::vector<const reco::Candidate*>
 GeneratorTau::getGenNu() const
 {
-   vector<const reco::Candidate*> output;
-   vector<const GenParticle*>::const_iterator iter;
+   std::vector<const reco::Candidate*> output;
+   std::vector<const GenParticle*>::const_iterator iter;
    for (iter = genNus_.begin(); iter != genNus_.end(); ++iter)
       output.push_back(static_cast<const reco::Candidate*>(*iter));
    return output;
 }
 
-vector<LorentzVector>
+std::vector<LorentzVector>
 GeneratorTau::getChargedPions() const
 {
    return convertMCVectorToLorentzVectors(genChargedPions_);
 }
 
-vector<LorentzVector>
+std::vector<LorentzVector>
 GeneratorTau::getGammas() const
 {
    return convertMCVectorToLorentzVectors(genGammas_);
 }
 
-vector<LorentzVector>
+std::vector<LorentzVector>
 GeneratorTau::getVisibleFourVectors() const
 {
    return convertMCVectorToLorentzVectors(visibleDecayProducts_);
@@ -327,8 +327,8 @@ LorentzVector
 GeneratorTau::getVisibleFourVector() const
 {
    LorentzVector output;
-   vector<LorentzVector> tempForSum = getVisibleFourVectors();
-   for (vector<LorentzVector>::iterator iter = tempForSum.begin(); iter != tempForSum.end(); ++iter)
+   std::vector<LorentzVector> tempForSum = getVisibleFourVectors();
+   for (std::vector<LorentzVector>::iterator iter = tempForSum.begin(); iter != tempForSum.end(); ++iter)
       output += (*iter);
    return output;
 }

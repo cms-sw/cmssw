@@ -23,8 +23,6 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include <vector>
 
-using namespace std;
-
 typedef math::XYZTLorentzVector LorentzVector;
 
 class GeneratorTau : public reco::GenParticle {
@@ -41,26 +39,26 @@ class GeneratorTau : public reco::GenParticle {
 
       ~GeneratorTau(){};
 
-      vector<const reco::Candidate*>         getGenChargedPions() const;
-      vector<const reco::Candidate*>         getGenGammas() const;
-      vector<const reco::Candidate*>         getGenNeutralPions() const;
-      vector<const reco::Candidate*>         getStableDecayProducts() const;
-      vector<const reco::Candidate*>         getGenNu() const;
+      std::vector<const reco::Candidate*>         getGenChargedPions() const;
+      std::vector<const reco::Candidate*>         getGenGammas() const;
+      std::vector<const reco::Candidate*>         getGenNeutralPions() const;
+      std::vector<const reco::Candidate*>         getStableDecayProducts() const;
+      std::vector<const reco::Candidate*>         getGenNu() const;
 
       tauDecayModeEnum                          getDecayType() const {return theDecayMode_;};
       bool                                      isFinalStateTau() const {return aFinalStateTau_;};
 
       void                                      init(); //called to update class after downcasting
 
-      vector<LorentzVector>                     getChargedPions() const;
-      vector<LorentzVector>                     getGammas() const;
+      std::vector<LorentzVector>                     getChargedPions() const;
+      std::vector<LorentzVector>                     getGammas() const;
       LorentzVector                             getVisibleFourVector() const;
-      vector<LorentzVector>                     getVisibleFourVectors() const;
+      std::vector<LorentzVector>                     getVisibleFourVectors() const;
       const reco::Candidate*                    getLeadTrack() const;
       const reco::GenParticle*         findLeadTrack();
 
       float                                    getVisNuAngle() const;
-      float                                    getOpeningAngle(const vector<const reco::GenParticle*>& aCollection) const;
+      float                                    getOpeningAngle(const std::vector<const reco::GenParticle*>& aCollection) const;
       float                                    getChargedOpeningAngle() const;
       float                                    getGammaOpeningAngle() const;
 
@@ -68,7 +66,7 @@ class GeneratorTau : public reco::GenParticle {
       void                                      computeStableDecayProducts(const reco::GenParticle*, std::vector<const reco::GenParticle *>&);
       tauDecayModeEnum                          computeDecayMode(const reco::GenParticle*);
       LorentzVector                             convertHepMCFourVec(const reco::GenParticle* theParticle);
-      vector<LorentzVector>                     convertMCVectorToLorentzVectors(const vector<const reco::GenParticle*>& theList) const;
+      std::vector<LorentzVector>                     convertMCVectorToLorentzVectors(const std::vector<const reco::GenParticle*>& theList) const;
 
    private:
 
@@ -77,12 +75,12 @@ class GeneratorTau : public reco::GenParticle {
 
 
       //only fill these with stable particles
-      vector<const reco::GenParticle*>         visibleDecayProducts_;
-      vector<const reco::GenParticle*>         genChargedPions_;
-      vector<const reco::GenParticle*>         genNeutralPions_;
-      vector<const reco::GenParticle*>         genGammas_;
-      vector<const reco::GenParticle*>         stableDecayProducts_;
-      vector<const reco::GenParticle*>         genNus_; 
+      std::vector<const reco::GenParticle*>         visibleDecayProducts_;
+      std::vector<const reco::GenParticle*>         genChargedPions_;
+      std::vector<const reco::GenParticle*>         genNeutralPions_;
+      std::vector<const reco::GenParticle*>         genGammas_;
+      std::vector<const reco::GenParticle*>         stableDecayProducts_;
+      std::vector<const reco::GenParticle*>         genNus_; 
       const reco::GenParticle*                 theLeadTrack_;
 
       tauDecayModeEnum                                  theDecayMode_;

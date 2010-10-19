@@ -7,10 +7,10 @@
 
 class PFTauQualityCutWrapper {
    public:
-      PFTauQualityCutWrapper(const ParameterSet& pset)
+      PFTauQualityCutWrapper(const edm::ParameterSet& pset)
       {
-         isoQCuts.fill(pset.getParameter<ParameterSet>("isolationQualityCuts"));
-         signalQCuts.fill(pset.getParameter<ParameterSet>("signalQualityCuts"));
+         isoQCuts.fill(pset.getParameter<edm::ParameterSet>("isolationQualityCuts"));
+         signalQCuts.fill(pset.getParameter<edm::ParameterSet>("signalQualityCuts"));
       }
 
       struct QualityCutSet {
@@ -24,7 +24,7 @@ class PFTauQualityCutWrapper {
          double maxDeltaZ;
          // gamma cuts
          double minGammaEt;
-         void fill(const ParameterSet& pset) {
+         void fill(const edm::ParameterSet& pset) {
             useTracksInsteadOfPF         = pset.getParameter<bool>("useTracksInsteadOfPFHadrons");
             minTrackPt                   = pset.getParameter<double>("minTrackPt");
             maxTrackChi2                 = pset.getParameter<double>("maxTrackChi2");

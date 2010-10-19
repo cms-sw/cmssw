@@ -11,7 +11,7 @@ template<class TauType, class TauDiscriminator>
 class TauDiscriminationByStringCut : public TauDiscriminationProducerBase<TauType, TauDiscriminator> 
 {
    public:
-      explicit TauDiscriminationByStringCut(const ParameterSet& iConfig)
+      explicit TauDiscriminationByStringCut(const edm::ParameterSet& iConfig)
 	: TauDiscriminationProducerBase<TauType, TauDiscriminator>(iConfig)
       {   
 	cut_ = new StringCutObjectSelector<TauType>( iConfig.getParameter<std::string>("cut") );

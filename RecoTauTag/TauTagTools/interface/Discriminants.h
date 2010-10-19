@@ -28,7 +28,6 @@
  */
 
 namespace PFTauDiscriminants {
-using namespace std;
 
 typedef reco::Particle::LorentzVector LorentzVector;
 
@@ -39,7 +38,7 @@ class DecayMode : public DiscriminantBase<int> {
       DecayMode():DiscriminantBase<int>("DecayMode", "I", true, false, -1){};
       ~DecayMode(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<int>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<int>& result);
 };
 
 class OutlierNCharged : public DiscriminantBase<int> {
@@ -47,7 +46,7 @@ class OutlierNCharged : public DiscriminantBase<int> {
       OutlierNCharged():DiscriminantBase<int>("OutlierNCharged", "I", true, false, -1){};
       ~OutlierNCharged(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<int>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<int>& result);
 };
 
 class OutlierN : public DiscriminantBase<int> {
@@ -55,7 +54,7 @@ class OutlierN : public DiscriminantBase<int> {
       OutlierN():DiscriminantBase<int>("OutlierN", "I", true, false, -1){};
       ~OutlierN(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<int>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<int>& result);
 };
 
 
@@ -64,7 +63,7 @@ class Pt : public DiscriminantBase<double>  {
       Pt():DiscriminantBase<double>("Pt", "D", true, false, 0.0){};
       ~Pt(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 class Eta : public DiscriminantBase<double>  {
@@ -72,7 +71,7 @@ class Eta : public DiscriminantBase<double>  {
       Eta():DiscriminantBase<double>("Eta", "D", true, false, 0.0){};
       ~Eta(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 class MainTrackPt : public DiscriminantBase<double>  {
@@ -80,7 +79,7 @@ class MainTrackPt : public DiscriminantBase<double>  {
       MainTrackPt():DiscriminantBase<double>("MainTrackPt", "D", true, false, -1){};
       ~MainTrackPt(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 class MainTrackAngle : public DiscriminantBase<double>  {
@@ -88,7 +87,7 @@ class MainTrackAngle : public DiscriminantBase<double>  {
       MainTrackAngle():DiscriminantBase<double>("MainTrackAngle", "D", true, false, -1){};
       ~MainTrackAngle(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 class TrackPt : public DiscriminantBase<double> {
@@ -96,7 +95,7 @@ class TrackPt : public DiscriminantBase<double> {
       TrackPt():DiscriminantBase<double>("TrackPt", "vector<double>", false, true, 0.0){};
       ~TrackPt(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 class PiZeroPt : public DiscriminantBase<double> {
@@ -104,7 +103,7 @@ class PiZeroPt : public DiscriminantBase<double> {
       PiZeroPt():DiscriminantBase<double>("PiZeroPt", "vector<double>", false, true, 0.0){};
       ~PiZeroPt(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 // any objects in the PFTauDecayMode that were moved filtered
@@ -113,7 +112,7 @@ class FilteredObjectPt : public DiscriminantBase<double> {
       FilteredObjectPt():DiscriminantBase<double>("FilteredObjectPt", "vector<double>", false, true, 0.0){};
       ~FilteredObjectPt(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 //  Matches to PiZeroPt, each element gives the corresponding # of photons in each PiZero
@@ -122,7 +121,7 @@ class GammaOccupancy : public DiscriminantBase<double> {
       GammaOccupancy():DiscriminantBase<double>("GammaOccupancy", "vector<double>", false, true, 0.0){}
       ~GammaOccupancy(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 // In same order as PiZeroPt.  Can be matched to PiZeros using PiZeroPt and GammaOccupancy
@@ -131,7 +130,7 @@ class GammaPt : public DiscriminantBase<double> {
       GammaPt():DiscriminantBase<double>("GammaPt", "vector<double>", false, true, 0.0){}
       ~GammaPt(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 
@@ -140,7 +139,7 @@ class TrackAngle : public DiscriminantBase<double> {
       TrackAngle():DiscriminantBase<double>("TrackAngle", "vector<double>", false, true, 0.0){};
       ~TrackAngle(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 class PiZeroAngle : public DiscriminantBase<double> {
@@ -148,7 +147,7 @@ class PiZeroAngle : public DiscriminantBase<double> {
       PiZeroAngle():DiscriminantBase<double>("PiZeroAngle", "vector<double>", false, true, 0.0){};
       ~PiZeroAngle(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 class Dalitz : public DiscriminantBase<double> {
@@ -156,7 +155,7 @@ class Dalitz : public DiscriminantBase<double> {
       Dalitz():DiscriminantBase<double>("Dalitz", "vector<double>", false, true, 0.0){};
       ~Dalitz(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 // takes invariant mass of all objects in signal cone
@@ -165,7 +164,7 @@ class InvariantMassOfSignal : public DiscriminantBase<double> {
       InvariantMassOfSignal():DiscriminantBase<double>("InvariantMassOfSignal", "D", true, false, 0.0){};
       ~InvariantMassOfSignal(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 // takes invariant mass of all objects in signal cone + filtered objects
@@ -174,7 +173,7 @@ class InvariantMassOfSignalWithFiltered : public DiscriminantBase<double> {
       InvariantMassOfSignalWithFiltered():DiscriminantBase<double>("InvariantMassOfSignalWithFiltered", "D", true, false, 0.0){};
       ~InvariantMassOfSignalWithFiltered(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 
@@ -185,7 +184,7 @@ class InvariantMass : public DiscriminantBase<double> {
       InvariantMass():DiscriminantBase<double>("InvariantMass", "vector<double>", false, true, 0.0){};
       ~InvariantMass(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 class OutlierPt : public DiscriminantBase<double> {
@@ -193,7 +192,7 @@ class OutlierPt : public DiscriminantBase<double> {
       OutlierPt():DiscriminantBase<double>("OutlierPt", "vector<double>", false, true, 0.0){};
       ~OutlierPt(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 class OutlierSumPt : public DiscriminantBase<double> {
@@ -201,7 +200,7 @@ class OutlierSumPt : public DiscriminantBase<double> {
       OutlierSumPt():DiscriminantBase<double>("OutlierSumPt", "D", true, false, 0.0){};
       ~OutlierSumPt(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 class OutlierMass : public DiscriminantBase<double> {
@@ -209,7 +208,7 @@ class OutlierMass : public DiscriminantBase<double> {
       OutlierMass():DiscriminantBase<double>("OutlierMass", "D", true, false, 0.0){};
       ~OutlierMass(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 class OutlierAngle : public DiscriminantBase<double> {
@@ -217,7 +216,7 @@ class OutlierAngle : public DiscriminantBase<double> {
       OutlierAngle():DiscriminantBase<double>("OutlierAngle", "vector<double>", false, true, 0.0){};
       ~OutlierAngle(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 class ChargedOutlierPt : public DiscriminantBase<double> {
@@ -225,7 +224,7 @@ class ChargedOutlierPt : public DiscriminantBase<double> {
       ChargedOutlierPt():DiscriminantBase<double>("ChargedOutlierPt", "vector<double>", false, true, 0.0){};
       ~ChargedOutlierPt(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 class ChargedOutlierSumPt : public DiscriminantBase<double> {
@@ -233,7 +232,7 @@ class ChargedOutlierSumPt : public DiscriminantBase<double> {
       ChargedOutlierSumPt():DiscriminantBase<double>("ChargedOutlierSumPt", "D", true, false, 0.0){};
       ~ChargedOutlierSumPt(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 class ChargedOutlierAngle : public DiscriminantBase<double> {
@@ -241,7 +240,7 @@ class ChargedOutlierAngle : public DiscriminantBase<double> {
       ChargedOutlierAngle():DiscriminantBase<double>("ChargedOutlierAngle", "vector<double>", false, true, 0.0){};
       ~ChargedOutlierAngle(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 class NeutralOutlierPt : public DiscriminantBase<double> {
@@ -249,7 +248,7 @@ class NeutralOutlierPt : public DiscriminantBase<double> {
       NeutralOutlierPt():DiscriminantBase<double>("NeutralOutlierPt", "vector<double>", false, true, 0.0){};
       ~NeutralOutlierPt(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 class NeutralOutlierSumPt : public DiscriminantBase<double> {
@@ -257,7 +256,7 @@ class NeutralOutlierSumPt : public DiscriminantBase<double> {
       NeutralOutlierSumPt():DiscriminantBase<double>("NeutralOutlierSumPt", "D", true, false, 0.0){};
       ~NeutralOutlierSumPt(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 class NeutralOutlierAngle : public DiscriminantBase<double> {
@@ -265,7 +264,7 @@ class NeutralOutlierAngle : public DiscriminantBase<double> {
       NeutralOutlierAngle():DiscriminantBase<double>("NeutralOutlierAngle", "vector<double>", false, true, 0.0){};
       ~NeutralOutlierAngle(){};
    protected:
-      void doComputation(PFTauDiscriminantManager* input, vector<double>& result);
+      void doComputation(PFTauDiscriminantManager* input, std::vector<double>& result);
 };
 
 

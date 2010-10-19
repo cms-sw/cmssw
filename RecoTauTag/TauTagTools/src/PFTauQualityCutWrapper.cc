@@ -4,6 +4,8 @@
 // ******   Isolation filters  ************************
 // ****************************************************
 
+using namespace reco;
+
 void
 PFTauQualityCutWrapper::isolationChargedObjects(const PFTau& pfTau, const Vertex& pv, std::vector<reco::LeafCandidate>& output)
 {

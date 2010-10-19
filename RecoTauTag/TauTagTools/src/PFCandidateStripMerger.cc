@@ -26,7 +26,7 @@ PFCandidateStripMerger::candidateMatches(const reco::PFCandidateRef& cand)
 {
   bool matches = false;
   for(unsigned int i=0; i < inputPdgIds_.size(); ++i) {
-    if(abs(cand->pdgId()) == inputPdgIds_.at(i)) {
+    if(std::abs(cand->pdgId()) == inputPdgIds_.at(i)) {
       matches = true;
       continue;
     }
@@ -52,7 +52,7 @@ PFCandidateStripMerger::mergeCandidates(const PFCandidateRefVector& candidates)
     if(cands.size()>1)
     TauTagTools::sortRefVectorByPt(cands);
 
-    vector<PFCandidateRefVector> strips;
+    std::vector<PFCandidateRefVector> strips;
 
 
   //Repeat while there are still unclusterized gammas

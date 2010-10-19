@@ -1,5 +1,8 @@
 #include "RecoTauTag/TauTagTools/interface/TauElementsOperators.h"
 
+using namespace reco;
+using std::string;
+
 TauElementsOperators::TauElementsOperators(BaseTau& theBaseTau) : BaseTau_(theBaseTau),AreaMetric_recoElements_maxabsEta_(2.5){
   IsolTracks_=theBaseTau.isolationTracks();
 }

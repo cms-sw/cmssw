@@ -13,7 +13,7 @@ Description: Generates ROOT trees used to train PhysicsTools::MVAComputers
 //
 // Original Author:  Evan K.Friis, UC Davis  (friis@physics.ucdavis.edu)
 //         Created:  Fri Aug 15 11:22:14 PDT 2008
-// $Id: TauMVATrainer.cc,v 1.5 2009/09/02 23:04:50 friis Exp $
+// $Id: TauMVATrainer.cc,v 1.6 2010/02/25 00:33:12 wmtan Exp $
 //
 //
 
@@ -41,6 +41,7 @@ Description: Generates ROOT trees used to train PhysicsTools::MVAComputers
 //
 using namespace std;
 using namespace edm;
+using namespace reco;
 using namespace PFTauDiscriminants;
 
 class TauMVATrainer : public edm::EDAnalyzer {
@@ -48,14 +49,14 @@ class TauMVATrainer : public edm::EDAnalyzer {
       
       struct tauMatchingInfoHolder {
          InputTag                               truthToRecoTauMatchingTag;         
-         Handle<PFTauDecayModeMatchMap>         truthToRecoTauMatchingHandle;
+         edm::Handle<PFTauDecayModeMatchMap>         truthToRecoTauMatchingHandle;
          InputTag                               decayModeToRecoTauAssociationTag;
-         Handle<PFTauDecayModeAssociation>      decayModeToRecoTauAssociationHandle;
+         edm::Handle<PFTauDecayModeAssociation>      decayModeToRecoTauAssociationHandle;
          TTree*                                 associatedTTree;
       };
 
-      typedef vector<tauMatchingInfoHolder> tauMatchingInfos;
-      typedef vector<pair<TTree*, const PFTauDecayModeMatchMap*> > treeToMatchTuple;
+      typedef std::vector<tauMatchingInfoHolder> tauMatchingInfos;
+      typedef std::vector<std::pair<TTree*, const PFTauDecayModeMatchMap*> > treeToMatchTuple;
 
       explicit TauMVATrainer(const edm::ParameterSet&);
       ~TauMVATrainer();
@@ -67,15 +68,15 @@ class TauMVATrainer : public edm::EDAnalyzer {
       // ----------member data ---------------------------
       InputTag                  mcTruthSource_;
       //vector<InputTag>          matchingSources_;
-      vector<ParameterSet>      matchingSources_;
-      vector<tauMatchingInfoHolder> matchingInfo_;
+      std::vector<ParameterSet>      matchingSources_;
+      std::vector<tauMatchingInfoHolder> matchingInfo_;
       bool                      iAmSignal_;
 
       uint32_t                  maxTracks_;     //any objects w/ nTracks > will be automatically flagged as background
       uint32_t                  maxPiZeroes_;   //any objects w/ nPiZeros > will be automatically flagged as background
 
       std::string               outputRootFileName_;
-      map<string, TTree*>       myTrainerTrees_;
+      std::map<string, TTree*>       myTrainerTrees_;
       TTree*                    theTruthTree_;  //cache this to prevent string lookup
       PFTauDiscriminantManager  discriminantManager_;
       TFile*                    outputFile_;
@@ -118,7 +119,7 @@ TauMVATrainer::TauMVATrainer(const edm::ParameterSet& iConfig):
    // branch this trees according to the holder variables in the discrimimnant manager
    discriminantManager_.branchTree(truthTree);
 
-   for(vector<ParameterSet>::const_iterator iSrc  = matchingSources_.begin();
+   for(std::vector<ParameterSet>::const_iterator iSrc  = matchingSources_.begin();
                                             iSrc != matchingSources_.end();
                                           ++iSrc)
    {
@@ -153,7 +154,7 @@ TauMVATrainer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
    // get list of MC Truth objects
-   Handle<PFTauDecayModeCollection> truthObjects;
+   edm::Handle<PFTauDecayModeCollection> truthObjects;
    iEvent.getByLabel(mcTruthSource_, truthObjects);
 
    discriminantManager_.setEvent(iEvent, 1.0); // unit weight for now
@@ -174,11 +175,11 @@ TauMVATrainer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                    ++iMatchingInfo)
       {
          //get matching info from event
-         Handle<PFTauDecayModeMatchMap>& theMatching = iMatchingInfo->truthToRecoTauMatchingHandle;
+         edm::Handle<PFTauDecayModeMatchMap>& theMatching = iMatchingInfo->truthToRecoTauMatchingHandle;
          iEvent.getByLabel(iMatchingInfo->truthToRecoTauMatchingTag, theMatching);
 
          //get PFTau->PFTauDecayMode association from event
-         Handle<PFTauDecayModeAssociation>& theDMAssoc = iMatchingInfo->decayModeToRecoTauAssociationHandle;
+         edm::Handle<PFTauDecayModeAssociation>& theDMAssoc = iMatchingInfo->decayModeToRecoTauAssociationHandle;
          iEvent.getByLabel(iMatchingInfo->decayModeToRecoTauAssociationTag, theDMAssoc);
 
          //get associated ttree
@@ -199,7 +200,7 @@ TauMVATrainer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             bool prePass = false;
             bool preFail = false;
             unsigned int numberOfTracks   = theAssociatedDecayMode.chargedPions().numberOfDaughters();
-            unsigned int charge           = abs(theAssociatedDecayMode.charge());
+            unsigned int charge           = std::abs(theAssociatedDecayMode.charge());
             unsigned int numberOfPiZeros  = theAssociatedDecayMode.neutralPions().numberOfDaughters();
             unsigned int numberOfOutliers = theAssociatedDecayMode.pfTauRef()->isolationPFCands().size();
             //cut on high multiplicity
@@ -230,7 +231,7 @@ TauMVATrainer::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 TauMVATrainer::endJob() {
-   for(map<string, TTree*>::iterator iTree  = myTrainerTrees_.begin();
+   for(std::map<string, TTree*>::iterator iTree  = myTrainerTrees_.begin();
                                      iTree != myTrainerTrees_.end();
                                    ++iTree)
    {

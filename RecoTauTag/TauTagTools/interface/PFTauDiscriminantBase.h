@@ -34,13 +34,12 @@
 
 
 namespace PFTauDiscriminants {
-using namespace std;
 
 class PFTauDiscriminantManager;
 
 class Discriminant {
    public:
-      explicit Discriminant(string name, string rootTypeName, bool branchAsSimpleDataType):
+      explicit Discriminant(std::string name, std::string rootTypeName, bool branchAsSimpleDataType):
          discriminantName_(PhysicsTools::AtomicId(name)),
          rootTypeName_(rootTypeName),
          branchAsSimpleDataType_(branchAsSimpleDataType)
@@ -48,9 +47,9 @@ class Discriminant {
       virtual ~Discriminant(){};
       virtual void                      compute(PFTauDiscriminantManager *input)=0;
       virtual void                      setNullResult(PFTauDiscriminantManager *input)=0;
-      string                            name()         const {return discriminantName_;}
+      std::string                       name()         const {return discriminantName_;}
       PhysicsTools::AtomicId            theAtomicId()  const {return discriminantName_;}
-      string                            rootTypeName() const {return rootTypeName_;}
+      std::string                       rootTypeName() const {return rootTypeName_;}
 
       /// add a branch to a ttree corresponding to this variable
       virtual void       branchTree(TTree* theTree) = 0; 
@@ -62,14 +61,14 @@ class Discriminant {
 
    private:
       PhysicsTools::AtomicId                      discriminantName_;
-      string                                      rootTypeName_;
+      std::string                                 rootTypeName_;
       bool                                        branchAsSimpleDataType_;
 };
 
 template<class T>
 class DiscriminantBase : public Discriminant {
    public:
-      explicit  DiscriminantBase(string name, string rootTypeName, 
+      explicit  DiscriminantBase(std::string name, std::string rootTypeName, 
                         bool branchAsSimpleDataType, bool isMultiple, T defaultValue):Discriminant(name, rootTypeName, branchAsSimpleDataType),isMultiple_(isMultiple),defaultValue_(defaultValue){
          resultPtr_ = &result_;
       };
@@ -118,7 +117,7 @@ class DiscriminantBase : public Discriminant {
          else
          {
             edm::LogInfo("PFTauDiscriminantBase") << "Branching TTree: " << theTree->GetName() << " with struct style branch (leaflist)";
-            stringstream branchType;
+            std::stringstream branchType;
             branchType << name() << "/" << rootTypeName(); //eg D, F, I, etc
             theTree->Branch(this->name().c_str(), &singleResult_, branchType.str().c_str());
          }
@@ -139,7 +138,7 @@ class DiscriminantBase : public Discriminant {
       }
       
    protected:
-      virtual void      doComputation(PFTauDiscriminantManager* input, vector<T>& result)=0;
+      virtual void      doComputation(PFTauDiscriminantManager* input, std::vector<T>& result)=0;
    private:
       bool              isMultiple_;
       T                 defaultValue_;

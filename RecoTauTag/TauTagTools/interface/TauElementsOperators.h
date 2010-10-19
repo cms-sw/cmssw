@@ -14,49 +14,45 @@
 
 #include "TFormula.h"
 
-using namespace edm;
-using namespace std;
-using namespace reco;
-
 class TauElementsOperators{
  public:
   TauElementsOperators();
-  TauElementsOperators(BaseTau&);
+  TauElementsOperators(reco::BaseTau&);
   ~TauElementsOperators(){}   
   // compute size of signal cone possibly depending on E(energy) and/or ET(transverse energy), and/or seed Jet Opening DR of the tau-jet candidate
   double computeConeSize(const TFormula& ConeSizeTFormula,double ConeSizeMin,double ConeSizeMax);
   double computeConeSize(const TFormula& ConeSizeTFormula,double ConeSizeMin,double ConeSizeMax, double transverseEnergy, double energy, double jetOpeningAngle = 0.);
 
-  //TFormula computeConeSizeTFormula(const string& ConeSizeFormula,const char* errorMessage);
-  void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr); 
+  //TFormula computeConeSizeTFormula(const std::string& ConeSizeFormula,const char* errorMessage);
+  void replaceSubStr(std::string& s,const std::string& oldSubStr,const std::string& newSubStr); 
   //return the leading (i.e. highest Pt) Track in a given cone around the jet axis or a given direction
-  const TrackRef leadTk(string matchingConeMetric,double matchingConeSize,double ptTrackMin)const;
-  const TrackRef leadTk(const math::XYZVector& jetAxis,string matchingConeMetric,double matchingConeSize,double ptTrackMin)const;
+  const reco::TrackRef leadTk(std::string matchingConeMetric,double matchingConeSize,double ptTrackMin)const;
+  const reco::TrackRef leadTk(const math::XYZVector& jetAxis,std::string matchingConeMetric,double matchingConeSize,double ptTrackMin)const;
   
   // return all Tracks in a cone of metric* "coneMetric" and size "coneSize" around a direction "coneAxis" 
-  const TrackRefVector tracksInCone(const math::XYZVector& coneAxis,const string coneMetric,const double coneSize,const double ptTrackMin)const;
-  const TrackRefVector tracksInCone(const math::XYZVector& coneAxis,const string coneMetric,const double coneSize,const double ptTrackMin,const double tracktorefpoint_maxDZ,const double refpoint_Z, const Vertex &myPV)const;
+  const reco::TrackRefVector tracksInCone(const math::XYZVector& coneAxis,const std::string coneMetric,const double coneSize,const double ptTrackMin)const;
+  const reco::TrackRefVector tracksInCone(const math::XYZVector& coneAxis,const std::string coneMetric,const double coneSize,const double ptTrackMin,const double tracktorefpoint_maxDZ,const double refpoint_Z, const reco::Vertex &myPV)const;
   // return all Tracks in an annulus defined by inner(metric* "innerconeMetric" and size "innerconeSize") and outer(metric* "outerconeMetric" and size "outerconeSize") cones around a direction "coneAxis" 
-  const TrackRefVector tracksInAnnulus(const math::XYZVector& coneAxis,const string innerconeMetric,const double innerconeSize,const string outerconeMetric,const double outerconeSize,const double ptTrackMin)const;  
-  const TrackRefVector tracksInAnnulus(const math::XYZVector& coneAxis,const string innerconeMetric,const double innerconeSize,const string outerconeMetric,const double outerconeSize,const double ptTrackMin,const double tracktorefpoint_maxDZ,const double refpoint_Z, const Vertex &myPV)const;  
+  const reco::TrackRefVector tracksInAnnulus(const math::XYZVector& coneAxis,const std::string innerconeMetric,const double innerconeSize,const std::string outerconeMetric,const double outerconeSize,const double ptTrackMin)const;  
+  const reco::TrackRefVector tracksInAnnulus(const math::XYZVector& coneAxis,const std::string innerconeMetric,const double innerconeSize,const std::string outerconeMetric,const double outerconeSize,const double ptTrackMin,const double tracktorefpoint_maxDZ,const double refpoint_Z, const reco::Vertex &myPV)const;  
   // return 1 if no/low Tracks activity in an isolation annulus around a leading Track, 0 otherwise; 
   // different possible metrics* for the matching, signal and isolation cones; 
   double discriminatorByIsolTracksN(unsigned int isolationAnnulus_Tracksmaxn)const;
   double discriminatorByIsolTracksN(const math::XYZVector& coneAxis, 
-				    string matchingConeMetric,double matchingConeSize, double ptLeadingTrackMin, double ptOtherTracksMin, 
-				    string signalConeMetric,double signalConeSize,string isolationConeMetric,double isolationConeSize, 
+				    std::string matchingConeMetric,double matchingConeSize, double ptLeadingTrackMin, double ptOtherTracksMin, 
+				    std::string signalConeMetric,double signalConeSize,std::string isolationConeMetric,double isolationConeSize, 
 				    unsigned int isolationAnnulus_Tracksmaxn)const;
   // matching cone axis is the jet axis, signal and isolation cones axes are a leading Track axis;
-  double discriminatorByIsolTracksN(string matchingConeMetric,double matchingConeSize, double ptLeadingTrackMin, double ptOtherTracksMin, 
-				    string signalConeMetric,double signalConeSize,string isolationConeMetric,double isolationConeSize, 
+  double discriminatorByIsolTracksN(std::string matchingConeMetric,double matchingConeSize, double ptLeadingTrackMin, double ptOtherTracksMin, 
+				    std::string signalConeMetric,double signalConeSize,std::string isolationConeMetric,double isolationConeSize, 
 				    unsigned int isolationAnnulus_Tracksmaxn)const;
  protected:
     TFormula ConeSizeTFormula;
 
-  BaseTau& BaseTau_;
+  reco::BaseTau& BaseTau_;
   double AreaMetric_recoElements_maxabsEta_;
-  TrackRefVector Tracks_;  // track selection criteria applied
-  TrackRefVector IsolTracks_;  // tracks in an isolation annulus, track selection criteria applied; 
+  reco::TrackRefVector Tracks_;  // track selection criteria applied
+  reco::TrackRefVector IsolTracks_;  // tracks in an isolation annulus, track selection criteria applied; 
   // template objects for DR and Angle metrics
   DeltaR<math::XYZVector> metricDR_;
   Angle<math::XYZVector> metricAngle_;

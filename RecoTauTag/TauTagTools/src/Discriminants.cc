@@ -6,18 +6,18 @@ using namespace std;
 typedef reco::Particle::LorentzVector LorentzVector;
 
 void
-DecayMode::doComputation(PFTauDiscriminantManager* input, vector<int>& result)
+DecayMode::doComputation(PFTauDiscriminantManager* input, std::vector<int>& result)
 {
    // convert to int for TTree
    result.push_back(static_cast<int>(input->getDecayMode()->getDecayMode()));
 }
 
 void
-OutlierNCharged::doComputation(PFTauDiscriminantManager* input, vector<int>& result)
+OutlierNCharged::doComputation(PFTauDiscriminantManager* input, std::vector<int>& result)
 {
    size_t output = 0;
-   const vector<const reco::Candidate*>& theOutlierObjects = input->outlierObjectsSortedByPt();
-   for(vector<const reco::Candidate*>::const_iterator iObject  = theOutlierObjects.begin();
+   const std::vector<const reco::Candidate*>& theOutlierObjects = input->outlierObjectsSortedByPt();
+   for(std::vector<const reco::Candidate*>::const_iterator iObject  = theOutlierObjects.begin();
          iObject != theOutlierObjects.end();
          ++iObject)
    {
@@ -30,28 +30,28 @@ OutlierNCharged::doComputation(PFTauDiscriminantManager* input, vector<int>& res
 }
 
 void
-OutlierN::doComputation(PFTauDiscriminantManager* input, vector<int>& result)
+OutlierN::doComputation(PFTauDiscriminantManager* input, std::vector<int>& result)
 {
-   const vector<const reco::Candidate*>& theOutlierObjects = input->outlierObjectsSortedByPt();
+   const std::vector<const reco::Candidate*>& theOutlierObjects = input->outlierObjectsSortedByPt();
    size_t output = theOutlierObjects.size();
    // convert to int for TTree
    result.push_back(static_cast<int>(output));
 }
 
 void
-Pt::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+Pt::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
    result.push_back(input->getDecayMode()->pt());
 }
 
 void
-Eta::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+Eta::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
-   result.push_back(abs(input->getDecayMode()->eta()));
+   result.push_back(std::abs(input->getDecayMode()->eta()));
 }
 
 void
-MainTrackPt::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+MainTrackPt::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
    const reco::Candidate* theMainTrack = input->mainTrack();
    if (theMainTrack)
@@ -59,7 +59,7 @@ MainTrackPt::doComputation(PFTauDiscriminantManager* input, vector<double>& resu
 }
 
 void
-MainTrackAngle::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+MainTrackAngle::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
    math::XYZVector signalObjectsAxis = input->getDecayMode()->momentum();
 
@@ -72,13 +72,13 @@ MainTrackAngle::doComputation(PFTauDiscriminantManager* input, vector<double>& r
 }
 
 void
-TrackPt::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+TrackPt::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
-   const vector<const reco::Candidate*>& theSignalObjects = input->signalObjectsSortedByPt();
+   const std::vector<const reco::Candidate*>& theSignalObjects = input->signalObjectsSortedByPt();
 
    const reco::Candidate* theMainTrack = input->mainTrack();
 
-   for(vector<const reco::Candidate*>::const_iterator iObject  = theSignalObjects.begin();
+   for(std::vector<const reco::Candidate*>::const_iterator iObject  = theSignalObjects.begin();
          iObject != theSignalObjects.end();
          ++iObject)
    {
@@ -89,11 +89,11 @@ TrackPt::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
 }
 
 void
-PiZeroPt::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+PiZeroPt::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
-   const vector<const reco::Candidate*>& theSignalObjects = input->signalObjectsSortedByPt();
+   const std::vector<const reco::Candidate*>& theSignalObjects = input->signalObjectsSortedByPt();
 
-   for(vector<const reco::Candidate*>::const_iterator iObject  = theSignalObjects.begin();
+   for(std::vector<const reco::Candidate*>::const_iterator iObject  = theSignalObjects.begin();
          iObject != theSignalObjects.end();
          ++iObject)
    {
@@ -104,15 +104,15 @@ PiZeroPt::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
 }
 
 void
-FilteredObjectPt::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+FilteredObjectPt::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
    const reco::PFTauDecayMode* theDecayMode = input->getDecayMode();
    if (!theDecayMode)
       return;
 
-   const vector<const reco::Candidate*> theFilteredObjects = theDecayMode->filteredObjectCandidates();
+   const std::vector<const reco::Candidate*> theFilteredObjects = theDecayMode->filteredObjectCandidates();
 
-   for(vector<const reco::Candidate*>::const_iterator iObject  = theFilteredObjects.begin();
+   for(std::vector<const reco::Candidate*>::const_iterator iObject  = theFilteredObjects.begin();
                                                       iObject != theFilteredObjects.end();
                                                     ++iObject)
    {
@@ -122,11 +122,11 @@ FilteredObjectPt::doComputation(PFTauDiscriminantManager* input, vector<double>&
 }
 
 void
-GammaOccupancy::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+GammaOccupancy::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
-   const vector<const reco::Candidate*>& theSignalObjects = input->signalObjectsSortedByPt();
+   const std::vector<const reco::Candidate*>& theSignalObjects = input->signalObjectsSortedByPt();
 
-   for(vector<const reco::Candidate*>::const_iterator iObject  = theSignalObjects.begin();
+   for(std::vector<const reco::Candidate*>::const_iterator iObject  = theSignalObjects.begin();
          iObject != theSignalObjects.end();
          ++iObject)
    {
@@ -137,19 +137,19 @@ GammaOccupancy::doComputation(PFTauDiscriminantManager* input, vector<double>& r
 }
 
 void
-GammaPt::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+GammaPt::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
-   const vector<const reco::Candidate*>& theSignalObjects = input->signalObjectsSortedByPt();
+   const std::vector<const reco::Candidate*>& theSignalObjects = input->signalObjectsSortedByPt();
 
-   for(vector<const reco::Candidate*>::const_iterator iObject  = theSignalObjects.begin();
+   for(std::vector<const reco::Candidate*>::const_iterator iObject  = theSignalObjects.begin();
          iObject != theSignalObjects.end();
          ++iObject)
    {
       const reco::Candidate* currentObject = *iObject;
       if (!currentObject->charge())
       {
-         vector<const reco::Candidate*> daughters = input->getLeafDaughters(currentObject);
-         for(vector<const reco::Candidate*>::const_iterator iDaughter  = daughters.begin();
+         std::vector<const reco::Candidate*> daughters = input->getLeafDaughters(currentObject);
+         for(std::vector<const reco::Candidate*>::const_iterator iDaughter  = daughters.begin();
                                                             iDaughter != daughters.end();
                                                           ++iDaughter)
          {
@@ -161,9 +161,9 @@ GammaPt::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
 
 
 void
-TrackAngle::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+TrackAngle::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
-   const vector<const reco::Candidate*>& theSignalObjects = input->signalObjectsSortedByPt();
+   const std::vector<const reco::Candidate*>& theSignalObjects = input->signalObjectsSortedByPt();
 
    math::XYZVector signalObjectsAxis = input->getDecayMode()->momentum();
 
@@ -171,7 +171,7 @@ TrackAngle::doComputation(PFTauDiscriminantManager* input, vector<double>& resul
 
    DeltaR<math::XYZVector> myDRComputer;
 
-   for(vector<const reco::Candidate*>::const_iterator iObject  = theSignalObjects.begin();
+   for(std::vector<const reco::Candidate*>::const_iterator iObject  = theSignalObjects.begin();
          iObject != theSignalObjects.end();
          ++iObject)
    {
@@ -182,15 +182,15 @@ TrackAngle::doComputation(PFTauDiscriminantManager* input, vector<double>& resul
 }
 
 void
-PiZeroAngle::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+PiZeroAngle::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
-   const vector<const reco::Candidate*>& theSignalObjects = input->signalObjectsSortedByPt();
+   const std::vector<const reco::Candidate*>& theSignalObjects = input->signalObjectsSortedByPt();
 
    math::XYZVector signalObjectsAxis = input->getDecayMode()->momentum();
 
    DeltaR<math::XYZVector> myDRComputer;
 
-   for(vector<const reco::Candidate*>::const_iterator iObject  = theSignalObjects.begin();
+   for(std::vector<const reco::Candidate*>::const_iterator iObject  = theSignalObjects.begin();
          iObject != theSignalObjects.end();
          ++iObject)
    {
@@ -201,15 +201,15 @@ PiZeroAngle::doComputation(PFTauDiscriminantManager* input, vector<double>& resu
 }
 
 void
-Dalitz::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+Dalitz::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
-   const vector<const reco::Candidate*>& theSignalObjects = input->signalObjectsSortedByPt();
+   const std::vector<const reco::Candidate*>& theSignalObjects = input->signalObjectsSortedByPt();
    const reco::Candidate* theMainTrack = input->mainTrack();
    if (!theMainTrack)
       return;
    LorentzVector mainTrackFourVector = theMainTrack->p4();
 
-   for(vector<const reco::Candidate*>::const_iterator iObject  = theSignalObjects.begin();
+   for(std::vector<const reco::Candidate*>::const_iterator iObject  = theSignalObjects.begin();
          iObject != theSignalObjects.end();
          ++iObject)
    {
@@ -224,14 +224,14 @@ Dalitz::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
 
 // takes invariant mass of all objects in signal cone
 void
-InvariantMassOfSignal::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+InvariantMassOfSignal::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
    result.push_back(input->getDecayMode()->mass());
 }
 
 // takes invariant mass of all objects in signal cone + Filtered objects
 void
-InvariantMassOfSignalWithFiltered::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+InvariantMassOfSignalWithFiltered::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
    LorentzVector signalObjects = input->getDecayMode()->p4();
    signalObjects += input->getDecayMode()->filteredObjects().p4();
@@ -242,15 +242,15 @@ InvariantMassOfSignalWithFiltered::doComputation(PFTauDiscriminantManager* input
 // the invariant mass of the lead track with the next highest Pt object
 
 void
-InvariantMass::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+InvariantMass::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
-   const vector<const reco::Candidate*>& theSignalObjects = input->signalObjectsSortedByPt();
+   const std::vector<const reco::Candidate*>& theSignalObjects = input->signalObjectsSortedByPt();
    const reco::Candidate* theMainTrack = input->mainTrack();
    if (!theMainTrack)
       return;
    LorentzVector fourVectorSoFar = theMainTrack->p4();
 
-   for(vector<const reco::Candidate*>::const_iterator iObject  = theSignalObjects.begin();
+   for(std::vector<const reco::Candidate*>::const_iterator iObject  = theSignalObjects.begin();
          iObject != theSignalObjects.end();
          ++iObject)
    {
@@ -264,10 +264,10 @@ InvariantMass::doComputation(PFTauDiscriminantManager* input, vector<double>& re
 }
 
 void
-OutlierPt::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+OutlierPt::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
-   const vector<const reco::Candidate*>& theOutlierObjects = input->outlierObjectsSortedByPt();
-   for(vector<const reco::Candidate*>::const_iterator iObject  = theOutlierObjects.begin();
+   const std::vector<const reco::Candidate*>& theOutlierObjects = input->outlierObjectsSortedByPt();
+   for(std::vector<const reco::Candidate*>::const_iterator iObject  = theOutlierObjects.begin();
          iObject != theOutlierObjects.end();
          ++iObject)
    {
@@ -278,11 +278,11 @@ OutlierPt::doComputation(PFTauDiscriminantManager* input, vector<double>& result
 }
 
 void
-OutlierSumPt::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+OutlierSumPt::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
    LorentzVector totalFourVector;
-   const vector<const reco::Candidate*>& theOutlierObjects = input->outlierObjectsSortedByPt();
-   for(vector<const reco::Candidate*>::const_iterator iObject  = theOutlierObjects.begin();
+   const std::vector<const reco::Candidate*>& theOutlierObjects = input->outlierObjectsSortedByPt();
+   for(std::vector<const reco::Candidate*>::const_iterator iObject  = theOutlierObjects.begin();
          iObject != theOutlierObjects.end();
          ++iObject)
    {
@@ -294,11 +294,11 @@ OutlierSumPt::doComputation(PFTauDiscriminantManager* input, vector<double>& res
 }
 
 void
-OutlierMass::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+OutlierMass::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
    LorentzVector totalFourVector;
-   const vector<const reco::Candidate*>& theOutlierObjects = input->outlierObjectsSortedByPt();
-   for(vector<const reco::Candidate*>::const_iterator iObject  = theOutlierObjects.begin();
+   const std::vector<const reco::Candidate*>& theOutlierObjects = input->outlierObjectsSortedByPt();
+   for(std::vector<const reco::Candidate*>::const_iterator iObject  = theOutlierObjects.begin();
          iObject != theOutlierObjects.end();
          ++iObject)
    {
@@ -310,12 +310,12 @@ OutlierMass::doComputation(PFTauDiscriminantManager* input, vector<double>& resu
 }
 
 void
-OutlierAngle::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+OutlierAngle::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
-   const vector<const reco::Candidate*>& theoutlierObjects = input->outlierObjectsSortedByPt();
+   const std::vector<const reco::Candidate*>& theoutlierObjects = input->outlierObjectsSortedByPt();
    math::XYZVector signalObjectsAxis = input->getDecayMode()->momentum();
    DeltaR<math::XYZVector> myDRComputer;
-   for(vector<const reco::Candidate*>::const_iterator iObject  = theoutlierObjects.begin();
+   for(std::vector<const reco::Candidate*>::const_iterator iObject  = theoutlierObjects.begin();
          iObject != theoutlierObjects.end();
          ++iObject)
    {
@@ -326,10 +326,10 @@ OutlierAngle::doComputation(PFTauDiscriminantManager* input, vector<double>& res
 }
 
 void
-ChargedOutlierPt::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+ChargedOutlierPt::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
-   const vector<const reco::Candidate*>& theOutlierObjects = input->outlierObjectsSortedByPt();
-   for(vector<const reco::Candidate*>::const_iterator iObject  = theOutlierObjects.begin();
+   const std::vector<const reco::Candidate*>& theOutlierObjects = input->outlierObjectsSortedByPt();
+   for(std::vector<const reco::Candidate*>::const_iterator iObject  = theOutlierObjects.begin();
          iObject != theOutlierObjects.end();
          ++iObject)
    {
@@ -340,11 +340,11 @@ ChargedOutlierPt::doComputation(PFTauDiscriminantManager* input, vector<double>&
 }
 
 void
-ChargedOutlierSumPt::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+ChargedOutlierSumPt::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
-   const vector<const reco::Candidate*>& theOutlierObjects = input->outlierObjectsSortedByPt();
+   const std::vector<const reco::Candidate*>& theOutlierObjects = input->outlierObjectsSortedByPt();
    double output = 0.0;
-   for(vector<const reco::Candidate*>::const_iterator iObject  = theOutlierObjects.begin();
+   for(std::vector<const reco::Candidate*>::const_iterator iObject  = theOutlierObjects.begin();
          iObject != theOutlierObjects.end();
          ++iObject)
    {
@@ -356,12 +356,12 @@ ChargedOutlierSumPt::doComputation(PFTauDiscriminantManager* input, vector<doubl
 }
 
 void
-ChargedOutlierAngle::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+ChargedOutlierAngle::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
-   const vector<const reco::Candidate*>& theoutlierObjects = input->outlierObjectsSortedByPt();
+   const std::vector<const reco::Candidate*>& theoutlierObjects = input->outlierObjectsSortedByPt();
    math::XYZVector signalObjectsAxis = input->getDecayMode()->momentum();
    DeltaR<math::XYZVector> myDRComputer;
-   for(vector<const reco::Candidate*>::const_iterator iObject  = theoutlierObjects.begin();
+   for(std::vector<const reco::Candidate*>::const_iterator iObject  = theoutlierObjects.begin();
          iObject != theoutlierObjects.end();
          ++iObject)
    {
@@ -372,10 +372,10 @@ ChargedOutlierAngle::doComputation(PFTauDiscriminantManager* input, vector<doubl
 }
 
 void
-NeutralOutlierPt::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+NeutralOutlierPt::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
-   const vector<const reco::Candidate*>& theOutlierObjects = input->outlierObjectsSortedByPt();
-   for(vector<const reco::Candidate*>::const_iterator iObject  = theOutlierObjects.begin();
+   const std::vector<const reco::Candidate*>& theOutlierObjects = input->outlierObjectsSortedByPt();
+   for(std::vector<const reco::Candidate*>::const_iterator iObject  = theOutlierObjects.begin();
          iObject != theOutlierObjects.end();
          ++iObject)
    {
@@ -386,11 +386,11 @@ NeutralOutlierPt::doComputation(PFTauDiscriminantManager* input, vector<double>&
 }
 
 void
-NeutralOutlierSumPt::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+NeutralOutlierSumPt::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
-   const vector<const reco::Candidate*>& theOutlierObjects = input->outlierObjectsSortedByPt();
+   const std::vector<const reco::Candidate*>& theOutlierObjects = input->outlierObjectsSortedByPt();
    double output = 0.0;
-   for(vector<const reco::Candidate*>::const_iterator iObject  = theOutlierObjects.begin();
+   for(std::vector<const reco::Candidate*>::const_iterator iObject  = theOutlierObjects.begin();
          iObject != theOutlierObjects.end();
          ++iObject)
    {
@@ -402,12 +402,12 @@ NeutralOutlierSumPt::doComputation(PFTauDiscriminantManager* input, vector<doubl
 }
 
 void
-NeutralOutlierAngle::doComputation(PFTauDiscriminantManager* input, vector<double>& result)
+NeutralOutlierAngle::doComputation(PFTauDiscriminantManager* input, std::vector<double>& result)
 {
-   const vector<const reco::Candidate*>& theoutlierObjects = input->outlierObjectsSortedByPt();
+   const std::vector<const reco::Candidate*>& theoutlierObjects = input->outlierObjectsSortedByPt();
    math::XYZVector signalObjectsAxis = input->getDecayMode()->momentum();
    DeltaR<math::XYZVector> myDRComputer;
-   for(vector<const reco::Candidate*>::const_iterator iObject  = theoutlierObjects.begin();
+   for(std::vector<const reco::Candidate*>::const_iterator iObject  = theoutlierObjects.begin();
          iObject != theoutlierObjects.end();
          ++iObject)
    {
