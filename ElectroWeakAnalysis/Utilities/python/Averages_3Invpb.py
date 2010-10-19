@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 ######################################################################################
 ## Program to average CMS W and Z cross sections for muons and electrons. 
 ##    Run it as: "python Averages_3Invpb.py"
@@ -33,8 +34,12 @@
 from __future__ import division
 from math import *
 
-OPTION= "StatisticalAverage"
-#OPTION = "StatisticalPlusSystematicAverage"
+OPTION = "StatisticalPlusSystematicAverage"
+#OPTION= "StatisticalAverage"
+
+print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+print ">>>>> METHOD TO AVERAGE MUONS AND ELECTRONS is: '%s'" % (OPTION)
+print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n"
 
 ######################################################################################
 ###  INPUTS FOLLOW (they are not the final version)
@@ -44,66 +49,183 @@ OPTION= "StatisticalAverage"
 relSysLumi = 11e-2
 
 # Electron inputs
-Wenu = 9.801
-absStatWenu = 0.112
+Wenu = 10.1447
+absStatWenu = 0.1123
 absCorrWenu = Wenu*sqrt(0.008**2+0.0116**2) # theory uncertainty
-absUncWenu = sqrt(0.495**2-absCorrWenu**2)
+absUncWenu = 0.5031
+print "\nWenu cross section = %.4f +- %.4f (stat.) +- %.4f (syst.) +- %.4f (theo.) +- %.4f (lumi.) [nb]" % (Wenu, absStatWenu, absUncWenu, absCorrWenu, Wenu*relSysLumi)
+print "  Systematics >>>>>>>"
+print "\tUncorrelated with muons:           %.2f %%" % (100./Wenu*absUncWenu)
+print "\tTheory:                            %.2f %%" % (100./Wenu*absCorrWenu)
+print "\tTOTAL (LUMI excluded):             %.2f %%\n" % (100./Wenu*sqrt(absUncWenu**2+absCorrWenu**2))
 
-Wplusenu = 5.802
-absStatWplusenu = 0.079
+Wplusenu = 5.9349
+absStatWplusenu = 0.0793
 absCorrWplusenu = Wplusenu*sqrt(0.009**2+0.0133**2) # theory uncertainty
-absUncWplusenu = sqrt(0.306**2-absCorrWplusenu**2)
+absUncWplusenu = 0.3446
+print "\nWplusenu cross section = %.4f +- %.4f (stat.) +- %.4f (syst.) +- %.4f (theo.) +- %.4f (lumi.) [nb]" % (Wplusenu, absStatWplusenu, absUncWplusenu, absCorrWplusenu, Wplusenu*relSysLumi)
+print "  Systematics >>>>>>>"
+print "\tUncorrelated with muons:           %.2f %%" % (100./Wplusenu*absUncWplusenu)
+print "\tTheory:                            %.2f %%" % (100./Wplusenu*absCorrWplusenu)
+print "\tTOTAL (LUMI excluded):             %.2f %%\n" % (100./Wplusenu*sqrt(absUncWplusenu**2+absCorrWplusenu**2))
 
-Wminusenu = 3.945
-absStatWminusenu = 0.067
+Wminusenu = 4.1401
+absStatWminusenu = 0.0690
 absCorrWminusenu = Wminusenu*sqrt(0.015**2+0.0090**2) # theory uncertainty
-absUncWminusenu = sqrt(0.224**2-absCorrWminusenu**2)
+absUncWminusenu = 0.2432
+print "\nWminusenu cross section = %.4f +- %.4f (stat.) +- %.4f (syst.) +- %.4f (theo.) +- %.4f (lumi.) [nb]" % (Wminusenu, absStatWminusenu, absUncWminusenu, absCorrWminusenu, Wminusenu*relSysLumi)
+print "  Systematics >>>>>>>"
+print "\tUncorrelated with muons:           %.2f %%" % (100./Wminusenu*absUncWminusenu)
+print "\tTheory:                            %.2f %%" % (100./Wminusenu*absCorrWminusenu)
+print "\tTOTAL (LUMI excluded):             %.2f %%\n" % (100./Wminusenu*sqrt(absUncWminusenu**2+absCorrWminusenu**2))
 
-Zee = 1.006323
-absStatZee = 0.031914
+Zee = 0.9595
+absStatZee = 0.0370
 absCorrZee = Zee*sqrt(0.011**2+0.0134**2) # theory uncertainty
-absUncZee = 0.035613
+absUncZee = 0.0565
+print "\nZee cross section = %.4f +- %.4f (stat.) +- %.4f (syst.) +- %.4f (theo.) +- %.4f (lumi.) [nb]" % (Zee, absStatZee, absUncZee, absCorrZee, Zee*relSysLumi)
+print "  Systematics >>>>>>>"
+print "\tUncorrelated with muons:           %.2f %%" % (100./Zee*absUncZee)
+print "\tTheory:                            %.2f %%" % (100./Zee*absCorrZee)
+print "\tTOTAL (LUMI excluded):             %.2f %%\n" % (100./Zee*sqrt(absUncZee**2+absCorrZee**2))
 
 Ratioenu = Wplusenu/Wminusenu
-absStatRatioenu = 0.030
+absStatRatioenu = 0.02883
 absCorrRatioenu = Ratioenu*sqrt(0.017**2+0.0127**2) # theory uncertainty
-absUncRatioenu = sqrt(0.071**2-absCorrRatioenu**2)
+absUncRatioenu = 0.076
+print "\nRatioenu cross section = %.4f +- %.4f (stat.) +- %.4f (syst.) +- %.4f (theo.)" % (Ratioenu, absStatRatioenu, absUncRatioenu, absCorrRatioenu)
+print "  Systematics >>>>>>>"
+print "\tUncorrelated with muons:           %.2f %%" % (100./Ratioenu*absUncRatioenu)
+print "\tTheory:                            %.2f %%" % (100./Ratioenu*absCorrRatioenu)
+print "\tTOTAL:                             %.2f %%\n" % (100./Ratioenu*sqrt(absUncRatioenu**2+absCorrRatioenu**2))
 
 WZe = Wenu/Zee
-absStatWZe = WZe*sqrt((absStatWenu/Wenu)**2+(absStatZee/Zee)**2)
+absStatWZe = 0.425
 absCorrWZe = WZe*sqrt(0.009**2+0.0103**2) # theory uncertainty
-absUncWZe = WZe*sqrt((absUncWenu/Wenu)**2 + (absUncZee/Zee)**2)
+absUncWZe = 0.524
+print "\nWZe cross section = %.4f +- %.4f (stat.) +- %.4f (syst.) +- %.4f (theo.)" % (WZe, absStatWZe, absUncWZe, absCorrWZe)
+print "  Systematics >>>>>>>"
+print "\tUncorrelated with muons:           %.2f %%" % (100./WZe*absUncWZe)
+print "\tTheory:                            %.2f %%" % (100./WZe*absCorrWZe)
+print "\tTOTAL:                             %.2f %%\n" % (100./WZe*sqrt(absUncWZe**2+absCorrWZe**2))
 
 # Muon inputs 
-Wmunu = 9.9686
-absStatWmunu = 0.0902
+Wmunu = 9.922
+absStatWmunu = 0.090
 absCorrWmunu = Wmunu*sqrt(0.011**2+0.0136**2) # theory uncertainty
-absUncWmunu = sqrt(0.3090**2-absCorrWmunu**2)
+relUncFit = 1.3e-2
+relUncPreTrig = 0.5e-2
+relUncSysEff = 0.5e-2
+relUncEff = sqrt(relUncFit**2+relUncPreTrig**2+relUncSysEff**2)
+relUncMomRes = 0.3e-2
+relUncRecoil = 0.4e-2
+relUncMCStat = 1.4e-3/sqrt(2)
+relUncBkg = sqrt(2.0e-2**2+0.2e-2**2)
+absUncWmunu=Wmunu*sqrt(relUncEff**2+relUncMomRes**2+relUncRecoil**2+relUncMCStat**2+relUncBkg**2)
+print "\nWmunu cross section = %.4f +- %.4f (stat.) +- %.4f (syst.) +- %.4f (theo.) +- %.4f (lumi.) [nb]" % (Wmunu, absStatWmunu, absUncWmunu, absCorrWmunu, Wmunu*relSysLumi)
+print "  Systematics >>>>>>>"
+print "\tEfficiency(Zfit,Pretrig,Z->W):     %.2f %%" % (100*relUncEff)
+print "\tMomentum scale/resolution:         %.2f %%" % (100*relUncMomRes)
+print "\tBackground subtraction:            %.2f %%" % (100*relUncBkg)
+print "\tSignal Recoil modeling:            %.2f %%" % (100*relUncRecoil)
+print "\tMC statistics (acceptance):        %.2f %%" % (100*relUncMCStat)
+print "\tTheory:                            %.2f %%" % (100./Wmunu*absCorrWmunu)
+print "\tTOTAL (LUMI excluded):             %.2f %%\n" % (100./Wmunu*sqrt(absUncWmunu**2+absCorrWmunu**2))
 
-Wplusmunu = 5.8677
-absStatWplusmunu = 0.0680
+Wplusmunu = 5.844
+absStatWplusmunu = 0.069
 absCorrWplusmunu = Wplusmunu*sqrt(0.013**2+0.0142**2) # theory uncertainty
-absUncWplusmunu = sqrt(0.1773**2-absCorrWplusmunu**2)
+relUncFit = 1.3e-2
+relUncPreTrig = 0.5e-2
+relUncSysEff = 0.5e-2
+relUncEff = sqrt(relUncFit**2+relUncPreTrig**2+relUncSysEff**2)
+relUncMomRes = 0.3e-2
+relUncRecoil = 0.4e-2
+relUncMCStat = 1.4e-3
+relUncBkg = sqrt(1.7e-2**2+0.2e-2**2)
+absUncWplusmunu=Wplusmunu*sqrt(relUncEff**2+relUncMomRes**2+relUncRecoil**2+relUncMCStat**2+relUncBkg**2)
+print "\nWplusmunu cross section = %.4f +- %.4f (stat.) +- %.4f (syst.) +- %.4f (theo.) +- %.4f (lumi.) [nb]" % (Wplusmunu, absStatWplusmunu, absUncWplusmunu, absCorrWplusmunu, Wplusmunu*relSysLumi)
+print "  Systematics >>>>>>>"
+print "\tEfficiency(Zfit,Pretrig,Z->W):     %.2f %%" % (100*relUncEff)
+print "\tMomentum scale/resolution:         %.2f %%" % (100*relUncMomRes)
+print "\tBackground subtraction:            %.2f %%" % (100*relUncBkg)
+print "\tSignal Recoil modeling:            %.2f %%" % (100*relUncRecoil)
+print "\tMC statistics (acceptance):        %.2f %%" % (100*relUncMCStat)
+print "\tTheory:                            %.2f %%" % (100./Wplusmunu*absCorrWplusmunu)
+print "\tTOTAL (LUMI excluded):             %.2f %%\n" % (100./Wplusmunu*sqrt(absUncWplusmunu**2+absCorrWplusmunu**2))
 
-Wminusmunu = 4.1008
-absStatWminusmunu = 0.0586
+Wminusmunu = 4.078
+absStatWminusmunu = 0.057
 absCorrWminusmunu = Wminusmunu*sqrt(0.019**2+0.0126**2) # theory uncertainty
-absUncWminusmunu = sqrt(0.1480**2-absCorrWminusmunu**2)
+relUncFit = 1.3e-2
+relUncPreTrig = 0.5e-2
+relUncSysEff = 0.5e-2
+relUncEff = sqrt(relUncFit**2+relUncPreTrig**2+relUncSysEff**2)
+relUncMomRes = 0.3e-2
+relUncRecoil = 0.4e-2
+relUncMCStat = 1.4e-3
+relUncBkg = sqrt(2.3e-2**2+0.2e-2**2)
+absUncWminusmunu=Wminusmunu*sqrt(relUncEff**2+relUncMomRes**2+relUncRecoil**2+relUncMCStat**2+relUncBkg**2)
+print "\nWminusmunu cross section = %.4f +- %.4f (stat.) +- %.4f (syst.) +- %.4f (theo.) +- %.4f (lumi.) [nb]" % (Wminusmunu, absStatWminusmunu, absUncWminusmunu, absCorrWminusmunu, Wminusmunu*relSysLumi)
+print "  Systematics >>>>>>>"
+print "\tEfficiency(Zfit,Pretrig,Z->W):     %.2f %%" % (100*relUncEff)
+print "\tMomentum scale/resolution:         %.2f %%" % (100*relUncMomRes)
+print "\tBackground subtraction:            %.2f %%" % (100*relUncBkg)
+print "\tSignal Recoil modeling:            %.2f %%" % (100*relUncRecoil)
+print "\tMC statistics (acceptance):        %.2f %%" % (100*relUncMCStat)
+print "\tTheory:                            %.2f %%" % (100./Wminusmunu*absCorrWminusmunu)
+print "\tTOTAL (LUMI excluded):             %.2f %%\n" % (100./Wminusmunu*sqrt(absUncWminusmunu**2+absCorrWminusmunu**2))
 
-Zmumu = 0.9153
-absStatZmumu = 0.0307
+Zmumu = 0.924 # 0.893*1.025*1.01
+absStatZmumu = 0.031 # 0.030*1.025*1.01
 absCorrZmumu = Zmumu*sqrt(0.012**2+0.0158**2) # theory uncertainty
-absUncZmumu = sqrt(0.0210**2-absCorrZmumu**2)
+relUncEff = 0.5e-2 # pre-triggering
+relUncFit= 1.0e-2
+relUncMomRes = 0.2e-2
+relUncMCStat = 0.4e-2
+relUncBkg = sqrt(relUncFit**2+0.2e-2**2)
+absUncZmumu=Zmumu*sqrt(relUncEff**2+relUncMomRes**2+relUncBkg**2+relUncMCStat**2)
+print "\nZmumu cross section = %.4f +- %.4f (stat.) +- %.4f (syst.) +- %.4f (theo.) +- %.4f (lumi.) [nb]" % (Zmumu, absStatZmumu, absUncZmumu, absCorrZmumu, Zmumu*relSysLumi)
+print "  Systematics >>>>>>>"
+print "\tEfficiency(Pretriggering):         %.2f %%" % (100*relUncEff)
+print "\tMomentum scale/resolution:         %.2f %%" % (100*relUncMomRes)
+print "\tBackground subtraction/fit:        %.2f %%" % (100*relUncBkg)
+print "\tMC statistics (acceptance):        %.2f %%" % (100*relUncMCStat)
+print "\tTheory:                            %.2f %%" % (100./Zmumu*absCorrZmumu)
+print "\tTOTAL (LUMI excluded):             %.2f %%\n" % (100./Zmumu*sqrt(absUncZmumu**2+absCorrZmumu**2))
 
 Ratiomunu = Wplusmunu/Wminusmunu
-absStatRatiomunu = 0.0262
+absStatRatiomunu = 0.026
 absCorrRatiomunu = Ratiomunu*sqrt(0.021**2+0.0119**2) # theory uncertainty
-absUncRatiomunu = sqrt(0.0539**2-absCorrRatiomunu**2)
+relUncEff = 2.8e-2
+relUncMomRes = 0.3e-2
+relUncMCStat = sqrt(2)*1.4e-3
+relUncBkg = 0.7e-2
+absUncRatiomunu = Ratiomunu*sqrt(relUncEff**2+relUncMomRes**2+relUncMCStat**2+relUncBkg**2)
+print "\nRatiomunu cross section = %.4f +- %.4f (stat.) +- %.4f (syst.) +- %.4f (theo.)" % (Ratiomunu, absStatRatiomunu, absUncRatiomunu, absCorrRatiomunu)
+print "  Systematics >>>>>>>"
+print "\tEfficiency(W+ versus W- tests):    %.2f %%" % (100*relUncEff)
+print "\tMomentum scale/resolution:         %.2f %%" % (100*relUncMomRes)
+print "\tBackground subtraction:            %.2f %%" % (100*relUncBkg)
+print "\tMC statistics (acceptance):        %.2f %%" % (100*relUncMCStat)
+print "\tTheory:                            %.2f %%" % (100./Ratiomunu*absCorrRatiomunu)
+print "\tTOTAL:                             %.2f %%\n" % (100./Ratiomunu*sqrt(absUncRatiomunu**2+absCorrRatiomunu**2))
 
 WZmu = Wmunu/Zmumu
-absStatWZmu = 0.3740
+absStatWZmu = 0.3675
 absCorrWZmu = WZmu*sqrt(0.011**2+0.0135**2) # theory uncertainty
-absUncWZmu = sqrt(0.3279**2-absCorrWZmu**2)
+relUncEffW = 1.3e-2
+relUncMomResW = 0.3e-2
+relUncMomResZ = 0.2e-2
+relSysSubtract = sqrt(relUncEffW**2+relUncMomResW**2+relUncMomResZ**2)
+relSysAdd = abs(relUncMomResW-relUncMomResZ)
+absUncWZmu = WZmu*sqrt((absUncWmunu/Wmunu)**2 + (absUncZmumu/Zmumu)**2 - relSysSubtract**2 + relSysAdd**2)
+print "\nWZmu cross section = %.4f +- %.4f (stat.) +- %.4f (syst.) +- %.4f (theo.)" % (WZmu, absStatWZmu, absUncWZmu, absCorrWZmu)
+print "  STATISTICAL UNCERTAINTY INCLUDES EFFICIENCY (via Zmumu fit)"
+print "  Systematics >>>>>>>"
+print "\tUncorrelated with electrons:       %.2f %%" % (100./WZmu*absUncWZmu)
+print "\tTheory:                            %.2f %%" % (100./WZmu*absCorrWZmu)
+print "\tTOTAL:                             %.2f %%\n" % (100./WZmu*sqrt(absUncWZmu**2+absCorrWZmu**2))
 
 ######################################################################################
 ###  Utility functions
@@ -112,8 +234,7 @@ absUncWZmu = sqrt(0.3279**2-absCorrWZmu**2)
 ###
 def vbtfXSectionCheck(title, xsection, exsection, sysUnc, sysCor, relSysLumi):
       absSysLumi = xsection*relSysLumi
-
-      print "VBTF inputs: %s = %.4f +- %.4f (stat.) +- %.4f (syst.) +- %.4f (lumi) [nb]" % (title, xsection, exsection, sqrt(sysUnc**2+sysCor**2), absSysLumi) 
+      print "VBTF inputs: %s = %.4f +- %.4f (stat.) +- %.4f (exp.) +- %.4f (the.) +- %.4f (lumi) [nb]" % (title, xsection, exsection, sysUnc, sysCor, absSysLumi) 
 
 ###
 def vbtfXSectionAverage(title, xsection1, xsection2, exsection1, exsection2, sysUnc1, sysUnc2, sysCor1, sysCor2, relSysLumi):
@@ -122,26 +243,27 @@ def vbtfXSectionAverage(title, xsection1, xsection2, exsection1, exsection2, sys
             V22 = exsection2**2
             V12 = 0
       else:
-            V11 = exsection1**2 + sysUnc1**2 + sysCor1**2
-            V22 = exsection2**2 + sysUnc2**2 + sysCor2**2
-            # Correlation is assumed to be 100% positive (no exception for the moment)
-            rho12 = +1.0
-            V12 = rho12 * sysCor1*sysCor2  
+            V11 = exsection1**2+sysUnc1**2+sysCor1**2
+            V22 = exsection2**2+sysUnc2**2+sysCor2**2
+            V12 = sysCor1*sysCor2
 
       a1 = (V22-V12)/(V11+V22-2*V12)
       a2 = (V11-V12)/(V11+V22-2*V12)
       average = a1*xsection1 + a2*xsection2
       errstat = sqrt(a1**2*exsection1**2+a2**2*exsection2**2)
-      errsyst = sqrt(a1**2*(sysUnc1**2+sysCor1**2) + a2**2*(sysUnc2**2+sysCor2**2) + 2*a1*a2*sysCor1*sysCor2)
+      errunco = sqrt(a1**2*sysUnc1**2 + a2**2*sysUnc2**2)
+      errtheo = sqrt(a1**2*sysCor1**2 + a2**2*sysCor2**2 + 2*a1*a2*sysCor1*sysCor2)
+      errsyst = sqrt(errunco**2+errtheo**2)
 
       print "VBTF average: %s = %.4f +- %.4f (stat.) [nb]" % (title, average, errstat) 
 
       absSysLumi = average*relSysLumi
-      print "\tVBTF systematics: +- %.4f (det+the) +- %.4f (lumi) [nb]" % (errsyst, absSysLumi) 
+      print "\tVBTF systematics (1): +- %.4f (exp) +- %.4f (the) +- %.4f (lumi) [nb]" % (errunco, errtheo, absSysLumi) 
+      print "\tVBTF systematics (2): +- %.4f (exp+the) +- %.4f (lumi) [nb]" % (errsyst, absSysLumi) 
 
 ###
 def vbtfRatioCheck(title, ratio, absStat, sysUnc, sysCor):
-      print "VBTF inputs: %s = %.4f +- %.4f (stat.) +- %.4f (syst.)" % (title, ratio, absStat, sqrt(sysUnc**2+sysCor**2)) 
+      print "VBTF inputs: %s = %.4f +- %.4f (stat.) +- %.4f (exp.) +- %.4f (the.)" % (title, ratio, absStat, sysUnc, sysCor) 
 
 ###
 def vbtfRatioAverage(title, ratio1, ratio2, eratio1, eratio2, sysUnc1, sysUnc2, sysCor1, sysCor2):
@@ -158,11 +280,14 @@ def vbtfRatioAverage(title, ratio1, ratio2, eratio1, eratio2, sysUnc1, sysUnc2, 
       a2 = (V11-V12)/(V11+V22-2*V12)
       average = a1*ratio1 + a2*ratio2
       errstat = sqrt(a1**2*eratio1**2+a2**2*eratio2**2)
-      errsyst = sqrt(a1**2*(sysUnc1**2+sysCor1**2) + a2**2*(sysUnc2**2+sysCor2**2) + 2*a1*a2*sysCor1*sysCor2)
+      errunco = sqrt(a1**2*sysUnc1**2 + a2**2*sysUnc2**2)
+      errtheo = sqrt(a1**2*sysCor1**2 + a2**2*sysCor2**2 + 2*a1*a2*sysCor1*sysCor2)
+      errsyst = sqrt(errunco**2+errtheo**2)
 
       print "VBTF average: %s = %.4f +- %.4f (stat.)" % (title, average, errstat) 
 
-      print "\tVBTF systematics: +- %.4f (det+the)" % (errsyst) 
+      print "\tVBTF systematics (1): +- %.4f (exp) +- %.4f (the)" % (errunco, errtheo) 
+      print "\tVBTF systematics (2): +- %.4f (exp+the)" % (errsyst) 
 
 ######################################################################################
 ###  MAIN CALLS ...
