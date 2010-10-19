@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWDTSegmentProxyBuilder.cc,v 1.11 2010/09/06 15:49:55 yana Exp $
+// $Id: FWDTSegmentProxyBuilder.cc,v 1.12 2010/09/07 15:46:48 yana Exp $
 //
 
 #include "TEveGeoNode.h"
@@ -73,14 +73,14 @@ FWDTSegmentProxyBuilder::build( const DTRecSegment4D& iData,
       Double_t distOut = box->DistFromInside( localPosition, localDirectionOut );
       LocalVector vIn = unit * distIn;
       LocalVector vOut = -unit * distOut;
-      float localSegmentInnerPoint[3] = { localPosition[0] + vIn.x(),
-					  localPosition[1] + vIn.y(),
-					  localPosition[2] + vIn.z() 
+      float localSegmentInnerPoint[3] = { static_cast<float>(localPosition[0] + vIn.x()),
+					  static_cast<float>(localPosition[1] + vIn.y()),
+					  static_cast<float>(localPosition[2] + vIn.z()) 
       };
       
-      float localSegmentOuterPoint[3] = { localPosition[0] + vOut.x(),
-					  localPosition[1] + vOut.y(),
-					  localPosition[2] + vOut.z() 
+      float localSegmentOuterPoint[3] = { static_cast<float>(localPosition[0] + vOut.x()),
+					  static_cast<float>(localPosition[1] + vOut.y()),
+					  static_cast<float>(localPosition[2] + vOut.z()) 
       };
                                    
       float globalSegmentInnerPoint[3];

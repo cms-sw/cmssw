@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.18 2010/09/27 16:27:32 mccauley Exp $
+// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.19 2010/10/07 16:21:01 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -161,14 +161,14 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
      
       float localPointLeft[3] = 
       {
-        -wireLength*0.5, yOfWire, 0.0
+        static_cast<float>(-wireLength*0.5), yOfWire, static_cast<float>(0.0)
       };
 
       // NOTE: This is only an approximation for slanted wires.
       // Need to improve the determination of the x coordinate.
       float localPointRight[3] = 
       {
-        wireLength*0.5, yOfWire, 0.0
+        static_cast<float>(wireLength*0.5), yOfWire, static_cast<float>(0.0)
         //wireLength*0.5, yOfWire + wireLength*tan(wireAngle), 0.0
       };
 
