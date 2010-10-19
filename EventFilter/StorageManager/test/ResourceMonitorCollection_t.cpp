@@ -83,7 +83,7 @@ testResourceMonitorCollection::diskSize()
   struct statfs64 buf;
   CPPUNIT_ASSERT( statfs64(diskUsage->pathName.c_str(), &buf) == 0 );
   CPPUNIT_ASSERT( buf.f_blocks );
-  size_t diskSize = buf.f_blocks * buf.f_bsize / 1024 / 1024 / 1024;
+  double diskSize = static_cast<double>(buf.f_blocks * buf.f_bsize) / 1024 / 1024 / 1024;
 
   CPPUNIT_ASSERT( diskUsage->diskSize > 0 );
   CPPUNIT_ASSERT( diskUsage->diskSize == diskSize );
