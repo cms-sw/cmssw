@@ -24,22 +24,23 @@
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 
 using namespace PFTauDiscriminants;
+using namespace reco;
 
 class PFTauMVAInputDiscriminantTranslator : public edm::EDProducer {
    public:
       struct DiscriminantInfo {
          PhysicsTools::AtomicId name;
-         string collName;
+         std::string collName;
          size_t index;
          float defaultValue;
       };
 
       PFTauMVAInputDiscriminantTranslator(const edm::ParameterSet&);
-      void produce(Event&, const EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&);
 
    private:
-      InputTag pfTauDMSource_;
-      InputTag pfTauSource_;
+      edm::InputTag pfTauDMSource_;
+      edm::InputTag pfTauSource_;
       std::vector<DiscriminantInfo> discriminators_;
       PFTauDiscriminantManager  discriminantManager_;
       DiscriminantList          myDiscriminants_;  
@@ -49,7 +50,7 @@ class PFTauMVAInputDiscriminantTranslator : public edm::EDProducer {
 
 PFTauMVAInputDiscriminantTranslator::PFTauMVAInputDiscriminantTranslator(const edm::ParameterSet& pset)
 {
-   typedef vector<edm::ParameterSet> VPSet;
+   typedef std::vector<edm::ParameterSet> VPSet;
    pfTauDMSource_ = pset.getParameter<edm::InputTag>("decayModeSource");
    pfTauSource_ = pset.getParameter<edm::InputTag>("pfTauSource");
 
@@ -60,15 +61,15 @@ PFTauMVAInputDiscriminantTranslator::PFTauMVAInputDiscriminantTranslator(const e
    {
       edm::ParameterSet discPSet = *iDisc;
       // get discriminant name
-      string name = discPSet.getParameter<string>("name");
+      std::string name = discPSet.getParameter<std::string>("name");
       double defaultValue = (discPSet.exists("default")) ? discPSet.getParameter<double>("default") : 0.;
       // check if we are getting multiple indices
       bool requestMultiple = discPSet.exists("indices");
       if(requestMultiple)
       {
          // make a discrimiantor for each desired index
-         vector<uint32_t> indices = discPSet.getParameter<vector<uint32_t> >("indices");
-         for(vector<uint32_t>::const_iterator index = indices.begin();
+         std::vector<uint32_t> indices = discPSet.getParameter<std::vector<uint32_t> >("indices");
+         for(std::vector<uint32_t>::const_iterator index = indices.begin();
                index != indices.end(); ++index)
          {
             DiscriminantInfo newDisc;
@@ -76,7 +77,7 @@ PFTauMVAInputDiscriminantTranslator::PFTauMVAInputDiscriminantTranslator(const e
             newDisc.index = *index;
             newDisc.defaultValue = defaultValue;
             // make a nice colleciton name
-            stringstream collectionName;
+            std::stringstream collectionName;
             collectionName << name << *index;
             newDisc.collName = collectionName.str();
             discriminators_.push_back(newDisc);
@@ -93,7 +94,7 @@ PFTauMVAInputDiscriminantTranslator::PFTauMVAInputDiscriminantTranslator(const e
       }
    }
    // register products
-   for(vector<DiscriminantInfo>::const_iterator iDisc = discriminators_.begin();
+   for(std::vector<DiscriminantInfo>::const_iterator iDisc = discriminators_.begin();
          iDisc != discriminators_.end(); ++iDisc)
    {
       produces<PFTauDiscriminator>(iDisc->collName);
@@ -109,7 +110,7 @@ PFTauMVAInputDiscriminantTranslator::PFTauMVAInputDiscriminantTranslator(const e
    }
 }
 
-void PFTauMVAInputDiscriminantTranslator::produce(Event& evt, const EventSetup& es)
+void PFTauMVAInputDiscriminantTranslator::produce(edm::Event& evt, const edm::EventSetup& es)
 {
    typedef std::vector<PhysicsTools::Variable::Value> VarList;
    // Handle to get PFTaus to associated to
@@ -125,7 +126,7 @@ void PFTauMVAInputDiscriminantTranslator::produce(Event& evt, const EventSetup& 
 
    size_t nTaus = pfTaus->size();
    // holder for the the MVA inputs for each tau
-   vector<VarList> mvaVariablesForTau(nTaus);
+   std::vector<VarList> mvaVariablesForTau(nTaus);
 
    // Setup Disc. mananger for this event
    discriminantManager_.setEvent(evt, 1.0);
@@ -142,10 +143,10 @@ void PFTauMVAInputDiscriminantTranslator::produce(Event& evt, const EventSetup& 
    }
 
    // Now produce the output collections for each discriminant
-   for(vector<DiscriminantInfo>::const_iterator iDisc = discriminators_.begin();
+   for(std::vector<DiscriminantInfo>::const_iterator iDisc = discriminators_.begin();
          iDisc != discriminators_.end(); ++iDisc)
    {
-      auto_ptr<PFTauDiscriminator> output(new PFTauDiscriminator(RefProd<PFTauCollection>(pfTaus)));
+      std::auto_ptr<PFTauDiscriminator> output(new PFTauDiscriminator(edm::RefProd<PFTauCollection>(pfTaus)));
       for(size_t iTau = 0; iTau < nTaus; ++iTau)
       {
          // get computed variables for this tau
