@@ -2,9 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GeometryWriter")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.load('Configuration/StandardSequences/GeometryExtended_cff')
-process.load('Geometry/CaloEventSetup/CaloGeometryDBWriter_cfi')
 
+# This will read all the little XML files and from
+# that fill the DDCompactView. The modules that fill
+# the reco part of the database need the DDCompactView.
+process.load('Configuration/StandardSequences/GeometryExtended_cff')
+
+process.load('Geometry/CaloEventSetup/CaloGeometryDBWriter_cfi')
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
@@ -12,9 +16,14 @@ process.source = cms.Source("EmptyIOVSource",
                             firstValue = cms.uint64(1),
                             interval = cms.uint64(1)
                             )
-#this and the outputservice below are set up to do the first insert of GeometryFile
+
+# This reads the big XML file and the only way to fill the
+# nonreco part of the database is to read this file.  It
+# somewhat duplicates the information read from the little
+# XML files, but there is no way to directly build the
+# DDCompactView from this.
 process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
-                                           XMLFileName = cms.untracked.string("./geTagXX.xml"),
+                                           XMLFileName = cms.untracked.string("./geSingleBigFile.xml"),
                                            ZIP = cms.untracked.bool(True)
                                            )
 process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetExtraESModule",
@@ -59,4 +68,3 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.p1 = cms.Path(process.XMLGeometryWriter+process.TrackerGeometryWriter+process.TrackerGeometryExtraWriter+process.CaloGeometryWriter+process.CSCGeometryWriter+process.DTGeometryWriter+process.RPCGeometryWriter)
-

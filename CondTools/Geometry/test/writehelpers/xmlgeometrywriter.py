@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("XMLGeometryWriter")
-# empty input service, fire 10 events
-#    include "FWCore/MessageLogger/data/MessageLogger.cfi"
+
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 process.source = cms.Source("EmptyIOVSource",
@@ -13,7 +12,7 @@ process.source = cms.Source("EmptyIOVSource",
                             )
 
 process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
-                                           XMLFileName = cms.untracked.string("./geTagXX.xml"),
+                                           XMLFileName = cms.untracked.string("./geSingleBigFile.xml"),
                                            ZIP = cms.untracked.bool(True)
                                            )
 
@@ -30,4 +29,3 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.p1 = cms.Path(process.XMLGeometryWriter)
-
