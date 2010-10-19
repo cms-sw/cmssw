@@ -81,8 +81,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2010/09/24 16:30:14 $ 
- **  $Revision: 1.62 $
+ **  $Date: 2010/09/28 16:37:58 $ 
+ **  $Revision: 1.63 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -929,10 +929,10 @@ void  PhotonValidator::beginJob() {
     h_convERes_[0][0] = dbe_->book1D(histname+"All"," Conversion rec/true Energy: All ecal ", resBin,resMin, resMax);
     h_convERes_[0][1] = dbe_->book1D(histname+"Barrel"," Conversion rec/true Energy: Barrel ",resBin,resMin, resMax);
     h_convERes_[0][2] = dbe_->book1D(histname+"Endcap"," Conversion rec/true Energy: Endcap ",resBin,resMin, resMax);
-    histname = "convPRes";
-    h_convPRes_[1][0] = dbe_->book1D(histname+"All"," Conversion rec/true Momentum from tracks : All ecal ", resBin,0.,1.5);
-    h_convPRes_[1][1] = dbe_->book1D(histname+"Barrel"," Conversion rec/true Momentum from tracks: Barrel ",resBin,0., 1.5);
-    h_convPRes_[1][2] = dbe_->book1D(histname+"Endcap"," Conversion rec/true Momentum from tracks: Endcap ",resBin,0., 1.5);
+    histname = "convPtRes";
+    h_convPtRes_[1][0] = dbe_->book1D(histname+"All"," Conversion Pt rec/true  from tracks : All ecal ", resBin,0.,1.5);
+    h_convPtRes_[1][1] = dbe_->book1D(histname+"Barrel"," Conversion Pt rec/true  from tracks: Barrel ",resBin,0., 1.5);
+    h_convPtRes_[1][2] = dbe_->book1D(histname+"Endcap"," Conversion Pt rec/true  from tracks: Endcap ",resBin,0., 1.5);
 
 
 
@@ -2065,8 +2065,11 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 	  //	  float totP = sqrt(aConv->pairMomentum().Mag2());
 	  float refP =-99999.;
-          if ( aConv->conversionVertex().isValid() )  refP=sqrt(aConv->refittedPairMomentum().Mag2());
-
+	  float refPt =-99999.;
+          if ( aConv->conversionVertex().isValid() ) {
+               refP=sqrt(aConv->refittedPairMomentum().Mag2());
+               refPt=sqrt(aConv->refittedPairMomentum().perp2());
+	  }
           float invM = aConv->pairInvariantMass();
 
 	  h_invMass_[type][0] ->Fill( invM);
@@ -2151,14 +2154,14 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	      
 	      h_trkProv_[1]->Fill( trkProvenance );
 	      h_invMass_[type][0] ->Fill( invM);	      
-	      
+	     
 	      
 	      
 	      float eoverp= -99999.;
 	   
 	      if ( aConv->conversionVertex().isValid() ) {
 		eoverp= aConv->EoverPrefittedTracks();
-		h_convPRes_[type][0]->Fill( refP / (*mcPho).fourMomentum().e() );
+		h_convPtRes_[type][0]->Fill( refPt / (*mcPho).fourMomentum().et() );
 		h_EoverPTracks_[type][0] ->Fill( eoverp ) ;
 		h_PoverETracks_[type][0] ->Fill( 1./eoverp ) ;
 		h2_EoverEtrueVsEoverP_[0] ->Fill( eoverp,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
@@ -2216,7 +2219,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	      if ( phoIsInBarrel ) {
 		h_invMass_[type][1] ->Fill(invM);
 		if ( aConv->conversionVertex().isValid() ) {
-		  h_convPRes_[type][1]->Fill( refP / (*mcPho).fourMomentum().e() );
+		  h_convPtRes_[type][1]->Fill( refPt / (*mcPho).fourMomentum().et() );
 		  h_EoverPTracks_[type][1] ->Fill( eoverp ) ;
 		  if (  mcConvR_ < 15 )                 h_EoverPTracks_[0][0] ->Fill( eoverp ) ;
 		  if (  mcConvR_ > 15 && mcConvR_< 58 ) h_EoverPTracks_[0][1] ->Fill( eoverp ) ;
@@ -2235,7 +2238,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	      if ( phoIsInEndcap ) {
 		h_invMass_[type][2] ->Fill(invM);
 		if ( aConv->conversionVertex().isValid() ) {
-		  h_convPRes_[type][2]->Fill( refP / (*mcPho).fourMomentum().e() );
+		  h_convPtRes_[type][2]->Fill( refPt / (*mcPho).fourMomentum().et() );
 		  h_EoverPTracks_[type][2] ->Fill( eoverp ) ;
 		  h_PoverETracks_[type][2] ->Fill( 1./eoverp ) ;
 		  h2_EoverEtrueVsEoverP_[2] ->Fill( eoverp,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
