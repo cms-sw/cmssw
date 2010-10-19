@@ -31,8 +31,6 @@ using namespace std;
 using namespace boost::statechart;
 using namespace stor;
 
-using boost::shared_ptr;
-
 /////////////////////////////////////////////////////////////
 //
 // This test exercises the state machine
@@ -58,7 +56,7 @@ class testStateMachine : public CppUnit::TestFixture
 
 private:
   // Typedefs:
-  typedef std::map<std::string, shared_ptr<event_base> > EventMap;
+  typedef std::map<std::string, boost::shared_ptr<event_base> > EventMap;
   typedef std::vector<std::string> EventList;
   typedef std::vector<TransitionRecord> TransitionList;
 
@@ -196,18 +194,18 @@ void testStateMachine::checkSignals
 )
 {
   EventMap emap;
-  emap[ "Configure" ] = shared_ptr<event_base>( new Configure() );
-  emap[ "Enable" ] = shared_ptr<event_base>( new Enable() );
-  emap[ "Stop" ] = shared_ptr<event_base>( new Stop() );
-  emap[ "Halt" ] = shared_ptr<event_base>( new Halt() );
-  emap[ "Reconfigure" ] = shared_ptr<event_base>( new Reconfigure() );
-  emap[ "EmergencyStop" ] = shared_ptr<event_base>( new EmergencyStop() );
-  emap[ "QueuesEmpty" ] = shared_ptr<event_base>( new QueuesEmpty() );
-  emap[ "StopDone" ] = shared_ptr<event_base>( new StopDone() );
-  emap[ "HaltDone" ] = shared_ptr<event_base>( new HaltDone() );
-  emap[ "StartRun" ] = shared_ptr<event_base>( new StartRun() );
-  emap[ "EndRun" ] = shared_ptr<event_base>( new EndRun() );
-  emap[ "Fail" ] = shared_ptr<event_base>( new Fail() );
+  emap[ "Configure" ] = boost::shared_ptr<event_base>( new Configure() );
+  emap[ "Enable" ] = boost::shared_ptr<event_base>( new Enable() );
+  emap[ "Stop" ] = boost::shared_ptr<event_base>( new Stop() );
+  emap[ "Halt" ] = boost::shared_ptr<event_base>( new Halt() );
+  emap[ "Reconfigure" ] = boost::shared_ptr<event_base>( new Reconfigure() );
+  emap[ "EmergencyStop" ] = boost::shared_ptr<event_base>( new EmergencyStop() );
+  emap[ "QueuesEmpty" ] = boost::shared_ptr<event_base>( new QueuesEmpty() );
+  emap[ "StopDone" ] = boost::shared_ptr<event_base>( new StopDone() );
+  emap[ "HaltDone" ] = boost::shared_ptr<event_base>( new HaltDone() );
+  emap[ "StartRun" ] = boost::shared_ptr<event_base>( new StartRun() );
+  emap[ "EndRun" ] = boost::shared_ptr<event_base>( new EndRun() );
+  emap[ "Fail" ] = boost::shared_ptr<event_base>( new Fail() );
 
   for ( EventMap::const_iterator it = emap.begin(), itEnd = emap.end();
         it != itEnd; ++it )
