@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.h,v 1.8 2010/10/05 14:07:56 kkousour Exp $
+// $Id: JetCorrectorParameters.h,v 1.9 2010/10/06 08:59:48 kkousour Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -102,18 +102,20 @@ class JetCorrectorParametersCollection {
   //-- Adds several JetCorrectorParameters together by algorithm type ---
   //--     to reduce the number of payloads in the Database ---
  public:
-  enum Level_t { L1Offset,
-                 L1JPTOffset, 
-		 L2Relative,
-		 L3Absolute,
-                 L2L3Residual,
-		 L4EMF,
-		 L5Flavor,
-		 L6UE,
-		 L7Parton,
-                 Uncertainty,
-		 N_LEVELS
+  enum Level_t { L1Offset=0,
+		 L1JPTOffset=7,
+		 L2Relative=1,
+		 L3Absolute=2,
+		 L2L3Residual=8,
+		 L4EMF=3,
+		 L5Flavor=4,
+		 L6UE=5,
+		 L7Parton=6,
+		 Uncertainty=9,
+                N_LEVELS=10
   };
+
+
   enum L5_Species_t {L5_bJ=0,L5_cJ,L5_qJ,L5_gJ,L5_bT,L5_cT,L5_qT,L5_gT,N_L5_SPECIES};
   enum L7_Species_t {L7_gJ=0,L7_qJ,L7_cJ,L7_bJ,L7_jJ,L7_qT,L7_cT,L7_bT,L7_jT,N_L7_SPECIES};
   typedef int                            key_type;
