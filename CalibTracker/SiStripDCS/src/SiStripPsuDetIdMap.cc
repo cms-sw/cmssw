@@ -305,17 +305,33 @@ std::vector<uint32_t> SiStripPsuDetIdMap::getHvDetID(std::string pvss) {
 // Currently, channel number is ignored for mapping purposes
 // check both PG and CG as the channels should be unique
 std::vector<uint32_t> SiStripPsuDetIdMap::getDetID(std::string pvss) {
+  //Minimal fix of the HV1/HV2 bug...
+  //Just to have a tag that fixes problems except the HV-Unmapped and HV-Crosstalking modules
   std::vector<uint32_t> detids;
   
-  std::string inputBoard = pvss;
-  std::string::size_type loc = inputBoard.size()-3;
-  inputBoard.erase(loc,3);
+  std::string PSUChannelFromQuery = pvss;
+  //Code used to try to match only the PSU!
+  //Agreed for now to let it match the whole channel (leaving out all channels considered HV unmapped 
+  //(since they are listed as channel000 they will NEVER match for HV status changes, and will be listed
+  //as always OFF (Same for eventual cross-talking channels (that are listed as channel999).
+  //std::string::size_type loc = inputBoard.size()-3;
+  //inputBoard.erase(loc,3);
   
+  std::string ChannelFromQuery = PSUChannelFromQuery.substr(PSUChannelFromQuery.size()-10);
+
   for (PsuDetIdMap::iterator iter = pgMap.begin(); iter != pgMap.end(); iter++) {
-    std::string board = iter->second;
-    std::string::size_type loca = board.size()-3;
-    board.erase(loca,3);
-    if (inputBoard == board) {
+    std::string PSUChannelFromMap = iter->second;
+    // std::string::size_type loca = board.size()-3;
+    //board.erase(loca,3);
+    if (ChannelFromQuery=="channel000" || ChannelFromQuery=="channel001") {
+      //Use the PSU to do the matching (not the PSUChannel):
+      std::string PSUFromQuery = PSUChannelFromQuery.substr(0,PSUChannelFromQuery.size()-10);
+      std::string PSUFromMap = PSUChannelFromMap.substr(0,PSUChannelFromMap.size()-10);
+      if (PSUFromQuery == PSUFromMap) {
+	detids.push_back(iter->first);
+      }
+    }
+    else if (PSUChannelFromQuery == PSUChannelFromMap) {
       detids.push_back(iter->first);
     }
   }
