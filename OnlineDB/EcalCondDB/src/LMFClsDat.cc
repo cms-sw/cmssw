@@ -54,15 +54,16 @@ LMFClsDat::LMFClsDat(EcalDBConnection *c, int color) : LMFColoredTable(c) {
 
 void LMFClsDat::init() {
   m_className = "LMFClsDat";
-  m_keys["MEAN"] = 0;
-  m_keys["NORM"] = 1;
-  m_keys["RMS"] = 2;
-  m_keys["NEVT"] = 3;
-  m_keys["ENORM"] = 4;
-  m_keys["FLAG"] = 5;
-  m_keys["FLAGNORM"] = 6;
-  m_keys["VMIN"] = 7;
-  m_keys["VMAX"] = 8;
+  m_keys["LMF_IOV_ID_REF"] = 0;
+  m_keys["MEAN"] = 1;
+  m_keys["NORM"] = 2;
+  m_keys["RMS"] = 3;
+  m_keys["NEVT"] = 4;
+  m_keys["ENORM"] = 5;
+  m_keys["FLAG"] = 6;
+  m_keys["FLAGNORM"] = 7;
+  m_keys["VMIN"] = 8;
+  m_keys["VMAX"] = 9;
   for (unsigned int i = 0; i < m_keys.size(); i++) {
     m_type.push_back("NUMBER");
   }
@@ -77,6 +78,11 @@ bool LMFClsDat::isValid() {
     ret = false;
   }
   return ret;
+}
+
+LMFClsDat& LMFClsDat::setLMFRefRunIOVID(EcalLogicID &id, int v) {
+  LMFDat::setData(id, "LMF_IOV_ID_REF", v);
+  return *this;
 }
 
 LMFClsDat& LMFClsDat::setMean(EcalLogicID &id, float v) {
@@ -112,6 +118,10 @@ LMFClsDat& LMFClsDat::setFlag(EcalLogicID &id, int v) {
 LMFClsDat& LMFClsDat::setEFlag(EcalLogicID &id, float v) {
   LMFDat::setData(id, "EFLAG", v);
   return *this;
+}
+
+int LMFClsDat::getLMFRefRunIOVID(EcalLogicID &id) {
+  return getData(id, "LMF_IOV_ID_REF");
 }
 
 float LMFClsDat::getMean(EcalLogicID &id) {

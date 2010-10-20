@@ -38,12 +38,7 @@ class LMFClsDat : public LMFColoredTable {
   LMFClsDat& setSystem(int system) { return *this; }
   LMFClsDat& setSystem(std::string system) { return *this; }
 
-  LMFClsDat& setLMFRefRunIOV(const LMFRunIOV &iov) {
-    setInt("lmfRunIOVRef_id", iov.getID());
-    attach("lmfRunIOVRef", (LMFUnique*)&iov);
-    return *this;
-  }
-
+  LMFClsDat& setLMFRefRunIOVID(EcalLogicID &id, int v);
   LMFClsDat& setMean(EcalLogicID &id, float v);
   LMFClsDat& setNorm(EcalLogicID &id, float v);
   LMFClsDat& setENorm(EcalLogicID &id, float v);
@@ -52,6 +47,7 @@ class LMFClsDat : public LMFColoredTable {
   LMFClsDat& setFlag(EcalLogicID &id, int v);
   LMFClsDat& setEFlag(EcalLogicID &id, float v);
 
+  int   getLMFRefRunIOVID(EcalLogicID &id);
   float getMean(EcalLogicID &id);
   float getNorm(EcalLogicID &id);
   float getENorm(EcalLogicID &id);
@@ -61,12 +57,6 @@ class LMFClsDat : public LMFColoredTable {
   float getEFlag(EcalLogicID &id);
 
   std::string getSystem() { return ""; }
-
-  LMFRunIOV getLMFRefRunIOV() const {
-    LMFRunIOV runiov(m_env, m_conn);
-    runiov.setByID(getInt("lmfRunIOVRef_id"));
-    return runiov;
-  }
 
   bool isValid();
   // to do: complete list of set/get methods
