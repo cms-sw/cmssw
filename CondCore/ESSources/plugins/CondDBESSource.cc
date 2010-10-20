@@ -137,7 +137,7 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
       nm.pfn=itToGet->getUntrackedParameter<std::string>("connect",userconnect);
       //	nm.objectname=itFound->second;
       std::string k=nm.recordname+"@"+nm.labelname;
-      replacement.insert(std::make_pair<std::string,cond::TagMetadata>(k,nm));
+      replacement.insert(std::pair<std::string,cond::TagMetadata>(k,nm));
     }
   }
   

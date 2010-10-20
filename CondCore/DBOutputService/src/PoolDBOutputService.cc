@@ -252,7 +252,7 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
     metadata.addMapping(myrecord.m_tag,iovToken,myrecord.m_timetype);
     transaction.commit();
 
-    m_newtags.push_back( std::make_pair<std::string,std::string>(myrecord.m_tag,iovToken) );
+    m_newtags.push_back( std::pair<std::string,std::string>(myrecord.m_tag,iovToken) );
     myrecord.m_iovtoken=iovToken;
     myrecord.m_isNewTag=false;
     if(withlogging){
