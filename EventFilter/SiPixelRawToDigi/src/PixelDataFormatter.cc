@@ -4,12 +4,13 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
-
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -44,7 +45,7 @@ const PixelDataFormatter::Word64 WORD32_mask = 0xffffffff;
 
 
 PixelDataFormatter::PixelDataFormatter( const SiPixelFedCabling* map)
-  : theDigiCounter(0), theWordCounter(0), theCablingTree(map)
+  : theDigiCounter(0), theWordCounter(0), theCablingTree(map), badPixelInfo(0)
 {
   int s32 = sizeof(Word32);
   int s64 = sizeof(Word64);
@@ -58,6 +59,7 @@ PixelDataFormatter::PixelDataFormatter( const SiPixelFedCabling* map)
           <<", send exception" ;
   }
   includeErrors = false;
+  useQualityInfo = false;
   allDetDigis = 0;
   hasDetDigis = 0;
 }
@@ -66,6 +68,12 @@ void PixelDataFormatter::setErrorStatus(bool ErrorStatus)
 {
   includeErrors = ErrorStatus;
   errorcheck.setErrorStatus(includeErrors);
+}
+
+void PixelDataFormatter::setQualityStatus(bool QualityStatus, const SiPixelQuality* QualityInfo)
+{
+  useQualityInfo = QualityStatus;
+  badPixelInfo = QualityInfo;
 }
 
 void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const FEDRawData& rawData, Digis& digis, Errors& errors)
@@ -115,7 +123,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
       // check status of word...
       bool notErrorROC1 = errorcheck.checkROC(errorsInEvent, fedId, converter, w1, errors);
       if (notErrorROC1) {
-        int status1 = word2digi(converter, includeErrors, w1, digis);
+        int status1 = word2digi(fedId, converter, includeErrors, useQualityInfo, w1, digis);
         if (status1) {
 	    LogDebug("PixelDataFormatter::interpretRawData") 
                     << "status #" <<status1<<" returned for word1";
@@ -125,7 +133,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
       }
       bool notErrorROC2 = errorcheck.checkROC(errorsInEvent, fedId, converter, w2, errors);
       if (notErrorROC2) {
-        int status2 = word2digi(converter, includeErrors, w2, digis);
+        int status2 = word2digi(fedId, converter, includeErrors, useQualityInfo, w2, digis);
         if (status2) {
 	    LogDebug("PixelDataFormatter::interpretRawData") 
                     << "status #" <<status2<<" returned for word2";
@@ -237,8 +245,8 @@ int PixelDataFormatter::digi2word( const SiPixelFrameConverter* converter,
 }
 
 
-int PixelDataFormatter::word2digi(const SiPixelFrameConverter* converter, 
-    const bool includeErrors, const Word32 & word, Digis & digis) const
+int PixelDataFormatter::word2digi(const int fedId, const SiPixelFrameConverter* converter, 
+    const bool includeErrors, const bool useQuality, const Word32 & word, Digis & digis) const
 {
   // do not interpret false digis
   if (word == 0 ) return 0;
@@ -246,23 +254,34 @@ int PixelDataFormatter::word2digi(const SiPixelFrameConverter* converter,
   ElectronicIndex cabling;
   cabling.dcol = (word >> DCOL_shift) & DCOL_mask;
   cabling.pxid = (word >> PXID_shift) & PXID_mask;
-  cabling.link = (word >> LINK_shift) & LINK_mask;  
+  cabling.link = (word >> LINK_shift) & LINK_mask;
   cabling.roc  = (word >> ROC_shift) & ROC_mask;
-  int adc   = (word >> ADC_shift) & ADC_mask;
+  int adc      = (word >> ADC_shift) & ADC_mask;
 
   if (debug) {
     LocalPixel::DcolPxid pixel = {cabling.dcol,cabling.pxid};
     LocalPixel local(pixel);
-    LogTrace("")<<"  link: "<<cabling.link<<", roc: "<<cabling.roc 
+    LogTrace("")<<" link: "<<cabling.link<<", roc: "<<cabling.roc
                 <<" rocRow: "<<local.rocRow()<<", rocCol:"<<local.rocCol()
-                <<" (dcol: "<<cabling.dcol<<",pxid:"<<cabling.pxid<<"), adc:"<<adc;
+                <<" (dcol: "<<cabling.dcol<<", pxid:"<<cabling.pxid<<"), adc:"<<adc;
   }
 
   if (!converter) return 0;
 
   DetectorIndex detIdx;
   int status = converter->toDetector(cabling, detIdx);
-  if (status) return status; 
+  if (status) return status;
+
+  // exclude ROC(raw) based on bad ROC list bad in SiPixelQuality
+  // enable: process.siPixelDigis.UseQualityInfo = True
+  // 20-10-2010 A.Y.
+  if (useQuality&&badPixelInfo) {
+    CablingPathToDetUnit path = {fedId, cabling.link, cabling.roc};
+    const PixelROC * roc = theCablingTree->findItem(path);
+    short rocInDet = (short) roc->idInDetUnit();
+    bool badROC = badPixelInfo->IsRocBad(detIdx.rawId, rocInDet);
+    if (badROC) return 0;
+  }
 
   PixelDigi pd(detIdx.row, detIdx.col, adc);
   digis[detIdx.rawId].push_back(pd);

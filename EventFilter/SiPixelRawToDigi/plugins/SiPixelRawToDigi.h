@@ -12,8 +12,10 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 
 class SiPixelFedCabling;
+class SiPixelQuality;
 class TH1D;
 class R2DTimerObserver;
 
@@ -38,13 +40,16 @@ private:
 
   edm::ParameterSet config_;
   const SiPixelFedCabling* cabling_;
+  const SiPixelQuality* badPixelInfo_;
   bool  useCablingTree_;
   TH1D *hCPU, *hDigi;
   R2DTimerObserver * theTimer;
   bool includeErrors;
+  bool useQuality;
   bool debug;
   std::vector<unsigned int> fedList;
   edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher;
+  edm::ESWatcher<SiPixelQualityRcd> qualityWatcher;
   edm::InputTag label;
   int ndigis;
   int nwords;

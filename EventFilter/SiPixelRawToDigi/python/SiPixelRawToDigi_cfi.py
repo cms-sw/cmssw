@@ -5,7 +5,9 @@ siPixelDigis = cms.EDProducer("SiPixelRawToDigi",
     IncludeErrors = cms.bool(True),
     InputLabel = cms.InputTag("siPixelRawData"),
     CheckPixelOrder = cms.bool(False),
+    UseQualityInfo = cms.bool(False),
     UseCablingTree = cms.untracked.bool(True)
+
 )
 
 

@@ -1,3 +1,8 @@
+// Include parameter driven interface to SiPixelQuality for study purposes
+// exclude ROC(raw) based on bad ROC list in SiPixelQuality
+// enabled by: process.siPixelDigis.UseQualityInfo = True
+// 20-10-2010 Andrew York (Tennessee)
+
 #include "SiPixelRawToDigi.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -10,7 +15,6 @@
 
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 
-
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -20,6 +24,8 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
+
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 
 #include "EventFilter/SiPixelRawToDigi/interface/R2DTimerObserver.h"
 
@@ -32,10 +38,12 @@ using namespace std;
 SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf ) 
   : config_(conf), 
     cabling_(0), 
+    badPixelInfo_(0), 
     hCPU(0), hDigi(0), theTimer(0)
 {
 
   includeErrors = config_.getParameter<bool>("IncludeErrors");
+  useQuality = config_.getParameter<bool>("UseQualityInfo");
   useCablingTree_ = config_.getUntrackedParameter<bool>("UseCablingTree",true);
 
   //start counters
@@ -84,13 +92,25 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 
 // initialize cabling map or update if necessary
   if (recordWatcher.check( es )) {
+    // cabling map, which maps online address (fed->link->ROC->local pixel) to offline (DetId->global pixel)
     edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
     es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
     fedList = cablingMap->fedIds();
-    if(useCablingTree_ && cabling_) delete cabling_; 
-    if (useCablingTree_) cabling_ = cablingMap->cablingTree(); 
+    if (useCablingTree_ && cabling_) delete cabling_; 
+    if (useCablingTree_) cabling_ = cablingMap->cablingTree();
     else cabling_ = cablingMap.product();
     LogDebug("map version:")<< cabling_->version();
+  }
+// initialize quality record or update if necessary
+  if (qualityWatcher.check( es )&&useQuality) {
+    // quality info for dead pixel modules or ROCs
+    edm::ESTransientHandle<SiPixelQuality> qualityInfo;
+    es.get<SiPixelQualityRcd>().get( qualityInfo );
+    if (badPixelInfo_) delete badPixelInfo_;
+    badPixelInfo_ = qualityInfo.product();
+    if (!badPixelInfo_) {
+      edm::LogError("**SiPixelRawToDigi**")<<" Configured to use SiPixelQuality, but SiPixelQuality not present"<<endl;
+    }
   }
 
   edm::Handle<FEDRawDataCollection> buffers;
@@ -103,6 +123,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 
   PixelDataFormatter formatter(cabling_);
   formatter.setErrorStatus(includeErrors);
+  if (useQuality) formatter.setQualityStatus(useQuality, badPixelInfo_);
 
   if (theTimer) theTimer->start();
   bool errorsInEvent = false;
@@ -114,7 +135,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
     if(debug) LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  fedId << endl;
     PixelDataFormatter::Digis digis;
     PixelDataFormatter::Errors errors;
-     
+
     //get event data for this fed
     const FEDRawData& fedRawData = buffers->FEDData( fedId );
 

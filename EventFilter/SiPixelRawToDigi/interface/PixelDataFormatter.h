@@ -42,6 +42,7 @@
 
 class FEDRawData;
 class SiPixelFedCabling;
+class SiPixelQuality;
 class SiPixelFrameConverter;
 
 class PixelDataFormatter {
@@ -60,6 +61,7 @@ public:
   PixelDataFormatter(const SiPixelFedCabling* map);
 
   void setErrorStatus(bool ErrorStatus);
+  void setQualityStatus(bool QualityStatus, const SiPixelQuality* QualityInfo);
 
   int nDigis() const { return theDigiCounter; }
   int nWords() const { return theWordCounter; }
@@ -73,7 +75,9 @@ private:
   mutable int theWordCounter;
 
   const SiPixelFedCabling* theCablingTree;
+  const SiPixelQuality* badPixelInfo;
   bool includeErrors;
+  bool useQualityInfo;
   bool debug;
   int allDetDigis;
   int hasDetDigis;
@@ -85,10 +89,12 @@ private:
                   uint32_t detId, const PixelDigi& digi,
                   std::vector<Word32> & words) const;
 
-  int word2digi( const SiPixelFrameConverter* converter, 
-		    const bool includeError,
-		    const Word32& word, 
-                    Digis & digis) const;
+  int word2digi( const int fedId,
+                  const SiPixelFrameConverter* converter,
+		  const bool includeError,
+		  const bool useQuality,
+		  const Word32& word, 
+                  Digis & digis) const;
 
   std::string print(const PixelDigi & digi) const;
   std::string print(const Word64    & word) const;
