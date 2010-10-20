@@ -33,6 +33,15 @@ class TProfile;
 class TTree;
 class SimVertex;
 class SimTrack;
+/** \class TkConvValidator
+ **  
+ **
+ **  $Id: TkConvValidator
+ **  $Date: 2010/10/20 12:32:26 $ 
+ **  $Revision: 1.1 $
+ **  \author N.Marinelli - Univ. of Notre Dame
+ **
+ ***/
 
 
 class TkConvValidator : public edm::EDAnalyzer
@@ -220,7 +229,7 @@ class TkConvValidator : public edm::EDAnalyzer
   MonitorElement* h_convVtxdEta_;
   MonitorElement* h_convVtxdPhi_;
 
- MonitorElement* h_convVtxdX_barrel_;
+  MonitorElement* h_convVtxdX_barrel_;
   MonitorElement* h_convVtxdY_barrel_;
   MonitorElement* h_convVtxdZ_barrel_;
   MonitorElement* h_convVtxdR_barrel_;
@@ -232,9 +241,14 @@ class TkConvValidator : public edm::EDAnalyzer
 
 
   MonitorElement* h2_convVtxdRVsR_;
-  MonitorElement* p_convVtxdRVsR_;
   MonitorElement* h2_convVtxdRVsEta_;
+
+  MonitorElement* p_convVtxdRVsR_;
   MonitorElement* p_convVtxdRVsEta_;
+
+  MonitorElement* p_convVtxdXVsX_;
+  MonitorElement* p_convVtxdYVsY_;
+  MonitorElement* p_convVtxdZVsZ_;
 
   MonitorElement* h2_convVtxRrecVsTrue_;
 
