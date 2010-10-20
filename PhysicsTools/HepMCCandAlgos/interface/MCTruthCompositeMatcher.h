@@ -38,9 +38,6 @@ MCTruthCompositeMatcher<C1, C2>::~MCTruthCompositeMatcher() {
 
 template<typename C1, typename C2>
 void MCTruthCompositeMatcher<C1, C2>::produce( edm::Event & evt , const edm::EventSetup & ) {
-  using namespace edm;
-  using namespace reco;
-  using namespace std;
   typedef typename CandMatcher<C1, C2>::reference_type reference_type;
   Handle<C1> cands;
   evt.getByLabel(src_, cands);

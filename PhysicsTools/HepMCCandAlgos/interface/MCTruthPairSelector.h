@@ -18,13 +18,13 @@ namespace helpers {
     MCTruthPairSelector( const I & begin, const I & end, bool checkCharge = false ) :
       checkCharge_( checkCharge ) {
       for( I i = begin; i != end; ++i )
-	matchIds_.insert( abs( * i ) );
+	matchIds_.insert( std::abs( * i ) );
     }
     bool operator()( const T & c, const reco::Candidate & mc ) const {
       if ( mc.status() != 1 ) return false;
       if ( checkCharge_ && c.charge() != mc.charge() ) return false;
       if ( matchIds_.size() == 0 ) return true;
-      return matchIds_.find( abs( mc.pdgId() ) ) != matchIds_.end();
+      return matchIds_.find( std::abs( mc.pdgId() ) ) != matchIds_.end();
     }
   private:
     std::set<int> matchIds_;
@@ -43,15 +43,14 @@ namespace reco {
     template<typename T>
     struct ParameterAdapter<helpers::MCTruthPairSelector<T> > {
       static helpers::MCTruthPairSelector<T> make( const edm::ParameterSet & cfg ) {
-	using namespace std;
-	const string matchPDGId( "matchPDGId" );
-	const string checkCharge( "checkCharge" );
+	const std::string matchPDGId( "matchPDGId" );
+	const std::string checkCharge( "checkCharge" );
 	bool ck = false;
-	vector<string> bools = cfg.template getParameterNamesForType<bool>();
+	std::vector<std::string> bools = cfg.template getParameterNamesForType<bool>();
 	bool found = find( bools.begin(), bools.end(), checkCharge ) != bools.end();
 	if (found) ck = cfg.template getParameter<bool>( checkCharge ); 
-	typedef vector<int> vint;
-	vector<string> ints = cfg.template getParameterNamesForType<vint>();
+	typedef std::vector<int> vint;
+	std::vector<std::string> ints = cfg.template getParameterNamesForType<vint>();
 	found = find( ints.begin(), ints.end(), matchPDGId ) != ints.end();
 	if ( found ) {
 	  vint ids = cfg.template getParameter<vint>( matchPDGId );
