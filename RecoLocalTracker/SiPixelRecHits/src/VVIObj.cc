@@ -58,16 +58,16 @@ VVIObj::VVIObj(double kappa, double beta2, double mode) : mode_(mode) {
   
   if(kappa < 0.01) kappa = 0.01;
   if(kappa > 10.) kappa = 10.;
-  if(beta < 0.) beta = 0.;
-  if(beta > 1.) beta = 1.;
+  if(beta2 < 0.) beta2 = 0.;
+  if(beta2 > 1.) beta2 = 1.;
   
-  h_[4] = 1. - beta*0.42278433999999998 + 7.6/kappa;
-  h_[5] = beta;
-  h_[6] = 1. - beta;
-  h4 = -7.6/kappa - (beta * .57721566 + 1);
+  h_[4] = 1. - beta2*0.42278433999999998 + 7.6/kappa;
+  h_[5] = beta2;
+  h_[6] = 1. - beta2;
+  h4 = -7.6/kappa - (beta2 * .57721566 + 1);
   h5 = log(kappa);
   h6 = 1./kappa;
-  t0_ = (h4 - h_[4]*h5 - (h_[4] + beta)*(log(h_[4]) + VVIObjDetails::expint(h_[4])) + exp(-h_[4]))/h_[4];
+  t0_ = (h4 - h_[4]*h5 - (h_[4] + beta2)*(log(h_[4]) + VVIObjDetails::expint(h_[4])) + exp(-h_[4]))/h_[4];
   
   // Set up limits for the root search
   
@@ -82,18 +82,18 @@ VVIObj::VVIObj(double kappa, double beta2, double mode) : mode_(mode) {
   //	double (*fp2)(double) = reinterpret_cast<double(*)(double)>(&VVIObj::f2);
   VVIObjDetails::dzero(ll, ul, u, rv, 1.e-5, 1000, boost::bind(&VVIObjDetails::f2, _1,h_));
   q = 1./u;
-  t1_ = h4 * q - h5 - (beta * q + 1) * (log((fabs(u))) + VVIObjDetails::expint(u)) + exp(-u) * q;
+  t1_ = h4 * q - h5 - (beta2 * q + 1) * (log((fabs(u))) + VVIObjDetails::expint(u)) + exp(-u) * q;
   t_ = t1_ - t0_;
   omega_ = 6.2831853000000004/t_;
-  h_[0] = kappa * (beta * .57721566 + 2.) + 9.9166128600000008;
+  h_[0] = kappa * (beta2 * .57721566 + 2.) + 9.9166128600000008;
   if (kappa >= .07) {h_[0] += 6.90775527;}
-  h_[1] = beta * kappa;
+  h_[1] = beta2 * kappa;
   h_[2] = h6 * omega_;
   h_[3] = omega_ * 1.5707963250000001;
   //	double (*fp1)(double) = reinterpret_cast<double(*)(double)>(&VVIObj::f1);
   VVIObjDetails::dzero(5., 155., x0_, rv, 1.e-5, 1000, boost::bind(&VVIObjDetails::f1, _1,h_));
   n = x0_ + 1.;
-  d = exp(kappa * (beta * (.57721566 - h5) + 1.)) * .31830988654751274;
+  d = exp(kappa * (beta2 * (.57721566 - h5) + 1.)) * .31830988654751274;
   a_[n - 1] = 0.;
   if (mode_ == 0) {
     a_[n - 1] = omega_ * .31830988654751274;
@@ -108,8 +108,8 @@ VVIObj::VVIObj(double kappa, double beta2, double mode) : mode_(mode) {
     c1 = log(x) - c1;
     c3 = sin(x1);
     c4 = cos(x1);
-    xf1 = kappa * (beta * c1 - c4) - x * c2;
-    xf2 = x * c1 + kappa * (c3 + beta * c2) + t0_ * x;
+    xf1 = kappa * (beta2 * c1 - c4) - x * c2;
+    xf2 = x * c1 + kappa * (c3 + beta2 * c2) + t0_ * x;
     if (mode_ == 0) {
       d1 = q * d * omega_ * exp(xf1);
       a_[l - 1] = d1 * cos(xf2);
