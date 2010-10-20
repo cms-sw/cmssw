@@ -79,7 +79,7 @@ VVIObj::VVIObj(double kappa, double beta2, double mode) : kappa_(kappa), beta2_(
 	}
 	ul = lq - 6.5;
 //	double (*fp2)(double) = reinterpret_cast<double(*)(double)>(&VVIObj::f2);
-	VVIObjDetails::dzero(ll, ul, u, rv, 1.e-5, 1000, std::bind(&VVIObjDetails::f2, _1,_h));
+	VVIObjDetails::dzero(ll, ul, u, rv, 1.e-5, 1000, std::bind(&VVIObjDetails::f2, _1,h_));
 	q = 1./u;
 	t1_ = h4 * q - h5 - (beta2_ * q + 1) * (log((fabs(u))) + VVIObjDetails::expint(u)) + exp(-u) * q;
 	t_ = t1_ - t0_;
@@ -90,7 +90,7 @@ VVIObj::VVIObj(double kappa, double beta2, double mode) : kappa_(kappa), beta2_(
 	h_[2] = h6 * omega_;
 	h_[3] = omega_ * 1.5707963250000001;
 //	double (*fp1)(double) = reinterpret_cast<double(*)(double)>(&VVIObj::f1);
-	VVIObjDetails::dzero(5., 155., x0_, rv, 1.e-5, 1000, std::bind(&VVIObjDetails::f1, _1,_h));
+	VVIObjDetails::dzero(5., 155., x0_, rv, 1.e-5, 1000, std::bind(&VVIObjDetails::f1, _1,h_));
 	n = x0_ + 1.;
 	d = exp(kappa_ * (beta2_ * (.57721566 - h5) + 1.)) * .31830988654751274;
 	a_[n - 1] = 0.;
@@ -132,7 +132,7 @@ VVIObj::VVIObj(double kappa, double beta2, double mode) : kappa_(kappa), beta2_(
 // ************************************************************************************************************************************* 
 
 
-double VVIObj::fcn(double x) sonst {
+double VVIObj::fcn(double x) const {
 	
 	// Local variables
 	
@@ -145,29 +145,29 @@ double VVIObj::fcn(double x) sonst {
 	if (x < t0_) {
 		f = 0.;
 	} else if (x <= t1_) {
-		y = x - t0_;
-		u = omega_ * y - 3.141592653589793;
-		cof = cos(u) * 2.;
-		a1 = 0.;
-		a0 = a_[0];
-		n1=n+1;
-		for (k = 2; k <= n1; ++k) {
-			a2 = a1;
-			a1 = a0;
-			a0 = a_[k - 1] + cof * a1 - a2;
-		}
-		b1 = 0.;
-		b0 = b_[0];
-		for (k = 2; k <= n; ++k) {
-			b2 = b1;
-			b1 = b0;
-			b0 = b_[k - 1] + cof * b1 - b2;
-		}
-		f = (a0 - a2) * .5 + b0 * sin(u);
-		if (mode_ != 0) {f += y / t_;}
+	  y = x - t0_;
+	  u = omega_ * y - 3.141592653589793;
+	  cof = cos(u) * 2.;
+	  a1 = 0.;
+	  a0 = a_[0];
+	  n1=n+1;
+	  for (k = 2; k <= n1; ++k) {
+	    a2 = a1;
+	    a1 = a0;
+	    a0 = a_[k - 1] + cof * a1 - a2;
+	  }
+	  b1 = 0.;
+	  b0 = b_[0];
+	  for (k = 2; k <= n; ++k) {
+	    b2 = b1;
+	    b1 = b0;
+	    b0 = b_[k - 1] + cof * b1 - b2;
+	  }
+	  f = (a0 - a2) * .5 + b0 * sin(u);
+	  if (mode_ != 0) {f += y / t_;}
 	} else {
-		f = 0.;
-		if (mode_ != 0) {f = 1.;}
+	  f = 0.;
+	  if (mode_ != 0) {f = 1.;}
 	}
 	return f;
 } // fcn
