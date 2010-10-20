@@ -16,9 +16,9 @@ ecalGlobalUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     EEtimeFitLimits_Lower = cms.double(0.2),
     EEtimeFitLimits_Upper = cms.double(1.4),
     # for kOutOfTime flag
-    EBtimeConstantTerm= cms.double(.6),
+    EBtimeConstantTerm= cms.double(.26),
     EBtimeNconst      = cms.double(28.5),
-    EEtimeConstantTerm= cms.double(.6),
+    EEtimeConstantTerm= cms.double(.18),
     EEtimeNconst      = cms.double(31.8),
     outOfTimeThresholdGain12pEB    = cms.double(5),      # times estimated precision
     outOfTimeThresholdGain12mEB    = cms.double(5),      # times estimated precision
@@ -30,20 +30,12 @@ ecalGlobalUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     #outOfTimeThresholdGain61pEE    = cms.double(5),      # times estimated precision
     outOfTimeThresholdGain61pEE    = cms.double(1.e+05), # times estimated precision
     outOfTimeThresholdGain61mEE    = cms.double(5),      # times estimated precision
-    amplitudeThresholdEB    = cms.double(10),
-    amplitudeThresholdEE    = cms.double(10),
-                                         
+    amplitudeThresholdEB = cms.double(10),
+    amplitudeThresholdEE = cms.double(10),
     ebSpikeThreshold = cms.double(1.042),
 
     ebPulseShape = cms.vdouble( 5.2e-05,-5.26e-05 , 6.66e-05, 0.1168, 0.7575, 1.,  0.8876, 0.6732, 0.4741,  0.3194 ),
     eePulseShape = cms.vdouble( 5.2e-05,-5.26e-05 , 6.66e-05, 0.1168, 0.7575, 1.,  0.8876, 0.6732, 0.4741,  0.3194 ),
-
-    kPoorRecoFlagEB = cms.bool(False),
-    kPoorRecoFlagEE = cms.bool(False),
-    chi2ThreshEB_ = cms.double(33.0),
-    chi2ThreshEE_ = cms.double(33.0),
-    EBchi2Parameters = cms.vdouble(2.122, 0.022, 2.122, 0.022),
-    EEchi2Parameters = cms.vdouble(2.122, 0.022, 2.122, 0.022),
-   
+    
     algo = cms.string("EcalUncalibRecHitWorkerGlobal")
 )
