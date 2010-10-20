@@ -38,6 +38,8 @@ void roostats_cl95_bc(double Lumi, double Lumi_err_rel, double eff, double eff_e
    // Nb_err_rel : relative error on Nb
    // obs : observed number of events
 
+   cout << "Hei-ho" << endl;
+
    RooRealVar roo_Lumi("_Lumi","",Lumi);
    RooRealVar roo_Lumi_err_rel("_Lumi_err","",Lumi_err_rel*Lumi);
    RooRealVar roo_eff("_eff","",eff);
@@ -49,12 +51,12 @@ void roostats_cl95_bc(double Lumi, double Lumi_err_rel, double eff, double eff_e
    //define variables with ranges 
 
 
-   RooRealVar roo_sigma_s("sigma_s","",0.0, 5*((Nb+(5*Nb_err_rel*Nb)+obs+5*sqrt(obs))/Lumi) );
+   RooRealVar roo_sigma_s("sigma_s","",0.0, 5.*((Nb+(5.*Nb_err_rel*Nb)+(obs+3.)+5.*sqrt(obs))/Lumi)+5. );
    //This does not work in all situations! In general one must check if the range is sufficiently large for receiving a stable result but not so large that one runs into technical problems with the integration. This would require an iterative adjustment  
-   cout << "range for sigma_s (signal cross section): " <<  0.0 << " -- " <<  5*((Nb+(5*Nb_err_rel*Nb)+obs+5*sqrt(obs))/Lumi) << endl;
+   cout << "range for sigma_s (signal cross section): " <<  0.0 << " -- " <<  (5.*((Nb+(5.*Nb_err_rel*Nb)+(obs+3.)+5.*sqrt(obs))/Lumi)+5.) << endl;
    cout << "convince yourself that the range for the signal cross section is reasonable!" << endl;
    
-   RooRealVar roo_n("n","",0,Nb+(5*Nb_err_rel*Nb)+10*obs); //this should ensure proper normalisation 
+   RooRealVar roo_n("n","",0,Nb+(5*Nb_err_rel*Nb)+10*(obs+1)); //this should ensure proper normalisation 
 
    RooRealVar roo_L("L","",TMath::Max(0.0,Lumi-(4*Lumi_err_rel*Lumi)),Lumi+(4*Lumi_err_rel*Lumi));
    RooRealVar roo_epsilon("epsilon","",TMath::Max(0.0,eff-(4*eff_err_rel*eff)),eff+(4*eff_err_rel*eff));
@@ -97,7 +99,7 @@ void roostats_cl95_bc(double Lumi, double Lumi_err_rel, double eff, double eff_e
 
    // Poisson distribution with mean signal+bkg
    myWS->factory("Poisson::model(n,sum(signal,N_bkg))");
- 
+
    // define the global prior function 
    myWS->factory("PROD::prior(prior_sigma_s,prior_epsilon,prior_L,prior_N_bkg)");
 
