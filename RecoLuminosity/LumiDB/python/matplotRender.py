@@ -350,7 +350,7 @@ class matplotRender():
         self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
         self.__fig.subplots_adjust(bottom=0.18,left=0.1)
 
-    def plotPeakPerday_Time(self,daydict,minTime,maxTime,nticks=6,annotateBoundaryRunnum=False):
+    def plotPeakPerday_Time(self,daydict,minTime,maxTime,nticks=6,annotateBoundaryRunnum=False,yscale='linear'):
         '''
         Input: daydict={}#{day:[run,lsnum,instlumi]}
         '''

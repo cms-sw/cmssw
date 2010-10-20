@@ -126,7 +126,7 @@ def lumiPerDay(c,p='.',i='',o='',begTime="03/30/10 10:00:00.00",endTime=None,sel
     '''
     plotoutname='lumiperday.png'
     textoutname='lumiperday.csv'
-    elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin','"'+begTime+'"','-batch',os.path.join(o,plotoutname),'perday']
+    elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin','"'+begTime+'"','-batch',os.path.join(o,plotoutname),'-yscale both','perday']
     if selectionfile:
         elements.append('-i')
         elements.append(selectionfile)
@@ -246,7 +246,7 @@ def instPeakPerday(c,p='.',o='.',begTime="03/30/10 10:00:00.00",endTime=None,dry
     '''
     plotoutname='lumipeak.png'
     textoutname='lumipeak.csv'
-    elements=['lumiInstPlot.py','-c',c,'-P',p,'-begin','"'+begTime+'"','-batch',os.path.join(o,plotoutname),'peakperday']
+    elements=['lumiInstPlot.py','-c',c,'-P',p,'-begin','"'+begTime+'"','-batch',os.path.join(o,plotoutname),'-yscale both','peakperday']
     if endTime:
         elements.append('-end')
         elements.append('"'+endTime+'"')
