@@ -1271,74 +1271,72 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta)
 //! \param ysum - (input) 25-element vector of pixel signals
 //! \param ysig2 - (output) 25-element vector of y errors (squared)
 // ************************************************************************************************************ 
-  void SiPixelTemplate::ysigma2(int fypix, int lypix, float sythr, float ysum[25], float ysig2[25])
+void SiPixelTemplate::ysigma2(int fypix, int lypix, float sythr, float ysum[25], float ysig2[25]) {
+  // Interpolate using quantities already stored in the private variables
   
-{
-    // Interpolate using quantities already stored in the private variables
-    
-    // Local variables 
-    int i;
-	float sigi, sigi2, sigi3, sigi4, symax, qscale;
-	
-    // Make sure that input is OK
-    
+  // Local variables 
+  int i;
+  float sigi, sigi2, sigi3, sigi4, symax, qscale;
+  
+  // Make sure that input is OK
+  
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-    if(fypix < 2 || fypix >= BYM2) {
-		throw cms::Exception("DataCorrupt") << "SiPixelTemplate::ysigma2 called with fypix = " << fypix << std::endl;
-	}
+  if(fypix < 2 || fypix >= BYM2) {
+    throw cms::Exception("DataCorrupt") << "SiPixelTemplate::ysigma2 called with fypix = " << fypix << std::endl;
+  }
 #else
-	assert(fypix > 1 && fypix < BYM2);
+  assert(fypix > 1 && fypix < BYM2);
 #endif
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-	   if(lypix < fypix || lypix >= BYM2) {
-		  throw cms::Exception("DataCorrupt") << "SiPixelTemplate::ysigma2 called with lypix/fypix = " << lypix << "/" << fypix << std::endl;
-		}
+  if(lypix < fypix || lypix >= BYM2) {
+    throw cms::Exception("DataCorrupt") << "SiPixelTemplate::ysigma2 called with lypix/fypix = " << lypix << "/" << fypix << std::endl;
+  }
 #else
-		assert(lypix >= fypix && lypix < BYM2);
+  assert(lypix >= fypix && lypix < BYM2);
 #endif
 	   	     
-// Define the maximum signal to use in the parameterization 
-
-       symax = psymax;
-	   if(psymax > psyparmax) {symax = psyparmax;}
-	   
-// Evaluate pixel-by-pixel uncertainties (weights) for the templ analysis 
-
-	   for(i=fypix-2; i<=lypix+2; ++i) {
-		  if(i < fypix || i > lypix) {
-	   
-// Nearest pseudopixels have uncertainties of 50% of threshold, next-nearest have 10% of threshold
-
-			 ysig2[i] = ps50*ps50;
-		  } else {
-			 if(ysum[i] < symax) {
-				sigi = ysum[i];
-				qscale = 1.;
-			 } else {
-				sigi = symax;
-				qscale = ysum[i]/symax;
-			 }
-			 sigi2 = sigi*sigi; sigi3 = sigi2*sigi; sigi4 = sigi3*sigi;
-			 if(i <= BHY) {
-				ysig2[i] = (1.-pyratio)*
-				(pyparl[0][0]+pyparl[0][1]*sigi+pyparl[0][2]*sigi2+pyparl[0][3]*sigi3+pyparl[0][4]*sigi4)
-				+ pyratio*
-				(pyparh[0][0]+pyparh[0][1]*sigi+pyparh[0][2]*sigi2+pyparh[0][3]*sigi3+pyparh[0][4]*sigi4);
-			 } else {
-				ysig2[i] = (1.-pyratio)*
-				(pyparl[1][0]+pyparl[1][1]*sigi+pyparl[1][2]*sigi2+pyparl[1][3]*sigi3+pyparl[1][4]*sigi4)
-				+ pyratio*
-			    (pyparh[1][0]+pyparh[1][1]*sigi+pyparh[1][2]*sigi2+pyparh[1][3]*sigi3+pyparh[1][4]*sigi4);
-			 }
-			 ysig2[i] *=qscale;
-		     if(ysum[i] > sythr) {ysig2[i] = 1.e8;}
-			 if(ysig2[i] <= 0.) {LOGERROR("SiPixelTemplate") << "neg y-error-squared, id = " << id_current << ", index = " << index_id << 
-			 ", cot(alpha) = " << cota_current << ", cot(beta) = " << cotb_current <<  ", sigi = " << sigi << ENDL;}
-	      }
-	   }
-	
-	return;
-	
+  // Define the maximum signal to use in the parameterization 
+  
+  symax = psymax;
+  if(psymax > psyparmax) {symax = psyparmax;}
+  
+  // Evaluate pixel-by-pixel uncertainties (weights) for the templ analysis 
+  
+  for(i=fypix-2; i<=lypix+2; ++i) {
+    if(i < fypix || i > lypix) {
+      
+      // Nearest pseudopixels have uncertainties of 50% of threshold, next-nearest have 10% of threshold
+      
+      ysig2[i] = ps50*ps50;
+    } else {
+      if(ysum[i] < symax) {
+	sigi = ysum[i];
+	qscale = 1.;
+      } else {
+	sigi = symax;
+	qscale = ysum[i]/symax;
+      }
+      sigi2 = sigi*sigi; sigi3 = sigi2*sigi; sigi4 = sigi3*sigi;
+      if(i <= BHY) {
+	ysig2[i] = (1.-pyratio)*
+	  (pyparl[0][0]+pyparl[0][1]*sigi+pyparl[0][2]*sigi2+pyparl[0][3]*sigi3+pyparl[0][4]*sigi4)
+	  + pyratio*
+	  (pyparh[0][0]+pyparh[0][1]*sigi+pyparh[0][2]*sigi2+pyparh[0][3]*sigi3+pyparh[0][4]*sigi4);
+      } else {
+	ysig2[i] = (1.-pyratio)*
+	  (pyparl[1][0]+pyparl[1][1]*sigi+pyparl[1][2]*sigi2+pyparl[1][3]*sigi3+pyparl[1][4]*sigi4)
+	  + pyratio*
+	  (pyparh[1][0]+pyparh[1][1]*sigi+pyparh[1][2]*sigi2+pyparh[1][3]*sigi3+pyparh[1][4]*sigi4);
+      }
+      ysig2[i] *=qscale;
+      if(ysum[i] > sythr) {ysig2[i] = 1.e8;}
+      if(ysig2[i] <= 0.) {LOGERROR("SiPixelTemplate") << "neg y-error-squared, id = " << id_current << ", index = " << index_id << 
+	  ", cot(alpha) = " << cota_current << ", cot(beta) = " << cotb_current <<  ", sigi = " << sigi << ENDL;}
+    }
+  }
+  
+  return;
+  
 } // End ysigma2
 
 
@@ -1414,104 +1412,102 @@ void SiPixelTemplate::ysigma2(float qpixel, int index, float& ysig2)
 //! \param xsum - (input) 11-element vector of pixel signals
 //! \param xsig2 - (output) 11-element vector of x errors (squared)
 // ************************************************************************************************************ 
-  void SiPixelTemplate::xsigma2(int fxpix, int lxpix, float sxthr, float xsum[11], float xsig2[11])
-  
-{
+  void SiPixelTemplate::xsigma2(int fxpix, int lxpix, float sxthr, float xsum[11], float xsig2[11]) {
     // Interpolate using quantities already stored in the private variables
     
     // Local variables 
     int i;
-	float sigi, sigi2, sigi3, sigi4, yint, sxmax, x0, qscale;
-	
+    float sigi, sigi2, sigi3, sigi4, yint, sxmax, x0, qscale;
+    
     // Make sure that input is OK
     
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-		  if(fxpix < 2 || fxpix >= BXM2) {
-			 throw cms::Exception("DataCorrupt") << "SiPixelTemplate::xsigma2 called with fxpix = " << fxpix << std::endl;
-		   }
+    if(fxpix < 2 || fxpix >= BXM2) {
+      throw cms::Exception("DataCorrupt") << "SiPixelTemplate::xsigma2 called with fxpix = " << fxpix << std::endl;
+    }
 #else
-		   assert(fxpix > 1 && fxpix < BXM2);
+    assert(fxpix > 1 && fxpix < BXM2);
 #endif
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-			 if(lxpix < fxpix || lxpix >= BXM2) {
-				throw cms::Exception("DataCorrupt") << "SiPixelTemplate::xsigma2 called with lxpix/fxpix = " << lxpix << "/" << fxpix << std::endl;
-			 }
+    if(lxpix < fxpix || lxpix >= BXM2) {
+      throw cms::Exception("DataCorrupt") << "SiPixelTemplate::xsigma2 called with lxpix/fxpix = " << lxpix << "/" << fxpix << std::endl;
+    }
 #else
-			 assert(lxpix >= fxpix && lxpix < BXM2);
+    assert(lxpix >= fxpix && lxpix < BXM2);
 #endif
-	   	     
+    
 // Define the maximum signal to use in the parameterization 
-
-       sxmax = psxmax;
-	   if(psxmax > psxparmax) {sxmax = psxparmax;}
-	   
-// Evaluate pixel-by-pixel uncertainties (weights) for the templ analysis 
-
-	   for(i=fxpix-2; i<=lxpix+2; ++i) {
-		  if(i < fxpix || i > lxpix) {
-	   
-// Nearest pseudopixels have uncertainties of 50% of threshold, next-nearest have 10% of threshold
-
-			 xsig2[i] = ps50*ps50;
-		  } else {
-			 if(xsum[i] < sxmax) {
-				sigi = xsum[i];
-				qscale = 1.;
-			 } else {
-				sigi = sxmax;
-				qscale = xsum[i]/sxmax;
-			 }
-			 sigi2 = sigi*sigi; sigi3 = sigi2*sigi; sigi4 = sigi3*sigi;
-			 
-// First, do the cotbeta interpolation			 
-			 
-			 if(i <= BHX) {
-				yint = (1.-pyratio)*
-				(pxparly0[0][0]+pxparly0[0][1]*sigi+pxparly0[0][2]*sigi2+pxparly0[0][3]*sigi3+pxparly0[0][4]*sigi4)
-				+ pyratio*
-				(pxparhy0[0][0]+pxparhy0[0][1]*sigi+pxparhy0[0][2]*sigi2+pxparhy0[0][3]*sigi3+pxparhy0[0][4]*sigi4);
-			 } else {
-				yint = (1.-pyratio)*
-				(pxparly0[1][0]+pxparly0[1][1]*sigi+pxparly0[1][2]*sigi2+pxparly0[1][3]*sigi3+pxparly0[1][4]*sigi4)
-				+ pyratio*
-			    (pxparhy0[1][0]+pxparhy0[1][1]*sigi+pxparhy0[1][2]*sigi2+pxparhy0[1][3]*sigi3+pxparhy0[1][4]*sigi4);
-			 }
-			 
-// Next, do the cotalpha interpolation			 
-			 
-			 if(i <= BHX) {
-				xsig2[i] = (1.-pxxratio)*
-				(pxparl[0][0]+pxparl[0][1]*sigi+pxparl[0][2]*sigi2+pxparl[0][3]*sigi3+pxparl[0][4]*sigi4)
-				+ pxxratio*
-				(pxparh[0][0]+pxparh[0][1]*sigi+pxparh[0][2]*sigi2+pxparh[0][3]*sigi3+pxparh[0][4]*sigi4);
-			 } else {
-				xsig2[i] = (1.-pxxratio)*
-				(pxparl[1][0]+pxparl[1][1]*sigi+pxparl[1][2]*sigi2+pxparl[1][3]*sigi3+pxparl[1][4]*sigi4)
-				+ pxxratio*
-			    (pxparh[1][0]+pxparh[1][1]*sigi+pxparh[1][2]*sigi2+pxparh[1][3]*sigi3+pxparh[1][4]*sigi4);
-			 }
-			 
-// Finally, get the mid-point value of the cotalpha function			 
-			 
-			 if(i <= BHX) {
-				x0 = pxpar0[0][0]+pxpar0[0][1]*sigi+pxpar0[0][2]*sigi2+pxpar0[0][3]*sigi3+pxpar0[0][4]*sigi4;
-			 } else {
-				x0 = pxpar0[1][0]+pxpar0[1][1]*sigi+pxpar0[1][2]*sigi2+pxpar0[1][3]*sigi3+pxpar0[1][4]*sigi4;
-			 }
-			 
-// Finally, rescale the yint value for cotalpha variation			 
-			 
-			 if(x0 != 0.) {xsig2[i] = xsig2[i]/x0 * yint;}
-			 xsig2[i] *=qscale;
-		     if(xsum[i] > sxthr) {xsig2[i] = 1.e8;}
-			 if(xsig2[i] <= 0.) {LOGERROR("SiPixelTemplate") << "neg x-error-squared, id = " << id_current << ", index = " << index_id << 
-			 ", cot(alpha) = " << cota_current << ", cot(beta) = " << cotb_current  << ", sigi = " << sigi << ENDL;}
-	      }
-	   }
+    
+    sxmax = psxmax;
+    if(psxmax > psxparmax) {sxmax = psxparmax;}
+    
+    // Evaluate pixel-by-pixel uncertainties (weights) for the templ analysis 
+    
+    for(i=fxpix-2; i<=lxpix+2; ++i) {
+      if(i < fxpix || i > lxpix) {
 	
-	return;
+	// Nearest pseudopixels have uncertainties of 50% of threshold, next-nearest have 10% of threshold
 	
-} // End xsigma2
+	xsig2[i] = ps50*ps50;
+      } else {
+	if(xsum[i] < sxmax) {
+	  sigi = xsum[i];
+	  qscale = 1.;
+	} else {
+	  sigi = sxmax;
+	  qscale = xsum[i]/sxmax;
+	}
+	sigi2 = sigi*sigi; sigi3 = sigi2*sigi; sigi4 = sigi3*sigi;
+	
+	// First, do the cotbeta interpolation			 
+			 
+	if(i <= BHX) {
+	  yint = (1.-pyratio)*
+	    (pxparly0[0][0]+pxparly0[0][1]*sigi+pxparly0[0][2]*sigi2+pxparly0[0][3]*sigi3+pxparly0[0][4]*sigi4)
+	    + pyratio*
+	    (pxparhy0[0][0]+pxparhy0[0][1]*sigi+pxparhy0[0][2]*sigi2+pxparhy0[0][3]*sigi3+pxparhy0[0][4]*sigi4);
+	} else {
+	  yint = (1.-pyratio)*
+	    (pxparly0[1][0]+pxparly0[1][1]*sigi+pxparly0[1][2]*sigi2+pxparly0[1][3]*sigi3+pxparly0[1][4]*sigi4)
+	    + pyratio*
+	    (pxparhy0[1][0]+pxparhy0[1][1]*sigi+pxparhy0[1][2]*sigi2+pxparhy0[1][3]*sigi3+pxparhy0[1][4]*sigi4);
+	}
+	
+	// Next, do the cotalpha interpolation			 
+	
+	if(i <= BHX) {
+	  xsig2[i] = (1.-pxxratio)*
+	    (pxparl[0][0]+pxparl[0][1]*sigi+pxparl[0][2]*sigi2+pxparl[0][3]*sigi3+pxparl[0][4]*sigi4)
+	    + pxxratio*
+	    (pxparh[0][0]+pxparh[0][1]*sigi+pxparh[0][2]*sigi2+pxparh[0][3]*sigi3+pxparh[0][4]*sigi4);
+	} else {
+	  xsig2[i] = (1.-pxxratio)*
+	    (pxparl[1][0]+pxparl[1][1]*sigi+pxparl[1][2]*sigi2+pxparl[1][3]*sigi3+pxparl[1][4]*sigi4)
+	    + pxxratio*
+	    (pxparh[1][0]+pxparh[1][1]*sigi+pxparh[1][2]*sigi2+pxparh[1][3]*sigi3+pxparh[1][4]*sigi4);
+	}
+	
+	// Finally, get the mid-point value of the cotalpha function			 
+	
+	if(i <= BHX) {
+	  x0 = pxpar0[0][0]+pxpar0[0][1]*sigi+pxpar0[0][2]*sigi2+pxpar0[0][3]*sigi3+pxpar0[0][4]*sigi4;
+	} else {
+	  x0 = pxpar0[1][0]+pxpar0[1][1]*sigi+pxpar0[1][2]*sigi2+pxpar0[1][3]*sigi3+pxpar0[1][4]*sigi4;
+	}
+	
+	// Finally, rescale the yint value for cotalpha variation			 
+	
+	if(x0 != 0.) {xsig2[i] = xsig2[i]/x0 * yint;}
+	xsig2[i] *=qscale;
+	if(xsum[i] > sxthr) {xsig2[i] = 1.e8;}
+	if(xsig2[i] <= 0.) {LOGERROR("SiPixelTemplate") << "neg x-error-squared, id = " << id_current << ", index = " << index_id << 
+	    ", cot(alpha) = " << cota_current << ", cot(beta) = " << cotb_current  << ", sigi = " << sigi << ENDL;}
+      }
+    }
+    
+    return;
+    
+  } // End xsigma2
 
 
 
