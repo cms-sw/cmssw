@@ -495,25 +495,24 @@ double expint(double x) {
 			 4.656271079751e-7 };
   
   /* Local variables */
-  static int i__;
-  double v, y, ap, bp, aq, dp, bq, dq;
+   double v, y, ap, bp, aq, dp, bq, dq;
   
   if (x <= xl[0]) {
     ap = a3[0] - x;
-    for (i__ = 2; i__ <= 5; ++i__) {
+    for ( int i__ = 2; i__ <= 5; ++i__) {
       /* L1: */
       ap = a3[i__ - 1] - x + b3[i__ - 1] / ap;
     }
     y = exp(-x) / x * (one - (a3[5] + b3[5] / ap) / x);
   } else if (x <= xl[1]) {
     ap = a2[0] - x;
-    for (i__ = 2; i__ <= 7; ++i__) {
+    for ( int i__ = 2; i__ <= 7; ++i__) {
       ap = a2[i__ - 1] - x + b2[i__ - 1] / ap;
     }
     y = exp(-x) / x * (a2[7] + b2[7] / ap);
   } else if (x <= xl[2]) {
     ap = a1[0] - x;
-    for (i__ = 2; i__ <= 7; ++i__) {
+    for ( int i__ = 2; i__ <= 7; ++i__) {
       ap = a1[i__ - 1] - x + b1[i__ - 1] / ap;
     }
     y = exp(-x) / x * (a1[7] + b1[7] / ap);
@@ -521,14 +520,14 @@ double expint(double x) {
     v = -two * (x / three + one);
     bp = zero;
     dp = p4[0];
-    for (i__ = 2; i__ <= 8; ++i__) {
+    for ( int i__ = 2; i__ <= 8; ++i__) {
       ap = bp;
       bp = dp;
       dp = p4[i__ - 1] - ap + v * bp;
     }
     bq = zero;
     dq = q4[0];
-    for (i__ = 2; i__ <= 8; ++i__) {
+    for ( int i__ = 2; i__ <= 8; ++i__) {
       aq = bq;
       bq = dq;
       dq = q4[i__ - 1] - aq + v * bq;
@@ -539,7 +538,7 @@ double expint(double x) {
   } else if (x < xl[4]) {
     ap = p1[0];
     aq = q1[0];
-    for (i__ = 2; i__ <= 5; ++i__) {
+    for ( int i__ = 2; i__ <= 5; ++i__) {
       ap = p1[i__ - 1] + x * ap;
       aq = q1[i__ - 1] + x * aq;
     }
@@ -548,7 +547,7 @@ double expint(double x) {
     y = one / x;
     ap = p2[0];
     aq = q2[0];
-    for (i__ = 2; i__ <= 7; ++i__) {
+    for ( int i__ = 2; i__ <= 7; ++i__) {
       ap = p2[i__ - 1] + y * ap;
       aq = q2[i__ - 1] + y * aq;
     }
@@ -557,7 +556,7 @@ double expint(double x) {
     y = one / x;
     ap = p3[0];
     aq = q3[0];
-    for (i__ = 2; i__ <= 6; ++i__) {
+    for ( int i__ = 2; i__ <= 6; ++i__) {
       ap = p3[i__ - 1] + y * ap;
       aq = q3[i__ - 1] + y * aq;
     }
