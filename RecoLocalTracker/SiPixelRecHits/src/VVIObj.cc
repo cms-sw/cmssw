@@ -10,15 +10,18 @@
 // V1.2 - remove inappriate initializers and add methods to return non-zero/normalized region
 //
 
-#include <cmath>
-#include <algorithm>
-
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
 // put CMSSW location of SimpleHelix.h here
 #include "RecoLocalTracker/SiPixelRecHits/interface/VVIObj.h"
 #else
 #include "VVIObj.h"
 #endif
+
+
+#include <cmath>
+#include <algorithm>
+#include<boost/bind.hpp>
+
 
 namespace VVIObjDetails {
   void sincosint(double x, double & sint, double & cint);  //! Private version of the cosine and sine integral
@@ -28,6 +31,9 @@ namespace VVIObjDetails {
   
   inline double f1(double x, double const * h_) { return h_[0]+h_[1]*std::log(h_[2]*x)-h_[3]*x;}
   inline double f2(double x, double const * h_) { return h_[4]-x+h_[5]*(std::log(std::abs(x))+expint(x))-h_[6]*std::exp(-x);}
+  template<typename F>
+  int dzero(double a, double b, double& x0, 
+	    double& rv, double eps, int mxf, F func);
 }
 
 
@@ -73,7 +79,7 @@ VVIObj::VVIObj(double kappa, double beta2, double mode) : kappa_(kappa), beta2_(
 	}
 	ul = lq - 6.5;
 //	double (*fp2)(double) = reinterpret_cast<double(*)(double)>(&VVIObj::f2);
-	VVIObjDetails::dzero(ll, ul, u, rv, 1.e-5, 1000, 2);
+	VVIObjDetails::dzero(ll, ul, u, rv, 1.e-5, 1000, std::bind(&VVIObjDetails::f2, _1,_h));
 	q = 1./u;
 	t1_ = h4 * q - h5 - (beta2_ * q + 1) * (log((fabs(u))) + VVIObjDetails::expint(u)) + exp(-u) * q;
 	t_ = t1_ - t0_;
@@ -84,7 +90,7 @@ VVIObj::VVIObj(double kappa, double beta2, double mode) : kappa_(kappa), beta2_(
 	h_[2] = h6 * omega_;
 	h_[3] = omega_ * 1.5707963250000001;
 //	double (*fp1)(double) = reinterpret_cast<double(*)(double)>(&VVIObj::f1);
-	VVIObjDetails::dzero(5., 155., x0_, rv, 1.e-5, 1000, 1);
+	VVIObjDetails::dzero(5., 155., x0_, rv, 1.e-5, 1000, std::bind(&VVIObjDetails::f1, _1,_h));
 	n = x0_ + 1.;
 	d = exp(kappa_ * (beta2_ * (.57721566 - h5) + 1.)) * .31830988654751274;
 	a_[n - 1] = 0.;
@@ -126,7 +132,7 @@ VVIObj::VVIObj(double kappa, double beta2, double mode) : kappa_(kappa), beta2_(
 // ************************************************************************************************************************************* 
 
 
-double VVIObj::fcn(double x) {
+double VVIObj::fcn(double x) sonst {
 	
 	// Local variables
 	
@@ -175,7 +181,7 @@ double VVIObj::fcn(double x) {
 // ************************************************************************************************************************************* 
 
 
-void VVIObj::limits(double& xl, double& xu) {
+void VVIObj::limits(double& xl, double& xu) const {
 	
    xl = t0_;
    xu = t1_;
@@ -561,10 +567,9 @@ double expint(double x) {
 } // expint
   
 
-}
-
-int VVIObj::dzero(double a, double b, double& x0, 
-		  double& rv, double eps, int mxf, int fsel) {
+  template<typename F>
+  int dzero(double a, double b, double& x0, 
+	    double& rv, double eps, int mxf, F func) {
 	/* System generated locals */
 	double d__1, d__2, d__3, d__4;
 	
@@ -575,8 +580,8 @@ int VVIObj::dzero(double a, double b, double& x0,
 	
 	xa = std::min(a,b);
 	xb = std::max(a,b);
-	if(fsel == 1) {fa = VVIObjDetails::f1(xa,h_);} else {fa = VVIObjDetails::f2(xa,h_);}
-	if(fsel == 1) {fb = VVIObjDetails::f1(xb,h_);} else {fb = VVIObjDetails::f2(xb,h_);}
+	fa = func(xa);
+	fb = func(xb);
 	if (fa * fb > 0.) {
 	   rv = (xb - xa) * -2;
 	   x0 = 0.;
@@ -589,7 +594,7 @@ L1:
 	ee = eps * (fabs(x0) + 1);
 	if (rv <= ee) {
 	   rv = ee;
-	   if(fsel == 1) {ff = VVIObjDetails::f1(x0,h_);} else {ff = VVIObjDetails::f2(x0,h_);}
+	   ff = fun(x0);
 	   return 0;
 	}
 	f1 = fa;
@@ -597,7 +602,7 @@ L1:
 	f2 = fb;
 	x2 = xb;
 L2:
-	if(fsel == 1) {fx = VVIObjDetails::f1(x0,h_);} else {fx = VVIObjDetails::f2(x0,h_);}
+	fx = func(x0);
 	++mc;
 	if (mc > mxf) {
 	   rv = (d__1 = xb - xa, fabs(d__1)) * -.5;
@@ -647,32 +652,30 @@ L3:
 	   x2 = x3;
 	   goto L2;
 	}
-	if(fsel == 1) {fx = VVIObjDetails::f1(x0,h_);} else {fx = VVIObjDetails::f2(x0,h_);}
-	if(fsel == 1) {fx = VVIObj::f1(x0);} else {fx = VVIObj::f2(x0);}
+	fx = func(x0);
 	if (fx == 0.) {
 	   rv = ee;
-	   if(fsel == 1) {ff = VVIObjDetails::f1(x0,h_);} else {ff = VVIObjDetails::f2(x0,h_);}
+	   ff = func(x0);
 	   return 0;
 	}
 	if (fx * fa < 0.) {
 	   xx = x0 - ee;
 	   if (xx <= xa) {
 	     rv = ee;
-	     if(fsel == 1) {ff = VVIObjDetails::f1(xx,h_);} else {ff = VVIObjDetails::f2(xx,h_);}
-
+	     ff = func(xx);
 	     return 0;
 	   }
-	   if(fsel == 1) {ff = VVIObjDetails::f1(xx,h_);} else {ff = VVIObjDetails::f2(xx,h_);}
+	   ff = func(xx);
 	   fb = ff;
 	   xb = xx;
 	} else {
 	   xx = x0 + ee;
 	   if (xx >= xb) {
 	      rv = ee;
-	      if(fsel == 1) {ff = VVIObjDetails::f1(x0,h_);} else {ff = VVIObjDetails::f2(x0,h_);}
+	      ff = func(x0);
 	      return 0;
 	   }
-	   if(fsel == 1) {ff = VVIObjDetails::f1(xx,h_);} else {ff = VVIObjDetails::f2(xx,h_);}
+	   ff = func(xx);
 	   fa = ff;
 	   xa = xx;
 	}
@@ -693,7 +696,8 @@ L3:
 	}
 	/* L4: */
 	rv = ee;
-	if(fsel == 1) {ff = VVIObjDetails::f1(x0,h_);} else {ff = VVIObjDetails::f2(x0,h_);}
+	ff = func(x0);
 	return 0;
 } // dzero
 
+}

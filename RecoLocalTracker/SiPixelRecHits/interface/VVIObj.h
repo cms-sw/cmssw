@@ -26,7 +26,7 @@ class VVIObj {
   
   VVIObj(double kappa = 0.01, double beta2 = 1., double mode = 0); //!< Constructor  
   
-  double fcn(double x) cont; //! density (mode=0) or distribution (mode=1) function
+  double fcn(double x) const; //! density (mode=0) or distribution (mode=1) function
   void limits(double& xl, double& xu) const; //! returns the limits on the non-zero (mode=0) or normalized region (mode=1)
   
 private:
