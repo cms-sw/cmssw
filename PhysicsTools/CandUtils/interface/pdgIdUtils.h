@@ -5,32 +5,32 @@
 namespace reco {
 
   inline bool isElectron(const Candidate & part) { 
-    return abs(part.pdgId())==11;
+    return std::abs(part.pdgId())==11;
   }
 
   inline bool isMuon(const Candidate & part) { 
-    return abs(part.pdgId())==13;
+    return std::abs(part.pdgId())==13;
   }
 
   inline bool isTau(const Candidate & part) { 
-    return abs(part.pdgId())==15;
+    return std::abs(part.pdgId())==15;
   }
 
   inline bool isLepton(const Candidate & part) { 
-    return abs(part.pdgId())==11 || 
-      abs(part.pdgId())==13 || 
-      abs(part.pdgId())==15; 
+    return std::abs(part.pdgId())==11 || 
+      std::abs(part.pdgId())==13 || 
+      std::abs(part.pdgId())==15; 
   }
 
   inline bool isNeutrino(const Candidate & part) { 
-    return abs(part.pdgId())==12 || 
-      abs(part.pdgId())==14 || 
-      abs(part.pdgId())==16; 
+    return std::abs(part.pdgId())==12 || 
+      std::abs(part.pdgId())==14 || 
+      std::abs(part.pdgId())==16; 
   }
 
   inline int flavour(const Candidate & part) {
     int id = part.pdgId();
-    return id/abs(id);
+    return id/std::abs(id);
   }
 
 }
