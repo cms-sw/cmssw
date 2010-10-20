@@ -112,8 +112,6 @@ CandMatcherBase<C1, C2>::CandMatcherBase( const typename CandMatcherBase<C1, C2>
 
 template<typename C1, typename C2>
 void CandMatcherBase<C1, C2>::initMaps() {
-  using namespace reco;
-  using namespace std;
   for( typename map_vector::const_iterator m = maps_.begin(); 
        m != maps_.end(); ++ m ) {
     typename CandMatcherBase<C1, C2>::map_type::ref_type::key_type cands = (*m)->refProd().key;
@@ -128,7 +126,7 @@ void CandMatcherBase<C1, C2>::initMaps() {
     for( size_t i = 0; i < matchedSize; ++ i ) {
       const Candidate & c = matched[ i ];
       for( Candidate::const_iterator d = c.begin(); d != c.end(); ++ d ) {
-	vector<const Candidate *> daus = getDaughters( & * d );
+	std;:vector<const Candidate *> daus = getDaughters( & * d );
 	for( size_t j = 0; j < daus.size(); ++ j ) {
 	  const Candidate * daughter = daus[ j ];
 	  typename MatchedRefMap::const_iterator f = matchedRefs_.find( daughter );
@@ -148,8 +146,6 @@ CandMatcherBase<C1, C2>::~CandMatcherBase() {
 
 template<typename C1, typename C2>
 typename CandMatcherBase<C1, C2>::ref_type CandMatcherBase<C1, C2>::operator()( const reco::Candidate & c ) const {
-  using namespace reco;
-  using namespace std;
   if ( c.hasMasterClone() )
     return (*this)( * c.masterClone() );
   unsigned int nDau = c.numberOfDaughters();

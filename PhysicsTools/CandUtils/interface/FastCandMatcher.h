@@ -44,8 +44,6 @@ FastCandMatcher<C>::FastCandMatcher( const typename FastCandMatcher<C>::map_type
 
 template<typename C>
 const reco::Candidate * FastCandMatcher<C>::operator()( const reco::Candidate & c ) const {
-  using namespace reco;
-  using namespace std;
   if ( c.hasMasterClone() )
     return (*this)( * c.masterClone() );
   unsigned int nDau = c.numberOfDaughters();
@@ -53,9 +51,9 @@ const reco::Candidate * FastCandMatcher<C>::operator()( const reco::Candidate & 
     // check for composite candidate c
     // navigate to daughters and find parent matches
     set<const reco::Candidate *> momsIntersection, momDaughters, tmp;
-    for( Candidate::const_iterator dau = c.begin(); dau != c.end(); ++ dau ) {
+    for( reco::Candidate::const_iterator dau = c.begin(); dau != c.end(); ++ dau ) {
       // check here generically if status == 3, then descend down to one more level
-      const Candidate * dauMatch = (*this)( * dau );
+      const reco::Candidate * dauMatch = (*this)( * dau );
       // if a daughter does not match, return a null ref.
       if ( dauMatch == 0 ) return 0;
       // get matched mothers
