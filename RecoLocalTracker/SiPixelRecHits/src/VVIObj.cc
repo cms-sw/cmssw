@@ -79,7 +79,7 @@ VVIObj::VVIObj(double kappa, double beta2, double mode) : kappa_(kappa), beta2_(
 	}
 	ul = lq - 6.5;
 //	double (*fp2)(double) = reinterpret_cast<double(*)(double)>(&VVIObj::f2);
-	VVIObjDetails::dzero(ll, ul, u, rv, 1.e-5, 1000, std::bind(&VVIObjDetails::f2, _1,h_));
+	VVIObjDetails::dzero(ll, ul, u, rv, 1.e-5, 1000, boost::bind(&VVIObjDetails::f2, _1,h_));
 	q = 1./u;
 	t1_ = h4 * q - h5 - (beta2_ * q + 1) * (log((fabs(u))) + VVIObjDetails::expint(u)) + exp(-u) * q;
 	t_ = t1_ - t0_;
@@ -90,7 +90,7 @@ VVIObj::VVIObj(double kappa, double beta2, double mode) : kappa_(kappa), beta2_(
 	h_[2] = h6 * omega_;
 	h_[3] = omega_ * 1.5707963250000001;
 //	double (*fp1)(double) = reinterpret_cast<double(*)(double)>(&VVIObj::f1);
-	VVIObjDetails::dzero(5., 155., x0_, rv, 1.e-5, 1000, std::bind(&VVIObjDetails::f1, _1,h_));
+	VVIObjDetails::dzero(5., 155., x0_, rv, 1.e-5, 1000, boost::bind(&VVIObjDetails::f1, _1,h_));
 	n = x0_ + 1.;
 	d = exp(kappa_ * (beta2_ * (.57721566 - h5) + 1.)) * .31830988654751274;
 	a_[n - 1] = 0.;
@@ -594,7 +594,7 @@ L1:
 	ee = eps * (fabs(x0) + 1);
 	if (rv <= ee) {
 	   rv = ee;
-	   ff = fun(x0);
+	   ff = func(x0);
 	   return 0;
 	}
 	f1 = fa;
