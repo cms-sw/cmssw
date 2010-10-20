@@ -24,36 +24,31 @@ class VVIObj {
 
  public:
   
-	 VVIObj(double kappa = 0.01, double beta2 = 1., double mode = 0); //!< Constructor  
+  VVIObj(double kappa = 0.01, double beta2 = 1., double mode = 0); //!< Constructor  
   
-  	 double fcn(double x); //! density (mode=0) or distribution (mode=1) function
-	 void limits(double& xl, double& xu); //! returns the limits on the non-zero (mode=0) or normalized region (mode=1)
+  double fcn(double x) cont; //! density (mode=0) or distribution (mode=1) function
+  void limits(double& xl, double& xu) const; //! returns the limits on the non-zero (mode=0) or normalized region (mode=1)
   
- private:
+private:
   
-// Vavilov distribution parameters (inputs and common black /G116C1/)
+  // Vavilov distribution parameters (inputs and common black /G116C1/)
   
-    mutable double kappa_;      //!< Vavilov kappa parameter [0.01 (Landau-like) < kappa < 10. (Gaussian-like)]
-    mutable double beta2_;      //!< Vavilov beta2 parameter (speed of particle in v/c units)
-	 const int mode_;          //!< set to 0 to calculate the density function and to 1 to calculate the distribution function
-    mutable double h_[7];     //!< these reproduce the auxilliary common block /G116C1/
-    mutable double t0_;         
-    mutable double t1_;         
-    mutable double t_;          
-    mutable double omega_;      
-    mutable double a_[155];    
-    mutable double b_[155];     
-    mutable double x0_;        
-	
-	 double f1(double x);    //! Private function f1 called from constructor
-	 double f2(double x);    //! Private function f2 called from constructor
-	
-	 double cosint(double x);    //! Private version of the cosine integral
-	 double sinint(double x);    //! Private version of the sine integral
-	 double expint(double x);    //! Private version of the exponential integral
-	 int dzero(double a, double b, double& x0, double& rv, double eps, int mxf, int fsel);    //! Private version of the CERNLIB root finder
-	
-} ;
+  mutable double kappa_;      //!< Vavilov kappa parameter [0.01 (Landau-like) < kappa < 10. (Gaussian-like)]
+  mutable double beta2_;      //!< Vavilov beta2 parameter (speed of particle in v/c units)
+  const int mode_;          //!< set to 0 to calculate the density function and to 1 to calculate the distribution function
+  mutable double h_[7];     //!< these reproduce the auxilliary common block /G116C1/
+  mutable double t0_;         
+  mutable double t1_;         
+  mutable double t_;          
+  mutable double omega_;      
+  mutable double a_[155];    
+  mutable double b_[155];     
+  mutable double x0_;        
+  
+  int dzero(double a, double b, double& x0, double& rv, double eps, int mxf, int fsel) const;    //! Private version of the CERNLIB root finder
+
+  
+};
 
 
 #endif

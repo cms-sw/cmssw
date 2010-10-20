@@ -10,7 +10,7 @@
 // V1.2 - remove inappriate initializers and add methods to return non-zero/normalized region
 //
 
-#include <math.h>
+#include <cmath>
 #include <algorithm>
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
@@ -19,6 +19,18 @@
 #else
 #include "VVIObj.h"
 #endif
+
+namespace VVIObjDetails {
+  void sincosint(double x, double & sint, double & cint);  //! Private version of the cosine and sine integral
+  double cosint(double x);    //! Private version of the cosine integral
+  double sinint(double x);    //! Private version of the sine integral
+  double expint(double x);    //! Private version of the exponential integral
+  
+  inline double f1(double x, double const * h_) { return h_[0]+h_[1]*std::log(h_[2]*x)-h_[3]*x;}
+  inline double f2(double x, double const * h_) { return h_[4]-x+h_[5]*(std::log(std::abs(x))+expint(x))-h_[6]*std::exp(-x);}
+}
+
+
 
 // ***************************************************************************************************************************************
 //! Constructor
@@ -48,7 +60,7 @@ VVIObj::VVIObj(double kappa, double beta2, double mode) : kappa_(kappa), beta2_(
 	h4 = -7.6/kappa_ - (beta2_ * .57721566 + 1);
 	h5 = log(kappa_);
 	h6 = 1./kappa_;
-	t0_ = (h4 - h_[4]*h5 - (h_[4] + beta2_)*(log(h_[4]) + VVIObj::expint(h_[4])) + exp(-h_[4]))/h_[4];
+	t0_ = (h4 - h_[4]*h5 - (h_[4] + beta2_)*(log(h_[4]) + VVIObjDetails::expint(h_[4])) + exp(-h_[4]))/h_[4];
 	
 // Set up limits for the root search
 	
@@ -61,9 +73,9 @@ VVIObj::VVIObj(double kappa, double beta2, double mode) : kappa_(kappa), beta2_(
 	}
 	ul = lq - 6.5;
 //	double (*fp2)(double) = reinterpret_cast<double(*)(double)>(&VVIObj::f2);
-	VVIObj::dzero(ll, ul, u, rv, 1.e-5, 1000, 2);
+	VVIObjDetails::dzero(ll, ul, u, rv, 1.e-5, 1000, 2);
 	q = 1./u;
-	t1_ = h4 * q - h5 - (beta2_ * q + 1) * (log((fabs(u))) + VVIObj::expint(u)) + exp(-u) * q;
+	t1_ = h4 * q - h5 - (beta2_ * q + 1) * (log((fabs(u))) + VVIObjDetails::expint(u)) + exp(-u) * q;
 	t_ = t1_ - t0_;
 	omega_ = 6.2831853000000004/t_;
 	h_[0] = kappa_ * (beta2_ * .57721566 + 2.) + 9.9166128600000008;
@@ -72,7 +84,7 @@ VVIObj::VVIObj(double kappa, double beta2, double mode) : kappa_(kappa), beta2_(
 	h_[2] = h6 * omega_;
 	h_[3] = omega_ * 1.5707963250000001;
 //	double (*fp1)(double) = reinterpret_cast<double(*)(double)>(&VVIObj::f1);
-	VVIObj::dzero(5., 155., x0_, rv, 1.e-5, 1000, 1);
+	VVIObjDetails::dzero(5., 155., x0_, rv, 1.e-5, 1000, 1);
 	n = x0_ + 1.;
 	d = exp(kappa_ * (beta2_ * (.57721566 - h5) + 1.)) * .31830988654751274;
 	a_[n - 1] = 0.;
@@ -85,8 +97,8 @@ VVIObj::VVIObj(double kappa, double beta2, double mode) : kappa_(kappa), beta2_(
 		l = n - k;
 		x = omega_ * k;
 		x1 = h6 * x;
-		c1 = log(x) - VVIObj::cosint(x1);
-		c2 = VVIObj::sinint(x1);
+		VVIObjDetails::sincosint(x,c2,c1);
+		c1 = log(x) - c1;
 		c3 = sin(x1);
 		c4 = cos(x1);
 		xf1 = kappa_ * (beta2_ * c1 - c4) - x * c2;
@@ -171,168 +183,388 @@ void VVIObj::limits(double& xl, double& xu) {
 } // limits
 
 
-double VVIObj::f1(double x) { return h_[0]+h_[1]*log(h_[2]*x)-h_[3]*x;}
-
-double VVIObj::f2(double x) { return h_[4]-x+h_[5]*(log(fabs(x))+VVIObj::expint(x))-h_[6]*exp(-x);}
-
-double VVIObj::cosint(double x)
-{
-	// Initialized data
-	
-	const double zero = 0.;
-	const double one = 1.;
-	const double two = 2.;
-	const double eight = 8.;
-	const double ce = .57721566490153;
-	const double c__[14] = { 1.9405491464836,.9413409132865,
-		-.579845034293,.3091572011159,-.0916101792208,.0164437407515,
-		-.0019713091952,1.692538851e-4,-1.09393296e-5,5.522386e-7,
-	-2.23995e-8,7.465e-10,-2.08e-11,5e-13 };
-	const double p[23] = { .96074783975204,-.0371138962124,
-		.00194143988899,-1.7165988425e-4,2.112637753e-5,-3.27163257e-6,
-		6.0069212e-7,-1.2586794e-7,2.932563e-8,-7.45696e-9,2.04105e-9,
-		-5.9502e-10,1.8323e-10,-5.921e-11,1.997e-11,-7e-12,2.54e-12,
-	-9.5e-13,3.7e-13,-1.4e-13,6e-14,-2e-14,1e-14 };
-	const double q[20] = { .98604065696238,-.0134717382083,
-		4.5329284117e-4,-3.067288652e-5,3.13199198e-6,-4.2110196e-7,
-		6.907245e-8,-1.318321e-8,2.83697e-9,-6.7329e-10,1.734e-10,
-		-4.787e-11,1.403e-11,-4.33e-12,1.4e-12,-4.7e-13,1.7e-13,-6e-14,
-	2e-14,-1e-14 };
-	
-	// System generated locals
-	double d__1;
-	
-	// Local variables
-	double h__;
-	int i__;
-	double r__, y, b0, b1, b2, pp, qq, alfa;
-	
-	// If x==0, return same
-	
-	if (x == zero) {
-	   return zero;
+namespace VVIObjDetails {
+  double cosint(double x) {
+    // Initialized data
+    
+    const double zero = 0.;
+    const double one = 1.;
+    const double two = 2.;
+    const double eight = 8.;
+    const double ce = .57721566490153;
+    const double c__[14] = { 1.9405491464836,.9413409132865,
+			     -.579845034293,.3091572011159,-.0916101792208,.0164437407515,
+			     -.0019713091952,1.692538851e-4,-1.09393296e-5,5.522386e-7,
+			     -2.23995e-8,7.465e-10,-2.08e-11,5e-13 };
+    const double p[23] = { .96074783975204,-.0371138962124,
+			   .00194143988899,-1.7165988425e-4,2.112637753e-5,-3.27163257e-6,
+			   6.0069212e-7,-1.2586794e-7,2.932563e-8,-7.45696e-9,2.04105e-9,
+			   -5.9502e-10,1.8323e-10,-5.921e-11,1.997e-11,-7e-12,2.54e-12,
+			   -9.5e-13,3.7e-13,-1.4e-13,6e-14,-2e-14,1e-14 };
+    const double q[20] = { .98604065696238,-.0134717382083,
+			   4.5329284117e-4,-3.067288652e-5,3.13199198e-6,-4.2110196e-7,
+			   6.907245e-8,-1.318321e-8,2.83697e-9,-6.7329e-10,1.734e-10,
+			   -4.787e-11,1.403e-11,-4.33e-12,1.4e-12,-4.7e-13,1.7e-13,-6e-14,
+			   2e-14,-1e-14 };
+    
+    // System generated locals
+    double d__1;
+    
+    // Local variables
+    double h__;
+    int i__;
+    double r__, y, b0, b1, b2, pp, qq, alfa;
+    
+    // If x==0, return same
+    
+    if (x == zero) {
+      return zero;
+    }
+    if (fabs(x) <= eight) {
+      y = x / eight;
+      // Computing 2nd power
+      d__1 = y;
+      h__ = two * (d__1 * d__1) - one;
+      alfa = -two * h__;
+      b1 = zero;
+      b2 = zero;
+      for (i__ = 13; i__ >= 0; --i__) {
+	b0 = c__[i__] - alfa * b1 - b2;
+	b2 = b1;
+	b1 = b0;
+      }
+      b1 = ce + log((fabs(x))) - b0 + h__ * b2;
+    } else {
+      r__ = one / x;
+      y = eight * r__;
+      // Computing 2nd power
+      d__1 = y;
+      h__ = two * (d__1 * d__1) - one;
+      alfa = -two * h__;
+      b1 = zero;
+      b2 = zero;
+      for (i__ = 22; i__ >= 0; --i__) {
+	b0 = p[i__] - alfa * b1 - b2;
+	b2 = b1;
+	b1 = b0;
+      }
+      pp = b0 - h__ * b2;
+      b1 = zero;
+      b2 = zero;
+      for (i__ = 19; i__ >= 0; --i__) {
+	b0 = q[i__] - alfa * b1 - b2;
+	b2 = b1;
+	b1 = b0;
+      }
+      qq = b0 - h__ * b2;
+      b1 = r__ * (qq * sin(x) - r__ * pp * cos(x));
+    }
+    return b1;
+  } // cosint
+  
+  double sinint(double x) {
+    // Initialized data
+    
+    const double zero = 0.;
+    const double one = 1.;
+    const double two = 2.;
+    const double eight = 8.;
+    const double pih = 1.5707963267949;
+    const double s[14] = { 1.9522209759531,-.6884042321257,
+			   .4551855132256,-.1804571236838,.0410422133759,-.0059586169556,
+			   6.001427414e-4,-4.44708329e-5,2.5300782e-6,-1.141308e-7,4.1858e-9,
+			   -1.273e-10,3.3e-12,-1e-13 };
+    const double p[23] = { .96074783975204,-.0371138962124,
+			   .00194143988899,-1.7165988425e-4,2.112637753e-5,-3.27163257e-6,
+			   6.0069212e-7,-1.2586794e-7,2.932563e-8,-7.45696e-9,2.04105e-9,
+			   -5.9502e-10,1.8323e-10,-5.921e-11,1.997e-11,-7e-12,2.54e-12,
+			   -9.5e-13,3.7e-13,-1.4e-13,6e-14,-2e-14,1e-14 };
+    const double q[20] = { .98604065696238,-.0134717382083,
+			   4.5329284117e-4,-3.067288652e-5,3.13199198e-6,-4.2110196e-7,
+			   6.907245e-8,-1.318321e-8,2.83697e-9,-6.7329e-10,1.734e-10,
+			   -4.787e-11,1.403e-11,-4.33e-12,1.4e-12,-4.7e-13,1.7e-13,-6e-14,
+			   2e-14,-1e-14 };
+    
+    // System generated locals
+    double d__1;
+    
+    // Local variables
+    double h__;
+    int i__;
+    double r__, y, b0, b1, b2, pp, qq, alfa;
+    
+    if (fabs(x) <= eight) {
+      y = x / eight;
+      d__1 = y;
+      h__ = two * (d__1 * d__1) - one;
+      alfa = -two * h__;
+      b1 = zero;
+      b2 = zero;
+      for (i__ = 13; i__ >= 0; --i__) {
+	b0 = s[i__] - alfa * b1 - b2;
+	b2 = b1;
+	b1 = b0;
+      }
+      b1 = y * (b0 - b2);
+    } else {
+      r__ = one / x;
+      y = eight * r__;
+      d__1 = y;
+      h__ = two * (d__1 * d__1) - one;
+      alfa = -two * h__;
+      b1 = zero;
+      b2 = zero;
+      for (i__ = 22; i__ >= 0; --i__) {
+	b0 = p[i__] - alfa * b1 - b2;
+	b2 = b1;
+	b1 = b0;
+      }
+      pp = b0 - h__ * b2;
+      b1 = zero;
+      b2 = zero;
+      for (i__ = 19; i__ >= 0; --i__) {
+	b0 = q[i__] - alfa * b1 - b2;
+	b2 = b1;
+	b1 = b0;
+      }
+      qq = b0 - h__ * b2;
+      d__1 = fabs(pih);
+      if(x < 0.) d__1 = -d__1;
+      b1 = d__1 - r__ * (r__ * pp * sin(x) + qq * cos(x));
+    }
+    
+    return b1;
+  } // sinint
+  
+  void sincosint(double x, double & sint, double & cint) {
+    // Initialized data
+    
+    const double zero = 0.;
+    const double one = 1.;
+    const double two = 2.;
+    const double eight = 8.;
+    const double ce = .57721566490153;
+    const double pih = 1.5707963267949;
+    const double s__[14] = { 1.9522209759531,-.6884042321257,
+			     .4551855132256,-.1804571236838,.0410422133759,-.0059586169556,
+			     6.001427414e-4,-4.44708329e-5,2.5300782e-6,-1.141308e-7,4.1858e-9,
+			     -1.273e-10,3.3e-12,-1e-13 };
+    
+    const double c__[14] = { 1.9405491464836,.9413409132865,
+			     -.579845034293,.3091572011159,-.0916101792208,.0164437407515,
+			     -.0019713091952,1.692538851e-4,-1.09393296e-5,5.522386e-7,
+			     -2.23995e-8,7.465e-10,-2.08e-11,5e-13 };
+    
+    const double p[23] = { .96074783975204,-.0371138962124,
+			   .00194143988899,-1.7165988425e-4,2.112637753e-5,-3.27163257e-6,
+			   6.0069212e-7,-1.2586794e-7,2.932563e-8,-7.45696e-9,2.04105e-9,
+			   -5.9502e-10,1.8323e-10,-5.921e-11,1.997e-11,-7e-12,2.54e-12,
+			   -9.5e-13,3.7e-13,-1.4e-13,6e-14,-2e-14,1e-14 };
+    const double q[20] = { .98604065696238,-.0134717382083,
+			   4.5329284117e-4,-3.067288652e-5,3.13199198e-6,-4.2110196e-7,
+			   6.907245e-8,-1.318321e-8,2.83697e-9,-6.7329e-10,1.734e-10,
+			   -4.787e-11,1.403e-11,-4.33e-12,1.4e-12,-4.7e-13,1.7e-13,-6e-14,
+			   2e-14,-1e-14 };
+    
+    // System generated locals
+    double d__1;
+    
+    // Local variables
+    double h__;
+    int i__;
+    double r__, y, b0, b1, b2, pp, qq, alfa;
+    
+    sint=0; 
+    cint=0;
+    
+    
+    if (fabs(x) <= eight) {
+      y = x / eight;
+      // Computing 2nd power
+      d__1 = y;
+      h__ = two * (d__1 * d__1) - one;
+      alfa = -two * h__;
+      
+      // cos
+      if (x!=0) {
+	b1 = zero;
+	b2 = zero;
+	for (i__ = 13; i__ >= 0; --i__) {
+	  b0 = c__[i__] - alfa * b1 - b2;
+	  b2 = b1;
+	  b1 = b0;
 	}
-	if (fabs(x) <= eight) {
-	   y = x / eight;
-		// Computing 2nd power
-	   d__1 = y;
-	   h__ = two * (d__1 * d__1) - one;
-	   alfa = -two * h__;
-	   b1 = zero;
-	   b2 = zero;
-	   for (i__ = 13; i__ >= 0; --i__) {
-	      b0 = c__[i__] - alfa * b1 - b2;
-	      b2 = b1;
-	      b1 = b0;
-	   }
-	   b1 = ce + log((fabs(x))) - b0 + h__ * b2;
-	} else {
-	   r__ = one / x;
-	   y = eight * r__;
-		// Computing 2nd power
-	   d__1 = y;
-	   h__ = two * (d__1 * d__1) - one;
-	   alfa = -two * h__;
-	   b1 = zero;
-	   b2 = zero;
-	   for (i__ = 22; i__ >= 0; --i__) {
-			b0 = p[i__] - alfa * b1 - b2;
-			b2 = b1;
-			b1 = b0;
-	   }
-	   pp = b0 - h__ * b2;
-	   b1 = zero;
-	   b2 = zero;
-	   for (i__ = 19; i__ >= 0; --i__) {
-			b0 = q[i__] - alfa * b1 - b2;
-			b2 = b1;
-			b1 = b0;
-	   }
-	   qq = b0 - h__ * b2;
-	   b1 = r__ * (qq * sin(x) - r__ * pp * cos(x));
-	}
-	return b1;
-} // cosint
+	cint = ce + log((fabs(x))) - b0 + h__ * b2;
+      }
+      // sin
+      b1 = zero;
+      b2 = zero;
+      for (i__ = 13; i__ >= 0; --i__) {
+	b0 = s__[i__] - alfa * b1 - b2;
+	b2 = b1;
+	b1 = b0;
+      }
+      sint = y * (b0 - b2);
+      
+    } else {
+      r__ = one / x;
+      y = eight * r__;
+      // Computing 2nd power
+      d__1 = y;
+      h__ = two * (d__1 * d__1) - one;
+      alfa = -two * h__;
+      b1 = zero;
+      b2 = zero;
+      for (i__ = 22; i__ >= 0; --i__) {
+	b0 = p[i__] - alfa * b1 - b2;
+	b2 = b1;
+	b1 = b0;
+      }
+      pp = b0 - h__ * b2;
+      b1 = zero;
+      b2 = zero;
+      for (i__ = 19; i__ >= 0; --i__) {
+	b0 = q[i__] - alfa * b1 - b2;
+	b2 = b1;
+	b1 = b0;
+      }
+      qq = b0 - h__ * b2;
+      // cos
+      cint = r__ * (qq * sin(x) - r__ * pp * cos(x));
+      // sin
+      d__1 = pih;
+      if(x < 0.) d__1 = -d__1;
+      sint = d__1 - r__ * (r__ * pp * sin(x) + qq * cos(x));
+    }
+  }
 
-double VVIObj::sinint(double x)
-{
-	// Initialized data
-	
-	const double zero = 0.;
-	const double one = 1.;
-	const double two = 2.;
-	const double eight = 8.;
-	const double pih = 1.5707963267949;
-	const double s[14] = { 1.9522209759531,-.6884042321257,
-		.4551855132256,-.1804571236838,.0410422133759,-.0059586169556,
-		6.001427414e-4,-4.44708329e-5,2.5300782e-6,-1.141308e-7,4.1858e-9,
-	-1.273e-10,3.3e-12,-1e-13 };
-	const double p[23] = { .96074783975204,-.0371138962124,
-		.00194143988899,-1.7165988425e-4,2.112637753e-5,-3.27163257e-6,
-		6.0069212e-7,-1.2586794e-7,2.932563e-8,-7.45696e-9,2.04105e-9,
-		-5.9502e-10,1.8323e-10,-5.921e-11,1.997e-11,-7e-12,2.54e-12,
-	-9.5e-13,3.7e-13,-1.4e-13,6e-14,-2e-14,1e-14 };
-	const double q[20] = { .98604065696238,-.0134717382083,
-		4.5329284117e-4,-3.067288652e-5,3.13199198e-6,-4.2110196e-7,
-		6.907245e-8,-1.318321e-8,2.83697e-9,-6.7329e-10,1.734e-10,
-		-4.787e-11,1.403e-11,-4.33e-12,1.4e-12,-4.7e-13,1.7e-13,-6e-14,
-	2e-14,-1e-14 };
-	
-	// System generated locals
-	double d__1;
-	
-	// Local variables
-	double h__;
-	int i__;
-	double r__, y, b0, b1, b2, pp, qq, alfa;
-	
-	if (fabs(x) <= eight) {
-		y = x / eight;
-		d__1 = y;
-		h__ = two * (d__1 * d__1) - one;
-		alfa = -two * h__;
-		b1 = zero;
-		b2 = zero;
-		for (i__ = 13; i__ >= 0; --i__) {
-			b0 = s[i__] - alfa * b1 - b2;
-			b2 = b1;
-			b1 = b0;
-		}
-		b1 = y * (b0 - b2);
-	} else {
-		r__ = one / x;
-		y = eight * r__;
-		d__1 = y;
-		h__ = two * (d__1 * d__1) - one;
-		alfa = -two * h__;
-		b1 = zero;
-		b2 = zero;
-		for (i__ = 22; i__ >= 0; --i__) {
-			b0 = p[i__] - alfa * b1 - b2;
-			b2 = b1;
-         b1 = b0;
-		}
-		pp = b0 - h__ * b2;
-		b1 = zero;
-		b2 = zero;
-		for (i__ = 19; i__ >= 0; --i__) {
-			b0 = q[i__] - alfa * b1 - b2;
-			b2 = b1;
-			b1 = b0;
-		}
-		qq = b0 - h__ * b2;
-		d__1 = fabs(pih);
-		if(x < 0.) d__1 = -d__1;
-		b1 = d__1 - r__ * (r__ * pp * sin(x) + qq * cos(x));
-	}
-	
-	return b1;
-} // sinint
 
+double expint(double x) {
+  
+  // Initialized data
+  
+  const double zero = 0.;
+  const double q2[7] = { .10340013040487,3.319092135933,
+			 20.449478501379,41.280784189142,32.426421069514,10.041164382905,
+			 1. };
+  const double p3[6] = { -2.3909964453136,-147.98219500504,
+			 -254.3763397689,-119.55761038372,-19.630408535939,-.9999999999036 
+  };
+  const double q3[6] = { 177.60070940351,530.68509610812,
+			 462.23027156148,156.81843364539,21.630408494238,1. };
+  const double p4[8] = { -8.6693733995107,-549.14226552109,
+			 -4210.0161535707,-249301.39345865,-119623.66934925,
+			 -22174462.775885,3892804.213112,-391546073.8091 };
+  const double q4[8] = { 34.171875,-1607.0892658722,35730.029805851,
+			 -483547.43616216,4285596.2461175,-24903337.574054,89192576.757561,
+			 -165254299.72521 };
+  const double a1[8] = { -2.1808638152072,-21.901023385488,
+			 9.3081638566217,25.076281129356,-33.184253199722,60.121799083008,
+			 -43.253113287813,1.0044310922808 };
+  const double b1[8] = { 0.,3.9370770185272,300.89264837292,
+			 -6.2504116167188,1003.6743951673,14.325673812194,2736.2411988933,
+			 .52746885196291 };
+  const double a2[8] = { -3.4833465360285,-18.65454548834,
+			 -8.2856199414064,-32.34673303054,17.960168876925,1.7565631546961,
+			 -1.9502232128966,.99999429607471 };
+  const double b2[8] = { 0.,69.500065588743,57.283719383732,
+			 25.777638423844,760.76114800773,28.951672792514,-3.4394226689987,
+			 1.0008386740264 };
+  const double a3[6] = { -27.780928934438,-10.10479081576,
+			 -9.1483008216736,-5.0223317461851,-3.0000077799358,
+			 1.0000000000704 };
+  const double one = 1.;
+  const double b3[6] = { 0.,122.39993926823,2.7276100778779,
+			 -7.1897518395045,-2.9990118065262,1.999999942826 };
+  const double two = 2.;
+  const double three = 3.;
+  const double x0 = .37250741078137;
+  const double xl[6] = { -24.,-12.,-6.,0.,1.,4. };
+  const double p1[5] = { 4.293125234321,39.894153870321,
+			 292.52518866921,425.69682638592,-434.98143832952 };
+  const double q1[5] = { 1.,18.899288395003,150.95038744251,
+			 568.05252718987,753.58564359843 };
+  const double p2[7] = { .43096783946939,6.9052252278444,
+			 23.019255939133,24.378408879132,9.0416155694633,.99997957705159,
+			 4.656271079751e-7 };
+  
+  /* Local variables */
+  static int i__;
+  double v, y, ap, bp, aq, dp, bq, dq;
+  
+  if (x <= xl[0]) {
+    ap = a3[0] - x;
+    for (i__ = 2; i__ <= 5; ++i__) {
+      /* L1: */
+      ap = a3[i__ - 1] - x + b3[i__ - 1] / ap;
+    }
+    y = exp(-x) / x * (one - (a3[5] + b3[5] / ap) / x);
+  } else if (x <= xl[1]) {
+    ap = a2[0] - x;
+    for (i__ = 2; i__ <= 7; ++i__) {
+      ap = a2[i__ - 1] - x + b2[i__ - 1] / ap;
+    }
+    y = exp(-x) / x * (a2[7] + b2[7] / ap);
+  } else if (x <= xl[2]) {
+    ap = a1[0] - x;
+    for (i__ = 2; i__ <= 7; ++i__) {
+      ap = a1[i__ - 1] - x + b1[i__ - 1] / ap;
+    }
+    y = exp(-x) / x * (a1[7] + b1[7] / ap);
+  } else if (x < xl[3]) {
+    v = -two * (x / three + one);
+    bp = zero;
+    dp = p4[0];
+    for (i__ = 2; i__ <= 8; ++i__) {
+      ap = bp;
+      bp = dp;
+      dp = p4[i__ - 1] - ap + v * bp;
+    }
+    bq = zero;
+    dq = q4[0];
+    for (i__ = 2; i__ <= 8; ++i__) {
+      aq = bq;
+      bq = dq;
+      dq = q4[i__ - 1] - aq + v * bq;
+    }
+    y = -log(-x / x0) + (x + x0) * (dp - ap) / (dq - aq);
+  } else if (x == xl[3]) {
+    return zero;
+  } else if (x < xl[4]) {
+    ap = p1[0];
+    aq = q1[0];
+    for (i__ = 2; i__ <= 5; ++i__) {
+      ap = p1[i__ - 1] + x * ap;
+      aq = q1[i__ - 1] + x * aq;
+    }
+    y = -log(x) + ap / aq;
+  } else if (x <= xl[5]) {
+    y = one / x;
+    ap = p2[0];
+    aq = q2[0];
+    for (i__ = 2; i__ <= 7; ++i__) {
+      ap = p2[i__ - 1] + y * ap;
+      aq = q2[i__ - 1] + y * aq;
+    }
+    y = exp(-x) * ap / aq;
+  } else {
+    y = one / x;
+    ap = p3[0];
+    aq = q3[0];
+    for (i__ = 2; i__ <= 6; ++i__) {
+      ap = p3[i__ - 1] + y * ap;
+      aq = q3[i__ - 1] + y * aq;
+    }
+    y = exp(-x) * y * (one + y * ap / aq);
+  }
+  return y;
+} // expint
+  
+
+}
 
 int VVIObj::dzero(double a, double b, double& x0, 
-									double& rv, double eps, int mxf, int fsel)
-{
+		  double& rv, double eps, int mxf, int fsel) {
 	/* System generated locals */
 	double d__1, d__2, d__3, d__4;
 	
@@ -343,8 +575,8 @@ int VVIObj::dzero(double a, double b, double& x0,
 	
 	xa = std::min(a,b);
 	xb = std::max(a,b);
-	if(fsel == 1) {fa = VVIObj::f1(xa);} else {fa = VVIObj::f2(xa);}
-	if(fsel == 1) {fb = VVIObj::f1(xb);} else {fb = VVIObj::f2(xb);}
+	if(fsel == 1) {fa = VVIObjDetails::f1(xa,h_);} else {fa = VVIObjDetails::f2(xa,h_);}
+	if(fsel == 1) {fb = VVIObjDetails::f1(xb,h_);} else {fb = VVIObjDetails::f2(xb,h_);}
 	if (fa * fb > 0.) {
 	   rv = (xb - xa) * -2;
 	   x0 = 0.;
@@ -357,7 +589,7 @@ L1:
 	ee = eps * (fabs(x0) + 1);
 	if (rv <= ee) {
 	   rv = ee;
-		if(fsel == 1) {ff = VVIObj::f1(x0);} else {ff = VVIObj::f2(x0);}
+	   if(fsel == 1) {ff = VVIObjDetails::f1(x0,h_);} else {ff = VVIObjDetails::f2(x0,h_);}
 	   return 0;
 	}
 	f1 = fa;
@@ -365,7 +597,7 @@ L1:
 	f2 = fb;
 	x2 = xb;
 L2:
-	if(fsel == 1) {fx = VVIObj::f1(x0);} else {fx = VVIObj::f2(x0);}
+	if(fsel == 1) {fx = VVIObjDetails::f1(x0,h_);} else {fx = VVIObjDetails::f2(x0,h_);}
 	++mc;
 	if (mc > mxf) {
 	   rv = (d__1 = xb - xa, fabs(d__1)) * -.5;
@@ -415,30 +647,32 @@ L3:
 	   x2 = x3;
 	   goto L2;
 	}
+	if(fsel == 1) {fx = VVIObjDetails::f1(x0,h_);} else {fx = VVIObjDetails::f2(x0,h_);}
 	if(fsel == 1) {fx = VVIObj::f1(x0);} else {fx = VVIObj::f2(x0);}
 	if (fx == 0.) {
 	   rv = ee;
-	   if(fsel == 1) {ff = VVIObj::f1(x0);} else {ff = VVIObj::f2(x0);}
+	   if(fsel == 1) {ff = VVIObjDetails::f1(x0,h_);} else {ff = VVIObjDetails::f2(x0,h_);}
 	   return 0;
 	}
 	if (fx * fa < 0.) {
 	   xx = x0 - ee;
 	   if (xx <= xa) {
-			rv = ee;
-			if(fsel == 1) {ff = VVIObj::f1(x0);} else {ff = VVIObj::f2(x0);}
-			return 0;
+	     rv = ee;
+	     if(fsel == 1) {ff = VVIObjDetails::f1(xx,h_);} else {ff = VVIObjDetails::f2(xx,h_);}
+
+	     return 0;
 	   }
-	   if(fsel == 1) {ff = VVIObj::f1(xx);} else {ff = VVIObj::f2(xx);}
+	   if(fsel == 1) {ff = VVIObjDetails::f1(xx,h_);} else {ff = VVIObjDetails::f2(xx,h_);}
 	   fb = ff;
 	   xb = xx;
 	} else {
 	   xx = x0 + ee;
 	   if (xx >= xb) {
 	      rv = ee;
-         if(fsel == 1) {ff = VVIObj::f1(x0);} else {ff = VVIObj::f2(x0);}
+	      if(fsel == 1) {ff = VVIObjDetails::f1(x0,h_);} else {ff = VVIObjDetails::f2(x0,h_);}
 	      return 0;
 	   }
-	   if(fsel == 1) {ff = VVIObj::f1(xx);} else {ff = VVIObj::f2(xx);}
+	   if(fsel == 1) {ff = VVIObjDetails::f1(xx,h_);} else {ff = VVIObjDetails::f2(xx,h_);}
 	   fa = ff;
 	   xa = xx;
 	}
@@ -459,133 +693,7 @@ L3:
 	}
 	/* L4: */
 	rv = ee;
-	if(fsel == 1) {ff = VVIObj::f1(x0);} else {ff = VVIObj::f2(x0);}
+	if(fsel == 1) {ff = VVIObjDetails::f1(x0,h_);} else {ff = VVIObjDetails::f2(x0,h_);}
 	return 0;
 } // dzero
-
-
-double VVIObj::expint(double x)
-
-{
-	
-	// Initialized data
-	
-	const double zero = 0.;
-	const double q2[7] = { .10340013040487,3.319092135933,
-		20.449478501379,41.280784189142,32.426421069514,10.041164382905,
-		1. };
-	const double p3[6] = { -2.3909964453136,-147.98219500504,
-		-254.3763397689,-119.55761038372,-19.630408535939,-.9999999999036 
-	};
-	const double q3[6] = { 177.60070940351,530.68509610812,
-		462.23027156148,156.81843364539,21.630408494238,1. };
-	const double p4[8] = { -8.6693733995107,-549.14226552109,
-		-4210.0161535707,-249301.39345865,-119623.66934925,
-		-22174462.775885,3892804.213112,-391546073.8091 };
-	const double q4[8] = { 34.171875,-1607.0892658722,35730.029805851,
-		-483547.43616216,4285596.2461175,-24903337.574054,89192576.757561,
-		-165254299.72521 };
-	const double a1[8] = { -2.1808638152072,-21.901023385488,
-		9.3081638566217,25.076281129356,-33.184253199722,60.121799083008,
-		-43.253113287813,1.0044310922808 };
-	const double b1[8] = { 0.,3.9370770185272,300.89264837292,
-		-6.2504116167188,1003.6743951673,14.325673812194,2736.2411988933,
-		.52746885196291 };
-	const double a2[8] = { -3.4833465360285,-18.65454548834,
-		-8.2856199414064,-32.34673303054,17.960168876925,1.7565631546961,
-		-1.9502232128966,.99999429607471 };
-	const double b2[8] = { 0.,69.500065588743,57.283719383732,
-		25.777638423844,760.76114800773,28.951672792514,-3.4394226689987,
-		1.0008386740264 };
-	const double a3[6] = { -27.780928934438,-10.10479081576,
-		-9.1483008216736,-5.0223317461851,-3.0000077799358,
-		1.0000000000704 };
-	const double one = 1.;
-	const double b3[6] = { 0.,122.39993926823,2.7276100778779,
-		-7.1897518395045,-2.9990118065262,1.999999942826 };
-	const double two = 2.;
-	const double three = 3.;
-	const double x0 = .37250741078137;
-	const double xl[6] = { -24.,-12.,-6.,0.,1.,4. };
-	const double p1[5] = { 4.293125234321,39.894153870321,
-		292.52518866921,425.69682638592,-434.98143832952 };
-	const double q1[5] = { 1.,18.899288395003,150.95038744251,
-		568.05252718987,753.58564359843 };
-	const double p2[7] = { .43096783946939,6.9052252278444,
-		23.019255939133,24.378408879132,9.0416155694633,.99997957705159,
-		4.656271079751e-7 };
-	
-	/* Local variables */
-	static int i__;
-	double v, y, ap, bp, aq, dp, bq, dq;
-	
-	if (x <= xl[0]) {
-		ap = a3[0] - x;
-		for (i__ = 2; i__ <= 5; ++i__) {
-			/* L1: */
-			ap = a3[i__ - 1] - x + b3[i__ - 1] / ap;
-		}
-		y = exp(-x) / x * (one - (a3[5] + b3[5] / ap) / x);
-	} else if (x <= xl[1]) {
-		ap = a2[0] - x;
-		for (i__ = 2; i__ <= 7; ++i__) {
-			ap = a2[i__ - 1] - x + b2[i__ - 1] / ap;
-		}
-		y = exp(-x) / x * (a2[7] + b2[7] / ap);
-	} else if (x <= xl[2]) {
-		ap = a1[0] - x;
-		for (i__ = 2; i__ <= 7; ++i__) {
-			ap = a1[i__ - 1] - x + b1[i__ - 1] / ap;
-		}
-		y = exp(-x) / x * (a1[7] + b1[7] / ap);
-	} else if (x < xl[3]) {
-		v = -two * (x / three + one);
-		bp = zero;
-		dp = p4[0];
-		for (i__ = 2; i__ <= 8; ++i__) {
-			ap = bp;
-			bp = dp;
-			dp = p4[i__ - 1] - ap + v * bp;
-		}
-		bq = zero;
-		dq = q4[0];
-		for (i__ = 2; i__ <= 8; ++i__) {
-			aq = bq;
-			bq = dq;
-			dq = q4[i__ - 1] - aq + v * bq;
-		}
-		y = -log(-x / x0) + (x + x0) * (dp - ap) / (dq - aq);
-	} else if (x == xl[3]) {
-		return zero;
-	} else if (x < xl[4]) {
-		ap = p1[0];
-		aq = q1[0];
-		for (i__ = 2; i__ <= 5; ++i__) {
-			ap = p1[i__ - 1] + x * ap;
-			aq = q1[i__ - 1] + x * aq;
-		}
-		y = -log(x) + ap / aq;
-	} else if (x <= xl[5]) {
-		y = one / x;
-		ap = p2[0];
-		aq = q2[0];
-		for (i__ = 2; i__ <= 7; ++i__) {
-			ap = p2[i__ - 1] + y * ap;
-			aq = q2[i__ - 1] + y * aq;
-		}
-		y = exp(-x) * ap / aq;
-	} else {
-		y = one / x;
-		ap = p3[0];
-		aq = q3[0];
-		for (i__ = 2; i__ <= 6; ++i__) {
-			ap = p3[i__ - 1] + y * ap;
-			aq = q3[i__ - 1] + y * aq;
-		}
-		y = exp(-x) * y * (one + y * ap / aq);
-	}
-	return y;
-} // expint
-
-
 
