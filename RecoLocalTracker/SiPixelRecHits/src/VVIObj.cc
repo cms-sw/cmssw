@@ -662,7 +662,7 @@ L3:
 	   xx = x0 - ee;
 	   if (xx <= xa) {
 	     rv = ee;
-	     ff = func(xx);
+	     ff = func(x0);
 	     return 0;
 	   }
 	   ff = func(xx);
