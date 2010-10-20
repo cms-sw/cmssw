@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Aug 28 5:46:22 CEST 2007
-// $Id: EcalDisplaysByEvent.cc,v 1.3 2010/01/04 15:07:39 ferriff Exp $
+// $Id: EcalDisplaysByEvent.cc,v 1.4 2010/10/15 12:18:41 elmer Exp $
 //
 //
 
@@ -22,7 +22,9 @@
 #include "TLatex.h"
 #include "TLine.h"
 #include "TProfile2D.h"
-
+#include <utility> 
+#include <string> 
+#include <vector> 
 using namespace edm;
 using namespace std;
 
@@ -246,7 +248,7 @@ void EcalDisplaysByEvent::selectHits(Handle<EcalRecHitCollection> hits,
       string title = "Digis";
       string seed = "ic" + intToString(ic) + "_FED" + intToString(FEDid);
       int freq=1;
-      pair<map<string,int>::iterator,bool> pair = seedFrequencyMap_.insert(pair<string,int>(seed,freq));
+      pair<map<string,int>::iterator,bool> pair = seedFrequencyMap_.insert(make_pair(seed,freq));
       if(!pair.second)
       {
         ++(pair.first->second);

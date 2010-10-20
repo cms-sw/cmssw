@@ -13,13 +13,16 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.cc,v 1.10 2010/01/04 15:07:40 ferriff Exp $
+// $Id: EcalMipGraphs.cc,v 1.11 2010/10/15 12:18:41 elmer Exp $
 //
 //
 
 #include "CaloOnlineTools/EcalTools/plugins/EcalMipGraphs.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 #include "TCanvas.h"
+#include <utility>
+#include <string>
+#include <vector>
 
 using namespace edm;
 using namespace std;
@@ -300,7 +303,7 @@ void EcalMipGraphs::selectHits(Handle<EcalRecHitCollection> hits,
       string title = "Digis";
       string seed = "ic" + intToString(ic) + "_FED" + intToString(FEDid);
       int freq=1;
-      pair<map<string,int>::iterator,bool> pair = seedFrequencyMap_.insert(pair<string,int>(seed,freq));
+      pair<map<string,int>::iterator,bool> pair = seedFrequencyMap_.insert(make_pair(seed,freq));
       if(!pair.second)
       {
         ++(pair.first->second);
