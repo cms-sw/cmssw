@@ -93,9 +93,9 @@
  **  
  **
  **  $Id: TkConvValidator
- **  $Date: 2010/09/16 09:25:52 $ 
+ **  $Date: 2010/10/20 12:32:26 $ 
  **  $Revision: 1.1 $
- **  \author Hongliang Liu, U.C. Riverside
+ **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/
 
@@ -436,10 +436,16 @@ void  TkConvValidator::beginJob() {
     h_convVtxdZ_endcap_ =   dbe_->book1D("convVtxdZ_endcap"," Photon Reco conversion vtx dZ,  |eta|>1.2",100, -20.,20.);
 
 
-    h2_convVtxdRVsR_ =  dbe_->book2D("h2ConvVtxdRVsR","Photon Reco conversion vtx dR vsR" ,rBin,rMin, rMax,100, -20.,20.);
-    p_convVtxdRVsR_ =  dbe_->bookProfile("pConvVtxdRVsR","Photon Reco conversion vtx dR vsR" ,rBin,rMin, rMax ,100, -20.,20., "");
-    h2_convVtxdRVsEta_ =  dbe_->book2D("h2ConvVtxdRVsEta","Photon Reco conversion vtx dR vs Eta" ,etaBin2,etaMin, etaMax,100, -20.,20.);
-    p_convVtxdRVsEta_ =  dbe_->bookProfile("pConvVtxdRVsEta","Photon Reco conversion vtx dR vs Eta" ,etaBin2,etaMin, etaMax, 100, -20.,20., "");
+
+    h2_convVtxdRVsR_ =  dbe_->book2D("h2ConvVtxdRVsR"," Conversion vtx dR vsR" ,rBin,rMin, rMax,100, -20.,20.);
+    h2_convVtxdRVsEta_ =  dbe_->book2D("h2ConvVtxdRVsEta","Conversion vtx dR vs Eta" ,etaBin2,etaMin, etaMax,100, -20.,20.);
+
+    p_convVtxdRVsR_ =  dbe_->bookProfile("pConvVtxdRVsR"," Conversion vtx dR vsR" ,rBin,rMin, rMax ,100, -20.,20., "");
+    p_convVtxdRVsEta_ =  dbe_->bookProfile("pConvVtxdRVsEta","Conversion vtx dR vs Eta" ,etaBin2,etaMin, etaMax, 100, -20.,20., "");
+    p_convVtxdXVsX_ =  dbe_->bookProfile("pConvVtxdXVsX","Conversion vtx dX vs X" ,120,-60, 60 ,100, -20.,20., "");
+    p_convVtxdYVsY_ =  dbe_->bookProfile("pConvVtxdYVsY","Conversion vtx dY vs Y" ,120,-60, 60 ,100, -20.,20., "");
+    p_convVtxdZVsZ_ =  dbe_->bookProfile("pConvVtxdZVsZ","Conversion vtx dZ vs Z" ,zBin,zMin,zMax ,100, -20.,20., "");
+
     
     h2_convVtxRrecVsTrue_ =  dbe_->book2D("h2ConvVtxRrecVsTrue","Photon Reco conversion vtx R rec vs true" ,rBin,rMin, rMax,rBin,rMin, rMax);
 
@@ -1111,6 +1117,10 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       h2_convVtxdRVsEta_ ->Fill (mcEta_, sqrt(aConv.conversionVertex().position().perp2()) - mcConvR_ );
       p_convVtxdRVsR_ ->Fill (mcConvR_, sqrt(aConv.conversionVertex().position().perp2()) - mcConvR_ );
       p_convVtxdRVsEta_ ->Fill (mcEta_, sqrt(aConv.conversionVertex().position().perp2()) - mcConvR_ );
+      p_convVtxdXVsX_ ->Fill (mcConvX_, aConv.conversionVertex().position().x() - mcConvX_ );
+      p_convVtxdYVsY_ ->Fill (mcConvY_, aConv.conversionVertex().position().y() - mcConvY_ );
+      p_convVtxdZVsZ_ ->Fill (mcConvZ_, aConv.conversionVertex().position().z() - mcConvZ_ );
+
       h2_convVtxRrecVsTrue_ -> Fill (mcConvR_, sqrt(aConv.conversionVertex().position().perp2()) );
       
       
