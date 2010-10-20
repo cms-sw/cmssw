@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.27 2010/08/18 16:40:55 amraktad Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.28 2010/10/18 17:32:25 amraktad Exp $
 //
 
 // system include files
@@ -110,9 +110,6 @@ FWProxyBuilderBase::setHaveWindow(bool iFlag)
       if(m_mustBuild) {
          build();
       }
-      if(m_modelsChanged) {
-         applyChangesToAllModels();
-      }
    }
 }
 
@@ -213,22 +210,6 @@ FWProxyBuilderBase::build()
       }
    }
    m_mustBuild = false;
-}
-
-void
-FWProxyBuilderBase::applyChangesToAllModels()
-{
-   for (Product_it i = m_products.begin(); i!= m_products.end(); ++i)
-      applyChangesToAllModels(*i);
-
-   m_modelsChanged=false;
-}
-
-void
-FWProxyBuilderBase::applyChangesToAllModels(Product* p)
-{
-   FWModelIds ids(m_ids.begin(), m_ids.end());
-   modelChanges(ids, p);
 }
 
 //______________________________________________________________________________
