@@ -45,18 +45,17 @@ ConstrainedFitCandProducer<Fitter, InputCollection, OutputCollection, Init>::Con
   src_(cfg.template getParameter<edm::InputTag>("src")),
   setLongLived_(false), setMassConstraint_(false), setPdgId_(false),
   fitter_(reco::modules::make<Fitter>(cfg)) {
-  using namespace std;
   produces<OutputCollection>();
-  string alias( cfg.getParameter<std::string>("@module_label"));
-  const string setLongLived("setLongLived");
-  vector<string> vBoolParams = cfg.template getParameterNamesForType<bool>();
+  std::string alias( cfg.getParameter<std::string>("@module_label"));
+  const std::string setLongLived("setLongLived");
+  std::vector<std::string> vBoolParams = cfg.template getParameterNamesForType<bool>();
   bool found = find(vBoolParams.begin(), vBoolParams.end(), setLongLived) != vBoolParams.end();
   if(found) setLongLived_ = cfg.template getParameter<bool>("setLongLived");
-  const string setMassConstraint("setMassConstraint");
+  const std::string setMassConstraint("setMassConstraint");
   found = find(vBoolParams.begin(), vBoolParams.end(), setMassConstraint) != vBoolParams.end();
   if(found) setMassConstraint_ = cfg.template getParameter<bool>("setMassConstraint");
-  const string setPdgId("setPdgId");
-  vector<string> vIntParams = cfg.getParameterNamesForType<int>();
+  const std::string setPdgId("setPdgId");
+  std::vector<std::string> vIntParams = cfg.getParameterNamesForType<int>();
   found = find(vIntParams.begin(), vIntParams.end(), setPdgId) != vIntParams.end();
   if(found) { setPdgId_ = true; pdgId_ = cfg.getParameter<int>("setPdgId"); }
 }
@@ -82,21 +81,18 @@ namespace reco {
 
 template<typename Fitter, typename InputCollection, typename OutputCollection, typename Init>
 void ConstrainedFitCandProducer<Fitter, InputCollection, OutputCollection, Init>::produce(edm::Event & evt, const edm::EventSetup & es) {
-  using namespace edm; 
-  using namespace reco;
-  using namespace std;
   Init::init(fitter_, evt, es);
-  Handle<InputCollection> cands;
+  edm::Handle<InputCollection> cands;
   evt.getByLabel(src_, cands);
-  auto_ptr<OutputCollection> fitted(new OutputCollection);
+  std::auto_ptr<OutputCollection> fitted(new OutputCollection);
   fitted->reserve(cands->size());
   for(typename InputCollection::const_iterator c = cands->begin(); c != cands->end(); ++ c) {
-    std::auto_ptr<VertexCompositeCandidate> clone(new VertexCompositeCandidate(*c));
+    std::auto_ptr<reco::VertexCompositeCandidate> clone(new reco::VertexCompositeCandidate(*c));
     fitter_.set(*clone);
     if(setLongLived_) clone->setLongLived();
     if(setMassConstraint_) clone->setMassConstraint();
     if(setPdgId_) clone->setPdgId(pdgId_);
-    fitHelper::add(fitted, clone);
+    reco::fitHelper::add(fitted, clone);
   }
   evt.put(fitted);
 }

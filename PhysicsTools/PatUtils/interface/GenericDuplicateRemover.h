@@ -38,11 +38,9 @@ template<typename Collection>
 std::auto_ptr< std::vector<size_t> >
 pat::GenericDuplicateRemover<Comparator,Arbitrator>::duplicates(const Collection &items) const 
 {
-    using namespace std;
-
     size_t size = items.size();
 
-    vector<bool> bad(size, false);
+    std::vector<bool> bad(size, false);
 
     for (size_t ie = 0; ie < size; ++ie) {
         if (bad[ie]) continue; // if already marked bad
@@ -58,7 +56,7 @@ pat::GenericDuplicateRemover<Comparator,Arbitrator>::duplicates(const Collection
         }
     }
 
-    auto_ptr< vector<size_t> > ret(new vector<size_t>());
+    std::auto_ptr< std::vector<size_t> > ret(new std::vector<size_t>());
 
     for (size_t i = 0; i < size; ++i) {
         if (bad[i]) ret->push_back(i);

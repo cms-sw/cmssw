@@ -73,11 +73,9 @@ template<typename Collection, typename OtherCollection>
 std::auto_ptr< pat::OverlapList >
 pat::GenericOverlapFinder<Distance>::find(const Collection &items, const OtherCollection &other) const 
 {
-    using namespace std;
-
     size_t size = items.size(), size2 = other.size();
 
-    auto_ptr< OverlapList > ret(new OverlapList());
+    std::auto_ptr< OverlapList > ret(new OverlapList());
     
     for (size_t ie = 0; ie < size; ++ie) {
         double dmin   = 1.0;
@@ -89,7 +87,7 @@ pat::GenericOverlapFinder<Distance>::find(const Collection &items, const OtherCo
         }
         
         if (dmin < 1.0) {
-            ret->push_back(make_pair(ie,match));
+            ret->push_back(std::make_pair(ie,match));
         }
     }
 
