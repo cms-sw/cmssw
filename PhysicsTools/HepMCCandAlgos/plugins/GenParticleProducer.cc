@@ -5,7 +5,7 @@
  * Convert HepMC GenEvent format into a collection of type
  * CandidateCollection containing objects of type GenParticle
  *
- * \version $Id: GenParticleProducer.cc,v 1.15 2010/02/23 13:29:06 fabiocos Exp $
+ * \version $Id: GenParticleProducer.cc,v 1.16 2010/05/20 12:42:50 srappocc Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -108,7 +108,7 @@ GenParticleProducer::~GenParticleProducer() {
 }
 
 int GenParticleProducer::chargeTimesThree( int id ) const {
-  if( abs( id ) < PDGCacheMax ) 
+  if( std::abs( id ) < PDGCacheMax ) 
     return id > 0 ? chargeP_[ id ] : chargeM_[ - id ];
   map<int, int>::const_iterator f = chargeMap_.find( id );
   if ( f == chargeMap_.end() )  {
@@ -128,7 +128,7 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
      es.getData( pdt );
      for( HepPDT::ParticleDataTable::const_iterator p = pdt->begin(); p != pdt->end(); ++ p ) {
        const HepPDT::ParticleID & id = p->first;
-       int pdgId = id.pid(), apdgId = abs( pdgId );
+       int pdgId = id.pid(), apdgId = std::abs( pdgId );
        int q3 = id.threeCharge();
        if ( apdgId < PDGCacheMax && pdgId > 0 ) {
 	 chargeP_[ apdgId ] = q3;

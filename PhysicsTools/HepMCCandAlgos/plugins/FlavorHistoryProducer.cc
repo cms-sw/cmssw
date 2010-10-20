@@ -98,7 +98,7 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
     FlavorHistory::FLAVOR_T flavorSource=FlavorHistory::FLAVOR_NULL;
 
 
-    int idabs = abs( (p)->pdgId() );
+    int idabs = std::abs( (p)->pdgId() );
     int nDa = (p)->numberOfDaughters();
 
     // Check if we have a status 2 or 3 particle, which is a parton before the string.
@@ -163,7 +163,7 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 	    // Get the index of the progenitor candidate
 	    progenitorIndex = found - particles.begin();
 
-	    int aParentId = abs(aParent->pdgId());
+	    int aParentId = std::abs(aParent->pdgId());
 	    
 	    // This will be used to check if there is gluon splitting present
 	    if ( aParent->status() == 3 && aParent->pdgId() == p->pdgId() ) status3AncestorOfSameFlavor = true;

@@ -19,7 +19,7 @@ namespace GenParticlesHelper {
       // status
       if(status && gen.status()!=status ) continue;
     
-      if( abs(gen.pdgId()) == pdgId ) {
+      if( std::abs(gen.pdgId()) == pdgId ) {
 	GenParticleRef genref( &sourceParticles, index );
 	particleRefs.push_back( genref );
       }
@@ -39,7 +39,7 @@ namespace GenParticlesHelper {
 	idr!= daughterRefs.end(); ++idr ) {
     
       if( (*idr)->status() == status && 
-	  (!pdgId || abs((*idr)->pdgId()) == pdgId) ) {
+	  (!pdgId || std::abs((*idr)->pdgId()) == pdgId) ) {
       
 	// cout<<"adding "<<(*idr)<<endl;
 	descendents.push_back(*idr);

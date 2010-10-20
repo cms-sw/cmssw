@@ -132,13 +132,13 @@ void HZZ4muAnalyzer::analyze( const Event& e, const EventSetup& )
      {
        // skip other than mu
        //
-       if ( abs(StableHiggsDesc[i]->pdg_id()) != 13 ) continue ; 
+       if ( std::abs(StableHiggsDesc[i]->pdg_id()) != 13 ) continue ; 
        
        for ( unsigned int j=i+1; j<StableHiggsDesc.size(); j++ )
          {
            // skip other than mu
            //
-           if ( abs(StableHiggsDesc[j]->pdg_id()) != 13 ) continue ;
+           if ( std::abs(StableHiggsDesc[j]->pdg_id()) != 13 ) continue ;
            //
            // skip same charge combo's
            //

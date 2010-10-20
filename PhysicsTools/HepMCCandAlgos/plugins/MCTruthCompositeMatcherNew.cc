@@ -64,7 +64,7 @@ namespace reco {
 	    indices[i] = -1; 
 	  } else {
 	    bool found = true;
-	    if(begin!=end) found = find(begin, end, abs(mc->pdgId())) != end;
+	    if(begin!=end) found = find(begin, end, std::abs(mc->pdgId())) != end;
 	    indices[i] = found ? int(mc.key()) : -1;
 	  }
 	}

@@ -181,7 +181,7 @@ void GenPlusSimParticleProducer::produce(Event& event,
       pdgIds_.clear();
       for (vector<PdtEntry>::iterator itp = pdts_.begin(), edp = pdts_.end(); itp != edp; ++itp) {
         itp->setup(iSetup); // decode string->pdgId and vice-versa                                                                                                      
-        pdgIds_.insert(abs(itp->pdgId()));
+        pdgIds_.insert(std::abs(itp->pdgId()));
       }
       pdts_.clear();
     }
@@ -257,7 +257,7 @@ void GenPlusSimParticleProducer::produce(Event& event,
     
     // Maybe apply the PdgId filter
     if (!pdgIds_.empty()) { // if we have a filter on pdg ids
-      if (pdgIds_.find(abs(isimtrk->type())) == pdgIds_.end()) continue;
+      if (pdgIds_.find(std::abs(isimtrk->type())) == pdgIds_.end()) continue;
     }
     
     // find simtrack that has a genParticle match to its parent
