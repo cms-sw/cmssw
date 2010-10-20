@@ -33,21 +33,14 @@ private:
   
   // Vavilov distribution parameters (inputs and common black /G116C1/)
   
-  mutable double kappa_;      //!< Vavilov kappa parameter [0.01 (Landau-like) < kappa < 10. (Gaussian-like)]
-  mutable double beta2_;      //!< Vavilov beta2 parameter (speed of particle in v/c units)
   const int mode_;          //!< set to 0 to calculate the density function and to 1 to calculate the distribution function
-  mutable double h_[7];     //!< these reproduce the auxilliary common block /G116C1/
-  mutable double t0_;         
-  mutable double t1_;         
-  mutable double t_;          
-  mutable double omega_;      
-  mutable double a_[155];    
-  mutable double b_[155];     
-  mutable double x0_;        
-  
-  int dzero(double a, double b, double& x0, double& rv, double eps, int mxf, int fsel) const;    //! Private version of the CERNLIB root finder
-
-  
+  double t0_;         
+  double t1_;         
+  double t_;          
+  double omega_;
+  double x0_;        
+  double a_[155];    
+  double b_[155];     
 };
 
 

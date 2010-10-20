@@ -46,83 +46,84 @@ namespace VVIObjDetails {
 //! \param mode  - (input) set to 0 to calculate the density function and to 1 to calculate the distribution function
 // *************************************************************************************************************************************** 
 
-VVIObj::VVIObj(double kappa, double beta2, double mode) : kappa_(kappa), beta2_(beta2), mode_(mode) {
-	
-	const double xp[9] = { 9.29,2.47,.89,.36,.15,.07,.03,.02,0.0 };
-	const double xq[7] = { .012,.03,.08,.26,.87,3.83,11.0 };
-	double  q, u, x, c1, c2, c3, c4, d1, h4, h5, h6, q2, x1, d, ll, ul, xf1, xf2, rv;
-	int lp, lq, k, l, n;
-
-// Make sure that the inputs are reasonable
-	
-	if(kappa_ < 0.01) kappa_ = 0.01;
-	if(kappa_ > 10.) kappa_ = 10.;
-	if(beta2_ < 0.) beta2_ = 0.;
-	if(beta2_ > 1.) beta2_ = 1.;
-
-	h_[4] = 1. - beta2_*0.42278433999999998 + 7.6/kappa_;
-	h_[5] = beta2_;
-	h_[6] = 1. - beta2_;
-	h4 = -7.6/kappa_ - (beta2_ * .57721566 + 1);
-	h5 = log(kappa_);
-	h6 = 1./kappa_;
-	t0_ = (h4 - h_[4]*h5 - (h_[4] + beta2_)*(log(h_[4]) + VVIObjDetails::expint(h_[4])) + exp(-h_[4]))/h_[4];
-	
-// Set up limits for the root search
-	
-	for (lp = 0; lp < 9; ++lp) {
-		if (kappa_ >= xp[lp]) break;
-	}
-	ll = -lp - 1.5;
-	for (lq = 0; lq < 7; ++lq) {
-		if (kappa_ <= xq[lq]) break;
-	}
-	ul = lq - 6.5;
-//	double (*fp2)(double) = reinterpret_cast<double(*)(double)>(&VVIObj::f2);
-	VVIObjDetails::dzero(ll, ul, u, rv, 1.e-5, 1000, boost::bind(&VVIObjDetails::f2, _1,h_));
-	q = 1./u;
-	t1_ = h4 * q - h5 - (beta2_ * q + 1) * (log((fabs(u))) + VVIObjDetails::expint(u)) + exp(-u) * q;
-	t_ = t1_ - t0_;
-	omega_ = 6.2831853000000004/t_;
-	h_[0] = kappa_ * (beta2_ * .57721566 + 2.) + 9.9166128600000008;
-	if (kappa_ >= .07) {h_[0] += 6.90775527;}
-	h_[1] = beta2_ * kappa_;
-	h_[2] = h6 * omega_;
-	h_[3] = omega_ * 1.5707963250000001;
-//	double (*fp1)(double) = reinterpret_cast<double(*)(double)>(&VVIObj::f1);
-	VVIObjDetails::dzero(5., 155., x0_, rv, 1.e-5, 1000, boost::bind(&VVIObjDetails::f1, _1,h_));
-	n = x0_ + 1.;
-	d = exp(kappa_ * (beta2_ * (.57721566 - h5) + 1.)) * .31830988654751274;
-	a_[n - 1] = 0.;
-	if (mode_ == 0) {
-		a_[n - 1] = omega_ * .31830988654751274;
-	}
-	q = -1.;
-	q2 = 2.;
-	for (k = 1; k < n; ++k) {
-		l = n - k;
-		x = omega_ * k;
-		x1 = h6 * x;
-		VVIObjDetails::sincosint(x,c2,c1);
-		c1 = log(x) - c1;
-		c3 = sin(x1);
-		c4 = cos(x1);
-		xf1 = kappa_ * (beta2_ * c1 - c4) - x * c2;
-		xf2 = x * c1 + kappa_ * (c3 + beta2_ * c2) + t0_ * x;
-		if (mode_ == 0) {
-			d1 = q * d * omega_ * exp(xf1);
-			a_[l - 1] = d1 * cos(xf2);
-			b_[l - 1] = -d1 * sin(xf2);
-		} else {
-			d1 = q * d * exp(xf1)/k;
-			a_[l - 1] = d1 * sin(xf2);
-			b_[l - 1] = d1 * cos(xf2);
-			a_[n - 1] += q2 * a_[l - 1];
-		}
-		q = -q;
-		q2 = -q2;
-	}
-	 
+VVIObj::VVIObj(double kappa, double beta2, double mode) : mode_(mode) {
+  
+  const double xp[9] = { 9.29,2.47,.89,.36,.15,.07,.03,.02,0.0 };
+  const double xq[7] = { .012,.03,.08,.26,.87,3.83,11.0 };
+  double h_[7];
+  double  q, u, x, c1, c2, c3, c4, d1, h4, h5, h6, q2, x1, d, ll, ul, xf1, xf2, rv;
+  int lp, lq, k, l, n;
+  
+  // Make sure that the inputs are reasonable
+  
+  if(kappa < 0.01) kappa = 0.01;
+  if(kappa > 10.) kappa = 10.;
+  if(beta < 0.) beta = 0.;
+  if(beta > 1.) beta = 1.;
+  
+  h_[4] = 1. - beta*0.42278433999999998 + 7.6/kappa;
+  h_[5] = beta;
+  h_[6] = 1. - beta;
+  h4 = -7.6/kappa - (beta * .57721566 + 1);
+  h5 = log(kappa);
+  h6 = 1./kappa;
+  t0_ = (h4 - h_[4]*h5 - (h_[4] + beta)*(log(h_[4]) + VVIObjDetails::expint(h_[4])) + exp(-h_[4]))/h_[4];
+  
+  // Set up limits for the root search
+  
+  for (lp = 0; lp < 9; ++lp) {
+    if (kappa >= xp[lp]) break;
+  }
+  ll = -lp - 1.5;
+  for (lq = 0; lq < 7; ++lq) {
+    if (kappa <= xq[lq]) break;
+  }
+  ul = lq - 6.5;
+  //	double (*fp2)(double) = reinterpret_cast<double(*)(double)>(&VVIObj::f2);
+  VVIObjDetails::dzero(ll, ul, u, rv, 1.e-5, 1000, boost::bind(&VVIObjDetails::f2, _1,h_));
+  q = 1./u;
+  t1_ = h4 * q - h5 - (beta * q + 1) * (log((fabs(u))) + VVIObjDetails::expint(u)) + exp(-u) * q;
+  t_ = t1_ - t0_;
+  omega_ = 6.2831853000000004/t_;
+  h_[0] = kappa * (beta * .57721566 + 2.) + 9.9166128600000008;
+  if (kappa >= .07) {h_[0] += 6.90775527;}
+  h_[1] = beta * kappa;
+  h_[2] = h6 * omega_;
+  h_[3] = omega_ * 1.5707963250000001;
+  //	double (*fp1)(double) = reinterpret_cast<double(*)(double)>(&VVIObj::f1);
+  VVIObjDetails::dzero(5., 155., x0_, rv, 1.e-5, 1000, boost::bind(&VVIObjDetails::f1, _1,h_));
+  n = x0_ + 1.;
+  d = exp(kappa * (beta * (.57721566 - h5) + 1.)) * .31830988654751274;
+  a_[n - 1] = 0.;
+  if (mode_ == 0) {
+    a_[n - 1] = omega_ * .31830988654751274;
+  }
+  q = -1.;
+  q2 = 2.;
+  for (k = 1; k < n; ++k) {
+    l = n - k;
+    x = omega_ * k;
+    x1 = h6 * x;
+    VVIObjDetails::sincosint(x,c2,c1);
+    c1 = log(x) - c1;
+    c3 = sin(x1);
+    c4 = cos(x1);
+    xf1 = kappa * (beta * c1 - c4) - x * c2;
+    xf2 = x * c1 + kappa * (c3 + beta * c2) + t0_ * x;
+    if (mode_ == 0) {
+      d1 = q * d * omega_ * exp(xf1);
+      a_[l - 1] = d1 * cos(xf2);
+      b_[l - 1] = -d1 * sin(xf2);
+    } else {
+      d1 = q * d * exp(xf1)/k;
+      a_[l - 1] = d1 * sin(xf2);
+      b_[l - 1] = d1 * cos(xf2);
+      a_[n - 1] += q2 * a_[l - 1];
+    }
+    q = -q;
+    q2 = -q2;
+  }
+  
 } // VVIObj
 
 // *************************************************************************************************************************************
