@@ -6,7 +6,7 @@
    
 
   \author   Jordan Tucker (original module), Giovanni Petrucciani (PAT integration)
-  \version  $Id: PATGenCandsFromSimTracksProducer.cc,v 1.6 2009/03/26 20:44:37 vadler Exp $
+  \version  $Id: PATGenCandsFromSimTracksProducer.cc,v 1.7 2010/01/11 13:36:48 hegner Exp $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -231,7 +231,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event& event,
       pdgIds_.clear();
       for (vector<PdtEntry>::iterator itp = pdts_.begin(), edp = pdts_.end(); itp != edp; ++itp) {
 	itp->setup(iSetup); // decode string->pdgId and vice-versa                                                                                                
-	pdgIds_.insert(abs(itp->pdgId()));
+	pdgIds_.insert(std::abs(itp->pdgId()));
       }
       pdts_.clear();
     }
@@ -239,7 +239,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event& event,
       motherPdgIds_.clear();
       for (vector<PdtEntry>::iterator itp = motherPdts_.begin(), edp = motherPdts_.end(); itp != edp; ++itp) {
 	itp->setup(iSetup); // decode string->pdgId and vice-versa                                                                                                
-	motherPdgIds_.insert(abs(itp->pdgId()));
+	motherPdgIds_.insert(std::abs(itp->pdgId()));
       }
       motherPdts_.clear();
     }
@@ -291,7 +291,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event& event,
 
       // Maybe apply the PdgId filter
       if (!pdgIds_.empty()) { // if we have a filter on pdg ids
-           if (pdgIds_.find(abs(isimtrk->type())) == pdgIds_.end()) continue;
+           if (pdgIds_.find(std::abs(isimtrk->type())) == pdgIds_.end()) continue;
       }
 
       GenParticle genp = makeGenParticle_(*isimtrk, Ref<GenParticleCollection>(), globals);
@@ -304,7 +304,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event& event,
       if (!motherPdgIds_.empty()) {
            const SimTrack *motherSimTk = findGeantMother(*isimtrk, globals);
            if (motherSimTk == 0) continue;
-           if (motherPdgIds_.find(abs(motherSimTk->type())) == motherPdgIds_.end()) continue;
+           if (motherPdgIds_.find(std::abs(motherSimTk->type())) == motherPdgIds_.end()) continue;
       }
 
       if (makeMotherLink_ || writeAncestors_) {

@@ -134,7 +134,7 @@ PATSingleVertexSelector::filter_(Mode mode, edm::Event & iEvent, const edm::Even
             const reco::Vertex * which = 0;
             float dzmin = 9999.0; 
             for (vector<const reco::Vertex *>::const_iterator itv = selVtxs_.begin(), edv = selVtxs_.end(); itv != edv; ++itv) {
-                float dz = abs((*itv)->z() - bestCand_->vz());
+                float dz = std::abs((*itv)->z() - bestCand_->vz());
                 if (dz < dzmin) { dzmin = dz; which = *itv; }
             }
             if (which == 0) return false; // actually it should not happen, but better safe than sorry
