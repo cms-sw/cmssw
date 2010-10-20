@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAModuleHelper.h,v 1.7 2007/12/08 20:22:57 saout Exp $
+// $Id: MVAModuleHelper.h,v 1.1 2008/12/14 15:05:22 saout Exp $
 //
 
 #include <functional>
@@ -108,7 +108,6 @@ template<class Record, typename Object, class Filler>
 void MVAModuleHelper<Record, Object, Filler>::setEventSetup(
 						const edm::EventSetup &setup)
 {
-	using namespace PhysicsTools::Calibration;
 	edm::ESHandle<MVAComputerContainer> handle;
 	setup.get<Record>().get(handle);
 	const MVAComputerContainer *container = handle.product();
@@ -120,7 +119,6 @@ template<class Record, typename Object, class Filler>
 void MVAModuleHelper<Record, Object, Filler>::setEventSetup(
 			const edm::EventSetup &setup, const char *esLabel)
 {
-	using namespace PhysicsTools::Calibration;
 	edm::ESHandle<MVAComputerContainer> handle;
 	setup.get<Record>().get(esLabel, handle);
 	const MVAComputerContainer *container = handle.product();
