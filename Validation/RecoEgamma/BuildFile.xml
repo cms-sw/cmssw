@@ -23,6 +23,7 @@
 <use   name="SimDataFormats/TrackingHit"/>
 <use   name="SimDataFormats/Track"/>
 <use   name="SimDataFormats/Vertex"/>
+<use   name="TrackingTools/MaterialEffects"/>
 <use   name="DQMServices/Components"/>
 <use   name="DQMServices/Core"/>
 <use   name="clhep"/>
