@@ -106,9 +106,10 @@ int main(int argc, char * argv[]) {
 
   double res2=0;
 
-  if (argc<2) return 1;
 
-  if (argv[1][0]=='a') { 
+  bool both =  (argc<2);
+
+  if (both || argv[1][0]=='a') { 
     st();	
     edm::HRTimeType s= edm::hrRealTime();
     res2 = d(*gs1,*gs2);
@@ -116,7 +117,7 @@ int main(int argc, char * argv[]) {
     en();
     std::cout << e-s << std::endl;
   } 
-  else if (argv[1][0]=='b') { 
+ if ( both || argv[1][0]=='b') { 
     st();	
     edm::HRTimeType s= edm::hrRealTime();
     res2 = d(vgs.front(),vgs.back());
