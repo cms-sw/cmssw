@@ -16,6 +16,8 @@
  *
  * GO 20100927: SYNONYMs created (may need grant on CMS_ECAL_COND)
  * GO 20101011: modified table structure for XXX_CLS_XXX tables
+ * GO 20101020: LMF_CLS_XXX tables modified to move the REF field after
+ *              LOGIC_ID (needed to use only one class in C++) 
  */
 
 PROMPT "Starting creating laser tables: "
@@ -250,8 +252,8 @@ INSERT INTO LMF_PRIM_VERS VALUES (1, DEFAULT, 'default');
 CREATE TABLE LMF_CLS_BLUE_DAT
 (
   LMF_IOV_ID        NUMBER NOT NULL,
-  LMF_IOV_ID_REF    NUMBER NOT NULL,
   LOGIC_ID          NUMBER NOT NULL,
+  LMF_IOV_ID_REF    NUMBER,
   MEAN              NUMBER, 
   NORM              NUMBER, 
   RMS               NUMBER, 
@@ -282,8 +284,8 @@ ALTER TABLE LMF_CLS_BLUE_DAT
 CREATE TABLE LMF_CLS_IR_DAT
 (
   LMF_IOV_ID        NUMBER NOT NULL,
-  LMF_IOV_ID_REF    NUMBER NOT NULL,
   LOGIC_ID          NUMBER NOT NULL,
+  LMF_IOV_ID_REF    NUMBER,
   MEAN              NUMBER, 
   NORM              NUMBER, 
   RMS               NUMBER, 
