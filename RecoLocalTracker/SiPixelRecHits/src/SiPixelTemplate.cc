@@ -1213,28 +1213,28 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
     //	qxtempcor corrects the total charge to the actual track angles (not actually needed for the template fits, but useful for Guofan)
     
     cotbeta0 =  thePixelTemp[index_id].entx[iyhigh][0].cotbeta;
-    qxtempcor=std::sqrt((1.f+cotbeta*cotbeta+cotalpha*cotalpha)/(1.f+cotbeta0*cotbeta0+cotalpha*cotalpha)));
+    qxtempcor=std::sqrt((1.f+cotbeta*cotbeta+cotalpha*cotalpha)/(1.f+cotbeta0*cotbeta0+cotalpha*cotalpha));
   
-  for(i=0; i<9; ++i) {
-    pxtemp[i][0] = 0.;
-    pxtemp[i][1] = 0.;
-    pxtemp[i][BXM2] = 0.;
-    pxtemp[i][BXM1] = 0.;
-    for(j=0; j<TXSIZE; ++j) {
-      //  Take next largest x-slice for the x-template (it reduces bias in the forward direction after irradiation)
-      //		   pxtemp[i][j+2]=(1. - xxratio)*thePixelTemp[index_id].entx[imaxx][ilow].xtemp[i][j] + xxratio*thePixelTemp[index_id].entx[imaxx][ihigh].xtemp[i][j];
-      //		   pxtemp[i][j+2]=(1. - xxratio)*thePixelTemp[index_id].entx[iyhigh][ilow].xtemp[i][j] + xxratio*thePixelTemp[index_id].entx[iyhigh][ihigh].xtemp[i][j];
-      pxtemp[i][j+2]=qxtempcor*((1.f - xxratio)*thePixelTemp[index_id].entx[iyhigh][ilow].xtemp[i][j] + xxratio*thePixelTemp[index_id].entx[iyhigh][ihigh].xtemp[i][j]);
+    for(i=0; i<9; ++i) {
+      pxtemp[i][0] = 0.f;
+      pxtemp[i][1] = 0.f;
+      pxtemp[i][BXM2] = 0.f;
+      pxtemp[i][BXM1] = 0.f;
+      for(j=0; j<TXSIZE; ++j) {
+	//  Take next largest x-slice for the x-template (it reduces bias in the forward direction after irradiation)
+	//		   pxtemp[i][j+2]=(1. - xxratio)*thePixelTemp[index_id].entx[imaxx][ilow].xtemp[i][j] + xxratio*thePixelTemp[index_id].entx[imaxx][ihigh].xtemp[i][j];
+	//		   pxtemp[i][j+2]=(1. - xxratio)*thePixelTemp[index_id].entx[iyhigh][ilow].xtemp[i][j] + xxratio*thePixelTemp[index_id].entx[iyhigh][ihigh].xtemp[i][j];
+	pxtemp[i][j+2]=qxtempcor*((1.f - xxratio)*thePixelTemp[index_id].entx[iyhigh][ilow].xtemp[i][j] + xxratio*thePixelTemp[index_id].entx[iyhigh][ihigh].xtemp[i][j]);
+      }
     }
+    
+    plorywidth = thePixelTemp[index_id].head.lorywidth;
+    if(locBz > 0.f) {plorywidth = -plorywidth;}
+    plorxwidth = thePixelTemp[index_id].head.lorxwidth;
+    
   }
   
-  plorywidth = thePixelTemp[index_id].head.lorywidth;
-  if(locBz > 0.f) {plorywidth = -plorywidth;}
-  plorxwidth = thePixelTemp[index_id].head.lorxwidth;
-  
- }
- 
- return success;
+  return success;
 } // interpolate
 
 
