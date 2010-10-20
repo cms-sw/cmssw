@@ -64,7 +64,7 @@ namespace reco {
       }
       size_t nDau = c.numberOfDaughters();
       if(nDau == 0) return reference_type();
-      set<size_t> momIdx, common, tmp;
+      std::set<size_t> momIdx, common, tmp;
       for(size_t i = 0; i < nDau; ++ i) {
 	const Candidate & d = * c.daughter(i);
 	reference_type m = (*this)[d];

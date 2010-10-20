@@ -5,6 +5,7 @@
  * \author Luca Lista, INFN
  *
  */
+#include <algorithm>
 #include <set>
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
@@ -153,7 +154,7 @@ typename CandMatcherBase<C1, C2>::ref_type CandMatcherBase<C1, C2>::operator()( 
   if ( nDau > 0 ) {
     // check for composite candidate c
     // navigate to daughters and find parent matches
-    set<size_t> momsIntersection, momDaughters, tmp;
+    std::set<size_t> momsIntersection, momDaughters, tmp;
     for( Candidate::const_iterator d = c.begin(); d != c.end(); ++ d ) {
       // check here generically if status == 3, then descend down to one more level
       ref_type m = (*this)( * d );
@@ -162,7 +163,7 @@ typename CandMatcherBase<C1, C2>::ref_type CandMatcherBase<C1, C2>::operator()( 
       // get matched mother indices (fetched previously)
       const set<size_t> & allMomDaughters = matchedMothers_[ m.key() ];
       momDaughters.clear();
-      for( set<size_t>::const_iterator k = allMomDaughters.begin(); 
+      for( std::set<size_t>::const_iterator k = allMomDaughters.begin(); 
 	   k != allMomDaughters.end(); ++ k ) {
 	size_t m = * k;
 	if( compositePreselect( c, matched[ m ] ) )

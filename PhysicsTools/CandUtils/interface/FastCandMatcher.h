@@ -50,7 +50,7 @@ const reco::Candidate * FastCandMatcher<C>::operator()( const reco::Candidate & 
   if ( nDau > 0 ) {
     // check for composite candidate c
     // navigate to daughters and find parent matches
-    set<const reco::Candidate *> momsIntersection, momDaughters, tmp;
+    std::set<const reco::Candidate *> momsIntersection, momDaughters, tmp;
     for( reco::Candidate::const_iterator dau = c.begin(); dau != c.end(); ++ dau ) {
       // check here generically if status == 3, then descend down to one more level
       const reco::Candidate * dauMatch = (*this)( * dau );
