@@ -1,8 +1,9 @@
 # AlCaReco for laser alignment system
 import FWCore.ParameterSet.Config as cms
 
-import EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi
-scalersRawToDigi = EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi.scalersRawToDigi.clone()
+# Need to add this module to get the 'scalersRawToDigi' product
+# for the DCS bit filter
+from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import scalersRawToDigi
 
 # DCS partitions
 # "EBp","EBm","EEp","EEm","HBHEa","HBHEb","HBHEc","HF","HO","RPC"
@@ -36,3 +37,4 @@ ALCARECOTkAlLAST0Producer = Alignment.LaserAlignment.LaserAlignmentT0Producer_cf
 )
 
 seqALCARECOTkAlLAS = cms.Sequence(scalersRawToDigi+ALCARECOTkAlLASDCSFilter+ALCARECOTkAlLASsiStripDigis+ALCARECOTkAlLASEventFilter+ALCARECOTkAlLAST0Producer)
+
