@@ -13,6 +13,7 @@
 <use   name="Geometry/Records"/>
 <use   name="SimMuon/MCTruth"/>
 <use   name="RecoMuon/TrackingTools"/>
+<use   name="DataFormats/MuonReco"/>
 <use   name="TrackPropagation/SteppingHelixPropagator"/>
 <use   name="clhep"/>
 <use   name="rootminuit2"/>

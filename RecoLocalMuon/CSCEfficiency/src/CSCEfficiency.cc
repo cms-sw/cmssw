@@ -10,7 +10,10 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "FWCore/Common/interface/TriggerNames.h"
-
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 using namespace std;
 using namespace edm;
 
@@ -101,21 +104,149 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 
   //---- store info from digis
   fillDigiInfo(alcts, clcts, correlatedlcts, wires, strips, simhits, rechits, segments, cscGeom);
+  //
+  Handle<reco::MuonCollection> muons;
+  edm::InputTag muonTag_("muons");
+  event.getByLabel(muonTag_,muons);
+
+  edm::Handle<reco::BeamSpot> beamSpotHandle;
+  event.getByLabel("offlineBeamSpot", beamSpotHandle);
+  reco::BeamSpot vertexBeamSpot = *beamSpotHandle;
+  //
+  std::vector <reco::MuonCollection::const_iterator> goodMuons_it;
+  uint nPositiveZ = 0;
+  uint nNegativeZ = 0;
+  float muonOuterZPosition = -99999.;
+  if(isIPdata){
+    if (printalot)std::cout<<" muons.size() = "<<muons->size() <<std::endl;
+    for ( reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon ) {
+      DataFlow->Fill(31.);	
+      if (printalot) {
+        std::cout<<"  iMuon = "<<muon-muons->begin()<<" charge = "<<muon->charge()<<" p = "<<muon->p()<<" pt = "<<muon->pt()<<
+          " eta = "<<muon->eta()<<" phi = "<<muon->phi()<<
+          " matches = "<<
+          muon->matches().size()<<" matched Seg = "<<muon->numberOfMatches(reco::Muon::SegmentAndTrackArbitration)<<" GLB/TR/STA = "<<
+          muon->isGlobalMuon()<<"/"<<muon->isTrackerMuon()<<"/"<<muon->isStandAloneMuon()<<std::endl;
+      }
+      if(!(muon->isTrackerMuon() && muon->isGlobalMuon())){
+	continue;
+      }
+      DataFlow->Fill(32.);
+      double relISO = ( muon->isolationR03().sumPt +
+                        muon->isolationR03().emEt +
+                        muon->isolationR03().hadEt)/muon->track()->pt();
+      if (printalot) {
+        std::cout<<" relISO = "<<relISO<<" emVetoEt = "<<muon->isolationR03().emVetoEt<<" caloComp = "<<
+          muon::caloCompatibility(*(muon))<<" dxy = "<<fabs(muon->track()->dxy(vertexBeamSpot.position()))<<std::endl;
+      }
+      if(
+	 //relISO>0.1 || muon::caloCompatibility(*(muon))<.90 ||
+         fabs(muon->track()->dxy(vertexBeamSpot.position()))>0.2 || muon->pt()<6.){
+        continue;
+      }
+      DataFlow->Fill(33.);
+      if(muon->track()->hitPattern().numberOfValidPixelHits()<1 ||
+	 muon->track()->hitPattern().numberOfValidTrackerHits()<11 ||
+	 muon->combinedMuon()->hitPattern().numberOfValidMuonHits()<1 ||
+	 muon->combinedMuon()->normalizedChi2()>10. ||
+	 muon->numberOfMatches()<2){
+	continue;
+      }
+      DataFlow->Fill(34.);
+      float zOuter = muon->combinedMuon()->outerPosition().z();
+      float rhoOuter = muon->combinedMuon()->outerPosition().rho();
+      bool passDepth = true;
+      // barrel region 
+      //if ( fabs(zOuter) < 660. && rhoOuter > 400. && rhoOuter < 480.){
+      if ( fabs(zOuter) < 660. && rhoOuter > 400. && rhoOuter < 540.){ 
+	passDepth = false;
+      }
+      // endcap region
+      //else if( fabs(zOuter) > 550. && fabs(zOuter) < 650. && rhoOuter < 300.){
+      else if( fabs(zOuter) > 550. && fabs(zOuter) < 650. && rhoOuter < 300.){
+	passDepth = false;
+      }
+      // overlap region
+      //else if ( fabs(zOuter) > 680. && fabs(zOuter) < 730. && rhoOuter < 480.){
+      else if ( fabs(zOuter) > 680. && fabs(zOuter) < 880. && rhoOuter < 540.){
+	passDepth = false;
+      }
+      if(!passDepth){
+	continue;
+      }
+      DataFlow->Fill(35.);
+      goodMuons_it.push_back(muon);
+      if(muon->track()->momentum().z()>0.){
+	++nPositiveZ;
+      }
+      if(muon->track()->momentum().z()<0.){
+	++nNegativeZ;
+      }
+    }
+  }
+
+  //
+
 
   if (printalot) std::cout<<"Start track loop over "<<trackCollection.size()<<" tracks"<<std::endl;
   for(edm::View<reco::Track>::size_type i=0; i<trackCollection.size(); ++i) {
     DataFlow->Fill(2.);
-    //---- Do we need a better "clean track" definition?
-    if(trackCollection.size()>2){
-      break;
-    }
-    DataFlow->Fill(3.);
     edm::RefToBase<reco::Track> track(trackCollectionH, i);
-    if(!i && 2==trackCollection.size()){
-      edm::View<reco::Track>::size_type tType = 1;
-      edm::RefToBase<reco::Track> trackTwo(trackCollectionH, tType);
-      if(track->outerPosition().z()*trackTwo->outerPosition().z()>0){// in one and the same "endcap"
+    //std::cout<<" iTR = "<<i<<" eta = "<<track->eta()<<" phi = "<<track->phi()<<std::cout<<" pt = "<<track->pt()<<std::endl;
+    if(isIPdata){
+      if (printalot){
+	std::cout<<" nNegativeZ = "<<nNegativeZ<<" nPositiveZ = "<<nPositiveZ<<std::endl;
+      }
+      if(nNegativeZ>1 || nPositiveZ>1){
         break;
+      }
+      bool trackOK = false;
+      if (printalot){
+	std::cout<<" goodMuons_it.size() = "<<goodMuons_it.size()<<std::endl;
+      }
+      for(uint iM=0;iM<goodMuons_it.size();++iM){
+	//std::cout<<" iM = "<<iM<<" eta = "<<goodMuons_it[iM]->track()->eta()<<
+	//" phi = "<<goodMuons_it[iM]->track()->phi()<<
+	//" pt = "<<goodMuons_it[iM]->track()->pt()<<std::endl;
+        float deltaR = pow(track->phi()-goodMuons_it[iM]->track()->phi(),2) +
+          pow(track->eta()-goodMuons_it[iM]->track()->eta(),2);
+        deltaR = sqrt(deltaR);
+        if (printalot){
+          std::cout<<" TR mu match to a tr: deltaR = "<<deltaR<<" dPt = "<<
+	    track->pt()-goodMuons_it[iM]->track()->pt()<<std::endl;
+        }
+        if(deltaR>0.01 || fabs(track->pt()-goodMuons_it[iM]->track()->pt())>0.1 ){
+          continue;
+        }
+        else{
+          trackOK = true;
+	  if (printalot){
+	    std::cout<<" trackOK "<<std::endl;
+	  }
+	  muonOuterZPosition = goodMuons_it[iM]->combinedMuon()->outerPosition().z();
+          break;
+          //++nChosenTracks;
+        }
+      }
+      if(!trackOK){
+	if (printalot){
+	  std::cout<<" failed: trackOK "<<std::endl;
+	}
+        continue;
+      }
+    }
+    else{
+      //---- Do we need a better "clean track" definition?
+      if(trackCollection.size()>2){
+	break;
+      }
+      DataFlow->Fill(3.);
+      if(!i && 2==trackCollection.size()){
+	edm::View<reco::Track>::size_type tType = 1;
+	edm::RefToBase<reco::Track> trackTwo(trackCollectionH, tType);
+	if(track->outerPosition().z()*trackTwo->outerPosition().z()>0){// in one and the same "endcap"
+	  break;
+	}
       }
     }
     DataFlow->Fill(4.);
@@ -224,7 +355,7 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
       }
     }
     //---- loop over the "refference" CSCDetIds
-    for(size_t iSt = 0; iSt<refME.size();++iSt){
+    for(uint iSt = 0; iSt<refME.size();++iSt){
       if (printalot){
 	std::cout<<"loop iStatation = "<<iSt<<std::endl;
 	std::cout<<"refME[iSt]: st = "<<refME[iSt].station()<<" rg = "<<refME[iSt].ring()<<std::endl;
@@ -272,7 +403,7 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 	    //---- which chamber (and its closes neighbor) is penetrated by the track - candidates
 	    chamberCandidates(refME[iSt].station(), refME[iSt].ring(), phi, coupleOfChambers);
 	    //---- loop over the two chamber candidates
-	    for(size_t iCh =0;iCh<coupleOfChambers.size();++iCh){
+	    for(uint iCh =0;iCh<coupleOfChambers.size();++iCh){
 	      DataFlow->Fill(11.);  
 	      if (printalot) std::cout<<" Check chamber N = "<<coupleOfChambers.at(iCh)<<std::endl;;
 	      if((!getAbsoluteEfficiency) && (true == emptyChambers
@@ -298,6 +429,12 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 		  std::cout<<" Not an intermediate (as defined) point... Skip."<<std::endl;
 		}
 		continue;
+	      }
+	      if(isIPdata && fabs(track->eta())<1.8){
+		if(fabs(muonOuterZPosition) - fabs(bpCh.position().z())<0 || 
+		   fabs(muonOuterZPosition-bpCh.position().z())<15.){
+		  continue;
+		}
 	      }
               DataFlow->Fill(13.);
 	      //---- propagate to the chamber (from this ME) if it is a different surface (odd/even chambers)
@@ -813,7 +950,7 @@ void CSCEfficiency::fillRechitsSegments_info(edm::Handle<CSCRecHit2DCollection> 
 	printf("\t%i RH\tendcap/station/ring/chamber/layer: %i/%i/%i/%i/%i\n",
 	       layerRH,idRH.endcap(),idRH.station(),idRH.ring(),idRH.chamber(),idRH.layer());
       }
-      for(size_t jRH = 0; 
+      for(uint jRH = 0; 
 	  jRH<allRechits[idRH.endcap()-1][idRH.station()-1][idRH.ring()-1][idRH.chamber()-FirstCh][idRH.layer()-1].size();
 	  ++jRH){
 	LocalPoint lp = allRechits[idRH.endcap()-1][idRH.station()-1][idRH.ring()-1][idRH.chamber()-FirstCh][idRH.layer()-1][jRH].first;
@@ -1138,7 +1275,7 @@ bool CSCEfficiency::recSimHitEfficiency(CSCDetId & id, FreeTrajectoryState &ftsC
       }
     }
     if(firstCondition || secondCondition){
-      for(size_t iSH=0;
+      for(uint iSH=0;
 	  iSH<allSimhits[ec][st][thisRing][ch][iLayer].size();
 	  ++iSH){
 	if(13 ==
@@ -1191,7 +1328,7 @@ bool CSCEfficiency::recHitSegment_Efficiencies(CSCDetId & id, const CSCChamber* 
     }
     if(firstCondition || secondCondition){
       ChHist[ec][st][rg][ch].EfficientRechits_good->Fill(iLayer+1);
-      for(size_t iR=0;
+      for(uint iR=0;
 	  iR<allRechits[ec][st][thisRing][ch][iLayer].size();
 	  ++iR){
 	if(allRechits[ec][st][thisRing][ch][iLayer][iR].second){
@@ -1422,8 +1559,8 @@ bool CSCEfficiency::applyTrigger(edm::Handle<edm::TriggerResults> &hltR,
   bool triggerPassed = true;
   std::vector<std::string>  hlNames=triggerNames.triggerNames();
   pointToTriggers.clear();
-  for(size_t imyT = 0;imyT<myTriggers.size();++imyT){
-    for (size_t iT=0; iT<hlNames.size(); ++iT) {
+  for(uint imyT = 0;imyT<myTriggers.size();++imyT){
+    for (uint iT=0; iT<hlNames.size(); ++iT) {
       //std::cout<<" iT = "<<iT<<" hlNames[iT] = "<<hlNames[iT]<<
       //" : wasrun = "<<hltR->wasrun(iT)<<" accept = "<<
       //	 hltR->accept(iT)<<" !error = "<< 
@@ -1453,7 +1590,7 @@ bool CSCEfficiency::applyTrigger(edm::Handle<edm::TriggerResults> &hltR,
     if(pointToTriggers.size()){
       if(printalot){
         std::cout<<"The following triggers will be required in the event: "<<std::endl;
-        for(size_t imyT =0; imyT <pointToTriggers.size();++imyT){
+        for(uint imyT =0; imyT <pointToTriggers.size();++imyT){
 	  std::cout<<"  "<<hlNames[pointToTriggers[imyT]];
         }
         std::cout<<std::endl;
@@ -1468,7 +1605,7 @@ bool CSCEfficiency::applyTrigger(edm::Handle<edm::TriggerResults> &hltR,
         std::cout<<" No triggers specified in the configuration or all ignored - no trigger information will be considered"<<std::endl;
       }
     }
-    for(size_t imyT =0; imyT <pointToTriggers.size();++imyT){
+    for(uint imyT =0; imyT <pointToTriggers.size();++imyT){
       if(hltR->wasrun(pointToTriggers[imyT]) && 
 	 hltR->accept(pointToTriggers[imyT]) && 
 	 !hltR->error(pointToTriggers[imyT]) ){
@@ -1496,6 +1633,7 @@ bool CSCEfficiency::applyTrigger(edm::Handle<edm::TriggerResults> &hltR,
   }
   return triggerPassed;
 }
+//
 
 // Constructor
 CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
@@ -1512,7 +1650,7 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
   //
 
   //---- Get the input parameters
-  printout_NEvents  = pset.getUntrackedParameter<unsigned int>("printout_NEvents",0);
+  printout_NEvents  = pset.getUntrackedParameter<uint>("printout_NEvents",0);
   rootFileName     = pset.getUntrackedParameter<string>("rootFileName","cscHists.root");
 
   isData  = pset.getUntrackedParameter<bool>("runOnData",true);// 
@@ -1524,7 +1662,7 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
   minP = pset.getUntrackedParameter<double>("minP",20.);//
   maxP = pset.getUntrackedParameter<double>("maxP",100.);//
   maxNormChi2 = pset.getUntrackedParameter<double>("maxNormChi2", 3.);//
-  minTrackHits = pset.getUntrackedParameter<unsigned int>("minTrackHits",10);//
+  minTrackHits = pset.getUntrackedParameter<uint>("minTrackHits",10);//
 
   applyIPangleCuts = pset.getUntrackedParameter<bool>("applyIPangleCuts", false);// 
     local_DY_DZ_Max = pset.getUntrackedParameter<double>("local_DY_DZ_Max",-0.1);//
@@ -1568,7 +1706,7 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
   
   sprintf(SpecName,"DataFlow"); 
   DataFlow =  
-    new TH1F(SpecName,"Data flow;condition number;entries",30,-0.5,29.5);
+    new TH1F(SpecName,"Data flow;condition number;entries",40,-0.5,39.5);
   //
   sprintf(SpecName,"TriggersFired"); 
   TriggersFired =
