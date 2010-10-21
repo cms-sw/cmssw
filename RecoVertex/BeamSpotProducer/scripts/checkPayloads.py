@@ -92,16 +92,30 @@ def getListOfRunsAndLumiFromRR(lastRun=-1,runErrors={}):
 
 #####################################################################################
 def main():
+    usage = "USAGE: ./checkPayloads.py (optional tagNumber) (optional \"lumi\") (optional \"z\" (optional destDB)"
     printExtra = False
     tagNumber = "14"
+    dbBase = ""
+    sigmaZ = ""
+
     if len(sys.argv) >= 2:
         if not sys.argv[1].isdigit():
-            exit("USAGE: ./checkPayloads.py (optional tagNumber)")
+            exit(usage)
         else:
             tagNumber = sys.argv[1]
+    if len(sys.argv) >= 3:
+        if not sys.argv[2] == "lumi":
+            exit(usage)
+        else:
+            dbBase = "_LumiBased"
+    if len(sys.argv) == 4:
+        if not sys.argv[3] == "z":
+            exit(usage)
+        else:
+            sigmaZ = "_SigmaZ"
     destDB = ""
-    if(len(sys.argv) >= 3):
-        destDB = sys.argv[2]
+    if(len(sys.argv) > 4):
+        destDB = sys.argv[4]
     #132573 Beam lost immediately
     #132958 Bad strips
     #133081 Bad pixels bad strips
@@ -124,14 +138,24 @@ def main():
     #143977 No Beam Strips and Pixels bad
     
     knownMissingRunList = [132573,132958,133081,133242,133472,133473,136290,138560,138562,139455,140133,140182,142461,142465,142503,142653,143977]
-    tagName = "BeamSpotObjects_2009_v" + tagNumber + "_offline"
+    tagName = "BeamSpotObjects_2009" + dbBase + sigmaZ + "_v" + tagNumber + "_offline"
     print "Checking payloads for tag " + tagName
     runErrors = {}
     listOfRunsAndLumiFromRR = getListOfRunsAndLumiFromRR(-1,runErrors)
+    tmpListOfIOVs = []
     if(destDB != ""):
-        listOfIOVs = getUploadedIOVs(tagName,destDB) 
+        tmpListOfIOVs = getUploadedIOVs(tagName,destDB) 
     else:
-        listOfIOVs = getUploadedIOVs(tagName)
+        tmpListOfIOVs = getUploadedIOVs(tagName)
+
+
+    listOfIOVs = []
+    if(dbBase == ''):
+        listOfIOVs = tmpListOfIOVs
+    else:
+        for iov in tmpListOfIOVs:
+            if((iov >> 32) not in listOfIOVs):
+                listOfIOVs.append(iov >>32)
     RRRuns = listOfRunsAndLumiFromRR.keys()
     RRRuns.sort()
     for run in RRRuns:
