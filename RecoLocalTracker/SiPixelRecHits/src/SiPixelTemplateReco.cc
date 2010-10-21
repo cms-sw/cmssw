@@ -213,11 +213,10 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
   
   // First, rescale all pixel charges       
   
-  for(i=0; i<nclusy; ++i) {
-    for(j=0; j<nclusx; ++j) {
+  for(j=0; j<nclusx; ++j) 
+    for(i=0; i<nclusy; ++i) 
       if(cluster[j][i] > 0) {cluster[j][i] *= qscale;}
-    }
-  }
+    
   
   // Next, sum the total charge and "decapitate" big pixels         
   

@@ -570,134 +570,134 @@ double expint(double x) {
   template<typename F>
   int dzero(double a, double b, double& x0, 
 	    double& rv, double eps, int mxf, F func) {
-	/* System generated locals */
-	double d__1, d__2, d__3, d__4;
-	
-	// Local variables
-	double f1, f2, f3, u1, u2, x1, x2, u3, u4, x3, ca, cb, cc, fa, fb, ee, ff;
-	int mc;
-	double xa, xb, fx, xx, su4;
-	
-	xa = std::min(a,b);
-	xb = std::max(a,b);
-	fa = func(xa);
-	fb = func(xb);
-	if (fa * fb > 0.) {
-	   rv = (xb - xa) * -2;
-	   x0 = 0.;
-	   return 1;
-	}
-	mc = 0;
-L1:
-	x0 = (xa + xb) * .5;
-	rv = x0 - xa;
-	ee = eps * (fabs(x0) + 1);
-	if (rv <= ee) {
-	   rv = ee;
-	   ff = func(x0);
-	   return 0;
-	}
-	f1 = fa;
-	x1 = xa;
-	f2 = fb;
-	x2 = xb;
-L2:
-	fx = func(x0);
-	++mc;
-	if (mc > mxf) {
-	   rv = (d__1 = xb - xa, fabs(d__1)) * -.5;
-	   x0 = 0.;
-	   return 0;
-	}
-	if (fx * fa > 0.) {
-	   xa = x0;
-	   fa = fx;
-	} else {
-	   xb = x0;
-	   fb = fx;
-	}
-L3:
-	u1 = f1 - f2;
-	u2 = x1 - x2;
-	u3 = f2 - fx;
-	u4 = x2 - x0;
-	if (u2 == 0. || u4 == 0.) {goto L1;}
-	f3 = fx;
-	x3 = x0;
-	u1 /= u2;
-	u2 = u3 / u4;
-	ca = u1 - u2;
-	cb = (x1 + x2) * u2 - (x2 + x0) * u1;
-	cc = (x1 - x0) * f1 - x1 * (ca * x1 + cb);
-	if (ca == 0.) {
-	   if (cb == 0.) {goto L1;}
-	   x0 = -cc / cb;
-	} else {
-	   u3 = cb / (ca * 2);
-	   u4 = u3 * u3 - cc / ca;
-	   if (u4 < 0.) {goto L1;}
-	   su4 = fabs(u4);
-	   if (x0 + u3 < 0.f) {su4 = -su4;}
-	   x0 = -u3 + su4;
-	}
-	if (x0 < xa || x0 > xb) {goto L1;}
-	// Computing MIN
-	d__3 = (d__1 = x0 - x3, fabs(d__1)), d__4 = (d__2 = x0 - x2, fabs(d__2));
-	rv = std::min(d__3,d__4);
-	ee = eps * (fabs(x0) + 1);
-	if (rv > ee) {
-	   f1 = f2;
-	   x1 = x2;
-	   f2 = f3;
-	   x2 = x3;
-	   goto L2;
-	}
-	fx = func(x0);
-	if (fx == 0.) {
-	   rv = ee;
-	   ff = func(x0);
-	   return 0;
-	}
-	if (fx * fa < 0.) {
-	   xx = x0 - ee;
-	   if (xx <= xa) {
-	     rv = ee;
-	     ff = func(x0);
-	     return 0;
-	   }
-	   ff = func(xx);
-	   fb = ff;
-	   xb = xx;
-	} else {
-	   xx = x0 + ee;
-	   if (xx >= xb) {
-	      rv = ee;
-	      ff = func(x0);
-	      return 0;
-	   }
-	   ff = func(xx);
-	   fa = ff;
-	   xa = xx;
-	}
-	if (fx * ff > 0.) {
-	   mc += 2;
-		if (mc > mxf) {
-	      rv = (d__1 = xb - xa, fabs(d__1)) * -.5;
-	      x0 = 0.;
-	      return 0;
-	   }
-	   f1 = f3;
-	   x1 = x3;
-	   f2 = fx;
-	   x2 = x0;
-	   x0 = xx;
-	   fx = ff;
-	   goto L3;
-	}
-	/* L4: */
+    /* System generated locals */
+    double d__1, d__2, d__3, d__4;
+    
+    // Local variables
+    double f1, f2, f3, u1, u2, x1, x2, u3, u4, x3, ca, cb, cc, fa, fb, ee, ff;
+    int mc;
+    double xa, xb, fx, xx, su4;
+    
+    xa = std::min(a,b);
+    xb = std::max(a,b);
+    fa = func(xa);
+    fb = func(xb);
+    if (fa * fb > 0.) {
+      rv = (xb - xa) * -2;
+      x0 = 0.;
+      return 1;
+    }
+    mc = 0;
+  L1:
+    x0 = (xa + xb) * .5;
+    rv = x0 - xa;
+    ee = eps * (fabs(x0) + 1);
+    if (rv <= ee) {
+      rv = ee;
+      ff = func(x0);
+      return 0;
+    }
+    f1 = fa;
+    x1 = xa;
+    f2 = fb;
+    x2 = xb;
+  L2:
+    fx = func(x0);
+    ++mc;
+    if (mc > mxf) {
+      rv = (d__1 = xb - xa, fabs(d__1)) * -.5;
+      x0 = 0.;
+      return 0;
+    }
+    if (fx * fa > 0.) {
+      xa = x0;
+      fa = fx;
+    } else {
+      xb = x0;
+      fb = fx;
+    }
+  L3:
+    u1 = f1 - f2;
+    u2 = x1 - x2;
+    u3 = f2 - fx;
+    u4 = x2 - x0;
+    if (u2 == 0. || u4 == 0.) {goto L1;}
+    f3 = fx;
+    x3 = x0;
+    u1 /= u2;
+    u2 = u3 / u4;
+    ca = u1 - u2;
+    cb = (x1 + x2) * u2 - (x2 + x0) * u1;
+    cc = (x1 - x0) * f1 - x1 * (ca * x1 + cb);
+    if (ca == 0.) {
+      if (cb == 0.) {goto L1;}
+      x0 = -cc / cb;
+    } else {
+      u3 = cb / (ca * 2);
+      u4 = u3 * u3 - cc / ca;
+      if (u4 < 0.) {goto L1;}
+      su4 = fabs(u4);
+      if (x0 + u3 < 0.f) {su4 = -su4;}
+      x0 = -u3 + su4;
+    }
+    if (x0 < xa || x0 > xb) {goto L1;}
+    // Computing MIN
+    d__3 = (d__1 = x0 - x3, fabs(d__1)), d__4 = (d__2 = x0 - x2, fabs(d__2));
+    rv = std::min(d__3,d__4);
+    ee = eps * (fabs(x0) + 1);
+    if (rv > ee) {
+      f1 = f2;
+      x1 = x2;
+      f2 = f3;
+      x2 = x3;
+      goto L2;
+    }
+    fx = func(x0);
+    if (fx == 0.) {
+      rv = ee;
+      ff = func(x0);
+      return 0;
+    }
+    if (fx * fa < 0.) {
+      xx = x0 - ee;
+      if (xx <= xa) {
 	rv = ee;
 	ff = func(x0);
 	return 0;
-} // dzero
-
+      }
+      ff = func(xx);
+      fb = ff;
+      xb = xx;
+    } else {
+      xx = x0 + ee;
+      if (xx >= xb) {
+	rv = ee;
+	ff = func(x0);
+	return 0;
+      }
+      ff = func(xx);
+      fa = ff;
+      xa = xx;
+    }
+    if (fx * ff > 0.) {
+      mc += 2;
+      if (mc > mxf) {
+	rv = (d__1 = xb - xa, fabs(d__1)) * -.5;
+	x0 = 0.;
+	return 0;
+      }
+      f1 = f3;
+      x1 = x3;
+      f2 = fx;
+      x2 = x0;
+      x0 = xx;
+      fx = ff;
+      goto L3;
+    }
+    /* L4: */
+    rv = ee;
+    ff = func(x0);
+    return 0;
+  } // dzero
+  
 }
