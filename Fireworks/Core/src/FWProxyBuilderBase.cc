@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.28 2010/10/18 17:32:25 amraktad Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.29 2010/10/20 20:09:23 amraktad Exp $
 //
 
 // system include files
@@ -117,6 +117,9 @@ void
 FWProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
 {
    m_item=0;
+
+   cleanLocal();
+
    for (Product_it i = m_products.begin(); i!= m_products.end(); i++)
    {
 
@@ -125,7 +128,6 @@ FWProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
    }
 
    m_products.clear();
-   cleanLocal();
 }
 
 void 
