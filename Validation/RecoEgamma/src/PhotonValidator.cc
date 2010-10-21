@@ -81,8 +81,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2010/09/28 16:37:58 $ 
- **  $Revision: 1.63 $
+ **  $Date: 2010/10/19 17:48:44 $ 
+ **  $Revision: 1.64 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -1117,7 +1117,12 @@ void  PhotonValidator::beginJob() {
     p_convVtxdRVsR_ =  dbe_->bookProfile("pConvVtxdRVsR","Photon Reco conversion vtx dR vsR" ,rBin,rMin, rMax ,100, -20.,20., "");
     h2_convVtxdRVsEta_ =  dbe_->book2D("h2ConvVtxdRVsEta","Photon Reco conversion vtx dR vs Eta" ,etaBin2,etaMin, etaMax,100, -20.,20.);
     p_convVtxdRVsEta_ =  dbe_->bookProfile("pConvVtxdRVsEta","Photon Reco conversion vtx dR vs Eta" ,etaBin2,etaMin, etaMax, 100, -20.,20., "");
+    p_convVtxdXVsX_ =  dbe_->bookProfile("pConvVtxdXVsX","Conversion vtx dX vs X" ,120,-60, 60 ,100, -20.,20., "");
+    p_convVtxdYVsY_ =  dbe_->bookProfile("pConvVtxdYVsY","Conversion vtx dY vs Y" ,120,-60, 60 ,100, -20.,20., "");
+    p_convVtxdZVsZ_ =  dbe_->bookProfile("pConvVtxdZVsZ","Conversion vtx dZ vs Z" ,zBin,zMin,zMax ,100, -20.,20., "");
     
+
+
     h2_convVtxRrecVsTrue_ =  dbe_->book2D("h2ConvVtxRrecVsTrue","Photon Reco conversion vtx R rec vs true" ,rBin,rMin, rMax,rBin,rMin, rMax);
 
     histname="vtxChi2";
@@ -2279,6 +2284,11 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 		h2_convVtxdRVsEta_ ->Fill (mcEta_, sqrt(aConv->conversionVertex().position().perp2()) - mcConvR_ );
 		p_convVtxdRVsR_ ->Fill (mcConvR_, sqrt(aConv->conversionVertex().position().perp2()) - mcConvR_ );
 		p_convVtxdRVsEta_ ->Fill (mcEta_, sqrt(aConv->conversionVertex().position().perp2()) - mcConvR_ );
+		p_convVtxdXVsX_ ->Fill (mcConvX_, aConv->conversionVertex().position().x() - mcConvX_ );
+		p_convVtxdYVsY_ ->Fill (mcConvY_, aConv->conversionVertex().position().y() - mcConvY_ );
+		p_convVtxdZVsZ_ ->Fill (mcConvZ_, aConv->conversionVertex().position().z() - mcConvZ_ );
+		
+
 		h2_convVtxRrecVsTrue_ -> Fill (mcConvR_, sqrt(aConv->conversionVertex().position().perp2()) );
 		
 		
