@@ -1137,7 +1137,7 @@ int main (int argc, char* argv[])
 
 	      ok = true;
 
-	      //	      if( abs(bb-lb_)>3 ) continue;
+	      //	      if( std::abs(bb-lb_)>3 ) continue;
 	      
 	      ME::Header header;
 	      header.rundir = rundir;
