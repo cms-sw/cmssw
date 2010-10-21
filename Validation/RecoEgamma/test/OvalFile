@@ -1,5 +1,5 @@
 
-<var name="TEST_RELEASE" value="3_9_0_pre7">
+<var name="TEST_RELEASE" value="3_9_0">
 <var name="TEST_GLOBAL_TAG" value="MC_39Y_V2">
 <var name="TEST_GLOBAL_STARTUP_TAG" value="START39_V2">
 <var name="TEST_GLOBAL_VERSION" value="v1">
@@ -23,9 +23,9 @@ The VAL_* variables are configuration variables for electronValidation.csh,
 which compares the histograms from two releases. electronValidation.csh relies
 on the ROOT script electronValidation.C.
 
-<var name="VAL_NEW_RELEASE" value="390pre7">
-<var name="VAL_REF_RELEASE" value="390pre5">
-<var name="VAL_COMMENT" value="Fill conversion variables within GsfElectron.">
+<var name="VAL_NEW_RELEASE" value="390">
+<var name="VAL_REF_RELEASE" value="384">
+<var name="VAL_COMMENT" value="New conversion information within GsfElectron.">
 <var name="STORE_RELEASE" value="${VAL_NEW_RELEASE}">
 
 #setenv VAL_WEB "/afs/cern.ch/cms/Physics/egamma/www/validation"
