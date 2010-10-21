@@ -14,7 +14,7 @@
 //
 // Original Author:  Dave Evans
 //         Created:  Thu Apr 13 15:50:17 CEST 2006
-// $Id: HiEgammaSCCorrectionMaker.h,v 1.10 2009/03/29 02:25:55 ymaravin Exp $
+// $Id: HiEgammaSCCorrectionMaker.h,v 1.1 2010/10/21 16:26:41 yjlee Exp $
 //
 //
 
@@ -28,7 +28,7 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
-#include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
+#include "RecoHI/HiEgammaAlgos/interface/HiEgammaSCEnergyCorrectionAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h" 
 
@@ -44,10 +44,10 @@ class HiEgammaSCCorrectionMaker : public edm::EDProducer {
      EcalClusterFunctionBaseClass* EnergyCorrection_;
 
      // the debug level
-     EgammaSCEnergyCorrectionAlgo::VerbosityLevel verbosity_;
+     HiEgammaSCEnergyCorrectionAlgo::VerbosityLevel verbosity_;
 
      // pointer to the correction algo object
-     EgammaSCEnergyCorrectionAlgo *energyCorrector_;
+     HiEgammaSCEnergyCorrectionAlgo *energyCorrector_;
     
      // vars for the correction algo
      bool applyEnergyCorrection_;

@@ -26,9 +26,9 @@ HiEgammaSCCorrectionMaker::HiEgammaSCCorrectionMaker(const edm::ParameterSet& ps
  
   // The verbosity level
   std::string debugString = ps.getParameter<std::string>("VerbosityLevel");
-  if      (debugString == "DEBUG")   verbosity_ = EgammaSCEnergyCorrectionAlgo::pDEBUG;
-  else if (debugString == "INFO")    verbosity_ = EgammaSCEnergyCorrectionAlgo::pINFO;
-  else                               verbosity_ = EgammaSCEnergyCorrectionAlgo::pERROR;
+  if      (debugString == "DEBUG")   verbosity_ = HiEgammaSCEnergyCorrectionAlgo::pDEBUG;
+  else if (debugString == "INFO")    verbosity_ = HiEgammaSCEnergyCorrectionAlgo::pINFO;
+  else                               verbosity_ = HiEgammaSCEnergyCorrectionAlgo::pERROR;
 
   // the input producers
   rHInputProducer_ = ps.getParameter<edm::InputTag>("recHitProducer");
@@ -68,7 +68,7 @@ HiEgammaSCCorrectionMaker::HiEgammaSCCorrectionMaker(const edm::ParameterSet& ps
   produces<reco::SuperClusterCollection>(outputCollection_);
 
   // instanciate the correction algo object
-  energyCorrector_ = new EgammaSCEnergyCorrectionAlgo(sigmaElectronicNoise_, sCAlgo_, fCorrPset, verbosity_);
+  energyCorrector_ = new HiEgammaSCEnergyCorrectionAlgo(sigmaElectronicNoise_, sCAlgo_, fCorrPset, verbosity_);
   
   // energy correction class
   if (applyEnergyCorrection_ )
