@@ -503,12 +503,15 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int TCCch = towerInTCC ;
     int SLBslot = int((towerInTCC-1)/8.) + 1 ;
     int SLBch = (towerInTCC-1)%8 + 1 ;
-    float val[] = {dccNb+600,tccNb,towerInTCC,stripInTower,
-		   xtalInStrip,CCUid,VFEid,xtalInVFE,xtalWithinCCUid,id.ieta(),id.iphi(),
-		   -999,-999,towid.ieta()/std::abs(towid.ieta()),id.hashedIndex(),
-		   id.ic(),towid.ieta(),towid.iphi(), TCCch, getCrate(tccNb).second, 
-		   SLBch, SLBslot, 
-		   getGCTRegionEta(towid.ieta()),getGCTRegionPhi(towid.iphi())} ;
+    float val[] = {float(dccNb+600),float(tccNb),float(towerInTCC),float(stripInTower),
+		   float(xtalInStrip),float(CCUid),float(VFEid),float(xtalInVFE),
+		   float(xtalWithinCCUid),float(id.ieta()),float(id.iphi()),
+		   -999.,-999.,float(towid.ieta())/float(std::abs(towid.ieta())),
+		   float(id.hashedIndex()),
+		   float(id.ic()),float(towid.ieta()),float(towid.iphi()), 
+		   float(TCCch), float(getCrate(tccNb).second), 
+		   float(SLBch), float(SLBslot), 
+		   float(getGCTRegionEta(towid.ieta())),float(getGCTRegionPhi(towid.iphi()))} ;
     for (int i=0 ; i<24 ; i++) ntupleFloats_[i] = val[i] ;
     
     sprintf(ntupleDet_,getDet(tccNb).c_str()) ;
@@ -661,7 +664,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	}
 	double G = lin.mult_[i]*std::pow(2.,-(lin.shift_[i]+2)) ;
 	double g = G/sin(theta) ;
-	float val[] = {i,theta,G,g,coeff.pedestals_[i],lin.pedestal_[i]} ;// first arg = gainId (0 means gain12)
+	float val[] = {float(i),float(theta),float(G),float(g),
+		       float(coeff.pedestals_[i]),float(lin.pedestal_[i])} ;// first arg = gainId (0 means gain12)
 	ntupleSpike->Fill(val) ;
       }
       linMap[xtalCCU] = lin ;
@@ -737,12 +741,15 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       SLBch = (towerInTCC-5)%8 + 1 ;
     } 
     for (int j=0 ; j<towerInTCC-1 ; j++) TCCch += NbOfStripPerTCC[tccNb-1][j] ;
-    float val[] = {dccNb+600,tccNb,towerInTCC,stripInTower,
-		   xtalInStrip,CCUid,VFEid,xtalInVFE,xtalWithinCCUid,-999,-999,
-		   id.ix(),id.iy(),towid.ieta()/std::abs(towid.ieta()),id.hashedIndex(),
-		   id.ic(),towid.ieta(),towid.iphi(),TCCch, getCrate(tccNb).second,
-		   SLBch, SLBslot, 
-		   getGCTRegionEta(towid.ieta()),getGCTRegionPhi(towid.iphi())} ;
+    float val[] = {float(dccNb+600),float(tccNb),float(towerInTCC),float(stripInTower),
+		   float(xtalInStrip),float(CCUid),float(VFEid),float(xtalInVFE),
+		   float(xtalWithinCCUid),-999.,-999.,
+		   float(id.ix()),float(id.iy()),float(towid.ieta())/float(std::abs(towid.ieta())),
+		   float(id.hashedIndex()),
+		   float(id.ic()),float(towid.ieta()),float(towid.iphi()),float(TCCch), 
+		   float(getCrate(tccNb).second),
+		   float(SLBch), float(SLBslot), 
+		   float(getGCTRegionEta(towid.ieta())),float(getGCTRegionPhi(towid.iphi()))} ;
     for (int i=0 ; i<24 ; i++) ntupleFloats_[i] = val[i] ;
     sprintf(ntupleDet_,getDet(tccNb).c_str()) ;
     sprintf(ntupleCrate_,getCrate(tccNb).first.c_str()) ;
@@ -1867,7 +1874,7 @@ void EcalTPGParamBuilder::computeFineGrainEEParameters(unsigned int & threshold,
 bool EcalTPGParamBuilder::realignBaseline(linStruc & lin, float forceBase12)
 {
   bool ok(true) ;
-  float base[3] = {forceBase12, lin.pedestal_[1], lin.pedestal_[2]} ;
+  float base[3] = {forceBase12, float(lin.pedestal_[1]), float(lin.pedestal_[2])} ;
   for (int i=1 ; i<3 ; i++)
     base[i] = float(lin.pedestal_[i]) - 
       float(lin.mult_[0])/float(lin.mult_[i])*std::pow(2., -(lin.shift_[0]-lin.shift_[i]))*(lin.pedestal_[0]-base[0]) ;
