@@ -57,7 +57,7 @@ int main(int argc, char **argv)
       return 0;
     }
   assert( iphi>0 );
-  assert( ieta!=0 && abs(ieta)<=85 );
+  assert( ieta!=0 && std::abs(ieta)<=85 );
   if( ieta>0 )      ireg=ME::iEBP;
   else if( ieta<0 ) ireg=ME::iEBM;
   vector< MEChannel* > vec;
