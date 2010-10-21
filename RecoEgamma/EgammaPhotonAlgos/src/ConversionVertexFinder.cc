@@ -100,7 +100,7 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
   const MagneticField* mf = pair[0].field();
 
   ColinearityKinematicConstraintT<colinearityKinematic::PhiTheta> constr;
-  KinematicConstrainedVertexFitter<2,2> kcvFitter(mf);
+  KinematicConstrainedVertexFitterT<2,2> kcvFitter(mf);
   kcvFitter.setParameters(conf_);
   RefCountedKinematicTree myTree =  kcvFitter.fit(particles, &constr, &tangentPoint);
 #endif
