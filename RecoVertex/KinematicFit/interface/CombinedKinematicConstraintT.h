@@ -55,7 +55,7 @@ namespace combinedConstraintHelpers {
   };
 
   template<typename T>
-  void sum2(T& x, T y) const { x+=y;}
+  void sum2(T& x, T y) { x+=y;}
 
   // mind: iteration is backward...
   template<int DIM>
@@ -99,7 +99,7 @@ class CombinedKinematicConstraintT : public MultiTrackKinematicConstraintT<NTRK,
 
   // need compile time assert on NTRK
 
-  typedef MultiTrackKinematicConstraintBase3 base;
+  typedef MultiTrackKinematicConstraintBaseT base;
   typedef MultiTrackKinematicConstraintT<NTRK,combinedConstraintHelpers::totDim<TupleType>::nDim> super;
   typedef TupleType Constraints;
   

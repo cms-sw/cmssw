@@ -38,7 +38,7 @@ public:
 };
 
 template<int NTRK, int DIM>
-class MultiTrackKinematicConstraintT : public MultiTrackKinematicConstraintBase3
+class MultiTrackKinematicConstraintT : public MultiTrackKinematicConstraintBaseT
 {
 public:
   enum {nTrk=NTRK, nDim=DIM};

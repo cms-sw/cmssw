@@ -1,18 +1,18 @@
-#include "RecoVertex/KinematicFit/interface/VertexKinematicConstraint3.h"
+#include "RecoVertex/KinematicFit/interface/VertexKinematicConstraintT.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-VertexKinematicConstraint3::VertexKinematicConstraint3()
+VertexKinematicConstraintT::VertexKinematicConstraintT()
 {}
 
-VertexKinematicConstraint3::~VertexKinematicConstraint3()
+VertexKinematicConstraintT::~VertexKinematicConstraintT()
 {}
 
 
-void VertexKinematicConstraint3::init(const std::vector<KinematicState>& states,
+void VertexKinematicConstraintT::init(const std::vector<KinematicState>& states,
 				      const GlobalPoint& ipoint,  const GlobalVector& fieldValue) {
   int num = states.size();
-  if(num!=2) throw VertexException("VertexKinematicConstraint3 !=2 states passed");
+  if(num!=2) throw VertexException("VertexKinematicConstraintT !=2 states passed");
   point = ipoint;
   mfz = fieldValue.z();
   
@@ -28,7 +28,7 @@ void VertexKinematicConstraint3::init(const std::vector<KinematicState>& states,
 
 
 
-ROOT::Math::SVector<double,4> VertexKinematicConstraint3::value() const
+ROOT::Math::SVector<double,4> VertexKinematicConstraintT::value() const
 {
   //it is 2 equations per track
   ROOT::Math::SVector<double,4> vl;
@@ -60,7 +60,7 @@ ROOT::Math::SVector<double,4> VertexKinematicConstraint3::value() const
   return vl;
 }
 
-ROOT::Math::SMatrix<double, 4,14> VertexKinematicConstraint3::parametersDerivative() const
+ROOT::Math::SMatrix<double, 4,14> VertexKinematicConstraintT::parametersDerivative() const
 {
   ROOT::Math::SMatrix<double,4,14> jac_d;
   ROOT::Math::SMatrix<double,2,7> el_part_d;
@@ -114,7 +114,7 @@ ROOT::Math::SMatrix<double, 4,14> VertexKinematicConstraint3::parametersDerivati
   return jac_d;
 }
 
-ROOT::Math::SMatrix<double, 4,3> VertexKinematicConstraint3::positionDerivative() const
+ROOT::Math::SMatrix<double, 4,3> VertexKinematicConstraintT::positionDerivative() const
 {
   ROOT::Math::SMatrix<double,4,3> jac_e;
   ROOT::Math::SMatrix<double,2,3>  el_part_e;
@@ -151,5 +151,5 @@ ROOT::Math::SMatrix<double, 4,3> VertexKinematicConstraint3::positionDerivative(
   return jac_e;
 }
 
-int VertexKinematicConstraint3::numberOfEquations() const
+int VertexKinematicConstraintT::numberOfEquations() const
 {return 2;}

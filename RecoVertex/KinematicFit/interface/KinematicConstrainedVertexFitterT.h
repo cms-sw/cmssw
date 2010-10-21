@@ -115,7 +115,7 @@ KinematicConstrainedVertexFitterT< nTrk, nConstraint>::KinematicConstrainedVerte
   field(ifield)
 {
   finder = fnd.clone();
-  vCons = new VertexKinematicConstraint2();
+  vCons = new VertexKinematicConstraintT();
   updator = new KinematicConstrainedVertexUpdatorT<nTrk,nConstraint>();
   tBuilder = new ConstrainedTreeBuilderT;
   defaultParameters();
