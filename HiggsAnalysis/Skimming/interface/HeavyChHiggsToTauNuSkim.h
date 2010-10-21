@@ -24,9 +24,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-using namespace edm;
-using namespace std;
-
 class HeavyChHiggsToTauNuSkim : public edm::EDFilter {
 
     public:
@@ -39,8 +36,8 @@ class HeavyChHiggsToTauNuSkim : public edm::EDFilter {
 
 	bool 		debug;
 
-        InputTag        tauLabel;
-	InputTag	jetLabel;
+        edm::InputTag	tauLabel;
+        edm::InputTag	jetLabel;
         int 		minNumberOfjets;
         double 		jetEtMin;
         double 		jetEtaMin;

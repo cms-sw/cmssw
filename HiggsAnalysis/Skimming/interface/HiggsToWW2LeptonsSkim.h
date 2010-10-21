@@ -7,8 +7,8 @@
  *  This class is an EDFilter choosing reconstructed di-tracks
  *  Allows extended requirements for tighter skim options (bool beTight=true)
  *
- *  $Date: 2009/08/17 20:32:31 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/10/02 10:49:05 $
+ *  $Revision: 1.7 $
  *
  *  \author Ezio Torassa  -  INFN Padova
  *  \revised J. Fernandez  -  Univ. Oviedo
@@ -28,17 +28,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
 
-
-using namespace edm;
-using namespace std;
-
 class HiggsToWW2LeptonsSkim : public edm::EDFilter {
     public:
        explicit HiggsToWW2LeptonsSkim(const edm::ParameterSet&);
        ~HiggsToWW2LeptonsSkim();
        virtual void endJob() ;
 
-       virtual bool filter(Event&, const EventSetup&);
+       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
       double singleLeptonPtMin_;

@@ -25,9 +25,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-using namespace edm;
-using namespace std;
-
 class HiggsToZZ4LeptonsSkim : public edm::EDFilter {
   
  public:
