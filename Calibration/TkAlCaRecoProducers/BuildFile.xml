@@ -13,6 +13,7 @@
 <use   name="DataFormats/METReco"/>
 <use   name="DataFormats/RecoCandidate"/>
 <use   name="DataFormats/Math"/>
+<use   name="DataFormats/BeamSpot"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/Utilities"/>
