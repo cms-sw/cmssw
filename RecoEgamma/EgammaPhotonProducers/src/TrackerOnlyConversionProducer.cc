@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.35 2010/10/07 23:48:38 bendavid Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.36 2010/10/08 17:53:05 bendavid Exp $
 //
 //
 
@@ -56,19 +56,6 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/TangentApproachInRPhi.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionHitChecker.h"
-
-
-//Kinematic constraint vertex fitter
-#include "RecoVertex/KinematicFitPrimitives/interface/ParticleMass.h"
-#include "RecoVertex/KinematicFitPrimitives/interface/MultiTrackKinematicConstraint.h"
-#include <RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h>
-#include "RecoVertex/KinematicFit/interface/KinematicConstrainedVertexFitter.h"
-#include "RecoVertex/KinematicFit/interface/TwoTrackMassKinematicConstraint.h"
-#include "RecoVertex/KinematicFit/interface/KinematicParticleVertexFitter.h"
-#include "RecoVertex/KinematicFit/interface/KinematicParticleFitter.h"
-#include "RecoVertex/KinematicFit/interface/MassKinematicConstraint.h"
-#include "RecoVertex/KinematicFit/interface/ColinearityKinematicConstraint.h"
-
 
 
 TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::ParameterSet& iConfig):
@@ -397,8 +384,8 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
           }
 
 
-          const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr> the_left  = std::make_pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr>(left, trackMatchedBC[ll-allTracks.begin()]);
-          const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr> the_right = std::make_pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr>(right, trackMatchedBC[rr-allTracks.begin()]);
+          const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr> the_left(left, trackMatchedBC[ll-allTracks.begin()]);
+          const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr> the_right(right, trackMatchedBC[rr-allTracks.begin()]);
 
           
          
