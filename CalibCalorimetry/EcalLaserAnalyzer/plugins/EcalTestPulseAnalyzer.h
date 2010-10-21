@@ -1,25 +1,10 @@
-// $Id: EcalTestPulseAnalyzer.h
+// $Id: EcalTestPulseAnalyzer.h,v 1.2 2010/01/18 17:28:45 ferriff Exp $
 
 #include <memory>
-
-#include <vector>
-#include <map>
-
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-
-using namespace std;
 
 class TFile;
 class TTree;
-class TProfile;
-class TPNCor;
-class TPN;
-class TAPD;
-class TMom;
-class TShapeAnalysis;
-class TAPDPulse;
-class TPNPulse;
-class TMem;
 
 // Define geometrical constants 
 // NOT the same for "EB" and "EE"
@@ -33,22 +18,21 @@ class TMem;
 //   7     8 
 //
 // 
-
+// "EB" geometry
 // "EB" geometry
 #define NCRYSEB    1700  // Number of crystals per EB supermodule
+#define NTTEB      68    // Number of EB Trigger Towers   
 #define NMODEB     9     // Number of EB submodules
 #define NPNPERMOD  2     // Number of PN per module
 
 // "EE" geometry 
 #define NCRYSEE    830   // Number of crystals per EE supermodule
-#define NMODEE     22     // Number of EE submodules
+#define NTTEE      68    // Number of EE Trigger Towers   
+#define NMODEE     21     // Number of EE submodules
 
-#define NSIDES     2     // Number of sides
-#define NREFCHAN   2     // Ref number for APDB
+#define NGAINPN    2     // Number of gains   
+#define NGAINAPD   4     // Number of gains 
 
-#define NGAINPN    2     // Number of gains for TP   
-#define NGAINAPD   4     // Number of gains for TP
-#define NSAMPSHAPES 250
 
 class EcalTestPulseAnalyzer: public edm::EDAnalyzer{  
 
@@ -62,189 +46,122 @@ class EcalTestPulseAnalyzer: public edm::EDAnalyzer{
   virtual void beginJob();
   virtual void endJob();
   
-  void endJobTestPulse();
-
-  enum VarCol   { iBlue, iRed, nColor }; 
   
  private:
   
   int iEvent;
-
-
-  // Framework parameters
   
-  string        _type; // LASER, LED, TESTPULSE
-  string        _typefit; // AB, SHAPE
-
-  unsigned int  _nsamples; // 10
-  unsigned int  _presample; // default samples number for pedestal calc
-  unsigned int  _firstsample; // samples number before max for ampl calc
-  unsigned int  _lastsample; // samples number after max for ampl calc
-  unsigned int  _nsamplesPN; 
+  // Framework parameters
+    
+  unsigned int  _nsamples;
+  unsigned int  _presample;
+  unsigned int  _firstsample;
+  unsigned int  _lastsample;
+  unsigned int  _samplemin;
+  unsigned int  _samplemax;
+  unsigned int  _nsamplesPN;
   unsigned int  _presamplePN;
   unsigned int  _firstsamplePN;
   unsigned int  _lastsamplePN;
-  unsigned int  _timingcutlow;
-  unsigned int  _timingcuthigh;
-  unsigned int  _timingquallow;
-  unsigned int  _timingqualhigh;
-  double        _ratiomincutlow;
-  double        _ratiomincuthigh;
-  double        _ratiomaxcutlow;
-  double        _pulsemaxcutlow;
-  double        _pulsemaxcuthigh;
-  double        _qualpercent;
-  double        _presamplecut;
   unsigned int  _niter ;
-  string        _ecalPart;
-  int           _fedid;
-  int           _debug;
-
-
-  unsigned int  _samplemin;
-  unsigned int  _samplemax;
   double        _chi2max ;
   double        _timeofmax ;
-
-  TAPDPulse *APDPulse;
-  TPNPulse *PNPulse;
-  TMem *Mem;
-  TMom *Delta01;
-  TMom *Delta12;
+  std::string   _ecalPart;
+  int           _fedid;
   
-  string  resdir_;
-  string  pncorfile_;
-  string  elecfile_;
-  string  digiCollection_;
-  string  digiPNCollection_;
-  string  digiProducer_;
-  string  eventHeaderCollection_;
-  string  eventHeaderProducer_;
+  std::string  resdir_;
+  std::string  digiCollection_;
+  std::string  digiPNCollection_;
+  std::string  digiProducer_;
+  std::string  eventHeaderCollection_;
+  std::string  eventHeaderProducer_;
+   
 
   // Output file names
 
+  std::string  rootfile;
+  std::string  resfile;
 
-  // COMMON:
-  string  ADCfile;
-  string  APDfile;
-  string  resfile;
-
-  
   //  Define geometrical constants
+  //  Default values correspond to "EB" geometry (1700 crystals)
 
   unsigned int nCrys;
-  unsigned int nPNPerMod;
-  unsigned int nRefChan;
-  unsigned int nRefTrees;
+  unsigned int nTT;
   unsigned int nMod;
-  unsigned int nSides;
+  unsigned int nGainPN;
+  unsigned int nGainAPD;
 
-  // Identify run type
+  
+  // Count TP Events
+  int TPEvents;
 
-  int runType;
-  int runNum;
-
-  // Identify channel
+  double ret_data[20];
 
   int towerID;
   int channelID;
+
+  // Identify run 
+
+  int runType;
+  int runNum;
   int fedID;
   int dccID;
   int side;
   int iZ;
 
-  // Count Events of defined type
-  int typeEvents;
+    
+  // Root Files
+ 
+  TFile *outFile; // from 'analyze': Data
+  TFile *resFile; // from 'endJob': Results
 
 
-  // Temporary root files and trees
+  // Temporary data trees 
 
-  TFile *ADCFile; 
-  TTree *ADCTrees[NCRYSEB];
+  TTree *trees[NCRYSEB];
 
-  TFile *APDFile; 
-  TTree *APDTrees[NCRYSEB];
-  TTree *refAPDTrees[NREFCHAN][NMODEE];
-
-  TFile *resFile; 
-  TTree *resTree;
-  TTree *resPNTree;
-
-  std::map<unsigned int, unsigned int> channelMapEE;
-   std::vector<int> modules;
-  std::map <int, unsigned int> apdRefMap[2];
-
-  
-  // Declaration of leaves types for temporary trees
+  // Declaration of leaves types
   
   int             phi, eta;
   int             event ;
-  int             color ;
-  double          adc[10];
-  int             adcGain;
-  int             adcG[10];
-  double          pn0,pn1;
-  double          pn[50];
-  int             pnG[50];
-  double          apdAmpl;
-  double          apdAmplA;
-  double          apdAmplB;
-  double          apdTime;
-  double          pnAmpl;
+  double          adc[10] ;
+  double          pn[50] ;
+
+  int             apdGain;
   int             pnGain;
+  int             pnG;
+  double          apdAmpl;
+  double          apdTime;
+  double          pnAmpl0;
+  double          pnAmpl1;
+  double          pnAmpl;
 
-  int             eventref;
-  int             colorref;
 
-  double *adcNoPed;
-  double *pnNoPed;
+  // Results trees 
 
-  //declare stuff for TP:
-  TPN  *TPPNAnal[NMODEE][NPNPERMOD][NGAINPN];
-  TAPD  *TPAPDAnal[NCRYSEB][NGAINAPD];
+  TTree *restrees;
+  TTree *respntrees;
 
-  int isThereDataADC[NCRYSEB][nColor];
 
-  // Declaration of leaves types for results tree
+  std::map<int, int> channelMapEE;
+  std::vector<int> dccMEM;
+  std::vector<int> modules;
 
-  int         pnID, moduleID, flag;
-  int         channelIteratorEE;
 
-  bool isMatacqOK;
+  // Declaration of leaves types 
 
-  double      APD[6], Time[6], PN[6], APDoPN[6], APDoPNA[6], APDoPNB[6],
-    APDoAPD[6], APDoAPDA[6], APDoAPDB[6], PNoPN[6], PNoPNA[6], PNoPNB[6]; 
-
-  // [0]=mean, [1]=rms, [2]=L3, [3]=nevt, [4]=min, [5]=max 
-  // flag is 1 if fit if there is data, 0 if there is no data
+  int ieta, iphi, flag, gain;
+  int pnID, moduleID;
+  int channelIteratorEE;
+  double APD[6], PN[6];
 
   int iEta[NCRYSEB],iPhi[NCRYSEB];
   unsigned int iModule[NCRYSEB];
-  int iTowerID[NCRYSEB],iChannelID[NCRYSEB], idccID[NCRYSEB], iside[NCRYSEB];
-  unsigned int firstChanMod[NMODEE];
-  unsigned int isFirstChanModFilled[NMODEE];
+  int iTowerID[NCRYSEB], iChannelID[NCRYSEB], idccID[NCRYSEB], iside[NCRYSEB];
 
-  // Quality Checks variables and flags
-  
-  int nEvtBadGain[NCRYSEB];
-  int nEvtBadTiming[NCRYSEB];
-  int nEvtBadSignal[NCRYSEB];
-  double meanRawAmpl[NCRYSEB];
-  int nEvtRawAmpl[NCRYSEB];
-  int nEvtTot[NCRYSEB];
-  double meanMeanRawAmpl;
+  unsigned int firstChanMod[NMODEB];
+  unsigned int isFirstChanModFilled[NMODEB];
 
-  unsigned int nGainPN; 
-  unsigned int nGainAPD;
-
-  bool          wasGainOK[NCRYSEB];
-  bool          wasTimingOK[NCRYSEB];
-  bool          wasSignalOK[NCRYSEB];
-  bool          wasABCalcOK[NCRYSEB];
-
-  bool          isGainOK;
-  bool          isTimingOK;
-  bool          isSignalOK;
 
 };
 
