@@ -81,9 +81,12 @@ private:
   KinematicConstrainedVertexUpdatorT<nTrk,nConstraint> * updator;
   VertexKinematicConstraintT * vCons;
   ConstrainedTreeBuilderT * tBuilder;
-  float theMaxDiff;
+
+  float theMaxDelta; //maximum (delta parameter)^2/(sigma parameter)^2 per iteration for convergence
   int theMaxStep; 				       
-  float theMaxInitial;//max of initial value
+  float theMaxReducedChiSq; //max of initial (after 2 iterations) chisq/dof value
+  float theMinChiSqImprovement; //minimum required improvement in chisq to avoid fit termination for cases exceeding theMaxReducedChiSq
+
 
   int iterations;
   float csum;
@@ -135,17 +138,20 @@ KinematicConstrainedVertexFitterT< nTrk, nConstraint>::~KinematicConstrainedVert
 template < int nTrk, int nConstraint> 
 void KinematicConstrainedVertexFitterT< nTrk, nConstraint>::setParameters(const edm::ParameterSet& pSet)
 {
-  theMaxDiff = pSet.getParameter<double>("maxDistance");
+  theMaxDelta = pSet.getParameter<double>("maxDelta");
   theMaxStep = pSet.getParameter<int>("maxNbrOfIterations");
-  theMaxInitial = pSet.getParameter<double>("maxOfInitialValue");
+  theMaxReducedChiSq = pSet.getParameter<double>("maxReducedChiSq");
+  theMinChiSqImprovement = pSet.getParameter<double>("minChiSqImprovement");
 }
 
 template < int nTrk, int nConstraint> 
 void KinematicConstrainedVertexFitterT< nTrk, nConstraint>::defaultParameters()
 {
-  theMaxDiff = 0.0001;
+  theMaxDelta = 0.01;
   theMaxStep = 1000;
-  theMaxInitial = 9999.; //dummy value
+  theMaxReducedChiSq = 225.;
+  theMinChiSqImprovement = 50.;
+ 
 }
 
 template < int nTrk, int nConstraint> 
@@ -164,8 +170,7 @@ KinematicConstrainedVertexFitterT< nTrk, nConstraint>::fit(std::vector<RefCounte
   const std::vector<FreeTrajectoryState> & fStates = input.second;
   
   // linearization point:
-  GlobalPoint linPoint  = finder->getLinearizationPoint(fStates);
-  if (pt!=0) linPoint  = *pt;
+  GlobalPoint linPoint  = (pt!=0) ? *pt :  finder->getLinearizationPoint(fStates);
   
   //initial parameters:
   ROOT::Math::SVector<double,3+7*nTrk> inPar; //3+ 7*ntracks
@@ -186,9 +191,7 @@ KinematicConstrainedVertexFitterT< nTrk, nConstraint>::fit(std::vector<RefCounte
 	return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
       }
       inPar.Place_at(state.kinematicParameters().vector(),3+7*nSt);
-      
       inCov.Place_at(state.kinematicParametersError().matrix(),3 + 7*nSt,3 + 7*nSt);
- 
       ++nSt;
     }
   
@@ -210,57 +213,71 @@ KinematicConstrainedVertexFitterT< nTrk, nConstraint>::fit(std::vector<RefCounte
   csum = 0.0;
   
   GlobalPoint lPoint  = linPoint;
-  GlobalVector mf = field->inInverseGeV(lPoint);
   RefCountedKinematicVertex rVtx;
   ROOT::Math::SMatrix<double, 3+7*nTrk,3+7*nTrk ,ROOT::Math::MatRepSym<double,3+7*nTrk> > refCCov;
+  
+  double chisq = 1e6;
+  bool convergence = false;
   
   //iterarions over the updator: each time updated parameters
   //are taken as new linearization point
   do{
     eq = 0.;
     refCCov = inCov;
+    std::vector<KinematicState> oldStates = lStates;
+    GlobalVector mf = field->inInverseGeV(lPoint);
     rVtx = updator->update(inPar,refCCov,lStates,lPoint,mf,cs);
     if (particles.size() != lStates.size()) {
       LogDebug("KinematicConstrainedVertexFitter")
 	<< "updator failure\n";
       return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
     }
-    lPoint = rVtx->position();
-    GlobalVector mf = field->inInverseGeV(lPoint);
-    //std::cout << "n3" << lPoint<< std::endl;
-    //std::cout << lStates<<std::endl;
-    vCons->init(lStates, lPoint,mf);
-    ROOT::Math::SVector<double,4> vValue = vCons->value(); //guess
-    //std::cout << "n3vv " << vValue << " ";
-    for(int i = 0; i<4;++i)
-      eq += std::abs(vValue(i));
     
-    if(nConstraint!=0) {
-      cs->init(lStates, lPoint,mf);
-      ROOT::Math::SVector<double,nConstraint> cVal = cs->value(); //guess
-      // std::cout << cVal << " ";
-      for(int i = 0; i<nConstraint;++i)
-	eq += std::abs(cVal(i));
-    }
-    // std::cout << eq << std::endl;
-    if (nit == 0) {
-      if (eq>theMaxInitial) return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
-    }
-    if( isnan(eq) ){
+    double newchisq = rVtx->chiSquared();
+    if ( nit>2 && newchisq > theMaxReducedChiSq*rVtx->degreesOfFreedom() && (newchisq-chisq) > (-theMinChiSqImprovement) ) {
       LogDebug("KinematicConstrainedVertexFitter")
-	<< "catched NaN.\n";
+	<< "bad chisq and insufficient improvement, bailing\n";
       return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
     }
+    chisq = newchisq;
+    
+    
+    
+    const GlobalPoint &newPoint = rVtx->position();
+    
+    double maxDelta = 0.0;
+    
+    double deltapos[3];
+    deltapos[0] = newPoint.x() - lPoint.x();
+    deltapos[1] = newPoint.y() - lPoint.y();
+    deltapos[2] = newPoint.z() - lPoint.z();
+    for (int i=0; i<3; ++i) {
+      double delta = deltapos[i]*deltapos[i]/rVtx->error().matrix_new()(i,i);
+      if (delta>maxDelta) maxDelta = delta;
+    }
+    
+    for (std::vector<KinematicState>::const_iterator itold = oldStates.begin(), itnew = lStates.begin();
+	 itnew!=lStates.end(); ++itold,++itnew) {
+      for (int i=0; i<7; ++i) {
+	double deltapar = itnew->kinematicParameters()(i) - itold->kinematicParameters()(i);
+	double delta = deltapar*deltapar/itnew->kinematicParametersError().matrix()(i,i);
+	if (delta>maxDelta) maxDelta = delta;
+      }
+    }
+    
+    lPoint = newPoint;
     
     nit++;
-  }while(nit<theMaxStep && eq>theMaxDiff);
-  
-  if (eq>theMaxDiff) {
+    convergence = maxDelta<theMaxDelta || (nit==theMaxStep && maxDelta<4.0*theMaxDelta);
+    
+  }while(nit<theMaxStep && !convergence);
+
+  if (!convergence) {
     return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
   } 
   
-  // cout<<"number of relinearizations "<<nit<<endl;
-  // cout<<"value obtained: "<<eq<<endl;
+  
+  
   iterations = nit;
   csum = eq;
   
