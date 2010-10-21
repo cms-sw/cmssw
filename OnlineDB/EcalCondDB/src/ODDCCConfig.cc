@@ -47,7 +47,7 @@ int ODDCCConfig::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODDCCConfig::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error("ODDCCConfig::fetchNextId():  "+e.getMessage()));
   }
 
 }
@@ -56,7 +56,7 @@ int ODDCCConfig::fetchNextId()  throw(std::runtime_error) {
 
 
 void ODDCCConfig::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -96,7 +96,7 @@ void ODDCCConfig::prepareWrite()
     
     
   } catch (SQLException &e) {
-    throw(runtime_error("ODDCCConfig::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODDCCConfig::prepareWrite():  "+e.getMessage()));
   }
 
   std::cout<<"updating the clob 1 "<<std::endl;
@@ -148,7 +148,7 @@ void ODDCCConfig::setParameters(std::map<string,string> my_keys_map){
 
 
 void ODDCCConfig::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 
 
@@ -177,11 +177,11 @@ void ODDCCConfig::writeDB()
     m_writeStmt->closeResultSet (rset);
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODDCCConfig::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODDCCConfig::writeDB():  "+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("ODDCCConfig::writeDB:  Failed to write"));
+    throw(std::runtime_error("ODDCCConfig::writeDB:  Failed to write"));
   }
   
   
@@ -201,14 +201,12 @@ void ODDCCConfig::clear(){
 
 
 void ODDCCConfig::fetchData(ODDCCConfig * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
-  //  result->clear();
-  int idid=0;
+  result->clear();
   if(result->getId()==0 && (result->getConfigTag()=="") ){
-    //    throw(runtime_error("ODDCCConfig::fetchData(): no Id defined for this ODDCCConfig "));
-    idid=result->fetchID();
+    throw(std::runtime_error("ODDCCConfig::fetchData(): no Id defined for this ODDCCConfig "));
   }
 
   try {
@@ -231,13 +229,8 @@ void ODDCCConfig::fetchData(ODDCCConfig * result)
     result->setNTestPatternsToLoad(rset->getInt(5));
     result->setSMHalf(rset->getInt(6));
 
+
     Clob clob = rset->getClob (7);
-    m_size = clob.length();
-    Stream *instream = clob.getStream (1,0);
-    unsigned char *buffer = new unsigned char[m_size];
-    memset (buffer, 0, m_size);
-    instream->readBuffer ((char*)buffer, m_size);
-    /*
     cout << "Opening the clob in Read only mode" << endl;
     clob.open (OCCI_LOB_READONLY);
     int clobLength=clob.length ();
@@ -251,11 +244,10 @@ void ODDCCConfig::fetchData(ODDCCConfig * result)
     cout << endl;
 
 
-    */
     result->setDCCClob(buffer );
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODDCCConfig::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODDCCConfig::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -287,7 +279,7 @@ int ODDCCConfig::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODDCCConfig::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODDCCConfig::fetchID:  "+e.getMessage()));
   }
   
   

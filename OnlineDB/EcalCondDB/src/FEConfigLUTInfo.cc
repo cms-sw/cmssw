@@ -52,13 +52,13 @@ int FEConfigLUTInfo::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigLUTInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigLUTInfo::fetchNextId():  "+e.getMessage()));
   }
 
 }
 
 void FEConfigLUTInfo::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -76,7 +76,7 @@ void FEConfigLUTInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigLUTInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigLUTInfo::prepareWrite():  "+e.getMessage()));
   }
 
 }
@@ -98,7 +98,7 @@ void FEConfigLUTInfo::setParameters(std::map<string,string> my_keys_map){
 }
 
 void FEConfigLUTInfo::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -114,11 +114,11 @@ void FEConfigLUTInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigLUTInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigLUTInfo::writeDB():  "+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("FEConfigLUTInfo::writeDB:  Failed to write"));
+    throw(std::runtime_error("FEConfigLUTInfo::writeDB:  Failed to write"));
   }
 
 
@@ -126,12 +126,12 @@ void FEConfigLUTInfo::writeDB()
 
 
 void FEConfigLUTInfo::fetchData(FEConfigLUTInfo * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
   if(result->getId()==0 && (result->getConfigTag()=="") ){
-    throw(runtime_error("FEConfigLUTInfo::fetchData(): no Id defined for this FEConfigLUTInfo "));
+    throw(std::runtime_error("FEConfigLUTInfo::fetchData(): no Id defined for this FEConfigLUTInfo "));
   }
 
   try {
@@ -156,12 +156,12 @@ void FEConfigLUTInfo::fetchData(FEConfigLUTInfo * result)
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigLUTInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigLUTInfo::fetchData():  "+e.getMessage()));
   }
 }
 
 void FEConfigLUTInfo::fetchLastData(FEConfigLUTInfo * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -182,7 +182,7 @@ void FEConfigLUTInfo::fetchLastData(FEConfigLUTInfo * result)
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigLUTInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigLUTInfo::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -212,7 +212,7 @@ int FEConfigLUTInfo::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigLUTInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigLUTInfo::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -242,12 +242,12 @@ void FEConfigLUTInfo::setByID(int id)
        Date dbdate = rset->getDate(5);
        this->setDBTime( dh.dateToTm( dbdate ));
      } else {
-       throw(runtime_error("FEConfigLUTInfo::setByID:  Given config_id is not in the database"));
+       throw(std::runtime_error("FEConfigLUTInfo::setByID:  Given config_id is not in the database"));
      }
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(runtime_error("FEConfigLUTInfo::setByID:  "+e.getMessage()));
+     throw(std::runtime_error("FEConfigLUTInfo::setByID:  "+e.getMessage()));
    }
 }
 

@@ -51,7 +51,7 @@ int ODScanConfig::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODScanConfig::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error("ODScanConfig::fetchNextId():  "+e.getMessage()));
   }
 
 }
@@ -77,7 +77,7 @@ void ODScanConfig::setParameters(std::map<string,string> my_keys_map){
 }
 
 void ODScanConfig::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   int next_id=fetchNextId();
@@ -91,12 +91,12 @@ void ODScanConfig::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODScanConfig::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODScanConfig::prepareWrite():  "+e.getMessage()));
   }
 }
 
 void ODScanConfig::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -116,11 +116,11 @@ void ODScanConfig::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODScanConfig::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODScanConfig::writeDB():  "+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("ODScanConfig::writeDB:  Failed to write"));
+    throw(std::runtime_error("ODScanConfig::writeDB:  Failed to write"));
   }
 
 }
@@ -129,12 +129,12 @@ void ODScanConfig::writeDB()
 
 
 void ODScanConfig::fetchData(ODScanConfig * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
   if(result->getId()==0 && (result->getConfigTag()=="") ){
-    throw(runtime_error("ODScanConfig::fetchData(): no Id defined for this ODScanConfig "));
+    throw(std::runtime_error("ODScanConfig::fetchData(): no Id defined for this ODScanConfig "));
   }
 
   try {
@@ -159,7 +159,7 @@ void ODScanConfig::fetchData(ODScanConfig * result)
     result->setStep(              rset->getInt(7) );
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODScanConfig::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODScanConfig::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -188,7 +188,7 @@ int ODScanConfig::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODScanConfig::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODScanConfig::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;

@@ -69,7 +69,7 @@ int RunModeDef::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("RunModeDef::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("RunModeDef::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -78,7 +78,7 @@ int RunModeDef::fetchID()
 
 
 void RunModeDef::setByID(int id) 
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -92,12 +92,12 @@ void RunModeDef::setByID(int id)
     if (rset->next()) {
       m_runMode = rset->getString(1);
     } else {
-      throw(runtime_error("RunModeDef::setByID:  Given def_id is not in the database"));
+      throw(std::runtime_error("RunModeDef::setByID:  Given def_id is not in the database"));
     }
     
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(runtime_error("RunModeDef::setByID:  "+e.getMessage()));
+   throw(std::runtime_error("RunModeDef::setByID:  "+e.getMessage()));
   }
 }
 
@@ -120,6 +120,6 @@ void RunModeDef::fetchAllDefs( std::vector<RunModeDef>* fillVec)
       fillVec->push_back( runModeDef );
     }
   } catch (SQLException &e) {
-    throw(runtime_error("RunModeDef::fetchAllDefs:  "+e.getMessage()));
+    throw(std::runtime_error("RunModeDef::fetchAllDefs:  "+e.getMessage()));
   }
 }

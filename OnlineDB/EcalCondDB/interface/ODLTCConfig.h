@@ -33,7 +33,7 @@ class ODLTCConfig : public IODConfig {
   inline void setLTCClob(unsigned char* x) { m_ltc_clob = x; }
   inline unsigned char* getLTCClob() const { return m_ltc_clob; }
 
-  void setParameters(std::map<string,string> my_keys_map);
+  void setParameters(std::map<std::string,std::string> my_keys_map);
   
  private:
   void prepareWrite()  throw(std::runtime_error);

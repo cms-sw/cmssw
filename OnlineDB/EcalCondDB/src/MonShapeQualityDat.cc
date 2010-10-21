@@ -28,7 +28,7 @@ MonShapeQualityDat::~MonShapeQualityDat()
 
 
 void MonShapeQualityDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -39,23 +39,23 @@ void MonShapeQualityDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":avg_chi2)");
   } catch (SQLException &e) {
-    throw(runtime_error("MonShapeQualityDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("MonShapeQualityDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void MonShapeQualityDat::writeDB(const EcalLogicID* ecid, const MonShapeQualityDat* item, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("MonShapeQualityDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("MonShapeQualityDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("MonShapeQualityDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("MonShapeQualityDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -65,14 +65,14 @@ void MonShapeQualityDat::writeDB(const EcalLogicID* ecid, const MonShapeQualityD
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("MonShapeQualityDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("MonShapeQualityDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void MonShapeQualityDat::fetchData(std::map< EcalLogicID, MonShapeQualityDat >* fillMap, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -80,7 +80,7 @@ void MonShapeQualityDat::fetchData(std::map< EcalLogicID, MonShapeQualityDat >* 
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("MonShapeQualityDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("MonShapeQualityDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -110,18 +110,18 @@ void MonShapeQualityDat::fetchData(std::map< EcalLogicID, MonShapeQualityDat >* 
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("MonShapeQualityDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("MonShapeQualityDat::fetchData():  "+e.getMessage()));
   }
 }
 
 void MonShapeQualityDat::writeArrayDB(const std::map< EcalLogicID, MonShapeQualityDat >* data, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("MonShapeQualityDat::writeArrayDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("MonShapeQualityDat::writeArrayDB:  IOV not in DB")); }
 
 
   int nrows=data->size(); 
@@ -142,7 +142,7 @@ void MonShapeQualityDat::writeArrayDB(const std::map< EcalLogicID, MonShapeQuali
   for (CI p = data->begin(); p != data->end(); ++p) {
         channel = &(p->first);
 	int logicID = channel->getLogicID();
-	if (!logicID) { throw(runtime_error("MonShapeQualityDat::writeArrayDB:  Bad EcalLogicID")); }
+	if (!logicID) { throw(std::runtime_error("MonShapeQualityDat::writeArrayDB:  Bad EcalLogicID")); }
 	ids[count]=logicID;
 	iovid_vec[count]=iovID;
 
@@ -178,6 +178,6 @@ void MonShapeQualityDat::writeArrayDB(const std::map< EcalLogicID, MonShapeQuali
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("MonPedestalsDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("MonPedestalsDat::writeArrayDB():  "+e.getMessage()));
   }
 }

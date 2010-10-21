@@ -30,7 +30,7 @@ MonDelaysTTDat::~MonDelaysTTDat()
 
 
 void MonDelaysTTDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -41,23 +41,23 @@ void MonDelaysTTDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":delay_mean, :delay_rms, :task_status)");
   } catch (SQLException &e) {
-    throw(runtime_error("MonDelaysTTDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("MonDelaysTTDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void MonDelaysTTDat::writeDB(const EcalLogicID* ecid, const MonDelaysTTDat* item, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("MonDelaysTTDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("MonDelaysTTDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("MonDelaysTTDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("MonDelaysTTDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -69,14 +69,14 @@ void MonDelaysTTDat::writeDB(const EcalLogicID* ecid, const MonDelaysTTDat* item
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("MonDelaysTTDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("MonDelaysTTDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void MonDelaysTTDat::fetchData(std::map< EcalLogicID, MonDelaysTTDat >* fillMap, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -84,7 +84,7 @@ void MonDelaysTTDat::fetchData(std::map< EcalLogicID, MonDelaysTTDat >* fillMap,
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("MonDelaysTTDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("MonDelaysTTDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -117,18 +117,18 @@ void MonDelaysTTDat::fetchData(std::map< EcalLogicID, MonDelaysTTDat >* fillMap,
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("MonDelaysTTDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("MonDelaysTTDat::fetchData():  "+e.getMessage()));
   }
 }
 
 void MonDelaysTTDat::writeArrayDB(const std::map< EcalLogicID, MonDelaysTTDat >* data, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("MonDelaysTTDat::writeArrayDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("MonDelaysTTDat::writeArrayDB:  IOV not in DB")); }
 
 
   int nrows=data->size(); 
@@ -151,7 +151,7 @@ void MonDelaysTTDat::writeArrayDB(const std::map< EcalLogicID, MonDelaysTTDat >*
   for (CI p = data->begin(); p != data->end(); ++p) {
         channel = &(p->first);
 	int logicID = channel->getLogicID();
-	if (!logicID) { throw(runtime_error("MonDelaysTTDat::writeArrayDB:  Bad EcalLogicID")); }
+	if (!logicID) { throw(std::runtime_error("MonDelaysTTDat::writeArrayDB:  Bad EcalLogicID")); }
 	ids[count]=logicID;
 	iovid_vec[count]=iovID;
 
@@ -204,6 +204,6 @@ void MonDelaysTTDat::writeArrayDB(const std::map< EcalLogicID, MonDelaysTTDat >*
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("MonDelaysTTDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("MonDelaysTTDat::writeArrayDB():  "+e.getMessage()));
   }
 }

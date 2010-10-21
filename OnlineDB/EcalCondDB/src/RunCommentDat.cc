@@ -32,7 +32,7 @@ RunCommentDat::~RunCommentDat()
 
 
 void RunCommentDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -43,20 +43,20 @@ void RunCommentDat::prepareWrite()
 			"VALUES (:iov_id,  "
 			":source, :user_comment)");
   } catch (SQLException &e) {
-    throw(runtime_error("RunCommentDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("RunCommentDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void RunCommentDat::writeDB(const EcalLogicID* ecid, const RunCommentDat* item, RunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("RunCommentDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("RunCommentDat::writeDB:  IOV not in DB")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -65,14 +65,14 @@ void RunCommentDat::writeDB(const EcalLogicID* ecid, const RunCommentDat* item, 
     
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("RunCommentDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("RunCommentDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void RunCommentDat::fetchData(map< EcalLogicID, RunCommentDat >* fillMap, RunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -82,7 +82,7 @@ void RunCommentDat::fetchData(map< EcalLogicID, RunCommentDat >* fillMap, RunIOV
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("RunCommentDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("RunCommentDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -114,6 +114,6 @@ void RunCommentDat::fetchData(map< EcalLogicID, RunCommentDat >* fillMap, RunIOV
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("RunCommentDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("RunCommentDat::fetchData():  "+e.getMessage()));
   }
 }

@@ -30,7 +30,7 @@ ODDelaysDat::~ODDelaysDat()
 
 
 void ODDelaysDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -39,14 +39,14 @@ void ODDelaysDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, sm_id, fed_id, tt_id, time_offset ) "
 			"VALUES (:1, :2, :3, :4, :5 )");
   } catch (SQLException &e) {
-    throw(runtime_error("ODDelaysDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODDelaysDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void ODDelaysDat::writeDB(const ODDelaysDat* item, ODFEDelaysInfo* iov )
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -59,7 +59,7 @@ void ODDelaysDat::writeDB(const ODDelaysDat* item, ODFEDelaysInfo* iov )
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("ODDelaysDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODDelaysDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -73,7 +73,7 @@ void ODDelaysDat::fetchData(std::vector< ODDelaysDat >* p, ODFEDelaysInfo* iov)
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("ODDelaysDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("ODDelaysDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -95,7 +95,7 @@ void ODDelaysDat::fetchData(std::vector< ODDelaysDat >* p, ODFEDelaysInfo* iov)
 
     }
   } catch (SQLException &e) {
-    throw(runtime_error("ODDelaysDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODDelaysDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -107,7 +107,7 @@ void ODDelaysDat::writeArrayDB(const std::vector< ODDelaysDat > data, ODFEDelays
   this->checkConnection();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("ODDelays::writeArrayDB:  ODFEDelaysInfo not in DB")); }
+  if (!iovID) { throw(std::runtime_error("ODDelays::writeArrayDB:  ODFEDelaysInfo not in DB")); }
 
 
   int nrows=data.size(); 
@@ -170,6 +170,6 @@ void ODDelaysDat::writeArrayDB(const std::vector< ODDelaysDat > data, ODFEDelays
     delete [] st_len;
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODDelaysDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODDelaysDat::writeArrayDB():  "+e.getMessage()));
   }
 }

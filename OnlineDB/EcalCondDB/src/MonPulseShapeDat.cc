@@ -31,7 +31,7 @@ MonPulseShapeDat::~MonPulseShapeDat()
 
 
 void MonPulseShapeDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -48,30 +48,30 @@ void MonPulseShapeDat::prepareWrite()
 			);
 			
   } catch (SQLException &e) {
-    throw(runtime_error("MonPulseShapeDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("MonPulseShapeDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void MonPulseShapeDat::writeDB(const EcalLogicID* ecid, const MonPulseShapeDat* item, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("MonPulseShapeDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("MonPulseShapeDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("MonPulseShapeDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("MonPulseShapeDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
     m_writeStmt->setInt(2, logicID);
 
     int gain[] = {1, 6, 12};
-    vector<float> samples;
+    std::vector<float> samples;
     for (int i=0; i<3; i++) {
       samples = item->getSamples(gain[i]);
       for (int j=0; j<10; j++) {
@@ -81,16 +81,16 @@ void MonPulseShapeDat::writeDB(const EcalLogicID* ecid, const MonPulseShapeDat* 
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("MonPulseShapeDat::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error("MonPulseShapeDat::writeDB:  "+e.getMessage()));
   } catch (exception &e) {
-    throw(runtime_error("MonPulseShapeDat::writeDB:  " + string(e.what())));
+    throw(std::runtime_error("MonPulseShapeDat::writeDB:  " + string(e.what())));
   }
 }
 
 
 
 void MonPulseShapeDat::fetchData(std::map< EcalLogicID, MonPulseShapeDat >* fillMap, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -98,7 +98,7 @@ void MonPulseShapeDat::fetchData(std::map< EcalLogicID, MonPulseShapeDat >* fill
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("MonPulseShapeDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("MonPulseShapeDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -125,7 +125,7 @@ void MonPulseShapeDat::fetchData(std::map< EcalLogicID, MonPulseShapeDat >* fill
 			     rset->getString(6));    // maps_to
 
       int gain[] = {1, 6, 12};
-      vector<float> samples(10);
+      std::vector<float> samples(10);
       for (int i=0; i<3; i++) {
 	samples.clear();
 	for (int j=0; j<10; j++) {
@@ -138,6 +138,6 @@ void MonPulseShapeDat::fetchData(std::map< EcalLogicID, MonPulseShapeDat >* fill
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("MonPulseShapeDat::fetchData:  "+e.getMessage()));
+    throw(std::runtime_error("MonPulseShapeDat::fetchData:  "+e.getMessage()));
   }
 }

@@ -15,6 +15,7 @@
  */
 class LMFRunTag : public LMFUnique {
  public:
+  typedef LMFUnique::ResultSet ResultSet;
   friend class LMFRunIOV;  // needs permission to write
 
   LMFRunTag();

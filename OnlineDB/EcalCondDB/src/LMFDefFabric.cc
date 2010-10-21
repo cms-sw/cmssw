@@ -2,8 +2,10 @@
 #include "OnlineDB/EcalCondDB/interface/LMFColor.h"
 #include "OnlineDB/EcalCondDB/interface/LMFTrigType.h"
 #include "OnlineDB/EcalCondDB/interface/LMFRunTag.h"
+#include "OnlineDB/EcalCondDB/interface/LMFClsVers.h"
 #include "OnlineDB/EcalCondDB/interface/LMFPrimVers.h"
 #include "OnlineDB/EcalCondDB/interface/LMFSeqVers.h"
+#include "OnlineDB/EcalCondDB/interface/LMFCorrVers.h"
 
 #include <iostream>
 
@@ -35,21 +37,21 @@ void LMFDefFabric::noDebug() {
   _debug = false;
 }
 
-list<LMFColor> LMFDefFabric::getColors() const {
+std::list<LMFColor> LMFDefFabric::getColors() const {
   return _lmfColors;
 }
 
-list<LMFTrigType> LMFDefFabric::getTriggerTypes() const {
+std::list<LMFTrigType> LMFDefFabric::getTriggerTypes() const {
   return _lmfTrigTypes;
 }
 
-list<LMFRunTag> LMFDefFabric::getRunTags() const {
+std::list<LMFRunTag> LMFDefFabric::getRunTags() const {
   return _lmfRunTags;
 }
 
 LMFColor LMFDefFabric::getColor(std::string name) const {
-  list<LMFColor>::const_iterator i = _lmfColors.begin();
-  list<LMFColor>::const_iterator e = _lmfColors.end();
+  std::list<LMFColor>::const_iterator i = _lmfColors.begin();
+  std::list<LMFColor>::const_iterator e = _lmfColors.end();
   LMFColor ret;
   bool loop = true;
   while ((loop) && (i != e)) {
@@ -63,8 +65,8 @@ LMFColor LMFDefFabric::getColor(std::string name) const {
 }
 
 LMFColor LMFDefFabric::getColorFromID(int id) const {
-  list<LMFColor>::const_iterator i = _lmfColors.begin();
-  list<LMFColor>::const_iterator e = _lmfColors.end();
+  std::list<LMFColor>::const_iterator i = _lmfColors.begin();
+  std::list<LMFColor>::const_iterator e = _lmfColors.end();
   LMFColor ret;
   bool loop = true;
   while ((loop) && (i != e)) {
@@ -78,8 +80,8 @@ LMFColor LMFDefFabric::getColorFromID(int id) const {
 }
 
 LMFColor LMFDefFabric::getColor(int index) const {
-  list<LMFColor>::const_iterator i = _lmfColors.begin();
-  list<LMFColor>::const_iterator e = _lmfColors.end();
+  std::list<LMFColor>::const_iterator i = _lmfColors.begin();
+  std::list<LMFColor>::const_iterator e = _lmfColors.end();
   LMFColor ret;
   bool loop = true;
   while ((loop) && (i != e)) {
@@ -105,8 +107,8 @@ int LMFDefFabric::getTrigTypeID(std::string sname) const {
 }
 
 LMFTrigType LMFDefFabric::getTrigType(std::string sname) const {
-  list<LMFTrigType>::const_iterator i = _lmfTrigTypes.begin();
-  list<LMFTrigType>::const_iterator e = _lmfTrigTypes.end();
+  std::list<LMFTrigType>::const_iterator i = _lmfTrigTypes.begin();
+  std::list<LMFTrigType>::const_iterator e = _lmfTrigTypes.end();
   LMFTrigType tt;
   bool loop = true;
   while ((loop) && (i != e)) {
@@ -120,8 +122,8 @@ LMFTrigType LMFDefFabric::getTrigType(std::string sname) const {
 }
 
 LMFTrigType LMFDefFabric::getTrigTypeFromID(int id) const {
-  list<LMFTrigType>::const_iterator i = _lmfTrigTypes.begin();
-  list<LMFTrigType>::const_iterator e = _lmfTrigTypes.end();
+  std::list<LMFTrigType>::const_iterator i = _lmfTrigTypes.begin();
+  std::list<LMFTrigType>::const_iterator e = _lmfTrigTypes.end();
   LMFTrigType tt;
   bool loop = true;
   while ((loop) && (i != e)) {
@@ -135,8 +137,8 @@ LMFTrigType LMFDefFabric::getTrigTypeFromID(int id) const {
 }
 
 LMFRunTag LMFDefFabric::getRunTag(std::string tag, int version) const {
-  list<LMFRunTag>::const_iterator i = _lmfRunTags.begin();
-  list<LMFRunTag>::const_iterator e = _lmfRunTags.end();
+  std::list<LMFRunTag>::const_iterator i = _lmfRunTags.begin();
+  std::list<LMFRunTag>::const_iterator e = _lmfRunTags.end();
   LMFRunTag rt;
   bool loop = true;
   while ((loop) && (i != e)) {
@@ -149,8 +151,8 @@ LMFRunTag LMFDefFabric::getRunTag(std::string tag, int version) const {
 }
 
 LMFRunTag LMFDefFabric::getRunTagFromID(int id) const {
-  list<LMFRunTag>::const_iterator i = _lmfRunTags.begin();
-  list<LMFRunTag>::const_iterator e = _lmfRunTags.end();
+  std::list<LMFRunTag>::const_iterator i = _lmfRunTags.begin();
+  std::list<LMFRunTag>::const_iterator e = _lmfRunTags.end();
   LMFRunTag rt;
   bool loop = true;
   while ((loop) && (i != e)) {
@@ -167,11 +169,12 @@ int LMFDefFabric::getRunTagID(std::string tag, int version) const {
 }
 
 void LMFDefFabric::initialize() 
-  throw (runtime_error) {
+  throw (std::runtime_error) {
   _lmfColors.clear();
   _lmfTrigTypes.clear();
   _lmfRunTags.clear();
   _lmfPrimVersions.clear();
+  _lmfClsVersions.clear();
   _lmfSeqVersions.clear();
   _lmfCorrVersions.clear();
   if ((m_env != NULL) && (m_conn != NULL)) {
@@ -232,14 +235,24 @@ void LMFDefFabric::initialize()
       i++;
     }
     listOfObjects.clear();
+    listOfObjects = LMFClsVers(m_env, m_conn).fetchAll();
+    i = listOfObjects.begin();
+    e = listOfObjects.end();
+    while (i != e) {
+      LMFClsVers *c = (LMFClsVers*)&(*i);
+      _lmfClsVersions.push_back(*c);
+      i++;
+    }
+    listOfObjects.clear();
     _lmfColors.sort();
     _lmfTrigTypes.sort();
     _lmfRunTags.sort();
     _lmfPrimVersions.sort();
     _lmfSeqVersions.sort();
+    _lmfClsVersions.sort();
     _lmfCorrVersions.sort();
   } else {
-    throw(runtime_error("LMFDefFabric: cannot initialize since connection not"
+    throw(std::runtime_error("LMFDefFabric: cannot initialize since connection not"
 			"set"));
   }
 }

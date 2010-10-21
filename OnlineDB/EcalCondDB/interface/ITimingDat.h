@@ -14,14 +14,10 @@
 
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
-using namespace std;
-using namespace oracle::occi;
-
-
-
-
 class ITimingDat : public IDataItem {
  public:
+  typedef oracle::occi::SQLException SQLException;
+  typedef oracle::occi::ResultSet ResultSet;
   friend class EcalCondDBInterface;
  
 
@@ -58,7 +54,7 @@ ITimingDat()
 
  private:
 void prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -69,7 +65,7 @@ void prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":timing_mean, :timing_rms, :task_status )");
   } catch (SQLException &e) {
-    throw(runtime_error("ITimingDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ITimingDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -82,10 +78,10 @@ void prepareWrite()
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("ITimingDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("ITimingDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("ITimingDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("ITimingDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -98,19 +94,23 @@ void prepareWrite()
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("ITimingDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ITimingDat::writeDB():  "+e.getMessage()));
   }
 }
 
   template<class DATT, class IOVT>
     void writeArrayDB(const std::map< EcalLogicID, DATT >* data, IOVT* iov)
-    throw(runtime_error)
+    throw(std::runtime_error)
+
 {
+  using oracle::occi::OCCIINT;
+  using oracle::occi::OCCIFLOAT;
+
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("ITimingDat::writeArrayDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("ITimingDat::writeArrayDB:  IOV not in DB")); }
 
 
   int nrows=data->size(); 
@@ -136,7 +136,7 @@ void prepareWrite()
   for (CI p = data->begin(); p != data->end(); ++p) {
         channel = &(p->first);
 	int logicID = channel->getLogicID();
-	if (!logicID) { throw(runtime_error("ITimingDat::writeArrayDB:  Bad EcalLogicID")); }
+	if (!logicID) { throw(std::runtime_error("ITimingDat::writeArrayDB:  Bad EcalLogicID")); }
 	ids[count]=logicID;
 	iovid_vec[count]=iovID;
 
@@ -185,7 +185,7 @@ void prepareWrite()
     delete [] st_len;
 
   } catch (SQLException &e) {
-    throw(runtime_error("ITimingDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("ITimingDat::writeArrayDB():  "+e.getMessage()));
   }
 }
 
@@ -195,7 +195,7 @@ void prepareWrite()
 
   template<class DATT, class IOVT>
   void fetchData(std::map< EcalLogicID, DATT >* fillMap, IOVT* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -203,7 +203,7 @@ void prepareWrite()
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("ITimingDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("ITimingDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -238,7 +238,7 @@ void prepareWrite()
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ITimingDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ITimingDat::fetchData():  "+e.getMessage()));
   }
 }
 

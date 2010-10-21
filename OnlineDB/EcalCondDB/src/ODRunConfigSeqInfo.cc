@@ -41,7 +41,7 @@ void ODRunConfigSeqInfo::setRunSeqDef(const RunSeqDef run_seq)
 
 
 int ODRunConfigSeqInfo::fetchID()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID>0) {
@@ -70,7 +70,7 @@ int ODRunConfigSeqInfo::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODRunConfigSeqInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODRunConfigSeqInfo::fetchID:  "+e.getMessage()));
   }
   setByID(m_ID);
   return m_ID;
@@ -79,7 +79,7 @@ int ODRunConfigSeqInfo::fetchID()
 
 
 int ODRunConfigSeqInfo::fetchIDLast()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 
   this->checkConnection();
@@ -98,7 +98,7 @@ int ODRunConfigSeqInfo::fetchIDLast()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODRunConfigSeqInfo::fetchIDLast:  "+e.getMessage()));
+    throw(std::runtime_error("ODRunConfigSeqInfo::fetchIDLast:  "+e.getMessage()));
   }
 
   setByID(m_ID);
@@ -132,16 +132,16 @@ void ODRunConfigSeqInfo::setByID(int id)
        m_run_seq.setConnection(m_env, m_conn);
        m_run_seq.setByID(seq_def_id);
      } else {
-       throw(runtime_error("ODRunConfigSeqInfo::setByID:  Given config_id is not in the database"));
+       throw(std::runtime_error("ODRunConfigSeqInfo::setByID:  Given config_id is not in the database"));
      }
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(runtime_error("ODRunConfigSeqInfo::setByID:  "+e.getMessage()));
+     throw(std::runtime_error("ODRunConfigSeqInfo::setByID:  "+e.getMessage()));
    }
 }
 
 void ODRunConfigSeqInfo::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -151,11 +151,11 @@ void ODRunConfigSeqInfo::prepareWrite()
 			"sequence_num, num_of_cycles, sequence_type_def_id, description ) "
 			"VALUES (:1, :2, :3 , :4, :5 )");
   } catch (SQLException &e) {
-    throw(runtime_error("ODRunConfigSeqInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODRunConfigSeqInfo::prepareWrite():  "+e.getMessage()));
   }
 }
 void ODRunConfigSeqInfo::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -184,10 +184,10 @@ void ODRunConfigSeqInfo::writeDB()
     m_writeStmt->executeUpdate();
 
    } catch (SQLException &e) {
-    throw(runtime_error("ODRunConfigSeqInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODRunConfigSeqInfo::writeDB():  "+e.getMessage()));
   }
   if (!this->fetchID()) {
-    throw(runtime_error("ODRunConfigSeqInfo::writeDB:  Failed to write"));
+    throw(std::runtime_error("ODRunConfigSeqInfo::writeDB:  Failed to write"));
   }
   cout<< "ODRunConfigSeqInfo::writeDB>> done inserting ODRunConfigSeqInfo with id="<<m_ID<<endl;
 
@@ -195,9 +195,8 @@ void ODRunConfigSeqInfo::writeDB()
 
 
 void ODRunConfigSeqInfo::clear(){
-  //  m_ecal_config_id =0;
-  //  m_seq_num =0;
-  m_ID =0;
+  m_ecal_config_id =0;
+  m_seq_num =0;
   m_cycles =0;
   m_run_seq = RunSeqDef();
   m_description="";
@@ -205,14 +204,12 @@ void ODRunConfigSeqInfo::clear(){
 
 
 void ODRunConfigSeqInfo::fetchData(ODRunConfigSeqInfo * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
-  //  result->clear();
-  int idid=0;
+  result->clear();
   if(result->getId()==0){
-    //    throw(runtime_error("ODRunConfigSeqInfo::fetchData(): no Id defined for this record "));
-    idid=result->fetchID();
+    throw(std::runtime_error("ODRunConfigSeqInfo::fetchData(): no Id defined for this record "));
   }
 
   try {
@@ -236,6 +233,6 @@ void ODRunConfigSeqInfo::fetchData(ODRunConfigSeqInfo * result)
     
     
   } catch (SQLException &e) {
-    throw(runtime_error("ODRunConfigSeqInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODRunConfigSeqInfo::fetchData():  "+e.getMessage()));
   }
 }

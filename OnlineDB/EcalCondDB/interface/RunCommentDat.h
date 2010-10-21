@@ -17,9 +17,9 @@ class RunCommentDat : public IDataItem {
   // User data methods
   inline std::string getTable() { return "RUN_COMMENT_DAT"; }
 
-  inline void setSource(string x) { m_source = x; }
+  inline void setSource(std::string x) { m_source = x; }
   inline std::string getSource() const { return m_source; }
-  inline void setComment(string x) { m_comment = x; }
+  inline void setComment(std::string x) { m_comment = x; }
   inline std::string getComment() const { return m_comment; }
   inline void setDBTime(Tm x) {m_time=x;}
   inline Tm getDBTime() const {return m_time;}

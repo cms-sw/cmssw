@@ -50,13 +50,13 @@ int ODBadTTInfo::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODBadTTInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error("ODBadTTInfo::fetchNextId():  "+e.getMessage()));
   }
 
 }
 
 void ODBadTTInfo::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -74,7 +74,7 @@ void ODBadTTInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODBadTTInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODBadTTInfo::prepareWrite():  "+e.getMessage()));
   }
 
 }
@@ -95,7 +95,7 @@ void ODBadTTInfo::setParameters(std::map<string,string> my_keys_map){
 }
 
 void ODBadTTInfo::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -110,11 +110,11 @@ void ODBadTTInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODBadTTInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODBadTTInfo::writeDB():  "+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("ODBadTTInfo::writeDB:  Failed to write"));
+    throw(std::runtime_error("ODBadTTInfo::writeDB:  Failed to write"));
   } else {
     int old_version=this->getVersion();
     m_readStmt = m_conn->createStatement(); 
@@ -128,12 +128,12 @@ void ODBadTTInfo::writeDB()
 
 
 void ODBadTTInfo::fetchData(ODBadTTInfo * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
   if(result->getId()==0 && (result->getConfigTag()=="") ){
-    throw(runtime_error("ODBadTTInfo::fetchData(): no Id defined for this ODBadTTInfo "));
+    throw(std::runtime_error("ODBadTTInfo::fetchData(): no Id defined for this ODBadTTInfo "));
   }
 
 
@@ -150,7 +150,7 @@ void ODBadTTInfo::fetchData(ODBadTTInfo * result)
       m_readStmt->setInt(2, result->getVersion());
     } else {
       // we should never pass here 
-      throw(runtime_error("ODBadTTInfo::fetchData(): no Id defined for this record "));
+      throw(std::runtime_error("ODBadTTInfo::fetchData(): no Id defined for this record "));
     }
 
 
@@ -165,7 +165,7 @@ void ODBadTTInfo::fetchData(ODBadTTInfo * result)
     result->setVersion(rset->getInt(3));
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODBadTTInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODBadTTInfo::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -195,7 +195,7 @@ int ODBadTTInfo::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODBadTTInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODBadTTInfo::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;

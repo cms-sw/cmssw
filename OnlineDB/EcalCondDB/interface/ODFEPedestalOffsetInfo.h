@@ -24,7 +24,7 @@ class ODFEPedestalOffsetInfo : public IODConfig {
   inline int getVersion() const { return m_version; }
 
   int fetchNextId() throw(std::runtime_error);
-  void setParameters(std::map<string,string> my_keys_map);
+  void setParameters(std::map<std::string,std::string> my_keys_map);
   int fetchID()  throw(std::runtime_error);
   
  private:

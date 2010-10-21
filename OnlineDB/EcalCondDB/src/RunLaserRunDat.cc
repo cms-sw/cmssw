@@ -26,7 +26,7 @@ RunLaserRunDat::~RunLaserRunDat()
 
 
 void RunLaserRunDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -37,23 +37,23 @@ void RunLaserRunDat::prepareWrite()
 			"VALUES (:1, :2, "
 			":3, :4 )");
   } catch (SQLException &e) {
-    throw(runtime_error("RunLaserRunDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("RunLaserRunDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void RunLaserRunDat::writeDB(const EcalLogicID* ecid, const RunLaserRunDat* item, RunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("RunLaserRunDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("RunLaserRunDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("RunLaserRunDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("RunLaserRunDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -63,14 +63,14 @@ void RunLaserRunDat::writeDB(const EcalLogicID* ecid, const RunLaserRunDat* item
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("RunLaserRunDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("RunLaserRunDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void RunLaserRunDat::fetchData(map< EcalLogicID, RunLaserRunDat >* fillMap, RunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -78,7 +78,7 @@ void RunLaserRunDat::fetchData(map< EcalLogicID, RunLaserRunDat >* fillMap, RunI
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("RunLaserRunDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("RunLaserRunDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -110,6 +110,6 @@ void RunLaserRunDat::fetchData(map< EcalLogicID, RunLaserRunDat >* fillMap, RunI
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("RunLaserRunDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("RunLaserRunDat::fetchData():  "+e.getMessage()));
   }
 }

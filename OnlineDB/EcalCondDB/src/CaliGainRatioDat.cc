@@ -29,7 +29,7 @@ CaliGainRatioDat::~CaliGainRatioDat()
 
 
 void CaliGainRatioDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   
@@ -40,23 +40,23 @@ void CaliGainRatioDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5)");
   } catch (SQLException &e) {
-    throw(runtime_error("CaliGainRatioDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("CaliGainRatioDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void CaliGainRatioDat::writeDB(const EcalLogicID* ecid, const CaliGainRatioDat* item, CaliIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
   
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("CaliGainRatioDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("CaliGainRatioDat::writeDB:  IOV not in DB")); }
   
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("CaliGainRatioDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("CaliGainRatioDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -68,14 +68,14 @@ void CaliGainRatioDat::writeDB(const EcalLogicID* ecid, const CaliGainRatioDat* 
     
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("CaliGainRatioDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("CaliGainRatioDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void CaliGainRatioDat::fetchData(std::map< EcalLogicID, CaliGainRatioDat >* fillMap, CaliIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -83,7 +83,7 @@ void CaliGainRatioDat::fetchData(std::map< EcalLogicID, CaliGainRatioDat >* fill
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("CaliGainRatioDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("CaliGainRatioDat::writeDB:  IOV not in DB")); 
     return;
   }
   
@@ -115,18 +115,18 @@ void CaliGainRatioDat::fetchData(std::map< EcalLogicID, CaliGainRatioDat >* fill
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("CaliGainRatioDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("CaliGainRatioDat::fetchData():  "+e.getMessage()));
   }
 }
 
 void CaliGainRatioDat::writeArrayDB(const std::map< EcalLogicID, CaliGainRatioDat >* data, CaliIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("CaliGainRatioDat::writeArrayDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("CaliGainRatioDat::writeArrayDB:  IOV not in DB")); }
 
 
   int nrows=data->size();
@@ -149,7 +149,7 @@ void CaliGainRatioDat::writeArrayDB(const std::map< EcalLogicID, CaliGainRatioDa
   for (CI p = data->begin(); p != data->end(); ++p) {
     channel = &(p->first);
     int logicID = channel->getLogicID();
-    if (!logicID) { throw(runtime_error("CaliGainRatioDat::writeArrayDB:  Bad EcalLogicID")); }
+    if (!logicID) { throw(std::runtime_error("CaliGainRatioDat::writeArrayDB:  Bad EcalLogicID")); }
     ids[count]=logicID;
     iovid_vec[count]=iovID;
 
@@ -202,6 +202,6 @@ void CaliGainRatioDat::writeArrayDB(const std::map< EcalLogicID, CaliGainRatioDa
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("CaliGainRatio::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("CaliGainRatio::writeArrayDB():  "+e.getMessage()));
   }
 }

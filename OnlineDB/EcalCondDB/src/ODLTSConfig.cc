@@ -66,14 +66,14 @@ int ODLTSConfig::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODLTSConfig::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error("ODLTSConfig::fetchNextId():  "+e.getMessage()));
   }
 
 }
 
 
 void ODLTSConfig::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   int next_id=fetchNextId();
@@ -88,14 +88,14 @@ void ODLTSConfig::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODLTSConfig::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODLTSConfig::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void ODLTSConfig::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -112,11 +112,11 @@ void ODLTSConfig::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODLTSConfig::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODLTSConfig::writeDB():  "+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("ODLTSConfig::writeDB:  Failed to write"));
+    throw(std::runtime_error("ODLTSConfig::writeDB:  Failed to write"));
   }
 
 
@@ -125,12 +125,12 @@ void ODLTSConfig::writeDB()
 
 
 void ODLTSConfig::fetchData(ODLTSConfig * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
   if(result->getId()==0 && (result->getConfigTag()=="") ){
-    throw(runtime_error("ODLTSConfig::fetchData(): no Id defined for this ODLTSConfig "));
+    throw(std::runtime_error("ODLTSConfig::fetchData(): no Id defined for this ODLTSConfig "));
   }
 
   try {
@@ -154,7 +154,7 @@ void ODLTSConfig::fetchData(ODLTSConfig * result)
   
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODLTSConfig::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODLTSConfig::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -183,7 +183,7 @@ int ODLTSConfig::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODLTSConfig::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODLTSConfig::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;

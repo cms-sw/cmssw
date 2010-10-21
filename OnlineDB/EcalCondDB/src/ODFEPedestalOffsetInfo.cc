@@ -51,13 +51,13 @@ int ODFEPedestalOffsetInfo::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODFEPedestalOffsetInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error("ODFEPedestalOffsetInfo::fetchNextId():  "+e.getMessage()));
   }
 
 }
 
 void ODFEPedestalOffsetInfo::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -75,7 +75,7 @@ void ODFEPedestalOffsetInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODFEPedestalOffsetInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODFEPedestalOffsetInfo::prepareWrite():  "+e.getMessage()));
   }
 
 }
@@ -96,7 +96,7 @@ void ODFEPedestalOffsetInfo::setParameters(std::map<string,string> my_keys_map){
 }
 
 void ODFEPedestalOffsetInfo::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -111,13 +111,13 @@ void ODFEPedestalOffsetInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODFEPedestalOffsetInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODFEPedestalOffsetInfo::writeDB():  "+e.getMessage()));
   }
 
 
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("ODFEPedestalOffsetInfo::writeDB:  Failed to write"));
+    throw(std::runtime_error("ODFEPedestalOffsetInfo::writeDB:  Failed to write"));
   } else {
     int old_version=this->getVersion();
     m_readStmt = m_conn->createStatement(); 
@@ -132,12 +132,12 @@ void ODFEPedestalOffsetInfo::writeDB()
 
 
 void ODFEPedestalOffsetInfo::fetchData(ODFEPedestalOffsetInfo * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
   if(result->getId()==0 && (result->getConfigTag()=="") ){
-    throw(runtime_error("ODFEPedestalOffsetInfo::fetchData(): no Id defined for this ODFEPedestalOffsetInfo "));
+    throw(std::runtime_error("ODFEPedestalOffsetInfo::fetchData(): no Id defined for this ODFEPedestalOffsetInfo "));
   }
 
   try {
@@ -152,7 +152,7 @@ void ODFEPedestalOffsetInfo::fetchData(ODFEPedestalOffsetInfo * result)
       m_readStmt->setInt(2, result->getVersion());
     } else {
       // we should never pass here 
-      throw(runtime_error("ODFEPedestalOffsetInfo::fetchData(): no Id defined for this record "));
+      throw(std::runtime_error("ODFEPedestalOffsetInfo::fetchData(): no Id defined for this record "));
     }
 
     ResultSet* rset = m_readStmt->executeQuery();
@@ -166,12 +166,12 @@ void ODFEPedestalOffsetInfo::fetchData(ODFEPedestalOffsetInfo * result)
     result->setVersion(rset->getInt(3));
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODFEPedestalOffsetInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODFEPedestalOffsetInfo::fetchData():  "+e.getMessage()));
   }
 }
 
 void ODFEPedestalOffsetInfo::fetchLastData(ODFEPedestalOffsetInfo * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -188,7 +188,7 @@ void ODFEPedestalOffsetInfo::fetchLastData(ODFEPedestalOffsetInfo * result)
     result->setVersion(rset->getInt(3));
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODFEPedestalOffsetInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODFEPedestalOffsetInfo::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -218,7 +218,7 @@ int ODFEPedestalOffsetInfo::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODFEPedestalOffsetInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODFEPedestalOffsetInfo::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;

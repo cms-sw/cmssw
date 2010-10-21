@@ -11,10 +11,9 @@
 #include "OnlineDB/EcalCondDB/interface/DateHandler.h"
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
-using namespace oracle::occi;
-
 class RunDCSLVDat : public IDataItem {
  public:
+  typedef oracle::occi::ResultSet ResultSet;
 
   static const int maxDifference = 30*60*1000000; // 30 minutes
   static const int maxLVDifferenceEB = 1000;      // max LV tolerance in mV for EB

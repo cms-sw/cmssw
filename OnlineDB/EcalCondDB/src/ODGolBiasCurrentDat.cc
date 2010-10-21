@@ -32,7 +32,7 @@ ODGolBiasCurrentDat::~ODGolBiasCurrentDat()
 
 
 void ODGolBiasCurrentDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -41,14 +41,14 @@ void ODGolBiasCurrentDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, fed_id, tt_id, gol_id, gol_current, pll_current, status ) "
 			"VALUES (:1, :2, :3, :4, :5 , :6, :7)");
   } catch (SQLException &e) {
-    throw(runtime_error("ODGolBiasCurrentDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODGolBiasCurrentDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void ODGolBiasCurrentDat::writeDB(const ODGolBiasCurrentDat* item, ODGolBiasCurrentInfo* iov )
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -64,7 +64,7 @@ void ODGolBiasCurrentDat::writeDB(const ODGolBiasCurrentDat* item, ODGolBiasCurr
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("ODGolBiasCurrentDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODGolBiasCurrentDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -104,7 +104,7 @@ void ODGolBiasCurrentDat::fetchData(std::vector< ODGolBiasCurrentDat >* p, ODGol
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODGolBiasCurrentDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODGolBiasCurrentDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -116,7 +116,7 @@ void ODGolBiasCurrentDat::writeArrayDB(const std::vector< ODGolBiasCurrentDat > 
   this->checkConnection();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("ODDelays::writeArrayDB:  ODFEDelaysInfo not in DB")); }
+  if (!iovID) { throw(std::runtime_error("ODDelays::writeArrayDB:  ODFEDelaysInfo not in DB")); }
 
 
   int nrows=data.size(); 
@@ -194,6 +194,6 @@ void ODGolBiasCurrentDat::writeArrayDB(const std::vector< ODGolBiasCurrentDat > 
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODGolBiasCurrentDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODGolBiasCurrentDat::writeArrayDB():  "+e.getMessage()));
   }
 }

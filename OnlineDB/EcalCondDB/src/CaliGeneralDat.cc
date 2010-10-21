@@ -28,7 +28,7 @@ CaliGeneralDat::~CaliGeneralDat()
 
 
 void CaliGeneralDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   
@@ -39,23 +39,23 @@ void CaliGeneralDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4)");
   } catch (SQLException &e) {
-    throw(runtime_error("CaliGeneralDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("CaliGeneralDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void CaliGeneralDat::writeDB(const EcalLogicID* ecid, const CaliGeneralDat* item, CaliIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
   
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("CaliGeneralDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("CaliGeneralDat::writeDB:  IOV not in DB")); }
   
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("CaliGeneralDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("CaliGeneralDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -66,14 +66,14 @@ void CaliGeneralDat::writeDB(const EcalLogicID* ecid, const CaliGeneralDat* item
     
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("CaliGeneralDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("CaliGeneralDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void CaliGeneralDat::fetchData(std::map< EcalLogicID, CaliGeneralDat >* fillMap, CaliIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -81,7 +81,7 @@ void CaliGeneralDat::fetchData(std::map< EcalLogicID, CaliGeneralDat >* fillMap,
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("CaliGeneralDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("CaliGeneralDat::writeDB:  IOV not in DB")); 
     return;
   }
   
@@ -112,6 +112,6 @@ void CaliGeneralDat::fetchData(std::map< EcalLogicID, CaliGeneralDat >* fillMap,
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("CaliGeneralDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("CaliGeneralDat::fetchData():  "+e.getMessage()));
   }
 }

@@ -31,7 +31,7 @@ FEConfigLUTGroupDat::~FEConfigLUTGroupDat()
 
 
 void FEConfigLUTGroupDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -42,12 +42,12 @@ void FEConfigLUTGroupDat::prepareWrite()
 		      "VALUES (:lut_conf_id, :group_id, "
 		      ":lut_id, :lut_value )" );
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigLUTGroupDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigLUTGroupDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 void FEConfigLUTGroupDat::writeDB(const EcalLogicID* ecid, const FEConfigLUTGroupDat* item, FEConfigLUTInfo* iconf)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -56,7 +56,7 @@ void FEConfigLUTGroupDat::writeDB(const EcalLogicID* ecid, const FEConfigLUTGrou
 
   cout<< "iconf="<< iconfID << endl;
 
-  if (!iconfID) { throw(runtime_error("FEConfigLUTGroupDat::writeArrayDB:  ICONF not in DB")); }
+  if (!iconfID) { throw(std::runtime_error("FEConfigLUTGroupDat::writeArrayDB:  ICONF not in DB")); }
 
 
   int nrows=1024;
@@ -116,13 +116,13 @@ void FEConfigLUTGroupDat::writeDB(const EcalLogicID* ecid, const FEConfigLUTGrou
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigLUTGroupDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigLUTGroupDat::writeArrayDB():  "+e.getMessage()));
   }
 }
 
 
 void FEConfigLUTGroupDat::fetchData(map< EcalLogicID, FEConfigLUTGroupDat >* fillMap, FEConfigLUTInfo* iconf)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -130,7 +130,7 @@ void FEConfigLUTGroupDat::fetchData(map< EcalLogicID, FEConfigLUTGroupDat >* fil
   iconf->setConnection(m_env, m_conn);
   int iconfID = iconf->fetchID();
   if (!iconfID) { 
-     throw(runtime_error("FEConfigLUTGroupDat::fetchData:  ICONF not in DB")); 
+     throw(std::runtime_error("FEConfigLUTGroupDat::fetchData:  ICONF not in DB")); 
     return;
   }
   
@@ -173,18 +173,18 @@ void FEConfigLUTGroupDat::fetchData(map< EcalLogicID, FEConfigLUTGroupDat >* fil
       }
     }
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigLUTGroupDat::fetchData:  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigLUTGroupDat::fetchData:  "+e.getMessage()));
   }
 }
 
 void FEConfigLUTGroupDat::writeArrayDB(const std::map< EcalLogicID, FEConfigLUTGroupDat >* data, FEConfigLUTInfo* iconf)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iconfID = iconf->fetchID();
-  if (!iconfID) { throw(runtime_error("FEConfigLUTGroupDat::writeArrayDB:  ICONF not in DB")); }
+  if (!iconfID) { throw(std::runtime_error("FEConfigLUTGroupDat::writeArrayDB:  ICONF not in DB")); }
 
 
   int nrows=data->size()*1024; 
@@ -265,6 +265,6 @@ void FEConfigLUTGroupDat::writeArrayDB(const std::map< EcalLogicID, FEConfigLUTG
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigLUTGroupDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigLUTGroupDat::writeArrayDB():  "+e.getMessage()));
   }
 }

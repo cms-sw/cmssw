@@ -49,9 +49,8 @@ class ODSRPConfig : public IODConfig {
 
   inline void setSRPClob(unsigned char* x) { m_srp_clob = x; }
   inline unsigned char* getSRPClob() const { return m_srp_clob; }
-  inline unsigned int getSRPClobSize() const { return m_size; }
 
-  void setParameters(std::map<string,string> my_keys_map);
+  void setParameters(std::map<std::string,std::string> my_keys_map);
   
  private:
   void prepareWrite()  throw(std::runtime_error);

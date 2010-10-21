@@ -92,7 +92,7 @@ class ODLaserConfig : public IODConfig {
   inline void setEMTCSlotId(int x) { m_emtc_5 = x; }
   inline int getEMTCSlotId() const { return m_emtc_5; }
 
-  //  void setParameters(std::map<string,string> my_keys_map);
+  //  void setParameters(std::map<std::string,std::string> my_keys_map);
 
   // laser 
 
@@ -189,7 +189,7 @@ class ODLaserConfig : public IODConfig {
   inline void setLaserClob(unsigned char* x) { m_laser_clob = x; }
   inline unsigned char* getLaserClob() const { return m_laser_clob; }
 
-  void setParameters(std::map<string,string> my_keys_map);
+  void setParameters(std::map<std::string,std::string> my_keys_map);
 
   int fetchNextId() throw(std::runtime_error);
   

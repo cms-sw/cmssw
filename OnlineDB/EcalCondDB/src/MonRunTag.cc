@@ -57,7 +57,7 @@ void MonRunTag::setMonVersionDef(MonVersionDef ver)
 
 
 int MonRunTag::fetchID()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // Return tag from memory if available
   if (m_ID) {
@@ -89,7 +89,7 @@ int MonRunTag::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("MonRunTag::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("MonRunTag::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -98,7 +98,7 @@ int MonRunTag::fetchID()
 
 
 void MonRunTag::setByID(int id) 
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -115,18 +115,18 @@ void MonRunTag::setByID(int id)
       m_monVersionDef.setByID(verID);
       m_ID = id;
     } else {
-      throw(runtime_error("MonRunTag::setByID:  Given tag_id is not in the database"));
+      throw(std::runtime_error("MonRunTag::setByID:  Given tag_id is not in the database"));
     }
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(runtime_error("MonRunTag::setByID:  "+e.getMessage()));
+   throw(std::runtime_error("MonRunTag::setByID:  "+e.getMessage()));
   }
 }
 
 
 int MonRunTag::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // see if this data is already in the DB
   if (this->fetchID()) { 
@@ -153,12 +153,12 @@ int MonRunTag::writeDB()
     
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(runtime_error("MonRunTag::writeDB:  "+e.getMessage()));
+   throw(std::runtime_error("MonRunTag::writeDB:  "+e.getMessage()));
   }
 
   // now get the tag_id
   if (!this->fetchID()) {
-    throw(runtime_error("MonRunTag::writeDB:  Failed to write"));
+    throw(std::runtime_error("MonRunTag::writeDB:  Failed to write"));
   }
 
   return m_ID;
@@ -166,8 +166,8 @@ int MonRunTag::writeDB()
 
 
 
-void MonRunTag::fetchAllTags( vector<MonRunTag>* fillVec)
-  throw(runtime_error)
+void MonRunTag::fetchAllTags( std::vector<MonRunTag>* fillVec)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   try {
@@ -183,20 +183,20 @@ void MonRunTag::fetchAllTags( vector<MonRunTag>* fillVec)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("MonRunTag::fetchAllTags:  "+e.getMessage()));
+    throw(std::runtime_error("MonRunTag::fetchAllTags:  "+e.getMessage()));
   }
 }
 
 
 
 void MonRunTag::fetchParentIDs(int* verID)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // get the monitoring version
   m_monVersionDef.setConnection(m_env, m_conn);
   *verID = m_monVersionDef.fetchID();
 
   if (! *verID) {
-    throw(runtime_error("MonRunTag::writeDB:  Given monitoring version does not exist in DB")); 
+    throw(std::runtime_error("MonRunTag::writeDB:  Given monitoring version does not exist in DB")); 
   }
 }

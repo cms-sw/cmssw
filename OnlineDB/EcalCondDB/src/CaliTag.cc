@@ -112,7 +112,7 @@ void CaliTag::setDataType(string dataType)
 
 
 int CaliTag::fetchID()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // Return tag from memory if available
   if (m_ID) {
@@ -149,7 +149,7 @@ int CaliTag::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("CaliTag::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("CaliTag::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -158,7 +158,7 @@ int CaliTag::fetchID()
 
 
 void CaliTag::setByID(int id) 
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -181,18 +181,18 @@ void CaliTag::setByID(int id)
 
       m_ID = id;
     } else {
-      throw(runtime_error("CaliTag::setByID:  Given tag_id is not in the database"));
+      throw(std::runtime_error("CaliTag::setByID:  Given tag_id is not in the database"));
     }
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(runtime_error("CaliTag::setByID:  "+e.getMessage()));
+   throw(std::runtime_error("CaliTag::setByID:  "+e.getMessage()));
   }
 }
 
 
 int CaliTag::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // see if this data is already in the DB
   if (this->fetchID()) { 
@@ -222,12 +222,12 @@ int CaliTag::writeDB()
     
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(runtime_error("CaliTag::writeDB:  "+e.getMessage()));
+   throw(std::runtime_error("CaliTag::writeDB:  "+e.getMessage()));
   }
 
   // now get the tag_id
   if (!this->fetchID()) {
-    throw(runtime_error("CaliTag::writeDB:  Failed to write"));
+    throw(std::runtime_error("CaliTag::writeDB:  Failed to write"));
   }
 
   return m_ID;
@@ -235,8 +235,8 @@ int CaliTag::writeDB()
 
 
 
-void CaliTag::fetchAllTags( vector<CaliTag>* fillVec)
-  throw(runtime_error)
+void CaliTag::fetchAllTags( std::vector<CaliTag>* fillVec)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   try {
@@ -252,20 +252,20 @@ void CaliTag::fetchAllTags( vector<CaliTag>* fillVec)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("CaliTag::fetchAllTags:  "+e.getMessage()));
+    throw(std::runtime_error("CaliTag::fetchAllTags:  "+e.getMessage()));
   }
 }
 
 
 
 void CaliTag::fetchParentIDs(int* locID)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // get the location
   m_locDef.setConnection(m_env, m_conn);
   *locID = m_locDef.fetchID();
 
   if (! *locID) { 
-    throw(runtime_error("CaliTag::writeDB:  Given location does not exist in DB")); 
+    throw(std::runtime_error("CaliTag::writeDB:  Given location does not exist in DB")); 
   }
 }

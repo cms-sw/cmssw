@@ -30,7 +30,7 @@ FEConfigBadTTDat::~FEConfigBadTTDat()
 
 
 void FEConfigBadTTDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -39,14 +39,14 @@ void FEConfigBadTTDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, tcc_id, fed_id, tt_id, status ) "
 			"VALUES (:1, :2, :3, :4, :5 )");
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigBadTTDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigBadTTDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void FEConfigBadTTDat::writeDB(const FEConfigBadTTDat* item, FEConfigBadTTInfo* iov )
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -59,7 +59,7 @@ void FEConfigBadTTDat::writeDB(const FEConfigBadTTDat* item, FEConfigBadTTInfo* 
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigBadTTDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigBadTTDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -73,7 +73,7 @@ void FEConfigBadTTDat::fetchData(std::vector< FEConfigBadTTDat >* p, FEConfigBad
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("FEConfigBadTTDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("FEConfigBadTTDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -95,7 +95,7 @@ void FEConfigBadTTDat::fetchData(std::vector< FEConfigBadTTDat >* p, FEConfigBad
 
     }
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigBadTTDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigBadTTDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -107,7 +107,7 @@ void FEConfigBadTTDat::writeArrayDB(const std::vector< FEConfigBadTTDat > data, 
   this->checkConnection();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("FEConfigDelays::writeArrayDB:  FEConfigBadTTInfo not in DB")); }
+  if (!iovID) { throw(std::runtime_error("FEConfigDelays::writeArrayDB:  FEConfigBadTTInfo not in DB")); }
 
 
   int nrows=data.size(); 
@@ -169,6 +169,6 @@ void FEConfigBadTTDat::writeArrayDB(const std::vector< FEConfigBadTTDat > data, 
     delete [] st_len;
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigBadTTDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigBadTTDat::writeArrayDB():  "+e.getMessage()));
   }
 }

@@ -24,7 +24,7 @@ ODSRPCycle::~ODSRPCycle()
 
 
 void ODSRPCycle::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -33,12 +33,12 @@ void ODSRPCycle::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO ECAL_SRP_Cycle (cycle_id, srp_configuration_id ) "
 		 "VALUES (:1, :2 )");
   } catch (SQLException &e) {
-    throw(runtime_error("ODSRPCycle::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODSRPCycle::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
-void ODSRPCycle::writeDB()  throw(runtime_error)
+void ODSRPCycle::writeDB()  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -52,12 +52,12 @@ void ODSRPCycle::writeDB()  throw(runtime_error)
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODSRPCycle::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error("ODSRPCycle::writeDB:  "+e.getMessage()));
   }
 
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("ODSRPCycle::writeDB:  Failed to write"));
+    throw(std::runtime_error("ODSRPCycle::writeDB:  Failed to write"));
   }
   
  
@@ -69,7 +69,7 @@ void ODSRPCycle::clear(){
 
 
 int ODSRPCycle::fetchID()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID) {
@@ -93,7 +93,7 @@ int ODSRPCycle::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODSRPCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODSRPCycle::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -122,20 +122,20 @@ void ODSRPCycle::setByID(int id)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODSRPCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODSRPCycle::fetchID:  "+e.getMessage()));
   }
 }
 
 
 
 void ODSRPCycle::fetchData(ODSRPCycle * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
 
   if(result->getId()==0){
-    throw(runtime_error("ODSRPConfig::fetchData(): no Id defined for this ODSRPConfig "));
+    throw(std::runtime_error("ODSRPConfig::fetchData(): no Id defined for this ODSRPConfig "));
   }
 
   try {
@@ -151,7 +151,7 @@ void ODSRPCycle::fetchData(ODSRPCycle * result)
     result->setSRPConfigurationID(       rset->getInt(1) );
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODSRPCycle::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODSRPCycle::fetchData():  "+e.getMessage()));
   }
 }
 

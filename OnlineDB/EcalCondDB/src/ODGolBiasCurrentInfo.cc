@@ -50,13 +50,13 @@ int ODGolBiasCurrentInfo::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODGolBiasCurrentInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error("ODGolBiasCurrentInfo::fetchNextId():  "+e.getMessage()));
   }
 
 }
 
 void ODGolBiasCurrentInfo::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -74,7 +74,7 @@ void ODGolBiasCurrentInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODGolBiasCurrentInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODGolBiasCurrentInfo::prepareWrite():  "+e.getMessage()));
   }
 
 }
@@ -95,7 +95,7 @@ void ODGolBiasCurrentInfo::setParameters(std::map<string,string> my_keys_map){
 }
 
 void ODGolBiasCurrentInfo::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -110,11 +110,11 @@ void ODGolBiasCurrentInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODGolBiasCurrentInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODGolBiasCurrentInfo::writeDB():  "+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("ODGolBiasCurrentInfo::writeDB:  Failed to write"));
+    throw(std::runtime_error("ODGolBiasCurrentInfo::writeDB:  Failed to write"));
   } else {
     int old_version=this->getVersion();
     m_readStmt = m_conn->createStatement(); 
@@ -128,12 +128,12 @@ void ODGolBiasCurrentInfo::writeDB()
 
 
 void ODGolBiasCurrentInfo::fetchData(ODGolBiasCurrentInfo * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
   if(result->getId()==0 && (result->getConfigTag()=="") ){
-    throw(runtime_error("ODGolBiasCurrentInfo::fetchData(): no Id defined for this ODGolBiasCurrentInfo "));
+    throw(std::runtime_error("ODGolBiasCurrentInfo::fetchData(): no Id defined for this ODGolBiasCurrentInfo "));
   }
 
 
@@ -161,7 +161,7 @@ void ODGolBiasCurrentInfo::fetchData(ODGolBiasCurrentInfo * result)
 
     } else {
       // we should never pass here 
-      throw(runtime_error("ODGolBiasCurrentInfo::fetchData(): no Id defined for this record "));
+      throw(std::runtime_error("ODGolBiasCurrentInfo::fetchData(): no Id defined for this record "));
     }
 
 
@@ -176,7 +176,7 @@ void ODGolBiasCurrentInfo::fetchData(ODGolBiasCurrentInfo * result)
     result->setVersion(rset->getInt(3));
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODGolBiasCurrentInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODGolBiasCurrentInfo::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -206,7 +206,7 @@ int ODGolBiasCurrentInfo::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODGolBiasCurrentInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODGolBiasCurrentInfo::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;

@@ -38,13 +38,13 @@ RunTag RunList::getRunTag() const
 }
 
 void RunList::fetchRuns()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   fetchRuns(-1, -1);
 }
 
 void RunList::fetchRuns(int min_run, int max_run)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 
   this->checkConnection();
@@ -130,12 +130,12 @@ void RunList::fetchRuns(int min_run, int max_run)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("RunList::fetchRuns:  "+e.getMessage()));
+    throw(std::runtime_error("RunList::fetchRuns:  "+e.getMessage()));
   }
 }
 
 void RunList::fetchLastNRuns( int max_run, int n_runs  )
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 
   // fetch the last n_runs that come just before max_run (including max_run)
@@ -200,7 +200,7 @@ void RunList::fetchLastNRuns( int max_run, int n_runs  )
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("RunList::fetchLastNRuns:  "+e.getMessage()));
+    throw(std::runtime_error("RunList::fetchLastNRuns:  "+e.getMessage()));
   }
 
 
@@ -209,7 +209,7 @@ void RunList::fetchLastNRuns( int max_run, int n_runs  )
 
 
 void RunList::fetchRunsByLocation (int min_run, int max_run, const LocationDef locDef )
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 
   this->checkConnection();
@@ -291,14 +291,14 @@ void RunList::fetchRunsByLocation (int min_run, int max_run, const LocationDef l
     m_conn->terminateStatement(stmt);
 
   } catch (SQLException &e) {
-    throw(runtime_error("RunList::fetchRunsByLocation:  "+e.getMessage()));
+    throw(std::runtime_error("RunList::fetchRunsByLocation:  "+e.getMessage()));
   }
 
 
 }
 
 void RunList::fetchGlobalRunsByLocation (int min_run, int max_run, const LocationDef locDef )
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 
   this->checkConnection();
@@ -382,7 +382,7 @@ void RunList::fetchGlobalRunsByLocation (int min_run, int max_run, const Locatio
     m_conn->terminateStatement(stmt);
 
   } catch (SQLException &e) {
-    throw(runtime_error("RunList::fetchRunsByLocation:  "+e.getMessage()));
+    throw(std::runtime_error("RunList::fetchRunsByLocation:  "+e.getMessage()));
   }
 
 

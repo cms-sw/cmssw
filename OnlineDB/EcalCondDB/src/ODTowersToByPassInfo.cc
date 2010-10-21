@@ -50,13 +50,13 @@ int ODTowersToByPassInfo::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODTowersToByPassInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error("ODTowersToByPassInfo::fetchNextId():  "+e.getMessage()));
   }
 
 }
 
 void ODTowersToByPassInfo::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -74,7 +74,7 @@ void ODTowersToByPassInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODTowersToByPassInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODTowersToByPassInfo::prepareWrite():  "+e.getMessage()));
   }
 
 }
@@ -95,7 +95,7 @@ void ODTowersToByPassInfo::setParameters(std::map<string,string> my_keys_map){
 }
 
 void ODTowersToByPassInfo::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -110,11 +110,11 @@ void ODTowersToByPassInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODTowersToByPassInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODTowersToByPassInfo::writeDB():  "+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("ODTowersToByPassInfo::writeDB:  Failed to write"));
+    throw(std::runtime_error("ODTowersToByPassInfo::writeDB:  Failed to write"));
   } else {
     int old_version=this->getVersion();
     m_readStmt = m_conn->createStatement(); 
@@ -128,12 +128,12 @@ void ODTowersToByPassInfo::writeDB()
 
 
 void ODTowersToByPassInfo::fetchData(ODTowersToByPassInfo * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
   if(result->getId()==0 && (result->getConfigTag()=="") ){
-    throw(runtime_error("ODTowersToByPassInfo::fetchData(): no Id defined for this ODTowersToByPassInfo "));
+    throw(std::runtime_error("ODTowersToByPassInfo::fetchData(): no Id defined for this ODTowersToByPassInfo "));
   }
 
 
@@ -161,7 +161,7 @@ void ODTowersToByPassInfo::fetchData(ODTowersToByPassInfo * result)
 
     } else {
       // we should never pass here 
-      throw(runtime_error("ODTowersToByPassInfo::fetchData(): no Id defined for this record "));
+      throw(std::runtime_error("ODTowersToByPassInfo::fetchData(): no Id defined for this record "));
     }
 
 
@@ -176,7 +176,7 @@ void ODTowersToByPassInfo::fetchData(ODTowersToByPassInfo * result)
     result->setVersion(rset->getInt(3));
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODTowersToByPassInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODTowersToByPassInfo::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -206,7 +206,7 @@ int ODTowersToByPassInfo::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODTowersToByPassInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODTowersToByPassInfo::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;

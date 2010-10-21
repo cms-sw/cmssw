@@ -24,7 +24,7 @@ ODScanCycle::~ODScanCycle()
 
 
 void ODScanCycle::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -33,12 +33,12 @@ void ODScanCycle::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO ECAL_Scan_Cycle (cycle_id, scan_id ) "
 		 "VALUES (:1, :2 )");
   } catch (SQLException &e) {
-    throw(runtime_error("ODScanCycle::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODScanCycle::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
-void ODScanCycle::writeDB()  throw(runtime_error)
+void ODScanCycle::writeDB()  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -52,12 +52,12 @@ void ODScanCycle::writeDB()  throw(runtime_error)
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODScanCycle::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error("ODScanCycle::writeDB:  "+e.getMessage()));
   }
 
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("ODScanCycle::writeDB:  Failed to write"));
+    throw(std::runtime_error("ODScanCycle::writeDB:  Failed to write"));
   }
   
  
@@ -69,7 +69,7 @@ void ODScanCycle::clear(){
 
 
 int ODScanCycle::fetchID()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID) {
@@ -93,7 +93,7 @@ int ODScanCycle::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODScanCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODScanCycle::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -122,20 +122,20 @@ void ODScanCycle::setByID(int id)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODScanCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODScanCycle::fetchID:  "+e.getMessage()));
   }
 }
 
 
 
 void ODScanCycle::fetchData(ODScanCycle * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
 
   if(result->getId()==0){
-    throw(runtime_error("ODScanConfig::fetchData(): no Id defined for this ODScanConfig "));
+    throw(std::runtime_error("ODScanConfig::fetchData(): no Id defined for this ODScanConfig "));
   }
 
   try {
@@ -151,7 +151,7 @@ void ODScanCycle::fetchData(ODScanCycle * result)
     result->setScanConfigurationID(       rset->getInt(1) );
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODScanCycle::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODScanCycle::fetchData():  "+e.getMessage()));
   }
 }
 

@@ -27,7 +27,7 @@ class ODFEWeightsInfo : public IODConfig {
   inline int getNumberOfGroups() const { return m_num; }
 
   int fetchNextId() throw(std::runtime_error);
-  void setParameters(std::map<string,string> my_keys_map);
+  void setParameters(std::map<std::string,std::string> my_keys_map);
   int fetchID()  throw(std::runtime_error);
   
  private:

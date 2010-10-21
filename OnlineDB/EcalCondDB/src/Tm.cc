@@ -170,7 +170,7 @@ void Tm::setToGMTime(time_t t)
 }
 
 void Tm::setToString(const string s)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   sscanf(s.c_str(), "%04d-%02d-%02d %02d:%02d:%02d", 
 	 &m_tm.tm_year, &m_tm.tm_mon, &m_tm.tm_mday,
@@ -178,17 +178,17 @@ void Tm::setToString(const string s)
 
   try {
     if (m_tm.tm_year > 9999 || m_tm.tm_year < 1900) {
-      throw(runtime_error("Year out of bounds"));
+      throw(std::runtime_error("Year out of bounds"));
     } else if (m_tm.tm_mon > 12 || m_tm.tm_mon < 1) {
-      throw(runtime_error("Month out of bounds"));
+      throw(std::runtime_error("Month out of bounds"));
     } else if (m_tm.tm_mday > 31 || m_tm.tm_mday < 1) {
-      throw(runtime_error("Day out of bounds"));
+      throw(std::runtime_error("Day out of bounds"));
     } else if (m_tm.tm_hour > 23 || m_tm.tm_mday < 0) {
-      throw(runtime_error("Hour out of bounds"));
+      throw(std::runtime_error("Hour out of bounds"));
     } else if (m_tm.tm_min > 59 || m_tm.tm_min < 0) {
-      throw(runtime_error("Minute out of bounds"));
+      throw(std::runtime_error("Minute out of bounds"));
     } else if (m_tm.tm_sec > 59 || m_tm.tm_sec < 0) {
-      throw(runtime_error("Day out of bounds"));
+      throw(std::runtime_error("Day out of bounds"));
     }
 
     if (m_tm.tm_year >= 2038) {
@@ -212,11 +212,11 @@ void Tm::setToString(const string s)
     }
     m_tm.tm_year -= 1900;
     m_tm.tm_mon -= 1;
-  } catch (runtime_error &e) {
+  } catch (std::runtime_error &e) {
     this->setNull();
     string msg("Tm::setToString():  ");
     msg.append(e.what());
-    throw(runtime_error(msg));
+    throw(std::runtime_error(msg));
   }
 }
 

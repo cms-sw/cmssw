@@ -16,14 +16,9 @@
 #include "OnlineDB/EcalCondDB/interface/MODRunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
-
-using namespace std;
-using namespace oracle::occi;
-
-
-
 class MODCCSHFDat : public IDataItem {
  public:
+  typedef oracle::occi::Clob Clob;
   friend class EcalCondDBInterface;
   MODCCSHFDat();
   ~MODCCSHFDat();
@@ -61,8 +56,8 @@ class MODCCSHFDat : public IDataItem {
   unsigned int m_size;
   std::string m_file;
   int testing;
-  unsigned char* readClob (oracle::occi::Clob &clob, int size)
-    throw (runtime_error);
+  unsigned char* readClob (Clob &clob, int size)
+    throw (std::runtime_error);
   void populateClob (Clob &clob, std::string fname, unsigned int clob_size)
     throw (std::runtime_error);
 

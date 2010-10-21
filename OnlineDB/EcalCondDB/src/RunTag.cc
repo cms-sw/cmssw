@@ -78,7 +78,7 @@ void RunTag::setRunTypeDef(const RunTypeDef runTypeDef)
 
 
 int RunTag::fetchID()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 
 
@@ -116,7 +116,7 @@ int RunTag::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("RunTag::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("RunTag::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -125,7 +125,7 @@ int RunTag::fetchID()
 
 
 void RunTag::setByID(int id) 
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -149,18 +149,18 @@ void RunTag::setByID(int id)
 
       m_ID = id;
     } else {
-      throw(runtime_error("RunTag::setByID:  Given tag_id is not in the database"));
+      throw(std::runtime_error("RunTag::setByID:  Given tag_id is not in the database"));
     }
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(runtime_error("RunTag::setByID:  "+e.getMessage()));
+   throw(std::runtime_error("RunTag::setByID:  "+e.getMessage()));
   }
 }
 
 
 int RunTag::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // see if this data is already in the DB
   if (this->fetchID()) { 
@@ -188,12 +188,12 @@ int RunTag::writeDB()
     
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(runtime_error("RunTag::writeDB:  "+e.getMessage()));
+   throw(std::runtime_error("RunTag::writeDB:  "+e.getMessage()));
   }
 
   // now get the tag_id
   if (!this->fetchID()) {
-    throw(runtime_error("RunTag::writeDB:  Failed to write"));
+    throw(std::runtime_error("RunTag::writeDB:  Failed to write"));
   }
 
   return m_ID;
@@ -201,8 +201,8 @@ int RunTag::writeDB()
 
 
 
-void RunTag::fetchAllTags( vector<RunTag>* fillVec)
-  throw(runtime_error)
+void RunTag::fetchAllTags( std::vector<RunTag>* fillVec)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   try {
@@ -218,14 +218,14 @@ void RunTag::fetchAllTags( vector<RunTag>* fillVec)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("RunTag::fetchAllTags:  "+e.getMessage()));
+    throw(std::runtime_error("RunTag::fetchAllTags:  "+e.getMessage()));
   }
 }
 
 
 
 void RunTag::fetchParentIDs(int* locID, int* runTypeID)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // get the location
   m_locDef.setConnection(m_env, m_conn);
@@ -238,10 +238,10 @@ void RunTag::fetchParentIDs(int* locID, int* runTypeID)
 
 
   if (! *locID) { 
-    throw(runtime_error("RunTag::fetchparentids:  Given location does not exist in DB")); 
+    throw(std::runtime_error("RunTag::fetchparentids:  Given location does not exist in DB")); 
   }
 
   if (! *runTypeID) { 
-    throw(runtime_error("RunTag::fetchParentIDs:  Given run type does not exist in DB")); 
+    throw(std::runtime_error("RunTag::fetchParentIDs:  Given run type does not exist in DB")); 
   }
 }

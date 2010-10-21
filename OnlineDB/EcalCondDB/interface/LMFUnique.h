@@ -14,10 +14,10 @@
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include "OnlineDB/EcalCondDB/interface/EcalDBConnection.h"
 
-using namespace oracle::occi;
-
 class LMFUnique: public IUniqueDBObject {
  public:
+  typedef oracle::occi::ResultSet ResultSet;
+  typedef oracle::occi::Statement Statement;
   friend class EcalCondDBInterface;
 
   LMFUnique() { 

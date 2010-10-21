@@ -27,7 +27,7 @@ ODWeightsSamplesDat::~ODWeightsSamplesDat()
 
 
 void ODWeightsSamplesDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -36,14 +36,14 @@ void ODWeightsSamplesDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, fed_id, sample_id, weight_number ) "
 			"VALUES (:1, :2, :3, :4 )");
   } catch (SQLException &e) {
-    throw(runtime_error("ODWeightsSamplesDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODWeightsSamplesDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void ODWeightsSamplesDat::writeDB(const ODWeightsSamplesDat* item, ODFEWeightsInfo* iov )
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -55,7 +55,7 @@ void ODWeightsSamplesDat::writeDB(const ODWeightsSamplesDat* item, ODFEWeightsIn
     
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("ODWeightsSamplesDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODWeightsSamplesDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -91,7 +91,7 @@ void ODWeightsSamplesDat::fetchData(std::vector< ODWeightsSamplesDat >* p, ODFEW
     }
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODWeightsSamplesDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODWeightsSamplesDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -103,7 +103,7 @@ void ODWeightsSamplesDat::writeArrayDB(const std::vector< ODWeightsSamplesDat > 
   this->checkConnection();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("ODDelays::writeArrayDB:  ODFEDelaysInfo not in DB")); }
+  if (!iovID) { throw(std::runtime_error("ODDelays::writeArrayDB:  ODFEDelaysInfo not in DB")); }
 
 
   int nrows=data.size(); 
@@ -156,6 +156,6 @@ void ODWeightsSamplesDat::writeArrayDB(const std::vector< ODWeightsSamplesDat > 
     delete [] z_len;
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODWeightsSamplesDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODWeightsSamplesDat::writeArrayDB():  "+e.getMessage()));
   }
 }

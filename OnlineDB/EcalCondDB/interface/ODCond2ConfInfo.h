@@ -44,7 +44,7 @@ class ODCond2ConfInfo : public IODConfig {
   int fetchID()  throw(std::runtime_error);
 
   int fetchNextId() throw(std::runtime_error);
-  void setParameters(std::map<string,string> my_keys_map);
+  void setParameters(std::map<std::string,std::string> my_keys_map);
   
  private:
   void prepareWrite()  throw(std::runtime_error);

@@ -208,14 +208,14 @@ int ODLaserConfig::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODLaserConfig::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error("ODLaserConfig::fetchNextId():  "+e.getMessage()));
   }
 
 }
 
 
 void ODLaserConfig::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   int next_id=fetchNextId();
@@ -288,14 +288,14 @@ void ODLaserConfig::prepareWrite()
     m_writeStmt->setInt(1, next_id);
     m_ID=next_id;
   } catch (SQLException &e) {
-    throw(runtime_error("ODLaserConfig::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODLaserConfig::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void ODLaserConfig::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -394,11 +394,11 @@ void ODLaserConfig::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODLaserConfig::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODLaserConfig::writeDB():  "+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("ODLaserConfig::writeDB:  Failed to write"));
+    throw(std::runtime_error("ODLaserConfig::writeDB:  Failed to write"));
   }
 
 }
@@ -406,12 +406,12 @@ void ODLaserConfig::writeDB()
 
 
 void ODLaserConfig::fetchData(ODLaserConfig * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
   if(result->getId()==0 && (result->getConfigTag()=="") ){
-    throw(runtime_error("ODLaserConfig::fetchData(): no Id defined for this ODLaserConfig "));
+    throw(std::runtime_error("ODLaserConfig::fetchData(): no Id defined for this ODLaserConfig "));
   }
 
   try {
@@ -507,7 +507,7 @@ void ODLaserConfig::fetchData(ODLaserConfig * result)
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODLaserConfig::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODLaserConfig::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -535,7 +535,7 @@ int ODLaserConfig::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODLaserConfig::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODLaserConfig::fetchID:  "+e.getMessage()));
   }
 
   fetchData(this);

@@ -32,7 +32,7 @@ ODPedestalOffsetsDat::~ODPedestalOffsetsDat()
 
 
 void ODPedestalOffsetsDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -41,14 +41,14 @@ void ODPedestalOffsetsDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, sm_id, fed_id, tt_id, cry_id, low, mid, high) "
 			"VALUES (:1, :2, :3, :4, :5, :6, :7, :8 )");
   } catch (SQLException &e) {
-    throw(runtime_error("ODPedestalOffsetsDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODPedestalOffsetsDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void ODPedestalOffsetsDat::writeDB(const ODPedestalOffsetsDat* item, ODFEPedestalOffsetInfo* iov )
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -64,7 +64,7 @@ void ODPedestalOffsetsDat::writeDB(const ODPedestalOffsetsDat* item, ODFEPedesta
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("ODPedestalOffsetsDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODPedestalOffsetsDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -105,7 +105,7 @@ void ODPedestalOffsetsDat::fetchData(std::vector< ODPedestalOffsetsDat >* p, ODF
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODPedestalOffsetsDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODPedestalOffsetsDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -117,7 +117,7 @@ void ODPedestalOffsetsDat::writeArrayDB(const std::vector< ODPedestalOffsetsDat 
   this->checkConnection();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("ODDelays::writeArrayDB:  ODFEDelaysInfo not in DB")); }
+  if (!iovID) { throw(std::runtime_error("ODDelays::writeArrayDB:  ODFEDelaysInfo not in DB")); }
 
 
   int nrows=data.size(); 
@@ -200,6 +200,6 @@ void ODPedestalOffsetsDat::writeArrayDB(const std::vector< ODPedestalOffsetsDat 
     delete [] z1_len;
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODPedestalOffsetsDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODPedestalOffsetsDat::writeArrayDB():  "+e.getMessage()));
   }
 }

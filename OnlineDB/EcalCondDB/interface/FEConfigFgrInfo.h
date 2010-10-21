@@ -40,7 +40,7 @@ class FEConfigFgrInfo : public  IODConfig {
   int fetchID() throw(std::runtime_error);
   int fetchNextId() throw(std::runtime_error);
   void setByID(int id) throw(std::runtime_error);
-  void setParameters(std::map<string,string> my_keys_map);
+  void setParameters(std::map<std::string,std::string> my_keys_map);
 
   // operators
   inline bool operator==(const FEConfigFgrInfo &r) const {  return (m_ID   == r.m_ID ); }

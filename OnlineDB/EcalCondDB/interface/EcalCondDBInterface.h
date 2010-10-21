@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.27 2010/06/16 13:54:57 organtin Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.28 2010/09/17 11:45:25 fra Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -256,8 +256,8 @@ class EcalCondDBInterface : public EcalDBConnection {
    *   Return a PTM Temp List
    */
 
-  DCSPTMTempList fetchDCSPTMTempList(EcalLogicID ecid)  throw(runtime_error);
-  DCSPTMTempList fetchDCSPTMTempList(EcalLogicID ecid, Tm start, Tm end) throw(runtime_error);
+  DCSPTMTempList fetchDCSPTMTempList(EcalLogicID ecid)  throw(std::runtime_error);
+  DCSPTMTempList fetchDCSPTMTempList(EcalLogicID ecid, Tm start, Tm end) throw(std::runtime_error);
 
   MonRunList fetchMonRunList(RunTag tag, MonRunTag monruntag) throw(std::runtime_error);
   MonRunList fetchMonRunList(RunTag tag, MonRunTag monruntag,int min_run, int max_run) throw(std::runtime_error);
@@ -283,11 +283,11 @@ class EcalCondDBInterface : public EcalDBConnection {
       iov->setConnection(env, conn);
       // if it has not yet been written then write 
       if(iov->getID()==0){
-	cout<<"IOV was not set we retrieve it from DB"<<endl;
+	std::cout<<"IOV was not set we retrieve it from DB"<<std::endl;
 	iov->fetchID();
       } 
       if(iov->getID()==0){
-	cout<<"IOV was not written we write it"<<endl;
+	std::cout<<"IOV was not written we write it"<<std::endl;
 	iov->writeDB();
       } 
       
@@ -322,15 +322,15 @@ class EcalCondDBInterface : public EcalDBConnection {
     try {
       iov->setConnection(env, conn);
       if(iov->getID()==0){
-	cout<<"IOV was not set we retrieve it from DB"<<endl;
+	std::cout<<"IOV was not set we retrieve it from DB"<<std::endl;
 	iov->fetchID();
       } 
       if(iov->getID()==0){
-	cout<<"IOV was not written we write it"<<endl;
+	std::cout<<"IOV was not written we write it"<<std::endl;
 	iov->writeDB();
       } 
 
-      std::cout<<"id="<<iov->getID()<<endl;
+      std::cout<<"id="<<iov->getID()<<std::endl;
 
       DATT dataIface;
       dataIface.setConnection(env, conn);
@@ -401,7 +401,7 @@ class EcalCondDBInterface : public EcalDBConnection {
        iconf->prepareWrite();
        // if it has not yet been written then write 
        iconf->writeDB();
-       std::cout<< "iconf inserted with ID="<<iconf->getId()<<endl;
+       std::cout<< "iconf inserted with ID="<<iconf->getId()<<std::endl;
        conn->commit();
        iconf->terminateWriteStatement();
      } catch (std::runtime_error &e) {
@@ -458,11 +458,11 @@ class EcalCondDBInterface : public EcalDBConnection {
       iconf->setConnection(env, conn);
       // if it has not yet been written then write 
       if(iconf->getId()==0){
-	cout<<"EcalCondDBInterface>> config_id was not set we retrieve it from DB"<<endl;
+	std::cout<<"EcalCondDBInterface>> config_id was not set we retrieve it from DB"<<std::endl;
 	iconf->fetchID();
       } 
       if(iconf->getId()==0){
-	cout<<"EcalCondDBInterface>> configuration info was not written we write it"<<endl;
+	std::cout<<"EcalCondDBInterface>> configuration info was not written we write it"<<std::endl;
 	iconf->writeDB();
       } 
       
@@ -497,11 +497,11 @@ class EcalCondDBInterface : public EcalDBConnection {
       iconf->setConnection(env, conn);
       // if it has not yet been written then write 
       if(iconf->getId()==0){
-	cout<<"EcalCondDBInterface>> config_id was not set we retrieve it from DB"<<endl;
+	std::cout<<"EcalCondDBInterface>> config_id was not set we retrieve it from DB"<<std::endl;
 	iconf->fetchID();
       } 
       if(iconf->getId()==0){
-	cout<<"EcalCondDBInterface>> configuration info was not written we write it"<<endl;
+	std::cout<<"EcalCondDBInterface>> configuration info was not written we write it"<<std::endl;
 	iconf->writeDB();
       } 
       
@@ -641,7 +641,7 @@ class EcalCondDBInterface : public EcalDBConnection {
   template<class DATT, class IOVT>
   void fetchValidDataSet(std::map< EcalLogicID, DATT >* fillMap,
                          IOVT* fillIOV,
-                         string location, run_t run = (unsigned int)-1)
+                         std::string location, run_t run = (unsigned int)-1)
   throw(std::runtime_error)
   {
     fillMap->clear();

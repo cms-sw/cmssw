@@ -40,7 +40,7 @@ class FEConfigPedDat : public IDataItem {
   void writeArrayDB(const std::map< EcalLogicID, FEConfigPedDat >* data, FEConfigPedInfo* iconf)
     throw(std::runtime_error);
 
-  void fetchData(map< EcalLogicID, FEConfigPedDat >* fillMap, FEConfigPedInfo* iconf)
+  void fetchData(std::map< EcalLogicID, FEConfigPedDat >* fillMap, FEConfigPedInfo* iconf)
      throw(std::runtime_error);
 
   // User data

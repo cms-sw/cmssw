@@ -28,7 +28,7 @@ RunFEConfigDat::~RunFEConfigDat()
 
 
 void RunFEConfigDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -39,23 +39,23 @@ void RunFEConfigDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":Config_id ) ");
   } catch (SQLException &e) {
-    throw(runtime_error("RunFEConfigDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("RunFEConfigDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void RunFEConfigDat::writeDB(const EcalLogicID* ecid, const RunFEConfigDat* item, RunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("RunFEConfigDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("RunFEConfigDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("RunFEConfigDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("RunFEConfigDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -65,14 +65,14 @@ void RunFEConfigDat::writeDB(const EcalLogicID* ecid, const RunFEConfigDat* item
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("RunFEConfigDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("RunFEConfigDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void RunFEConfigDat::fetchData(map< EcalLogicID, RunFEConfigDat >* fillMap, RunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -80,7 +80,7 @@ void RunFEConfigDat::fetchData(map< EcalLogicID, RunFEConfigDat >* fillMap, RunI
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("RunFEConfigDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("RunFEConfigDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -111,6 +111,6 @@ void RunFEConfigDat::fetchData(map< EcalLogicID, RunFEConfigDat >* fillMap, RunI
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("RunFEConfigDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("RunFEConfigDat::fetchData():  "+e.getMessage()));
   }
 }

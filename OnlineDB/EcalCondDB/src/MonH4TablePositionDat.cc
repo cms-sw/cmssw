@@ -27,7 +27,7 @@ MonH4TablePositionDat::~MonH4TablePositionDat()
 
 
 void MonH4TablePositionDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -38,23 +38,23 @@ void MonH4TablePositionDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4)");
   } catch (SQLException &e) {
-    throw(runtime_error("MonH4TablePositionDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("MonH4TablePositionDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void MonH4TablePositionDat::writeDB(const EcalLogicID* ecid, const MonH4TablePositionDat* item, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("MonH4TablePositionDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("MonH4TablePositionDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("MonH4TablePositionDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("MonH4TablePositionDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -65,14 +65,14 @@ void MonH4TablePositionDat::writeDB(const EcalLogicID* ecid, const MonH4TablePos
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("MonH4TablePositionDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("MonH4TablePositionDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void MonH4TablePositionDat::fetchData(std::map< EcalLogicID, MonH4TablePositionDat >* fillMap, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -80,7 +80,7 @@ void MonH4TablePositionDat::fetchData(std::map< EcalLogicID, MonH4TablePositionD
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("MonH4TablePositionDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("MonH4TablePositionDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -111,18 +111,18 @@ void MonH4TablePositionDat::fetchData(std::map< EcalLogicID, MonH4TablePositionD
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("MonH4TablePositionDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("MonH4TablePositionDat::fetchData():  "+e.getMessage()));
   }
 }
 
 void MonH4TablePositionDat::writeArrayDB(const std::map< EcalLogicID, MonH4TablePositionDat >* data, MonRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("MonH4TablePositionDat::writeArrayDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("MonH4TablePositionDat::writeArrayDB:  IOV not in DB")); }
 
 
   int nrows=data->size(); 
@@ -144,7 +144,7 @@ void MonH4TablePositionDat::writeArrayDB(const std::map< EcalLogicID, MonH4Table
   for (CI p = data->begin(); p != data->end(); ++p) {
         channel = &(p->first);
 	int logicID = channel->getLogicID();
-	if (!logicID) { throw(runtime_error("MonH4TablePositionDat::writeArrayDB:  Bad EcalLogicID")); }
+	if (!logicID) { throw(std::runtime_error("MonH4TablePositionDat::writeArrayDB:  Bad EcalLogicID")); }
 	ids[count]=logicID;
 	iovid_vec[count]=iovID;
 
@@ -185,6 +185,6 @@ void MonH4TablePositionDat::writeArrayDB(const std::map< EcalLogicID, MonH4Table
     delete [] y_len;
 
   } catch (SQLException &e) {
-    throw(runtime_error("MonH4TablePositionDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("MonH4TablePositionDat::writeArrayDB():  "+e.getMessage()));
   }
 }

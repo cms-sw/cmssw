@@ -52,13 +52,13 @@ int FEConfigWeightInfo::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigWeightInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigWeightInfo::fetchNextId():  "+e.getMessage()));
   }
 
 }
 
 void FEConfigWeightInfo::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -76,7 +76,7 @@ void FEConfigWeightInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigWeightInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigWeightInfo::prepareWrite():  "+e.getMessage()));
   }
 
 }
@@ -98,7 +98,7 @@ void FEConfigWeightInfo::setParameters(std::map<string,string> my_keys_map){
 }
 
 void FEConfigWeightInfo::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -114,11 +114,11 @@ void FEConfigWeightInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigWeightInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigWeightInfo::writeDB():  "+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("FEConfigWeightInfo::writeDB:  Failed to write"));
+    throw(std::runtime_error("FEConfigWeightInfo::writeDB:  Failed to write"));
   }
 
 
@@ -126,12 +126,12 @@ void FEConfigWeightInfo::writeDB()
 
 
 void FEConfigWeightInfo::fetchData(FEConfigWeightInfo * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
   if(result->getId()==0 && (result->getConfigTag()=="") ){
-    throw(runtime_error("FEConfigWeightInfo::fetchData(): no Id defined for this FEConfigWeightInfo "));
+    throw(std::runtime_error("FEConfigWeightInfo::fetchData(): no Id defined for this FEConfigWeightInfo "));
   }
 
   try {
@@ -156,12 +156,12 @@ void FEConfigWeightInfo::fetchData(FEConfigWeightInfo * result)
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigWeightInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigWeightInfo::fetchData():  "+e.getMessage()));
   }
 }
 
 void FEConfigWeightInfo::fetchLastData(FEConfigWeightInfo * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -182,7 +182,7 @@ void FEConfigWeightInfo::fetchLastData(FEConfigWeightInfo * result)
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigWeightInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigWeightInfo::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -212,7 +212,7 @@ int FEConfigWeightInfo::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigWeightInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigWeightInfo::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -242,12 +242,12 @@ void FEConfigWeightInfo::setByID(int id)
        Date dbdate = rset->getDate(5);
        this->setDBTime( dh.dateToTm( dbdate ));
      } else {
-       throw(runtime_error("FEConfigWeightInfo::setByID:  Given config_id is not in the database"));
+       throw(std::runtime_error("FEConfigWeightInfo::setByID:  Given config_id is not in the database"));
      }
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(runtime_error("FEConfigWeightInfo::setByID:  "+e.getMessage()));
+     throw(std::runtime_error("FEConfigWeightInfo::setByID:  "+e.getMessage()));
    }
 }
 

@@ -116,7 +116,7 @@ Tm MonRunIOV::getSubRunEnd() const
 
 
 int MonRunIOV::fetchID()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID) {
@@ -162,7 +162,7 @@ int MonRunIOV::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("MonRunIOV::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("MonRunIOV::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -202,19 +202,19 @@ void MonRunIOV::setByID(int id)
 
        m_ID = id;
      } else {
-       throw(runtime_error("MonRunIOV::setByID:  Given tag_id is not in the database"));
+       throw(std::runtime_error("MonRunIOV::setByID:  Given tag_id is not in the database"));
      }
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(runtime_error("MonRunIOV::setByID:  "+e.getMessage()));
+     throw(std::runtime_error("MonRunIOV::setByID:  "+e.getMessage()));
    }
 }
 
 
 
 int MonRunIOV::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -235,7 +235,7 @@ int MonRunIOV::writeDB()
   DateHandler dh(m_env, m_conn);
 
   if (m_subRunStart.isNull()) {
-    throw(runtime_error("MonRunIOV::writeDB:  Must setSubRunStart before writing"));
+    throw(std::runtime_error("MonRunIOV::writeDB:  Must setSubRunStart before writing"));
   }
   
   if (m_subRunEnd.isNull()) {
@@ -257,12 +257,12 @@ int MonRunIOV::writeDB()
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("MonRunIOV::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error("MonRunIOV::writeDB:  "+e.getMessage()));
   }
 
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("MonRunIOV::writeDB:  Failed to write"));
+    throw(std::runtime_error("MonRunIOV::writeDB:  Failed to write"));
   }
   
   return m_ID;
@@ -271,7 +271,7 @@ int MonRunIOV::writeDB()
 
 
 void MonRunIOV::fetchParentIDs(int* monRunTagID, int* runIOVID)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // get the MonRunTag
   m_monRunTag.setConnection(m_env, m_conn);
@@ -282,7 +282,7 @@ void MonRunIOV::fetchParentIDs(int* monRunTagID, int* runIOVID)
   *runIOVID = m_runIOV.fetchID();
 
   if (! *runIOVID) { 
-    throw(runtime_error("MonRunIOV:  Given RunIOV does not exist in DB")); 
+    throw(std::runtime_error("MonRunIOV:  Given RunIOV does not exist in DB")); 
   }
 
 }
@@ -298,14 +298,14 @@ void MonRunIOV::setByRun(MonRunTag* montag, RunIOV* runiov, subrun_t subrun)
   int runIOVID = runiov->fetchID();
 
   if (!runIOVID) {
-    throw(runtime_error("MonRunIOV::setByRun:  Given RunIOV does not exist in DB"));
+    throw(std::runtime_error("MonRunIOV::setByRun:  Given RunIOV does not exist in DB"));
   }
 
   montag->setConnection(m_env, m_conn);
   int monTagID = montag->fetchID();
   
   if (!monTagID) {
-    throw(runtime_error("MonRunIOV::setByRun:  Given MonRunTag does not exist in the DB"));
+    throw(std::runtime_error("MonRunIOV::setByRun:  Given MonRunTag does not exist in the DB"));
   }
 
   DateHandler dh(m_env, m_conn);
@@ -332,12 +332,12 @@ void MonRunIOV::setByRun(MonRunTag* montag, RunIOV* runiov, subrun_t subrun)
       m_subRunStart = dh.dateToTm( startDate );
       m_subRunEnd = dh.dateToTm( endDate );
     } else {
-      throw(runtime_error("MonRunIOV::setByRun:  Given subrun is not in the database"));
+      throw(std::runtime_error("MonRunIOV::setByRun:  Given subrun is not in the database"));
     }
      
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("MonRunIOV::setByRun:  "+e.getMessage()));
+    throw(std::runtime_error("MonRunIOV::setByRun:  "+e.getMessage()));
   }
   
 }

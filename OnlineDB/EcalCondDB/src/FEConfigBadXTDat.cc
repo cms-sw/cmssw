@@ -31,7 +31,7 @@ FEConfigBadXTDat::~FEConfigBadXTDat()
 
 
 void FEConfigBadXTDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -40,14 +40,14 @@ void FEConfigBadXTDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, tcc_id,fed_id, tt_id, CRY_id, status ) "
 			"VALUES (:1, :2, :3, :4, :5 ,:6 )");
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigBadXTDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigBadXTDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void FEConfigBadXTDat::writeDB(const FEConfigBadXTDat* item, FEConfigBadXTInfo* iov )
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -61,7 +61,7 @@ void FEConfigBadXTDat::writeDB(const FEConfigBadXTDat* item, FEConfigBadXTInfo* 
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigBadXTDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigBadXTDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -75,7 +75,7 @@ void FEConfigBadXTDat::fetchData(std::vector< FEConfigBadXTDat >* p, FEConfigBad
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("FEConfigBadXTDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("FEConfigBadXTDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -98,7 +98,7 @@ void FEConfigBadXTDat::fetchData(std::vector< FEConfigBadXTDat >* p, FEConfigBad
 
     }
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigBadXTDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigBadXTDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -110,7 +110,7 @@ void FEConfigBadXTDat::writeArrayDB(const std::vector< FEConfigBadXTDat > data, 
   this->checkConnection();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("FEConfigDelays::writeArrayDB:  FEConfigBadXTInfo not in DB")); }
+  if (!iovID) { throw(std::runtime_error("FEConfigDelays::writeArrayDB:  FEConfigBadXTInfo not in DB")); }
 
 
   int nrows=data.size(); 
@@ -179,6 +179,6 @@ void FEConfigBadXTDat::writeArrayDB(const std::vector< FEConfigBadXTDat > data, 
     delete [] st_len;
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigBadXTDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigBadXTDat::writeArrayDB():  "+e.getMessage()));
   }
 }

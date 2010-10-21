@@ -30,7 +30,7 @@ ODWeightsDat::~ODWeightsDat()
 
 
 void ODWeightsDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -39,14 +39,14 @@ void ODWeightsDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, sm_id, fed_id, tt_id, cry_id, wei0, wei1, wei2, wei3, wei4, wei5 ) "
 			"VALUES (:1, :2, :3, :4, :5, :6, :7, :8 , :9, :10, :11 )");
   } catch (SQLException &e) {
-    throw(runtime_error("ODWeightsDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODWeightsDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void ODWeightsDat::writeDB(const ODWeightsDat* item, ODFEWeightsInfo* iov )
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -66,7 +66,7 @@ void ODWeightsDat::writeDB(const ODWeightsDat* item, ODFEWeightsInfo* iov )
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("ODWeightsDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODWeightsDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -110,7 +110,7 @@ void ODWeightsDat::fetchData(std::vector< ODWeightsDat >* p, ODFEWeightsInfo* io
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODWeightsDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODWeightsDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -122,7 +122,7 @@ void ODWeightsDat::writeArrayDB(const std::vector< ODWeightsDat > data, ODFEWeig
   this->checkConnection();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("ODDelays::writeArrayDB:  ODFEDelaysInfo not in DB")); }
+  if (!iovID) { throw(std::runtime_error("ODDelays::writeArrayDB:  ODFEDelaysInfo not in DB")); }
 
 
   int nrows=data.size(); 
@@ -225,6 +225,6 @@ void ODWeightsDat::writeArrayDB(const std::vector< ODWeightsDat > data, ODFEWeig
     delete [] z2_len;
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODWeightsDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODWeightsDat::writeArrayDB():  "+e.getMessage()));
   }
 }

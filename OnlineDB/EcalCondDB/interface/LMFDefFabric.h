@@ -16,6 +16,7 @@
 #include "OnlineDB/EcalCondDB/interface/LMFRunTag.h"
 #include "OnlineDB/EcalCondDB/interface/LMFPrimVers.h"
 #include "OnlineDB/EcalCondDB/interface/LMFCorrVers.h"
+#include "OnlineDB/EcalCondDB/interface/LMFClsVers.h"
 #include "OnlineDB/EcalCondDB/interface/LMFSeqVers.h"
 #include "OnlineDB/EcalCondDB/interface/LMFUnique.h"
 
@@ -42,11 +43,11 @@ class LMFDefFabric: public IDBObject {
   LMFRunTag getRunTagFromID(int runTag_id) const;
   int getRunTagID(std::string tag, int version) const;
 
-  list<LMFColor>    getColors() const;
-  list<LMFTrigType> getTriggerTypes() const;
-  list<LMFRunTag>   getRunTags() const;
+  std::list<LMFColor>    getColors() const;
+  std::list<LMFTrigType> getTriggerTypes() const;
+  std::list<LMFRunTag>   getRunTags() const;
 
-  void initialize() throw(runtime_error);
+  void initialize() throw(std::runtime_error);
   void debug();
   void noDebug();
 
@@ -54,12 +55,13 @@ class LMFDefFabric: public IDBObject {
 
   bool _debug;
 
-  list<LMFColor>    _lmfColors;
-  list<LMFTrigType> _lmfTrigTypes;
-  list<LMFRunTag>   _lmfRunTags;
-  list<LMFPrimVers> _lmfPrimVersions;  
-  list<LMFSeqVers>  _lmfSeqVersions;  
-  list<LMFCorrVers> _lmfCorrVersions;  
+  std::list<LMFColor>    _lmfColors;
+  std::list<LMFTrigType> _lmfTrigTypes;
+  std::list<LMFRunTag>   _lmfRunTags;
+  std::list<LMFPrimVers> _lmfPrimVersions;  
+  std::list<LMFSeqVers>  _lmfSeqVersions;  
+  std::list<LMFClsVers>  _lmfClsVersions;  
+  std::list<LMFCorrVers> _lmfCorrVersions;  
 };
 
 #endif

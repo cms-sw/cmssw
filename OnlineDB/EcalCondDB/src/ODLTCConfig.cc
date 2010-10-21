@@ -47,7 +47,7 @@ int ODLTCConfig::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODLTCConfig::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error("ODLTCConfig::fetchNextId():  "+e.getMessage()));
   }
 
 }
@@ -56,7 +56,7 @@ int ODLTCConfig::fetchNextId()  throw(std::runtime_error) {
 
 
 void ODLTCConfig::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -92,7 +92,7 @@ void ODLTCConfig::prepareWrite()
 
     
   } catch (SQLException &e) {
-    throw(runtime_error("ODLTCConfig::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODLTCConfig::prepareWrite():  "+e.getMessage()));
   }
 
   std::cout<<"updating the clob 1 "<<std::endl;
@@ -146,7 +146,7 @@ void ODLTCConfig::setParameters(std::map<string,string> my_keys_map){
 
 
 void ODLTCConfig::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 
   std::cout<<"updating the clob "<<std::endl;
@@ -176,11 +176,11 @@ void ODLTCConfig::writeDB()
     m_writeStmt->closeResultSet (rset);
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODLTCConfig::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODLTCConfig::writeDB():  "+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("ODLTCConfig::writeDB:  Failed to write"));
+    throw(std::runtime_error("ODLTCConfig::writeDB:  Failed to write"));
   }
 
 
@@ -197,12 +197,12 @@ void ODLTCConfig::clear(){
 
 
 void ODLTCConfig::fetchData(ODLTCConfig * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
   if(result->getId()==0 && result->getConfigTag()==""){
-    throw(runtime_error("ODLTCConfig::fetchData(): no Id defined for this ODLTCConfig "));
+    throw(std::runtime_error("ODLTCConfig::fetchData(): no Id defined for this ODLTCConfig "));
   }
 
   try {
@@ -239,7 +239,7 @@ void ODLTCConfig::fetchData(ODLTCConfig * result)
     result->setLTCClob(buffer );
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODLTCConfig::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODLTCConfig::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -270,7 +270,7 @@ int ODLTCConfig::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODLTCConfig::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODLTCConfig::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;

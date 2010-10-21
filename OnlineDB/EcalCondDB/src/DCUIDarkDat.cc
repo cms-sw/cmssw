@@ -28,7 +28,7 @@ DCUIDarkDat::~DCUIDarkDat()
 
 
 void DCUIDarkDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -39,23 +39,23 @@ void DCUIDarkDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":apd_idark)");
   } catch (SQLException &e) {
-    throw(runtime_error("DCUIDarkDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("DCUIDarkDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void DCUIDarkDat::writeDB(const EcalLogicID* ecid, const DCUIDarkDat* item, DCUIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("DCUIDarkDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("DCUIDarkDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("DCUIDarkDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("DCUIDarkDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -65,14 +65,14 @@ void DCUIDarkDat::writeDB(const EcalLogicID* ecid, const DCUIDarkDat* item, DCUI
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("DCUIDarkDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("DCUIDarkDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void DCUIDarkDat::fetchData(std::map< EcalLogicID, DCUIDarkDat >* fillMap, DCUIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -80,7 +80,7 @@ void DCUIDarkDat::fetchData(std::map< EcalLogicID, DCUIDarkDat >* fillMap, DCUIO
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("DCUIDarkDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("DCUIDarkDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -110,17 +110,17 @@ void DCUIDarkDat::fetchData(std::map< EcalLogicID, DCUIDarkDat >* fillMap, DCUIO
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("DCUIDarkDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("DCUIDarkDat::fetchData():  "+e.getMessage()));
   }
 }
 void DCUIDarkDat::writeArrayDB(const std::map< EcalLogicID, DCUIDarkDat >* data, DCUIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("DCUIDarkDat::writeArrayDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("DCUIDarkDat::writeArrayDB:  IOV not in DB")); }
 
 
   int nrows=data->size(); 
@@ -139,7 +139,7 @@ void DCUIDarkDat::writeArrayDB(const std::map< EcalLogicID, DCUIDarkDat >* data,
   for (CI p = data->begin(); p != data->end(); ++p) {
         channel = &(p->first);
 	int logicID = channel->getLogicID();
-	if (!logicID) { throw(runtime_error("DCUIDarkDat::writeArrayDB:  Bad EcalLogicID")); }
+	if (!logicID) { throw(std::runtime_error("DCUIDarkDat::writeArrayDB:  Bad EcalLogicID")); }
 	ids[count]=logicID;
 	iovid_vec[count]=iovID;
 
@@ -176,6 +176,6 @@ void DCUIDarkDat::writeArrayDB(const std::map< EcalLogicID, DCUIDarkDat >* data,
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("DCUIDarkDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("DCUIDarkDat::writeArrayDB():  "+e.getMessage()));
   }
 }

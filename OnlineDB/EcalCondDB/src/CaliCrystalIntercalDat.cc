@@ -30,7 +30,7 @@ CaliCrystalIntercalDat::~CaliCrystalIntercalDat()
 
 
 void CaliCrystalIntercalDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   
@@ -41,23 +41,23 @@ void CaliCrystalIntercalDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5, :6)");
   } catch (SQLException &e) {
-    throw(runtime_error("CaliCrystalIntercalDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("CaliCrystalIntercalDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void CaliCrystalIntercalDat::writeDB(const EcalLogicID* ecid, const CaliCrystalIntercalDat* item, CaliIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
   
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("CaliCrystalIntercalDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("CaliCrystalIntercalDat::writeDB:  IOV not in DB")); }
   
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("CaliCrystalIntercalDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("CaliCrystalIntercalDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -70,14 +70,14 @@ void CaliCrystalIntercalDat::writeDB(const EcalLogicID* ecid, const CaliCrystalI
     
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("CaliCrystalIntercalDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("CaliCrystalIntercalDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void CaliCrystalIntercalDat::fetchData(std::map< EcalLogicID, CaliCrystalIntercalDat >* fillMap, CaliIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -85,7 +85,7 @@ void CaliCrystalIntercalDat::fetchData(std::map< EcalLogicID, CaliCrystalInterca
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("CaliCrystalIntercalDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("CaliCrystalIntercalDat::writeDB:  IOV not in DB")); 
     return;
   }
   
@@ -118,18 +118,18 @@ void CaliCrystalIntercalDat::fetchData(std::map< EcalLogicID, CaliCrystalInterca
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("CaliCrystalIntercalDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("CaliCrystalIntercalDat::fetchData():  "+e.getMessage()));
   }
 }
 
 void CaliCrystalIntercalDat::writeArrayDB(const std::map< EcalLogicID, CaliCrystalIntercalDat >* data, CaliIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("CaliCrystalIntercalDat::writeArrayDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("CaliCrystalIntercalDat::writeArrayDB:  IOV not in DB")); }
 
 
   int nrows=data->size();
@@ -154,7 +154,7 @@ void CaliCrystalIntercalDat::writeArrayDB(const std::map< EcalLogicID, CaliCryst
   for (CI p = data->begin(); p != data->end(); ++p) {
     channel = &(p->first);
     int logicID = channel->getLogicID();
-    if (!logicID) { throw(runtime_error("CaliCrystalIntercalDat::writeArrayDB:  Bad EcalLogicID")); }
+    if (!logicID) { throw(std::runtime_error("CaliCrystalIntercalDat::writeArrayDB:  Bad EcalLogicID")); }
     ids[count]=logicID;
     iovid_vec[count]=iovID;
 
@@ -213,6 +213,6 @@ void CaliCrystalIntercalDat::writeArrayDB(const std::map< EcalLogicID, CaliCryst
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("MonPedestalsDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("MonPedestalsDat::writeArrayDB():  "+e.getMessage()));
   }
 }

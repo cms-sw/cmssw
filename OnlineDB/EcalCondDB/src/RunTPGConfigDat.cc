@@ -28,7 +28,7 @@ RunTPGConfigDat::~RunTPGConfigDat()
 
 
 void RunTPGConfigDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -39,23 +39,23 @@ void RunTPGConfigDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":Config_tag , :version ) ");
   } catch (SQLException &e) {
-    throw(runtime_error("RunTPGConfigDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("RunTPGConfigDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void RunTPGConfigDat::writeDB(const EcalLogicID* ecid, const RunTPGConfigDat* item, RunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("RunTPGConfigDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("RunTPGConfigDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("RunTPGConfigDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("RunTPGConfigDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -66,14 +66,14 @@ void RunTPGConfigDat::writeDB(const EcalLogicID* ecid, const RunTPGConfigDat* it
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("RunTPGConfigDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("RunTPGConfigDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void RunTPGConfigDat::fetchData(map< EcalLogicID, RunTPGConfigDat >* fillMap, RunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -81,7 +81,7 @@ void RunTPGConfigDat::fetchData(map< EcalLogicID, RunTPGConfigDat >* fillMap, Ru
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("RunTPGConfigDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("RunTPGConfigDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -113,6 +113,6 @@ void RunTPGConfigDat::fetchData(map< EcalLogicID, RunTPGConfigDat >* fillMap, Ru
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("RunTPGConfigDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("RunTPGConfigDat::fetchData():  "+e.getMessage()));
   }
 }

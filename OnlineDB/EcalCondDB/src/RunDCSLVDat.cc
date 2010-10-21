@@ -30,7 +30,7 @@ RunDCSLVDat::~RunDCSLVDat()
 
 
 void RunDCSLVDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 
 
@@ -39,14 +39,14 @@ void RunDCSLVDat::prepareWrite()
 
 
 void RunDCSLVDat::writeDB(const EcalLogicID* ecid, const RunDCSLVDat* item, RunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 }
 
 
 
 void RunDCSLVDat::fetchData(map< EcalLogicID, RunDCSLVDat >* fillMap, RunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   fetchLastData(fillMap);
 
@@ -64,7 +64,7 @@ ResultSet *RunDCSLVDat::getBarrelRset() {
     rset = m_readStmt->executeQuery();
   }
   catch (SQLException e) {
-    throw(runtime_error("RunDCSLVDat::getBarrelRset():  " + e.getMessage() + " " + query));
+    throw(std::runtime_error("RunDCSLVDat::getBarrelRset():  " + e.getMessage() + " " + query));
   }
   return rset;
 }
@@ -81,7 +81,7 @@ ResultSet *RunDCSLVDat::getEndcapRset() {
     rset = m_readStmt->executeQuery();
   }
   catch (SQLException e) {
-    throw(runtime_error("RunDCSLVDat::getEndcapRset():  " + e.getMessage() + " " + query));
+    throw(std::runtime_error("RunDCSLVDat::getEndcapRset():  " + e.getMessage() + " " + query));
   }
   return rset;
 }
@@ -116,7 +116,7 @@ void RunDCSLVDat::fillTheMap(ResultSet *rset,
     } 
   }
   catch (SQLException &e) {
-    throw(runtime_error("RunDCSLVDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("RunDCSLVDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -170,7 +170,7 @@ void  RunDCSLVDat::setStatusForEndcaps(RunDCSLVDat &dat, Tm sinceTm) {
 }
 
 void RunDCSLVDat::fetchLastData(map< EcalLogicID, RunDCSLVDat >* fillMap )
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -188,6 +188,6 @@ void RunDCSLVDat::fetchLastData(map< EcalLogicID, RunDCSLVDat >* fillMap )
     fillTheMap(rset, fillMap);
   } 
   catch (SQLException &e) {
-    throw(runtime_error("RunDCSLVDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("RunDCSLVDat::fetchData():  "+e.getMessage()));
   }
 }

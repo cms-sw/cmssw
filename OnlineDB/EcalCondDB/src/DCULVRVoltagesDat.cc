@@ -42,7 +42,7 @@ DCULVRVoltagesDat::~DCULVRVoltagesDat()
 
 
 void DCULVRVoltagesDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -53,23 +53,23 @@ void DCULVRVoltagesDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5, :6, :7, :8, :9, :10, :11, :12, :13, :14, :15, :16, :17)");
   } catch (SQLException &e) {
-    throw(runtime_error("DCULVRVoltagesDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("DCULVRVoltagesDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void DCULVRVoltagesDat::writeDB(const EcalLogicID* ecid, const DCULVRVoltagesDat* item, DCUIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("DCULVRVoltagesDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("DCULVRVoltagesDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("DCULVRVoltagesDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("DCULVRVoltagesDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -93,14 +93,14 @@ void DCULVRVoltagesDat::writeDB(const EcalLogicID* ecid, const DCULVRVoltagesDat
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("DCULVRVoltagesDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("DCULVRVoltagesDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void DCULVRVoltagesDat::fetchData(std::map< EcalLogicID, DCULVRVoltagesDat >* fillMap, DCUIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -108,7 +108,7 @@ void DCULVRVoltagesDat::fetchData(std::map< EcalLogicID, DCULVRVoltagesDat >* fi
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("DCULVRVoltagesDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("DCULVRVoltagesDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -152,17 +152,17 @@ void DCULVRVoltagesDat::fetchData(std::map< EcalLogicID, DCULVRVoltagesDat >* fi
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("DCULVRVoltagesDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("DCULVRVoltagesDat::fetchData():  "+e.getMessage()));
   }
 }
 void DCULVRVoltagesDat::writeArrayDB(const std::map< EcalLogicID, DCULVRVoltagesDat >* data, DCUIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("DCULVRVoltagesDat::writeArrayDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("DCULVRVoltagesDat::writeArrayDB:  IOV not in DB")); }
 
 
   int nrows=data->size(); 
@@ -210,7 +210,7 @@ void DCULVRVoltagesDat::writeArrayDB(const std::map< EcalLogicID, DCULVRVoltages
   for (CI p = data->begin(); p != data->end(); ++p) {
         channel = &(p->first);
 	int logicID = channel->getLogicID();
-	if (!logicID) { throw(runtime_error("DCULVRVoltagesDat::writeArrayDB:  Bad EcalLogicID")); }
+	if (!logicID) { throw(std::runtime_error("DCULVRVoltagesDat::writeArrayDB:  Bad EcalLogicID")); }
 	ids[count]=logicID;
 	iovid_vec[count]=iovID;
 
@@ -327,6 +327,6 @@ void DCULVRVoltagesDat::writeArrayDB(const std::map< EcalLogicID, DCULVRVoltages
     delete [] h_len;
 
   } catch (SQLException &e) {
-    throw(runtime_error("DCULVRVoltagesDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("DCULVRVoltagesDat::writeArrayDB():  "+e.getMessage()));
   }
 }

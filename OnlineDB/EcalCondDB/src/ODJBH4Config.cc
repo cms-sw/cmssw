@@ -54,13 +54,13 @@ int ODJBH4Config::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODJBH4Config::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error("ODJBH4Config::fetchNextId():  "+e.getMessage()));
   }
 
 }
 
 void ODJBH4Config::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   int next_id=fetchNextId();
@@ -75,14 +75,14 @@ void ODJBH4Config::prepareWrite()
     m_writeStmt->setInt(1, next_id);
     m_ID=next_id;
   } catch (SQLException &e) {
-    throw(runtime_error("ODJBH4Config::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODJBH4Config::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void ODJBH4Config::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -105,23 +105,23 @@ void ODJBH4Config::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODJBH4Config::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODJBH4Config::writeDB():  "+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("ODJBH4Config::writeDB:  Failed to write"));
+    throw(std::runtime_error("ODJBH4Config::writeDB:  Failed to write"));
   }
 
 }
 
 
 void ODJBH4Config::fetchData(ODJBH4Config * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
   if(result->getId()==0){
-    throw(runtime_error("ODJBH4Config::fetchData(): no Id defined for this ODJBH4Config "));
+    throw(std::runtime_error("ODJBH4Config::fetchData(): no Id defined for this ODJBH4Config "));
   }
 
   try {
@@ -147,7 +147,7 @@ void ODJBH4Config::fetchData(ODJBH4Config * result)
     result->setCaenBoardNumber(              rset->getInt(10) );
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODJBH4Config::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODJBH4Config::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -177,7 +177,7 @@ int ODJBH4Config::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODJBH4Config::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODJBH4Config::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;

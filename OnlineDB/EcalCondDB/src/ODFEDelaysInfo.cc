@@ -52,13 +52,13 @@ int ODFEDelaysInfo::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODFEDelaysInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error("ODFEDelaysInfo::fetchNextId():  "+e.getMessage()));
   }
 
 }
 
 void ODFEDelaysInfo::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -76,7 +76,7 @@ void ODFEDelaysInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODFEDelaysInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODFEDelaysInfo::prepareWrite():  "+e.getMessage()));
   }
 
 }
@@ -97,7 +97,7 @@ void ODFEDelaysInfo::setParameters(std::map<string,string> my_keys_map){
 }
 
 void ODFEDelaysInfo::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -112,12 +112,12 @@ void ODFEDelaysInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODFEDelaysInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODFEDelaysInfo::writeDB():  "+e.getMessage()));
   }
 
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("ODFEDelaysInfo::writeDB:  Failed to write"));
+    throw(std::runtime_error("ODFEDelaysInfo::writeDB:  Failed to write"));
   } else {
     int old_version=this->getVersion();
     m_readStmt = m_conn->createStatement(); 
@@ -129,14 +129,14 @@ void ODFEDelaysInfo::writeDB()
 
 
 void ODFEDelaysInfo::fetchData(ODFEDelaysInfo * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 
   this->checkConnection();
 
   result->clear();
   if(result->getId()==0 && (result->getConfigTag()=="") ){
-    throw(runtime_error("ODFEDelaysInfo::fetchData(): no Id defined for this ODFEDelaysInfo "));
+    throw(std::runtime_error("ODFEDelaysInfo::fetchData(): no Id defined for this ODFEDelaysInfo "));
   }
 
   try {
@@ -151,7 +151,7 @@ void ODFEDelaysInfo::fetchData(ODFEDelaysInfo * result)
       m_readStmt->setInt(2, result->getVersion());
     } else {
       // we should never pass here 
-      throw(runtime_error("ODFEDelaysInfo::fetchData(): no Id defined for this ODFEDelaysInfo "));
+      throw(std::runtime_error("ODFEDelaysInfo::fetchData(): no Id defined for this ODFEDelaysInfo "));
     }
 
     ResultSet* rset = m_readStmt->executeQuery();
@@ -164,7 +164,7 @@ void ODFEDelaysInfo::fetchData(ODFEDelaysInfo * result)
     result->setVersion(rset->getInt(3));
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODFEDelaysInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODFEDelaysInfo::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -194,7 +194,7 @@ int ODFEDelaysInfo::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODFEDelaysInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODFEDelaysInfo::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;

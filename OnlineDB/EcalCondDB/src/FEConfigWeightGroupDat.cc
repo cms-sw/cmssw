@@ -33,7 +33,7 @@ FEConfigWeightGroupDat::~FEConfigWeightGroupDat()
 
 
 void FEConfigWeightGroupDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -44,23 +44,23 @@ void FEConfigWeightGroupDat::prepareWrite()
 		      "VALUES (:wei_conf_id, :group_id, "
 		      ":w0, :w1, :w2, :w3, :w4 )" );
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigWeightGroupDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigWeightGroupDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void FEConfigWeightGroupDat::writeDB(const EcalLogicID* ecid, const FEConfigWeightGroupDat* item, FEConfigWeightInfo* iconf)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iconfID = iconf->fetchID();
-  if (!iconfID) { throw(runtime_error("FEConfigWeightGroupDat::writeDB:  ICONF not in DB")); }
+  if (!iconfID) { throw(std::runtime_error("FEConfigWeightGroupDat::writeDB:  ICONF not in DB")); }
   /* no need for the logic id in this table 
      int logicID = ecid->getLogicID();
-     if (!logicID) { throw(runtime_error("FEConfigWeightGroupDat::writeDB:  Bad EcalLogicID")); }
+     if (!logicID) { throw(std::runtime_error("FEConfigWeightGroupDat::writeDB:  Bad EcalLogicID")); }
   */
 
   try {
@@ -75,14 +75,14 @@ void FEConfigWeightGroupDat::writeDB(const EcalLogicID* ecid, const FEConfigWeig
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigWeightGroupDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigWeightGroupDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void FEConfigWeightGroupDat::fetchData(map< EcalLogicID, FEConfigWeightGroupDat >* fillMap, FEConfigWeightInfo* iconf)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -90,7 +90,7 @@ void FEConfigWeightGroupDat::fetchData(map< EcalLogicID, FEConfigWeightGroupDat 
   iconf->setConnection(m_env, m_conn);
   int iconfID = iconf->fetchID();
   if (!iconfID) { 
-     throw(runtime_error("FEConfigWeightGroupDat::fetchData:  ICONF not in DB")); 
+     throw(std::runtime_error("FEConfigWeightGroupDat::fetchData:  ICONF not in DB")); 
     return;
   }
   
@@ -121,18 +121,18 @@ void FEConfigWeightGroupDat::fetchData(map< EcalLogicID, FEConfigWeightGroupDat 
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigWeightGroupDat::fetchData:  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigWeightGroupDat::fetchData:  "+e.getMessage()));
   }
 }
 
 void FEConfigWeightGroupDat::writeArrayDB(const std::map< EcalLogicID, FEConfigWeightGroupDat >* data, FEConfigWeightInfo* iconf)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iconfID = iconf->fetchID();
-  if (!iconfID) { throw(runtime_error("FEConfigWeightGroupDat::writeArrayDB:  ICONF not in DB")); }
+  if (!iconfID) { throw(std::runtime_error("FEConfigWeightGroupDat::writeArrayDB:  ICONF not in DB")); }
 
 
   int nrows=data->size(); 
@@ -163,7 +163,7 @@ void FEConfigWeightGroupDat::writeArrayDB(const std::map< EcalLogicID, FEConfigW
   for (CI p = data->begin(); p != data->end(); ++p) {
         channel = &(p->first);
 	//	int logicID = channel->getLogicID();
-	//	if (!logicID) { throw(runtime_error("FEConfigWeightGroupDat::writeArrayDB:  Bad EcalLogicID")); }
+	//	if (!logicID) { throw(std::runtime_error("FEConfigWeightGroupDat::writeArrayDB:  Bad EcalLogicID")); }
 	//	ids[count]=logicID;
 	iconfid_vec[count]=iconfID;
 
@@ -227,6 +227,6 @@ void FEConfigWeightGroupDat::writeArrayDB(const std::map< EcalLogicID, FEConfigW
     delete [] t_len;
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigWeightGroupDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigWeightGroupDat::writeArrayDB():  "+e.getMessage()));
   }
 }

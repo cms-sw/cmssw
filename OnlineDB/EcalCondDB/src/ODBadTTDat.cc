@@ -30,7 +30,7 @@ ODBadTTDat::~ODBadTTDat()
 
 
 void ODBadTTDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -39,14 +39,14 @@ void ODBadTTDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, tr_id, fed_id, tt_id, status ) "
 			"VALUES (:1, :2, :3, :4, :5 )");
   } catch (SQLException &e) {
-    throw(runtime_error("ODBadTTDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODBadTTDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void ODBadTTDat::writeDB(const ODBadTTDat* item, ODBadTTInfo* iov )
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -59,7 +59,7 @@ void ODBadTTDat::writeDB(const ODBadTTDat* item, ODBadTTInfo* iov )
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("ODBadTTDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODBadTTDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -73,7 +73,7 @@ void ODBadTTDat::fetchData(std::vector< ODBadTTDat >* p, ODBadTTInfo* iov)
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("ODBadTTDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("ODBadTTDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -95,7 +95,7 @@ void ODBadTTDat::fetchData(std::vector< ODBadTTDat >* p, ODBadTTInfo* iov)
 
     }
   } catch (SQLException &e) {
-    throw(runtime_error("ODBadTTDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODBadTTDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -107,7 +107,7 @@ void ODBadTTDat::writeArrayDB(const std::vector< ODBadTTDat > data, ODBadTTInfo*
   this->checkConnection();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("ODDelays::writeArrayDB:  ODBadTTInfo not in DB")); }
+  if (!iovID) { throw(std::runtime_error("ODDelays::writeArrayDB:  ODBadTTInfo not in DB")); }
 
 
   int nrows=data.size(); 
@@ -169,6 +169,6 @@ void ODBadTTDat::writeArrayDB(const std::vector< ODBadTTDat > data, ODBadTTInfo*
     delete [] st_len;
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODBadTTDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODBadTTDat::writeArrayDB():  "+e.getMessage()));
   }
 }

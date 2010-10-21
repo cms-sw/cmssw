@@ -54,7 +54,7 @@ int ODSRPConfig::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODSRPConfig::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error("ODSRPConfig::fetchNextId():  "+e.getMessage()));
   }
 
 }
@@ -114,7 +114,7 @@ void ODSRPConfig::setParameters(std::map<string,string> my_keys_map){
 }
 
 void ODSRPConfig::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -155,7 +155,7 @@ void ODSRPConfig::prepareWrite()
 
     
   } catch (SQLException &e) {
-    throw(runtime_error("ODSRPConfig::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODSRPConfig::prepareWrite():  "+e.getMessage()));
   }
 
   std::cout<<"updating the clob 1 "<<std::endl;
@@ -164,7 +164,7 @@ void ODSRPConfig::prepareWrite()
 
 
 void ODSRPConfig::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 
   std::cout<<"updating the clob 2"<<std::endl;
@@ -189,11 +189,11 @@ void ODSRPConfig::writeDB()
     m_writeStmt->closeResultSet (rset);
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODSRPConfig::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODSRPConfig::writeDB():  "+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("ODSRPConfig::writeDB:  Failed to write"));
+    throw(std::runtime_error("ODSRPConfig::writeDB:  Failed to write"));
   }
 
 
@@ -201,14 +201,12 @@ void ODSRPConfig::writeDB()
 
 
 void ODSRPConfig::fetchData(ODSRPConfig * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
-  //  result->clear();
-  int idid=0;
+  result->clear();
   if(result->getId()==0 && (result->getConfigTag()=="") ){
-    //    throw(runtime_error("ODSRPConfig::fetchData(): no Id defined for this ODSRPConfig "));
-    idid=result->fetchID();
+    throw(std::runtime_error("ODSRPConfig::fetchData(): no Id defined for this ODSRPConfig "));
   }
 
   try {
@@ -234,12 +232,6 @@ void ODSRPConfig::fetchData(ODSRPConfig * result)
     result->setConfigFile(rset->getString(8));
 
     Clob clob = rset->getClob(9);
-    m_size = clob.length();
-    Stream *instream = clob.getStream (1,0);
-    unsigned char *buffer = new unsigned char[m_size];
-    memset (buffer, 0, m_size);
-    instream->readBuffer ((char*)buffer, m_size);
-    /*
     cout << "Opening the clob in Read only mode" << endl;
     clob.open (OCCI_LOB_READONLY);
     int clobLength=clob.length ();
@@ -252,12 +244,10 @@ void ODSRPConfig::fetchData(ODSRPConfig * result)
     cout << endl;
 
 
-    */
     result->setSRPClob(buffer );
-    result->setAutomaticSrpSelect(rset->getInt(10));
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODSRPConfig::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODSRPConfig::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -289,7 +279,7 @@ int ODSRPConfig::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODSRPConfig::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODSRPConfig::fetchID:  "+e.getMessage()));
   }
 
     return m_ID;

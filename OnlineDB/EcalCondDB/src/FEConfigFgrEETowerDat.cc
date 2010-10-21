@@ -28,7 +28,7 @@ FEConfigFgrEETowerDat::~FEConfigFgrEETowerDat()
 
 
 void FEConfigFgrEETowerDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -39,23 +39,23 @@ void FEConfigFgrEETowerDat::prepareWrite()
 		      "VALUES (:fgr_conf_id, :logic_id, "
 		      ":lut_value )" );
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigFgrEETowerDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigFgrEETowerDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void FEConfigFgrEETowerDat::writeDB(const EcalLogicID* ecid, const FEConfigFgrEETowerDat* item, FEConfigFgrInfo* iconf)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iconfID = iconf->fetchID();
-  if (!iconfID) { throw(runtime_error("FEConfigFgrEETowerDat::writeDB:  ICONF not in DB")); }
+  if (!iconfID) { throw(std::runtime_error("FEConfigFgrEETowerDat::writeDB:  ICONF not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("FEConfigFgrEETowerDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("FEConfigFgrEETowerDat::writeDB:  Bad EcalLogicID")); }
  
   try {
     m_writeStmt->setInt(1, iconfID);
@@ -64,14 +64,14 @@ void FEConfigFgrEETowerDat::writeDB(const EcalLogicID* ecid, const FEConfigFgrEE
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigFgrEETowerDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigFgrEETowerDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void FEConfigFgrEETowerDat::fetchData(map< EcalLogicID, FEConfigFgrEETowerDat >* fillMap, FEConfigFgrInfo* iconf)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -79,7 +79,7 @@ void FEConfigFgrEETowerDat::fetchData(map< EcalLogicID, FEConfigFgrEETowerDat >*
   iconf->setConnection(m_env, m_conn);
   int iconfID = iconf->fetchID();
   if (!iconfID) { 
-    //  throw(runtime_error("FEConfigFgrEETowerDat::writeDB:  ICONF not in DB")); 
+    //  throw(std::runtime_error("FEConfigFgrEETowerDat::writeDB:  ICONF not in DB")); 
     return;
   }
   
@@ -109,18 +109,18 @@ void FEConfigFgrEETowerDat::fetchData(map< EcalLogicID, FEConfigFgrEETowerDat >*
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigFgrEETowerDat::fetchData:  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigFgrEETowerDat::fetchData:  "+e.getMessage()));
   }
 }
 
 void FEConfigFgrEETowerDat::writeArrayDB(const std::map< EcalLogicID, FEConfigFgrEETowerDat >* data, FEConfigFgrInfo* iconf)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iconfID = iconf->fetchID();
-  if (!iconfID) { throw(runtime_error("FEConfigFgrEETowerDat::writeArrayDB:  ICONF not in DB")); }
+  if (!iconfID) { throw(std::runtime_error("FEConfigFgrEETowerDat::writeArrayDB:  ICONF not in DB")); }
 
 
   int nrows=data->size(); 
@@ -141,7 +141,7 @@ void FEConfigFgrEETowerDat::writeArrayDB(const std::map< EcalLogicID, FEConfigFg
   for (CI p = data->begin(); p != data->end(); ++p) {
         channel = &(p->first);
 	int logicID = channel->getLogicID();
-	if (!logicID) { throw(runtime_error("FEConfigFgrEETowerDat::writeArrayDB:  Bad EcalLogicID")); }
+	if (!logicID) { throw(std::runtime_error("FEConfigFgrEETowerDat::writeArrayDB:  Bad EcalLogicID")); }
 	ids[count]=logicID;
 	iconfid_vec[count]=iconfID;
 
@@ -177,6 +177,6 @@ void FEConfigFgrEETowerDat::writeArrayDB(const std::map< EcalLogicID, FEConfigFg
     delete [] x_len;
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigFgrEETowerDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigFgrEETowerDat::writeArrayDB():  "+e.getMessage()));
   }
 }

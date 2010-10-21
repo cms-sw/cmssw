@@ -50,7 +50,7 @@ std::vector<MonRunIOV> MonRunList::getRuns()
 
 
 void MonRunList::fetchRuns()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 
 
@@ -140,14 +140,14 @@ void MonRunList::fetchRuns()
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("RunIOV::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("RunIOV::fetchID:  "+e.getMessage()));
   }
 
 
 }
 
 void MonRunList::fetchRuns(int min_run, int max_run)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 
 
@@ -250,14 +250,14 @@ void MonRunList::fetchRuns(int min_run, int max_run)
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("RunIOV::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("RunIOV::fetchID:  "+e.getMessage()));
   }
 
 
 }
 
 void MonRunList::fetchLastNRuns( int max_run, int n_runs  )
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 
   // fetch the last n_runs that come just before max_run (including max_run)
@@ -343,7 +343,7 @@ void MonRunList::fetchLastNRuns( int max_run, int n_runs  )
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("MonRunList::fetchLastNRuns:  "+e.getMessage()));
+    throw(std::runtime_error("MonRunList::fetchLastNRuns:  "+e.getMessage()));
   }
 
 

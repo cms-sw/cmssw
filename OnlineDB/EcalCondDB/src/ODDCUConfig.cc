@@ -57,14 +57,14 @@ int ODDCUConfig::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODDCUConfig::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error("ODDCUConfig::fetchNextId():  "+e.getMessage()));
   }
 
 }
 
 
 void ODDCUConfig::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   int next_id=fetchNextId();
@@ -78,14 +78,14 @@ void ODDCUConfig::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODDCUConfig::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODDCUConfig::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void ODDCUConfig::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -98,11 +98,11 @@ void ODDCUConfig::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODDCUConfig::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODDCUConfig::writeDB():  "+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("ODDCUConfig::writeDB:  Failed to write"));
+    throw(std::runtime_error("ODDCUConfig::writeDB:  Failed to write"));
   }
 
 
@@ -111,12 +111,12 @@ void ODDCUConfig::writeDB()
 
 
 void ODDCUConfig::fetchData(ODDCUConfig * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
   if(result->getId()==0 && (result->getConfigTag()=="") ){
-    throw(runtime_error("ODDCUConfig::fetchData(): no Id defined for this ODDCUConfig "));
+    throw(std::runtime_error("ODDCUConfig::fetchData(): no Id defined for this ODDCUConfig "));
   }
 
   try {
@@ -135,7 +135,7 @@ void ODDCUConfig::fetchData(ODDCUConfig * result)
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODDCUConfig::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODDCUConfig::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -164,7 +164,7 @@ int ODDCUConfig::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODDCUConfig::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODDCUConfig::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;

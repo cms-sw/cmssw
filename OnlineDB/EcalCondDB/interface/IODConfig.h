@@ -12,11 +12,6 @@
 
 #include "OnlineDB/EcalCondDB/interface/IDBObject.h"
 
-
-using namespace std;
-using namespace oracle::occi;
-
-
 /**
  *   Abstract interface for data in the conditions DB
  */
@@ -24,6 +19,10 @@ using namespace oracle::occi;
 class IODConfig : public IDBObject {
 
  public:
+  typedef oracle::occi::SQLException SQLException;
+  typedef oracle::occi::Statement Statement;
+  typedef oracle::occi::Stream Stream;
+  typedef oracle::occi::Clob Clob;
 
   std::string   m_config_tag;
 
@@ -34,8 +33,8 @@ class IODConfig : public IDBObject {
  
 
  protected:
-  oracle::occi::Statement* m_writeStmt;
-  oracle::occi::Statement* m_readStmt;
+  Statement* m_writeStmt;
+  Statement* m_readStmt;
 
   inline void checkPrepare() 
     throw(std::runtime_error) 
@@ -51,7 +50,7 @@ class IODConfig : public IDBObject {
     if (m_writeStmt != NULL) {
       m_conn->terminateStatement(m_writeStmt);
     } else {
-      cout << "Warning from IDataItem: statement was aleady closed"<< endl;
+      std::cout << "Warning from IDataItem: statement was aleady closed"<< std::endl;
     }
   }
 
@@ -74,7 +73,7 @@ class IODConfig : public IDBObject {
     if (m_readStmt != NULL) {
       m_conn->terminateStatement(m_readStmt);
     } else {
-      cout << "Warning from IDataItem: statement was aleady closed"<< endl;
+      std::cout << "Warning from IDataItem: statement was aleady closed"<< std::endl;
     }
   }
 
@@ -92,21 +91,21 @@ void populateClob (Clob &clob, std::string fname, unsigned int bufsize)
 
   try{
       // Uses stream here
-      cout << "Populating the Clob using writeBuffer(Stream) method" << endl;
+      std::cout << "Populating the Clob using writeBuffer(Stream) method" << std::endl;
       std::cout<<"we are here0"<<std::endl; 
 
       char *file = (char *)fname.c_str();
       std::cout<<"we are here0.5 file is:"<<fname<<std::endl; 
 
-      ifstream inFile;
-      inFile.open(file,ios::in);
+      std::ifstream inFile;
+      inFile.open(file,std::ios::in);
       if (!inFile)
 	{
-          cout << fname <<" file not found\n";
+          std::cout << fname <<" file not found\n";
 	  inFile.close();
 
 	  std::string fname2="/nfshome0/ecaldev/francesca/null_file.txt";
-	  inFile.open((char*)fname2.c_str(),ios::in);
+	  inFile.open((char*)fname2.c_str(),std::ios::in);
 	  
 
           
@@ -114,11 +113,11 @@ void populateClob (Clob &clob, std::string fname, unsigned int bufsize)
       if(bufsize==0){
 
 
-	inFile.seekg( 0,ios::end ); 
+	inFile.seekg( 0,std::ios::end ); 
 	bufsize = inFile.tellg(); 
 	std::cout <<" bufsize ="<<bufsize<< std::endl;
 	// set file pointer to start again 
-	inFile.seekg( 0,ios::beg ); 
+	inFile.seekg( 0,std::ios::beg ); 
 	
       }
 
@@ -151,15 +150,15 @@ void populateClob (Clob &clob, std::string fname, unsigned int bufsize)
 
 
   }catch (SQLException &e) {
-    throw(runtime_error("populateClob():  "+e.getMessage()));
+    throw(std::runtime_error("populateClob():  "+e.getMessage()));
   }
 
-  cout << "Populating the Clob - Success" << endl;
+  std::cout << "Populating the Clob - Success" << std::endl;
 }
 
 
-unsigned char* readClob (oracle::occi::Clob &clob, int size)
-  throw (runtime_error)
+unsigned char* readClob (Clob &clob, int size)
+  throw (std::runtime_error)
 {
 
   try{
@@ -169,10 +168,10 @@ unsigned char* readClob (oracle::occi::Clob &clob, int size)
     memset (buffer, buf, size);
     
     instream->readBuffer ((char*)buffer, size);
-    cout << "remember to delete the char* at the end of the program ";
+    std::cout << "remember to delete the char* at the end of the program ";
        for (int i = 0; i < size; ++i)
-       cout << (char) buffer[i];
-     cout << endl;
+       std::cout << (char) buffer[i];
+     std::cout << std::endl;
     
 
     clob.closeStream (instream);
@@ -180,7 +179,7 @@ unsigned char* readClob (oracle::occi::Clob &clob, int size)
     return  buffer;
 
   }catch (SQLException &e) {
-    throw(runtime_error("readClob():  "+e.getMessage()));
+    throw(std::runtime_error("readClob():  "+e.getMessage()));
   }
 
 }

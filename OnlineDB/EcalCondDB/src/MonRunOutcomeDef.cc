@@ -74,7 +74,7 @@ int MonRunOutcomeDef::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("MonRunOutcomeDef::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("MonRunOutcomeDef::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -83,7 +83,7 @@ int MonRunOutcomeDef::fetchID()
 
 
 void MonRunOutcomeDef::setByID(int id) 
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -99,12 +99,12 @@ void MonRunOutcomeDef::setByID(int id)
       m_longDesc = rset->getString(2);
       m_ID = id;
     } else {
-      throw(runtime_error("MonRunOutcomeDef::setByID:  Given def_id is not in the database"));
+      throw(std::runtime_error("MonRunOutcomeDef::setByID:  Given def_id is not in the database"));
     }
     
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(runtime_error("MonRunOutcomeDef::setByID:  "+e.getMessage()));
+   throw(std::runtime_error("MonRunOutcomeDef::setByID:  "+e.getMessage()));
   }
 }
 
@@ -127,6 +127,6 @@ void MonRunOutcomeDef::fetchAllDefs( std::vector<MonRunOutcomeDef>* fillVec)
       fillVec->push_back( def );
     }
   } catch (SQLException &e) {
-    throw(runtime_error("MonRunOutcomeDef::fetchAllDefs:  "+e.getMessage()));
+    throw(std::runtime_error("MonRunOutcomeDef::fetchAllDefs:  "+e.getMessage()));
   }
 }

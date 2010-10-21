@@ -24,7 +24,7 @@ ODJBH4Cycle::~ODJBH4Cycle()
 
 
 void ODJBH4Cycle::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -33,12 +33,12 @@ void ODJBH4Cycle::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO ECAL_JBH4_Cycle (cycle_id, jbh4_configuration_id ) "
 		 "VALUES (:1, :2 )");
   } catch (SQLException &e) {
-    throw(runtime_error("ODJBH4Cycle::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODJBH4Cycle::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
-void ODJBH4Cycle::writeDB()  throw(runtime_error)
+void ODJBH4Cycle::writeDB()  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -52,12 +52,12 @@ void ODJBH4Cycle::writeDB()  throw(runtime_error)
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODJBH4Cycle::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error("ODJBH4Cycle::writeDB:  "+e.getMessage()));
   }
 
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("ODJBH4Cycle::writeDB:  Failed to write"));
+    throw(std::runtime_error("ODJBH4Cycle::writeDB:  Failed to write"));
   }
   
  
@@ -69,7 +69,7 @@ void ODJBH4Cycle::clear(){
 
 
 int ODJBH4Cycle::fetchID()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID) {
@@ -93,7 +93,7 @@ int ODJBH4Cycle::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODJBH4Cycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODJBH4Cycle::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -122,20 +122,20 @@ void ODJBH4Cycle::setByID(int id)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODJBH4Cycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODJBH4Cycle::fetchID:  "+e.getMessage()));
   }
 }
 
 
 
 void ODJBH4Cycle::fetchData(ODJBH4Cycle * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
 
   if(result->getId()==0){
-    throw(runtime_error("ODJBH4Config::fetchData(): no Id defined for this ODJBH4Config "));
+    throw(std::runtime_error("ODJBH4Config::fetchData(): no Id defined for this ODJBH4Config "));
   }
 
   try {
@@ -151,7 +151,7 @@ void ODJBH4Cycle::fetchData(ODJBH4Cycle * result)
     result->setJBH4ConfigurationID(       rset->getInt(1) );
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODJBH4Cycle::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODJBH4Cycle::fetchData():  "+e.getMessage()));
   }
 }
 

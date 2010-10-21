@@ -52,13 +52,13 @@ int FEConfigSlidingInfo::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigSlidingInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigSlidingInfo::fetchNextId():  "+e.getMessage()));
   }
 
 }
 
 void FEConfigSlidingInfo::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -76,7 +76,7 @@ void FEConfigSlidingInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigSlidingInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigSlidingInfo::prepareWrite():  "+e.getMessage()));
   }
 
 }
@@ -98,7 +98,7 @@ void FEConfigSlidingInfo::setParameters(std::map<string,string> my_keys_map){
 }
 
 void FEConfigSlidingInfo::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -114,11 +114,11 @@ void FEConfigSlidingInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigSlidingInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigSlidingInfo::writeDB():  "+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("FEConfigSlidingInfo::writeDB:  Failed to write"));
+    throw(std::runtime_error("FEConfigSlidingInfo::writeDB:  Failed to write"));
   }
 
 
@@ -126,12 +126,12 @@ void FEConfigSlidingInfo::writeDB()
 
 
 void FEConfigSlidingInfo::fetchData(FEConfigSlidingInfo * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
   if(result->getId()==0 && (result->getConfigTag()=="") ){
-    throw(runtime_error("FEConfigSlidingInfo::fetchData(): no Id defined for this FEConfigSlidingInfo "));
+    throw(std::runtime_error("FEConfigSlidingInfo::fetchData(): no Id defined for this FEConfigSlidingInfo "));
   }
 
   try {
@@ -156,12 +156,12 @@ void FEConfigSlidingInfo::fetchData(FEConfigSlidingInfo * result)
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigSlidingInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigSlidingInfo::fetchData():  "+e.getMessage()));
   }
 }
 
 void FEConfigSlidingInfo::fetchLastData(FEConfigSlidingInfo * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -182,7 +182,7 @@ void FEConfigSlidingInfo::fetchLastData(FEConfigSlidingInfo * result)
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigSlidingInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigSlidingInfo::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -212,7 +212,7 @@ int FEConfigSlidingInfo::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigSlidingInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigSlidingInfo::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -242,12 +242,12 @@ void FEConfigSlidingInfo::setByID(int id)
        Date dbdate = rset->getDate(5);
        this->setDBTime( dh.dateToTm( dbdate ));
      } else {
-       throw(runtime_error("FEConfigSlidingInfo::setByID:  Given config_id is not in the database"));
+       throw(std::runtime_error("FEConfigSlidingInfo::setByID:  Given config_id is not in the database"));
      }
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(runtime_error("FEConfigSlidingInfo::setByID:  "+e.getMessage()));
+     throw(std::runtime_error("FEConfigSlidingInfo::setByID:  "+e.getMessage()));
    }
 }
 

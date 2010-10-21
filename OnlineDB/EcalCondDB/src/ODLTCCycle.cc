@@ -24,7 +24,7 @@ ODLTCCycle::~ODLTCCycle()
 
 
 void ODLTCCycle::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -33,12 +33,12 @@ void ODLTCCycle::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO ECAL_LTC_Cycle (cycle_id, ltc_configuration_id ) "
 		 "VALUES (:1, :2 )");
   } catch (SQLException &e) {
-    throw(runtime_error("ODLTCCycle::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODLTCCycle::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
-void ODLTCCycle::writeDB()  throw(runtime_error)
+void ODLTCCycle::writeDB()  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -52,12 +52,12 @@ void ODLTCCycle::writeDB()  throw(runtime_error)
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODLTCCycle::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error("ODLTCCycle::writeDB:  "+e.getMessage()));
   }
 
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("ODLTCCycle::writeDB:  Failed to write"));
+    throw(std::runtime_error("ODLTCCycle::writeDB:  Failed to write"));
   }
   
  
@@ -69,7 +69,7 @@ void ODLTCCycle::clear(){
 
 
 int ODLTCCycle::fetchID()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID) {
@@ -93,7 +93,7 @@ int ODLTCCycle::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODLTCCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODLTCCycle::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -122,20 +122,20 @@ void ODLTCCycle::setByID(int id)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODLTCCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODLTCCycle::fetchID:  "+e.getMessage()));
   }
 }
 
 
 
 void ODLTCCycle::fetchData(ODLTCCycle * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
 
   if(result->getId()==0){
-    throw(runtime_error("ODLTCConfig::fetchData(): no Id defined for this ODLTCConfig "));
+    throw(std::runtime_error("ODLTCConfig::fetchData(): no Id defined for this ODLTCConfig "));
   }
 
   try {
@@ -151,7 +151,7 @@ void ODLTCCycle::fetchData(ODLTCCycle * result)
     result->setLTCConfigurationID(       rset->getInt(1) );
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODLTCCycle::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODLTCCycle::fetchData():  "+e.getMessage()));
   }
 }
 

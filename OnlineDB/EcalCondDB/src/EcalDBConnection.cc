@@ -17,7 +17,7 @@ EcalDBConnection::EcalDBConnection( string host,
 				    string user,
 				    string pass,
 				    int port )
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
     stringstream ss;
   try {    
@@ -28,7 +28,7 @@ EcalDBConnection::EcalDBConnection( string host,
     stmt = conn->createStatement();
   } catch (SQLException &e) {
     cout<< ss.str() << endl;
-    throw(runtime_error("ERROR:  Connection Failed:  " + e.getMessage() ));
+    throw(std::runtime_error("ERROR:  Connection Failed:  " + e.getMessage() ));
   }
 
   this->host = host;
@@ -41,14 +41,14 @@ EcalDBConnection::EcalDBConnection( string host,
 EcalDBConnection::EcalDBConnection( string sid,
 				    string user,
 				    string pass )
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   try {    
     env = Environment::createEnvironment(Environment::OBJECT);
     conn = env->createConnection(user, pass, sid);
     stmt = conn->createStatement();
   } catch (SQLException &e) {
-    throw(runtime_error("ERROR:  Connection Failed:  " + e.getMessage() ));
+    throw(std::runtime_error("ERROR:  Connection Failed:  " + e.getMessage() ));
   }
 
   this->host = "";
@@ -65,6 +65,6 @@ EcalDBConnection::~EcalDBConnection() {
     env->terminateConnection(conn);
     Environment::terminateEnvironment(env);
   } catch (SQLException &e) {
-    throw(runtime_error("ERROR:  Destructor Failed:  " + e.getMessage() ));
+    throw(std::runtime_error("ERROR:  Destructor Failed:  " + e.getMessage() ));
   }
 }

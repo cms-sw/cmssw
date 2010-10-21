@@ -38,7 +38,7 @@ class IDataItem : public IDBObject {
     if (m_writeStmt != NULL) {
       m_conn->terminateStatement(m_writeStmt);
     } else {
-      cout << "Warning from IDataItem: statement was aleady closed"<< endl;
+      std::cout << "Warning from IDataItem: statement was aleady closed"<< std::endl;
     }
   }
 
@@ -61,7 +61,7 @@ class IDataItem : public IDBObject {
     if (m_readStmt != NULL) {
       m_conn->terminateStatement(m_readStmt);
     } else {
-      cout << "Warning from IDataItem: statement was aleady closed"<< endl;
+      std::cout << "Warning from IDataItem: statement was aleady closed"<< std::endl;
     }
   }
 

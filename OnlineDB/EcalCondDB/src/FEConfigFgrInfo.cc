@@ -52,13 +52,13 @@ int FEConfigFgrInfo::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigFgrInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigFgrInfo::fetchNextId():  "+e.getMessage()));
   }
 
 }
 
 void FEConfigFgrInfo::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -76,7 +76,7 @@ void FEConfigFgrInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigFgrInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigFgrInfo::prepareWrite():  "+e.getMessage()));
   }
 
 }
@@ -98,7 +98,7 @@ void FEConfigFgrInfo::setParameters(std::map<string,string> my_keys_map){
 }
 
 void FEConfigFgrInfo::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -114,11 +114,11 @@ void FEConfigFgrInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigFgrInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigFgrInfo::writeDB():  "+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("FEConfigFgrInfo::writeDB:  Failed to write"));
+    throw(std::runtime_error("FEConfigFgrInfo::writeDB:  Failed to write"));
   }
 
 
@@ -126,12 +126,12 @@ void FEConfigFgrInfo::writeDB()
 
 
 void FEConfigFgrInfo::fetchData(FEConfigFgrInfo * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
   if(result->getId()==0 && (result->getConfigTag()=="") ){
-    throw(runtime_error("FEConfigFgrInfo::fetchData(): no Id defined for this FEConfigFgrInfo "));
+    throw(std::runtime_error("FEConfigFgrInfo::fetchData(): no Id defined for this FEConfigFgrInfo "));
   }
 
   try {
@@ -156,12 +156,12 @@ void FEConfigFgrInfo::fetchData(FEConfigFgrInfo * result)
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigFgrInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigFgrInfo::fetchData():  "+e.getMessage()));
   }
 }
 
 void FEConfigFgrInfo::fetchLastData(FEConfigFgrInfo * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -182,7 +182,7 @@ void FEConfigFgrInfo::fetchLastData(FEConfigFgrInfo * result)
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigFgrInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigFgrInfo::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -212,7 +212,7 @@ int FEConfigFgrInfo::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigFgrInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigFgrInfo::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -242,12 +242,12 @@ void FEConfigFgrInfo::setByID(int id)
        Date dbdate = rset->getDate(5);
        this->setDBTime( dh.dateToTm( dbdate ));
      } else {
-       throw(runtime_error("FEConfigFgrInfo::setByID:  Given config_id is not in the database"));
+       throw(std::runtime_error("FEConfigFgrInfo::setByID:  Given config_id is not in the database"));
      }
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(runtime_error("FEConfigFgrInfo::setByID:  "+e.getMessage()));
+     throw(std::runtime_error("FEConfigFgrInfo::setByID:  "+e.getMessage()));
    }
 }
 

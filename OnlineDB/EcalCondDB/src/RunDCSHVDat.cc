@@ -34,7 +34,7 @@ RunDCSHVDat::~RunDCSHVDat()
 
 
 void RunDCSHVDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 
 
@@ -43,14 +43,14 @@ void RunDCSHVDat::prepareWrite()
 
 
 void RunDCSHVDat::writeDB(const EcalLogicID* ecid, const RunDCSHVDat* item, RunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 }
 
 
 
 void RunDCSHVDat::fetchData(map< EcalLogicID, RunDCSHVDat >* fillMap, RunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   fetchLastData(fillMap);
 
@@ -77,7 +77,7 @@ ResultSet *RunDCSHVDat::getBarrelRset(Tm timeStart) {
     rset = m_readStmt->executeQuery();
   }
   catch (SQLException e) {
-    throw(runtime_error("RunDCSHVDat::getBarrelRset():  " + e.getMessage() + " " + query));
+    throw(std::runtime_error("RunDCSHVDat::getBarrelRset():  " + e.getMessage() + " " + query));
   }
   return rset;
 }
@@ -101,7 +101,7 @@ ResultSet *RunDCSHVDat::getEndcapAnodeRset(Tm timeStart) {
     rset = m_readStmt->executeQuery();
   }
   catch (SQLException e) {
-    throw(runtime_error("RunDCSHVDat::getBarrelRset():  " + e.getMessage() + " " + query));
+    throw(std::runtime_error("RunDCSHVDat::getBarrelRset():  " + e.getMessage() + " " + query));
   }
   return rset;
 }
@@ -125,7 +125,7 @@ ResultSet *RunDCSHVDat::getEndcapDynodeRset(Tm timeStart) {
     rset = m_readStmt->executeQuery();
   }
   catch (SQLException e) {
-    throw(runtime_error("RunDCSHVDat::getBarrelRset():  " + e.getMessage() + " " + query));
+    throw(std::runtime_error("RunDCSHVDat::getBarrelRset():  " + e.getMessage() + " " + query));
   }
   return rset;
 }
@@ -144,7 +144,7 @@ ResultSet *RunDCSHVDat::getBarrelRset() {
     rset = m_readStmt->executeQuery();
   }
   catch (SQLException e) {
-    throw(runtime_error("RunDCSHVDat::getBarrelRset():  " + e.getMessage() + " " + query));
+    throw(std::runtime_error("RunDCSHVDat::getBarrelRset():  " + e.getMessage() + " " + query));
   }
   return rset;
 }
@@ -162,7 +162,7 @@ ResultSet *RunDCSHVDat::getBarrelRset() {
     rset = m_readStmt->executeQuery();
   }
   catch (SQLException e) {
-    throw(runtime_error("RunDCSHVDat::getBarrelRset():  " + e.getMessage() + " " + query));
+    throw(std::runtime_error("RunDCSHVDat::getBarrelRset():  " + e.getMessage() + " " + query));
   }
   return rset;
 }
@@ -179,7 +179,7 @@ ResultSet *RunDCSHVDat::getEndcapAnodeRset() {
     rset = m_readStmt->executeQuery();
   }
   catch (SQLException e) {
-    throw(runtime_error("RunDCSHVDat::getEndcapAnodeRset():  " + e.getMessage() + " " + query));
+    throw(std::runtime_error("RunDCSHVDat::getEndcapAnodeRset():  " + e.getMessage() + " " + query));
   }
   return rset;
 }
@@ -196,7 +196,7 @@ ResultSet *RunDCSHVDat::getEndcapDynodeRset() {
     rset = m_readStmt->executeQuery();
   } 
   catch (SQLException e) {
-    throw(runtime_error("RunDCSHVDat::getEndcapDynodeRset():  " + e.getMessage() + " " + query));
+    throw(std::runtime_error("RunDCSHVDat::getEndcapDynodeRset():  " + e.getMessage() + " " + query));
   }
   return rset;
 }
@@ -234,7 +234,7 @@ void RunDCSHVDat::fillTheMap(ResultSet *rset,
     } 
   }
   catch (SQLException &e) {
-    throw(runtime_error("RunDCSHVDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("RunDCSHVDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -298,7 +298,7 @@ void RunDCSHVDat::fillTheMapByTime(ResultSet *rset,
 
   }
   catch (SQLException &e) {
-    throw(runtime_error("RunDCSHVDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("RunDCSHVDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -353,7 +353,7 @@ void  RunDCSHVDat::setStatusForEndcaps(RunDCSHVDat &dat, Tm sinceTm) {
 }
 
 void RunDCSHVDat::fetchLastData(map< EcalLogicID, RunDCSHVDat >* fillMap )
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -374,12 +374,12 @@ void RunDCSHVDat::fetchLastData(map< EcalLogicID, RunDCSHVDat >* fillMap )
     fillTheMap(rset, fillMap);
   } 
   catch (SQLException &e) {
-    throw(runtime_error("RunDCSHVDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("RunDCSHVDat::fetchData():  "+e.getMessage()));
   }
 }
 
 void RunDCSHVDat::fetchHistoricalData(std::list< std::pair<Tm, std::map< EcalLogicID, RunDCSHVDat > > >* fillMap, Tm timeStart  )
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -410,6 +410,6 @@ void RunDCSHVDat::fetchHistoricalData(std::list< std::pair<Tm, std::map< EcalLog
 
   } 
   catch (SQLException &e) {
-    throw(runtime_error("RunDCSHVDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("RunDCSHVDat::fetchData():  "+e.getMessage()));
   }
 }

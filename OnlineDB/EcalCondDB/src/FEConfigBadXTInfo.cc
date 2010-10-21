@@ -50,13 +50,13 @@ int FEConfigBadXTInfo::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigBadXTInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigBadXTInfo::fetchNextId():  "+e.getMessage()));
   }
 
 }
 
 void FEConfigBadXTInfo::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -74,7 +74,7 @@ void FEConfigBadXTInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigBadXTInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigBadXTInfo::prepareWrite():  "+e.getMessage()));
   }
 
 }
@@ -95,7 +95,7 @@ void FEConfigBadXTInfo::setParameters(std::map<string,string> my_keys_map){
 }
 
 void FEConfigBadXTInfo::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -110,11 +110,11 @@ void FEConfigBadXTInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigBadXTInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigBadXTInfo::writeDB():  "+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("FEConfigBadXTInfo::writeDB:  Failed to write"));
+    throw(std::runtime_error("FEConfigBadXTInfo::writeDB:  Failed to write"));
   } else {
     int old_version=this->getVersion();
     m_readStmt = m_conn->createStatement(); 
@@ -128,12 +128,12 @@ void FEConfigBadXTInfo::writeDB()
 
 
 void FEConfigBadXTInfo::fetchData(FEConfigBadXTInfo * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
   if(result->getId()==0 && (result->getConfigTag()=="") ){
-    throw(runtime_error("FEConfigBadXTInfo::fetchData(): no Id defined for this FEConfigBadXTInfo "));
+    throw(std::runtime_error("FEConfigBadXTInfo::fetchData(): no Id defined for this FEConfigBadXTInfo "));
   }
 
 
@@ -150,7 +150,7 @@ void FEConfigBadXTInfo::fetchData(FEConfigBadXTInfo * result)
       m_readStmt->setInt(2, result->getVersion());
     } else {
       // we should never pass here 
-      throw(runtime_error("FEConfigBadXTInfo::fetchData(): no Id defined for this record "));
+      throw(std::runtime_error("FEConfigBadXTInfo::fetchData(): no Id defined for this record "));
     }
 
 
@@ -165,7 +165,7 @@ void FEConfigBadXTInfo::fetchData(FEConfigBadXTInfo * result)
     result->setVersion(rset->getInt(3));
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigBadXTInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigBadXTInfo::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -195,7 +195,7 @@ int FEConfigBadXTInfo::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigBadXTInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigBadXTInfo::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;

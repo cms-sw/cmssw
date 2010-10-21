@@ -75,7 +75,7 @@ int RunSeqDef::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("RunSeqDef::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("RunSeqDef::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -84,7 +84,7 @@ int RunSeqDef::fetchID()
 
 
 void RunSeqDef::setByID(int id) 
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -100,7 +100,7 @@ void RunSeqDef::setByID(int id)
       idruntype = rset->getInt(1);
       m_runSeq = rset->getString(2);
     } else {
-      throw(runtime_error("RunSeqDef::setByID:  Given def_id is not in the database"));
+      throw(std::runtime_error("RunSeqDef::setByID:  Given def_id is not in the database"));
     }
 
     m_conn->terminateStatement(stmt);
@@ -109,7 +109,7 @@ void RunSeqDef::setByID(int id)
     m_runType.setByID(idruntype);
 
   } catch (SQLException &e) {
-   throw(runtime_error("RunSeqDef::setByID:  "+e.getMessage()));
+   throw(std::runtime_error("RunSeqDef::setByID:  "+e.getMessage()));
   }
 }
 
@@ -132,12 +132,12 @@ void RunSeqDef::fetchAllDefs( std::vector<RunSeqDef>* fillVec)
       fillVec->push_back( runSeqDef );
     }
   } catch (SQLException &e) {
-    throw(runtime_error("RunSeqDef::fetchAllDefs:  "+e.getMessage()));
+    throw(std::runtime_error("RunSeqDef::fetchAllDefs:  "+e.getMessage()));
   }
 }
 
 int RunSeqDef::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // see if this data is already in the DB
   try {
@@ -169,12 +169,12 @@ int RunSeqDef::writeDB()
     
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(runtime_error("RunSeqDef::writeDB:  "+e.getMessage()));
+   throw(std::runtime_error("RunSeqDef::writeDB:  "+e.getMessage()));
   }
 
   // now get the tag_id
   if (!this->fetchID()) {
-    throw(runtime_error("RunSeqDef::writeDB:  Failed to write"));
+    throw(std::runtime_error("RunSeqDef::writeDB:  Failed to write"));
   }
 
   return m_ID;

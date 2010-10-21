@@ -39,7 +39,7 @@ void MODCCSHFDat::setFile(std::string x) {
   //try {
   std::cout<< "file is "<< m_file<<endl;
   // }catch (Exception &e) {
-  //throw(runtime_error("MODCCSHFDat::setFile():  "+e.getMessage()));
+  //throw(std::runtime_error("MODCCSHFDat::setFile():  "+e.getMessage()));
   //} 
     // here we must open the file and read the CCS Clob
     std::cout << "Going to read CCS file: " << m_file << endl;
@@ -59,7 +59,7 @@ void MODCCSHFDat::setFile(std::string x) {
 }
 
 void MODCCSHFDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -72,14 +72,14 @@ void MODCCSHFDat::prepareWrite()
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("MODCCSHFDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("MODCCSHFDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void MODCCSHFDat::writeDB(const EcalLogicID* ecid, const MODCCSHFDat* item, MODRunIOV* iov )
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 
 
@@ -88,10 +88,10 @@ void MODCCSHFDat::writeDB(const EcalLogicID* ecid, const MODCCSHFDat* item, MODR
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("MODCCSHFDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("MODCCSHFDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("MODCCSHFDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("MODCCSHFDat::writeDB:  Bad EcalLogicID")); }
   
   std::string fname=item->getFile();
   std::cout << "Going to read CCS file: " << fname << endl;
@@ -133,14 +133,14 @@ void MODCCSHFDat::writeDB(const EcalLogicID* ecid, const MODCCSHFDat* item, MODR
     m_writeStmt->closeResultSet (rset);
 
   } catch (SQLException &e) {
-    throw(runtime_error("MODCCSHFDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("MODCCSHFDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void MODCCSHFDat::fetchData(std::map< EcalLogicID, MODCCSHFDat >* fillMap, MODRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -148,7 +148,7 @@ void MODCCSHFDat::fetchData(std::map< EcalLogicID, MODCCSHFDat >* fillMap, MODRu
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("MODCCSHFDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("MODCCSHFDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -178,18 +178,18 @@ void MODCCSHFDat::fetchData(std::map< EcalLogicID, MODCCSHFDat >* fillMap, MODRu
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("MODCCSHFDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("MODCCSHFDat::fetchData():  "+e.getMessage()));
   }
 }
 
 void MODCCSHFDat::writeArrayDB(const std::map< EcalLogicID, MODCCSHFDat >* data, MODRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("MODCCSHFDat::writeArrayDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("MODCCSHFDat::writeArrayDB:  IOV not in DB")); }
 
 
   int nrows=data->size(); 
@@ -208,7 +208,7 @@ void MODCCSHFDat::writeArrayDB(const std::map< EcalLogicID, MODCCSHFDat >* data,
   for (CI p = data->begin(); p != data->end(); ++p) {
         channel = &(p->first);
 	int logicID = channel->getLogicID();
-	if (!logicID) { throw(runtime_error("MODCCSHFDat::writeArrayDB:  Bad EcalLogicID")); }
+	if (!logicID) { throw(std::runtime_error("MODCCSHFDat::writeArrayDB:  Bad EcalLogicID")); }
 	ids[count]=logicID;
 	iovid_vec[count]=iovID;
 
@@ -249,7 +249,7 @@ void MODCCSHFDat::writeArrayDB(const std::map< EcalLogicID, MODCCSHFDat >* data,
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("MonPedestalsDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("MonPedestalsDat::writeArrayDB():  "+e.getMessage()));
   }
 }
 
@@ -320,7 +320,7 @@ void MODCCSHFDat::populateClob (Clob &clob, std::string fname, unsigned int clob
 
 
   }catch (SQLException &e) {
-    throw(runtime_error("populateClob():  "+e.getMessage()));
+    throw(std::runtime_error("populateClob():  "+e.getMessage()));
   }
 
   cout << "Populating the Clob - Success" << endl;
@@ -328,7 +328,7 @@ void MODCCSHFDat::populateClob (Clob &clob, std::string fname, unsigned int clob
 
 
 unsigned char* MODCCSHFDat::readClob (oracle::occi::Clob &clob, int size)
-  throw (runtime_error)
+  throw (std::runtime_error)
 {
 
   try{
@@ -349,7 +349,7 @@ unsigned char* MODCCSHFDat::readClob (oracle::occi::Clob &clob, int size)
     return  buffer;
 
   }catch (SQLException &e) {
-    throw(runtime_error("readClob():  "+e.getMessage()));
+    throw(std::runtime_error("readClob():  "+e.getMessage()));
   }
 
 }

@@ -56,7 +56,7 @@ int ODTTCciConfig::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODTTCciConfig::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error("ODTTCciConfig::fetchNextId():  "+e.getMessage()));
   }
 
 }
@@ -65,7 +65,7 @@ int ODTTCciConfig::fetchNextId()  throw(std::runtime_error) {
 
 
 void ODTTCciConfig::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -103,7 +103,7 @@ void ODTTCciConfig::prepareWrite()
 
     
   } catch (SQLException &e) {
-    throw(runtime_error("ODTTCciConfig::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODTTCciConfig::prepareWrite():  "+e.getMessage()));
   }
 
   std::cout<<"updating the clob 1 "<<std::endl;
@@ -161,7 +161,7 @@ void ODTTCciConfig::setParameters(std::map<string,string> my_keys_map){
 
 
 void ODTTCciConfig::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 
 
@@ -190,11 +190,11 @@ void ODTTCciConfig::writeDB()
     m_writeStmt->closeResultSet (rset);
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODTTCciConfig::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODTTCciConfig::writeDB():  "+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("ODTTCciConfig::writeDB:  Failed to write"));
+    throw(std::runtime_error("ODTTCciConfig::writeDB:  Failed to write"));
   }
 
 }
@@ -205,12 +205,12 @@ void ODTTCciConfig::writeDB()
 
 
 void ODTTCciConfig::fetchData(ODTTCciConfig * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
   if(result->getId()==0 && (result->getConfigTag()=="") ){
-    throw(runtime_error("ODTTCciConfig::fetchData(): no Id defined for this ODTTCciConfig "));
+    throw(std::runtime_error("ODTTCciConfig::fetchData(): no Id defined for this ODTTCciConfig "));
   }
 
   try {
@@ -253,7 +253,7 @@ void ODTTCciConfig::fetchData(ODTTCciConfig * result)
     result->setTTCciClob(buffer );
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODTTCciConfig::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODTTCciConfig::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -284,7 +284,7 @@ int ODTTCciConfig::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODTTCciConfig::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODTTCciConfig::fetchID:  "+e.getMessage()));
   }
     return m_ID;
 }

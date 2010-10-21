@@ -77,7 +77,7 @@ DCUTag DCUIOV::getDCUTag() const
 
 
 int DCUIOV::fetchID()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID) {
@@ -116,7 +116,7 @@ int DCUIOV::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("DCUIOV::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("DCUIOV::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -150,19 +150,19 @@ void DCUIOV::setByID(int id)
        m_dcuTag.setByID(tagID);
        m_ID = id;
      } else {
-       throw(runtime_error("DCUTag::setByID:  Given tag_id is not in the database"));
+       throw(std::runtime_error("DCUTag::setByID:  Given tag_id is not in the database"));
      }
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(runtime_error("DCUTag::setByID:  "+e.getMessage()));
+     throw(std::runtime_error("DCUTag::setByID:  "+e.getMessage()));
    }
 }
 
 
 
 int DCUIOV::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -178,7 +178,7 @@ int DCUIOV::writeDB()
   DateHandler dh(m_env, m_conn);
 
   if (m_since.isNull()) {
-    throw(runtime_error("DCUIOV::writeDB:  Must setSince before writing"));
+    throw(std::runtime_error("DCUIOV::writeDB:  Must setSince before writing"));
   }
   
   if (m_till.isNull()) {
@@ -198,12 +198,12 @@ int DCUIOV::writeDB()
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("DCUIOV::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error("DCUIOV::writeDB:  "+e.getMessage()));
   }
 
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("DCUIOV::writeDB:  Failed to write"));
+    throw(std::runtime_error("DCUIOV::writeDB:  Failed to write"));
   }
   
   return m_ID;
@@ -212,7 +212,7 @@ int DCUIOV::writeDB()
 
 
 void DCUIOV::setByTm(DCUTag* tag, Tm eventTm)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   
@@ -220,7 +220,7 @@ void DCUIOV::setByTm(DCUTag* tag, Tm eventTm)
   int tagID = tag->fetchID();
   
   if (!tagID) {
-    throw(runtime_error("DCUIOV::setByTm:  Given DCUTag does not exist in the DB"));
+    throw(std::runtime_error("DCUIOV::setByTm:  Given DCUTag does not exist in the DB"));
   }
 
   DateHandler dh(m_env, m_conn);
@@ -248,11 +248,11 @@ void DCUIOV::setByTm(DCUTag* tag, Tm eventTm)
       m_since = dh.dateToTm( sinceDate );
       m_till = dh.dateToTm( tillDate );
     } else {
-      throw(runtime_error("DCUIOV::setByTm:  Given subrun is not in the database"));
+      throw(std::runtime_error("DCUIOV::setByTm:  Given subrun is not in the database"));
     }
      
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("DCUIOV::setByTm:  "+e.getMessage()));
+    throw(std::runtime_error("DCUIOV::setByTm:  "+e.getMessage()));
   }
 }

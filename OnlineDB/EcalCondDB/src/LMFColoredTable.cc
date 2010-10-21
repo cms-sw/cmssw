@@ -72,7 +72,7 @@ LMFColoredTable& LMFColoredTable::setSystem(std::string system) {
 }
 
 int LMFColoredTable::writeDB() 
-  throw(runtime_error) {
+  throw(std::runtime_error) {
   // check if the VMIN version has been properly set, otherwise 
   // change it to the default value
   std::map<int, std::vector<float> >::iterator i = m_data.begin();

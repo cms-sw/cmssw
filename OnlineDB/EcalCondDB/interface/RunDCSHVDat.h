@@ -12,10 +12,9 @@
 #include "OnlineDB/EcalCondDB/interface/DataReducer.h"
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
-using namespace oracle::occi;
-
 class RunDCSHVDat : public IDataItem {
  public:
+  typedef oracle::occi::ResultSet ResultSet;
 
   static const int maxDifference = 30*60*1000000; // 30 minutes
   static const int maxHVDifferenceEB = 300;       // max HV tolerance in mV for EB
@@ -71,7 +70,7 @@ class RunDCSHVDat : public IDataItem {
      throw(std::runtime_error);
 
   void fetchHistoricalData(std::list< std::pair<Tm, std::map< EcalLogicID, RunDCSHVDat > > >* fillMap, Tm timeStart  )
-    throw(runtime_error);
+    throw(std::runtime_error);
 
 
   // User data

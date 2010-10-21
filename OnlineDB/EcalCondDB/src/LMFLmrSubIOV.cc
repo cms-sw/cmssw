@@ -29,7 +29,7 @@ LMFLmrSubIOV::~LMFLmrSubIOV() {
 std::string LMFLmrSubIOV::fetchIdSql(Statement *stmt) {
   if (!m_lmfIOV) {
     if (m_debug) {
-      std::cout << m_className << ": LMFIOV not set" << endl;
+      std::cout << m_className << ": LMFIOV not set" << std::endl;
     }
     return "";
   }
@@ -44,7 +44,7 @@ std::string LMFLmrSubIOV::fetchIdSql(Statement *stmt) {
   stmt->setInt(1, m_lmfIOV);
   DateHandler dh(m_env, m_conn);
   for (int i = 0; i < 3; i++) {
-    Date t = dh.tmToDate(m_t[i]);
+    oracle::occi::Date t = dh.tmToDate(m_t[i]);
     stmt->setDate(i + 2, t);
   }
   return sql;
@@ -70,7 +70,7 @@ std::string LMFLmrSubIOV::writeDBSql(Statement *stmt) {
   }
 
   if (m_lmfIOV == 0) {
-    throw(runtime_error(m_className + "::writeDB: LMFIOV not set"));
+    throw(std::runtime_error(m_className + "::writeDB: LMFIOV not set"));
   }
   std::string sql = "INSERT INTO LMF_LMR_SUB_IOV (LMF_LMR_SUB_IOV_ID, "
     "IOV_ID, T1, T2, T3) "
@@ -87,7 +87,7 @@ void LMFLmrSubIOV::getParameters(ResultSet *rset) {
   DateHandler dh(m_env, m_conn);
   m_lmfIOV = rset->getInt(1);
   for (int i = 0; i < 3; i++) {
-    Date t = rset->getDate(i + 2);
+    oracle::occi::Date t = rset->getDate(i + 2);
     m_t[i] = dh.dateToTm(t);
   }
 }

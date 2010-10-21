@@ -54,7 +54,7 @@ void LMFUnique::attach(std::string name, LMFUnique *u) {
 }
 
 boost::ptr_list<LMFUnique> LMFUnique::fetchAll() const  
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   /*
     Returns a list of pointers to DB objects
@@ -87,7 +87,7 @@ boost::ptr_list<LMFUnique> LMFUnique::fetchAll() const
     m_conn->terminateStatement(stmt);
   }
   catch (SQLException &e) {
-    throw(runtime_error(m_className + "::fetchAll:  "+e.getMessage()));
+    throw(std::runtime_error(m_className + "::fetchAll:  "+e.getMessage()));
   }
   if (m_debug) {
     cout << m_className << ": list size = " << l.size() << endl;
@@ -197,7 +197,7 @@ int LMFUnique::getInt(std::string s) const {
 }
 
 int LMFUnique::fetchID()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   /*
     This method fetch the ID of the object from the database according
@@ -241,14 +241,14 @@ int LMFUnique::fetchID()
 	cout << m_className + ": Returned " << n << " rows"  << endl;
       }
       if (n > 1) {
-	throw(runtime_error(m_className + "::fetchID: too many rows returned " +
+	throw(std::runtime_error(m_className + "::fetchID: too many rows returned " +
 			    "executing query " + sql));
 	m_ID = 0;
       }
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error(m_className + "::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(m_className + "::fetchID:  "+e.getMessage()));
   }
   // given the ID of this object setup it completely
   if (m_ID > 0) {
@@ -270,7 +270,7 @@ int LMFUnique::fetchID()
 }
 
 void LMFUnique::setByID(int id) 
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   /*
     Given the ID of an object setup it
@@ -283,7 +283,7 @@ void LMFUnique::setByID(int id)
     Statement* stmt = m_conn->createStatement();
     std::string sql = setByIDSql(stmt, id);
     if (sql == "") {
-      throw(runtime_error(m_className + "::setByID: [empty sql])"));
+      throw(std::runtime_error(m_className + "::setByID: [empty sql])"));
     }
     if (m_debug) {
       cout << m_className + ": " + sql << endl;
@@ -298,16 +298,16 @@ void LMFUnique::setByID(int id)
 	cout << m_className + ": Setting done. ID set to " << m_ID << endl;
       }
     } else {
-      throw(runtime_error(m_className + "::setByID:  Given id is not in the database"));
+      throw(std::runtime_error(m_className + "::setByID:  Given id is not in the database"));
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(runtime_error(m_className + "::setByID:  "+e.getMessage()));
+   throw(std::runtime_error(m_className + "::setByID:  "+e.getMessage()));
   }
 }
 
 int LMFUnique::writeForeignKeys() 
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   std::map<std::string, LMFUnique*>::const_iterator i = m_foreignKeys.begin();
   std::map<std::string, LMFUnique*>::const_iterator e = m_foreignKeys.end();
@@ -323,7 +323,7 @@ int LMFUnique::writeForeignKeys()
 }
 
 int LMFUnique::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   clock_t start = 0;
   clock_t end = 0;
@@ -350,11 +350,11 @@ int LMFUnique::writeDB()
       }
       m_conn->terminateStatement(stmt);
     } catch (SQLException &e) {
-      throw(runtime_error(m_className + "::writeDB:  " + e.getMessage()));
+      throw(std::runtime_error(m_className + "::writeDB:  " + e.getMessage()));
     }
     // now get the id
     if (this->fetchID() == 0) {
-      throw(runtime_error(m_className + "::writeDB:  Failed to write"));
+      throw(std::runtime_error(m_className + "::writeDB:  Failed to write"));
     }
   }
   if (_profiling) {

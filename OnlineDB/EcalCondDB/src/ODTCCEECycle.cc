@@ -24,7 +24,7 @@ ODTCCEECycle::~ODTCCEECycle()
 
 
 void ODTCCEECycle::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -33,12 +33,12 @@ void ODTCCEECycle::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO ECAL_TCC_EE_Cycle (cycle_id, tcc_ee_configuration_id ) "
 		 "VALUES (:1, :2 )");
   } catch (SQLException &e) {
-    throw(runtime_error("ODTCCEECycle::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODTCCEECycle::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
-void ODTCCEECycle::writeDB()  throw(runtime_error)
+void ODTCCEECycle::writeDB()  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -52,12 +52,12 @@ void ODTCCEECycle::writeDB()  throw(runtime_error)
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODTCCEECycle::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error("ODTCCEECycle::writeDB:  "+e.getMessage()));
   }
 
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("ODTCCEECycle::writeDB:  Failed to write"));
+    throw(std::runtime_error("ODTCCEECycle::writeDB:  Failed to write"));
   }
   
  
@@ -69,7 +69,7 @@ void ODTCCEECycle::clear(){
 
 
 int ODTCCEECycle::fetchID()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID) {
@@ -93,7 +93,7 @@ int ODTCCEECycle::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODTCCEECycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODTCCEECycle::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -122,20 +122,20 @@ void ODTCCEECycle::setByID(int id)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODTCCEECycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODTCCEECycle::fetchID:  "+e.getMessage()));
   }
 }
 
 
 
 void ODTCCEECycle::fetchData(ODTCCEECycle * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
 
   if(result->getId()==0){
-    throw(runtime_error("ODTCCConfig::fetchData(): no Id defined for this ODTCCConfig "));
+    throw(std::runtime_error("ODTCCConfig::fetchData(): no Id defined for this ODTCCConfig "));
   }
 
   try {
@@ -151,7 +151,7 @@ void ODTCCEECycle::fetchData(ODTCCEECycle * result)
     result->setTCCConfigurationID(       rset->getInt(1) );
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODTCCEECycle::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODTCCEECycle::fetchData():  "+e.getMessage()));
   }
 }
 

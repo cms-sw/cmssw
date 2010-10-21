@@ -38,7 +38,7 @@ void ODRunConfigCycleInfo::clear() {
 }
 
 void ODRunConfigCycleInfo::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -48,13 +48,13 @@ void ODRunConfigCycleInfo::prepareWrite()
      "VALUES (:1, :2, :3 , :4 )");
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODRunConfigCycleInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODRunConfigCycleInfo::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 void ODRunConfigCycleInfo::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -73,11 +73,11 @@ void ODRunConfigCycleInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODRunConfigCycleInfo::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error("ODRunConfigCycleInfo::writeDB:  "+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("ODRunConfigCycleInfo::writeDB:  Failed to write"));
+    throw(std::runtime_error("ODRunConfigCycleInfo::writeDB:  Failed to write"));
   }
 
   cout<< "ODRunConfigCycleInfo::writeDB>> done inserting ODRunConfigCycleInfo with id="<<m_ID<<endl;
@@ -90,7 +90,7 @@ void ODRunConfigCycleInfo::writeDB()
 
 
 int ODRunConfigCycleInfo::fetchID() 
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID>0) {
@@ -119,7 +119,7 @@ int ODRunConfigCycleInfo::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODRunConfigCycleInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODRunConfigCycleInfo::fetchID:  "+e.getMessage()));
   }
   setByID(m_ID);
 
@@ -129,7 +129,7 @@ int ODRunConfigCycleInfo::fetchID()
 
 
 int ODRunConfigCycleInfo::fetchIDLast()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
 
   this->checkConnection();
@@ -148,7 +148,7 @@ int ODRunConfigCycleInfo::fetchIDLast()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODRunConfigCycleInfo::fetchIDLast:  "+e.getMessage()));
+    throw(std::runtime_error("ODRunConfigCycleInfo::fetchIDLast:  "+e.getMessage()));
   }
 
   setByID(m_ID);
@@ -179,22 +179,22 @@ void ODRunConfigCycleInfo::setByID(int id)
        m_description= rset->getString(4);
        m_ID = id;
      } else {
-       throw(runtime_error("ODRunConfigCycleInfo::setByID:  Given cycle_id is not in the database"));
+       throw(std::runtime_error("ODRunConfigCycleInfo::setByID:  Given cycle_id is not in the database"));
      }
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(runtime_error("ODRunConfigCycleInfo::setByID:  "+e.getMessage()));
+     throw(std::runtime_error("ODRunConfigCycleInfo::setByID:  "+e.getMessage()));
    }
 }
 
 
 void ODRunConfigCycleInfo::fetchData(ODRunConfigCycleInfo * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
   if(result->getId()==0){
-    throw(runtime_error("ODRunConfigCycleInfo::fetchData(): no Id defined for this ODRunConfigCycleInfo "));
+    throw(std::runtime_error("ODRunConfigCycleInfo::fetchData(): no Id defined for this ODRunConfigCycleInfo "));
   }
 
   try {
@@ -211,7 +211,7 @@ void ODRunConfigCycleInfo::fetchData(ODRunConfigCycleInfo * result)
     result->setDescription(      rset->getString(4) );
  
   } catch (SQLException &e) {
-    throw(runtime_error("ODRunConfigCycleInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODRunConfigCycleInfo::fetchData():  "+e.getMessage()));
   }
 }
 

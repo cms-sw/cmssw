@@ -59,7 +59,7 @@ int ODCond2ConfInfo::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODCond2ConfInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error("ODCond2ConfInfo::fetchNextId():  "+e.getMessage()));
   }
 
 }
@@ -83,7 +83,7 @@ void ODCond2ConfInfo::fetchParents()  throw(std::runtime_error) {
       
       
     } catch (SQLException &e) {
-      throw(runtime_error("ODCond2ConfInfo::fetchParents():  "+e.getMessage()));
+      throw(std::runtime_error("ODCond2ConfInfo::fetchParents():  "+e.getMessage()));
     }
   }
   }
@@ -99,7 +99,7 @@ void ODCond2ConfInfo::fetchParents()  throw(std::runtime_error) {
       }
       m_conn->terminateStatement(m_readStmt);
     } catch (SQLException &e) {
-      throw(runtime_error("ODCond2ConfInfo::fetchParents():  "+e.getMessage()));
+      throw(std::runtime_error("ODCond2ConfInfo::fetchParents():  "+e.getMessage()));
     }
   }
   }
@@ -107,7 +107,7 @@ void ODCond2ConfInfo::fetchParents()  throw(std::runtime_error) {
 }
 
 void ODCond2ConfInfo::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -130,7 +130,7 @@ void ODCond2ConfInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODCond2ConfInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODCond2ConfInfo::prepareWrite():  "+e.getMessage()));
   }
 
 }
@@ -152,7 +152,7 @@ void ODCond2ConfInfo::setParameters(std::map<string,string> my_keys_map){
 
 
 void ODCond2ConfInfo::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -174,18 +174,18 @@ void ODCond2ConfInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODCond2ConfInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODCond2ConfInfo::writeDB():  "+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("ODCond2ConfInfo::writeDB:  Failed to write"));
+    throw(std::runtime_error("ODCond2ConfInfo::writeDB:  Failed to write"));
   }
 
 }
 
 
 void ODCond2ConfInfo::fetchData(ODCond2ConfInfo * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -194,7 +194,7 @@ void ODCond2ConfInfo::fetchData(ODCond2ConfInfo * result)
 
 
   if(result->getId()==0 ){
-    throw(runtime_error("ODCond2ConfInfo::fetchData(): no Id defined for this ODCond2ConfInfo "));
+    throw(std::runtime_error("ODCond2ConfInfo::fetchData(): no Id defined for this ODCond2ConfInfo "));
   }
 
   try {
@@ -227,7 +227,7 @@ void ODCond2ConfInfo::fetchData(ODCond2ConfInfo * result)
     m_db_time = dh.dateToTm( endDate );
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODCond2ConfInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODCond2ConfInfo::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -261,7 +261,7 @@ int ODCond2ConfInfo::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("ODCond2ConfInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("ODCond2ConfInfo::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;

@@ -60,7 +60,7 @@ void DCUTag::setLocationDef(const LocationDef locDef)
 
 
 int DCUTag::fetchID()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // Return tag from memory if available
   if (m_ID) {
@@ -91,7 +91,7 @@ int DCUTag::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("DCUTag::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("DCUTag::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -100,7 +100,7 @@ int DCUTag::fetchID()
 
 
 void DCUTag::setByID(int id) 
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -120,18 +120,18 @@ void DCUTag::setByID(int id)
 
       m_ID = id;
     } else {
-      throw(runtime_error("DCUTag::setByID:  Given tag_id is not in the database"));
+      throw(std::runtime_error("DCUTag::setByID:  Given tag_id is not in the database"));
     }
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(runtime_error("DCUTag::setByID:  "+e.getMessage()));
+   throw(std::runtime_error("DCUTag::setByID:  "+e.getMessage()));
   }
 }
 
 
 int DCUTag::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // see if this data is already in the DB
   if (this->fetchID()) { 
@@ -158,12 +158,12 @@ int DCUTag::writeDB()
     
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(runtime_error("DCUTag::writeDB:  "+e.getMessage()));
+   throw(std::runtime_error("DCUTag::writeDB:  "+e.getMessage()));
   }
 
   // now get the tag_id
   if (!this->fetchID()) {
-    throw(runtime_error("DCUTag::writeDB:  Failed to write"));
+    throw(std::runtime_error("DCUTag::writeDB:  Failed to write"));
   }
 
   return m_ID;
@@ -171,8 +171,8 @@ int DCUTag::writeDB()
 
 
 
-void DCUTag::fetchAllTags( vector<DCUTag>* fillVec)
-  throw(runtime_error)
+void DCUTag::fetchAllTags( std::vector<DCUTag>* fillVec)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   try {
@@ -188,20 +188,20 @@ void DCUTag::fetchAllTags( vector<DCUTag>* fillVec)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("DCUTag::fetchAllTags:  "+e.getMessage()));
+    throw(std::runtime_error("DCUTag::fetchAllTags:  "+e.getMessage()));
   }
 }
 
 
 
 void DCUTag::fetchParentIDs(int* locID)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   // get the location
   m_locDef.setConnection(m_env, m_conn);
   *locID = m_locDef.fetchID();
 
   if (! *locID) { 
-    throw(runtime_error("DCUTag::writeDB:  Given location does not exist in DB")); 
+    throw(std::runtime_error("DCUTag::writeDB:  Given location does not exist in DB")); 
   }
 }

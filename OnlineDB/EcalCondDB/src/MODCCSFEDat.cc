@@ -27,7 +27,7 @@ MODCCSFEDat::~MODCCSFEDat()
 
 
 void MODCCSFEDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -38,23 +38,23 @@ void MODCCSFEDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":ccs_word)");
   } catch (SQLException &e) {
-    throw(runtime_error("MODCCSFEDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("MODCCSFEDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void MODCCSFEDat::writeDB(const EcalLogicID* ecid, const MODCCSFEDat* item, MODRunIOV* iov )
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("MODCCSFEDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("MODCCSFEDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("MODCCSFEDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("MODCCSFEDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -63,14 +63,14 @@ void MODCCSFEDat::writeDB(const EcalLogicID* ecid, const MODCCSFEDat* item, MODR
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("MODCCSFEDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("MODCCSFEDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void MODCCSFEDat::fetchData(std::map< EcalLogicID, MODCCSFEDat >* fillMap, MODRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -78,7 +78,7 @@ void MODCCSFEDat::fetchData(std::map< EcalLogicID, MODCCSFEDat >* fillMap, MODRu
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("MODCCSFEDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("MODCCSFEDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -108,18 +108,18 @@ void MODCCSFEDat::fetchData(std::map< EcalLogicID, MODCCSFEDat >* fillMap, MODRu
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(runtime_error("MODCCSFEDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("MODCCSFEDat::fetchData():  "+e.getMessage()));
   }
 }
 
 void MODCCSFEDat::writeArrayDB(const std::map< EcalLogicID, MODCCSFEDat >* data, MODRunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("MODCCSFEDat::writeArrayDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("MODCCSFEDat::writeArrayDB:  IOV not in DB")); }
 
 
   int nrows=data->size(); 
@@ -138,7 +138,7 @@ void MODCCSFEDat::writeArrayDB(const std::map< EcalLogicID, MODCCSFEDat >* data,
   for (CI p = data->begin(); p != data->end(); ++p) {
         channel = &(p->first);
 	int logicID = channel->getLogicID();
-	if (!logicID) { throw(runtime_error("MODCCSFEDat::writeArrayDB:  Bad EcalLogicID")); }
+	if (!logicID) { throw(std::runtime_error("MODCCSFEDat::writeArrayDB:  Bad EcalLogicID")); }
 	ids[count]=logicID;
 	iovid_vec[count]=iovID;
 
@@ -176,6 +176,6 @@ void MODCCSFEDat::writeArrayDB(const std::map< EcalLogicID, MODCCSFEDat >* data,
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("MonPedestalsDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("MonPedestalsDat::writeArrayDB():  "+e.getMessage()));
   }
 }

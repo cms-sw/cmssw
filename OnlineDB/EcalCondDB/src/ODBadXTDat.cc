@@ -31,7 +31,7 @@ ODBadXTDat::~ODBadXTDat()
 
 
 void ODBadXTDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -40,14 +40,14 @@ void ODBadXTDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, sm_id, fed_id, tt_id, xt_id, status ) "
 			"VALUES (:1, :2, :3, :4, :5 ,:6 )");
   } catch (SQLException &e) {
-    throw(runtime_error("ODBadXTDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("ODBadXTDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void ODBadXTDat::writeDB(const ODBadXTDat* item, ODBadXTInfo* iov )
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -61,7 +61,7 @@ void ODBadXTDat::writeDB(const ODBadXTDat* item, ODBadXTInfo* iov )
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("ODBadXTDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODBadXTDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -75,7 +75,7 @@ void ODBadXTDat::fetchData(std::vector< ODBadXTDat >* p, ODBadXTInfo* iov)
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("ODBadXTDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("ODBadXTDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -98,7 +98,7 @@ void ODBadXTDat::fetchData(std::vector< ODBadXTDat >* p, ODBadXTInfo* iov)
 
     }
   } catch (SQLException &e) {
-    throw(runtime_error("ODBadXTDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("ODBadXTDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -110,7 +110,7 @@ void ODBadXTDat::writeArrayDB(const std::vector< ODBadXTDat > data, ODBadXTInfo*
   this->checkConnection();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("ODDelays::writeArrayDB:  ODBadXTInfo not in DB")); }
+  if (!iovID) { throw(std::runtime_error("ODDelays::writeArrayDB:  ODBadXTInfo not in DB")); }
 
 
   int nrows=data.size(); 
@@ -179,6 +179,6 @@ void ODBadXTDat::writeArrayDB(const std::vector< ODBadXTDat > data, ODBadXTInfo*
     delete [] st_len;
 
   } catch (SQLException &e) {
-    throw(runtime_error("ODBadXTDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error("ODBadXTDat::writeArrayDB():  "+e.getMessage()));
   }
 }

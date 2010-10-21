@@ -25,7 +25,7 @@ RunDat::~RunDat()
 
 
 void RunDat::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -36,23 +36,23 @@ void RunDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":num_events)");
   } catch (SQLException &e) {
-    throw(runtime_error("RunDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("RunDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
 
 
 void RunDat::writeDB(const EcalLogicID* ecid, const RunDat* item, RunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(runtime_error("RunDat::writeDB:  IOV not in DB")); }
+  if (!iovID) { throw(std::runtime_error("RunDat::writeDB:  IOV not in DB")); }
 
   int logicID = ecid->getLogicID();
-  if (!logicID) { throw(runtime_error("RunDat::writeDB:  Bad EcalLogicID")); }
+  if (!logicID) { throw(std::runtime_error("RunDat::writeDB:  Bad EcalLogicID")); }
   
   try {
     m_writeStmt->setInt(1, iovID);
@@ -61,14 +61,14 @@ void RunDat::writeDB(const EcalLogicID* ecid, const RunDat* item, RunIOV* iov)
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(runtime_error("RunDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("RunDat::writeDB():  "+e.getMessage()));
   }
 }
 
 
 
 void RunDat::fetchData(map< EcalLogicID, RunDat >* fillMap, RunIOV* iov)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -76,7 +76,7 @@ void RunDat::fetchData(map< EcalLogicID, RunDat >* fillMap, RunIOV* iov)
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   if (!iovID) { 
-    //  throw(runtime_error("RunDat::writeDB:  IOV not in DB")); 
+    //  throw(std::runtime_error("RunDat::writeDB:  IOV not in DB")); 
     return;
   }
 
@@ -107,6 +107,6 @@ void RunDat::fetchData(map< EcalLogicID, RunDat >* fillMap, RunIOV* iov)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("RunDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("RunDat::fetchData():  "+e.getMessage()));
   }
 }

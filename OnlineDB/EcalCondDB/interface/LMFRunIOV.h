@@ -88,7 +88,7 @@ class LMFRunIOV : public LMFUnique {
  private:
   void checkFabric();
   void initialize();
-  std::list<LMFRunIOV> fetchBySequence(vector<int> par,
+  std::list<LMFRunIOV> fetchBySequence(std::vector<int> par,
 				       const std::string &sql,
 				       const std::string &method)
     throw (std::runtime_error);

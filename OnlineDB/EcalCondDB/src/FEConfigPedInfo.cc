@@ -52,13 +52,13 @@ int FEConfigPedInfo::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigPedInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigPedInfo::fetchNextId():  "+e.getMessage()));
   }
 
 }
 
 void FEConfigPedInfo::prepareWrite()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -76,7 +76,7 @@ void FEConfigPedInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigPedInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigPedInfo::prepareWrite():  "+e.getMessage()));
   }
 
 }
@@ -98,7 +98,7 @@ void FEConfigPedInfo::setParameters(std::map<string,string> my_keys_map){
 }
 
 void FEConfigPedInfo::writeDB()
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -114,11 +114,11 @@ void FEConfigPedInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigPedInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigPedInfo::writeDB():  "+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
-    throw(runtime_error("FEConfigPedInfo::writeDB:  Failed to write"));
+    throw(std::runtime_error("FEConfigPedInfo::writeDB:  Failed to write"));
   }
 
 
@@ -126,12 +126,12 @@ void FEConfigPedInfo::writeDB()
 
 
 void FEConfigPedInfo::fetchData(FEConfigPedInfo * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
   if(result->getId()==0 && (result->getConfigTag()=="") ){
-    throw(runtime_error("FEConfigPedInfo::fetchData(): no Id defined for this FEConfigPedInfo "));
+    throw(std::runtime_error("FEConfigPedInfo::fetchData(): no Id defined for this FEConfigPedInfo "));
   }
 
   try {
@@ -156,12 +156,12 @@ void FEConfigPedInfo::fetchData(FEConfigPedInfo * result)
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigPedInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigPedInfo::fetchData():  "+e.getMessage()));
   }
 }
 
 void FEConfigPedInfo::fetchLastData(FEConfigPedInfo * result)
-  throw(runtime_error)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -182,7 +182,7 @@ void FEConfigPedInfo::fetchLastData(FEConfigPedInfo * result)
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigPedInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigPedInfo::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -212,7 +212,7 @@ int FEConfigPedInfo::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(runtime_error("FEConfigPedInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error("FEConfigPedInfo::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -242,12 +242,12 @@ void FEConfigPedInfo::setByID(int id)
        Date dbdate = rset->getDate(5);
        this->setDBTime( dh.dateToTm( dbdate ));
      } else {
-       throw(runtime_error("FEConfigPedInfo::setByID:  Given config_id is not in the database"));
+       throw(std::runtime_error("FEConfigPedInfo::setByID:  Given config_id is not in the database"));
      }
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(runtime_error("FEConfigPedInfo::setByID:  "+e.getMessage()));
+     throw(std::runtime_error("FEConfigPedInfo::setByID:  "+e.getMessage()));
    }
 }
 
