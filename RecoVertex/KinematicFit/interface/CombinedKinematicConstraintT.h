@@ -23,18 +23,35 @@ struct do_iterate
     f(std::get<N-1>(t)); 
     do_iterate<TupleType, N-1>::call(t,f); 
   }
+ template<typename F>
+  static void call(TupleType const & t, F f) 
+  {
+    f(std::get<N-1>(t)); 
+    do_iterate<TupleType, N-1>::call(t,f); 
+  }
+
+
 }; 
 
 template<class TupleType>
 struct do_iterate<TupleType, 0> 
 {
   template<typename F>
-  static void call(TupleType&, F&) 
+  static void call(TupleType&, F) 
+  {}
+  template<typename F>
+  static void call(TupleType const &, F) 
   {}
 }; 
 
 template<class TupleType, typename F>
 void iterate_tuple(TupleType& t, F f)
+{
+  do_iterate<TupleType, std::tuple_size<TupleType>::value>::call(t,f);
+}
+
+template<class TupleType, typename F>
+void iterate_tuple(TupleType const& t, F f)
 {
   do_iterate<TupleType, std::tuple_size<TupleType>::value>::call(t,f);
 }
