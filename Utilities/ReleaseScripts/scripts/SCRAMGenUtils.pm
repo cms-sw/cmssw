@@ -1482,6 +1482,23 @@ sub toolSymbolCache ()
       }
     }
   }
+  elsif($tool eq "cxxcompiler")
+  {
+    my $base=$cache->{SETUP}{$tool}{GCC_BASE} || $cache->{SETUP}{$tool}{CXXCOMPILER_BASE};
+    if (($base ne "") && (-f "${base}/lib/libstdc++.so"))
+    {
+      &symbolCacheFork("${base}/lib/libstdc++.so","system",$dir,$jobs);
+      foreach my $ldd (`ldd ${base}/lib/libstdc++.so`)
+      {
+        chomp $ldd;
+	if ($ldd=~/\=\>\s+([^\s]+)\s+\(0x[0-9a-f]+\)\s*$/)
+	{
+	  $ldd=$1;
+	  if (-f $ldd){&symbolCacheFork($ldd,"system",$dir,$jobs);}
+	}
+      }
+    }
+  }
 }
 
 sub scramToolSymbolCache ()

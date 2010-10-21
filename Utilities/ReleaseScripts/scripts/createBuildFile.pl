@@ -638,9 +638,12 @@ sub processRequest_SYMBOL_CHECK_REQUEST ()
     if (exists $allsyms->{$s})
     {
       my $s1=$allsyms->{$s};
+      my $hassystem=0;
       foreach my $t (keys %$s1)
       {
-        foreach my $l (keys %{$s1->{$t}}){$ts{$s}{$t}=$l;}
+	if ($t eq "system"){$ts{$s}={};}
+	if (!$hassystem){foreach my $l (keys %{$s1->{$t}}){$ts{$s}{$t}=$l;}}
+	if ($t eq "system"){$hassystem=1;}
       }
     }
   }
