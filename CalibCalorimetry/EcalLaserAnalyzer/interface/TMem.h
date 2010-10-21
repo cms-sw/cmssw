@@ -1,16 +1,16 @@
 #ifndef TMem_H
 #define TMem_H
 
+#include "TObject.h"
 #include<vector>
-using namespace std;
 
-class TMem 
+class TMem: public TObject 
 {
 
  private:
 
   int _fedid;
-  vector <int> _memFromDcc;
+  std::vector <int> _memFromDcc;
   
   void init(int);
 

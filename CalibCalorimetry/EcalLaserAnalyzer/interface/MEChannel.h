@@ -36,7 +36,7 @@ public:
   MEChannel* getChannel(  int ig, int ix, int iy );
   MEChannel* getAncestor( int ig );
   
-  void print( ostream& o, bool recursif=false ) const;
+  void print(std::ostream& o, bool recursif=false ) const;
   TString oneLine( int ig );
   TString oneLine() { return oneLine( _ig ); }
   TString oneWord( int ig );

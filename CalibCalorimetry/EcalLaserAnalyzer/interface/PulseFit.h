@@ -2,8 +2,8 @@
 //
 // Class which computes 
 //
-// last change : $Date: 2007/07/10 08:29:38 $
-// by          : $Author: ghm $
+// last change : $Date: 2009/06/02 12:55:17 $
+// by          : $Author: malcles $
 //
 
 #ifndef PulseFit_H
@@ -12,8 +12,6 @@
 
 #include "TObject.h"
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/Shape.h>
-
-using namespace std;
 
 class PulseFit: public TObject
 {

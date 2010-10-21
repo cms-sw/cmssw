@@ -2,7 +2,6 @@
 #define TMTQ_H
 
 #include <vector>
-using namespace std;
 
 class TMom;
 
@@ -30,19 +29,19 @@ class TMTQ
 
   void  addEntry(double, double, double, double, double,  double, double, double,  double, double, double);
 
-  vector<double> get(int);
+  std::vector<double> get(int);
   
-  vector<double> getPeak();
-  vector<double> getSigma();
-  vector<double> getFit();
-  vector<double> getAmpl();
-  vector<double> getTrise(); 
-  vector<double> getFwhm();
-  vector<double> getFw20();
-  vector<double> getFw80();
-  vector<double> getPed();
-  vector<double> getPedsig();
-  vector<double> getSliding();
+  std::vector<double> getPeak();
+  std::vector<double> getSigma();
+  std::vector<double> getFit();
+  std::vector<double> getAmpl();
+  std::vector<double> getTrise(); 
+  std::vector<double> getFwhm();
+  std::vector<double> getFw20();
+  std::vector<double> getFw80();
+  std::vector<double> getPed();
+  std::vector<double> getPedsig();
+  std::vector<double> getSliding();
 
   
  public:
