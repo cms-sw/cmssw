@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 hltTauValidationProcess_IDEAL = "HLT"
-hltTauValidationFolder_MC_IDEAL =  'HLT/TauRelVal/MC_6E31/'
-hltTauValidationFolder_PF_IDEAL =  'HLT/TauRelVal/PF_6E31/'
+hltTauValidationFolder_MC_IDEAL =  'HLT/TauRelVal/MC_2E32/'
+hltTauValidationFolder_PF_IDEAL =  'HLT/TauRelVal/PF_2E32/'
 
-hltTauValIdealMonitorMC6E31 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
+hltTauValIdealMonitorMC2E32 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
     MonitorSetup = cms.VPSet(
         cms.PSet(
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauValidationProcess_IDEAL),
@@ -44,11 +44,11 @@ hltTauValIdealMonitorMC6E31 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauValidationProcess_IDEAL),
             DQMFolder             = cms.untracked.string(hltTauValidationFolder_MC_IDEAL+'SingleTau'),
             Filter                = cms.untracked.VInputTag(
-                                        cms.InputTag("hltL1sSingleIsoTau20Trk5MET20","",hltTauValidationProcess_IDEAL), 
-                                        cms.InputTag("hltFilterL2EtCutSingleIsoTau30Trk5MET20","",hltTauValidationProcess_IDEAL),
-                                        cms.InputTag("hltFilterL2EcalIsolationSingleIsoTau30Trk5MET20","",hltTauValidationProcess_IDEAL),
-                                        cms.InputTag("hltFilterL25LeadingTrackPtCutSingleIsoTau30Trk5MET20","",hltTauValidationProcess_IDEAL),
-                                        cms.InputTag("hltFilterL3TrackIsolationSingleIsoTau30Trk5MET20","",hltTauValidationProcess_IDEAL)
+                                        cms.InputTag("hltL1sSingleIsoTau20Trk15MET25","",hltTauValidationProcess_IDEAL), 
+                                        cms.InputTag("hltFilterL2EtCutSingleIsoTau20Trk15MET25","",hltTauValidationProcess_IDEAL),
+                                        cms.InputTag("hltFilterL2EcalIsolationSingleIsoTau20Trk15MET25","",hltTauValidationProcess_IDEAL),
+                                        cms.InputTag("hltFilterL25LeadingTrackPtCutSingleIsoTau20Trk15MET25","",hltTauValidationProcess_IDEAL),
+                                        cms.InputTag("hltFilterL3TrackIsolationSingleIsoTau20Trk15MET25","",hltTauValidationProcess_IDEAL)
                                         ),
             MatchDeltaR           = cms.untracked.vdouble(0.5,0.2,0.2,0.2,0.2),    #One per filter
             NTriggeredTaus        = cms.untracked.vuint32(1,1,1,1,1,1), #The first one is for the ref events
@@ -111,17 +111,17 @@ hltTauValIdealMonitorMC6E31 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
 )
 
 
-hltTauValIdealMonitorPF6E31 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
+hltTauValIdealMonitorPF2E32 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
     MonitorSetup = cms.VPSet(
         cms.PSet(
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauValidationProcess_IDEAL),
             DQMFolder             = cms.untracked.string(hltTauValidationFolder_PF_IDEAL+'DoubleTau'),
             Filter                = cms.untracked.VInputTag(
-                                        cms.InputTag("hltL1sDoubleIsoTau15Trk5","",hltTauValidationProcess_IDEAL), 
-                                        cms.InputTag("hltFilterL2EtCutDoubleIsoTau15Trk5","",hltTauValidationProcess_IDEAL),
-                                        cms.InputTag("hltFilterL2EcalIsolationDoubleIsoTau15Trk5","",hltTauValidationProcess_IDEAL),
-                                        cms.InputTag("hltFilterL25LeadingTrackPtCutDoubleIsoTau15Trk5","",hltTauValidationProcess_IDEAL),
-                                        cms.InputTag("hltFilterL3TrackIsolationDoubleIsoTau15Trk5","",hltTauValidationProcess_IDEAL)
+                                        cms.InputTag("hltL1sSingleIsoTau20Trk15MET25","",hltTauValidationProcess_IDEAL), 
+                                        cms.InputTag("hltFilterL2EtCutSingleIsoTau20Trk15MET25","",hltTauValidationProcess_IDEAL),
+                                        cms.InputTag("hltFilterL2EcalIsolationSingleIsoTau20Trk15MET25","",hltTauValidationProcess_IDEAL),
+                                        cms.InputTag("hltFilterL25LeadingTrackPtCutSingleIsoTau20Trk15MET25","",hltTauValidationProcess_IDEAL),
+                                        cms.InputTag("hltFilterL3TrackIsolationSingleIsoTau20Trk15MET25","",hltTauValidationProcess_IDEAL)
                                         ),
             MatchDeltaR           = cms.untracked.vdouble(0.5,0.2,0.2,0.2,0.2),    #One per filter
             NTriggeredTaus        = cms.untracked.vuint32(2,2,2,2,2,2), #The first one is for the ref events
@@ -218,5 +218,5 @@ hltTauValIdealMonitorPF6E31 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
 )
 
 
-hltTauValIdeal6E31 = cms.Sequence(hltTauValIdealMonitorMC6E31+hltTauValIdealMonitorPF6E31)
+hltTauValIdeal2E32 = cms.Sequence(hltTauValIdealMonitorMC2E32+hltTauValIdealMonitorPF2E32)
 
