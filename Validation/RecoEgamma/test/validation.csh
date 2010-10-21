@@ -21,8 +21,8 @@ setenv CMSSWver1 3_9_0
 setenv CMSSWver2 3_9_0
 setenv OLDRELEASE 390
 setenv NEWRELEASE 390
-setenv OLDPRERELEASE pre5
-setenv NEWPRERELEASE pre7
+setenv OLDPRERELEASE pre7
+setenv NEWPRERELEASE 
 
 
 setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
@@ -33,11 +33,11 @@ setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
-
 setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
+
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
+#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
@@ -53,10 +53,10 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #setenv SAMPLE PhotonJetPt470
 
 #setenv SAMPLE SingleGammaPt10IDEAL
-#setenv SAMPLE SingleGammaPt35IDEAL
+setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
-#setenv SAMPLE H130GGgluonfusionSTARTUP
-setenv SAMPLE PhotonJets_Pt_10
+#$setenv SAMPLE H130GGgluonfusionSTARTUP
+#setenv SAMPLE PhotonJets_Pt_10
 #setenv SAMPLE GammaJets_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_80_120STARTUP
 #TYPE must be one ofPixelMatchGsfElectron, Photon 
@@ -255,6 +255,7 @@ pHcalTowerSumEtConeDR04VsEtaAll
 pHcalTowerSumEtConeDR04VsEtBarrel
 pHcalTowerSumEtConeDR04VsEtEndcap
 
+
 EOF
 
 
@@ -347,7 +348,11 @@ cat > unscaledhistosForConvertedPhotons <<EOF
 pEoverEtrueVsEtaAll
 pEoverPVsEtaAll
 pEoverPVsRAll
-
+pConvVtxdRVsR
+pConvVtxdRVsEta
+pConvVtxdXVsX
+pConvVtxdYVsY
+pConvVtxdZVsZ
 EOF
 
 
@@ -404,8 +409,6 @@ pDCotTracksVsEtaAll
 pDCotTracksVsRAll
 pDPhiTracksAtEcalVsEtaAll
 pDPhiTracksAtEcalVsRAll
-pConvVtxdRVsR
-pConvVtxdRVsEta
 pdzPVVsR
 
 
@@ -731,7 +734,14 @@ TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
 file_old->cd("DQMData/EgammaV/PhotonValidator/ConversionInfo");
 $i->SetStats(0);
-$i->SetMinimum(0.6);
+$i->GetYaxis()->SetRangeUser(0.6.,2);
+if (  $i == pConvVtxdRVsR || $i == pConvVtxdRVsEta || $i == pConvVtxdXVsX ||  $i ==  pConvVtxdYVsY ) {
+$i->GetYaxis()->SetRangeUser(-10.,10);
+} else if ( $i == pConvVtxdZVsZ ) {
+$i->GetYaxis()->SetRangeUser(-10.,10);
+} else {
+$i->GetYaxis()->SetRangeUser(-1.,1);
+} 
 $i->SetLineColor(kPink+8);
 $i->SetMarkerColor(kPink+8);
 $i->SetMarkerStyle(20);
