@@ -25,6 +25,13 @@
 #include "RecoVertex/KinematicFit/interface/ColinearityKinematicConstraint.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
+// new templated one
+#ifdef TemplateKineFit
+#include "RecoVertex/KinematicFit/interface/KinematicConstrainedVertexFitterT.h"
+#include "RecoVertex/KinematicFit/interface/ColinearityKinematicConstraintT.h"
+#endif
+
+
 //
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <TMath.h>
@@ -82,9 +89,22 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
   particles.push_back(pFactory.particle (pair[0],mass,chi,ndf,sigma,*pair[0].innermostMeasurementState().freeState()));
   particles.push_back(pFactory.particle (pair[1],mass,chi,ndf,sigma,*pair[1].innermostMeasurementState().freeState()));
   
-  MultiTrackKinematicConstraint *  constr = new ColinearityKinematicConstraint(ColinearityKinematicConstraint::PhiTheta);
+
+#ifndef TemplateKineFit
+  ColinearityKinematicConstraint constr(ColinearityKinematicConstraint::PhiTheta);
   
-  RefCountedKinematicTree myTree = kcvFitter_->fit(particles, constr, &tangentPoint);
+  RefCountedKinematicTree myTree = kcvFitter_->fit(particles, &constr, &tangentPoint);
+#else
+
+  // bizzare way to the get the field...
+  const MagneticField* mf = pair[0].field();
+
+  ColinearityKinematicConstraintT<colinearityKinematic::PhiTheta> constr;
+  KinematicConstrainedVertexFitter<2,2> kcvFitter(mf);
+  kcvFitter.setParameters(conf_);
+  RefCountedKinematicTree myTree =  kcvFitter.fit(particles, &constr, &tangentPoint);
+#endif
+
   if( myTree->isValid() ) {
     myTree->movePointerToTheTop();                                                                                
     RefCountedKinematicParticle the_photon = myTree->currentParticle();                                           
@@ -102,11 +122,7 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
       }
     }
   }
-  delete constr;                                                                                                    
-  
-  
-
-
+ 
   return found;
 }
 
