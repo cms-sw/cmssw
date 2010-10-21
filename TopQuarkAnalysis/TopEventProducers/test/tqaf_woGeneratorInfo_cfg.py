@@ -9,7 +9,7 @@ process.MessageLogger.cerr.threshold = 'INFO'
 ## define input
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_InterestingEvents-Dec19thSkim_341_v1/0005/B641315C-ACED-DE11-82E1-0030486792B6.root'
+    '/store/data/Run2010B/Mu/AOD/PromptReco-v2/000/148/068/44373387-5DDB-DF11-A923-000423D94494.root'
     )
 )
 ## define maximal number of events to loop over
@@ -34,8 +34,7 @@ process.GlobalTag.globaltag = cms.string('GR_R_38X_V7::All')
 ## std sequence for PAT
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
-from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run36xOn35xInput
-run36xOn35xInput(process)
+process.patJets.addTagInfos = False
 
 ## remove MC specific stuff in PAT
 from PhysicsTools.PatAlgos.tools.coreTools import *
