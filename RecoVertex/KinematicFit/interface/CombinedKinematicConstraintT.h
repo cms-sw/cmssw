@@ -174,10 +174,12 @@ public:
    */
   virtual int numberOfEquations() const {
     int tot=0;
+    /*
     iterate_tuple(constraints,std::bind(combinedConstraintHelpers::sum2<int>,std::ref(tot),
 					std::bind(&base::numberOfEquations(),std::placeholders::_1)
 					)
 		  );
+    */
     return tot;  				
   }
   
