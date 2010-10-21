@@ -6,8 +6,7 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/IdealGeometryObjects/interface/PGeometricDet.h"
-#include "Geometry/Records/interface/PGeometricDetRcd.h"
+#include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
@@ -203,11 +202,12 @@ void GeometricDetLoader::putOne ( const GeometricDet* gd, PGeometricDet* pgd, in
     item._params10=0;
   } 
   item._geographicalID = gd->geographicalID();
-  item._volume         = gd->volume();
-  item._density        = gd->density();
-  item._weight         = gd->weight();
-  item._copy           = gd->copyno();
-  item._material       = gd->material();
+  // FIXME: These are moved to PGeometricDetExtra:
+  //item._volume         = gd->volume();
+  //item._density        = gd->density();
+  //item._weight         = gd->weight();
+  //item._copy           = gd->copyno();
+  //item._material       = gd->material();
   item._radLength      = gd->radLength();
   item._xi             = gd->xi();
   item._pixROCRows     = gd->pixROCRows();
