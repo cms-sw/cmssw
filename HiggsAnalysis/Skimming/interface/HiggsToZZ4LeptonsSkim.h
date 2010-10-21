@@ -49,8 +49,7 @@ class HiggsToZZ4LeptonsSkim : public edm::EDFilter {
   int nLeptonMin;
 
   // Reco samples
-  edm::InputTag recTrackLabel;
-  edm::InputTag theGLBMuonLabel;
+  edm::InputTag theMuonLabel;
   edm::InputTag theGsfELabel;
 };
 
