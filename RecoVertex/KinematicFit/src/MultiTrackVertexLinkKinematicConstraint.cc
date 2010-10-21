@@ -1,7 +1,7 @@
 #include "RecoVertex/KinematicFit/interface/MultiTrackVertexLinkKinematicConstraint.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 
-AlgebraicVector MultiTrackVertexLinkKinematicConstraint::value(const vector<KinematicState> states, const GlobalPoint& point) const{
+AlgebraicVector MultiTrackVertexLinkKinematicConstraint::value(const std::vector<KinematicState> states, const GlobalPoint& point) const{
 	int num = states.size();
 	if(num<2) throw VertexException("MultiTrackVertexLinkKinematicConstraint::value <2 states passed");
 
@@ -15,7 +15,7 @@ AlgebraicVector MultiTrackVertexLinkKinematicConstraint::value(const vector<Kine
 
 	double pxSum=0, pySum=0, pzSum=0;
 	double aSum = 0;
-	for(vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++)
+	for(std::vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++)
 	{
 		double a = - i->particleCharge() * i->magneticField()->inInverseGeV(i->globalPosition()).z();
 		aSum += a;
@@ -34,7 +34,7 @@ AlgebraicVector MultiTrackVertexLinkKinematicConstraint::value(const vector<Kine
 	return vl;
 }
 
-AlgebraicMatrix MultiTrackVertexLinkKinematicConstraint::parametersDerivative(const vector<KinematicState> states, const GlobalPoint& point) const{
+AlgebraicMatrix MultiTrackVertexLinkKinematicConstraint::parametersDerivative(const std::vector<KinematicState> states, const GlobalPoint& point) const{
 	int num = states.size();
 	if(num<2) throw VertexException("MultiTrackVertexLinkKinematicConstraint::parametersDerivative <2 states passed");
 	
@@ -46,7 +46,7 @@ AlgebraicMatrix MultiTrackVertexLinkKinematicConstraint::parametersDerivative(co
 	
 	double pxSum=0, pySum=0, pzSum=0;
 	double aSum = 0;
-	for(vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++)
+	for(std::vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++)
 	{
 		double a = - i->particleCharge() * i->magneticField()->inInverseGeV(i->globalPosition()).z();
 		aSum += a;
@@ -60,7 +60,7 @@ AlgebraicMatrix MultiTrackVertexLinkKinematicConstraint::parametersDerivative(co
 	double pSum = sqrt(pow(pxSum,2) + pow(pySum,2) + pow(pzSum,2));
 
 	int col=0;
-	for(vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++){
+	for(std::vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++){
 		double a = - i->particleCharge() * i->magneticField()->inInverseGeV(i->globalPosition()).z();
 
 		matrix(1,1+col*7) =	a*(-(pT/pow(pySum,2)) + pxSum/pow(pySum,2) - (4*pySum)/(aSum*dT*sqrt(-(pow(aSum,2)*pow(dT,2)) + 4*pow(pT,2))) + (1 + (2*pySum)/(aSum*dT))/pT);//dH/dx
@@ -84,7 +84,7 @@ AlgebraicMatrix MultiTrackVertexLinkKinematicConstraint::parametersDerivative(co
 	return matrix;
 }
 
-AlgebraicMatrix MultiTrackVertexLinkKinematicConstraint::positionDerivative(const vector<KinematicState> states, const GlobalPoint& point) const{
+AlgebraicMatrix MultiTrackVertexLinkKinematicConstraint::positionDerivative(const std::vector<KinematicState> states, const GlobalPoint& point) const{
 	int num = states.size();
 	if(num<2) throw VertexException("MultiTrackVertexLinkKinematicConstraint::positionDerivative <2 states passed");
 	
@@ -97,7 +97,7 @@ AlgebraicMatrix MultiTrackVertexLinkKinematicConstraint::positionDerivative(cons
 	double ds = sqrt(pow(dx,2) + pow(dy,2) + pow(dz,2));
 	
 	double pxSum=0, pySum=0, pzSum=0, aSum = 0;
-	for(vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++){
+	for(std::vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++){
 		double a = - i->particleCharge() * i->magneticField()->inInverseGeV(i->globalPosition()).z();
 		aSum += a;
 		

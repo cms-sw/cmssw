@@ -3,7 +3,7 @@
 #include "RecoVertex/KinematicFit/interface/VertexKinematicConstraintT.h"
 #include "RecoVertex/KinematicFit/interface/ColinearityKinematicConstraintT.h"
 
-#include "RecoVertex/KinematicFit/interface/KinematicConstraintVertexFitterT.h"
+#include "RecoVertex/KinematicFit/interface/KinematicConstraintedVertexFitterT.h"
 
 
 #include<iostream>
@@ -17,7 +17,7 @@ int main() {
 
   std::cout << CKC::nTrk << " " , CKC::nDim << " " << ckc.numberOfEquations() << std::endl;
 
-  KinematicConstraintVertexFitterT<CKC::nTrk,CKC::nDim> kinefit(0);
+  KinematicConstraintedVertexFitterT<CKC::nTrk,CKC::nDim> kinefit(0);
 
 
   return 0;
