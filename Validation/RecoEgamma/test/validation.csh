@@ -52,11 +52,11 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #setenv SAMPLE PhotonJetPt80
 #setenv SAMPLE PhotonJetPt470
 
-#setenv SAMPLE SingleGammaPt10IDEAL
-setenv SAMPLE SingleGammaPt35IDEAL
+setenv SAMPLE SingleGammaPt10IDEAL
+#setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
-#$setenv SAMPLE H130GGgluonfusionSTARTUP
-#setenv SAMPLE PhotonJets_Pt_10
+#setenv SAMPLE H130GGgluonfusionSTARTUP
+#setenv SAMPLE PhotonJets_Pt_10STARTUP
 #setenv SAMPLE GammaJets_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_80_120STARTUP
 #TYPE must be one ofPixelMatchGsfElectron, Photon 
