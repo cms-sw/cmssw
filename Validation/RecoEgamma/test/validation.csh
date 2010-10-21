@@ -315,6 +315,9 @@ cat > scaledhistosForConvertedPhotons <<EOF
   PoverEtracksAll
   PoverEtracksBarrel 
   PoverEtracksEndcap
+  convPtResAll
+  convPtResBarrel
+  convPtResEndcap
   convVtxdR
   convVtxdR_barrel
   convVtxdR_endcap
@@ -739,9 +742,7 @@ if (  $i == pConvVtxdRVsR || $i == pConvVtxdRVsEta || $i == pConvVtxdXVsX ||  $i
 $i->GetYaxis()->SetRangeUser(-10.,10);
 } else if ( $i == pConvVtxdZVsZ ) {
 $i->GetYaxis()->SetRangeUser(-10.,10);
-} else {
-$i->GetYaxis()->SetRangeUser(-1.,1);
-} 
+}
 $i->SetLineColor(kPink+8);
 $i->SetMarkerColor(kPink+8);
 $i->SetMarkerStyle(20);
