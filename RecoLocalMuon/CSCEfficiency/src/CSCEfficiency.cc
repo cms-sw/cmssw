@@ -114,8 +114,8 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
   reco::BeamSpot vertexBeamSpot = *beamSpotHandle;
   //
   std::vector <reco::MuonCollection::const_iterator> goodMuons_it;
-  uint nPositiveZ = 0;
-  uint nNegativeZ = 0;
+  unsigned int nPositiveZ = 0;
+  unsigned int nNegativeZ = 0;
   float muonOuterZPosition = -99999.;
   if(isIPdata){
     if (printalot)std::cout<<" muons.size() = "<<muons->size() <<std::endl;
@@ -204,7 +204,7 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
       if (printalot){
 	std::cout<<" goodMuons_it.size() = "<<goodMuons_it.size()<<std::endl;
       }
-      for(uint iM=0;iM<goodMuons_it.size();++iM){
+      for(size_t iM=0;iM<goodMuons_it.size();++iM){
 	//std::cout<<" iM = "<<iM<<" eta = "<<goodMuons_it[iM]->track()->eta()<<
 	//" phi = "<<goodMuons_it[iM]->track()->phi()<<
 	//" pt = "<<goodMuons_it[iM]->track()->pt()<<std::endl;
@@ -355,7 +355,7 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
       }
     }
     //---- loop over the "refference" CSCDetIds
-    for(uint iSt = 0; iSt<refME.size();++iSt){
+    for(size_t iSt = 0; iSt<refME.size();++iSt){
       if (printalot){
 	std::cout<<"loop iStatation = "<<iSt<<std::endl;
 	std::cout<<"refME[iSt]: st = "<<refME[iSt].station()<<" rg = "<<refME[iSt].ring()<<std::endl;
@@ -403,7 +403,7 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 	    //---- which chamber (and its closes neighbor) is penetrated by the track - candidates
 	    chamberCandidates(refME[iSt].station(), refME[iSt].ring(), phi, coupleOfChambers);
 	    //---- loop over the two chamber candidates
-	    for(uint iCh =0;iCh<coupleOfChambers.size();++iCh){
+	    for(size_t iCh =0;iCh<coupleOfChambers.size();++iCh){
 	      DataFlow->Fill(11.);  
 	      if (printalot) std::cout<<" Check chamber N = "<<coupleOfChambers.at(iCh)<<std::endl;;
 	      if((!getAbsoluteEfficiency) && (true == emptyChambers
@@ -950,7 +950,7 @@ void CSCEfficiency::fillRechitsSegments_info(edm::Handle<CSCRecHit2DCollection> 
 	printf("\t%i RH\tendcap/station/ring/chamber/layer: %i/%i/%i/%i/%i\n",
 	       layerRH,idRH.endcap(),idRH.station(),idRH.ring(),idRH.chamber(),idRH.layer());
       }
-      for(uint jRH = 0; 
+      for(size_t jRH = 0; 
 	  jRH<allRechits[idRH.endcap()-1][idRH.station()-1][idRH.ring()-1][idRH.chamber()-FirstCh][idRH.layer()-1].size();
 	  ++jRH){
 	LocalPoint lp = allRechits[idRH.endcap()-1][idRH.station()-1][idRH.ring()-1][idRH.chamber()-FirstCh][idRH.layer()-1][jRH].first;
@@ -1275,7 +1275,7 @@ bool CSCEfficiency::recSimHitEfficiency(CSCDetId & id, FreeTrajectoryState &ftsC
       }
     }
     if(firstCondition || secondCondition){
-      for(uint iSH=0;
+      for(size_t iSH=0;
 	  iSH<allSimhits[ec][st][thisRing][ch][iLayer].size();
 	  ++iSH){
 	if(13 ==
@@ -1328,7 +1328,7 @@ bool CSCEfficiency::recHitSegment_Efficiencies(CSCDetId & id, const CSCChamber* 
     }
     if(firstCondition || secondCondition){
       ChHist[ec][st][rg][ch].EfficientRechits_good->Fill(iLayer+1);
-      for(uint iR=0;
+      for(size_t iR=0;
 	  iR<allRechits[ec][st][thisRing][ch][iLayer].size();
 	  ++iR){
 	if(allRechits[ec][st][thisRing][ch][iLayer][iR].second){
@@ -1559,8 +1559,8 @@ bool CSCEfficiency::applyTrigger(edm::Handle<edm::TriggerResults> &hltR,
   bool triggerPassed = true;
   std::vector<std::string>  hlNames=triggerNames.triggerNames();
   pointToTriggers.clear();
-  for(uint imyT = 0;imyT<myTriggers.size();++imyT){
-    for (uint iT=0; iT<hlNames.size(); ++iT) {
+  for(size_t imyT = 0;imyT<myTriggers.size();++imyT){
+    for (size_t iT=0; iT<hlNames.size(); ++iT) {
       //std::cout<<" iT = "<<iT<<" hlNames[iT] = "<<hlNames[iT]<<
       //" : wasrun = "<<hltR->wasrun(iT)<<" accept = "<<
       //	 hltR->accept(iT)<<" !error = "<< 
@@ -1590,7 +1590,7 @@ bool CSCEfficiency::applyTrigger(edm::Handle<edm::TriggerResults> &hltR,
     if(pointToTriggers.size()){
       if(printalot){
         std::cout<<"The following triggers will be required in the event: "<<std::endl;
-        for(uint imyT =0; imyT <pointToTriggers.size();++imyT){
+        for(size_t imyT =0; imyT <pointToTriggers.size();++imyT){
 	  std::cout<<"  "<<hlNames[pointToTriggers[imyT]];
         }
         std::cout<<std::endl;
@@ -1605,7 +1605,7 @@ bool CSCEfficiency::applyTrigger(edm::Handle<edm::TriggerResults> &hltR,
         std::cout<<" No triggers specified in the configuration or all ignored - no trigger information will be considered"<<std::endl;
       }
     }
-    for(uint imyT =0; imyT <pointToTriggers.size();++imyT){
+    for(size_t imyT =0; imyT <pointToTriggers.size();++imyT){
       if(hltR->wasrun(pointToTriggers[imyT]) && 
 	 hltR->accept(pointToTriggers[imyT]) && 
 	 !hltR->error(pointToTriggers[imyT]) ){
@@ -1650,7 +1650,7 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
   //
 
   //---- Get the input parameters
-  printout_NEvents  = pset.getUntrackedParameter<uint>("printout_NEvents",0);
+  printout_NEvents  = pset.getUntrackedParameter<unsigned int>("printout_NEvents",0);
   rootFileName     = pset.getUntrackedParameter<string>("rootFileName","cscHists.root");
 
   isData  = pset.getUntrackedParameter<bool>("runOnData",true);// 
@@ -1662,7 +1662,7 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
   minP = pset.getUntrackedParameter<double>("minP",20.);//
   maxP = pset.getUntrackedParameter<double>("maxP",100.);//
   maxNormChi2 = pset.getUntrackedParameter<double>("maxNormChi2", 3.);//
-  minTrackHits = pset.getUntrackedParameter<uint>("minTrackHits",10);//
+  minTrackHits = pset.getUntrackedParameter<unsigned int>("minTrackHits",10);//
 
   applyIPangleCuts = pset.getUntrackedParameter<bool>("applyIPangleCuts", false);// 
     local_DY_DZ_Max = pset.getUntrackedParameter<double>("local_DY_DZ_Max",-0.1);//
