@@ -163,7 +163,7 @@ hDPhiTracksAtVtxEndcap
 hInvMassAll_AllTracks
 hInvMassBarrel_AllTracks
 hInvMassEndcap_AllTracks
-hTkD0All
+
 hTkPtPullAll
 hTkPtPullBarrel
 hTkPtPullEndcap
@@ -173,6 +173,7 @@ EOF
 cat > logYScaledHistos <<EOF
 convRplot
 convPt
+hTkD0All
 hDistMinAppTracksAll
 hDistMinAppTracksBarrel
 hDistMinAppTracksEndcap
@@ -185,10 +186,15 @@ EOF
 cat > projections <<EOF
 nHitsVsEtaAllTracks
 
-
 EOF
 
-cat > unscaledhistos <<EOF
+
+cat > profiles <<EOF
+pConvVtxdRVsR
+pConvVtxdRVsEta
+pConvVtxdXVsX
+pConvVtxdYVsY
+pConvVtxdZVsZ
 
 EOF
 
@@ -232,7 +238,7 @@ $i->SetMaximum (1300);
 } else if ( $i==convVtxdR_barrel ||  $i==convVtxdX_barrel ||  $i==convVtxdY_barrel ) {
 $i->SetMaximum (1000);
 } else if ( $i==convVtxdR_endcap  ||  $i==convVtxdX_endcap ||  $i==convVtxdY_endcap ) {
-$i->SetMaximum (800);
+$i->SetMaximum (600);
 } else if ( $i==convVtxdZ_endcap ) {
 $i->SetMaximum (400);
 } else if ( $i==hDPhiTracksAtVtxAll ) {
@@ -370,6 +376,40 @@ EOF
 end
 
 
+foreach i (`cat profiles`)
+  cat > temp$N.C <<EOF
+TCanvas *c$i = new TCanvas("c$i","c$i",430, 10, 700, 500);
+c$i->SetFillColor(10);
+file_old->cd("DQMData/EgammaV/ConversionValidator/ConversionInfo");
+$i->SetStats(0);
+if (  $i == pConvVtxdRVsR || $i == pConvVtxdXVsX ||  $i ==  pConvVtxdYVsY ) {
+$i->GetYaxis()->SetRangeUser(-2.,2);
+} else if ( $i == pConvVtxdZVsZ ) {
+$i->GetYaxis()->SetRangeUser(-10.,10);
+} else {
+$i->GetYaxis()->SetRangeUser(-1.,1);
+}
+$i->SetLineColor(kPink+8);
+$i->SetMarkerColor(kPink+8);
+$i->SetMarkerStyle(20);
+$i->SetMarkerSize(1);
+$i->SetLineWidth(1);
+$i->Draw();
+file_new->cd("DQMData/EgammaV/ConversionValidator/ConversionInfo");
+$i->SetStats(0);
+$i->SetLineColor(kBlack);
+$i->SetMarkerColor(kBlack);
+$i->SetMarkerStyle(20);
+$i->SetMarkerSize(1);
+$i->SetLineWidth(1);
+$i->Draw("e1same");
+c$i->SaveAs("gifs/$i.gif");
+
+EOF
+  setenv N `expr $N + 1`
+end
+
+
 
 
 setenv NTOT `expr $N - 1`
@@ -434,7 +474,7 @@ rm   tkConvValidationPlotsTemplate.html
 
 rm efficiency
 rm scaledhistos
-rm unscaledhistos
+rm profiles
 rm logYScaledHistos
 rm projections
 
