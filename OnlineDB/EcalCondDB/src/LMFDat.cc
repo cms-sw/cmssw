@@ -78,7 +78,10 @@ void LMFDat::dump(int n, int max) const {
       cout << c << " -------------------------------------------" << endl;
       cout << "   ID: " << id << endl;
       for (unsigned int j = 0; j < x.size(); j++) {
-	cout << "   " << rm[j] << ":" << x[j] << " ";
+	if (j % 4 == 0) {
+	  cout << endl << "   ";
+	}
+	cout << rm[j] << ":" << x[j] << "\t";
       }
       cout << endl;
       p++;
@@ -103,26 +106,92 @@ std::string LMFDat::buildInsertSql() {
   return sqls;
 }
 
-std::string LMFDat::buildSelectSql(int logic_id) {
+std::string LMFDat::buildSelectSql(int logic_id, int direction) {
   // create the insert statement
   // if logic_id = 0 select all channels for a given iov_id
   std::stringstream sql;
-  sql << "SELECT * FROM " << getTableName() << " WHERE LMF_IOV_ID = " 
-      << getLMFRunIOVID();
+  int count = 1;
+  if (getLMFRunIOVID() > 0) {
+    // in this case we are looking for all data collected during the same
+    // IOV. There can be many logic_ids per IOV.
+    sql << "SELECT * FROM " << getTableName() << " WHERE LMF_IOV_ID = " 
+        << getLMFRunIOVID();
+  } else {
+    // in this case we are looking for a specific logic_id whose
+    // data have been collected at a given time. There is only
+    // one record in this case.
+    std::string op = ">";
+    std::string order = "ASC";
+    if (direction < 0) {
+      op = "<";
+      order = "DESC";
+    }
+    sql << "SELECT * FROM (SELECT " << getTableName() << ".* FROM " 
+	<< getTableName() 
+	<< " JOIN LMF_RUN_IOV ON " 
+	<< "LMF_RUN_IOV.LMF_IOV_ID = " << getTableName() << ".LMF_IOV_ID "
+	<< "WHERE SUBRUN_START " << op << "= TO_DATE(:" << count;
+    count++;
+    sql << ", 'YYYY-MM-DD HH24:MI:SS') ORDER BY SUBRUN_START " 
+	<< order << ") WHERE ROWNUM <= 1";
+  }
   if (logic_id > 0) {
-    sql << " AND LOGIC_ID = :1";
+    sql << " AND LOGIC_ID = :" << count;
   }
   std::string sqls = sql.str();
-  if (m_debug) {
+  //  if (m_debug) {
     cout << m_className << "::buildSelectSqlDB: " << sqls << endl;
-  }
+    //  }
   return sqls;
+}
+
+void LMFDat::getPrevious(LMFDat *dat)
+  throw(std::runtime_error)
+{
+  getNeighbour(dat, -1);
+}
+
+void LMFDat::getNext(LMFDat *dat)
+  throw(std::runtime_error)
+{
+  getNeighbour(dat, +1);
+}
+
+void LMFDat::getNeighbour(LMFDat *dat, int which)
+  throw(std::runtime_error)
+{
+  // there should be just one record in this case
+  if (m_data.size() == 1) {
+    dat->setConnection(this->getEnv(), this->getConn());
+    int logic_id = m_data.begin()->first;
+    Tm lastMeasuredOn = getSubrunStart();
+    lastMeasuredOn += which;
+    dat->fetch(logic_id, &lastMeasuredOn, which);
+    dat->setMaxDataToDump(m_max);
+  } else {
+    dump();
+    throw(std::runtime_error(m_className + "::getPrevious: Too many LOGIC_IDs in "
+                        "this object"));
+  }
 }
 
 void LMFDat::fetch(const EcalLogicID &id) 
   throw(std::runtime_error)
 {
   fetch(id.getLogicID());
+}
+
+void LMFDat::fetch(const EcalLogicID &id, const Tm &tm) 
+  throw(std::runtime_error)
+{
+  fetch(id.getLogicID(), &tm, 1);
+}
+
+void LMFDat::fetch(const EcalLogicID &id, const Tm &tm, int direction) 
+  throw(std::runtime_error)
+{
+  setInt("lmfRunIOV_id", 0); /* set the LMF_IOV_ID to undefined */
+  fetch(id.getLogicID(), &tm, direction);
 }
 
 void LMFDat::fetch() 
@@ -134,16 +203,36 @@ void LMFDat::fetch()
 void LMFDat::fetch(int logic_id) 
   throw(std::runtime_error)
 {
+  fetch(logic_id, NULL, 0);
+}
+
+void LMFDat::fetch(int logic_id, const Tm &tm) 
+  throw(std::runtime_error)
+{
+  fetch(logic_id, &tm, 1);
+}
+
+void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction) 
+  throw(std::runtime_error)
+{
   this->checkConnection();
   bool ok = check();
+  if ((timestamp == NULL) && (getLMFRunIOVID() == 0)) {
+    throw(std::runtime_error(m_className + "::fetch: Cannot fetch data with "
+			"timestamp = 0 and LMFRunIOV = 0"));
+  }
   if (ok && isValid()) {
     try {
       Statement * stmt = m_conn->createStatement();
-      std::string sql = buildSelectSql(logic_id);
+      std::string sql = buildSelectSql(logic_id, direction);
       stmt->setSQL(sql);
+      int count = 1;
       if (logic_id > 0) {
-	std::cout << "LOGIC_ID = " << logic_id << std::endl;
-	stmt->setInt(1, logic_id);
+        if (timestamp != NULL) {
+	  stmt->setString(count, timestamp->str());
+	  count++;
+	}
+	stmt->setInt(count, logic_id);
       }
       ResultSet *rset = stmt->executeQuery();
       std::vector<float> x;
@@ -154,6 +243,9 @@ void LMFDat::fetch(int logic_id)
 	  x.push_back(rset->getFloat(i + 3));
 	}
 	int id = rset->getInt(2);
+	if (timestamp != NULL) {
+	  setInt("lmfRunIOV_id", rset->getInt(1));
+	}
 	this->setData(id, x);
 	x.clear();
       }
@@ -404,4 +496,89 @@ bool LMFDat::check() {
     }
   }
   return ret;
+}
+
+/* unsafe methods */
+
+std::vector<float> LMFDat::getData(int id) {
+  std::vector<float> ret;
+  if (m_data.find(id) != m_data.end()) {
+    ret = m_data[id];
+  }
+  return ret;
+}
+
+std::vector<float> LMFDat::operator[](int id) {
+  return getData(id);
+}
+
+std::vector<float> LMFDat::getData(const EcalLogicID &id) {
+  return getData(id.getLogicID());
+}
+
+/* safe methods */
+
+bool LMFDat::getData(int id, std::vector<float> &ret) {
+  bool retval = false;
+  if (m_data.find(id) != m_data.end()) {
+    ret= m_data[id];
+    retval = true;
+  }
+  return retval;
+}
+
+bool LMFDat::getData(const EcalLogicID &id, std::vector<float> &ret) {
+  return getData(id.getLogicID(), ret);
+}
+
+/* all data */
+
+std::map<int, std::vector<float> > LMFDat::getData() {
+  return m_data;
+}
+
+/* unsafe */
+
+float LMFDat::getData(int id, unsigned int k) {
+  return m_data[id][k];
+}
+
+float LMFDat::getData(const EcalLogicID &id, unsigned int k) {
+  return getData(id.getLogicID(), k);
+}
+
+float LMFDat::getData(const EcalLogicID &id, const std::string &key) {
+  return getData(id.getLogicID(), m_keys[key]);
+}
+
+/* safe */
+
+bool LMFDat::getData(int id, unsigned int k, float &ret) {
+  bool retval = false;
+  std::vector<float> v;
+  retval = getData(id, v);
+  if ((retval) && (v.size() > k)) {
+    ret= v[k];
+    retval = true;
+  } else {
+    retval = false;
+  }
+  return retval;
+}
+
+bool LMFDat::getData(const EcalLogicID &id, unsigned int k, float &ret) {
+  return getData(id.getLogicID(), k, ret);
+}
+
+bool LMFDat::getData(int id, const std::string &key, float &ret) {
+  bool retval = false;
+  if (m_keys.find(key) != m_keys.end()) {
+    retval = getData(id, m_keys[key], ret); 
+  }
+  return retval;
+}
+
+bool LMFDat::getData(const EcalLogicID &id, const std::string &key, float &ret)
+{
+  return getData(id.getLogicID(), key, ret);
 }

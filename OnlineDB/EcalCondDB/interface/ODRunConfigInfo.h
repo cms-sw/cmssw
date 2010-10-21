@@ -22,6 +22,7 @@ class ODRunConfigInfo : public IODConfig {
  
   
 
+  void setDBTime(Tm x) { m_db_time=x; }
 inline Tm getDBTime() const{  return m_db_time;}
 //
 inline void setTag(std::string x) { m_tag = x; }
@@ -48,7 +49,6 @@ int getNumberOfEvents() const{  return m_num_events ;}
 void setUsageStatus(std::string x) { m_usage_status = x;}
 std::string getUsageStatus() const{  return m_usage_status;}
 //
-
 
   RunTypeDef getRunTypeDef() const;
   void setRunTypeDef(const RunTypeDef runTypeDef);
@@ -86,6 +86,7 @@ std::string getUsageStatus() const{  return m_usage_status;}
   void writeDB()       throw(std::runtime_error);
   void fetchData(ODRunConfigInfo * result)     throw(std::runtime_error);
   int updateDefaultCycle()   throw(std::runtime_error);
+  void clear();
 
 };
 

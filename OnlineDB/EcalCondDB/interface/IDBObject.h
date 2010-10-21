@@ -26,8 +26,12 @@ class IDBObject {
       m_conn = conn;
     }
 
-  
-
+  inline oracle::occi::Environment * getEnv() const {
+    return m_env;
+  }
+  inline oracle::occi::Connection * getConn() const {
+    return m_conn;
+  }
 
  protected:
   // Database connection to use

@@ -195,8 +195,9 @@ void ODRunConfigSeqInfo::writeDB()
 
 
 void ODRunConfigSeqInfo::clear(){
-  m_ecal_config_id =0;
-  m_seq_num =0;
+  //  m_ecal_config_id =0;
+  //  m_seq_num =0;
+  m_ID =0;
   m_cycles =0;
   m_run_seq = RunSeqDef();
   m_description="";
@@ -207,9 +208,11 @@ void ODRunConfigSeqInfo::fetchData(ODRunConfigSeqInfo * result)
   throw(std::runtime_error)
 {
   this->checkConnection();
-  result->clear();
+  //  result->clear();
+  int idid=0;
   if(result->getId()==0){
-    throw(std::runtime_error("ODRunConfigSeqInfo::fetchData(): no Id defined for this record "));
+    //    throw(std::runtime_error("ODRunConfigSeqInfo::fetchData(): no Id defined for this record "));
+    idid=result->fetchID();
   }
 
   try {
