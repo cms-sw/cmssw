@@ -1,7 +1,7 @@
 /* 
  *  \class TShapeAnalysis
  *
- *  $Date: 2010/01/04 15:06:28 $
+ *  $Date: 2010/04/12 14:17:13 $
  *  original author: Patrice Verrecchia 
  *   modified by Julie Malcles - CEA/Saclay
  */
@@ -9,8 +9,10 @@
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TShapeAnalysis.h>
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TFParams.h>
 
+#include <sstream>
 #include <iostream>
 #include <math.h>
+#include <string>
 #include <time.h>
 #include <cassert>
 
@@ -23,24 +25,40 @@
 using namespace std;
 
 // Constructor...
+
 TShapeAnalysis::TShapeAnalysis(double alpha0, double beta0, double width0, double chi20)
 {
   init(alpha0, beta0, width0, chi20);
+  _color=0;
+}
+TShapeAnalysis::TShapeAnalysis(double alpha0, double beta0, double width0, double chi20, int color)
+{
+  init(alpha0, beta0, width0, chi20 );
+  _color=color;
 }
 
 TShapeAnalysis::TShapeAnalysis(TTree *tAB, double alpha0, double beta0, double width0, double chi20)
 {
   init(tAB, alpha0, beta0, width0, chi20);
+  _color=0;
 }
+TShapeAnalysis::TShapeAnalysis(TTree *tAB, double alpha0, double beta0, double width0, double chi20, int color)
+{
+  init(tAB, alpha0, beta0, width0, chi20);
+  _color=color;
+  
+}
+
 
 // Destructor
 TShapeAnalysis::~TShapeAnalysis()
 {
+  
 }
+
 
 void TShapeAnalysis::init(double alpha0, double beta0, double width0, double chi20)
 {
-  tABinit=NULL;
   nchsel=fNchsel;
   for(int cris=0;cris<fNchsel;cris++){
 
@@ -66,6 +84,8 @@ void TShapeAnalysis::init(double alpha0, double beta0, double width0, double chi
     dcc_init[cris]=0;
     tower_init[cris]=0;
     ch_init[cris]=0;
+    channel_init[cris]=0;
+    
     assignChannel(cris,cris);
     
   }
@@ -75,9 +95,9 @@ void TShapeAnalysis::init(TTree *tAB, double alpha0, double beta0, double width0
 {
   init( alpha0, beta0, width0, chi20 );
   
-  tABinit=tAB->CloneTree();
 
   // Declaration of leaf types
+  Int_t           channeli;
   Int_t           sidei;
   Int_t           iphii;
   Int_t           ietai;
@@ -91,6 +111,7 @@ void TShapeAnalysis::init(TTree *tAB, double alpha0, double beta0, double width0
   Int_t           flagi;
   
   // List of branches
+  TBranch        *b_channel;   //!
   TBranch        *b_iphi;   //!
   TBranch        *b_ieta;   //!
   TBranch        *b_side;   //!
@@ -103,29 +124,29 @@ void TShapeAnalysis::init(TTree *tAB, double alpha0, double beta0, double width0
   TBranch        *b_chi2;   //!
   TBranch        *b_flag;   //!
   
-  if(tABinit){
+  if(tAB){
 
-    tABinit->SetBranchAddress("iphi", &iphii, &b_iphi);
-    tABinit->SetBranchAddress("ieta", &ietai, &b_ieta);
-    tABinit->SetBranchAddress("side", &sidei, &b_side);
-    tABinit->SetBranchAddress("dccID", &dccIDi, &b_dccID);
-    tABinit->SetBranchAddress("towerID", &towerIDi, &b_towerID);
-    tABinit->SetBranchAddress("channelID", &channelIDi, &b_channelID);
-    tABinit->SetBranchAddress("alpha", &alphai, &b_alpha);
-    tABinit->SetBranchAddress("beta", &betai, &b_beta);
-    tABinit->SetBranchAddress("width", &widthi, &b_width);
-    tABinit->SetBranchAddress("chi2", &chi2i, &b_chi2);
-    tABinit->SetBranchAddress("flag", &flagi, &b_flag);
+    tAB->SetBranchAddress("channel", &channeli, &b_channel);
+    tAB->SetBranchAddress("iphi", &iphii, &b_iphi);
+    tAB->SetBranchAddress("ieta", &ietai, &b_ieta);
+    tAB->SetBranchAddress("side", &sidei, &b_side);
+    tAB->SetBranchAddress("dccID", &dccIDi, &b_dccID);
+    tAB->SetBranchAddress("towerID", &towerIDi, &b_towerID);
+    tAB->SetBranchAddress("channelID", &channelIDi, &b_channelID);
+    tAB->SetBranchAddress("alpha", &alphai, &b_alpha);
+    tAB->SetBranchAddress("beta", &betai, &b_beta);
+    tAB->SetBranchAddress("width", &widthi, &b_width);
+    tAB->SetBranchAddress("chi2", &chi2i, &b_chi2);
+    tAB->SetBranchAddress("flag", &flagi, &b_flag);
     
-    nchsel=tABinit->GetEntries();
+    nchsel=tAB->GetEntries();
     assert(nchsel<=fNchsel);
     
     for(int cris=0;cris<nchsel;cris++){
       
-      tABinit->GetEntry(cris);
+      tAB->GetEntry(cris);
       
-      //      std::cout<< "Loop 1 "<< cris<<" "<<alphai<< std::endl;
-
+      putchannelVal(cris,channeli);
       putalphaVal(cris,alphai);
       putchi2Val(cris,chi2i);
       putbetaVal(cris,betai);
@@ -142,6 +163,7 @@ void TShapeAnalysis::init(TTree *tAB, double alpha0, double beta0, double width0
  
     }
   }
+
 }
 
 void TShapeAnalysis::set_const(int ns, int ns1, int ns2, int ps, int nevtmax, double noise_val, double chi2_cut)
@@ -163,9 +185,8 @@ void TShapeAnalysis::set_presample(int ps)
 void TShapeAnalysis::set_nch(int nch){
 
   assert (nch<=fNchsel);
-  if(tABinit) assert(nch==nchsel);
   nchsel=nch;
-
+  
 }
 void TShapeAnalysis::assignChannel(int n, int ch)
 {
@@ -231,6 +252,12 @@ void TShapeAnalysis::putAllVals(int ch, double* sampl, int ieta, int iphi)
   } else {
     printf("no index found for ch=%d\n",ch);
   }
+}
+
+void TShapeAnalysis::computeShape(string namefile)
+{
+  computeShape(namefile,NULL);
+
 }
 
 void TShapeAnalysis::computeShape(string namefile, TTree *tAB)
@@ -309,9 +336,8 @@ void TShapeAnalysis::computeShape(string namefile, TTree *tAB)
     }
   }
   
-  if(tAB) tABinit=tAB->CloneTree();
-  
   // Declaration of leaf types
+  Int_t           channeli;
   Int_t           sidei;
   Int_t           iphii;
   Int_t           ietai;
@@ -325,6 +351,7 @@ void TShapeAnalysis::computeShape(string namefile, TTree *tAB)
   Int_t           flagi;
   
   // List of branches
+  TBranch        *b_channel;   //!
   TBranch        *b_iphi;   //!
   TBranch        *b_ieta;   //!
   TBranch        *b_side;   //!
@@ -338,24 +365,29 @@ void TShapeAnalysis::computeShape(string namefile, TTree *tAB)
   TBranch        *b_flag;   //!
   
 
-  if(tABinit){
-    tABinit->SetBranchAddress("iphi", &iphii, &b_iphi);
-    tABinit->SetBranchAddress("ieta", &ietai, &b_ieta);
-    tABinit->SetBranchAddress("side", &sidei, &b_side);
-    tABinit->SetBranchAddress("dccID", &dccIDi, &b_dccID);
-    tABinit->SetBranchAddress("towerID", &towerIDi, &b_towerID);
-    tABinit->SetBranchAddress("channelID", &channelIDi, &b_channelID);
-    tABinit->SetBranchAddress("alpha", &alphai, &b_alpha);
-    tABinit->SetBranchAddress("beta", &betai, &b_beta);
-    tABinit->SetBranchAddress("width", &widthi, &b_width);
-    tABinit->SetBranchAddress("chi2", &chi2i, &b_chi2);
-    tABinit->SetBranchAddress("flag", &flagi, &b_flag);
+  if(tAB){
+    tAB->SetBranchAddress("channel", &channeli, &b_channel);
+    tAB->SetBranchAddress("iphi", &iphii, &b_iphi);
+    tAB->SetBranchAddress("ieta", &ietai, &b_ieta);
+    tAB->SetBranchAddress("side", &sidei, &b_side);
+    tAB->SetBranchAddress("dccID", &dccIDi, &b_dccID);
+    tAB->SetBranchAddress("towerID", &towerIDi, &b_towerID);
+    tAB->SetBranchAddress("channelID", &channelIDi, &b_channelID);
+    tAB->SetBranchAddress("alpha", &alphai, &b_alpha);
+    tAB->SetBranchAddress("beta", &betai, &b_beta);
+    tAB->SetBranchAddress("width", &widthi, &b_width);
+    tAB->SetBranchAddress("chi2", &chi2i, &b_chi2);
+    tAB->SetBranchAddress("flag", &flagi, &b_flag);
   }
 
-  TFile *fABout = new TFile(namefile.c_str(), "RECREATE");
-  tABout=new TTree("ABCol0","ABCol0");
+  TFile fABout(namefile.c_str(), "RECREATE");
+  
+  stringstream nameab;
+  nameab<<"ABCol"<<_color;
+  TTree tABout(nameab.str().c_str(),nameab.str().c_str());
   
   // Declaration of leaf types
+  Int_t           channel;
   Int_t           side;
   Int_t           iphi;
   Int_t           ieta;
@@ -368,35 +400,39 @@ void TShapeAnalysis::computeShape(string namefile, TTree *tAB)
   Double_t        chi2;
   Int_t           flag;
   
-  tABout->Branch( "iphi",      &iphi,       "iphi/I"      );
-  tABout->Branch( "ieta",      &ieta,       "ieta/I"      );
-  tABout->Branch( "side",      &side,       "side/I"      );
-  tABout->Branch( "dccID",     &dccID,      "dccID/I"     );
-  tABout->Branch( "towerID",   &towerID,    "towerID/I"   );
-  tABout->Branch( "channelID", &channelID,  "channelID/I" );
-  tABout->Branch( "alpha",     &alpha,     "alpha/D"    );
-  tABout->Branch( "beta",      &beta,      "beta/D"     );
-  tABout->Branch( "width",     &width,     "width/D"    );
-  tABout->Branch( "chi2",      &chi2,      "chi2/D"     );
-  tABout->Branch( "flag",      &flag,      "flag/I"     );
+  tABout.Branch( "channel",   &channel,    "channel/I"   );
+  tABout.Branch( "iphi",      &iphi,       "iphi/I"      );
+  tABout.Branch( "ieta",      &ieta,       "ieta/I"      );
+  tABout.Branch( "side",      &side,       "side/I"      );
+  tABout.Branch( "dccID",     &dccID,      "dccID/I"     );
+  tABout.Branch( "towerID",   &towerID,    "towerID/I"   );
+  tABout.Branch( "channelID", &channelID,  "channelID/I" );
+  tABout.Branch( "alpha",     &alpha,     "alpha/D"    );
+  tABout.Branch( "beta",      &beta,      "beta/D"     );
+  tABout.Branch( "width",     &width,     "width/D"    );
+  tABout.Branch( "chi2",      &chi2,      "chi2/D"     );
+  tABout.Branch( "flag",      &flag,      "flag/I"     );
   
-  tABout->SetBranchAddress( "ieta",      &ieta       );  
-  tABout->SetBranchAddress( "iphi",      &iphi       ); 
-  tABout->SetBranchAddress( "side",      &side       );
-  tABout->SetBranchAddress( "dccID",     &dccID      );
-  tABout->SetBranchAddress( "towerID",   &towerID    );
-  tABout->SetBranchAddress( "channelID", &channelID  );
-  tABout->SetBranchAddress( "alpha",     &alpha     );
-  tABout->SetBranchAddress( "beta",      &beta      );
-  tABout->SetBranchAddress( "width",     &width     );
-  tABout->SetBranchAddress( "chi2",      &chi2      );
-  tABout->SetBranchAddress( "flag",      &flag      );
+  tABout.SetBranchAddress( "channel",   &channel    ); 
+  tABout.SetBranchAddress( "ieta",      &ieta       );  
+  tABout.SetBranchAddress( "iphi",      &iphi       ); 
+  tABout.SetBranchAddress( "side",      &side       );
+  tABout.SetBranchAddress( "dccID",     &dccID      );
+  tABout.SetBranchAddress( "towerID",   &towerID    );
+  tABout.SetBranchAddress( "channelID", &channelID  );
+  tABout.SetBranchAddress( "alpha",     &alpha     );
+  tABout.SetBranchAddress( "beta",      &beta      );
+  tABout.SetBranchAddress( "width",     &width     );
+  tABout.SetBranchAddress( "chi2",      &chi2      );
+  tABout.SetBranchAddress( "flag",      &flag      );
   
+
   for(int i=0;i<nchsel;i++) {
     
-    if(tABinit){
+    if(tAB){
       
-      tABinit->GetEntry(i);
+      tAB->GetEntry(i);
+      channel=channeli;
       iphi=iphii;
       ieta=ietai;
       side=sidei;
@@ -406,6 +442,7 @@ void TShapeAnalysis::computeShape(string namefile, TTree *tAB)
    
     }else{
       
+      channel=channel_init[i];
       iphi=phi_init[i];
       ieta=eta_init[i];
       side=side_init[i];
@@ -421,14 +458,18 @@ void TShapeAnalysis::computeShape(string namefile, TTree *tAB)
     chi2=chi2_val[i];
     flag=flag_val[i];
     
-    tABout->Fill();
+    tABout.Fill();
   }
   
-  
-  tABout->Write();
-  fABout->Close();
+  tABout.Write();
+  fABout.Close();
 
   delete pjf;
+  for( int i = 0;i<200;i++){
+    delete [] dbi[i];
+    delete [] signalu[i];
+  }
+
 }
 
 void TShapeAnalysis::computetmaxVal(int i, double* tm_val)
@@ -464,6 +505,10 @@ void TShapeAnalysis::putalphaVal(int n, double val)
 {
     alpha_val[n]= val;
 }
+void TShapeAnalysis::putchannelVal(int n, int val)
+{
+    channel_val[n]= val;
+}
 
 void TShapeAnalysis::putchi2Val(int n, double val)
 {
@@ -481,9 +526,13 @@ void TShapeAnalysis::putwidthVal(int n, double val)
 
 void TShapeAnalysis::putflagVal(int n, int val)
 {
-    flag_val[n]= val;
+  flag_val[n]= val;
 }
 
+void TShapeAnalysis::putchannelInit(int n, int val)
+{
+    channel_init[n]= val;
+}
 void TShapeAnalysis::putalphaInit(int n, double val)
 {
     alpha_init[n]= val;
@@ -543,25 +592,3 @@ std::vector<double> TShapeAnalysis::getInitVals(int n)
   
   return v;
 }
-
-void TShapeAnalysis::printshapeData(int gRunNumber)
-{
-     FILE *fd;
-     int nev;
-     sprintf(filename,"runABW%d.pedestal",gRunNumber); 
-     fd = fopen(filename, "w");                                
-     if(fd == NULL) printf("Error while opening file : %s\n",filename);
-
-     for(int i=0; i<nchsel;i++) {
-        if(index[i] >= 0) {
-          nev= (int) npassok[i];
-          double trise= alpha_val[i]*beta_val[i];
-          fprintf( fd, "%d %d 1 %ld %ld %f %f %f %f\n",
-                index[i],nev,timestart,timestop,alpha_val[i],beta_val[i],trise,width_val[i]);
-	}
-     }
-     int iret=fclose(fd);
-     printf(" Closing file : %d\n",iret);
-
-}
-

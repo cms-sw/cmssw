@@ -20,9 +20,15 @@
 class MERunManager;
 class MERun;
 class MEChannel;
+class METimeInterval;
+class MEIntervals;
+class MECorrector2Var;
+class MEVarVector;
+class TCalibData;
 
-// #include "MEIntervals.hh"
-// #include "MECorrector2Var.hh"
+#define NBUF 3;
+#define NBAD 2;
+#define NAVE 15;
 
 class MusEcal
 {
@@ -42,12 +48,24 @@ public:
   enum HistCateg  { iH_APD=0, iH_PN, iH_MTQ, iSizeHC };
   enum HistType   { iHIST=0, iVS_CHANNEL, iMAP, iSizeHT }; 
 
-  // MusEcal: Laser variables
-  enum { iNLS, iCorNLS, iAPDoPNA, iAPDoPNB, iAPDoPN, iAPD, iAPDTime, 
-	 iPNA, iPNB, iPNBoPNA, iAlphaBeta, iAlphaBeta_used, iShapeCor, 
-	 iMTQTrise, iMTQAmpl, iMTQFwhm, iMTQFw20, iMTQFw80, iMTQTime,
-	 iSizeLV };  
+  // MusEcal: Laser variables 
+  // CLS = chosen laser signal
+  // NLS = final stuff
 
+  enum {  iCLS, iCLSN, iNLS, iNLSN, iCLSNORM, iNLSNORM,
+	  iMIDA, iMIDB,  iMID, 
+	  iAPDoPNA, iAPDoPNB, iAPDoPN, 
+	  iAPDoPNACOR, iAPDoPNBCOR, iAPDoPNCOR, 
+	  iAPDABFIXoPNACOR, iAPDABFIXoPNBCOR, iAPDABFIXoPNCOR, 
+	  iAPDABFIToPNACOR, iAPDABFIToPNBCOR, iAPDABFIToPNCOR, 
+	  iAPDoPNANevt, iAPDoPNBNevt,
+	  iAPDoAPDA, iAPDoAPDB, iAPDoAPDANevt, iAPDoAPDBNevt,  
+	  iAPD, iAPDTime, iAPDNevt, iAPDTimeNevt,   
+	  iPNA, iPNB, iPNANevt, iPNBNevt,iPNARMS, iPNBRMS, iPNBoPNA, iShapeCorPNA,iShapeCorPNB,
+	  iAlphaBeta, iShapeCorAPD, iShapeCorRatio,
+	  iMTQTrise, iMTQAmpl, iMTQFwhm, iMTQFw10, iMTQFw05, iMTQTime,
+	  iSizeLV };  
+  
   // MusEcal: TP variables
   enum { iTPAPD_0, iTPAPD_1, iTPAPD_2, iTPPNA_0, iTPPNA_1, iTPPNB_0, iTPPNB_1, iSizeTPV };  
 
@@ -55,6 +73,7 @@ public:
   enum { iOneHundredPercent, iFiftyPercent, iThirtyPercent, iTenPercent,
 	 iFivePercent, iThreePercent, iPercent, 
 	 iFivePerMil, iThreePerMil, iPerMil, iZero };
+
 
   static TString historyVarTitle[iSizeLV];
   static TString historyVarName[iSizeLV];
@@ -69,8 +88,11 @@ public:
   static TString zoomName[ iZero ];
   static double zoomRange[ iZero ];
   static TString mgrName( int lmr, int type, int color );
-  static int firstRun;
-  static int lastRun;
+  static int  firstRun;
+  static int  lastRun;
+  static bool fillNLS;
+  static int  LMR;
+  //  static int  corVar;
 
   // contructors/destructor
   MusEcal( int type=ME::iLaser, int color=ME::iBlue );
@@ -121,6 +143,9 @@ public:
   void bookEBPNHistograms();
   void bookEEAPDHistograms();
   void bookEEPNHistograms();
+
+  TH2* getEBExtraHistogram(int ivar);
+
   void fillHistograms();
   void fillEBGlobalHistograms();
   void fillEBLocalHistograms();
@@ -128,6 +153,18 @@ public:
   void fillEELocalHistograms();
   void writeGlobalHistograms();
 
+  void corMapFwhmMID(std::vector<double>& slope, std::vector<double>& chi2);
+
+  METimeInterval* pnIntervals( std::vector<int>& iapdopn , MEChannel* leaf);
+  MEIntervals* mtqIntervals( bool createcor , MEChannel* leaf);
+  MEIntervals* tpIntervals( MEChannel* leaf );
+  MEIntervals* intervals( MEChannel* leaf );
+
+  MEVarVector* chooseNormalization( MEChannel* leaf_ );
+  MEVarVector* fillNLSVector( MEChannel* ,  METimeInterval *intervals ); //JM 
+  MEVarVector* midVector( MEChannel* ); //JM
+  
+  
   // verbosity
   static bool verbose;
 
@@ -168,6 +205,10 @@ protected:
 
   // debug
   bool _debug;
+  bool _debug2;
+  unsigned _nbuf ;
+  unsigned _nbad ;
+  unsigned _nave ;
 
   // GUI
   bool _isGUI;
@@ -183,6 +224,8 @@ protected:
   TH2 *_eb_h, *_eb_loc_h;
   std::map< TString, TH1* > _eb_m;
   std::map< TString, TH1* > _eb_loc_m;
+  std::map< TString, TH1* > _eb_xm;
+  std::map< TString, TH1* > _eb_loc_xm;
 
   TFile* _feegeom;
   TH2* _ee_h; 
@@ -212,85 +255,100 @@ protected:
   TBranch        *b_seq_tbeg;   //!
   TBranch        *b_seq_tlmr[92];   //!
 
-//   // validity intervals
-//   void setMtqVar( int mtqVar0, int mtqVar1, int mtqLevel );
-//   void setPnVar(  int  pnVar0, int  pnVar1, int  pnLevel );
+  // PN linearity corrector 
+  TCalibData *_calibData;
 
-//   MEIntervals* mtqIntervals( int type );
-//   MEKeyInterval* topMtqInterval( int type ) { return mtqIntervals(type)->topInterval(); }
+  // Set variables for validity intervals
 
-//   MEIntervals* pnIntervals( int type );
-//   MEKeyInterval* topPnInterval( int type ) { return pnIntervals(type)->topInterval(); }
-//   std::map< MEKeyInterval*, int >& choices( int type ) { return _choices[type]; }
+  bool _mtqTwoVar;
+  int  _mtqLevel;
+  int  _mtqVar0;
+  int  _mtqVar1;
+
+  bool _tpTwoVar;
+  int  _tpLevel;
+  int  _tpVar0;
+  int  _tpVar1;
+
+  bool _pnTwoVar;
+  int  _pnLevel;
+  int  _pnVar0;
+  int  _pnVar1;
+
+  void setMtqVar( int mtqVar0, int mtqVar1, int mtqLevel );
+  void setTPVar( int tpVar0, int tpVar1, int tpLevel );
+  void setPNVar(  int  pnVar0, int  pnVar1, int  pnLevel );
+
+  
+  // Compute validity intervals
+  
+  std::map<MEChannel*, MEIntervals*> _intervals[ME::iSizeC][ME::iSizeT];
+  std::map<MEChannel*, METimeInterval*> _pnintervals[ME::iSizeC];
+
+
+  // Choice of variables in PN intervals
+
+  std::map<MEChannel*, std::vector<int> > _pnvarmap[ME::iSizeC];
+
+
+  virtual void buildMtqIntervals( bool createcor , MEChannel *leaf );
+  virtual void buildTPIntervals(MEChannel *leaf);
+  virtual void buildPNIntervals( std::vector<int>& iapdopn, MEChannel *leaf);
+
+  // Define intermediate and NLS maps 
+  
+  std::map< MEChannel*, MEVarVector* >  _midMap;
+  std::map< MEChannel*, MEVarVector* >  _nlsMap;
+
+  
+  // Fill intermediate and NLS maps (should be private)
+
+  void fillMIDMaps();
+  MEVarVector* fillMIDVector( MEChannel*  ); //JM
  
-//   // create corrections
-//   virtual void createCorrectors();
+  void fillNLSMaps( );
+  MEVarVector* nlsVector( MEChannel* ); //JM
+  MEVarVector* fillNLSVector( MEChannel*); //JM 
+
+
+
+  void rabouteNLS( MEIntervals* intervals, 
+		   MEVarVector* varvecin, MEVarVector* varvecout,
+		   std::vector<int> ivarin, std::vector<int> ivarout,
+		   unsigned int nbuf, unsigned int nave, unsigned int nbad );
   
-//   // apply corrections
-//   void applyCorrections( MELeaf* leaf, int type, int var0, int var1, 
-// 			 std::vector< MERunKey>& keys, std::vector< MERunKey>& altkeys,
-// 			 std::vector< double >& val, std::vector< double >& cor_val, std::vector< double >& glued_val, std::vector< double >& cor_and_glued_val,
-// 			 std::vector< bool   >&  ok, std::vector< bool   >& cor_ok , std::vector< bool   >& glued_ok,  std::vector< bool   >& cor_and_glued_ok  );
+  void rabouteNLS( METimeInterval* intervals, 
+		   MEVarVector* varvecin, MEVarVector* varvecout,
+		   std::vector<int> ivarin, std::vector<int> ivarout,
+		   unsigned int nbuf, unsigned int nave, unsigned int nbad );
 
-//   void rabouteVector( MEKeyInterval*, int level, const std::vector< MERunKey >& keys, std::vector< double >& val, std::vector< bool >& ok, 
-// 		      MERunKey curKey=0, unsigned nbuf=2, unsigned nave=10 );
-//   void rabouteVector( MEKeyInterval*, int level, MEVarMap& val, MEBoolMap& ok, 
-// 		      MERunKey curKey=0, unsigned nbuf=2, unsigned nave=10 );
+
+  // Correction variables
   
-//   void dumpHistory();
-
-//   // current variable
-//   int _var;
-  
-//   // current zoom
-//   int _zoom;
-
-//   // current channel of group of channels
-//   bool _newVar;
-//   bool _newSelection;
-//   bool _newRange;
-//   bool _newReference;
-//   bool _iSelect;
-
-//   // validity intervals the Side level, based on MATACQ variables
-//   bool _mtqTwoVar;
-//   int  _mtqLevel;
-//   int  _mtqVar0;
-//   int  _mtqVar1;
-
-//   // validity intervals at the Module level, based on the PNA and PNB signal variations
-//   bool _pnTwoVar;
-//   int  _pnLevel;
-//   int  _pnVar0;
-//   int  _pnVar1;
-
-//   // variable to correct against
-//   int _corVar0;
-//   int _corVar1;
-//   int _corZoom0;
-//   int _corZoom1;
-//   unsigned _corFitDegree;
-//   double _corX0;
-//   double _corY0;
-//   std::vector< double > _corBeta;
+  int _corVar0;
+  int _corVar1;
+  int _corZoom0;
+  int _corZoom1;
+  unsigned _corFitDegree;
+  double _corX0;
+  double _corY0;
+  std::vector<double> _corBeta;
  
-//   // intervals, as a function of the Leaf (at the Side or Module level)
-//   std::map< MELeaf*, MEIntervals* > _intervals[MusEcalHist::iSizeT];
-
-//   // choice of variables in PN intervals
-//   std::map< MEKeyInterval*, int > _choices[MusEcalHist::iSizeT];
-
+  // Create correctors
   
-//   // range range and normalisation
-//   bool _normalize;
-
-//   // reference key
-//   MERunKey _refKey[MusEcalHist::iSizeT];
-
-
+  //virtual void createCorrectors( MEChannel* leaf );
   
-//   virtual void buildMtqIntervals( int type );
-//   virtual void buildPnIntervals( int type );
+  
+  // Study correlations
+
+  std::pair<double,double> correlationFwhmMID(MEChannel* leaf_);
+  std::vector<double> correlation2Var( MEVarVector* vec0,  MEVarVector* vec1, int var0, int var1, int zoom0, int zoom1, int fitDegree);
+  
+  
+  // Reference key  // TO ADD
+  // ==============
+  //   METime _refKey[MusEcalHist::iSizeT];
+
 
 public:
 

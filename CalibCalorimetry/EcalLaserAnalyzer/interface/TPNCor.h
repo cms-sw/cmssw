@@ -1,37 +1,28 @@
-#ifndef TPNCor_H
-#define TPNCor_H
+#ifndef TPNCor_hh
+#define TPNCor_hh
 
-#include "TObject.h"
-#include <map>
+//
+// Authors  : Gautier Hamel de Monchenault and Julie Malcles, Saclay 
+//
+// logical navigation in doubly linked list of channels
 
-class TPNCor: public TObject 
+#include <string>
+#include <TROOT.h>
+
+class TPNCor
 {
-  
- private:
-  
-  
- 
+public:
 
- public:
-  // Default Constructor, mainly for Root
-  TPNCor(std::string filename);
-  
-  // Destructor: Does nothing
-  virtual ~TPNCor();
-  
-  enum VarGain  { iGain0, iGain1, iSizeGain }; 
-  enum VarParPN  { iPar0, iPar1, iPar2, iSizePar }; 
-
+  TPNCor( string filename );
+  virtual  ~TPNCor();
   double getPNCorrectionFactor( double val0 , int gain );
-
-  // Declaration for PN linearity corrections
-  double corParams[iSizeGain][iSizePar];
+ 
+private:  
+  double corParams[2][10][3];
   int isFileOK;
+
   
-  //  ClassDef(TPNCor,1)
-    
+};
 
-
-    };
-    
 #endif
+
