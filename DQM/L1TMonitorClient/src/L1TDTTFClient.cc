@@ -1,8 +1,8 @@
 /*
  * \file L1TDTTFClient.cc
  *
- * $Date: 2010/09/09 15:09:18 $
- * $Revision: 1.00 $
+ * $Date: 2010/10/19 12:17:41 $
+ * $Revision: 1.1 $
  * \author G. Codispoti
  *
  */
@@ -73,7 +73,7 @@ void L1TDTTFClient::beginJob(void)
 
   /// DTTF Tracks distribution by Sector and Wheel
   sprintf(hname, "dttf_03_tracks_distr_summary");
-  sprintf(mename, "DTTF Tracks distribution by Sector and Wheel (blue in P0 normal: it has <10%% of P0 tracks)");
+  sprintf(mename, "DTTF Tracks distribution by Sector and Wheel (N0 entries 5-10%% w.r.t. P0: violet is normal)");
   dttf_occupancySummary = dbe_->book2D( hname, mename, 6, 0, 6, 12, 1, 13 );
   setWheelLabel( dttf_occupancySummary );
   dttf_occupancySummary->setAxisTitle("Sector", 2);
