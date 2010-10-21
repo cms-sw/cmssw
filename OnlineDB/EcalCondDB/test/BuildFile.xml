@@ -1,0 +1,40 @@
+<use   name="OnlineDB/EcalCondDB"/>
+<use   name="OnlineDB/Oracle"/>
+<use   name="CalibCalorimetry/EcalLaserAnalyzer"/>
+<use   name="root"/>
+<bin   file="LaserSeqToDB.cpp">
+</bin>
+<bin   file="TestLMF2010-write.cpp">
+</bin>
+<bin   file="TestLMF2010-read.cpp">
+</bin>
+<bin   file="TestMonitoring.cpp">
+</bin>
+<bin   file="TestDCU.cpp">
+</bin>
+<bin   file="TestCali.cpp">
+</bin>
+<bin   file="TestChErrors.cpp">
+</bin>
+<bin   file="TestTm.cpp">
+</bin>
+<bin   file="WriteRandPed.cpp">
+</bin>
+<bin   file="TestFEConfig.cpp">
+</bin>
+<bin   file="TestChannelView.cpp">
+</bin>
+<bin   file="WriteRandPedEndcaps.cpp">
+</bin>
+<bin   file="TestOD.cpp">
+</bin>
+<bin   file="createLaserPrim.cc">
+</bin>
+<bin   file="ReadCaliFromFile.cpp">
+</bin>
+<bin   file="ReadInterCaliFromFile.cpp">
+</bin>
+<bin   file="TestMOD.cpp">
+</bin>
+<bin   file="InsertDCUIdarkPed.cpp">
+</bin>
