@@ -19,7 +19,7 @@ globalSeedsFromTriplets = RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHit
     OrderedHitsFactoryPSet = cms.PSet(
       ComponentName = cms.string('StandardHitTripletGenerator'),
       SeedingLayers = cms.string('PixelLayerTriplets'),
-      mexElement = cms.uint32(10000),
+      maxElement = cms.uint32(10000),
       GeneratorPSet = cms.PSet(PixelTripletHLTGenerator)
 # this one uses an exact helix extrapolation and can deal correctly with
 # arbitrarily large D0 and generally exhibits a smaller fake rate:
