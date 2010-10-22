@@ -115,7 +115,7 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
     std::cout << "old " << kcvFitter_->getNit() << std::endl;
     RefCountedKinematicVertex gamma_dec_vertex = oldTree->currentDecayVertex();                                                          
     if( gamma_dec_vertex->vertexIsValid())
-      std::cout << gamma_dec_vertex->chiSquared() <<  gamma_dec_vertex->degreesOfFreedom() << std::endl;
+      std::cout << gamma_dec_vertex->chiSquared() <<  " " << gamma_dec_vertex->degreesOfFreedom() << std::endl;
     std::cout <<  oldTree->currentParticle()->currentState().globalMomentum() <<
       oldTree->currentParticle()->currentState().globalPosition()<< std::endl;
     std::vector<RefCountedKinematicParticle> fStates=oldTree->finalStateParticles();
@@ -129,7 +129,7 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
     std::cout << "new " << kcvFitter.getNit() << std::endl;
     RefCountedKinematicVertex gamma_dec_vertex = myTree->currentDecayVertex();                                                          
     if( gamma_dec_vertex->vertexIsValid())
-      std::cout << gamma_dec_vertex->chiSquared() <<  gamma_dec_vertex->degreesOfFreedom() << std::endl;
+      std::cout << gamma_dec_vertex->chiSquared() <<  " " << gamma_dec_vertex->degreesOfFreedom() << std::endl;
     std::cout <<  myTree->currentParticle()->currentState().globalMomentum() <<
       myTree->currentParticle()->currentState().globalPosition()<< std::endl;
     std::vector<RefCountedKinematicParticle> fStates=myTree->finalStateParticles();
