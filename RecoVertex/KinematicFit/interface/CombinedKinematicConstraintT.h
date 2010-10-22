@@ -88,7 +88,7 @@ namespace combinedConstraintHelpers {
   struct PlaceValue : public Place<DIM> {
     ROOT::Math::SVector<double, DIM> ret;
     template<typename C>
-    void operator()(  C const & cs) {
+    void operator()(C const & cs) {
       this->offset -= C::nDim;
       ret.Place_at(cs.value(),this->offset);
     }
@@ -108,7 +108,7 @@ namespace combinedConstraintHelpers {
   struct PlacePosDer : public Place<DIM> {
     ROOT::Math::SMatrix<double, DIM, 3> ret;
     template<typename C>
-    void operator()(, C const & cs) {
+    void operator()(C const & cs) {
       this->offset -= C::nDim;
       ret.Place_at(cs.positionDerivative(),this->offset,0);
     }
