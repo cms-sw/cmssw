@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: ResolutionAnalyzer.h,v 1.12 2010/10/07 17:12:22 demattia Exp $
+// $Id: ResolutionAnalyzer.h,v 1.9 2010/01/04 16:33:18 hegner Exp $
 //
 //
 
@@ -46,7 +46,6 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenEvent.h"
-// #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
@@ -80,12 +79,12 @@ private:
       reco::Particle::LorentzVector mu(track->px(),track->py(),track->pz(),
 				       sqrt(track->p()*track->p() + MuScleFitUtils::mMu2));
       MuScleFitUtils::goodmuon++;
-      if (debug_>0) std::cout <<std::setprecision(9)<< "Muon #" << MuScleFitUtils::goodmuon 
-			      << ": initial value   Pt = " << mu.Pt() << std::endl;
+      if (debug_>0) std::cout << std::setprecision(9)<< "Muon #" << MuScleFitUtils::goodmuon 
+                        << ": initial value   Pt = " << mu.Pt() << std::endl;
       reco::LeafCandidate muon(track->charge(),mu);
       // Store muon
       // ----------
-      muons.push_back( muon );
+      muons.push_back (muon);
     }
     return muons;
   } 
@@ -114,11 +113,6 @@ private:
   bool resonance_;
   bool readCovariances_;
 
-  TString treeFileName_;
-  int32_t maxEvents_;
-  
-  double ptMax_;
-  
   HCovarianceVSxy * massResolutionVsPtEta_;
   TH2D * recoPtVsgenPt_;
   TH2D * recoPtVsgenPtEta12_;
