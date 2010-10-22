@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2010/10/19 16:36:52 $
- *  $Revision: 1.43 $
+ *  $Date: 2010/10/22 17:47:44 $
+ *  $Revision: 1.45 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -82,23 +82,23 @@ double g[11][100];
 // Lorentzian convoluted with a gaussian:
 // --------------------------------------
 TF1 * GL = new TF1 ("GL",
-		    "0.5/3.1415926*[0]/(std::pow(x-[1],2)+std::pow(0.5*[0],2))*exp(-0.5*std::pow((x-[2])/[3],2))/([3]*sqrt(6.283185))",
+		    "0.5/3.1415926*[0]/(pow(x-[1],2)+pow(0.5*[0],2))*exp(-0.5*pow((x-[2])/[3],2))/([3]*sqrt(6.283185))",
 		    0, 1000);
 
 TF2 * GL2= new TF2 ("GL2",
-  "0.5/3.1415926*[0]/(std::pow(x-[1],2)+std::pow(0.5*[0],2))*exp(-0.5*std::pow((x-y)/[2],2))/([2]*sqrt(6.283185))",
+  "0.5/3.1415926*[0]/(pow(x-[1],2)+pow(0.5*[0],2))*exp(-0.5*pow((x-y)/[2],2))/([2]*sqrt(6.283185))",
   0, 200, 0, 200);
 
 // // Lorentzian convoluted with a gaussian over a linear background:
 // // ---------------------------------------------------------------
 // TF1 * GLBL = new TF1 ("GLBL",
-//   "0.5/3.1415926*[0]/(std::pow(x-[1],2)+std::pow(0.5*[0],2))*exp(-0.5*std::pow((x-[2])/[3],2))/([3]*sqrt(6.283185))+[4]+[5]*x",
+//   "0.5/3.1415926*[0]/(pow(x-[1],2)+pow(0.5*[0],2))*exp(-0.5*pow((x-[2])/[3],2))/([3]*sqrt(6.283185))+[4]+[5]*x",
 //   0, 1000);
 
 // // Lorentzian convoluted with a gaussian over an exponential background:
 // // ---------------------------------------------------------------
 // TF1 * GLBE = new TF1 ("GLBE",
-//   "0.5/3.1415926*[0]/(std::pow(x-[1],2)+std::pow(0.5*[0],2))*exp(-0.5*std::pow((x-[2])/[3],2))/([3]*sqrt(6.283185))+exp([4]+[5]*x)",
+//   "0.5/3.1415926*[0]/(pow(x-[1],2)+pow(0.5*[0],2))*exp(-0.5*pow((x-[2])/[3],2))/([3]*sqrt(6.283185))+exp([4]+[5]*x)",
 //   0, 1000);
 
 std::vector<int> MuScleFitUtils::doResolFit;
