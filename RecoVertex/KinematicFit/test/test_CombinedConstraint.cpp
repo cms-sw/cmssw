@@ -10,8 +10,10 @@
 
 int main() {
 
+
   typedef ColinearityKinematicConstraintT<colinearityKinematic::PhiTheta> ColinearityConstraint;
  
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   typedef CombinedKinematicConstraintT<std::tuple<ColinearityConstraint,VertexKinematicConstraintT>, 2> CKC;
   CKC ckc(std::make_tuple(ColinearityConstraint(),VertexKinematicConstraintT()));
 
@@ -21,6 +23,10 @@ int main() {
 
   KinematicConstrainedVertexFitterT<CKC::nTrk,CKC::nDim> kinefit(0);
 
+#else
+  ColinearityConstraint cc;
+  KinematicConstrainedVertexFitterT<2,2> kinefit(0);
+#endif 
 
   return 0;
 }
