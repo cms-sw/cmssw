@@ -432,7 +432,7 @@ cp $CMSSW_RELEASE_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/testRea
 sed -i "{/process.GlobalTag.globaltag/d}" testReadXMLFromDB.py >> GeometryValidation.log
 sed -i "{/process.XMLFromDBSource.label/d}" testReadXMLFromDB.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.GlobalTag.globaltag = '${gtag}'" testReadXMLFromDB.py >> GeometryValidation.log
-sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${condlabel}')" testReadXMLFromDB.py >> GeometryValidation.log
+sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('')" testReadXMLFromDB.py >> GeometryValidation.log
 cmsRun testReadXMLFromDB.py > readXMLfromLocDB.log
 
 cp $CMSSW_RELEASE_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/readBigXMLAndDump.py .
@@ -545,7 +545,7 @@ sed -i "/TestCompareDDDumpFiles/ a\,dumpFile1=cms.string\('./dumpLocDB'\)\,dumpF
 cmsRun testCompareDumpFiles.py > tcdfLocDBvsGTDB.log
 
 diff compDDdumperrors.log compDDdumperrors.expected > diffcompLocDBvsGTDB.log
-if (-s tcdfBDBvsLocDB.log || -s diffcompLocDBvsGTDB.log ) then
+if (-s tcdfLocDBvsGTDB.log || -s diffcompLocDBvsGTDB.log ) then
     echo "WARNING THE GEOMETRYFILE IS DIFFERENT BETWEEN LOCAL AND GLOBALTAG DATABASE BLOBS."  | tee -a GeometryValidation.log
 endif
 
