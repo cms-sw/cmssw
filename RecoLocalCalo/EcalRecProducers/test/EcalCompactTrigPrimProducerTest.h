@@ -23,7 +23,8 @@ public:
     nCompressEt_(0),
     nFineGrain_(0),
     nTTF_(0),
-    nL1aSpike_(0){}
+    nL1aSpike_(0),
+    err_(false){}
   
   /// Destructor
   ~EcalCompactTrigPrimProducerTest();
@@ -31,12 +32,18 @@ public:
 protected:
   /// Analyzes the event.
   void analyze(edm::Event const & e, edm::EventSetup const & c); 
+
+private:
+  std::ostream& err(const char* mess);
+  
+private:
   
   edm::InputTag tpDigiColl_;
   edm::InputTag tpRecColl_;
   int nCompressEt_;
   int nFineGrain_;
   int nTTF_;
-  int nL1aSpike_; 
+  int nL1aSpike_;
+  bool err_;
 };
 #endif //ECALTRIGPRIMRECPRODUCERTEST_H not defined
