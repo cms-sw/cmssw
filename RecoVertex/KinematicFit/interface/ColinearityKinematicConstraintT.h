@@ -186,7 +186,7 @@ ColinearityKinematicConstraintT<Dim>::parametersDerivative() const
 
     //py1 and py2 components: 5th and 12 elements:
     res(1,4)  =  p1(4)  * (p1(5)/(pTot1*pt1));
-    res(1,11) =  p2(4)  * (-p2(5)/(pTot2*pt2))
+    res(1,11) =  p2(4)  * (-p2(5)/(pTot2*pt2));
 
     //pz1 and pz2 components: 6th and 13 elements:
     res(1,5)  = - pt1/pTot1;
