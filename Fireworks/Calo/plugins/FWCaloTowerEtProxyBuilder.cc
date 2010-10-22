@@ -19,13 +19,13 @@ private:
    virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );	
 };
 
-void FWCaloTowerEtProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
+void
+FWCaloTowerEtProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* )
 {
    const CaloTowerCollection* collection = 0;
    iItem->get( collection );
-   if (! collection)
+   if( ! collection )
       return;
-
 
    TEveBoxSet* boxSet = addBoxSetToProduct(product);
    for (std::vector<CaloTower>::const_iterator it = collection->begin() ; it != collection->end(); ++it)
@@ -35,13 +35,13 @@ void FWCaloTowerEtProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
          continue;
 
       std::vector<float> scaledCorners(24);
-      fireworks::energyTower3DCorners(corners, (*it).et(), scaledCorners);
+      fireworks::energyTower3DCorners( corners, (*it).et(), scaledCorners );
 
-      addBox(boxSet, &scaledCorners[0]);
+      addBox( boxSet, &scaledCorners[0] );
    }
 }
 
-REGISTER_FWPROXYBUILDER( FWCaloTowerEtProxyBuilder, CaloTowerCollection, "Calo Tower", FWViewType::kISpyBit );
+REGISTER_FWPROXYBUILDER( FWCaloTowerEtProxyBuilder, CaloTowerCollection, "Calo Tower Et", FWViewType::kISpyBit );
 
 /*
 void
