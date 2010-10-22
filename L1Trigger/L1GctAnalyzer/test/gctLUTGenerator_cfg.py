@@ -9,8 +9,15 @@ if (len(sys.argv)>1) :
 else :
     key='Default'
 
+print "Generating LUT files for GCT key %s" % (key)
+
+if (not ("TNS_ADMIN" in os.environ.keys())):
+    print "Please set TNS_ADMIN using :"
+    print "export TNS_ADMIN=/nfshome0/popcondev/conddb"
+
+
 # CMSSW config
-process = cms.Process("L1ConfigWritePayloadDummy")
+process = cms.Process("GctLUTGen")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
 process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
@@ -37,12 +44,12 @@ process.load("L1TriggerConfig.L1ScalesProducers.L1JetEtScaleOnline_cfi")
 process.load("L1TriggerConfig.L1ScalesProducers.L1HfRingEtScaleOnline_cfi")
 process.load("L1TriggerConfig.L1ScalesProducers.L1HtMissScaleOnline_cfi")
 
+
 #process.load("L1TriggerConfig.GctConfigProducers.L1GctChannelMaskOnline_cfi")
-#process.L1TriggerKeyDummy.objectKeys = cms.VPSet(cms.PSet(
-#    record = cms.string('L1GctChannelMaskRcd'),
-#        type = cms.string('L1GctChannelMask'),
-#        key = cms.string('Default')
-#    ))
+
+
+from CondTools.L1Trigger.L1CondDBPayloadWriter_cff import initPayloadWriter
+initPayloadWriter( process )
 
 
 process.maxEvents = cms.untracked.PSet(
