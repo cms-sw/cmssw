@@ -115,7 +115,7 @@ ColinearityKinematicConstraintT<Dim>::value() const
   if ( res(0) >  M_PI ) res(1) -= 2.0*M_PI;
   if ( res(0) <= -M_PI ) res(1) += 2.0*M_PI;
   // H_theta:
-  if (dimension == PhiTheta) {  
+  if (Dim==colinearityKinematic::PhiTheta) {  
     res(1)  = atan2(pt1,p1(5)) - atan2(pt2,p2(5));
     if ( res(1) >  M_PI ) res(2) -= 2.0*M_PI;
     if ( res(1) <= -M_PI ) res(2) += 2.0*M_PI;
@@ -169,7 +169,7 @@ ColinearityKinematicConstraintT<Dim>::parametersDerivative() const
   //mass components: 7th and 14th elements:
   res(1,7)  = 0.; res(1,14) = 0.;
 
-  if (dimension == PhiTheta)  {
+  if (Dim==colinearityKinematic::PhiTheta)  {
     // H_theta:
     //x1 and x2 derivatives: 1st and 8th elements
     res(1,0) =  0.; res(1,7) = 0.;
