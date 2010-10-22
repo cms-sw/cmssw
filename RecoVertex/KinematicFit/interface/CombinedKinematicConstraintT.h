@@ -168,6 +168,8 @@ public:
    */
   ROOT::Math::SVector<double, DIM>  value() const{
     combinedConstraintHelpers::PlaceValue<DIM> helper;
+    iterate_tuple(constraints,std::ref(helper));
+    return helper.ret;
   } 
   
   /**
