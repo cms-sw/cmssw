@@ -32,7 +32,7 @@ public:
 
 #ifdef DEBUG_GRID_TRM
     std::cout << "Trapezoid2RectangleMappingX constructed with x0,y0 " << x0 << " " << y0 
- 	 << " b/a= " << bovera << " h= " << h << std::endl;
+ 	      << " b/a= " << bovera << " h= " << h << std::endl;
 #endif
   }
 
@@ -42,7 +42,7 @@ public:
   {
 #ifdef DEBUG_GRID_TRM
     std::cout << "Trapezoid2RectangleMappingX constructed with x0,y0 " << x0 << " " << y0 
- 	 << " k= " << k << std::endl;
+ 	      << " k= " << k << std::endl;
 #endif
   }
 
@@ -54,7 +54,7 @@ public:
     else            xrec = xtrap - x0_ + k_*yrec;
 
 #ifdef DEBUG_GRID
-    std::cout << xtrap << " " << ytrap << " transformed to rectangle " << xrec << " " << yrec << std::endl;
+    cout << xtrap << " " << ytrap << " transformed to rectangle " << xrec << " " << yrec << endl;
 #endif
   }
 
@@ -65,7 +65,7 @@ public:
     ytrap = y0_ + yrec;
 
 #ifdef DEBUG_GRID
-    std::cout << xrec << " " << yrec << " transformed to trapezoid " << xtrap << " " << ytrap << std::endl;
+    cout << xrec << " " << yrec << " transformed to trapezoid " << xtrap << " " << ytrap << endl;
 #endif
   }
 
