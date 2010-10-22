@@ -118,8 +118,6 @@ namespace combinedConstraintHelpers {
 }
 
 
-
-
 /**
  * This class combines several user defined constraints (by expanding the vector d and the matrices D and E).
  * Usage:

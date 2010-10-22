@@ -21,6 +21,11 @@ int main() {
             << " " << ckc.numberOfEquations() 
             << std::endl;
 
+  std::vector<KinematicState> states(2);
+  const GlobalPoint point;
+  const GlobalVector mf;
+  ckc.init(states,point,mf);
+
   CKC::valueType v = ckc.value();
   CKC::parametersDerivativeType pad =  ckc.parametersDerivative();
   CKC::positionDerivativeType pod = ckc.positionDerivative();
