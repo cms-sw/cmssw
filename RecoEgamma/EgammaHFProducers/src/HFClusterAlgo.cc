@@ -77,16 +77,16 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
       double eta=geom.getPosition(j->id()).eta();
       m_cutByEta[iz]=m_seedThreshold*cosh(eta); // convert ET to E for this ring
     }
-  
-    if (j->energy()>m_cutByEta[iz]) {
+    double elong=j->energy();//ieta correction 
+    if (elong>m_cutByEta[iz]) {
       j2=hf.find(HcalDetId(HcalForward,j->id().ieta(),j->id().iphi(),2));
-      double eshort=(j2==hf.end())?(0):(j2->energy());
-      if (((j->energy()-eshort)/(j->energy()+eshort))>m_maximumSL) continue;
+      double eshort=(j2==hf.end())?(0):(j2->energy());//ieta correction
+      if (((elong-eshort)/(elong+eshort))>m_maximumSL) continue;
 
       HFCompleteHit ahit;
       double eta=geom.getPosition(j->id()).eta();
       ahit.id=j->id();
-      ahit.energy=j->energy();
+      ahit.energy=elong;
       ahit.et=ahit.energy/cosh(eta);
       protoseeds.push_back(ahit);
     }
@@ -204,13 +204,16 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 	il=hf.find(idl);
 	is=hf.find(ids);        
 
+
+
+
 	double e_long=1.0; 
 	double e_short=0.0; 
-
-	if (il!=hf.end()) e_long=il->energy();
+	double e_seed=si->energy();//ieta correction
+	if (il!=hf.end()) e_long=il->energy();//ieta correction
 	if (e_long <= m_minTowerEnergy) e_long=0.0;
 	if (is!=hf.end()) e_short=is->energy();
-	if (e_short <= m_minTowerEnergy) e_short=0.0;
+	if (e_short <= m_minTowerEnergy) e_short=0.0;//ieta correction
 	double eRatio=(e_long-e_short)/std::max(1.0,(e_long+e_short));
 	
 	// require S/L > a minimum amount for inclusion
@@ -247,7 +250,7 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
           }
 
 	  // maybe in the core?
-	  if ((de>-2)&&(de<2)&&(dp>-4)&&(dp<4)&&(e_long>(.5*si->energy()))) {
+	  if ((de>-2)&&(de<2)&&(dp>-4)&&(dp<4)&&(e_long>(.5*e_seed))) {
             coreCanid.push_back(e_long);
           }
 	  
