@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_8_5/GRun/V29
+# /dev/CMSSW_3_8_5/GRun/V33
 
 import FWCore.ParameterSet.Config as cms
 
@@ -15,7 +15,8 @@ streamA_datasetBTau_selector.triggerConditions = cms.vstring('HLT_BTagMu_DiJet10
     'HLT_BTagMu_DiJet30U_v3', 
     'HLT_DoubleIsoTau15_OneLeg_Trk5_v3', 
     'HLT_DoubleIsoTau15_Trk5_v3', 
-    'HLT_SingleIsoTau20_Trk15_MET25_v3')
+    'HLT_SingleIsoTau20_Trk15_MET25_v3', 
+    'HLT_SingleIsoTau35_Trk15_MET25_v3')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetCommissioning_selector
 streamA_datasetCommissioning_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -130,7 +131,8 @@ streamA_datasetJetMETTauMonitor_selector.triggerConditions = cms.vstring('HLT_HT
     'HLT_L1Jet6U', 
     'HLT_L1MET20', 
     'HLT_MET45_v3', 
-    'HLT_QuadJet15U_v3')
+    'HLT_QuadJet15U_v3', 
+    'HLT_R010U_MR50U')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMETFwd_selector
 streamA_datasetMETFwd_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -252,7 +254,10 @@ streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_DiJet20U_M
     'HLT_HT160U_v3', 
     'HLT_HT200U_v3', 
     'HLT_QuadJet20U_v3', 
-    'HLT_QuadJet25U_v3')
+    'HLT_QuadJet25U_v3', 
+    'HLT_R030U_MR100U', 
+    'HLT_R033U_MR100U', 
+    'HLT_RP025U_MR70U')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetPhoton_selector
 streamA_datasetPhoton_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
