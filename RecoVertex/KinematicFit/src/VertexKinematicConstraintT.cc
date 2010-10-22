@@ -25,11 +25,11 @@ void VertexKinematicConstraintT::init(const std::vector<KinematicState>& states,
       double pvx = mom[j].x() - a_i[j]*dpos[j].y();
       double pvy = mom[j].y() + a_i[j]*dpos[j].x();
       double pvt2 = pvx*pvx+pvy*pvy;
-      double novera[j] = (dpos[j].x() * mom[j].x() + dpos[j].y()*mom[j].y());
-      double n[j] = a_i[j]*novera[j];
-      double m[j] = (pvx*mom[j].x() + pvy*mom[j].y());
-      double k[j] = -mom[j].z()/(pt2*pvt2);
-      double delta[j] = std::atan2(n[j],m[j]);
+      novera[j] = (dpos[j].x() * mom[j].x() + dpos[j].y()*mom[j].y());
+      n[j] = a_i[j]*novera[j];
+      m[j] = (pvx*mom[j].x() + pvy*mom[j].y());
+      k[j] = -mom[j].z()/(mom[j].perp2()*pvt2);
+      delta[j] = std::atan2(n[j],m[j]);
 
       ++j;
     }
