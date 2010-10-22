@@ -103,11 +103,9 @@ ColinearityKinematicConstraintT<Dim>::value() const
 
   double p1vx = p1(3) - a_1*(point.y() - p1(1));
   double p1vy = p1(4) + a_1*(point.x() - p1(0));
-  double pt1  = sqrt(p1(3)*p1(3)+p1(4)*p1(4));
  
   double p2vx = p2(3) - a_2*(point.y() - p2(1));
   double p2vy = p2(4) + a_2*(point.x() - p2(0));
-  double pt2  = sqrt(p2(3)*p2(3)+p2(4)*p2(4));
   
 
   // H_phi:
@@ -116,6 +114,8 @@ ColinearityKinematicConstraintT<Dim>::value() const
   if ( res(0) <= -M_PI ) res(1) += 2.0*M_PI;
   // H_theta:
   if (Dim==colinearityKinematic::PhiTheta) {  
+    double pt1  = sqrt(p1(3)*p1(3)+p1(4)*p1(4));
+    double pt2  = sqrt(p2(3)*p2(3)+p2(4)*p2(4));
     res(1)  = atan2(pt1,p1(5)) - atan2(pt2,p2(5));
     if ( res(1) >  M_PI ) res(2) -= 2.0*M_PI;
     if ( res(1) <= -M_PI ) res(2) += 2.0*M_PI;
@@ -133,14 +133,10 @@ ColinearityKinematicConstraintT<Dim>::parametersDerivative() const
   double p1vx = p1(3) - a_1*(point.y() - p1(1));
   double p1vy = p1(4) + a_1*(point.x() - p1(0));
   double k1 = 1.0/(p1vx*p1vx + p1vy*p1vy);
-  double pt1 = sqrt(p1(3)*p1(3)+p1(4)*p1(4));
-  double pTot1  = sqrt(p1(3)*p1(3)+p1(4)*p1(4)+p1(5)*p1(5));
 
   double p2vx = p2(3) - a_2*(point.y() - p2(1));
   double p2vy = p2(4) + a_2*(point.x() - p2(0));
   double k2 = 1.0/(p2vx*p2vx + p2vy*p2vy);
-  double pt2  = sqrt(p2(3)*p2(3)+p2(4)*p2(4));
-  double pTot2   = sqrt(p2(3)*p2(3)+p2(4)*p2(4)+p2(5)*p2(5));
 
   // H_phi:
 
@@ -170,6 +166,11 @@ ColinearityKinematicConstraintT<Dim>::parametersDerivative() const
   res(0,5)  = 0.; res(0,13) = 0.;
 
   if (Dim==colinearityKinematic::PhiTheta)  {
+    double pt1 = sqrt(p1(3)*p1(3)+p1(4)*p1(4));
+    double pTot1  = p1(3)*p1(3)+p1(4)*p1(4)+p1(5)*p1(5);
+    double pt2  = sqrt(p2(3)*p2(3)+p2(4)*p2(4));
+    double pTot2 = p2(3)*p2(3)+p2(4)*p2(4)+p2(5)*p2(5);
+    
     // H_theta:
     //x1 and x2 derivatives: 1st and 8th elements
     res(1,0) =  0.; res(1,7) = 0.;
@@ -180,16 +181,16 @@ ColinearityKinematicConstraintT<Dim>::parametersDerivative() const
     //z1 and z2 components: 3d and 10th elmnets stay 0:
     res(1,2) = 0.; res(1,9) = 0.;
 
-    res(1,3)  =   p1(5)*p1(3) / (pTot1*pTot1*pt1);
-    res(1,10) = - p2(5)*p2(3) / (pTot2*pTot2*pt2);
+    res(1,3)  =  p1(3) * (p1(5)/(pTot1*pt1));
+    res(1,10) =  p2(3) * (-p2(5)/(pTot2*pt2));
 
     //py1 and py2 components: 5th and 12 elements:
-    res(1,4)  =   p1(5)*p1(4) / (pTot1*pTot1*pt1);
-    res(1,11) = - p2(5)*p2(4) / (pTot2*pTot2*pt2);
+    res(1,4)  =  p1(4)  * (p1(5)/(pTot1*pt1));
+    res(1,11) =  p2(4)  * (-p2(5)/(pTot2*pt2))
 
     //pz1 and pz2 components: 6th and 13 elements:
-    res(1,5)  = - pt1/(pTot1*pTot1);
-    res(1,12) =   pt2/(pTot2*pTot2);
+    res(1,5)  = - pt1/pTot1;
+    res(1,12) =   pt2/pTot2;
 
     //mass components: 7th and 14th elements:
     res(1,6)  = 0.; res(1,13) = 0.;
