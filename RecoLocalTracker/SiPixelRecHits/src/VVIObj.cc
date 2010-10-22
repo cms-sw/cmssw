@@ -104,7 +104,7 @@ VVIObj::VVIObj(double kappa, double beta2, double mode) : mode_(mode) {
     l = n - k;
     x = omega_ * k;
     x1 = h6 * x;
-    VVIObjDetails::sincosint(x,c2,c1);
+    VVIObjDetails::sincosint(x1,c2,c1);
     c1 = log(x) - c1;
     c3 = sin(x1);
     c4 = cos(x1);
