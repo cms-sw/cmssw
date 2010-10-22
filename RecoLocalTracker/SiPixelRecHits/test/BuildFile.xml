@@ -1,1 +1,3 @@
-<bin file="VVIObj_t.cpp"/>
+<bin file="VVIObj_t.cpp">
+<use name="rootmath"/> 
+</bin>
