@@ -69,7 +69,11 @@ void swap(EEDigiCollection& lhs, EEDigiCollection& rhs) {
 //typedef  EcalDigiCollection EEDigiCollection;
 
 typedef edm::SortedCollection<ESDataFrame> ESDigiCollection;
+
+///Collection of ECAL trigger primitives. Note that there is also a compact
+///form of this collection, used in RECO data files: see EcalTrigPrimCompactColl.
 typedef edm::SortedCollection<EcalTriggerPrimitiveDigi> EcalTrigPrimDigiCollection;
+
 typedef edm::SortedCollection<EcalPseudoStripInputDigi> EcalPSInputDigiCollection;
 typedef edm::SortedCollection<EBSrFlag> EBSrFlagCollection;
 typedef edm::SortedCollection<EESrFlag> EESrFlagCollection;
