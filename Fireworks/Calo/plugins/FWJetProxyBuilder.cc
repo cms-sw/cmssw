@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.25 2010/09/29 16:19:48 amraktad Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.26 2010/10/21 17:44:04 amraktad Exp $
 //
 
 #include "TEveJetCone.h"
@@ -20,6 +20,9 @@
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
+#include "Fireworks/Calo/interface/makeEveJetCone.h"
+#include "Fireworks/Calo/interface/scaleMarker.h"
+
 #include "DataFormats/JetReco/interface/Jet.h"
 
 class FWJetProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Jet>
@@ -44,22 +47,13 @@ protected:
    virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
 
 private:
-   struct  SLines
-   {
-      SLines(TEveScalableStraightLineSet* ls, float et, float e, const FWViewContext* vc) : m_ls(ls), m_et(et), m_energy(e), m_vc(vc) {}
-      
-      TEveScalableStraightLineSet* m_ls;
-      float m_et, m_energy;
-      const FWViewContext* m_vc;
-   };
-   
    FWJetProxyBuilder( const FWJetProxyBuilder& ); // stop default
    const FWJetProxyBuilder& operator=( const FWJetProxyBuilder& ); // stop default
 
    TEveElementList* requestCommon();
    TEveElementList* m_common;
 
-   std::vector<SLines> m_lines;
+   std::vector<fireworks::scaleMarker> m_lines;
 };
 
 //______________________________________________________________________________
@@ -82,39 +76,12 @@ FWJetProxyBuilder::requestCommon()
    {
       for (int i = 0; i < static_cast<int>(item()->size()); ++i)
       {
-         const reco::Jet& iData = modelData(i);
+         TEveJetCone* cone = fireworks::makeEveJetCone(modelData(i), context());
 
-         TEveJetCone* jet = new TEveJetCone();
-         jet->SetApex(TEveVector(iData.vertex().x(),iData.vertex().y(),iData.vertex().z()));
+         m_common->AddElement(cone);
+         cone->SetFillColor(item()->defaultDisplayProperties().color());
+         cone->SetLineColor(item()->defaultDisplayProperties().color());
 
-         reco::Jet::Constituents c = iData.getJetConstituents();
-         bool haveData = true;
-         for ( reco::Jet::Constituents::const_iterator itr = c.begin(); itr != c.end(); ++itr )
-         {
-            if ( !itr->isAvailable() ) {
-               haveData = false;
-               break;
-            }
-         }
-
-         double eta_size = 0.2;
-         double phi_size = 0.2;
-         if ( haveData ){
-            eta_size = sqrt(iData.etaetaMoment());
-            phi_size = sqrt(iData.phiphiMoment());
-         }
-
-         static const float offr = 5;
-         static const float offz = offr/tan(context().caloTransAngle());
-         if (iData.eta() < context().caloMaxEta())
-            jet->SetCylinder(context().caloR1(false) -offr, context().caloZ1(false)-offz);
-         else
-            jet->SetCylinder(context().caloR2(false)-offr, context().caloZ2(false)-offz);
-
-
-         jet-> AddEllipticCone(iData.eta(), iData.phi(), eta_size, phi_size);
-         jet->SetPickable(kTRUE);
-         m_common->AddElement(jet);
       }
    }
    return m_common;
@@ -128,12 +95,9 @@ FWJetProxyBuilder::buildViewType(const reco::Jet& iData, unsigned int iIndex, TE
    TEveElement::List_i coneIt = cones->BeginChildren();
    std::advance(coneIt, iIndex);
 
-   TEveJetCone* cone = static_cast<TEveJetCone*>(*coneIt);
    const FWDisplayProperties &dp = item()->defaultDisplayProperties();
-   cone->SetFillColor(dp.color());
-   cone->SetLineColor(dp.color());
-   setupAddElement( cone, &oItemHolder );
-   cone->SetMainTransparency(TMath::Min(100, 80 + dp.transparency() / 5)); 
+   setupAddElement( *coneIt, &oItemHolder );
+   (*coneIt)->SetMainTransparency(TMath::Min(100, 80 + dp.transparency() / 5)); 
 
    // scale markers in projected views
    if (FWViewType::isProjected(type))
@@ -178,7 +142,7 @@ FWJetProxyBuilder::buildViewType(const reco::Jet& iData, unsigned int iIndex, TE
       FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");    
       marker->SetScale(caloScale->getValToHeight()*(caloScale->getPlotEt() ?  iData.et() : iData.energy()));
       setupAddElement( marker, &oItemHolder );
-      m_lines.push_back(SLines(marker, iData.et(), iData.energy(), vc));
+      m_lines.push_back(fireworks::scaleMarker(marker, iData.et(), iData.energy(), vc));
    }
 }
 
@@ -199,7 +163,7 @@ FWJetProxyBuilder::cleanLocal()
 void
 FWJetProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc)
 { 
-   typedef std::vector<SLines> Lines_t;  
+   typedef std::vector<fireworks::scaleMarker> Lines_t;  
    FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");
    // printf("%p -> %f\n", this,caloScale->getValToHeight() );
    for (Lines_t::iterator i = m_lines.begin(); i!= m_lines.end(); ++ i)

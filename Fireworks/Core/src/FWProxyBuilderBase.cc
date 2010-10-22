@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.29 2010/10/20 20:09:23 amraktad Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.30 2010/10/21 14:52:11 amraktad Exp $
 //
 
 // system include files
@@ -480,6 +480,22 @@ FWProxyBuilderBase::createCompound(bool set_color, bool propagate_color_to_all_c
       c->CSCApplyMainTransparencyToMatchingChildren();
    }
    return c;
+}
+
+void
+FWProxyBuilderBase::increaseComponentTransparency(unsigned int index, TEveElement* holder,
+                                                    const std::string& name, Char_t transpOffset)
+{
+   // Helper function to increse transparency of certain components.
+
+   const FWDisplayProperties& dp = item()->modelInfo(index).displayProperties();
+   Char_t transp = TMath::Min(100, transpOffset + (100 - transpOffset) * dp.transparency() / 100);
+   TEveElement::List_t matches;
+   holder->FindChildren(matches, name.c_str());
+   for (TEveElement::List_i m = matches.begin(); m != matches.end(); ++m)
+   {
+      (*m)->SetMainTransparency(transp);
+   }
 }
 
 //

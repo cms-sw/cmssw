@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:12 CET 2010
-// $Id: FWProxyBuilderBase.h,v 1.14 2010/08/16 17:59:11 amraktad Exp $
+// $Id: FWProxyBuilderBase.h,v 1.15 2010/10/20 20:09:23 amraktad Exp $
 //
 
 // system include files
@@ -127,6 +127,9 @@ protected:
 
    virtual void clean();
    virtual void cleanLocal();
+
+   void increaseComponentTransparency(unsigned int index, TEveElement* holder,
+                                      const std::string& name, Char_t transpOffset);
 
    // utility
    TEveCompound* createCompound(bool set_color=true, bool propagate_color_to_all_children=false) const;
