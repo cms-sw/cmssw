@@ -1,5 +1,5 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include <DataFormats/MuonDetId/interface/MuonSubdetId.h> 
+#include <DataFormats/MuonDetId/interface/MuonSubdetId.h>
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonReco/interface/MuonChamberMatch.h"
@@ -37,7 +37,7 @@ MuonChamberMatch::getDistancePair(float edgeX, float edgeY, float xErr, float yE
    }
    if(edgeX<0 && edgeY>0) { distance = edgeY; error = yErr; }
    if(edgeX>0 && edgeY<0) { distance = edgeX; error = xErr; }
-   if(edgeX>0 && edgeY>0) { distance = sqrt(edgeX*edgeX+edgeY*edgeY); error = sqrt(xErr*xErr+yErr*yErr); }
+   if(edgeX>0 && edgeY>0) { distance = sqrt(edgeX*edgeX+edgeY*edgeY); error = distance ? sqrt(edgeX*edgeX*xErr*xErr+edgeY*edgeY*yErr*yErr)/fabs(distance) : 0; }
 
    return std::make_pair(distance, error);
 }
