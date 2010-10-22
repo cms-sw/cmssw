@@ -103,6 +103,38 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
   KinematicConstrainedVertexFitterT<2,2> kcvFitter(mf);
   kcvFitter.setParameters(conf_);
   RefCountedKinematicTree myTree =  kcvFitter.fit(particles, &constr, &tangentPoint);
+
+#ifdef TemplateKineFitDebug
+
+  ColinearityKinematicConstraint oldconstr(ColinearityKinematicConstraint::PhiTheta);
+  
+  RefCountedKinematicTree oldTree = kcvFitter_->fit(particles, &oldconstr, &tangentPoint);
+
+
+  if( oldTree->isValid() ) {
+    std::cout << "old" << std::endl;
+    std::cout <<  oldTree->currentParticle()->currentState().globalMomentum() <<
+      oldTree->currentParticle()->currentState().globalPosition()<< std::endl;
+    std::vector<RefCountedKinematicParticle> fStates=oldTree->finalStateParticles();
+    for (unsigned int kk=0; kk<fStates.size(); kk++) {
+      std::cout <<  fStates[kk]->currentState().globalMomentum() << 
+	fStates[kk]->currentState().globalPosition() << std::endl;
+    }
+  } else       std::cout << "old invalid" << std::endl;
+  
+  if( myTree->isValid() ) {
+    std::cout << "new" << std::endl;
+    std::cout <<  myTree->currentParticle()->currentState().globalMomentum() <<
+      myTree->currentParticle()->currentState().globalPosition()<< std::endl;
+    std::vector<RefCountedKinematicParticle> fStates=myTree->finalStateParticles();
+    for (unsigned int kk=0; kk<fStates.size(); kk++) {
+      std::cout <<  fStates[kk]->currentState().globalMomentum() << 
+	fStates[kk]->currentState().globalPosition() << std::endl;
+    }
+  } else       std::cout << "new invalid" << std::endl;
+
+#endif // TemplateKineFitDebug
+
 #endif
 
   if( myTree->isValid() ) {
