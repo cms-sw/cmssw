@@ -12,6 +12,8 @@ int main() {
 
 
   typedef ColinearityKinematicConstraintT<colinearityKinematic::PhiTheta> ColinearityConstraint;
+  { ColinearityConstraint cc; std::cout << " cc " << cc.numberOfEquations() << std::endl;}
+
  
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
   typedef CombinedKinematicConstraintT<std::tuple<ColinearityConstraint,VertexKinematicConstraintT>, 2> CKC;
