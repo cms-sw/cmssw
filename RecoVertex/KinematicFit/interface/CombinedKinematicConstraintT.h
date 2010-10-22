@@ -88,8 +88,26 @@ namespace combinedConstraintHelpers {
   struct PlaceValue : public Place<DIM> {
     template<typename C>
     void operator()( ROOT::Math::SVector<double, DIM> & ret, C const & cs) {
-      this->offset-=C::nDim;
+      this->offset -= C::nDim;
       ret.Place_at(cs.value(),this->offset);
+    }
+  };
+
+  template<int DIM, int NTRK>
+  struct PlaceParDer : public Place<DIM> {
+    template<typename C>
+    void operator()( ROOT::Math::SMatrix<double, DIM, 7*NTRK> & ret, C const & cs) {
+      this->offset -= C::nDim;
+      ret.Place_at(cs.parametersDerivative(),this->offset,0);
+    }
+  };
+
+  template<int DIM>
+  struct PlacePosDer : public Place<DIM> {
+    template<typename C>
+    void operator()( ROOT::Math::SMatrix<double, DIM, 3> & ret, C const & cs) {
+      this->offset -= C::nDim;
+      ret.Place_at(cs.positionDerivative(),this->offset,0);
     }
   };
 
@@ -118,6 +136,10 @@ class CombinedKinematicConstraintT : public MultiTrackKinematicConstraintT<NTRK,
 
   typedef MultiTrackKinematicConstraintBaseT base;
   typedef MultiTrackKinematicConstraintT<NTRK,combinedConstraintHelpers::totDim<TupleType>::nDim> super;
+  typedef typename super::valueType valueType;
+  typedef typename super::parametersDerivativeType parametersDerivativeType;
+  typedef typename super::positionDerivativeType positionDerivativeType;
+
   typedef TupleType Constraints;
   
   //FIXME
@@ -156,6 +178,10 @@ public:
    */
   ROOT::Math::SMatrix<double, DIM, 7*NTRK> parametersDerivative() const{
     ROOT::Math::SMatrix<double, DIM, 7*NTRK> ret;
+    iterate_tuple(constraints,std::bind(combinedConstraintHelpers::PlaceParDer<DIM,NTRK>(), std::ref(ret),
+					std::placeholders::_1)
+		  );
+
     return ret;
   }
   
@@ -166,6 +192,9 @@ public:
    */
   virtual ROOT::Math::SMatrix<double, DIM, 3> positionDerivative() const{
     ROOT::Math::SMatrix<double, DIM, 3> ret;
+    iterate_tuple(constraints,std::bind(combinedConstraintHelpers::PlacePosDer<DIM>(), std::ref(ret),
+					std::placeholders::_1)
+		  );
     return ret;
   }
   
@@ -174,12 +203,10 @@ public:
    */
   virtual int numberOfEquations() const {
     int tot=0;
-    /*
     iterate_tuple(constraints,std::bind(combinedConstraintHelpers::sum2<int>,std::ref(tot),
-					std::bind(&base::numberOfEquations(),std::placeholders::_1)
+					std::bind(&base::numberOfEquations,std::placeholders::_1)
 					)
 		  );
-    */
     return tot;  				
   }
   
