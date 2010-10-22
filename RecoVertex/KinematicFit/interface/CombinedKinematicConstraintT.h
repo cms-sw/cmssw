@@ -133,7 +133,7 @@ template< class TupleType, int NTRK >
 class CombinedKinematicConstraintT : public MultiTrackKinematicConstraintT<NTRK, combinedConstraintHelpers::totDim<TupleType>::nDim>{
 
   // need compile time assert on NTRK
-
+public:
   typedef MultiTrackKinematicConstraintBaseT base;
   typedef MultiTrackKinematicConstraintT<NTRK,combinedConstraintHelpers::totDim<TupleType>::nDim> super;
   typedef typename super::valueType valueType;

@@ -43,6 +43,13 @@ class MultiTrackKinematicConstraintT : public MultiTrackKinematicConstraintBaseT
 public:
   enum {nTrk=NTRK, nDim=DIM};
 
+  typedef ROOT::Math::SVector<double, DIM>  valueType; 
+  
+  typedef ROOT::Math::SMatrix<double, DIM,7*NTRK> parametersDerivativeType;
+  
+
+  typedef ROOT::Math::SMatrix<double, DIM,3> positionDerivativeType;
+
 
   virtual ~MultiTrackKinematicConstraintT() {}
 

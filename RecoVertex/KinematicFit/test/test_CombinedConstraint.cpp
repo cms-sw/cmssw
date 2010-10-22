@@ -21,6 +21,12 @@ int main() {
             << " " << ckc.numberOfEquations() 
             << std::endl;
 
+  CKC::valueType v = ckc.value();
+  CKC::parametersDerivativeType pad =  ckc.parametersDerivative();
+  CKC::positionDerivativeType pod = ckc.positionDerivative();
+
+  std::cout << v(0) << " " << pad(0,0) << " " << pod(0,0) << std::endl;
+
   KinematicConstrainedVertexFitterT<CKC::nTrk,CKC::nDim> kinefit(0);
 
 #else
