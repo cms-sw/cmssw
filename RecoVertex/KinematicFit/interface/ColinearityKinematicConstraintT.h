@@ -16,12 +16,9 @@
  *
  */
 
-// just while testing...            
-#ifndef ColinearityKinematicConstraint2_H
 namespace  colinearityKinematic {
   enum ConstraintDim {Phi=1, PhiTheta=2};
 }
-#endif
 
 template<enum colinearityKinematic::ConstraintDim Dim>                                 
 class ColinearityKinematicConstraintT : public MultiTrackKinematicConstraintT<int(Dim),2>{
@@ -37,9 +34,7 @@ private:
 
 public:
 
-  ColinearityKinematicConstraintT() :
-    dimension(Dim),
-    size(dimension == colinearityKinematic::Phi ? 1 :2){}
+  ColinearityKinematicConstraintT(){}
   
   
   // initialize the constraint so it can precompute common qualtities to the three next call
@@ -82,15 +77,11 @@ public:
   /**
    * Number of equations per track used for the fit
    */
-  virtual int numberOfEquations() const {return size;}
+  virtual int numberOfEquations() const {return Dim == colinearityKinematic::Phi ? 1 :2;}
   
   virtual ColinearityKinematicConstraintT<Dim> * clone()const
   {return new ColinearityKinematicConstraintT<Dim>(*this);}
   
-private:
-  colinearityKinematic::ConstraintDim const dimension;
-  unsigned int const size;
-
 };
 
 
