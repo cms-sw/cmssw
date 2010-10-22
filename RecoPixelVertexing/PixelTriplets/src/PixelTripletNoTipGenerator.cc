@@ -167,7 +167,7 @@ void PixelTripletNoTipGenerator::hitTriplets(
          if (inside && ptCut && chi2Cut) { 
 	   if (theMaxElement!=0 && result.size() >= theMaxElement){
 	     result.clear();
-	     edm::LogError("TooManySeeds")<<" number of triples exceed maximum. no triplets produced.";
+	     edm::LogError("TooManyTriplets")<<" number of triples exceed maximum. no triplets produced.";
 	     delete [] thirdHitMap;
 	     return;
 	   }

@@ -150,7 +150,7 @@ void PixelTripletHLTGenerator::hitTriplets(
 
         if (theMaxElement!=0 && result.size() >= theMaxElement){
 	  result.clear();
-	  edm::LogError("TooManySeeds")<<" number of triples exceed maximum. no triplets produced.";
+	  edm::LogError("TooManyTriplets")<<" number of triples exceed maximum. no triplets produced.";
 	  return;
 	}
         const Hit& hit = (*th);
