@@ -977,7 +977,11 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
     if(use_VVIObj) {			
       //  VVIObj is a private port of CERNLIB VVIDIS
       VVIObj vvidist(kappa, beta2, 1);
-      prvav = vvidist.fcn(xvav);			
+      prvav = vvidist.fcn(xvav);
+
+     // std::cout << "vav: " << kappa << " " << xvav << " " << prvav
+     //          << " " << TMath::VavilovI(xvav, kappa, beta2) << std::endl; 
+
     } else {
       //  Use faster but less accurate TMath Vavilov distribution function
       prvav = TMath::VavilovI(xvav, kappa, beta2);
