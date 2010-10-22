@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_5/GRun/V34 (CMSSW_3_8_1_HLT24)
+# /dev/CMSSW_3_8_5/GRun/V35 (CMSSW_3_8_1_HLT24)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_5/GRun/V34')
+  tableName = cms.string('/dev/CMSSW_3_8_5/GRun/V35')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -17369,7 +17369,6 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_BTagMu_DiJet20U_v3',
   'HLT_BTagMu_DiJet30U_Mu5_v3',
   'HLT_BTagMu_DiJet30U_v3',
-  'HLT_Calibration',
   'HLT_DTErrors',
   'HLT_DiJet20U_Meff180U_v3',
   'HLT_DiJet50U_PT50U_v3',
@@ -17396,7 +17395,6 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_DoublePhoton17_SingleIsol_L1R_v1',
   'HLT_DoublePhoton22_L1R_v1',
   'HLT_DoublePhoton5_CEP_L1R_v3',
-  'HLT_EcalCalibration',
   'HLT_EcalOnly_SumEt160_v3',
   'HLT_Ele10_SW_EleId_HT70U_L1R_v1',
   'HLT_Ele10_SW_HT100U_L1R_v1',
