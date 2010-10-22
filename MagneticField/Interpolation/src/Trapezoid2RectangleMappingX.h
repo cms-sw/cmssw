@@ -7,8 +7,8 @@
  *  It is assumed that x is the coordinate along the trapezoid bases while y is along
  *  the trapezoid height.
  *
- *  $Date: 2008/04/09 19:56:21 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/10/18 22:34:16 $
+ *  $Revision: 1.3 $
  *  \author T. Todorov
  */
 
@@ -32,7 +32,7 @@ public:
 
 #ifdef DEBUG_GRID_TRM
     std::cout << "Trapezoid2RectangleMappingX constructed with x0,y0 " << x0 << " " << y0 
- 	      << " b/a= " << bovera << " h= " << h << std::endl;
+ 	 << " b/a= " << bovera << " h= " << h << std::endl;
 #endif
   }
 
@@ -42,7 +42,7 @@ public:
   {
 #ifdef DEBUG_GRID_TRM
     std::cout << "Trapezoid2RectangleMappingX constructed with x0,y0 " << x0 << " " << y0 
- 	      << " k= " << k << std::endl;
+ 	 << " k= " << k << std::endl;
 #endif
   }
 
@@ -54,7 +54,7 @@ public:
     else            xrec = xtrap - x0_ + k_*yrec;
 
 #ifdef DEBUG_GRID
-    cout << xtrap << " " << ytrap << " transformed to rectangle " << xrec << " " << yrec << endl;
+    std::cout << xtrap << " " << ytrap << " transformed to rectangle " << xrec << " " << yrec << std::endl;
 #endif
   }
 
@@ -65,7 +65,7 @@ public:
     ytrap = y0_ + yrec;
 
 #ifdef DEBUG_GRID
-    cout << xrec << " " << yrec << " transformed to trapezoid " << xtrap << " " << ytrap << endl;
+    std::cout << xrec << " " << yrec << " transformed to trapezoid " << xtrap << " " << ytrap << std::endl;
 #endif
   }
 
