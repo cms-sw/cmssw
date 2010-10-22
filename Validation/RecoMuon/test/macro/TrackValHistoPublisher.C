@@ -202,28 +202,29 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
      //     TString isGood = (goodAsWell? "good": "NOT good");
      //     cout << " -- The two collections: " << collname1 << " : " << collname2 << " -> " << isGood << endl;
      if (! goodAsWell) {
+
        if (collname1.Contains("SET") && !collname2.Contains("SET")) {
 	 while (collname1.Contains("SET")) {
 	   if (myKey1 = (TKey*)iter_r())  collname1 = myKey1->GetName();
 	 }
        }
-       if (collname2.Contains("SET") && !collname1.Contains("SET")) {
+       else if (collname2.Contains("SET") && !collname1.Contains("SET")) {
 	 while (collname2.Contains("SET")) {
 	   if (myKey2 = (TKey*)iter_s())  collname2 = myKey2->GetName();
 	 }
        }
-       if ( (collname1 != collname2) && (collname1+"FS" != collname2) && (collname1 != collname2+"FS") ) {
-	 if (collname1.Contains("SET") && !collname2.Contains("SET")) {
-	   while (collname1.Contains("SET")) {
-	     if (myKey1 = (TKey*)iter_r())  collname1 = myKey1->GetName();
-	   }
-	 }
-	 if (collname2.Contains("SET") && !collname1.Contains("SET")) {
-	   while (collname2.Contains("SET")) {
-	     if (myKey2 = (TKey*)iter_s())  collname2 = myKey2->GetName();
-	   }
+
+       if (collname1.Contains("dyt") && !collname2.Contains("dyt")) {
+	 while (collname1.Contains("dyt")) {
+	   if (myKey1 = (TKey*)iter_r())  collname1 = myKey1->GetName();
 	 }
        }
+       else if (collname2.Contains("dyt") && !collname1.Contains("dyt")) {
+	 while (collname2.Contains("dyt")) {
+	   if (myKey2 = (TKey*)iter_s())  collname2 = myKey2->GetName();
+	 }
+       }
+
        if ( (collname1 != collname2) && (collname1+"FS" != collname2) && (collname1 != collname2+"FS") ) {
 	 cout << " Different collection names, please check: " << collname1 << " : " << collname2 << endl;
 	 continue;
