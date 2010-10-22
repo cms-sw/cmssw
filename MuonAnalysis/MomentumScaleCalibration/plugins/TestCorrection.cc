@@ -117,9 +117,9 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   std::pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> recMuFromBestRes = 
     MuScleFitUtils::findBestRecoRes (muons);
   if (MuScleFitUtils::ResFound) {
-    MuScleFitUtils::SavedPair.push_back (std::make_pair (recMuFromBestRes.first, recMuFromBestRes.second));
+    MuScleFitUtils::SavedPair.push_back( std::make_pair (recMuFromBestRes.first, recMuFromBestRes.second) );
   } else {
-    MuScleFitUtils::SavedPair.push_back (std::make_pair (lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.)));
+    MuScleFitUtils::SavedPair.push_back( std::make_pair (lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.)) );
   }
 
   // If resonance found, do the hard work
@@ -184,15 +184,11 @@ lorentzVector TestCorrection::correctMuon( const lorentzVector & muon ) {
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-TestCorrection::initialize(const edm::EventSetup&)
+void TestCorrection::initialize(const edm::EventSetup&)
 {
   // Read the pdf from root file. They are used by massProb when finding the muon pair, needed
   // for the mass histograms.
   readProbabilityDistributionsFromFile();
 }
-
-//define this as a plug-in
-// DEFINE_FWK_MODULE(TestCorrection);
 
 #endif // TESTCORRECTION_CC

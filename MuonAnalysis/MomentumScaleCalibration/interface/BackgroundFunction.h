@@ -41,7 +41,8 @@ public:
   {
     std::vector<int>::const_iterator id = functionId_.begin();
     for( ; id != functionId_.end(); ++id ) {
-      backgroundFunctionVec_.push_back( backgroundFunctionService( *id ) );
+      // TODO: fix the values for the lower and upper limits
+      backgroundFunctionVec_.push_back( backgroundFunctionService( *id , 0., 200. ) );
     }
     // Fill the arrays that will be used when calling the correction function.
     convertToArrays(backgroundFunction_, backgroundFunctionVec_);

@@ -2,17 +2,18 @@
 #define MuScleFitUtils_H
 
 /** \class DTHitQualityUtils
- *  
+ *
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2009/11/10 11:15:05 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/08/03 10:51:59 $
+ *  $Revision: 1.25 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
 #include <CLHEP/Vector/LorentzVector.h>
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+// #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -21,6 +22,7 @@
 #include "TH2F.h"
 #include "TMinuit.h"
 
+#include "MuonAnalysis/MomentumScaleCalibration/interface/CrossSectionHandler.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/BackgroundHandler.h"
 
 #include <vector>
@@ -35,7 +37,7 @@ template <class T> class resolutionFunctionBase;
 class backgroundFunctionBase;
 class BackgroundHandler;
 
-class SimTrack; 
+class SimTrack;
 class TString;
 class TTree;
 
@@ -43,7 +45,7 @@ typedef reco::Particle::LorentzVector lorentzVector;
 
 class MuScleFitUtils {
 public:
-  
+
   // Constructor
   // ----------
   MuScleFitUtils() {};
@@ -56,18 +58,13 @@ public:
   // ----------
   static std::pair<SimTrack, SimTrack> findBestSimuRes( const std::vector<SimTrack>& simMuons );
   static std::pair<lorentzVector, lorentzVector> findBestRecoRes( const std::vector<reco::LeafCandidate>& muons );
-  static std::pair <lorentzVector, lorentzVector> findGenMuFromRes( const edm::Handle<reco::GenParticleCollection> & genParticles);
-  static std::pair<lorentzVector, lorentzVector> findGenMuFromRes( const edm::Handle<edm::HepMCProduct> & evtMC );
+  static std::pair <lorentzVector, lorentzVector> findGenMuFromRes( const reco::GenParticleCollection* genParticles);
+  static std::pair<lorentzVector, lorentzVector> findGenMuFromRes( const edm::HepMCProduct* evtMC );
   static std::pair<lorentzVector, lorentzVector> findSimMuFromRes( const edm::Handle<edm::HepMCProduct> & evtMC,
 								   const edm::Handle<edm::SimTrackContainer> & simTracks);
 
   static std::vector<TGraphErrors*> fitMass (TH2F* histo);
   static std::vector<TGraphErrors*> fitReso (TH2F* histo);
-
-  static void cleanEstimator();
-  static void computeEstimator( const lorentzVector & recMu1, const lorentzVector & recMu2, const double & Zmass );
-  static void computeEstimator( const lorentzVector & recMu, const double & Zmass );
-  static void returnEstimator();
 
   static lorentzVector applyScale( const lorentzVector & muon, const std::vector<double> & parval, const int charge );
   static lorentzVector applyScale( const lorentzVector & muon, double* parval, const int charge );
@@ -84,12 +81,9 @@ public:
   static double massResolution( const lorentzVector & mu1, const lorentzVector & mu2, double* parval );
 
   static double massProb( const double & mass, const double & rapidity, const int ires, const double & massResol );
-  static double massProb( const double & mass, const double & rapidity, const double & massResol, const std::vector<double> & parval );
-  // static double massProb( const double & mass, const double & rapidity, const double & massResol, std::auto_ptr<double> parval );
-  static double massProb( const double & mass, const double & rapidity, const double & massResol, double * parval );
-  static double massProb2( const double & mass, const int ires, const double & massResol ); // Not used yet
-  static double computeWeight( const double & mass, const int iev );
-
+  static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, const std::vector<double> & parval, const bool doUseBkgrWindow = false );
+  static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, double * parval, const bool doUseBkgrWindow = false );
+  static double computeWeight( const double & mass, const int iev, const bool doUseBkgrWindow = false );
 
   static double deltaPhi( const double & phi1, const double & phi2 )
   {
@@ -115,10 +109,11 @@ public:
   static bool ResFound;   // bool flag true if best resonance found (cuts on pt and eta)
 
   static const int totalResNum; // Total number of resonance: 6
-  static double massWindowHalfWidth[6][3]; // parameter set by MuScleFitUtils
+  static double massWindowHalfWidth[3][6]; // parameter set by MuScleFitUtils
   static double ResGamma[6];     // parameter set by MuScleFitUtils
   static double ResMass[6];      // parameter set by MuScleFitUtils
-  static double ResMassForBackground[3]; // The three windows used to fit the background
+  static double ResMinMass[6];      // parameter set by MuScleFitBase
+  static double crossSection[6];
   static const double mMu2;
   static const double muMass;
 
@@ -148,6 +143,11 @@ public:
   // A background function for each resonance
   // static backgroundFunctionBase * backgroundFunction[];
 
+  // The Cross section handler takes care of computing the relative cross
+  // sections to be used depending on the resonances that are being fitted.
+  // This corresponds to a normalization of the signal pdf.
+  static CrossSectionHandler * crossSectionHandler;
+
   // The background handler takes care of using the correct function in each
   // window, use regions or resonance windows and rescale the fractions when needed
   static BackgroundHandler * backgroundHandler;
@@ -155,6 +155,7 @@ public:
   // Parameters used to select whether to do a fit
   static std::vector<int> doResolFit;
   static std::vector<int> doScaleFit;
+  static std::vector<int> doCrossSectionFit;
   static std::vector<int> doBackgroundFit;
 
   static int minuitLoop_;
@@ -162,16 +163,21 @@ public:
   static TH1D* signalProb_;
   static TH1D* backgroundProb_;
 
+  static bool duringMinos_;
+
   static std::vector<double> parSmear;
   static std::vector<double> parBias;
   static std::vector<double> parResol;
   static std::vector<double> parScale;
+  static std::vector<double> parCrossSection;
   static std::vector<double> parBgr;
   static std::vector<int> parResolFix;
   static std::vector<int> parScaleFix;
+  static std::vector<int> parCrossSectionFix;
   static std::vector<int> parBgrFix;
   static std::vector<int> parResolOrder;
   static std::vector<int> parScaleOrder;
+  static std::vector<int> parCrossSectionOrder;
   static std::vector<int> parBgrOrder;
   static std::vector<int> resfind;
   static int FitStrategy;
@@ -179,9 +185,9 @@ public:
   static double x[7][10000]; // smearing values set by MuScleFit constructor
   static int goodmuon;       // number of events with a usable resonance
   static int counter_resprob;// number of times there are resolution problems
-  static double GLZValue[40][1001][1001]; // matrix with integral values of Lorentz * Gaussian 
+  static double GLZValue[40][1001][1001]; // matrix with integral values of Lorentz * Gaussian
   static double GLZNorm[40][1001];        // normalization values per each sigma
-  static double GLValue[6][1001][1001]; // matrix with integral values of Lorentz * Gaussian 
+  static double GLValue[6][1001][1001]; // matrix with integral values of Lorentz * Gaussian
   static double GLNorm[6][1001];        // normalization values per each sigma
   static double ResMaxSigma[6];         // max sigma of matrix
   static double ResHalfWidth[6];        // halfwidth in matrix
@@ -193,15 +199,20 @@ public:
   // static std::map<unsigned int,std::vector<double> > parvalue;
   static std::vector<int> parfix;
   static std::vector<int> parorder;
-  
+
   static std::vector<std::pair<lorentzVector,lorentzVector> > SavedPair;
+  static std::vector<std::pair<lorentzVector,lorentzVector> > ReducedSavedPair;
   static std::vector<std::pair<lorentzVector,lorentzVector> > genPair;
   static std::vector<std::pair<lorentzVector,lorentzVector> > simPair;
 
   static bool scaleFitNotDone_;
 
+  static bool normalizeLikelihoodByEventNumber_;
   // Pointer to the minuit object
   static TMinuit * rminPtr_;
+  // Value stored to check whether to apply a new normalization to the likelihood
+  static double oldNormalization_;
+  static unsigned int normalizationChanged_;
 
   // This must be set to true if using events generated with Sherpa
   static bool sherpa_;
@@ -210,6 +221,8 @@ public:
   static bool rapidityBinsForZ_;
 
   static int iev_;
+
+  static bool useProbsFile_;
 
   // Cuts on the muons to use in the fit
   static double minMuonPt_;
@@ -230,20 +243,26 @@ public:
     double dmdcotgth2;
   } massResolComponents;
 
-  /// Method to check if the mass value is within the mass window of the i-th resonance.
-  static bool checkMassWindow( const double & mass, const int ires, const double & resMass, const double & leftFactor = 1., const double & rightFactor = 1. );
+  // Fit accuracy and debug parameters
+  static bool startWithSimplex_;
+  static bool computeMinosErrors_;
+  static bool minimumShapePlots_;
 
-protected:
+  /// Method to check if the mass value is within the mass window of the i-th resonance.
+  // static bool checkMassWindow( const double & mass, const int ires, const double & resMass, const double & leftFactor = 1., const double & rightFactor = 1. );
+  static bool checkMassWindow( const double & mass, const double & leftBorder, const double & rightBorder );
 
   /// Computes the probability given the mass, mass resolution and the arrays with the probabilities and the normalizations.
   static double probability( const double & mass, const double & massResol,
                              const double GLvalue[][1001][1001], const double GLnorm[][1001],
                              const int iRes, const int iY );
 
+protected:
+
 private:
-  
+
    struct byPt {
-     bool operator() (const reco::Muon &a, const reco::Muon &b) const { 
+     bool operator() (const reco::Muon &a, const reco::Muon &b) const {
        return a.pt() > b.pt();
      }
    };

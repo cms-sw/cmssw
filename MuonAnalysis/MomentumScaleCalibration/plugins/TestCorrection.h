@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: TestCorrection.h,v 1.5 2010/01/04 16:12:33 demattia Exp $
+// $Id: TestCorrection.h,v 1.7 2010/03/29 18:15:57 demattia Exp $
 //
 //
 
@@ -62,7 +62,7 @@ public:
   ~TestCorrection();
 
 private:
-  virtual void initialize(const edm::EventSetup&) ;
+  virtual void initialize(const edm::EventSetup&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() {};
   template<typename T>
