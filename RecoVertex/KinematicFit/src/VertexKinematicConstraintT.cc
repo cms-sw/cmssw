@@ -62,7 +62,6 @@ ROOT::Math::SMatrix<double, 4,14> VertexKinematicConstraintT::parametersDerivati
   ROOT::Math::SMatrix<double,4,14> jac_d;
   ROOT::Math::SMatrix<double,2,7> el_part_d;
   for(int j = 0; j!=2; ++j) {
-    double pt2 = mom[j].perp2();
     
     if(a_i[j] !=0) {
       
@@ -105,7 +104,7 @@ ROOT::Math::SMatrix<double, 4,3> VertexKinematicConstraintT::positionDerivative(
   ROOT::Math::SMatrix<double,2,3>  el_part_e;
   for(int j = 0; j!=2; ++j) {
 
-    if(a_I[j] !=0) {
+    if(a_i[j] !=0) {
       
       //charged particle
 

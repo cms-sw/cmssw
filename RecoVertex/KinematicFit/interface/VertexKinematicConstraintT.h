@@ -21,7 +21,7 @@ private:
   double a_i[2];
   double novera[2], n[2],m[2],k[2], delta[2]; 
   GlobalVector mom[2];
-  GlobalPoint dpos[2];
+  GlobalVector dpos[2];
   
 
 public:
