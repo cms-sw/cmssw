@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_5/HIon/V33 (CMSSW_3_8_1_HLT24)
+# /dev/CMSSW_3_8_5/HIon/V34 (CMSSW_3_8_1_HLT24)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_5/HIon/V33')
+  tableName = cms.string('/dev/CMSSW_3_8_5/HIon/V34')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -2809,9 +2809,14 @@ process.hltPreDQMSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_QuadJet15U_v3',
       'HLT_QuadJet20U_v3',
       'HLT_QuadJet25U_v3',
+      'HLT_R010U_MR50U',
+      'HLT_R030U_MR100U',
+      'HLT_R033U_MR100U',
+      'HLT_RP025U_MR70U',
       'HLT_RPCBarrelCosmics',
       'HLT_Random',
       'HLT_SingleIsoTau20_Trk15_MET25_v3',
+      'HLT_SingleIsoTau35_Trk15_MET25_v3',
       'HLT_StoppedHSCP20_v3',
       'HLT_StoppedHSCP35_v3',
       'HLT_TechTrigHCALNoise',
@@ -3007,9 +3012,14 @@ process.hltPreHLTDQMSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_QuadJet15U_v3',
       'HLT_QuadJet20U_v3',
       'HLT_QuadJet25U_v3',
+      'HLT_R010U_MR50U',
+      'HLT_R030U_MR100U',
+      'HLT_R033U_MR100U',
+      'HLT_RP025U_MR70U',
       'HLT_RPCBarrelCosmics',
       'HLT_Random',
       'HLT_SingleIsoTau20_Trk15_MET25_v3',
+      'HLT_SingleIsoTau35_Trk15_MET25_v3',
       'HLT_StoppedHSCP20_v3',
       'HLT_StoppedHSCP35_v3',
       'HLT_TechTrigHCALNoise',
@@ -3217,9 +3227,14 @@ process.hltPreHLTMONSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_QuadJet15U_v3',
       'HLT_QuadJet20U_v3',
       'HLT_QuadJet25U_v3',
+      'HLT_R010U_MR50U',
+      'HLT_R030U_MR100U',
+      'HLT_R033U_MR100U',
+      'HLT_RP025U_MR70U',
       'HLT_RPCBarrelCosmics',
       'HLT_Random',
       'HLT_SingleIsoTau20_Trk15_MET25_v3',
+      'HLT_SingleIsoTau35_Trk15_MET25_v3',
       'HLT_StoppedHSCP20_v3',
       'HLT_StoppedHSCP35_v3',
       'HLT_TechTrigHCALNoise',

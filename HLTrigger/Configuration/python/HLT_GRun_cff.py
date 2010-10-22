@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_8_5/GRun/V33 (CMSSW_3_8_1_HLT24)
+# /dev/CMSSW_3_8_5/GRun/V34 (CMSSW_3_8_1_HLT24)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_5/GRun/V33')
+  tableName = cms.string('/dev/CMSSW_3_8_5/GRun/V34')
 )
 
 streams = cms.PSet( 
@@ -405,9 +405,14 @@ datasets = cms.PSet(
     'HLT_QuadJet15U_v3',
     'HLT_QuadJet20U_v3',
     'HLT_QuadJet25U_v3',
+    'HLT_R010U_MR50U',
+    'HLT_R030U_MR100U',
+    'HLT_R033U_MR100U',
+    'HLT_RP025U_MR70U',
     'HLT_RPCBarrelCosmics',
     'HLT_Random',
     'HLT_SingleIsoTau20_Trk15_MET25_v3',
+    'HLT_SingleIsoTau35_Trk15_MET25_v3',
     'HLT_StoppedHSCP20_v3',
     'HLT_StoppedHSCP35_v3',
     'HLT_TechTrigHCALNoise',
@@ -587,9 +592,14 @@ datasets = cms.PSet(
     'HLT_QuadJet15U_v3',
     'HLT_QuadJet20U_v3',
     'HLT_QuadJet25U_v3',
+    'HLT_R010U_MR50U',
+    'HLT_R030U_MR100U',
+    'HLT_R033U_MR100U',
+    'HLT_RP025U_MR70U',
     'HLT_RPCBarrelCosmics',
     'HLT_Random',
     'HLT_SingleIsoTau20_Trk15_MET25_v3',
+    'HLT_SingleIsoTau35_Trk15_MET25_v3',
     'HLT_StoppedHSCP20_v3',
     'HLT_StoppedHSCP35_v3',
     'HLT_TechTrigHCALNoise',
@@ -769,9 +779,14 @@ datasets = cms.PSet(
     'HLT_QuadJet15U_v3',
     'HLT_QuadJet20U_v3',
     'HLT_QuadJet25U_v3',
+    'HLT_R010U_MR50U',
+    'HLT_R030U_MR100U',
+    'HLT_R033U_MR100U',
+    'HLT_RP025U_MR70U',
     'HLT_RPCBarrelCosmics',
     'HLT_Random',
     'HLT_SingleIsoTau20_Trk15_MET25_v3',
+    'HLT_SingleIsoTau35_Trk15_MET25_v3',
     'HLT_StoppedHSCP20_v3',
     'HLT_StoppedHSCP35_v3',
     'HLT_TechTrigHCALNoise',
