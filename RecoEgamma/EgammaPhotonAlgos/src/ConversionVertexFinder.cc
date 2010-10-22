@@ -112,7 +112,7 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
 
 
   if( oldTree->isValid() ) {
-    std::cout << "old" << std::endl;
+    std::cout << "old " << kcvFitter_->getNit() << std::endl;
     std::cout <<  oldTree->currentParticle()->currentState().globalMomentum() <<
       oldTree->currentParticle()->currentState().globalPosition()<< std::endl;
     std::vector<RefCountedKinematicParticle> fStates=oldTree->finalStateParticles();
@@ -120,10 +120,10 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
       std::cout <<  fStates[kk]->currentState().globalMomentum() << 
 	fStates[kk]->currentState().globalPosition() << std::endl;
     }
-  } else       std::cout << "old invalid" << std::endl;
+  } else       std::cout << "old invalid " << kcvFitter_->getNit() << std::endl;
   
   if( myTree->isValid() ) {
-    std::cout << "new" << std::endl;
+    std::cout << "new " << kcvFitter.getNit() << std::endl;
     std::cout <<  myTree->currentParticle()->currentState().globalMomentum() <<
       myTree->currentParticle()->currentState().globalPosition()<< std::endl;
     std::vector<RefCountedKinematicParticle> fStates=myTree->finalStateParticles();
@@ -131,7 +131,7 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
       std::cout <<  fStates[kk]->currentState().globalMomentum() << 
 	fStates[kk]->currentState().globalPosition() << std::endl;
     }
-  } else       std::cout << "new invalid" << std::endl;
+  } else       std::cout << "new invalid " << kcvFitter.getNit() << std::endl;
 
 #endif // TemplateKineFitDebug
 
