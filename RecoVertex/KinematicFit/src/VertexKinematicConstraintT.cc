@@ -76,7 +76,7 @@ ROOT::Math::SMatrix<double, 4,14> VertexKinematicConstraintT::parametersDerivati
       double a_i = - ch[num_r] * mfz;
       double j = a_i*(d_x * mom[num_r].x() + d_y * mom[num_r].y())*pt2Inverse;
       double r_x = d_x - 2* mom[num_r].x()*(d_x*mom[num_r].x()+d_y*mom[num_r].y())*pt2Inverse;
-      double r_y = d_x - 2* mom[num_r].y()*(d_x*mom[num_r].x()+d_y*mom[num_r].y())*pt2Inverse;
+      double r_y = d_y - 2* mom[num_r].y()*(d_x*mom[num_r].x()+d_y*mom[num_r].y())*pt2Inverse;
       double s =  pt2Inverse/sqrt(1 - j*j);
        
       if(fabs(j)>1.0){
