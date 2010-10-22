@@ -165,9 +165,9 @@ ColinearityKinematicConstraintT<Dim>::parametersDerivative() const
 
 
   //pz1 and pz2 components: 6th and 13 elements:
-  res(1,6)  = 0.; res(1,13) = 0.;
+  res(0,5)  = 0.; res(0,12) = 0.;
   //mass components: 7th and 14th elements:
-  res(1,7)  = 0.; res(1,14) = 0.;
+  res(0,5)  = 0.; res(0,13) = 0.;
 
   if (Dim==colinearityKinematic::PhiTheta)  {
     // H_theta:
