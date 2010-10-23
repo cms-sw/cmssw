@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.25 2010/08/23 16:47:07 nart Exp $
+// $Id: CentralityProducer.cc,v 1.26 2010/10/23 16:06:41 yilmaz Exp $
 //
 //
 
@@ -210,16 +210,16 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   HcalDetId hcalId(tower.id().rawId());
 	   bool isHF = hcalId.subdetId() == HcalForward;
 	   if(produceHFtowers_){
-	      if(isHF)
+	      if(isHF && eta > 0)
 		 creco->etHFtowerSumPlus_ += tower.pt();
-	      if(isHF)
+	      if(isHF && eta < 0)
 		 creco->etHFtowerSumMinus_ += tower.pt();
 	   }else{
 	      creco->etHFtowerSumMinus_ = inputCentrality->EtHFtowerSumMinus();
 	      creco->etHFtowerSumPlus_ = inputCentrality->EtHFtowerSumPlus();
 	   }
 	   if(produceETmidRap_){
-	      if(fabs(eta) < midRapidityRange_) creco->etMidRapiditySum_ += tower.pt();
+	      if(fabs(eta) < midRapidityRange_) creco->etMidRapiditySum_ += tower.pt()/(midRapidityRange_*2.);
 	   }else creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
 	}
   }else{
