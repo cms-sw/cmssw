@@ -99,7 +99,7 @@ private:
 
   virtual void fillPositionDerivative() const = 0;
   
-public:
+protected:
 
   valueType & vl() const { return m_vl; }
   parametersDerivativeType & jac_d() const { return m_jac_d;}
