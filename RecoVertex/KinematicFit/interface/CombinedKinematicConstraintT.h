@@ -86,7 +86,8 @@ namespace combinedConstraintHelpers {
 
   template<int DIM>
   struct PlaceValue : public Place<DIM> {
-    ROOT::Math::SVector<double, DIM> ret;
+    PlaceValue(ROOT::Math::SVector<double, DIM>  & iret) : ret(iret){}
+    ROOT::Math::SVector<double, DIM>  & ret;
     template<typename C>
     void operator()(C const & cs) {
       this->offset -= C::nDim;
@@ -96,7 +97,8 @@ namespace combinedConstraintHelpers {
 
   template<int DIM, int NTRK>
   struct PlaceParDer : public Place<DIM> {
-    ROOT::Math::SMatrix<double, DIM, 7*NTRK> ret;
+    PlaceParDer(ROOT::Math::SMatrix<double, DIM, 7*NTRK> & iret) : ret(iret){}
+    ROOT::Math::SMatrix<double, DIM, 7*NTRK> & ret;
     template<typename C>
     void operator()(C const & cs) {
       this->offset -= C::nDim;
@@ -106,7 +108,8 @@ namespace combinedConstraintHelpers {
 
   template<int DIM>
   struct PlacePosDer : public Place<DIM> {
-    ROOT::Math::SMatrix<double, DIM, 3> ret;
+    PlacePosDer(ROOT::Math::SMatrix<double, DIM, 3> & iret) : ret(iret){}
+    ROOT::Math::SMatrix<double, DIM, 3> & ret;
     template<typename C>
     void operator()(C const & cs) {
       this->offset -= C::nDim;
@@ -159,15 +162,15 @@ public:
   }
 
 
+private:
   /**
-   * Returns a vector of values of the combined constraint
+   * fills a vector of values of the combined constraint
    * equations at the point where the input
    * particles are defined.
    */
-  ROOT::Math::SVector<double, DIM>  value() const{
-    combinedConstraintHelpers::PlaceValue<DIM> helper;
+  void fillValue() const{
+    combinedConstraintHelpers::PlaceValue<DIM> helper(vl);
     iterate_tuple(constraints,std::ref(helper));
-    return helper.ret;
   } 
   
   /**
@@ -175,10 +178,9 @@ public:
    * constraint equations w.r.t. 
    * particle parameters
    */
-  ROOT::Math::SMatrix<double, DIM, 7*NTRK> parametersDerivative() const{
-    combinedConstraintHelpers::PlaceParDer<DIM,NTRK> helper;
+  void fillParametersDerivative() const{
+    combinedConstraintHelpers::PlaceParDer<DIM,NTRK> helper(jac_d);
     iterate_tuple(constraints,std::ref(helper));
-    return helper.ret;
   }
   
   /**
@@ -186,10 +188,9 @@ public:
    * constraint equations w.r.t. 
    * vertex position
    */
-  virtual ROOT::Math::SMatrix<double, DIM, 3> positionDerivative() const{
-    combinedConstraintHelpers::PlacePosDer<DIM> helper;
+  void fillPositionDerivative() const{
+    combinedConstraintHelpers::PlacePosDer<DIM> helper(jac_e);
     iterate_tuple(constraints,std::ref(helper));
-    return helper.ret;
   }
    
   /**

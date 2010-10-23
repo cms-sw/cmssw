@@ -37,10 +37,9 @@ void VertexKinematicConstraintT::init(const std::vector<KinematicState>& states,
 
 
 
-ROOT::Math::SVector<double,4> VertexKinematicConstraintT::value() const
+void VertexKinematicConstraintT::fillValue() const
 {
   //it is 2 equations per track
-  ROOT::Math::SVector<double,4> vl;
   for(int j = 0; j!=2; ++j) {
 
     if(a_i[j] !=0) {
@@ -54,12 +53,9 @@ ROOT::Math::SVector<double,4> VertexKinematicConstraintT::value() const
       vl(j*2 +1) = dpos[j].z() - mom[j].z()*(dpos[j].x() * mom[j].x() + dpos[j].y() * mom[j].y())*pt2Inverse;
     }
   }
-  return vl;
 }
 
-ROOT::Math::SMatrix<double, 4,14> VertexKinematicConstraintT::parametersDerivative() const
-{
-  ROOT::Math::SMatrix<double,4,14> jac_d;
+void VertexKinematicConstraintT::fillParametersDerivative() const {
   ROOT::Math::SMatrix<double,2,7> el_part_d;
   for(int j = 0; j!=2; ++j) {
     
@@ -95,12 +91,10 @@ ROOT::Math::SMatrix<double, 4,14> VertexKinematicConstraintT::parametersDerivati
       jac_d.Place_at(el_part_d,j*2, j*7);
     }
   }
-  return jac_d;
 }
 
-ROOT::Math::SMatrix<double, 4,3> VertexKinematicConstraintT::positionDerivative() const
-{
-  ROOT::Math::SMatrix<double,4,3> jac_e;
+void VertexKinematicConstraintT::fillPositionDerivative() const {
+
   ROOT::Math::SMatrix<double,2,3>  el_part_e;
   for(int j = 0; j!=2; ++j) {
 
@@ -126,7 +120,6 @@ ROOT::Math::SMatrix<double, 4,3> VertexKinematicConstraintT::positionDerivative(
       jac_e.Place_at(el_part_e,2*j,0);
     }
   }
-  return jac_e;
 }
 
 int VertexKinematicConstraintT::numberOfEquations() const

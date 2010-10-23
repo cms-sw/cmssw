@@ -35,26 +35,27 @@ virtual ~VertexKinematicConstraintT();
 		    const GlobalPoint& point,  const GlobalVector& mf);
 
 
+private:
 /**
- * Returns a vector of values of constraint
+ * fills a vector of values of constraint
  * equations at the point where the input
  * particles are defined.
  */
- virtual ROOT::Math::SVector<double,4>  value() const;
+ virtual void fillValue() const;
 
 /**
- * Returns a matrix of derivatives of
+ * fills a matrix of derivatives of
  * constraint equations w.r.t. 
  * particle parameters
  */
- virtual ROOT::Math::SMatrix<double,4,14> parametersDerivative() const;
+ virtual void fillParametersDerivative() const;
 
 /**
- * Returns a matrix of derivatives of
+ * fills a matrix of derivatives of
  * constraint equations w.r.t. 
  * vertex position
  */
- virtual ROOT::Math::SMatrix<double,4,3> positionDerivative() const;
+ virtual void fillPositionDerivative() const;
 /**
  * Number of equations per track used for the fit
  */

@@ -19,6 +19,9 @@
  * and the change it to the result of the first iteration.
  *
  * Kirill Prokofiev, October 2003
+ *
+ * New version: make use of SMatrix: optimize filling of matrices
+ * Vincenzo Innocente, October 2010
  */
 
 class MultiTrackKinematicConstraintBaseT
@@ -55,6 +58,31 @@ public:
 
 
   /**
+   * Methods returning vector of values
+   * and derivative matrices with
+   * respect to vertex position and
+   * particle parameters.
+   * Input paramters are put into one vector: 
+   * (Vertex position, particle_parameters_1,..., particle_parameters_n)
+   */
+  valueType const & value() const {
+    fillValue();
+    return vl;
+  } 
+  
+  parametersDerivativeType const & parametersDerivative() const {
+    fillParametersDerivative();
+    return jac_d;
+  };
+  
+
+  positionDerivativeType const &  positionDerivative() const {
+    fillPositionDerivative();
+    return jac_e;
+  }
+ 
+private:
+  /**
    * Methods making vector of values
    * and derivative matrices with
    * respect to vertex position and
@@ -62,13 +90,20 @@ public:
    * Input paramters are put into one vector: 
    * (Vertex position, particle_parameters_1,..., particle_parameters_n)
    */
-  virtual ROOT::Math::SVector<double, DIM>  value() const = 0; 
+  virtual  void fillValue() const = 0; 
   
-  virtual ROOT::Math::SMatrix<double, DIM,7*NTRK> parametersDerivative() const = 0;
+  virtual  void fillParametersDerivative() const = 0;
   
 
-  virtual ROOT::Math::SMatrix<double, DIM,3> positionDerivative() const = 0;
+  virtual void fillPositionDerivative() const = 0;
   
+
+protected:
+
+  mutable valueType vl;
+  mutable parametersDerivativeType jac_d;
+  mutable positionDerivativeType jac_e;
+
 };
 
 
