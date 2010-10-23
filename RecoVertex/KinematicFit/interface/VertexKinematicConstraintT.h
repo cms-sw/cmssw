@@ -37,6 +37,15 @@ virtual ~VertexKinematicConstraintT();
 		    const GlobalPoint& point,  const GlobalVector& mf);
 
 
+**
+ * Number of equations per track used for the fit
+ */
+virtual int numberOfEquations() const;
+ 
+virtual VertexKinematicConstraintT * clone()const
+{return new VertexKinematicConstraintT(*this);}
+
+
 private:
 /**
  * fills a vector of values of constraint
@@ -58,13 +67,6 @@ private:
  * vertex position
  */
  virtual void fillPositionDerivative() const;
-/**
- * Number of equations per track used for the fit
- */
-virtual int numberOfEquations() const;
- 
-virtual VertexKinematicConstraintT * clone()const
-{return new VertexKinematicConstraintT(*this);}
 
 
 private:
