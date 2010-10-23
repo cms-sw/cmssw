@@ -101,9 +101,9 @@ private:
   
 public:
 
-  valueType & vl() { return m_vl; }
-  parametersDerivativeType & jac_d() { return m_jac_d;}
-  positionDerivativeType & jac_e() { return m_jac_e;}
+  valueType & vl() const { return m_vl; }
+  parametersDerivativeType & jac_d() const { return m_jac_d;}
+  positionDerivativeType & jac_e() const { return m_jac_e;}
 
   self & me() const { return *const_cast<self*>(this); }
 
