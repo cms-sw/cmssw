@@ -189,7 +189,7 @@ void ColinearityKinematicConstraintT<Dim>::fillParametersDerivative() const {
 }
 
 template<enum colinearityKinematic::ConstraintDim Dim>                                 
-void ColinearityKinematicConstraintT<Dim>::positionDerivative() const
+void ColinearityKinematicConstraintT<Dim>::fillPositionDerivative() const
 {
 
   typename super::positionDerivativeType & jac_e = super::me().jac_e(); 

@@ -37,7 +37,7 @@ virtual ~VertexKinematicConstraintT();
 		    const GlobalPoint& point,  const GlobalVector& mf);
 
 
-**
+/**
  * Number of equations per track used for the fit
  */
 virtual int numberOfEquations() const;

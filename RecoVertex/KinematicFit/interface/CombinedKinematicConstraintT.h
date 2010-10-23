@@ -192,7 +192,8 @@ private:
     combinedConstraintHelpers::PlacePosDer<DIM> helper(super::me().jac_e());
     iterate_tuple(constraints,std::ref(helper));
   }
-   
+
+public:   
   /**
    * Number of equations per track used for the combined fit
    */
