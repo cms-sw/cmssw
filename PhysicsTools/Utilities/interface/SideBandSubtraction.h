@@ -32,16 +32,24 @@ class SideBandSubtract
   std::vector<TH1F> SideBandHistos;
   std::vector<TH1F> RawHistos;
   std::vector<TH1F> SBSHistos;
-  const std::vector<TH1F*> BaseHistos;
+  std::vector<TH1F*> BaseHistos;
+  TH1F* base_histo;
   RooFitResult *fit_result;
   Double_t SignalSidebandRatio;
  public:
   SideBandSubtract();
+  /*
+  SideBandSubtract(RooAbsPdf *model_shape, 
+		   RooAbsPdf *bkg_shape, 
+		   RooDataSet* data,
+		   RooRealVar* sep_var,
+		   bool verb);
+  */
   SideBandSubtract(RooAbsPdf *model_shape, 
 		   RooAbsPdf *bkg_shape, 
 		   RooDataSet* data, 
 		   RooRealVar* sep_var, 
-		   const std::vector<TH1F*> base, 
+		   std::vector<TH1F*> base, 
 		   bool verb);
   ~SideBandSubtract();
   void addSignalRegion(Double_t min, Double_t max);
@@ -57,6 +65,7 @@ class SideBandSubtract
   RooFitResult* getFitResult();
   std::vector<TH1F> getRawHistos();
   std::vector<TH1F> getSBSHistos();
+  std::vector<TH1F*> getBaseHistos();
   Double_t getSTSRatio(); //returns signal-to-sideband ratio
   void resetSBSProducts(); //empties histograms 
 };

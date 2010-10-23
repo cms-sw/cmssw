@@ -13,6 +13,7 @@
 #include "PhysicsTools/Utilities/interface/SideBandSubtraction.h"
 // System includes
 #include <iostream>
+#include <cstdlib>
 #include <sstream>
 
 // ROOT includes
@@ -27,9 +28,9 @@
 // RooFit includes
 #include <RooFitResult.h>
 #include <RooRealVar.h>
-#include "RooAbsPdf.h"
-#include "RooDataSet.h"
-#include "RooPlot.h"
+#include <RooAbsPdf.h>
+#include <RooDataSet.h>
+#include <RooPlot.h>
 
 using namespace RooFit;
 using std::cout;
@@ -122,6 +123,7 @@ int SideBandSubtract::doSubtraction(RooRealVar* variable, Double_t stsratio,Int_
     }
   //Save pre-subtracted histo
   SignalHist->Sumw2(); SideBandHist->Sumw2(); 
+  //SignalHist->SetDirectory(0); SideBandHist->SetDirectory(0);
   RawHistos.push_back(*SignalHist);
 
   SignalHist->Add(SideBandHist, -stsratio);
@@ -222,7 +224,7 @@ void SideBandSubtract::saveResults(string outname)
   TString dirname;
   TIter nextkey(output.GetListOfKeys());
   TKey *key;
-  
+  TDirectory* curDir=NULL;
   while((key=(TKey*)nextkey.Next()))
     {
 
@@ -237,7 +239,7 @@ void SideBandSubtract::saveResults(string outname)
   if(dirname=="")
     {
       //we didn't find any directories so, we'll make a new one
-      output.mkdir("run0","Run 0");
+      curDir = output.mkdir("run0","Run 0");
       output.cd("run0");
     }
   else
@@ -247,19 +249,33 @@ void SideBandSubtract::saveResults(string outname)
       Int_t run_num = dirname.Atoi();
       run_num++;
       dirname = "run" + stringify(run_num);
-      output.mkdir(dirname.Data(),("Run "+stringify(run_num)).c_str());
+      curDir = output.mkdir(dirname.Data(),("Run "+stringify(run_num)).c_str());
       output.cd(dirname.Data());
     }
+  if(curDir==NULL)
+    curDir = output.GetDirectory("",kTRUE,"");
 
   //these should all be the same size, but to be pedantic we'll loop
-  //over each one individually...
+  //over each one individually, also, we need to associate them with
+  //the directory because by default they "float" in memory to avoid
+  //conflicts with other root files the user has open. If they want to
+  //write to those files, they need to close their file, pass the name
+  //here, and then let us work.
   for(unsigned int i=0; i < SideBandHistos.size(); ++i)
+    {
+      SideBandHistos[i].SetDirectory(curDir);
       SideBandHistos[i].Write();
+    }
   for(unsigned int i=0; i < RawHistos.size(); ++i)
+    {
+      RawHistos[i].SetDirectory(curDir);
       RawHistos[i].Write();
+    }
   for(unsigned int i=0; i < SBSHistos.size(); ++i)
+    {
+      SBSHistos[i].SetDirectory(curDir);
       SBSHistos[i].Write();
-
+    }
   if(Data!=NULL && ModelPDF!=NULL && BackgroundPDF!=NULL && SeparationVariable!=NULL)
     {
       RooPlot *sep_varFrame = SeparationVariable->frame();
@@ -317,7 +333,7 @@ SideBandSubtract::SideBandSubtract(RooAbsPdf *model_shape,
 				   RooAbsPdf *bkg_shape, 
 				   RooDataSet* data,
 				   RooRealVar* sep_var,
-				   const vector<TH1F*> base,
+				   vector<TH1F*> base,
 				   bool verb
 				   )
   : BackgroundPDF(bkg_shape), 
@@ -327,22 +343,78 @@ SideBandSubtract::SideBandSubtract(RooAbsPdf *model_shape,
     verbose(verb),
     SignalRegions(),
     SideBandRegions(),
-    SideBandHistos(0),
-    RawHistos(0),
-    SBSHistos(0),
+    SideBandHistos(),
+    RawHistos(),
+    SBSHistos(),
     BaseHistos(base),
+    base_histo(0),
+    fit_result(0),
+    SignalSidebandRatio(0)
+{ }
+/*
+SideBandSubtract::SideBandSubtract(RooAbsPdf *model_shape, 
+				   RooAbsPdf *bkg_shape, 
+				   RooDataSet* data,
+				   RooRealVar* sep_var,
+				   bool verb
+				   )
+  : BackgroundPDF(bkg_shape), 
+    ModelPDF(model_shape), 
+    Data(data),
+    SeparationVariable(sep_var),
+    verbose(verb),
+    SignalRegions(),
+    SideBandRegions(),
+    SideBandHistos(),
+    RawHistos(),
+    SBSHistos(),
+    BaseHistos(),
+    base_histo(0),
     fit_result(0),
     SignalSidebandRatio(0)
 {
-  //We aren't making anything here, so we just assign whats handed to us and leave...
+  // Build BaseHistos from dataset
+  TIterator* iter = (TIterator*) Data->get()->createIterator();
+  RooAbsArg *var=NULL;
+  RooRealVar *variable=NULL;
+  cout <<"Starting while loop\n";
+  while((var = (RooAbsArg*)iter->Next()))
+    {
+      if((string)var->ClassName() != "RooRealVar")
+	continue;
+      variable = (RooRealVar*)var;
+      //we own the data this points to so we need to delete it at the end...
+      assert(variable!=NULL);
+      string title = "base_"+(string)variable->GetName();
+      base_histo = (TH1F*)Data->createHistogram(title.c_str(), *variable, Binning(variable->getBinning("default",verb,kTRUE)) );
+      //cout <<"Made histo with name: "<<base_histo->GetName()<<endl;
+      //base_histo->SetDirectory(0);
+      BaseHistos.push_back(*base_histo);
+      cout <<"Added histo to BaseHistos!\n Deleting local copy...";
+      if(base_histo) delete base_histo;
+      cout <<"Done!\n";
+    }
+
 }
+*/
 SideBandSubtract::~SideBandSubtract()
 {
   //**WARNING** 
 
   // We don't delete objects that we don't own (duh) so, all of our
   // pointers just hang out and get handled by other people :)
-
+ 
+  // We DO own the BaseHistos IFF the user didn't provide us with 
+  // them and we constructed them from the dataset... in this case 
+  // base_histo will be non-null and we want to delete the vector 
+  // of histograms...
+  resetSBSProducts();
+  /*
+  if(base_histo!=NULL)
+    {
+      BaseHistos.clear();
+    }
+  */
 }
 void SideBandSubtract::addSignalRegion(Double_t min, Double_t max)
 {
@@ -455,6 +527,10 @@ RooFitResult* SideBandSubtract::getFitResult()
 {
   return fit_result;
 }
+vector<TH1F*> SideBandSubtract::getBaseHistos()
+{
+  return BaseHistos;
+}
 vector<TH1F> SideBandSubtract::getRawHistos()
 {
   return RawHistos;
@@ -469,7 +545,13 @@ Double_t SideBandSubtract::getSTSRatio()
 }
 void SideBandSubtract::resetSBSProducts()
 {
-  SideBandHistos.erase(SideBandHistos.begin(),SideBandHistos.end());
-  RawHistos.erase(RawHistos.begin(),RawHistos.end());
-  SBSHistos.erase(SBSHistos.begin(),SBSHistos.end()); 
+  //cout <<"Starting to reset products \n";
+
+  if(!SideBandHistos.empty())
+    SideBandHistos.clear();
+
+  if(!RawHistos.empty())
+    RawHistos.clear();
+  if(!SBSHistos.empty())
+    SBSHistos.clear();
 }
