@@ -169,7 +169,7 @@ private:
    * particles are defined.
    */
   void fillValue() const{
-    combinedConstraintHelpers::PlaceValue<DIM> helper(vl);
+    combinedConstraintHelpers::PlaceValue<DIM> helper(this->m_vl);
     iterate_tuple(constraints,std::ref(helper));
   } 
   
@@ -179,7 +179,7 @@ private:
    * particle parameters
    */
   void fillParametersDerivative() const{
-    combinedConstraintHelpers::PlaceParDer<DIM,NTRK> helper(jac_d);
+    combinedConstraintHelpers::PlaceParDer<DIM,NTRK> helper(this->m_jac_d);
     iterate_tuple(constraints,std::ref(helper));
   }
   
@@ -189,7 +189,7 @@ private:
    * vertex position
    */
   void fillPositionDerivative() const{
-    combinedConstraintHelpers::PlacePosDer<DIM> helper(jac_e);
+    combinedConstraintHelpers::PlacePosDer<DIM> helper(this->m_jac_e);
     iterate_tuple(constraints,std::ref(helper));
   }
    

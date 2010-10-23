@@ -97,12 +97,17 @@ private:
 
   virtual void fillPositionDerivative() const = 0;
   
+protected:
+
+  double & vl(size_t i) const { return m_vl(i);}
+  double & jac_d(size_t i, size_t j) const { return m_jac_d(i,j);}
+  double & jac_e(size_t i, size_t j) const { return m_jac_e(i,j);}
 
 protected:
 
-  mutable valueType vl;
-  mutable parametersDerivativeType jac_d;
-  mutable positionDerivativeType jac_e;
+  mutable valueType m_vl;
+  mutable parametersDerivativeType m_jac_d;
+  mutable positionDerivativeType m_jac_e;
 
 };
 
