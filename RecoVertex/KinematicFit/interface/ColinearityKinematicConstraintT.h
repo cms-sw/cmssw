@@ -34,6 +34,8 @@ private:
 
 public:
 
+  typedef MultiTrackKinematicConstraintT<int(Dim),2> super;
+
   ColinearityKinematicConstraintT(){}
   
   
@@ -87,6 +89,8 @@ private:
 
 template<enum colinearityKinematic::ConstraintDim Dim>                                 
 void ColinearityKinematicConstraintT<Dim>::fillValue() const {
+
+  typename super::valueType & vl = me().vl();
  
   double p1vx = p1(3) - a_1*(point.y() - p1(1));
   double p1vy = p1(4) + a_1*(point.x() - p1(0));
@@ -111,6 +115,9 @@ void ColinearityKinematicConstraintT<Dim>::fillValue() const {
 
 template<enum colinearityKinematic::ConstraintDim Dim>                                 
 void ColinearityKinematicConstraintT<Dim>::fillParametersDerivative() const {
+
+
+  typename super::parametersDerivativeType & jac_d = me().jac_d(); 
 
   double p1vx = p1(3) - a_1*(point.y() - p1(1));
   double p1vy = p1(4) + a_1*(point.x() - p1(0));
@@ -182,6 +189,8 @@ void ColinearityKinematicConstraintT<Dim>::fillParametersDerivative() const {
 template<enum colinearityKinematic::ConstraintDim Dim>                                 
 void ColinearityKinematicConstraintT<Dim>::positionDerivative() const
 {
+
+  typename super::positionDerivativeType & jac_e = me().jac_e(); 
 
   double p1vx = p1(3) - a_1*(point.y() - p1(1));
   double p1vy = p1(4) + a_1*(point.x() - p1(0));
