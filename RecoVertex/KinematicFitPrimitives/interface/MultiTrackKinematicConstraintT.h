@@ -69,18 +69,18 @@ public:
    */
   valueType const & value() const {
     fillValue();
-    return vl;
+    return m_vl;
   } 
   
   parametersDerivativeType const & parametersDerivative() const {
     fillParametersDerivative();
-    return jac_d;
+    return m_jac_d;
   };
   
 
   positionDerivativeType const &  positionDerivative() const {
     fillPositionDerivative();
-    return jac_e;
+    return m_jac_e;
   }
  
 private:
@@ -101,7 +101,7 @@ private:
   
 protected:
 
-  seff & me() const { return *const_cast<self*>(this); }
+  self & me() const { return *const_cast<self*>(this); }
 
   double & vl(size_t i) const { return me().m_vl(i);}
   double & jac_d(size_t i, size_t j) const { return me().m_jac_d(i,j);}
