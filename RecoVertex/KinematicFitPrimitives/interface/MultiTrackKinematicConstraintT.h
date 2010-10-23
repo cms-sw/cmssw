@@ -46,6 +46,8 @@ class MultiTrackKinematicConstraintT : public MultiTrackKinematicConstraintBaseT
 public:
   enum {nTrk=NTRK, nDim=DIM};
 
+  typedef MultiTrackKinematicConstraintT<NTRK, DIM> self;
+
   typedef ROOT::Math::SVector<double, DIM>  valueType; 
   
   typedef ROOT::Math::SMatrix<double, DIM,7*NTRK> parametersDerivativeType;
@@ -99,9 +101,11 @@ private:
   
 protected:
 
-  double & vl(size_t i) const { return m_vl(i);}
-  double & jac_d(size_t i, size_t j) const { return m_jac_d(i,j);}
-  double & jac_e(size_t i, size_t j) const { return m_jac_e(i,j);}
+  seff & me() const { return *const_cast<self*>(this); }
+
+  double & vl(size_t i) const { return me().m_vl(i);}
+  double & jac_d(size_t i, size_t j) const { return me().m_jac_d(i,j);}
+  double & jac_e(size_t i, size_t j) const { return me().m_jac_e(i,j);}
 
 protected:
 
