@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.24 2010/08/18 09:45:40 yilmaz Exp $
+// $Id: CentralityProducer.cc,v 1.25 2010/08/23 16:47:07 nart Exp $
 //
 //
 
@@ -200,22 +200,26 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(produceHFtowers_ || produceETmidRap_){
      creco->etHFtowerSumPlus_ = 0;
      creco->etHFtowerSumMinus_ = 0;
+     creco->etMidRapiditySum_ = 0;
      
      Handle<CaloTowerCollection> towers;
      iEvent.getByLabel(srcTowers_,towers);
 	for( size_t i = 0; i<towers->size(); ++ i){
 	   const CaloTower & tower = (*towers)[ i ];
 	   double eta = tower.eta();
+	   HcalDetId hcalId(tower.id().rawId());
+	   bool isHF = hcalId.subdetId() == HcalForward;
 	   if(produceHFtowers_){
-	      if(eta > 3)
+	      if(isHF)
 		 creco->etHFtowerSumPlus_ += tower.pt();
-	      if(eta < -3)
+	      if(isHF)
 		 creco->etHFtowerSumMinus_ += tower.pt();
 	   }else{
 	      creco->etHFtowerSumMinus_ = inputCentrality->EtHFtowerSumMinus();
 	      creco->etHFtowerSumPlus_ = inputCentrality->EtHFtowerSumPlus();
 	   }
 	   if(produceETmidRap_){
+	      if(fabs(eta) < midRapidityRange_) creco->etMidRapiditySum_ += tower.pt();
 	   }else creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
 	}
   }else{
@@ -276,18 +280,14 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
         } 
      }
      creco->pixelMultiplicity_ = nPixel;
-     
   }else{
      creco->pixelMultiplicity_ = inputCentrality->multiplicityPixel();
   }
 
-
   if(produceTracks_){
-
      edm::Handle<reco::TrackCollection> tracks;
      iEvent.getByLabel(srcTracks_,tracks);
      int nTracks = tracks->size();
-     creco->trackMultiplicity_ = nTracks;
 
      double trackCounter = 0;
      double trackCounterEta = 0;
@@ -296,13 +296,13 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      for(unsigned int i = 0 ; i < tracks->size(); ++i){
        const Track& track = (*tracks)[i];
        if( track.pt() > trackPtCut_)  trackCounter++;
-      
        if(fabs(track.eta())<trackEtaCut_) {
 	 trackCounterEta++;
 	 if (track.pt() > trackPtCut_) trackCounterEtaPt++;
        }
      }
 
+     creco->trackMultiplicity_ = nTracks;
      creco->ntracksPtCut_ = trackCounter; 
      creco->ntracksEtaCut_ = trackCounterEta;
      creco->ntracksEtaPtCut_ = trackCounterEtaPt;
@@ -315,7 +315,6 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   if(producePixelTracks_){
-  
     edm::Handle<reco::TrackCollection> pixeltracks;
     iEvent.getByLabel(srcPixelTracks_,pixeltracks);
     int nPixelTracks = pixeltracks->size();
