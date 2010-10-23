@@ -53,6 +53,15 @@ public:
     p2 = states[1].kinematicParameters().vector();
   }
 
+  /**
+   * Number of equations per track used for the fit
+   */
+  virtual int numberOfEquations() const {return Dim == colinearityKinematic::Phi ? 1 :2;}
+  
+  virtual ColinearityKinematicConstraintT<Dim> * clone()const
+  {return new ColinearityKinematicConstraintT<Dim>(*this);}
+
+
 private:
   /**
    * fills a vector of values of constraint
@@ -76,13 +85,6 @@ private:
    */
   virtual void fillPositionDerivative() const;
   
-  /**
-   * Number of equations per track used for the fit
-   */
-  virtual int numberOfEquations() const {return Dim == colinearityKinematic::Phi ? 1 :2;}
-  
-  virtual ColinearityKinematicConstraintT<Dim> * clone()const
-  {return new ColinearityKinematicConstraintT<Dim>(*this);}
   
 };
 

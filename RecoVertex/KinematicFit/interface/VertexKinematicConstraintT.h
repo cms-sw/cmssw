@@ -16,6 +16,8 @@ class VertexKinematicConstraintT: public MultiTrackKinematicConstraintT<2,4>
 
 private:
 
+  typedef  MultiTrackKinematicConstraintT<2,4> super;
+
   // to be optimized
 
   double a_i[2];

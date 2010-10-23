@@ -99,7 +99,7 @@ private:
 
   virtual void fillPositionDerivative() const = 0;
   
-protected:
+public:
 
   valueType & vl() { return m_vl; }
   parametersDerivativeType & jac_d() { return m_jac_d;}
@@ -107,9 +107,9 @@ protected:
 
   self & me() const { return *const_cast<self*>(this); }
 
-  // double & vl(size_t i) const { return me().m_vl(i);}
-  //double & jac_d(size_t i, size_t j) const { return me().m_jac_d(i,j);}
-  // double & jac_e(size_t i, size_t j) const { return me().m_jac_e(i,j);}
+  double & vl(size_t i) const { return me().m_vl(i);}
+  double & jac_d(size_t i, size_t j) const { return me().m_jac_d(i,j);}
+  double & jac_e(size_t i, size_t j) const { return me().m_jac_e(i,j);}
 
 private:
 
