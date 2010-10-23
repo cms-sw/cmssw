@@ -52,6 +52,7 @@ CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup){
 
 void CentralityProvider::refreshIOV(const edm::Event& ev,const edm::EventSetup& iSetup){
   if(ev.id().run() == prevRun_) return;
+  prevRun_ = ev.id().run();
   newRun(iSetup);
 }
 
