@@ -105,11 +105,11 @@ protected:
   parametersDerivativeType & jac_d() const { return m_jac_d;}
   positionDerivativeType & jac_e() const { return m_jac_e;}
 
-  self & me() const { return *const_cast<self*>(this); }
+  // self & me() const { return *const_cast<self*>(this); }
 
-  double & vl(size_t i) const { return me().m_vl(i);}
-  double & jac_d(size_t i, size_t j) const { return me().m_jac_d(i,j);}
-  double & jac_e(size_t i, size_t j) const { return me().m_jac_e(i,j);}
+  double & vl(size_t i) const { return m_vl(i);}
+  double & jac_d(size_t i, size_t j) const { return m_jac_d(i,j);}
+  double & jac_e(size_t i, size_t j) const { return m_jac_e(i,j);}
 
 private:
 
