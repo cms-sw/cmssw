@@ -77,7 +77,7 @@ private:
   int HltEvtCnt;
   int hiBin;
   int hiNpix, hiNtracks, hiNtracksPtCut, hiNtracksEtaCut, hiNtracksEtaPtCut;
-  float hiHF, hiHFplus, hiHFminus, hiEB, hiET, hiEE, hiEEplus, hiEEminus;
+  float hiHF, hiHFplus, hiHFminus, hiHFhit, hiHFhitPlus, hiHFhitMinus, hiEB, hiET, hiEE, hiEEplus, hiEEminus;
 
   float fNpart;
   float fNcoll;

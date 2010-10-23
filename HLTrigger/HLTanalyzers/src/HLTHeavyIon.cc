@@ -101,6 +101,9 @@ void HLTHeavyIon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("hiHF",&hiHF,"hiHF/F");
   HltTree->Branch("hiHFplus",&hiHFplus,"hiHFplus/F");
   HltTree->Branch("hiHFminus",&hiHFminus,"hiHFminus/F");
+  HltTree->Branch("hiHFhit",&hiHFhit,"hiHFhit/F");
+  HltTree->Branch("hiHFhitPlus",&hiHFhitPlus,"hiHFhitPlus/F");
+  HltTree->Branch("hiHFhitMinus",&hiHFhitMinus,"hiHFhitMinus/F");
   HltTree->Branch("hiET",&hiET,"hiET/F");
   HltTree->Branch("hiEE",&hiEE,"hiEE/F");
   HltTree->Branch("hiEB",&hiEB,"hiEB/F");
@@ -140,22 +143,25 @@ void HLTHeavyIon::analyze(const edm::Handle<edm::TriggerResults>                
       fEtMR = mc->EtMR();
       fNchargedPtCut = mc->NchargedPtCut();
       fNchargedPtCutMR = mc->NchargedPtCutMR();
-
    }
 
    edm::Handle<int> binHandle;
    iEvent.getByLabel("centralityBin",binHandle);
    hiBin = *binHandle;
 
-  hiHF = centrality->EtHFhitSum();
   hiNpix = centrality->multiplicityPixel();
   hiNtracks = centrality->Ntracks();
   hiNtracksPtCut = centrality->NtracksPtCut();
   hiNtracksEtaCut = centrality->NtracksEtaCut();
   hiNtracksEtaPtCut = centrality->NtracksEtaPtCut();
 
-  hiHFplus = centrality->EtHFhitSumPlus();
-  hiHFminus = centrality->EtHFhitSumMinus();
+  hiHF = centrality->EtHFtowerSum();
+  hiHFplus = centrality->EtHFtowerSumPlus();
+  hiHFminus = centrality->EtHFtowerSumMinus();
+  hiHFhit = centrality->EtHFhitSum();
+  hiHFhitPlus = centrality->EtHFhitSumPlus();
+  hiHFhitMinus = centrality->EtHFhitSumMinus();
+
   hiEEplus = centrality->EtEESumPlus();
   hiEEminus = centrality->EtEESumMinus();
   hiEE = centrality->EtEESum();
