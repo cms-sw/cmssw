@@ -101,13 +101,17 @@ private:
   
 protected:
 
+  valueType & vl() { return m_vl; }
+  parametersDerivativeType & jac_d() { return m_jac_d;}
+  positionDerivativeType & jac_e() { return m_jac_e;}
+
   self & me() const { return *const_cast<self*>(this); }
 
   double & vl(size_t i) const { return me().m_vl(i);}
   double & jac_d(size_t i, size_t j) const { return me().m_jac_d(i,j);}
   double & jac_e(size_t i, size_t j) const { return me().m_jac_e(i,j);}
 
-protected:
+private:
 
   mutable valueType m_vl;
   mutable parametersDerivativeType m_jac_d;
