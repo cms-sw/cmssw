@@ -140,21 +140,21 @@ void ColinearityKinematicConstraintT<Dim>::fillParametersDerivative() const {
   jac_d(0,8) =  k2*a_2*p2vy;
 
   //z1 and z2 components: 3d and 10th elmnets stay 0:
-  jac_d(0,2)  = 0.; jac_d(1,10) = 0.;
+  jac_d(0,2)  = 0.; jac_d(0,9) = 0.;
 
   //px1 and px2 components: 4th and 11th elements:
   jac_d(0,3)  = -k1*p1vy;
   jac_d(0,10) =  k2*p2vy;
 
   //py1 and py2 components: 5th and 12 elements:
-  jac_d(0,5)  =  k1*p1vx;
+  jac_d(0,4)  =  k1*p1vx;
   jac_d(0,11) = -k2*p2vx;
 
 
   //pz1 and pz2 components: 6th and 13 elements:
   jac_d(0,5)  = 0.; jac_d(0,12) = 0.;
   //mass components: 7th and 14th elements:
-  jac_d(0,5)  = 0.; jac_d(0,13) = 0.;
+  jac_d(0,6)  = 0.; jac_d(0,13) = 0.;
 
   if (Dim==colinearityKinematic::PhiTheta)  {
     double pt1 = sqrt(p1(3)*p1(3)+p1(4)*p1(4));
