@@ -44,13 +44,13 @@ void VertexKinematicConstraintT::fillValue() const
 
     if(a_i[j] !=0) {
       //vector of values
-      vl(j*2) = dpos[j].y()*mom[j].x() - dpos[j].x()*mom[j].y() -a_i[j]*(dpos[j].x()*dpos[j].x() + dpos[j].y()*dpos[j].y())*0.5;
-      vl(j*2 +1) = dpos[j].z() - mom[j].z()*delta[j]/a_i[j];
+      me().vl(j*2) = dpos[j].y()*mom[j].x() - dpos[j].x()*mom[j].y() -a_i[j]*(dpos[j].x()*dpos[j].x() + dpos[j].y()*dpos[j].y())*0.5;
+      me().vl(j*2 +1) = dpos[j].z() - mom[j].z()*delta[j]/a_i[j];
     }else{      
       //neutral particle
       double pt2Inverse = 1./mom[j].perp2();
-      vl(j*2) = dpos[j].y()*mom[j].x() - dpos[j].x()*mom[j].y();
-      vl(j*2 +1) = dpos[j].z() - mom[j].z()*(dpos[j].x() * mom[j].x() + dpos[j].y() * mom[j].y())*pt2Inverse;
+      me().vl(j*2) = dpos[j].y()*mom[j].x() - dpos[j].x()*mom[j].y();
+      me().vl(j*2 +1) = dpos[j].z() - mom[j].z()*(dpos[j].x() * mom[j].x() + dpos[j].y() * mom[j].y())*pt2Inverse;
     }
   }
 }
@@ -88,7 +88,7 @@ void VertexKinematicConstraintT::fillParametersDerivative() const {
       el_part_d(1,3) = 2*(dpos[j].x()*mom[j].x()+dpos[j].y()*mom[j].y())*pt2Inverse*mom[j].x()*(mom[j].z()*pt2Inverse) - dpos[j].x()*(mom[j].z()*pt2Inverse);
       el_part_d(1,4) = 2*(dpos[j].x()*mom[j].x()+dpos[j].y()*mom[j].y())*pt2Inverse*mom[j].y()*(mom[j].z()*pt2Inverse) - dpos[j].x()*(mom[j].z()*pt2Inverse);
       el_part_d(1,5) = - (dpos[j].x()*mom[j].x()+dpos[j].y()*mom[j].y())*pt2Inverse;
-      jac_d.Place_at(el_part_d,j*2, j*7);
+      me().jac_d().Place_at(el_part_d,j*2, j*7);
     }
   }
 }
@@ -108,7 +108,7 @@ void VertexKinematicConstraintT::fillPositionDerivative() const {
       el_part_e(1,0) = k[j]*(m[j]*mom[j].x() - n[j]*mom[j].y());
       el_part_e(1,1) = k[j]*(m[j]*mom[j].y() + n[j]*mom[j].x());
       el_part_e(1,2) = 1;
-      jac_e.Place_at(el_part_e,2*j,0);
+      me().jac_e().Place_at(el_part_e,2*j,0);
     }else{      
       //neutral particle
       double pt2Inverse = 1./mom[j].perp2();
@@ -117,7 +117,7 @@ void VertexKinematicConstraintT::fillPositionDerivative() const {
       el_part_e(1,0) = -mom[j].x()*mom[j].z()*pt2Inverse;
       el_part_e(1,1) = -mom[j].y()*mom[j].z()*pt2Inverse;
       el_part_e(1,2) = 1;
-      jac_e.Place_at(el_part_e,2*j,0);
+      me().jac_e().Place_at(el_part_e,2*j,0);
     }
   }
 }
