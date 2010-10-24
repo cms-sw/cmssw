@@ -68,8 +68,9 @@ bool HLTPrescaler::filter(edm::Event& iEvent, const edm::EventSetup&)
   // during the first event of a LumiSection, read from the GT the prescale index for this
   // LumiSection and get the corresponding prescale factor from the PrescaleService
   if (newLumi_) {
-    bool needsInit = false;
     newLumi_ = false;
+
+    bool needsInit (eventCount_==0);
 
     if (prescaleService_) {
       const unsigned int oldPrescale(prescaleFactor_);
@@ -96,12 +97,10 @@ bool HLTPrescaler::filter(edm::Event& iEvent, const edm::EventSetup&)
       }
     }
 
-    if (eventCount_ == 0 and prescaleFactor_ != 0)
-      needsInit = true;
-
-    if (needsInit)
+    if (needsInit && (prescaleFactor_!=0)) {
       // initialize the prescale counter to the first event number multiplied by a big "seed"
       offsetCount_ = ((uint64_t) iEvent.id().event() * prescaleSeed_) % prescaleFactor_;
+    }
   }
 
   const bool result ( (prescaleFactor_==0) ? 
