@@ -7,7 +7,7 @@ jobnumber = int(os.environ["ALIGNMENT_JOBNUMBER"])
 mode = os.environ["ALIGNMENT_MODE"]
 inputdb = os.environ["ALIGNMENT_INPUTDB"]
 globaltag = os.environ["ALIGNMENT_GLOBALTAG"]
-photogrammetry = (os.environ["ALIGNMENT_PHOTOGRAMMETRY"] == "True")
+photogrammetry = eval(os.environ["ALIGNMENT_PHOTOGRAMMETRY"])
 disks = (os.environ["ALIGNMENT_DISKS"] == "True")
 
 minP = float(os.environ["ALIGNMENT_minP"])
