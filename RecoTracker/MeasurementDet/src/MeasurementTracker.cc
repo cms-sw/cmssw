@@ -51,8 +51,10 @@
 
 #else
 
+#ifdef __SSE2__
 #include <mmintrin.h>
 #include <emmintrin.h>
+#endif
 #ifdef __SSE3__
 #include <pmmintrin.h>
 #endif
@@ -333,7 +335,9 @@ void MeasurementTracker::updateStrips( const edm::Event& event) const
     for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
          i!=end; i++) {
       (**i).setEmpty();
+#ifdef __SSE2__
       _mm_prefetch(((char *)(*(i+200))),_MM_HINT_T0); 
+#endif
     }
    for (std::vector<TkStripMeasurementDet*>::const_iterator i=end;
          i!=theStripDets.end(); i++)

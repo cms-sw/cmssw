@@ -343,5 +343,6 @@ TkGluedMeasurementDet::HitCollectorForFastMeasurements::addProjected(const Trans
 
 
 
-
+#ifdef DOUBLE_MATCH
 #include "doubleMatch.icc"
+#endif
