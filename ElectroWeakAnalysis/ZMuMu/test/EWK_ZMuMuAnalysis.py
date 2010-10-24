@@ -15,7 +15,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 # Input files
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-    'file:/scratch1/cms/data/relval_382/zmm/62C86D62-BFAF-DF11-85B3-003048678A6C.root'
+    '/store/relval/CMSSW_3_8_5/RelValZMM/GEN-SIM-RECO/START38_V12-v1/0041/1C1BBE0B-D2D2-DF11-BDA3-002618943852.root'
     )
 )
 #import os
@@ -29,31 +29,42 @@ process.source = cms.Source("PoolSource",
                 
 
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START36_V9::All')
+process.GlobalTag.globaltag = cms.string('START38_V12::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-### subskim
-## to run on data uncomment the following
-#process.load("ElectroWeakAnalysis.Skimming.zMuMu_SubskimPaths_cff")
+### Subskim
 
-# output module
+############
+## to run on data or without MC truth uncomment the following
+#process.load("ElectroWeakAnalysis.Skimming.zMuMu_SubskimPaths_cff")
+############
+
+# output module configuration
 process.load("ElectroWeakAnalysis.Skimming.zMuMuSubskimOutputModule_cfi")
 
+############
 ## to run the MC truth uncomment the following
-## look also at python/ZMuMuAnalysisSchedules_cff.py
+## Look also at python/ZMuMuAnalysisSchedules_cff.py
 process.load("ElectroWeakAnalysis.Skimming.zMuMu_SubskimPathsWithMCTruth_cff")
 process.zMuMuSubskimOutputModule.outputCommands.extend(process.mcEventContent.outputCommands)
 ####
 
-process.zMuMuSubskimOutputModule.fileName = 'file:testZMuMuSubskim_oneshot_Test.root'
+process.zMuMuSubskimOutputModule.fileName = 'file:/tmp/fabozzi/testZMuMuSubskim_oneshot_Test.root'
 
 process.outpath = cms.EndPath(process.zMuMuSubskimOutputModule)
 
-### analysis
+### Here set the HLT Path for trigger matching
+process.muonTriggerMatchHLTMuons.pathNames = cms.vstring( 'HLT_Mu11' )
+process.userDataMuons.hltPath = cms.string("HLT_Mu11")
+process.userDataDimuons.hltPath = cms.string("HLT_Mu11")
+process.userDataDimuonsOneTrack.hltPath = cms.string("HLT_Mu11")
+############
+
+### Analysis
 from ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesSequences_cff import *
 
 process.TFileService = cms.Service(
@@ -64,7 +75,7 @@ process.TFileService = cms.Service(
 
 ### vertexing
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesVtxed_cff")
-process.vtxedNtuplesOut.fileName = cms.untracked.string('file:VtxedNtupleLoose_test.root')
+process.vtxedNtuplesOut.fileName = cms.untracked.string('file:/tmp/fabozzi/VtxedNtupleLoose_test.root')
 
 ### 3_5_X reprocessed MC: to process REDIGI HLT tables uncomment the following
 #process.patTrigger.processName = "REDIGI"
@@ -84,7 +95,7 @@ process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesPlots_cff")
 
 ### ntuple
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuAnalysisNtupler_cff")
-process.ntuplesOut.fileName = cms.untracked.string('file:NtupleLooseTestNew_oneshot_all_Test.root')
+process.ntuplesOut.fileName = cms.untracked.string('file:/tmp/fabozzi/NtupleLooseTestNew_oneshot_all_Test.root')
 
 ###
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuAnalysisSchedules_cff") 
