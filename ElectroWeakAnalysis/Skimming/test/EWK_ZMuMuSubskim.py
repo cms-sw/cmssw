@@ -21,6 +21,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 ############
 ## To run on data or without MC truth uncomment the following
 #process.load("ElectroWeakAnalysis.Skimming.zMuMu_SubskimPaths_cff")
+############
 
 # Output module configuration
 process.load("ElectroWeakAnalysis.Skimming.zMuMuSubskimOutputModule_cfi")
@@ -34,6 +35,13 @@ process.zMuMuSubskimOutputModule.outputCommands.extend(process.mcEventContent.ou
 process.zMuMuSubskimOutputModule.fileName = 'file:/tmp/fabozzi/testZMuMuSubskim.root'
 
 process.outpath = cms.EndPath(process.zMuMuSubskimOutputModule)
+
+### Here set the HLT Path for trigger matching
+process.muonTriggerMatchHLTMuons.pathNames = cms.vstring( 'HLT_Mu11' )
+process.userDataMuons.hltPath = cms.string("HLT_Mu11")
+process.userDataDimuons.hltPath = cms.string("HLT_Mu11")
+process.userDataDimuonsOneTrack.hltPath = cms.string("HLT_Mu11")
+############
 
 ### 3_6_X reprocessed MC: to process REDIGI HLT tables uncomment the following
 #process.dimuonsHLTFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","REDIGI36X")
