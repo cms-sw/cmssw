@@ -178,8 +178,10 @@ void FWL1TriggerTableView::dataChanged( void )
 	       m_columns.at(1).values.push_back( Form( "%d", result ));
 	       m_columns.at(2).values.push_back( Form( "%d", bitNumber ));
 
-               if ( pfIndexTechTrig < pfIndexTechTrigValidSize)
+               if ( pfIndexTechTrig < pfIndexTechTrigValidSize && static_cast<unsigned int>(prescaleFactorsTechTrig.at(pfIndexTechTrig).size()) >bitNumber )
+               {
                   m_columns.at(3).values.push_back( Form( "%d", prescaleFactorsTechTrig.at( pfIndexTechTrig ).at( bitNumber )));
+               }
                else
                   m_columns.at(3).values.push_back( "invalid");
 	    }
@@ -199,7 +201,7 @@ void FWL1TriggerTableView::dataChanged( void )
 	       m_columns.at(1).values.push_back( Form( "%d", tBitResult ));
 	       m_columns.at(2).values.push_back( Form( "%d", tBitNumber ));
 
-               if ( pfIndexTechTrig < pfIndexTechTrigValidSize)
+               if ( pfIndexTechTrig < pfIndexTechTrigValidSize && static_cast<int>(prescaleFactorsTechTrig.at(pfIndexTechTrig).size()) > tBitNumber)
                   m_columns.at(3).values.push_back( Form( "%d", prescaleFactorsTechTrig.at( pfIndexTechTrig ).at( tBitNumber )));
                else
                   m_columns.at(3).values.push_back( Form( "invalid" ));
