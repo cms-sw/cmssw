@@ -23,7 +23,7 @@ class HFClusterAlgo {
 public:
   HFClusterAlgo(); 
 
-  void setup(double minTowerEnergy, double seedThreshold,double maximumSL,double m_maximumRenergy,bool usePMTflag,bool usePulseflag);
+  void setup(double minTowerEnergy, double seedThreshold,double maximumSL,double m_maximumRenergy,bool usePMTflag,bool usePulseflag, int correctionSet);
 
   /** Analyze the hits */
   void clusterize(const HFRecHitCollection& hf, 
@@ -38,7 +38,9 @@ private:
   double m_minTowerEnergy, m_seedThreshold,m_maximumSL,m_maximumRenergy;
   bool m_usePMTFlag;
   bool m_usePulseFlag;
+  int m_correctionSet;
   std::vector<double> m_cutByEta;
+  std::vector<double> m_correctionByEta;
  
   struct HFCompleteHit {
     HcalDetId id;
