@@ -110,6 +110,7 @@ namespace cond {
 namespace condPython {
   template<>
   void defineWhat<Pedestals>() {
+    using namespace boost::python;
     typedef cond::ExtractWhat<Pedestals> What;
     class_<What>("What",init<>())
       .def("set_which",&What::set_which)
