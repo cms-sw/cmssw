@@ -9,8 +9,8 @@ or could be subclassed renaming a function or two.
 This code began life in COMP/CRAB/python/LumiList.py
 """
 
-__revision__ = "$Id: LumiList.py,v 1.10 2010/09/29 14:39:31 cplager Exp $"
-__version__ = "$Revision: 1.10 $"
+__revision__ = "$Id: LumiList.py,v 1.12 2010/09/30 13:32:19 cplager Exp $"
+__version__ = "$Revision: 1.12 $"
 
 import json
 import re
@@ -287,7 +287,13 @@ class LumiList(object):
             # the run isn't there, so no need to look any further
             return False
         for lumiRange in lumiRangeList:
-            if lumiRange[0] <= lumiSection and lumiSection <= lumiRange[1]:
+            # we want to make this as found if either the lumiSection
+            # is inside the range OR if the lumi section is greater
+            # than or equal to the lower bound of the lumi range and
+            # the upper bound is 0 (which means extends to the end of
+            # the run)
+            if lumiRange[0] <= lumiSection and \
+               0 == lumiRange[1] or lumiSection <= lumiRange[1]:
                 # got it
                 return True
         return False
