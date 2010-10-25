@@ -274,7 +274,7 @@ class LumiList(object):
         '''
         if lumiSection is None:
             # if this is an integer or a string, see if the run exists
-            if isinstance (run, int) or isinstance (run, int):
+            if isinstance (run, int) or isinstance (run, str):
                 return self.compactList.has_key( str(run) )
             # if we're here, then run better be a tuple or list
             try:
@@ -293,7 +293,7 @@ class LumiList(object):
             # the upper bound is 0 (which means extends to the end of
             # the run)
             if lumiRange[0] <= lumiSection and \
-               0 == lumiRange[1] or lumiSection <= lumiRange[1]:
+               (0 == lumiRange[1] or lumiSection <= lumiRange[1]):
                 # got it
                 return True
         return False
