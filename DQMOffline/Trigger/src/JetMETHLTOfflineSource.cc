@@ -145,8 +145,10 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if(!ValidJetColl_)return;
   calojet = *calojetColl_; 
   std::stable_sort( calojet.begin(), calojet.end(), PtSorter() );
+
   bool ValidMETColl_ = iEvent.getByLabel(caloMETTag_, calometColl_);
   if(!ValidMETColl_)return; 
+ 
   if(calometColl_.isValid()){
     const CaloMETCollection *calometcol = calometColl_.product();
     const CaloMET met = calometcol->front();
@@ -1238,9 +1240,13 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
     int diJet     = 0;
     int met       = 0;
     for (unsigned int i=0; i!=n; ++i) {
+      bool denomFound = false;
+      bool numFound = false; 
+      bool mbFound = false;
+      bool muFound = false; 
       std::string pathname = hltConfig_.triggerName(i);
       if(verbose_)cout<<"==pathname=="<<pathname<<endl;
-      std::string dpathname = "HLT_L1MuOpen_v2";
+      std::string dpathname = MuonTrigPaths_[0];
       std::string l1pathname = "dummy";
       std::string denompathname = "";
       unsigned int usedPrescale = 1;
@@ -1267,37 +1273,46 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
       {
 	singleJet++;
 	if(singleJet > 1)dpathname = dpathname = hltConfig_.triggerName(i-1);
-	if(singleJet == 1)dpathname = "HLT_L1MuOpen_v2";
+	if(singleJet == 1)dpathname = MuonTrigPaths_[0];
       }  
 
       if(objectType == trigger::TriggerJet  && (pathname.find("DiJet") != std::string::npos))
       {
 	diJet++;
 	if(diJet > 1)dpathname = dpathname = hltConfig_.triggerName(i-1);
-	if(diJet == 1)dpathname = "HLT_L1MuOpen_v2";
+	if(diJet == 1)dpathname = MuonTrigPaths_[0];
       } 
       if(objectType == trigger::TriggerMET  )
       {
 	met++;
 	if(met > 1)dpathname = dpathname = hltConfig_.triggerName(i-1);
-	if(met == 1)dpathname = "HLT_L1MuOpen_v2";
+	if(met == 1)dpathname = MuonTrigPaths_[0];
       }
       // find L1 condition for numpath with numpath objecttype 
       // find PSet for L1 global seed for numpath, 
       // list module labels for numpath
-
-
-      std::cout << "Before numpathmodules"<< std::endl;
+        // Checking if the trigger exist in HLT table or not
+         for (unsigned int i=0; i!=n; ++i) {
+          std::string HLTname = hltConfig_.triggerName(i);
+          if(HLTname == pathname)numFound = true;
+          if(HLTname == dpathname)denomFound = true;
+          if(HLTname == MBTrigPaths_[0])mbFound = true;
+          if(HLTname == MuonTrigPaths_[0])muFound = true; 
+        }
+ 
+      if(numFound)//make trigger exist in the menu
+       {
       std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
       for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin(); numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
         edm::InputTag testTag(*numpathmodule,"",processname_);
         if ((hltConfig_.moduleType(*numpathmodule) == "HLT1CaloJet")|| (hltConfig_.moduleType(*numpathmodule) == "HLTDiJetAveFilter") || (hltConfig_.moduleType(*numpathmodule) == "HLT1CaloMET" ) || (hltConfig_.moduleType(*numpathmodule) == "HLTPrescaler") )filtername = *numpathmodule;
         if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed")l1pathname = *numpathmodule;
+       }
       }
-      std::cout << "After numpathmodules"<< std::endl;
 
-      if(objectType != 0)
+      if(objectType != 0 && denomFound)
       {
+        cout<<"numerator module"<<endl; 
         std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(dpathname);
         for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin(); numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
 	  edm::InputTag testTag(*numpathmodule,"",processname_);
@@ -1305,17 +1320,17 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	}
       }
 
-      if(objectType != 0)
+      if(objectType != 0 && numFound)
       {
 	if(verbose_)cout<<"==pathname=="<<pathname<<"==denompath=="<<dpathname<<"==filtername=="<<filtername<<"==denomfiltername=="<<Denomfiltername<<"==l1pathname=="<<l1pathname<<"==objectType=="<<objectType<<endl;    
 	if(!((pathname.find("HT") != std::string::npos) || (pathname.find("Quad") != std::string::npos)))
 	{     
 	  hltPathsAll_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, filtername, Denomfiltername, processname_, objectType, triggerType));
-	  hltPathsAllWrtMu_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, filtername, Denomfiltername, processname_, objectType, triggerType));
-	  hltPathsEffWrtMu_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, filtername, Denomfiltername, processname_, objectType, triggerType));
-	  hltPathsEffWrtMB_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, filtername, Denomfiltername, processname_, objectType, triggerType));
+	  if(muFound)hltPathsAllWrtMu_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, filtername, Denomfiltername, processname_, objectType, triggerType));
+	  if(muFound)hltPathsEffWrtMu_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, filtername, Denomfiltername, processname_, objectType, triggerType));
+	  if(mbFound)hltPathsEffWrtMB_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, filtername, Denomfiltername, processname_, objectType, triggerType));
 
-	  if(!nameForEff_) hltPathsEff_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, filtername, Denomfiltername, processname_, objectType, triggerType));
+	  if(!nameForEff_ && denomFound) hltPathsEff_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, filtername, Denomfiltername, processname_, objectType, triggerType));
 	}
 
 	hltPathsAllTriggerSummary_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, filtername, Denomfiltername, processname_, objectType, triggerType));
@@ -1346,7 +1361,7 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	  if(HLTname == dpathname)denomFound = true;
 	}
 	if(numFound && denomFound)
-	{  
+	{
 	  if (pathname.find("Jet") != std::string::npos && !(pathname.find("DiJet") != std::string::npos) && !(pathname.find("DoubleJet") != std::string::npos) && !(pathname.find("BTag") != std::string::npos) && !(pathname.find("Mu") != std::string::npos) && !(pathname.find("Fwd") != std::string::npos)){
 	    triggerType = "SingleJet_Trigger";
 	    objectType = trigger::TriggerJet;
