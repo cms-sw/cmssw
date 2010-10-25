@@ -110,6 +110,7 @@ namespace cond {
 namespace condPython {
   template<>
   void defineWhat<SiStripSummary>() {
+    using namespace boost::python;
     enum_<sistripsummary::TrackerRegion>("TrackerRegion")
       .value("Tracker",sistripsummary::TRACKER)
       .value("TIB",sistripsummary::TIB)
