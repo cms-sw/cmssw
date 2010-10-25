@@ -20,7 +20,7 @@ RefCountedKinematicTree ConstrainedTreeBuilder::buildTree(const std::vector<RefC
 			 const RefCountedKinematicVertex vertex, const AlgebraicMatrix& fullCov) const
 {
   if (!vertex->vertexIsValid()) {
-       LogDebug("RecoVertex/ConstrainedTreeBuilder")
+	  LogDebug("ConstrainedTreeBuilder")
 	<< "Vertex is invalid\n";
        return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
   }
