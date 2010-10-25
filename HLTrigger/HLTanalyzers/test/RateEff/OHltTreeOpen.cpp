@@ -779,6 +779,25 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       } 
     } 
   } 
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Meff180U") == 0) {   
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHltMeffU(180., 20.)==1) {
+	  triggerBit[it] = true; 
+	}
+      } 
+    } 
+  } 
+
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_PT12U_50") == 0) {   
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHltPT12U(50., 50.)==1) {
+	  triggerBit[it] = true; 
+	}
+      } 
+    } 
+  } 
  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_PT12U_60") == 0) {   
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
@@ -1233,6 +1252,16 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu0_v1") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHlt1MuonPassed(0.,0.,0.,2.,0)>=1) {
+	  triggerBit[it] = true; 
+	}
+      }
+    }
+  }
+
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu3_L1MuOpen") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
@@ -2759,6 +2788,15 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleIsoTau20_Trk15_MET25") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHltTauL2SCMETPassed(20.,15.,0,0.,1,25.,20.,30.)>=1) {
+	  triggerBit[it] = true; 
+	}
+      }
+    }
+  }
 
 /* End: Taus */
 
@@ -3367,8 +3405,9 @@ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet10") == 0) {
 	}  
       }  
     }  
-  }  
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET65_CenJet50U") == 0) {        
+  } 
+
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET65_CenJet50U") == 0) {        
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {           
       if(OpenHlt1JetPassed(50,2.6)>=1 && recoMetCal>=65) {                                    
         if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }            
@@ -3410,20 +3449,8 @@ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet10") == 0) {
       }                                                                                   
     }                                                                                     
   }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET45_DiJet30U") == 0) {        
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {           
-      if(OpenHlt1JetPassed(30)>=2 && recoMetCal>=45) {                                    
-        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }            
-      }                                                                                   
-    }                                                                                     
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET45_HT70U") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if(OpenHltSumHTPassed(70,20)>=1 && recoMetCal>=45) {                                                       
-        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
-      }
-    }
-  } 
+
+
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET45_HT100U") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
       if (prescaleResponse(menu,cfg,rcounter,it)) { 
