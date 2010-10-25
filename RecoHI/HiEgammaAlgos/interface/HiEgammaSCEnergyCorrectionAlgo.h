@@ -49,6 +49,9 @@ class HiEgammaSCEnergyCorrectionAlgo
     // correction factor as a function of number of crystals,
     // BasicCluster algo and location in the detector    
     float fNCrystals(int nCry, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase);
+    float fWidth(float widthRatio, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase);
+    float fEta(float eta, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase);
+    float fClustersSize(float clustersSize, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase);
 
     // Return the number of crystals in a BasicCluster above 
     // 2sigma noise level

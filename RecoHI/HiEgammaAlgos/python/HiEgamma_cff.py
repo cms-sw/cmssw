@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # clustering sequence
-from RecoEcal.EgammaClusterProducers.islandClusteringSequence_cff import *
+from RecoHI.HiEgammaAlgos.HiIslandClusteringSequence_cff import *
 from RecoEcal.EgammaClusterProducers.hybridClusteringSequence_cff import *
 from RecoEcal.EgammaClusterProducers.multi5x5ClusteringSequence_cff import *
 from RecoEcal.EgammaClusterProducers.multi5x5PreshowerClusteringSequence_cff import *
@@ -18,8 +18,8 @@ photonCore.scIslandEndcapProducer = cms.InputTag("correctedIslandEndcapSuperClus
 photonCore.minSCEt = cms.double(8.0)
 photons.minSCEtBarrel = cms.double(5.0)
 photons.minSCEtEndcap = cms.double(15.0)
-photons.minR9Barrel = cms.double(0.01)  #0.94
-photons.minR9Endcap = cms.double(0.8)   #0.95
+photons.minR9Barrel = cms.double(100)  #0.94
+photons.minR9Endcap = cms.double(100)   #0.95
 photons.maxHoverEEndcap = cms.double(0.5)  #0.5
 photons.maxHoverEBarrel = cms.double(0.99)  #0.5
 photons.primaryVertexProducer = cms.string('hiSelectedVertex') # replace the primary vertex

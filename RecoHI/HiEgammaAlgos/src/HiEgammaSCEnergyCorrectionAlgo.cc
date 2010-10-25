@@ -1,5 +1,5 @@
 //
-// $Id: HiEgammaSCEnergyCorrectionAlgo.cc,v 1.39 2010/09/21 12:35:35 argiro Exp $
+// $Id: HiEgammaSCEnergyCorrectionAlgo.cc,v 1.1 2010/10/21 22:43:51 yjlee Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoHI/HiEgammaAlgos/interface/HiEgammaSCEnergyCorrectionAlgo.h"
@@ -118,23 +118,19 @@ reco::SuperCluster HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::S
   reco::SuperCluster tmp = cl;
   tmp.setPhiWidth(phiWidth); 
   tmp.setEtaWidth(etaWidth); 
-    
-  if ( theAlgo == reco::CaloCluster::hybrid || theAlgo == reco::CaloCluster::dynamicHybrid ) {
-    newEnergy = tmp.rawEnergy() + EnergyCorrection->getValue(tmp, 3);
-
-  } else if  ( theAlgo == reco::CaloCluster::multi5x5 ) {     
-    newEnergy = tmp.rawEnergy() + tmp.preshowerEnergy() + EnergyCorrection->getValue(tmp, 5);
-
-  } else {  
-    //Apply f(nCry) correction on island algo and fixedMatrix algo 
-    newEnergy = seedC->energy()/fNCrystals(nCryGT2Sigma, theAlgo, theBase)+bremsEnergy;
-  } 
+  
+  std::cout <<cl.rawEnergy()<< "Correction: "<<phiWidth/etaWidth<<" "<<fWidth(phiWidth/etaWidth, theAlgo, theBase)<<" "<<fNCrystals(cl.size(), theAlgo, theBase)<<" "<<fClustersSize(cl.clustersSize(), theAlgo, theBase)<<std::endl;
+     
+  newEnergy = (cl.rawEnergy())/fWidth(phiWidth/etaWidth, theAlgo, theBase)/fNCrystals(cl.size(), theAlgo, theBase)/fClustersSize(cl.clustersSize(), theAlgo, theBase)/fEta(cl.eta(), theAlgo, theBase);
+  
 
   // Create a new supercluster with the corrected energy 
   if (verbosity_ <= pINFO)
     {
       std::cout << "   UNCORRECTED SC has energy... " << cl.energy() << std::endl;
       std::cout << "   CORRECTED SC has energy... " << newEnergy << std::endl;
+      std::cout << "   Size..." <<cl.size() << std::endl;
+      std::cout << "   Seed nCryGT2Sigma Size..." <<nCryGT2Sigma << std::endl;
     }
 
   reco::SuperCluster corrCl(newEnergy, 
@@ -153,69 +149,68 @@ reco::SuperCluster HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::S
   return corrCl;
 }
 
+float HiEgammaSCEnergyCorrectionAlgo::fClustersSize(float clustersSize, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase)
+{
+  float ncl = clustersSize;
+  if((theBase == EcalBarrel) && (theAlgo == reco::CaloCluster::island)) { 
+      if (ncl>4) ncl=4;
+      return 1.01092-0.009828*(ncl);
+  } else if((theBase == EcalEndcap) && (theAlgo == reco::CaloCluster::island)) { 
+      if (ncl>2) ncl=2;
+      return 1.03483-0.027541*(ncl);   // not yet
+  }
+  return 1;
+}
+
+float HiEgammaSCEnergyCorrectionAlgo::fEta(float eta, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase)
+{
+  if((theBase == EcalBarrel) && (theAlgo == reco::CaloCluster::island)) { 
+      return 1.00971+0.00585804*fabs(eta)-0.017339*fabs(eta)*fabs(eta);
+  } else if((theBase == EcalEndcap) && (theAlgo == reco::CaloCluster::island)) { 
+      return 0.87454+0.0316459*fabs(eta);   
+  }
+  return 1;
+}
+
+float HiEgammaSCEnergyCorrectionAlgo::fWidth(float widthRatio, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase)
+{
+  if((theBase == EcalBarrel) && (theAlgo == reco::CaloCluster::island)) { 
+      return (1.022-0.02812*widthRatio+0.001637*widthRatio*widthRatio);
+  } else if((theBase == EcalEndcap) && (theAlgo == reco::CaloCluster::island)) { 
+      return (1.07219-0.0722*widthRatio+0.0067396*widthRatio*widthRatio);   
+  }
+  return 1;
+}
+
+//   char *var ="rawEnergy/cosh(genMatchedEta)/(1.01606-0.0162668*abs(eta))/genMatchedPt/(1.022-0.02812*phiWidth/etaWidth+0.001637*phiWidth*phiWidth/etaWidth/etaWidth)/((0.682554+0.0253013*scSize-(0.0007907)*scSize*scSize+(1.166e-5)*scSize*scSize*scSize-(6.7387e-8)*scSize*scSize*scSize*scSize)*(scSize<40)+(scSize>=40))/((1.016-0.009877*((clustersSize<=4)*clustersSize+(clustersSize>4)*4)))";
+
 float HiEgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase)
 {
 
   float p0 = 0, p1 = 0, p2 = 0, p3 = 0, p4 = 0;
   float x  = (float) nCry;
   float result =1.;
- 
-  if((theBase == EcalBarrel) && (theAlgo == reco::CaloCluster::hybrid)) 
-    {
-      if (nCry<=10) 
-	{
-	  p0 =  6.32879e-01; 
-	  p1 =  1.14893e-01; 
-	  p2 = -2.45705e-02; 
-	  p3 =  2.53074e-03; 
-	  p4 = -9.29654e-05; 
-	} 
-      else if (nCry>10 && nCry<=30) 
-        {
-          p0 =  6.93196e-01; 
-          p1 =  4.44034e-02; 
-          p2 = -2.82229e-03; 
-          p3 =  8.19495e-05; 
-          p4 = -8.96645e-07; 
-        } 
-      else 
-        {
-          p0 =  5.65474e+00; 
-          p1 = -6.31640e-01; 
-          p2 =  3.14218e-02; 
-          p3 = -6.84256e-04; 
-          p4 =  5.50659e-06; 
-        }
-      if (x > 40.) x = 40.;
-      result = p0 + p1*x + p2*x*x + p3*x*x*x + p4*x*x*x*x;
-    }
-          
-    else if((theBase == EcalEndcap) && (theAlgo == reco::CaloCluster::hybrid)) {
-        if (verbosity_ <= pERROR)
-        {
-          std::cout << "ERROR! HybridEFRYsc called" << std::endl;
-        } 
-        result = 1.;
-      }
-        
-    else if((theBase == EcalBarrel) && (theAlgo == reco::CaloCluster::island)) { 
-        p0 = 4.69976e-01;     // extracted from fit to all endcap classes with Ebrem = 0.
-        p1 = 1.45900e-01;
-        p2 = -1.61359e-02;
-        p3 = 7.99423e-04;
-        p4 = -1.47873e-05;
-        if (x > 16.) x = 16.;
-        result = p0 + p1*x + p2*x*x + p3*x*x*x + p4*x*x*x*x;
+  
+  if((theBase == EcalBarrel) && (theAlgo == reco::CaloCluster::island)) { 
+        p0 = 0.682554;     
+        p1 = 0.0253013;
+        p2 = -0.0007907;
+        p3 = 1.166e-5;
+        p4 = -6.7387e-8;
+        if (x < 10.) x = 10.;
+        if (x < 40.) result = p0 + p1*x + p2*x*x + p3*x*x*x + p4*x*x*x*x; else result = 1;
       }
         
     else if((theBase == EcalEndcap) && (theAlgo == reco::CaloCluster::island)) {    
-        p0 = 4.69976e-01;     // extracted from fit to all endcap classes with Ebrem = 0.
-        p1 = 1.45900e-01;
-        p2 = -1.61359e-02;
-        p3 = 7.99423e-04;
-        p4 = -1.47873e-05;
-        if (x > 16.) x = 16.;
+        
+        p0 = 0.712185;     
+        p1 = 0.0273609;
+        p2 = -0.00103818;
+        p3 = 2.01828e-05;
+        p4 = -1.71438e-07;
+        if (x < 10.) x = 10.;
         result = p0 + p1*x + p2*x*x + p3*x*x*x + p4*x*x*x*x;
+        if (x < 40.) result = p0 + p1*x + p2*x*x + p3*x*x*x + p4*x*x*x*x; else result = 1;   
       }
       
     else {
@@ -224,14 +219,6 @@ float HiEgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry, reco::CaloCluster::Al
         std::cout << "trying to correct unknown cluster!!!" << std::endl;
       }
     }
-
-  //Rescale energy scale correction to take into account change in calibrated
-  //RecHit definition introduced in CMSSW_1_5_0
-  if(theBase == EcalBarrel) {
-    result/=0.965;
-  } else {
-    result/=0.975;
-  }
   
   return result;  
 }
