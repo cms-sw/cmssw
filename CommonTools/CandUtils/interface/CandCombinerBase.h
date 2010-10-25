@@ -23,7 +23,7 @@ public:
   /// construct from four charge values
   CandCombinerBase(int, int, int, int, const std::string  = "");
   /// constructor from a selector, specifying optionally to check for charge
-  CandCombinerBase(bool checkCharge, const std::vector <int> &, const std::string  = "");
+  CandCombinerBase(bool checkCharge, bool checkOverlap, const std::vector <int> &, const std::string  = "");
   /// destructor
   virtual ~CandCombinerBase();
   /// return all selected candidate pairs
@@ -75,6 +75,8 @@ private:
   virtual void addDaughter(typename OutputCollection::value_type & cmp, const CandPtr & c, const std::string = "") const = 0;
   /// flag to specify the checking of electric charge
   bool checkCharge_;
+  /// flag to specify the checking of overlaps
+  bool checkOverlap_;
   /// electric charges of the daughters
   std::vector<int> dauCharge_;
   /// utility to check candidate daughters overlap
@@ -85,19 +87,19 @@ private:
 
 template<typename OutputCollection, typename CandPtr>
 CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(const std::string name) :
-  checkCharge_(false), dauCharge_(), overlap_(), name_(name) {
+  checkCharge_(false), checkOverlap_(true), dauCharge_(), overlap_(), name_(name) {
 }
 
 template<typename OutputCollection, typename CandPtr>
 CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(int q1, int q2, const std::string name) :
-  checkCharge_(true), dauCharge_(2), overlap_(), name_(name) {
+  checkCharge_(true), checkOverlap_(true), dauCharge_(2), overlap_(), name_(name) {
   dauCharge_[0] = q1;
   dauCharge_[1] = q2;
 }
 
 template<typename OutputCollection, typename CandPtr>
 CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(int q1, int q2, int q3, const std::string name) :
-  checkCharge_(true), dauCharge_(3), overlap_(), name_(name) {
+  checkCharge_(true), checkOverlap_(true), dauCharge_(3), overlap_(), name_(name) {
   dauCharge_[0] = q1;
   dauCharge_[1] = q2;
   dauCharge_[2] = q3;
@@ -105,7 +107,7 @@ CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(int q1, int q2, in
 
 template<typename OutputCollection, typename CandPtr>
 CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(int q1, int q2, int q3, int q4, const std::string name) :
-  checkCharge_(true), dauCharge_(4), overlap_(), name_(name) {
+  checkCharge_(true), checkOverlap_(true), dauCharge_(4), overlap_(), name_(name) {
   dauCharge_[0] = q1;
   dauCharge_[1] = q2;
   dauCharge_[2] = q3;
@@ -113,8 +115,8 @@ CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(int q1, int q2, in
 }
 
 template<typename OutputCollection, typename CandPtr>
-CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(bool checkCharge, const std::vector<int> & dauCharge, const std::string name) :
-  checkCharge_(checkCharge), dauCharge_(dauCharge), overlap_(), name_(name) {
+CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(bool checkCharge, bool checkOverlap, const std::vector<int> & dauCharge, const std::string name) :
+  checkCharge_(checkCharge), checkOverlap_(checkOverlap), dauCharge_(dauCharge), overlap_(), name_(name) {
 }
 
 template<typename OutputCollection, typename CandPtr>
@@ -128,7 +130,7 @@ bool CandCombinerBase<OutputCollection, CandPtr>::preselect(const reco::Candidat
     bool matchCharge = (q1 == dq1 && q2 == dq2) || (q1 == -dq1 && q2 == -dq2); 
     if (!matchCharge) return false; 
   }
-  if (overlap_(c1, c2)) return false;
+  if (checkOverlap_ && overlap_(c1, c2)) return false;
   return selectPair(c1, c2);
 }
 
@@ -337,7 +339,7 @@ void CandCombinerBase<OutputCollection, CandPtr>::combine(size_t collectionIndex
       bool noOverlap = true;
       const reco::Candidate & cand = * candRef;
       for(typename CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i) 
-	if(overlap_(cand, *(i->first.first))) { 
+	if(checkOverlap_ && overlap_(cand, *(i->first.first))) { 
 	  noOverlap = false; 
 	  break; 
 	}

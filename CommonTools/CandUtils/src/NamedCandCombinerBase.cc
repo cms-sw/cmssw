@@ -4,32 +4,32 @@ using namespace std;
 using namespace reco;
 
 NamedCandCombinerBase::NamedCandCombinerBase(std::string name) :
-  checkCharge_(false), dauCharge_(), overlap_(), name_(name) {
+  checkCharge_(false), checkOverlap_(true), dauCharge_(), overlap_(), name_(name) {
 }
 
 NamedCandCombinerBase::NamedCandCombinerBase(std::string name, int q1, int q2) :
-  checkCharge_(true), dauCharge_(2), overlap_(), name_(name) {
+  checkCharge_(true), checkOverlap_(true), dauCharge_(2), overlap_(), name_(name) {
   dauCharge_[0] = q1;
   dauCharge_[1] = q2;
 }
 
 NamedCandCombinerBase::NamedCandCombinerBase(std::string name, int q1, int q2, int q3) :
-  checkCharge_(true), dauCharge_(3), overlap_(), name_(name) {
+  checkCharge_(true), checkOverlap_(true), dauCharge_(3), overlap_(), name_(name) {
   dauCharge_[0] = q1;
   dauCharge_[1] = q2;
   dauCharge_[2] = q3;
 }
 
 NamedCandCombinerBase::NamedCandCombinerBase(std::string name, int q1, int q2, int q3, int q4) :
-  checkCharge_(true), dauCharge_(4), overlap_(), name_(name) {
+  checkCharge_(true), checkOverlap_(true), dauCharge_(4), overlap_(), name_(name) {
   dauCharge_[0] = q1;
   dauCharge_[1] = q2;
   dauCharge_[2] = q3;
   dauCharge_[3] = q4;
 }
 
-NamedCandCombinerBase::NamedCandCombinerBase(std::string name, bool checkCharge, const vector<int> & dauCharge) :
-  checkCharge_(checkCharge), dauCharge_(dauCharge), overlap_() {
+NamedCandCombinerBase::NamedCandCombinerBase(std::string name, bool checkCharge, bool checkOverlap, const vector<int> & dauCharge) :
+  checkCharge_(checkCharge), checkOverlap_(checkOverlap), dauCharge_(dauCharge), overlap_() {
 }
 
 NamedCandCombinerBase::~NamedCandCombinerBase() {
@@ -41,7 +41,7 @@ bool NamedCandCombinerBase::preselect(const Candidate & c1, const Candidate & c2
     bool matchCharge = (q1 == dq1 && q2 == dq2) || (q1 == -dq1 && q2 == -dq2); 
     if (!matchCharge) return false; 
   }
-  if (overlap_(c1, c2)) return false;
+  if (checkOverlap_ && overlap_(c1, c2)) return false;
   return selectPair(c1, c2);
 }
 
@@ -212,7 +212,7 @@ void NamedCandCombinerBase::combine(size_t collectionIndex, CandStack & stack, C
       bool noOverlap = true;
       const Candidate & cand = *candPtr;
       for(CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i) 
-	if(overlap_(cand, *(i->first.first))) { 
+	if(checkOverlap_ && overlap_(cand, *(i->first.first))) { 
 	  noOverlap = false; 
 	  break; 
 	}

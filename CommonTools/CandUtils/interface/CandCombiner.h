@@ -122,8 +122,8 @@ public:
     base(true, dauCharge), select_(), selectPair_(), setup_() { }
   /// constructor from a selector, specifying optionally to check for charge
   CandCombiner(const Selector & select, const PairSelector & selectPair, const Setup & setup,
-	       bool checkCharge, const std::vector <int> & dauCharge) : 
-    base(checkCharge, dauCharge), 
+	       bool checkCharge, bool checkOverlap, const std::vector <int> & dauCharge) : 
+    base(checkCharge, checkOverlap, dauCharge), 
     select_(select), selectPair_(selectPair), setup_(setup) { }
   /// return reference to setup object to allow its initialization
   Setup & setup() { return setup_; }

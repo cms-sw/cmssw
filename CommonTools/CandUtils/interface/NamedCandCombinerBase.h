@@ -22,7 +22,7 @@ public:
   /// construct from four charge values
   NamedCandCombinerBase(std::string name, int, int, int, int);
   /// constructor from a selector, specifying optionally to check for charge
-  NamedCandCombinerBase(std::string name, bool checkCharge, const std::vector <int> &);
+  NamedCandCombinerBase(std::string name, bool checkCharge, bool checkOverlap, const std::vector <int> &);
   /// destructor
   virtual ~NamedCandCombinerBase();
   /// return all selected candidate pairs
@@ -81,6 +81,8 @@ private:
   virtual void addDaughter(reco::NamedCompositeCandidate & cmp, const reco::CandidatePtr & c, std::string name) const = 0;
   /// flag to specify the checking of electric charge
   bool checkCharge_;
+  /// flag to specify the checking of overlaps
+  bool checkOverlap_;
   /// electric charges of the daughters
   std::vector<int> dauCharge_;
   /// utility to check candidate daughters overlap
