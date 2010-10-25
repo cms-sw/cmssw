@@ -254,6 +254,7 @@ namespace cond {
 namespace condPython {
   template<>
   void defineWhat<cond::ecalcond::Container>() {
+    using namespace boost::python;
     enum_<cond::ecalcond::How>("How")
       .value("singleChannel",cond::ecalcond::singleChannel)
       .value("bySuperModule",cond::ecalcond::bySuperModule) 
