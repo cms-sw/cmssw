@@ -56,4 +56,7 @@
   <class name="std::vector<ora::OId>"/>
   <class name="ora::PVector<ora::OId>"/>
   <class name="testORA::IOV"/>
+  <class name="testORA::SH"/>
+  <class name="ora::NamedReference"/>
+  <class name="ora::NamedRef<testORA::SimpleClass>"/>
 </lcgdict>
