@@ -14,7 +14,7 @@
 #include "DataFormats/Candidate/interface/NamedCompositeCandidateFwd.h"
 
 typedef reco::modules::CandCombiner<
-                         StringCutObjectSelector<reco::Candidate>,
+                         StringCutObjectSelector<reco::Candidate, true>,
                          AnyPairSelector,
                          combiner::helpers::NormalClone,
                          reco::NamedCompositeCandidateCollection

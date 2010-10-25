@@ -13,7 +13,7 @@
 namespace reco {
   namespace modules {
     typedef CandCombiner<
-              StringCutObjectSelector<reco::Candidate>,
+              StringCutObjectSelector<reco::Candidate, true>,
               AnyPairSelector,
               combiner::helpers::ShallowClone,
               reco::NamedCompositeCandidateCollection 
