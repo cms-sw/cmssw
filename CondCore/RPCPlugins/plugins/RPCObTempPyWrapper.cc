@@ -252,6 +252,7 @@ namespace cond {
 namespace condPython {
   template<>
   void defineWhat<RPCObTemp>() {
+    using namespace boost::python;
 
     enum_<cond::rpcobtemp::How>("How")
       .value("detid",cond::rpcobtemp::detid)

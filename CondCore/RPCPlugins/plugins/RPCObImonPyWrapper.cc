@@ -502,7 +502,8 @@ namespace cond {
 namespace condPython {
   template<>
   void defineWhat<RPCObImon>() {
-    
+    using namespace boost::python;
+
     enum_<cond::rpcobimon::How>("How")
       .value("detid",cond::rpcobimon::detid)
       .value("day",cond::rpcobimon::day) 
