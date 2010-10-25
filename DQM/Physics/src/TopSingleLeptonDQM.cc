@@ -388,7 +388,6 @@ namespace TopSingleLepton {
     std::vector<reco::Jet> correctedJets;
     unsigned int mult=0, multBEff=0, multBPur=0, multBVtx=0;
 
-
     edm::Handle<edm::View<reco::Jet> > jets; 
     if( !event.getByLabel(jets_, jets) ) return;
 
@@ -416,11 +415,12 @@ namespace TopSingleLepton {
 	reco::Jet sel = *jet; sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
 	StringCutObjectSelector<reco::Jet> jetSelect(jetSelect_); if(!jetSelect(sel)) continue;
       }
-      // check for overlaps
-      bool overlap=false;
-      for(std::vector<const reco::GsfElectron*>::const_iterator elec=isoElecs.begin(); elec!=isoElecs.end(); ++elec){
-	if(reco::deltaR((*elec)->eta(), (*elec)->phi(), jet->eta(), jet->phi())<0.4){overlap=true; break;}
-      } if(overlap){continue;}
+      // check for overlaps -- comment this to be synchronous with the selection
+      //bool overlap=false;
+      //for(std::vector<const reco::GsfElectron*>::const_iterator elec=isoElecs.begin(); elec!=isoElecs.end(); ++elec){
+      //  if(reco::deltaR((*elec)->eta(), (*elec)->phi(), jet->eta(), jet->phi())<0.4){overlap=true; break;}
+      //} if(overlap){continue;}
+
       // prepare jet to fill monitor histograms
       reco::Jet monitorJet = *jet; monitorJet.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
       correctedJets.push_back(monitorJet);
