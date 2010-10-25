@@ -7,8 +7,8 @@
  *  This class is an EDFilter choosing reconstructed di-tracks
  *  Allows extended requirements for tighter skim options (bool beTight=true)
  *
- *  $Date: 2009/10/02 10:49:05 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/10/21 16:45:34 $
+ *  $Revision: 1.10 $
  *
  *  \author Ezio Torassa  -  INFN Padova
  *  \revised J. Fernandez  -  Univ. Oviedo
@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <string>
 #include <vector>
 
 class HiggsToWW2LeptonsSkim : public edm::EDFilter {
@@ -40,7 +41,7 @@ class HiggsToWW2LeptonsSkim : public edm::EDFilter {
       double singleLeptonPtMin_;
       double diLeptonPtMin_;
       int    nLeptons_;
-      string muonType_;
+      std::string muonType_;
       double etaMin_;
       double etaMax_;
       bool   beTight_;
