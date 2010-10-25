@@ -995,6 +995,104 @@ bool ora::OraDatabaseSchema::existsMainTable( coral::ISchema& dbSchema ){
   return tmp.exists();
 }
 
+std::string& ora::OraNamingServiceTable::tableName(){
+  static std::string s_table("ORA_NAMING_SERVICE" );
+  return s_table;
+}
+
+std::string& ora::OraNamingServiceTable::objectNameColumn(){
+  static std::string s_column("OBJECT_NAME");
+  return s_column;  
+}
+
+std::string& ora::OraNamingServiceTable::containerIdColumn(){
+  static std::string s_column("CONTAINER_ID");
+  return s_column;  
+}
+
+std::string& ora::OraNamingServiceTable::itemIdColumn(){
+  static std::string s_column("ITEM_ID");
+  return s_column;  
+}
+
+ora::OraNamingServiceTable::OraNamingServiceTable( coral::ISchema& dbSchema ): m_schema( dbSchema ){
+}
+
+ora::OraNamingServiceTable::~OraNamingServiceTable(){
+}
+
+bool ora::OraNamingServiceTable::exists(){
+  return m_schema.existsTable( tableName() );
+}
+
+void ora::OraNamingServiceTable::create(){
+  if( m_schema.existsTable( tableName() )){
+    throwException( "ORA naming service table already exists in this schema.",
+                    "OraNameTable::create");
+  }
+  
+  coral::TableDescription descr( "OraDb" );
+  descr.setName( tableName() );
+  descr.insertColumn( objectNameColumn(),
+                      coral::AttributeSpecification::typeNameForType<std::string>() );
+  descr.insertColumn( containerIdColumn(),
+                      coral::AttributeSpecification::typeNameForType<int>() );
+  descr.insertColumn( itemIdColumn(),
+                      coral::AttributeSpecification::typeNameForType<int>() );
+  descr.setNotNullConstraint( objectNameColumn() );
+  descr.setNotNullConstraint( containerIdColumn() );
+  descr.setNotNullConstraint( itemIdColumn() );
+  descr.setPrimaryKey( std::vector<std::string>( 1, objectNameColumn() ) );
+
+  coral::ITable& table = m_schema.createTable( descr );
+  table.privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select );
+}
+
+void ora::OraNamingServiceTable::drop(){
+  m_schema.dropIfExistsTable( tableName() );
+}
+
+void ora::OraNamingServiceTable::setObjectName( const std::string& name, int contId, int itemId ){
+  coral::AttributeList dataToInsert;
+  dataToInsert.extend<std::string>( objectNameColumn() );
+  dataToInsert.extend<int>( containerIdColumn());
+  dataToInsert.extend<int>( itemIdColumn());
+  dataToInsert[ objectNameColumn() ].data<std::string>() = name;
+  dataToInsert[ containerIdColumn() ].data<int>()  = contId;
+  dataToInsert[ itemIdColumn() ].data<int>()  = itemId;
+  coral::ITable& containerTable = m_schema.tableHandle( tableName() );
+  containerTable.dataEditor().insertRow( dataToInsert );  
+}
+
+bool ora::OraNamingServiceTable::getObjectByName( const std::string& name, std::pair<int,int>& destination ){
+  bool ret = false;
+  coral::ITable& containerTable = m_schema.tableHandle( tableName() );
+  std::auto_ptr<coral::IQuery> query( containerTable.newQuery());
+  coral::AttributeList outputBuffer;
+  outputBuffer.extend<int>( containerIdColumn() );
+  outputBuffer.extend<int>( itemIdColumn() );
+  query->defineOutput( outputBuffer );
+  query->addToOutputList( containerIdColumn() );
+  query->addToOutputList( itemIdColumn() );
+  std::ostringstream condition;
+  condition << objectNameColumn()<<"= :"<< objectNameColumn();
+  coral::AttributeList condData;
+  condData.extend<std::string>( objectNameColumn() );
+  coral::AttributeList::iterator iAttribute = condData.begin();
+  iAttribute->data< std::string >() = name;
+  query->setCondition( condition.str(), condData );
+  coral::ICursor& cursor = query->execute();
+  while ( cursor.next() ) {
+    ret = true;
+    const coral::AttributeList& row = cursor.currentRow();
+    int containerId = row[ containerIdColumn() ].data< int >();
+    int itemId = row[ itemIdColumn() ].data< int >();
+    destination.first = containerId;
+    destination.second = itemId;
+  }
+  return ret;
+}
+
 ora::OraDatabaseSchema::OraDatabaseSchema( coral::ISchema& dbSchema ):
   IDatabaseSchema( dbSchema ),
   m_schema( dbSchema ),
@@ -1004,7 +1102,8 @@ ora::OraDatabaseSchema::OraDatabaseSchema( coral::ISchema& dbSchema ):
   m_mappingElementTable( dbSchema ),
   m_containerHeaderTable( dbSchema ),
   m_classVersionTable( dbSchema ),
-  m_mappingSchema( dbSchema ){
+  m_mappingSchema( dbSchema ),
+  m_namingServiceTable( dbSchema ){
 }
 
 ora::OraDatabaseSchema::~OraDatabaseSchema(){
@@ -1018,7 +1117,8 @@ bool ora::OraDatabaseSchema::exists(){
      !m_mappingVersionTable.exists() ||
      !m_mappingElementTable.exists() ||
      !m_containerHeaderTable.exists() ||
-     !m_classVersionTable.exists()){
+     !m_classVersionTable.exists() || 
+     !m_namingServiceTable.exists()){
     throwException( "ORA database is corrupted..",
                     "OraDatabaseSchema::exists");
   }
@@ -1032,9 +1132,11 @@ void ora::OraDatabaseSchema::create(){
   m_mappingElementTable.create();
   m_containerHeaderTable.create();
   m_classVersionTable.create();
+  m_namingServiceTable.create();
 }
 
 void ora::OraDatabaseSchema::drop(){
+  m_namingServiceTable.drop();
   m_classVersionTable.drop();
   m_containerHeaderTable.drop();
   m_mappingElementTable.drop();
@@ -1071,5 +1173,8 @@ ora::IMappingSchema& ora::OraDatabaseSchema::mappingSchema(){
   return m_mappingSchema;  
 }
 
+ora::INamingServiceTable& ora::OraDatabaseSchema::namingServiceTable(){
+  return m_namingServiceTable;
+}
   
     

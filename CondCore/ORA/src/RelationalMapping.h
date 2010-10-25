@@ -113,6 +113,19 @@ namespace ora {
     
   };
 
+  class NamedRefMapping: public IRelationalMapping {
+    public:
+    NamedRefMapping( const Reflex::Type& attributeType, TableRegister& tableRegister );
+    ~NamedRefMapping();
+
+    void process( MappingElement& parentElement, const std::string& attributeName,
+                  const std::string& attributeNameForSchema, const std::string& scopeNameForSchema );
+
+    private:
+    Reflex::Type m_type;
+    TableRegister& m_tableRegister;
+  };
+
   class ArrayMapping : public IRelationalMapping {
     public:
     ArrayMapping( const Reflex::Type& attributeType, TableRegister& tableRegister );

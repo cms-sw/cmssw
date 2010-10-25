@@ -9,25 +9,7 @@
 #include "ClassUtils.h"
 // externals
 #include "CoralBase/Attribute.h"
-#include "Reflex/Base.h"
 #include "Reflex/Member.h"
-
-namespace ora {
-  bool findBaseType( Reflex::Type& type, Reflex::Type& baseType, Reflex::OffsetFunction& func ){
-    bool found = false;
-    for ( unsigned int i=0;i<type.BaseSize() && !found; i++){
-      Reflex::Base base = type.BaseAt(i);
-      Reflex::Type bt = ClassUtils::resolvedType( base.ToType() );
-      if( bt == baseType ){
-        func = base.OffsetFP();
-        found = true;
-      } else {
-        found = findBaseType( bt, baseType, func );
-      }
-    }
-    return found;
-  }
-}
 
 ora::OraReferenceStreamerBase::OraReferenceStreamerBase( const Reflex::Type& objectType,
                                                          MappingElement& mapping,
@@ -50,10 +32,10 @@ bool ora::OraReferenceStreamerBase::buildDataElement(DataElement& dataElement,
   m_dataElement = &dataElement;
   // first resolve the oid0 and oid2 data elements...
   Reflex::Type refType = Reflex::Type::ByTypeInfo( typeid(Reference) );
-  Reflex::Type oidType = Reflex::Type::ByTypeInfo( typeid(OId) );
+  //Reflex::Type oidType = Reflex::Type::ByTypeInfo( typeid(OId) );
   Reflex::OffsetFunction baseOffsetFunc = 0;
   if( m_objectType != refType ){
-    bool foundRef = findBaseType( m_objectType, refType, baseOffsetFunc );
+    bool foundRef = ClassUtils::findBaseType( m_objectType, refType, baseOffsetFunc );
     if(!foundRef){
       throwException("Type \""+m_objectType.Name(Reflex::SCOPED)+"\" is not an Ora Reference.",
                      "OraReferenceStreamerBase::buildDataElement");
@@ -68,6 +50,10 @@ bool ora::OraReferenceStreamerBase::buildDataElement(DataElement& dataElement,
   m_dataElemOId0 = &dataElement.addChild( contIdMember.Offset(), baseOffsetFunc );
   m_dataElemOId1 = &dataElement.addChild( itemIdMember.Offset(), baseOffsetFunc);
   // then book the columns in the data attribute...  
+  if( m_columns.size()<2 ){
+      throwException("Expected column names have not been found in the mapping.",
+                     "OraReferenceStreamerBase::buildDataElement");    
+  }
   const std::type_info& attrType = typeid(int);
   for( std::vector<std::string>::const_iterator iCol = m_columns.begin();
        iCol != m_columns.end(); ++iCol ){
@@ -81,10 +67,6 @@ bool ora::OraReferenceStreamerBase::buildDataElement(DataElement& dataElement,
 void ora::OraReferenceStreamerBase::bindDataForUpdate( const void* data ){
   if(!m_relationalData){
     throwException("The streamer has not been built.",
-                   "OraReferenceStreamerBase::bindDataForUpdate");
-  }
-  if( m_columns.size()<2 ){
-    throwException("Expected column names have not been found in the mapping.",
                    "OraReferenceStreamerBase::bindDataForUpdate");
   }
   

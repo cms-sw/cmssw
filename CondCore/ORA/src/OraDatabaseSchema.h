@@ -153,6 +153,25 @@ namespace ora {
     void setMappingVersion( const std::string& classId, int containerId, const std::string& mappingVersion );
     private:
     coral::ISchema& m_schema;
+  };  
+
+  class OraNamingServiceTable : public INamingServiceTable {
+    public:
+    static std::string& tableName();
+    static std::string& objectNameColumn();
+    static std::string& containerIdColumn();
+    static std::string& itemIdColumn();
+   public: 
+    explicit OraNamingServiceTable( coral::ISchema& dbSchema );
+    virtual ~OraNamingServiceTable();
+    void setObjectName( const std::string& name, int contId, int itemId );
+    bool getObjectByName( const std::string& name, std::pair<int,int>& destination );
+   public:
+    bool exists();
+    void create();
+    void drop();    
+  private:
+    coral::ISchema& m_schema; 
   };
 
   class OraDatabaseSchema: public IDatabaseSchema {
@@ -174,6 +193,7 @@ namespace ora {
     IContainerHeaderTable& containerHeaderTable();
     IDatabaseTable& classVersionTable();
     IMappingSchema& mappingSchema();
+    INamingServiceTable& namingServiceTable();
 
     private:
     coral::ISchema& m_schema;
@@ -184,6 +204,7 @@ namespace ora {
     OraContainerHeaderTable m_containerHeaderTable;
     OraClassVersionTable m_classVersionTable;
     OraMappingSchema m_mappingSchema;
+    OraNamingServiceTable m_namingServiceTable;
   };  
   
 }

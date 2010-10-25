@@ -1,11 +1,13 @@
 #include "CondCore/ORA/interface/Exception.h"
 #include "CondCore/ORA/interface/Reference.h"
+#include "CondCore/ORA/interface/NamedRef.h"
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
 #include "ClassUtils.h"
 //
 #include <cxxabi.h>
 // externals
 #include "Reflex/Object.h"
+#include "Reflex/Base.h"
 
 ora::RflxDeleter::RflxDeleter( const Reflex::Type& type ):
   m_type( type ){
@@ -51,6 +53,21 @@ bool ora::ClassUtils::isType( const Reflex::Type& type,
     ret = true;
   }
   return ret;
+}
+
+bool ora::ClassUtils::findBaseType( Reflex::Type& type, Reflex::Type& baseType, Reflex::OffsetFunction& func ){
+  bool found = false;
+  for ( unsigned int i=0;i<type.BaseSize() && !found; i++){
+     Reflex::Base base = type.BaseAt(i);
+     Reflex::Type bt = resolvedType( base.ToType() );
+     if( bt == baseType ){
+       func = base.OffsetFP();
+       found = true;
+     } else {
+       found = findBaseType( bt, baseType, func );
+     }
+  }
+  return found;
 }
 
 std::string ora::ClassUtils::demangledName( const std::type_info& typeInfo ){
@@ -236,6 +253,10 @@ bool ora::ClassUtils::isTypeOraPointer( const Reflex::Type& typ){
 
 bool ora::ClassUtils::isTypeOraReference( const Reflex::Type& typ){
   return typ.HasBase(Reflex::Type::ByTypeInfo(typeid(ora::Reference)));
+}
+
+bool ora::ClassUtils::isTypeNamedReference( const Reflex::Type& typ){
+  return typ.HasBase(Reflex::Type::ByTypeInfo(typeid(ora::NamedReference)));
 }
 
 bool ora::ClassUtils::isTypeUniqueReference( const Reflex::Type& typ){

@@ -5,6 +5,8 @@
 //
 #include <string>
 #include <map>
+#include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 
 namespace ora {
 
@@ -43,12 +45,21 @@ namespace ora {
 
     void setLoaded();
 
-    public:
+    void setNamedReference( const std::string& name, boost::shared_ptr<void>& data );
+
+    boost::shared_ptr<void> getNamedReference( const std::string& name );
+
+
+    private:
+    void cleanUpNamedRefCache();
+
+    private:
     std::pair<bool,bool> m_dbExists;
     std::map<std::string, int> m_containersByName;
     std::map<int, Handle<DatabaseContainer> > m_containersById;
     Handle<DatabaseUtilitySession> m_utility;
     bool m_loaded;
+    std::map<std::string,boost::weak_ptr<void> > m_namedRefCache;
   };
 }
 

@@ -250,7 +250,7 @@ ora::Container ora::Database::containerHandle( int contId ){
     std::stringstream messg;
     messg << "Container with id=" << contId << " not found in the database.";
     throwException(messg.str(),
-                   "DatabaseSession::containerHandle");
+                   "Database::containerHandle");
   }
   return Container( cont );
 }
@@ -288,6 +288,21 @@ void ora::Database::flush(){
        iCont != containers.end(); ++iCont ){
     iCont->second->flush();
   }
+}
+
+void ora::Database::setObjectName( const std::string& name, const OId& oid ){
+  checkTransaction();
+  m_impl->m_session->setObjectName( name, oid.containerId(), oid.itemId() );
+}
+
+boost::shared_ptr<void> ora::Database::getTypedObjectByName( const std::string& name, const std::type_info& typeInfo ){
+  checkTransaction();
+  Reflex::Type objType = ClassUtils::lookupDictionary( typeInfo );
+  return m_impl->m_session->fetchTypedObjectByName( name, objType );
+}
+
+ora::Object ora::Database::fetchItemByName( const std::string& name ){
+  return  m_impl->m_session->fetchObjectByName( name );
 }
 
 ora::DatabaseUtility ora::Database::utility(){

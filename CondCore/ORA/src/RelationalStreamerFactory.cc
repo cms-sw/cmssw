@@ -9,6 +9,7 @@
 #include "CArrayStreamer.h"
 #include "InlineCArrayStreamer.h"
 #include "OraReferenceStreamer.h"
+#include "NamedRefStreamer.h"
 #include "OraPtrStreamer.h"
 #include "PVectorStreamer.h"
 #include "QueryableVectorStreamer.h"
@@ -94,6 +95,15 @@ ora::IRelationalStreamer* ora::RelationalStreamerFactory::newStreamer( const Ref
                       "RelationalStreamerFactory::newStreamer" );
     }
     newStreamer = new OraReferenceStreamer( type, mapping, m_containerSchema );
+  } else if ( mapping.elementType() == MappingElement::NamedReference ) {
+    if ( ! ClassUtils::isTypeNamedReference( type )) {
+      throwException( "Mapped variable \"" + mapping.variableName() +" of type "+
+                      mapping.variableType() +
+                      "\", declared as a NamedReference, is associated to the type \""+
+                      type.Name()+"\".",
+                      "RelationalStreamerFactory::newStreamer" );
+    }
+    newStreamer = new NamedRefStreamer( type, mapping, m_containerSchema );
   } else if ( mapping.elementType() == MappingElement::UniqueReference ) {
     if ( ! ClassUtils::isTypeUniqueReference( type )) {
       throwException( "Mapped variable \"" + mapping.variableName() +" of type "+
