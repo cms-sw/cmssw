@@ -199,7 +199,6 @@ void FWL1TriggerTableView::dataChanged( void )
 	       m_columns.at(1).values.push_back( Form( "%d", tBitResult ));
 	       m_columns.at(2).values.push_back( Form( "%d", tBitNumber ));
 
-               // AMT:: second check commented out because for performace, size op. expensive
                if ( pfIndexTechTrig < pfIndexTechTrigValidSize)
                   m_columns.at(3).values.push_back( Form( "%d", prescaleFactorsTechTrig.at( pfIndexTechTrig ).at( tBitNumber )));
                else
