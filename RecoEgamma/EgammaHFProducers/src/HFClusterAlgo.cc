@@ -101,7 +101,8 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
     if (elong>m_cutByEta[iz]) {
       j2=hf.find(HcalDetId(HcalForward,j->id().ieta(),j->id().iphi(),2));
       double eshort=(j2==hf.end())?(0):(j2->energy());
-      eshort*=m_correctionByEta[indexByEta(j2->id())];
+      if (j2!=hf.end())
+         eshort*=m_correctionByEta[indexByEta(j2->id())];
       if (((elong-eshort)/(elong+eshort))>m_maximumSL) continue;
 
       HFCompleteHit ahit;
