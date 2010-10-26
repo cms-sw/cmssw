@@ -1,4 +1,5 @@
 <bin   name="multiPlotter" file="multiPlotter.cpp">
+  <flags NO_TESTRUN="1"/>
   <use   name="boost"/>
   <use   name="boost_program_options"/>
   <use   name="FWCore/FWLite"/>
@@ -8,6 +9,7 @@
   <use   name="root"/>
 </bin>
 <bin   name="makePlot" file="makePlot.cpp">
+  <flags NO_TESTRUN="1"/>
   <use   name="boost"/>
   <use   name="FWCore/FWLite"/>
   <use   name="FWCore/Framework"/>
