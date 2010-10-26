@@ -20,6 +20,7 @@ namespace ora {
     const std::string& name() const;
     bool isPersistent() const;
     boost::shared_ptr<void>& ptr() const;
+    void reset();
     private:
     std::string m_name;
     bool m_isPersistent;

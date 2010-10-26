@@ -115,6 +115,19 @@ int main(){
 	std::cout << "** Name: "<<*iN<<std::endl;
       }
     }
+    {
+       boost::shared_ptr<SH> sr2_1 = contH1.fetch<SH>( oid2);
+       std::cout << "** ptr2_0="<<sr2->m_ref.get()<<std::endl;
+       std::cout << "** ptr2_1="<<sr2_1->m_ref.get()<<std::endl;
+    }
+    sr2->m_ref.reset();
+    {  
+       boost::shared_ptr<SH> sr2_2 = contH1.fetch<SH>( oid2);
+       boost::shared_ptr<SH> sr2_3 = contH1.fetch<SH>( oid2);
+       std::cout << "** ptr2_2="<<sr2_2->m_ref.get()<<std::endl;
+       std::cout << "** ptr2_3="<<sr2_3->m_ref.get()<<std::endl;
+    }
+
     trans1.commit();
     trans1.start( false );
     //db.drop();

@@ -44,3 +44,9 @@ bool ora::NamedReference::isPersistent() const {
 boost::shared_ptr<void>& ora::NamedReference::ptr() const {
   return m_ptr;
 }
+
+void ora::NamedReference::reset() {
+  m_ptr.reset();
+  m_name.clear();
+  m_isPersistent = false;
+}

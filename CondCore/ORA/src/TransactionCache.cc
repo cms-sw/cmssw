@@ -105,7 +105,8 @@ void ora::TransactionCache::cleanUpNamedRefCache(){
   }
 }
 
-void ora::TransactionCache::setNamedReference( const std::string& name, boost::shared_ptr<void>& data ){
+void ora::TransactionCache::setNamedReference( const std::string& name, 
+                                               boost::shared_ptr<void>& data ){
   m_namedRefCache.insert( std::make_pair( name, boost::weak_ptr<void>(data) ) );  
 }
 
