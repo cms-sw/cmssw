@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_8_5/GRun/V35
+# /dev/CMSSW_3_8_5/GRun/V36
 
 import FWCore.ParameterSet.Config as cms
 
@@ -47,13 +47,13 @@ streamA_datasetEGMonitor_selector.l1tResults = cms.InputTag('')
 streamA_datasetEGMonitor_selector.throw      = cms.bool(False)
 streamA_datasetEGMonitor_selector.triggerConditions = cms.vstring('HLT_Activity_Ecal_SC17', 
     'HLT_Activity_Ecal_SC7', 
-    'HLT_DoubleEle4_SW_eeRes_L1R', 
-    'HLT_DoubleEle5_SW_Upsilon_L1R_v1', 
-    'HLT_Ele10_SW_L1R', 
-    'HLT_Ele12_SW_TighterEleId_L1R_v1', 
-    'HLT_Ele17_SW_Isol_L1R_v1', 
-    'HLT_Ele17_SW_L1R', 
-    'HLT_Ele22_SW_L1R_v1', 
+    'HLT_DoubleEle4_SW_eeRes_L1R_v2', 
+    'HLT_DoubleEle5_SW_Upsilon_L1R_v2', 
+    'HLT_Ele10_SW_L1R_v2', 
+    'HLT_Ele12_SW_TighterEleId_L1R_v2', 
+    'HLT_Ele17_SW_Isol_L1R_v2', 
+    'HLT_Ele17_SW_L1R_v2', 
+    'HLT_Ele22_SW_L1R_v2', 
     'HLT_L1SingleEG8', 
     'HLT_Photon10_Cleaned_L1R', 
     'HLT_Photon20_Isol_Cleaned_L1R_v1', 
@@ -66,15 +66,15 @@ streamA_datasetElectron_selector.l1tResults = cms.InputTag('')
 streamA_datasetElectron_selector.throw      = cms.bool(False)
 streamA_datasetElectron_selector.triggerConditions = cms.vstring('HLT_DoubleEle17_SW_L1R_v1', 
     'HLT_DoubleEle8_SW_HT70U_L1R_v1', 
-    'HLT_Ele10_SW_EleId_HT70U_L1R_v1', 
-    'HLT_Ele10_SW_HT100U_L1R_v1', 
-    'HLT_Ele10_SW_HT70U_L1R_v1', 
-    'HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v1', 
-    'HLT_Ele17_SW_TighterEleIdIsol_L1R_v2', 
-    'HLT_Ele22_SW_TighterCaloIdIsol_L1R_v1', 
-    'HLT_Ele22_SW_TighterEleId_L1R_v2', 
+    'HLT_Ele10_SW_EleId_HT70U_L1R_v2', 
+    'HLT_Ele10_SW_HT100U_L1R_v2', 
+    'HLT_Ele10_SW_HT70U_L1R_v2', 
+    'HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v2', 
+    'HLT_Ele17_SW_TighterEleIdIsol_L1R_v3', 
+    'HLT_Ele22_SW_TighterCaloIdIsol_L1R_v2', 
+    'HLT_Ele22_SW_TighterEleId_L1R_v3', 
     'HLT_Ele32_SW_TighterEleId_L1R_v2', 
-    'HLT_IsoEle12_PFTau15_v1')
+    'HLT_IsoEle12_PFTau15_v2')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHIAllPhysics_selector
 streamA_datasetHIAllPhysics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -195,7 +195,7 @@ streamA_datasetMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu3_HT50U_
     'HLT_Mu30_NoVertex_v1', 
     'HLT_Mu3_Ele8_HT70U_v1', 
     'HLT_Mu5_Ele13_v2', 
-    'HLT_Mu5_Ele17_v1', 
+    'HLT_Mu5_Ele17_v2', 
     'HLT_Mu5_HT100U_v3', 
     'HLT_Mu5_HT70U_v3', 
     'HLT_Mu5_Jet50U_v3', 
