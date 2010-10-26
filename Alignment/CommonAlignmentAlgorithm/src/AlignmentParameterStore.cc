@@ -1,8 +1,8 @@
 /**
  * \file AlignmentParameterStore.cc
  *
- *  $Revision: 1.27 $
- *  $Date: 2009/04/16 08:26:41 $
+ *  $Revision: 1.28 $
+ *  $Date: 2009/04/28 14:09:17 $
  *  (last update by $Author: flucke $)
  */
 
@@ -647,7 +647,7 @@ bool AlignmentParameterStore
   if (aliParType != kRigidBody && aliParType != kRigidBody4D) {
     throw cms::Exception("BadConfig") << "AlignmentParameterStore::hierarchyConstraints"
 				      << " requires 'ali' to have rigid body alignment parameters, but is "
-				      << parametersType(aliParType);
+				      << parametersTypeName(parametersType(aliParType));
   }
 
   const std::vector<bool> &aliSel= ali->alignmentParameters()->selector();
@@ -663,7 +663,7 @@ bool AlignmentParameterStore
       throw cms::Exception("BadConfig")
 	<< "AlignmentParameterStore::hierarchyConstraints"
 	<< " requires all 'aliComps' to have rigid body alignment parameters,"
-	<< " but is " << parametersType(compParType);
+	<< " but is " << parametersTypeName(parametersType(compParType));
     }
 
     const AlgebraicMatrix f2fDeriv(f2fDerivMaker.frameToFrameDerivative(*iComp, ali));
