@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.36 2010/10/08 17:53:05 bendavid Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.35 2010/10/07 23:48:38 bendavid Exp $
 //
 //
 
@@ -56,6 +56,19 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/TangentApproachInRPhi.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionHitChecker.h"
+
+
+//Kinematic constraint vertex fitter
+#include "RecoVertex/KinematicFitPrimitives/interface/ParticleMass.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/MultiTrackKinematicConstraint.h"
+#include <RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h>
+#include "RecoVertex/KinematicFit/interface/KinematicConstrainedVertexFitter.h"
+#include "RecoVertex/KinematicFit/interface/TwoTrackMassKinematicConstraint.h"
+#include "RecoVertex/KinematicFit/interface/KinematicParticleVertexFitter.h"
+#include "RecoVertex/KinematicFit/interface/KinematicParticleFitter.h"
+#include "RecoVertex/KinematicFit/interface/MassKinematicConstraint.h"
+#include "RecoVertex/KinematicFit/interface/ColinearityKinematicConstraint.h"
+
 
 
 TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::ParameterSet& iConfig):
@@ -349,7 +362,7 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
           
           double approachDist = -999.;
           //apply preselection to track pair, unless one or both tracks are gsf
-          if (left->algo()!=29 && right->algo()!=29 && !preselectTrackPair(ttk_l,ttk_r, approachDist)) {
+          if (!preselectTrackPair(ttk_l,ttk_r, approachDist) && left->algo()!=29 && right->algo()!=29) {
             continue;
           }
                     
@@ -362,14 +375,7 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
             continue;
           }
 
-          //compute approachDist in case it wasn't already computed by the preselection function
-          if (approachDist==-999.) {
-            TangentApproachInRPhi tangent;
-            tangent.calculate(ttk_l.innermostMeasurementState(),ttk_r.innermostMeasurementState()); 
-            if (tangent.status()) {
-              approachDist = tangent.perpdist();
-            }
-          }
+          
           
           //track pair pass the quality cut
           if (   !( (trackQualityFilter(left, true) && trackQualityFilter(right, false))
@@ -384,8 +390,8 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
           }
 
 
-          const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr> the_left(left, trackMatchedBC[ll-allTracks.begin()]);
-          const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr> the_right(right, trackMatchedBC[rr-allTracks.begin()]);
+          const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr> the_left  = std::make_pair(left, trackMatchedBC[ll-allTracks.begin()]);
+          const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr> the_right = std::make_pair(right, trackMatchedBC[rr-allTracks.begin()]);
 
           
          
@@ -688,7 +694,19 @@ bool TrackerOnlyConversionProducer::preselectTrackPair(const reco::TransientTrac
   if (!tangent.status()) {
     return false;
   }
-    
+  
+  GlobalPoint tangentPoint = tangent.crossingPoint();
+  double rho = tangentPoint.perp();
+  
+  //reject candidates well outside of tracker bounds
+  if (rho > 120.0) {
+    return false;
+  }
+  
+  if (std::abs(tangentPoint.z()) > 300.0) {
+    return false;
+  }
+  
   std::pair<GlobalTrajectoryParameters,GlobalTrajectoryParameters> trajs = tangent.trajectoryParameters();
   
   //very large separation in z, no hope
