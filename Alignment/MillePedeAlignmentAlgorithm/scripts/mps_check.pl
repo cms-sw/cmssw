@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.23 $ by $Author: parenti $
-#     $Date: 2010/01/21 17:49:25 $
+#     $Revision: 1.24 $ by $Author: flucke $
+#     $Date: 2010/09/20 17:18:34 $
 #
 #  Check output from jobs that have FETCH status
 #  
@@ -73,8 +73,8 @@ for ($i=0; $i<@JOBID; ++$i) {
     }
     close STDFILE;
     # gzip it afterwards:
-    print "gzip $stdOut\n";
-    system "gzip $stdOut";
+    print "gzip -f $stdOut\n";
+    system "gzip -f $stdOut";
     
     # GF: This file is not produced (anymore...)
     $eazeLog = "jobData/@JOBDIR[$i]/cmsRun.out";
