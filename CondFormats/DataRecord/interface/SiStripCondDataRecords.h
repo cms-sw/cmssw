@@ -26,6 +26,8 @@ class SiStripDetVOffRcd : public edm::eventsetup::EventSetupRecordImplementation
 
 class SiStripLatencyRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripLatencyRcd> {};
 
+class SiStripBaseDelayRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripBaseDelayRcd> {};
+
 class SiStripNoisesRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripNoisesRcd> {};
 
 class SiStripPedestalsRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripPedestalsRcd> {};

@@ -10,6 +10,8 @@ TYPELOOKUP_DATA_REG(SiStripLorentzAngle);
 TYPELOOKUP_DATA_REG(SiStripDetVOff);
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
 TYPELOOKUP_DATA_REG(SiStripLatency);
+#include "CondFormats/SiStripObjects/interface/SiStripBaseDelay.h"
+TYPELOOKUP_DATA_REG(SiStripBaseDelay);
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 TYPELOOKUP_DATA_REG(SiStripNoises);
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"

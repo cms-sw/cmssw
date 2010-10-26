@@ -66,7 +66,13 @@
   <class name="SiStripLatency::Latency" class_version="0"/>
   <class name="std::vector<SiStripLatency::Latency>"/>
 
-  <class name="SiStripRunSummary" class_version="0">
+  <class name="SiStripBaseDelay" class_version="0">
+    <field name="delays_" mapping="blob"/>
+  </class>
+  <class name="SiStripBaseDelay::Delay" class_version="0"/>
+  <class name="std::vector<SiStripBaseDelay::Delay>"/>
+
+<class name="SiStripRunSummary" class_version="0">
     <field name="runSummary_" mapping="blob"/>
   </class>
 

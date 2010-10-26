@@ -54,13 +54,6 @@ class SiStripLatency
 
   SiStripLatency() {}
 
-//   SiStripLatency() :
-//     mode_(-1)
-//   {}
-//   SiStripLatency(const int16_t mode) :
-//     mode_(mode)
-//   {}
-
   // Defined as public for genreflex
   struct Latency
   {
@@ -100,12 +93,6 @@ class SiStripLatency
   void allModes(std::vector<uint16_t> & allModesVector) const;
 
   std::vector<Latency> allUniqueLatencyAndModes();
-  //   {
-  //     vector<Latency> latencyCopy(latencies_);
-  //     sort( latencyCopy.begin(), latencyCopy.end(), OrderByLatencyAndMode() );
-  //     latencyCopy.erase( unique( latencyCopy.begin(), latencyCopy.end() ), latencyCopy.end() );
-  //     return latencyCopy;
-  //   }
 
   /** Reduce ranges of consecutive detIdsAndApvs with the same latency and mode to
    * one value (the latest) so that lower_bound will return the correct value for
@@ -115,7 +102,6 @@ class SiStripLatency
   /// If all the latency values stored are equal return that value, otherwise return -1
   uint16_t singleLatency() const;
   uint16_t singleMode() const;
-  //   pair<uint16_t, uint16_t> singleLatencyAndMode() const;
 
   /// Prints the number of ranges as well as the value of singleLatency and singleMode
   void printSummary(std::stringstream & ss) const;
@@ -130,13 +116,6 @@ class SiStripLatency
       return lat1.detIdAndApv < detIdAndApv;
     }
   };
-
-  // struct EqualByLatency
-  // {
-  //   bool operator()(const Latency & lat1, const Latency & lat2) {
-  //     return( lat1.latency == lat2.latency );
-  //   }
-  // };
 
   struct OrderByLatencyAndMode
   {

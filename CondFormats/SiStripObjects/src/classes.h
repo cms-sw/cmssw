@@ -8,6 +8,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
+#include "CondFormats/SiStripObjects/interface/SiStripBaseDelay.h"
 #include "CondFormats/SiStripObjects/interface/SiStripRunSummary.h"
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
 #include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
