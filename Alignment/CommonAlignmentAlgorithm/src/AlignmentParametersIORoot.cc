@@ -78,13 +78,12 @@ int AlignmentParametersIORoot::writeOne(Alignable* ali)
 AlignmentParameters* AlignmentParametersIORoot::readOne( Alignable* ali, int& ierr )
 {
   
-  AlgebraicVector par(nParMax,0);
-  AlgebraicSymMatrix cov(nParMax,0);
- 
   if( tree->GetEntryWithIndex( ali->id(), ali->alignableObjectId() ) > 0 ) 
   {
     int covsize = theCovRang;
     int count=0;
+    AlgebraicVector par(covsize, 0);
+    AlgebraicSymMatrix cov(covsize, 0);
     for(int row=0;row<covsize;row++) 
     {
       par[row]=thePar[row];
