@@ -1,5 +1,7 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="Utilities/General"/>
+<use   name="DataFormats/CLHEP"/>
+<use   name="DataFormats/GeometryVector"/>
 <export>
   <lib   name="1"/>
 </export>
