@@ -10,6 +10,8 @@ tnp::TagProbePairMaker::TagProbePairMaker(const edm::ParameterSet &iConfig) :
     arbitration_ = None;
   } else if (arbitration == "OneProbe") {
     arbitration_ = OneProbe;
+  } else if (arbitration == "OnePair") {
+    arbitration_ = OnePair;
   } else if (arbitration == "NonDuplicate") {
     arbitration_ = NonDuplicate;
   } else if (arbitration == "BestMass") {
@@ -112,6 +114,18 @@ tnp::TagProbePairMaker::arbitrate(TagProbePairs &pairs) const
         // invalidate the pair in which the tag has lower pT
         if (it2->tag->pt() > it->tag->pt()) std::swap(*it, *it2);
         it2->tag = reco::CandidateBaseRef(); --nclean;  
+      }
+      // arbitrate the OnePair case: disallow the same pair to enter the lineshape twice
+      // this can't be done by reference, unfortunately, so we resort to a simple matching
+      if ((arbitration_ == OnePair) && 
+          std::abs(it->mass - it2->mass) < 1e-4 &&
+          std::abs( it->probe->phi() - it2->tag->phi()) < 1e-5 && 
+          std::abs( it->probe->eta() - it2->tag->eta()) < 1e-5 && 
+          std::abs( it->probe->pt()  - it2->tag->pt() ) < 1e-5 && 
+          std::abs(it2->probe->phi() -  it->tag->phi()) < 1e-5 && 
+          std::abs(it2->probe->eta() -  it->tag->eta()) < 1e-5 && 
+          std::abs(it2->probe->pt()  -  it->tag->pt() ) < 1e-5) {
+          it2->tag = reco::CandidateBaseRef(); --nclean;
       }
     }
     if (invalidateThis) { it->tag = reco::CandidateBaseRef(); --nclean; }
