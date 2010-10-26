@@ -8,9 +8,9 @@
  *
  * \author    : Gero Flucke
  * date       : September 2007
- * $Date: 2009/08/10 16:29:40 $
- * $Revision: 1.2 $
- * (last update by $Author: flucke $)
+ * $Date: 2010/09/10 13:31:54 $
+ * $Revision: 1.3 $
+ * (last update by $Author: mussgill $)
  */
 
 #include <vector>
@@ -68,6 +68,7 @@ class PedeLabeler
   UintUintMap       myLasBeamToLabelMap;  /// labels for las beams
   UintUintMap       myLabelToLasBeamMap; /// reverse of the above
 
+ public:
   static const unsigned int theMaxNumParam;
   static const unsigned int theMinLabel;
 };

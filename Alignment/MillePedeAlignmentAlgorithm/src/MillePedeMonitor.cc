@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.21 $
- *  $Date: 2010/08/03 15:47:10 $
+ *  $Revision: 1.22 $
+ *  $Date: 2010/10/11 12:41:51 $
  *  (last update by $Author: mussgill $)
  */
 
@@ -37,6 +37,8 @@ const int kFPIX = PixelSubdetector::PixelEndcap;
 #include <TFile.h>
 #include <TDirectory.h>
 #include <TMath.h>
+
+#include "Alignment/MillePedeAlignmentAlgorithm/src/PedeLabeler.h"
 
 typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
 
@@ -262,19 +264,20 @@ bool MillePedeMonitor::init(TDirectory *directory)
     (new TH2F("localDerivsPhiLog",
               "local derivatives (#neq 0) vs. #phi(det);#phi(det);|#partial/#partial(param)|",
               51, -TMath::Pi(), TMath::Pi(), logBins.GetSize()-1, logBins.GetArray()));
+  const unsigned int maxParNum = PedeLabeler::theMaxNumParam;
   myDerivHists2D.push_back
     (new TH2F("globalDerivsPar",
               "global derivatives vs. paramater;parameter;#partial/#partial(param)",
-              6, 0., 6., 101, -.01, .01));
+              maxParNum, 0., maxParNum, 100, -200, 200));
   myDerivHists2D.push_back
     (new TH2F("globalDerivsPhi",
               "global derivatives vs. #phi(det);#phi(det);#partial/#partial(param)",
-              51, -TMath::Pi(), TMath::Pi(), 101, -0.01, 0.01));
-  this->equidistLogBins(logBins.GetArray(), logBins.GetSize()-1, 1.E-36, 0.04);
+              51, -TMath::Pi(), TMath::Pi(), 102, -1.02, 1.02));
+  this->equidistLogBins(logBins.GetArray(), logBins.GetSize()-1, 1.E-7, 5.e2);
   myDerivHists2D.push_back
     (new TH2F("globalDerivsParLog",
               "global derivatives (#neq 0) vs. parameter;parameter;|#partial/#partial(param)|",
-              6, 0., 6., logBins.GetSize()-1, logBins.GetArray()));
+              maxParNum, 0., maxParNum, logBins.GetSize()-1, logBins.GetArray()));
   myDerivHists2D.push_back
     (new TH2F("globalDerivsPhiLog",
               "global derivatives (#neq 0) vs. #phi(det);#phi(det);|#partial/#partial(param)|",
@@ -833,7 +836,8 @@ void MillePedeMonitor::fillRefTrajectory(const ReferenceTrajectoryBase::Referenc
 //____________________________________________________________________
 void MillePedeMonitor::fillDerivatives(const ConstRecHitPointer &recHit,
 				       const float *localDerivs, unsigned int nLocal,
-				       const float *globalDerivs, unsigned int nGlobal)
+				       const float *globalDerivs, unsigned int nGlobal,
+				       const int *labels)
 {
   const double phi = recHit->det()->position().phi();
 
@@ -856,10 +860,11 @@ void MillePedeMonitor::fillDerivatives(const ConstRecHitPointer &recHit,
   static const int iGlobPhiLog = this->GetIndex(myDerivHists2D, "globalDerivsPhiLog");
 //   static const int iGlobPhiLog2 = this->GetIndex(myDerivHists2D, "globalDerivsPhiLog2");
   for (unsigned int i = 0; i < nGlobal; ++i) {
-    myDerivHists2D[iGlobPar]->Fill(i, globalDerivs[i]);
+    const unsigned int parNum = (labels ? (labels[i]%PedeLabeler::theMaxNumParam)-1 : i);
+    myDerivHists2D[iGlobPar]->Fill(parNum, globalDerivs[i]);
     myDerivHists2D[iGlobPhi]->Fill(phi, globalDerivs[i]);
     if (globalDerivs[i]) {
-      myDerivHists2D[iGlobParLog]->Fill(i, TMath::Abs(globalDerivs[i]));
+      myDerivHists2D[iGlobParLog]->Fill(parNum, TMath::Abs(globalDerivs[i]));
       myDerivHists2D[iGlobPhiLog]->Fill(phi, TMath::Abs(globalDerivs[i]));
 //       myDerivHists2D[iGlobPhiLog2]->Fill(phi, TMath::Abs(globalDerivs[i]));
     }

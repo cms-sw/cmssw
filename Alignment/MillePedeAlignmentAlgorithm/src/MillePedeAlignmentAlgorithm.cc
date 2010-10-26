@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.67 $
- *  $Date: 2010/09/10 13:29:39 $
- *  (last update by $Author: mussgill $)
+ *  $Revision: 1.68 $
+ *  $Date: 2010/09/20 17:27:43 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
@@ -562,6 +562,7 @@ unsigned int MillePedeAlignmentAlgorithm::doIO(int loop) const
 //     }
   }
   
+  //  aliIO.writeAlignmentParameters(theAlignables, ("tmp"+outFile).c_str(), loop, false, ioerr);
   aliIO.writeOrigRigidBodyAlignmentParameters(theAlignables, outFile.c_str(), loop, false, ioerr);
   if (ioerr) {
     edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::doIO" << "Problem " << ioerr
@@ -833,7 +834,7 @@ int MillePedeAlignmentAlgorithm
 
   if (theMonitor) {
     theMonitor->fillDerivatives(aRecHit, &(localDerivatives[0]), nLocal,
-				&(globalDerivativesX[0]), nGlobal);
+				&(globalDerivativesX[0]), nGlobal, &(globalLabels[0]));
     theMonitor->fillResiduals(aRecHit, refTrajPtr->trajectoryStates()[iTrajHit],
 			      iTrajHit, residX, hitErrX, false);
   }
@@ -908,7 +909,8 @@ int MillePedeAlignmentAlgorithm
 		  &(globalLabels[0]), newResidX, newHitErrX);
 
   if (theMonitor) {
-    theMonitor->fillDerivatives(aRecHit, newLocalDerivsX, nLocal, newGlobDerivsX, nGlobal);
+    theMonitor->fillDerivatives(aRecHit, newLocalDerivsX, nLocal, newGlobDerivsX, nGlobal,
+				&(globalLabels[0]));
     theMonitor->fillResiduals(aRecHit, refTrajPtr->trajectoryStates()[iTrajHit],
 			      iTrajHit, newResidX, newHitErrX, false);
   }
@@ -917,7 +919,8 @@ int MillePedeAlignmentAlgorithm
     theMille->mille(nLocal, newLocalDerivsY, nGlobal, newGlobDerivsY,
                     &(globalLabels[0]), newResidY, newHitErrY);
     if (theMonitor) {
-      theMonitor->fillDerivatives(aRecHit, newLocalDerivsY, nLocal, newGlobDerivsY, nGlobal);
+      theMonitor->fillDerivatives(aRecHit, newLocalDerivsY, nLocal, newGlobDerivsY, nGlobal,
+				  &(globalLabels[0]));
       theMonitor->fillResiduals(aRecHit, refTrajPtr->trajectoryStates()[iTrajHit],
 				iTrajHit, newResidY, newHitErrY, true);// true: y
     }
