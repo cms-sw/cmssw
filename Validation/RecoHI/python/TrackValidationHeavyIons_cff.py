@@ -14,6 +14,9 @@ cutsRecoTracks.src = "hiSelectedTracks"
 cutsRecoTracks.ptMin = 2.0
 cutsRecoTracks.quality = []
 
+# high purity selection
+cutsRecoTracksHp = cutsRecoTracks.clone(quality=cms.vstring("highPurity"))
+
 # sim track quality cuts
 from Validation.RecoHI.selectSimTracks_cff import *
 findableSimTracks.ptMin = 2.0
@@ -21,7 +24,6 @@ findableSimTracks.ptMin = 2.0
 # setup multi-track validator
 from Validation.RecoTrack.MultiTrackValidator_cff import *
 hiTrackValidator = multiTrackValidator.clone(
-    label = cms.VInputTag(cms.InputTag('cutsRecoTracks')),
     label_tp_effic = cms.InputTag("findableSimTracks"),
     label_tp_fake  = cms.InputTag("cutsTPFake"),
     signalOnlyTP = cms.bool(False),
@@ -31,6 +33,10 @@ hiTrackValidator = multiTrackValidator.clone(
     nintpT = cms.int32(40),
     useLogPt = cms.untracked.bool(True)
     )
+
+hiTrackValidator.label = cms.VInputTag(cms.InputTag('cutsRecoTracks'),
+                                       cms.InputTag('cutsRecoTracksHp')
+                                       )
 
 # track validation sequence
 hiTrackValidation = cms.Sequence(findableSimTracks
