@@ -84,6 +84,8 @@ namespace ora {
     void setObjectName( const std::string& name, int containerId, int itemId );
     ora::Object fetchObjectByName( const std::string& name );
     boost::shared_ptr<void> fetchTypedObjectByName( const std::string& name, const Reflex::Type& asType );
+    bool getNamesForContainer( int containerId, std::vector<std::string>& destination );
+    bool getNamesForObject( int containerId, int itemId, std::vector<std::string>& destination );
 
     Handle<DatabaseUtilitySession> utility();
 

@@ -210,7 +210,9 @@ const std::map<int, ora::Handle<ora::DatabaseContainer> >& ora::DatabaseSession:
   return m_transactionCache->containers();
 }
 
-void ora::DatabaseSession::setObjectName( const std::string& name, int containerId, int itemId ){
+void ora::DatabaseSession::setObjectName( const std::string& name, 
+                                          int containerId, 
+                                          int itemId ){
   m_schema->namingServiceTable().setObjectName( name, containerId, itemId );
 }
 
@@ -224,7 +226,8 @@ ora::Object ora::DatabaseSession::fetchObjectByName( const std::string& name ){
   return ret;
 }
 
-boost::shared_ptr<void> ora::DatabaseSession::fetchTypedObjectByName( const std::string& name, const Reflex::Type& asType ){
+boost::shared_ptr<void> ora::DatabaseSession::fetchTypedObjectByName( const std::string& name, 
+                                                                      const Reflex::Type& asType ){
   boost::shared_ptr<void> ret = m_transactionCache->getNamedReference( name );
   if( !ret.get() ){
     std::pair<int,int> oid;
@@ -239,6 +242,17 @@ boost::shared_ptr<void> ora::DatabaseSession::fetchTypedObjectByName( const std:
     if( ret.get() ) m_transactionCache->setNamedReference( name, ret );
   }
   return ret;
+}
+
+bool ora::DatabaseSession::getNamesForContainer( int containerId, 
+                                                 std::vector<std::string>& destination ){
+  return m_schema->namingServiceTable().getNamesForContainer( containerId, destination );
+}
+    
+bool ora::DatabaseSession::getNamesForObject( int containerId, 
+                                              int itemId, 
+                                              std::vector<std::string>& destination ){
+  return m_schema->namingServiceTable().getNamesForObject( containerId, itemId, destination );
 }
 
 ora::Handle<ora::DatabaseUtilitySession> ora::DatabaseSession::utility(){

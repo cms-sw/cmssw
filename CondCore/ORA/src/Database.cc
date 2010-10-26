@@ -302,7 +302,14 @@ boost::shared_ptr<void> ora::Database::getTypedObjectByName( const std::string& 
 }
 
 ora::Object ora::Database::fetchItemByName( const std::string& name ){
+  checkTransaction();
   return  m_impl->m_session->fetchObjectByName( name );
+}
+
+bool ora::Database::getNamesForObject( const ora::OId& oid, 
+                                       std::vector<std::string>& destination ){
+  checkTransaction();
+  return m_impl->m_session->getNamesForObject( oid.containerId(), oid.itemId(), destination );
 }
 
 ora::DatabaseUtility ora::Database::utility(){

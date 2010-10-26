@@ -458,5 +458,8 @@ void ora::DatabaseContainer::flush(){
   }
 }
 
+bool ora::DatabaseContainer::getNames( std::vector<std::string>& destination ){
+  return m_schema->dbSession().getNamesForContainer( m_schema->containerId(), destination );
+}
 
 

@@ -1052,7 +1052,9 @@ void ora::OraNamingServiceTable::drop(){
   m_schema.dropIfExistsTable( tableName() );
 }
 
-void ora::OraNamingServiceTable::setObjectName( const std::string& name, int contId, int itemId ){
+void ora::OraNamingServiceTable::setObjectName( const std::string& name, 
+                                                int contId, 
+                                                int itemId ){
   coral::AttributeList dataToInsert;
   dataToInsert.extend<std::string>( objectNameColumn() );
   dataToInsert.extend<int>( containerIdColumn());
@@ -1064,7 +1066,8 @@ void ora::OraNamingServiceTable::setObjectName( const std::string& name, int con
   containerTable.dataEditor().insertRow( dataToInsert );  
 }
 
-bool ora::OraNamingServiceTable::getObjectByName( const std::string& name, std::pair<int,int>& destination ){
+bool ora::OraNamingServiceTable::getObjectByName( const std::string& name, 
+                                                  std::pair<int,int>& destination ){
   bool ret = false;
   coral::ITable& containerTable = m_schema.tableHandle( tableName() );
   std::auto_ptr<coral::IQuery> query( containerTable.newQuery());
@@ -1089,6 +1092,64 @@ bool ora::OraNamingServiceTable::getObjectByName( const std::string& name, std::
     int itemId = row[ itemIdColumn() ].data< int >();
     destination.first = containerId;
     destination.second = itemId;
+  }
+  return ret;
+}
+
+bool ora::OraNamingServiceTable::getNamesForObject( int contId, 
+                                                    int itemId, 
+                                                    std::vector<std::string>& destination ){
+  bool ret = false;
+  coral::ITable& containerTable = m_schema.tableHandle( tableName() );
+  std::auto_ptr<coral::IQuery> query( containerTable.newQuery());
+  coral::AttributeList outputBuffer;
+  outputBuffer.extend<std::string>( objectNameColumn() );
+  query->defineOutput( outputBuffer );
+  query->addToOutputList( objectNameColumn() );
+  std::ostringstream condition;
+  condition << containerIdColumn()<<"= :"<< containerIdColumn();
+  condition << " AND ";
+  condition << itemIdColumn()<<"= :"<< itemIdColumn();
+  coral::AttributeList condData;
+  condData.extend<int>( containerIdColumn() );
+  condData.extend<int>( itemIdColumn() );
+  coral::AttributeList::iterator iAttribute = condData.begin();
+  iAttribute->data< int >() = contId;
+  ++iAttribute;
+  iAttribute->data< int >() = itemId;
+  query->setCondition( condition.str(), condData );
+  coral::ICursor& cursor = query->execute();
+  while ( cursor.next() ) {
+    ret = true;
+    const coral::AttributeList& row = cursor.currentRow();
+    std::string name = row[ objectNameColumn() ].data< std::string >();
+    destination.push_back( name );
+  }
+  return ret;
+}
+
+bool ora::OraNamingServiceTable::getNamesForContainer( int contId, 
+                                                       std::vector<std::string>& destination ){
+  bool ret = false;
+  coral::ITable& containerTable = m_schema.tableHandle( tableName() );
+  std::auto_ptr<coral::IQuery> query( containerTable.newQuery());
+  coral::AttributeList outputBuffer;
+  outputBuffer.extend<std::string>( objectNameColumn() );
+  query->defineOutput( outputBuffer );
+  query->addToOutputList( objectNameColumn() );
+  std::ostringstream condition;
+  condition << containerIdColumn()<<"= :"<< containerIdColumn();
+  coral::AttributeList condData;
+  condData.extend<int>( containerIdColumn() );
+  coral::AttributeList::iterator iAttribute = condData.begin();
+  iAttribute->data< int >() = contId;
+  query->setCondition( condition.str(), condData );
+  coral::ICursor& cursor = query->execute();
+  while ( cursor.next() ) {
+    ret = true;
+    const coral::AttributeList& row = cursor.currentRow();
+    std::string name = row[ objectNameColumn() ].data< std::string >();
+    destination.push_back( name );
   }
   return ret;
 }

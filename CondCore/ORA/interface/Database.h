@@ -130,6 +130,9 @@ namespace ora {
     template <typename T> boost::shared_ptr<T> fetchByName( const std::string& name );
 
     ///
+    bool getNamesForObject( const OId& oid, std::vector<std::string>& destination );
+
+    ///
     DatabaseUtility utility();
 
     public:
