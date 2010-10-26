@@ -102,6 +102,9 @@ AlignmentCorrelationsIORoot::read(const align::Alignables& alivec, int& ierr)
 		  nfound++;
 		  Alignable* myAli1 = (*aliSearch1).second;
 		  Alignable* myAli2 = (*aliSearch2).second;
+		  // FIXME: instead of nParMax in the next few lines one should probably
+		  //        use something like sqrt(corSize) - but take care of rounding!
+		  //        I have no time to test... :-( GF
 		  AlgebraicMatrix  mat(nParMax,nParMax);
 		  for(int row = 0;row<nParMax;row++) 
 			for(int col = 0;col<nParMax;col++) 
