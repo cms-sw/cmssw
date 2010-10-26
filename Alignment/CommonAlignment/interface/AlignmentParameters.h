@@ -5,6 +5,7 @@
 
 #include "Alignment/CommonAlignment/interface/AlignmentParametersData.h"
 #include "Alignment/CommonAlignment/interface/AlignmentUserVariables.h"
+
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 /// \class AlignmentParameters 
@@ -20,8 +21,8 @@
 /// parameters/derivatives/covariance as subvector/submatrix
 /// of reduced size.
 ///
-///  $Date: 2007/06/21 16:18:27 $
-///  $Revision: 1.7 $
+///  $Date: 2008/09/02 14:55:34 $
+///  $Revision: 1.8 $
 /// (last update by $Author: flucke $)
 
 // include and not forward declare to ensure automatic conversion from AlignableDet(Unit): 
@@ -88,7 +89,7 @@ public:
   virtual AlgebraicMatrix derivatives(const TrajectoryStateOnSurface& tsos,
 				      const AlignableDetOrUnitPtr &alidet) const = 0;
   virtual AlgebraicMatrix selectedDerivatives( const TrajectoryStateOnSurface& tsos, 
-					       const AlignableDetOrUnitPtr &alidet) const = 0;
+					       const AlignableDetOrUnitPtr &alidet) const;
 
   /// Set pointer to user variables
   void setUserVariables(AlignmentUserVariables* auv);
