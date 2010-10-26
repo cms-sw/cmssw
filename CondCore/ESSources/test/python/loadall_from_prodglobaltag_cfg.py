@@ -50,10 +50,10 @@ process.source = cms.Source("EmptyIOVSource",
 )
 
 
-process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
-                             toGet =  cms.VPSet(),
-                             verbose = cms.untracked.bool(True)
-                             )
+process.get = cms.EDFilter("EventSetupRecordDataGetter",
+                           toGet =  cms.VPSet(),
+                           verbose = cms.untracked.bool(True)
+                           )
 
 process.p = cms.Path(process.get)
 

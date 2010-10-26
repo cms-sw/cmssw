@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.37 2010/06/03 14:49:01 hauk Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.36 2010/05/12 14:19:06 jdraeger Exp $
 //
 //
 
@@ -157,7 +157,6 @@ private:
     }
     // Generalization of Histogram Booking; allows switch between TFileService and DQMStore
     template <typename T> TH1* make(const char* name,const char* title,int nBinX,double minBinX,double maxBinX);
-    template <typename T> TH1* make(const char* name,const char* title,int nBinX,double *xBins);//variable bin size in x for profile histo 
     template <typename T> TH1* make(const char* name,const char* title,int nBinX,double minBinX,double maxBinX,int nBinY,double minBinY,double maxBinY);
     template <typename T> TH1* make(const char* name,const char* title,int nBinX,double minBinX,double maxBinX,double minBinY,double maxBinY);  // at present not used
     
@@ -281,17 +280,6 @@ int TrackerOfflineValidation::GetIndex(const std::vector<OBJECT_TYPE*> &vec, con
 template <> TH1* TrackerOfflineValidation::DirectoryWrapper::make<TH1F>(const char* name,const char* title,int nBinX,double minBinX,double maxBinX){
   if(dqmMode){theDbe->setCurrentFolder(directoryString); return theDbe->book1D(name,title,nBinX,minBinX,maxBinX)->getTH1();}
   else{return tfd->make<TH1F>(name,title,nBinX,minBinX,maxBinX);}
-}
-
-template <> TH1* TrackerOfflineValidation::DirectoryWrapper::make<TProfile>(const char* name,const char* title,int nBinX,double *xBins){
-  if(dqmMode){
-    theDbe->setCurrentFolder(directoryString);
-    //DQM profile requires y-bins for construction... using TProfile creator by hand...
-    TProfile *tmpProfile=new TProfile(name,title,nBinX,xBins);
-    tmpProfile->SetDirectory(0);
-    return theDbe->bookProfile(name,tmpProfile)->getTH1();
-  }
-  else{return tfd->make<TProfile>(name,title,nBinX,xBins);}
 }
 
 template <> TH1* TrackerOfflineValidation::DirectoryWrapper::make<TProfile>(const char* name,const char* title,int nBinX,double minBinX,double maxBinX){
@@ -457,15 +445,6 @@ TrackerOfflineValidation::bookGlobalHists(DirectoryWrapper& tfd )
   vTrackProfiles_.push_back(tfd.make<TProfile>("p_chi2_vs_eta",
 					       "#chi^{2} vs. #eta;#eta_{Track};#LT #chi^{2} #GT",
 					       100,-3.15,3.15));
-  //variable binning for chi2/ndof vs. pT
-  double xBins[19]={0.,0.15,0.5,1.,1.5,2.,2.5,3.,3.5,4.,4.5,5.,7.,10.,15.,25.,40.,100.,200.};
-  vTrackProfiles_.push_back(tfd.make<TProfile>("p_normchi2_vs_pt",
-					       "norm #chi^{2} vs. p_{T}_{Track}; p_{T}_{Track};#LT #chi^{2}/ndof #GT",
-					       18,xBins));
-
-  vTrackProfiles_.push_back(tfd.make<TProfile>("p_normchi2_vs_p",
-					       "#chi^{2}/ndof vs. p_{Track};p_{Track};#LT #chi^{2}/ndof #GT",
-					        18,xBins));
   vTrackProfiles_.push_back(tfd.make<TProfile>("p_chi2Prob_vs_eta",
 					       "#chi^{2} probability vs. #eta;#eta_{Track};#LT #chi^{2} probability #GT",
 					       100,-3.15,3.15));   
@@ -854,16 +833,12 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     vTrackProfiles_[dzetaindex]->Fill(it->eta,it->dz);
     static const int chiphiindex = this->GetIndex(vTrackProfiles_,"p_chi2_vs_phi");
     vTrackProfiles_[chiphiindex]->Fill(it->phi,it->chi2);
-    static const int chiProbphiindex = this->GetIndex(vTrackProfiles_,"p_chi2Prob_vs_phi");
+  static const int chiProbphiindex = this->GetIndex(vTrackProfiles_,"p_chi2Prob_vs_phi");
     vTrackProfiles_[chiProbphiindex]->Fill(it->phi,it->chi2Prob);
     static const int normchiphiindex = this->GetIndex(vTrackProfiles_,"p_normchi2_vs_phi");
     vTrackProfiles_[normchiphiindex]->Fill(it->phi,it->normchi2);
     static const int chietaindex = this->GetIndex(vTrackProfiles_,"p_chi2_vs_eta");
     vTrackProfiles_[chietaindex]->Fill(it->eta,it->chi2);
-    static const int normchiptindex = this->GetIndex(vTrackProfiles_,"p_normchi2_vs_pt");
-    vTrackProfiles_[normchiptindex]->Fill(it->pt,it->normchi2);
-    static const int normchipindex = this->GetIndex(vTrackProfiles_,"p_normchi2_vs_p");
-    vTrackProfiles_[normchipindex]->Fill(it->p,it->normchi2);
     static const int chiProbetaindex = this->GetIndex(vTrackProfiles_,"p_chi2Prob_vs_eta");
     vTrackProfiles_[chiProbetaindex]->Fill(it->eta,it->chi2Prob);
     static const int normchietaindex = this->GetIndex(vTrackProfiles_,"p_normchi2_vs_eta");

@@ -53,7 +53,13 @@ if read_from_file=="True":
     f.close()
 else:
   inputfiles = os.environ.get('INPUTFILES',
-  '/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0001/02EC80FB-FEEC-DE11-B28D-00261894389E.root').split(",")
+  
+                              #'/store/data/Run2010B/Commissioning/RECO/PromptReco-v2/000/147/926/E0E7F388-33D8-DF11-9C6F-003048F1C420.root'
+                              '/store/data/Run2010B/Commissioning/RECO/PromptReco-v2/000/147/757/FA59793D-97D6-DF11-87DE-003048F117B6.root'
+                              #'/store/data/Run2010B/Commissioning/RECO/PromptReco-v2/000/147/757/56FAF47D-A2D6-DF11-BBE1-003048F11114.root'
+                              #'/store/data/Run2010B/Commissioning/RECO/PromptReco-v2/000/147/757/48FAA4CA-9AD6-DF11-B807-001D09F292D1.root'
+                              #'/store/data/Run2010B/Commissioning/RECO/PromptReco-v2/000/147/757/0EEF6A11-A1D6-DF11-BE6A-003048F0258C.root'
+                              ).split(",")
   #'/store/data/Commissioning09/MinimumBias/RECO/v4/000/102/347/F85D1BC6-A06A-DE11-BDF8-0019B9F581C9.root').split(",")
   #'/store/data/CRAFT09/Calo/RECO/v1/000/112/220/F0B768A4-5E93-DE11-B222-000423D94524.root').split(",")
 
@@ -68,6 +74,7 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 #
@@ -80,11 +87,9 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 #
 # BeamHaloData producer
 #
-process.load("Configuration/StandardSequences/Geometry_cff")
-process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 process.load("RecoMET/Configuration/RecoMET_BeamHaloId_cff")
-process.GlobalTag.globaltag ='GR09_R_34X_V2::All'
+process.GlobalTag.globaltag ='GR10_P_V10::All'
 
 # the task - JetMET objects
 if iscosmics =="True":
@@ -109,7 +114,6 @@ if allhist=="True":
 if allhist=="True":
   process.jetMETAnalyzer.caloMETAnalysis.allSelection       = cms.bool(True)
   process.jetMETAnalyzer.caloMETNoHFAnalysis.allSelection   = cms.bool(True)
-  process.jetMETAnalyzer.caloMETHOAnalysis.allSelection     = cms.bool(True)
   process.jetMETAnalyzer.caloMETNoHFHOAnalysis.allSelection = cms.bool(True)
   process.jetMETAnalyzer.pfMETAnalysis.allSelection         = cms.bool(True)
   process.jetMETAnalyzer.tcMETAnalysis.allSelection         = cms.bool(True)

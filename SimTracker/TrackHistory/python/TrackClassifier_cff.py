@@ -15,6 +15,5 @@ trackClassifier = cms.PSet(
     badPull = cms.untracked.double(3.0),
     longLivedDecayLength = cms.untracked.double(1e-14),
     vertexClusteringDistance = cms.untracked.double(0.0001),
-    numberOfInnerLayers = cms.untracked.uint32(2),
-    minTrackerSimHits = cms.untracked.uint32(3)
+    numberOfInnerLayers = cms.untracked.uint32(2)
 )

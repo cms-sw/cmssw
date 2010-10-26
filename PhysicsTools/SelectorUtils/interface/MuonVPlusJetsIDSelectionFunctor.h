@@ -16,6 +16,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 
   enum Version_t { SUMMER08, FIRSTDATA, SPRING10, N_VERSIONS };
 
+  MuonVPlusJetsIDSelectionFunctor() {}
 
   MuonVPlusJetsIDSelectionFunctor( edm::ParameterSet const & parameters ) {
 
@@ -56,42 +57,11 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
   }
 
 
-  // compatibility with summer 08
   MuonVPlusJetsIDSelectionFunctor( Version_t version,
 				   double chi2 = 10.0,
 				   double d0 = 0.2,
-				   int nhits = 11,
-				   double ecalveto = 4.0,
-				   double hcalveto = 6.0,
-				   double reliso = 0.05
-				   ) : recalcDBFromBSp_(false) {
-    if ( version != SUMMER08 ) {
-      std::cout << "You are using the wrong version for MuonVPlusJetsIDSelectionFunctor!" << std::endl;
-    }
-    initialize( version, chi2, d0, 999.0, 999.0, nhits, 999, ecalveto, hcalveto, reliso );
-  }
-
-  MuonVPlusJetsIDSelectionFunctor( Version_t version,
-				   double chi2 = 10.0,
-				   double d0 = 999.0,
 				   double ed0 = 999.0,
-				   double sd0 = 3.0,
-				   int nhits = 11,
-				   double ecalveto = 4.0,
-				   double hcalveto = 6.0,
-				   double reliso = 0.05
-				   ) : recalcDBFromBSp_(false) {
-    if ( version != SUMMER08 && version != FIRSTDATA ) {
-      std::cout << "You are using the wrong version for MuonVPlusJetsIDSelectionFunctor!" << std::endl;
-    }
-    initialize( version, chi2, d0, ed0, sd0, nhits, 999, ecalveto, hcalveto, reliso );
-  }
-
-  MuonVPlusJetsIDSelectionFunctor( Version_t version,
-				   double chi2 = 10.0,
-				   double d0 = 999.0,
-				   double ed0 = 999.0,
-				   double sd0 = 3.0,
+				   double sd0 = 999.0,
 				   int nhits = 11,
 				   int nValidMuonHits = 0,
 				   double ecalveto = 4.0,
@@ -135,7 +105,17 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
     set("NValMuHits");
     set("ECalVeto");
     set("HCalVeto");
-    set("RelIso");
+    set("RelIso");     
+
+    indexChi2_          = index_type(&bits_, "Chi2"         );
+    indexD0_            = index_type(&bits_, "D0"           );
+    indexED0_           = index_type(&bits_, "ED0"          );
+    indexSD0_           = index_type(&bits_, "SD0"          );
+    indexNHits_         = index_type(&bits_, "NHits"        );
+    indexNValMuHits_    = index_type(&bits_, "NValMuHits"   );
+    indexECalVeto_      = index_type(&bits_, "ECalVeto"     );
+    indexHCalVeto_      = index_type(&bits_, "HCalVeto"     );
+    indexRelIso_        = index_type(&bits_, "RelIso"       );
 
     if ( version == SPRING10) {
       set("ED0", false );
@@ -203,12 +183,12 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 
     double relIso = (ecalIso + hcalIso + trkIso) / pt;
 
-    if ( norm_chi2     <  cut("Chi2",   double()) || ignoreCut("Chi2")    ) passCut(ret, "Chi2"   );
-    if ( fabs(corr_d0) <  cut("D0",     double()) || ignoreCut("D0")      ) passCut(ret, "D0"     );
-    if ( nhits         >= cut("NHits",  int()   ) || ignoreCut("NHits")   ) passCut(ret, "NHits"  );
-    if ( hcalVeto      <  cut("HCalVeto",double())|| ignoreCut("HCalVeto")) passCut(ret, "HCalVeto");
-    if ( ecalVeto      <  cut("ECalVeto",double())|| ignoreCut("ECalVeto")) passCut(ret, "ECalVeto");
-    if ( relIso        <  cut("RelIso", double()) || ignoreCut("RelIso")  ) passCut(ret, "RelIso" );
+    if ( norm_chi2     <  cut(indexChi2_,   double()) || ignoreCut(indexChi2_)    ) passCut(ret, indexChi2_   );
+    if ( fabs(corr_d0) <  cut(indexD0_,     double()) || ignoreCut(indexD0_)      ) passCut(ret, indexD0_     );
+    if ( nhits         >= cut(indexNHits_,  int()   ) || ignoreCut(indexNHits_)   ) passCut(ret, indexNHits_  );
+    if ( hcalVeto      <  cut(indexHCalVeto_,double())|| ignoreCut(indexHCalVeto_)) passCut(ret, indexHCalVeto_);
+    if ( ecalVeto      <  cut(indexECalVeto_,double())|| ignoreCut(indexECalVeto_)) passCut(ret, indexECalVeto_);
+    if ( relIso        <  cut(indexRelIso_, double()) || ignoreCut(indexRelIso_)  ) passCut(ret, indexRelIso_ );
 
     setIgnored(ret);
 
@@ -239,14 +219,14 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 
     double relIso = (ecalIso + hcalIso + trkIso) / pt;
 
-    if ( norm_chi2     <  cut("Chi2",   double()) || ignoreCut("Chi2")    ) passCut(ret, "Chi2"   );
-    if ( fabs(corr_d0) <  cut("D0",     double()) || ignoreCut("D0")      ) passCut(ret, "D0"     );
-    if ( fabs(corr_ed0)<  cut("ED0",    double()) || ignoreCut("ED0")     ) passCut(ret, "ED0"    );
-    if ( fabs(corr_sd0)<  cut("SD0",    double()) || ignoreCut("SD0")     ) passCut(ret, "SD0"    );
-    if ( nhits         >= cut("NHits",  int()   ) || ignoreCut("NHits")   ) passCut(ret, "NHits"  );
-    if ( hcalVeto      <  cut("HCalVeto",double())|| ignoreCut("HCalVeto")) passCut(ret, "HCalVeto");
-    if ( ecalVeto      <  cut("ECalVeto",double())|| ignoreCut("ECalVeto")) passCut(ret, "ECalVeto");
-    if ( relIso        <  cut("RelIso", double()) || ignoreCut("RelIso")  ) passCut(ret, "RelIso" );
+    if ( norm_chi2     <  cut(indexChi2_,   double()) || ignoreCut(indexChi2_)    ) passCut(ret, indexChi2_   );
+    if ( fabs(corr_d0) <  cut(indexD0_,     double()) || ignoreCut(indexD0_)      ) passCut(ret, indexD0_     );
+    if ( fabs(corr_ed0)<  cut(indexED0_,    double()) || ignoreCut(indexED0_)     ) passCut(ret, indexED0_    );
+    if ( fabs(corr_sd0)<  cut(indexSD0_,    double()) || ignoreCut(indexSD0_)     ) passCut(ret, indexSD0_    );
+    if ( nhits         >= cut(indexNHits_,  int()   ) || ignoreCut(indexNHits_)   ) passCut(ret, indexNHits_  );
+    if ( hcalVeto      <  cut(indexHCalVeto_,double())|| ignoreCut(indexHCalVeto_)) passCut(ret, indexHCalVeto_);
+    if ( ecalVeto      <  cut(indexECalVeto_,double())|| ignoreCut(indexECalVeto_)) passCut(ret, indexECalVeto_);
+    if ( relIso        <  cut(indexRelIso_, double()) || ignoreCut(indexRelIso_)  ) passCut(ret, indexRelIso_ );
 
     setIgnored(ret);
     
@@ -309,15 +289,15 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 
     double relIso = (ecalIso + hcalIso + trkIso) / pt;
 
-    if ( norm_chi2     <  cut("Chi2",   double()) || ignoreCut("Chi2")    ) passCut(ret, "Chi2"   );
-    if ( fabs(corr_d0) <  cut("D0",     double()) || ignoreCut("D0")      ) passCut(ret, "D0"     );
-    if ( fabs(corr_ed0)<  cut("ED0",    double()) || ignoreCut("ED0")     ) passCut(ret, "ED0"    );
-    if ( fabs(corr_sd0)<  cut("SD0",    double()) || ignoreCut("SD0")     ) passCut(ret, "SD0"    );
-    if ( nhits         >= cut("NHits",  int()   ) || ignoreCut("NHits")   ) passCut(ret, "NHits"  );
-    if ( nValidMuonHits> cut("NValMuHits",int()) || ignoreCut("NValMuHits")) passCut(ret, "NValMuHits"  );
-    if ( hcalVeto      <  cut("HCalVeto",double())|| ignoreCut("HCalVeto")) passCut(ret, "HCalVeto");
-    if ( ecalVeto      <  cut("ECalVeto",double())|| ignoreCut("ECalVeto")) passCut(ret, "ECalVeto");
-    if ( relIso        <  cut("RelIso", double()) || ignoreCut("RelIso")  ) passCut(ret, "RelIso" );
+    if ( norm_chi2     <  cut(indexChi2_,   double()) || ignoreCut(indexChi2_)    ) passCut(ret, indexChi2_   );
+    if ( fabs(corr_d0) <  cut(indexD0_,     double()) || ignoreCut(indexD0_)      ) passCut(ret, indexD0_     );
+    if ( fabs(corr_ed0)<  cut(indexED0_,    double()) || ignoreCut(indexED0_)     ) passCut(ret, indexED0_    );
+    if ( fabs(corr_sd0)<  cut(indexSD0_,    double()) || ignoreCut(indexSD0_)     ) passCut(ret, indexSD0_    );
+    if ( nhits         >= cut(indexNHits_,  int()   ) || ignoreCut(indexNHits_)   ) passCut(ret, indexNHits_  );
+    if ( nValidMuonHits> cut(indexNValMuHits_,int()) || ignoreCut(indexNValMuHits_)) passCut(ret, indexNValMuHits_  );
+    if ( hcalVeto      <  cut(indexHCalVeto_,double())|| ignoreCut(indexHCalVeto_)) passCut(ret, indexHCalVeto_);
+    if ( ecalVeto      <  cut(indexECalVeto_,double())|| ignoreCut(indexECalVeto_)) passCut(ret, indexECalVeto_);
+    if ( relIso        <  cut(indexRelIso_, double()) || ignoreCut(indexRelIso_)  ) passCut(ret, indexRelIso_ );
 
     setIgnored(ret);
     
@@ -331,6 +311,19 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
   bool recalcDBFromBSp_;
   edm::InputTag beamLineSrc_;
   
+
+  index_type indexChi2_;          
+  index_type indexD0_;            
+  index_type indexED0_;           
+  index_type indexSD0_;           
+  index_type indexNHits_;         
+  index_type indexNValMuHits_;    
+  index_type indexECalVeto_;      
+  index_type indexHCalVeto_;      
+  index_type indexRelIso_;        
+
+
+
 };
 
 #endif

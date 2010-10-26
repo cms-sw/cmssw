@@ -15,7 +15,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 # Input files
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-    'file:/scratch2/users/fabozzi/summer10/FE2F8537-9A80-DF11-B80E-0026189438C9.root'
+    'file:/scratch2/users/fabozzi/spring10/zmm/38262142-DF46-DF11-8238-0030487C6A90.root'
     )
 )
 #import os
@@ -29,11 +29,11 @@ process.source = cms.Source("PoolSource",
                 
 
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START36_V9::All')
+process.GlobalTag.globaltag = cms.string('START36_V8::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ### subskim
@@ -65,18 +65,11 @@ process.TFileService = cms.Service(
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesVtxed_cff")
 process.vtxedNtuplesOut.fileName = cms.untracked.string('file:VtxedNtupleLoose_test.root')
 
-### 3_5_X reprocessed MC: to process REDIGI HLT tables uncomment the following
-#process.patTrigger.processName = "REDIGI"
-#process.patTriggerEvent.processName = "REDIGI"
-#process.patTrigger.triggerResults = cms.InputTag( "TriggerResults::REDIGI" )
-#process.patTrigger.triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::REDIGI" )
-
-### 3_6_X reprocessed MC: to process REDIGI HLT tables uncomment the following
-process.dimuonsHLTFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","REDIGI36X")
-process.patTrigger.processName = "REDIGI36X"
-process.patTriggerEvent.processName = "REDIGI36X"
-process.patTrigger.triggerResults = cms.InputTag( "TriggerResults::REDIGI36X" )
-process.patTrigger.triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::REDIGI36X" )
+### to process REDIGI HLT tables uncomment the following
+process.patTrigger.processName = "REDIGI"
+process.patTriggerEvent.processName = "REDIGI"
+process.patTrigger.triggerResults = cms.InputTag( "TriggerResults::REDIGI" )
+process.patTrigger.triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::REDIGI" )
 
 ### plots
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesPlots_cff")

@@ -5,8 +5,8 @@
 //   Description: Assignment Unit
 //
 //
-//   $Date: 2008/10/13 07:44:43 $
-//   $Revision: 1.9 $
+//   $Date: 2008/07/04 08:56:58 $
+//   $Revision: 1.8 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -427,8 +427,8 @@ PtAssMethod L1MuDTAssignmentUnit::getPtMethod() const {
     case 9 :  { pam = ( abs(phib2) < threshold ) ? PT23HO : PT23LO; break; }
     case 10 : { pam = ( abs(phib2) < threshold ) ? PT24HO : PT24LO; break; }
     case 11 : { pam = ( abs(phib4) < threshold ) ? PT34HO : PT34LO; break; }
-    case 12 : { pam = ( abs(phib1) < threshold ) ? PT15HO : PT15LO; break; }
-    case 13 : { pam = ( abs(phib2) < threshold ) ? PT25HO : PT25LO; break; }
+    case 12 : { pam = ( abs(phib4) < threshold ) ? PT15HO : PT15LO; break; }
+    case 13 : { pam = ( abs(phib4) < threshold ) ? PT25HO : PT25LO; break; }
     default : ;
       //cout << "L1MuDTAssignmentUnit : Error in PT ass method evaluation" << endl;
   }

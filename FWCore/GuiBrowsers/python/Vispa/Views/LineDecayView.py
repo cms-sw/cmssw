@@ -1,8 +1,8 @@
 import sys
 import math
 
-from PyQt4.QtCore import Qt, QPoint, QPointF, QRect, QSize, SIGNAL, QCoreApplication, QMimeData
-from PyQt4.QtGui import QWidget, QPainter, QPolygon, QColor, QPen, QPalette, QPainterPath, QFont, QFontMetrics, QApplication, QDrag, QPixmap,QSizePolicy,QMessageBox
+from PyQt4.QtCore import Qt, QPoint, QPointF, QRect, QSize, SIGNAL, QCoreApplication, QMimeData, QRectF
+from PyQt4.QtGui import QWidget, QPainter, QPolygon, QColor, QPen, QPalette, QPainterPath, QFont, QFontMetrics, QApplication, QDrag, QPixmap,QSizePolicy,QMessageBox, QTransform, QBrush
 
 import logging
 
@@ -220,11 +220,12 @@ class LineDecayView(WidgetView):
         self.connect(lineDecayView, SIGNAL("selected"), self.onSelected)
         return lineDecayView
         
-    def setTabController(self, controller):
-        """ Sets tab controller.
-        """
-        WidgetView.setTabController(self, controller)
-        self.connect(self, SIGNAL("selected"), controller.onSelected)
+# Apparently setTabController() is unnecessary, remove if sure about that (2010-06-29)
+#    def setTabController(self, controller):
+#        """ Sets tab controller.
+#        """
+#        WidgetView.setTabController(self, controller)
+#        self.connect(self, SIGNAL("selected"), controller.onSelected)
         
     def tabController(self):
         """ Return tab controller.
@@ -491,6 +492,7 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
                     break
                 parent=parent.parent()
         else:
+            # assume dropType is the generic name or type of a particle
             newObject = self.addParticleByType(dropType, pos)
             self.select(newObject)
             self.setFocus()
@@ -518,33 +520,39 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
             if self.createObject(dropType, pos):
                 event.acceptProposedAction()
                     
-    def addParticleByType(self, objectType=None, pos=None):
-        """ This function adds a decay object to this view.
+    def addParticleByType(self, particleType=None, pos=None):
+        """ This function asks the data accessor to create a new particle and makes sure it gets the properties (name, pdg id, charge) of the desired type.
         
-        object or objectType may either be a valid pxl object (e.g. a particle) or a string specifiying the object type.
+        particleType may either be None or a string specifying the object type.
         pos is in 100% coordinates.
         """
         
-        if not objectType:
+        if not particleType:
             # this is nothing
             return None
+        dataAccessor = self.dataAccessor()
         
-        object = self.dataAccessor().createParticle()
-        object.setName(objectType)  # use this name to find id
-        particleId = self.dataAccessor().particleId(object)
+        newParticle = dataAccessor.createParticle()
+        #newParticle.setName(particleType)  # use this name to find id
+        categoryName = "Object info"
+        dataAccessor.setProperty(newParticle, "Name", particleType, categoryName)  # use this name to find id
+        particleId = self.dataAccessor().particleId(newParticle)
         if particleId != None:
-            object.setParticleId(particleId)
-        particleName = self.dataAccessor().defaultName(object)
+            #newParticle.setPdgNumber(particleId)
+            dataAccessor.setProperty(newParticle, "PdgNumber", particleId, categoryName)
+        particleName = self.dataAccessor().defaultName(newParticle)
         if particleName:
             # normalize name using id
-            object.setName(particleName)
-        object.setCharge(self.dataAccessor().charge(object))
-        self._pxlObject.setObject(object)
+            #newParticle.setName(particleName)
+            dataAccessor.setProperty(newParticle, "Name", particleName, categoryName)
+        #newParticle.setCharge(self.dataAccessor().charge(newParticle))
+        dataAccessor.setProperty(newParticle, "Charge", dataAccessor.charge(newParticle), categoryName) #TODO: check whether this is necessary
+        self._pxlObject.setObject(newParticle)
         
-        return self.addObject(object, pos)
+        return self.addDecayLine(newParticle, pos)
     
-    def addObject(self, object, pos=None):
-        """ This function accepts a data object (e.g. a pxl object), creates and DecayObject for it adds the latter to this container's objects list. 
+    def addDecayLine(self, object, pos=None):
+        """ This function accepts a data object (e.g. a pxl object), creates a DecayLine for it and adds the latter to this container's objects list. 
         
         """
         if not object:
@@ -597,22 +605,22 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
             daughterNode = QPoint(pos.x() + DecayLine.DEFAULT_LENGTH, pos.y())
             
         # create DecayLine
-        newObject = DecayLine(self, motherNode, daughterNode)
-        newObject.setObject(object)
+        newDecayLine = DecayLine(self, motherNode, daughterNode)
+        newDecayLine.setObject(object)
         if self.dataAccessor():
-            newObject.setLabel(self.dataAccessor().label(object))
-            newObject.setColor(self.dataAccessor().color(object))
-            newObject.setLineStyle(self.dataAccessor().lineStyle(object))
-        self._particlesDict[object] = newObject
+            newDecayLine.setLabel(self.dataAccessor().label(object))
+            newDecayLine.setColor(self.dataAccessor().color(object))
+            newDecayLine.setLineStyle(self.dataAccessor().lineStyle(object))
+        self._particlesDict[object] = newDecayLine
 
-        self.appendObject(newObject)    
+        self.appendObject(newDecayLine)    
         self.scheduleUpdateVisibleList()
-        return newObject
+        return newDecayLine
         
     def addDecayNode(self, pos):
-        newObject = DecayNode(self, pos)
+        newDecayNode = DecayNode(self, pos)
         self.scheduleUpdateVisibleList()
-        return self.appendObject(newObject)
+        return self.appendObject(newDecayNode)
     
     def operationId(self):
         return self.parent().operationId()
@@ -630,7 +638,7 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
                 if self.dataAccessor().isContainer(childObject):
                     self.createChildContainer(childObject)
                 else:
-                    self.addObject(childObject)
+                    self.addDecayLine(childObject)
                 
         for child in self.children():
             #if not Application.NO_PROCESS_EVENTS:
@@ -781,9 +789,17 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
         WidgetContainer.mousePressEvent(self, event)
         
     def mouseMoveEvent(self, event):
-        #if self._titleClicked and bool(event.buttons() & Qt.LeftButton) and self._editable:
-        WidgetContainer.mouseMoveEvent(self, event)
-        #    return
+        if self._titleClicked:
+            if self._editable:
+                WidgetContainer.mouseMoveEvent(self, event)
+            return
+        elif self.menu():
+            if self.isTitlePoint(event.pos()):
+                self.positionizeMenuWidget()
+                self.showMenu()
+            else:
+                self.menu().hide()
+            
         if not bool(event.buttons()):
             # no button pressed -> hovering
             to_hover_object = None
@@ -960,37 +976,27 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
         for i in range(len(self._nodeVector)):
             if i == 0 or self._nodeVector[i].position.y < minY:
                 minY = self._nodeVector[i].position.y
-            if self._nodeVector[i].position.y > maxY:
+            if i == 0 or self._nodeVector[i].position.y > maxY:
                 maxY = self._nodeVector[i].position.y
                 
-            #print "len_mothers, len_children", len(self._nodeVector[i].mothers), len(self._nodeVector[i].children),
             if (len(self._nodeVector[i].mothers) == 1 and len(self._nodeVector[i].children) == 0) or (len(self._nodeVector[i].mothers) == 0 and len(self._nodeVector[i].children) == 1):
                 # orphan particles:
                 # nodes have exactly one relation
                 # eighter node is mother or daughter (left and right side of particle)
-                #print " orphan"
                 if firstMinOrphanY or self._nodeVector[i].position.y > minOrphanY:
                     minOrphanY = self._nodeVector[i].position.y
                     firstMinOrphanY = False
             else:
                 # non orphans
-                #print "non orphan"
                 if firstMaxNonOrphanY or self._nodeVector[i].position.y < maxNonOrphanY:
-                    #print "   new max non orphan", self._nodeVector[i].position.y
                     maxNonOrphanY = self._nodeVector[i].position.y
-                    #print "   new max non orphan", maxNonOrphanY
                     firstMaxNonOrphanY = False
-                    
-        #print "minOrphanY, maxNonOrphanY", minOrphanY, maxNonOrphanY
-            
+
         xOffset = -30
         yOffset = -minY + (self.getDistance("titleFieldBottom") + 4* self.getDistance("topMargin")) / self.zoomFactor()
-        #print "yOffset ", yOffset 
+        
         for decayNode in self.dataObjects():
             if isinstance(decayNode, DecayNode) and decayNode in self._allNodes.keys():
-                #pxlNode = self._allNodes[decayNode]
-                #if (len(nodeVector[i].mothers) == 1 and len(nodeVector[i].children) == 0) or (len(nodeVector[i].mothers) == 0 and len(nodeVector[i].children) == 1):    # orphan
-                #    yOffset += maxNonOrphanY - minOrphanY + 30
                 decayNode.setPosition(QPoint(self._allNodes[decayNode].position.x + xOffset, self._allNodes[decayNode].position.y + yOffset))
             
         # arrange potential sub-views under decay tree
@@ -1181,13 +1187,30 @@ class DecayLine(DecayObject):
     # new properties
     LINE_WIDTH = 2
     DEFAULT_LENGTH = 70
-    LABEL_OFFSET = 4
+    LABEL_OFFSET = 7
+    
+    ARROW_LENGTH = 14   # length of two small arrow lines (painted when selected or hovered)
+    ARROW_WIDTH = 8     # vertical distance of two arrow lines from normal line
     
     HUNDREDEIGHTY_OVER_PI = 180 / math.pi
     
     def __init__(self, parent, startPointOrNode, endPointOrNode):
-        DecayObject.__init__(self, parent)
+        self._color = QColor(176, 179, 177)
+        self._lineStyle = Qt.SolidLine
+        self._label = None
+        self._labelFont = None
+        self._showLabel = True
+        self._labelMatrix = None
+        self._labelBoundingRect = None
+        self._recalculateBoundingRect = True
+        self._boundingRect = None
+        self._arrowBoundingRect = None
+        self._forwardDirection = True
+        self._recalculateTransform = True
+        self._transform = None
         self._pxlObject = None
+        
+        DecayObject.__init__(self, parent)
         
         if isinstance(parent, LineDecayContainer):
             self._selfContained = False
@@ -1211,15 +1234,11 @@ class DecayLine(DecayObject):
         
         self._startNode.appendObject(self)
         self._endNode.appendObject(self)
-        self._color = QColor(176, 179, 177)
-        self._lineStyle = Qt.SolidLine
-        self._label = None
-        self._showLabel = True
-        self._labelMatrix = None
-        self._labelBoundingRect = None
-        self._recalculateBoundingRect = True
-        self._boundingRect = None
-        self._arrowBoundingRect = None
+        
+    def setZoom(self, zoom):
+        DecayObject.setZoom(self, zoom)
+        if self._labelFont:
+            self._labelFont.setPointSize(12 * self.zoomFactor())
         
     def delete(self):
         self._startNode.removeObject(self)
@@ -1263,6 +1282,9 @@ class DecayLine(DecayObject):
         
     def setLabel(self, label):
         self._label = label
+        if not self._labelFont:
+            self._labelFont = QFont()
+            self._labelFont.setPointSize(12 * self.zoomFactor())
         
     def setShowLabel(self, show):
         self._showLabel = show
@@ -1298,9 +1320,36 @@ class DecayLine(DecayObject):
         """ Returns True if instead of simple line a spiral or a sinus function is plotted.
         """
         if not self.parent().dataAccessor():
-        #if not self.dataAccessor():
             return False
-        return self._lineStyle == self.parent().dataAccessor().LINE_STYLE_SPIRAL or self._lineStyle == self.parent().dataAccessor().LINE_STYLE_WAVE
+        return self._lineStyle == self.parent().dataAccessor().LINE_STYLE_SPIRAL or self._lineStyle == self.parent().dataAccessor().LINE_STYLE_WAVE or self._lineStyle == self.parent().dataAccessor().LINE_VERTEX
+        
+    def transform(self):
+        """ Returns QTransform that sets the origin to the start point and rotates by the slope angle.
+
+        Used to change coordinates of painter in paint().
+        """
+
+        if not self._recalculateTransform and self._transform:
+            return self._transform
+        
+        z = self.zoomFactor()
+        if self._startNode.x() < self._endNode.x():
+            self._forwardDirection = True
+            xNull = self._startNode.x() * z
+            yNull = self._startNode.y() * z
+        else:
+            self._forwardDirection = False
+            xNull = self._endNode.x() * z
+            yNull = self._endNode.y() * z
+        
+        slope = self.slope()
+        angle = math.atan(slope)
+        angleDegree = angle * self.HUNDREDEIGHTY_OVER_PI
+        
+        self._transform = QTransform()
+        self._transform.translate(xNull, yNull)    # rotate around start point
+        self._transform.rotate(angleDegree)
+        return self._transform
         
     def paint(self, painter, paintMode=0x0):
         if paintMode & DecayObject.PAINT_MODE_SELECTED:
@@ -1313,32 +1362,15 @@ class DecayLine(DecayObject):
         showDirectionArrow = paintMode & DecayObject.PAINT_MODE_HOVERED or paintMode & DecayObject.PAINT_MODE_SELECTED
         extendedSize = self.extendedSize()
         
-        if extendedSize or showDirectionArrow:
-            z = self.zoomFactor()
-            if self._startNode.x() < self._endNode.x():
-                forwardDirection = True
-                xNull = self._startNode.x() * z
-                yNull = self._startNode.y() * z
-            else:
-                forwardDirection = False
-                xNull = self._endNode.x() * z
-                yNull = self._endNode.y() * z
-            
-            l = self.length(zoomed = True)
-            
-            slope = self.slope()
-            angle = math.atan(slope)
-            angleDegree = angle * self.HUNDREDEIGHTY_OVER_PI
-            
-            painter.translate(QPointF(xNull, yNull))    # rotate around start point
-            painter.rotate(angleDegree)
+        z = self.zoomFactor()
+        l = self.length(zoomed = True)
+        
+        # transform coordinates to make following calculations easier
+        painter.setTransform(self.transform())
         
         if extendedSize:
+            painter.setPen(QPen(penColor, 0.5*self.lineWidth(), Qt.SolidLine))
             # spiral or wave line
-            
-            #deltaX = abs(self._startNode.x() - self._endNode.x()) * z
-            #deltaY = abs(self._startNode.y() - self._endNode.y()) * z
-            
             ## l = (n + 1/2) * r * 2 * math.pi
             designRadius = 1.2 * z
             # n: number of spirals
@@ -1348,8 +1380,8 @@ class DecayLine(DecayObject):
             # a: cycloide is trace of point with radius a
             a = 3.5 * r
             
-            path = QPainterPath()
             if self.parent().dataAccessor() and self._lineStyle == self.parent().dataAccessor().LINE_STYLE_SPIRAL:
+                path = QPainterPath()
                 # draw spiral using a cycloide
                 # coordinates of center of wheel
                 xM = a
@@ -1364,51 +1396,43 @@ class DecayLine(DecayObject):
                         break
                     path.lineTo(QPointF(x, y))
                     xM += 0.2 * r / z
+                painter.drawPath(path)
             elif self.parent().dataAccessor() and self._lineStyle == self.parent().dataAccessor().LINE_STYLE_WAVE:
+                path = QPainterPath()
                 x = a
                 while x < l - 0.5*a:
                     y = a * math.cos(x/r)
                     path.lineTo(QPointF(x, y))
                     x += 0.2 * r / z
+                painter.drawPath(path)
+            elif self.parent().dataAccessor() and self._lineStyle == self.parent().dataAccessor().LINE_VERTEX:
+                painter.setBrush(QBrush(penColor, Qt.SolidPattern))
+                painter.drawEllipse(QPointF(l/2.,0.),l/2.,a)
 
-            painter.setPen(QPen(penColor, 0.5*self.lineWidth(), Qt.SolidLine))
-            painter.drawPath(path)
         else:
             painter.setPen(QPen(penColor, self.lineWidth(), self.qtLineStyle()))
-            if showDirectionArrow:
-                painter.drawLine(QPoint(0,0), QPoint(l, 0))
-            else:    
-                painter.drawLine(self._startNode.position() * self.zoomFactor(), self._endNode.position() * self.zoomFactor())
-
-        if showDirectionArrow:
-            arrowLength = 14 * z
-            d = 7 * z
-            self._arrowMatrix = painter.combinedMatrix()
-            if forwardDirection:
-                painter.drawLine(l-arrowLength, d, l, 0)
-                painter.drawLine(l-arrowLength, -d, l, 0)
-                self._arrowBoundingRect = QRect(l-arrowLength, d, arrowLength, 2*d)
-            else:
-                painter.drawLine(0, 0, arrowLength, d)
-                painter.drawLine(0, 0, arrowLength, -d)
-                self._arrowBoundingRect = QRect(l-arrowLength, d, arrowLength, 2*d)
-        else:
-            self._arrowBoundingRect = None
+            painter.drawLine(QPoint(0,0), QPoint(l, 0))
             
-        painter.resetTransform()
         if not paintMode & DecayObject.PAINT_MODE_NO_DECORATIONS:
-            if extendedSize:
-                # don't recalculate angles
-                self.drawText(painter, paintMode, slope, angle, angleDegree)
-            else:
-                self.drawText(painter, paintMode)
+            self.drawText(painter, paintMode)
             
+        # paint arrow lines
+        if showDirectionArrow:
+            painter.setPen(QPen(penColor, 0.8*self.lineWidth(), Qt.SolidLine, Qt.RoundCap))
+            self.drawArrow(painter, paintMode)
+        
+        ## DEBUG
+        #painter.setPen(QPen(penColor, 1, Qt.SolidLine))
+        #painter.drawRect(self.labelBoundingRect())
+        #painter.drawRect(self.arrowBoundingRect())
+        
+        painter.resetTransform()
+        #painter.drawRect(self.boundingRect())
+        
         if self._selfContained:
             self._startNode.paint(painter, paintMode)
             self._endNode.paint(painter, paintMode)
             
-        #painter.drawRect(self.boundingRect())
-    
     # simple paint method for debugging
 #    def paint(self, painter, paintMode=0x0):
 #        if paintMode & DecayObject.PAINT_MODE_SELECTED:
@@ -1430,43 +1454,13 @@ class DecayLine(DecayObject):
 #            
 #        #painter.drawRect(self.boundingRect())
     
-    def drawText(self, painter, paintMode=0x0, *args):
+    def drawText(self, painter, paintMode=0x0):
+        """ Draws self._label on given painter.
+        
+        Expects coordinates of painter transformed as returned by transform()
+        """
         if not self._showLabel or not self._label:
             return
-        if len(args) > 0:
-            slope = args[0]
-            #angle = args[1]
-            angleDegree = args[2]
-            needTransformation = False
-        else:
-            slope = self.slope()
-            #angle = math.atan(slope)
-            angleDegree = math.atan(slope) * self.HUNDREDEIGHTY_OVER_PI
-            needTransformation = True
-        
-        font = QFont()
-        font.setPointSize(12 * self.zoomFactor())
-        fm = QFontMetrics(font)
-        labelBoundingRect = fm.boundingRect(self._label)
-        
-        labelWidth = labelBoundingRect.width()
-        if self._startNode.x() < self._endNode.x():
-            startPoint = self._startNode.position(zoomed=True)
-        else:
-            startPoint = self._endNode.position(zoomed=True)
-            
-        label_offset = self.LABEL_OFFSET
-        if self.extendedSize():
-            label_offset += 2 
-        offset = QPointF(0.5 * (self.length(zoomed=True) - labelWidth), - label_offset * self.zoomFactor())
-        
-        painter.translate(startPoint)    # rotate around start point
-        painter.rotate(angleDegree)
-        
-        # for self.boundingRect()
-        labelBoundingRect.translate(offset.x(), offset.y())
-        self._labelMatrix=painter.combinedMatrix()
-        self._labelBoundingRect = labelBoundingRect
         
         if paintMode & DecayObject.PAINT_MODE_SELECTED:
             textColor = QColor(Qt.blue)
@@ -1476,29 +1470,83 @@ class DecayLine(DecayObject):
             textColor = QColor(Qt.black)
 
         path = QPainterPath()
-        path.addText(offset, font, self._label)
+        path.addText(QPointF(self.labelBoundingRect().bottomLeft()), self._labelFont, self._label)
         painter.fillPath(path, textColor)
-        painter.resetTransform()
         
+    def drawArrow(self, painter, paintMode=0x0):
+        # make sure to stay within bounding rect, therefore add / substract arrowPixelOffset
+        arrowPixelOffset =  0.7* self.lineWidth()
+        arrowBoundingRect = self.arrowBoundingRect()
+        arrowBoundingRectLeft = arrowBoundingRect.left() + arrowPixelOffset
+        arrowBoundingRectRight = arrowBoundingRect.right() - arrowPixelOffset
+        arrowBoundingRectTop = arrowBoundingRect.top() + arrowPixelOffset
+        arrowBoundingRectBottom = arrowBoundingRect.bottom() - arrowPixelOffset
+        arrowBoundingRectVerticalCenter = arrowBoundingRect.center().y()
+        if self._forwardDirection:
+            painter.drawLine(arrowBoundingRectLeft, arrowBoundingRectTop, arrowBoundingRectRight, arrowBoundingRectVerticalCenter)
+            painter.drawLine(arrowBoundingRectLeft, arrowBoundingRectBottom, arrowBoundingRectRight, arrowBoundingRectVerticalCenter)
+            
+        else:
+            painter.drawLine(arrowBoundingRectLeft, arrowBoundingRectVerticalCenter, arrowBoundingRectRight, arrowBoundingRectTop)
+            painter.drawLine(arrowBoundingRectLeft, arrowBoundingRectVerticalCenter, arrowBoundingRectRight, arrowBoundingRectBottom)
+        
+        
+    def labelBoundingRect(self, forceRecalculation=False):
+        if not self._label or not self._labelFont:
+            return QRect()
+        
+        if not self._labelBoundingRect or forceRecalculation:
+            label_offset = self.LABEL_OFFSET
+            if self.extendedSize():
+                label_offset += 2 
+            
+            fm = QFontMetrics(self._labelFont)
+            self._labelBoundingRect = fm.boundingRect(self._label)
+            
+            labelWidth = self._labelBoundingRect.width()
+            offset = QPointF(0.5 * (self.length(zoomed=True) - labelWidth), - label_offset * self.zoomFactor())
+            self._labelBoundingRect.translate(offset.x(), offset.y())
+            
+        return self._labelBoundingRect
+    
+    def arrowBoundingRect(self, forceRecalculation=False):
+        if not self._arrowBoundingRect or forceRecalculation:
+            zoomFactor = self.zoomFactor()
+            l = self.length(zoomed = True)
+            arrowLength = self.ARROW_LENGTH * zoomFactor
+            arrowWidth = self.ARROW_WIDTH * zoomFactor
+            horizontalOffset = self.CONTAINS_AREA_SIZE * 0.4 * self.zoomFactor()    # offset from end of line
+            if self._forwardDirection:
+                self._arrowBoundingRect = QRect(l-arrowLength - horizontalOffset, -arrowWidth, arrowLength, 2*arrowWidth)
+            else:
+                self._arrowBoundingRect = QRect(horizontalOffset, -arrowWidth, arrowLength, 2*arrowWidth)
+        
+        return self._arrowBoundingRect
+    
     def boundingRect(self):
         if not self._recalculateBoundingRect and self._boundingRect:
             return self._boundingRect
+        
+        self._recalculateTransform = True
         contains_area_size = self.CONTAINS_AREA_SIZE
         if self.extendedSize():
             contains_area_size += 4
             
-        offset = contains_area_size * self.zoomFactor()
-        startPoint = self._startNode.position() * self.zoomFactor()
-        endPoint = self._endNode.position() * self.zoomFactor()
+        zoomFactor = self.zoomFactor()
+        offset = contains_area_size * zoomFactor
+        startPoint = self._startNode.position() * zoomFactor
+        endPoint = self._endNode.position() * zoomFactor
         
         topLeft = QPoint(min(startPoint.x(), endPoint.x()) - offset, min(startPoint.y(), endPoint.y()) - offset)
         bottomRight = QPoint(max(startPoint.x(), endPoint.x()) + offset, max(startPoint.y(), endPoint.y()) + offset) 
         
         rect = QRect(topLeft, bottomRight)
-        if self._labelBoundingRect:
-            rect = rect.united(self._labelMatrix.mapRect(self._labelBoundingRect))
-        if self._arrowBoundingRect:
-            rect = rect.united(self._arrowMatrix.mapRect(self._arrowBoundingRect))
+        
+        # increase rect for label and arrow (shows when selected or hovered
+        rect = rect.united(self.transform().mapRect(self.arrowBoundingRect(True)))
+        if self._label and self._labelFont:
+            rect = rect.united(self.transform().mapRect(self.labelBoundingRect(True)))
+
         self._boundingRect = rect
         return self._boundingRect
     
@@ -1519,7 +1567,7 @@ class DecayLine(DecayObject):
         pos = pos / self.zoomFactor()
 
         # label
-        if self._labelBoundingRect and self._labelBoundingRect.contains(self._labelMatrix.inverted()[0].map(pos)):
+        if self._label and self._labelFont and self.labelBoundingRect().contains(self.transform().inverted()[0].map(pos)):
             return True
         
         # line

@@ -13,7 +13,7 @@
 //
 // Original Author:  Gordon KAUSSEN
 //         Created:  Wed Jan 28 09:11:10 CEST 2009
-// $Id: SiStripBadAPVAlgorithmFromClusterOccupancy.h,v 1.5 2010/02/19 11:18:19 kaussen Exp $
+// $Id: SiStripBadAPVAlgorithmFromClusterOccupancy.h,v 1.4 2009/10/05 09:43:35 kaussen Exp $
 //
 //
 
@@ -66,7 +66,6 @@ public:
     int modulePosition;
     int numberApvs;
     double apvMedian[6];
-    double apvabsoluteOccupancy[6];
   };
 
   void CalculateMeanAndRMS(std::vector<Apv>, std::pair<double,double>*, int);
@@ -97,6 +96,7 @@ public:
 
   double stripOccupancy[6][128];
   double stripWeight[6][128];
+  double apvabsoluteOccupancy[6];
 
   std::vector<Apv> medianValues_TIB_Layer1; std::pair<double,double> MeanAndRms_TIB_Layer1[7];
   std::vector<Apv> medianValues_TIB_Layer2; std::pair<double,double> MeanAndRms_TIB_Layer2[7];

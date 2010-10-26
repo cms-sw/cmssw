@@ -8,13 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:04 CDT 2009
-// $Id: FWModelContextMenuHandler.cc,v 1.15 2010/06/16 14:04:40 matevz Exp $
+// $Id: FWModelContextMenuHandler.cc,v 1.11 2009/11/04 13:30:08 amraktad Exp $
 //
 
 // system include files
 #include <cassert>
+#include "TColor.h"
+#include "TGColorDialog.h"
 #include "TGMenu.h"
-#include "KeySymbols.h"
 
 // user include files
 #include "Fireworks/Core/src/FWModelContextMenuHandler.h"
@@ -39,99 +40,6 @@ enum MenuOptions {
    kViewOptionsMO=1000,
    kLastOfMO
 };
-
-
-class FWPopupMenu : public TGPopupMenu
-{
-public:
-   FWPopupMenu(const TGWindow* p=0, UInt_t w=10, UInt_t h=10, UInt_t options=0) :
-      TGPopupMenu(p, w, h, options)
-   {
-      AddInput(kKeyPressMask);
-   }
-
-   // virtual void	PlaceMenu(Int_t x, Int_t y, Bool_t stick_mode, Bool_t grab_pointer)
-   // {
-   //    TGPopupMenu::PlaceMenu(x, y, stick_mode, grab_pointer);
-   //    gVirtualX->GrabKey(fId, 0l, kAnyModifier, kTRUE);
-   // }
-
-   virtual void PoppedUp()
-   {
-      TGPopupMenu::PoppedUp();
-      gVirtualX->SetInputFocus(fId);
-      gVirtualX->GrabKey(fId, 0l, kAnyModifier, kTRUE);
-      
-   }
-
-   virtual void PoppedDown()
-   {
-      gVirtualX->GrabKey(fId, 0l, kAnyModifier, kFALSE);
-      TGPopupMenu::PoppedDown();
-   }
-
-   virtual Bool_t HandleKey(Event_t* event)
-   {
-      if (event->fType != kGKeyPress) return kTRUE;
-
-      UInt_t keysym;
-      char tmp[2];
-      gVirtualX->LookupString(event, tmp, sizeof(tmp), keysym);
-
-      TGMenuEntry *ce = fCurrent;
-
-      switch (keysym)
-      {
-         case kKey_Up:
-         {
-            if (ce) ce = (TGMenuEntry*)GetListOfEntries()->Before(ce);
-            while (ce && ((ce->GetType() == kMenuSeparator) ||
-                          (ce->GetType() == kMenuLabel) ||
-                          !(ce->GetStatus() & kMenuEnableMask)))
-            {
-               ce = (TGMenuEntry*)GetListOfEntries()->Before(ce);
-            }
-            if (!ce) ce = (TGMenuEntry*)GetListOfEntries()->Last();
-            Activate(ce);
-            break;
-         }
-         case kKey_Down:
-         {
-            if (ce) ce = (TGMenuEntry*)GetListOfEntries()->After(ce);
-            while (ce && ((ce->GetType() == kMenuSeparator) ||
-                          (ce->GetType() == kMenuLabel) ||
-                          !(ce->GetStatus() & kMenuEnableMask)))
-            {
-               ce = (TGMenuEntry*)GetListOfEntries()->After(ce);
-            }
-            if (!ce) ce = (TGMenuEntry*)GetListOfEntries()->First();
-            Activate(ce);
-            break;
-         }
-         case kKey_Enter:
-         case kKey_Return:
-         {
-            Event_t ev;
-            ev.fType = kButtonRelease;
-            ev.fWindow = fId;
-            return HandleButton(&ev);
-         }
-         case kKey_Escape:
-         {
-            fCurrent = 0;
-            void *dummy = 0;
-            return EndMenu(dummy);
-         }
-         default:
-         {
-            break;
-         }
-      }
-
-      return kTRUE;
-   }
-};
-
 
 //
 // static data member definitions
@@ -191,7 +99,7 @@ namespace  {
       void operator()(const FWModelId& iID) const {
          FWDisplayProperties p = iID.item()->modelInfo(iID.index()).displayProperties();
          p.setIsVisible(m_isVisible);
-         iID.item()->setDisplayProperties(iID.index(), p);
+         iID.item()->setDisplayProperties(iID.index(),p);
       }
       bool m_isVisible; 
    };
@@ -214,13 +122,31 @@ FWModelContextMenuHandler::chosenItem(Int_t iChoice)
       case kSetColorMO:
       {
          FWModelId id = *(m_selectionManager->selected().begin());
-         createColorPopup();
-         m_colorPopup->SetName("Selected");
-         std::vector<Color_t> colors;
-         m_colorManager->fillLimitedColors(colors);
-         m_colorPopup->ResetColors(colors, m_colorManager->backgroundColorIndex()==FWColorManager::kBlackIndex);
-         m_colorPopup->SetSelection(id.item()->modelInfo(id.index()).displayProperties().color());
-         m_colorPopup->PlacePopup(m_x, m_y, m_colorPopup->GetDefaultWidth(), m_colorPopup->GetDefaultHeight());
+         if (m_colorManager->hasLimitedPalette())
+         {
+            createColorPopup();
+            m_colorPopup->SetName("Selected");
+            std::vector<Pixel_t> colors;
+            for(unsigned int index=0; index <m_colorManager->numberOfIndicies(); ++index) {
+               colors.push_back((Pixel_t)gVirtualX->GetPixel(m_colorManager->indexToColor(index)));
+            }
+            m_colorPopup->ResetColors(colors, m_colorManager->backgroundColorIndex()==FWColorManager::kBlackIndex);
+            m_colorPopup->SetSelection(gVirtualX->GetPixel(id.item()->modelInfo(id.index()).displayProperties().color()));
+            m_colorPopup->PlacePopup(m_x, m_y, m_colorPopup->GetDefaultWidth(), m_colorPopup->GetDefaultHeight());
+         }
+         else
+         {
+            Int_t   retc;
+            Pixel_t pixel = TColor::Number2Pixel(id.item()->modelInfo(id.index()).displayProperties().color());
+
+            TGColorDialog *cd = new TGColorDialog(gClient->GetDefaultRoot(), m_modelPopup, &retc, &pixel, kFALSE);
+
+            cd->Connect("ColorSelected(Pixel_t)", "FWModelContextMenuHandler", this, "colorChangeRequested(Pixel_t");
+
+            cd->MapWindow();
+            gClient->WaitForUnmap(cd);
+            cd->DeleteWindow();
+         }
          break;
       }
       case kOpenObjectControllerMO:
@@ -254,16 +180,23 @@ FWModelContextMenuHandler::chosenItem(Int_t iChoice)
 }
 
 void 
-FWModelContextMenuHandler::colorChangeRequested(Color_t color)
+FWModelContextMenuHandler::colorChangeRequested(Int_t iIndex)
 {
+   Color_t color =m_colorManager->indexToColor(iIndex);
+
    for(std::set<FWModelId>::const_iterator it =m_selectionManager->selected().begin(),
        itEnd = m_selectionManager->selected().end();
        it != itEnd;
        ++it) {
-      FWDisplayProperties changeProperties = it->item()->modelInfo(it->index()).displayProperties();
-      changeProperties.setColor(color);
-      it->item()->setDisplayProperties(it->index(), changeProperties);
+      const FWDisplayProperties changeProperties(color, it->item()->modelInfo(it->index()).displayProperties().isVisible());
+      it->item()->setDisplayProperties(it->index(),changeProperties);
    }
+}
+
+void 
+FWModelContextMenuHandler::colorChangeRequested(Pixel_t iPix)
+{
+   colorChangeRequested(TColor::GetColor(iPix));
 }
 
 void 
@@ -355,7 +288,7 @@ void
 FWModelContextMenuHandler::createModelContext() const
 {
    if(0==m_modelPopup) {
-      m_modelPopup = new FWPopupMenu();
+      m_modelPopup = new TGPopupMenu();
       
       m_modelPopup->AddEntry("Set Visible",kSetVisibleMO);
       m_modelPopup->AddEntry("Set Color ...",kSetColorMO);
@@ -379,12 +312,16 @@ void
 FWModelContextMenuHandler::createColorPopup() const
 {
    if(0==m_colorPopup) {
-      std::vector<Color_t> colors;
-      m_colorManager->fillLimitedColors(colors);
+      std::vector<Pixel_t> colors;
+      for(unsigned int index=0; index <m_colorManager->numberOfIndicies(); ++index) {
+         colors.push_back((Pixel_t)gVirtualX->GetPixel(m_colorManager->indexToColor(index)));
+      }
+      
+      //Pixel_t selection = gVirtualX->GetPixel(m_collection->defaultDisplayProperties().color());
       
       m_colorPopup = new FWColorPopup(gClient->GetDefaultRoot(), colors.front());
       m_colorPopup->InitContent("", colors);
-      m_colorPopup->Connect("ColorSelected(Color_t)","FWModelContextMenuHandler", const_cast<FWModelContextMenuHandler*>(this), "colorChangeRequested(Color_t)");
+      m_colorPopup->Connect("ColorBookkeeping(Int_t)","FWModelContextMenuHandler", const_cast<FWModelContextMenuHandler*>(this), "colorChangeRequested(Int_t)");
    }
 }
 

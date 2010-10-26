@@ -11,12 +11,6 @@ from Vispa.Gui.Zoomable import Zoomable
 from Vispa.Views.AbstractView import NoneView
 from Vispa.Views.TreeView import TreeView
 
-class HeaderView(QHeaderView):
-    def mousePressEvent(self,event):
-        QHeaderView.mousePressEvent(self,event)
-        if event.button()==Qt.RightButton:
-            self.emit(SIGNAL("mouseRightPressed"), event.globalPos())
-
 class BrowserTab(SplitterTab):
     """ The BrowserTab has three views and is controlled by the BrowserControllerTab.
     """
@@ -44,6 +38,7 @@ class BrowserTab(SplitterTab):
         
         self._treeviewArea = FrameWithHeader(parent)
         self._treeviewArea.header().setText("Tree View")
+        self._treeviewArea.header().setToolTip("click on '>' for options of this view")
         self._treeViewMenuButton = self._treeviewArea.header().createMenuButton()
         self._treeView = TreeView(self._treeviewArea)
         self._treeviewArea.addWidget(self._treeView)
@@ -56,6 +51,7 @@ class BrowserTab(SplitterTab):
             
         self._centerArea = FrameWithHeader(parent)
         self._centerArea.header().setText("Center View")
+        self._centerArea.header().setToolTip("click on '>' for options of this view")
         self._centerArea.header().createMenuButton()
         
         self._scrollArea=ZoomableScrollArea(self._centerArea)

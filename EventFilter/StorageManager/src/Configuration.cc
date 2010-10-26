@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.33 2010/04/19 10:35:23 mommsen Exp $
+// $Id: Configuration.cc,v 1.34 2010/05/11 18:02:20 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -180,7 +180,6 @@ namespace stor
     _diskWriteParamCopy._highWaterMark = 90;
     _diskWriteParamCopy._failHighWaterMark = 95;
     _diskWriteParamCopy._lumiSectionTimeOut = 45.0;
-    _diskWriteParamCopy._errorEventsTimeOut = 300.0;
     _diskWriteParamCopy._fileClosingTestInterval = 5.0;
     _diskWriteParamCopy._fileSizeTolerance = 0.0;
     _diskWriteParamCopy._useIndexFiles = true;
@@ -296,7 +295,6 @@ namespace stor
     _highWaterMark = _diskWriteParamCopy._highWaterMark;
     _failHighWaterMark = _diskWriteParamCopy._failHighWaterMark;
     _lumiSectionTimeOut = _diskWriteParamCopy._lumiSectionTimeOut;
-    _errorEventsTimeOut = _diskWriteParamCopy._errorEventsTimeOut;
     _fileClosingTestInterval =
       static_cast<int>(_diskWriteParamCopy._fileClosingTestInterval);
     _fileSizeTolerance = _diskWriteParamCopy._fileSizeTolerance;
@@ -319,7 +317,6 @@ namespace stor
     infoSpace->fireItemAvailable("highWaterMark", &_highWaterMark);
     infoSpace->fireItemAvailable("failHighWaterMark", &_failHighWaterMark);
     infoSpace->fireItemAvailable("lumiSectionTimeOut", &_lumiSectionTimeOut);
-    infoSpace->fireItemAvailable("errorEventsTimeOut", &_errorEventsTimeOut);
     infoSpace->fireItemAvailable("fileClosingTestInterval",
                                  &_fileClosingTestInterval);
     infoSpace->fireItemAvailable("fileSizeTolerance", &_fileSizeTolerance);
@@ -479,7 +476,6 @@ namespace stor
     _diskWriteParamCopy._highWaterMark = _highWaterMark;
     _diskWriteParamCopy._failHighWaterMark = _failHighWaterMark;
     _diskWriteParamCopy._lumiSectionTimeOut = _lumiSectionTimeOut;
-    _diskWriteParamCopy._errorEventsTimeOut = _errorEventsTimeOut;
     _diskWriteParamCopy._fileClosingTestInterval = _fileClosingTestInterval;
     _diskWriteParamCopy._fileSizeTolerance = _fileSizeTolerance;
     _diskWriteParamCopy._useIndexFiles = _useIndexFiles;

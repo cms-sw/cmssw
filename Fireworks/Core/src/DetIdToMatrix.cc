@@ -1,22 +1,22 @@
-#include <stdexcept>
-
+#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "TGeoManager.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TEveGeoNode.h"
+#include "TEveTrans.h"
+#include "TColor.h"
+#include "TROOT.h"
 #include <iostream>
 #include <sstream>
 #include "TPRegexp.h"
 #include "TSystem.h"
+#include "TGeoArb8.h"
+#include "TEveVSDStructs.h"
 #include "TGeoCompositeShape.h"
 #include "TGeoBoolNode.h"
-
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
-#include "Fireworks/Core/interface/fwLog.h"
-#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-
 DetIdToMatrix::~DetIdToMatrix()
 {
    // ATTN: not sure I own the manager
@@ -65,10 +65,11 @@ void DetIdToMatrix::loadGeometry(const char* fileName)
       manager_ = (TGeoManager*)f->Get("cmsGeo");
       f->Close();
    } else {
-      throw std::runtime_error("failed to find geometry file. Initialization failed.");
+      std::cout << "ERROR: failed to find geometry file. Initialization failed." << std::endl;
+      return;
    }
    if (!manager_) {
-      throw std::runtime_error("cannot find geometry in the file. Initialization failed.");
+      std::cout << "ERROR: cannot find geometry in the file. Initialization failed." << std::endl;
       return;
    }
 }
@@ -76,18 +77,18 @@ void DetIdToMatrix::loadGeometry(const char* fileName)
 void DetIdToMatrix::loadMap(const char* fileName)
 {
    if (!manager_) {
-      throw std::runtime_error("CMS detector geometry is not available. DetId to Matrix map Initialization failed.");
+      std::cout << "ERROR: CMS detector geometry is not available. DetId to Matrix map Initialization failed." << std::endl;
       return;
    }
 
    TFile* f = findFile(fileName);
    if ( !f )  {
-      throw std::runtime_error("ERROR: failed to find geometry file. Initialization failed.");
+      std::cout << "ERROR: failed to find geometry file. Initialization failed." << std::endl;
       return;
    }
    TTree* tree = (TTree*)f->Get("idToGeo");
    if (!tree) {
-      throw std::runtime_error("cannot find detector id map in the file. Initialization failed.");
+      std::cout << "ERROR: cannot find detector id map in the file. Initialization failed." << std::endl;
       return;
    }
    unsigned int id;
@@ -117,7 +118,7 @@ const TGeoHMatrix* DetIdToMatrix::getMatrix( unsigned int id ) const
    const char* path = getPath( id );
    if ( !path ) return 0;
    if ( !manager_->cd(path) ) {
-      fwLog(fwlog::kError) << "incorrect path " << path << "\nfor DetId: " << id << std::endl;
+      std::cout << "ERROR: incorrect path " << path << "\nfor DetId: " << id << std::endl;
       return 0;
    }
 
@@ -209,7 +210,6 @@ TEveGeoShape* DetIdToMatrix::getShape(const char* path, const char* name, const 
    if ( !matrix ) matrix = manager_->GetCurrentMatrix();
 
    TEveGeoShape* shape = new TEveGeoShape(name,path);
-   shape->SetElementTitle(name);
    shape->SetTransMatrix(*matrix);
    TGeoShape* gs = manager_->GetCurrentVolume()->GetShape();
    //------------------------------------------------------------------------------//
@@ -262,7 +262,7 @@ std::vector<TEveVector> DetIdToMatrix::getPoints(unsigned int id) const
    // reco geometry points
    std::map<unsigned int, std::vector<TEveVector> >::const_iterator points = idToPoints_.find(id);
    if ( points == idToPoints_.end() ) {
-      fwLog(fwlog::kWarning) << "no reco geometry is found for id "<<  id << std::endl;
+      printf("Warning: no reco geometry is found for id: %d\n", id);
       return std::vector<TEveVector>();
    } else {
       return points->second;

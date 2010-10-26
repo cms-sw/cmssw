@@ -24,7 +24,7 @@ def extractBlock(config, blocks, target):
 def extractBlocks(config):
   outputA    = ( 'hltOutputA', )
   outputALCA = ( 'hltOutputALCAPHISYM', 'hltOutputALCAP0', 'hltOutputRPCMON' )
-  outputMON  = ( 'hltOutputDQM', 'hltOutputHLTDQM', 'hltOutputHLTMON', 'hltOutputOffline' )
+  outputMON  = ( 'hltOutputDQM', 'hltOutputHLTDQM', 'hltOutputHLTMON' )
   extractBlock(config, outputA,    'hltOutputA_cff.py')
   extractBlock(config, outputALCA, 'hltOutputALCA_cff.py')
   extractBlock(config, outputMON,  'hltOutputMON_cff.py')
@@ -61,22 +61,20 @@ import hltOutputMON_cff
 
 # hltDebugOutput
 hltDebugOutputBlocks = (
-  # the DQM, HLTDQM and HLTMON streams have the HLT debug outputs used online; hltOutputOffline has the optional extra offline event content
+  # the DQM, HLTDQM and HLTMON streams have the HLT debug outputs used online
   hltOutputMON_cff.block_hltOutputDQM.outputCommands,
   hltOutputMON_cff.block_hltOutputHLTDQM.outputCommands,
   hltOutputMON_cff.block_hltOutputHLTMON.outputCommands,
-  hltOutputMON_cff.block_hltOutputOffline.outputCommands,
 )
 hltDebugOutputContent = buildPSet(hltDebugOutputBlocks)
 
 
 # hltDebugWithAlCaOutput
 hltDebugWithAlCaOutputBlocks = (
-  # the DQM, HLTDQM and HLTMON streams have the HLT debug outputs used online; hltOutputOffline has the optional extra offline event content
+  # the DQM, HLTDQM and HLTMON streams have the HLT debug outputs used online
   hltOutputMON_cff.block_hltOutputDQM.outputCommands,
   hltOutputMON_cff.block_hltOutputHLTDQM.outputCommands,
   hltOutputMON_cff.block_hltOutputHLTMON.outputCommands,
-  hltOutputMON_cff.block_hltOutputOffline.outputCommands,
   # the ALCA streams have the AlCa outputs
   hltOutputALCA_cff.block_hltOutputALCAPHISYM.outputCommands,
   hltOutputALCA_cff.block_hltOutputALCAP0.outputCommands,

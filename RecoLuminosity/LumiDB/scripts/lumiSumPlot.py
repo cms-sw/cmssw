@@ -1,293 +1,161 @@
 #!/usr/bin/env python
 VERSION='1.00'
-import os,sys
+import os,sys,datetime
 import coral
-from RecoLuminosity.LumiDB import argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,matplotRender
+from RecoLuminosity.LumiDB import lumiTime,argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,matplotRender,lumiQueryAPI,inputFilesetParser,csvReporter,CommonUtil
 from matplotlib.figure import Figure
-def findInList(mylist,element):
-    pos=-1
-    try:
-        pos=mylist.index(element)
-    except ValueError:
-        pos=-1
-    return pos!=-1
 class constants(object):
     def __init__(self):
         self.NORM=1.0
         self.LUMIVERSION='0001'
         self.NBX=3564
-        self.BEAMMODE='stable' #possible choices stable,quiet,either
-
+        self.VERBOSE=False
     def defaultfrontierConfigString(self):
         return """<frontier-connect><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier1.cern.ch:3128"/><proxy url="http://cmst0frontier2.cern.ch:3128"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier1.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier2.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier3.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier4.cern.ch:8000/FrontierInt"/></frontier-connect>"""
-    
-def getLumiInfoForRuns(dbsession,c,runDict,hltpath=''):
+
+def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=None,beamenergy=None,beamfluctuation=None):
     '''
-    output:{ runnumber:[delivered,recorded,recorded_hltpath] }
+    input:  runList[runnum], selectionDict{runnum:[ls]}
+    output: [[runnumber,runstarttime,lsnum,lsstarttime,delivered,recorded,recordedinpath]]
     '''
+    #print 'getLumiOrderByLS selectionDict seen ',selectionDict
+    t=lumiTime.lumiTime()
+    result=[]#[[runnumber,runstarttime,lsnum,lsstarttime,delivered,recorded]]
+    dbsession.transaction().start(True)
+    sortedresult=[]
+    #print 'runlist ',runList
+    for runnum in runList:
+        delivered=0.0
+        recorded=0.0 
+        
+        #print 'looking for run ',runnum
+        q=dbsession.nominalSchema().newQuery()
+        runsummary=lumiQueryAPI.runsummaryByrun(q,runnum)
+        del q
+        runstarttimeStr=runsummary[3]
+        if len(runstarttimeStr)==0:
+            if c.VERBOSE: print 'warning request run ',runnum,' has no runsummary, skip'
+            continue
+        if len(selectionDict)!=0 and not selectionDict.has_key(runnum):
+            if runnum<max(selectionDict.keys()):
+                result.append([runnum,runstarttimeStr,1,t.StrToDatetime(runstarttimeStr),0.0,0.0])
+            continue
+        #print 'runsummary ',runsummary
+        lumitrginfo={}
+        q=dbsession.nominalSchema().newQuery()
+        lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation) #q2
+        del q
+        #print 'lumitrginfo ',lumitrginfo
+        if len(lumitrginfo)==0:
+            result.append([runnum,runstarttimeStr,1,t.StrToDatetime(runstarttimeStr),0.0,0.0])
+            if c.VERBOSE: print 'warning request run ',runnum,' has no qualified data, skip'
+        else:
+            norbits=lumitrginfo.values()[0][1]
+            lslength=t.bunchspace_s*t.nbx*norbits
+            trgbitinfo={}
+            for cmslsnum,valuelist in lumitrginfo.items():
+                instlumi=valuelist[0]
+                startorbit=valuelist[2]
+                bitzero=valuelist[5]
+                deadcount=valuelist[6]
+                prescale=valuelist[-1]
+                lsstarttime=t.OrbitToTime(runstarttimeStr,startorbit)        
+                if len(selectionDict)!=0 and not (cmslsnum in selectionDict[runnum]):
+                   #if there's a selection list but cmslsnum is not selected,skip                  
+                   continue
+                if valuelist[5]==0:#bitzero==0 means no beam,do nothing
+                    delivered=0.0
+                    recorded=0.0
+                else:
+                    delivered=instlumi*lslength
+                    deadfrac=float(deadcount)/float(float(bitzero)*float(prescale))
+                    recorded=delivered*(1.0-deadfrac)
+                result.append([runnum,runstarttimeStr,cmslsnum,lsstarttime,delivered,recorded])
+                #print 'result : ',result
+    dbsession.transaction().commit()
+    transposedResult=CommonUtil.transposed(result)
+    lstimes=transposedResult[3]
+    lstimes.sort()
+    for idx,lstime in enumerate(lstimes):
+        sortedresult.append(result[idx])
+    if c.VERBOSE:
+        print sortedresult
+    return sortedresult           
+
+def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=None,beamenergy=None,beamfluctuation=0.0):
+    '''
+    input: runList[runnum], selectionDict{runnum:[ls]}
+    output:{runnumber:[delivered,recorded,recordedinpath] }
+    '''
+    t=lumiTime.lumiTime()
     result={}#runnumber:[lumisumoverlumils,lumisumovercmsls-deadtimecorrected,lumisumovercmsls-deadtimecorrected*hltcorrection_hltpath]
-    deliveredDict={}
-    recordedPerRun={}
-    prescaledRecordedPerRun={}
-    #
-    #delivered: select runnum,instlumi,numorbit from lumisummary where runnum>=:runMin and runnum<=runMax and lumiversion=:lumiversion order by runnum
-    #calculate lslength = numorbit*numbx*25e-09
-    #recorded: need instlumi and deadtime
-    #select lumisummary.cmslsnum,lumisummary.runnum,lumisummary.instlumi,trg.deadtime,trg.trgcount from lumisummary,trg where lumisummary.runnum=trg.runnum and trg.cmslsnum=lumisummary.cmslsnum and trg.bitnum=0 and lumisummary.lumiversion='0001' and lumisummary.runnum>=133511 and lumisummary.runnum<=133877 order by lumisummary.runnum,lumisummary.cmslsnum;
-    #          if hltpath is specified, need prescale L1 and hlt
-    #          select trg.runnum,trg.bitnum,trg.bitname,trg.prescale,trghltmap.hltpathname,trghltgmap.l1seed,hlt.prescale from trg,trghltmap,hlt where hlt.hltpathname=:hltpathname and hlt.hltpathname=trghltmap.hltpathname and trg.cmslsnum=0 and hlt.runnum=trg.runnum and trghltmap.runnum=trg.runnum and trg.bitname=trghltmap.l1seed and trg.runnum>=:begRun and trg.runnum<=:endRun 
-    try:
-        dbsession.transaction().start(True)
-        schema=dbsession.nominalSchema()
-        begRun=min(runDict.keys())
-        endRun=max(runDict.keys())
-        #delivered doesn't care about cmsls
-        #print 'begRun ',begRun,'endRun ',endRun
-        deliveredQuery=schema.tableHandle(nameDealer.lumisummaryTableName()).newQuery()
-        deliveredQuery.addToOutputList('RUNNUM','runnum')
-        deliveredQuery.addToOutputList('INSTLUMI','instlumi')
-        deliveredQuery.addToOutputList('NUMORBIT','numorbit')
-        
-        deliveredQueryCondition=coral.AttributeList()
-        deliveredQueryCondition.extend('begRun','unsigned int')
-        deliveredQueryCondition.extend('endRun','unsigned int')
-        deliveredQueryCondition.extend('lumiversion','string')
-        deliveredQueryCondition['begRun'].setData(int(begRun))
-        deliveredQueryCondition['endRun'].setData(int(endRun))
-        deliveredQueryCondition['lumiversion'].setData(c.LUMIVERSION)
-        deliveredQueryResult=coral.AttributeList()
-        deliveredQueryResult.extend('runnum','unsigned int')
-        deliveredQueryResult.extend('instlumi','float')
-        deliveredQueryResult.extend('numorbit','unsigned int')
-        deliveredQuery.defineOutput(deliveredQueryResult)
-        deliveredQuery.setCondition('RUNNUM>=:begRun and RUNNUM<=:endRun and LUMIVERSION=:lumiversion',deliveredQueryCondition)
-        deliveredQuery.addToOrderList('RUNNUM')
-        deliveredQueryCursor=deliveredQuery.execute()
-        #print 'runDict',runDict
-        while deliveredQueryCursor.next():
-            runnum=deliveredQueryCursor.currentRow()['runnum'].data()
-            instlumi=deliveredQueryCursor.currentRow()['instlumi'].data()
-            numorbit=deliveredQueryCursor.currentRow()['numorbit'].data()
-            lslength=numorbit*c.NBX*25e-09
-            #print runnum,instlumi,numorbit,lslength
-            intlumiperls=float(instlumi*lslength*c.NORM)
-            if intlumiperls<0.0: intlumiperls=0.0
-            if runDict.has_key(runnum) and not deliveredDict.has_key(runnum):
-                deliveredDict[runnum]=intlumiperls
-            elif runDict.has_key(runnum) and deliveredDict.has_key(runnum):
-                deliveredDict[runnum]=deliveredDict[runnum]+intlumiperls
-        del deliveredQuery
-        #print 'got delivered : ',deliveredDict
-        
-        lumiquery=schema.newQuery()
-        lumiquery.addToTableList(nameDealer.lumisummaryTableName(),'lumisummary')
-        lumiquery.addToTableList(nameDealer.trgTableName(),'trg')
-        lumiqueryCondition=coral.AttributeList()
-        lumiqueryCondition.extend('bitnum','unsigned int')
-        lumiqueryCondition.extend('lumiversion','string')
-        lumiqueryCondition.extend('begrun','unsigned int')
-        lumiqueryCondition.extend('endrun','unsigned int')
-        lumiqueryCondition['bitnum'].setData(int(0))
-        lumiqueryCondition['lumiversion'].setData(c.LUMIVERSION)
-        lumiqueryCondition['begrun'].setData(int(begRun))
-        lumiqueryCondition['endrun'].setData(int(endRun))
-        lumiquery.setCondition('lumisummary.RUNNUM=trg.RUNNUM and trg.CMSLSNUM=lumisummary.CMSLSNUM and trg.BITNUM=:bitnum and lumisummary.LUMIVERSION=:lumiversion and lumisummary.RUNNUM>=:begrun and lumisummary.RUNNUM<=:endrun',lumiqueryCondition)
-        lumiquery.addToOrderList('lumisummary.runnum')
-        lumiquery.addToOrderList('lumisummary.cmslsnum')
-        lumiquery.addToOutputList('lumisummary.cmslsnum','cmsls')
-        lumiquery.addToOutputList('lumisummary.runnum','runnum')
-        lumiquery.addToOutputList('lumisummary.instlumi','instlumi')
-        lumiquery.addToOutputList('trg.deadtime','deadtime')
-        lumiquery.addToOutputList('trg.trgcount','trgcount')
-        lumiqueryResult=coral.AttributeList()
-        lumiqueryResult.extend('cmsls','unsigned int')
-        lumiqueryResult.extend('runnum','unsigned int')
-        lumiqueryResult.extend('instlumi','float')
-        lumiqueryResult.extend('deadtime','unsigned long long')
-        lumiqueryResult.extend('trgcount','unsigned int')
-        lumiquery.defineOutput(lumiqueryResult)
-        lumiqueryCursor=lumiquery.execute()
-        correctedlumiSum=0.0
-        while lumiqueryCursor.next():
-            cmsls=lumiqueryCursor.currentRow()['cmsls'].data()
-            runnum=lumiqueryCursor.currentRow()['runnum'].data()
-            instlumi=lumiqueryCursor.currentRow()['instlumi'].data()
-            deadtime=lumiqueryCursor.currentRow()['deadtime'].data()
-            bitzero=lumiqueryCursor.currentRow()['trgcount'].data()
-            deadfraction=0.0
-            if bitzero==0:
-                deadfraction=1.0
-            else:
-                deadfraction=float(deadtime)/float(bitzero)
-
-            intlumiperls=float(instlumi*(1.0-deadfraction)*lslength*c.NORM)
-            if intlumiperls<0.0:
-                intlumiperls=0.0 #filter out negative numbers
-            if runDict.has_key(runnum) and len(runDict[runnum])==0:
-                if not recordedPerRun.has_key(runnum):
-                    recordedPerRun[runnum]=intlumiperls
-                else:
-                    recordedPerRun[runnum]=recordedPerRun[runnum]+intlumiperls
-            elif runDict.has_key(runnum) and findInList(runDict[runnum],cmsls):
-                if not recordedPerRun.has_key(runnum):
-                    recordedPerRun[runnum]=intlumiperls
-                else:
-                    recordedPerRun[runnum]=recordedPerRun[runnum]+intlumiperls
-        #print 'got recorded : ',recordedPerRun
-        del lumiquery
-        #print 'hltpath ',hltpath
+    #print 'selectionDict seen ',selectionDict
+    dbsession.transaction().start(True)
+    for runnum in runList:
+        totallumi=0.0
+        delivered=0.0
+        recorded=0.0 
+        recordedinpath=0.0
+        if len(selectionDict)!=0 and not selectionDict.has_key(runnum):
+            if runnum<max(selectionDict.keys()):
+                result[runnum]=[0.0,0.0,0.0]
+            continue
+        #print 'looking for run ',runnum
+        q=dbsession.nominalSchema().newQuery()
+        totallumi=lumiQueryAPI.lumisumByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation) #q1
+        del q
+        if not totallumi:
+            result[runnum]=[0.0,0.0,0.0]
+            if c.VERBOSE: print 'run ',runnum,' does not exist or has no lumi, skip'
+            continue
+        lumitrginfo={}
+        hltinfo={}
+        hlttrgmap={}
+        q=dbsession.nominalSchema().newQuery()
+        lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation) #q2
+        del q
+        if len(lumitrginfo)==0:
+            result[runnum]=[0.0,0.0,0.0]
+            if c.VERBOSE: print 'request run ',runnum,' has no trigger, skip'
+            continue
+        norbits=lumitrginfo.values()[0][1]
+        lslength=t.bunchspace_s*t.nbx*norbits
+        delivered=totallumi*lslength
+        hlttrgmap={}
+        trgbitinfo={}
         if len(hltpath)!=0 and hltpath!='all':
-            #
-            #select l1seed from trghltmap where trghltmap.hltpathname =:hltpathname
-            #
-            seedQuery=schema.newQuery()
-            seedQuery.addToTableList(nameDealer.trghltMapTableName(),'trghltmap')
-            seedQueryCondition=coral.AttributeList()
-            seedQueryCondition.extend('hltpathname','string')
-            seedQueryCondition['hltpathname'].setData(hltpath)
-            seedQueryResult=coral.AttributeList()
-            seedQueryResult.addToOutputList('l1seed','string')
-            seedQuery.defineOutput(seedQueryResult)
-            seedQueryCursor=seedQuery.execute()
-            l1seed=''
-            l1bitname=''
-            while seedQueryCursor.next():
-                l1seed=seedQueryCursor.currentRow()['l1seed'].data()
-            if len(l1seed)!=0:
-                l1bitname=hltTrgSeedMapper.findUniqueSeed(hltpath,l1seed)
-            del seedQuery
-            #
-            #select runnum,prescale from hlt where pathname=:hltpathname and cmslsnum=1 and runnum>=:begRun and runnum<=:endRun order by runnum
-            #
-            hltprescQuery=schema.newQuery()
-            hltprescQuery.addToTableList(nameDealer.trgTableName(),'trg')
-            hltprescQuery.addToTableList(nameDealer.hltTableName(),'hlt')
-            hltprescQueryCondition=coral.AttributeList()
-            hltprescQueryCondition.extend('hltpathname','string')
-            hltprescQueryCondition.extend('begRun','unsigned int')
-            hltprescQueryCondition.extend('endRun','unsigned int')
-            hltprescQueryCondition.extend('cmslsnum','unsigned int')
-            hltprescQueryCondition['hltpathname'].setData( hltpath )
-            hltprescQueryCondition['begRun'].setData( begRun )
-            hltprescQueryCondition['endRun'].setData( endRun )
-            hltprescQueryCondition['cmslsnum'].setData( 1 )
-            hltprescQuery.setCondition('PATHNAME=:hltpathname and RUNNUM>=:begRun and RUNNUM<=:endRun and CMSLSNUM=:cmslsnum')
-            hltprescQueryResult=coral.AttributeList()
-            hltprescQueryResult.addToOutputList('RUNNUM','runnum')
-            hltprescQueryResult.addToOutputList('PRESCALE','hltprescale')
-            hltprescQuery.addToOrderList('RUNNUM')
-            hltprescQueryCursor=hltprescQuery.execute()
-            hltprescaleDict={}
-            while hltprescQueryCursor.next():
-                runnum=hltprescQueryCursor.currentRow()['runnum'].data()
-                hltprescale=hltprescQueryCursor.currentRow()['hltprescale'].data()
-                if runDict.has_key(runnum):
-                    hltrescaleDict[runnum]=hltprescale
-            #print 'got hlt pescale ',hltprescaleDict
-            del hltprescQuery
-            #
-            #select runnum,bitnum,bitname,prescale from trg where cmslsnum=1 and bitname=:bitname and runnum>=:begRun and runnum<=:endRun order by runnum
-            #
-            if not l1bitname or len(l1bitname)==0:
-                print 'no l1bit found for hltpath : ',hltpath,' setting trg prescale to 1'
-                
-            else:
-                trgprescQuery=schema.newQuery()
-                trgprescQuery.addToTableList(nameDealer.trgTableName(),'trg')
-                trgprescQueryCondition=coral.AttributeList()
-                trgprescQueryCondition.extend('cmslsnum','unsigned int')
-                trgprescQueryCondition.extend('bitname','string')
-                trgprescQueryCondition.extend('begRun','unsigned int')
-                trgprescQueryCondition.extend('endRun','unsigned int')
-                trgprescQuery.setCondition('CMSLSNUM=:cmslsnum and BITNAME=:bitname and RUNNUM>=:begRun and RUNNUM<=:endRun')
-                trgprescQueryResult=coral.AttributeList()
-                trgprescQueryResult.addToOutputList('RUNNUM','runnum')
-                trgprescQueryResult.addToOutputList('BITNUM','bitnum')
-                trgprescQueryResult.addToOutputList('PRESCALE','trgprescale')
-                trgprescQuery.defineOutput(trgprescQueryResult)
-                trgprescQueryCursor=trgprescQuery.execute()
-                trgprescaleDict={}
-                while trgprescQueryCursor.next():
-                    runnum=trgprescQueryCursor.currentRow()['runnum'].data()
-                    bitnum=trgprescQueryCursor.currentRow()['bitnum'].data()
-                    trgprescale=trgprescQueryCursor.currentRow()['trgprescale'].data()
-                    if runDict.has_key(runnum):
-                        trgprescaleDict[runnum]=trgprescale
-                del trgprescQuery
-                #print trgprescaleDict
-            for runnum,recorded in recordedPerRun.items():
-                hltprescale=1.0
-                trgprescale=1.0
-                if hltprescQuery.has_key(runnum):
-                    hltprescale=hltprescaleDict[runnum]
-                if trgprescaleDict.has_key(runnum):
-                    trgprescale=trgprescaleDict[runnum]
-                prescaledRecordedPerRun[runnum]=recorded/(hltprescale*trgprescale)
-        dbsession.transaction().commit()
-        keylist=runDict.keys()
-        keylist.sort()
-        for runnum in keylist:
-            if deliveredDict.has_key(runnum):
-                result[runnum]=[]
-                result[runnum].append(deliveredDict[runnum])
-            else:
-                result[runnum]=[]
-                result[runnum].append(0)
-            if recordedPerRun.has_key(runnum) and result.has_key(runnum):
-                result[runnum].append(recordedPerRun[runnum])
-            else:
-                result[runnum].append(0)              
-            if prescaledRecordedPerRun.has_key(runnum) and recordedPerRun.has_key(runnum) and result.has_key(runnum):
-                result[runnum].append(prescaledRecordedPerRun[runnum])
-            else:
-                result[runnum].append(0)
-    except Exception,e:
-        print str(e)
-        dbsession.transaction().rollback()
-        del dbsession
-    return result
+            q=dbsession.nominalSchema().newQuery() #optional q3, initiated only if you ask for a hltpath
+            hlttrgmap=lumiQueryAPI.hlttrgMappingByrun(q,runnum)
+            del q
+            if hlttrgmap.has_key(hltpath):
+                l1bitname=hltTrgSeedMapper.findUniqueSeed(hltpath,hlttrgmap[hltpath])
+                q=dbsession.nominalSchema().newQuery() #optional q4, initiated only if you ask for a hltpath and it exists 
+                hltinfo=lumiQueryAPI.hltBypathByrun(q,runnum,hltpath)
+                del q
+                q=dbsession.nominalSchema().newQuery()
+                trgbitinfo=lumiQueryAPI.trgBybitnameByrun(q,runnum,l1bitname) #optional q5, initiated only if you ask for a hltpath and it has a unique l1bit
+                del q
+        #done all possible queries. process result
+        for cmslsnum,valuelist in lumitrginfo.items():
+            if len(selectionDict)!=0 and not (cmslsnum in selectionDict[runnum]):
+                #if there's a selection list but cmslsnum is not selected,skip
+                continue
+            if valuelist[5]==0:#bitzero==0 means no beam,do nothing
+                continue
+            trgprescale=valuelist[8]            
+            deadfrac=float(valuelist[6])/float(float(valuelist[5])*float(trgprescale))
 
-def getRunsForFills(dbsession,minFill,maxFill):
-    '''
-    output:{ runnumber:[delivered,recorded,recorded_hltpath] }
-    '''
-    #find all runs in the fill range
-    #select runnum,fillnum from cmsrunsummary where fillnum>=minFill and fillnum<=maxFill order by fillnum
-    #
-    fillDict={} #{fillnum:[runlist]}
-    try:
-        dbsession.transaction().start(True)
-        schema=dbsession.nominalSchema()
-        fillQuery=schema.tableHandle(nameDealer.cmsrunsummaryTableName()).newQuery()
-        fillQuery.addToOutputList('RUNNUM','runnum')
-        fillQuery.addToOutputList('FILLNUM','fillnum')
-        
-        fillQueryCondition=coral.AttributeList()
-        fillQueryCondition.extend('begFill','unsigned int')
-        fillQueryCondition.extend('endFill','unsigned int')
-        fillQueryCondition['begFill'].setData(int(minFill))
-        fillQueryCondition['endFill'].setData(int(maxFill))
-        fillQueryResult=coral.AttributeList()
-        fillQueryResult.extend('runnum','unsigned int')
-        fillQueryResult.extend('fillnum','unsigned int')
-
-        fillQuery.defineOutput(fillQueryResult)
-        fillQuery.setCondition('FILLNUM>=:begFill and FILLNUM<=:endFill',fillQueryCondition)
-        fillQuery.addToOrderList('FILLNUM')
-        fillQueryCursor=fillQuery.execute()
-        while fillQueryCursor.next():
-            runnum=fillQueryCursor.currentRow()['runnum'].data()
-            fillnum=fillQueryCursor.currentRow()['fillnum'].data()
-            if not fillDict.has_key(fillnum):
-                fillDict[fillnum]=[runnum]
-            else:
-                fillDict[fillnum].append(runnum)
-        del fillQuery
-    except Exception,e:
-        print str(e)
-        dbsession.transaction().rollback()
-        del dbsession
-    return fillDict
+            recorded=recorded+valuelist[0]*(1.0-deadfrac)*lslength
+            if c.VERBOSE: print runnum,cmslsnum,valuelist[0]*lslength,valuelist[0]*(1.0-deadfrac)*lslength,lslength,deadfrac
+            if hlttrgmap.has_key(hltpath) and hltinfo.has_key(cmslsnum):
+                hltprescale=hltinfo[cmslsnum][2]
+                trgprescale=trgbitinfo[cmslsnum][3]
+                recordedinpath=recordedinpath+valuelist[0]*(1.0-deadfrac)*lslength*hltprescale*trgprescale
+        result[runnum]=[delivered,recorded,recordedinpath]
+    dbsession.transaction().commit()
+    #if c.VERBOSE:
+    #    print result
+    return result           
 
 def main():
     c=constants()
@@ -298,23 +166,32 @@ def main():
     parser.add_argument('-P',dest='authpath',action='store',help='path to authentication file')
     parser.add_argument('-n',dest='normfactor',action='store',help='normalization factor (optional, default to 1.0)')
     parser.add_argument('-i',dest='inputfile',action='store',help='lumi range selection file (optional)')
-    parser.add_argument('-o',dest='outputfile',action='store',help='output PNG file (works with batch graphical mode, if not specified, default filename is instlumi.png)')
-    parser.add_argument('-b',dest='beammode',action='store',help='beam mode, optional for delivered action, default "stable", choices "stable","quiet","either"')
+    parser.add_argument('-o',dest='outputfile',action='store',help='csv outputfile name (optional)')
     parser.add_argument('-lumiversion',dest='lumiversion',action='store',help='lumi data version, optional for all, default 0001')
     parser.add_argument('-begin',dest='begin',action='store',help='begin value of x-axi (required)')
-    parser.add_argument('-end',dest='end',action='store',help='end value of x-axi (required)')
+    parser.add_argument('-end',dest='end',action='store',help='end value of x-axi (optional). Default to the maximum exists DB')
+    parser.add_argument('-beamenergy',dest='beamenergy',action='store',type=float,required=False,help='beamenergy (in GeV) selection criteria,e.g. 3.5e3')
+    parser.add_argument('-beamfluctuation',dest='beamfluctuation',action='store',type=float,required=False,help='allowed fraction of beamenergy to fluctuate, e.g. 0.1')
+    parser.add_argument('-beamstatus',dest='beamstatus',action='store',required=False,help='selection criteria beam status,e.g. STABLE BEAMS')
     parser.add_argument('-hltpath',dest='hltpath',action='store',help='specific hltpath to calculate the recorded luminosity. If specified aoverlays the recorded luminosity for the hltpath on the plot')
+    parser.add_argument('-batch',dest='batch',action='store',help='graphical mode to produce PNG file. Specify graphical file here. Default to lumiSum.png')
+    parser.add_argument('--annotateboundary',dest='annotateboundary',action='store_true',help='annotate boundary run numbers')
+    parser.add_argument('--interactive',dest='interactive',action='store_true',help='graphical mode to draw plot in a TK pannel.')
+    parser.add_argument('-timeformat',dest='timeformat',action='store',help='specific python timeformat string (optional).  Default mm/dd/yy hh:min:ss.00')
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, default to $CMS_PATH/SITECONF/local/JobConfig, if path undefined, fallback to cern proxy&server')
-    parser.add_argument('action',choices=['run','fill','date'],help='x-axis data type of choice')
+    parser.add_argument('action',choices=['run','fill','time','perday'],help='x-axis data type of choice')
     #graphical mode options
-    parser.add_argument('--interactive',dest='interactive',action='store_true',help='graphical mode to draw plot in a TK pannel')
-    parser.add_argument('--batch',dest='batch',action='store_true',help='graphical mode to produce PNG file only(default mode). Use -o option to specify the file name')
+    parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode, print result also to screen')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     # parse arguments
+    batchmode=True
     args=parser.parse_args()
     connectstring=args.connect
     begvalue=args.begin
     endvalue=args.end
+    beamstatus=args.beamstatus
+    beamenergy=args.beamenergy
+    beamfluctuation=args.beamfluctuation
     xaxitype='run'
     connectparser=connectstrParser.connectstrParser(connectstring)
     connectparser.parse()
@@ -347,92 +224,230 @@ def main():
         msg.setMsgVerbosity(coral.message_Level_Debug)
     ifilename=''
     ofilename='integratedlumi.png'
-    beammode='stable'
-
+    timeformat=''
     if args.authpath and len(args.authpath)!=0:
         os.environ['CORAL_AUTH_PATH']=args.authpath
     if args.normfactor:
         c.NORM=float(args.normfactor)
     if args.lumiversion:
         c.LUMIVERSION=args.lumiversion
-    if args.beammode:
-        c.BEAMMODE=args.beammode
-    if args.inputfile and len(args.inputfile)!=0:
-        ifilename=args.inputfile        
-    if args.outputfile and len(args.outputfile)!=0:
+    if args.verbose:
+        c.VERBOSE=True
+    if args.inputfile:
+        ifilename=args.inputfile
+    if args.batch:
+        opicname=args.batch
+    if args.outputfile:
         ofilename=args.outputfile
-
+    if args.timeformat:
+        timeformat=args.timeformat
     session=svc.connect(connectstring,accessMode=coral.access_Update)
     session.typeConverter().setCppTypeForSqlType("unsigned int","NUMBER(10)")
     session.typeConverter().setCppTypeForSqlType("unsigned long long","NUMBER(20)")
     inputfilecontent=''
     fileparsingResult=''
+    runList=[]
     runDict={}
     fillDict={}
+    selectionDict={}
+    minTime=''
+    maxTime=''
+
+    #if len(ifilename)!=0 :
+    #    f=open(ifilename,'r')
+    #    inputfilecontent=f.read()
+    #    sparser=selectionParser.selectionParser(inputfilecontent)
+    #    runsandls=sparser.runsandls()
+    #    keylist=runsandls.keys()
+    #    keylist.sort()
+    #    for run in keylist:
+    #        if selectionDict.has_key(run):
+    #            lslist=runsandls[run]
+    #            lslist.sort()
+    #            selectionDict[run]=lslist
+    if len(ifilename)!=0:
+        ifparser=inputFilesetParser.inputFilesetParser(ifilename)
+        runsandls=ifparser.runsandls()
+        keylist=runsandls.keys()
+        keylist.sort()
+        for run in keylist:
+            if not selectionDict.has_key(run):
+                lslist=runsandls[run]
+                lslist.sort()
+                selectionDict[run]=lslist
     if args.action == 'run':
-        for r in range(int(args.begin),int(args.end)+1):
-            runDict[r]=[]
+        if not args.end:
+            session.transaction().start(True)
+            schema=session.nominalSchema()
+            lastrun=max(lumiQueryAPI.allruns(schema,requireRunsummary=True,requireLumisummary=True,requireTrg=True,requireHlt=True))
+            session.transaction().commit()
+        else:
+            lastrun=int(args.end)
+        for r in range(int(args.begin),lastrun+1):
+            runList.append(r)
     elif args.action == 'fill':
-        fillDict=getRunsForFills(session,int(args.begin),int(args.end))
+        session.transaction().start(True)
+        maxfill=None
+        if not args.end:
+            qHandle=session.nominalSchema().newQuery()
+            maxfill=max(lumiQueryAPI.allfills(qHandle,filtercrazy=True))
+            del qHandle
+        else:
+            maxfill=int(args.end)
+        qHandle=session.nominalSchema().newQuery()
+        fillDict=lumiQueryAPI.runsByfillrange(qHandle,int(args.begin),maxfill)
+        del qHandle
+        session.transaction().commit()
         #print 'fillDict ',fillDict
-        for fill in range(int(args.begin),int(args.end)+1):
+        for fill in range(int(args.begin),maxfill+1):
             if fillDict.has_key(fill): #fill exists
                 for run in fillDict[fill]:
-                    runDict[run]=[]
-                
-    if len(ifilename)!=0 :
-            f=open(ifilename,'r')
-            inputfilecontent=f.read()
-            sparser=selectionParser.selectionParser(inputfilecontent)
-            runsandls=sparser.runsandls()
-            keylist=runsandls.keys()
-            keylist.sort()
-            for run in keylist:
-                if runDict.has_key(run):
-                    lslist=runsandls[run]
-                    lslist.sort()
-                    runDict[run]=lslist
+                    runList.append(run)
+    elif args.action == 'time' or args.action == 'perday':
+        session.transaction().start(True)
+        t=lumiTime.lumiTime()
+        minTime=t.StrToDatetime(args.begin,timeformat)
+        if not args.end:
+            maxTime=datetime.datetime.utcnow() #to now
+        else:
+            maxTime=t.StrToDatetime(args.end,timeformat)
+        #print minTime,maxTime
+        qHandle=session.nominalSchema().newQuery()
+        runDict=lumiQueryAPI.runsByTimerange(qHandle,minTime,maxTime)#xrawdata
+        session.transaction().commit()
+        runList=runDict.keys()
+        del qHandle
+        #print runDict
+    else:
+        print 'unsupported action ',args.action
+        exit
+    runList.sort()
+    #print 'runList ',runList
     #print 'runDict ', runDict               
-    fig=Figure(figsize=(5,4),dpi=100)
+    fig=Figure(figsize=(8,6),dpi=100)
     m=matplotRender.matplotRender(fig)
     
     if args.action == 'run':
         result={}        
-        result=getLumiInfoForRuns(session,c,runDict,hltpath)
+        result=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation)
         xdata=[]
         ydata={}
         ydata['Delivered']=[]
         ydata['Recorded']=[]
         keylist=result.keys()
         keylist.sort() #must be sorted in order
+        if args.outputfile:
+            reporter=csvReporter.csvReporter(ofilename)
+            fieldnames=['run','delivered','recorded']
+            reporter.writeRow(fieldnames)
         for run in keylist:
             xdata.append(run)
-            ydata['Delivered'].append(result[run][0])
-            ydata['Recorded'].append(result[run][1])
+            delivered=result[run][0]
+            recorded=result[run][1]
+            ydata['Delivered'].append(delivered)
+            ydata['Recorded'].append(recorded)
+            if args.outputfile and (delivered!=0 or recorded!=0):
+                reporter.writeRow([run,result[run][0],result[run][1]])                
         m.plotSumX_Run(xdata,ydata)
     elif args.action == 'fill':        
         lumiDict={}
-        lumiDict=getLumiInfoForRuns(session,c,runDict,hltpath)
+        lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation)
         xdata=[]
+        ydata={}
+        ydata['Delivered']=[]
+        ydata['Recorded']=[]
+        #keylist=lumiDict.keys()
+        #keylist.sort()
+        if args.outputfile:
+            reporter=csvReporter.csvReporter(ofilename)
+            fieldnames=['fill','run','delivered','recorded']
+            reporter.writeRow(fieldnames)
+        fills=fillDict.keys()
+        fills.sort()
+        for fill in fills:
+            runs=fillDict[fill]
+            runs.sort()
+            for run in runs:
+                xdata.append(run)
+                ydata['Delivered'].append(lumiDict[run][0])
+                ydata['Recorded'].append(lumiDict[run][1])
+                if args.outputfile :
+                    reporter.writeRow([fill,run,lumiDict[run][0],lumiDict[run][1]])   
+        #print 'input fillDict ',len(fillDict.keys()),fillDict
+        m.plotSumX_Fill(xdata,ydata,fillDict)
+    elif args.action == 'time' : 
+        lumiDict={}
+        lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation)
+        #lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS')
+        xdata={}#{run:[starttime,stoptime]}
         ydata={}
         ydata['Delivered']=[]
         ydata['Recorded']=[]
         keylist=lumiDict.keys()
         keylist.sort()
+        if args.outputfile:
+            reporter=csvReporter.csvReporter(ofilename)
+            fieldnames=['run','starttime','stoptime','delivered','recorded']
+            reporter.writeRow(fieldnames)
         for run in keylist:
-            xdata.append(run)
             ydata['Delivered'].append(lumiDict[run][0])
             ydata['Recorded'].append(lumiDict[run][1])
-        m.plotSumX_Fill(xdata,ydata,fillDict)
+            starttime=runDict[run][0]
+            stoptime=runDict[run][1]
+            xdata[run]=[starttime,stoptime]
+            if args.outputfile :
+                reporter.writeRow([run,starttime,stoptime,lumiDict[run][0],lumiDict[run][1]])
+        m.plotSumX_Time(xdata,ydata,minTime,maxTime,hltpath=hltpath,annotateBoundaryRunnum=args.annotateboundary)
+    elif args.action == 'perday':
+        daydict={}#{day:[[run,cmslsnum,lsstarttime,delivered,recorded]]}
+        #print 'input selectionDict ',selectionDict
+        lumibyls=getLumiOrderByLS(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation)
+        #print 'lumibyls ',lumibyls
+        #lumibyls [[runnumber,runstarttime,lsnum,lsstarttime,delivered,recorded,recordedinpath]]
+        if args.outputfile:
+            reporter=csvReporter.csvReporter(ofilename)
+            fieldnames=['day','begrunls','endrunls','delivered','recorded']
+            reporter.writeRow(fieldnames)
+        beginfo=[lumibyls[0][3],str(lumibyls[0][0])+':'+str(lumibyls[0][2])]
+        endinfo=[lumibyls[-1][3],str(lumibyls[-1][0])+':'+str(lumibyls[-1][2])]
+        for perlsdata in lumibyls:
+            lsstarttime=perlsdata[3]
+            delivered=perlsdata[4]
+            recorded=perlsdata[5]
+            day=lsstarttime.toordinal()
+            if not daydict.has_key(day):
+                daydict[day]=[]
+            daydict[day].append([delivered,recorded])
+        #print 'daydict ',daydict
+        days=daydict.keys()
+        days.sort()
+        resultbyday={}
+        resultbyday['Delivered']=[]
+        resultbyday['Recorded']=[]
+        for day in days:
+            daydata=daydict[day]
+            mytransposed=CommonUtil.transposed(daydata,defaultval=0.0)
+            #delivered=sum(mytransposed[0])/1000.0
+            #recorded=sum(mytransposed[1])/1000.0
+            delivered=sum(mytransposed[0])
+            recorded=sum(mytransposed[1])
+            resultbyday['Delivered'].append(delivered)#in nb-1
+            resultbyday['Recorded'].append(recorded)
+            if args.outputfile:
+                reporter.writeRow([day,beginfo[1],endinfo[1],delivered,recorded])
+        #print 'beginfo ',beginfo
+        #print 'endinfo ',endinfo
+        #print resultbyday
+        m.plotPerdayX_Time(days,resultbyday,minTime,maxTime,boundaryInfo=[beginfo,endinfo],annotateBoundaryRunnum=args.annotateboundary)
     else:
         raise Exception,'must specify the type of x-axi'
 
-    if args.interactive:
-        m.drawInteractive()
-    else:
-        m.drawPNG(ofilename)
-    
     del session
     del svc
+    if args.batch:
+        m.drawPNG(args.batch)
+    if args.interactive:
+        m.drawInteractive()
+    
 if __name__=='__main__':
     main()

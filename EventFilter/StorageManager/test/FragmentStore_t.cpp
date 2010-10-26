@@ -22,6 +22,7 @@ using stor::testhelper::allocate_frame_with_basic_header;
 
 class testFragmentStore : public CppUnit::TestFixture
 {
+  typedef toolbox::mem::Reference Reference;
   CPPUNIT_TEST_SUITE(testFragmentStore);
   CPPUNIT_TEST(testSingleFragment);
   CPPUNIT_TEST(testMultipleFragments);

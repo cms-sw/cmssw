@@ -13,6 +13,8 @@
 // make a selector for this selection
 class RunLumiSelector : public EventSelector {
 public:
+  RunLumiSelector() {}
+
   RunLumiSelector( edm::ParameterSet const & params ) {
 
     push_back("RunLumi");

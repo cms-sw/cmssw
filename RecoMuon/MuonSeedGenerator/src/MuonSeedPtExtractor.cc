@@ -7,7 +7,8 @@
 #include <sstream>
 
 MuonSeedPtExtractor::MuonSeedPtExtractor(const edm::ParameterSet& par)
-: scaleDT_( par.getParameter<bool>("scaleDT") )
+: theBeamSpot(0.,0.,0.),
+  scaleDT_( par.getParameter<bool>("scaleDT") )
 {
   init(par);
 }
@@ -128,8 +129,8 @@ void MuonSeedPtExtractor::fillScalesForCombo(const std::string & name, const edm
 std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit::ConstMuonRecHitPointer firstHit,
                                                     MuonTransientTrackingRecHit::ConstMuonRecHitPointer secondHit) const
 {
-  GlobalPoint innerPoint = firstHit->globalPosition();
-  GlobalPoint outerPoint = secondHit->globalPosition();
+  GlobalPoint innerPoint = firstHit->globalPosition() - theBeamSpot;
+  GlobalPoint outerPoint = secondHit->globalPosition() - theBeamSpot;
   MuonTransientTrackingRecHit::ConstMuonRecHitPointer innerHit = firstHit;
   MuonTransientTrackingRecHit::ConstMuonRecHitPointer outerHit = secondHit;
 
@@ -140,8 +141,8 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
   {
     innerHit = secondHit;
     outerHit = firstHit;
-    innerPoint = innerHit->globalPosition();
-    outerPoint = outerHit->globalPosition();
+    innerPoint = innerHit->globalPosition() - theBeamSpot;
+    outerPoint = outerHit->globalPosition() - theBeamSpot;
   } 
   
   double phiInner = innerPoint.phi();

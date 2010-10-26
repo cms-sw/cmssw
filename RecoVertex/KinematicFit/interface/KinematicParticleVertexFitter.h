@@ -52,7 +52,7 @@ public:
  * In such a case it should be TOP particle of
  * corresponding tree.
  */  
- RefCountedKinematicTree  fit(vector<RefCountedKinematicParticle> particles) const;
+ RefCountedKinematicTree  fit(std::vector<RefCountedKinematicParticle> particles) const;
  
 private:
 

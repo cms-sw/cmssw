@@ -17,7 +17,7 @@ class constants(object):
         
 def bitzeroForRun(dbsession,c,runnum):
     '''
-    select lsnr,counts from CMS_GT_MON.GT_MON_TRIG_ALGO_VIEW where runnr=:runnumber and algobit=:bitnum order by lsnr
+    select lsnr,counts,prescale from CMS_GT_MON.GT_MON_TRIG_ALGO_VIEW where runnr=:runnumber and algobit=:bitnum order by lsnr
     '''
     result={}
     try:
@@ -31,7 +31,6 @@ def bitzeroForRun(dbsession,c,runnum):
         bitOutput=coral.AttributeList()
         bitOutput.extend("lsnr","unsigned int")
         bitOutput.extend("algocount","unsigned int")
-        
         bitBindVarList=coral.AttributeList()
         bitBindVarList.extend("runnumber","unsigned int")
         bitBindVarList.extend("bitnum","unsigned int")
@@ -138,15 +137,18 @@ def main():
     if args.action == 'deadfraction':
         deadresult=deadcountForRun(session,c,runnumber)
         bitzeroresult=bitzeroForRun(session,c,runnumber)
-        if  deadresult and len(deadresult)!=0:
+        if deadresult and len(deadresult)!=0:
             print 'run',runnumber
             print 'ls deadfraction'
             for cmsls,deadcount in deadresult.items():
-                bitzero=bitzeroresult[cmsls]
-                if bitzero==0:
+                bitzero_count=bitzeroresult[cmsls]
+                bitzero_prescale=1.0
+                if int(runnumber)>=146315:
+                    bitzero_prescale=17.0
+                if bitzero_count==0:
                     print cmsls,'no beam'
                 else:
-                    print cmsls,'%.5f'%float(float(deadcount)/float(bitzero))
+                    print cmsls,'%.5f'%float(float(deadcount)/(float(bitzero_count)*bitzero_prescale))
         else:
             print 'no deadtime found for run ',runnumber
         

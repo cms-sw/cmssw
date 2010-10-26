@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.19 2010/07/07 15:54:39 yjlee Exp $
+// $Id: CentralityProducer.cc,v 1.15 2010/03/04 17:35:01 yilmaz Exp $
 //
 //
 
@@ -41,9 +41,6 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 
 using namespace std;
 
@@ -72,11 +69,6 @@ class CentralityProducer : public edm::EDFilter {
    bool produceEcalhits_;
    bool produceBasicClusters_;
    bool produceZDChits_;
-   bool produceETmidRap_;
-   bool producePixelhits_;
-   bool reuseAny_;
-
-   double midRapidityRange_;
 
    edm::InputTag  srcHFhits_;	
    edm::InputTag  srcTowers_;
@@ -85,10 +77,6 @@ class CentralityProducer : public edm::EDFilter {
    edm::InputTag srcBasicClustersEE_;
    edm::InputTag srcBasicClustersEB_;
    edm::InputTag srcZDChits_;
-   edm::InputTag srcPixelhits_;
-
-   edm::InputTag reuseTag_;
-
 };
 
 //
@@ -113,12 +101,9 @@ CentralityProducer::CentralityProducer(const edm::ParameterSet& iConfig)
    produceBasicClusters_ = iConfig.getParameter<bool>("produceBasicClusters");
    produceEcalhits_ = iConfig.getParameter<bool>("produceEcalhits");
    produceZDChits_ = iConfig.getParameter<bool>("produceZDChits");
-   produceETmidRap_ = iConfig.getParameter<bool>("produceETmidRapidity");
-   producePixelhits_ = iConfig.getParameter<bool>("producePixelhits");
-   midRapidityRange_ = iConfig.getParameter<double>("midRapidityRange");
 
    if(produceHFhits_)  srcHFhits_ = iConfig.getParameter<edm::InputTag>("srcHFhits");
-   if(produceHFtowers_ || produceETmidRap_) srcTowers_ = iConfig.getParameter<edm::InputTag>("srcTowers");
+   if(produceHFtowers_) srcTowers_ = iConfig.getParameter<edm::InputTag>("srcTowers");
 
    if(produceEcalhits_){
       srcEBhits_ = iConfig.getParameter<edm::InputTag>("srcEBhits");
@@ -129,13 +114,8 @@ CentralityProducer::CentralityProducer(const edm::ParameterSet& iConfig)
       srcBasicClustersEB_ = iConfig.getParameter<edm::InputTag>("srcBasicClustersEB");
    }
    if(produceZDChits_) srcZDChits_ = iConfig.getParameter<edm::InputTag>("srcZDChits");
-   if(producePixelhits_) srcPixelhits_ = iConfig.getParameter<edm::InputTag>("srcPixelhits");
-   
-   reuseAny_ = !produceHFhits_ || !produceHFtowers_ || !produceBasicClusters_ || !produceEcalhits_ || !produceZDChits_;
-   if(reuseAny_) reuseTag_ = iConfig.getParameter<edm::InputTag>("srcReUse");
+   if(produceHFhits_ || produceHFtowers_ || produceBasicClusters_ || produceEcalhits_ || produceZDChits_) produces<reco::Centrality>();
 
-   produces<reco::Centrality>();
-   
 }
 
 
@@ -160,10 +140,7 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace reco;
 
   std::auto_ptr<Centrality> creco(new Centrality());
-  Handle<Centrality> inputCentrality;
 
-  if(reuseAny_) iEvent.getByLabel(reuseTag_,inputCentrality);
-  
   if(produceHFhits_){
      creco->etHFhitSumPlus_ = 0;
      creco->etHFhitSumMinus_ = 0;
@@ -172,43 +149,28 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      iEvent.getByLabel(srcHFhits_,hits);
      for( size_t ihit = 0; ihit<hits->size(); ++ ihit){
 	const HFRecHit & rechit = (*hits)[ ihit ];
-        if(rechit.id().ieta() > 0 )
-	   creco->etHFhitSumPlus_ += rechit.energy();
-        if(rechit.id().ieta() < 0)
-	   creco->etHFhitSumMinus_ += rechit.energy();
+	creco->etHFhitSumPlus_ += rechit.energy()/2;
+	creco->etHFhitSumMinus_ += rechit.energy()/2;
      }       
-  }else{
-     creco->etHFhitSumMinus_ = inputCentrality->EtHFhitSumMinus();
-     creco->etHFhitSumPlus_ = inputCentrality->EtHFhitSumPlus();
+     
   }
   
-  if(produceHFtowers_ || produceETmidRap_){
+  if(produceHFtowers_){
      creco->etHFtowerSumPlus_ = 0;
      creco->etHFtowerSumMinus_ = 0;
      
      Handle<CaloTowerCollection> towers;
      iEvent.getByLabel(srcTowers_,towers);
-	for( size_t i = 0; i<towers->size(); ++ i){
-	   const CaloTower & tower = (*towers)[ i ];
-	   double eta = tower.eta();
-	   if(produceHFtowers_){
-	      if(eta > 3)
-		 creco->etHFtowerSumPlus_ += tower.pt();
-	      if(eta < -3)
-		 creco->etHFtowerSumMinus_ += tower.pt();
-	   }else{
-	      creco->etHFtowerSumMinus_ = inputCentrality->EtHFtowerSumMinus();
-	      creco->etHFtowerSumPlus_ = inputCentrality->EtHFtowerSumPlus();
-	   }
-	   if(produceETmidRap_){
-	   }else creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
-	}
-  }else{
-     creco->etHFtowerSumMinus_ = inputCentrality->EtHFtowerSumMinus();
-     creco->etHFtowerSumPlus_ = inputCentrality->EtHFtowerSumPlus();
-     creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
+     for( size_t i = 0; i<towers->size(); ++ i){
+	const CaloTower & tower = (*towers)[ i ];
+	double eta = tower.eta();
+	if(eta > 3)
+	   creco->etHFtowerSumPlus_ += tower.pt();
+	if(eta < -3)
+	   creco->etHFtowerSumMinus_ += tower.pt();
+     }
   }
-  
+
   if(produceBasicClusters_){
      creco->etEESumPlus_ = 0;
      creco->etEESumMinus_ = 0;
@@ -234,38 +196,8 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
         double et = cluster.energy()*tg;
 	creco->etEBSum_ += et;
      }
-  }else{
-     creco->etEESumMinus_ = inputCentrality->EtEESumMinus();
-     creco->etEESumPlus_ = inputCentrality->EtEESumPlus();
-     creco->etEBSum_ = inputCentrality->EtEBSum();
   }
   
-  if(producePixelhits_){
-     creco->pixelMultiplicity_ = 0;
-     const SiPixelRecHitCollection* rechits;
-     Handle<SiPixelRecHitCollection> rchts;
-     iEvent.getByLabel(srcPixelhits_,rchts);
-     rechits = rchts.product();
-     int nPixel =0 ;
-     for (SiPixelRecHitCollection::const_iterator it = rechits->begin(); it!=rechits->end();it++)
-     {
-        SiPixelRecHitCollection::DetSet hits = *it;
-        DetId detId = DetId(hits.detId());
-        SiPixelRecHitCollection::const_iterator recHitMatch = rechits->find(detId);
-        const SiPixelRecHitCollection::DetSet recHitRange = *recHitMatch;
-      
-        for ( SiPixelRecHitCollection::DetSet::const_iterator recHitIterator = recHitRange.begin(); 
-            recHitIterator != recHitRange.end(); ++recHitIterator) {
-           // add selection if needed, now all hits.
-           nPixel++;
-        } 
-     }
-     creco->pixelMultiplicity_ = nPixel;
-//     cout <<nPixel<<endl;
-     
-  }else{
-     creco->pixelMultiplicity_ = inputCentrality->multiplicityPixel();
-  }
   iEvent.put(creco);
   return true;
 }

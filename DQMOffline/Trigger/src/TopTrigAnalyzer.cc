@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: TopTrigAnalyzer.cc,v 1.5 2010/01/12 14:11:20 dellaric Exp $
+// $Id: TopTrigAnalyzer.cc,v 1.6 2010/03/16 14:35:40 slaunwhj Exp $
 //
 //
 
@@ -214,7 +214,7 @@ void TopTrigAnalyzer::beginRun(Run const& currentRun, EventSetup const& currentE
 
     
       StringCutObjectSelector<Muon> tempRecoSelector(customCuts);
-      StringCutObjectSelector<TriggerObject> tempHltSelector(hltCuts);
+      StringCutObjectSelector<trigger::TriggerObject> tempHltSelector(hltCuts);
     
       // create a custom selector
       MuonSelectionStruct tempStruct(tempRecoSelector, tempHltSelector,

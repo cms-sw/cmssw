@@ -140,7 +140,7 @@ int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
     (*invalidMemTtIds_)->push_back(id);
     if( ! DCCDataUnpacker::silentMode_ ){
       edm::LogWarning("IncorrectBlock")
-        <<"For event "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC() << " and sm: "  << mapper_->getActiveSM()
+        <<"\nFor event "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC() << " and sm: "  << mapper_->getActiveSM()
         <<"\nExpected mem tower block is "<<expTowerID_<<" while "<<towerId_<<" was found ";
      }
     
@@ -204,7 +204,7 @@ void DCCMemBlock::unpackMemTowerData(){
       
         if( ! DCCDataUnpacker::silentMode_ ){
           edm::LogWarning("IncorrectBlock")
-            <<"For event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower mem block "<<towerId_
+            <<"\nFor event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower mem block "<<towerId_
             <<"\nThe expected strip is "<<expStripId<<" and "<<stripId<<" was found"
             <<"\nThe expected xtal  is "<<expXtalId <<" and "<<xtalId<<" was found";
         }
@@ -262,7 +262,7 @@ void DCCMemBlock::unpackMemTowerData(){
           
            if( ! DCCDataUnpacker::silentMode_ ){
 	      edm::LogWarning("IncorrectBlock")
-	       <<"For event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" , mem tower block "<<towerId_
+	       <<"\nFor event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" , mem tower block "<<towerId_
 	       <<"\nIn strip "<<stripId<<" xtal "<<xtalId<<" the gain is "<<gain<<" in sample "<<(i+1);
            }
 

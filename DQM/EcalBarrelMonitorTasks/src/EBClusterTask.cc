@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2010/03/27 20:07:58 $
- * $Revision: 1.85 $
+ * $Date: 2010/08/08 08:46:04 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -33,9 +33,9 @@
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBClusterTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBClusterTask.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
@@ -108,7 +108,7 @@ EBClusterTask::EBClusterTask(const edm::ParameterSet& ps){
   thrS4S9_ = 0.85;
   thrClusEt_ = 0.200;
   thrCandEt_ = 0.650;
-  
+
 }
 
 EBClusterTask::~EBClusterTask(){
@@ -516,7 +516,7 @@ void EBClusterTask::endJob(void){
 }
 
 void EBClusterTask::analyze(const edm::Event& e, const edm::EventSetup& c){
-  
+
   bool enable = false;
 
   edm::Handle<EcalRawDataCollection> dcchs;
@@ -558,7 +558,7 @@ void EBClusterTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   edm::ESHandle<CaloTopology> pTopology;
   c.get<CaloTopologyRecord>().get(pTopology);
   if ( !pTopology.isValid() ) {
-    edm::LogWarning("EBClusterTask") << "Topology not valid"; 
+    edm::LogWarning("EBClusterTask") << "Topology not valid";
     return;
   }
   const CaloTopology* topology = pTopology.product();
@@ -638,7 +638,7 @@ void EBClusterTask::analyze(const edm::Event& e, const edm::EventSetup& c){
           meInvMassZ0Sel_->Fill( mass );
         } else if ( mass > 110 ) {
           meInvMassHighSel_->Fill( mass );
-        }          
+        }
 
       }
 
@@ -662,14 +662,14 @@ void EBClusterTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       meSCSiz_->Fill( float(sCluster->clustersSize()) );
 
       reco::CaloClusterPtr theSeed = sCluster->seed();
-      
+
       // Find the seed rec hit
       std::vector< std::pair<DetId,float> > sIds = sCluster->hitsAndFractions();
 
       float eMax, e2nd;
       EcalRecHitCollection::const_iterator seedItr = ebRecHits->begin();
       EcalRecHitCollection::const_iterator secondItr = ebRecHits->begin();
-      
+
       for(std::vector< std::pair<DetId,float> >::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
         DetId id = idItr->first;
         if(id.det() != DetId::Ecal) { continue; }

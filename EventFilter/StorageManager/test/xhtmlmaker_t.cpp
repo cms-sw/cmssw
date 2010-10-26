@@ -40,11 +40,11 @@ string fixed_2("<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\" ?>\n"
 	       "</html>\n");
 
 void make_a_page( XHTMLMaker& maker,
-		  const string& title,
-		  const string& h_text,
-		  const string& url,
-		  const string& url_text,
-		  const string& p_text )
+		  const std::string& title,
+		  const std::string& h_text,
+		  const std::string& url,
+		  const std::string& url_text,
+		  const std::string& p_text )
 {
 
   XHTMLMaker::Node* body = maker.start( title );
@@ -76,11 +76,11 @@ void make_a_page( XHTMLMaker& maker,
   maker.addText( link, url_text );
 }
 
-void initialize_make_terminate( const string& title,
-				const string& h_text,
-				const string& url,
-				const string& url_text,
-				const string& p_text,
+void initialize_make_terminate( const std::string& title,
+				const std::string& h_text,
+				const std::string& url,
+				const std::string& url_text,
+				const std::string& p_text,
 				string& out )
 {
 
@@ -99,8 +99,8 @@ void initialize_make_terminate( const string& title,
 
 }
 
-void make_one_make_two_write_one_write_two( string& one,
-					    string& two )
+void make_one_make_two_write_one_write_two( std::string& one,
+					    std::string& two )
 {
 
   XHTMLMonitor monitor;
@@ -131,8 +131,8 @@ void make_one_make_two_write_one_write_two( string& one,
 
 void initialize_make_make_terminate()
 {
-  string one;
-  string two;
+  std::string one;
+  std::string two;
   make_one_make_two_write_one_write_two( one, two );
   assert( one == fixed_1 );
   assert( two == fixed_2 );
@@ -141,7 +141,7 @@ void initialize_make_make_terminate()
 void initialize_make_terminate_repeat()
 {
 
-  string one;
+  std::string one;
   initialize_make_terminate( "Fancy Page",
 			     "Kinda Fancy Page",
 			     "http://www.google.com",
@@ -150,7 +150,7 @@ void initialize_make_terminate_repeat()
 			     one );
   assert( one == fixed_1 );
 
-  string two;
+  std::string two;
   initialize_make_terminate( "Another Page",
 			     "Not So Fancy Page",
 			     "http://www.cern.ch",

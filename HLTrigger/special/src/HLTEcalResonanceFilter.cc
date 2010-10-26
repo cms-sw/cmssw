@@ -62,6 +62,9 @@ HLTEcalResonanceFilter::HLTEcalResonanceFilter(const edm::ParameterSet& iConfig)
     
     selePtGammaEndCap_region3_ = endcapSelection.getParameter<double> ("selePtGammaEndCap_region3");  
     selePtPairEndCap_region3_ = endcapSelection.getParameter<double> ("selePtPairEndCap_region3");
+    selePtPairMaxEndCap_region3_ = endcapSelection.getParameter<double> ("selePtPairMaxEndCap_region3");
+    
+
     seleS4S9GammaEndCap_ = endcapSelection.getParameter<double> ("seleS4S9GammaEndCap");  
     seleS9S25GammaEndCap_ = endcapSelection.getParameter<double> ("seleS9S25GammaEndCap");  
     ptMinForIsolationEndCap_ = endcapSelection.getParameter<double> ("ptMinForIsolationEndCap");
@@ -116,7 +119,7 @@ HLTEcalResonanceFilter::HLTEcalResonanceFilter(const edm::ParameterSet& iConfig)
     ESHits_ = preshowerSelection.getParameter< std::string > ("ESCollection");
     produces< ESRecHitCollection >(ESHits_);
   }
-    
+  
   debug_ = iConfig.getParameter<int> ("debugLevel");
   
 }
@@ -524,6 +527,7 @@ void HLTEcalResonanceFilter::doSelection(int detector, const reco::BasicClusterC
 	  if(ptmin < selePtGammaEndCap_region2_ || pt_pair < selePtPairEndCap_region2_) continue;
 	}else{
 	  if(ptmin < selePtGammaEndCap_region3_ || pt_pair < selePtPairEndCap_region3_) continue;
+	  if(pt_pair > selePtPairMaxEndCap_region3_ ) continue; 
 	}
       }
       

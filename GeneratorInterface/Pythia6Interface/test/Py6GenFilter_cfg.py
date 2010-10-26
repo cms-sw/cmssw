@@ -28,7 +28,7 @@ from Configuration.Generator.PythiaUESettings_cfi import *
 from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
 
 process.generator = cms.EDFilter("Pythia6GeneratorFilter",
-    pythiaHepMCVerbosity = cms.untracked.bool(True),
+    pythiaHepMCVerbosity = cms.untracked.bool(False),
     maxEventsToPrint = cms.untracked.int32(3),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     # this shows how to turn ON some of the general Py6 printouts, like banner...
@@ -47,7 +47,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 	     ( 
 	        pjak1 = cms.int32(0),
 		pjak2 = cms.int32(0), 
-		mdtau = cms.int32(240) # (any) tau -> nu pi+- 
+		mdtau = cms.int32(214) 
 	     )
 #           TauolaDefaultInputCards,
 #	   TauolaPolar
@@ -116,18 +116,10 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 )
 
 process.GEN = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('Py6_HZZ4tau.root')
+    fileName = cms.untracked.string('TestHZZ4tau.root')
 )
 
-#process.TFileService = cms.Service("TFileService",
-#        fileName = cms.string("HZZ4tau_analysis.root")
-#)
-#process.TauPhotonTest = cms.EDAnalyzer( "TauPhotonTester" )
-
-
 process.p = cms.Path(process.generator)
-#process.p1 = cms.Path(process.TauPhotonTest)
 process.outpath = cms.EndPath(process.GEN)
 
-#process.schedule = cms.Schedule(process.p, process.p1, process.outpath)
 process.schedule = cms.Schedule(process.p, process.outpath)

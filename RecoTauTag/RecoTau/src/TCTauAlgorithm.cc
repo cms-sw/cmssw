@@ -44,6 +44,16 @@ void TCTauAlgorithm::inputConfig(const edm::ParameterSet& iConfig){
 
 	signalCone         = iConfig.getParameter<double>("SignalConeSize");
 	ecalCone	   = iConfig.getParameter<double>("EcalConeSize");
+	matchingCone       = iConfig.getParameter<double>("MatchingConeSize");
+	tkptmin            = iConfig.getParameter<double>("Track_minPt");
+
+	tkmaxipt           = iConfig.getParameter<double>("tkmaxipt");
+	tkmaxChi2          = iConfig.getParameter<double>("tkmaxChi2");
+	tkminPixelHitsn    = iConfig.getParameter<int>("tkminPixelHitsn");
+	tkminTrackerHitsn  = iConfig.getParameter<int>("tkminTrackerHitsn");
+
+	trackInput         = iConfig.getParameter<InputTag>("TrackCollection");
+	vertexInput        = iConfig.getParameter<InputTag>("PVProducer");
 
 	EcalRecHitsEB_input= iConfig.getParameter<InputTag>("EBRecHitCollection");
 	EcalRecHitsEE_input= iConfig.getParameter<InputTag>("EERecHitCollection");
@@ -103,6 +113,10 @@ void TCTauAlgorithm::eventSetup(const edm::Event& iEvent,const edm::EventSetup& 
         iEvent.getByLabel( HBHERecHits_input, HBHERecHits );
         iEvent.getByLabel( HORecHits_input, HORecHits );
         iEvent.getByLabel( HFRecHits_input, HFRecHits );
+
+	//tracks and PV (in case they are needed)
+	iEvent.getByLabel(trackInput,tracks);
+	iEvent.getByLabel(vertexInput,thePVs);
 }
 
 
@@ -119,6 +133,74 @@ math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloTau& j
 	return recalculateEnergy(caloJet,leadTk,associatedTracks);
 }
 
+math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& caloJet){
+
+	TrackRef leadTk;
+        TrackRefVector associatedTracks;
+
+	double ptmax = 0;
+
+	if(tracks.isValid()) {
+
+		//const TrackCollection tracks = *(trackHandle.product());
+		TrackCollection::const_iterator iTrack;
+		for(unsigned int i = 0; i < tracks->size(); ++i){
+			TrackRef trackRef(tracks,i);
+			double DR = ROOT::Math::VectorUtil::DeltaR(caloJet.momentum(),trackRef->momentum());
+			if(DR < 0.5) associatedTracks.push_back(trackRef);
+		}
+	}
+
+	Vertex thePV = *(thePVs->begin());
+	TrackRefVector theFilteredTracks = TauTagTools::filteredTracks(associatedTracks,
+								       tkptmin,
+								       tkminPixelHitsn,
+								       tkminTrackerHitsn,
+								       tkmaxipt,
+								       tkmaxChi2,
+								       thePV);
+
+	for(TrackRefVector::const_iterator i = theFilteredTracks.begin();
+					   i!= theFilteredTracks.end(); ++i){
+		double DR = ROOT::Math::VectorUtil::DeltaR(caloJet.momentum(),(*i)->momentum());
+		if(DR < matchingCone && (*i)->pt() > ptmax){
+                                leadTk = *i;
+                                ptmax = (*i)->pt();
+                }
+	}
+
+	if(ptmax > 0) return recalculateEnergy(caloJet,leadTk,theFilteredTracks);
+
+	return math::XYZTLorentzVector(0,0,0,0);
+}
+/*
+math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::Jet& tau){
+
+	cout << "TCTauAlgorithm::recalculateEnergy(const reco::Jet&) "
+             << "is not working. " << endl;
+	cout << "Please use CaloJet or CaloTau instead. Exiting..." << endl;
+	exit(0);
+
+        const CaloJet& cJet = dynamic_cast<const CaloJet&>(tau);
+	CaloJet caloJet = cJet;
+        caloJet.setP4(tau.p4());
+
+        return recalculateEnergy(caloJet);
+}
+
+math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::IsolatedTauTagInfo& tau){
+
+	const TrackRef& leadTk = tau.leadingSignalTrack(matchingCone,tkptmin);
+
+	const TrackRefVector associatedTracks = tau.allTracks();
+
+        const CaloJet& cJet = dynamic_cast<const CaloJet&>(*(tau.jet()));
+        CaloJet caloJet = cJet;
+        caloJet.setP4(tau.jet().get()->p4());
+
+        return recalculateEnergy(caloJet,leadTk,associatedTracks);
+}
+*/
 math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& caloJet,const TrackRef& leadTk,const TrackRefVector& associatedTracks){
 
         all++;

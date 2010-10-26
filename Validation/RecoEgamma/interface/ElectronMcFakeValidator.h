@@ -338,12 +338,12 @@ class ElectronMcFakeValidator : public ElectronValidator
 
     MonitorElement *h1_ele_tkSumPt_dr03;
     MonitorElement *h1_ele_ecalRecHitSumEt_dr03;
-    MonitorElement *h1_ele_hcalDepth1TowerSumEt_dr03;
-    MonitorElement *h1_ele_hcalDepth2TowerSumEt_dr03;
+    MonitorElement *h1_ele_hcalTowerSumEt_dr03_depth1;
+    MonitorElement *h1_ele_hcalTowerSumEt_dr03_depth2;
     MonitorElement *h1_ele_tkSumPt_dr04;
     MonitorElement *h1_ele_ecalRecHitSumEt_dr04;
-    MonitorElement *h1_ele_hcalDepth1TowerSumEt_dr04;
-    MonitorElement *h1_ele_hcalDepth2TowerSumEt_dr04;
+    MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth1;
+    MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth2;
 
  } ;
 

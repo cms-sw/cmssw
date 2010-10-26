@@ -31,7 +31,6 @@ class RunList  : public IDBObject {
   void fetchRuns(int min_run, int max_run) throw(std::runtime_error);
   void fetchLastNRuns( int max_run, int n_runs  ) throw(std::runtime_error);
   void fetchRunsByLocation (int min_run, int max_run, const LocationDef locDef )  throw(std::runtime_error);
-  void fetchGlobalRunsByLocation(int min_run, int max_run, const LocationDef locDef )  throw(std::runtime_error);
 
 
  private:

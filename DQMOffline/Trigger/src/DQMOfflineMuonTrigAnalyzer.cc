@@ -12,7 +12,7 @@
 */
 //
 // Jason Slaunwhite, based on code from Jeff Klukas
-// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.14 2010/01/12 14:11:20 dellaric Exp $
+// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.15 2010/03/16 14:35:40 slaunwhj Exp $
 //
 //
 
@@ -202,7 +202,7 @@ void OfflineDQMMuonTrigAnalyzer::beginRun(edm::Run const& currentRun, edm::Event
 
 
       StringCutObjectSelector<Muon> tempRecoSelector(customCuts);
-      StringCutObjectSelector<TriggerObject> tempHltSelector(hltCuts);
+      StringCutObjectSelector<trigger::TriggerObject> tempHltSelector(hltCuts);
     
       // create a custom selector
       MuonSelectionStruct tempStruct(tempRecoSelector, tempHltSelector,

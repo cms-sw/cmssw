@@ -8,11 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 10:19:07 EST 2008
-// $Id: unittest_modelfilter.cc,v 1.2 2009/12/18 00:37:34 chrjones Exp $
+// $Id: unittest_modelfilter.cc,v 1.1 2009/03/05 22:01:53 chrjones Exp $
 //
 
 // system include files
 #include <boost/test/auto_unit_test.hpp>
+#include <boost/bind.hpp>
 #include <boost/test/test_tools.hpp>
 #include "TClass.h"
 #include "Cintex/Cintex.h"

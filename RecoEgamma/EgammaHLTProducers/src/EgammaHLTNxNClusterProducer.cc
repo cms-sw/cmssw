@@ -115,7 +115,7 @@ void EgammaHLTNxNClusterProducer::produce(edm::Event& evt, const edm::EventSetup
     }
     
     const EcalRecHitCollection *hits_eb = barrelRecHitsHandle.product();
-    if( debug_>=2 ) LogDebug("")<<"EgammaHLTNxNClusterProducer nEBrechits: "<< evt.id().run()<<" event "<<evt.id().event() <<" "<< hits_eb->size()<<endl;
+    if( debug_>=2 ) LogDebug("")<<"EgammaHLTNxNClusterProducer nEBrechits: "<< evt.id().run()<<" event "<<evt.id().event() <<" "<< hits_eb->size()<<std::endl;
     
     makeNxNClusters(evt,es,hits_eb, reco::CaloID::DET_ECAL_BARREL);
     
@@ -130,7 +130,7 @@ void EgammaHLTNxNClusterProducer::produce(edm::Event& evt, const edm::EventSetup
     }
     
     const EcalRecHitCollection *hits_ee = endcapRecHitsHandle.product();
-    if( debug_>=2 ) LogDebug("")<<"EgammaHLTNxNClusterProducer nEErechits: "<< evt.id().run()<<" event "<<evt.id().event() <<" "<< hits_ee->size()<<endl;
+    if( debug_>=2 ) LogDebug("")<<"EgammaHLTNxNClusterProducer nEErechits: "<< evt.id().run()<<" event "<<evt.id().event() <<" "<< hits_ee->size()<<std::endl;
     makeNxNClusters(evt,es,hits_ee, reco::CaloID::DET_ECAL_ENDCAP);
   }
   
@@ -258,7 +258,7 @@ void EgammaHLTNxNClusterProducer::makeNxNClusters(edm::Event &evt, const edm::Ev
     
     math::XYZPoint clus_pos = posCalculator_.Calculate_Location(clus_used,hits,geometry_p,geometryES_p);
     
-    if (debug_>=2 ) LogDebug("")<<"nxn_cluster in run "<< evt.id().run()<<" event "<<evt.id().event()<<" energy: "<<clus_energy <<" eta: "<< clus_pos.Eta()<<" phi: "<< clus_pos.Phi()<<" nRecHits: "<< clus_used.size() <<endl;
+    if (debug_>=2 ) LogDebug("")<<"nxn_cluster in run "<< evt.id().run()<<" event "<<evt.id().event()<<" energy: "<<clus_energy <<" eta: "<< clus_pos.Eta()<<" phi: "<< clus_pos.Phi()<<" nRecHits: "<< clus_used.size() <<std::endl;
     
     clusters.push_back(reco::BasicCluster(clus_energy, clus_pos, reco::CaloID(detector), clus_used, reco::CaloCluster::island, seed_id));
     if( int(clusters.size()) > maxNumberofClusters_){ ///if too much clusters made, then return 0 also 
@@ -273,11 +273,11 @@ void EgammaHLTNxNClusterProducer::makeNxNClusters(edm::Event &evt, const edm::Ev
   std::auto_ptr< reco::BasicClusterCollection > clusters_p(new reco::BasicClusterCollection);
   clusters_p->assign(clusters.begin(), clusters.end());
   if (detector == reco::CaloID::DET_ECAL_BARREL){
-    if(debug_>=1) LogDebug("")<<"nxnclusterProducer: "<<clusters_p->size() <<" made in barrel"<<endl;
+    if(debug_>=1) LogDebug("")<<"nxnclusterProducer: "<<clusters_p->size() <<" made in barrel"<<std::endl;
     evt.put(clusters_p, barrelClusterCollection_);
   }
   else {
-    if(debug_>=1) LogDebug("")<<"nxnclusterProducer: "<<clusters_p->size() <<" made in endcap"<<endl;
+    if(debug_>=1) LogDebug("")<<"nxnclusterProducer: "<<clusters_p->size() <<" made in endcap"<<std::endl;
     evt.put(clusters_p, endcapClusterCollection_);
   }
   

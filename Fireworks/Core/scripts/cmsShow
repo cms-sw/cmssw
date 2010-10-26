@@ -3,20 +3,11 @@
 # strip of the directory name for this shell script
 export SHELLDIR=`dirname $0`
 # if no directory specified we need to use the local directory
-if [ ! -n "$SHELLDIR" ] || [ "$SHELLDIR" == "." ] ; then
-  export SHELLDIR=$PWD
+if [ ! -n "$SHELLDIR" ] ; then
+  export SHELLDIR=.
 fi
-
 # see if we are running in standalone mode
-if [ -n "$CMSSW_BASE" ] && [ `expr "$SHELLDIR" : "$CMSSW_BASE"` -gt 0 ]; then
-  export SHELLFROMRELEASE='true'
-  #echo "from CMSSW_BASE"
-fi
-if [ -n "$CMSSW_RELEASE_BASE" ] && [ `expr "$SHELLDIR" : "$CMSSW_RELEASE_BASE"` -gt 0 ]; then
-  export SHELLFROMRELEASE='true'
-  #echo "from CMSSW_RELEASE_BASE"
-fi
-if [ ! -n "$SHELLFROMRELEASE" ]; then
+if [ ! -n "$CMSSW_BASE" ] ; then
   export CMSSW_BASE=$SHELLDIR
   export CMSSW_SEARCH_PATH="."
   export CMSSW_DATA_PATH="."
@@ -27,27 +18,29 @@ if [ ! -n "$SHELLFROMRELEASE" ]; then
   export PATH=${ROOTSYS}/bin:$PATH
 fi
 
-# We store in originalOptions all the options that need to be passed to the
-# actual cmsShow.exe executable but not those that are specific for the wrapper
-# file itself.
+# parse arguments to find ones handled by this script
+softflag=off
+debugflag=off
+rootflag=off
+# NOTE: the while loop removes entries from $@ so need to cache its value
+originalOptions=$@
 while [ $# -gt 0 ]
 do
     case "$1" in
-      --soft)  softflag=on ; originalOptions="${originalOptions} --soft";;
-      -d|--debug) debugflag=on;;
-      -di|--debug-interactive) debuginteractiveflag=on;;
-      --eve|--prompt) originalOptions="${originalOptions} --eve -r";;
-      -r|--root-interactive) rootflag=on; originalOptions="${originalOptions} -r";;
-      *) originalOptions="$originalOptions $1";;
+      --soft)  softflag=on;;
+      -d)  debugflag=on;;
+      --debug) debugflag=on;;
+      --root-interactive) rootflag=on;;
+      -r) rootflag=on;;
     esac
     shift
 done
 
-if [ "X$softflag" = "on" ] ; then
+if [ "$softflag" != "off" ] ; then
   export LIBGL_DRIVERS_PATH=/tmp/
 fi
 
-if [ "X$debugflag" = Xon ] ; then
+if [ "$debugflag" != "off" ] ; then
    tmpfile=`mktemp /tmp/cmsshow-gdb-XXXXXXXX`
    if [ -w . ]; then
       creport=./crash.report
@@ -65,12 +58,9 @@ if [ "X$debugflag" = Xon ] ; then
    glxinfo >> $creport
    rm -f $tmpfile
    echo "Crash report saved to '$creport'."
-elif [ "X$debuginteractiveflag" = Xon ] ; then
-  echo $originalOptions
-  gdb --args $SHELLDIR/cmsShow.exe $originalOptions
 else
    $SHELLDIR/cmsShow.exe $originalOptions
-   if [ $? -gt 128 ] ; then
+   if [ $? != "0" ] ; then
       if [ "$rootflag" == "off" ] ; then
          echo ""
          echo "  ########################################################################"

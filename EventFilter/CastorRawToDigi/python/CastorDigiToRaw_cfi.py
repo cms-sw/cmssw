@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-castorRawData = cms.EDProducer("CastorDigiToRaw",
-    CASTOR = cms.untracked.InputTag("simCastorDigis"),
+castorRawData = cms.EDFilter("CastorDigiToRaw",
+    CASTOR = cms.untracked.InputTag("castorDigis"),
 )

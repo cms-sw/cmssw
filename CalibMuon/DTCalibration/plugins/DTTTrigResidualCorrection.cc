@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/01 16:27:19 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/10/19 13:12:00 $
+ *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 
@@ -21,15 +21,6 @@
 #include "TFile.h"
 #include "TH1F.h"
 #include "TF1.h"
-#include "TCanvas.h"
-
-#include "RooPlot.h"
-#include "RooRealVar.h"
-#include "RooDataHist.h"
-#include "RooGaussian.h"
-#include "RooAddPdf.h"
-#include "RooFitResult.h"
-#include "RooGlobalFunc.h"
 
 #include <string>
 #include <sstream>
@@ -40,43 +31,9 @@ using namespace edm;
 DTTTrigResidualCorrection::DTTTrigResidualCorrection(const ParameterSet& pset) {
   string residualsRootFile = pset.getParameter<string>("residualsRootFile");
   rootFile_ = new TFile(residualsRootFile.c_str(),"READ");
-  rootBaseDir_ = pset.getUntrackedParameter<string>("rootBaseDir","/DQMData/DT/DTCalibValidation"); 
   useFit_ = pset.getParameter<bool>("useFitToResiduals");
+  dbLabel  = pset.getUntrackedParameter<string>("dbLabel", "");
   //useConstantvDrift_ = pset.getParameter<bool>("useConstantDriftVelocity");
-  dbLabel_  = pset.getUntrackedParameter<string>("dbLabel", "");
-  useSlopesCalib_ = pset.getUntrackedParameter<bool>("useSlopesCalib",false);
-
-  // Load external slopes
-  if(useSlopesCalib_){ 
-     ifstream fileSlopes; 
-     fileSlopes.open( pset.getParameter<FileInPath>("slopesFileName").fullPath().c_str() );
-     //fin.open("slopesDB.txt");
-
-     int tmp_wheel = 0;
-     int tmp_sector = 0;
-     int tmp_station = 0;
-     int tmp_SL = 0;
-     double tmp_ttrig = 0.;
-     double tmp_t0 = 0.;
-     double tmp_kfact = 0.;
-     int tmp_a = 0;
-     int tmp_b = 0;
-     int tmp_c = 0;
-     int tmp_d = 0;
-     double tmp_v_eff = 0.;
-
-     while(!fileSlopes.eof()){
-
-        fileSlopes >> tmp_wheel >> tmp_sector >> tmp_station >> tmp_SL  >> tmp_a >> tmp_b >>
-                      tmp_ttrig >> tmp_t0 >> tmp_kfact >> tmp_c >> tmp_d >> tmp_v_eff;
-
-        vDriftEff_[tmp_wheel+2][tmp_sector-1][tmp_station-1][tmp_SL-1] = -tmp_v_eff;
-
-     }
-
-     fileSlopes.close();
-  } 
-
 }
 
 DTTTrigResidualCorrection::~DTTTrigResidualCorrection() {
@@ -86,19 +43,16 @@ DTTTrigResidualCorrection::~DTTTrigResidualCorrection() {
 void DTTTrigResidualCorrection::setES(const EventSetup& setup) {
   // Get tTrig record from DB
   ESHandle<DTTtrig> tTrig;
-  //setup.get<DTTtrigRcd>().get(tTrig);
-  setup.get<DTTtrigRcd>().get(dbLabel_,tTrig);
+  setup.get<DTTtrigRcd>().get(dbLabel,tTrig);
   tTrigMap_ = &*tTrig;
 
   // Get vDrift record
   ESHandle<DTMtime> mTimeHandle;
   setup.get<DTMtimeRcd>().get(mTimeHandle);
   mTimeMap_ = &*mTimeHandle;
-
 }
 
 DTTTrigData DTTTrigResidualCorrection::correction(const DTSuperLayerId& slId) {
-
   float tTrigMean,tTrigSigma,kFactor;
   int status = tTrigMap_->get(slId,tTrigMean,tTrigSigma,kFactor,DTTimeUnits::ns);
   if(status != 0) throw cms::Exception("[DTTTrigResidualCorrection]") << "Could not find tTrig entry in DB for"
@@ -108,73 +62,30 @@ DTTTrigData DTTTrigResidualCorrection::correction(const DTSuperLayerId& slId) {
   status = mTimeMap_->get(slId,vDrift,hitResolution,DTVelocityUnits::cm_per_ns);
   if(status != 0) throw cms::Exception("[DTTTrigResidualCorrection]") << "Could not find vDrift entry in DB for"
                                                                       << slId << endl;
+
   TH1F residualHisto = *(getHisto(slId));
   double fitMean = -1.;
-
   if(useFit_){
-
-    RooRealVar x("x","residual",-1.,1.);
-    RooRealVar mean("mean","mean",residualHisto.GetMean(),-0.3,0.3);
-    RooRealVar sigma1("sigma1","sigma1",0.,0.5);
-    RooRealVar sigma2("sigma2","sigma2",0.,0.5);
-
-    RooRealVar frac("frac","frac",0.,1.);
-
-    RooGaussian myg1("myg1","Gaussian distribution",x,mean,sigma1);
-    RooGaussian myg2("myg2","Gaussian distribution",x,mean,sigma2);
-
-    RooAddPdf myg("myg","myg",RooArgList(myg1,myg2),RooArgList(frac));
-
-    RooDataHist hdata("hdata","Binned data",RooArgList(x),&residualHisto);
-    myg.fitTo(hdata,RooFit::Minos(0),RooFit::Range(-0.2,0.2));
-
-    fitMean = mean.getVal();
-    LogTrace("Calibration") << "[DTTTrigResidualCorrection]: \n"
+    TF1 *fit = new TF1("Gaussian","gaus",-0.3,0.3); 
+    fit->SetParameters(residualHisto.GetMaximum(),residualHisto.GetMean(),residualHisto.GetRMS());
+    fit->SetParNames("norm","mean","width");
+    residualHisto.Fit(fit,"Q0");
+    fitMean = fit->GetParameter(1);
+    LogTrace("Calibration") << "[DTTTrigResidualCorrection]: Fit normalization = " << fit->GetParameter(0) << "\n"
                             << "                             Mean, Fit Mean    = " << residualHisto.GetMean()
-			    << ", " << fitMean << "\n"
-                            << "                             RMS, Fit RMS      = " << residualHisto.GetRMS()
-                            << ", " << sigma1.getVal();
-
-    //static int count = 0;
-    /*
-    if(count == 0){
-      RooPlot *xframe = x.frame();
-      hdata.plotOn(xframe);
-      myg.plotOn(xframe);
-      TCanvas c1;
-      c1.cd();
-      xframe->Draw();
-      c1.SaveAs("prova.eps");
-      count++;
-    }
-    */
-
+                                                                                   << ", " << fit->GetParameter(1) << "\n"
+                            << "                             RMS, Fit RMS      = " << residualHisto.GetRMS() << ", " << fit->GetParameter(2);
   }
-
-  int wheel = slId.wheel();
-  int sector = slId.sector();
-  int station = slId.station();
-  int superLayer = slId.superLayer();
 
   double resTime = 0.;
-  if(useSlopesCalib_){
-     double vdrift_eff = vDriftEff_[wheel+2][sector-1][station-1][superLayer-1];
-     if(vdrift_eff == 0) vdrift_eff = vDrift;
+  if(vDrift != 0.) resTime = ((useFit_)?fitMean:(residualHisto.GetMean()))/vDrift;
 
-     if(vdrift_eff) resTime = ( (useFit_) ? fitMean : residualHisto.GetMean() )/vdrift_eff;
+  LogTrace("Calibration") << "[DTTTrigResidualCorrection]: vDrift from DB, correction to tTrig = " << vDrift << ", " << resTime;
 
-     LogTrace("Calibration") << "[DTTTrigResidualCorrection]: Effective vDrift, correction to tTrig = "
-                             << vdrift_eff << ", " << resTime;
-  } else{
-     if(vDrift) resTime = ( (useFit_) ? fitMean : residualHisto.GetMean() )/vDrift;
-
-     LogTrace("Calibration") << "[DTTTrigResidualCorrection]: vDrift from DB, correction to tTrig = "
-                             << vDrift << ", " << resTime;
-  }
- 
   double corrMean = tTrigMean;
   double corrSigma = tTrigSigma;
-  double corrKFact = kFactor + resTime/tTrigSigma;
+  double corrKFact = 0.;
+  if(tTrigSigma != 0.) corrKFact = (kFactor*tTrigSigma + resTime)/tTrigSigma;
 
   return DTTTrigData(corrMean,corrSigma,corrKFact);  
 }
@@ -198,7 +109,7 @@ string DTTTrigResidualCorrection::getHistoName(const DTSuperLayerId& slId) {
   stringstream Step; Step << step;
 
   string histoName =
-    rootBaseDir_ + "/Wheel" + wheel.str() + 
+    "/DQMData/DT/DTCalibValidation/Wheel" + wheel.str() + 
     "/Station" + station.str() +
     "/Sector" + sector.str() +
     "/hResDist_STEP" + Step.str() +

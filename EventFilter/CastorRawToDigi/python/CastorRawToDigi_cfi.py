@@ -10,7 +10,7 @@ castorDigis = cms.EDProducer("CastorRawToDigi",
     CastorFirstFED = cms.untracked.int32(690),
     # FED numbers to unpack.  If this is not specified, all FEDs from
     # FEDNumbering will be unpacked.
-    FEDs = cms.untracked.vint32( 690, 691, 692 ),
+    FEDs = cms.untracked.vint32( 690, 691, 692, 693 ),
     # Do not complain about missing FEDs
     ExceptionEmptyData = cms.untracked.bool(False),
     # Do not complain about missing FEDs
@@ -20,10 +20,6 @@ castorDigis = cms.EDProducer("CastorRawToDigi",
     # will be copied to the digi
     firstSample = cms.int32(0),
     lastSample = cms.int32(9),
-    # castor technical trigger processor
-    UnpackTTP = cms.untracked.bool(True),
-    # report errors
-    silent = cms.untracked.bool(False),
     #
     InputLabel = cms.InputTag("source")
 )

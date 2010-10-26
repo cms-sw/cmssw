@@ -34,5 +34,8 @@ generator = cms.EDFilter("Pythia6HadronizerFilter",
        MEMAIN_qcut = cms.double(-1),
        MEMAIN_minjets = cms.int32(-1),
        MEMAIN_maxjets = cms.int32(-1),
+       MEMAIN_showerkt = cms.double(0),   
+       MEMAIN_excres = cms.string(""),
+       outTree_flag = cms.int32(0)    
     )    
 )

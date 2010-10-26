@@ -5,7 +5,7 @@
  * Initial Implementation based on Kurt's EventServer
  * make a common class later when all this works
  *
- * $Id: DQMEventServer.cc,v 1.5 2009/06/10 08:15:25 dshpakov Exp $
+ * $Id: DQMEventServer.cc,v 1.6 2010/05/17 15:59:10 mommsen Exp $
  *
  * Note: this class is no longer used in the StorageManager, but is still
  * required by the SMProxyServer (Remi Mommsen, May 5, 2009)
@@ -124,7 +124,7 @@ void DQMEventServer::processDQMEvent(const DQMEventMsgView &eventView)
   timeDiff -= (double) lastAcceptedEventTime_.tv_sec;
   timeDiff += ((double) now.tv_usec / 1000000.0);
   timeDiff -= ((double) lastAcceptedEventTime_.tv_usec / 1000000.0);
-  //cout << "timeDiff = " << timeDiff <<
+  //std::cout << "timeDiff = " << timeDiff <<
   //  ", minTime = " << minTimeBetweenEvents_ << std::endl;
   //if (timeDiff < minTimeBetweenEvents_) {return;}
 
@@ -142,7 +142,7 @@ void DQMEventServer::processDQMEvent(const DQMEventMsgView &eventView)
   // it is ready for an event and if it wants this specific event.  If so,
   // create a local copy of the event (if not already done) and pass it
   // to the consumer pipe.
-  boost::shared_ptr< vector<char> > bufPtr;
+  boost::shared_ptr< std::vector<char> > bufPtr;
   std::map< uint32_t, boost::shared_ptr<DQMConsumerPipe> >::const_iterator consIter;
   for (consIter = consumerTable.begin();
        consIter != consumerTable.end();
@@ -165,8 +165,8 @@ void DQMEventServer::processDQMEvent(const DQMEventMsgView &eventView)
           " and folder " << eventView.topFolderName() <<std::endl;
 
         // create a local buffer of the appropriate size
-        boost::shared_ptr< vector<char> >
-          tmpBufPtr(new vector<char>(eventView.size()));
+        boost::shared_ptr< std::vector<char> >
+          tmpBufPtr(new std::vector<char>(eventView.size()));
 
         // copy the data to the local buffer
         unsigned char *target = (unsigned char *) &(*tmpBufPtr)[0];
@@ -230,7 +230,7 @@ void DQMEventServer::processDQMEvent(const DQMEventMsgView &eventView)
 boost::shared_ptr< std::vector<char> > DQMEventServer::getDQMEvent(uint32_t consumerId)
 {
   // initial empty buffer
-  boost::shared_ptr< vector<char> > bufPtr;
+  boost::shared_ptr< std::vector<char> > bufPtr;
 
   // lookup the consumer
   std::map< uint32_t, boost::shared_ptr<DQMConsumerPipe> >::const_iterator consIter;

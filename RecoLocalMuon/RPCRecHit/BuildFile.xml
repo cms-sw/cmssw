@@ -10,7 +10,6 @@
 <use   name="Geometry/RPCGeometry"/>
 <use   name="Geometry/DTGeometry"/>
 <use   name="Geometry/CSCGeometry"/>
-<use   name="TrackingTools/TrackRefitter"/>
 <flags   EDM_PLUGIN="1"/>
 <export>
   <lib   name="1"/>

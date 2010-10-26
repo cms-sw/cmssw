@@ -18,7 +18,7 @@ my $srcdir="${releasetop}/${src}";
 if (!-d "$srcdir")
 {print "$srcdir does not exist."; exit(1);}
 
-print "Searching files for duplicate data dictionary definations.\n";
+print "Searching files for duplicate data dictionary definitions.\n";
 print "...";
 &processDir ($srcdir);
 print "\n";
@@ -31,7 +31,7 @@ foreach my $dict (keys %{$CACHE{DICT}})
   {
     if($msg==0)
     {
-      print "Multiple defination of data dictionary found for following:\n";
+      print "Multiple definitions of data dictionary found for following:\n";
       $msg=1;
     }
     print "  \"$dict\":\n";
@@ -43,7 +43,7 @@ foreach my $dict (keys %{$CACHE{DICT}})
   }
 }
 if ($msg==0)
-{print "Congratulations, No multiple data dictionary definations found.\n"}
+{print "Congratulations, No multiple data dictionary definitions found.\n"}
 
 sub processDir ()
 {

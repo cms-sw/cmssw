@@ -1,3 +1,12 @@
+/*
+ * \file EBDaqInfoTask.cc
+ *
+ * $Date: 2010/08/08 08:56:00 $
+ * $Revision: 1.10 $
+ * \author E. Di Marco
+ *
+*/
+
 #include <iostream>
 #include <vector>
 
@@ -14,7 +23,7 @@
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DQM/EcalBarrelMonitorTasks/interface/EBDaqInfoTask.h"
 
@@ -43,11 +52,11 @@ EBDaqInfoTask::~EBDaqInfoTask() {
 void EBDaqInfoTask::beginJob(void){
 
   char histo[200];
-  
+
   if ( dqmStore_ ) {
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
-    
+
     sprintf(histo, "DAQSummary");
     meEBDaqFraction_ = dqmStore_->bookFloat(histo);
     meEBDaqFraction_->Fill(0.0);
@@ -96,7 +105,7 @@ void EBDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
     edm::LogWarning("EBDaqInfoTask") << "EcalDAQTowerStatus record not valid";
     return;
   }
-  const EcalDAQTowerStatus *daqStatus = pDAQStatus.product();
+  const EcalDAQTowerStatus* daqStatus = pDAQStatus.product();
 
   for(int iz=-1; iz<=1; iz+=2) {
     for(int iptt=0 ; iptt<72; iptt++) {
@@ -104,7 +113,7 @@ void EBDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
         if (EcalTrigTowerDetId::validDetId(iz,EcalBarrel,iett+1,iptt+1 )){
 
           EcalTrigTowerDetId ebid(iz,EcalBarrel,iett+1,iptt+1);
-          
+
           uint16_t dbStatus = 0; // 0 = good
           EcalDAQTowerStatus::const_iterator daqStatusIt = daqStatus->find( ebid.rawId() );
           if ( daqStatusIt != daqStatus->end() ) dbStatus = daqStatusIt->getStatusCode();
@@ -115,7 +124,7 @@ void EBDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
             readyRun[ipttEB][iettEB] = 0;
             readyLumi[ipttEB][iettEB] = 0;
           }
-          
+
         }
       }
     }
@@ -158,16 +167,16 @@ void EBDaqInfoTask::reset(void) {
   }
 
   if ( meEBDaqActiveMap_ ) meEBDaqActiveMap_->Reset();
-  
+
 }
 
 
 void EBDaqInfoTask::cleanup(void){
-  
+
   if ( dqmStore_ ) {
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
-    
+
     if ( meEBDaqFraction_ ) dqmStore_->removeElement( meEBDaqFraction_->getName() );
 
     if ( meEBDaqActiveMap_ ) dqmStore_->removeElement( meEBDaqActiveMap_->getName() );
@@ -190,10 +199,10 @@ void EBDaqInfoTask::fillMonitorElements(int ready[72][34]) {
 
   for ( int iett = 0; iett < 34; iett++ ) {
     for ( int iptt = 0; iptt < 72; iptt++ ) {
-      
+
       if(meEBDaqActiveMap_) meEBDaqActiveMap_->setBinContent( iptt+1, iett+1, ready[iptt][iett] );
 
-      int ism = ( iett<17 ) ? iptt/4 : 18+iptt/4; 
+      int ism = ( iett<17 ) ? iptt/4 : 18+iptt/4;
       if(ready[iptt][iett]) {
         readySum[ism]++;
         readySumTot++;
@@ -210,6 +219,6 @@ void EBDaqInfoTask::fillMonitorElements(int ready[72][34]) {
 
 }
 
-void EBDaqInfoTask::analyze(const edm::Event& e, const edm::EventSetup& c){ 
+void EBDaqInfoTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 }

@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.47 2010/06/15 19:18:55 srappocc Exp $
+// $Id: Jet.h,v 1.48 2010/06/16 18:21:38 srappocc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
-  \version  $Id: Jet.h,v 1.47 2010/06/15 19:18:55 srappocc Exp $
+  \version  $Id: Jet.h,v 1.48 2010/06/16 18:21:38 srappocc Exp $
 */
 
 
@@ -208,7 +208,7 @@ namespace pat {
       // ---- jet specific methods ----
 
       /// check to see if the jet is a reco::CaloJet
-      bool isCaloJet()  const { return !specificCalo_.empty(); }
+      bool isCaloJet()  const { return !specificCalo_.empty() && !isJPTJet(); }
       /// check to see if the jet is a reco::JPTJet
       bool isJPTJet()   const { return !specificJPT_.empty(); }
       /// check to see if the jet is a reco::PFJet
@@ -376,7 +376,7 @@ namespace pat {
       ///    Else check the old version of PAT (embedded constituents size > 0)
       ///    Else return the reco Jet number of constituents
       virtual const reco::Candidate * daughter(size_t i) const {
-	if (isCaloJet()) { 
+	if (isCaloJet() || isJPTJet() ) { 
 	  if ( embeddedCaloTowers_ ) {
 	    if ( caloTowersFwdPtr_.size() > 0 ) return caloTowersFwdPtr_[i].get();
 	    else if ( caloTowers_.size() > 0 ) return &caloTowers_[i];
@@ -400,7 +400,7 @@ namespace pat {
       ///    Else check the old version of PAT (embedded constituents size > 0)
       ///    Else return the reco Jet number of constituents
       virtual size_t numberOfDaughters() const {
-	if (isCaloJet()) { 
+	if (isCaloJet() || isJPTJet()) { 
 	  if ( embeddedCaloTowers_ ) {
 	    if ( caloTowersFwdPtr_.size() > 0 ) return caloTowersFwdPtr_.size();
 	    else if ( caloTowers_.size() > 0 ) return caloTowers_.size();

@@ -5,6 +5,7 @@ onlineBeamSpotProducer = cms.EDProducer('BeamSpotOnlineProducer',
                                         changeToCMSCoordinates = cms.bool(False),
                                         maxZ = cms.double(40),
                                         maxRadius = cms.double(2),
-                                        setSigmaZ = cms.double(10) #negative value disables it.
+                                        setSigmaZ = cms.double(10), #negative value disables it.
+                                        gtEvmLabel = cms.InputTag('gtEvmDigis')
 )
 

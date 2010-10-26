@@ -356,8 +356,8 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
 
   double mElecTau = (theElectron->p4() + theTauJet->p4()).M();
 
-  //double mtElecCaloMEt = calcMt(theElectron->px(), theElectron->py(), caloMEt.px(), caloMEt.py());
-  double mtElecPFMEt = calcMt(theElectron->px(), theElectron->py(), pfMEt.px(), pfMEt.py());
+  //double mtElecCaloMEt = calcMt(theElectron->px(), theElectron->px(), caloMEt.px(), caloMEt.py());
+  double mtElecPFMEt = calcMt(theElectron->px(), theElectron->px(), pfMEt.px(), pfMEt.py());
 
   //double pZetaCaloMEt = calcPzeta(theElectron->p4(), theTauJet->p4(), caloMEt.px(), caloMEt.py());
   //double pZetaPFMEt = calcPzeta(theElectron->p4(), theTauJet->p4(), pfMEt.px(), pfMEt.py());
@@ -750,8 +750,8 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
 
   double mMuTau = (theMuon->p4() + theTauJet->p4()).M();
 
-  //double mtMuCaloMEt = calcMt(theMuon->px(), theMuon->py(), caloMEt.px(), caloMEt.py());
-  double mtMuPFMEt = calcMt(theMuon->px(), theMuon->py(), pfMEt.px(), pfMEt.py());
+  //double mtMuCaloMEt = calcMt(theMuon->px(), theMuon->px(), caloMEt.px(), caloMEt.py());
+  double mtMuPFMEt = calcMt(theMuon->px(), theMuon->px(), pfMEt.px(), pfMEt.py());
 
   //double pZetaCaloMEt = calcPzeta(theMuon->p4(), theTauJet->p4(), caloMEt.px(), caloMEt.py());
   //double pZetaPFMEt = calcPzeta(theMuon->p4(), theTauJet->p4(), pfMEt.px(), pfMEt.py());

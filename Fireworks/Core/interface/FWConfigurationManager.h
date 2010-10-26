@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 24 14:38:41 EST 2008
-// $Id: FWConfigurationManager.h,v 1.4 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWConfigurationManager.h,v 1.3 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -52,7 +52,6 @@ private:
    FWConfigurationManager(const FWConfigurationManager&);    // stop default
 
    const FWConfigurationManager& operator=(const FWConfigurationManager&);    // stop default
-   void readFromOldFile(const std::string&) const;
 
    // ---------- member data --------------------------------
    std::map<std::string, FWConfigurable*> m_configurables;

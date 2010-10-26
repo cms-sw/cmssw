@@ -1,5 +1,0 @@
-prescale
-SQL> select a.pathname,a.lsnumber,a.psindex,b.psvalue from hlt_supervisor_lumisections_v2 
-a,hlt_supervisor_scalar_map b where a.runnr=b.runnr and a.runnr=137572 and a.psindex=b.psindex 
-and a.pathname=b.pathname;
-

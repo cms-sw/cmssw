@@ -28,7 +28,9 @@ CSCTFTrackProducer::CSCTFTrackProducer(const edm::ParameterSet& pset)
   dt_producer  = pset.getUntrackedParameter<edm::InputTag>("DTproducer");
   sp_pset = pset.getParameter<edm::ParameterSet>("SectorProcessor");
   useDT = pset.getParameter<bool>("useDT");
+  readDtDirect = pset.getParameter<bool>("readDtDirect");
   TMB07 = pset.getParameter<bool>("isTMB07");
+  my_dtrc = new CSCTFDTReceiver();
   m_scalesCacheID = 0ULL ;
   m_ptScaleCacheID = 0ULL ;
   my_builder = 0 ;
@@ -38,6 +40,9 @@ CSCTFTrackProducer::CSCTFTrackProducer(const edm::ParameterSet& pset)
 
 CSCTFTrackProducer::~CSCTFTrackProducer()
 {
+  delete my_dtrc;
+  my_dtrc = NULL;
+
   delete my_builder;
   my_builder = 0;
 }
@@ -76,15 +81,26 @@ void CSCTFTrackProducer::produce(edm::Event & e, const edm::EventSetup& c)
   CSCTriggerGeometry::setGeometry(pDD);
 
   edm::Handle<CSCCorrelatedLCTDigiCollection> LCTs;
-  edm::Handle<L1MuDTChambPhContainer> dttrig;
   std::auto_ptr<L1CSCTrackCollection> track_product(new L1CSCTrackCollection);
-  std::auto_ptr<CSCTriggerContainer<csctf::TrackStub> > dt_stubs(new CSCTriggerContainer<csctf::TrackStub>);
-
   e.getByLabel(input_module.label(),input_module.instance(), LCTs);
-  if(useDT)
-    e.getByLabel(dt_producer.label(),dt_producer.instance(), dttrig);
+  std::auto_ptr<CSCTriggerContainer<csctf::TrackStub> > dt_stubs(new CSCTriggerContainer<csctf::TrackStub>);
+ 
+  // Either emulate or directly read in DT stubs based on switch
+  //////////////////////////////////////////////////////////////
+  CSCTriggerContainer<csctf::TrackStub> emulStub;
+  if(readDtDirect == false)
+  {
+    edm::Handle<L1MuDTChambPhContainer> dttrig;
+	e.getByLabel(dt_producer.label(),dt_producer.instance(), dttrig);
+	emulStub = my_dtrc->process(dttrig.product());
+  } else {
+    edm::Handle<CSCTriggerContainer<csctf::TrackStub> > stubsFromDt;
+    e.getByLabel("csctfunpacker","DT",stubsFromDt);
+	const CSCTriggerContainer<csctf::TrackStub>* stubPointer = stubsFromDt.product();
+	emulStub.push_many(*stubPointer);
+  } 
 
-  my_builder->buildTracks(LCTs.product(), (useDT?dttrig.product():0), track_product.get(), dt_stubs.get());
+  my_builder->buildTracks(LCTs.product(), (useDT?&emulStub:0), track_product.get(), dt_stubs.get());
 
   e.put(track_product);
   e.put(dt_stubs);

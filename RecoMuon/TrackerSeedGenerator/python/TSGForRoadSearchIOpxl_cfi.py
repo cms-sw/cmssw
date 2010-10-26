@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoMuon.TrackingTools.MuonErrorMatrixValues_cff import *
+
 SeedGeneratorParameters = cms.PSet(
     propagatorCompatibleName = cms.string('SteppingHelixPropagatorAny'),
     #category: MuonRSSeedGeneratorAlgorithm
@@ -11,7 +13,9 @@ SeedGeneratorParameters = cms.PSet(
     option = cms.uint32(4),
     ComponentName = cms.string('TSGForRoadSearch'),
     errorMatrixPset = cms.PSet(
-
+    MuonErrorMatrixValues,
+    action = cms.string('use'),
+    atIP = cms.bool(True)
     ),
     propagatorName = cms.string('SteppingHelixPropagatorAlong'),
     manySeeds = cms.bool(False),

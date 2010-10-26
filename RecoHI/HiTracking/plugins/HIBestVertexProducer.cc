@@ -17,7 +17,9 @@ using namespace edm;
 
 /*****************************************************************************/
 HIBestVertexProducer::HIBestVertexProducer
-(const edm::ParameterSet& ps) : theConfig(ps)
+(const edm::ParameterSet& ps) : theConfig(ps),
+  theMedianVertexCollection(ps.getParameter<edm::InputTag>("medianVertexCollection")),
+  theAdaptiveVertexCollection(ps.getParameter<edm::InputTag>("adaptiveVertexCollection"))
 {
   produces<reco::VertexCollection>();
 }
@@ -47,7 +49,7 @@ void HIBestVertexProducer::produce
 
   //** Get precise adaptive vertex **/
   edm::Handle<reco::VertexCollection> vc1;
-  ev.getByLabel("hiBestAdaptiveVertex", vc1);
+  ev.getByLabel(theAdaptiveVertexCollection, vc1);
   const reco::VertexCollection *vertices1 = vc1.product();
   
   if(vertices1->size()==0)
@@ -68,7 +70,7 @@ void HIBestVertexProducer::produce
     
     //** Get fast median vertex **/
     edm::Handle<reco::VertexCollection> vc2;
-    ev.getByLabel("hiPixelMedianVertex", vc2);
+    ev.getByLabel(theMedianVertexCollection, vc2);
     const reco::VertexCollection * vertices2 = vc2.product();
     
     //** Get beam spot position and error **/

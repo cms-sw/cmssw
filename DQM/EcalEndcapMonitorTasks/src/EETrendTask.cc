@@ -1,8 +1,8 @@
 /*
  * \file EETrendTask.cc
  *
- * $Date: 2010/03/27 20:08:02 $
- * $Revision: 1.9 $
+ * $Date: 2010/08/11 14:57:35 $
+ * $Revision: 1.11 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -409,7 +409,7 @@ void EETrendTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ecaldqm::shift2Right(nEEDigiMinutely_->getTProfile(), minuteBinDiff);
   nEEDigiMinutely_->Fill(minuteDiff,ndc);
-  
+
   ecaldqm::shift2Right(nEEDigiHourly_->getTProfile(), hourBinDiff);
   nEEDigiHourly_->Fill(hourDiff,ndc);
 
@@ -424,7 +424,7 @@ void EETrendTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ecaldqm::shift2Right(nEcalPnDiodeDigiMinutely_->getTProfile(), minuteBinDiff);
   nEcalPnDiodeDigiMinutely_->Fill(minuteDiff,npdc);
-  
+
   ecaldqm::shift2Right(nEcalPnDiodeDigiHourly_->getTProfile(), hourBinDiff);
   nEcalPnDiodeDigiHourly_->Fill(hourDiff,npdc);
 
@@ -439,7 +439,7 @@ void EETrendTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ecaldqm::shift2Right(nEcalRecHitMinutely_->getTProfile(), minuteBinDiff);
   nEcalRecHitMinutely_->Fill(minuteDiff,nrhc);
-  
+
   ecaldqm::shift2Right(nEcalRecHitHourly_->getTProfile(), hourBinDiff);
   nEcalRecHitHourly_->Fill(hourDiff,nrhc);
 
@@ -454,7 +454,7 @@ void EETrendTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ecaldqm::shift2Right(nEcalTrigPrimDigiMinutely_->getTProfile(), minuteBinDiff);
   nEcalTrigPrimDigiMinutely_->Fill(minuteDiff,ntpdc);
-  
+
   ecaldqm::shift2Right(nEcalTrigPrimDigiHourly_->getTProfile(), hourBinDiff);
   nEcalTrigPrimDigiHourly_->Fill(hourDiff,ntpdc);
 
@@ -478,13 +478,13 @@ void EETrendTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ecaldqm::shift2Right(nBasicClusterMinutely_->getTProfile(), minuteBinDiff);
   nBasicClusterMinutely_->Fill(minuteDiff,nbcc);
-  
+
   ecaldqm::shift2Right(nBasicClusterHourly_->getTProfile(), hourBinDiff);
   nBasicClusterHourly_->Fill(hourDiff,nbcc);
 
   ecaldqm::shift2Right(nBasicClusterSizeMinutely_->getTProfile(), minuteBinDiff);
   nBasicClusterSizeMinutely_->Fill(minuteDiff,nbcc);
-  
+
   ecaldqm::shift2Right(nBasicClusterSizeHourly_->getTProfile(), hourBinDiff);
   nBasicClusterSizeHourly_->Fill(hourDiff,nbcc);
 
@@ -507,13 +507,13 @@ void EETrendTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ecaldqm::shift2Right(nSuperClusterMinutely_->getTProfile(), minuteBinDiff);
   nSuperClusterMinutely_->Fill(minuteDiff,nscc);
-  
+
   ecaldqm::shift2Right(nSuperClusterHourly_->getTProfile(), hourBinDiff);
   nSuperClusterHourly_->Fill(hourDiff,nscc);
 
   ecaldqm::shift2Right(nSuperClusterSizeMinutely_->getTProfile(), minuteBinDiff);
   nSuperClusterSizeMinutely_->Fill(minuteDiff,nscc);
-  
+
   ecaldqm::shift2Right(nSuperClusterSizeHourly_->getTProfile(), hourBinDiff);
   nSuperClusterSizeHourly_->Fill(hourDiff,nscc);
 
@@ -621,7 +621,7 @@ void EETrendTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ecaldqm::shift2Right(nIntegrityErrorMinutely_->getTProfile(), minuteBinDiff);
   nIntegrityErrorMinutely_->Fill(minuteDiff,errorSum);
-  
+
   ecaldqm::shift2Right(nIntegrityErrorHourly_->getTProfile(), hourBinDiff);
   nIntegrityErrorHourly_->Fill(hourDiff,errorSum);
 
@@ -633,7 +633,7 @@ void EETrendTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   int nfedEEplus  = 0;
 
   // Barrel FEDs : 610 - 645
-  // Endcap FEDs : 601-609 (EE-) and 646-654 (EE+) 
+  // Endcap FEDs : 601-609 (EE-) and 646-654 (EE+)
   int eem1 = 601;
   int eem2 = 609;
   int eep1 = 646;
@@ -672,11 +672,9 @@ void EETrendTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ecaldqm::shift2Right(nEESRFlagMinutely_->getTProfile(), minuteBinDiff);
   nEESRFlagMinutely_->Fill(minuteDiff,nsfc);
-  
+
   ecaldqm::shift2Right(nEESRFlagHourly_->getTProfile(), hourBinDiff);
   nEESRFlagHourly_->Fill(hourDiff,nsfc);
-
-
 
 }
 
@@ -687,5 +685,4 @@ void EETrendTask::updateTime(){
   current_time_ = time(NULL);
 
 }
-
 

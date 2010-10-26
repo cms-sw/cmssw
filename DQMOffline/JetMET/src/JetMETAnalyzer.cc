@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/14 05:55:07 $
- *  $Revision: 1.62 $
+ *  $Date: 2010/05/14 18:11:18 $
+ *  $Revision: 1.63 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -491,8 +491,6 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       int vertex_number     = vertexCollection.size();
       VertexCollection::const_iterator v = vertexCollection.begin();
       double vertex_chi2    = v->normalizedChi2();
-      //double vertex_d0      = sqrt(v->x()*v->x()+v->y()*v->y());
-      //double vertex_numTrks = v->tracksSize();
       double vertex_ndof    = v->ndof();
       bool   fakeVtx        = v->isFake();
       double vertex_sumTrks = 0.0;
@@ -503,7 +501,6 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       
       if (  !fakeVtx
 	    && vertex_number>=_nvtx_min
-	    //&& vertex_numTrks>_nvtxtrks_min
 	    && vertex_ndof   >_vtxndof_min
 	    && vertex_chi2   <_vtxchi2_max
 	    && fabs(vertex_Z)<_vtxz_max ) bPrimaryVertex = true;
@@ -539,9 +536,18 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       bTechTriggersNOT = bTechTriggersNOT || technicalTriggerWordBeforeMask.at(_techTrigsNOT.at(ttr));
     }
   }
-    
+  else 
+    std::cout<<"gtReadoutRecord invalid"<<std::endl;
+
+  if (_techTrigsAND.size()==0)
+    bTechTriggersAND = true;
+  if (_techTrigsOR.size()==0)
+    bTechTriggersOR = true;
+  if (_techTrigsNOT.size()==0)
+    bTechTriggersNOT = false;
+
   bTechTriggers = bTechTriggersAND && bTechTriggersOR && !bTechTriggersNOT;
-    
+
   bool bJetCleanup = bTechTriggers && bPrimaryVertex && bPhysicsDeclared;
 
   // **** Get the Calo Jet container

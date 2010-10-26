@@ -43,28 +43,6 @@
 #include <map>
 #include <algorithm>
 
-
-// here just while testing
-
-#if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)
-#include <x86intrin.h>
-
-#else
-
-#include <mmintrin.h>
-#include <emmintrin.h>
-#ifdef __SSE3__
-#include <pmmintrin.h>
-#endif
-#ifdef __SSE4_1__
-#include <smmintrin.h>
-#endif
-
-#endif
-
-
-//
-
 using namespace std;
 
 namespace {
@@ -327,18 +305,10 @@ void MeasurementTracker::updateStrips( const edm::Event& event) const
   // Strip Clusters
   std::string stripClusterProducer = pset_.getParameter<std::string>("stripClusterProducer");
   //first clear all of them
-
-  {
-    std::vector<TkStripMeasurementDet*>::const_iterator end = theStripDets.end()-200;
-    for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
-         i!=end; i++) {
+  for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
+       i!=theStripDets.end(); i++) {
       (**i).setEmpty();
-      _mm_prefetch(((char *)(*(i+200))),_MM_HINT_T0); 
     }
-   for (std::vector<TkStripMeasurementDet*>::const_iterator i=end;
-         i!=theStripDets.end(); i++)
-      (**i).setEmpty();
-  }
   if( !stripClusterProducer.compare("") ) { //clusters have not been produced
   }else{
     //=========  actually load cluster =============
@@ -355,7 +325,7 @@ void MeasurementTracker::updateStrips( const edm::Event& event) const
       for (;it!=endColl; ++it) {
 	StripDetSet detSet = *it;
 	unsigned int id = detSet.id();
-	while ( id != (**i).rawId()) { // eventually change to lower_range
+	while ( id != (**i).geomDet().geographicalId().rawId()) { // eventually change to lower_range
 	  ++i;
 	  if (i==endDet) throw "we have a problem!!!!";
 	}

@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/GOODCOLL_filter_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -74,17 +74,21 @@ numtrack = cms.untracked.uint32(10),
 thresh = cms.untracked.double(0.25)
 )
 
-process.goodvertex=cms.Path(process.primaryVertexFilter+process.noscraping)
+process.selectHF = cms.EDFilter("SelectHFMinBias",
+applyfilter = cms.untracked.bool(True)
+)
 
+process.goodvertex=cms.Path(process.primaryVertexFilter+process.noscraping)
+process.selecthf = cms.Path(process.selectHF)
 
 process.collout = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('/tmp/malgeri/good_coll_reco.root'),
+    fileName = cms.untracked.string('good_coll_reco.root'),
     outputCommands = process.RECOEventContent.outputCommands,
     dataset = cms.untracked.PSet(
     	      dataTier = cms.untracked.string('RECO'),
     	      filterName = cms.untracked.string('GOODCOLL')),
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('goodvertex','l1tcollpath')
+        SelectEvents = cms.vstring('goodvertex','l1tcollpath','selecthf')
     )
 )
 

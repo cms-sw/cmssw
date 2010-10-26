@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.4 $'),
+    version = cms.untracked.string('$Revision: 1.5 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/CosmicsPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined Cosmics skim')
 )
@@ -22,10 +22,10 @@ process.source = cms.Source("PoolSource",
 '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/123/596/8E21B4C8-74E2-DE11-ABAA-000423D999CA.root')
 )
 
-process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
+process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(1000)
 )
 
 
@@ -38,7 +38,7 @@ process.load('Configuration/StandardSequences/GeometryIdeal_cff')
 
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'GR09_P_V7::All' 
+process.GlobalTag.globaltag = 'GR10_P_V8::All' 
 
 process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
 process.load("Configuration/StandardSequences/ReconstructionCosmics_cff")
@@ -163,10 +163,6 @@ process.hltBeamHalo = cms.EDFilter("HLTHighLevel",
 #### the path
 process.cscHaloSkim = cms.Path(process.hltBeamHalo+process.cscSkim)
 
-process.options = cms.untracked.PSet(
- wantSummary = cms.untracked.bool(True)
-)
-
 
 #### output 
 process.outputBeamHaloSkim = cms.OutputModule("PoolOutputModule",
@@ -179,7 +175,37 @@ process.outputBeamHaloSkim = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('cscHaloSkim'))
 )
 
-process.outpath = cms.EndPath(process.outSP+process.outputBeamHaloSkim)
+
+#################################logerrorharvester############################################
+process.load("FWCore.Modules.logErrorFilter_cfi")
+from Configuration.StandardSequences.RawToDigi_Data_cff import gtEvmDigis
+
+process.gtEvmDigis = gtEvmDigis.clone()
+process.stableBeam = cms.EDFilter("HLTBeamModeFilter",
+                                  L1GtEvmReadoutRecordTag = cms.InputTag("gtEvmDigis"),
+                                  AllowedBeamMode = cms.vuint32(11)
+                                  )
+
+process.logerrorpath=cms.Path(process.gtEvmDigis+process.stableBeam+process.logErrorFilter)
+
+process.outlogerr = cms.OutputModule("PoolOutputModule",
+                               outputCommands =  process.FEVTEventContent.outputCommands,
+                               fileName = cms.untracked.string('/tmp/azzi/logerror_filter.root'),
+                               dataset = cms.untracked.PSet(
+                                  dataTier = cms.untracked.string('RAW-RECO'),
+                                  filterName = cms.untracked.string('Skim_logerror')),
+                               
+                               SelectEvents = cms.untracked.PSet(
+    SelectEvents = cms.vstring("logerrorpath")
+    ))
+
+#===========================================================
+
+process.options = cms.untracked.PSet(
+ wantSummary = cms.untracked.bool(True)
+)
+
+process.outpath = cms.EndPath(process.outSP+process.outputBeamHaloSkim+process.outlogerr)
 
 
 

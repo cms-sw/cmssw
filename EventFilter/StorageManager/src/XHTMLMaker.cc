@@ -1,4 +1,4 @@
-// $Id: XHTMLMaker.cc,v 1.6 2010/02/16 09:58:42 mommsen Exp $
+// $Id: XHTMLMaker.cc,v 1.7 2010/05/17 15:59:10 mommsen Exp $
 /// @file: XHTMLMaker.cc
 
 #include "EventFilter/StorageManager/interface/XHTMLMaker.h"
@@ -52,7 +52,7 @@ XHTMLMaker::XHTMLMaker()
 
   if( !_doc )
     {
-      cerr << "Cannot create document" << endl;
+      std::cerr << "Cannot create document" << std::endl;
       return;
     }
 
@@ -77,7 +77,7 @@ XHTMLMaker::XHTMLMaker()
 
   if( !_writer )
     {
-      cerr << "Cannot create DOM writer" << endl;
+      std::cerr << "Cannot create DOM writer" << std::endl;
       return;
     }
 }
@@ -97,12 +97,12 @@ XHTMLMaker::~XHTMLMaker()
 //// Initialize page, return body: ////
 ///////////////////////////////////////
 
-XHTMLMaker::Node* XHTMLMaker::start( const string& title )
+XHTMLMaker::Node* XHTMLMaker::start( const std::string& title )
 {
 
   if( _page_started )
     {
-      cerr << "Page already started" << endl;
+      std::cerr << "Page already started" << std::endl;
       return (Node*)0;
     }
 
@@ -142,7 +142,7 @@ XHTMLMaker::Node* XHTMLMaker::start( const string& title )
 //// Add child element: ////
 ////////////////////////////
 
-XHTMLMaker::Node* XHTMLMaker::addNode( const string& name,
+XHTMLMaker::Node* XHTMLMaker::addNode( const std::string& name,
 				       XHTMLMaker::Node* parent,
 				       const AttrMap& attrs )
 {
@@ -169,7 +169,7 @@ XHTMLMaker::Node* XHTMLMaker::addNode( const string& name,
 //// Add text: ////
 ///////////////////
 
-void XHTMLMaker::addText( Node* parent, const string& data )
+void XHTMLMaker::addText( Node* parent, const std::string& data )
 {
   XMLCh* xdata = _xs(data);
   DOMText* txt = _doc->createTextNode(xdata);
@@ -223,7 +223,7 @@ void XHTMLMaker::addInt( Node* parent, unsigned long long value )
 void XHTMLMaker::addDouble( Node* parent, double value, unsigned int precision )
 {
     ostringstream tmpString;
-    tmpString << fixed << setprecision( precision ) << value;
+    tmpString << fixed << std::setprecision( precision ) << value;
     addText( parent, tmpString.str() );
 }
 
@@ -273,7 +273,7 @@ void XHTMLMaker::out()
 ////////////////////////////////////
 //// Dump page to a local file: ////
 ////////////////////////////////////
-void XHTMLMaker::out( const string& filename )
+void XHTMLMaker::out( const std::string& filename )
 {
   _setWriterFeatures();
   XMLCh* xfilename = _xs(filename);
@@ -286,7 +286,7 @@ void XHTMLMaker::out( const string& filename )
 ////////////////////////////////////
 //// Dump the page to a string: ////
 ////////////////////////////////////
-void XHTMLMaker::out( string& dest )
+void XHTMLMaker::out( std::string& dest )
 {
    std::ostringstream stream;
    out( stream );

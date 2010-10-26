@@ -1,16 +1,3 @@
-2010-05-19  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
-
-	* add JetResolution class
-	* add bin directory
-	* add bin/JetResolution_t.cc test executable
-	* add data/*Resolution*.txt files containing jet pt, eta and phi
-	resolution parameters
-	* update Makefile
-	* minimal changes to JetCorrectorParameters to make JetResolution
-	work
-	* created documentation TWIKI:
-	https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideJetResolution
-
 2010-03-17  Konstantinos KOUSOURIS <konstantinos.kousouris@cern.ch>
 
         * migration to CondDB
