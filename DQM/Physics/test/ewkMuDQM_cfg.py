@@ -15,9 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-          'file:/ciet3b/data4/MUSKIM2010/MUSKIM_143958-144114_6.root'
-
-
+            "file:/ciet3b/data4/MUSKIM2010B/MUAODRED_SKIM_147117-148058_5.root"
     )
 )
 process.MessageLogger = cms.Service("MessageLogger",
