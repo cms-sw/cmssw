@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.23 2010/02/11 00:15:06 wmtan Exp $
+// $Id: PixelDigisTest.cc,v 1.24 2010/09/16 18:38:11 dkotlins Exp $
 //
 //
 // system include files
@@ -348,7 +348,7 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
   if(PRINT) cout<<" Analyze PixelDigisTest "<<endl;
 
 
-  int run       = iEvent.id().run();
+  //  int run       = iEvent.id().run();
   int event     = iEvent.id().event();
   int lumiBlock = iEvent.luminosityBlock();
   int bx        = iEvent.bunchCrossing();
