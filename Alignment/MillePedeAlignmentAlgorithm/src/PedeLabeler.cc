@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.5 $
- *  $Date: 2009/08/10 16:29:40 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.6 $
+ *  $Date: 2010/09/10 13:31:54 $
+ *  (last update by $Author: mussgill $)
  */
 
 #include "PedeLabeler.h"
@@ -17,8 +17,8 @@
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 
 
-// NOTE: Changing '+4' makes older binary files unreadable...
-const unsigned int PedeLabeler::theMaxNumParam = RigidBodyAlignmentParameters::N_PARAM + 4;
+// NOTE: Changing '+14' makes older binary files unreadable...
+const unsigned int PedeLabeler::theMaxNumParam = RigidBodyAlignmentParameters::N_PARAM + 14;
 const unsigned int PedeLabeler::theMinLabel = 1; // must be > 0
 
 //___________________________________________________________________________
