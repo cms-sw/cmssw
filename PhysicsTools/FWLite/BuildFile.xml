@@ -1,0 +1,10 @@
+<use   name="DataFormats/FWLite"/>
+<use   name="boost"/>
+<use   name="rootcintex"/>
+<use   name="rootcore"/>
+<use   name="rootrflx"/>
+<use   name="roothistmatrix"/>
+<use   name="CommonTools/Utils"/>
+<export>
+  <lib   name="1"/>
+</export>

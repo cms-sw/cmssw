@@ -1,0 +1,4 @@
+<use   name="GeneratorInterface/HydjetInterface"/>
+<library   file="*.cc" name="GeneratorInterfaceHydjetInterfacePlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

@@ -1,0 +1,3 @@
+<bin   name="TestTCPReceiver" file="TestTCPReceiver.cpp">
+  <use   name="RecoLuminosity/TCPReceiver"/>
+</bin>

@@ -1,7 +1,0 @@
-<use name=FWCore/MessageLogger>
-<use name=rootrflx>
-<export>
-  <use name=FWCore/MessageLogger>
-  <lib name=DataFormatsSiPixelDetId>
-</export>
-

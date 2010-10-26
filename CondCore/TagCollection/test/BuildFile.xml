@@ -1,0 +1,6 @@
+<use   name="CondCore/DBCommon"/>
+<use   name="CondCore/TagCollection"/>
+<bin   file="writeTestTagDB.cpp">
+</bin>
+<bin   file="testPfnEditor.cpp">
+</bin>

@@ -1,0 +1,7 @@
+<use   name="DetectorDescription/Parser"/>
+<use   name="DetectorDescription/Core"/>
+<use   name="DataFormats/EcalDetId"/>
+<use   name="Geometry/CaloGeometry"/>
+<export>
+  <lib   name="1"/>
+</export>

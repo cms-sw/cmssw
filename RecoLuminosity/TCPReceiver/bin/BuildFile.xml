@@ -1,0 +1,3 @@
+<bin   file="TestTCPSender.cpp">
+  <use   name="RecoLuminosity/TCPReceiver"/>
+</bin>

@@ -1,8 +1,0 @@
-<export>
- <lib name=SimG4CoreMagneticField>
-</export>
-
-<use name=FWCore/PluginManager>
-<use name=FWCore/ParameterSet>
-<use name=boost>
-<use name=geant4core>

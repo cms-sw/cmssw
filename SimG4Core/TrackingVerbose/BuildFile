@@ -1,8 +1,0 @@
-<Flags EDM_PLUGIN=1>
-<export>
- <lib name=SimG4CoreTrackingVerbose>
-</export>
-
-<use name=SimG4Core/Application>
-<use name=geant4core>
-<use name=boost>

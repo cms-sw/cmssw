@@ -1,7 +1,0 @@
-<use name=FastSimulation/Particle>
-
-<export>
-  <use name=FastSimulation/Particle>
-  <lib name=FastSimulationBaseParticlePropagator>
-</export>
-
