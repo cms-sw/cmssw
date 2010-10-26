@@ -1,11 +1,13 @@
-///  $Date: 2008/12/12 15:58:07 $
-///  $Revision: 1.2 $
-/// (last update by $Author: pablom $)
+///  $Date: 2010/09/10 11:19:37 $
+///  $Revision: 1.3 $
+/// (last update by $Author: mussgill $)
 
 #include "Alignment/CommonAlignmentParametrization/interface/AlignmentParametersFactory.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters4D.h"
 #include "Alignment/CommonAlignmentParametrization/interface/BeamSpotAlignmentParameters.h"
+#include "Alignment/CommonAlignmentParametrization/interface/BowedSurfaceAlignmentParameters.h"
+#include "Alignment/CommonAlignmentParametrization/interface/TwoBowedSurfacesAlignmentParameters.h"
 //#include "Alignment/SurveyAnalysis/interface/SurveyParameters.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -23,7 +25,9 @@ namespace AlignmentParametersFactory {
     if (typeString == "RigidBody") return kRigidBody;
     else if (typeString == "Survey") return kSurvey; //GF: do not belong here, so remove in the long term...
     else if (typeString == "RigidBody4D") return kRigidBody4D;    
-    else if (typeString == "BeamSpot") return kBeamSpot;    
+    else if (typeString == "BeamSpot") return kBeamSpot;
+    else if (typeString == "BowedSurface") return kBowedSurface;
+    else if (typeString == "TwoBowedSurfaces") return kTwoBowedSurfaces;
     throw cms::Exception("BadConfig") 
       << "AlignmentParametersFactory" << " No AlignmentParameters with name '" << typeString << "'.";
     
@@ -35,8 +39,10 @@ namespace AlignmentParametersFactory {
   {
     if (typeInt == kRigidBody) return kRigidBody;
     if (typeInt == kSurvey) return kSurvey; //GF: do not belong here, so remove in the long term...
-    if (typeInt == kRigidBody4D) return kRigidBody4D;    
-    if (typeInt == kBeamSpot) return kBeamSpot;    
+    if (typeInt == kRigidBody4D) return kRigidBody4D;
+    if (typeInt == kBeamSpot) return kBeamSpot;
+    if (typeInt == kBowedSurface) return kBowedSurface;
+    if (typeInt == kTwoBowedSurfaces) return kTwoBowedSurfaces;
     
     throw cms::Exception("BadConfig") 
       << "AlignmentParametersFactory" << " No AlignmentParameters with number " << typeInt << ".";
@@ -56,6 +62,10 @@ namespace AlignmentParametersFactory {
       return "RigiBody4D"; 
     case kBeamSpot:
       return "BeamSpot"; 
+    case kBowedSurface:
+      return "BowedSurface"; 
+    case kTwoBowedSurfaces:
+      return "TwoBowedSurfaces"; 
     }
 
     return "unknown_should_never_reach"; // to please the compiler
@@ -95,10 +105,22 @@ namespace AlignmentParametersFactory {
 	return new BeamSpotAlignmentParameters(ali, par, cov, sel);
       }
       break;
+    case kBowedSurface:
+      {
+	const AlgebraicVector par(BowedSurfaceAlignmentParameters::N_PARAM, 0);
+	const AlgebraicSymMatrix cov(BowedSurfaceAlignmentParameters::N_PARAM, 0);
+	return new BowedSurfaceAlignmentParameters(ali, par, cov, sel);
+      }
+      break;
+    case kTwoBowedSurfaces:
+      {
+	const AlgebraicVector par(TwoBowedSurfacesAlignmentParameters::N_PARAM, 0);
+	const AlgebraicSymMatrix cov(TwoBowedSurfacesAlignmentParameters::N_PARAM, 0);
+	return new TwoBowedSurfacesAlignmentParameters(ali, par, cov, sel);
+      }
+      break;
     }
    
     return 0; // unreached (all ParametersType appear in switch), to please the compiler
   }
 }
-
-
