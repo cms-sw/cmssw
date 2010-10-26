@@ -37,17 +37,17 @@ ewkMuLumiMonitorDQM = cms.EDAnalyzer(
     METIncludesMuons=cms.untracked.bool(True),
     TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
     triggerEvent = cms.untracked.InputTag( "hltTriggerSummaryAOD::HLT" ),  
-    hltPath = cms.untracked.string("HLT_Mu11"),
-    L3FilterName= cms.untracked.string("hltSingleMu11L3Filtered11"),
+    hltPath = cms.untracked.string("HLT_Mu15_v1"),
+    L3FilterName= cms.untracked.string("hltSingleMu15L3Filtered15"),
     maxDPtRel = cms.untracked.double( 1.0 ),
     maxDeltaR = cms.untracked.double( 0.2 ),
     ptMuCut = cms.untracked.double( 20.0 ),
     etaMuCut = cms.untracked.double( 2.1 ),
     # W cuts
     mtMin = cms.untracked.double(50.0),
-    mtMax = cms.untracked.double(200.0),
-    acopCut = cms.untracked.double(2.),
-    DxyCut = cms.untracked.double(0.5),
+    mtMax = cms.untracked.double(999.),
+    acopCut = cms.untracked.double(999.),
+    DxyCut = cms.untracked.double(0.2),
 )
 
 
