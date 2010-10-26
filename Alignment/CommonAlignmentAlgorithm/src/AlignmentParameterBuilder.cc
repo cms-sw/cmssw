@@ -1,7 +1,7 @@
 /** \file AlignableParameterBuilder.cc
  *
- *  $Date: 2008/09/02 15:31:23 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/09/10 11:36:58 $
+ *  $Revision: 1.18 $
 
 */
 
@@ -20,6 +20,7 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/SelectionUserVariables.h"
 
+#include <algorithm>
 
 using namespace AlignmentParametersFactory;
 
@@ -107,9 +108,10 @@ unsigned int AlignmentParameterBuilder::addSelections(const edm::ParameterSet &p
 
   while (iAli != alignables.end() && iParamSel != paramSels.end()) {
     std::vector<bool> boolParSel;
-    bool charSelIsGeneral = this->decodeParamSel(*iParamSel, boolParSel);
+    std::vector<char> parSel(*iParamSel); // copy, since decodeParamSel may manipulate
+    bool charSelIsGeneral = this->decodeParamSel(parSel, boolParSel);
     if (this->add(*iAli, parType, boolParSel)) ++nHigherLevel;
-    if (charSelIsGeneral) this->addFullParamSel((*iAli)->alignmentParameters(), *iParamSel);
+    if (charSelIsGeneral) this->addFullParamSel((*iAli)->alignmentParameters(), parSel);
 
     ++iAli;
     ++iParamSel;
@@ -188,10 +190,14 @@ void AlignmentParameterBuilder::fixAlignables(int n)
 }
 
 //__________________________________________________________________________________________________
-bool AlignmentParameterBuilder::decodeParamSel(const std::vector<char> &paramSelChar,
+bool AlignmentParameterBuilder::decodeParamSel(std::vector<char> &paramSelChar,
                                                std::vector<bool> &result) const
 {
   result.clear();
+  // remove all spaces from paramSelChar - useful to group the parameters if they are many
+  paramSelChar.erase(std::remove(paramSelChar.begin(), paramSelChar.end(), ' '),
+		     paramSelChar.end());
+
   bool anyNon01 = false;
 
   for (unsigned int pos = 0; pos < paramSelChar.size(); ++pos) {

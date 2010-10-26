@@ -5,9 +5,9 @@
  *
  *  Build Alignment Parameter Structure 
  *
- *  $Date: 2008/09/02 15:31:23 $
- *  $Revision: 1.9 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2010/09/10 11:36:58 $
+ *  $Revision: 1.10 $
+ *  (last update by $Author: mussgill $)
  */
 
 #include "Alignment/CommonAlignment/interface/Utilities.h"
@@ -73,10 +73,10 @@ public:
   void fixAlignables( int n );
 
 private:
-
-  /// convert char selection (from ParameterSelector) to bool (for AlignmentParameters)
-  /// true if anything else than 0 and 1 is found in vector<char>
-  bool decodeParamSel(const std::vector<char> &paramSelChar, std::vector<bool> &result) const;
+  /// First remove all spaces (' ') from char selection 'paramSelChar' (coming
+  /// from ParameterSelector) and then convert the selection to bool (for AlignmentParameters).
+  /// True if (after removal of spaces) anything else than 0 and 1 is found in vector<char>.
+  bool decodeParamSel(std::vector<char> &paramSelChar, std::vector<bool> &result) const;
   /// add SelectionUserVariables corresponding to fullSel 
   bool addFullParamSel(AlignmentParameters *aliPar, const std::vector<char> &fullSel) const;
 
