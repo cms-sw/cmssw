@@ -1,4 +1,5 @@
 <bin   name="analyzeTiming" file="analyzeTiming.cpp">
+  <flags NO_TESTRUN="1"/>
   <use   name="DataFormats/HLTReco"/>
   <use   name="FWCore/FWLite"/>
   <use   name="FWCore/Framework"/>
