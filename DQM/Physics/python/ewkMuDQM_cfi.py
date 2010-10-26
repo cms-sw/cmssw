@@ -10,7 +10,7 @@ ewkMuDQM = cms.EDAnalyzer("EwkMuDQM",
       VertexTag= cms.untracked.InputTag("offlinePrimaryVertices"),
 
       # Main cuts ->
-      MuonTrig = cms.untracked.vstring("HLT_Mu9","HLT_Mu11","HLT_Mu15"),
+      MuonTrig = cms.untracked.vstring("","HLT_Mu9","HLT_Mu11","HLT_Mu15_v1","HLT_Mu15_v2"),
       UseTrackerPt = cms.untracked.bool(True),
       PtCut = cms.untracked.double(20.0),
       EtaCut = cms.untracked.double(2.1),

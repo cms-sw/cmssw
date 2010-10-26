@@ -220,9 +220,8 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
             if (pt>ptThrForZ1_) nmuonsForZ1++;
             if (pt>ptThrForZ2_) nmuonsForZ2++;
 
-            for (unsigned int j=i; j<muonCollectionSize; j++) {
-                  if (i==j) continue;
-                  const Muon& mu2 = muonCollection->at(j);
+            for (unsigned int j=i+1; j<muonCollectionSize; j++) {
+                 const Muon& mu2 = muonCollection->at(j);
                  if (mu2.isGlobalMuon() && (mu.charge()*mu2.charge()==-1) ){
                          const math::XYZTLorentzVector ZRecoGlb (mu.px()+mu2.px(), mu.py()+mu2.py() , mu.pz()+mu2.pz(), mu.p()+mu2.p());
                          dimuonmass_before_->Fill(ZRecoGlb.mass());
@@ -265,33 +264,36 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
 
       npvs_before_->Fill(nvvertex);
 
-      // Trigger
-      Handle<TriggerResults> triggerResults;
-      if (!ev.getByLabel(trigTag_, triggerResults)) {
-	//LogWarning("") << ">>> TRIGGER collection does not exist !!!";
-	return;
-      }
-      const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
       bool trigger_fired = false;
-
-      for (unsigned int i=0; i<triggerResults->size(); i++)
-      {
-        std::string trigName = trigNames.triggerName(i);
-        for (unsigned int j = 0; j < muonTrig_.size(); j++)
-          {
-            if ( trigName == muonTrig_.at(j) && triggerResults->accept(i))
-            {
-              trigger_fired = true;
+      bool not_use_trigger = false;  
+      if(muonTrig_.at(0)==""){not_use_trigger=true;}
+      // Trigger
+            Handle<TriggerResults> triggerResults;
+            if (!ev.getByLabel(trigTag_, triggerResults)) {
+		//LogWarning("") << ">>> TRIGGER collection does not exist !!!";
+		return;
             }
-          }
-      }
+            const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
 
-      LogTrace("") << ">>> Trigger bit: " << trigger_fired << " for one of ( " ;
-      for (unsigned int k = 0; k < muonTrig_.size(); k++)
-      {
-        LogTrace("") << muonTrig_.at(k) << " ";
-      }
-      LogTrace("") << ")";
+            for (unsigned int i=0; i<triggerResults->size(); i++)
+            {
+              std::string trigName = trigNames.triggerName(i);
+              for (unsigned int j = 0; j < muonTrig_.size(); j++)
+                {
+                  if ( trigName == muonTrig_.at(j) && triggerResults->accept(i))
+                  {
+                    trigger_fired = true;
+                  }
+                }
+            }
+
+            LogTrace("") << ">>> Trigger bit: " << trigger_fired << " for one of ( " ;
+            for (unsigned int k = 0; k < muonTrig_.size(); k++)
+            {
+              LogTrace("") << muonTrig_.at(k) << " ";
+            }
+            LogTrace("") << ")";
+      
       trig_before_->Fill(trigger_fired);
 
 
@@ -356,15 +358,14 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
             LogTrace("") << "\t... pt, eta: " << pt << " [GeV], " << eta;;
             if (pt>ptCut_) muon_sel[0] = true; 
             if (fabs(eta)<etaCut_) muon_sel[1] = true; 
-            if (pt>ptThrForZ1_ && fabs(eta)<etaCut_) { muon4Z = true;}
 
             double charge=mu.charge();
 
             // d0, chi2, nhits quality cuts
-            double dxy = tk->dxy(beamSpotHandle->position());
+            double dxy = gm->dxy(beamSpotHandle->position());
             double normalizedChi2 = gm->normalizedChi2();
-            double trackerHits = gm->hitPattern().numberOfValidTrackerHits();
-            int pixelHits = gm->hitPattern().numberOfValidPixelHits();
+            double trackerHits = tk->hitPattern().numberOfValidTrackerHits();
+            int pixelHits = tk->hitPattern().numberOfValidPixelHits();
             int muonHits = gm->hitPattern().numberOfValidMuonHits();
             int nMatches = mu.numberOfMatches();
 
@@ -396,7 +397,6 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
             }
             if (isRelativeIso_) isovar /= pt;
             if (isovar<isoCut03_) muon_sel[4] = true; 
-            if (isovar>=isoCut03_) { muon4Z = false;}
 
             LogTrace("") << "\t... isolation value" << isovar <<", isolated? " << muon_sel[6];
             iso_before_->Fill(isovar);
@@ -404,9 +404,10 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
 
             // HLT (not mtched to muon for the time being)
             if (trigger_fired) muon_sel[5] = true; 
+            else if(not_use_trigger==true) muon_sel[5] = true;  // In order to allow trigger not to be used for selection
 
             // For Z:
-            if (pt>ptThrForZ1_ && fabs(eta)<etaCut_ && fabs(dxy)<dxyCut_ && quality && trigger_fired) { muon4Z = true;}
+            if (pt>ptThrForZ1_ && fabs(eta)<etaCut_ && fabs(dxy)<dxyCut_ && quality && trigger_fired && isovar<isoCut03_) { muon4Z = true;}
 
 
             // MET/MT cuts
@@ -506,7 +507,7 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
             if ( muon4Z &&  !muon_sel[9]){
                    // Plots for 2 muons       
                    bool usedMuon=false;
-                   for (unsigned int j=i; j<muonCollectionSize; j++) {
+                   for (unsigned int j=i+1; j<muonCollectionSize; j++) {
                          const Muon& mu2 = muonCollection->at(j);
                               if (!mu2.isGlobalMuon()) continue;
                               if (mu2.charge() * charge != -1 ) continue;
