@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg      3-Jul-2007
 #     A. Parenti, DESY Hamburg    21-Apr-2008
-#     $Revision: 1.19 $ by $Author: parenti $
-#     $Date: 2010/06/14 15:01:44 $
+#     $Revision: 1.20 $ by $Author: flucke $
+#     $Date: 2010/08/19 16:13:11 $
 #
 #  Submit jobs that are setup in local mps database
 #  
@@ -137,10 +137,11 @@ if ($fireMerge == 0) {
 
     $i = $nJobs;
     while ($i < @JOBDIR) { # loop on all possible merge jobs (usually just 1...)
+	my $jobNumFrom1 = $i + 1;
       if (@JOBSTATUS[$i] ne "SETUP") {
-        print "Merge job $i status @JOBSTATUS[$i] not submitted.\n";
+        print "Merge job $jobNumFrom1 status @JOBSTATUS[$i] not submitted.\n";
       } elsif ($mergeOK!=1 && $forceMerge!=1) {
-        print "Merge job not submitted since Mille jobs error/unfinished (Use -mf to force).\n";
+        print "Merge job $jobNumFrom1 not submitted since Mille jobs error/unfinished (Use -mf to force).\n";
       } else {
         if ($forceMerge==1) { # force option invoked
 	  # Make first a backup copy of the script
