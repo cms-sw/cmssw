@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.26 2010/10/01 09:45:20 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.27 2010/10/18 17:32:25 amraktad Exp $
 //
 
 // system include files
@@ -94,6 +94,7 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
 
 FWRPZView::~FWRPZView()
 {
+   m_calo->Destroy();
    m_projMgr->DecDenyDestroy();
 }
 
