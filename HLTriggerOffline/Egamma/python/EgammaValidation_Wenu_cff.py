@@ -35,5 +35,19 @@ sel = cms.EDFilter("CandViewCountFilter",
     minNumber = cms.uint32(1)
 )
 
-egammavalWenu = cms.Sequence(leptons*cut*sel*(doubleElectronDQM+doubleElectronRelaxedDQM+doublePhotonDQM+doublePhotonRelaxedDQM+highEtDQM+veryHighEtDQM+singleElectronDQM+singleElectronLargeWindowDQM+singleElectronRelaxedDQM+singleElectronRelaxedLargeWindowDQM+singlePhotonRelaxedDQM+singlePhotonDQM)
-)
+egammavalWenu = cms.Sequence(
+    leptons *
+    cut *
+    sel* (
+        doubleElectronDQM +
+        doubleElectronRelaxedDQM +
+        doublePhotonDQM +
+        doublePhotonRelaxedDQM +
+        highEtDQM +
+        veryHighEtDQM +
+        singleElectronDQM +
+        singleElectronLargeWindowDQM +
+        singleElectronRelaxedDQM +
+        singleElectronRelaxedLargeWindowDQM +
+        singlePhotonRelaxedDQM+singlePhotonDQM)
+    )
