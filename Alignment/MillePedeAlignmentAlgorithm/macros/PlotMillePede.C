@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2010/08/12 09:17:10 $
+// last change    : $Date: 2010/08/12 09:22:05 $
 // by             : $Author: flucke $
 
 #include "PlotMillePede.h"
@@ -96,35 +96,36 @@ void PlotMillePede::DrawParam(bool addPlots, const TString &sel)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void PlotMillePede::DrawPedeParam(Option_t *option)
+void PlotMillePede::DrawPedeParam(Option_t *option, unsigned int nNonRigidParam)
 {
-
+  const bool addParVsPar = TString(option).Contains("vs", TString::kIgnoreCase);
   const Int_t layer = this->PrepareAdd(TString(option).Contains("add", TString::kIgnoreCase));
-
+  const unsigned int nPar = kNpar + nNonRigidParam;
   const TString titleAdd = this->TitleAdd();
   UInt_t nPlot = 0;
-  for (UInt_t iPar = 0; iPar < kNpar; ++iPar) { // 
-    TString parSel(Fixed(iPar, false) += AndL() += Valid(iPar));// += AndL() += HitsX() += "<500");
+  for (UInt_t iPar = 0; iPar < nPar; ++iPar) { // 
+    TString parSel(Fixed(iPar, false) += AndL() += Valid(iPar));
     this->AddBasicSelection(parSel);
-    const TString toMum(this->ToMumMuRad(iPar));
+    const TString toMum(this->ToMumMuRadPede(iPar));
     const TString hName(this->Unique(Form("pedePar%d", iPar))); // 
     TH1 *h = this->CreateHist(Parenth(MpT() += Par(iPar)) += toMum, parSel, hName);
 
     if (0. == h->GetEntries()) continue;
 
-    // parameters vs each other
     TObjArray histsParVsPar;
-    for (UInt_t iPar2 = iPar + 1; iPar2 < kNpar; ++iPar2) {
-      const TString hNameVs(this->Unique(Form("pedePar%d_%d", iPar, iPar2))); // 
-      const TString toMum2(this->ToMumMuRad(iPar2));
-      TH1 *hVs = this->CreateHist2D(Parenth(MpT() += Par(iPar)) += toMum,
-                                  Parenth(MpT() += Par(iPar2)) += toMum2, // Valid(iPar2??)
-                                  Parenth(parSel) += AndL() += Fixed(iPar2, false), hNameVs, "BOX");
-      if (0. == hVs->GetEntries()) continue;// delete hVs;
-      else {
-        hVs->SetTitle("pede: " + Name(iPar2) += " vs. " + Name(iPar) += titleAdd + ";"
-                      + Name(iPar) += Unit(iPar) += ";" + Name(iPar2) += Unit(iPar2));
-        histsParVsPar.Add(hVs);
+    if (addParVsPar) {// parameters vs each other
+      for (UInt_t iPar2 = iPar + 1; iPar2 < nPar; ++iPar2) {
+	const TString hNameVs(this->Unique(Form("pedePar%d_%d", iPar, iPar2))); // 
+	const TString toMum2(this->ToMumMuRadPede(iPar2));
+	TH1 *hVs = this->CreateHist2D(Parenth(MpT() += Par(iPar)) += toMum,
+				      Parenth(MpT() += Par(iPar2)) += toMum2, // Valid(iPar2??)
+				      Parenth(parSel) += AndL() += Fixed(iPar2, false), hNameVs, "BOX");
+	if (0. == hVs->GetEntries()) continue;// delete hVs;
+	else {
+	  hVs->SetTitle("pede: " + NamePede(iPar2) += " vs. " + NamePede(iPar) += titleAdd + ";"
+			+ NamePede(iPar) += UnitPede(iPar) += ";" + NamePede(iPar2) += UnitPede(iPar2));
+	  histsParVsPar.Add(hVs);
+	}
       }
     }
 
@@ -148,29 +149,90 @@ void PlotMillePede::DrawPedeParam(Option_t *option)
 
     // parameters vs global correlation
     const TString hNameG(this->Unique(Form("pedeParVsGlob%d", iPar))); // 
-    TH2 *hGlobCor = this->CreateHist2D(Cor(iPar), Parenth(MpT()+=Par(iPar)) += toMum, parSel,
-				       hNameG, "BOX");
+    TH2 *hGlobCor = this->CreateHist2D(Cor(iPar), Parenth(MpT()+=Par(iPar)) += toMum,
+				       parSel +  AndL() += Cor(iPar) += ">-0.1999", hNameG, "BOX");
+    if (!hGlobCor->GetEntries()) {
+      delete hGlobCor; hGlobCor = 0;
+    }
 
-    h->SetTitle("determined pede " + Name(iPar) += titleAdd + ";"
-		+ Name(iPar) += Unit(iPar) += ";#alignables");
-    hHits->SetTitle("determined pede " + Name(iPar) += titleAdd + " vs #n(hit_{x});N_{hit,x};"
-		+ Name(iPar) += Unit(iPar));
-    hGlobCor->SetTitle("determined pede " + Name(iPar) += titleAdd + 
-		       " vs glob. corr;Global Correlation;" + Name(iPar) += Unit(iPar));
+    h->SetTitle("determined pede " + NamePede(iPar) += titleAdd + ";"
+		+ NamePede(iPar) += UnitPede(iPar) += ";#alignables");
+    hHits->SetTitle("determined pede " + NamePede(iPar) += titleAdd + " vs #n(hit_{x});N_{hit,x};"
+		+ NamePede(iPar) += UnitPede(iPar));
+    if (hGlobCor) hGlobCor->SetTitle("determined pede " + NamePede(iPar) += titleAdd + 
+				     " vs glob. corr;Global Correlation;" + NamePede(iPar)
+				     += UnitPede(iPar));
     fHistManager->AddHist(h, layer);
     fHistManager->AddHist(hHits, layer+1);
-    fHistManager->AddHist(hGlobCor, layer+2);
-    fHistManager->AddHists(&histsParVsPar, layer+3);
+    if (hGlobCor) fHistManager->AddHist(hGlobCor, layer+2);
+    if (addParVsPar) fHistManager->AddHists(&histsParVsPar, layer+2+(hGlobCor ? 1 : 0));
 
     if (hBySi) {
-      const TString namI(Name(iPar));
+      const TString namI(NamePede(iPar));
       hBySi->SetTitle("pede: " + namI + "/#sigma_{" + namI + "}" + titleAdd + ";"
                       + namI + Div() += Fun("#sigma", namI) += ";#alignables");
-      fHistManager->AddHist(hBySi, layer+4);
+      fHistManager->AddHist(hBySi, layer+2+(hGlobCor ? 1 : 0)+addParVsPar);
       hBySiInv->SetTitle("pede: #sigma_{" + namI + "}/" + namI + titleAdd + ";"
                          + Fun("#sigma", namI) += Div() += namI + ";#alignables");
-      fHistManager->AddHist(hBySiInv, layer+5);
+      fHistManager->AddHist(hBySiInv, layer+3+(hGlobCor ? 1 : 0)+addParVsPar);
     }
+    ++nPlot;
+  }
+
+  fHistManager->Draw();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void PlotMillePede::DrawPedeParamVsLocation(Option_t *option, unsigned int nNonRigidParam)
+{
+  const Int_t layer = this->PrepareAdd(TString(option).Contains("add", TString::kIgnoreCase));
+  const TString titleAdd = this->TitleAdd();
+
+  const unsigned int nPar = kNpar + nNonRigidParam;
+  UInt_t nPlot = 0;
+  for (UInt_t iPar = 0; iPar < nPar; ++iPar) { // 
+    TString parSel(Fixed(iPar, false) += AndL() += Valid(iPar));
+    this->AddBasicSelection(parSel);
+    const TString toMum(this->ToMumMuRadPede(iPar));
+    const TString pedePar(Parenth(MpT() += Par(iPar)) += toMum);
+
+    const TString nDpz(this->Unique(Form("pedeParZ%d", iPar)));
+    TH2 *hPedeParZ = this->CreateHist2D(OrgPosT() += ZPos(), pedePar,
+					parSel, nDpz, "BOX");
+
+    if (0. == hPedeParZ->GetEntries()) continue;
+
+    const TString nDpr(this->Unique(Form("pedeParR%d", iPar)));
+    TH2 *hPedeParR = this->CreateHist2D(RPos(OrgPosT()), pedePar,
+					parSel, nDpr, "BOX");
+
+    const TString nDpp(this->Unique(Form("pedeParPhi%d", iPar)));
+    TH2 *hPedeParPhi = this->CreateHist2D(Phi(OrgPosT()), pedePar,
+					  parSel, nDpp, "BOX");
+
+//     const TString nDpx(this->Unique(Form("pedeParX%d", iPar)));
+//     TH2 *hPedeParX = this->CreateHist2D(OrgPosT() += XPos(), pedePar,
+// 					parSel, nDpx, "BOX");
+
+    const TString nDpy(this->Unique(Form("pedeParY%d", iPar)));
+    TH2 *hPedeParY = this->CreateHist2D(OrgPosT() += YPos(), pedePar,
+					parSel, nDpy, "BOX");
+    // theta?
+    const TString title("determined pede " + NamePede(iPar) += " vs. %s"
+			+ titleAdd + ";%s;" + NamePede(iPar) += UnitPede(iPar));
+    hPedeParZ->SetTitle(Form(title.Data(), "z", "z [cm]"));
+    hPedeParR->SetTitle(Form(title.Data(), "r", "r [cm]"));
+    hPedeParPhi->SetTitle(Form(title.Data(), "#phi", "#phi"));
+//     hPedeParX->SetTitle(Form(title.Data(), "x", "x [cm]"));
+    hPedeParY->SetTitle(Form(title.Data(), "y", "y [cm]"));
+
+    fHistManager->AddHist(hPedeParR, layer+nPlot);
+    fHistManager->AddHist(hPedeParZ, layer+nPlot);
+    fHistManager->AddHist(hPedeParPhi, layer+nPlot);
+//     fHistManager->AddHist(hPedeParX, layer+nPlot);
+    fHistManager->AddHist(hPedeParY, layer+nPlot);
+//     fHistManager->SetNumHistsXY(3, 2, layer+nPlot);
+
     ++nPlot;
   }
 

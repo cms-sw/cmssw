@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2009/01/20 19:15:13 $
+// last change    : $Date: 2009/01/20 20:21:38 $
 // by             : $Author: flucke $
 
 #ifndef MILLEPEDETREES_H
@@ -40,6 +40,8 @@ class MillePedeTrees
   TString RPos(const TString &tree) const; // sqrt(x^2+y^2) - y-sign if selected by UseSignedR()
   // (un)set whether RPos should be signed like y, return old setting
   bool SetUseSignedR(bool use = true) {bool buf = fUseSignedR; fUseSignedR = use; return buf;}//true: radius gets sign of y
+  bool SetBowsParameters(bool use = true) {bool buf = fBowsParameters; fBowsParameters = use; return buf;}//true: bows param. for pede
+
   TString Phi(const TString &tree) const;
   TString OrgPos(const TString &pos) const; // pos x, y, z, r, phi,... on original position
 
@@ -135,10 +137,15 @@ class MillePedeTrees
 
   // units and names for params
   TString ToMumMuRad(UInt_t iParam) const { return (iParam < 3 ? "*10000" : "*1000000");}
+  TString ToMumMuRadPede(UInt_t iParam) const;
   TString Name(UInt_t iParam) const;
+  TString NamePede(UInt_t iParam) const;
   TString DelName(UInt_t iParam) const { return "#Delta"+Name(iParam);}
   TString DelNameU(UInt_t iParam) const { return DelName(iParam) += Unit(iParam);}
-  TString Unit(UInt_t iParam) const { return (iParam<3 ? " [#mum]" : " [#murad]");}
+  TString Unit(UInt_t iParam) const { return (iParam < 3 
+					      ? " [#mum]" 
+					      : (iParam < kNpar ? " [#murad]" : ""));}
+  TString UnitPede(UInt_t iParam) const;
   // units and names for position strings (r, rphi, phi, x, y, z)
   TString ToMumMuRad(const TString &pos) const;
   TString Name(const TString &pos) const;
@@ -186,5 +193,6 @@ class MillePedeTrees
 
   // special seetings
   bool fUseSignedR;  // if true, Rpos will have sign of y
+  bool fBowsParameters; //true: pede parameter names and titles to 'bows', false: rigid body
 };
 #endif

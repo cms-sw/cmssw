@@ -1,7 +1,7 @@
 #ifndef PLOTMILLEPEDE_H
 #define PLOTMILLEPEDE_H
 // Original Author: Gero Flucke
-// last change    : $Date: 2009/07/03 15:27:11 $
+// last change    : $Date: 2010/08/12 09:17:10 $
 // by             : $Author: flucke $
 //
 // PlotMillePede is a class to interprete the content of the ROOT
@@ -102,7 +102,8 @@ class PlotMillePede : public MillePedeTrees
   void DrawAll(Option_t *opt = "rogpmeh"); // r=ParamResult,o=OrigParam,g=GlobCorr,p=Pull,m=MisVsLocation,e=ErrorVsHit,h=HitMaps
 
   void DrawParam(bool addPlots = false, const TString &sel = ""); // default: not fixed params
-  void DrawPedeParam(Option_t *option = "");//"add" to add plots
+  void DrawPedeParam(Option_t *option = "", unsigned int nNonRigidParam = 12);//"add": add plots, "vs": p_i vs p_j; params beyond rigid body 
+  void DrawPedeParamVsLocation(Option_t *option = "", unsigned int nNonRigidParam = 12);//"add" to add plots; params beyond rigid body 
   void DrawOrigParam(bool addPlots = false, const TString &sel = ""); //this->AnyFreePar()
   void DrawOrigPos(bool addPlots = false, const TString &sel = "");
 
@@ -118,7 +119,7 @@ class PlotMillePede : public MillePedeTrees
   void DrawMisVsLocation(bool addPlots = false, const TString &sel = "", Option_t *opt = "");//opt: vse0,vse1,mis,withfixed
   void DrawLabelDiffAbove(UInt_t iPar, float minDiff, bool addPlots = false);
   void DrawErrorVsHit(bool addPlots = false, const TString &sel = "");
-  void DrawHitMaps(bool addPlots = false, bool inclFullFixed = false);
+  void DrawHitMaps(bool addPlots = false, bool inclFullFixed = true);
   void DrawBigPullLabel(float minPull, bool addPlots = false);
   void DrawBigPullPos(float minPull, bool addPlots = false);
   void DrawSubDetId(bool addPlots = false);

@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2009/01/20 18:05:45 $
+// last change    : $Date: 2009/01/20 20:21:38 $
 // by             : $Author: flucke $
 
 #include "TTree.h"
@@ -29,7 +29,7 @@ MillePedeTrees::MillePedeTrees(const char *fileName, Int_t iter, const char *tre
     fMisPar("AlignmentParameters_0"), 
     fPos(Form("AlignablesAbsPos_%d", iter)), fRelPos(Form("AlignablesRelPos_%d", iter)),
     fPar(Form("AlignmentParameters_%d", iter)), fMp(Form("MillePedeUser_%d", iter)),
-    fUseSignedR(false)
+    fUseSignedR(false), fBowsParameters(false)
 {
   fTree = this->CreateTree(fileName, treeNameAdd);
 }
@@ -514,8 +514,119 @@ TString MillePedeTrees::Name(UInt_t iParam) const
   case 4: return "#beta";
   case 5: return "#gamma";
   default:
-    ::Error("MillePedeTrees::Name", "unknown parameter %d", iParam);
-    return "";
+    // ::Error("MillePedeTrees::Name", "unknown parameter %d", iParam);
+    return Form("param%d", iParam);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+TString MillePedeTrees::NamePede(UInt_t iParam) const
+{
+  if (fBowsParameters) {
+    switch (iParam) {
+    case 0: return "u_{1}";
+    case 1: return "v_{1}";
+    case 2: return "w_{1}";
+    case 3: return "u-slope_{1}";
+    case 4: return "v-slope_{1}";
+      // case 5: return "#gamma_{1}";
+    case 5: return "w-rot_{1}";
+    case 6: return "u-sagitta_{1}";
+    case 7: return "uv-sagitta_{1}";
+    case 8: return "v-sagitta_{1}";
+      
+    case 9: return "u_{2}";
+    case 10: return "v_{2}";
+    case 11: return "w_{2}";
+    case 12: return "u-slope_{2}";
+    case 13: return "v-slope_{2}";
+      //    case 14: return "#gamma_{2}";
+    case 14: return "w-rot_{2}";
+    case 15: return "u-sagitta_{2}";
+    case 16: return "uv-sagitta_{2}";
+    case 17: return "v-sagitta_{2}";
+    default:
+      ::Error("MillePedeTrees::Name", "unknown parameter %d", iParam);
+      return Form("param%d", iParam);
+    }
+  } else {
+    return this->Name(iParam);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+TString MillePedeTrees::UnitPede(UInt_t iParam) const
+{
+  if (fBowsParameters) {
+    switch(iParam) {
+    case 0: // u
+    case 1: // v
+    case 2: // w
+    case 9: // u of 2nd sensor
+    case 10:// v -----"------
+    case 11:// w -----"------
+//       return " [#mum]"; // for shifts
+//     case 5: // gamma of 2nd sensor
+//     case 14:// gamma -----"------
+//       return " [#murad]"; // for rotations
+    case 5: // w-rot of 1st sensor
+    case 14:// w-rot of 2nd sensor
+    case 3:// u-slope
+    case 4:// v-slope
+    case 6:// u-sagitta
+    case 7:// uv-mixed sagitta
+    case 8:// v-sagitta
+    case 12:// u-slope    of 2nd sensor
+    case 13:// v-slope    -----"------
+    case 15:// u-sagitta  -----"------  
+    case 16:// uv-sagitta -----"------
+    case 17:// v-sagitta  -----"------
+      return " [#mum]";
+
+    default:
+      ::Error("MillePedeTrees::UnitPede", "unknown parameter %d", iParam);
+      return " [?]";
+    }
+  } else {
+    return this->Unit(iParam);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+TString MillePedeTrees::ToMumMuRadPede(UInt_t iParam) const
+{
+  if (fBowsParameters) {
+    switch(iParam) {
+    case 0:
+    case 1:
+    case 2:
+    case 9:
+    case 10:
+    case 11:
+//       return "*10000"; // cm to mum for shifts
+//     case 5:
+//     case 14:
+//       return "*1000000"; // rad to murad for gamma
+    case 5: // w-rot
+    case 14:// w-rot of 2nd sensor
+    case 3:// u-slope
+    case 4:// v-slope
+    case 6:// u-sagitta
+    case 7:// uv-mixed sagitta
+    case 8:// v-sagitta
+    case 12:// u-slope    of 2nd sensor
+    case 13:// v-slope    -----"------
+    case 15:// u-sagitta  -----"------  
+    case 16:// uv-sagitta -----"------
+    case 17:// v-sagitta  -----"------
+      return "*10000"; // cm to mum
+
+    default:
+      ::Error("MillePedeTrees::ToMumMuRadPede", "unknown parameter %d", iParam);
+      return "";
+    }
+  } else {
+    return this->ToMumMuRad(iParam);
   }
 }
 
@@ -523,7 +634,7 @@ TString MillePedeTrees::Name(UInt_t iParam) const
 TString MillePedeTrees::ToMumMuRad(const TString &pos) const
 {
   if (pos == "r" || pos == "rphi" || pos == "x" || pos == "y" || pos == "z") {
-    return "*10000"; // cms to mum
+    return "*10000"; // cm to mum
   } else if (pos == "phi") {
     return "*1000000"; // rad to murad
   } else {
