@@ -70,3 +70,13 @@ def customiseExpress(process):
 def customisePrompt(process):
     myname=sys._getframe().f_code.co_name
     return getCustomProcess(process,myname)
+
+##############################################################################
+def customiseExpressHI(process):
+    myname=sys._getframe().f_code.co_name
+    return getCustomProcess(process,myname)
+
+##############################################################################
+def customisePromptHI(process):
+    myname=sys._getframe().f_code.co_name
+    return getCustomProcess(process,myname)
