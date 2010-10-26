@@ -147,7 +147,7 @@ void go() {
   std::vector<Vec> vec1; vec1.reserve(50);
   std::vector<T> vect(23);
   std::vector<Vec> vec2(53);
-  std::vector<Vec> vec1; vec1.reserve(50234);
+  std::vector<Vec> vec3; vec3.reserve(50234);
 
 
   Vec x(2.0,4.0,5.0);
