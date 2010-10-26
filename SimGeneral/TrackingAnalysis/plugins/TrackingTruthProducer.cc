@@ -298,7 +298,7 @@ void TrackingTruthProducer::mergeBremsstrahlung()
             for (TrackingVertex::tp_iterator idaughter = iVC->daughterTracks_begin(); idaughter != iVC->daughterTracks_end(); ++idaughter)
             {
                 TrackingParticle * pointer = &trackingParticles_->at(idaughter->key());
-                if ( abs( pointer->pdgId() ) == 11 )
+                if ( std::abs( pointer->pdgId() ) == 11 )
                 {
                     // Set pointer to the electron daughter
                     daughter = pointer;
@@ -440,7 +440,7 @@ bool TrackingTruthProducer::isBremsstrahlungVertex(
         return false;
 
     // Check for the parent particle is a |electron| (electron or positron)
-    if ( abs( tPC->at(parents.begin()->key()).pdgId() ) != 11 )
+    if ( std::abs( tPC->at(parents.begin()->key()).pdgId() ) != 11 )
         return false;
 
     int nElectrons = 0;
@@ -454,7 +454,7 @@ bool TrackingTruthProducer::isBremsstrahlungVertex(
         if ( parents[0] == *it )
             return false;
 
-        if ( abs( tPC->at(it->key()).pdgId() ) == 11 )
+        if ( std::abs( tPC->at(it->key()).pdgId() ) == 11 )
             nElectrons++;
         else if ( tPC->at(it->key()).pdgId() == 22 )
             nPhotons++;

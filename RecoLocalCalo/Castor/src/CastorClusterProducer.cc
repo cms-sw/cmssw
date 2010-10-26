@@ -12,7 +12,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorClusterProducer.cc,v 1.7 2010/07/03 19:23:43 hvanhaev Exp $
+// $Id: CastorClusterProducer.cc,v 1.8 2010/07/06 16:46:09 hvanhaev Exp $
 //
 //
 
@@ -188,7 +188,7 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 			size_t thisone = 0;
 			for (size_t l=0;l<ctCollection->size();l++) {
 				const CastorTower ct = (*ctCollection)[l];
-				if ( abs(ct.phi() - castorcand->phi()) < 0.0001 ) { thisone = l;}
+				if ( std::abs(ct.phi() - castorcand->phi()) < 0.0001 ) { thisone = l;}
 			}
 			
 			CastorTowerRef towerref(ctCollection,thisone); 

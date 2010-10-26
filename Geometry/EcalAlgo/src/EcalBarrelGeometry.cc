@@ -325,7 +325,7 @@ EcalBarrelGeometry::getCells( const GlobalPoint& r,
 	    {
 	       int ieta ( de + ieta_center ) ;
 	       
-	       if( abs(ieta) <= maxeta &&
+	       if( std::abs(ieta) <= maxeta &&
 		   ieta      != 0         ) // eta is in EB
 	       {
 		  const int de2 ( de*de ) ;
