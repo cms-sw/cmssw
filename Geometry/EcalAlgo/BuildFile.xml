@@ -1,0 +1,12 @@
+<export>
+  <lib   name="1"/>
+</export>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Framework"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="CondFormats/Alignment"/>
+<use   name="DataFormats/EcalDetId"/>
+<use   name="DetectorDescription/Core"/>
+<use   name="Geometry/EcalCommonData"/>
+<use   name="clhep"/>
