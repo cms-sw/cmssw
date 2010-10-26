@@ -1,0 +1,8 @@
+<use   name="DataFormats/EcalDetId"/>
+<use   name="DataFormats/EcalDigi"/>
+<use   name="SimDataFormats/EcalTestBeam"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/CaloTopology"/>
+<export>
+  <lib   name="1"/>
+</export>

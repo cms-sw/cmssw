@@ -1,0 +1,6 @@
+<use   name="DataFormats/GeometrySurface"/>
+<use   name="DataFormats/GeometryVector"/>
+<use   name="MagneticField/Engine"/>
+<export>
+  <lib   name="1"/>
+</export>
