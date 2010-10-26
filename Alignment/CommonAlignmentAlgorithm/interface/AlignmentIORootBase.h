@@ -42,7 +42,7 @@ class AlignmentIORootBase
   TString treetxt;  // tree text
   bool bWrite; // if true we are writing, else reading
 
-  const static int nParMax = 6;    // maximal number of Parameters
+  const static int nParMax = 20;   // maximal number of Parameters
   const static int itermax = 1000; // max iteration to test for
 
  private:
