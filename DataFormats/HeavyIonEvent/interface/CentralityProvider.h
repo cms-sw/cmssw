@@ -13,6 +13,7 @@ class CentralityProvider : public CentralityBins {
   CentralityProvider(const edm::EventSetup& iSetup);
   ~CentralityProvider(){;}
 
+  enum VariableType {HFtowers,HFhits,PixelHits,Tracks,PixelTracks,EB,EE,Missing};
 
   int getNbins() const {return table_.size();}
   double centralityValue(const edm::Event& ev) const;
@@ -29,7 +30,8 @@ class CentralityProvider : public CentralityBins {
   void newRun(const edm::EventSetup& iSetup);
   void newEvent(const edm::Event& ev,const edm::EventSetup& iSetup);
   void print();
-  const CentralityBins* GetTable() const {return this;}
+  const CentralityBins* table() const {return this;}
+  const reco::Centrality* raw() const {return chandle_.product();}
 
  private:
   edm::InputTag tag_;
@@ -38,17 +40,26 @@ class CentralityProvider : public CentralityBins {
   std::string centralityMC_;
   unsigned int prevRun_;
   mutable edm::Handle<reco::Centrality> chandle_;
-  
+  VariableType varType_;
 };
 
 CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup) : 
-   prevRun_(0)
+   prevRun_(0),
+   varType_(Missing)
 {
   const edm::ParameterSet &thepset = edm::getProcessParameterSet();
   if(thepset.exists("HeavyIonGlobalParameters")){
     edm::ParameterSet hiPset = thepset.getParameter<edm::ParameterSet>("HeavyIonGlobalParameters");
     tag_ = hiPset.getParameter<edm::InputTag>("centralitySrc");
     centralityVariable_ = hiPset.getParameter<std::string>("centralityVariable");
+    if(centralityVariable_.compare("HFtowers") == 0) varType_ = HFtowers;
+    if(centralityVariable_.compare("HFhits") == 0) varType_ = HFhits;
+    if(centralityVariable_.compare("PixelHits") == 0) varType_ = PixelHits;
+    if(centralityVariable_.compare("Tracks") == 0) varType_ = Tracks;
+    if(centralityVariable_.compare("PixelTracks") == 0) varType_ = PixelTracks;
+    if(varType_ == Missing){
+       // edm::Exception
+    }
     if(hiPset.exists("nonDefaultGlauberModel")){
        centralityMC_ = hiPset.getParameter<std::string>("nonDefaultGlauberModel");
     }
@@ -85,7 +96,6 @@ void CentralityProvider::newRun(const edm::EventSetup& iSetup){
      newBin.b_mean = thisBin->b.mean;
      newBin.b_var = thisBin->b.var;
      table_.push_back(newBin);
-
   }
 }
 
@@ -103,9 +113,11 @@ void CentralityProvider::print(){
 
 double CentralityProvider::centralityValue(const edm::Event& ev) const {
   double var = -99;
-  if(centralityVariable_.compare("HFhits") == 0) var = chandle_->EtHFhitSum();
-  if(centralityVariable_.compare("PixelHits") == 0) var = chandle_->multiplicityPixel();
-  if(centralityVariable_.compare("PixelTracks") == 0) var = chandle_->NpixelTracks();
+  if(varType_ == HFhits) var = chandle_->EtHFhitSum();
+  if(varType_ == HFtowers) var = chandle_->EtHFtowerSum();
+  if(varType_ == PixelHits) var = chandle_->multiplicityPixel();
+  if(varType_ == PixelTracks) var = chandle_->NpixelTracks();
+  if(varType_ == Tracks) var = chandle_->Ntracks();
 
   return var;
 }
