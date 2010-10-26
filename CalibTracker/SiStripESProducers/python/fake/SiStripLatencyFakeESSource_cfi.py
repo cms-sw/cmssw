@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import FWCore.ParameterSet.Config as cms
 
 from CalibTracker.SiStripESProducers.services.SiStripLatencyGeneratorService_cfi import *
@@ -5,6 +6,3 @@ from CalibTracker.SiStripESProducers.services.SiStripLatencyGeneratorService_cfi
 siStripLatencyFakeESSource = cms.ESSource("SiStripLatencyFakeESSource",
                                          appendToDataLabel = cms.string('')
                                          )
-
-
-

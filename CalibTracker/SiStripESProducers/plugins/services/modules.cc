@@ -1,8 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 
-
-
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "CalibTracker/SiStripESProducers/interface/SiStripPedestalsGenerator.h"
 DEFINE_FWK_SERVICE(SiStripPedestalsGenerator);
@@ -30,6 +28,10 @@ DEFINE_FWK_SERVICE(SiStripBadModuleGenerator);
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "CalibTracker/SiStripESProducers/interface/SiStripLatencyGenerator.h"
 DEFINE_FWK_SERVICE(SiStripLatencyGenerator);
+
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+#include "CalibTracker/SiStripESProducers/interface/SiStripBaseDelayGenerator.h"
+DEFINE_FWK_SERVICE(SiStripBaseDelayGenerator);
 
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "CalibTracker/SiStripESProducers/interface/SiStripConfObjectGenerator.h"

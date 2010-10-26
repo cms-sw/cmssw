@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # The following comments couldn't be translated into the new config version:
 
 # upload to database 
