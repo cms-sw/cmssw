@@ -237,6 +237,34 @@ void AlignableComposite::addAlignmentPositionErrorFromLocalRotation( const Rotat
 }
 
 //__________________________________________________________________________________________________
+void AlignableComposite::setSurfaceDeformation(const SurfaceDeformation *deformation,
+					       bool propagateDown)
+{
+  // Only DetUnits have surface deformations.
+  // The parameters are, therefore, just propagated down.
+  if (!propagateDown) return;
+
+  Alignables comp(this->components());
+  for (Alignables::const_iterator i = comp.begin(); i != comp.end(); ++i) {
+    (*i)->setSurfaceDeformation(deformation, propagateDown);
+  }
+}
+
+//__________________________________________________________________________________________________
+void AlignableComposite::addSurfaceDeformation(const SurfaceDeformation *deformation,
+					       bool propagateDown)
+{
+  // Only DetUnits have surface deformations.
+  // The parameters are, therefore, just propagated down.
+  if (!propagateDown) return;
+
+  Alignables comp(this->components());
+  for (Alignables::const_iterator i = comp.begin(); i != comp.end(); ++i) {
+    (*i)->addSurfaceDeformation(deformation, propagateDown);
+  }
+}
+
+//__________________________________________________________________________________________________
 void AlignableComposite::dump( void ) const
 {
 

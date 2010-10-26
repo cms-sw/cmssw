@@ -6,6 +6,7 @@
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CLHEP/Vector/RotationInterfaces.h" 
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -13,22 +14,32 @@
 //__________________________________________________________________________________________________
 AlignableDetUnit::AlignableDetUnit(const GeomDetUnit *geomDetUnit) : // rely on non-NULL pointer!
   Alignable(geomDetUnit->geographicalId().rawId(), geomDetUnit->surface()),
-  theAlignmentPositionError(0)
+  theAlignmentPositionError(0),
+  theSurfaceDeformation(0)
 {
   if (geomDetUnit->alignmentPositionError()) { // take over APE from geometry
     // 2nd argument w/o effect:
     this->setAlignmentPositionError(*(geomDetUnit->alignmentPositionError()), false);
   }
 
+  /* FIXME: Commented out to have a version for alignment framework tests
+  if (geomDetUnit->surfaceDeformation()) { // take over surface modification
+    // 2nd argument w/o effect:
+    this->setSurfaceDeformation(geomDetUnit->surfaceDeformation(), false);
+  }
+  */
+  this->setSurfaceDeformation(0, false);
+
   theDeepComponents.push_back(this);
+
 }
 
 //__________________________________________________________________________________________________
 AlignableDetUnit::~AlignableDetUnit()
 {
   delete theAlignmentPositionError;
+  delete theSurfaceDeformation;
 }
-
 
 //__________________________________________________________________________________________________
 void AlignableDetUnit::addComponent( Alignable* /*unused*/)
@@ -89,7 +100,9 @@ void AlignableDetUnit::addAlignmentPositionErrorFromRotation(const RotationType&
 
   // average error calculated by movement of a local point at
   // (xWidth/2,yLength/2,0) caused by the rotation rot
-  GlobalVector localPositionVector = surface().toGlobal( LocalVector(.5 * surface().width(), .5 * surface().length(), 0.) );
+  GlobalVector localPositionVector = surface().toGlobal( LocalVector(.5 * surface().width(),
+								     .5 * surface().length(),
+								     0.) );
 
   LocalVector::BasicVectorType lpvgf = localPositionVector.basicVector();
   GlobalVector gv( rot.multiplyInverse(lpvgf) - lpvgf );
@@ -110,6 +123,35 @@ void AlignableDetUnit::addAlignmentPositionErrorFromLocalRotation(const Rotation
 
 }
 
+//__________________________________________________________________________________________________
+void AlignableDetUnit::setSurfaceDeformation(const SurfaceDeformation *deformation,
+					      bool /* propagateDown */ )
+{
+  delete theSurfaceDeformation; // OK for zero pointers
+  if (deformation) {
+    theSurfaceDeformation = deformation->clone();
+  } else {
+    theSurfaceDeformation = 0;
+  }
+}
+
+//__________________________________________________________________________________________________
+void AlignableDetUnit::addSurfaceDeformation(const SurfaceDeformation *deformation,
+					     bool propagateDown)
+{
+  if (!deformation) {
+    // nothing to do
+  } else if (!theSurfaceDeformation) {
+    this->setSurfaceDeformation(deformation, propagateDown); // fine since no components
+  } else if (!theSurfaceDeformation->add(*deformation)) {
+    edm::LogError("Alignment") << "@SUB=AlignableDetUnit::addSurfaceDeformation"
+			       << "Cannot add deformation type " << deformation->type()
+			       << " to type " << theSurfaceDeformation->type()
+			       << ", so erase deformation information.";
+    delete theSurfaceDeformation;
+    theSurfaceDeformation = 0;
+  }
+}
 
 //__________________________________________________________________________________________________
 void AlignableDetUnit::dump() const
@@ -167,3 +209,4 @@ AlignmentErrors* AlignableDetUnit::alignmentErrors() const
   return m_alignmentErrors;
 
 }
+

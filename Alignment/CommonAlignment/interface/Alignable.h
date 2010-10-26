@@ -9,6 +9,7 @@ class AlignmentErrors;
 class AlignmentParameters;
 class AlignmentPositionError;
 class Alignments;
+class SurfaceDeformation;
 
 /** \class Alignable
  *
@@ -16,8 +17,8 @@ class Alignments;
  * Any Alignable object can be moved and rotated.
  * Also an alignment uncertainty can be set.
  *
- *  $Date: 2008/04/11 18:19:01 $
- *  $Revision: 1.31 $
+ *  $Date: 2009/04/16 08:17:28 $
+ *  $Revision: 1.32 $
  *  (last update by $Author: flucke $)
  */
 
@@ -158,6 +159,15 @@ public:
   virtual void 
   addAlignmentPositionErrorFromLocalRotation( const RotationType& rotation, bool propagateDown ) = 0;
 
+  /// Set the surface deformation parameters - if (!propagateDown) do not affect daughters
+  virtual void
+  setSurfaceDeformation(const SurfaceDeformation *deformation, bool propagateDown) = 0;
+
+  /// Add the surface deformation parameters to the existing ones,
+  /// if (!propagateDown) do not affect daughters.
+  virtual void
+  addSurfaceDeformation(const SurfaceDeformation *deformation, bool propagateDown) = 0;
+  
   /// Return the alignable type identifier
   virtual StructureType alignableObjectId() const = 0;
 

@@ -2,8 +2,8 @@
  *
  *  Original author: Andreas Mussgiller, August 2010
  *
- *  $Date: 2009/02/28 21:05:00 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/09/10 10:26:56 $
+ *  $Revision: 1.1 $
  *  (last update by $Author: mussgill $)
  */
 
@@ -83,6 +83,20 @@ void AlignableBeamSpot::addAlignmentPositionErrorFromLocalRotation(const Rotatio
 								   bool propagateDown )
 {
 
+}
+
+//__________________________________________________________________________________________________
+void AlignableBeamSpot::setSurfaceDeformation(const SurfaceDeformation*, bool)
+{
+  edm::LogInfo("Alignment") << "@SUB=AlignableBeamSpot::setSurfaceDeformation"
+			    << "Useless method for beam spot, do nothing.";
+}
+
+//__________________________________________________________________________________________________
+void AlignableBeamSpot::addSurfaceDeformation(const SurfaceDeformation*, bool)
+{
+  edm::LogInfo("Alignment") << "@SUB=AlignableBeamSpot::addSurfaceDeformation"
+			    << "Useless method for beam spot, do nothing.";
 }
 
 //__________________________________________________________________________________________________

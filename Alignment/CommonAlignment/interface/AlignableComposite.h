@@ -75,6 +75,13 @@ public:
   /// if (propagateDown), add to all the components of the composite
   virtual void addAlignmentPositionErrorFromLocalRotation( const RotationType& rotation, bool propagateDown );
 
+  /// Set the surface deformation parameters - if (!propagateDown) do not affect daughters
+  virtual void setSurfaceDeformation(const SurfaceDeformation *deformation, bool propagateDown);
+
+  /// Add the surface deformation parameters to the existing ones,
+  /// if (!propagateDown) do not affect daughters.
+  virtual void addSurfaceDeformation(const SurfaceDeformation *deformation, bool propagateDown);
+
   /// Return the alignable type identifier
   virtual StructureType alignableObjectId() const { return theStructureType; }
 

@@ -7,12 +7,14 @@
  *
  *  Original author: Andreas Mussgiller, August 2010
  *
- *  $Date: 2009/02/28 21:04:59 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/09/10 10:26:55 $
+ *  $Revision: 1.1 $
  *  (last update by $Author: mussgill $)
  */
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+
+class SurfaceDeformation;
 
 class AlignableBeamSpot : public Alignable 
 {
@@ -72,6 +74,11 @@ public:
 
   /// alignment position error - for checking only, otherwise use alignmentErrors() above!  
   const AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}
+
+  /// do no use, for compatibility only
+  virtual void setSurfaceDeformation(const SurfaceDeformation*, bool);
+  /// do no use, for compatibility only
+  virtual void addSurfaceDeformation(const SurfaceDeformation*, bool);
 
   /// initialize the alignable with the passed beam spot parameters 
   void initialize(double x, double y, double z,

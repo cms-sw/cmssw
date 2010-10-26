@@ -53,6 +53,11 @@ public:
   /// (no components => second argument without effect)
   virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType& rot, bool /*propDown*/);
 
+  /// Set surface deformation parameters (2nd argument without effect)
+  virtual void setSurfaceDeformation(const SurfaceDeformation *deformation, bool);
+  /// Add surface deformation parameters to the existing ones (2nd argument without effect)
+  virtual void addSurfaceDeformation(const SurfaceDeformation *deformation, bool);
+
   /// Return the alignable type identifier
   virtual StructureType alignableObjectId () const { return align::AlignableDetUnit; }
 
@@ -71,7 +76,7 @@ public:
 private:
 
   AlignmentPositionError* theAlignmentPositionError;
-
+  SurfaceDeformation* theSurfaceDeformation;
 };
 
 #endif 
