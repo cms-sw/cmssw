@@ -8,84 +8,69 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
    process.CondDBCommon, 
    toPut = cms.VPSet( 
       cms.PSet(
-         record = cms.string('JetCorrectorParametersCollection_Spring10_AK5Calo'), 
+         record = cms.string('AK5Calo'), 
          tag    = cms.string('JetCorrectorParametersCollection_Spring10_AK5Calo'), 
-         label  = cms.string('JetCorrectorParametersCollection_Spring10_AK5Calo') 
+         label  = cms.string('AK5Calo') 
       ),
       cms.PSet(
-         record = cms.string('JetCorrectorParametersCollection_Spring10DataV2_AK5Calo'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10DataV2_AK5Calo'), 
-         label  = cms.string('JetCorrectorParametersCollection_Spring10DataV2_AK5Calo') 
-      ),
-      cms.PSet(
-         record = cms.string('JetCorrectorParametersCollection_Spring10_AK5PF'), 
+         record = cms.string('AK5PF'), 
          tag    = cms.string('JetCorrectorParametersCollection_Spring10_AK5PF'), 
-         label  = cms.string('JetCorrectorParametersCollection_Spring10_AK5PF') 
+         label  = cms.string('AK5PF') 
       ),
       cms.PSet(
-         record = cms.string('JetCorrectorParametersCollection_Spring10DataV2_AK5PF'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10DataV2_AK5PF'), 
-         label  = cms.string('JetCorrectorParametersCollection_Spring10DataV2_AK5PF') 
-      ),
-      cms.PSet(
-         record = cms.string('JetCorrectorParametersCollection_Spring10_AK5JPT'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_AK5JPT'), 
-         label  = cms.string('JetCorrectorParametersCollection_Spring10_AK5JPT') 
-      ),
-      cms.PSet(
-         record = cms.string('JetCorrectorParametersCollection_Summer10_AK5JPT'), 
+         record = cms.string('AK5JPT'), 
          tag    = cms.string('JetCorrectorParametersCollection_Summer10_AK5JPT'), 
-         label  = cms.string('JetCorrectorParametersCollection_Summer10_AK5JPT') 
+         label  = cms.string('AK5JPT') 
       ),
       cms.PSet(
-         record = cms.string('JetCorrectorParametersCollection_Spring10DataV2_AK5JPT'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10DataV2_AK5JPT'), 
-         label  = cms.string('JetCorrectorParametersCollection_Spring10DataV2_AK5JPT') 
-      ),
-      cms.PSet(
-         record = cms.string('JetCorrectorParametersCollection_Spring10_AK5TRK'), 
+         record = cms.string('AK5TRK'), 
          tag    = cms.string('JetCorrectorParametersCollection_Spring10_AK5TRK'), 
-         label  = cms.string('JetCorrectorParametersCollection_Spring10_AK5TRK') 
+         label  = cms.string('AK5TRK') 
       ),
       cms.PSet(
-         record = cms.string('JetCorrectorParametersCollection_Spring10_AK7Calo'), 
+         record = cms.string('AK7Calo'), 
          tag    = cms.string('JetCorrectorParametersCollection_Spring10_AK7Calo'), 
-         label  = cms.string('JetCorrectorParametersCollection_Spring10_AK7Calo') 
+         label  = cms.string('AK7Calo') 
       ),
       cms.PSet(
-         record = cms.string('JetCorrectorParametersCollection_Spring10_AK7PF'), 
+         record = cms.string('AK7PF'), 
          tag    = cms.string('JetCorrectorParametersCollection_Spring10_AK7PF'), 
-         label  = cms.string('JetCorrectorParametersCollection_Spring10_AK7PF') 
+         label  = cms.string('AK7PF') 
       ),
       cms.PSet(
-         record = cms.string('JetCorrectorParametersCollection_Spring10_IC5Calo'), 
+         record = cms.string('AK7JPT'),                           
+         tag    = cms.string('JetCorrectorParametersCollection_Summer10_AK7JPT'),
+         label  = cms.string('AK7JPT')                                          
+      ),
+      cms.PSet(
+         record = cms.string('IC5Calo'), 
          tag    = cms.string('JetCorrectorParametersCollection_Spring10_IC5Calo'), 
-         label  = cms.string('JetCorrectorParametersCollection_Spring10_IC5Calo') 
+         label  = cms.string('IC5Calo') 
       ),
      cms.PSet(
-         record = cms.string('JetCorrectorParametersCollection_Spring10_IC5PF'), 
+         record = cms.string('IC5PF'), 
          tag    = cms.string('JetCorrectorParametersCollection_Spring10_IC5PF'), 
-         label  = cms.string('JetCorrectorParametersCollection_Spring10_IC5PF') 
+         label  = cms.string('IC5PF') 
       ),
       cms.PSet(
-         record = cms.string('JetCorrectorParametersCollection_Spring10_KT4Calo'), 
+         record = cms.string('KT4Calo'), 
          tag    = cms.string('JetCorrectorParametersCollection_Spring10_KT4Calo'), 
-         label  = cms.string('JetCorrectorParametersCollection_Spring10_KT4Calo') 
+         label  = cms.string('KT4Calo') 
       ),
       cms.PSet(
-         record = cms.string('JetCorrectorParametersCollection_Spring10_KT4PF'), 
+         record = cms.string('KT4PF'), 
          tag    = cms.string('JetCorrectorParametersCollection_Spring10_KT4PF'), 
-         label  = cms.string('JetCorrectorParametersCollection_Spring10_KT4PF') 
+         label  = cms.string('KT4PF') 
       ),
       cms.PSet(
-         record = cms.string('JetCorrectorParametersCollection_Spring10_KT6Calo'), 
+         record = cms.string('KT6Calo'), 
          tag    = cms.string('JetCorrectorParametersCollection_Spring10_KT6Calo'), 
-         label  = cms.string('JetCorrectorParametersCollection_Spring10_KT6Calo') 
+         label  = cms.string('KT6Calo') 
       ),
       cms.PSet(
-         record = cms.string('JetCorrectorParametersCollection_Spring10_KT6PF'), 
+         record = cms.string('KT6PF'), 
          tag    = cms.string('JetCorrectorParametersCollection_Spring10_KT6PF'), 
-         label  = cms.string('JetCorrectorParametersCollection_Spring10_KT6PF') 
+         label  = cms.string('KT6PF') 
       )
    ) 
 ) 
@@ -94,29 +79,13 @@ process.dbWriterAK5Calo = cms.EDAnalyzer('JetCorrectorDBWriter',
    era    = cms.untracked.string('Spring10'), 
    algo   = cms.untracked.string('AK5Calo') 
 ) 
-process.dbWriterAK5CaloDataV2 = cms.EDAnalyzer('JetCorrectorDBWriter', 
-   era    = cms.untracked.string('Spring10DataV2'),  
-   algo   = cms.untracked.string('AK5Calo') 
-) 
 process.dbWriterAK5PF = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Spring10'),  
    algo   = cms.untracked.string('AK5PF') 
 ) 
-process.dbWriterAK5PFDataV2 = cms.EDAnalyzer('JetCorrectorDBWriter', 
-   era    = cms.untracked.string('Spring10DataV2'), 
-   algo   = cms.untracked.string('AK5PF') 
-)
 process.dbWriterAK5JPT = cms.EDAnalyzer('JetCorrectorDBWriter', 
-   era    = cms.untracked.string('Spring10'),  
-   algo  = cms.untracked.string('AK5JPT') 
-)
-process.dbWriterAK5JPTSUmmer10 = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Summer10'),  
    algo  = cms.untracked.string('AK5JPT') 
-)
-process.dbWriterAK5JPTDataV2 = cms.EDAnalyzer('JetCorrectorDBWriter', 
-   era    = cms.untracked.string('Spring10DataV2'),  
-   algo   = cms.untracked.string('AK5JPT') 
 )
 process.dbWriterAK5TRK = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Spring10'), 
@@ -130,6 +99,10 @@ process.dbWriterAK7PF = cms.EDAnalyzer('JetCorrectorDBWriter',
    era    = cms.untracked.string('Spring10'),  
    algo   = cms.untracked.string('AK7PF') 
 ) 
+process.dbWriterAK7JPT = cms.EDAnalyzer('JetCorrectorDBWriter',
+   era    = cms.untracked.string('Summer10'),
+   algo   = cms.untracked.string('AK5JPT')
+)
 process.dbWriterKT4Calo = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Spring10'),  
    algo   = cms.untracked.string('KT4Calo') 
@@ -159,15 +132,12 @@ process.dbWriterIC5PF = cms.EDAnalyzer('JetCorrectorDBWriter',
 
 process.p = cms.Path( 
 process.dbWriterAK5Calo *
-process.dbWriterAK5CaloDataV2 *
 process.dbWriterAK5PF *
-process.dbWriterAK5PFDataV2 *
 process.dbWriterAK5JPT *
-process.dbWriterAK5JPTSUmmer10 *
-process.dbWriterAK5JPTDataV2 *
 process.dbWriterAK5TRK *
 process.dbWriterAK7Calo *
 process.dbWriterAK7PF *
+process.dbWriterAK7JPT *
 process.dbWriterKT4Calo *
 process.dbWriterKT4PF *
 process.dbWriterKT6Calo *

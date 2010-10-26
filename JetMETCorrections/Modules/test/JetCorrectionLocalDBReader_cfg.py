@@ -18,15 +18,15 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
       cms.PSet(
             record = cms.string('JetCorrectionsRecord'),
             tag    = cms.string('JetCorrectorParametersCollection_Spring10_AK5Calo'),
-            label  = cms.untracked.string('JetCorrectorParametersCollection_Spring10_AK5Calo')
+            label  = cms.untracked.string('AK5Calo')
             )
        ),
       connect = cms.string('sqlite:JEC_Spring10.db')
 )
 
 process.demo = cms.EDAnalyzer('JetCorrectorDBReader', 
-        payloadName    = cms.untracked.string('JetCorrectorParametersCollection_Spring10_AK5Calo'),
-        printScreen    = cms.untracked.bool(False),
+        payloadName    = cms.untracked.string('AK5Calo'),
+        printScreen    = cms.untracked.bool(True),
         createTextFile = cms.untracked.bool(False)
 )
 
