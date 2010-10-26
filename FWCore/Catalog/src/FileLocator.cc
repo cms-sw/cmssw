@@ -166,26 +166,26 @@ FileLocator::init(std::string const& catUrl, bool fallback)
   m_url = m_url.erase(0, m_url.find(":") + 1);
 
   std::vector<std::string> tokens;
-  boost::algorithm::split(tokens, m_url, boost::is_any_of("?"));
+  boost::algorithm::split(tokens, m_url, boost::is_any_of(std::string("?")));
   m_filename = tokens[0];
 
   if (tokens.size() == 2)
   {
     std::string options = tokens[1];
     std::vector<std::string> optionTokens;
-    boost::algorithm::split(optionTokens, options, boost::is_any_of("&"));
+    boost::algorithm::split(optionTokens, options, boost::is_any_of(std::string("&")));
 
     for (size_t oi = 0, oe = optionTokens.size(); oi != oe; ++oi)
     {
       std::string option = optionTokens[oi];
       std::vector<std::string> argTokens;
-      boost::algorithm::split(argTokens, option, boost::is_any_of("="));
+      boost::algorithm::split(argTokens, option, boost::is_any_of(std::string("=")));
       
       if (argTokens.size() != 2)
         throw  cms::Exception("TrivialFileCatalog::connect: Malformed url for file catalog configuration");
-      
+
       if (argTokens[0] == "protocol")
-        boost::algorithm::split(m_protocols, argTokens[1], boost::is_any_of(","));
+        boost::algorithm::split(m_protocols, argTokens[1], boost::is_any_of(std::string(",")));
       else if (argTokens[0] == "destination")
         m_destination = argTokens[1];
     }
