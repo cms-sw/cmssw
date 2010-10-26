@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.26 2010/10/23 16:06:41 yilmaz Exp $
+// $Id: CentralityProducer.cc,v 1.27 2010/10/23 16:17:00 yilmaz Exp $
 //
 //
 
@@ -97,6 +97,9 @@ class CentralityProducer : public edm::EDFilter {
 
    edm::InputTag reuseTag_;
 
+  bool useQuality_;
+  reco::TrackBase::TrackQuality trackQuality_;
+
 };
 
 //
@@ -148,6 +151,9 @@ CentralityProducer::CentralityProducer(const edm::ParameterSet& iConfig)
    
    reuseAny_ = !produceHFhits_ || !produceHFtowers_ || !produceBasicClusters_ || !produceEcalhits_ || !produceZDChits_;
    if(reuseAny_) reuseTag_ = iConfig.getParameter<edm::InputTag>("srcReUse");
+
+   useQuality_   = iConfig.getParameter<bool>("UseQuality");
+   trackQuality_ = TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
 
    produces<reco::Centrality>();
    
@@ -287,7 +293,7 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(produceTracks_){
      edm::Handle<reco::TrackCollection> tracks;
      iEvent.getByLabel(srcTracks_,tracks);
-     int nTracks = tracks->size();
+     int nTracks = 0;
 
      double trackCounter = 0;
      double trackCounterEta = 0;
@@ -295,6 +301,9 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
      for(unsigned int i = 0 ; i < tracks->size(); ++i){
        const Track& track = (*tracks)[i];
+       if(useQuality_ && !track.quality(trackQuality_)) continue;
+       nTracks++;
+
        if( track.pt() > trackPtCut_)  trackCounter++;
        if(fabs(track.eta())<trackEtaCut_) {
 	 trackCounterEta++;

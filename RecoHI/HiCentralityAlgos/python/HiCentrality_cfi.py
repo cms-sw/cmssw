@@ -26,7 +26,9 @@ hiCentrality = cms.EDFilter("reco::CentralityProducer",
                             srcBasicClustersEE = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
                             srcZDChits = cms.InputTag(""),
                             srcPixelhits = cms.InputTag("siPixelRecHits"),
-                            srcTracks = cms.InputTag("hiSelectedTracks"),                            
+                            srcTracks = cms.InputTag("hiSelectedTracks"),
+                            UseQuality = cms.bool(True),
+                            TrackQuality = cms.string('highPurity'),
                             srcReUse = cms.InputTag("hiCentrality"),
                             srcPixelTracks = cms.InputTag("hiPixel3PrimTracks")
                               )
