@@ -82,6 +82,7 @@ namespace ora {
     const std::map<int, Handle<DatabaseContainer> >& containers();
 
     void setObjectName( const std::string& name, int containerId, int itemId );
+    bool eraseObjectName( const std::string& name );
     ora::Object fetchObjectByName( const std::string& name );
     boost::shared_ptr<void> fetchTypedObjectByName( const std::string& name, const Reflex::Type& asType );
     bool getNamesForContainer( int containerId, std::vector<std::string>& destination );

@@ -122,6 +122,9 @@ namespace ora {
 
     ///
     void setObjectName( const std::string& name, const OId& oid );
+   
+    ///
+    bool eraseObjectName( const std::string& name );
 
     ///
     Object fetchItemByName( const std::string& name );

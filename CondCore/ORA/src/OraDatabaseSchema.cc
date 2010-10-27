@@ -1066,6 +1066,14 @@ void ora::OraNamingServiceTable::setObjectName( const std::string& name,
   containerTable.dataEditor().insertRow( dataToInsert );  
 }
 
+bool ora::OraNamingServiceTable::eraseObjectName( const std::string& name ){
+  coral::AttributeList whereData;
+  whereData.extend<std::string>( objectNameColumn() );
+  whereData.begin()->data<std::string>() = name;
+  std::string condition = objectNameColumn() + " = :" + objectNameColumn();
+  return m_schema.tableHandle( tableName() ).dataEditor().deleteRows( condition, whereData )>0;
+}
+
 bool ora::OraNamingServiceTable::getObjectByName( const std::string& name, 
                                                   std::pair<int,int>& destination ){
   bool ret = false;

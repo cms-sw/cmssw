@@ -216,6 +216,10 @@ void ora::DatabaseSession::setObjectName( const std::string& name,
   m_schema->namingServiceTable().setObjectName( name, containerId, itemId );
 }
 
+bool ora::DatabaseSession::eraseObjectName( const std::string& name ){
+  return m_schema->namingServiceTable().eraseObjectName( name );
+}
+
 ora::Object ora::DatabaseSession::fetchObjectByName( const std::string& name ){
   ora::Object ret;
   std::pair<int,int> oid;

@@ -295,6 +295,11 @@ void ora::Database::setObjectName( const std::string& name, const OId& oid ){
   m_impl->m_session->setObjectName( name, oid.containerId(), oid.itemId() );
 }
 
+bool ora::Database::eraseObjectName( const std::string& name ){
+  checkTransaction();
+  return m_impl->m_session->eraseObjectName( name );  
+}
+
 boost::shared_ptr<void> ora::Database::getTypedObjectByName( const std::string& name, const std::type_info& typeInfo ){
   checkTransaction();
   Reflex::Type objType = ClassUtils::lookupDictionary( typeInfo );

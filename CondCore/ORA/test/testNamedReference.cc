@@ -17,10 +17,10 @@ int main(){
     std::string authpath("/afs/cern.ch/cms/DB/conddb");
     std::string pathenv(std::string("CORAL_AUTH_PATH=")+authpath);
     ::putenv(const_cast<char*>(pathenv.c_str()));
-    //std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_UNIT_TESTS" );
-    std::string connStr( "sqlite_file:test.db" );
-    //ora::Serializer serializer( "ORA_TEST" );
-    //serializer.lock( connStr );
+    std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_UNIT_TESTS" );
+    //std::string connStr( "sqlite_file:test.db" );
+    ora::Serializer serializer( "ORA_TEST" );
+    serializer.lock( connStr );
     db.configuration().setMessageVerbosity( coral::Debug );
     db.connect( connStr );
     ora::ScopedTransaction trans0( db.transaction() );
@@ -30,6 +30,7 @@ int main(){
     }
     std::set< std::string > conts = db.containers();
     if( conts.find( "Cont0" )!= conts.end() ) db.dropContainer( "Cont0" );
+    if( conts.find( "Cont1" )!= conts.end() ) db.dropContainer( "Cont1" );
     // ***
     ora::Container contH0 = db.createContainer<SimpleClass>("Cont0");
     ora::Container contH1 = db.createContainer<SH>("Cont1");
@@ -37,6 +38,9 @@ int main(){
     int oid0 = contH0.insert( *s0 );
     contH0.flush();
     std::cout << "******* setting name..."<<std::endl; 
+    if( db.eraseObjectName( "Peeppino" ) ){
+      std::cout << "** Name was found and erased."<<std::endl;
+    }
     db.setObjectName( "Peeppino",ora::OId(contH0.id(),oid0)); 
     SH s1(111);
     int oid1 = contH1.insert( s1 );
@@ -58,6 +62,16 @@ int main(){
       std::cout << "** No names found for container "<<contH0.name()<<std::endl;
     } else {
       std::cout << "** Found "<<contNames.size()<<" names for container "<<contH0.name()<<std::endl;
+      for( std::vector<std::string>::const_iterator iN = contNames.begin();
+           iN != contNames.end(); ++iN ){
+	std::cout << "** Name: "<<*iN<<std::endl;
+      }
+    }
+    contNames.clear();
+    if(!contH1.getNames( contNames )){
+      std::cout << "** No names found for container "<<contH1.name()<<std::endl;
+    } else {
+      std::cout << "** Found "<<contNames.size()<<" names for container "<<contH1.name()<<std::endl;
       for( std::vector<std::string>::const_iterator iN = contNames.begin();
            iN != contNames.end(); ++iN ){
 	std::cout << "** Name: "<<*iN<<std::endl;
@@ -130,7 +144,7 @@ int main(){
 
     trans1.commit();
     trans1.start( false );
-    //db.drop();
+    db.drop();
     trans1.commit();
     db.disconnect();
   } catch ( const ora::Exception& exc ){

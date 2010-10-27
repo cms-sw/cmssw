@@ -165,6 +165,7 @@ namespace ora {
     explicit OraNamingServiceTable( coral::ISchema& dbSchema );
     virtual ~OraNamingServiceTable();
     void setObjectName( const std::string& name, int contId, int itemId );
+    bool eraseObjectName( const std::string& name );
     bool getObjectByName( const std::string& name, std::pair<int,int>& destination );
     bool getNamesForObject( int contId, int itemId, std::vector<std::string>& destination );
     bool getNamesForContainer( int contId, std::vector<std::string>& destination );
