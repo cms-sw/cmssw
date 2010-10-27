@@ -6,6 +6,7 @@
 #include "CondFormats/HIObjects/interface/CentralityTable.h"
 #include "CondFormats/DataRecord/interface/HeavyIonRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/CodedException.h"
 
 class CentralityProvider : public CentralityBins {
 
@@ -13,7 +14,7 @@ class CentralityProvider : public CentralityBins {
   CentralityProvider(const edm::EventSetup& iSetup);
   ~CentralityProvider(){;}
 
-  enum VariableType {HFtowers,HFhits,PixelHits,Tracks,PixelTracks,EB,EE,Missing};
+  enum VariableType {HFtowers,HFhits,PixelHits,PixelTracks,Tracks,EB,EE,Missing};
 
   int getNbins() const {return table_.size();}
   double centralityValue(const edm::Event& ev) const;
@@ -55,10 +56,14 @@ CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup) :
     if(centralityVariable_.compare("HFtowers") == 0) varType_ = HFtowers;
     if(centralityVariable_.compare("HFhits") == 0) varType_ = HFhits;
     if(centralityVariable_.compare("PixelHits") == 0) varType_ = PixelHits;
-    if(centralityVariable_.compare("Tracks") == 0) varType_ = Tracks;
     if(centralityVariable_.compare("PixelTracks") == 0) varType_ = PixelTracks;
+    if(centralityVariable_.compare("Tracks") == 0) varType_ = Tracks;
+    if(centralityVariable_.compare("EB") == 0) varType_ = EB;
+    if(centralityVariable_.compare("EE") == 0) varType_ = EE;
     if(varType_ == Missing){
-       // edm::Exception
+      std::string errorMessage="Requested Centrality variable does not exist : "+centralityVariable_+"\n" +
+	"Supported variables are: \n" + "HFtowers HFhits PixelHits PixelTracks Tracks EB EE" + "\n";
+      throw cms::Exception("Configuration",errorMessage);
     }
     if(hiPset.exists("nonDefaultGlauberModel")){
        centralityMC_ = hiPset.getParameter<std::string>("nonDefaultGlauberModel");
@@ -99,16 +104,20 @@ void CentralityProvider::newRun(const edm::EventSetup& iSetup){
   }
 }
 
-
 void CentralityProvider::print(){
-
    std::cout<<"Number of bins : "<<table_.size()<<std::endl;
    for(unsigned int j = 0; j < table_.size(); ++j){
       std::cout<<"Bin : "<<j<<std::endl;
       std::cout<<"Bin Low Edge : "<<table_[j].bin_edge <<std::endl;
       std::cout<<"Npart Mean : "<<table_[j].n_part_mean <<std::endl;
+      std::cout<<"Npart RMS  : "<<table_[j].n_part_var <<std::endl;
+      std::cout<<"Ncoll Mean : "<<table_[j].n_coll_mean <<std::endl;
+      std::cout<<"Ncoll RMS  : "<<table_[j].n_coll_var <<std::endl;
+      std::cout<<"Nhard Mean : "<<table_[j].n_hard_mean <<std::endl;
+      std::cout<<"Nhard RMS  : "<<table_[j].n_hard_var <<std::endl;
+      std::cout<<"b Mean     : "<<table_[j].b_mean <<std::endl;
+      std::cout<<"b RMS      : "<<table_[j].b_var <<std::endl;
    }
-
 }
 
 double CentralityProvider::centralityValue(const edm::Event& ev) const {
@@ -118,6 +127,8 @@ double CentralityProvider::centralityValue(const edm::Event& ev) const {
   if(varType_ == PixelHits) var = chandle_->multiplicityPixel();
   if(varType_ == PixelTracks) var = chandle_->NpixelTracks();
   if(varType_ == Tracks) var = chandle_->Ntracks();
+  if(varType_ == EB) var = chandle_->EtEBSum();
+  if(varType_ == EE) var = chandle_->EtEESum();
 
   return var;
 }
