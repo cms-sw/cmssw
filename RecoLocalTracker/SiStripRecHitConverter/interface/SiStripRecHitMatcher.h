@@ -172,6 +172,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
   // hits in both mono and stero
   // match
   bool notk = trdir.mag2()<FLT_MIN;
+  // FIXME we shall find a faster approximation for trdir: not useful to compute it each time for each strip
   
   // stripdet = mono
   // partnerstripdet = stereo
@@ -220,6 +221,15 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     LocalPoint positiononGluedini=gluedDetInvTrans.toLocal(globalpointini);
     LocalPoint positiononGluedend=gluedDetInvTrans.toLocal(globalpointend); 
     
+   // in case of no track hypothesis assume a track from the origin through the center of the strip
+    if(notk){
+      LocalPoint lcenterofstrip=secondHit.localPositionFast();
+      GlobalPoint gcenterofstrip= partnerStripDetTrans.toGlobal(lcenterofstrip);
+      GlobalVector gtrackdirection=gcenterofstrip-GlobalPoint(0,0,0);
+      trdir=gluedDetInvTrans.toLocal(gtrackdirection);
+    }
+  
+
     Vec3F offset = trdir.basicVector().v * positiononGluedini.basicVector().v.get1(2)/trdir.basicVector().v.get1(2);
     
     

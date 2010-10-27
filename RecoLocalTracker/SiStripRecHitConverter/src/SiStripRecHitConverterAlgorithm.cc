@@ -239,14 +239,7 @@ match(products& output, LocalVector trackdirection) const
     
     edmNew::DetSet<SiStripRecHit2D> stereoHits = *itStereoDet;
     
-    // Make simple collection of this (gp:FIXME: why do we need it?)
-    SiStripRecHitMatcher::SimpleHitCollection stereoSimpleHits;
-    // gp:FIXME: use std::transform 
-    stereoSimpleHits.reserve(stereoHits.size());
-    for (edmNew::DetSet<SiStripRecHit2D>::const_iterator it = stereoHits.begin(), ed = stereoHits.end(); it != ed; ++it) {
-      stereoSimpleHits.push_back(&*it);
-    }
-    
+     
     // Get ready for making glued hits
     const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker->idToDet(DetId(specDetId.glued()));
     typedef SiStripMatchedRecHit2DCollection::FastFiller Collector;
@@ -270,6 +263,14 @@ match(products& output, LocalVector trackdirection) const
     regional = chelper.regional;
     nmatch = chelper.nmatch;
 #else 
+   // Make simple collection of this (gp:FIXME: why do we need it?)
+    SiStripRecHitMatcher::SimpleHitCollection stereoSimpleHits;
+    // gp:FIXME: use std::transform 
+    stereoSimpleHits.reserve(stereoHits.size());
+    for (edmNew::DetSet<SiStripRecHit2D>::const_iterator it = stereoHits.begin(), ed = stereoHits.end(); it != ed; ++it) {
+      stereoSimpleHits.push_back(&*it);
+    }
+
     for (edmNew::DetSet<SiStripRecHit2D>::const_iterator it = rphiHits.begin(), ed = rphiHits.end(); it != ed; ++it) {
       matcher->match(&(*it),stereoSimpleHits.begin(),stereoSimpleHits.end(),collectorMatched,gluedDet,trackdirection);
       if (collectorMatched.size()>0){
