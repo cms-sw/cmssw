@@ -34,7 +34,8 @@ DTtTrigDBValidation::DTtTrigDBValidation(const ParameterSet& pset):
    metname("tTrigdbValidation"),
    labelDBRef(pset.getParameter<string>("labelDBRef")),
    labelDB(pset.getParameter<string>("labelDB")),
-   testCriterionName(pset.getParameter<string>("tTrigTestName")),
+   lowerLimit(pset.getUntrackedParameter<int>("lowerLimit",1)),
+   higherLimit(pset.getUntrackedParameter<int>("higherLimit",3)),
    outputMEsInRootFile(pset.getUntrackedParameter<bool>("OutputMEsInRootFile",false)),
    outputFileName(pset.getUntrackedParameter<string>("OutputFileName","tTrigDBMonitoring.root"))
  {
@@ -65,7 +66,6 @@ void DTtTrigDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
   //book&reset the summary histos
   for(int wheel=-2; wheel<=2; wheel++){
     bookHistos(wheel);
-    wheelSummary[wheel]->Reset();
     tTrigDiffWheel[wheel]->Reset();
   }
 
@@ -140,40 +140,22 @@ void DTtTrigDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
 
       int slBin = entry + (*it).first.superLayer();
       if(slBin == 12) slBin=11;	
+
+      tTrigDiffHistos[make_pair(wheel,sector)]->setBinContent(slBin, difference);
+      if(abs(difference)<lowerLimit){
+	tTrigDiffWheel[wheel]->setBinContent(slBin,sector,1);
+      }else if(abs(difference)<higherLimit){
+	tTrigDiffWheel[wheel]->setBinContent(slBin,sector,2);
+      }else{
+	tTrigDiffWheel[wheel]->setBinContent(slBin,sector,3);
+      }
 	
-      tTrigDiffHistos[make_pair(wheel,sector)]->setBinContent(slBin, difference);	
-      tTrigDiffWheel[wheel]->setBinContent(slBin,sector,difference);
 
   } // Loop over the tTrig map reference
   
 }
 
-void DTtTrigDBValidation::endRun(edm::Run const& run, edm::EventSetup const& setup) {
-
-  //check the histos
-  for(map<pair<int,int>, MonitorElement*>::const_iterator hDiff = tTrigDiffHistos.begin();
-      hDiff != tTrigDiffHistos.end();
-      hDiff++) {
-      const QReport * theDiffQReport = (*hDiff).second->getQReport(testCriterionName);
-      if(theDiffQReport) {
-        vector<dqm::me_util::Channel> badChannels = theDiffQReport->getBadChannels();
-        for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	    channel != badChannels.end(); channel++) {
-	  LogVerbatim(metname) << "Bad mean channel: wh: " << (*hDiff).first.first
-			   << " st: " << stationFromBin((*channel).getBin())
-			   << " sect: " << (*hDiff).first.second
-			   << " sl: " << slFromBin((*channel).getBin())
-			   << " mean : " << (*channel).getContents();
-
-	  int xBin = (stationFromBin((*channel).getBin())-1)*3+slFromBin((*channel).getBin());
-	  if(xBin==12) xBin=11;
-	  wheelSummary[(*hDiff).first.first]->Fill(xBin,(*hDiff).first.second);
-        }
-        LogVerbatim(metname) << "-------- Wheel, Sector: "<< (*hDiff).first.first << ", " << (*hDiff).first.second << "  " << theDiffQReport->getMessage() << " ------- " << theDiffQReport->getStatus(); 
-	
-    }
-  }
-}
+void DTtTrigDBValidation::endRun(edm::Run const& run, edm::EventSetup const& setup) {}
 
 void DTtTrigDBValidation::endJob(){
 
@@ -234,19 +216,7 @@ void DTtTrigDBValidation::bookHistos(int wheel) {
   tTrigDiffWheel[wheel]->setBinLabel(10,"MB4_SL1",1);
   tTrigDiffWheel[wheel]->setBinLabel(11,"MB4_SL3",1);
 
-  dbe->setCurrentFolder("DT/tTrigValidation/Summary");
-  wheelSummary[wheel]= dbe->book2D("summaryWrongTtrig_W"+wh.str(), "W"+wh.str()+": summary of wrong tTrig differences",11,1,12,14,1,15);
-  wheelSummary[wheel]->setBinLabel(1,"MB1_SL1",1);
-  wheelSummary[wheel]->setBinLabel(2,"MB1_SL2",1);
-  wheelSummary[wheel]->setBinLabel(3,"MB1_SL3",1);
-  wheelSummary[wheel]->setBinLabel(4,"MB2_SL1",1);
-  wheelSummary[wheel]->setBinLabel(5,"MB2_SL2",1);
-  wheelSummary[wheel]->setBinLabel(6,"MB2_SL3",1);
-  wheelSummary[wheel]->setBinLabel(7,"MB3_SL1",1);
-  wheelSummary[wheel]->setBinLabel(8,"MB3_SL2",1);
-  wheelSummary[wheel]->setBinLabel(9,"MB3_SL3",1);
-  wheelSummary[wheel]->setBinLabel(10,"MB4_SL1",1);
-  wheelSummary[wheel]->setBinLabel(11,"MB4_SL3",1);
+
 }
 
 

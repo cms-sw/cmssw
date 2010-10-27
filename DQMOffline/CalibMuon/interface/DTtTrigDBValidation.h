@@ -44,7 +44,9 @@ private:
   std::string labelDBRef;
   std::string labelDB;
 
-  std::string testCriterionName;
+  int lowerLimit;
+  int higherLimit;
+
   // The file which will contain the difference plots
   bool outputMEsInRootFile;
   std::string outputFileName;
@@ -60,9 +62,6 @@ private:
   // Map of the tTrig difference histos by (wheel,sector)
   std::map<std::pair<int,int>, MonitorElement* > tTrigDiffHistos;
   std::map<int, MonitorElement* > tTrigDiffWheel;
-
-  // summary histos
-  std::map<int, MonitorElement* > wheelSummary;
 
   void bookHistos(int,int);
   void bookHistos(int wheel);
