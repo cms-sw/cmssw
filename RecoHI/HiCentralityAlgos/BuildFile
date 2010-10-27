@@ -17,7 +17,6 @@
 <use name=CondCore/DBCommon>
 <use name=CondCore/DBOutputService>
 <use name=CondCore/PopCon>
-<use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/TrackerGeometryBuilder>
 
