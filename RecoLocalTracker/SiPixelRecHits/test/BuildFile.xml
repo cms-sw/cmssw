@@ -1,3 +1,4 @@
 <bin file="VVIObj_t.cpp">
 <use name="rootmath"/> 
+<use name="boost"/>
 </bin>
