@@ -41,7 +41,7 @@ public:
 
   // optimized matching iteration (the algo is the same, just recoded)
   template<typename MonoIterator, typename StereoIterator,  typename CollectorHelper>
-  void doubleMatch(MonoIterator monoRHinter, MonoIterator monoRHend,
+  void doubleMatch(MonoIterator monoRHiter, MonoIterator monoRHend,
 		   StereoIterator seconditer, StereoIterator seconditerend,
 		   const GluedGeomDet* gluedDet,  LocalVector const & trdir, 
 		   CollectorHelper & collectorHelper) const;
@@ -138,9 +138,9 @@ public:
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
 
-
+#include "DataFormats/GeometryVector/interface/BasicVector3D.h"
 #include "DataFormats/Math/interface/SSEVec.h"
-#ifdef CMS_USE_SSE
+#ifdef USE_SSEVECT
 #define DOUBLE_MATCH
 #endif
 
@@ -157,7 +157,7 @@ namespace matcherDetails {
 }
 
 template<typename MonoIterator, typename StereoIterator,  typename CollectorHelper>
-void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHinter, MonoIterator monoRHend,
+void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator monoRHend,
 				       StereoIterator seconditer, StereoIterator seconditerend,
 				       const GluedGeomDet* gluedDet,	LocalVector const & trdir, 
 				       CollectorHelper & collectorHelper) const{
@@ -299,12 +299,12 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHinter, MonoIterator mo
     double sigmap12 = monoRH.sigmaPitch();
     if (sigmap12<0) {
       
-      LocalError tmpError(monoRH->localPositionErrorFast());
+      LocalError tmpError(monoRH.localPositionErrorFast());
       HelpertRecHit2DLocalPos::updateWithAPE(tmpError,*stripdet);
-      MeasurementError errormonoRH=topol.measurementError(monoRH->localPositionFast(),tmpError);
+      MeasurementError errormonoRH=topol.measurementError(monoRH.localPositionFast(),tmpError);
       
-      double pitch=topol.localPitch(monoRH->localPositionFast());
-      monoRH->setSigmaPitch(sigmap12=errormonoRH.uu()*pitch*pitch);
+      double pitch=topol.localPitch(monoRH.localPositionFast());
+      monoRH.setSigmaPitch(sigmap12=errormonoRH.uu()*pitch*pitch);
     }
     //float code
     Vec3F scc1(s1, c1, c1, 0);
