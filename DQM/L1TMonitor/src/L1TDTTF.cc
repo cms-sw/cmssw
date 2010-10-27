@@ -1,11 +1,14 @@
 /*
  * \file L1TDTTF.cc
  *
- * $Date: 2010/10/19 12:14:56 $
- * $Revision: 1.23 $
+ * $Date: 2010/10/27 08:08:52 $
+ * $Revision: 1.24 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTF.cc,v $
+ * Revision 1.24  2010/10/27 08:08:52  gcodispo
+ * Graphic improvements (names, titles, labels...)
+ *
  * Revision 1.23  2010/10/19 12:14:56  gcodispo
  * New DTTF DQM version
  * - added L1TDTTFClient in order to use proper normalization
@@ -60,6 +63,9 @@
  * DQM core migration.
  *
  * $Log: L1TDTTF.cc,v $
+ * Revision 1.24  2010/10/27 08:08:52  gcodispo
+ * Graphic improvements (names, titles, labels...)
+ *
  * Revision 1.23  2010/10/19 12:14:56  gcodispo
  * New DTTF DQM version
  * - added L1TDTTFClient in order to use proper normalization
@@ -308,7 +314,7 @@ void L1TDTTF::beginJob(void)
       dbe_->setCurrentFolder(dttf_trk_folder_wheel_2ndtrack);
 
       /// quality per wheel  2ND TRACK // GC: eventually remove
-      sprintf(hname, "dttf_quality_occupancy_wh%s_2ndTrack", c_whn[iwh]);
+      sprintf(hname, "dttf_quality_summary_wh%s_2ndTrack", c_whn[iwh]);
       sprintf(htitle, "Wheel %s - 2nd Tracks - Quality", c_whn[iwh]);
       dttf_quality_wheel_2ndTrack[iwh] = dbe_->book2D(hname, htitle,
 						      12, 1, 13, 7, 1, 8 );

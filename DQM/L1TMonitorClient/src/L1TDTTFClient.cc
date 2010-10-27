@@ -1,8 +1,8 @@
 /*
  * \file L1TDTTFClient.cc
  *
- * $Date: 2010/10/19 12:17:41 $
- * $Revision: 1.1 $
+ * $Date: 2010/10/27 08:09:40 $
+ * $Revision: 1.3 $
  * \author G. Codispoti
  *
  */
@@ -478,7 +478,7 @@ void L1TDTTFClient::makeSummary()
     /// buildHigh Quality Summary Plot
     TH2F * ratio = dttf_occupancySummary_2ndTrack->getTH2F();
     buildHighQualityPlot( ratio, dttf_highQual_Summary_2ndTrack,
-			  "%s/2ND_TRACK_ONLY/dttf_quality_occupancy_wh%s_2ndTrack" );
+			  "%s/2ND_TRACK_ONLY/dttf_quality_summary_wh%s_2ndTrack" );
 
     normalize( dttf_2ndTrack_Summary->getTH2F(), scale ); //
 
