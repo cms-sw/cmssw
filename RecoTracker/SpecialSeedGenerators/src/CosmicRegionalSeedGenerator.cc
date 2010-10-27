@@ -132,7 +132,9 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
       
       if (!outer.isValid()) 
 	{
-	  edm::LogError("CosmicRegionalSeedGenerator") << "Trajectory state on surface not valid" ;
+	  //Temporary fix
+	  //edm::LogError("CosmicRegionalSeedGenerator") << "Trajectory state on surface not valid" ;
+	  LogDebug("CosmicRegionalSeedGenerator") << "Trajectory state on surface not valid" ;
 	  continue;
 	}
 
@@ -257,7 +259,9 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
       
       if (!outer.isValid()) 
 	{
-	  edm::LogError("CosmicRegionalSeedGenerator") << "Trajectory state on surface not valid" ;
+	  //Temporary fix
+	  //edm::LogError("CosmicRegionalSeedGenerator") << "Trajectory state on surface not valid" ;
+	  LogDebug("CosmicRegionalSeedGenerator") << "Trajectory state on surface not valid" ;
 	  continue;
 	}
 
