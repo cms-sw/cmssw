@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.34 2010/09/21 11:39:03 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.35 2010/10/20 20:09:23 amraktad Exp $
 //
 
 // system include files
@@ -188,6 +188,7 @@ FWColorManager::FWColorManager(FWModelChangeManager* iManager):
    m_background(kBlack),
    m_foreground(kWhite),
    m_changeManager(iManager),
+   m_startColorIndex(0),
    m_numColorIndices(0),
    m_geomTransparency2D(50),
    m_geomTransparency3D(90)
