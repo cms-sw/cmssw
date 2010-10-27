@@ -141,11 +141,17 @@ namespace {
       return *iter;
     }
     
-    void add(SiStripMatchedRecHit2D & h) { m_collectorMatched.push_back(h);}
-    
-    SiStripRecHitMatcher::Collector & collector() {
-      return SiStripRecHitMatcher::Collector(boost::bind(&CollectorHelper::add,this,_1));
+    struct Add {
+      Add(CollectorHelper& ih) : h(ih){}
+      CollectorHelper& h;
+      void operator()(SiStripMatchedRecHit2D const & rh) { h.m_collectorMatched.push_back(rh);}
+    };
+
+    CollectorHelper & collector() {
+      return *this;
     }
+
+   void operator()(SiStripMatchedRecHit2D const & rh) {m_collectorMatched.push_back(rh);}
 
 
     CollectorHelper(
@@ -260,7 +266,7 @@ match(products& output, LocalVector trackdirection) const
 		    matchedSteroClusters,matchedSteroClustersRegional
 		    );
     matcher->doubleMatch(rphiHits.begin(), rphiHits.end(), 
-			 stereoSimpleHits.begin(),stereoSimpleHits.end(),gluedDet,trackdirection,chelper);
+			 stereoHits.begin(),stereoHits.end(),gluedDet,trackdirection,chelper);
     regional = chelper.regional;
     nmatch = chelper.nmatch;
 #else 
