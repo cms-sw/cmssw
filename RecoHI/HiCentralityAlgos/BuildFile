@@ -17,6 +17,10 @@
 <use name=CondCore/DBCommon>
 <use name=CondCore/DBOutputService>
 <use name=CondCore/PopCon>
+<use name=Geometry/CaloEventSetup>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/TrackerGeometryBuilder>
+
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoHIHiCentralityAlgos>
