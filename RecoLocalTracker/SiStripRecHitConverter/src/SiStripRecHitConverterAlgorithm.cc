@@ -160,8 +160,8 @@ namespace {
     
     
     void closure(edmNew::DetSet<SiStripRecHit2D>::const_iterator it) {
-      if (collectorMatched.size()>0){
-	nmatch+=collectorMatched.size();
+      if (!m_collectorMatched.rmpty()){
+	nmatch+=m_collectorMatched.size();
 	for (edm::OwnVector<SiStripMatchedRecHit2D>::const_iterator itm = m_collectorMatched.begin(),
 	       edm = m_collectorMatched.end();
 	     itm != edm; 
@@ -180,9 +180,7 @@ namespace {
 	// store a copy of this rphi hit as an unmatched rphi hit
 	m_fillerRphiUnm.push_back(*it);
       }
-      return regional;
     }
-
   };
 }
 
@@ -252,7 +250,17 @@ match(products& output, LocalVector trackdirection) const
     matchedSteroClusters.clear();          // at the beginning, empty
     matchedSteroClustersRegional.clear();  // I need two because the refs can be different
     bool regional = false;                 // I also want to remember if they come from standard or HLT reco
-    
+
+#ifdef DOUBLE_MATCH
+    CollectorHelper chelper(collector, collectorMatched,
+		    fillerRphiUnm,
+		    matchedSteroClusters,matchedSteroClustersRegional
+		    );
+    matcher->doubleMatch(rphiHits.begin(), rphiHits.end(), 
+			 stereoSimpleHits.begin(),stereoSimpleHits.end(),gluedDet,trackdirection,chelper);
+    regional = chelper.regional;
+    nmatch = chelper.nmatch;
+#else 
     for (edmNew::DetSet<SiStripRecHit2D>::const_iterator it = rphiHits.begin(), ed = rphiHits.end(); it != ed; ++it) {
       matcher->match(&(*it),stereoSimpleHits.begin(),stereoSimpleHits.end(),collectorMatched,gluedDet,trackdirection);
       if (collectorMatched.size()>0){
@@ -277,6 +285,9 @@ match(products& output, LocalVector trackdirection) const
       }
     }
     
+#endif
+
+
     // discard matched hits if the collection is empty
     if (collector.empty()) collector.abort();
     

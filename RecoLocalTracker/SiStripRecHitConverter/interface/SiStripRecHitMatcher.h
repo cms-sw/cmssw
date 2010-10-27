@@ -189,7 +189,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHinter, MonoIterator mo
   
   
   std::vector<StereoInfo> cache;
-  cache.reserve(simpleSteroHitsByValue.size());
+  cache.reserve(std::distance(seconditer,seconditerend));
   //iterate on stereo rechits
   // fill cache with relevant info
   for (;seconditer!=seconditerend; ++seconditer){
@@ -241,7 +241,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHinter, MonoIterator mo
   
   for (;monoRHiter != monoRHend; ++monoRHiter) {
     
-    SiStripRecHit2D const & monoRH = CollectorHelper::monoHit(monoRHiter);
+    SiStripRecHit2D const & monoRH = CollectorHelper::monoHit(monoHRiter);
     
     // position of the initial and final point of the strip (RPHI cluster) in local strip coordinates
     double RPHIpointX = topol.measurementPosition(monoRH.localPositionFast()).x();
