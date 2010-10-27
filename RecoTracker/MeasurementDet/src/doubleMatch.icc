@@ -63,7 +63,7 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
   LocalVector trdir = (ts.isValid() ? ts.localDirection() : surface().toLocal( position()-GlobalPoint(0,0,0)));
 
   CollectorHelper<Collector> chelper(collector);
-  matcher->doubleMatch(monoHits.begin(), monoHits.end(),
+  theMatcher->doubleMatch(monoHits.begin(), monoHits.end(),
 		       simpleSteroHitsByValue.begin(),  simpleSteroHitsByValue.end(), 
 		       gluedDet, trdir, chelper);
 }

@@ -140,7 +140,9 @@ namespace {
       return *iter;
     }
 
-   CollectorMatched & collector() { return m_collectorMatched;}
+   SiStripRecHitMatcher::Collector & collector() { 
+     return SiStripRecHitMatcher::Collector(boost::bind(&CollectorMatched::push_back,boost::ref(m_collectorMatched),_1));
+   }
 
 
     CollectorHelper(
@@ -156,11 +158,9 @@ namespace {
 			m_matchedSteroClusters(i_matchedSteroClusters),
 			m_matchedSteroClustersRegional(i_matchedSteroClustersRegional)
     {}
-
-    
     
     void closure(edmNew::DetSet<SiStripRecHit2D>::const_iterator it) {
-      if (!m_collectorMatched.rmpty()){
+      if (!m_collectorMatched.empty()){
 	nmatch+=m_collectorMatched.size();
 	for (edm::OwnVector<SiStripMatchedRecHit2D>::const_iterator itm = m_collectorMatched.begin(),
 	       edm = m_collectorMatched.end();

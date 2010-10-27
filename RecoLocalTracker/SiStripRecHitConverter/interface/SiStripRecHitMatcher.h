@@ -43,7 +43,7 @@ public:
   template<typename MonoIterator, typename StereoIterator,  typename CollectorHelper>
   void doubleMatch(MonoIterator monoRHiter, MonoIterator monoRHend,
 		   StereoIterator seconditer, StereoIterator seconditerend,
-		   const GluedGeomDet* gluedDet,  LocalVector const & trdir, 
+		   const GluedGeomDet* gluedDet,  LocalVector trdir, 
 		   CollectorHelper & collectorHelper) const;
   
   
@@ -159,7 +159,7 @@ namespace matcherDetails {
 template<typename MonoIterator, typename StereoIterator,  typename CollectorHelper>
 void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator monoRHend,
 				       StereoIterator seconditer, StereoIterator seconditerend,
-				       const GluedGeomDet* gluedDet,	LocalVector const & trdir, 
+				       const GluedGeomDet* gluedDet,	LocalVector trdir, 
 				       CollectorHelper & collectorHelper) const{
   
   using  matcherDetails::StereoInfo;  
