@@ -20,10 +20,6 @@ int main(int argc, char *argv[])
   if (argc < 2) {
     std::cout << "This program does nothing unless it is given a command line argument.\n";
     std::cout << "The argument should be the name of an xml configuration file.\n";
-    std::cout << "It is intentional this does nothing when run as part of the unit tests.\n";
-    std::cout << "It is not a test.  We only put it in the test directory because it is\n";
-    std::cout << "not of general use and so does not belong in the bin directory.\n";
-    std::cout << "There is currently no other place to put it.\n";
     return 0;
   }
 
