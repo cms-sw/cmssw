@@ -25,8 +25,7 @@ namespace edm {
      */
     static int s_numberOfInstances;
 
-    struct Rule 
-    {
+    struct Rule {
       boost::regex pathMatch;
       boost::regex destinationMatch;
       std::string result;
@@ -38,7 +37,7 @@ namespace edm {
 
     void init(std::string const& catUrl, bool fallback);
 
-    void parseRule(xercesc::DOMNode *ruleNode,
+    void parseRule(xercesc::DOMNode* ruleNode,
                    ProtocolRules& rules);
 
     std::string applyRules(ProtocolRules const& protocolRules,
@@ -47,12 +46,12 @@ namespace edm {
                            bool direct,
                            std::string name) const;
 
-    std::string convert(const std::string &input, const ProtocolRules &rules, bool direct) const;
+    std::string convert(std::string const& input, ProtocolRules const& rules, bool direct) const;
 
     /** Direct rules are used to do the mapping from LFN to PFN.*/
-    ProtocolRules   m_directRules;
+    ProtocolRules m_directRules;
     /** Inverse rules are used to do the mapping from PFN to LFN*/
-    ProtocolRules   m_inverseRules;
+    ProtocolRules m_inverseRules;
 
     std::string                 m_fileType;
     std::string                 m_filename;
