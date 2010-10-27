@@ -132,10 +132,6 @@ public:
 };
 
 
-#include "RecoTracker/MeasurementDet/interface/TkGluedMeasurementDet.h"
-#include "TrackingTools/MeasurementDet/interface/MeasurementDetException.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripMatchedRecHit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
 
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
@@ -145,6 +141,8 @@ public:
 #endif
 
 #ifdef DOUBLE_MATCH
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+
 namespace matcherDetails {  
   
   struct StereoInfo {
