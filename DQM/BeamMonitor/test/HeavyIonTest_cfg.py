@@ -55,6 +55,12 @@ process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
 process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
 process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND ( 40 OR 41 )')
 
+# Select pp-like events based on the pixel cluster multiplicity
+import  HLTrigger.special.hltPixelActivityFilter_cfi
+process.HLTPixelActivityFilterForOnlineBeamspot = HLTrigger.special.hltPixelActivityFilter_cfi.hltPixelActivityFilter.clone()
+process.HLTPixelActivityFilterForOnlineBeamspot.maxClusters = cms.uint32(200)
+process.HLTPixelActivityFilterForOnlineBeamspot.inputTag  = 'siPixelClusters'
+
 # remove beam scraping events
 process.noScraping= cms.EDFilter("FilterOutScraping",
     applyfilter = cms.untracked.bool(True),
@@ -120,16 +126,18 @@ process.RecoForDQM_FirstStep = cms.Sequence(
     process.recopixelvertexing*
     process.firstStep)
 
+# Needed, as the event content is different!
 process.dqmBeamMonitor.BeamFitter.TrackCollection = \
-        cms.untracked.InputTag('firstStepTracksWithQuality')
+        cms.untracked.InputTag('hiSelectedTracks')
 
 process.pp = cms.Path(
     process.dqmTKStatus*
+    process.HLTPixelActivityFilterForOnlineBeamspot *
     # Turn off trigger for MC
     #process.hltLevel1GTSeed*
     #process.phystrigger*
-    process.pretracking_step*
-    process.RecoForDQM_FirstStep*
+    #process.pretracking_step*
+    #process.RecoForDQM_FirstStep*
     process.dqmBeamMonitor+
     #process.dqmBeamMonitorBx+
     process.dqmEnv+
