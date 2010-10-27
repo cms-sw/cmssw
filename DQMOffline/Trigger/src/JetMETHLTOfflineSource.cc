@@ -1312,7 +1312,6 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 
       if(objectType != 0 && denomFound)
       {
-        cout<<"numerator module"<<endl; 
         std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(dpathname);
         for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin(); numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
 	  edm::InputTag testTag(*numpathmodule,"",processname_);
