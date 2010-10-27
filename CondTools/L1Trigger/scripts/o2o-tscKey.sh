@@ -19,10 +19,12 @@ shift $(($OPTIND - 1))
 # get argument
 key=$1
 
-release=CMSSW_3_8_2
+release=CMSSW_3_8_1_onlpatch4_ONLINE
 version=008
 
 echo "`date` : o2o-tscKey-slc5.sh $key" | tee -a /nfshome0/popcondev/L1Job/o2o-tscKey-${version}.log
+
+echo "whoami: `whoami`" | tee -a /nfshome0/popcondev/L1Job/o2o-tscKey-${version}.log
 
 if [ $# -lt 1 ]
     then
@@ -32,8 +34,12 @@ fi
 
 # set up environment variables
 cd /cmsnfshome0/nfshome0/popcondev/L1Job/${release}/o2o
-export SCRAM_ARCH=slc5_ia32_gcc434
-source /nfshome0/cmssw2/scripts/setup.sh
+
+export SCRAM_ARCH=""
+export VO_CMS_SW_DIR=""
+source /opt/cmssw/cmsset_default.sh
+#export SCRAM_ARCH=slc5_ia32_gcc434
+#source /nfshome0/cmssw2/scripts/setup.sh
 eval `scramv1 run -sh`
 
 # Check for semaphore file

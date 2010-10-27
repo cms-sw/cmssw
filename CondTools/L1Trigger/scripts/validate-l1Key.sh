@@ -6,7 +6,7 @@
 # Environment
 #==============================================================================
 
-release=CMSSW_3_8_2
+release=CMSSW_3_8_1_onlpatch4_ONLINE
 emulatorRelease=CMSSW_3_8_2
 version=008
 
@@ -32,32 +32,32 @@ summaryFile=/nfshome0/popcondev/L1Job/o2o.summary
 logFile=/nfshome0/popcondev/L1Job/validate-l1Key-${version}.log
 
 #==============================================================================
-# Last creation date validated, its L1 key, and its status are contained in the
+# Last ID validated, its L1 key, and its status are contained in the
 # file last.txt. If the validation was failed, the contents are e.g.
-# 2010.08.19_16:28:59_730020000 TSC_20100818_002298_cosmics_BASE failed
+# L1_20100904_125311_2508 TSC_20100904_002309_cosmics_BASE failed
 # Otherwise, the contents are e.g.
-# 2010.08.19_16:28:59_730020000 TSC_20100818_002298_cosmics_BASE successful
-# Read in the last creation date validated, its L1 key, and its status. If the
-# status was successful, assume all of the L1 keys for the previous creation
-# dates were validated successfully already and move forward. Otherwise, do
+# L1_20100904_125311_2508 TSC_20100904_002309_cosmics_BASE successful
+# Read in the last ID validated, its L1 key, and its status. If the
+# status was successful, assume all of the L1 keys for the previous IDs
+# were validated successfully already and move forward. Otherwise, do
 # nothing and exit, and when we manually check the summary file and the log
 # file, we will find out that we have a problem to solve.
 #==============================================================================
 
 last=`cat ${lastFile}`
 
-lastCreationDate=`echo ${last} | cut -f 1 -d ' '`
+lastID=`echo ${last} | cut -f 1 -d ' '`
 lastTscKey=`echo ${last} | cut -f 2 -d ' '`
 lastStatus=`echo ${last} | cut -f 3 -d ' '`
 
 if [ $lastStatus == "failed" ]
     then
-    echo "Last validated key failed: ${lastCreationDate} ${lastTscKey}" > ${summaryFile}
+#    echo "Last validated key failed: ${lastID} ${lastTscKey}" > ${summaryFile}
     exit
 fi
 
 #==============================================================================
-# In the case that last creation date was validated as successful, we move
+# In the case that last ID was validated as successful, we move
 # forward, look for the first of the next new L1 keys which has not been
 # validated yet.
 #==============================================================================
@@ -68,29 +68,34 @@ fi
 
 #cd ~zrwan/CMSSW_3_5_0/cronjob
 cd /nfshome0/popcondev/L1Job/${release}/validate-l1Key
-source /nfshome0/cmssw2/scripts/setup.sh
+
+export SCRAM_ARCH=""
+export VO_CMS_SW_DIR=""
+source /opt/cmssw/cmsset_default.sh
+#source /nfshome0/cmssw2/scripts/setup.sh
 eval `scramv1 run -sh`
 
-#next=`~zrwan/CMSSW_3_5_0/cronjob/getNext.sh ${lastCreationDate}`
-next=`$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getNextTscKeyByTimestamp.sh ${lastCreationDate}`
+#next=`~zrwan/CMSSW_3_5_0/cronjob/getNext.sh ${lastID}`
+next=`$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getNextTscKeyByID.sh ${lastID}`
 
-creation_date=`echo $next | cut -f 1 -d ' '`
+id=`echo $next | cut -f 1 -d ' '`
 tsc_key=`echo $next | cut -f 2 -d ' '`
 
-if [ -z $creation_date ]
+if [ -z $id ]
     then
 #    echo "`date` : validate-l1Key.sh" > ${summaryFile}
 #    echo "No new key to be validated" >> ${summaryFile}
+#    echo "Last ID ${lastID} key ${lastTscKey}" >> ${summaryFile}
     exit
 fi
 
 #==============================================================================
-# Up to this point, last creation date was validated as successful, and there
-# is a new creation date with a new L1 key to be validated.
+# Up to this point, last ID was validated as successful, and there
+# is a new ID with a new L1 key to be validated.
 #==============================================================================
 
 echo "`date` : validate-l1Key.sh" >> ${logFile}
-echo "creation_date = ${creation_date}" >> ${logFile}
+echo "id = ${id}" >> ${logFile}
 echo "tsc_key = ${tsc_key}" >> ${logFile}
 
 #==============================================================================
@@ -125,6 +130,10 @@ if [ ${o2ocode1} -eq 0 ]
     ln -sf /nfshome0/popcondev/L1Job/${release}/validate-l1Key/Raw.root .
     ln -sf $CMSSW_BASE/src/CondTools/L1Trigger/test/validate-l1Key.py .
 
+    export SCRAM_ARCH=""
+    export VO_CMS_SW_DIR=""
+    source /nfshome0/cmssw/scripts/setup.sh
+
     eval `scramv1 run -sh`
     cmsRun validate-l1Key.py >& temp.log
     o2ocode2=$?
@@ -145,7 +154,7 @@ rm -f /nfshome0/popcondev/L1Job/${release}/validate-l1Key/l1config.db
 
 o2ocode=`echo ${o2ocode1} + ${o2ocode2} | bc`
 
-echo "creation_date = ${creation_date}" >> ${logFile}
+echo "id = ${id}" >> ${logFile}
 echo "tsc_key = ${tsc_key}" >> ${logFile}
 echo "getConditions status ${o2ocode1}" >> ${logFile}
 echo "emulator status ${o2ocode2}" >> ${logFile}
@@ -159,17 +168,18 @@ fi
 echo "`date` : validate-l1Key.sh finished" >> ${logFile}
 
 tail -7 ${logFile} >> ${summaryFile}
+echo "" >> ${logFile}
 
 cat ${lastFile} >> ${lastFile}.done
 if [ ${o2ocode} -eq 0 ]
     then
-    echo "${creation_date} ${tsc_key} successful" > ${lastFile}
+    echo "${id} ${tsc_key} successful" > ${lastFile}
     # standard output goes to email
-    #echo "${creation_date} ${tsc_key} successful"
+    #echo "${id} ${tsc_key} successful"
 else
-    echo "${creation_date} ${tsc_key} failed" > ${lastFile}
+    echo "${id} ${tsc_key} failed" > ${lastFile}
     # standard output goes to email
-    #echo "${creation_date} ${tsc_key} failed"
+    #echo "${id} ${tsc_key} failed"
 fi
 
 exit ${o2ocode}

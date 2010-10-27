@@ -1,6 +1,9 @@
 #!/bin/sh
 
-source /nfshome0/cmssw2/scripts/setup.sh
+export SCRAM_ARCH=""
+export VO_CMS_SW_DIR=""
+source /opt/cmssw/cmsset_default.sh
+#source /nfshome0/cmssw2/scripts/setup.sh
 eval `scramv1 run -sh`
 export TNS_ADMIN=/nfshome0/popcondev/conddb
 

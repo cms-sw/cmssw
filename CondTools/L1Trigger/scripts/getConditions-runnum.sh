@@ -34,8 +34,11 @@ if [ -f l1config.db ]
     mv l1config.db l1config.db.save
 fi
 
-source /nfshome0/cmssw2/scripts/setup.sh
-export SCRAM_ARCH=slc5_ia32_gcc434
+export SCRAM_ARCH=""
+export VO_CMS_SW_DIR=""
+source /opt/cmssw/cmsset_default.sh
+#source /nfshome0/cmssw2/scripts/setup.sh
+#export SCRAM_ARCH=slc5_ia32_gcc434
 eval `scramv1 run -sh`
 
 echo "`date` : initializing sqlite file"
