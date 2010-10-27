@@ -1,30 +1,38 @@
-process = cms.Process('ANALYSIS')
+
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("TEST")
+
+process.HeavyIonGlobalParameters = cms.PSet(
+    centralityVariable = cms.string(""),
+    nonDefaultGlauberModel = cms.string("AMPT_2760GeV")
+    )
+
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = 'START38_V11T::All'
+
+process.GlobalTag.toGet = cms.VPSet(
+    cms.PSet(record = cms.string("HeavyIonRcd"),
+             tag = cms.string("CentralityTable_HFhits40_Hydjet2760GeV_v0_mc"),
+             connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS")
+             )
+    )
+
 
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(-1)
         )
 
-# Input source
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring("dcache:/pnfs/cmsaf.mit.edu/t2bat/cms/store/himc/Fall10/AMPT_Default_MinBias_2760GeV/GEN-SIM-RECO/MC_38Y_V12-v1/0002/F8E134B2-77D6-DF11-BFE1-001B243DE10F.root")
+                            fileNames = cms.untracked.vstring("rfio:/castor/cern.ch/user/y/yilmaz/share/Hydjet_MinBias_Jets_runs1to20.root")
                             )
 
-
-process.load('FrontierConditions_GlobalTag_Temp_cff')
-process.GlobalTag.globaltag = 'MC_38Y_V8::All'
-
-process.HeavyIonGlobalParameters = cms.PSet(
-    centralityVariable = cms.string("PixelHits"),
-    nonDefaultGlauberModel = cms.string("AMPT_2760GeV"),
-    centralitySrc = cms.InputTag("hiCentrality")
-    )
-
-
-process.ana = cms.EDAnalyzer('AnalyzerWithCentrality')
+process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
+process.analyze = cms.EDAnalyzer("AnalyzerWithCentrality")
 
 process.TFileService = cms.Service('TFileService',
-                                   fileName = cms.string('plots2.root')
+                                   fileName = cms.string("histograms.root")
                                    )
 
-process.p = cms.Path(process.ana)
+process.p = cms.Path(process.centralityBin*process.analyze)
 
