@@ -40,11 +40,11 @@ public:
   
 
   // optimized matching iteration (the algo is the same, just recoded)
-  template<typename SiStripRecHit2DIterator, typename SimpleHitIterator,  typename CollectorHelper>
-  void doubleMatch(SiStripRecHit2DIterator monoRHinter, SiStripRecHit2DIterator monoRHend,
-		   SimpleHitIterator seconditer, SimpleHitIterator seconditerend,
+  template<typename MonoIterator, typename StereoIterator,  typename CollectorHelper>
+  void doubleMatch(MonoIterator monoRHinter, MonoIterator monoRHend,
+		   StereoIterator seconditer, StereoIterator seconditerend,
 		   const GluedGeomDet* gluedDet,  LocalVector const & trdir, 
-		   CollectorHelper & collectorHelper);
+		   CollectorHelper & collectorHelper) const;
   
   
   
@@ -156,11 +156,11 @@ namespace matcherDetails {
   
 }
 
-template<typename SiStripRecHit2DIterator, typename SimpleHitIterator,  typename CollectorHelper>
-void SiStripRecHitMatcher::doubleMatch(SiStripRecHit2DIterator monoRHinter, SiStripRecHit2DIterator monoRHend,
-				       SimpleHitIterator seconditer, SimpleHitIterator seconditerend,
+template<typename MonoIterator, typename StereoIterator,  typename CollectorHelper>
+void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHinter, MonoIterator monoRHend,
+				       StereoIterator seconditer, StereoIterator seconditerend,
 				       const GluedGeomDet* gluedDet,	LocalVector const & trdir, 
-				       CollectorHelper & collectorHelper) {
+				       CollectorHelper & collectorHelper) const{
   
   using  matcherDetails::StereoInfo;  
   using  mathSSE::Vec3F;
