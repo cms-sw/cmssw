@@ -1,6 +1,9 @@
 #!/bin/sh
 
-source /nfshome0/cmssw2/scripts/setup.sh
+export SCRAM_ARCH=""
+export VO_CMS_SW_DIR=""
+source /opt/cmssw/cmsset_default.sh
+#source /nfshome0/cmssw2/scripts/setup.sh
 eval `scramv1 run -sh`
 export TNS_ADMIN=/nfshome0/popcondev/conddb
 
@@ -34,7 +37,7 @@ fi
 if [ ${xflag} -eq 0 ]
     then
     echo "Writing to sqlite_file:l1config.db instead of ORCON."
-    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSOnline_cfg.py runNumber=${runnum} tagBase=${tagbase}_hlt outputDBConnect=sqlite_file:l1config.db outputDBAuth=. ${overwrite} logTransactions=0 `$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh -r ${l1Key}` print
+    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSOnline_cfg.py runNumber=${runnum} tagBase=${tagbase}_hlt outputDBConnect=sqlite_file:l1config.db outputDBAuth=. ${overwrite} logTransactions=0 `$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh -r ${l1Key}` keysFromDB=0 print
     o2ocode=$?
     if [ ${o2ocode} -ne 0 ]
 	then
@@ -49,7 +52,7 @@ if [ ${xflag} -eq 0 ]
 	fi
     fi
 else
-    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSOnline_cfg.py runNumber=${runnum} tagBase=${tagbase}_hlt outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb ${overwrite} `$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh -r ${l1Key}` print
+    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSOnline_cfg.py runNumber=${runnum} tagBase=${tagbase}_hlt outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb ${overwrite} `$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh -r ${l1Key}` keysFromDB=0 print
     o2ocode=$?
     if [ ${o2ocode} -ne 0 ]
 	then
