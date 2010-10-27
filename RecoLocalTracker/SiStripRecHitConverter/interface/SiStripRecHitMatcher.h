@@ -142,6 +142,7 @@ public:
 
 #ifdef DOUBLE_MATCH
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 
 namespace matcherDetails {  
   
