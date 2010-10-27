@@ -3,10 +3,13 @@
 <bin   file="threadsafe.cpp" name="test_StorageFactory_threadsafe">
 </bin>
 <bin   file="t0Repack.cpp" name="test_StorageFactory_t0Repack">
+  <flags NO_TESTRUN="1"/>
 </bin>
 <bin   file="randomread.cpp" name="test_StorageFactory_randomread">
+  <flags NO_TESTRUN="1"/>
 </bin>
 <bin   file="any.cpp" name="test_StorageFactory_Any">
+  <flags NO_TESTRUN="1"/>
 </bin>
 <bin   file="local.cpp" name="test_StorageFactory_Local">
 </bin>
@@ -15,22 +18,27 @@
 <bin   file="local3.cpp" name="test_StorageFactory_Local3">
 </bin>
 <bin   file="ftp.cpp" name="test_StorageFactory_Ftp">
+  <flags NO_TESTRUN="1"/>
 </bin>
 <bin   file="ftp2.cpp" name="test_StorageFactory_Ftp2">
+  <flags NO_TESTRUN="1"/>
 </bin>
 <bin   file="http.cpp" name="test_StorageFactory_Http">
 </bin>
 <bin   file="http2.cpp" name="test_StorageFactory_Http2">
 </bin>
 <bin   file="http3.cpp" name="test_StorageFactory_Http3">
+  <flags NO_TESTRUN="1"/>
 </bin>
 <bin   file="http4.cpp" name="test_StorageFactory_Http4">
 </bin>
 <bin   file="rfio.cpp" name="test_StorageFactory_Rfio">
+  <flags NO_TESTRUN="1"/>
 </bin>
 <bin   file="rfio2.cpp" name="test_StorageFactory_Rfio2">
 </bin>
 <bin   file="rfio3.cpp" name="test_StorageFactory_Rfio3">
 </bin>
 <bin   file="write.cpp" name="test_StorageFactory_Write">
+  <flags NO_TESTRUN="1"/>
 </bin>
