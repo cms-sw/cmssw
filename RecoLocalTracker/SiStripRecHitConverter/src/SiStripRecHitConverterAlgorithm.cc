@@ -126,23 +126,26 @@ namespace {
     
     typedef edm::OwnVector<SiStripMatchedRecHit2D> CollectorMatched;
     typedef SiStripMatchedRecHit2DCollection::FastFiller Collector;
-
+    
     Collector & m_collector;
     CollectorMatched & m_collectorMatched;
     SiStripRecHit2DCollection::FastFiller & m_fillerRphiUnm;
     std::vector<SiStripRecHit2D::ClusterRef::key_type>         & m_matchedSteroClusters;
     std::vector<SiStripRecHit2D::ClusterRegionalRef::key_type> & m_matchedSteroClustersRegional;
-
-    static inline SiStripRecHit2D const & steroHit(edmNew::DetSet<SiStripRecHit2D>::const_iterator iter) {
+    
+    static inline SiStripRecHit2D const & stereoHit(edmNew::DetSet<SiStripRecHit2D>::const_iterator iter) {
       return *iter;
     }
+    
     static inline SiStripRecHit2D const & monoHit(edmNew::DetSet<SiStripRecHit2D>::const_iterator iter) {
       return *iter;
     }
-
-   SiStripRecHitMatcher::Collector & collector() { 
-     return SiStripRecHitMatcher::Collector(boost::bind(&CollectorMatched::push_back,boost::ref(m_collectorMatched),_1));
-   }
+    
+    void add(SiStripMatchedRecHit2D & h) { m_collectorMatched.push_back(h);}
+    
+    SiStripRecHitMatcher::Collector & collector() {
+      return SiStripRecHitMatcher::Collector(boost::bind(&CollectorHelper::add,this,_1));
+    }
 
 
     CollectorHelper(
