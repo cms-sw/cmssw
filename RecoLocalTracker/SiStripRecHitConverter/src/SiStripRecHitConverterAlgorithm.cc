@@ -117,6 +117,76 @@ run(edm::Handle<edm::RefGetter<SiStripCluster> >  refGetterhandle,
 }
 
 
+namespace {
+
+  struct CollectorHelper {
+    bool regional;
+    size_t nmatch;
+    
+    
+    typedef edm::OwnVector<SiStripMatchedRecHit2D> CollectorMatched;
+    typedef SiStripMatchedRecHit2DCollection::FastFiller Collector;
+
+    Collector & m_collector;
+    CollectorMatched & m_collectorMatched;
+    SiStripRecHit2DCollection::FastFiller & m_fillerRphiUnm;
+    std::vector<SiStripRecHit2D::ClusterRef::key_type>         & m_matchedSteroClusters;
+    std::vector<SiStripRecHit2D::ClusterRegionalRef::key_type> & m_matchedSteroClustersRegional;
+
+    static inline SiStripRecHit2D const & steroHit(edmNew::DetSet<SiStripRecHit2D>::const_iterator iter) {
+      return *iter;
+    }
+    static inline SiStripRecHit2D const & monoHit(edmNew::DetSet<SiStripRecHit2D>::const_iterator iter) {
+      return *iter;
+    }
+
+   CollectorMatched & collector() { return m_collectorMatched;}
+
+
+    CollectorHelper(
+		    Collector & i_collector,
+		    CollectorMatched & i_collectorMatched,
+		    SiStripRecHit2DCollection::FastFiller & i_fillerRphiUnm,
+		    std::vector<SiStripRecHit2D::ClusterRef::key_type>         & i_matchedSteroClusters,
+		    std::vector<SiStripRecHit2D::ClusterRegionalRef::key_type> & i_matchedSteroClustersRegional
+		    ) : regional(false), nmatch(0), 
+			m_collector(i_collector),
+			m_collectorMatched(i_collectorMatched),
+			m_fillerRphiUnm(i_fillerRphiUnm),
+			m_matchedSteroClusters(i_matchedSteroClusters),
+			m_matchedSteroClustersRegional(i_matchedSteroClustersRegional)
+    {}
+
+    
+    
+    void closure(edmNew::DetSet<SiStripRecHit2D>::const_iterator it) {
+      if (collectorMatched.size()>0){
+	nmatch+=collectorMatched.size();
+	for (edm::OwnVector<SiStripMatchedRecHit2D>::const_iterator itm = m_collectorMatched.begin(),
+	       edm = m_collectorMatched.end();
+	     itm != edm; 
+	     ++itm) {
+	  m_collector.push_back(*itm);
+	  // mark the stereo hit cluster as used, so that the hit won't go in the unmatched stereo ones
+	  if (itm->stereoHit()->cluster().isNonnull()) {
+	    m_matchedSteroClusters.push_back(itm->stereoHit()->cluster().key()); 
+	  } else {
+	    m_matchedSteroClustersRegional.push_back(itm->stereoHit()->cluster_regional().key()); 
+	    regional = true;
+	  }
+	}
+	m_collectorMatched.clear();
+      } else {
+	// store a copy of this rphi hit as an unmatched rphi hit
+	m_fillerRphiUnm.push_back(*it);
+      }
+      return regional;
+    }
+
+  };
+}
+
+
 void SiStripRecHitConverterAlgorithm::
 match(products& output, LocalVector trackdirection) const 
 {

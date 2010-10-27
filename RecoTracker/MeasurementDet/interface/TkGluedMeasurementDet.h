@@ -52,56 +52,59 @@ private:
   void collectRecHits(const TrajectoryStateOnSurface&, Collector &coll) const;
 
   class HitCollectorForRecHits {
-    public:
-       HitCollectorForRecHits(const GeomDet * geomDet, 
-                              const SiStripRecHitMatcher * matcher,
-                              RecHitContainer & target) ;
-       void add(SiStripMatchedRecHit2D const& hit) {
-           target_.push_back(
-                TSiStripMatchedRecHit::build( geomDet_, std::auto_ptr<TrackingRecHit>(hit.clone()), matcher_)
-           );
-           hasNewHits_ = true; 
-       }
-       void addProjected(const TransientTrackingRecHit& hit,
-                         const GlobalVector & gdir) ;
-       SiStripRecHitMatcher::Collector & collector() { return collector_; }
-       bool hasNewMatchedHits() const { return hasNewHits_;  }
-       void clearNewMatchedHitsFlag() { hasNewHits_ = false; }
-    private: 
-       const GeomDet              * geomDet_;
-       const SiStripRecHitMatcher * matcher_;
-       RecHitContainer       & target_;
-       SiStripRecHitMatcher::Collector collector_;       
-       bool hasNewHits_;
+  public:
+    typedef SiStripRecHitMatcher::Collector Collector;
+    HitCollectorForRecHits(const GeomDet * geomDet, 
+			   const SiStripRecHitMatcher * matcher,
+			   RecHitContainer & target) ;
+    void add(SiStripMatchedRecHit2D const& hit) {
+      target_.push_back(
+			TSiStripMatchedRecHit::build( geomDet_, std::auto_ptr<TrackingRecHit>(hit.clone()), matcher_)
+			);
+      hasNewHits_ = true; 
+    }
+    void addProjected(const TransientTrackingRecHit& hit,
+		      const GlobalVector & gdir) ;
+    SiStripRecHitMatcher::Collector & collector() { return collector_; }
+    bool hasNewMatchedHits() const { return hasNewHits_;  }
+    void clearNewMatchedHitsFlag() { hasNewHits_ = false; }
+  private: 
+    const GeomDet              * geomDet_;
+    const SiStripRecHitMatcher * matcher_;
+    RecHitContainer       & target_;
+    SiStripRecHitMatcher::Collector collector_;       
+    bool hasNewHits_;
   };
 
 
   class HitCollectorForFastMeasurements {
-    public:
-       typedef TransientTrackingRecHit::RecHitPointer RecHitPointer;
-       HitCollectorForFastMeasurements(const GeomDet * geomDet, 
-                              const SiStripRecHitMatcher * matcher,
-                              const TrajectoryStateOnSurface& stateOnThisDet,
-                              const MeasurementEstimator& est,
-                              std::vector<TrajectoryMeasurement> & target) ;
-       void add(SiStripMatchedRecHit2D const& hit) ;
-       void addProjected(const TransientTrackingRecHit& hit,
-                         const GlobalVector & gdir) ;
-
-       SiStripRecHitMatcher::Collector & collector() { return collector_; }
-       bool hasNewMatchedHits() const { return hasNewHits_;  }
-       void clearNewMatchedHitsFlag() { hasNewHits_ = false; }
-    private: 
-       const GeomDet              * geomDet_;
-       const SiStripRecHitMatcher * matcher_;
-       const TrajectoryStateOnSurface & stateOnThisDet_;
-       const MeasurementEstimator     & est_;
-       std::vector<TrajectoryMeasurement> & target_;
-       SiStripRecHitMatcher::Collector collector_;       
-       bool hasNewHits_;
+  public:
+    typedef TransientTrackingRecHit::RecHitPointer RecHitPointer;
+    typedef SiStripRecHitMatcher::Collector Collector;
+    
+    HitCollectorForFastMeasurements(const GeomDet * geomDet, 
+				    const SiStripRecHitMatcher * matcher,
+				    const TrajectoryStateOnSurface& stateOnThisDet,
+				    const MeasurementEstimator& est,
+				    std::vector<TrajectoryMeasurement> & target) ;
+    void add(SiStripMatchedRecHit2D const& hit) ;
+    void addProjected(const TransientTrackingRecHit& hit,
+		      const GlobalVector & gdir) ;
+    
+    SiStripRecHitMatcher::Collector & collector() { return collector_; }
+    bool hasNewMatchedHits() const { return hasNewHits_;  }
+    void clearNewMatchedHitsFlag() { hasNewHits_ = false; }
+  private: 
+    const GeomDet              * geomDet_;
+    const SiStripRecHitMatcher * matcher_;
+    const TrajectoryStateOnSurface & stateOnThisDet_;
+    const MeasurementEstimator     & est_;
+    std::vector<TrajectoryMeasurement> & target_;
+    SiStripRecHitMatcher::Collector collector_;       
+    bool hasNewHits_;
   };
-
-
+  
+  
   RecHitContainer 
   projectOnGluedDet( const RecHitContainer& hits,
 		     const TrajectoryStateOnSurface& ts) const;
