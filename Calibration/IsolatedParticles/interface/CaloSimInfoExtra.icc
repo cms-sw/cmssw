@@ -17,10 +17,13 @@ namespace spr{
     //matching SimTrack
     edm::SimTrackContainer::const_iterator trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
     //vector of Ecal hits in NxN
-    std::vector< typename T::const_iterator> ecalHits   = spr::hitECALmatrix(navigator,hits,ieta,iphi,debug);
+    std::vector< typename T::const_iterator> ecalHits;
+    spr::hitECALmatrix(navigator,hits,ieta,iphi,ecalHits,debug);
 
     // return a map of matching type and energy of SimHits
-    return spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, ecalHits, trkInfo, timeCut, false, debug);
+    spr::caloSimInfo info;
+    spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, ecalHits, trkInfo, info, timeCut, false, debug);
+    return spr::eCaloSimInfo(info);
   }
 
   template <typename T>
@@ -39,16 +42,22 @@ namespace spr{
       //vector of Ecal cells in NxN
       std::vector<DetId> vdets = spr::matrixECALIds(det, etaphi.ietaE[itry], etaphi.ietaW[itry], etaphi.iphiN[itry], etaphi.iphiS[itry], geo, caloTopology, debug);
       // get a map of matching type and energy of SimHits
-      simInfo = spr::eCaloSimInfo(vdets, geo, hitsEB, hitsEE, SimTk, SimVtx, trkInfo, timeCut, debug);
+      spr::caloSimInfo info;
+      spr::eCaloSimInfo(vdets, geo, hitsEB, hitsEE, SimTk, SimVtx, trkInfo, info, timeCut, debug);
+      simInfo = spr::eCaloSimInfo(info);
     } else {
       int itrym = 0;
       std::vector<DetId> vdets = spr::matrixECALIds(det, etaphi.ietaE[itrym], etaphi.ietaW[itrym], etaphi.iphiN[itrym], etaphi.iphiS[itrym], geo, caloTopology, debug);
       // get a map of matching type and energy of SimHits
-      simInfo = spr::eCaloSimInfo(vdets, geo, hitsEB, hitsEE, SimTk, SimVtx, trkInfo, timeCut, debug);
+      spr::caloSimInfo info;
+      spr::eCaloSimInfo(vdets, geo, hitsEB, hitsEE, SimTk, SimVtx, trkInfo, info, timeCut, debug);
+      simInfo = spr::eCaloSimInfo(info);
       for (int itrys=1; itrys<etaphi.ntrys; ++itrys) {
         vdets = spr::matrixECALIds(det, etaphi.ietaE[itrys], etaphi.ietaW[itrys], etaphi.iphiN[itrys], etaphi.iphiS[itrys], geo, caloTopology, debug);
         // get a map of matching type and energy of SimHits
-        std::map<std::string, double> simInfoX = spr::eCaloSimInfo(vdets, geo, hitsEB, hitsEE, SimTk, SimVtx, trkInfo, timeCut, debug);
+        spr::caloSimInfo infox;
+        spr::eCaloSimInfo(vdets, geo, hitsEB, hitsEE, SimTk, SimVtx, trkInfo, infox, timeCut, debug);
+        std::map<std::string, double> simInfoX = spr::eCaloSimInfo(infox);
         if (simInfoX["eTotal"] > simInfo["eTotal"]) {
 	  simInfo = simInfoX;
           itrym   = itrys;
@@ -72,15 +81,24 @@ namespace spr{
 
     if (itry >= 0) {
       // get the hits in Hcal in NxN around det
-      std::vector< typename T::const_iterator> hit = spr::hitHCALmatrixTotal(topology,det,hits,etaphi.ietaE[itry],etaphi.ietaW[itry],etaphi.iphiN[itry],etaphi.iphiS[itry],false, debug);
-      simInfo = spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, includeHO, debug);
+      std::vector< typename T::const_iterator> hit;
+      spr::hitHCALmatrixTotal(topology,det,hits,etaphi.ietaE[itry],etaphi.ietaW[itry],etaphi.iphiN[itry],etaphi.iphiS[itry],hit,false, debug);
+      spr::caloSimInfo info;
+      spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, info, timeCut, includeHO, debug);
+      simInfo = spr::eCaloSimInfo(info);
     } else {
       int itrym = 0;
-      std::vector< typename T::const_iterator> hit = spr::hitHCALmatrixTotal(topology,det,hits,etaphi.ietaE[itrym],etaphi.ietaW[itrym],etaphi.iphiN[itrym],etaphi.iphiS[itrym],includeHO,debug);
-      simInfo = spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, includeHO, debug);
+      std::vector< typename T::const_iterator> hit; 
+      spr::hitHCALmatrixTotal(topology,det,hits,etaphi.ietaE[itrym],etaphi.ietaW[itrym],etaphi.iphiN[itrym],etaphi.iphiS[itrym],hit,includeHO,debug);
+      spr::caloSimInfo info;
+      spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, info, timeCut, includeHO, debug);
+      simInfo = spr::eCaloSimInfo(info);
       for (int itrys = 1; itrys < etaphi.ntrys; ++itrys) {
-	hit = spr::hitHCALmatrixTotal(topology,det,hits,etaphi.ietaE[itrys],etaphi.ietaW[itrys],etaphi.iphiN[itrys],etaphi.iphiS[itrys],includeHO,debug);
-        std::map<std::string, double> simInfoX = spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, includeHO, debug);
+        hit.clear();
+	spr::hitHCALmatrixTotal(topology,det,hits,etaphi.ietaE[itrys],etaphi.ietaW[itrys],etaphi.iphiN[itrys],etaphi.iphiS[itrys],hit,includeHO,debug);
+        spr::caloSimInfo infox;
+        spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, infox, timeCut, includeHO, debug);
+        std::map<std::string, double> simInfoX = spr::eCaloSimInfo(infox);
         if (simInfoX["eTotal"] > simInfo["eTotal"]) {
 	  simInfo = simInfoX;
           itrym   = itrys;
@@ -100,7 +118,8 @@ namespace spr{
     edm::SimTrackContainer::const_iterator trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack,associate, debug);
 
     // get the hits in Hcal in NxN around det
-    std::vector< typename T::const_iterator> hit = spr::hitHCALmatrix(topology,det,hits,ieta,iphi,includeHO,debug);
+    std::vector< typename T::const_iterator> hit;
+    spr::hitHCALmatrix(topology,det,hits,ieta,iphi,hit,includeHO,debug);
 
     return spr::caloSimInfoMatrix(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, includeHO, debug);
   }
@@ -267,7 +286,8 @@ namespace spr{
 
     edm::SimTrackContainer::const_iterator trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
 
-    std::vector< typename T::const_iterator> ecalHits   = spr::hitECALmatrix(navigator,hits,ieta,iphi,debug);
+    std::vector< typename T::const_iterator> ecalHits;
+    spr::hitECALmatrix(navigator,hits,ieta,iphi,ecalHits,debug);
 
     std::vector<int> matchedId = spr::matchedSimTrackId(iEvent, SimTk, SimVtx, pTrack, associate, debug);
 
@@ -284,7 +304,8 @@ namespace spr{
 
     edm::SimTrackContainer::const_iterator trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack,associate, debug);
 
-    std::vector< typename T::const_iterator> hit = spr::hitHCALmatrix(topology,det,hits,ieta,iphi,includeHO,debug);
+    std::vector< typename T::const_iterator> hit;
+    spr::hitHCALmatrix(topology,det,hits,ieta,iphi,hit,includeHO,debug);
 
     std::vector<int> matchedId = spr::matchedSimTrackId(iEvent, SimTk, SimVtx, pTrack, associate, debug);
 

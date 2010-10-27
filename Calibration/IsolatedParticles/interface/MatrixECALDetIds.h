@@ -13,7 +13,11 @@
 
 namespace spr{
 
+  void matrixECALIds(const DetId& det, int ieta, int iphi, const CaloGeometry* geo, const CaloTopology* caloTopology, std::vector<DetId>& vdets, bool debug=false);
+
   std::vector<DetId> matrixECALIds(const DetId& det, int ieta, int iphi, const CaloGeometry* geo, const CaloTopology* caloTopology, bool debug=false);
+
+  void matrixECALIds(const DetId& det, int ietaE, int ietaW, int iphiN, int iphiS, const CaloGeometry* geo, const CaloTopology* caloTopology, std::vector<DetId>& vdets, bool debug=false);
 
   std::vector<DetId> matrixECALIds(const DetId& det, int ietaE, int ietaW, int iphiN, int iphiS, const CaloGeometry* geo, const CaloTopology* caloTopology, bool debug=false);
 
@@ -25,9 +29,9 @@ namespace spr{
 
   std::vector<DetId> newECALIdEW(std::vector<DetId>& dets, unsigned int last, std::vector<int>& ietaE, std::vector<int>& ietaW, std::vector<CaloDirection>& dir, const CaloSubdetectorTopology& barrelTopo, const CaloSubdetectorTopology& endcapTopo, const EcalBarrelGeometry& barrelGeom, const EcalEndcapGeometry& endcapGeom, bool debug=false);
 
-  std::vector<DetId> simpleMove(DetId& det, const CaloDirection& dir, const CaloSubdetectorTopology& barrelTopo, const CaloSubdetectorTopology& endcapTopo, const EcalBarrelGeometry& barrelGeom, const EcalEndcapGeometry& endcapGeom, int& flag, bool debug=false);
+  void simpleMove(DetId& det, const CaloDirection& dir, const CaloSubdetectorTopology& barrelTopo, const CaloSubdetectorTopology& endcapTopo, const EcalBarrelGeometry& barrelGeom, const EcalEndcapGeometry& endcapGeom, std::vector<DetId>& cells, int& flag, bool debug=false);
 
-  std::vector<DetId> extraIds(const DetId& det, std::vector<DetId>& dets, int ietaE, int ietaW, int iphiN, int iphiS, const EcalBarrelGeometry& barrelGeom, const EcalEndcapGeometry& endcapGeom, bool debug=false);
+  void extraIds(const DetId& det, std::vector<DetId>& dets, int ietaE, int ietaW, int iphiN, int iphiS, const EcalBarrelGeometry& barrelGeom, const EcalEndcapGeometry& endcapGeom, std::vector<DetId>& cells, bool debug=false);
 
 }
 #endif

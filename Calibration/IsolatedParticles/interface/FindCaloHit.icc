@@ -6,10 +6,15 @@ namespace spr {
   template <typename T>
   std::vector<typename T::const_iterator> findHit(edm::Handle<T>& hits, DetId thisDet, bool debug) {
   
-    std::vector<typename T::const_iterator> hit = find(hits, thisDet);
-
+    std::vector<typename T::const_iterator> hit;
+    spr::findHit(hits, thisDet, hit, debug);
     return hit;
   }
 
+  template <typename T>
+  void findHit(edm::Handle<T>& hits, DetId thisDet, std::vector<typename T::const_iterator>& hit, bool debug) {
+
+    spr::find(hits, thisDet, hit, debug);
+  }
 }
 

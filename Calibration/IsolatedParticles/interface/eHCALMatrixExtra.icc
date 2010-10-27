@@ -31,7 +31,7 @@ namespace spr{
     double energySum = 0;
     int    itrym = 0;
     for (int itry=0; itry<etaphi.ntrys; itry++) {
-      double energy = hitHCALmatrixTotal(topology, det, hits, etaphi.ietaE[itry], etaphi.ietaW[itry], etaphi.iphiN[itry], etaphi.iphiS[itry], includeHO, hbThr, heThr, hfThr, hoThr, debug);
+      double energy = energyHCALmatrixTotal(topology, det, hits, etaphi.ietaE[itry], etaphi.ietaW[itry], etaphi.iphiN[itry], etaphi.iphiS[itry], includeHO, hbThr, heThr, hfThr, hoThr, debug);
       if (energy > energySum) {
         energySum = energy;
         itrym     = itry;

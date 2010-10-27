@@ -211,7 +211,7 @@ namespace spr{
 				   info2.trkGlobPosAtHcal.y(),
 				   info2.trkGlobPosAtHcal.z());
     
-	  int isConeChargedIso = coneChargeIsolation(hpoint1, point2, trackMom, dR);
+	  int isConeChargedIso = spr::coneChargeIsolation(hpoint1, point2, trackMom, dR);
     
 	  if (isConeChargedIso==0) {
 	    nNearTRKs++;
@@ -226,6 +226,25 @@ namespace spr{
       }
     } // Iterate over track loop
     
+    return maxNearP;
+  }
+
+  double chargeIsolationCone(unsigned int trkIndex, std::vector<spr::propagatedTrackDirection> & trkDirs, double dR, int & nNearTRKs, bool debug) {
+
+    double maxNearP = -1.0;
+    nNearTRKs = 0;
+    if (trkDirs[trkIndex].okHCAL) {
+      for (unsigned int indx=0; indx<trkDirs.size(); ++indx) {
+	if (indx != trkIndex && trkDirs[indx].ok && trkDirs[indx].okHCAL) {
+	  int isConeChargedIso = spr::coneChargeIsolation(trkDirs[trkIndex].pointHCAL, trkDirs[indx].pointHCAL, trkDirs[trkIndex].directionHCAL, dR);
+	  if (isConeChargedIso==0) {
+	    nNearTRKs++;
+	    const reco::Track* pTrack = &(*(trkDirs[indx].trkItr));
+	    if (maxNearP < pTrack->p()) maxNearP = pTrack->p();
+	  }
+	}
+      }
+    }
     return maxNearP;
   }
 

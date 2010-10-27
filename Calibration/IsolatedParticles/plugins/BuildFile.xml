@@ -37,3 +37,5 @@
 </library>
 <library   name="CalibrationIsolatedTracksCone" file="IsolatedTracksCone.cc">
 </library>
+<library   name="CalibrationIsolatedTracksHcalScale" file="IsolatedTracksHcalScale.cc">
+</library>

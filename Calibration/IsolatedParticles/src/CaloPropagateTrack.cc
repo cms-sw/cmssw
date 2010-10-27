@@ -18,6 +18,12 @@ namespace spr{
   std::vector<spr::propagatedTrackID> propagateCALO(edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const MagneticField* bField, std::string & theTrackQuality, bool debug) {
 
     std::vector<spr::propagatedTrackID> vdets;
+    spr::propagateCALO(trkCollection,geo,bField,theTrackQuality, vdets, debug);
+    return vdets;
+  }
+
+  void propagateCALO(edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const MagneticField* bField, std::string & theTrackQuality, std::vector<spr::propagatedTrackID>& vdets, bool debug) {
+
     const EcalBarrelGeometry *barrelGeom = (dynamic_cast< const EcalBarrelGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel)));
     const EcalEndcapGeometry *endcapGeom = (dynamic_cast< const EcalEndcapGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap)));
     const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
@@ -65,12 +71,76 @@ namespace spr{
 	if (vdets[i].detIdECAL.subdetId() == EcalBarrel) {
 	  std::cout << (EBDetId)(vdets[i].detIdECAL);
 	} else {
-	  std::cout << (EEDetId)(vdets[i].detIdHCAL); 
+	  std::cout << (EEDetId)(vdets[i].detIdECAL); 
 	}
 	std::cout << " HCAL (" << vdets[i].okHCAL << ") " << (HcalDetId)(vdets[i].detIdHCAL) << std::endl;
       }
     }
-    return vdets;
+  }
+
+  void propagateCALO(edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const MagneticField* bField, std::string & theTrackQuality, std::vector<spr::propagatedTrackDirection>& trkDir, bool debug) {
+
+    const EcalBarrelGeometry *barrelGeom = (dynamic_cast< const EcalBarrelGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel)));
+    const EcalEndcapGeometry *endcapGeom = (dynamic_cast< const EcalEndcapGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap)));
+    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+    reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
+
+    unsigned indx;
+    reco::TrackCollection::const_iterator trkItr;
+    for (trkItr = trkCollection->begin(),indx=0; trkItr != trkCollection->end(); ++trkItr,indx++) {
+      const reco::Track* pTrack = &(*trkItr);
+      propagatedTrackDirection trkD;
+      trkD.trkItr = trkItr;
+      trkD.ok     = (pTrack->quality(trackQuality_));
+      trkD.detIdECAL = DetId(0);
+      trkD.detIdHCAL = DetId(0);
+      if (debug) std::cout << "Propagate track " << indx << " p " << trkItr->p() << " eta " << trkItr->eta() << " phi " << trkItr->phi() << " Flag " << trkD.ok << std::endl;
+
+      spr::propagatedTrack info = spr::propagateTrackToECAL (pTrack, bField, debug);
+      GlobalPoint point(info.point.x(),info.point.y(),info.point.z());
+      trkD.okECAL        = info.ok;
+      trkD.pointECAL     = point;
+      trkD.directionECAL = info.direction;
+      if (trkD.okECAL) {
+	if (std::abs(info.point.eta())<1.479) {
+	  trkD.detIdECAL = barrelGeom->getClosestCell(point);
+	} else {
+	  trkD.detIdECAL = endcapGeom->getClosestCell(point);
+	}
+      }
+      info = spr::propagateTrackToHCAL (pTrack, bField, debug);
+      point = GlobalPoint(info.point.x(),info.point.y(),info.point.z());
+      trkD.okHCAL        = info.ok;
+      trkD.pointHCAL     = point;
+      trkD.directionHCAL = info.direction;
+      if (trkD.okHCAL) {
+	trkD.detIdHCAL = gHB->getClosestCell(point);
+      }
+      trkDir.push_back(trkD);
+    }
+    
+    if (debug) {
+      std::cout << "propagateCALO:: for " << trkDir.size() << " tracks" << std::endl;
+      for (unsigned int i=0; i<trkDir.size(); ++i) {
+	std::cout << "Track [" << i << "] Flag: " << trkDir[i].ok << " ECAL (" << trkDir[i].okECAL << ")";
+	if (trkDir[i].okECAL) {
+	  std::cout << " point " << trkDir[i].pointECAL << " direction "
+		    << trkDir[i].directionECAL << " "; 
+	  if (trkDir[i].detIdECAL.subdetId() == EcalBarrel) {
+	    std::cout << (EBDetId)(trkDir[i].detIdECAL);
+	  } else {
+	    std::cout << (EEDetId)(trkDir[i].detIdECAL); 
+	  }
+	}
+	std::cout << " HCAL (" << trkDir[i].okHCAL << ")";
+	if (trkDir[i].okHCAL) {
+	  std::cout << " point " << trkDir[i].pointHCAL << " direction "
+		    << trkDir[i].directionHCAL << " " 
+		    << (HcalDetId)(trkDir[i].detIdHCAL); 
+	}
+	std::cout << std::endl;
+      }
+    }
   }
 
   propagatedTrack propagateTrackToECAL(const reco::Track *track, const MagneticField* bfield, bool debug) {

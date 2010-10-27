@@ -34,14 +34,17 @@ namespace spr {
   template <typename T>
   std::vector<typename T::const_iterator> findHit(edm::Handle<T>& hits, DetId thisDet, bool debug=false);
 
+  template <typename T>
+  void findHit(edm::Handle<T>& hits, DetId thisDet, std::vector<typename T::const_iterator>& hit,  bool debug=false);
+
   // For EB and EE RecHit Collection
-  std::vector<EcalRecHitCollection::const_iterator>   find(edm::Handle<EcalRecHitCollection>& hits,   DetId thisDet, bool debug=false);  
+  void find(edm::Handle<EcalRecHitCollection>& hits, DetId thisDet, std::vector<EcalRecHitCollection::const_iterator>& hit, bool debug=false);  
 
   // For Hcal RecHit Collection
-  std::vector<HBHERecHitCollection::const_iterator>   find(edm::Handle<HBHERecHitCollection>& hits,   DetId thisDet, bool debug=false);
+  void find(edm::Handle<HBHERecHitCollection>& hits, DetId thisDet, std::vector<HBHERecHitCollection::const_iterator>& hit, bool debug=false);
 
   // For simHit Collection
-  std::vector<edm::PCaloHitContainer::const_iterator> find(edm::Handle<edm::PCaloHitContainer>& hits, DetId thisDet, bool debug=false);
+  void find(edm::Handle<edm::PCaloHitContainer>& hits, DetId thisDet, std::vector<edm::PCaloHitContainer::const_iterator>& hit, bool debug=false);
 }
 
 #include "Calibration/IsolatedParticles/interface/FindCaloHit.icc"

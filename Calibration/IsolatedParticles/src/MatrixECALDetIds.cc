@@ -8,11 +8,9 @@
 
 namespace spr{
 
-  std::vector<DetId> matrixECALIds(const DetId& det,int ieta,int iphi, 
-				   const CaloGeometry* geo, 
-				   const CaloTopology* caloTopology,
-				   bool debug) {
-
+  void matrixECALIds(const DetId& det, int ieta, int iphi,
+		     const CaloGeometry* geo, const CaloTopology* caloTopology,
+		     std::vector<DetId>& vdets, bool debug) {
 
     const CaloSubdetectorTopology *barrelTopo = (caloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel));
     const CaloSubdetectorTopology *endcapTopo = (caloTopology->getSubdetectorTopology(DetId::Ecal,EcalEndcap));
@@ -38,51 +36,58 @@ namespace spr{
 
     std::vector<DetId> dets(1,det);
     std::vector<CaloDirection> dirs(1,NORTH);
-    std::vector<DetId> vdetN = spr::newECALIdNS(dets, 0, ieta, iphi, dirs,
-						*barrelTopo,*endcapTopo, 
-						*barrelGeom,*endcapGeom,debug);
+    vdets = spr::newECALIdNS(dets, 0, ieta,iphi, dirs, *barrelTopo,*endcapTopo,
+			     *barrelGeom,*endcapGeom,debug);
     dirs[0] = SOUTH;
     std::vector<DetId> vdetS = spr::newECALIdNS(dets, 0, ieta, iphi, dirs,
 						*barrelTopo,*endcapTopo, 
 						*barrelGeom,*endcapGeom,debug);
     for (unsigned int i1=0; i1<vdetS.size(); i1++) {
-      if (std::count(vdetN.begin(),vdetN.end(),vdetS[i1]) == 0)
-	vdetN.push_back(vdetS[i1]);
+      if (std::count(vdets.begin(),vdets.end(),vdetS[i1]) == 0)
+	vdets.push_back(vdetS[i1]);
     }
     unsigned int ndet = (2*ieta+1)*(2*iphi+1);
-    if (vdetN.size() != ndet) {
-      vdetS = spr::extraIds(det, vdetN, ieta, ieta, iphi, iphi, 
-			    *barrelGeom, *endcapGeom, debug);
-      if (vdetS.size() > 0) 
-	vdetN.insert(vdetN.end(), vdetS.begin(), vdetS.end());
+    if (vdets.size() != ndet) {
+      std::vector<DetId> vdetExtra;
+      spr::extraIds(det, vdets, ieta, ieta, iphi, iphi, 
+		    *barrelGeom, *endcapGeom, vdetExtra, debug);
+      if (vdetExtra.size() > 0) 
+	vdets.insert(vdets.end(), vdetExtra.begin(), vdetExtra.end());
     }
 
     if (debug) {
       std::cout << "matrixECALIds::Total number of cells found is " 
-		<< vdetN.size() << std::endl;
-      for (unsigned int i1=0; i1<vdetN.size(); i1++) {
-	if (vdetN[i1].subdetId() == EcalBarrel) {
-	  EBDetId id = vdetN[i1];
+		<< vdets.size() << std::endl;
+      for (unsigned int i1=0; i1<vdets.size(); i1++) {
+	if (vdets[i1].subdetId() == EcalBarrel) {
+	  EBDetId id = vdets[i1];
 	  std::cout << "matrixECALIds::Cell " << i1 << " 0x" << std::hex 
-		    << vdetN[i1]() << std::dec << " " << id << std::endl;
-	} else if (vdetN[i1].subdetId() == EcalEndcap) {
-	  EEDetId id = vdetN[i1];
+		    << vdets[i1]() << std::dec << " " << id << std::endl;
+	} else if (vdets[i1].subdetId() == EcalEndcap) {
+	  EEDetId id = vdets[i1];
 	  std::cout << "matrixECALIds::Cell " << i1 << " 0x" << std::hex 
-		    << vdetN[i1]() << std::dec << " " << id << std::endl;
+		    << vdets[i1]() << std::dec << " " << id << std::endl;
 	} else {
 	  std::cout << "matrixECALIds::Cell " << i1 << " 0x" << std::hex 
-		    << vdetN[i1]() << std::dec << " Unknown Type" << std::endl;
+		    << vdets[i1]() << std::dec << " Unknown Type" << std::endl;
 	}
       }
     }
-    return vdetN;
   }
 
-  std::vector<DetId> matrixECALIds(const DetId& det, int ietaE, int ietaW,
-				   int iphiN, int iphiS,
+  std::vector<DetId> matrixECALIds(const DetId& det,int ieta,int iphi, 
 				   const CaloGeometry* geo, 
 				   const CaloTopology* caloTopology,
 				   bool debug) {
+
+    std::vector<DetId> vdets;
+    matrixECALIds(det, ieta, iphi, geo, caloTopology, vdets, debug);
+    return vdets;
+  }
+
+  void matrixECALIds(const DetId& det, int ietaE,int ietaW,int iphiN,int iphiS,
+		     const CaloGeometry* geo, const CaloTopology* caloTopology,
+		     std::vector<DetId>& vdets, bool debug) {
 
     const CaloSubdetectorTopology *barrelTopo = (caloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel));
     const CaloSubdetectorTopology *endcapTopo = (caloTopology->getSubdetectorTopology(DetId::Ecal,EcalEndcap));
@@ -111,47 +116,58 @@ namespace spr{
     std::vector<CaloDirection> dirs(1,NORTH);
     std::vector<int> jetaE(1,ietaE), jetaW(1,ietaW);
     std::vector<int> jphiN(1,iphiN), jphiS(1,iphiS);
-    std::vector<DetId> vdetN = spr::newECALIdNS(dets, 0, jetaE, jetaW, jphiN,
-						jphiS, dirs, *barrelTopo,
-						*endcapTopo, *barrelGeom,
-						*endcapGeom, debug);
+    vdets = spr::newECALIdNS(dets, 0, jetaE, jetaW, jphiN, jphiS, dirs, 
+			     *barrelTopo, *endcapTopo, *barrelGeom,
+			     *endcapGeom, debug);
     dirs[0] = SOUTH;
     std::vector<DetId> vdetS = spr::newECALIdNS(dets, 0, jetaE, jetaW, jphiN,
 						jphiS, dirs, *barrelTopo,
 						*endcapTopo, *barrelGeom,
 						*endcapGeom, debug);
     for (unsigned int i1=0; i1<vdetS.size(); i1++) {
-      if (std::count(vdetN.begin(),vdetN.end(),vdetS[i1]) == 0)
-	vdetN.push_back(vdetS[i1]);
+      if (std::count(vdets.begin(),vdets.end(),vdetS[i1]) == 0)
+	vdets.push_back(vdetS[i1]);
     }
 
     unsigned int ndet = (ietaE+ietaW+1)*(iphiN+iphiS+1);
-    if (vdetN.size() != ndet) {
-      vdetS = spr::extraIds(det, vdetN, ietaE, ietaW, iphiN, iphiS, 
-			    *barrelGeom, *endcapGeom, debug);
-      if (vdetS.size() > 0) 
-	vdetN.insert(vdetN.end(), vdetS.begin(), vdetS.end());
+    if (vdets.size() != ndet) {
+      std::vector<DetId> vdetExtra;
+      spr::extraIds(det, vdets, ietaE, ietaW, iphiN, iphiS, 
+		    *barrelGeom, *endcapGeom, vdetExtra, debug);
+      if (vdetExtra.size() > 0) 
+	vdets.insert(vdets.end(), vdetExtra.begin(), vdetExtra.end());
     }
 
     if (debug) {
       std::cout << "matrixECALIds::Total number of cells found is " 
-		<< vdetN.size() << std::endl;
-      for (unsigned int i1=0; i1<vdetN.size(); i1++) {
-	if (vdetN[i1].subdetId() == EcalBarrel) {
-	  EBDetId id = vdetN[i1];
+		<< vdets.size() << std::endl;
+      for (unsigned int i1=0; i1<vdets.size(); i1++) {
+	if (vdets[i1].subdetId() == EcalBarrel) {
+	  EBDetId id = vdets[i1];
 	  std::cout << "matrixECALIds::Cell " << i1 << " 0x" << std::hex 
-		    << vdetN[i1]() << std::dec << " " << id << std::endl;
-	} else if (vdetN[i1].subdetId() == EcalEndcap) {
-	  EEDetId id = vdetN[i1];
+		    << vdets[i1]() << std::dec << " " << id << std::endl;
+	} else if (vdets[i1].subdetId() == EcalEndcap) {
+	  EEDetId id = vdets[i1];
 	  std::cout << "matrixECALIds::Cell " << i1 << " 0x" << std::hex 
-		    << vdetN[i1]() << std::dec << " " << id << std::endl;
+		    << vdets[i1]() << std::dec << " " << id << std::endl;
 	} else {
 	  std::cout << "matrixECALIds::Cell " << i1 << " 0x" << std::hex 
-		    << vdetN[i1]() << std::dec << " Unknown Type" << std::endl;
+		    << vdets[i1]() << std::dec << " Unknown Type" << std::endl;
 	}
       }
     }
-    return vdetN;
+  }
+
+  std::vector<DetId> matrixECALIds(const DetId& det, int ietaE, int ietaW,
+				   int iphiN, int iphiS,
+				   const CaloGeometry* geo, 
+				   const CaloTopology* caloTopology,
+				   bool debug) {
+
+    std::vector<DetId> vdets;
+    spr::matrixECALIds(det, ietaE, ietaW, iphiN, iphiS, geo, caloTopology,
+		       vdets, debug);
+    return vdets;
   }
 
   std::vector<DetId> newECALIdNS(std::vector<DetId>& dets, unsigned int last,
@@ -239,10 +255,9 @@ namespace spr{
       std::vector<CaloDirection> dirnE(1,EAST), dirnW(1,WEST);
       int flag=0;
       for (unsigned int i1=last; i1<dets.size(); i1++) {
-	std::vector<DetId> cells = spr::simpleMove(dets[i1], dir[i1], 
-						   barrelTopo, endcapTopo,
-						   barrelGeom, endcapGeom,
-						   flag, debug);
+	std::vector<DetId> cells;
+	spr::simpleMove(dets[i1], dir[i1], barrelTopo, endcapTopo,
+			barrelGeom, endcapGeom, cells, flag, debug);
 	/*
 	if (dets[i1].subdetId() == EcalBarrel) {
 	  EBDetId id = dets[i1];
@@ -464,10 +479,9 @@ namespace spr{
 	std::vector<CaloDirection> dirn(1);
 	std::vector<CaloDirection> dirnE(1,EAST), dirnW(1,WEST);
 	int flag=0;
-	std::vector<DetId> cells = spr::simpleMove(dets[i1], dir[i1], 
-						   barrelTopo, endcapTopo,
-						   barrelGeom, endcapGeom,
-						   flag, debug);
+	std::vector<DetId> cells;
+	spr::simpleMove(dets[i1], dir[i1], barrelTopo, endcapTopo,
+			barrelGeom, endcapGeom, cells, flag, debug);
 	iphi--;
 	if (iphi > kphi) kphi = iphi;
 	if (dir[i1] == NORTH) jphiN[i1] = iphi;
@@ -589,7 +603,8 @@ namespace spr{
 
     if (debug) {
       std::cout << "newECALIdEW::Add " << ieta << " rows of cells for " 
-		<< (dets.size()-last) << " cells" << std::endl;
+		<< last << ":" << dets.size() << ":" << (dets.size()-last) 
+                << " cells" << std::endl;
       for (unsigned int i1=last; i1<dets.size(); i1++) {
 	if (dets[i1].subdetId() == EcalBarrel) {
 	  EBDetId id = dets[i1];
@@ -615,10 +630,9 @@ namespace spr{
     if (ieta > 0) {
       for (unsigned int i1=last; i1<dets.size(); i1++) {
 	int flag = 0;
-	std::vector<DetId> cells = spr::simpleMove(dets[i1], dir[i1], 
-						   barrelTopo, endcapTopo,
-						   barrelGeom, endcapGeom,
-						   flag, debug);
+	std::vector<DetId> cells;
+	spr::simpleMove(dets[i1], dir[i1], barrelTopo, endcapTopo,
+			barrelGeom, endcapGeom, cells, flag, debug);
 	/*
 	if (dets[i1].subdetId() == EcalBarrel) {
 	  EBDetId id = dets[i1];
@@ -750,10 +764,9 @@ namespace spr{
       if (dir[i1] == EAST) ieta = ietaE[i1]; 
       if (ieta > 0) {
 	int flag=0;
-	std::vector<DetId> cells = spr::simpleMove(dets[i1], dir[i1], 
-						   barrelTopo, endcapTopo,
-						   barrelGeom, endcapGeom,
-						   flag, debug);
+	std::vector<DetId> cells;
+	spr::simpleMove(dets[i1], dir[i1], barrelTopo, endcapTopo,
+			barrelGeom, endcapGeom, cells, flag, debug);
 	ieta--;
 	if (ieta > keta) keta = ieta;
 	if (dir[i1] == EAST) jetaE[i1] = ieta;
@@ -822,13 +835,13 @@ namespace spr{
     }
   }
 
-  std::vector<DetId> simpleMove(DetId& det, const CaloDirection& dir, 
-				const CaloSubdetectorTopology& barrelTopo, 
-				const CaloSubdetectorTopology& endcapTopo, 
-				const EcalBarrelGeometry& barrelGeom, 
-				const EcalEndcapGeometry& endcapGeom, 
-				int& ok, bool debug) {
-    std::vector<DetId> cells;
+  void simpleMove(DetId& det, const CaloDirection& dir, 
+		  const CaloSubdetectorTopology& barrelTopo, 
+		  const CaloSubdetectorTopology& endcapTopo, 
+		  const EcalBarrelGeometry& barrelGeom, 
+		  const EcalEndcapGeometry& endcapGeom, 
+		  std::vector<DetId>& cells, int& ok, bool debug) {
+
     DetId cell;
     ok = 0;
     if (det.subdetId() == EcalBarrel) {
@@ -881,15 +894,15 @@ namespace spr{
       std::cout << "simpleMove:: Move DetId 0x" << std::hex << det() 
 		<< std::dec << " along " << dir << " to get 0x" << std::hex
 		<< cell() << std::dec << " with flag " << ok << " # "
-		<< cells.size() << " " << std::hex << cells[0]() << std::dec
-		<< std::endl;
+		<< cells.size();
+      for (unsigned int i1=0; i1<cells.size(); ++i1) 
+	std::cout << " " << std::hex << cells[0]() << std::dec;
+      std::cout << std::endl;
     }
-    return cells;
   }
 
-  std::vector<DetId> extraIds(const DetId& det, std::vector<DetId>& dets, int ietaE, int ietaW, int iphiN, int iphiS, const EcalBarrelGeometry& barrelGeom, const EcalEndcapGeometry& endcapGeom, bool debug) {
+  void extraIds(const DetId& det, std::vector<DetId>& dets, int ietaE, int ietaW, int iphiN, int iphiS, const EcalBarrelGeometry& barrelGeom, const EcalEndcapGeometry& endcapGeom, std::vector<DetId>& cells, bool debug) {
 
-    std::vector<DetId> cells;
     if (det.subdetId() == EcalBarrel) {
       EBDetId id = det;
       if (debug) std::cout << "extraIds::Cell " << id << " rows "  << ietaW
@@ -954,6 +967,5 @@ namespace spr{
 	}
       }
     }
-    return cells;
   }
 }

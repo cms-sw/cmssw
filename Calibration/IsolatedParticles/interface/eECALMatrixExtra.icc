@@ -7,7 +7,8 @@ namespace spr{
   template <typename T>
   double eECALmatrix(CaloNavigator<DetId>& navigator,edm::Handle<T>& hits, int ieta, int iphi, bool debug) {
 	
-    std::vector< typename T::const_iterator> hit = spr::hitECALmatrix(navigator,hits,ieta,iphi,debug);
+    std::vector< typename T::const_iterator> hit;
+    spr::hitECALmatrix(navigator,hits,ieta,iphi,hit,debug);
  
     if (debug) {
       std::cout << "Inside eECALmatrix " << 2*ieta+1 << "X" << 2*iphi+1 << std::endl;
@@ -30,7 +31,7 @@ namespace spr{
     std::vector<DetId> vdets = spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, debug);
 
     if (debug) {
-      std::cout << "Inside eECALmatrix " << 2*ieta+1 << "X" << 2*iphi+1
+      std::cout << "Inside eECALmatrixCell " << 2*ieta+1 << "X" << 2*iphi+1
                 << " nXtals " << vdets.size() << std::endl;
    }
 
@@ -38,7 +39,7 @@ namespace spr{
   }
 
   template< typename T>
-  std::pair<double,int> eECALmatrixTotal(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, double ebThr, double eeThr, bool debug) {
+  std::pair<double,int> eECALmatrixTotal(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, double ebThr, double eeThr, double tMin, double tMax, bool debug) {
 
     spr::EtaPhi etaphi = spr::getEtaPhi(ieta,iphi,debug);
 
@@ -47,7 +48,7 @@ namespace spr{
     int    itrym = 0;
     for (int itry=0; itry<etaphi.ntrys; itry++) {
       std::vector<DetId> vdets = spr::matrixECALIds(detId, etaphi.ietaE[itry], etaphi.ietaW[itry], etaphi.iphiN[itry], etaphi.iphiS[itry], geo, caloTopology, debug);
-      double energy = spr::energyECAL(vdets, hitsEB, hitsEE, ebThr, eeThr, debug);
+      double energy = spr::energyECAL(vdets, hitsEB, hitsEE, ebThr, eeThr, tMin, tMax, debug);
       if (energy > energySum) {
 	energySum = energy;
 	itrym     = itry;

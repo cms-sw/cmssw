@@ -63,6 +63,7 @@ namespace spr{
   // Returns the maximum energy of a track within a cone of radius *dR*
   // around the impact poiunt to the ECAL surface
   double coneChargeIsolation(const edm::Event& iEvent, const edm::EventSetup& iSetup, reco::TrackCollection::const_iterator trkItr, edm::Handle<reco::TrackCollection> trkCollection, TrackDetectorAssociator& associator, TrackAssociatorParameters& parameters_, std::string theTrackQuality, int &nNearTRKs, int &nLayers_maxNearP, int &trkQual_maxNearP, double &maxNearP_goodTrk, const GlobalPoint& hpoint1, const GlobalVector& trackMom, double dR);
+  double chargeIsolationCone(unsigned int trkIndex, std::vector<spr::propagatedTrackDirection> & trkDirs, double dR, int & nNearTRKs, bool debug=false);
 
   int coneChargeIsolation(const GlobalPoint& hpoint1, const GlobalPoint& point2, const GlobalVector& trackMom, double dR);
  

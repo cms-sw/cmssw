@@ -7,6 +7,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -31,10 +32,21 @@ namespace spr{
     reco::TrackCollection::const_iterator trkItr;
   };
 
+  struct propagatedTrackDirection {
+    propagatedTrackDirection() {ok=false; okECAL=false; okHCAL=false;}
+    bool                                  ok, okECAL, okHCAL;
+    DetId                                 detIdECAL, detIdHCAL;
+    GlobalPoint                           pointECAL, pointHCAL;
+    GlobalVector                          directionECAL, directionHCAL;
+    reco::TrackCollection::const_iterator trkItr;
+  };
+
   // Returns a vector of DetID's of closest cell on the ECAL/HCAL surface of
   // all the tracks in the collection. Also saves a boolean if extrapolation
   // is satisfactory
   std::vector<spr::propagatedTrackID> propagateCALO(edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const MagneticField* bField, std::string & theTrackQuality, bool debug=false);
+  void propagateCALO(edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const MagneticField* bField, std::string & theTrackQuality, std::vector<spr::propagatedTrackID>& vdets, bool debug=false);
+  void propagateCALO(edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const MagneticField* bField, std::string & theTrackQuality, std::vector<spr::propagatedTrackDirection>& trkDir, bool debug=false);
 
   // Propagate tracks to the ECAL surface and optionally returns the 
   // extrapolated point (and the track direction at point of extrapolation)

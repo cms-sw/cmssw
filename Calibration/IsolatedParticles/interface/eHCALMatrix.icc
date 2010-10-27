@@ -11,7 +11,7 @@ namespace spr{
 
   //*** Returns energy in NxN Hcal towers
   template <typename T>
-  double eHCALmatrix(const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO, bool algoNew, double hbThr, double heThr, double hfThr, double hoThr, bool debug) {
+  double eHCALmatrix(const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO, bool algoNew, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, bool debug) {
 
     std::vector< typename T::const_iterator> hit;
     HcalDetId hcid0(det0.rawId());
@@ -20,10 +20,10 @@ namespace spr{
     if (debug) std::cout << "Inside eHCALmatrix " << 2*ieta+1 << "X" << 2*iphi+1 << " AlgoNew " << algoNew << " Inclusion of HO Flag " << includeHO << std::endl;
     double energySum = 0.0;
     if (algoNew) {
-      energySum = spr::energyHCALmatrixNew(topology, det, hits, ieta, iphi, includeHO, hbThr, heThr, hfThr, hoThr, debug);
+      energySum = spr::energyHCALmatrixNew(topology, det, hits, ieta, iphi, includeHO, hbThr, heThr, hfThr, hoThr, tMin, tMax, debug);
     } else {
        std::cout << "eHCALmatrix:: Algorithm New = " << algoNew << " not supported - call directly spr::energyHCALmatrix " << std::endl;
-       //energySum = spr::energyHCALmatrix(topology, det, hits, ieta, iphi, includeHO, hbThr, heThr, hfThr, hoThr, debug);
+       //energySum = spr::energyHCALmatrix(topology, det, hits, ieta, iphi, includeHO, hbThr, heThr, hfThr, hoThr, tMin, tMax, debug);
     }
 
     if (debug) std::cout << "eHCALmatrix::Total energy " << energySum << std::endl;
@@ -31,14 +31,14 @@ namespace spr{
   }
 
   template <typename T>
-  double eHCALmatrix(const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ietaE, int ietaW, int iphiN, int iphiS, bool includeHO, double hbThr, double heThr, double hfThr, double hoThr, bool debug) {
+  double eHCALmatrix(const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ietaE, int ietaW, int iphiN, int iphiS, bool includeHO, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, bool debug) {
 
     HcalDetId hcid0(det0.rawId());
     HcalDetId hcid(hcid0.subdet(),hcid0.ieta(),hcid0.iphi(),1);
     DetId det(hcid.rawId());
     if (debug) std::cout << "Inside eHCALmatrix " << ietaE+ietaW+1 << "X" << iphiN+iphiS+1 	<< " Inclusion of HO Flag " << includeHO << std::endl;
 
-    return spr::energyHCALmatrixTotal(topology, det, hits, ietaE, ietaW, iphiN, iphiS, includeHO, hbThr, heThr, hfThr, hoThr, debug);
+    return spr::energyHCALmatrixTotal(topology, det, hits, ietaE, ietaW, iphiN, iphiS, includeHO, hbThr, heThr, hfThr, hoThr, tMin, tMax, debug);
   }
 
   // NxN method modified to return rechit vectors for hitmaps
@@ -51,8 +51,8 @@ namespace spr{
     HcalDetId hcid(hcid0.subdet(),hcid0.ieta(),hcid0.iphi(),1);
     DetId det(hcid.rawId());
 
-    std::vector< typename T::const_iterator>
-      hit = spr::hitHCALmatrix(topology, det, hits, ieta, iphi, includeHO, debug);
+    std::vector< typename T::const_iterator> hit;
+    spr::hitHCALmatrix(topology, det, hits, ieta, iphi, hit, includeHO, debug);
 
     nRecHits = -99;
     double energySum = 0.0;
@@ -85,8 +85,8 @@ namespace spr{
     HcalDetId hcid(hcid0.subdet(),hcid0.ieta(),hcid0.iphi(),1);
     DetId det(hcid.rawId());
 
-    std::vector< typename T::const_iterator>
-      hit = spr::hitHCALmatrix(topology, det, hits, ieta, iphi, includeHO, debug);
+    std::vector< typename T::const_iterator> hit;
+    spr::hitHCALmatrix(topology, det, hits, ieta, iphi, hit, includeHO, debug);
     double energyMax = -99.;
     int hottestIndex = -99;
 
@@ -125,39 +125,39 @@ namespace spr{
 
 
   template <typename T>
-  double energyHCALmatrixNew(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO, double hbThr, double heThr, double hfThr, double hoThr, bool debug) {
+  double energyHCALmatrixNew(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, bool debug) {
 
     std::vector<DetId> dets(1,det);
     std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, includeHO, debug);
-    return spr::energyHCAL(vdets, hits, hbThr, heThr, hfThr, hoThr, debug);
+    return spr::energyHCAL(vdets, hits, hbThr,heThr,hfThr,hoThr, tMin,tMax, debug);
   }
 
   template <typename T>
-  double energyHCALmatrixTotal(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ietaE, int ietaW, int iphiN, int iphiS, bool includeHO, double hbThr, double heThr, double hfThr, double hoThr, bool debug) {
+  double energyHCALmatrixTotal(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ietaE, int ietaW, int iphiN, int iphiS, bool includeHO, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, bool debug) {
 
     std::vector<DetId> dets(1,det);
     std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ietaE, ietaW, iphiN, iphiS, includeHO, debug);
-    return spr::energyHCAL(vdets, hits, hbThr, heThr, hfThr, hoThr, debug);
+    return spr::energyHCAL(vdets, hits, hbThr,heThr,hfThr,hoThr, tMin,tMax, debug);
   }
 
   template <typename T>
-  std::vector< typename T::const_iterator> hitHCALmatrix(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO, bool debug) {
+  void hitHCALmatrix(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, std::vector< typename T::const_iterator>& hitlist, bool includeHO, bool debug) {
 
     std::vector<DetId> dets(1,det);
     std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, includeHO, debug);
-    return spr::hitsHCAL(vdets, hits, debug);
+    spr::hitsHCAL(vdets, hits, hitlist, debug);
   }
 
   template <typename T>
-  std::vector< typename T::const_iterator> hitHCALmatrixTotal(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ietaE, int ietaW, int iphiN, int iphiS, bool includeHO, bool debug) {
+  void hitHCALmatrixTotal(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ietaE, int ietaW, int iphiN, int iphiS, std::vector< typename T::const_iterator>& hitlist, bool includeHO, bool debug) {
 
     std::vector<DetId> dets(1,det);
     std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ietaE, ietaW, iphiN, iphiS, includeHO, debug);
-    return spr::hitsHCAL(vdets, hits, debug);
+    spr::hitsHCAL(vdets, hits, hitlist, debug);
   }
 
   template <typename T>
-  double energyHCAL(std::vector<DetId>& vdets, edm::Handle<T>& hits, double hbThr, double heThr, double hfThr, double hoThr, bool debug) {
+  double energyHCAL(std::vector<DetId>& vdets, edm::Handle<T>& hits, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, bool debug) {
 
     int    khit      = 0;
     double energySum = 0;
@@ -172,9 +172,11 @@ namespace spr{
       else if (subdet == (int)(HcalOuter))   eThr = hoThr;
       for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
         if (hit[ihit] != hits->end()) {
-          energy += hit[ihit]->energy();
-	  khit++;
-	  if (debug) std::cout << "energyHCAL:: Hit " << khit << " " << (HcalDetId)vdets[i] << std::endl;
+          khit++;
+	  if (debug) std::cout << "energyHCAL:: Hit " << khit << " " << (HcalDetId)vdets[i] << " E " << hit[ihit]->energy() << " t " << hit[ihit]->time() << std::endl;
+          if (hit[ihit]->time() > tMin && hit[ihit]->time() < tMax) {
+            energy += hit[ihit]->energy();
+          }
         }
       }
       if (energy>eThr) energySum += energy;
@@ -186,9 +188,8 @@ namespace spr{
 
 
   template <typename T>
-  std::vector< typename T::const_iterator> hitsHCAL(std::vector<DetId>& vdets, edm::Handle<T>& hits, bool debug) {
+  void hitsHCAL(std::vector<DetId>& vdets, edm::Handle<T>& hits, std::vector< typename T::const_iterator>& hitlist, bool debug) {
 
-    std::vector< typename T::const_iterator> hitlist;
     unsigned int maxsize = vdets.size();
     for (unsigned int i=0; i<maxsize; i++) {
       std::vector< typename T::const_iterator> hit = spr::findHit(hits, vdets[i]);
@@ -196,7 +197,6 @@ namespace spr{
     }
 
     if (debug) std::cout << "hitsHCAL::Number of hits " << hitlist.size() << std::endl;
-    return hitlist;
   }
 
 }

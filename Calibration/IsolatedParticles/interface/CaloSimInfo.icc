@@ -12,6 +12,15 @@ namespace spr{
   template <typename T>
   std::map<std::string,double> eECALSimInfo(const edm::Event& iEvent, const DetId& det, const CaloGeometry* geo, const CaloTopology* caloTopology, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, double timeCut, bool debug) {
 
+    spr::caloSimInfo info;
+    spr::eECALSimInfo(iEvent, det, geo, caloTopology, hitsEB, hitsEE, SimTk, SimVtx, pTrack, associate, ieta, iphi, info, timeCut, debug);
+    // return a map of matching type and energy of SimHits
+    return spr::eCaloSimInfo(info);
+  }
+
+  template <typename T>
+  void eECALSimInfo(const edm::Event& iEvent, const DetId& det, const CaloGeometry* geo, const CaloTopology* caloTopology, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, spr::caloSimInfo& info, double timeCut, bool debug) {
+
     if (debug)
       std::cout << "Processing eECALSimInfo " << 2*ieta+1 << "x" << 2*iphi+1 << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize() << std::endl;
 
@@ -21,12 +30,12 @@ namespace spr{
     //vector of Ecal cells in NxN
     std::vector<DetId> vdets = spr::matrixECALIds(det, ieta, iphi, geo, caloTopology, debug);
 
-    // return a map of matching type and energy of SimHits
-    return spr::eCaloSimInfo(vdets, geo, hitsEB, hitsEE, SimTk, SimVtx, trkInfo, timeCut, debug);
+    //Construct a struct with matching type and energy of SimHits
+    spr::eCaloSimInfo(vdets, geo, hitsEB, hitsEE, SimTk, SimVtx, trkInfo, info, timeCut, debug);
   }
 
   template <typename T>
-  std::map<std::string,double> eECALSimInfo(const edm::Event& iEvent, const DetId& det, const CaloGeometry* geo, const CaloTopology* caloTopology, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ietaE, int ietaW, int iphiN, int iphiS, double timeCut, bool debug) {
+  void eECALSimInfo(const edm::Event& iEvent, const DetId& det, const CaloGeometry* geo, const CaloTopology* caloTopology, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ietaE, int ietaW, int iphiN, int iphiS, spr::caloSimInfo& info, double timeCut, bool debug) {
 
     if (debug)
       std::cout << "Processing eECALSimInfo " << ietaE+ietaW+1 << "x" << iphiN+iphiS+1 << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize() << std::endl;
@@ -38,11 +47,20 @@ namespace spr{
     std::vector<DetId> vdets = spr::matrixECALIds(det, ietaE, ietaW, iphiN, iphiS, geo, caloTopology, debug);
 
     // return a map of matching type and energy of SimHits
-    return spr::eCaloSimInfo(vdets, geo, hitsEB, hitsEE, SimTk, SimVtx, trkInfo, timeCut, debug);
+    spr::eCaloSimInfo(vdets, geo, hitsEB, hitsEE, SimTk, SimVtx, trkInfo, info, timeCut, debug);
   }
 
   template <typename T>
-  std::map<std::string,double> eHCALSimInfo(const edm::Event& iEvent, const HcalTopology* topology, const DetId& det, const CaloGeometry* geo, edm::Handle<T>& hits,edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, double timeCut, bool includeHO, bool debug) {
+  std::map<std::string,double> eHCALSimInfo(const edm::Event& iEvent, const HcalTopology* topology, const DetId& det, const CaloGeometry* geo, edm::Handle<T>& hits, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, double timeCut, bool includeHO, bool debug) {
+
+    spr::caloSimInfo info;
+    spr::eHCALSimInfo(iEvent, topology, det, geo, hits, SimTk, SimVtx, pTrack, associate, ieta, iphi, info, timeCut, includeHO, debug);
+    // return a map of matching type and energy of SimHits
+    return spr::eCaloSimInfo(info);
+  }
+
+  template <typename T>
+  void eHCALSimInfo(const edm::Event& iEvent, const HcalTopology* topology, const DetId& det, const CaloGeometry* geo, edm::Handle<T>& hits,edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ieta, int iphi, spr::caloSimInfo& info, double timeCut, bool includeHO, bool debug) {
 
     if (debug)
       std::cout << "Processing eHCALSimInfo " << 2*ieta+1 << "x" << 2*iphi+1 << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize() << std::endl;
@@ -51,13 +69,14 @@ namespace spr{
     edm::SimTrackContainer::const_iterator trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack,associate, debug);
 
     // get the hits in Hcal in NxN around det
-    std::vector< typename T::const_iterator> hit = spr::hitHCALmatrix(topology,det,hits,ieta,iphi,includeHO,debug);
+    std::vector< typename T::const_iterator> hit;
+    spr::hitHCALmatrix(topology,det,hits,ieta,iphi,hit,includeHO,debug);
 
-    return spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, includeHO, debug);
+    spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, info, timeCut, includeHO, debug);
   }
 
   template <typename T>
-  std::map<std::string,double> eHCALSimInfo(const edm::Event& iEvent, const HcalTopology* topology, const DetId& det, const CaloGeometry* geo, edm::Handle<T>& hits,edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ietaE, int ietaW, int iphiN, int iphiS, double timeCut, bool includeHO, bool debug) {
+  void eHCALSimInfo(const edm::Event& iEvent, const HcalTopology* topology, const DetId& det, const CaloGeometry* geo, edm::Handle<T>& hits,edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const reco::Track* pTrack, TrackerHitAssociator& associate, int ietaE, int ietaW, int iphiN, int iphiS, spr::caloSimInfo& info, double timeCut, bool includeHO, bool debug) {
 
     if (debug)
       std::cout << "Processing eHCALSimInfo " << ietaE+ietaW+1 << "x"<< iphiN+iphiS+1 << "\ntrkMom " << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize() << std::endl;
@@ -66,9 +85,10 @@ namespace spr{
     edm::SimTrackContainer::const_iterator trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack,associate, debug);
 
     // get the hits in Hcal in NxN around det
-    std::vector< typename T::const_iterator> hit = spr::hitHCALmatrixTotal(topology,det,hits,ietaE,ietaW,iphiN,iphiS,includeHO,debug);
+    std::vector< typename T::const_iterator> hit;
+    spr::hitHCALmatrixTotal(topology,det,hits,ietaE,ietaW,iphiN,iphiS,hit,includeHO,debug);
 
-    return spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, includeHO, debug);
+    spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, info, timeCut, includeHO, debug);
   }
 
   // NxN method modified to return vector of  
@@ -89,8 +109,8 @@ namespace spr{
       spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
 
     // Get list of simhits in matrix ("hits" is list of pcalo simhits)
-    std::vector< typename T::const_iterator> hit = 
-      spr::hitHCALmatrix(topology,det,hits,ieta,iphi,debug);
+    std::vector< typename T::const_iterator> hit; 
+    spr::hitHCALmatrix(topology,det,hits,ieta,iphi,hit,false,debug);
 
     return eCaloSimInfo(hits, SimTk, SimVtx, hit, trkInfo, multiplicityVector, debug);
   }
@@ -150,7 +170,7 @@ namespace spr{
   }
 
   template <typename T>
-  std::map<std::string,double> eCaloSimInfo(std::vector<DetId> vdets, const CaloGeometry* geo, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE,  edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, edm::SimTrackContainer::const_iterator trkInfo, double timeCut, bool debug){
+  void eCaloSimInfo(std::vector<DetId> vdets, const CaloGeometry* geo, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE,  edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, edm::SimTrackContainer::const_iterator trkInfo, spr::caloSimInfo& info, double timeCut, bool debug){
 
     std::vector< typename T::const_iterator> hitEB, hitEE, hit;
     for (unsigned int i1=0; i1<vdets.size(); i1++) {
@@ -171,49 +191,36 @@ namespace spr{
       }
     }
 
-    std::map<std::string,double> eEBSimInfo = spr::eCaloSimInfo(geo, hitsEB, SimTk, SimVtx, hitEB, trkInfo, timeCut, false, debug);
-    std::map<std::string,double> eEESimInfo = spr::eCaloSimInfo(geo, hitsEE, SimTk, SimVtx, hitEE, trkInfo, timeCut, false, debug);
+    spr::caloSimInfo eeInfo;
+    spr::eCaloSimInfo(geo, hitsEB, SimTk, SimVtx, hitEB, trkInfo, info,   timeCut, false, debug);
+    spr::eCaloSimInfo(geo, hitsEE, SimTk, SimVtx, hitEE, trkInfo, eeInfo, timeCut, false, debug);
 
-    double matchedId = eEBSimInfo["pdgMatched"];
-    if (matchedId == 0) matchedId = eEESimInfo["pdgMatched"];
-    std::map<std::string, double> simInfo;
-    simInfo.insert( std::pair<std::string, double>("eMatched",    (eEBSimInfo["eMatched"]+eEESimInfo["eMatched"])) );
-    simInfo.insert( std::pair<std::string, double>("pdgMatched",  matchedId) );
-    simInfo.insert( std::pair<std::string, double>("eGamma",      (eEBSimInfo["eGamma"]+eEESimInfo["eGamma"])) );
-    simInfo.insert( std::pair<std::string, double>("eNeutralHad", (eEBSimInfo["eNeutralHad"]+eEESimInfo["eNeutralHad"])) );
-    simInfo.insert( std::pair<std::string, double>("eChargedHad", (eEBSimInfo["eChargedHad"]+eEESimInfo["eChargedHad"])) );
-    simInfo.insert( std::pair<std::string, double>("eRest",       (eEBSimInfo["eRest"]+eEESimInfo["eRest"])) );
-    simInfo.insert( std::pair<std::string, double>("eTotal",      (eEBSimInfo["eTotal"]+eEESimInfo["eTotal"])) );
+    if (info.pdgMatched == 0) info.pdgMatched = eeInfo.pdgMatched;
+    info.eMatched    += eeInfo.eMatched;
+    info.eGamma      += eeInfo.eGamma;
+    info.eNeutralHad += eeInfo.eNeutralHad;
+    info.eChargedHad += eeInfo.eChargedHad;
+    info.eRest       += eeInfo.eRest;
+    info.eTotal      += eeInfo.eTotal;
     if (debug) {
-      std::cout << " Matched " << eEBSimInfo["eMatched"] << "|" 
-                << eEESimInfo["eMatched"] << "|" << simInfo["eMatched"]
-                << "  energyGamma " << eEBSimInfo["eGamma"] << "|"
-                << eEESimInfo["eGamma"] << "|" << simInfo["eGamma"]
-	        << "  energyNeutral " << eEBSimInfo["eNeutralHad"] << "|"
-                << eEESimInfo["eNeutralHad"] << "|" << simInfo["eNeutralHad"]
-                << "  energyCharged " << eEBSimInfo["eChargedHad"] << "|"
-                << eEESimInfo["eChargedHad"] << "|" << simInfo["eChargedHad"]
-                << "  energyRest " << eEBSimInfo["eRest"] << "|" 
-                << eEESimInfo["eRest"] << "|" << simInfo["eRest"]
-                << "  energyTot " << eEBSimInfo["eTotal"] << "|"
-                << eEESimInfo["eTotal"] << "|" << simInfo["eTotal"] 
-	        << std::endl;
+      std::cout << " energyMatched " << info.eMatched 
+                << " energyGamma   " << info.eGamma
+	        << " energyNeutral " << info.eNeutralHad
+                << " energyCharged " << info.eChargedHad
+                << " energyRest    " << info.eRest
+                << " energyTotal   " << info.eTotal << std::endl;
     }
-    return simInfo;
+
   }
 
   template <typename T>
-  std::map<std::string,double> eCaloSimInfo(const CaloGeometry* geo, edm::Handle<T>& hits, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, std::vector< typename T::const_iterator> hit,  edm::SimTrackContainer::const_iterator trkInfo, double timeCut, bool includeHO, bool debug){
+  void eCaloSimInfo(const CaloGeometry* geo, edm::Handle<T>& hits, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, std::vector< typename T::const_iterator> hit,  edm::SimTrackContainer::const_iterator trkInfo, spr::caloSimInfo& info, double timeCut, bool includeHO, bool debug) { 
 
     int matchedId = 0;         //pdgid
-
     if (debug) {
       if( trkInfo != SimTk->end()) std::cout <<"In eCaloSimInfo::  matchSimTrk:"<< trkInfo->trackId() << " matchedId " << trkInfo->type() << std::endl;
       else                         std::cout <<"In eCaloSimInfo::  not valid track pointer" << std::endl;
     }
-
-    double energySum = 0.0;
-    double energyGamma=0.0, energyNeutral=0.0, energyCharged=0.0, energyRest=0.0;
 
     if (trkInfo != SimTk->end()) {
 
@@ -234,7 +241,7 @@ namespace spr{
 
     	 // if the hitId matches with matching trackId
           if (hit[ihit]->geantTrackId() == (int)matchSimTrk ) {
-	    energySum += hit[ihit]->energy();
+	    info.eMatched += hit[ihit]->energy();
           } else { 
          // trace back the history and check the pdgId of origin SimTrack of SimHit
 	    bool found = false;
@@ -242,43 +249,48 @@ namespace spr{
 	      if (hit[ihit]->geantTrackId() == (int)simTrkItr->trackId()) {
   	        found = true;
 	        bool match = spr::validSimTrack(matchSimTrk, simTrkItr, SimTk, SimVtx, debug);
- 	        if      (match) {energySum += hit[ihit]->energy();}
+ 	        if      (match) {info.eMatched += hit[ihit]->energy();}
 	        else {
 	          edm::SimTrackContainer::const_iterator parentItr =  spr::parentSimTrack(simTrkItr, SimTk, SimVtx, debug); 
 	          if (debug) {
                     if (parentItr != SimTk->end() ) std::cout << "original parent of " << simTrkItr->trackId() << " " << parentItr->trackId() << ", " << parentItr->type() << " Energy " << hit[ihit]->energy() << std::endl;
                     else                            std::cout << "original parent of " << simTrkItr->trackId() << " not found; Energy " << hit[ihit]->energy() << std::endl;
                   }
-	          if (parentItr == SimTk->end() )        { energyRest += hit[ihit]->energy();}
-	          else if (parentItr->type()  == 22)     { energyGamma += hit[ihit]->energy();}
-	          else if ((int)parentItr->charge()== 0) { energyNeutral += hit[ihit]->energy();}
-	          else                                     energyCharged += hit[ihit]->energy();
+	          if (parentItr == SimTk->end() )        { info.eRest += hit[ihit]->energy();}
+	          else if (parentItr->type()  == 22)     { info.eGamma += hit[ihit]->energy();}
+	          else if ((int)parentItr->charge()== 0) { info.eNeutralHad += hit[ihit]->energy();}
+	          else                                     info.eChargedHad += hit[ihit]->energy();
 	        }
 	        break;
 	      } 
 	    }
-	    if (!found) energyRest += hit[ihit]->energy();
+	    if (!found) info.eRest += hit[ihit]->energy();
 	    if (debug) std::cout << "Hit " << ihit << ": " << *hit[ihit] << std::endl;
           }
         }
       } // loop over hits
     }
 
-    double energyTot = energySum+energyGamma+energyNeutral+energyCharged+energyRest;
-    std::map<std::string, double> simInfo;
-    simInfo.insert( std::pair<std::string, double>("eMatched",    energySum) );
-    simInfo.insert( std::pair<std::string, double>("pdgMatched",  matchedId) );
-    simInfo.insert( std::pair<std::string, double>("eGamma",      energyGamma) );
-    simInfo.insert( std::pair<std::string, double>("eNeutralHad", energyNeutral) );
-    simInfo.insert( std::pair<std::string, double>("eChargedHad", energyCharged) );
-    simInfo.insert( std::pair<std::string, double>("eRest",       energyRest) );
-    simInfo.insert( std::pair<std::string, double>("eTotal",      energyTot) );
+    info.eTotal = info.eMatched+info.eGamma+info.eNeutralHad+info.eChargedHad+info.eRest;
+    info.pdgMatched = matchedId;
     if (debug) {
-      std::cout << " energySum " << energySum << "  energyGamma " << energyGamma 
-	        << "  energyNeutral " << energyNeutral << "  energyCharged " 
-                << energyCharged << "  energyRest " << energyRest 
-                << "  energyTot " << energyTot << std::endl;
+      std::cout << " Energy (matched) " << info.eMatched << " (gamma) " 
+                << info.eGamma << " (neutral) " << info.eNeutralHad 
+                << " (charged) " << info.eChargedHad << " (rest) " <<info.eRest
+                << " (total) " << info.eTotal << std::endl;
     }
+  }
+
+  std::map<std::string,double> eCaloSimInfo (spr::caloSimInfo& info) {
+
+    std::map<std::string, double> simInfo;
+    simInfo.insert( std::pair<std::string, double>("eMatched",    info.eMatched));
+    simInfo.insert( std::pair<std::string, double>("pdgMatched",  info.pdgMatched));
+    simInfo.insert( std::pair<std::string, double>("eGamma",      info.eGamma));
+    simInfo.insert( std::pair<std::string, double>("eNeutralHad", info.eNeutralHad));
+    simInfo.insert( std::pair<std::string, double>("eChargedHad", info.eChargedHad));
+    simInfo.insert( std::pair<std::string, double>("eRest",       info.eRest));
+    simInfo.insert( std::pair<std::string, double>("eTotal",      info.eTotal));
     return simInfo;
   }
 

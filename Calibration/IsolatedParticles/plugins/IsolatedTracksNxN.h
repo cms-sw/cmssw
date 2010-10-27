@@ -109,19 +109,19 @@
 #include "TTree.h"
 
 class IsolatedTracksNxN : public edm::EDAnalyzer {
-
-public:
+  
+ public:
   explicit IsolatedTracksNxN(const edm::ParameterSet&);
   ~IsolatedTracksNxN();
   
-private:
+ private:
   //void   beginJob(const edm::EventSetup&) ;
   void   beginJob() ;
   void   analyze(const edm::Event&, const edm::EventSetup&);
   void   endJob() ;
-
+  
   void   printTrack(const reco::Track* pTrack);
-
+  
   void   BookHistograms();
 
   double DeltaPhi(double v1, double v2);
@@ -130,8 +130,8 @@ private:
 
   void clearTreeVectors();  
   
-private:
-
+ private:
+  
   bool initL1, doMC;
   static const size_t nL1BitsMax=128;
   std::string algoBitToName[nL1BitsMax];
@@ -149,16 +149,25 @@ private:
   edm::InputTag JetExtender_, JetSrc_;
 
   double minTrackP_, maxTrackEta_;
+  double tMinE_, tMaxE_, tMinH_, tMaxH_;
 
   int    nEventProc;
 
-  double genPartPBins[22], genPartEtaBins[5];
-
   // track associator to detector parameters 
-  TrackAssociatorParameters parameters_;
-  mutable TrackDetectorAssociator* trackAssociator_;
+  //TrackAssociatorParameters parameters_;
+  //mutable TrackDetectorAssociator* trackAssociator_;
 
   const MagneticField *bField;
+
+  double genPartPBins[16], genPartEtaBins[4];
+
+  static const size_t NPBins   = 15;
+  static const size_t NEtaBins = 3;
+  
+  TH1F *h_maxNearP15x15[NPBins][NEtaBins],
+       *h_maxNearP21x21[NPBins][NEtaBins],
+       *h_maxNearP25x25[NPBins][NEtaBins],
+       *h_maxNearP31x31[NPBins][NEtaBins];
 
   TH1I *h_L1AlgoNames;
   TH1F *h_PVTracksWt;
@@ -173,6 +182,8 @@ private:
 
   TH1F *h_recPt_2,    *h_recP_2,    *h_recEta_2, *h_recPhi_2;
   TH2F *h_recEtaPt_2, *h_recEtaP_2;
+
+  
  
   TTree* tree;
 
@@ -195,6 +206,8 @@ private:
   std::vector<double> *t_nTrksJetCalo,  *t_nTrksJetVtx;
 
   std::vector<double> *t_trackPAll,     *t_trackEtaAll,    *t_trackPhiAll,  *t_trackPdgIdAll;
+  std::vector<double> *t_trackPtAll;
+  std::vector<double> *t_trackDxyAll,   *t_trackDzAll,     *t_trackDxyPVAll,*t_trackDzPVAll, *t_trackChiSqAll;
 
   std::vector<double> *t_trackP,        *t_trackPt,        *t_trackEta,      *t_trackPhi;
   std::vector<double> *t_trackEcalEta,  *t_trackEcalPhi,   *t_trackHcalEta,  *t_trackHcalPhi;   
@@ -205,8 +218,8 @@ private:
 
   std::vector<int>    *t_NLayersCrossed,*t_trackNOuterHits;
   std::vector<int>    *t_trackHitsTOB,      *t_trackHitsTEC;
-  std::vector<int>    *t_trackHitInMissTOB, *t_trackHitInMissTEC,  *t_trackHitInMissTIB,  *t_trackHitInMissTID;
-  std::vector<int>    *t_trackHitOutMissTOB,*t_trackHitOutMissTEC, *t_trackHitOutMissTIB, *t_trackHitOutMissTID;
+  std::vector<int>    *t_trackHitInMissTOB, *t_trackHitInMissTEC,  *t_trackHitInMissTIB,  *t_trackHitInMissTID,  *t_trackHitInMissTIBTID;
+  std::vector<int>    *t_trackHitOutMissTOB,*t_trackHitOutMissTEC, *t_trackHitOutMissTIB, *t_trackHitOutMissTID,*t_trackHitOutMissTOBTEC;
   std::vector<int>    *t_trackHitInMeasTOB, *t_trackHitInMeasTEC,  *t_trackHitInMeasTIB,  *t_trackHitInMeasTID;
   std::vector<int>    *t_trackHitOutMeasTOB,*t_trackHitOutMeasTEC, *t_trackHitOutMeasTIB, *t_trackHitOutMeasTID;
   std::vector<double> *t_trackOutPosOutHitDr, *t_trackL;
@@ -256,6 +269,7 @@ private:
 
   std::vector<double> *t_maxNearHcalP3x3,   *t_maxNearHcalP5x5,   *t_maxNearHcalP7x7;
   std::vector<double> *t_h3x3,              *t_h5x5,              *t_h7x7;
+  std::vector<double> *t_h3x3Sig,           *t_h5x5Sig,           *t_h7x7Sig;
   std::vector<int>    *t_infoHcal;
 
   std::vector<double> *t_trkHcalEne;
