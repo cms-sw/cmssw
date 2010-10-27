@@ -1,11 +1,14 @@
 /*
  * \file L1TDTTF.cc
  *
- * $Date: 2010/10/27 08:08:52 $
- * $Revision: 1.24 $
+ * $Date: 2010/10/27 13:37:08 $
+ * $Revision: 1.25 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTF.cc,v $
+ * Revision 1.25  2010/10/27 13:37:08  gcodispo
+ * Changed name to 2nd track quality (same convention as for all tracks)
+ *
  * Revision 1.24  2010/10/27 08:08:52  gcodispo
  * Graphic improvements (names, titles, labels...)
  *
@@ -63,6 +66,9 @@
  * DQM core migration.
  *
  * $Log: L1TDTTF.cc,v $
+ * Revision 1.25  2010/10/27 13:37:08  gcodispo
+ * Changed name to 2nd track quality (same convention as for all tracks)
+ *
  * Revision 1.24  2010/10/27 08:08:52  gcodispo
  * Graphic improvements (names, titles, labels...)
  *
@@ -540,7 +546,7 @@ void L1TDTTF::beginJob(void)
     dttf_qual_integ_2ndTrack->setAxisTitle("Quality", 1);
     setQualLabel( dttf_qual_integ_2ndTrack, 1);
 
-    sprintf(hname, "dttf_11_q_2ndTrack");
+    sprintf(hname, "dttf_11_charge_2ndTrack");
     sprintf(htitle, "DTTF 2nd Tracks Charge distribution");
     dttf_q_integ_2ndTrack = dbe_->book1D(hname, htitle, 2, -0.5, 1.5);
     dttf_q_integ_2ndTrack->setAxisTitle("Charge", 1);
