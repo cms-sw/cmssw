@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Mon Mar  1 17:18:04 EST 2010
-// $Id: AnalyzerWithCentrality.cc,v 1.7 2010/07/09 08:38:37 yilmaz Exp $
+// $Id: AnalyzerWithCentrality.cc,v 1.8 2010/07/09 10:17:04 yilmaz Exp $
 //
 //
 
@@ -31,7 +31,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/HeavyIonEvent/interface/Centrality.h"
+#include "DataFormats/HeavyIonEvent/interface/CentralityProvider.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -56,7 +56,7 @@ class AnalyzerWithCentrality : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
 
-   const CentralityBins * cbins_;
+   CentralityProvider * centrality_;
    edm::Service<TFileService> fs;
    TH1D* h1;
    TNtuple* nt;
@@ -74,13 +74,12 @@ class AnalyzerWithCentrality : public edm::EDAnalyzer {
 // constructors and destructor
 //
 AnalyzerWithCentrality::AnalyzerWithCentrality(const edm::ParameterSet& iConfig) : 
-cbins_(0)
+centrality_(0)
 {
    //now do what ever initialization is needed
    h1 = fs->make<TH1D>("h1","histogram",100,0,100);
    nt = fs->make<TNtuple>("hi","hi","hf:hft:hftp:hftm:eb:ee:eep:eem:npix:et:zdc:zdcp:zdcm:bin:trig");
 }
-
 
 AnalyzerWithCentrality::~AnalyzerWithCentrality()
 {
@@ -100,24 +99,22 @@ void
 AnalyzerWithCentrality::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-   if(!cbins_) cbins_ = getCentralityBinsFromDB(iSetup);
+   if(!centrality_) centrality_ = new CentralityProvider(iSetup);
+   centrality_->newEvent(iEvent,iSetup);
 
-   edm::Handle<reco::Centrality> cent;
-   iEvent.getByLabel(edm::InputTag("hiCentrality"),cent);
-
-   double hf = cent->EtHFhitSum();
-   double hft = cent->EtHFtowerSum();
-   double hftp = cent->EtHFtowerSumPlus();
-   double hftm = cent->EtHFtowerSumMinus();
-   double eb = cent->EtEBSum();
-   double ee = cent->EtEESum();
-   double eep = cent->EtEESumPlus();
-   double eem = cent->EtEESumMinus();
-   double zdc = cent->zdcSum();
-   double zdcm = cent->zdcSumMinus();
-   double zdcp = cent->zdcSumPlus();
-   double npix = cent->multiplicityPixel();
-   double et = cent->EtMidRapiditySum();
+   double hf = centrality_->raw()->EtHFhitSum();
+   double hft = centrality_->raw()->EtHFtowerSum();
+   double hftp = centrality_->raw()->EtHFtowerSumPlus();
+   double hftm = centrality_->raw()->EtHFtowerSumMinus();
+   double eb = centrality_->raw()->EtEBSum();
+   double ee = centrality_->raw()->EtEESum();
+   double eep = centrality_->raw()->EtEESumPlus();
+   double eem = centrality_->raw()->EtEESumMinus();
+   double zdc = centrality_->raw()->zdcSum();
+   double zdcm = centrality_->raw()->zdcSumMinus();
+   double zdcp = centrality_->raw()->zdcSumPlus();
+   double npix = centrality_->raw()->multiplicityPixel();
+   double et = centrality_->raw()->EtMidRapiditySum();
 
    cout<<"Centrality variables in the event:"<<endl;
    cout<<"Total energy in HF hits : "<<hf<<endl;
@@ -125,44 +122,52 @@ AnalyzerWithCentrality::analyze(const edm::Event& iEvent, const edm::EventSetup&
    cout<<"Total energy in EE basic clusters : "<<eep+eem<<endl;
    cout<<"Total energy in EB basic clusters : "<<eb<<endl;
    
-   int bin = cbins_->getBin(hf);
+   centrality_->print();
+   
+   cout<<"Centrality of the event : "<<centrality_->centralityValue(iEvent)<<endl;
 
+   int bin = centrality_->getBin(iEvent);
+   cout<<"a"<<endl;
    nt->Fill(hf,hft,hftp,hftm,eb,ee,eep,eem,npix,et,zdc,zdcp,zdcm,bin,1);
+   cout<<"b"<<endl;
 
    h1->Fill(bin);
+   cout<<"c"<<endl;
 
-   int nbins = cbins_->getNbins(); 
-   int binsize = 100/nbins;
+   int nbins = centrality_->getNbins(); 
+   cout<<"d"<<endl;
+   int binsize = 100./nbins;
+   cout<<"e"<<endl;
    char* binName = Form("%d to % d",bin*binsize,(bin+1)*binsize);
    cout<<"The event falls into centrality bin : "<<binName<<" id : "<<bin<<endl;
 
-   double npartMean = cbins_->NpartMean(hf);
-   double npartSigma = cbins_->NpartSigma(hf);
+   double npartMean = centrality_->NpartMean(iEvent);
+   double npartSigma = centrality_->NpartSigma(iEvent);
    cout<<"Npart Mean : "<<npartMean<<"   Variance : "<<npartSigma<<endl;
 
    // or, alternatively,
-   npartMean = cbins_->NpartMeanOfBin(bin);
-   npartSigma = cbins_->NpartSigmaOfBin(bin);
+   npartMean = centrality_->NpartMeanOfBin(bin);
+   npartSigma = centrality_->NpartSigmaOfBin(bin);
 
-   double ncollMean = cbins_->NcollMean(hf);
-   double ncollSigma = cbins_->NcollSigma(hf);
+   double ncollMean = centrality_->NcollMean(iEvent);
+   double ncollSigma = centrality_->NcollSigma(iEvent);
    cout<<"Ncoll Mean : "<<ncollMean<<"   Variance : "<<ncollSigma<<endl;
 
    // or, alternatively,
-   ncollMean = cbins_->NcollMeanOfBin(bin);
-   ncollSigma = cbins_->NcollSigmaOfBin(bin);
+   ncollMean = centrality_->NcollMeanOfBin(bin);
+   ncollSigma = centrality_->NcollSigmaOfBin(bin);
 
 
-   double nhardMean = cbins_->NhardMean(hf);
-   double nhardSigma = cbins_->NhardSigma(hf);
+   double nhardMean = centrality_->NhardMean(iEvent);
+   double nhardSigma = centrality_->NhardSigma(iEvent);
    cout<<"Nhard Mean : "<<nhardMean<<"   Variance : "<<nhardSigma<<endl;
 
-   double bMean = cbins_->bMean(hf);
-   double bSigma = cbins_->bSigma(hf);
+   double bMean = centrality_->bMean(iEvent);
+   double bSigma = centrality_->bSigma(iEvent);
    cout<<"b Mean : "<<bMean<<"   Variance : "<<bSigma<<endl;
 
-   bMean = cbins_->bMeanOfBin(bin);
-   bSigma = cbins_->bSigmaOfBin(bin);
+   bMean = centrality_->bMeanOfBin(bin);
+   bSigma = centrality_->bSigmaOfBin(bin);
 
 
 }
