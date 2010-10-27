@@ -67,6 +67,8 @@ private:
 
   std::string wheel_[6];
   std::string wheelpath_[6];
+  std::string inclusivepath_;
+  std::string gmtpath_;
 
   MonitorElement* dttf_phi_eta_integ;
   MonitorElement* dttf_phi_eta_fine_integ;
@@ -95,10 +97,16 @@ private:
   MonitorElement* dttf_bx_wheel_integ_2ndTrack[6];
   MonitorElement* dttf_bx_wheel_summary_2ndTrack[6];
   MonitorElement* dttf_nTracks_wheel_2ndTrack[6];
+  MonitorElement* dttf_quality_summary_wheel[6];
+  MonitorElement* dttf_quality_wheel[6];
+  MonitorElement* dttf_eta_wheel[6];
+  MonitorElement* dttf_q_wheel[6];
+  MonitorElement* dttf_pt_wheel[6];
+  MonitorElement* dttf_phi_wheel[6];
+
 
   MonitorElement* dttf_quality_integ;
   MonitorElement* dttf_quality_summary;
-  MonitorElement* dttf_quality_wheel[6];
 
 
 

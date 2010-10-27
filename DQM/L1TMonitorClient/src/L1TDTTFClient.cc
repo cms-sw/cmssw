@@ -19,7 +19,7 @@
 
 
 L1TDTTFClient::L1TDTTFClient(const edm::ParameterSet& ps)
-  : l1tdttffolder_ ( ps.getUntrackedParameter<std::string> ("l1tSourceFolder", "L1T/L1TDTTF/DTTF_TRACKS") ),
+  : l1tdttffolder_ ( ps.getUntrackedParameter<std::string> ("l1tSourceFolder", "L1T/L1TDTTF") ),
     dttfSource_( ps.getParameter< edm::InputTag >("dttfSource") ),
     online_( ps.getUntrackedParameter<bool>("online", true) ),
     resetafterlumi_( ps.getUntrackedParameter<int>("resetAfterLumi", 3) ),
@@ -44,12 +44,12 @@ void L1TDTTFClient::beginJob(void)
   /// get backendinterface
   dbe_ = edm::Service<DQMStore>().operator->();
 
-  wheelpath_[0] = l1tdttffolder_ + "/WHEEL_N2";
-  wheelpath_[1] = l1tdttffolder_ + "/WHEEL_N1";
-  wheelpath_[2] = l1tdttffolder_ + "/WHEEL_N0";
-  wheelpath_[3] = l1tdttffolder_ + "/WHEEL_P0";
-  wheelpath_[4] = l1tdttffolder_ + "/WHEEL_P1";
-  wheelpath_[5] = l1tdttffolder_ + "/WHEEL_P2";
+  wheelpath_[0] = l1tdttffolder_ + "/02-WHEEL_N2";
+  wheelpath_[1] = l1tdttffolder_ + "/03-WHEEL_N1";
+  wheelpath_[2] = l1tdttffolder_ + "/04-WHEEL_N0";
+  wheelpath_[3] = l1tdttffolder_ + "/05-WHEEL_P0";
+  wheelpath_[4] = l1tdttffolder_ + "/06-WHEEL_P1";
+  wheelpath_[5] = l1tdttffolder_ + "/07-WHEEL_P2";
 
   wheel_[0] = "N2";
   wheel_[1] = "N1";
@@ -58,22 +58,25 @@ void L1TDTTFClient::beginJob(void)
   wheel_[4] = "P1";
   wheel_[5] = "P2";
 
+  inclusivepath_ = l1tdttffolder_ + "/01-INCLUSIVE";
+  gmtpath_ = l1tdttffolder_ + "/08-GMT_MATCH";
+
   /// occupancy summary
   char hname[100];//histo name
   char mename[100];//ME name
 
   /// SUMMARY
-  dbe_->setCurrentFolder( l1tdttffolder_ + "/INCLUSIVE" );
+  dbe_->setCurrentFolder( inclusivepath_ );
 
   /// DTTF Tracks per Wheel ditribution
   sprintf(hname, "dttf_02_nTracks");
-  sprintf(mename, "DTTF Tracks per Wheel distribution");
+  sprintf(mename, "DTTF Tracks by Wheel");
   dttf_nTracks_integ = dbe_->book1D(hname, mename, 6, 0, 6);
   setWheelLabel( dttf_nTracks_integ );
 
   /// DTTF Tracks distribution by Sector and Wheel
-  sprintf(hname, "dttf_03_tracks_distr_summary");
-  sprintf(mename, "DTTF Tracks distribution by Sector and Wheel (N0 entries 5-10%% w.r.t. P0: violet is normal)");
+  sprintf(hname, "dttf_03_tracks_occupancy_summary");
+  sprintf(mename, "DTTF Tracks Occupancy");
   dttf_occupancySummary = dbe_->book2D( hname, mename, 6, 0, 6, 12, 1, 13 );
   setWheelLabel( dttf_occupancySummary );
   dttf_occupancySummary->setAxisTitle("Sector", 2);
@@ -81,7 +84,7 @@ void L1TDTTFClient::beginJob(void)
   /// RESET 04
 
   /// DTTF Tracks BX Distribution by Wheel
-  sprintf(hname, "dttf_05_bx_distr");
+  sprintf(hname, "dttf_05_bx_occupancy");
   sprintf(mename, "DTTF Tracks BX Distribution by Wheel");
   dttf_bx_summary = dbe_->book2D( hname, mename, 6, 0, 6, 3, -1, 2 );
   setWheelLabel( dttf_bx_summary );
@@ -89,7 +92,7 @@ void L1TDTTFClient::beginJob(void)
 
   /// Fraction of DTTF Tracks BX w.r.t. Tracks with BX=0
   sprintf(hname, "dttf_06_bx");
-  sprintf(mename, "Fraction of DTTF Tracks BX w.r.t. Tracks with BX=0");
+  sprintf(mename, "DTTF Tracks BX w.r.t. Tracks with BX=0");
   dttf_bx_integ = dbe_->book1D( hname, mename, 3, -1.5, 1.5 );
   dttf_bx_integ->setAxisTitle("BX", 1);
 
@@ -101,8 +104,8 @@ void L1TDTTFClient::beginJob(void)
 
 
   /// Fraction of DTTF Tracks with Quality>4 by Sector and Wheel
-  sprintf(hname, "dttf_08_quality_distr");
-  sprintf(mename, "DTTF Tracks Quality distribution by wheel");
+  sprintf(hname, "dttf_08_quality_occupancy");
+  sprintf(mename, "DTTF Tracks Quality distribution by Wheel");
   dttf_quality_summary = dbe_->book2D( hname, mename, 6, 0, 6, 7, 1, 8 );
   dttf_quality_summary->setAxisTitle("Wheel", 1);
   setQualLabel( dttf_quality_summary, 2);
@@ -110,39 +113,39 @@ void L1TDTTFClient::beginJob(void)
 
 
   /// Fraction of DTTF Tracks with Quality>4 by Sector and Wheel
-  sprintf(hname, "dttf_09_highQualTracks_distr");
-  sprintf(mename, "Fraction of DTTF Tracks with Quality>2 by Sector and Wheel");
+  sprintf(hname, "dttf_09_highQualTracks_occupancy");
+  sprintf(mename, "Fraction of DTTF Tracks with Quality>3");
   dttf_highQual_Summary = dbe_->book2D( hname, mename, 6, 0, 6, 12, 1, 13 );
   setWheelLabel( dttf_highQual_Summary );
   dttf_highQual_Summary->setAxisTitle("Sector", 2);
 
 
   /// #eta-#phi Distribution of DTTF Tracks with coarse #eta assignment
-  sprintf(hname, "dttf_11_phi_eta_coarse_distr");
-  sprintf(mename, "#eta-#phi Distribution of DTTF Tracks with coarse #eta assignment (packed values)");
+  sprintf(hname, "dttf_10_phi_vs_etaCoarse");
+  sprintf(mename, "#eta-#phi DTTF Tracks occupancy (coarse #eta only, packed values)");
   dttf_phi_eta_coarse_integ = dbe_->book2D( hname, mename, 64, 0, 64,
 					    144, -6, 138. );
   dttf_phi_eta_coarse_integ->setAxisTitle("#eta", 1);
   dttf_phi_eta_coarse_integ->setAxisTitle("#phi", 2);
 
   /// #eta-#phi Distribution of DTTF Tracks with fine #eta assignment
-  sprintf(hname, "dttf_12_phi_etaFine_distr");
-  sprintf(mename, "#eta-#phi Distribution of DTTF Tracks with fine #eta assignment (packed values)");
+  sprintf(hname, "dttf_11_phi_vs_etaFine");
+  sprintf(mename, "#eta-#phi DTTF Tracks occupancy (fine #eta only, packed values)");
   dttf_phi_eta_fine_integ = dbe_->book2D( hname, mename, 64, 0, 64,
 					  144, -6, 138. );
   dttf_phi_eta_fine_integ->setAxisTitle("#eta", 1);
   dttf_phi_eta_fine_integ->setAxisTitle("#phi", 2);
 
   /// #eta-#phi Distribution of DTTF Tracks
-  sprintf(hname, "dttf_13_phi_eta_distr");
-  sprintf(mename, "#eta-#phi Distribution of DTTF Tracks");
+  sprintf(hname, "dttf_12_phi_vs_eta");
+  sprintf(mename, "#eta-#phi DTTF Tracks occupancy");
   dttf_phi_eta_integ = dbe_->book2D( hname, mename, 64, -1.2, 1.2,
 				     144, -15, 345. );
   dttf_phi_eta_integ->setAxisTitle("#eta", 1);
   dttf_phi_eta_integ->setAxisTitle("#phi", 2);
 
   /// Fraction of DTTF Tracks with Fine #eta Assignment
-  sprintf(hname, "dttf_14_eta_fine_fraction");
+  sprintf(hname, "dttf_13_eta_fine_fraction");
   sprintf(mename, "Fraction of DTTF Tracks with Fine #eta Assignment");
   dttf_eta_fine_fraction = dbe_->book1D( hname, mename, 6, 0, 6 );
   setWheelLabel(dttf_eta_fine_fraction);
@@ -151,25 +154,25 @@ void L1TDTTFClient::beginJob(void)
   //////// TH1F
 
   /// DTTF Tracks #eta distribution (Packed values)
-  sprintf(hname, "dttf_15_eta");
+  sprintf(hname, "dttf_14_eta");
   sprintf(mename, "DTTF Tracks #eta distribution (Packed values)");
   dttf_eta_integ = dbe_->book1D(hname, mename, 64, -0.5, 63.5);
   dttf_eta_integ->setAxisTitle("#eta", 1);
 
   /// DTTF Tracks Phi distribution (Packed values)
-  sprintf(hname, "dttf_16_phi");
+  sprintf(hname, "dttf_15_phi");
   sprintf(mename, "DTTF Tracks Phi distribution (Packed values)");
   dttf_phi_integ = dbe_->book1D(hname, mename, 144, -6, 138. );
   dttf_phi_integ->setAxisTitle("#phi", 1);
 
   /// DTTF Tracks p_{T} distribution (Packed values)
-  sprintf(hname, "dttf_17_pt");
+  sprintf(hname, "dttf_16_pt");
   sprintf(mename, "DTTF Tracks p_{T} distribution (Packed values)");
   dttf_pt_integ  = dbe_->book1D(hname, mename, 32, -0.5, 31.5);
   dttf_pt_integ->setAxisTitle("p_{T}", 1);
 
   /// DTTF Tracks Charge distribution
-  sprintf(hname, "dttf_18_q");
+  sprintf(hname, "dttf_17_charge");
   sprintf(mename, "DTTF Tracks Charge distribution");
   dttf_q_integ = dbe_->book1D(hname, mename, 2, -0.5, 1.5);
   dttf_q_integ->setAxisTitle("Charge", 1);
@@ -177,8 +180,8 @@ void L1TDTTFClient::beginJob(void)
 
 
   /// DTTF 2nd Tracks Only Distribution by Sector and Wheel w.r.t. the total Number of tracks
-  sprintf(hname, "dttf_19_2ndTrack_distr_summary");
-  sprintf(mename, "DTTF 2nd Tracks Only Distribution by Sector and Wheel w.r.t. the total Number of tracks");
+  sprintf(hname, "dttf_18_2ndTrack_occupancy_summary");
+  sprintf(mename, "DTTF 2nd Tracks occupancy w.r.t. Tracks with BX=0");
   dttf_2ndTrack_Summary = dbe_->book2D( hname, mename, 6, 0, 6, 12, 1, 13 );
   setWheelLabel( dttf_2ndTrack_Summary );
 
@@ -187,7 +190,7 @@ void L1TDTTFClient::beginJob(void)
   ////////////////////////////////////////////////////////
   /// GMT matching
   ////////////////////////////////////////////////////////
-  dbe_->setCurrentFolder(l1tdttffolder_ + "/GMT_MATCH");
+  dbe_->setCurrentFolder( gmtpath_ );
   sprintf(hname, "dttf_gmt_fract_matching" );
   sprintf(mename, "Fraction of DTTF tracks matching with GMT tracks" );
   dttf_gmt_matching = dbe_->book1D( hname, mename, 3, 1, 4);
@@ -199,7 +202,7 @@ void L1TDTTFClient::beginJob(void)
   ////////////////////////////////////////////////////////
   /////// Second Track
   ////////////////////////////////////////////////////////
-  dbe_->setCurrentFolder( l1tdttffolder_ + "/INCLUSIVE/2ND_TRACK_ONLY");
+  dbe_->setCurrentFolder( inclusivepath_ + "/2ND_TRACK_ONLY");
 
   /// DTTF 2nd Tracks per Wheel distribution
   sprintf(hname, "dttf_01_n2ndTracks");
@@ -210,7 +213,7 @@ void L1TDTTFClient::beginJob(void)
 
 
   /// DTTF 2nd Tracks distribution by Sector and Wheel
-  sprintf(hname, "dttf_02_2ndTrack_distr_summary");
+  sprintf(hname, "dttf_02_2ndTrack_occupancy_summary");
   sprintf(mename, "DTTF 2nd Tracks distribution by Sector and Wheel");
   dttf_occupancySummary_2ndTrack = dbe_->book2D( hname, mename, 6, 0, 6,
 						 12, 1, 13 );
@@ -218,7 +221,7 @@ void L1TDTTFClient::beginJob(void)
 
 
   /// DTTF 2nd Tracks BX Distribution by Wheel
-  sprintf(hname, "dttf_03_2ndTrack_bx_distr");
+  sprintf(hname, "dttf_03_2ndTrack_bx_occupancy");
   sprintf(mename, "DTTF 2nd Tracks BX Distribution by Wheel");
   dttf_bx_summary_2ndTrack = dbe_->book2D( hname, mename, 6, 0, 6, 3, -1, 2 );
   setWheelLabel( dttf_bx_summary_2ndTrack );
@@ -228,20 +231,19 @@ void L1TDTTFClient::beginJob(void)
   sprintf(hname, "dttf_04_2ndTrack_bx");
   sprintf(mename, "Fraction of DTTF Tracks BX w.r.t. Tracks with BX=0");
   dttf_bx_integ_2ndTrack = dbe_->book1D( hname, mename, 3, -1.5, 1.5 );
-  dttf_bx_integ_2ndTrack->setAxisTitle("bx", 1);
+  dttf_bx_integ_2ndTrack->setAxisTitle("BX", 1);
 
   /// Fraction of DTTF 2nd Tracks with Quality>4 by Sector and Wheel
-  sprintf(hname, "dttf_06_2ndTrack_highQualTracks_distr");
-  sprintf(mename, "Fraction of DTTF 2nd Tracks with Quality>4 by Sector and Wheel");
+  sprintf(hname, "dttf_06_2ndTrack_highQualTracks_occupancy");
+  sprintf(mename, "Fraction of DTTF 2nd Tracks with Quality>3");
   dttf_highQual_Summary_2ndTrack = dbe_->book2D( hname, mename, 6, 0, 6,
 						 12, 1, 13 );
-  dttf_highQual_Summary_2ndTrack->setAxisTitle("#eta (packed)", 1);
-  dttf_highQual_Summary_2ndTrack->setAxisTitle("Quality (packed)", 2);
+  dttf_highQual_Summary_2ndTrack->setAxisTitle("Sector", 2);
   setWheelLabel( dttf_highQual_Summary_2ndTrack );
 
   /// #eta-#phi Distribution of DTTF 2nd Tracks
-  sprintf(hname, "dttf_07_2ndTrack_phi_eta_distr");
-  sprintf(mename, "#eta-#phi Distribution of DTTF 2nd Tracks");
+  sprintf(hname, "dttf_07_2ndTrack__phi_vs_eta");
+  sprintf(mename, "#eta-#phi DTTF Tracks occupancy for 2nd Tracks");
   dttf_phi_eta_integ_2ndTrack = dbe_->book2D( hname, mename, 64, 0, 64,
 					      144, -6, 138. );
   dttf_phi_eta_integ_2ndTrack->setAxisTitle("#eta", 1);
@@ -259,7 +261,7 @@ void L1TDTTFClient::beginJob(void)
     dttf_nTracks_wheel[wh]->setAxisTitle("sector", 1);
  
     /// Tracks BX distribution by Sector for each wheel
-    sprintf(hname, "dttf_03_bx_distr_wh%s",  wheel_[wh].c_str() );
+    sprintf(hname, "dttf_03_bx_occupancy_wh%s",  wheel_[wh].c_str() );
     sprintf(mename, "Wheel %s - DTTF Tracks BX distribution by Sector",
     	    wheel_[wh].c_str());
     dttf_bx_wheel_summary[wh] = dbe_->book2D( hname, mename, 12, 1, 13, 3, -1, 2);
@@ -268,24 +270,61 @@ void L1TDTTFClient::beginJob(void)
 
     /// bx for each wheel
     sprintf(hname, "dttf_04_bx_wh%s", wheel_[wh].c_str());
-    sprintf(mename, "Wheel %s - Fraction of DTTF Tracks BX w.r.t. Tracks with BX=0", wheel_[wh].c_str());
+    sprintf(mename, "Wheel %s - DTTF Tracks BX w.r.t. Tracks with BX=0", wheel_[wh].c_str());
     dttf_bx_wheel_integ[wh] = dbe_->book1D(hname, mename, 3, -1.5, 1.5);
-    dttf_bx_wheel_integ[wh]->setAxisTitle("bx", 1);
+    dttf_bx_wheel_integ[wh]->setAxisTitle("BX", 1);
 
-    /// quality per wheel // GC: eventually remove
+    /// quality per wheel
     sprintf(hname, "dttf_05_quality_wh%s", wheel_[wh].c_str() );
     sprintf(mename, "Wheel %s - Tracks Quality Distribution", wheel_[wh].c_str() );
-    dttf_quality_wheel[wh] = dbe_->book2D(hname, mename, 12, 1, 13, 7, 1, 8);
-    dttf_quality_wheel[wh]->setAxisTitle("Sector", 1);
-    dttf_quality_wheel[wh]->setAxisTitle("Quality", 2);
-    setQualLabel(dttf_quality_wheel[wh], 2);
+    dttf_quality_wheel[wh] = dbe_->book1D(hname, mename, 7, 1, 8);
+    dttf_quality_wheel[wh]->setAxisTitle("Quality", 1);
+    setQualLabel(dttf_quality_wheel[wh], 1);
+
+    /// quality per wheel 2D
+    sprintf(hname, "dttf_06_quality_summary_wh%s", wheel_[wh].c_str() );
+    sprintf(mename, "Wheel %s - Tracks Quality Distribution by Sector",
+	    wheel_[wh].c_str() );
+    dttf_quality_summary_wheel[wh] = dbe_->book2D(hname, mename, 12, 1, 13, 7, 1, 8);
+    dttf_quality_summary_wheel[wh]->setAxisTitle("Sector", 1);
+    // dttf_quality_summary_wheel[wh]->setAxisTitle("Quality", 2);
+    setQualLabel(dttf_quality_summary_wheel[wh], 2);
 
     /// eta assigment for each wheel
-    sprintf(hname, "dttf_06_etaFine_fraction_wh%s",  wheel_[wh].c_str() );
+    sprintf(hname, "dttf_09_etaFine_fraction_wh%s",  wheel_[wh].c_str() );
     sprintf(mename, "Wheel %s - Fraction of DTTF Tracks with fine #eta assignment",
    	    wheel_[wh].c_str());
     dttf_fine_fraction_wh[wh] = dbe_->book1D( hname, mename, 12, 1, 13);
     dttf_fine_fraction_wh[wh]->setAxisTitle("Sector", 1 );
+
+
+    /// DTTF Tracks #eta distribution (Packed values)
+    sprintf(hname, "dttf_10_eta_wh%s", wheel_[wh].c_str() );
+    sprintf(mename, "Wheel %s - DTTF Tracks #eta distribution (Packed values)",
+	    wheel_[wh].c_str() );
+    dttf_eta_wheel[wh] = dbe_->book1D(hname, mename, 64, -0.5, 63.5 );
+    dttf_eta_wheel[wh]->setAxisTitle("#eta", 1 );
+
+    /// DTTF Tracks Phi distribution (Packed values)
+    sprintf(hname, "dttf_11_phi_wh%s", wheel_[wh].c_str() );
+    sprintf(mename, "Wheel %s - DTTF Tracks Phi distribution (Packed values)",
+	    wheel_[wh].c_str() );
+    dttf_phi_wheel[wh] = dbe_->book1D(hname, mename, 144, -6, 138. );
+    dttf_phi_wheel[wh]->setAxisTitle("#phi", 1);
+
+    /// DTTF Tracks p_{T} distribution (Packed values)
+    sprintf(hname, "dttf_12_pt_wh%s", wheel_[wh].c_str() );
+    sprintf(mename, "Wheel %s - DTTF Tracks p_{T} distribution (Packed values)",
+	    wheel_[wh].c_str() );
+    dttf_pt_wheel[wh] = dbe_->book1D(hname, mename, 32, -0.5, 31.5);
+    dttf_pt_wheel[wh]->setAxisTitle("p_{T}", 1);
+
+    /// DTTF Tracks Charge distribution
+    sprintf(hname, "dttf_13_charge_wh%s", wheel_[wh].c_str() );
+    sprintf(mename, "Wheel %s - DTTF Tracks Charge distribution",
+	    wheel_[wh].c_str() );
+    dttf_q_wheel[wh] = dbe_->book1D(hname, mename, 2, -0.5, 1.5);
+    dttf_q_wheel[wh]->setAxisTitle("Charge", 1);
 
   }
 
@@ -295,7 +334,7 @@ void L1TDTTFClient::beginJob(void)
     dbe_->setCurrentFolder( wheelpath_[wh]  + "/2ND_TRACK_ONLY" );
  
     /// bx for each wheel
-    sprintf(hname, "dttf_bx_distr_wh%s_2ndTrack",  wheel_[wh].c_str() );
+    sprintf(hname, "dttf_bx_occupancy_wh%s_2ndTrack",  wheel_[wh].c_str() );
     sprintf(mename, "Wheel %s - DTTF 2nd Tracks BX distribution by Sector",
     	    wheel_[wh].c_str());
     dttf_bx_wheel_summary_2ndTrack[wh] = dbe_->book2D( hname, mename, 12, 1, 13, 3, -1, 2);
@@ -306,11 +345,12 @@ void L1TDTTFClient::beginJob(void)
     sprintf(hname, "dttf_bx_wh%s_2ndTrack", wheel_[wh].c_str());
     sprintf(mename, "Wheel %s - 2nd Tracks BX Distribution", wheel_[wh].c_str());
     dttf_bx_wheel_integ_2ndTrack[wh] = dbe_->book1D(hname, mename, 3, -1.5, 1.5);
-    dttf_bx_wheel_integ_2ndTrack[wh]->setAxisTitle("bx", 1);
+    dttf_bx_wheel_integ_2ndTrack[wh]->setAxisTitle("BX", 1);
 
     /// number of 2nd tracks per wheel
     sprintf( hname, "dttf_nTracks_wh%s_2ndTrack", wheel_[wh].c_str() );
-    sprintf( mename, "Wheel %s - Fraction of DTTF 2nd Tracks BX w.r.t. 2nd Tracks with BX=0", wheel_[wh].c_str() );
+    sprintf( mename, "Wheel %s - DTTF Number of 2nd Tracks with BX=0",
+	     wheel_[wh].c_str() );
     dttf_nTracks_wheel_2ndTrack[wh] = dbe_->book1D( hname, mename,
 						     12, 1, 13);
     dttf_nTracks_wheel_2ndTrack[wh]->setAxisTitle("sector", 1);
@@ -337,8 +377,8 @@ void L1TDTTFClient::beginLuminosityBlock( const edm::LuminosityBlock& lumiSeg,
 
   if ( online_ && !( counterLS_ % resetafterlumi_ ) ) {
     char hname[60];
-    sprintf( hname, "%s/INCLUSIVE/dttf_04_tracks_distr_by_lumi",
-	     l1tdttffolder_.c_str() );
+    sprintf( hname, "%s/dttf_04_tracks_occupancy_by_lumi",
+	     inclusivepath_.c_str() );
 
     occupancy_r_ = getTH2F(hname);
     if ( ! occupancy_r_ ) {
@@ -438,7 +478,7 @@ void L1TDTTFClient::makeSummary()
     /// buildHigh Quality Summary Plot
     TH2F * ratio = dttf_occupancySummary_2ndTrack->getTH2F();
     buildHighQualityPlot( ratio, dttf_highQual_Summary_2ndTrack,
-			  "%s/2ND_TRACK_ONLY/dttf_quality_distr_wh%s_2ndTrack" );
+			  "%s/2ND_TRACK_ONLY/dttf_quality_occupancy_wh%s_2ndTrack" );
 
     normalize( dttf_2ndTrack_Summary->getTH2F(), scale ); //
 
@@ -487,6 +527,13 @@ void L1TDTTFClient::buildSummaries()
   dttf_phi_eta_integ_2ndTrack->Reset();
  
   for ( unsigned int wh = 0; wh < 6 ; ++wh ) {
+
+    dttf_eta_wheel[wh]->Reset();
+    dttf_q_wheel[wh]->Reset();
+    dttf_pt_wheel[wh]->Reset();
+    dttf_phi_wheel[wh]->Reset();
+    dttf_quality_wheel[wh]->Reset();
+    dttf_quality_summary_wheel[wh]->Reset();
  
     double wheelEtaAll = 0; /// needed for fine fraction
     double wheelEtaFine = 0; /// needed for fine fraction
@@ -501,11 +548,11 @@ void L1TDTTFClient::buildSummaries()
     ////////////////////////////////////////////////////////
     buildPhiEtaPlotOFC( dttf_phi_eta_fine_integ, dttf_phi_eta_coarse_integ,
 			dttf_phi_eta_integ,
-			"%s/dttf_07_phi_etaFine_distr_wh%s",
-			"%s/dttf_08_phi_etaCoarse_distr_wh%s", wh );
+			"%s/dttf_07_phi_vs_etaFine_wh%s",
+			"%s/dttf_08_phi_vs_etaCoarse_wh%s", wh );
 
     buildPhiEtaPlotO( dttf_phi_eta_integ_2ndTrack,
-		      "%s/2ND_TRACK_ONLY/dttf_phi_eta_distr_wh%s_2ndTrack",
+		      "%s/2ND_TRACK_ONLY/dttf_phi_vs_eta_wh%s_2ndTrack",
 		      wh );
 
 
@@ -572,7 +619,7 @@ void L1TDTTFClient::buildSummaries()
       ////////////////////////////////////////////////////////
       /// Charge by sector
       ////////////////////////////////////////////////////////
-      sprintf( hname, "%s/Charge/dttf_q_wh%s_se%d", 
+      sprintf( hname, "%s/Charge/dttf_charge_wh%s_se%d", 
 	       wheelpath_[wh].c_str(), wheel_[wh].c_str(), sector );
       TH1F * tmp = getTH1F(hname);
       if ( ! tmp ) {
@@ -580,6 +627,7 @@ void L1TDTTFClient::buildSummaries()
 						       << std::string(hname);
       } else {
 	dttf_q_integ->getTH1F()->Add( tmp );
+	dttf_q_wheel[wh]->getTH1F()->Add( tmp );
       }
 
       ////////////////////////////////////////////////////////
@@ -593,6 +641,7 @@ void L1TDTTFClient::buildSummaries()
 						       << std::string(hname);
       } else {
 	dttf_pt_integ->getTH1F()->Add( tmp );
+	dttf_pt_wheel[wh]->getTH1F()->Add( tmp );
       }
 
 
@@ -607,6 +656,7 @@ void L1TDTTFClient::buildSummaries()
 						       << std::string(hname);
       } else {
 	dttf_phi_integ->getTH1F()->Add( tmp );
+	dttf_phi_wheel[wh]->getTH1F()->Add( tmp );
       }
 
 
@@ -623,18 +673,20 @@ void L1TDTTFClient::buildSummaries()
 						       << std::string(hname);
       } else {
 
+	dttf_quality_wheel[wh]->getTH1F()->Add( tmp );
+
 
 	for ( unsigned int qual = 1; qual < 4 ; ++qual ) {
 	  double bincontent = tmp->GetBinContent( qual );
 	  qualities[qual] += bincontent;
 	  denHighQual += bincontent;
-	  dttf_quality_wheel[wh]->setBinContent(sector, qual, bincontent);
+	  dttf_quality_summary_wheel[wh]->setBinContent(sector, qual, bincontent);
 	}
 
 	for ( unsigned int qual = 4; qual < 8 ; ++qual ) {
 	  double bincontent = tmp->GetBinContent( qual );
 	  qualities[qual] += bincontent;
-	  dttf_quality_wheel[wh]->setBinContent(sector, qual, bincontent);
+	  dttf_quality_summary_wheel[wh]->setBinContent(sector, qual, bincontent);
 	  denHighQual += bincontent;
 	  highQual += bincontent;
 	}
@@ -655,6 +707,7 @@ void L1TDTTFClient::buildSummaries()
 						       << std::string(hname);
       } else {
 	dttf_eta_integ->getTH1F()->Add( tmp );
+	dttf_eta_wheel[wh]->getTH1F()->Add( tmp );
       }
 
 
@@ -725,7 +778,12 @@ void L1TDTTFClient::buildSummaries()
     normalize( dttf_bx_wheel_summary_2ndTrack[wh]->getTH2F() );
     normalize( dttf_nTracks_wheel[wh]->getTH1F() );
     normalize( dttf_nTracks_wheel_2ndTrack[wh]->getTH1F() );
-    normalize( dttf_quality_wheel[wh]->getTH2F() );
+    normalize( dttf_quality_summary_wheel[wh]->getTH2F() );
+    normalize( dttf_quality_wheel[wh]->getTH1F() );
+    normalize( dttf_eta_wheel[wh]->getTH1F() );
+    normalize( dttf_q_wheel[wh]->getTH1F() );
+    normalize( dttf_pt_wheel[wh]->getTH1F() );
+    normalize( dttf_phi_wheel[wh]->getTH1F() );
 
     ////////////////////////////////////////////////////////
     /// by wheel rescaling bx distributions
@@ -775,7 +833,7 @@ void L1TDTTFClient::buildSummaries()
 void L1TDTTFClient::setGMTsummary()
 {
   char hname[60];
-  sprintf( hname, "%s/GMT_MATCH/dttf_tracks_with_gmt_match", l1tdttffolder_.c_str() );
+  sprintf( hname, "%s/dttf_tracks_with_gmt_match", gmtpath_.c_str() );
   TH2F * gmt_match = getTH2F(hname);
   if ( ! gmt_match ) {
     edm::LogError("L1TDTTFClient::makeSummary:ME") << "Failed to get TH1D "
@@ -785,7 +843,7 @@ void L1TDTTFClient::setGMTsummary()
 
 
 
-  sprintf( hname, "%s/GMT_MATCH/dttf_tracks_without_gmt_match", l1tdttffolder_.c_str() );
+  sprintf( hname, "%s/dttf_tracks_without_gmt_match", gmtpath_.c_str() );
   TH2F * gmt_missed = getTH2F(hname);
   if ( ! gmt_missed ) {
     edm::LogError("L1TDTTFClient::makeSummary:ME") << "Failed to get TH1D "
@@ -794,7 +852,7 @@ void L1TDTTFClient::setGMTsummary()
   }
 
 
-  sprintf( hname, "%s/GMT_MATCH/dttf_missing_tracks_in_gmt", l1tdttffolder_.c_str() );
+  sprintf( hname, "%s/dttf_missing_tracks_in_gmt", gmtpath_.c_str() );
   TH2F * gmt_ghost = getTH2F(hname);
   if ( ! gmt_ghost ) {
     edm::LogError("L1TDTTFClient::makeSummary:ME") << "Failed to get TH1D "
@@ -1128,7 +1186,8 @@ void L1TDTTFClient::setWheelLabel(MonitorElement *me)
 void L1TDTTFClient::setQualLabel(MonitorElement *me, int axis)
 {
 
-  me->setAxisTitle("Quality", axis);
+  if( axis == 1 )
+    me->setAxisTitle("Quality", axis);
   me->setBinLabel(1, "T34", axis);
   me->setBinLabel(2, "T23/24", axis);
   me->setBinLabel(3, "T12/13/14", axis);

@@ -4,8 +4,8 @@
 /*
  * \file L1TDTTF.h
  *
- * $Date: 2009/11/19 14:31:58 $
- * $Revision: 1.11 $
+ * $Date: 2010/10/19 12:14:55 $
+ * $Revision: 1.12 $
  * \author J. Berryhill
  *
  */
@@ -93,7 +93,7 @@ class L1TDTTF : public edm::EDAnalyzer {
 
 
   MonitorElement* dttf_nTracksPerEvent_integ;
-  MonitorElement* dttf_qual_eta_integ; /// ????
+  // MonitorElement* dttf_qual_eta_integ; /// ????
   MonitorElement* dttf_spare;
 
   MonitorElement* dttf_gmt_match;

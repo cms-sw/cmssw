@@ -1,11 +1,20 @@
 /*
  * \file L1TDTTF.cc
  *
- * $Date: 2009/11/19 15:09:18 $
- * $Revision: 1.22 $
+ * $Date: 2010/10/19 12:14:56 $
+ * $Revision: 1.23 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTF.cc,v $
+ * Revision 1.23  2010/10/19 12:14:56  gcodispo
+ * New DTTF DQM version
+ * - added L1TDTTFClient in order to use proper normalization
+ * - cleaned up most of the code, removed useless plots
+ * - reduced overall number of bins from 118325 to 104763 plus saved 1920 bins from wrongly called L1TDTTPGClient
+ * - added match with GMT inputremoved useless plots
+ * - added eta fine fraction plots
+ * - added quality distribution plots
+ *
  * Revision 1.22  2009/11/19 15:09:18  puigh
  * modify beginJob
  *
@@ -51,6 +60,15 @@
  * DQM core migration.
  *
  * $Log: L1TDTTF.cc,v $
+ * Revision 1.23  2010/10/19 12:14:56  gcodispo
+ * New DTTF DQM version
+ * - added L1TDTTFClient in order to use proper normalization
+ * - cleaned up most of the code, removed useless plots
+ * - reduced overall number of bins from 118325 to 104763 plus saved 1920 bins from wrongly called L1TDTTPGClient
+ * - added match with GMT inputremoved useless plots
+ * - added eta fine fraction plots
+ * - added quality distribution plots
+ *
  * Revision 1.22  2009/11/19 15:09:18  puigh
  * modify beginJob
  *
@@ -219,7 +237,7 @@ void L1TDTTF::beginJob(void)
 
   if ( dbe_ ) {
 
-    std::string dttf_trk_folder = l1tsubsystemfolder_ + "/DTTF_TRACKS";
+    std::string dttf_trk_folder = l1tsubsystemfolder_;
 
     char hname[100]; /// histo name
     char htitle[100]; /// histo title
@@ -231,7 +249,15 @@ void L1TDTTF::beginJob(void)
     ///////////// OPTIMIZE
 
     /// DTTF Output (6 wheels)
-    dbe_->setCurrentFolder(dttf_trk_folder); /// l1tsubsystemfolder_+"/DTTF_TRACKS"
+    dbe_->setCurrentFolder(dttf_trk_folder);
+
+    std::string wheelpath[6] = { "/02-WHEEL_N2",
+				 "/03-WHEEL_N1",
+				 "/04-WHEEL_N0",
+				 "/05-WHEEL_P0",
+				 "/06-WHEEL_P1",
+				 "/07-WHEEL_P2" };
+
 
     char c_whn[6][3] = { "N2", "N1", "N0", "P0", "P1", "P2" };
     // char bxn [3][3] = { "N1", "0", "P1" };
@@ -244,8 +270,7 @@ void L1TDTTF::beginJob(void)
       ////////////////////////////
       /// Per wheel summaries
       ////////////////////////////
-      std::string dttf_trk_folder_wheel =
-	dttf_trk_folder + "/WHEEL_" + c_whn[iwh];
+      std::string dttf_trk_folder_wheel = dttf_trk_folder + wheelpath[iwh];
       dbe_->setCurrentFolder(dttf_trk_folder_wheel);
 
       /// number of  tracks per event per wheel
@@ -256,8 +281,8 @@ void L1TDTTF::beginJob(void)
       dttf_nTracksPerEvent_wheel[iwh]->setAxisTitle("# tracks/event", 1);
 
       /// phi vs etafine - for each wheel
-      sprintf(hname, "dttf_07_phi_etaFine_distr_wh%s", c_whn[iwh]);
-      sprintf(htitle, "Wheel %s -   #eta-#phi Distribution of DTTF Tracks with fine #eta assignment (unpacked values)", c_whn[iwh]);
+      sprintf(hname, "dttf_07_phi_vs_etaFine_wh%s", c_whn[iwh]);
+      sprintf(htitle, "Wheel %s -   #eta-#phi DTTF Tracks occupancy (fine #eta only, unpacked values)", c_whn[iwh]);
       dttf_phi_eta_fine_wheel[iwh] = dbe_->book2D(hname, htitle,
 						  nbins, start-0.5, stop-0.5,
 						  144, -6, 138);
@@ -267,8 +292,8 @@ void L1TDTTF::beginJob(void)
       dttf_phi_eta_fine_wheel[iwh]->setAxisTitle("#phi", 2);
 
       /// phi vs etacoarse - for each wheel
-      sprintf(hname, "dttf_08_phi_etaCoarse_distr_wh%s", c_whn[iwh]);
-      sprintf(htitle, "Wheel %s -   #eta-#phi Distribution of DTTF Tracks with coarse #eta assignment (unpacked values)", c_whn[iwh]);
+      sprintf(hname, "dttf_08_phi_vs_etaCoarse_wh%s", c_whn[iwh]);
+      sprintf(htitle, "Wheel %s -   #eta-#phi DTTF Tracks occupancy (coarse #eta only, unpacked values)", c_whn[iwh]);
       dttf_phi_eta_coarse_wheel[iwh] = dbe_->book2D(hname, htitle,
 						    nbins, start-0.5, stop-0.5,
 						    144, -6, 138);
@@ -283,16 +308,16 @@ void L1TDTTF::beginJob(void)
       dbe_->setCurrentFolder(dttf_trk_folder_wheel_2ndtrack);
 
       /// quality per wheel  2ND TRACK // GC: eventually remove
-      sprintf(hname, "dttf_quality_distr_wh%s_2ndTrack", c_whn[iwh]);
+      sprintf(hname, "dttf_quality_occupancy_wh%s_2ndTrack", c_whn[iwh]);
       sprintf(htitle, "Wheel %s - 2nd Tracks - Quality", c_whn[iwh]);
       dttf_quality_wheel_2ndTrack[iwh] = dbe_->book2D(hname, htitle,
 						      12, 1, 13, 7, 1, 8 );
       dttf_quality_wheel_2ndTrack[iwh]->setAxisTitle("Sector", 1);
       setQualLabel( dttf_quality_wheel_2ndTrack[iwh], 2);
-      dttf_quality_wheel_2ndTrack[iwh]->setAxisTitle("Quality", 2);
+      // dttf_quality_wheel_2ndTrack[iwh]->setAxisTitle("Quality", 2);
 
       /// phi vs eta - for each wheel 2ND TRACK
-      sprintf(hname, "dttf_phi_eta_distr_wh%s_2ndTrack", c_whn[iwh]);
+      sprintf(hname, "dttf_phi_vs_eta_wh%s_2ndTrack", c_whn[iwh]);
       sprintf(htitle, "Wheel %s -   #eta-#phi Distribution of DTTF 2nd Tracks",
 	      c_whn[iwh]);
 
@@ -332,7 +357,7 @@ void L1TDTTF::beginJob(void)
 	sprintf(htitle, "Wheel %s Sector %d - BX Distribution",
 		c_whn[iwh], ise+1);
 	dttf_bx[iwh][ise] = dbe_->book1D(hname, htitle, 3, -1.5, 1.5);
-	dttf_bx[iwh][ise]->setAxisTitle("bx", 1);
+	dttf_bx[iwh][ise]->setAxisTitle("BX", 1);
       }
 
       std::string dttf_trk_folder_wh_bxsec_trk2 =
@@ -344,7 +369,7 @@ void L1TDTTF::beginJob(void)
 	sprintf(htitle, "Wheel %s Sector %d - BX 2nd Tracks only",
 		c_whn[iwh], ise+1);
 	dttf_bx_2ndTrack[iwh][ise] = dbe_->book1D(hname, htitle, 3, -1.5, 1.5);
-	dttf_bx_2ndTrack[iwh][ise]->setAxisTitle("bx", 1);
+	dttf_bx_2ndTrack[iwh][ise]->setAxisTitle("BX", 1);
       }
 
       /// CHARGE folder
@@ -352,7 +377,7 @@ void L1TDTTF::beginJob(void)
       dbe_->setCurrentFolder(dttf_trk_folder_charge);
 
       for(int ise = 0; ise < 12; ++ise) {
-	sprintf(hname, "dttf_q_wh%s_se%d", c_whn[iwh], ise+1);
+	sprintf(hname, "dttf_charge_wh%s_se%d", c_whn[iwh], ise+1);
 	sprintf(htitle, "Wheel %s Sector %d - Packed Charge", c_whn[iwh], ise+1);
 	dttf_q[iwh][ise] = dbe_->book1D(hname, htitle, 2, -0.5, 1.5);
 	dttf_q[iwh][ise]->setAxisTitle("Charge", 1);
@@ -420,6 +445,8 @@ void L1TDTTF::beginJob(void)
 		c_whn[iwh], ise+1);
 	dttf_eta_fine_fraction[iwh][ise] = dbe_->book1D(hname, htitle, 2, 0, 2);
 	dttf_eta_fine_fraction[iwh][ise]->setAxisTitle("#eta", 1);
+	dttf_eta_fine_fraction[iwh][ise]->setBinLabel(1, "fine", 1);
+	dttf_eta_fine_fraction[iwh][ise]->setBinLabel(2, "coarse", 1);
 
       }
 
@@ -428,7 +455,7 @@ void L1TDTTF::beginJob(void)
     ///////////////////////////////////////////////////////
     /// integrated values: always packed
     ///////////////////////////////////////////////////////
-    std::string dttf_trk_folder_inclusive = dttf_trk_folder + "/INCLUSIVE";
+    std::string dttf_trk_folder_inclusive = dttf_trk_folder + "/01-INCLUSIVE";
     dbe_->setCurrentFolder(dttf_trk_folder_inclusive);
 
 
@@ -438,15 +465,15 @@ void L1TDTTF::beginJob(void)
     dttf_nTracksPerEvent_integ->setAxisTitle("# tracks/event", 1);
 
     ///////// ?????????
-    sprintf(hname, "dttf_10_qual_eta_distr");
-    sprintf(htitle, "DTTF Tracks Quality vs Eta Distribution");
-    dttf_qual_eta_integ = dbe_->book2D(hname, htitle, 64, 0, 64, 7, 1, 8);
-    setQualLabel( dttf_qual_eta_integ, 2);
+    // sprintf(hname, "dttf_10_qual_eta_distr");
+    // sprintf(htitle, "DTTF Tracks Quality vs Eta Distribution");
+    // dttf_qual_eta_integ = dbe_->book2D(hname, htitle, 64, 0, 64, 7, 1, 8);
+    // setQualLabel( dttf_qual_eta_integ, 2);
 
     /// Only for online: occupancy summary - reset
     if ( online_ ) {
-      sprintf(hname, "dttf_04_tracks_distr_by_lumi");
-      sprintf(htitle, "DTTF Tracks distribution by Sector and Wheel - Reset by Lumi");
+      sprintf(hname, "dttf_04_tracks_occupancy_by_lumi");
+      sprintf(htitle, "DTTF Tracks in the last LumiSections");
       dttf_spare = dbe_->book2D(hname, htitle, 6, 0, 6, 12, 1, 13);
       setWheelLabel( dttf_spare );
       dttf_spare->setAxisTitle("Sector", 2);
@@ -463,7 +490,8 @@ void L1TDTTF::beginJob(void)
 
     }
 
-    std::string dttf_trk_folder_integrated_gmt = dttf_trk_folder+"/GMT_MATCH";
+    std::string dttf_trk_folder_integrated_gmt =
+      dttf_trk_folder + "/08-GMT_MATCH";
     dbe_->setCurrentFolder(dttf_trk_folder_integrated_gmt);
 
     sprintf(hname, "dttf_tracks_with_gmt_match");
@@ -483,7 +511,7 @@ void L1TDTTF::beginJob(void)
     dttf_gmt_ghost->setBinLabel(1, "N2", 1);
     dttf_gmt_ghost->setBinLabel(2, "N1", 1);
     dttf_gmt_ghost->setBinLabel(3, "N0/P0", 1);
-    dttf_gmt_ghost->setBinLabel(5, "P1", 1);
+    dttf_gmt_ghost->setBinLabel(4, "P1", 1);
     dttf_gmt_ghost->setBinLabel(5, "P2", 1);
 
 
@@ -504,6 +532,7 @@ void L1TDTTF::beginJob(void)
     sprintf(htitle, "DTTF 2nd Tracks Quality distribution");
     dttf_qual_integ_2ndTrack  = dbe_->book1D(hname, htitle, 7, 0.5, 7.5);
     dttf_qual_integ_2ndTrack->setAxisTitle("Quality", 1);
+    setQualLabel( dttf_qual_integ_2ndTrack, 1);
 
     sprintf(hname, "dttf_11_q_2ndTrack");
     sprintf(htitle, "DTTF 2nd Tracks Charge distribution");
@@ -668,9 +697,13 @@ void L1TDTTF::analyze(const edm::Event& event,
        dttfCand != gmtBx0DttfCandidates.end(); ++dttfCand ) {
     if( dttfCand->empty() ) continue;
 
+    /// in phys values
+    /// double phi= dttfCand->phiValue();
+    /// int sector = 1 + (phi + 15)/30; /// in phys values
+    int phi= dttfCand->phi_packed();
+    int sector = 1 + (phi + 6)/12;
+    if (sector > 12 ) sector -= 12;
     double eta = dttfCand->etaValue();
-    double phi= dttfCand->phiValue();
-    int sector = 1 + (phi + 15)/30;
 
     int wheel = -3;
     if ( eta < -0.74 ) {
@@ -688,7 +721,8 @@ void L1TDTTF::analyze(const edm::Event& event,
     }
 
     dttf_gmt_ghost->Fill( wheel, sector );
-    // dttf_gmt_ghost_phys->Fill( dttfCand->eta_packed(), dttfCand->phi_packed() );
+    // dttf_gmt_ghost_phys->Fill( dttfCand->eta_packed(),
+    //                            dttfCand->phi_packed() );
   }
 
 
@@ -860,10 +894,10 @@ void L1TDTTF::fillMEs( std::vector<L1MuDTTrackCand> * trackContainer,
       }
 
       ///////// ?????????
-      dttf_qual_eta_integ->Fill(track->eta_packed(), track->quality_packed());
+      // dttf_qual_eta_integ->Fill(track->eta_packed(), track->quality_packed());
 
       /// second track summary
-      if( track->TrkTag() == 1 ) {
+      if ( track->TrkTag() == 1 ) {
 
 	/// INCLUSIVE/dttf_phi_integ
 	dttf_phi_integ_2ndTrack->Fill(phi_global);
@@ -891,15 +925,15 @@ void L1TDTTF::fillMEs( std::vector<L1MuDTTrackCand> * trackContainer,
       ///////// GMT
       bool match = false;
       std::vector<L1MuRegionalCand>::iterator dttfCand;
+        /// gmt phi_packed() goes from 0 to 143
+      unsigned int gmt_phi = ( phi_global < 0 ? phi_global + 144 : phi_global );
 
       for ( dttfCand = gmtDttfCands.begin(); dttfCand != gmtDttfCands.end();
 	    ++dttfCand ) {
 
 	/// calculate phi in physical coordinates: keep it int, set labels later
 	if ( dttfCand->empty() ) continue;
-        /// gmt phi_packed() goes from 0 to 144
-        float gmt_phi = ( phi_global < 0 ? phi_global + 144 : phi_global );
-	if ( ( ( dttfCand->phi_packed() - gmt_phi ) < 0.00001 ) &&
+	if ( ( dttfCand->phi_packed() == gmt_phi ) &&
 	     dttfCand->quality_packed() == track->quality_packed() ) {
 	  match = true;
 	  dttfCand->reset();
