@@ -138,7 +138,7 @@ public:
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
 
-#include "DataFormats/GeometryVector/interface/BasicVector3D.h"
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "DataFormats/Math/interface/SSEVec.h"
 #ifdef USE_SSEVECT
 #define DOUBLE_MATCH
@@ -241,7 +241,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
   
   for (;monoRHiter != monoRHend; ++monoRHiter) {
     
-    SiStripRecHit2D const & monoRH = CollectorHelper::monoHit(monoHRiter);
+    SiStripRecHit2D const & monoRH = CollectorHelper::monoHit(monoRHiter);
     
     // position of the initial and final point of the strip (RPHI cluster) in local strip coordinates
     double RPHIpointX = topol.measurementPosition(monoRH.localPositionFast()).x();
