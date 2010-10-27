@@ -899,7 +899,7 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::calculateCorr( const P4& jet,
 	correction -= outer; //@@ Subtract 
 	
 // Calculate the sum of responses	
-        theSumResp += response_.value(ieta,ipt);
+        if( is_pion ) {theSumResp += response_.value(ieta,ipt);} else {theSumResp += mip;}
       }
       
 // Calculate the sum of pt and energies	
