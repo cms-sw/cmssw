@@ -125,7 +125,7 @@ foreach $file ( @files ) {
 
       my $runnumber = $data2[0];
       my $lumisection = 0;
-      $lumisection = $data2[1] if ( defined($data2[1]) );
+#      $lumisection = $data2[1] if ( defined($data2[1]) );
       my $counter = 0;
 
       my $nevents = -1;
