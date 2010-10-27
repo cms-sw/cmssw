@@ -110,7 +110,8 @@ else:
                         L1GtPrescaleFactorsTechTrigRcdKey = options.L1GtPrescaleFactorsTechTrigRcdKey,
                         L1GtTriggerMaskAlgoTrigRcdKey = options.L1GtTriggerMaskAlgoTrigRcdKey,
                         L1GtTriggerMaskTechTrigRcdKey = options.L1GtTriggerMaskTechTrigRcdKey,
-                        L1GtTriggerMaskVetoTechTrigRcdKey = options.L1GtTriggerMaskVetoTechTrigRcdKey )
+                        L1GtTriggerMaskVetoTechTrigRcdKey = options.L1GtTriggerMaskVetoTechTrigRcdKey,
+                        includeL1RCTNoisyChannelMask = False )
     process.L1TriggerKeyDummy.objectKeys = initL1RSSubsystems.params.recordInfo                        
 
 # Get L1TriggerKeyList from DB
