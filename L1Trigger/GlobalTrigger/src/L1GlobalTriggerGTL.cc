@@ -262,8 +262,7 @@ void L1GlobalTriggerGTL::run(
     // save the results in temporary maps
 
 
-    std::vector<L1GtAlgorithmEvaluation::ConditionEvaluationMap> conditionResultMaps;
-    conditionResultMaps.reserve(conditionMap.size());
+    m_conditionResultMaps.resize(conditionMap.size());
 
     int iChip = -1;
 
@@ -273,7 +272,8 @@ void L1GlobalTriggerGTL::run(
         iChip++;
 
         //L1GtAlgorithmEvaluation::ConditionEvaluationMap cMapResults;
-        L1GtAlgorithmEvaluation::ConditionEvaluationMap cMapResults((*itCondOnChip).size()); // hash map
+        // L1GtAlgorithmEvaluation::ConditionEvaluationMap cMapResults((*itCondOnChip).size()); // hash map
+	L1GtAlgorithmEvaluation::ConditionEvaluationMap & cMapResults = m_conditionResultMaps[iChip];
 
         for (CItCond itCond = itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
 
@@ -629,8 +629,6 @@ void L1GlobalTriggerGTL::run(
 
         }
 
-        conditionResultMaps.push_back(cMapResults);
-
     }
 
     // loop over algorithm map
@@ -642,7 +640,7 @@ void L1GlobalTriggerGTL::run(
     for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
 
         L1GtAlgorithmEvaluation gtAlg(itAlgo->second);
-        gtAlg.evaluateAlgorithm((itAlgo->second).algoChipNumber(), conditionResultMaps);
+        gtAlg.evaluateAlgorithm((itAlgo->second).algoChipNumber(), m_conditionResultMaps);
 
         int algBitNumber = (itAlgo->second).algoBitNumber();
         bool algResult = gtAlg.gtAlgoResult();
@@ -686,30 +684,21 @@ void L1GlobalTriggerGTL::run(
 
     // object maps only for BxInEvent = 0
     if (produceL1GtObjectMapRecord && (iBxInEvent == 0)) {
-        gtObjectMapRecord->setGtObjectMap(objMapVec);
+        gtObjectMapRecord->swapGtObjectMap(objMapVec);
     }
 
     // loop over condition maps (one map per condition chip)
     // then loop over conditions in the map
-    // delete the conditions created with new, clear all
+    // delete the conditions created with new, clear map, keep the vector as is...
     for (std::vector<L1GtAlgorithmEvaluation::ConditionEvaluationMap>::iterator
-        itCondOnChip = conditionResultMaps.begin(); itCondOnChip != conditionResultMaps.end();
+        itCondOnChip = m_conditionResultMaps.begin(); itCondOnChip != m_conditionResultMaps.end();
         itCondOnChip++) {
-
-        for (L1GtAlgorithmEvaluation::ItEvalMap itCond =
-            itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
-
-            if (itCond->second != 0) {
-                delete itCond->second;
-            }
-            itCond->second = 0;
-
-        }
-
+      for (L1GtAlgorithmEvaluation::ItEvalMap itCond =
+	     itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++)
+	delete itCond->second;
+	// clear map
         itCondOnChip->clear();
     }
-
-    conditionResultMaps.clear();
 
 }
 
