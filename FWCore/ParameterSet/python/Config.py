@@ -808,8 +808,8 @@ class FilteredStream(dict):
            raise ValueError("The needed parameters are: content, dataTier, name, paths, responsible, selectEvents")
 	if not isinstance(kw['name'],str):
            raise ValueError("name must be of type string")
-        if not isinstance(kw['content'], vstring):
-           raise ValueError("content must be of type vstring")
+        if not isinstance(kw['content'], vstring) and not isinstance(kw['content'],str):
+           raise ValueError("content must be of type vstring or string")
         if not isinstance(kw['dataTier'], string):
            raise ValueError("dataTier must be of type string")
         if not isinstance(kw['selectEvents'], PSet):
