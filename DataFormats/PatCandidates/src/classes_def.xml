@@ -231,6 +231,9 @@
   <class name="edm::Wrapper<pat::TriggerPathRefProd >" />
   <class name="pat::TriggerPathRefVector" />
   <class name="pat::TriggerPathRefVectorIterator" />
+  <class name="pat::L1Seed" />
+  <class name="std::vector<pat::L1Seed>" />
+  <class name="std::vector<pat::L1Seed>::const_iterator" />
 
   <class name="pat::TriggerAlgorithm" />
   <class name="std::vector<pat::TriggerAlgorithm>" />

@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.19 2010/06/26 17:53:57 vadler Exp $
+// $Id: PATTriggerProducer.cc,v 1.20 2010/07/05 18:20:30 vadler Exp $
 //
 
 
@@ -278,9 +278,14 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           const unsigned slotModule( hltConfig_.moduleIndex( indexPath, nameModule ) );
           indicesModules.insert( std::pair< unsigned, std::string >( slotModule, nameModule ) );
         }
-        // store path
+        // add L1 seeds
+        const L1SeedCollection l1Seeds( hltConfig_.hltL1GTSeeds( namePath ) );
+        for ( L1SeedCollection::const_iterator iSeed = l1Seeds.begin(); iSeed != l1Seeds.end(); ++iSeed ) {
+          triggerPath.addL1Seed( *iSeed );
+        }
+        // save path
         triggerPaths->push_back( triggerPath );
-        // store module states to be used for the filters
+        // cache module states to be used for the filters
         for ( std::map< unsigned, std::string >::const_iterator iM = indicesModules.begin(); iM != indicesModules.end(); ++iM ) {
           if ( iM->first < indexLastFilterPath ) {
             moduleStates[ iM->second ] = 1;
@@ -334,7 +339,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         } else {
           triggerFilter.setStatus( -1 ); // FIXME different code for "unknown" needed?
         }
-        // store filter
+        // save filter
         triggerFilters->push_back( triggerFilter );
       }
     }

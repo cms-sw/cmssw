@@ -239,6 +239,9 @@ namespace {
   edm::Wrapper<pat::TriggerPathRefProd> w_rp_p_tp;
   pat::TriggerPathRefVector rv_p_tp;
   pat::TriggerPathRefVectorIterator rv_p_tp_i;
+  pat::L1Seed p_bs;
+  pat::L1SeedCollection vp_bs;
+  pat::L1SeedCollection::const_iterator vp_bs_ci;
 
   pat::TriggerAlgorithmCollection v_p_ta;
   pat::TriggerAlgorithmCollection::const_iterator v_p_ta_ci;
