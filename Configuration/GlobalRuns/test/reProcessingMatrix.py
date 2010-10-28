@@ -34,7 +34,7 @@ def Era_alls():
         a=''
         s=''
         if PD in autoAlca:
-            a==autoAlca[PD]
+            a=autoAlca[PD]
         if PD in autoSkim:
             s=autoSkim[PD]
         alcaAndSkimMap[PD]=(a,s)
