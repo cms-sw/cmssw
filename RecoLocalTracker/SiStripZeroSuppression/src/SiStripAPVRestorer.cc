@@ -22,7 +22,7 @@ SiStripAPVRestorer::SiStripAPVRestorer(const edm::ParameterSet& conf):
 	hitStripThreshold_(conf.getParameter<uint32_t>("hitStripThreshold")),
 	nSmooth_(conf.getParameter<uint32_t>("nSmooth")),
 	minStripsToFit_(conf.getParameter<uint32_t>("minStripsToFit")),
-	distorsionThreshold_(conf.getParameter<uint32_t>("distorsionThreshold")),
+	distortionThreshold_(conf.getParameter<uint32_t>("distortionThreshold")),
 	cut_to_avoid_signal_(conf.getParameter<uint32_t>("cut_to_avoid_signal"))
 		
 	
@@ -409,7 +409,7 @@ bool inline SiStripAPVRestorer::FlatRegionsFinder(std::vector<int16_t>& adcs, Di
 		}
 	}
 	
-	if( (MaxSmoothValue-MinSmoothValue) > distorsionThreshold_) return true;
+	if( (MaxSmoothValue-MinSmoothValue) > distortionThreshold_) return true;
 	return false;
 }
 

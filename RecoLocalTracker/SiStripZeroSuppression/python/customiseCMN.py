@@ -32,9 +32,9 @@ def customisePercentile(process):
 def customiseFlatAPVRestore(process):
     process.siStripZeroSuppression.Algorithms.APVInspectMode = cms.string("NullFraction")
     process.siStripZeroSuppression.Algorithms.APVRestoreMode = cms.string("Flat")
-	process.siStripZeroSuppression.Algorithms.ForceNoRestore = cms.bool(False)
-	process.siStripZeroSuppression.Algorithms.SelfSelectResoreAlgo = cms.bool(False)
-	process.siStripZeroSuppression.Algorithms.Fraction = cms.double(0.2)
+    process.siStripZeroSuppression.Algorithms.ForceNoRestore = cms.bool(False)
+    process.siStripZeroSuppression.Algorithms.SelfSelectResoreAlgo = cms.bool(False)
+    process.siStripZeroSuppression.Algorithms.Fraction = cms.double(0.2)
     process.siStripZeroSuppression.Algorithms.Deviation = cms.int32(25)
     process.siStripZeroSuppression.Algorithms.restoreThreshold = cms.double(0.5)
 
@@ -43,13 +43,13 @@ def customiseFlatAPVRestore(process):
 ##############################################################################
 def customisePartialSuppress(process):
     
-	process.siStripZeroSuppression.Algorithms.APVInspectMode = cms.string("NullFraction")
+    process.siStripZeroSuppression.Algorithms.APVInspectMode = cms.string("NullFraction")
     process.siStripZeroSuppression.Algorithms.APVRestoreMode = cms.string("PartialSuppress")
-	process.siStripZeroSuppression.Algorithms.SelfSelectResoreAlgo = cms.bool(False)
-	process.siStripZeroSuppression.Algorithms.ForceNoRestore = cms.bool(False)
+    process.siStripZeroSuppression.Algorithms.SelfSelectResoreAlgo = cms.bool(False)
+    process.siStripZeroSuppression.Algorithms.ForceNoRestore = cms.bool(False)
     process.siStripZeroSuppression.Algorithms.Fraction = cms.double(0.2)
     process.siStripZeroSuppression.Algorithms.Deviation = cms.int32(25)
-	process.siStripZeroSuppression.Algorithms.restoreThreshold = cms.double(0.5)
+    process.siStripZeroSuppression.Algorithms.restoreThreshold = cms.double(0.5)
     process.siStripZeroSuppression.produceRawDigis = cms.bool(True)
 
     return process

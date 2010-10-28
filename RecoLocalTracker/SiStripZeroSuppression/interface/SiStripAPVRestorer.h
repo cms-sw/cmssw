@@ -91,7 +91,7 @@ class SiStripAPVRestorer {
 	uint32_t hitStripThreshold_;        // height above median when strip is definitely a hit
 	uint32_t nSmooth_;                   // for smoothing and local minimum determination (odd number)
 	uint32_t minStripsToFit_;            // minimum strips to try spline algo (otherwise default to median)
-	uint32_t distorsionThreshold_;
+	uint32_t distortionThreshold_;
 	uint32_t cut_to_avoid_signal_;
   //--------------------------------------------------
 	

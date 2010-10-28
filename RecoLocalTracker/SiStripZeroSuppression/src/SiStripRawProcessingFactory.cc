@@ -74,29 +74,6 @@ create_Suppressor(const edm::ParameterSet& conf) {
 
 std::auto_ptr<SiStripAPVRestorer> SiStripRawProcessingFactory::
 create_Restorer( const edm::ParameterSet& conf) {
-
-/*
-  if(!conf.exists("APVRestoreMode")) {
-    return std::auto_ptr<SiStripAPVRestorer>( 0 );
-  } else {
-    std::string RestoreMode = conf.getParameter<std::string>("APVRestoreMode");
-
-    
-      double restoreThreshold = conf.getParameter<double>("restoreThreshold");
-      return std::auto_ptr<SiStripAPVRestorer>( new FlatAPVRestorer( restoreThreshold ));
-    }
-
-    if( mode == "PartialSuppress") {
-      double fraction = conf.getParameter<double>("Fraction");
-      int deviation = conf.getParameter<int>("Deviation");
-      return std::auto_ptr<SiStripAPVRestorer>( new PartialSuppressAPVRestorer( fraction, deviation ));
-    }
-
-    throw cms::Exception("Unregistered Algorithm") << "SiStripAPVRestorer possibilities: (Flat)";
-
-  }
-  */
-    
   return std::auto_ptr<SiStripAPVRestorer> (new SiStripAPVRestorer(conf));
 }
 
