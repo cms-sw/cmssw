@@ -14,6 +14,7 @@
 #include <memory>
 
 #include "RecoTauTag/RecoTau/interface/RecoTauPiZeroPlugins.h"
+
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -66,8 +67,9 @@ RecoTauPiZeroStripPlugin::RecoTauPiZeroStripPlugin(
 void RecoTauPiZeroStripPlugin::beginEvent() {
   edm::Handle<reco::VertexCollection> pvHandle;
   evt()->getByLabel(pvSrc_, pvHandle);
-  if (pvHandle->size())
+  if (pvHandle->size()) {
     qcuts_.setPV(reco::VertexRef(pvHandle, 0));
+  }
 }
 
 RecoTauPiZeroStripPlugin::return_type RecoTauPiZeroStripPlugin::operator()(
