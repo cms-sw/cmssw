@@ -9,67 +9,67 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
    toPut = cms.VPSet( 
       cms.PSet(
          record = cms.string('AK5Calo'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_AK5Calo'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V3_AK5Calo'), 
          label  = cms.string('AK5Calo') 
       ),
       cms.PSet(
          record = cms.string('AK5PF'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_AK5PF'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V3_AK5PF'), 
          label  = cms.string('AK5PF') 
       ),
       cms.PSet(
          record = cms.string('AK5JPT'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Summer10_AK5JPT'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Summer10_V3_AK5JPT'), 
          label  = cms.string('AK5JPT') 
       ),
       cms.PSet(
          record = cms.string('AK5TRK'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_AK5TRK'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V3_AK5TRK'), 
          label  = cms.string('AK5TRK') 
       ),
       cms.PSet(
          record = cms.string('AK7Calo'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_AK7Calo'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V3_AK7Calo'), 
          label  = cms.string('AK7Calo') 
       ),
       cms.PSet(
          record = cms.string('AK7PF'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_AK7PF'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V3_AK7PF'), 
          label  = cms.string('AK7PF') 
       ),
       cms.PSet(
          record = cms.string('AK7JPT'),                           
-         tag    = cms.string('JetCorrectorParametersCollection_Summer10_AK7JPT'),
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V3_AK7JPT'),
          label  = cms.string('AK7JPT')                                          
       ),
       cms.PSet(
          record = cms.string('IC5Calo'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_IC5Calo'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V3_IC5Calo'), 
          label  = cms.string('IC5Calo') 
       ),
      cms.PSet(
          record = cms.string('IC5PF'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_IC5PF'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V3_IC5PF'), 
          label  = cms.string('IC5PF') 
       ),
       cms.PSet(
          record = cms.string('KT4Calo'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_KT4Calo'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V3_KT4Calo'), 
          label  = cms.string('KT4Calo') 
       ),
       cms.PSet(
          record = cms.string('KT4PF'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_KT4PF'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V3_KT4PF'), 
          label  = cms.string('KT4PF') 
       ),
       cms.PSet(
          record = cms.string('KT6Calo'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_KT6Calo'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V3_KT6Calo'), 
          label  = cms.string('KT6Calo') 
       ),
       cms.PSet(
          record = cms.string('KT6PF'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_KT6PF'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V3_KT6PF'), 
          label  = cms.string('KT6PF') 
       )
    ) 
@@ -100,8 +100,8 @@ process.dbWriterAK7PF = cms.EDAnalyzer('JetCorrectorDBWriter',
    algo   = cms.untracked.string('AK7PF') 
 ) 
 process.dbWriterAK7JPT = cms.EDAnalyzer('JetCorrectorDBWriter',
-   era    = cms.untracked.string('Summer10'),
-   algo   = cms.untracked.string('AK5JPT')
+   era    = cms.untracked.string('Spring10'),
+   algo   = cms.untracked.string('AK7JPT')
 )
 process.dbWriterKT4Calo = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Spring10'),  
