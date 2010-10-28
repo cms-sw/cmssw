@@ -103,8 +103,8 @@ bool ObjectValidator::validHit(const EcalRecHit& hit) const
 
   // determine if the hit is good, bad, or recovered
   int severityLevel = 999;
-  if     (id.subdetId() == EcalBarrel && theEBRecHitCollection_!=0) severityLevel = theEcalSevLvlAlgo_->severityLevel(id, *theEBRecHitCollection_, *theEcalChStatus_);
-  else if(id.subdetId() == EcalEndcap && theEERecHitCollection_!=0) severityLevel = theEcalSevLvlAlgo_->severityLevel(id, *theEERecHitCollection_, *theEcalChStatus_);
+  if     (id.subdetId() == EcalBarrel && theEBRecHitCollection_!=0) severityLevel = theEcalSevLvlAlgo_->severityLevel(id, *theEBRecHitCollection_, *theEcalChStatus_, 5., EcalSeverityLevelAlgo::kSwissCross, 0.95, 2., 15., 0.999);
+  else if(id.subdetId() == EcalEndcap && theEERecHitCollection_!=0) severityLevel = theEcalSevLvlAlgo_->severityLevel(id, *theEERecHitCollection_, *theEcalChStatus_, 5., EcalSeverityLevelAlgo::kSwissCross, 0.95, 2., 15., 0.999);
   else return false;
   
   if(severityLevel == EcalSeverityLevelAlgo::kGood) return true;
