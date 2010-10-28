@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.90 2010/10/05 05:22:54 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.91 2010/10/28 13:57:42 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -6,7 +6,6 @@
 
 #include <map>
 #include <utility>
-
 
 using namespace edm;
 using namespace trigger;
