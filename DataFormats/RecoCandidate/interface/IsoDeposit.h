@@ -265,7 +265,7 @@ double reco::IsoDeposit::algoWithin(double coneSize, const AbsVetos& vetos, bool
   typedef AbsVetos::const_iterator IV;
   IV ivEnd = vetos.end();
 
-  Distance maxDistance = {coneSize,999.};
+  Distance maxDistance = {float(coneSize),999.f};
   typedef DepositsMultimap::const_iterator IM;
   IM imLoc = theDeposits.upper_bound( maxDistance ); 
   for (IM im = theDeposits.begin(); im != imLoc; ++im) {

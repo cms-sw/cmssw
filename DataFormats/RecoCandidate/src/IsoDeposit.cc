@@ -21,7 +21,7 @@ IsoDeposit::IsoDeposit(double eta, double phi)
 }
 
 void IsoDeposit::addDeposit(double dr, double value){
-  Distance relDir = {dr,0.};
+  Distance relDir = {float(dr),0.f};
   theDeposits.insert( std::make_pair( relDir, value));
 }
 
@@ -52,7 +52,7 @@ std::pair<double,int> IsoDeposit::depositAndCountWithin(double coneSize, const V
   if (!skipDepositVeto) allVetos.push_back(theVeto);
   IV ivEnd = allVetos.end();
 
-  Distance maxDistance = {coneSize,999.};
+  Distance maxDistance = {float(coneSize),999.f};
   typedef DepositsMultimap::const_iterator IM;
   IM imLoc = theDeposits.upper_bound( maxDistance ); 
   for (IM im = theDeposits.begin(); im != imLoc; ++im) {
@@ -106,7 +106,7 @@ std::pair<double,int>  IsoDeposit::depositAndCountWithin(double coneSize, const 
 
   IV ivEnd = vetos.end();
 
-  Distance maxDistance = {coneSize,999.};
+  Distance maxDistance = {float(coneSize),999.f};
   typedef DepositsMultimap::const_iterator IM;
   IM imLoc = theDeposits.upper_bound( maxDistance ); 
   for (IM im = theDeposits.begin(); im != imLoc; ++im) {
@@ -160,7 +160,7 @@ double IsoDeposit::nearestDR(double coneSize, const AbsVetos& vetos, bool skipDe
 
   IV ivEnd = vetos.end();
 
-  Distance maxDistance = {coneSize,999.};
+  Distance maxDistance = {float(coneSize),999.f};
   typedef DepositsMultimap::const_iterator IM;
   IM imLoc = theDeposits.upper_bound( maxDistance ); 
   for (IM im = theDeposits.begin(); im != imLoc; ++im) {

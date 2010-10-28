@@ -88,19 +88,19 @@ void MVAJetTagPlotter::finalize()
 void MVAJetTagPlotter::psPlot(const std::string &name)
 {
 	for_each(categoryPlotters.begin(), categoryPlotters.end(),
-	         bind(&TaggingVariablePlotter::psPlot, _1, ref(name)));
+	         boost::bind(&TaggingVariablePlotter::psPlot, _1, boost::ref(name)));
 }
 
 /*void MVAJetTagPlotter::write(const bool allHisto)
 {
 	for_each(categoryPlotters.begin(), categoryPlotters.end(),
-	         bind(&TaggingVariablePlotter::write, _1, allHisto));
+	         boost::bind(&TaggingVariablePlotter::write, _1, allHisto));
 }*/
 
 void MVAJetTagPlotter::epsPlot(const std::string &name)
 {
 	for_each(categoryPlotters.begin(), categoryPlotters.end(),
-	         bind(&TaggingVariablePlotter::epsPlot, _1, ref(name)));
+	         boost::bind(&TaggingVariablePlotter::epsPlot, _1, boost::ref(name)));
 }
 
 vector<string> MVAJetTagPlotter::tagInfoRequirements() const

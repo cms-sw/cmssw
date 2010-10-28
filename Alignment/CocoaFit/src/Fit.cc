@@ -6,6 +6,13 @@
 //   History: v1.0 
 //   Pedro Arce
 
+#include <cstdlib>
+#include <iomanip>
+#include <cmath>
+#include <ctime>
+#include <set>
+
+
 #include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
 #include "Alignment/CocoaFit/interface/Fit.h"
@@ -29,11 +36,7 @@
 #include "Alignment/CocoaModel/interface/FittedEntriesReader.h"
 #include "Alignment/CocoaDaq/interface/CocoaDaqReader.h"
 #include "Alignment/CocoaFit/interface/CocoaDBMgr.h"
-#include <stdlib.h>
-#include <iomanip>
-#include <math.h>
-#include <time.h>
-#include <set>
+
  
 Fit* Fit::instance = 0;
 
@@ -321,7 +324,7 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
 
   } else {
     lastEvent = 1;
-    if( ALIUtils::debug >= 1 ) std::cout << std::endl << "@@@@@@@@@@@@@@@@@@ Fit has ended : ´no more data sets' " << nEvent << std::endl;
+    if( ALIUtils::debug >= 1 ) std::cout << std::endl << "@@@@@@@@@@@@@@@@@@ Fit has ended : ??no more data sets' " << nEvent << std::endl;
     return !lastEvent;
   }
 

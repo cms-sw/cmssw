@@ -47,13 +47,13 @@
 
 #include <iostream>
 #include <vector>
-#include <stdlib.h>
+#include <cstdlib>
 
 using namespace std;
-using namespace boost;
+// using namespace boost;
 using namespace reco;
 
-
+using boost::shared_ptr;
 
 PFRootEventManager::PFRootEventManager() {}
 
@@ -931,11 +931,11 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("particle_flow", "newCalib", newCalib);  
   std::cout << "New calib = " << newCalib << std::endl;
 
-  shared_ptr<pftools::PFClusterCalibration> 
+  boost::shared_ptr<pftools::PFClusterCalibration> 
     clusterCalibration( new pftools::PFClusterCalibration() );
   clusterCalibration_ = clusterCalibration;
 
-  shared_ptr<PFEnergyCalibration> 
+  boost::shared_ptr<PFEnergyCalibration> 
     calibration( new PFEnergyCalibration( e_slope,
                                           e_offset, 
                                           eh_eslope,
@@ -953,7 +953,7 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("particle_flow","usePFSCEleCalib",usePFSCEleCalib);
   options_->GetOpt("particle_flow","calibPFSCEle_barrel",calibPFSCEle_barrel);
   options_->GetOpt("particle_flow","calibPFSCEle_endcap",calibPFSCEle_endcap);
-  shared_ptr<PFSCEnergyCalibration>  
+  boost::shared_ptr<PFSCEnergyCalibration>  
     thePFSCEnergyCalibration ( new PFSCEnergyCalibration(calibPFSCEle_barrel,calibPFSCEle_endcap ));
   
   bool useEGammaSupercluster;
@@ -990,7 +990,7 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("particle_flow","calib_calibHF_a_EMHAD",calibHF_a_EMHAD);
   options_->GetOpt("particle_flow","calib_calibHF_b_EMHAD",calibHF_b_EMHAD);
 
-  shared_ptr<PFEnergyCalibrationHF>  thepfEnergyCalibrationHF
+  boost::shared_ptr<PFEnergyCalibrationHF>  thepfEnergyCalibrationHF
     ( new PFEnergyCalibrationHF(calibHF_use,calibHF_eta_step,calibHF_a_EMonly,calibHF_b_HADonly,calibHF_a_EMHAD,calibHF_b_EMHAD) ) ;
 
   thepfEnergyCalibrationHF_ = thepfEnergyCalibrationHF;

@@ -82,6 +82,9 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 using namespace __gnu_cxx;
+using __gnu_cxx::hash_map;
+using __gnu_cxx::hash;
+
 
 struct stAPVGain{
    unsigned int Index; 
@@ -182,7 +185,7 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
       };
 
       std::vector<stAPVGain*> APVsCollOrdered;
-      hash_map<unsigned int, stAPVGain*,  hash<unsigned int>, isEqual > APVsColl;
+      __gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual > APVsColl;
 };
 
 SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>(iConfig)
@@ -499,7 +502,7 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
    printf("Progressing Bar              :0%%       20%%       40%%       60%%       80%%       100%%\n");
    printf("Fitting Charge Distribution  :");
    int TreeStep = APVsColl.size()/50;
-   for(hash_map<unsigned int, stAPVGain*,  hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++,I++){
+   for(__gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++,I++){
    if(I%TreeStep==0){printf(".");fflush(stdout);}
    //if(I>1000)break;
       stAPVGain* APV = it->second;
@@ -516,7 +519,7 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
          if(Proj2){Proj->Add(Proj2,1);delete Proj2;}
       }else if(CalibrationLevel==2){
           for(unsigned int i=0;i<6;i++){
-            hash_map<unsigned int, stAPVGain*,  hash<unsigned int>, isEqual >::iterator tmpit;
+            __gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual >::iterator tmpit;
             tmpit = APVsColl.find((APV->DetId<<3) | i);
             if(tmpit==APVsColl.end())continue;
             stAPVGain* APV2 = tmpit->second;
