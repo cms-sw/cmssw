@@ -70,6 +70,9 @@ staUpdMuonTrackVMuonAssoc.label_tp_fake  = 'cutsTpMuons'
 
 #change pt max of track validator
 trkMuonTrackVTrackAssoc.maxpT = cms.double(200)
+glbMuonTrackVMuonAssoc.maxpT = cms.double(200)
+staMuonTrackVMuonAssoc.maxpT = cms.double(200)
+staUpdMuonTrackVMuonAssoc.maxpT = cms.double(200)
 
 # Muon validation sequences
 hiMuonValidation_seq = cms.Sequence(
