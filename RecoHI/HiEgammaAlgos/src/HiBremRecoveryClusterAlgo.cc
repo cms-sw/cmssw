@@ -162,7 +162,10 @@ bool HiBremRecoveryClusterAlgo::match(reco::CaloClusterPtr seed_p,
   double dPhi = acos(cos(seedPosition.phi() - clusterPosition.phi()));
  
   double dEta = fabs(seedPosition.eta() - clusterPosition.eta());
- 
+  if (verbosity <= pINFO) {
+     std::cout <<"seed phi: "<<seedPosition.phi()<<" cluster phi: "<<clusterPosition.phi()<<" dphi = "<<dPhi<<" dphiMax = "<<dPhiMax<<std::endl;
+     std::cout <<"seed eta: "<<seedPosition.eta()<<" cluster eta: "<<clusterPosition.eta()<<" deta = "<<dEta<<" detaMax = "<<dEtaMax<<std::endl;
+  }
   if (dEta > dEtaMax) return false;
   if (dPhi > dPhiMax) return false;
 

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: HiIslandSuperClusters_cfi.py,v 1.1 2010/10/26 10:29:42 yjlee Exp $
+# $Id: HiIslandSuperClusters_cfi.py,v 1.2 2010/10/28 13:36:02 yjlee Exp $
 #
 # Island SuperCluster producer
 islandSuperClusters = cms.EDProducer("HiSuperClusterProducer",
@@ -16,7 +16,7 @@ islandSuperClusters = cms.EDProducer("HiSuperClusterProducer",
     barrelBCEnergyThreshold = cms.double(0),
     endcapBCEnergyThreshold = cms.double(0),
     endcapSuperclusterCollection = cms.string('islandEndcapSuperClusters'),
-    barrelEtaSearchRoad = cms.double(0.03),
+    barrelEtaSearchRoad = cms.double(0.13),
     doBarrel = cms.bool(True),
     doEndcaps = cms.bool(True),
     endcapClusterCollection = cms.string('islandEndcapBasicClusters'),

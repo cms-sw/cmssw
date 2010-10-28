@@ -77,6 +77,7 @@ class HiEgammaSCEnergyCorrectionAlgo
 
      double minR9Barrel_;
      double minR9Endcap_;
+     double maxR9_;
 };
 
 #endif /*RecoECAL_ECALClusters_HiEgammaSCEnergyCorrectionAlgo_h_*/

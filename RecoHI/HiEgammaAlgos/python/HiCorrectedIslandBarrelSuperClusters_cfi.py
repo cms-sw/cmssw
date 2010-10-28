@@ -17,6 +17,7 @@ correctedIslandBarrelSuperClusters = cms.EDProducer("HiEgammaSCCorrectionMaker",
         brLinearHighThr = cms.double(0.0),
 	minR9Barrel = cms.double(0.94),
 	minR9Endcap = cms.double(0.95),
+	maxR9 = cms.double(1.5),
     ),
     VerbosityLevel = cms.string('ERROR'),
     recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEB")

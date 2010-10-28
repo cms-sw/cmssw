@@ -1,5 +1,5 @@
 //
-// $Id: HiEgammaSCEnergyCorrectionAlgo.cc,v 1.3 2010/10/28 13:36:02 yjlee Exp $
+// $Id: HiEgammaSCEnergyCorrectionAlgo.cc,v 1.4 2010/10/28 15:46:53 yjlee Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoHI/HiEgammaAlgos/interface/HiEgammaSCEnergyCorrectionAlgo.h"
@@ -27,6 +27,10 @@ HiEgammaSCEnergyCorrectionAlgo::HiEgammaSCEnergyCorrectionAlgo(double noise,
   // Min R9 
   minR9Barrel_ = pSet.getParameter<double>("minR9Barrel");
   minR9Endcap_ = pSet.getParameter<double>("minR9Endcap");
+
+  // Max R9
+  maxR9_ = pSet.getParameter<double>("maxR9");
+
 }
 
 HiEgammaSCEnergyCorrectionAlgo::~HiEgammaSCEnergyCorrectionAlgo()
@@ -128,12 +132,18 @@ reco::SuperCluster HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::S
    // lslslsor apply new Enegry SCale correction
    float newEnergy = 0;
 
+   // if r9 > maxR9_ -> uncaptured brem.
    if ((r9 < minR9Barrel_&&theBase == EcalBarrel) || (r9 < minR9Endcap_&&theBase == EcalEndcap)) {     
       // if r9 is greater than threshold, then use the SC raw energy
       newEnergy = (cl.rawEnergy())/ fEta(cl.eta(), theAlgo, theBase) / fBrem(phiWidth/etaWidth, theAlgo, theBase)/fEtEta(cl.energy()/cosh(cl.eta()), cl.eta(), theAlgo, theBase);
    }  else {
-      // use 5x5 energy if r9 < threshold
-      newEnergy = e5x5 / fEta(cl.eta(), theAlgo, theBase);
+      if (r9 < maxR9_) {
+         // use 5x5 energy if r9 < threshold
+         newEnergy = e5x5 / fEta(cl.eta(), theAlgo, theBase);
+      } else {
+         // it comes from a uncaptured brem, doesn't correct
+         newEnergy = cl.rawEnergy();
+      }
    }
 
    // Create a new supercluster with the corrected energy 
@@ -176,6 +186,10 @@ float HiEgammaSCEnergyCorrectionAlgo::fEtEta(float et, float eta, reco::CaloClus
   // eta dependent correction
   factor *= (p_fEtEta_[2+offset] + p_fEtEta_[3+offset]*fabs(eta) + p_fEtEta_[4+offset]*eta*eta + p_fEtEta_[5+offset]*eta*eta*fabs(eta) + + p_fEtEta_[6+offset]*eta*eta*eta*eta);
 
+  // Constraint correction factor
+  if (factor< 0.66 ) factor = 0.66;
+  if (factor> 1.5  ) factor = 1.5;
+
   return factor;
 
 }
@@ -191,6 +205,10 @@ float HiEgammaSCEnergyCorrectionAlgo::fEta(float eta, reco::CaloCluster::AlgoId 
   }
 
   factor = (p_fEta_[0+offset] + p_fEta_[1+offset]*fabs(eta) + p_fEta_[2+offset]*eta*eta);
+
+  // Constraint correction factor
+  if (factor< 0.66 ) factor = 0.66;
+  if (factor> 1.5  ) factor = 1.5;
 
   return factor;
 }
@@ -213,6 +231,11 @@ float HiEgammaSCEnergyCorrectionAlgo::fBrem(float brem, reco::CaloCluster::AlgoI
   } else {
      factor = p_fBrem_[3+offset] + p_fBrem_[4+offset]*brem + p_fBrem_[5+offset]*brem*brem;
   };
+
+  // Constraint correction factor
+  if (factor< 0.66 ) factor = 0.66;
+  if (factor> 1.5  ) factor = 1.5;
+  
   return factor;
 }
 
