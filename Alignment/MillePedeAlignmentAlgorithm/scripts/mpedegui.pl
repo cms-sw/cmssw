@@ -785,7 +785,9 @@ sub setup_cmd {
   my $setup_cmd = "";
   my $setup_opt = "";
 
-  if (-e "jobData") {
+
+#  if (-e "jobData") {
+  if (-e "jobData" && $appendmillejob_variable != 1) {
 
     my $popup=$MW->DialogBox(-title=>"Confirm Setup",
 			     -buttons=>["Confirm","Cancel"],);
