@@ -110,7 +110,7 @@ void SiStripAPVRestorer::CreateCMMap(const edm::DetSetVector<SiStripProcessedRaw
 		detId_ = itInput->id;
 		MeanCMNValue.clear();
 		for(itCM = itInput->begin(); itCM != itInput->end(); ++itCM) MeanCMNValue.push_back(itCM->adc()); 			
-		MeanCMmap_.insert(std::make_pair<uint32_t, std::vector<float> >(detId_,MeanCMNValue));
+		MeanCMmap_.insert(std::pair<uint32_t, std::vector<float> >(detId_,MeanCMNValue));
 	}
 
 }
@@ -376,7 +376,7 @@ bool inline SiStripAPVRestorer::FlatRegionsFinder(std::vector<int16_t>& adcs, Di
 		int16_t adc = adcs[istrip]; 
 		if( adcsLocalMinSubtracted[istrip] < nSigmaMoiseDerTh_ * (float)noiseHandle->getNoise(istrip+APVn*128,detNoiseRange)
 		   && ( adc - median) < hitStripThreshold_) {           //ccount of many consecutive strips
-			consecpoints.insert(consecpoints.end(), std::make_pair<uint16_t, int16_t >(istrip, adc));
+			consecpoints.insert(consecpoints.end(), std::pair<uint16_t, int16_t >(istrip, adc));
 			consecStrips++;
         } else {
 		    nConsStrip.push_back(consecStrips);
@@ -398,8 +398,8 @@ bool inline SiStripAPVRestorer::FlatRegionsFinder(std::vector<int16_t>& adcs, Di
 			uint16_t nLastStrip = itConsecpoints->first; 
 			
 			smoothValue /= (float)consecStrips-2;
-			smoothedpoints.insert(smoothedpoints.end(), std::make_pair<uint16_t, int16_t >(nFirstStrip, smoothValue));
-			smoothedpoints.insert(smoothedpoints.end(), std::make_pair<uint16_t, int16_t >(nLastStrip, smoothValue));
+			smoothedpoints.insert(smoothedpoints.end(), std::pair<uint16_t, int16_t >(nFirstStrip, smoothValue));
+			smoothedpoints.insert(smoothedpoints.end(), std::pair<uint16_t, int16_t >(nLastStrip, smoothValue));
 			if(smoothValue > MaxSmoothValue) MaxSmoothValue = smoothValue;
 			else if(smoothValue < MinSmoothValue) MinSmoothValue = smoothValue;
 		} else{
