@@ -25,7 +25,7 @@ PFTau::PFTau()
 
 PFTau::PFTau(Charge q,const LorentzVector& p4,const Point& vtx) : BaseTau(q,p4,vtx)
 {
-   leadPFChargedHadrCandsignedSipt_=NAN;    
+   leadPFChargedHadrCandsignedSipt_=NAN;
    isolationPFChargedHadrCandsPtSum_=NAN;
    isolationPFGammaCandsEtSum_=NAN;
    maximumHCALPFClusterEt_=NAN;
@@ -53,13 +53,13 @@ void PFTau::setjetRef(const PFJetRef& x) {jetRef_=x;}
 const PFTauTagInfoRef& PFTau::pfTauTagInfoRef() const {return PFTauTagInfoRef_;}
 void PFTau::setpfTauTagInfoRef(const PFTauTagInfoRef x) {PFTauTagInfoRef_=x;}
 
-const PFCandidateRef& PFTau::leadPFChargedHadrCand() const {return leadPFChargedHadrCand_;}   
-const PFCandidateRef& PFTau::leadPFNeutralCand() const {return leadPFNeutralCand_;}   
-const PFCandidateRef& PFTau::leadPFCand() const {return leadPFCand_;}   
+const PFCandidateRef& PFTau::leadPFChargedHadrCand() const {return leadPFChargedHadrCand_;}
+const PFCandidateRef& PFTau::leadPFNeutralCand() const {return leadPFNeutralCand_;}
+const PFCandidateRef& PFTau::leadPFCand() const {return leadPFCand_;}
 
-void PFTau::setleadPFChargedHadrCand(const PFCandidateRef& myLead) { leadPFChargedHadrCand_=myLead;}   
-void PFTau::setleadPFNeutralCand(const PFCandidateRef& myLead) { leadPFNeutralCand_=myLead;}   
-void PFTau::setleadPFCand(const PFCandidateRef& myLead) { leadPFCand_=myLead;}   
+void PFTau::setleadPFChargedHadrCand(const PFCandidateRef& myLead) { leadPFChargedHadrCand_=myLead;}
+void PFTau::setleadPFNeutralCand(const PFCandidateRef& myLead) { leadPFNeutralCand_=myLead;}
+void PFTau::setleadPFCand(const PFCandidateRef& myLead) { leadPFCand_=myLead;}
 
 float PFTau::leadPFChargedHadrCandsignedSipt() const {return leadPFChargedHadrCandsignedSipt_;}
 void PFTau::setleadPFChargedHadrCandsignedSipt(const float& x){leadPFChargedHadrCandsignedSipt_=x;}
@@ -84,17 +84,17 @@ void PFTau::setisolationPFGammaCands(const PFCandidateRefVector& myParts)  { sel
 
 // PiZero and decay mode information
 const std::vector<RecoTauPiZero>& PFTau::signalPiZeroCandidates() const {
-   return signalPiZeroCandidates_; 
+   return signalPiZeroCandidates_;
 }
 void PFTau::setsignalPiZeroCandidates(const std::vector<RecoTauPiZero>& cands) {
-   signalPiZeroCandidates_ = cands; 
+   signalPiZeroCandidates_ = cands;
 }
 
 const std::vector<RecoTauPiZero>& PFTau::isolationPiZeroCandidates() const {
-   return isolationPiZeroCandidates_; 
+   return isolationPiZeroCandidates_;
 }
 void PFTau::setisolationPiZeroCandidates(const std::vector<RecoTauPiZero>& cands){
-   signalPiZeroCandidates_ = cands; 
+   signalPiZeroCandidates_ = cands;
 }
 
 PFTau::hadronicDecayMode PFTau::decayMode() const {
@@ -102,7 +102,7 @@ PFTau::hadronicDecayMode PFTau::decayMode() const {
       signalPiZeroCandidates().size());
 }
 
-PFTau::hadronicDecayMode PFTau::translateDecayMode(unsigned int nCharged, 
+PFTau::hadronicDecayMode PFTau::translateDecayMode(unsigned int nCharged,
     unsigned int nPiZeros) {
    // If no tracks exist, this is definitely not a tau!
    if(!nCharged) return kNull;
@@ -117,13 +117,13 @@ PFTau::hadronicDecayMode PFTau::translateDecayMode(unsigned int nCharged,
    return static_cast<PFTau::hadronicDecayMode>(trackIndex + nPiZeros);
 }
 
-unsigned int PFTau::chargedHadronsInDecayMode(hadronicDecayMode mode) 
+unsigned int PFTau::chargedHadronsInDecayMode(hadronicDecayMode mode)
 {
    int modeAsInt = static_cast<int>(mode);
    return (modeAsInt / kOneProngNPiZero) + 1;
 }
 
-unsigned int PFTau::piZerosInDecayMode(hadronicDecayMode mode) 
+unsigned int PFTau::piZerosInDecayMode(hadronicDecayMode mode)
 {
    int modeAsInt = static_cast<int>(mode);
    return (modeAsInt % kOneProngNPiZero);
@@ -184,7 +184,7 @@ void PFTau::setMuonDecision(const bool& x) {muonDecision_ = x;}
 
 CandidatePtr PFTau::sourceCandidatePtr( size_type i ) const {
     if( i!=0 ) return CandidatePtr();
-    
+
     const PFJetRef& pfJetRef = pfTauTagInfoRef()->pfjetRef();
     return  refToPtr( pfJetRef );
 }
@@ -196,22 +196,32 @@ bool PFTau::overlap(const Candidate& theCand) const {
 }
 
 void PFTau::dump(std::ostream& out) const {
-    
+
     if(!out) return;
-    
-    out << "Its constituents :"<<std::endl;
-    out<<"# Tracks "<<pfTauTagInfoRef()->Tracks().size()<<std::endl;
-    out<<"# PF charged hadr. cand's "<<pfTauTagInfoRef()->PFChargedHadrCands().size()<<std::endl;
-    out<<"# PF neutral hadr. cand's "<<pfTauTagInfoRef()->PFNeutrHadrCands().size()<<std::endl;
-    out<<"# PF gamma cand's "<<pfTauTagInfoRef()->PFGammaCands().size()<<std::endl;
+
+    if (pfTauTagInfoRef().isNonnull()) {
+      out << "Its TauTagInfo constituents :"<<std::endl;
+      out<<"# Tracks "<<pfTauTagInfoRef()->Tracks().size()<<std::endl;
+      out<<"# PF charged hadr. cand's "<<pfTauTagInfoRef()->PFChargedHadrCands().size()<<std::endl;
+      out<<"# PF neutral hadr. cand's "<<pfTauTagInfoRef()->PFNeutrHadrCands().size()<<std::endl;
+      out<<"# PF gamma cand's "<<pfTauTagInfoRef()->PFGammaCands().size()<<std::endl;
+    }
+    if (jetRef().isNonnull()) {
+      out << "Its constituents :"<< std::endl;
+      out<<"# PF charged hadr. cand's "<< jetRef()->chargedHadronMultiplicity()<<std::endl;
+      out<<"# PF neutral hadr. cand's "<< jetRef()->neutralHadronMultiplicity()<<std::endl;
+      out<<"# PF gamma cand's "<< jetRef()->photonMultiplicity()<<std::endl;
+      out<<"# Electron cand's "<< jetRef()->electronMultiplicity()<<std::endl;
+    }
     out<<"in detail :"<<std::endl;
-    
+
     out<<"Pt of the PFTau "<<pt()<<std::endl;
     PFCandidateRef theLeadPFCand = leadPFChargedHadrCand();
     if(!theLeadPFCand){
         out<<"No Lead PFCand "<<std::endl;
     }else{
         out<<"Lead PFCand Pt "<<(*theLeadPFCand).pt()<<std::endl;
+        out<<"Lead PFCand Charge "<<(*theLeadPFCand).charge()<<std::endl;
         out<<"Inner point position (x,y,z) of the PFTau ("<<vx()<<","<<vy()<<","<<vz()<<")"<<std::endl;
         out<<"Charge of the PFTau "<<charge()<<std::endl;
         out<<"Et of the highest Et HCAL PFCluster "<<maximumHCALPFClusterEt()<<std::endl;
@@ -221,10 +231,10 @@ void PFTau::dump(std::ostream& out) const {
         out<<"Number of IsolationPFGammaCands = "<<isolationPFGammaCands().size()<<std::endl;
         out<<"Sum of Pt of charged hadr. PFCandidates in isolation annulus around Lead PF = "<<isolationPFChargedHadrCandsPtSum()<<std::endl;
         out<<"Sum of Et of gamma PFCandidates in other isolation annulus around Lead PF = "<<isolationPFGammaCandsEtSum()<<std::endl;
-        
+
     }
     // return out;
-} 
+}
 
 std::ostream& operator<<(std::ostream& out, const reco::PFTau& tau) {
 
@@ -235,7 +245,7 @@ std::ostream& operator<<(std::ostream& out, const reco::PFTau& tau) {
      << " charge: " << tau.charge() << " "
      << " pt:" <<tau.pt()<<" "
      << " eta:" <<tau.eta()<<" "
-     << " phi:" <<tau.phi()<<" "    
+     << " phi:" <<tau.phi()<<" "
      << " mass:" << tau.mass() << " "
      << " dm: " << tau.decayMode() << " "
      <<tau.signalPFCands().size()<<","
