@@ -14,13 +14,13 @@ namespace spr{
       minPt      = 0;
       minQuality = reco::TrackBase::highPurity;
       maxDxyPV   = maxDzPV = 999999.;
-      maxChi2    = 99999999.,
+      maxChi2    = maxDpOverP = 99999999.,
       minOuterHit= minLayerCrossed = 0;
       maxInMiss  = maxOutMiss      =-1;
     }
     double                        minPt;
     reco::TrackBase::TrackQuality minQuality;
-    double                        maxDxyPV, maxDzPV, maxChi2;
+    double                        maxDxyPV, maxDzPV, maxChi2, maxDpOverP;
     int                           minOuterHit, minLayerCrossed;
     int                           maxInMiss, maxOutMiss;
   };

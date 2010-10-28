@@ -161,8 +161,14 @@ private:
 
   int  t_nTracks, t_RunNo, t_EvtNo, t_Lumi, t_Bunch;
   std::vector<double> *t_trackP,        *t_trackPt,        *t_trackEta,      *t_trackPhi;
-  std::vector<double> *t_trackHcalEta,  *t_trackHcalPhi;   
+  std::vector<double> *t_trackHcalEta,  *t_trackHcalPhi,   *t_eHCALDR;   
   std::vector<double> *t_hCone,         *t_conehmaxNearP,  *t_eMipDR,        *t_eECALDR;
+  std::vector<double> *t_hsimInfoMatched,  *t_hsimInfoRest,     *t_hsimInfoPhoton;
+  std::vector<double> *t_hsimInfoNeutHad,  *t_hsimInfoCharHad,  *t_hsimInfoPdgMatched;
+  std::vector<double> *t_hsimInfoTotal,    *t_hsim;
+  std::vector<int>    *t_hsimInfoNMatched, *t_hsimInfoNTotal,   *t_hsimInfoNNeutHad;
+  std::vector<int>    *t_hsimInfoNCharHad, *t_hsimInfoNPhoton,  *t_hsimInfoNRest;
+  std::vector<int>    *t_nSimHits;
   edm::Service<TFileService> fs;
 };
 
