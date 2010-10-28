@@ -1,68 +1,80 @@
-'''
-       RecoPFTauTag_cff.py
-
-       Contacts:  Evan Friis    (friis@physics.ucdavis.edu)
-                  Simone Gennai (gennai@cern.ch)
-
-       Use:  Include the sequence 'PFTau' in your path.
-
-       Run the standard PFTau production squences.
-
-       Produces:
-          Name                                  Signal Cone        Iso Cone        Sequence
-          -------------------------------------------------------------------------------------------------------------------
-          shrinkingConePFTauProducer            DR = 5.0/ET        DR = 0.5        produceAndDiscriminateShrinkingConePFTaus
-          fixedConePFTauProducer                DR = 0.07          DR = 0.5        produceAndDiscriminateFixedConePFTaus
-
-       A leading pion (charged or neutral) requirement of 5.0 GeV is applied in all cases.
-       The PFTauDecayMode is produced for each, and contains additional information
-       about the decay mode of the tau.
-
-       A number of PFTauDiscriminators are automatically produced for each PFTau type.
-         DiscriminationByLeadingTrackFinding
-         DiscriminationByLeadingTrackPtCut
-         DiscriminationByLeadingPionPtCut
-         DiscriminationByIsolation
-         DiscriminationByTrackIsolation
-         DiscriminationByECALIsolation
-         DiscriminationByIsolationUsingLeadingPion
-         DiscriminationByTrackIsolationUsingLeadingPion
-         DiscriminationByECALIsolationUsingLeadingPion
-         DiscriminationAgainstElectron
-         DiscriminationAgainstMuon
-       See the relevant cfi in RecoTauTag/RecoTau/python for the discriminator parameters.
-'''
-
 import FWCore.ParameterSet.Config as cms
 
-#Necessary for building PFTauTagInfos
-from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
-from RecoJets.JetAssociationProducers.ic5PFJetTracksAssociatorAtVertex_cfi \
-        import ic5PFJetTracksAssociatorAtVertex
+#-------------------------------------------------------------------------------
+#------------------ Jet Production and Preselection-----------------------------
+#-------------------------------------------------------------------------------
+# Apply a base selection to the jets.  The acceptance selection takes only jets
+# with pt > 5 and abs(eta) < 2.5.  The preselection selects jets that have at
+# least one constituent with pt > 5.  This cut should be 100% efficient w.r.t a
+# lead pion selection.
+#
+# After the basic preselection has been applied to the jets, the pizeros inside
+# the jet are reconstructed.
+#-------------------------------------------------------------------------------
 
-# Switch to anti-kt 5 jets.
-# Eventually this should be implemented in RecoJets.JetAssociationProducers
-ak5PFJetTracksAssociatorAtVertex = ic5PFJetTracksAssociatorAtVertex.clone()
-ak5PFJetTracksAssociatorAtVertex.jets = cms.InputTag("ak5PFJets")
+# Produce the jets that form the base of PFTaus
+#from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
 
-# PFTauTagInfos are wrappers around jets and provide tau specific quality cuts
-# Required for the production of PFTaus.
-from RecoTauTag.RecoTau.PFRecoTauTagInfoProducer_cfi import *
+# Reconstruct the pi zeros in our pre-selected jets.
+from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi import \
+        ak5PFJetsRecoTauPiZeros
 
-# Ensure ak5PFJets are used
-pfRecoTauTagInfoProducer.PFJetTracksAssociatorProducer = \
-        cms.InputTag("ak5PFJetTracksAssociatorAtVertex")
+# Only reconstruct the preselected jets
+ak5PFJetsRecoTauPiZeros.src = cms.InputTag("ak5PFJets")
 
-# Get the standard PFTau production sequeneces
-from RecoTauTag.Configuration.FixedConePFTaus_cfi import *
+#-------------------------------------------------------------------------------
+#------------------ Shrinking Cone Taus ----------------------------------------
+#-------------------------------------------------------------------------------
 from RecoTauTag.Configuration.ShrinkingConePFTaus_cfi import *
+# Use the legacy PiZero reconstruction for shrinking cone taus
+from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi import \
+        ak5PFJetsLegacyTaNCPiZeros
+ak5PFJetsLegacyTaNCPiZeros.src = cms.InputTag("ak5PFJets")
+shrinkingConePFTauProducer.jetSrc = cms.InputTag("ak5PFJets")
+shrinkingConePFTauProducer.piZeroSrc = cms.InputTag(
+    "ak5PFJetsLegacyTaNCPiZeros")
+
+#-------------------------------------------------------------------------------
+#------------------ Produce combinatoric base taus------------------------------
+#-------------------------------------------------------------------------------
+# These jets form the basis of the HPS & TaNC taus.  There are many taus
+# produced for each jet, which are cleaned by the respective algorithms.
+# We split it into different collections for each different decay mode.
+
+from RecoTauTag.RecoTau.RecoTauCombinatoricProducer_cfi import \
+        combinatoricRecoTaus
+combinatoricRecoTaus.jetSrc = cms.InputTag("ak5PFJets")
+combinatoricRecoTaus.piZeroSrc = cms.InputTag("ak5PFJetsRecoTauPiZeros")
+
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingPionPtCut_cfi import \
+        pfRecoTauDiscriminationByLeadingPionPtCut
+# Common discrimination by lead pion
+combinatoricRecoTausDiscriminationByLeadingPionPtCut = \
+        pfRecoTauDiscriminationByLeadingPionPtCut.clone(
+            PFTauProducer = cms.InputTag("combinatoricRecoTaus")
+        )
+
+#-------------------------------------------------------------------------------
+#------------------ HPS Taus ---------------------------------------------------
+#-------------------------------------------------------------------------------
+
 from RecoTauTag.Configuration.HPSPFTaus_cfi import *
+from RecoTauTag.Configuration.HPSTancTaus_cfi import *
 
 PFTau = cms.Sequence(
-    ak5PFJetTracksAssociatorAtVertex *
-    pfRecoTauTagInfoProducer *
-    produceAndDiscriminateShrinkingConePFTaus +
-    produceShrinkingConeDiscriminationByTauNeuralClassifier +
-    produceAndDiscriminateFixedConePFTaus + 
-    produceAndDiscriminateHPSPFTaus 
+    # Jet production
+    #ak5PFJets *
+    # Build Pi Zeros
+    ak5PFJetsRecoTauPiZeros *
+    # Make shrinking cone taus
+    ak5PFJetsLegacyTaNCPiZeros *
+    produceAndDiscriminateShrinkingConePFTaus *
+    produceShrinkingConeDiscriminationByTauNeuralClassifier *
+    # Build combinatoric base taus
+    combinatoricRecoTaus *
+    produceAndDiscriminateHPSPFTaus *
+    hpsTancTauSequence
+    #tancTauSequence
 )
+
+

@@ -1,9 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 import copy
 
-from RecoTauTag.RecoTau.HPSPFRecoTauProducer_cfi import *
+'''
 
-hpsPFTauProducer = copy.deepcopy(hpsPFRecoTauProducer)
+Sequences for HPS taus
+
+'''
 
 # Define the discriminators for this tau
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi                      import *
@@ -14,15 +16,16 @@ from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon_cfi                  
 # Load helper functions to change the source of the discriminants
 from RecoTauTag.RecoTau.TauDiscriminatorTools import *
 
-#Discriminator By Decay Mode Finding
-#OK After discussing we decided that if there is no decay mode reconstructed
-#we create a PF tau with the LV of the PF Jet but no refs.
-#So if a lead track exists the decay  mode has been reconstructed
-#Therefore we call a discriminator byDecayModeFinding but in the reality
-#it is a leading track finding discriminator
+# Select those taus that pass the HPS selections
+#  - pt > 15, mass cuts, tauCone cut
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByHPSSelection_cfi import \
+        hpsSelectionDiscriminator
+hpsPFTauDiscriminationByDecayModeFinding = copy.deepcopy(
+    hpsSelectionDiscriminator)
+hpsPFTauDiscriminationByDecayModeFinding.PFTauProducer \
+        = cms.InputTag('hpsPFTauProducer')
 
-hpsPFTauDiscriminationByDecayModeFinding = copy.deepcopy(pfRecoTauDiscriminationByLeadingTrackFinding)
-setTauSource(hpsPFTauDiscriminationByDecayModeFinding, 'hpsPFTauProducer')
+#setTauSource(hpsPFTauDiscriminationByDecayModeFinding, 'hpsPFTauProducer')
 # Define decay mode prediscriminant
 requireDecayMode = cms.PSet(
     BooleanOperator = cms.string("and"),
@@ -45,14 +48,14 @@ mediumPFTauQualityCuts = cms.PSet(
          maxTrackChi2                 = cms.double(100.), # require track Chi2
          maxTransverseImpactParameter = cms.double(0.03), # w.r.t. PV
          maxDeltaZ                    = cms.double(0.2),  # w.r.t. PV
-         minTrackPixelHits            = cms.uint32(0),    # pixel-only hits (note that these cuts are turned off, 
+         minTrackPixelHits            = cms.uint32(0),    # pixel-only hits (note that these cuts are turned off,
                                                           # the tracking cuts might be higher)
          minTrackHits                 = cms.uint32(3),    # total track hits
          minGammaEt                   = cms.double(0.5),  # filter PFgammas below given Pt
          useTracksInsteadOfPFHadrons  = cms.bool(False),  # if true, use generalTracks, instead of PFChargedHadrons
       ),
       isolationQualityCuts = cms.PSet(
-         minTrackPt                   = cms.double(0.8), 
+         minTrackPt                   = cms.double(0.8),
          maxTrackChi2                 = cms.double(100.),
          maxTransverseImpactParameter = cms.double(0.03),
          maxDeltaZ                    = cms.double(0.2),
@@ -76,14 +79,14 @@ loosePFTauQualityCuts = cms.PSet(
          maxTrackChi2                 = cms.double(100.), # require track Chi2
          maxTransverseImpactParameter = cms.double(0.03), # w.r.t. PV
          maxDeltaZ                    = cms.double(0.2),  # w.r.t. PV
-         minTrackPixelHits            = cms.uint32(0),    # pixel-only hits (note that these cuts are turned off, 
+         minTrackPixelHits            = cms.uint32(0),    # pixel-only hits (note that these cuts are turned off,
                                                           # the tracking cuts might be higher)
          minTrackHits                 = cms.uint32(3),    # total track hits
          minGammaEt                   = cms.double(0.5),  # filter PFgammas below given Pt
          useTracksInsteadOfPFHadrons  = cms.bool(False),  # if true, use generalTracks, instead of PFChargedHadrons
       ),
       isolationQualityCuts = cms.PSet(
-         minTrackPt                   = cms.double(0.5), 
+         minTrackPt                   = cms.double(0.5),
          maxTrackChi2                 = cms.double(100.),
          maxTransverseImpactParameter = cms.double(0.03),
          maxDeltaZ                    = cms.double(0.2),
@@ -108,8 +111,72 @@ hpsPFTauDiscriminationAgainstMuon = copy.deepcopy(pfRecoTauDiscriminationAgainst
 setTauSource(hpsPFTauDiscriminationAgainstMuon, 'hpsPFTauProducer')
 hpsPFTauDiscriminationAgainstMuon.Prediscriminants = noPrediscriminants
 
+# Define the HPS selection discriminator used in cleaning
+hpsSelectionDiscriminator.PFTauProducer = cms.InputTag("combinatoricRecoTaus")
+
+# Define discriminants to use for HPS cleaning
+hpsTightIsolationCleaner = hpsPFTauDiscriminationByTightIsolation.clone(
+    Prediscriminants = noPrediscriminants,
+    PFTauProducer = cms.InputTag("combinatoricRecoTaus"),
+)
+hpsMediumIsolationCleaner = hpsPFTauDiscriminationByMediumIsolation.clone(
+    Prediscriminants = noPrediscriminants,
+    PFTauProducer = cms.InputTag("combinatoricRecoTaus"),
+)
+hpsLooseIsolationCleaner = hpsPFTauDiscriminationByLooseIsolation.clone(
+    Prediscriminants = noPrediscriminants,
+    PFTauProducer = cms.InputTag("combinatoricRecoTaus"),
+)
+
+import RecoTauTag.RecoTau.RecoTauCleanerPlugins as cleaners
+
+hpsPFTauProducer = cms.EDProducer(
+    "RecoTauCleaner",
+    src = cms.InputTag("combinatoricRecoTaus"),
+    cleaners = cms.VPSet(
+        # Prefer taus that dont' have charge == 3
+        cleaners.unitCharge,
+        # Prefer taus above 15 GeV
+        cleaners.ptGt15,
+        # Prefer taus that pass HPS selections
+        cms.PSet(
+            name = cms.string("HPS_Select"),
+            plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
+            src = cms.InputTag("hpsSelectionDiscriminator"),
+        ),
+        # Then prefer those that pass isolation.  Also prefer those that pass
+        # the tighter isolations
+        cms.PSet(
+            name = cms.string("TightIso"),
+            plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
+            src = cms.InputTag("hpsTightIsolationCleaner"),
+        ),
+        cms.PSet(
+            name = cms.string("MediumIso"),
+            plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
+            src = cms.InputTag("hpsMediumIsolationCleaner"),
+        ),
+        cms.PSet(
+            name = cms.string("LooseIso"),
+            plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
+            src = cms.InputTag("hpsLooseIsolationCleaner"),
+        ),
+        # Finally, if all this passes, take the one with less stuff in the
+        # isolation cone.
+        cleaners.combinedIsolation
+    )
+)
+
+produceHPSPFTaus = cms.Sequence(
+    hpsSelectionDiscriminator
+    *hpsTightIsolationCleaner
+    *hpsMediumIsolationCleaner
+    *hpsLooseIsolationCleaner
+    *hpsPFTauProducer
+)
+
 produceAndDiscriminateHPSPFTaus = cms.Sequence(
-    hpsPFTauProducer*
+    produceHPSPFTaus*
     hpsPFTauDiscriminationByDecayModeFinding*
     hpsPFTauDiscriminationByLooseIsolation*
     hpsPFTauDiscriminationByMediumIsolation*
