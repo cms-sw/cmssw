@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.245 $"
+__version__ = "$Revision: 1.246 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -637,11 +637,11 @@ class ConfigBuilder(object):
 
 
 	    if isinstance(stream.content,str):
+		    output.outputCommands = getattr(self.process,stream.content)
 		    if not self._options.inlineEventContent:
 			    def doNotInlineEventContent(instance,label = "process."+stream.content+".outputCommands"):
 				    return label
-			    output.outputCommands = getattr(self.process,stream.content)
-		    output.outputCommands.__dict__["dumpPython"] = doNotInlineEventContent
+			    output.outputCommands.__dict__["dumpPython"] = doNotInlineEventContent
 	    else:
 		    output.outputCommands = stream.content
 
@@ -1202,7 +1202,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.245 $"),
+					    (version=cms.untracked.string("$Revision: 1.246 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
