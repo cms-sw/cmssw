@@ -1,5 +1,9 @@
 <use   name="Utilities/StorageFactory"/>
 <use   name="FWCore/ParameterSet"/>
+<bin   file="RunUtilitiesStorageFactory.cpp" name="testUtilitiesStorageFactory">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash Utilities/StorageFactory/test run_StorageFactoryTests.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
 <bin   file="threadsafe.cpp" name="test_StorageFactory_threadsafe">
 </bin>
 <bin   file="t0Repack.cpp" name="test_StorageFactory_t0Repack">
