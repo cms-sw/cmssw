@@ -15,11 +15,11 @@ SiStripZeroSuppression(edm::ParameterSet const& conf)
   : inputTags(conf.getParameter<std::vector<edm::InputTag> >("RawDigiProducersList")),
     algorithms(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"))),
     storeCM(conf.getParameter<bool>("storeCM")),
-	doAPVRestore(conf.getParameter<bool>("doAPVRestore")),
+    doAPVRestore(conf.getParameter<bool>("doAPVRestore")),
     produceRawDigis(conf.getParameter<bool>("produceRawDigis")),
     mergeCollections(conf.getParameter<bool>("mergeCollections")),
-    fixCM(conf.getParameter<bool>("fixCM"))
-	{
+    fixCM(conf.getParameter<bool>("fixCM")) 
+{
 
   if(mergeCollections){
     storeCM = false;
@@ -31,11 +31,11 @@ SiStripZeroSuppression(edm::ParameterSet const& conf)
     if(produceRawDigis&&!mergeCollections)
       produces< edm::DetSetVector<SiStripRawDigi> > (inputTag->instance());		
   }	
-
+  
   if(storeCM)
     produces< edm::DetSetVector<SiStripProcessedRawDigi> > ("APVCM");
   
-
+  
 }
 
 void SiStripZeroSuppression::
@@ -144,7 +144,7 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
       std::vector<int16_t> processedRawDigis(rawDigis->size());
       algorithms->subtractorPed->subtract( *rawDigis, processedRawDigis);
       if( doAPVRestore ) nAPVflagged = algorithms->restorer->inspect( rawDigis->id, processedRawDigis );
-	  algorithms->subtractorCMN->subtract( rawDigis->id, processedRawDigis);
+      algorithms->subtractorCMN->subtract( rawDigis->id, processedRawDigis);
       if( doAPVRestore ) algorithms->restorer->restore( processedRawDigis, algorithms->subtractorCMN->getAPVsCM() );
       algorithms->suppressor->suppress( processedRawDigis, suppressedDigis );
 	  
@@ -159,10 +159,10 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
     if (suppressedDigis.size() && nAPVflagged==0) 
       output.push_back(suppressedDigis); 
     
-    if(produceRawDigis && nAPVflagged > 0) 
-	outputraw.push_back(*rawDigis);
+    if (produceRawDigis && nAPVflagged > 0) 
+      outputraw.push_back(*rawDigis);
       
-    }
+  }
   
 }
 

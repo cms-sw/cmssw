@@ -15,4 +15,4 @@ siStripZeroSuppression = cms.EDProducer("SiStripZeroSuppression",
     produceRawDigis = cms.bool(False),    # if mergeCollection is True, produceRawDigi is not considered
     mergeCollections = cms.bool(False),
     doAPVRestore = cms.bool(False)
- )
+)
