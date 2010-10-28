@@ -20,13 +20,13 @@ class PFRecoTauAlgorithmBase
 
   virtual ~PFRecoTauAlgorithmBase();
 
-  void setTransientTrackBuilder(const TransientTrackBuilder*); 
+  void setTransientTrackBuilder(const TransientTrackBuilder*);
   //Add other common methods
 
-  //BASIC method 
-  virtual reco::PFTau buildPFTau(const reco::PFTauTagInfoRef&,const reco::Vertex&) = 0; 
+  //BASIC method
+  virtual reco::PFTau buildPFTau(const reco::PFTauTagInfoRef&,const reco::Vertex&) = 0;
 
- protected:   
+ protected:
   const TransientTrackBuilder *TransientTrackBuilder_;
   //Add other common members
 
