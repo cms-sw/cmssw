@@ -16,7 +16,12 @@ pushd ${LOCAL_TMP_DIR}
     exit 0
   fi
 
+  echo " "
+  echo Running test_StorageFactory_Rfio -----------------------------------------------------------
   ${LOCAL_TOP_DIR}/test/${SCRAM_ARCH}/test_StorageFactory_Rfio || die "test_StorageFactory_Rfio" $?
+
+  echo " "
+  echo Running test_StorageFactory_Write ----------------------------------------------------------
   ${LOCAL_TOP_DIR}/test/${SCRAM_ARCH}/test_StorageFactory_Write || die "test_StorageFactory_Write" $?
 
 popd
