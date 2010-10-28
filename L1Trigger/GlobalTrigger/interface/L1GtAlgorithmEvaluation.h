@@ -118,7 +118,7 @@ private:
 
     std::vector<CombinationsInCond> m_algoCombinationVector;
 
-    std::stack<bool> resultStack;
+    std::stack<bool, std::vector<bool> > resultStack;
 
 };
 
