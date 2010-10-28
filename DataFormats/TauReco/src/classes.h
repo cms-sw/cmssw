@@ -38,7 +38,7 @@ namespace {
     edm::Ref<std::vector<reco::BaseTauTagInfo> >                btti_r;
     edm::RefProd<std::vector<reco::BaseTauTagInfo> >            btti_rp;
     edm::RefVector<std::vector<reco::BaseTauTagInfo> >          btti_rv;
-    
+
     std::vector<reco::CaloTauTagInfo>                           calotti_v;
     edm::Wrapper<std::vector<reco::CaloTauTagInfo> >            calotti_w;
     edm::Ref<std::vector<reco::CaloTauTagInfo> >                calotti_r;
@@ -50,7 +50,7 @@ namespace {
     edm::Ref<std::vector<reco::PFTauTagInfo> >                  pftti_r;
     edm::RefProd<std::vector<reco::PFTauTagInfo> >              pftti_rp;
     edm::RefVector<std::vector<reco::PFTauTagInfo> >            pftti_rv;
-    
+
     std::vector<reco::BaseTau>                                  bt_v;
     edm::Wrapper<std::vector<reco::BaseTau> >                   bt_w;
     edm::Ref<std::vector<reco::BaseTau> >                       bt_r;
@@ -64,6 +64,8 @@ namespace {
     edm::RefProd<std::vector<reco::CaloTau> >                   calot_rp;
     edm::RefVector<std::vector<reco::CaloTau> >                 calot_rv;
     edm::reftobase::Holder<reco::BaseTau,reco::CaloTauRef>      calot_rb;
+    edm::RefToBaseVector<reco::CaloTau> calot_rftbv;
+    edm::Wrapper<edm::RefToBaseVector<reco::CaloTau> > calot_rftbv_w;
 
     std::vector<reco::PFTau>                                    pft_v;
     edm::Wrapper<std::vector<reco::PFTau> >                     pft_w;
@@ -71,6 +73,17 @@ namespace {
     edm::RefProd<std::vector<reco::PFTau> >                     pft_rp;
     edm::RefVector<std::vector<reco::PFTau> >                   pft_rv;
     edm::reftobase::Holder<reco::BaseTau,reco::PFTauRef>        pft_rb;
+
+    edm::View<reco::PFTau>  jv;
+    edm::RefToBaseProd<reco::PFTau> jrtbp;
+
+    edm::RefToBase<reco::PFTau>  rtbj;
+    edm::reftobase::IndirectHolder<reco::PFTau> ihj;
+    edm::reftobase::Holder<reco::PFTau, reco::PFTauRef> hcj;
+    edm::reftobase::RefHolder<reco::PFTauRef> rhtj;
+    edm::RefToBaseVector<reco::PFTau> jrtbv;
+    edm::Wrapper<edm::RefToBaseVector<reco::PFTau> > jrtbv_w;
+    edm::reftobase::BaseVectorHolder<reco::PFTau> * bvhj_p;    // pointer since it's pure virtual
 
     std::vector<reco::PFTauDecayMode>                                           pftdm_v;
     edm::Wrapper<std::vector<reco::PFTauDecayMode> >                            pftdm_w;
@@ -90,73 +103,73 @@ namespace {
     edm::RefVector<std::vector<reco::RecoTauPiZero> >                          recoTauPiZero_rv;
     edm::reftobase::Holder<reco::CompositePtrCandidate, reco::RecoTauPiZeroRef>    recoTauPiZero_rb;
 
-    reco::CaloTauDiscriminatorByIsolationBase                   calotdi_b;         
-    reco::CaloTauDiscriminatorByIsolation                       calotdi_o;     
-    reco::CaloTauDiscriminatorByIsolationRef                    calotdi_r;     
-    reco::CaloTauDiscriminatorByIsolationRefProd                calotdi_rp;     
-    reco::CaloTauDiscriminatorByIsolationRefVector              calotdi_rv;     
-    edm::Wrapper<reco::CaloTauDiscriminatorByIsolation>         calotdi_w;     
+    reco::CaloTauDiscriminatorByIsolationBase                   calotdi_b;
+    reco::CaloTauDiscriminatorByIsolation                       calotdi_o;
+    reco::CaloTauDiscriminatorByIsolationRef                    calotdi_r;
+    reco::CaloTauDiscriminatorByIsolationRefProd                calotdi_rp;
+    reco::CaloTauDiscriminatorByIsolationRefVector              calotdi_rv;
+    edm::Wrapper<reco::CaloTauDiscriminatorByIsolation>         calotdi_w;
 
-    reco::CaloTauDiscriminatorBase                   calodi_b;         
-    reco::CaloTauDiscriminator                       calodi_o;     
-    reco::CaloTauDiscriminatorRef                    calodi_r;     
-    reco::CaloTauDiscriminatorRefProd                calodi_rp;     
-    reco::CaloTauDiscriminatorRefVector              calodi_rv;     
-    edm::Wrapper<reco::CaloTauDiscriminator>         calodi_w;     
-    
-    reco::CaloTauDiscriminatorAgainstElectronBase               calotde_b;         
-    reco::CaloTauDiscriminatorAgainstElectron                   calotde_o;     
-    reco::CaloTauDiscriminatorAgainstElectronRef                calotde_r;     
-    reco::CaloTauDiscriminatorAgainstElectronRefProd            calotde_rp;     
-    reco::CaloTauDiscriminatorAgainstElectronRefVector          calotde_rv;     
-    edm::Wrapper<reco::CaloTauDiscriminatorAgainstElectron>     calotde_w;     
-    
+    reco::CaloTauDiscriminatorBase                   calodi_b;
+    reco::CaloTauDiscriminator                       calodi_o;
+    reco::CaloTauDiscriminatorRef                    calodi_r;
+    reco::CaloTauDiscriminatorRefProd                calodi_rp;
+    reco::CaloTauDiscriminatorRefVector              calodi_rv;
+    edm::Wrapper<reco::CaloTauDiscriminator>         calodi_w;
+
+    reco::CaloTauDiscriminatorAgainstElectronBase               calotde_b;
+    reco::CaloTauDiscriminatorAgainstElectron                   calotde_o;
+    reco::CaloTauDiscriminatorAgainstElectronRef                calotde_r;
+    reco::CaloTauDiscriminatorAgainstElectronRefProd            calotde_rp;
+    reco::CaloTauDiscriminatorAgainstElectronRefVector          calotde_rv;
+    edm::Wrapper<reco::CaloTauDiscriminatorAgainstElectron>     calotde_w;
+
     std::pair<reco::CaloTauRef, int>                            calotd_p;
     std::vector<std::pair<reco::CaloTauRef, int> >              calotd_v;
-  
-    reco::PFTauDiscriminatorByIsolationBase                     pftdi_b;         
-    reco::PFTauDiscriminatorByIsolation                         pftdi_o;     
-    reco::PFTauDiscriminatorByIsolationRef                      pftdi_r;     
-    reco::PFTauDiscriminatorByIsolationRefProd                  pftdi_rp;     
-    reco::PFTauDiscriminatorByIsolationRefVector                pftdi_rv;     
-    edm::Wrapper<reco::PFTauDiscriminatorByIsolation>           pftdi_w;     
-    
+
+    reco::PFTauDiscriminatorByIsolationBase                     pftdi_b;
+    reco::PFTauDiscriminatorByIsolation                         pftdi_o;
+    reco::PFTauDiscriminatorByIsolationRef                      pftdi_r;
+    reco::PFTauDiscriminatorByIsolationRefProd                  pftdi_rp;
+    reco::PFTauDiscriminatorByIsolationRefVector                pftdi_rv;
+    edm::Wrapper<reco::PFTauDiscriminatorByIsolation>           pftdi_w;
+
     std::pair<reco::PFTauRef, int>                              pftd_p;
-    std::vector<std::pair<reco::PFTauRef, int> >                pftd_v;    
+    std::vector<std::pair<reco::PFTauRef, int> >                pftd_v;
 
 
-    reco::PFTauDiscriminatorBase                     pftdiscr_b;         
-    reco::PFTauDiscriminator                         pftdiscr_o;     
-    reco::PFTauDiscriminatorRef                      pftdiscr_r;     
-    reco::PFTauDiscriminatorRefProd                  pftdiscr_rp;     
-    reco::PFTauDiscriminatorRefVector                pftdiscr_rv;     
-    edm::Wrapper<reco::PFTauDiscriminator>           pftdiscr_w;     
-    
+    reco::PFTauDiscriminatorBase                     pftdiscr_b;
+    reco::PFTauDiscriminator                         pftdiscr_o;
+    reco::PFTauDiscriminatorRef                      pftdiscr_r;
+    reco::PFTauDiscriminatorRefProd                  pftdiscr_rp;
+    reco::PFTauDiscriminatorRefVector                pftdiscr_rv;
+    edm::Wrapper<reco::PFTauDiscriminator>           pftdiscr_w;
+
     std::pair<reco::PFTauRef, float>                              pftdiscr_p;
-    std::vector<std::pair<reco::PFTauRef, float> >                pftdiscr_v;    
+    std::vector<std::pair<reco::PFTauRef, float> >                pftdiscr_v;
 
-    reco::JetPiZeroAssociationBase                     jetPiZeroAssoc_b;         
-    reco::JetPiZeroAssociation                         jetPiZeroAssoc_o;     
-    reco::JetPiZeroAssociationRef                      jetPiZeroAssoc_r;     
-    reco::JetPiZeroAssociationRefProd                  jetPiZeroAssoc_rp;     
-    reco::JetPiZeroAssociationRefVector                jetPiZeroAssoc_rv;     
-    edm::Wrapper<reco::JetPiZeroAssociation>           jetPiZeroAssoc_w;     
-    
+    reco::JetPiZeroAssociationBase                     jetPiZeroAssoc_b;
+    reco::JetPiZeroAssociation                         jetPiZeroAssoc_o;
+    reco::JetPiZeroAssociationRef                      jetPiZeroAssoc_r;
+    reco::JetPiZeroAssociationRefProd                  jetPiZeroAssoc_rp;
+    reco::JetPiZeroAssociationRefVector                jetPiZeroAssoc_rv;
+    edm::Wrapper<reco::JetPiZeroAssociation>           jetPiZeroAssoc_w;
+
     std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> >                              jetPiZeroAssoc_p;
-    std::vector<std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> > >                jetPiZeroAssoc_v;    
+    std::vector<std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> > >                jetPiZeroAssoc_v;
 
-    std::vector<std::vector<reco::RecoTauPiZero> >                jetPiZeroAssoc_v_v;    
+    std::vector<std::vector<reco::RecoTauPiZero> >                jetPiZeroAssoc_v_v;
 
-    reco::PFTauDecayModeAssociation                         pftdecaymodeass_o;     
-    reco::PFTauDecayModeAssociationRef                      pftdecaymodeass_r;     
-    reco::PFTauDecayModeAssociationRefProd                  pftdecaymodeass_rp;     
-    reco::PFTauDecayModeAssociationRefVector                pftdecaymodeass_rv;     
-    edm::Wrapper<reco::PFTauDecayModeAssociation>           pftdecaymodeass_w;     
+    reco::PFTauDecayModeAssociation                         pftdecaymodeass_o;
+    reco::PFTauDecayModeAssociationRef                      pftdecaymodeass_r;
+    reco::PFTauDecayModeAssociationRefProd                  pftdecaymodeass_rp;
+    reco::PFTauDecayModeAssociationRefVector                pftdecaymodeass_rv;
+    edm::Wrapper<reco::PFTauDecayModeAssociation>           pftdecaymodeass_w;
 
     std::pair<reco::PFTauRef, reco::PFTauDecayMode>                              pftdecaymodeass_p;
-    std::vector<std::pair<reco::PFTauRef, reco::PFTauDecayMode> >                pftdecaymodeass_v;    
+    std::vector<std::pair<reco::PFTauRef, reco::PFTauDecayMode> >                pftdecaymodeass_v;
     std::pair<reco::CaloTauRef, float>                              calodiscr_p;
-    std::vector<std::pair<reco::CaloTauRef, float> >                calodiscr_v;    
+    std::vector<std::pair<reco::CaloTauRef, float> >                calodiscr_v;
 
     //Needed only in HLT-Open
     std::vector<reco::HLTTau>                                  ht_v;

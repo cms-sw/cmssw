@@ -53,6 +53,20 @@
   <class name="edm::RefVector<std::vector<reco::PFTau>,reco::PFTau,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau>,reco::PFTau> >"/>
   <class name="edm::reftobase::Holder<reco::BaseTau, edm::Ref<std::vector<reco::PFTau>,reco::PFTau,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau>,reco::PFTau> > >" />
 
+  <class name="edm::RefToBaseProd<reco::PFTau>" >
+     <field name="view_" transient="true" />
+  </class>
+  <class name="edm::RefToBase<reco::PFTau>" />
+  <class name="edm::reftobase::BaseHolder<reco::PFTau>" />
+  <class name="edm::reftobase::IndirectHolder<reco::PFTau>" />
+    <!---<class name="edm::reftobase::Holder<reco::PFTau,edm::RefToBase<reco::PFTau> > "/>-->
+  <class name="edm::RefToBaseVector<reco::PFTau>"/>
+  <class name="edm::Wrapper<edm::RefToBaseVector<reco::PFTau> >"/>
+  <class name="edm::reftobase::BaseVectorHolder<reco::PFTau>"/>
+  <class name="edm::reftobase::Holder<reco::PFTau, reco::PFTauRef>" />
+  <class name="edm::reftobase::RefHolder<reco::PFTauRef>" />
+
+
   <class name="reco::PFTauDecayMode"/>
   <class name="std::vector<reco::PFTauDecayMode>"/>
   <class name="edm::Wrapper<std::vector<reco::PFTauDecayMode> >"/>
