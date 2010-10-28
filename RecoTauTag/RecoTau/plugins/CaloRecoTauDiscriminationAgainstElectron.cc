@@ -48,7 +48,7 @@ double CaloRecoTauDiscriminationAgainstElectron::discriminate(const CaloTauRef& 
 {
    if (ApplyCut_maxleadTrackHCAL3x3hottesthitDEta_){
       // optional selection : ask for small |deta| between direction of propag. leading Track - ECAL inner surf. contact point and direction of highest Et hit among HCAL hits inside a 3x3 calo. tower matrix centered on direction of propag. leading Track - ECAL inner surf. contact point
-      if (isnan((*theCaloTauRef).leadTrackHCAL3x3hottesthitDEta()) || (*theCaloTauRef).leadTrackHCAL3x3hottesthitDEta()>maxleadTrackHCAL3x3hottesthitDEta_) return 0.;
+      if (std::isnan((*theCaloTauRef).leadTrackHCAL3x3hottesthitDEta()) || (*theCaloTauRef).leadTrackHCAL3x3hottesthitDEta()>maxleadTrackHCAL3x3hottesthitDEta_) return 0.;
    }
    if (ApplyCut_leadTrackavoidsECALcrack_){
       // optional selection : ask that leading track - ECAL inner surface contact point does not fall inside any ECAL eta crack 
@@ -63,7 +63,7 @@ double CaloRecoTauDiscriminationAgainstElectron::discriminate(const CaloTauRef& 
          return 0.;
       }     
    }
-   if (isnan((*theCaloTauRef).leadTrackHCAL3x3hitsEtSum()))
+   if (std::isnan((*theCaloTauRef).leadTrackHCAL3x3hitsEtSum()))
    {
       return 0.;
    } else
@@ -89,7 +89,7 @@ void CaloRecoTauDiscriminationAgainstElectron::produce(edm::Event& iEvent,const 
     }
     if (ApplyCut_maxleadTrackHCAL3x3hottesthitDEta_){
       // optional selection : ask for small |deta| between direction of propag. leading Track - ECAL inner surf. contact point and direction of highest Et hit among HCAL hits inside a 3x3 calo. tower matrix centered on direction of propag. leading Track - ECAL inner surf. contact point
-      if (isnan((*theCaloTauRef).leadTrackHCAL3x3hottesthitDEta()) || (*theCaloTauRef).leadTrackHCAL3x3hottesthitDEta()>maxleadTrackHCAL3x3hottesthitDEta_){
+      if (std::isnan((*theCaloTauRef).leadTrackHCAL3x3hottesthitDEta()) || (*theCaloTauRef).leadTrackHCAL3x3hottesthitDEta()>maxleadTrackHCAL3x3hottesthitDEta_){
 	theCaloTauDiscriminatorAgainstElectron->setValue(iCaloTau,0);
 	continue;
       }
@@ -110,7 +110,7 @@ void CaloRecoTauDiscriminationAgainstElectron::produce(edm::Event& iEvent,const 
 	continue;
       }     
     }
-    if (isnan((*theCaloTauRef).leadTrackHCAL3x3hitsEtSum())){
+    if (std::isnan((*theCaloTauRef).leadTrackHCAL3x3hitsEtSum())){
       theCaloTauDiscriminatorAgainstElectron->setValue(iCaloTau,0);
     }else{
       if ((*theCaloTauRef).leadTrackHCAL3x3hitsEtSum()/(*theCaloTauRef).leadTrack()->pt()<=leadTrack_HCAL3x3hitsEtSumOverPt_minvalue_) theCaloTauDiscriminatorAgainstElectron->setValue(iCaloTau,0);
