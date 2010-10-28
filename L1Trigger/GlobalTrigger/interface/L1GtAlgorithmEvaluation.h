@@ -17,6 +17,10 @@
  *
  */
 
+
+//   for L1GtLogicParser
+#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
+
 // system include files
 #include <iostream>
 
@@ -66,22 +70,21 @@ class L1GtAlgorithm;
 class L1GtConditionEvaluation;
 
 // class interface
-class L1GtAlgorithmEvaluation : public L1GtLogicParser
-{
+class L1GtAlgorithmEvaluation : {
 
 public:
 
     /// constructor
-    L1GtAlgorithmEvaluation();
+  //  L1GtAlgorithmEvaluation();
 
     /// constructor from an algorithm from event setup
-    L1GtAlgorithmEvaluation(const L1GtAlgorithm&);
+    explicit L1GtAlgorithmEvaluation(const L1GtAlgorithm&);
 
     /// copy constructor
-    L1GtAlgorithmEvaluation(L1GtAlgorithmEvaluation&);
+    // L1GtAlgorithmEvaluation(L1GtAlgorithmEvaluation&);
 
     /// destructor
-    virtual ~L1GtAlgorithmEvaluation();
+  // virtual ~L1GtAlgorithmEvaluation();
     
     //typedef std::map<std::string, L1GtConditionEvaluation*> ConditionEvaluationMap;
     typedef __gnu_cxx::hash_map<std::string, L1GtConditionEvaluation*> ConditionEvaluationMap;
@@ -91,7 +94,7 @@ public:
 public:
 
     /// get / set the result of the algorithm
-    inline const bool& gtAlgoResult() const {
+    inline bool gtAlgoResult() const {
         return m_algoResult;
     }
 
@@ -113,12 +116,16 @@ public:
 
 private:
 
-    /// algorithm result
-    bool m_algoResult;
+  /// algorithm result
+  bool m_algoResult;
 
-    std::vector<CombinationsInCond> m_algoCombinationVector;
+  std::string const & m_logicalExpression;
+  std::vector<L1GtLogicParser::TokenRPN> const & m_rpnVector;
 
-    std::stack<bool, std::vector<bool> > resultStack;
+
+  std::vector<CombinationsInCond> m_algoCombinationVector;
+  
+  std::stack<bool, std::vector<bool> > m_resultStack;
 
 };
 
