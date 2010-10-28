@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/10/14 23:05:23 $
- * $Revision: 1.57 $
+ * $Date: 2010/10/28 08:46:01 $
+ * $Revision: 1.58 $
  *
  */
 
@@ -41,7 +41,7 @@ const char * BeamMonitor::formatFitTime( const time_t & t )  {
   ptm = gmtime ( &t );
   int year = ptm->tm_year;
   if (year < 1995) {
-    edm::LogInfo("BadTimeStamp") << << "year reported is " << year << "!! resetting to 2010..." << std::endl;
+    edm::LogError("BadTimeStamp") << "year reported is " << year << "!! resetting to 2010..." << std::endl;
     year = 2010;
   }
   sprintf( ts, "%4d-%02d-%02d %02d:%02d:%02d", 2010,ptm->tm_mon+1,ptm->tm_mday,(ptm->tm_hour+CEST)%24, ptm->tm_min, ptm->tm_sec);
