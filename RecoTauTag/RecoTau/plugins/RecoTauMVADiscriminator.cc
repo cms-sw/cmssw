@@ -85,7 +85,7 @@ void RecoTauMVADiscriminator::beginEvent(const edm::Event& evt,
 }
 
 // Get the MVA output for a given PFTau
-double RecoTauMVADiscriminator::discriminate(const PFTauRef& tau) {
+double RecoTauMVADiscriminator::discriminate(const reco::PFTauRef& tau) {
   // Find the right MVA for this tau's decay mode
   MVAMap::iterator mva = mvas_.find(tau->decayMode());
   // If this DM has an associated decay mode, get and return the result.
