@@ -27,6 +27,7 @@
 #define TAU_VEC_DISC_PLUGIN(DiscriminatorFunction) DEFINE_EDM_PLUGIN(RecoTauDiscriminantPluginFactory, reco::tau::RecoTauDiscriminantVectorFunctionPlugin<reco::tau::disc::DiscriminatorFunction>, reco::tau::discPluginName(#DiscriminatorFunction))
 
 // HPStanc variables
+TAU_DISC_PLUGIN(JetPt);
 TAU_DISC_PLUGIN(SignalPtFraction);
 TAU_DISC_PLUGIN(IsolationChargedPtFraction);
 TAU_DISC_PLUGIN(IsolationECALPtFraction);
