@@ -45,12 +45,13 @@ def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=Non
         lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation) #q2
         del q
         #print 'lumitrginfo ',lumitrginfo
-        if len(lumitrginfo)==0:
+        if len(lumitrginfo)==0: #if no qualified cross lumi-trg found, try lumionly
             #result.append([runnum,runstarttimeStr,1,t.StrToDatetime(runstarttimeStr),0.0,0.0])
-            print 'warning request run ',runnum,' has no trigger data, calculate delivered only'
             q=dbsession.nominalSchema().newQuery()
             lumiinfobyrun=lumiQueryAPI.lumisummaryByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation) #q3
             del q
+            if len(lumiinfobyrun)!=0: #if lumionly has qualified data means trg has no data
+                print 'warning request run ',runnum,' has no trigger data, calculate delivered only'
             for perlsdata in lumiinfobyrun:
                 cmslsnum=perlsdata[0]
                 instlumi=perlsdata[1]
@@ -126,10 +127,11 @@ def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=N
         lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation) #q2
         del q
         if len(lumitrginfo)==0:
-            print 'warning request run ',runnum,' has no trigger data, calculate delivered only'
             q=dbsession.nominalSchema().newQuery()
             lumiinfobyrun=lumiQueryAPI.lumisummaryByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation) #q3
             del q
+            if len(lumiinfobyrun)!=0:
+                print 'warning request run ',runnum,' has no trigger data, calculate delivered only'
             for perlsdata in lumiinfobyrun:
                 cmslsnum=perlsdata[0]
                 instlumi=perlsdata[1]
