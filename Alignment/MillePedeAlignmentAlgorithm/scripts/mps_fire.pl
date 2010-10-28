@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg      3-Jul-2007
 #     A. Parenti, DESY Hamburg    21-Apr-2008
-#     $Revision: 1.20 $ by $Author: flucke $
-#     $Date: 2010/08/19 16:13:11 $
+#     $Revision: 1.21 $ by $Author: flucke $
+#     $Date: 2010/10/26 20:54:48 $
 #
 #  Submit jobs that are setup in local mps database
 #  
@@ -91,8 +91,8 @@ if ($fireMerge == 0) {
 	if (@JOBSTATUS[$i] eq "SETUP") {
 	    if ($nSub < $maxJobs) {
 		# for some reasons LSF wants script with full path
-		print "bsub -J $theJobName -R \"type==SLC5_64\" $resources $theJobData/@JOBDIR[$i]/theScript.sh\n";
-		$result = `bsub -J $theJobName -R \"type==SLC5_64\" $resources $theJobData/@JOBDIR[$i]/theScript.sh`;
+		print "bsub -J $theJobName $resources $theJobData/@JOBDIR[$i]/theScript.sh\n";
+		$result = `bsub -J $theJobName $resources $theJobData/@JOBDIR[$i]/theScript.sh`;
 		print "      $result";
 		chomp $result;
 		$nn = ($result =~ m/Job \<(\d+)\> is submitted/);
@@ -178,8 +178,8 @@ if ($fireMerge == 0) {
 
         my $nMerge = $i - $nJobs; # 'index' of this merge job
         my $curJobName = "m".$nMerge."_".$theJobName;
-        print "bsub -J $curJobName -R \"type==SLC5_64\" $resources $theJobData/@JOBDIR[$i]/theScript.sh\n";
-        $result = `bsub -J $curJobName -R \"type==SLC5_64\" $resources $theJobData/@JOBDIR[$i]/theScript.sh`;
+        print "bsub -J $curJobName $resources $theJobData/@JOBDIR[$i]/theScript.sh\n";
+        $result = `bsub -J $curJobName $resources $theJobData/@JOBDIR[$i]/theScript.sh`;
         print "     $result";
         chomp $result;
         $nn = ($result =~ m/Job \<(\d+)\> is submitted/);
