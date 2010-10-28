@@ -35,6 +35,7 @@ class SiStripAPVRestorer {
   void     restore(std::vector<int16_t>&, const std::vector< std::pair<short,float> >& );
   void     fixAPVsCM(edm::DetSet<SiStripProcessedRawDigi>& );
   void     LoadMeanCMMap(edm::Event&);
+
  protected:
 
   SiStripAPVRestorer(const edm::ParameterSet& conf);
@@ -81,22 +82,19 @@ class SiStripAPVRestorer {
   //--------------------------------------------------
   // Configurable Parameters of Algorithm
   //--------------------------------------------------
-    double fraction_; // fraction of strips deviating from nominal baseline
-	uint32_t deviation_;   // ADC value of deviation from nominal baseline 
-	double restoreThreshold_;  
-	uint32_t DeltaCMThreshold_;
+  double   fraction_;                  // fraction of strips deviating from nominal baseline
+  uint32_t deviation_;                 // ADC value of deviation from nominal baseline 
+  double   restoreThreshold_;  
+  uint32_t DeltaCMThreshold_;
   
-	uint32_t nSigmaMoiseDerTh_;         // threshold for rejecting hits strips (20 -> 10 ?)
-	uint32_t consecThreshold_;           // minimum length of flat region  (3 -> 5 ?)
-	uint32_t hitStripThreshold_;        // height above median when strip is definitely a hit
-	uint32_t nSmooth_;                   // for smoothing and local minimum determination (odd number)
-	uint32_t minStripsToFit_;            // minimum strips to try spline algo (otherwise default to median)
-	uint32_t distortionThreshold_;
-	uint32_t cut_to_avoid_signal_;
-  //--------------------------------------------------
-	
-	
-  
+  uint32_t nSigmaMoiseDerTh_;          // threshold for rejecting hits strips (20 -> 10 ?)
+  uint32_t consecThreshold_;           // minimum length of flat region  (3 -> 5 ?)
+  uint32_t hitStripThreshold_;         // height above median when strip is definitely a hit
+  uint32_t nSmooth_;                   // for smoothing and local minimum determination (odd number)
+  uint32_t minStripsToFit_;            // minimum strips to try spline algo (otherwise default to median)
+  uint32_t distortionThreshold_;
+  uint32_t cut_to_avoid_signal_;	
+    
 };
 
 #endif
