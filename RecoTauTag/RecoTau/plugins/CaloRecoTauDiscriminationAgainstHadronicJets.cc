@@ -8,6 +8,9 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "RecoTauTag/RecoTau/interface/TCTauAlgorithm.h"
 
+using namespace reco;
+using namespace edm;
+
 class CaloRecoTauDiscriminationAgainstHadronicJets : public CaloTauDiscriminationProducerBase {
   public:
     explicit CaloRecoTauDiscriminationAgainstHadronicJets(
@@ -24,7 +27,7 @@ class CaloRecoTauDiscriminationAgainstHadronicJets : public CaloTauDiscriminatio
 };
 
 void CaloRecoTauDiscriminationAgainstHadronicJets::beginEvent(
-    const Event& iEvent, const EventSetup& iSetup){
+    const edm::Event& iEvent, const edm::EventSetup& iSetup){
   tcTauAlgorithm->eventSetup(iEvent,iSetup);
 }
 

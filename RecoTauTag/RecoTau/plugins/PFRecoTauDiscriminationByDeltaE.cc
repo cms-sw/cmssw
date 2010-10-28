@@ -11,6 +11,7 @@
 
 using namespace reco;
 using namespace std;
+using namespace edm;
 
 class PFRecoTauDiscriminationByDeltaE : public PFTauDiscriminationProducerBase  {
     public:
@@ -50,9 +51,9 @@ double PFRecoTauDiscriminationByDeltaE::DeltaE(const PFTauRef& tau){
 	PFCandidateRefVector signalTracks = tau->signalPFChargedHadrCands();
 	for(size_t i = 0; i < signalTracks.size(); ++i){
 		TLorentzVector p4;
-		p4.SetXYZM(signalTracks[i]->px(), 
-                           signalTracks[i]->py(), 
-                           signalTracks[i]->pz(), 
+		p4.SetXYZM(signalTracks[i]->px(),
+                           signalTracks[i]->py(),
+                           signalTracks[i]->pz(),
                            chargedPionMass);
 		tracksE += p4.E();
 	}

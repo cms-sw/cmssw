@@ -17,14 +17,14 @@ class CaloRecoTauDiscriminationByCharge : public CaloTauDiscriminationProducerBa
               iConfig.getParameter<bool>("ApplyOneOrThreeProngCut");
         }
     ~CaloRecoTauDiscriminationByCharge(){}
-    double discriminate(const CaloTauRef& pfTau);
+    double discriminate(const reco::CaloTauRef& pfTau);
   private:
     uint32_t chargeReq_;
     bool oneOrThreeProng_;
 };
 
 double CaloRecoTauDiscriminationByCharge::discriminate(
-    const CaloTauRef& theTauRef) {
+    const reco::CaloTauRef& theTauRef) {
   uint16_t nSigTk =  theTauRef->signalTracks().size();
   bool chargeok = (abs(theTauRef->charge()) == int(chargeReq_));
   bool oneOrThreeProngOK =  ( (nSigTk==1) || (nSigTk==3) || !oneOrThreeProng_ );

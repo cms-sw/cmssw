@@ -19,11 +19,12 @@
 
 using namespace reco;
 using namespace std;
+using namespace edm;
 
 class PFRecoTauDiscriminationByFlightPathSignificance : public PFTauDiscriminationProducerBase  {
     public:
-	explicit PFRecoTauDiscriminationByFlightPathSignificance(const ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig), 
-                                                                               qualityCuts_(iConfig.getParameter<ParameterSet>("qualityCuts")){  // retrieve quality cuts    
+	explicit PFRecoTauDiscriminationByFlightPathSignificance(const ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig),
+                                                                               qualityCuts_(iConfig.getParameter<ParameterSet>("qualityCuts")){  // retrieve quality cuts
 		flightPathSig		= iConfig.getParameter<double>("flightPathSig");
 		withPVError		= iConfig.getParameter<bool>("UsePVerror");
 
@@ -59,7 +60,7 @@ void PFRecoTauDiscriminationByFlightPathSignificance::beginEvent(const Event& iE
 	edm::Handle<edm::View<reco::Vertex> > vertexHandle;
 	iEvent.getByLabel(PVProducer, vertexHandle);
         const edm::View<reco::Vertex>& vertexCollection(*vertexHandle);
-        
+
         primaryVertex = *(vertexCollection.begin());
 
 	// Transient Tracks
@@ -78,7 +79,7 @@ double PFRecoTauDiscriminationByFlightPathSignificance::discriminate(const PFTau
 double PFRecoTauDiscriminationByFlightPathSignificance::threeProngFlightPathSig(const PFTauRef& tau){
 	double flightPathSignificance = 0;
 
-//Secondary vertex	
+//Secondary vertex
 	const PFCandidateRefVector pfSignalCandidates = tau->signalPFChargedHadrCands();
 	vector<TransientTrack> transientTracks;
 	RefVector<PFCandidateCollection>::const_iterator iTrack;

@@ -9,6 +9,7 @@
 
 using namespace reco;
 using namespace std;
+using namespace edm;
 
 class PFRecoTauDiscriminationByNProngs : public PFTauDiscriminationProducerBase  {
     public:

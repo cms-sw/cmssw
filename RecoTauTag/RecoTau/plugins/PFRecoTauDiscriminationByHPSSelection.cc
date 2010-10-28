@@ -54,7 +54,6 @@ PFRecoTauDiscriminationByHPSSelection::PFRecoTauDiscriminationByHPSSelection(
 
 double
 PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) {
-
   // Check if we pass the min pt
   if (tau->pt() < minPt_)
     return 0.0;
@@ -84,12 +83,14 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) {
   // Check if tau passes cone cut
   double cone_size = signalConeFun_(*tau);
   // Check if any charged objects fail the signal cone cut
-  BOOST_FOREACH(const PFCandidateRef& cand, tau->signalPFChargedHadrCands()) {
+  BOOST_FOREACH(const reco::PFCandidateRef& cand,
+                tau->signalPFChargedHadrCands()) {
     if (deltaR(cand->p4(), tau->p4()) > cone_size)
       return 0.0;
   }
   // Now check the pizeros
-  BOOST_FOREACH(const RecoTauPiZero& cand, tau->signalPiZeroCandidates()) {
+  BOOST_FOREACH(const reco::RecoTauPiZero& cand,
+                tau->signalPiZeroCandidates()) {
     if (deltaR(cand.p4(), tau->p4()) > cone_size)
       return 0.0;
   }

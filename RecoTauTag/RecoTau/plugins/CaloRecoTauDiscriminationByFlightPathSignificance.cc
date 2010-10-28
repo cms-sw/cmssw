@@ -20,84 +20,85 @@ using namespace reco;
 using namespace std;
 
 class CaloRecoTauDiscriminationByFlightPathSignificance : public CaloTauDiscriminationProducerBase  {
-    public:
-	explicit CaloRecoTauDiscriminationByFlightPathSignificance(const ParameterSet& iConfig):CaloTauDiscriminationProducerBase(iConfig) { 
-		flightPathSig		= iConfig.getParameter<double>("flightPathSig");
-		withPVError		= iConfig.getParameter<bool>("UsePVerror");
+  public:
+    explicit CaloRecoTauDiscriminationByFlightPathSignificance(
+        const edm::ParameterSet& iConfig)
+        :CaloTauDiscriminationProducerBase(iConfig) {
+      flightPathSig		= iConfig.getParameter<double>("flightPathSig");
+      withPVError		= iConfig.getParameter<bool>("UsePVerror");
 
-		PVProducer		= iConfig.getParameter<edm::InputTag>("PVProducer");
+      PVProducer		= iConfig.getParameter<edm::InputTag>("PVProducer");
 
-		booleanOutput 		= iConfig.getParameter<bool>("BooleanOutput");
-	}
+      booleanOutput 		= iConfig.getParameter<bool>("BooleanOutput");
+    }
+    ~CaloRecoTauDiscriminationByFlightPathSignificance(){}
+    void beginEvent(const edm::Event&, const edm::EventSetup&);
+    double discriminate(const reco::CaloTauRef&);
 
-      	~CaloRecoTauDiscriminationByFlightPathSignificance(){}
+  private:
+    double threeProngFlightPathSig(const CaloTauRef&);
+    double vertexSignificance(reco::Vertex&,reco::Vertex&,GlobalVector&);
 
-	void beginEvent(const edm::Event&, const edm::EventSetup&);
-	double discriminate(const reco::CaloTauRef&);
+    double flightPathSig;
+    bool withPVError;
 
-    private:
-	double threeProngFlightPathSig(const CaloTauRef&);
-	double vertexSignificance(reco::Vertex&,reco::Vertex&,GlobalVector&);
+    reco::Vertex primaryVertex;
+    const TransientTrackBuilder* transientTrackBuilder;
+    edm::InputTag PVProducer;
 
-	double flightPathSig;
-	bool withPVError;
-
-	reco::Vertex primaryVertex;
-	const TransientTrackBuilder* transientTrackBuilder;
-	edm::InputTag PVProducer;
-
-	bool booleanOutput;
+    bool booleanOutput;
 };
 
-void CaloRecoTauDiscriminationByFlightPathSignificance::beginEvent(const Event& iEvent, const EventSetup& iSetup){
-
-//Primary vertex
-	edm::Handle<edm::View<reco::Vertex> > vertexHandle;
-	iEvent.getByLabel(PVProducer, vertexHandle);
-        const edm::View<reco::Vertex>& vertexCollection(*vertexHandle);
-        
-        primaryVertex = *(vertexCollection.begin());
-
-	// Transient Tracks
-	edm::ESHandle<TransientTrackBuilder> builder;
-        iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",builder);
-        transientTrackBuilder = builder.product();
-
+void CaloRecoTauDiscriminationByFlightPathSignificance::beginEvent(
+    const edm::Event& iEvent, const edm::EventSetup& iSetup){
+  //Primary vertex
+  edm::Handle<edm::View<reco::Vertex> > vertexHandle;
+  iEvent.getByLabel(PVProducer, vertexHandle);
+  const edm::View<reco::Vertex>& vertexCollection(*vertexHandle);
+  primaryVertex = *(vertexCollection.begin());
+  // Transient Tracks
+  edm::ESHandle<TransientTrackBuilder> builder;
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",builder);
+  transientTrackBuilder = builder.product();
 }
 
-double CaloRecoTauDiscriminationByFlightPathSignificance::discriminate(const CaloTauRef& tau){
-
-	if(booleanOutput) return ( threeProngFlightPathSig(tau) > flightPathSig ? 1. : 0. );
-	return threeProngFlightPathSig(tau);
+double
+CaloRecoTauDiscriminationByFlightPathSignificance::discriminate(
+    const CaloTauRef& tau){
+  if(booleanOutput)
+    return ( threeProngFlightPathSig(tau) > flightPathSig ? 1. : 0. );
+  return threeProngFlightPathSig(tau);
 }
 
-double CaloRecoTauDiscriminationByFlightPathSignificance::threeProngFlightPathSig(const CaloTauRef& tau){
-	double flightPathSignificance = 0;
-
-//Secondary vertex	
-	reco::TrackRefVector signalTracks = tau->signalTracks();
-	vector<TransientTrack> transientTracks;
-	for(size_t i = 0; i < signalTracks.size(); ++i){
-        	const TransientTrack transientTrack = transientTrackBuilder->build(signalTracks[i]);
-                transientTracks.push_back(transientTrack);
-	}
-        if(transientTracks.size() > 1){
-                KalmanVertexFitter kvf(true);
-                TransientVertex tv = kvf.vertex(transientTracks);
-
-                if(tv.isValid()){
-			GlobalVector tauDir(tau->px(),
-                                            tau->py(),
-                                            tau->pz());
-			Vertex secVer = tv;
-			flightPathSignificance = vertexSignificance(primaryVertex,secVer,tauDir);
-                }
-        }
-	return flightPathSignificance;
+double
+CaloRecoTauDiscriminationByFlightPathSignificance::threeProngFlightPathSig(
+    const CaloTauRef& tau){
+  double flightPathSignificance = 0;
+  //Secondary vertex
+  reco::TrackRefVector signalTracks = tau->signalTracks();
+  vector<TransientTrack> transientTracks;
+  for(size_t i = 0; i < signalTracks.size(); ++i){
+    const TransientTrack transientTrack =
+        transientTrackBuilder->build(signalTracks[i]);
+    transientTracks.push_back(transientTrack);
+  }
+  if(transientTracks.size() > 1) {
+    KalmanVertexFitter kvf(true);
+    TransientVertex tv = kvf.vertex(transientTracks);
+    if(tv.isValid()){
+      GlobalVector tauDir(tau->px(), tau->py(), tau->pz());
+      Vertex secVer = tv;
+      flightPathSignificance = vertexSignificance(primaryVertex,secVer,tauDir);
+    }
+  }
+  return flightPathSignificance;
 }
 
-double CaloRecoTauDiscriminationByFlightPathSignificance::vertexSignificance(reco::Vertex& pv, Vertex& sv,GlobalVector& direction){
-	return SecondaryVertex::computeDist3d(pv,sv,direction,withPVError).significance();
+double
+CaloRecoTauDiscriminationByFlightPathSignificance::vertexSignificance(
+    reco::Vertex& pv, Vertex& sv,GlobalVector& direction){
+  return SecondaryVertex::computeDist3d(
+      pv,sv,direction,withPVError).significance();
 }
 
 DEFINE_FWK_MODULE(CaloRecoTauDiscriminationByFlightPathSignificance);
