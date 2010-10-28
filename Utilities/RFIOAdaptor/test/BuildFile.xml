@@ -1,4 +1,9 @@
-<use   name="Utilities/RFIOAdaptor"/>
+<bin   file="RunUtilitiesRFIOAdaptor.cpp" name="testUtilitiesRFIOAdaptor">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash Utilities/RFIOAdaptor/test run_RFIOAdaptorTests.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
 <bin   name="test_RFIOAdaptor_put" file="put.cpp">
+  <flags NO_TESTRUN="1"/>
+  <use   name="Utilities/RFIOAdaptor"/>
   <use   name="castor"/>
 </bin>
