@@ -13,9 +13,6 @@ goodPhotons = cms.EDFilter("PhotonSelector",
     cut = cms.string('et > 20 && hadronicOverEm < 0.1 && r9 > 0.8')
 )
 
-# ECAL spike cleaning filter ??
-# noSpikePhotons = cms.EDFilter()
-
 # leading photon E_T filter
 photonFilter = cms.EDFilter("EtMinPhotonCountFilter",
     src = cms.InputTag("goodPhotons"),
@@ -23,11 +20,14 @@ photonFilter = cms.EDFilter("EtMinPhotonCountFilter",
     minNumber = cms.uint32(1)
 )
 
+# ECAL spike cleaning filter
+from RecoHI.HiEgammaAlgos.hiEcalSpikeFilter_cfi import *
+
 # photon skim sequence
 photonSkimSequence = cms.Sequence(hltPhotonHI
-                                   * goodPhotons
-                                   #* noSpikePhotons
-                                   * photonFilter
+                                  * goodPhotons
+                                  * photonFilter
+                                  * hiEcalSpikeFilter
                                   )
 
 # select pairs around Z mass
@@ -45,8 +45,8 @@ photonPairCounter = cms.EDFilter("CandViewCountFilter",
 # Z->ee skim sequence
 zEESkimSequence = cms.Sequence(hltPhotonHI
                                * goodPhotons
-                               #* noSpikePhotons
                                * photonCombiner
                                * photonPairCounter
+                               * hiEcalSpikeFilter
                                )
 
