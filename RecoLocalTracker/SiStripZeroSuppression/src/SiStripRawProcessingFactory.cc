@@ -9,8 +9,7 @@
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/IteratedMedianCMNSubtractor.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/FastLinearCMNSubtractor.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/TT6CMNSubtractor.h"
-#include "RecoLocalTracker/SiStripZeroSuppression/interface/FlatAPVRestorer.h"
-#include "RecoLocalTracker/SiStripZeroSuppression/interface/PartialSuppressAPVRestorer.h"
+
 
 std::auto_ptr<SiStripRawProcessingAlgorithms> SiStripRawProcessingFactory::
 create(const edm::ParameterSet& conf) {
@@ -76,12 +75,13 @@ create_Suppressor(const edm::ParameterSet& conf) {
 std::auto_ptr<SiStripAPVRestorer> SiStripRawProcessingFactory::
 create_Restorer( const edm::ParameterSet& conf) {
 
+/*
   if(!conf.exists("APVRestoreMode")) {
     return std::auto_ptr<SiStripAPVRestorer>( 0 );
   } else {
-    std::string mode = conf.getParameter<std::string>("APVRestoreMode");
+    std::string RestoreMode = conf.getParameter<std::string>("APVRestoreMode");
 
-    if( mode == "Flat") {
+    
       double restoreThreshold = conf.getParameter<double>("restoreThreshold");
       return std::auto_ptr<SiStripAPVRestorer>( new FlatAPVRestorer( restoreThreshold ));
     }
@@ -95,5 +95,8 @@ create_Restorer( const edm::ParameterSet& conf) {
     throw cms::Exception("Unregistered Algorithm") << "SiStripAPVRestorer possibilities: (Flat)";
 
   }
+  */
+    
+  return std::auto_ptr<SiStripAPVRestorer> (new SiStripAPVRestorer(conf));
 }
 

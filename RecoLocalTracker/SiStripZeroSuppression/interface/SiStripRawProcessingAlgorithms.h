@@ -18,7 +18,7 @@ struct SiStripRawProcessingAlgorithms {
     subtractorPed->init(es);
     subtractorCMN->init(es);
     suppressor->init(es);
-    if(restorer.get()) restorer->init(es);
+    restorer->init(es);
   } 
 
   private:

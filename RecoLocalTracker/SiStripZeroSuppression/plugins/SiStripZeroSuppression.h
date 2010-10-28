@@ -37,6 +37,7 @@ class SiStripZeroSuppression : public edm::EDProducer
   bool doAPVRestore;
   bool produceRawDigis;
   bool mergeCollections;
+  bool fixCM;
 
 };
 #endif

@@ -15,8 +15,11 @@ SiStripZeroSuppression(edm::ParameterSet const& conf)
   : inputTags(conf.getParameter<std::vector<edm::InputTag> >("RawDigiProducersList")),
     algorithms(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"))),
     storeCM(conf.getParameter<bool>("storeCM")),
+	doAPVRestore(conf.getParameter<bool>("doAPVRestore")),
     produceRawDigis(conf.getParameter<bool>("produceRawDigis")),
-    mergeCollections(conf.getParameter<bool>("mergeCollections"))	{
+    mergeCollections(conf.getParameter<bool>("mergeCollections")),
+    fixCM(conf.getParameter<bool>("fixCM"))
+	{
 
   if(mergeCollections){
     storeCM = false;
@@ -31,8 +34,7 @@ SiStripZeroSuppression(edm::ParameterSet const& conf)
 
   if(storeCM)
     produces< edm::DetSetVector<SiStripProcessedRawDigi> > ("APVCM");
-
-  doAPVRestore = algorithms->restorer.get();
+  
 
 }
 
@@ -40,6 +42,7 @@ void SiStripZeroSuppression::
 produce(edm::Event& e, const edm::EventSetup& es) {
   
   algorithms->initialize(es);
+  if( doAPVRestore ) algorithms->restorer->LoadMeanCMMap( e );
   
   if(mergeCollections)
     this->CollectionMergedZeroSuppression(e);
@@ -48,10 +51,8 @@ produce(edm::Event& e, const edm::EventSetup& es) {
   
 }
 
-
 inline void SiStripZeroSuppression::StandardZeroSuppression(edm::Event& e){
 	
-  
   for(tag_iterator_t inputTag = inputTags.begin(); inputTag != inputTags.end(); ++inputTag ) {
 
     edm::Handle< edm::DetSetVector<SiStripRawDigi> > input;
@@ -79,6 +80,7 @@ inline void SiStripZeroSuppression::StandardZeroSuppression(edm::Event& e){
     e.put( outputAPVCM,"APVCM");
   }  
 }
+
 
 inline void SiStripZeroSuppression::CollectionMergedZeroSuppression(edm::Event& e){
 
@@ -130,7 +132,7 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
       transform(rawDigis->begin(), rawDigis->end(), back_inserter(processedRawDigis), boost::bind(&SiStripRawDigi::adc , _1));
       if( doAPVRestore ) nAPVflagged = algorithms->restorer->inspect( rawDigis->id, processedRawDigis );
       algorithms->subtractorCMN->subtract( rawDigis->id, processedRawDigis);
-      if( doAPVRestore ) algorithms->restorer->restore( processedRawDigis );
+      if( doAPVRestore ) algorithms->restorer->restore( processedRawDigis, algorithms->subtractorCMN->getAPVsCM() );
       algorithms->suppressor->suppress( processedRawDigis, suppressedDigis );
       
       if(storeCM) this->storeCMN(rawDigis->id);
@@ -142,8 +144,8 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
       std::vector<int16_t> processedRawDigis(rawDigis->size());
       algorithms->subtractorPed->subtract( *rawDigis, processedRawDigis);
       if( doAPVRestore ) nAPVflagged = algorithms->restorer->inspect( rawDigis->id, processedRawDigis );
-      algorithms->subtractorCMN->subtract( rawDigis->id, processedRawDigis);
-      if( doAPVRestore ) algorithms->restorer->restore( processedRawDigis );
+	  algorithms->subtractorCMN->subtract( rawDigis->id, processedRawDigis);
+      if( doAPVRestore ) algorithms->restorer->restore( processedRawDigis, algorithms->subtractorCMN->getAPVsCM() );
       algorithms->suppressor->suppress( processedRawDigis, suppressedDigis );
 	  
       if(storeCM) this->storeCMN(rawDigis->id);
@@ -157,15 +159,11 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
     if (suppressedDigis.size() && nAPVflagged==0) 
       output.push_back(suppressedDigis); 
     
-    if(produceRawDigis){
-      if(!doAPVRestore) {
+    if(produceRawDigis && nAPVflagged > 0) 
 	outputraw.push_back(*rawDigis);
-      } else if (nAPVflagged > 0) {
-	outputraw.push_back(*rawDigis);
-      }
+      
     }
-
-  }
+  
 }
 
 
@@ -185,7 +183,7 @@ void SiStripZeroSuppression::storeCMN(uint32_t id){
 	  //std::cout << "CM patch in VR " << rawDigis->id << " " << vmedians[i].first << " " << vmedians[i].second << " " << apvNb<< std::endl;
 	  apvNb++;
 	}
-        if(doAPVRestore) algorithms->restorer->fixAPVsCM( apvDetSet ); 
+        if(fixCM) algorithms->restorer->fixAPVsCM( apvDetSet ); 
 	if(apvDetSet.size())
 	  output_apvcm.push_back(apvDetSet);
 	

@@ -8,8 +8,10 @@ siStripZeroSuppression = cms.EDProducer("SiStripZeroSuppression",
                                                                             cms.InputTag('simSiStripDigis','ProcessedRaw'),
                                                                             cms.InputTag('simSiStripDigis','ScopeMode')),
                                         storeCM = cms.bool(False), 
+										fixCM= cms.bool(True),             #True: when the inspect detect a 'bad' APV, in the CM collection is stored -999 instead of the reaql value
                                         produceRawDigis = cms.bool(False), # if mergeCollection is True, produceRawDigi is not considered
-                                        mergeCollections = cms.bool(False)
+                                        mergeCollections = cms.bool(False),
+										doAPVRestore = cms.bool(False)
                                         )
 
 
