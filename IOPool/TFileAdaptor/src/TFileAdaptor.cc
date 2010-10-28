@@ -27,6 +27,7 @@ private:
   std::string readHint_;
   std::string tempDir_;
   double minFree_;
+  unsigned int timeout_;
   std::vector<std::string> native_;
 
   static void addType(TPluginManager *mgr, char const *type) {
@@ -55,38 +56,48 @@ public:
       cacheHint_("application-only"),
       readHint_("auto-detect"),
       tempDir_(),
-      minFree_(0) {
+      minFree_(0),
+      timeout_(0U) {
     if (!(enabled_ = p.getUntrackedParameter<bool> ("enable", enabled_)))
       return;
 
     StorageFactory *f = StorageFactory::get();
     doStats_ = p.getUntrackedParameter<bool> ("stats", doStats_);
+
+    // values set in the site local config or in SiteLocalConfigService override
+    // any values set here for this service.
+    // These parameters here are needed only for backward compatibility
+    // for WMDM tools until we switch to only using the site local config for this info.
     cacheHint_ = p.getUntrackedParameter<std::string> ("cacheHint", cacheHint_);
     readHint_ = p.getUntrackedParameter<std::string> ("readHint", readHint_);
     tempDir_ = p.getUntrackedParameter<std::string> ("tempDir", f->tempPath());
     minFree_ = p.getUntrackedParameter<double> ("tempMinFree", f->tempMinFree());
     native_ = p.getUntrackedParameter<std::vector<std::string> >("native", native_);
+
     ar.watchPostEndJob(this, &TFileAdaptor::termination);
 
-    //values set in the site local config or in SiteLocalConfigService override
-    // any values set for this service.  This is to allow backwards compatibility
-    // for WMDM tools until we switch to only using the site local config for this info
+    // Retrieve values from SiteLocalConfigService.
+    // Any such values will override values set above.
     edm::Service<edm::SiteLocalConfig> pSLC;
     if (pSLC.isAvailable()) {
-      if (const std::string *p = pSLC->sourceCacheTempDir())
+      if (std::string const* p = pSLC->sourceCacheTempDir()) {
         tempDir_ = *p;
-
-      if (const double *p = pSLC->sourceCacheMinFree())
+      }
+      if (double const* p = pSLC->sourceCacheMinFree()) {
         minFree_ = *p;
-
-      if (const std::string *p = pSLC->sourceCacheHint())
+      }
+      if (std::string const* p = pSLC->sourceCacheHint()) {
         cacheHint_ = *p;
-
-      if (const std::string *p = pSLC->sourceReadHint())
+      }
+      if (std::string const* p = pSLC->sourceReadHint()) {
         readHint_ = *p;
-
-      if (const std::vector<std::string> *p = pSLC->sourceNativeProtocols())
+      }
+      if (unsigned int const* p = pSLC->sourceTimeout()) {
+        timeout_ = *p;
+      }
+      if (std::vector<std::string> const* p = pSLC->sourceNativeProtocols()) {
         native_ = *p;
+      }
     }
 
     // tell factory how clients should access files
@@ -115,6 +126,8 @@ public:
         << "Unrecognised 'readHint' value '" << readHint_
         << "', recognised values are 'direct-unbuffered',"
         << " 'read-ahead-buffered', 'auto-detect'";
+
+    f->setTimeout(timeout_);
 
     // enable file access stats accounting if requested
     f->enableAccounting(doStats_);

@@ -3,12 +3,19 @@
 #include "Utilities/StorageFactory/interface/IOFlags.h"
 #include <cstdlib>
 
+StorageMaker::StorageMaker (void)
+{}
+
 StorageMaker::~StorageMaker (void)
 {}
 
 void
 StorageMaker::stagein (const std::string &proto,
                        const std::string &path)
+{}
+
+void
+StorageMaker::setTimeout (unsigned int timeout)
 {}
 
 bool

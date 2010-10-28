@@ -72,8 +72,12 @@ namespace edm {
       treeCacheSize_=*(pSLC->sourceTTreeCacheSize());
     }
     StorageFactory *factory = StorageFactory::get();
-    for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_)
+    // This call takes ms, and the parameter is in seconds.
+    TFile::SetOpenTimeout(factory->timeout() * 1000U);
+    for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_) {
+      factory->activateTimeout(fileIter_->fileName());
       factory->stagein(fileIter_->fileName());
+    }
 
     std::string parametersMustMatch = pset.getUntrackedParameter<std::string>("parametersMustMatch", std::string("permissive"));
     if(parametersMustMatch == std::string("strict")) parametersMustMatch_ = BranchDescription::Strict;

@@ -8,6 +8,7 @@ class Storage;
 class StorageMaker
 {
 public:
+  StorageMaker(void);
   virtual ~StorageMaker (void);
   // implicit copy constructor
   // implicit assignment operator
@@ -20,6 +21,7 @@ public:
   virtual bool		check (const std::string &proto,
 			       const std::string &path,
 			       IOOffset *size = 0);
+  virtual void		setTimeout (unsigned int timeout);
 };
 
 #endif // STORAGE_FACTORY_STORAGE_MAKER_H

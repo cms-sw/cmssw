@@ -42,6 +42,9 @@ public:
   bool		enableAccounting (bool enabled);
   bool		accounting (void) const;
 
+  void		setTimeout(unsigned int timeout);
+  unsigned int	timeout(void) const;
+
   void		setTempDir (const std::string &s, double minFreeSpace);
   std::string	tempDir (void) const;
   std::string	tempPath (void) const;
@@ -52,6 +55,7 @@ public:
 	    	      int mode = IOFlags::OpenRead);
   bool		check (const std::string &url,
 	    	       IOOffset *size = 0);
+  void		activateTimeout (const std::string &url);
 
   Storage *	wrapNonLocalFile (Storage *s,
 				  const std::string &proto,
@@ -74,6 +78,7 @@ protected:
   double	m_tempfree;
   std::string	m_temppath;
   std::string	m_tempdir;
+  unsigned int  m_timeout;
   LocalFileSystem m_lfs;
   static StorageFactory s_instance;
 };

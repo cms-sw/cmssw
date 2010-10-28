@@ -16,7 +16,8 @@ StorageFactory::StorageFactory (void)
     m_readHint(READ_HINT_AUTO),
     m_accounting (false),
     m_tempfree (4.), // GB
-    m_temppath (".:$TMPDIR")
+    m_temppath (".:$TMPDIR"),
+    m_timeout(0U)
 {
   setTempDir(m_temppath, m_tempfree);
 }
@@ -58,6 +59,14 @@ StorageFactory::setReadHint(ReadHint value)
 StorageFactory::ReadHint
 StorageFactory::readHint(void) const
 { return m_readHint; }
+
+void
+StorageFactory::setTimeout(unsigned int timeout)
+{ m_timeout = timeout; }
+
+unsigned int
+StorageFactory::timeout(void) const
+{ return m_timeout; }
 
 void
 StorageFactory::setTempDir(const std::string &s, double minFreeSpace)
@@ -250,3 +259,17 @@ StorageFactory::wrapNonLocalFile (Storage *s,
 
   return s;
 }
+
+void
+StorageFactory::activateTimeout (const std::string &url)
+{
+  std::string protocol;
+  std::string rest;
+
+  if (StorageMaker *maker = getMaker (url, protocol, rest))
+  {
+    maker->setTimeout (m_timeout);
+  }
+}
+
+

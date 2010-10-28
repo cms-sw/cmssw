@@ -26,6 +26,7 @@ class DCacheStorageMaker : public StorageMaker
   }
 
 public:
+
   /** Open a storage object for the given URL (protocol + path), using the
       @a mode bits.  No temporary files are downloaded.  */
   virtual Storage *open (const std::string &proto,
@@ -75,6 +76,10 @@ public:
     }
 
     return true;
+  }
+
+  virtual void setTimeout(unsigned int timeout) {
+    if (timeout != 0) dc_setOpenTimeout(timeout);
   }
 };
 

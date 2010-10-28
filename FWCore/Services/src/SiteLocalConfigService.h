@@ -18,6 +18,7 @@ namespace edm {
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 namespace edm {
+    class ConfigurationDescriptions;
     namespace service {
       class SiteLocalConfigService : public SiteLocalConfig {
         public:
@@ -33,10 +34,14 @@ namespace edm {
             std::string const* sourceCacheHint() const;
             std::string const* sourceReadHint() const;
             unsigned int const* sourceTTreeCacheSize() const;
+            unsigned int const* sourceTimeout() const;
             std::vector<std::string> const* sourceNativeProtocols() const;
             // implicit copy constructor
             // implicit assignment operator
             // implicit destructor
+
+            static void fillDescriptions(ConfigurationDescriptions& descriptions);
+
         private:
             void parse (std::string const& url);
             std::string const frontierConnect(std::string const& servlet) const;
@@ -56,6 +61,8 @@ namespace edm {
             std::string const*  m_readHintPtr;
             unsigned int        m_ttreeCacheSize;
             unsigned int const* m_ttreeCacheSizePtr;
+            unsigned int        m_timeout;
+            unsigned int const* m_timeoutPtr;
             std::vector<std::string> m_nativeProtocols;
             std::vector<std::string> const* m_nativeProtocolsPtr;
          };

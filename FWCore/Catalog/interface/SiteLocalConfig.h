@@ -8,8 +8,7 @@
 // PUBLIC DEFINES
 // PUBLIC CONSTANTS
 // PUBLIC TYPES
-namespace edm 
-{
+namespace edm {
     class ParameterSet;
     class ActivityRegistry;
 }
@@ -18,32 +17,31 @@ namespace edm
 // PUBLIC FUNCTIONS
 // CLASS DECLARATIONS
 
-namespace edm 
-{
-  class SiteLocalConfig
-  {
+namespace edm {
+  class SiteLocalConfig {
   public:
     SiteLocalConfig () {}
     virtual ~SiteLocalConfig() {}
-    
-    virtual const std::string dataCatalog (void) const = 0;
-    virtual const std::string fallbackDataCatalog (void) const = 0;
-    virtual const std::string lookupCalibConnect (const std::string& input) const = 0;
-    virtual const std::string rfioType (void) const = 0;
-    
-    virtual const std::string* sourceCacheTempDir() const = 0;
-    virtual const double* sourceCacheMinFree() const = 0;
-    virtual const std::string* sourceCacheHint() const = 0;
-    virtual const std::string* sourceReadHint() const = 0;
-    virtual const unsigned int* sourceTTreeCacheSize() const = 0;
-    virtual const std::vector<std::string>* sourceNativeProtocols() const = 0;
-     
+
+    virtual std::string const dataCatalog (void) const = 0;
+    virtual std::string const fallbackDataCatalog (void) const = 0;
+    virtual std::string const lookupCalibConnect (std::string const& input) const = 0;
+    virtual std::string const rfioType (void) const = 0;
+
+    virtual std::string const* sourceCacheTempDir() const = 0;
+    virtual double const* sourceCacheMinFree() const = 0;
+    virtual std::string const* sourceCacheHint() const = 0;
+    virtual std::string const* sourceReadHint() const = 0;
+    virtual unsigned int const* sourceTTreeCacheSize() const = 0;
+    virtual unsigned int const* sourceTimeout() const = 0;
+    virtual std::vector<std::string> const* sourceNativeProtocols() const = 0;
+
     // implicit copy constructor
     // implicit assignment operator
   private:
   };
 }
-    
+
 // INLINE PUBLIC FUNCTIONS
 // INLINE MEMBER FUNCTIONS
 
