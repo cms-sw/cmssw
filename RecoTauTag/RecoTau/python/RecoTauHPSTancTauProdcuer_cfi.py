@@ -17,7 +17,7 @@ Decay mode is selected by the TaNC discriminator
 
 hpsTancRecoTaus = cms.EDProducer(
     "RecoTauCleaner",
-    tauSrc = cms.InputTag("combinatoricRecoTaus"),
+    src = cms.InputTag("combinatoricRecoTaus"),
     cleaners = cms.VPSet(
         cleaners.unitCharge,
         cleaners.leadPionFinding.clone(

@@ -3,7 +3,7 @@
 #include "RecoTauTag/TauTagTools/interface/PFTauQualityCutWrapper.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-/* class CaloRecoTauDiscriminationByDeltaE 
+/* class CaloRecoTauDiscriminationByDeltaE
  * created : September 23 2010,
  * contributors : Sami Lehti (sami.lehti@cern.ch ; HIP, Helsinki)
  * based on H+ tau ID by Lauri Wendland
@@ -14,6 +14,7 @@
 
 using namespace reco;
 using namespace std;
+using namespace edm;
 
 class CaloRecoTauDiscriminationByDeltaE : public CaloTauDiscriminationProducerBase  {
     public:
@@ -53,10 +54,10 @@ double CaloRecoTauDiscriminationByDeltaE::DeltaE(const CaloTauRef& tau){
 	reco::TrackRefVector signalTracks = tau->signalTracks();
 	for(size_t i = 0; i < signalTracks.size(); ++i){
 		TLorentzVector p4;
-		p4.SetXYZM(signalTracks[i]->px(), 
-                           signalTracks[i]->py(), 
-                           signalTracks[i]->pz(), 
-                           chargedPionMass);
+		p4.SetXYZM(signalTracks[i]->px(),
+               signalTracks[i]->py(),
+               signalTracks[i]->pz(),
+               chargedPionMass);
 		tracksE += p4.E();
 	}
 	if(tau->leadTrackHCAL3x3hitsEtSum() == 0) return -1; // electron

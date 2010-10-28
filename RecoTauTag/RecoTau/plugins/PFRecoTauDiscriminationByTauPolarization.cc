@@ -8,11 +8,12 @@
 
 using namespace reco;
 using namespace std;
+using namespace edm;
 
 class PFRecoTauDiscriminationByTauPolarization : public PFTauDiscriminationProducerBase  {
     public:
-	explicit PFRecoTauDiscriminationByTauPolarization(const ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig), 
-                                                                               qualityCuts_(iConfig.getParameter<ParameterSet>("qualityCuts")){  // retrieve quality cuts    
+	explicit PFRecoTauDiscriminationByTauPolarization(const ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig),
+                                                                               qualityCuts_(iConfig.getParameter<ParameterSet>("qualityCuts")){  // retrieve quality cuts
 		rTauMin = iConfig.getParameter<double>("rtau");
 		booleanOutput = iConfig.getParameter<bool>("BooleanOutput");
 	}
