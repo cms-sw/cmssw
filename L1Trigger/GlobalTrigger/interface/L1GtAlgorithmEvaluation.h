@@ -70,48 +70,50 @@ class L1GtAlgorithm;
 class L1GtConditionEvaluation;
 
 // class interface
-class L1GtAlgorithmEvaluation : {
-
+class L1GtAlgorithmEvaluation {
+  
 public:
-
-    /// constructor
+  
+  /// constructor
   //  L1GtAlgorithmEvaluation();
-
-    /// constructor from an algorithm from event setup
-    explicit L1GtAlgorithmEvaluation(const L1GtAlgorithm&);
-
-    /// copy constructor
+  
+  /// constructor from an algorithm from event setup
+  explicit L1GtAlgorithmEvaluation(const L1GtAlgorithm&);
+  
+  /// copy constructor
     // L1GtAlgorithmEvaluation(L1GtAlgorithmEvaluation&);
-
+  
     /// destructor
   // virtual ~L1GtAlgorithmEvaluation();
-    
-    //typedef std::map<std::string, L1GtConditionEvaluation*> ConditionEvaluationMap;
-    typedef __gnu_cxx::hash_map<std::string, L1GtConditionEvaluation*> ConditionEvaluationMap;
-    typedef ConditionEvaluationMap::const_iterator CItEvalMap ;
-    typedef ConditionEvaluationMap::iterator ItEvalMap  ;
-
+  
+  //typedef std::map<std::string, L1GtConditionEvaluation*> ConditionEvaluationMap;
+  typedef __gnu_cxx::hash_map<std::string, L1GtConditionEvaluation*> ConditionEvaluationMap;
+  typedef ConditionEvaluationMap::const_iterator CItEvalMap ;
+  typedef ConditionEvaluationMap::iterator ItEvalMap  ;
+  
 public:
-
-    /// get / set the result of the algorithm
-    inline bool gtAlgoResult() const {
-        return m_algoResult;
+  
+  /// get / set the result of the algorithm
+  inline bool gtAlgoResult() const {
+      return m_algoResult;
     }
-
-    inline void setGtAlgoResult(const bool algoResult) {
-        m_algoResult = algoResult;
+  
+  inline void setGtAlgoResult(const bool algoResult) {
+      m_algoResult = algoResult;
     }
-
-    /// evaluate an algorithm
-    void evaluateAlgorithm(const int chipNumber, const std::vector<ConditionEvaluationMap>&);
-
-    /// get all the object combinations evaluated to true in the conditions 
+  
+  /// evaluate an algorithm
+  void evaluateAlgorithm(const int chipNumber, const std::vector<ConditionEvaluationMap>&);
+  
+  /// get all the object combinations evaluated to true in the conditions 
     /// from the algorithm 
-    inline const std::vector<CombinationsInCond>* gtAlgoCombinationVector() const {
+  inline const std::vector<CombinationsInCond>* gtAlgoCombinationVector() const {
         return &m_algoCombinationVector;
     }
+
+  inline const std::vector<L1GtLogicParser::OperandToken>& operandTokenVector() const { return m_operandTokenVector; }
     
-    void print(std::ostream& myCout) const;
+  void print(std::ostream& myCout) const;
 
 
 private:
@@ -121,6 +123,8 @@ private:
 
   std::string const & m_logicalExpression;
   std::vector<L1GtLogicParser::TokenRPN> const & m_rpnVector;
+
+  std::vector<L1GtLogicParser::OperandToken> m_operandTokenVector;
 
 
   std::vector<CombinationsInCond> m_algoCombinationVector;

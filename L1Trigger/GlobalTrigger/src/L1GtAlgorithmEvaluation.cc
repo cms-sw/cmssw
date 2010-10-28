@@ -79,7 +79,7 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
     m_operandTokenVector.reserve(rpnVectorSize);
 
     // stack containing temporary results
-    // std::stack<bool> resultStack;
+    // std::stack<bool> m_resultStack;
     bool b1, b2;
 
     int opNumber = 0;
@@ -101,7 +101,7 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
                     //
                     bool condResult = (itCond->second)->condLastResult();
 
-                    resultStack.push(condResult);
+                    m_resultStack.push(condResult);
 
                     // only conditions are added to /counted in m_operandTokenVector 
                     // opNumber is the index of the condition in the logical expression
@@ -131,27 +131,27 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
 
                 break;
             case OP_NOT: {
-                b1 = resultStack.top();
-                resultStack.pop(); // pop the top
-                resultStack.push(!b1); // and push the result
+                b1 = m_resultStack.top();
+                m_resultStack.pop(); // pop the top
+                m_resultStack.push(!b1); // and push the result
             }
 
                 break;
             case OP_OR: {
-                b1 = resultStack.top();
-                resultStack.pop();
-                b2 = resultStack.top();
-                resultStack.pop();
-                resultStack.push(b1 || b2);
+                b1 = m_resultStack.top();
+                m_resultStack.pop();
+                b2 = m_resultStack.top();
+                m_resultStack.pop();
+                m_resultStack.push(b1 || b2);
             }
 
                 break;
             case OP_AND: {
-                b1 = resultStack.top();
-                resultStack.pop();
-                b2 = resultStack.top();
-                resultStack.pop();
-                resultStack.push(b1 && b2);
+                b1 = m_resultStack.top();
+                m_resultStack.pop();
+                b2 = m_resultStack.top();
+                m_resultStack.pop();
+                m_resultStack.push(b1 && b2);
             }
 
                 break;
@@ -166,9 +166,9 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
 
     // get the result in the top of the stack
 
-    m_algoResult = resultStack.top();
+    m_algoResult = m_resultStack.top();
     // clear it...
-    while(!resultStack.empty()) resultStack.pop();
+    while(!m_resultStack.empty()) m_resultStack.pop();
 
 }
 
