@@ -93,7 +93,7 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
 
         switch (it->operation) {
 
-            case OP_OPERAND: {
+            case L1GtLogicParser::OP_OPERAND: {
 
                 CItEvalMap itCond = (conditionResultMaps.at(chipNumber)).find(it->operand);
                 if (itCond != (conditionResultMaps[chipNumber]).end()) {
@@ -130,14 +130,14 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
             }
 
                 break;
-            case OP_NOT: {
+	case  L1GtLogicParser::OP_NOT: {
                 b1 = m_resultStack.top();
                 m_resultStack.pop(); // pop the top
                 m_resultStack.push(!b1); // and push the result
             }
 
                 break;
-            case OP_OR: {
+            case L1GtLogicParser::OP_OR: {
                 b1 = m_resultStack.top();
                 m_resultStack.pop();
                 b2 = m_resultStack.top();
@@ -146,7 +146,7 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
             }
 
                 break;
-            case OP_AND: {
+            case L1GtLogicParser::OP_AND: {
                 b1 = m_resultStack.top();
                 m_resultStack.pop();
                 b2 = m_resultStack.top();

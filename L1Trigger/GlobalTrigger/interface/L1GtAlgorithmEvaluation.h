@@ -73,7 +73,10 @@ class L1GtConditionEvaluation;
 class L1GtAlgorithmEvaluation {
   
 public:
-  
+  typedef L1GtLogicParser::TokenRPN TokenRPN;
+  typedef std::vector<TokenRPN> RpnVector;
+  typedef L1GtLogicParser::OperandToken OperandToken;
+
   /// constructor
   //  L1GtAlgorithmEvaluation();
   
@@ -121,10 +124,11 @@ private:
   /// algorithm result
   bool m_algoResult;
 
+  // input
   std::string const & m_logicalExpression;
-  std::vector<L1GtLogicParser::TokenRPN> const & m_rpnVector;
+  RpnVector const & m_rpnVector;
 
-  std::vector<L1GtLogicParser::OperandToken> m_operandTokenVector;
+  std::vector<OperandToken> m_operandTokenVector;
 
 
   std::vector<CombinationsInCond> m_algoCombinationVector;
