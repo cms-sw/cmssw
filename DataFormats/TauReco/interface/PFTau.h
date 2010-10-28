@@ -58,16 +58,16 @@ namespace reco {
       const PFTauTagInfoRef& pfTauTagInfoRef() const;
       void setpfTauTagInfoRef(const PFTauTagInfoRef);
 
-      const PFCandidateRef& leadPFChargedHadrCand() const; 
-      const PFCandidateRef& leadPFNeutralCand() const; 
+      const PFCandidateRef& leadPFChargedHadrCand() const;
+      const PFCandidateRef& leadPFNeutralCand() const;
       //Can be either the charged or the neutral one
-      const PFCandidateRef& leadPFCand() const; 
+      const PFCandidateRef& leadPFCand() const;
 
       void setleadPFChargedHadrCand(const PFCandidateRef&);
       void setleadPFNeutralCand(const PFCandidateRef&);
       void setleadPFCand(const PFCandidateRef&);
 
-      /// Signed transverse impact parameter significance of the Track 
+      /// Signed transverse impact parameter significance of the Track
       /// associated to the leading charged PFCandidate
       float leadPFChargedHadrCandsignedSipt() const;
       void setleadPFChargedHadrCandsignedSipt(const float&);
@@ -104,19 +104,19 @@ namespace reco {
       const PFCandidateRefVector& isolationPFGammaCands() const;
       void setisolationPFGammaCands(const PFCandidateRefVector&);
 
-      /// Sum of charged hadron candidate PT in isolation cone; returns NaN 
+      /// Sum of charged hadron candidate PT in isolation cone; returns NaN
       /// if isolation region is undefined.
       float isolationPFChargedHadrCandsPtSum() const;
       void setisolationPFChargedHadrCandsPtSum(const float&);
 
-      /// Sum of gamma candidate PT in isolation cone; returns NaN 
+      /// Sum of gamma candidate PT in isolation cone; returns NaN
       /// if isolation region is undefined.
       float isolationPFGammaCandsEtSum() const;
       void setisolationPFGammaCandsEtSum(const float&);
 
-      /// Et of the highest Et HCAL PFCluster  
+      /// Et of the highest Et HCAL PFCluster
       float maximumHCALPFClusterEt() const;
-      void setmaximumHCALPFClusterEt(const float&);    
+      void setmaximumHCALPFClusterEt(const float&);
 
       /// Retrieve the association of signal region gamma candidates into candidate PiZeros
       const std::vector<RecoTauPiZero>& signalPiZeroCandidates() const;
@@ -133,11 +133,11 @@ namespace reco {
       /// Reverse mapping of decay modes into multiplicities
       static unsigned int chargedHadronsInDecayMode(hadronicDecayMode mode);
       static unsigned int piZerosInDecayMode(hadronicDecayMode mode);
-      static hadronicDecayMode translateDecayMode(unsigned int nCharged, 
+      static hadronicDecayMode translateDecayMode(unsigned int nCharged,
           unsigned int nPiZero);
 
       //Electron rejection
-      float emFraction() const; // Ecal/Hcal Cluster Energy 
+      float emFraction() const; // Ecal/Hcal Cluster Energy
       float hcalTotOverPLead() const; // total Hcal Cluster E / leadPFChargedHadron P
       float hcalMaxOverPLead() const; // max. Hcal Cluster E / leadPFChargedHadron P
       float hcal3x3OverPLead() const; // Hcal Cluster E in R<0.184 around Ecal impact point of leading track / leadPFChargedHadron P
@@ -194,15 +194,15 @@ namespace reco {
       float leadPFChargedHadrCandsignedSipt_;
 
       // Signal candidates
-      PFCandidateRefVector selectedSignalPFCands_, 
-                           selectedSignalPFChargedHadrCands_, 
-                           selectedSignalPFNeutrHadrCands_, 
+      PFCandidateRefVector selectedSignalPFCands_,
+                           selectedSignalPFChargedHadrCands_,
+                           selectedSignalPFNeutrHadrCands_,
                            selectedSignalPFGammaCands_;
 
       // Isolation candidates
-      PFCandidateRefVector selectedIsolationPFCands_, 
-                           selectedIsolationPFChargedHadrCands_, 
-                           selectedIsolationPFNeutrHadrCands_, 
+      PFCandidateRefVector selectedIsolationPFCands_,
+                           selectedIsolationPFChargedHadrCands_,
+                           selectedIsolationPFNeutrHadrCands_,
                            selectedIsolationPFGammaCands_;
 
       // Isolation variables
@@ -231,7 +231,7 @@ namespace reco {
       std::vector<reco::RecoTauPiZero> isolationPiZeroCandidates_;
   };
 
-  std::ostream & operator<<(std::ostream& out, const PFTau& c); 
+  std::ostream & operator<<(std::ostream& out, const PFTau& c);
 
 }
 #endif
