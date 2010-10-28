@@ -32,19 +32,7 @@
 // forward declarations
 
 
-// constructor(s)
-L1GlobalTriggerObjectMap::L1GlobalTriggerObjectMap() {
 
-    //empty
-
-}
-
-// destructor
-L1GlobalTriggerObjectMap::~L1GlobalTriggerObjectMap() {
-
-    //empty
-
-}
 
 // methods
 

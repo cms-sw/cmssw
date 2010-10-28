@@ -73,10 +73,16 @@ public:
         return m_gtObjectMap;
     }
 
-    void setGtObjectMap(const std::vector<L1GlobalTriggerObjectMap>& gtObjectMapValue)
+    inline void setGtObjectMap(const std::vector<L1GlobalTriggerObjectMap>& gtObjectMapValue)
     {
         m_gtObjectMap = gtObjectMapValue;
     }
+
+   inline void swapGtObjectMap(std::vector<L1GlobalTriggerObjectMap>& gtObjectMapValue)
+    {
+      m_gtObjectMap.swap(gtObjectMapValue);
+    }
+
 
 private:
 

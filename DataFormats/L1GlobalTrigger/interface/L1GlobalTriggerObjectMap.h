@@ -38,15 +38,15 @@ class L1GlobalTriggerObjectMap
 public:
 
     /// constructor(s)
-    L1GlobalTriggerObjectMap();
+  L1GlobalTriggerObjectMap(){}
 
     /// destructor
-    virtual ~L1GlobalTriggerObjectMap();
+  ~L1GlobalTriggerObjectMap(){}
 
 public:
 
     /// get / set name for algorithm in the object map
-    inline const std::string algoName() const
+    inline const std::string & algoName() const
     {
         return m_algoName;
     }
@@ -57,7 +57,7 @@ public:
     }
 
     /// get / set bit number for algorithm in the object map
-    inline const int algoBitNumber() const
+    inline int algoBitNumber() const
     {
         return m_algoBitNumber;
     }
@@ -69,7 +69,7 @@ public:
 
     /// get / set the GTL result for algorithm
     /// NOTE: FDL can mask an algorithm!
-    inline const bool algoGtlResult() const
+    inline bool algoGtlResult() const
     {
         return m_algoGtlResult;
     }
