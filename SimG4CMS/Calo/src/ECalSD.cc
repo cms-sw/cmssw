@@ -9,6 +9,7 @@
 #include "Geometry/EcalCommonData/interface/EcalEndcapNumberingScheme.h"
 #include "Geometry/EcalCommonData/interface/EcalPreshowerNumberingScheme.h"
 #include "Geometry/EcalCommonData/interface/ESTBNumberingScheme.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -222,7 +223,7 @@ uint16_t ECalSD::getRadiationLength(G4Step * aStep) {
 
 uint32_t ECalSD::setDetUnitId(G4Step * aStep) { 
   if (numberingScheme == 0) {
-    return 1;
+    return EBDetId(1,1)();
   } else {
     getBaseNumber(aStep);
     return numberingScheme->getUnitID(theBaseNumber);
