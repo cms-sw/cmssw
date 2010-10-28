@@ -13,7 +13,7 @@ parser.add_option("--PDs",default="")
 
 (options,args)=parser.parse_args()
 
-def Era_all():
+def Era_alls():
     alcaAndSkimMap={}
     #full list of ever existing PD to reprocess
     PDlist=['MinimumBias',
@@ -31,11 +31,13 @@ def Era_all():
     from Configuration.Skimming.autoSkim import autoSkim
     from Configuration.PyReleaseValidation.autoAlca import autoAlca
     for PD in PDlist:
-        alcaAndSkimMap[PD]=('','')
+        a=''
+        s=''
         if PD in autoAlca:
-            alcaAndSkimMap[PD][0]=autoAlca[PD]
+            a==autoAlca[PD]
         if PD in autoSkim:
-            alcaAndSkimMap[PD][1]=autoSkim[PD]
+            s=autoSkim[PD]
+        alcaAndSkimMap[PD]=(a,s)
 
     
     #add a generic one
