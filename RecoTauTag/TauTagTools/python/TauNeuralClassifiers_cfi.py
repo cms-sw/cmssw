@@ -9,44 +9,70 @@ from RecoTauTag.TauTagTools.TauMVAConfigurations_cfi import *
 from RecoTauTag.TauTagTools.TauMVADiscriminator_cfi import *
 from RecoTauTag.TauTagTools.BenchmarkPointCuts_cfi import *
 
-def UpdateCuts(TheProducer, TheCuts):
-   for aComputer in TheProducer.computers:
-      TheCut = TheCuts[aComputer.computerName.value()]
-      # By default TMVA produces an output from [-1, 1].  The benchmark points are computed using this range.
-      #  if the user has specified to remap the output to [0, 1] (usual case), remap the benchmark point used 
-      #  to produce the binary decision
-      if TheProducer.RemapOutput:
-         TheCut += 1.0
-         TheCut /= 2.0
-      aComputer.cut = cms.double(TheCut)
+# Temporary
+dmCodeTrans = {
+    (1,0) : 'OneProngNoPiZero',
+    (1,1) : 'OneProngOnePiZero',
+    (1,2) : 'OneProngTwoPiZero',
+    (3,0) : 'ThreeProngNoPiZero',
+    (3,1) : 'ThreeProngOnePiZero',
+}
 
-TauDecayModeCutMutliplexerPrototype = cms.EDProducer("PFTauDecayModeCutMultiplexer",
-      PFTauProducer                = cms.InputTag("shrinkingConePFTauProducer"),
-      PFTauDecayModeSrc            = cms.InputTag("shrinkingConePFTauDecayModeIndexProducer"),
-      PFTauDiscriminantToMultiplex = cms.InputTag('shrinkingConePFTauDiscriminationByTaNC'),
-      Prediscriminants             = shrinkingConeLeadTrackFinding,
-      computers                    = TaNC,
-      RemapOutput                  = cms.bool(True)
+def UpdateCuts(producer, cut_set):
+    oldDecayModes = producer.decayModes
+    newDecayModes = cms.VPSet()
+    for dm in oldDecayModes:
+        cut = cut_set[dmCodeTrans[(dm.nCharged.value(), dm.nPiZeros.value())]]
+        cut += 1.0
+        cut /= 2.0
+        newDecayMode = copy.deepcopy(dm)
+        newDecayMode.cut = cms.double(cut)
+        newDecayModes.append(newDecayMode)
+    producer.decayModes = newDecayModes
+
+TauDecayModeCutMutliplexerPrototype = cms.EDProducer(
+    "RecoTauDecayModeCutMultiplexer",
+    PFTauProducer = cms.InputTag("shrinkingConePFTauProducer"),
+    toMultiplex = cms.InputTag('shrinkingConePFTauDiscriminationByTaNC'),
+    Prediscriminants = shrinkingConeLeadTrackFinding,
+    #computers = TaNC,
+    decayModes = cms.VPSet(
+        cms.PSet(
+            nCharged = cms.uint32(1),
+            nPiZeros = cms.uint32(0),
+        ),
+        cms.PSet(
+            nCharged = cms.uint32(1),
+            nPiZeros = cms.uint32(1),
+        ),
+        cms.PSet(
+            nCharged = cms.uint32(1),
+            nPiZeros = cms.uint32(2),
+        ),
+        cms.PSet(
+            nCharged = cms.uint32(3),
+            nPiZeros = cms.uint32(0),
+        ),
+        cms.PSet(
+            nCharged = cms.uint32(3),
+            nPiZeros = cms.uint32(1),
+        ),
+    )
 )
 
 shrinkingConePFTauDiscriminationByTaNCfrOnePercent = copy.deepcopy(TauDecayModeCutMutliplexerPrototype)
-shrinkingConePFTauDiscriminationByTaNCfrOnePercent.MakeBinaryDecision = cms.bool(True)
 UpdateCuts(shrinkingConePFTauDiscriminationByTaNCfrOnePercent, CutSet_TaNC_OnePercent)
 
 shrinkingConePFTauDiscriminationByTaNCfrOnePercent = copy.deepcopy(TauDecayModeCutMutliplexerPrototype)
-shrinkingConePFTauDiscriminationByTaNCfrOnePercent.MakeBinaryDecision = cms.bool(True)
 UpdateCuts(shrinkingConePFTauDiscriminationByTaNCfrOnePercent, CutSet_TaNC_OnePercent)
 
 shrinkingConePFTauDiscriminationByTaNCfrHalfPercent = copy.deepcopy(TauDecayModeCutMutliplexerPrototype)
-shrinkingConePFTauDiscriminationByTaNCfrHalfPercent.MakeBinaryDecision = cms.bool(True)
 UpdateCuts(shrinkingConePFTauDiscriminationByTaNCfrHalfPercent, CutSet_TaNC_HalfPercent)
 
 shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent = copy.deepcopy(TauDecayModeCutMutliplexerPrototype)
-shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent.MakeBinaryDecision = cms.bool(True)
 UpdateCuts(shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent, CutSet_TaNC_QuarterPercent)
 
 shrinkingConePFTauDiscriminationByTaNCfrTenthPercent = copy.deepcopy(TauDecayModeCutMutliplexerPrototype)
-shrinkingConePFTauDiscriminationByTaNCfrTenthPercent.MakeBinaryDecision = cms.bool(True)
 UpdateCuts(shrinkingConePFTauDiscriminationByTaNCfrTenthPercent, CutSet_TaNC_TenthPercent)
 
 RunTanc = cms.Sequence(
