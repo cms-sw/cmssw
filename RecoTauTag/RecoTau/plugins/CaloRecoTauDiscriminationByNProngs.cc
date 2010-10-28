@@ -10,39 +10,31 @@
 using namespace reco;
 using namespace std;
 
-class CaloRecoTauDiscriminationByNProngs : public CaloTauDiscriminationProducerBase  {
-    public:
-	explicit CaloRecoTauDiscriminationByNProngs(const ParameterSet& iConfig):CaloTauDiscriminationProducerBase(iConfig){
+class CaloRecoTauDiscriminationByNProngs
+  : public CaloTauDiscriminationProducerBase  {
+  public:
+    explicit CaloRecoTauDiscriminationByNProngs(const edm::ParameterSet& iConfig)
+        :CaloTauDiscriminationProducerBase(iConfig) {
+      nprongs			= iConfig.getParameter<uint32_t>("nProngs");
+      booleanOutput = iConfig.getParameter<bool>("BooleanOutput");
+    }
+    ~CaloRecoTauDiscriminationByNProngs(){}
+    double discriminate(const reco::CaloTauRef&);
 
-		nprongs			= iConfig.getParameter<uint32_t>("nProngs");
-		booleanOutput = iConfig.getParameter<bool>("BooleanOutput");
-	}
-
-      	~CaloRecoTauDiscriminationByNProngs(){}
-
-	void beginEvent(const edm::Event&, const edm::EventSetup&);
-	double discriminate(const reco::CaloTauRef&);
-
-    private:
-
-	uint32_t nprongs;
-	bool booleanOutput;
+  private:
+    uint32_t nprongs;
+    bool booleanOutput;
 };
 
-void CaloRecoTauDiscriminationByNProngs::beginEvent(const Event& iEvent, const EventSetup& iSetup){}
 
 double CaloRecoTauDiscriminationByNProngs::discriminate(const CaloTauRef& tau){
-
-	bool accepted = false;
-	int np = tau->signalTracks().size();
-
-	if((np == 1 && (nprongs == 1 || nprongs == 0)) ||
-           (np == 3 && (nprongs == 3 || nprongs == 0)) ) accepted = true;
-
-	if(!accepted) np = 0;
-	if(booleanOutput) return accepted;
-	return np;
+  bool accepted = false;
+  int np = tau->signalTracks().size();
+  if((np == 1 && (nprongs == 1 || nprongs == 0)) ||
+     (np == 3 && (nprongs == 3 || nprongs == 0)) ) accepted = true;
+  if(!accepted) np = 0;
+  if(booleanOutput) return accepted;
+  return np;
 }
 
 DEFINE_FWK_MODULE(CaloRecoTauDiscriminationByNProngs);
-

@@ -1,4 +1,4 @@
-/* 
+/*
  * class CaloRecoTauDiscriminationAgainstHadronicJets
  * created : April 21 2010,
  * revised : ,
@@ -9,26 +9,32 @@
 #include "RecoTauTag/RecoTau/interface/TCTauAlgorithm.h"
 
 class CaloRecoTauDiscriminationAgainstHadronicJets : public CaloTauDiscriminationProducerBase {
-    public:
-      	explicit CaloRecoTauDiscriminationAgainstHadronicJets(const ParameterSet& iConfig):CaloTauDiscriminationProducerBase(iConfig){   
-		tcTauAlgorithm = new TCTauAlgorithm(iConfig);
-      	}
-      	~CaloRecoTauDiscriminationAgainstHadronicJets(){} 
-      	double discriminate(const CaloTauRef& theCaloTauRef);
-	void beginEvent(const Event&, const EventSetup&);
+  public:
+    explicit CaloRecoTauDiscriminationAgainstHadronicJets(
+        const edm::ParameterSet& iConfig)
+        :CaloTauDiscriminationProducerBase(iConfig){
+          tcTauAlgorithm = new TCTauAlgorithm(iConfig);
+        }
+    ~CaloRecoTauDiscriminationAgainstHadronicJets(){}
+    double discriminate(const CaloTauRef& theCaloTauRef);
+    void beginEvent(const edm::Event&, const edm::EventSetup&);
 
-    private:
-	TCTauAlgorithm*  tcTauAlgorithm;
+  private:
+    TCTauAlgorithm*  tcTauAlgorithm;
 };
 
-void CaloRecoTauDiscriminationAgainstHadronicJets::beginEvent(const Event& iEvent, const EventSetup& iSetup){
-	tcTauAlgorithm->eventSetup(iEvent,iSetup);
+void CaloRecoTauDiscriminationAgainstHadronicJets::beginEvent(
+    const Event& iEvent, const EventSetup& iSetup){
+  tcTauAlgorithm->eventSetup(iEvent,iSetup);
 }
 
 
-double CaloRecoTauDiscriminationAgainstHadronicJets::discriminate(const CaloTauRef& theCaloTauRef){
-	math::XYZTLorentzVector p4 = tcTauAlgorithm->recalculateEnergy(*theCaloTauRef);
-	return ((tcTauAlgorithm->algoComponent() != TCTauAlgorithm::TCAlgoHadronicJet) ? 1. : 0.);
+double CaloRecoTauDiscriminationAgainstHadronicJets::discriminate(
+    const CaloTauRef& theCaloTauRef){
+  math::XYZTLorentzVector p4 =
+      tcTauAlgorithm->recalculateEnergy(*theCaloTauRef);
+  return ((tcTauAlgorithm->algoComponent() !=
+           TCTauAlgorithm::TCAlgoHadronicJet) ? 1. : 0.);
 }
 
 DEFINE_FWK_MODULE(CaloRecoTauDiscriminationAgainstHadronicJets);
