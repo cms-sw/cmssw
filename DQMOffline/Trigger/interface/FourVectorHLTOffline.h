@@ -19,11 +19,9 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.61 2010/08/04 14:27:03 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.64 2010/10/26 04:55:28 wmtan Exp $
 //
 //
-// system include files
-
 // system include files
 #include <memory>
 #include <unistd.h>
@@ -82,6 +80,11 @@
 
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/JetReco/interface/JetFloatAssociation.h"
+
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+
 /* MC
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
@@ -150,7 +153,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       void selectPhotons(const edm::Handle<reco::PhotonCollection> & phoHandle);
       void selectJets(const edm::Event& iEvent,const edm::Handle<reco::CaloJetCollection> & jetHandle);
       void selectMet(const edm::Handle<reco::CaloMETCollection> & metHandle);
-      void selectTaus(const edm::Handle<reco::CaloTauCollection> & tauHandle);
+      void selectTaus(const edm::Event& iEvent);
       void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
       void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
 
@@ -163,7 +166,10 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       // JetID helper
       reco::helper::JetIDHelper *jetID;
 
-
+      // Tau discriminators
+      std::string tauDscrmtrLabel1_;
+      std::string tauDscrmtrLabel2_;
+      std::string tauDscrmtrLabel3_;
 
       MonitorElement* ME_HLTAll_LS;
       MonitorElement* ME_HLT_BX;
@@ -198,8 +204,10 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       reco::CaloMETCollection * fSelectedMet;
       edm::Handle<reco::CaloMETCollection> fSelMetHandle;
 
-      reco::CaloTauCollection * fSelectedTaus;
-      edm::Handle<reco::CaloTauCollection> fSelTausHandle;
+      //reco::CaloTauCollection * fSelectedTaus;
+      //edm::Handle<reco::CaloTauCollection> fSelTausHandle;
+      reco::PFTauCollection * fSelectedTaus;
+      edm::Handle<reco::PFTauCollection> fSelTausHandle;
 
       unsigned int nLS_; 
       double LSsize_ ;
@@ -258,6 +266,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       double sumEtMin_;
 
       // Muon quality cuts
+      //////////////////////////
       double dxyCut_;
       double normalizedChi2Cut_;
       int trackerHitsCut_;
@@ -265,6 +274,36 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       int muonHitsCut_;
       bool isAlsoTrackerMuon_;
       int nMatchesCut_;
+
+      // Electron quality cuts
+      //////////////////////////
+      float eleMaxOver3x3_;
+      // Ecal Barrel
+      float dr03TkSumPtEB_;
+      float dr04EcalRecHitSumEtEB_;
+      float dr04HcalTowerSumEtEB_;
+      float hadronicOverEmEB_;
+      float deltaPhiSuperClusterTrackAtVtxEB_;
+      float deltaEtaSuperClusterTrackAtVtxEB_;
+      float sigmaIetaIetaEB_;
+      //spikes
+      float sigmaIetaIetaSpikesEB_;
+      // Ecal Endcap
+      float dr03TkSumPtEC_;
+      float dr04EcalRecHitSumEtEC_;
+      float dr04HcalTowerSumEtEC_;
+      float hadronicOverEmEC_;
+      float deltaPhiSuperClusterTrackAtVtxEC_;
+      float deltaEtaSuperClusterTrackAtVtxEC_;
+      float sigmaIetaIetaEC_;
+      //spikes
+      float sigmaIetaIetaSpikesEC_;
+
+      // Jet quality cuts
+      //////////////////////////
+      float emEnergyFractionJet_;
+      float fHPDJet_;
+      int n90Jet_;
 
       std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
 
@@ -1533,7 +1572,7 @@ void objMonData<T>::fillOnOffMatch(FourVectorHLTOffline* fv)
 
          NOnOff++;
          v_->getOffEtOnOffHisto()->Fill(iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()));
-         if(iter->superCluster()->energy()*std::abs(sin(iter->superCluster()->position().Theta())) >= thresholdFactor_*v_->getHltThreshold())
+         if(iter->superCluster()->energy()*fabs(sin(iter->superCluster()->position().Theta())) >= thresholdFactor_*v_->getHltThreshold())
          v_->getOffEtaVsOffPhiOnOffHisto()->Fill(iter->eta(),iter->phi());
 
        }
