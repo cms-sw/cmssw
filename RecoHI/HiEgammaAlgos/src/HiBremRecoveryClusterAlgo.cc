@@ -14,20 +14,26 @@ reco::SuperClusterCollection HiBremRecoveryClusterAlgo::makeSuperClusters(reco::
 
   // ...and populate them:
   for (reco::CaloCluster_iterator it = clustersCollection.begin(); it != clustersCollection.end(); it++)
+  {
+    
+    reco::CaloClusterPtr cluster_p = *it;
+    if (cluster_p->algo() == reco::CaloCluster::island) 
     {
-      reco::CaloClusterPtr cluster_p = *it;
-      if (cluster_p->algo() == reco::CaloCluster::island) 
-      {
-	  if (fabs(cluster_p->position().eta()) < etaBorder)
-	    {
-	      if (cluster_p->energy() > BarrelBremEnergyThreshold) islandClustersBarrel_v.push_back(cluster_p);
-	    }
-	  else
-	    {
-	      if (cluster_p->energy() > EndcapBremEnergyThreshold) islandClustersEndCap_v.push_back(cluster_p);
-	    }
-      }
+  	if (verbosity <= pINFO)
+        {
+  	   std::cout <<"Basic Cluster: (eta,phi,energy) = "<<cluster_p->position().eta()<<" "<<cluster_p->position().phi()<<" "
+  						      <<cluster_p->energy()<<std::endl;
+  	}
+        if (fabs(cluster_p->position().eta()) < etaBorder)
+          {
+            if (cluster_p->energy() > BarrelBremEnergyThreshold) islandClustersBarrel_v.push_back(cluster_p);
+          }
+        else
+          {
+            if (cluster_p->energy() > EndcapBremEnergyThreshold) islandClustersEndCap_v.push_back(cluster_p);
+          }
     }
+  }
 
   // make the superclusters from the Barrel clusters - Island
   makeIslandSuperClusters(islandClustersBarrel_v, eb_rdeta_, eb_rdphi_);
@@ -42,18 +48,21 @@ reco::SuperClusterCollection HiBremRecoveryClusterAlgo::makeSuperClusters(reco::
 void HiBremRecoveryClusterAlgo::makeIslandSuperClusters(reco::CaloClusterPtrVector &clusters_v, 
 						      double etaRoad, double phiRoad)
 {
-  std::vector<DetId> usedSeedDetIds;
-  usedSeedDetIds.clear();
+  std::vector<double> usedSeedEnergy;
+  usedSeedEnergy.clear();
 
   for ( reco::CaloCluster_iterator currentSeed = clusters_v.begin(); currentSeed != clusters_v.end(); ++currentSeed)
     {
-
+      if (verbosity <= pINFO) {
+         std::cout <<"Current Cluster: "<<(*currentSeed)->energy()<<" "<<(std::find(usedSeedEnergy.begin(), usedSeedEnergy.end(), (*currentSeed)->energy()) 
+              != usedSeedEnergy.end())<<std::endl;
+      }
       // check this seed was not already used
-      if (std::find(usedSeedDetIds.begin(), usedSeedDetIds.end(), (*currentSeed)->seed()) 
-              != usedSeedDetIds.end()) continue;
+      if (std::find(usedSeedEnergy.begin(), usedSeedEnergy.end(), (*currentSeed)->energy()) 
+              != usedSeedEnergy.end()) continue;
 
       // Does our highest energy cluster have high enough energy?
-      if ((*currentSeed)->energy() * sin((*currentSeed)->position().theta()) < seedTransverseEnergyThreshold) break;
+      if ((*currentSeed)->energy() * sin((*currentSeed)->position().theta()) < seedTransverseEnergyThreshold) continue;
 
       // if yes, make it a seed for a new SuperCluster:
       double energy_ = (*currentSeed)->energy();
@@ -61,12 +70,14 @@ void HiBremRecoveryClusterAlgo::makeIslandSuperClusters(reco::CaloClusterPtrVect
 				(*currentSeed)->position().Y(), 
 				(*currentSeed)->position().Z());
       position_ *= energy_;
+      usedSeedEnergy.push_back((*currentSeed)->energy());
 
       if (verbosity <= pINFO)
 	{
 	  std::cout << "*****************************" << std::endl;
 	  std::cout << "******NEW SUPERCLUSTER*******" << std::endl;
 	  std::cout << "Seed R = " << (*currentSeed)->position().Rho() << std::endl;
+	  std::cout << "Seed Et = " << (*currentSeed)->energy()* sin((*currentSeed)->position().theta()) << std::endl;
 	}
 
       // and add the matching clusters:
@@ -75,7 +86,13 @@ void HiBremRecoveryClusterAlgo::makeIslandSuperClusters(reco::CaloClusterPtrVect
       reco::CaloCluster_iterator currentCluster = currentSeed + 1;
       while (currentCluster != clusters_v.end())
 	{
-	  if (match(*currentSeed, *currentCluster, etaRoad, phiRoad))
+          if (verbosity <= pINFO) {
+          std::cout <<"->Cluster: "<<(*currentCluster)->energy()<<" "<<(std::find(usedSeedEnergy.begin(), usedSeedEnergy.end(), (*currentCluster)->energy()) 
+           != usedSeedEnergy.end())<< " "<<usedSeedEnergy.size()<< " Match = "<<match(*currentSeed, *currentCluster, etaRoad, phiRoad)<<std::endl;
+          }
+          // if it's in the search window, and unused
+	  if (match(*currentSeed, *currentCluster, etaRoad, phiRoad)
+                && (std::find(usedSeedEnergy.begin(), usedSeedEnergy.end(), (*currentCluster)->energy()) == usedSeedEnergy.end()))
 	    {
               // Add basic cluster
 	      constituentClusters.push_back(*currentCluster);
@@ -84,7 +101,7 @@ void HiBremRecoveryClusterAlgo::makeIslandSuperClusters(reco::CaloClusterPtrVect
 									 (*currentCluster)->position().Y(), 
 									 (*currentCluster)->position().Z()); 
 	      // remove cluster from vector of available clusters
-	      usedSeedDetIds.push_back((*currentCluster)->seed());
+	      usedSeedEnergy.push_back((*currentCluster)->energy());
 
 	      if (verbosity <= pINFO) 
 		{
@@ -113,10 +130,11 @@ void HiBremRecoveryClusterAlgo::makeIslandSuperClusters(reco::CaloClusterPtrVect
 	{
 	  std::cout << "created a new supercluster of: " << std::endl;
 	  std::cout << "Energy = " << newSuperCluster.energy() << std::endl;
-	  std::cout << "Position in (R, phi, theta) = (" 
+	  std::cout << "Position in (R, phi, theta, eta) = (" 
 		    << newSuperCluster.position().Rho() << ", " 
 		    << newSuperCluster.position().phi() << ", "
-		    << newSuperCluster.position().theta() << ")" << std::endl;
+		    << newSuperCluster.position().theta() << ", "
+		    << newSuperCluster.position().eta() << ")" << std::endl;
 	}
     }
   clusters_v.clear();

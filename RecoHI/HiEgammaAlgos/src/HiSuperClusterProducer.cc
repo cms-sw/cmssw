@@ -48,10 +48,16 @@ HiSuperClusterProducer::HiSuperClusterProducer(const edm::ParameterSet& ps)
   endcapEtaSearchRoad_ = ps.getParameter<double>("endcapEtaSearchRoad");
   endcapPhiSearchRoad_ = ps.getParameter<double>("endcapPhiSearchRoad");
   seedTransverseEnergyThreshold_ = ps.getParameter<double>("seedTransverseEnergyThreshold");
-
+  barrelBCEnergyThreshold_ = ps.getParameter<double>("barrelBCEnergyThreshold");
+  endcapBCEnergyThreshold_ = ps.getParameter<double>("endcapBCEnergyThreshold");
+  std::cout <<"BCTHB "<<barrelBCEnergyThreshold_<<std::endl;
+  std::cout <<"BCTHE "<<endcapBCEnergyThreshold_<<std::endl;
   bremAlgo_p = new HiBremRecoveryClusterAlgo(barrelEtaSearchRoad_, barrelPhiSearchRoad_, 
 					 endcapEtaSearchRoad_, endcapPhiSearchRoad_, 
-					 seedTransverseEnergyThreshold_, verbosity);
+					 seedTransverseEnergyThreshold_,
+                                         barrelBCEnergyThreshold_,
+                                         endcapBCEnergyThreshold_,
+                                         verbosity);
 
   produces< reco::SuperClusterCollection >(endcapSuperclusterCollection_);
   produces< reco::SuperClusterCollection >(barrelSuperclusterCollection_);

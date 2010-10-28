@@ -50,6 +50,8 @@ class HiSuperClusterProducer : public edm::EDProducer
       float endcapEtaSearchRoad_; 
       float endcapPhiSearchRoad_;
       float seedTransverseEnergyThreshold_;
+      float barrelBCEnergyThreshold_;
+      float endcapBCEnergyThreshold_;
 
       bool doBarrel_;
       bool doEndcaps_;

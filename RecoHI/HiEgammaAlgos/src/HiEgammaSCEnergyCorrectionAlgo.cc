@@ -1,5 +1,5 @@
 //
-// $Id: HiEgammaSCEnergyCorrectionAlgo.cc,v 1.1 2010/10/21 22:43:51 yjlee Exp $
+// $Id: HiEgammaSCEnergyCorrectionAlgo.cc,v 1.2 2010/10/25 09:37:50 yjlee Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoHI/HiEgammaAlgos/interface/HiEgammaSCEnergyCorrectionAlgo.h"
@@ -10,7 +10,7 @@
 
 HiEgammaSCEnergyCorrectionAlgo::HiEgammaSCEnergyCorrectionAlgo(double noise, 
 							   reco::CaloCluster::AlgoId theAlgo,
-							   const edm::ParameterSet& pset,
+							   const edm::ParameterSet& pSet,
 							   HiEgammaSCEnergyCorrectionAlgo::VerbosityLevel verbosity
 							   )
 
@@ -19,6 +19,15 @@ HiEgammaSCEnergyCorrectionAlgo::HiEgammaSCEnergyCorrectionAlgo(double noise,
   verbosity_ = verbosity;
   recHits_m = new std::map<DetId, EcalRecHit>();
   
+  // Parameters
+  p_fBrem_ = pSet.getParameter< std::vector <double> > ("fBremVect");
+  p_fBremTh_ = pSet.getParameter< std::vector <double> > ("fBremThVect");
+  p_fEta_ = pSet.getParameter< std::vector <double> > ("fEtaVect");
+  p_fEtEta_ = pSet.getParameter< std::vector <double> > ("fEtEtaVect");
+
+  // Min R9 
+  minR9Barrel_ = pSet.getParameter<double>("minR9Barrel");
+  minR9Endcap_ = pSet.getParameter<double>("minR9Endcap");
 }
 
 HiEgammaSCEnergyCorrectionAlgo::~HiEgammaSCEnergyCorrectionAlgo()
@@ -29,7 +38,7 @@ HiEgammaSCEnergyCorrectionAlgo::~HiEgammaSCEnergyCorrectionAlgo()
 
 reco::SuperCluster HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster &cl, 
 								 const EcalRecHitCollection &rhc, reco::CaloCluster::AlgoId theAlgo, const CaloSubdetectorGeometry* geometry,
-								 EcalClusterFunctionBaseClass* EnergyCorrection)
+								 const CaloTopology *topology, EcalClusterFunctionBaseClass* EnergyCorrection)
 {	
 
   // Insert the recHits into map	
@@ -110,6 +119,10 @@ reco::SuperCluster HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::S
   phiWidth = SCShape->phiWidth();
   etaWidth = SCShape->etaWidth();
 
+  // calculate r9
+  float e3x3    =   EcalClusterTools::e3x3(  *(cl.seed()), &rhc, &(*topology));
+  float e5x5    =   EcalClusterTools::e5x5(  *(cl.seed()), &rhc, &(*topology));
+  float r9 = e3x3 / cl.rawEnergy();
   // Calculate the new supercluster energy 
   //as a function of number of crystals in the seed basiccluster for Endcap 
   //or apply new Enegry SCale correction
@@ -119,10 +132,14 @@ reco::SuperCluster HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::S
   tmp.setPhiWidth(phiWidth); 
   tmp.setEtaWidth(etaWidth); 
   
-  std::cout <<cl.rawEnergy()<< "Correction: "<<phiWidth/etaWidth<<" "<<fWidth(phiWidth/etaWidth, theAlgo, theBase)<<" "<<fNCrystals(cl.size(), theAlgo, theBase)<<" "<<fClustersSize(cl.clustersSize(), theAlgo, theBase)<<std::endl;
-     
-  newEnergy = (cl.rawEnergy())/fWidth(phiWidth/etaWidth, theAlgo, theBase)/fNCrystals(cl.size(), theAlgo, theBase)/fClustersSize(cl.clustersSize(), theAlgo, theBase)/fEta(cl.eta(), theAlgo, theBase);
+ // std::cout <<cl.rawEnergy()<< "Correction: "<<phiWidth/etaWidth<<" "<<fBrem(phiWidth/etaWidth, theAlgo, theBase)<<" "<<fNCrystals(cl.size(), theAlgo, theBase)<<" "<<fEtEta(cl.energy()/cosh(cl.eta()), cl.eta(), theAlgo, theBase)<<std::endl;
   
+
+  if ((r9 < minR9Barrel_&&theBase == EcalBarrel) || (r9 < minR9Endcap_&&theBase == EcalEndcap)) {     
+     newEnergy = (cl.rawEnergy())/ fEta(cl.eta(), theAlgo, theBase) / fBrem(phiWidth/etaWidth, theAlgo, theBase)/fEtEta(cl.energy()/cosh(cl.eta()), cl.eta(), theAlgo, theBase);
+  }  else {
+     newEnergy = e5x5 / fEta(cl.eta(), theAlgo, theBase);
+  }
 
   // Create a new supercluster with the corrected energy 
   if (verbosity_ <= pINFO)
@@ -149,37 +166,59 @@ reco::SuperCluster HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::S
   return corrCl;
 }
 
-float HiEgammaSCEnergyCorrectionAlgo::fClustersSize(float clustersSize, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase)
+float HiEgammaSCEnergyCorrectionAlgo::fEtEta(float et, float eta, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase)
 {
-  float ncl = clustersSize;
+  int offset = 0;
+  float factor;
   if((theBase == EcalBarrel) && (theAlgo == reco::CaloCluster::island)) { 
-      if (ncl>4) ncl=4;
-      return 1.01092-0.009828*(ncl);
+      offset = 0;
   } else if((theBase == EcalEndcap) && (theAlgo == reco::CaloCluster::island)) { 
-      if (ncl>2) ncl=2;
-      return 1.03483-0.027541*(ncl);   // not yet
+      offset = 7;
   }
-  return 1;
+  
+  // Et dependent correction
+  factor = (p_fEtEta_[0+offset] + p_fEtEta_[1+offset]*sqrt(et));
+  // eta dependent correction
+  factor *= (p_fEtEta_[2+offset] + p_fEtEta_[3+offset]*fabs(eta) + p_fEtEta_[4+offset]*eta*eta + p_fEtEta_[5+offset]*eta*eta*fabs(eta) + + p_fEtEta_[6+offset]*eta*eta*eta*eta);
+
+  return factor;
+
 }
 
 float HiEgammaSCEnergyCorrectionAlgo::fEta(float eta, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase)
 {
+  int offset = 0;
+  float factor;
   if((theBase == EcalBarrel) && (theAlgo == reco::CaloCluster::island)) { 
-      return 1.00971+0.00585804*fabs(eta)-0.017339*fabs(eta)*fabs(eta);
+      offset = 0;
   } else if((theBase == EcalEndcap) && (theAlgo == reco::CaloCluster::island)) { 
-      return 0.87454+0.0316459*fabs(eta);   
+      offset = 3;
   }
-  return 1;
+
+  factor = (p_fEta_[0+offset] + p_fEta_[1+offset]*fabs(eta) + p_fEta_[2+offset]*eta*eta);
+
+  return factor;
 }
 
-float HiEgammaSCEnergyCorrectionAlgo::fWidth(float widthRatio, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase)
+float HiEgammaSCEnergyCorrectionAlgo::fBrem(float brem, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase)
 {
+  int det = 0;
+  int offset = 0;
+  float factor;
   if((theBase == EcalBarrel) && (theAlgo == reco::CaloCluster::island)) { 
-      return (1.022-0.02812*widthRatio+0.001637*widthRatio*widthRatio);
+      det = 0;
+      offset = 0;
   } else if((theBase == EcalEndcap) && (theAlgo == reco::CaloCluster::island)) { 
-      return (1.07219-0.0722*widthRatio+0.0067396*widthRatio*widthRatio);   
+      det = 1;
+      offset = 6;
   }
-  return 1;
+  
+  if (brem < p_fBremTh_[det]) {
+     factor = p_fBrem_[0+offset] + p_fBrem_[1+offset]*brem + p_fBrem_[2+offset]*brem*brem;
+  } else {
+     factor = p_fBrem_[3+offset] + p_fBrem_[4+offset]*brem + p_fBrem_[5+offset]*brem*brem;
+  };
+  return factor;
 }
 
 //   char *var ="rawEnergy/cosh(genMatchedEta)/(1.01606-0.0162668*abs(eta))/genMatchedPt/(1.022-0.02812*phiWidth/etaWidth+0.001637*phiWidth*phiWidth/etaWidth/etaWidth)/((0.682554+0.0253013*scSize-(0.0007907)*scSize*scSize+(1.166e-5)*scSize*scSize*scSize-(6.7387e-8)*scSize*scSize*scSize*scSize)*(scSize<40)+(scSize>=40))/((1.016-0.009877*((clustersSize<=4)*clustersSize+(clustersSize>4)*4)))";
@@ -220,6 +259,9 @@ float HiEgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry, reco::CaloCluster::Al
       }
     }
   
+  if (result > 1.5) result = 1.5;
+  if (result < 0.5) result = 0.5;
+
   return result;  
 }
 

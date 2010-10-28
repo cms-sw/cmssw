@@ -11,8 +11,11 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h" 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 #include <map>
 #include <string>
@@ -26,7 +29,7 @@ class HiEgammaSCEnergyCorrectionAlgo
     // public member functions
     HiEgammaSCEnergyCorrectionAlgo(double noise, 
 				 reco::CaloCluster::AlgoId theAlgo,
-				 const edm::ParameterSet& pset, 
+				 const edm::ParameterSet& pSet, 
 				 VerbosityLevel verbosity = pERROR
                                  );
     ~HiEgammaSCEnergyCorrectionAlgo();
@@ -36,7 +39,8 @@ class HiEgammaSCEnergyCorrectionAlgo
 				       const EcalRecHitCollection &rhc, 
 				       reco::CaloCluster::AlgoId theAlgo, 
 				       const CaloSubdetectorGeometry* geometry,
-				       EcalClusterFunctionBaseClass* EnergyCorrectionClass);
+  			               const CaloTopology *topology,
+                                       EcalClusterFunctionBaseClass* EnergyCorrectionClass);
  
     // function to set the verbosity level
     void setVerbosity(VerbosityLevel verbosity)
@@ -49,9 +53,9 @@ class HiEgammaSCEnergyCorrectionAlgo
     // correction factor as a function of number of crystals,
     // BasicCluster algo and location in the detector    
     float fNCrystals(int nCry, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase);
-    float fWidth(float widthRatio, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase);
+    float fBrem(float widthRatio, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase);
     float fEta(float eta, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase);
-    float fClustersSize(float clustersSize, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase);
+    float fEtEta(float et, float eta, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase);
 
     // Return the number of crystals in a BasicCluster above 
     // 2sigma noise level
@@ -66,6 +70,13 @@ class HiEgammaSCEnergyCorrectionAlgo
 
     reco::CaloCluster::AlgoId theAlgo_;
 
+    // parameters
+    std::vector<double> p_fEta_;
+    std::vector<double> p_fBremTh_, p_fBrem_;
+    std::vector<double> p_fEtEta_;
+
+     double minR9Barrel_;
+     double minR9Endcap_;
 };
 
 #endif /*RecoECAL_ECALClusters_HiEgammaSCEnergyCorrectionAlgo_h_*/

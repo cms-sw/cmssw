@@ -14,7 +14,7 @@
 //
 // Original Author:  Dave Evans
 //         Created:  Thu Apr 13 15:50:17 CEST 2006
-// $Id: HiEgammaSCCorrectionMaker.h,v 1.1 2010/10/21 16:26:41 yjlee Exp $
+// $Id: HiEgammaSCCorrectionMaker.h,v 1.2 2010/10/21 22:43:51 yjlee Exp $
 //
 //
 
@@ -31,6 +31,10 @@
 #include "RecoHI/HiEgammaAlgos/interface/HiEgammaSCEnergyCorrectionAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h" 
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+
 
 class HiEgammaSCCorrectionMaker : public edm::EDProducer {
 	
@@ -61,6 +65,8 @@ class HiEgammaSCCorrectionMaker : public edm::EDProducer {
 
      reco::CaloCluster::AlgoId sCAlgo_;
      std::string outputCollection_;
+     edm::ESHandle<CaloTopology> theCaloTopo_;
+
 
 };
 #endif
