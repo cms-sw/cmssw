@@ -1,5 +1,5 @@
 //
-// $Id: HiEgammaSCEnergyCorrectionAlgo.cc,v 1.2 2010/10/25 09:37:50 yjlee Exp $
+// $Id: HiEgammaSCEnergyCorrectionAlgo.cc,v 1.3 2010/10/28 13:36:02 yjlee Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoHI/HiEgammaAlgos/interface/HiEgammaSCEnergyCorrectionAlgo.h"
@@ -13,7 +13,6 @@ HiEgammaSCEnergyCorrectionAlgo::HiEgammaSCEnergyCorrectionAlgo(double noise,
 							   const edm::ParameterSet& pSet,
 							   HiEgammaSCEnergyCorrectionAlgo::VerbosityLevel verbosity
 							   )
-
 {
   sigmaElectronicNoise_ = noise;
   verbosity_ = verbosity;
@@ -40,130 +39,126 @@ reco::SuperCluster HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::S
 								 const EcalRecHitCollection &rhc, reco::CaloCluster::AlgoId theAlgo, const CaloSubdetectorGeometry* geometry,
 								 const CaloTopology *topology, EcalClusterFunctionBaseClass* EnergyCorrection)
 {	
-
-  // Insert the recHits into map	
-  // (recHits needed as number of crystals in the seed cluster
-  //  with energy above 2sigma noise required)
-    EcalRecHitCollection::const_iterator it;
-    for (it = rhc.begin(); it != rhc.end(); it++)
-    {
+   // Insert the recHits into map	
+   // (recHits needed as number of crystals in the seed cluster
+   // with energy above 2sigma noise required)
+   EcalRecHitCollection::const_iterator it;
+   for (it = rhc.begin(); it != rhc.end(); it++)
+   {
       std::pair<DetId, EcalRecHit> map_entry(it->id(), *it);
       recHits_m->insert(map_entry);
-    }
+   }
 	
-  // A little bit of trivial info to be sure all is well
+   // Print out a little bit of trivial info to be sure all is well
+   if (verbosity_ <= pINFO)
+   {
+      std::cout << "   HiEgammaSCEnergyCorrectionAlgo::applyCorrection" << std::endl;
+      std::cout << "   SC has energy " << cl.energy() << std::endl;
+      std::cout << "   Will correct now.... " << std::endl;
+   }
 
-  if (verbosity_ <= pINFO)
-  {
-    std::cout << "   HiEgammaSCEnergyCorrectionAlgo::applyCorrection" << std::endl;
-    std::cout << "   SC has energy " << cl.energy() << std::endl;
-    std::cout << "   Will correct now.... " << std::endl;
-  }
+   // Get the seed cluster  	
+   reco::CaloClusterPtr seedC = cl.seed();
 
-  // Get the seed cluster  	
-  reco::CaloClusterPtr seedC = cl.seed();
+   if (verbosity_ <= pINFO)
+   {
+      std::cout << "   Seed cluster energy... " << seedC->energy() << std::endl;
+   }
 
-  if (verbosity_ <= pINFO)
-  {
-    std::cout << "   Seed cluster energy... " << seedC->energy() << std::endl;
-  }
+   // Get the constituent clusters
+   reco::CaloClusterPtrVector clusters_v;
 
-  // Get the constituent clusters
-  reco::CaloClusterPtrVector clusters_v;
+   if (verbosity_ <= pINFO) std::cout << "   Constituent cluster energies... ";
 
-  if (verbosity_ <= pINFO) std::cout << "   Constituent cluster energies... ";
-  for(reco::CaloCluster_iterator cluster = cl.clustersBegin(); cluster != cl.clustersEnd(); cluster ++)
-  {
-    clusters_v.push_back(*cluster);
-    if (verbosity_ <= pINFO) std::cout << (*cluster)->energy() << ", ";
-  }
-  if (verbosity_ <= pINFO) std::cout << std::endl;
+   for(reco::CaloCluster_iterator cluster = cl.clustersBegin(); cluster != cl.clustersEnd(); cluster ++)
+   {
+      clusters_v.push_back(*cluster);
+      if (verbosity_ <= pINFO) std::cout << (*cluster)->energy() << ", ";
+   }
+   if (verbosity_ <= pINFO) std::cout << std::endl;
 
-  // Find the algorithm used to construct the basic clusters making up the supercluster	
-  if (verbosity_ <= pINFO) 
-  {
-    std::cout << "   The seed cluster used algo " << theAlgo;  
-  }
+   // Find the algorithm used to construct the basic clusters making up the supercluster	
+   if (verbosity_ <= pINFO) 
+   {
+      std::cout << "   The seed cluster used algo " << theAlgo;  
+   }
  
-  // Find the detector region of the supercluster
-  // where is the seed cluster?
-  std::vector<std::pair<DetId, float> > seedHits = seedC->hitsAndFractions();  
-  EcalSubdetector theBase = EcalSubdetector(seedHits.at(0).first.subdetId());
-  if (verbosity_ <= pINFO)
-  {
-    std::cout << "   seed cluster location == " << theBase << std::endl;
-  }
+   // Find the detector region of the supercluster
+   // where is the seed cluster?
+   std::vector<std::pair<DetId, float> > seedHits = seedC->hitsAndFractions();  
+   EcalSubdetector theBase = EcalSubdetector(seedHits.at(0).first.subdetId());
+   if (verbosity_ <= pINFO)
+   {
+      std::cout << "   seed cluster location == " << theBase << std::endl;
+   }
 
-  // Get number of crystals 2sigma above noise in seed basiccluster      
-  int nCryGT2Sigma = nCrystalsGT2Sigma(*seedC);
-  if (verbosity_ <= pINFO)
-  {
-    std::cout << "   nCryGT2Sigma " << nCryGT2Sigma << std::endl;
-  }
+   // Get number of crystals 2sigma above noise in seed basiccluster      
+   int nCryGT2Sigma = nCrystalsGT2Sigma(*seedC);
+   if (verbosity_ <= pINFO)
+   {
+      std::cout << "   nCryGT2Sigma " << nCryGT2Sigma << std::endl;
+   }
 
-  // Supercluster enery - seed basiccluster energy
-  float bremsEnergy = cl.energy() - seedC->energy();
-  if (verbosity_ <= pINFO)
-  {
-    std::cout << "   bremsEnergy " << bremsEnergy << std::endl;
-  }
+   // Supercluster enery - seed basiccluster energy
+   float bremsEnergy = cl.energy() - seedC->energy();
+   if (verbosity_ <= pINFO)
+   {
+      std::cout << "   bremsEnergy " << bremsEnergy << std::endl;
+   }
 
-  //Create the pointer ot class SuperClusterShapeAlgo
-  //which calculates phiWidth and etaWidth
-  SuperClusterShapeAlgo* SCShape = new SuperClusterShapeAlgo(&rhc, geometry);
+   // Create the pointer ot class SuperClusterShapeAlgo
+   // which calculates phiWidth and etaWidth
+   SuperClusterShapeAlgo* SCShape = new SuperClusterShapeAlgo(&rhc, geometry);
 
-  double phiWidth = 0.;
-  double etaWidth = 0.;
-  //Calculate phiWidth & etaWidth for SuperClusters
-  SCShape->Calculate_Covariances(cl);
-  phiWidth = SCShape->phiWidth();
-  etaWidth = SCShape->etaWidth();
+   double phiWidth = 0.;
+   double etaWidth = 0.;
+ 
+   // Calculate phiWidth & etaWidth for SuperClusters
+   SCShape->Calculate_Covariances(cl);
+   phiWidth = SCShape->phiWidth();
+   etaWidth = SCShape->etaWidth();
 
-  // calculate r9
-  float e3x3    =   EcalClusterTools::e3x3(  *(cl.seed()), &rhc, &(*topology));
-  float e5x5    =   EcalClusterTools::e5x5(  *(cl.seed()), &rhc, &(*topology));
-  float r9 = e3x3 / cl.rawEnergy();
-  // Calculate the new supercluster energy 
-  //as a function of number of crystals in the seed basiccluster for Endcap 
-  //or apply new Enegry SCale correction
-  float newEnergy = 0;
+   // Calculate r9 and 5x5 energy
+   float e3x3    =   EcalClusterTools::e3x3(  *(cl.seed()), &rhc, &(*topology));
+   float e5x5    =   EcalClusterTools::e5x5(  *(cl.seed()), &rhc, &(*topology));
+   float r9 = e3x3 / cl.rawEnergy();
 
-  reco::SuperCluster tmp = cl;
-  tmp.setPhiWidth(phiWidth); 
-  tmp.setEtaWidth(etaWidth); 
-  
- // std::cout <<cl.rawEnergy()<< "Correction: "<<phiWidth/etaWidth<<" "<<fBrem(phiWidth/etaWidth, theAlgo, theBase)<<" "<<fNCrystals(cl.size(), theAlgo, theBase)<<" "<<fEtEta(cl.energy()/cosh(cl.eta()), cl.eta(), theAlgo, theBase)<<std::endl;
-  
+   // Calculate the new supercluster energy 
+   // as a function of number of crystals in the seed basiccluster for Endcap 
+   // lslslsor apply new Enegry SCale correction
+   float newEnergy = 0;
 
-  if ((r9 < minR9Barrel_&&theBase == EcalBarrel) || (r9 < minR9Endcap_&&theBase == EcalEndcap)) {     
-     newEnergy = (cl.rawEnergy())/ fEta(cl.eta(), theAlgo, theBase) / fBrem(phiWidth/etaWidth, theAlgo, theBase)/fEtEta(cl.energy()/cosh(cl.eta()), cl.eta(), theAlgo, theBase);
-  }  else {
-     newEnergy = e5x5 / fEta(cl.eta(), theAlgo, theBase);
-  }
+   if ((r9 < minR9Barrel_&&theBase == EcalBarrel) || (r9 < minR9Endcap_&&theBase == EcalEndcap)) {     
+      // if r9 is greater than threshold, then use the SC raw energy
+      newEnergy = (cl.rawEnergy())/ fEta(cl.eta(), theAlgo, theBase) / fBrem(phiWidth/etaWidth, theAlgo, theBase)/fEtEta(cl.energy()/cosh(cl.eta()), cl.eta(), theAlgo, theBase);
+   }  else {
+      // use 5x5 energy if r9 < threshold
+      newEnergy = e5x5 / fEta(cl.eta(), theAlgo, theBase);
+   }
 
-  // Create a new supercluster with the corrected energy 
-  if (verbosity_ <= pINFO)
-    {
+   // Create a new supercluster with the corrected energy 
+   if (verbosity_ <= pINFO)
+   {
       std::cout << "   UNCORRECTED SC has energy... " << cl.energy() << std::endl;
       std::cout << "   CORRECTED SC has energy... " << newEnergy << std::endl;
       std::cout << "   Size..." <<cl.size() << std::endl;
       std::cout << "   Seed nCryGT2Sigma Size..." <<nCryGT2Sigma << std::endl;
-    }
+   }
 
-  reco::SuperCluster corrCl(newEnergy, 
-    math::XYZPoint(cl.position().X(), cl.position().Y(), cl.position().Z()),
-    cl.seed(), clusters_v, cl.preshowerEnergy());
+   reco::SuperCluster corrCl(newEnergy, 
+   math::XYZPoint(cl.position().X(), cl.position().Y(), cl.position().Z()),
+   cl.seed(), clusters_v, cl.preshowerEnergy());
 
-  //set the flags, although we should implement a ctor in SuperCluster
-  corrCl.setFlags(cl.flags());
-  corrCl.setPhiWidth(phiWidth);
-  corrCl.setEtaWidth(etaWidth);
+   //set the flags, although we should implement a ctor in SuperCluster
+   corrCl.setFlags(cl.flags());
+   corrCl.setPhiWidth(phiWidth);
+   corrCl.setEtaWidth(etaWidth);
 
-  // Return the corrected cluster
-  recHits_m->clear();
+   // Return the corrected cluster
+   recHits_m->clear();
  
-  delete SCShape;
-  return corrCl;
+   delete SCShape;
+   return corrCl;
 }
 
 float HiEgammaSCEnergyCorrectionAlgo::fEtEta(float et, float eta, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase)

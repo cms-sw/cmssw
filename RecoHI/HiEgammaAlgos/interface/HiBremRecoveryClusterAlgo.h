@@ -34,7 +34,7 @@ class HiBremRecoveryClusterAlgo
 			  double theEndcapBremEnergyThreshold = 5.7,
 			  VerbosityLevel the_verbosity = pERROR
 			  )
-    {
+  {
       // e*_rdeta_ and e*_rdphi_ are half the total window 
       // because they correspond to one direction (positive or negative)
       eb_rdeta_ = eb_sc_road_etasize / 2;
@@ -46,13 +46,13 @@ class HiBremRecoveryClusterAlgo
       BarrelBremEnergyThreshold = theBarrelBremEnergyThreshold;
       EndcapBremEnergyThreshold = theEndcapBremEnergyThreshold;
       verbosity = the_verbosity;
-    }
+  }
 
   void setVerbosity(VerbosityLevel the_verbosity)
-    {
+  {
       verbosity = the_verbosity;
-    }
-  
+  }
+ 
   // the method called from outside to do the SuperClustering - returns a vector of SCs:
   reco::SuperClusterCollection makeSuperClusters(reco::CaloClusterPtrVector & clusters);
   
@@ -67,8 +67,6 @@ class HiBremRecoveryClusterAlgo
 	     reco::CaloClusterPtr cluster_p,
 	     double etaRoad, double phiRoad);
   
-  //
-
   VerbosityLevel verbosity;
 
   double eb_rdeta_;
@@ -77,6 +75,8 @@ class HiBremRecoveryClusterAlgo
   double ec_rdphi_;
   
   double seedTransverseEnergyThreshold;
+
+  // Barrel Basic Cluster threshold in the brem recovery process
   double BarrelBremEnergyThreshold;
   double EndcapBremEnergyThreshold;
   

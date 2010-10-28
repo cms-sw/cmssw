@@ -31,8 +31,6 @@ photons.maxHoverEBarrel = cms.double(0.99)  #0.5
 photons.primaryVertexProducer = cms.string('hiSelectedVertex') # replace the primary vertex
 photons.isolationSumsCalculatorSet.trackProducer = cms.InputTag("highPurityTracks")
 
-
-
 hiPhotonSequence = cms.Sequence(highPurityTracks*photonSequence)
 
 # HI Egamma Isolation

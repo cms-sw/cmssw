@@ -23,69 +23,72 @@
 
 HiSuperClusterProducer::HiSuperClusterProducer(const edm::ParameterSet& ps)
 {
-  // The verbosity level
-  std::string verbosityString = ps.getParameter<std::string>("VerbosityLevel");
-  if      (verbosityString == "DEBUG")   verbosity = HiBremRecoveryClusterAlgo::pDEBUG;
-  else if (verbosityString == "WARNING") verbosity = HiBremRecoveryClusterAlgo::pWARNING;
-  else if (verbosityString == "INFO")    verbosity = HiBremRecoveryClusterAlgo::pINFO;
-  else                                   verbosity = HiBremRecoveryClusterAlgo::pERROR;
+   // The verbosity level
+   std::string verbosityString = ps.getParameter<std::string>("VerbosityLevel");
+   if      (verbosityString == "DEBUG")   verbosity = HiBremRecoveryClusterAlgo::pDEBUG;
+   else if (verbosityString == "WARNING") verbosity = HiBremRecoveryClusterAlgo::pWARNING;
+   else if (verbosityString == "INFO")    verbosity = HiBremRecoveryClusterAlgo::pINFO;
+   else                                   verbosity = HiBremRecoveryClusterAlgo::pERROR;
 
-  endcapClusterProducer_ = ps.getParameter<std::string>("endcapClusterProducer");
-  barrelClusterProducer_ = ps.getParameter<std::string>("barrelClusterProducer");
+   endcapClusterProducer_ = ps.getParameter<std::string>("endcapClusterProducer");
+   barrelClusterProducer_ = ps.getParameter<std::string>("barrelClusterProducer");
 
-  endcapClusterCollection_ = ps.getParameter<std::string>("endcapClusterCollection");
-  barrelClusterCollection_ = ps.getParameter<std::string>("barrelClusterCollection");
+   endcapClusterCollection_ = ps.getParameter<std::string>("endcapClusterCollection");
+   barrelClusterCollection_ = ps.getParameter<std::string>("barrelClusterCollection");
 
-  endcapSuperclusterCollection_ = ps.getParameter<std::string>("endcapSuperclusterCollection");
-  barrelSuperclusterCollection_ = ps.getParameter<std::string>("barrelSuperclusterCollection");
+   endcapSuperclusterCollection_ = ps.getParameter<std::string>("endcapSuperclusterCollection");
+   barrelSuperclusterCollection_ = ps.getParameter<std::string>("barrelSuperclusterCollection");
 
-  doBarrel_ = ps.getParameter<bool>("doBarrel");
-  doEndcaps_ = ps.getParameter<bool>("doEndcaps");
+   doBarrel_ = ps.getParameter<bool>("doBarrel");
+   doEndcaps_ = ps.getParameter<bool>("doEndcaps");
 
 
-  barrelEtaSearchRoad_ = ps.getParameter<double>("barrelEtaSearchRoad");
-  barrelPhiSearchRoad_ = ps.getParameter<double>("barrelPhiSearchRoad");
-  endcapEtaSearchRoad_ = ps.getParameter<double>("endcapEtaSearchRoad");
-  endcapPhiSearchRoad_ = ps.getParameter<double>("endcapPhiSearchRoad");
-  seedTransverseEnergyThreshold_ = ps.getParameter<double>("seedTransverseEnergyThreshold");
-  barrelBCEnergyThreshold_ = ps.getParameter<double>("barrelBCEnergyThreshold");
-  endcapBCEnergyThreshold_ = ps.getParameter<double>("endcapBCEnergyThreshold");
-  std::cout <<"BCTHB "<<barrelBCEnergyThreshold_<<std::endl;
-  std::cout <<"BCTHE "<<endcapBCEnergyThreshold_<<std::endl;
-  bremAlgo_p = new HiBremRecoveryClusterAlgo(barrelEtaSearchRoad_, barrelPhiSearchRoad_, 
-					 endcapEtaSearchRoad_, endcapPhiSearchRoad_, 
-					 seedTransverseEnergyThreshold_,
-                                         barrelBCEnergyThreshold_,
-                                         endcapBCEnergyThreshold_,
-                                         verbosity);
+   barrelEtaSearchRoad_ = ps.getParameter<double>("barrelEtaSearchRoad");
+   barrelPhiSearchRoad_ = ps.getParameter<double>("barrelPhiSearchRoad");
+   endcapEtaSearchRoad_ = ps.getParameter<double>("endcapEtaSearchRoad");
+   endcapPhiSearchRoad_ = ps.getParameter<double>("endcapPhiSearchRoad");
+   seedTransverseEnergyThreshold_ = ps.getParameter<double>("seedTransverseEnergyThreshold");
+   barrelBCEnergyThreshold_ = ps.getParameter<double>("barrelBCEnergyThreshold");
+   endcapBCEnergyThreshold_ = ps.getParameter<double>("endcapBCEnergyThreshold");
 
-  produces< reco::SuperClusterCollection >(endcapSuperclusterCollection_);
-  produces< reco::SuperClusterCollection >(barrelSuperclusterCollection_);
+   if (verbosityString == "INFO") {
+      std::cout <<"Barrel BC Energy threshold = "<<barrelBCEnergyThreshold_<<std::endl;
+      std::cout <<"Endcap BC Energy threshold = "<<endcapBCEnergyThreshold_<<std::endl;
+   }
 
-  totalE = 0;
-  noSuperClusters = 0;
-  nEvt_ = 0;
+   bremAlgo_p = new HiBremRecoveryClusterAlgo(barrelEtaSearchRoad_, barrelPhiSearchRoad_, 
+                                              endcapEtaSearchRoad_, endcapPhiSearchRoad_, 
+                                              seedTransverseEnergyThreshold_,
+                                              barrelBCEnergyThreshold_,
+                                              endcapBCEnergyThreshold_,
+                                              verbosity);
+
+   produces< reco::SuperClusterCollection >(endcapSuperclusterCollection_);
+   produces< reco::SuperClusterCollection >(barrelSuperclusterCollection_);
+
+   totalE = 0;
+   noSuperClusters = 0;
+   nEvt_ = 0;
 }
 
 
 HiSuperClusterProducer::~HiSuperClusterProducer()
 {
-  delete bremAlgo_p;
+   delete bremAlgo_p;
 }
 
-void
-HiSuperClusterProducer::endJob() {
-  double averEnergy = 0.;
-  std::ostringstream str;
-  str << "HiSuperClusterProducer::endJob()\n"
-      << "  total # reconstructed super clusters: " << noSuperClusters << "\n"
-      << "  total energy of all clusters: " << totalE << "\n";
-  if(noSuperClusters>0) { 
-    averEnergy = totalE / noSuperClusters;
-    str << "  average SuperCluster energy = " << averEnergy << "\n";
-  }
-  edm::LogInfo("HiSuperClusterProducerInfo") << str.str() << "\n";
-
+void HiSuperClusterProducer::endJob() {
+   double averEnergy = 0.;
+   std::ostringstream str;
+   str << "HiSuperClusterProducer::endJob()\n"
+       << "  total # reconstructed super clusters: " << noSuperClusters << "\n"
+       << "  total energy of all clusters: " << totalE << "\n";
+   if(noSuperClusters>0) { 
+     averEnergy = totalE / noSuperClusters;
+     str << "  average SuperCluster energy = " << averEnergy << "\n";
+   }
+   edm::LogInfo("HiSuperClusterProducerInfo") << str.str() << "\n";
+ 
 }
 
 

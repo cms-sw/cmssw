@@ -145,27 +145,18 @@ HiEgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
   //  Loop over raw clusters and make corrected ones
   reco::SuperClusterCollection::const_iterator aClus;
   for(aClus = rawClusters->begin(); aClus != rawClusters->end(); aClus++)
-    {
-      reco::SuperCluster newClus;
-      if(applyEnergyCorrection_) 
+  {
+     reco::SuperCluster newClus;
+     if(applyEnergyCorrection_) 
         newClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_, geometry_p, topology, EnergyCorrection_);
-      else
+     else
 	newClus=*aClus;
 
-      if(newClus.energy()*sin(newClus.position().theta())>etThresh_) {
-	//and corrected energy of SC before placing SCs in collection
-	//std::cout << " Check 1 " << "\n"
-	//	  << " Parameters of corrected SCs " << "\n"
-	//	  << " energy = " << newClus.energy() <<"\n"
-	//	  << " pw = " << newClus.phiWidth() << "\n"
-	//	  << " ew = " << newClus.etaWidth() << std::endl;
-
-        //newClus.rawEnergy();
-	corrClusters->push_back(newClus);
-      }
-    }
+     if(newClus.energy()*sin(newClus.position().theta())>etThresh_) {
+        corrClusters->push_back(newClus);
+     }
+  }
   // Put collection of corrected SuperClusters into the event
   evt.put(corrClusters, outputCollection_);   
-  
 }
 
