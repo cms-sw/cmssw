@@ -111,7 +111,7 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
     m_operandTokenVector.reserve(rpnVectorSize);
 
     // stack containing temporary results
-    std::stack<bool> resultStack;
+    // std::stack<bool> resultStack;
     bool b1, b2;
 
     int opNumber = 0;
@@ -199,7 +199,8 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
     // get the result in the top of the stack
 
     m_algoResult = resultStack.top();
-
+    // clear it...
+    while(!resultStack.empty()) resultStack.pop();
 
 }
 

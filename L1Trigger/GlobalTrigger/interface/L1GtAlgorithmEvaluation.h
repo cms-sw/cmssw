@@ -23,6 +23,8 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <stack>
+#include <queue>
 
 #include <boost/cstdint.hpp>
 
@@ -115,6 +117,8 @@ private:
     bool m_algoResult;
 
     std::vector<CombinationsInCond> m_algoCombinationVector;
+
+    std::stack<bool> resultStack;
 
 };
 
