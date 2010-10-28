@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.243 $"
+__version__ = "$Revision: 1.244 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -523,7 +523,7 @@ class ConfigBuilder(object):
         self.ALCADefaultSeq=None
         self.SIMDefaultSeq=None
         self.GENDefaultSeq=None
-        self.DIGIDefaultSeq=None
+        self.DIGIDefaultSeq='pdigi'
         self.DATAMIXDefaultSeq=None
         self.DIGI2RAWDefaultSeq='DigiToRaw'
         self.HLTDefaultSeq=None
@@ -809,14 +809,15 @@ class ConfigBuilder(object):
 
     def prepare_DIGI(self, sequence = None):
         """ Enrich the schedule with the digitisation step"""
-        self.loadAndRemember(self.DIGIDefaultCFF)
+	self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
+	
         if self._options.gflash==True:
                 self.loadAndRemember("Configuration/StandardSequences/GFlashDIGI_cff")
 
         if self._options.himix==True:
             self.loadAndRemember("SimGeneral/MixingModule/himixDIGI_cff")
 
-        self.process.digitisation_step = cms.Path(self.process.pdigi)
+        self.process.digitisation_step = cms.Path(getattr(self.process,sequence.split('.')[-1]))
         self.schedule.append(self.process.digitisation_step)
         return
     def prepare_CFWRITER(self, sequence = None):
@@ -1198,7 +1199,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.243 $"),
+					    (version=cms.untracked.string("$Revision: 1.244 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
