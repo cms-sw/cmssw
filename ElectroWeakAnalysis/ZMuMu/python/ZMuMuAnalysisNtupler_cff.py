@@ -534,6 +534,18 @@ zGolden=(
 ##     quantity = cms.untracked.string("daughter(1).masterClone.innerTrack.normalizedChi2")
 ##    ),
     cms.PSet(
+    tag = cms.untracked.string("SaGlbMass"),
+    quantity = cms.untracked.string("userFloat('SaGlbMass')")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("GlbSaMass"),
+    quantity = cms.untracked.string("userFloat('GlbSaMass')")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("SaSaMass"),
+    quantity = cms.untracked.string("userFloat('SaSaMass')")
+    ),
+    cms.PSet(
     tag = cms.untracked.string("MassSa"),
     quantity = cms.untracked.string("userFloat('MassSa')")
     ),
