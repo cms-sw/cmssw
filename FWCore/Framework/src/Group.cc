@@ -126,14 +126,26 @@ namespace edm {
 
   void
   GroupData::checkType(EDProduct const& prod) const {
-    // transient products might not have a dictionary for the wrapped product. So, bypass the check.
-    if(!branchDescription_->transient()) {
-      if(TypeID(prod).className() != branchDescription_->wrappedName()) {
-	std::string name(TypeID(prod).className());
+    // Check if the types match.
+    TypeID typeID(prod);
+    if (typeID != branchDescription_->typeID()) {
+      // Types do not match.  But maybe the type has not yet been cached.
+      // Transient products might not have a dictionary for the wrapped product. So, bypass the check.
+      if(!branchDescription_->transient()) {
+        // Check if the type has not yet been cached.
+        if (branchDescription_->typeID() == TypeID()) {
+          // The type has not been cached. We must compare the class names to check the type.
+          if(typeID.className() == branchDescription_->wrappedName()) {
+            // The names match. Cache the type, and return
+            branchDescription_->typeID() = typeID;
+            return;
+          }
+	}
+        // Wrong type.  Throw an exception.
 	throw edm::Exception(errors::EventCorruption)
 	  << "Product on branch " << branchDescription_->branchName() << " is of wrong type.\n"
 	  << "It is supposed to be of type " << branchDescription_->wrappedName() << ".\n"
-	  << "It is actually of type " << name << ".\n";
+	  << "It is actually of type " << typeID.className() << ".\n";
       }
     }
   }
