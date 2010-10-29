@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-caloRecoTauProducer = cms.EDProducer("CaloRecoTauProducer",
-                                     
-    LeadTrack_minPt = cms.double(0.5),
-    #string PVProducer = "pixelVertices"
+caloRecoTauProducer = cms.EDProducer(
+    "CaloRecoTauProducer",
+    LeadTrack_minPt = cms.double(1.0),
+    #string PVProducer                         = "pixelVertices"      # ***  
     PVProducer = cms.InputTag('offlinePrimaryVertices'),
     ECALSignalConeSizeFormula = cms.string('0.15'), ## **       
 
@@ -33,7 +33,7 @@ caloRecoTauProducer = cms.EDProducer("CaloRecoTauProducer",
     JetPtMin = cms.double(0.0),
     ECALSignalConeMetric = cms.string('DR'), ## * 
 
-    TrackLeadTrack_maxDZ = cms.double(1.0),
+    TrackLeadTrack_maxDZ = cms.double(0.2),
     Track_minPt = cms.double(0.5),
     TrackerIsolConeSizeFormula = cms.string('0.50'), ## **
     IsolationTrack_minPt = cms.double(1.0),
@@ -47,9 +47,9 @@ caloRecoTauProducer = cms.EDProducer("CaloRecoTauProducer",
     smearedPVsigmaZ = cms.double(0.005),
     CaloRecoTauTagInfoProducer = cms.InputTag("caloRecoTauTagInfoProducer"),
     # parameters of the considered EcalRecHits
-    ESRecHitsSource = cms.InputTag("ecalPreshowerRecHit", "EcalRecHitsES"),
-    EBRecHitsSource = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
-    EERecHitsSource = cms.InputTag("ecalRecHit", "EcalRecHitsEE"),
+    ESRecHitsSource = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
+    EBRecHitsSource = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+    EERecHitsSource = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     MatchingConeSize_max = cms.double(0.6)
 )
 

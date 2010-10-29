@@ -56,7 +56,7 @@ protected:
   void writeCluster(int chamberType, const edm::PSimHitContainer & cluster);
 
   /// helper to add time offsets and local det ID
-  void adjust(PSimHit & h, float timeOffset, float smearing);
+  void adjust(PSimHit & h, float timeOffset);
 
   /// updates the counter
   void updateCount(int chamberType);
@@ -67,7 +67,6 @@ private:
   edm::InputTag theInputTag;
   double theNeutronTimeCut;
   double theTimeWindow;
-  double theT0;
   int theNEvents;
   bool initialized;
   // true means to translate DetId into just layer number, e.g., 1-6 in CSC

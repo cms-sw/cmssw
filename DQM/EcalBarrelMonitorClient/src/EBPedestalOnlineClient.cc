@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2010/08/08 08:46:02 $
- * $Revision: 1.159 $
+ * $Date: 2010/08/30 13:14:07 $
+ * $Revision: 1.160 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -214,7 +214,7 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
   EcalLogicID ecid;
 
   MonPedestalsOnlineDat p;
-  map<EcalLogicID, MonPedestalsOnlineDat> dataset;
+  std::map<EcalLogicID, MonPedestalsOnlineDat> dataset;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -279,8 +279,8 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
       if ( verbose_ ) std::cout << "Inserting MonPedestalsOnlineDat ..." << std::endl;
       if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
       if ( verbose_ ) std::cout << "done." << std::endl;
-    } catch (runtime_error &e) {
-      cerr << e.what() << std::endl;
+    } catch (std::runtime_error &e) {
+      std::cerr << e.what() << std::endl;
     }
   }
 

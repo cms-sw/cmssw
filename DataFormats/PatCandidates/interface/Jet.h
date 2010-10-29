@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.49.2.1 2010/10/04 19:56:27 srappocc Exp $
+// $Id: Jet.h,v 1.48 2010/06/16 18:21:38 srappocc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
-  \version  $Id: Jet.h,v 1.49.2.1 2010/10/04 19:56:27 srappocc Exp $
+  \version  $Id: Jet.h,v 1.48 2010/06/16 18:21:38 srappocc Exp $
 */
 
 
@@ -154,8 +154,6 @@ namespace pat {
       float bDiscriminator(const std::string &theLabel) const;
       /// get vector of paire labelname-disciValue
       const std::vector<std::pair<std::string, float> > & getPairDiscri() const;
-      /// check to see if the given tag info is nonzero
-      bool hasTagInfo( const std::string label) const { return tagInfo(label) != 0; }
       /// get a tagInfo with the given name, or NULL if none is found. 
       /// You should omit the 'TagInfos' part from the label
       const reco::BaseTagInfo            * tagInfo(const std::string &label) const;

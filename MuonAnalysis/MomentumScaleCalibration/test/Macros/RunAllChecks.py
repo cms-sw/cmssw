@@ -51,11 +51,11 @@ gROOT.ProcessLine( "macroPlot("+arguments("PhiMinus", resonanceType, fileNum1, f
 # The third parameter is an integer defining the minimum number of entries required to perform a fit
 gROOT.ProcessLine(".x "+macrosDir+"ResolDraw.cc+("+firstFile+", false, 100)")
 gROOT.ProcessLine(".x "+macrosDir+"ResolDraw.cc+("+secondFile+", false, 100)")
-gROOT.ProcessLine(".x "+macrosDir+"ResolCompare.cc("+firstFile+", "+secondFile+", true)")
+gROOT.ProcessLine(".x "+macrosDir+"ResolCompare.cc("+firstFile+", "+secondFile+")")
 # os.system("root -l "+macrosDir+"ResolCompare.cc")
 
 # Pt reco vs Pt gen
-gROOT.ProcessLine(".x "+macrosDir+"CompareRecoGenPt.C+("+firstFile+", "+secondFile+")")
+gROOT.ProcessLine(".x "+macrosDir+"CompareRecoGenPt.C("+firstFile+", "+secondFile+")")
 
 # Mass vs mass probability. The last value is the rebin of the mass histogram
 gROOT.ProcessLine(".x "+macrosDir+"Plot_mass.C+("+firstFile+", "+secondFile+", 1)")

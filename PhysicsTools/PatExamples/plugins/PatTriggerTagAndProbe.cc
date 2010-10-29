@@ -6,6 +6,8 @@
 
 
 PatTriggerTagAndProbe::PatTriggerTagAndProbe( const edm::ParameterSet & iConfig ) :
+  // pat::Trigger
+  trigger_( iConfig.getParameter< edm::InputTag >( "trigger" ) ),
   // pat::TriggerEvent
   triggerEvent_( iConfig.getParameter< edm::InputTag >( "triggerEvent" ) ),
   // muon input collection
@@ -42,6 +44,15 @@ void PatTriggerTagAndProbe::analyze( const edm::Event & iEvent, const edm::Event
   // trigger event
   edm::Handle< pat::TriggerEvent > triggerEvent;
   iEvent.getByLabel( triggerEvent_, triggerEvent );
+  // trigger paths from patTrigger
+  edm::Handle< pat::TriggerPathCollection > triggerPaths;
+  iEvent.getByLabel( trigger_, triggerPaths );
+  // trigger filters from patTrigger
+  edm::Handle< pat::TriggerFilterCollection > triggerFilters;
+  iEvent.getByLabel( trigger_, triggerFilters );
+  // trigger objects from patTrigger
+  edm::Handle< pat::TriggerObjectCollection > triggerObjects;
+  iEvent.getByLabel( trigger_, triggerObjects );
   // pat candidate collection
   edm::Handle< pat::MuonCollection > muons;
   iEvent.getByLabel( muons_, muons );
@@ -62,7 +73,7 @@ void PatTriggerTagAndProbe::analyze( const edm::Event & iEvent, const edm::Event
       // loop over muon references for the probe/test muon
       for( size_t idxProbe=0; idxProbe<muons->size() && idxProbe!=idxTag; ++idxProbe){
 	histos1D_[ "mass" ]->Fill( (muons->at(idxTag).p4()+muons->at(idxProbe).p4()).mass() );
-	if(fabs((muons->at(idxTag).p4()+muons->at(idxProbe).p4()).mass()-90)<5){
+	if(((muons->at(idxTag).p4()+muons->at(idxProbe).p4()).mass()-90)<5){
 	  const pat::TriggerObjectRef trigRefProbe( matchHelper.triggerMatchObject( muons, idxProbe, muonMatch_, iEvent, *triggerEvent ) );
 	  histos1D_[ "probePt"  ]->Fill( muons->at(idxProbe).pt () );
 	  histos1D_[ "probeEta" ]->Fill( muons->at(idxProbe).eta() );

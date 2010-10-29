@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.29 2010/09/07 22:43:17 rwolf Exp $
+// $Id: Electron.h,v 1.28 2010/04/20 16:07:14 srappocc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.29 2010/09/07 22:43:17 rwolf Exp $
+  \version  $Id: Electron.h,v 1.28 2010/04/20 16:07:14 srappocc Exp $
 */
 
 
@@ -127,12 +127,6 @@ namespace pat {
       } 
       /// embed the PFCandidate pointed to by pfCandidateRef_
       void embedPFCandidate();
-      // get the number of non-null PF candidates
-      size_t numberOfSourceCandidatePtrs() const { 
-	return pfCandidateRef_.isNonnull() ? 1 : 0;
-      }
-      /// get the candidate pointer with index i
-      reco::CandidatePtr sourceCandidatePtr( size_type i ) const;
 
       /// dB gives the impact parameter wrt the beamline.
       /// If this is not cached it is not meaningful, since

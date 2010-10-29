@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.35 $'),
+    version = cms.untracked.string('$Revision: 1.34 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -53,7 +53,7 @@ process.load('Configuration/StandardSequences/GeometryIdeal_cff')
 
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'GR_R_38X_V13::All' 
+process.GlobalTag.globaltag = 'GR_R_36X_V12B::All' 
 
 process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
 process.load("Configuration/StandardSequences/Reconstruction_cff")
@@ -342,9 +342,7 @@ process.options = cms.untracked.PSet(
  wantSummary = cms.untracked.bool(True)
 )
 
-#process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.outputMuonSkim+process.outHSCP+process.outputpfgskim3+process.outlogerr+process.outputvalskim+process.outTPGSkim)
-#BeamHalo removed
-process.outpath = cms.EndPath(process.outputMuonSkim+process.outHSCP+process.outputpfgskim3+process.outlogerr+process.outputvalskim+process.outTPGSkim)
+process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.outputMuonSkim+process.outHSCP+process.outputpfgskim3+process.outlogerr+process.outputvalskim+process.outTPGSkim)
 
 
  

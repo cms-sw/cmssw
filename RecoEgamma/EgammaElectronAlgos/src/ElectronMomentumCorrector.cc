@@ -25,7 +25,7 @@
  * \author Ivica Puljak - FESB, Split
  * \author Stephanie Baffioni - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: ElectronMomentumCorrector.cc,v 1.12 2009/11/14 14:17:51 charlot Exp $
+ * \version $Id: ElectronMomentumCorrector.cc,v 1.13 2009/11/14 14:30:20 charlot Exp $
  *
  ****************************************************************************/
 
@@ -63,50 +63,73 @@ void ElectronMomentumCorrector::correct(reco::GsfElectron &electron, TrajectoryS
   float finalMomentum = electron.p4().t(); // initial
   float finalMomentumError = 999.;
 
-  // calculate E/p and corresponding error
-  float eOverP = scEnergy / trackMomentum;
-  float errorEOverP = sqrt(
-		   (errorEnergy_/trackMomentum)*(errorEnergy_/trackMomentum) +
-		   (scEnergy*errorTrackMomentum_/trackMomentum/trackMomentum)*
-		   (scEnergy*errorTrackMomentum_/trackMomentum/trackMomentum));
 
-  if ( eOverP  > 1 + 2.5*errorEOverP )
-   {
-    finalMomentum = scEnergy; finalMomentumError = errorEnergy_;
-    if ((elClass==reco::GsfElectron::GOLDEN) && electron.isEB() && (eOverP<1.15))
-     {
-	  if (scEnergy<15) {finalMomentum = trackMomentum ; finalMomentumError = errorTrackMomentum_;}
-     }
+  // first check for large errors
+ 
+  if (errorTrackMomentum_/trackMomentum > 0.5 && errorEnergy_/scEnergy <= 0.5) {
+    finalMomentum = scEnergy;    finalMomentumError = errorEnergy_;
    }
-  else if ( eOverP < 1 - 2.5*errorEOverP )
-   {
-    finalMomentum = scEnergy; finalMomentumError = errorEnergy_;
-    if (elClass==reco::GsfElectron::SHOWERING)
-     {
-      if (electron.isEB())
-       {
-	    if(scEnergy<18) {finalMomentum = trackMomentum; finalMomentumError = errorTrackMomentum_;}
-       }
-      else if (electron.isEE())
-       {
-	    if(scEnergy<13) {finalMomentum = trackMomentum; finalMomentumError = errorTrackMomentum_;}
-       }
-      else
-       { edm::LogWarning("ElectronMomentumCorrector::correct")<<"nor barrel neither endcap electron ?!" ; }
-     }
-    else if (electron.isGap())
-     {
-	  if(scEnergy<60) {finalMomentum = trackMomentum; finalMomentumError = errorTrackMomentum_;}
-     }
+  else if (errorTrackMomentum_/trackMomentum <= 0.5 && errorEnergy_/scEnergy > 0.5){
+    finalMomentum = trackMomentum;  finalMomentumError = errorTrackMomentum_;
    }
-  else 
-   {
-    // combination
-    finalMomentum = (scEnergy/errorEnergy_/errorEnergy_ + trackMomentum/errorTrackMomentum_/errorTrackMomentum_) /
-                       (1/errorEnergy_/errorEnergy_ + 1/errorTrackMomentum_/errorTrackMomentum_);
-    float finalMomentumVariance = 1 / (1/errorEnergy_/errorEnergy_ + 1/errorTrackMomentum_/errorTrackMomentum_);
-    finalMomentumError = sqrt(finalMomentumVariance);
-   } 
+  else if (errorTrackMomentum_/trackMomentum > 0.5 && errorEnergy_/scEnergy > 0.5){
+    if (errorTrackMomentum_/trackMomentum < errorEnergy_/scEnergy) {
+      finalMomentum = trackMomentum; finalMomentumError = errorTrackMomentum_;
+     }
+    else{
+      finalMomentum = scEnergy; finalMomentumError = errorEnergy_;
+     }
+  }
+  
+  // then apply the combination algorithm
+  else {
+
+     // calculate E/p and corresponding error
+    float eOverP = scEnergy / trackMomentum;
+    float errorEOverP = sqrt(
+			     (errorEnergy_/trackMomentum)*(errorEnergy_/trackMomentum) +
+			     (scEnergy*errorTrackMomentum_/trackMomentum/trackMomentum)*
+			     (scEnergy*errorTrackMomentum_/trackMomentum/trackMomentum));
+    
+    if ( eOverP  > 1 + 2.5*errorEOverP )
+      {
+	finalMomentum = scEnergy; finalMomentumError = errorEnergy_;
+	if ((elClass==reco::GsfElectron::GOLDEN) && electron.isEB() && (eOverP<1.15))
+	  {
+	    if (scEnergy<15) {finalMomentum = trackMomentum ; finalMomentumError = errorTrackMomentum_;}
+	  }
+      }
+    else if ( eOverP < 1 - 2.5*errorEOverP )
+      {
+	finalMomentum = scEnergy; finalMomentumError = errorEnergy_;
+	if (elClass==reco::GsfElectron::SHOWERING)
+	  {
+	    if (electron.isEB())
+	      {
+		if(scEnergy<18) {finalMomentum = trackMomentum; finalMomentumError = errorTrackMomentum_;}
+	      }
+	    else if (electron.isEE())
+	      {
+		if(scEnergy<13) {finalMomentum = trackMomentum; finalMomentumError = errorTrackMomentum_;}
+	      }
+	    else
+	      { edm::LogWarning("ElectronMomentumCorrector::correct")<<"nor barrel neither endcap electron ?!" ; }
+	  }
+	else if (electron.isGap())
+	  {
+	    if(scEnergy<60) {finalMomentum = trackMomentum; finalMomentumError = errorTrackMomentum_;}
+	  }
+      }
+    else 
+      {
+	// combination
+	finalMomentum = (scEnergy/errorEnergy_/errorEnergy_ + trackMomentum/errorTrackMomentum_/errorTrackMomentum_) /
+	  (1/errorEnergy_/errorEnergy_ + 1/errorTrackMomentum_/errorTrackMomentum_);
+	float finalMomentumVariance = 1 / (1/errorEnergy_/errorEnergy_ + 1/errorTrackMomentum_/errorTrackMomentum_);
+	finalMomentumError = sqrt(finalMomentumVariance);
+      }
+    
+  }
 
   math::XYZTLorentzVector oldMomentum = electron.p4() ;
   newMomentum_ = math::XYZTLorentzVector
@@ -115,7 +138,9 @@ void ElectronMomentumCorrector::correct(reco::GsfElectron &electron, TrajectoryS
      oldMomentum.z()*finalMomentum/oldMomentum.t(),
      finalMomentum ) ;
 
+
   // final set
   electron.correctMomentum(newMomentum_,errorTrackMomentum_,finalMomentumError);
+
  }
 

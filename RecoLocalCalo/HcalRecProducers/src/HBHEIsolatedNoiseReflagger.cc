@@ -20,8 +20,7 @@ Original Author: John Paul Chou (Brown University)
 
 HBHEIsolatedNoiseReflagger::HBHEIsolatedNoiseReflagger(const edm::ParameterSet& iConfig) :
   hbheLabel_(iConfig.getParameter<edm::InputTag>("hbheInput")),
-  ebLabel_(iConfig.getParameter<edm::InputTag>("ebInput")),
-  eeLabel_(iConfig.getParameter<edm::InputTag>("eeInput")),
+  ecalLabels_(iConfig.getParameter<std::vector<edm::InputTag> >("ecalInputs")),
   trackExtrapolationLabel_(iConfig.getParameter<edm::InputTag>("trackExtrapolationInput")),
   
   LooseHcalIsol_(iConfig.getParameter<double>("LooseHcalIsol")),
@@ -94,9 +93,15 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
 
   // get the ECAL hits
   edm::Handle<EcalRecHitCollection> ebhits_h;
-  iEvent.getByLabel(ebLabel_, ebhits_h);
   edm::Handle<EcalRecHitCollection> eehits_h;
-  iEvent.getByLabel(eeLabel_, eehits_h);
+  for(std::vector<edm::InputTag>::const_iterator i=ecalLabels_.begin(); i!=ecalLabels_.end(); i++) {
+    edm::Handle<EcalRecHitCollection> ec_h;
+    iEvent.getByLabel(*i,ec_h);
+    if(ec_h.isValid() && ec_h->size()>0) {
+      if((ec_h->begin()->detid()).subdetId() == EcalBarrel) ebhits_h=ec_h;
+      if((ec_h->begin()->detid()).subdetId() == EcalEndcap) eehits_h=ec_h;
+    }
+  }
 
   // get the tracks
   edm::Handle<std::vector<reco::TrackExtrapolation> > trackextraps_h;
@@ -125,14 +130,16 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
   organizer.getMonoHits(monohits, LooseMonoHitEne_<TightMonoHitEne_ ? LooseMonoHitEne_ : TightMonoHitEne_);
 
   if(debug_ && (rbxs.size()>0 || hpds.size()>0 || dihits.size()>0 || monohits.size()>0)) {
-    edm::LogInfo("HBHEIsolatedNoiseReflagger") << "RBXs:" << std::endl;
+    //    std::cout << "------------------------------------" << std::endl;
+    //    std::cout << "RBXs:" << std::endl;
     DumpHBHEHitMap(rbxs);
-    edm::LogInfo("HBHEIsolatedNoiseReflagger") << "\nHPDs:" << std::endl;
+    //    std::cout << "\nHPDs:" << std::endl;
     DumpHBHEHitMap(hpds);
-    edm::LogInfo("HBHEIsolatedNoiseReflagger") << "\nDiHits:" << std::endl;
+    //    std::cout << "\nDiHits:" << std::endl;
     DumpHBHEHitMap(dihits);
-    edm::LogInfo("HBHEIsolatedNoiseReflagger") << "\nMonoHits:" << std::endl;
+    //    std::cout << "\nMonoHits:" << std::endl;
     DumpHBHEHitMap(monohits);
+    //    std::cout << "------------------------------------" << std::endl;
   }
 
   bool result=true;
@@ -219,21 +226,22 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
 
 void HBHEIsolatedNoiseReflagger::DumpHBHEHitMap(std::vector<HBHEHitMap>& i) const
 {
-  for(std::vector<HBHEHitMap>::const_iterator it=i.begin(); it!=i.end(); ++it) {
-    edm::LogInfo("HBHEIsolatedNoiseReflagger") << "hit energy=" << it->hitEnergy()
-	      << "; # hits=" << it->nHits()
-	      << "; hcal energy same=" << it->hcalEnergySameTowers()
-                    << "; ecal energy same=" << it->ecalEnergySameTowers()
-                  << "; track energy same=" << it->trackEnergySameTowers()
-                  << "; neighbor hcal energy=" << it->hcalEnergyNeighborTowers() << std::endl;
-        edm::LogInfo("HBHEIsolatedNoiseReflagger") << "hits:" << std::endl;
-        for(HBHEHitMap::hitmap_const_iterator it2=it->beginHits(); it2!=it->endHits(); ++it2) {
-          const HBHERecHit *hit=it2->first;
-            edm::LogInfo("HBHEIsolatedNoiseReflagger") << "RBX #=" << HcalHPDRBXMap::indexRBX(hit->id())
-                      << "; HPD #=" << HcalHPDRBXMap::indexHPD(hit->id())
-                      << "; " << (*hit) << std::endl;
-        }
-  }
+  //  for(std::vector<HBHEHitMap>::const_iterator it=i.begin(); it!=i.end(); ++it) {
+    //    std::cout << "hit energy=" << it->hitEnergy()
+    //              << "; # hits=" << it->nHits()
+    //              << "; hcal energy same=" << it->hcalEnergySameTowers()
+    //              << "; ecal energy same=" << it->ecalEnergySameTowers()
+    //              << "; track energy same=" << it->trackEnergySameTowers()
+    //              << "; neighbor hcal energy=" << it->hcalEnergyNeighborTowers() << std::endl;
+    //    std::cout << "hits:" << std::endl;
+    //    for(HBHEHitMap::hitmap_const_iterator it2=it->beginHits(); it2!=it->endHits(); ++it2) {
+    //      const HBHERecHit *hit=it2->first;
+      //      std::cout << "RBX #=" << HcalHPDRBXMap::indexRBX(hit->id())
+      //                << "; HPD #=" << HcalHPDRBXMap::indexHPD(hit->id())
+      //                << "; " << (*hit) << std::endl;
+    //    }
+    //    std::cout << std::endl;
+    //  }
   return;
 }
 

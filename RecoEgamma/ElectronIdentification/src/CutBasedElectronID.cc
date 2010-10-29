@@ -12,7 +12,7 @@
 #include <algorithm>
 
 void CutBasedElectronID::setup(const edm::ParameterSet& conf) {
-  
+
   // Get all the parameters
   baseSetup(conf);
 
@@ -30,11 +30,11 @@ void CutBasedElectronID::setup(const edm::ParameterSet& conf) {
     wantBinning_ = conf.getParameter<bool>("etBinning");
     newCategories_ = conf.getParameter<bool>("additionalCategories");
   }
-  
+
   if (type_ == "robust" || type_ == "classbased") {
     std::string stringCut = type_+quality_+"EleIDCuts"+version_;
     cuts_ = conf.getParameter<edm::ParameterSet>(stringCut);
-  } 
+  }
   else {
     throw cms::Exception("Configuration")
       << "Invalid electronType parameter in CutBasedElectronID: must be robust or classbased\n";
@@ -43,51 +43,51 @@ void CutBasedElectronID::setup(const edm::ParameterSet& conf) {
 
 double CutBasedElectronID::result(const reco::GsfElectron* electron ,
                                   const edm::Event& e ,
-                                  const edm::EventSetup& es) { 
+                                  const edm::EventSetup& es) {
 
   if (type_ == "classbased")
     return cicSelection(electron, e, es);
   else if (type_ == "robust")
     return robustSelection(electron, e, es);
-  
+
   return 0;
 
 }
 
 int CutBasedElectronID::classify(const reco::GsfElectron* electron) {
-  
+
   double eta = fabs(electron->superCluster()->eta());
   double eOverP = electron->eSuperClusterOverP();
   double fBrem = electron->fbrem();
 
   int cat = -1;
   if (version_ == "V00" || version_ == "V01") {
-    if((electron->isEB() && fBrem<0.06) || (electron->isEE() && fBrem<0.1)) 
+    if((electron->isEB() && fBrem<0.06) || (electron->isEE() && fBrem<0.1))
       cat=1;
-    else if (eOverP < 1.2 && eOverP > 0.8) 
+    else if (eOverP < 1.2 && eOverP > 0.8)
       cat=0;
-    else 
+    else
       cat=2;
-    
+
     return cat;
 
   } else if (version_ == "V02") {
     if (electron->isEB()) {       // BARREL
       if(fBrem < 0.12)
         cat=1;
-      else if (eOverP < 1.2 && eOverP > 0.9) 
+      else if (eOverP < 1.2 && eOverP > 0.9)
         cat=0;
-      else 
+      else
         cat=2;
     } else {                     // ENDCAP
       if(fBrem < 0.2)
         cat=1;
-      else if (eOverP < 1.22 && eOverP > 0.82) 
+      else if (eOverP < 1.22 && eOverP > 0.82)
         cat=0;
-      else 
+      else
         cat=2;
     }
-    
+
     return cat;
 
   } else if (version_ == "V03" or version_ == "V04" or version_ == "V05" or version_ == "") {
@@ -126,21 +126,21 @@ int CutBasedElectronID::classify(const reco::GsfElectron* electron) {
 
 double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
                                         const edm::Event& e,
-                                        const edm::EventSetup& es) { 
+                                        const edm::EventSetup& es) {
 
   double scTheta = (2*atan(exp(-electron->superCluster()->eta())));
   double scEt = electron->superCluster()->energy()*sin(scTheta);
- 
+
   double eta = electron->p4().Eta();
   double eOverP = electron->eSuperClusterOverP();
-  double eSeed = electron->superCluster()->seed()->energy();
-  double pin  = electron->trackMomentumAtVtx().R();   
-  double eSeedOverPin = eSeed/pin; 
+  //double eSeed = electron->superCluster()->seed()->energy();
+  //double pin  = electron->trackMomentumAtVtx().R();
+  double eSeedOverPin = electron->eSeedClusterOverP();
   double fBrem = electron->fbrem();
   double hOverE = electron->hadronicOverEm();
-  EcalClusterLazyTools lazyTools = getClusterShape(e,es);
-  std::vector<float> vLocCov = lazyTools.localCovariances(*(electron->superCluster()->seed())) ;
-  double sigmaee = sqrt(vLocCov[0]);
+  //EcalClusterLazyTools lazyTools = getClusterShape(e,es);
+  //std::vector<float> vLocCov = lazyTools.localCovariances(*(electron->superCluster()->seed())) ;
+  double sigmaee = electron->sigmaIetaIeta(); //sqrt(vLocCov[0]);
   double deltaPhiIn = electron->deltaPhiSuperClusterTrackAtVtx();
   double deltaEtaIn = electron->deltaEtaSuperClusterTrackAtVtx();
 
@@ -171,14 +171,14 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
   }
 
   edm::Handle<reco::TrackCollection> ctfTracks;
-  e.getByLabel("generalTracks", ctfTracks); 
+  e.getByLabel("generalTracks", ctfTracks);
   ConversionFinder convFinder;
 
   if (version_ == "V00") {
-     std::vector<float> vCov = lazyTools.covariances(*(electron->superCluster()->seed())) ;
-     sigmaee = sqrt(vCov[0]);  
-     if (electron->isEE())
-       sigmaee = sigmaee - 0.02*(fabs(eta) - 2.3);   //correct sigmaetaeta dependence on eta in endcap
+    //std::vector<float> vCov = lazyTools.covariances(*(electron->superCluster()->seed())) ;
+    sigmaee = electron->sigmaEtaEta();//sqrt(vCov[0]);
+    if (electron->isEE())
+      sigmaee = sigmaee - 0.02*(fabs(eta) - 2.3);   //correct sigmaetaeta dependence on eta in endcap
   }
 
   if (version_ != "V01" or version_ != "V00") {
@@ -189,61 +189,61 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
       ip = fabs(electron->gsfTrack()->dxy(math::XYZPoint(vtx->x(),vtx->y(),vtx->z())));
     } else
       ip = fabs(electron->gsfTrack()->dxy());
-    
+
     if (electron->isEB()) {
-      std::vector<float> vCov = lazyTools.scLocalCovariances(*(electron->superCluster()));
-      sigmaee = sqrt(vCov[0]); 
-    } 
+      //std::vector<float> vCov = lazyTools.scLocalCovariances(*(electron->superCluster()));
+      sigmaee = electron->sigmaIetaIeta(); //sqrt(vCov[0]);
+    }
   }
 
   std::vector<double> cut;
-  
+
   int cat = classify(electron);
   int eb;
 
-  if (electron->isEB()) 
+  if (electron->isEB())
     eb = 0;
-  else 
-    eb = 1; 
+  else
+    eb = 1;
 
   // LOOSE and TIGHT Selections
   if (type_ == "classbased" && (version_ == "V01" || version_ == "V00")) {
-    
-    if ((eOverP < 0.8) && (fBrem < 0.2)) 
+
+    if ((eOverP < 0.8) && (fBrem < 0.2))
       return 0.;
-    
+
     cut = cuts_.getParameter<std::vector<double> >("hOverE");
-    if (hOverE > cut[cat+4*eb]) 
-      return 0.;    
-    
+    if (hOverE > cut[cat+4*eb])
+      return 0.;
+
     cut = cuts_.getParameter<std::vector<double> >("sigmaEtaEta");
-    if (sigmaee > cut[cat+4*eb]) 
-      return 0.;    
-    
+    if (sigmaee > cut[cat+4*eb])
+      return 0.;
+
     cut = cuts_.getParameter<std::vector<double> >("deltaPhiIn");
     if (eOverP < 1.5) {
-      if (fabs(deltaPhiIn) > cut[cat+4*eb]) 
-        return 0.;    
+      if (fabs(deltaPhiIn) > cut[cat+4*eb])
+        return 0.;
     } else {
       if (fabs(deltaPhiIn) > cut[3+4*eb])
         return 0.;
     }
-    
+
     cut = cuts_.getParameter<std::vector<double> >("deltaEtaIn");
-    if (fabs(deltaEtaIn) > cut[cat+4*eb]) 
-      return 0.;    
-    
+    if (fabs(deltaEtaIn) > cut[cat+4*eb])
+      return 0.;
+
     cut = cuts_.getParameter<std::vector<double> >("eSeedOverPin");
-    if (eSeedOverPin < cut[cat+4*eb]) 
-      return 0.;  
-    
+    if (eSeedOverPin < cut[cat+4*eb])
+      return 0.;
+
     if (quality_ == "tight")
       if (eOverP < 0.9*(1-fBrem))
         return 0.;
-    
+
     return 1.;
   }
-  
+
   if (type_ == "classbased" and version_ == "V02") {
     double result = 0.;
 
@@ -258,11 +258,11 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
 
     if (fBrem > 0)
       eSeedOverPin = eSeedOverPin + fBrem;
-    
-    if (bin != 2) {     
-      tkIso = tkIso*pow(40./scEt, 2); 
-      ecalIso = ecalIso*pow(40./scEt, 2); 
-      hcalIso = hcalIso*pow(40./scEt, 2); 
+
+    if (bin != 2) {
+      tkIso = tkIso*pow(40./scEt, 2);
+      ecalIso = ecalIso*pow(40./scEt, 2);
+      hcalIso = hcalIso*pow(40./scEt, 2);
     }
 
     std::vector<double> cutTk = cuts_.getParameter<std::vector<double> >("cutisotk");
@@ -303,9 +303,9 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
 
   if (version_ == "V03" or version_ == "V04" or version_ == "V05" or version_ == "") {
     double result = 0.;
-    
+
     int bin = 0;
-    
+
     if (wantBinning_) {
       if (scEt < 20.)
         bin = 2;
@@ -317,7 +317,7 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
 
     if (fBrem > 0)
       eSeedOverPin = eSeedOverPin + fBrem;
-    
+
     float iso_sum = tkIso + ecalIso + hcalIso;
     float iso_sum_corrected = iso_sum*pow(40./scEt, 2);
 
@@ -353,20 +353,20 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
     std::vector<double> cutip = cuts_.getParameter<std::vector<double> >("cutip_gsf");
     if (ip < cutip[cat+bin*9])
       result += 8;
-    
+
     std::vector<double> cutmishits = cuts_.getParameter<std::vector<double> >("cutfmishits");
     std::vector<double> cutdcotdist = cuts_.getParameter<std::vector<double> >("cutdcotdist");
     ConversionInfo convInfo = convFinder.getConversionInfo(*electron, ctfTracks, bfield);
-    
+
     float dist = (convInfo.dist() == -9999.? 9999:convInfo.dist());
     float dcot = (convInfo.dcot() == -9999.? 9999:convInfo.dcot());
 
     float dcotdistcomb = ((0.04 - std::max(dist, dcot)) > 0?(0.04 - std::max(dist, dcot)):0);
-    
-    if ((mishits < cutmishits[cat+bin*9]) and 
+
+    if ((mishits < cutmishits[cat+bin*9]) and
         (dcotdistcomb < cutdcotdist[cat+bin*9]))
       result += 4;
-    
+
     return result;
   }
 
@@ -375,19 +375,19 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
 
 double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
                                            const edm::Event& e ,
-                                           const edm::EventSetup& es) { 
+                                           const edm::EventSetup& es) {
 
   double scTheta = (2*atan(exp(-electron->superCluster()->eta())));
   double scEt = electron->superCluster()->energy()*sin(scTheta);
   double eta = electron->p4().Eta();
   double eOverP = electron->eSuperClusterOverP();
   double hOverE = electron->hadronicOverEm();
-  EcalClusterLazyTools lazyTools = getClusterShape(e,es);
-  std::vector<float> vLocCov = lazyTools.localCovariances(*(electron->superCluster()->seed())) ;
-  double sigmaee = sqrt(vLocCov[0]);
-  double e25Max = lazyTools.e2x5Max(*(electron->superCluster()->seed()))  ;
-  double e15 = lazyTools.e1x5(*(electron->superCluster()->seed()))  ;
-  double e55 = lazyTools.e5x5(*(electron->superCluster()->seed())) ;
+  //EcalClusterLazyTools lazyTools = getClusterShape(e,es);
+  //std::vector<float> vLocCov = lazyTools.localCovariances(*(electron->superCluster()->seed())) ;
+  double sigmaee = electron->sigmaIetaIeta();//sqrt(vLocCov[0]);
+  double e25Max = electron->e2x5Max();//lazyTools.e2x5Max(*(electron->superCluster()->seed()))  ;
+  double e15 = electron->e1x5();//lazyTools.e1x5(*(electron->superCluster()->seed()))  ;
+  double e55 = electron->e5x5();//lazyTools.e5x5(*(electron->superCluster()->seed())) ;
   double e25Maxoe55 = e25Max/e55 ;
   double e15oe55 = e15/e55 ;
   double deltaPhiIn = electron->deltaPhiSuperClusterTrackAtVtx();
@@ -401,7 +401,7 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
   double hcalIso = electron->dr04HcalTowerSumEt();
   double hcalIso1 = electron->dr04HcalDepth1TowerSumEt();
   double hcalIso2 = electron->dr04HcalDepth2TowerSumEt();
-  
+
   // calculate the conversion track partner related criteria
   // calculate the reference point of the track
   const math::XYZPoint tpoint = electron->gsfTrack()->referencePoint();
@@ -424,12 +424,12 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
   }
 
   edm::Handle<reco::TrackCollection> ctfTracks;
-  e.getByLabel("generalTracks", ctfTracks); 
+  e.getByLabel("generalTracks", ctfTracks);
   ConversionFinder convFinder;
 
   if (version_ == "V00") {
-     std::vector<float> vCov = lazyTools.covariances(*(electron->superCluster()->seed())) ;
-     sigmaee = sqrt(vCov[0]);  
+    //std::vector<float> vCov = lazyTools.covariances(*(electron->superCluster()->seed())) ;
+    sigmaee = electron->sigmaEtaEta();//sqrt(vCov[0]);
      if (electron->isEE())
        sigmaee = sigmaee - 0.02*(fabs(eta) - 2.3);   //correct sigmaetaeta dependence on eta in endcap
   }
@@ -437,7 +437,7 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
   if (version_ == "V03" or version_ == "V04") {
     edm::Handle<reco::BeamSpot> pBeamSpot;
     // uses the same name for the vertex collection to avoid adding more new names
-    e.getByLabel(verticesCollection_, pBeamSpot); 
+    e.getByLabel(verticesCollection_, pBeamSpot);
     if (pBeamSpot.isValid()) {
       const reco::BeamSpot *bspot = pBeamSpot.product();
       const math::XYZPoint bspotPosition = bspot->position();
@@ -468,7 +468,7 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
   std::vector<double> cut;
   // ROBUST Selection
   if (type_ == "robust") {
-    
+
     double result = 0;
 
     // hoe, sigmaEtaEta, dPhiIn, dEtaIn
@@ -476,7 +476,7 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
       cut = cuts_.getParameter<std::vector<double> >("barrel");
     else
       cut = cuts_.getParameter<std::vector<double> >("endcap");
-    // check isolations: if only isolation passes result = 2   
+    // check isolations: if only isolation passes result = 2
     if (quality_ == "highenergy") {
       if ((tkIso > cut[6] || hcalIso2 > cut[11]) ||
           (electron->isEB() && ((ecalIso + hcalIso1) > cut[7]+cut[8]*scEt)) ||
@@ -487,12 +487,12 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
         result = 2;
     } else {
 
-      //if (electron->isEB() && (version_ == "V03" || version_ == "V04" || version_ == "")) 
+      //if (electron->isEB() && (version_ == "V03" || version_ == "V04" || version_ == ""))
       //  ecalIso = std::max(0., ecalIso - 1.);
-        
-      if ((tkIso > cut[6]) || (ecalIso > cut[7]) || (hcalIso > cut[8]) || (hcalIso1 > cut[9]) || (hcalIso2 > cut[10]) || 
+
+      if ((tkIso > cut[6]) || (ecalIso > cut[7]) || (hcalIso > cut[8]) || (hcalIso1 > cut[9]) || (hcalIso2 > cut[10]) ||
           (tkIso/electron->p4().Pt() > cut[11]) || (ecalIso/electron->p4().Pt() > cut[12]) || (hcalIso/electron->p4().Pt() > cut[13]) ||
-          ((tkIso+ecalIso+hcalIso)>cut[14]) || (((tkIso+ecalIso+hcalIso)/ electron->p4().Pt()) > cut[15]) || 
+          ((tkIso+ecalIso+hcalIso)>cut[14]) || (((tkIso+ecalIso+hcalIso)/ electron->p4().Pt()) > cut[15]) ||
           ((tkIso+ecalIsoPed+hcalIso)>cut[16]) || (((tkIso+ecalIsoPed+hcalIso)/ electron->p4().Pt()) > cut[17])  )
         result = 0.;
       else
@@ -501,27 +501,26 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
 
     if ((hOverE < cut[0]) && (sigmaee < cut[1]) && (fabs(deltaPhiIn) < cut[2]) &&
         (fabs(deltaEtaIn) < cut[3]) && (e25Maxoe55 > cut[4] && e15oe55 > cut[5]) &&
-        (sigmaee >= cut[18]) && (eOverP > cut[19] &&  eOverP < cut[20]) ) {
-      result = result + 1;
-    }
+        (sigmaee >= cut[18]) && (eOverP > cut[19] &&  eOverP < cut[20]) )
+     { result = result + 1 ; }
 
     if (ip > cut[21])
       return result;
     if (mishits > cut[22]) // expected missing hits
       return result;
-    // positive cut[23] means to demand a valid hit in 1st layer PXB 
+    // positive cut[23] means to demand a valid hit in 1st layer PXB
     if (cut[23] >0 && not (electron->gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel()))
       return result;
     // cut[24]: Dist cut[25]: dcot
     ConversionInfo convInfo = convFinder.getConversionInfo(*electron, ctfTracks, bfield);
 
-    if (convFinder.isFromConversion(cut[24], cut[25]))
-      return result;
+    if (convFinder.isFromConversion(convInfo,cut[24],cut[25]))
+      return result ;
 
-    result += 4;
-    
-    return result;
-  }
+    result += 4 ;
 
-  return -1.;
-}
+    return result ;
+   }
+
+  return -1. ;
+ }

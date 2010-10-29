@@ -46,7 +46,7 @@ public:
   void addItem(const PixelROC & roc);
 
 private:
-  uint theId;
+  unsigned int theId;
   ROCs theROCs;
   std::string printForMap() const;
 };

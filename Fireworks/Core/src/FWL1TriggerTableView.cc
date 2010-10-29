@@ -161,6 +161,10 @@ void FWL1TriggerTableView::dataChanged( void )
 	    pfIndexAlgoTrig = ( triggerRecord->gtFdlWord()).gtPrescaleFactorIndexAlgo();
 	    pfIndexTechTrig = ( triggerRecord->gtFdlWord()).gtPrescaleFactorIndexTech();
 
+            int pfIndexTechTrigValidSize = static_cast<int>(prescaleFactorsAlgoTrig.size());
+            if (pfIndexTechTrigValidSize <=  pfIndexTechTrig)
+               fwLog( fwlog::kError) << Form("FWL1TriggerTableView: Can't get pre-scale factors. Index [%d] larger that table size [%d]\n", pfIndexTechTrig, (int)prescaleFactorsAlgoTrig.size());
+
 	    const DecisionWord dWord = triggerRecord->decisionWord();
 	    for( L1GtTriggerMenuLite::CItL1Trig itTrig = algorithmMap.begin(), itTrigEnd = algorithmMap.end();
 		 itTrig != itTrigEnd; ++itTrig )
@@ -173,7 +177,13 @@ void FWL1TriggerTableView::dataChanged( void )
 	       m_columns.at(0).values.push_back( aName );
 	       m_columns.at(1).values.push_back( Form( "%d", result ));
 	       m_columns.at(2).values.push_back( Form( "%d", bitNumber ));
-	       m_columns.at(3).values.push_back( Form( "%d", prescaleFactorsAlgoTrig.at( pfIndexAlgoTrig ).at( bitNumber )));
+
+               if ( pfIndexTechTrig < pfIndexTechTrigValidSize && static_cast<unsigned int>(prescaleFactorsTechTrig.at(pfIndexTechTrig).size()) >bitNumber )
+               {
+                  m_columns.at(3).values.push_back( Form( "%d", prescaleFactorsTechTrig.at( pfIndexTechTrig ).at( bitNumber )));
+               }
+               else
+                  m_columns.at(3).values.push_back( "invalid");
 	    }
 	    const TechnicalTriggerWord ttWord = triggerRecord->technicalTriggerWord();
 				
@@ -190,7 +200,11 @@ void FWL1TriggerTableView::dataChanged( void )
 	       m_columns.at(0).values.push_back( "TechTrigger" );
 	       m_columns.at(1).values.push_back( Form( "%d", tBitResult ));
 	       m_columns.at(2).values.push_back( Form( "%d", tBitNumber ));
-	       m_columns.at(3).values.push_back( Form( "%d", prescaleFactorsTechTrig.at( pfIndexTechTrig ).at( tBitNumber )));
+
+               if ( pfIndexTechTrig < pfIndexTechTrigValidSize && static_cast<int>(prescaleFactorsTechTrig.at(pfIndexTechTrig).size()) > tBitNumber)
+                  m_columns.at(3).values.push_back( Form( "%d", prescaleFactorsTechTrig.at( pfIndexTechTrig ).at( tBitNumber )));
+               else
+                  m_columns.at(3).values.push_back( Form( "invalid" ));
 	    }
 	 }
 	 else

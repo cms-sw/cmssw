@@ -20,8 +20,10 @@ allPatTracks = patGenericParticles.clone(
     # isolation configurables
     userIsolation = cms.PSet(
       tracker = cms.PSet(
+        veto = cms.double(0.015),
         src = cms.InputTag("patAODTrackIsoDepositCtfTk"),
-        deltaR = cms.double(0.3)
+        deltaR = cms.double(0.3),
+        threshold = cms.double(1.5)
       ),
       ecal = cms.PSet(
         src = cms.InputTag("patAODTrackIsoDepositCalByAssociatorTowers","ecal"),

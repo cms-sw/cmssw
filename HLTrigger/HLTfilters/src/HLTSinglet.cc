@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/04/22 08:00:54 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/05/05 15:48:34 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -81,7 +81,7 @@ HLTSinglet<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    typename TCollection::const_iterator i ( objects->begin() );
    for (; i!=objects->end(); i++) {
      if ( (i->pt() >= min_Pt_) && 
-	  ( (max_Eta_ < 0.0) || (abs(i->eta()) <= max_Eta_) ) ) {
+	  ( (max_Eta_ < 0.0) || (std::abs(i->eta()) <= max_Eta_) ) ) {
        n++;
        ref=TRef(objects,distance(objects->begin(),i));
        filterobject->addObject(Tid,ref);

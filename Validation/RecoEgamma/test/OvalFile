@@ -1,7 +1,7 @@
 
-<var name="TEST_RELEASE" value="3_9_0_pre5">
-<var name="TEST_GLOBAL_TAG" value="MC_39Y_V0">
-<var name="TEST_GLOBAL_STARTUP_TAG" value="START39_V0">
+<var name="TEST_RELEASE" value="3_9_0_pre4">
+<var name="TEST_GLOBAL_TAG" value="MC_38Y_V11">
+<var name="TEST_GLOBAL_STARTUP_TAG" value="START38_V11">
 <var name="TEST_GLOBAL_VERSION" value="v1">
 
 The difffile tag below implies that after each run the eventual file electronHistos.root is automatically
@@ -23,16 +23,10 @@ The VAL_* variables are configuration variables for electronValidation.csh,
 which compares the histograms from two releases. electronValidation.csh relies
 on the ROOT script electronValidation.C.
 
-<var name="VAL_NEW_RELEASE" value="390pre5newElectron">
-<var name="VAL_REF_RELEASE" value="390pre5">
-<var name="VAL_COMMENT" value="Add conversion variables to GsfElectron.">
+<var name="VAL_NEW_RELEASE" value="390pre4">
+<var name="VAL_REF_RELEASE" value="390pre3">
+<var name="VAL_COMMENT" value="External code change : add seeding configurable measurementTrackerName.">
 <var name="STORE_RELEASE" value="${VAL_NEW_RELEASE}">
-
-#setenv VAL_WEB "/afs/cern.ch/cms/Physics/egamma/www/validation"
-#setenv VAL_WEB_URL "http://cmsdoc.cern.ch/Physics/egamma/www/validation"
-<var name="STORE_WEB" value="/afs/cern.ch/user/c/chamont/www/validation">
-<var name="VAL_WEB" value="/afs/cern.ch/user/c/chamont/www/validation">
-<var name="VAL_WEB_URL" value="https://chamont.web.cern.ch/chamont/validation">
 
 Oval is able to check the output channel of an execution and compare it with a reference output.
 The tags below are defining which are lines to be compared. The currently specification is a
@@ -80,8 +74,8 @@ This set of targets is currently used for the validation of electrons.
   <var name="VAL_HISTOS" value="ElectronMcSignalHistos.txt">
   <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
   <var name="VAL_CONFIGURATION" value="ElectronMcSignalValidation_cfg.py">
-  <var name="DBS_RELEASE" value="LOCAL">
-  <var name="DBS_COND" value="MC">
+  <!--var name="DBS_RELEASE" value="LOCAL"-->
+  <!--var name="DBS_COND" value="MC"-->
 
   <environment name="FullPt35">
     <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
@@ -130,7 +124,7 @@ This set of targets is currently used for the validation of electrons.
     <var name="DBS_SAMPLE" value="RelValZEE">
     <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
     <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
-    <var name="DBS_COND" value="STARTUP">
+    <!--var name="DBS_COND" value="STARTUP"-->
     <executable name="dbs_discovery.py">
     <executable name="cmsRun" args="${VAL_CONFIGURATION}">
     <executable name="electronStore.csh" args="FullZEEStartup ${TEST_OUTPUT_FILE}">

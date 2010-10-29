@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  7 14:40:47 CEST 2010
-// $Id: FW3DView.cc,v 1.49 2010/09/26 19:54:57 amraktad Exp $
+// $Id: FW3DView.cc,v 1.50 2010/10/01 09:45:20 amraktad Exp $
 //
 
 // system include files
@@ -51,6 +51,7 @@ FW3DView::FW3DView(TEveWindowSlot* slot, FWViewType::EType typeId):
 
 FW3DView::~FW3DView()
 {
+   m_calo->Destroy();
 }
 
 

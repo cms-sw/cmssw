@@ -12,24 +12,20 @@
  <use name="FWCore/Utilities"/>
  <use name="boost_system"/>
 </bin>
-<bin file="TestIntegration.cpp" name="DetectorDescriptionParserTE">
-   <flags TEST_RUNNER_ARGS=" /bin/bash DetectorDescription/Parser/test run_testDoc.sh" />
-   <use name="FWCore/Utilities"/>
+<bin name="testDoc" file="testDoc.cpp">
+ <use name="DetectorDescription/Algorithm"/>
+ <use name="DetectorDescription/Base"/>
+ <use name="DetectorDescription/Core"/>
+ <use name="DetectorDescription/Parser"/>
+ <use name="FWCore/MessageLogger"/>
+ <use name="FWCore/ParameterSet"/>
+ <use name="FWCore/PluginManager"/>
+ <use name="FWCore/PythonParameterSet"/>
+ <use name="FWCore/ServiceRegistry"/>
+ <use name="FWCore/Utilities"/>
+ <use name="boost_system"/>
+ <flags   TEST_RUNNER_ARGS="testDoc /bin/bash DetectorDescription/Parser/test run_testDoc.sh"/>
 </bin>
-<bin file="testDoc.cpp">
-   <use name="DetectorDescription/Algorithm"/>
-   <use name="DetectorDescription/Base"/>
-   <use name="DetectorDescription/Core"/>
-   <use name="DetectorDescription/Parser"/>
-   <use name="FWCore/MessageLogger"/>
-   <use name="FWCore/ParameterSet"/>
-   <use name="FWCore/PluginManager"/>
-   <use name="FWCore/PythonParameterSet"/>
-   <use name="FWCore/ServiceRegistry"/>
-   <use name="FWCore/Utilities"/>
-   <use name="boost_system"/>
-</bin>
-
 <bin name="testmat" file="testmat.cpp">
  <use name="DetectorDescription/Base"/>
  <use name="DetectorDescription/Parser"/>
