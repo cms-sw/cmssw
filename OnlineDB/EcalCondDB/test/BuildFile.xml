@@ -3,10 +3,55 @@
 <use   name="CalibCalorimetry/EcalLaserAnalyzer"/>
 <use   name="root"/>
 <bin   file="LaserSeqToDB.cpp">
+  <flags NO_TESTRUN="1"/>
 </bin>
 <bin   file="TestLMF2010-write.cpp">
+  <flags NO_TESTRUN="1"/>
 </bin>
 <bin   file="TestLMF2010-read.cpp">
+  <flags NO_TESTRUN="1"/>
 </bin>
-<bin   file="TestLMF2010-getPrimitives.cpp">
+<bin   file="TestMonitoring.cpp">
+  <flags NO_TESTRUN="1"/>
 </bin>
+<bin   file="TestDCU.cpp">
+  <flags NO_TESTRUN="1"/>
+</bin>
+<bin   file="TestCali.cpp">
+  <flags NO_TESTRUN="1"/>
+</bin>
+<bin   file="TestChErrors.cpp">
+  <flags NO_TESTRUN="1"/>
+</bin>
+<bin   file="TestTm.cpp">
+</bin>
+<bin   file="WriteRandPed.cpp">
+  <flags NO_TESTRUN="1"/>
+</bin>
+<bin   file="TestFEConfig.cpp">
+  <flags NO_TESTRUN="1"/>
+</bin>
+<bin   file="TestChannelView.cpp">
+  <flags NO_TESTRUN="1"/>
+</bin>
+<bin   file="WriteRandPedEndcaps.cpp">
+  <flags NO_TESTRUN="1"/>
+</bin>
+<bin   file="TestOD.cpp">
+  <flags NO_TESTRUN="1"/>
+</bin>
+<bin   file="createLaserPrim.cc">
+</bin>
+<bin   file="ReadCaliFromFile.cpp">
+  <flags NO_TESTRUN="1"/>
+</bin>
+<bin   file="ReadInterCaliFromFile.cpp">
+  <flags NO_TESTRUN="1"/>
+</bin>
+<bin   file="TestMOD.cpp">
+  <flags NO_TESTRUN="1"/>
+</bin>
+<bin   file="InsertDCUIdarkPed.cpp">
+  <flags NO_TESTRUN="1"/>
+</bin>
+
