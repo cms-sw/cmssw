@@ -94,7 +94,7 @@ void L1GtCastorCondition::setGtCastorTemplate(
 const bool L1GtCastorCondition::evaluateCondition() const {
 
     // clear the m_combinationsInCond vector
-    (*m_combinationsInCond).clear();
+    (combinationsInCond()).clear();
 
     //
     return m_conditionResult;

@@ -51,7 +51,6 @@ public:
             const int nrL1ForJet,
             const int nrL1TauJet,
             const int ifCaloEtaNumberBits);
-blic:
 
     /// the core function to check if the condition matches
      const bool evaluateCondition() const;

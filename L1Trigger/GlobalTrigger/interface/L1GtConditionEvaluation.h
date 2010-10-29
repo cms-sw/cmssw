@@ -102,8 +102,12 @@ public:
 protected:
 
     /// get all the object combinations (to fill it...)
-    inline CombinationsInCond & combinationsInCond()  {
-        return m_combinationsInCond;
+    // inline CombinationsInCond & combinationsInCond()  {
+    //     return m_combinationsInCond;
+    // }
+
+    inline CombinationsInCond & combinationsInCond() const {
+       return m_combinationsInCond;
     }
 
     /// check if a value is greater than a threshold or
@@ -124,7 +128,7 @@ protected:
     bool m_condLastResult;
 
     /// store all the object combinations evaluated to true in the condition
-    CombinationsInCond m_combinationsInCond;
+    mutable CombinationsInCond m_combinationsInCond;
 
     /// verbosity level
     int m_verbosity;
