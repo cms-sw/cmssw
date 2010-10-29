@@ -1,6 +1,4 @@
 /*----------------------------------------------------------------------
-  
-$Id: EDProduct.cc,v 1.8 2007/10/22 19:45:40 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -13,9 +11,8 @@ namespace edm {
   EDProduct::~EDProduct() {}
 
   void EDProduct::fillView(ProductID const& id,
-			   std::vector<void const*>& pointers,
-			   helper_vector_ptr& helpers) const
-  {
+                           std::vector<void const*>& pointers,
+                           helper_vector_ptr& helpers) const {
     // This should never be called with non-empty arguments, or an
     // invalid ID; any attempt to do so is an indication of a coding
     // error.
@@ -25,20 +22,18 @@ namespace edm {
 
     do_fillView(id, pointers, helpers);
   }
-  
-  void EDProduct::setPtr(const std::type_info& iToType,
+
+  void EDProduct::setPtr(std::type_info const& iToType,
                          unsigned long iIndex,
-                         void const*& oPtr) const
-  {
+                         void const*& oPtr) const {
     do_setPtr(iToType, iIndex, oPtr);
   }
-  
-  void 
-  EDProduct::fillPtrVector(const std::type_info& iToType,
-                              const std::vector<unsigned long>& iIndicies,
-                              std::vector<void const*>& oPtr) const
-  {
+
+  void
+  EDProduct::fillPtrVector(std::type_info const& iToType,
+                              std::vector<unsigned long> const& iIndicies,
+                              std::vector<void const*>& oPtr) const {
     do_fillPtrVector(iToType, iIndicies, oPtr);
   }
-  
+
 }

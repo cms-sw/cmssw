@@ -2,9 +2,8 @@
 #define DataFormats_Common_EDProduct_h
 
 /*----------------------------------------------------------------------
-  
-EDProduct: The base class of all things that will be inserted into the
-Event.
+
+EDProduct: The base class of all things that will be inserted into the Event.
 
 ----------------------------------------------------------------------*/
 
@@ -22,16 +21,18 @@ namespace edm {
     // We have to use vector<void*> to keep the type information out
     // of the EDProduct class.
     void fillView(ProductID const& id,
-		  std::vector<void const*>& view,
-		  helper_vector_ptr & helpers) const;
-    
-    void setPtr(const std::type_info& iToType,
+                  std::vector<void const*>& view,
+                  helper_vector_ptr & helpers) const;
+
+    void setPtr(std::type_info const& iToType,
                 unsigned long iIndex,
                 void const*& oPtr) const;
 
-    void fillPtrVector(const std::type_info& iToType,
-                          const std::vector<unsigned long>& iIndicies,
+    void fillPtrVector(std::type_info const& iToType,
+                          std::vector<unsigned long> const& iIndicies,
                           std::vector<void const*>& oPtr) const;
+
+    std::type_info const& dynamicTypeInfo() const {return dynamicTypeInfo_();}
 
 #ifndef __REFLEX__
     bool isMergeable() const {return isMergeable_();}
@@ -41,7 +42,9 @@ namespace edm {
 #endif
 
   private:
-    // These will never be called.
+    virtual std::type_info const& dynamicTypeInfo_() const = 0;
+
+    // This will never be called.
     // For technical ROOT related reasons, we cannot
     // declare it = 0.
     virtual bool isPresent_() const {return true;}
@@ -54,15 +57,15 @@ namespace edm {
 #endif
 
     virtual void do_fillView(ProductID const& id,
-			     std::vector<void const*>& pointers,
-			     helper_vector_ptr & helpers) const = 0;
-    virtual void do_setPtr(const std::type_info& iToType,
+                             std::vector<void const*>& pointers,
+                             helper_vector_ptr & helpers) const = 0;
+    virtual void do_setPtr(std::type_info const& iToType,
                            unsigned long iIndex,
                            void const*& oPtr) const = 0;
 
-    virtual void do_fillPtrVector(const std::type_info& iToType,
-                                     const std::vector<unsigned long>& iIndicies,
-                                     std::vector<void const*>& oPtr) const = 0;
+    virtual void do_fillPtrVector(std::type_info const& iToType,
+                                  std::vector<unsigned long> const& iIndicies,
+                                  std::vector<void const*>& oPtr) const = 0;
   };
 }
 #endif
