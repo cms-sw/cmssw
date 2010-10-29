@@ -51,8 +51,7 @@ public:
         return m_algoName;
     }
 
-    void setAlgoName(const std::string& algoNameValue)
-    {
+    void setAlgoName(const std::string& algoNameValue) {
         m_algoName = algoNameValue;
     }
 
@@ -62,20 +61,18 @@ public:
         return m_algoBitNumber;
     }
 
-    void setAlgoBitNumber(const int algoBitNumberValue)
+    void setAlgoBitNumber(int algoBitNumberValue)
     {
         m_algoBitNumber = algoBitNumberValue;
     }
 
     /// get / set the GTL result for algorithm
     /// NOTE: FDL can mask an algorithm!
-    inline bool algoGtlResult() const
-    {
+    inline bool algoGtlResult() const {
         return m_algoGtlResult;
     }
 
-    void setAlgoGtlResult(const bool algoGtlResultValue)
-    {
+    void setAlgoGtlResult(bool algoGtlResultValue) {
         m_algoGtlResult = algoGtlResultValue;
     }
 
@@ -86,9 +83,11 @@ public:
         return m_combinationVector;
     }
 
-    void setCombinationVector(const std::vector<CombinationsInCond>& combinationVectorValue)
-    {
+    void setCombinationVector(const std::vector<CombinationsInCond>& combinationVectorValue) {
         m_combinationVector = combinationVectorValue;
+    }
+    void swapCombinationVector(std::vector<CombinationsInCond>& combinationVectorValue) {
+      m_combinationVector.swap(combinationVectorValue);
     }
 
     /// get / set the vector of operand tokens
@@ -97,9 +96,11 @@ public:
         return m_operandTokenVector;
     }
     
-    void setOperandTokenVector(const std::vector<L1GtLogicParser::OperandToken>& operandTokenVectorValue)
-    {
+    void setOperandTokenVector(const std::vector<L1GtLogicParser::OperandToken>& operandTokenVectorValue) {
         m_operandTokenVector = operandTokenVectorValue;
+    }
+    void swapOperandTokenVector(std::vector<L1GtLogicParser::OperandToken>& operandTokenVectorValue) {
+      m_operandTokenVector.swap(operandTokenVectorValue);
     }
     
 public:
