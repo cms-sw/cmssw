@@ -14,14 +14,18 @@
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CondFormats/Alignment/interface/AlignTransform.h"
 #include "CondFormats/Alignment/interface/AlignTransformError.h"
+#include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
+#include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"
+#include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
 class Alignments;
-
+class AlignmentSurfaceDeformations;
 
 /// Class to update a given geometry with a set of alignments
 
@@ -33,6 +37,10 @@ public:
 			const Alignments* alignments,
 			const AlignmentErrors* alignmentErrors,
 			const AlignTransform& globalCoordinates );
+
+  template<class C> 
+  void attachSurfaceDeformations( C* geometry,
+				  const AlignmentSurfaceDeformations* surfaceDeformations );
 
   inline void removeGlobalTransform( const Alignments* alignments,
                                      const AlignmentErrors* alignmentErrors,
@@ -75,7 +83,7 @@ void GeometryAligner::applyAlignments( C* geometry,
   std::copy(geometry->theMap.begin(), geometry->theMap.end(), std::inserter(theMap,theMap.begin()));
   unsigned int nAPE = 0;
   for ( std::map<unsigned int, GeomDet*>::const_iterator iPair = theMap.begin(); 
-		iPair != theMap.end(); ++iPair, ++iAlign, ++iAlignError )
+	iPair != theMap.end(); ++iPair, ++iAlign, ++iAlignError )
 	{
 	  // Check DetIds
 	  if ( (*iPair).first != (*iAlign).rawId() )
@@ -105,6 +113,7 @@ void GeometryAligner::applyAlignments( C* geometry,
 	  if ( error.cxx() || error.cyy() || error.czz() ||
 	       error.cyx() || error.czx() || error.czy() ||
                iGeomDet->alignmentPositionError() ) {
+
 	    // FIXME (AM): The check on the existence of a pointer to an AlignmentPositionError
 	    // in iGoemDet is needed to make sure that a previously set APE is reset to all zeros
 	    // in case the new APE is all zero. Ideally the checking of an all zero value APE
@@ -135,6 +144,63 @@ void GeometryAligner::applyAlignments( C* geometry,
   edm::LogInfo("Alignment") << "@SUB=GeometryAligner::applyAlignments" 
 			    << "Finished to apply " << theMap.size() << " alignments with "
 			    << nAPE << " non-zero APE.";
+}
+
+
+template<class C>
+void GeometryAligner::attachSurfaceDeformations( C* geometry,
+						 const AlignmentSurfaceDeformations* surfaceDeformations )
+{
+  edm::LogInfo("Alignment") << "@SUB=GeometryAligner::attachSurfaceDeformations" 
+			    << "Starting to attach surface deformations.";
+
+  //copy geometry->theMapUnit to a real map to order it....
+  std::map<unsigned int, GeomDetUnit*> theMap;
+  std::copy(geometry->theMapUnit.begin(), geometry->theMapUnit.end(), std::inserter(theMap, theMap.begin()));
+  
+  unsigned int nSurfDef = 0;
+  unsigned int itemIndex = 0;
+  std::map<unsigned int, GeomDetUnit*>::const_iterator iPair = theMap.begin();
+  for ( std::vector<AlignmentSurfaceDeformations::Item>::const_iterator iItem = surfaceDeformations->items().begin();
+	iItem != surfaceDeformations->items().end();
+	++iItem, ++iPair) {
+    
+    // Check DetIds
+    // go forward in map of GeomDetUnits until DetId is found
+    while ( (*iPair).first != (*iItem).m_rawId ) {
+
+      // remove SurfaceDeformation from GeomDetUnit (i.e. set NULL pointer)
+      /* FIXME (AM): NOT YET ACTIVE
+	GeomDetUnit* geomDetUnit = (*iPair).second;
+	this->setSurfaceDeformation( *geomDetUnit, 0 );
+      */
+
+      ++iPair;
+      if ( iPair==theMap.end() )
+	throw cms::Exception("GeometryMismatch") 
+	  << "GeomDetUnit with rawId=" << (*iItem).m_rawId
+	  << " not found in geometry";
+    }
+    
+    /* FIXME (AM): NOT YET ACTIVE
+    // get the parameters and put them into a vector
+    AlignmentSurfaceDeformations::ParametersConstIteratorPair iteratorPair = surfaceDeformations->parameters(itemIndex);
+    std::vector<double> parameters;
+    std::copy(iteratorPair.first, iteratorPair.second, std::back_inserter(parameters));
+    
+    // create SurfaceDeformation via factory
+    SurfaceDeformation * surfDef = SurfaceDeformationFactory::create( (*iItem).m_parametrizationType, parameters);
+    GeomDetUnit* geomDetUnit = (*iPair).second;
+    this->setSurfaceDeformation( *geomDetUnit, surfDef );
+    //delete surfDef;
+    ++nSurfDef;
+    */
+
+    ++itemIndex;
+  }
+  
+  edm::LogInfo("Alignment") << "@SUB=GeometryAligner::attachSurfaceDeformations" 
+			    << "Finished to attach " << nSurfDef << " surface deformations.";
 }
 
 void GeometryAligner::removeGlobalTransform( const Alignments* alignments,
