@@ -309,9 +309,9 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             {
                   std::string trigName = trigNames.triggerName(i);
                   for (unsigned int j = 0; j < muonTrig_.size(); j++) {
+                       LogDebug("") <<"\t"<<trigName<<"   -->Trigger bit: "<<triggerResults->accept(i);
                        if ( trigName == muonTrig_.at(j) && triggerResults->accept(i)) {
                               trigger_fired = true;
-                              LogDebug("") <<"\t"<<trigName<<"   -->Trigger bit: "<<triggerResults->accept(i);    
                   }
             }
             }

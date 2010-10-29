@@ -430,9 +430,12 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
 
       for (unsigned int i=0; i<triggerResults->size(); i++)
       {
+        
         std::string trigName = trigNames.triggerName(i);
+                  cout<<trigName<<"   "<<triggerResults->accept(i)<<endl;
         for (unsigned int j = 0; j < muonTrig_.size(); j++)
           {
+            LogDebug("") <<"\t"<<trigName<<"   -->Trigger bit: "<<triggerResults->accept(i);
             if ( trigName == muonTrig_.at(j) && triggerResults->accept(i))
             {
               trigger_fired = true;
