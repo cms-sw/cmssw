@@ -19,6 +19,7 @@ This description also applies to every product instance on the branch.
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
 #include "DataFormats/Provenance/interface/Transient.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 
 #include "Reflex/Type.h"
 /*
@@ -77,6 +78,7 @@ namespace edm {
     bool& onDemand() const {return transients_.get().onDemand_;}
     bool& transient() const {return transients_.get().transient_;}
     Reflex::Type& type() const {return transients_.get().type_;}
+    TypeID& typeID() const {return transients_.get().typeID_;}
     int& splitLevel() const {return transients_.get().splitLevel_;}
     int& basketSize() const {return transients_.get().basketSize_;}
 
@@ -147,6 +149,10 @@ namespace edm {
       // The Reflex Type of the wrapped object
       // in the data dictionary
       Reflex::Type type_;
+
+      // A TypeID object for the wrapped object
+      // This is initialized only if needed.
+      mutable TypeID typeID_;
 
       // The split level of the branch, as marked
       // in the data dictionary.

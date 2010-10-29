@@ -45,6 +45,7 @@ namespace edm {
     bool present() const {return ptr_->present();}
     bool const& transient() const {return ptr_->transient();}
     Reflex::Type const& type() const {return ptr_->type();}
+    TypeID& typeID() const {return ptr_->typeID();}
     int const& splitLevel() const {return ptr_->splitLevel();}
     int const& basketSize() const {return ptr_->basketSize();}
 

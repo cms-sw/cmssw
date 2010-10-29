@@ -25,6 +25,7 @@ namespace edm {
     moduleNames_(),
     transient_(false),
     type_(),
+    typeID_(),
     splitLevel_(),
     basketSize_() {
    }
