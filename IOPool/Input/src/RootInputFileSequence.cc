@@ -27,11 +27,11 @@
 
 namespace edm {
   RootInputFileSequence::RootInputFileSequence(
-		ParameterSet const& pset,
-		PoolSource const& input,
-		InputFileCatalog const& catalog,
-		PrincipalCache& cache,
-		bool primaryFiles) :
+                ParameterSet const& pset,
+                PoolSource const& input,
+                InputFileCatalog const& catalog,
+                PrincipalCache& cache,
+                bool primaryFiles) :
     input_(input),
     catalog_(catalog),
     firstFile_(true),
@@ -72,8 +72,6 @@ namespace edm {
       treeCacheSize_=*(pSLC->sourceTTreeCacheSize());
     }
     StorageFactory *factory = StorageFactory::get();
-    // This call takes ms, and the parameter is in seconds.
-    TFile::SetOpenTimeout(factory->timeout() * 1000U);
     for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_) {
       factory->activateTimeout(fileIter_->fileName());
       factory->stagein(fileIter_->fileName());
@@ -92,9 +90,9 @@ namespace edm {
       }
       if(rootFile_) {
         productRegistryUpdate().updateFromInput(rootFile_->productRegistry()->productList());
-	if(numberOfEventsToSkip_ != 0) {
-	  skipEvents(numberOfEventsToSkip_, cache);
-	}
+        if(numberOfEventsToSkip_ != 0) {
+          skipEvents(numberOfEventsToSkip_, cache);
+        }
       }
     }
   }
@@ -115,7 +113,7 @@ namespace edm {
       // The first input file has already been opened.
       firstFile_ = false;
       if(!rootFile_) {
-	initFile(skipBadFiles_);
+        initFile(skipBadFiles_);
       }
     } else {
       if(!nextFile(cache)) {
@@ -134,8 +132,8 @@ namespace edm {
       assert(rootFile_.unique() || !primary());
       if (rootFile_.unique()) {
         std::auto_ptr<InputSource::FileCloseSentry>
-	sentry((primaryFiles_) ? new InputSource::FileCloseSentry(input_) : 0);
-	rootFile_->close();
+        sentry((primaryFiles_) ? new InputSource::FileCloseSentry(input_) : 0);
+        rootFile_->close();
         logFileAction("  Closed file ", rootFile_->file());
         if(duplicateChecker_) duplicateChecker_->inputFileClosed();
       }
@@ -157,9 +155,9 @@ namespace edm {
                                  !needIndexesForDuplicateChecker &&
                                  !usingGoToEvent_;
       if (deleteIndexIntoFile) {
-    	  indexesIntoFiles_[currentIndexIntoFile].reset();
+              indexesIntoFiles_[currentIndexIntoFile].reset();
       } else {
-    	  if (indexesIntoFiles_[currentIndexIntoFile]) indexesIntoFiles_[currentIndexIntoFile]->inputFileClosed();
+              if (indexesIntoFiles_[currentIndexIntoFile]) indexesIntoFiles_[currentIndexIntoFile]->inputFileClosed();
       }
       fileIterLastOpened_ = fileIterEnd_;
     }
@@ -174,13 +172,13 @@ namespace edm {
     try {
       logFileAction("  Initiating request to open file ", fileIter_->fileName());
       std::auto_ptr<InputSource::FileOpenSentry>
-	sentry(primaryFiles_ ? new InputSource::FileOpenSentry(input_) : 0);
+        sentry(primaryFiles_ ? new InputSource::FileOpenSentry(input_) : 0);
       filePtr.reset(TFile::Open(gSystem->ExpandPathName(fileIter_->fileName().c_str())));
     }
     catch (cms::Exception const& e) {
       if(!skipBadFiles  && !hasFallbackUrl) {
-	throw edm::Exception(edm::errors::FileOpenError) << e.explainSelf() << "\n" <<
-	   "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
+        throw edm::Exception(edm::errors::FileOpenError) << e.explainSelf() << "\n" <<
+           "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
       }
     }
     if(!(filePtr && !filePtr->IsZombie()) && (hasFallbackUrl)) {
@@ -201,26 +199,26 @@ namespace edm {
       logFileAction("  Successfully opened file ", fileIter_->fileName());
       std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile = fileIter_ - fileIterBegin_;
       rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(),
-	  processConfiguration(), fileIter_->logicalFileName(), filePtr,
-	  eventSkipperByID_, numberOfEventsToSkip_ != 0,
-	  remainingEvents(), remainingLuminosityBlocks(), treeCacheSize_, treeMaxVirtualSize_,
-	  input_.processingMode(),
-	  setRun_,
-	  noEventSort_,
-	  groupSelectorRules_, !primaryFiles_, duplicateChecker_, dropDescendants_,
-						 indexesIntoFiles_, currentIndexIntoFile, orderedProcessHistoryIDs_, usingGoToEvent_));
+          processConfiguration(), fileIter_->logicalFileName(), filePtr,
+          eventSkipperByID_, numberOfEventsToSkip_ != 0,
+          remainingEvents(), remainingLuminosityBlocks(), treeCacheSize_, treeMaxVirtualSize_,
+          input_.processingMode(),
+          setRun_,
+          noEventSort_,
+          groupSelectorRules_, !primaryFiles_, duplicateChecker_, dropDescendants_,
+                                                 indexesIntoFiles_, currentIndexIntoFile, orderedProcessHistoryIDs_, usingGoToEvent_));
 
       fileIterLastOpened_ = fileIter_;
       indexesIntoFiles_[currentIndexIntoFile] = rootFile_->indexIntoFileSharedPtr();
       rootFile_->reportOpened(primary() ?
-	 (primaryFiles_ ? "primaryFiles" : "secondaryFiles") : "mixingFiles");
+         (primaryFiles_ ? "primaryFiles" : "secondaryFiles") : "mixingFiles");
       if (primaryFiles_) {
         BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
       }
     } else {
       if(!skipBadFiles) {
-	throw edm::Exception(edm::errors::FileOpenError) <<
-	   "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
+        throw edm::Exception(edm::errors::FileOpenError) <<
+           "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
       }
       LogWarning("") << "Input file: " << fileIter_->fileName() << " was not found or could not be opened, and will be skipped.\n";
     }
@@ -235,9 +233,9 @@ namespace edm {
     if(fileIter_ != fileIterEnd_) ++fileIter_;
     if(fileIter_ == fileIterEnd_) {
       if(primaryFiles_) {
-	return false;
+        return false;
       } else {
-	fileIter_ = fileIterBegin_;
+        fileIter_ = fileIterBegin_;
       }
     }
 
@@ -247,9 +245,9 @@ namespace edm {
       size_t size = productRegistry()->size();
       // make sure the new product registry is compatible with the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
-							    fileIter_->fileName(),
-							    parametersMustMatch_,
-							    branchesMustMatch_);
+                                                            fileIter_->fileName(),
+                                                            parametersMustMatch_,
+                                                            branchesMustMatch_);
       if(!mergeInfo.empty()) {
         throw edm::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
       }
@@ -264,9 +262,9 @@ namespace edm {
   bool RootInputFileSequence::previousFile(PrincipalCache& cache) {
     if(fileIter_ == fileIterBegin_) {
       if(primaryFiles_) {
-	return false;
+        return false;
       } else {
-	fileIter_ = fileIterEnd_;
+        fileIter_ = fileIterEnd_;
       }
     }
     --fileIter_;
@@ -277,9 +275,9 @@ namespace edm {
       size_t size = productRegistry()->size();
       // make sure the new product registry is compatible to the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
-							    fileIter_->fileName(),
-							    parametersMustMatch_,
-							    branchesMustMatch_);
+                                                            fileIter_->fileName(),
+                                                            parametersMustMatch_,
+                                                            branchesMustMatch_);
       if(!mergeInfo.empty()) {
         throw edm::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
       }
@@ -391,9 +389,9 @@ namespace edm {
         if(rootFile_) break;
       }
       if(rootFile_) {
-	if(numberOfEventsToSkip_ != 0) {
-	  skipEvents(numberOfEventsToSkip_, cache);
-	}
+        if(numberOfEventsToSkip_ != 0) {
+          skipEvents(numberOfEventsToSkip_, cache);
+        }
       }
     }
   }
@@ -406,8 +404,8 @@ namespace edm {
     while(numberOfEventsToSkip_ != 0) {
       bool atEnd = rootFile_->skipEvents(numberOfEventsToSkip_);
       if((numberOfEventsToSkip_ > 0 || atEnd) && !nextFile(cache)) {
-	numberOfEventsToSkip_ = 0;
-	return false;
+        numberOfEventsToSkip_ = 0;
+        return false;
       }
       if(numberOfEventsToSkip_ < 0 && !previousFile(cache)) {
         numberOfEventsToSkip_ = 0;
@@ -427,7 +425,7 @@ namespace edm {
       }
       // If only one input file, give up now, to save time.
       if(rootFile_ && indexesIntoFiles_.size() == 1) {
-	return false;
+        return false;
       }
       // Save the current file and position so that we can restore them
       // if we fail to restore the desired event
@@ -438,28 +436,28 @@ namespace edm {
       // Look for item (run/lumi/event) in files previously opened without reopening unnecessary files.
       typedef std::vector<boost::shared_ptr<IndexIntoFile> >::const_iterator Iter;
       for(Iter it = indexesIntoFiles_.begin(), itEnd = indexesIntoFiles_.end(); it != itEnd; ++it) {
-	if(*it && (*it)->containsItem(eventID.run(), eventID.luminosityBlock(), eventID.event())) {
+        if(*it && (*it)->containsItem(eventID.run(), eventID.luminosityBlock(), eventID.event())) {
           // We found it. Close the currently open file, and open the correct one.
-	  fileIter_ = fileIterBegin_ + (it - indexesIntoFiles_.begin());
-	  initFile(false);
-	  // Now get the item from the correct file.
+          fileIter_ = fileIterBegin_ + (it - indexesIntoFiles_.begin());
+          initFile(false);
+          // Now get the item from the correct file.
           bool found = rootFile_->goToEvent(eventID);
-	  assert (found);
-	  return true;
-	}
+          assert (found);
+          return true;
+        }
       }
       // Look for item in files not yet opened.
       for(Iter it = indexesIntoFiles_.begin(), itEnd = indexesIntoFiles_.end(); it != itEnd; ++it) {
-	if(!*it) {
-	  fileIter_ = fileIterBegin_ + (it - indexesIntoFiles_.begin());
-	  initFile(false);
+        if(!*it) {
+          fileIter_ = fileIterBegin_ + (it - indexesIntoFiles_.begin());
+          initFile(false);
           closedOriginalFile = true;
           if ((*it)->containsItem(eventID.run(), eventID.luminosityBlock(), eventID.event())) {
             if  (rootFile_->goToEvent(eventID)) {
-	      return true;
-	    }
+              return true;
+            }
           }
-	}
+        }
       }
       if (closedOriginalFile) {
         fileIter_ = originalFile;
@@ -477,31 +475,31 @@ namespace edm {
     if(!found) {
       // If only one input file, give up now, to save time.
       if(rootFile_ && indexesIntoFiles_.size() == 1) {
-	return false;
+        return false;
       }
       // Look for item (run/lumi/event) in files previously opened without reopening unnecessary files.
       typedef std::vector<boost::shared_ptr<IndexIntoFile> >::const_iterator Iter;
       for(Iter it = indexesIntoFiles_.begin(), itEnd = indexesIntoFiles_.end(); it != itEnd; ++it) {
-	if(*it && (*it)->containsItem(run, lumi, event)) {
+        if(*it && (*it)->containsItem(run, lumi, event)) {
           // We found it. Close the currently open file, and open the correct one.
-	  fileIter_ = fileIterBegin_ + (it - indexesIntoFiles_.begin());
-	  initFile(false);
-	  // Now get the item from the correct file.
+          fileIter_ = fileIterBegin_ + (it - indexesIntoFiles_.begin());
+          initFile(false);
+          // Now get the item from the correct file.
           found = rootFile_->setEntryAtItem(run, lumi, event);
-	  assert (found);
-	  return true;
-	}
+          assert (found);
+          return true;
+        }
       }
       // Look for item in files not yet opened.
       for(Iter it = indexesIntoFiles_.begin(), itEnd = indexesIntoFiles_.end(); it != itEnd; ++it) {
-	if(!*it) {
-	  fileIter_ = fileIterBegin_ + (it - indexesIntoFiles_.begin());
-	  initFile(false);
+        if(!*it) {
+          fileIter_ = fileIterBegin_ + (it - indexesIntoFiles_.begin());
+          initFile(false);
           found = rootFile_->setEntryAtItem(run, lumi, event);
-	  if(found) {
-	    return true;
-	  }
-	}
+          if(found) {
+            return true;
+          }
+        }
       }
       // Not found
       return false;
@@ -545,7 +543,7 @@ namespace edm {
     rules.reserve(wantedBranches.size() + 1);
     rules.push_back(std::string("drop *"));
     for(std::vector<std::string>::const_iterator it = wantedBranches.begin(), itEnd = wantedBranches.end();
-	it != itEnd; ++it) {
+        it != itEnd; ++it) {
       rules.push_back("keep " + *it + "_*");
     }
     ParameterSet pset;
@@ -559,7 +557,7 @@ namespace edm {
       boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(rootFile_->productRegistry(), processConfiguration()));
       EventPrincipal* ev = rootFile_->readCurrentEvent(*ep);
       if(ev == 0) {
-	return;
+        return;
       }
       assert(ev == ep.get());
       result.push_back(ep);
@@ -585,8 +583,8 @@ namespace edm {
       }
       eventsRemainingInFile_ = rootFile_->eventTree().entries();
       if(eventsRemainingInFile_ == 0) {
-	throw edm::Exception(edm::errors::NotFound) <<
-	   "RootInputFileSequence::readManyRandom_(): Secondary Input file " << fileIter_->fileName() << " contains no events.\n";
+        throw edm::Exception(edm::errors::NotFound) <<
+           "RootInputFileSequence::readManyRandom_(): Secondary Input file " << fileIter_->fileName() << " contains no events.\n";
       }
       rootFile_->setAtEventEntry(flatDistribution_->fireInt(eventsRemainingInFile_));
     }
@@ -596,8 +594,8 @@ namespace edm {
       EventPrincipal* ev = rootFile_->readCurrentEvent(*ep);
       if(ev == 0) {
         rewindFile();
-	ev = rootFile_->readCurrentEvent(*ep);
-	assert(ev != 0);
+        ev = rootFile_->readCurrentEvent(*ep);
+        assert(ev != 0);
       }
       assert(ev == ep.get());
       result.push_back(ep);
@@ -621,17 +619,17 @@ namespace edm {
       boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(rootFile_->productRegistry(), processConfiguration()));
       EventPrincipal* ev = rootFile_->readCurrentEvent(*ep);
       if(ev == 0) {
-	if (numberRead == 0) {
-	  ++fileIter_;
+        if (numberRead == 0) {
+          ++fileIter_;
           fileSeqNumber = fileIter_ - fileIterBegin_;
-	  if (fileIter_ == fileIterEnd_) {
-	    return;
-	  }
-	  initFile(false);
-	  rootFile_->setAtEventEntry(0);
-	  return readManySequential(number, result, fileSeqNumber);
-	}
-	return;
+          if (fileIter_ == fileIterEnd_) {
+            return;
+          }
+          initFile(false);
+          rootFile_->setAtEventEntry(0);
+          return readManySequential(number, result, fileSeqNumber);
+        }
+        return;
       }
       assert(ev == ep.get());
       result.push_back(ep);
@@ -647,17 +645,17 @@ namespace edm {
     for (std::vector<EventID>::const_iterator it = events.begin(), itEnd = events.end(); it != itEnd; ++it) {
       bool found = skipToItem(it->run(), it->luminosityBlock(), it->event());
       if (!found) {
-	throw edm::Exception(edm::errors::NotFound) <<
-	   "RootInputFileSequence::readManySpecified_(): Secondary Input file " <<
-	   fileIter_->fileName() <<
+        throw edm::Exception(edm::errors::NotFound) <<
+           "RootInputFileSequence::readManySpecified_(): Secondary Input file " <<
+           fileIter_->fileName() <<
            " does not contain specified event:\n" << *it << "\n";
       }
       boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(rootFile_->productRegistry(), processConfiguration()));
       EventPrincipal* ev = rootFile_->readCurrentEvent(*ep);
       if (ev == 0) {
-	throw edm::Exception(edm::errors::EventCorruption) <<
-	   "RootInputFileSequence::readManySpecified_(): Secondary Input file " <<
-	   fileIter_->fileName() <<
+        throw edm::Exception(edm::errors::EventCorruption) <<
+           "RootInputFileSequence::readManySpecified_(): Secondary Input file " <<
+           fileIter_->fileName() <<
            " contains specified event " << *it << " that cannot be read.\n";
       }
       assert(ev == ep.get());
@@ -677,9 +675,9 @@ namespace edm {
     desc.addUntracked<bool>("noEventSort", true)
         ->setComment("True:  Process runs, lumis and events in the order they appear in the file (but see notes 1 and 2).\n"
                      "False: Process runs, lumis and events in each file in numerical order (run#, lumi#, event#) (but see note 3).\n"
-		     "Note 1: Events within the same lumi will always be processed contiguously.\n"
-		     "Note 2: Lumis within the same run will always be processed contiguously.\n"
-		     "Note 3: Any sorting occurs independently in each input file (no sorting across input files).");
+                     "Note 1: Events within the same lumi will always be processed contiguously.\n"
+                     "Note 2: Lumis within the same run will always be processed contiguously.\n"
+                     "Note 3: Any sorting occurs independently in each input file (no sorting across input files).");
     desc.addUntracked<bool>("skipBadFiles", false)
         ->setComment("True:  Ignore any missing or unopenable input file.\n"
                      "False: Throw exception if missing or unopenable input file.");
