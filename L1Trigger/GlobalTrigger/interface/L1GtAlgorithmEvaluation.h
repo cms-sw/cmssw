@@ -110,8 +110,8 @@ public:
   
   /// get all the object combinations evaluated to true in the conditions 
     /// from the algorithm 
-  inline const std::vector<CombinationsInCond>* gtAlgoCombinationVector() const {
-        return &m_algoCombinationVector;
+  inline const std::vector<CombinationsInCond> & gtAlgoCombinationVector() const {
+        return m_algoCombinationVector;
     }
 
   inline const std::vector<L1GtLogicParser::OperandToken>& operandTokenVector() const { return m_operandTokenVector; }
@@ -133,7 +133,8 @@ private:
 
   std::vector<CombinationsInCond> m_algoCombinationVector;
   
-  std::stack<bool, std::vector<bool> > m_resultStack;
+  // moved as static in methos
+  // std::stack<bool, std::vector<bool> > m_resultStack;
 
 };
 

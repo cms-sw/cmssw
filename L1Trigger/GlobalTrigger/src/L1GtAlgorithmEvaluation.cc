@@ -80,6 +80,8 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
 
     // stack containing temporary results
     // std::stack<bool> m_resultStack;
+    // FIXME we shall find a better solution than statci
+    static  std::stack<bool, std::vector<bool> > m_resultStack;
     bool b1, b2;
 
     int opNumber = 0;

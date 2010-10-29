@@ -659,7 +659,7 @@ void L1GlobalTriggerGTL::run(
             objMap.setAlgoBitNumber(algBitNumber);
             objMap.setAlgoGtlResult(algResult);
             objMap.setOperandTokenVector(gtAlg.operandTokenVector());
-            objMap.setCombinationVector(*(gtAlg.gtAlgoCombinationVector()));
+            objMap.setCombinationVector(gtAlg.gtAlgoCombinationVector());
 
             if (m_verbosity && m_isDebugEnabled) {
                 std::ostringstream myCout1;
