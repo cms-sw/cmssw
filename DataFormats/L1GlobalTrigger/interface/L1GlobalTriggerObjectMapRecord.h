@@ -34,10 +34,14 @@ class L1GlobalTriggerObjectMapRecord
 public:
 
     /// constructor(s)
-    L1GlobalTriggerObjectMapRecord();
+  L1GlobalTriggerObjectMapRecord() {}
 
-    /// destructor
-    virtual ~L1GlobalTriggerObjectMapRecord();
+  /// destructor
+  ~L1GlobalTriggerObjectMapRecord() {}
+
+  void swap(L1GlobalTriggerObjectMapRecord & rh) {
+    m_gtObjectMap.swap(rh.m_gtObjectMap);
+  }
 
 public:
 
@@ -59,11 +63,11 @@ public:
 
     /// return the result for the condition condNameVal
     /// from algorithm with name algoNameVal
-    const bool getConditionResult(const std::string& algoNameVal, const std::string& condNameVal) const;
+    bool getConditionResult(const std::string& algoNameVal, const std::string& condNameVal) const;
 
     /// return the result for the condition condNameVal
     /// from algorithm with bit number algoBitNumberVal
-    const bool getConditionResult(const int algoBitNumberVal, const std::string& condNameVal) const;
+    bool getConditionResult(const int algoBitNumberVal, const std::string& condNameVal) const;
 
 public:
 
@@ -89,5 +93,9 @@ private:
     std::vector<L1GlobalTriggerObjectMap> m_gtObjectMap;
 
 };
+
+swap( L1GlobalTriggerObjectMapRecord & lh,  L1GlobalTriggerObjectMapRecord& rh) {
+  lh.swap(rh);
+}
 
 #endif /* L1GlobalTrigger_L1GlobalTriggerObjectMapRecord_h */
