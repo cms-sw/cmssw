@@ -23,10 +23,11 @@ QGSPCMS_BIC::QGSPCMS_BIC(G4LogicalVolumeToDDLogicalPartMap& map,
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
+  bool tracking= p.getParameter<bool>("TrackingCut");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "QGSP_BIC 3.3 with Flags for EM Physics "
-			      << emPhys << " and for Hadronic Physics "
-			      << hadPhys << "\n";
+			      << emPhys << ", for Hadronic Physics "
+			      << hadPhys << " and tracking cut " << tracking;
 
   if (emPhys) {
     // EM Physics
@@ -54,7 +55,8 @@ QGSPCMS_BIC::QGSPCMS_BIC(G4LogicalVolumeToDDLogicalPartMap& map,
     RegisterPhysics( new G4IonBinaryCascadePhysics("ionBIC"));
 
     // Neutron tracking cut
-    RegisterPhysics( new G4NeutronTrackingCut("Neutron tracking cut", ver));
+    if (tracking) 
+      RegisterPhysics( new G4NeutronTrackingCut("Neutron tracking cut", ver));
   }
 
   // Monopoles

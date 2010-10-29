@@ -1,10 +1,26 @@
-#include "QGSPCMS_BERT_NOLEP1.hh"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
+#include "QGSPCMS_BERT_EMLSNX.hh"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics92.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
-#include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSP_BERT_NOLEP1.hh"
+#include "SimG4Core/PhysicsLists/interface/CMSGlauberGribovXS.h"
+#include "SimG4Core/PhysicsLists/interface/CMSNeutronXS.h"
+#include "SimG4Core/PhysicsLists/interface/CMSHadronElasticPhysicsXS.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "globals.hh"
+#include "G4ParticleDefinition.hh"
+#include "G4ParticleWithCuts.hh"
+#include "G4ProcessManager.hh"
+#include "G4ProcessVector.hh"
+#include "G4ParticleTypes.hh"
+#include "G4ParticleTable.hh"
+
+#include "G4Material.hh"
+#include "G4MaterialTable.hh"
+#include "G4ios.hh"
+#include <iomanip>   
+
 #include "G4DecayPhysics.hh"
+#include "G4EmStandardPhysics_option1.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4IonPhysics.hh"
 #include "G4QStoppingPhysics.hh"
@@ -12,27 +28,31 @@
 #include "G4NeutronTrackingCut.hh"
 
 #include "G4DataQuestionaire.hh"
+#include "HadronPhysicsQGSP_BERT.hh"
 
-QGSPCMS_BERT_NOLEP1::QGSPCMS_BERT_NOLEP1(G4LogicalVolumeToDDLogicalPartMap& map,
+
+QGSPCMS_BERT_EMLSNX::QGSPCMS_BERT_EMLSNX(G4LogicalVolumeToDDLogicalPartMap& map,
 					 const HepPDT::ParticleDataTable * table_,
 					 sim::FieldBuilder *fieldBuilder_, 
 					 const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p) {
 
   G4DataQuestionaire it(photon);
-  
+
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   bool tracking= p.getParameter<bool>("TrackingCut");
+  std::string region = p.getParameter<std::string>("Region");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_BERT_NOLEP1 1.0 with Flags for EM Physics "
+                              << "QGSP_BERT_EMLSNX 3.3 with Flags for EM Physics "
 			      << emPhys << ", for Hadronic Physics "
-			      << hadPhys << " and tracking cut " << tracking;
+			      << hadPhys << " and tracking cut " << tracking
+                              << " with special region " << region;
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics("standard EM",ver));
-
+    RegisterPhysics( new CMSEmStandardPhysics92("emstandard_eml",ver,region));
+    
     // Synchroton Radiation & GN Physics
     RegisterPhysics( new G4EmExtraPhysics("extra EM"));
   }
@@ -46,19 +66,30 @@ QGSPCMS_BERT_NOLEP1::QGSPCMS_BERT_NOLEP1(G4LogicalVolumeToDDLogicalPartMap& map,
 
     // Hadron Physics
     G4bool quasiElastic=true;
-    RegisterPhysics( new HadronPhysicsQGSP_BERT_NOLEP1("hadron",quasiElastic));
-  
+    RegisterPhysics( new HadronPhysicsQGSP_BERT("hadron",quasiElastic));
+
     // Stopping Physics
     RegisterPhysics( new G4QStoppingPhysics("stopping"));
 
     // Ion Physics
     RegisterPhysics( new G4IonPhysics("ion"));
-
+  
     // Neutron tracking cut
     if (tracking) 
       RegisterPhysics( new G4NeutronTrackingCut("Neutron tracking cut", ver));
+
+    // Neutron x-section
+    RegisterPhysics( new CMSNeutronXS("neutronXS",ver));
+
+    // Neutron x-section
+    RegisterPhysics( new CMSHadronElasticPhysicsXS(ver));
+
+    // Glauber Gribov Cross Section
+    RegisterPhysics( new CMSGlauberGribovXS(ver));
   }
 
   // Monopoles
   RegisterPhysics( new CMSMonopolePhysics(table_,fieldBuilder_,p));
 }
+
+

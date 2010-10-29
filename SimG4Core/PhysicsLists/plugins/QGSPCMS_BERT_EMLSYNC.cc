@@ -25,13 +25,15 @@ QGSPCMS_BERT_EMLSYNC::QGSPCMS_BERT_EMLSYNC(G4LogicalVolumeToDDLogicalPartMap& ma
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
+  bool tracking= p.getParameter<bool>("TrackingCut");
   bool srType  = p.getParameter<bool>("SRType");
   std::string region = p.getParameter<std::string>("Region");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "QGSP_BERT_EMLSYNC 3.3 with Flags for EM Physics "
-			      << emPhys << " and for Hadronic Physics "
-			      << hadPhys << " S.R. Type " << srType
-			      << " and special region " << region << "\n";
+			      << emPhys << ", for Hadronic Physics "
+			      << hadPhys << ", S.R. Type " << srType
+			      << " and tracking cut " << tracking
+			      << " with special region " << region;
 
   if (emPhys) {
     // EM Physics
@@ -60,7 +62,8 @@ QGSPCMS_BERT_EMLSYNC::QGSPCMS_BERT_EMLSYNC(G4LogicalVolumeToDDLogicalPartMap& ma
     RegisterPhysics( new G4IonPhysics("ion"));
 
     // Neutron tracking cut
-    RegisterPhysics( new G4NeutronTrackingCut("Neutron tracking cut", ver));
+    if (tracking) 
+      RegisterPhysics( new G4NeutronTrackingCut("Neutron tracking cut", ver));
   }
 
   // Monopoles

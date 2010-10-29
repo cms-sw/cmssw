@@ -33,12 +33,14 @@ QBBCCMS::QBBCCMS(G4LogicalVolumeToDDLogicalPartMap& map,
   bool chips   = p.getUntrackedParameter<bool>("FlagCHIPS",false);
   bool hp      = p.getUntrackedParameter<bool>("FlagHP",false);
   bool glauber = p.getUntrackedParameter<bool>("FlagGlauber",false);
+  bool tracking= p.getParameter<bool>("TrackingCut");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "QBBC 3.1 with Flags for EM Physics "
 			      << emPhys << " and for Hadronic Physics "
 			      << hadPhys << " Flags for FTF " << ftf
 			      << " BERT " << bert << " CHIPS " << chips
-			      << " HP " << hp << " Glauber " << glauber <<"\n";
+			      << " HP " << hp << " Glauber " << glauber
+			      << " and tracking cut " << tracking;
 
   if (emPhys) {
     // EM Physics
@@ -66,7 +68,8 @@ QBBCCMS::QBBCCMS(G4LogicalVolumeToDDLogicalPartMap& map,
     RegisterPhysics(new G4IonBinaryCascadePhysics("ionBIC"));
 
     // Neutron tracking cut
-    RegisterPhysics( new G4NeutronTrackingCut("Neutron tracking cut", ver));
+    if (tracking) 
+      RegisterPhysics( new G4NeutronTrackingCut("Neutron tracking cut", ver));
   }
 
   // Monopoles
