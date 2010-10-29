@@ -71,6 +71,7 @@ CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup) :
        centralityMC_ = hiPset.getParameter<std::string>("nonDefaultGlauberModel");
     }
     centralityLabel_ = centralityVariable_+centralityMC_;
+    SetName(centralityLabel_.data());
   }else{
   }
   newRun(iSetup);

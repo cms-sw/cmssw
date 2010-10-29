@@ -63,7 +63,8 @@ class CentralityBins : public TNamed {
       ClassDef(CentralityBins,1)
 };
 
-CentralityBins::RunMap getCentralityFromFile(TFile*, const char* tag, int firstRun = 0, int lastRun = 10);
+CentralityBins::RunMap getCentralityFromFile(TDirectoryFile*, const char* dir, const char* tag, int firstRun = 0, int lastRun = 10);
+CentralityBins::RunMap getCentralityFromFile(TDirectoryFile*, const char* tag, int firstRun = 0, int lastRun = 10);
 
 
 
