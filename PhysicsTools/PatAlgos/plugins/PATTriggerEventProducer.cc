@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerEventProducer.cc,v 1.11 2010/07/15 21:33:27 vadler Exp $
+// $Id: PATTriggerEventProducer.cc,v 1.12 2010/08/03 10:32:43 vadler Exp $
 //
 
 
@@ -8,6 +8,7 @@
 #include <cassert>
 
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
@@ -25,7 +26,9 @@ using namespace edm;
 
 PATTriggerEventProducer::PATTriggerEventProducer( const ParameterSet & iConfig ) :
   nameProcess_( iConfig.getParameter< std::string >( "processName" ) ),
+  autoProcessName_( nameProcess_ == "*" ),
   tagTriggerResults_( "TriggerResults" ),
+  tagTriggerEvent_( "hltTriggerSummaryAOD" ),
   tagTriggerProducer_( "patTrigger" ),
   tagCondGt_(),
   tagL1Gt_(),
@@ -33,11 +36,13 @@ PATTriggerEventProducer::PATTriggerEventProducer( const ParameterSet & iConfig )
 {
 
   if ( iConfig.exists( "triggerResults" ) )     tagTriggerResults_  = iConfig.getParameter< InputTag >( "triggerResults" );
+  if ( iConfig.exists( "triggerEvent" ) )        tagTriggerEvent_        = iConfig.getParameter< InputTag >( "triggerEvent" );
   if ( iConfig.exists( "patTriggerProducer" ) ) tagTriggerProducer_ = iConfig.getParameter< InputTag >( "patTriggerProducer" );
   if ( iConfig.exists( "condGtTag" ) )          tagCondGt_          = iConfig.getParameter< InputTag >( "condGtTag" );
   if ( iConfig.exists( "l1GtTag" ) )            tagL1Gt_            = iConfig.getParameter< InputTag >( "l1GtTag" );
   if ( iConfig.exists( "patTriggerMatches" ) )  tagsTriggerMatcher_ = iConfig.getParameter< std::vector< InputTag > >( "patTriggerMatches" );
   if ( tagTriggerResults_.process().empty() ) tagTriggerResults_ = InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), nameProcess_ );
+  if ( tagTriggerEvent_.process().empty() )   tagTriggerEvent_   = InputTag( tagTriggerEvent_.label(), tagTriggerEvent_.instance(), nameProcess_ );
 
   for ( size_t iMatch = 0; iMatch < tagsTriggerMatcher_.size(); ++iMatch ) {
     produces< TriggerObjectMatch >( tagsTriggerMatcher_.at( iMatch ).label() );
@@ -48,6 +53,12 @@ PATTriggerEventProducer::PATTriggerEventProducer( const ParameterSet & iConfig )
 
 
 void PATTriggerEventProducer::beginRun( Run & iRun, const EventSetup & iSetup )
+{
+  if (autoProcessName_ && (nameProcess_ == "*")) return;
+  beginConstRun(iRun, iSetup);
+}
+
+void PATTriggerEventProducer::beginConstRun( const Run & iRun, const EventSetup & iSetup )
 {
 
   gtCondRunInit_ = false;
@@ -73,8 +84,14 @@ void PATTriggerEventProducer::beginRun( Run & iRun, const EventSetup & iSetup )
 
 }
 
+void PATTriggerEventProducer::beginLuminosityBlock( LuminosityBlock & iLuminosityBlock, const EventSetup & iSetup )
+{
+  if (autoProcessName_ && (nameProcess_ == "*")) return;
+  beginConstLuminosityBlock( iLuminosityBlock, iSetup );
+}
 
-void PATTriggerEventProducer::beginLuminosityBlock( LuminosityBlock & iLumi, const EventSetup & iSetup )
+
+void PATTriggerEventProducer::beginConstLuminosityBlock( const LuminosityBlock & iLumi, const EventSetup & iSetup )
 {
 
   gtCondLumiInit_ = false;
@@ -94,6 +111,22 @@ void PATTriggerEventProducer::beginLuminosityBlock( LuminosityBlock & iLumi, con
 
 void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
 {
+
+  if (autoProcessName_) {
+    Handle< trigger::TriggerEvent > handleTriggerEvent;
+    iEvent.getByLabel( edm::InputTag(tagTriggerEvent_.label(), tagTriggerEvent_.instance()), handleTriggerEvent );
+    if (!handleTriggerEvent.failedToGet()) {
+        const edm::Provenance *meta = handleTriggerEvent.provenance();
+        if (meta->processName() != nameProcess_) {
+            nameProcess_ = meta->processName();
+            LogInfo("AutoProcessName") << "Discovered trigger process name " << nameProcess_ << std::endl;
+            tagTriggerResults_ = InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), nameProcess_ );
+            tagTriggerEvent_   = InputTag( tagTriggerEvent_.label(),   tagTriggerEvent_.instance(),   nameProcess_ );
+            beginConstRun(iEvent.getRun(), iSetup);
+            beginConstLuminosityBlock(iEvent.getLuminosityBlock(), iSetup);
+        }
+    }
+  }
 
   if ( ! hltConfigInit_ ) return;
 

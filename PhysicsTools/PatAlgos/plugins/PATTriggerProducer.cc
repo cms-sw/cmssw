@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.20 2010/07/05 18:20:30 vadler Exp $
+// $Id: PATTriggerProducer.cc,v 1.21 2010/10/28 19:16:56 vadler Exp $
 //
 
 
@@ -30,6 +30,7 @@ using namespace edm;
 
 PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
   onlyStandAlone_( iConfig.getParameter< bool >( "onlyStandAlone" ) ),
+  autoProcessName_( iConfig.getParameter< std::string >( "processName" ) == "*" ),
   // L1 configuration parameters
   addL1Algos_( false ),
   tagL1ExtraMu_(),
@@ -109,7 +110,12 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
 
 void PATTriggerProducer::beginRun( Run & iRun, const EventSetup & iSetup )
 {
+  if (autoProcessName_ && (nameProcess_ == "*")) return;
+  beginConstRun(iRun, iSetup);
+}
 
+void PATTriggerProducer::beginConstRun( const Run & iRun, const EventSetup & iSetup )
+{
   // Initialize
   hltConfigInit_ = false;
 
@@ -140,7 +146,12 @@ void PATTriggerProducer::beginRun( Run & iRun, const EventSetup & iSetup )
 
 void PATTriggerProducer::beginLuminosityBlock( LuminosityBlock & iLuminosityBlock, const EventSetup & iSetup )
 {
+  if (autoProcessName_ && (nameProcess_ == "*")) return;
+  beginConstLuminosityBlock( iLuminosityBlock, iSetup );
+}
 
+void PATTriggerProducer::beginConstLuminosityBlock( const LuminosityBlock & iLuminosityBlock, const EventSetup & iSetup )
+{
   // Extract pre-scales
   if ( hltConfigInit_ ) {
     // Start from run
@@ -168,11 +179,26 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
   // HLT
 
   // Get and check HLT event data
+  Handle< trigger::TriggerEvent > handleTriggerEvent;
 
+  if (autoProcessName_) {
+    iEvent.getByLabel( edm::InputTag(tagTriggerEvent_.label(), tagTriggerEvent_.instance()), handleTriggerEvent );
+    if (!handleTriggerEvent.failedToGet()) {
+        const edm::Provenance *meta = handleTriggerEvent.provenance();
+        if (meta->processName() != nameProcess_) {
+            nameProcess_ = meta->processName();
+            LogInfo("AutoProcessName") << "Discovered trigger process name " << nameProcess_ << std::endl;
+            tagTriggerResults_ = InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), nameProcess_ );
+            tagTriggerEvent_   = InputTag( tagTriggerEvent_.label(),   tagTriggerEvent_.instance(),   nameProcess_ );
+            beginConstRun(iEvent.getRun(), iSetup);
+            beginConstLuminosityBlock(iEvent.getLuminosityBlock(), iSetup);
+        }
+    }
+  } else {
+    iEvent.getByLabel( tagTriggerEvent_, handleTriggerEvent );
+  }
   Handle< TriggerResults > handleTriggerResults;
   iEvent.getByLabel( tagTriggerResults_, handleTriggerResults );
-  Handle< trigger::TriggerEvent > handleTriggerEvent;
-  iEvent.getByLabel( tagTriggerEvent_, handleTriggerEvent );
   bool goodHlt( hltConfigInit_ );
   if ( goodHlt ) {
     if( ! handleTriggerResults.isValid() ) {
