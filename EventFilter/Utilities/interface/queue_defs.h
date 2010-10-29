@@ -39,11 +39,15 @@
 #define MAX_PIPE_BUFFER_SIZE 0x1000
 
 #include <sys/msg.h> 
-//struct msgbuf
-//  {
-//    unsigned long int mtype;    /* type of received/sent message */
-//    char mpayload[1];           /* message payload */
-//  };
+#ifdef __APPLE__
+// Unsupported on macosx. We define a dummy msgbuf struct just to make sure it
+// compiles fine.
+struct msgbuf
+  {
+    unsigned long int mtype;    /* type of received/sent message */
+    char mtext[1];           /* message payload */
+  };
+#endif
 
 namespace evf{
   struct prg{
