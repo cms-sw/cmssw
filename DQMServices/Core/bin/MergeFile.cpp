@@ -8,6 +8,10 @@
 #include <cstdlib>
 #include <errno.h>
 
+#ifndef _NSIG
+#define _NSIG NSIG
+#endif
+
 static const int FATAL_OPTS = (lat::Signal::FATAL_DEFAULT
 			       & ~(lat::Signal::FATAL_ON_INT
 				   | lat::Signal::FATAL_ON_QUIT

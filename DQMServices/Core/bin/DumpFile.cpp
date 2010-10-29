@@ -7,6 +7,10 @@
 #include <iostream>
 #include <errno.h>
 
+#ifndef _NSIG
+#define _NSIG NSIG
+#endif
+
 struct MEInfo
 {
   int		runnr;
