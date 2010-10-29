@@ -19,5 +19,18 @@ struct lessAlignmentDetId : public std::binary_function<T,T,bool>
 
 };
 
+///
+/// A struct to sort pairs of DetId and whatever by increasing DetId
+///
+template<class T>
+struct lessIdAlignmentPair : public std::binary_function<T,T,bool>
+{
+  
+  bool operator()( const T& a, const T& b ) 
+  { 
+    return a.first < b.first; 
+  }
+  
+};
 
 #endif
