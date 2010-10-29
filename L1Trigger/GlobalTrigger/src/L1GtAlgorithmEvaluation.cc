@@ -122,8 +122,8 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
                     opNumber++;
                     
                     //
-                    CombinationsInCond* combInCondition = (itCond->second)->getCombinationsInCond();
-                    m_algoCombinationVector.push_back(*combInCondition);
+                    CombinationsInCond const & combInCondition = (itCond->second)->getCombinationsInCond();
+                    m_algoCombinationVector.push_back(combInCondition);
 
                 }
                 else {
