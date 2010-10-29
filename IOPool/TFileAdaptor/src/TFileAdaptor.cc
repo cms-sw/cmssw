@@ -57,7 +57,8 @@ public:
       readHint_("auto-detect"),
       tempDir_(),
       minFree_(0),
-      timeout_(0U) {
+      timeout_(0U),
+      native_() {
     if (!(enabled_ = p.getUntrackedParameter<bool> ("enable", enabled_)))
       return;
 
