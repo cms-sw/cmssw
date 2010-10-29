@@ -26,4 +26,5 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 <bin   file="dumpEEIndices2D.cpp">
+  <flags NO_TESTRUN="1"/>
 </bin>
