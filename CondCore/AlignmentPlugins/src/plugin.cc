@@ -9,10 +9,12 @@
 #include "CondCore/ESSources/interface/registration_macros.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
@@ -44,6 +46,7 @@
 REGISTER_PLUGIN(GlobalPositionRcd,Alignments);
 REGISTER_PLUGIN(TrackerAlignmentRcd,Alignments);
 REGISTER_PLUGIN(TrackerAlignmentErrorRcd,AlignmentErrors);
+REGISTER_PLUGIN(TrackerSurfaceDeformationRcd,AlignmentSurfaceDeformations);
 REGISTER_PLUGIN(DTAlignmentRcd,Alignments);
 REGISTER_PLUGIN(DTAlignmentErrorRcd,AlignmentErrors);
 REGISTER_PLUGIN(CSCAlignmentRcd,Alignments);
