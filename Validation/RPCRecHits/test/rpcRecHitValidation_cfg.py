@@ -7,6 +7,8 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("Configuration.StandardSequences.RawToDigi_cff")
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
@@ -27,7 +29,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load("DQMServices.Components.EDMtoMEConverter_cff")
 
 process.dqmSaver.convention = 'Offline'
-process.DQMStore.verbose = 100
+#process.DQMStore.verbose = 100
 process.DQMStore.collateHistograms = False
 process.dqmSaver.saveByRun = cms.untracked.int32(-1)
 process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
@@ -41,7 +43,7 @@ process.options = cms.untracked.PSet(
 
 ### User analyzers
 #### RPC Offline DQM
-process.load("DQM.RPCMonitorClient.RPCTier0Source_cff")
+process.load("DQMOffline.Configuration.DQMOfflineMC_cff")
 
 #### Sim-Reco validation
 process.load("Validation.RPCRecHits.rpcRecHitValidation_cfi")
@@ -77,7 +79,8 @@ process.postValidation_step = cms.Sequence(
 #)
 
 process.p = cms.Path(
-    process.rpcTier0Source + 
+    process.RawToDigi*
+    process.rpcTier0Source+
     process.rpcRecHitValidation_step+
     process.rpcPointProducerPlusValidation_step*
     process.postValidation_step
