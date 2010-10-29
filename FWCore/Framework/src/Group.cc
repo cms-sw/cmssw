@@ -22,25 +22,27 @@ namespace edm {
 
   void
   ProducedGroup::putProduct_(
-	std::auto_ptr<EDProduct> edp,
-	boost::shared_ptr<ProductProvenance> productProvenance) {
+        std::auto_ptr<EDProduct> edp,
+        boost::shared_ptr<ProductProvenance> productProvenance) {
+    if (product()) {
+      throw edm::Exception(errors::InsertFailure)
+          << "Attempt to insert more than one product on branch " << groupData().branchDescription_->branchName() << "\n";
+    }
     assert(branchDescription().produced());
     assert(edp.get() != 0);
-    assert(!product());
     assert(!provenance()->productProvenanceResolved());
     assert(status() != Present);
     assert(status() != Uninitialized);
     setProductProvenance(productProvenance);
     assert(provenance()->productProvenanceResolved());
-    assert (!product());
     groupData().product_.reset(edp.release());  // Group takes ownership
     status_() = Present;
   }
 
   void
   ProducedGroup::mergeProduct_(
-	std::auto_ptr<EDProduct> edp,
-	boost::shared_ptr<ProductProvenance> productProvenance) {
+        std::auto_ptr<EDProduct> edp,
+        boost::shared_ptr<ProductProvenance> productProvenance) {
     assert(provenance()->productProvenanceResolved());
     assert(status() == Present);
     assert (productProvenancePtr()->productStatus() == productProvenance->productStatus());
@@ -65,8 +67,8 @@ namespace edm {
 
   void
   InputGroup::putProduct_(
-	std::auto_ptr<EDProduct> edp,
-	boost::shared_ptr<ProductProvenance> productProvenance) {
+        std::auto_ptr<EDProduct> edp,
+        boost::shared_ptr<ProductProvenance> productProvenance) {
     assert(!product());
     assert(!provenance()->productProvenanceResolved());
     setProductProvenance(productProvenance);
@@ -76,8 +78,8 @@ namespace edm {
 
   void
   InputGroup::mergeProduct_(
-	std::auto_ptr<EDProduct> edp,
-	boost::shared_ptr<ProductProvenance> productProvenance) {
+        std::auto_ptr<EDProduct> edp,
+        boost::shared_ptr<ProductProvenance> productProvenance) {
     assert(0);
   }
 
@@ -127,26 +129,13 @@ namespace edm {
   void
   GroupData::checkType(EDProduct const& prod) const {
     // Check if the types match.
-    TypeID typeID(prod);
+    TypeID typeID(prod.dynamicTypeInfo());
     if (typeID != branchDescription_->typeID()) {
-      // Types do not match.  But maybe the type has not yet been cached.
-      // Transient products might not have a dictionary for the wrapped product. So, bypass the check.
-      if(!branchDescription_->transient()) {
-        // Check if the type has not yet been cached.
-        if (branchDescription_->typeID() == TypeID()) {
-          // The type has not been cached. We must compare the class names to check the type.
-          if(typeID.className() == branchDescription_->wrappedName()) {
-            // The names match. Cache the type, and return
-            branchDescription_->typeID() = typeID;
-            return;
-          }
-	}
-        // Wrong type.  Throw an exception.
-	throw edm::Exception(errors::EventCorruption)
-	  << "Product on branch " << branchDescription_->branchName() << " is of wrong type.\n"
-	  << "It is supposed to be of type " << branchDescription_->wrappedName() << ".\n"
-	  << "It is actually of type " << typeID.className() << ".\n";
-      }
+      // Types do not match.
+      throw edm::Exception(errors::EventCorruption)
+          << "Product on branch " << branchDescription_->branchName() << " is of wrong type.\n"
+          << "It is supposed to be of type " << branchDescription_->className() << ".\n"
+          << "It is actually of type " << typeID.className() << ".\n";
     }
   }
 
@@ -176,7 +165,7 @@ namespace edm {
     if (product()) {
       bool unavailable = !(product()->isPresent());
       if (unavailable) {
-	setProductUnavailable();
+        setProductUnavailable();
       }
       return unavailable;
     }
@@ -227,7 +216,7 @@ namespace edm {
     TypeTemplate valueTypeTemplate = value_type.TemplateFamily();
 
     return (elementType==wantedElementType ||
-	    elementType.HasBase(wantedElementType));
+            elementType.HasBase(wantedElementType));
   }
 
   void

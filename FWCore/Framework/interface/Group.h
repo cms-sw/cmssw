@@ -2,7 +2,7 @@
 #define FWCore_Framework_Group_h
 
 /*----------------------------------------------------------------------
-  
+
 Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
@@ -23,7 +23,7 @@ is the storage unit of such information.
 namespace edm {
   class DelayedReader;
   class BranchMapper;
-  
+
   struct GroupData {
     explicit GroupData(boost::shared_ptr<ConstBranchDescription> bd) :
        branchDescription_(bd),
@@ -78,13 +78,13 @@ namespace edm {
     // Scheduled for on demand production
     bool onDemand() const {return onDemand_();}
 
-    // Retrieves shared pointer to the product. 
+    // Retrieves shared pointer to the product.
     boost::shared_ptr<EDProduct> product() const { return groupData().product_; }
 
-    // Retrieves shared pointer to the per event(lumi)(run) provenance. 
+    // Retrieves shared pointer to the per event(lumi)(run) provenance.
     boost::shared_ptr<ProductProvenance> productProvenancePtr() const {return provenance()->productProvenancePtr();}
 
-    // Sets the pointer to the per event(lumi)(run) provenance. 
+    // Sets the pointer to the per event(lumi)(run) provenance.
     void setProductProvenance(boost::shared_ptr<ProductProvenance> prov) const;
 
     // Retrieves a reference to the event independent provenance.
@@ -104,7 +104,7 @@ namespace edm {
 
     // Retrieves pointer to a class containing both the event independent and the per even provenance.
     Provenance* provenance() const;
-   
+
     // Initializes the event independent portion of the provenance, plus the product ID and the mapper.
     void setProvenance(boost::shared_ptr<BranchMapper> mapper, ProductID const& pid);
 
@@ -162,9 +162,8 @@ namespace edm {
     // Merges two instances of the product.
     void mergeTheProduct(std::auto_ptr<EDProduct> edp) const;
 
-    // checks that the product is of the expected type.  Throws if not.
     void checkType(EDProduct const& prod) const {
-      groupData().checkType(prod);
+      checkType_(prod);
     }
 
     void swap(Group& rhs) {swap_(rhs);}
@@ -182,6 +181,7 @@ namespace edm {
     virtual void mergeProduct_(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance) = 0;
     virtual void mergeProduct_(std::auto_ptr<EDProduct> edp) const = 0;
     virtual bool putOrMergeProduct_() const = 0;
+    virtual void checkType_(EDProduct const& prod) const = 0;
     virtual void resetStatus() = 0;
   };
 
@@ -195,7 +195,7 @@ namespace edm {
   class InputGroup : public Group {
     public:
       explicit InputGroup(boost::shared_ptr<ConstBranchDescription> bd) :
-	Group(), groupData_(bd), productIsUnavailable_(false) {}
+        Group(), groupData_(bd), productIsUnavailable_(false) {}
       virtual ~InputGroup();
 
       // The following is const because we can add an EDProduct to the
@@ -207,8 +207,8 @@ namespace edm {
 
     private:
       virtual void swap_(Group& rhs) {
-	InputGroup& other = dynamic_cast<InputGroup&>(rhs);
-	edm::swap(groupData_, other.groupData_);
+        InputGroup& other = dynamic_cast<InputGroup&>(rhs);
+        edm::swap(groupData_, other.groupData_);
         std::swap(productIsUnavailable_, other.productIsUnavailable_);
       }
       virtual void putProduct_(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance);
@@ -216,11 +216,12 @@ namespace edm {
       virtual void mergeProduct_(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance);
       virtual void mergeProduct_(std::auto_ptr<EDProduct> edp) const;
       virtual bool putOrMergeProduct_() const;
+      virtual void checkType_(EDProduct const& prod) const {}
       virtual void resetStatus() {productIsUnavailable_ = false;}
       virtual bool onDemand_() const {return false;}
       virtual bool productUnavailable_() const;
-      virtual GroupData const& groupData() const {return groupData_;} 
-      virtual GroupData& groupData() {return groupData_;} 
+      virtual GroupData const& groupData() const {return groupData_;}
+      virtual GroupData& groupData() {return groupData_;}
       GroupData groupData_;
       mutable bool productIsUnavailable_;
   };
@@ -229,7 +230,7 @@ namespace edm {
   inline void swap(InputGroup& a, InputGroup& b) {
     a.swap(b);
   }
-  
+
   class ProducedGroup : public Group {
     protected:
     enum GroupStatus {
@@ -253,25 +254,28 @@ namespace edm {
       virtual void mergeProduct_(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance);
       virtual void mergeProduct_(std::auto_ptr<EDProduct> edp) const;
       virtual bool putOrMergeProduct_() const;
+      virtual void checkType_(EDProduct const& prod) const {
+        groupData().checkType(prod);
+      }
       virtual GroupStatus const& status_() const = 0;
       virtual GroupStatus& status_() = 0;
       virtual bool productUnavailable_() const;
   };
-  
+
   class ScheduledGroup : public ProducedGroup {
     public:
       explicit ScheduledGroup(boost::shared_ptr<ConstBranchDescription> bd) : ProducedGroup(), groupData_(bd), theStatus_(NotRun) {}
       virtual ~ScheduledGroup();
     private:
       virtual void swap_(Group& rhs) {
-	ScheduledGroup& other = dynamic_cast<ScheduledGroup&>(rhs);
-	edm::swap(groupData_, other.groupData_);
-	std::swap(theStatus_, other.theStatus_);
+        ScheduledGroup& other = dynamic_cast<ScheduledGroup&>(rhs);
+        edm::swap(groupData_, other.groupData_);
+        std::swap(theStatus_, other.theStatus_);
       }
       virtual void resetStatus() {theStatus_ = NotRun;}
       virtual bool onDemand_() const {return false;}
-      virtual GroupData const& groupData() const {return groupData_;} 
-      virtual GroupData& groupData() {return groupData_;} 
+      virtual GroupData const& groupData() const {return groupData_;}
+      virtual GroupData& groupData() {return groupData_;}
       virtual GroupStatus const& status_() const {return theStatus_;}
       virtual GroupStatus& status_() {return theStatus_;}
       GroupData groupData_;
@@ -282,21 +286,21 @@ namespace edm {
   inline void swap(ScheduledGroup& a, ScheduledGroup& b) {
     a.swap(b);
   }
-  
+
   class UnscheduledGroup : public ProducedGroup {
     public:
       explicit UnscheduledGroup(boost::shared_ptr<ConstBranchDescription> bd) : ProducedGroup(), groupData_(bd), theStatus_(UnscheduledNotRun) {}
       virtual ~UnscheduledGroup();
     private:
       virtual void swap_(Group& rhs) {
-	UnscheduledGroup& other = dynamic_cast<UnscheduledGroup&>(rhs);
-	edm::swap(groupData_, other.groupData_);
-	std::swap(theStatus_, other.theStatus_);
+        UnscheduledGroup& other = dynamic_cast<UnscheduledGroup&>(rhs);
+        edm::swap(groupData_, other.groupData_);
+        std::swap(theStatus_, other.theStatus_);
       }
       virtual void resetStatus() {theStatus_ = UnscheduledNotRun;}
       virtual bool onDemand_() const {return status() == UnscheduledNotRun;}
-      virtual GroupData const& groupData() const {return groupData_;} 
-      virtual GroupData& groupData() {return groupData_;} 
+      virtual GroupData const& groupData() const {return groupData_;}
+      virtual GroupData& groupData() {return groupData_;}
       virtual GroupStatus const& status_() const {return theStatus_;}
       virtual GroupStatus& status_() {return theStatus_;}
       GroupData groupData_;
@@ -307,21 +311,21 @@ namespace edm {
   inline void swap(UnscheduledGroup& a, UnscheduledGroup& b) {
     a.swap(b);
   }
-  
+
   class SourceGroup : public ProducedGroup {
     public:
       explicit SourceGroup(boost::shared_ptr<ConstBranchDescription> bd) : ProducedGroup(), groupData_(bd), theStatus_(NotPut) {}
       virtual ~SourceGroup();
     private:
       virtual void swap_(Group& rhs) {
-	SourceGroup& other = dynamic_cast<SourceGroup&>(rhs);
-	edm::swap(groupData_, other.groupData_);
-	std::swap(theStatus_, other.theStatus_);
+        SourceGroup& other = dynamic_cast<SourceGroup&>(rhs);
+        edm::swap(groupData_, other.groupData_);
+        std::swap(theStatus_, other.theStatus_);
       }
       virtual void resetStatus() {theStatus_ = NotPut;}
       virtual bool onDemand_() const {return false;}
-      virtual GroupData const& groupData() const {return groupData_;} 
-      virtual GroupData& groupData() {return groupData_;} 
+      virtual GroupData const& groupData() const {return groupData_;}
+      virtual GroupData& groupData() {return groupData_;}
       virtual GroupStatus const& status_() const {return theStatus_;}
       virtual GroupStatus& status_() {return theStatus_;}
       GroupData groupData_;
