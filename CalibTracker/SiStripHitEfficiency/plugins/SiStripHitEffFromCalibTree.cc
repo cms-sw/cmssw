@@ -76,6 +76,10 @@
 #include "TStyle.h"
 #include "TLeaf.h"
 #include "TGaxis.h"
+#include "TGraphAsymmErrors.h"
+#include <tdrstyle.C>
+#include "TLatex.h"
+#include "TLegend.h"
 
 using namespace edm;
 using namespace reco;
@@ -102,6 +106,7 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     void makeHotColdMaps();
     void makeSQLite();
     void totalStatistics();
+    void makeSummary();
     float calcPhi(float x, float y);
 
     edm::Service<TFileService> fs;
@@ -115,6 +120,9 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     TString CalibTreeFilename; 
     float threshold;
     unsigned int nModsMin;
+    unsigned int doSummary;
+    float _ResXSig;
+    unsigned int _bunchx;
     vector<hit> hits[23];
     vector<TH2F*> HotColdMaps;
     map< unsigned int, pair< unsigned int, unsigned int> > modCounter[23];
@@ -122,6 +130,10 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     TrackerMap *tkmapbad;
     int layerfound[23];
     int layertotal[23];
+    int goodlayertotal[35];
+    int goodlayerfound[35];
+    int alllayertotal[35];
+    int alllayerfound[35];
     map< unsigned int, double > BadModules;
 };
 
@@ -132,6 +144,9 @@ SiStripHitEffFromCalibTree::SiStripHitEffFromCalibTree(const edm::ParameterSet& 
   CalibTreeFilename = conf.getParameter<std::string>("CalibTreeFilename"); 
   threshold = conf.getParameter<double>("Threshold");
   nModsMin = conf.getParameter<int>("nModsMin");
+  doSummary = conf.getParameter<int>("doSummary");
+  _ResXSig = conf.getUntrackedParameter<double>("ResXSig",-1);
+  _bunchx = conf.getUntrackedParameter<int>("BunchCrossing",0);
   reader = new SiStripDetInfoFileReader(FileInPath_.fullPath());
   
   quality_ = new SiStripQuality;
@@ -151,7 +166,7 @@ void SiStripHitEffFromCalibTree::algoEndJob() {
 
 void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::EventSetup& c) {
   //Open the ROOT Calib Tree
-  CalibTreeFile = TFile::Open(CalibTreeFilename);
+  CalibTreeFile = TFile::Open(CalibTreeFilename,"READ");
   CalibTreeFile->cd("anEff"); 
   CalibTree = (TTree*)(gDirectory->Get("traj")) ;
   TLeaf* BadLf = CalibTree->GetLeaf("ModIsBad");
@@ -163,6 +178,17 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
   TLeaf* xLf = CalibTree->GetLeaf("TrajGlbX");
   TLeaf* yLf = CalibTree->GetLeaf("TrajGlbY");
   TLeaf* zLf = CalibTree->GetLeaf("TrajGlbZ");
+  TLeaf* ResXSigLf = CalibTree->GetLeaf("ResXSig");
+  TLeaf* BunchLf;
+  for(int l=0; l < 35; l++) {
+    goodlayertotal[l] = 0;
+    goodlayerfound[l] = 0;
+    alllayertotal[l] = 0;
+    alllayerfound[l] = 0;
+  }
+  if(_bunchx != 0) {
+    BunchLf = CalibTree->GetLeaf("bunchx");
+  }
   int nevents = CalibTree->GetEntries();
   cout << "Successfully loaded analyze function with " << nevents << " events!\n";
   cout << "A module is bad if efficiency < " << threshold << " and has at least " << nModsMin << " nModsMin." << endl;
@@ -179,13 +205,29 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
     double x = xLf->GetValue();
     double y = yLf->GetValue();
     double z = zLf->GetValue();
+    double resxsig = ResXSigLf->GetValue();
+    bool badquality = false;
+    if(_bunchx != 0) {
+      if(_bunchx != BunchLf->GetValue()) continue;
+    }
     //We have two things we want to do, both an XY color plot, and the efficiency measurement
     //First, ignore anything that isn't in acceptance and isn't good quality
-    if(quality == 1 || accept != 1 || nHits < 8) continue;
+    
+    //if(quality == 1 || accept != 1 || nHits < 8) continue;
+    if(accept != 1 || nHits < 8) continue;
+    if(quality == 1) badquality = true;
+    
     //Now that we have a good event, we need to look at if we expected it or not, and the location
     //if we didn't
     //Fill the missing hit information first
-    if(isBad == 1) {   
+    bool badflag = false;
+    if(_ResXSig < 0) {
+      if(isBad == 1) badflag = true;
+    }
+    else {
+      if(isBad == 1 || resxsig > _ResXSig) badflag = true;
+    }
+    if(badflag && !badquality) {   
       hit temphit;         
       temphit.x = x;
       temphit.y = y;
@@ -197,22 +239,74 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
     pair<unsigned int, unsigned int> newbadpair (1,0);
     //First, figure out if the module already exists in the map of maps
     map< unsigned int, pair< unsigned int, unsigned int> >::iterator it = modCounter[layer].find(id);
-    if(it == modCounter[layer].end()) {
-      if(isBad == 1) modCounter[layer][id] = newbadpair;
-      else modCounter[layer][id] = newgoodpair;
+    if(!badquality) {
+      if(it == modCounter[layer].end()) {
+        if(badflag) modCounter[layer][id] = newbadpair;
+        else modCounter[layer][id] = newgoodpair;
+      }
+      else {
+        ((*it).second.first)++;
+        if(!badflag) ((*it).second.second)++;
+      }
+      //Have to do the decoding for which side to go on (ugh)
+      if(layer <= 10) {
+        if(!badflag) goodlayerfound[layer]++;
+        goodlayertotal[layer]++;
+      }
+      else if(layer > 10 && layer < 14) {
+        if( ((id>>13)&0x3) == 1) {
+	  if(!badflag) goodlayerfound[layer]++;
+          goodlayertotal[layer]++;
+	}
+	else if( ((id>>13)&0x3) == 2) {
+	  if(!badflag) goodlayerfound[layer+3]++;
+          goodlayertotal[layer+3]++;
+	}
+      }
+      else if(layer > 13 && layer <= 22) {
+        if( ((id>>18)&0x3) == 1) {
+	  if(!badflag) goodlayerfound[layer+3]++;
+          goodlayertotal[layer+3]++;
+	}
+	else if( ((id>>18)&0x3) == 2) {
+	  if(!badflag) goodlayerfound[layer+11]++;
+          goodlayertotal[layer+11]++;
+	}
+      } 
     }
-    else {
-      ((*it).second.first)++;
-      if(isBad == 0) ((*it).second.second)++;
+    //Do the one where we don't exclude bad modules!
+    if(layer <= 10) {
+      if(!badflag) alllayerfound[layer]++;
+      alllayertotal[layer]++;
     }
+    else if(layer > 10 && layer < 14) {
+      if( ((id>>13)&0x3) == 1) {
+	if(!badflag) alllayerfound[layer]++;
+        alllayertotal[layer]++;
+      }
+      else if( ((id>>13)&0x3) == 2) {
+        if(!badflag) alllayerfound[layer+3]++;
+        alllayertotal[layer+3]++;
+      }
+    }
+    else if(layer > 13 && layer <= 22) {
+      if( ((id>>18)&0x3) == 1) {
+        if(!badflag) alllayerfound[layer+3]++;
+        alllayertotal[layer+3]++;
+      }
+      else if( ((id>>18)&0x3) == 2) {
+        if(!badflag) alllayerfound[layer+12]++;
+        alllayertotal[layer+12]++;
+      }
+    }  
     //At this point, both of our maps are loaded with the correct information
   }
+  //CalibTreeFile->Close();
   makeHotColdMaps();
   makeTKMap();
   makeSQLite();
   totalStatistics();
-  
-  
+  makeSummary();
   
   ////////////////////////////////////////////////////////////////////////
   //try to write out what's in the quality record
@@ -381,6 +475,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
     cout << "\nTEC+ Disk " << i << " :" << ssV[3][i].str();
   for (int i=10;i<19;++i)
     cout << "\nTEC- Disk " << i-9 << " :" << ssV[3][i].str();
+
 }
 
 void SiStripHitEffFromCalibTree::makeHotColdMaps() {
@@ -598,6 +693,130 @@ void SiStripHitEffFromCalibTree::totalStatistics() {
     totaltotal += layertotal[i];
   }
   cout << "The total efficiency is " << double(totalfound)/double(totaltotal) << endl;
+}
+
+void SiStripHitEffFromCalibTree::makeSummary() {
+  //setTDRStyle();
+  
+  int nLayers = 34;
+  
+  TH1F *found = fs->make<TH1F>("found","found",nLayers+1,0,nLayers+1);
+  TH1F *all = fs->make<TH1F>("all","all",nLayers+1,0,nLayers+1);
+  TH1F *found2 = fs->make<TH1F>("found2","found2",nLayers+1,0,nLayers+1);
+  TH1F *all2 = fs->make<TH1F>("all2","all2",nLayers+1,0,nLayers+1);
+  // first bin only to keep real data off the y axis so set to -1
+  found->SetBinContent(0,-1);
+  all->SetBinContent(0,1);
+  
+  TCanvas *c7 =new TCanvas("c7"," test ",10,10,800,600);
+  c7->SetFillColor(0);
+  c7->SetGrid();
+
+  for (Long_t i=1; i< nLayers+1; ++i) {
+    if (i==10) i++;
+    if (i==25) i++;
+    if (i==34) break;
+
+    cout << "Fill only good modules layer " << i << ":  S = " << goodlayerfound[i] << "    B = " << goodlayertotal[i] << endl;
+    if (goodlayertotal[i] > 5) {
+      found->SetBinContent(i,goodlayerfound[i]);
+      all->SetBinContent(i,goodlayertotal[i]);
+    } else {
+      found->SetBinContent(i,0);
+      all->SetBinContent(i,10);
+    }
+    
+    cout << "Filling all modules layer " << i << ":  S = " << alllayerfound[i] << "    B = " << alllayertotal[i] << endl;
+    if (alllayertotal[i] > 5) {
+      found2->SetBinContent(i,alllayerfound[i]);
+      all2->SetBinContent(i,alllayertotal[i]);
+    } else {
+      found2->SetBinContent(i,0);
+      all2->SetBinContent(i,10);
+    }
+
+  }
+
+  found->Sumw2();
+  all->Sumw2();
+
+  found2->Sumw2();
+  all2->Sumw2();
+
+  TGraphAsymmErrors *gr = new TGraphAsymmErrors(nLayers+1);
+  gr->BayesDivide(found,all); 
+
+  TGraphAsymmErrors *gr2 = new TGraphAsymmErrors(nLayers+1);
+  gr2->BayesDivide(found2,all2);
+
+  for(int j = 0; j<nLayers+1; j++){
+    gr->SetPointError(j, 0., 0., gr->GetErrorYlow(j),gr->GetErrorYhigh(j) );
+    gr2->SetPointError(j, 0., 0., gr2->GetErrorYlow(j),gr2->GetErrorYhigh(j) );
+  }
+
+  gr->GetXaxis()->SetLimits(0,nLayers);
+  gr->SetMarkerColor(2);
+  gr->SetMarkerSize(1.2);
+  gr->SetLineColor(2);
+  gr->SetLineWidth(4);
+  gr->SetMarkerStyle(20);
+  gr->SetMinimum(0.90);
+  gr->SetMaximum(1.001);
+  gr->GetYaxis()->SetTitle("Efficiency");
+
+  gr2->GetXaxis()->SetLimits(0,nLayers);
+  gr2->SetMarkerColor(1);
+  gr2->SetMarkerSize(1.2);
+  gr2->SetLineColor(1);
+  gr2->SetLineWidth(4);
+  gr2->SetMarkerStyle(21);
+  gr2->SetMinimum(0.90);
+  gr2->SetMaximum(1.001);
+  gr2->GetYaxis()->SetTitle("Efficiency");
+  //cout << "starting labels" << endl;
+  //for ( int k=1; k<nLayers+1; k++) {
+  for ( Long_t k=1; k<nLayers+1; k++) {
+    if (k==10) k++;
+    if (k==25) k++;
+    if (k==34) break;
+    TString label;
+    if (k<5) {
+      label = TString("TIB  ") + k;
+    } else if (k>4&&k<11) {
+      label = TString("TOB  ")+(k-4);
+    } else if (k>10&&k<14) {
+      label = TString("TID- ")+(k-10);
+    } else if (k>13&&k<17) {
+      label = TString("TID+ ")+(k-13);
+    } else if (k>16&&k<26) {
+      label = TString("TEC- ")+(k-16);
+    } else if (k>25) {
+      label = TString("TEC+ ")+(k-25);
+    }
+    gr->GetXaxis()->SetBinLabel(((k+1)*100)/(nLayers)-2,label);
+    gr2->GetXaxis()->SetBinLabel(((k+1)*100)/(nLayers)-2,label);
+  }
+  
+  gr->Draw("AP");
+  gr->GetXaxis()->SetNdivisions(36);
+
+  c7->cd();
+  TPad *overlay = new TPad("overlay","",0,0,1,1);
+  overlay->SetFillStyle(4000);
+  overlay->SetFillColor(0);
+  overlay->SetFrameFillStyle(4000);
+  overlay->Draw("same");
+  overlay->cd();
+  gr2->Draw("AP");
+
+  TLegend *leg = new TLegend(0.70,0.20,0.92,0.39);
+  leg->AddEntry(gr,"Good Modules","p");
+  leg->AddEntry(gr2,"All Modules","p");
+  leg->SetTextSize(0.020);
+  leg->SetFillColor(0);
+  leg->Draw("same");
+  
+  c7->SaveAs("Summary.png");
 }
 
 SiStripBadStrip* SiStripHitEffFromCalibTree::getNewObject() {
