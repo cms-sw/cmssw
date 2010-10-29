@@ -94,7 +94,7 @@ private:
 
 };
 
-swap( L1GlobalTriggerObjectMapRecord & lh,  L1GlobalTriggerObjectMapRecord& rh) {
+inline void swap( L1GlobalTriggerObjectMapRecord & lh,  L1GlobalTriggerObjectMapRecord& rh) {
   lh.swap(rh);
 }
 
