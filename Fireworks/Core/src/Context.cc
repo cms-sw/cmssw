@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.29 2010/09/15 11:48:42 amraktad Exp $
+// $Id: Context.cc,v 1.30 2010/10/27 16:27:22 amraktad Exp $
 //
 
 // system include files
@@ -80,7 +80,6 @@ Context::Context(FWModelChangeManager* iCM,
 
 Context::~Context()
 {
-   delete m_magField;
    delete m_commonPrefs;
 }
 
@@ -157,11 +156,19 @@ Context::initEveElements()
 void
 Context::deleteEveElements()
 {
+   // AMT: delete of eve-elements disabled to prevent crash on exit.
+   // A lot of eve objects use this elements (e.g. TEveCalo, TEveTrack ...)
+   // If want to have explicit delete make sure order of destruction
+   // is correct: this should be called after all scenes are destroyed.
+
+   /*
+   delete m_magField;
    m_propagator->DecDenyDestroy();
    m_trackerPropagator->DecDenyDestroy();
    m_muonPropagator->DecDenyDestroy();
    m_caloData->DecDenyDestroy();
    m_caloDataHF->DecDenyDestroy();
+   */
 }
 
 
