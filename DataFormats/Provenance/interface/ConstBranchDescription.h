@@ -2,7 +2,7 @@
 #define DataFormats_Provenance_ConstBranchDescription_h
 
 /*----------------------------------------------------------------------
-  
+
 ConstBranchDescription: A class containing a constant shareable branch description
 that is inexpensive to copy.
 This class is not persistable.
@@ -19,7 +19,6 @@ This class is not persistable.
 
 /*
   ConstBranchDescription
-
 */
 
 namespace edm {
@@ -38,14 +37,14 @@ namespace edm {
     std::string const& fullClassName() const {return ptr_->fullClassName();}
     std::string const& className() const {return ptr_->fullClassName();}
     std::string const& friendlyClassName() const {return ptr_->friendlyClassName();}
-    std::string const& productInstanceName() const {return ptr_->productInstanceName();} 
+    std::string const& productInstanceName() const {return ptr_->productInstanceName();}
     bool const& produced() const {return ptr_->produced();}
     bool const& dropped() const {return ptr_->dropped();}
     bool const& onDemand() const {return ptr_->onDemand();}
     bool present() const {return ptr_->present();}
     bool const& transient() const {return ptr_->transient();}
     Reflex::Type const& type() const {return ptr_->type();}
-    TypeID& typeID() const {return ptr_->typeID();}
+    TypeID const& typeID() const {return ptr_->typeID();}
     int const& splitLevel() const {return ptr_->splitLevel();}
     int const& basketSize() const {return ptr_->basketSize();}
 
@@ -63,11 +62,11 @@ namespace edm {
   private:
     boost::shared_ptr<BranchDescription> ptr_;
   };
-  
+
   inline
   std::ostream&
   operator<<(std::ostream& os, ConstBranchDescription const& p) {
-    os << p.me();   
+    os << p.me();
     return os;
   }
 
@@ -83,9 +82,9 @@ namespace edm {
 
   inline
   std::string match(ConstBranchDescription const& a,
-	ConstBranchDescription const& b,
-	std::string const& fileName,
-	BranchDescription::MatchMode m) {
+                    ConstBranchDescription const& b,
+                    std::string const& fileName,
+                    BranchDescription::MatchMode m) {
     return match(a.me(), b.me(), fileName, m);
   }
 }

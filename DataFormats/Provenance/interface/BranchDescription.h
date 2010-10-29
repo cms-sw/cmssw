@@ -47,6 +47,7 @@ namespace edm {
                       std::string const& fName,
                       std::string const& pin,
                       ModuleDescription const& modDesc,
+                      TypeID const& theTypeID,
                       std::set<std::string> const& aliases = std::set<std::string>());
 
     ~BranchDescription() {}
@@ -150,9 +151,9 @@ namespace edm {
       // in the data dictionary
       Reflex::Type type_;
 
-      // A TypeID object for the wrapped object
-      // This is initialized only if needed.
-      mutable TypeID typeID_;
+      // A TypeID object for the unwrapped object
+      // This is set if and only if produced_ is true.
+      TypeID typeID_;
 
       // The split level of the branch, as marked
       // in the data dictionary.

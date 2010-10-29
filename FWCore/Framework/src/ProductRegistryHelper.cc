@@ -30,7 +30,8 @@ namespace edm {
                               p->typeID_.userClassName(),
                               p->typeID_.friendlyClassName(),
                               p->productInstanceName_,
-                              iDesc);
+                              iDesc,
+                              p->typeID_);
       if (!p->branchAlias_.empty()) pdesc.branchAliases().insert(p->branchAlias_);
       iReg.addProduct(pdesc, iIsListener);
     }//for

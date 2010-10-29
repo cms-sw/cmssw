@@ -1,6 +1,6 @@
 /**
    \file
-   test for ProductRegistry 
+   test for ProductRegistry
 
    \author Stefano ARGIRO
    \date 21 July 2005
@@ -21,8 +21,7 @@
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 
-class testProductRegistry: public CppUnit::TestFixture
-{
+class testProductRegistry: public CppUnit::TestFixture {
 CPPUNIT_TEST_SUITE(testProductRegistry);
 
 CPPUNIT_TEST(testSignal);
@@ -55,8 +54,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testProductRegistry);
 namespace {
    struct Listener {
       int* heard_;
-      Listener(int& hear) :heard_(&hear) {}
-      void operator()(const edm::BranchDescription&){
+      Listener(int& hear) : heard_(&hear) {}
+      void operator()(edm::BranchDescription const&) {
          ++(*heard_);
       }
    };
@@ -64,13 +63,12 @@ namespace {
    struct Responder {
       std::string name_;
       edm::ProductRegistry* reg_;
-      Responder(const std::string& iName,
+      Responder(std::string const& iName,
                 edm::ConstProductRegistry& iConstReg,
-                edm::ProductRegistry& iReg):name_(iName),reg_(&iReg)
-      {
+                edm::ProductRegistry& iReg) : name_(iName),reg_(&iReg) {
         iConstReg.watchProductAdditions(this, &Responder::respond);
       }
-      void respond(const edm::BranchDescription& iDesc){
+      void respond(edm::BranchDescription const& iDesc) {
          edm::ParameterSet dummyProcessPset;
          dummyProcessPset.registerIt();
          boost::shared_ptr<edm::ProcessConfiguration> pc(
@@ -79,13 +77,14 @@ namespace {
 
          edm::ModuleDescription module(iDesc.parameterSetID(), "", "", pc);
          edm::BranchDescription prod(iDesc.branchType(),
-				     name_,
-				     iDesc.processName(),
-				     iDesc.fullClassName(),
-				     iDesc.friendlyClassName(),
-				     iDesc.productInstanceName() + "-" + name_,
-				     module
-				    );
+                                     name_,
+                                     iDesc.processName(),
+                                     iDesc.fullClassName(),
+                                     iDesc.friendlyClassName(),
+                                     iDesc.productInstanceName() + "-" + name_,
+                                     module,
+                                     iDesc.typeID()
+                                    );
          reg_->addProduct(prod);
       }
    };
@@ -95,12 +94,11 @@ testProductRegistry::testProductRegistry() :
   intModule_(),
   floatModule_(),
   intBranch_(),
-  floatBranch_()
-{ }
+  floatBranch_() {
+}
 
 
-void testProductRegistry::setUp()
-{
+void testProductRegistry::setUp() {
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
   boost::shared_ptr<edm::ProcessConfiguration> processConfiguration(
@@ -111,56 +109,54 @@ void testProductRegistry::setUp()
   pset.registerIt();
   intModule_.reset(new edm::ModuleDescription(pset.id(), "", "", processConfiguration));
   intBranch_.reset(new edm::BranchDescription(edm::InEvent, "label", "PROD",
-					  "int", "int", "int",
-					  *intModule_));
+                                          "int", "int", "int",
+                                          *intModule_, edm::TypeID(typeid(int))));
 
   floatModule_.reset(new edm::ModuleDescription(intModule_->parameterSetID(), "", "", processConfiguration));
   floatBranch_.reset(new edm::BranchDescription(edm::InEvent, "label", "PROD",
-					    "float", "float", "float",
-					    *floatModule_));
+                                            "float", "float", "float",
+                                            *floatModule_, edm::TypeID(typeid(float))));
 
 }
 
-namespace 
-{
+namespace {
   template <class T> void kill_and_clear(boost::shared_ptr<T>& p) { p.reset(); }
 }
 
-void testProductRegistry::tearDown()
-{
+void testProductRegistry::tearDown() {
   kill_and_clear(floatBranch_);
   kill_and_clear(intBranch_);
   kill_and_clear(floatModule_);
   kill_and_clear(intModule_);
 }
 
-void  testProductRegistry:: testSignal(){
+void testProductRegistry:: testSignal() {
    using namespace edm;
    SignallingProductRegistry reg;
-   
+
    int hear=0;
    Listener listening(hear);
    reg.productAddedSignal_.connect(listening);
 
    //BranchDescription prod(InEvent, "label", "PROD", "int", "int", "int", md);
-   
+
    //   reg.addProduct(prod);
    reg.addProduct(*intBranch_);
-   CPPUNIT_ASSERT(1==hear);
+   CPPUNIT_ASSERT(1 == hear);
 }
 
-void  testProductRegistry:: testWatch(){
+void testProductRegistry:: testWatch() {
    using namespace edm;
    SignallingProductRegistry reg;
    ConstProductRegistry constReg(reg);
-   
+
    int hear=0;
    Listener listening(hear);
    constReg.watchProductAdditions(listening);
    constReg.watchProductAdditions(listening, &Listener::operator());
 
    Responder one("one",constReg, reg);
-                 
+
    //BranchDescription prod(InEvent, "label", "PROD", "int", "int", "int");
    //reg.addProduct(prod);
    reg.addProduct(*intBranch_);
@@ -168,28 +164,28 @@ void  testProductRegistry:: testWatch(){
    //BranchDescription prod2(InEvent, "label", "PROD", "float", "float", "float");
    //   reg.addProduct(prod2);
    reg.addProduct(*floatBranch_);
-   
+
    //Should be 4 products
    // 1 from the 'int' in this routine
    // 1 from 'one' responding to this call
    // 1 from the 'float'
    // 1 from 'one' responding to the original call
-   CPPUNIT_ASSERT(4*2==hear);
+   CPPUNIT_ASSERT(4 * 2 == hear);
    CPPUNIT_ASSERT(4 == reg.size());
 }
-void  testProductRegistry:: testCircular(){
+void testProductRegistry:: testCircular() {
    using namespace edm;
    SignallingProductRegistry reg;
    ConstProductRegistry constReg(reg);
-   
+
    int hear=0;
    Listener listening(hear);
    constReg.watchProductAdditions(listening);
    constReg.watchProductAdditions(listening, &Listener::operator());
-   
-   Responder one("one",constReg, reg);
-   Responder two("two",constReg, reg);
-   
+
+   Responder one("one", constReg, reg);
+   Responder two("two", constReg, reg);
+
    //BranchDescription prod(InEvent, "label","PROD","int","int","int");
    //reg.addProduct(prod);
    reg.addProduct(*intBranch_);
@@ -200,11 +196,11 @@ void  testProductRegistry:: testCircular(){
    // 1 from 'two' responding to 'one'
    // 1 from 'two' responding to the original call
    // 1 from 'one' responding to 'two'
-   CPPUNIT_ASSERT(5*2==hear);
+   CPPUNIT_ASSERT(5 * 2 == hear);
    CPPUNIT_ASSERT(5 == reg.size());
 }
 
-void  testProductRegistry:: testProductRegistration(){
+void testProductRegistry:: testProductRegistration() {
    edm::AssertHandler ah;
 
   std::string configuration(
@@ -218,8 +214,8 @@ void  testProductRegistry:: testProductRegistration(){
       "process.p = cms.Path(process.m1*process.m2)\n");
   try {
     edm::EventProcessor proc(configuration, true);
-  } catch(const cms::Exception& iException) {
-    std::cout <<"caught "<<iException.explainSelf()<<std::endl;
+  } catch(cms::Exception const& iException) {
+    std::cout << "caught " << iException.explainSelf() << std::endl;
     throw;
   }
 }

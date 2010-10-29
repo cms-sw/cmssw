@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-----------------------------------------------------------------------*/  
+----------------------------------------------------------------------*/
 #include <cassert>
 #include <iostream>
 #include <memory>
@@ -78,10 +78,10 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
      pset.registerIt();
      edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs");
      edm::Event event(ep, modDesc);
-     
+
      std::string label("this does not exist");
      edm::RefProd<edmtest::DummyProduct> ref = event.getRefBeforePut<edmtest::DummyProduct>(label);
-     CPPUNIT_ASSERT("Failed to throw required exception" == 0);      
+     CPPUNIT_ASSERT("Failed to throw required exception" == 0);
   }
   catch (edm::Exception& x) {
     // nothing to do
@@ -89,7 +89,6 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   catch (...) {
     CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
   }
- 
 }
 
 void testEventGetRefBeforePut::getRefTest() {
@@ -114,13 +113,14 @@ void testEventGetRefBeforePut::getRefTest() {
   edm::ModuleDescription modDesc(pset.id(), "Blah", "", processConfiguration);
 
   edm::BranchDescription product(edm::InEvent,
-				 label,
-				 processName,
-				 dummytype.userClassName(),
-				 className,
-				 productInstanceName,
-				 modDesc
-				);
+                                 label,
+                                 processName,
+                                 dummytype.userClassName(),
+                                 className,
+                                 productInstanceName,
+                                 modDesc,
+                                 dummytype
+                                );
 
   product.init();
 
@@ -149,7 +149,7 @@ void testEventGetRefBeforePut::getRefTest() {
     edm::Event event(ep, modDesc);
     std::auto_ptr<edmtest::IntProduct> pr(new edmtest::IntProduct);
     pr->value = 10;
-    
+
     refToProd = event.getRefBeforePut<edmtest::IntProduct>(productInstanceName);
     event.put(pr,productInstanceName);
     event.commit_();

@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-----------------------------------------------------------------------*/  
+----------------------------------------------------------------------*/
 #include <string>
 #include <iostream>
 #include <memory>
@@ -31,17 +31,14 @@ Test of the EventPrincipal class.
 #include <cppunit/extensions/HelperMacros.h>
 
 // This is a gross hack, to allow us to test the event
-namespace edm
-{
-   class EDProducer
-      {
+namespace edm {
+   class EDProducer {
       public:
          static void commitEvent(Event& e) { e.commit_(); }
-         
-      };
+   };
 }
 
-class testGenericHandle: public CppUnit::TestFixture {
+class testGenericHandle : public CppUnit::TestFixture {
 CPPUNIT_TEST_SUITE(testGenericHandle);
 CPPUNIT_TEST(failgetbyLabelTest);
 CPPUNIT_TEST(getbyLabelTest);
@@ -93,7 +90,7 @@ void testGenericHandle::failgetbyLabelTest() {
      pset.registerIt();
      edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs");
      edm::Event event(ep, modDesc);
-     
+
      std::string label("this does not exist");
      event.getByLabel(label,h);
      *h;
@@ -109,10 +106,10 @@ void testGenericHandle::failgetbyLabelTest() {
   catch (...) {
     CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
   }
-  if( !didThrow) {
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);      
+  if (!didThrow) {
+    CPPUNIT_ASSERT("Failed to throw required exception" == 0);
   }
-  
+
 }
 
 void testGenericHandle::getbyLabelTest() {
@@ -141,13 +138,14 @@ void testGenericHandle::getbyLabelTest() {
   edm::ModuleDescription modDesc(pset.id(), "Blah", "", processConfiguration);
 
   edm::BranchDescription product(edm::InEvent,
-				 label,
-				 processName,
-				 dummytype.userClassName(),
-				 className,
-				 productInstanceName,
-				 modDesc
-				);
+                                 label,
+                                 processName,
+                                 dummytype.userClassName(),
+                                 className,
+                                 productInstanceName,
+                                 modDesc,
+                                 dummytype
+                                );
 
   product.init();
 
@@ -172,7 +170,7 @@ void testGenericHandle::getbyLabelTest() {
   std::auto_ptr<edm::EventAuxiliary> eventAux(new edm::EventAuxiliary(col, uuid, fakeTime, true));
   edm::EventPrincipal ep(pregc, pc);
   ep.fillEventPrincipal(eventAux, lbp);
-  const edm::BranchDescription& branchFromRegistry = it->second;
+  edm::BranchDescription const& branchFromRegistry = it->second;
   boost::shared_ptr<edm::Parentage> entryDescriptionPtr(new edm::Parentage);
   std::auto_ptr<edm::ProductProvenance> branchEntryInfoPtr(
       new edm::ProductProvenance(branchFromRegistry.branchID(),
@@ -180,7 +178,7 @@ void testGenericHandle::getbyLabelTest() {
                               entryDescriptionPtr));
   edm::ConstBranchDescription const desc(branchFromRegistry);
   ep.put(desc, pprod, branchEntryInfoPtr);
-  
+
   edm::GenericHandle h("edmtest::DummyProduct");
   try {
     edm::ParameterSet dummyProcessPset;

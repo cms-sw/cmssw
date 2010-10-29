@@ -52,6 +52,7 @@ namespace edm {
                         std::string const& fName,
                         std::string const& pin,
                         ModuleDescription const& modDesc,
+                        TypeID const& theTypeID,
                         std::set<std::string> const& aliases) :
       branchType_(branchType),
       moduleLabel_(mdLabel),
@@ -66,6 +67,7 @@ namespace edm {
     dropped() = false;
     produced() = true;
     onDemand() = false;
+    typeID() = theTypeID;
     transients_.get().parameterSetID_ = modDesc.parameterSetID();
     transients_.get().moduleName_ = modDesc.moduleName();
     init();

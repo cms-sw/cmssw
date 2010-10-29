@@ -55,7 +55,7 @@ namespace edm {
   class EDProducer {
   public:
     static void commitEvent(Event& e) { e.commit_(); }
-    
+
   };
 }
 
@@ -107,7 +107,7 @@ class testEvent: public CppUnit::TestFixture {
                        std::string const& moduleClassName,
                        std::string const& processName) {
     std::string productInstanceName;
-    registerProduct<T>(tag, moduleLabel, moduleClassName, processName, 
+    registerProduct<T>(tag, moduleLabel, moduleClassName, processName,
                        productInstanceName);
   }
 
@@ -115,7 +115,7 @@ class testEvent: public CppUnit::TestFixture {
   ProductID addProduct(std::auto_ptr<T> product,
                        std::string const& tag,
                        std::string const& productLabel = std::string());
-  
+
   boost::shared_ptr<ProductRegistry>   availableProducts_;
   boost::shared_ptr<EventPrincipal>    principal_;
   boost::shared_ptr<Event>             currentEvent_;
@@ -141,22 +141,22 @@ testEvent::registerProduct(std::string const& tag,
                            std::string const& productInstanceName) {
   if (!availableProducts_)
     availableProducts_.reset(new ProductRegistry());
-  
+
   ParameterSet moduleParams;
   moduleParams.template addParameter<std::string>("@module_type", moduleClassName);
   moduleParams.template addParameter<std::string>("@module_label", moduleLabel);
   moduleParams.registerIt();
-  
+
   ParameterSet processParams;
   processParams.template addParameter<std::string>("@process_name", processName);
   processParams.template addParameter<ParameterSet>(moduleLabel, moduleParams);
   processParams.registerIt();
-  
+
   ProcessConfiguration process(processName, processParams.id(), getReleaseVersion(), getPassID());
 
   boost::shared_ptr<ProcessConfiguration> processX(new ProcessConfiguration(process));
   ModuleDescription localModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX);
-  
+
   TypeID product_type(typeid(T));
 
   BranchDescription branch(InEvent,
@@ -165,7 +165,8 @@ testEvent::registerProduct(std::string const& tag,
                            product_type.userClassName(),
                            product_type.friendlyClassName(),
                            productInstanceName,
-                           localModuleDescription
+                           localModuleDescription,
+                           product_type
                           );
 
   moduleDescriptions_[tag] = localModuleDescription;
@@ -182,7 +183,7 @@ testEvent::addProduct(std::auto_ptr<T> product,
   iterator_t description = moduleDescriptions_.find(tag);
   if (description == moduleDescriptions_.end())
     throw edm::Exception(errors::LogicError)
-      << "Failed to find a module description for tag: " 
+      << "Failed to find a module description for tag: "
       << tag << '\n';
 
   Event temporaryEvent(*principal_, description->second);
@@ -241,7 +242,8 @@ testEvent::testEvent() :
                            product_type.userClassName(),
                            product_type.friendlyClassName(),
                            productInstanceName,
-                           *currentModuleDescription_
+                           *currentModuleDescription_,
+                           product_type
                           );
 
   availableProducts_->addProduct(branch);
@@ -308,7 +310,7 @@ void testEvent::setUp() {
   // commit, the "CURRENT" process will go into the ProcessHistory
   // even if we have faked it that the new product is associated
   // with a previous process, because the process name comes from
-  // the currentModuleDescription stored in the principal.  On the 
+  // the currentModuleDescription stored in the principal.  On the
   // other hand, when addProduct is called another event is created
   // with a fake moduleDescription containing the old process name
   // and that is used to create the group in the principal used to
@@ -341,7 +343,7 @@ void testEvent::emptyEvent() {
   CPPUNIT_ASSERT(currentEvent_);
   CPPUNIT_ASSERT(currentEvent_->id() == make_id());
   CPPUNIT_ASSERT(currentEvent_->time() == make_timestamp());
-  CPPUNIT_ASSERT(currentEvent_->size() == 0);  
+  CPPUNIT_ASSERT(currentEvent_->size() == 0);
 }
 
 void testEvent::getBySelectorFromEmpty() {
@@ -379,24 +381,24 @@ void testEvent::putAndGetAnIntProduct() {
 }
 
 void testEvent::getByProductID() {
-  
+
   typedef edmtest::IntProduct product_t;
   typedef std::auto_ptr<product_t> ap_t;
   typedef Handle<product_t>  handle_t;
 
   ProductID wanted;
 
-  {  
+  {
     ap_t one(new product_t(1));
     ProductID id1 = addProduct(one, "int1_tag", "int1");
     CPPUNIT_ASSERT(id1 != ProductID());
     wanted = id1;
-    
+
     ap_t two(new product_t(2));
     ProductID id2 = addProduct(two, "int2_tag", "int2");
     CPPUNIT_ASSERT(id2 != ProductID());
     CPPUNIT_ASSERT(id2 != id1);
-    
+
     EDProducer::commitEvent(*currentEvent_);
     CPPUNIT_ASSERT(currentEvent_->size() == 2);
   }
@@ -434,7 +436,7 @@ void testEvent::transaction() {
 
   // The Event has been destroyed without a commit -- we should not
   // have any products in the EventPrincipal.
-  CPPUNIT_ASSERT(principal_->size() == 0);  
+  CPPUNIT_ASSERT(principal_->size() == 0);
 }
 
 void testEvent::getByInstanceName() {
@@ -511,7 +513,7 @@ void testEvent::getBySelector() {
   handle_t h;
   CPPUNIT_ASSERT(currentEvent_->get(sel, h));
   CPPUNIT_ASSERT(h->value == 2);
-  
+
   Selector sel1(ProductInstanceNameSelector("nomatch") &&
                 ModuleLabelSelector("modMulti") &&
                 ProcessNameSelector("EARLY"));
@@ -606,9 +608,9 @@ void testEvent::getByLabel() {
     edm::EventBase* baseEvent = currentEvent_.get();
     CPPUNIT_ASSERT(baseEvent->getByLabel(inputTag, h));
     CPPUNIT_ASSERT(h->value == 200);
-    
+
   }
-   
+
   size_t cachedOffset = 0;
   int fillCount = -1;
 
@@ -677,6 +679,6 @@ void testEvent::getByType() {
 void testEvent::printHistory() {
   ProcessHistory const& history = currentEvent_->processHistory();
   std::ofstream out("history.log");
-  
+
   copy_all(history, std::ostream_iterator<ProcessHistory::const_iterator::value_type>(out, "\n"));
 }

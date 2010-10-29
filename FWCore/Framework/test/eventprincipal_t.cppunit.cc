@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-----------------------------------------------------------------------*/  
+----------------------------------------------------------------------*/
 #include <map>
 #include <memory>
 #include <stdexcept>
@@ -68,24 +68,24 @@ public:
 
 private:
 
-  boost::shared_ptr<edm::ProcessConfiguration> 
+  boost::shared_ptr<edm::ProcessConfiguration>
   fake_single_module_process(std::string const& tag,
-			     std::string const& processName,
-			     edm::ParameterSet const& moduleParams,
-			     std::string const& release = edm::getReleaseVersion(),
-			     std::string const& pass = edm::getPassID() );
+                             std::string const& processName,
+                             edm::ParameterSet const& moduleParams,
+                             std::string const& release = edm::getReleaseVersion(),
+                             std::string const& pass = edm::getPassID() );
   boost::shared_ptr<edm::BranchDescription>
   fake_single_process_branch(std::string const& tag,
-			     std::string const& processName, 
-			     std::string const& productInstanceName = std::string() );
+                             std::string const& processName,
+                             std::string const& productInstanceName = std::string() );
 
   std::map<std::string, boost::shared_ptr<edm::BranchDescription> >    branchDescriptions_;
   std::map<std::string, boost::shared_ptr<edm::ProcessConfiguration> > processConfigurations_;
-  
+
   boost::shared_ptr<edm::ProductRegistry>   pProductRegistry_;
   boost::shared_ptr<edm::EventPrincipal>    pEvent_;
   std::vector<edm::ProductID> contained_products_;
-  
+
   edm::EventID               eventID_;
 };
 
@@ -99,15 +99,15 @@ CPPUNIT_TEST_SUITE_REGISTRATION(test_ep);
 
 boost::shared_ptr<edm::ProcessConfiguration>
 test_ep::fake_single_module_process(std::string const& tag,
-				    std::string const& processName,
-				    edm::ParameterSet const& moduleParams,
-				    std::string const& release,
-				    std::string const& pass) {
+                                    std::string const& processName,
+                                    edm::ParameterSet const& moduleParams,
+                                    std::string const& release,
+                                    std::string const& pass) {
   edm::ParameterSet processParams;
   processParams.addParameter(processName, moduleParams);
   processParams.addParameter<std::string>("@process_name",
-					  processName);
-  
+                                          processName);
+
   processParams.registerIt();
   boost::shared_ptr<edm::ProcessConfiguration> result(
     new edm::ProcessConfiguration(processName, processParams.id(), release, pass));
@@ -116,9 +116,9 @@ test_ep::fake_single_module_process(std::string const& tag,
 }
 
 boost::shared_ptr<edm::BranchDescription>
-test_ep::fake_single_process_branch(std::string const& tag, 
-				    std::string const& processName,
-				    std::string const& productInstanceName) {
+test_ep::fake_single_process_branch(std::string const& tag,
+                                    std::string const& processName,
+                                    std::string const& productInstanceName) {
   std::string moduleLabel = processName + "dummyMod";
   std::string moduleClass("DummyModule");
   edm::TypeID dummyType(typeid(edmtest::DummyProduct));
@@ -133,13 +133,14 @@ test_ep::fake_single_process_branch(std::string const& tag,
   edm::ModuleDescription mod(modParams.id(), moduleClass, moduleLabel, processX);
 
   boost::shared_ptr<edm::BranchDescription> result(
-    new edm::BranchDescription(edm::InEvent, 
-			       moduleLabel, 
-			       processName,
-			       productClassName,
-			       friendlyProductClassName,
-			       productInstanceName,
-			       mod));
+    new edm::BranchDescription(edm::InEvent,
+                               moduleLabel,
+                               processName,
+                               productClassName,
+                               friendlyProductClassName,
+                               productInstanceName,
+                               mod,
+                               dummyType));
   branchDescriptions_[tag] = result;
   return result;
 }
@@ -160,7 +161,7 @@ void test_ep::setUp() {
   pProductRegistry_->addProduct(*fake_single_process_branch("rick", "USER2", "rick"));
   pProductRegistry_->setFrozen();
   edm::BranchIDListHelper::updateRegistries(*pProductRegistry_);
- 
+
   // Put products we'll look for into the EventPrincipal.
   {
     typedef edmtest::DummyProduct PRODUCT_TYPE;
@@ -199,7 +200,6 @@ void test_ep::setUp() {
     pEvent_->put(branchFromRegistry, product, branchEntryInfoPtr);
   }
   CPPUNIT_ASSERT(pEvent_->size() == 1);
-  
 }
 
 template <class MAP>
@@ -218,7 +218,6 @@ void test_ep::tearDown() {
   pProductRegistry_.reset();
 
 }
-
 
 //----------------------------------------------------------------------
 // Test functions
@@ -284,7 +283,6 @@ void test_ep::failgetManybyTypeTest() {
   edm::TypeID tid(dummy);
   std::vector<edm::BasicHandle > handles;
 
-  
   pEvent_->getManyByType(tid, handles);
   CPPUNIT_ASSERT(handles.empty());
 }
