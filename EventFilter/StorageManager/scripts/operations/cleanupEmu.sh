@@ -27,19 +27,19 @@ if ! test -d "$EMUDIR"; then
     exit 123
 fi
  
- 
 # lifetime in mins / 1 day = 1440
-LIFETIME70=60
-LIFETIME65=360
-LIFETIME60=720
-LIFETIME50=1440
-LIFETIME40=2880
-LIFETIME35=5760
-LIFETIME25=11520
-LIFETIME00=21600
+LIFETIME45=60    # 1 hr
+LIFETIME40=360   # 6 hr
+LIFETIME35=720   #12 hr
+LIFETIME30=1440  # 1 day
+LIFETIME25=2880  # 2 day
+LIFETIME20=4320  # 3 day
+LIFETIME00=11520 # 8 day
 
 
 
+
+ 
 # date
 EPOCH=`date +%s`
 
@@ -56,22 +56,20 @@ for CUD in $( ls $EMUDIR | grep ^[0-9][0-9]$ ); do
 
     # find how full disk is to determine how much to delete
     LIFETIME=$(df | 
-        awk -v LIFETIME70="$LIFETIME70" \
-            -v LIFETIME65="$LIFETIME65" \
-            -v LIFETIME60="$LIFETIME60" \
-            -v LIFETIME50="$LIFETIME50" \
+        awk -v LIFETIME45="$LIFETIME45" \
             -v LIFETIME40="$LIFETIME40" \
             -v LIFETIME35="$LIFETIME35" \
+            -v LIFETIME30="$LIFETIME30" \
             -v LIFETIME25="$LIFETIME25" \
+            -v LIFETIME20="$LIFETIME20" \
             -v LIFETIME00="$LIFETIME00" \
             -v pat="$mntpoint" \
-           '$0 ~ pat {if (($5+0) > 70) print LIFETIME70; \
-                 else if (($5+0) > 65) print LIFETIME65; \
-                 else if (($5+0) > 60) print LIFETIME60; \
-                 else if (($5+0) > 50) print LIFETIME50; \
+           '$0 ~ pat {if (($5+0) > 45) print LIFETIME45; \
                  else if (($5+0) > 40) print LIFETIME40; \
                  else if (($5+0) > 35) print LIFETIME35; \
+                 else if (($5+0) > 30) print LIFETIME30; \
                  else if (($5+0) > 25) print LIFETIME25; \
+                 else if (($5+0) > 20) print LIFETIME20; \
                  else print LIFETIME00; }' )
 
     #clean
