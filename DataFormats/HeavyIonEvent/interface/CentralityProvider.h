@@ -1,3 +1,5 @@
+#ifndef __CentralityProvider_h__
+#define __CentralityProvider_h__
 #include <iostream>
 
 #include "FWCore/Framework/interface/Event.h"
@@ -132,6 +134,8 @@ double CentralityProvider::centralityValue(const edm::Event& ev) const {
 
   return var;
 }
+
+#endif
 
 
 
