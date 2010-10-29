@@ -130,6 +130,7 @@ private:
   std::string theTrackQuality, minQuality;
   spr::trackSelectionParameters selectionParameters;
   double      a_mipR, a_coneR, a_charIsoR, a_neutIsoR;
+  double      tMinE_, tMaxE_;
   //   static const size_t nL1BitsMax=128;
   // std::string algoBitToName[nL1BitsMax];
   // std::map <std::string,bool> l1TriggerMap;
@@ -163,6 +164,7 @@ private:
   std::vector<double> *t_trackP,        *t_trackPt,        *t_trackEta,      *t_trackPhi;
   std::vector<double> *t_trackHcalEta,  *t_trackHcalPhi,   *t_eHCALDR;   
   std::vector<double> *t_hCone,         *t_conehmaxNearP,  *t_eMipDR,        *t_eECALDR;
+  std::vector<double> *t_e11x11_20Sig,  *t_e15x15_20Sig;
   std::vector<double> *t_hsimInfoMatched,  *t_hsimInfoRest,     *t_hsimInfoPhoton;
   std::vector<double> *t_hsimInfoNeutHad,  *t_hsimInfoCharHad,  *t_hsimInfoPdgMatched;
   std::vector<double> *t_hsimInfoTotal,    *t_hsim;

@@ -32,6 +32,8 @@ IsolatedTracksHcalScale::IsolatedTracksHcalScale(const edm::ParameterSet& iConfi
   a_charIsoR                          = a_coneR + 28.9;
   a_neutIsoR                          = a_charIsoR*0.726;
   a_mipR                              = iConfig.getUntrackedParameter<double>("ConeRadiusMIP",14.0);
+  tMinE_                              = iConfig.getUntrackedParameter<double>("TimeMinCutECAL", -500.);
+  tMaxE_                              = iConfig.getUntrackedParameter<double>("TimeMaxCutECAL",  500.);
   
   if (myverbose>=0) {
     std::cout <<"Parameters read from config file \n" 
@@ -51,7 +53,8 @@ IsolatedTracksHcalScale::IsolatedTracksHcalScale(const edm::ParameterSet& iConfi
 	      <<"\t a_coneR "         << a_coneR          
 	      <<"\t a_charIsoR "      << a_charIsoR          
 	      <<"\t a_neutIsoR "      << a_neutIsoR          
-	      <<"\t a_mipR "          << a_mipR          
+	      <<"\t a_mipR "          << a_mipR 
+              <<"\t time Range ("     << tMinE_ << ":" << tMaxE_ << ")"
 	      << std::endl;
   }
   initL1 = false;
@@ -71,23 +74,23 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
   iSetup.get<CaloGeometryRecord>().get(pG);
   const CaloGeometry* geo = pG.product();
 
-  /*  
   edm::ESHandle<CaloTopology> theCaloTopology;
   iSetup.get<CaloTopologyRecord>().get(theCaloTopology); 
   const CaloTopology *caloTopology = theCaloTopology.product();
   
+  /*  
   edm::ESHandle<HcalTopology> htopo;
   iSetup.get<IdealGeometryRecord>().get(htopo);
   const HcalTopology* theHBHETopology = htopo.product();
+  */
 
   // Retrieve the good/bad ECAL channels from the DB
   edm::ESHandle<EcalChannelStatus> ecalChStatus;
   iSetup.get<EcalChannelStatusRcd>().get(ecalChStatus);
   const EcalChannelStatus* theEcalChStatus = ecalChStatus.product();
 
+  /*  
   // Retrieve trigger tower map
-
-  //const edm::ESHandle<EcalTrigTowerConstituentsMap> hTtmap;
   edm::ESHandle<EcalTrigTowerConstituentsMap> hTtmap;
   iSetup.get<IdealGeometryRecord>().get(hTtmap);
   const EcalTrigTowerConstituentsMap& ttMap = *hTtmap;
@@ -172,7 +175,7 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
       int                ietaHotCell2=-99, iphiHotCell2=-99;
       GlobalPoint        gposHotCell(0.,0.,0.), gposHotCell2(0.,0.,0.);
       std::vector<DetId> coneRecHitDetIds, coneRecHitDetIds2;
-
+      std::pair<double, bool> e11x11_20SigP, e15x15_20SigP;
       double hCone = spr::eCone_hcal(geo, hbhe, trkDetItr->pointHCAL, trkDetItr->pointECAL,
                                      a_coneR, trkDetItr->directionHCAL, nRecHitsCone,
                                      coneRecHitDetIds, distFromHotCell,
@@ -192,7 +195,8 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
 				       a_neutIsoR, trkDetItr->directionECAL, nRH_eDR);
 
       HcalDetId closestCell = (HcalDetId)(trkDetItr->detIdHCAL);
-
+      e11x11_20SigP = spr::eECALmatrix(trkDetItr->detIdECAL,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,5,5,   0.060,  0.300, tMinE_,tMaxE_);
+      e15x15_20SigP = spr::eECALmatrix(trkDetItr->detIdECAL,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,7,7,   0.060,  0.300, tMinE_,tMaxE_);
       
       // Fill the tree Branches here 
       t_trackP                ->push_back( pTrack->p() );
@@ -206,6 +210,8 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
       t_eMipDR                ->push_back( eMipDR);
       t_eECALDR               ->push_back( eECALDR);
       t_eHCALDR               ->push_back( eHCALDR);
+      t_e11x11_20Sig          ->push_back( e11x11_20SigP.first );
+      t_e15x15_20Sig          ->push_back( e15x15_20SigP.first );
 
       if (myverbose > 0) {
 	std::cout << "Track p " << pTrack->p() << " pt " << pTrack->pt()
@@ -215,6 +221,7 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
 		  << ") Energy in cone " << hCone << " Charge Isolation "
 		  << conehmaxNearP << " eMIP " << eMipDR
 		  << " Neutral isolation (ECAL) " << eECALDR-eMipDR
+		  << " (ECAL NxN) " << e15x15_20SigP.first-e11x11_20SigP.first
 		  << " (HCAL) " << eHCALDR-hCone << std::endl;
       }
 
@@ -296,18 +303,22 @@ void IsolatedTracksHcalScale::beginJob() {
   t_eMipDR              = new std::vector<double>();
   t_eECALDR             = new std::vector<double>();
   t_eHCALDR             = new std::vector<double>();
+  t_e11x11_20Sig        = new std::vector<double>();
+  t_e15x15_20Sig        = new std::vector<double>();
 
-  tree->Branch("t_trackP",            "vector<double>", &t_trackP            );
-  tree->Branch("t_trackPt",           "vector<double>", &t_trackPt           );
-  tree->Branch("t_trackEta",          "vector<double>", &t_trackEta          );
-  tree->Branch("t_trackPhi",          "vector<double>", &t_trackPhi          );
-  tree->Branch("t_trackHcalEta",      "vector<double>", &t_trackHcalEta      );
-  tree->Branch("t_trackHcalPhi",      "vector<double>", &t_trackHcalPhi      );
-  tree->Branch("t_hCone",             "vector<double>", &t_hCone     );
-  tree->Branch("t_conehmaxNearP",     "vector<double>", &t_conehmaxNearP     );
-  tree->Branch("t_eMipDR",            "vector<double>", &t_eMipDR     );
-  tree->Branch("t_eECALDR",           "vector<double>", &t_eECALDR     );
-  tree->Branch("t_eHCALDR",           "vector<double>", &t_eHCALDR     );
+  tree->Branch("t_trackP",            "vector<double>", &t_trackP           );
+  tree->Branch("t_trackPt",           "vector<double>", &t_trackPt          );
+  tree->Branch("t_trackEta",          "vector<double>", &t_trackEta         );
+  tree->Branch("t_trackPhi",          "vector<double>", &t_trackPhi         );
+  tree->Branch("t_trackHcalEta",      "vector<double>", &t_trackHcalEta     );
+  tree->Branch("t_trackHcalPhi",      "vector<double>", &t_trackHcalPhi     );
+  tree->Branch("t_hCone",             "vector<double>", &t_hCone            );
+  tree->Branch("t_conehmaxNearP",     "vector<double>", &t_conehmaxNearP    );
+  tree->Branch("t_eMipDR",            "vector<double>", &t_eMipDR           );
+  tree->Branch("t_eECALDR",           "vector<double>", &t_eECALDR          );
+  tree->Branch("t_eHCALDR",           "vector<double>", &t_eHCALDR          );
+  tree->Branch("t_e11x11_20Sig",      "vector<double>", &t_e11x11_20Sig     );
+  tree->Branch("t_e15x15_20Sig",      "vector<double>", &t_e15x15_20Sig     );
 
   if (doMC) {
     t_hsimInfoMatched    = new std::vector<double>();
@@ -362,6 +373,8 @@ void IsolatedTracksHcalScale::clearTreeVectors() {
   t_eMipDR            ->clear();
   t_eECALDR           ->clear();
   t_eHCALDR           ->clear();
+  t_e11x11_20Sig      ->clear();
+  t_e15x15_20Sig      ->clear();
 
   if (doMC) {
     t_hsimInfoMatched    ->clear();

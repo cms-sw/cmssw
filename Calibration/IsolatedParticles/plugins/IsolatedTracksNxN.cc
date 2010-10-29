@@ -421,7 +421,6 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if (doMC) iEvent.getByLabel("g4SimHits", "HcalHits", pcalohh);
   
   //associates tracker rechits/simhits to a track
-  TrackerHitAssociator* associate=0;
   if (doMC) associate = new TrackerHitAssociator::TrackerHitAssociator(iEvent);
   
   std::vector<int>  ifGood(trkCollection->size(), 1);
@@ -1012,7 +1011,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
     } // check p1/eta
   } // loop over track collection
   
-  //  delete associate;
+  if (doMC) delete associate;
   
   tree->Fill();
 
