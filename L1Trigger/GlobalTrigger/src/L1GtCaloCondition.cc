@@ -96,42 +96,6 @@ L1GtCaloCondition::L1GtCaloCondition(const L1GtCondition* caloTemplate, const L1
 
 }
 
-// copy constructor
-void L1GtCaloCondition::copy(const L1GtCaloCondition &cp) {
-
-    m_gtCaloTemplate = cp.gtCaloTemplate();
-    m_gtPSB = cp.gtPSB();
-
-    m_ifCaloEtaNumberBits = cp.gtIfCaloEtaNumberBits();
-
-    m_condMaxNumberObjects = cp.condMaxNumberObjects();
-    m_condLastResult = cp.condLastResult();
-    m_combinationsInCond = cp.getCombinationsInCond();
-
-    m_verbosity = cp.m_verbosity;
-
-}
-
-L1GtCaloCondition::L1GtCaloCondition(const L1GtCaloCondition& cp) :
-    L1GtConditionEvaluation() {
-
-    copy(cp);
-
-}
-
-// destructor
-L1GtCaloCondition::~L1GtCaloCondition() {
-
-    // empty
-
-}
-
-// equal operator
-L1GtCaloCondition& L1GtCaloCondition::operator= (const L1GtCaloCondition& cp)
-{
-    copy(cp);
-    return *this;
-}
 
 // methods
 void L1GtCaloCondition::setGtCaloTemplate(const L1GtCaloTemplate* caloTempl) {
@@ -221,7 +185,7 @@ const bool L1GtCaloCondition::evaluateCondition() const {
     objectsInComb.reserve(nObjInCond);
 
     // clear the m_combinationsInCond vector
-    (*m_combinationsInCond).clear();
+    combinationsInCond().clear();
 
     do {
 
@@ -339,7 +303,7 @@ const bool L1GtCaloCondition::evaluateCondition() const {
 
         condResult = true;
         passLoops++;
-        (*m_combinationsInCond).push_back(objectsInComb);
+        combinationsInCond().push_back(objectsInComb);
 
         //    } while ( std::next_permutation(index, index + nObj) );
     } while (std::next_permutation(index.begin(), index.end()) );

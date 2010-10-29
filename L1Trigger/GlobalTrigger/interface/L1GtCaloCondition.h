@@ -51,17 +51,7 @@ public:
             const int nrL1ForJet,
             const int nrL1TauJet,
             const int ifCaloEtaNumberBits);
-
-    // copy constructor
-    L1GtCaloCondition(const L1GtCaloCondition&);
-
-    // destructor
-    virtual ~L1GtCaloCondition();
-
-    // assign operator
-    L1GtCaloCondition& operator=(const L1GtCaloCondition&);
-
-public:
+blic:
 
     /// the core function to check if the condition matches
      const bool evaluateCondition() const;
@@ -94,10 +84,7 @@ public:
 
 private:
 
-    /// copy function for copy constructor and operator=
-    void copy(const L1GtCaloCondition& cp);
-
-    /// load calo candidates
+   /// load calo candidates
     const L1GctCand* getCandidate(const int indexCand) const;
 
     /// function to check a single object if it matches a condition

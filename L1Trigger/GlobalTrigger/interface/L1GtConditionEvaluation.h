@@ -42,13 +42,14 @@ class L1GtConditionEvaluation
 public:
 
     /// constructor
-    L1GtConditionEvaluation();
+    L1GtConditionEvaluation()  :
+    m_condMaxNumberObjects(0),
+    m_condLastResult(false),
+    m_verbosity(0) {}
 
-    /// copy constructor
-    L1GtConditionEvaluation(L1GtConditionEvaluation&);
 
     /// destructor
-    virtual ~L1GtConditionEvaluation();
+  virtual ~L1GtConditionEvaluation(){}
 
 public:
 
@@ -76,7 +77,7 @@ public:
     virtual const bool evaluateCondition() const = 0;
 
     /// get numeric expression
-    virtual std::string getNumericExpression() {
+    virtual std::string getNumericExpression() const {
         if (m_condLastResult) {
             return "1";
         }
@@ -86,9 +87,10 @@ public:
     }
 
     /// get all the object combinations evaluated to true in the condition
-    inline CombinationsInCond* getCombinationsInCond() const {
+    inline CombinationsInCond const & getCombinationsInCond() const {
         return m_combinationsInCond;
     }
+
 
     /// print condition
     virtual void print(std::ostream& myCout) const;
@@ -98,6 +100,11 @@ public:
     }
 
 protected:
+
+    /// get all the object combinations (to fill it...)
+    inline CombinationsInCond & combinationsInCond()  {
+        return m_combinationsInCond;
+    }
 
     /// check if a value is greater than a threshold or
     /// greater-or-equal depending on the value of the condGEqValue flag
@@ -117,7 +124,7 @@ protected:
     bool m_condLastResult;
 
     /// store all the object combinations evaluated to true in the condition
-    CombinationsInCond* m_combinationsInCond;
+    CombinationsInCond m_combinationsInCond;
 
     /// verbosity level
     int m_verbosity;
