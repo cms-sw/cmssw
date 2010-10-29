@@ -7,9 +7,9 @@
  *
  *  Original author: Andreas Mussgiller, August 2010
  *
- *  $Date: 2010/09/10 10:26:55 $
- *  $Revision: 1.1 $
- *  (last update by $Author: mussgill $)
+ *  $Date: 2010/10/26 19:53:53 $
+ *  $Revision: 1.2 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
@@ -74,6 +74,9 @@ public:
 
   /// alignment position error - for checking only, otherwise use alignmentErrors() above!  
   const AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}
+
+  /// Return surface deformations
+  virtual int surfaceDeformationIdPairs(std::vector<std::pair<int,SurfaceDeformation*> > &) const { return 0; }
 
   /// do no use, for compatibility only
   virtual void setSurfaceDeformation(const SurfaceDeformation*, bool);

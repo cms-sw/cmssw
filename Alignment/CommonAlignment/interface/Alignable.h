@@ -9,6 +9,7 @@ class AlignmentErrors;
 class AlignmentParameters;
 class AlignmentPositionError;
 class Alignments;
+class AlignmentSurfaceDeformations;
 class SurfaceDeformation;
 
 /** \class Alignable
@@ -17,8 +18,8 @@ class SurfaceDeformation;
  * Any Alignable object can be moved and rotated.
  * Also an alignment uncertainty can be set.
  *
- *  $Date: 2009/04/16 08:17:28 $
- *  $Revision: 1.32 $
+ *  $Date: 2010/10/26 19:53:53 $
+ *  $Revision: 1.33 $
  *  (last update by $Author: flucke $)
  */
 
@@ -186,6 +187,13 @@ public:
   
   /// Return vector of alignment errors
   virtual AlignmentErrors* alignmentErrors() const = 0;
+
+  /// Return surface deformations, sorted by DetId
+  AlignmentSurfaceDeformations* surfaceDeformations() const;
+
+  /// Return surface deformations as a vector of pairs of raw DetId
+  /// and pointers to surface deformations
+  virtual int surfaceDeformationIdPairs(std::vector<std::pair<int,SurfaceDeformation*> > &) const = 0;
 
   /// Return survey info
   const SurveyDet* survey() const { return theSurvey; }

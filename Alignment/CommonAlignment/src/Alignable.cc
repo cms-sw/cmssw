@@ -1,14 +1,19 @@
 /** \file Alignable.cc
  *
- *  $Date: 2007/10/18 09:41:07 $
- *  $Revision: 1.19 $
- *  (last update by $Author: fronga $)
+ *  $Date: 2008/02/13 20:20:47 $
+ *  $Revision: 1.20 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+
+#include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
+#include "CondFormats/Alignment/interface/AlignmentSorter.h"
+
+#include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
 //__________________________________________________________________________________________________
 Alignable::Alignable(align::ID id, const AlignableSurface& surf):
@@ -205,6 +210,34 @@ void Alignable::addRotation( const RotationType& rotation )
 
 }
 
+//__________________________________________________________________________________________________
+AlignmentSurfaceDeformations* Alignable::surfaceDeformations( void ) const
+{
+
+  typedef std::pair<int,SurfaceDeformation*> IdSurfaceDeformationPtrPair;
+
+  std::vector<IdSurfaceDeformationPtrPair> result;
+  surfaceDeformationIdPairs(result);
+  std::sort( result.begin(), 
+ 	     result.end(), 
+	     lessIdAlignmentPair<IdSurfaceDeformationPtrPair>() );
+  
+  AlignmentSurfaceDeformations* allSurfaceDeformations = new AlignmentSurfaceDeformations();
+  
+  for ( std::vector<IdSurfaceDeformationPtrPair>::const_iterator iPair = result.begin();
+	iPair != result.end();
+	++iPair) {
+    
+    // should we check for 'empty' parameters here (all zeros) and skip ?
+    // may be add 'empty' method to SurfaceDeformation
+    allSurfaceDeformations->add((*iPair).first,
+				(*iPair).second->type(),
+				(*iPair).second->parameters());
+  }
+  
+  return allSurfaceDeformations;
+
+}
 
 //__________________________________________________________________________________________________
 void Alignable::setSurvey( const SurveyDet* survey )

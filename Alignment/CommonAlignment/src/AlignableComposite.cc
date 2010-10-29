@@ -333,3 +333,21 @@ AlignmentErrors* AlignableComposite::alignmentErrors( void ) const
   return m_alignmentErrors;
 
 }
+
+
+//__________________________________________________________________________________________________
+int AlignableComposite::surfaceDeformationIdPairs(std::vector<std::pair<int,SurfaceDeformation*> > & result) const
+{
+
+  Alignables comp = this->components();
+
+  int count = 0;
+
+  // Add components recursively
+  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); ++i) {
+    count += (*i)->surfaceDeformationIdPairs(result);
+  }
+  
+  return count;
+
+}

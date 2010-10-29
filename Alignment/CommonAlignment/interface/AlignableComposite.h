@@ -94,6 +94,9 @@ public:
   /// Return vector of alignment errors
   virtual AlignmentErrors* alignmentErrors() const;
 
+  /// Return surface deformations
+  virtual int surfaceDeformationIdPairs(std::vector<std::pair<int,SurfaceDeformation*> > &) const;
+
 protected:
   /// Constructor from GeomDet, only for use in AlignableDet
   explicit AlignableComposite( const GeomDet* geomDet );
