@@ -262,8 +262,12 @@ void L1GlobalTriggerGTL::run(
     // save the results in temporary maps
 
 
-    m_conditionResultMaps.resize(conditionMap.size());
-
+    if (m_conditionResultMaps.size() != conditionMap.size()) // never happens in production but at first event...
+      {
+	m_conditionResultMaps.clear();
+	m_conditionResultMaps.resize(conditionMap.size());
+      }
+    
     int iChip = -1;
 
     for (std::vector<ConditionMap>::const_iterator
@@ -635,7 +639,7 @@ void L1GlobalTriggerGTL::run(
 
     // empty vector for object maps - filled during loop
     std::vector<L1GlobalTriggerObjectMap> objMapVec;
-    objMapVec.reserve(numberPhysTriggers);
+    if (produceL1GtObjectMapRecord && (iBxInEvent == 0)) objMapVec.reserve(numberPhysTriggers);
 
     for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
 
@@ -649,6 +653,15 @@ void L1GlobalTriggerGTL::run(
             m_gtlAlgorithmOR.set(algBitNumber);
         }
 
+        if (m_verbosity && m_isDebugEnabled) {
+            std::ostringstream myCout;
+            ( itAlgo->second ).print(myCout);
+            gtAlg.print(myCout);
+
+            LogTrace("L1GlobalTriggerGTL") << myCout.str() << std::endl;
+        }
+
+
         // object maps only for BxInEvent = 0
         if (produceL1GtObjectMapRecord && (iBxInEvent == 0)) {
 
@@ -658,8 +671,9 @@ void L1GlobalTriggerGTL::run(
             objMap.setAlgoName(itAlgo->first);
             objMap.setAlgoBitNumber(algBitNumber);
             objMap.setAlgoGtlResult(algResult);
-            objMap.setOperandTokenVector(gtAlg.operandTokenVector());
-            objMap.setCombinationVector(gtAlg.gtAlgoCombinationVector());
+            objMap.swapOperandTokenVector(gtAlg.operandTokenVector());
+            objMap.swapCombinationVector(gtAlg.gtAlgoCombinationVector());
+	    // gtAlg is empty now...
 
             if (m_verbosity && m_isDebugEnabled) {
                 std::ostringstream myCout1;
@@ -672,13 +686,6 @@ void L1GlobalTriggerGTL::run(
 
         }
 
-        if (m_verbosity && m_isDebugEnabled) {
-            std::ostringstream myCout;
-            ( itAlgo->second ).print(myCout);
-            gtAlg.print(myCout);
-
-            LogTrace("L1GlobalTriggerGTL") << myCout.str() << std::endl;
-        }
 
     }
 
@@ -689,15 +696,13 @@ void L1GlobalTriggerGTL::run(
 
     // loop over condition maps (one map per condition chip)
     // then loop over conditions in the map
-    // delete the conditions created with new, clear map, keep the vector as is...
+    // delete the conditions created with new, zero pointer, do not clear map, keep the vector as is...
     for (std::vector<L1GtAlgorithmEvaluation::ConditionEvaluationMap>::iterator
         itCondOnChip = m_conditionResultMaps.begin(); itCondOnChip != m_conditionResultMaps.end();
         itCondOnChip++) {
       for (L1GtAlgorithmEvaluation::ItEvalMap itCond =
-	     itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++)
-	delete itCond->second;
-	// clear map
-        itCondOnChip->clear();
+	     itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
+	delete itCond->second; itCond->second=0;
     }
 
 }

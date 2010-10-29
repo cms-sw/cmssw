@@ -110,11 +110,11 @@ public:
   
   /// get all the object combinations evaluated to true in the conditions 
     /// from the algorithm 
-  inline const std::vector<CombinationsInCond> & gtAlgoCombinationVector() const {
+  inline std::vector<CombinationsInCond> & gtAlgoCombinationVector()  {
         return m_algoCombinationVector;
     }
 
-  inline const std::vector<L1GtLogicParser::OperandToken>& operandTokenVector() const { return m_operandTokenVector; }
+  inline std::vector<L1GtLogicParser::OperandToken>& operandTokenVector()  { return m_operandTokenVector; }
     
   void print(std::ostream& myCout) const;
 
