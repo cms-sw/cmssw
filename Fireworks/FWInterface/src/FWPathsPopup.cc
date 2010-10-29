@@ -161,6 +161,8 @@ struct PSetData
    bool        visible;
    // Whether or not any of the children matches the filter.
    bool        childMatches;
+   // Whether or not the contents of the GUI can be edited.
+   bool        editable;
    // Copy of the parameter set associated with this item.
    // We need to keep a copy, because updating a parameter
    // in a parameter set means actually creating a new one,
@@ -379,6 +381,7 @@ public:
             pathEntry.level= 0;
             pathEntry.parent = -1;
             pathEntry.path = i;
+            pathEntry.editable = false;
 
             PathInfo pathInfo;
             pathInfo.entryId = m_entries.size();
@@ -411,6 +414,7 @@ public:
                moduleEntry.module = mi;
                moduleEntry.path = i;
                moduleEntry.pset = *ps;
+               moduleEntry.editable = false;
                ModuleInfo moduleInfo;
                moduleInfo.path = m_paths.size() - 1;
                moduleInfo.entry = m_entries.size();
@@ -647,7 +651,7 @@ public:
       // If we are rendering the selected cell,
       // we show the editor.
       if (iCol == 1 && iSortedRowNumber == m_selectedRow && iCol == m_selectedColumn)
-         renderer->showEditor(true);
+         renderer->showEditor(data.editable);
       else
          renderer->showEditor(false);
 
@@ -956,6 +960,7 @@ public:
                   break;
                default:
                   std::cerr << "unsupported parameter" << std::endl;
+                  m_editor->UnmapWindow();
                   return false;
             }
             data.value = m_editor->GetText();
@@ -985,6 +990,10 @@ public:
    int selectedRow() const {
       return m_selectedRow;
    }
+
+   int selectedColumn() const {
+      return m_selectedColumn;
+   }
    //virtual void sort (int col, bool reset = false);
    virtual bool rowIsSelected(int row) const 
    {
@@ -1010,6 +1019,7 @@ public:
       data.module = m_modules.size() - 1;
       data.path = m_paths.size() - 1;
       data.pset = entry.pset();
+      data.editable = false;
       m_parentStack.push_back(m_entries.size());
       m_entries.push_back(data);
 
@@ -1028,6 +1038,7 @@ public:
       data.type = 'p';
       data.module = m_modules.size() - 1;
       data.path = m_paths.size() - 1;
+      data.editable = false;
       m_parentStack.push_back(m_entries.size());
       m_entries.push_back(data);
 
@@ -1044,6 +1055,7 @@ public:
           vdata.parent = m_parentStack.back();
           vdata.module = m_modules.size() - 1;
           vdata.path = m_paths.size() - 1;
+          vdata.editable = false;
           m_parentStack.push_back(m_entries.size());
           m_entries.push_back(vdata);
           handlePSet(entry.vpset()[i]);
@@ -1120,6 +1132,10 @@ public:
       data.parent = m_parentStack.back();
       data.module = m_modules.size() - 1;
       data.type = entry.typeCode();
+      if (data.label[0] == '@')
+         data.editable = false;
+      else
+         data.editable = true;
 
       switch(entry.typeCode())
       {
@@ -1244,6 +1260,7 @@ public:
         }
       case 'e':
         {
+          data.editable = false;
           std::vector<edm::EventID> ids;
           ids.resize(entry.getVEventID().size());
           for ( size_t iri = 0, ire = ids.size(); iri != ire; ++iri )
@@ -1253,11 +1270,13 @@ public:
         }
       case 'E':
         {
+          data.editable = false;
           createScalarString(data, entry.getEventID());
           break;
         }
       case 'm':
         {
+          data.editable = false;
           std::vector<edm::LuminosityBlockID> ids;
           ids.resize(entry.getVLuminosityBlockID().size());
           for ( size_t iri = 0, ire = ids.size(); iri != ire; ++iri )
@@ -1267,11 +1286,13 @@ public:
         }
       case 'M':
         {
+          data.editable = false;
           createScalarString(data, entry.getLuminosityBlockID());
           break;
         }
       case 'a':
         {
+          data.editable = false;
           std::vector<edm::LuminosityBlockRange> ranges;
           ranges.resize(entry.getVLuminosityBlockRange().size());
           for ( size_t iri = 0, ire = ranges.size(); iri != ire; ++iri )
@@ -1281,11 +1302,13 @@ public:
         }
       case 'A':
         {
+          data.editable = false;
           createScalarString(data, entry.getLuminosityBlockRange());
           break;
         }
       case 'r':
         {
+          data.editable = false;
           std::vector<edm::EventRange> ranges;
           ranges.resize(entry.getVEventRange().size());
           for ( size_t iri = 0, ire = ranges.size(); iri != ire; ++iri )
@@ -1295,6 +1318,7 @@ public:
         }
       case 'R':
         {
+          data.editable = false;
           createScalarString(data, entry.getEventRange());
           break;          
         }
@@ -1385,7 +1409,7 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper, FWGUIManager *guiManager)
           .addTextButton("Apply changes and reload", &m_apply);
 
    TGTextEntry *editor = new TGTextEntry(m_tableWidget->body(), "");
-   editor->SetBackgroundColor(gVirtualX->GetPixel(kCyan-9));
+   editor->SetBackgroundColor(gVirtualX->GetPixel(kYellow-7));
    m_psTable->setCellValueEditor(editor);
    editor->Connect("ReturnPressed()", "FWPathsPopup", this, "applyEditor()");
 
@@ -1451,15 +1475,36 @@ FWPathsPopup::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMo
    if (iColumn == 0)
    {
       m_psTable->setExpanded(iRow);
-      m_psTable->applyEditor();
+
+      // Save and close the previous editor, if required.
+      std::cerr << m_psTable->selectedColumn() << " " << m_psTable->selectedRow() << std::endl;
+      if (m_psTable->selectedColumn() == 1
+          && m_psTable->selectedRow() != -1)
+      {
+         int oldIndex = m_psTable->rowToIndex()[m_psTable->selectedRow()];
+         PSetData& oldData = m_psTable->data()[oldIndex];
+
+         if (oldData.editable)
+            applyEditor();
+      }
+
       m_psTable->setSelection(iRow, iColumn, iKeyMod);
-   }   
+   }
    else if (iColumn == 1)
    {
+      // If we selected a new cell, save the previous, if required.
+      if (m_psTable->selectedColumn() == 1 
+          && m_psTable->selectedRow() != -1)
+      {
+         int oldIndex = m_psTable->rowToIndex()[m_psTable->selectedRow()];
+         PSetData& oldData = m_psTable->data()[oldIndex];
+         if (oldData.editable)
+            applyEditor();
+      }
+         
       // Clear text on new row click
       int index = m_psTable->rowToIndex()[iRow];
       PSetData& data = m_psTable->data()[index];
-      std::cerr << data.label << " clicked" << std::endl;
       m_psTable->setSelection(iRow, iColumn, iKeyMod);
    }
 }
@@ -1529,12 +1574,13 @@ FWPathsPopup::postProcessEvent(edm::Event const& event, edm::EventSetup const& e
    {
       edm::TriggerNames triggerNames = event.triggerNames(*triggerResults);
      
-      for (size_t i = 0, ie = triggerResults->size(); i != ie; ++i)
+      for (size_t i = 0, e = triggerResults->size(); i != e; ++i)
       {
          PathUpdate update;
          update.pathName = triggerNames.triggerName(i);
          update.passed = triggerResults->accept(i);
          update.choiceMaker = triggerResults->index(i);
+         std::cerr << triggerResults->state(i);
          std::cerr << "Trigger results." << update.choiceMaker << std::endl;
          pathUpdates.push_back(update);
       }
