@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.30 2010/10/21 14:52:11 amraktad Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.31 2010/10/22 14:34:45 amraktad Exp $
 //
 
 // system include files
@@ -67,9 +67,7 @@ FWProxyBuilderBase::Product::~Product()
       parent->RemoveElement(m_elements);
    }
 
-   // AMT: use in the root patch 9
-   // m_elements->Annihilate();
-   m_elements->DecDenyDestroy();
+   m_elements->Annihilate();
 }
 
 //______________________________________________________________________________
