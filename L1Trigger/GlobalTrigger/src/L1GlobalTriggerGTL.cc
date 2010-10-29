@@ -703,6 +703,7 @@ void L1GlobalTriggerGTL::run(
       for (L1GtAlgorithmEvaluation::ItEvalMap itCond =
 	     itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
 	delete itCond->second; itCond->second=0;
+      }
     }
 
 }
