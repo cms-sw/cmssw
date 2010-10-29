@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.42 $
-///  last update: $Date: 2010/05/12 09:40:27 $
+///  Revision   : $Revision: 1.43 $
+///  last update: $Date: 2010/09/10 11:46:17 $
 ///  by         : $Author: mussgill $
 
 #include "AlignmentProducer.h"
@@ -39,6 +39,7 @@
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
@@ -79,9 +80,11 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   stRandomShift_(iConfig.getParameter<double>("randomShift")),
   stRandomRotation_(iConfig.getParameter<double>("randomRotation")),
   applyDbAlignment_( iConfig.getUntrackedParameter<bool>("applyDbAlignment")),
+  applyDbDeformations_( iConfig.getUntrackedParameter<bool>("applyDbDeformations")),
   doMisalignmentScenario_(iConfig.getParameter<bool>("doMisalignmentScenario")),
   saveToDB_(iConfig.getParameter<bool>("saveToDB")),
   saveApeToDB_(iConfig.getParameter<bool>("saveApeToDB")),
+  saveDeformationsToDB_(iConfig.getParameter<bool>("saveDeformationsToDB")),
   doTracker_( iConfig.getUntrackedParameter<bool>("doTracker") ),
   doMuon_( iConfig.getUntrackedParameter<bool>("doMuon") ),
   useExtras_( iConfig.getUntrackedParameter<bool>("useExtras") ),
@@ -198,6 +201,10 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
 	(&(*theMuonCSC), iSetup,
 	 align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
     }
+  }
+  
+  if ( applyDbDeformations_ && doTracker_ ) {
+    this->applyDB<TrackerGeometry,TrackerSurfaceDeformationRcd>(&(*theTracker), iSetup);
   }
 
   // Create alignable tracker and muon 
@@ -317,6 +324,12 @@ void AlignmentProducer::endOfJob()
       this->writeDB(alignments, "CSCAlignmentRcd",
 		    alignmentErrors, "CSCAlignmentErrorRcd", muonGlobal);
     }
+  }
+
+  // Save surface deformations to database
+  if (saveDeformationsToDB_ && doTracker_) {
+    AlignmentSurfaceDeformations *alignmentSurfaceDeformations = theAlignableTracker->surfaceDeformations();
+    this->writeDB(alignmentSurfaceDeformations, "TrackerSurfaceDeformationRcd");
   }
 
   if (theAlignableExtras) theAlignableExtras->dump();
@@ -695,6 +708,22 @@ void AlignmentProducer::applyDB(G* geometry, const edm::EventSetup &iSetup,
 
 
 //////////////////////////////////////////////////
+// a templated method - but private, so not accessible from outside
+// ==> does not have to be in header file
+template<class G, class DeformationRcd>
+void AlignmentProducer::applyDB(G* geometry, const edm::EventSetup &iSetup) const
+{
+  // 'G' is the geometry class for that DB should be applied,
+  // 'DeformationRcd' is the record class for its surface deformations 
+  edm::ESHandle<AlignmentSurfaceDeformations> surfaceDeformations;
+  iSetup.get<DeformationRcd>().get(surfaceDeformations);
+
+  GeometryAligner aligner;
+  aligner.attachSurfaceDeformations<G>(geometry, &(*surfaceDeformations));
+}
+
+
+//////////////////////////////////////////////////
 void AlignmentProducer::writeDB(Alignments *alignments,
 				const std::string &alignRcd,
 				AlignmentErrors *alignmentErrors,
@@ -746,5 +775,26 @@ void AlignmentProducer::writeDB(Alignments *alignments,
   }
 }
 
+
+//////////////////////////////////////////////////
+void AlignmentProducer::writeDB(AlignmentSurfaceDeformations *alignmentSurfaceDeformations,
+				const std::string &surfaceDeformationRcd) const
+{
+  // Call service
+  edm::Service<cond::service::PoolDBOutputService> poolDb;
+  if (!poolDb.isAvailable()) { // Die if not available
+    delete alignmentSurfaceDeformations; // promised to take over ownership...
+    throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
+  }
+  
+  if (saveDeformationsToDB_) {
+    edm::LogInfo("Alignment") << "Writing AlignmentSurfaceDeformations to "
+			      << surfaceDeformationRcd  << ".";
+    poolDb->writeOne<AlignmentSurfaceDeformations>(alignmentSurfaceDeformations, poolDb->beginOfTime(),
+						   surfaceDeformationRcd);
+  } else { // poolDb->writeOne(..) takes over 'surfaceDeformation' ownership,...
+    delete alignmentSurfaceDeformations; // ...otherwise we have to delete, as promised!
+  }
+}
 
 DEFINE_FWK_LOOPER( AlignmentProducer );
