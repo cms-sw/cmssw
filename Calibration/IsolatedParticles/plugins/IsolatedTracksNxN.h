@@ -158,7 +158,6 @@ class IsolatedTracksNxN : public edm::EDAnalyzer {
   //mutable TrackDetectorAssociator* trackAssociator_;
 
   const MagneticField *bField;
-  TrackerHitAssociator* associate;
 
   double genPartPBins[16], genPartEtaBins[4];
 

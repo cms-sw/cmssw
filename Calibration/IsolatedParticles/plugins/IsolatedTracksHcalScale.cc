@@ -162,7 +162,7 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
     iEvent.getByLabel("g4SimHits", "EcalHitsEB", pcaloeb);
     iEvent.getByLabel("g4SimHits", "EcalHitsEE", pcaloee);
     iEvent.getByLabel("g4SimHits", "HcalHits", pcalohh);
-    associate = new TrackerHitAssociator::TrackerHitAssociator(iEvent);
+    associate = new TrackerHitAssociator(iEvent);
   }
  
   unsigned int nTracks=0;
