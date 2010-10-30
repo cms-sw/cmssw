@@ -1,6 +1,16 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <math.h>
+#include <cmath>
+
+namespace {
+  inline int pow10(int n) __attribute__((always_inline)) __attribute__ ((pure));
+  inline int pow10(int n){
+    if (n==0) return 1;
+    int ten=10;
+    while (--n>0) ten*=10;
+    return ten;
+  }
+}
 
 EcalUncalibratedRecHit::EcalUncalibratedRecHit() :
      amplitude_(0.), pedestal_(0.), jitter_(0.), chi2_(10000.), flags_(0), aux_(0) { }
@@ -19,9 +29,9 @@ bool EcalUncalibratedRecHit::isSaturated() const {
 float EcalUncalibratedRecHit::outOfTimeEnergy() const
 {
         uint32_t rawEnergy = (0x1FFF & flags_>>4);
-        uint16_t exponent = rawEnergy>>10;
-        uint16_t significand = ~(0xE<<9) & rawEnergy;
-        return (float) significand*pow(10,exponent-5);
+        int exponent = rawEnergy>>10;
+        int  significand = ~(0xE<<9) & rawEnergy;
+        return (float)(significand*pow10(exponent-5));
 }
 
 void EcalUncalibratedRecHit::setRecoFlag( uint32_t flag )
