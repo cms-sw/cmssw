@@ -1,5 +1,5 @@
 //------------------------------------------------------------
-// $Id: TestHelper.cc,v 1.10 2008/11/11 15:57:35 dsr Exp $
+// $Id: TestHelper.cc,v 1.11 2010/09/01 15:37:24 chrjones Exp $
 //------------------------------------------------------------
 #include <cerrno>
 #include <cstdlib>
@@ -33,7 +33,7 @@ int run_script(const std::string& shell, const std::string& script)
 
   if (pid==0) // child
     {
-      execlp(shell.c_str(), "sh", "-c", script.c_str(), 0);
+      execlp(shell.c_str(), "sh", "-c", script.c_str(), (const char *)(0));
       std::cerr <<"child failed becuase '"<<strerror(errno)<<"'\n";
       _exit(127); // signal parent and children processes
     }
