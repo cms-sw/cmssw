@@ -54,8 +54,7 @@ void DCCEBTCCBlock::addTriggerPrimitivesToCollection(){
   
   uint16_t * tccP_= reinterpret_cast< uint16_t * >(data_);
  
-  (*tps_)->reserve((*tps_)->size()+expNumbTTs_*nTSamples_);
-    
+
   for( unsigned int i = 1; i <= expNumbTTs_; i++){
 
     unsigned int theTT = i;
@@ -68,7 +67,6 @@ void DCCEBTCCBlock::addTriggerPrimitivesToCollection(){
     }
    
     pTP_ =  mapper_->getTPPointer(tccId_,theTT);
-    
     for(unsigned int ns = 0; ns<nTSamples_;ns++,tccP_++){
       
       pTP_->setSampleValue(ns, (*tccP_));

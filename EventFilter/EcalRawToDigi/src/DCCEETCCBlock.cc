@@ -47,7 +47,6 @@ void DCCEETCCBlock::addTriggerPrimitivesToCollection(){
 
         // Unpack TPG1 pseudostrip input block
         if(ps_){ 
-	  (*pss_)->reserve((*pss_)->size()+NUMB_PSEUDOSTRIPS);
           for(unsigned int i = 1; i<= NUMB_PSEUDOSTRIPS; i++, tccP_++, psInputCounter++){
             pPS_= mapper_->getPSInputDigiPointer(tccId_,psInputCounter);
             if(!pPS_) continue;
@@ -58,7 +57,6 @@ void DCCEETCCBlock::addTriggerPrimitivesToCollection(){
   
         // Unpack TPG1 trigger primitive block
         // loop over tp_counter=i and navigate forward in raw (tccP_)
-	(*tps_)->reserve((*tps_)->size()+NUMB_TTS_TPG1);
         for(unsigned int i = 1; i<= NUMB_TTS_TPG1; i++, tccP_++){//16
           
           if( i<= nTTs_){
@@ -77,9 +75,8 @@ void DCCEETCCBlock::addTriggerPrimitivesToCollection(){
           
           // Unpack TPG2 pseudostrip input block
           if(ps_){ 
-	    (*pss_)->reserve((*pss_)->size()+NUMB_PSEUDOSTRIPS-NUMB_TTS_TPG2_DUPL);
-	    tccP_+=NUMB_TTS_TPG2_DUPL; psInputCounter+=NUMB_TTS_TPG2_DUPL;
-            for(unsigned int i=NUMB_TTS_TPG2_DUPL+1; i<= NUMB_PSEUDOSTRIPS; i++, tccP_++, psInputCounter++){
+            for(unsigned int i = 1; i<= NUMB_PSEUDOSTRIPS; i++, tccP_++, psInputCounter++){
+              if (i<=NUMB_TTS_TPG2_DUPL) continue;
               //fill pseudostrip container
               pPS_= mapper_->getPSInputDigiPointer(tccId_,psInputCounter);
               if(!pPS_) continue;
@@ -90,7 +87,6 @@ void DCCEETCCBlock::addTriggerPrimitivesToCollection(){
           
           
           // Unpack TPG2 trigger primitive block
-	  (*tps_)->reserve((*tps_)->size()+NUMB_TTS_TPG2);
           for(unsigned int i = 1; i<= NUMB_TTS_TPG2; i++, tccP_++){//12
             unsigned int tt = i+NUMB_TTS_TPG1;
             
@@ -113,9 +109,8 @@ void DCCEETCCBlock::addTriggerPrimitivesToCollection(){
       {
         
         // Unpack TPG1 pseudostrip input block
-       if(ps_){ 
-	 (*pss_)->reserve((*pss_)->size()+NUMB_PSEUDOSTRIPS);
-           for(unsigned int i = 1; i<= NUMB_PSEUDOSTRIPS; i++, tccP_++, psInputCounter++){
+        if(ps_){ 
+          for(unsigned int i = 1; i<= NUMB_PSEUDOSTRIPS; i++, tccP_++, psInputCounter++){
             pPS_= mapper_->getPSInputDigiPointer(tccId_,psInputCounter);
             if(!pPS_) continue;
             pPS_->setSampleValue(0, *tccP_ );
@@ -126,7 +121,6 @@ void DCCEETCCBlock::addTriggerPrimitivesToCollection(){
         int offset(0);
         // Unpack TPG1 trigger primitive block
         // loop over tp_counter=i and navigate forward in raw (tccP_)
-	(*tps_)->reserve((*tps_)->size()+NUMB_TTS_TPG1);
         for(unsigned int i = 1; i<= NUMB_TTS_TPG1; i++, tccP_++){//16
           
           if( i<= nTTs_){
@@ -151,10 +145,9 @@ void DCCEETCCBlock::addTriggerPrimitivesToCollection(){
           
           // Unpack TPG2 pseudostrip input block
           if(ps_){ 
-	    (*pss_)->reserve((*pss_)->size()+NUMB_PSEUDOSTRIPS-NUMB_TTS_TPG2_DUPL);
-	    tccP_+=NUMB_TTS_TPG2_DUPL; psInputCounter+=NUMB_TTS_TPG2_DUPL;
-            for(unsigned int i=NUMB_TTS_TPG2_DUPL+1; i<= NUMB_PSEUDOSTRIPS; i++, tccP_++, psInputCounter++){
-	      //fill pseudostrip container
+            for(unsigned int i = 1; i<= NUMB_PSEUDOSTRIPS; i++, tccP_++, psInputCounter++){
+              if (i<=NUMB_TTS_TPG2_DUPL) continue;
+              //fill pseudostrip container
               pPS_= mapper_->getPSInputDigiPointer(tccId_,psInputCounter);
               if(!pPS_) continue;
               pPS_->setSampleValue(0, *tccP_ );
@@ -164,7 +157,6 @@ void DCCEETCCBlock::addTriggerPrimitivesToCollection(){
           
           
           // Unpack TPG2 trigger primitive block
-	  (*tps_)->reserve((*tps_)->size()+NUMB_TTS_TPG2);
           for(unsigned int i = 1; i<= NUMB_TTS_TPG2; i++, tccP_++){//12
             unsigned int tt = i+NUMB_TTS_TPG1;
             
