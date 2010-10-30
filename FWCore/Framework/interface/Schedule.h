@@ -315,7 +315,7 @@ namespace edm {
       EventSetup const* es_;
     };
   }
-
+  
   // -----------------------------
   // ProcessOneOccurrence is a functor that has bound a specific
   // Principal and Event Setup, and can be called with a Path, to
@@ -350,7 +350,8 @@ namespace edm {
         for(std::map<std::string, Worker*>::iterator it = labelToWorkers_.begin(), itEnd=labelToWorkers_.end();
             it != itEnd;
             ++it) {
-          it->second->doWork<T>(p,es,0);
+          edm::CPUTimer timer;
+          it->second->doWork<T>(p,es,0,&timer);
         }
       }
     }
@@ -363,7 +364,8 @@ namespace edm {
       std::map<std::string, Worker*>::const_iterator itFound =
         labelToWorkers_.find(moduleLabel);
       if(itFound != labelToWorkers_.end()) {
-	  itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(event, eventSetup, iContext);
+        edm::CPUTimer timer;
+	  itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(event, eventSetup, iContext,&timer);
 	  return true;
       }
       return false;
@@ -385,7 +387,7 @@ namespace edm {
     state_ = Running;
 
     // A RunStopwatch, but only if we are processing an event.
-    std::auto_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
+    RunStopwatch stopwatch(T::isEvent_ ? stopwatch_ : RunStopwatch::StopwatchPointer());
 
     if (T::isEvent_) {
       ++total_events_;
@@ -419,7 +421,8 @@ namespace edm {
       }
 
       try {
-        if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, 0);
+        edm::CPUTimer timer;
+        if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, 0,&timer);
       }
       catch (cms::Exception& ex) {
         Exception e(errors::EventProcessorFailure,

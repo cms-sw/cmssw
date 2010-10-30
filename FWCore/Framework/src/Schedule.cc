@@ -164,7 +164,7 @@ namespace edm {
     wantSummary_(tns.wantSummary()),
     total_events_(),
     total_passed_(),
-    stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
+    stopwatch_( wantSummary_? new RunStopwatch::StopwatchPointer::element_type : static_cast<RunStopwatch::StopwatchPointer::element_type*> (0)),
     unscheduled_(new UnscheduledCallProducer),
     endpathsAreActive_(true) {
 
@@ -423,6 +423,9 @@ namespace edm {
     // an empty path will cause an extra bit that is not used
     if(!tmpworkers.empty()) {
       Path p(bitpos, name, tmpworkers, trptr, *act_table_, actReg_, false);
+      if(wantSummary_) {
+        p.useStopwatch();
+      }
       trig_paths_.push_back(p);
     }
     for_all(holder, boost::bind(&Schedule::addToAllWorkers, this, _1));
@@ -440,6 +443,9 @@ namespace edm {
 
     if (!tmpworkers.empty()) {
       Path p(bitpos, name, tmpworkers, endpath_results_, *act_table_, actReg_, true);
+      if(wantSummary_) {
+        p.useStopwatch();
+      }
       end_paths_.push_back(p);
     }
     for_all(holder, boost::bind(&Schedule::addToAllWorkers, this, _1));
@@ -1007,7 +1013,12 @@ namespace edm {
 
   void
   Schedule::addToAllWorkers(Worker* w) {
-    if (!search_all(all_workers_, w)) all_workers_.push_back(w);
+    if (!search_all(all_workers_, w)) {
+      if(wantSummary_) {
+        w->useStopwatch();
+      }      
+      all_workers_.push_back(w);
+    }
   }
 
   void 
