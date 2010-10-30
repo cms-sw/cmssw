@@ -36,7 +36,8 @@ process.zMuMuSubskimOutputModule.fileName = 'file:/tmp/fabozzi/testZMuMuSubskim.
 
 process.outpath = cms.EndPath(process.zMuMuSubskimOutputModule)
 
-### Here set the HLT Path for trigger matching
+### Here set the HLT Path for trigger filtering and matching
+process.dimuonsHLTFilter.HLTPaths = ["HLT_Mu9", "HLT_Mu11", "HLT_DoubleMu3"]
 process.muonTriggerMatchHLTMuons.pathNames = cms.vstring( 'HLT_Mu11' )
 process.userDataMuons.hltPath = cms.string("HLT_Mu11")
 process.userDataDimuons.hltPath = cms.string("HLT_Mu11")
