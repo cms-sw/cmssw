@@ -102,7 +102,7 @@ HLTRFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
  //now we can calculate MTR
   TVector3 met;
-  met.SetPtEtaPhi((inputMet->front()).energy(),0.0,(inputMet->front()).phi());
+  met.SetPtEtaPhi((inputMet->front()).pt(),0.0,(inputMet->front()).phi());
   double MTR = sqrt(0.5*(met.Mag()*(j1.Pt()+j2.Pt()) - met.Dot(j1.Vect()+j2.Vect())));
 
  //calculate MR or MRP
