@@ -14,7 +14,7 @@ namespace edm {
 	     ActionTable& actions,
 	     boost::shared_ptr<ActivityRegistry> areg,
 	     bool isEndPath):
-    stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
+    stopwatch_(),
     timesRun_(),
     timesPassed_(),
     timesFailed_(),
@@ -100,6 +100,16 @@ namespace edm {
   Path::clearCounters() {
     timesRun_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
     for_all(workers_, boost::bind(&WorkerInPath::clearCounters, _1));
+  }
+
+  void
+  Path::useStopwatch() {
+    stopwatch_.reset(new RunStopwatch::StopwatchPointer::element_type);
+    for(WorkersInPath::iterator it=workers_.begin(), itEnd = workers_.end();
+        it != itEnd;
+        ++it) {
+      it->useStopwatch();
+    }
   }
 
 

@@ -5,7 +5,7 @@
 
 	Author: Jim Kowalkowski 28-01-06
 
-	$Id: WorkerInPath.h,v 1.12 2008/10/16 23:06:28 wmtan Exp $
+	$Id: WorkerInPath.h,v 1.13 2010/07/24 14:15:28 wmtan Exp $
 
 	A wrapper around a Worker, so that statistics can be managed
 	per path.  A Path holds Workers as these things.
@@ -29,13 +29,17 @@ namespace edm {
 		   CurrentProcessingContext const* cpc);
 
     std::pair<double,double> timeCpuReal() const {
-      return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
+      if(stopwatch_) {
+        return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
+      }
+      return std::pair<double,double>(0.,0.);
     }
 
     void clearCounters() {
       timesVisited_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
     }
-
+    void useStopwatch();
+    
     int timesVisited() const { return timesVisited_; }
     int timesPassed() const { return timesPassed_; }
     int timesFailed() const { return timesFailed_; }
@@ -60,9 +64,6 @@ namespace edm {
   bool WorkerInPath::runWorker(typename T::MyPrincipal & ep, EventSetup const & es,
 			       CurrentProcessingContext const* cpc) {
 
-    // A RunStopwatch, but only if we are processing an event.
-    std::auto_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
-
     if (T::isEvent_) {
       ++timesVisited_;
     }
@@ -72,7 +73,7 @@ namespace edm {
 	// may want to change the return value from the worker to be 
 	// the Worker::FilterAction so conditions in the path will be easier to 
 	// identify
-	rc = worker_->doWork<T>(ep, es, cpc);
+	rc = worker_->doWork<T>(ep, es, cpc,stopwatch_.get());
 
         // Ignore return code for non-event (e.g. run, lumi) calls
 	if (!T::isEvent_) rc = true;

@@ -46,7 +46,8 @@ namespace edm {
 
     template <typename T>
     bool doWork(typename T::MyPrincipal&, EventSetup const& c,
-		CurrentProcessingContext const* cpc);
+		CurrentProcessingContext const* cpc,
+                CPUTimer *const timer);
     void beginJob() ;
     void endJob();
     void respondToOpenInputFile(FileBlock const& fb) {implRespondToOpenInputFile(fb);}
@@ -72,6 +73,8 @@ namespace edm {
     void clearCounters() {
       timesRun_ = timesVisited_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
     }
+    
+    void useStopwatch();
 
     int timesRun() const { return timesRun_; }
     int timesVisited() const { return timesVisited_; }
@@ -156,11 +159,14 @@ namespace edm {
   }
 
    template <typename T>
-   bool Worker::doWork(typename T::MyPrincipal& ep, EventSetup const& es,
-		      CurrentProcessingContext const* cpc) {
+   bool Worker::doWork(typename T::MyPrincipal& ep, 
+                       EventSetup const& es,
+                       CurrentProcessingContext const* cpc,
+                       CPUTimer* const iTimer) {
 
     // A RunStopwatch, but only if we are processing an event.
-    std::auto_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
+    RunDualStopwatches stopwatch(T::isEvent_ ? stopwatch_ : RunStopwatch::StopwatchPointer(),
+                                 iTimer);
 
     if (T::isEvent_) {
       ++timesVisited_;

@@ -4,7 +4,7 @@
 
 namespace edm {
   WorkerInPath::WorkerInPath(Worker* w, FilterAction theFilterAction):
-    stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
+    stopwatch_(),
     timesVisited_(),
     timesPassed_(),
     timesFailed_(),
@@ -24,5 +24,11 @@ namespace edm {
     worker_(w)
   {
   }
+   
+   void 
+   WorkerInPath::useStopwatch() {
+      stopwatch_.reset(new RunStopwatch::StopwatchPointer::element_type);
+   }
+
 
 }

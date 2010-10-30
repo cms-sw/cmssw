@@ -36,7 +36,7 @@ private:
 
   Worker::Worker(ModuleDescription const& iMD, 
 		 WorkerParams const& iWP) :
-    stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
+    stopwatch_(),
     timesRun_(),
     timesVisited_(),
     timesPassed_(),
@@ -199,6 +199,10 @@ private:
 	throw *cached_exception_;
     }
 
+  }
+  
+  void Worker::useStopwatch(){
+    stopwatch_.reset(new RunStopwatch::StopwatchPointer::element_type);
   }
   
 }

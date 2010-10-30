@@ -50,7 +50,10 @@ namespace edm {
     std::string const& name() const { return name_; }
 
     std::pair<double,double> timeCpuReal() const {
-      return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
+      if(stopwatch_) {
+        return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
+      }
+      return std::pair<double,double>(0.,0.);
     }
 
     std::pair<double,double> timeCpuReal(unsigned int const i) const {
@@ -73,6 +76,7 @@ namespace edm {
     int timesExcept (size_type i) const { return workers_.at(i).timesExcept() ; }
     Worker const* getWorker(size_type i) const { return workers_.at(i).getWorker(); }
 
+    void useStopwatch();
   private:
     RunStopwatch::StopwatchPointer stopwatch_;
     int timesRun_;
@@ -133,7 +137,7 @@ namespace edm {
     std::auto_ptr<PathSignalSentry<T> > signaler(new PathSignalSentry<T>(actReg_.get(), name_, nwrwue, state_));
                                                                            
     // A RunStopwatch, but only if we are processing an event.
-    std::auto_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
+    RunStopwatch stopwatch(T::isEvent_ ? stopwatch_ : RunStopwatch::StopwatchPointer());
 
     if (T::isEvent_) {
       ++timesRun_;
