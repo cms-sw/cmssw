@@ -54,7 +54,7 @@ void DCCEBTCCBlock::addTriggerPrimitivesToCollection(){
   
   uint16_t * tccP_= reinterpret_cast< uint16_t * >(data_);
  
-  (*tps_).reserve((*tps_).size()+expNumbTTs_*nTSamples_);
+  (*tps_)->reserve((*tps_)->size()+expNumbTTs_*nTSamples_);
     
   for( unsigned int i = 1; i <= expNumbTTs_; i++){
 
