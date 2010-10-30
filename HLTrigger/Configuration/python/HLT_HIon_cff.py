@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_8_5/HIon/V39 (CMSSW_3_8_1_HLT24)
+# /dev/CMSSW_3_8_5/HIon/V40 (CMSSW_3_8_1_HLT25)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_5/HIon/V39')
+  tableName = cms.string('/dev/CMSSW_3_8_5/HIon/V40')
 )
 
 streams = cms.PSet( 
@@ -1301,6 +1301,7 @@ hltPreHIZeroBiasPixelSingleTrack = cms.EDFilter( "HLTPrescaler",
 )
 hltSiPixelDigis = cms.EDProducer( "SiPixelRawToDigi",
     IncludeErrors = cms.bool( False ),
+    UseQualityInfo = cms.bool( False ),
     InputLabel = cms.InputTag( "rawDataCollector" )
 )
 hltHISiPixelClusters = cms.EDProducer( "SiPixelClusterProducer",
@@ -1615,7 +1616,7 @@ hltL1sHIUpcEcal = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 3 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleEG5" ),
+    L1SeedsLogicalExpression = cms.string( "NOT L1_ETT60 AND L1_DoubleEG5" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
@@ -1632,7 +1633,7 @@ hltL1sHIUpcMu = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 3 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleMu3" ),
+    L1SeedsLogicalExpression = cms.string( "NOT L1_ETT60 AND L1_SingleMu3" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
@@ -2288,6 +2289,17 @@ hltHI1jet90U = cms.EDFilter( "HLT1CaloJet",
 hltPreHIJet90UCopy = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
+hltL1sHIGlobalDecision = cms.EDFilter( "HLTLevel1GTSeed",
+    L1UseL1TriggerObjectMaps = cms.bool( True ),
+    L1NrBxInEvent = cms.int32( 3 ),
+    L1TechTriggerSeeding = cms.bool( False ),
+    L1UseAliasesForSeeding = cms.bool( True ),
+    L1SeedsLogicalExpression = cms.string( "L1GlobalDecision" ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
+    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
+    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
+)
 hltPreHIActivityPixels = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
@@ -2428,12 +2440,12 @@ HLT_HIJet75U = cms.Path( HLTBeginSequenceBPTX + hltL1sHIJet75U + hltPreHIJet75U 
 HLT_HIJet75U_Core = cms.Path( HLTBeginSequenceBPTX + hltL1sHIJet75U + hltPreHIJet75UCore + HLTDoHIJetRecoSequence + hltHI1jet75U + HLTEndSequence )
 HLT_HIJet90U = cms.Path( HLTBeginSequenceBPTX + hltL1sHIJet90U + hltPreHIJet90U + HLTDoHIJetRecoSequence + hltHI1jet90U + HLTEndSequence )
 HLT_HIJet90U_Core = cms.Path( HLTBeginSequenceBPTX + hltL1sHIJet90U + hltPreHIJet90UCopy + HLTDoHIJetRecoSequence + hltHI1jet90U + HLTEndSequence )
-HLT_HIActivityPixels = cms.Path( HLTBeginSequence + hltL1sHIZeroBias + hltPreHIActivityPixels + HLTDoHILocalPixelSequence + hltHIPixelActivityFilter + HLTEndSequence )
-HLT_HIActivityPixel_SingleTrack = cms.Path( HLTBeginSequence + hltL1sHIZeroBias + hltPreHIActivityPixelSingleTrack + HLTDoHILocalPixelSequence + HLTPixelTrackingForHITrackTrigger + hltHISinglePixelTrackFilter1 + HLTEndSequence )
-HLT_HIActivityHF_Single3 = cms.Path( HLTBeginSequence + hltL1sHIZeroBias + hltPreHIActivityHFSingle3 + hltHcalDigis + hltHfreco + hltHcalSimpleRecHitFilter + HLTEndSequence )
-HLT_HIActivityHF_Coincidence3 = cms.Path( HLTBeginSequence + hltL1sHIZeroBias + hltPreHIActivityHFCoincidence3 + hltHcalDigis + hltHfreco + hltHcalSimpleRecHitFilterCoincidence + HLTEndSequence )
-HLT_HIClusterVertexCompatibility = cms.Path( HLTBeginSequence + hltL1sHIZeroBias + hltPreHIClusterVertexCompatibility + HLTDoHILocalPixelSequence + hltHIPixelClusterShapeFilter + HLTEndSequence )
-HLT_HICentralityVeto = cms.Path( HLTBeginSequenceBPTX + hltL1sHIZeroBias + hltPreHICentralityVeto + HLTDoHILocalPixelSequence + hltPixelActivityFilterCentralityVeto + HLTEndSequence )
+HLT_HIActivityPixels = cms.Path( HLTBeginSequence + hltL1sHIGlobalDecision + hltPreHIActivityPixels + HLTDoHILocalPixelSequence + hltHIPixelActivityFilter + HLTEndSequence )
+HLT_HIActivityPixel_SingleTrack = cms.Path( HLTBeginSequence + hltL1sHIGlobalDecision + hltPreHIActivityPixelSingleTrack + HLTDoHILocalPixelSequence + HLTPixelTrackingForHITrackTrigger + hltHISinglePixelTrackFilter1 + HLTEndSequence )
+HLT_HIActivityHF_Single3 = cms.Path( HLTBeginSequence + hltL1sHIGlobalDecision + hltPreHIActivityHFSingle3 + hltHcalDigis + hltHfreco + hltHcalSimpleRecHitFilter + HLTEndSequence )
+HLT_HIActivityHF_Coincidence3 = cms.Path( HLTBeginSequence + hltL1sHIGlobalDecision + hltPreHIActivityHFCoincidence3 + hltHcalDigis + hltHfreco + hltHcalSimpleRecHitFilterCoincidence + HLTEndSequence )
+HLT_HIClusterVertexCompatibility = cms.Path( HLTBeginSequence + hltL1sHIGlobalDecision + hltPreHIClusterVertexCompatibility + HLTDoHILocalPixelSequence + hltHIPixelClusterShapeFilter + HLTEndSequence )
+HLT_HICentralityVeto = cms.Path( HLTBeginSequenceBPTX + hltL1sHIMinBiasBSC + hltPreHICentralityVeto + HLTDoHILocalPixelSequence + hltPixelActivityFilterCentralityVeto + HLTEndSequence )
 HLT_HcalCalibration_HI = cms.Path( hltCalibrationEventsFilter + hltGtDigis + hltPreHIHcalCalibration + hltHcalCalibTypeFilter + hltHcalCalibrationRaw + HLTEndSequence )
 HLTriggerFinalPath = cms.Path( hltGtDigis + hltFEDSelector + hltTriggerSummaryAOD + hltTriggerSummaryRAW + hltBoolTrue )
 HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
