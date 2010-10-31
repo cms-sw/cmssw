@@ -1053,6 +1053,37 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }       
     }       
   }  
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_R0.10U_MR50U") ==0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHltRPassed(0.10,50,false,7,30.)>0) { 
+	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
+      } 
+    } 
+  } 
+ 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_R0.30U_MR100U") ==0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHltRPassed(0.30,100,false,7,30.)>0) { 
+	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
+      } 
+    } 
+  } 
+ 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_R0.33U_MR100U") ==0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHltRPassed(0.33,100,false,7,30.)>0) { 
+	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
+      } 
+    } 
+  } 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_RP0.25U_MR70U") ==0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHltRPassed(0.25,70,true,7,30.)>0) { 
+	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
+      } 
+    } 
+  } 
+
 
   /* Muons */
   else if (menu->GetTriggerName(it).CompareTo("OpenAlCa_RPCMuonNormalisation") == 0) {          
@@ -4621,6 +4652,122 @@ int OHltTree::OpenHlt1ElectronEleIDHTPassed(float Et, float HT,float jetThreshol
 }
  
 
+
+int OHltTree::OpenHltRPassed(float Rmin, float MRmin,bool MRP, int NJmax, float jetPt){
+  //make a list of the vectors
+  vector<TLorentzVector*> JETS;
+
+  for(int i=0; i<NrecoJetCal; i++) {
+    if(fabs(recoJetCalEta[i])>=3 || recoJetCalPt[i] < jetPt) continue; // require jets with eta<3
+    TLorentzVector* tmp = new TLorentzVector();
+    tmp->SetPtEtaPhiE(recoJetCalPt[i],recoJetCalEta[i],
+		      recoJetCalPhi[i],recoJetCalE[i]);
+    
+    JETS.push_back(tmp);
+  }
+  
+  int jetsSize = 0;
+  jetsSize = JETS.size(); 
+  
+  //Now make the hemispheres
+  //for this simulation, we will used TLorentzVectors, although this is probably not
+  //possible online
+  if(jetsSize<2) return 0;
+  if(NJmax!=-1 && jetsSize > NJmax) return 1;
+  int N_comb = 1; // compute the number of combinations of jets possible
+  for(int i = 0; i < jetsSize; i++){ // this is code is kept as close as possible
+    N_comb *= 2;                 //to Chris' code for validation
+  }
+  TLorentzVector j1,j2;
+  double M_min = 9999999999.0;
+  double dHT_min = 99999999.0;
+  int j_count;
+  for(int i=0;i<N_comb;i++){       
+    TLorentzVector j_temp1, j_temp2;
+    int itemp = i;
+    j_count = N_comb/2;
+    int count = 0;
+    while(j_count > 0){
+      if(itemp/j_count == 1){
+	j_temp1 += *(JETS.at(count));
+      } else {
+	j_temp2 += *(JETS.at(count));
+      }
+      itemp -= j_count*(itemp/j_count);
+      j_count /= 2;
+      count++;
+    }
+    double M_temp = j_temp1.M2()+j_temp2.M2();
+    if(M_temp < M_min){
+      M_min = M_temp;
+      j1= j_temp1;
+      j2= j_temp2;
+    }
+    double dHT_temp = fabs(j_temp1.E()-j_temp2.E());
+    if(dHT_temp < dHT_min){
+      dHT_min = dHT_temp;
+      //deltaHT = dHT_temp;
+    }
+  }
+  
+  j1.SetPtEtaPhiM(j1.Pt(),j1.Eta(),j1.Phi(),0.0);
+  j2.SetPtEtaPhiM(j2.Pt(),j2.Eta(),j2.Phi(),0.0);
+  
+  if(j2.Pt() > j1.Pt()){
+    TLorentzVector temp = j1;
+    j1 = j2;
+    j2 = temp;
+  }
+  //Done Calculating Hemispheres
+  //Now we can check if the event is of type R or R'
+  
+  double num = j1.P()-j2.P();
+  double den = j1.Pz()-j2.Pz();
+  if(fabs(num)==fabs(den)) return 0; //ignore if beta=1
+  if(fabs(num)<fabs(den) && MRP) return 0; //num<den ==> R event
+  if(fabs(num)>fabs(den) && !MRP) return 0; // num>den ==> R' event
+  
+  //now we can calculate MTR
+  TVector3 met;
+  met.SetPtEtaPhi(recoMetCal,0,recoMetCalPhi);
+  double MTR = sqrt(0.5*(met.Mag()*(j1.Pt()+j2.Pt()) - met.Dot(j1.Vect()+j2.Vect())));
+  
+  //calculate MR or MRP
+  double MR=0;
+  if(!MRP){    //CALCULATE MR
+    double temp = (j1.P()*j2.Pz()-j2.P()*j1.Pz())*(j1.P()*j2.Pz()-j2.P()*j1.Pz());
+    temp /= (j1.Pz()-j2.Pz())*(j1.Pz()-j2.Pz())-(j1.P()-j2.P())*(j1.P()-j2.P());    
+    MR = 2.*sqrt(temp);
+  }else{      //CALCULATE MRP   
+    double jaP = j1.Pt()*j1.Pt() +j1.Pz()*j2.Pz()-j1.P()*j2.P();
+    double jbP = j2.Pt()*j2.Pt() +j1.Pz()*j2.Pz()-j1.P()*j2.P();
+    jbP *= -1.;
+    double den = sqrt((j1.P()-j2.P())*(j1.P()-j2.P())-(j1.Pz()-j2.Pz())*(j1.Pz()-j2.Pz()));
+    
+    jaP /= den;
+    jbP /= den;
+    
+    double temp = jaP*met.Dot(j2.Vect())/met.Mag() + jbP*met.Dot(j1.Vect())/met.Mag();
+    temp = temp*temp;
+    
+    den = (met.Dot(j1.Vect()+j2.Vect())/met.Mag())*(met.Dot(j1.Vect()+j2.Vect())/met.Mag())-(jaP-jbP)*(jaP-jbP);
+    
+    if(den <= 0.0) return 0.;
+
+    temp /= den;
+    temp = 2.*sqrt(temp);
+    
+    double bR = (jaP-jbP)/(met.Dot(j1.Vect()+j2.Vect())/met.Mag());
+    double gR = 1./sqrt(1.-bR*bR);
+    
+    temp *= gR;
+
+    MR = temp;
+  }
+  if(MR<MRmin || float(MTR)/float(MR)<Rmin) return 0;
+  
+  return 1;
+}
 
 int OHltTree::OpenHlt1MuonPassed(double ptl1, double ptl2, double ptl3, double dr, int iso)
 {

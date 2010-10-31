@@ -92,7 +92,7 @@ int main(int argc, char *argv[]){
 							  sLumi + TString("_") +
 							  ocfg->versionTag;
 // 		printf("About to call printHLTDatasets\n"); //RR
-    rprint->printHLTDatasets(ocfg,omenu,hltDatasets,hltTableFileName,3);
+//    rprint->printHLTDatasets(ocfg,omenu,hltDatasets,hltTableFileName,3);
   }
   /* **** */
   // Calculate Efficiencies
@@ -149,7 +149,7 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
   vector<float> weightedPrescaleRefHLT; 
   vector<float> weightedPrescaleRefL1; 
   float DenEff=0.;
-  Int_t nbinpt = 50; Float_t ptmin = 0.0; Float_t ptmax = 2.0;
+  Int_t nbinpt = 50; Float_t ptmin = 0.0; Float_t ptmax = 20.0;
   Int_t nbineta = 30; Float_t etamin = -3.0; Float_t etamax = 3.0;
   TH1F *h1 = new TH1F("h1","pTnum",nbinpt,ptmin,ptmax);
   TH1F *h2 = new TH1F("h2","pTden",nbinpt,ptmin,ptmax);
@@ -300,7 +300,7 @@ void calcEff(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
   vector< vector<float> >coMa;
   vector<float> coDen;
   //  float DenEff=0.;
-  Int_t nbinpt = 50; Float_t ptmin = 0.0; Float_t ptmax = 2.0;
+  Int_t nbinpt = 50; Float_t ptmin = 0.0; Float_t ptmax = 20.0;
   Int_t nbineta = 30; Float_t etamin = -3.0; Float_t etamax = 3.0;
 
   vector<float> ftmp;
