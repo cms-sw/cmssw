@@ -3,12 +3,10 @@
 #include <cmath>
 
 namespace {
-  inline int pow10(int n) __attribute__((always_inline)) __attribute__ ((pure));
-  inline int pow10(int n){
-    if (n==0) return 1;
-    int ten=10;
-    while (--n>0) ten*=10;
-    return ten;
+  float powers[] {1.e-5f,10.e-4f,1.e-3f,1.e-2f,1.e-1f,1.f,10.f,100.f};
+  inline float pow10(int n) __attribute__((always_inline)) __attribute__ ((pure));
+  inline float pow10(int n){
+    return powers[n];
   }
 }
 
@@ -31,7 +29,7 @@ float EcalUncalibratedRecHit::outOfTimeEnergy() const
         uint32_t rawEnergy = (0x1FFF & flags_>>4);
         int exponent = rawEnergy>>10;
         int  significand = ~(0xE<<9) & rawEnergy;
-        return (float)(significand*pow10(exponent-5));
+        return (float)(significand)*pow10(exponent); //(-5 in the table)
 }
 
 void EcalUncalibratedRecHit::setRecoFlag( uint32_t flag )
