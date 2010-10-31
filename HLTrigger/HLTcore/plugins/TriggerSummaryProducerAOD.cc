@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/10/31 08:36:21 $
- *  $Revision: 1.38 $
+ *  $Date: 2010/10/31 09:37:15 $
+ *  $Revision: 1.39 $
  *
  *  \author Martin Grunewald
  *
@@ -104,8 +104,6 @@ TriggerSummaryProducerAOD::~TriggerSummaryProducerAOD()
 //
 
 namespace {
-  inline void
-  tokenizeTag(const std::string& tag, std::string& label, std::string& instance, std::string& process) __attribute__ ((pure));
   inline void
   tokenizeTag(const std::string& tag, std::string& label, std::string& instance, std::string& process){
     
