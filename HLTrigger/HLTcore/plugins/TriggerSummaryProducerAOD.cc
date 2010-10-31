@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/10/31 09:37:15 $
- *  $Revision: 1.39 $
+ *  $Date: 2010/10/31 10:36:10 $
+ *  $Revision: 1.40 $
  *
  *  \author Martin Grunewald
  *
@@ -421,10 +421,10 @@ void TriggerSummaryProducerAOD::fillFilterObjectMembers(const edm::Event& iEvent
       const string&  process(iEvent.getProvenance(pid).processName());
       LogError("TriggerSummaryProducerAOD")
 	<< "Uunknown pid:"
-	<< " FilterTag/Key: " << tag.label()+":"+tag.instance()+":"+tag.process()
+	<< " FilterTag/Key: " << tag.encode()
 	<< "/" << i
 	<< " CollectionTag/Key: "
-	<< label+":"+instance+":"+process
+	<< InputTag(label,instance,process).encode()
 	<< "/" << refs[i].key()
 	<< " CollectionType: " << typeid(C).name();
     } else {
