@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/03/05 16:49:51 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/04/21 08:13:05 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
@@ -78,7 +78,7 @@ TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup& iS
      const string& label    (fobs_[ifob].provenance()->moduleLabel());
      const string& instance (fobs_[ifob].provenance()->productInstanceName());
      const string& process  (fobs_[ifob].provenance()->processName());
-     const InputTag tag(InputTag(label,instance,process));
+     const InputTag tag(label,instance,process);
      LogTrace("TriggerSummaryProducerRaw")
        << ifob << " " << tag << endl
        << " Sizes: "
