@@ -2588,7 +2588,7 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
       if(thisIsAnIsolatedMuon && (!muonRef->isTrackerMuon() || (muonRef->pt() > combinedMu->pt() && track.ptError() > 5.0*combinedMu->ptError()))) useGlobalFit = true;
       else if(!trackRef->quality(trackQualityHighPurity)) useGlobalFit = true;
       else if(muonRef->pt() > combinedMu->pt() &&
-	      track.hitPattern().numberOfValidTrackerHits() < 8 &&
+	      (track.hitPattern().numberOfValidTrackerHits() < 8 || track.hitPattern().numberOfValidPixelHits() == 0 ) &&
 	      track.ptError() > 5.0*combinedMu->ptError()) useGlobalFit = true;
 
       if(useGlobalFit){
