@@ -16,7 +16,7 @@
 
 
 #include <cmath>
-#include <tr1/cmath>
+#include <math.h>
 #include <boost/foreach.hpp>
 
 // user include files
@@ -95,7 +95,7 @@ HLTVertexFilter::filter(edm::Event &  event, edm::EventSetup const & setup) {
           and (vertex.chi2() <= m_maxChi2)
           and (vertex.ndof() >= m_minNDoF)
           and (std::abs(vertex.z()) <= m_maxZ)
-          and (std::tr1::hypot(vertex.x(), vertex.y()) <= m_maxD0)
+          and (::hypot(vertex.x(), vertex.y()) <= m_maxD0)
           )
         ++n;
     }
