@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/16 10:24:52 $
- *  $Revision: 1.37 $
+ *  $Date: 2010/10/31 08:36:21 $
+ *  $Revision: 1.38 $
  *
  *  \author Martin Grunewald
  *
@@ -246,7 +246,7 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
        const string& label    (fobs_[ifob].provenance()->moduleLabel());
        const string& instance (fobs_[ifob].provenance()->productInstanceName());
        const string& process  (fobs_[ifob].provenance()->processName());
-       const string  filterTag(label+':'+instance+':'+process);
+       const edm::InputTag filterTag(label,instance,process);
        ids_.clear();
        keys_.clear();
        fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->photonIds()   ,fobs_[ifob]->photonRefs());
@@ -397,7 +397,7 @@ void TriggerSummaryProducerAOD::fillTriggerObject(const reco::MET& object) {
 }
 
 template <typename C>
-void TriggerSummaryProducerAOD::fillFilterObjectMembers(const edm::Event& iEvent, const std::string& tag, const trigger::Vids& ids, const std::vector<edm::Ref<C> >& refs) {
+void TriggerSummaryProducerAOD::fillFilterObjectMembers(const edm::Event& iEvent, const edm::InputTag& tag, const trigger::Vids& ids, const std::vector<edm::Ref<C> >& refs) {
 
   /// this routine takes a vector of Ref<C>s and determines the
   /// corresponding vector of keys (i.e., indices) into the
@@ -423,7 +423,7 @@ void TriggerSummaryProducerAOD::fillFilterObjectMembers(const edm::Event& iEvent
       const string&  process(iEvent.getProvenance(pid).processName());
       LogError("TriggerSummaryProducerAOD")
 	<< "Uunknown pid:"
-	<< " FilterTag/Key: " << tag
+	<< " FilterTag/Key: " << tag.label()+":"+tag.instance()+":"+tag.process()
 	<< "/" << i
 	<< " CollectionTag/Key: "
 	<< label+":"+instance+":"+process

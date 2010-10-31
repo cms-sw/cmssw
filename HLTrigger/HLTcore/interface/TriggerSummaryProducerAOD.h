@@ -6,8 +6,8 @@
  *  
  *  This class is an EDProducer making the HLT summary object for AOD
  *
- *  $Date: 2010/02/16 10:24:52 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/10/31 08:36:21 $
+ *  $Revision: 1.13 $
  *
  *  \author Martin Grunewald
  *
@@ -63,7 +63,7 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   void fillTriggerObject(const reco::MET& );
 
   template <typename C>
-    void fillFilterObjectMembers(const edm::Event&, const std::string& tag, const trigger::Vids &, const std::vector<edm::Ref<C> >&);
+    void fillFilterObjectMembers(const edm::Event&, const edm::InputTag& tag, const trigger::Vids &, const std::vector<edm::Ref<C> >&);
 
   template <typename C>
   void fillFilterObjectMember(const int&, const int&, const edm::Ref<C>&);
