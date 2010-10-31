@@ -3,7 +3,7 @@
 #include <cmath>
 
 namespace {
-  float powers[] {1.e-5f,10.e-4f,1.e-3f,1.e-2f,1.e-1f,1.f,10.f,100.f};
+  float const powers[] {1.e-5f,10.e-4f,1.e-3f,1.e-2f,1.e-1f,1.f,10.f,100.f};
   inline float pow10(int n) __attribute__((always_inline)) __attribute__ ((pure));
   inline float pow10(int n){
     return powers[n];
