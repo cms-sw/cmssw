@@ -32,9 +32,8 @@ PhotonJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    iEvent.getByLabel("genParticles", genParticles);
    */
    Handle<CandidateCollection> genParticles;
-   try {
-     iEvent.getByLabel( "genParticleCandidates", genParticles );
-   } catch (...) {
+   iEvent.getByLabel( "genParticleCandidates", genParticles );
+   if (!genParticles.isValid()) {
      cout << "No " << "genParticleCandidates" << " found!" << endl;
    }
 
@@ -79,9 +78,8 @@ PhotonJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
    // get gen jet collection                              
    Handle<GenJetCollection> jetsgen;
-   try {
-     iEvent.getByLabel("iterativeCone5GenJetsPt10", jetsgen);
-   } catch (...) {
+   iEvent.getByLabel("iterativeCone5GenJetsPt10", jetsgen);
+   if (!jetsgen.isValid()) {
      cout << "No " << "iterativeCone5GenJetsPt10" << " found!" << endl;
    }
 

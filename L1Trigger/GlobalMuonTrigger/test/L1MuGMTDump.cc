@@ -5,8 +5,8 @@
 //   Description:   Dump GMT readout
 //                  
 //                
-//   $Date: 2007/08/02 15:44:06 $
-//   $Revision: 1.10 $
+//   $Date: 2007/10/12 12:17:28 $
+//   $Revision: 1.11 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -69,35 +69,39 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
   // generetor block
 
-  try {
-    edm::Handle<edm::SimVertexContainer> simvertices_handle;
-    e.getByLabel("g4SimHits",simvertices_handle);
+  edm::Handle<edm::SimVertexContainer> simvertices_handle;
+  e.getByLabel("g4SimHits",simvertices_handle);
+  if (simvertices_handle.isValid()) {
     edm::SimVertexContainer const* simvertices = simvertices_handle.product();
 
     edm::Handle<edm::SimTrackContainer> simtracks_handle;
     e.getByLabel("g4SimHits",simtracks_handle);
-    edm::SimTrackContainer const* simtracks = simtracks_handle.product();
+    if (simtracks_handle.isValid()) { 
+      edm::SimTrackContainer const* simtracks = simtracks_handle.product();
 
-    edm::SimTrackContainer::const_iterator isimtr;
-    int igen = 0;
-    for(isimtr=simtracks->begin(); isimtr!=simtracks->end(); isimtr++) {
-      if(abs((*isimtr).type())!=13 || igen>=MAXGEN) continue;
-      pxgen[igen]=(*isimtr).momentum().px();
-      pygen[igen]=(*isimtr).momentum().py();
-      pzgen[igen]=(*isimtr).momentum().pz();
-      ptgen[igen]=(*isimtr).momentum().pt();
-      etagen[igen]=(*isimtr).momentum().eta();
-      phigen[igen]=(*isimtr).momentum().phi()>0 ? (*isimtr).momentum().phi() : (*isimtr).momentum().phi()+2*3.14159265359;
-      chagen[igen]=(*isimtr).type()>0 ? -1 : 1 ;
-      vxgen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().x();
-      vygen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().y();
-      vzgen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().z();
-      igen++;
+      edm::SimTrackContainer::const_iterator isimtr;
+      int igen = 0;
+      for(isimtr=simtracks->begin(); isimtr!=simtracks->end(); isimtr++) {
+        if(abs((*isimtr).type())!=13 || igen>=MAXGEN) continue;
+        pxgen[igen]=(*isimtr).momentum().px();
+        pygen[igen]=(*isimtr).momentum().py();
+        pzgen[igen]=(*isimtr).momentum().pz();
+        ptgen[igen]=(*isimtr).momentum().pt();
+        etagen[igen]=(*isimtr).momentum().eta();
+        phigen[igen]=(*isimtr).momentum().phi()>0 ? (*isimtr).momentum().phi() : (*isimtr).momentum().phi()+2*3.14159265359;
+        chagen[igen]=(*isimtr).type()>0 ? -1 : 1 ;
+        vxgen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().x();
+        vygen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().y();
+        vzgen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().z();
+        igen++;
+      }
+      ngen=igen;
+    } else {
+      edm::LogWarning("BlockMissing") << "Simulated track block missing" << endl;
+      ngen=0;
     }
-    ngen=igen;
-  }
-  catch(...) {
-    edm::LogWarning("BlockMissing") << "Simulated vertex/track block missing" << endl;
+  } else {
+    edm::LogWarning("BlockMissing") << "Simulated vertex block missing" << endl;
     ngen=0;
   }
 

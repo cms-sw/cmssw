@@ -59,9 +59,7 @@ TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   math::XYZTLorentzVector leadingTrack(0,0,0,0);
 
   Handle<HepMCProduct> mcEventHandle;
-  try{
-    iEvent.getByLabel("source",mcEventHandle);
-  }catch(...) {;}
+  iEvent.getByLabel("source",mcEventHandle);
 
   if(mcEventHandle.isValid()){
     const HepMC::GenEvent* mcEvent = mcEventHandle->GetEvent() ;

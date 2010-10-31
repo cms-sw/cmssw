@@ -144,7 +144,6 @@ namespace cms
 	throw cms::Exception("InvalidReference")
 	  << "Invalid reference to DigiCollectionFP420 \n";
       }
-    //  } catch(...){;}
     
     if (verbosity > 0) {
       std::cout << "ClusterizerFP420: OK1" << std::endl;

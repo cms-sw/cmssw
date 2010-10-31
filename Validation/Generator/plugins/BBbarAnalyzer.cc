@@ -6,7 +6,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: BBbarAnalyzer.cc,v 1.2 2010/01/06 12:39:48 fabstoec Exp $
+// $Id: BBbarAnalyzer.cc,v 1.3 2010/10/18 21:19:43 wmtan Exp $
 //
 //
 
@@ -57,9 +57,7 @@ BBbarAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   math::XYZTLorentzVector Lvector2(0,0,0,0);
 
  Handle<HepMCProduct> mcEventHandle;
-  try{
-    iEvent.getByLabel("source",mcEventHandle);
-  }catch(...) {;}
+  iEvent.getByLabel("source",mcEventHandle);
 
   if(mcEventHandle.isValid()){
     const HepMC::GenEvent* mcEvent = mcEventHandle->GetEvent() ;

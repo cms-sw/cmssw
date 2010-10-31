@@ -6,7 +6,7 @@
 //
 // Original Author:  Kenneth Smith
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: NewAnalyzer.cc,v 1.2 2010/01/06 12:39:47 fabstoec Exp $
+// $Id: NewAnalyzer.cc,v 1.3 2010/10/18 21:19:43 wmtan Exp $
 //
 //
 
@@ -129,9 +129,7 @@ NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   math::XYZTLorentzVector Lvector2(0,0,0,0);
 
   // Handle<HepMCProduct> mcEventHandle;
-  //try{
   //iEvent.getByLabel("source",mcEventHandle);
-  //}catch(...) {;}
   typedef std::vector<reco::GenJet> GenJetCollection;
  Handle<GenJetCollection> genJets;
  //iEvent.getByLabel( "iterativeCone5GenJetsNoNuBSM", genJets);

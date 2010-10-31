@@ -15,12 +15,8 @@ private:
   bool filter(Event& evt, const EventSetup&) {
     Handle<CandidateView> src;
     bool exists = true;
-    try{
-      evt.getByLabel(src_, src);
-      if(!src.isValid()) exists = false;
-    } catch(...) {
-      exists = false;
-    }
+    evt.getByLabel(src_, src);
+    if(!src.isValid()) exists = false;
     return exists;
   }
   InputTag src_;

@@ -205,8 +205,8 @@ template <class T> void HLTMon::fillHistos(edm::Handle<trigger::TriggerEventWith
 	  if(plotiso[n+1]){
 	    for(unsigned int j =  0 ; j < isoNames[n+1].size() ;j++  ){
 	      edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
-             try{
-	           iEvent.getByLabel(isoNames[n+1].at(j).label(),depMap);
+	      iEvent.getByLabel(isoNames[n+1].at(j).label(),depMap);
+	      if(depMap.isValid()) {
                   typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(particlecands[i]);
 	           if(mapi!=depMap->end()){  // found candidate in isolation map! 
 		     etahistiso[n+1]->Fill(particlecands[i]->eta(),mapi->val);
@@ -214,10 +214,9 @@ template <class T> void HLTMon::fillHistos(edm::Handle<trigger::TriggerEventWith
 		     phihistiso[n+1]->Fill(particlecands[i]->phi(),mapi->val);
 		     break; // to avoid multiple filling we only look until we found the candidate once.
 	           }
-                }
-              catch(...){
-              edm::LogWarning("HLTMon") << "IsoName collection not found";  
-                }
+              } else {
+                edm::LogWarning("HLTMon") << "IsoName collection not found";  
+              }
 	    }
 	  }	  	  
 	}

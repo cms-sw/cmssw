@@ -78,9 +78,7 @@ namespace cms
     //B
     
       Handle<ClusterCollectionFP420> input;
-      try{
       iEvent.getByLabel( trackerContainers[0] , input);
-      } catch(...){;}
 
 
        

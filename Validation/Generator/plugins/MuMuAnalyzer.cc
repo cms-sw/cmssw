@@ -6,7 +6,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: MuMuAnalyzer.cc,v 1.2 2010/01/06 12:39:47 fabstoec Exp $
+// $Id: MuMuAnalyzer.cc,v 1.3 2010/10/18 21:19:43 wmtan Exp $
 //
 //
 
@@ -86,9 +86,7 @@ MuMuAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   math::XYZTLorentzVector Lvector2(0,0,0,0);
 
   // Handle<HepMCProduct> mcEventHandle;
-  //try{
   //iEvent.getByLabel("source",mcEventHandle);
-  //}catch(...) {;}
 typedef std::vector<reco::GenJet> GenJetCollection;
  Handle<GenJetCollection> genJets;
  iEvent.getByLabel( "iterativeCone7GenJetsNoNuBSM", genJets);

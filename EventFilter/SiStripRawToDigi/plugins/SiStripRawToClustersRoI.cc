@@ -67,44 +67,46 @@ void SiStripRawToClustersRoI::produce(edm::Event& event, const edm::EventSetup& 
   /// Seeded by L2 electrons.
 
   if (electrons_) {
-      try {
 	edm::Handle<reco::SuperClusterCollection> barrelcollection;
 	edm::Handle<reco::SuperClusterCollection> endcapcollection;
 	event.getByLabel(electronBarrelL2_,barrelcollection);
 	event.getByLabel(electronEndcapL2_,endcapcollection);
-	electrons(*barrelcollection,*refgetter,lazygetter);
-	electrons(*endcapcollection,*refgetter,lazygetter);
-      } catch(...) {}
+	if (barrelcollection.isValid()) {
+	  electrons(*barrelcollection,*refgetter,lazygetter);
+	}
+	if (endcapcollection.isValid()) {
+	  electrons(*endcapcollection,*refgetter,lazygetter);
+	}
   }
 
   /// Seeded by L2 muons.
 
   if (muons_) {
-      try {
 	edm::Handle<reco::TrackCollection> collection;
 	event.getByLabel(muonL2_,collection);
-	muons(*collection,*refgetter,lazygetter);
-      } catch(...) {}
+	if (collection.isValid()) {
+	  muons(*collection,*refgetter,lazygetter);
+	}
     }
   
   /// Seeded by L2 taujets.
 
   if (taujets_) {
-      try {
 	edm::Handle<reco::CaloJetCollection> collection;
 	event.getByLabel(taujetL2_,collection);
-	taujets(*collection,*refgetter,lazygetter);
-      } catch(...) {}
+	if (collection.isValid()) {
+	  taujets(*collection,*refgetter,lazygetter);
+	}
     }
   
   /// Seeded by L2 bjets.
 
   if (bjets_) {
-      try {
 	edm::Handle<reco::CaloJetCollection> collection;
 	event.getByLabel(bjetL2_,collection);
-	bjets(*collection,*refgetter,lazygetter);
-      } catch(...) {}
+	if (collection.isValid()) {
+	  bjets(*collection,*refgetter,lazygetter);
+	}
     }
   
   event.put(refgetter);

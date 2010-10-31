@@ -173,9 +173,7 @@ namespace cms
     //B
     
       Handle<TrackCollectionFP420> input;
-      try{
       iEvent.getByLabel( trackerContainers[0] , input);
-      } catch(...){;}
 
 
        
