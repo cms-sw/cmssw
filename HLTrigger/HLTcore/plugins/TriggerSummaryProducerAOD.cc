@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/15 17:43:23 $
- *  $Revision: 1.36 $
+ *  $Date: 2010/02/16 10:24:52 $
+ *  $Revision: 1.37 $
  *
  *  \author Martin Grunewald
  *
@@ -103,33 +103,34 @@ TriggerSummaryProducerAOD::~TriggerSummaryProducerAOD()
 // member functions
 //
 
-void
-TriggerSummaryProducerAOD:: tokenizeTag(const std::string& tag, std::string& label, std::string& instance, std::string& process) const{
-
-  using namespace std;
-
-  string work(tag);
-  const string token(":");
-
-  const string::size_type i1(work.find(token));
-  if (i1==string::npos) {
-    label=work;
-    instance="";
-    process="";
-  } else {
-    label=work.substr(0,i1);
-    work=work.substr(i1+1);
-    const string::size_type i2(work.find(token));
-    if (i2==string::npos) {
-      instance=work;
-      process="";
+namespace {
+  inline void
+  tokenizeTag(const std::string& tag, std::string& label, std::string& instance, std::string& process) __attribute__ ((pure));
+  inline void
+  tokenizeTag(const std::string& tag, std::string& label, std::string& instance, std::string& process){
+    
+    using std::string;
+    
+    const char token(':');
+    const string empty;
+    
+    label=tag;
+    const string::size_type i1(label.find(token));
+    if (i1==string::npos) {
+      instance=empty;
+      process=empty;
     } else {
-      instance=work.substr(0,i2);
-      process=work.substr(i2+1);
+      instance=label.substr(i1+1);
+      label.resize(i1);
+      const string::size_type i2(instance.find(token));
+      if (i2==string::npos) {
+	process=empty;
+      } else {
+	process=instance.substr(i2+1);
+	instance.resize(i2);
+      }
     }
   }
-
-  return;
 }
 
 // ------------ method called to produce the data  ------------
@@ -169,11 +170,11 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
        const string& label    (fobs_[ifob].provenance()->moduleLabel());
        const string& instance (fobs_[ifob].provenance()->productInstanceName());
        const string& process  (fobs_[ifob].provenance()->processName());
-       filterTagsEvent_.insert(label+":"+instance+":"+process);
+       filterTagsEvent_.insert(label+':'+instance+':'+process);
        for (size_type icol=0; icol!=ncol; ++icol) {
 	 // overwrite process name (usually not set)
 	 tokenizeTag(collectionTags_[icol],tagLabel,tagInstance,tagProcess);
-	 collectionTagsEvent_.insert(tagLabel+":"+tagInstance+":"+pn_);
+	 collectionTagsEvent_.insert(tagLabel+':'+tagInstance+':'+pn_);
        }
      }
    }
@@ -245,7 +246,7 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
        const string& label    (fobs_[ifob].provenance()->moduleLabel());
        const string& instance (fobs_[ifob].provenance()->productInstanceName());
        const string& process  (fobs_[ifob].provenance()->processName());
-       const string  filterTag(label+":"+instance+":"+process);
+       const string  filterTag(label+':'+instance+':'+process);
        ids_.clear();
        keys_.clear();
        fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->photonIds()   ,fobs_[ifob]->photonRefs());

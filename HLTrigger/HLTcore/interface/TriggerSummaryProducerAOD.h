@@ -6,8 +6,8 @@
  *  
  *  This class is an EDProducer making the HLT summary object for AOD
  *
- *  $Date: 2010/02/15 17:43:23 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/02/16 10:24:52 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -49,8 +49,6 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   ~TriggerSummaryProducerAOD();
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob();
-
-  void tokenizeTag(const std::string& tag, std::string& label, std::string& instance, std::string& process) const;
 
   // additional
 
