@@ -7,8 +7,7 @@
    <PartSelector path="//C4EF"/>
    <PartSelector path="//C3HF"/>
    <PartSelector path="//C4HF"/>
-   <PartSelector path="//CAHL"/>
-   <PartSelector path="//CAEL"/>
+   <PartSelector path="//CAST"/>
    <Parameter name="SensitiveDetector" value="CastorSensitiveDetector" eval="false"/>
    <Parameter name="ReadOutName" value="CastorFI" eval="false"/>
  </SpecPar>  
