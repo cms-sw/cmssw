@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 08:43:47 EDT 2008
-// $Id: FWItemTVirtualCollectionProxyAccessor.cc,v 1.5 2010/06/18 10:17:15 yana Exp $
+// $Id: FWItemTVirtualCollectionProxyAccessor.cc,v 1.6 2010/07/23 16:02:54 eulisse Exp $
 //
 
 // system include files
@@ -87,8 +87,9 @@ FWItemTVirtualCollectionProxyAccessor::setData(const ROOT::Reflex::Object& produ
 void
 FWItemTVirtualCollectionProxyAccessor::reset()
 {
-   m_data=0;
-   if(m_colProxy.get()) {
+   if (0 != m_data)
+   {
+      m_data=0;
       m_colProxy->PopProxy();
    }
 }
