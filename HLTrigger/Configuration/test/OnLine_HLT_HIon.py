@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_5/HIon/V40 (CMSSW_3_8_1_HLT25)
+# /dev/CMSSW_3_8_5/HIon/V42 (CMSSW_3_8_1_HLT25)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_5/HIon/V40')
+  tableName = cms.string('/dev/CMSSW_3_8_5/HIon/V42')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -3682,8 +3682,6 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltMuonCSCDigis_*_*',
       'keep *_hltMuonRPCDigis_*_*',
       'keep *_hltOfflineBeamSpot_*_*',
-      'keep *_hltPixelMatchElectronsL1Iso_*_*',
-      'keep *_hltPixelMatchElectronsL1NonIso_*_*',
       'keep *_hltPixelMatchLargeWindowElectronsL1Iso_*_*',
       'keep *_hltPixelMatchLargeWindowElectronsL1NonIso_*_*',
       'keep *_hltPixelTracks_*_*',
