@@ -23,11 +23,10 @@ mix = cms.EDProducer("MixingModule",
         ),
         type = cms.string('poisson'),
     sequential = cms.untracked.bool(False),
-        fileNames = cms.untracked.vstring('/store/user/cheung/phase1/r39v26_smpx/minbias4pu/MergedMinBias_GEN_SIM_01.root',
-        '/store/user/cheung/phase1/r39v26_smpx/minbias4pu/MergedMinBias_GEN_SIM_02.root',
-        '/store/user/cheung/phase1/r39v26_smpx/minbias4pu/MergedMinBias_GEN_SIM_03.root',
-        '/store/user/cheung/phase1/r39v26_smpx/minbias4pu/MergedMinBias_GEN_SIM_04.root',
-        '/store/user/cheung/phase1/r39v26_smpx/minbias4pu/MergedMinBias_GEN_SIM_05.root'
+        fileNames = cms.untracked.vstring(
+       '/store/relval/CMSSW_3_6_3_SLHC1_patch1/RelValMinBias/GEN-SIM/DESIGN_36_V10_Gauss_29Oct2010_special-v1/0062/F2D78E5C-39E4-DF11-B7F3-003048678B70.root',
+       '/store/relval/CMSSW_3_6_3_SLHC1_patch1/RelValMinBias/GEN-SIM/DESIGN_36_V10_Gauss_29Oct2010_special-v1/0062/9417D37D-4CE4-DF11-926E-003048678F74.root',
+       '/store/relval/CMSSW_3_6_3_SLHC1_patch1/RelValMinBias/GEN-SIM/DESIGN_36_V10_Gauss_29Oct2010_special-v1/0062/5A937DD1-39E4-DF11-A28F-003048678B5E.root'
     )
     ),
     mixObjects = cms.PSet(
