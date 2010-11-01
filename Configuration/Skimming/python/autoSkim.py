@@ -7,7 +7,7 @@ autoSkim = {
     'EGMonitor':'EcalRH+TPG+LogError',
     'EG':'WZEG+LogError',
     'Electron':'WZEG+LogError',
-    'Photon':'WZEG+LogError',
+    'Photon':'WZEG+LogError+SuperCluster',
     'JetMETtau':'TPG',
     'JetMET':'DiJet',
     'BTau':'LogError',
