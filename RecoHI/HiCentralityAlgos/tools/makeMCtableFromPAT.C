@@ -12,7 +12,6 @@
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
@@ -64,17 +63,17 @@ void makeMCtableFromPAT(int nbins = 10, const string label = "hfhit", const char
   double binboundaries[nbinsMax+1];
   vector<float> values;
 
-  bool binNpart = label.compare("npart") == 0;
-  bool binNcoll = label.compare("ncoll") == 0;
-  bool binNhard = label.compare("nhard") == 0;
+  bool binNpart = label.compare("Npart") == 0;
+  bool binNcoll = label.compare("Ncoll") == 0;
+  bool binNhard = label.compare("Nhard") == 0;
   bool binB = label.compare("b") == 0;
-  bool binHF = label.compare("hf") == 0;
-  bool binHFhit = label.compare("hfhit") == 0;
-  bool binEB = label.compare("eb") == 0;
-  bool binEE = label.compare("ee") == 0;
-  bool binETMR = label.compare("etmr") == 0;
-  bool binNpix = label.compare("npix") == 0;
-  bool binNtrks = label.compare("ntracks") == 0;
+  bool binHF = label.compare("HFtowers") == 0;
+  bool binHFhit = label.compare("HFhits") == 0;
+  bool binEB = label.compare("EB") == 0;
+  bool binEE = label.compare("EE") == 0;
+  bool binETMR = label.compare("ETMR") == 0;
+  bool binNpix = label.compare("PixelHits") == 0;
+  bool binNtrks = label.compare("Ntracks") == 0;
 
   // Determining bins of cross section
   // loop over events
@@ -224,7 +223,7 @@ void makeMCtableFromPAT(int nbins = 10, const string label = "hfhit", const char
 
   // Enter values in table
   for(int i = 0; i < nbins; ++i){
-     int ii = nbins-i-1;
+     int ii = nbins-i;
      bins->table_[i].n_part_mean = hNpartMean->GetBinContent(ii);
      bins->table_[i].n_part_var = hNpartSigma->GetBinContent(ii);
      bins->table_[i].n_coll_mean = hNcollMean->GetBinContent(ii);
@@ -283,26 +282,26 @@ void fitSlices(TH2* hCorr, TF1* func){
    TH1D* hMean = new TH1D(Form("%s_1",hCorr->GetName()),"",nBins,hCorr->GetXaxis()->GetXmin(),hCorr->GetXaxis()->GetXmax());
    TH1D* hSigma = new TH1D(Form("%s_2",hCorr->GetName()),"",nBins,hCorr->GetXaxis()->GetXmin(),hCorr->GetXaxis()->GetXmax());
 
-   for(int i = 0; i < nBins; ++i){
-      TH1D* h = hCorr->ProjectionY(Form("%s_bin%d",hCorr->GetName(),i),i,i+1);
+   for(int i = 1; i < nBins+1; ++i){
+      int bin = nBins - i;
+      TH1D* h = hCorr->ProjectionY(Form("%s_bin%d",hCorr->GetName(),bin),i,i);
 
-	 func->SetParameter(0,h->GetMaximum());
-	 func->SetParameter(1,h->GetMean());
-	 func->SetParameter(2,h->GetRMS());
+      func->SetParameter(0,h->GetMaximum());
+      func->SetParameter(1,h->GetMean());
+      func->SetParameter(2,h->GetRMS());
 
-	 if(useFits) h->Fit(func);
+      if(useFits) h->Fit(func);
 
-	 hMean->SetBinContent(i,func->GetParameter(1));
-	 hMean->SetBinError(i,func->GetParError(1));
-	 hSigma->SetBinContent(i,func->GetParameter(2));
-	 hSigma->SetBinError(i,func->GetParError(2));
+      hMean->SetBinContent(i,func->GetParameter(1));
+      hMean->SetBinError(i,func->GetParError(1));
+      hSigma->SetBinContent(i,func->GetParameter(2));
+      hSigma->SetBinError(i,func->GetParError(2));
 
       if(onlySaveTable){
-	 h->Delete();
+         h->Delete();
       }
    }
 }
-
 
 
 

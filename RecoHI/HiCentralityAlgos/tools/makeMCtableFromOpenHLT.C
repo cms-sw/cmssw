@@ -8,6 +8,7 @@
 #include <TH2D.h>
 #include <TH1D.h>
 #include <TNtuple.h>
+#include <TChain.h>
 #include <TFile.h>
 #include <TSystem.h>
 
@@ -25,16 +26,19 @@ static const int nbinsMax = 40;
 using namespace std;
 bool descend(float i,float j) { return (i<j); }
 
-void makeMCtableFromOpenHLT(int nbins = 40, const string label = "hfhit", const char * tag = "HFhitBins"){
+void makeMCtableFromOpenHLT(int nbins = 20, const string label = "Npart", const char * tag = "NpartBins", const char* mc = "AMPT"){
 
    // Retrieving data
   int maxEvents = -200;
   vector<int> runnums;
-
-  TFile* infile = new TFile("../prod/test1.root","read");
+  
+  const char* infileName = Form("../prod/%s/combined_*.root",mc);
+  //  TFile* infile = new TFile(infileName,"read");
+  TChain* t = new TChain("HltTree");
+  t->Add(infileName);
 
   // Creating output table
-  TFile* outFile = new TFile("test1tables.root","update");
+  TFile* outFile = new TFile("tables_d1101.root","update");
    TDirectory* dir = outFile->mkdir(tag);
    dir->cd();
    TNtuple* nt = new TNtuple("nt","","hf:bin:b:npart:ncoll:nhard");
@@ -47,8 +51,9 @@ void makeMCtableFromOpenHLT(int nbins = 40, const string label = "hfhit", const 
   double binboundaries[nbinsMax+1];
   vector<float> values;
 
-  float b,npart,ncoll,nhard,hf,hfhit,eb,ee,etmr,npix,ntrks,parameter;
-  TTree* t = (TTree*)infile->Get("HltTree");
+  float b,npart,ncoll,nhard,hf,hfhit,eb,ee,etmr,parameter;
+  int npix,ntrks;
+  //  TTree* t = (TTree*)infile->Get("HltTree");
   int run;
 
   t->SetBranchAddress("b",&b);
@@ -64,17 +69,17 @@ void makeMCtableFromOpenHLT(int nbins = 40, const string label = "hfhit", const 
   t->SetBranchAddress("hiNtracks",&ntrks);
   t->SetBranchAddress("Run",&run);
 
-  bool binNpart = label.compare("npart") == 0;
-  bool binNcoll = label.compare("ncoll") == 0;
-  bool binNhard = label.compare("nhard") == 0;
+  bool binNpart = label.compare("Npart") == 0;
+  bool binNcoll = label.compare("Ncoll") == 0;
+  bool binNhard = label.compare("Nhard") == 0;
   bool binB = label.compare("b") == 0;
-  bool binHF = label.compare("hf") == 0;
-  bool binHFhit = label.compare("hfhit") == 0;
-  bool binEB = label.compare("eb") == 0;
-  bool binEE = label.compare("ee") == 0;
-  bool binETMR = label.compare("etmr") == 0;
-  bool binNpix = label.compare("npix") == 0;
-  bool binNtrks = label.compare("ntracks") == 0;
+  bool binHF = label.compare("HFtowers") == 0;
+  bool binHFhit = label.compare("HFhits") == 0;
+  bool binEB = label.compare("EB") == 0;
+  bool binEE = label.compare("EE") == 0;
+  bool binETMR = label.compare("ETMR") == 0;
+  bool binNpix = label.compare("PixelHits") == 0;
+  bool binNtrks = label.compare("Ntracks") == 0;
 
   // Determining bins of cross section
   // loop over events
@@ -183,7 +188,7 @@ void makeMCtableFromOpenHLT(int nbins = 40, const string label = "hfhit", const 
 
   // Enter values in table
   for(int i = 0; i < nbins; ++i){
-     int ii = nbins-i-1;
+     int ii = nbins-i;
      bins->table_[i].n_part_mean = hNpartMean->GetBinContent(ii);
      bins->table_[i].n_part_var = hNpartSigma->GetBinContent(ii);
      bins->table_[i].n_coll_mean = hNcollMean->GetBinContent(ii);
@@ -242,20 +247,21 @@ void fitSlices(TH2* hCorr, TF1* func){
    TH1D* hMean = new TH1D(Form("%s_1",hCorr->GetName()),"",nBins,hCorr->GetXaxis()->GetXmin(),hCorr->GetXaxis()->GetXmax());
    TH1D* hSigma = new TH1D(Form("%s_2",hCorr->GetName()),"",nBins,hCorr->GetXaxis()->GetXmin(),hCorr->GetXaxis()->GetXmax());
 
-   for(int i = 0; i < nBins; ++i){
-      TH1D* h = hCorr->ProjectionY(Form("%s_bin%d",hCorr->GetName(),i),i,i+1);
+   for(int i = 1; i < nBins+1; ++i){
+      int bin = nBins - i;
+      TH1D* h = hCorr->ProjectionY(Form("%s_bin%d",hCorr->GetName(),bin),i,i);
 
-	 func->SetParameter(0,h->GetMaximum());
-	 func->SetParameter(1,h->GetMean());
-	 func->SetParameter(2,h->GetRMS());
+      func->SetParameter(0,h->GetMaximum());
+      func->SetParameter(1,h->GetMean());
+      func->SetParameter(2,h->GetRMS());
 
-	 if(useFits) h->Fit(func);
+      if(useFits) h->Fit(func);
 
-	 hMean->SetBinContent(i,func->GetParameter(1));
-	 hMean->SetBinError(i,func->GetParError(1));
-	 hSigma->SetBinContent(i,func->GetParameter(2));
-	 hSigma->SetBinError(i,func->GetParError(2));
-
+      hMean->SetBinContent(i,func->GetParameter(1));
+      hMean->SetBinError(i,func->GetParError(1));
+      hSigma->SetBinContent(i,func->GetParameter(2));
+      hSigma->SetBinError(i,func->GetParError(2));
+      
       if(onlySaveTable){
 	 h->Delete();
       }
