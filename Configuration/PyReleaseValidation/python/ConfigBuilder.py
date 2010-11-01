@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.247 $"
+__version__ = "$Revision: 1.248 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -722,15 +722,18 @@ class ConfigBuilder(object):
 				self.renameHLTprocessInSequence(alcastream.paths.label(),self._options.hltProcess)
 		for i in range(alcaList.count(shortName)):
 			alcaList.remove(shortName)
-	    if isinstance(alcastream,cms.Path):
-		    #black list the alca path so that they do not appear in the cfg
-		    self.blacklist_paths.append(alcastream)
-
+			
             # DQM needs a special handling
             elif name == 'pathALCARECODQM' and 'DQM' in alcaList:
                     path = getattr(alcaConfig,name)
                     self.schedule.append(path)
                     alcaList.remove('DQM')
+
+	    if isinstance(alcastream,cms.Path):
+		    #black list the alca path so that they do not appear in the cfg
+		    self.blacklist_paths.append(alcastream)
+
+
         if len(alcaList) != 0:
 		available=[]
 		for name in alcaConfig.__dict__:
@@ -1203,7 +1206,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.247 $"),
+					    (version=cms.untracked.string("$Revision: 1.248 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
