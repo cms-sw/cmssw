@@ -3,8 +3,8 @@
  *
  * Consult header file for description
  *
- * author:  Dominique Fortin - UC Riverside
- * modified by N. De Filippis - LLR - Ecole Polytechnique
+ * author:  N. De Filippis - LLR - Ecole Polytechnique
+ *
  */
 
 
@@ -25,6 +25,7 @@ using namespace edm;
 HiggsToZZ4LeptonsSkimFilter::HiggsToZZ4LeptonsSkimFilter(const edm::ParameterSet& pset) {
 
   // Local Debug flag
+  useHLT              = pset.getUntrackedParameter<bool>("useHLT");
   HLTinst_            = pset.getParameter<string>("HLTinst");
   HLTflag_            = pset.getParameter<vector<string> >("HLTflag");
   Skiminst_           = pset.getParameter<string>("Skiminst");
@@ -54,18 +55,26 @@ bool HiggsToZZ4LeptonsSkimFilter::filter(edm::Event& event, const edm::EventSetu
 
   nSelectedEvents.resize(HLTflag_.size());
 
-  // Get the HLT flag
-  for (size_t i=0;i<HLTflag_.size();i++){
-   edm::Handle<bool> HLTboolHandle;
-   event.getByLabel(HLTinst_.c_str(),HLTflag_.at(i).c_str(), HLTboolHandle);
-  
-   if ( *HLTboolHandle.product()==1 )  {
-         nSelectedEvents.at(i)++;
-   }
-   else {
-      return false;
-   }
+  size_t HLTsize=1;
+
+  if (useHLT){   
+	HLTsize=HLTflag_.size();
   }
+  
+  // Get the HLT flag
+  for (size_t i=0;i<HLTsize;i++){
+    edm::Handle<bool> HLTboolHandle;
+    event.getByLabel(HLTinst_.c_str(),HLTflag_.at(i).c_str(), HLTboolHandle);
+  
+    if ( *HLTboolHandle.product()==1 )  {
+         nSelectedEvents.at(i)++;
+    }
+    else {
+      return false;
+    }
+  }
+  
+
 
   edm::Handle<bool> SkimboolHandle;
   event.getByLabel(Skiminst_.c_str(),Skimflag_.c_str(), SkimboolHandle);

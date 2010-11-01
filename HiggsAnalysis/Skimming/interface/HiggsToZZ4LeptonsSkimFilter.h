@@ -40,7 +40,8 @@ class HiggsToZZ4LeptonsSkimFilter : public edm::EDFilter {
   /// Get event properties to send to builder to fill seed collection
   virtual bool filter(edm::Event&, const edm::EventSetup& );
 
- private:
+ private: 
+  bool useHLT;
   string HLTinst_;
   vector<string> HLTflag_;
   string Skiminst_,Skimflag_;
