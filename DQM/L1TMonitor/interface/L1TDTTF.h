@@ -4,8 +4,8 @@
 /*
  * \file L1TDTTF.h
  *
- * $Date: 2010/10/19 12:14:55 $
- * $Revision: 1.12 $
+ * $Date: 2010/10/27 08:08:52 $
+ * $Revision: 1.13 $
  * \author J. Berryhill
  *
  */
@@ -75,37 +75,33 @@ class L1TDTTF : public edm::EDAnalyzer {
   edm::InputTag trackInputTag_;
 
   MonitorElement* dttf_nTracksPerEvent_wheel[6];
+  MonitorElement* dttf_quality_wheel_2ndTrack[6];
+  MonitorElement* dttf_quality_summary_wheel_2ndTrack[6];
   MonitorElement* dttf_phi_eta_fine_wheel[6];
   MonitorElement* dttf_phi_eta_coarse_wheel[6];
-
-  MonitorElement* dttf_quality_wheel_2ndTrack[6];
   MonitorElement* dttf_phi_eta_wheel_2ndTrack[6];
+  MonitorElement* dttf_eta_wheel_2ndTrack[6];
+  MonitorElement* dttf_phi_wheel_2ndTrack[6];
+  MonitorElement* dttf_pt_wheel_2ndTrack[6];
+  MonitorElement* dttf_q_wheel_2ndTrack[6];
 
   MonitorElement* dttf_nTracksPerEv[6][12];
   MonitorElement* dttf_bx[6][12];
   MonitorElement* dttf_bx_2ndTrack[6][12];
-  MonitorElement* dttf_q[6][12];
-  MonitorElement* dttf_pt[6][12];
-  MonitorElement* dttf_phi[6][12];
   MonitorElement* dttf_qual[6][12];
-  MonitorElement* dttf_eta[6][12];
   MonitorElement* dttf_eta_fine_fraction[6][12];
-
+  MonitorElement* dttf_eta[6][12];
+  MonitorElement* dttf_phi[6][12];
+  MonitorElement* dttf_pt[6][12];
+  MonitorElement* dttf_q[6][12];
 
   MonitorElement* dttf_nTracksPerEvent_integ;
-  // MonitorElement* dttf_qual_eta_integ; /// ????
   MonitorElement* dttf_spare;
 
   MonitorElement* dttf_gmt_match;
   MonitorElement* dttf_gmt_missed;
   MonitorElement* dttf_gmt_ghost;
   // MonitorElement* dttf_gmt_ghost_phys;
-
-  MonitorElement* dttf_q_integ_2ndTrack;
-  MonitorElement* dttf_pt_integ_2ndTrack;
-  MonitorElement* dttf_phi_integ_2ndTrack;
-  MonitorElement* dttf_eta_integ_2ndTrack;
-  MonitorElement* dttf_qual_integ_2ndTrack;
 
   int nev_; // Number of events processed
   int nev_dttf_; //Number of events with at least one DTTF track

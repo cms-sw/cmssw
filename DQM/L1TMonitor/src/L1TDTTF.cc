@@ -1,11 +1,14 @@
 /*
  * \file L1TDTTF.cc
  *
- * $Date: 2010/10/27 13:37:08 $
- * $Revision: 1.25 $
+ * $Date: 2010/10/27 13:59:25 $
+ * $Revision: 1.26 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTF.cc,v $
+ * Revision 1.26  2010/10/27 13:59:25  gcodispo
+ * Changed name to 2nd track quality (same convention as for all tracks)
+ *
  * Revision 1.25  2010/10/27 13:37:08  gcodispo
  * Changed name to 2nd track quality (same convention as for all tracks)
  *
@@ -66,6 +69,9 @@
  * DQM core migration.
  *
  * $Log: L1TDTTF.cc,v $
+ * Revision 1.26  2010/10/27 13:59:25  gcodispo
+ * Changed name to 2nd track quality (same convention as for all tracks)
+ *
  * Revision 1.25  2010/10/27 13:37:08  gcodispo
  * Changed name to 2nd track quality (same convention as for all tracks)
  *
@@ -319,17 +325,24 @@ void L1TDTTF::beginJob(void)
 	dttf_trk_folder_wheel + "/2ND_TRACK_ONLY";
       dbe_->setCurrentFolder(dttf_trk_folder_wheel_2ndtrack);
 
-      /// quality per wheel  2ND TRACK // GC: eventually remove
-      sprintf(hname, "dttf_quality_summary_wh%s_2ndTrack", c_whn[iwh]);
+
+      /// DTTF Tracks Quality distribution
+      sprintf(hname, "dttf_04_quality_wh%s_2ndTrack", c_whn[iwh]);
+      sprintf(htitle, "Wheel %s - 2nd Tracks Quality distribution", c_whn[iwh]);
+      dttf_quality_wheel_2ndTrack[iwh] = dbe_->book1D(hname, htitle, 7, 1, 8);
+      setQualLabel( dttf_quality_wheel_2ndTrack[iwh], 1);
+
+      /// quality per wheel  2ND TRACK
+      sprintf(hname, "dttf_05_quality_summary_wh%s_2ndTrack", c_whn[iwh]);
       sprintf(htitle, "Wheel %s - 2nd Tracks - Quality", c_whn[iwh]);
-      dttf_quality_wheel_2ndTrack[iwh] = dbe_->book2D(hname, htitle,
+      dttf_quality_summary_wheel_2ndTrack[iwh] = dbe_->book2D(hname, htitle,
 						      12, 1, 13, 7, 1, 8 );
-      dttf_quality_wheel_2ndTrack[iwh]->setAxisTitle("Sector", 1);
-      setQualLabel( dttf_quality_wheel_2ndTrack[iwh], 2);
-      // dttf_quality_wheel_2ndTrack[iwh]->setAxisTitle("Quality", 2);
+      dttf_quality_summary_wheel_2ndTrack[iwh]->setAxisTitle("Sector", 1);
+      setQualLabel( dttf_quality_summary_wheel_2ndTrack[iwh], 2);
+      // dttf_quality_summary_wheel_2ndTrack[iwh]->setAxisTitle("Quality", 2);
 
       /// phi vs eta - for each wheel 2ND TRACK
-      sprintf(hname, "dttf_phi_vs_eta_wh%s_2ndTrack", c_whn[iwh]);
+      sprintf(hname, "dttf_06_phi_vs_eta_wh%s_2ndTrack", c_whn[iwh]);
       sprintf(htitle, "Wheel %s -   #eta-#phi Distribution of DTTF 2nd Tracks",
 	      c_whn[iwh]);
 
@@ -339,6 +352,36 @@ void L1TDTTF::beginJob(void)
       // 144, -0.5, 143.5);
       dttf_phi_eta_wheel_2ndTrack[iwh]->setAxisTitle("#eta", 1);
       dttf_phi_eta_wheel_2ndTrack[iwh]->setAxisTitle("#phi", 2);
+
+
+
+      /// DTTF Tracks #eta distribution (Packed values)
+      sprintf(hname, "dttf_07_eta_wh%s_2ndTrack", c_whn[iwh]);
+      sprintf(htitle, "Wheel %s - DTTF 2nd Tracks #eta distribution (Packed values)",
+	      c_whn[iwh]);
+      dttf_eta_wheel_2ndTrack[iwh] = dbe_->book1D(hname, htitle, 64, -0.5, 63.5);
+      dttf_eta_wheel_2ndTrack[iwh]->setAxisTitle("#eta", 1);
+
+      /// DTTF Tracks Phi distribution (Packed values)
+      sprintf(hname, "dttf_08_phi_wh%s_2ndTrack", c_whn[iwh]);
+      sprintf(htitle, "Wheel %s - DTTF 2nd Tracks Phi distribution (Packed values)",
+	      c_whn[iwh]);
+      dttf_phi_wheel_2ndTrack[iwh] = dbe_->book1D(hname, htitle, 144, -6, 138. );
+      dttf_phi_wheel_2ndTrack[iwh]->setAxisTitle("#phi", 1);
+
+      /// DTTF Tracks p_{T} distribution (Packed values)
+      sprintf(hname, "dttf_09_pt_wh%s_2ndTrack", c_whn[iwh]);
+      sprintf(htitle, "Wheel %s - DTTF 2nd Tracks p_{T} distribution (Packed values)",
+	      c_whn[iwh]);
+      dttf_pt_wheel_2ndTrack[iwh]  = dbe_->book1D(hname, htitle, 32, -0.5, 31.5);
+      dttf_pt_wheel_2ndTrack[iwh]->setAxisTitle("p_{T}", 1);
+
+      /// DTTF Tracks Charge distribution
+      sprintf(hname, "dttf_10_charge_wh%s_2ndTrack", c_whn[iwh]);
+      sprintf(htitle, "Wheel %s - DTTF 2nd Tracks Charge distribution", c_whn[iwh]);
+      dttf_q_wheel_2ndTrack[iwh] = dbe_->book1D(hname, htitle, 2, -0.5, 1.5);
+      dttf_q_wheel_2ndTrack[iwh]->setAxisTitle("Charge", 1);
+
 
 
 
@@ -530,41 +573,6 @@ void L1TDTTF::beginJob(void)
     // sprintf(hname, "dttf_eta_phi_missing_tracks_in_gmt");
     // sprintf(htitle, "GMT Tracks Without a Corresponding Track in DTTF");
     // dttf_gmt_ghost_phys = dbe_->book2D(hname, htitle, 64, 0., 64., 144, 0., 144. );
-
-
-    ///////////////////////////////////////////////////////
-    ///  integrated values - 2nd track only
-    ///////////////////////////////////////////////////////
-    std::string dttf_trk_folder_integrated_2ndtrack =
-      dttf_trk_folder_inclusive + "/2ND_TRACK_ONLY";
-    dbe_->setCurrentFolder(dttf_trk_folder_integrated_2ndtrack);
-
-    //packed values
-    sprintf(hname, "dttf_05_quality_2ndTrack");
-    sprintf(htitle, "DTTF 2nd Tracks Quality distribution");
-    dttf_qual_integ_2ndTrack  = dbe_->book1D(hname, htitle, 7, 0.5, 7.5);
-    dttf_qual_integ_2ndTrack->setAxisTitle("Quality", 1);
-    setQualLabel( dttf_qual_integ_2ndTrack, 1);
-
-    sprintf(hname, "dttf_11_charge_2ndTrack");
-    sprintf(htitle, "DTTF 2nd Tracks Charge distribution");
-    dttf_q_integ_2ndTrack = dbe_->book1D(hname, htitle, 2, -0.5, 1.5);
-    dttf_q_integ_2ndTrack->setAxisTitle("Charge", 1);
-
-    sprintf(hname, "dttf_10_pt_2ndTrack");
-    sprintf(htitle, "DTTF 2nd Tracks p_{T} distribution (Packed values)");
-    dttf_pt_integ_2ndTrack  = dbe_->book1D(hname, htitle, 32, -0.5, 31.5);
-    dttf_pt_integ_2ndTrack->setAxisTitle("p_{T}", 1);
-
-    sprintf(hname, "dttf_09_phi_2ndTrack");
-    sprintf(htitle, "DTTF 2nd Tracks Phi distribution (Packed values)");
-    dttf_phi_integ_2ndTrack = dbe_->book1D(hname, htitle, 144, -6, 138 );
-    dttf_phi_integ_2ndTrack->setAxisTitle("#phi", 1);
-
-    sprintf(hname, "dttf_08_eta_2ndTrack");
-    sprintf(htitle, "DTTF 2nd Tracks #eta distribution (Packed values)");
-    dttf_eta_integ_2ndTrack = dbe_->book1D(hname, htitle, 64, -0.5, 63.5);
-    dttf_eta_integ_2ndTrack->setAxisTitle("#eta", 1);
 
 
   }
@@ -911,27 +919,27 @@ void L1TDTTF::fillMEs( std::vector<L1MuDTTrackCand> * trackContainer,
       /// second track summary
       if ( track->TrkTag() == 1 ) {
 
-	/// INCLUSIVE/dttf_phi_integ
-	dttf_phi_integ_2ndTrack->Fill(phi_global);
+	/// WHEEL_%s/dttf_phi_integ
+	dttf_phi_wheel_2ndTrack[whindex]->Fill(phi_global);
 
-	/// INCLUSIVE/dttf_pt_integ
-	dttf_pt_integ_2ndTrack->Fill(track->pt_packed());
+	/// WHEEL_%s/dttf_pt_integ
+	dttf_pt_wheel_2ndTrack[whindex]->Fill(track->pt_packed());
 
-	/// INCLUSIVE/dttf_eta_integ
-	dttf_eta_integ_2ndTrack->Fill(track->eta_packed());
+	/// WHEEL_%s/dttf_eta_integ
+	dttf_eta_wheel_2ndTrack[whindex]->Fill(track->eta_packed());
 
-	/// INCLUSIVE/dttf_qual_integ
-	dttf_qual_integ_2ndTrack->Fill(track->quality_packed());
+	/// WHEEL_%s/dttf_qual_integ
+	dttf_quality_wheel_2ndTrack[whindex]->Fill(track->quality_packed());
 
-	/// INCLUSIVE/dttf_q_integ
-	dttf_q_integ_2ndTrack->Fill(track->charge_packed());
-
+	/// WHEEL_%s/dttf_q_integ
+	dttf_q_wheel_2ndTrack[whindex]->Fill(track->charge_packed());
 
 	/// WHEEL_%s/dttf_quality_wh%s
-	dttf_quality_wheel_2ndTrack[whindex]->Fill( sector, track->quality_packed() );
+	dttf_quality_summary_wheel_2ndTrack[whindex]->Fill( sector, track->quality_packed() );
 
 	/// WHEEL_%s/dttf_phi_eta_wh%s
 	dttf_phi_eta_wheel_2ndTrack[whindex]->Fill( track->eta_packed(), phi_global );
+
       }
 
       ///////// GMT
@@ -972,7 +980,8 @@ void L1TDTTF::fillMEs( std::vector<L1MuDTTrackCand> * trackContainer,
 void L1TDTTF::setQualLabel(MonitorElement *me, int axis)
 {
 
-  me->setAxisTitle("Quality", axis);
+  if( axis == 1 )
+    me->setAxisTitle("Quality", axis);
   me->setBinLabel(1, "T34", axis);
   me->setBinLabel(2, "T23/24", axis);
   me->setBinLabel(3, "T12/13/14", axis);

@@ -70,52 +70,54 @@ private:
   std::string inclusivepath_;
   std::string gmtpath_;
 
-  MonitorElement* dttf_phi_eta_integ;
-  MonitorElement* dttf_phi_eta_fine_integ;
-  MonitorElement* dttf_phi_eta_coarse_integ;
-  MonitorElement* dttf_eta_fine_fraction;
+  MonitorElement* dttf_nTracks_integ;
+  MonitorElement* dttf_occupancySummary;
   MonitorElement* dttf_bx_summary;
   MonitorElement* dttf_bx_integ;
-  MonitorElement* dttf_occupancySummary;
-  MonitorElement* dttf_occupancySummaryTEST;
-  MonitorElement* dttf_highQual_Summary;
-  MonitorElement* dttf_2ndTrack_Summary;
-  MonitorElement* dttf_gmt_matching;
-  MonitorElement* dttf_nTracks_integ;
-
-  MonitorElement* dttf_phi_eta_integ_2ndTrack;
-  MonitorElement* dttf_bx_summary_2ndTrack;
-  MonitorElement* dttf_bx_integ_2ndTrack;
-  MonitorElement* dttf_occupancySummary_2ndTrack;
-  MonitorElement* dttf_highQual_Summary_2ndTrack;
-  MonitorElement* dttf_nTracks_integ_2ndTrack;
-
-  MonitorElement* dttf_fine_fraction_wh[6];
-  MonitorElement* dttf_bx_wheel_integ[6];
-  MonitorElement* dttf_bx_wheel_summary[6];
-  MonitorElement* dttf_nTracks_wheel[6];
-  MonitorElement* dttf_bx_wheel_integ_2ndTrack[6];
-  MonitorElement* dttf_bx_wheel_summary_2ndTrack[6];
-  MonitorElement* dttf_nTracks_wheel_2ndTrack[6];
-  MonitorElement* dttf_quality_summary_wheel[6];
-  MonitorElement* dttf_quality_wheel[6];
-  MonitorElement* dttf_eta_wheel[6];
-  MonitorElement* dttf_q_wheel[6];
-  MonitorElement* dttf_pt_wheel[6];
-  MonitorElement* dttf_phi_wheel[6];
-
-
+  MonitorElement* dttf_eta_fine_integ;
   MonitorElement* dttf_quality_integ;
   MonitorElement* dttf_quality_summary;
-
-
-
-  MonitorElement* dttf_eta_fine_integ;
-  MonitorElement* dttf_eta_coarse_integ;
+  MonitorElement* dttf_highQual_Summary;
+  MonitorElement* dttf_phi_eta_coarse_integ;
+  MonitorElement* dttf_phi_eta_fine_integ;
+  MonitorElement* dttf_phi_eta_integ;
+  MonitorElement* dttf_eta_fine_fraction;
+  MonitorElement* dttf_phi_integ;
+  MonitorElement* dttf_pt_integ;
   MonitorElement* dttf_eta_integ;
   MonitorElement* dttf_q_integ;
-  MonitorElement* dttf_pt_integ;
-  MonitorElement* dttf_phi_integ;
+
+  MonitorElement* dttf_gmt_matching;
+  MonitorElement* dttf_2ndTrack_Summary;
+
+
+  MonitorElement* dttf_nTracks_integ_2ndTrack;
+  MonitorElement* dttf_occupancySummary_2ndTrack;
+  MonitorElement* dttf_bx_summary_2ndTrack;
+  MonitorElement* dttf_bx_integ_2ndTrack;
+  MonitorElement* dttf_quality_integ_2ndTrack;
+  MonitorElement* dttf_quality_summary_2ndTrack;
+  MonitorElement* dttf_highQual_Summary_2ndTrack;
+  MonitorElement* dttf_phi_eta_integ_2ndTrack;
+  MonitorElement* dttf_eta_integ_2ndTrack;
+  MonitorElement* dttf_phi_integ_2ndTrack;
+  MonitorElement* dttf_pt_integ_2ndTrack;
+  MonitorElement* dttf_q_integ_2ndTrack;
+
+  MonitorElement* dttf_nTracks_wheel[6];
+  MonitorElement* dttf_bx_wheel_summary[6];
+  MonitorElement* dttf_bx_wheel_integ[6];
+  MonitorElement* dttf_quality_wheel[6];
+  MonitorElement* dttf_quality_summary_wheel[6];
+  MonitorElement* dttf_fine_fraction_wh[6];
+  MonitorElement* dttf_eta_wheel[6];
+  MonitorElement* dttf_phi_wheel[6];
+  MonitorElement* dttf_pt_wheel[6];
+  MonitorElement* dttf_q_wheel[6];
+
+  MonitorElement* dttf_nTracks_wheel_2ndTrack[6];
+  MonitorElement* dttf_bx_wheel_summary_2ndTrack[6];
+  MonitorElement* dttf_bx_wheel_integ_2ndTrack[6];
 
   TH1F * getTH1F(const char * hname);
   TH2F * getTH2F(const char * hname);
