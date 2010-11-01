@@ -190,6 +190,10 @@ const PFTau& RecoTauConstructor::get(bool setupLeadingObjects) {
         getCollection(kIsolation, kGamma)->end()
         )
       );
+  // Set em fraction
+  tau_.setemFraction(sumPFCandPt(
+          getCollection(kSignal, kGamma)->begin(),
+          getCollection(kSignal, kGamma)->end()) / tau_.pt());
 
   if(setupLeadingObjects)
   {
