@@ -5,6 +5,9 @@
 #include <boost/foreach.hpp>
 
 #include "HLTrigger/HLTanalyzers/interface/HLTAnalyzer.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "HLTMessages.h"
 
 typedef std::pair<const char *, const edm::InputTag *> MissingCollectionInfo;
@@ -172,14 +175,19 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   _DoSuperClusters = runParameters.getUntrackedParameter<bool>("DoSuperClusters",false);
   _DoElectrons = runParameters.getUntrackedParameter<bool>("DoElectrons",true);
   _DoBJets = runParameters.getUntrackedParameter<bool>("DoBJets",true);
-  
-  // open the tree file
-  m_file = new TFile(_HistName.c_str(), "RECREATE");
-  if (m_file)
-    m_file->cd();
 
-  // Initialize the tree
-  HltTree = new TTree("HltTree", "");
+  _UseTFileService = runParameters.getUntrackedParameter<bool>("UseTFileService",false);
+  
+  // open the tree file and initialize the tree
+  if(_UseTFileService){
+    edm::Service<TFileService> fs;
+    HltTree = fs->make<TTree>("HltTree", "");
+  }else{
+    m_file = new TFile(_HistName.c_str(), "RECREATE");
+    if (m_file)
+      m_file->cd();
+    HltTree = new TTree("HltTree", "");
+  }
 
   treeWeight=xSection_*filterEff_;
   cout << "\n Setting HltTree weight to " << treeWeight << " = " << xSection_ << "*" << filterEff_ << " (cross section * gen filter efficiency)\n" << endl;
@@ -640,30 +648,29 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 
   // std::cout << " Ending Event Analysis" << std::endl;
   // After analysis, fill the variables tree
-  if (m_file)
-    m_file->cd();
+  if (m_file) m_file->cd();
   HltTree->Fill();
 }
 
 // "endJob" is an inherited method that you may implement to do post-EOF processing and produce final output.
 void HLTAnalyzer::endJob() {
 
-  if (m_file)
-    m_file->cd();
+  if (m_file) m_file->cd();
   
   const edm::ParameterSet &thepset = edm::getProcessParameterSet();   
   TList *list = HltTree->GetUserInfo();   
   list->Add(new TObjString(thepset.dump().c_str()));   
 
   HltTree->SetWeight(treeWeight);
-  HltTree->Write();
-  delete HltTree;
-  HltTree = 0;
-
-  if (m_file) {         // if there was a tree file...
-    m_file->Write();    // write out the branches
-    delete m_file;      // close and delete the file
-    m_file = 0;         // set to zero to clean up
+  if(!_UseTFileService){
+    HltTree->Write();
+    delete HltTree;
+    HltTree = 0;
+    
+    if (m_file) {         // if there was a tree file...
+      m_file->Write();    // write out the branches
+      delete m_file;      // close and delete the file
+      m_file = 0;         // set to zero to clean up
+    }
   }
-
 }
