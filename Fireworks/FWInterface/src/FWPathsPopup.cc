@@ -472,7 +472,6 @@ public:
             }
             PathInfo &pathInfo = m_paths[index->second];
             pathInfo.passed = update.passed;
-            std::cerr << update.pathName << " " << update.passed << " " << update.choiceMaker << std::endl;
             
             for (size_t mi = pathInfo.moduleStart, me = pathInfo.moduleEnd; mi != me; ++mi)
             {
@@ -607,6 +606,11 @@ public:
 
       int unsortedRow =  m_row_to_index[iSortedRowNumber];
       const PSetData& data = m_entries[unsortedRow];
+
+      if (data.label == "caloJetFilter")
+      {
+         std::cerr << "Here" << std::endl;
+      }
    
       std::string value;
       std::string label;
@@ -625,7 +629,7 @@ public:
       }
       else if (data.level == 1)
       {
-         const ModuleInfo &module = m_modules[data.module];
+         const ModuleInfo &module = m_modules[m_paths[data.path].moduleStart + data.module];
 
          label = data.label + " (" + data.value + ")";
          value = "";
@@ -699,7 +703,6 @@ public:
          T v;
          str >> v;
          bool fail = str.fail();
-         std::cerr << label << v << " " << fail << std::endl;
          if (tracked)
             ps.addParameter(label, v);
          else
@@ -754,7 +757,6 @@ public:
           if ( nwords > 3 )
           {
             fail = true;
-            std::cerr<< label << value <<" "<< fail <<std::endl;
             return fail;
           }
           else 
@@ -795,7 +797,6 @@ public:
         if ( nwords > 3 ) 
         {
           fail = true;
-          std::cerr<< label << value <<" "<< fail <<std::endl;
         }
         else
         {           
@@ -833,7 +834,6 @@ public:
         if ( nwords > 2 )
         {
           fail = true;    
-          std::cerr<< label << value <<" "<< fail <<std::endl;
         }
         else
         {             
@@ -897,7 +897,6 @@ public:
          if (!m_editor)
             return;
          
-         std::cerr << "Editing cancelled" << std::endl;
          m_editor->UnmapWindow(); 
          
       }
@@ -1495,7 +1494,6 @@ FWPathsPopup::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMo
       m_psTable->setExpanded(iRow);
 
       // Save and close the previous editor, if required.
-      std::cerr << m_psTable->selectedColumn() << " " << m_psTable->selectedRow() << std::endl;
       if (m_psTable->selectedColumn() == 1
           && m_psTable->selectedRow() != -1)
       {
@@ -1522,7 +1520,6 @@ FWPathsPopup::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMo
          
       // Clear text on new row click
       int index = m_psTable->rowToIndex()[iRow];
-      PSetData& data = m_psTable->data()[index];
       m_psTable->setSelection(iRow, iColumn, iKeyMod);
    }
 }
@@ -1598,13 +1595,12 @@ FWPathsPopup::postProcessEvent(edm::Event const& event, edm::EventSetup const& e
          update.pathName = triggerNames.triggerName(i);
          update.passed = triggerResults->accept(i);
          update.choiceMaker = triggerResults->index(i);
-         std::cerr << triggerResults->state(i);
-         std::cerr << "Trigger results." << update.choiceMaker << std::endl;
          pathUpdates.push_back(update);
       }
    }
    m_psTable->updateSchedule(m_info);
    m_psTable->update(pathUpdates);
+   Layout();
 }
 
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
@@ -1634,7 +1630,6 @@ FWPathsPopup::scheduleReloadEvent()
          if (module.dirty == false)
             continue;
          PSetData &data = m_psTable->entries()[module.entry];
-         std::cerr << "Reloading " << data.label << " " << data.pset << std::endl;
          m_looper->requestChanges(data.label, data.pset);
       }
       m_hasChanges = true;
