@@ -1,5 +1,6 @@
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
 
+#include "CHIPSCMS.hh"
 #include "CMSModel.hh"
 #include "DummyPhysics.hh"
 #include "FTFCMS_BIC.hh"
@@ -43,6 +44,8 @@
 #include "QGSPCMS_BIC.hh"
 #include "QGSPCMS_EMV.hh"
 
+typedef CHIPSCMS CHIPS;
+DEFINE_PHYSICSLIST(CHIPS);
 DEFINE_PHYSICSLIST(CMSModel);
 DEFINE_PHYSICSLIST(DummyPhysics);
 typedef FTFCMS_BIC FTF_BIC;
