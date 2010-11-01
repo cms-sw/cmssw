@@ -81,3 +81,22 @@ SKIMStreamHTSD = cms.FilteredStream(
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
     )
+
+#####################
+
+from Configuration.EventContent.EventContent_cff import RECOEventContent
+skimRecoContent = RECOEventContent.clone()
+skimRecoContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
+skimRecoContent.outputCommands.append("drop *_*_*_SKIM")
+
+from Configuration.Skimming.PDWG_SuperClusterSkim_cff import *
+diSuperClusterSkimPath = cms.Path(diSuperClusterSkimSequence)
+SKIMStreamSuperCluster = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'SuperCluster',
+    paths = (diSuperClusterSkimPath),
+    content = skimRecoContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RECO')
+    )
+
