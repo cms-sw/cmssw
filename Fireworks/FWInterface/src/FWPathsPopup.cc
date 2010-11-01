@@ -607,11 +607,6 @@ public:
       int unsortedRow =  m_row_to_index[iSortedRowNumber];
       const PSetData& data = m_entries[unsortedRow];
 
-      if (data.label == "caloJetFilter")
-      {
-         std::cerr << "Here" << std::endl;
-      }
-   
       std::string value;
       std::string label;
 
@@ -1600,7 +1595,7 @@ FWPathsPopup::postProcessEvent(edm::Event const& event, edm::EventSetup const& e
    }
    m_psTable->updateSchedule(m_info);
    m_psTable->update(pathUpdates);
-   Layout();
+   m_tableWidget->body()->DoRedraw();
 }
 
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
