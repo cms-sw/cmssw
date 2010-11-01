@@ -34,7 +34,7 @@ while [ $# -gt 0 ]
 do
     case "$1" in
       --soft)  softflag=on ; originalOptions="${originalOptions} --soft";;
-      -d|--debug) debugflag=on;;
+      -d|--debug) debugflag=on; originalOptions="${originalOptions} --debug";;
       -di|--debug-interactive) debuginteractiveflag=on;;
       --valgrind) valgrindflag=on;;
       --prompt) originalOptions="${originalOptions} $1 -r";;
@@ -49,23 +49,20 @@ if [ "X$softflag" = "on" ] ; then
   export LIBGL_DRIVERS_PATH=/tmp/
 fi
 
+export exitStatus=0;
 if [ "X$debugflag" = Xon ] ; then
    tmpfile=`mktemp /tmp/cmsshow-gdb-XXXXXXXX`
    if [ -w . ]; then
-      creport=./cmsShow-crash-report.txt
+      creport=./cmsshow-crash-report.txt
    else
       creport=`mktemp /tmp/cmsshow-crash-report-XXXXXXXX`
    fi
-   echo "set args $originalOptions" > $tmpfile
-   echo "run"        >> $tmpfile
-   echo "bt"         >> $tmpfile
-   echo "quit"       >> $tmpfile
-   gdb -x $tmpfile $SHELLDIR/cmsShow.exe 2>&1 | tee $creport
+   $SHELLDIR/cmsShow.exe $originalOptions 2>&1 | tee $creport
+   exitSstatus=$?
    echo "" >> $creport
    echo "System Info" >> $creport
    uname -a  >> $creport
    glxinfo >> $creport
-   rm -f $tmpfile
    echo "Crash report saved to '$creport'."
 elif [ "X$debuginteractiveflag" = Xon ] ; then
   echo $originalOptions
@@ -74,7 +71,8 @@ elif [ "X$valgrindflag" = Xon ] ; then
   valgrind --num-callers=30 --log-file=valgrind.log.$$ --freelist-vol=100000000 $CMSSW_BASE/cmsShow.exe $@
 else
    $SHELLDIR/cmsShow.exe $originalOptions
-   if [ $? -gt 128 ] ; then
+   exitStatus $?
+   if [ $exitStatus -gt 128 ] ; then
       if [ "$rootflag" == "off" ] ; then
          echo ""
          echo "  ########################################################################"
@@ -93,3 +91,5 @@ else
       fi
    fi
 fi
+
+exit $exitStatus;

@@ -4,6 +4,7 @@
 #include "TRint.h"
 #include "TApplication.h"
 #include "TSysEvtHandler.h"
+#include "Getline.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
 #include <iostream>
 #include <fstream>
@@ -63,7 +64,28 @@ namespace {
    
 }
 
-void run_app(TApplication &app, int argc, char **argv)
+namespace
+{
+void signal_handler_wrapper(int sid, siginfo_t* sinfo, void* sctx)
+{
+   printf("Program received signal ID = %d.\nPrinting stack trace ... \n", sid); fflush(stdout);
+
+   TString gdbCommand;
+   TString gdbscript("$(CMSSW_BASE)/src/Fireworks/Core/scripts/version.txt");
+#if defined(R__MACOSX)
+   gdbCommand = Form ("%s/src/Fireworks/Core/scripts/gdb-backtrace.sh %s/cmsShow.exe %d ", 
+                      gSystem->Getenv("CMSSW_BASE"), gSystem->Getenv("SHELLDIR"), gSystem->GetPid());
+#elif defined(R__LINUX)
+   gdbCommand = Form ("%s/src/Fireworks/Core/scripts/gdb-backtrace.sh %d ", 
+                      gSystem->Getenv("CMSSW_BASE"), gSystem->GetPid());
+#endif
+   gSystem->Exec(gdbCommand.Data());
+   gSystem->Exit(sid);   
+   Getlinem(kCleanUp, 0);
+}
+}
+
+void run_app(TApplication &app, int argc, char **argv, bool attachGdb)
 {
    //Remove when FWLite handles the MessageLogger
    edm::MessageLoggerQ::setMLscribe_ptr(boost::shared_ptr<edm::service::AbstractMLscribe>(new SilentMLscribe));
@@ -80,14 +102,29 @@ void run_app(TApplication &app, int argc, char **argv)
    gSystem->ResetSignal(kSigPipe);
    gSystem->ResetSignal(kSigFloatingException);
    
-   signal(SIGABRT, SIG_DFL);
-   signal(SIGBUS, SIG_DFL);
-   signal(SIGSEGV, SIG_DFL);
-   signal(SIGILL, SIG_DFL);
-   signal(SIGSYS, SIG_DFL);
-   signal(SIGFPE, SIG_DFL);
-   signal(SIGPIPE, SIG_DFL);
-   
+
+   if (attachGdb)
+   {
+      struct sigaction sac;
+      sac.sa_sigaction = signal_handler_wrapper;
+      sigemptyset(&sac.sa_mask);
+      sac.sa_flags = SA_SIGINFO;
+      sigaction(SIGILL,  &sac, 0);
+      sigaction(SIGSEGV, &sac, 0);
+      sigaction(SIGBUS,  &sac, 0);
+      sigaction(SIGFPE,  &sac, 0);
+   }
+   else
+   {
+      signal(SIGABRT, SIG_DFL);
+      signal(SIGBUS, SIG_DFL);
+      signal(SIGSEGV, SIG_DFL);
+      signal(SIGILL, SIG_DFL);
+      signal(SIGSYS, SIG_DFL);
+      signal(SIGFPE, SIG_DFL);
+      signal(SIGPIPE, SIG_DFL);   
+   }
+
    app.Run();
    pMain.reset();
 
@@ -116,14 +153,19 @@ int main (int argc, char **argv)
 
    // check root interactive promp
    bool isri = false;
+   bool attachGdb = false;
    for (Int_t i =0; i<argc; i++)
    {
-      if (strncmp(argv[i], "-r", 2) == 0||
+      if (strncmp(argv[i], "-r", 2) == 0 ||
 	  strncmp(argv[i], "--root", 6) == 0)
       {
          isri=true;
-         break;
       }
+      else if (strncmp(argv[i], "-d", 2) == 0 ||
+               strncmp(argv[i], "--debug", 6) == 0)
+      {
+         attachGdb = true;
+      } 
    }
 
    if (isri) {
@@ -135,10 +177,10 @@ int main (int argc, char **argv)
       std::cout<<""<<std::endl;
 
       TRint app("cmsShow", &dummyArgc, dummyArgv);
-      run_app(app,argc, argv);
+      run_app(app,argc, argv, attachGdb);
    } else {
-      TApplication app("cmsShow", &dummyArgc, dummyArgv); 
-      run_app(app, argc, argv);
+      TApplication app("cmsShow", &dummyArgc, dummyArgv);
+      run_app(app,argc, argv, attachGdb);
    }
 
    return 0;

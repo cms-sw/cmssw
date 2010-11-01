@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.181 2010/09/03 15:21:59 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.182 2010/09/13 14:36:47 matevz Exp $
 //
 
 // system include files
@@ -283,7 +283,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       if (vm.count(kLoopOpt))
          setPlayLoop();
 
-      gSystem->IgnoreSignal(kSigSegmentationViolation, true);
       if (eveMode) {
          f = boost::bind(&CmsShowMainBase::setupDebugSupport,this);
          startupTasks()->addTask(f);
@@ -373,7 +372,6 @@ void CmsShowMain::doExit()
    // windows in ROOT GUI are destroyed in 150 ms timeout after
    gSystem->Sleep(151);
    gSystem->ProcessEvents();
-
    gSystem->ExitLoop();
 }
 
