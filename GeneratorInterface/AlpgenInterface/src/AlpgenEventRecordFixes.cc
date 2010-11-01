@@ -122,15 +122,16 @@ void alpgen::fixEventTTbar(lhef::HEPEUP &hepeup)
   
   int nup = hepeup.NUP;
   
-  // Open up space for 2 W bosons and two b quarks. 
-  hepeup.resize(nup+4);
-
   // Assert top is in the third position.
   int thirdID = hepeup.IDUP[2];
   if(std::abs(thirdID) != 6) {
     std::cout << "Top is NOT in the third position - no need to fix." << std::endl;
     return;
   } 
+
+  // Open up space for 2 W bosons and two b quarks. 
+  hepeup.resize(nup+4);
+
   // reset top status codes
   hepeup.ISTUP[2] = 2;
   hepeup.ISTUP[3] = 2;
@@ -223,15 +224,16 @@ void alpgen::fixEventHiggsTTbar(lhef::HEPEUP &hepeup)
   
   int nup = hepeup.NUP;
   
-  // Open up space for 2 W bosons and two b quarks. 
-  hepeup.resize(nup+4);
-
   // Assert top is in the fourth position.
   int fourthID = hepeup.IDUP[3];
   if(std::abs(fourthID) != 6) {
     std::cout << "Top is NOT in the fourth position - no need to fix."  << std::endl;
     return;
   } 
+
+  // Open up space for 2 W bosons and two b quarks. 
+  hepeup.resize(nup+4);
+
   // reset top status codes
   hepeup.ISTUP[3] = 2;
   hepeup.ISTUP[4] = 2;

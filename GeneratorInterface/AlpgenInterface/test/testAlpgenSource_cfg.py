@@ -4,14 +4,14 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("LHE")
 
 process.source = cms.Source("AlpgenSource",
-	fileNames = cms.untracked.vstring('file:w2j')
+	fileNames = cms.untracked.vstring('file:2b1j')
 )
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 
 process.configurationMetadata = cms.untracked.PSet(
 	version = cms.untracked.string('alpha'),
-	name = cms.untracked.string('w2j'),
+	name = cms.untracked.string('2b1j'),
 	annotation = cms.untracked.string('UNW -> LHE translation')
 )
 
