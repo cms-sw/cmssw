@@ -222,9 +222,5 @@ process.ecalBarrelMonitorClient.location = 'H4'
 process.ecalBarrelMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'StatusFlags', 'PedestalOnline', 'Cosmic', 'Timing', 'Cluster', 'Summary']
 process.ecalBarrelMonitorClient.superModules = [19]
 
-process.hybridSuperClusters.HybridBarrelSeedThr = 0.150
-process.hybridSuperClusters.step = 1
-process.hybridSuperClusters.eseed = 0.150
-
 process.DQM.collectorHost = ''
 
