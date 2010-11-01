@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.35 2010/06/16 14:04:40 matevz Exp $
+// $Id: FWEventItemsManager.cc,v 1.21 2009/07/26 17:19:01 chrjones Exp $
 //
 
 // system include files
@@ -21,10 +21,12 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
-#include "Fireworks/Core/interface/FWConfiguration.h"
-#include "Fireworks/Core/interface/FWDisplayProperties.h"
-#include "Fireworks/Core/interface/FWItemAccessorFactory.h"
 
+#include "Fireworks/Core/interface/FWConfiguration.h"
+
+#include "Fireworks/Core/interface/FWDisplayProperties.h"
+
+#include "Fireworks/Core/interface/FWItemAccessorFactory.h"
 //
 // constants, enums and typedefs
 //
@@ -39,6 +41,7 @@
 FWEventItemsManager::FWEventItemsManager(FWModelChangeManager* iManager) :
    m_changeManager(iManager),
    m_event(0),
+   m_geom(0),
    m_accessorFactory(new FWItemAccessorFactory())
 {
 }
@@ -48,18 +51,13 @@ FWEventItemsManager::FWEventItemsManager(FWModelChangeManager* iManager) :
 //    // do actual copying here;
 // }
 
-/** FWEventItemsManager has ownership of the items it contains.
-
-    Note that because of the way we keep track of removed items,
-    m_items[i] could actually be 0 for indices corresponding
-    to removed items.
- */
 FWEventItemsManager::~FWEventItemsManager()
 {
-   for (size_t i = 0, e = m_items.size(); i != e; ++i)
-      delete m_items[i];
-
-   m_items.clear();
+   for(std::vector<FWEventItem*>::iterator it = m_items.begin();
+       it != m_items.end();
+       ++it) {
+      delete *it;
+   }
 }
 
 //
@@ -83,13 +81,14 @@ FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem)
    FWPhysicsObjectDesc temp(iItem);
    if(! m_context->colorManager()->colorHasIndex(temp.displayProperties().color())) {
       FWDisplayProperties prop(temp.displayProperties());
-      prop.setColor(0);
+      prop.setColor( m_context->colorManager()->indexToColor(0));
       temp.setDisplayProperties(prop);
    }
    m_items.push_back(new FWEventItem(m_context,m_items.size(),m_accessorFactory->accessorFor(temp.type()),
                                      temp) );
    newItem_(m_items.back());
    m_items.back()->goingToBeDestroyed_.connect(boost::bind(&FWEventItemsManager::removeItem,this,_1));
+   m_items.back()->setGeom(m_geom);
    if(m_event) {
       FWChangeSentry sentry(*m_changeManager);
       m_items.back()->setEvent(m_event);
@@ -97,40 +96,43 @@ FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem)
    return m_items.back();
 }
 
-/** Prepare to handle a new event by associating
-    all the items to watch it.
-  */
 void
 FWEventItemsManager::newEvent(const fwlite::Event* iEvent)
 {
    FWChangeSentry sentry(*m_changeManager);
    m_event = iEvent;
-   for(size_t i = 0, e = m_items.size(); i != e; ++i)
-   {
-      FWEventItem *item = m_items[i];
-      if(item)
-         item->setEvent(iEvent);
+   for(std::vector<FWEventItem*>::iterator it = m_items.begin();
+       it != m_items.end();
+       ++it) {
+      if(*it) {
+         (*it)->setEvent(iEvent);
+      }
    }
 }
 
-/** Clear all the items in the model. 
-    
-    Notice that a previous implementation was setting all the items to 0, I
-    guess to track accessing delete items.
-  */
 void
-FWEventItemsManager::clearItems(void)
+FWEventItemsManager::setGeom(const DetIdToMatrix* geom)
 {
-   for (size_t i = 0, e = m_items.size(); i != e; ++i)
-   {
-      FWEventItem *item = m_items[i];
-      if (item) {
-         item->destroy();
+   // cache the geometry (in case items are added later)
+   m_geom = geom;
+   for(std::vector<FWEventItem*>::iterator it = m_items.begin();
+       it != m_items.end();
+       ++it) {
+      if(*it) {
+         (*it)->setGeom(geom);
       }
-      m_items[i]=0;
    }
-   goingToClearItems_();
+}
 
+void
+FWEventItemsManager::clearItems()
+{
+   goingToClearItems_();
+   for(std::vector<FWEventItem*>::iterator it = m_items.begin();
+       it != m_items.end();
+       ++it) {
+      delete *it;
+   }
    m_items.clear();
 }
 
@@ -145,7 +147,6 @@ static const std::string kTrue("t");
 static const std::string kFalse("f");
 static const std::string kLayer("layer");
 static const std::string kPurpose("purpose");
-static const std::string kTransparency("transparency");
 
 void
 FWEventItemsManager::addTo(FWConfiguration& iTo) const
@@ -154,10 +155,9 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
    assert(0!=cm);
    for(std::vector<FWEventItem*>::const_iterator it = m_items.begin();
        it != m_items.end();
-       ++it)
-   {
+       ++it) {
       if(!*it) continue;
-      FWConfiguration conf(4);
+      FWConfiguration conf(3);
       ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*((*it)->type()->GetTypeInfo())));
       assert(dataType != ROOT::Reflex::Type() );
 
@@ -168,7 +168,7 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
       conf.addKeyValue(kFilterExpression, FWConfiguration((*it)->filterExpression()));
       {
          std::ostringstream os;
-         os << (*it)->defaultDisplayProperties().color();
+         os << cm->colorToIndex((*it)->defaultDisplayProperties().color());
          conf.addKeyValue(kColor, FWConfiguration(os.str()));
       }
       conf.addKeyValue(kIsVisible, FWConfiguration((*it)->defaultDisplayProperties().isVisible() ? kTrue : kFalse));
@@ -178,17 +178,10 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
          conf.addKeyValue(kLayer,FWConfiguration(os.str()));
       }
       conf.addKeyValue(kPurpose,(*it)->purpose());
-      {
-         std::ostringstream os;
-         os << static_cast<int>((*it)->defaultDisplayProperties().transparency());
-         conf.addKeyValue(kTransparency, FWConfiguration(os.str()));
-      }
       iTo.addKeyValue((*it)->name(), conf, true);
    }
 }
 
-/** This is responsible for resetting the status of items from configuration  
-  */
 void
 FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
 {
@@ -198,10 +191,9 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
    clearItems();
    const FWConfiguration::KeyValues* keyValues =  iFrom.keyValues();
    assert(0!=keyValues);
-   for (FWConfiguration::KeyValues::const_iterator it = keyValues->begin();
-        it != keyValues->end();
-        ++it)
-   {
+   for(FWConfiguration::KeyValues::const_iterator it = keyValues->begin();
+       it != keyValues->end();
+       ++it) {
       const std::string& name = it->first;
       const FWConfiguration& conf = it->second;
       const FWConfiguration::KeyValues* keyValues =  conf.keyValues();
@@ -215,73 +207,44 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
       const bool isVisible = (*keyValues)[6].second.value() == kTrue;
 
       unsigned int colorIndex;
-      if(conf.version() < 3)
-      {
+      if(conf.version()<3) {
          std::istringstream is(sColor);
          Color_t color;
          is >> color;
          colorIndex = cm->oldColorToIndex(color);
-      }
-      else if (conf.version() < 4)
-      {
-         std::istringstream is(sColor);
-         is >> colorIndex;
-         colorIndex += 1000;
-      }
-      else
-      {
-         // In version 4 we assume:
-         //   fireworks colors start at ROOT index 1000
-         //   geometry  colors start at ROOT index 1100
-         // We save them as such -- no conversions needed.
+      } else {
          std::istringstream is(sColor);
          is >> colorIndex;
       }
-      
-      int transparency = 0;
 
-      // Read transparency from file. We don't care about checking errors
-      // because strtol returns 0 in that case.
-      if (conf.version() > 3)
-         transparency = strtol((*keyValues)[9].second.value().c_str(), 0, 10);
+      FWDisplayProperties disp(cm->indexToColor(colorIndex), isVisible);
 
-      FWDisplayProperties dp(colorIndex, isVisible, transparency);
-
-      unsigned int layer = strtol((*keyValues)[7].second.value().c_str(), 0, 10);
-
+      unsigned int layer;
+      const std::string& sLayer =(*keyValues)[7].second.value();
+      std::istringstream isl(sLayer);
+      isl >> layer;
       //For older configs assume name is the same as purpose
       std::string purpose(name);
-      if (conf.version() > 1)
+      if(conf.version()>1) {
          purpose = (*keyValues)[8].second.value();
-      
+      }
       FWPhysicsObjectDesc desc(name,
                                TClass::GetClass(type.c_str()),
                                purpose,
-                               dp,
+                               disp,
                                moduleLabel,
                                productInstanceLabel,
-                               processName,
+			       processName,
                                filterExpression,
                                layer);
       add(desc);
    }
 }
 
-/** Remove one item. 
-  
-    Notice that rather than erasing the item from the list, it is preferred to
-    set it to zero, I guess to catch accesses to remove items and to avoid 
-    having to recalculate the current selection.
-    
-    GE: I think this is a broken way of handling removal of objects.  The object
-        should be properly deleted and the current selection should be updated
-        accordingly.
-  */
 void
 FWEventItemsManager::removeItem(const FWEventItem* iItem)
 {
-   assert(iItem->id() < m_items.size());
-   m_items[iItem->id()] = 0;
+   m_items[iItem->id()]=0;
 }
 
 void
@@ -304,16 +267,15 @@ FWEventItemsManager::end() const
    return m_items.end();
 }
 
-/** Look up an item by name.
-  */
 const FWEventItem*
 FWEventItemsManager::find(const std::string& iName) const
 {
-   for (size_t i = 0, e = m_items.size(); i != e; ++i)
-   {
-      const FWEventItem *item = m_items[i];
-      if (item && item->name() == iName)
-         return item;
+   for(std::vector<FWEventItem*>::const_iterator it = m_items.begin();
+       it != m_items.end();
+       ++it) {
+      if( *it && (*it)->name() == iName) {
+         return *it;
+      }
    }
    return 0;
 }

@@ -20,9 +20,7 @@ process.load('Configuration/StandardSequences/SimExtended_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load('Configuration/StandardSequences/EndOfProcess_cff')
 process.load('Configuration/EventContent/EventContent_cff')
-
-from Configuration.PyReleaseValidation.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['mc']
+process.GlobalTag.globaltag = 'MC_31X_V1::All'
 
 process.load('Configuration/StandardSequences/DigiToRaw_cff')
 process.load('Configuration/StandardSequences/RawToDigi_cff')

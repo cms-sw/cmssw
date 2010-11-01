@@ -1,25 +1,29 @@
 //
-// Package:     Electrons
+// Package:     Calo
 // Class  :     FWPhotonDetailView
-// $Id: FWPhotonDetailView.cc,v 1.28 2010/06/18 16:57:26 matevz Exp $
+// $Id: FWPhotonDetailView.cc,v 1.22 2009/11/06 06:34:07 dmytro Exp $
 
 #include "TLatex.h"
 #include "TEveCalo.h"
+#include "TEveStraightLineSet.h"
 #include "TEvePointSet.h"
 #include "TEveScene.h"
 #include "TEveViewer.h"
 #include "TGLViewer.h"
 #include "TCanvas.h"
 #include "TEveCaloLegoOverlay.h"
+#include "TRootEmbeddedCanvas.h"
+#include "TEveLegoEventHandler.h"
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 #include "Fireworks/Electrons/plugins/FWPhotonDetailView.h"
 #include "Fireworks/Calo/interface/FWECALDetailViewBuilder.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FWGLEventHandler.h"
 
 //
 // constructors and destructor
@@ -31,8 +35,6 @@ m_builder(0)
 
 FWPhotonDetailView::~FWPhotonDetailView()
 {
-   m_eveViewer->GetGLViewer()->DeleteOverlayElements(TGLOverlayElement::kUser);
-
    if (m_data) m_data->DecDenyDestroy();
    delete m_builder;
 }
@@ -47,19 +49,16 @@ void FWPhotonDetailView::build (const FWModelId &id, const reco::Photon* iPhoton
    // build ECAL objects
    m_builder = new FWECALDetailViewBuilder(id.item()->getEvent(), id.item()->getGeom(),
                                    iPhoton->caloPosition().eta(), iPhoton->caloPosition().phi(), 25);
-   m_builder->showSuperClusters();
+   m_builder->showSuperClusters(kGreen+2, kGreen+4);
 
    if ( iPhoton->superCluster().isAvailable() )
       m_builder->showSuperCluster(*(iPhoton->superCluster()), kYellow);
-
    TEveCaloLego* lego = m_builder->build();
    m_data = lego->GetData();
-   m_data->IncDenyDestroy();
    m_eveScene->AddElement(lego);
 
    // add Photon specific details
-   if( iPhoton->superCluster().isAvailable() ) 
-      addSceneInfo(iPhoton, m_eveScene);
+   addSceneInfo(iPhoton, m_eveScene);
 
    // draw axis at the window corners
    TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
@@ -71,8 +70,8 @@ void FWPhotonDetailView::build (const FWModelId &id, const reco::Photon* iPhoton
 
    // set event handler and flip camera to top view at beginning
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-   FWGLEventHandler* eh =
-      new FWGLEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
+   TEveLegoEventHandler* eh =
+      new TEveLegoEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
    viewerGL()->SetEventHandler(eh);
    viewerGL()->UpdateScene();
    viewerGL()->CurrentCamera().Reset();
@@ -101,7 +100,7 @@ FWPhotonDetailView::setTextInfo(const FWModelId& id, const reco::Photon *photon)
    latex->DrawLatex(x, y, Form(" E_{T} = %.1f GeV, #eta = %0.2f, #varphi = %0.2f",
                                photon->et(), photon->eta(), photon->phi()) );
    y -= h;
-   m_builder->makeLegend(x, y);
+   m_builder->makeLegend(x,y,kGreen+2,kGreen+4,kYellow);
 }
 
 //______________________________________________________________________________

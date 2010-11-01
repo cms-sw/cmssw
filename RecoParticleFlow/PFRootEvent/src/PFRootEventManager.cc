@@ -1409,14 +1409,18 @@ void PFRootEventManager::connect( const char* infilename ) {
         <<rechitsHFHADbranchname<<endl;
   }
 
-  string rechitsCLEANEDbranchname;
+  std::vector<string> rechitsCLEANEDbranchname;
   options_->GetOpt("root","rechits_CLEANED_branch", rechitsCLEANEDbranchname);
   
-  rechitsCLEANEDBranch_ = tree_->GetBranch(rechitsCLEANEDbranchname.c_str());
-  if(!rechitsCLEANEDBranch_) {
-    cerr<<"PFRootEventManager::ReadOptions : rechits_CLEANED_branch not found : "
-        <<rechitsCLEANEDbranchname<<endl;
+  for ( unsigned i=0; i<rechitsCLEANEDbranchname.size(); ++i ) { 
+    rechitsCLEANEDBranch_.push_back(tree_->GetBranch(rechitsCLEANEDbranchname[i].c_str()));
+    if(!rechitsCLEANEDBranch_.back()) {
+      cerr<<"PFRootEventManager::ReadOptions : rechits_CLEANED_branch not found : "
+	  <<rechitsCLEANEDbranchname[i]<<endl;      
+      rechitsCLEANEDBranch_.pop_back();
+    }
   }
+  rechitsCLEANEDV_.resize(rechitsCLEANEDBranch_.size());
 
   string rechitsPSbranchname;
   options_->GetOpt("root","rechits_PS_branch", rechitsPSbranchname);
@@ -1764,7 +1768,9 @@ void PFRootEventManager::setAddresses() {
   if( rechitsHCALBranch_ ) rechitsHCALBranch_->SetAddress(&rechitsHCAL_);
   if( rechitsHFEMBranch_ ) rechitsHFEMBranch_->SetAddress(&rechitsHFEM_);
   if( rechitsHFHADBranch_ ) rechitsHFHADBranch_->SetAddress(&rechitsHFHAD_);
-  if( rechitsCLEANEDBranch_ ) rechitsCLEANEDBranch_->SetAddress(&rechitsCLEANED_);
+  for ( unsigned i=0; i<rechitsCLEANEDBranch_.size(); ++i ) { 
+    if( rechitsCLEANEDBranch_[i] ) rechitsCLEANEDBranch_[i]->SetAddress(&rechitsCLEANEDV_[i]);
+  }
   if( rechitsPSBranch_ ) rechitsPSBranch_->SetAddress(&rechitsPS_);
   if( clustersECALBranch_ ) clustersECALBranch_->SetAddress( clustersECAL_.get() );
   if( clustersHCALBranch_ ) clustersHCALBranch_->SetAddress( clustersHCAL_.get() );
@@ -2127,8 +2133,10 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if(rechitsHFHADBranch_) {
     rechitsHFHADBranch_->GetEntry(entry);
   }
-  if(rechitsCLEANEDBranch_) {
-    rechitsCLEANEDBranch_->GetEntry(entry);
+  for ( unsigned i=0; i<rechitsCLEANEDBranch_.size(); ++i ) { 
+    if(rechitsCLEANEDBranch_[i]) {
+      rechitsCLEANEDBranch_[i]->GetEntry(entry);
+    }
   }
   if(rechitsPSBranch_) {
     rechitsPSBranch_->GetEntry(entry);  
@@ -2244,9 +2252,16 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if(rechitsHFHADBranch_) {
     PreprocessRecHits( rechitsHFHAD_ , findRecHitNeighbours_);
   }
-  if(rechitsCLEANEDBranch_) {
-    PreprocessRecHits( rechitsCLEANED_ , false);
+  rechitsCLEANED_.clear();
+  for ( unsigned i=0; i<rechitsCLEANEDBranch_.size(); ++i ) { 
+    if(rechitsCLEANEDBranch_[i]) {
+      PreprocessRecHits( rechitsCLEANEDV_[i] , false);
+      for ( unsigned j=0; j<rechitsCLEANEDV_[i].size(); ++j ) { 
+	rechitsCLEANED_.push_back( (rechitsCLEANEDV_[i])[j] );
+      }
+    }
   }
+
   if(rechitsPSBranch_) {
     PreprocessRecHits( rechitsPS_ , findRecHitNeighbours_);
   }
@@ -3604,11 +3619,19 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
   }
   if(printPFCandidates_) {
     out<<"Particle Flow Candidates =================================="<<endl;
+    double mex = 0.;
+    double mey = 0.;
     for(unsigned i=0; i<pfCandidates_->size(); i++) {
       const PFCandidate& pfc = (*pfCandidates_)[i];
+      mex -= pfc.px();
+      mey -= pfc.py();
       if(pfc.pt()>printPFCandidatesPtMin_)
       out<<i<<" " <<(*pfCandidates_)[i]<<endl;
     }    
+    out<<endl;
+    out<< "MEX, MEY, MET ============================================" <<endl 
+       << mex << " " << mey << " " << sqrt(mex*mex+mey*mey);
+    out<<endl;
     out<<endl;
 
     //print a detailed list of PFSimParticles matching

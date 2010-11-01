@@ -43,7 +43,13 @@ pfTausBaseSequence = cms.Sequence(
     pfTausDiscriminationByIsolation
     )
 
-ic5PFJetTracksAssociatorAtVertex.jets = 'pfJets'
+# Associate track to pfJets
+from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import *
+pfJetTracksAssociatorAtVertex = cms.EDProducer(
+    "JetTracksAssociatorAtVertex",
+    j2tParametersVX,
+    jets = cms.InputTag("pfJets")
+    )
 
 # Select taus from given collection that pass cloned discriminants
 pfTaus = pfTauSelector.clone()
@@ -54,9 +60,10 @@ pfTaus.discriminators = cms.VPSet(
     )
 
 pfRecoTauTagInfoProducer.PFCandidateProducer = 'pfNoElectron'
+pfRecoTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVertex'
 
 pfTauSequence = cms.Sequence(
-    ic5PFJetTracksAssociatorAtVertex + 
+    pfJetTracksAssociatorAtVertex + 
     pfRecoTauTagInfoProducer + 
     pfTausBaseSequence + 
     pfTaus 

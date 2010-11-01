@@ -50,11 +50,17 @@ extern "C" {
 	} uppriv_;
 
 	extern struct MEMAIN {
-		double 	etcjet, rclmax, etaclmax, qcut, clfact;
+		double 	etcjet, rclmax, etaclmax, qcut, showerkt, clfact;
 		int	maxjets, minjets, iexcfile, ktsche;
-		int	nexcres, excres[30];
+		int	mektsc,nexcres, excres[30];
+      		int	nqmatch,excproc,iexcproc[1000],iexcval[1000];
+                bool    nosingrad,jetprocs;
 	} memain_;
-
+	
+	extern struct OUTTREE {
+		int flag;
+	} outtree_;
+	
 	extern struct MEMAEV {
 		double	ptclus[20];
 		int	nljets, iexc, ifile;
@@ -66,35 +72,6 @@ extern "C" {
 	} pypart_;
 } // extern "C"
 
-/*
-class JetMatchingMadgraph : public JetMatching {
-    public:
-	JetMatchingMadgraph(const edm::ParameterSet &params);
-	~JetMatchingMadgraph();
-
-    private:
-	void init(const boost::shared_ptr<LHERunInfo> &runInfo);
-	void beforeHadronisation(const boost::shared_ptr<LHEEvent> &event);
-
-	double match(const HepMC::GenEvent *partonLevel,
-	             const HepMC::GenEvent *finalState,
-	             bool showeredFinalState);
-
-	std::set<std::string> capabilities() const;
-
-	template<typename T>
-	static T parseParameter(const std::string &value);
-	template<typename T>
-	T getParameter(const std::string &var, const T &defValue = T()) const;
-
-	std::map<std::string, std::string>	mgParams;
-
-	bool					runInitialized;
-	bool					eventInitialized;
-	bool					soup;
-	bool					exclusive;
-};
-*/
 
 template<typename T>
 T JetMatchingMadgraph::parseParameter(const std::string &value)
@@ -107,7 +84,7 @@ T JetMatchingMadgraph::parseParameter(const std::string &value)
 
 template<>
 std::string JetMatchingMadgraph::parseParameter(const std::string &value)
-{
+{	
 	std::string result;
 	if (!result.empty() && result[0] == '\'')
 		result = result.substr(1);
@@ -122,7 +99,7 @@ bool JetMatchingMadgraph::parseParameter(const std::string &value_)
 	std::string value(value_);
 	std::transform(value.begin(), value.end(),
 	               value.begin(), (int(*)(int))std::toupper);
-	return value == "T" || value == "Y" ||
+	return value == "T" || value == "Y" || value=="True";
 	       value == "1" || value == ".TRUE.";
 }
 
@@ -141,7 +118,9 @@ T JetMatchingMadgraph::getParameter(
 template<typename T>
 T JetMatchingMadgraph::getParameter(const std::string &var,
                                     const T &defValue) const
-{ return getParameter(mgParams, var, defValue); }
+{ 
+	return getParameter(mgParams, var, defValue); 
+}
 
 JetMatchingMadgraph::JetMatchingMadgraph(const edm::ParameterSet &params) :
 	JetMatching(params),
@@ -165,11 +144,27 @@ JetMatchingMadgraph::JetMatchingMadgraph(const edm::ParameterSet &params) :
 	memain_.etcjet = 0.;
 	memain_.rclmax = 0.0;
 	memain_.clfact = 0.0;
-	memain_.ktsche = 0;
+	memain_.ktsche = 0.0;
 	memain_.etaclmax = params.getParameter<double>("MEMAIN_etaclmax");
 	memain_.qcut = params.getParameter<double>("MEMAIN_qcut");
 	memain_.minjets = params.getParameter<int>("MEMAIN_minjets");
 	memain_.maxjets = params.getParameter<int>("MEMAIN_maxjets");
+	memain_.showerkt = params.getParameter<double>("MEMAIN_showerkt");
+	outtree_.flag = params.getParameter<int>("outTree_flag");
+	std::string list_excres = params.getParameter<std::string>("MEMAIN_excres");
+	std::vector<std::string> elems;
+	std::stringstream ss(list_excres);
+	std::string item;
+	int index=0;
+	while(std::getline(ss, item, ',')) {
+        	elems.push_back(item);
+		memain_.excres[index]=std::atoi(item.c_str());
+		index++;
+    }
+	memain_.nexcres=index;
+
+	
+
 }
 
 JetMatchingMadgraph::~JetMatchingMadgraph()
@@ -220,9 +215,9 @@ void JetMatchingMadgraph::updateOrDie(
 			const std::map<std::string, std::string> &params,
 			T &param, const std::string &name)
 {
-	if (param < 0)
+	if (param < 0){
 		param = getParameter(params, name, param);
-
+	}
 	if (param < 0)
 		throw cms::Exception("Generator|PartonShowerVeto")
 			<< "The MGParamCMS header does not specify the jet "
@@ -262,14 +257,24 @@ void JetMatchingMadgraph::init(const lhef::LHERunInfo* runInfo)
 	// set MG matching parameters
 
 	uppriv_.ickkw = getParameter<int>("ickkw", 0);
+	memain_.mektsc = getParameter<int>("ktscheme", 0);
 
 	header = runInfo->findHeader("MGParamCMS");
+	
 	std::map<std::string, std::string> mgInfoCMS = parseHeader(header);
+
+	for(std::map<std::string, std::string>::const_iterator iter =
+                        mgInfoCMS.begin(); iter != mgInfoCMS.end(); ++iter) {
+                        std::cout<<"mgInfoCMS: "<<iter->first<<" "<<iter->second<<std::endl;
+
+        }
+
 
 	updateOrDie(mgInfoCMS, memain_.etaclmax, "etaclmax");
 	updateOrDie(mgInfoCMS, memain_.qcut, "qcut");
 	updateOrDie(mgInfoCMS, memain_.minjets, "minjets");
 	updateOrDie(mgInfoCMS, memain_.maxjets, "maxjets");
+	updateOrDie(mgInfoCMS, memain_.showerkt, "showerkt");
 
 	// run Fortran initialization code
 
@@ -324,7 +329,7 @@ void JetMatchingMadgraph::beforeHadronisation(const lhef::LHEEvent* event)
 
 void JetMatchingMadgraph::beforeHadronisationExec()
 {
-        mgevnt_();
+    mgevnt_();
 	eventInitialized = true;
         return;
 }

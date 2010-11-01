@@ -1,4 +1,4 @@
-import os,sys
+import os,sys,time
 from datetime import datetime,timedelta
 
 class lumiTime(object):
@@ -7,6 +7,7 @@ class lumiTime(object):
         self.pydatetimefm='%m/%d/%y %H:%M:%S.%f'
         self.nbx=3564
         self.bunchspace_us=0.025 #in microseconds
+        self.bunchspace_s=25e-09 #in seconds
         
     def LSDuration(self,norbits):
         return timedelta(microseconds=(self.nbx*norbits*self.bunchspace_us))
@@ -14,32 +15,44 @@ class lumiTime(object):
     def OrbitDuration(self):
         return timedelta(microseconds=(self.nbx*self.bunchspace_us))
     
-    def OrbitToTime(self,begStrTime,orbitnumber,begorbit=0):
-        '''
-        given a orbit number, return its corresponding time. Assuming begin time has orbit=0
-        '''
-        return self.DatetimeToStr(self.StrToDatetime(begStrTime)+(orbitnumber-begorbit)*self.OrbitDuration())
     def OrbitToTimeStr(self,begStrTime,orbitnumber,begorbit=0):
         '''
         given a orbit number, return its corresponding time. Assuming begin time has orbit=0
         '''
-        return self.self.StrToDatetime(begStrTime)+(myorbit-begorbit)*self.OrbitDuration()    
-    def StrToDatetime(self, strTime):
+        return self.DatetimeToStr(self.StrToDatetime(begStrTime)+(orbitnumber-begorbit)*self.OrbitDuration())
+    def OrbitToTime(self,begStrTime,orbitnumber,begorbit=0):
+        '''
+        given a orbit number, return its corresponding time. Default run begin time counting from orbit=0
+        '''
+        return self.StrToDatetime(begStrTime)+(orbitnumber-begorbit)*self.OrbitDuration()
+    def OrbitToTimestamp(self,begStrTime,orbitnumber,begorbit=0):
+        '''
+        given a orbit number, return its corresponding unixtimestamp. Default run begin time counting from orbit=0
+        '''
+        orbittime=self.OrbitToTime(begStrTime,orbitnumber,begorbit)
+        return time.mktime(orbittime.timetuple())+orbittime.microsecond/1e6
+    def StrToDatetime(self,strTime,customfm=''):
         '''convert string timestamp to python datetime
         '''
         result=''
         try:
-            result=datetime.strptime(strTime,self.pydatetimefm)
-        except er:
+            if not customfm:
+                result=datetime.strptime(strTime,self.pydatetimefm)
+            else:
+                result=datetime.strptime(strTime,customfm)
+        except Exception,er:
             print str(er)
         return result
-    def DatetimeToStr(self,timeValue):
+    def DatetimeToStr(self,timeValue,customfm=''):
         '''convert python datetime to string timestamp
         '''
         result=''
         try:
-            result=timeValue.strftime(self.pydatetimefm)
-        except er:
+            if not customfm:
+                result=timeValue.strftime(self.pydatetimefm)
+            else:
+                result=timeValue.strftime(customfm)
+        except Exception,er:
             print str(er)
         return result
 if __name__=='__main__':
@@ -48,3 +61,4 @@ if __name__=='__main__':
     print 'orbit 0 : ',c.OrbitToTime(begTimeStr,0,0)
     print 'orbit 1 : ',c.OrbitToTime(begTimeStr,1,0)
     print 'orbit 262144 : ',c.OrbitToTime(begTimeStr,262144,0)
+

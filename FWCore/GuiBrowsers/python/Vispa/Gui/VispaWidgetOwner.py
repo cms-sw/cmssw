@@ -18,16 +18,29 @@ class VispaWidgetOwner(object):
     def selectedWidgets(self):
         """ Returns a list of all selected widgets.
         """
+        if hasattr(self, "_selectedWidgets"):
+            return self._selectedWidgets
         return [child for child in self.children() if hasattr(child, "isSelected") and child.isSelected()]
     
     def widgetSelected(self, widget, multiSelect=False):
         """ Forward selection information to super class if it is a VispaWidgetOwner.
         """
-        #logging.debug(self.__class__.__name__ +": widgetSelected()")
+        logging.debug(self.__class__.__name__ +": widgetSelected()")
 
         if isinstance(self, QObject):
-            if not self.multiSelectEnabled() or not multiSelect:
+            if not hasattr(self, "_selectedWidgets"):
+                self._selectedWidgets = []
+                
+            if  not multiSelect or not self.multiSelectEnabled():
                 self.deselectAllWidgets(widget)
+                self._selectedWidgets = []
+                
+            if widget.parent() == self and not widget in self._selectedWidgets:
+                self._selectedWidgets.append(widget)
+                
+            for widget in [child for child in self._selectedWidgets if hasattr(child, "isSelected") and not child.isSelected()]:
+                self._selectedWidgets.remove(widget)
+                
             if isinstance(self.parent(), VispaWidgetOwner):
                 self.parent().widgetSelected(widget)
             
@@ -40,40 +53,43 @@ class VispaWidgetOwner(object):
                 self.parent().widgetDoubleClicked(widget)
                 
     def initWidgetMovement(self, widget):
-        self._lastMovedWidget = None
+        self._lastMovedWidgets = []
         if self.multiSelectEnabled():
             pos = widget.pos()
             for child in self.children():
                 if child != widget and hasattr(child, "isSelected") and child.isSelected():
                     child.setDragReferencePoint(pos - child.pos())
             
-    def widgetMoved(self, widget):
+    def widgetDragged(self, widget):
         """ Tell parent widget has moved.
         
         Only informs parent if it is a VispaWidgetOwner, too.
         """
         if isinstance(self.parent(), VispaWidgetOwner):
-            self.parent().widgetMoved(widget)
-        
-        self._lastMovedWidget = widget
+            self.parent().widgetDragged(widget)
+
+        if hasattr(self, "_lastMovedWidgets"):
+            self._lastMovedWidgets.append(widget)
             
         if self.multiSelectEnabled():
             for child in self.children():
                 if hasattr(child, "dragReferencePoint") and child != widget and hasattr(child, "isSelected") and child.isSelected():
+                    if hasattr(child, "setPreviousDragPosition"):
+                        child.setPreviousDragPosition(child.pos())
                     child.move(widget.pos() - child.dragReferencePoint())
+                    self._lastMovedWidgets.append(child)
 
-    def lastMovedWidget(self):
-        if hasattr(self, "_lastMovedWidget"):
-            return self._lastMovedWidget
+# apparently unused feature (2010-07-02), remove if really unnecessary
+# also see self._lastMovedWidget definition above
+    def lastMovedWidgets(self):
+        if hasattr(self, "_lastMovedWidgets"):
+            return self._lastMovedWidgets
         return None
 
     def widgetAboutToDelete(self, widget):
-        """ Tells parent widget is about to delete.
-        
-        This function is called from the delete() function of VispaWidget.
+        """ This function is called from the delete() function of VispaWidget.
         """
-        if isinstance(self.parent(), VispaWidgetOwner):
-            self.parent().widgetAboutToDelete(widget)
+        pass
         
     def keyPressEvent(self, event):
         """ Calls delete() method of selected child widgets if multi-select is activated.
@@ -82,15 +98,19 @@ class VispaWidgetOwner(object):
             selection = self.selectedWidgets()[:]
             for widget in selection:
                 widget.delete()
-
     
     def deselectAllWidgets(self, exception=None):
         """ Deselects all widgets except the widget given as exception.
         """
         #logging.debug(self.__class__.__name__ +": deselectAllWidgets()")
+        self._selectedWidgets = []
         for child in self.children():
-            if child != exception and hasattr(child, 'select'):
-                child.select(False)
+            if child != exception:
+                if hasattr(child, 'select'):
+                    child.select(False)
+            else:
+                self._selectedWidgets.append(child)
+                
             if isinstance(child, VispaWidgetOwner):
                 child.deselectAllWidgets(exception)
         self.update()
@@ -117,6 +137,13 @@ class VispaWidgetOwner(object):
                 self.update(self._selectionRect.united(oldRect).adjusted(-5, -5, 5, 5))
             else:
                 self.update(self._selectionRect)
+                
+            # dynamically update selection statur
+            # currently bad performance (2010-07-07)
+            # TODO: improve selection mechanism
+#            for child in self.children():
+#                if hasattr(child, "select") and hasattr(child, "isSelected"):
+#                    child.select(self._selectionRect.contains(child.geometry()), True)    # select, mulitSelect 
                 
     def mouseReleaseEvent(self, event):
         if hasattr(self, "_selectionRect") and  self._selectionRect and self.multiSelectEnabled():

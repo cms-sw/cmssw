@@ -3,8 +3,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2009/10/28 10:12:11 $
- *  $Revision: 1.28 $
+ *  $Date: 2009/11/04 09:04:44 $
+ *  $Revision: 1.29 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -102,123 +102,124 @@ MEtoEDMConverter::endJob(void)
 {
   std::string MsgLoggerCat = "MEtoEDMConverter_endJob";
 
-  // keep track just of package names
-  std::map<std::string,int> packages;
+  if (verbosity > 0) {
 
-  // count various objects we have
-  unsigned nTH1F = 0;
-  unsigned nTH1S = 0;
-  unsigned nTH1D = 0;
-  unsigned nTH2F = 0;
-  unsigned nTH2S = 0;
-  unsigned nTH2D = 0;
-  unsigned nTH3F = 0;
-  unsigned nTProfile = 0;
-  unsigned nTProfile2D = 0;
-  unsigned nDouble = 0;
-  unsigned nInt64 = 0;
-  unsigned nString = 0;
+    // keep track just of package names
+    std::map<std::string,int> packages;
 
-  if (verbosity > 1) std::cout << std::endl << "Summary :" << std::endl;
+    // count various objects we have
+    unsigned nTH1F = 0;
+    unsigned nTH1S = 0;
+    unsigned nTH1D = 0;
+    unsigned nTH2F = 0;
+    unsigned nTH2S = 0;
+    unsigned nTH2D = 0;
+    unsigned nTH3F = 0;
+    unsigned nTProfile = 0;
+    unsigned nTProfile2D = 0;
+    unsigned nDouble = 0;
+    unsigned nInt64 = 0;
+    unsigned nString = 0;
 
-  // get contents out of DQM
-  std::vector<MonitorElement *>::iterator mmi, mme;
-  std::vector<MonitorElement *> items(dbe->getAllContents(""));
+    if (verbosity > 1) std::cout << std::endl << "Summary :" << std::endl;
 
-  for (mmi = items.begin (), mme = items.end (); mmi != mme; ++mmi) {
+    // get contents out of DQM
+    std::vector<MonitorElement *>::iterator mmi, mme;
+    std::vector<MonitorElement *> items(dbe->getAllContents(""));
 
-    // keep track of leading directory (i.e. package)
-    StringList dir = StringOps::split((*mmi)->getPathname(),"/");
-    ++packages[dir[0]];
+    for (mmi = items.begin (), mme = items.end (); mmi != mme; ++mmi) {
 
-    // check type
-    if (verbosity > 1) std::cout << "MEobject:" << std::endl;
-    MonitorElement *me = *mmi;
-    TObject *tobj = me->getRootObject();
-    switch (me->kind())
-    {
-    case MonitorElement::DQM_KIND_INT:
-      ++nInt64;
-      if (verbosity > 1)
-	std::cout << "   scalar: " << tobj->GetName() << ": Int64\n";
-      break;
+      // keep track of leading directory (i.e. package)
+      StringList dir = StringOps::split((*mmi)->getPathname(),"/");
+      ++packages[dir[0]];
 
-    case MonitorElement::DQM_KIND_REAL:
-      ++nDouble;
-      if (verbosity > 1)
-	std::cout << "   scalar: " << tobj->GetName() << ": Double\n";
-      break;
+      // check type
+      if (verbosity > 1) std::cout << "MEobject:" << std::endl;
+      MonitorElement *me = *mmi;
+      TObject *tobj = me->getRootObject();
+      switch (me->kind())
+      {
+      case MonitorElement::DQM_KIND_INT:
+        ++nInt64;
+        if (verbosity > 1)
+	  std::cout << "   scalar: " << tobj->GetName() << ": Int64\n";
+        break;
 
-    case MonitorElement::DQM_KIND_STRING:
-      ++nString;
-      if (verbosity > 1)
-	std::cout << "   scalar: " << tobj->GetName() << ": String\n";
-      break;
+      case MonitorElement::DQM_KIND_REAL:
+        ++nDouble;
+        if (verbosity > 1)
+	  std::cout << "   scalar: " << tobj->GetName() << ": Double\n";
+        break;
 
-    case MonitorElement::DQM_KIND_TH1F:
-      ++nTH1F;
-      if (verbosity > 1)
-	std::cout << "   normal: " << tobj->GetName() << ": TH1F\n";
-      break;
+      case MonitorElement::DQM_KIND_STRING:
+        ++nString;
+        if (verbosity > 1)
+	  std::cout << "   scalar: " << tobj->GetName() << ": String\n";
+        break;
 
-    case MonitorElement::DQM_KIND_TH1S:
-      ++nTH1S;
-      if (verbosity > 1)
-	std::cout << "   normal: " << tobj->GetName() << ": TH1S\n";
-      break;
+      case MonitorElement::DQM_KIND_TH1F:
+        ++nTH1F;
+        if (verbosity > 1)
+	  std::cout << "   normal: " << tobj->GetName() << ": TH1F\n";
+        break;
 
-    case MonitorElement::DQM_KIND_TH1D:
-      ++nTH1D;
-      if (verbosity > 1)
-	std::cout << "   normal: " << tobj->GetName() << ": TH1D\n";
-      break;
+      case MonitorElement::DQM_KIND_TH1S:
+       ++nTH1S;
+        if (verbosity > 1)
+	  std::cout << "   normal: " << tobj->GetName() << ": TH1S\n";
+        break;
 
-    case MonitorElement::DQM_KIND_TH2F:
-      ++nTH2F;
-      if (verbosity > 1)
-	std::cout << "   normal: " << tobj->GetName() << ": TH2F\n";
-      break;
+      case MonitorElement::DQM_KIND_TH1D:
+       ++nTH1D;
+         if (verbosity > 1)
+	  std::cout << "   normal: " << tobj->GetName() << ": TH1D\n";
+        break;
 
-    case MonitorElement::DQM_KIND_TH2S:
-      ++nTH2S;
-      if (verbosity > 1)
-	std::cout << "   normal: " << tobj->GetName() << ": TH2S\n";
-      break;
+      case MonitorElement::DQM_KIND_TH2F:
+        ++nTH2F;
+        if (verbosity > 1)
+	  std::cout << "   normal: " << tobj->GetName() << ": TH2F\n";
+        break;
 
-    case MonitorElement::DQM_KIND_TH2D:
-      ++nTH2D;
-      if (verbosity > 1)
-	std::cout << "   normal: " << tobj->GetName() << ": TH2D\n";
-      break;
+      case MonitorElement::DQM_KIND_TH2S:
+        ++nTH2S;
+        if (verbosity > 1)
+	  std::cout << "   normal: " << tobj->GetName() << ": TH2S\n";
+        break;
 
-    case MonitorElement::DQM_KIND_TH3F:
-      ++nTH3F;
-      if (verbosity > 1)
-	std::cout << "   normal: " << tobj->GetName() << ": TH3F\n";
-      break;
+      case MonitorElement::DQM_KIND_TH2D:
+        ++nTH2D;
+        if (verbosity > 1)
+	  std::cout << "   normal: " << tobj->GetName() << ": TH2D\n";
+        break;
 
-    case MonitorElement::DQM_KIND_TPROFILE:
-      ++nTProfile;
-      if (verbosity > 1)
-	std::cout << "   normal: " << tobj->GetName() << ": TProfile\n";
-      break;
+      case MonitorElement::DQM_KIND_TH3F:
+        ++nTH3F;
+        if (verbosity > 1)
+	  std::cout << "   normal: " << tobj->GetName() << ": TH3F\n";
+        break;
 
-    case MonitorElement::DQM_KIND_TPROFILE2D:
-      ++nTProfile2D;
-      if (verbosity > 1)
-	std::cout << "   normal: " << tobj->GetName() << ": TProfile2D\n";
-      break;
+      case MonitorElement::DQM_KIND_TPROFILE:
+        ++nTProfile;
+        if (verbosity > 1)
+	  std::cout << "   normal: " << tobj->GetName() << ": TProfile\n";
+        break;
 
-    default:
-      edm::LogError(MsgLoggerCat)
-	<< "ERROR: The DQM object '" << me->getFullname()
-	<< "' is neither a ROOT object nor a recognised "
-	<< "simple object.\n";
-      continue;
-    }
-  } // end loop through monitor elements
+      case MonitorElement::DQM_KIND_TPROFILE2D:
+        ++nTProfile2D;
+        if (verbosity > 1)
+	  std::cout << "   normal: " << tobj->GetName() << ": TProfile2D\n";
+        break;
 
-  if (verbosity) {
+      default:
+        edm::LogError(MsgLoggerCat)
+	  << "ERROR: The DQM object '" << me->getFullname()
+	  << "' is neither a ROOT object nor a recognised "
+	  << "simple object.\n";
+        continue;
+      }
+    } // end loop through monitor elements
+
     // list unique packages
     std::cout << "Packages accessing DQM:" << std::endl;
     std::map<std::string,int>::iterator pkgIter;
@@ -238,9 +239,10 @@ MEtoEDMConverter::endJob(void)
     std::cout << "We have " << nDouble << " Double objects" << std::endl;
     std::cout << "We have " << nInt64 << " Int64 objects" << std::endl;
     std::cout << "We have " << nString << " String objects" << std::endl;
-  }
 
-  if (verbosity > 1) std::cout << std::endl;
+    if (verbosity > 1) std::cout << std::endl;
+
+  }
 
   if (verbosity >= 0)
     edm::LogInfo(MsgLoggerCat) 
@@ -258,7 +260,7 @@ MEtoEDMConverter::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup)
   // keep track of number of runs processed
   ++iCount[nrun];
 
-  if (verbosity) {  // keep track of number of runs processed
+  if (verbosity > 0) {  // keep track of number of runs processed
     edm::LogInfo(MsgLoggerCat)
       << "Processing run " << nrun << " (" << iCount.size() << " runs total)";
   } else if (verbosity == 0) {
@@ -363,7 +365,7 @@ MEtoEDMConverter::putData(T& iPutTo, bool iLumiOnly, int iRun, int iLumi)
 
   std::string MsgLoggerCat = "MEtoEDMConverter_putData";
   
-  if (verbosity)
+  if (verbosity > 0)
     edm::LogInfo (MsgLoggerCat) << "\nStoring MEtoEDM dataformat histograms.";
 
   // extract ME information into vectors

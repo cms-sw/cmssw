@@ -1,6 +1,6 @@
 /** \file
  *
- * $Date: 2009/13/02 16:21:14 $
+ * $Date: 2009/02/13 15:37:12 $
  * $Revision: 1.1 $
  * \author Silvia Goy Lopez - CERN <silvia.goy.lopez@cern.ch>
  */
@@ -30,7 +30,7 @@ using namespace edm;
 HLTMuonPtFilter::HLTMuonPtFilter(const edm::ParameterSet& pset) {
 
   // the name of the STA rec hits collection
-  theSTAMuonLabel = pset.getParameter<string>("SALabel");
+  theSTAMuonLabel = pset.getParameter<std::string>("SALabel");
 
   theMinPt = pset.getParameter<double>("minPt"); // pt min (GeV)
 

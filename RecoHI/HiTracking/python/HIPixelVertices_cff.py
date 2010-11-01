@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+# pixel cluster vertex finder
+from RecoHI.HiTracking.HIPixelClusterVertex_cfi import *
+
 # pixel track producer
 from RecoHI.HiTracking.HIPixel3ProtoTracks_cfi import *
 
@@ -15,7 +18,8 @@ from RecoHI.HiTracking.HIPixelAdaptiveVertex_cfi import *
 # selection of best primary vertex
 from RecoHI.HiTracking.HISelectedVertex_cfi import *
 
-hiPixelVertices = cms.Sequence( hiPixel3ProtoTracks 
+hiPixelVertices = cms.Sequence(hiPixelClusterVertex
+                                * hiPixel3ProtoTracks 
                                 * hiPixelMedianVertex 
                                 * hiSelectedProtoTracks 
                                 * hiPixelAdaptiveVertex

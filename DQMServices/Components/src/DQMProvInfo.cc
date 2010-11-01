@@ -2,8 +2,8 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2010/06/26 13:15:30 $
- * $Revision: 1.23 $
+ * $Date: 2010/05/20 00:30:52 $
+ * $Revision: 1.22 $
  * $Author: ameyer $
  *
  */
@@ -14,10 +14,11 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 const static int XBINS=2500;
-const static int YBINS=28;
+const static int YBINS=27;
 
 DQMProvInfo::DQMProvInfo(const edm::ParameterSet& ps){
   
@@ -27,11 +28,10 @@ DQMProvInfo::DQMProvInfo(const edm::ParameterSet& ps){
 
   provinfofolder_ = parameters_.getUntrackedParameter<std::string>("provInfoFolder", "ProvInfo") ;
   subsystemname_ = parameters_.getUntrackedParameter<std::string>("subSystemFolder", "Info") ;
-  nameProcess_ = parameters_.getUntrackedParameter<std::string>( "processName", "HLT" );
   
   // initialize
   physDecl_=true; // set true and switch off in case a single event in a given LS does not have it set.
-  for (int i=0;i<25;i++) dcs25[i]=true;
+  for (int i=0;i<24;i++) dcs24[i]=true;
   lastlumi_=0;
 }
 
@@ -42,8 +42,6 @@ void
 DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
 
   makeProvInfo();
-
-  makeHLTKeyInfo(r,c);
 
   dbe_->cd(); 
   dbe_->setCurrentFolder(subsystemname_ +"/EventInfo/");
@@ -75,11 +73,10 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
   reportSummaryMap_->setBinLabel(22,"TECp",2);  
   reportSummaryMap_->setBinLabel(23,"TECm",2);  
   reportSummaryMap_->setBinLabel(24,"CASTOR",2);
-  reportSummaryMap_->setBinLabel(25,"ZDC",2);
-  reportSummaryMap_->setBinLabel(26,"PhysDecl",2);
-  reportSummaryMap_->setBinLabel(27,"7 TeV",2);
-  reportSummaryMap_->setBinLabel(28,"Stable B",2);
-  reportSummaryMap_->setBinLabel(29,"Valid",2);
+  reportSummaryMap_->setBinLabel(25,"PhysDecl",2);
+  reportSummaryMap_->setBinLabel(26,"7 TeV",2);
+  reportSummaryMap_->setBinLabel(27,"Stable B",2);
+  reportSummaryMap_->setBinLabel(28,"Valid",2);
   reportSummaryMap_->setAxisTitle("Luminosity Section");
   reportSummaryMap_->getTH2F()->SetBit(TH1::kCanRebin);
 
@@ -114,7 +111,6 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
   hBeamMode_->setBinLabel(21,"no beam",2);
   hBeamMode_->setBinContent(0.,22.);
   
-
   hLhcFill_=dbe_->book1D("lhcFill","LHC Fill Number",XBINS,1.,XBINS+1);
   hLhcFill_->setAxisTitle("Luminosity Section",1);
   hLhcFill_->getTH1F()->SetBit(TH1::kCanRebin);
@@ -132,14 +128,9 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
   hIntensity2_->setAxisTitle("N [E10]",2);
   hIntensity2_->getTH1F()->SetBit(TH1::kCanRebin);
 
-  dbe_->cd();  
-  dbe_->setCurrentFolder(subsystemname_ +"/ProvInfo/");
-  hIsCollisionsRun_ = dbe_->bookInt("isCollisionsRun");
-  hIsCollisionsRun_->Fill(0);
-  
   // initialize
   physDecl_=true;
-  for (int i=0;i<25;i++) dcs25[i]=true;
+  for (int i=0;i<24;i++) dcs24[i]=true;
   lastlumi_=0;
 } 
 
@@ -190,9 +181,9 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
       
   // fill dcs vs lumi
   reportSummaryMap_->setBinContent(nlumi,YBINS+1,1.);
-  for (int i=0;i<25;i++)
+  for (int i=0;i<24;i++)
   {
-    if (dcs25[i])
+    if (dcs24[i])
       reportSummaryMap_->setBinContent(nlumi,i+1,1.);
     else
       reportSummaryMap_->setBinContent(nlumi,i+1,0.);
@@ -200,11 +191,27 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
     // set next lumi to -1 for better visibility
     if (nlumi < XBINS)
       reportSummaryMap_->setBinContent(nlumi+1,i+1,-1.);
-    dcs25[i]=true;
+    dcs24[i]=true;
   }
 
-  // fill physics decl. bit in y bin 26
+  // fill physics decl. bit in y bin 25
   if (physDecl_) 
+  {
+    reportSummary_->Fill(1.); 
+    reportSummaryMap_->setBinContent(nlumi,24+1,1.);
+    if (nlumi < XBINS) 
+      reportSummaryMap_->setBinContent(nlumi+1,24+1,-1.);
+  }
+  else
+  {
+    reportSummary_->Fill(0.); 
+    reportSummaryMap_->setBinContent(nlumi,24+1,0.);
+    if (nlumi < XBINS) 
+      reportSummaryMap_->setBinContent(nlumi+1,24+1,-1.);
+  }
+  
+  // fill 7 TeV bit in y bin 26
+  if (momentum_ == 3500) 
   {
     reportSummary_->Fill(1.); 
     reportSummaryMap_->setBinContent(nlumi,25+1,1.);
@@ -218,9 +225,9 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
     if (nlumi < XBINS) 
       reportSummaryMap_->setBinContent(nlumi+1,25+1,-1.);
   }
-  
-  // fill 7 TeV bit in y bin 27
-  if (momentum_ == 3500) 
+
+  // fill stable beams bit in y bin 27
+  if (beamMode_ == 11) 
   {
     reportSummary_->Fill(1.); 
     reportSummaryMap_->setBinContent(nlumi,26+1,1.);
@@ -233,23 +240,6 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
     reportSummaryMap_->setBinContent(nlumi,26+1,0.);
     if (nlumi < XBINS) 
       reportSummaryMap_->setBinContent(nlumi+1,26+1,-1.);
-  }
-
-  // fill stable beams bit in y bin 28
-  if (beamMode_ == 11) 
-  {
-    hIsCollisionsRun_->Fill(1);
-    reportSummary_->Fill(1.); 
-    reportSummaryMap_->setBinContent(nlumi,27+1,1.);
-    if (nlumi < XBINS) 
-      reportSummaryMap_->setBinContent(nlumi+1,27+1,-1.);
-  }
-  else
-  {
-    reportSummary_->Fill(0.); 
-    reportSummaryMap_->setBinContent(nlumi,27+1,0.);
-    if (nlumi < XBINS) 
-      reportSummaryMap_->setBinContent(nlumi+1,27+1,-1.);
   }
 
   // reset   
@@ -341,65 +331,35 @@ DQMProvInfo::makeDcsInfo(const edm::Event& e)
                             dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) 
   {
       // std::cout << "DCS status: 0x" << std::hex << dcsStatusItr->ready() << std::dec << std::endl;
-      if (!dcsStatusItr->ready(DcsStatus::CSCp))   dcs25[0]=false;
-      if (!dcsStatusItr->ready(DcsStatus::CSCm))   dcs25[1]=false;   
-      if (!dcsStatusItr->ready(DcsStatus::DT0))    dcs25[2]=false;
-      if (!dcsStatusItr->ready(DcsStatus::DTp))    dcs25[3]=false;
-      if (!dcsStatusItr->ready(DcsStatus::DTm))    dcs25[4]=false;
-      if (!dcsStatusItr->ready(DcsStatus::EBp))    dcs25[5]=false;
-      if (!dcsStatusItr->ready(DcsStatus::EBm))    dcs25[6]=false;
-      if (!dcsStatusItr->ready(DcsStatus::EEp))    dcs25[7]=false;
-      if (!dcsStatusItr->ready(DcsStatus::EEm))    dcs25[8]=false;
-      if (!dcsStatusItr->ready(DcsStatus::ESp))    dcs25[9]=false;
-      if (!dcsStatusItr->ready(DcsStatus::ESm))    dcs25[10]=false; 
-      if (!dcsStatusItr->ready(DcsStatus::HBHEa))  dcs25[11]=false;
-      if (!dcsStatusItr->ready(DcsStatus::HBHEb))  dcs25[12]=false;
-      if (!dcsStatusItr->ready(DcsStatus::HBHEc))  dcs25[13]=false; 
-      if (!dcsStatusItr->ready(DcsStatus::HF))     dcs25[14]=false;
-      if (!dcsStatusItr->ready(DcsStatus::HO))     dcs25[15]=false;
-      if (!dcsStatusItr->ready(DcsStatus::BPIX))   dcs25[16]=false;
-      if (!dcsStatusItr->ready(DcsStatus::FPIX))   dcs25[17]=false;
-      if (!dcsStatusItr->ready(DcsStatus::RPC))    dcs25[18]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TIBTID)) dcs25[19]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TOB))    dcs25[20]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TECp))   dcs25[21]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TECm))   dcs25[22]=false;
-      if (!dcsStatusItr->ready(DcsStatus::CASTOR)) dcs25[23]=false;
-      if (!dcsStatusItr->ready(DcsStatus::ZDC))    dcs25[24]=false;
+      if (!dcsStatusItr->ready(DcsStatus::CSCp))   dcs24[0]=false;
+      if (!dcsStatusItr->ready(DcsStatus::CSCm))   dcs24[1]=false;   
+      if (!dcsStatusItr->ready(DcsStatus::DT0))    dcs24[2]=false;
+      if (!dcsStatusItr->ready(DcsStatus::DTp))    dcs24[3]=false;
+      if (!dcsStatusItr->ready(DcsStatus::DTm))    dcs24[4]=false;
+      if (!dcsStatusItr->ready(DcsStatus::EBp))    dcs24[5]=false;
+      if (!dcsStatusItr->ready(DcsStatus::EBm))    dcs24[6]=false;
+      if (!dcsStatusItr->ready(DcsStatus::EEp))    dcs24[7]=false;
+      if (!dcsStatusItr->ready(DcsStatus::EEm))    dcs24[8]=false;
+      if (!dcsStatusItr->ready(DcsStatus::ESp))    dcs24[9]=false;
+      if (!dcsStatusItr->ready(DcsStatus::ESm))    dcs24[10]=false; 
+      if (!dcsStatusItr->ready(DcsStatus::HBHEa))  dcs24[11]=false;
+      if (!dcsStatusItr->ready(DcsStatus::HBHEb))  dcs24[12]=false;
+      if (!dcsStatusItr->ready(DcsStatus::HBHEc))  dcs24[13]=false; 
+      if (!dcsStatusItr->ready(DcsStatus::HF))     dcs24[14]=false;
+      if (!dcsStatusItr->ready(DcsStatus::HO))     dcs24[15]=false;
+      if (!dcsStatusItr->ready(DcsStatus::BPIX))   dcs24[16]=false;
+      if (!dcsStatusItr->ready(DcsStatus::FPIX))   dcs24[17]=false;
+      if (!dcsStatusItr->ready(DcsStatus::RPC))    dcs24[18]=false;
+      if (!dcsStatusItr->ready(DcsStatus::TIBTID)) dcs24[19]=false;
+      if (!dcsStatusItr->ready(DcsStatus::TOB))    dcs24[20]=false;
+      if (!dcsStatusItr->ready(DcsStatus::TECp))   dcs24[21]=false;
+      if (!dcsStatusItr->ready(DcsStatus::TECm))   dcs24[22]=false;
+      if (!dcsStatusItr->ready(DcsStatus::CASTOR)) dcs24[23]=false;
   }
       
   return ;
 }
-void 
-DQMProvInfo::makeHLTKeyInfo(const edm::Run& r, const edm::EventSetup &c ) 
-{
-  
-  std::string hltKey = "";
-  HLTConfigProvider hltConfig;
-  bool changed( true );
-  if ( ! hltConfig.init( r, c, nameProcess_, changed) ) 
-  {
-    // std::cout << "errorHltConfigExtraction" << std::endl;
-    hltKey = "error extraction" ;
-  } 
-  else if ( hltConfig.size() <= 0 ) 
-  {
-   // std::cout << "hltConfig" << std::endl;
-    hltKey = "error key of length 0" ;
-  } 
-  else 
-  {
-    std::cout << "HLT key (run)  : " << hltConfig.tableName() << std::endl;
-    hltKey =  hltConfig.tableName() ;
-  }
 
-  dbe_->cd() ;
-  dbe_->setCurrentFolder( subsystemname_ + "/" +  provinfofolder_) ;
-  hHltKey_= dbe_->bookString("hltKey",hltKey);
-
-  return ;
-  
-}
 void 
 DQMProvInfo::makeGtInfo(const edm::Event& e)
 {

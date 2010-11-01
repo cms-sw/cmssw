@@ -95,18 +95,18 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
 	   DQMStore::SaveWithoutReference,
 	   dqm::qstatus::STATUS_OK,
 	   fileUpdate_);
+	// from now on update newly created file
+	if (fileUpdate_=="RECREATE") fileUpdate_="UPDATE";
       }
     }
     std::cout << "\n";
   }
 
-  if (fileUpdate_=="RECREATE") 
+  if (pastSavedFiles_.size() == 0)
   {
-    // from now on update newly created file
-    fileUpdate_="UPDATE";
     // save JobReport upon creation of file (once per job)
-    // FIXME, check if jobreport should not be created at jobend
     saveJobReport(filename);
+    pastSavedFiles_.push_back(filename);
   }
   
 }
@@ -464,7 +464,7 @@ DQMFileSaver::endRun(const edm::Run &, const edm::EventSetup &)
       saveForOnline(suffix, rewrite);
     }
     else if (convention_ == Offline)
-      saveForOffline(workflow_, irun_,0);
+      saveForOffline(workflow_, irun_, 0);
     else
       throw cms::Exception("DQMFileSaver")
 	<< "Internal error.  Can only save files in endRun()"
@@ -480,7 +480,7 @@ DQMFileSaver::endJob(void)
   if (saveAtJobEnd_)
   {
     if (convention_ == Offline && forceRunNumber_ > 0)
-      saveForOffline(workflow_, forceRunNumber_);
+      saveForOffline(workflow_, forceRunNumber_, 0);
     else
       throw cms::Exception("DQMFileSaver")
 	<< "Internal error.  Can only save files at the end of the"

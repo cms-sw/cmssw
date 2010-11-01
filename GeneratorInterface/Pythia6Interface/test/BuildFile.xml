@@ -1,16 +1,18 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="root"/>
-<use name="hepmc"/>
-<use name="SimDataFormats/GeneratorProducts"/> 
-<use name="CommonTools/UtilAlgos"/>
 
 <library file="HZZ4muAnalyzer.cc" name="HZZ4muExampleAnalyzer">
+  <use name="root"/>
+  <use name="hepmc"/>
+  <use name="SimDataFormats/GeneratorProducts"/> 
+   <use name="CommonTools/UtilAlgos"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<library file="BasicGenTester.cc,TauPhotonTester.cc" name="SimpleGenTesters">
-  <use name="heppdt"/>
-  <use name="SimGeneral/HepPDTRecord"/>
+<library file="BasicGenTester.cc" name="BasicGenTester">
+  <use name="root"/>
+  <use name="hepmc"/>
+  <use name="SimDataFormats/GeneratorProducts"/> 
+   <use name="CommonTools/UtilAlgos"/>
   <flags EDM_PLUGIN="1"/>
 </library>

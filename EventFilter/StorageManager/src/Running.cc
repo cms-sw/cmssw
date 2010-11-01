@@ -1,4 +1,4 @@
-// $Id: Running.cc,v 1.7 2009/08/28 16:41:26 mommsen Exp $
+// $Id: Running.cc,v 1.8 2009/09/29 07:57:56 mommsen Exp $
 /// @file: Running.cc
 
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
@@ -83,7 +83,7 @@ void Running::do_exitActionWork()
 
 string Running::do_stateName() const
 {
-  return string( "Running" );
+  return std::string( "Running" );
 }
 
 void Running::do_moveToFailedState( xcept::Exception& exception ) const

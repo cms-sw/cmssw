@@ -24,6 +24,7 @@ class MainWindow(QMainWindow):
         
         self._tabWidget = QTabWidget(self)
         self._tabWidget.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
+        self._tabWidget.setUsesScrollButtons(True)
         self.setCentralWidget(self._tabWidget)
         if hasattr(self._tabWidget,"setTabsClosable"):
             self._tabWidget.setTabsClosable(True)
@@ -70,6 +71,7 @@ class MainWindow(QMainWindow):
         """
         logging.debug('MainWindow: closeEvent()')
         self._application.closeAllFiles()
+        self._application.shutdownPlugins()
         if len(self.application().tabControllers()) == 0:
             event.accept()
             self._saveIni()

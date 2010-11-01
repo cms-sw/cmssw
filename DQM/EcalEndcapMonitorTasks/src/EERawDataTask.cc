@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2010/06/29 18:44:22 $
- * $Revision: 1.30 $
+ * $Date: 2010/08/09 11:29:35 $
+ * $Revision: 1.36 $
  * \author E. Di Marco
  *
 */
@@ -25,7 +25,7 @@
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/FEDRawData/src/fed_header.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DQM/EcalEndcapMonitorTasks/interface/EERawDataTask.h"
 
@@ -61,6 +61,8 @@ EERawDataTask::EERawDataTask(const edm::ParameterSet& ps) {
   meEEL1ASRPErrors_ = 0;
   meEEBunchCrossingSRPErrors_ = 0;
 
+  meEESynchronizationErrorsByLumi_ = 0;
+
   calibrationBX_ = 3490;
 
 }
@@ -76,6 +78,12 @@ void EERawDataTask::beginJob(void){
     dqmStore_->setCurrentFolder(prefixME_ + "/EERawDataTask");
     dqmStore_->rmdir(prefixME_ + "/EERawDataTask");
   }
+
+}
+
+void EERawDataTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup) {
+
+  if ( meEESynchronizationErrorsByLumi_ ) meEESynchronizationErrorsByLumi_->Reset();
 
 }
 
@@ -109,6 +117,7 @@ void EERawDataTask::reset(void) {
   if ( meEEBunchCrossingTCCErrors_ ) meEEBunchCrossingTCCErrors_->Reset();
   if ( meEEL1ASRPErrors_ ) meEEL1ASRPErrors_->Reset();
   if ( meEEBunchCrossingSRPErrors_ ) meEEBunchCrossingSRPErrors_->Reset();
+  if ( meEESynchronizationErrorsByLumi_ ) meEESynchronizationErrorsByLumi_->Reset();
 
 }
 
@@ -280,6 +289,13 @@ void EERawDataTask::setup(void){
       meEEBunchCrossingSRPErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
+    sprintf(histo, "EERDT FE synchronization errors by lumi");
+    meEESynchronizationErrorsByLumi_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    meEESynchronizationErrorsByLumi_->setLumiFlag();
+    for (int i = 0; i < 18; i++) {
+      meEESynchronizationErrorsByLumi_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
+
   }
 
 }
@@ -339,10 +355,16 @@ void EERawDataTask::cleanup(void){
     if ( meEEBunchCrossingSRPErrors_ ) dqmStore_->removeElement( meEEBunchCrossingSRPErrors_->getName() );
     meEEBunchCrossingSRPErrors_ = 0;
 
+    if ( meEESynchronizationErrorsByLumi_ ) dqmStore_->removeElement( meEESynchronizationErrorsByLumi_->getName() );
+    meEESynchronizationErrorsByLumi_ = 0;
+
   }
 
   init_ = false;
 
+}
+
+void EERawDataTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
 }
 
 void EERawDataTask::endJob(void) {
@@ -358,6 +380,9 @@ void EERawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   if ( ! init_ ) this->setup();
 
   ievt_++;
+
+  // fill bin 0 with number of events in the lumi
+  if ( meEESynchronizationErrorsByLumi_ ) meEESynchronizationErrorsByLumi_->Fill(0.);
 
   int evt_runNumber = e.id().run();
 
@@ -387,7 +412,7 @@ void EERawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 #define  H_ORBITCOUNTER_MASK 0xFFFFFFFF
 #define  H_BX_MASK           0xFFF
 #define  H_TTYPE_MASK        0xF
-      
+
       GT_L1A           = header.lvl1ID()    & H_L1_MASK;
       GT_OrbitNumber   = e.orbitNumber()    & H_ORBITCOUNTER_MASK;
       GT_BunchCrossing = e.bunchCrossing()  & H_BX_MASK;
@@ -397,10 +422,10 @@ void EERawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       // use the most frequent among the ECAL FEDs
 
-      map<int,int> ECALDCC_L1A_FreqMap;
-      map<int,int> ECALDCC_OrbitNumber_FreqMap;
-      map<int,int> ECALDCC_BunchCrossing_FreqMap;
-      map<int,int> ECALDCC_TriggerType_FreqMap;
+      std::map<int,int> ECALDCC_L1A_FreqMap;
+      std::map<int,int> ECALDCC_OrbitNumber_FreqMap;
+      std::map<int,int> ECALDCC_BunchCrossing_FreqMap;
+      std::map<int,int> ECALDCC_TriggerType_FreqMap;
 
       int ECALDCC_L1A_MostFreqCounts = 0;
       int ECALDCC_OrbitNumber_MostFreqCounts = 0;
@@ -537,21 +562,29 @@ void EERawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       const std::vector<short> feBxs = dcchItr->getFEBxs();
       const std::vector<short> tccBx = dcchItr->getTCCBx();
       const short srpBx = dcchItr->getSRPBx();
+      const std::vector<short> status = dcchItr->getFEStatus();
+
+      std::vector<int> BxSynchStatus;
+      BxSynchStatus.reserve((int)feBxs.size());
 
       for(int fe=0; fe<(int)feBxs.size(); fe++) {
-        if(ism==1 && fe==31) continue; // mask known bad tower
-        if(feBxs[fe] != ECALDCC_BunchCrossing && feBxs[fe] != -1) meEEBunchCrossingFEErrors_->Fill( xism, 1/(float)feBxs.size());
+        // do not consider desynch errors if the DCC detected them
+        if( ( status[fe] == 10 || status[fe] == 11 )) continue;
+        if(feBxs[fe] != ECALDCC_BunchCrossing && feBxs[fe] != -1 && ECALDCC_BunchCrossing != -1) {
+          meEEBunchCrossingFEErrors_->Fill( xism, 1/(float)feBxs.size());
+          BxSynchStatus[fe] = 0;
+        } else BxSynchStatus[fe] = 1;
       }
 
-      // vector of TCC channels has 4 elements for both EB and EE. 
+      // vector of TCC channels has 4 elements for both EB and EE.
       // EB uses [0], EE uses [0-3].
       if(tccBx.size() == MAX_TCC_SIZE) {
         for(int tcc=0; tcc<MAX_TCC_SIZE; tcc++) {
-          if(tccBx[tcc] != ECALDCC_BunchCrossing && tccBx[tcc] != -1) meEEBunchCrossingTCCErrors_->Fill( xism, 1/(float)tccBx.size());
+          if(tccBx[tcc] != ECALDCC_BunchCrossing && tccBx[tcc] != -1 && ECALDCC_BunchCrossing != -1) meEEBunchCrossingTCCErrors_->Fill( xism, 1/(float)tccBx.size());
         }
       }
 
-      if(srpBx != ECALDCC_BunchCrossing && srpBx != -1) meEEBunchCrossingSRPErrors_->Fill( xism );
+      if(srpBx != ECALDCC_BunchCrossing && srpBx != -1 && ECALDCC_BunchCrossing != -1) meEEBunchCrossingSRPErrors_->Fill( xism );
 
       const std::vector<short> feLv1 = dcchItr->getFELv1();
       const std::vector<short> tccLv1 = dcchItr->getTCCLv1();
@@ -559,21 +592,26 @@ void EERawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       // Lv1 in TCC,SRP,FE are limited to 12 bits(LSB), while in the DCC Lv1 has 24 bits
       int ECALDCC_L1A_12bit = ECALDCC_L1A & 0xfff;
+      int feLv1Offset = ( e.isRealData() ) ? 1 : 0; // in MC FE Lv1A counter starts from 1, in data from 0
 
       for(int fe=0; fe<(int)feLv1.size(); fe++) {
-        if(ism==1 && fe==31) continue; // mask known bad tower
-        if(feLv1[fe] != ECALDCC_L1A_12bit - 1 && feLv1[fe] != -1) meEEL1AFEErrors_->Fill( xism, 1/(float)feLv1.size());
+        // do not consider desynch errors if the DCC detected them
+        if( ( status[fe] == 9 || status[fe] == 11 )) continue;
+        if(feLv1[fe]+feLv1Offset != ECALDCC_L1A_12bit && feLv1[fe] != -1 && ECALDCC_L1A_12bit - 1 != -1) {
+          meEEL1AFEErrors_->Fill( xism, 1/(float)feLv1.size());
+          meEESynchronizationErrorsByLumi_->Fill( xism, 1/(float)feLv1.size() );
+        } else if( BxSynchStatus[fe]==0 ) meEESynchronizationErrorsByLumi_->Fill( xism, 1/(float)feLv1.size() );
       }
 
-      // vector of TCC channels has 4 elements for both EB and EE. 
+      // vector of TCC channels has 4 elements for both EB and EE.
       // EB uses [0], EE uses [0-3].
       if(tccLv1.size() == MAX_TCC_SIZE) {
         for(int tcc=0; tcc<MAX_TCC_SIZE; tcc++) {
-          if(tccLv1[tcc] != ECALDCC_L1A_12bit && tccLv1[tcc] != -1) meEEL1ATCCErrors_->Fill( xism, 1/(float)tccLv1.size());
+          if(tccLv1[tcc] != ECALDCC_L1A_12bit && tccLv1[tcc] != -1 && ECALDCC_L1A_12bit - 1 != -1) meEEL1ATCCErrors_->Fill( xism, 1/(float)tccLv1.size());
         }
       }
 
-      if(srpLv1 != ECALDCC_L1A_12bit && srpLv1 != -1) meEEL1ASRPErrors_->Fill( xism );
+      if(srpLv1 != ECALDCC_L1A_12bit && srpLv1 != -1 && ECALDCC_L1A_12bit - 1 != -1) meEEL1ASRPErrors_->Fill( xism );
 
       if ( gtFedDataSize > 0 ) {
 

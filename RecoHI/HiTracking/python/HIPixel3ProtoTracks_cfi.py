@@ -12,7 +12,8 @@ hiPixel3ProtoTracks = cms.EDProducer( "PixelTrackProducer",
     RegionFactoryPSet = cms.PSet( 
       ComponentName = cms.string( "HITrackingRegionForPrimaryVtxProducer" ),
       RegionPSet = cms.PSet( 
-          HiTrackingRegionForPrimaryVertexBlock
+          #HiTrackingRegionForPrimaryVertexBlock
+          HiTrackingRegionFromClusterVtxBlock
       )
     ),
 	

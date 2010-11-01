@@ -27,6 +27,7 @@ class ElectronHcalHelper ;
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 
@@ -45,13 +46,16 @@ class ElectronSeedProducer : public edm::EDProducer
 
   private:
 
-    void filterClusters(const edm::Handle<reco::SuperClusterCollection> &superClusters,
-        /*HBHERecHitMetaCollection*mhbhe,*/ reco::SuperClusterRefVector &sclRefs,
-        std::vector<float> & hoe1s, std::vector<float> & hoe2s);
+    void filterClusters
+     ( const reco::BeamSpot & bs,
+       const edm::Handle<reco::SuperClusterCollection> & superClusters,
+       /*HBHERecHitMetaCollection*mhbhe,*/ reco::SuperClusterRefVector &sclRefs,
+       std::vector<float> & hoe1s, std::vector<float> & hoe2s ) ;
     void filterSeeds(edm::Event& e, const edm::EventSetup& setup, reco::SuperClusterRefVector &sclRefs);
 
     edm::InputTag superClusters_[2] ;
     edm::InputTag initialSeeds_ ;
+    edm::InputTag beamSpotTag_ ;
 
     edm::ParameterSet conf_ ;
     ElectronSeedGenerator * matcher_ ;

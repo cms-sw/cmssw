@@ -23,8 +23,9 @@ root rechits_HCAL_branch  recoPFRecHits_particleFlowRecHitHCAL__PROD.obj
 root rechits_HFEM_branch  recoPFRecHits_particleFlowRecHitHCAL_HFEM_PROD.obj
 // HFHAD rechits branch
 root rechits_HFHAD_branch  recoPFRecHits_particleFlowRecHitHCAL_HFHAD_PROD.obj
-// HF Cleaned rechits branch
-root rechits_CLEANED_branch  recoPFRecHits_particleFlowRecHitHCAL_Cleaned_PROD.obj
+// HF Cleaned rechits branch(es)
+root rechits_CLEANED_branch  recoPFRecHits_particleFlowRecHitHCAL_Cleaned_PROD.obj recoPFRecHits_particleFlowClusterHFHAD_Cleaned_PROD.obj recoPFRecHits_particleFlowClusterHFEM_Cleaned_PROD.obj
+
 // PS rechits branch
 root rechits_PS_branch    recoPFRecHits_particleFlowRecHitPS__PROD.obj
 

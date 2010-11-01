@@ -1,0 +1,9 @@
+<use name=DataFormats/Common>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/FWLite>
+<use name=rootrflx>
+<lib name=Eve>
+<use name=Fireworks/Core>
+<export>
+  <lib name=FireworksCalo>
+</export>

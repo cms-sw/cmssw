@@ -1,6 +1,13 @@
 #ifndef NumbersPn_H
 #define NumbersPn_H
 
+/*!
+  \file NumbersPn.h
+  \brief Some "id" conversions
+  \version $Revision: 1.8 $
+  \date $Date: 2010/08/06 12:28:07 $
+*/
+
 #include <string>
 #include <stdexcept>
 #include <vector>

@@ -5,8 +5,8 @@ import sys
 import fileinput
 import string
 
-NewVersion='3_8_0_pre5'
-RefVersion='3_7_0'
+NewVersion='3_6_1'
+RefVersion='3_6_0'
 NewRelease='CMSSW_'+NewVersion
 RefRelease='CMSSW_'+RefVersion
 #NewRelease='Summer09'
@@ -28,38 +28,21 @@ elif (NewCondition=='STARTUP'):
     samples= ['RelValTTbar','RelValZMM','RelValJpsiMM']
     if (NewFastSim|RefFastSim):
         samples= ['RelValTTbar']
-
+# These are some of the (pre)production samples, to be included by hand:
+#samples= ['ppMuXLoose', 'InclusiveMu5_Pt50', 'InclusiveMu5_Pt250', 'ZmumuJet_Pt0to15', 'ZmumuJet_Pt300toInf', 'ZmumuJet_Pt80to120']
+#samples= ['InclusiveMu5_Pt50', 'ZmumuJet_Pt0to15', 'ZmumuJet_Pt300toInf', 'ZmumuJet_Pt80to120']
 
 Submit=True
 Publish=False
 
-# Where to get the root file from.
-# By default, if the root files are already in the local area, they won't be overwritten
-
-#GetFilesFrom='WEB'       # --> Take root files from the MuonPOG Validation repository on the web
-#GetFilesFrom='CASTOR'    # --> Copy root files from castor
-GetFilesFrom='GUI'       # --> Copy root files from the DQM GUI server
-#GetRefsFrom='WEB'
-GetRefsFrom='CASTOR'
-#GetRefsFrom='GUI'
-
-DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_3_8_x/'
-DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_3_7_x/'
+GetFilesFromCastor=True
+GetRefsFromCastor=True
+#CastorRepository = '/castor/cern.ch/cms/store/temp/dqm/offline/harvesting_output/mc/relval'
 CastorRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
-if ((GetFilesFrom=='GUI')|(GetRefsFrom=='GUI')):
-    print "*** Did you remind doing:"
-    print " > source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.(c)sh"
-    print " > voms-proxy-init"
-
-
-# These are only needed if you copy any root file from the DQM GUI:
-NewLabel='MC_38Y_V3'
-if (NewCondition=='STARTUP'):
-    NewLabel='START38_V3'
-RefLabel='MC_37Y_V4'
-if (RefCondition=='STARTUP'):
-    RefLabel='START37_V4'
-
+### Older repositories:
+#CastorRepository = '/castor/cern.ch/user/n/nuno/relval/harvest'
+#CastorRepository = '/castor/cern.ch/user/n/nuno/preproduction/harvest'
+#CastorRepository = '/castor/cern.ch/user/j/jhegeman/preproduction_summer09/3_1_2'
 
 ValidateHLT=True
 if (NewFastSim|RefFastSim):
@@ -69,29 +52,36 @@ else:
     ValidateDQM=True
     ValidateISO=True
 
-
-
-NewFormat='GEN-SIM-RECO'
-RefFormat='GEN-SIM-RECO'
-NewTag = NewCondition+'_noPU_ootb'
-RefTag = RefCondition+'_noPU_ootb'
 if (NewFastSim):
-    NewTag = NewTag+'_FSIM'
-    NewCondition=NewCondition+'_FSIM'
-    NewLabel=NewLabel+'_FastSim'
+    NewTag = NewCondition+'_noPU_ootb_FSIM'
+    NewLabel=NewCondition+'MC_36Y_V2_FastSim'
+    if (NewCondition=='STARTUP'):
+        NewLabel=NewCondition+'START36_V2_FastSim'
     NewFormat='GEN-SIM-DIGI-RECO'
+else:
+    NewTag = NewCondition+'_noPU_ootb'
+    NewLabel=NewCondition+'MC_36Y_V2'
+    if (NewCondition=='STARTUP'):
+        NewLabel=NewCondition+'START36_V2'
+    NewFormat='GEN-SIM-RECO'
+
 if (RefFastSim):
-    RefTag = RefTag+'_FSIM'
-    RefCondition=RefCondition+'_FSIM'
-    RefLabel=RefLabel+'_FastSim'
-    RefFormat='GEN-SIM-DIGI-RECO'
+    RefTag = RefCondition+'_noPU_ootb_FSIM'
+else:
+    RefTag = RefCondition+'_noPU_ootb'
 
 NewLabel=NewLabel+'-v1'
-RefLabel=RefLabel+'-v1'
+
+if (NewFastSim):
+    NewCondition=NewCondition+'_FSIM'
+if (RefFastSim):
+    RefCondition=RefCondition+'_FSIM'
 
 
-WebRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
-CastorRefRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'    
+NewRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
+RefRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
+CastorRefRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
+
 
 macro='macro/TrackValHistoPublisher.C'
 macroSeed='macro/SeedValHistoPublisher.C'
@@ -113,6 +103,9 @@ def replace(map, filein, fileout):
 
 for sample in samples :
 
+    newdir=NewRepository+'/'+NewRelease+'/'+NewTag+'/'+sample 
+
+
     if(os.path.exists(NewRelease+'/'+NewTag+'/'+sample)==False):
         os.makedirs(NewRelease+'/'+NewTag+'/'+sample)
 
@@ -125,38 +118,42 @@ for sample in samples :
     if (os.path.isfile(checkFile)==True):
         print "Files of type "+checkFile+' exist alredy: delete them first, if you really want to overwrite them'
     else:
-        newSampleOnWeb=WebRepository+'/'+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root'
-        refSampleOnWeb=WebRepository+'/'+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root'
+        newSample=NewRepository+'/'+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root'
+        refSample=RefRepository+'/'+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root'
 
-        if (os.path.isfile(NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root')==True):
-            print "New file found at: "+NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root'+' -> Use that one'
-        elif (GetFilesFrom=='GUI'):
-            os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+DqmGuiNewRepository+'DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root ')
-            os.system('mv DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
-        elif (GetFilesFrom=='CASTOR'):
-            os.system('rfcp '+CastorRepository+'/'+NewRelease+'_'+NewCondition+'_'+sample+'_val.'+sample+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
-        elif ((GetFilesFrom=='WEB') & (os.path.isfile(newSampleOnWeb))) :
-            print "New file found at: "+newSample+' -> Copy that one'
-            os.system('cp '+newSampleOnWeb+' '+NewRelease+'/'+NewTag+'/'+sample)
-        else:
-            print '*** WARNING: no signal file was found'
+        if (os.path.isfile(NewRelease+'/'+NewTag+'/'+sample+'/val'+sample+'.root')==True):
+            # FOR SOME REASON THIS DOES NOT WORK: to be checked...
+            print "New file found at: ",NewRelease+'/'+NewTag+'/'+sample+'/val'+sample+'.root'+' -> Use that one'
 
-        
-        if (os.path.isfile(RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root')==True):
-            print "Reference file found at: "+RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root'+' -> Use that one'
-        elif (GetRefsFrom=='GUI'):
-            print '*** Getting reference file from the DQM GUI server'
-            os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+DqmGuiRefRepository+'DQM_V0001_R000000001__'+sample+'__'+RefRelease+'-'+RefLabel+'__'+RefFormat+'.root ')
-            os.system('mv DQM_V0001_R000000001__'+sample+'__'+RefRelease+'-'+RefLabel+'__'+RefFormat+'.root '+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root')
-        elif (GetRefsFrom=='CASTOR'):
+        elif (GetFilesFromCastor):
+# Check the number of events in the harvested samples, needed to retrieve the path on castor
+            if (CastorRepository=='/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'):
+                os.system('rfcp '+CastorRepository+'/'+NewRelease+'_'+NewCondition+'_'+sample+'_val.'+sample+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
+            else:
+                if (NewFastSim):
+                    NEVT='27000'
+                else:
+                    NEVT='9000'
+                    if (sample=='RelValSingleMuPt10'):
+                        NEVT='25000'
+                    elif(sample=='RelValZMM'):
+                        NEVT='8995'
+                    elif((sample=='RelValTTbar')&(NewCondition=='STARTUP')):
+                        NEVT='34000'
+                    os.system('rfcp '+CastorRepository+'/'+NewVersion+'/'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'/run_1/nevents_'+NEVT+'/DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'_1.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
+
+        elif (os.path.isfile(newSample)) :
+            os.system('cp '+newSample+' '+NewRelease+'/'+NewTag+'/'+sample)
+
+             
+        if (os.path.isfile(RefRelease+'/'+RefTag+'/'+sample+'/val'+sample+'.root')!=True and os.path.isfile(refSample)):
+            print '*** Getting reference file from '+RefRelease
+            os.system('cp '+refSample+' '+RefRelease+'/'+RefTag+'/'+sample)
+        elif (GetRefsFromCastor):
             print '*** Getting reference file from castor'
             os.system('rfcp '+CastorRefRepository+'/'+RefRelease+'_'+RefCondition+'_'+sample+'_val.'+sample+'.root '+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root')
-        elif ((GetRefsFrom=='WEB') & (os.path.isfile(refSampleOnWeb))):
-            print '*** Getting reference file from '+RefRelease
-            os.system('cp '+refSampleOnWeb+' '+RefRelease+'/'+RefTag+'/'+sample)
         else:
             print '*** WARNING: no reference file was found'
-
 
         cfgFileName=sample+'_'+NewRelease+'_'+RefRelease
         hltcfgFileName='HLT'+sample+'_'+NewRelease+'_'+RefRelease
@@ -213,11 +210,10 @@ for sample in samples :
             if (ValidateDQM):
                 os.system('root -b -q -l '+ recocfgFileName+'.C'+ '>  macro.'+recocfgFileName+'.log')
                 os.system('root -b -q -l '+ seedcfgFileName+'.C'+ '>  macro.'+seedcfgFileName+'.log')
-            if (ValidateISO):
+        if (ValidateISO):
                 os.system('root -b -q -l '+ isolcfgFileName+'.C'+ '>  macro.'+isolcfgFileName+'.log')
 
         if(Publish):
-            newdir=WebRepository+'/'+NewRelease+'/'+NewTag+'/'+sample 
             if(os.path.exists(newdir)==False):
                 os.makedirs(newdir)
             os.system('rm '+NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root')  

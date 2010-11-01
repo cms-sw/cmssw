@@ -33,7 +33,6 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.p = cms.Path(process.ecalBarrelMonitorClient)
 
-process.ecalBarrelMonitorClient.maskFile = 'maskfile-EB.dat'
 process.ecalBarrelMonitorClient.location = 'H4'
 
 process.DQM.collectorHost = ''

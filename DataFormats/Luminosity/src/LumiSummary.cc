@@ -1,5 +1,5 @@
 
-// $Id: LumiSummary.cc,v 1.16 2010/03/23 18:25:26 xiezhen Exp $
+// $Id: LumiSummary.cc,v 1.20 2010/10/12 10:45:49 xiezhen Exp $
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
@@ -11,8 +11,16 @@ LumiSummary::avgInsDelLumi()const{
   return avginsdellumi_;
 }
 float
+LumiSummary::intgDelLumi()const{
+  return avginsdellumi_*float(this->lumiSectionLength());
+}
+float
 LumiSummary::avgInsDelLumiErr()const{ 
   return  avginsdellumierr_;
+}
+float 
+LumiSummary::intgRecLumi()const{
+  return this->avgInsRecLumi() *float(this->lumiSectionLength());
 }
 short
 LumiSummary::lumiSecQual()const {
@@ -29,7 +37,7 @@ LumiSummary::deadFrac() const {
   //if bitzerocount=0, return -1.0 meaning no beam
   if (l1data_.size()==0) return 1.0;
   if (l1data_.begin()->ratecount==0) return -1.0;
-  return (deadcount_/l1data_.begin()->ratecount);
+  return float(deadcount_)/float(l1data_.begin()->ratecount*l1data_.begin()->prescale);
 }
 float 
 LumiSummary::liveFrac() const { 
@@ -39,10 +47,10 @@ LumiSummary::liveFrac() const {
   if (deadFrac()<0) return 0;
   return 1-deadFrac();
 }
-unsigned int
+float
 LumiSummary::lumiSectionLength() const {
   //numorbits*3564*25e-09
-  return numorbit_*3564*25*10e-9;
+  return numorbit_*3564.0*25.0*10e-9;
 }
 unsigned int 
 LumiSummary::lsNumber() const{

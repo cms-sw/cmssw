@@ -1,5 +1,5 @@
 //
-// $Id: NearbyCandCountComputer.cc,v 1.2 2010/02/26 22:30:50 wdd Exp $
+// $Id: NearbyCandCountComputer.cc,v 1.2 2010/07/09 14:03:51 gpetrucc Exp $
 //
 
 /**
@@ -9,12 +9,13 @@
             Implementation notice: not templated, because we want to allow cuts on the pair through PATDiObjectProxy
             
   \author   Giovanni Petrucciani
-  \version  $Id: NearbyCandCountComputer.cc,v 1.2 2010/02/26 22:30:50 wdd Exp $
+  \version  $Id: NearbyCandCountComputer.cc,v 1.2 2010/07/09 14:03:51 gpetrucc Exp $
 */
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
@@ -73,7 +74,7 @@ NearbyCandCountComputer::produce(edm::Event & iEvent, const edm::EventSetup & iS
     View<reco::Candidate>::const_iterator probe, endprobes = probes->end();
     View<reco::Candidate>::const_iterator object, beginobjects = objects->begin(), endobjects = objects->end();
     for (probe = probes->begin(); probe != endprobes; ++probe) {
-        float count;
+        float count = 0;
         for (object = beginobjects; object != endobjects; ++object) {
             if ((deltaR2(*probe, *object) >= deltaR2_) &&
                 objCut_(*object) && 

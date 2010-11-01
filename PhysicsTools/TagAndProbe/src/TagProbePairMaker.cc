@@ -2,104 +2,128 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 tnp::TagProbePairMaker::TagProbePairMaker(const edm::ParameterSet &iConfig) :
-    src_(iConfig.getParameter<edm::InputTag>("tagProbePairs")),
-    randGen_(0)
+  src_(iConfig.getParameter<edm::InputTag>("tagProbePairs")),
+  randGen_(0)
 {
-    std::string arbitration = iConfig.getParameter<std::string>("arbitration");
-    if (arbitration == "None") {
-        arbitration_ = None;
-    } else if (arbitration == "OneProbe") {
-        arbitration_ = OneProbe;
-    } else if (arbitration == "BestMass") {
-        arbitration_ = BestMass;
-        arbitrationMass_ = iConfig.getParameter<double>("massForArbitration");
-    } else if (arbitration == "Random2") {
-      arbitration_ = Random2;
-      randGen_ = new TRandom2(7777);
-    } else throw cms::Exception("Configuration") << "TagProbePairMakerOnTheFly: the only currently "
-						 << "allowed values for 'arbitration' are "
-						 << "'None', 'OneProbe', 'BestMass', 'Random2'\n";
+  std::string arbitration = iConfig.getParameter<std::string>("arbitration");
+  if (arbitration == "None") {
+    arbitration_ = None;
+  } else if (arbitration == "OneProbe") {
+    arbitration_ = OneProbe;
+  } else if (arbitration == "NonDuplicate") {
+    arbitration_ = NonDuplicate;
+  } else if (arbitration == "BestMass") {
+    arbitration_ = BestMass;
+    arbitrationMass_ = iConfig.getParameter<double>("massForArbitration");
+  } else if (arbitration == "Random2") {
+    arbitration_ = Random2;
+    randGen_ = new TRandom2(7777);
+  } else throw cms::Exception("Configuration") << "TagProbePairMakerOnTheFly: the only currently "
+					       << "allowed values for 'arbitration' are "
+					       << "'None', 'OneProbe', 'BestMass', 'Random2'\n";
 }
 
 
 tnp::TagProbePairs
 tnp::TagProbePairMaker::run(const edm::Event &iEvent) const 
 {
-    // declare output
-    tnp::TagProbePairs pairs;
+  // declare output
+  tnp::TagProbePairs pairs;
     
-    // read from event
-    edm::Handle<reco::CandidateView> src;
-    iEvent.getByLabel(src_, src);
+  // read from event
+  edm::Handle<reco::CandidateView> src;
+  iEvent.getByLabel(src_, src);
 
-    // convert
-    for (reco::CandidateView::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
-        const reco::Candidate & mother = *it;
-        if (mother.numberOfDaughters() != 2) throw cms::Exception("CorruptData") << "Tag&Probe pair with " << mother.numberOfDaughters() << " daughters\n";
-        pairs.push_back(tnp::TagProbePair(mother.daughter(0)->masterClone(), mother.daughter(1)->masterClone(), 
-                                          src->refAt(it - src->begin()), mother.mass()));
-    }
+  // convert
+  for (reco::CandidateView::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
+    const reco::Candidate & mother = *it;
+    if (mother.numberOfDaughters() != 2) throw cms::Exception("CorruptData") << "Tag&Probe pair with " << mother.numberOfDaughters() << " daughters\n";
+    pairs.push_back(tnp::TagProbePair(mother.daughter(0)->masterClone(), mother.daughter(1)->masterClone(), 
+				      src->refAt(it - src->begin()), mother.mass()));
+  }
 
-    if ((arbitration_ != None) && (pairs.size() > 1)) {
-        // might need to clean up
-        arbitrate(pairs);
-    }
+  if ((arbitration_ != None) && (pairs.size() > 1)) {
+    // might need to clean up
+    arbitrate(pairs);
+  }
 
-    // return
-    return pairs;
+  // return
+  return pairs;
 }
 
 void 
 tnp::TagProbePairMaker::arbitrate(TagProbePairs &pairs) const 
 {
-    size_t nclean = pairs.size();
-    for (TagProbePairs::iterator it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
-        if (it->tag.isNull()) continue; // skip already invalidated pairs
-        bool invalidateThis = false;
-	int numberOfProbes=0;
-	for (TagProbePairs::iterator it2 = it + 1; it2 != ed; ++it2) {   // it+1 <= ed, otherwise we don't arrive here
-            if (it->tag == it2->tag) {
-                if (arbitration_ == OneProbe) {
-                    // invalidate this one
-                    it2->tag = reco::CandidateBaseRef(); --nclean;
-                    // remember to invalidate also the other one (but after finishing to check for duplicates)
-                    invalidateThis = true;
-                } else if (arbitration_ == BestMass) {
-                    // but the best one in the first  iterator
-                    if (fabs(it2->mass-arbitrationMass_) < fabs(it->mass-arbitrationMass_)) {
-		    std::swap(*it, *it2);
-                    }
-                    // and invalidate it2
-                    it2->tag = reco::CandidateBaseRef(); --nclean;
-                } else if (arbitration_ == Random2) {
-		  numberOfProbes++;
-		  if (numberOfProbes>1) {
-		    //std::cout << "more than 2 probes!" << std::endl;
-		    invalidateThis=true;
-		    it2->tag = reco::CandidateBaseRef();
-		    --nclean;
-		  } else{
-		    // do a coin toss to decide if we want to swap them
-		    if (randGen_->Rndm()>0.5) {
-		      std::swap(*it, *it2);
-		    }
-		    // and invalidate it2
-		    it2->tag = reco::CandidateBaseRef();
-		    --nclean;
-		  } 
-		}
-            }
-        }
-        if (invalidateThis) { it->tag = reco::CandidateBaseRef(); --nclean; }
-    }
+  size_t nclean = pairs.size();
+  for (TagProbePairs::iterator it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
+    if (it->tag.isNull()) continue; // skip already invalidated pairs
 
-    if (nclean == 0) {
-        pairs.clear();
-    } else if (nclean < pairs.size()) {
-        TagProbePairs cleaned; cleaned.reserve(nclean);
-        for (TagProbePairs::iterator it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
-            if (it->tag.isNonnull()) cleaned.push_back(*it);
-        }
-        pairs.swap(cleaned);
+    bool TTpair=false;
+    for (TagProbePairs::iterator it2 = pairs.begin(); it2 != ed; ++it2) {   // first check for Tag-Tag pairs
+      if(it!=it2 && it->probe==it2->tag && it->tag==it2->probe){
+	//std::cout << "----------> probe is tag!!!!" << std::endl;
+	TTpair=true;
+      }
     }
+    //if(!TTpair) std::cout << "this is not TT!" << std::endl;
+    bool invalidateThis = false;
+    int numberOfProbes=0;
+    for (TagProbePairs::iterator it2 = it + 1; it2 != ed; ++it2) {   // it+1 <= ed, otherwise we don't arrive here
+      // arbitrate the case where multiple probes are matched to the same tag
+      if ((arbitration_ != NonDuplicate) && (it->tag == it2->tag)) {
+	if(TTpair){ // we already have found a TT pair, no need to guess
+	  it2->tag = reco::CandidateBaseRef(); --nclean;
+	  //std::cout << "remove unnecessary pair! -----------" << std::endl;
+	  continue;
+	}
+	    
+	if (arbitration_ == OneProbe) {
+	  // invalidate this one
+	  it2->tag = reco::CandidateBaseRef(); --nclean;
+	  // remember to invalidate also the other one (but after finishing to check for duplicates)
+	  invalidateThis = true;
+	} else if (arbitration_ == BestMass) {
+	  // but the best one in the first  iterator
+	  if (fabs(it2->mass-arbitrationMass_) < fabs(it->mass-arbitrationMass_)) {
+	    std::swap(*it, *it2);
+	  }
+	  // and invalidate it2
+	  it2->tag = reco::CandidateBaseRef(); --nclean;
+	} else if (arbitration_ == Random2) {
+	  numberOfProbes++;
+	  if (numberOfProbes>1) {
+	    //std::cout << "more than 2 probes!" << std::endl;
+	    invalidateThis=true;
+	    it2->tag = reco::CandidateBaseRef();
+	    --nclean;
+	  } else{
+	    // do a coin toss to decide if we want to swap them
+	    if (randGen_->Rndm()>0.5) {
+	      std::swap(*it, *it2);
+	    }
+	    // and invalidate it2
+	    it2->tag = reco::CandidateBaseRef();
+	    --nclean;
+	  } 
+	}
+      }
+      // arbitrate the case where the same probe is associated to more then one tag
+      if ((arbitration_ == NonDuplicate) && (it->probe == it2->probe)) {
+        // invalidate the pair in which the tag has lower pT
+        if (it2->tag->pt() > it->tag->pt()) std::swap(*it, *it2);
+        it2->tag = reco::CandidateBaseRef(); --nclean;  
+      }
+    }
+    if (invalidateThis) { it->tag = reco::CandidateBaseRef(); --nclean; }
+  }
+
+  if (nclean == 0) {
+    pairs.clear();
+  } else if (nclean < pairs.size()) {
+    TagProbePairs cleaned; cleaned.reserve(nclean);
+    for (TagProbePairs::iterator it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
+      if (it->tag.isNonnull()) cleaned.push_back(*it);
+    }
+    pairs.swap(cleaned);
+  }
 }

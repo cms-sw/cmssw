@@ -1,4 +1,4 @@
-// $Id: Stopping.cc,v 1.7 2009/08/28 16:41:27 mommsen Exp $
+// $Id: Stopping.cc,v 1.8 2009/09/29 07:57:56 mommsen Exp $
 /// @file: Stopping.cc
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
@@ -50,7 +50,7 @@ void Stopping::do_exitActionWork()
 
 string Stopping::do_stateName() const
 {
-  return string( "Stopping" );
+  return std::string( "Stopping" );
 }
 
 void Stopping::do_moveToFailedState( xcept::Exception& exception ) const

@@ -81,7 +81,13 @@ class TCMETAlgo
 
   edm::InputTag muonDepValueMap_;
   edm::InputTag tcmetDepValueMap_;
-  
+
+  edm::InputTag inputTagPFClustersECAL_;
+  edm::InputTag inputTagPFClustersHCAL_;
+  edm::InputTag inputTagPFClustersHFEM_;
+  edm::InputTag inputTagPFClustersHFHAD_;   
+
+  bool    usePFClusters_;
   int     nLayers_;
   int     nLayersTight_;
   int     vertexNdof_;

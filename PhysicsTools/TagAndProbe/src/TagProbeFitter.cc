@@ -119,7 +119,7 @@ void TagProbeFitter::setWeightVar(const std::string &var) {
   weightVar = var;
 }
 
-string TagProbeFitter::calculateEfficiency(string dirName, string effCat, string effState, vector<string>& unbinnedVariables, map<string, vector<double> >& binnedReals, map<string, std::vector<string> >& binnedCategories, vector<string>& binToPDFmap, bool saveWorkspace){
+string TagProbeFitter::calculateEfficiency(string dirName, vector<string> effCats, vector<string> effStates, vector<string>& unbinnedVariables, map<string, vector<double> >& binnedReals, map<string, std::vector<string> >& binnedCategories, vector<string>& binToPDFmap, bool saveWorkspace){
   //go to home directory
   outputDirectory->cd();
   //make a directory corresponding to this efficiency binning
@@ -152,15 +152,17 @@ string TagProbeFitter::calculateEfficiency(string dirName, string effCat, string
     if (variables.find(name) == 0) { cerr << "Binned category '"<<name<<"' not found." << endl; return "Error"; }
     categories.addClone(variables[name]);
     mappedCategories.addClone(RooMappedCategory(name+"_bins", name+"_bins", (RooCategory&)categories[name]));
-    for(uint i = 0; i<v->second.size(); i++){
+    for(unsigned int i = 0; i<v->second.size(); i++){
       ((RooMappedCategory&)mappedCategories[name+"_bins"]).map(v->second[i].c_str(), name+"_"+TString(v->second[i].c_str()).ReplaceAll(",","_"));
     }
   }
   dataVars.addClone(categories);
 
   // add the efficiency category if it's not a dynamic one
-  if (variables.find(effCat.c_str()) != 0) {
-    dataVars.addClone(variables[effCat.c_str()]);
+  for (vector<string>::const_iterator effCat = effCats.begin(); effCat != effCats.end(); ++effCat) {
+     if (variables.find(effCat->c_str()) != 0) {
+        dataVars.addClone(variables[effCat->c_str()]);
+     }
   }
 
   //  add all variables used in expressions
@@ -205,13 +207,31 @@ string TagProbeFitter::calculateEfficiency(string dirName, string effCat, string
   //merge the bin categories to a MultiCategory for convenience
   RooMultiCategory allCats("allCats", "allCats", RooArgSet(binCategories, mappedCategories));
   data.addColumn(allCats);
+  string effName;
   //setup the efficiency category
-  RooMappedCategory efficiencyCategory("_efficiencyCategory_", "_efficiencyCategory_", (RooCategory&)dataVars[effCat.c_str()], "Failed");
-  efficiencyCategory.map(effState.c_str(), "Passed");
-  data.addColumn( efficiencyCategory );
+  if (effCats.size() == 1) {
+      effName = effCats.front() + "::" + effStates.front();
+      RooMappedCategory efficiencyCategory("_efficiencyCategory_", "_efficiencyCategory_", (RooCategory&)dataVars[effCats.front().c_str()], "Failed");
+      efficiencyCategory.map(effStates.front().c_str(), "Passed");
+      data.addColumn( efficiencyCategory );
+  } else {
+      RooArgSet rooEffCats; 
+      string multiState = "{";
+      for (size_t i = 0; i < effCats.size(); ++i) {
+        if (i) { multiState += ";"; effName += " && "; }
+        rooEffCats.add((RooCategory &) dataVars[effCats[i].c_str()]);
+        multiState += effStates[i];
+        effName = effCats[i] + "::" + effStates[i];
+      }
+      multiState += "}";
+      RooMultiCategory efficiencyMultiCategory("_efficiencyMultiCategory_", "_efficiencyMultiCategory_", rooEffCats);
+      RooMappedCategory efficiencyCategory("_efficiencyCategory_", "_efficiencyCategory_", efficiencyMultiCategory, "Failed");
+      efficiencyCategory.map(multiState.c_str(), "Passed");
+      data.addColumn( efficiencyCategory );
+  }
   //setup the pdf category
   RooMappedCategory pdfCategory("_pdfCategory_", "_pdfCategory_", allCats, (binToPDFmap.size()>0)?binToPDFmap[0].c_str():"");
-  for(uint i = 1; i<binToPDFmap.size(); i+=2){
+  for(unsigned int i = 1; i<binToPDFmap.size(); i+=2){
     pdfCategory.map(binToPDFmap[i].c_str(), binToPDFmap[i+1].c_str());
   }
   data.addColumn( pdfCategory );
@@ -311,7 +331,7 @@ string TagProbeFitter::calculateEfficiency(string dirName, string effCat, string
   //save the efficiency data
   fitEfficiency.Write();
   gDirectory->mkdir("fit_eff_plots")->cd();
-  saveEfficiencyPlots(fitEfficiency, effCat+"::"+effState, binnedVariables, mappedCategories);
+  saveEfficiencyPlots(fitEfficiency, effName, binnedVariables, mappedCategories);
   gDirectory->cd("..");
 
 /*  sbsEfficiency.Write();
@@ -321,7 +341,7 @@ string TagProbeFitter::calculateEfficiency(string dirName, string effCat, string
 
   cntEfficiency.Write();
   gDirectory->mkdir("cnt_eff_plots")->cd();
-  saveEfficiencyPlots(cntEfficiency, effCat+"::"+effState, binnedVariables, mappedCategories);
+  saveEfficiencyPlots(cntEfficiency, effName, binnedVariables, mappedCategories);
   gDirectory->cd("..");
   //empty string means no error
   return "";
@@ -435,14 +455,14 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
       efficiency.setAsymError(0,cerr);
     } else {
       efficiency.setVal(1);
-      efficiency.setAsymError(-cerr,1);
+      efficiency.setAsymError(-cerr,0);
     }
   }
 }
 
 void TagProbeFitter::createPdf(RooWorkspace* w, vector<string>& pdfCommands){
   // create the signal and background pdfs defined by the user
-  for(uint i=0; i<pdfCommands.size(); i++){
+  for(unsigned int i=0; i<pdfCommands.size(); i++){
     w->factory(pdfCommands[i].c_str());
   }
   // setup the simultaneous extended pdf
@@ -573,7 +593,7 @@ void TagProbeFitter::saveDistributionsPlot(RooWorkspace* w){
   TCanvas canvas("distributions_canvas");
   canvas.Divide(3,reals.size());
   vector<RooPlot*> frames;
-  for(uint i=0; i<reals.size(); i++){
+  for(unsigned int i=0; i<reals.size(); i++){
     // plot the Passing Probes
     canvas.cd(3*i+1);
     frames.push_back(reals[i]->frame(Name("Passing"), Title("Passing Probes"), Bins(100)));

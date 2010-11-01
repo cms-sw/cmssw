@@ -80,6 +80,7 @@ class SecondaryVertexProducer : public edm::EDProducer {
 	static ConstraintType getConstraintType(const std::string &name);
 
 	const edm::InputTag		trackIPTagInfoLabel;
+        edm::InputTag beamSpotTag;
 	TrackIPTagInfo::SortCriteria	sortCriterium;
 	TrackSelector			trackSelector;
 	ConstraintType			constraint;
@@ -149,6 +150,12 @@ SecondaryVertexProducer::SecondaryVertexProducer(
 	    constraint == CONSTRAINT_PV_BS_Z_ERRORS_SCALED)
 		constraintScaling = params.getParameter<double>("pvErrorScaling");
 
+	if (constraint == CONSTRAINT_PV_BEAMSPOT_SIZE ||
+	    constraint == CONSTRAINT_PV_BS_Z_ERRORS_SCALED ||
+	    constraint == CONSTRAINT_BEAMSPOT ||
+	    constraint == CONSTRAINT_PV_PRIMARIES_IN_FIT )
+	    beamSpotTag = params.getParameter<edm::InputTag>("beamSpotTag");
+
 	produces<SecondaryVertexTagInfoCollection>();
 }
 
@@ -209,14 +216,14 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 	double sigmaZ = 0.0, beamWidth = 0.0;
 	switch(constraint) {
 	    case CONSTRAINT_PV_BEAMSPOT_SIZE:
-		event.getByType(beamSpot);
+	        event.getByLabel(beamSpotTag,beamSpot);
 		bsCovSrc[3] = bsCovSrc[4] = bsCovSrc[5] = bsCovSrc[6] = 1;
 		sigmaZ = beamSpot->sigmaZ();
 		beamWidth = beamSpot->BeamWidthX();
 		break;
 
 	    case CONSTRAINT_PV_BS_Z_ERRORS_SCALED:
-		event.getByType(beamSpot);
+	      event.getByLabel(beamSpotTag,beamSpot);
 		bsCovSrc[0] = bsCovSrc[1] = 2;
 		bsCovSrc[3] = bsCovSrc[4] = bsCovSrc[5] = 1;
 		sigmaZ = beamSpot->sigmaZ();
@@ -228,7 +235,7 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 
 	    case CONSTRAINT_BEAMSPOT:
 	    case CONSTRAINT_PV_PRIMARIES_IN_FIT:
-		event.getByType(beamSpot);
+	        event.getByLabel(beamSpotTag,beamSpot);
 		break;
 
 	    default:

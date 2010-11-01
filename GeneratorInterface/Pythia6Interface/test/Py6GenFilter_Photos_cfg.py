@@ -47,7 +47,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 
     PythiaParameters = cms.PSet(
 
-        pythiaSimpleSettings = cms.vstring(
+        pythiaBasicSettings = cms.vstring(
 	   'PMAS(5,1)=4.8 ! b quark mass',
            'PMAS(6,1)=172.3 ! t quark mass',
            'MSTP(61)=0 ! turn off initial state radiation',
@@ -57,6 +57,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 	),
 	pythiaSpecialSettings = cms.vstring(
 	    'PMAS(25,1)=190.0        !mass of Higgs', 
+            'MSTP(128)=0             !dec.prods out of doc section, point at parents in the main section',
             'MSEL=0                  !(D=1) to select between full user control (0, then use MSUB) and some preprogrammed alternative: QCD hight pT processes (1, then ISUB=11, 12, 13, 28, 53, 68), QCD low pT processes (2, then ISUB=11, 12, 13, 28, 53, 68, 91, 92, 94, 95)', 
             'MSTJ(11)=3              !Choice of the fragmentation function', 
             'MSTJ(41)=1              !Switch off Pythia QED bremsshtrahlung', 
@@ -66,6 +67,9 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
             'MSTP(81)=0              ! no multiple interactions', 
             'MSTP(111)=0             ! no hadronization', 
             'MSTU(21)=1              !Check on possible errors during program execution', 
+            'MSUB(102)=1             !ggH', 
+            'MSUB(123)=1             !ZZ fusion to H', 
+            'MSUB(124)=1             !WW fusion to H', 
 	    # these 4 below are irrelevant if the hadronization is off (mstp(111)=0)
             'PARP(82)=1.9            !pt cutoff for multiparton interactions', 
             'PARP(83)=0.5            !Multiple interactions: matter distrbn parameter Registered by Chris.Seez@cern.ch', 
@@ -76,11 +80,6 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
             'CKIN(46)=150.           !high mass cut on secondary resonance m1 in 2->1->2 process Registered by Alexandre.Nikitenko@cern.ch', 
             'CKIN(47)=5.             !low mass cut on secondary resonance m2 in 2->1->2 process Registered by Alexandre.Nikitenko@cern.ch', 
             'CKIN(48)=150.           !high mass cut on secondary resonance m2 in 2->1->2 process Registered by Alexandre.Nikitenko@cern.ch'
-	),
-	pythiaProcessSettings = cms.vstring(
-            'MSUB(102)=1             !ggH', 
-            'MSUB(123)=1             !ZZ fusion to H', 
-            'MSUB(124)=1             !WW fusion to H', 
 	),
 	pythiaHZZDecays = cms.vstring(
             'MDME(174,1)=0           !Z decay into d dbar', 
@@ -176,9 +175,9 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
         ),
         # This is a vector of ParameterSet names to be read, in this order
         parameterSets = cms.vstring( 
+	    ##'pythiaUESettings',
 	    'pythiaSpecialSettings',
-	    ##'pythiaSimpleSettings', 
-	    'pythiaProcessSettings',
+	    ##'pythiaBasicSettings', 
             'pythiaHZZDecays', 'pythiaTauL' )
     )
 )

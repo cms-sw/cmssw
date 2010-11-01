@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.172 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: alCaRecoSplitting -s ALCAOUTPUT:MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib --conditions FrontierConditions_GlobalTag,GR10_P_V5::All --no_ex ec --triggerResultsProcess RECO --filein=/store/temp/data/Run2010A/Mu/ALCARECO/v1/000/135/836/8C8EBAAF-F963-DF11-BB6A-000423D9997E.root --no_output --python_filename=alCaRecoSplitting_Mu_cfg.py --data
+# with command line options: alCaRecoSplitting -s ALCAOUTPUT:MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib+TkAlZMuMu --conditions GR10_P_V6::All --no_ex ec --triggerResultsProcess RECO --filein=/store/temp/data/Run2010A/Mu/ALCARECO/v1/000/135/836/8C8EBAAF-F963-DF11-BB6A-000423D9997E.root --no_output --python_filename=alCaRecoSplitting_Mu_cfg_new.py --data
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('ALCAOUTPUT')
@@ -24,17 +24,28 @@ process.configurationMetadata = cms.untracked.PSet(
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(1)
 )
 process.options = cms.untracked.PSet(
 
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/build/cerminar/GlobalTag/Validation/2010-05-21/CMSSW_3_6_1_patch1/src/Configuration/GlobalRuns/python/promptReco_RAW2DIGI_L1Reco_RECO_DQM_ALCAPRODUCER_secondary.root')
+    fileNames = cms.untracked.vstring('/store/temp/data/Run2010A/Mu/ALCARECO/v1/000/135/836/8C8EBAAF-F963-DF11-BB6A-000423D9997E.root')
 )
 
 # Additional output definition
+process.ALCARECOStreamTkAlZMuMu = cms.OutputModule("PoolOutputModule",
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('pathALCARECOTkAlZMuMu:RECO')
+    ),
+    outputCommands = process.OutALCARECOTkAlZMuMu_noDrop.outputCommands,
+    fileName = cms.untracked.string('TkAlZMuMu.root'),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string('TkAlZMuMu'),
+        dataTier = cms.untracked.string('ALCARECO')
+    )
+)
 process.ALCARECOStreamTkAlMuonIsolated = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOTkAlMuonIsolated:RECO')
@@ -124,11 +135,11 @@ process.pathALCARECOEcalCalPhiSym = cms.Path(process.seqALCARECOEcalCalPhiSym*pr
 process.pathALCARECOMuAlGlobalCosmics = cms.Path(process.seqALCARECOMuAlGlobalCosmics*process.ALCARECOMuAlGlobalCosmicsDQM)
 process.pathALCARECOTkAlJpsiMuMu = cms.Path(process.seqALCARECOTkAlJpsiMuMu*process.ALCARECOTkAlJpsiMuMuDQM)
 
-
+process.ALCARECOStreamTkAlZMuMuOutPath = cms.EndPath(process.ALCARECOStreamTkAlZMuMu)
 process.ALCARECOStreamTkAlMuonIsolatedOutPath = cms.EndPath(process.ALCARECOStreamTkAlMuonIsolated)
 process.ALCARECOStreamMuAlCalIsolatedMuOutPath = cms.EndPath(process.ALCARECOStreamMuAlCalIsolatedMu)
 process.ALCARECOStreamDtCalibOutPath = cms.EndPath(process.ALCARECOStreamDtCalib)
 process.ALCARECOStreamMuAlOverlapsOutPath = cms.EndPath(process.ALCARECOStreamMuAlOverlaps)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.ALCARECOStreamTkAlMuonIsolatedOutPath,process.ALCARECOStreamMuAlCalIsolatedMuOutPath,process.ALCARECOStreamDtCalibOutPath,process.ALCARECOStreamMuAlOverlapsOutPath)
+process.schedule = cms.Schedule(process.ALCARECOStreamTkAlZMuMuOutPath,process.ALCARECOStreamTkAlMuonIsolatedOutPath,process.ALCARECOStreamMuAlCalIsolatedMuOutPath,process.ALCARECOStreamDtCalibOutPath,process.ALCARECOStreamMuAlOverlapsOutPath)

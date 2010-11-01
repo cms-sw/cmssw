@@ -16,5 +16,7 @@ public:
 private:
 	void beginJob();
 	edm::ParameterSet theConfig;
+        edm::InputTag theMedianVertexCollection;
+        edm::InputTag theAdaptiveVertexCollection;
 };
 #endif

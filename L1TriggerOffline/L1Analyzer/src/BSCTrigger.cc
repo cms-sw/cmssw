@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Jul 16 16:11:05 CEST 2008
-// $Id: BSCTrigger.cc,v 1.7 2009/12/14 22:23:20 wmtan Exp $
+// $Id: BSCTrigger.cc,v 1.8 2010/02/11 00:12:53 wmtan Exp $
 //
 //
 
@@ -33,6 +33,11 @@ Implementation:
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTrigger.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTriggerRecord.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+
+
 //
 // class declaration
 //
@@ -113,15 +118,17 @@ void BSCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   float MipFraction=0.5;
   float MipEnergy=0.0027;
   float theThreshold=MipFraction*MipEnergy;
-  edm::Handle<edm::PSimHitContainer> theBSCHitContainer;
-  iEvent.getByLabel(TheHits_tag_,theBSCHitContainer);
 
-  if (!theBSCHitContainer.failedToGet()) {
+  edm::Handle<CrossingFrame<PSimHit> > cf;
+  iEvent.getByLabel(TheHits_tag_, cf);
+   
+  if (!cf.failedToGet()) {
     for ( int c=0;c<32;++c){
       EnergyBX[c]=0;
       EnergyBXMinusDt[c]=0;
     }
-    edm::PSimHitContainer::const_iterator itHit, jtHit;
+    std::auto_ptr<MixCollection<PSimHit> > theBSCHitContainer( new MixCollection <PSimHit>(cf.product()));
+    MixCollection<PSimHit>::MixItr itHit;
     float dt1,dt2;
     dt1=theCoincidence_/2 + theResolution_;
     dt2=theCoincidence_/2 - theResolution_;

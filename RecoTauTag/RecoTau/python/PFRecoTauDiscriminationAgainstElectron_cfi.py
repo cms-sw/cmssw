@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadTrack
+from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadPion
 
 pfRecoTauDiscriminationAgainstElectron = cms.EDProducer("PFRecoTauDiscriminationAgainstElectron",
 
@@ -9,7 +9,7 @@ pfRecoTauDiscriminationAgainstElectron = cms.EDProducer("PFRecoTauDiscrimination
     # Require leading pion ensures that:
     #  1) these is at least one track above threshold (0.5 GeV) in the signal cone
     #  2) a track OR a pi-zero in the signal cone has pT > 5 GeV
-    Prediscriminants = requireLeadTrack,
+    Prediscriminants = requireLeadPion,
 
     ApplyCut_EmFraction = cms.bool(False),
     EmFraction_maxValue = cms.double(0.9),

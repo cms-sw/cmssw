@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2010/03/29 14:31:07 $
- * $Revision: 1.76 $
+ * $Date: 2010/08/08 08:46:09 $
+ * $Revision: 1.78 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -34,9 +34,9 @@
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EEClusterTask.h>
+#include "DQM/EcalEndcapMonitorTasks/interface/EEClusterTask.h"
 
 #include "TLorentzVector.h"
 
@@ -712,7 +712,7 @@ void EEClusterTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   edm::ESHandle<CaloTopology> pTopology;
   c.get<CaloTopologyRecord>().get(pTopology);
   if ( !pTopology.isValid() ) {
-    edm::LogWarning("EEClusterTask") << "Topology not valid"; 
+    edm::LogWarning("EEClusterTask") << "Topology not valid";
     return;
   }
   const CaloTopology* topology = pTopology.product();
@@ -775,7 +775,7 @@ void EEClusterTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
         float e2x2 = EcalClusterTools::e2x2( *bCluster, eeRecHits, topology );
         float e3x3 = EcalClusterTools::e3x3( *bCluster, eeRecHits, topology );
-        
+
         // fill the selected cluster collection
         float pt = fabs( bCluster->energy()*sin(bCluster->position().theta()) );
         if ( pt > thrClusEt_ && e2x2/e3x3 > thrS4S9_ ) bcSel.push_back(*bCluster);
@@ -810,7 +810,7 @@ void EEClusterTask::analyze(const edm::Event& e, const edm::EventSetup& c){
           meInvMassZ0Sel_->Fill( mass );
         } else if ( mass > 110 ) {
           meInvMassHighSel_->Fill( mass );
-        }          
+        }
 
       }
 

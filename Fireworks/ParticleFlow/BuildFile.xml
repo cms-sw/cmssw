@@ -1,7 +1,0 @@
-<use name="Fireworks/Core"/>
-<use name="DataFormats/ParticleFlowCandidate"/>
-<use name="rootcore"/>
-<lib name="Eve"/>
-<export>
-  <lib name="1"/>
-</export>

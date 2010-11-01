@@ -133,14 +133,14 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
  
   double eta = electron->p4().Eta();
   double eOverP = electron->eSuperClusterOverP();
-  double eSeed = electron->superCluster()->seed()->energy();
-  double pin  = electron->trackMomentumAtVtx().R();   
-  double eSeedOverPin = eSeed/pin; 
+  //double eSeed = electron->superCluster()->seed()->energy();
+  //double pin  = electron->trackMomentumAtVtx().R();   
+  double eSeedOverPin = electron->eSeedClusterOverP();
   double fBrem = electron->fbrem();
   double hOverE = electron->hadronicOverEm();
-  EcalClusterLazyTools lazyTools = getClusterShape(e,es);
-  std::vector<float> vLocCov = lazyTools.localCovariances(*(electron->superCluster()->seed())) ;
-  double sigmaee = sqrt(vLocCov[0]);
+  //EcalClusterLazyTools lazyTools = getClusterShape(e,es);
+  //std::vector<float> vLocCov = lazyTools.localCovariances(*(electron->superCluster()->seed())) ;
+  double sigmaee = electron->sigmaIetaIeta();//sqrt(vLocCov[0]);
   double deltaPhiIn = electron->deltaPhiSuperClusterTrackAtVtx();
   double deltaEtaIn = electron->deltaEtaSuperClusterTrackAtVtx();
 
@@ -175,12 +175,12 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
   ConversionFinder convFinder;
 
   if (version_ == "V00") {
-     std::vector<float> vCov = lazyTools.covariances(*(electron->superCluster()->seed())) ;
-     sigmaee = sqrt(vCov[0]);  
-     if (electron->isEE())
-       sigmaee = sigmaee - 0.02*(fabs(eta) - 2.3);   //correct sigmaetaeta dependence on eta in endcap
+    //std::vector<float> vCov = lazyTools.covariances(*(electron->superCluster()->seed())) ;
+    sigmaee = electron->sigmaEtaEta();//sqrt(vCov[0]);  
+    if (electron->isEE())
+      sigmaee = sigmaee - 0.02*(fabs(eta) - 2.3);   //correct sigmaetaeta dependence on eta in endcap
   }
-
+  
   if (version_ != "V01" or version_ != "V00") {
     edm::Handle<reco::VertexCollection> vtxH;
     e.getByLabel(verticesCollection_, vtxH);
@@ -191,8 +191,8 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
       ip = fabs(electron->gsfTrack()->dxy());
     
     if (electron->isEB()) {
-      std::vector<float> vCov = lazyTools.scLocalCovariances(*(electron->superCluster()));
-      sigmaee = sqrt(vCov[0]); 
+      //std::vector<float> vCov = lazyTools.scLocalCovariances(*(electron->superCluster()));
+      sigmaee = electron->sigmaIetaIeta();//sqrt(vCov[0]); 
     } 
   }
 
@@ -382,12 +382,12 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
   double eta = electron->p4().Eta();
   double eOverP = electron->eSuperClusterOverP();
   double hOverE = electron->hadronicOverEm();
-  EcalClusterLazyTools lazyTools = getClusterShape(e,es);
-  std::vector<float> vLocCov = lazyTools.localCovariances(*(electron->superCluster()->seed())) ;
-  double sigmaee = sqrt(vLocCov[0]);
-  double e25Max = lazyTools.e2x5Max(*(electron->superCluster()->seed()))  ;
-  double e15 = lazyTools.e1x5(*(electron->superCluster()->seed()))  ;
-  double e55 = lazyTools.e5x5(*(electron->superCluster()->seed())) ;
+  //EcalClusterLazyTools lazyTools = getClusterShape(e,es);
+  //std::vector<float> vLocCov = lazyTools.localCovariances(*(electron->superCluster()->seed())) ;
+  double sigmaee = electron->sigmaIetaIeta();//sqrt(vLocCov[0]);
+  double e25Max = electron->e2x5Max();//lazyTools.e2x5Max(*(electron->superCluster()->seed()))  ;
+  double e15 = electron->e1x5();//lazyTools.e1x5(*(electron->superCluster()->seed()))  ;
+  double e55 = electron->e5x5();//lazyTools.e5x5(*(electron->superCluster()->seed())) ;
   double e25Maxoe55 = e25Max/e55 ;
   double e15oe55 = e15/e55 ;
   double deltaPhiIn = electron->deltaPhiSuperClusterTrackAtVtx();
@@ -428,8 +428,8 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
   ConversionFinder convFinder;
 
   if (version_ == "V00") {
-     std::vector<float> vCov = lazyTools.covariances(*(electron->superCluster()->seed())) ;
-     sigmaee = sqrt(vCov[0]);  
+    //std::vector<float> vCov = lazyTools.covariances(*(electron->superCluster()->seed())) ;
+    sigmaee = electron->sigmaEtaEta();//sqrt(vCov[0]);  
      if (electron->isEE())
        sigmaee = sigmaee - 0.02*(fabs(eta) - 2.3);   //correct sigmaetaeta dependence on eta in endcap
   }

@@ -6,8 +6,11 @@
 #include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
 #endif
 
-#include <DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBTrendClient.h>
+#include "DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h"
 
 DEFINE_FWK_MODULE(EcalBarrelMonitorClient);
+
+#include "DQM/EcalBarrelMonitorClient/interface/EBTrendClient.h"
+
 DEFINE_FWK_MODULE(EBTrendClient);
+

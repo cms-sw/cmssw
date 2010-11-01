@@ -1,0 +1,9 @@
+<use   name="DQM/EcalEndcapMonitorClient"/>
+<library   file="plugins.cc" name="DQMEcalEndcapMonitorClientPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="EcalEndcapMonitorXdaqClient.cc" name="DQMEcalEndcapMonitorXdaqClientPlugins">
+  <use   name="EventFilter/Utilities"/>
+  <use   name="xdaq"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

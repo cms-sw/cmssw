@@ -22,3 +22,4 @@ DEFINE_FWK_MODULE(GsfElectronCoreProducer);
 DEFINE_FWK_MODULE(GsfElectronProducer);
 //DEFINE_FWK_MODULE(GlobalGsfElectronProducer);
 DEFINE_FWK_MODULE(SiStripElectronSeedProducer);
+

@@ -33,7 +33,7 @@ public:
   void setup(const edm::ParameterSet& pSet, TTree* tree);
 
   /** Analyze the Data */
-  void analyze(const edm::Handle<CandidateView> & mctruth,
+  void analyze(const edm::Handle<reco::CandidateView> & mctruth,
 	       const double        & pthat,
 	       const edm::Handle<std::vector<SimTrack> > & simTracks,
 	       const edm::Handle<std::vector<SimVertex> > & simVertices,

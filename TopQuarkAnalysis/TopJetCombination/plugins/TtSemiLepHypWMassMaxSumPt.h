@@ -30,6 +30,7 @@ class TtSemiLepHypWMassMaxSumPt : public TtSemiLepHypothesis  {
   std::string bTagAlgorithm_;
   double minBDiscBJets_;
   double maxBDiscLightJets_;
+  int neutrinoSolutionType_;
 };
 
 #endif

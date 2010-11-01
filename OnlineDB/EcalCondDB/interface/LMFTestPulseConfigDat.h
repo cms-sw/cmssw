@@ -1,78 +1,53 @@
-#ifndef LMFTESTPULSECONFIGDAT_H
-#define LMFTESTPULSECONFIGDAT_H
+#ifndef LMFTPCFGDAT_H
+#define LMFTPCFGDAT_H
 
-/*
- Copyright (c) Giovanni.Organtini@roma1.infn.it 2010
- */
+#include <map>
+#include <stdexcept>
 
-#include "OnlineDB/EcalCondDB/interface/LMFDat.h"
+#include "OnlineDB/EcalCondDB/interface/IDataItem.h"
+#include "OnlineDB/EcalCondDB/interface/LMFRunTag.h"
+#include "OnlineDB/EcalCondDB/interface/LMFRunIOV.h"
+#include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
-/**
- *   LMF_TEST_PULSE_CONFIG_DAT interface
- */
-class LMFTestPulseConfigDat : public LMFDat {
+class LMFTestPulseConfigDat : public IDataItem {
  public:
-  LMFTestPulseConfigDat() : LMFDat() {
-    m_tableName = "LMF_TEST_PULSE_CONFIG_DAT";
-    m_className = "LMFTestPulseConfigDat";
-    m_keys["VFE_GAIN"] = 0;
-    m_keys["DAC_MGPA"] = 1;
-    m_keys["PN_GAIN"] = 2;
-    m_keys["PN_VINJ"] = 3;
-  }
-  LMFTestPulseConfigDat(EcalDBConnection *c) : LMFDat(c) {
-    m_tableName = "LMF_TEST_PULSE_CONFIG_DAT";
-    m_className = "LMFTestPulseConfigDat";
-    m_keys["VFE_GAIN"] = 0;
-    m_keys["DAC_MGPA"] = 1;
-    m_keys["PN_GAIN"] = 2;
-    m_keys["PN_VINJ"] = 3;
-  }
-  ~LMFTestPulseConfigDat() {}
+  friend class EcalCondDBInterface;
+  LMFTestPulseConfigDat();
+  ~LMFTestPulseConfigDat();
 
-  LMFTestPulseConfigDat& setVFEGain(EcalLogicID &id, float g) {
-    LMFDat::setData(id, "VFE_GAIN", g);
-    return *this;
-  }
-  LMFTestPulseConfigDat& setPNGain(EcalLogicID &id, float g) {
-    LMFDat::setData(id, "PN_GAIN", g);
-    return *this;
-  }
-  LMFTestPulseConfigDat& setDACMGPA(EcalLogicID &id, float g) {
-    LMFDat::setData(id, "DAC_MGPA", g);
-    return *this;
-  }
-  LMFTestPulseConfigDat& setPNVinj(EcalLogicID &id, float g) {
-    LMFDat::setData(id, "PN_VINJ", g);
-    return *this;
-  }
-  LMFTestPulseConfigDat& setData(EcalLogicID &id, float g, float d, float pnga, 
-				 float pnv) {
-    LMFDat::setData(id, "VFE_GAIN", g);
-    LMFDat::setData(id, "DAC_MGPA", d);
-    LMFDat::setData(id, "PN_GAIN", pnga);
-    LMFDat::setData(id, "PN_VINJ", pnv);
-    return *this;
-  }
-  LMFTestPulseConfigDat& setData(EcalLogicID &id, std::vector<float> v) {
-    LMFDat::setData(id, v);
-    return *this;
-  }
+  // User data methods
+  inline std::string getTable() { return "LMF_TEST_PULSE_CONFIG_DAT"; }
 
-  float getVFEGain(EcalLogicID &id) {
-    return getData(id, "VFE_GAIN");
-  }
-  float getPNGain(EcalLogicID &id) {
-    return getData(id, "PN_GAIN");
-  }
-  float getDACMGPA(EcalLogicID &id) {
-    return getData(id, "DAC_MGPA");
-  }
-  float getPNVinj(EcalLogicID &id) {
-    return getData(id, "PN_VINJ");
-  }
+  inline void setVFEGain(int x) { m_vfe_gain = x; }
+  inline int getVFEGain() const { return m_vfe_gain; }
+
+  inline void setDACMGPA(int x) { m_dac_mgpa = x; }
+  inline int getDACMGPA() const { return m_dac_mgpa; }
+
+  inline void setPNGain(int x) { m_pn_gain = x; }
+  inline int getPNGain() const { return m_pn_gain; }
+
+  inline void setPNVinj(int x) { m_pn_vinj = x; }
+  inline int getPNVinj() const { return m_pn_vinj; }
   
  private:
+  void prepareWrite() 
+    throw(std::runtime_error);
+
+  void writeDB(const EcalLogicID* ecid, const LMFTestPulseConfigDat* item, LMFRunIOV* iov)
+    throw(std::runtime_error);
+  
+  void writeArrayDB(const std::map< EcalLogicID, LMFTestPulseConfigDat >* data, LMFRunIOV* iov)
+     throw(runtime_error);
+
+  void fetchData(std::map< EcalLogicID, LMFTestPulseConfigDat >* fillVec, LMFRunIOV* iov)
+     throw(std::runtime_error);
+
+  // User data
+  int m_vfe_gain;
+  int m_dac_mgpa;
+  int m_pn_gain;
+  int m_pn_vinj;
 
 };
 

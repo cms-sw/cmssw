@@ -24,44 +24,75 @@ class  JetCorrectorDBWriter : public edm::EDAnalyzer
   ~JetCorrectorDBWriter() {}
 
  private:
+  std::string era;
+  std::string algo;
   std::string inputTxtFile;
-  std::string label;
-  //flavour or parton option
-  std::string option;
+  std::string payloadTag;
 };
 
 // Constructor
 JetCorrectorDBWriter::JetCorrectorDBWriter(const edm::ParameterSet& pSet)
 {
-  inputTxtFile = pSet.getUntrackedParameter<std::string>("inputTxtFile");
-  label        = pSet.getUntrackedParameter<std::string>("label");
-  option       = pSet.getUntrackedParameter<std::string>("option");
+  era    = pSet.getUntrackedParameter<std::string>("era");
+  algo   = pSet.getUntrackedParameter<std::string>("algo");
+  //payloadTag = "JetCorrectorParametersCollection_"+era+"_"+algo;
+  payloadTag = algo;
 }
 
 // Begin Job
 void JetCorrectorDBWriter::beginJob()
 {
   std::string path("CondFormats/JetMETObjects/data/");
-  edm::FileInPath fip(path+inputTxtFile);
-  // create the parameter object from file 
-  JetCorrectorParameters * payload = new JetCorrectorParameters(fip.fullPath(),option);
 
-  // create a name for the payload 
-  std::string payloadLabel(label);
-  if (!option.empty())
-    payloadLabel += "_"+option;
+  JetCorrectorParametersCollection *payload = new JetCorrectorParametersCollection();
+  std::cout << "Starting to import payload " << payloadTag << " from text files." << std::endl;
+  for ( int i = 0; i < JetCorrectorParametersCollection::N_LEVELS; ++i ) {
+    
+    std::string append("_");
+    std::string ilev = JetCorrectorParametersCollection::findLabel( static_cast<JetCorrectorParametersCollection::Level_t>(i) );
+    append += ilev;
+    append += "_";
+    append += algo;
+    append += ".txt"; 
+    inputTxtFile = path+era+append;
+    std::ifstream input( ("../../../"+inputTxtFile).c_str() );
+    if ( input.good() ) {
+      edm::FileInPath fip(inputTxtFile);
+      std::cout << "Opened file " << inputTxtFile << std::endl;
+      // create the parameter object from file 
+      std::vector<std::string> sections;
+      JetCorrectorParametersCollection::getSections("../../../"+inputTxtFile, sections );
+      if ( sections.size() == 0 ) {
+	payload->push_back( i, JetCorrectorParameters(fip.fullPath(),"") );
+      }
+      else {
+	for ( std::vector<std::string>::const_iterator isectbegin = sections.begin(), isectend = sections.end(), isect = isectbegin;
+	      isect != isectend; ++isect ) {
+	  payload->push_back( i, JetCorrectorParameters(fip.fullPath(),*isect), *isect );	  
+	}
+      }
+      std::cout << "Added as record " << i << std::endl;
+    } else {
+      std::cout << "Did not find JEC file " << inputTxtFile << std::endl;
+    }
+    
+  }
+  
+  std::cout << "Opening PoolDBOutputService" << std::endl;
 
   // now write it into the DB
   edm::Service<cond::service::PoolDBOutputService> s;
   if (s.isAvailable()) 
     {
-      if (s->isNewTagRequest(payloadLabel)) 
-        s->createNewIOV<JetCorrectorParameters>(payload, s->beginOfTime(), s->endOfTime(), payloadLabel);
+      std::cout << "Setting up payload tag " << payloadTag << std::endl;
+      if (s->isNewTagRequest(payloadTag)) 
+        s->createNewIOV<JetCorrectorParametersCollection>(payload, s->beginOfTime(), s->endOfTime(), payloadTag);
       else 
-        s->appendSinceTime<JetCorrectorParameters>(payload, 111, payloadLabel);
+        s->appendSinceTime<JetCorrectorParametersCollection>(payload, 111, payloadTag);
     }
-  std::cout << "Wrote in CondDB payload label: " << payloadLabel << std::endl;
+  std::cout << "Wrote in CondDB payload label: " << payloadTag << std::endl;
 }
 
 
 DEFINE_FWK_MODULE(JetCorrectorDBWriter);
+

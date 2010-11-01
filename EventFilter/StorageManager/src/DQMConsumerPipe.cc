@@ -6,7 +6,7 @@
  * Initial Implementation based on Kurt's ConsumerPipe
  * make a common class later when all this works
  *
- * $Id: DQMConsumerPipe.cc,v 1.10 2008/08/06 15:52:09 biery Exp $
+ * $Id: DQMConsumerPipe.cc,v 1.11 2010/05/17 15:59:09 mommsen Exp $
  */
 
 #include "EventFilter/StorageManager/interface/DQMConsumerPipe.h"
@@ -283,7 +283,7 @@ bool DQMConsumerPipe::pushEvent()
 
   if(messageStatus!=0)
   {
-    cerr << "curl perform failed for pushDQMEvent" << endl;
+    std::cerr << "curl perform failed for pushDQMEvent" << std::endl;
     edm::LogError("pushEvent") << "curl perform failed for pushDQMEvent. "
         << "Could not register: probably XDAQ not running on Storage Manager"
         << " at " << consumerName_;

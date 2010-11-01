@@ -1,57 +1,17 @@
 #include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
+#include "CondCore/DBCommon/interface/TokenBuilder.h"
 #include "CondCore/DBCommon/interface/LogDBEntry.h"
 #include "CondCore/DBCommon/interface/Logger.h"
-#include "CondCore/DBCommon/interface/SharedLibraryName.h"
 #include "CondCore/DBCommon/interface/UserLogInfo.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/SharedLibrary.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "POOLCore/Token.h"
-#include "StorageSvc/DbType.h"
-#include "StorageSvc/DbReflex.h"
 #include <string>
 #include <iostream>
 //#include <stdio.h>
 //#include <time.h>
 #include <unistd.h>
-
-namespace cond{
-  class TokenBuilder{
-  public:
-    TokenBuilder(): m_token(new pool::Token) {
-      m_token->setTechnology(pool::POOL_RDBMS_HOMOGENEOUS_StorageType.type());
-    }
-    ~TokenBuilder() {
-      delete m_token;
-    }
-    void set( const std::string& fid,
-	      const std::string& dictLib,
-	      const std::string& className,
-	      const std::string& containerName,
-	      int pkcolumnValue=0) {
-      
-      cond::SharedLibraryName libName;
-      edmplugin::SharedLibrary shared( libName(dictLib) );
-      Reflex::Type myclass=Reflex::Type::ByName(className);
-      m_token->setDb(fid);
-      m_token->setClassID(pool::DbReflex::guid(myclass));
-      m_token->setCont(containerName);
-      m_token->oid().first=0;
-      m_token->oid().second=pkcolumnValue;
-    }
-    void resetOID( int pkcolumnValue ) {
-      m_token->oid().first=0;
-      m_token->oid().second=pkcolumnValue;
-    }
-    std::string tokenAsString() const {
-      return m_token->toString();
-    }
-  private:
-    pool::Token* m_token;
-  };
-}//ns cond
 
 int main(){
   cond::TokenBuilder tk;

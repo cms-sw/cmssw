@@ -9,7 +9,6 @@ lctreader = cms.EDAnalyzer("CSCTriggerPrimitivesReader",
     # workflow of the Reader.
     dataLctsIn = cms.bool(True),
     emulLctsIn = cms.bool(True),
-    printps = cms.bool(False),
     # Flag to indicate MTCC data (used only when dataLctsIn = true).
     isMTCCData = cms.bool(False),
     # Labels to retrieve LCTs from the event (optional)

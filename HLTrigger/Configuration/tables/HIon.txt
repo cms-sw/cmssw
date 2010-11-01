@@ -1,5 +1,4 @@
 HLTriggerFirstPath
-HLT_Activity_PixelClusters
 HLT_L1Tech_BSC_minBias
 HLT_L1Tech_HCAL_HF
 HLT_L1DoubleMuOpen

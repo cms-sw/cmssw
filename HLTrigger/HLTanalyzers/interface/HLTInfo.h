@@ -55,6 +55,9 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 //#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+
 typedef std::vector<std::string> MyStrings;
 
 /** \class HLTInfo
@@ -68,6 +71,7 @@ public:
   HLTInfo(); 
 
   void setup(const edm::ParameterSet& pSet, TTree* tree);
+  void beginRun(const edm::Run& , const edm::EventSetup& );
 
   /** Analyze the Data */
   void analyze(const edm::Handle<edm::TriggerResults>                 & hltresults,
@@ -101,6 +105,7 @@ private:
   float mht, mhtphi, ethad;
   int L1EvtCnt,HltEvtCnt,nhltpart,nl1extiem,nl1extnem,nl1extmu,nl1extjetc,nl1extjetf,nl1extjt,nl1exttau;
   int *trigflag, *l1flag, *l1flag5Bx, *l1techflag, *l1techflag5Bx, *l1extmuiso, *l1extmumip, *l1extmufor, *l1extmurpc, *l1extmuqul;
+  int *trigPrescl, *l1Prescl, *l1techPrescl; 
   int l1hfRing1EtSumNegativeEta,l1hfRing2EtSumNegativeEta;
   int l1hfRing1EtSumPositiveEta,l1hfRing2EtSumPositiveEta;
   int l1hfTowerCountPositiveEtaRing1,l1hfTowerCountNegativeEtaRing1;
@@ -108,6 +113,11 @@ private:
 
   TString * algoBitToName;
   TString * techBitToName;
+
+
+  HLTConfigProvider hltConfig_; 
+  L1GtUtils m_l1GtUtils;
+  string processName_;
 
   bool _OR_BXes;
   int UnpackBxInEvent; // save number of BXs unpacked in event

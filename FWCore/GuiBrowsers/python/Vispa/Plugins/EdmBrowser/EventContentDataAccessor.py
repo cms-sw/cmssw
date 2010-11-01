@@ -2,14 +2,7 @@ import sys
 import logging
 import os.path
 
-from PyQt4.QtCore import QCoreApplication
-
-from Vispa.Main.Application import Application
-from Vispa.Share.ThreadChain import ThreadChain
 from Vispa.Share.BasicDataAccessor import BasicDataAccessor
-from Vispa.Main.Exceptions import PluginIgnoredException
-from Vispa.Main.Exceptions import exception_traceback
-
 from Vispa.Plugins.EdmBrowser.EdmDataAccessor import EdmDataAccessor
 
 class EventContentDataAccessor(BasicDataAccessor):

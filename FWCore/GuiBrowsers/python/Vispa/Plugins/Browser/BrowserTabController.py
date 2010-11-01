@@ -52,7 +52,7 @@ class BrowserTabController(TabController):
                 disabledCenterViewIds+=[viewClassId]
         self.plugin().setDisabledCenterViewIds(disabledCenterViewIds)
 
-    def selected(self):
+    def activated(self):
         """ Shows view menu when user selects tab.
         """
         self.updateViewMenu()
@@ -85,6 +85,7 @@ class BrowserTabController(TabController):
             self.tab().centerView().setDataObjects([selection])
         self.updateCenterView()
         self.connect(self.tab().centerView(), SIGNAL("selected"), self.onSelected)
+        self.connect(self.tab().centerView(), SIGNAL("modified"), self.setModified)
         self.connect(self.tab().centerView(), SIGNAL("mouseRightPressed"), self.centerViewMenuButtonClicked)
         self.saveIni()
         return True

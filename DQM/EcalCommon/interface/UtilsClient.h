@@ -1,15 +1,13 @@
-// $Id: UtilsClient.h,v 1.17 2010/02/14 12:47:00 dellaric Exp $
+#ifndef UtilsClient_H
+#define UtilsClient_H
 
 /*!
   \file UtilsClient.h
   \brief Ecal Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.17 $
-  \date $Date: 2010/02/14 12:47:00 $
+  \version $Revision: 1.18 $
+  \date $Date: 2010/03/28 09:07:09 $
 */
-
-#ifndef UtilsClient_H
-#define UtilsClient_H
 
 #include <string>
 

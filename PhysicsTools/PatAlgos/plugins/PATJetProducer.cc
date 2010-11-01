@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.45 2010/05/06 17:27:14 rwolf Exp $
+// $Id: PATJetProducer.cc,v 1.49 2010/08/09 19:03:20 srappocc Exp $
 
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -119,10 +119,10 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
 
   // produces vector of jets
   produces<std::vector<Jet> >();
-  produces<reco::GenJetCollection> ();
-  produces<CaloTowerCollection > ();
-  produces<reco::PFCandidateCollection > ();
-  produces<edm::OwnVector<reco::BaseTagInfo> > ();
+  produces<reco::GenJetCollection> ("genJets");
+  produces<std::vector<CaloTower>  > ("caloTowers");
+  produces<reco::PFCandidateCollection > ("pfCandidates");
+  produces<edm::OwnVector<reco::BaseTagInfo> > ("tagInfos");
 }
 
 
@@ -196,15 +196,15 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   std::auto_ptr< std::vector<Jet> > patJets ( new std::vector<Jet>() ); 
 
   std::auto_ptr<reco::GenJetCollection > genJetsOut ( new reco::GenJetCollection() );
-  std::auto_ptr<CaloTowerCollection >  caloTowersOut( new CaloTowerCollection() );
+  std::auto_ptr<std::vector<CaloTower>  >  caloTowersOut( new std::vector<CaloTower> () );
   std::auto_ptr<reco::PFCandidateCollection > pfCandidatesOut( new reco::PFCandidateCollection() );
   std::auto_ptr<edm::OwnVector<reco::BaseTagInfo> > tagInfosOut ( new edm::OwnVector<reco::BaseTagInfo>() );  
 
 
-  edm::RefProd<reco::GenJetCollection > h_genJetsOut = iEvent.getRefBeforePut<reco::GenJetCollection >( );
-  edm::RefProd<CaloTowerCollection >  h_caloTowersOut = iEvent.getRefBeforePut<CaloTowerCollection > ();
-  edm::RefProd<reco::PFCandidateCollection > h_pfCandidatesOut = iEvent.getRefBeforePut<reco::PFCandidateCollection > ();
-  edm::RefProd<edm::OwnVector<reco::BaseTagInfo> > h_tagInfosOut = iEvent.getRefBeforePut<edm::OwnVector<reco::BaseTagInfo> > ();
+  edm::RefProd<reco::GenJetCollection > h_genJetsOut = iEvent.getRefBeforePut<reco::GenJetCollection >( "genJets" );
+  edm::RefProd<std::vector<CaloTower>  >  h_caloTowersOut = iEvent.getRefBeforePut<std::vector<CaloTower>  > ( "caloTowers" );
+  edm::RefProd<reco::PFCandidateCollection > h_pfCandidatesOut = iEvent.getRefBeforePut<reco::PFCandidateCollection > ( "pfCandidates" );
+  edm::RefProd<edm::OwnVector<reco::BaseTagInfo> > h_tagInfosOut = iEvent.getRefBeforePut<edm::OwnVector<reco::BaseTagInfo> > ( "tagInfos" );
 
 
   
@@ -228,11 +228,13 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	    itow != towEnd; ++itow ) {
 	caloTowersOut->push_back( **itow );
 	// set the "forward" ref to the thinned collection
-	edm::Ptr<CaloTower> caloForwardRef ( h_caloTowersOut.id(), caloTowersOut->size() - 1, h_caloTowersOut.productGetter() );
+	edm::Ref<std::vector<CaloTower> > caloTowerRef( h_caloTowersOut, caloTowersOut->size() - 1);
+	edm::Ptr<CaloTower> caloForwardRef ( h_caloTowersOut.id(), caloTowerRef.key(), h_caloTowersOut.productGetter() );
 	// set the "backward" ref to the original collection for association
-	edm::Ptr<CaloTower> caloBackRef ( *itow );
+	edm::Ptr<CaloTower> caloBackRef ( *itow );	
 	// add to the list of FwdPtr's
 	itowersRef.push_back( pat::CaloTowerFwdPtrCollection::value_type ( caloForwardRef, caloBackRef ) );
+	
       }
       ajet.setCaloTowers( itowersRef );
     }
@@ -247,7 +249,8 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	    ipart != partEnd; ++ipart ) {
 	pfCandidatesOut->push_back( **ipart );
 	// set the "forward" ref to the thinned collection
-	edm::Ptr<reco::PFCandidate> pfForwardRef ( h_pfCandidatesOut.id(), pfCandidatesOut->size() - 1,  h_caloTowersOut.productGetter() );
+	edm::Ref<reco::PFCandidateCollection> pfCollectionRef( h_pfCandidatesOut, pfCandidatesOut->size() - 1);
+	edm::Ptr<reco::PFCandidate> pfForwardRef ( h_pfCandidatesOut.id(), pfCollectionRef.key(),  h_pfCandidatesOut.productGetter() );
 	// set the "backward" ref to the original collection for association
 	edm::Ptr<reco::PFCandidate> pfBackRef ( *ipart );
 	// add to the list of FwdPtr's
@@ -375,16 +378,16 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     patJets->push_back(ajet);
   }
 
-  // sort jets in Et
+  // sort jets in pt
   std::sort(patJets->begin(), patJets->end(), pTComparator_);
 
   // put genEvt  in Event
   iEvent.put(patJets);
 
-  iEvent.put( genJetsOut );
-  iEvent.put( caloTowersOut );
-  iEvent.put( pfCandidatesOut );
-  iEvent.put( tagInfosOut );
+  iEvent.put( genJetsOut, "genJets" );
+  iEvent.put( caloTowersOut, "caloTowers" );
+  iEvent.put( pfCandidatesOut, "pfCandidates" );
+  iEvent.put( tagInfosOut, "tagInfos" );
   
 
 }

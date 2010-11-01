@@ -1,18 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: FourVectorHLTOffline_cfi.py,v 1.35 2010/06/01 11:37:12 rekovic Exp $
+# $Id: FourVectorHLTOffline_cfi.py,v 1.42 2010/09/03 10:47:22 rekovic Exp $
 hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
     dirname = cms.untracked.string("HLT/FourVector/paths"),
     muonRecoCollectionName = cms.untracked.string("muons"),
     plotAll = cms.untracked.bool(False),
-    dRMax = cms.untracked.double(4.0),
+    dRMax = cms.untracked.double(13.0),
+    NbinsDR = cms.untracked.uint32(130),
     ptMax = cms.untracked.double(100.0),
     ptMin = cms.untracked.double(0.0),
     Nbins = cms.untracked.uint32(50),
     referenceBX= cms.untracked.uint32(1),
     NLuminositySegments= cms.untracked.uint32(2000),
     LuminositySegmentSize= cms.untracked.double(23),
-    NbinsOneOverEt = cms.untracked.uint32(10000),
+    NbinsOneOverEt = cms.untracked.uint32(1000),
 
     muonEtaMax = cms.untracked.double(2.1),
     muonDRMatch = cms.untracked.double(0.3),
@@ -20,6 +21,7 @@ hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
     jetDRMatch = cms.untracked.double(0.3),
     jetL1DRMatch = cms.untracked.double(0.5),
     jetEtMin = cms.untracked.double(5.0),
+    jetEtaMax = cms.untracked.double(3.0),
 
     electronDRMatch = cms.untracked.double(0.5),
     electronL1DRMatch = cms.untracked.double(0.5),
@@ -55,51 +57,31 @@ hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
              ),
              cms.PSet(
               pathname = cms.string("EG"),
-              denompathname = cms.string("Mu")  
-             ),
-             cms.PSet(
-              pathname = cms.string("EG"),
-              denompathname = cms.string("HLT_Mu3")  
+              denompathname = cms.string("HLT_Mu")  
              ),
              cms.PSet(
               pathname = cms.string("Jet"),
-              denompathname = cms.string("Mu")  
-             ),
-             cms.PSet(
-              pathname = cms.string("Jet"),
-              denompathname = cms.string("HLT_Mu3")  
+              denompathname = cms.string("HLT_Mu")  
              ),
              cms.PSet(
               pathname = cms.string("Ele"),
-              denompathname = cms.string("Mu")  
-             ),
-             cms.PSet(
-              pathname = cms.string("Ele"),
-              denompathname = cms.string("HLT_Mu3")  
+              denompathname = cms.string("HLT_Mu")  
              ),
              cms.PSet(
               pathname = cms.string("Pho"),
-              denompathname = cms.string("Mu")  
-             ),
-             cms.PSet(
-              pathname = cms.string("Pho"),
-              denompathname = cms.string("HLT_Mu3")  
+              denompathname = cms.string("HLT_Mu")  
              ),
              cms.PSet(
               pathname = cms.string("Tau"),
-              denompathname = cms.string("Mu")  
+              denompathname = cms.string("HLT_Mu")  
              ),
              cms.PSet(
               pathname = cms.string("MET"),
-              denompathname = cms.string("Mu")  
+              denompathname = cms.string("HLT_Mu")  
              ),
              cms.PSet(
               pathname = cms.string("Mu"),
-              denompathname = cms.string("Jet")  
-             ),
-             cms.PSet(
-              pathname = cms.string("Mu"),
-              denompathname = cms.string("Jet15U")  
+              denompathname = cms.string("HLT_Jet")  
              )
     ),
     JetIDParams  = cms.PSet(

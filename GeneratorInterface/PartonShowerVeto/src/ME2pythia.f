@@ -1,98 +1,39 @@
-C******************************************************
-C*          MadEvent - Pythia interface.              *
-C*           Version 4.2, 4 March 2007                *
-C*                                                    *
-C* dkcira 2008.02.05                                  *
-C*                                                    *
-C*  - Improvement of matching routines                *
-C*                                                    *
-C*  Version 4.1                                       *
-C*                                                    *
-C*  - Possibility to use several files                *
-C*                                                    *
-C*  Version 4.0                                       *
-C*                                                    *
-C*  - Routines for matching of ME and PS              *
-C*                                                    *
-C*  Version 3.8                                       *
-C*                                                    *
-C*  - Give the event number in the event file in the  *
-C*    new variable IEVNT in UPPRIV                    *
-C*                                                    *
-C*  Version 3.7                                       *
-C*                                                    *
-C*  - Set mass of massless outgoing particles to      *
-C*    Pythia mass (PMAS(I,1))                         *
-C*                                                    *
-C*  Version 3.6                                       *
-C*                                                    *
-C*  - Removed the 1st # from the event file header    *
-C*                                                    *
-C*  Version 3.5                                       *
-C*                                                    *
-C*  - Reads according to the new LH event file format *
-C*  - Now only LNHIN, LNHOUT and MSCAL in UPPRIV      *
-C*                                                    *
-C*  Version 3.4                                       *
-C*                                                    *
-C*  - Reads particle masses from event file           *
-C*                                                    *
-C*  Version 3.3                                       *
-C*                                                    *
-C*  - Added option MSCAL in common block UPPRIV to    *
-C*    choose between fix (0) or event-based (1)       *
-C*    scale for Pythia parton showering (SCALUP).     *
-C*  - Fixed bug in reading the SLHA file              *
-C*                                                    *
-C*  Version 3.2                                       *
-C*                                                    *
-C*  - Reading the SLHA format param_card from the     *
-C*    banner                                          *
-C*  - Added support for lpp1/lpp2 = 2 or 3            *
-C*  - Removed again support for different MadEvent    *
-C*    processes in different files (no longer         *
-C*    necessary with new multiple processes support   *
-C*    in MadGraph/MadEvent                            *
-C*                                                    *
-C*  Version 3.1                                       *
-C*  - Added support for different MadEvent processes  *
-C*    in different files                              *
-C*  - Fixed bug in e+e- collisions                    *
-C*                                                    *
-C*     Written by J.Alwall, alwall@fyma.ucl.ac.be     *
-C*      Earlier versions by S.Mrenna, M.Kirsanov      *
-C*                                                    *
-C******************************************************
-C*                                                    *
-C* Instructions:                                      *
-C* Please use the common block UPPRIV:                *
-C* - The logical unit LNHIN must be an opened         *
-C*   MadEvent event file                              *
-C* - The output unit LNHOUT is by default 6 (std out) *
-C* - Set MSCAL to 1 if a dynamical scale is desired   *
-C*   for parton showers rather than the one given as  *
-C*   factorization scale by MadEvent (otherwise 0)    *
-C* - IEVNT gives the number of the event in the event *
-C*   file                                             *
-C* - ICKKW is set automatically depending on whether  *
-C*   the events generated are matched or not          *
-C*                                                    *
-C******************************************************
+C*******************************************************************
+C*          MadEvent - Pythia interface.                           *
+C*                                                                 *
+C*                                                                 *
+C*   Adapted version from ME2pythia 1.66 (J.Alwall)                *
+C*                                                                 *
+C*       Simon de Visscher August 2010   sdevissc@cern.ch          *
+C*        - Complete upgrade to 1.66                               *
+C*        - Addition of showerkt                                   *
+C*        - Addition of resonance exclusion for BSM matching       *
+C*                                                                 *
+C*       Christophe Saout 2009                                     *
+C*        - Improvement of JetMatching interface                   *
+C*                                                                 *
+C*       Dorian Kcira 2008.02.05                                         *
+C*        -First implementation of KtMLM in CMSSW                  *
+C*       - Improvement of matching routines                        *
+C*                                                                 *
+C*                                                                 *
+C*******************************************************************
+
 
 C*********************************************************************
 C...UPINIT
 C...Routine called by PYINIT to set up user-defined processes.
-C*********************************************************************
+C*********************************************************************      
       SUBROUTINE MGINIT(npara,param,value)
 
+      
       IMPLICIT NONE
-c 
-c   arguments
-c 
+
       integer npara
       character*20 param(*),value(*)
 
-C      CHARACTER*132 CHAR_READ
+
+c      CHARACTER*132 CHAR_READ
 
 C...Pythia parameters.
       INTEGER MSTP,MSTI,MRPY
@@ -113,17 +54,115 @@ C...Extra commonblock to transfer run info.
       INTEGER LNHIN,LNHOUT,MSCAL,IEVNT,ICKKW,ISCALE
       COMMON/UPPRIV/LNHIN,LNHOUT,MSCAL,IEVNT,ICKKW,ISCALE
       DATA LNHIN,LNHOUT,MSCAL,IEVNT,ICKKW,ISCALE/77,6,1,0,0,1/
-      SAVE/UPPRIV/
+      SAVE /UPPRIV/
 
 C...Inputs for the matching algorithm
-      double precision etcjet,rclmax,etaclmax,qcut,clfact
-      integer maxjets,minjets,iexcfile,ktsche,nexcres,excres(30)
-      common/MEMAIN/etcjet,rclmax,etaclmax,qcut,clfact,
-     $   maxjets,minjets,iexcfile,ktsche,nexcres,excres
+      double precision etcjet,rclmax,etaclmax,qcut,clfact,showerkt
+      integer maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres(30)
+      integer nqmatch,nexcproc,iexcproc(MAXPUP),iexcval(MAXPUP)
+      logical nosingrad,jetprocs
+      common/MEMAIN/etcjet,rclmax,etaclmax,qcut,showerkt,clfact,
+     $   maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres,
+     $   nqmatch,nexcproc,iexcproc,iexcval,nosingrad,jetprocs
 
+
+C...Parameter arrays (local)
+C      integer maxpara
+C      parameter (maxpara=1000)
+C      integer npara,iseed
+C      character*20 param(maxpara),value(maxpara)      
+
+C...Lines to read in assumed never longer than 200 characters. 
+C      INTEGER MAXLEN,IBEG,IPR,I
+C      PARAMETER (MAXLEN=200)
+C      CHARACTER*(MAXLEN) STRING
+
+C...Functions
+C      INTEGER iexclusive
+C      EXTERNAL iexclusive
+
+C...Format for reading lines.
+C      CHARACTER*6 STRFMT
+C      STRFMT='(A000)'
+C      WRITE(STRFMT(3:5),'(I3)') MAXLEN
+
+C...Extract the model parameter card and read it.
+C      CALL MODELPAR(LNHIN)
+
+c...Read the <init> block information
+
+C...Loop until finds line beginning with "<init>" or "<init ". 
+C  100 READ(LNHIN,STRFMT,END=130,ERR=130) STRING
+C...Pick out random number seed and use for PYR initialization
+C      IF(INDEX(STRING,'iseed').NE.0)THEN
+C         READ(STRING,*) iseed
+C         IF(iseed.gt.0) THEN
+C            WRITE(LNHOUT,*) 'Initializing PYR with random seed ',iseed
+c            MRPY(1) = iseed
+C            MRPY(2) = 0
+C         ENDIF
+C      ENDIF
+C      IBEG=0
+C  110 IBEG=IBEG+1
+C...Allow indentation.
+C      IF(STRING(IBEG:IBEG).EQ.' '.AND.IBEG.LT.MAXLEN-5) GOTO 110 
+C      IF(STRING(IBEG:IBEG+5).NE.'<init>'.AND.
+C     &STRING(IBEG:IBEG+5).NE.'<init ') GOTO 100
+
+C...Read first line of initialization info.
+C      READ(LNHIN,*,END=130,ERR=130) IDBMUP(1),IDBMUP(2),EBMUP(1),
+C     &EBMUP(2),PDFGUP(1),PDFGUP(2),PDFSUP(1),PDFSUP(2),IDWTUP,NPRUP
+
+C...Read NPRUP subsequent lines with information on each process.
+C      DO 120 IPR=1,NPRUP
+C        READ(LNHIN,*,END=130,ERR=130) XSECUP(IPR),XERRUP(IPR),
+C     &  XMAXUP(IPR),LPRUP(IPR)
+C  120 CONTINUE
+
+C...Set PDFLIB or LHAPDF pdf number for Pythia
+
+C      IF(PDFSUP(1).NE.19070.AND.(PDFSUP(1).NE.0.OR.PDFSUP(2).NE.0))THEN
+c     Not CTEQ5L, which is standard in Pythia
+C         CALL PYGIVE('MSTP(52)=2')
+c     The following works for both PDFLIB and LHAPDF (where PDFGUP(1)=0)
+c     But note that the MadEvent output uses the LHAPDF numbering scheme
+C        IF(PDFSUP(1).NE.0)THEN
+C           MSTP(51)=1000*PDFGUP(1)+PDFSUP(1)
+C        ELSE
+C           MSTP(51)=1000*PDFGUP(2)+PDFSUP(2)
+C        ENDIF
+C      ENDIF
+
+C...Initialize widths and partial widths for resonances.
+C      CALL PYINRE
+        
+C...Calculate xsec reduction due to non-decayed resonances
+C...based on first event only!
+
+C      CALL BRSUPP
+
+C      REWIND(LNHIN)
+
+C...Extract cuts and matching parameters
+C      CALL read_params(LNHIN,npara,param,value,maxpara)
+
+C      call get_integer(npara,param,value," ickkw ",ickkw,0)
+C      if(ickkw.eq.1)then
+C         call get_integer(npara,param,value," ktscheme ",mektsc,1)
+C         write(*,*)'Running matching with ME ktscheme ',mektsc
+C      endif
 C
 C...Set kt clustering scheme (if not already set)
 C
+      integer i
+      write(*,*)"MGINIT: ickkw is ",ickkw
+      write(*,*)"MGINIT: ktscheme is ",mektsc
+      write(*,*)"MGINIT: QCut is ",qcut
+      write(*,*)"MGINIT: Showerkt is ",showerkt
+	  do 10 i = 1, nexcres
+         write(*,*) 'EXCRES(', i,')=',EXCRES(i)
+  10  continue
+
       IF(ABS(IDBMUP(1)).EQ.11.AND.ABS(IDBMUP(2)).EQ.11.AND.
      $     IDBMUP(1).EQ.-IDBMUP(2).AND.ktsche.EQ.0)THEN
          ktsche=1
@@ -131,16 +170,34 @@ C
          ktsche=4313
       ENDIF
 
-      IF(ickkw.gt.0) CALL set_matching(npara,param,value)
+C...Enhance primordial kt
+c      CALL PYGIVE('PARP(91)=2.5')
+c      CALL PYGIVE('PARP(93)=15')
 
+      IF(ickkw.gt.0) CALL set_matching(npara,param,value)
+ 
 C...For photon initial states from protons: Set proton not to break up
       CALL PYGIVE('MSTP(98)=1')
 
+  
+C      IF(ickkw.gt.0.and.(NPRUP.gt.1.or.iexclusive(LPRUP(1)).ne.-1))
+C     $     CALL set_matching(LNHIN,npara,param,value)
+
+C...For photon initial states from protons: Set proton not to break up
+C      CALL PYGIVE('MSTP(98)=1')
+
+C...Reset event numbering
+C      IEVNT=0
+
       RETURN
 
+C...Error exit: give up if initalization does not work.
+C  130 WRITE(*,*) ' Failed to read LHEF initialization information.'
+C      WRITE(*,*) ' Event generation will be stopped.'
+C      STOP  
       END
 
-C*********************************************************************
+C*********************************************************************      
 C...UPEVNT
 C...Routine called by PYEVNT or PYEVNW to get user process event
 C*********************************************************************
@@ -161,7 +218,6 @@ C...User process initialization commonblock.
       COMMON/HEPRUP/IDBMUP(2),EBMUP(2),PDFGUP(2),PDFSUP(2),
      &   IDWTUP,NPRUP,XSECUP(MAXPUP),XERRUP(MAXPUP),XMAXUP(MAXPUP),
      &   LPRUP(MAXPUP)
-
 C...User process event common block.
       INTEGER MAXNUP
       PARAMETER (MAXNUP=500)
@@ -170,11 +226,9 @@ C...User process event common block.
       COMMON/HEPEUP/NUP,IDPRUP,XWGTUP,SCALUP,AQEDUP,AQCDUP,IDUP(MAXNUP),
      &   ISTUP(MAXNUP),MOTHUP(2,MAXNUP),ICOLUP(2,MAXNUP),PUP(5,MAXNUP),
      &   VTIMUP(MAXNUP),SPINUP(MAXNUP)
-
 C...Pythia common blocks
       INTEGER PYCOMP,KCHG,MINT,NPART,NPARTD,IPART,MAXNUR
       DOUBLE PRECISION PMAS,PARF,VCKM,VINT,PTPART
-
 C...Particle properties + some flavour parameters.
       COMMON/PYDAT2/KCHG(500,4),PMAS(500,4),PARF(2000),VCKM(4,4)
       COMMON/PYINT1/MINT(400),VINT(400)
@@ -186,10 +240,13 @@ C...Extra commonblock to transfer run info.
       COMMON/UPPRIV/LNHIN,LNHOUT,MSCAL,IEVNT,ICKKW,ISCALE
 
 C...Inputs for the matching algorithm
-      double precision etcjet,rclmax,etaclmax,qcut,clfact
-      integer maxjets,minjets,iexcfile,ktsche,nexcres,excres(30)
-      common/MEMAIN/etcjet,rclmax,etaclmax,qcut,clfact,
-     $   maxjets,minjets,iexcfile,ktsche,nexcres,excres
+      double precision etcjet,rclmax,etaclmax,qcut,clfact,showerkt
+      integer maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres(30)
+      integer nqmatch,nexcproc,iexcproc(MAXPUP),iexcval(MAXPUP)
+      logical nosingrad,jetprocs
+      common/MEMAIN/etcjet,rclmax,etaclmax,qcut,showerkt,clfact,
+     $   maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres,
+     $   nqmatch,nexcproc,iexcproc,iexcval,nosingrad,jetprocs
 
 C...Commonblock to transfer event-by-event matching info
       INTEGER NLJETS,IEXC,Ifile
@@ -197,20 +254,52 @@ C...Commonblock to transfer event-by-event matching info
       COMMON/MEMAEV/PTCLUS(20),NLJETS,IEXC,Ifile
 
 C...Local variables
-      INTEGER I,J,IBEG,NEX,KP(MAXNUP),MOTH,NUPREAD!,IREM
+      INTEGER I,J,IBEG,NEX,KP(MAXNUP),MOTH,NUPREAD,II,iexcl
       DOUBLE PRECISION PSUM,ESUM,PM1,PM2,A1,A2,A3,A4,A5
       DOUBLE PRECISION SCALLOW(MAXNUP),PNONJ(4),PMNONJ!,PT2JETS
+C...Lines to read in assumed never longer than 200 characters. 
+      INTEGER MAXLEN
+      PARAMETER (MAXLEN=200)
+      CHARACTER*(MAXLEN) STRING
 
-      
+C...Functions
+      INTEGER iexclusive
+      EXTERNAL iexclusive
+C...Format for reading lines.
+C      CHARACTER*6 STRFMT
+C      CHARACTER*1 CDUM
+
+C      STRFMT='(A000)'
+C      WRITE(STRFMT(3:5),'(I3)') MAXLEN
+
+C...Loop until finds line beginning with "<event>" or "<event ". 
+C  100 READ(LNHIN,STRFMT,END=900,ERR=900) STRING
+C      IBEG=0
+C  110 IBEG=IBEG+1
+C...Allow indentation.
+C      IF(STRING(IBEG:IBEG).EQ.' '.AND.IBEG.LT.MAXLEN-6) GOTO 110 
+C      IF(STRING(IBEG:IBEG+6).NE.'<event>'.AND.
+C     &STRING(IBEG:IBEG+6).NE.'<event ') GOTO 100
+
+C...Read first line of event info.
+C      READ(LNHIN,*,END=900,ERR=900) NUPREAD,IDPRUP,XWGTUP,SCALUP,
+C     &AQEDUP,AQCDUP
+
       NUPREAD=NUP
 
 C...Read NUP subsequent lines with information on each particle.
-  115 ESUM=0d0
+      ESUM=0d0
       PSUM=0d0
       NEX=2
       NUP=1
-
+C      write(*,*)'SCALUP=',SCALUP
       DO 120 I=1,NUPREAD
+C      write(*,*)IDUP(NUP),' ',ISTUP(NUP),' ',MOTHUP(1,NUP)
+C     &  ,' ',MOTHUP(2,NUP),' ',ICOLUP(1,NUP),' ',ICOLUP(2,NUP)
+C     &  ,' ',(PUP(J,NUP),J=1,5),' ',VTIMUP(NUP),' ',SPINUP(NUP)
+c        READ(LNHIN,*,END=900,ERR=900) IDUP(NUP),ISTUP(NUP),
+c     &  MOTHUP(1,NUP),MOTHUP(2,NUP),ICOLUP(1,NUP),ICOLUP(2,NUP),
+c     &  (PUP(J,NUP),J=1,5),VTIMUP(NUP),SPINUP(NUP)
 C...Reset resonance momentum to prepare for mass shifts
         IF(ISTUP(NUP).EQ.2) PUP(3,NUP)=0
         IF(ISTUP(NUP).EQ.1)THEN
@@ -233,6 +322,9 @@ C...Set mother resonance momenta
         NUP=NUP+1
   120 CONTINUE
       NUP=NUP-1
+
+C...Increment event number
+C      IEVNT=IEVNT+1
 
 C..Adjust mass of resonances
       DO I=1,NUP
@@ -261,54 +353,93 @@ c      PUP(4,2)=SQRT(PUP(3,2)**2+PM2)
 
 C...Assuming massless incoming particles - otherwise Pythia adjusts
 C...the momenta to make them massless
-      IF(IDBMUP(1).GT.100.AND.IDBMUP(2).GT.100)THEN
-        DO I=1,2
-          PUP(3,I)=0.5d0*(PSUM+SIGN(ESUM,PUP(3,I)))
-          PUP(5,I)=0d0
-        ENDDO
-        PUP(4,1)=ABS(PUP(3,1))
-        PUP(4,2)=ESUM-PUP(4,1)
-      ENDIF
-
+C     IF(IDBMUP(1).GT.100.AND.IDBMUP(2).GT.100)THEN
+C       DO I=1,2
+C          PUP(3,I)=0.5d0*(PSUM+SIGN(ESUM,PUP(3,I)))
+C          PUP(5,I)=0d0
+C        ENDDO
+C        PUP(4,1)=ABS(PUP(3,1))
+C        PUP(4,2)=ESUM-PUP(4,1)
+C      ENDIF
+        
 C...If you want to use some other scale for parton showering then the 
 C...factorisation scale given by MadEvent, please implement the function PYMASC
 C...(example function included below) 
 
       IF(ickkw.eq.0.AND.MSCAL.GT.0) CALL PYMASC(SCALUP)
-      IF(MINT(35).eq.3.AND.ickkw.EQ.1) SCALUP=SQRT(PARP(67))*SCALUP
-
+c      IF(MINT(35).eq.3.AND.ickkw.EQ.1) SCALUP=SQRT(PARP(67))*SCALUP
       
+C...Read FSR scale for all FS particles (as comment in event file)
+C      IF(ickkw.eq.1)THEN
+C        READ(LNHIN,*,END=900,ERR=130) CDUM,(PTPART(I),I=1,NEX)
+C 130    CONTINUE
+C      ENDIF
+
       IF(ickkw.gt.0) THEN
 c
 c   Set up number of jets
 c
+C         write(*,*)'Setting up the number of jets'
          NLJETS=0
          NPART=0
-
+C         write(*,*)'Cycling on 3->NUP'
          do i=3,NUP
+C            write(*,*)'Iteration: i=',i
             if(ISTUP(i).ne.1) cycle
+C            write(*,*)'Npart++'
             NPART=NPART+1
             IPART(NPART)=i
-            if(iabs(IDUP(i)).ge.6.and.IDUP(i).ne.21) cycle
+            if(iabs(IDUP(i)).gt.nqmatch.and.IDUP(i).ne.21) cycle
             if(MOTHUP(1,i).gt.2) cycle
+C     Remove final-state partons that combine to color singlets
+            IF((ABS(IDBMUP(1)).NE.11.OR.IDBMUP(1).NE.-IDBMUP(2)).AND.
+     $           nosingrad) THEN
+               DO II=3,NUP
+                  IF(II.NE.i.AND.ISTUP(II).EQ.1)THEN
+                     IF((IDUP(II).EQ.-IDUP(i).OR.
+     $                    IDUP(i).EQ.21.AND.IDUP(II).EQ.21).AND.
+     $                    ICOLUP(1,II).EQ.ICOLUP(2,i).AND.
+     $                    ICOLUP(2,II).EQ.ICOLUP(1,i))then
+c                        print *,'Found color singlet'
+                        CALL PYLIST(7)
+                        GOTO 140
+                     endif
+                  ENDIF
+               ENDDO
+            ENDIF
             NLJETS=NLJETS+1
+C            WRITE(*,*) ' NLJETS=',NLJETS
             PTCLUS(NLJETS)=PTPART(NPART)
+ 140        continue
          enddo
          CALL ALPSOR(PTCLUS,nljets,KP,1)
+      
+         if(jetprocs) IDPRUP=LPRUP(NLJETS-MINJETS+1)
 
-C         IDPRUP=LPRUP(NLJETS-MINJETS+1)
-
-C         IF(ickkw.eq.1) THEN
-Cc   ... and decide whether exclusive or inclusive
-C            if(IEXCFILE.eq.0.and.NLJETS.eq.MAXJETS)then
-C               IEXC=0
-C            else
-C               IEXC=1
-C            endif
-C         ENDIF
+         IF(ickkw.eq.1) THEN
+c   ... and decide whether exclusive or inclusive
+            iexcl=iexclusive(IDPRUP)
+            if((IEXCFILE.EQ.0.and.NLJETS.eq.MAXJETS.or.
+     $           iexcl.eq.0).and.
+     $           iexcl.ne.1)then
+               IEXC=0
+            else if(iexcl.eq.-1)then
+               IEXC=-1
+            else
+               IEXC=1
+            endif
+         ENDIF
       ENDIF
-
+c      write( *,*)'finishing MGEVNT'
       RETURN
+
+C...Error exit, typically when no more events.
+C  900 WRITE(*,*) ' Failed to read LHEF event information,'
+C      WRITE(*,*) ' assume end of file has been reached.'
+C      NUP=0
+C      MINT(51)=2
+C      write( *,*)'finishing MGEVNT'
+C      RETURN
       END
 
 C*********************************************************************
@@ -319,10 +450,17 @@ C*********************************************************************
 
       IMPLICIT NONE
 
+
+     
+
+
 C...Pythia common blocks
       INTEGER MINT
       DOUBLE PRECISION VINT
       COMMON/PYINT1/MINT(400),VINT(400)
+      INTEGER MSTP,MSTI
+      DOUBLE PRECISION PARP,PARI
+      COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200)
 
 C...GUP Event common block
       INTEGER MAXNUP
@@ -333,7 +471,6 @@ C...GUP Event common block
      &              IDUP(MAXNUP),ISTUP(MAXNUP),MOTHUP(2,MAXNUP),
      &              ICOLUP(2,MAXNUP),PUP(5,MAXNUP),VTIMUP(MAXNUP),
      &              SPINUP(MAXNUP)
-
 C...User process initialization commonblock.
       INTEGER MAXPUP
       PARAMETER (MAXPUP=100)
@@ -342,7 +479,6 @@ C...User process initialization commonblock.
       COMMON/HEPRUP/IDBMUP(2),EBMUP(2),PDFGUP(2),PDFSUP(2),
      &   IDWTUP,NPRUP,XSECUP(MAXPUP),XERRUP(MAXPUP),XMAXUP(MAXPUP),
      &   LPRUP(MAXPUP)
-
 C...HEPEVT commonblock.
       INTEGER NMXHEP,NEVHEP,NHEP,ISTHEP,IDHEP,JMOHEP,JDAHEP
       PARAMETER (NMXHEP=4000)
@@ -351,7 +487,6 @@ C...HEPEVT commonblock.
       DOUBLE PRECISION PHEP,VHEP
       SAVE /HEPEVT/
       INTEGER IPVETO
-
 C...GETJET commonblocks
       INTEGER MNCY,MNCPHI,NCY,NCPHI,NJMAX,JETNO,NCJET
       DOUBLE PRECISION YCMIN,YCMAX,DELY,DELPHI,ET,STHCAL,CTHCAL,CPHCAL,
@@ -361,13 +496,12 @@ C...GETJET commonblocks
       COMMON/CALORM/DELY,DELPHI,ET(MNCY,MNCPHI),
      $CTHCAL(MNCY),STHCAL(MNCY),CPHCAL(MNCPHI),SPHCAL(MNCPHI),
      $YCMIN,YCMAX,NCY,NCPHI
-      DATA NCY,NCPHI/50,60/
       PARAMETER (NJMAX=500)
       COMMON/GETCOMM/PCJET(4,NJMAX),ETJET(NJMAX),JETNO(MNCY,MNCPHI),
      $NCJET
       DOUBLE PRECISION PI
       PARAMETER (PI=3.141593D0)
-C 
+C     
       DOUBLE PRECISION PSERAP
       INTEGER K(NJMAX),KP(NJMAX),kpj(njmax)
 
@@ -400,10 +534,14 @@ C    clfact < 0: Max mult. if within |clfact|*Q(jetNmax) from jet, other within 
 C   cone-jets: default=1.5
 C    Matching if within clfact*RCLMAX 
 
-      double precision etcjet,rclmax,etaclmax,qcut,clfact
-      integer maxjets,minjets,iexcfile,ktsche,nexcres,excres(30)
-      common/MEMAIN/etcjet,rclmax,etaclmax,qcut,clfact,
-     $   maxjets,minjets,iexcfile,ktsche,nexcres,excres
+C...Inputs for the matching algorithm
+      double precision etcjet,rclmax,etaclmax,qcut,clfact,showerkt
+      integer maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres(30)
+      integer nqmatch,nexcproc,iexcproc(MAXPUP),iexcval(MAXPUP)
+      logical nosingrad,jetprocs
+      common/MEMAIN/etcjet,rclmax,etaclmax,qcut,showerkt,clfact,
+     $   maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres,
+     $   nqmatch,nexcproc,iexcproc,iexcval,nosingrad,jetprocs
 
 C...Commonblock to transfer event-by-event matching info
       INTEGER NLJETS,IEXC,Ifile
@@ -415,22 +553,52 @@ C...Commonblock to transfer event-by-event matching info
 
       REAL*4 varev(nvarev)
       COMMON/HISTDAT/varev
+	  
+C...Pythia common blocks
+      INTEGER PYCOMP,KCHG,NPART,NPARTD,IPART,MAXNUR
+	  DOUBLE PRECISION PTPART
+      PARAMETER (MAXNUR=1000)
+      COMMON/PYPART/NPART,NPARTD,IPART(MAXNUR),PTPART(MAXNUR)
+
+	  INTEGER flag
+	  COMMON/OUTTREE/flag
+	  
+	  CHARACTER*8 htit(nvarev),htit2(nvar2)
+      DATA htit/'Npart','Qjet1','Qjet2','Qjet3','Qjet4',
+     $   'Ptcjet1','Ptcjet2','Ptcjet3','Ptcjet4',
+     $   'Etacjet1','Etacjet2','Etacjet3','Etacjet4',
+     $   'Phicjet1','Phicjet2','Phicjet3','Phicjet4',
+     $   'Ptjet1','Ptjet2','Ptjet3','Ptjet4',
+     $   'Etajet1','Etajet2','Etajet3','Etajet4',
+     $   'Phijet1','Phijet2','Phijet3','Phijet4',
+     $   'Idres1','Ptres1','Etares1','Phires1',
+     $   'Idres2','Ptres2','Etares2','Phires2',
+     $   'Ptlep1','Etmiss','Htjets',
+     $   'Ptb','Etab','Ptbbar','Etabbar','Ptbj','Etabj',
+     $   'Qpar1','Qpar2','Qpar3','Qpar4',
+     $   'Ptpar1','Ptpar2','Ptpar3','Ptpar4',
+     $   'Ncjets','Njets','Nfile'/
+      DATA htit2/'Npart','Qjet1','Qjet2','Qjet3','Qjet4','Nfile'/
+	  
+	  CHARACTER*30 CGIVE0
+
+
 
 
 C   local variables
-      integer i,j,ihep,nmatch,jrmin,KPT(MAXNUP),nres
-      double precision etajet,phijet,delr,dphi,delrmin,ptjet
-      double precision p(4,10),pt(10),eta(10),phi(10)
-      integer idbg
-      data idbg/0/
-      REAL*4 var2(nvar2)
-c
       double precision tiny
       parameter (tiny=1d-3)
       integer icount
       data icount/0/
-      INTEGER ISTOLD(NMXHEP),IST,IDA
-c      LOGICAL FOUND
+      integer idbg
+      data idbg/0/
+
+      integer i,j,ihep,nmatch,jrmin,KPT(MAXNUP),nres,ii
+      double precision etajet,phijet,delr,dphi,delrmin,ptjet
+      double precision p(4,10),pt(10),eta(10),phi(10)
+      INTEGER ISTOLD(NMXHEP),IST,IMO
+      logical norad(20)
+      REAL*4 var2(nvar2)
 
 c      if(NLJETS.GT.0)then
 c        idbg=1
@@ -438,11 +606,14 @@ c      else
 c        idbg=0
 c      endif
 
+
+c      write(*,*)'Entering MGVETO'
+c      write(*,*)'qcut is ',qcut,' and showerkt is ',showerkt
       IPVETO=0
-      IF (ICKKW.NE.1) then
-         RETURN
-      endif
+c     Return if not MLM matching (or non-matched subprocess)
       
+      IF(ICKKW.LE.0.OR.IEXC.eq.-1) RETURN
+
       IF(NLJETS.LT.MINJETS.OR.NLJETS.GT.MAXJETS)THEN
         if(idbg.eq.1)
      $     WRITE(LNHOUT,*) 'Failed due to NLJETS ',NLJETS,' < ',MINJETS,
@@ -450,71 +621,44 @@ c      endif
          GOTO 999
       ENDIF
 
-C   Throw event if it contains an excluded resonance
+      write(*,*)'Throw event if it contains an excluded resonance'
       NRES=0
       DO I=1,NUP
+c	     write(*,*)'cycling on particles'
         IF(ISTUP(I).EQ.2)THEN
+c			write(*,*)'found S2, now comparin with the ',nexcres,' excres'
            DO J=1,nexcres
+c			write(*,*)'comparing ',IDUP(I),' and ',EXCRES(J)
               IF(IDUP(I).EQ.EXCRES(J)) NRES=NRES+1
            ENDDO
         ENDIF
       ENDDO
       IF(NRES.GT.0)THEN
-         if(idbg.eq.1)
-     $        PRINT *,'Event',IEVNT,' thrown because of ',NRES,
-     $        ' excluded resonance(s)'
+c		write(*,*)'Event',IEVNT,
+c     &  ' thrown because of ',NRES,'e r'
 c     CALL PYLIST(7)
          GOTO 999
       ENDIF
 
 c init uninit variables
       jrmin = 0
-c
 
 C   Set up vetoed mothers
 c      DO I=1,MAXNUP
 c        INORAD(I)=0
 c      ENDDO
-c      DO IHEP=1,NUP-2
+c      DO IHEP=1,NUP-2      
 c        if(ISTHEP(ihep).gt.1.and.iabs(IDHEP(ihep)).gt.8) then
 c        if(iabs(IDHEP(ihep)).gt.5.and.IDHEP(ihep).ne.21) then
 c          INORAD(ihep)=1
 c        endif
 c      ENDDO
 
-C     Set status for non-clustering partons to 2
-      DO ihep=1,NHEP
-c         ISTORG(ihep)=ISTHEP(ihep)
-         IF(ISTHEP(ihep).EQ.1.AND.iabs(IDHEP(ihep)).GE.6.AND.
-     $        IDHEP(ihep).NE.21) ISTHEP(ihep)=2
-         IF(ISTHEP(ihep).EQ.1.AND.(iabs(IDHEP(ihep)).lt.6.or.
-     $        IDHEP(ihep).eq.21).AND.JMOHEP(1,ihep).GT.0) then
-            IDA=ihep
-            DO WHILE(JMOHEP(1,IDA).GT.0)
-c           Trace mothers, if daughter particle in hard event,
-c           must be decay - remove
-              IF(iabs(IDHEP(JMOHEP(1,IDA))).GE.6.AND.
-     $           IDHEP(JMOHEP(1,IDA)).NE.21.AND.
-     $           IDA.LE.NUP+4) GOTO 5
-              IDA=JMOHEP(1,IDA)
-            ENDDO
-            cycle
- 5          ISTHEP(ihep)=2
-         ENDIF
-      ENDDO
-
-C     Prepare histogram filling
-        DO I=1,4
-          var2(1+I)=-1
-          varev(46+I)=-1
-          varev(50+I)=-1
-        ENDDO
-
-C CHECK FOR EVENT ERROR OR ZERO WGT
-      I=0
-C
+c
 c     reconstruct parton-level event
-
+c     Set norad for daughters of decayed particles, to not include
+c     radiation from these in matched jets
+c
       if(idbg.eq.1) then
         write(LNHOUT,*) ' '
         write(LNHOUT,*) 'new event '
@@ -524,11 +668,26 @@ c        CALL PYLIST(1)
         write(LNHOUT,*) 'PARTONS'
       endif
       i=0
-            
       do ihep=3,nup
+         NORAD(ihep)=.false.
+        if((ABS(IDBMUP(1)).NE.11.OR.IDBMUP(1).NE.-IDBMUP(2)).AND.
+     $        MOTHUP(1,ihep).gt.2) goto 100
         if(ISTUP(ihep).ne.1.or.
-     $     (iabs(IDUP(ihep)).ge.6.and.IDUP(ihep).ne.21)) cycle
-        if(MOTHUP(1,ihep).gt.2) cycle
+     $     (iabs(IDUP(ihep)).gt.nqmatch.and.IDUP(ihep).ne.21)) cycle
+c     If quark or gluon making singlet system with other final-state parton
+c     remove (since unseen singlet resonance) unless e+e- collision
+        IF((ABS(IDBMUP(1)).NE.11.OR.IDBMUP(1).NE.-IDBMUP(2)).AND.
+     $       nosingrad)THEN
+           DO II=3,NUP
+              IF(II.NE.ihep.AND.ISTUP(II).EQ.1)THEN
+                 IF((IDUP(II).EQ.-IDUP(ihep).OR.
+     $                IDUP(ihep).EQ.21.AND.IDUP(II).EQ.21).AND.
+     $                ICOLUP(1,II).EQ.ICOLUP(2,ihep).AND.
+     $                ICOLUP(2,II).EQ.ICOLUP(1,ihep))
+     $                GOTO 100
+              ENDIF
+           ENDDO
+        ENDIF
         i=i+1
         do j=1,4
           p(j,i)=pup(j,ihep)
@@ -540,6 +699,8 @@ c        CALL PYLIST(1)
         if(idbg.eq.1) then
           write(LNHOUT,*) pt(i),eta(i),phi(i)
         endif
+        cycle
+ 100    norad(ihep)=.true.
       enddo
       if(i.ne.NLJETS)then
         print *,'Error in UPVETO: Wrong number of jets found ',i,NLJETS
@@ -547,7 +708,6 @@ c        CALL PYLIST(1)
         CALL PYLIST(2)
         stop
       endif
-
 C Bubble-sort PTs in descending order
       DO I=1,3
          DO J=4,I+1,-1
@@ -558,16 +718,44 @@ C Bubble-sort PTs in descending order
             ENDIF
          ENDDO
       ENDDO
+C     Set status for non-clustering partons to 2
+      DO ihep=1,NHEP
+c         ISTORG(ihep)=ISTHEP(ihep)
+         IF(ISTHEP(ihep).EQ.1.AND.iabs(IDHEP(ihep)).GT.5.AND.
+     $        IDHEP(ihep).NE.21) THEN
+            ISTHEP(ihep)=2
+         ELSEIF(ISTHEP(ihep).EQ.1.AND.JMOHEP(1,ihep).GT.0) then
+            IMO=JMOHEP(1,ihep)
+            DO WHILE(IMO.GT.0)
+c           Trace mothers, if non-radiating => daughter is decay - remove
+              IF(IMO.le.NUP-2.and.norad(IMO+2)) GOTO 105
+              IMO=JMOHEP(1,IMO)
+            ENDDO
+            cycle
+ 105        ISTHEP(ihep)=2
+         ENDIF
+      ENDDO
+C     Prepare histogram filling
+        DO I=1,4
+          var2(1+I)=-1
+          varev(46+I)=-1
+          varev(50+I)=-1
+        ENDDO
 
+      I=0
       if(idbg.eq.1) then
         do i=1,nhep
-          write(LNHOUT,111) i,isthep(i),idhep(i),jmohep(1,i),jmohep(2,i)
+          write(LNHOUT,1000)i,isthep(i),idhep(i),jmohep(1,i),jmohep(2,i)
      $         ,phep(1,i),phep(2,i),phep(3,i)
         enddo
- 111  format(5(i4,1x),3(f12.5,1x))
+ 1000   format(5(i4,1x),3(f12.5,1x))
       endif
-
-      IF(qcut.le.0d0)then
+      
+      IF(ICKKW.EQ.2) GOTO 150
+      IF(MSTP(61).eq.0..and.MSTP(71).eq.0)then
+c      write(*,*)'No showering - just print out event'
+      ELSE IF(qcut.le.0d0)then
+c      write(*,*)'qcut<0'
 
       IF(clfact.EQ.0d0) clfact=1.5d0
 
@@ -575,16 +763,16 @@ c      CALL PYLIST(7)
 c      CALL PYLIST(2)
 c      CALL PYLIST(5)
 c     Start from the partonic system
-      IF(NLJETS.GT.0) CALL ALPSOR(pt,nljets,KP,2)
+      IF(NLJETS.GT.0) CALL ALPSOR(pt,nljets,KP,2)  
 c     reconstruct showered jets
-c 
+c     
       YCMAX=ETACLMAX+RCLMAX
       YCMIN=-YCMAX
       CALL CALINIM
       CALL CALDELM(1,1)
       CALL GETJETM(RCLMAX,ETCJET,ETACLMAX)
 c     analyse only events with at least nljets-reconstructed jets
-      IF(NCJET.GT.0) CALL ALPSOR(ETJET,NCJET,K,2)
+      IF(NCJET.GT.0) CALL ALPSOR(ETJET,NCJET,K,2)              
       if(idbg.eq.1) then
         write(LNHOUT,*) 'JETS'
         do i=1,ncjet
@@ -646,19 +834,23 @@ C     VETO EVENTS WHERE MATCHED JETS ARE SOFTER THAN NON-MATCHED ONES
       ENDIF
 
       else                      ! qcut.gt.0
+      if(showerkt.eq.1.0) then
+c      write(*,*)"qcut>=0 and showerkt=1 ==> Veto events where
+c     & first shower emission has kt > YCUT"
 
-      if(MINT(35).eq.3) then
-C     The pt-ordered showers have been used - use "shower emission pt method"
-C     Veto events where first shower emission has kt > YCUT
 
         IF(NLJETS.EQ.0)THEN
            VINT(358)=0
         ENDIF
 
         IF(idbg.eq.1) THEN
-           PRINT *,'Using shower emission pt method'
-           PRINT *,'qcut, ptclus(1), vint(357),vint(358): ',
-     $          qcut,ptclus(1),vint(357),vint(358)
+C           PRINT *,'Using shower emission pt method'
+C           write(*,*)'Using shower emission pt method'
+C           write(*,*)'qcut, ptclus(1), vint(357),vint(358),vint(360): ',
+C     $          qcut,ptclus(1),vint(357),vint(358),vint(360)
+
+C      PRINT *,'qcut, ptclus(1), vint(357),vint(358),vint(360): ',
+C     $          qcut,ptclus(1),vint(357),vint(358),vint(360)
         ENDIF
         YCUT=qcut**2
 
@@ -668,27 +860,37 @@ C     Veto events where first shower emission has kt > YCUT
      $       PTCLUS(1),' < ',SQRT(YCUT)
           GOTO 999
         ENDIF
-
 c        PRINT *,'Y,VINT:',SQRT(Y(NLJETS+1)),SQRT(VINT(390))
-
-        IF(IEXC.EQ.1.AND.MAX(VINT(357),VINT(358)).GT.SQRT(YCUT))THEN
+C        write(*,*)'Y,VINT:',SQRT(Y(NLJETS+1)),SQRT(VINT(390))
+C        write(*,*)'mektsc 357, 358: ',mektsc,' ',VINT(357),' ',VINT(358)
+        IF(IEXC.EQ.1.AND.
+     $       ((mektsc.eq.1.and.MAX(VINT(357),VINT(358)).GT.SQRT(YCUT))
+     $       .OR.
+     $       (mektsc.eq.2.and.MAX(VINT(360),VINT(358)).GT.SQRT(YCUT))))
+     $       THEN
+C            write(*,*)'rejection'  
           if(idbg.eq.1)
      $       WRITE(LNHOUT,*),
      $       'Failed due to ',max(VINT(357),VINT(358)),' > ',SQRT(YCUT)
           GOTO 999
         ENDIF
-c        PRINT *,NLJETS,IEXC,SQRT(VINT(390)),PTCLUS(1),SQRT(YCUT)
+C        PRINT *,NLJETS,IEXC,SQRT(VINT(390)),PTCLUS(1),SQRT(YCUT)
+C        write(*,*)'NLJets, iexc, VINT, ptclus(1), sqrt(ycut)',NLJETS
+c     &,IEXC,SQRT(VINT(390)),PTCLUS(1),SQRT(YCUT)
 c     Highest multiplicity case
         IF(IEXC.EQ.0.AND.NLJETS.GT.0.AND.
-     $       MAX(VINT(357),VINT(358)).GT.PTCLUS(1))THEN
+     $       ((mektsc.eq.1.and.MAX(VINT(357),VINT(358)).GT.PTCLUS(1))
+     $       .OR.
+     $       (mektsc.eq.2.and.MAX(VINT(360),VINT(358)).GT.PTCLUS(1))))
+     $       THEN
 c     $     VINT(390).GT.PTCLUS(1)**2)THEN
           if(idbg.eq.1)
      $       WRITE(LNHOUT,*),
      $       'Failed due to ',max(VINT(357),VINT(358)),' > ',PTCLUS(1)
           GOTO 999
         ENDIF
-c 
-      else                      ! not false ! not pt-ordered showers
+c     
+      else                      ! not shower kt method
 
         IF(clfact.EQ.0d0) clfact=1d0
 
@@ -696,7 +898,7 @@ C---FIND FINAL STATE COLOURED PARTICLES
         NN=0
         DO IHEP=1,NHEP
           IF (ISTHEP(IHEP).EQ.1
-     &       .AND.(ABS(IDHEP(IHEP)).LT.6.OR.IDHEP(IHEP).EQ.21)) THEN
+     $       .AND.(ABS(IDHEP(IHEP)).LE.5.OR.IDHEP(IHEP).EQ.21)) THEN
             PTJET=sqrt(PHEP(1,IHEP)**2+PHEP(2,IHEP)**2)
             ETAJET=ABS(LOG(MIN((SQRT(PTJET**2+PHEP(3,IHEP)**2)+
      $       ABS(PHEP(3,IHEP)))/PTJET,1d5)))
@@ -706,7 +908,7 @@ C---FIND FINAL STATE COLOURED PARTICLES
               CALL PYLIST(2)
               PRINT *, 'Too many particles: ', NN
               NN=NN-1
-              GOTO 10
+              GOTO 120
             endif
             DO I=1,4
               PP(I,NN)=PHEP(I,IHEP)
@@ -716,9 +918,10 @@ C---FIND FINAL STATE COLOURED PARTICLES
           ENDIF
         ENDDO
 
+
 C...Cluster event to find values of Y including jet matching but not veto of too many jets
 C...Only used to fill the beforeveto Root tree
- 10     ECUT=1
+ 120    ECUT=1
         IF (NN.GT.1) then
           CALL KTCLUS(KTSCHE,PP,NN,ECUT,Y,*999)
           if(idbg.eq.1)
@@ -733,7 +936,7 @@ C       value of the NLJETS:th clustering
         if(NLJETS.GT.MINJETS)then
           YCUT=Y(NLJETS)
           CALL KTRECO(MOD(KTSCHE,10),PP,NN,ECUT,YCUT,YCUT,PJET,JET,
-     $       NCJET,NSUB,*999)
+     $       NCJET,NSUB,*999)        
 
 C     Cluster jets with first hard parton
           DO I=1,NLJETS
@@ -741,7 +944,7 @@ C     Cluster jets with first hard parton
               PPM(J,I)=PJET(J,I)
             ENDDO
           ENDDO
-
+          
           NJETM=NLJETS
           DO IHARD=1,NLJETS
             NNM=NJETM+1
@@ -751,15 +954,15 @@ C     Cluster jets with first hard parton
             CALL KTCLUS(KTSCHE,PPM,NNM,ECUT,YM,*999)
             IF(YM(NNM).GT.YCUT) THEN
 C       Parton not clustered
-              GOTO 90
+              GOTO 130
             ENDIF
-
+            
 C       Find jet clustered with parton
 
             IP1=HIST(NNM)/NMAXKT
             IP2=MOD(HIST(NNM),NMAXKT)
             IF(IP2.NE.NNM.OR.IP1.LE.0)THEN
-              GOTO 90
+              GOTO 130
             ENDIF
             DO I=IP1,NJETM-1
               DO J=1,4
@@ -773,20 +976,19 @@ C       Find jet clustered with parton
         DO I=1,MIN(NN,4)
           var2(1+I)=SQRT(Y(I))
         ENDDO
-C DKC        WRITE(15,4001) (var2(I),I=1,nvar2)
+        WRITE(15,4001) (var2(I),I=1,nvar2)
 
- 90     CONTINUE
-
+ 130    CONTINUE
 C   Now perform jet clustering at the value chosen in qcut
 
         CALL KTCLUS(KTSCHE,PP,NN,ECUT,Y,*999)
 
         YCUT=qcut**2
         NCJET=0
-
+          
 C     Reconstruct jet momenta
           CALL KTRECO(MOD(KTSCHE,10),PP,NN,ECUT,YCUT,YCUT,PJET,JET,
-     $       NCJET,NSUB,*999)
+     $       NCJET,NSUB,*999)        
 
         ELSE IF (NN.EQ.1) THEN
 
@@ -815,7 +1017,7 @@ C     Reconstruct jet momenta
           GOTO 999
         endif
 
-C...Right number of jets - but the right jets?
+C...Right number of jets - but the right jets?        
 C     For max. multiplicity case, count jets only to the NHARD:th jet
         IF(IEXC.EQ.0)THEN
            IF(NLJETS.GT.0)THEN
@@ -832,7 +1034,6 @@ C     For max. multiplicity case, count jets only to the NHARD:th jet
      $       WRITE(LNHOUT,*) 'Failed due to NCJET ',NCJET,' > ',NLJETS
            GOTO 999
         ENDIF
-
 C     Cluster jets with hard partons, one at a time
         DO I=1,NLJETS
           DO J=1,4
@@ -845,7 +1046,7 @@ C     Cluster jets with hard partons, one at a time
 c        YCUT=qcut**2
 c        YCUT=(1.5*qcut)**2
 
-        DO 120 IHARD=1,NLJETS
+        DO 140 IHARD=1,NLJETS
           NN=NJETM+1
           DO J=1,4
             PPM(J,NN)=p(J,IHARD)
@@ -856,10 +1057,10 @@ c        YCUT=(1.5*qcut)**2
 C       Parton not clustered
           if(idbg.eq.1)
      $       WRITE(LNHOUT,*) 'Failed due to parton ',IHARD,
-     $         ' not clustered.'
+     $         ' not clustered: ',Y(NN)
             GOTO 999
           ENDIF
-
+          
 C       Find jet clustered with parton
 
           IP1=HIST(NN)/NMAXKT
@@ -867,7 +1068,7 @@ C       Find jet clustered with parton
           IF(IP2.NE.NN.OR.IP1.LE.0)THEN
           if(idbg.eq.1)
      $       WRITE(LNHOUT,*) 'Failed due to parton ',IHARD,
-     $         ' not clustered.'
+     $         ' not clustered: ',IP1,IP2,NN,HIST(NN)
             GOTO 999
           ENDIF
 C     Remove jet clustered with parton
@@ -877,16 +1078,15 @@ C     Remove jet clustered with parton
             ENDDO
           ENDDO
           NJETM=NJETM-1
- 120    CONTINUE
+ 140   CONTINUE
 
       endif                     ! pt-ordered showers
       endif                     ! qcut.gt.0
-
 C...Cluster particles with |eta| < etaclmax for histograms
-      NN=0
+ 150  NN=0
       DO IHEP=1,NHEP
          IF (ISTHEP(IHEP).EQ.1
-     &        .AND.(ABS(IDHEP(IHEP)).LT.6.OR.IDHEP(IHEP).EQ.21)) THEN
+     $        .AND.(ABS(IDHEP(IHEP)).LE.5.OR.IDHEP(IHEP).EQ.21)) THEN
             PTJET=sqrt(PHEP(1,IHEP)**2+PHEP(2,IHEP)**2)
             ETAJET=ABS(LOG(MIN((SQRT(PTJET**2+PHEP(3,IHEP)**2)+
      $           ABS(PHEP(3,IHEP)))/PTJET,1d5)))
@@ -896,7 +1096,7 @@ C...Cluster particles with |eta| < etaclmax for histograms
                CALL PYLIST(2)
                PRINT *, 'Too many particles: ', NN
                NN=NN-1
-               GOTO 20
+               GOTO 160
             ENDIF
             DO I=1,4
                PP(I,NN)=PHEP(I,IHEP)
@@ -905,26 +1105,38 @@ C...Cluster particles with |eta| < etaclmax for histograms
             PRINT *,'Skipping particle ',IHEP,ISTHEP(IHEP),IDHEP(IHEP)
          ENDIF
       ENDDO
-
- 20   ECUT=1
+      
+ 160  ECUT=1
       IF (NN.GT.1) THEN
          CALL KTCLUS(KTSCHE,PP,NN,ECUT,Y,*999)
       ELSE IF(NN.EQ.1) THEN
-         Y(1)=SQRT(PP(1,NN)**2+PP(2,NN)**2)
+         Y(1)=PP(1,NN)**2+PP(2,NN)**2
       ENDIF
 
       DO I=1,MIN(NN,4)
          varev(46+I)=SQRT(Y(I))
       ENDDO
-      
-cc      print *, ' finishing up mgveto, with ipveto= ', ipveto
 
+c      write(*,*)' finishing up mgveto, with ipveto= ', ipveto
+        OPEN (10, FILE='events.tree')
+c       WRITE(10,'(a)') '# File with ntuple events with the variables:'
+c      WRITE(10,CGIVE0) (htit(I)(1:len_trim(htit(I))),I=1,nvarev)
+c      write (*,'(a)'),(htit(I)(1:len_trim(htit(I))),I=47,50)
+c      write (*,4001),(varev(I),I=47,50)
+       if (flag.eq.1) then
+          varev(1)=NLJETS
+          WRITE(10,4001) varev(1),(varev(I),I=47,50)
+c          WRITE(*,4001) varev(1),(varev(I),I=47,50)
+      endif
 
       RETURN
  4001 FORMAT(50E15.6)
 c HERWIG/PYTHIA TERMINATION:
+
+
+
  999  IPVETO=1
-cc      print *, ' finishing up mgveto, with ipveto= ', ipveto
+c      write(*,*)' finishing up mgveto, with ipveto= ', ipveto
       END
 
 C*********************************************************************
@@ -974,7 +1186,7 @@ C...  Guesses for the correct scale
 C     Assumptions:
 C     (1) if the initial state is a color singlet, then
 C     use s-hat for the scale
-C 
+C     
 C     (2) if color flow to the final state, use the minimum
 C     of the dot products of color connected pairs
 C     (times two for consistency with above)
@@ -982,12 +1194,12 @@ C     (times two for consistency with above)
         QMIN=SMDOT5(PUP(1,1),PUP(1,2))
         ICC1=1
         ICC2=2
-C 
+C     
 C     For now, there is no generic way to guarantee the "right"
 C     scale choice.  Here, we take the HERWIG pt. of view and
 C     choose the dot product of the colored connected "primary"
 C     pairs.
-C 
+C     
 
         DO 101 IJ=1,NUP
           IF(MOTHUP(2,IJ).GT.2) GOTO 101
@@ -995,7 +1207,7 @@ C
           IDC2=ICOLUP(2,IJ)
           IF(IDC1.EQ.0) IDC1=-1
           IF(IDC2.EQ.0) IDC2=-2
-
+          
           DO 201 IC=IJ+1,NUP
             IF(MOTHUP(2,IC).GT.2) GOTO 201
             IC1=ICOLUP(1,IC)
@@ -1011,7 +1223,7 @@ C
               ENDIF
             ELSEIF(ISTUP(IC)*ISTUP(IJ).LE.-1) THEN
               IF(IDC1.EQ.IC1.OR.IDC2.EQ.IC2) THEN
-                QTMP=SMDOT5(PUP(1,IJ),PUP(1,IC))
+                QTMP=SMDOT5(PUP(1,IJ),PUP(1,IC))          
                 IF(QTMP.LT.QMIN) THEN
                   QMIN=QTMP
                   ICC1=IJ
@@ -1047,18 +1259,23 @@ C   Helper function
       RETURN
       END
 
-C*********************************************************************
+C*********************************************************************      
 C...set_matching
 C...Sets parameters for the matching, i.e. cuts and jet multiplicities
-C*********************************************************************
+C*********************************************************************      
 
       SUBROUTINE set_matching(npara,param,value)
       implicit none
-c 
+c   
 c   arguments
-c 
+c   
       integer npara
       character*20 param(*),value(*)
+
+C...Pythia parameters.
+      INTEGER MSTP,MSTI
+      DOUBLE PRECISION PARP,PARI
+      COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200)
 
 C...User process initialization commonblock.
       INTEGER MAXPUP
@@ -1083,29 +1300,22 @@ C...Extra commonblock to transfer run info.
       COMMON/UPPRIV/LNHIN,LNHOUT,MSCAL,IEVNT,ICKKW,ISCALE
 
 C...Inputs for the matching algorithm
-      double precision etcjet,rclmax,etaclmax,qcut,clfact
-      integer maxjets,minjets,iexcfile,ktsche,nexcres,excres(30)
-      common/MEMAIN/etcjet,rclmax,etaclmax,qcut,clfact,
-     $   maxjets,minjets,iexcfile,ktsche,nexcres,excres
-CDKC      DATA ktsche,maxjets,minjets,nexcres/0,-1,-1,0/
-      DATA ktsche,maxjets,minjets,nexcres/0,-1,-1,0/
-      DATA ktsche,nexcres/0,0/
-      DATA qcut,clfact/0d0,0d0/
+      double precision etcjet,rclmax,etaclmax,qcut,clfact,showerkt
+      integer maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres(30)
+      integer nqmatch,nexcproc,iexcproc(MAXPUP),iexcval(MAXPUP)
+      logical nosingrad,jetprocs
+      common/MEMAIN/etcjet,rclmax,etaclmax,qcut,showerkt,clfact,
+     $   maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres,
+     $   nqmatch,nexcproc,iexcproc,iexcval,nosingrad,jetprocs
+
+c      DATA ktsche,maxjets,minjets,nexcres/0,-1,-1,0/
+c      DATA ktsche,nexcres/0,0/
+c      DATA qcut,clfact,showerkt/0d0,0d0,0d0/ 
 
 C...Commonblock to transfer event-by-event matching info
       INTEGER NLJETS,IEXC,Ifile
       DOUBLE PRECISION PTCLUS
       COMMON/MEMAEV/PTCLUS(20),NLJETS,IEXC,Ifile
-
-C     CALSIM VARIABLES
-      INTEGER NCY,NCPHI
-      DOUBLE PRECISION PI,DELY,DELPHI,ET,CTHCAL,STHCAL,CPHCAL,SPHCAL,
-     $   YCMIN,YCMAX
-      PARAMETER (NCY=50)
-      PARAMETER (NCPHI=60,PI=3.141593D0)
-      COMMON/CALOR/DELY,DELPHI,ET(NCY,NCPHI),
-     $   CTHCAL(NCY),STHCAL(NCY),CPHCAL(NCPHI),SPHCAL(NCPHI),
-     $   YCMIN,YCMAX
 
 C...Local variables
       INTEGER I,MAXNJ,NREAD,MINJ,MAXJ
@@ -1113,9 +1323,9 @@ C...Local variables
       DOUBLE PRECISION XSTOT(MAXNJ),XSECTOT
       DOUBLE PRECISION ptjmin,etajmax,drjmin,ptbmin,etabmax,xqcut
 
-CDKC -- initalize by assignment instead of data statement, whose behaviour is compiler dependent
-C       minjets=-1
-C       maxjets=-1
+C...Functions
+      INTEGER iexclusive
+      EXTERNAL iexclusive
 
 C...Need lower scale for final state radiation in e+e-
       IF(IABS(IDBMUP(1)).EQ.11.AND.IABS(IDBMUP(2)).EQ.11) then
@@ -1125,7 +1335,83 @@ C...Need lower scale for final state radiation in e+e-
 C...CRUCIAL FOR JET-PARTON MATCHING: CALL UPVETO, ALLOW JET-PARTON MATCHING
 C      call pygive('MSTP(143)=1')
 
-      if(ickkw.eq.1) then
+C     
+C...Check jet multiplicities and set processes
+C
+      DO I=1,MAXNJ
+        XSTOT(I)=0D0
+      ENDDO
+      MINJ=MAXNJ
+      MAXJ=0
+      NREAD=0
+      
+      DO WHILE(.true.)
+C	  write(LNHOUT,*)'Launching MGEVNT'
+        CALL MGEVNT()
+		write(LNHOUT,*)'NLJETS=',NLJETS
+        IF(NUP.eq.0) goto 20
+        IF(IEXC.EQ.-1) cycle
+		
+        if(NLJETS.GT.MAXJ) MAXJ=NLJETS
+        if(NLJETS.LT.MINJ) MINJ=NLJETS
+c        XSTOT(NLJETS+1)=XSTOT(NLJETS+1)+XWGTUP
+        XSTOT(NLJETS+1)=XSTOT(NLJETS+1)+1
+        NREAD=NREAD+1
+      ENDDO
+
+ 20   continue
+		  
+C      REWIND(iunit)
+
+      write(LNHOUT,*) 'Minimum number of jets in file: ',MINJ
+      write(LNHOUT,*) 'Maximum number of jets in file: ',MAXJ
+
+      XSECTOT=0d0
+      DO I=1,NPRUP
+         XSECTOT=XSECTOT+XSECUP(I)
+      ENDDO
+		write(LNHOUT,*)'NPRUP=',NPRUP
+      IF(NPRUP.eq.1.AND.MINJ.lt.MAXJ)THEN
+C...If different process ids not set by user, set by jet number
+
+         jetprocs=.true.
+         IF(IEXCFILE.eq.0.AND.iexclusive(LPRUP(1)).ne.1) THEN
+            nexcproc=1
+            IEXCPROC(1)=MAXJ-MINJ
+            IEXCVAL(1)=0
+         ENDIF
+         NPRUP=1+MAXJ-MINJ
+         DO I=MINJ,MAXJ
+            XSECUP(1+I-MINJ) = XSECTOT*XSTOT(I+1)/NREAD
+            XMAXUP(1+I-MINJ) = XMAXUP(1)
+            LPRUP(1+I-MINJ)  = I-MINJ
+         ENDDO
+      ELSE IF(IEXCFILE.EQ.0) THEN
+C...Check if any IEXCPROC set, then set IEXCFILE=1
+         DO I=1,NPRUP
+            IF(iexclusive(LPRUP(I)).EQ.0) IEXCFILE=1
+         ENDDO
+      ENDIF
+
+      WRITE(LNHOUT,*) ' Number of Events Read:: ',NREAD
+      WRITE(LNHOUT,*) ' Total cross section (pb):: ',XSECTOT
+      WRITE(LNHOUT,*) ' Process   Cross Section (pb):: '
+      DO I=1,NPRUP
+        WRITE(LNHOUT,'(I5,E23.5)') I,XSECUP(I)
+      ENDDO
+
+      IF(MINJETS.EQ.-1) MINJETS=MINJ
+      IF(MAXJETS.EQ.-1) MAXJETS=MAXJ
+      write(LNHOUT,*) 'Minimum number of jets allowed: ',MINJETS
+      write(LNHOUT,*) 'Maximum number of jets allowed: ',MAXJETS
+      write(LNHOUT,*) 'IEXCFILE = ',IEXCFILE
+      write(LNHOUT,*) 'jetprocs = ',jetprocs
+      DO I=1,NPRUP
+         write(LNHOUT,*) 'IEXCPROC(',LPRUP(I),') = ',
+     $        iexclusive(LPRUP(I))
+      ENDDO
+
+C      CALL FLUSH()
 
 C...Run PYPTFS instead of PYSHOW
 c        CALL PYGIVE("MSTJ(41)=12")
@@ -1141,14 +1427,20 @@ c***********************************************************************
         call get_real   (npara,param,value," drjj " ,drjmin,7d3)
         call get_real   (npara,param,value," xqcut " ,xqcut,0d0)
 
-        if(qcut.lt.xqcut) qcut=max(xqcut*1.2,xqcut+5)
+        if(qcut.lt.xqcut) then
+           if(showerkt.eq.1) then
+              qcut=xqcut
+           else
+              qcut=max(xqcut*1.2,xqcut+5)
+           endif
+        endif
         if(xqcut.le.0)then
            write(*,*) 'Warning! ME generation QCUT = 0. QCUT set to 0!'
            qcut=0
         endif
 
-        etajmax=min(etajmax,etabmax)
-        ptjmin=max(ptjmin,ptbmin)
+c        etajmax=min(etajmax,etabmax)
+c        ptjmin=max(ptjmin,ptbmin)
 
 c      IF(ICKKW.EQ.1) THEN
 c        WRITE(*,*) ' '
@@ -1157,10 +1449,13 @@ c        WRITE(*,*) '(SELECT 0 FOR HIGHEST PARTON MULTIPLICITY SAMPLE)'
 c        WRITE(*,*) '(SELECT 1 OTHERWISE)'
 c        READ(*,*) IEXCFILE
 c      ENDIF
-
+        
 C     INPUT PARAMETERS FOR CONE ALGORITHM
 
-        ETCJET=MAX(PTJMIN+5,1.2*PTJMIN)
+        IF(ETCJET.LE.PTJMIN)THEN
+           ETCJET=MAX(PTJMIN+5,1.2*PTJMIN)
+        ENDIF
+
         RCLMAX=DRJMIN
         ETACLMAX=ETAJMAX
         IF(qcut.le.0)THEN
@@ -1168,12 +1463,29 @@ C     INPUT PARAMETERS FOR CONE ALGORITHM
           WRITE(*,*) 'ET>',ETCJET,' R=',RCLMAX
           WRITE(*,*) 'DR(PARTON-JET)<',1.5*RCLMAX
           WRITE(*,*) 'ETA(JET)<',ETACLMAX
-        ELSE
-          WRITE(*,*) 'KT JET PARAMETERS FOR MATCHING:'
-          WRITE(*,*) 'QCUT=',qcut
-          WRITE(*,*) 'ETA(JET)<',ETACLMAX
-          WRITE(*,*) 'Note that in ME generation, qcut = ',xqcut
-        ENDIF
+      ELSE IF(ickkw.eq.1) THEN
+        WRITE(*,*) 'KT JET PARAMETERS FOR MATCHING:'
+        WRITE(*,*) 'QCUT=',qcut
+        WRITE(*,*) 'ETA(JET)<',ETACLMAX
+        WRITE(*,*) 'Note that in ME generation, qcut = ',xqcut
+        write(*,*)'the showerkt param is ',showerkt
+        if(showerkt.eq.1.0)THEN
+C             WRITE(*,*) 'shower kt is activated'
+        endif
+        if(showerkt.eq.1.0.and.MSTP(81).LT.20)THEN
+          WRITE(*,*)'WARNING: "shower kt" needs pT-ordered showers'
+          WRITE(*,*)'         Setting MSTP(81)=',20+MOD(MSTP(81),10)
+          MSTP(81)=20+MOD(MSTP(81),10)
+       endif
+      else if(ickkw.eq.2)then
+c     Turn off color coherence suppressions (leave this to ME)
+        CALL PYGIVE('MSTP(62)=2')
+        CALL PYGIVE('MSTP(67)=0')
+        if(MSTP(81).LT.20)THEN
+          WRITE(*,*)'WARNING: Must run CKKW with pt-ordered showers'
+          WRITE(*,*)'         Setting MSTP(81)=',20+MOD(MSTP(81),10)
+          MSTP(81)=20+MOD(MSTP(81),10)
+        endif
       endif
       return
       end
@@ -1184,24 +1496,27 @@ c   finds the parameter named "name" in param and associate to "value" in value
 c----------------------------------------------------------------------------------
       implicit none
 
-c 
+c   
 c   arguments
-c 
+c   
       integer npara
       character*20 param(*),value(*)
       character*(*)  name
       real*8 var,def_value
-c 
+c   
 c   local
-c 
+c   
       logical found
       integer i
-c 
+c   
 c   start
-c 
+c  
+c      write(*,*)'entered get_real subroutine, looking for ',name,
+c     &' there are ',npara,' parameters' 
       i=1
       found=.false.
       do while(.not.found.and.i.le.npara)
+c         write(*,*)'trying ',param(i)
         found = (index(param(i),name).ne.0)
         if (found) read(value(i),*) var
 c     if (found) write (*,*) name,var
@@ -1217,28 +1532,28 @@ c     if (found) write (*,*) name,var
       return
 
       end
-c 
+c   
 
       subroutine get_integer(npara,param,value,name,var,def_value)
 c----------------------------------------------------------------------------------
 c   finds the parameter named "name" in param and associate to "value" in value 
 c----------------------------------------------------------------------------------
       implicit none
-c 
+c   
 c   arguments
-c 
+c   
       integer npara
       character*20 param(*),value(*)
       character*(*)  name
       integer var,def_value
-c 
+c   
 c   local
-c 
+c   
       logical found
       integer i
-c 
+c   
 c   start
-c 
+c   
       i=1
       found=.false.
       do while(.not.found.and.i.le.npara)
@@ -1299,24 +1614,12 @@ C-----------------------------------------------------------------------
    9  K(I)=J
       B(I)=A(J)
       I=I+1
-
-C Compatibility with gfortran (CMSSW 3_X)
-C      IF(IR(J)) 12,30,13
-C  13  J=IR(J)
-C      GOTO 8
-C  12  J=-IR(J)
-C      GOTO 9
-C  30  IF(IOPT.EQ.2) RETURN
-
-      IF (IR(J).GT.0) THEN
-         J=IR(J)
-         GOTO 8
-      ELSEIF (IR(J).LT.0) then
-         J=-IR(J)
-         GOTO 9
-      ENDIF
-      IF (IOPT.EQ.2) RETURN 
-
+      IF(IR(J)) 12,30,13
+  13  J=IR(J)
+      GOTO 8
+  12  J=-IR(J)
+      GOTO 9
+  30  IF(IOPT.EQ.2) RETURN
       DO 31 I=1,N
   31  A(I)=B(I)
  999  END
@@ -1352,7 +1655,7 @@ C     CALL CALHARM
 C
 C-----------------------------------------------------------------------
       SUBROUTINE CALINIM
-C
+C                
 C          INITIALIZE CALORIMETER FOR CALSIMM AND GETJETM.  NOTE THAT
 C          BECAUSE THE INITIALIZATION IS SEPARATE, CALSIMM CAN BE
 C          CALLED MORE THAN ONCE TO SIMULATE PILEUP OF SEVERAL EVENTS.
@@ -1402,7 +1705,7 @@ C          CALCULATE TRIG. FUNCTIONS.
       END
 C
       SUBROUTINE CALSIMM
-C
+C                
 C          SIMPLE CALORIMETER SIMULATION.  ASSUME UNIFORM Y AND PHI
 C          BINS
 C...HEPEVT commonblock.
@@ -1451,7 +1754,7 @@ C            WEIGHT BY SIN(THETA)
   200 CONTINUE
   999 END
       SUBROUTINE GETJETM(RJET,EJCUT,ETAJCUT)
-C
+C                
 C          SIMPLE JET-FINDING ALGORITHM (SIMILAR TO UA1).
 C
 C     FIND HIGHEST REMAINING CELL > ETSTOP AND SUM SURROUNDING
@@ -1460,7 +1763,7 @@ C            DELTA(Y)**2+DELTA(PHI)**2<RJET**2
 C            ET>ECCUT.
 C          KEEP JETS WITH ET>EJCUT AND ABS(ETA)<ETAJCUT
 C          THE UA1 PARAMETERS ARE RJET=1.0 AND EJCUT=5.0
-C  
+C                  
       IMPLICIT NONE
 C...GETJET commonblocks
       INTEGER MNCY,MNCPHI,NCY,NCPHI,NJMAX,JETNO,NCJET
@@ -1489,11 +1792,6 @@ C          PARAMETERS
 C
 C          INITIALIZE
 C
-
-c init uninit variables
-      iymx = 0
-      iphimx = 0
-c
       DO 100 IPHI=1,NCPHI
       DO 100 IY=1,NCY
 100   JETNO(IY,IPHI)=0
@@ -1507,6 +1805,10 @@ c
       NY1=RJET/DELY
       NY2=2*NY1+1
       IPASS=0
+C-ap  initialize these two too to avoid compiler warnings
+      iymx = 0
+      iphimx = 0
+C-ap  end  
 C
 C          FIND HIGHEST CELL REMAINING
 C
@@ -1589,5 +1891,88 @@ C...HEPEVT commonblock.
 
 
       CALL CALSIMM
+      END
+
+C****************************************************
+C iexclusive returns whether exclusive process or not
+C****************************************************
+
+      integer function iexclusive(iproc)
+      implicit none
+      
+      integer iproc, i
+      INTEGER MAXPUP
+      PARAMETER (MAXPUP=100)
+
+C...Inputs for the matching algorithm
+      double precision etcjet,rclmax,etaclmax,qcut,clfact,showerkt
+      integer maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres(30)
+      integer nqmatch,nexcproc,iexcproc(MAXPUP),iexcval(MAXPUP)
+      logical nosingrad,jetprocs
+      common/MEMAIN/etcjet,rclmax,etaclmax,qcut,showerkt,clfact,
+     $   maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres,
+     $   nqmatch,nexcproc,iexcproc,iexcval,nosingrad,jetprocs
+
+      
+      iexclusive=-2
+      do i=1,nexcproc
+         if(iproc.eq.iexcproc(i)) then
+            iexclusive=iexcval(i)
+            return
+         endif
+      enddo
+
+      return
+      end
+
+C***********************************
+C Common block initialization block
+C***********************************      
+
+      BLOCK DATA MEPYDAT
+
+      INTEGER MAXPUP
+      PARAMETER (MAXPUP=100)
+C...Inputs for the matching algorithm
+      double precision etcjet,rclmax,etaclmax,qcut,clfact,showerkt
+      integer maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres(30)
+      integer nqmatch,nexcproc,iexcproc(MAXPUP),iexcval(MAXPUP)
+      logical nosingrad,jetprocs
+      common/MEMAIN/etcjet,rclmax,etaclmax,qcut,showerkt,clfact,
+     $   maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres,
+     $   nqmatch,nexcproc,iexcproc,iexcval,nosingrad,jetprocs
+
+C...GETJET commonblocks
+      INTEGER MNCY,MNCPHI,NCY,NCPHI,NJMAX,JETNO,NCJET
+      DOUBLE PRECISION YCMIN,YCMAX,DELY,DELPHI,ET,STHCAL,CTHCAL,CPHCAL,
+     &  SPHCAL,PCJET,ETJET
+      PARAMETER (MNCY=200)
+      PARAMETER (MNCPHI=200)
+      COMMON/CALORM/DELY,DELPHI,ET(MNCY,MNCPHI),
+     $CTHCAL(MNCY),STHCAL(MNCY),CPHCAL(MNCPHI),SPHCAL(MNCPHI),
+     $YCMIN,YCMAX,NCY,NCPHI
+
+C...Extra commonblock to transfer run info.
+      INTEGER LNHIN,LNHOUT,MSCAL,IEVNT,ICKKW,ISCALE
+      COMMON/UPPRIV/LNHIN,LNHOUT,MSCAL,IEVNT,ICKKW,ISCALE
+
+C...Initialization statements
+      DATA showerkt/0.0/
+      DATA qcut,clfact,etcjet/0d0,0d0,0d0/
+      DATA ktsche,mektsc,maxjets,minjets,nexcres/0,1,-1,-1,0/
+      DATA nqmatch/5/
+      DATA nexcproc/0/
+      DATA iexcproc/MAXPUP*-1/
+      DATA iexcval/MAXPUP*-2/
+C      DATA nosingrad,showerkt,jetprocs/.false.,.false.,.false./
+
+      DATA NCY,NCPHI/50,60/
+
+      DATA LNHIN,LNHOUT,MSCAL,IEVNT,ICKKW,ISCALE/77,6,0,0,0,1/
+
+C      nosingrad = .false.
+C      showerkt = .false.
+C      jetprocs = .false.
+
       END
 

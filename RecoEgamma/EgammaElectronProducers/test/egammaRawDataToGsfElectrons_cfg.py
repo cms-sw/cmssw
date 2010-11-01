@@ -16,9 +16,9 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 
+from RecoEgamma.Configuration.RecoEgamma_cff import *
+
 process.source = cms.Source("PoolSource",
-    debugVerbosity = cms.untracked.uint32(1),
-    debugFlag = cms.untracked.bool(True),
     fileNames = cms.untracked.vstring('file:'+os.environ['TEST_RAW_FILE'])
 )
 
@@ -36,7 +36,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 
 process.mylocalreco =  cms.Sequence(process.trackerlocalreco*process.calolocalreco)
-process.myglobalreco = cms.Sequence(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks+process.ecalClusters+process.caloTowersRec*process.vertexreco*process.particleFlowCluster)
+process.myglobalreco = cms.Sequence(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks+process.ecalClusters+process.caloTowersRec*process.vertexreco*egammarecoGlobal*process.particleFlowCluster)
 process.myelectronseeding = cms.Sequence(process.trackerDrivenElectronSeeds*process.ecalDrivenElectronSeeds*process.electronMergedSeeds)
 process.myelectrontracking = cms.Sequence(process.electronCkfTrackCandidates*process.electronGsfTracks)
 

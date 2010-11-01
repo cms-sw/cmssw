@@ -7,7 +7,7 @@
 // Package:    CommonTools/TriggerUtils
 // Class:      GenericTriggerEventFlag
 //
-// $Id: GenericTriggerEventFlag.h,v 1.1 2010/06/08 10:39:13 vadler Exp $
+// $Id: GenericTriggerEventFlag.h,v 1.2 2010/06/23 22:55:51 vadler Exp $
 //
 /**
   \class    GenericTriggerEventFlag GenericTriggerEventFlag.h "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
@@ -16,7 +16,7 @@
    [...]
 
   \author   Volker Adler
-  \version  $Id: GenericTriggerEventFlag.h,v 1.1 2010/06/08 10:39:13 vadler Exp $
+  \version  $Id: GenericTriggerEventFlag.h,v 1.2 2010/06/23 22:55:51 vadler Exp $
 */
 
 
@@ -27,9 +27,10 @@
 #include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
+#include <string>
 
 
 class GenericTriggerEventFlag {
@@ -49,6 +50,7 @@ class GenericTriggerEventFlag {
     bool               errorReplyDcs_;
     bool                       andOrGt_;
     edm::InputTag              gtInputTag_;
+    edm::InputTag              gtEvmInputTag_;
     std::string                gtDBKey_;
     std::vector< std::string > gtLogicalExpressions_;
     bool                       errorReplyGt_;
@@ -93,7 +95,7 @@ class GenericTriggerEventFlag {
 
     // GT status bits
     bool acceptGt( const edm::Event & event );
-    bool acceptGtLogicalExpression( const edm::Handle< L1GlobalTriggerReadoutRecord > & gtReadoutRecord, std::string gtLogicalExpression );
+    bool acceptGtLogicalExpression( const edm::Event & event, std::string gtLogicalExpression );
 
     // L1
     bool acceptL1( const edm::Event & event, const edm::EventSetup & setup );

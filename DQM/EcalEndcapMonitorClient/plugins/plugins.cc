@@ -6,9 +6,11 @@
 #include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
 #endif
 
-#include <DQM/EcalEndcapMonitorClient/interface/EcalEndcapMonitorClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EETrendClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EcalEndcapMonitorClient.h"
 
 DEFINE_FWK_MODULE(EcalEndcapMonitorClient);
+
+#include "DQM/EcalEndcapMonitorClient/interface/EETrendClient.h"
+
 DEFINE_FWK_MODULE(EETrendClient);
 

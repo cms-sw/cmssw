@@ -47,7 +47,7 @@ int EcalTriggerPrimitiveDigi::ttFlag() const
     return -1;
 } 
 
-int EcalTriggerPrimitiveDigi::l1aSpike() const
+int EcalTriggerPrimitiveDigi::sFGVB() const
 {
   int sample = sampleOfInterest();
   if (sample != -1)

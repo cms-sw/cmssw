@@ -15,8 +15,8 @@
 /*
  * \file HcalSummaryClient.cc
  * 
- * $Date: 2010/05/10 19:45:47 $
- * $Revision: 1.98 $
+ * $Date: 2010/08/09 18:59:26 $
+ * $Revision: 1.101 $
  * \author J. Temple
  * \brief Summary Client class
  */
@@ -95,15 +95,8 @@ void HcalSummaryClient::analyze(int LS)
 	  std::cout <<"Failed enoughevents test for monitor "<<clients_[i]->name()<<std::endl;
       }
     }
-  if (enoughevents_==false)
-    {
-      if (debug_>0) std::cout <<"<HcalSummaryClient::analyze>  Not enough events processed to evaluate summary status!"<<std::endl;
-      fillReportSummary(LS);
-      return;
-    }
-  if (EnoughEvents_!=0) EnoughEvents_->setBinContent(clients_.size()+1,1); // summary is good to go!
 
-  // check to find which subdetectors are present
+  // check to find which subdetectors are present -- need to do this prior to checking whether enoughevents_ == false!
   MonitorElement* temp_present;
   if (HBpresent_!=1)
     {
@@ -131,194 +124,241 @@ void HcalSummaryClient::analyze(int LS)
     }
 
   if (debug_>1) 
-   std::cout <<"<HcalSummaryClient::analyze>  HB present = "<<HBpresent_<<" "<<"HE present = "<<HEpresent_<<" "<<"HO present = "<<HOpresent_<<" "<<"HF present = "<<HFpresent_<<std::endl;
+    std::cout <<"<HcalSummaryClient::analyze>  HB present = "<<HBpresent_<<" "<<"HE present = "<<HEpresent_<<" "<<"HO present = "<<HOpresent_<<" "<<"HF present = "<<HFpresent_<<std::endl;
+  
+  if (enoughevents_==false)
+    {
+      if (debug_>0) std::cout <<"<HcalSummaryClient::analyze>  Not enough events processed to evaluate summary status!"<<std::endl;
+      
+      // 'HXpresent_' values are set to -1 by default. 
+      // They are set to +1 when a channel is present.
+      // I don't think there are any cases where values =0,
+      // but I'm not positive of this yet -- Jeff, 10 Aug 2010
 
- // set status to 0 if subdetector is present (or assumed present)
- if (HBpresent_!=0) status_HB_=0;
- if (HEpresent_!=0) status_HE_=0;
- if (HOpresent_!=0) {status_HO_=0; status_HO0_=0; status_HO12_=0;}
- if (HFpresent_!=0) {status_HF_=0; status_HFlumi_=0;}
+      // Check whether any events are found for each subdetector
+      if (HBpresent_>0) status_HB_=1;
+      else status_HB_=-1;  // HB not present or unknown
+      if (HEpresent_>0) status_HE_=1;
+      else status_HE_=-1;  // HE not present or unknown
+      if (HOpresent_>0) status_HO_=1;
+      else status_HO_=-1;  // HO not present or unknown
+      if (HFpresent_>0) status_HF_=1;
+      else status_HF_=-1;  // HF not present or unknown
 
- if (HBpresent_!=0 || HEpresent_!=0 ||
-     HOpresent_!=0 || HFpresent_!=0 ) 
-   status_global_=0;
+      // Update this in the future?  Use '||' instead of '&&'?
+      if (HBpresent_<=0 && HEpresent_<=0 && HOpresent_<=0 && HFpresent_<=0)
+	status_global_=-1;
+      else
+	status_global_=1;
+      
+      // Set other statuses based on subdetectors
+      status_HO0_    = status_HO_;
+      status_HO12_   = status_HO_;
+      status_HFlumi_ = status_HF_;
+      
+      if (debug_>1)
+	{
+	  std::cout <<"Insufficient events processed.  Subdetector status is:"<<std::endl;
+	  std::cout<<"\tHB: "<<status_HB_<<std::endl;
+	  std::cout<<"\tHE: "<<status_HE_<<std::endl;
+	  std::cout<<"\tHO: "<<status_HO_<<std::endl;
+	  std::cout<<"\tHF: "<<status_HF_<<std::endl;
+	  std::cout<<"\tHO0: "<<status_HO0_<<std::endl;
+	  std::cout<<"\tHO12: "<<status_HO12_<<std::endl;
+	  std::cout<<"\tHFlumi: "<<status_HFlumi_<<std::endl;
+	}
 
- // don't want to fool with variable-sized arrays at the moment; revisit later
- //const unsigned int csize=clients_.size();
- double localHB[20]={0};
- double localHE[20]={0};
- double localHF[20]={0};
- double localHO[20]={0};
- double localHFlumi[20]={0};
- double localHO0[20]={0};
- double localHO12[20]={0};
+      fillReportSummary(LS);
+      return;
+    }
+  if (EnoughEvents_!=0) EnoughEvents_->setBinContent(clients_.size()+1,1); // summary is good to go!
 
- // reset all depth histograms
- if (SummaryMapByDepth==0)
-   {
+  // set status to 0 if subdetector is present (or assumed present)
+  if (HBpresent_>0) status_HB_=0;
+  if (HEpresent_>0) status_HE_=0;
+  if (HOpresent_>0) {status_HO_=0; status_HO0_=0; status_HO12_=0;}
+  if (HFpresent_>0) {status_HF_=0; status_HFlumi_=0;}
+
+  if (HBpresent_>0 || HEpresent_>0 ||
+      HOpresent_>0 || HFpresent_>0 ) 
+    status_global_=0;
+
+  // don't want to fool with variable-sized arrays at the moment; revisit later
+  //const unsigned int csize=clients_.size();
+  double localHB[20]={0};
+  double localHE[20]={0};
+  double localHF[20]={0};
+  double localHO[20]={0};
+  double localHFlumi[20]={0};
+  double localHO0[20]={0};
+  double localHO12[20]={0};
+
+  // reset all depth histograms
+  if (SummaryMapByDepth==0)
+    {
       if (debug_>0)
-       std::cout <<"<HcalSummaryClient::analyze>  ERROR:  SummaryMapByDepth can't be found!"<<std::endl;
-   }
- else 
-   {
-     for (unsigned int i=0;i<(SummaryMapByDepth->depth).size();++i)
-       SummaryMapByDepth->depth[i]->Reset();
+	std::cout <<"<HcalSummaryClient::analyze>  ERROR:  SummaryMapByDepth can't be found!"<<std::endl;
+    }
+  else 
+    {
+      for (unsigned int i=0;i<(SummaryMapByDepth->depth).size();++i)
+	SummaryMapByDepth->depth[i]->Reset();
  
-     int etabins=-9999;
-     int phibins=-9999;
-     for (int d=0;d<4;++d)
-       {
-	 etabins=(SummaryMapByDepth->depth[d])->getNbinsX();
-	 phibins=(SummaryMapByDepth->depth[d])->getNbinsY();
-	 for (int eta=1;eta<=etabins;++eta)
-	   {
-	     int ieta=CalcIeta(eta-1,d+1);
-	     for (int phi=1;phi<=phibins;++phi)
-	       {
-		 // local phi counter is the same as iphi
-		 // for |ieta|>20, iphi%2==0 cells are unphysical; skip 'em
-		 // for |ieta|>39, iphi%4!=3 cells are unphysical
-		 if (abs(ieta)>20 && phi%2==0) continue;
-		 if (abs(ieta)>39 && phi%4!=3) continue;
-		 // loop over all client tests
+      int etabins=-9999;
+      int phibins=-9999;
+      for (int d=0;d<4;++d)
+	{
+	  etabins=(SummaryMapByDepth->depth[d])->getNbinsX();
+	  phibins=(SummaryMapByDepth->depth[d])->getNbinsY();
+	  for (int eta=1;eta<=etabins;++eta)
+	    {
+	      int ieta=CalcIeta(eta-1,d+1);
+	      for (int phi=1;phi<=phibins;++phi)
+		{
+		  // local phi counter is the same as iphi
+		  // for |ieta|>20, iphi%2==0 cells are unphysical; skip 'em
+		  // for |ieta|>39, iphi%4!=3 cells are unphysical
+		  if (abs(ieta)>20 && phi%2==0) continue;
+		  if (abs(ieta)>39 && phi%4!=3) continue;
+		  // loop over all client tests
 		 
-		 // SummaryMapByDepth is slightly different from previous version -- it now just shows cells
-		 // that contribute as "problems", rather than giving good channels a status of 1, and bad a status of 0
-		 for (unsigned int cl=0;cl<clients_.size();++cl)
-		   {
-		     // Best way to handle this?  
-		     // We know that first element is HcalMonitorModule info, which has
-		     // no problem cells defined.  Create some, or start counting from cl=1?
-		     if (debug_>4 && eta==1 && phi==1) std::cout <<"Checking summary for client "<<clients_[cl]->name()<<std::endl;
-		     if (clients_[cl]->ProblemCellsByDepth==0) continue;
+		  // SummaryMapByDepth is slightly different from previous version -- it now just shows cells
+		  // that contribute as "problems", rather than giving good channels a status of 1, and bad a status of 0
+		  for (unsigned int cl=0;cl<clients_.size();++cl)
+		    {
+		      // Best way to handle this?  
+		      // We know that first element is HcalMonitorModule info, which has
+		      // no problem cells defined.  Create some, or start counting from cl=1?
+		      if (debug_>4 && eta==1 && phi==1) std::cout <<"Checking summary for client "<<clients_[cl]->name()<<std::endl;
+		      if (clients_[cl]->ProblemCellsByDepth==0) continue;
 
-		     if ((clients_[cl]->ProblemCellsByDepth)->depth[d]==0) continue;
-		     if ((clients_[cl]->ProblemCellsByDepth)->depth[d]->getBinContent(eta,phi)>clients_[cl]->minerrorrate_)
-		       {
-			 if ((clients_[cl]->ProblemCellsByDepth)->depth[d]->getBinContent(eta,phi)<999)
-			   SummaryMapByDepth->depth[d]->setBinContent(eta,phi,1);
-			 else 
-			   SummaryMapByDepth->depth[d]->setBinContent(eta,phi,999); // known problems filled with a value of 999
-			 if (isHF(eta-1,d+1)) 
-			   {
-			     ++status_HF_;
-			     if ((d==0 && (abs(ieta)==33 || abs(ieta)==34)) ||   // depth 1, rings 33,34
-				 (d==1 && (abs(ieta)==35 || abs(ieta)==36)))     // depth 2, rings 35,36
-			       ++status_HFlumi_; 
-			   }
-			 else if (isHO(eta-1,d+1)) 
-			   {
-			     ++status_HO_;
-			     if (abs(ieta)<5) ++status_HO0_; 
-			     else ++status_HO12_; 
-			   }
-			 else if (isHB(eta-1,d+1)) ++status_HB_;
-			 else if (isHE(eta-1,d+1)) ++status_HE_;
-			 break; // man, this break causes problems for certificationMap!!!
-		       }
-		   } // for (1st loop on clients_.size()
+		      if ((clients_[cl]->ProblemCellsByDepth)->depth[d]==0) continue;
+		      if ((clients_[cl]->ProblemCellsByDepth)->depth[d]->getBinContent(eta,phi)>clients_[cl]->minerrorrate_)
+			{
+			  if ((clients_[cl]->ProblemCellsByDepth)->depth[d]->getBinContent(eta,phi)<999)
+			    SummaryMapByDepth->depth[d]->setBinContent(eta,phi,1);
+			  else 
+			    SummaryMapByDepth->depth[d]->setBinContent(eta,phi,999); // known problems filled with a value of 999
+			  if (isHF(eta-1,d+1)) 
+			    {
+			      ++status_HF_;
+			      if ((d==0 && (abs(ieta)==33 || abs(ieta)==34)) ||   // depth 1, rings 33,34
+				  (d==1 && (abs(ieta)==35 || abs(ieta)==36)))     // depth 2, rings 35,36
+				++status_HFlumi_; 
+			    }
+			  else if (isHO(eta-1,d+1)) 
+			    {
+			      ++status_HO_;
+			      if (abs(ieta)<5) ++status_HO0_; 
+			      else ++status_HO12_; 
+			    }
+			  else if (isHB(eta-1,d+1)) ++status_HB_;
+			  else if (isHE(eta-1,d+1)) ++status_HE_;
+			  break; // man, this break causes problems for certificationMap!!!
+			}
+		    } // for (1st loop on clients_.size()
 
-		 for (unsigned int cl=0;cl<clients_.size();++cl)
-		   {
-		     if (clients_[cl]->ProblemCellsByDepth==0) continue;
+		  for (unsigned int cl=0;cl<clients_.size();++cl)
+		    {
+		      if (clients_[cl]->ProblemCellsByDepth==0) continue;
 
-		     if ((clients_[cl]->ProblemCellsByDepth)->depth[d]==0) continue;
-		     if ((clients_[cl]->ProblemCellsByDepth)->depth[d]->getBinContent(eta,phi)>clients_[cl]->minerrorrate_)
-		       {
-			 if (isHF(eta-1,d+1)) 
-			   {
-			     ++localHF[cl];
-			     if ((d==0 && (abs(ieta)==33 || abs(ieta)==34)) ||   // depth 1, rings 33,34
-				 (d==1 && (abs(ieta)==35 || abs(ieta)==36)))     // depth 2, rings 35,36
-			       ++localHFlumi[cl]; 
-			   }
-			 else if (isHO(eta-1,d+1)) 
-			   {
-			     ++localHO[cl];
-			     if (abs(ieta)<5) ++localHO0[cl]; 
-			     else ++localHO12[cl]; 
-			   }
-			 else if (isHB(eta-1,d+1)) ++localHB[cl];
-			 else if (isHE(eta-1,d+1)) ++localHE[cl];
-		       }
-		   } // for (2nd loop on clients_.size()
-	       }
-	   }
-       } // for (int d=0;d<4;++d)
+		      if ((clients_[cl]->ProblemCellsByDepth)->depth[d]==0) continue;
+		      if ((clients_[cl]->ProblemCellsByDepth)->depth[d]->getBinContent(eta,phi)>clients_[cl]->minerrorrate_)
+			{
+			  if (isHF(eta-1,d+1)) 
+			    {
+			      ++localHF[cl];
+			      if ((d==0 && (abs(ieta)==33 || abs(ieta)==34)) ||   // depth 1, rings 33,34
+				  (d==1 && (abs(ieta)==35 || abs(ieta)==36)))     // depth 2, rings 35,36
+				++localHFlumi[cl]; 
+			    }
+			  else if (isHO(eta-1,d+1)) 
+			    {
+			      ++localHO[cl];
+			      if (abs(ieta)<5) ++localHO0[cl]; 
+			      else ++localHO12[cl]; 
+			    }
+			  else if (isHB(eta-1,d+1)) ++localHB[cl];
+			  else if (isHE(eta-1,d+1)) ++localHE[cl];
+			}
+		    } // for (2nd loop on clients_.size()
+		}
+	    }
+	} // for (int d=0;d<4;++d)
 
-     FillUnphysicalHEHFBins(*SummaryMapByDepth);
-  } // else (SummaryMapByDepth exists)
+      FillUnphysicalHEHFBins(*SummaryMapByDepth);
+    } // else (SummaryMapByDepth exists)
 
- // We've checked all problems; now compute overall status
- int totalcells=0;
- std::map<std::string, int>::const_iterator it;
+  // We've checked all problems; now compute overall status
+  int totalcells=0;
+  std::map<std::string, int>::const_iterator it;
 
- if (HBpresent_!=0)
-   {
-     status_global_+=status_HB_; 
-     it=subdetCells_.find("HB");
-     totalcells+=it->second;
-     status_HB_= 1-(status_HB_/it->second);
-     for (unsigned int i=0;i<clients_.size();++i)
-       {
-	 localHB[i]=1-(1.*localHB[i]/it->second);
-	 localHB[i]=std::max(0.,localHB[i]);
-       }
-     status_HB_=std::max(0.,status_HB_); // converts fraction of bad channels to good fraction
-   }
- else status_HB_=-1;
-
- if (HEpresent_!=0)
-   {
-     status_global_+=status_HE_;
-     it=subdetCells_.find("HE");
-     totalcells+=it->second;
-     status_HE_= 1-(status_HE_/it->second);
-     for (unsigned int i=0;i<clients_.size();++i)
-       {
-	 localHE[i]=1-(1.*localHE[i]/it->second);
-	 localHE[i]=std::max(0.,localHE[i]);
-       }
-     status_HE_=std::max(0.,status_HE_); // converts fraction of bad channels to good fraction
-   }
- else status_HE_=-1;
+  if (HBpresent_>0)
+    {
+      status_global_+=status_HB_; 
+      it=subdetCells_.find("HB");
+      totalcells+=it->second;
+      status_HB_= 1-(status_HB_/it->second);
+      for (unsigned int i=0;i<clients_.size();++i)
+	{
+	  localHB[i]=1-(1.*localHB[i]/it->second);
+	  localHB[i]=std::max(0.,localHB[i]);
+	}
+      status_HB_=std::max(0.,status_HB_); // converts fraction of bad channels to good fraction
+    }
+  else status_HB_=-1; // enoughevents_ can be true even if HB not present; need to set status_HB_=-1 in both cases
  
- if (HOpresent_!=0)
-   {
-     status_global_+=status_HO_;
-     it=subdetCells_.find("HO");
-     totalcells+=it->second;
-     status_HO_= 1-(status_HO_/it->second);
-     status_HO_=std::max(0.,status_HO_); // converts fraction of bad channels to good fraction
-     for (unsigned int i=0;i<clients_.size();++i)
-       {
-	 localHO[i]=1-(1.*localHO[i]/it->second);
-	 localHO[i]=std::max(0.,localHO[i]);
-       }
-     it=subdetCells_.find("HO0");
-     status_HO0_= 1-(status_HO0_/it->second);
-     for (unsigned int i=0;i<clients_.size();++i)
-       {
-	 localHO0[i]=1-(1.*localHO0[i]/it->second);
-	 localHO0[i]=std::max(0.,localHO0[i]);
-       }
-     status_HO0_=std::max(0.,status_HO0_); // converts fraction of bad channels to good fraction
-     it=subdetCells_.find("HO12");
-     status_HO12_= 1-(status_HO12_/it->second);
-     status_HO12_=std::max(0.,status_HO12_); // converts fraction of bad channels to good fraction
-     for (unsigned int i=0;i<clients_.size();++i)
-       {
-	 localHO12[i]=1-(1.*localHO12[i]/it->second);
-	 localHO12[i]=std::max(0.,localHO12[i]);
-       }
-   }
- else
-   {
-     status_HO_=-1;
-     status_HO0_=-1;
-     status_HO12_=-1;
-   }
-  if (HFpresent_!=0)
+  if (HEpresent_>0)
+    {
+      status_global_+=status_HE_;
+      it=subdetCells_.find("HE");
+      totalcells+=it->second;
+      status_HE_= 1-(status_HE_/it->second);
+      for (unsigned int i=0;i<clients_.size();++i)
+	{
+	  localHE[i]=1-(1.*localHE[i]/it->second);
+	  localHE[i]=std::max(0.,localHE[i]);
+	}
+      status_HE_=std::max(0.,status_HE_); // converts fraction of bad channels to good fraction
+    }
+  else status_HE_=-1;
+ 
+  if (HOpresent_>0)
+    {
+      status_global_+=status_HO_;
+      it=subdetCells_.find("HO");
+      totalcells+=it->second;
+      status_HO_= 1-(status_HO_/it->second);
+      status_HO_=std::max(0.,status_HO_); // converts fraction of bad channels to good fraction
+      for (unsigned int i=0;i<clients_.size();++i)
+	{
+	  localHO[i]=1-(1.*localHO[i]/it->second);
+	  localHO[i]=std::max(0.,localHO[i]);
+	}
+      it=subdetCells_.find("HO0");
+      status_HO0_= 1-(status_HO0_/it->second);
+      for (unsigned int i=0;i<clients_.size();++i)
+	{
+	  localHO0[i]=1-(1.*localHO0[i]/it->second);
+	  localHO0[i]=std::max(0.,localHO0[i]);
+	}
+      status_HO0_=std::max(0.,status_HO0_); // converts fraction of bad channels to good fraction
+      it=subdetCells_.find("HO12");
+      status_HO12_= 1-(status_HO12_/it->second);
+      status_HO12_=std::max(0.,status_HO12_); // converts fraction of bad channels to good fraction
+      for (unsigned int i=0;i<clients_.size();++i)
+	{
+	  localHO12[i]=1-(1.*localHO12[i]/it->second);
+	  localHO12[i]=std::max(0.,localHO12[i]);
+	}
+    }
+  else
+    {
+      status_HO_=-1;
+      status_HO0_=-1;
+      status_HO12_=-1;
+    }
+  if (HFpresent_>0)
     {
       status_global_+=status_HF_;
       it=subdetCells_.find("HF");
@@ -326,25 +366,25 @@ void HcalSummaryClient::analyze(int LS)
       status_HF_= 1-(status_HF_/it->second);
       status_HF_=std::max(0.,status_HF_); // converts fraction of bad channels to good fraction
       for (unsigned int i=0;i<clients_.size();++i)
-       {
-	 localHF[i]=1-(1.*localHF[i]/it->second);
-	 localHF[i]=std::max(0.,localHF[i]);
-       }
+	{
+	  localHF[i]=1-(1.*localHF[i]/it->second);
+	  localHF[i]=std::max(0.,localHF[i]);
+	}
       it=subdetCells_.find("HFlumi");
       status_HFlumi_= 1-(status_HFlumi_/it->second);
       status_HFlumi_=std::max(0.,status_HFlumi_); // converts fraction of bad channels to good fraction
       for (unsigned int i=0;i<clients_.size();++i)
-       {
-	 localHFlumi[i]=1-(1.*localHFlumi[i]/it->second);
-	 localHFlumi[i]=std::max(0.,localHFlumi[i]);
-       }
+	{
+	  localHFlumi[i]=1-(1.*localHFlumi[i]/it->second);
+	  localHFlumi[i]=std::max(0.,localHFlumi[i]);
+	}
     }
   else
     {
       status_HF_=-1;
       status_HFlumi_=-1;
     }
-
+ 
   if (totalcells==0)
     status_global_=-1;
   else
@@ -352,6 +392,7 @@ void HcalSummaryClient::analyze(int LS)
       status_global_=1-status_global_/totalcells;
       status_global_=std::max(0.,status_global_); // convert to good fraction
     }
+ 
 
   // Fill certification map here
 
@@ -402,7 +443,7 @@ void HcalSummaryClient::analyze(int LS)
 void HcalSummaryClient::fillReportSummary(int LS)
 {
 
- // We've now checked all tasks; now let's calculate summary values
+  // We've now checked all tasks; now let's calculate summary values
  
   if (debug_>2)  std::cout <<"<HcalSummaryClient::fillReportSummary>"<<std::endl;
 
@@ -424,14 +465,14 @@ void HcalSummaryClient::fillReportSummary(int LS)
     {
       if (StatusVsLS_)
         {
-        StatusVsLS_->setBinContent(LS,1,status_HB_);
-        StatusVsLS_->setBinContent(LS,2,status_HE_);
-        StatusVsLS_->setBinContent(LS,3,status_HO_);
-        StatusVsLS_->setBinContent(LS,4,status_HF_);
-        StatusVsLS_->setBinContent(LS,5,status_HO0_);
-        StatusVsLS_->setBinContent(LS,6,status_HO12_);
-        StatusVsLS_->setBinContent(LS,7,status_HFlumi_);
-      }
+	  StatusVsLS_->setBinContent(LS,1,status_HB_);
+	  StatusVsLS_->setBinContent(LS,2,status_HE_);
+	  StatusVsLS_->setBinContent(LS,3,status_HO_);
+	  StatusVsLS_->setBinContent(LS,4,status_HF_);
+	  StatusVsLS_->setBinContent(LS,5,status_HO0_);
+	  StatusVsLS_->setBinContent(LS,6,status_HO12_);
+	  StatusVsLS_->setBinContent(LS,7,status_HFlumi_);
+	}
     }
 
   MonitorElement* me;
@@ -447,6 +488,11 @@ void HcalSummaryClient::fillReportSummary(int LS)
       reportMap_->setBinContent(5,1,status_HO0_);
       reportMap_->setBinContent(6,1,status_HO12_);
       reportMap_->setBinContent(7,1,status_HFlumi_);
+      // Set reportMap underflow bin based on whether enough total events have been processed
+      if (enoughevents_==false)
+	reportMap_->setBinContent(0,0,-1);
+      else
+	reportMap_->setBinContent(0,0,1);
     }
   else if (debug_>0) std::cout <<"<HcalSummaryClient::fillReportSummary> CANNOT GET REPORT SUMMARY MAP!!!!!"<<std::endl;
 
@@ -560,6 +606,12 @@ void HcalSummaryClient::fillReportSummaryLSbyLS(int LS)
       reportMap_->setBinContent(5,1,status_HO0);
       reportMap_->setBinContent(6,1,status_HO12);
       reportMap_->setBinContent(7,1,status_HFlumi);
+      // Set reportMap underflow bin based on whether enough total events have been processed
+      if (enoughevents_==false)
+	reportMap_->setBinContent(0,0,-1);
+      else
+	reportMap_->setBinContent(0,0,1);
+
     }
   else if (debug_>0) std::cout <<"<HcalSummaryClient::fillReportSummaryLSbyLS> CANNOT GET REPORT SUMMARY MAP!!!!!"<<std::endl;
 
@@ -669,7 +721,7 @@ void HcalSummaryClient::beginRun(void)
   if (me) dqmStore_->removeElement(me->getName());
   me=dqmStore_->get(prefixME_+"HcalInfo/SummaryClientPlots/HE Depth 3 Problem Summary Map");
   if (me) dqmStore_->removeElement(me->getName());
-   me=dqmStore_->get(prefixME_+"HcalInfo/SummaryClientPlots/HO Depth 4 Problem Summary Map");
+  me=dqmStore_->get(prefixME_+"HcalInfo/SummaryClientPlots/HO Depth 4 Problem Summary Map");
   if (me) dqmStore_->removeElement(me->getName());
 
   if (EnoughEvents_==0)
@@ -679,7 +731,7 @@ void HcalSummaryClient::beginRun(void)
   EnoughEvents_->setBinLabel(1+(int)clients_.size(),"Summary");
 
   if (MinEvents_==0)
-    MinEvents_=dqmStore_->book1D("MinEvents","Minimum Events Required From Each Task To From Summary",
+    MinEvents_=dqmStore_->book1D("MinEvents","Minimum Events Required From Each Task To Form Summary",
 				 1+(int)clients_.size(),0,1+(int)clients_.size());
   int summin=0;
   for (std::vector<HcalBaseDQClient*>::size_type i=0;i<clients_.size();++i)
@@ -730,8 +782,8 @@ void HcalSummaryClient::beginRun(void)
   StatusVsLS_ = dqmStore_->get(prefixME_+"HcalInfo/SummaryClientPlots/StatusVsLS");
   if (StatusVsLS_) dqmStore_->removeElement(StatusVsLS_->getName());
   StatusVsLS_ = dqmStore_->book2D("StatusVsLS","Status vs. Luminosity Section",
-				 NLumiBlocks_,0.5,NLumiBlocks_+0.5,
-				 7,0,7);
+				  NLumiBlocks_,0.5,NLumiBlocks_+0.5,
+				  7,0,7);
   // Set all status values to -1 to begin
   for (int i=1;i<=NLumiBlocks_;++i)
     for (int j=1;j<=7;++j)

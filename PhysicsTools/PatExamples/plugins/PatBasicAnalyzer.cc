@@ -19,9 +19,11 @@ public:
   ~PatBasicAnalyzer();
   
 private:
-
+  /// everything that needs to be done before the event loop
   virtual void beginJob() ;
+  /// everything that needs to be done during the event loop
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  /// everything that needs to be done after the event loop
   virtual void endJob() ;
   
   // simple map to contain all histograms; 
@@ -116,7 +118,8 @@ PatBasicAnalyzer::beginJob()
   edm::Service<TFileService> fs;
   
   // book histograms:
-  jetTowers_= fs->make<TH1F>("jetTowers", "towers per jet",   90, 0,  90); 
+  // uncomment the following line to book the jetTowers_ histogram
+  //jetTowers_= fs->make<TH1F>("jetTowers", "towers per jet",   90, 0,  90); 
   histContainer_["photons"]=fs->make<TH1F>("photons", "photon multiplicity",   10, 0,  10);
   histContainer_["elecs"  ]=fs->make<TH1F>("elecs",   "electron multiplicity", 10, 0,  10);
   histContainer_["muons"  ]=fs->make<TH1F>("muons",   "muon multiplicity",     10, 0,  10);

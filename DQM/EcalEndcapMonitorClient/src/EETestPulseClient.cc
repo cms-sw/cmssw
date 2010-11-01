@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2010/05/28 09:02:48 $
- * $Revision: 1.116 $
+ * $Date: 2010/08/09 13:22:18 $
+ * $Revision: 1.121 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -26,18 +26,17 @@
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
 #endif
 
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
+#include "DQM/EcalCommon/interface/Masks.h"
 
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
-#include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EETestPulseClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EETestPulseClient.h"
 
 EETestPulseClient::EETestPulseClient(const edm::ParameterSet& ps) {
 
@@ -185,22 +184,25 @@ void EETestPulseClient::setup(void) {
       if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
       sprintf(histo, "EETPT test pulse quality G01 %s", Numbers::sEE(ism).c_str());
       meg01_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-      meg01_[ism-1]->setAxisTitle("jx", 1);
-      meg01_[ism-1]->setAxisTitle("jy", 2);
+      meg01_[ism-1]->setAxisTitle("ix", 1);
+      if ( ism >= 1 && ism <= 9 ) meg01_[ism-1]->setAxisTitle("101-ix", 1);
+      meg01_[ism-1]->setAxisTitle("iy", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
       if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
       sprintf(histo, "EETPT test pulse quality G06 %s", Numbers::sEE(ism).c_str());
       meg02_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-      meg02_[ism-1]->setAxisTitle("jx", 1);
-      meg02_[ism-1]->setAxisTitle("jy", 2);
+      meg02_[ism-1]->setAxisTitle("ix", 1);
+      if ( ism >= 1 && ism <= 9 ) meg02_[ism-1]->setAxisTitle("101-ix", 1);
+      meg02_[ism-1]->setAxisTitle("iy", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
       if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
       sprintf(histo, "EETPT test pulse quality G12 %s", Numbers::sEE(ism).c_str());
       meg03_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-      meg03_[ism-1]->setAxisTitle("jx", 1);
-      meg03_[ism-1]->setAxisTitle("jy", 2);
+      meg03_[ism-1]->setAxisTitle("ix", 1);
+      if ( ism >= 1 && ism <= 9 ) meg03_[ism-1]->setAxisTitle("101-ix", 1);
+      meg03_[ism-1]->setAxisTitle("iy", 2);
     }
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
@@ -699,35 +701,25 @@ void EETestPulseClient::analyze(void) {
     if ( debug_ ) std::cout << "EETestPulseClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
-  uint64_t bits01 = 0;
-  bits01 |= EcalErrorDictionary::getMask("TESTPULSE_LOW_GAIN_MEAN_WARNING");
-  bits01 |= EcalErrorDictionary::getMask("TESTPULSE_LOW_GAIN_RMS_WARNING");
+  uint32_t bits01 = 0;
+  bits01 |= 1 << EcalDQMStatusHelper::TESTPULSE_LOW_GAIN_MEAN_ERROR;
+  bits01 |= 1 << EcalDQMStatusHelper::TESTPULSE_LOW_GAIN_RMS_ERROR;
 
-  uint64_t bits02 = 0;
-  bits02 |= EcalErrorDictionary::getMask("TESTPULSE_MIDDLE_GAIN_MEAN_WARNING");
-  bits02 |= EcalErrorDictionary::getMask("TESTPULSE_MIDDLE_GAIN_RMS_WARNING");
+  uint32_t bits02 = 0;
+  bits02 |= 1 << EcalDQMStatusHelper::TESTPULSE_MIDDLE_GAIN_MEAN_ERROR;
+  bits02 |= 1 << EcalDQMStatusHelper::TESTPULSE_MIDDLE_GAIN_RMS_ERROR;
 
-  uint64_t bits03 = 0;
-  bits03 |= EcalErrorDictionary::getMask("TESTPULSE_HIGH_GAIN_MEAN_WARNING");
-  bits03 |= EcalErrorDictionary::getMask("TESTPULSE_HIGH_GAIN_RMS_WARNING");
+  uint32_t bits03 = 0;
+  bits03 |= 1 << EcalDQMStatusHelper::TESTPULSE_HIGH_GAIN_MEAN_ERROR;
+  bits03 |= 1 << EcalDQMStatusHelper::TESTPULSE_HIGH_GAIN_RMS_ERROR;
 
-  uint64_t bits04 = 0;
-  bits04 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_WARNING");
-  bits04 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_RMS_WARNING");
-  bits04 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_ERROR");
-  bits04 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_RMS_ERROR");
+  uint32_t bits04 = 0;
+  bits04 |= 1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR;
+  bits04 |= 1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_RMS_ERROR;
 
-  uint64_t bits05 = 0;
-  bits05 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_MEAN_WARNING");
-  bits05 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_RMS_WARNING");
-  bits05 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_MEAN_ERROR");
-  bits05 |= EcalErrorDictionary::getMask("PEDESTAL_MIDDLE_GAIN_RMS_ERROR");
-
-  uint64_t bits06 = 0;
-  bits06 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_WARNING");
-  bits06 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_WARNING");
-  bits06 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_ERROR");
-  bits06 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_ERROR");
+  uint32_t bits05 = 0;
+  bits05 |= 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR;
+  bits05 |= 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_RMS_ERROR;
 
   char histo[200];
 
@@ -974,6 +966,10 @@ void EETestPulseClient::analyze(void) {
 
         }
 
+        if ( Masks::maskChannel(ism, ix, iy, bits01, EcalEndcap) ) UtilsClient::maskBinContent( meg01_[ism-1], ix, iy );
+        if ( Masks::maskChannel(ism, ix, iy, bits02, EcalEndcap) ) UtilsClient::maskBinContent( meg02_[ism-1], ix, iy );
+        if ( Masks::maskChannel(ism, ix, iy, bits03, EcalEndcap) ) UtilsClient::maskBinContent( meg03_[ism-1], ix, iy );
+
       }
     }
 
@@ -1038,6 +1034,9 @@ void EETestPulseClient::analyze(void) {
 
       }
 
+      if ( Masks::maskPn(ism, i, bits01|bits04, EcalEndcap) ) UtilsClient::maskBinContent( meg04_[ism-1], i, 1 );
+      if ( Masks::maskPn(ism, i, bits03|bits05, EcalEndcap) ) UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
+
     }
 
     for ( int i = 1; i <= 10; i++ ) {
@@ -1069,256 +1068,6 @@ void EETestPulseClient::analyze(void) {
     }
 
   }
-
-#ifdef WITH_ECAL_COND_DB
-  if ( EcalErrorMask::mapCrystalErrors_.size() != 0 ) {
-    map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
-    for (m = EcalErrorMask::mapCrystalErrors_.begin(); m != EcalErrorMask::mapCrystalErrors_.end(); m++) {
-
-      if ( (m->second).getErrorBits() & bits01 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EE_crystal_number") != 0 ) continue;
-
-        int iz = ecid.getID1();
-        int ix = ecid.getID2();
-        int iy = ecid.getID3();
-
-        for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-          int ism = superModules_[i];
-          std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-          if (iter == superModules_.end()) continue;
-          if ( iz == -1 && ( ism >=  1 && ism <=  9 ) ) {
-            int jx = 101 - ix - Numbers::ix0EE(ism);
-            int jy = iy - Numbers::iy0EE(ism);
-            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
-          }
-          if ( iz == +1 && ( ism >= 10 && ism <= 18 ) ) {
-            int jx = ix - Numbers::ix0EE(ism);
-            int jy = iy - Numbers::iy0EE(ism);
-            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
-          }
-        }
-
-      }
-
-      if ( (m->second).getErrorBits() & bits02 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EE_crystal_number") != 0 ) continue;
-
-        int iz = ecid.getID1();
-        int ix = ecid.getID2();
-        int iy = ecid.getID3();
-
-        for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-          int ism = superModules_[i];
-          std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-          if (iter == superModules_.end()) continue;
-          if ( iz == -1 && ( ism >=  1 && ism <=  9 ) ) {
-            int jx = 101 - ix - Numbers::ix0EE(ism);
-            int jy = iy - Numbers::iy0EE(ism);
-            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg02_[ism-1], jx, jy );
-          }
-          if ( iz == +1 && ( ism >= 10 && ism <= 18 ) ) {
-            int jx = ix - Numbers::ix0EE(ism);
-            int jy = iy - Numbers::iy0EE(ism);
-            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg02_[ism-1], jx, jy );
-          }
-        }
-
-      }
-
-      if ( (m->second).getErrorBits() & bits03 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EE_crystal_number") != 0 ) continue;
-
-        int iz = ecid.getID1();
-        int ix = ecid.getID2();
-        int iy = ecid.getID3();
-
-        for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-          int ism = superModules_[i];
-          std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-          if (iter == superModules_.end()) continue;
-          if ( iz == -1 && ( ism >=  1 && ism <=  9 ) ) {
-            int jx = 101 - ix - Numbers::ix0EE(ism);
-            int jy = iy - Numbers::iy0EE(ism);
-            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg03_[ism-1], jx, jy );
-          }
-          if ( iz == +1 && ( ism >= 10 && ism <= 18 ) ) {
-            int jx = ix - Numbers::ix0EE(ism);
-            int jy = iy - Numbers::iy0EE(ism);
-            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg03_[ism-1], jx, jy );
-          }
-        }
-
-      }
-
-    }
-  }
-
-  if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
-    map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-    for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
-
-      if ( (m->second).getErrorBits() & bits01 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
-
-        int idcc = ecid.getID1() - 600;
-
-        int ism = -1;
-        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
-        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
-        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-        if (iter == superModules_.end()) continue;
-
-        int itt = ecid.getID2();
-
-        if ( itt > 70 ) continue;
-
-        if ( itt >= 42 && itt <= 68 ) continue;
-
-        if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
-
-        if ( itt >= 1 && itt <= 68 ) {
-          std::vector<DetId>* crystals = Numbers::crystals( idcc, itt );
-          for ( unsigned int i=0; i<crystals->size(); i++ ) {
-            EEDetId id = (*crystals)[i];
-            int ix = id.ix();
-            int iy = id.iy();
-            if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
-            int jx = ix - Numbers::ix0EE(ism);
-            int jy = iy - Numbers::iy0EE(ism);
-            UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
-          }
-        }
-
-      }
-
-      if ( (m->second).getErrorBits() & bits02 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
-
-        int idcc = ecid.getID1() - 600;
-
-        int ism = -1;
-        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
-        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
-        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-        if (iter == superModules_.end()) continue;
-
-        int itt = ecid.getID2();
-
-        if ( itt > 70 ) continue;
-
-        if ( itt >= 42 && itt <= 68 ) continue;
-
-        if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
-
-        if ( itt >= 1 && itt <= 68 ) {
-          std::vector<DetId>* crystals = Numbers::crystals( idcc, itt );
-          for ( unsigned int i=0; i<crystals->size(); i++ ) {
-            EEDetId id = (*crystals)[i];
-            int ix = id.ix();
-            int iy = id.iy();
-            if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
-            int jx = ix - Numbers::ix0EE(ism);
-            int jy = iy - Numbers::iy0EE(ism);
-            UtilsClient::maskBinContent( meg02_[ism-1], jx, jy );
-          }
-        }
-
-      }
-
-      if ( (m->second).getErrorBits() & bits03 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
-
-        int idcc = ecid.getID1() - 600;
-
-        int ism = -1;
-        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
-        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
-        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-        if (iter == superModules_.end()) continue;
-
-        int itt = ecid.getID2();
-
-        if ( itt > 70 ) continue;
-
-        if ( itt >= 42 && itt <= 68 ) continue;
-
-        if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
-
-        if ( itt >= 1 && itt <= 68 ) {
-          std::vector<DetId>* crystals = Numbers::crystals( idcc, itt );
-          for ( unsigned int i=0; i<crystals->size(); i++ ) {
-            EEDetId id = (*crystals)[i];
-            int ix = id.ix();
-            int iy = id.iy();
-            if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
-            int jx = ix - Numbers::ix0EE(ism);
-            int jy = iy - Numbers::iy0EE(ism);
-            UtilsClient::maskBinContent( meg03_[ism-1], jx, jy );
-          }
-        }
-
-      }
-
-    }
-  }
-
-  if ( EcalErrorMask::mapPNErrors_.size() != 0 ) {
-    map<EcalLogicID, RunPNErrorsDat>::const_iterator m;
-    for (m = EcalErrorMask::mapPNErrors_.begin(); m != EcalErrorMask::mapPNErrors_.end(); m++) {
-
-      if ( (m->second).getErrorBits() & bits01 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EE_LM_PN") != 0 ) continue;
-
-        int idcc = ecid.getID1() - 600;
-
-        int ism = -1;
-        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
-        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
-        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-        if (iter == superModules_.end()) continue;
-
-        int i = ecid.getID2() + 1;
-
-        UtilsClient::maskBinContent( meg04_[ism-1], i, 1 );
-
-      }
-
-      if ( (m->second).getErrorBits() & bits03 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EE_LM_PN") != 0 ) continue;
-
-        int idcc = ecid.getID1() - 600;
-
-        int ism = -1;
-        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
-        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
-        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-        if (iter == superModules_.end()) continue;
-
-        int i = ecid.getID2() + 1;
-
-        UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
-
-      }
-
-    }
-  }
-#endif
 
 }
 

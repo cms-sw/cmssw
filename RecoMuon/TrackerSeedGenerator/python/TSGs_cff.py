@@ -20,7 +20,7 @@ TSGsBlock = cms.PSet(
              useMultScattering = cms.bool(True),
              ComponentName = cms.string('PixelTripletHLTGenerator'),
              extraHitRZtolerance = cms.double(0.06),
-             maxTriplets = cms.uint32( 10000 )
+             maxElement = cms.uint32( 10000 )
              )
            ),
          TTRHBuilder = cms.string('WithTrackAngle')
@@ -30,7 +30,9 @@ TSGsBlock = cms.PSet(
          ComponentName = cms.string('TSGFromOrderedHits'),
          OrderedHitsFactoryPSet = cms.PSet(
            ComponentName = cms.string('StandardHitPairGenerator'),
-           SeedingLayers = cms.string('PixelLayerPairs')
+           SeedingLayers = cms.string('PixelLayerPairs'),
+	   useOnDemandTracker = cms.untracked.int32( 0 ),
+	   maxElement = cms.uint32( 0 )
            ),
          TTRHBuilder = cms.string('WithTrackAngle')
          ),
@@ -42,7 +44,9 @@ TSGsBlock = cms.PSet(
            ComponentName = cms.string('TSGFromOrderedHits'),
            OrderedHitsFactoryPSet = cms.PSet(
              ComponentName = cms.string('StandardHitPairGenerator'),
-             SeedingLayers = cms.string('MixedLayerPairs')
+             SeedingLayers = cms.string('MixedLayerPairs'),
+	     useOnDemandTracker = cms.untracked.int32( 0 ),
+	     maxElement = cms.uint32( 0 )
              ),
            TTRHBuilder = cms.string('WithTrackAngle')
            ),
@@ -60,6 +64,7 @@ TSGsBlock = cms.PSet(
       UseVertexState = cms.bool( True ),
       UpdateState = cms.bool( True ),
       SelectState = cms.bool( False ),
+      beamSpot = cms.InputTag("hltOfflineBeamSpot")
       ##       errorMatrixPset = cms.PSet(
       ##           MuonErrorMatrixValues,
       ##           action = cms.string('use'),
@@ -97,7 +102,9 @@ TSGsBlock = cms.PSet(
         ComponentName = cms.string('TSGFromOrderedHits'),
         OrderedHitsFactoryPSet = cms.PSet(
             ComponentName = cms.string('StandardHitPairGenerator'),
-            SeedingLayers = cms.string('MixedLayerPairs')
+            SeedingLayers = cms.string('MixedLayerPairs'),
+	    useOnDemandTracker = cms.untracked.int32( 0 ),
+	    maxElement = cms.uint32( 0 )
         ),
         TTRHBuilder = cms.string('WithTrackAngle')
     ),
@@ -119,7 +126,9 @@ TSGsBlock = cms.PSet(
         ComponentName = cms.string('TSGFromOrderedHits'),
         OrderedHitsFactoryPSet = cms.PSet(
             ComponentName = cms.string('StandardHitPairGenerator'),
-            SeedingLayers = cms.string('PixelLayerPairs')
+            SeedingLayers = cms.string('PixelLayerPairs'),
+	    useOnDemandTracker = cms.untracked.int32( 0 ),
+	    maxElement = cms.uint32( 0 )
         ),
         TTRHBuilder = cms.string('WithTrackAngle')
     )

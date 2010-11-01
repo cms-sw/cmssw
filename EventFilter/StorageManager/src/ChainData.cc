@@ -1,7 +1,5 @@
-// $Id: ChainData.cc,v 1.11 2010/05/12 12:22:06 mommsen Exp $
+// $Id: ChainData.cc,v 1.12 2010/05/17 15:59:09 mommsen Exp $
 /// @file: ChainData.cc
-
-#include "FWCore/Utilities/interface/Adler32Calculator.h"
 
 #include "IOPool/Streamer/interface/HLTInfo.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
@@ -20,6 +18,7 @@
 #include "interface/shared/version.h"
 
 #include <stdlib.h>
+#include "zlib.h"
 
 
 using namespace stor;
@@ -797,8 +796,7 @@ bool detail::ChainData::validateAdler32Checksum()
 
 uint32_t detail::ChainData::calculateAdler32() const
 {
-  uint32_t adlerA = 1;
-  uint32_t adlerB = 0;
+  uint32_t adler = adler32(0L, 0, 0);
   
   toolbox::mem::Reference* curRef = _ref;
 
@@ -806,12 +804,10 @@ uint32_t detail::ChainData::calculateAdler32() const
     (I2O_SM_MULTIPART_MESSAGE_FRAME*) curRef->getDataLocation();
 
   //skip event header in first fragment
-  unsigned long headerSize = do_headerSize();
-  unsigned long dataSize = smMsg->dataSize - headerSize;
-  unsigned long payloadSize = curRef->getDataSize() - do_i2oFrameSize();
-  char* dataLocation = 0;
+  const unsigned long headerSize = do_headerSize();
   unsigned long offset = 0;
 
+  const unsigned long payloadSize = curRef->getDataSize() - do_i2oFrameSize();
   if ( headerSize > payloadSize )
   {
     // Header continues into next fragment
@@ -819,9 +815,9 @@ uint32_t detail::ChainData::calculateAdler32() const
   }
   else
   {
-    dataLocation = (char*)do_fragmentLocation((unsigned char*)curRef->getDataLocation())
-      + headerSize;
-    cms::Adler32(dataLocation, dataSize, adlerA, adlerB);
+    const unsigned char* dataLocation = 
+      do_fragmentLocation((unsigned char*)curRef->getDataLocation()) + headerSize;
+    adler = adler32(adler, dataLocation, smMsg->dataSize - headerSize);
   }
 
   curRef = curRef->getNextReference();
@@ -830,45 +826,23 @@ uint32_t detail::ChainData::calculateAdler32() const
   {
     smMsg = (I2O_SM_MULTIPART_MESSAGE_FRAME*) curRef->getDataLocation();
 
-    payloadSize = curRef->getDataSize() - do_i2oFrameSize();
+    const unsigned long payloadSize = curRef->getDataSize() - do_i2oFrameSize();
     if ( offset > payloadSize )
     {
       offset -= payloadSize;
     }
     else
     {
-      dataSize = smMsg->dataSize - offset;
-      dataLocation = (char*)do_fragmentLocation((unsigned char*)curRef->getDataLocation())
-        + offset;
-      cms::Adler32(dataLocation, dataSize, adlerA, adlerB);
+      const unsigned char* dataLocation =
+        do_fragmentLocation((unsigned char*)curRef->getDataLocation()) + offset;
+      adler = adler32(adler, dataLocation, smMsg->dataSize - offset);
       offset = 0;
     }
 
     curRef = curRef->getNextReference();
   }
 
-  return (adlerB << 16) | adlerA;
-}
-
-size_t detail::ChainData::do_i2oFrameSize() const
-{
-  return 0;
-}
-
-unsigned long detail::ChainData::do_headerSize() const
-{
-  return 0;
-}
-
-unsigned char* detail::ChainData::do_headerLocation() const
-{
-  return 0;
-}
-
-unsigned char*
-detail::ChainData::do_fragmentLocation(unsigned char* dataLoc) const
-{
-  return dataLoc;
+  return adler;
 }
 
 uint32_t detail::ChainData::do_outputModuleId() const
@@ -944,9 +918,6 @@ detail::ChainData::do_hltTriggerBits(std::vector<unsigned char>& bitList) const
   XCEPT_RAISE(stor::exception::WrongI2OMessageType, msg.str());
 }
 
-void detail::ChainData::do_assertRunNumber(uint32_t runNumber)
-{}
-
 uint32_t detail::ChainData::do_runNumber() const
 {
   std::stringstream msg;
@@ -969,11 +940,6 @@ uint32_t detail::ChainData::do_eventNumber() const
   msg << "An event number is only available from a valid, ";
   msg << "complete EVENT or ERROR_EVENT message.";
   XCEPT_RAISE(stor::exception::WrongI2OMessageType, msg.str());
-}
-
-uint32_t detail::ChainData::do_adler32Checksum() const
-{
-  return 0;
 }
 
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 11 15:20:10 EST 2008
-// $Id: FWEDProductRepresentationChecker.cc,v 1.4 2010/06/02 22:37:41 chrjones Exp $
+// $Id: FWEDProductRepresentationChecker.cc,v 1.2 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
@@ -30,10 +30,8 @@
 // constructors and destructor
 //
 FWEDProductRepresentationChecker::FWEDProductRepresentationChecker(const std::string& iTypeidName,
-                                                                   const std::string& iPurpose,
-                                                                   unsigned int iBitPackedViews,
-                                                                   bool iRepresentsSubPart) :
-   FWRepresentationCheckerBase(iPurpose, iBitPackedViews,iRepresentsSubPart),
+                                                                   const std::string& iPurpose) :
+   FWRepresentationCheckerBase(iPurpose),
    m_typeidName(iTypeidName)
 {
 }
@@ -74,7 +72,7 @@ FWEDProductRepresentationChecker::infoFor(const std::string& iTypeName) const
       return FWRepresentationInfo();
    }
    if(clss->GetTypeInfo()->name() == m_typeidName) {
-      return FWRepresentationInfo(purpose(),0,bitPackedViews(), representsSubPart());
+      return FWRepresentationInfo(purpose(),0);
    }
    return FWRepresentationInfo();
 }

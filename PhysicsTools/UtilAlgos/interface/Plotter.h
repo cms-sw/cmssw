@@ -37,7 +37,7 @@ class VariablePlotter : public Plotter {
     edm::ParameterSet th1=iConfig.getParameter<edm::ParameterSet>("TH1s");
     std::vector<std::string> th1Names;
     th1.getParameterSetNames(th1Names);
-    for (uint iH=0;iH!=th1Names.size();++iH){
+    for (unsigned int iH=0;iH!=th1Names.size();++iH){
       std::string hname = th1Names[iH];
       edm::ParameterSet hPset=th1.getParameter<edm::ParameterSet>(hname);
       bool split=hPset.exists("splitter") || hPset.exists("splitters");
@@ -51,7 +51,7 @@ class VariablePlotter : public Plotter {
     edm::ParameterSet tprof=iConfig.getParameter<edm::ParameterSet>("TProfiles");
     std::vector<std::string> tprofNames;
     tprof.getParameterSetNames(tprofNames);
-    for (uint iH=0;iH!=tprofNames.size();++iH){
+    for (unsigned int iH=0;iH!=tprofNames.size();++iH){
       std::string hname = tprofNames[iH];
       edm::ParameterSet hPset=tprof.getParameter<edm::ParameterSet>(hname);
       bool split=hPset.exists("splitter") || hPset.exists("splitters");
@@ -65,7 +65,7 @@ class VariablePlotter : public Plotter {
     edm::ParameterSet th2=iConfig.getParameter<edm::ParameterSet>("TH2s");
     std::vector<std::string> th2Names;
     th2.getParameterSetNames(th2Names);
-    for (uint iH=0;iH!=th2Names.size();++iH){
+    for (unsigned int iH=0;iH!=th2Names.size();++iH){
       std::string hname = th2Names[iH];
       edm::ParameterSet hPset=th2.getParameter<edm::ParameterSet>(hname);
       bool split=hPset.exists("splitter") || hPset.exists("splitters");

@@ -10,7 +10,7 @@
   file in DQMServices/Daemon/test, but modified to include another top level
   folder, to remove the 1 sec wait, and to do the fitting without printout.
 
-  $Id: SMDQMSourceExample.cc,v 1.14 2009/06/10 13:58:35 biery Exp $
+  $Id: SMDQMSourceExample.cc,v 1.15 2009/12/18 19:31:10 wmtan Exp $
 
 */
 
@@ -219,7 +219,7 @@ void SMDQMSourceExample::analyze(const edm::Event& iEvent,
   srand( 0 );
 
   if(counter%1000 == 0)
-    cout << " # of cycles = " << counter << endl;
+    std::cout << " # of cycles = " << counter << std::endl;
 
   for(int i = 0; i != 20; ++i ) 
     {

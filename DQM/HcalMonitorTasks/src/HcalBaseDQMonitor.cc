@@ -1,4 +1,5 @@
 #include <DQM/HcalMonitorTasks/interface/HcalBaseDQMonitor.h>
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include <iostream>
 #include <vector>
@@ -6,8 +7,8 @@
 /*
  * \file HcalBaseDQMonitor.cc
  *
- * $Date: 2010/05/07 09:32:37 $
- * $Revision: 1.3 $
+ * $Date: 2010/05/10 19:44:41 $
+ * $Revision: 1.4 $
  * \author J Temple
  *
  * Base class for all Hcal DQM analyzers

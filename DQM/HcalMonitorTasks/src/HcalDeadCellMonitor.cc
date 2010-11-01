@@ -1,4 +1,5 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDeadCellMonitor.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 HcalDeadCellMonitor::HcalDeadCellMonitor(const edm::ParameterSet& ps)
 {

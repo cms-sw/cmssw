@@ -8,7 +8,7 @@
 //
 // Original Author:  Monica Vazquez Acosta
 //         Created:  Tue Jun 13 12:17:19 CEST 2006
-// $Id: EgammaHLTTrackIsolation.cc,v 1.4 2009/01/20 11:31:30 covarell Exp $
+// $Id: EgammaHLTTrackIsolation.cc,v 1.5 2009/01/28 15:40:43 covarell Exp $
 //
 
 // system include files
@@ -130,9 +130,15 @@ std::pair<int,float> EgammaHLTTrackIsolation::findIsoTracks(GlobalVector mom, Gl
     // }
     // float theVetoVar = R;
     // if (isElectron) theVetoVar = R;  
-
+    
+    //hmm how do I figure out if this is barrel or endcap?
+    //abs(mom.eta())<1.5 is the obvious choice but that will be electron not detector eta for electrons
+    //well lets leave it as that for now, its what reco does (well with eta=1.479)
+    double innerStrip = fabs(mom.eta())<1.479 ? stripBarrel : stripEndcap;
+    
     if (pt > ptMin && R < conesize && R > vetoConesize &&
-        fabs(dperp) < rspan && fabs(dz) < zspan) {
+        fabs(dperp) < rspan && fabs(dz) < zspan &&
+	fabs(deta) >=innerStrip) {
       ntrack++;
       ptSum+=pt; 
     }
@@ -188,8 +194,14 @@ std::pair<int,float> EgammaHLTTrackIsolation::findIsoTracksWithoutEle(GlobalVect
     bool selected=false;
     bool passedconeveto=true;
 
+    //hmm how do I figure out if this is barrel or endcap?
+    //abs(mom.eta())<1.5 is the obvious choice but that will be electron not detector eta for electrons
+    //well lets leave it as that for now, its what reco does (well with eta=1.479)
+    double innerStrip = fabs(mom.eta())<1.479 ? stripBarrel : stripEndcap;
+
     if (pt > ptMin && R < conesize &&
-	fabs(dperp) < rspan && fabs(dz) < zspan) selected=true;
+	fabs(dperp) < rspan && fabs(dz) < zspan	&& 
+	fabs(deta) >=innerStrip) selected=true;
   
     // Check that NO electron is counted in the isolation
     for(unsigned int eleItr = 0; eleItr < etaele.size(); ++eleItr){

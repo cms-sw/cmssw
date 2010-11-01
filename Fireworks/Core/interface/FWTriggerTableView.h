@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.h,v 1.3 2010/01/27 15:36:58 amraktad Exp $
+// $Id: FWTriggerTableView.h,v 1.2 2009/10/07 12:47:52 dmytro Exp $
 //
 
 // system include files
@@ -23,56 +23,65 @@
 
 // forward declarations
 class TGFrame;
+class TGLEmbeddedViewer;
 class TGCompositeFrame;
+class TEvePad;
+class TEveViewer;
+class TEveScene;
+class TEveElementList;
+class TEveGeoShape;
+class TGLMatrix;
+class TGTextEntry;
+class FWEventItem;
+class FWTriggerTableViewManager;
 class FWTableWidget;
 class FWEveValueScaler;
 class TEveWindowFrame;
 class TEveWindowSlot;
 class FWTriggerTableViewManager;
 class FWTriggerTableViewTableManager;
+class FWCustomIconsButton;
+class FWGUIValidatingTextEntry;
+class FWExpressionValidator;
 
 namespace fwlite {
    class Event;
 }
 
-class FWTriggerTableView : public FWViewBase 
-{
+class FWTriggerTableView : public FWViewBase {
    friend class FWTriggerTableViewTableManager;
 
 public:
    struct Column {
       std::string title;
       std::vector<std::string> values;
-      Column( const std::string& s ) : title( s )
-		{}
+      Column(const std::string& s) : title(s){
+      }
    };
 
-   FWTriggerTableView( TEveWindowSlot *, FWTriggerTableViewManager * );
-   virtual ~FWTriggerTableView( void );
+   FWTriggerTableView(TEveWindowSlot *, FWTriggerTableViewManager *);
+   virtual ~FWTriggerTableView();
 
    // ---------- const member functions ---------------------
-   TGFrame*       frame( void ) const;
-   const std::string& typeName( void ) const;
-   virtual void   addTo( FWConfiguration& ) const;
-   virtual void   saveImageTo( const std::string& iName ) const;
+   TGFrame* frame() const;
+   const std::string& typeName() const;
+   virtual void saveImageTo(const std::string& iName) const;
 
    // ---------- static member functions --------------------
-   static const std::string& staticTypeName( void );
+   static const std::string& staticTypeName();
 
    // ---------- member functions ---------------------------
-   virtual void setFrom( const FWConfiguration& );
-   void setBackgroundColor( Color_t );
-   void resetColors( const class FWColorManager& );
-   void dataChanged( void );
-   void columnSelected( Int_t iCol, Int_t iButton, Int_t iKeyMod );
-   void updateFilter( void );
+   void setBackgroundColor(Color_t);
+   void resetColors (const class FWColorManager &);
+   void dataChanged ();
+   void columnSelected (Int_t iCol, Int_t iButton, Int_t iKeyMod);
+   void updateFilter();
 
 private:
-   FWTriggerTableView( const FWTriggerTableView& );      // stop default
-   const FWTriggerTableView& operator=( const FWTriggerTableView& );      // stop default
+   FWTriggerTableView(const FWTriggerTableView&);      // stop default
+   const FWTriggerTableView& operator=(const FWTriggerTableView&);      // stop default
 
-   void fillAverageAcceptFractions( void );
-	
+   void fillAverageAcceptFractions();
 protected:
    typedef boost::unordered_map<std::string,double> acceptmap_t;
    TEveWindowFrame*                m_eveWindow;
@@ -80,7 +89,7 @@ protected:
    FWTriggerTableViewManager*      m_manager;
    FWTriggerTableViewTableManager* m_tableManager;
    FWTableWidget*                  m_tableWidget;
-   int                             m_currentColumn;
+   int m_currentColumn;
    std::vector<Column>             m_columns;
    fwlite::Event*                  m_event;
    acceptmap_t                     m_averageAccept;

@@ -10,11 +10,12 @@
 //
 // Original Author:  Giulio Eulisse
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
-// $Id: FWItemRandomAccessor.cc,v 1.1 2010/03/01 09:43:02 eulisse Exp $
+// $Id$
 //
 
 // system include files
 #include <assert.h>
+#include "Reflex/Object.h"
 #include "TClass.h"
 
 // user include files
