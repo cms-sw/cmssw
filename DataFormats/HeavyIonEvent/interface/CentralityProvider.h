@@ -103,6 +103,16 @@ void CentralityProvider::newRun(const edm::EventSetup& iSetup){
      newBin.n_hard_var  = thisBin->n_hard.var;
      newBin.b_mean = thisBin->b.mean;
      newBin.b_var = thisBin->b.var;
+
+     newBin.eccRP_mean = thisBin->eccRP.mean;
+     newBin.eccRP_var = thisBin->eccRP.var;
+     newBin.ecc2_mean = thisBin->ecc2.mean;
+     newBin.ecc2_var = thisBin->ecc2.var;
+     newBin.ecc3_mean = thisBin->ecc3.mean;
+     newBin.ecc3_var = thisBin->ecc3.var;
+     newBin.s_mean = thisBin->S.mean;
+     newBin.s_var = thisBin->S.var;
+
      table_.push_back(newBin);
   }
 }
