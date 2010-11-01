@@ -299,6 +299,14 @@ public:
       s_italicRedGC.SetForeground(gVirtualX->GetPixel(kRed-5));
       return s_italicRedGC;
    }
+
+   const TGGC&
+   italicGray()
+   {
+      static TGGC s_italicGrayGC(italicGC());
+      s_italicGrayGC.SetForeground(gVirtualX->GetPixel(kGray+1));
+      return s_italicGrayGC;
+   }
   
    const TGGC&
    redGC()
@@ -344,6 +352,9 @@ public:
 
       m_pathFailedRenderer.setGraphicsContext(&boldRedGC());
       m_pathFailedRenderer.setHighlightContext(&pathBackgroundGC());
+      
+      m_editingDisabledRenderer.setGraphicsContext(&italicGray());
+      m_editingDisabledRenderer.setHighlightContext(&pathBackgroundGC());
 
       // Italic color doesn't seem to show up well event though
       // modules are displayed in italic
@@ -633,7 +644,11 @@ public:
          else
             label = data.label;
          value = data.value;
-         renderer = &m_renderer;
+         
+         if (data.editable)
+            renderer = &m_renderer;
+         else
+            renderer = &m_editingDisabledRenderer;
       }
 
       renderer->setIndentation(0);
@@ -1132,7 +1147,7 @@ public:
       data.parent = m_parentStack.back();
       data.module = m_modules.size() - 1;
       data.type = entry.typeCode();
-      if (data.label[0] == '@')
+      if (data.label[0] == '@' || data.level > 2)
          data.editable = false;
       else
          data.editable = true;
@@ -1370,6 +1385,9 @@ private:
 
    mutable FWTextTreeCellRenderer m_pathPassedRenderer;
    mutable FWTextTreeCellRenderer m_pathFailedRenderer;
+
+   // To be used to renderer cells that should appear as disabled.
+   mutable FWTextTreeCellRenderer m_editingDisabledRenderer;
 
    mutable FWTextTreeCellRenderer m_modulePassedRenderer;
    mutable FWTextTreeCellRenderer m_moduleFailedRenderer;
