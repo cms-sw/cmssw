@@ -224,7 +224,7 @@ process.ecalBarrelMonitorSequence = cms.Sequence(process.ecalBarrelMonitorModule
 process.ecalEndcapMonitorSequence = cms.Sequence(process.ecalEndcapMonitorModule*process.dqmInfoEE*process.ecalEndcapMonitorClient)
 
 process.p = cms.Path(process.ecalDataSequence*process.ecalBarrelMonitorSequence*process.ecalEndcapMonitorSequence*process.dqmSaver)
-process.q = cms.Path(process.ecalDataSequence*~process.ecalPrescaler*process.hybridSuperClusters*process.correctedHybridSuperClusters*process.multi5x5BasicClusters*process.multi5x5SuperClusters)
+process.q = cms.Path(process.ecalDataSequence*~process.ecalPrescaler*process.hybridClusteringSequence*process.multi5x5BasicClusters*process.multi5x5SuperClusters)
 process.r = cms.EndPath(process.ecalBarrelCertificationSequence*process.ecalBarrelDefaultTasksSequence*process.ecalBarrelClusterTask*process.ecalEndcapCertificationSequence*process.ecalEndcapDefaultTasksSequence*process.ecalEndcapClusterTask)
 
 process.ecalUncalibHit2.MinAmplBarrel = 12.
