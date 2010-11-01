@@ -329,9 +329,9 @@ namespace edm {
                      "'PRIOR':   Keep it for products produced in current process. Drop it for products produced in prior processes.\n"
                      "'ALL':     Drop all of it.");
     ParameterSetDescription dataSet;
-    dataSet.addUntracked<std::string>("dataTier", defaultString);
-    dataSet.addUntracked<std::string>("filterName", defaultString);
-    desc.addUntracked<ParameterSetDescription>("dataset", dataSet);
+    dataSet.setAllowAnything();
+    desc.addUntracked<ParameterSetDescription>("dataset", dataSet)
+     ->setComment("PSet is only used by Data Operations and not by this module.");
 
     OutputModule::fillDescription(desc);
 
