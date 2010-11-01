@@ -5,9 +5,9 @@
 
 <SpecParSection label="brmsens.xml" eval="true">
  <SpecPar name="bsc1">
-   <PartSelector path="//BSCTTop"/>
-   <PartSelector path="//BSCTBottom"/>
-   <PartSelector path="//BSCTubs"/>
+   <PartSelector path="//BSCPadActive"/>
+   <PartSelector path="//BSCTopTrapezoid"/>
+   <PartSelector path="//BSCBottomTrapezoid"/>
    <PartSelector path="//BSC2Pad"/>
    <Parameter name="SensitiveDetector" value="BSCSensitiveDetector" eval="false"/>
    <Parameter name="ReadOutName" value="BSCHits" eval="false"/>

@@ -8,8 +8,8 @@
  <Polyhedra name="CAST" numSide="8" startPhi="0.0*deg" deltaPhi="360.0*deg" >
   <ZSection rMin="39.00*mm"   rMax="40.00*mm"    z="0.0*mm" />
   <ZSection rMin="39.00*mm"   rMax="303.20*mm"   z="263.2*mm" />
-  <ZSection rMin="39.00*mm"   rMax="303.20*mm"   z="1320.0*mm" />
-  <ZSection rMin="303.20*mm"  rMax="303.20*mm"   z="1583.2*mm" />
+  <ZSection rMin="39.00*mm"   rMax="303.20*mm"   z="1320.1*mm" />
+  <ZSection rMin="303.20*mm"  rMax="303.20*mm"   z="1583.3*mm" />
  </Polyhedra>
 <!--  --> 
 <!--  --> 
@@ -412,7 +412,7 @@
    <rParent name="forward:CastorB"/>
    <rChild name="castor:CAST"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0.0*cm" y="0.0*cm" z="0*mm" />
+  <Translation x="0.0*cm" y="0.0*cm" z="-0.1*mm" />
  </PosPart>
 <!--  -->
 <!-- Aluminium volume between EM & HAD sections : 1 copy  -->
@@ -420,7 +420,7 @@
 	<rParent name="castor:CAST"/>
 	<rChild name="castor:CAAI"/>
 	<rRotation name="rotations:000D"/>
-	<Translation x="0.0*cm" y="0.0*cm" z="103.0*mm" />   
+	<Translation x="0.0*cm" y="0.0*cm" z="103.1*mm" />   
 </PosPart>
 <!-- EM calorimeter  1 copy -->
 <!--  -->
@@ -428,13 +428,14 @@
    <rParent name="castor:CAST"/>
    <rChild name="castor:CAEC"/>
   <rRotation name="rotations:000D"/>
+  <Translation x="0.0*cm" y="0.0*cm" z="0.1*mm" />
  </PosPart>
 <!-- HADRONIC calorimeter 1 copy  -->
  <PosPart copyNumber="1">
    <rParent name="castor:CAST"/>
    <rChild name="castor:CAHC"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0.0*cm" y="0.0*cm" z="108.0*mm" />
+  <Translation x="0.0*cm" y="0.0*cm" z="108.1*mm" />
  </PosPart>
 <!--  -->
 <!--  -->
