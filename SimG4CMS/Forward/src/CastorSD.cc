@@ -25,7 +25,7 @@
 #include "Randomize.hh"
 #include "G4Poisson.hh"
 
-#define debugLog
+//#define debugLog
 
 CastorSD::CastorSD(G4String name, const DDCompactView & cpv,
 		   SensitiveDetectorCatalog & clg, 
@@ -98,7 +98,6 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   } else {
     // preStepPoint information *********************************************
   
-    G4SteppingControl  stepControlFlag = aStep->GetControlFlag();
     G4StepPoint*       preStepPoint = aStep->GetPreStepPoint();
     G4VPhysicalVolume* currentPV    = preStepPoint->GetPhysicalVolume();
     G4LogicalVolume*   currentLV    = currentPV->GetLogicalVolume();
@@ -107,6 +106,7 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
     nameVolume.assign(name,0,4);
     
 #ifdef debugLog
+    G4SteppingControl  stepControlFlag = aStep->GetControlFlag();
     if (aStep->IsFirstStepInVolume()) 
       LogDebug("ForwardSim") << "CastorSD::getEnergyDeposit:"
 			     << "\n IsFirstStepInVolume " ; 
@@ -181,10 +181,7 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
     G4int parCode = theTrack->GetDefinition()->GetPDGEncoding();
     if (parCode == mupPDG || parCode == mumPDG ) notaMuon = false;
     
-    double r0_max = 5.0 ;     // mm  , Maximum x-y impact parameter allowed at z=0
-    double r0 = r0_max + 1. ; 
-    if(useShowerLibrary && aboveThreshold && notaMuon) r0 = impactParAtIP(aStep);
-    if(useShowerLibrary && aboveThreshold && notaMuon && (!backward) && r0<r0_max) {
+    if(useShowerLibrary && aboveThreshold && notaMuon && (!backward)) {
       // Use Castor shower library if energy is above threshold, is not a muon 
       // and is not moving backward 
       if (currentLV == lvC3EF || currentLV == lvC4EF || 
@@ -219,29 +216,30 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 
       // theTrack information  *************************************************
       // G4Track*        theTrack = aStep->GetTrack();   
-      G4double        entot    = theTrack->GetTotalEnergy();
+      //G4double        entot    = theTrack->GetTotalEnergy();
       G4ThreeVector   vert_mom = theTrack->GetVertexMomentumDirection();
 
       G4ThreeVector  localPoint = theTrack->GetTouchable()->GetHistory()->
 	GetTopTransform().TransformPoint(hitPoint);
 
       // calculations...       *************************************************
-
+      float phi = -100.;
+      if (vert_mom.x() != 0) phi = atan2(vert_mom.y(),vert_mom.x()); 
+      if (phi < 0.) phi += twopi;
+      G4String       particleType = theTrack->GetDefinition()->GetParticleName();
+#ifdef debugLog
       float costheta =vert_mom.z()/sqrt(vert_mom.x()*vert_mom.x()+
 					vert_mom.y()*vert_mom.y()+
 					vert_mom.z()*vert_mom.z());
       float theta = acos(std::min(std::max(costheta,float(-1.)),float(1.)));
       float eta = -log(tan(theta/2));
-      float phi = -100.;
-      if (vert_mom.x() != 0) phi = atan2(vert_mom.y(),vert_mom.x()); 
-      if (phi < 0.) phi += twopi;
-      G4String       particleType = theTrack->GetDefinition()->GetParticleName();
       G4int          primaryID    = theTrack->GetTrackID();
       // *************************************************
 
 
       // *************************************************
       double edep   = aStep->GetTotalEnergyDeposit();
+#endif
 
       // *************************************************
 
@@ -315,19 +313,14 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 	// just in case (can do bot use):
 	if (th < 0.) th += twopi;
 
-	float thgrad = th*180./pi;
 
 
 	// theta of cone with Cherenkov photons w.r.t.direction of charged part.:
 	float costhcher =1./(nMedium*beta);
 	float thcher = acos(std::min(std::max(costhcher,float(-1.)),float(1.)));
-	float thchergrad = thcher*180./pi;
 
 	// diff thetas of charged part. and quartz direction in LabRF:
 	float DelFibPart = fabs(th - thFibDirRad);
-	float DelFibPartgrad = DelFibPart*180./pi;
-
-
 
 	// define real distances:
 	float d = fabs(tan(th)-tan(thFibDirRad));   
@@ -417,6 +410,9 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 
 
 #ifdef debugLog
+	  float thgrad = th*180./pi;
+	  float thchergrad = thcher*180./pi;
+	  float DelFibPartgrad = DelFibPart*180./pi;
 	  LogDebug("ForwardSim") << " ==============================> start all "
 				 << "information:<========= \n" << " =====> for "
 				 << "test:<===  \n" << " variant = " << variant  
@@ -446,7 +442,7 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 				 << " ===> calo theTrack info <=== " << "\n"
 				 << " particleType = " << particleType << "\n"
 				 << " primaryID = " << primaryID << "\n"
-				 << " entot= " << entot << "\n"
+				 << " entot= " << theTrack->GetTotalEnergy() << "\n"
 				 << " vert_eta= " << eta  << "\n"
 				 << " vert_phi= " << phi << "\n"
 				 << " vert_mom= " << vert_mom  << "\n"
@@ -515,10 +511,8 @@ int CastorSD::setTrackID (G4Step* aStep) {
   TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
   int      primaryID = trkInfo->getIDonCaloSurface();
   if (primaryID == 0) {
-#ifdef debugLog
-    LogDebug("ForwardSim") << "CastorSD: Problem with primaryID **** set by force "
-			   << "to TkID **** " << theTrack->GetTrackID();
-#endif
+    edm::LogWarning("ForwardSim") << "CastorSD: Problem with primaryID **** set by force "
+				  << "to TkID **** " << theTrack->GetTrackID();
     primaryID = theTrack->GetTrackID();
   }
 
@@ -644,9 +638,8 @@ void CastorSD::getFromLibrary (G4Step* aStep) {
   double E_track = preStepPoint->GetTotalEnergy() ;
   double E_SLhit = hits.getPrimE() * GeV ;
   double scale = E_track/E_SLhit ;
-
-/*  
-    double theTrackEnergy = theTrack->GetTotalEnergy() ; 
+  
+/*    double theTrackEnergy = theTrack->GetTotalEnergy() ; 
   
   if(fabs(theTrackEnergy-E_track)>10.) {
     edm::LogInfo("ForwardSim") << "\n            TrackID = " << theTrack->GetTrackID()
@@ -661,8 +654,7 @@ void CastorSD::getFromLibrary (G4Step* aStep) {
 			       << tsec[kk]->GetTotalEnergy() ;
     }
   }
-*/
-  
+*/  
   //  Loop over hits retrieved from the library
   for (unsigned int i=0; i<hits.getNhit(); i++) {
     
@@ -730,51 +722,3 @@ void CastorSD::getFromLibrary (G4Step* aStep) {
   }
 }
 
-//=======================================================================================
-
-double CastorSD::impactParAtIP (G4Step* aStep) {
-
-/////////////////////////////////////////////////////////////////////
-//
-//   Calculate track XY-plane impact parameter r0 = sqrt(x^2 + y^2) at z=0 
-//   r0 is given in "mm"
-//
-/////////////////////////////////////////////////////////////////////
-
-    G4Track* track = aStep->GetTrack();
-
-    double pxTrack = track->GetMomentumDirection().x();
-    double pyTrack = track->GetMomentumDirection().y();
-    double pzTrack = track->GetMomentumDirection().z();
-    double  xTrack = track->GetPosition().x();
-    double  yTrack = track->GetPosition().y();
-    double  zTrack = track->GetPosition().z();
-    double x0 = xTrack - (pxTrack/pzTrack)*zTrack ;
-    double y0 = yTrack - (pyTrack/pzTrack)*zTrack ;
-    double r0 = sqrt(x0*x0+y0*y0); 
-
-    // std::cout << "\n impactParAtIP called:  r0 = " << r0 << " \n" << std::endl ;
-/*
-    // From preStepPoint
-    double zint = aStep->GetPreStepPoint()->GetPosition().z();
-    double pz   = aStep->GetPreStepPoint()->GetMomentumDirection().z();
-
-    if(r0>10.) {
-    edm::LogInfo("ForwardSim") << "CastorSD: \n" 
-       << "\n hitPoint.z() = " << zint << " , hit_mom.z() = " << pz 
-       << "\n track (ID , Name , KineticEnergy)  = ( " << track->GetTrackID() 
-                              << " , " << track->GetDefinition()->GetParticleName()
-                              << " , " << track->GetKineticEnergy() << " )" 
-       << "\n track->GetPosition().x() = " << track->GetPosition().x()
-       << "\n track->GetPosition().y() = " << track->GetPosition().y()
-       << "\n track->GetPosition().z() = " << track->GetPosition().z()
-       << "\n track->GetMomentumDirection().x() = " << track->GetMomentumDirection().x()
-       << "\n track->GetMomentumDirection().y() = " << track->GetMomentumDirection().y()
-       << "\n track->GetMomentumDirection().z() = " << track->GetMomentumDirection().z() 
-       << "\n (x0 , y0) = ( " << x0 << " , " << y0 << " )"
-       << "\n r0 = " << r0 ;
-    }
-*/
-    
-    return r0 ; 
-}

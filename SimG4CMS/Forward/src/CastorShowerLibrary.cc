@@ -275,8 +275,9 @@ void CastorShowerLibrary::getRecord(int type, int record) {
 //
 //////////////////////////////////////////////////////////////
 
-  edm::LogInfo("CastorShower") << "CastorShowerLibrary::getRecord: ";
-  
+#ifdef DebugLog
+  LogDebug("CastorShower") << "CastorShowerLibrary::getRecord: ";
+#endif  
   int nrc  = record;
   int nHit = 0;
   showerEvent = new CastorShowerEvent();
@@ -290,16 +291,11 @@ void CastorShowerLibrary::getRecord(int type, int record) {
   nHit = showerEvent->getNhit();
 
 #ifdef DebugLog
-
   LogDebug("CastorShower") << "CastorShowerLibrary::getRecord: Record " << record
 		           << " of type " << type << " with " << nHit 
 		           << " CastorShowerHits";
 
 #endif
-
-  edm::LogInfo("CastorShower") << "CastorShowerLibrary::getRecord: Record " << record
-		               << " of type " << type << " with " << nHit 
-		               << " CastorShowerHits";
 
 }
 
@@ -360,9 +356,11 @@ void CastorShowerLibrary::select(int type, double pin, double etain, double phii
   }
 */
   int ienergy = FindEnergyBin(pin);
-  if (verbose) edm::LogInfo("CastorShower") << " ienergy = " << ienergy ;
   int ieta    = FindEtaBin(etain);
+#ifdef DebugLog
+  if (verbose) edm::LogInfo("CastorShower") << " ienergy = " << ienergy ;
   if (verbose) edm::LogInfo("CastorShower") << " ieta = " << ieta;
+#endif
 
   int iphi;
   double phiMin = 0. ;
@@ -375,17 +373,17 @@ void CastorShowerLibrary::select(int type, double pin, double etain, double phii
      phiin = phiMin + remainder ;
      iphi = FindPhiBin(phiin) ;
   }
+#ifdef DebugLog
   if (verbose) edm::LogInfo("CastorShower") << " iphi = " << iphi;
+#endif
   if (ienergy==-1) ienergy=0;    // if pin < first bin, choose an event in the first one
   if (ieta==-1)    ieta=0; // idem for eta
   if (iphi!=-1) irec = int(nEvtPerBinE*ienergy+nEvtPerBinEta*ieta+nEvtPerBinPhi*(iphi+r));
   else irec = int(nEvtPerBinE*(ienergy+r));
 
+#ifdef DebugLog
   edm::LogInfo("CastorShower") << "CastorShowerLibrary:: Select record " << irec 
                                << " of type " << type ; 
-#ifdef DebugLog
-  LogDebug("CastorShower") << "CastorShowerLibrary:: Select record " << irec; 
-                           << " of type " << type ; 
 #endif
 
   //  Retrieve record number "irec" from the library
