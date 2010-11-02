@@ -1,3 +1,20 @@
+/*
+ * RecoTauProducer
+ *
+ * Interface between the various tau algorithms and the edm::Event.  The
+ * RecoTauProducer takes as data input is a collection (view) of reco::PFJets,
+ * and Jet-PiZero assoications that give the reco::RecoTauPiZeros for those
+ * jets.  The actaul building of taus is done by the list of builders - each of
+ * which constructs a PFTau for each PFJet.  The output collection may have
+ * multiple taus for each PFJet - these overlaps are to be resolved by the
+ * RecoTauCleaner module.
+ *
+ * Additionally, there are "modifier" plugins, which can do things like add the
+ * lead track significance, or electron rejection variables.
+ *
+ * Author: Evan K. Friis (UC Davis)
+ *
+ */
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/foreach.hpp>
 
