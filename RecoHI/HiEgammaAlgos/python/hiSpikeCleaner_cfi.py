@@ -6,7 +6,7 @@ hiSpikeCleaner = cms.EDProducer("HiSpikeCleaner",
                                 originalSuperClusterProducer = cms.InputTag("correctedIslandBarrelSuperClusters"),
                                 outputColl  = cms.string( "" ),
                                 etCut          = cms.double(10),
-                                doTimingCut    = cms.untracked.bool(True),
+                                TimingCut    = cms.untracked.double(4.0),
                                 swissCutThr    = cms.untracked.double(0.95)
                                 )
 

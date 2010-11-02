@@ -13,7 +13,7 @@
 //
 // Original Author:  Yong Kim,32 4-A08,+41227673039,
 //         Created:  Mon Nov  1 18:22:21 CET 2010
-// $Id: HiSpikeCleaner.cc,v 1.1 2010/11/01 21:26:17 kimy Exp $
+// $Id: HiSpikeCleaner.cc,v 1.2 2010/11/02 08:55:29 kimy Exp $
 //
 //
 
@@ -64,7 +64,7 @@ class HiSpikeCleaner : public edm::EDProducer {
    edm::InputTag rHInputProducerE_;
 
    std::string outputCollection_;
-   bool doTimingCut_;
+   double TimingCut_;
    double swissCutThr_;
    double etCut_;
    
@@ -97,7 +97,7 @@ HiSpikeCleaner::HiSpikeCleaner(const edm::ParameterSet& iConfig)
    rHInputProducerE_  = iConfig.getParameter<edm::InputTag>("recHitProducerEndcap");
 
    sCInputProducer_  = iConfig.getParameter<edm::InputTag>("originalSuperClusterProducer");
-   doTimingCut_      = iConfig.getUntrackedParameter<bool>  ("doTimingCut",true);
+   TimingCut_      = iConfig.getUntrackedParameter<double>  ("TimingCut",4.0);
    swissCutThr_      = iConfig.getUntrackedParameter<double>("swissCutThr",0.95);
    etCut_            = iConfig.getParameter<double>("etCut");
    
@@ -182,7 +182,7 @@ HiSpikeCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if ( theEt < etCut_ )  continue;   // cut off low pT superclusters 
 	 
 	 bool flagS = true;
-	 int severity(-100), recoFlag(-100);
+	 int severity(-100), recoTime(-100);
 	 float swissCrx(0);
 	 
 	 const reco::CaloClusterPtr seed = aClus->seed();
@@ -194,10 +194,11 @@ HiSpikeCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    severity = EcalSeverityLevelAlgo::severityLevel(id, rechits, *chStatus );
 	    swissCrx = EcalSeverityLevelAlgo::swissCross   (id, rechits, 0.,true);
 	    std::cout << "swissCross = " << swissCrx <<std::endl;
+	    std::cout << " timing = " << it->time() << std::endl;
 	 }
 	 
-	 if ( (severity == 3) && (doTimingCut_==true) ) {
-	    flagS = false ;     // timing cuts
+	 if ( fabs(it->time()) > TimingCut_ ) {
+	    flagS = false;
 	    std::cout << " timing is bad........" << std::endl; 
 	 }
 	 if ( swissCrx > (float)swissCutThr_ ) {
