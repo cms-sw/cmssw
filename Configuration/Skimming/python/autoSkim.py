@@ -10,7 +10,7 @@ autoSkim = {
     'Photon':'WZEG+LogError+SuperCluster',
     'JetMETtau':'TPG',
     'JetMET':'DiJet',
-    'BTau':'LogError',
-    'Jet':'HTSD+LogError+DiJet',
+    'BTau':'Tau+LogError',
+    'Jet':'LogError+DiJet',
     'METFwd':'LogError'
     }
