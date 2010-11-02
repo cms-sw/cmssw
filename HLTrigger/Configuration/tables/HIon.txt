@@ -2,8 +2,14 @@ HLT_HIZeroBias
 HLT_HIZeroBiasPixel_SingleTrack
 HLT_HIMinBiasBSC
 HLT_HIMinBiasBSC_Core
-HLT_HIMinBiasCalo
+HLT_HIMinBiasHF
 HLT_HIMinBiasPixel_SingleTrack
+HLT_HIMinBiasZDC_Calo
+HLT_HIL1Algo_BptxAND
+HLT_HIL1Algo_BptxAND_NotBSC2
+HLT_HIL1Algo_NotBSC2
+HLT_HIL1Algo_Unprotected
+HLT_HIL1Algo_ZDC
 HLT_HIL1SingleMu3
 HLT_HIL1SingleMu3_Core
 HLT_HIL1SingleMu5
@@ -38,6 +44,7 @@ HLT_HIJet75U
 HLT_HIJet75U_Core
 HLT_HIJet90U
 HLT_HIJet90U_Core
+HLT_HIActivityL1A
 HLT_HIActivityPixels
 HLT_HIActivityPixel_SingleTrack
 HLT_HIActivityHF_Single3
