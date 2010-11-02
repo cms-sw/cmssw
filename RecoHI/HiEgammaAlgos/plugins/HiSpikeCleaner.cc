@@ -13,7 +13,7 @@
 //
 // Original Author:  Yong Kim,32 4-A08,+41227673039,
 //         Created:  Mon Nov  1 18:22:21 CET 2010
-// $Id: HiSpikeCleaner.cc,v 1.2 2010/11/02 08:55:29 kimy Exp $
+// $Id: HiSpikeCleaner.cc,v 1.3 2010/11/02 21:01:00 kimy Exp $
 //
 //
 
@@ -193,16 +193,18 @@ HiSpikeCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if( it != rechits.end() ) {
 	    severity = EcalSeverityLevelAlgo::severityLevel(id, rechits, *chStatus );
 	    swissCrx = EcalSeverityLevelAlgo::swissCross   (id, rechits, 0.,true);
-	    std::cout << "swissCross = " << swissCrx <<std::endl;
-	    std::cout << " timing = " << it->time() << std::endl;
+	    //	    std::cout << "swissCross = " << swissCrx <<std::endl;
+	    // std::cout << " timing = " << it->time() << std::endl;
 	 }
 	 
 	 if ( fabs(it->time()) > TimingCut_ ) {
 	    flagS = false;
+	    std::cout << " timing = " << it->time() << std::endl;
 	    std::cout << " timing is bad........" << std::endl; 
 	 }
 	 if ( swissCrx > (float)swissCutThr_ ) {
 	    flagS = false ;     // swissCross cut
+	    std::cout << "swissCross = " << swissCrx <<std::endl;   
 	    std::cout << " removed by swiss cross cut" << std::endl;
 	 }
 	 // - kGood        --> good channel
