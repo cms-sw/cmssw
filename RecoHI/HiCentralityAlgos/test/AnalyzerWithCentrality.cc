@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Mon Mar  1 17:18:04 EST 2010
-// $Id: AnalyzerWithCentrality.cc,v 1.8 2010/07/09 10:17:04 yilmaz Exp $
+// $Id: AnalyzerWithCentrality.cc,v 1.9 2010/10/27 08:46:43 yilmaz Exp $
 //
 //
 
@@ -124,9 +124,9 @@ AnalyzerWithCentrality::analyze(const edm::Event& iEvent, const edm::EventSetup&
    
    centrality_->print();
    
-   cout<<"Centrality of the event : "<<centrality_->centralityValue(iEvent)<<endl;
+   cout<<"Centrality of the event : "<<centrality_->centralityValue()<<endl;
 
-   int bin = centrality_->getBin(iEvent);
+   int bin = centrality_->getBin();
    cout<<"a"<<endl;
    nt->Fill(hf,hft,hftp,hftm,eb,ee,eep,eem,npix,et,zdc,zdcp,zdcm,bin,1);
    cout<<"b"<<endl;
@@ -141,16 +141,16 @@ AnalyzerWithCentrality::analyze(const edm::Event& iEvent, const edm::EventSetup&
    char* binName = Form("%d to % d",bin*binsize,(bin+1)*binsize);
    cout<<"The event falls into centrality bin : "<<binName<<" id : "<<bin<<endl;
 
-   double npartMean = centrality_->NpartMean(iEvent);
-   double npartSigma = centrality_->NpartSigma(iEvent);
+   double npartMean = centrality_->NpartMean();
+   double npartSigma = centrality_->NpartSigma();
    cout<<"Npart Mean : "<<npartMean<<"   Variance : "<<npartSigma<<endl;
 
    // or, alternatively,
    npartMean = centrality_->NpartMeanOfBin(bin);
    npartSigma = centrality_->NpartSigmaOfBin(bin);
 
-   double ncollMean = centrality_->NcollMean(iEvent);
-   double ncollSigma = centrality_->NcollSigma(iEvent);
+   double ncollMean = centrality_->NcollMean();
+   double ncollSigma = centrality_->NcollSigma();
    cout<<"Ncoll Mean : "<<ncollMean<<"   Variance : "<<ncollSigma<<endl;
 
    // or, alternatively,
@@ -158,12 +158,12 @@ AnalyzerWithCentrality::analyze(const edm::Event& iEvent, const edm::EventSetup&
    ncollSigma = centrality_->NcollSigmaOfBin(bin);
 
 
-   double nhardMean = centrality_->NhardMean(iEvent);
-   double nhardSigma = centrality_->NhardSigma(iEvent);
+   double nhardMean = centrality_->NhardMean();
+   double nhardSigma = centrality_->NhardSigma();
    cout<<"Nhard Mean : "<<nhardMean<<"   Variance : "<<nhardSigma<<endl;
 
-   double bMean = centrality_->bMean(iEvent);
-   double bSigma = centrality_->bSigma(iEvent);
+   double bMean = centrality_->bMean();
+   double bSigma = centrality_->bSigma();
    cout<<"b Mean : "<<bMean<<"   Variance : "<<bSigma<<endl;
 
    bMean = centrality_->bMeanOfBin(bin);
