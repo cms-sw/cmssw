@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.104 2010/09/16 15:36:55 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.105 2010/09/16 15:42:21 yana Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -557,6 +557,7 @@ CmsShowMainFrame::enableActions(bool enable)
    CSGActionSupervisor::enableActions(enable);
 
    m_runEntry->SetEnabled(enable);
+   m_lumiEntry->SetEnabled(enable);
    m_eventEntry->SetEnabled(enable);
    m_filterEnableBtn->SetEnabled(enable);
    m_filterShowGUIBtn->SetEnabled(enable);
