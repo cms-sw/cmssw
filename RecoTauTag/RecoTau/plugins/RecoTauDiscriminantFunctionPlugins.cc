@@ -1,6 +1,3 @@
-#include "RecoTauTag/RecoTau/interface/RecoTauDiscriminantPlugins.h"
-#include "RecoTauTag/RecoTau/interface/RecoTauDiscriminantFunctions.h"
-
 /* Tau discriminant producer plugins.
  *
  * All plugins have a "simple" (i.e. Pt) discriminant name that is used by the
@@ -10,13 +7,16 @@
  *
  * "RecoTauDiscrimination"+<simple name>
  *
- * The below macro builds these plugins using the simple unary functions
+ * The macros below build these plugins using the simple unary functions
  * defined in RecoTauDiscriminantFunctions and gives them the correct name.
  *
  * Author: Evan K. Friis (UC Davis)
  *
  * $Id $
  */
+
+#include "RecoTauTag/RecoTau/interface/RecoTauDiscriminantPlugins.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauDiscriminantFunctions.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -37,6 +37,18 @@ TAU_DISC_PLUGIN(IsolationChargedAveragePtFraction);
 TAU_DISC_PLUGIN(ScaledEtaJetCollimation);
 TAU_DISC_PLUGIN(ScaledPhiJetCollimation);
 TAU_VEC_DISC_PLUGIN(Dalitz2);
+
+
+TAU_DISC_PLUGIN(IsolationChargedSumHard);
+TAU_DISC_PLUGIN(IsolationChargedSumSoft);
+TAU_DISC_PLUGIN(IsolationChargedSumHardRelative);
+TAU_DISC_PLUGIN(IsolationChargedSumSoftRelative);
+TAU_DISC_PLUGIN(IsolationECALSumHard);
+TAU_DISC_PLUGIN(IsolationECALSumSoft);
+TAU_DISC_PLUGIN(IsolationECALSumHardRelative);
+TAU_DISC_PLUGIN(IsolationECALSumSoftRelative);
+TAU_DISC_PLUGIN(EMFraction);
+TAU_DISC_PLUGIN(ImpactParameterSignificance);
 
 TAU_DISC_PLUGIN(Pt);
 TAU_DISC_PLUGIN(Eta);

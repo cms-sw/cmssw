@@ -41,6 +41,24 @@ double ScaledEtaJetCollimation(Tau tau);
 double ScaledPhiJetCollimation(Tau tau);
 VDouble Dalitz2(Tau tau);
 
+// Sum of charged isolation activity above/below 1 GeV
+double IsolationChargedSumHard(Tau tau);
+double IsolationChargedSumSoft(Tau tau);
+double IsolationChargedSumHardRelative(Tau tau);
+double IsolationChargedSumSoftRelative(Tau tau);
+
+// Sum of ecal isolation activity above/below 1.5 GeV
+double IsolationECALSumHard(Tau tau);
+double IsolationECALSumSoft(Tau tau);
+double IsolationECALSumHardRelative(Tau tau);
+double IsolationECALSumSoftRelative(Tau tau);
+
+// Fraction of signal energy carried by pizeros.
+double EMFraction(Tau tau);
+
+// Absolute significance of impact parameter
+double ImpactParameterSignificance(Tau tau);
+
 double Pt(Tau tau) { return tau.pt(); }
 double Eta(Tau tau) { return tau.eta(); }
 double Mass(Tau tau) { return tau.mass(); }

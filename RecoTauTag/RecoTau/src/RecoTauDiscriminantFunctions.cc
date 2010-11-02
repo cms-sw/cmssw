@@ -133,8 +133,74 @@ VDouble Dalitz2(Tau tau) {
   return output;
 }
 
+double IsolationChargedSumHard(Tau tau) {
+  VDouble isocands = extract(tau.isolationPFChargedHadrCands(),
+                             std::mem_fun_ref(&PFCandidate::pt));
+  double output = 0.0;
+  BOOST_FOREACH(double pt, isocands) {
+    if (pt > 1.0)
+      output += pt;
+  }
+  return output;
+}
 
+double IsolationChargedSumSoft(Tau tau) {
+  VDouble isocands = extract(tau.isolationPFChargedHadrCands(),
+                             std::mem_fun_ref(&PFCandidate::pt));
+  double output = 0.0;
+  BOOST_FOREACH(double pt, isocands) {
+    if (pt < 1.0)
+      output += pt;
+  }
+  return output;
+}
 
+// Relative versions.
+double IsolationChargedSumHardRelative(Tau tau) {
+  return IsolationChargedSumHard(tau)/tau.jetRef()->pt();
+}
+
+double IsolationChargedSumSoftRelative(Tau tau) {
+  return IsolationChargedSumSoft(tau)/tau.jetRef()->pt();
+}
+
+double IsolationECALSumHard(Tau tau) {
+  VDouble isocands = extract(tau.isolationPFGammaCands(),
+                             std::mem_fun_ref(&PFCandidate::pt));
+  double output = 0.0;
+  BOOST_FOREACH(double pt, isocands) {
+    if (pt > 1.5)
+      output += pt;
+  }
+  return output;
+}
+
+double IsolationECALSumSoft(Tau tau) {
+  VDouble isocands = extract(tau.isolationPFGammaCands(),
+                             std::mem_fun_ref(&PFCandidate::pt));
+  double output = 0.0;
+  BOOST_FOREACH(double pt, isocands) {
+    if (pt < 1.5)
+      output += pt;
+  }
+  return output;
+}
+
+// Relative versions.
+double IsolationECALSumHardRelative(Tau tau) {
+  return IsolationECALSumHard(tau)/tau.jetRef()->pt();
+}
+double IsolationECALSumSoftRelative(Tau tau) {
+  return IsolationECALSumSoft(tau)/tau.jetRef()->pt();
+}
+
+double EMFraction(Tau tau) {
+  return tau.emFraction();
+}
+
+double ImpactParameterSignificance(Tau tau) {
+  return std::abs(tau.leadPFChargedHadrCandsignedSipt());
+}
 
 double OutlierN(Tau tau) {
   return tau.isolationPFChargedHadrCands().size() +
