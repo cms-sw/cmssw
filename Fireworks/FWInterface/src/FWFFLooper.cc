@@ -281,6 +281,7 @@ FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
       setupActions();
       
       guiManager()->showEventFilterGUI_.connect(boost::bind(&FWFFLooper::showPathsGUI, this, _1));
+      guiManager()->setFilterButtonText("Show paths / CMSSW configuration editor");
       guiManager()->filterButtonClicked_.connect(boost::bind(&FWGUIManager::showEventFilterGUI, guiManager()));
 
       m_firstTime = false;
@@ -414,9 +415,15 @@ FWFFLooper::showPathsGUI(const TGWindow *)
    if (!m_pathsGUI)
       return;
    if (m_pathsGUI->IsMapped())
+   {
+      guiManager()->setFilterButtonText("Show paths / CMSSW configuration editor");
       m_pathsGUI->UnmapWindow();
+   }
    else
+   {
+      guiManager()->setFilterButtonText("Hide paths / CMSSW configuration editor");
       m_pathsGUI->MapWindow();
+   }
 }
 
 void
