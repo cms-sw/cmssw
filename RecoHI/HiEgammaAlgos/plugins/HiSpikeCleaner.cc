@@ -13,7 +13,7 @@
 //
 // Original Author:  Yong Kim,32 4-A08,+41227673039,
 //         Created:  Mon Nov  1 18:22:21 CET 2010
-// $Id$
+// $Id: HiSpikeCleaner.cc,v 1.1 2010/11/01 21:26:17 kimy Exp $
 //
 //
 
@@ -177,7 +177,7 @@ HiSpikeCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for(aClus = rawClusters->begin(); aClus != rawClusters->end(); aClus++)
       {
 	 double theEt = aClus->energy()/cosh( aClus->eta() ) ;
-	 std::cout << " et of SC = " << theEt << std::endl;
+	 //	 std::cout << " et of SC = " << theEt << std::endl;
 
 	 if ( theEt < etCut_ )  continue;   // cut off low pT superclusters 
 	 
