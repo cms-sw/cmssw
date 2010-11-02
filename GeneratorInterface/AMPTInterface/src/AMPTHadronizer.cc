@@ -118,12 +118,12 @@ void AMPTHadronizer::add_heavy_ion_rec(HepMC::GenEvent *evt)
     hmain1.jatt,                               // Ncoll_hard/N of SubEvents
     hmain1.np,                               // Npart_proj
     hmain1.nt,                               // Npart_targ
-    hmain1.n0,                          // Ncoll
+    hmain1.n0+hmain1.n01+hmain1.n10+hmain1.n11,  // Ncoll
     0,                                   // spectator_neutrons
     0,                                   // spectator_protons
-    hmain1.n0,                          // N_Nwounded_collisions
-    hmain1.n0,                          // Nwounded_N_collisions
-    hmain1.n0,                          // Nwounded_Nwounded_collisions
+    hmain1.n01,                          // N_Nwounded_collisions
+    hmain1.n10,                          // Nwounded_N_collisions
+    hmain1.n11,                          // Nwounded_Nwounded_collisions
     hparnt.hint1[18],                   // impact_parameter in [fm]
     phi0_,                              // event_plane_angle
     0,                                   // eccentricity
