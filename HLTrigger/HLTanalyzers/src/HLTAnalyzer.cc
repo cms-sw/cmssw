@@ -158,6 +158,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   _EtaMin   = runParameters.getUntrackedParameter<double>("EtaMin", -5.2);
   _EtaMax   = runParameters.getUntrackedParameter<double>("EtaMax",  5.2);
 
+  _DoHLT = runParameters.getUntrackedParameter<bool>("DoHLT",true);
   _DoHeavyIon = runParameters.getUntrackedParameter<bool>("DoHeavyIon",false);
   _DoCentrality = _DoHeavyIon;
   _DoMC = runParameters.getUntrackedParameter<bool>("DoMC",true);
