@@ -50,9 +50,9 @@ simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
 #        endTime = cms.double(200.0)
 #    ),
     wires = cms.PSet(
-        signalStopTime = cms.double(150.0),
+        signalStopTime = cms.double(300.0),
         wireTimingError = cms.double(0.0),
-        signalStartTime = cms.double(-100.0),
+        signalStartTime = cms.double(-200.0),
         peakTimeSigma = cms.double(0.0),
         shapingTime = cms.int32(30),
         readBadChannels = cms.bool(False),
