@@ -4,12 +4,21 @@
 /*
  * RecoTauMVAHelper
  *
+ * Manages DB retrieval and application of MVAComputers to reco::PFTaus.  Takes
+ * as input a name (into an MVAComputerContainer) and an optional esLabel.  The
+ * MVA helper retrieves the MVA from the database and determines the associated
+ * list of discriminant functions.  These discriminant functions are all defined
+ * as RecoTauDiscriminantPlugins.  This class then builds the appropriate
+ * plugins.  When passed a tau using operator(), the class computes the output
+ * of all discriminates, passes them to the MVA, and returns the result.
+ *
+ * The plugin can also be used to pass training data to the MVA framework.  See
+ * RecoTauTag/TauTagTools/test/training for examples.
+ *
  * Author: Evan K. Friis (UC Davis)
  *
- * Manages DB retrieval and applictionat of MVAComputers to reco::PFTaus.
- *
- * Based on code by Christophe Saoute in
- *  - PhysicsTools/MVAComputer/interface/MVAModuleHelper.h
+ * Based on code by Christophe Saoute in -
+ * PhysicsTools/MVAComputer/interface/MVAModuleHelper.h
  */
 
 #include <boost/ptr_container/ptr_map.hpp>
