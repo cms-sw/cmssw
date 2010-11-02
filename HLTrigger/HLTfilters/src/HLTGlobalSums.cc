@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/09/26 08:40:34 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/04/08 14:24:27 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -134,7 +134,7 @@ HLTGlobalSums<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        value=0.0;
      }
 
-     value=abs(value);
+     value=std::abs(value);
 
      if ( ( (min_<0.0) || (min_<=value) ) &&
 	  ( (max_<0.0) || (value<=max_) ) ) {

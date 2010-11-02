@@ -24,6 +24,7 @@
 
 #include<cmath>
 
+#ifdef  CMS_USE_SSE
 namespace mathSSE {
 
 // "vertical array"
@@ -58,4 +59,5 @@ namespace mathSSE {
 
 }
 
+#endif //  CMS_USE_SSE
 #endif // DataFormat_Math_SSEArray_H

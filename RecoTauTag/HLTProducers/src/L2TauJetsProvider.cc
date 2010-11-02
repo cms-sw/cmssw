@@ -61,8 +61,8 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   //Loop over the Map to find which jets has fired the trigger
   //myL1Tau is the Collection of L1TauCandidates (from 0 to max  4 elements)
   //get the list of trigger candidates from the HLTL1SeedGT filter
-  Handle< L1JetParticleCollection > tauColl ; 
-  Handle< L1JetParticleCollection > jetColl ; 
+  edm::Handle< L1JetParticleCollection > tauColl ; 
+  edm::Handle< L1JetParticleCollection > jetColl ; 
   
   iEvent.getByLabel( l1ParticlesTau, tauColl );
   iEvent.getByLabel(l1ParticlesJet, jetColl);
@@ -84,7 +84,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
       }
 
 
-    Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus;
+    edm::Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus;
     if(iEvent.getByLabel(tauTrigger,l1TriggeredTaus)){
     
       

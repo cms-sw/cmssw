@@ -144,59 +144,67 @@ PhysicsTowerOrganizer::PhysicsTowerOrganizer(const edm::Event& iEvent,
   const CaloSubdetectorGeometry* gEE = geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
 
   // do the HCAL hits
-  for(HBHERecHitCollection::const_iterator it=hbhehitcoll_h->begin(); it!=hbhehitcoll_h->end(); ++it) {
-    const HBHERecHit* hit=&(*it);
+  if(hbhehitcoll_h.isValid()) {
+    for(HBHERecHitCollection::const_iterator it=hbhehitcoll_h->begin(); it!=hbhehitcoll_h->end(); ++it) {
+      const HBHERecHit* hit=&(*it);
       
-    // check that the hit is valid
-    if(!objectvalidator.validHit(*hit)) continue;
+      // check that the hit is valid
+      if(!objectvalidator.validHit(*hit)) continue;
       
-    // add the hit to the organizer
-    CaloTowerDetId tid = ctcm.towerOf(hit->id());
-    insert_(tid, hit);
+      // add the hit to the organizer
+      CaloTowerDetId tid = ctcm.towerOf(hit->id());
+      insert_(tid, hit);
+    }
   }
 
   // do the EB hits
-  for(EcalRecHitCollection::const_iterator it=ebhitcoll_h->begin(); it!=ebhitcoll_h->end(); ++it) {
-    const EcalRecHit* hit=&(*it);
+  if(ebhitcoll_h.isValid()) {
+    for(EcalRecHitCollection::const_iterator it=ebhitcoll_h->begin(); it!=ebhitcoll_h->end(); ++it) {
+      const EcalRecHit* hit=&(*it);
       
-    if(!objectvalidator.validHit(*hit)) continue;
-    CaloTowerDetId tid = ctcm.towerOf(hit->id());
-    insert_(tid, hit);
+      if(!objectvalidator.validHit(*hit)) continue;
+      CaloTowerDetId tid = ctcm.towerOf(hit->id());
+      insert_(tid, hit);
+    }
   }
 
   // do the EE hits
-  for(EcalRecHitCollection::const_iterator it=eehitcoll_h->begin(); it!=eehitcoll_h->end(); ++it) {
-    const EcalRecHit* hit=&(*it);
-    
-    if(!objectvalidator.validHit(*hit)) continue;
-    CaloTowerDetId tid = ctcm.towerOf(hit->id());
-    insert_(tid, hit);
+  if(eehitcoll_h.isValid()) {
+    for(EcalRecHitCollection::const_iterator it=eehitcoll_h->begin(); it!=eehitcoll_h->end(); ++it) {
+      const EcalRecHit* hit=&(*it);
+      
+      if(!objectvalidator.validHit(*hit)) continue;
+      CaloTowerDetId tid = ctcm.towerOf(hit->id());
+      insert_(tid, hit);
+    }
   }
   
   // do the tracks
-  for(std::vector<reco::TrackExtrapolation>::const_iterator it=trackextrapcoll_h->begin(); it!=trackextrapcoll_h->end(); ++it) {
-    const reco::TrackExtrapolation* extrap=&(*it);
-    const reco::Track* track = &(*(extrap->track()));
+  if(trackextrapcoll_h.isValid()) {
+    for(std::vector<reco::TrackExtrapolation>::const_iterator it=trackextrapcoll_h->begin(); it!=trackextrapcoll_h->end(); ++it) {
+      const reco::TrackExtrapolation* extrap=&(*it);
+      const reco::Track* track = &(*(extrap->track()));
 
-    // validate track
-    if(!objectvalidator.validTrack(*track)) continue;
-    
-    // need a valid extrapolation point
-    if(extrap->positions().size()<=0) continue;
-    
-    // get the point
-    const GlobalPoint point(extrap->positions().front().x(),
-			    extrap->positions().front().y(),
-			    extrap->positions().front().z());
-    
-    if(std::fabs(point.eta())<1.479) {
-      EBDetId cell = gEB->getClosestCell(point);
-      CaloTowerDetId tid = ctcm.towerOf(cell);
-      insert_(tid, track);
-    } else {
-      EEDetId cell = gEE->getClosestCell(point);
-      CaloTowerDetId tid = ctcm.towerOf(cell);
-      insert_(tid, track);
+      // validate track
+      if(!objectvalidator.validTrack(*track)) continue;
+
+      // need a valid extrapolation point
+      if(extrap->positions().size()<=0) continue;
+      
+      // get the point
+      const GlobalPoint point(extrap->positions().front().x(),
+			      extrap->positions().front().y(),
+			      extrap->positions().front().z());
+      
+      if(std::fabs(point.eta())<1.479) {
+	EBDetId cell = gEB->getClosestCell(point);
+	CaloTowerDetId tid = ctcm.towerOf(cell);
+	insert_(tid, track);
+      } else {
+	EEDetId cell = gEE->getClosestCell(point);
+	CaloTowerDetId tid = ctcm.towerOf(cell);
+	insert_(tid, track);
+      }
     }
   }
 
@@ -250,12 +258,8 @@ PhysicsTower* PhysicsTowerOrganizer::findTower(int ieta, int iphi)
   return findTower(tid);
 }
 
-void PhysicsTowerOrganizer::findNeighbors(const CaloTowerDetId& tempid, std::set<const PhysicsTower*>& neighbors) const
+void PhysicsTowerOrganizer::findNeighbors(const CaloTowerDetId& id, std::set<const PhysicsTower*>& neighbors) const
 {
-  // correct for the merging of the |ieta|=28-29 towers
-  CaloTowerDetId id(tempid);
-  if(tempid.ietaAbs()==29) id = CaloTowerDetId((tempid.ietaAbs()-1)*tempid.zside(), tempid.iphi());
-
   std::vector<CaloTowerDetId> ids;
   // get the neighbor with higher iphi
   if(id.ietaAbs()<=20) {
@@ -713,57 +717,60 @@ HBHEHitMapOrganizer::HBHEHitMapOrganizer(const edm::Handle<HBHERecHitCollection>
 					 const ObjectValidatorAbs& objvalidator,
 					 const PhysicsTowerOrganizer& pto)
 {
+
   // loop over the hits
-  for(HBHERecHitCollection::const_iterator it=hbhehitcoll_h->begin(); it!=hbhehitcoll_h->end(); ++it) {
-    const HBHERecHit *hit=&(*it);
-    if(!objvalidator.validHit(*hit)) continue;
-    
-    // get the Physics Tower and the neighbors
-    const PhysicsTower* tower=pto.findTower(hit->id().ieta(), hit->id().iphi());
-    
-    std::set<const PhysicsTower*> neighbors;
-    pto.findNeighbors(hit->id().ieta(), hit->id().iphi(), neighbors);
-    
-    // organize the RBXs
-    int rbxidnum = HcalHPDRBXMap::indexRBX(hit->id());
-    rbxs_[rbxidnum].insert(hit, tower, neighbors);
-    
-    // organize the HPDs
-    int hpdidnum = HcalHPDRBXMap::indexHPD(hit->id());
-    hpds_[hpdidnum].insert(hit, tower, neighbors);
-    
-    
-    // organize the dihits
-    std::vector<const HBHERecHit*> hpdneighbors;
-    getHPDNeighbors(hit, hpdneighbors, pto);
-    
-    if(hpdneighbors.size()==1) {
-      std::vector<const HBHERecHit*> hpdneighborsneighbors;
-      getHPDNeighbors(hpdneighbors[0], hpdneighborsneighbors, pto);
+  if(hbhehitcoll_h.isValid()) {
+    for(HBHERecHitCollection::const_iterator it=hbhehitcoll_h->begin(); it!=hbhehitcoll_h->end(); ++it) {
+      const HBHERecHit *hit=&(*it);
+      if(!objvalidator.validHit(*hit)) continue;
       
-      if(hpdneighborsneighbors.size()==1 && hpdneighborsneighbors[0]==hit && hit->energy()>hpdneighbors[0]->energy()) {
-	// we've found two hits who are neighbors in the same HPD, but who have no other
-	// neighbors (in the same HPD) in common.  In order not to double-count, we
-	// require that the first hit has more energy
+      // get the Physics Tower and the neighbors
+      const PhysicsTower* tower=pto.findTower(hit->id().ieta(), hit->id().iphi());
+      
+      std::set<const PhysicsTower*> neighbors;
+      pto.findNeighbors(hit->id().ieta(), hit->id().iphi(), neighbors);
+      
+      // organize the RBXs
+      int rbxidnum = HcalHPDRBXMap::indexRBX(hit->id());
+      rbxs_[rbxidnum].insert(hit, tower, neighbors);
+      
+      // organize the HPDs
+      int hpdidnum = HcalHPDRBXMap::indexHPD(hit->id());
+      hpds_[hpdidnum].insert(hit, tower, neighbors);
+      
+      
+      // organize the dihits
+      std::vector<const HBHERecHit*> hpdneighbors;
+      getHPDNeighbors(hit, hpdneighbors, pto);
+      
+      if(hpdneighbors.size()==1) {
+	std::vector<const HBHERecHit*> hpdneighborsneighbors;
+	getHPDNeighbors(hpdneighbors[0], hpdneighborsneighbors, pto);
 	
-	const PhysicsTower* tower2=pto.findTower(hpdneighbors[0]->id().ieta(), hpdneighbors[0]->id().iphi());
-	std::set<const PhysicsTower*> neighbors2;
-	pto.findNeighbors(hpdneighbors[0]->id().ieta(), hpdneighbors[0]->id().iphi(), neighbors2);
+	if(hpdneighborsneighbors.size()==1 && hpdneighborsneighbors[0]==hit && hit->energy()>hpdneighbors[0]->energy()) {
+	  // we've found two hits who are neighbors in the same HPD, but who have no other
+	  // neighbors (in the same HPD) in common.  In order not to double-count, we
+	  // require that the first hit has more energy
+	  
+	  const PhysicsTower* tower2=pto.findTower(hpdneighbors[0]->id().ieta(), hpdneighbors[0]->id().iphi());
+	  std::set<const PhysicsTower*> neighbors2;
+	  pto.findNeighbors(hpdneighbors[0]->id().ieta(), hpdneighbors[0]->id().iphi(), neighbors2);
+	  
+	  HBHEHitMap dihit;
+	  dihit.insert(hit, tower, neighbors);
+	  dihit.insert(hpdneighbors[0], tower2, neighbors2);
+	  dihits_.push_back(dihit);
+	}
+      } else if(hpdneighbors.size()==0) {
 	
-	HBHEHitMap dihit;
-	dihit.insert(hit, tower, neighbors);
-	dihit.insert(hpdneighbors[0], tower2, neighbors2);
-	dihits_.push_back(dihit);
+	// organize the monohits
+	HBHEHitMap monohit;
+	monohit.insert(hit, tower, neighbors);
+	monohits_.push_back(monohit);
       }
-    } else if(hpdneighbors.size()==0) {
       
-      // organize the monohits
-      HBHEHitMap monohit;
-      monohit.insert(hit, tower, neighbors);
-      monohits_.push_back(monohit);
-    }
-    
-  } // finished looping over HBHERecHits
+    } // finished looping over HBHERecHits
+  }
   return;
 }
 

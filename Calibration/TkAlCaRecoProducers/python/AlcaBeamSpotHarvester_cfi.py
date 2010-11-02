@@ -7,6 +7,11 @@ alcaBeamSpotHarvester = cms.EDAnalyzer("AlcaBeamSpotHarvester",
 	BeamSpotLabel      = cms.untracked.string("alcaBeamSpot"),
 	outputRecordName   = cms.untracked.string("BeamSpotObjectsRcdByLumi"),
 	SigmaZValue        = cms.untracked.double(-1) 
+    ),
+    metadataOfflineDropBox = cms.PSet(
+        destDB             = cms.untracked.string("oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT"),
+        tag                = cms.untracked.string("beamspot_Tier0_offline"),
+        DuplicateTagPROMPT = cms.untracked.string("beamspot_Tier0_prompt")
     )
 )
 

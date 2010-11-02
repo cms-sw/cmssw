@@ -1,5 +1,6 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h" 
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h" // for CMSSW_3_x_y
+//#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h" // for CMSSW_2_2_x
 
 /* class TauDiscriminationByStringCut
  * created : Nov 9 2009

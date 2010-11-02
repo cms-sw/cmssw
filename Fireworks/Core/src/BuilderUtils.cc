@@ -192,7 +192,7 @@ namespace fireworks
       marker->SetLineWidth( 2 );
       marker->SetLineStyle( 2 );
       marker->AddLine( r * cos( phi ) * sin( theta ), r * sin( phi ) * sin( theta ), r * cos( theta ),
-                      ( r + size ) * cos( phi ) * sin( theta ), ( r + size ) * sin( phi ) * sin( theta ), ( r + size ) * cos( theta ));
+                       ( r + size ) * cos( phi ) * sin( theta ), ( r + size ) * sin( phi ) * sin( theta ), ( r + size ) * cos( theta ));
       pb->setupAddElement( marker, comp );      
    }
    
@@ -209,9 +209,9 @@ namespace fireworks
       pb->setupAddElement( secondLine, comp );      
    }
    
-   void drawEnergyScaledBox3D( const float* corners, float scale, TEveElement* comp, FWProxyBuilderBase* pb, bool invert )
+   //______________________________________________________________________________
+   void energyScaledBox3DCorners( const float* corners, float scale, std::vector<float>& scaledCorners, bool invert)
    {
-      std::vector<float> scaledCorners( 24 );
       std::vector<float> centre( 3, 0 );
 
       for( unsigned int i = 0; i < 24; i += 3 )
@@ -224,7 +224,7 @@ namespace fireworks
       for( unsigned int i = 0; i < 3; ++i )
          centre[i] *= 1.0f / 8.0f;
 
-       // Coordinates for a scaled version of the original box
+      // Coordinates for a scaled version of the original box
       for( unsigned int i = 0; i < 24; i += 3 )
       {	
          scaledCorners[i] = centre[0] + ( corners[i] - centre[0] ) * scale;
@@ -234,10 +234,16 @@ namespace fireworks
       
       if( invert )
          invertBox( scaledCorners );
+   }
 
+   void drawEnergyScaledBox3D( const float* corners, float scale, TEveElement* comp, FWProxyBuilderBase* pb, bool invert )
+   {
+      std::vector<float> scaledCorners( 24 );
+      energyScaledBox3DCorners(corners, scale, scaledCorners, invert);
       addBox( scaledCorners, comp, pb );
    }
-  
+   //______________________________________________________________________________
+
    void drawEtScaledBox3D( const float* corners, float energy, float maxEnergy, TEveElement* comp, FWProxyBuilderBase* pb, bool invert )
    {
       std::vector<float> scaledCorners( 24 );
@@ -256,7 +262,7 @@ namespace fireworks
       TEveVector c( centre[0], centre[1], centre[2] );
       float scale = energy / maxEnergy * sin( c.Theta());
       
-       // Coordinates for a scaled version of the original box
+      // Coordinates for a scaled version of the original box
       for( unsigned int i = 0; i < 24; i += 3 )
       {	
          scaledCorners[i] = centre[0] + ( corners[i] - centre[0] ) * scale;
@@ -269,10 +275,10 @@ namespace fireworks
 
       addBox( scaledCorners, comp, pb );
    }
+   //______________________________________________________________________________
 
-   void drawEnergyTower3D( const float* corners, float scale, TEveElement* comp, FWProxyBuilderBase* pb, bool reflect )
-   {
-      std::vector<float> scaledCorners( 24 );
+   void energyTower3DCorners( const float* corners, float scale,  std::vector<float>& scaledCorners, bool reflect)
+   { 
       for( int i = 0; i < 24; ++i )
          scaledCorners[i] = corners[i];
       // Coordinates of a front face scaled 
@@ -308,14 +314,22 @@ namespace fireworks
             scaledCorners[i + 14] = corners[i + 14] + diff.fZ;
          }
       }
+   }
+
+   void drawEnergyTower3D( const float* corners, float scale, TEveElement* comp, FWProxyBuilderBase* pb, bool reflect )
+   {
+      std::vector<float> scaledCorners( 24 );
+      energyTower3DCorners(corners, scale, scaledCorners, reflect);
       addBox( scaledCorners, comp, pb );
    }
   
+   //______________________________________________________________________________
+
    void drawEtTower3D( const float* corners, float scale, TEveElement* comp, FWProxyBuilderBase* pb, bool reflect )
    {
-     std::vector<float> scaledCorners( 24 );
-     for( int i = 0; i < 24; ++i )
-        scaledCorners[i] = corners[i];
+      std::vector<float> scaledCorners( 24 );
+      for( int i = 0; i < 24; ++i )
+         scaledCorners[i] = corners[i];
       // Coordinates of a front face scaled 
       if( reflect )
       {

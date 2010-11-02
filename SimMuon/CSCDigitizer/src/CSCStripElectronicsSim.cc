@@ -62,9 +62,10 @@ void CSCStripElectronicsSim::initParameters() {
 
   //calculate the offset to the peak
   float averageDistance = theLayer->surface().position().mag();
-  theAverageTimeOfFlight = averageDistance * cm / c_light; // Units of c_light: mm/ns
+  float averageTimeOfFlight = averageDistance * cm / c_light; // Units of c_light: mm/ns
   int chamberType = theSpecs->chamberType();
-  theTimingOffset = theShapingTime + theAverageTimeOfFlight
+
+  theTimingOffset = theShapingTime + averageTimeOfFlight
          + theBunchTimingOffsets[chamberType];
 //TODO make sure config gets overridden
   theSignalStartTime = theTimingOffset
@@ -338,12 +339,9 @@ void CSCStripElectronicsSim::fillDigis(CSCStripDigiCollection & digis,
   std::vector<CSCComparatorDigi> comparatorOutputs;
   runComparator(comparatorOutputs);
   // copy these to the result
-  if(!comparatorOutputs.empty())
-  {
-    CSCComparatorDigiCollection::Range range(comparatorOutputs.begin(), 
-                                             comparatorOutputs.end());
-    comparators.put(range, layerId());
-  }
+  CSCComparatorDigiCollection::Range range(comparatorOutputs.begin(), 
+                                           comparatorOutputs.end());
+  comparators.put(range, layerId());
 
   //std::list<int> keyStrips = getKeyStrips(comparatorOutputs);
   std::list<int> keyStrips = getKeyStripsFromMC();
@@ -425,13 +423,8 @@ void CSCStripElectronicsSim::createDigi(int channel, const CSCAnalogSignal & sig
   int chamberType = theSpecs->chamberType();
 
   for(int scaBin = 0; scaBin < nScaBins_; ++scaBin) {
-    float t = theSignalStartTime+theSCATimingOffsets[chamberType]
-              +scaBin*sca_time_bin_size;
-    // undo the correction for TOF, instead, using some nominal
-    // value from ME2/1
-    t += 29. - theAverageTimeOfFlight;
     scaCounts[scaBin] = static_cast< int >
-      ( pedestal + signal.getValue(t) * gain );
+      ( pedestal + signal.getValue(theSignalStartTime+theSCATimingOffsets[chamberType]+scaBin*sca_time_bin_size) * gain );
   }
   CSCStripDigi newDigi(channel, scaCounts);
 

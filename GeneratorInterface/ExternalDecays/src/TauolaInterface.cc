@@ -92,16 +92,16 @@ void TauolaInterface::init( const edm::EventSetup& es )
 
 // FIXME !!!
 // This is a temporary hack - we're re-using master generator's seed to init RANMAR
-// FIXME !!!
-//   This is now off because ranmar has been overriden (see code above) to use pyr_(...)
-//   - this way we're using guaranteed initialized rndm generator... BUT !!! in the long
-//   run we may want a separate random stream for tauola...
+/* FIXME !!!
+   This is now off because ranmar has been overriden (see code above) to use pyr_(...)
+   - this way we're using guaranteed initialized rndm generator... BUT !!! in the long
+   run we may want a separate random stream for tauola...
 
-//   Service<RandomNumberGenerator> rng;
-//   int seed = rng->mySeed() ;
-//   int ntot=0, ntot2=0;
-//   rmarin_( &seed, &ntot, &ntot2 );
-
+   Service<RandomNumberGenerator> rng;
+   int seed = rng->mySeed() ;
+   int ntot=0, ntot2=0;
+   rmarin_( &seed, &ntot, &ntot2 );
+*/
    int mode = -2;
    taurep_( &mode ) ;
    mode = -1;
@@ -259,166 +259,3 @@ void TauolaInterface::statistics()
    fPy6Service->call( tauola_srs_, &mode, &fPolarization );
    return;
 }
-
-
-/* this is the code for the new Tauola++ 
-
-#include <iostream>
-
-#include "GeneratorInterface/ExternalDecays/interface/TauolaInterface.h"
-
-#include "Tauola.h"
-#include "TauolaHepMCEvent.h"
-#include "Log.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-
-#include "HepMC/GenEvent.h"
-#include "HepMC/IO_HEPEVT.h"
-#include "HepMC/HEPEVT_Wrapper.h"
-
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-
-using namespace gen;
-using namespace edm;
-using namespace std;
-
-// will need more proper treatment, init, etc. 
-extern "C" { 
-   void ranmar_( float*, int* );
-}
-
-TauolaInterface::TauolaInterface( const ParameterSet& pset )
-   : fIsInitialized(false)
-{
-
-   Tauola::setDecayingParticle(15);
-   Tauola::setRadiation(false);
-
-   // polarization switch 
-   //
-   // fPolarization = pset.getParameter<bool>("UseTauolaPolarization") ? 1 : 0 ;
-   fPolarization = pset.getParameter<bool>("UseTauolaPolarization");
-   
-   // read tau decay mode switches
-   //
-   ParameterSet cards = pset.getParameter< ParameterSet >("InputCards");
-   Tauola::setSameParticleDecayMode( cards.getParameter< int >( "pjak1" ) ) ;
-   Tauola::setOppositeParticleDecayMode( cards.getParameter< int >( "pjak2" ) ) ;
-
-   Tauola::setTauLifetime(0.0);
-   Tauola::spin_correlation.setAll(fPolarization);
-
-   // some more options, copied over from an example 
-   // - maybe will use later...
-   //
-   //Tauola::setEtaK0sPi(0,0,0); // switches to decay eta K0_S and pi0 1/0 on/off. 
-   //
-
-} 
-
-TauolaInterface::~TauolaInterface()
-{
-}
-
-void TauolaInterface::init( const edm::EventSetup& es )
-{
-   
-   if ( fIsInitialized ) return; // do init only once
-      
-   fPDGs.push_back( Tauola::getDecayingParticle() );
-      
-   es.getData( fPDGTable ) ;
-
-   Tauola::initialise();
-   Log::LogWarning(false);
-   
-   fIsInitialized = true;
-   
-   return;
-}
-
-HepMC::GenEvent* TauolaInterface::decay( HepMC::GenEvent* evt )
-{
-      
-   if ( !fIsInitialized ) return evt;
-   
-   int NPartBefore = evt->particles_size();
-   int NVtxBefore  = evt->vertices_size();
-   
-   // what do we do if Hep::GenEvent size is larger than 10K ???
-   // Tauola (& Photos, BTW) can only handle up to 10K via HEPEVT,
-   // and in case of CMS, it's only up to 4K !!!
-   //
-   // if ( NPartBefore > 10000 ) return evt;
-   //
-   
-    //construct tmp TAUOLA event
-    //
-    TauolaHepMCEvent * t_event = new TauolaHepMCEvent(evt);
-   
-    // another option: if one lets Pythia or another master gen to decay taus, 
-    //                 we have to undecay them first
-    // t_event->undecayTaus();
-    
-    // run Tauola on the tmp event - HepMC::GenEvernt will be MODIFIED !!!
-    //
-    t_event->decayTaus();
-    
-    // delet tmp Tauola event
-    //
-    delete t_event; 
-    
-    // fix barcodes of the newly added particles
-    //
-    for(HepMC::GenEvent::particle_const_iterator it = evt->particles_begin(); 
-        it != evt->particles_end(); ++it ) 
-    {
-       //HepMC::GenParticle* GenPrt = (*it);
-       if ( (*it)->barcode() > 10000 )
-       {
-          int NewBarcode = ((*it)->barcode()-10000) + NPartBefore;
-	  (*it)->suggest_barcode( NewBarcode ); 
-       }
-    }
-    
-
-    // do we also need to apply the lifetime and vtx position shift ??? 
-    // (see TauolaInterface, for example)
-    //
-    for ( int iv=NVtxBefore+1; iv<=evt->vertices_size(); iv++ )
-    {
-       HepMC::GenVertex* GenVtx = evt->barcode_to_vertex(-iv);
-       HepMC::GenParticle* GenPart = *(GenVtx->particles_in_const_begin());
-       HepMC::FourVector PMom = GenPart->momentum();
-       double mass = GenPart->generated_mass();
-       const HepPDT::ParticleData* 
-             PData = fPDGTable->particle(HepPDT::ParticleID(abs(GenPart->pdg_id()))) ;
-       double lifetime = PData->lifetime().value();
-       float prob = 0.;
-       int length=1;
-       ranmar_(&prob,&length);
-       double ct = -lifetime * std::log(prob);
-       double VxDec = GenVtx->position().x();
-       VxDec += ct * (PMom.px()/mass);
-       double VyDec = GenVtx->position().y();
-       VyDec += ct * (PMom.py()/mass);
-       double VzDec = GenVtx->position().z();
-       VzDec += ct * (PMom.pz()/mass);
-       double VtDec = GenVtx->position().t();
-       VtDec += ct * (PMom.e()/mass);
-       GenVtx->set_position( HepMC::FourVector(VxDec,VyDec,VzDec,VtDec) );       
-    }
-    
-    return evt;
-      
-}
-
-void TauolaInterface::statistics()
-{
-   return;
-}
-
-
-*/

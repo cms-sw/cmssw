@@ -64,15 +64,6 @@
   <class name="edm::Association<std::vector<reco::PFTau> >"/>
   <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTauDecayMode> > >"/>
   <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTau> > >"/>
-
-  <class name="reco::RecoTauPiZero"/>
-  <class name="std::vector<reco::RecoTauPiZero>"/>
-     <class name="std::vector<std::vector<reco::RecoTauPiZero> >"/>
-  <class name="edm::Wrapper<std::vector<reco::RecoTauPiZero> >"/>
-  <class name="edm::Ref<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> >"/>
-  <class name="edm::RefProd<std::vector<reco::RecoTauPiZero> >"/>
-  <class name="edm::RefVector<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> >"/>
-  <class name="edm::reftobase::Holder<reco::CompositePtrCandidate, edm::Ref<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> > >" />
   
   <class name="reco::CaloTauDiscriminatorByIsolationBase">
     <field name="transientVector_" transient="true"/>
@@ -151,23 +142,7 @@
   <class name="reco::PFTauDiscriminatorRefProd"/>
   <class name="reco::PFTauDiscriminatorRefVector"/>
   <class name="edm::Wrapper<reco::PFTauDiscriminator>"/>
-
-  <class name="reco::JetPiZeroAssociationBase">
-    <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
-  </class>
-
-  <class name="reco::JetPiZeroAssociation">
-    <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
-  </class>
-  <class name="reco::JetPiZeroAssociationRef"/>
-  <class name="reco::JetPiZeroAssociationRefProd"/>
-  <class name="reco::JetPiZeroAssociationRefVector"/>
-  <class name="edm::Wrapper<reco::JetPiZeroAssociation>"/>
-
-  <class name="std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> >"/>
-  <class name="std::vector<std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> > >" />
+  
 
   <class name="reco::PFTauDecayModeAssociation">
     <field name="transientVector_" transient="true"/>

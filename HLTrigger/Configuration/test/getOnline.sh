@@ -1,7 +1,7 @@
 #! /bin/bash
 
-HLT='/online/collisions/2010/week40/HLT'
-L1T='sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/sqlFile/L1Menu_Collisions2010_v0_mc.db:L1Menu_Collisions2010_v0'
+HLT='/online/collisions/2010/week42/HLT'
+L1T='L1Menu_Collisions2010_v0'
 
 
 hltGetConfiguration $HLT --process TEST --full --offline --mc   --l1 $L1T --unprescale --dataset '/RelValTTbar/CMSSW_3_6_3-START36_V10-v1/GEN-SIM-DIGI-RAW-HLTDEBUG' > offline_mc.py
