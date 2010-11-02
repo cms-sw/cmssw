@@ -11,7 +11,7 @@
 //
 // Original Author:  Dinko Ferencek,8 R-004,+41227676479,  Jeff Temple, 6-1-027
 //         Created:  Thu Mar 11 13:42:11 CET 2010
-// $Id: HcalRecHitReflagger.cc,v 1.5 2010/03/24 21:32:55 temple Exp $
+// $Id: HcalRecHitReflagger.cc,v 1.6 2010/07/20 02:58:34 wmtan Exp $
 //
 //
 
@@ -530,7 +530,7 @@ double HcalRecHitReflagger::GetSlope(const int ieta, const std::vector<double>& 
   else if (params.size()>2)
     {
       for (unsigned int i=2;i<params.size();++i)
-	slope+=params[i]*pow(abs(ieta),i-2);
+	slope+=params[i]*pow(static_cast<double>(abs(ieta)),static_cast<int>(i)-2);
     }
   if (debug_>1)  std::cout <<"<HcalRecHitReflagger::GetSlope>  ieta = "<<ieta<<"  slope = "<<slope<<std::endl;
   return slope;
