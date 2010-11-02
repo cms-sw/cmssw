@@ -1,11 +1,14 @@
 /*
  * \file L1TDTTF.cc
  *
- * $Date: 2010/10/27 13:59:25 $
- * $Revision: 1.26 $
+ * $Date: 2010/11/01 11:27:53 $
+ * $Revision: 1.27 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTF.cc,v $
+ * Revision 1.27  2010/11/01 11:27:53  gcodispo
+ * Cleaned up 2nd track sections
+ *
  * Revision 1.26  2010/10/27 13:59:25  gcodispo
  * Changed name to 2nd track quality (same convention as for all tracks)
  *
@@ -69,6 +72,9 @@
  * DQM core migration.
  *
  * $Log: L1TDTTF.cc,v $
+ * Revision 1.27  2010/11/01 11:27:53  gcodispo
+ * Cleaned up 2nd track sections
+ *
  * Revision 1.26  2010/10/27 13:59:25  gcodispo
  * Changed name to 2nd track quality (same convention as for all tracks)
  *
@@ -614,7 +620,14 @@ void L1TDTTF::analyze(const edm::Event& event,
 
   /// tracks handle
   edm::Handle<L1MuDTTrackContainer > myL1MuDTTrackContainer;
-  event.getByLabel(trackInputTag_, myL1MuDTTrackContainer);
+  try {
+    event.getByLabel(trackInputTag_, myL1MuDTTrackContainer);
+  } catch (...) {
+    edm::LogError("L1TDTTF::analyze::DataNotFound")
+      << "can't getByLabel L1MuDTTrackContainer with label " 
+      << dttpgSource_.label() << ":DATA:" << dttpgSource_.process();
+    return;
+  }
 
   if ( !myL1MuDTTrackContainer.isValid() ) {
     edm::LogError("L1TDTTF::analyze::DataNotFound")
@@ -632,81 +645,106 @@ void L1TDTTF::analyze(const edm::Event& event,
     if( trackContainer->size() > 1 ) ++nev_dttf_track2_;
   }
 
+  ///////////////////////////
   /// selection for offline
+  //////////////////////////
   bool accept = true;
   if ( ! online_ ) {
 
-    edm::Handle<reco::MuonCollection> muons;
-    event.getByLabel(muonCollectionLabel_, muons);
+    try {
 
-    accept = false;
-    if ( muons.isValid() ) {
-      for (reco::MuonCollection::const_iterator recoMu = muons->begin();
-	   recoMu!=muons->end(); ++recoMu ) {
-	if ( fabs( recoMu->eta() ) < 1.4 ) {
-	  if ( verbose_ ) {
-	    edm::LogInfo("L1TDTTFClient::Analyze:GM") << "Found a global muon!";
+      edm::Handle<reco::MuonCollection> muons;
+      event.getByLabel(muonCollectionLabel_, muons);
+
+      accept = false;
+      if ( muons.isValid() ) {
+	for (reco::MuonCollection::const_iterator recoMu = muons->begin();
+	     recoMu!=muons->end(); ++recoMu ) {
+	  if ( fabs( recoMu->eta() ) < 1.4 ) {
+	    if ( verbose_ ) {
+	      edm::LogInfo("L1TDTTFClient::Analyze:GM") << "Found a global muon!";
+	    }
+	    accept = true;
+	    break;
 	  }
-	  accept = true;
-	  break;
+
 	}
 
+	/// global muon selection plot
+	if ( ! accept ) {
+	  dttf_spare->Fill( trackContainer->size() ? 1 : 0 );
+
+	  if ( verbose_ ) {
+	    edm::LogInfo("L1TDTTFClient::Analyze:GM")
+	      << "No global muons in this event!";
+	  }
+
+	} else {
+	  dttf_spare->Fill( trackContainer->size() ? 2 : 3 );
+	}
+
+      } else {
+	/// in case of problems accept all
+	accept = true;
+	edm::LogWarning("L1TDTTFClient::Analyze:GM")
+	  <<  "Invalid MuonCollection with label "
+	  << muonCollectionLabel_.label();
       }
+
+
+    } catch (...) {
+      /// in case of problems accept all
+      accept = true;
+      edm::LogError("DataNotFound") << "Unable to getByLabel MuonCollection with label "
+				    << muonCollectionLabel_.label() ;
     }
 
-    //////// global muon selection plot
-    if ( ! accept ) {
-      dttf_spare->Fill( trackContainer->size() ? 1 : 0 );
-
-      if ( verbose_ ) {
-	edm::LogInfo("L1TDTTFClient::Analyze:GM")
-	  << "No global muons in this event!";
-      }
-
-    } else {
-      dttf_spare->Fill( trackContainer->size() ? 2 : 3 );
-    }
   }
-
-
-
 
 
   ////////GMT
-  edm::Handle<L1MuGMTReadoutCollection> pCollection;
-  event.getByLabel(gmtSource_, pCollection);
-  
-  if ( !pCollection.isValid() ) {
-    edm::LogError("DataNotFound") << "can't find L1MuGMTReadoutCollection with label "
+  std::vector<L1MuRegionalCand> gmtBx0DttfCandidates;
+
+  try {
+
+    edm::Handle<L1MuGMTReadoutCollection> pCollection;
+    event.getByLabel(gmtSource_, pCollection);
+
+    if ( !pCollection.isValid() ) {
+      edm::LogError("DataNotFound") << "can't find L1MuGMTReadoutCollection with label "
+				    << gmtSource_.label() ;
+    }
+
+    // get GMT readout collection
+    L1MuGMTReadoutCollection const* gmtrc = pCollection.product();
+    std::vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
+
+    std::vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
+
+    for ( RRItr = gmt_records.begin(); RRItr != gmt_records.end(); ++RRItr ) {
+    
+      std::vector<L1MuRegionalCand> dttfCands = RRItr->getDTBXCands();
+      std::vector<L1MuRegionalCand>::iterator dttfCand;
+
+      for( dttfCand = dttfCands.begin(); dttfCand != dttfCands.end();
+	   ++dttfCand ) {
+
+	if(dttfCand->empty()) continue;
+	/// take only bx=0
+	if ( RRItr->getBxInEvent() ) continue;
+
+	//       dttf_gmt_ghost_phys->Fill( dttfCand->eta_packed(),
+	// 				 dttfCand->phi_packed() );
+	gmtBx0DttfCandidates.push_back( *dttfCand );
+
+      }
+    }
+
+  } catch (...) {
+    edm::LogError("DataNotFound") << "Unable to getByLabel L1MuGMTReadoutCollection with label "
 				  << gmtSource_.label() ;
   }
 
-
-  // get GMT readout collection
-  L1MuGMTReadoutCollection const* gmtrc = pCollection.product();
-  std::vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
-
-  std::vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
-  std::vector<L1MuRegionalCand> gmtBx0DttfCandidates;
-
-  for ( RRItr = gmt_records.begin(); RRItr != gmt_records.end(); ++RRItr ) {
-    
-    std::vector<L1MuRegionalCand> dttfCands = RRItr->getDTBXCands();
-    std::vector<L1MuRegionalCand>::iterator dttfCand;
-
-    for( dttfCand = dttfCands.begin(); dttfCand != dttfCands.end();
-	 ++dttfCand ) {
-
-      if(dttfCand->empty()) continue;
-      /// take only bx=0
-      if ( RRItr->getBxInEvent() ) continue;
-
-//       dttf_gmt_ghost_phys->Fill( dttfCand->eta_packed(),
-// 				 dttfCand->phi_packed() );
-      gmtBx0DttfCandidates.push_back( *dttfCand );
-
-    }
-  }
 
   // fill MEs if all selections are passed
   if ( accept ) fillMEs( trackContainer, gmtBx0DttfCandidates );
@@ -766,9 +804,6 @@ void L1TDTTF::analyze(const edm::Event& event,
   }
 
   dttf_nTracksPerEvent_integ->Fill( numTracksInt );
-
-
-//   //////////////////////////
 
 
 
