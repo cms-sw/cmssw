@@ -120,18 +120,15 @@ private:
 
   // set up the module name in the message drop, and the enable/suppress info
   void  establishModule       ( const ModuleDescription& desc,
-  		                std::string const & whichPhase );
+  		                const char* whichPhase );
   void  establishModuleCtor   ( const ModuleDescription& desc,
-  		                std::string const & whichPhase );
+  		                const char*  whichPhase );
   void  unEstablishModule     ( const ModuleDescription& desc,
-  		                std::string const & whichPhase );
-  void  establish             ( std::string const & whichPhase ); 
-  void  unEstablish           ( std::string const & whichPhase ); 
+  		                const char*  whichPhase );
+  void  establish             ( const char*  whichPhase ); 
+  void  unEstablish           ( const char*  whichPhase ); 
   
- // put an ErrorLog object here, and maybe more
-
   edm::EventID curr_event_;
-  std::string curr_module_;
 
   std::set<std::string> debugEnabledModules_;
   std::map<std::string,ELseverityLevel> suppression_levels_;

@@ -18,7 +18,7 @@
 //
 // Original Author:  M. Fischler and Jim Kowalkowski
 //         Created:  Tues Feb 14 16:38:19 CST 2006
-// $Id: MessageDrop.h,v 1.12 2010/02/08 23:55:16 chrjones Exp $
+// $Id: MessageDrop.h,v 1.13 2010/09/24 22:00:15 fischler Exp $
 //
 
 // Framework include files
@@ -61,17 +61,28 @@
 
 namespace edm {
 
+namespace messagedrop {
+  class StringProducer;
+  class StringProducerWithPhase;
+  class StringProducerPath; 
+  class StringProducerSinglet;  
+}
+
 struct MessageDrop {
 private:
-  MessageDrop() 
-  : moduleName ("")
-  , runEvent("pre-events")
-  , jobreport_name()					// change log 5
-  , jobMode("")						// change log 6
-  {  } 
+  MessageDrop();					// change log 10:
+  							// moved to cc file  
 public:
+  ~MessageDrop();					// change log 10
   static MessageDrop * instance ();
   std::string moduleName;
+  std::string moduleContext();
+  void setModuleWithPhase(std::string const & name,
+  			  std::string const & label,
+			  const void * moduleID,
+			  const char* phase);  
+  void setPath(const char* type, std::string const & pathname);
+  void setSinglet(const char * sing);
   std::string runEvent;
   std::string jobreport_name;				// change log 5
   std::string jobMode;					// change log 6
@@ -83,6 +94,11 @@ public:
   static bool debugAlwaysSuppressed;			// change log 9
   static bool infoAlwaysSuppressed;			// change log 9
   static bool warningAlwaysSuppressed;			// change log 9
+private:
+  messagedrop::StringProducerWithPhase * spWithPhase;
+  messagedrop::StringProducerPath      * spPath;
+  messagedrop::StringProducerSinglet   * spSinglet;
+  messagedrop::StringProducer const    * moduleNameProducer;
 };
 
 static const unsigned char  MLSCRIBE_RUNNING_INDICATOR = 29; // change log 7

@@ -52,8 +52,20 @@
 //			enables/suppresses for other calls from framework
 //15 mf   9/8/09	Clean up erroneous assignments of some callbacks
 //			for specific watch routines (eg PreXYZ called postXYZ)
-//16 mf   9/8/09	Eliminate caching by descrptor address during ctor
+//
+//16 mf   9/8/09	Eliminate caching by descriptor address during ctor
 //			phases (since addresses are not yet permanent then)
+//
+//17 mf   11/2/10	Move preparation of module out to MessageDrop methods
+//   crj		which will only be called if a message is actually 
+//			issued.  Caching of the work is done within MessageDrop
+//			so that case of many messages in a module is still fast.
+//
+//18 mf	  11/2/10	Eliminated curr_module, since it was only being used
+//			as a local variable for preparation of name (never
+//			used to transfer info between functions) and change
+//			17 obviates its need.
+
 
 // system include files
 // user include files
@@ -91,8 +103,7 @@ edm::service::MessageLogger::
 MessageLogger( ParameterSet const & iPS
              , ActivityRegistry   & iRegistry
                             )
-	: curr_module_("BeginningJob")
-        , debugEnabled_(false)
+        : debugEnabled_(false)
 	, messageServicePSetHasBeenValidated_(false)
 	, messageServicePSetValidatationResults_() 
 	, nonModule_debugEnabled(false)
@@ -257,25 +268,19 @@ MessageLogger( ParameterSet const & iPS
 
 void
 MessageLogger::establishModule(ModuleDescription const & desc, 
-			       std::string const & whichPhase)	// ChangeLog 13
+			       const char * whichPhase)	// ChangeLog 13, 17
 {
   MessageDrop* messageDrop = MessageDrop::instance();
   nonModule_debugEnabled   = messageDrop->debugEnabled;
   nonModule_infoEnabled    = messageDrop->infoEnabled;
   nonModule_warningEnabled = messageDrop->warningEnabled;
 
-  //cache the value to improve performance based on profiling studies
-  std::map<const ModuleDescription*,std::string>::const_iterator itFind = descToCalcName_.find(&desc);
-  if ( itFind == descToCalcName_.end()) {
-    curr_module_ = desc.moduleName();
-    curr_module_ += ":";
-    curr_module_ += desc.moduleLabel();
-    //cache this value to improve performance based on profiling studies
-    descToCalcName_[&desc]=curr_module_;
-    messageDrop->moduleName = curr_module_ + whichPhase;  
-  } else {
-    messageDrop->moduleName = itFind->second + whichPhase;
-  }
+  // Change Log 17
+  messageDrop->setModuleWithPhase( desc.moduleName(), desc.moduleLabel(), 
+  				&desc, whichPhase );
+  // Removed caching per change 17 - caching is now done in MessageDrop.cc
+  // in theContext() method, and only happens if a message is actually issued.
+  
   if (!anyDebugEnabled_) {
     messageDrop->debugEnabled = false;
   } else if (everyDebugEnabled_) {
@@ -300,16 +305,18 @@ MessageLogger::establishModule(ModuleDescription const & desc,
 
 void
 MessageLogger::establishModuleCtor(ModuleDescription const & desc, 
-			       std::string const & whichPhase)	// ChangeLog 16
+			       const char* whichPhase)	// ChangeLog 16
 {
   MessageDrop* messageDrop = MessageDrop::instance();
   nonModule_debugEnabled   = messageDrop->debugEnabled;
   nonModule_infoEnabled    = messageDrop->infoEnabled;
   nonModule_warningEnabled = messageDrop->warningEnabled;
 
-  // Cannot cache the value to improve performance
-  curr_module_ = desc.moduleName() + ":" + desc.moduleLabel();
-  messageDrop->moduleName = curr_module_ + whichPhase;  
+  // Change Log 17
+  messageDrop->setModuleWithPhase( desc.moduleName(), desc.moduleLabel(), 
+  				0, whichPhase );
+  // Cannot cache the value to improve performance because addresses are 
+  // not yet permanent - see change log 16.  So did not provide desc ptr.
 
   if (!anyDebugEnabled_) {
     messageDrop->debugEnabled = false;
@@ -335,21 +342,20 @@ MessageLogger::establishModuleCtor(ModuleDescription const & desc,
 
 void
 MessageLogger::unEstablishModule(ModuleDescription const & desc, 
-			         std::string const & state)
+			         const char*  state)
 {
   MessageDrop* messageDrop = MessageDrop::instance();
-  messageDrop->moduleName = state;
+  messageDrop->setSinglet( state ); 			// Change Log 17	
   messageDrop->debugEnabled   = nonModule_debugEnabled;
   messageDrop->infoEnabled    = nonModule_infoEnabled;
   messageDrop->warningEnabled = nonModule_warningEnabled;
 }
 
 void
-MessageLogger::establish(std::string const & state)
+MessageLogger::establish(const char* state)
 {
   MessageDrop* messageDrop = MessageDrop::instance();
-  curr_module_ = state;
-  messageDrop->moduleName = curr_module_;  
+  messageDrop->setSinglet( state ); 			// Change Log 17	
    if (!anyDebugEnabled_) {
     messageDrop->debugEnabled = false;
   } else if (everyDebugEnabled_) {
@@ -372,13 +378,10 @@ MessageLogger::establish(std::string const & state)
 }
 
 void
-MessageLogger::unEstablish(std::string const & state)
+MessageLogger::unEstablish(const char* state)
 {
-  MessageDrop::instance()->moduleName = state;  
+  MessageDrop::instance()->setSinglet( state ); 	// Change Log 17	
 }
-
-
-
 
 //
 // callbacks that need to establish the module, and their counterparts
@@ -482,7 +485,7 @@ void
 MessageLogger::postBeginJob()
 {
   MessageDrop::instance()->runEvent = "BeforeEvents";  
-  MessageDrop::instance()->moduleName = "AfterBeginJob";  
+  MessageDrop::instance()->setSinglet("AfterBeginJob");     // Change Log 17	
 }
 
 void
@@ -510,6 +513,9 @@ MessageLogger::preEventProcessing( const edm::EventID& iID
   ost << "Run: " << curr_event_.run() 
       << " Event: " << curr_event_.event();    			// change log 2
   edm::MessageDrop::instance()->runEvent = ost.str();  
+  edm::MessageDrop::instance()->setSinglet("PreEventProcessing");// changelog 17
+  // Note - module name had not been set here  Similarly in other places where
+  // RunEvent carries the new information; we add setSinglet for module name.
 }
 
 void
@@ -525,59 +531,72 @@ MessageLogger::preBeginRun( const edm::RunID& iID
   std::ostringstream ost;
   ost << "Run: " << iID.run();
   edm::MessageDrop::instance()->runEvent = ost.str();  
+  edm::MessageDrop::instance()->setSinglet("PreBeginRun");	// changelog 17
 }
 void MessageLogger::postBeginRun(const Run&, const EventSetup&)
-{ edm::MessageDrop::instance()->runEvent = "PostBeginRun"; }
+{ 
+  edm::MessageDrop::instance()->runEvent = "PostBeginRun"; 
+  edm::MessageDrop::instance()->setSinglet("PostBeginRun");	// changelog 17
+  // Note - module name had not been set here
+}
 
 void
 MessageLogger::prePathBeginRun( const std::string & pathname )	// change log 14
 {
-  std::ostringstream ost;
-  ost << "RPath: " << pathname;
-  edm::MessageDrop::instance()->moduleName = ost.str();  
+  edm::MessageDrop::instance()->setPath( "RPath: ", pathname);	// change log 17
 }
+
 void MessageLogger::postPathBeginRun(std::string const&,HLTPathStatus const&)
-{ edm::MessageDrop::instance()->moduleName = "PostPathBeginRun"; }
+{ 
+  edm::MessageDrop::instance()->setSinglet("PostPathBeginRun");	// changelog 17
+}
 
 void
 MessageLogger::prePathEndRun( const std::string & pathname )	// change log 14
 {
-  std::ostringstream ost;
-  ost << "RPathEnd: " << pathname;
-  edm::MessageDrop::instance()->moduleName = ost.str();  
+  edm::MessageDrop::instance()->setPath( "RPathEnd: ", pathname);
+  								// change log 17
 }
+
 void MessageLogger::postPathEndRun(std::string const&,HLTPathStatus const&)
-{ edm::MessageDrop::instance()->moduleName = "PostPathEndRun"; }
+{ 
+  edm::MessageDrop::instance()->setSinglet("PostPathEndRun");	// changelog 17
+}
 
 void
 MessageLogger::prePathBeginLumi( const std::string & pathname )	// change log 14
 {
-  std::ostringstream ost;
-  ost << "LPath: " << pathname;
-  edm::MessageDrop::instance()->moduleName = ost.str();  
+  edm::MessageDrop::instance()->setPath( "LPath: ", pathname);	// change log 17
 }
+
 void MessageLogger::postPathBeginLumi(std::string const&,HLTPathStatus const&)
-{ edm::MessageDrop::instance()->moduleName = "PostPathBeginLumi"; }
+{ 
+  edm::MessageDrop::instance()->setSinglet("PostPathBeginLumi"); // changelog 17
+}
 
 void
 MessageLogger::prePathEndLumi( const std::string & pathname )	// change log 14
 {
-  std::ostringstream ost;
-  ost << "LPathEnd: " << pathname;
-  edm::MessageDrop::instance()->moduleName = ost.str();  
+  edm::MessageDrop::instance()->setPath( "LPathEnd: ", pathname);
+  								// change log 17
 }
+
 void MessageLogger::postPathEndLumi(std::string const&,HLTPathStatus const&)
-{ edm::MessageDrop::instance()->moduleName = "PostPathEndLumi"; }
+{ 
+  edm::MessageDrop::instance()->setSinglet("PostPathEndLumi"); // changelog 17
+}
 
 void
 MessageLogger::preProcessPath( const std::string & pathname )	// change log 14
 {
-  std::ostringstream ost;
-  ost << "PreProcPath " << pathname;
-  edm::MessageDrop::instance()->moduleName = ost.str();  
+  edm::MessageDrop::instance()->setPath( "PreProcPath ", pathname);
+  								// change log 17
 }
+
 void MessageLogger::postProcessPath(std::string const&,HLTPathStatus const&)
-{ edm::MessageDrop::instance()->moduleName = "PostProcessPath"; }
+{ 
+  edm::MessageDrop::instance()->setSinglet("PostProcessPath");	// changelog 17
+}
 
 void
 MessageLogger::preEndRun( const edm::RunID& iID
@@ -586,9 +605,14 @@ MessageLogger::preEndRun( const edm::RunID& iID
   std::ostringstream ost;
   ost << "End Run: " << iID.run();
   edm::MessageDrop::instance()->runEvent = ost.str();  
+  edm::MessageDrop::instance()->setSinglet("PreEndRun");	// changelog 17
 }
+
 void MessageLogger::postEndRun(const Run&, const EventSetup&)
-{ edm::MessageDrop::instance()->runEvent = "PostEndRun"; }
+{ 
+  edm::MessageDrop::instance()->runEvent = "PostEndRun"; 
+  edm::MessageDrop::instance()->setSinglet("PostEndRun");	// changelog 17
+}
 
 void
 MessageLogger::preBeginLumi( const edm::LuminosityBlockID& iID
@@ -597,9 +621,14 @@ MessageLogger::preBeginLumi( const edm::LuminosityBlockID& iID
   std::ostringstream ost;
   ost << "Run: " << iID.run() << " Lumi: " << iID.luminosityBlock();
   edm::MessageDrop::instance()->runEvent = ost.str();  
+  edm::MessageDrop::instance()->setSinglet("PreBeginLumi");	// changelog 17
 }
+
 void MessageLogger::postBeginLumi(const LuminosityBlock&, const EventSetup&)
-{ edm::MessageDrop::instance()->runEvent = "PostBeginLumi"; }
+{ 
+  edm::MessageDrop::instance()->runEvent = "PostBeginLumi"; 
+  edm::MessageDrop::instance()->setSinglet("PostBeginLumi");	// changelog 17
+}
 
 void
 MessageLogger::preEndLumi( const edm::LuminosityBlockID& iID
@@ -608,9 +637,13 @@ MessageLogger::preEndLumi( const edm::LuminosityBlockID& iID
   std::ostringstream ost;
   ost << "Run: " << iID.run() << " Lumi: " << iID.luminosityBlock();
   edm::MessageDrop::instance()->runEvent = ost.str();  
+  edm::MessageDrop::instance()->setSinglet("PreEndLumi");	// changelog 17
 }
 void MessageLogger::postEndLumi(const LuminosityBlock&, const EventSetup&)
-{ edm::MessageDrop::instance()->runEvent = "PostEndLumi"; }
+{ 
+  edm::MessageDrop::instance()->runEvent = "PostEndLumi"; 
+  edm::MessageDrop::instance()->setSinglet("PostEndLumi");	// changelog 17
+}
 
 void
 MessageLogger::postEndJob()

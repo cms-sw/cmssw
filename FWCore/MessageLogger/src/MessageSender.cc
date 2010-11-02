@@ -12,6 +12,9 @@
 //  1  mf 8/25/08	keeping the error summary information for
 //			LoggedErrorsSummary()
 //			
+// 2  mf 11/2/10	Use new moduleContext method of MessageDrop:
+//			see MessageDrop.cc change 17.
+//			
 
 
 using namespace edm;
@@ -52,7 +55,7 @@ MessageSender::~MessageSender()
       
       MessageDrop * drop = MessageDrop::instance();
       if (drop) {
-	errorobj_p->setModule(drop->moduleName);
+	errorobj_p->setModule(drop->moduleContext());		// change log 
 	errorobj_p->setContext(drop->runEvent);
       } 
 #ifdef TRACE_DROP

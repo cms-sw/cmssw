@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Apr 16 20:32:20 EDT 2006
-// $Id: CPUTimer.cc,v 1.3 2007/06/14 02:01:01 wmtan Exp $
+// $Id: CPUTimer.cc,v 1.4 2010/10/30 01:30:57 chrjones Exp $
 //
 
 // system include files
@@ -83,13 +83,13 @@ CPUTimer::start() {
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&startCPUTime_);
 #else
     rusage theUsage;
-    if( 0 != getrusage(RUSAGE_SELF, &theUsage)) {
-      throw cms::Exception("CPUTimerFailed")<<errno;
-    }
+    //if( 0 != getrusage(RUSAGE_SELF, &theUsage)) {
+    //  throw cms::Exception("CPUTimerFailed")<<errno;
+    //}
     startCPUTime_.tv_sec =theUsage.ru_stime.tv_sec+theUsage.ru_utime.tv_sec;
     startCPUTime_.tv_usec =theUsage.ru_stime.tv_usec+theUsage.ru_utime.tv_usec;
     
-    gettimeofday(&startRealTime_, 0);
+    // gettimeofday(&startRealTime_, 0);
 #endif
     state_ = kRunning;
   }
@@ -137,13 +137,13 @@ CPUTimer::calculateDeltaTime() const
   returnValue.cpu_ = tp.tv_sec-startCPUTime_.tv_sec+nanosecToSec*(tp.tv_nsec-startCPUTime_.tv_nsec);
 #else
   rusage theUsage;
-  if( 0 != getrusage(RUSAGE_SELF, &theUsage)) {
-    throw cms::Exception("CPUTimerFailed")<<errno;
-  }
+ // if( 0 != getrusage(RUSAGE_SELF, &theUsage)) {
+ //   throw cms::Exception("CPUTimerFailed")<<errno;
+ // }
   const double microsecToSec = 1E-6;
   
   struct timeval tp;
-  gettimeofday(&tp, 0);
+ // gettimeofday(&tp, 0);
   
   returnValue.cpu_ = theUsage.ru_stime.tv_sec+theUsage.ru_utime.tv_sec-startCPUTime_.tv_sec+microsecToSec*(theUsage.ru_stime.tv_usec+theUsage.ru_utime.tv_usec-startCPUTime_.tv_usec);
   returnValue.real_ = tp.tv_sec-startRealTime_.tv_sec+microsecToSec*(tp.tv_usec -startRealTime_.tv_usec);
