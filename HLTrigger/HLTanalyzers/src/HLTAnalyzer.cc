@@ -94,7 +94,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
 
   // egamma OpenHLT input collections
   Electron_                 = conf.getParameter<edm::InputTag> ("Electron");
-  BarrelPhoton_                   = conf.getParameter<edm::InputTag> ("Photon");
+  Photon_                   = conf.getParameter<edm::InputTag> ("Photon");
   BarrelPhoton_                   = conf.getParameter<edm::InputTag> ("BarrelPhoton");
   EndcapPhoton_                   = conf.getParameter<edm::InputTag> ("EndcapPhoton");
   CandIso_                  = conf.getParameter<edm::InputTag> ("CandIso");
