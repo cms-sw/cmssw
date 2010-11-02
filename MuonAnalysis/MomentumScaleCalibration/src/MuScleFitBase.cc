@@ -21,7 +21,7 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
     yMaxPt = 0.2;
     // If running on standalone muons we need to expand the window range
     if( theMuonType_ == 2 ) {
-      double yMaxEta = 20.;
+      yMaxEta = 20.;
     }
   }
 

@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <cmath>
 #include "TMath.h"
 #include "TString.h"
 #include "TF1.h"
@@ -121,7 +122,7 @@ class scaleFunctionType2 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType2() { this->parNum_ = 2; }
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
-    return ( (parScale[0] + parScale[1]*fabs(eta))*pt );
+    return ( (parScale[0] + parScale[1]*std::fabs(eta))*pt );
   }
   // Fill the scaleVec with neutral parameters
   virtual void resetParameters(std::vector<double> * scaleVec) const {
@@ -182,7 +183,7 @@ public:
   scaleFunctionType4() { this->parNum_ = 3; }
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return( (parScale[0] + parScale[1]*pt +
-             parScale[2]*fabs(eta))*pt );
+             parScale[2]*std::fabs(eta))*pt );
   }
   // Fill the scaleVec with neutral parameters
   virtual void resetParameters(std::vector<double> * scaleVec) const {
@@ -243,7 +244,7 @@ class scaleFunctionType6 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType6() { this->parNum_ = 3; }
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
-    return( (parScale[0] + parScale[1]*fabs(eta) +
+    return( (parScale[0] + parScale[1]*std::fabs(eta) +
              parScale[2]*sin(phi))*pt );
   }
   // Fill the scaleVec with neutral parameters
@@ -276,7 +277,7 @@ public:
   scaleFunctionType7() { this->parNum_ = 4; }
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return( (parScale[0] + parScale[1]*pt +
-             parScale[2]*fabs(eta) +
+             parScale[2]*std::fabs(eta) +
              parScale[3]*sin(phi))*pt );
   }
   // Fill the scaleVec with neutral parameters
@@ -309,7 +310,7 @@ public:
   scaleFunctionType8() { this->parNum_ = 4; }
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return( (parScale[0] + parScale[1]*pt +
-             parScale[2]*fabs(eta) +
+             parScale[2]*std::fabs(eta) +
              parScale[3]*eta*eta)*pt );
   }
   // Fill the scaleVec with neutral parameters
@@ -417,7 +418,7 @@ public:
   scaleFunctionType12() { this->parNum_ = 6; }
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     return( (parScale[0] + parScale[1]*pt +
-             parScale[2]*fabs(eta) +
+             parScale[2]*std::fabs(eta) +
              parScale[3]*eta*eta +
              (double)chg*parScale[4]*sin(phi+parScale[5]))*pt );
   }
@@ -445,13 +446,13 @@ public:
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     if (chg>0) {
       return( (parScale[0] + parScale[1]*pt +
-               parScale[2]*fabs(eta) +
+               parScale[2]*std::fabs(eta) +
                parScale[3]*eta*eta +
                parScale[4]*sin(phi+parScale[5]))*pt );
     }
     // else {
     return( (parScale[0] + parScale[1]*pt +
-             parScale[2]*fabs(eta) +
+             parScale[2]*std::fabs(eta) +
              parScale[3]*eta*eta +
              parScale[6]*sin(phi+parScale[7]))*pt );
     // }
@@ -484,13 +485,13 @@ public:
 //     }
 //     std::cout << "   newPt = " << ( parScale[0] +
 //                                parScale[1]*pt + parScale[2]*pt*pt + parScale[3]*pt*pt*pt +
-//                                parScale[4]*fabs(eta) + parScale[5]*eta*eta + parScale[6]*fabs(eta*eta*eta) +
-//                                parScale[7]*eta*eta*eta*eta + parScale[8]*fabs(eta*eta*eta*eta*eta) +
+//                                parScale[4]*std::fabs(eta) + parScale[5]*eta*eta + parScale[6]*std::fabs(eta*eta*eta) +
+//                                parScale[7]*eta*eta*eta*eta + parScale[8]*std::fabs(eta*eta*eta*eta*eta) +
 //                                parScale[9]*eta*eta*eta*eta*eta*eta )*pt << std::endl;
     return( ( parScale[0] +
               parScale[1]*pt + parScale[2]*pt*pt + parScale[3]*pt*pt*pt +
-              parScale[4]*fabs(eta) + parScale[5]*eta*eta + parScale[6]*fabs(eta*eta*eta) +
-              parScale[7]*eta*eta*eta*eta + parScale[8]*fabs(eta*eta*eta*eta*eta) +
+              parScale[4]*std::fabs(eta) + parScale[5]*eta*eta + parScale[6]*std::fabs(eta*eta*eta) +
+              parScale[7]*eta*eta*eta*eta + parScale[8]*std::fabs(eta*eta*eta*eta*eta) +
               parScale[9]*eta*eta*eta*eta*eta*eta )*pt );
   }
   // Fill the scaleVec with neutral parameters
@@ -535,10 +536,10 @@ public:
   scaleFunctionType15() { this->parNum_ = 5; }
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     if( pt > parScale[0] ) {
-      return( ( parScale[1] + parScale[3]*fabs(eta) + parScale[4]*pow(eta,2) )*pt );
+      return( ( parScale[1] + parScale[3]*std::fabs(eta) + parScale[4]*pow(eta,2) )*pt );
     }
     else {
-      return( ( parScale[2] + parScale[3]*fabs(eta) + parScale[4]*pow(eta,2) )*pt );
+      return( ( parScale[2] + parScale[3]*std::fabs(eta) + parScale[4]*pow(eta,2) )*pt );
     }
   }
   // Fill the scaleVec with neutral parameters
@@ -589,7 +590,7 @@ class scaleFunctionType16 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType16() { this->parNum_ = 5; }
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
-    return (parScale[0] + parScale[1]*fabs(eta)+ parScale[2]*eta*eta + parScale[3]*pt + parScale[4]/(pt*pt))*pt;
+    return (parScale[0] + parScale[1]*std::fabs(eta)+ parScale[2]*eta*eta + parScale[3]*pt + parScale[4]/(pt*pt))*pt;
   }
   // Fill the scaleVec with neutral parameters
   virtual void resetParameters(std::vector<double> * scaleVec) const {
@@ -622,7 +623,7 @@ class scaleFunctionType17 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType17() { this->parNum_ = 4; }
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
-    return (parScale[0]*fabs(eta)+ parScale[1]*eta*eta + pt/(parScale[2]*pt + parScale[3]))*pt;
+    return (parScale[0]*std::fabs(eta)+ parScale[1]*eta*eta + pt/(parScale[2]*pt + parScale[3]))*pt;
   }
 
   // Fill the scaleVec with neutral parameters
@@ -656,11 +657,11 @@ public:
   scaleFunctionType18() { this->parNum_ = 4; }
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
 
-    if(fabs(eta)<0.2)
+    if(std::fabs(eta)<0.2)
       return parScale[0]*pt;
-    else if(fabs(eta)>0.2 && fabs(eta)<1.1)
+    else if(std::fabs(eta)>0.2 && std::fabs(eta)<1.1)
       return parScale[1]*pt;
-    else if(fabs(eta)>1.1 && fabs(eta)<1.5)
+    else if(std::fabs(eta)>1.1 && std::fabs(eta)<1.5)
       return parScale[2]*pt;
     else
       return parScale[3]*pt;
@@ -702,9 +703,9 @@ public:
   scaleFunctionType19() { this->parNum_ = 9; }
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
   if (chg>0) {
-      return( (parScale[0] + parScale[1]*sin(parScale[2]*phi + parScale[3])+ parScale[4]*fabs(eta) + parScale[5]*eta*eta )*pt);
+      return( (parScale[0] + parScale[1]*sin(parScale[2]*phi + parScale[3])+ parScale[4]*std::fabs(eta) + parScale[5]*eta*eta )*pt);
   }
-  return( (parScale[0] + parScale[6]*sin(parScale[7]*phi + parScale[8])+ parScale[4]*fabs(eta) + parScale[5]*eta*eta )*pt );
+  return( (parScale[0] + parScale[6]*sin(parScale[7]*phi + parScale[8])+ parScale[4]*std::fabs(eta) + parScale[5]*eta*eta )*pt );
   }
 
   // Fill the scaleVec with neutral parameters
@@ -740,12 +741,12 @@ public:
   scaleFunctionType20() { this->parNum_ = 10; }
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     if( pt < parScale[8] ) {
-      return( (parScale[0] + parScale[3] + parScale[6]*fabs(eta) + parScale[7]*eta*eta )*pt);
+      return( (parScale[0] + parScale[3] + parScale[6]*std::fabs(eta) + parScale[7]*eta*eta )*pt);
     }
     else if( pt < parScale[9] ) {
-      return( (parScale[1] + parScale[4] + parScale[6]*fabs(eta) + parScale[7]*eta*eta )*pt);
+      return( (parScale[1] + parScale[4] + parScale[6]*std::fabs(eta) + parScale[7]*eta*eta )*pt);
     }
-    return( (parScale[2] + parScale[5] + parScale[6]*fabs(eta) + parScale[7]*eta*eta )*pt);
+    return( (parScale[2] + parScale[5] + parScale[6]*std::fabs(eta) + parScale[7]*eta*eta )*pt);
   }
 
   // Fill the scaleVec with neutral parameters
@@ -930,7 +931,7 @@ public:
   }
   double etaCorrection(const double & eta) const
   {
-    double fabsEta = fabs(eta);
+    double fabsEta = std::fabs(eta);
     if( fabsEta < 0.2) return -0.00063509;
     else if( fabsEta < 0.4 ) return -0.000585369;
     else if( fabsEta < 0.6 ) return -0.00077363;
@@ -1219,7 +1220,7 @@ public:
   scaleFunctionType26() { this->parNum_ = 9; }
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     double ptPart = parScale[0] + parScale[1]*pt;
-    double fabsEta = fabs(eta);
+    double fabsEta = std::fabs(eta);
 
     if( fabsEta > parScale[8] ) {
       if( eta > 0 ) {
@@ -1267,7 +1268,7 @@ public:
   scaleFunctionType27() { this->parNum_ = 13; }
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
     double ptPart = parScale[0] + parScale[1]*pt;
-    double fabsEta = fabs(eta);
+    double fabsEta = std::fabs(eta);
 
     if( fabsEta > parScale[12] ) {
       if( eta > 0 ) {
@@ -1387,7 +1388,7 @@ class smearFunctionType1 : public smearFunctionBase {
 class smearFunctionType2 : public smearFunctionBase {
  public:
   virtual void smear(double & pt, double & eta, double & phi, const double * y, const std::vector<double> & parSmear) {
-    pt = pt*(1.0+y[0]*parSmear[0]*pt+y[1]*parSmear[1]*fabs(eta));
+    pt = pt*(1.0+y[0]*parSmear[0]*pt+y[1]*parSmear[1]*std::fabs(eta));
     phi = phi*(1.0+y[2]*parSmear[2]);
     double tmp = 2*atan(exp(-eta));
     cotgth_ = cos(tmp)/sin(tmp)*(1.0+y[3]*parSmear[3]);
@@ -1398,10 +1399,10 @@ class smearFunctionType2 : public smearFunctionBase {
 class smearFunctionType3 : public smearFunctionBase {
  public:
   virtual void smear(double & pt, double & eta, double & phi, const double * y, const std::vector<double> & parSmear) {
-    pt = pt*(1.0+y[0]*parSmear[0]*pt+y[1]*parSmear[1]*fabs(eta));
+    pt = pt*(1.0+y[0]*parSmear[0]*pt+y[1]*parSmear[1]*std::fabs(eta));
     phi = phi*(1.0+y[2]*parSmear[2]);
     double tmp = 2*atan(exp(-eta));
-    cotgth_ = cos(tmp)/sin(tmp)*(1.0+y[3]*parSmear[3]+y[4]*parSmear[4]*fabs(eta));
+    cotgth_ = cos(tmp)/sin(tmp)*(1.0+y[3]*parSmear[3]+y[4]*parSmear[4]*std::fabs(eta));
     smearEta(eta);
   }
 };
@@ -1411,10 +1412,10 @@ class smearFunctionType3 : public smearFunctionBase {
 class smearFunctionType4 : public smearFunctionBase {
  public:
   virtual void smear(double & pt, double & eta, double & phi, const double * y, const std::vector<double> & parSmear) {
-    pt = pt*(1.0+y[0]*parSmear[0]*pt+y[1]*parSmear[1]*fabs(eta)+y[5]*parSmear[5]*pow(pt,2));
+    pt = pt*(1.0+y[0]*parSmear[0]*pt+y[1]*parSmear[1]*std::fabs(eta)+y[5]*parSmear[5]*pow(pt,2));
     phi = phi*(1.0+y[2]*parSmear[2]);
     double tmp = 2*atan(exp(-eta));
-    cotgth_ = cos(tmp)/sin(tmp)*(1.0+y[3]*parSmear[3]+y[4]*parSmear[4]*fabs(eta));
+    cotgth_ = cos(tmp)/sin(tmp)*(1.0+y[3]*parSmear[3]+y[4]*parSmear[4]*std::fabs(eta));
     smearEta(eta);
   }
 };
@@ -1422,10 +1423,10 @@ class smearFunctionType4 : public smearFunctionBase {
 class smearFunctionType5 : public smearFunctionBase {
  public:
   virtual void smear(double & pt, double & eta, double & phi, const double * y, const std::vector<double> & parSmear) {
-    pt = pt*(1.0+y[0]*parSmear[0]*pt+y[1]*parSmear[1]*fabs(eta)+y[5]*parSmear[5]*pow(pt,2));
+    pt = pt*(1.0+y[0]*parSmear[0]*pt+y[1]*parSmear[1]*std::fabs(eta)+y[5]*parSmear[5]*pow(pt,2));
     phi = phi*(1.0+y[2]*parSmear[2]+y[6]*parSmear[6]*pt);
     double tmp = 2*atan(exp(-eta));
-    cotgth_ = cos(tmp)/sin(tmp)*(1.0+y[3]*parSmear[3]+y[4]*parSmear[4]*fabs(eta));
+    cotgth_ = cos(tmp)/sin(tmp)*(1.0+y[3]*parSmear[3]+y[4]*parSmear[4]*std::fabs(eta));
     smearEta(eta);
   }
 };
@@ -1438,35 +1439,35 @@ class smearFunctionType6 : public smearFunctionBase {
     double sigmaPtAl = 0;
     double sigmaPtMisal = 0;
     double ptPart = parSmear[0] + parSmear[1]*1/pt + pt*parSmear[2];
-    double fabsEta = fabs(eta);
+    double fabsEta = std::fabs(eta);
 
     sigmaPtAl = parSmear[14]*etaByPoints(eta, parSmear[15]);
 
-    if (fabs(eta)<=1.4){
-      sigmaPtMisal = ptPart + parSmear[3] + parSmear[4]*fabs(eta) + parSmear[5]*eta*eta;
-      sigmaSmear = sqrt(fabs(pow(sigmaPtMisal,2)-pow(sigmaPtAl,2)));
+    if (std::fabs(eta)<=1.4){
+      sigmaPtMisal = ptPart + parSmear[3] + parSmear[4]*std::fabs(eta) + parSmear[5]*eta*eta;
+      sigmaSmear = sqrt(std::fabs(pow(sigmaPtMisal,2)-pow(sigmaPtAl,2)));
       pt = pt*gRandom_->Gaus(1,sigmaSmear);
     }
     else if (eta>1.4){//eta in right endcap
       double par = parSmear[3] + parSmear[4]*1.4 + parSmear[5]*1.4*1.4 - (parSmear[6] + parSmear[7]*(1.4-parSmear[8]) + parSmear[9]*(1.4-parSmear[8])*(1.4-parSmear[8]));
-      sigmaPtMisal = par + ptPart + parSmear[6] + parSmear[7]*fabs((fabsEta-parSmear[8])) + parSmear[9]*(fabsEta-parSmear[8])*(fabsEta-parSmear[8]);
-      sigmaSmear = sqrt(fabs(pow(sigmaPtMisal,2)-pow(sigmaPtAl,2)));
+      sigmaPtMisal = par + ptPart + parSmear[6] + parSmear[7]*std::fabs((fabsEta-parSmear[8])) + parSmear[9]*(fabsEta-parSmear[8])*(fabsEta-parSmear[8]);
+      sigmaSmear = sqrt(std::fabs(pow(sigmaPtMisal,2)-pow(sigmaPtAl,2)));
       pt = pt*gRandom_->Gaus(1,sigmaSmear);
     }
     else{//eta in left endcap
       double par =  parSmear[3] + parSmear[4]*1.4 + parSmear[5]*1.4*1.4 - (parSmear[10] + parSmear[11]*(1.4-parSmear[12]) + parSmear[13]*(1.4-parSmear[12])*(1.4-parSmear[12]));
-      sigmaPtMisal = par + ptPart + parSmear[10] + parSmear[11]*fabs((fabsEta-parSmear[12])) + parSmear[13]*(fabsEta-parSmear[12])*(fabsEta-parSmear[12]);
-      sigmaSmear = sqrt(fabs(pow(sigmaPtMisal,2)-pow(sigmaPtAl,2)));
+      sigmaPtMisal = par + ptPart + parSmear[10] + parSmear[11]*std::fabs((fabsEta-parSmear[12])) + parSmear[13]*(fabsEta-parSmear[12])*(fabsEta-parSmear[12]);
+      sigmaSmear = sqrt(std::fabs(pow(sigmaPtMisal,2)-pow(sigmaPtAl,2)));
       pt = pt*gRandom_->Gaus(1,sigmaSmear);
     }
   }
  protected:
   /**
-   * This is the pt vs eta resolution by points. It uses fabs(eta) assuming symmetry.
+   * This is the pt vs eta resolution by points. It uses std::fabs(eta) assuming symmetry.
    * The values are derived from 100k events of MuonGun with 5<pt<100 and |eta|<3.
    */
   double etaByPoints(const double & inEta, const double & border) {
-    Double_t eta = fabs(inEta);
+    Double_t eta = std::fabs(inEta);
     if( 0. <= eta && eta <= 0.2 ) return 0.00942984;
     else if( 0.2 < eta && eta <= 0.4 ) return 0.0104489;
     else if( 0.4 < eta && eta <= 0.6 ) return 0.0110521;
@@ -1603,13 +1604,13 @@ class resolutionFunctionType6 : public resolutionFunctionBase<T> {
  public:
   resolutionFunctionType6() { this->parNum_ = 15; }
   virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
-    return( parval[0]+parval[1]*pt+parval[2]*pow(pt,2)+parval[3]*pow(pt,3)+parval[4]*pow(pt,4)+parval[5]*fabs(eta)+parval[6]*pow(eta,2) );
+    return( parval[0]+parval[1]*pt+parval[2]*pow(pt,2)+parval[3]*pow(pt,3)+parval[4]*pow(pt,4)+parval[5]*std::fabs(eta)+parval[6]*pow(eta,2) );
   }
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
-    return( parval[7]+parval[8]/pt+parval[9]*fabs(eta)+parval[10]*pow(eta,2) );
+    return( parval[7]+parval[8]/pt+parval[9]*std::fabs(eta)+parval[10]*pow(eta,2) );
   }
   virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
-    return( parval[11]+parval[12]/pt+parval[13]*fabs(eta)+parval[14]*pow(eta,2) );
+    return( parval[11]+parval[12]/pt+parval[13]*std::fabs(eta)+parval[14]*pow(eta,2) );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const std::vector<int> & parResolOrder, const int muonType) {
     double thisStep[] = { 0.005, 0.0005 ,0.000005 ,0.00000005 ,0.0000000005 ,0.0005 ,0.000005,
@@ -1642,15 +1643,15 @@ class resolutionFunctionType7 : public resolutionFunctionBase<T> {
   resolutionFunctionType7() { this->parNum_ = 12; }
   // linear in pt and quadratic in eta
   virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
-    return( parval[0]+parval[1]*pt + parval[2]*fabs(eta)+parval[3]*pow(eta,2) );
+    return( parval[0]+parval[1]*pt + parval[2]*std::fabs(eta)+parval[3]*pow(eta,2) );
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
-    return( parval[4]+parval[5]/pt + parval[6]*fabs(eta)+parval[7]*pow(eta,2) );
+    return( parval[4]+parval[5]/pt + parval[6]*std::fabs(eta)+parval[7]*pow(eta,2) );
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
-    return( parval[8]+parval[9]/pt + parval[10]*fabs(eta)+parval[11]*pow(eta,2) );
+    return( parval[8]+parval[9]/pt + parval[10]*std::fabs(eta)+parval[11]*pow(eta,2) );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const std::vector<int> & parResolOrder, const int muonType) {
     double thisStep[] = { 0.002, 0.00002, 0.000002, 0.0002,
@@ -1687,11 +1688,11 @@ class resolutionFunctionType8 : public resolutionFunctionBase<T> {
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
-    return( parval[4]+parval[5]/pt + parval[6]*fabs(eta)+parval[7]*eta*eta );
+    return( parval[4]+parval[5]/pt + parval[6]*std::fabs(eta)+parval[7]*eta*eta );
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
-    return( parval[8]+parval[9]/pt + parval[10]*fabs(eta)+parval[11]*eta*eta );
+    return( parval[8]+parval[9]/pt + parval[10]*std::fabs(eta)+parval[11]*eta*eta );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const std::vector<int> & parResolOrder, const int muonType) {
 
@@ -1718,11 +1719,11 @@ class resolutionFunctionType8 : public resolutionFunctionBase<T> {
   }
 protected:
   /**
-   * This is the pt vs eta resolution by points. It uses fabs(eta) assuming symmetry.
+   * This is the pt vs eta resolution by points. It uses std::fabs(eta) assuming symmetry.
    * The values are derived from 100k events of MuonGun with 5<pt<100 and |eta|<3.
    */
   double etaByPoints(const double & inEta, const double & border) {
-    Double_t eta = fabs(inEta);
+    Double_t eta = std::fabs(inEta);
     if( 0. <= eta && eta <= 0.2 ) return 0.00942984;
     else if( 0.2 < eta && eta <= 0.4 ) return 0.0104489;
     else if( 0.4 < eta && eta <= 0.6 ) return 0.0110521;
@@ -1760,7 +1761,7 @@ class resolutionFunctionType9 : public resolutionFunctionBase<T> {
 
     else ptPart = parval[0] + parval[1]*pt + parval[2]*pt*pt + parval[3]*pt*pt*pt + parval[4]*pt*pt*pt*pt;
 
-    double fabsEta = fabs(eta);
+    double fabsEta = std::fabs(eta);
     double etaCoeff = parval[5];
     if( fabsEta < 0.1 ) etaCoeff = parval[23];
     else if( fabsEta < 0.2 ) etaCoeff = parval[24];
@@ -1775,11 +1776,11 @@ class resolutionFunctionType9 : public resolutionFunctionBase<T> {
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
-    return( parval[7]+parval[8]/pt + parval[9]*fabs(eta)+parval[10]*eta*eta );
+    return( parval[7]+parval[8]/pt + parval[9]*std::fabs(eta)+parval[10]*eta*eta );
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
-    return( parval[11]+parval[12]/pt + parval[13]*fabs(eta)+parval[14]*eta*eta );
+    return( parval[11]+parval[12]/pt + parval[13]*std::fabs(eta)+parval[14]*eta*eta );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const std::vector<int> & parResolOrder, const int muonType) {
 
@@ -1827,11 +1828,11 @@ class resolutionFunctionType9 : public resolutionFunctionBase<T> {
   }
 protected:
   /**
-   * This is the pt vs eta resolution by points. It uses fabs(eta) assuming symmetry.<br>
+   * This is the pt vs eta resolution by points. It uses std::fabs(eta) assuming symmetry.<br>
    * The values are derived from Upsilon2S redigi events.
    */
   double etaByPoints(const double & inEta, const double & border) {
-    Double_t eta = fabs(inEta);
+    Double_t eta = std::fabs(inEta);
     // More detailed taken from Upsilon2S
 //     if( 0.0 < eta && eta <= 0.1 ) return( (0.006496598 + 0.006713836)/2 );
 //     else if( 0.1 < eta && eta <= 0.2 ) return( (0.006724315 + 0.006787474)/2 );
@@ -1901,18 +1902,18 @@ class resolutionFunctionType10 : public resolutionFunctionBase<T> {
   resolutionFunctionType10() { this->parNum_ = 21; }
   // linear in pt and by points in eta
   virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
-    double fabsEta = fabs(eta);
+    double fabsEta = std::fabs(eta);
     return( parval[0] + parval[1]*pt + parval[2]*pt*pt + parval[3]*pt*pt*pt + parval[4]*pt*pt*pt*pt
             + parval[5]*fabsEta + parval[6]*fabsEta*fabsEta + parval[7]*pow(fabsEta,3) + parval[8]*pow(fabsEta,4)
             + parval[9]*pow(fabsEta,5) + parval[10]*pow(fabsEta,6) + parval[11]*pow(fabsEta,7) + parval[12]*pow(fabsEta,8) );
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
-    return( parval[13]+parval[14]/pt + parval[15]*fabs(eta)+parval[16]*eta*eta );
+    return( parval[13]+parval[14]/pt + parval[15]*std::fabs(eta)+parval[16]*eta*eta );
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
-    return( parval[17]+parval[18]/pt + parval[19]*fabs(eta)+parval[20]*eta*eta );
+    return( parval[17]+parval[18]/pt + parval[19]*std::fabs(eta)+parval[20]*eta*eta );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const std::vector<int> & parResolOrder, const int muonType) {
 
@@ -1958,11 +1959,11 @@ class resolutionFunctionType11 : public resolutionFunctionBase<T> {
   resolutionFunctionType11() { this->parNum_ = 8; }
   // linear in pt and by points in eta
   virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
-    double fabsEta = fabs(eta);
+    double fabsEta = std::fabs(eta);
     if(fabsEta<1.2)
       return (parval[0]+ parval[2]*1./pt + pt/(pt+parval[3]) + parval[4]*fabsEta + parval[5]*eta*eta);
     else
-      return (parval[1]+ parval[2]*1./pt + pt/(pt+parval[3]) + parval[6]*fabs((fabsEta-1.6)) + parval[7]*(fabsEta-1.6)*(fabsEta-1.6));
+      return (parval[1]+ parval[2]*1./pt + pt/(pt+parval[3]) + parval[6]*std::fabs((fabsEta-1.6)) + parval[7]*(fabsEta-1.6)*(fabsEta-1.6));
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
@@ -2003,28 +2004,28 @@ class resolutionFunctionType12 : public resolutionFunctionBase<T> {
   resolutionFunctionType12() { this->parNum_ = 15; }
   // linear in pt and by points in eta
   virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
-    double fabsEta = fabs(eta);
+    double fabsEta = std::fabs(eta);
 
     double ptPart = parval[2]*1./pt + pt/(pt+parval[3]) + pt*parval[9] + pt*pt*parval[10];
 
     if(fabsEta<parval[0]) {
       // To impose continuity we require that the parval[0] of type11 is
-      double par = parval[1] + parval[6]*fabs((parval[0]-parval[8])) + parval[7]*(parval[0]-parval[8])*(parval[0]-parval[8]) - (parval[4]*parval[0] + parval[5]*parval[0]*parval[0]);
+      double par = parval[1] + parval[6]*std::fabs((parval[0]-parval[8])) + parval[7]*(parval[0]-parval[8])*(parval[0]-parval[8]) - (parval[4]*parval[0] + parval[5]*parval[0]*parval[0]);
       return( par + ptPart + parval[4]*fabsEta + parval[5]*eta*eta );
     }
     else {
-      return( parval[1]+ ptPart + parval[6]*fabs((fabsEta-parval[8])) + parval[7]*(fabsEta-parval[8])*(fabsEta-parval[8]) );
+      return( parval[1]+ ptPart + parval[6]*std::fabs((fabsEta-parval[8])) + parval[7]*(fabsEta-parval[8])*(fabsEta-parval[8]) );
     }
   }
 
   // 1/pt in pt and quadratic in eta
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
-    return( parval[11]+parval[12]/pt + parval[13]*fabs(eta)+parval[14]*eta*eta );
+    return( parval[11]+parval[12]/pt + parval[13]*std::fabs(eta)+parval[14]*eta*eta );
   }
 
   // // 1/pt in pt and quadratic in eta
   // virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
-  //   return( parval[15]+parval[16]/pt + parval[17]*fabs(eta)+parval[18]*eta*eta );
+  //   return( parval[15]+parval[16]/pt + parval[17]*std::fabs(eta)+parval[18]*eta*eta );
   // }
 
   // constant sigmaCotgTh
@@ -2087,22 +2088,22 @@ class resolutionFunctionType13 : public resolutionFunctionBase<T> {
   resolutionFunctionType13() { this->parNum_ = 15; }
   // linear in pt and by points in eta
   virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
-    double fabsEta = fabs(eta);
+    double fabsEta = std::fabs(eta);
 
     double ptPart = parval[2]*1./pt + pt/(pt+parval[3]) + pt*parval[13] + pt*pt*parval[14];
 
     if(fabsEta<parval[9]) {
       // To impose continuity we require that
-      double par2 = parval[1] + parval[6]*fabs(parval[9] - parval[8]) + parval[7]*pow(parval[9] - parval[8], 2) - parval[10]*fabs(parval[9] - parval[12]) - parval[11]*pow(parval[9] - parval[12], 2);
+      double par2 = parval[1] + parval[6]*std::fabs(parval[9] - parval[8]) + parval[7]*pow(parval[9] - parval[8], 2) - parval[10]*std::fabs(parval[9] - parval[12]) - parval[11]*pow(parval[9] - parval[12], 2);
       if( fabsEta<parval[0]) {
-        double par1 = par2 + parval[10]*fabs(parval[0] - parval[12]) + parval[11]*pow(parval[0] - parval[12], 2) - parval[4]*parval[0] - parval[5]*parval[0]*parval[0];
+        double par1 = par2 + parval[10]*std::fabs(parval[0] - parval[12]) + parval[11]*pow(parval[0] - parval[12], 2) - parval[4]*parval[0] - parval[5]*parval[0]*parval[0];
         return( par1 + ptPart + parval[4]*fabsEta + parval[5]*eta*eta );
         // return( parval[15] + ptPart + parval[4]*fabsEta + parval[5]*eta*eta );
       }
-      // return( par2+ ptPart + parval[10]*fabs((fabsEta-parval[12])) + parval[11]*(fabsEta-parval[12])*(fabsEta-parval[12]) );
-      return( par2+ ptPart + parval[10]*fabs((fabsEta-parval[12])) + parval[11]*(fabsEta-parval[12])*(fabsEta-parval[12]) );
+      // return( par2+ ptPart + parval[10]*std::fabs((fabsEta-parval[12])) + parval[11]*(fabsEta-parval[12])*(fabsEta-parval[12]) );
+      return( par2+ ptPart + parval[10]*std::fabs((fabsEta-parval[12])) + parval[11]*(fabsEta-parval[12])*(fabsEta-parval[12]) );
     }
-    return( parval[1]+ ptPart + parval[6]*fabs((fabsEta-parval[8])) + parval[7]*(fabsEta-parval[8])*(fabsEta-parval[8]) );
+    return( parval[1]+ ptPart + parval[6]*std::fabs((fabsEta-parval[8])) + parval[7]*(fabsEta-parval[8])*(fabsEta-parval[8]) );
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
@@ -2154,11 +2155,11 @@ class resolutionFunctionType14 : public resolutionFunctionBase<T> {
   resolutionFunctionType14() { this->parNum_ = 6; }
   // linear in pt and by points in eta
   virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
-    double fabsEta = fabs(eta);
+    double fabsEta = std::fabs(eta);
     if(fabsEta<1.2)
       return (parval[0] + parval[2]*fabsEta + parval[3]*eta*eta);
     else
-      return (parval[1]+ parval[4]*fabs((fabsEta-1.6)) + parval[5]*(fabsEta-1.6)*(fabsEta-1.6));
+      return (parval[1]+ parval[4]*std::fabs((fabsEta-1.6)) + parval[5]*(fabsEta-1.6)*(fabsEta-1.6));
    }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
@@ -2193,7 +2194,7 @@ class resolutionFunctionType15 : public resolutionFunctionBase<T> {
   resolutionFunctionType15() { this->parNum_ = 7; }
   // linear in pt and parabolic in eta
   virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
-    double fabsEta = fabs(eta);
+    double fabsEta = std::fabs(eta);
     double ptPart = pt*parval[0];
 
     if(fabsEta<=0.6) 
@@ -2208,18 +2209,18 @@ class resolutionFunctionType15 : public resolutionFunctionBase<T> {
     }
     else{//eta in left endcap
       double par = parval[1]*1.3*1.3 - (parval[4]*(1.3-parval[5]) + parval[6]*(1.3-parval[5])*(1.3-parval[5]));
-      return( par + ptPart + parval[4]*fabs((fabsEta-parval[5])) + parval[6]*(fabsEta-parval[5])*(fabsEta-parval[5]) );
+      return( par + ptPart + parval[4]*std::fabs((fabsEta-parval[5])) + parval[6]*(fabsEta-parval[5])*(fabsEta-parval[5]) );
     }
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
-     if (fabs(eta)<=1.2) return(0.000949148 );
+     if (std::fabs(eta)<=1.2) return(0.000949148 );
      else if(eta<-1.2) return(-0.00645458 + -0.00579458*eta);
      else return(-0.00306283 + 0.00346136*eta);
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
-    return( 0.000211 + 0.00001*fabs(eta) + 0.0000789*eta*eta);
+    return( 0.000211 + 0.00001*std::fabs(eta) + 0.0000789*eta*eta);
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const std::vector<int> & parResolOrder, const int muonType) {
     double thisStep[] = { 0.000001, 0.0000001,
@@ -2257,7 +2258,7 @@ class resolutionFunctionType17 : public resolutionFunctionBase<T> {
   resolutionFunctionType17() { this->parNum_ = 18; }
   // linear in pt and parabolic in eta
   virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
-    double fabsEta = fabs(eta);
+    double fabsEta = std::fabs(eta);
     double ptPartBar =  parval[0] + pt*parval[2];
     double ptPartOvlap = parval[16] + pt*parval[17];
     double ptPartEndc = parval[14] + pt*parval[15];
@@ -2269,11 +2270,11 @@ class resolutionFunctionType17 : public resolutionFunctionBase<T> {
     }
     else if (eta>1.4){//eta in right endcap
       double par = parval[3] + parval[4]*1.4 + parval[5]*1.4*1.4 - (parval[6] + parval[7]*(1.4-parval[8]) + parval[9]*(1.4-parval[8])*(1.4-parval[8]));
-      return( par + ptPartEndc + parval[6] + parval[7]*fabs((fabsEta-parval[8])) + parval[9]*(fabsEta-parval[8])*(fabsEta-parval[8]) );
+      return( par + ptPartEndc + parval[6] + parval[7]*std::fabs((fabsEta-parval[8])) + parval[9]*(fabsEta-parval[8])*(fabsEta-parval[8]) );
     }
     else {//eta in left endcap
       double par =  parval[3] + parval[4]*1.4 + parval[5]*1.4*1.4 - (parval[10] + parval[11]*(1.4-parval[12]) + parval[13]*(1.4-parval[12])*(1.4-parval[12]));
-      return( par + ptPartEndc + parval[10] + parval[11]*fabs((fabsEta-parval[12])) + parval[13]*(fabsEta-parval[12])*(fabsEta-parval[12]) );
+      return( par + ptPartEndc + parval[10] + parval[11]*std::fabs((fabsEta-parval[12])) + parval[13]*(fabsEta-parval[12])*(fabsEta-parval[12]) );
     }
   }
   // 1/pt in pt and quadratic in eta
@@ -2330,7 +2331,7 @@ class resolutionFunctionType18 : public resolutionFunctionBase<T> {
   resolutionFunctionType18() { this->parNum_ = 14; }
   // linear in pt and parabolic in eta
   virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
-    double fabsEta = fabs(eta);
+    double fabsEta = std::fabs(eta);
     double ptPart =  parval[0] + parval[1]*1./pt + pt*parval[2];
 
     if(fabsEta<=0.6)
@@ -2340,12 +2341,12 @@ class resolutionFunctionType18 : public resolutionFunctionBase<T> {
       return( ptPart + par + parval[4]*fabsEta + parval[5]*eta*eta );
     }
     else if (eta>1.3){//eta in right endcap
-      double par = parval[3] - 0.6*parval[4] - 0.6*0.6*parval[5] + parval[4]*1.3 + parval[5]*1.3*1.3 - (parval[6] + parval[7]*fabs(1.3-parval[8]) + parval[9]*(1.3-parval[8])*(1.3-parval[8]));
-      return( par +  ptPart + parval[6] + parval[7]*fabs((fabsEta-parval[8])) + parval[9]*(fabsEta-parval[8])*(fabsEta-parval[8]) );
+      double par = parval[3] - 0.6*parval[4] - 0.6*0.6*parval[5] + parval[4]*1.3 + parval[5]*1.3*1.3 - (parval[6] + parval[7]*std::fabs(1.3-parval[8]) + parval[9]*(1.3-parval[8])*(1.3-parval[8]));
+      return( par +  ptPart + parval[6] + parval[7]*std::fabs((fabsEta-parval[8])) + parval[9]*(fabsEta-parval[8])*(fabsEta-parval[8]) );
     }
     else{//eta in left endcap
-      double par = parval[3] - 0.6*parval[4] - 0.6*0.6*parval[5] + parval[4]*1.3 + parval[5]*1.3*1.3 - (parval[10] + parval[11]*fabs(1.3-parval[12]) + parval[13]*(1.3-parval[12])*(1.3-parval[12]));
-      return( par + ptPart + parval[10] + parval[11]*fabs((fabsEta-parval[12])) + parval[13]*(fabsEta-parval[12])*(fabsEta-parval[12]) );
+      double par = parval[3] - 0.6*parval[4] - 0.6*0.6*parval[5] + parval[4]*1.3 + parval[5]*1.3*1.3 - (parval[10] + parval[11]*std::fabs(1.3-parval[12]) + parval[13]*(1.3-parval[12])*(1.3-parval[12]));
+      return( par + ptPart + parval[10] + parval[11]*std::fabs((fabsEta-parval[12])) + parval[13]*(fabsEta-parval[12])*(fabsEta-parval[12]) );
     }
   }
   // 1/pt in pt and quadratic in eta
@@ -2407,11 +2408,11 @@ class resolutionFunctionType19 : public resolutionFunctionBase<T> {
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
-    return( 0.00043 + 0.0041/pt + (2.8e-06)*fabs(eta) + (7.7e-05)*eta*eta );
+    return( 0.00043 + 0.0041/pt + (2.8e-06)*std::fabs(eta) + (7.7e-05)*eta*eta );
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
-    return( 0.00011 + 0.0018/pt - (9.4e-07)*fabs(eta) + (2.2e-05)*eta*eta );
+    return( 0.00011 + 0.0018/pt - (9.4e-07)*std::fabs(eta) + (2.2e-05)*eta*eta );
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const std::vector<int> & parResolOrder, const int muonType)
   {
@@ -2428,11 +2429,11 @@ class resolutionFunctionType19 : public resolutionFunctionBase<T> {
   }
 protected:
   /**
-   * This is the pt vs eta resolution by points. It uses fabs(eta) assuming symmetry.
+   * This is the pt vs eta resolution by points. It uses std::fabs(eta) assuming symmetry.
    * The values are derived from 100k events of MuonGun with 5<pt<100 and |eta|<3.
    */
   double etaByPoints(const double & inEta, const double & border) {
-    Double_t eta = fabs(inEta);
+    Double_t eta = std::fabs(inEta);
     if( 0. <= eta && eta <= 0.2 ) return 0.00942984;
     else if( 0.2 < eta && eta <= 0.4 ) return 0.0104489;
     else if( 0.4 < eta && eta <= 0.6 ) return 0.0110521;
@@ -2456,15 +2457,15 @@ class resolutionFunctionType20 : public resolutionFunctionBase<T> {
   resolutionFunctionType20() { this->parNum_ = 9; }
   // linear in pt and by points in eta
   virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
-    double fabsEta = fabs(eta);
+    double fabsEta = std::fabs(eta);
 
     if(fabsEta<parval[0]) {
       // To impose continuity we require that the parval[0] of type11 is
-      double par = parval[1] + parval[4]*fabs((parval[0]-parval[6])) + parval[5]*(parval[0]-parval[6])*(parval[0]-parval[6]) - (parval[2]*parval[0] + parval[3]*parval[0]*parval[0]);
+      double par = parval[1] + parval[4]*std::fabs((parval[0]-parval[6])) + parval[5]*(parval[0]-parval[6])*(parval[0]-parval[6]) - (parval[2]*parval[0] + parval[3]*parval[0]*parval[0]);
       return( par + parval[2]*fabsEta + parval[3]*eta*eta );
     }
     else {
-      return( parval[1]+ parval[4]*fabs((fabsEta-parval[6])) + parval[5]*(fabsEta-parval[6])*(fabsEta-parval[6]) );
+      return( parval[1]+ parval[4]*std::fabs((fabsEta-parval[6])) + parval[5]*(fabsEta-parval[6])*(fabsEta-parval[6]) );
     }
   }
 
@@ -2475,7 +2476,7 @@ class resolutionFunctionType20 : public resolutionFunctionBase<T> {
 
   // // 1/pt in pt and quadratic in eta
   // virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
-  //   return( parval[15]+parval[16]/pt + parval[17]*fabs(eta)+parval[18]*eta*eta );
+  //   return( parval[15]+parval[16]/pt + parval[17]*std::fabs(eta)+parval[18]*eta*eta );
   // }
 
   // constant sigmaCotgTh
@@ -2531,7 +2532,7 @@ class resolutionFunctionType30 : public resolutionFunctionBase<T> {
 
   virtual double sigmaPt(const double & pt, const double & eta, const T & parval)
   {
-    double fabsEta = fabs(eta);
+    double fabsEta = std::fabs(eta);
 
     double ptPart = parval[13]*pt;
     if( fabsEta > 2.0 ) {
@@ -2548,20 +2549,20 @@ class resolutionFunctionType30 : public resolutionFunctionBase<T> {
       double x_1 = parval[0];
       double y_1 = parval[1] + parval[2]*parval[0] + parval[3]*parval[0]*parval[0];
       double x_2 = parval[14];
-      double y_2 = parval[4] + parval[5]*fabs((parval[14]-parval[7])) + parval[6]*(parval[14]-parval[7])*(parval[14]-parval[7]);
+      double y_2 = parval[4] + parval[5]*std::fabs((parval[14]-parval[7])) + parval[6]*(parval[14]-parval[7])*(parval[14]-parval[7]);
       return( (fabsEta - x_1)*(y_2 - y_1)/(x_2 - x_1) + y_1 );
     }
     else if( fabsEta < parval[15] ) {
-      return( ptPart + parval[4] + parval[5]*fabs(fabsEta-parval[7]) + parval[6]*(fabsEta-parval[7])*(fabsEta-parval[7]) );
+      return( ptPart + parval[4] + parval[5]*std::fabs(fabsEta-parval[7]) + parval[6]*(fabsEta-parval[7])*(fabsEta-parval[7]) );
     }
     else {
-      return( ptPart + parval[16] + parval[17]*fabs(fabsEta-parval[19]) + parval[18]*(fabsEta-parval[19])*(fabsEta-parval[19]) );
+      return( ptPart + parval[16] + parval[17]*std::fabs(fabsEta-parval[19]) + parval[18]*(fabsEta-parval[19])*(fabsEta-parval[19]) );
     }
   }
 
   virtual double sigmaPtError(const double & pt, const double & eta, const T & parval, const T & parError)
   {
-    double fabsEta = fabs(eta);
+    double fabsEta = std::fabs(eta);
 
     double ptPart = parError[13]*pt;
     if( fabsEta > 2.0 ) {
@@ -2578,29 +2579,29 @@ class resolutionFunctionType30 : public resolutionFunctionBase<T> {
       double x_1 = parval[0];
       double y_1 = parval[1] + parval[2]*parval[0] + parval[3]*parval[0]*parval[0];
       double x_2 = parval[14];
-      double y_2 = parval[4] + parval[5]*fabs((parval[14]-parval[7])) + parval[6]*(parval[14]-parval[7])*(parval[14]-parval[7]);
+      double y_2 = parval[4] + parval[5]*std::fabs((parval[14]-parval[7])) + parval[6]*(parval[14]-parval[7])*(parval[14]-parval[7]);
       double lineValue = (fabsEta - x_1)*(y_2 - y_1)/(x_2 - x_1) + y_1;
 
       // x_1 = parval[0];
       y_1 = parval[1] + parError[1] + (parval[2] + parError[2])*parval[0] + (parval[3] + parError[3])*parval[0]*parval[0];
       // x_2 = parval[14];
-      y_2 = parval[4] + parError[4] + (parval[5] + parError[5])*fabs((parval[14]-parval[7])) + (parval[6] + parError[6])*(parval[14]-parval[7])*(parval[14]-parval[7]);
+      y_2 = parval[4] + parError[4] + (parval[5] + parError[5])*std::fabs((parval[14]-parval[7])) + (parval[6] + parError[6])*(parval[14]-parval[7])*(parval[14]-parval[7]);
       double lineValuePlusError = (fabsEta - x_1)*(y_2 - y_1)/(x_2 - x_1) + y_1;
       
       return(lineValuePlusError - lineValue );
     }
     else if( fabsEta < parval[15] ) {
-      return( ptPart + parError[4] + parError[5]*fabs(fabsEta-parval[7]) + parError[6]*(fabsEta-parval[7])*(fabsEta-parval[7]) );
+      return( ptPart + parError[4] + parError[5]*std::fabs(fabsEta-parval[7]) + parError[6]*(fabsEta-parval[7])*(fabsEta-parval[7]) );
     }
     else {
-      return( ptPart + parError[16] + parError[17]*fabs(fabsEta-parval[19]) + parError[18]*(fabsEta-parval[19])*(fabsEta-parval[19]) );
+      return( ptPart + parError[16] + parError[17]*std::fabs(fabsEta-parval[19]) + parError[18]*(fabsEta-parval[19])*(fabsEta-parval[19]) );
     }
   }
 
   // 1/pt in pt and quadratic in eta
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
     // return( parval[8] + parval[9]/(pt + parval[10]) + parval[11]*pt );
-    double fabsEta = fabs(eta);
+    double fabsEta = std::fabs(eta);
     double value = parval[8] + parval[9]*fabsEta + parval[10]*eta*eta + parval[11]*fabsEta*fabsEta*fabsEta;
     if( value > 0 ) {
       return( value );
@@ -2615,7 +2616,7 @@ class resolutionFunctionType30 : public resolutionFunctionBase<T> {
 
   virtual double covPt1Pt2(const double & pt1, const double & eta1, const double & pt2, const double & eta2, const T & parval)
   {
-    return parval[24] + fabs(pt1 - pt2)*parval[25] + fabs(eta1 - eta2)*parval[26];
+    return parval[24] + std::fabs(pt1 - pt2)*parval[25] + std::fabs(eta1 - eta2)*parval[26];
   }
 
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const std::vector<int> & parResolOrder, const int muonType)
