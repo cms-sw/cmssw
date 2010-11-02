@@ -8,6 +8,7 @@
     <use   name="PhysicsTools/FWLite"/>
   </bin>
   <bin   name="testScanner.exe" file="testScanner.cc">
+    <flags NO_TESTRUN="1"/>
     <use   name="root"/>
     <use   name="roofit"/>
     <use   name="rootgraphics"/>
