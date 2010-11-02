@@ -2,8 +2,6 @@
 #include <vector>
 #include <memory>
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionVertexFinder.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/TangentApproachInRPhi.h"
-#include "TrackingTools/GeomPropagators/interface/TrackerBounds.h"
 // Framework
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -65,17 +63,6 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
 
   if ( pair.size() < 2) return found;
   
-  TangentApproachInRPhi tangent;
-  tangent.calculate(pair[0].innermostMeasurementState(),pair[1].innermostMeasurementState());
-  if (!tangent.status()) {
-    return false;
-  }
-  
-  GlobalPoint tangentPoint = tangent.crossingPoint();
-  if (!TrackerBounds::isInside(tangentPoint)) {
-    return false;
-  }
-  
   float sigma = 0.00000001;
   float chi = 0.;
   float ndf = 0.;
@@ -93,7 +80,7 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
 #ifndef TemplateKineFit
   ColinearityKinematicConstraint constr(ColinearityKinematicConstraint::PhiTheta);
   
-  RefCountedKinematicTree myTree = kcvFitter_->fit(particles, &constr, &tangentPoint);
+  RefCountedKinematicTree myTree = kcvFitter_->fit(particles, &constr);
 #else
 
   // bizzare way to the get the field...
@@ -102,13 +89,13 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
   ColinearityKinematicConstraintT<colinearityKinematic::PhiTheta> constr;
   KinematicConstrainedVertexFitterT<2,2> kcvFitter(mf);
   kcvFitter.setParameters(conf_);
-  RefCountedKinematicTree myTree =  kcvFitter.fit(particles, &constr, &tangentPoint);
+  RefCountedKinematicTree myTree =  kcvFitter.fit(particles, &constr);
 
 #ifdef TemplateKineFitDebug
 
   ColinearityKinematicConstraint oldconstr(ColinearityKinematicConstraint::PhiTheta);
   
-  RefCountedKinematicTree oldTree = kcvFitter_->fit(particles, &oldconstr, &tangentPoint);
+  RefCountedKinematicTree oldTree = kcvFitter_->fit(particles, &oldconstr);
 
 
   if( oldTree->isValid() ) {
