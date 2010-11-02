@@ -104,19 +104,19 @@ OpenHLTBLifetimeL3recoSequenceStartup = cms.Sequence(
 # L2 reco sequence is common to all paths, and taken from the global table
 # L2.5 and L3 sequences are rewritten to bypass selectors and filters
 
-openHltBSoftmuonL25TagInfos = copy.deepcopy(hltBSoftMuonL25TagInfos)
+openHltBSoftmuonL25TagInfos = copy.deepcopy(hltBSoftMuonL25TagInfosU)
 openHltBSoftmuonL25TagInfos.jets = cms.InputTag("hltIterativeCone5CaloJets")
 
-openHltBSoftmuonL25BJetTags = copy.deepcopy(hltBSoftMuonL25BJetTagsByDR)
+openHltBSoftmuonL25BJetTags = copy.deepcopy(hltBSoftMuonL25BJetTagsUByDR)
 openHltBSoftmuonL25BJetTags.tagInfos = cms.VInputTag(cms.InputTag("openHltBSoftmuonL25TagInfos"))
 
-openHltBSoftmuonL3TagInfos = copy.deepcopy(hltBSoftMuonL3TagInfos)
+openHltBSoftmuonL3TagInfos = copy.deepcopy(hltBSoftMuonL3TagInfosU)
 openHltBSoftmuonL3TagInfos.jets = cms.InputTag("hltIterativeCone5CaloJets")
 
-openHltBSoftmuonL3BJetTags = copy.deepcopy(hltBSoftMuonL3BJetTagsByPt)
+openHltBSoftmuonL3BJetTags = copy.deepcopy(hltBSoftMuonL3BJetTagsUByPt)
 openHltBSoftmuonL3BJetTags.tagInfos = cms.VInputTag(cms.InputTag("openHltBSoftmuonL3TagInfos"))
 
-openHltBPerfMeasL3BJetTags = copy.deepcopy(hltBSoftMuonL3BJetTagsByDR)
+openHltBPerfMeasL3BJetTags = copy.deepcopy(hltBSoftMuonL3BJetTagsUByDR)
 openHltBPerfMeasL3BJetTags.tagInfos = cms.VInputTag(cms.InputTag("openHltBSoftmuonL3TagInfos"))
 
 OpenHLTBSoftMuonL25recoSequence = cms.Sequence( 
