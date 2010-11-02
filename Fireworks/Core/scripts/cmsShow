@@ -71,7 +71,7 @@ elif [ "X$valgrindflag" = Xon ] ; then
   valgrind --num-callers=30 --log-file=valgrind.log.$$ --freelist-vol=100000000 $CMSSW_BASE/cmsShow.exe $@
 else
    $SHELLDIR/cmsShow.exe $originalOptions
-   exitStatus $?
+   exitStatus=$?
    if [ $exitStatus -gt 128 ] ; then
       if [ "$rootflag" == "off" ] ; then
          echo ""
