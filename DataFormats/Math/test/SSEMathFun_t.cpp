@@ -1,4 +1,3 @@
-#include "DataFormats/Math/interface/sse_mathfun.h"
 #include "DataFormats/Math/interface/SSEVec.h"
 #include "DataFormats/Math/interface/SSEArray.h"
 #include<iostream>
@@ -47,45 +46,40 @@ void compChi2(V10 const & ampl, V10 const & err2, Scalar t, Scalar sumAA, Scalar
   typedef  V10::Vec Vec;
   Scalar const denom =  Scalar(1)/Scalar(SIZE);
 
-  Vec one = _mm_set1_ps(1);
-  Vec eps = _mm_set1_ps(1e-6);
+  Vec one(1);
+  Vec eps(1e-6);
 
-  Vec tv = _mm_set1_ps(t);
-  Vec alpha = _mm_set1_ps(2);
-  Vec overab = _mm_set1_ps(0.38);
+  Vec tv(t);
+  Vec alpha(2);
+  Vec overab(0.38);
 
   V10 index;
-  V10 mask;
-  for(unsigned int it = 0; it < ssesize; it++)
-      mask.vec[it] = _mm_cmpeq_ps(_mm_setzero_ps(),_mm_setzero_ps());
-  for(unsigned int it = 0; it < arrsize; it++)
+  for(unsigned int it = 0; it != arrsize; ++it)
     index.arr[it]=it;
- for(unsigned int it = SIZE; it < arrsize; it++) 
-   mask.arr[it]= 0;
  
 
-  Vec sumAf =  _mm_setzero_ps();
-  Vec sumff =  _mm_setzero_ps();
+  Vec sumAf;
+  Vec sumff;
 
 
   for(unsigned int it = 0; it < ssesize; it++){
-    Vec offset =  _mm_mul_ps(_mm_sub_ps(index.vec[it],tv),overab);
-    Vec term1 =  _mm_add_ps(one,offset);
-    Vec cmp = _mm_cmpgt_ps(term1,eps);
+    Vec offset = (index[it]-tv)*overab;
+    Vec term1 =  one+offset;
+    Vec cmp = cmpgt(term1,eps);
     
-    Vec f = exp_ps(_mm_mul_ps(alpha,_mm_sub_ps(log_ps(term1),offset)) );
+    Vec f =  mathSSE::exp(alpha*(mathSSE::log(term1)-offset) );
     //Vec f = _mm_or_ps(_mm_andnot_ps(cmp, _mm_setzero_ps()), _mm_and_ps(cmp, f));
-    f = _mm_and_ps(cmp, f);
-    Vec fe = _mm_mul_ps(f, err2.vec[it]);
-    sumAf = _mm_add_ps(sumAf, _mm_and_ps(mask.vec[it],_mm_mul_ps(ampl.vec[it],fe)));
-    sumff = _mm_add_ps(sumff, _mm_and_ps(mask.vec[it],_mm_mul_ps(f,fe)));
+    f = cmp&f;
+    Vec fe = f*err2[it];
+    sumAf = sumAf + mask.vec[it]&(ampl[it]*fe);
+    sumff = sumff + mask.vec[it]&(f*fe);
   }
   
-  Vec sum = _mm_hadd_ps(sumAf,sumff);
-  sum = _mm_hadd_ps(sum,sum);
+  Vec sum = hadd(sumAf,sumff);
+  sum = hadd(sum,sum);
 
-  Scalar af; _mm_store_ss(&af,sum);
-  Scalar ff; _mm_store_ss(&ff,_mm_shuffle_ps(sum, sum, _MM_SHUFFLE(1, 1, 1, 1)));
+  Scalar af = sum[0];
+  Scalar ff = sum[1];
   
   chi2 = sumAA;
   amp = 0;
@@ -124,9 +118,9 @@ int main() {
 
   Vec4F k(0.1,-1.,1.1e-3,1.);
   Vec4F eps(1.e-3);
-  Vec4F cmp; cmp.vec = _mm_cmpgt_ps(k.vec,eps.vec);
+  Vec4F cmp = cmpgt(k,eps);
   std::cout << cmp  << std::endl;
-  k.vec = _mm_and_ps(cmp.vec, k.vec  ); 
+  k = cmp&k.vec; 
   std::cout << k  << std::endl;
 
 
