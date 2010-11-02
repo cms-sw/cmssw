@@ -59,15 +59,15 @@ _decay_mode = (options.tracks, options.pizeros)
 
 # We need to turn off the track based quality cuts, since we don't save them
 # in the skim.
-from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
-PFTauQualityCuts.signalQualityCuts = cms.PSet(
-    minTrackPt = PFTauQualityCuts.signalQualityCuts.minTrackPt,
-    minGammaEt = PFTauQualityCuts.signalQualityCuts.minGammaEt,
-)
-PFTauQualityCuts.isolationQualityCuts = cms.PSet(
-    minTrackPt = PFTauQualityCuts.isolationQualityCuts.minTrackPt,
-    minGammaEt = PFTauQualityCuts.isolationQualityCuts.minGammaEt,
-)
+#from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
+#PFTauQualityCuts.signalQualityCuts = cms.PSet(
+    #minTrackPt = PFTauQualityCuts.signalQualityCuts.minTrackPt,
+    #minGammaEt = PFTauQualityCuts.signalQualityCuts.minGammaEt,
+#)
+#PFTauQualityCuts.isolationQualityCuts = cms.PSet(
+    #minTrackPt = PFTauQualityCuts.isolationQualityCuts.minTrackPt,
+    #minGammaEt = PFTauQualityCuts.isolationQualityCuts.minGammaEt,
+#)
 
 # Build a combinatoric tau producer that only builds the desired decay modes
 from RecoTauTag.RecoTau.RecoTauCombinatoricProducer_cfi \
@@ -88,6 +88,17 @@ _combinatoricTauConfig.decayModes = selectedDecayModes
 
 process = cms.Process("Eval")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
+
+# DQM store, PDT sources etc
+process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
+process.load("Configuration.StandardSequences.Services_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+# Shit, is this okay?
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['mc']
+
 
 # Setup output file
 process.TFileService = cms.Service(
@@ -112,7 +123,7 @@ decay_mode_translator = {
     (3, 1) : 'threeProng1Pi0',
 }
 
-_KIN_CUT = "pt > 20 & abs(eta) < 2.5"
+_KIN_CUT = "pt > 10 & abs(eta) < 2.5"
 
 # For signal, select jets that match a hadronic decaymode
 process.kinematicSignalJets = cms.EDFilter(
@@ -208,6 +219,9 @@ process.main += process.rawTausLeadPionPt
 process.load("RecoTauTag.TauTagTools.TancConditions_cff")
 process.TauTagMVAComputerRecord.connect = cms.string(
     'sqlite:%s' % options.db)
+
+process.es_prefer_tanc = cms.ESPrefer("PoolDBESSource",
+                                      "TauTagMVAComputerRecord")
 
 process.TauTagMVAComputerRecord.toGet[0].tag = cms.string('Train')
 mvaLabel = os.path.splitext(os.path.basename(options.db))[0]
