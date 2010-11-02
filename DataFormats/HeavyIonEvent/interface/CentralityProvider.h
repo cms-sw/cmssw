@@ -19,17 +19,17 @@ class CentralityProvider : public CentralityBins {
   enum VariableType {HFtowers,HFhits,PixelHits,PixelTracks,Tracks,EB,EE,Missing};
 
   int getNbins() const {return table_.size();}
-  double centralityValue(const edm::Event& ev) const;
-  int getBin(const edm::Event& ev) const {return CentralityBins::getBin(centralityValue(ev));}
-  float lowEdge(const edm::Event& ev) const { return lowEdgeOfBin(getBin(ev));}
-  float NpartMean(const edm::Event& ev) const { return NpartMeanOfBin(getBin(ev));}
-  float NpartSigma(const edm::Event& ev) const { return NpartSigmaOfBin(getBin(ev));}
-  float NcollMean(const edm::Event& ev) const { return NcollMeanOfBin(getBin(ev));}
-  float NcollSigma(const edm::Event& ev)const { return NcollSigmaOfBin(getBin(ev));}
-  float NhardMean(const edm::Event& ev) const { return NhardMeanOfBin(getBin(ev));}
-  float NhardSigma(const edm::Event& ev) const { return NhardSigmaOfBin(getBin(ev));}
-  float bMean(const edm::Event& ev) const { return bMeanOfBin(getBin(ev));}
-  float bSigma(const edm::Event& ev) const { return bSigmaOfBin(getBin(ev));}
+  double centralityValue() const;
+  int getBin() const {return CentralityBins::getBin(centralityValue());}
+  float lowEdge() const { return lowEdgeOfBin(getBin());}
+  float NpartMean() const { return NpartMeanOfBin(getBin());}
+  float NpartSigma() const { return NpartSigmaOfBin(getBin());}
+  float NcollMean() const { return NcollMeanOfBin(getBin());}
+  float NcollSigma()const { return NcollSigmaOfBin(getBin());}
+  float NhardMean() const { return NhardMeanOfBin(getBin());}
+  float NhardSigma() const { return NhardSigmaOfBin(getBin());}
+  float bMean() const { return bMeanOfBin(getBin());}
+  float bSigma() const { return bSigmaOfBin(getBin());}
   void newRun(const edm::EventSetup& iSetup);
   void newEvent(const edm::Event& ev,const edm::EventSetup& iSetup);
   void print();
@@ -133,7 +133,7 @@ void CentralityProvider::print(){
    }
 }
 
-double CentralityProvider::centralityValue(const edm::Event& ev) const {
+double CentralityProvider::centralityValue() const {
   double var = -99;
   if(varType_ == HFhits) var = chandle_->EtHFhitSum();
   if(varType_ == HFtowers) var = chandle_->EtHFtowerSum();
