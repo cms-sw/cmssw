@@ -68,8 +68,6 @@ public:
 */
 class Dataset : public std::vector<Trigger> {
 public:
-  using std::vector<Trigger>::at;
-  using std::vector<Trigger>::size;
   //.. Data ...................................................................
   TString               name;             ///< Name used to identify the dataset.
   Bool_t                isNewTrigger;     ///< True if this "dataset" is actually just a single new trigger to be considered, false otherwise.
@@ -167,8 +165,6 @@ enum  SampleCategory  { RATE_SAMPLE       ///< These are samples that drive the 
 class SampleDiagnostics : public std::vector<Dataset>
 {
 public:
-  using std::vector<Dataset>::at;
-  using std::vector<Dataset>::size;
   //.. Data ...................................................................
   TString                             name;                     ///< Name of the sample, for display purposes.
   SampleCategory                      typeOfSample;             ///< The type of sample (see the SampleCategory documentation), for presentation purposes.
@@ -335,9 +331,7 @@ protected:
   TStopwatch            timer;              ///< For bench-marking the execution, if you care.
 
 public:
-  using std::vector<SampleDiagnostics>::operator[];
-  using std::vector<SampleDiagnostics>::at;
-  using std::vector<SampleDiagnostics>::size;
+  typedef std::vector<SampleDiagnostics> Base;
 
   //.. Functions ..............................................................
   /**
@@ -350,6 +344,13 @@ public:
               , TString                       emulationPrefix         = "Open"  ///< The prefix by which to determine whether or not a trigger is an emulated version of a path with the same name except for the prefix. If a trigger has both an emulated and original version, only one of the choices will be used for this analysis.
               );
   ~HLTDatasets();
+
+  // make public  functions from the base class  
+  size_t size() const {return Base::size();}
+  SampleDiagnostics const& at(size_t index) const {return Base::at(index);}
+  SampleDiagnostics& at(size_t index) {return Base::at(index);}
+  SampleDiagnostics const& operator[](size_t index) const {return Base::operator[](index);}
+  SampleDiagnostics& operator[](size_t index) {return Base::operator[](index);}
 
   /**
     Registers a sample in the list that will be processed in future event loops. The separation into
