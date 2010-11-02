@@ -136,8 +136,9 @@ def main():
     #142503 Bad pixels bad strips
     #142653 Strips not in data taking
     #143977 No Beam Strips and Pixels bad
+    #148859 Strips and Pixels HV off waiting for beam 
     
-    knownMissingRunList = [132573,132958,133081,133242,133472,133473,136290,138560,138562,139455,140133,140182,142461,142465,142503,142653,143977]
+    knownMissingRunList = [132573,132958,133081,133242,133472,133473,136290,138560,138562,139455,140133,140182,142461,142465,142503,142653,143977,148859]
     tagName = "BeamSpotObjects_2009" + dbBase + sigmaZ + "_v" + tagNumber + "_offline"
     print "Checking payloads for tag " + tagName
     runErrors = {}

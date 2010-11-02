@@ -181,7 +181,7 @@ def ls(dir,filter=""):
     listOfFiles = tmpStatus[1].split('\n')
     if len(listOfFiles) == 1:
         if listOfFiles[0].find('No such file or directory') != -1:
-            exit("ERROR: File or directory " + path + " doesn't exist") 
+            exit("ERROR: File or directory " + dir + " doesn't exist") 
 
     return listOfFiles            
 
