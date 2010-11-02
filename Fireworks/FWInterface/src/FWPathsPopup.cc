@@ -361,8 +361,9 @@ public:
       m_modulePassedRenderer.setGraphicsContext(&boldGreenGC());
       m_moduleFailedRenderer.setGraphicsContext(&boldRedGC());
 
-      std::cout << "Available fonts: " << std::endl;
-      gClient->GetFontPool()->Print();
+      // Debug stuff to dump font list.
+//      std::cout << "Available fonts: " << std::endl;
+//      gClient->GetFontPool()->Print();
        
       reset();
    }
