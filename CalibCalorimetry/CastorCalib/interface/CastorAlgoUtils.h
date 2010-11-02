@@ -4,18 +4,13 @@
 #include "CalibFormats/CastorObjects/interface/CastorDbService.h"
 #include "CondFormats/CastorObjects/interface/CastorQIECoder.h"
 
-namespace reco {
-  namespace castor {
-
-    void getLinearizedADC(const CastorQIEShape& shape,
+void getLinearizedADC(const CastorQIEShape& shape,
 		      const CastorQIECoder* coder,
 		      int bins,int capid,
 		      float& lo,
 		      float& hi);
 
-    float maxDiff(float one, float two, float three, float four);
+float maxDiff(float one, float two, float three, float four);
 
-  }
-}
 
 #endif

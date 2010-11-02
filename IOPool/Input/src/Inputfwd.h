@@ -20,7 +20,7 @@ namespace edm {
   class RootTree;
   namespace input {
     unsigned int const defaultCacheSize = 20U * 1024 * 1024;
-    unsigned int const defaultNonEventCacheSize = 1U * 1024 * 1024;
+    unsigned int const defaultNonEventCacheSize = 0U;
     unsigned int const defaultLearningEntries = 20U;
     unsigned int const defaultNonEventLearningEntries = 1U;
     struct BranchInfo {

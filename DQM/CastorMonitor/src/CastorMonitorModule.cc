@@ -11,7 +11,7 @@
 //**************************************************************//
 ////---- simple event filter which directs events to monitoring tasks: 
 ////---- access unpacked data from each event and pass them to monitoring tasks 
-////---- last revision: 05.03.2010 
+////---- last revision: 06.10.2010 
 
 //==================================================================//
 //======================= Constructor ==============================//
@@ -299,8 +299,9 @@ void CastorMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& conte
 //========================== endJob ===============================//
 //=================================================================//
 void CastorMonitorModule::endJob(void) {
-  if ( meStatus_ ) meStatus_->Fill(2);
-
+ 
+  //if ( meStatus_ ) meStatus_->Fill(2);
+ 
   if(RecHitMon_!=NULL) RecHitMon_->done();
   if(DigiMon_!=NULL) DigiMon_->done();
   if(LedMon_!=NULL) LedMon_->done();
@@ -394,7 +395,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
     rawOK_=false;
   }
   
-  
+  /*
   edm::Handle<HcalUnpackerReport> report; 
   iEvent.getByType(report);  
   if (!report.isValid()) {
@@ -410,7 +411,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
 	fedsListed_ = true;
       }
     }
-  
+  */
   //---------------------------------------------------------------//
   //-------------------  try to get digis ------------------------//
   //---------------------------------------------------------------//

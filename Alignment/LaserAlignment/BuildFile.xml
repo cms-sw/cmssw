@@ -4,8 +4,6 @@
 
 <use   name="DataFormats/GeometrySurface"/>
 
-<use   name="clhep"/>
-<use   name="root"/>
 <use   name="clhepheader"/>
 <use   name="rootcore"/>
 <use   name="rootminuit"/>

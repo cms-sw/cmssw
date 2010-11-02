@@ -18,7 +18,7 @@
   <use   name="PhysicsTools/Utilities"/>
   <use   name="boost_program_options"/>
   <use   name="FWCore/FWLite"/>
-  <use   name="DataFormats/FWLite"/> 
+  <use   name="DataFormats/FWLite"/>
 </bin>
 <bin   file="toyMonteCarlo.cpp" name="toyMonteCarlo">
   <use   name="boost_program_options"/>
@@ -35,9 +35,3 @@
   <use   name="rootmath"/>
   <use   name="boost_program_options"/>
 </bin>
-<bin   file="zMuMuRooFit.cpp" name="zMuMuRooFit">
-  <use   name="roofit"/>
-  <use   name="boost_program_options"/>
-</bin>
-
-

@@ -25,6 +25,12 @@ class HLTMhtHtFilter : public HLTFilter {
       bool saveTag_;              // whether to save this tag
       double minMht_;
       double minPtJet_;
+      int mode_;
+      double etaJet_;
+      bool usePt_;
+      double minPT12_;
+      double minMeff_;
+      double minHt_;
 };
 
 #endif //HLTMhtHtFilter_h

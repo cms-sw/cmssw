@@ -45,9 +45,6 @@ class CSCMake2DRecHit
   /// Pass pointer to conditions data onwards
   void setConditions( const CSCRecoConditions* reco );
 
-  // Determine wire time using tpeak as initial estimate
-  float findWireBx(std::vector <int> timeBinsOn, float tpeak);
-
   const CSCLayer*         layer_;
   const CSCLayerGeometry* layergeom_;
   const CSCChamberSpecs*  specs_;

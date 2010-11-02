@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.21 2010/04/20 16:07:15 srappocc Exp $
+// $Id: Electron.cc,v 1.20.12.1 2010/04/20 14:43:50 srappocc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -168,16 +168,6 @@ void Electron::embedPFCandidate() {
     embeddedPFCandidate_ = true;
   }
 }
-
-/// reference to the parent PF candidate for use in TopProjector
-reco::CandidatePtr Electron::sourceCandidatePtr( size_type i ) const {
-  if (embeddedPFCandidate_) {
-    return reco::CandidatePtr( pfCandidateRef_.id(), pfCandidateRef_.get(), pfCandidateRef_.key() ); 
-  } else {
-    return reco::CandidatePtr();
-  }
-}
-
 
 
 /// dB gives the impact parameter wrt the beamline.

@@ -31,11 +31,11 @@ L1GctMet::metVector () const
   switch (m_algoType)
     {
     case cordicTranslate:
-      algoResult = cordicTranslateAlgo (m_exComponent.value(), m_eyComponent.value(), (m_exComponent.overFlow() || m_eyComponent.overFlow()) );
+      algoResult = cordicTranslateAlgo (m_exComponent.value(), m_eyComponent.value());
       break;
 
     case useHtMissLut:
-      algoResult = useHtMissLutAlgo    (m_exComponent.value(), m_eyComponent.value(), (m_exComponent.overFlow() || m_eyComponent.overFlow()) );
+      algoResult = useHtMissLutAlgo    (m_exComponent.value(), m_eyComponent.value());
       break;
 
     case oldGct:
@@ -76,7 +76,7 @@ void L1GctMet::setEyComponent(const unsigned ey) {
 // private member functions - the different algorithms:
 
 L1GctMet::etmiss_internal
-L1GctMet::cordicTranslateAlgo (const int ex, const int ey, const bool of) const
+L1GctMet::cordicTranslateAlgo (const int ex, const int ey) const
 {
   //---------------------------------------------------------------------------------
   //
@@ -104,8 +104,6 @@ L1GctMet::cordicTranslateAlgo (const int ex, const int ey, const bool of) const
 
   etmiss_internal result;
 
-  static const int of_val = 0x1FFF; // set components to 8191 (decimal) if there's an overflow on the input
-
   static const int n_iterations = 6;
   // The angle units here are 1/32 of a 5 degree bin.
   // So a 90 degree rotation is 32*18=576 or 240 hex.
@@ -120,20 +118,14 @@ L1GctMet::cordicTranslateAlgo (const int ex, const int ey, const bool of) const
   int dx,dy;
   int  z;
 
-  if (of) {
-    x =  of_val;
-    y = -of_val;
+  if (ey>=0) {
+    x =  ey;
+    y = -ex;
     z = cordic_starting_angle_090;
   } else {
-    if (ey>=0) {
-      x =  ey;
-      y = -ex;
-      z = cordic_starting_angle_090;
-    } else {
-      x = -ey;
-      y =  ex;
-      z = cordic_starting_angle_270;
-    }
+    x = -ey;
+    y =  ex;
+    z = cordic_starting_angle_270;
   }
 
   for (int i=0; i<n_iterations; i++) {
@@ -154,7 +146,6 @@ L1GctMet::cordicTranslateAlgo (const int ex, const int ey, const bool of) const
   int adjusted_angle   = ( (z < 0) ? (z + cordic_angle_360) : z ) % cordic_angle_360;
   result.mag = scaled_magnitude >> 10;
   result.phi = adjusted_angle   >> 5;
-  if (result.mag > (unsigned) of_val) result.mag = (unsigned) of_val;
   return result;
 }
 
@@ -171,15 +162,12 @@ int L1GctMet::cordicShiftAndRoundBits (const int e, const unsigned nBits) const
 
 
 L1GctMet::etmiss_internal
-L1GctMet::useHtMissLutAlgo (const int ex, const int ey, const bool of) const
+L1GctMet::useHtMissLutAlgo (const int ex, const int ey) const
 {
   // The firmware discards the LSB of the input values, before forming
   // the address for the LUT. We do the same here.
-  static const int maxComponent    = 1<<L1GctHtMissLut::kHxOrHyMissComponentNBits;
-  static const int componentMask   = maxComponent-1;
-  static const int maxPosComponent = componentMask >> 1;
-
-  static const int maxInput = 1<<(L1GctHtMissLut::kHxOrHyMissComponentNBits+kExOrEyMissComponentShift-1);
+  static const int maxComponent  = 1<<L1GctHtMissLut::kHxOrHyMissComponentNBits;
+  static const int componentMask = maxComponent-1;
 
   static const unsigned resultMagMask = (1<<L1GctHtMissLut::kHtMissMagnitudeNBits) - 1;
   static const unsigned resultPhiMask = (1<<L1GctHtMissLut::kHtMissAngleNBits)     - 1;
@@ -189,18 +177,13 @@ L1GctMet::useHtMissLutAlgo (const int ex, const int ey, const bool of) const
   if (m_htMissLut == 0) {
 
     result.mag = 0;
-    result.phi = 0;
+    result.phi = 9;
 
   } else {
 
     // Extract the bit fields of the input components to be used for the LUT address
     int hxCompBits = (ex >> kExOrEyMissComponentShift) & componentMask;
     int hyCompBits = (ey >> kExOrEyMissComponentShift) & componentMask;
-
-    if (of || (abs(ex) >= maxInput) || (abs(ey) >= maxInput)) {
-      hxCompBits = maxPosComponent;
-      hyCompBits = maxPosComponent;
-    }
 
     // Perform the table lookup to get the missing Ht magnitude and phi
     uint16_t lutAddress = static_cast<uint16_t> ( (hxCompBits << L1GctHtMissLut::kHxOrHyMissComponentNBits) | hyCompBits );

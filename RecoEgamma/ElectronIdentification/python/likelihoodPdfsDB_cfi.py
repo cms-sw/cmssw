@@ -5,10 +5,10 @@ electronIdPdfs = cms.ESSource("PoolDBESSource",
     CondDBCommon,
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('ElectronLikelihoodPdfsRcd'),
-        tag = cms.string('ElectronLikelihoodPdfsRcd_tag')
+        tag = cms.string('ElectronLikelihoodPdfs_v1_offline')
     ))
 )
 
-electronIdPdfs.connect = 'sqlite_fip:CondCore/SQLiteData/data/electronIdLikelihoodTkIsolated.db'
+electronIdPdfs.connect = 'frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS'
 
 

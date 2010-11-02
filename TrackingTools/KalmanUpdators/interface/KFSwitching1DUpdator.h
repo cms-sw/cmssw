@@ -5,8 +5,8 @@
  *  A Kalman Updator that uses a KFUpdator for pixel and matched hits,
  *  and a KFStrip1DUpdator for simple strip hits. Ported from ORCA.
  *
- *  $Date: 2007/05/09 13:50:25 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/05/09 13:11:43 $
+ *  $Revision: 1.3.2.1 $
  *  \author todorov, cerati
  */
 
@@ -15,8 +15,6 @@
 #include "TrackingTools/KalmanUpdators/interface/KFStrip1DUpdator.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 class KFSwitching1DUpdator : public TrajectoryStateUpdator {
 
 private:
@@ -24,16 +22,8 @@ private:
   
 public:
 
-  KFSwitching1DUpdator(const edm::ParameterSet * pset=0) : theLocalUpdator(new KFUpdator()),
-			   theStripUpdator(new KFStrip1DUpdator()) {
-    if (pset){
-      theDoEndCap=pset->getParameter<bool>("doEndCap");
-    }
-    else
-      {
-	theDoEndCap=false;
-      }
-  }
+  KFSwitching1DUpdator() : theLocalUpdator(new KFUpdator()),
+			   theStripUpdator(new KFStrip1DUpdator()) {}
 
   ~KFSwitching1DUpdator() {}
 
@@ -55,7 +45,6 @@ private:
   DeepCopyPointerByClone<const KFUpdator> theLocalUpdator;
   DeepCopyPointerByClone<const KFStrip1DUpdator> theStripUpdator;
 
-  bool theDoEndCap;
 };
 
 #endif// KFSwitching1DUpdator_H_

@@ -20,7 +20,7 @@ void getHistograms(const TString canvasName, TH1F * & histo1, TH1D * & histo2, c
 void ShowMassComparison(const TString & resonance = "Z")
 {
   TString canvasName("Allres");
-  if( resonance == "Psis" || resonance == "Upsilons" || resonance == "LowPtResonances" || resonance == "AllResonances" ) {
+  if( resonance == "Upsilons" || resonance == "LowPtResonances" || resonance == "AllResonances" ) {
     canvasName += "Together";
   }
   TH1F * histo1 = 0;
@@ -31,11 +31,11 @@ void ShowMassComparison(const TString & resonance = "Z")
   TH1D * histo4 = 0;
   getHistograms(canvasName+"2", histo3, histo4, resonance);
 
-TString option("width");
-double integral = histo1->Integral(option);
-histo2->Scale(integral/histo2->Integral(option));
-histo3->Scale(integral/histo3->Integral(option));
-histo4->Scale(integral/histo4->Integral(option));
+//   TString option("width");
+//   double integral = histo1->Integral(option);
+//   histo2->Scale(integral/histo2->Integral(option));
+//   histo3->Scale(integral/histo3->Integral(option));
+//   histo4->Scale(integral/histo4->Integral(option));
 
 //   histo1->Scale(1./histo1->GetEntries());
 //   histo2->Scale(1./histo2->GetEntries());
@@ -52,10 +52,10 @@ histo4->Scale(integral/histo4->Integral(option));
 //   histo4->Scale(1./integral);
 
 
-//   histo1->Scale(1./histo1->Integral());
-//   histo2->Scale(1./histo2->Integral());
-//   histo3->Scale(1./histo3->Integral());
-//   histo4->Scale(1./histo4->Integral());
+  histo1->Scale(1./histo1->Integral());
+  histo2->Scale(1./histo2->Integral());
+  histo3->Scale(1./histo3->Integral());
+  histo4->Scale(1./histo4->Integral());
 
   map<double, TH1*, greater<double> > histoMap;
   histoMap.insert(make_pair(histo1->GetMaximum(), histo1));
@@ -161,7 +161,6 @@ void ShowMassesComparison(const TString & resonance = "Z")
  */
 void getHistograms(const TString canvasName, TH1F * & histo1, TH1D * & histo2, const TString & resonance)
 {
-  std::cout << "canvasName = " << canvasName << std::endl;
   TFile * inputFile = new TFile("plotMassOutput.root");
   TCanvas * canvas = (TCanvas*)inputFile->Get(canvasName);
   TString resonanceNum("_1");
@@ -177,7 +176,7 @@ void getHistograms(const TString canvasName, TH1F * & histo1, TH1D * & histo2, c
   if( resonance == "AllResonances" ) resonanceNum = "_4";
 
   TPad * pad = (TPad*)canvas->GetPrimitive(canvasName+resonanceNum);
-  histo1 = (TH1F*)pad->GetPrimitive("hRecBestResAllEvents_Mass");
+  histo1 = (TH1F*)pad->GetPrimitive("hRecBestRes_Mass");
   if( resonance == "Z" || resonance == "AllResonances" ) histo2 = (TH1D*)pad->GetPrimitive("Mass_PProf");
   else histo2 = (TH1D*)pad->GetPrimitive("Mass_fine_PProf");
   // if( resonance == "Z" || resonance == "AllResonances" ) histo2 = (TH1D*)pad->GetPrimitive("Mass_Probability");

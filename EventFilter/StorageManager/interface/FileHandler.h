@@ -1,4 +1,4 @@
-// $Id: FileHandler.h,v 1.12 2010/09/09 08:01:16 mommsen Exp $
+// $Id: FileHandler.h,v 1.11 2010/05/17 15:59:09 mommsen Exp $
 /// @file: FileHandler.h 
 
 #ifndef StorageManager_FileHandler_h
@@ -24,8 +24,8 @@ namespace stor {
    * Abstract representation of a physical file
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2010/09/09 08:01:16 $
+   * $Revision: 1.11 $
+   * $Date: 2010/05/17 15:59:09 $
    */
 
   class FileHandler
@@ -105,8 +105,8 @@ namespace stor {
     /**
      * Set the adler checksum for the file
      */
-    inline void setAdler(uint32_t s)
-    { _adler = s; }
+    void setAdler(uint32_t s, uint32_t i)
+    { _adlerstream = s; _adlerindex = i; }
     
     
     //////////////////////
@@ -141,6 +141,7 @@ namespace stor {
      */
     void moveFileToClosed
     (
+      const bool& useIndexFile,
       const FilesMonitorCollection::FileRecord::ClosingReason&
     );
 
@@ -210,7 +211,8 @@ namespace stor {
     const std::string  _logFile;                    // log file including path
     std::string  _cmsver;                           // CMSSW version string
 
-    uint32_t _adler;                                // adler32 checksum for streamer file
+    uint32_t _adlerstream;                          // adler32 checksum for streamer file
+    uint32_t _adlerindex;                           // adler32 checksum for index file
   };
   
 } // stor namespace

@@ -12,6 +12,7 @@
 
 #include "DataFormats/Math/interface/Point3D.h"
 
+#include "DataFormats/FWLite/interface/ChainEvent.h"
 
 #include "RecoParticleFlow/PFRootEvent/interface/PFRootEventManager.h"
 #include "RecoParticleFlow/PFRootEvent/interface/DisplayManager.h"
@@ -51,7 +52,7 @@ DisplayManager::DisplayManager(PFRootEventManager *em,
         
   eventNumber_  = em_->eventNumber();
   //TODOLIST: re_initialize if new option file- better in em
-  maxEvents_= em_->tree_->GetEntries();  
+  maxEvents_= em_->ev_->size();  
         
   createCanvas();
 }
@@ -1087,7 +1088,7 @@ void DisplayManager::displayNext()
 void DisplayManager::displayNextInteresting(int ientry)
 {
   bool ok=false;
-  while (!ok && ientry<em_->tree_->GetEntries() ) {
+  while (!ok && ientry<em_->ev_->size() ) {
     ok = em_->processEntry(ientry);
     ientry++;
   }

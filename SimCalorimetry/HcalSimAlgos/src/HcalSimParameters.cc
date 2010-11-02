@@ -8,17 +8,16 @@
 #include "CLHEP/Random/RandGaussQ.h"
 using namespace std;
 
-HcalSimParameters::HcalSimParameters(double simHitToPhotoelectrons, const std::vector<double> & photoelectronsToAnalog,
+HcalSimParameters::HcalSimParameters(double simHitToPhotoelectrons, double photoelectronsToAnalog,
                  double samplingFactor, double timePhase,
                  int readoutFrameSize, int binOfMaximum,
                  bool doPhotostatistics, bool syncPhase,
                  int firstRing, const std::vector<double> & samplingFactors)
-: CaloSimParameters(simHitToPhotoelectrons,  photoelectronsToAnalog[0], samplingFactor, timePhase,
+: CaloSimParameters(simHitToPhotoelectrons, photoelectronsToAnalog, samplingFactor, timePhase,
                     readoutFrameSize, binOfMaximum, doPhotostatistics, syncPhase),
   theDbService(0),
   theFirstRing(firstRing),
   theSamplingFactors(samplingFactors),
-  thePE2fCByRing(photoelectronsToAnalog),
   thePixels(0),
   doTimeSmear_(true)
 {
@@ -30,7 +29,6 @@ HcalSimParameters::HcalSimParameters(const edm::ParameterSet & p)
    theDbService(0),
    theFirstRing( p.getParameter<int>("firstRing") ),
    theSamplingFactors( p.getParameter<std::vector<double> >("samplingFactors") ),
-   thePE2fCByRing( p.getParameter<std::vector<double> >("photoelectronsToAnalog") ),
    thePixels(0),
    doTimeSmear_( p.getParameter<bool>("timeSmearing"))
 {
@@ -79,14 +77,6 @@ double HcalSimParameters::samplingFactor(const DetId & detId) const
   HcalDetId hcalDetId(detId);
   return theSamplingFactors.at(hcalDetId.ietaAbs()-theFirstRing);
 }
-
-
-double HcalSimParameters::photoelectronsToAnalog(const DetId & detId) const
-{
-  HcalDetId hcalDetId(detId);
-  return thePE2fCByRing.at(hcalDetId.ietaAbs()-theFirstRing);
-}
-
 
 //static const double GeV2fC = 1.0/0.145;
 static const double GeV2fC = 1.0/0.4;

@@ -70,7 +70,6 @@ void PdfSystematicsAnalyzer::endJob(){
 
       edm::LogVerbatim("PDFAnalysis") << "\n>>>>> PDF UNCERTAINTIES ON RATE >>>>>>";
       for (unsigned int i=0; i<pdfWeightTags_.size(); ++i) {
-            bool nnpdfFlag = (pdfWeightTags_[i].instance().substr(0,5)=="NNPDF");
             unsigned int nmembers = weightedSelectedEvents_.size()-pdfStart_[i];
             if (i<pdfWeightTags_.size()-1) nmembers = pdfStart_[i+1] - pdfStart_[i];
             unsigned int npairs = (nmembers-1)/2;
@@ -87,46 +86,23 @@ void PdfSystematicsAnalyzer::endJob(){
                   edm::LogVerbatim("PDFAnalysis") << "\tNumber of eigenvectors for uncertainty estimation: " << npairs;
               double wplus = 0.;
               double wminus = 0.;
-              unsigned int nplus = 0;
-              unsigned int nminus = 0;
               for (unsigned int j=0; j<npairs; ++j) {
                   double wa = weightedSelectedEvents_[pdfStart_[i]+2*j+1]/events_central-1.;
                   double wb = weightedSelectedEvents_[pdfStart_[i]+2*j+2]/events_central-1.; 
-                  if (nnpdfFlag) {
-                        if (wa>0.) {
-                              wplus += wa*wa; 
-                              nplus++;
-                        } else {
-                              wminus += wa*wa;
-                              nminus++;
-                        }
-                        if (wb>0.) {
-                              wplus += wb*wb; 
-                              nplus++;
-                        } else {
-                              wminus += wb*wb;
-                              nminus++;
-                        }
+                  if (wa>wb) {
+                        if (wa<0.) wa = 0.;
+                        if (wb>0.) wb = 0.;
+                        wplus += wa*wa;
+                        wminus += wb*wb;
                   } else {
-                        if (wa>wb) {
-                              if (wa<0.) wa = 0.;
-                              if (wb>0.) wb = 0.;
-                              wplus += wa*wa;
-                              wminus += wb*wb;
-                        } else {
-                              if (wb<0.) wb = 0.;
-                              if (wa>0.) wa = 0.;
-                              wplus += wb*wb;
-                              wminus += wa*wa;
-                        }
+                        if (wb<0.) wb = 0.;
+                        if (wa>0.) wa = 0.;
+                        wplus += wb*wb;
+                        wminus += wa*wa;
                   }
               }
               if (wplus>0) wplus = sqrt(wplus);
               if (wminus>0) wminus = sqrt(wminus);
-              if (nnpdfFlag) {
-                  if (nplus>0) wplus /= sqrt(nplus);
-                  if (nminus>0) wminus /= sqrt(nminus);
-              }
               edm::LogVerbatim("PDFAnalysis") << "\tRelative uncertainty with respect to central member: +" << std::setprecision(4) << 100.*wplus << " / -" << std::setprecision(4) << 100.*wminus << " [%]";
             } else {
                   edm::LogVerbatim("PDFAnalysis") << "\tNO eigenvectors for uncertainty estimation";
@@ -135,7 +111,6 @@ void PdfSystematicsAnalyzer::endJob(){
 
       edm::LogVerbatim("PDFAnalysis") << "\n>>>>> PDF UNCERTAINTIES ON ACCEPTANCE >>>>>>";
       for (unsigned int i=0; i<pdfWeightTags_.size(); ++i) {
-            bool nnpdfFlag = (pdfWeightTags_[i].instance().substr(0,5)=="NNPDF");
             unsigned int nmembers = weightedEvents_.size()-pdfStart_[i];
             if (i<pdfWeightTags_.size()-1) nmembers = pdfStart_[i+1] - pdfStart_[i];
             unsigned int npairs = (nmembers-1)/2;
@@ -160,48 +135,25 @@ void PdfSystematicsAnalyzer::endJob(){
                   edm::LogVerbatim("PDFAnalysis") << "\tNumber of eigenvectors for uncertainty estimation: " << npairs;
               double wplus = 0.;
               double wminus = 0.;
-              unsigned int nplus = 0;
-              unsigned int nminus = 0;
               for (unsigned int j=0; j<npairs; ++j) {
                   double wa = 0.;
                   if (weightedEvents_[pdfStart_[i]+2*j+1]>0) wa = (weightedSelectedEvents_[pdfStart_[i]+2*j+1]/weightedEvents_[pdfStart_[i]+2*j+1])/acc_central-1.;
                   double wb = 0.;
                   if (weightedEvents_[pdfStart_[i]+2*j+2]>0) wb = (weightedSelectedEvents_[pdfStart_[i]+2*j+2]/weightedEvents_[pdfStart_[i]+2*j+2])/acc_central-1.;
-                  if (nnpdfFlag) {
-                        if (wa>0.) {
-                              wplus += wa*wa; 
-                              nplus++;
-                        } else {
-                              wminus += wa*wa;
-                              nminus++;
-                        }
-                        if (wb>0.) {
-                              wplus += wb*wb; 
-                              nplus++;
-                        } else {
-                              wminus += wb*wb;
-                              nminus++;
-                        }
+                  if (wa>wb) {
+                        if (wa<0.) wa = 0.;
+                        if (wb>0.) wb = 0.;
+                        wplus += wa*wa;
+                        wminus += wb*wb;
                   } else {
-                        if (wa>wb) {
-                              if (wa<0.) wa = 0.;
-                              if (wb>0.) wb = 0.;
-                              wplus += wa*wa;
-                              wminus += wb*wb;
-                        } else {
-                              if (wb<0.) wb = 0.;
-                              if (wa>0.) wa = 0.;
-                              wplus += wb*wb;
-                              wminus += wa*wa;
-                        }
+                        if (wb<0.) wb = 0.;
+                        if (wa>0.) wa = 0.;
+                        wplus += wb*wb;
+                        wminus += wa*wa;
                   }
               }
               if (wplus>0) wplus = sqrt(wplus);
               if (wminus>0) wminus = sqrt(wminus);
-              if (nnpdfFlag) {
-                  if (nplus>0) wplus /= sqrt(nplus);
-                  if (nminus>0) wminus /= sqrt(nminus);
-              }
               edm::LogVerbatim("PDFAnalysis") << "\tRelative uncertainty with respect to central member: +" << std::setprecision(4) << 100.*wplus << " / -" << std::setprecision(4) << 100.*wminus << " [%]";
             } else {
                   edm::LogVerbatim("PDFAnalysis") << "\tNO eigenvectors for uncertainty estimation";
@@ -213,19 +165,6 @@ void PdfSystematicsAnalyzer::endJob(){
 
 /////////////////////////////////////////////////////////////////////////////////////
 bool PdfSystematicsAnalyzer::filter(edm::Event & ev, const edm::EventSetup&){
-
-      edm::Handle<std::vector<double> > weightHandle;
-      for (unsigned int i=0; i<pdfWeightTags_.size(); ++i) {
-            if (!ev.getByLabel(pdfWeightTags_[i], weightHandle)) {
-                  if (originalEvents_==0) {
-                        edm::LogError("PDFAnalysis") << ">>> WARNING: some weights not found!";
-                        edm::LogError("PDFAnalysis") << ">>> But maybe OK, if you are prefiltering!";
-                        edm::LogError("PDFAnalysis") << ">>> If things are OK, this warning should disappear after a while!";
-                  }
-                  return false;
-            }
-      }
-
       originalEvents_++;
 
       bool selectedEvent = false;
@@ -234,7 +173,6 @@ bool PdfSystematicsAnalyzer::filter(edm::Event & ev, const edm::EventSetup&){
             edm::LogError("PDFAnalysis") << ">>> TRIGGER collection does not exist !!!";
             return false;
       }
-
 
       const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
       unsigned int pathIndex = trigNames.triggerIndex(selectorPath_);
@@ -247,7 +185,11 @@ bool PdfSystematicsAnalyzer::filter(edm::Event & ev, const edm::EventSetup&){
       if (selectedEvent) selectedEvents_++;
 
       for (unsigned int i=0; i<pdfWeightTags_.size(); ++i) {
-            if (!ev.getByLabel(pdfWeightTags_[i], weightHandle)) return false;
+            edm::Handle<std::vector<double> > weightHandle;
+            if (!ev.getByLabel(pdfWeightTags_[i], weightHandle)) {
+                  edm::LogError("PDFAnalysis") << ">>> Weights not found: " << pdfWeightTags_[i].encode() << " !!!";
+                  return false;
+            }
             std::vector<double> weights = (*weightHandle);
             unsigned int nmembers = weights.size();
             // Set up arrays the first time wieghts are read
