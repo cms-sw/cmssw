@@ -1,8 +1,20 @@
 /*
  * RecoTauMVADiscriminator
  *
- * Apply an MVA discriminator depending on the reconstructed
- * decay mode of the tau.
+ * Apply an MVA discriminator to a collection of PFTaus.  Output is a
+ * PFTauDiscriminator.  The module takes the following options:
+ *  > dbLabel - should match "appendToDataLabel" option of PoolDBSource
+ *              if it exists.
+ *  > mvas    - a vector of PSets, each of which contains nCharged, nPiZeros
+ *              and a string giving the name of the correct MVA in the
+ *              MVA ComputerContainer provided PoolDBSource.  This maps decay
+ *              modes to MVA implementations.
+ *  > defaultMVA - MVA to use if the decay mode does not match one specified in
+ *              mvas.
+ *  > remapOutput - TMVA gives its output from (-1, 1).  If this enabled remap
+ *              it to (0, 1).
+ *
+ *  The interface to the MVA framework is handled by the RecoTauMVAHelper class.
  *
  * Author: Evan K. Friis (UC Davis)
  *
@@ -33,6 +45,8 @@ class RecoTauMVADiscriminator : public PFTauDiscriminationProducerBase {
     // Map a decay mode to an MVA getter
     typedef boost::ptr_map<reco::PFTau::hadronicDecayMode,
             reco::tau::RecoTauMVAHelper> MVAMap;
+
+    std::auto_ptr<reco::tau::RecoTauMVAHelper> defaultMVA_;
 
     MVAMap mvas_;
     std::string dbLabel_;
@@ -74,6 +88,14 @@ RecoTauMVADiscriminator::RecoTauMVADiscriminator(const edm::ParameterSet& pset)
         "the second instantiation is being ignored!!!";
     }
   }
+
+  // Check if we a catch-all MVA is desired.
+  if (pset.exists("defaultMVA")) {
+    defaultMVA_.reset(new reco::tau::RecoTauMVAHelper(
+            pset.getParameter<std::string>("defaultMVA"),
+            dbLabel));
+  }
+
 }
 
 void RecoTauMVADiscriminator::beginEvent(const edm::Event& evt,
@@ -82,6 +104,8 @@ void RecoTauMVADiscriminator::beginEvent(const edm::Event& evt,
   BOOST_FOREACH(MVAMap::value_type mva, mvas_) {
       mva.second->setEvent(evt, es);
   }
+  if (defaultMVA_.get())
+    defaultMVA_->setEvent(evt, es);
 }
 
 // Get the MVA output for a given PFTau
@@ -90,13 +114,16 @@ double RecoTauMVADiscriminator::discriminate(const reco::PFTauRef& tau) {
   MVAMap::iterator mva = mvas_.find(tau->decayMode());
   // If this DM has an associated decay mode, get and return the result.
   double output = unsupportedDMValue_;
-  if (mva != mvas_.end()) {
-      output= mva->second->operator()(tau);
-      // TMVA produces output from -1 to 1
-      if (remapOutput_) {
-        output += 1.;
-        output /= 2.;
-      }
+  if (mva != mvas_.end() || defaultMVA_.get()) {
+    if (mva != mvas_.end())
+      output = mva->second->operator()(tau);
+    else
+      output = defaultMVA_->operator()(tau);
+    // TMVA produces output from -1 to 1
+    if (remapOutput_) {
+      output += 1.;
+      output /= 2.;
+    }
   }
   return output;
 }
