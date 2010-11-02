@@ -4,6 +4,7 @@
 
 #include "TROOT.h"
 #include "TSystem.h"
+#define private public
 #include "TRint.h"
 #include "TEveManager.h"
 #include "TEveEventManager.h"
@@ -17,16 +18,25 @@
 class FWFFTRint : public TRint
 {
 public:
-   FWFFTRint(const char *appClassName, Int_t *argc, char **argv)
-   : TRint(appClassName, argc, argv, 0, 0, true)
+   FWFFTRint(const char *appClassName, Int_t *argc, char **argv, bool rootPrompt)
+    : TRint(appClassName, argc, argv, 0, 0, !rootPrompt),
+      m_rootPrompt(rootPrompt)
       {
+         if (rootPrompt)
+            return;
+            
          SetPrompt("");
+         fInputHandler->Remove();
       }
 
    Bool_t HandleTermInput()
       {
+         if (m_rootPrompt)
+            return TRint::HandleTermInput();
          return true;
       }
+private:
+   bool  m_rootPrompt;
 };
 
 FWFFHelper::FWFFHelper(const edm::ParameterSet &ps, const edm::ActivityRegistry &)
@@ -37,7 +47,7 @@ FWFFHelper::FWFFHelper(const edm::ParameterSet &ps, const edm::ActivityRegistry 
    char**      dummyArgv = const_cast<char**>(dummyArgvArray);
    int         dummyArgc = 1;
 
-   m_Rint = new FWFFTRint("App", &dummyArgc, dummyArgv);
+   m_Rint = new FWFFTRint("App", &dummyArgc, dummyArgv, ps.getUntrackedParameter<bool>("rootPrompt"));
    assert(TApplication::GetApplications()->GetSize());
 
    gROOT->SetBatch(kFALSE);
