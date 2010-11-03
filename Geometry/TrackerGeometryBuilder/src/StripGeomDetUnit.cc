@@ -2,7 +2,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 
-
+#include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
 
 StripGeomDetUnit::StripGeomDetUnit( BoundPlane* sp, StripGeomDetType* type,const GeometricDet* gd) : 
@@ -22,3 +22,11 @@ const StripTopology& StripGeomDetUnit::specificTopology() const {
   return specificType().specificTopology();
 }
 
+void StripGeomDetUnit::setSurfaceDeformation(const SurfaceDeformation * deformation)
+{
+  if (deformation) {
+    theSurfaceDeformation = deformation;
+  } else {
+    theSurfaceDeformation = 0;
+  }
+}

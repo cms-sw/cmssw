@@ -2,7 +2,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
-
+#include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
 
 PixelGeomDetUnit::PixelGeomDetUnit( BoundPlane* sp, PixelGeomDetType* type,const GeometricDet* gd): GeomDetUnit(sp),
@@ -21,3 +21,11 @@ const PixelTopology& PixelGeomDetUnit::specificTopology() const {
   return specificType().specificTopology();
 }
 
+void PixelGeomDetUnit::setSurfaceDeformation(const SurfaceDeformation * deformation)
+{
+  if (deformation) {
+    theSurfaceDeformation = deformation;
+  } else {
+    theSurfaceDeformation = 0;
+  }
+}
