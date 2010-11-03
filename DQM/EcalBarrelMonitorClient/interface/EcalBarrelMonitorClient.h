@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2010/08/04 20:11:34 $
- * $Revision: 1.123 $
+ * $Date: 2010/08/06 13:56:16 $
+ * $Revision: 1.124 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -116,6 +116,8 @@ std::string dbPassword_;
 
 std::string dbTagName_;
 
+std::string resetFile_;
+
 bool mergeRuns_;
 
 #ifdef WITH_ECAL_COND_DB 
@@ -128,7 +130,7 @@ int subrun_;
 time_t current_time_;
 
 time_t last_time_update_;
-time_t last_time_db_;
+time_t last_time_reset_;
 
 time_t updateTime_;
 time_t dbUpdateTime_;

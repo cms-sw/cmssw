@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2010/08/11 15:01:53 $
- * $Revision: 1.256 $
+ * $Date: 2010/10/17 18:07:58 $
+ * $Revision: 1.257 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <fstream>
 #include <algorithm>
+#include <sys/stat.h>
 
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -120,6 +121,16 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const edm::ParameterSet& ps) {
       std::cout << " mergeRuns switch is ON" << std::endl;
     } else {
       std::cout << " mergeRuns switch is OFF" << std::endl;
+    }
+  }
+
+  // resetFile
+
+  resetFile_ = ps.getUntrackedParameter<std::string>("resetFile", "");
+
+  if ( verbose_ ) {
+    if ( resetFile_.size() != 0 ) {
+      std::cout << " Using resetFile '" << resetFile_ << "'" << std::endl;
     }
   }
 
@@ -640,7 +651,7 @@ void EcalEndcapMonitorClient::beginJob(void) {
 
   current_time_ = time(NULL);
   last_time_update_ = current_time_;
-  last_time_db_ = current_time_;
+  last_time_reset_ = current_time_;
 
   // get hold of back-end interface
   dqmStore_ = edm::Service<DQMStore>().operator->();
@@ -716,7 +727,7 @@ void EcalEndcapMonitorClient::beginRun(void) {
 
   current_time_ = time(NULL);
   last_time_update_ = current_time_;
-  last_time_db_ = current_time_;
+  last_time_reset_ = current_time_;
 
   this->setup();
 
@@ -814,7 +825,7 @@ void EcalEndcapMonitorClient::endRun(void) {
 
   }
 
-  if ( dbUpdateTime_ > 0 ) {
+  if ( resetFile_.size() != 0 || dbUpdateTime_ > 0 ) {
 
     this->softReset(false);
 
@@ -1576,9 +1587,26 @@ void EcalEndcapMonitorClient::analyze(void) {
 
       forced_update_ = false;
 
-      if ( dbUpdateTime_ > 0 ) {
+      if ( resetFile_.size() != 0 || dbUpdateTime_ > 0 ) {
 
-        if ( (current_time_ - last_time_db_) > 60 * dbUpdateTime_ ) {
+        bool reset = false;
+
+        if ( resetFile_.size() != 0 ) {
+          struct stat results;
+          if ( stat(resetFile_.c_str(), &results) == 0 ) {
+            if ( (current_time_ - results.st_mtime) < 60 * 30 ) {
+              if ( unlink(resetFile_.c_str()) == 0 ) {
+                reset = true;
+              }
+            }
+          }
+        }
+
+        if ( dbUpdateTime_ > 0 ) {
+          reset = (current_time_ - last_time_reset_) > 60 * dbUpdateTime_;
+        }
+
+        if ( reset ) {
           if ( runType_ == EcalDCCHeaderBlock::COSMIC ||
                runType_ == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
                runType_ == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
@@ -1587,7 +1615,7 @@ void EcalEndcapMonitorClient::analyze(void) {
                runType_ == EcalDCCHeaderBlock::BEAMH2 ||
                runType_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
           this->softReset(true);
-          last_time_db_ = current_time_;
+          last_time_reset_ = current_time_;
         }
 
       }
