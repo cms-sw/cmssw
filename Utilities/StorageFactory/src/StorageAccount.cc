@@ -7,9 +7,15 @@ boost::mutex                 s_mutex;
 StorageAccount::StorageStats s_stats;
 
 static double timeRealNanoSecs (void) {
+#if _POSIX_TIMERS > 0
   struct timespec tm;
   if (clock_gettime(CLOCK_REALTIME, &tm) == 0)
     return tm.tv_sec * 1e9 + tm.tv_nsec;
+#else
+  struct timeval tm;
+  if (gettimeofday(&tm, 0) == 0)
+    return tm.tv_sec * 1e9 + tm.tv_usec * 1e3;
+#endif
   return 0;
 }
 

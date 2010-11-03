@@ -71,12 +71,12 @@ StorageFactory::timeout(void) const
 void
 StorageFactory::setTempDir(const std::string &s, double minFreeSpace)
 {
-/*
-  edm::LogInfo("StorageFactory")
+#if 0
+  std::cerr /* edm::LogInfo("StorageFactory") */
     << "Considering path '" << s
     << "', min free space " << minFreeSpace
-    << "GB for temp dir";
-*/
+    << "GB for temp dir" << std::endl;
+#endif
 
   size_t begin = 0;
   std::vector<std::string> dirs;
@@ -101,9 +101,11 @@ StorageFactory::setTempDir(const std::string &s, double minFreeSpace)
   m_tempfree = minFreeSpace;
   m_tempdir = m_lfs.findCachePath(dirs, minFreeSpace);
 
-/*
-  edm::LogInfo("StorageFactory") << "Using '" << m_tempdir << "' for temp dir";
-*/
+#if 0
+  std::cerr /* edm::LogInfo("StorageFactory") */
+    << "Using '" << m_tempdir << "' for temp dir"
+    << std::endl;
+#endif
 }
 
 std::string

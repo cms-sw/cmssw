@@ -211,7 +211,18 @@ File::prefetch (const IOPosBuffer *what, IOSize n)
 {
   IOFD fd = this->fd();
   for (IOSize i = 0; i < n; ++i)
+  {
+#if F_RDADVISE
+    radvisory info;
+    info.ra_offset = what[i].offset();
+    info.ra_count = what[i].size();
+    fcntl(fd, F_RDADVISE, &info);
+#elif _POSIX_ADVISORY_INFO > 0
     posix_fadvise(fd, what[i].offset(), what[i].size(), POSIX_FADV_WILLNEED);
+#else
+# error advisory read ahead not available on this platform
+#endif
+  }
   return true;
 }
 

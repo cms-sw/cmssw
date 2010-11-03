@@ -19,7 +19,7 @@ public:
 
 private:
   int		readFSTypes(void);
-  FSInfo *	initFSInfo(mntent *m);
+  FSInfo *	initFSInfo(void *p);
   int		initFSList(void);
   int		statFSInfo(FSInfo *i);
   FSInfo *	findMount(const char *path, struct statfs *sfs, struct stat *s);

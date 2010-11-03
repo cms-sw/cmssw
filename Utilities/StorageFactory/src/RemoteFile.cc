@@ -9,6 +9,10 @@
 #include <unistd.h>
 #include <ostream>
 #include <cstring>
+#if __APPLE__
+# include <crt_externs.h>
+# define environ (*_NSGetEnviron())
+#endif
 
 static std::string
 join (char **cmd)

@@ -141,8 +141,13 @@ File::flush (void)
   IOFD fd = this->fd ();
   assert (fd != EDM_IOFD_INVALID);
 
+#if _POSIX_SYNCHRONIZED_IO > 0
   if (fdatasync (fd) == -1)
     throwStorageError("File::flush()", "fdatasync()", errno);
+#elif _POSIX_FSYNC > 0
+  if (fsync (fd) == -1)
+    throwStorageError("File::flush()", "fsync()", errno);
+#endif
 }
 
 bool
