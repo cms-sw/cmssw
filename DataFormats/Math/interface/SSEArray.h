@@ -17,6 +17,7 @@ namespace mathSSE {
   struct ArrayMask {
   };
   
+  //FIXME avoid punning...
   template <>
   struct ArrayMask<float, 0> {
     static inline Vec4<float> value() {
