@@ -3,7 +3,7 @@
 
 <SpecParSection label="pltsens.xml" eval="true">
  <SpecPar name="plt">
-   <PartSelector path="//PLTDiamond" />
+   <PartSelector path="//PLTSensitiveDetector" />
    <Parameter name="SensitiveDetector" value="PLTSensitiveDetector" eval="false"/>
    <Parameter name="ReadOutName" value="PLTHits" eval="false"/>
   </SpecPar>
