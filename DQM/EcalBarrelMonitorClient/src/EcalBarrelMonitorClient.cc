@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2010/11/03 13:41:28 $
- * $Revision: 1.498 $
+ * $Date: 2010/11/03 14:38:40 $
+ * $Revision: 1.499 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -129,7 +129,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps) {
 
   if ( verbose_ ) {
     if ( resetFile_.size() != 0 ) {
-      std::cout << " Using resetFile '" << resetFile_ << "'" << std::endl;
+      std::cout << " resetFile is '" << resetFile_ << "'" << std::endl;
     }
   }
 

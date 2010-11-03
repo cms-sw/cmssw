@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2010/11/03 13:26:09 $
- * $Revision: 1.259 $
+ * $Date: 2010/11/03 13:41:29 $
+ * $Revision: 1.260 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -130,7 +130,7 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const edm::ParameterSet& ps) {
 
   if ( verbose_ ) {
     if ( resetFile_.size() != 0 ) {
-      std::cout << " Using resetFile '" << resetFile_ << "'" << std::endl;
+      std::cout << " resetFile is '" << resetFile_ << "'" << std::endl;
     }
   }
 
