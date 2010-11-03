@@ -1,3 +1,16 @@
+/////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//        Program to calculate rates of trigger paths using variables of OHltTree class,
+//
+//Note: OHltTree class needs to be updated if any new variables become available 
+//in OpenHLT (HLTAnalyzer).
+//
+//        Author:  Vladimir Rekovic,     Date: 2007/12/10
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 #include <iostream>
 #include <vector>
 #include <string>
