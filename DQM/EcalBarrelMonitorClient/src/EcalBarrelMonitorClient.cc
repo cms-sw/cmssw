@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2010/11/03 11:46:56 $
- * $Revision: 1.496 $
+ * $Date: 2010/11/03 13:26:09 $
+ * $Revision: 1.497 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1543,34 +1543,30 @@ void EcalBarrelMonitorClient::analyze(void) {
 
       forced_update_ = false;
 
-      if ( resetFile_.size() != 0 || dbUpdateTime_ > 0 ) {
+      bool reset = false;
 
-        bool reset = false;
-
-        if ( resetFile_.size() != 0 ) {
-          if ( access(resetFile_.c_str(), W_OK) == 0 ) {
-            if ( unlink(resetFile_.c_str()) == 0 ) {
-              reset = true;
-            }
+      if ( resetFile_.size() != 0 ) {
+        if ( access(resetFile_.c_str(), W_OK) == 0 ) {
+          if ( unlink(resetFile_.c_str()) == 0 ) {
+            reset = true;
           }
         }
+      }
 
-        if ( dbUpdateTime_ > 0 ) {
-          reset = (current_time_ - last_time_reset_) > 60 * dbUpdateTime_;
-        }
+      if ( dbUpdateTime_ > 0 ) {
+        reset = (current_time_ - last_time_reset_) > 60 * dbUpdateTime_;
+      }
 
-        if ( reset ) {
-          if ( runType_ == EcalDCCHeaderBlock::COSMIC ||
-               runType_ == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-               runType_ == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
-               runType_ == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-               runType_ == EcalDCCHeaderBlock::PHYSICS_LOCAL ||
-               runType_ == EcalDCCHeaderBlock::BEAMH2 ||
-               runType_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
-          this->softReset(true);
-          last_time_reset_ = current_time_;
-        }
-
+      if ( reset ) {
+        if ( runType_ == EcalDCCHeaderBlock::COSMIC ||
+             runType_ == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+             runType_ == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+             runType_ == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+             runType_ == EcalDCCHeaderBlock::PHYSICS_LOCAL ||
+             runType_ == EcalDCCHeaderBlock::BEAMH2 ||
+             runType_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
+        this->softReset(true);
+        last_time_reset_ = current_time_;
       }
 
     }
