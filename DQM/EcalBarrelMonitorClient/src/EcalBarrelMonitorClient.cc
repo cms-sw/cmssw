@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2010/11/03 13:26:09 $
- * $Revision: 1.497 $
+ * $Date: 2010/11/03 13:41:28 $
+ * $Revision: 1.498 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -128,7 +128,8 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps) {
   resetFile_ = ps.getUntrackedParameter<std::string>("resetFile", "");
 
   if ( verbose_ ) {
-    if ( resetFile_.size() != 0 ) {      std::cout << " Using resetFile '" << resetFile_ << "'" << std::endl;
+    if ( resetFile_.size() != 0 ) {
+      std::cout << " Using resetFile '" << resetFile_ << "'" << std::endl;
     }
   }
 
