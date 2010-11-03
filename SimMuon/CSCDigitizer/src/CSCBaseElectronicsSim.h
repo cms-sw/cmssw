@@ -93,7 +93,7 @@ protected:
   /// how long, in ns, it takes a signal at pos to propagate to
   /// the readout edge.  This may be negative, since the timing
   /// may be calibrated to the center of the detector
-  virtual float signalDelay(int element, float pos) const = 0;
+  virtual float signalDelay(int element, float pos) const;
 
   /// creates links from Digi to SimTrack
   /// disabled for now
@@ -149,7 +149,9 @@ protected:
 
   // Which bit in the 16-bit time word corresponds to the zeroth beam crossing?
   int theOffsetOfBxZero; // bit corresponding to bx 0 (counting from 0-15)
-
+  /// Speed (cm/ns) that it takes for the signal to get from the element to the readout.
+  /// Actually negative in strips, due to reflection effects.
+  std::vector<double> theSignalPropagationSpeed;
   bool doNoise_;
 
   // keeps track of which hits contribute to which channels

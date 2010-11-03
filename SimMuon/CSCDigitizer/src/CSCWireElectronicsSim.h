@@ -37,7 +37,6 @@ private:
 
   float calculateAmpResponse(float t) const;
  
-  virtual float signalDelay(int element, float pos) const;
   virtual float timeOfFlightCalibration(int wireGroup) const;
 
   /// we code strip indices from 1-80, and wire indices start at 100

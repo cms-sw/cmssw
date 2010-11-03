@@ -183,16 +183,6 @@ float CSCWireElectronicsSim::calculateAmpResponse(float t) const {
 }                                                                               
 
 
-float CSCWireElectronicsSim::signalDelay(int element, float pos) const {
-  // readout is on right edge of chamber, signal speed is c
-  // zero calibrated to chamber center
-  // pos is assumed to be in wire coordinates, not local
-  float distance = -1. * pos; // in cm
-  float speed = c_light / cm;
-  float delay = distance / speed;
-  return delay;
-}
-
 float CSCWireElectronicsSim::timeOfFlightCalibration(int wireGroup) const {
   // calibration is done for groups of 8 wire groups, facetiously
   // called wireGroupGroups

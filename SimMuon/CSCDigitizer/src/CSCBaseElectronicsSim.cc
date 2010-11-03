@@ -28,6 +28,7 @@ CSCBaseElectronicsSim::CSCBaseElectronicsSim(const edm::ParameterSet & p)
   theSamplingTime(p.getParameter<double>("samplingTime")),
   theNumberOfSamples(static_cast<int>((theSignalStopTime-theSignalStartTime)/theSamplingTime)),
   theOffsetOfBxZero(p.getParameter<int>("timeBitForBxZero")),
+  theSignalPropagationSpeed(p.getParameter<std::vector<double> >("signalSpeed")),
   doNoise_(p.getParameter<bool>("doNoise")),
   theRandGaussQ(0)
 {
@@ -178,6 +179,16 @@ CSCAnalogSignal & CSCBaseElectronicsSim::add(const CSCAnalogSignal & signal) {
   return newSignal;
 }
  
+
+float CSCBaseElectronicsSim::signalDelay(int element, float pos) const {
+  // readout is on top edge of chamber for strips, right edge
+  // for wires.
+  // zero calibrated to chamber center
+  float distance = -1. * pos;
+  float speed = theSignalPropagationSpeed[theSpecs->chamberType()];
+  return distance / speed;
+}
+
 
 void CSCBaseElectronicsSim::addLinks(int channelIndex) {
   std::pair<DetectorHitMap::iterator, DetectorHitMap::iterator> channelHitItr 
