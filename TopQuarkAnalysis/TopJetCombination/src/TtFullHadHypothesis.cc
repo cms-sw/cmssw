@@ -146,9 +146,12 @@ TtFullHadHypothesis::jetCorrectionLevel(const std::string& quarkType)
   std::string level=jetCorrectionLevel_+":";
   if( level=="had:" || level=="ue:" || level=="part:" ){
     if(quarkType=="wQuarkMix"){level+="wMix";}
-    if(quarkType=="udsQuark" ){level+="uds"; }
-    if(quarkType=="cQuark"   ){level+="c";   }
-    if(quarkType=="bQuark"   ){level+="b";   }
+    if(quarkType=="udsQuark" ){level+="uds";}
+    if(quarkType=="cQuark"   ){level+="charm";}
+    if(quarkType=="bQuark"   ){level+="bottom";}
+  }
+  else{
+    level+="none";
   }
   return level;
 }
