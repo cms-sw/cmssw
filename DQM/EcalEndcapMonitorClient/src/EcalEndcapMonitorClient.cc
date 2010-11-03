@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2010/10/17 18:07:58 $
- * $Revision: 1.257 $
+ * $Date: 2010/11/03 11:46:57 $
+ * $Revision: 1.258 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -13,7 +13,7 @@
 #include <iomanip>
 #include <fstream>
 #include <algorithm>
-#include <sys/stat.h>
+#include <unistd.h>
 
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -1592,12 +1592,9 @@ void EcalEndcapMonitorClient::analyze(void) {
         bool reset = false;
 
         if ( resetFile_.size() != 0 ) {
-          struct stat results;
-          if ( stat(resetFile_.c_str(), &results) == 0 ) {
-            if ( (current_time_ - results.st_mtime) < 60 * 30 ) {
-              if ( unlink(resetFile_.c_str()) == 0 ) {
-                reset = true;
-              }
+          if ( access(resetFile_.c_str(), W_OK) == 0 ) {
+            if ( unlink(resetFile_.c_str()) == 0 ) {
+              reset = true;
             }
           }
         }
