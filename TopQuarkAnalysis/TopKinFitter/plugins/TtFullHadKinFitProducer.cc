@@ -120,12 +120,12 @@ TtFullHadKinFitProducer::corJet(const pat::Jet& jet, const std::string& quarkTyp
     throw cms::Exception("Configuration")
       << quarkType << " is unknown as a quarkType for the jetCorrectionLevel.\n";
 
-  float corrFactor = 1.;
-  if(quarkType=="wMix") corrFactor = 0.75 * jet.corrFactor(jetCorrectionLevel_, "uds") + 0.25 * jet.corrFactor(jetCorrectionLevel_, "c");
-  else corrFactor = jet.corrFactor(jetCorrectionLevel_, quarkType);
+  float jecFactor = 1.;
+  if(quarkType=="wMix") jecFactor = 0.75 * jet.jecFactor(jetCorrectionLevel_, "uds") + 0.25 * jet.jecFactor(jetCorrectionLevel_, "charm");
+  else jecFactor = jet.jecFactor(jetCorrectionLevel_, quarkType);
 
   pat::Jet ret = jet;
-  ret.setP4(ret.p4() * corrFactor);
+  ret.setP4(ret.p4()*jecFactor);
   return ret;
 }
 
