@@ -36,10 +36,6 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 process.patJets.addTagInfos = False
 
-## remove MC specific stuff in PAT
-from PhysicsTools.PatAlgos.tools.coreTools import *
-removeMCMatching(process, ["All"])
-
 ## std sequence for TQAF
 process.load("TopQuarkAnalysis.TopEventProducers.tqafSequences_cff")
 
@@ -63,6 +59,10 @@ process.out = cms.OutputModule("PoolOutputModule",
                                                       ## DROPPED for drop for dropped data
 )
 process.outpath = cms.EndPath(process.out)
+
+## remove MC specific stuff in PAT
+from PhysicsTools.PatAlgos.tools.coreTools import *
+removeMCMatching(process, ["All"])
 
 ## PAT content
 from PhysicsTools.PatAlgos.patEventContent_cff import *
