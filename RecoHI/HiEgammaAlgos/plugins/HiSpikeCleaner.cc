@@ -13,7 +13,7 @@
 //
 // Original Author:  Yong Kim,32 4-A08,+41227673039,
 //         Created:  Mon Nov  1 18:22:21 CET 2010
-// $Id: HiSpikeCleaner.cc,v 1.3 2010/11/02 21:01:00 kimy Exp $
+// $Id: HiSpikeCleaner.cc,v 1.4 2010/11/02 23:44:49 kimy Exp $
 //
 //
 
@@ -182,7 +182,7 @@ HiSpikeCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if ( theEt < etCut_ )  continue;   // cut off low pT superclusters 
 	 
 	 bool flagS = true;
-	 int severity(-100), recoTime(-100);
+	 int severity(-100);
 	 float swissCrx(0);
 	 
 	 const reco::CaloClusterPtr seed = aClus->seed();
