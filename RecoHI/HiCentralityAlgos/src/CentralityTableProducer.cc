@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Wed May  2 21:41:30 EDT 2007
-// $Id: CentralityTableProducer.cc,v 1.10 2010/06/02 09:56:08 yilmaz Exp $
+// $Id: CentralityTableProducer.cc,v 1.11 2010/10/29 17:02:20 yilmaz Exp $
 //
 //
 
@@ -152,6 +152,7 @@ void
 CentralityTableProducer::endJob() {
 
    if(makeDBFromTFile_){
+      runnum_ = 1;
       // Get values from root file
       CB = (CentralityBins*) inputTFile_->Get(Form("%s/run%d",rootTag_.data(),runnum_));
       cout<<rootTag_.data()<<endl;
