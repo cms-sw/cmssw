@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.34 2010/07/30 12:50:24 innocent Exp $
- *  $Date: 2010/07/30 12:50:24 $
- *  $Revision: 1.34 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.35 2010/07/30 14:17:39 innocent Exp $
+ *  $Date: 2010/07/30 14:17:39 $
+ *  $Revision: 1.35 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -260,19 +260,14 @@ namespace ecal_details {
   template<typename C>
   struct AmplitudeSSESupport {
     typedef typename EcalUncalibRecHitRatioMethodAlgo<C,float>::Array Array;
-    static const size_t size = Array::Size::size;
-    static const size_t ssesize = Array::Size::ssesize;
-    static const size_t arrsize = Array::Size::arrsize;
+    static const size_t size = Array::Traits::size;
+    static const size_t ssesize = Array::Traits::ssesize;
+    static const size_t arrsize = Array::Traits::arrsize;
     
     Array index;
-    Array mask;
     AmplitudeSSESupport() {
-      for(unsigned int it = 0; it < ssesize; it++)
-	mask.vec[it] = _mm_cmpeq_ps(_mm_setzero_ps(),_mm_setzero_ps());
       for(unsigned int it = 0; it < arrsize; it++)
 	index.arr[it]=it;
-      for(unsigned int it = size; it < arrsize; it++) 
-	mask.arr[it]= 0;
     }
   };
     
@@ -285,50 +280,45 @@ chi2, float & amp) const {
   static const ecal_details::AmplitudeSSESupport<C> supportStruct;
   
 
-  const size_t ssesize = Array::Size::ssesize;
+  const size_t ssesize = Array::Traits::ssesize;
   // const size_t arrsize = Array::Size::arrsize;
 
   // typedef float Scalar;
   typedef typename Array::Vec Vec;
   Scalar const denom =  Scalar(1)/Scalar(amplitudesSize);
 
-  Vec const zero =  _mm_setzero_ps();
-  Vec const one = _mm_set1_ps(1);
-  Vec const eps = _mm_set1_ps(1e-6);
+  Vec const zero;
+  Vec const on(1);
+  Vec const eps(1.e-6f);
 
-  Vec tV = _mm_set1_ps(t);
-  Vec alphaV = _mm_set1_ps(alpha);
-  Vec overabV = _mm_set1_ps(overab);
+  Vec tV(t);
 
   Array const & index = supportStruct.index;
-  Array const & mask = supportStruct.mask;
  
-
-  Vec sumAf =  zero;
-  Vec sumff =  zero;
+  Vec sumAf;
+  Vec sumff;
 
 
   for(unsigned int it = 0; it < ssesize; it++){
-    Vec offset =  _mm_mul_ps(_mm_sub_ps(index.vec[it],tV),overabV);
-    Vec term1 =  _mm_add_ps(one,offset);
-    Vec cmp = _mm_cmpgt_ps(term1,eps);
-    if (_mm_movemask_ps(cmp)==0) continue;
-    Vec f = exp_ps(_mm_mul_ps(alphaV,_mm_sub_ps(log_ps(term1),offset)) );
+    Vec offset = (index[it]-tV)*overab;
+    Vec term1 =  one+offset;
+    Vec cmp = cmpgt(term1,eps);
+    if (_mm_movemask_ps(cmp.vec)==0) continue;
+    Vec f =  mathSSE::exp(alpha*(mathSSE::log(term1)-offset) ); 
     //Vec f = _mm_or_ps(_mm_andnot_ps(cmp, _mm_setzero_ps()), _mm_and_ps(cmp, f));
-    f = _mm_and_ps(cmp, f);
-    Vec fe = _mm_mul_ps(f, amplitudeErrors2inv_A.vec[it]);
-    sumAf = _mm_add_ps(sumAf, _mm_and_ps(mask.vec[it],_mm_mul_ps( amplitudes_A.vec[it],fe)));
-    sumff = _mm_add_ps(sumff, _mm_and_ps(mask.vec[it],_mm_mul_ps(f,fe)));
+    f = cmp&f;
+    Vec fe = f*amplitudeErrors2inv_A[it];
+    sumAf = sumAf + Array::Traits::mask(amplitudes_A.vec[it]*fe,it);
+    sumff = sumff + Array::Traits::mask(f*fe,it);
   }
   
-  sumAf = _mm_hadd_ps(sumAf,sumAf);
-  sumAf = _mm_hadd_ps(sumAf,sumAf);
-  sumff = _mm_hadd_ps(sumff,sumff);
-  sumff = _mm_hadd_ps(sumff,sumff);
-
-  Scalar af; _mm_store_ss(&af,sumAf);
-  Scalar ff; _mm_store_ss(&ff,sumff);
+  Vec sum = hadd(sumAf,sumff);
+  sum = hadd(sum,sum);
   
+  Scalar af = sum[0];
+  Scalar ff = sum[1];
+  
+   
   chi2 = sumAA;
   amp = 0;
   if( ff > 0 ){
