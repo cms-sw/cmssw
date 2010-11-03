@@ -54,8 +54,6 @@ private:
   /// calculates the comparator reading, including saturation and offsets
   float comparatorReading(const CSCAnalogSignal & signal, float time) const;
 
-  virtual float signalDelay(int element, float pos) const;
-  
   // tells which strips to read out around the input strip
   void getReadoutRange(int inputStrip, 
                        int & minStrip, int & maxStrip);
@@ -97,6 +95,8 @@ private:
   float theDaqDeadTime;
   // save the calculation of time-of-flight+drift+shaping
   float theTimingOffset;
+  // extra Gaussian smearing
+  float theStripTimingError;
 
   int nScaBins_;
   bool doSuppression_;

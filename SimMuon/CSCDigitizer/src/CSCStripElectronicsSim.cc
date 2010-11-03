@@ -28,6 +28,7 @@ CSCStripElectronicsSim::CSCStripElectronicsSim(const edm::ParameterSet & p)
   theComparatorDeadTime(100.),
   theDaqDeadTime(200.),
   theTimingOffset(0.),
+  theStripTimingError(p.getParameter<double>("stripTimingError")),
   nScaBins_(p.getParameter<int>("nScaBins")),
   doSuppression_(p.getParameter<bool>("doSuppression")),
   doCrosstalk_(p.getParameter<bool>("doCrosstalk")),
@@ -100,15 +101,6 @@ CSCAnalogSignal CSCStripElectronicsSim::makeNoiseSignal(int element) {
   }
   CSCAnalogSignal finalSignal(element, theSamplingTime, binValues, 0., theSignalStartTime);
   return finalSignal;
-}
-
-
-float CSCStripElectronicsSim::signalDelay(int element, float pos) const {
-  // readout is on top edge of chamber, signal speed is 0.8 c
-  // zero calibrated to chamber center
-  float distance = -1. * pos;
-  float speed = 0.8 * c_light / cm;
-  return distance / speed;;
 }
 
 
@@ -424,13 +416,13 @@ void CSCStripElectronicsSim::createDigi(int channel, const CSCAnalogSignal & sig
   float pedestal = theStripConditions->pedestal(layerId(), channel);
   float gain = theStripConditions->smearedGain(layerId(), channel);
   int chamberType = theSpecs->chamberType();
-
+  float timeSmearing = theRandGaussQ->fire() * theStripTimingError;
+  // undo the correction for TOF, instead, using some nominal
+  // value from ME2/1
+  float t0 = theSignalStartTime+theSCATimingOffsets[chamberType] + timeSmearing
+           + 29. - theAverageTimeOfFlight;
   for(int scaBin = 0; scaBin < nScaBins_; ++scaBin) {
-    float t = theSignalStartTime+theSCATimingOffsets[chamberType]
-              +scaBin*sca_time_bin_size;
-    // undo the correction for TOF, instead, using some nominal
-    // value from ME2/1
-    t += 29. - theAverageTimeOfFlight;
+    float t = t0 + scaBin*sca_time_bin_size;
     scaCounts[scaBin] = static_cast< int >
       ( pedestal + signal.getValue(t) * gain );
   }
