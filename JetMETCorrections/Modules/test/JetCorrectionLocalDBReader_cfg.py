@@ -17,7 +17,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
       toGet = cms.VPSet(
       cms.PSet(
             record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_Spring10_AK5Calo'),
+            tag    = cms.string('JetCorrectorParametersCollection_Spring10_V5_AK5Calo'),
             label  = cms.untracked.string('AK5Calo')
             )
        ),
