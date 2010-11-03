@@ -1,3 +1,5 @@
+#include "Utilities/General/interface/CMSexception.h"
+
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
@@ -14,3 +16,9 @@ GeomDet::SubDetector GeomDetUnit::subDetector() const {
   return type().subDetector();
 }
 
+void GeomDetUnit::setSurfaceDeformation(const SurfaceDeformation * deformation)
+{
+  throw cms::Exception("Geometry") 
+    << "setting SurfaceDeformation not implemented for DetId "
+    << geographicalId().rawId();
+}

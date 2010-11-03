@@ -8,6 +8,7 @@
 class Topology;
 //class Readout;
 class GeomDetType;
+class SurfaceDeformation;
 
 class GeomDetUnit : public GeomDet {
 public:
@@ -31,8 +32,21 @@ public:
   // Which subdetector
   virtual SubDetector subDetector() const;
 
-};
+  /// Return pointer to surface deformation. 
+  /// Defaults to "null" if not reimplemented in the derived classes.
+  virtual const SurfaceDeformation* surfaceDeformation() const { return 0; }
   
+private:
+
+  /// Alignment part of interface, available only to friend 
+  friend class DetPositioner;
+
+  /// set the SurfaceDeformation for this GeomDetUnit.
+  /// Does not affect the SurfaceDeformation of components (if any).
+  /// Throws if not implemented in derived class.
+  virtual void setSurfaceDeformation(const SurfaceDeformation * deformation);
+};
+
 #endif
 
 
