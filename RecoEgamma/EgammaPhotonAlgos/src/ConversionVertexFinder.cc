@@ -24,10 +24,9 @@
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 // new templated one
-#ifdef TemplateKineFit
 #include "RecoVertex/KinematicFit/interface/KinematicConstrainedVertexFitterT.h"
 #include "RecoVertex/KinematicFit/interface/ColinearityKinematicConstraintT.h"
-#endif
+
 
 
 //
@@ -77,7 +76,7 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
   particles.push_back(pFactory.particle (pair[1],mass,chi,ndf,sigma,*pair[1].innermostMeasurementState().freeState()));
   
 
-#ifndef TemplateKineFit
+#ifdef OldKineFit
   ColinearityKinematicConstraint constr(ColinearityKinematicConstraint::PhiTheta);
   
   RefCountedKinematicTree myTree = kcvFitter_->fit(particles, &constr);
@@ -91,7 +90,7 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
   kcvFitter.setParameters(conf_);
   RefCountedKinematicTree myTree =  kcvFitter.fit(particles, &constr);
 
-#ifdef TemplateKineFitDebug
+#ifdef KineFitDebug
 
   ColinearityKinematicConstraint oldconstr(ColinearityKinematicConstraint::PhiTheta);
   
