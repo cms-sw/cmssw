@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.39 2010/07/15 04:38:41 jengbou Exp $
+ version $Id: BeamFitter.h,v 1.40 2010/09/01 20:19:29 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -100,6 +100,7 @@ class BeamFitter {
   bool debug_;
   bool appendRunTxt_;
   edm::InputTag tracksLabel_;
+  edm::InputTag vertexLabel_;
   bool writeTxt_;
   bool writeDIPTxt_;
   std::string outputTxt_;

@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.70 2010/07/15 04:21:45 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.71 2010/07/21 20:52:35 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -44,6 +44,7 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig): fPVTree_(0)
 
   debug_             = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("Debug");
   tracksLabel_       = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<edm::InputTag>("TrackCollection");
+  vertexLabel_       = iConfig.getUntrackedParameter<edm::InputTag>("primaryVertex");
   writeTxt_          = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("WriteAscii");
   outputTxt_         = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("AsciiFileName");
   appendRunTxt_      = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("AppendRunToFileName");
@@ -230,7 +231,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
   edm::Handle< edm::View<reco::Vertex> > PVCollection;
   bool hasPVs = false;
   edm::View<reco::Vertex> pv;
-  if ( iEvent.getByLabel("offlinePrimaryVertices", PVCollection ) ) {
+  if ( iEvent.getByLabel(vertexLabel_, PVCollection ) ) {
       pv = *PVCollection;
       hasPVs = true;
   }

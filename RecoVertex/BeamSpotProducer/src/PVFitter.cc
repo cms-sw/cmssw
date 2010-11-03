@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: PVFitter.cc,v 1.14 2010/06/18 19:36:10 yumiceva Exp $
+   version $Id: PVFitter.cc,v 1.15 2010/06/24 22:01:56 uplegger Exp $
 
 ________________________________________________________________**/
 
@@ -109,7 +109,7 @@ void PVFitter::readEvent(const edm::Event& iEvent)
   //edm::View<reco::Vertex> vertices;
   //const reco::VertexCollection & vertices = 0;
 
-  if ( iEvent.getByLabel("offlinePrimaryVertices", PVCollection ) ) {
+  if ( iEvent.getByLabel(vertexLabel_, PVCollection ) ) {
       //pv = *PVCollection;
       //vertices = *PVCollection;
       hasPVs = true;
