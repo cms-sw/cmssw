@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_8_5/HIon/V43 (CMSSW_3_8_1_HLT25)
+# /dev/CMSSW_3_8_5/HIon/V44 (CMSSW_3_8_1_HLT25)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_5/HIon/V43')
+  tableName = cms.string('/dev/CMSSW_3_8_5/HIon/V44')
 )
 
 streams = cms.PSet( 
@@ -134,7 +134,8 @@ datasets = cms.PSet(
     'HLT_HIJet35U_Core',
     'HLT_HIL1DoubleMuOpen_Core',
     'HLT_HIMinBiasBSC_Core',
-    'HLT_HIPhoton15_Core' ),
+    'HLT_HIPhoton15_Core',
+    'HLT_HcalCalibration_HI' ),
   Photon = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
   TestEnables = cms.vstring(  )
