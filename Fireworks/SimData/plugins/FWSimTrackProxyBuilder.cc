@@ -19,6 +19,7 @@
 
 #include "TEveTrack.h"
 #include "TParticle.h"
+#include "TDatabasePDG.h"
 
 class FWSimTrackProxyBuilder : public FWProxyBuilderBase
 {
