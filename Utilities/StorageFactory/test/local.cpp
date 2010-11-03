@@ -5,7 +5,7 @@ int main (int, char **argv)
 {
   initTest();
 
-  Storage	*s = StorageFactory::get ()->open ("/etc/issue");
+  Storage	*s = StorageFactory::get ()->open ("/etc/passwd");
   char		buf [1024];
   IOSize	n;
 
