@@ -68,10 +68,11 @@ void JetCorrectorDBWriter::beginJob()
       else {
 	for ( std::vector<std::string>::const_iterator isectbegin = sections.begin(), isectend = sections.end(), isect = isectbegin;
 	      isect != isectend; ++isect ) {
-	  payload->push_back( i, JetCorrectorParameters(fip.fullPath(),*isect), *isect );	  
+	  payload->push_back( i, JetCorrectorParameters(fip.fullPath(),*isect), ilev + "_" + *isect );	  
+	  std::cout << "Added " << ilev + "_" + *isect <<  " to record " << i << std::endl;
 	}
       }
-      std::cout << "Added as record " << i << std::endl;
+      std::cout << "Added record " << i << std::endl;
     } else {
       std::cout << "Did not find JEC file " << inputTxtFile << std::endl;
     }

@@ -13,7 +13,7 @@
 //
 // Original Author:  Benedikt Hegner 
 //         Created:  Tue Mar 09 01:32:51 CET 2010
-// $Id: JetCorrectorDBReader.cc,v 1.3.2.2 2010/10/05 14:22:26 kkousour Exp $
+// $Id: JetCorrectorDBReader.cc,v 1.4 2010/10/12 13:50:38 srappocc Exp $
 //
 //
 
@@ -74,8 +74,11 @@ void JetCorrectorDBReader::analyze(const edm::Event& iEvent, const edm::EventSet
   JetCorParamsColl->validKeys( keys );
   for ( std::vector<JetCorrectorParametersCollection::key_type>::const_iterator ibegin = keys.begin(),
 	  iend = keys.end(), ikey = ibegin; ikey != iend; ++ikey ) {
-    JetCorrectorParameters const & JetCorParams = (*JetCorParamsColl)[*ikey];
+    std::cout<<"-------------------------------------------------" << std::endl;
+    std::cout<<"Processing key = " << *ikey << std::endl;
     std::cout<<"object label: "<<JetCorParamsColl->findLabel(*ikey)<<std::endl;
+    JetCorrectorParameters const & JetCorParams = (*JetCorParamsColl)[*ikey];
+
     if (mCreateTextFile)
       {
 	std::cout<<"Creating txt file: "<<mPayloadName+"_"+JetCorParamsColl->findLabel(*ikey)+".txt"<<std::endl;
