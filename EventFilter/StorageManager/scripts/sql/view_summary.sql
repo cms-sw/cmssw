@@ -10,7 +10,7 @@ BEGIN
         SELECT COUNT(CMS_STOMGR.SM_SUMMARY.STREAM) INTO nstream from CMS_STOMGR.SM_SUMMARY WHERE RUNNUMBER = run;
 
 
-        IF( s_notfiles > 0 ) THEN   
+        IF( s_notfiles != 0 ) THEN   
          	--fraction of nodes that are tolerated to have unaccounted files:
             	frac_nodes  := 1.0;
                 IF( n_nodes > 1 ) THEN
@@ -318,6 +318,7 @@ END DELETED_CHECK;
 /
 
 
+
 --Provides per run summary information (one row per run)
 create or replace view V_SM_SUMMARY
 AS SELECT  
@@ -351,16 +352,18 @@ AS SELECT
 	   "TRANSFERRED_STATUS",
 	   "REPACKED_STATUS",
 	   "DELETED_STATUS",
+	   "MAX_STOP_WRITE",
+--	   "MAX_STOP_CHECK",
            "RANK" 
 FROM (  SELECT  TO_CHAR( RUNNUMBER )          AS RUN_NUMBER,
                 TO_CHAR( COUNT( INSTANCE ) )  AS NOT_INSTANCES, 
-	        TO_CHAR( SUM( N_UNACCOUNT ) ) AS NOTFILES,
+	        TO_CHAR( SUM( ABS(N_UNACCOUNT) ) ) AS NOTFILES,
                 TO_CHAR( NOTFILES_CHECK2(RUNNUMBER, MAX(LAST_WRITE_TIME), SUM(NVL(N_UNACCOUNT,0)), COUNT(INSTANCE) ) ) AS NOTFILES_STATUS,
                 TO_CHAR( MAX(runRank) )       AS RANK
                 FROM ( SELECT RUNNUMBER, INSTANCE, N_UNACCOUNT, HOSTNAME,LAST_WRITE_TIME,  
                            DENSE_RANK() OVER (ORDER BY SM_INSTANCES.RUNNUMBER DESC NULLS LAST)
                            runRank FROM SM_INSTANCES)
-                    WHERE runRank <= 120
+                    WHERE runRank <= 1000
                     GROUP BY RUNNUMBER
             --        ORDER BY RUNNUMBER DESC  --
      ),
@@ -426,7 +429,8 @@ FROM (  SELECT  TO_CHAR( RUNNUMBER )          AS RUN_NUMBER,
 	      TO_CHAR ( TRANSFERRED_CHECK(MAX(STOP_WRITE_TIME), MAX(STOP_TRANS_TIME), SUM(NVL(s_NEW,0)), SUM(NVL(s_Copied,0)), NVL(MAX(N_INSTANCE), MAX(M_INSTANCE) + 1)   ) )   AS TRANSFERRED_STATUS,
 	      TO_CHAR ( CHECKED_CHECK(MAX(STOP_WRITE_TIME),  MAX(STOP_TRANS_TIME), SUM(NVL(s_CHECKED,0)),  SUM(NVL(s_COPIED,0)), NVL(MAX(N_INSTANCE), MAX(M_INSTANCE) + 1) ) )   AS CHECKED_STATUS,
 	      TO_CHAR ( REPACKED_CHECK(MAX(STOP_WRITE_TIME), MAX(STOP_TRANS_TIME), SUM(NVL(s_REPACKED,0)), SUM(NVL(s_CHECKED,0)), SUM(NVL(s_Deleted,0)) ) )   AS REPACKED_STATUS,
-	      TO_CHAR ( DELETED_CHECK( COUNT(DISTINCT N_INSTANCE), MIN(START_WRITE_TIME), SUM(NVL(s_Deleted, 0)), SUM(NVL(s_Checked, 0)), SUM(NVL(s_injected,0)), MAX(STOP_TRANS_TIME)) ) AS DELETED_STATUS
+	      TO_CHAR ( DELETED_CHECK( COUNT(DISTINCT N_INSTANCE), MIN(START_WRITE_TIME), SUM(NVL(s_Deleted, 0)), SUM(NVL(s_Checked, 0)), SUM(NVL(s_injected,0)), MAX(STOP_TRANS_TIME)) ) AS DELETED_STATUS,
+              MAX(STOP_WRITE_TIME) AS MAX_STOP_WRITE
          FROM (  SELECT  RUNNUMBER, STREAM, SETUPLABEL, APP_VERSION, S_LUMISECTION, 
                  S_FILESIZE, S_FILESIZE2D, S_FILESIZE2T0, S_NEVENTS, S_CREATED, S_INJECTED, 
                  S_NEW,S_COPIED,S_CHECKED,S_INSERTED,S_REPACKED,S_DELETED, N_INSTANCE,M_INSTANCE,
@@ -439,3 +443,24 @@ FROM (  SELECT  TO_CHAR( RUNNUMBER )          AS RUN_NUMBER,
                     ORDER BY RUN_NUMBER DESC ;
  
 grant select on V_SM_SUMMARY to public;
+
+
+
+--
+
+
+--Provides per run summary information (one row per run) for outstanding undeelted files
+--This is essentially a stupid replication of V_SM_SUMMARY + undelete file selections
+create or replace view V_SM_SUMMARY_UNDELETE
+AS SELECT * FROM (SELECT * FROM V_SM_SUMMARY WHERE (N_OPEN>0 OR NFILES!=N_DELETED OR  NOTFILES!=0) 
+                                                AND NVL(time_diff(sysdate,MAX_STOP_WRITE)/60/60/24,1)<65),
+                (SELECT TO_CHAR (RUN_NUMBER) AS RUN_NUMBER2,
+                        ROUND(time_diff(sysdate,MAX_STOP_WRITE)/60/60/24,2) as RUNAGE
+                           FROM V_SM_SUMMARY WHERE (N_OPEN>0 OR NFILES!=N_DELETED OR  NOTFILES!=0) 
+                                                AND NVL(time_diff(sysdate,MAX_STOP_WRITE)/60/60/24,1)<65)
+                WHERE RUN_NUMBER=RUN_NUMBER2(+) and NVL(time_diff(sysdate,MAX_STOP_WRITE)/60/60,24)>5  
+                ORDER BY RUN_NUMBER DESC ;
+ 
+grant select on V_SM_SUMMARY_UNDELETE to public;
+
+--

@@ -113,7 +113,7 @@ FROM ( SELECT TO_CHAR ( RUNNUMBER ) AS RUN_NUMBER,
 	      TO_CHAR ( NVL(s_Deleted,  0) ) AS N_DELETED, 
 	      TO_CHAR ( HLTKEY ) AS HLTKEY,
 	      (CASE
-                WHEN setupLabel LIKE '%TransferTest%' THEN TO_CHAR(2)
+                WHEN setupLabel LIKE '%TransferTest%' THEN TO_CHAR(3)
                 ELSE TO_CHAR(0)
               END) AS SETUP_STATUS,
               (CASE  
