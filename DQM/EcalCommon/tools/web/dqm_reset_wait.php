@@ -11,7 +11,7 @@ echo "<h1><center><font color=blue>ECAL DQM Reset Page - ecalod-web01</font></ce
 <body>
 
 <?php
-$file = "/data/ecalod-disk01/dqm-data/reset/".$detector."_test";
+$file = "/data/ecalod-disk01/dqm-data/reset/".$detector;
 
 while ( file_exists("$file") ==  "TRUE" ) {
   sleep(2);

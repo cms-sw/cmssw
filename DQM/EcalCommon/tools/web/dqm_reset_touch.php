@@ -21,7 +21,7 @@ echo 'function refresh() { window.location.replace("dqm_reset_wait.php?detector=
 <body onload="doLoad()">
 
 <?php
-$file = "/data/ecalod-disk01/dqm-data/reset/".$detector."_test";
+$file = "/data/ecalod-disk01/dqm-data/reset/".$detector;
 
 if ( file_exists("$file") ==  "TRUE" ) {
   echo "<hr>\n";
