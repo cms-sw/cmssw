@@ -37,13 +37,13 @@ PLTSensitiveDetector::PLTSensitiveDetector(std::string name,
   SensitiveTkDetector(name, cpv, clg, p), myName(name), mySimHit(0),
   oldVolume(0), lastId(0), lastTrack(0), eventno(0) {
   
-  edm::ParameterSet m_TrackerSD = p.getParameter<edm::ParameterSet>("PLTSD");
+  edm::ParameterSet m_TrackerSD = p.getParameter<edm::ParameterSet>("PltSD");
   energyCut           = m_TrackerSD.getParameter<double>("EnergyThresholdForPersistencyInGeV")*GeV; //default must be 0.5
   energyHistoryCut    = m_TrackerSD.getParameter<double>("EnergyThresholdForHistoryInGeV")*GeV;//default must be 0.05
 
-  edm::LogInfo("PLTSD") <<"Criteria for Saving Tracker SimTracks: \n "
-			<<" History: "<<energyHistoryCut<< " MeV ; Persistency: "<< energyCut<<" MeV\n"
-			<<" Constructing a PLTSensitiveDetector with ";
+  edm::LogInfo("PLTSensitiveDetector") <<"Criteria for Saving Tracker SimTracks: \n "
+				       <<" History: "<<energyHistoryCut<< " MeV ; Persistency: "<< energyCut<<" MeV\n"
+				       <<" Constructing a PLTSensitiveDetector with ";
 
   slave  = new TrackingSlaveSD(name);
   
@@ -52,7 +52,7 @@ PLTSensitiveDetector::PLTSensitiveDetector(std::string name,
   this->Register();
   for (std::vector<std::string>::iterator it = lvNames.begin();  
        it != lvNames.end(); it++)  {
-    edm::LogInfo("PLTSD")<< name << " attaching LV " << *it;
+    edm::LogInfo("PLTSensitiveDetector")<< name << " attaching LV " << *it;
     this->AssignSD(*it);
   }
 
@@ -68,7 +68,7 @@ PLTSensitiveDetector::~PLTSensitiveDetector() {
 
 bool PLTSensitiveDetector::ProcessHits(G4Step * aStep,  G4TouchableHistory *) {
 
-  LogDebug("PLTSD") << " Entering a new Step " 
+  LogDebug("PLTSensitiveDetector") << " Entering a new Step " 
 		    << aStep->GetTotalEnergyDeposit() << " " 
 		    << aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName();
 
@@ -101,14 +101,14 @@ uint32_t PLTSensitiveDetector::setDetUnitId(G4Step * ) {
  
   unsigned int detId = 0;
 
-  LogDebug("PLTSD")<< " DetID = "<<detId; 
+  LogDebug("PLTSensitiveDetector")<< " DetID = "<<detId; 
 
   return detId;
 }
 
 void PLTSensitiveDetector::EndOfEvent(G4HCofThisEvent *) {
   
-  LogDebug("PLTSD")<< " Saving the last hit in a ROU " << myName;
+  LogDebug("PLTSensitiveDetector")<< " Saving the last hit in a ROU " << myName;
 
   if (mySimHit == 0) return;
   sendHit();
@@ -120,9 +120,9 @@ void PLTSensitiveDetector::fillHits(edm::PSimHitContainer& c, std::string n){
 
 void PLTSensitiveDetector::sendHit() {  
   if (mySimHit == 0) return;
-  LogDebug("PLTSD") << " Storing PSimHit: " << pname << " " << mySimHit->detUnitId() 
-		    << " " << mySimHit->trackId() << " " << mySimHit->energyLoss() 
-		    << " " << mySimHit->entryPoint() << " " << mySimHit->exitPoint();
+  LogDebug("PLTSensitiveDetector") << " Storing PSimHit: " << pname << " " << mySimHit->detUnitId() 
+				   << " " << mySimHit->trackId() << " " << mySimHit->energyLoss() 
+				   << " " << mySimHit->entryPoint() << " " << mySimHit->exitPoint();
     
   slave->processHits(*mySimHit); 
 
@@ -138,16 +138,16 @@ void PLTSensitiveDetector::updateHit(G4Step * aStep) {
   Local3DPoint theExitPoint = SensitiveDetector::FinalStepPosition(aStep,LocalCoordinates); 
   float theEnergyLoss = aStep->GetTotalEnergyDeposit()/GeV;
   mySimHit->setExitPoint(theExitPoint);
-  LogDebug("PLTSD")<< " Before : " << mySimHit->energyLoss();
+  LogDebug("PLTSensitiveDetector")<< " Before : " << mySimHit->energyLoss();
   mySimHit->addEnergyLoss(theEnergyLoss);
   globalExitPoint = SensitiveDetector::FinalStepPosition(aStep,WorldCoordinates);
 
-  LogDebug("PLTSD") << " Updating: new exitpoint " << pname << " " 
-		    << theExitPoint << " new energy loss " << theEnergyLoss 
-		    << "\n Updated PSimHit: " << mySimHit->detUnitId() 
-		    << " " << mySimHit->trackId()
-		    << " " << mySimHit->energyLoss() << " " 
-		    << mySimHit->entryPoint() << " " << mySimHit->exitPoint();
+  LogDebug("PLTSensitiveDetector") << " Updating: new exitpoint " << pname << " " 
+				   << theExitPoint << " new energy loss " << theEnergyLoss 
+				   << "\n Updated PSimHit: " << mySimHit->detUnitId() 
+				   << " " << mySimHit->trackId()
+				   << " " << mySimHit->energyLoss() << " " 
+				   << mySimHit->entryPoint() << " " << mySimHit->exitPoint();
 }
 
 bool PLTSensitiveDetector::newHit(G4Step * aStep) {
@@ -156,9 +156,9 @@ bool PLTSensitiveDetector::newHit(G4Step * aStep) {
   uint32_t theDetUnitId = setDetUnitId(aStep);
   unsigned int theTrackID = theTrack->GetTrackID();
 
-  LogDebug("PLTSD") << " OLD (d,t) = (" << lastId << "," << lastTrack 
-		    << "), new = (" << theDetUnitId << "," << theTrackID << ") return "
-		    << ((theTrackID == lastTrack) && (lastId == theDetUnitId));
+  LogDebug("PLTSensitiveDetector") << " OLD (d,t) = (" << lastId << "," << lastTrack 
+				   << "), new = (" << theDetUnitId << "," << theTrackID << ") return "
+				   << ((theTrackID == lastTrack) && (lastId == theDetUnitId));
   if ((mySimHit != 0) && (theTrackID == lastTrack) && (lastId == theDetUnitId) && closeHit(aStep))
     return false;
   return true;
@@ -170,7 +170,7 @@ bool PLTSensitiveDetector::closeHit(G4Step * aStep) {
   const float tolerance = 0.05 * mm; // 50 micron are allowed between the exit 
   // point of the current hit and the entry point of the new hit
   Local3DPoint theEntryPoint = SensitiveDetector::InitialStepPosition(aStep,LocalCoordinates);  
-  LogDebug("PLTSD")<< " closeHit: distance = " << (mySimHit->exitPoint()-theEntryPoint).mag();
+  LogDebug("PLTSensitiveDetector")<< " closeHit: distance = " << (mySimHit->exitPoint()-theEntryPoint).mag();
 
   if ((mySimHit->exitPoint()-theEntryPoint).mag()<tolerance) return true;
   return false;
@@ -213,10 +213,10 @@ void PLTSensitiveDetector::createHit(G4Step * aStep) {
 				  theTrackID,theThetaAtEntry,thePhiAtEntry,
 				  theG4ProcessTypeEnumerator->processId(theTrack->GetCreatorProcess()));  
 
-  LogDebug("PLTSD") << " Created PSimHit: " << pname << " " 
-		    << mySimHit->detUnitId() << " " << mySimHit->trackId()
-		    << " " << mySimHit->energyLoss() << " " 
-		    << mySimHit->entryPoint() << " " << mySimHit->exitPoint();
+  LogDebug("PLTSensitiveDetector") << " Created PSimHit: " << pname << " " 
+				   << mySimHit->detUnitId() << " " << mySimHit->trackId()
+				   << " " << mySimHit->energyLoss() << " " 
+				   << mySimHit->entryPoint() << " " << mySimHit->exitPoint();
   lastId = theDetUnitId;
   lastTrack = theTrackID;
   oldVolume = v;
@@ -244,12 +244,12 @@ void PLTSensitiveDetector::clearHits() {
 TrackInformation* PLTSensitiveDetector::getOrCreateTrackInformation( const G4Track* gTrack) {
   G4VUserTrackInformation* temp = gTrack->GetUserInformation();
   if (temp == 0){
-    edm::LogError("PLTSD") <<" ERROR: no G4VUserTrackInformation available";
+    edm::LogError("PLTSensitiveDetector") <<" ERROR: no G4VUserTrackInformation available";
     abort();
   }else{
     TrackInformation* info = dynamic_cast<TrackInformation*>(temp);
-    if (info ==0){
-      edm::LogError("PLTSD")<<" ERROR: TkSimTrackSelection: the UserInformation does not appear to be a TrackInformation";
+    if (info == 0){
+      edm::LogError("PLTSensitiveDetector") <<" ERROR: TkSimTrackSelection: the UserInformation does not appear to be a TrackInformation";
       abort();
     }
     return info;
