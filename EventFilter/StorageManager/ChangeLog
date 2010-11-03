@@ -1,3 +1,9 @@
+2010-11-03 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-04-04
+	* Make processCount unit tests more reliable
+	* Disable time-sensitive unit test ConcurrentQueue_t for automatic unit tests.
+
 2010-10-19 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-04-03
