@@ -41,3 +41,20 @@ hiEcalClusters = cms.Sequence(hiEcalClusteringSequence)
 hiEgammaSequence = cms.Sequence(hiPhotonSequence)
 hiEcalClustersIsolation = cms.Sequence(hiEgammaSequence * hiEgammaIsolationSequence)
 
+# HI Spike Clean Sequence
+hiSpikeCleanedSC = cms.EDProducer("HiSpikeCleaner",
+                                  recHitProducerBarrel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+                                  recHitProducerEndcap = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+                                  originalSuperClusterProducer = cms.InputTag("correctedIslandBarrelSuperClusters"), 
+                                  outputColl  = cms.string( "" ),
+                                  etCut          = cms.double(10),
+                                  TimingCut    = cms.untracked.double(4.0),
+                                  swissCutThr    = cms.untracked.double(0.83)
+                                  )
+
+cleanPhotonCore = photonCore.clone()
+cleanPhotons = photons.clone()
+cleanPhotonCore.scHybridBarrelProducer = cms.InputTag("hiSpikeCleanedSC")
+cleanPhotons.photonCoreProducer = cms.InputTag("cleanPhotonCore")
+
+hiPhotonCleaningSequence = cms.Sequence(hiSpikeCleanedSC * cleanPhotonCore * cleanPhotons)
