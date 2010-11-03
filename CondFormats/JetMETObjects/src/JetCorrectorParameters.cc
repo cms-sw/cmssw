@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.cc,v 1.13 2010/10/06 08:59:49 kkousour Exp $
+// $Id: JetCorrectorParameters.cc,v 1.14 2010/10/19 16:31:27 srappocc Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -407,12 +407,21 @@ void JetCorrectorParametersCollection::getSections( std::string inputFile,
 
 // Add a JetCorrectorParameter object, possibly with flavor. 
 void JetCorrectorParametersCollection::push_back( key_type i, value_type const & j, label_type const & flav) { 
-  if ( isL5(i) )
+  std::cout << "i    = " << i << std::endl;  
+  std::cout << "flav = " << flav << std::endl;
+  if ( isL5(i) ) {
+    std::cout << "This is L5, getL5Bin = " << getL5Bin(flav) << std::endl;
     correctionsL5_.push_back( pair_type(getL5Bin(flav),j) ); 
-  else if ( isL7(i) ) 
+  }
+  else if ( isL7(i) ) {
+    std::cout << "This is L7, getL7Bin = " << getL7Bin(flav) << std::endl;
     correctionsL7_.push_back( pair_type(getL7Bin(flav),j) );
-  else
+  }
+  else if ( flav == "" ) {
     corrections_.push_back( pair_type(i,j) );
+  } else {
+    std::cout << "***** NOT ADDING " << flav << ", corresponding position in JetCorrectorParameters is not found." << std::endl;
+  }
 }
 
 
@@ -464,7 +473,7 @@ JetCorrectorParametersCollection::getL5Bin( std::string const & flav ){
   std::vector<std::string>::const_iterator found = 
     find( l5Flavors_.begin(), l5Flavors_.end(), flav );
   if ( found != l5Flavors_.end() ) {
-    return (found - l5Flavors_.begin()) * 10;
+    return (found - l5Flavors_.begin() + 1) * 10;
   }
   else return L5Flavor;
 }
@@ -474,7 +483,7 @@ JetCorrectorParametersCollection::getL7Bin( std::string const & flav ){
   std::vector<std::string>::const_iterator found = 
     find( l7Partons_.begin(), l7Partons_.end(), flav );
   if ( found != l7Partons_.end() ) {
-    return (found - l7Partons_.begin()) * 1000;
+    return (found - l7Partons_.begin() + 1) * 1000;
   }
   else return L7Parton;
 }
