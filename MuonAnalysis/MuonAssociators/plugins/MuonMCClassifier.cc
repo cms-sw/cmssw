@@ -28,7 +28,7 @@
 //
 // Original Author:  Nov 16 16:12 (lxplus231.cern.ch)
 //         Created:  Sun Nov 16 16:14:09 CET 2008
-// $Id: MuonMCClassifier.cc,v 1.3 2010/05/24 22:17:04 gpetrucc Exp $
+// $Id: MuonMCClassifier.cc,v 1.4 2010/06/03 22:53:31 gpetrucc Exp $
 //
 //
 
@@ -143,6 +143,7 @@ MuonMCClassifier::MuonMCClassifier(const edm::ParameterSet &iConfig) :
     produces<edm::ValueMap<int> >("momFlav"); 
     produces<edm::ValueMap<int> >("gmomPdgId"); 
     produces<edm::ValueMap<int> >("gmomFlav"); 
+    produces<edm::ValueMap<int> >("hmomFlav"); // heaviest mother flavour
     produces<edm::ValueMap<int> >("tpId");
     produces<edm::ValueMap<float> >("prodRho"); 
     produces<edm::ValueMap<float> >("prodZ"); 
@@ -214,7 +215,7 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     std::vector<int> classif(nmu, 0);
     std::vector<int> hitsPdgId(nmu, 0), momPdgId(nmu, 0), gmomPdgId(nmu, 0);
-    std::vector<int> flav(nmu, 0),      momFlav(nmu, 0),  gmomFlav(nmu, 0);
+    std::vector<int> flav(nmu, 0),      momFlav(nmu, 0),  gmomFlav(nmu, 0), hmomFlav(nmu, 0);
     std::vector<int> tpId(nmu, -1);
     std::vector<float> prodRho(nmu, 0.0), prodZ(nmu, 0.0);
     std::vector<float> tpAssoQuality(nmu, -1);
@@ -277,6 +278,13 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                     edm::LogVerbatim("MuonMCClassifier") << "\t Particle pdgId = "<<hitsPdgId[i] << " produced at rho = " << prodRho[i] << ", z = " << prodZ[i] << ", has GEN mother pdgId = " << momPdgId[i];
                     const HepMC::GenParticle * genGMom = getGpMother(genMom);
                     if (genGMom) gmomPdgId[i] = genGMom->pdg_id();
+                    // in this case, we might want to know the heaviest mom flavour
+                    for (const HepMC::GenParticle *nMom = genMom; 
+                            nMom != 0 && abs(nMom->pdg_id()) >= 100; // stop when we're no longer looking at hadrons or mesons
+                            nMom = getGpMother(nMom)) {
+                        int flav = flavour(nMom->pdg_id());
+                        if (hmomFlav[i] < flav) hmomFlav[i] = flav; 
+                    }
                 }
             } else {
                 TrackingParticleRef simMom = getTpMother(tp);
@@ -335,6 +343,7 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     writeValueMap(iEvent, muons, momFlav,   "momFlav");
     writeValueMap(iEvent, muons, gmomPdgId, "gmomPdgId");
     writeValueMap(iEvent, muons, gmomFlav,  "gmomFlav");
+    writeValueMap(iEvent, muons, hmomFlav,  "hmomFlav");
     writeValueMap(iEvent, muons, prodRho,   "prodRho");
     writeValueMap(iEvent, muons, prodZ,     "prodZ");
     writeValueMap(iEvent, muons, tpAssoQuality, "tpAssoQuality");
