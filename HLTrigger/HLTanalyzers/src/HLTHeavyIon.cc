@@ -167,8 +167,12 @@ void HLTHeavyIon::analyze(const edm::Handle<edm::TriggerResults>                
   hiEE = centrality->EtEESum();
   hiEB = centrality->EtEBSum();
   hiET = centrality->EtMidRapiditySum();
-
-  for(unsigned int i = 0; i < evtPlanes->size(); ++i){
-    hiEvtPlane[i] = (*evtPlanes)[i].angle();     
-      }
+  
+  if(evtPlanes.isValid()){
+     nEvtPlanes = evtPlanes->size();
+     for(unsigned int i = 0; i < evtPlanes->size(); ++i){
+	hiEvtPlane[i] = (*evtPlanes)[i].angle();     
+     }
+  }
+  
 }
