@@ -782,9 +782,11 @@ if (localDAQ == 1) | (liveCMS == 1) :
 if (liveECAL == 1) :
   process.ecalBarrelMonitorClient.updateTime = 4
   process.ecalBarrelMonitorClient.dbUpdateTime = 120
+  process.ecalBarrelMonitorClient.resetFile = ''
 
   process.ecalEndcapMonitorClient.updateTime = 4
   process.ecalEndcapMonitorClient.dbUpdateTime = 120
+  process.ecalEndcapMonitorClient.resetFile = ''
 
 if (liveCMS == 1) :
   process.ecalBarrelMonitorClient.updateTime = 4
