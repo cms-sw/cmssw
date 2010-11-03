@@ -195,7 +195,7 @@ testResourceMonitorCollection::processCount()
   uid_t myUid = getuid();
 
   for (int i = 0; i < processes; ++i)
-    system("sh ${CMSSW_BASE}/src/EventFilter/StorageManager/test/processCountTest.sh &");
+    system("${CMSSW_BASE}/src/EventFilter/StorageManager/test/processCountTest.sh 2> /dev/null &");
 
   int processCount = _rmc->getProcessCount("processCountTest.sh");
   CPPUNIT_ASSERT( processCount == processes);
@@ -205,6 +205,8 @@ testResourceMonitorCollection::processCount()
 
   processCount = _rmc->getProcessCount("processCountTest.sh", myUid+1);
   CPPUNIT_ASSERT( processCount == 0);
+
+  system("killall -u ${USER} -q sleep");
 }
 
 
@@ -214,12 +216,14 @@ testResourceMonitorCollection::processCountWithArguments()
   const int processes = 3;
 
   for (int i = 0; i < processes; ++i)
-    system("sh ${CMSSW_BASE}/src/EventFilter/StorageManager/test/processCountTest.sh foo &");
+    system("${CMSSW_BASE}/src/EventFilter/StorageManager/test/processCountTest.sh foo 2> /dev/null &");
 
   int processCountFoo = _rmc->getProcessCount("processCountTest.sh foo");
   int processCountBar = _rmc->getProcessCount("processCountTest.sh bar");
   CPPUNIT_ASSERT( processCountFoo == processes);
   CPPUNIT_ASSERT( processCountBar == 0);
+
+  system("killall -u ${USER} -q sleep");
 }
 
 
