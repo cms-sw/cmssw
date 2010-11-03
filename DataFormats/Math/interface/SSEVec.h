@@ -122,6 +122,7 @@ namespace mathSSE {
 
   template<>
   union Vec4<float> {
+    typedef  __m128 nativeType;
     __m128 vec;
     float __attribute__ ((aligned(16))) arr[4];
     OldVec<float> o;
@@ -164,6 +165,7 @@ namespace mathSSE {
   
   template<>
   union Vec2<double> {
+    typedef  __m128d nativeType;
     __m128d vec;
     double __attribute__ ((aligned(16))) arr[2];
         
@@ -318,6 +320,9 @@ inline mathSSE::Vec4F operator|(mathSSE::Vec4F a, mathSSE::Vec4F b) {
 inline mathSSE::Vec4F operator^(mathSSE::Vec4F a, mathSSE::Vec4F b) {
   return  _mm_xor_ps(a.vec,b.vec);
 }
+inline mathSSE::Vec4F andnot(mathSSE::Vec4F a, mathSSE::Vec4F b) {
+  return  _mm_andnot_ps(a.vec,b.vec);
+}
 
 
 inline mathSSE::Vec4F operator+(mathSSE::Vec4F a, mathSSE::Vec4F b) {
@@ -361,7 +366,9 @@ inline mathSSE::Vec2D operator|(mathSSE::Vec2D a, mathSSE::Vec2D b) {
 inline mathSSE::Vec2D operator^(mathSSE::Vec2D a, mathSSE::Vec2D b) {
   return  _mm_xor_pd(a.vec,b.vec);
 }
-
+inline mathSSE::Vec2D andnot(mathSSE::Vec2D a, mathSSE::Vec2D b) {
+  return  _mm_andnot_pd(a.vec,b.vec);
+}
 
 
 inline mathSSE::Vec2D operator+(mathSSE::Vec2D a, mathSSE::Vec2D b) {

@@ -8,8 +8,8 @@ typedef float Scalar;
 
 
 typedef mathSSE::Array<Scalar,10> V10;
-static const size_t ssesize = V10::Size::ssesize;
-static const size_t arrsize = V10::Size::arrsize;
+static const size_t ssesize = V10::Traits::ssesize;
+static const size_t arrsize = V10::Traits::arrsize;
 
 const size_t SIZE = 10;
 
@@ -71,8 +71,8 @@ void compChi2(V10 const & ampl, V10 const & err2, Scalar t, Scalar sumAA, Scalar
     //Vec f = _mm_or_ps(_mm_andnot_ps(cmp, _mm_setzero_ps()), _mm_and_ps(cmp, f));
     f = cmp&f;
     Vec fe = f*err2[it];
-    sumAf = sumAf + mask.vec[it]&(ampl[it]*fe);
-    sumff = sumff + mask.vec[it]&(f*fe);
+    sumAf = sumAf + V10::Traits::mask(ampl[it]*fe,it);
+    sumff = sumff + V10::Traits::mask(f*fe,it);
   }
   
   Vec sum = hadd(sumAf,sumff);
@@ -94,7 +94,6 @@ void compChi2(V10 const & ampl, V10 const & err2, Scalar t, Scalar sumAA, Scalar
 
 int main() {  
   using mathSSE::Vec4F;
-  typedef  V10::Vec Vec;
  
  
   Vec4F x(0.,-1.,1.,1000.);
@@ -106,8 +105,15 @@ int main() {
   Vec4F z; z.vec = log_ps(x.vec);
   std::cout << z << std::endl;
 
+  std::cout << "mask 0 " << (z&mathSSE::ArrayMask<float, 0>::value()) << std::endl;
+
+  std::cout << "mask 2 " << (z&mathSSE::ArrayMask<float, 2>::value()) << std::endl;
+
+  std::cout << "not mask 2 " << andnot(mathSSE::ArrayMask<float, 2>::value(),z) << std::endl;
+
+
   // some of z are nan... check if I can find out..
-  Vec4F m; m.vec = _mm_cmpeq_ps(_mm_andnot_ps(z.vec, *(Vec*)_ps_mant_mask),_mm_setzero_ps());
+  Vec4F m; m.vec = _mm_cmpeq_ps(_mm_andnot_ps(z.vec, *(__m128*)_ps_mant_mask),_mm_setzero_ps());
   std::cout << m << std::endl;
 
   y.vec = log_ps(y.vec);
@@ -138,8 +144,10 @@ int main() {
   
   Scalar chi2=0;
   Scalar amp=0;
+  std::cout << "scalar" << std::endl;
   compChi2Scalar(ampl, err2, 4.7, sumAA, chi2, amp);
   std::cout << "scal " << chi2 << " " << amp << std::endl;
+  std::cout << "vector" << std::endl;
   compChi2(ampl, err2, 4.7, sumAA, chi2, amp);
   std::cout << "vect " << chi2 << " " << amp << std::endl;
    

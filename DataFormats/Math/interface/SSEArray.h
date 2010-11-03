@@ -10,69 +10,96 @@ namespace mathSSE {
 
 // "vertical array"
   template<typename T, size_t S>
-  struct Sizes {
-  };
-
-  template<typename T, size_t S>
-  struct Mask {
+  struct ArrayTraits {
   };
   
-  struct Mask<float, 0> {
-    static Vec4<float> mask(_mm_cmpeq_ps(_mm_setzero_ps(),_mm_setzero_ps()));
+  template<typename T, size_t S>
+  struct ArrayMask {
   };
-  struct Mask<float,1> {
-    static Vec4<float> mask(_mm_cmpeq_ps(_mm_setzero_ps(),Vec4<float>(0,1,1,1)));
+  
+  template <>
+  struct ArrayMask<float, 0> {
+    static inline Vec4<float> value() {
+      unsigned int v[] = {0xffffffff,  0xffffffff,  0xffffffff,  0xffffffff};
+      return *(Vec4<float>*)(v);
+    }
   };
-  struct Mask<float,2> {
-    static Vec4<float> mask(_mm_cmpeq_ps(_mm_setzero_ps(),Vec4<float>(0,0,1,1)));
+  template <>
+  struct ArrayMask<float,1> {
+    static inline Vec4<float> value() {
+     unsigned int v[] = {0xffffffff,  0x0,  0x0,  0x0};
+      return *(Vec4<float>*)(v);
+    }
   };
-  struct Mask<float,2> {
-    static Vec4<float> mask(_mm_cmpeq_ps(_mm_setzero_ps(),Vec4<float>(0,0,0,1)));
+  template <>
+  struct ArrayMask<float,2> {
+    static inline Vec4<float> value() {
+     unsigned int v[] = {0xffffffff,  0xffffffff,  0x0,  0x0};
+      return *(Vec4<float>*)(v);
+    }
   };
-
-  struct Mask<double, 0> {
-    static Vec4<double> mask(_mm_cmpeq_ps(_mm_setzero_ps(),_mm_setzero_ps()));
+  template <>
+  struct ArrayMask<float,3> {
+    static inline Vec4<float> value() {
+      unsigned int v[] = {0xffffffff,  0xffffffff,  0xffffffff,  0x0};
+      return *(Vec4<float>*)(v);
+   }
   };
-  struct Mask<double,1> {
-    static Vec4<double> mask(_mm_cmpeq_ps(_mm_setzero_ps(),Vec4<double>(0,1)));
+  
+  template <>
+  struct ArrayMask<double, 0> {
+    static inline Vec2<double> value() {
+       unsigned long long v[] {0xffffffffffffffffLL,  0xffffffffffffffffLL};
+       return  *(Vec2<double>*)(v);
+    }
+  };
+  template <>
+  struct ArrayMask<double,1> {
+    static inline Vec2<double> value() {
+       unsigned long long v[] {0xffffffffffffffffLL,  0x0LL};
+       return  *(Vec2<double>*)(v);
+    }
   };
   
   
   template<size_t S>
-  struct Sizes<float, S> {
+  struct ArrayTraits<float, S> {
     typedef float Scalar;
     typedef Vec4<float> Vec;
     static const size_t size = S;
     static const size_t ssesize = (S+3)/4;
     static const size_t arrsize = 4*ssesize;
-    static const maskLast = Mask<Scalar,arrsize-size>::mask;
+    static inline Vec maskLast() { return ArrayMask<Scalar,arrsize-size>::value(); }
+    static inline Vec __attribute__((__always_inline__)) mask(Vec v, size_t i) {
+      return (i==ssesize-1) ? maskLast()&v : v;
+    }
     template <typename F>
     static void loop(F f) {
       for (size_t i=0; i!=ssesize-1;++i)
-	f(i, Mask<Scalar,0>::mask);
-      f(ssesize-1,maskLast);
+	f(i, ArrayMask<Scalar,0>::value());
+      f(ssesize-1,maskLast());
     }
   };
   
   template<size_t S>
-  struct Sizes<double, S> {
+  struct ArrayTraits<double, S> {
     typedef double Scalar;
-    typedef Vec4<double> Vec;
+    typedef Vec2<double> Vec;
     static const size_t size = S;
     static const size_t ssesize = (S+1)/2;
     static const size_t arrsize = 2*ssesize;
-    static const maskLast = Mask<Scalar,arrsize-size>;    
+    static inline Vec maskLast() { return ArrayMask<Scalar,arrsize-size>::value();}
   };
   
   template<typename T, size_t S>
   union Array {
-    typedef Sizes<T,S> Size;
-    typedef typename Size::Vec Vec;
-    Vec vec[Size::ssesize];
-    T __attribute__ ((aligned(16))) arr[Size::arrsize];
+    typedef ArrayTraits<T,S> Traits;
+    typedef typename Traits::Vec Vec;
+    typename Vec::nativeType vec[Traits::ssesize];
+    T __attribute__ ((aligned(16))) arr[Traits::arrsize];
 
-    Vec & operator[]( size_t i) { return vec[i];}
-    Vec const & operator[]( size_t i) const{ return vec[i];}
+    Vec operator[]( size_t i) { return vec[i];}
+    Vec const & operator[]( size_t i) const{ return reinterpret_cast<Vec const &>(vec[i]);}
 
   };
 
