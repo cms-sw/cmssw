@@ -1,7 +1,0 @@
-<use name=DataFormats/Common>
-<use name=rootrflx>
-<use name=clhepheader>
-<export>
-  <lib name=DataFormatsEgammaTrackReco>
-</export>
-

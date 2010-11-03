@@ -1,7 +1,0 @@
-<use name=root>
-<use name=rootinteractive>
-<export>
-   <lib name=CalibCalorimetryEcalCorrelatedNoiseAnalysisAlgos>
-   <use name=root>
-   <use name=rootinteractive>
-</export>
