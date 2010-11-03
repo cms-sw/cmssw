@@ -15,8 +15,11 @@ from RecoTauTag.RecoTau.CaloRecoTauDiscriminationAgainstMuon_cfi import *
 
 caloRecoTauProducer = copy.deepcopy(tcRecoTauProducer)
 
-tautagging = cms.Sequence(
-    jptRecoTauProducer *
+JPTJetsCollectionForTCTaus = cms.Sequence(
+    jptRecoTauProducer
+)
+
+TCTau = cms.Sequence(
     caloRecoTauProducer *
     caloRecoTauDiscriminationByLeadingTrackFinding *
     caloRecoTauDiscriminationByLeadingTrackPtCut *
@@ -26,5 +29,10 @@ tautagging = cms.Sequence(
     caloRecoTauDiscriminationAgainstElectron *
     caloRecoTauDiscriminationAgainstMuon
     #tcRecoTauDiscriminationAgainstHadronicJets
+)
+
+tautagging = cms.Sequence(
+    JPTJetsCollectionForTCTaus *
+    TCTau
 )
 
