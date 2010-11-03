@@ -11,6 +11,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "PhysicsTools/TagAndProbe/interface/ColinsSoperVariables.h"
 
 #include <TList.h>
 #include <TObjString.h>
@@ -65,7 +66,6 @@ tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet iC
          tree_->Branch("lumi", &lumi_, "lumi/i");
          tree_->Branch("event", &event_, "event/i");
     }
-
     addEventVariablesInfo_ = iConfig.existsAs<bool>("addEventVariablesInfo") ? iConfig.getParameter<bool>("addEventVariablesInfo") : false;
     if (addEventVariablesInfo_) {      
       tree_->Branch("event_nPV"        ,&mNPV_                 ,"mNPV/I");
@@ -84,6 +84,10 @@ tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet iC
       tree_->Branch("event_BeamSpot_x"       ,&mBSx_              ,"mBSx/F");
       tree_->Branch("event_BeamSpot_y"       ,&mBSy_              ,"mBSy/F");
       tree_->Branch("event_BeamSpot_z"       ,&mBSz_              ,"mBSz/F");
+      //.... Store Colins Soper variables for vector bosons: needed to compute Forward-Backward asymmetry
+      tree_->Branch("pair_ColinsSoper_costheta",&mCScostheta_     ,"mCScostheta/F");
+      tree_->Branch("pair_ColinsSoper_sin2theta",&mCSsin2theta_   ,"mCSsin2theta/F");
+      tree_->Branch("pair_ColinsSoper_tanphi",&mCStanphi_         ,"mCStanphi/F");
     }
 
     ignoreExceptions_ = iConfig.existsAs<bool>("ignoreExceptions") ? iConfig.getParameter<bool>("ignoreExceptions") : false;
@@ -110,7 +114,6 @@ tnp::BaseTreeFiller::addBranches_(TTree *tree, const edm::ParameterSet &iConfig,
     for (std::vector<std::string>::const_iterator it = inputTagVars.begin(), ed = inputTagVars.end(); it != ed; ++it) {
         vars_.push_back(tnp::ProbeVariable(branchNamePrefix + *it, variables.getParameter<edm::InputTag>(*it)));
     }
- 
     // set up flags
     edm::ParameterSet flags = iConfig.getParameter<edm::ParameterSet>("flags");
     //.. the ones that are strings
@@ -227,6 +230,26 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
           mpfSumET_ = (*pfmet)[0].sumEt();
           mpfMETSign_ = (*pfmet)[0].significance();
         }
+
+        /////// Colins Soper variables  /////
+	// *********** FIXME: Need to figure out how to access tag, probe, and pair information 
+	// at the same time.
+	double res[3] = { -10., -10., -10.};
+	// 	TLorentzVector daughter1 = tag->p4();
+	// 	TLorentzVector daughter2 = probe->p4();
+	// 	if(tag->charge()<0) {
+	// 	  mu = daughter1;
+	// 	  mubar = daughter2;
+	// 	}
+	// 	else {
+	// 	  mu = daughter2;
+	// 	  mubar = daughter1;
+	// 	}
+	// 	calCSVariables(mu, mubar, res, pair->pz()<0.0);
+
+	mCScostheta_     = res[0];
+	mCSsin2theta_    = res[1];
+	mCStanphi_       = res[2];
     }
 
 }
