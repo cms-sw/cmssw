@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.45 2010/08/06 14:44:17 duggan Exp $
+// $Id: SiPixelDigiSource.cc,v 1.46 2010/10/15 10:35:36 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -83,7 +83,7 @@ void SiPixelDigiSource::beginJob(){
   int nModsInFile=0;
   assert(!infile.fail());
   while(!infile.eof()&&nModsInFile<1440) {
-    infile >> I_name[nModsInFile] >> I_detId[nModsInFile] >> I_fedId[nModsInFile] >> I_linkId[nModsInFile] ;
+    infile >> I_name[nModsInFile] >> I_detId[nModsInFile] >> I_fedId[nModsInFile] >> I_linkId1[nModsInFile] >> I_linkId2[nModsInFile];
     //cout<<nModsInFile<<" , "<<I_name[nModsInFile]<<" , "<<I_detId[nModsInFile]<<" , "<<I_fedId[nModsInFile]<<" , "<<I_linkId[nModsInFile]<<endl; ;
     nModsInFile++;
   }
@@ -107,6 +107,7 @@ void SiPixelDigiSource::beginRun(const edm::Run& r, const edm::EventSetup& iSetu
     nBPIXDigis = 0; 
     nFPIXDigis = 0;
     for(int i=0; i!=40; i++) nDigisPerFed[i]=0;  
+    for(int i=0; i!=4; i++) nDigisPerDisk[i]=0;  
     
     // Build map
     buildStructure(iSetup);
@@ -162,11 +163,14 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
   for(int i=0; i!=192; i++) numberOfDigis[i]=0;
+  for(int i=0; i!=1152; i++) nDigisPerChan[i]=0;  
+  for(int i=0; i!=4; i++) nDigisPerDisk[i]=0;  
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     int numberOfDigisMod = (*struct_iter).second->fill(*input, modOn, 
 				ladOn, layOn, phiOn, 
 				bladeOn, diskOn, ringOn, 
-				twoDimOn, reducedSet, twoDimModOn, twoDimOnlyLayDisk);
+				twoDimOn, reducedSet, twoDimModOn, twoDimOnlyLayDisk,
+				nDigisA, nDigisB);
     if(numberOfDigisMod>0){
       nEventDigis = nEventDigis + numberOfDigisMod;  
       nActiveModules++;  
@@ -183,6 +187,10 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    //if(I_fedId[i]>=32&&I_fedId[i]<=39) std::cout<<"Attention: a BPIX module matched to an FPIX FED!"<<std::endl;
 	    nDigisPerFed[I_fedId[i]]=nDigisPerFed[I_fedId[i]]+numberOfDigisMod;
 	    //cout<<"BPIX: "<<i<<" , "<<I_fedId[i]<<" , "<<numberOfDigisMod<<" , "<<nDigisPerFed[I_fedId[i]]<<endl;
+	    int index1 = I_fedId[i]*36+(I_linkId1[i]-1); int index2 = I_fedId[i]*36+(I_linkId2[i]-1);
+	    if(nDigisA>0) nDigisPerChan[index1]=nDigisPerChan[index1]+nDigisA;
+	    if(nDigisB>0) nDigisPerChan[index2]=nDigisPerChan[index2]+nDigisB;
+	    //cout<<"BPIX: "<<i<<" , "<<I_linkId1[i]<<" , "<<I_linkId2[i]<<" , "<<nDigisA<<" , "<<nDigisB<<endl;
 	    i=767;
 	  }
         }
@@ -289,7 +297,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  }
 	}else if(side==PixelEndcapName::pO){
 	  if(disk==1){
-	    i=145;
+	    i=144;
 	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
 	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
 	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
@@ -303,7 +311,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
 	    if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
 	  }else if(disk==2){
-	    i=169;
+	    i=168;
 	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
 	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
 	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
@@ -318,9 +326,12 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
 	  }
 	}
-	//std::cout<<"status: "<<iter<<","<<side<<","<<disk<<","<<blade<<","<<panel<<std::endl;       
 	numberOfDigis[iter]=numberOfDigis[iter]+numberOfDigisMod;
-        for(int i=768; i!=1440; i++){
+	//if(side==PixelEndcapName::pO||side==PixelEndcapName::pI){
+	//  if(disk==2){ 
+	//  std::cout<<"status: "<<iter<<","<<side<<","<<disk<<","<<blade<<","<<panel<<","<<numberOfDigisMod<<","<<numberOfDigis[iter]<<std::endl;       
+        //}}
+	for(int i=768; i!=1440; i++){
           //cout<<"\t\t\t fpix: "<<i<<" , "<<(*struct_iter).first<<" , "<<I_detId[i]<<endl;
           if((*struct_iter).first == I_detId[i]){
 	    //if(I_fedId[i]<32||I_fedId[i]>39) std::cout<<"Attention: an FPIX module matched to a BPIX FED!"<<std::endl;
@@ -338,30 +349,121 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 //  if(lumiSection>lumSec){ lumSec = lumiSection; nLumiSecs++; }
 //  if(nEventDigis>bigEventSize) nBigEvents++;
 //  if(nLumiSecs%5==0){
-  MonitorElement* me; MonitorElement* me1;
   
-  me=theDMBE->get("Pixel/Endcap/ALLMODS_ndigisCHAN_Endcap");
-  if(me){ for(int j=0; j!=192; j++) if(numberOfDigis[j]>0) me->Fill((float)numberOfDigis[j]);}
+  MonitorElement* meE; MonitorElement* meE1; MonitorElement* meE2; MonitorElement* meE3; MonitorElement* meE4; 
+  meE=theDMBE->get("Pixel/Endcap/ALLMODS_ndigisCHAN_Endcap");
+  if(meE){ for(int j=0; j!=192; j++) if(numberOfDigis[j]>0) meE->Fill((float)numberOfDigis[j]);}
+  meE1=theDMBE->get("Pixel/Endcap/ALLMODS_ndigisCHAN_EndcapDm1");
+  if(meE1){ for(int j=0; j!=72; j++) if((j<24||j>47)&&numberOfDigis[j]>0) meE1->Fill((float)numberOfDigis[j]);}
+  meE2=theDMBE->get("Pixel/Endcap/ALLMODS_ndigisCHAN_EndcapDm2");
+  if(meE2){ for(int j=24; j!=96; j++) if((j<48||j>71)&&numberOfDigis[j]>0) meE2->Fill((float)numberOfDigis[j]);}
+  meE3=theDMBE->get("Pixel/Endcap/ALLMODS_ndigisCHAN_EndcapDp1");
+  if(meE3){ for(int j=96; j!=168; j++) if((j<120||j>143)&&numberOfDigis[j]>0) meE3->Fill((float)numberOfDigis[j]);}
+  meE4=theDMBE->get("Pixel/Endcap/ALLMODS_ndigisCHAN_EndcapDp2");
+  if(meE4){ for(int j=120; j!=192; j++) if((j<144||j>167)&&numberOfDigis[j]>0) meE4->Fill((float)numberOfDigis[j]);}
+  
+  MonitorElement* me1; MonitorElement* me2; MonitorElement* me3; MonitorElement* me4; MonitorElement* me5;
+  MonitorElement* me6; MonitorElement* me7; MonitorElement* me8; MonitorElement* me9; MonitorElement* me10; MonitorElement* me11;
+  MonitorElement* me12; MonitorElement* me13; MonitorElement* me14; MonitorElement* me15; MonitorElement* me16; MonitorElement* me17;
+  MonitorElement* me18; MonitorElement* me19; MonitorElement* me20; MonitorElement* me21; MonitorElement* me22; MonitorElement* me23;
+  MonitorElement* me24; MonitorElement* me25; MonitorElement* me26; MonitorElement* me27; MonitorElement* me28; MonitorElement* me29;
+  MonitorElement* me30; MonitorElement* me31; MonitorElement* me32; MonitorElement* me33; MonitorElement* me34; MonitorElement* me35;
+  MonitorElement* me36;
+  me1=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh1");
+  if(me1){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+0]>0) me1->Fill((float)nDigisPerChan[i*36+0]);}
+  me2=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh2");
+  if(me2){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+1]>0) me2->Fill((float)nDigisPerChan[i*36+1]);}
+  me3=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh3");
+  if(me3){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+2]>0) me3->Fill((float)nDigisPerChan[i*36+2]);}
+  me4=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh4");
+  if(me4){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+3]>0) me4->Fill((float)nDigisPerChan[i*36+3]);}
+  me5=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh5");
+  if(me5){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+4]>0) me5->Fill((float)nDigisPerChan[i*36+4]);}
+  me6=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh6");
+  if(me6){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+5]>0) me6->Fill((float)nDigisPerChan[i*36+5]);}
+  me7=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh7");
+  if(me7){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+6]>0) me7->Fill((float)nDigisPerChan[i*36+6]);}
+  me8=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh8");
+  if(me8){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+7]>0) me8->Fill((float)nDigisPerChan[i*36+7]);}
+  me9=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh9");
+  if(me9){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+8]>0) me9->Fill((float)nDigisPerChan[i*36+8]);}
+  me10=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh10");
+  if(me10){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+9]>0) me10->Fill((float)nDigisPerChan[i*36+9]);}
+  me11=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh11");
+  if(me11){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+10]>0) me11->Fill((float)nDigisPerChan[i*36+10]);}
+  me12=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh12");
+  if(me12){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+11]>0) me12->Fill((float)nDigisPerChan[i*36+11]);}
+  me13=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh13");
+  if(me13){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+12]>0) me13->Fill((float)nDigisPerChan[i*36+12]);}
+  me14=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh14");
+  if(me14){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+13]>0) me14->Fill((float)nDigisPerChan[i*36+13]);}
+  me15=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh15");
+  if(me15){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+14]>0) me15->Fill((float)nDigisPerChan[i*36+14]);}
+  me16=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh16");
+  if(me16){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+15]>0) me16->Fill((float)nDigisPerChan[i*36+15]);}
+  me17=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh17");
+  if(me17){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+16]>0) me17->Fill((float)nDigisPerChan[i*36+16]);}
+  me18=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh18");
+  if(me18){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+17]>0) me18->Fill((float)nDigisPerChan[i*36+17]);}
+  me19=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh19");
+  if(me19){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+18]>0) me19->Fill((float)nDigisPerChan[i*36+18]);}
+  me20=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh20");
+  if(me20){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+19]>0) me20->Fill((float)nDigisPerChan[i*36+19]);}
+  me21=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh21");
+  if(me21){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+20]>0) me21->Fill((float)nDigisPerChan[i*36+20]);}
+  me22=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh22");
+  if(me22){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+21]>0) me22->Fill((float)nDigisPerChan[i*36+21]);}
+  me23=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh23");
+  if(me23){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+22]>0) me23->Fill((float)nDigisPerChan[i*36+22]);}
+  me24=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh24");
+  if(me24){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+23]>0) me24->Fill((float)nDigisPerChan[i*36+23]);}
+  me25=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh25");
+  if(me25){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+24]>0) me25->Fill((float)nDigisPerChan[i*36+24]);}
+  me26=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh26");
+  if(me26){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+25]>0) me26->Fill((float)nDigisPerChan[i*36+25]);}
+  me27=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh27");
+  if(me27){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+26]>0) me27->Fill((float)nDigisPerChan[i*36+26]);}
+  me28=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh28");
+  if(me28){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+27]>0) me28->Fill((float)nDigisPerChan[i*36+27]);}
+  me29=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh29");
+  if(me29){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+28]>0) me29->Fill((float)nDigisPerChan[i*36+28]);}
+  me30=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh30");
+  if(me30){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+29]>0) me30->Fill((float)nDigisPerChan[i*36+29]);}
+  me31=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh31");
+  if(me31){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+30]>0) me31->Fill((float)nDigisPerChan[i*36+30]);}
+  me32=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh32");
+  if(me32){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+31]>0) me32->Fill((float)nDigisPerChan[i*36+31]);}
+  me33=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh33");
+  if(me33){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+32]>0) me33->Fill((float)nDigisPerChan[i*36+32]);}
+  me34=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh34");
+  if(me34){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+33]>0) me34->Fill((float)nDigisPerChan[i*36+33]);}
+  me35=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh35");
+  if(me35){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+34]>0) me35->Fill((float)nDigisPerChan[i*36+34]);}
+  me36=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_BarrelCh36");
+  if(me36){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+35]>0) me36->Fill((float)nDigisPerChan[i*36+35]);}
   
   // Rate of events with >N digis:
+  MonitorElement* meX1;
   if(nEventDigis>bigEventSize){
-    me = theDMBE->get("Pixel/bigEventRate");
-    if(me) me->Fill(lumiSection,1./23.);    
+    meX1 = theDMBE->get("Pixel/bigEventRate");
+    if(meX1) meX1->Fill(lumiSection,1./23.);    
   }
   //std::cout<<"nEventDigis: "<<nEventDigis<<" , nLumiSecs: "<<nLumiSecs<<" , nBigEvents: "<<nBigEvents<<std::endl;
   
   // Rate of pixel events and total number of pixel events per BX:
+  MonitorElement* meX2; MonitorElement* meX3;
   if(nActiveModules>=4){
-    me = theDMBE->get("Pixel/pixEvtsPerBX");
-    if(me) me->Fill(float(bx));
-    me1 = theDMBE->get("Pixel/pixEventRate");
-    if(me1) me1->Fill(lumiSection, 1./23.);
+    meX2 = theDMBE->get("Pixel/pixEvtsPerBX");
+    if(meX2) meX2->Fill(float(bx));
+    meX3 = theDMBE->get("Pixel/pixEventRate");
+    if(meX3) meX3->Fill(lumiSection, 1./23.);
   }
   
   // Actual digi occupancy in a FED compared to average digi occupancy per FED
-  me = theDMBE->get("Pixel/averageDigiOccupancy");
-  me1 = theDMBE->get("Pixel/avgfedDigiOccvsLumi");
-  if(me){
+  MonitorElement* meX4; MonitorElement* meX5;
+  meX4 = theDMBE->get("Pixel/averageDigiOccupancy");
+  meX5 = theDMBE->get("Pixel/avgfedDigiOccvsLumi");
+  if(meX4){
     int maxfed=0;
     for(int i=0; i!=32; i++){
       if(nDigisPerFed[i]>maxfed) maxfed=nDigisPerFed[i];
@@ -377,12 +479,12 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	if(averageFPIXFed>0.) averageOcc = nDigisPerFed[i]/averageFPIXFed;
 	//cout<<"\t FPIX i: "<<i<<" , "<<nFPIXDigis<<" , "<<averageFPIXFed<<" , "<<nDigisPerFed[i]<<" , "<<averageOcc<<endl;
       }
-      me->setBinContent(i+1,averageOcc);
+      meX4->setBinContent(i+1,averageOcc);
       int lumiSections8 = int(lumiSection/8);
       if (modOn){
-	if (me1){
-	  me1->setBinContent(1+lumiSections8, i+1, averageOcc);
-	}//endif me1
+	if (meX5){
+	  meX5->setBinContent(1+lumiSections8, i+1, averageOcc);
+	}//endif meX5
       }//endif modOn
     }
   }
@@ -539,13 +641,99 @@ void SiPixelDigiSource::bookMEs(){
   theDMBE->cd("Pixel/Barrel");
   meNDigisCOMBBarrel_ = theDMBE->book1D("ALLMODS_ndigisCOMB_Barrel","Number of Digis",200,0.,400.);
   meNDigisCOMBBarrel_->setAxisTitle("Number of digis per module per event",1);
-  meNDigisCHANBarrel_ = theDMBE->book1D("ALLMODS_ndigisCHAN_Barrel","Number of Digis",200,0.,400.);
+  meNDigisCHANBarrel_ = theDMBE->book1D("ALLMODS_ndigisCHAN_Barrel","Number of Digis",100,0.,200.);
   meNDigisCHANBarrel_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelL1_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelL1","Number of Digis L1",100,0.,200.);
+  meNDigisCHANBarrelL1_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelL2_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelL2","Number of Digis L2",100,0.,200.);
+  meNDigisCHANBarrelL2_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelL3_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelL3","Number of Digis L3",100,0.,200.);
+  meNDigisCHANBarrelL3_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh1_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh1","Number of Digis Ch1",100,0.,1000.);
+  meNDigisCHANBarrelCh1_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh2_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh2","Number of Digis Ch2",100,0.,1000.);
+  meNDigisCHANBarrelCh2_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh3_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh3","Number of Digis Ch3",100,0.,1000.);
+  meNDigisCHANBarrelCh3_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh4_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh4","Number of Digis Ch4",100,0.,1000.);
+  meNDigisCHANBarrelCh4_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh5_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh5","Number of Digis Ch5",100,0.,200.);
+  meNDigisCHANBarrelCh5_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh6_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh6","Number of Digis Ch6",100,0.,200.);
+  meNDigisCHANBarrelCh6_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh7_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh7","Number of Digis Ch7",100,0.,200.);
+  meNDigisCHANBarrelCh7_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh8_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh8","Number of Digis Ch8",100,0.,200.);
+  meNDigisCHANBarrelCh8_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh9_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh9","Number of Digis Ch9",100,0.,200.);
+  meNDigisCHANBarrelCh9_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh10_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh10","Number of Digis Ch10",100,0.,200.);
+  meNDigisCHANBarrelCh10_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh11_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh11","Number of Digis Ch11",100,0.,200.);
+  meNDigisCHANBarrelCh11_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh12_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh12","Number of Digis Ch12",100,0.,200.);
+  meNDigisCHANBarrelCh12_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh13_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh13","Number of Digis Ch13",100,0.,200.);
+  meNDigisCHANBarrelCh13_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh14_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh14","Number of Digis Ch14",100,0.,200.);
+  meNDigisCHANBarrelCh14_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh15_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh15","Number of Digis Ch15",100,0.,200.);
+  meNDigisCHANBarrelCh15_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh16_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh16","Number of Digis Ch16",100,0.,200.);
+  meNDigisCHANBarrelCh16_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh17_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh17","Number of Digis Ch17",100,0.,200.);
+  meNDigisCHANBarrelCh17_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh18_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh18","Number of Digis Ch18",100,0.,200.);
+  meNDigisCHANBarrelCh18_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh19_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh19","Number of Digis Ch19",100,0.,200.);
+  meNDigisCHANBarrelCh19_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh20_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh20","Number of Digis Ch20",100,0.,200.);
+  meNDigisCHANBarrelCh20_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh21_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh21","Number of Digis Ch21",100,0.,200.);
+  meNDigisCHANBarrelCh21_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh22_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh22","Number of Digis Ch22",100,0.,200.);
+  meNDigisCHANBarrelCh22_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh23_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh23","Number of Digis Ch23",100,0.,200.);
+  meNDigisCHANBarrelCh23_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh24_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh24","Number of Digis Ch24",100,0.,200.);
+  meNDigisCHANBarrelCh24_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh25_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh25","Number of Digis Ch25",100,0.,200.);
+  meNDigisCHANBarrelCh25_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh26_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh26","Number of Digis Ch26",100,0.,200.);
+  meNDigisCHANBarrelCh26_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh27_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh27","Number of Digis Ch27",100,0.,200.);
+  meNDigisCHANBarrelCh27_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh28_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh28","Number of Digis Ch28",100,0.,200.);
+  meNDigisCHANBarrelCh28_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh29_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh29","Number of Digis Ch29",100,0.,200.);
+  meNDigisCHANBarrelCh29_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh30_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh30","Number of Digis Ch30",100,0.,200.);
+  meNDigisCHANBarrelCh30_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh31_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh31","Number of Digis Ch31",100,0.,200.);
+  meNDigisCHANBarrelCh31_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh32_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh32","Number of Digis Ch32",100,0.,200.);
+  meNDigisCHANBarrelCh32_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh33_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh33","Number of Digis Ch33",100,0.,200.);
+  meNDigisCHANBarrelCh33_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh34_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh34","Number of Digis Ch34",100,0.,200.);
+  meNDigisCHANBarrelCh34_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh35_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh35","Number of Digis Ch35",100,0.,200.);
+  meNDigisCHANBarrelCh35_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANBarrelCh36_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh36","Number of Digis Ch36",100,0.,200.);
+  meNDigisCHANBarrelCh36_->setAxisTitle("Number of digis per FED channel per event",1);
   theDMBE->cd("Pixel/Endcap");
   meNDigisCOMBEndcap_ = theDMBE->book1D("ALLMODS_ndigisCOMB_Endcap","Number of Digis",200,0.,400.);
   meNDigisCOMBEndcap_->setAxisTitle("Number of digis per module per event",1);
-  meNDigisCHANEndcap_ = theDMBE->book1D("ALLMODS_ndigisCHAN_Endcap","Number of Digis",200,0.,400.);
+  meNDigisCHANEndcap_ = theDMBE->book1D("ALLMODS_ndigisCHAN_Endcap","Number of Digis",100,0.,200.);
   meNDigisCHANEndcap_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANEndcapDp1_ = theDMBE->book1D("ALLMODS_ndigisCHAN_EndcapDp1","Number of Digis Disk p1",100,0.,200.);
+  meNDigisCHANEndcapDp1_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANEndcapDp2_ = theDMBE->book1D("ALLMODS_ndigisCHAN_EndcapDp2","Number of Digis Disk p2",100,0.,200.);
+  meNDigisCHANEndcapDp2_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANEndcapDm1_ = theDMBE->book1D("ALLMODS_ndigisCHAN_EndcapDm1","Number of Digis Disk m1",100,0.,200.);
+  meNDigisCHANEndcapDm1_->setAxisTitle("Number of digis per FED channel per event",1);
+  meNDigisCHANEndcapDm2_ = theDMBE->book1D("ALLMODS_ndigisCHAN_EndcapDm2","Number of Digis Disk m2",100,0.,200.);
+  meNDigisCHANEndcapDm2_->setAxisTitle("Number of digis per FED channel per event",1);
   theDMBE->cd(currDir);
 }
 

@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiModule.h,v 1.16 2010/06/09 04:02:45 merkelp Exp $
+// $Id: SiPixelDigiModule.h,v 1.17 2010/08/03 12:04:45 merkelp Exp $
 //
 //
 //  Updated by: Lukas Wehrli
@@ -25,6 +25,10 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
+#include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
 #include <boost/cstdint.hpp>
 
 class SiPixelDigiModule {        
@@ -45,10 +49,16 @@ class SiPixelDigiModule {
   /// Book histograms
   void book(const edm::ParameterSet& iConfig, int type=0, bool twoD=true, bool hiRes=false, bool reducedSet=false, bool additInfo=false);
   /// Fill histograms
-  int fill(const edm::DetSetVector<PixelDigi> & input, bool modon=true, 
-						 bool ladon=false, bool layon=false, bool phion=false, 
-						 bool bladeon=false, bool diskon=false, bool ringon=false, 
-						 bool twoD=true, bool reducedSet=false, bool twoDimModOn = true, bool twoDimOnlyLayDisk = false);
+//  int fill(const edm::DetSetVector<PixelDigi> & input, bool modon=true, 
+//						 bool ladon=false, bool layon=false, bool phion=false, 
+//						 bool bladeon=false, bool diskon=false, bool ringon=false, 
+//						 bool twoD=true, bool reducedSet=false, bool twoDimModOn = true, bool twoDimOnlyLayDisk = false,
+//						 int &nDigisA, int &nDigisB);
+  int fill(const edm::DetSetVector<PixelDigi> & input, const bool modon, 
+						 const bool ladon, const bool layon, const bool phion, 
+						 const bool bladeon, const bool diskon, const bool ringon, 
+						 const bool twoD, const bool reducedSet, const bool twoDimModOn, const bool twoDimOnlyLayDisk,
+						 int &nDigisA, int &nDigisB);
   
  private:
 

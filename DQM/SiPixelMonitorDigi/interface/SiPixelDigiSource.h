@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.21 2010/08/06 14:45:22 duggan Exp $
+// $Id: SiPixelDigiSource.h,v 1.22 2010/10/15 10:35:32 merkelp Exp $
 //
 
 #include <memory>
@@ -94,7 +94,50 @@
        MonitorElement* meNDigisCOMBBarrel_;
        MonitorElement* meNDigisCOMBEndcap_;
        MonitorElement* meNDigisCHANBarrel_;
+       MonitorElement* meNDigisCHANBarrelL1_;
+       MonitorElement* meNDigisCHANBarrelL2_;
+       MonitorElement* meNDigisCHANBarrelL3_;
+       MonitorElement* meNDigisCHANBarrelCh1_;
+       MonitorElement* meNDigisCHANBarrelCh2_;
+       MonitorElement* meNDigisCHANBarrelCh3_;
+       MonitorElement* meNDigisCHANBarrelCh4_;
+       MonitorElement* meNDigisCHANBarrelCh5_;
+       MonitorElement* meNDigisCHANBarrelCh6_;
+       MonitorElement* meNDigisCHANBarrelCh7_;
+       MonitorElement* meNDigisCHANBarrelCh8_;
+       MonitorElement* meNDigisCHANBarrelCh9_;
+       MonitorElement* meNDigisCHANBarrelCh10_;
+       MonitorElement* meNDigisCHANBarrelCh11_;
+       MonitorElement* meNDigisCHANBarrelCh12_;
+       MonitorElement* meNDigisCHANBarrelCh13_;
+       MonitorElement* meNDigisCHANBarrelCh14_;
+       MonitorElement* meNDigisCHANBarrelCh15_;
+       MonitorElement* meNDigisCHANBarrelCh16_;
+       MonitorElement* meNDigisCHANBarrelCh17_;
+       MonitorElement* meNDigisCHANBarrelCh18_;
+       MonitorElement* meNDigisCHANBarrelCh19_;
+       MonitorElement* meNDigisCHANBarrelCh20_;
+       MonitorElement* meNDigisCHANBarrelCh21_;
+       MonitorElement* meNDigisCHANBarrelCh22_;
+       MonitorElement* meNDigisCHANBarrelCh23_;
+       MonitorElement* meNDigisCHANBarrelCh24_;
+       MonitorElement* meNDigisCHANBarrelCh25_;
+       MonitorElement* meNDigisCHANBarrelCh26_;
+       MonitorElement* meNDigisCHANBarrelCh27_;
+       MonitorElement* meNDigisCHANBarrelCh28_;
+       MonitorElement* meNDigisCHANBarrelCh29_;
+       MonitorElement* meNDigisCHANBarrelCh30_;
+       MonitorElement* meNDigisCHANBarrelCh31_;
+       MonitorElement* meNDigisCHANBarrelCh32_;
+       MonitorElement* meNDigisCHANBarrelCh33_;
+       MonitorElement* meNDigisCHANBarrelCh34_;
+       MonitorElement* meNDigisCHANBarrelCh35_;
+       MonitorElement* meNDigisCHANBarrelCh36_;
        MonitorElement* meNDigisCHANEndcap_;
+       MonitorElement* meNDigisCHANEndcapDp1_;
+       MonitorElement* meNDigisCHANEndcapDp2_;
+       MonitorElement* meNDigisCHANEndcapDm1_;
+       MonitorElement* meNDigisCHANEndcapDm2_;
        
        int bigEventSize;
        
@@ -103,9 +146,14 @@
        std::string I_name[1440];
        unsigned int I_detId[1440];
        int I_fedId[1440];
-       int I_linkId[1440];
+       int I_linkId1[1440];
+       int I_linkId2[1440];
        int nDigisPerFed[40];
+       int nDigisPerChan[1152];
+       int nDigisPerDisk[4];
        int numberOfDigis[192];
+       int nDigisA;
+       int nDigisB;
  };
 
 #endif
