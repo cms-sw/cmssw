@@ -3,6 +3,7 @@
 ####################################################
 [allowed-uses]
 
+
 #geant4 (direct)
 Alignment/LaserAlignmentSimulation/.*  : geant4.*
 SimG4CMS/.*                            : geant4.*
@@ -74,6 +75,14 @@ EventFilter/Utilities/.*                : xdaq
 #xdaq (indirect)
 IORawData/DaqSource/.*                  : xdaq
 
+#Reco and Track exceptions for DQM usage
+RecoEGamma/Examples/.*                  : DQM.*
+RecoLocalCalo/EcalRecProducers/test/.*  : DQM.*
+RecoParticleFlow/Benchmark/.*           : DQM.*         
+RecoParticleFlow/PFRootEvent/.*         : DQM.*
+RecoParticleFlow/PFTracking/test/.*     : DQM.*
+RecoTauTag/HLTProducers/.*              : DQM.*
+
 ####################################################
 #                    allowed-usedby                #
 ####################################################
@@ -83,6 +92,10 @@ IORawData/DaqSource/.*                  : xdaq
 #                   not-allowed-uses               #
 ####################################################
 [not-allowed-uses]
+
+#Reco and Track should not use DQM*
+Reco.*          : DQM.*
+Track.*         : DQM.*
 
 ####################################################
 #                 not-allowed-usedby               #
