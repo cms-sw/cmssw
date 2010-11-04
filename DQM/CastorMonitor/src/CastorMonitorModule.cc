@@ -50,6 +50,7 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
   PSMon_ = NULL;    
   CQMon_ = NULL;
   EDMon_ = NULL;  
+  HIMon_ = NULL; 
 
  ////---- get DQMStore service  
   dbe_ = edm::Service<DQMStore>().operator->();
@@ -74,6 +75,15 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
   }
  //-------------------------------------------------------------//
  
+
+ ////-------------------- HIMonitor ------------------------// 
+  if ( ps.getUntrackedParameter<bool>("HIMonitor", false) ) {
+    if(fVerbosity>0) std::cout << "CastorMonitorModule: HI monitor flag is on...." << std::endl;
+    HIMon_ = new CastorHIMonitor();
+    HIMon_->setup(ps, dbe_);
+  }
+ //-------------------------------------------------------------//
+
 ////-------------------- ChannelQualityMonitor ------------------------// 
   if ( ps.getUntrackedParameter<bool>("ChannelQualityMonitor", false) ) {
     if(fVerbosity>0) std::cout << "CastorChannelQualityMonitor: CQ monitor flag is on...." << std::endl;
@@ -81,7 +91,7 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
     CQMon_->setup(ps, dbe_);
   }
  //-------------------------------------------------------------//
-
+  /* // take it away for the time being 
   ////-------------------- LEDMonitor ------------------------// 
   if ( ps.getUntrackedParameter<bool>("LEDMonitor", false) ) {
     if(fVerbosity>0) std::cout << "CastorMonitorModule: LED monitor flag is on...." << std::endl;
@@ -89,7 +99,7 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
     LedMon_->setup(ps, dbe_);
   }
  //-------------------------------------------------------------//
-
+ */
  //---------------------- PSMonitor ----------------------// 
   if ( ps.getUntrackedParameter<bool>("PSMonitor", false) ) {
     if(fVerbosity>0) std::cout << "CastorMonitorModule: PS monitor flag is on...." << std::endl;
@@ -158,12 +168,14 @@ CastorMonitorModule::~CastorMonitorModule(){
 //   if(RecHitMon_!=NULL)  {  RecHitMon_->clearME();}
 //   if(LedMon_!=NULL)     {  LedMon_->clearME();}
 //   if(PSMon_!=NULL)     {  LedMon_->clearME();}
+//   if(HIMon_!=NULL)     {  HIMon_->clearME();}
 //   dbe_->setCurrentFolder(rootFolder_);
 //   dbe_->removeContents();
 // }
 //
 //  if(DigiMon_!=NULL)    { delete DigiMon_;   DigiMon_=NULL;     }
 //  if(RecHitMon_!=NULL) { delete RecHitMon_; RecHitMon_=NULL; }
+//  if(HIMon_!=NULL) { delete HIMon_; HIMon_=NULL; }
 //  if(LedMon_!=NULL)    { delete LedMon_;   LedMon_=NULL;     }
 //  delete evtSel_; evtSel_ = NULL;
 
@@ -308,6 +320,7 @@ void CastorMonitorModule::endJob(void) {
   if(CQMon_!=NULL) CQMon_->done();
   if(PSMon_!=NULL) PSMon_->done();
   if(EDMon_!=NULL) EDMon_->done();
+  if(HIMon_!=NULL) RecHitMon_->done();
 
   /* LEAVE IT OUT FOR THE MOMENT
   // TO DUMP THE OUTPUT TO DATABASE FILE
@@ -330,6 +343,7 @@ void CastorMonitorModule::reset(){
   if(CQMon_!=NULL)       CQMon_->reset();
   if(PSMon_!=NULL)       PSMon_->reset();
   if(EDMon_!=NULL)       EDMon_->reset();
+  if(HIMon_!=NULL)       HIMon_->reset();
 
 }
 
@@ -340,7 +354,6 @@ void CastorMonitorModule::reset(){
 void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetup& eventSetup){
 
   using namespace edm;
-
 
 
   ////---- environment datamembers
@@ -492,7 +505,8 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
       cpu_timer.reset(); cpu_timer.start();
     }
  
- 
+ ////--- TAKE IT OUT FOR THE TIME BEING
+ /*
   //---------------- LED monitor task ------------------------//
   //  if((LedMon_!=NULL) && (evtMask&DO_HCAL_LED_CALIBMON) && digiOK_)
   if(digiOK_) LedMon_->processEvent(*CastorDigi,*conditions_);
@@ -501,7 +515,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
        if (LedMon_!=NULL) std::cout <<"TIMER:: LED MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
        cpu_timer.reset(); cpu_timer.start();
      }
-   
+ */
  //---------------- Pulse Shape monitor task ------------------------//
  ////---- get electronics map
  
@@ -528,6 +542,15 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
       if (EDMon_!=NULL) std::cout <<"TIMER:: EVENTDISPLAY MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
       cpu_timer.reset(); cpu_timer.start();
     }   
+
+//----------------- Heavy Ion monitor task -------------------------//
+ if(rechitOK_ && digiOK_ ) HIMon_->processEvent(*CastorHits, *CastorDigi, *conditions_);
+ if (showTiming_){
+      cpu_timer.stop();
+      if (HIMon_!=NULL) std::cout <<"TIMER:: HI MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
 
   if(fVerbosity>0 && ievt_%100 == 0)
     std::cout << "CastorMonitorModule: processed " << ievt_ << " events" << std::endl;
