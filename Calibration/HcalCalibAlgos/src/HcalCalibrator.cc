@@ -19,7 +19,7 @@ to the actual calibration code in "endJob()".
 //
 // Original Author:  "Anton Anastassov"
 //         Created:  Tue Sept 24 09:13:48 CDT 2008
-// $Id: HcalCalibrator.cc,v 1.4 2009/10/26 01:48:57 anastass Exp $
+// $Id: HcalCalibrator.cc,v 1.5 2010/01/11 16:40:14 kodolova Exp $
 //
 //
 //_________________________________________________________________________________
@@ -53,8 +53,6 @@ to the actual calibration code in "endJob()".
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "TFile.h"
 
