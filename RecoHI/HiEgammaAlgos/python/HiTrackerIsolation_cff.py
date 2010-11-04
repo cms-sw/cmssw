@@ -289,3 +289,10 @@ isoDR44 = cms.EDProducer("HiEgammaIsolationProducer",
     y  = cms.double(4),
     photons = cms.InputTag("cleanPhotons"),
 )
+
+hiTrackCountingIsolation = cms.Sequence(isoT11+isoT12+isoT13+isoT14+isoT21+isoT22+isoT23+isoT24+isoT31+isoT32+isoT33+isoT34+isoT41+isoT42+isoT43+isoT44)
+hiTrackVetoConeIsolation = cms.Sequence(isoDR11+isoDR12+isoDR13+isoDR14+isoDR21+isoDR22+isoDR23+isoDR24+isoDR31+isoDR32+isoDR33+isoDR34+isoDR41+isoDR42+isoDR43+isoDR44)
+
+hiTrackerIsolation = cms.Sequence(hiTrackCountingIsolation+hiTrackVetoConeIsolation)
+
+
