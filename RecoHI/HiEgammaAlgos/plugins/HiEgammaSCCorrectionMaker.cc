@@ -1,8 +1,11 @@
-#include "RecoHI/HiEgammaAlgos/interface/HiEgammaSCCorrectionMaker.h"
+#include "RecoHI/HiEgammaAlgos/plugins/HiEgammaSCCorrectionMaker.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -160,3 +163,4 @@ HiEgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
   evt.put(corrClusters, outputCollection_);   
 }
 
+DEFINE_FWK_MODULE(HiEgammaSCCorrectionMaker);
