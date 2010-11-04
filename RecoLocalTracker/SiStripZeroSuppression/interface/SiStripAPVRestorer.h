@@ -19,8 +19,10 @@
 #include <stdint.h>
 
 typedef std::map< uint16_t, int16_t> DigiMap;
+typedef std::map< uint16_t, std::vector < int16_t> > RawDigiMap;
 typedef std::map< uint16_t, int16_t>::iterator DigiMapIter;
-typedef std::map<uint32_t, std::vector<float> > CMMap;
+typedef std::map<uint32_t, std::vector<float> > CMMap;  //detId, Vector of MeanCM per detId
+
 
 class SiStripAPVRestorer {
 
@@ -35,7 +37,9 @@ class SiStripAPVRestorer {
   void     restore(std::vector<int16_t>&, const std::vector< std::pair<short,float> >& );
   void     fixAPVsCM(edm::DetSet<SiStripProcessedRawDigi>& );
   void     LoadMeanCMMap(edm::Event&);
-
+  RawDigiMap& GetBaselineMap(){return BaselineMap_;}
+  std::vector< DigiMap >& GetSmoothedPoints(){return SmoothedMaps_;}
+  
  protected:
 
   SiStripAPVRestorer(const edm::ParameterSet& conf);
@@ -48,6 +52,7 @@ class SiStripAPVRestorer {
   template<typename T >int16_t NullInspect(std::vector<T>&);
   template<typename T >int16_t AbnormalBaselineInspect(std::vector<T>&);
   template<typename T >int16_t BaselineFollowerInspect(std::vector<T>&);
+  template<typename T >int16_t BaselineAndSaturationInspect(std::vector<T>&);
   template<typename T >void FlatRestore( std::vector<T>& , uint16_t);
   template<typename T >void BaselineFollowerRestore( std::vector<T>&, uint16_t, uint16_t );
   
@@ -67,6 +72,9 @@ class SiStripAPVRestorer {
   std::vector<std::string> apvFlags_;
   std::vector<float> median_;
   std::vector< DigiMap > SmoothedMaps_;
+  RawDigiMap BaselineMap_;
+  
+  
   uint32_t detId_;
   
   CMMap MeanCMmap_;
@@ -87,13 +95,14 @@ class SiStripAPVRestorer {
   double   restoreThreshold_;  
   uint32_t DeltaCMThreshold_;
   
-  uint32_t nSigmaMoiseDerTh_;          // threshold for rejecting hits strips (20 -> 10 ?)
+  uint32_t nSigmaNoiseDerTh_;          // threshold for rejecting hits strips (20 -> 10 ?)
   uint32_t consecThreshold_;           // minimum length of flat region  (3 -> 5 ?)
   uint32_t hitStripThreshold_;         // height above median when strip is definitely a hit
   uint32_t nSmooth_;                   // for smoothing and local minimum determination (odd number)
   uint32_t minStripsToFit_;            // minimum strips to try spline algo (otherwise default to median)
   uint32_t distortionThreshold_;
-  uint32_t cut_to_avoid_signal_;	
+  double CutToAvoidSignal_;	
+  uint32_t nSaturatedStrip_;
     
 };
 
