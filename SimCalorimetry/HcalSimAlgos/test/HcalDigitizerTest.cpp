@@ -88,6 +88,7 @@ int main() {
   hits.push_back(zdcHit);
 
   vector<DetId> hcalDetIds, hoDetIds, hfDetIds, hzdcDetIds;
+  vector<HcalDetId> outerHcalDetIds;
   //hcalDetIds.push_back(barrelDetId);
   //hcalDetIds.push_back(endcapDetId);
   for(int phi = 1; phi < 50 ; ++phi)
@@ -100,6 +101,8 @@ int main() {
 
 
   hoDetIds.push_back(outerDetId);
+  vector<HcalDetId> outerhcalDetIds;
+  outerHcalDetIds.push_back(outerDetId);
   hfDetIds.push_back(forwardDetId1);
   hfDetIds.push_back(forwardDetId2);
   hzdcDetIds.push_back(zdcDetId);
@@ -133,6 +136,8 @@ int main() {
   // -or -
   // crossingFrame.addPileupCaloHits(-3, hitsName, &pileups, 0);
   HcalSimParameterMap parameterMap;
+  HcalSimParameterMap siPMParameterMap = parameterMap;
+  siPMParameterMap.setHOZecotekDetIds(outerHcalDetIds);
   HcalShape hcalShape;
   HcalSiPMShape sipmShape;
   HFShape hfShape;
@@ -152,17 +157,17 @@ int main() {
   CaloHitResponse hoResponse(&parameterMap, &hcalShapeIntegrator);
   CaloHitResponse hfResponse(&parameterMap, &hfShapeIntegrator);
   CaloHitResponse zdcResponse(&parameterMap, &zdcShapeIntegrator);
-  HcalSiPMHitResponse hbheSiPMResponse(&parameterMap, &sipmShapeIntegrator);
+  HcalSiPMHitResponse hoSiPMResponse(&siPMParameterMap, &sipmShapeIntegrator);
 
   HcalHitCorrection hitCorrection(&parameterMap);
   hbheResponse.setHitCorrection(&hitCorrection);
-  hbheSiPMResponse.setHitCorrection(&hitCorrection);
+  hoSiPMResponse.setHitCorrection(&hitCorrection);
   hoResponse.setHitCorrection(&hitCorrection);
   zdcResponse.setHitCorrection(&hitCorrection);
 
   CLHEP::HepJamesRandom randomEngine;
   hbheResponse.setRandomEngine(randomEngine);
-  hbheSiPMResponse.setRandomEngine(randomEngine);
+  hoSiPMResponse.setRandomEngine(randomEngine);
   hoResponse.setRandomEngine(randomEngine);
   hfResponse.setRandomEngine(randomEngine);
   zdcResponse.setRandomEngine(randomEngine);
@@ -173,7 +178,7 @@ int main() {
   ZDCHitFilter zdcHitFilter;
 
   hbheResponse.setHitFilter(&hbheHitFilter);
-  hbheSiPMResponse.setHitFilter(&hbheHitFilter);
+  hoSiPMResponse.setHitFilter(&hoHitFilter);
   hoResponse.setHitFilter(&hoHitFilter);
   hfResponse.setHitFilter(&hfHitFilter);
   zdcResponse.setHitFilter(&zdcHitFilter);
@@ -217,6 +222,7 @@ int main() {
   amplifier.setRandomEngine(randomEngine);
   electronicsSim.setRandomEngine(randomEngine);
   parameterMap.setDbService(&calibratorHandle);
+  siPMParameterMap.setDbService(&calibratorHandle);
 
 
   CaloTDigitizer<HBHEDigitizerTraits> hbheDigitizer(&hbheResponse, &electronicsSim, addNoise);
@@ -240,7 +246,7 @@ int main() {
   std::cout << "HBHE " << std::endl;
   hbheResponse.run(hitCollection);
   std::cout << "SIPM " << std::endl;
-  hbheSiPMResponse.run(hitCollection);
+  hoSiPMResponse.run(hitCollection);
   //hbheDigitizer.run(hitCollection, *hbheResult);
   //hoDigitizer.run(hitCollection, *hoResult);
   //hfDigitizer.run(hitCollection, *hfResult);
