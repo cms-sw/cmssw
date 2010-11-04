@@ -10,16 +10,12 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
 
 process.maxEvents = cms.untracked.PSet(
-   input = cms.untracked.int32(200)
+   input = cms.untracked.int32(-1)
 )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_8_0_pre2/RelValZEE/GEN-SIM-RECO/MC_38Y_V0-v1/0004/CC052912-0274-DF11-903E-002618943904.root',
-    '/store/relval/CMSSW_3_8_0_pre2/RelValZEE/GEN-SIM-RECO/MC_38Y_V0-v1/0004/7E0EA211-2474-DF11-9EEC-001A92971B9A.root',
-    '/store/relval/CMSSW_3_8_0_pre2/RelValZEE/GEN-SIM-RECO/MC_38Y_V0-v1/0004/58A6D390-FC73-DF11-B9A2-0018F3D096DC.root',
-    '/store/relval/CMSSW_3_8_0_pre2/RelValZEE/GEN-SIM-RECO/MC_38Y_V0-v1/0004/462B4200-0174-DF11-B2C1-0018F3D096D4.root',
-    '/store/relval/CMSSW_3_8_0_pre2/RelValZEE/GEN-SIM-RECO/MC_38Y_V0-v1/0004/069A2F8A-0074-DF11-9EED-0018F3D096AA.root'
+    '/store/relval/CMSSW_3_10_0_pre2/RelValZEE/GEN-SIM-RECO/START39_V3-v1/0061/A0E0AF74-F5E2-DF11-A9BC-002618943939.root',
     ),
     secondaryFileNames = cms.untracked.vstring (
    )

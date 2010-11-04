@@ -16,7 +16,8 @@ public:
   double cicSelection(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&);
   double robustSelection(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&);
   int classify(const reco::GsfElectron*);
-  
+  bool compute_cut(double x, double et, double cut_min, double cut_max, bool gtn=false);
+
  private:
   bool wantBinning_;
   bool newCategories_;
