@@ -29,7 +29,7 @@ public:
     baseDelaySign1 = 1;
     baseDelay2 = new SiStripBaseDelay;
     baseDelaySign2 = -1;
-    totalDelays = 15000;
+    totalDelays = 15000;    
     // totalDelays = 1;
     for( uint32_t i=0; i<totalDelays; ++i ) {
       detIds.push_back(i);

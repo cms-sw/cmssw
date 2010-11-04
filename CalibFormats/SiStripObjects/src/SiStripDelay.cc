@@ -6,7 +6,7 @@
 //     <Notes on implementation>
 // Original Author:  M. De Mattia
 //         Created:  26/10/2010
-// $Id: SiStripDelay.cc,v 1.13 2010/04/27 08:06:06 demattia Exp $
+// $Id: SiStripDelay.cc,v 1.1 2010/10/26 14:52:43 demattia Exp $
 
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDelay.h"
@@ -124,4 +124,10 @@ void SiStripDelay::printDebug(std::stringstream & ss) const
 
 void SiStripDelay::printSummary(std::stringstream& ss) const
 {
+  SiStripDetSummary summaryDelays;
+  boost::unordered_map<uint32_t, double>::const_iterator it = delays_.begin();
+  for( ; it != delays_.end(); ++it ) {
+    summaryDelays.add(it->first, it->second);
+  }
+  summaryDelays.print(ss);
 }

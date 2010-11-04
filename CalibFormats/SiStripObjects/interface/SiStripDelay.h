@@ -20,8 +20,8 @@
  * This additional step is required such that we don't build the map anytime a new baseDelay is inserted
  * and we don't make checks anytime the getDelay method is called. <br>
  * NOTE: Even if the code does not rely on the presence of the same detIds in all the baseDelays, this
- * condition should be fullfilled for consistency. The code checks only for the of the same number of
- * detIds in all baseDelays.
+ * condition should be fullfilled for consistency. The code checks only that the number of detIds
+ * is the same in all baseDelays.
  */
 
 #include "CondFormats/SiStripObjects/interface/SiStripBaseDelay.h"
@@ -81,8 +81,10 @@ class SiStripDelay
     return sumSignVector_[index];
   }
 
-  void printDebug(std::stringstream& ss) const;
+  /// Prints the average value of the delays for all layers and wheels in the SiStripTracker
   void printSummary(std::stringstream& ss) const;
+  /// Prints the delays for all the detIds
+  void printDebug(std::stringstream& ss) const;
 
  private:
 
