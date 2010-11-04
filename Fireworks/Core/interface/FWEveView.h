@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.23 2010/09/27 15:01:42 amraktad Exp $
+// $Id: FWEveView.h,v 1.24 2010/10/01 09:45:20 amraktad Exp $
 //
 
 
@@ -17,7 +17,6 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWViewBase.h"
-#include "Fireworks/Core/interface/FWViewType.h"
 #include "Fireworks/Core/interface/FWDoubleParameter.h"
 #include "Fireworks/Core/interface/FWBoolParameter.h"
 #include "Fireworks/Core/interface/FWLongParameter.h"
@@ -70,7 +69,6 @@ public:
    virtual FWViewContextMenuHandlerBase* contextMenuHandler() const;
    virtual void saveImageTo(const std::string& iName) const;
    virtual void populateController(ViewerParameterGUI&) const;
-   virtual const std::string& typeName() const;
 
    bool  useGlobalScales() const;
 
@@ -85,7 +83,6 @@ public:
 
    // ---------- static member functions --------------------
    
-   FWViewType::EType typeId() const { return m_type.id(); }
    virtual void updateEnergyScales();
    virtual void energyScalesChanged();
    virtual void setMaxTowerHeight();
@@ -111,7 +108,6 @@ private:
 
    // ---------- member data --------------------------------
 
-   FWViewType           m_type;
    TEveViewer*          m_viewer;
    TEveScene*           m_eventScene;
    TEveElement*         m_ownedProducts;

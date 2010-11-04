@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 14:43:19 EST 2008
-// $Id: FWViewBase.cc,v 1.12 2009/07/21 16:38:56 amraktad Exp $
+// $Id: FWViewBase.cc,v 1.13 2009/11/03 00:05:01 chrjones Exp $
 //
 
 // system include files
@@ -31,8 +31,9 @@
 //
 // constructors and destructor
 //
-FWViewBase::FWViewBase(unsigned int iVersion) :
-   FWConfigurableParameterizable(iVersion)
+FWViewBase::FWViewBase(FWViewType::EType type, unsigned int iVersion) :
+   FWConfigurableParameterizable(iVersion),
+   m_type(type)
 {
 }
 
@@ -109,3 +110,8 @@ FWViewBase::contextMenuHandler() const {
 //
 // static member functions
 //
+const std::string& 
+FWViewBase::typeName() const
+{
+   return m_type.name();
+}

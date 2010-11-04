@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 20:33:06 CET 2010
-// $Id: FWRPZViewGeometry.cc,v 1.14 2010/09/20 14:42:47 amraktad Exp $
+// $Id: FWRPZViewGeometry.cc,v 1.15 2010/09/21 11:39:03 amraktad Exp $
 //
 
 // system include files
@@ -73,19 +73,7 @@ FWRPZViewGeometry::~FWRPZViewGeometry()
 TEveElement*
 FWRPZViewGeometry::getGeoElements(const FWViewType::EType type)
 {
-   if (type == FWViewType::kRhoPhi)
-   {
-      if ( !m_rhoPhiGeo)
-      {
-         m_rhoPhiGeo = new TEveElementList("Geomtery RhoPhi");
-         m_rhoPhiGeo->IncDenyDestroy();
-         m_rhoPhiGeo->AddElement(makeMuonGeometryRhoPhi());
-         m_rhoPhiGeo->AddElement(makeCaloOutlineRhoPhi());
-
-      }
-      return m_rhoPhiGeo;
-   }
-   else 
+   if (type == FWViewType::kRhoZ)
    {
       if ( !m_rhoZGeo)
       {
@@ -96,6 +84,18 @@ FWRPZViewGeometry::getGeoElements(const FWViewType::EType type)
          m_rhoZGeo->AddElement(makeCaloOutlineRhoZ());
       }
       return m_rhoZGeo;
+   }
+   else 
+   {
+      if ( !m_rhoPhiGeo)
+      {
+         m_rhoPhiGeo = new TEveElementList("Geomtery RhoPhi");
+         m_rhoPhiGeo->IncDenyDestroy();
+         m_rhoPhiGeo->AddElement(makeMuonGeometryRhoPhi());
+         m_rhoPhiGeo->AddElement(makeCaloOutlineRhoPhi());
+
+      }
+      return m_rhoPhiGeo;
    }
    return 0;
 }

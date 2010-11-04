@@ -23,7 +23,8 @@ static const std::string kSortColumn = "sortColumn";
 static const std::string kDescendingSort = "descendingSort";
 
 FWL1TriggerTableView::FWL1TriggerTableView( TEveWindowSlot* parent, FWL1TriggerTableViewManager *manager )
-   : m_manager( manager ),
+   : FWViewBase(FWViewType::kTableL1),
+     m_manager( manager ),
      m_tableManager( new FWL1TriggerTableViewTableManager( this ) ),
      m_tableWidget( 0 ),
      m_currentColumn( -1 )
@@ -78,12 +79,12 @@ FWL1TriggerTableView::frame( void ) const
 {
    return 0;
 }
-
+/*
 const std::string&
 FWL1TriggerTableView::typeName( void ) const
 {
    return staticTypeName();
-}
+   }*/
 
 void
 FWL1TriggerTableView::addTo( FWConfiguration& iTo ) const
@@ -236,12 +237,13 @@ FWL1TriggerTableView::columnSelected( Int_t iCol, Int_t iButton, Int_t iKeyMod )
 //
 // static member functions
 //
+/*
 const std::string&
 FWL1TriggerTableView::staticTypeName( void )
 {
    static std::string s_name( "L1TriggerTable" );
    return s_name;
-}
+   }*/
 
 void
 FWL1TriggerTableView::setFrom( const FWConfiguration& iFrom )

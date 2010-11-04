@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.110 2010/09/10 20:34:04 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.111 2010/09/13 14:36:47 matevz Exp $
 //
 
 // system include files
@@ -96,7 +96,7 @@ class FWGUIManager : public FWConfigurable
 {
    // typedefs
 public:
-   typedef boost::function1<FWViewBase*,TEveWindowSlot*> ViewBuildFunctor;
+   typedef boost::function2<FWViewBase*,TEveWindowSlot*, const std::string& > ViewBuildFunctor;
    typedef std::map<std::string, ViewBuildFunctor > NameToViewBuilder;
 private:
    typedef std::map<TEveWindow*, FWViewBase*> ViewMap_t;

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 14:43:25 EST 2008
-// $Id: FWViewBase.h,v 1.12 2010/04/06 20:00:35 amraktad Exp $
+// $Id: FWViewBase.h,v 1.13 2010/09/08 19:18:55 amraktad Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWConfigurableParameterizable.h"
+#include "Fireworks/Core/interface/FWViewType.h"
 
 // forward declarations
 class TGFrame;
@@ -33,12 +34,12 @@ class ViewerParameterGUI;
 
 class FWViewBase : public FWConfigurableParameterizable
 {
-
 public:
-   FWViewBase(unsigned int iVersion = 1);
+   FWViewBase(FWViewType::EType, unsigned int iVersion = 1);
 
    // ---------- const member functions ---------------------
-   virtual const std::string& typeName() const = 0;
+   const std::string& typeName() const;
+   FWViewType::EType typeId() const { return m_type.id(); }
 
    virtual void saveImageTo(const std::string& iName) const = 0;
    void promptForSaveImageTo(TGFrame*) const;
@@ -57,6 +58,7 @@ public:
 
 protected:
    virtual ~FWViewBase();
+   FWViewType           m_type;
 
 private:
    FWViewBase(const FWViewBase&);    // stop default

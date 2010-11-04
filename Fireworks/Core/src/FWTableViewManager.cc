@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.18 2010/05/27 08:45:00 eulisse Exp $
+// $Id: FWTableViewManager.cc,v 1.19 2010/06/18 10:17:16 yana Exp $
 //
 
 // system include files
@@ -47,8 +47,8 @@ FWTableViewManager::FWTableViewManager(FWGUIManager* iGUIMgr)
 {
    FWGUIManager::ViewBuildFunctor f;
    f=boost::bind(&FWTableViewManager::buildView,
-   		   this, _1);
-   iGUIMgr->registerViewBuilder(FWTableView::staticTypeName(), f);
+                 this, _1, _2);
+   iGUIMgr->registerViewBuilder(FWViewType::idToName(FWViewType::kTable), f);
 
    // ---------- for some object types, we have default table contents ----------
    table("reco::GenParticle").
@@ -281,7 +281,7 @@ FWTableViewManager::tableFormats(const TClass &key)
 }
 
 class FWViewBase*
-FWTableViewManager::buildView(TEveWindowSlot* iParent)
+FWTableViewManager::buildView(TEveWindowSlot* iParent, const std::string& /*type*/)
 {
    TEveManager::TRedrawDisabler disableRedraw(gEve);
    boost::shared_ptr<FWTableView> view(new FWTableView(iParent, this));

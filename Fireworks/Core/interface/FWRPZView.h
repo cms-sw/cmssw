@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRPZView.h,v 1.13 2010/09/23 18:30:00 amraktad Exp $
+// $Id: FWRPZView.h,v 1.14 2010/10/18 17:32:25 amraktad Exp $
 //
 
 // system include files
@@ -73,8 +73,6 @@ private:
    TEveProjectionManager* m_projMgr;
    TEveProjectionAxes*    m_axes;
    TEveCalo2D*            m_calo;
-   TEveCalo2D*        m_caloEndCap1;
-   TEveCalo2D*        m_caloEndCap2;
 
    // parameters
    FWDoubleParameter  m_caloDistortion;

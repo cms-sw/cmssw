@@ -31,11 +31,8 @@ public:
    virtual ~FWL1TriggerTableView( void );
 
    TGFrame*       frame( void ) const;
-   const std::string& typeName( void ) const;
    virtual void   addTo( FWConfiguration& ) const;
    virtual void   saveImageTo( const std::string& iName ) const;
-
-   static const std::string& staticTypeName( void );
 
    virtual void setFrom( const FWConfiguration& );
    void 		setBackgroundColor( Color_t );

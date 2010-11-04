@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.220 2010/09/15 18:14:22 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.221 2010/09/16 15:36:55 amraktad Exp $
 
 //
 
@@ -279,7 +279,7 @@ FWGUIManager::createView(const std::string& iName, TEveWindowSlot* slot)
       }
    }
    TEveCompositeFrame *ef = slot->GetEveFrame();
-   FWViewBase* viewBase = itFind->second(slot);
+   FWViewBase* viewBase = itFind->second(slot, iName);
    //in future, get context from 'view'
    FWViewContextMenuHandlerBase* base= viewBase->contextMenuHandler();
    viewBase->openSelectedModelContextMenu_.connect(boost::bind(&FWGUIManager::showSelectedModelContextMenu ,m_guiManager,_1,_2,base));
@@ -1187,7 +1187,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
          float weight = atof((areaIt->second).valueForKey("weight")->value().c_str());
          TEveWindowSlot* slot = ( m_viewMap.size() || (primSlot == 0) ) ? m_viewSecPack->NewSlotWithWeight(weight) : primSlot;
          std::string name = it->first;
-         if (name == "3D Lego") name = FWViewType::kLegoName; 	 
+         if (name == "3D Lego") name = FWViewType::idToName(FWViewType::kLego); 	 
          ViewMap_i lastViewIt = createView(name, slot);
          lastViewIt->second->setFrom(it->second);
 
@@ -1210,7 +1210,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    {  // create views with same weight in old version
       for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it) {
          std::string name = it->first;
-         if (name == "3D Lego") name = FWViewType::kLegoName; 	 
+         if (name == "3D Lego") name =  FWViewType::idToName(FWViewType::kLego);
          createView(name, m_viewMap.size() ? m_viewSecPack->NewSlot() : primSlot); 	 
 
          ViewMap_i lastViewIt = m_viewMap.end(); lastViewIt--;

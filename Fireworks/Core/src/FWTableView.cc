@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.27 2010/06/25 13:13:15 matevz Exp $
+// $Id: FWTableView.cc,v 1.28 2010/06/25 13:29:54 matevz Exp $
 //
 
 // system include files
@@ -203,7 +203,8 @@ static const std::string kDescendingSort = "descendingSort";
 // constructors and destructor
 //
 FWTableView::FWTableView (TEveWindowSlot* iParent, FWTableViewManager *manager)
-     : m_iColl(-1),
+       : FWViewBase(FWViewType::kTable),
+       m_iColl(-1),
        m_manager(manager),
        m_tableManager(new FWTableViewTableManager(this)),
        m_tableWidget(0),

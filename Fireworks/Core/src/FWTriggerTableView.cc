@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.cc,v 1.11 2010/07/21 17:03:26 matevz Exp $
+// $Id: FWTriggerTableView.cc,v 1.12 2010/09/20 15:58:57 yana Exp $
 //
 
 // system include files
@@ -39,7 +39,8 @@ static const std::string kDescendingSort = "descendingSort";
 // constructors and destructor
 //
 FWTriggerTableView::FWTriggerTableView (TEveWindowSlot* iParent, FWTriggerTableViewManager *manager)
-   : m_manager(manager),
+   : FWViewBase(FWViewType::kTableTrigger),
+     m_manager(manager),
      m_tableManager(new FWTriggerTableViewTableManager(this)),
      m_tableWidget(0),
      m_currentColumn(-1),
@@ -100,12 +101,6 @@ TGFrame*
 FWTriggerTableView::frame() const
 {
    return 0;
-}
-
-const std::string&
-FWTriggerTableView::typeName() const
-{
-   return staticTypeName();
 }
 
 void
@@ -231,12 +226,6 @@ FWTriggerTableView::updateFilter( void )
 //
 // static member functions
 //
-const std::string&
-FWTriggerTableView::staticTypeName( void )
-{
-   static std::string s_name( "TriggerTable" );
-   return s_name;
-}
 
 void
 FWTriggerTableView::setFrom( const FWConfiguration& iFrom )

@@ -26,7 +26,7 @@ public:
 
    virtual void 	newItem(const FWEventItem *item);
    void 		destroyItem(const FWEventItem *item);
-   FWViewBase *		buildView(TEveWindowSlot *iParent);
+   FWViewBase *		buildView(TEveWindowSlot *iParent, const std::string& type);
    const std::vector<const FWEventItem *> &items(void) const {
       return m_items;
    }

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTriggerTableViewManager.cc,v 1.2 2010/03/14 20:03:37 amraktad Exp $
+// $Id: FWTriggerTableViewManager.cc,v 1.3 2010/06/18 10:17:16 yana Exp $
 //
 
 // system include files
@@ -43,8 +43,8 @@ FWTriggerTableViewManager::FWTriggerTableViewManager(FWGUIManager* iGUIMgr) :
 {
    FWGUIManager::ViewBuildFunctor f;
    f=boost::bind(&FWTriggerTableViewManager::buildView,
-                 this, _1);
-   iGUIMgr->registerViewBuilder(FWTriggerTableView::staticTypeName(), f);
+                 this, _1, _2);
+   iGUIMgr->registerViewBuilder(FWViewType::idToName(FWViewType::kTableTrigger), f);
 }
 
 FWTriggerTableViewManager::~FWTriggerTableViewManager()
@@ -53,7 +53,7 @@ FWTriggerTableViewManager::~FWTriggerTableViewManager()
 
 
 class FWViewBase*
-FWTriggerTableViewManager::buildView(TEveWindowSlot* iParent)
+FWTriggerTableViewManager::buildView(TEveWindowSlot* iParent, const std::string& /*type*/ )
 {
    TEveManager::TRedrawDisabler disableRedraw(gEve);
    boost::shared_ptr<FWTriggerTableView> view( new FWTriggerTableView(iParent, this) );

@@ -8,13 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.18 2010/10/01 09:45:20 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.19 2010/10/26 16:09:10 amraktad Exp $
 //
 
 // system include files
 #include <boost/bind.hpp>
 
 #include "TAxis.h"
+#include "TH2.h"
 
 #include "TGLViewer.h"
 #include "TGLLightSet.h"
@@ -33,6 +34,7 @@
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
+#include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
 
 //
@@ -98,11 +100,29 @@ FWLegoViewBase::setContext(const fireworks::Context& ctx)
    FWEveView::setContext(ctx);
   
    TEveCaloData* data;
-   if (typeId() == FWViewType::kLegoHF)  {
+   if (typeId() == FWViewType::kLego)  {
+      data = static_cast<TEveCaloData*>(ctx.getCaloData());
+   }
+   else if (typeId() == FWViewType::kLegoHF) {
       data = static_cast<TEveCaloData*>(ctx.getCaloDataHF());
    }
-   else {
-      data = static_cast<TEveCaloData*>(ctx.getCaloData());
+   else
+   {
+      // create empty data locally instead of context
+      TEveCaloDataHist* hdata = new TEveCaloDataHist();
+      hdata->IncDenyDestroy();
+
+      Bool_t status = TH1::AddDirectoryStatus();
+      TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
+      TH2F* dummy = new TH2F("background",
+                             "background",
+                             fw3dlego::xbins_n - 1, fw3dlego::xbins,
+                             72, -1*TMath::Pi(), TMath::Pi());
+      
+      TH1::AddDirectory(status);
+      Int_t sliceIndex = hdata->AddHistogram(dummy);
+      (hdata)->RefSliceInfo(sliceIndex).Setup("background", 0., 0);
+      data = hdata;
    } 
 
    data->GetEtaBins()->SetTitleFont(120);

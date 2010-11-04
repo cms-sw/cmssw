@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.38 2010/10/01 09:45:20 amraktad Exp $
+// $Id: FWEveView.cc,v 1.39 2010/10/18 17:32:25 amraktad Exp $
 //
 
 
@@ -75,8 +75,7 @@ public:
 //
 
 FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned int version) :
-   FWViewBase(version),
-   m_type(type),
+   FWViewBase(type, version),
    m_viewer(0),
    m_eventScene(0),
    m_ownedProducts(0),
@@ -178,11 +177,6 @@ FWEveView::~FWEveView()
 //______________________________________________________________________________
 // const member functions
 
-const std::string& 
-FWEveView::typeName() const
-{
-   return m_type.name();
-}
 
 FWViewContextMenuHandlerBase* 
 FWEveView::contextMenuHandler() const {

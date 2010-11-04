@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:45 CET 2010
-// $Id: FWEveViewManager.h,v 1.9 2010/05/31 13:01:24 amraktad Exp $
+// $Id: FWEveViewManager.h,v 1.10 2010/09/24 16:22:26 amraktad Exp $
 //
 
 // system include files
@@ -82,14 +82,8 @@ private:
    FWEveViewManager(const FWEveViewManager&); // stop default
    const FWEveViewManager& operator=(const FWEveViewManager&); // stop default
 
-   FWViewBase* createISpyView   (TEveWindowSlot* iParent);
-   FWViewBase* create3DView     (TEveWindowSlot* iParent);
-   FWViewBase* createLegoView   (TEveWindowSlot* iParent);
-   FWViewBase* createLegoHFView (TEveWindowSlot* iParent);
-   FWViewBase* createGlimpseView(TEveWindowSlot* iParent);
-   FWViewBase* createRhoPhiView (TEveWindowSlot* iParent);
-   FWViewBase* createRhoZView   (TEveWindowSlot* iParent);
-   FWEveView*  finishViewCreate (boost::shared_ptr<FWEveView>);
+   FWViewBase* buildView(TEveWindowSlot* iParent, const std::string& type);
+   FWEveView*  finishViewCreate     (boost::shared_ptr<FWEveView>);
 
    void beingDestroyed(const FWViewBase*);
    void modelChanges(const FWModelIds& iIds);

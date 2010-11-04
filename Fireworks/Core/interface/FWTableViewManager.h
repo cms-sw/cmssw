@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWTableViewManager.h,v 1.7 2010/05/27 08:45:00 eulisse Exp $
+// $Id: FWTableViewManager.h,v 1.8 2010/09/02 18:10:10 amraktad Exp $
 //
 
 // system include files
@@ -67,7 +67,7 @@ public:
    virtual void            newItem(const FWEventItem*);
    void                    destroyItem(const FWEventItem *item);
    void                    removeAllItems(void);
-   FWViewBase *            buildView(TEveWindowSlot *iParent);
+   FWViewBase *            buildView(TEveWindowSlot *iParent, const std::string& type);
    const Items &           items() const { return m_items; }
    TableSpecs::iterator    tableFormats(const Reflex::Type &key);
    TableSpecs::iterator    tableFormats(const TClass &key);

@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.h,v 1.4 2010/06/14 13:43:28 yana Exp $
+// $Id: FWTriggerTableView.h,v 1.5 2010/09/02 18:10:10 amraktad Exp $
 //
 
 // system include files
@@ -51,12 +51,10 @@ public:
 
    // ---------- const member functions ---------------------
    TGFrame*       frame( void ) const;
-   const std::string& typeName( void ) const;
    virtual void   addTo( FWConfiguration& ) const;
    virtual void   saveImageTo( const std::string& iName ) const;
 
    // ---------- static member functions --------------------
-   static const std::string& staticTypeName( void );
 
    // ---------- member functions ---------------------------
    virtual void setFrom( const FWConfiguration& );

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.36 2010/09/24 16:22:26 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.37 2010/10/18 17:32:25 amraktad Exp $
 //
 
 // system include files
@@ -106,23 +106,13 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) :
    }
    
    
-   m_views.resize(FWViewType::kSize); 
+   m_views.resize(FWViewType::kTypeSize); 
    
    
    // view construction called via GUI mng
-   // note:: this could be simplifed if all view types would use FWViewType
-
-   FWGUIManager::ViewBuildFunctor f[FWViewType::kSize];
-   f[FWViewType::kRhoPhi   ] = boost::bind(&FWEveViewManager::createRhoPhiView   , this, _1);
-   f[FWViewType::kRhoZ     ] = boost::bind(&FWEveViewManager::createRhoZView     , this, _1);
-   f[FWViewType::kISpy     ] = boost::bind(&FWEveViewManager::createISpyView     , this, _1);
-   f[FWViewType::k3D       ] = boost::bind(&FWEveViewManager::create3DView       , this, _1);
-   f[FWViewType::kLego     ] = boost::bind(&FWEveViewManager::createLegoView     , this, _1);
-   f[FWViewType::kLegoHF   ] = boost::bind(&FWEveViewManager::createLegoHFView   , this, _1);
-   f[FWViewType::kGlimpse  ] = boost::bind(&FWEveViewManager::createGlimpseView  , this, _1);
-
-   for (int i = 0; i < FWViewType::kSize; i++)
-      iGUIMgr->registerViewBuilder(FWViewType::idToName(i), f[i]);
+   FWGUIManager::ViewBuildFunctor f =  boost::bind(&FWEveViewManager::buildView, this, _1, _2);
+   for (int i = FWViewType::k3D; i <= FWViewType::kGlimpse; i++)
+     iGUIMgr->registerViewBuilder(FWViewType::idToName(i), f);
 
    // signal
    gEve->GetHighlight()->SetPickToSelect(TEveSelection::kPS_Master);
@@ -226,7 +216,7 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
       builder->setHaveWindow(haveViewForBit(builderViewBit));
       
       // 4.
-      for (size_t viewType = 0; viewType < FWViewType::kSize; ++viewType)
+      for (size_t viewType = 0; viewType < FWViewType::kTypeSize; ++viewType)
       {
          if (((1 << viewType) & builderViewBit) == 0)
             continue;
@@ -259,59 +249,48 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
 
 //______________________________________________________________________________
 FWViewBase*
-FWEveViewManager::createISpyView(TEveWindowSlot* iParent)
+FWEveViewManager::buildView(TEveWindowSlot* iParent, const std::string& viewName)
 {
-   FWViewType::EType t = FWViewType::kISpy;
-   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FWISpyView(iParent, t)));
-   return finishViewCreate(m_views[t].back());   
-}
+   FWViewType::EType type = FWViewType::kTypeSize;
+   for (int i = 0; i < FWViewType::kTypeSize; ++i)
+   {
+      if (viewName == FWViewType::idToName(i))
+      {
+         type = FWViewType::EType(i);
+         break;
+      }
+   }
 
-FWViewBase*
-FWEveViewManager::create3DView(TEveWindowSlot* iParent)
-{
-   FWViewType::EType t = FWViewType::k3D;
-   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FW3DView(iParent, t)));
-   return finishViewCreate(m_views[t].back());   
-}
+   boost::shared_ptr<FWEveView> view;
+   switch(type)
+   {
+      case FWViewType::k3D:
+         view.reset(new FW3DView(iParent, type));
+         break;
+      case FWViewType::kISpy:
+         view.reset(new FWISpyView(iParent, type));
+         break;
+      case FWViewType::kRhoPhi:
+      case FWViewType::kRhoZ:
+      case FWViewType::kRhoPhiPF:
+         view.reset(new FWRPZView(iParent, type));
+         break;
+      case FWViewType::kLego:
+      case FWViewType::kLegoPFECAL:
+         view.reset(new FWEveLegoView(iParent, type));
+         break;
+      case FWViewType::kLegoHF:
+         view.reset(new FWHFView(iParent, type));
+         break;
+      case FWViewType::kGlimpse:
+         view.reset(new FWGlimpseView(iParent, type));
+         break;
+      default:
+         break;
+   }
 
-FWViewBase*
-FWEveViewManager::createRhoPhiView(TEveWindowSlot* iParent)
-{
-   FWViewType::EType t = FWViewType::kRhoPhi;
-   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FWRPZView(iParent, t)));
-   return finishViewCreate(m_views[t].back());   
-}
-
-FWViewBase*
-FWEveViewManager::createRhoZView(TEveWindowSlot* iParent)
-{ 
-   FWViewType::EType t = FWViewType::kRhoZ;
-   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FWRPZView(iParent, t)));
-   return finishViewCreate(m_views[t].back());   
-}
-
-FWViewBase*
-FWEveViewManager::createLegoView(TEveWindowSlot* iParent)
-{
-   FWViewType::EType t = FWViewType::kLego;
-   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FWEveLegoView(iParent, t)));
-   return finishViewCreate(m_views[t].back());
-}
-
-FWViewBase*
-FWEveViewManager::createLegoHFView(TEveWindowSlot* iParent)
-{
-   FWViewType::EType t = FWViewType::kLegoHF;
-   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FWHFView(iParent, t)));
-   return finishViewCreate(m_views[t].back());
-}
-
-FWViewBase*
-FWEveViewManager::createGlimpseView(TEveWindowSlot* iParent)
-{      
-   FWViewType::EType t = FWViewType::kGlimpse;
-   m_views[t].push_back(boost::shared_ptr<FWEveView> (new FWGlimpseView(iParent, t)));
-   return finishViewCreate(m_views[t].back());
+   m_views[type].push_back(boost::shared_ptr<FWEveView> (view));
+   return finishViewCreate(m_views[type].back());
 }
 
 FWEveView*
@@ -577,7 +556,7 @@ FWEveViewManager::setContext(const fireworks::Context* x)
 void
 FWEveViewManager::globalScalesChanged()
 {
-   for (int t = 0 ; t < FWViewType::kSize; ++t)
+   for (int t = 0 ; t < FWViewType::kTypeSize; ++t)
    {
       for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i) 
       {
@@ -593,7 +572,7 @@ FWEveViewManager::globalScalesChanged()
 void
 FWEveViewManager::colorsChanged()
 {
-   for (int t = 0 ; t < FWViewType::kSize; ++t)
+   for (int t = 0 ; t < FWViewType::kTypeSize; ++t)
    {
       for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i) 
          (*i)->setBackgroundColor(colorManager().background());
@@ -605,7 +584,7 @@ void
 FWEveViewManager::eventBegin()
 {
    gEve->DisableRedraw();
-   for (int t = 0 ; t < FWViewType::kSize; ++t)
+   for (int t = 0 ; t < FWViewType::kTypeSize; ++t)
    {
       for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i)   
          (*i)->eventBegin();
@@ -615,7 +594,7 @@ FWEveViewManager::eventBegin()
 void
 FWEveViewManager::eventEnd()
 {
-   for (int t = 0 ; t < FWViewType::kSize; ++t)
+   for (int t = 0 ; t < FWViewType::kTypeSize; ++t)
    {
       for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i)   
          (*i)->eventEnd();
@@ -709,7 +688,7 @@ FWEveViewManager::supportedTypesAndRepresentations() const
 bool
 FWEveViewManager::haveViewForBit(int bit) const
 {
-   for (int t = 0; t < FWViewType::kSize; ++t)
+   for (int t = 0; t < FWViewType::kTypeSize; ++t)
    {
       if ((bit & (1 << t)) && m_views[t].size())
          return true;

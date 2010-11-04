@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableViewManager
-// $Id: FWTriggerTableViewManager.h,v 1.1 2009/10/06 18:56:06 dmytro Exp $
+// $Id: FWTriggerTableViewManager.h,v 1.2 2010/09/02 18:10:10 amraktad Exp $
 //
 
 // system include files
@@ -40,7 +40,7 @@ public:
 
    virtual void newItem(const FWEventItem*);
    void destroyItem (const FWEventItem *item);
-   FWViewBase *buildView (TEveWindowSlot *iParent);
+   FWViewBase *buildView (TEveWindowSlot *iParent, const std::string& type);
    const std::vector<const FWEventItem *> &items () const {
       return m_items;
    }
