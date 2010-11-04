@@ -14,7 +14,7 @@ This will print out a great deal of information for debugging purposes.
 2) Get the templates for the dropbox scripts:
 
 wget http://condb.web.cern.ch/condb/DropBoxOffline/templateForDropbox.txt
-cp /afs/cern.ch/user/d/diguida/public/dropBoxOffline.sh .
+wget http://condb.web.cern.ch/condb/DropBoxOffline/dropBoxOffline.sh
 
 then
 
