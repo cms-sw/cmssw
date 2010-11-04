@@ -19,8 +19,9 @@ highPurityTracks = cms.EDFilter("TrackSelector",
 # reco photon producer
 from RecoEgamma.EgammaPhotonProducers.photonSequence_cff import *
 
-photonCore.scHybridBarrelProducer = cms.InputTag("correctedIslandBarrelSuperClusters") # use island for the moment
-photonCore.scIslandEndcapProducer = cms.InputTag("correctedIslandEndcapSuperClusters") # use island for the moment
+# use island for the moment
+photonCore.scHybridBarrelProducer = cms.InputTag("correctedIslandBarrelSuperClusters")
+photonCore.scIslandEndcapProducer = cms.InputTag("correctedIslandEndcapSuperClusters")
 photonCore.minSCEt = cms.double(8.0)
 photons.minSCEtBarrel = cms.double(5.0)
 photons.minSCEtEndcap = cms.double(15.0)
@@ -42,19 +43,18 @@ hiEgammaSequence = cms.Sequence(hiPhotonSequence)
 hiEcalClustersIsolation = cms.Sequence(hiEgammaSequence * hiEgammaIsolationSequence)
 
 # HI Spike Clean Sequence
-hiSpikeCleanedSC = cms.EDProducer("HiSpikeCleaner",
-                                  recHitProducerBarrel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-                                  recHitProducerEndcap = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-                                  originalSuperClusterProducer = cms.InputTag("correctedIslandBarrelSuperClusters"), 
-                                  outputColl  = cms.string( "" ),
-                                  etCut          = cms.double(10),
-                                  TimingCut    = cms.untracked.double(4.0),
-                                  swissCutThr    = cms.untracked.double(0.83)
-                                  )
+import RecoHI.HiEgammaAlgos.hiSpikeCleaner_cfi
+hiSpikeCleanedSC = RecoHI.HiEgammaAlgos.hiSpikeCleaner_cfi.hiSpikeCleaner.clone(
+    swissCutThr    = cms.untracked.double(0.83)
+)
+cleanPhotonCore = photonCore.clone(
+    scHybridBarrelProducer = cms.InputTag("hiSpikeCleanedSC")
+)
+cleanPhotons = photons.clone(
+    photonCoreProducer = cms.InputTag("cleanPhotonCore")
+)
 
-cleanPhotonCore = photonCore.clone()
-cleanPhotons = photons.clone()
-cleanPhotonCore.scHybridBarrelProducer = cms.InputTag("hiSpikeCleanedSC")
-cleanPhotons.photonCoreProducer = cms.InputTag("cleanPhotonCore")
-
-hiPhotonCleaningSequence = cms.Sequence(hiSpikeCleanedSC * cleanPhotonCore * cleanPhotons)
+hiPhotonCleaningSequence = cms.Sequence(hiSpikeCleanedSC *
+                                        highPurityTracks *
+                                        cleanPhotonCore  *
+                                        cleanPhotons)
