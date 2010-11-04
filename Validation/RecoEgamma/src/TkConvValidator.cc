@@ -93,8 +93,8 @@
  **  
  **
  **  $Id: TkConvValidator
- **  $Date: 2010/10/20 12:32:26 $ 
- **  $Revision: 1.1 $
+ **  $Date: 2010/10/20 16:58:30 $ 
+ **  $Revision: 1.2 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/
@@ -445,6 +445,11 @@ void  TkConvValidator::beginJob() {
     p_convVtxdXVsX_ =  dbe_->bookProfile("pConvVtxdXVsX","Conversion vtx dX vs X" ,120,-60, 60 ,100, -20.,20., "");
     p_convVtxdYVsY_ =  dbe_->bookProfile("pConvVtxdYVsY","Conversion vtx dY vs Y" ,120,-60, 60 ,100, -20.,20., "");
     p_convVtxdZVsZ_ =  dbe_->bookProfile("pConvVtxdZVsZ","Conversion vtx dZ vs Z" ,zBin,zMin,zMax ,100, -20.,20., "");
+
+    p_convVtxdZVsR_ =  dbe_->bookProfile("pConvVtxdZVsR","Conversion vtx dZ vs R" ,rBin,rMin,rMax ,100, -20.,20., "");
+    p2_convVtxdRVsRZ_ =  dbe_->bookProfile2D("p2ConvVtxdRVsRZ","Conversion vtx dR vs RZ" ,zBin,zMin, zMax,rBin,rMin,rMax,100, 0.,20.,"s");
+    p2_convVtxdZVsRZ_ =  dbe_->bookProfile2D("p2ConvVtxdZVsRZ","Conversion vtx dZ vs RZ" ,zBin,zMin, zMax,rBin,rMin,rMax,100, 0.,20.,"s");
+
 
     
     h2_convVtxRrecVsTrue_ =  dbe_->book2D("h2ConvVtxRrecVsTrue","Photon Reco conversion vtx R rec vs true" ,rBin,rMin, rMax,rBin,rMin, rMax);
@@ -1120,6 +1125,15 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       p_convVtxdXVsX_ ->Fill (mcConvX_, aConv.conversionVertex().position().x() - mcConvX_ );
       p_convVtxdYVsY_ ->Fill (mcConvY_, aConv.conversionVertex().position().y() - mcConvY_ );
       p_convVtxdZVsZ_ ->Fill (mcConvZ_, aConv.conversionVertex().position().z() - mcConvZ_ );
+      p_convVtxdZVsR_ ->Fill (mcConvR_, aConv.conversionVertex().position().z() - mcConvZ_ );
+
+      float dR=sqrt(aConv.conversionVertex().position().perp2()) - mcConvR_;
+      float dZ=aConv.conversionVertex().position().z() - mcConvZ_;
+      p2_convVtxdRVsRZ_ ->Fill (mcConvZ_,mcConvR_, dR );      
+      p2_convVtxdZVsRZ_ ->Fill (mcConvZ_,mcConvR_, fabs(dZ) );
+
+
+
 
       h2_convVtxRrecVsTrue_ -> Fill (mcConvR_, sqrt(aConv.conversionVertex().position().perp2()) );
       

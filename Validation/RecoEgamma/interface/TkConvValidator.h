@@ -37,8 +37,8 @@ class SimTrack;
  **  
  **
  **  $Id: TkConvValidator
- **  $Date: 2010/10/20 12:32:26 $ 
- **  $Revision: 1.1 $
+ **  $Date: 2010/10/20 16:55:05 $ 
+ **  $Revision: 1.2 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/
@@ -249,6 +249,11 @@ class TkConvValidator : public edm::EDAnalyzer
   MonitorElement* p_convVtxdXVsX_;
   MonitorElement* p_convVtxdYVsY_;
   MonitorElement* p_convVtxdZVsZ_;
+  MonitorElement* p_convVtxdZVsR_;
+
+
+  MonitorElement* p2_convVtxdRVsRZ_;
+  MonitorElement* p2_convVtxdZVsRZ_;
 
   MonitorElement* h2_convVtxRrecVsTrue_;
 
