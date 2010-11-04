@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.53 2010/08/30 12:36:08 babar Exp $
+# $Id: InjectWorker.pl,v 1.54 2010/10/15 12:37:43 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -165,10 +165,10 @@ sub start {
     $kernel->select_read( $inotify_FH, "inotify_poll" );
 
     # Save offset files regularly
-    $kernel->alarm( save_offsets => time() + $savedelay );
+    $kernel->delay( save_offsets => $savedelay );
 
     # Print a heartbeat regularly
-    $kernel->alarm( heartbeat => time() + $heartbeat );
+    $kernel->delay( heartbeat => $heartbeat );
 
     $kernel->post( 'logger', info => "Entering main while loop now" );
 }
@@ -250,7 +250,7 @@ sub setup_main_db {
     if ($failed) {
         $kernel->post( 'logger',
             error => "Connection to $heap->{dbi} failed: $DBI::errstr" );
-        $kernel->alarm( setup_main_db => time() + 10 );
+        $kernel->delay( setup_main_db => 10 );
         return;
     }
 
@@ -326,7 +326,7 @@ sub setup_runcond_db {
     if ($failed) {
         $kernel->post( 'logger',
             error => "Connection to $heap->{dbi} failed: $DBI::errstr" );
-        $kernel->alarm( setup_runcond_db => time() + 10 );
+        $kernel->delay( setup_runcond_db => 10 );
         return;
     }
 
@@ -559,9 +559,6 @@ sub close_file {
     $args->{INDFILE} = $args->{FILENAME};
     $args->{INDFILE} =~ s/\.dat$/\.ind/;
     $args->{INDFILESIZE} = -1;
-    $kernel->post( 'logger',
-        debug =>
-          "Indfile: $args->{PATHNAME}/$args->{INDFILE} for $args->{FILENAME}" );
     if ( $host eq $args->{HOSTNAME} ) {
         if ( -e "$args->{PATHNAME}/$args->{INDFILE}" ) {
             $args->{INDFILESIZE} = ( stat(_) )[7];
@@ -856,7 +853,7 @@ sub read_db_config {
 sub save_offsets {
     my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
     $kernel->post( 'logger', debug => "Saving offsets" );
-    $kernel->alarm( save_offsets => time() + $savedelay );
+    $kernel->delay( save_offsets => $savedelay );
     for my $tailor ( grep { /^[0-9]+$/ } keys %{ $heap->{watchlist} } ) {
         my $file   = $heap->{watchlist}->{$tailor};
         my $wheel  = $heap->{watchlist}->{$file};
@@ -913,8 +910,11 @@ sub read_offsets {
 # Print some heartbeat at fixed interval
 sub heartbeat {
     my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
-    $kernel->post( 'logger', info => "Still alive in main loop" );
-    $kernel->alarm( heartbeat => time() + $heartbeat );
+    my $message = gettimestamp( time() ) . 'Still alive in main loop.';
+    $message .= ' Kernel has ' . $kernel->get_event_count()
+        . ' events to process';
+    $kernel->post( 'logger', info => $message );
+    $kernel->delay( heartbeat => + $heartbeat );
 }
 
 # Do something with all POE events which are not caught
