@@ -15,7 +15,7 @@ dataType = 'RAW'
 runNumber = 143657
 #runNumber = 137028
 
-maxNumberEvents = -1
+maxNumberEvents = 1000
 
 ###################### end user choices ###################
 
@@ -56,10 +56,11 @@ if dataType == 'RAW' :
         secFiles.extend([
             ])    
    
-elif dataType == 'FileStream' : 
+elif dataType == 'StreamFile' : 
 
     readFiles.extend( [
-        'file:/lookarea_SM/Data.00139796.0001.A.storageManager.00.0000.dat'        
+        'file:/lookarea_SM/Data.00147754.0001.A.storageManager.00.0000.dat'       
         ] );
 
-
+else :
+    print 'Error: no such dataType:' + dataType + 'was specified'

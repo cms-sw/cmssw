@@ -842,6 +842,37 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
 
     // get the index of the prescale factor set from data
     int iPfSet = fdlBlockData.gtPrescaleFactorIndexAlgo();
+
+    // check that the prescale factor is not out of range for the prescale factor
+    // record retrieved from event setup
+    size_t pfSetsSize = (*m_prescaleFactorsAlgoTrig).size();
+
+    if (iPfSet < 0) {
+
+        LogDebug("L1GtHwValidation")
+                << "\nError: index of prescale factor set retrieved from the data \n"
+                << "less than zero."
+                << "\n  Value of index retrieved from data = " << iPfSet
+                << std::endl;
+
+        // FIXME add a histogram to be used for a quality test
+
+        return;
+
+    } else if (iPfSet >= (static_cast<int>(pfSetsSize))) {
+
+        LogDebug("L1GtHwValidation")
+                << "\nError: index of prescale factor set retrieved from the data \n"
+                << "greater than the size of the vector of prescale factor sets."
+                << "\n  Value of index retrieved from data = " << iPfSet
+                << "\n  Vector size = " << pfSetsSize << std::endl;
+
+        // FIXME add a histogram to be used for a quality test
+
+        return;
+
+    }
+
     const std::vector<int>& prescaleFactorsAlgoTrig =
             (*m_prescaleFactorsAlgoTrig).at(iPfSet);
 
