@@ -17,7 +17,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
       toGet = cms.VPSet(
       cms.PSet(
             record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_Spring10_V5_AK5Calo'),
+            tag    = cms.string('JetCorrectorParametersCollection_Spring10_V3_AK5Calo'),
             label  = cms.untracked.string('AK5Calo')
             )
        ),
@@ -26,7 +26,8 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 
 process.demo = cms.EDAnalyzer('JetCorrectorDBReader', 
         payloadName    = cms.untracked.string('AK5Calo'),
-        printScreen    = cms.untracked.bool(True),
+	globaltag      = cms.untracked.string('JEC_Spring10'),
+        printScreen    = cms.untracked.bool(False),
         createTextFile = cms.untracked.bool(False)
 )
 
