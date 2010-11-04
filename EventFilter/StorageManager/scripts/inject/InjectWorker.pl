@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.54 2010/10/15 12:37:43 babar Exp $
+# $Id: InjectWorker.pl,v 1.55 2010/11/04 10:48:30 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -910,7 +910,7 @@ sub read_offsets {
 # Print some heartbeat at fixed interval
 sub heartbeat {
     my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
-    my $message = gettimestamp( time() ) . 'Still alive in main loop.';
+    my $message = gettimestamp( time() ) . ' Still alive in main loop.';
     $message .= ' Kernel has ' . $kernel->get_event_count()
         . ' events to process';
     $kernel->post( 'logger', info => $message );
