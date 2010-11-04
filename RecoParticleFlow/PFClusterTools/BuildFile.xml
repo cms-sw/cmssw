@@ -1,4 +1,5 @@
 <use   name="DataFormats/ParticleFlowReco"/>
+<use   name="DataFormats/Math"/>
 <use   name="boost"/>
 <use   name="rootphysics"/>
 <use   name="rootrflx"/>

@@ -68,13 +68,6 @@ class ConvBremPFTrackFinder {
 			 reco::GsfPFRecTrack gsfpfrectk);
   
 
-  
-  double testTrackAndClusterByRecHit( const reco::PFRecTrack& track, 
-				      const reco::PFCluster& cluster) const;   
-  /// computes a chisquare
-  double computeDist( double eta1, double phi1, 
-		      double eta2, double phi2 ) const;
-  
 
   bool found_;
   TransientTrackBuilder builder_;

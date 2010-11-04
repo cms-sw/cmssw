@@ -204,26 +204,10 @@ class PFBlockAlgo {
   double testPS1AndPS2(const reco::PFCluster& ps1,
 		       const reco::PFCluster& ps2) const;
 
-  //tests association between a track and a cluster by rechit
-  double testTrackAndClusterByRecHit( const reco::PFRecTrack& track, 
-				      const reco::PFCluster& cluster,
-				      bool isBrem = false) const;  
-
-  //tests association between ECAL and PS clusters by rechit
-  double testECALAndPSByRecHit( const reco::PFCluster& clusterECAL, 
-				const reco::PFCluster& clusterPS)  const;
-
-  /// test association between HFEM and HFHAD, by rechit
-  double testHFEMAndHFHADByRecHit( const reco::PFCluster& clusterHFEM, 
-				   const reco::PFCluster& clusterHFHAD)  const;
-
  /// test association by Supercluster between two ECAL
   double testLinkBySuperCluster(const reco::PFClusterRef & elt1,
 				const reco::PFClusterRef & elt2) const;   
 
-  /// computes a chisquare
-  double computeDist( double eta1, double phi1, 
-		      double eta2, double phi2 ) const;
 
   /// checks size of the masks with respect to the vectors
   /// they refer to. throws std::length_error if one of the
@@ -289,12 +273,6 @@ class PFBlockAlgo {
 
   /// switch on/off Conversions Brem Recovery with KF Tracks
   bool  useConvBremPFRecTracks_;
-
-  /// PS strip resolution
-  double resPSpitch_;
-  
-  /// PS resolution along strip
-  double resPSlength_;
 
    /// list of superclusters 
   std::vector<const reco::SuperCluster *> superClusters_;
