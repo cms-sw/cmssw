@@ -110,12 +110,37 @@ tau_histograms.append(
 
 tau_histograms.append(
     cms.PSet(
-        min = cms.untracked.double(-10),
-        max = cms.untracked.double(10),
+        min = cms.untracked.double(-25),
+        max = cms.untracked.double(25),
         nbins = cms.untracked.int32(100),
         name = cms.untracked.string("ptRes"),
         description = cms.untracked.string("PtRes"),
         plotquantity = cms.untracked.string("pt()-alternatLorentzVect().pt()"),
+        lazyParsing = cms.untracked.bool(True)
+    )
+)
+
+tau_histograms.append(
+    cms.PSet(
+        min = cms.untracked.double(-0.5),
+        max = cms.untracked.double(-0.5),
+        nbins = cms.untracked.int32(100),
+        name = cms.untracked.string("etaRes"),
+        description = cms.untracked.string("EtaRes"),
+        plotquantity = cms.untracked.string("eta()-alternatLorentzVect().eta()"),
+        lazyParsing = cms.untracked.bool(True)
+    )
+)
+
+tau_histograms.append(
+    cms.PSet(
+        min = cms.untracked.double(-0.5),
+        max = cms.untracked.double(0.5),
+        nbins = cms.untracked.int32(100),
+        name = cms.untracked.string("phiRes"),
+        description = cms.untracked.string("phiRes"),
+        plotquantity = cms.untracked.string(
+            "deltaPhi(phi(), alternatLorentzVect().phi())"),
         lazyParsing = cms.untracked.bool(True)
     )
 )
