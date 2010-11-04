@@ -9,8 +9,6 @@ eidCutBased = cms.EDFilter("EleIdCutBasedRef",
     verticesCollection = cms.InputTag("offlinePrimaryVerticesWithBS"),
     reducedBarrelRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-    dataMagneticFieldSetUp = cms.bool(False),
-    dcsTag = cms.InputTag("scalersRawToDigi"),
     algorithm = cms.string('eIDCB'),
 
     #electronIDType can be robust or classbased

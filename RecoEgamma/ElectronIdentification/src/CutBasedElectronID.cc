@@ -3,11 +3,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
+//#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "DataFormats/Scalers/interface/DcsStatus.h"
 
 #include <algorithm>
 
@@ -20,11 +17,6 @@ void CutBasedElectronID::setup(const edm::ParameterSet& conf) {
   quality_ = conf.getParameter<std::string>("electronQuality");
   version_ = conf.getParameter<std::string>("electronVersion");
   verticesCollection_ = conf.getParameter<edm::InputTag>("verticesCollection");
-
-  dataMagneticFieldSetUp_ = conf.getParameter<Bool_t>("dataMagneticFieldSetUp");
-  if (dataMagneticFieldSetUp_) {
-    dcsTag_ = conf.getParameter<edm::InputTag>("dcsTag");
-  }
 
   if (type_ == "classbased" and (version_ == "V03" or version_ == "V04" or version_ == "V05" or version_ == "")) {
     wantBinning_ = conf.getParameter<bool>("etBinning");

@@ -21,13 +21,11 @@ public:
  private:
   bool wantBinning_;
   bool newCategories_;
-  bool dataMagneticFieldSetUp_;
   std::string type_;
   std::string quality_;
   std::string version_;
   edm::InputTag verticesCollection_;
   edm::ParameterSet cuts_;
-  edm::InputTag dcsTag_;
 
 };
 
