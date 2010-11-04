@@ -13,28 +13,35 @@ goodPhotons = cms.EDFilter("PhotonSelector",
     cut = cms.string('et > 20 && hadronicOverEm < 0.1 && r9 > 0.8')
 )
 
+# supercluster cleaning sequence (output = cleanPhotons)
+from RecoHI.HiEgammaAlgos.HiEgamma_cff import *
+
 # leading photon E_T filter
 photonFilter = cms.EDFilter("EtMinPhotonCountFilter",
-    src = cms.InputTag("goodPhotons"),
+    src = cms.InputTag("cleanPhotons"),
     etMin = cms.double(40.0),
     minNumber = cms.uint32(1)
 )
 
-# ECAL spike cleaning filter
-from RecoHI.HiEgammaAlgos.hiEcalSpikeFilter_cfi import *
-
 # photon skim sequence
 photonSkimSequence = cms.Sequence(hltPhotonHI
                                   * goodPhotons
+                                  * hiPhotonCleaningSequence
                                   * photonFilter
-                                  * hiEcalSpikeFilter
                                   )
+
+# two-photon E_T filter
+twoPhotonFilter = cms.EDFilter("EtMinPhotonCountFilter",
+    src = cms.InputTag("goodPhotons"),
+    etMin = cms.double(20.0),
+    minNumber = cms.uint32(2)
+)
 
 # select pairs around Z mass
 photonCombiner = cms.EDProducer("CandViewShallowCloneCombiner",
   checkCharge = cms.bool(False),
   cut = cms.string('60 < mass < 120'),
-  decay = cms.string('goodPhotons goodPhotons')
+  decay = cms.string('cleanPhotons cleanPhotons')
 )
 
 photonPairCounter = cms.EDFilter("CandViewCountFilter",
@@ -45,8 +52,9 @@ photonPairCounter = cms.EDFilter("CandViewCountFilter",
 # Z->ee skim sequence
 zEESkimSequence = cms.Sequence(hltPhotonHI
                                * goodPhotons
+                               * twoPhotonFilter
+                               * hiPhotonCleaningSequence
                                * photonCombiner
                                * photonPairCounter
-                               * hiEcalSpikeFilter
                                )
 
