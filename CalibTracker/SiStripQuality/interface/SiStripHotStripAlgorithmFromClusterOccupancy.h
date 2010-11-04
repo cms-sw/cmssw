@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripHotStripAlgorithmFromClusterOccupancy.h,v 1.7 2009/02/02 15:24:14 hashemim Exp $
+// $Id: SiStripHotStripAlgorithmFromClusterOccupancy.h,v 1.8 2009/06/22 13:39:47 kaussen Exp $
 //
 //
 
@@ -50,7 +50,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
-#include "DQM/SiStripCommon/interface/TkHistoMap.h" 
 
 class SiStripQuality;
 
