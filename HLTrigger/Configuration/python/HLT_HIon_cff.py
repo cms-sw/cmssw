@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_8_5/HIon/V48 (CMSSW_3_8_1_HLT25)
+# /dev/CMSSW_3_8_5/HIon/V49 (CMSSW_3_8_1_HLT25)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_5/HIon/V48')
+  tableName = cms.string('/dev/CMSSW_3_8_5/HIon/V49')
 )
 
 streams = cms.PSet( 
@@ -2624,7 +2624,7 @@ hltHIDoublePhotonEt5L1MatchFilterRegional = cms.EDFilter( "HLTEgammaL1MatchFilte
     l1IsolatedTag = cms.InputTag( 'hltL1extraParticles','Isolated' ),
     candNonIsolatedTag = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" ),
     l1NonIsolatedTag = cms.InputTag( 'hltL1extraParticles','NonIsolated' ),
-    L1SeedFilterTag = cms.InputTag( "hltL1sHIL1DoubleEG5_BptxAND" ),
+    L1SeedFilterTag = cms.InputTag( "hltL1sHIL1DoubleEG5" ),
     ncandcut = cms.int32( 2 ),
     doIsolated = cms.bool( False ),
     region_eta_size = cms.double( 0.522 ),
