@@ -40,7 +40,7 @@ namespace {
   // Returns the squared momentum difference between two candidates
   double momentumDifference(const reco::Candidate* candA,
       const reco::Candidate* candB) {
-    reco::Candidate::LorentzVector difference = 
+    reco::Candidate::LorentzVector difference =
       candA->p4() - candB->p4();
     return difference.P2();
   }
@@ -49,7 +49,7 @@ namespace {
   // Only objects with matching charge are considered.  The best match
   // has the lowest [momentumDifference] with the input <cand>
   template<typename InputIterator>
-  InputIterator findBestMatch(const reco::Candidate* cand, 
+  InputIterator findBestMatch(const reco::Candidate* cand,
       InputIterator begin, InputIterator end) {
 
     typedef const reco::Candidate* CandPtr;
@@ -58,7 +58,7 @@ namespace {
     using boost::filter_iterator;
     // Build a charge matching function
     typedef function<bool (CandPtr)> CandPtrBoolFn;
-    CandPtrBoolFn chargeMatcher = 
+    CandPtrBoolFn chargeMatcher =
       bind(&reco::Candidate::charge, cand) == bind(&reco::Candidate::charge, _1);
 
     // Only match those objects that have the same charge
@@ -66,7 +66,7 @@ namespace {
     Iterator begin_filtered(chargeMatcher, begin, end);
     Iterator end_filtered(chargeMatcher, end, end);
 
-    Iterator result = std::min_element(begin_filtered, end_filtered, 
+    Iterator result = std::min_element(begin_filtered, end_filtered,
         momentumDifference);
     return result.base();
   }
@@ -76,9 +76,12 @@ double RecoTauDistanceFromTruthPlugin::operator()(const reco::PFTauRef& tauRef) 
 
   GenJetAssociation::reference_type truth = (*genTauMatch_)[tauRef];
 
-  // Check if the matching exists, if not return +infinity 
+  // Check if the matching exists, if not return +infinity
   if (truth.isNull())
     return std::numeric_limits<double>::infinity();
+
+  // screw all this noise
+  return std::abs(tauRef->pt() - truth->pt());
 
   typedef const reco::Candidate* CandPtr;
   typedef std::set<CandPtr> CandPtrSet;
@@ -88,7 +91,7 @@ double RecoTauDistanceFromTruthPlugin::operator()(const reco::PFTauRef& tauRef) 
   CandPtrList recoCands;
   CandPtrSet truthCandSet;
 
-  BOOST_FOREACH(const reco::RecoTauPiZero& piZero, 
+  BOOST_FOREACH(const reco::RecoTauPiZero& piZero,
       tauRef->signalPiZeroCandidates()) {
     recoCands.push_back(&piZero);
   }
@@ -125,7 +128,7 @@ double RecoTauDistanceFromTruthPlugin::operator()(const reco::PFTauRef& tauRef) 
     // Check if this truth cand is matched
     if (recoMatch != recoCands.end()) {
       // Add a penalty factor based on how different the reconstructed
-      // is w.r.t. the true momentum 
+      // is w.r.t. the true momentum
       quality += momentumDifference(truthCand, *recoMatch);
       // Remove this reco cand from future matches
       recoCands.erase(recoMatch);
@@ -143,7 +146,7 @@ double RecoTauDistanceFromTruthPlugin::operator()(const reco::PFTauRef& tauRef) 
   return quality;
 }
 
-} // end tautools namespace 
+} // end tautools namespace
 
 
 // Register our plugin
