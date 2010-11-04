@@ -100,7 +100,7 @@ print CONFIGFILE "globalDAQ = $globalDAQ\n";
 
 print CONFIGFILE <<EOF2;
 
-ecalHostEC    = 'vmepcS2F19-25'.lower()
+ecalHostEC    = 'srv-s2f19-29'.lower()
 
 ecalHostEB    = 'srv-s2f19-26'.lower()
 ecalHostEE    = 'srv-s2f19-27'.lower()
