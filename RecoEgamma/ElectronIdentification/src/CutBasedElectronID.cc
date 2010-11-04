@@ -409,7 +409,6 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
     if (cut_results[8])
       result = result + 4;
     
-    std::cout << result << std::endl;
     return result;
   }
 
