@@ -22,5 +22,4 @@ from DQMOffline.Trigger.DQMOffline_HLT_Cert_cff import *
 
 #hltOfflineDQMClient = cms.Sequence(hltFourVectorSeqClient*egHLTOffDQMClient*hLTMuonPostVal*jetMETHLTOfflineClient*tagAndProbeEfficiencyPostProcessor*HLTTauPostAnalysis*dqmOfflineHLTCert*dqmEnv)
 hltOfflineDQMClient = cms.Sequence(hltFourVectorSeqClient*egHLTOffDQMClient*hLTMuonPostVal*jetMETHLTOfflineClient*tagAndProbeEfficiencyPostProcessor*HLTTauPostAnalysis*dqmOfflineHLTCert)
-hltOfflineDQMClient.remove(jetMETHLTOfflineClient)
 
