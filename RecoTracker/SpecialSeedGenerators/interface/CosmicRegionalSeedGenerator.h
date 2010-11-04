@@ -22,8 +22,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "../interface/CosmicTrackingRegion.h"
 
-#include "DQM/HLTEvF/interface/FourVectorHLT.h"
- 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
