@@ -3,49 +3,10 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("myprocess")
 process.TFileService=cms.Service("TFileService",fileName=cms.string('JECplots.root'))
 ##-------------------- Communicate with the DB -----------------------
-process.load('CondCore.DBCommon.CondDBCommon_cfi')
-process.CondDBCommon.connect = cms.string('sqlite_file:JEC_Spring10.db')
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = 'START38_V13::All'
 
-process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-  process.CondDBCommon,
-  toGet = cms.VPSet( 
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_AK5Calo'), 
-         label  = cms.untracked.string('JetCorrectorParametersCollection_Spring10_AK5Calo') 
-      ),
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10DataV2_AK5Calo'), 
-         label  = cms.untracked.string('JetCorrectorParametersCollection_Spring10DataV2_AK5Calo') 
-      ),
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_AK5PF'), 
-         label  = cms.untracked.string('JetCorrectorParametersCollection_Spring10_AK5PF') 
-      ),
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10DataV2_AK5PF'), 
-         label  = cms.untracked.string('JetCorrectorParametersCollection_Spring10DataV2_AK5PF') 
-      ),
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_AK5JPT'), 
-         label  = cms.untracked.string('JetCorrectorParametersCollection_Spring10_AK5JPT') 
-      ),
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Summer10_AK5JPT'), 
-         label  = cms.untracked.string('JetCorrectorParametersCollection_Summer10_AK5JPT') 
-      ),
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10DataV2_AK5JPT'), 
-         label  = cms.untracked.string('JetCorrectorParametersCollection_Spring10DataV2_AK5JPT') 
-      )
-  )
-)
 ##-------------------- Import the JEC services -----------------------
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 
@@ -56,11 +17,11 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 ##-------------------- User analyzer  --------------------------------
-process.ak5calol2l3Residual  = cms.EDAnalyzer('JetCorrectorDemo',
-    JetCorrectionService     = cms.string('ak5CaloL2L3Residual'),
+process.ak5pfl2l3Residual  = cms.EDAnalyzer('JetCorrectorDemo',
+    JetCorrectionService     = cms.string('ak5PFL2L3Residual'),
     UncertaintyTag           = cms.string('Uncertainty'),
-    UncertaintyFile          = cms.string('Spring10DataV2_Uncertainty_AK5Calo'),
-    PayloadName              = cms.string('JetCorrectorParametersCollection_Spring10DataV2_AK5Calo'),
+    UncertaintyFile          = cms.string(''),
+    PayloadName              = cms.string('AK5PF'),
     NHistoPoints             = cms.int32(10000),
     NGraphPoints             = cms.int32(500),
     EtaMin                   = cms.double(-5),
@@ -75,21 +36,5 @@ process.ak5calol2l3Residual  = cms.EDAnalyzer('JetCorrectorDemo',
     UseCondDB                = cms.untracked.bool(True)
 )
 
-process.ak5pfl2l3Residual = process.ak5calol2l3Residual.clone(
-    JetCorrectionService = 'ak5PFL2L3Residual',
-    UncertaintyFile      = 'Spring10DataV2_Uncertainty_AK5PF',
-    PayloadName          = 'JetCorrectorParametersCollection_Spring10DataV2_AK5PF'
-    )
-
-process.ak5jptl2l3Residual = process.ak5calol2l3Residual.clone(
-    JetCorrectionService = 'ak5JPTL2L3Residual',
-    UncertaintyFile      = 'Uncertainty',
-    PayloadName          = 'JetCorrectorParametersCollection_Spring10DataV2_AK5JPT'
-    )
-
-process.p = cms.Path(
-          process.ak5calol2l3Residual *
-          process.ak5pfl2l3Residual *
-          process.ak5jptl2l3Residual 
-)
+process.p = cms.Path(process.ak5pfl2l3Residual)
 
