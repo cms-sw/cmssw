@@ -12,6 +12,8 @@
     <use name=RecoEcal/EgammaCoreTools>
     <use name=CondFormats/DataRecord>
     <use name=CondFormats/EcalObjects>
+    <use name=FWCore/MessageLogger>
+    <use mane=DataFormats/EgammaReco>
     <use name=root>
     <flags EDM_PLUGIN=1>
 </library>
