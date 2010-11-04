@@ -92,6 +92,7 @@ L1TdeCSCTF::L1TdeCSCTF(ParameterSet const& pset):EDAnalyzer(){
    		} // sectorItr loop
   	} // endcapItr loop
 	*/
+	my_dtrc = new CSCTFDTReceiver();
 }
 
 void L1TdeCSCTF::beginJob()
