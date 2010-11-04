@@ -13,7 +13,7 @@
 //
 // Original Author:  Benedikt Hegner 
 //         Created:  Tue Mar 09 01:32:51 CET 2010
-// $Id: JetCorrectorDBReader.cc,v 1.4 2010/10/12 13:50:38 srappocc Exp $
+// $Id: JetCorrectorDBReader.cc,v 1.5 2010/11/03 22:29:55 srappocc Exp $
 //
 //
 
@@ -47,7 +47,7 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
  
-  std::string mPayloadName;
+  std::string mPayloadName,mGlobalTag;
   bool mCreateTextFile,mPrintScreen;
 };
 
@@ -55,6 +55,7 @@ private:
 JetCorrectorDBReader::JetCorrectorDBReader(const edm::ParameterSet& iConfig)
 {
   mPayloadName    = iConfig.getUntrackedParameter<std::string>("payloadName");
+  mGlobalTag      = iConfig.getUntrackedParameter<std::string>("globalTag");  
   mPrintScreen    = iConfig.getUntrackedParameter<bool>("printScreen");
   mCreateTextFile = iConfig.getUntrackedParameter<bool>("createTextFile");
 }
@@ -81,8 +82,8 @@ void JetCorrectorDBReader::analyze(const edm::Event& iEvent, const edm::EventSet
 
     if (mCreateTextFile)
       {
-	std::cout<<"Creating txt file: "<<mPayloadName+"_"+JetCorParamsColl->findLabel(*ikey)+".txt"<<std::endl;
-	JetCorParams.printFile(mPayloadName+"_"+JetCorParamsColl->findLabel(*ikey)+".txt");
+	std::cout<<"Creating txt file: "<<mGlobalTag+"_"+mPayloadName+"_"+JetCorParamsColl->findLabel(*ikey)+".txt"<<std::endl;
+	JetCorParams.printFile(mGlobalTag+"_"+mPayloadName+"_"+JetCorParamsColl->findLabel(*ikey)+".txt");
       }
     if (mPrintScreen)
       JetCorParams.printScreen();
