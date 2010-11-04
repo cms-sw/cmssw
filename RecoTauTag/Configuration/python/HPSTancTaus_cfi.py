@@ -14,6 +14,14 @@ combinatoricRecoTausDiscriminationByLeadingPionPtCut = \
             PFTauProducer = cms.InputTag("combinatoricRecoTaus")
         )
 
+# Eventually this will come from the global tag
+from RecoTauTag.TauTagTools.TancConditions_cff import TauTagMVAComputerRecord
+TauTagMVAComputerRecord.connect = cms.string(
+    'sqlite_fip:RecoTauTag/RecoTau/data/hpstanc.db'
+)
+# Don't conflict with TaNC global tag
+TauTagMVAComputerRecord.appendToDataLabel = cms.string('hpstanc')
+
 # Build the tanc discriminates
 combinatoricRecoTausDiscriminationByTanc = cms.EDProducer(
     "RecoTauMVADiscriminator",
