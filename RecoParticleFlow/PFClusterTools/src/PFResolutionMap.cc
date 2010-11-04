@@ -299,6 +299,10 @@ double PFResolutionMap::minimum(double a,double b){
 }
 
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 //compute the unsigned distance to the closest phi-crack in the barrel
 double PFResolutionMap::dCrackPhi(double phi, double eta){
 
