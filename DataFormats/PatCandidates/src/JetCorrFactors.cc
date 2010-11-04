@@ -1,5 +1,5 @@
 //
-// $Id: JetCorrFactors.cc,v 1.8 2009/04/06 09:00:39 rwolf Exp $
+// $Id: JetCorrFactors.cc,v 1.9 2009/10/13 13:19:31 auterman Exp $
 //
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -216,8 +216,8 @@ JetCorrFactors::uncertDirection(const std::string& dir)
 ///relative jet correction factor uncertainty
 float JetCorrFactors::uncertainty( CorrStep step, const UncertVar direction )const
 {
-   size_t ind = 2*(istep(step)-1) + direction;
-   return (ind<0 ? 0 : correctionUncertainties_.at(ind));
+   return (step==Raw ? 0 : correctionUncertainties_.at(
+                             2*(istep(step)-1) + direction  ) );
 }
 
 ///relative jet correction factor uncertainty
