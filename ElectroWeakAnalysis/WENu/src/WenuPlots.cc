@@ -243,7 +243,7 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   // fill the tree variables
   runNumber   = iEvent.run();
   eventNumber = Long64_t( iEvent.eventAuxiliary().event() );
-  lumiSection = iEvent.getLuminosityBlock().luminosityBlock();
+  lumiSection = (Int_t) iEvent.luminosityBlock();
   //
   ele_sc_eta       = (Float_t)  myElec->superCluster()->eta();
   ele_sc_phi       = (Float_t)  myElec->superCluster()->phi();
@@ -268,8 +268,8 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   ele_id_hoe       = (Float_t)  myElec->hadronicOverEm();
   //
   ele_cr_mhitsinner= myElec->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
-  ele_cr_dcot      = myElec->userFloat("Dcot");
-  ele_cr_dist      = myElec->userFloat("Dist");
+  ele_cr_dcot      = myElec->convDcot();
+  ele_cr_dist      = myElec->convDist();
   //
   ele_vx           = (Float_t) myElec->vx();
   ele_vy           = (Float_t) myElec->vy();
@@ -524,8 +524,8 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
       ele2nd_id_hoe    = (Float_t)  mySecondElec->hadronicOverEm();
 
       ele2nd_cr_mhitsinner = mySecondElec->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
-      ele2nd_cr_dcot       = mySecondElec->userFloat("Dcot");
-      ele2nd_cr_dist       = mySecondElec->userFloat("Dist");
+      ele2nd_cr_dcot       = mySecondElec->convDcot();
+      ele2nd_cr_dist       = mySecondElec->convDist();
       
       ele2nd_vx        = (Float_t) mySecondElec->vx();
       ele2nd_vy        = (Float_t) mySecondElec->vy();

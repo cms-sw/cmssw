@@ -82,7 +82,6 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 //
-#include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
@@ -135,13 +134,10 @@ class WenuCandidateFilter : public edm::EDFilter {
   Bool_t useValidFirstPXBHit_;
   Bool_t calculateValidFirstPXBHit_;
   Bool_t useConversionRejection_;
-  Bool_t calculateConversionRejection_;
   Double_t dist_, dcot_;
   Bool_t useExpectedMissingHits_;
   Bool_t calculateExpectedMissingHits_;
   Int_t  maxNumberOfExpectedMissingHits_;
-  Bool_t dataMagneticFieldSetUp_;
-  edm::InputTag dcsTag_;
   Bool_t useEcalDrivenElectrons_;
   Bool_t useSpikeRejection_;
   Double_t spikeCleaningSwissCrossCut_;
@@ -192,13 +188,8 @@ WenuCandidateFilter::WenuCandidateFilter(const edm::ParameterSet& iConfig)
   useValidFirstPXBHit_ =  iConfig.getUntrackedParameter<Bool_t>("useValidFirstPXBHit",false);
   calculateValidFirstPXBHit_ =  iConfig.getUntrackedParameter<Bool_t>("calculateValidFirstPXBHit",false);
   useConversionRejection_ =   iConfig.getUntrackedParameter<Bool_t>("useConversionRejection",false);
-  calculateConversionRejection_ = iConfig.getUntrackedParameter<Bool_t>("calculateConversionRejection",false);
   dist_ = iConfig.getUntrackedParameter<Double_t>("conversionRejectionDist", 0.02);
   dcot_ = iConfig.getUntrackedParameter<Double_t>("conversionRejectionDcot", 0.02);
-  dataMagneticFieldSetUp_ = iConfig.getUntrackedParameter<Bool_t>("dataMagneticFieldSetUp",false);
-  if (dataMagneticFieldSetUp_) {
-    dcsTag_ = iConfig.getUntrackedParameter<edm::InputTag>("dcsTag");
-  }
   useExpectedMissingHits_ = iConfig.getUntrackedParameter<Bool_t>("useExpectedMissingHits",false);
   calculateExpectedMissingHits_ = iConfig.getUntrackedParameter<Bool_t>("calculateExpectedMissingHits",false);
   maxNumberOfExpectedMissingHits_ =  iConfig.getUntrackedParameter<int>("maxNumberOfExpectedMissingHits",1);
@@ -320,17 +311,6 @@ WenuCandidateFilter::WenuCandidateFilter(const edm::ParameterSet& iConfig)
   if (useConversionRejection_) {
     std::cout << "WenuCandidateFilter: Electron Candidate required to pass "
 	      << "EGAMMA Conversion Rejection criteria " << std::endl;
-  }
-  if (calculateConversionRejection_) {
-    std::cout << "WenuCandidateFilter: EGAMMA Conversion Rejection criteria "
-	      << "will be calculated and stored: you can access them later by " 
-	      << "demanding for a successful electron "
-	      << "myElec.userInt(\"PassConversionRejection\")==1"
-	      << std::endl;
-  }
-  if (dataMagneticFieldSetUp_) {
-    std::cout << "WenuCandidateFilter: Data Configuration for Magnetic Field DCS tag " 
-	      << dcsTag_  << std::endl;
   }
   if (useSpikeRejection_) {
     std::cout << "WenuCandidateFilter: Spike Cleaning will be done with the Swiss Cross Criterion"
@@ -660,89 +640,15 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        maxETelec.addUserInt("NumberOfExpectedMissingHits",numberOfInnerHits);
      }
    }
-   if (useConversionRejection_ || calculateConversionRejection_) {
+   if (useConversionRejection_) {
      // use of conversion rejection as it is implemented in egamma
-     // you have to get the general track collection to do that
-     // WARNING! you have to supply the correct B-field in Tesla
-     // the magnetic field
-     Double_t bfield;
-     if (dataMagneticFieldSetUp_) {
-       edm::Handle<DcsStatusCollection> dcsHandle;
-       iEvent.getByLabel(dcsTag_, dcsHandle);
-       // scale factor = 3.801/18166.0 which are
-       // average values taken over a stable two
-       // week period
-       Double_t currentToBFieldScaleFactor = 2.09237036221512717e-04;
-       if ((*dcsHandle).size() >0) {
-	 Double_t current = (*dcsHandle)[0].magnetCurrent();
-	 bfield = current*currentToBFieldScaleFactor;
-       } else {
-	 //std::cout << "WEnuCandidateFilter: Requested Data Magnetic Field
-	 //Configuration, but current was not found in data: work with Ideal
-	 //Magnetic Field now"<< std::endl;
-	 edm::ESHandle<MagneticField> magneticField;
-	 iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-	 const  MagneticField *mField = magneticField.product();
-	 bfield = mField->inTesla(GlobalPoint(0.,0.,0.)).z();
-       }
-     } else {
-       edm::ESHandle<MagneticField> magneticField;
-       iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-       const  MagneticField *mField = magneticField.product();
-       bfield = mField->inTesla(GlobalPoint(0.,0.,0.)).z();
-     }
-     edm::Handle<reco::TrackCollection> ctfTracks;
-     if ( iEvent.getByLabel("generalTracks", ctfTracks) ) {
-       ConversionFinder convFinder;
-       ConversionInfo convInfo = 
-	 convFinder.getConversionInfo(maxETelec, ctfTracks, bfield);
-       Double_t dist = convInfo.dist();
-       Double_t dcot = convInfo.dcot();
-       Bool_t isConv = ( fabs(dist) < dist_ ) && ( fabs(dcot) < dcot_ );
-       //std::cout << "Filter: for this elec the conversion says " << isConv << std::endl;
-       // for the 2nd electron if it exists
-       Double_t dist_2ndele = 0;
-       Double_t dcot_2ndele = 0;
-       if (hasSecondElectron) {
-	 ConversionFinder convFinder2;
-	 ConversionInfo convInfo2nd = 
-	   convFinder2.getConversionInfo(secondETelec, ctfTracks, bfield);
-	 dist_2ndele = convInfo2nd.dist();
-	 dcot_2ndele = convInfo2nd.dcot();
-       }
-       if (isConv && useConversionRejection_) {
+       Double_t dist = maxETelec.convDist();
+       Double_t dcot = maxETelec.convDcot();
+       Bool_t isConv = fabs(dist)<dist_ && fabs(dcot) < dcot_;
+       if (isConv) {
        	 delete [] sorted;  delete [] et;
-       	 return false;	 
+       	 return false;	// RETURN: it is conversion 
        }
-       if (calculateConversionRejection_) {
-	 maxETelec.addUserFloat("Dist", Float_t(dist));
-	 maxETelec.addUserFloat("Dcot", Float_t(dcot));
-	 if (hasSecondElectron) {
-	   secondETelec.addUserFloat("Dist", Float_t(dist_2ndele));
-	   secondETelec.addUserFloat("Dcot", Float_t(dcot_2ndele));
-	 }
-	 //std::cout << "First Elec: " << dist << "/" << dcot << " eta: " << maxETelec.superCluster()->eta() << std::endl;
-	 //std::cout << "Sec   Elec: " << dist_2ndele << "/" << dcot_2ndele 
-	 //	   << " has 2nd ele: " << hasSecondElectron << " eta: " << secondETelec.superCluster()->eta() << std::endl;
-	 //std::cout << "Values from the addUserFloat: "
-	 //	   << maxETelec.userFloat("Dist") << "/" 
-	 //	   << maxETelec.userFloat("Dcot") << std::endl;
-	 //if (hasSecondElectron) {
-	 //std::cout << "Values from the addUserFloat: "
-	 //	   << secondETelec.userFloat("Dist") << "/" 
-	 //	   << secondETelec.userFloat("Dcot") << std::endl;
-	 //}
-	 if (isConv) 
-	   maxETelec.addUserInt("PassConversionRejection",0);
-	 else
-	   maxETelec.addUserInt("PassConversionRejection",1);
-       }
-     } else {
-       std::cout << "WARNING! Track Collection with input name: generalTracks" 
-		 << " was not found. Conversion Rejection is not going to be"
-		 << " applied!!!" << std::endl;
-     }
-
    }
    //
    //   std::cout << "HLT matching starts" << std::endl;

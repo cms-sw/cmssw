@@ -47,23 +47,7 @@ process.source = cms.Source("PoolSource",
     # SOME DATA FILE TO BE PUT HERE
     #'rfio:/castor/cern.ch/user/r/rompotis/DATA_STUDIES/Spring10/sample_WminusToENu-CTEQ66-powheg_Spring10-START3X_V26_AODSIM-v2.root',
     #'file:rfio:/castor/cern.ch/user/r/rompotis/DATA_STUDIES/Spring10/sample_WenuSpring10START3X_V26_S09-v1_AODSIM.root',
-#    '/store/data/Commissioning10/MinimumBias/RECO/SD_EG-Jun14thSkim_v1/0149/FEDC34AB-7F84-DF11-A007-00261894385A.root'
-#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/FE96AFA9-C678-DF11-9E4C-003048F0E7FC.root',
-#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/F266F2FA-BE78-DF11-BEB4-003048F0E81E.root',
-#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/EA166B12-C378-DF11-9BEC-003048CF6334.root',
-#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/E8CCAFFA-BE78-DF11-8D0B-003048F0E81E.root',
-#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/E2B13F9F-C978-DF11-B42A-003048F0E81E.root',
-#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/DC224012-C378-DF11-B414-003048CF6334.root',
-#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/D449BF0F-C378-DF11-AB42-003048F0E81E.root',
-#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/D084A5EF-CA78-DF11-B000-003048F0E186.root',
-#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/C892F555-C378-DF11-919F-003048F0E81E.root',
-#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/C842530C-C378-DF11-BD97-003048CF632E.root',
-#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/C828CC0C-C378-DF11-B72D-003048CF632E.root',
-#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/BE8B579A-C978-DF11-BB94-003048CF6334.root',
-#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/B0A78AFA-BE78-DF11-88A2-003048CF6334.root',
-#    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/AC3549F8-BE78-DF11-B07B-003048F0E186.root',
-#    'rfio:/castor/cern.ch/cms/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/FE96AFA9-C678-DF11-9E4C-003048F0E7FC.root'
-    'rfio:/castor/cern.ch/cms/store/data/Run2010A/EG/RECO/v4/000/140/359/B84453AC-1C92-DF11-B1F8-001617E30D52.root',
+    'rfio:/castor/cern.ch/cms/store/relval/CMSSW_3_9_1/RelValZEE/GEN-SIM-RECO/START39_V3-v1/0062/187296DA-39E4-DF11-A172-003048679296.root'
     )
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
@@ -72,7 +56,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 ## global tags:
-process.GlobalTag.globaltag = cms.string('GR_R_36X_V12A::All') # GLOBAL TAG FOR DATA
+process.GlobalTag.globaltag = cms.string('START39_V3::All') 
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
@@ -144,19 +128,6 @@ process.patElectrons.embedGenMatch = cms.bool(False)
 process.patElectrons.usePV = cms.bool(False)
 ##
 process.load("ElectroWeakAnalysis.WENu.simpleEleIdSequence_cff")
-# you have to tell the ID that it is data
-process.simpleEleId95relIso.dataMagneticFieldSetUp = cms.bool(True)
-process.simpleEleId90relIso.dataMagneticFieldSetUp = cms.bool(True)
-process.simpleEleId85relIso.dataMagneticFieldSetUp = cms.bool(True)
-process.simpleEleId80relIso.dataMagneticFieldSetUp = cms.bool(True)
-process.simpleEleId70relIso.dataMagneticFieldSetUp = cms.bool(True)
-process.simpleEleId60relIso.dataMagneticFieldSetUp = cms.bool(True)
-process.simpleEleId95cIso.dataMagneticFieldSetUp = cms.bool(True)
-process.simpleEleId90cIso.dataMagneticFieldSetUp = cms.bool(True)
-process.simpleEleId85cIso.dataMagneticFieldSetUp = cms.bool(True)
-process.simpleEleId80cIso.dataMagneticFieldSetUp = cms.bool(True)
-process.simpleEleId70cIso.dataMagneticFieldSetUp = cms.bool(True)
-process.simpleEleId60cIso.dataMagneticFieldSetUp = cms.bool(True)
 #
 process.patElectronIDs = cms.Sequence(process.simpleEleIdSequence)
 process.makePatElectrons = cms.Sequence(process.patElectronIDs*process.patElectrons)
@@ -199,10 +170,10 @@ process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   # demand ecal driven electron:
                                   useEcalDrivenElectrons = cms.untracked.bool(True),
                                   # demand offline spike cleaning with the Swiss Cross criterion:
-                                  useSpikeRejection = cms.untracked.bool(True),
+                                  useSpikeRejection = cms.untracked.bool(False),
                                   spikeCleaningSwissCrossCut = cms.untracked.double(0.95),
                                   # demand geometrically matched to an HLT object with ET>15GeV
-                                  useTriggerInfo = cms.untracked.bool(True),
+                                  useTriggerInfo = cms.untracked.bool(False),
                                   electronMatched2HLT = cms.untracked.bool(True),
                                   electronMatched2HLT_DR = cms.untracked.double(0.1),
                                   useHLTObjectETCut = cms.untracked.bool(True),
@@ -225,11 +196,7 @@ process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   maxNumberOfExpectedMissingHits = cms.untracked.int32(1),
                                   # calculate some new cuts
                                   calculateValidFirstPXBHit = cms.untracked.bool(True),
-                                  calculateConversionRejection = cms.untracked.bool(True),
                                   calculateExpectedMissingHits = cms.untracked.bool(True),
-                                  # we are dealing with DATA
-                                  dataMagneticFieldSetUp = cms.untracked.bool(True),
-                                  dcsTag = cms.untracked.InputTag("scalersRawToDigi"),
                                   )
 ####################################################################################
 ##
@@ -245,7 +212,7 @@ selection_inverse = cms.PSet (
 #
 # we need to store jet information, hence we have to produce the jets:
 process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
-
+#process.load("JetMETCorrections.Configuration.JetCorrectionProducers_cff")
 process.jetSequence = cms.Sequence( process.ak5CaloJetsL2L3  )
 process.pfjetAK5Sequence = cms.Sequence( process.ak5PFJetsL2L3 )
 
@@ -278,11 +245,6 @@ process.plotter = cms.EDAnalyzer('WenuPlots',
                                  storeAllSecondElectronVariables = cms.untracked.bool(True),
                                  )
 #
-# if you run on data then you have to do misalignment  corrections first!!!
-# not to be used with MC!!
-process.load("RecoEgamma.EgammaTools.correctedElectronsProducer_cfi")
-process.p = cms.Path( process.gsfElectrons*process.ourJetSequence*
-                      process.patDefaultSequence*process.wenuFilter*process.plotter)
-#process.p = cms.Path( process.ourJetSequence * process.patDefaultSequence +process.wenuFilter + process.plotter)
+process.p = cms.Path( process.ourJetSequence*process.patDefaultSequence*process.wenuFilter*process.plotter)
 
 
