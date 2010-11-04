@@ -564,8 +564,11 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
 def saveOrigin(obj, level):
     #frame = inspect.stack()[level+1]
     frame = inspect.getframeinfo(inspect.currentframe(level+1))
-    obj._filename = frame.filename
-    obj._lineNumber = frame.lineno
+    # not safe under old python versions
+    #obj._filename = frame.filename
+    #obj._lineNumber = frame.lineno
+    obj._filename = frame[0]
+    obj._lineNumber = frame[1]
 
 if __name__ == "__main__":
 
