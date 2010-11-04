@@ -95,13 +95,13 @@ class SiStripAPVRestorer {
   double   restoreThreshold_;  
   uint32_t DeltaCMThreshold_;
   
-  uint32_t nSigmaNoiseDerTh_;          // threshold for rejecting hits strips (20 -> 10 ?)
-  uint32_t consecThreshold_;           // minimum length of flat region  (3 -> 5 ?)
+  uint32_t nSigmaNoiseDerTh_;          // threshold for rejecting hits strips
+  uint32_t consecThreshold_;           // minimum length of flat region
   uint32_t hitStripThreshold_;         // height above median when strip is definitely a hit
   uint32_t nSmooth_;                   // for smoothing and local minimum determination (odd number)
   uint32_t minStripsToFit_;            // minimum strips to try spline algo (otherwise default to median)
   uint32_t distortionThreshold_;
-  double CutToAvoidSignal_;	
+  double   CutToAvoidSignal_;	
   uint32_t nSaturatedStrip_;
     
 };
