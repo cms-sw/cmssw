@@ -155,12 +155,22 @@ lxbuild150:$ uploadConstants.py
 
 http://condb.web.cern.ch/condb/DropBoxOffline/HTTPRequest.py
 
+
+8) Then check here to inspect them and make sure they are all in the production account:
+
+http://cms-conddb.cern.ch/payload_inspector/
+
+The DBService is "offline production" 
+
+The account is "Physics Tools for 31x"
+
+Then click "SUBMIT"
  
 
-8) Ask the ALCA L2's to create the global tag.
+9) Ask the ALCA L2's to create the global tag.
 
  
 
-9) Check the global tags here:
+10) Check the global tags here:
 
 http://cms-conddb.cern.ch/popcon/PopConRecentActivityRecorded.html
