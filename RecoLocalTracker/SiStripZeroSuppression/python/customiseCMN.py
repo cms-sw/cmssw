@@ -57,7 +57,8 @@ def customiseTier0(process):
     process.siStripZeroSuppression.doAPVRestore = cms.bool(True)
     process.siStripZeroSuppression.produceRawDigis = cms.bool(True)
     process.siStripZeroSuppression.produceCalculatedBaseline = cms.bool(True)
-    
+
+    # these are the current defaults.
     process.siStripZeroSuppression.Algorithms.APVInspectMode = cms.string("BaselineFollower")
     process.siStripZeroSuppression.Algorithms.APVRestoreMode = cms.string("BaselineFollower")
     process.siStripZeroSuppression.Algorithms.DeltaCMThreshold = cms.uint32(20)

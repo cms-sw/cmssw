@@ -90,19 +90,20 @@ class SiStripAPVRestorer {
   //--------------------------------------------------
   // Configurable Parameters of Algorithm
   //--------------------------------------------------
+
   double   fraction_;                  // fraction of strips deviating from nominal baseline
   uint32_t deviation_;                 // ADC value of deviation from nominal baseline 
-  double   restoreThreshold_;  
-  uint32_t DeltaCMThreshold_;
+  double   restoreThreshold_;          // for Null inspect (fraction of adc=0 channels)
+  uint32_t DeltaCMThreshold_;          // for BaselineFollower inspect
   
   uint32_t nSigmaNoiseDerTh_;          // threshold for rejecting hits strips
   uint32_t consecThreshold_;           // minimum length of flat region
   uint32_t hitStripThreshold_;         // height above median when strip is definitely a hit
   uint32_t nSmooth_;                   // for smoothing and local minimum determination (odd number)
   uint32_t minStripsToFit_;            // minimum strips to try spline algo (otherwise default to median)
-  uint32_t distortionThreshold_;
-  double   CutToAvoidSignal_;	
-  uint32_t nSaturatedStrip_;
+  uint32_t distortionThreshold_;       // (max-min) of flat regions to trigger baseline follower
+  double   CutToAvoidSignal_;	       // for iterative median implementation internal to APV restorer
+  uint32_t nSaturatedStrip_;           // for BaselineAndSaturation inspect
     
 };
 
