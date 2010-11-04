@@ -42,6 +42,7 @@
 #include "DQM/CastorMonitor/interface/CastorLEDMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorPSMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorEventDisplay.h"
+#include "DQM/CastorMonitor/interface/CastorHIMonitor.h"
 
 #include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h" //-- use to get/dump Calib to DB 
 #include "CondFormats/CastorObjects/interface/CastorChannelQuality.h" //-- use to get/hold channel status
@@ -193,6 +194,7 @@ public:
   CastorLEDMonitor*         LedMon_;
   CastorPSMonitor*          PSMon_;
   CastorEventDisplay*       EDMon_;
+  CastorHIMonitor*          HIMon_;
 
   MonitorElement* meEVT_;
 
