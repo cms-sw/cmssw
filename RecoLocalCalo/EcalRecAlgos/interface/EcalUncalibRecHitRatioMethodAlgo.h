@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.35 2010/07/30 14:17:39 innocent Exp $
- *  $Date: 2010/07/30 14:17:39 $
- *  $Revision: 1.35 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.36 2010/11/03 11:49:43 innocent Exp $
+ *  $Date: 2010/11/03 11:49:43 $
+ *  $Revision: 1.36 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -288,7 +288,7 @@ chi2, float & amp) const {
   Scalar const denom =  Scalar(1)/Scalar(amplitudesSize);
 
   Vec const zero;
-  Vec const on(1);
+  Vec const one(1);
   Vec const eps(1.e-6f);
 
   Vec tV(t);
