@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.53 2010/08/23 14:45:36 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.54 2010/09/07 15:46:46 yana Exp $
 //
 
 #include "Fireworks/Core/interface/CmsShowMainBase.h"
@@ -124,8 +124,6 @@ private:
    int                          m_liveTimeout;
    Int_t                        m_lastPointerPositionX;
    Int_t                        m_lastPointerPositionY;
-
-   std::string m_autoSaveAllViewsFormat;
 
    std::auto_ptr<TMonitor> m_monitor;
 };

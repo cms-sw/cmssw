@@ -119,6 +119,8 @@ public:
    void setPlayLoop();
    void unsetPlayLoop();
 
+   void setAutoSaveAllViewsFormat(const std::string& fmt) { m_autoSaveAllViewsFormat = fmt; }
+
 protected: 
    class SignalTimer : public TTimer {
    public:

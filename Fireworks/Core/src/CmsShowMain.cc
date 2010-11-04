@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.182 2010/09/13 14:36:47 matevz Exp $
+// $Id: CmsShowMain.cc,v 1.183 2010/11/01 19:04:33 amraktad Exp $
 //
 
 // system include files
@@ -308,8 +308,9 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
          m_context->getField()->setUserField(vm[kFieldCommandOpt].as<double>());
       }
       if(vm.count(kAutoSaveAllViews)) {
-         m_autoSaveAllViewsFormat  = vm[kAutoSaveAllViews].as<std::string>();
-         m_autoSaveAllViewsFormat += "%d_%d_%d_%s.png";
+         std::string fmt = vm[kAutoSaveAllViews].as<std::string>();
+         fmt += "%d_%d_%d_%s.png";
+         setAutoSaveAllViewsFormat(fmt);
       }
       if(vm.count(kEnableFPE)) {
          gSystem->SetFPEMask();
