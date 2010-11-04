@@ -65,6 +65,7 @@ void RecoTauMVAHelper::fillValues(const reco::PFTauRef& tau) const {
        plugin != plugins_.end(); ++plugin) {
     PhysicsTools::AtomicId id = plugin->first;
     std::vector<double> pluginOutput = (plugin->second)->operator()(tau);
+    //std::cout << "id: " << id << " first: " << pluginOutput[0] << std::endl;
     // Build values and copy into values vector
     std::for_each(pluginOutput.begin(), pluginOutput.end(),
                   boost::bind(&PhysicsTools::Variable::ValueList::add,
