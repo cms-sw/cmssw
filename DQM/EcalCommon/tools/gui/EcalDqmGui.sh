@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ ${HOSTNAME} != "srv-S2F19-29" ]; then
-  echo "This is not srv-S2F19-29 !!!"
+  echo "This is not ecalod-disk01 !!!"
   exit 1
 fi
 
