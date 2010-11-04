@@ -17,7 +17,7 @@ Author: Evan K. Friis, UC Davis
 # N.B. for combinatoric taus that worst-case scaling
 # is (maxTracks choose dmTracks) * (maxPiZeros choose dmPiZeros)
 #
-# So for decay mode 11 (3 tracks, 1 pizero), with 10 for both 
+# So for decay mode 11 (3 tracks, 1 pizero), with 10 for both
 #
 # (10 choose 3) * (10 choose 1) = 1200!
 
@@ -83,5 +83,11 @@ combinatoricRecoTaus = cms.EDProducer(
     builders = cms.VPSet(
         _combinatoricTauConfig,
     ),
-    modifiers = cms.VPSet(),
+    modifiers = cms.VPSet(
+        cms.PSet(
+            name = cms.string("sipt"),
+            plugin = cms.string("RecoTauImpactParameterSignificancePlugin"),
+            pvSrc = cms.InputTag("offlinePrimaryVertices"),
+        )
+    ),
 )
