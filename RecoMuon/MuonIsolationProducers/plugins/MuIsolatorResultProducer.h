@@ -348,7 +348,7 @@ void MuIsolatorResultProducer<BT>::produce(edm::Event& event, const edm::EventSe
 }
 
 template<typename BT>
-uint
+unsigned int
 MuIsolatorResultProducer<BT>::initAssociation(edm::Event& event, CandMap& candMapT) const {
   std::string metname = "RecoMuon|MuonIsolationProducers";
   
