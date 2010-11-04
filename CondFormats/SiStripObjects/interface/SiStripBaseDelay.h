@@ -10,6 +10,8 @@
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 
 /**
+ * Author: M. De Mattia (demattia@pd.infn.it) 25/10/2010:
+ *
  * Base Delay object containing the PLL or time of flight delays. <br>
  * It stores the values in a vector\<Delay\>, which is not sorted. <br>
  * This object can be used directly to access the information on the delays for each
@@ -64,9 +66,9 @@ class SiStripBaseDelay
     return delays_.size();
   }
 
-  /// Prints the number of ranges as well as the value of singleDelay and singleMode
+  /// Prints the average value of the delays for all layers and wheels in the SiStripTracker
   void printSummary(std::stringstream & ss) const;
-  /// Prints the full list of all ranges and corresponding values of latency and mode
+  /// Prints the delays for all the detIds
   void printDebug(std::stringstream & ss) const;
 
  private:

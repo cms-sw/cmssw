@@ -54,7 +54,6 @@ void SiStripBaseDelay::printSummary(std::stringstream & ss) const
   for( ; it != delays_.end(); ++it ) {
     summaryDelays.add(it->detId, makeDelay(it->coarseDelay, it->fineDelay));
   }
-  summaryDelays.print(ss);
 }
 
 void SiStripBaseDelay::printDebug(std::stringstream & ss) const
