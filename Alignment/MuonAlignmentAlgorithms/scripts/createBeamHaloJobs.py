@@ -51,6 +51,10 @@ parser.add_option("--photogrammetryOnlyholes",
                   help="if invoked, only missing data will be constrained to photogrammetry",
                   action="store_true",
                   dest="photogrammetryOnlyholes")
+parser.add_option("--photogrammetryOnlyOnePerRing",
+                  help="if invoked, only one chamber per ring will be constrained to photogrammetry",
+                  action="store_true",
+                  dest="photogrammetryOnlyOnePerRing")
 parser.add_option("--photogrammetryScale",
                   help="scale factor for photogrammetry constraint: 1 is default and 10 *weakens* the constraint by a factor of 10",
                   type="string",
@@ -138,6 +142,7 @@ options, args = parser.parse_args(sys.argv[5:])
 globaltag = options.globaltag
 photogrammetry = options.photogrammetry
 photogrammetryOnlyholes = options.photogrammetryOnlyholes
+photogrammetryOnlyOnePerRing = options.photogrammetryOnlyOnePerRing
 photogrammetryScale = options.photogrammetryScale
 disks = options.disks
 minP = options.minP
@@ -189,6 +194,7 @@ for i, mode in enumerate(PATTERN):
         constraints += """export ALIGNMENT_CONVERTXML=%(inputdb)s
 cmsRun $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/python/convertToXML_global_cfg.py 
 python $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/scripts/relativeConstraints.py %(inputdb)s_global.xml $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/data/Photogrammetry2007.%(mode)s PGFrame --scaleErrors %(photogrammetryScale)s %(diskswitch)s> constraints_cff.py""" % vars()
+
     elif photogrammetryOnlyholes and (mode == "phipos" or mode == "phiz"):
         diskswitch = ""
         if disks: diskswitch = "--disks "
@@ -196,6 +202,15 @@ python $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/scripts/relativeConst
         constraints += """export ALIGNMENT_CONVERTXML=%(inputdb)s
 cmsRun $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/python/convertToXML_global_cfg.py 
 python $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/scripts/relativeConstraints.py %(inputdb)s_global.xml $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/data/Photogrammetry2007_onlyOct2010holes.%(mode)s PGFrame --scaleErrors %(photogrammetryScale)s %(diskswitch)s> constraints_cff.py""" % vars()
+
+    elif photogrammetryOnlyOnePerRing and (mode == "phipos" or mode == "phiz"):
+        diskswitch = ""
+        if disks: diskswitch = "--disks "
+
+        constraints += """export ALIGNMENT_CONVERTXML=%(inputdb)s
+cmsRun $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/python/convertToXML_global_cfg.py 
+python $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/scripts/relativeConstraints.py %(inputdb)s_global.xml $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/data/Photogrammetry2007_onlyOnePerRing.%(mode)s PGFrame --scaleErrors %(photogrammetryScale)s %(diskswitch)s> constraints_cff.py""" % vars()
+
     else:
         constraints += """echo \"\" > constraints_cff.py"""
 
@@ -219,7 +234,7 @@ export ALIGNMENT_MODE=%(mode)s
 export ALIGNMENT_JOBNUMBER=%(jobnumber)d
 export ALIGNMENT_INPUTDB=%(inputdb)s
 export ALIGNMENT_GLOBALTAG=%(globaltag)s
-export ALIGNMENT_PHOTOGRAMMETRY='%(photogrammetry)s or %(photogrammetryOnlyholes)s'
+export ALIGNMENT_PHOTOGRAMMETRY='%(photogrammetry)s or %(photogrammetryOnlyholes)s or %(photogrammetryOnlyOnePerRing)s'
 export ALIGNMENT_DISKS=%(disks)s
 export ALIGNMENT_minP=%(minP)s
 export ALIGNMENT_minHitsPerChamber=%(minHitsPerChamber)s
@@ -292,7 +307,7 @@ export ALIGNMENT_ITERATION=%(iteration)d
 export ALIGNMENT_MODE=%(mode)s
 export ALIGNMENT_INPUTDB=%(inputdb)s
 export ALIGNMENT_GLOBALTAG=%(globaltag)s
-export ALIGNMENT_PHOTOGRAMMETRY='%(photogrammetry)s or %(photogrammetryOnlyholes)s'
+export ALIGNMENT_PHOTOGRAMMETRY='%(photogrammetry)s or %(photogrammetryOnlyholes)s or %(photogrammetryOnlyOnePerRing)s'
 export ALIGNMENT_DISKS=%(disks)s
 export ALIGNMENT_minP=%(minP)s
 export ALIGNMENT_minHitsPerChamber=%(minHitsPerChamber)s
