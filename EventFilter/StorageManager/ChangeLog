@@ -1,3 +1,9 @@
+2010-11-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-04-05
+	* Use unsigned long long consistently when checking file sizes in bytes.
+	  Fixes the file size check when file sizes exceed 2 GB.
+
 2010-11-03 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-04-04
