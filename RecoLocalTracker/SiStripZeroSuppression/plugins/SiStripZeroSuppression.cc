@@ -17,30 +17,30 @@ SiStripZeroSuppression(edm::ParameterSet const& conf)
     storeCM(conf.getParameter<bool>("storeCM")),
     doAPVRestore(conf.getParameter<bool>("doAPVRestore")),
     produceRawDigis(conf.getParameter<bool>("produceRawDigis")),
-	produceCalculatedBaseline(conf.getParameter<bool>("produceCalculatedBaseline")),
-	produceBaselinePoints(conf.getParameter<bool>("produceBaselinePoints")),
+    produceCalculatedBaseline(conf.getParameter<bool>("produceCalculatedBaseline")),
+    produceBaselinePoints(conf.getParameter<bool>("produceBaselinePoints")),
     mergeCollections(conf.getParameter<bool>("mergeCollections")),
     fixCM(conf.getParameter<bool>("fixCM")),
-	useCMMeanMap(conf.getParameter<bool>("useCMMeanMap"))
+    useCMMeanMap(conf.getParameter<bool>("useCMMeanMap"))
 {
-
+  
   if(mergeCollections){
     storeCM = false;
     produceRawDigis = false;
-	mergeCollections =false;
+    mergeCollections =false;
   }
   
   for(tag_iterator_t inputTag = inputTags.begin(); inputTag != inputTags.end(); ++inputTag ){
     produces< edm::DetSetVector<SiStripDigi> > (inputTag->instance());
     if(produceRawDigis)
       produces< edm::DetSetVector<SiStripRawDigi> > (inputTag->instance());
-   } 
+  } 
 	
   if(produceCalculatedBaseline) 
-	produces< edm::DetSetVector<SiStripProcessedRawDigi> > ("BADAPVBASELINE");
+    produces< edm::DetSetVector<SiStripProcessedRawDigi> > ("BADAPVBASELINE");
 	
   if(produceBaselinePoints) 
-	produces< edm::DetSetVector<SiStripDigi> > ("BADAPVBASELINEPOINTS");
+    produces< edm::DetSetVector<SiStripDigi> > ("BADAPVBASELINEPOINTS");
 	  
   if(storeCM)
     produces< edm::DetSetVector<SiStripProcessedRawDigi> > ("APVCM");
@@ -82,20 +82,20 @@ inline void SiStripZeroSuppression::StandardZeroSuppression(edm::Event& e){
     if(produceRawDigis){
       std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > outputraw(new edm::DetSetVector<SiStripRawDigi>(output_base_raw) );
       e.put(outputraw, inputTag->instance() );
-	  
+      
 	   
     }
   }
 
   
   if(produceCalculatedBaseline){
-		std::auto_ptr< edm::DetSetVector<SiStripProcessedRawDigi> > outputbaseline(new edm::DetSetVector<SiStripProcessedRawDigi>(output_baseline) );
-        e.put(outputbaseline, "BADAPVBASELINE" );
+    std::auto_ptr< edm::DetSetVector<SiStripProcessedRawDigi> > outputbaseline(new edm::DetSetVector<SiStripProcessedRawDigi>(output_baseline) );
+    e.put(outputbaseline, "BADAPVBASELINE" );
   }
   
   if(produceBaselinePoints){
-		std::auto_ptr< edm::DetSetVector<SiStripDigi> > outputbaselinepoints(new edm::DetSetVector<SiStripDigi>(output_baseline_points) );
-        e.put(outputbaselinepoints, "BADAPVBASELINEPOINTS" );
+    std::auto_ptr< edm::DetSetVector<SiStripDigi> > outputbaselinepoints(new edm::DetSetVector<SiStripDigi>(output_baseline_points) );
+    e.put(outputbaselinepoints, "BADAPVBASELINEPOINTS" );
   }
   
   if(storeCM){
@@ -137,8 +137,8 @@ void SiStripZeroSuppression::
 processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi>& input, std::vector<edm::DetSet<SiStripDigi> >& output, std::vector<edm::DetSet<SiStripRawDigi> >& outputraw) {
 
   if(storeCM){
-	output_apvcm.clear();
-	output_apvcm.reserve(16000);
+    output_apvcm.clear();
+    output_apvcm.reserve(16000);
   }
   
   if(produceCalculatedBaseline){
@@ -168,49 +168,47 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
       if( doAPVRestore ) algorithms->restorer->restore( processedRawDigis, algorithms->subtractorCMN->getAPVsCM() );
       algorithms->suppressor->suppress( processedRawDigis, suppressedDigis );
       
-	  const std::vector< std::pair<short,float> >& vmedians= algorithms->subtractorCMN->getAPVsCM();
-	  if(storeCM) this->storeCMN(rawDigis->id, vmedians);
+      const std::vector< std::pair<short,float> >& vmedians= algorithms->subtractorCMN->getAPVsCM();
+      if(storeCM) this->storeCMN(rawDigis->id, vmedians);
       if(produceCalculatedBaseline&& nAPVflagged > 0){
-		std::map< uint16_t, std::vector < int16_t> >& baselinemap = algorithms->restorer->GetBaselineMap();
-		this->storeBaseline(rawDigis->id, vmedians, baselinemap);
-	  }
-	 // if(produceBaselinePoints&& nAPVflagged > 0){
-	 //	std::vector< std::map< uint16_t, int16_t> >&  baselinpoints = algorithms->restorer->GetSmoothedPoints();
-	 //	this->storeBaselinePoints(rawDigis->id, baselinpoints);
-	 // }
-    } else
-
-    if ( "VirginRaw" == inputTag.instance()) {
+	std::map< uint16_t, std::vector < int16_t> >& baselinemap = algorithms->restorer->GetBaselineMap();
+	this->storeBaseline(rawDigis->id, vmedians, baselinemap);
+      }
+      // if(produceBaselinePoints&& nAPVflagged > 0){
+      //	std::vector< std::map< uint16_t, int16_t> >&  baselinpoints = algorithms->restorer->GetSmoothedPoints();
+      //	this->storeBaselinePoints(rawDigis->id, baselinpoints);
+      // }
+    } else if ( "VirginRaw" == inputTag.instance()) {
       std::vector<int16_t> processedRawDigis(rawDigis->size());
       algorithms->subtractorPed->subtract( *rawDigis, processedRawDigis);
       if( doAPVRestore ) nAPVflagged = algorithms->restorer->inspect( rawDigis->id, processedRawDigis );
       algorithms->subtractorCMN->subtract( rawDigis->id, processedRawDigis);
       if( doAPVRestore ) algorithms->restorer->restore( processedRawDigis, algorithms->subtractorCMN->getAPVsCM() );
       algorithms->suppressor->suppress( processedRawDigis, suppressedDigis );
-	  
-	  const std::vector< std::pair<short,float> >& vmedians = algorithms->subtractorCMN->getAPVsCM();
+      
+      const std::vector< std::pair<short,float> >& vmedians = algorithms->subtractorCMN->getAPVsCM();
       if(storeCM) this->storeCMN(rawDigis->id, vmedians);
-	  if(produceCalculatedBaseline&& nAPVflagged > 0){
-		std::map< uint16_t, std::vector < int16_t> >& baselinemap = algorithms->restorer->GetBaselineMap();
-		this->storeBaseline(rawDigis->id, vmedians, baselinemap);
-	  }
-	 // if(produceBaselinePoints&& nAPVflagged > 0){
-	 //	std::vector< std::map< uint16_t, int16_t> >&  baselinpoints = algorithms->restorer->GetSmoothedPoints();
-	 //	this->storeBaselinePoints(rawDigis->id, baselinpoints);
-	 // }
-	 
+      if(produceCalculatedBaseline&& nAPVflagged > 0){
+	std::map< uint16_t, std::vector < int16_t> >& baselinemap = algorithms->restorer->GetBaselineMap();
+	this->storeBaseline(rawDigis->id, vmedians, baselinemap);
+      }
+      // if(produceBaselinePoints&& nAPVflagged > 0){
+      //	std::vector< std::map< uint16_t, int16_t> >&  baselinpoints = algorithms->restorer->GetSmoothedPoints();
+      //	this->storeBaselinePoints(rawDigis->id, baselinpoints);
+      // }
+      
     } else 
       
       throw cms::Exception("Unknown input type") 
 	<< inputTag.instance() << " unknown.  SiStripZeroZuppression can only process types \"VirginRaw\" and \"ProcessedRaw\" ";
     
-
+    
     if (suppressedDigis.size() && nAPVflagged==0) 
       output.push_back(suppressedDigis); 
     
     if (produceRawDigis && nAPVflagged > 0) 
       outputraw.push_back(*rawDigis);
-      
+    
   }
   
 }
@@ -219,66 +217,67 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
 inline 
 void SiStripZeroSuppression::storeBaseline(uint32_t id, const std::vector< std::pair<short,float> >& vmedians, std::map< uint16_t, std::vector < int16_t> >& baselinemap){
 	
-	edm::DetSet<SiStripProcessedRawDigi> baselineDetSet(id);
-	std::map< uint16_t, std::vector < int16_t> >::iterator itBaselineMap;
-	
-	for(size_t i=0;i<vmedians.size();++i){
-	   uint16_t APVn = vmedians[i].first;
-	   float median = vmedians[i].second;
-	   itBaselineMap = baselinemap.find(APVn);
-	   if(itBaselineMap==baselinemap.end()){
-			for(size_t strip=0; strip < 128; ++strip)  baselineDetSet.push_back(SiStripProcessedRawDigi(median));
-	   } else {
-	        for(size_t strip=0; strip < 128; ++strip) baselineDetSet.push_back(SiStripProcessedRawDigi((itBaselineMap->second)[strip]));
-	   }
-	
-	}
-      
-	if(baselineDetSet.size())
-	  output_baseline.push_back(baselineDetSet);
-	
+  edm::DetSet<SiStripProcessedRawDigi> baselineDetSet(id);
+  std::map< uint16_t, std::vector < int16_t> >::iterator itBaselineMap;
+  
+  for(size_t i=0;i<vmedians.size();++i){
+    uint16_t APVn = vmedians[i].first;
+    float median = vmedians[i].second;
+    itBaselineMap = baselinemap.find(APVn);
+    if(itBaselineMap==baselinemap.end()){
+      for(size_t strip=0; strip < 128; ++strip)  baselineDetSet.push_back(SiStripProcessedRawDigi(median));
+    } else {
+      for(size_t strip=0; strip < 128; ++strip) baselineDetSet.push_back(SiStripProcessedRawDigi((itBaselineMap->second)[strip]));
+    }
+    
+  }
+  
+  if(baselineDetSet.size())
+    output_baseline.push_back(baselineDetSet);
+  
 }
 
 inline
 void storeBaselinePoints(uint32_t id, std::vector< std::map< uint16_t, int16_t> >& BasPointVec){
-	/*dm::DetSet<SiStripDigi> baspointDetSet(id);
-	std::vector< std::map< uint16_t, int16_t> >::iterator itBasPointVec;
-	
-	for(size_t i=0;i<vmedians.size();++i){
-	   uint16_t APVn = vmedians[i].first;
-	   float median = vmedians[i].second;
-	   itBaselineMap = baselinemap.find(APVn);
-	   if(itBaselineMap==baselinemap.end()){
-			for(size_t strip=0; strip < 128; ++strip)  baselineDetSet.push_back(SiStripProcessedRawDigi(median));
-	   } else {
-	        for(size_t strip=0; strip < 128; ++strip) baselineDetSet.push_back(SiStripProcessedRawDigi((itBaselineMap->second)[strip]));
-	   }
-	
-	}
-      
-	if(baselineDetSet.size())
-	  output_baseline_points.push_back(baselineDetSet);
-	  */
+
+  /*dm::DetSet<SiStripDigi> baspointDetSet(id);
+    std::vector< std::map< uint16_t, int16_t> >::iterator itBasPointVec;
+    
+    for(size_t i=0;i<vmedians.size();++i){
+    uint16_t APVn = vmedians[i].first;
+    float median = vmedians[i].second;
+    itBaselineMap = baselinemap.find(APVn);
+    if(itBaselineMap==baselinemap.end()){
+    for(size_t strip=0; strip < 128; ++strip)  baselineDetSet.push_back(SiStripProcessedRawDigi(median));
+    } else {
+    for(size_t strip=0; strip < 128; ++strip) baselineDetSet.push_back(SiStripProcessedRawDigi((itBaselineMap->second)[strip]));
+    }
+    
+    }
+    
+    if(baselineDetSet.size())
+    output_baseline_points.push_back(baselineDetSet);
+  */
 }
 
 inline 
 void SiStripZeroSuppression::storeCMN(uint32_t id, const std::vector< std::pair<short,float> >& vmedians){
 	
-	edm::DetSet<SiStripProcessedRawDigi> apvDetSet(id);
-	short apvNb=0;
-	for(size_t i=0;i<vmedians.size();++i){
-	  if(vmedians[i].first>apvNb){
-	    for(int i=0;i<vmedians[i].first-apvNb;++i){
-	      apvDetSet.push_back(SiStripProcessedRawDigi(0.));
-	      apvNb++;
-	    }
-	  }
-	  apvDetSet.push_back(SiStripProcessedRawDigi(vmedians[i].second));
-	  //std::cout << "CM patch in VR " << rawDigis->id << " " << vmedians[i].first << " " << vmedians[i].second << " " << apvNb<< std::endl;
-	  apvNb++;
-	}
-        if(fixCM) algorithms->restorer->fixAPVsCM( apvDetSet ); 
-	if(apvDetSet.size())
-	  output_apvcm.push_back(apvDetSet);
-	
+  edm::DetSet<SiStripProcessedRawDigi> apvDetSet(id);
+  short apvNb=0;
+  for(size_t i=0;i<vmedians.size();++i){
+    if(vmedians[i].first>apvNb){
+      for(int i=0;i<vmedians[i].first-apvNb;++i){
+	apvDetSet.push_back(SiStripProcessedRawDigi(0.));
+	apvNb++;
+      }
+    }
+    apvDetSet.push_back(SiStripProcessedRawDigi(vmedians[i].second));
+    //std::cout << "CM patch in VR " << rawDigis->id << " " << vmedians[i].first << " " << vmedians[i].second << " " << apvNb<< std::endl;
+    apvNb++;
+  }
+  if(fixCM) algorithms->restorer->fixAPVsCM( apvDetSet ); 
+  if(apvDetSet.size())
+    output_apvcm.push_back(apvDetSet);
+  
 }
