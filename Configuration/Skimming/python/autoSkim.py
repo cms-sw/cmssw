@@ -7,8 +7,8 @@ autoSkim = {
     'EG':'WZEG+LogError',
     'Electron':'WZEG+LogError',
     'Photon':'WZEG+LogError+SuperCluster',
-    'JetMETtau':'TPG',
-    'JetMET':'DiJet',
+    'JetMETtau':'TPG+DiJet+Tau+LogError',
+    'JetMET':'DiJet+LogError',
     'BTau':'Tau+LogError',
     'Jet':'LogError+DiJet',
     'METFwd':'LogError'
