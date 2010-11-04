@@ -1,4 +1,4 @@
-// $Id: FileHandler.h,v 1.12 2010/09/09 08:01:16 mommsen Exp $
+// $Id: FileHandler.h,v 1.13 2010/09/28 16:25:29 mommsen Exp $
 /// @file: FileHandler.h 
 
 #ifndef StorageManager_FileHandler_h
@@ -14,6 +14,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <sys/types.h>
 
 
 namespace stor {
@@ -24,8 +25,8 @@ namespace stor {
    * Abstract representation of a physical file
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2010/09/09 08:01:16 $
+   * $Revision: 1.13 $
+   * $Date: 2010/09/28 16:25:29 $
    */
 
   class FileHandler
@@ -151,12 +152,12 @@ namespace stor {
      * Check that the file size matches the given size.
      * Returns the actual size.
      */
-    size_t checkFileSizeMatch(const std::string& fileName, const size_t& size) const;
+    unsigned long long checkFileSizeMatch(const std::string& fileName, const unsigned long long& size) const;
 
     /**
      * Check that the 2 sizes agree
      */
-    bool sizeMismatch(const double& initialSize, const double& finalSize) const;
+    bool sizeMismatch(const unsigned long long& initialSize, const unsigned long long& finalSize) const;
 
     /**
      * Changes the file permissions to read-only
@@ -182,7 +183,7 @@ namespace stor {
     /**
      * Return the relative difference btw to file sizes
      */
-    double calcPctDiff(const double&, const double&) const;
+    double calcPctDiff(const unsigned long long&, const unsigned long long&) const;
     
 
   private:
