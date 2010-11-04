@@ -4,7 +4,6 @@ autoSkim = {
     'Commissioning':'DT+L1MuBit+RPC+MuonTrack+CSCHLT+CSCAlone+LogError',
     'Cosmics':'CSC+CosmicSP+LogError',
     'Mu' : 'WZMu+TPG+LogError',    
-    'EGMonitor':'EcalRH+TPG+LogError',
     'EG':'WZEG+LogError',
     'Electron':'WZEG+LogError',
     'Photon':'WZEG+LogError+SuperCluster',
