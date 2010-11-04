@@ -84,12 +84,17 @@ RecoTauCleanerImpl<Prod>::RecoTauCleanerImpl(const edm::ParameterSet& pset) {
 
 namespace {
 // Template to convert a ref to desired output type
-template<typename T> const T& convert(const reco::PFTauRef &tau);
+template<typename T> const T convert(const reco::PFTauRef &tau);
 
-template<> const reco::PFTauRef&
+template<> const edm::RefToBase<reco::PFTau>
+convert<edm::RefToBase<reco::PFTau> >(const reco::PFTauRef &tau) {
+  return edm::RefToBase<reco::PFTau>(tau);
+}
+
+template<> const reco::PFTauRef
 convert<reco::PFTauRef>(const reco::PFTauRef &tau) { return tau; }
 
-template<> const reco::PFTau&
+template<> const reco::PFTau
 convert<reco::PFTau>(const reco::PFTauRef &tau) { return *tau; }
 }
 
@@ -126,7 +131,7 @@ void RecoTauCleanerImpl<Prod>::produce(edm::Event& evt,
 
   // create output collection
   std::auto_ptr<Prod> output(new Prod());
-  output->reserve(cleanTaus.size());
+  //output->reserve(cleanTaus.size());
 
   // Copy clean refs into output
   for (PFTauRefs::const_iterator tau = cleanTaus.begin();
@@ -137,7 +142,7 @@ void RecoTauCleanerImpl<Prod>::produce(edm::Event& evt,
 }
 
 typedef RecoTauCleanerImpl<reco::PFTauCollection> RecoTauCleaner;
-typedef RecoTauCleanerImpl<reco::PFTauRefVector> RecoTauRefCleaner;
+typedef RecoTauCleanerImpl<edm::RefToBaseVector<reco::PFTau> > RecoTauRefCleaner;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(RecoTauCleaner);
