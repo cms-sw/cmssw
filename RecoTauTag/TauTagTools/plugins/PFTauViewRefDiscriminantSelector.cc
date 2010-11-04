@@ -29,6 +29,7 @@ class RecoTauDiscriminatorRefSelector : public edm::EDFilter {
     ~RecoTauDiscriminatorRefSelector() {}
     bool filter(edm::Event &evt, const edm::EventSetup &es);
   private:
+    typedef edm::RefToBaseVector<reco::PFTau> OutputType;
     edm::InputTag src_;
     edm::InputTag discriminatorSrc_;
     double cut_;
@@ -41,7 +42,8 @@ RecoTauDiscriminatorRefSelector::RecoTauDiscriminatorRefSelector(
   discriminatorSrc_ = pset.getParameter<edm::InputTag>("discriminator");
   cut_ = pset.getParameter<double>("cut");
   filter_ = pset.getParameter<bool>("filter");
-  produces<reco::PFTauRefVector>();
+  //produces<reco::PFTauRefVector>();
+  produces<OutputType>();
 }
 
 
@@ -55,12 +57,15 @@ bool RecoTauDiscriminatorRefSelector::filter(edm::Event& evt,
   edm::Handle<reco::PFTauDiscriminator> disc;
   evt.getByLabel(discriminatorSrc_, disc);
 
-  std::auto_ptr<reco::PFTauRefVector> output(
-      new reco::PFTauRefVector(inputRefs.id()));
+//  std::auto_ptr<reco::PFTauRefVector> output(
+//      new reco::PFTauRefVector(inputRefs.id()));
+  //std::auto_ptr<OutputType> output(
+  //    new OutputType(inputRefs.id()));
+  std::auto_ptr<OutputType> output(new OutputType);
 
   BOOST_FOREACH(reco::PFTauRef ref, inputRefs) {
     if ( (*disc)[ref] > cut_ )
-      output->push_back(ref);
+      output->push_back(edm::RefToBase<reco::PFTau>(ref));
   }
   size_t selected = output->size();
   evt.put(output);

@@ -21,8 +21,8 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 
 typedef SingleObjectSelector<
-          edm::View<reco::PFTau>,
-          StringCutObjectSelector<reco::PFTau>
+          edm::View<reco::Candidate>,
+          StringCutObjectSelector<reco::Candidate, true>
        > PFTauViewRefSelector;
 
 DEFINE_FWK_MODULE(PFTauViewRefSelector);
