@@ -17,6 +17,7 @@ background_input = sys.argv[3]
 import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.gROOT.SetStyle("Plain")
+ROOT.gStyle.SetOptStat(0)
 
 def make_perf_curve(signal, background, signal_denom, background_denom):
     signal_bins = []
@@ -70,8 +71,11 @@ discriminators['shrinkingConePFTauProducer'] = [
 ]
 
 discriminators['hpsTancTaus'] = [
-    'hpsTancTausDiscriminationByTancRaw',
+    #'hpsTancTausDiscriminationByTancRaw',
     'hpsTancTausDiscriminationByTanc',
+    'hpsTancTausDiscriminationByTancLoose',
+    'hpsTancTausDiscriminationByTancMedium',
+    'hpsTancTausDiscriminationByTancTight',
 ]
 
 #del discriminators['shrinkingConePFTauProducer']
@@ -97,8 +101,11 @@ discriminator_translator = {
     'shrinkingConePFTauDiscriminationByTaNCfrHalfPercent' : 'TaNC 0.50% v.1',
     'shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent' : 'TaNC 0.25% v.1',
     'shrinkingConePFTauDiscriminationByTaNCfrTenthPercent' : 'TaNC 0.10% v.1',
-    'hpsTancTausDiscriminationByTanc' : 'HPSTanc',
-    'hpsTancTausDiscriminationByTancRaw' : 'HPSTanc-no transform',
+    'hpsTancTausDiscriminationByTanc' : 'scan',
+    'hpsTancTausDiscriminationByTancLoose' : 'loose',
+    'hpsTancTausDiscriminationByTancMedium' : 'medium',
+    'hpsTancTausDiscriminationByTancTight' : 'tight',
+    'hpsTancTausDiscriminationByTancRaw' : 'no transform',
 }
 
 
@@ -125,24 +132,26 @@ if __name__ == "__main__":
                 sample_info["file"].Get("plotAK5PFJets/pt").GetEntries()
 
     # Build the master canvas and the sub pads
-    canvas = ROOT.TCanvas("blah", "blah", 800, 600)
-    canvas.cd()
+    canvas = ROOT.TCanvas("blah", "blah", 800, 1200)
+    # Workaround so it isn't rotated..
+    canvas.Divide(1, 2)
+    canvas.cd(1)
     #legend_pad = ROOT.TPad("legendpad", "legendpad", 0.7, 0.1, 0.9, 0.9)
     #graph_pad = ROOT.TPad("graphpad", "graphpad", 0.1, 0.1, 0.7, 0.9)
     #graph_pad.cd()
 
     good_markers = [20, 21, 24, 26, 22, 26, 20, 21, 24, 26, 22 ]
-    good_colors = [ROOT.EColor.kRed, ROOT.EColor.kBlue, ROOT.EColor.kOrange]
+    good_colors = [ROOT.EColor.kRed, ROOT.EColor.kBlue, ROOT.EColor.kGreen + 2]
     # The background histogram
     histo = ROOT.TH1F("blank", "blank", 100, 0, 1.0)
-    histo.SetMinimum(5e-5)
-    histo.SetMaximum(1.0)
+    histo.SetMinimum(8e-4)
+    histo.SetMaximum(0.5)
     histo.GetXaxis().SetTitle("Signal efficiency")
     histo.GetYaxis().SetTitle("Fake rate")
     histo.SetTitle("")
     #histo.SetStat(0)
     histo.Draw()
-    legend = ROOT.TLegend(0.1, 0.6, 0.5, 0.9)
+    legend = ROOT.TLegend(0.6, 0.1, 0.9, 0.6)
     legend.SetFillStyle(0)
 
     graphs = {}
@@ -160,6 +169,8 @@ if __name__ == "__main__":
             new_graph.SetMarkerStyle(marker)
             new_graph.SetMarkerColor(color)
             new_graph.SetLineColor(color)
+            new_graph.SetLineStyle(2)
+            new_graph.SetLineWidth(2)
             graphs[producer][discriminator] = new_graph
             print new_graph.GetN()
             if new_graph.GetN() > 1:
@@ -178,5 +189,5 @@ if __name__ == "__main__":
     ROOT.gPad.SetLogy(True)
     #legend_pad.cd()
     legend.Draw()
-    canvas.Update()
-    canvas.SaveAs(output_file)
+    ROOT.gPad.Update()
+    ROOT.gPad.SaveAs(output_file)

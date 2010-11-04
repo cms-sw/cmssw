@@ -66,6 +66,16 @@ process.source = cms.Source(
     skipBadFiles = cms.untracked.bool(True),
 )
 
+# DQM store, PDT sources etc
+process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
+process.load("Configuration.StandardSequences.Services_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+# Shit, is this okay?
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['mc']
+
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr = cms.untracked.PSet(placeholder = cms.untracked.bool(True))
 process.MessageLogger.cout = cms.untracked.PSet(INFO = cms.untracked.PSet(
@@ -199,7 +209,13 @@ process.signalRawTaus = cms.EDProducer(
     jetSrc = cms.InputTag("signalJetsDMMatched"),
     piZeroSrc = cms.InputTag("signalPiZeros"),
     builders = cms.VPSet(_combinatoricTauConfig),
-    modifiers = cms.VPSet()
+    modifiers = cms.VPSet(
+        #cms.PSet(
+            #name = cms.string("sipt"),
+            #plugin = cms.string("RecoTauImpactParameterSignificancePlugin"),
+            #pvSrc = cms.InputTag("offlinePrimaryVertices"),
+        #)
+    )
 )
 process.signalSequence += process.signalRawTaus
 
@@ -263,23 +279,23 @@ process.backgroundRawTausLeadPionPt = process.signalRawTausLeadPionPt.clone(
 )
 
 # Select (randomly) only one tau for each jet
-process.backgroundTaus = cms.EDProducer(
-    "RecoTauCleaner",
-    src = cms.InputTag("backgroundRawTausLeadPionPt"),
-    cleaners = cms.VPSet(
-        cms.PSet(
-            name = cms.string("RandomSelection"),
-            plugin = cms.string("RecoTauRandomCleanerPlugin"),
-        ),
-    )
-)
+#process.backgroundTaus = cms.EDProducer(
+    #"RecoTauCleaner",
+    #src = cms.InputTag("backgroundRawTausLeadPionPt"),
+    #cleaners = cms.VPSet(
+        #cms.PSet(
+            #name = cms.string("RandomSelection"),
+            #plugin = cms.string("RecoTauRandomCleanerPlugin"),
+        #),
+    #)
+#)
 
 process.backgroundSequence = cms.Sequence(
     process.backgroundSelectEvents *
     process.backgroundPiZeros *
     process.backgroundRawTaus *
-    process.backgroundRawTausLeadPionPt *
-    process.backgroundTaus
+    process.backgroundRawTausLeadPionPt
+    #* process.backgroundTaus
 )
 process.backgroundPath = cms.Path(process.backgroundSequence)
 
@@ -287,7 +303,7 @@ process.backgroundPath = cms.Path(process.backgroundSequence)
 process.trainer = cms.EDAnalyzer(
     "RecoTauMVATrainer",
     signalSrc = cms.InputTag("signalTaus"),
-    backgroundSrc = cms.InputTag("backgroundTaus"),
+    backgroundSrc = cms.InputTag("backgroundRawTausLeadPionPt"),
     computerName = cms.string(_computer_name),
     dbLabel = cms.string("trainer"),
 )

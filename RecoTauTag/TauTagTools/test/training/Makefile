@@ -16,7 +16,7 @@ clean:
 	rm -f ${TRANS}/*
 
 # Combine the signal and background evaluation
-${EVAL}/eval.png: make_eval_plots.py ${EVAL}/eval_signal.root ${EVAL}/eval_background.root
+${EVAL}/eval.pdf: make_eval_plots.py ${EVAL}/eval_signal.root ${EVAL}/eval_background.root
 	./make_eval_plots.py $@ ${EVAL}/eval_signal.root ${EVAL}/eval_background.root
 
 # Evaluate the signal
@@ -41,17 +41,17 @@ ${TRANS}/transform_%.py: ${TRANS}/signal_transform_%.root ${TRANS}/background_tr
 	./computeTransform.py -s ${TRANS}/signal_transform_$*.root \
 	  -b ${TRANS}/background_transform_$*.root -o $@
 
-${TRANS}/signal_transform_%.root: ${DB}/%.db evaluateMode_cfg.py signalfiles.test
+${TRANS}/signal_transform_%.root: ${DB}/computers.db evaluateMode_cfg.py signalfiles.test
 	./evaluateMode_cfg.py inputFiles_load=signalfiles.test db=$< outputFile=$@  \
 	  signal=1 \
-	  tracks=`echo $< | sed "s|[^0-9]*\([0-9]\)prong\([0-9]\)pi0.*.db|\1|"` \
-	  pizeros=`echo $< | sed "s|[^0-9]*\([0-9]\)prong\([0-9]\)pi0.*.db|\2|"` 
+	  tracks=`echo $* | sed "s|[^0-9]*\([0-9]\)prong\([0-9]\)pi0|\1|"` \
+	  pizeros=`echo $* | sed "s|[^0-9]*\([0-9]\)prong\([0-9]\)pi0|\2|"` 
 
-${TRANS}/background_transform_%.root: ${DB}/%.db evaluateMode_cfg.py backgroundfiles.test
+${TRANS}/background_transform_%.root: ${DB}/computers.db evaluateMode_cfg.py backgroundfiles.test
 	./evaluateMode_cfg.py inputFiles_load=backgroundfiles.test db=$< outputFile=$@ \
 	  signal=0 \
-	  tracks=`echo $< | sed "s|[^0-9]*\([0-9]\)prong\([0-9]\)pi0.*.db|\1|"` \
-	  pizeros=`echo $< | sed "s|[^0-9]*\([0-9]\)prong\([0-9]\)pi0.*.db|\2|"` 
+	  tracks=`echo $* | sed "s|[^0-9]*\([0-9]\)prong\([0-9]\)pi0|\1|"` \
+	  pizeros=`echo $* | sed "s|[^0-9]*\([0-9]\)prong\([0-9]\)pi0|\2|"` 
 	
 #################################################################
 #  Database management - depends on trained sub-mvas
@@ -87,12 +87,15 @@ ${DB}/%.db: ${XML}/%.xml signalfiles.list backgroundfiles.list #trainMVA_cfg.py
 
 signalfiles.list:
 	ls /data1/friis/TauMVATraining2/Ztautau/signal_training*.root \
+	  | tail -n 100 \
 	  | awk 'NR % 3 != 0' | sed "s|^|file:|" >> $@
 
 backgroundfiles.list:
 	ls /data1/friis/TauMVATraining2/Background_Run2010A/background_training*.root \
+	  | tail -n 50 \
 	  | awk 'NR % 3 != 0' | sed "s|^|file:|" >> $@
 	ls /data1/friis/TauMVATraining2/Background_Run2010B/background_training*.root \
+	  | tail -n 50  \
 	  | awk 'NR % 3 != 0' | sed "s|^|file:|" >> $@
 
 # unbiased testing datasets

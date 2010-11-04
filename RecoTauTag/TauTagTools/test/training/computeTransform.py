@@ -37,9 +37,9 @@ signal_file = ROOT.TFile(options.s, "READ")
 background_file = ROOT.TFile(options.b, "READ")
 
 signal_denominator_histo = signal_file.Get("plotInputJets/pt")
-background_denominator_histo = signal_file.Get("plotInputJets/pt")
-signal_histo = signal_file.Get("cleanTauPlots/discriminationByTaNC")
-background_histo = background_file.Get("cleanTauPlots/discriminationByTaNC")
+background_denominator_histo = background_file.Get("plotInputJets/pt")
+signal_histo = signal_file.Get("cleanTauPlots/hpsTancTausDiscriminationByTancRaw")
+background_histo = background_file.Get("cleanTauPlots/hpsTancTausDiscriminationByTancRaw")
 
 print "Signal has %i entries in clean, %i in total" % (
     signal_histo.Integral(), signal_denominator_histo.Integral())

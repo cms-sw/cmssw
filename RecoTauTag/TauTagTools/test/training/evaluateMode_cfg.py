@@ -84,10 +84,10 @@ for decayMode in _combinatoricTauConfig.decayModes:
         break
 
 # Only build the selected decay modes
-_combinatoricTauConfig.decayModes = selectedDecayModes
+#_combinatoricTauConfig.decayModes = selectedDecayModes
 
 process = cms.Process("Eval")
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 
 # DQM store, PDT sources etc
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
@@ -176,12 +176,7 @@ else:
         filter = cms.bool(False)
     )
 
-# Rebuild PiZeros for signal FIXME: remove this once skimming okay
-process.inputPiZeros = process.ak5PFJetsRecoTauPiZeros.clone(
-    jetSrc = cms.InputTag("inputJets")
-)
-process.main = cms.Sequence(process.specific*process.inputJets*
-                            process.inputPiZeros)
+process.main = cms.Sequence(process.specific*process.inputJets)
 
 # Plot the input jets to use in weighting the transformation
 process.plotInputJets = cms.EDAnalyzer(
@@ -191,25 +186,14 @@ process.plotInputJets = cms.EDAnalyzer(
 )
 process.main += process.plotInputJets
 
-# Build our base combinatoric taus
-process.rawTaus = cms.EDProducer(
-    "RecoTauProducer",
-    jetSrc = cms.InputTag("inputJets"),
-    piZeroSrc = cms.InputTag("inputPiZeros"),
-    builders = cms.VPSet(_combinatoricTauConfig),
-    modifiers = cms.VPSet()
-)
-process.main += process.rawTaus
-
-# Apply lead pion requirement to taus
-process.rawTausLeadPionPt = cms.EDFilter(
-    "PFTauViewRefSelector",
-    src = cms.InputTag("rawTaus"),
-    cut = cms.string('leadPFCand().pt() > 5.0'),
-    # We can skip events where no taus pass this requirement
-    filter = cms.bool(True),
-)
-process.main += process.rawTausLeadPionPt
+# Build our taus
+process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
+process.ak5PFJetsRecoTauPiZeros.src = "inputJets"
+process.combinatoricRecoTaus.jetSrc = "inputJets"
+#process.combinatoricRecoTaus.builders = cms.VPSet(_combinatoricTauConfig)
+process.main += process.ak5PFJetsRecoTauPiZeros
+process.main += process.combinatoricRecoTaus
+process.main += process.hpsTancTauSequence
 
 ################################################################################
 ##         Prepare new TaNC discriminator                                    ###
@@ -223,69 +207,30 @@ process.TauTagMVAComputerRecord.connect = cms.string(
 process.es_prefer_tanc = cms.ESPrefer("PoolDBESSource",
                                       "TauTagMVAComputerRecord")
 
-process.TauTagMVAComputerRecord.toGet[0].tag = cms.string('Train')
-mvaLabel = os.path.splitext(os.path.basename(options.db))[0]
+process.TauTagMVAComputerRecord.toGet[0].tag = cms.string('Tanc')
+#mvaLabel = os.path.splitext(os.path.basename(options.db))[0]
 
-from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
-process.discriminate = cms.EDProducer(
-    "RecoTauMVADiscriminator",
-    PFTauProducer = cms.InputTag("rawTaus"),
-    Prediscriminants = noPrediscriminants,
-    dbLabel = cms.string(""),
-    remapOutput = cms.bool(True),
-    mvas = cms.VPSet(
-        cms.PSet(
-            nCharged = cms.uint32(options.tracks),
-            nPiZeros = cms.uint32(options.pizeros),
-            mvaLabel = cms.string(mvaLabel),
-            #mvaLabel = cms.string(
-            #    "%iprong%ipi0" % (options.tracks, options.pizeros))
-        )
-    ),
-    prefailValue = cms.double(-2.0),
-)
-process.main += process.discriminate
-
-process.rawTausLeadPionPt = cms.EDFilter(
-    "PFTauViewRefSelector",
-    src = cms.InputTag("rawTaus"),
-    cut = cms.string('leadPFCand().pt() > 5.0'),
-    # We can skip events where no taus pass this requirement
-    filter = cms.bool(True),
-)
-process.main += process.rawTausLeadPionPt
-
-# Select the final collection of taus.  For each PFJet, only the "best"
-# tau according TaNC is selected.
-process.taus = cms.EDProducer(
-    "RecoTauCleaner",
-    src = cms.InputTag("rawTausLeadPionPt"),
-    cleaners = cms.VPSet(
-        cms.PSet(
-            name = cms.string("TaNCCleaner"),
-            # FIXME
-            plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
-            src = cms.InputTag("discriminate"),
-        ),
-    )
-)
-process.main += process.taus
-
-# We need to re-run the TaNC to re key it :(
-process.discriminationByTaNC = process.discriminate.clone(
-    PFTauProducer = cms.InputTag("taus")
-)
-process.main += process.discriminationByTaNC
 
 ################################################################################
 ##         Plot the output of the "best" Taus                                ###
 ################################################################################
 
+# Only plot those that match this decay mode
+process.matchingDecayMode = cms.EDFilter(
+    "PFTauViewRefSelector",
+    src = cms.InputTag("hpsTancTaus"),
+    cut = cms.string("signalPFChargedHadrCands().size() = %i &"
+                     "signalPiZeroCandidates().size() = %i" %
+                     (options.tracks, options.pizeros)),
+    filter = cms.bool(False),
+)
+process.main += process.matchingDecayMode
+
 process.cleanTauPlots = cms.EDAnalyzer(
     "RecoTauPlotDiscriminator",
-    src = cms.InputTag("taus"),
+    src = cms.InputTag("matchingDecayMode"),
     discriminators = cms.VInputTag(
-        cms.InputTag("discriminationByTaNC")
+        cms.InputTag("hpsTancTausDiscriminationByTancRaw")
     ),
     nbins = cms.uint32(900),
     min = cms.double(-1),
@@ -295,8 +240,9 @@ process.cleanTauPlots = cms.EDAnalyzer(
 process.main += process.cleanTauPlots
 
 process.dirtyTauPlots = process.cleanTauPlots.clone(
-    src = cms.InputTag("rawTausLeadPionPt"),
-    discriminators = cms.VInputTag(cms.InputTag("discriminate"))
+    src = cms.InputTag("combinatoricRecoTaus"),
+    discriminators = cms.VInputTag(
+        cms.InputTag("combinatoricRecoTausDiscriminationByTanc"))
 )
 process.main += process.dirtyTauPlots
 

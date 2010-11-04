@@ -58,13 +58,17 @@ if options.signal == 1:
 #)
 
 process = cms.Process("Eval")
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(40000) )
 
-# The tanc needs the global tag
+# DQM store, PDT sources etc
+process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
+process.load("Configuration.StandardSequences.Services_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+# Shit, is this okay?
 from Configuration.PyReleaseValidation.autoCond import autoCond
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = autoCond[_SIGNAL and 'mc' or 'com10']
-
+process.GlobalTag.globaltag = autoCond['mc']
 
 # Setup output file for the plots
 process.TFileService = cms.Service(
@@ -75,10 +79,12 @@ process.TFileService = cms.Service(
 # Input files
 process.source = cms.Source(
     "PoolSource",
-    fileNames = cms.untracked.vstring(options.inputFiles)
+    fileNames = cms.untracked.vstring(options.inputFiles),
+    # Don't use any of the same events used to evaluate the modes
+    skipEvents = cms.untracked.uint32(20000)
 )
 
-_KIN_CUT = "pt > 20 & abs(eta) < 2.5"
+_KIN_CUT = "pt > 10 & abs(eta) < 2.5"
 
 # For signal, select jets that match a hadronic decaymode
 process.kinematicSignalJets = cms.EDFilter(
@@ -145,7 +151,6 @@ if _SIGNAL:
     # Embed the truth into our taus
     process.shrinkingConePFTauProducer.modifiers.append(jetMatchModifier)
     process.combinatoricRecoTaus.modifiers.append(jetMatchModifier)
-
 else:
     process.specific = process.backgroundSpecific
     process.ak5PFJets = cms.EDFilter(
@@ -156,26 +161,50 @@ else:
     )
 
 # For signal, make some plots of the matching information
+process.mediumShrinkingTaus = cms.EDFilter(
+    "RecoTauDiscriminatorRefSelector",
+    src = cms.InputTag("shrinkingConePFTauProducer"),
+    discriminator = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrHalfPercent"),
+    cut = cms.double(0.5),
+    filter = cms.bool(False)
+)
 process.plotShrinkingRes = cms.EDAnalyzer(
     "CandViewHistoAnalyzer",
-    src = cms.InputTag("shrinkingConePFTauProducer"),
+    src = cms.InputTag("mediumShrinkingTaus"),
     histograms = common.tau_histograms
 )
 
+process.mediumHPSTaus = cms.EDFilter(
+    "RecoTauDiscriminatorRefSelector",
+    src = cms.InputTag("hpsPFTauProducer"),
+    discriminator = cms.InputTag("hpsPFTauDiscriminationByLooseIsolation"),
+    cut = cms.double(0.5),
+    filter = cms.bool(False)
+)
 process.plotHPSRes = process.plotShrinkingRes.clone(
-    src = cms.InputTag("hpsPFTauProducer")
+    src = cms.InputTag("mediumHPSTaus")
 )
 
+process.mediumHPSTancTaus = cms.EDFilter(
+    "RecoTauDiscriminatorRefSelector",
+    src = cms.InputTag("hpsTancTaus"),
+    discriminator = cms.InputTag("hpsTancTausDiscriminationByTancMedium"),
+    cut = cms.double(0.5),
+    filter = cms.bool(False)
+)
 process.plotHPSTancRes = process.plotShrinkingRes.clone(
-    src = cms.InputTag("hpsTancTaus")
+    src = cms.InputTag("mediumHPSTancTaus")
 )
 
 process.main = cms.Sequence(process.specific*process.ak5PFJets*process.PFTau)
 #process.main = cms.Sequence(process.specific*process.ak5PFJets*process.ak5PFJetsRecoTauPiZeros*process.combinatoricRecoTaus*process.hpsTancTauSequence)
 
 if _SIGNAL:
+    process.main += process.mediumShrinkingTaus
     process.main += process.plotShrinkingRes
+    process.main += process.mediumHPSTaus
     process.main += process.plotHPSRes
+    process.main += process.mediumHPSTancTaus
     process.main += process.plotHPSTancRes
 
 # Plot the input jets to use in weighting the transformation
@@ -235,7 +264,10 @@ discriminators['shrinkingConePFTauProducer'] = [
 ]
 
 discriminators['hpsTancTaus'] = [
-    'hpsTancTausDiscriminationByTanc'
+    'hpsTancTausDiscriminationByTanc',
+    'hpsTancTausDiscriminationByTancLoose',
+    'hpsTancTausDiscriminationByTancMedium',
+    'hpsTancTausDiscriminationByTancTight',
     #'hpsTancTausDiscriminationByTancRaw'
 ]
 
@@ -243,10 +275,9 @@ process.plothpsTancTaus = cms.EDAnalyzer(
     "RecoTauPlotDiscriminator",
     src = cms.InputTag("hpsTancTaus"),
     discriminators = cms.VInputTag(
-        cms.InputTag("hpsTancTausDiscriminationByTanc"),
-        cms.InputTag("hpsTancTausDiscriminationByTancRaw"),
+        discriminators['hpsTancTaus']
     ),
-    nbins = cms.uint32(300),
+    nbins = cms.uint32(900),
     min = cms.double(-1),
     max = cms.double(2),
 )
@@ -266,6 +297,7 @@ process.plothpsPFTauProducer = process.plothpsTancTaus.clone(
 )
 
 process.plots = cms.Sequence(
+    process.mediumHPSTaus *
     process.plothpsTancTaus *
     process.plotshrinkingConePFTauProducer *
     process.plothpsPFTauProducer
