@@ -17,22 +17,20 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE TrackBasedConversions
-setenv CMSSWver1 3_8_5
-setenv CMSSWver2 3_9_0
-setenv OLDRELEASE 385
-setenv NEWRELEASE 390
+setenv CMSSWver1 3_9_0
+setenv CMSSWver2 3_10_0
+setenv OLDRELEASE 390
+setenv NEWRELEASE 3_10_0
 setenv OLDPRERELEASE 
-setenv NEWPRERELEASE 
+setenv NEWPRERELEASE pre2
 
 
 setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
-setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
+setenv NEWRELEASE ${NEWRELEASE}_${NEWPRERELEASE}
 
 
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
-
-
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
+setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
@@ -46,9 +44,9 @@ setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
 
-setenv WorkDir1    /data/pccmsnd1/b/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
+#setenv WorkDir1    /data/pccmsnd1/b/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
 #setenv WorkDir2    /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
-setenv WorkDir2    /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
+#setenv WorkDir2    /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
 
 #Name of sample (affects output directory name and htmldescription only) 

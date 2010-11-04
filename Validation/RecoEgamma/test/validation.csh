@@ -18,23 +18,23 @@
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
 setenv CMSSWver1 3_9_0
-setenv CMSSWver2 3_9_0
+setenv CMSSWver2 3_10_0
 setenv OLDRELEASE 390
-setenv NEWRELEASE 390
-setenv OLDPRERELEASE pre7
-setenv NEWPRERELEASE 
+setenv NEWRELEASE 3_10_0
+setenv OLDPRERELEASE 
+setenv NEWPRERELEASE pre2
 
 
 setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
-setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
+setenv NEWRELEASE ${NEWRELEASE}_${NEWPRERELEASE}
 
 
 
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
+setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
+#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
@@ -52,10 +52,10 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #setenv SAMPLE PhotonJetPt80
 #setenv SAMPLE PhotonJetPt470
 
-setenv SAMPLE SingleGammaPt10IDEAL
+#setenv SAMPLE SingleGammaPt10IDEAL
 #setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
-#setenv SAMPLE H130GGgluonfusionSTARTUP
+setenv SAMPLE H130GGgluonfusionSTARTUP
 #setenv SAMPLE PhotonJets_Pt_10STARTUP
 #setenv SAMPLE GammaJets_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_80_120STARTUP
@@ -95,7 +95,7 @@ setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_H130GGgluonfusion
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_H130GGgluonfusion.root
 
 
-else if ($SAMPLE == PhotonJets_Pt_10) then
+else if ($SAMPLE == PhotonJets_Pt_10STARTUP) then
 
 setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_PhotonJets_Pt_10.root
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_PhotonJets_Pt_10.root
