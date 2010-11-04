@@ -8,5 +8,5 @@ from RecoJets.Configuration.RecoGenJets_cff import *
 genForPF2PATSequence = cms.Sequence(
     genParticlesForJetsNoNu +
     ak5GenJetsNoNu +
-    ak7GenJetsNoNu +
+    ak7GenJetsNoNu
     )
