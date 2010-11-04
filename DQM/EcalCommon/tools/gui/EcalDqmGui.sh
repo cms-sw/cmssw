@@ -1,7 +1,7 @@
 #!/bin/sh
 
-if [ ${HOSTNAME} != "vmepcS2F19-24" ]; then
-  echo "This is not vmepcS2F19-24 !!!"
+if [ ${HOSTNAME} != "srv-S2F19-29" ]; then
+  echo "This is not srv-S2F19-29 !!!"
   exit 1
 fi
 
