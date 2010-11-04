@@ -19,6 +19,9 @@ import FWCore.ParameterSet.Config as cms
 from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi import \
         ak5PFJetsRecoTauPiZeros
 
+from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import \
+        TransientTrackBuilderESProducer
+
 # Only reconstruct the preselected jets
 ak5PFJetsRecoTauPiZeros.src = cms.InputTag("ak5PFJets")
 
