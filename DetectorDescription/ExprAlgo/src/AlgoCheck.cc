@@ -135,17 +135,20 @@ bool AlgoCheck::checkBounds(parE_type::iterator pit,
    return nok;
 }
 
-
-std::string AlgoCheck::d2s(double x)
+std::string
+AlgoCheck::d2s( double x )
 {
-  char buffer [25]; 
-  /*int n =*/ sprintf(buffer,"%g",x);
-  return std::string(buffer);
+  char buffer [25];
+  int len = snprintf( buffer, 25, "%g", x );
+  if( len >= 25 )
+    edm::LogError( "DoubleToString" ) << "Length truncated (from " << len << ")";
+  return std::string( buffer );
 }
 
-bool AlgoCheck::checkStrings(parS_type::iterator sit, 
-			  constraintsS_type::iterator cit, 
-			  std::string & err)
+bool
+AlgoCheck::checkStrings( parS_type::iterator sit, 
+			 constraintsS_type::iterator cit, 
+			 std::string & err )
 {
    // occurences
    bool nok = false;
