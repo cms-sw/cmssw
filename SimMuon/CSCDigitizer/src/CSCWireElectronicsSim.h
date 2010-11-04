@@ -48,7 +48,6 @@ private:
   float theFraction;
   float theWireNoise;
   float theWireThreshold;
-  float theTimingCalibrationError; // in ns
 
 };
 

@@ -23,6 +23,7 @@ CSCBaseElectronicsSim::CSCBaseElectronicsSim(const edm::ParameterSet & p)
   theShapingTime(p.getParameter<int>("shapingTime")),
   thePeakTimeSigma(p.getParameter<double>("peakTimeSigma")),
   theBunchTimingOffsets(p.getParameter<std::vector<double> >("bunchTimingOffsets")),
+  theTimingCalibrationError(p.getParameter<std::vector<double> >("timingCalibrationError")),
   theSignalStartTime(p.getParameter<double>("signalStartTime")),
   theSignalStopTime(p.getParameter<double>("signalStopTime")),
   theSamplingTime(p.getParameter<double>("samplingTime")),

@@ -95,8 +95,6 @@ private:
   float theDaqDeadTime;
   // save the calculation of time-of-flight+drift+shaping
   float theTimingOffset;
-  // extra Gaussian smearing
-  float theStripTimingError;
 
   int nScaBins_;
   bool doSuppression_;

@@ -152,6 +152,7 @@ protected:
   /// Speed (cm/ns) that it takes for the signal to get from the element to the readout.
   /// Actually negative in strips, due to reflection effects.
   std::vector<double> theSignalPropagationSpeed;
+  std::vector<double> theTimingCalibrationError;
   bool doNoise_;
 
   // keeps track of which hits contribute to which channels

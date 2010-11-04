@@ -17,7 +17,7 @@ simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
             45.0+12.13, 45.0+4.2, 45.0+10.18, 45.0+7.78, 45.0+9.38, 45.0+7.95, 45.0+8.48, 45.0+8.03),
         # from http://indico.cern.ch/getFile.py/access?contribId=5&resId=0&materialId=slides&confId=111101
         signalSpeed = cms.vdouble(0.0, -78, -76, -188, -262, -97, -99, -90, -99, -99, -113),
-        stripTimingError = cms.double(4.2),
+        timingCalibrationError = cms.vdouble(0., 4.2, 4.2, 0., 0., 0., 0., 0., 0., 0., 0.),
         # Vadim's tuning for 3 pretriiggers
         #bunchTimingOffsets = cms.vdouble(0.0, 20.0+13.05, 20.0+8.13, 
         #      45.0+18.23, 45.0+9.5, 45.0+16.0, 45.0+13.23, 45.0+15.13, 45.0+13.08, 45.0+14.65, 45.0+13.25),
@@ -55,7 +55,7 @@ simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
     wires = cms.PSet(
         signalStopTime = cms.double(300.0),
         # again, from http://indico.cern.ch/getFile.py/access?contribId=5&resId=0&materialId=slides&confId=111101
-        wireTimingError = cms.double(6.2),
+        timingCalibrationError = cms.vdouble(0., 6.2, 6.2, 0., 0., 0., 0., 0., 0., 0., 0.),
         signalStartTime = cms.double(-200.0),
         signalSpeed = cms.vdouble(0.0, -700, 900, 160, 146, 148, 117, 131, 107, 123, 123),
         peakTimeSigma = cms.double(0.0),

@@ -14,8 +14,7 @@ CSCWireElectronicsSim::CSCWireElectronicsSim(const edm::ParameterSet & p)
  : CSCBaseElectronicsSim(p),
    theFraction(0.5),
    theWireNoise(0.0),
-   theWireThreshold(0.),
-   theTimingCalibrationError(p.getParameter<double>("wireTimingError"))
+   theWireThreshold(0.)
 {
   fillAmpResponse();
 }
@@ -114,7 +113,7 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
 
         float fdTime = theSignalStartTime + theSamplingTime*bin_firing_FD;
         if(doNoise_) {
-          fdTime += theTimingCalibrationError * theRandGaussQ->fire();
+          fdTime += theTimingCalibrationError[chamberType] * theRandGaussQ->fire();
         }
 
         float bxFloat = (fdTime - tofOffset- theBunchTimingOffsets[chamberType]) / theBunchSpacing
@@ -126,7 +125,7 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
            // discriminator stays high for 35 ns
            if(bxFloat-bxInt > 0.6) 
            {
-             timeWord |= (1 << bxInt+1 );
+             timeWord |= (1 << (bxInt+1) );
            }
         }
 

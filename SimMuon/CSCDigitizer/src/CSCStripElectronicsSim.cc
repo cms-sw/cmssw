@@ -28,7 +28,6 @@ CSCStripElectronicsSim::CSCStripElectronicsSim(const edm::ParameterSet & p)
   theComparatorDeadTime(100.),
   theDaqDeadTime(200.),
   theTimingOffset(0.),
-  theStripTimingError(p.getParameter<double>("stripTimingError")),
   nScaBins_(p.getParameter<int>("nScaBins")),
   doSuppression_(p.getParameter<bool>("doSuppression")),
   doCrosstalk_(p.getParameter<bool>("doCrosstalk")),
@@ -416,7 +415,7 @@ void CSCStripElectronicsSim::createDigi(int channel, const CSCAnalogSignal & sig
   float pedestal = theStripConditions->pedestal(layerId(), channel);
   float gain = theStripConditions->smearedGain(layerId(), channel);
   int chamberType = theSpecs->chamberType();
-  float timeSmearing = theRandGaussQ->fire() * theStripTimingError;
+  float timeSmearing = theRandGaussQ->fire() * theTimingCalibrationError[chamberType];
   // undo the correction for TOF, instead, using some nominal
   // value from ME2/1
   float t0 = theSignalStartTime+theSCATimingOffsets[chamberType] + timeSmearing
