@@ -6,7 +6,7 @@ import copy
 
         The sequence provided @ the end of the file,
 
-                produceAndDiscriminateShrinkingConePFTaus 
+                produceAndDiscriminateShrinkingConePFTaus
 
         produces the shrinking cone PFTau and all its associated discriminants
 
@@ -15,6 +15,19 @@ import copy
            SignalCone for ECAL/HCAL        - 0.15 in DR from lead object
            Isolation cone (all types0      - 0.50 in DR from lead object
 """
+
+# Backwards compatability
+# Get the decay mode reconstruction producer
+from RecoTauTag.RecoTau.PFRecoTauDecayModeDeterminator_cfi                          import *
+shrinkingConePFTauDecayModeProducer               = copy.deepcopy(pfTauDecayMode)
+shrinkingConePFTauDecayModeProducer.PFTauProducer = 'shrinkingConePFTauProducer'
+
+# Store the reco'd decay modes in a simple container
+from RecoTauTag.RecoTau.PFRecoTauDecayModeIndexProducer_cfi                             import *
+shrinkingConePFTauDecayModeIndexProducer                        = copy.deepcopy(pfTauDecayModeIndexProducer)
+shrinkingConePFTauDecayModeIndexProducer.PFTauProducer          = cms.InputTag("shrinkingConePFTauProducer")
+shrinkingConePFTauDecayModeIndexProducer.PFTauDecayModeProducer = cms.InputTag("shrinkingConePFTauDecayModeProducer")
+# End backwards compatability
 
 from RecoTauTag.TauTagTools.TauNeuralClassifiers_cfi import *
 
@@ -41,61 +54,61 @@ from RecoTauTag.RecoTau.TauDiscriminatorTools import *
 #copying Discriminator ByLeadingTrack(finding and pt_cut)
 shrinkingConePFTauDiscriminationByLeadingTrackFinding = \
         copy.deepcopy(pfRecoTauDiscriminationByLeadingTrackFinding)
-setTauSource(shrinkingConePFTauDiscriminationByLeadingTrackFinding, 
+setTauSource(shrinkingConePFTauDiscriminationByLeadingTrackFinding,
              'shrinkingConePFTauProducer')
 
 shrinkingConePFTauDiscriminationByLeadingTrackPtCut = \
         copy.deepcopy(pfRecoTauDiscriminationByLeadingTrackPtCut)
-setTauSource(shrinkingConePFTauDiscriminationByLeadingTrackPtCut, 
+setTauSource(shrinkingConePFTauDiscriminationByLeadingTrackPtCut,
              'shrinkingConePFTauProducer')
 
 #copying Discriminator ByPionTrackPtCut
 shrinkingConePFTauDiscriminationByLeadingPionPtCut = \
         copy.deepcopy(pfRecoTauDiscriminationByLeadingPionPtCut)
-setTauSource(shrinkingConePFTauDiscriminationByLeadingPionPtCut, 
+setTauSource(shrinkingConePFTauDiscriminationByLeadingPionPtCut,
              'shrinkingConePFTauProducer')
 
 #copying the Discriminator by Isolation
 shrinkingConePFTauDiscriminationByIsolation = \
         copy.deepcopy(pfRecoTauDiscriminationByIsolation)
-setTauSource(shrinkingConePFTauDiscriminationByIsolation, 
+setTauSource(shrinkingConePFTauDiscriminationByIsolation,
              'shrinkingConePFTauProducer')
 
 shrinkingConePFTauDiscriminationByTrackIsolation = \
         copy.deepcopy(pfRecoTauDiscriminationByTrackIsolation)
-setTauSource(shrinkingConePFTauDiscriminationByTrackIsolation, 
+setTauSource(shrinkingConePFTauDiscriminationByTrackIsolation,
              'shrinkingConePFTauProducer')
 
 shrinkingConePFTauDiscriminationByECALIsolation = \
         copy.deepcopy(pfRecoTauDiscriminationByECALIsolation)
-setTauSource(shrinkingConePFTauDiscriminationByECALIsolation, 
+setTauSource(shrinkingConePFTauDiscriminationByECALIsolation,
              'shrinkingConePFTauProducer')
 
 #copying the Discriminator by Isolation for leadingPion
 shrinkingConePFTauDiscriminationByIsolationUsingLeadingPion = \
         copy.deepcopy(pfRecoTauDiscriminationByIsolationUsingLeadingPion)
-setTauSource(shrinkingConePFTauDiscriminationByIsolationUsingLeadingPion, 
+setTauSource(shrinkingConePFTauDiscriminationByIsolationUsingLeadingPion,
              'shrinkingConePFTauProducer')
 
 shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion = \
         copy.deepcopy(pfRecoTauDiscriminationByTrackIsolationUsingLeadingPion)
-setTauSource(shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion, 
+setTauSource(shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion,
              'shrinkingConePFTauProducer')
 
 shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion = \
         copy.deepcopy(pfRecoTauDiscriminationByECALIsolationUsingLeadingPion)
-setTauSource(shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion, 
+setTauSource(shrinkingConePFTauDiscriminationByECALIsolationUsingLeadingPion,
              'shrinkingConePFTauProducer')
 
 #copying discriminator against electrons and muons
 shrinkingConePFTauDiscriminationAgainstElectron = \
         copy.deepcopy(pfRecoTauDiscriminationAgainstElectron)
-setTauSource(shrinkingConePFTauDiscriminationAgainstElectron, 
+setTauSource(shrinkingConePFTauDiscriminationAgainstElectron,
              'shrinkingConePFTauProducer')
 
 shrinkingConePFTauDiscriminationAgainstMuon = \
         copy.deepcopy(pfRecoTauDiscriminationAgainstMuon)
-setTauSource(shrinkingConePFTauDiscriminationAgainstMuon, 
+setTauSource(shrinkingConePFTauDiscriminationAgainstMuon,
              'shrinkingConePFTauProducer')
 
 produceAndDiscriminateShrinkingConePFTaus = cms.Sequence(

@@ -26,6 +26,11 @@ from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import \
 ak5PFJetsRecoTauPiZeros.src = cms.InputTag("ak5PFJets")
 
 #-------------------------------------------------------------------------------
+#------------------ Fixed Cone Taus ----------------------------------------
+#-------------------------------------------------------------------------------
+from RecoTauTag.Configuration.FixedConePFTaus_cfi import *
+
+#-------------------------------------------------------------------------------
 #------------------ Shrinking Cone Taus ----------------------------------------
 #-------------------------------------------------------------------------------
 from RecoTauTag.Configuration.ShrinkingConePFTaus_cfi import *
