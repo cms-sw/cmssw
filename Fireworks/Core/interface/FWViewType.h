@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Mon Mar 22 12:08:40 CET 2010
-// $Id: FWViewType.h,v 1.10 2010/11/04 22:38:54 amraktad Exp $
+// $Id: FWViewType.h,v 1.11 2010/11/05 10:54:33 amraktad Exp $
 //
 #include <string>
 
@@ -48,8 +48,7 @@ public:
       kGlimpseBit       = 1 << kGlimpse,
       kTableBit         = 1 << kTable,
       kTableTriggerBit  = 1 << kTableTrigger,
-      kTableL1Bit       = 1 << kTableL1,
-      
+      kTableL1Bit       = 1 << kTableL1
    };
 
    // shortcuts
