@@ -19,6 +19,7 @@ SiStripZeroSuppression(edm::ParameterSet const& conf)
     produceRawDigis(conf.getParameter<bool>("produceRawDigis")),
     produceCalculatedBaseline(conf.getParameter<bool>("produceCalculatedBaseline")),
     produceBaselinePoints(conf.getParameter<bool>("produceBaselinePoints")),
+    storeInZScollBadAPV(conf.getParameter<bool>("storeInZScollBadAPV")),
     mergeCollections(conf.getParameter<bool>("mergeCollections")),
     fixCM(conf.getParameter<bool>("fixCM")),
     useCMMeanMap(conf.getParameter<bool>("useCMMeanMap"))
@@ -35,7 +36,7 @@ SiStripZeroSuppression(edm::ParameterSet const& conf)
     if(produceRawDigis)
       produces< edm::DetSetVector<SiStripRawDigi> > (inputTag->instance());
   } 
-	
+  
   if(produceCalculatedBaseline) 
     produces< edm::DetSetVector<SiStripProcessedRawDigi> > ("BADAPVBASELINE");
 	
@@ -202,8 +203,7 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
       throw cms::Exception("Unknown input type") 
 	<< inputTag.instance() << " unknown.  SiStripZeroZuppression can only process types \"VirginRaw\" and \"ProcessedRaw\" ";
     
-    
-    if (suppressedDigis.size() && nAPVflagged==0) 
+    if (suppressedDigis.size() && (storeInZScollBadAPV || nAPVflagged ==0)) 
       output.push_back(suppressedDigis); 
     
     if (produceRawDigis && nAPVflagged > 0) 

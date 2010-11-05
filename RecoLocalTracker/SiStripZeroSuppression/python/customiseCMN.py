@@ -43,6 +43,7 @@ def customisePartialSuppress(process):
     process.siStripZeroSuppression.Algorithms.APVRestoreMode = cms.string("PartialSuppress")
     process.siStripZeroSuppression.Algorithms.Fraction = cms.double(0.2)
     process.siStripZeroSuppression.Algorithms.Deviation = cms.uint32(25)
+    process.siStripZeroSuppression.storeInZScollBadAPV = cms.bool(False)
     process.siStripZeroSuppression.produceRawDigis = cms.bool(True)
 
     return process

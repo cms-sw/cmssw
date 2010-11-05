@@ -43,6 +43,7 @@ class SiStripZeroSuppression : public edm::EDProducer
   bool produceRawDigis;
   bool produceCalculatedBaseline;
   bool produceBaselinePoints;
+  bool storeInZScollBadAPV;
   bool mergeCollections;
   bool fixCM;
   bool useCMMeanMap;
