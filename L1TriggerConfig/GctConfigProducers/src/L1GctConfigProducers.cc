@@ -67,8 +67,12 @@ L1GctConfigProducers::L1GctConfigProducers(const edm::ParameterSet& iConfig) :
      calibCoeffs = iConfig.getParameter<edm::ParameterSet>("PiecewiseCubicCoefficients");
    }
    
+   if (CalibStyle == "PF") {
+     m_corrFunType = 5;
+     calibCoeffs = iConfig.getParameter<edm::ParameterSet>("PFCoefficients");
+   }
 
-  // check 
+   // check 
    if (CalibStyle != "None") {
      
      // Read the coefficients from file
@@ -95,11 +99,9 @@ L1GctConfigProducers::L1GctConfigProducers(const edm::ParameterSet& iConfig) :
      // Set the vector sizes to those expected by the CalibrationFunction
      m_jetCalibFunc.resize(L1GctJetFinderParams::NUMBER_ETA_VALUES);
      m_tauCalibFunc.resize(L1GctJetFinderParams::N_CENTRAL_ETA_VALUES);
-     if (CalibStyle != "None") {
-       edm::LogWarning("L1GctConfig") << "Unrecognised Calibration Style option " << CalibStyle
-                                      << "; no Level-1 jet corrections will be applied" << std::endl;
-     }
    }
+
+   edm::LogWarning("L1GctConfig") << "Calibration Style option " << CalibStyle << std::endl;
    
 }
 
