@@ -15,9 +15,9 @@ p2 = re.compile(r'PRODNAME')
 #******************   definitions  **********************************
 jec_type    = 'JetCorrectorParametersCollection'
 ERA         = 'Spring10'
-UNIQUETAG   = ERA + '_V3'
+UNIQUETAG   = ERA + '_V5'
 ERAJPT      = 'Summer10'
-UNIQUETAGJPT= ERAJPT + '_V3'
+UNIQUETAGJPT= ERAJPT + '_V5'
 ALGO_LIST   = ['IC5Calo','IC5PF',
                'AK5Calo','AK5PF','AK5JPT','AK5TRK',
                'AK7Calo','AK7PF',

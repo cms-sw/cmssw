@@ -18,17 +18,30 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
       cms.PSet(
             record = cms.string('JetCorrectionsRecord'),
             tag    = cms.string('JetCorrectorParametersCollection_Spring10_V5_AK5Calo'),
-            label  = cms.untracked.string('AK5Calo')
-            )
+            label  = cms.untracked.string('AK5CaloLocal')
+            ),
+      cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_Spring10_V5_IC5Calo'),
+            label  = cms.untracked.string('IC5CaloLocal')
+            ),                                                                                
        ),
       connect = cms.string('sqlite:JEC_Spring10.db')
 )
 
-process.demo = cms.EDAnalyzer('JetCorrectorDBReader', 
-        payloadName    = cms.untracked.string('AK5Calo'),
-	globalTag      = cms.untracked.string('JEC_Spring10'),
+
+process.demo1 = cms.EDAnalyzer('JetCorrectorDBReader', 
+        payloadName    = cms.untracked.string('AK5CaloLocal'),
         printScreen    = cms.untracked.bool(False),
-        createTextFile = cms.untracked.bool(False)
+        createTextFile = cms.untracked.bool(False),
+        globalTag      = cms.untracked.string('JEC_Spring10')
 )
 
-process.p = cms.Path(process.demo)
+process.demo2 = cms.EDAnalyzer('JetCorrectorDBReader', 
+        payloadName    = cms.untracked.string('IC5CaloLocal'),
+        printScreen    = cms.untracked.bool(False),
+        createTextFile = cms.untracked.bool(False),
+        globalTag      = cms.untracked.string('JEC_Spring10')                               
+)
+
+process.p = cms.Path(process.demo1 * process.demo2)
