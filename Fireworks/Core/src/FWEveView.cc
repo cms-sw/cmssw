@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.39 2010/10/18 17:32:25 amraktad Exp $
+// $Id: FWEveView.cc,v 1.40 2010/11/04 22:38:54 amraktad Exp $
 //
 
 
@@ -168,7 +168,6 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
 
 FWEveView::~FWEveView()
 {
-   viewerGL()->DeleteOverlayElements(TGLOverlayElement::kAll);
    m_geoScene->RemoveElements();
    m_eventScene->RemoveElements();
    m_viewer->DestroyWindowAndSlot();
