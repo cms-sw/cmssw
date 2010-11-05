@@ -30,6 +30,10 @@ usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix
 # to use tau-cleaned jet collection uncomment the following:
 #useTauCleanedPFJets(process, jetAlgo=jetAlgo, postfix=postfix)
 
+# to switch default tau to HPS tau uncomment the following:
+#adaptPFTaus(process,"hpsPFTau",postfix=postfix)
+
+
 # Let it run
 process.p = cms.Path(
 #    process.patDefaultSequence  +
