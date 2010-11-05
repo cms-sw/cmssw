@@ -64,9 +64,31 @@ combinatoricRecoTausDiscriminationByLeadingPionPtCut = \
 from RecoTauTag.Configuration.HPSPFTaus_cfi import *
 from RecoTauTag.Configuration.HPSTancTaus_cfi import *
 
+#-------------------------------------------------------------------------------
+#------------------ PFTauTagInfo workaround ------------------------------------
+#-------------------------------------------------------------------------------
+# Build the PFTauTagInfos separately, then relink them into the taus.
+from RecoTauTag.RecoTau.PFRecoTauTagInfoProducer_cfi import \
+        pfRecoTauTagInfoProducer
+from RecoJets.JetAssociationProducers.ic5PFJetTracksAssociatorAtVertex_cfi \
+        import ic5PFJetTracksAssociatorAtVertex
+ak5PFJetTracksAssociatorAtVertex = ic5PFJetTracksAssociatorAtVertex.clone()
+ak5PFJetTracksAssociatorAtVertex.jets = cms.InputTag("ak5PFJets")
+tautagInfoModifer = cms.PSet(
+    name = cms.string("TTIworkaround"),
+    plugin = cms.string("RecoTauTagInfoWorkaroundModifer"),
+    pfTauTagInfoSrc = cms.InputTag("pfRecoTauTagInfoProducer"),
+)
+
+# Add the modifier to our tau producers
+shrinkingConePFTauProducer.modifiers.append(tautagInfoModifer)
+combinatoricRecoTaus.modifiers.append(tautagInfoModifer)
+
 PFTau = cms.Sequence(
     # Jet production
     #ak5PFJets *
+    ak5PFJetTracksAssociatorAtVertex *
+    pfRecoTauTagInfoProducer *
     # Build Pi Zeros
     ak5PFJetsRecoTauPiZeros *
     # Make shrinking cone taus
