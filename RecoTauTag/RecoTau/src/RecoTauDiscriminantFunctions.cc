@@ -75,6 +75,14 @@ double JetPt(Tau tau) {
   return tau.jetRef()->pt();
 }
 
+double JetEta(Tau tau) {
+  return tau.jetRef()->eta();
+}
+
+double JetWidth(Tau tau) {
+  return std::sqrt(tau.jetRef()->etaetaMoment() + tau.jetRef()->phiphiMoment());
+}
+
 double SignalPtFraction(Tau tau) {
   return tau.pt()/tau.jetRef()->pt();
 }
