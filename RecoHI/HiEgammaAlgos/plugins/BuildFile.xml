@@ -1,0 +1,20 @@
+<export>
+</export>
+<library   name="RecoHIHiEgammaAlgosPlugins" file="*.cc">
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/BTauReco"/>
+  <use   name="DataFormats/EgammaCandidates"/>
+  <use   name="RecoHI/HiEgammaAlgos"/>
+  <use   name="RecoLocalCalo/EcalRecAlgos"/>
+  <use   name="RecoEcal/EgammaCoreTools"/>
+  <use   name="CondFormats/DataRecord"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   mane="DataFormats/EgammaReco"/>
+  <use   name="root"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

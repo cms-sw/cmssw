@@ -1,0 +1,66 @@
+<flags   GENREFLEX_ARGS="--"/>
+<use   name="rootrflx"/>
+<use   name="CondCore/ORA"/>
+<use   name="CondFormats/Common"/>
+<use   name="DataFormats/StdDictionaries"/>
+<use   name="FWCore/PluginManager"/>
+<library   name="testORADict" file="">
+</library>
+<bin   file="testORABasicException.cc" name="testORABasicException">
+</bin>
+<bin   file="testORAInit.cc" name="testORAInit">
+</bin>
+<bin   file="testORA_0.cc" name="testORA_0">
+</bin>
+<bin   file="testORA_1.cc" name="testORA_1">
+  <lib   name="testORADict"/>
+</bin>
+<bin   file="testORA_2.cc" name="testORA_2">
+  <lib   name="testORADict"/>
+</bin>
+<bin   file="testORA_3.cc" name="testORA_3">
+  <lib   name="testORADict"/>
+</bin>
+<bin   file="testORA_4.cc" name="testORA_4">
+  <lib   name="testORADict"/>
+</bin>
+<bin   file="testORA_5.cc" name="testORA_5">
+  <lib   name="testORADict"/>
+</bin>
+<bin   file="testORA_6.cc" name="testORA_6">
+  <lib   name="testORADict"/>
+</bin>
+<bin   file="testORA_7.cc" name="testORA_7">
+  <lib   name="testORADict"/>
+</bin>
+<bin   file="testORA_8.cc" name="testORA_8">
+  <lib   name="testORADict"/>
+</bin>
+<bin   file="testORA_9.cc" name="testORA_9">
+  <lib   name="testORADict"/>
+</bin>
+<bin   file="testORA_10.cc" name="testORA_10">
+  <lib   name="testORADict"/>
+</bin>
+<bin   file="testORA_11.cc" name="testORA_11">
+  <lib   name="testORADict"/>
+</bin>
+<bin   file="testORA_12.cc" name="testORA_12">
+  <lib   name="testORADict"/>
+</bin>
+<bin   file="testORAIO.cc" name="testORAIO">
+  <lib   name="testORADict"/>
+</bin>
+<bin   file="testORAUtility.cc" name="testORAUtility">
+  <lib   name="testORADict"/>
+</bin>
+<bin   file="test_Record.cpp" name="testORARecord">
+</bin>
+<bin   file="test_AnyData.cpp" name="testORARecordDetails">
+</bin>
+<bin   file="testNameService.cc" name="testNameService">
+  <lib   name="testORADict"/>
+</bin>
+<bin   file="testNamedReference.cc" name="testNamedReference">
+  <lib   name="testORADict"/>
+</bin>
