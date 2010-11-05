@@ -242,6 +242,9 @@ double L1GctJetFinderParams::correctionFunction(const double Et, const std::vect
   case 4:  // piecwise cubic correction a la Greg Landsberg et al
     result = orcaStyleCorrect(Et, coeffs);
     break;
+  case 5:  // PF correction
+    result = pfCorrect(Et, coeffs);
+    break;
   default:
     result = Et;      
   }
@@ -319,6 +322,17 @@ double L1GctJetFinderParams::piecewiseCubicCorrect(const double Et, const std::v
 
   }
   return etOut;
+
+}
+
+double  L1GctJetFinderParams::pfCorrect(const double et, const std::vector<double>& coeffs) const
+{  
+  //
+  // corr_factor = [0]+[1]/(pow(log10(x),2)+[2])+[3]*exp(-[4]*(log10(x)-[5])*(log10(x)-[5])) 
+  // Et_out = Et_in * corr_factor
+  //
+
+  return et * (coeffs.at(0)+coeffs.at(1)/(pow(log10(et),2)+coeffs.at(2))+coeffs.at(3)*exp(-coeffs.at(4)*(log10(et)-coeffs.at(5))*(log10(et)-coeffs.at(5))));
 
 }
 
