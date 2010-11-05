@@ -104,11 +104,18 @@ def customiseCommonHI(process):
     ####
 
     ## Offline Silicon Tracker Zero Suppression
+    process.siStripZeroSuppression.Algorithms.PedestalSubtractionFedMode = cms.bool(False)
     process.siStripZeroSuppression.Algorithms.CommonModeNoiseSubtractionMode = cms.string("IteratedMedian")
-    process.siStripZeroSuppression.Algorithms.CutToAvoidSignal = cms.double(2.0)
-    process.siStripZeroSuppression.Algorithms.Iterations = cms.int32(3)
+    process.siStripZeroSuppression.doAPVRestore = cms.bool(True)
     process.siStripZeroSuppression.storeCM = cms.bool(True)
 
+    ## Fixes to protect against large BS displacements
+    process.hiPixel3ProtoTracks.RegionFactoryPSet.RegionPSet.originRadius = 0.2
+    process.hiPixel3ProtoTracks.RegionFactoryPSet.RegionPSet.fixedError = 0.5
+    process.hiSelectedProtoTracks.maxD0Significance = 100
+    process.hiPixelAdaptiveVertex.TkFilterParameters.maxD0Significance = 100
+    process.hiPixelAdaptiveVertex.useBeamConstraint = False
+    process.hiPixelAdaptiveVertex.PVSelParameters.maxDistanceToBeam = 1.0
 
     ###
     ###  end of top level replacements
@@ -123,6 +130,10 @@ def customiseExpressHI(process):
 
     import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
     process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+
+    # keep some debugging content for zero suppression
+    process.siStripZeroSuppression.produceRawDigis = cms.bool(True)
+    process.siStripZeroSuppression.produceCalculatedBaseline = cms.bool(True)
     
     return process
 
@@ -132,6 +143,24 @@ def customisePromptHI(process):
 
     import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
     process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+    
+    return process
+
+##############################################################################
+def customiseAlcaOnlyPromptHI(process):
+    process= customiseCommonHI(process)
+
+    import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
+    process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+
+    import HLTrigger.HLTfilters.hltHighLevel_cfi
+    process.hltCentralityVeto = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+        HLTPaths = cms.vstring('HLT_HICentralityVeto'),
+        throw = cms.bool(False)
+    )
+
+    for path in process.paths:
+        getattr(process,path)._seq = process.hltCentralityVeto * getattr(process,path)._seq
     
     return process
 
