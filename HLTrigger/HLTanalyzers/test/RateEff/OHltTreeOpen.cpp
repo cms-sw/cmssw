@@ -2674,58 +2674,44 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet10U") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
-	  int rc = 0; 
-	  int njets = 0; 
-        
-	  // apply L2 cut on jets 
-	  for(int i = 0; i < NohBJetL2; i++)   
-	    if(ohBJetL2Et[i] > 10. && abs(ohBJetL2Eta[i]) < 3.0)  // change this ET cut to 20 for the 20U patath 
-	      njets++; 
-	  
-	  // apply b-tag cut 
-	  int max =  (NohBJetL2 > 4) ? 4 : NohBJetL2;  
-          for(int i = 0; i < max; i++) {
-	    if(ohBJetL2Et[i] > 10.) { // keep this at 10 even for the 20UU path - also, no eta cut here 
-	      if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag 
-		if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag 
-		  rc++; 
-		} 
-	      } 
-	    } 
-	  } 
-	  if(rc >= 1 && njets>=1) { 
-	    triggerBit[it] = true; 
-	  } 
+	int rc = 0;
+	//      int max =  (NohBJetL2 > 2) ? 2 : NohBJetL2;
+	//      for(int i = 0; i < max; i++) {
+	for(int i = 0; i < NohBJetL2; i++) {
+	  if(ohBJetL2Et[i] > 10.) { // ET cut
+	    if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
+	      if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
+		rc++;
+	      }
+	    }
+	  }
+	}
+	if(rc >= 1) {
+	  triggerBit[it] = true; 
 	}
       }
     }
+  }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet20U") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) { 
-          int rc = 0;  
-          int njets = 0;  
-         
-          // apply L2 cut on jets  
-          for(int i = 0; i < NohBJetL2; i++)  
-            if(ohBJetL2Et[i] > 20. && abs(ohBJetL2Eta[i]) < 3.0)  // change this ET cut to 20 for the 20U patath  
-              njets++;  
-
-          // apply b-tag cut  
-	  int max =  (NohBJetL2 > 4) ? 4 : NohBJetL2; 
-	  for(int i = 0; i < max; i++) {  
-            if(ohBJetL2Et[i] > 10.) { // keep this at 10 even for the 20UU path - also, no eta cut here  
-              if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag  
-                if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag  
-                  rc++;  
-                }
-              } 
-            }
-          }  
-          if((rc >= 1) && (njets>=1)) {  
-            triggerBit[it] = true;  
-          }  
-      } 
-    } 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	int rc = 0;
+	//      int max =  (NohBJetL2 > 2) ? 2 : NohBJetL2;
+	//      for(int i = 0; i < max; i++) {
+	for(int i = 0; i < NohBJetL2; i++) {
+	  if(ohBJetL2Et[i] > 20.) { // ET cut
+	    if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
+	      if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
+		rc++;
+	      }
+	    }
+	  }
+	}
+	if(rc >= 1) {
+	  triggerBit[it] = true; 
+	}
+      }
+    }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_DiJet10U") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {

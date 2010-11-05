@@ -13,5 +13,4 @@ root -b -q  stack_zGoldenPt.C
 root -b -q  stack_zGoldenY.C  
 root -b -q  stack_zmm1hlt.C 
 root -b -q  stack_zmm2hlt.C 
-root -b -q stack_zGoldenIsTrackerMuon.C
 

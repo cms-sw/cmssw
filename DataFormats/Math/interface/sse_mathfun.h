@@ -22,6 +22,7 @@
 
 #endif
 
+#ifdef CMS_USE_SSE
 
 
 /* SIMD (SSE1+MMX or SSE2) implementation of sin, cos, exp and log
@@ -792,5 +793,7 @@ inline void sincos_ps(v4sf x, v4sf *s, v4sf *c) {
   *s = _mm_xor_ps(xmm1, sign_bit_sin);
   *c = _mm_xor_ps(xmm2, sign_bit_cos);
 }
+
+#endif
 
 #endif // SSE_MATHFUN_H

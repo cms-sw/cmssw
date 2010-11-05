@@ -5,7 +5,7 @@ import copy
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 WZMuHLTFilter = copy.deepcopy(hltHighLevel)
 WZMuHLTFilter.throw = cms.bool(False)
-WZMuHLTFilter.HLTPaths = ["HLT_Mu9","HLT_Mu11","HLT_Mu15","HLT_Mu15_v*"]
+WZMuHLTFilter.HLTPaths = ["HLT_Mu9","HLT_Mu11","HLT_Mu15"]
 
 ### Z -> MuMu candidates
 

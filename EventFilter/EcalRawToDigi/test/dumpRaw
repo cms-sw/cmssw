@@ -198,7 +198,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 EOF
 if [ X$prog = XDumpRaw ];then
 cat >> "$TMPFILE" <<EOF
-process.load("EventFilter.EcalRawToDigi.EcalDumpRaw_cfi")
+process.load("pgras.DumpRaw.DumpRaw_cfi")
 process.dumpRaw.l1aMinX = $l1axmin
 process.dumpRaw.l1aMaxX = $l1axmax
 
@@ -206,7 +206,7 @@ process.dumpRaw.first_event = $((nskip+1))
 process.dumpRaw.last_event  = cms.untracked.int32($((nskip+nevts)))
 process.dumpRaw.dumpAdc = $dumpAdc
 process.dumpRaw.dump = $dump
-#process.dumpRaw.doHisto = $doHist
+process.dumpRaw.doHisto = $doHist
 process.dumpRaw.beg_fed_id = $fedmin
 process.dumpRaw.end_fed_id = $fedmax
 process.dumpRaw.eventList = [ $eventList ]

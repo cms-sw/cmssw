@@ -76,12 +76,9 @@ L1GctJetFinderParams::L1GctJetFinderParams(double rgnEtLsb,
   // check number of coefficients against expectation
   unsigned expCoeffs = 0;
   if (corrType_ == 2) expCoeffs=8;
-  if (corrType_ == 3) expCoeffs=4;
-  if (corrType_ == 4) expCoeffs=100000;
 
-  // correction types 1 and 4 can have any number of parameters
-  if (corrType_ != 1 &&
-      corrType_ != 4) {
+  // only correction type 1 can have a unknown number of parameters
+  if (corrType_ != 1) {
     std::vector< std::vector<double> >::const_iterator itr;      
     for (itr=jetCorrCoeffs_.begin(); itr!=jetCorrCoeffs_.end(); ++itr) {
       if (itr->size() != expCoeffs) {
@@ -236,12 +233,6 @@ double L1GctJetFinderParams::correctionFunction(const double Et, const std::vect
   case 2:  // ORCA style correction
     result = orcaStyleCorrect(Et, coeffs);
     break;
-  case 3:  // simple correction (JetMEt style)
-    result = orcaStyleCorrect(Et, coeffs);
-    break;
-  case 4:  // piecwise cubic correction a la Greg Landsberg et al
-    result = orcaStyleCorrect(Et, coeffs);
-    break;
   default:
     result = Et;      
   }
@@ -259,10 +250,7 @@ double L1GctJetFinderParams::powerSeriesCorrect(const double Et, const std::vect
 
 double L1GctJetFinderParams::orcaStyleCorrect(const double Et, const std::vector<double>& coeffs) const
 {
-
-  // The coefficients are arranged in groups of four
-  // The first in each group is a threshold value of Et.
-
+  // The coefficients are arranged in groups of four. The first in each group is a threshold value of Et.
   std::vector<double>::const_iterator next_coeff=coeffs.begin();
   while (next_coeff != coeffs.end()) {
     double threshold = *next_coeff++;
@@ -279,48 +267,6 @@ double L1GctJetFinderParams::orcaStyleCorrect(const double Et, const std::vector
   return Et;
 }
 
-double L1GctJetFinderParams::simpleCorrect(const double Et, const std::vector<double>& coeffs) const
-{
-  // function is :
-  //    Et_out = A + B/[ (log10(Et_in))^C + D ] + E/Et_in
-  // 
-  //    fitcor_as_str = "[0]+[1]/(pow(log10(x),[2])+[3]) + [4]/x"
-  // 
-
-  return coeffs.at(0) + coeffs.at(1)/(pow(log10(Et),coeffs.at(2))+coeffs.at(3)) + (coeffs.at(4)/Et);
-
-}
-
-double L1GctJetFinderParams::piecewiseCubicCorrect(const double Et, const std::vector<double>& coeffs) const
-{
-
-  // The correction fuction is a set of 3rd order polynomials
-  //    Et_out = Et_in + (p0 + p1*Et_in + p2*Et_in^2 + p3*Et_in^3)
-  // with different coefficients for different energy ranges.
-  // The parameters are arranged in groups of five.
-  // The first in each group is a threshold value of input Et,
-  // followed by the four coefficients for the cubic function.
-  double etOut = Et;
-  std::vector<double>::const_iterator next_coeff=coeffs.begin();
-  while (next_coeff != coeffs.end()) {
-
-    // Read the coefficients from the vector
-    double threshold = *next_coeff++;
-    double A = *next_coeff++; //p0
-    double B = *next_coeff++; //p1
-    double C = *next_coeff++; //p2
-    double D = *next_coeff++; //p3
-
-    // Check we are in the right energy range and make correction
-    if (Et>threshold) {
-      etOut += (A + etOut*(B + etOut*(C + etOut*D))) ;
-      break;
-    }
-
-  }
-  return etOut;
-
-}
 
 
 std::ostream& operator << (std::ostream& os, const L1GctJetFinderParams& fn)

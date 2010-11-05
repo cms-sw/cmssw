@@ -13,89 +13,81 @@ root file ../../Configuration/test/display.root
 // filter   taus	     1 2
 
 
-// name of the branches of the input TTree. 
+// Input tags of the various products 
+// (under the form "label", or "label:instance" or "label:instance:process")
 
 // ECAL rechits branch
-root rechits_ECAL_branch  recoPFRecHits_particleFlowRecHitECAL__PROD.obj
+root rechits_ECAL_inputTag   particleFlowRecHitECAL
 // HCAL rechits branch
-root rechits_HCAL_branch  recoPFRecHits_particleFlowRecHitHCAL__PROD.obj
+root rechits_HCAL_inputTag   particleFlowRecHitHCAL
 // HFEM rechits branch
-root rechits_HFEM_branch  recoPFRecHits_particleFlowRecHitHCAL_HFEM_PROD.obj
+root rechits_HFEM_inputTag   particleFlowRecHitHCAL:HFEM
 // HFHAD rechits branch
-root rechits_HFHAD_branch  recoPFRecHits_particleFlowRecHitHCAL_HFHAD_PROD.obj
+root rechits_HFHAD_inputTag  particleFlowRecHitHCAL:HFHAD
 // HF Cleaned rechits branch(es)
-root rechits_CLEANED_branch  recoPFRecHits_particleFlowRecHitHCAL_Cleaned_PROD.obj recoPFRecHits_particleFlowClusterHFHAD_Cleaned_PROD.obj recoPFRecHits_particleFlowClusterHFEM_Cleaned_PROD.obj
-
+root rechits_CLEANED_inputTags  particleFlowRecHitHCAL:Cleaned particleFlowClusterHFHAD:Cleaned particleFlowClusterHFEM:Cleaned
 // PS rechits branch
-root rechits_PS_branch    recoPFRecHits_particleFlowRecHitPS__PROD.obj
+root rechits_PS_inputTag     particleFlowRecHitPS
 
-// ECAL clusters branch
-root clusters_ECAL_branch  recoPFClusters_particleFlowClusterECAL__PROD.obj
-// HCAL clusters branch
-root clusters_HCAL_branch  recoPFClusters_particleFlowClusterHCAL__PROD.obj
-// PS clusters branch
-root clusters_PS_branch    recoPFClusters_particleFlowClusterPS__PROD.obj
-// HepMCProduct branch
-root MCTruth_branch        edmHepMCProduct_generator__PROD.obj
+// Reconstructed tracks branch
+root recTracks_inputTag      trackerDrivenElectronSeeds
+// General Tracks branch
+root stdTracks_inputTag      generalTracks
 // GSF Track branch
-root gsfrecTracks_branch   recoGsfPFRecTracks_pfTrackElec__PROD.obj
+root gsfrecTracks_inputTag   pfTrackElec
 // Conversions GSF Track branch
-root convBremGsfrecTracks_branch   recoGsfPFRecTracks_pfTrackElec_Secondary_PROD.obj
+root convBremGsfrecTracks_inputTag  pfTrackElec:Secondary
+// PFDisplacedTrackerVertex branch
+root PFDisplacedVertex_inputTag pfDisplacedTrackerVertex
+// Primary vertices
+root primaryVertices_inputTag offlinePrimaryVertices
+// Conversion branch
+root conversion_inputTag     pfConversions
+// V0 branch
+root V0_inputTag             pfV0
+
+
+// CaloTowers branch
+root caloTowers_inputTag     towerMaker
 
 // Muon branch
-root muon_branch           recoMuons_muons__PROD.obj
-// Conversion branch
-root conversion_branch     recoPFConversions_pfConversions__PROD.obj
-// V0 branch
-root V0_branch recoPFV0s_pfV0__PROD.obj
-// PFDisplacedTrackerVertex branch
-root PFDisplacedVertex_branch recoPFDisplacedTrackerVertexs_pfDisplacedTrackerVertex__PROD.obj
-root caloTowers_branch     CaloTowersSorted_towerMaker__PROD.obj
+root muon_inputTag           muons
 
-// reconstructed tracks branch
-
-root recTracks_branch      recoPFRecTracks_trackerDrivenElectronSeeds__PROD.obj
-root stdTracks_branch      recoTracks_generalTracks__PROD.obj
-
+// HepMCProduct branch
+root MCTruth_inputTag        generator
 // true particles branch
-
-root trueParticles_branch  recoPFSimParticles_particleFlowSimParticle__PROD.obj
+root trueParticles_inputTag  particleFlowSimParticle
+// Gen Jets
+root genJets_inputTag 	     iterativeCone5GenJets
+// Gen particles 
+root genParticlesforMET_inputTag genParticles
+// GenParticleCandidates for jets
+root genParticlesforJets_inputTag genParticlesForJets
 
 
 // jet branches:
 
-// Gen Jets read from root file
-root genJetBranchName 	recoGenJets_iterativeCone5GenJets__PROD.obj
 // PF Jets read from root file
-root recPFJetBranchName 	recoPFJets_iterativeCone5PFJets__PROD.obj
+root PFJets_inputTag 	      iterativeCone5PFJets
 // Calo Jets read from root file
-root recCaloJetBranchName	recoCaloJets_iterativeCone5CaloJets__PROD.obj
+root CaloJets_inputTag        iterativeCone5CaloJets
 
 // Corrected calo Jets read from root file
-root reccorrCaloJetBranchName	recoCaloJets_L2L3CorJetIC5Calo__PROD.obj
+root corrCaloJets_inputTag     L2L3CorJetIC5Calo
 
-// Gen Jets read from root file
-root genParticlesforMETBranchName 	recoGenParticles_genParticles__PROD.obj
 // PF MET read from root file
-root recPFMETBranchName 	recoPFMETs_pfMet__PROD.obj
+root PFMET_inputTag 	       pfMet
 // Calo MET read from root file
-root recCaloMETBranchName	recoCaloMETs_met__PROD.obj
+root CaloMET_inputTag          met
 // TC MET read from root file
-root recTCMETBranchName		recoMETs_tcMet__PROD.obj
+root TCMET_inputTag	       tcMet
 
-// GenParticleCandidates
-root genParticleforJets_branch	recoGenParticlesRefs_genParticlesForJets__PROD.obj
-
-// CaloTowersCandidates
-root caloTowerBaseCandidates_branch  recoCandidatesOwned_caloTowers__PROD.obj
 
 // Particle Flow Candidates
-root particleFlowCand_branch    recoPFCandidates_particleFlow__PROD.obj
+root particleFlowCand_inputTag    particleFlow
 
 
 
-// Primary vertices
-root primaryVertex_branch    recoVertexs_offlinePrimaryVertices__PROD.obj
 
 
 //---------------
@@ -174,7 +166,7 @@ display drawPFBlock 0
 // clustering parameters ---------------------------------------------------
 
 // perform clustering yes/no. If no, clusters are read from the TTree
-clustering on/off 1 
+clustering on/off 1
 
 // print debug printouts from the clustering algorithm
 clustering debug 0

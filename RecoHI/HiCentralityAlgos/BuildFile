@@ -11,11 +11,15 @@
 <use name=DataFormats/HeavyIonEvent>
 <use name=DataFormats/TrackingRecHit>
 <use name=DataFormats/TrackerRecHit2D>
+<use name=DataFormats/TrackReco>
 <use name=CondFormats/HIObjects>
 <use name=CondFormats/DataRecord>
 <use name=CondCore/DBCommon>
 <use name=CondCore/DBOutputService>
 <use name=CondCore/PopCon>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/TrackerGeometryBuilder>
+
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoHIHiCentralityAlgos>

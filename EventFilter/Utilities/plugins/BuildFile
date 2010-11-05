@@ -9,4 +9,6 @@
 	<use name=root>
 	<use name=boost>
 	<flags EDM_PLUGIN=1>
+	<Flags CPPFLAGS='-g'>
+	<Flags LDFLAGS='-g'>
 </library>

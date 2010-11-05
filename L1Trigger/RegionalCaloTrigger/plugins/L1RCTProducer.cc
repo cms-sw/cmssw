@@ -58,18 +58,6 @@ L1RCTProducer::~L1RCTProducer()
 
 void L1RCTProducer::beginRun(edm::Run& run, const edm::EventSetup& eventSetup)
 {
-
-}
-
-void L1RCTProducer::beginLuminosityBlock(edm::LuminosityBlock& lumiSeg,const edm::EventSetup& context)
-{
-  updateConfiguration(context);
-} 
-
-
-
-void L1RCTProducer::updateConfiguration(const edm::EventSetup& eventSetup)
-{
   // Refresh configuration information every event
   // Hopefully, this does not take too much time
   // There should be a call back function in future to

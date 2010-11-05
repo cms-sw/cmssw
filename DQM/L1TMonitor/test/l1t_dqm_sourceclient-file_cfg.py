@@ -1,90 +1,27 @@
-#
-# cfg file to run online L1 Trigger DQM
-#
-# V M Ghete 2010-07-09
-
-
 import FWCore.ParameterSet.Config as cms
-import sys
-
-# choose the environment you run
-#l1DqmEnv = 'live'
-#l1DqmEnv = 'playback'
-l1DqmEnv = 'file'
 
 process = cms.Process("DQM")
-
-# check that a valid choice for environment exists
-
-if not ((l1DqmEnv == 'live') or l1DqmEnv == 'playback' or l1DqmEnv == 'file') : 
-    print 'No valid input source was chosen. Your value for l1DqmEnv input parameter is:'  
-    print 'l1DqmEnv = ', l1DqmEnv
-    print 'Available options: "live", "playback", "file" '
-    sys.exit()
-
-#----------------------------
-# Event Source
-#
-
-if l1DqmEnv == 'live' :
-    process.load("DQM.Integration.test.inputsource_cfi")
-    process.EventStreamHttpReader.SelectEvents = cms.untracked.PSet(
-            SelectEvents = cms.vstring("*")
-            )
-    process.EventStreamHttpReader.consumerName = 'L1T DQM Consumer'
-    process.EventStreamHttpReader.maxEventRequestRate = cms.untracked.double(25.0)
- 
-elif l1DqmEnv == 'playback' :
-    print 'FIXME'
-    
-else : 
-    # running on a file
-    process.load("DQM.L1TMonitor.inputsource_file_cfi")
-    
-      
-#----------------------------
-# DQM Environment
-#
-
 process.load("DQMServices.Core.DQM_cfg")
-process.load("DQMServices.Components.DQMEnvironment_cfi")
-process.dqmEnv.subSystemFolder = 'L1T'
 
-if l1DqmEnv == 'live' :
-    process.load("DQM.Integration.test.environment_cfi")
-    process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference.root"
-
-    #
-    # load and configure modules via Global Tag
-    # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
-    process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
-    es_prefer_GlobalTag = cms.ESPrefer('GlobalTag')
-
-elif l1DqmEnv == 'playback' :
-    print 'FIXME'
-    
-else : 
-    # running on a file
-    process.load("DQM.L1TMonitor.environment_file_cfi")
-
-    process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-    process.GlobalTag.globaltag = 'GR_R_36X_V10::All'
-    es_prefer_GlobalTag = cms.ESPrefer('GlobalTag')
-
-
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
+#-----------------------------
+#  DQM SOURCES
+#----------------------------- 
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
-#-----------------------------
-#
-#  L1 DQM SOURCES
-#
+process.load("Configuration.StandardSequences.Geometry_cff")
+
+process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
+
+
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_31X_GLOBALTAG"
+process.GlobalTag.globaltag = "GR09_31X_V1P::All"
+process.prefer("GlobalTag")
+
 
 process.load("DQM.L1TMonitor.L1TMonitor_cff")
 process.load("DQM.L1TMonitorClient.L1TMonitorClient_cff")
-
 process.load("DQM.TrigXMonitor.L1Scalers_cfi")
 process.load("DQM.TrigXMonitorClient.L1TScalersClient_cfi")
 process.l1s.l1GtData = cms.InputTag("l1GtUnpack","","DQM")
@@ -92,24 +29,72 @@ process.l1s.dqmFolder = cms.untracked.string("L1T/L1Scalers_SM")
 process.l1tsClient.dqmFolder = cms.untracked.string("L1T/L1Scalers_SM")
 process.p3 = cms.EndPath(process.l1s+process.l1tsClient)
 
-process.load("DQM.TrigXMonitor.HLTScalers_cfi")
-process.load("DQM.TrigXMonitorClient.HLTScalersClient_cfi")
-process.hlts.dqmFolder = cms.untracked.string("L1T/HLTScalers_SM")
-process.hltsClient.dqmFolder = cms.untracked.string("L1T/HLTScalers_SM")
-process.p = cms.EndPath(process.hlts+process.hltsClient)
-
-# removed modules
-#process.hltMonScal.remove("l1tscalers")
 
 ##  Available data masks (case insensitive):
 ##    all, gt, muons, jets, taujets, isoem, nonisoem, met
-process.l1tEventInfoClient.dataMaskedSystems = cms.untracked.vstring(
-    "Muons","Jets","TauJets","IsoEm","NonIsoEm","MET"
-    )
+process.l1tEventInfoClient.dataMaskedSystems =cms.untracked.vstring("Jets","TauJets","IsoEm","NonIsoEm","MET")
 
 ##  Available emulator masks (case insensitive):
 ##    all, dttf, dttpg, csctf, csctpg, rpc, gmt, ecal, hcal, rct, gct, glt
 process.l1tEventInfoClient.emulatorMaskedSystems = cms.untracked.vstring("All")
 
+#process.maxEvents = cms.untracked.PSet(
+#    input = cms.untracked.int32(3000)
+#)
 
+process.load("DQM.L1TMonitor.119580_cfi")
+
+#process.source = cms.Source("PoolSource",
+    #fileNames = cms.untracked.vstring('file:/cms/mon/data/lookarea_SM/GlobalCruzet3.00051488.0001.DQM.storageManager.0.0000.dat')
+    #fileNames = cms.untracked.vstring('file:/cms/mon/data/lookarea_SM/GlobalCruzet3.00051437.0001.DQM.storageManager.1.0000.dat')
+    #fileNames = cms.untracked.vstring('file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root')
+#    fileNames = cms.untracked.vstring('/store/data/Commissioning09/Cosmics/RAW/v3/000/119/400/18FA115E-D9C8-DE11-B7AA-001D09F24399.root')
+    #fileNames = cms.untracked.vstring('file:/cms/mon/data/lookarea_SM/GlobalCruzet3.00051218.0001.DQM.storageManager.0.0000.dat')
+    #fileNames = cms.untracked.vstring('file:/tmp/wteo/E244612F-7751-DD11-8931-000423D94700.root')
+    #fileNames = cms.untracked.vstring('file:/tmp/wteo/001365AC-1C1C-DD11-AA0B-0030487D62E6.root')
+    #fileNames = cms.untracked.vstring('file:/tmp/wteo/1CD42767-9B60-DD11-B56E-001617DBD224.root')
+
+
+#)
+
+#process.source = cms.Source("NewEventStreamFileReader",
+#    fileNames = cms.untracked.vstring(
+#                                      '/store/streamer/RunPrep09/A/000/119/580/RunPrep09.00119580.0305.A.storageManager.02.0000.dat'
+#				      )
+#)				      
+
+process.DQMStore.verbose = 0
+process.DQM.collectorHost = "srv-c2d05-12"
+process.DQM.collectorPort = 9190
+#process.DQMStore.referenceFileName = "DQM_L1T_R000002467.root"
+#process.DQMStore.referenceFileName = "/nfshome0/wteo/test/rctL1tDqm.root"
+
+
+process.MessageLogger = cms.Service("MessageLogger",
+    detailedInfo = cms.untracked.PSet(
+        threshold = cms.untracked.string('INFO')
+    ),
+    critical = cms.untracked.PSet(
+        threshold = cms.untracked.string('ERROR')
+    ),
+    debugModules = cms.untracked.vstring('*'),
+    cout = cms.untracked.PSet(
+        threshold = cms.untracked.string('WARNING'),
+        WARNING = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        noLineBreaks = cms.untracked.bool(True)
+    ),
+    destinations = cms.untracked.vstring('detailedInfo',
+        'critical',
+        'cout')
+)
+
+process.DQMStore.verbose = 0
+process.dqmSaver.convention = 'Online'
+process.dqmSaver.dirName = '.'
+process.dqmSaver.producer = 'DQM'
+process.dqmEnv.subSystemFolder = 'L1T'
+process.dqmSaver.saveByRun = 1
+process.dqmSaver.saveAtJobEnd = True
 

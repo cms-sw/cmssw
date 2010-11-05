@@ -8,19 +8,19 @@
 EcalDCCTBHeaderRuntypeDecoder::EcalDCCTBHeaderRuntypeDecoder(){;}
 EcalDCCTBHeaderRuntypeDecoder::~EcalDCCTBHeaderRuntypeDecoder(){;}
 
-bool EcalDCCTBHeaderRuntypeDecoder::Decode(ulong headerWord, EcalDCCHeaderBlock* EcalDCCHeaderInfos){
+bool EcalDCCTBHeaderRuntypeDecoder::Decode(unsigned long headerWord, EcalDCCHeaderBlock* EcalDCCHeaderInfos){
   
-  //  ulong DCCNumberMask      = 63;//2^6-1
+  //  unsigned long DCCNumberMask      = 63;//2^6-1
 
-  ulong WhichHalfOffSet   = 64;//2^6 
-  ulong TypeOffSet        = 256;//2^8
-  ulong SubTypeOffSet     = 2048;//2^11
-  ulong SettingOffSet     = 131072;//2^17;
-  ulong GainModeOffSet    = 16384;//2^14
+  unsigned long WhichHalfOffSet   = 64;//2^6 
+  unsigned long TypeOffSet        = 256;//2^8
+  unsigned long SubTypeOffSet     = 2048;//2^11
+  unsigned long SettingOffSet     = 131072;//2^17;
+  unsigned long GainModeOffSet    = 16384;//2^14
   
-  ulong TwoBitsMask = 3;
-  ulong ThreeBitsMask = 7;
-  ulong ThirdBitMask = 4;
+  unsigned long TwoBitsMask = 3;
+  unsigned long ThreeBitsMask = 7;
+  unsigned long ThirdBitMask = 4;
   
   //  EcalDCCTBHeaderInfos->setId( int ( headerWord & DCCNumberMask) );
   EcalDCCHeaderInfos-> setRtHalf( int ((headerWord / WhichHalfOffSet) & TwoBitsMask) );
