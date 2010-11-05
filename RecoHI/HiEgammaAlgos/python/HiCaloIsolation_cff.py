@@ -8,7 +8,7 @@ isoC1 = cms.EDProducer("HiEgammaIsolationProducer",
     iso  = cms.string("Cx"),
     x  = cms.double(1),
     y  = cms.double(0),
-    photons = cms.InputTag("photons"),
+    photons = cms.InputTag("cleanPhotons"),
 )
 
 isoC2 = cms.EDProducer("HiEgammaIsolationProducer",
@@ -17,7 +17,7 @@ isoC2 = cms.EDProducer("HiEgammaIsolationProducer",
     iso  = cms.string("Cx"),
     x  = cms.double(2),
     y  = cms.double(0),
-    photons = cms.InputTag("photons"),
+    photons = cms.InputTag("cleanPhotons"),
 )
 
 isoC3 = cms.EDProducer("HiEgammaIsolationProducer",
@@ -26,7 +26,7 @@ isoC3 = cms.EDProducer("HiEgammaIsolationProducer",
     iso  = cms.string("Cx"),
     x  = cms.double(3),
     y  = cms.double(0),
-    photons = cms.InputTag("photons"),
+    photons = cms.InputTag("cleanPhotons"),
 )
 
 isoC4 = cms.EDProducer("HiEgammaIsolationProducer",
@@ -35,7 +35,7 @@ isoC4 = cms.EDProducer("HiEgammaIsolationProducer",
     iso  = cms.string("Cx"),
     x  = cms.double(4),
     y  = cms.double(0),
-    photons = cms.InputTag("photons"),
+    photons = cms.InputTag("cleanPhotons"),
 )
 
 isoC5 = cms.EDProducer("HiEgammaIsolationProducer",
@@ -44,7 +44,7 @@ isoC5 = cms.EDProducer("HiEgammaIsolationProducer",
     iso  = cms.string("Cx"),
     x  = cms.double(5),
     y  = cms.double(0),
-    photons = cms.InputTag("photons"),
+    photons = cms.InputTag("cleanPhotons"),
 )
 
 isoCC1 = cms.EDProducer("HiEgammaIsolationProducer",
@@ -53,7 +53,7 @@ isoCC1 = cms.EDProducer("HiEgammaIsolationProducer",
     iso  = cms.string("Cx"),
     x  = cms.double(1),
     y  = cms.double(0),
-    photons = cms.InputTag("photons"),
+    photons = cms.InputTag("cleanPhotons"),
 )
 
 isoCC2 = cms.EDProducer("HiEgammaIsolationProducer",
@@ -62,7 +62,7 @@ isoCC2 = cms.EDProducer("HiEgammaIsolationProducer",
     iso  = cms.string("Cx"),
     x  = cms.double(2),
     y  = cms.double(0),
-    photons = cms.InputTag("photons"),
+    photons = cms.InputTag("cleanPhotons"),
 )
 
 isoCC3 = cms.EDProducer("HiEgammaIsolationProducer",
@@ -71,7 +71,7 @@ isoCC3 = cms.EDProducer("HiEgammaIsolationProducer",
     iso  = cms.string("Cx"),
     x  = cms.double(3),
     y  = cms.double(0),
-    photons = cms.InputTag("photons"),
+    photons = cms.InputTag("cleanPhotons"),
 )
 
 isoCC4 = cms.EDProducer("HiEgammaIsolationProducer",
@@ -80,7 +80,7 @@ isoCC4 = cms.EDProducer("HiEgammaIsolationProducer",
     iso  = cms.string("Cx"),
     x  = cms.double(4),
     y  = cms.double(0),
-    photons = cms.InputTag("photons"),
+    photons = cms.InputTag("cleanPhotons"),
 )
 
 isoCC5 = cms.EDProducer("HiEgammaIsolationProducer",
@@ -89,7 +89,7 @@ isoCC5 = cms.EDProducer("HiEgammaIsolationProducer",
     iso  = cms.string("Cx"),
     x  = cms.double(5),
     y  = cms.double(0),
-    photons = cms.InputTag("photons"),
+    photons = cms.InputTag("cleanPhotons"),
 )
 
 isoR1 = cms.EDProducer("HiEgammaIsolationProducer",
@@ -98,7 +98,7 @@ isoR1 = cms.EDProducer("HiEgammaIsolationProducer",
     iso  = cms.string("Rx"),
     x  = cms.double(1),
     y  = cms.double(0),
-    photons = cms.InputTag("photons"),
+    photons = cms.InputTag("cleanPhotons"),
 )
 
 isoR2 = cms.EDProducer("HiEgammaIsolationProducer",
@@ -107,7 +107,7 @@ isoR2 = cms.EDProducer("HiEgammaIsolationProducer",
     iso  = cms.string("Rx"),
     x  = cms.double(2),
     y  = cms.double(0),
-    photons = cms.InputTag("photons"),
+    photons = cms.InputTag("cleanPhotons"),
 )
 
 isoR3 = cms.EDProducer("HiEgammaIsolationProducer",
@@ -116,7 +116,7 @@ isoR3 = cms.EDProducer("HiEgammaIsolationProducer",
     iso  = cms.string("Rx"),
     x  = cms.double(3),
     y  = cms.double(0),
-    photons = cms.InputTag("photons"),
+    photons = cms.InputTag("cleanPhotons"),
 )
 
 isoR4 = cms.EDProducer("HiEgammaIsolationProducer",
@@ -125,7 +125,7 @@ isoR4 = cms.EDProducer("HiEgammaIsolationProducer",
     iso  = cms.string("Rx"),
     x  = cms.double(4),
     y  = cms.double(0),
-    photons = cms.InputTag("photons"),
+    photons = cms.InputTag("cleanPhotons"),
 )
 
 isoR5 = cms.EDProducer("HiEgammaIsolationProducer",
@@ -134,7 +134,7 @@ isoR5 = cms.EDProducer("HiEgammaIsolationProducer",
     iso  = cms.string("Rx"),
     x  = cms.double(5),
     y  = cms.double(0),
-    photons = cms.InputTag("photons"),
+    photons = cms.InputTag("cleanPhotons"),
 )
 
 isoCR1 = cms.EDProducer("HiEgammaIsolationProducer",
@@ -143,7 +143,7 @@ isoCR1 = cms.EDProducer("HiEgammaIsolationProducer",
     iso  = cms.string("Rx"),
     x  = cms.double(1),
     y  = cms.double(0),
-    photons = cms.InputTag("photons"),
+    photons = cms.InputTag("cleanPhotons"),
 )
 
 isoCR2 = cms.EDProducer("HiEgammaIsolationProducer",
@@ -152,7 +152,7 @@ isoCR2 = cms.EDProducer("HiEgammaIsolationProducer",
     iso  = cms.string("Rx"),
     x  = cms.double(2),
     y  = cms.double(0),
-    photons = cms.InputTag("photons"),
+    photons = cms.InputTag("cleanPhotons"),
 )
 
 isoCR3 = cms.EDProducer("HiEgammaIsolationProducer",
@@ -161,7 +161,7 @@ isoCR3 = cms.EDProducer("HiEgammaIsolationProducer",
     iso  = cms.string("Rx"),
     x  = cms.double(3),
     y  = cms.double(0),
-    photons = cms.InputTag("photons"),
+    photons = cms.InputTag("cleanPhotons"),
 )
 
 isoCR4 = cms.EDProducer("HiEgammaIsolationProducer",
@@ -170,7 +170,7 @@ isoCR4 = cms.EDProducer("HiEgammaIsolationProducer",
     iso  = cms.string("Rx"),
     x  = cms.double(4),
     y  = cms.double(0),
-    photons = cms.InputTag("photons"),
+    photons = cms.InputTag("cleanPhotons"),
 )
 
 isoCR5 = cms.EDProducer("HiEgammaIsolationProducer",
@@ -179,7 +179,7 @@ isoCR5 = cms.EDProducer("HiEgammaIsolationProducer",
     iso  = cms.string("Rx"),
     x  = cms.double(5),
     y  = cms.double(0),
-    photons = cms.InputTag("photons"),
+    photons = cms.InputTag("cleanPhotons"),
 )
 
 
@@ -192,5 +192,3 @@ hiCaloIsolation = cms.Sequence(hiEcalIsolation+hiHcalIsolation)
 hiCaloIsolationBckSubtracted = cms.Sequence(hiEcalIsolationBckSubtracted+hiHcalIsolationBckSubtracted)
 
 hiCaloIsolationAll = cms.Sequence(hiCaloIsolation+hiCaloIsolationBckSubtracted)
-
-
