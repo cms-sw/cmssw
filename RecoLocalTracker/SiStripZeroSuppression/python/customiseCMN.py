@@ -30,6 +30,9 @@ def customisePercentile(process):
 
 ##############################################################################
 def customiseFlatAPVRestore(process):
+
+    process.siStripZeroSuppression.doAPVRestore = cms.bool(True)
+    
     process.siStripZeroSuppression.Algorithms.APVInspectMode = cms.string("NullFraction")
     process.siStripZeroSuppression.Algorithms.APVRestoreMode = cms.string("Flat")
     process.siStripZeroSuppression.Algorithms.restoreThreshold = cms.double(0.5)
@@ -38,13 +41,16 @@ def customiseFlatAPVRestore(process):
 
 ##############################################################################
 def customisePartialSuppress(process):
-    
+
+    process.siStripZeroSuppression.doAPVRestore = cms.bool(True)
+    process.siStripZeroSuppression.produceRawDigis = cms.bool(True)
+    process.siStripZeroSuppression.storeInZScollBadAPV = cms.bool(False)
+
     process.siStripZeroSuppression.Algorithms.APVInspectMode = cms.string("AbnormalBaseline")
     process.siStripZeroSuppression.Algorithms.APVRestoreMode = cms.string("PartialSuppress")
     process.siStripZeroSuppression.Algorithms.Fraction = cms.double(0.2)
     process.siStripZeroSuppression.Algorithms.Deviation = cms.uint32(25)
-    process.siStripZeroSuppression.storeInZScollBadAPV = cms.bool(False)
-    process.siStripZeroSuppression.produceRawDigis = cms.bool(True)
+
 
     return process
 
