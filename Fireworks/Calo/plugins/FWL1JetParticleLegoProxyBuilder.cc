@@ -33,4 +33,4 @@ FWL1JetParticleLegoProxyBuilder::build( const l1extra::L1JetParticle& iData, uns
    fireworks::addCircle( iData.eta(), iData.phi(), 0.5, 6, &oItemHolder, this );
 }
 
-REGISTER_FWPROXYBUILDER( FWL1JetParticleLegoProxyBuilder, l1extra::L1JetParticle, "L1JetParticle", FWViewType::kLegoBit );
+REGISTER_FWPROXYBUILDER( FWL1JetParticleLegoProxyBuilder, l1extra::L1JetParticle, "L1JetParticle", FWViewType::kAllLegoBits );

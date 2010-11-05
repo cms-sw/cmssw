@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWPFTauProxyBuilder.cc,v 1.14 2010/09/16 15:42:20 yana Exp $
+// $Id: FWPFTauProxyBuilder.cc,v 1.15 2010/10/22 14:34:44 amraktad Exp $
 //
 
 // system include files
@@ -88,5 +88,5 @@ FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* p
    }
 }
 
-REGISTER_FWPROXYBUILDER( FWPFTauProxyBuilder, reco::PFTauCollection, "PFTau", FWViewType::kAll3DBits | FWViewType::kAllRPZBits | FWViewType::kLegoBit);
+REGISTER_FWPROXYBUILDER( FWPFTauProxyBuilder, reco::PFTauCollection, "PFTau", FWViewType::kAll3DBits | FWViewType::kAllRPZBits | FWViewType::kAllLegoBits);
 

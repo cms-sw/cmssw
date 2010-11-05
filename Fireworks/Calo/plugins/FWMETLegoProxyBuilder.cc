@@ -33,4 +33,4 @@ FWMETLegoProxyBuilder::build( const reco::MET& iData, unsigned int iIndex, TEveE
    fireworks::addDoubleLines( iData.phi(), &oItemHolder, this );
 }
 
-REGISTER_FWPROXYBUILDER( FWMETLegoProxyBuilder, reco::MET, "recoMET", FWViewType::kLegoBit );
+REGISTER_FWPROXYBUILDER( FWMETLegoProxyBuilder, reco::MET, "recoMET", FWViewType::kAllLegoBits );

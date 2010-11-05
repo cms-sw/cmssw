@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Mar 26 12:25:02 CET 2010
-// $Id: FWViewType.cc,v 1.12 2010/06/18 10:17:16 yana Exp $
+// $Id: FWViewType.cc,v 1.13 2010/11/04 22:38:55 amraktad Exp $
 //
 
 // system include files
@@ -25,8 +25,9 @@
 // static data member definitions
 //
 
-const int FWViewType::kAllRPZBits = kRhoPhiBit | kRhoZBit;
-const int FWViewType::kAll3DBits  = kISpyBit | k3DBit;
+const int FWViewType::kAllRPZBits  = kRhoPhiBit | kRhoZBit | kRhoPhiPFBit;
+const int FWViewType::kAll3DBits   = kISpyBit | k3DBit;
+const int FWViewType::kAllLegoBits = kLegoBit | kLegoHFBit | kLegoPFECALBit;
 
 std::string FWViewType::sName[FWViewType::kTypeSize];
 

@@ -26,4 +26,4 @@ FWJetLegoProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex, TEveEl
    fireworks::addCircle( iData.eta(), iData.phi(), 0.5, 20, &oItemHolder, this );
 }
 
-REGISTER_FWPROXYBUILDER( FWJetLegoProxyBuilder, reco::Jet, "Jets", FWViewType::kLegoBit | FWViewType::kLegoHFBit );
+REGISTER_FWPROXYBUILDER( FWJetLegoProxyBuilder, reco::Jet, "Jets", FWViewType::kAllLegoBits | FWViewType::kLegoHFBit );

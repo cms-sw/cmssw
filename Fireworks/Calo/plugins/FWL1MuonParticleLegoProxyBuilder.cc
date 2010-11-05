@@ -33,4 +33,4 @@ FWL1MuonParticleLegoProxyBuilder::build( const l1extra::L1MuonParticle& iData, u
    fireworks::addCircle( iData.eta(), iData.phi(), 0.5, 10, &oItemHolder, this );
 }
 
-REGISTER_FWPROXYBUILDER( FWL1MuonParticleLegoProxyBuilder, l1extra::L1MuonParticle, "L1MuonParticle", FWViewType::kLegoBit );
+REGISTER_FWPROXYBUILDER( FWL1MuonParticleLegoProxyBuilder, l1extra::L1MuonParticle, "L1MuonParticle", FWViewType::kAllLegoBits );

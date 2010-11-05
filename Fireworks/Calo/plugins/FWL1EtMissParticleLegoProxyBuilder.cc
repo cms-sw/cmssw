@@ -33,4 +33,4 @@ FWL1EtMissParticleLegoProxyBuilder::build( const l1extra::L1EtMissParticle& iDat
    fireworks::addDoubleLines( iData.phi(), &oItemHolder, this );
 }
 
-REGISTER_FWPROXYBUILDER( FWL1EtMissParticleLegoProxyBuilder, l1extra::L1EtMissParticle, "L1EtMissParticle", FWViewType::kLegoBit );
+REGISTER_FWPROXYBUILDER( FWL1EtMissParticleLegoProxyBuilder, l1extra::L1EtMissParticle, "L1EtMissParticle", FWViewType::kAllLegoBits );
