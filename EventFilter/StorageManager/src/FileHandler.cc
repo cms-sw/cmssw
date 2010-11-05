@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.21 2010/09/28 16:25:29 mommsen Exp $
+// $Id: FileHandler.cc,v 1.22 2010/11/04 15:19:16 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -196,7 +196,7 @@ int FileHandler::events() const
 }
 
 
-const unsigned long long FileHandler::fileSize() const
+unsigned long long FileHandler::fileSize() const
 {
   return _fileRecord->fileSize;
 }
@@ -215,7 +215,7 @@ void FileHandler::moveFileToClosed
   const std::string openFileName(_fileRecord->completeFileName(FilesMonitorCollection::FileRecord::open));
   const std::string closedFileName(_fileRecord->completeFileName(FilesMonitorCollection::FileRecord::closed));
 
-  unsigned long long openFileSize = checkFileSizeMatch(openFileName, fileSize());
+  const unsigned long long openFileSize = checkFileSizeMatch(openFileName, fileSize());
 
   makeFileReadOnly(openFileName);
   try
