@@ -16,14 +16,17 @@ SiStripZeroSuppression(edm::ParameterSet const& conf)
     algorithms(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"))),
     storeCM(conf.getParameter<bool>("storeCM")),
     doAPVRestore(conf.getParameter<bool>("doAPVRestore")),
-    produceRawDigis(conf.getParameter<bool>("produceRawDigis")),
-    produceCalculatedBaseline(conf.getParameter<bool>("produceCalculatedBaseline")),
-    produceBaselinePoints(conf.getParameter<bool>("produceBaselinePoints")),
-    storeInZScollBadAPV(conf.getParameter<bool>("storeInZScollBadAPV")),
-    mergeCollections(conf.getParameter<bool>("mergeCollections")),
-    fixCM(conf.getParameter<bool>("fixCM")),
-    useCMMeanMap(conf.getParameter<bool>("useCMMeanMap"))
+    mergeCollections(conf.getParameter<bool>("mergeCollections"))
 {
+  
+  if(doAPVRestore){
+    produceRawDigis=conf.getParameter<bool>("produceRawDigis");
+    produceCalculatedBaseline = conf.getParameter<bool>("produceCalculatedBaseline");
+    produceBaselinePoints = conf.getParameter<bool>("produceBaselinePoints");
+    storeInZScollBadAPV = conf.getParameter<bool>("storeInZScollBadAPV");
+    useCMMeanMap =conf.getParameter<bool>("useCMMeanMap");
+    fixCM= conf.getParameter<bool>("fixCM"); 
+  }
   
   if(mergeCollections){
     storeCM = false;
