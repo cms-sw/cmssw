@@ -1,4 +1,3 @@
-<use   name="DataFormats/HcalDetId"/>
 <use   name="DetectorDescription/Base"/>
 <use   name="DetectorDescription/Core"/>
 <export>

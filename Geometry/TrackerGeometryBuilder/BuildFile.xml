@@ -2,7 +2,6 @@
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/SiPixelDetId"/>
 <use   name="DataFormats/SiStripDetId"/>
-<use   name="DataFormats/TrajectorySeed"/>
 <use   name="DetectorDescription/Core"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>

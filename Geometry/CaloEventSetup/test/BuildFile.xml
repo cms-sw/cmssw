@@ -17,6 +17,7 @@
 </library>
 <library   file="CaloAlignmentRcdRead.cc" name="CaloAlignmentRcdRead">
   <use name="Utilities/General"/>
+  <use name="CondFormats/Alignment"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="CaloAlignmentRcdWrite.cc" name="CaloAlignmentRcdWrite">

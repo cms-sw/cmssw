@@ -7,4 +7,6 @@
   <use   name="Geometry/CaloGeometry"/>
   <use   name="Geometry/EcalAlgo"/>
   <use   name="DetectorDescription/Core"/>
+  <use   name="Geometry/EcalCommonData"/>
+  <use   name="CondFormats/Alignment"/>
 </library>

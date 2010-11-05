@@ -10,6 +10,7 @@
   <use   name="SimDataFormats/EcalTestBeam"/>
   <use   name="FWCore/MessageLogger"/>
   <use   name="CommonTools/UtilAlgos"/>
+  <use   name="CondFormats/Alignment"/>
   <library   file="ee/*.cc" name="testEcalEndcapTestBeamModule">
     <flags   EDM_PLUGIN="1"/>
   </library>
