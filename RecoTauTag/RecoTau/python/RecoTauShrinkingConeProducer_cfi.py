@@ -36,14 +36,14 @@ shrinkingConeRecoTaus = cms.EDProducer(
         cms.PSet(
             name = cms.string('twoprong'),
             plugin = cms.string("RecoTauTwoProngFilter"),
-            minPtFractionForSecondProng = cms.double(0.1),  
+            minPtFractionForSecondProng = cms.double(0.1),
         ),
-        cms.PSet(
-            name = cms.string('filterphotons'),
-            plugin = cms.string("RecoTauPhotonFilter"),
-            minPtFractionSinglePhotons  = cms.double(0.10), 
-            minPtFractionPiZeroes       = cms.double(0.15), 
-        ),
+        #cms.PSet(
+            #name = cms.string('filterphotons'),
+            #plugin = cms.string("RecoTauPhotonFilter"),
+            #minPtFractionSinglePhotons  = cms.double(0.10),
+            #minPtFractionPiZeroes       = cms.double(0.15),
+        #),
         # Electron rejection
         cms.PSet(
             name = cms.string("shrinkingConeElectronRej"),
@@ -56,7 +56,7 @@ shrinkingConeRecoTaus = cms.EDProducer(
             EcalStripSumE_deltaEta               = cms.double(0.03),
             ElecPreIDLeadTkMatch_maxDR           = cms.double(0.01),
             maximumForElectrionPreIDOutput       = cms.double(-0.1),
-            DataType = cms.string("AOD"),            
+            DataType = cms.string("AOD"),
         ),
     ),
 )
