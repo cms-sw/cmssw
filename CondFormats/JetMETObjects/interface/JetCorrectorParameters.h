@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.h,v 1.10 2010/10/19 16:31:27 srappocc Exp $
+// $Id: JetCorrectorParameters.h,v 1.11 2010/11/03 22:25:32 srappocc Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -171,13 +171,13 @@ class JetCorrectorParametersCollection {
   static std::string findL5Flavor( key_type k ){
     if ( k == L5Flavor ) return labels_[L5Flavor];
     else 
-      return l5Flavors_[k / 10];
+      return l5Flavors_[k / 10 - 1];
   }  
 
   static std::string findL7Parton( key_type k ){
     if ( k == L7Parton ) return labels_[L7Parton];
     else 
-      return l7Partons_[k / 1000];
+      return l7Partons_[k / 1000 - 1];
   }
 
  protected:

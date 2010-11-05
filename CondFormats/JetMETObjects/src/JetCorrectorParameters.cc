@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.cc,v 1.14 2010/10/19 16:31:27 srappocc Exp $
+// $Id: JetCorrectorParameters.cc,v 1.15 2010/11/03 22:25:33 srappocc Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -367,7 +367,7 @@ JetCorrectorParametersCollection::l7PartonArray_[JetCorrectorParametersCollectio
     "L7Parton_qT",
     "L7Parton_cT",
     "L7Parton_bT",
-    "L7Parton_jT"
+    "L7Parton_tT"
   };
 
 
