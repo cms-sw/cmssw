@@ -251,8 +251,13 @@ void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction)
       }
       m_conn->terminateStatement(stmt);
     }
+<<<<<<< LMFDat.cc
+    catch (SQLException &e) {
+      throw runtime_error(m_className + "::fetch: " + e.getMessage()));
+=======
     catch (oracle::occi::SQLException &e) {
       throw(std::runtime_error(m_className + "::fetch: " + e.getMessage()));
+>>>>>>> 1.5
     }
     m_ID = m_data.size();
   }
@@ -271,11 +276,22 @@ bool LMFDat::isValid() {
   return ret;
 }
 
+<<<<<<< LMFDat.cc
+/*
+   the following method is intende to avoid repeating the insertion of data
+   corresponding to a given logic_id into the database. It fetches the list 
+   of logic_ids from the getTableName() where LMF_IOV_ID is given
+*/
+std::map<int, std::vector<float> > LMFDat::fetchData() 
+  throw(runtime_error)
+=======
 int LMFDat::fetchData() 
   throw(std::runtime_error)
+>>>>>>> 1.5
 {
   // see if any of the data is already in the database
-  int s = m_data.size();
+  std::map<int, std::vector<float> > copyOf_m_data = m_data;
+  int s = copyOf_m_data.size();
   std::string sql = "SELECT LOGIC_ID FROM " + getTableName() + " WHERE "
     "LMF_IOV_ID = :1";
   if (m_debug) {
@@ -288,15 +304,15 @@ int LMFDat::fetchData()
     stmt->setSQL(sql);
     stmt->setInt(1, getLMFRunIOVID());
     ResultSet* rset = stmt->executeQuery();
-    std::map<int, std::vector<float> >::iterator i = m_data.end();
-    std::map<int, std::vector<float> >::iterator e = m_data.end();
+    std::map<int, std::vector<float> >::iterator i = copyOf_m_data.begin();
+    std::map<int, std::vector<float> >::iterator e = copyOf_m_data.end();
     while (rset->next()) {
       if (m_debug) {
 	cout << m_className << ":: checking " << rset->getInt(1) << endl;
       }
-      i = m_data.find(rset->getInt(1));
+      i = copyOf_m_data.find(rset->getInt(1));
       if (i != e) {
-	m_data.erase(i);
+	copyOf_m_data.erase(i);
       }
     }
     m_conn->terminateStatement(stmt);
@@ -304,12 +320,12 @@ int LMFDat::fetchData()
   catch (oracle::occi::SQLException &e) {
     throw(std::runtime_error(m_className + "::fetchData:  "+e.getMessage()));
   }
-  s = m_data.size();
+  s = copyOf_m_data.size();
   if (m_debug) {
     cout << m_className << ":: data items for this object now is = " << s 
 	 << endl;
   }
-  return s;
+  return copyOf_m_data;
 }
 
 int LMFDat::writeDB() 
@@ -325,14 +341,15 @@ int LMFDat::writeDB()
   }
   // write data on the database
   int ret = 0;
-  if (fetchData() != 0) {
+  std::map<int, std::vector<float> > data2write = fetchData();
+  if (data2write.size() > 0) {
     this->checkConnection();
     bool ok = check();
     // write
     if (ok && isValid()) {
       std::list<dvoid *> bufPointers;
       int nParameters = m_keys.size(); 
-      int nData = m_data.size();
+      int nData = data2write.size();
       if (m_debug) {
 	cout << m_className << ": # data items = " << nData << endl;
 	cout << m_className << ": # parameters = " << nParameters << endl;
@@ -357,8 +374,8 @@ int LMFDat::writeDB()
 	// build the data array for first column: the same run iov id
 	LMFRunIOV *runiov = (LMFRunIOV*)m_foreignKeys["lmfRunIOV"];
 	int iov_id = runiov->getID();
-	std::map<int, std::vector<float> >::const_iterator b = m_data.begin();
-	std::map<int, std::vector<float> >::const_iterator e = m_data.end();
+	std::map<int, std::vector<float> >::const_iterator b = data2write.begin();
+	std::map<int, std::vector<float> >::const_iterator e = data2write.end();
 	for (int i = 0; i < nData; i++) {
 	  iovid_vec[i] = iov_id;
 	}
@@ -376,7 +393,7 @@ int LMFDat::writeDB()
 	// for each column build the data array
 	oracle::occi::Type type = oracle::occi::OCCIFLOAT;
 	for (int i = 0; i < nParameters; i++) {
-	  b = m_data.begin();
+	  b = data2write.begin();
 	  // loop on all logic ids
 	  c = 0;
 	  while (b != e) {
