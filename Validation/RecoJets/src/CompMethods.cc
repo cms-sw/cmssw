@@ -2,6 +2,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <cmath>
 
 #include "Validation/RecoJets/interface/CompMethods.h"
 
@@ -92,5 +93,5 @@ Quantile::spreadError(TH1F& hist)
 {
   quantiles(hist, 0.25+err_); double outer=distance(hist);
   quantiles(hist, 0.25-err_); double inner=distance(hist);
-  return fabs(outer-inner)/2;
+  return std::fabs(outer-inner)/2;
 }

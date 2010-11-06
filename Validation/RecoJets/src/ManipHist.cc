@@ -1,5 +1,6 @@
 #include "Validation/RecoJets/interface/ManipHist.h"
 #include "Validation/RecoJets/interface/RootPostScript.h"
+#include <cmath>
 
 using namespace std;
 
@@ -230,8 +231,8 @@ ManipHist::ratioCorrelatedError(double& x, double& dx, double& n, double& dn)
   //------------------------------------------------
   if(x<=0) return  0;
   if(n==0) return -1;
-  return (x/n<1) ? (x/n)*sqrt(fabs((dx*dx)/(n*n)+(1.-2.*(x/n))*(dn*dn)/(n*n))): 
-                   (n/x)*sqrt(fabs((dn*dn)/(x*x)+(1.-2.*(n/x))*(dx*dx)/(x*x)));
+  return (x/n<1) ? (x/n)*sqrt(std::fabs((dx*dx)/(n*n)+(1.-2.*(x/n))*(dn*dn)/(n*n))): 
+                   (n/x)*sqrt(std::fabs((dn*dn)/(x*x)+(1.-2.*(n/x))*(dx*dx)/(x*x)));
 }
 
 double 

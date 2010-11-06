@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <cmath>
 
 #include "Validation/RecoJets/interface/RootSystem.h"
 #include "Validation/RecoJets/interface/RootHistograms.h"
@@ -19,12 +20,12 @@ class MaximalValue {
   double value(TH1F& hist){ return hist.GetBinCenter(hist.GetMaximumBin()); };
   double valueError(TH1F& hist) { return spread(hist, val_); };
   double spread(TH1F& hist) { return spread(hist, 0.5); };
-  double spreadError(TH1F& hist){ return fabs(spread(hist, 0.5-err_)-spread(hist, 0.5+err_))/2; };
+  double spreadError(TH1F& hist){ return std::fabs(spread(hist, 0.5-err_)-spread(hist, 0.5+err_))/2; };
   
  private:
 
   std::pair<int,int> contour(TH1F&, double&);
-  double spread(TH1F& hist, double frac){ return fabs(hist.GetBinCenter(contour(hist, frac).second)-hist.GetBinCenter(contour(hist, frac).first)); };
+  double spread(TH1F& hist, double frac){ return std::fabs(hist.GetBinCenter(contour(hist, frac).second)-hist.GetBinCenter(contour(hist, frac).first)); };
 
  private:
 
@@ -49,7 +50,7 @@ class Quantile {
   
   void evaluate(double& err){val_[0]=central_-err; val_[1]=central_; val_[2]=central_+err;};
   void quantiles(TH1F& hist, double err){ evaluate(err); hist.GetQuantiles(3, qnt_, val_); };
-  double distance(TH1F& hist){ return fabs(qnt_[2]-qnt_[0]); };
+  double distance(TH1F& hist){ return std::fabs(qnt_[2]-qnt_[0]); };
   
  private:
 
