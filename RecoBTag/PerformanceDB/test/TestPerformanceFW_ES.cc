@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Nov 25 15:50:50 CET 2008
-// $Id: TestPerformanceFW_ES.cc,v 1.3 2009/12/14 22:23:35 wmtan Exp $
+// $Id: TestPerformanceFW_ES.cc,v 1.4 2010/11/02 16:29:24 chadwick Exp $
 //
 //
 
@@ -124,6 +124,8 @@ TestPerformanceFW_ES::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       iSetup.get<BTagPerformanceRecord>().get( measureName[ iMeasure ],perfH);
       const BtagPerformance & perf = *(perfH.product());
 
+//Working point
+      std::cout << "Working point: " << perf.workingPoint().cut() << std::endl;
 //Setup the point we wish to test!
       BinningPointByMap measurePoint;
       measurePoint.insert(BinningVariables::JetEt,50);
