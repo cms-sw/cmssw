@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.28 2010/10/26 20:01:28 edwenger Exp $
+// $Id: CentralityProducer.cc,v 1.29 2010/10/27 12:25:22 yilmaz Exp $
 //
 //
 
@@ -236,17 +236,20 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      creco->etMidRapiditySum_ = 0;
      
      Handle<CaloTowerCollection> towers;
+
      iEvent.getByLabel(srcTowers_,towers);
+
 	for( size_t i = 0; i<towers->size(); ++ i){
 	   const CaloTower & tower = (*towers)[ i ];
 	   double eta = tower.eta();
-	   HcalDetId hcalId(tower.id().rawId());
-	   bool isHF = hcalId.subdetId() == HcalForward;
+	   bool isHF = tower.ietaAbs() > 29;
 	   if(produceHFtowers_){
-	      if(isHF && eta > 0)
+	      if(isHF && eta > 0){
 		 creco->etHFtowerSumPlus_ += tower.pt();
-	      if(isHF && eta < 0)
+	      }
+	      if(isHF && eta < 0){
 		 creco->etHFtowerSumMinus_ += tower.pt();
+	      }
 	   }else{
 	      creco->etHFtowerSumMinus_ = inputCentrality->EtHFtowerSumMinus();
 	      creco->etHFtowerSumPlus_ = inputCentrality->EtHFtowerSumPlus();
@@ -373,6 +376,29 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     creco->nPixelTracks_ = inputCentrality->NpixelTracks();
   }
 
+  if(produceZDChits_){
+     creco->zdcSumPlus_ = 0;
+     creco->zdcSumMinus_ = 0;
+     
+     Handle<ZDCRecHitCollection> hits;
+     bool zdcAvailable = iEvent.getByLabel(srcZDChits_,hits);
+     if(zdcAvailable){
+	for( size_t ihit = 0; ihit<hits->size(); ++ ihit){
+	   const ZDCRecHit & rechit = (*hits)[ ihit ];
+	   if(rechit.id().zside() > 0 )
+	      creco->zdcSumPlus_ += rechit.energy();
+	   if(rechit.id().zside() < 0)
+	      creco->zdcSumMinus_ += rechit.energy();
+	}
+     }else{
+	creco->zdcSumPlus_ = -9;
+	creco->zdcSumMinus_ = -9;
+     }
+  }else{
+     creco->zdcSumMinus_ = inputCentrality->zdcSumMinus();
+     creco->zdcSumPlus_ = inputCentrality->zdcSumPlus();
+  }
+  
   iEvent.put(creco);
   return true;
 }
