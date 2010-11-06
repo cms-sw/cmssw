@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_9_0/GRun/V1 (CMSSW_3_8_1_HLT25)
+# /dev/CMSSW_3_9_0/GRun/V2 (CMSSW_3_8_1_HLT25)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_9_0/GRun/V1')
+  tableName = cms.string('/dev/CMSSW_3_9_0/GRun/V2')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -39,9 +39,11 @@ process.streams = cms.PSet(
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   Express = cms.vstring( 'ExpressPhysics',
     'HIExpressPhysics' ),
-  HLTDQM = cms.vstring( 'OnlineHltMonitor' ),
+  HLTDQM = cms.vstring( 'OnlineHltMonitor',
+    'OnlineHltMonitorHI' ),
   HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
-  HLTMON = cms.vstring( 'OfflineMonitor' ),
+  HLTMON = cms.vstring( 'OfflineMonitor',
+    'OfflineMonitorHI' ),
   NanoDST = cms.vstring( 'L1Accept' ),
   OnlineErrors = cms.vstring( 'FEDMonitor',
     'LogMonitor' ),
@@ -423,6 +425,7 @@ process.datasets = cms.PSet(
     'HLT_TrackerCosmics',
     'HLT_ZeroBias',
     'HLT_ZeroBiasPixel_SingleTrack' ),
+  OfflineMonitorHI = cms.vstring(  ),
   OnlineHltMonitor = cms.vstring( 'AlCa_EcalEta',
     'AlCa_EcalPhiSym',
     'AlCa_EcalPi0',
@@ -610,6 +613,7 @@ process.datasets = cms.PSet(
     'HLT_TrackerCosmics',
     'HLT_ZeroBias',
     'HLT_ZeroBiasPixel_SingleTrack' ),
+  OnlineHltMonitorHI = cms.vstring(  ),
   OnlineHltResults = cms.vstring( 'HLTriggerFinalPath' ),
   OnlineMonitor = cms.vstring( 'DQM_FEDIntegrity_v2',
     'HLT_Activity_CSC',
