@@ -18,6 +18,7 @@
 #include <stdio.h>
 
 #include <fstream>
+#include <iomanip>
 
 #include "DataFormats/EcalDigi/interface/EcalMatacqDigi.h"
 
@@ -46,6 +47,21 @@ int MatacqProducer::orbitTolerance_ = 80;
 
 MatacqProducer::stats_t MatacqProducer::stats_init = {0,0,0};
 
+static std::string now(){
+  struct timeval t;
+  gettimeofday(&t, 0);
+ 
+  char buf[256];
+  strftime(buf, sizeof(buf), "%F %R %S s", localtime(&t.tv_sec));
+  buf[sizeof(buf)-1] = 0;
+
+  stringstream buf2;
+  buf2 << buf << " " << ((t.tv_usec+500)/1000)  << " ms";
+
+  return buf2.str();
+}
+
+
 MatacqProducer::MatacqProducer(const edm::ParameterSet& params):
   fileNames_(params.getParameter<std::vector<std::string> >("fileNames")),
   digiInstanceName_(params.getParameter<string>("digiInstanceName")),
@@ -69,8 +85,26 @@ MatacqProducer::MatacqProducer(const edm::ParameterSet& params):
   inFileName_(""),
   stats_(stats_init),
   logFileName_(params.getUntrackedParameter<std::string>("logFileName",
-							 "matacqProducer.log")){
-  if(verbosity_>=4) cout << "[Matacq] in MatacqProducer ctor"  << endl;
+							 "matacqProducer.log")),
+  eventSkipCounter_(0),
+  onErrorDisablingEvtCnt_(params.getParameter<int>("onErrorDisablingEvtCnt")),
+  timeLogFile_(params.getUntrackedParameter<std::string>("timeLogFile", "")),
+  runNumber_(0)
+{
+  if(verbosity_>=4) cout << "[Matacq " << now() << "] in MatacqProducer ctor"  << endl;
+  
+  gettimeofday(&timer_, 0);
+
+  if(timeLogFile_.size()>0){
+    timeLog_.open(timeLogFile_.c_str());
+    if(timeLog_.fail()){
+      cout << "[LaserSorter " << now() << "] "
+           << "Failed to open file " << timeLogFile_ << " to log timing.\n";
+      logTiming_ = false;
+    } else{
+      logTiming_ = true;
+    }
+  }
   
   posEstim_.verbosity(verbosity_);
 
@@ -82,14 +116,14 @@ MatacqProducer::MatacqProducer(const edm::ParameterSet& params):
   }
 
   if(produceDigis_){
-    if(verbosity_>0) cout << "[Matacq] registering new "
+    if(verbosity_>0) cout << "[Matacq " << now() << "] registering new "
                        "EcalMatacqDigiCollection product with instance name '"
                           << digiInstanceName_ << "'\n";
     produces<EcalMatacqDigiCollection>(digiInstanceName_);
   }
   
   if(produceRaw_){
-    if(verbosity_>0) cout << "[Matacq] registering new FEDRawDataCollection "
+    if(verbosity_>0) cout << "[Matacq " << now() << "] registering new FEDRawDataCollection "
                        "product with instance name '"
                           << rawInstanceName_ << "'\n";
     produces<FEDRawDataCollection>(rawInstanceName_);
@@ -102,17 +136,40 @@ MatacqProducer::MatacqProducer(const edm::ParameterSet& params):
   } else{
     doOrbitOffset_ = false;
   }
-  if(verbosity_>=4) cout << "[Matacq] exiting MatacqProducer ctor"  << endl;
+  if(verbosity_>=4) cout << "[Matacq " << now() << "] exiting MatacqProducer ctor"  << endl;
 }
 
 
 void
 MatacqProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup){
-  if(verbosity_>=4) cout << "[Matacq] in MatacqProducer::produce"  << endl;
+  if(verbosity_>=4) cout << "[Matacq " << now() << "] in MatacqProducer::produce"  << endl;
+  if(logTiming_){
+    timeval t;
+    gettimeofday(&t, 0);
+
+    timeLog_ << t.tv_sec << "."
+             << setfill('0') << setw(3) << (t.tv_usec+500)/1000 << setfill(' ')<< "\t"
+             << (t.tv_usec - timer_.tv_usec)*1. 
+      + (t.tv_sec - timer_.tv_sec)*1.e6 << "\t";
+    timer_ = t;
+  } 
+ 
   if(startTime_.tv_sec==0) gettimeofday(&startTime_, 0);
   ++stats_.nEvents;  
   if(disabled_) return;
+  const uint32_t runNumber = getRunNumber(event);
+  if(runNumber!=runNumber_){
+    newRun(runNumber_, runNumber);
+  }
   addMatacqData(event);
+
+  if(logTiming_){
+    timeval t;
+      gettimeofday(&t, 0);
+      timeLog_ << (t.tv_usec - timer_.tv_usec)*1. 
+        + (t.tv_sec - timer_.tv_sec)*1.e6 << "\n";
+      timer_ = t;
+  }
 }
 
 void
@@ -136,84 +193,104 @@ MatacqProducer::addMatacqData(edm::Event& event){
   
   std::auto_ptr<EcalMatacqDigiCollection>
     digiColl(new EcalMatacqDigiCollection());
+  
+  if(eventSkipCounter_==0){
+    if(sourceColl->FEDData(matacqFedId_).size()>4 && !produceRaw_){
+      //input raw data collection already contains matacqData
+      formatter_.interpretRawData(sourceColl->FEDData(matacqFedId_),
+				  *digiColl);             
+    } else{
+      bool isLaserEvent = (getCalibTriggerType(event) == laserType);
 
-  if(sourceColl->FEDData(matacqFedId_).size()>4 && !produceRaw_){
-    //input raw data collection already contains matacqData
-    formatter_.interpretRawData(sourceColl->FEDData(matacqFedId_),
-                                *digiColl);             
-  } else{
-    bool isLaserEvent = (getCalibTriggerType(event) == laserType);
-    if(isLaserEvent || ignoreTriggerType_){
 
-      const uint32_t runNumber = getRunNumber(event);
-      const uint32_t orbitId   = getOrbitId(event);
-
-      LogInfo("Matacq") << "Run " << runNumber << "\t Orbit " << orbitId << "\n";
-    
-      bool fileChange;
-      uint32_t offset = 0;
-      if(doOrbitOffset_){
-        map<uint32_t,uint32_t>::iterator it = orbitOffset_.find(runNumber);
-        if(it == orbitOffset_.end()){
-          LogWarning("IncorrectLaserEvent") << "Orbit offset not found for run "
-                               << runNumber
-                               << ". No orbit correction will be applied.";
-        } else{
-          offset = it->second;
-        }
-      }    
+      //      cout << "---> " << (ignoreTriggerType_?"yes":"no") << " " << getCalibTriggerType(event) << endl;
       
-      if(getMatacqFile(runNumber, orbitId, &fileChange)){
-        //matacq file retrieval succeeded
-        LogInfo("Matacq") << "Matacq data file found for "
-                          << "run " << runNumber << " orbit " << orbitId;
-        if(getMatacqEvent(runNumber, orbitId, fileChange)){
-          if(produceDigis_){
-            formatter_.interpretRawData(matacq_, *digiColl);
-          }
-          if(produceRaw_){
-            uint32_t dataLen64 = matacq_.getParsedLen();
-            if(dataLen64 > bufferSize*8 || matacq_.getDccLen()!= dataLen64){
-              LogWarning("IncorrectLaserEvent") << " Error in Matacq event fragment length! "
-                                   << "DCC len: " << matacq_.getDccLen()
-                                   << "*8 Bytes, Parsed len: "
-                                   << matacq_.getParsedLen() << "*8 Bytes.  "
-                                   << "Matacq data will not be included for this event.\n";
-            } else{
-              rawColl->FEDData(matacqFedId_).resize(dataLen64*8);
-              copy(data_.begin(), data_.begin() + dataLen64*8,
-                   rawColl->FEDData(matacqFedId_).data());
-            }
-          }
-          LogInfo("Matacq") << "Associating matacq data with orbit id "
-                            << matacq_.getOrbitId()
-                            << " to dcc event with orbit id "
-                            << orbitId << std::endl;
-	  if(isLaserEvent){
-	    ++stats_.nLaserEventsWithMatacq;
+      if(isLaserEvent || ignoreTriggerType_){
+	
+	const uint32_t runNumber = getRunNumber(event);
+	const uint32_t orbitId   = getOrbitId(event);
+      
+	LogInfo("Matacq") << "Run " << runNumber << "\t Orbit " << orbitId << "\n";
+      
+	bool fileChange;
+	uint32_t offset = 0;
+	if(doOrbitOffset_){
+	  map<uint32_t,uint32_t>::iterator it = orbitOffset_.find(runNumber);
+	  if(it == orbitOffset_.end()){
+	    LogWarning("Matacq") << "Orbit offset not found for run "
+				 << runNumber
+				 << ". No orbit correction will be applied.";
 	  } else{
-	    ++stats_.nNonLaserEventsWithMatacq;
+	    offset = it->second;
 	  }
-        } else{
-          LogWarning("IncorrectLaserEvent") << "No matacq data found for "
-                               << "run " << runNumber << " orbit " << orbitId;
-        }
-      } else{
-        LogWarning("IncorrectLaserEvent") << "No matacq file found for event "
-                             << event.id();
+	}    
+      
+	if(getMatacqFile(runNumber, orbitId, &fileChange)){
+	  //matacq file retrieval succeeded
+	  LogInfo("Matacq") << "Matacq data file found for "
+			    << "run " << runNumber << " orbit " << orbitId;
+	  if(getMatacqEvent(runNumber, orbitId, fileChange)){
+	    if(produceDigis_){
+	      formatter_.interpretRawData(matacq_, *digiColl);
+	    }
+	    if(produceRaw_){
+	      uint32_t dataLen64 = matacq_.getParsedLen();
+	      if(dataLen64 > bufferSize*8 || matacq_.getDccLen()!= dataLen64){
+		LogWarning("Matacq") << " Error in Matacq event fragment length! "
+				     << "DCC len: " << matacq_.getDccLen()
+				     << "*8 Bytes, Parsed len: "
+				     << matacq_.getParsedLen() << "*8 Bytes.  "
+				     << "Matacq data will not be included for this event.\n";
+	      } else{
+		rawColl->FEDData(matacqFedId_).resize(dataLen64*8);
+		copy(data_.begin(), data_.begin() + dataLen64*8,
+		     rawColl->FEDData(matacqFedId_).data());
+	      }
+	    }
+	    LogInfo("Matacq") << "Associating matacq data with orbit id "
+			      << matacq_.getOrbitId()
+			      << " to dcc event with orbit id "
+			      << orbitId << std::endl;
+	    if(isLaserEvent){
+	      ++stats_.nLaserEventsWithMatacq;
+	    } else{
+	      ++stats_.nNonLaserEventsWithMatacq;
+	    }
+	  } else{
+	    if(isLaserEvent){
+	      LogWarning("Matacq") << "No matacq data found for laser event "
+				   << "of run " << runNumber << " orbit "
+				   << orbitId;
+	    }
+	  }
+	} else{
+	  LogWarning("Matacq") << "No matacq file found for event "
+			       << event.id();
+	}
       }
     }
+    if(eventSkipCounter_>0){ //error occured for this events
+      //                       and some events will be skipped following
+      //                       to this error.
+      LogInfo("Matacq") << " [" << now() << "] "
+			<< eventSkipCounter_
+			<< " next events will be skipped, following to an "
+			<< "error on the last processed event, "
+			<< "which is expected to be persistant.";
+    }
+  } else{
+    --eventSkipCounter_;
   }
   
   if(produceRaw_){
-    if(verbosity_>1) cout << "[Matacq] "
+    if(verbosity_>1) cout << "[Matacq " << now() << "] "
                           << "Adding FEDRawDataCollection collection "
                           << " to event.\n";
     event.put(rawColl, rawInstanceName_);
   }
 
   if(produceDigis_){
-    if(verbosity_>1) cout << "[Matacq] "
+    if(verbosity_>1) cout << "[Matacq " << now() << "] "
                           << "Adding EcalMatacqDigiCollection collection "
                           << " to event.\n";
     event.put(digiColl, digiInstanceName_);
@@ -280,7 +357,7 @@ MatacqProducer::getMatacqEvent(uint32_t runNumber,
     if(startOrb<0) startOrb = 0;
   } else{
     if(verbosity_>2){
-      cout << "[Matacq] Failed to read matacq header. Moved to start of "
+      cout << "[Matacq " << now() << "] Failed to read matacq header. Moved to start of "
 	" the file.\n";
     }
     mrewind();
@@ -288,19 +365,21 @@ MatacqProducer::getMatacqEvent(uint32_t runNumber,
       startPos = 0;
       startOrb = MatacqRawEvent::getOrbitId(&data_[0], headerSize);
     } else{
-      if(verbosity_>2) cout << "[Matacq] Looks like matacq file is empty"
+      if(verbosity_>2) cout << "[Matacq " << now() << "] Looks like matacq file is empty"
                             << "\n";
       return false;
     }
   }
   
-  if(verbosity_>2) cout << "[Matacq] Last read orbit: " << lastOrb_
+  if(verbosity_>2) cout << "[Matacq " << now() << "] Last read orbit: " << lastOrb_
                         << " looking for orbit " << orbitId
                         << ". Current file position: " << startPos
                         << " Orbit at current position: " << startOrb << "\n";
   
   //  f.clear();
   bool didCoarseMove = false;
+
+  //FIXME: case where posEtim_.invalid() is false
   if(!posEstim_.invalid()
      && (abs(lastOrb_-orbitId) > fastRetrievalThresh_)){
     filepos_t pos = posEstim_.pos(orbitId);
@@ -316,15 +395,15 @@ MatacqProducer::getMatacqEvent(uint32_t runNumber,
 	int64_t evtSize = posEstim_.eventLength()*sizeof(uint64_t);
 	pos = ((int64_t)fsize/evtSize-1)*evtSize;
 	if(verbosity_>2){
-	  cout << "[Matacq] Estimated position was beyond end of file. "
+	  cout << "[Matacq " << now() << "] Estimated position was beyond end of file. "
 	    "Changed to " << pos << "\n";
 	}
       }
     } else{
-      LogWarning("IncorrectConfiguration") << "Failed to access file " << inFileName_ << ".";
+      LogWarning("Matacq") << "Failed to access file " << inFileName_ << ".";
     }
     if(pos>=0){
-      if(verbosity_>2) cout << "[Matacq] jumping to estimated position "
+      if(verbosity_>2) cout << "[Matacq " << now() << "] jumping to estimated position "
 			    << pos << "\n";
       mseek(pos, SEEK_SET, "Jumping to estimated event position");
       if(mread((char*)&data_[0], headerSize, "Reading matacq header", true)){
@@ -338,7 +417,7 @@ MatacqProducer::getMatacqEvent(uint32_t runNumber,
 	}
       }
     } else{
-      if(verbosity_) cout << "[Matacq] Event orbit outside of orbit range "
+      if(verbosity_) cout << "[Matacq " << now() << "] Event orbit outside of orbit range "
 		       "of matacq data file events\n";
       return false;
     }
@@ -349,7 +428,7 @@ MatacqProducer::getMatacqEvent(uint32_t runNumber,
   if(didCoarseMove){
     //autoadjustement of threshold for coarse move:
     if(abs(orb-orbitId) > fastRetrievalThresh_){
-      if(verbosity_>2) cout << "[Matacq] Fast retrieval threshold increased from "
+      if(verbosity_>2) cout << "[Matacq " << now() << "] Fast retrieval threshold increased from "
                             << fastRetrievalThresh_;
       fastRetrievalThresh_ = 2*abs(orb-orbitId);
       if(verbosity_>2) cout << " to " << fastRetrievalThresh_ << "\n";
@@ -358,7 +437,7 @@ MatacqProducer::getMatacqEvent(uint32_t runNumber,
     //if coarse move did not improve situation, rolls back:
     if(startOrb > 0
        && (abs(orb-orbitId) > abs(startOrb-orbitId))){
-      if(verbosity_>2) cout << "[Matacq] Estimation (-> orbit " << orb << ") "
+      if(verbosity_>2) cout << "[Matacq " << now() << "] Estimation (-> orbit " << orb << ") "
                          "was worst than original position (-> orbit "
                             << startOrb
                             << "). Restoring position (" << startPos << ").\n";
@@ -374,7 +453,7 @@ MatacqProducer::getMatacqEvent(uint32_t runNumber,
   int len = (int)MatacqRawEvent::getDccLen(&data_[0], headerSize);
 
   if(len==0){
-    cout << "[Matacq] read DCC length is null! Cancels matacq event search "
+    cout << "[Matacq " << now() << "] read DCC length is null! Cancels matacq event search "
 	 << " and move matacq file pointer to beginning of the file. "
 	 << "(" << __FILE__ << ":" << __LINE__ << ")."
 	 << "\n";
@@ -392,7 +471,7 @@ MatacqProducer::getMatacqEvent(uint32_t runNumber,
     if(verbosity_>3){
       filepos_t pos;
       mtell(pos);
-      cout << "[Matacq] Header read at file position "
+      cout << "[Matacq " << now() << "] Header read at file position "
 	   << pos
 	   << ":  orbit = " << orb
 	   << " len = " << len << "x8 Byte"
@@ -406,25 +485,27 @@ MatacqProducer::getMatacqEvent(uint32_t runNumber,
       if((int)data_.size() < len*8){
 	throw cms::Exception("Matacq") << "Buffer overflow";
       }
-      if(verbosity_>2) cout << "[Matacq] Event found. Reading "
+      if(verbosity_>2) cout << "[Matacq " << now() << "] Event found. Reading "
                          " matacq event." << "\n";
       if(!mread((char*)&data_[0], len*8, "Reading matacq event")){
-	if(verbosity_>2) cout << "[Matacq] Failed to read matacq event."
+	if(verbosity_>2) cout << "[Matacq " << now() << "] Failed to read matacq event."
                               << "\n";
 	state = failed;
       }
       matacq_ = MatacqRawEvent((unsigned char*)&data_[0], len*8);
     } else {
       if((searchBackward && (orb < orbitId))
-	 || (!searchBackward && orb > orbitId)){ //search ended
+	 || (!searchBackward && (orb > orbitId))){ //search ended
 	lastOrb_ = orb;      
 	state = failed;
-	if(verbosity_) cout << "[Matacq] Event search failed." << "\n";
+	if(verbosity_>2) cout << "[Matacq " << now()
+			    << "] No matacq data found for run " << run
+			    << ", orbit ID " << orbitId << "." << "\n";
       } else{
 	off_t offset = (searchBackward?-len:len)*8;
 	lastOrb_ = orb;	
 	if(verbosity_>3){
-	  cout << "[Matacq] In matacq file, moving "
+	  cout << "[Matacq " << now() << "] In matacq file, moving "
 	       << abs(offset) << " byte " << (offset>0?"forward":"backward")
 	       << ".\n";
 	}	
@@ -450,7 +531,7 @@ MatacqProducer::getMatacqEvent(uint32_t runNumber,
     msize(fsize);
     if(pos==fsize-1){ //last byte.
       if(verbosity_>2){
-	cout << "[Matacq] Event found was at the end of the file. Moving "
+	cout << "[Matacq " << now() << "] Event found was at the end of the file. Moving "
 	  "stream position to beginning of this event."
 	     << "\n";
       }
@@ -484,8 +565,9 @@ MatacqProducer::getMatacqFile(uint32_t runNumber, uint32_t orbitId,
 				  runSubDir(runNumber));
     boost::algorithm::replace_all(fname, "%run_number%", sRunNumber);
 
-    if(verbosity_) cout << "[Matacq] Looking for a file with path "
-			<< fname << "\n";
+    if(verbosity_>0) cout << "[Matacq " << now() << "] "
+			  << "Looking for a file with path "
+			  << fname << "\n";
     
     if(mcheck(fname)){
       LogInfo("Matacq") << "Uses matacq data file: '" << fname << "'\n";
@@ -493,13 +575,17 @@ MatacqProducer::getMatacqFile(uint32_t runNumber, uint32_t orbitId,
     }
   }
   if(!found){
+    if(verbosity_>=0) cout << "[Matacq " << now() << "] no matacq file found "
+			"for run " << runNumber << "\n";
+    eventSkipCounter_ = onErrorDisablingEvtCnt_;
     openedFileRunNumber_ = 0;
     if(fileChange!=0) *fileChange = false;
     return 0;
   }
   
   if(!mopen(fname)){
-    LogWarning("IncorrectConfiguration") << "Failed to open file " << fname << "\n";
+    LogWarning("Matacq") << "Failed to open file " << fname << "\n";
+    eventSkipCounter_ = onErrorDisablingEvtCnt_;
     openedFileRunNumber_ = 0;
     if(fileChange!=0) *fileChange = false;
     return false;
@@ -543,7 +629,7 @@ uint32_t MatacqProducer::getOrbitId(edm::Event& ev) const{
       if(orbit!=0 && thisOrbit!=0 && abs(orbit-thisOrbit)>orbitTolerance_){
 	//throw cms::Exception("EventCorruption")
 	//  << "Orbit ID inconsitency in DCC headers";
-	LogWarning("IncorrectEvent")
+	LogWarning("EventCorruption")
 	  << "Orbit ID inconsitency in DCC headers";
 	orbit = 0;
 	break;
@@ -555,7 +641,7 @@ uint32_t MatacqProducer::getOrbitId(edm::Event& ev) const{
   if(orbit==0){
     //    throw cms::Exception("NotFound")
     //  << "Failed to retrieve orbit ID of event "<< ev.id();
-    LogWarning("IncorrectEvent") << "Failed to retrieve orbit ID of event "
+    LogWarning("NotFound") << "Failed to retrieve orbit ID of event "
 				<< ev.id();
   }
   return orbit;
@@ -584,12 +670,12 @@ int MatacqProducer::getCalibTriggerType(edm::Event& ev) const{
   int tType = stat.result(&p);
   if(p<0){
     //throw cms::Exception("NotFound") << "No ECAL DCC data found\n";
-    LogWarning("IncorrectEvent")  << "No ECAL DCC data found\n";
+    LogWarning("NotFound")  << "No ECAL DCC data found\n";
     tType = -1;
   }
   if(p<.8){
     //throw cms::Exception("EventCorruption") << "Inconsitency in detailed trigger type indicated in ECAL DCC data headers\n";
-    LogWarning("IncorrectEvent") << "Inconsitency in detailed trigger type indicated in ECAL DCC data headers\n";
+    LogWarning("EventCorruption") << "Inconsitency in detailed trigger type indicated in ECAL DCC data headers\n";
     tType = -1;
   }
   return tType;
@@ -601,13 +687,13 @@ void MatacqProducer::PosEstimator::init(MatacqProducer* mp){
   const size_t headerSize = 8*8;
   unsigned char data[headerSize];
   if(!mp->mread((char*)data, headerSize)){
-    if(verbosity_) cout << "[Matacq] reached end of file!\n"; 
+    if(verbosity_) cout << "[Matacq " << now() << "] reached end of file!\n"; 
     firstOrbit_ = eventLength_ = orbitStepMean_ = 0;
     return;
   } else{
     firstOrbit_ = MatacqRawEvent::getOrbitId(data, headerSize);
     eventLength_ = MatacqRawEvent::getDccLen(data, headerSize);
-    if(verbosity_>1) cout << "[Matacq] First event orbit: " << firstOrbit_
+    if(verbosity_>1) cout << "[Matacq " << now() << "] First event orbit: " << firstOrbit_
                           << " event length: " << eventLength_
                           << "*8 byte\n";
   }
@@ -615,7 +701,7 @@ void MatacqProducer::PosEstimator::init(MatacqProducer* mp){
   mp->mrewind();
   
   if(eventLength_==0){    
-    if(verbosity_) cout << "[Matacq] event length is null!" << endl; 
+    if(verbosity_) cout << "[Matacq " << now() << "] event length is null!" << endl; 
     return;
   }
 
@@ -626,12 +712,12 @@ void MatacqProducer::PosEstimator::init(MatacqProducer* mp){
   const unsigned nEvents = s/eventLength_/8;
 
   if(nEvents==0){
-    if(verbosity_) cout << "[Matacq] File is empty!" << endl;
+    if(verbosity_) cout << "[Matacq " << now() << "] File is empty!" << endl;
     orbitStepMean_ = 0;
     return;
   }
 
-  if(verbosity_>1) cout << "[Matacq] File size: " << s
+  if(verbosity_>1) cout << "[Matacq " << now() << "] File size: " << s
                         << " Number of events: " << nEvents << endl;
   
   //position of last complete events:
@@ -639,7 +725,7 @@ void MatacqProducer::PosEstimator::init(MatacqProducer* mp){
   mp->mseek(last, SEEK_SET, "Moving to beginning of last complete "
 	    "matacq event");
   if(!mp->mread((char*) data, headerSize, "Reading matacq header", true)){
-    LogWarning("IncorrectLaserEvent") << "Fast matacq event retrieval failure. "
+    LogWarning("Matacq") << "Fast matacq event retrieval failure. "
       "Falling back to safe retrieval mode.";
     orbitStepMean_ = 0;
   }
@@ -647,23 +733,24 @@ void MatacqProducer::PosEstimator::init(MatacqProducer* mp){
   int32_t lastOrb = MatacqRawEvent::getOrbitId(data, headerSize);
   int32_t lastLen = MatacqRawEvent::getDccLen(data, headerSize);
 
-  if(verbosity_>1) cout << "[Matacq] Last event orbit: " << lastOrb
+  if(verbosity_>1) cout << "[Matacq " << now() << "] Last event orbit: " << lastOrb
                         << " last event length: " << lastLen << endl;
   
   //some consistency check
   if(lastLen!=eventLength_){
-    LogWarning("IncorrectLaserEvent")
+    LogWarning("Matacq")
+      //throw cms::Exception("Matacq")
       << "Fast matacq event retrieval failure: it looks like "
-      "the matacq file contains events of different sizes. Falling back to "
-      "safe retrieval mode.";
-    invalid_ = true;
-    orbitStepMean_ = 0;
+      "the matacq file contains events of different sizes.";
+      //      " Falling back to safe retrieval mode.";
+    invalid_ = false; //true;
+    orbitStepMean_ = 112; //0;
     return;
   }
 
   orbitStepMean_ = (lastOrb - firstOrbit_)/nEvents;
   
-  if(verbosity_>1) cout << "[Matacq] Orbit step mean: " << orbitStepMean_
+  if(verbosity_>1) cout << "[Matacq " << now() << "] Orbit step mean: " << orbitStepMean_
                         << "\n";
 
   invalid_ = false;
@@ -674,7 +761,7 @@ int64_t MatacqProducer::PosEstimator::pos(int orb) const{
   uint64_t r = orbitStepMean_!=0?
     (((uint64_t)(orb-firstOrbit_))/orbitStepMean_)*eventLength_*8
     :0;
-  if(verbosity_>2) cout << "[Matacq] Estimated Position for orbit  " << orb
+  if(verbosity_>2) cout << "[Matacq " << now() << "] Estimated Position for orbit  " << orb
                         << ": " << r << endl;
   return r;
 }
@@ -683,19 +770,13 @@ MatacqProducer::~MatacqProducer(){
   mclose();
   timeval t;
   gettimeofday(&t, 0);
-  if(timing_ && startTime_.tv_sec!=0){
+  if(logTiming_ && startTime_.tv_sec!=0){
     //not using logger, to allow timing with different logging options
-    cout << "[Matacq] Time elapsed between first event and "
+    cout << "[Matacq " << now() << "] Time elapsed between first event and "
       "destruction of MatacqProducer: "
 	 << ((t.tv_sec-startTime_.tv_sec)*1.
 	     + (t.tv_usec-startTime_.tv_usec)*1.e-6) << "s\n";
   }
-  logFile_ << "Event count: "
-	   << "total: " << stats_.nEvents << ", "
-	   << "Laser event with Matacq data: "
-	   << stats_.nLaserEventsWithMatacq << ", "
-	   << "Non laser event (according to DCC header) with Matacq data: "
-	   << stats_.nNonLaserEventsWithMatacq << "\n";
 }
 
 void MatacqProducer::loadOrbitOffset(){
@@ -706,7 +787,7 @@ void MatacqProducer::loadOrbitOffset(){
       << orbitOffsetFile_ << "'\n";
   }
 
-  cout << "[Matacq] "
+  cout << "[Matacq " << now() << "] "
        << "Offset to substract to Matacq events Orbit ID: \n"
        << "#Run Number\t Offset\n";
 
@@ -751,10 +832,13 @@ bool MatacqProducer::mseek(filepos_t offset, int whence, const char* mess){
     inFile_->position(offset, wh);
   } catch(cms::Exception& e){
     if(verbosity_){
-      cout << "[Matacq] ";
+      cout << "[Matacq " << now() << "] ";
       if(mess) cout << mess << ". ";
-      cout << "Random access error on input matacq file. "
-        "Reopening file. " << e.what() << "\n";
+      cout << "Random access error on input matacq file. ";
+      if(whence==SEEK_SET) cout << "Failed to seek absolute position " << offset;
+      else if(whence==SEEK_CUR) cout << "Failed to move " << offset << " bytes forward";
+      else if(whence==SEEK_END) cout << "Failed to seek position at " << offset << " bytes before end of file";
+	cout << ". Reopening file. " << e.what() << "\n";
       mopen(inFileName_);
       return false;
     }
@@ -779,7 +863,7 @@ bool MatacqProducer::mread(char* buf, size_t n, const char* mess, bool peek){
     rc =  (n==inFile_->xread(buf, n));
   } catch(cms::Exception& e){
     if(verbosity_){
-      cout << "[Matacq] ";
+      cout << "[Matacq " << now() << "] ";
       if(mess) cout << mess << ". ";
       cout << "Read failure from input matacq file: "
            << e.what() << "\n";
@@ -829,7 +913,7 @@ bool MatacqProducer::mopen(const std::string& name){
                                                       IOFlags::OpenRead));
     inFileName_ = name;
   } catch(cms::Exception& e){
-    LogWarning("IncorrectConfiguration") << e.what();
+    LogWarning("Matacq") << e.what();
     inFile_.reset();
     inFileName_ = "";
     return false;
@@ -858,7 +942,7 @@ bool MatacqProducer::mseek(off_t offset, int whence, const char* mess){
   if(0==inFile_) return false;
   const int rc = fseeko(inFile_, offset, whence);
   if(rc!=0 && verbosity_){
-    cout << "[Matacq] ";
+    cout << "[Matacq " << now() << "] ";
     if(mess) cout << mess << ". ";
     cout << "Random access error on input matacq file. "
       "Rewind file.\n";
@@ -880,7 +964,7 @@ bool MatacqProducer::mread(char* buf, size_t n, const char* mess, bool peek){
   bool rc = (pos!=-1) && (1==fread(buf, n, 1, inFile_));
   if(!rc){
     if(verbosity_){
-      cout << "[Matacq] ";
+      cout << "[Matacq " << now() << "] ";
       if(mess) cout << mess << ". ";
       cout << "Read failure from input matacq file.\n";
     }
@@ -889,7 +973,7 @@ bool MatacqProducer::mread(char* buf, size_t n, const char* mess, bool peek){
   if(peek || !rc){//need to restore file position
     if(0!=fseeko(inFile_, pos, SEEK_SET)){
       if(verbosity_){
-	cout << "[Matacq] ";
+	cout << "[Matacq " << now() << "] ";
 	if(mess) cout << mess << ". ";
 	cout << "Failed to restore file position of "
 	  "before read error. Rewind file.\n";
@@ -923,6 +1007,14 @@ bool MatacqProducer::mrewind(){
 bool MatacqProducer::mcheck(const std::string& name){
   struct stat dummy;
   return 0==stat(name.c_str(), &dummy);
+//   if(stat(name.c_str(), &dummy)==0){
+//     return true;
+//   } else{
+//     cout << "[Matacq " << now() << "] Failed to stat file '"
+// 	 << name.c_str() << "'. " 
+// 	 << "Error " << errno << ": " << strerror(errno) << "\n";
+//     return false;
+//   }
 }
 
 bool MatacqProducer::mopen(const std::string& name){
@@ -958,4 +1050,22 @@ std::string MatacqProducer::runSubDir(uint32_t runNumber){
   int thousands = (runNumber-millions*1000*1000) / 1000;
   int units = runNumber-millions*1000*1000 - thousands*1000;
   return str(boost::format("%03d/%03d/%03d") % millions % thousands % units);
+}
+
+void MatacqProducer::newRun(int prevRun, int newRun){
+    runNumber_ = newRun;
+    eventSkipCounter_ = 0;
+    logFile_ << "[" << now() << "] Event count for run "
+	     << runNumber_ << ": "
+	     << "total: " << stats_.nEvents << ", "
+	     << "Laser event with Matacq data: "
+	     << stats_.nLaserEventsWithMatacq << ", "
+	     << "Non laser event (according to DCC header) with Matacq data: "
+	     << stats_.nNonLaserEventsWithMatacq << "\n" << flush;
+
+    stats_.nEvents = 0;
+    stats_.nLaserEventsWithMatacq = 0;
+    stats_.nNonLaserEventsWithMatacq = 0;
+
+    
 }
