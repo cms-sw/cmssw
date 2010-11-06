@@ -119,15 +119,6 @@ class LMFDat : public LMFUnique {
   void dump() const ;
   void dump(int n) const ;
   virtual void dump(int n, int max) const ;
-<<<<<<< LMFDat.h
-  virtual std::map<int, std::vector<float> > fetchData() throw(runtime_error);
-  void fetch() throw(runtime_error);
-  void fetch(int logic_id) throw(runtime_error);
-  void fetch(int logic_id, const Tm &tm) throw(runtime_error);
-  void fetch(int logic_id, const Tm *timestamp, int dir) throw(runtime_error);
-  void fetch(const EcalLogicID &id, const Tm &tm) throw(runtime_error);
-  void fetch(const EcalLogicID &id, const Tm &tm, int dir) throw(runtime_error);
-=======
   virtual int fetchData() throw(std::runtime_error);
   void fetch() throw(std::runtime_error);
   void fetch(int logic_id) throw(std::runtime_error);
@@ -135,7 +126,6 @@ class LMFDat : public LMFUnique {
   void fetch(int logic_id, const Tm *timestamp, int dir) throw(std::runtime_error);
   void fetch(const EcalLogicID &id, const Tm &tm) throw(std::runtime_error);
   void fetch(const EcalLogicID &id, const Tm &tm, int dir) throw(std::runtime_error);
->>>>>>> 1.5
   void fetch(const EcalLogicID &id) 
     throw(std::runtime_error);
 
