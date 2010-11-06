@@ -18,7 +18,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContentHeavyIons_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('centralSkimsHI nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -30,14 +30,14 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('/store/hidata/HIRun2010/HIAllPhysics/RECO/PromptReco-v1/000/150/063/B497BEDB-8BE8-DF11-B09D-0030487A18F2.root'),
     secondaryFileNames = cms.untracked.vstring("/store/hidata/HIRun2010/HIAllPhysics/RAW/v1/000/150/063/1C76D53B-88E8-DF11-B7D1-0030487CD812.root"),
-    eventsToProcess = cms.untracked.VEventRange('150063:517644-150063:517644'),
+    #eventsToProcess = cms.untracked.VEventRange('150063:517644-150063:517644'),
 )
 
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True)
+    #wantSummary = cms.untracked.bool(True)
 )
 
-process.Timing = cms.Service("Timing")
+#process.Timing = cms.Service("Timing")
 
 # Output definition
 
