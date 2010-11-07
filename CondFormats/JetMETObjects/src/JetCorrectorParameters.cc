@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.cc,v 1.15 2010/11/03 22:25:33 srappocc Exp $
+// $Id: JetCorrectorParameters.cc,v 1.16 2010/11/05 16:02:33 srappocc Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -302,25 +302,25 @@ void JetCorrectorParameters::printFile(const std::string& fFileName) const
   std::ofstream txtFile;
   txtFile.open(fFileName.c_str());
   txtFile.setf(std::ios::right);
-  txtFile<<"{"<<definitions().nBinVar()<<std::setw(11);
+  txtFile<<"{"<<definitions().nBinVar()<<std::setw(15);
   for(unsigned i=0;i<definitions().nBinVar();i++)
-    txtFile<<definitions().binVar(i)<<std::setw(11);
-  txtFile<<definitions().nParVar()<<std::setw(11);
+    txtFile<<definitions().binVar(i)<<std::setw(15);
+  txtFile<<definitions().nParVar()<<std::setw(15);
   for(unsigned i=0;i<definitions().nParVar();i++)
-    txtFile<<definitions().parVar(i)<<std::setw(11);
-  txtFile<<std::setw(definitions().formula().size()+11)<<definitions().formula()<<std::setw(11);
+    txtFile<<definitions().parVar(i)<<std::setw(15);
+  txtFile<<std::setw(definitions().formula().size()+15)<<definitions().formula()<<std::setw(15);
   if (definitions().isResponse())
-    txtFile<<"Response"<<std::setw(11);
+    txtFile<<"Response"<<std::setw(15);
   else
-    txtFile<<"Correction"<<std::setw(11);
+    txtFile<<"Correction"<<std::setw(15);
   txtFile<<definitions().level()<<"}"<<"\n";
   for(unsigned i=0;i<size();i++)
     {
       for(unsigned j=0;j<definitions().nBinVar();j++)
-        txtFile<<record(i).xMin(j)<<std::setw(11)<<record(i).xMax(j)<<std::setw(11);
-      txtFile<<record(i).nParameters()<<std::setw(11);
+        txtFile<<record(i).xMin(j)<<std::setw(15)<<record(i).xMax(j)<<std::setw(15);
+      txtFile<<record(i).nParameters()<<std::setw(15);
       for(unsigned j=0;j<record(i).nParameters();j++)
-        txtFile<<record(i).parameter(j)<<std::setw(11);
+        txtFile<<record(i).parameter(j)<<std::setw(15);
       txtFile<<"\n";
     }
   txtFile.close();
