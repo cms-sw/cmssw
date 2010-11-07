@@ -1,13 +1,16 @@
 #ifndef PFClusterShapeProducer_PFClusterWidthAlgo_H
 #define PFClusterShapeProducer_PFClusterWidthAlgo_H
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 class PFClusterWidthAlgo
 {
  public:
   //constructor
-  PFClusterWidthAlgo(const std::vector<const reco::PFCluster* >& pfclust);
+  PFClusterWidthAlgo(const std::vector<const reco::PFCluster* >& pfclust,
+		     const EBRecHitCollection * ebRecHits=0,
+		     const EERecHitCollection * eeRecHits=0);
+
   
   //destructor
   ~PFClusterWidthAlgo();
