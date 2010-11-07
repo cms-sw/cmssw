@@ -54,7 +54,7 @@ class SiStripAPVRestorer {
   template<typename T >int16_t BaselineFollowerInspect(std::vector<T>&);
   template<typename T >int16_t BaselineAndSaturationInspect(std::vector<T>&);
   template<typename T >void FlatRestore( std::vector<T>& , uint16_t);
-  template<typename T >void BaselineFollowerRestore( std::vector<T>&, uint16_t, uint16_t );
+  template<typename T >void BaselineFollowerRestore( std::vector<T>&, uint16_t, float );
   
   void BaselineFollower(DigiMap&, std::vector<int16_t>&, float);
   bool FlatRegionsFinder(std::vector<int16_t>&, DigiMap&, float , uint16_t);

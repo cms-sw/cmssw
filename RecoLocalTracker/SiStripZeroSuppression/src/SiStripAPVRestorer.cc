@@ -83,7 +83,7 @@ void SiStripAPVRestorer::restore( std::vector<int16_t>& digis, const std::vector
       if(algoToUse=="Flat"){
 	this->FlatRestore(digis, APV);
       }else if(algoToUse=="BaselineFollower"){
-	uint32_t median = vmedians[APV].second;
+	float median = vmedians[APV].second;
 	this->BaselineFollowerRestore(digis, APV, median);
       }else if(algoToUse=="IterativeMedian"){
 	this->IterativeMedian(digis, APV);
@@ -285,7 +285,7 @@ int16_t SiStripAPVRestorer::NullInspect(std::vector<T>& digis){
 //===================================================================
 template<typename T>
 inline
-void SiStripAPVRestorer::BaselineFollowerRestore( std::vector<T>& digis, uint16_t APVn , uint16_t median){
+void SiStripAPVRestorer::BaselineFollowerRestore( std::vector<T>& digis, uint16_t APVn , float median){
   typename std::vector<T>::iterator firstStrip(digis.begin() + APVn*128), lastStrip(firstStrip + 128), actualStrip;
   
   std::vector<int16_t> baseline;
@@ -324,7 +324,7 @@ void SiStripAPVRestorer::BaselineFollowerRestore( std::vector<T>& digis, uint16_
   for(int16_t itStrip= 0 ; itStrip< 128; ++itStrip){
     //int tempDigi = digis[itStrip+APVn*128] - baseline[itStrip] + median;
     //std::cout << "BaselineFollowerRestore - detId: " << detId_ << " APV: " << APVn << " strip: " << itStrip << " digis: " << digis[itStrip+APVn*128] << " baseline: " << baseline[itStrip] << " median: " << median << " digis after baseline subtraction: " << tempDigi << std::endl;
-    digis[itStrip+APVn*128] -= baseline[itStrip] + median;
+    digis[itStrip+APVn*128] -= baseline[itStrip] - median;
   }
   
 		
