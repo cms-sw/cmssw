@@ -10,7 +10,7 @@ CSCStripHit::CSCStripHit() :
   theStripHitRawADCs(),
   theConsecutiveStrips(),
   theClosestMaximum(),
-  isDeadStripAround()
+  theDeadStrip()
 {
 
 /// Extract the lower byte for strip number
@@ -34,7 +34,7 @@ CSCStripHit::CSCStripHit( const CSCDetId& id,
                           const StripHitADCContainer& s_adcRaw,
 			  const int& numberOfConsecutiveStrips,
                           const int& closestMaximum,
-                          const bool& isNearDeadStrip) :
+                          const short int & deadStrip) :
   theDetId( id ), 
   theStripHitPosition( sHitPos ),
   theStripHitTmax( tmax ),
@@ -43,7 +43,7 @@ CSCStripHit::CSCStripHit( const CSCDetId& id,
   theStripHitRawADCs( s_adcRaw ),
   theConsecutiveStrips(numberOfConsecutiveStrips),
   theClosestMaximum(closestMaximum),
-  isDeadStripAround(isNearDeadStrip)
+  theDeadStrip(deadStrip)
 {
 
 /// Extract the 2 lowest bytes for strip number

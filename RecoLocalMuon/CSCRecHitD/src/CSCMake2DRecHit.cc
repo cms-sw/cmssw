@@ -76,7 +76,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   //---- This is not addressed here.
     
   float sigmaWire = 0.;
-  if(true == wHit.isNearDeadWG() || wgroups.size()>2){
+  if(wHit.deadWG()>0 || wgroups.size()>2){
     //---- worst possible case; take most conservative approach
     for(unsigned int iWG=0;iWG<wgroups.size();iWG++){
       sigmaWire+=layergeom_->yResolution( wgroups[iWG] );
@@ -213,9 +213,9 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
    CSCRecHit2D::ChannelContainer BX_and_wgroups = wHit.wgroupsBXandWire();   /// BX
   // (sigmaWithinTheStrip/stripWidth) is in strip widths just like positionWithinTheStrip is!
      CSCRecHit2D rechit( id, lp0, localerr, L1A_and_strips,                  /// L1A;
-                      //adcMap, wgroups, tpeak, positionWithinTheStrip,
-		      adcMap, BX_and_wgroups, tpeak, positionWithinTheStrip,        /// BX
-			 sigmaWithinTheStrip/stripWidth, quality, 0, 0, twiceWireBx);
+     //adcMap, wgroups, tpeak, positionWithinTheStrip,
+      adcMap, BX_and_wgroups, tpeak, positionWithinTheStrip,        /// BX
+      sigmaWithinTheStrip/stripWidth, quality, sHit.deadStrip(), wHit.deadWG(), twiceWireBx);
 
   /// To see RecHit content (L1A feature included) (to be commented out)
   // rechit.print();

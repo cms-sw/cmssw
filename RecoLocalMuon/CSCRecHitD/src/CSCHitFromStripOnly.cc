@@ -120,7 +120,24 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
     }
     
     //---- Check if a neighbouring strip is a dead strip
-    bool deadStrip = isNearDeadStrip(id, theMaxima.at(imax)); 
+    //bool deadStrip = isNearDeadStrip(id, theMaxima.at(imax)); 
+    bool deadStripL = isDeadStrip(id, theMaxima.at(imax)-1);
+    bool deadStripR = isDeadStrip(id, theMaxima.at(imax)+1);
+    short int aDeadStrip = 0;
+    if(!deadStripL && !deadStripR){
+      aDeadStrip = 0;
+    }
+    else if(deadStripL && deadStripR){
+      aDeadStrip = 255;
+    }
+    else{
+      if(deadStripL){
+        aDeadStrip = theMaxima.at(imax)-1;
+      }
+      else{
+        aDeadStrip = theMaxima.at(imax)+1;
+      }
+    }
     //std::cout << " Size of theStrips from SCSHitFromStripOnly: " <<  theStrips.size() << std::endl;
     
     /// L1A (Begin looping)
@@ -162,7 +179,7 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
   /// L1A (end Looping)
 
    CSCStripHit striphit( id, strippos, tmax_cluster, theL1AStrips, strips_adc, strips_adcRaw, /// L1A
-			  theConsecutiveStrips.at(imax), theClosestMaximum.at(imax), deadStrip);
+			  theConsecutiveStrips.at(imax), theClosestMaximum.at(imax), aDeadStrip);
    hitsInLayer.push_back( striphit ); 
   }
   

@@ -30,7 +30,7 @@ public:
                const StripHitADCContainer& s_adcRaw,
                const int& numberOfConsecutiveStrips,
                const int& closestMaximum,
-               const bool& isNearDeadStrip);
+               const short int& deadStrip);
 
   ~CSCStripHit();
 
@@ -68,7 +68,7 @@ public:
   int closestMaximum() const { return theClosestMaximum; }
 
   /// is a neighbouring string a dead strip?
-  bool isNearDeadStrip() const {return isDeadStripAround; };
+  short int deadStrip() const {return theDeadStrip; };
 
   /// Print content of the striphit including L1A
   void print() const;
@@ -85,7 +85,7 @@ private:
   StripHitADCContainer theStripHitRawADCs;  
   int theConsecutiveStrips;
   int theClosestMaximum;
-  bool isDeadStripAround;
+  short int theDeadStrip;
 
 };
 

@@ -54,20 +54,31 @@ std::vector<CSCWireHit> CSCHitFromWireOnly::runWire( const CSCDetId& id, const C
     } else {
       if ( !addToCluster( wdigi ) ) {
 	      // Make Wire Hit from cluster, delete old cluster and start new one
-	      float whit_pos = findWireHitPosition();
+	float whit_pos = findWireHitPosition();
       	bool deadWG_left = isDeadWG( id, wire_in_cluster.at(0) -1 ); 
-	      bool deadWG_right = isDeadWG( id, wire_in_cluster.at(wire_in_cluster.size()-1) + 1);
-        bool isDeadWGAround = false;
-	      if(deadWG_left || deadWG_right){
-	        isDeadWGAround = true;
-	      } 
-	      // Set time bins for wire hit as the time bins of the central wire digi, lower of central two if an even number of digis.
-	      std::vector <int> timeBinsOn=wire_cluster[n_wgroup/2].getTimeBinsOn();
-      	      ///CSCWireHit whit(id, whit_pos, wire_in_cluster, theTime, isDeadWGAround );
-              CSCWireHit whit(id, whit_pos, wire_in_clusterAndBX, theTime, isDeadWGAround, timeBinsOn );
-	      hitsInLayer.push_back( whit );	
-	      makeWireCluster( wdigi );
-	      n_wgroup = 1;
+	bool deadWG_right = isDeadWG( id, wire_in_cluster.at(wire_in_cluster.size()-1) + 1);
+	short int aDeadWG = 0;
+	if(!deadWG_left && !deadWG_right){
+	  aDeadWG = 0;
+	}
+	else if(deadWG_left && deadWG_right){
+	  aDeadWG = 255;
+	}
+	else{
+	  if(deadWG_left){
+	    aDeadWG = wire_in_cluster.at(0) -1;
+	  }
+	  else{
+	    aDeadWG = wire_in_cluster.at(wire_in_cluster.size()-1) + 1;
+	  }
+	}
+       // Set time bins for wire hit as the time bins of the central wire digi, lower of central two if an even number of digis.
+      std::vector <int> timeBinsOn=wire_cluster[n_wgroup/2].getTimeBinsOn();
+      //CSCWireHit whit(id, whit_pos, wire_in_clusterAndBX, theTime, isDeadWGAround, timeBinsOn );
+      CSCWireHit whit(id, whit_pos, wire_in_clusterAndBX, theTime, aDeadWG, timeBinsOn );
+      hitsInLayer.push_back( whit );	
+      makeWireCluster( wdigi );
+      n_wgroup = 1;
       } else {
 	      n_wgroup++;
       }
@@ -77,14 +88,25 @@ std::vector<CSCWireHit> CSCHitFromWireOnly::runWire( const CSCDetId& id, const C
       float whit_pos = findWireHitPosition();
       bool deadWG_left = isDeadWG( id, wire_in_cluster.at(0) -1 ); 
       bool deadWG_right = isDeadWG( id, wire_in_cluster.at(wire_in_cluster.size()-1) + 1); 
-      bool isDeadWGAround = false;
-      if(deadWG_left || deadWG_right){
-      	isDeadWGAround = true;
-      } 
+      short int aDeadWG = 0;
+      if(!deadWG_left && !deadWG_right){
+        aDeadWG = 0;
+      }
+      else if(deadWG_left && deadWG_right){
+        aDeadWG = 255;
+      }
+      else{
+        if(deadWG_left){
+          aDeadWG = wire_in_cluster.at(0) -1;
+        }
+        else{
+          aDeadWG = wire_in_cluster.at(wire_in_cluster.size()-1) + 1;
+        }
+      }
       std::vector <int> timeBinsOn=wire_cluster[n_wgroup/2].getTimeBinsOn();
       /// BX
-      //CSCWireHit whit(id, whit_pos, wire_in_cluster, theTime, isDeadWGAround );
-      CSCWireHit whit(id, whit_pos, wire_in_clusterAndBX, theTime, isDeadWGAround, timeBinsOn );
+      //CSCWireHit whit(id, whit_pos, wire_in_clusterAndBX, theTime, isDeadWGAround, timeBinsOn );
+      CSCWireHit whit(id, whit_pos, wire_in_clusterAndBX, theTime, aDeadWG, timeBinsOn );
       hitsInLayer.push_back( whit );
       n_wgroup++;
     }

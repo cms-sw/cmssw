@@ -242,7 +242,8 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
     }
   }
   // we don't have the needed information (it's similar to the "edge" strip case)  
-  else if(stripHit.isNearDeadStrip()){
+  //else if(stripHit.isNearDeadStrip()){
+  else if(stripHit.deadStrip()>0){
     xWithinStrip = 0;
   }
   else{
@@ -335,7 +336,7 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
       const_syst = const_syst_ME22;
 
     }
-    if(false==stripHit.isNearDeadStrip() &&
+    if(0==stripHit.deadStrip() &&
        stripHit.numberOfConsecutiveStrips()<maxConsecutiveStrips &&
        fabs(stripHit.closestMaximum())>maxConsecutiveStrips/2 ){
       sigma =  float(calculateXonStripError(stripWidth, ME1_1));

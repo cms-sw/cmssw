@@ -23,7 +23,7 @@ public:
 
   CSCWireHit();
   CSCWireHit( const CSCDetId& id, const float& wHitPos, ChannelContainer& wgroups, const int& tmax,
-	      const bool& isNearDeadWG, const std::vector <int>& timeBinsOn );
+	      const short int & deadWG, const std::vector <int>& timeBinsOn );
 
   ~CSCWireHit();
 
@@ -49,8 +49,8 @@ public:
   /// The timing for the wire hit
   int tmax() const { return theWireHitTmax; }
 
-  /// is a neighbouring WG a dead WG?
-  bool isNearDeadWG() const {return isDeadWGAround; };
+  /// a dead WG in the cluster?
+  short int deadWG() const {return theDeadWG; };
 
   /// Vector of time bins ON for central wire digi, lower of center pair if even number
   std::vector<int> timeBinsOn() const {return theTimeBinsOn; };
@@ -65,7 +65,7 @@ private:
   ChannelContainer theWgroupsHighBits; /// to extract BX
   ChannelContainer theWgroupsLowBits; /// to extract the wire group number
   int theWireHitTmax;
-  bool isDeadWGAround;
+  short int theDeadWG;
   std::vector <int> theTimeBinsOn;
 };
 
