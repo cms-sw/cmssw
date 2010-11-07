@@ -48,20 +48,9 @@
 #pragma link C++ struct HCAL_HLX::VDM_SCAN_DATA+;
 #pragma link C++ struct HCAL_HLX::BRAN_DATA+;
 #pragma link C++ struct HCAL_HLX::BRAN_BX_DATA+;
-#pragma link C++ struct HCAL_HLX::LHC_BEAM_CONFIG+;
 #pragma link C++ struct HCAL_HLX::LHC_FILL_DATA+;
 
 #pragma link C++ struct HCAL_HLX::DIP_STRUCT_BASE+;
-
-#pragma link C++ struct HCAL_HLX::LHC_BEAM_MODE_DATA+;
-#pragma link C++ struct HCAL_HLX::LHC_BEAM_ENERGY_DATA+;
-#pragma link C++ struct HCAL_HLX::LHC_BEAM_INTENSITY_DATA+;
-#pragma link C++ struct HCAL_HLX::LHC_BEAM_FBCT_INTENSITY_DATA+;
-#pragma link C++ struct HCAL_HLX::BEAM_INFO+;
-#pragma link C++ struct HCAL_HLX::BRAN_INFO+;
-#pragma link C++ struct HCAL_HLX::BRANA_INFO+;
-#pragma link C++ struct HCAL_HLX::BRANP_INFO+;
-#pragma link C++ struct HCAL_HLX::DIP_COMBINED_DATA+;
 
 #endif
 #endif

@@ -1,4 +1,4 @@
-// $Id: EventFileHandler.cc,v 1.13 2010/09/09 08:01:16 mommsen Exp $
+// $Id: EventFileHandler.cc,v 1.12 2010/03/19 13:24:05 mommsen Exp $
 /// @file: EventFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/EventFileHandler.h>
@@ -20,7 +20,10 @@ EventFileHandler::EventFileHandler
   const unsigned long long& maxFileSize
 ) :
 FileHandler(fileRecord, dbFileHandler, dwParams, maxFileSize),
-_writer(new edm::StreamerFileWriter(fileRecord->completeFileName()))
+_writer(new edm::StreamerFileWriter(
+  fileRecord->completeFileName()+".dat",
+  fileRecord->completeFileName()+".ind"
+  ))
 {
   writeHeader(view);
 }
@@ -66,10 +69,10 @@ void EventFileHandler::closeFile(const FilesMonitorCollection::FileRecord::Closi
     // if writer was reset, we already closed the stream but failed to move the file to the closed position
     _writer->stop();
     _fileRecord->fileSize += _writer->getStreamEOFSize();
-    setAdler(_writer->get_adler32());
+    setAdler(_writer->get_adler32_stream(), _writer->get_adler32_index());
     _writer.reset(); // Destruct the writer to flush the file stream
   }
-  moveFileToClosed(reason);
+  moveFileToClosed(true, reason);
   writeToSummaryCatalog();
   updateDatabase();
 }

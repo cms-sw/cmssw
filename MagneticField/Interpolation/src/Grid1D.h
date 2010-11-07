@@ -1,58 +1,32 @@
 #ifndef Grid1D_H
 #define Grid1D_H
-#include <cmath>
 #include <algorithm>
 
 class Grid1D {
 public:
 
-  typedef float   Scalar;
-  //  typedef double Scalar;
+  typedef double Scalar;
 
   Grid1D() {}
 
   Grid1D( Scalar lower, Scalar upper, int nodes) : 
-    lower_(lower), upper_(upper), edges_(nodes-2) {
-    stepinv_ =  (nodes-1)/(upper - lower);
+    lower_(lower), upper_(upper), nodes_(nodes) {
+    step_ = (upper - lower) / (nodes-1);
   }
 
 
-  Scalar step() const {return 1./stepinv_;}
+  Scalar step() const {return step_;}
   Scalar lower() const {return lower_;}
   Scalar upper() const {return upper_;}
-  int nodes() const {return  edges_+2;}
-  int cells() const {return  edges_+1;}
+  int nodes() const {return nodes_;}
+  int cells() const {return nodes()-1;}
 
   Scalar node( int i) const { return i*step() + lower();}
-
-  bool inRange(int i) const {
-    return i>=0 && i<=edges_;
-  }
-
-  // return index and fractional part...
-  int index(Scalar a, Scalar & f) const {
-    Scalar b;
-    f = modff((a-lower())*stepinv_, &b);
-    return b;
-  }
-
-  // move index and fraction in range..
-  void normalize(int & ind,  Scalar & f) const {
-    if (ind<0) {
-      f -= ind;
-      ind = 0;
-    }
-    else if (ind>edges_) {
-      f += ind-edges_;
-      ind = edges_;
-    }
-  }
-
 
   Scalar closestNode( Scalar a) const {
     Scalar b = (a-lower())/step();
     Scalar c = floor(b);
-    Scalar tmp = (b-c < 0.5) ? std::max(c,0.f) : std::min(c+1.f,static_cast<Scalar>(nodes()-1));
+    Scalar tmp = (b-c < 0.5) ? std::max(c,0.) : std::min(c+1.,static_cast<Scalar>(nodes()-1));
     return tmp*step()+lower();
   }
 
@@ -68,13 +42,12 @@ public:
     return std::max(0, std::min( cells()-1, ind));
   }
 
- 
 private:
 
-  Scalar stepinv_;
+  Scalar step_;
   Scalar lower_;
   Scalar upper_;
-  int    edges_; // number of lower edges = nodes-2...
+  int    nodes_;
 
 };
 

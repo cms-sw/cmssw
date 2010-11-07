@@ -37,7 +37,7 @@ void DCCEBSRPBlock::addSRFlagToCollection(){
     
     if(n>0&&n%4==0) my16Bitp_++;
    
-    ushort  srFlag =  ( *my16Bitp_ >> ( (n-(n/4)*4) * 3 ) )  &  SRP_SRFLAG_MASK ;
+    unsigned short  srFlag =  ( *my16Bitp_ >> ( (n-(n/4)*4) * 3 ) )  &  SRP_SRFLAG_MASK ;
 
     unsigned int theSRPi = n ;
 

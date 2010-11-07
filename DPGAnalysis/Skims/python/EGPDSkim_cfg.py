@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/EGPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('EGamma skim')
 )
@@ -65,9 +65,7 @@ process.hltFilter = cms.EDFilter("HLTHighLevel",
     "HLT_Ele15_SW_L1R",
     "HLT_Ele15_SW_CaloEleId_L1R",
     "HLT_Ele17_SW_CaloEleId_L1R",
-    "HLT_Ele17_SW_L1R",
-    "HLT_Ele17_SW_TightEleId_L1R",
-    "HLT_Ele17_SW_TightCaloEleId_SC8HE_L1R"
+    "HLT_Ele17_SW_L1R"
     ),
                                  eventSetupPathsKey = cms.string(''),
                                  andOr = cms.bool(True),

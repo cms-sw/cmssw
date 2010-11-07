@@ -10,9 +10,7 @@ hltFilter = cms.EDFilter("HLTHighLevel",
     "HLT_Ele15_SW_L1R",
     "HLT_Ele15_SW_CaloEleId_L1R",
     "HLT_Ele17_SW_CaloEleId_L1R",
-    "HLT_Ele17_SW_L1R",
-    "HLT_Ele17_SW_TightEleId_L1R",
-    "HLT_Ele17_SW_TightCaloEleId_SC8HE_L1R"
+    "HLT_Ele17_SW_L1R"
     ),
                          eventSetupPathsKey = cms.string(''),
                          andOr = cms.bool(True),

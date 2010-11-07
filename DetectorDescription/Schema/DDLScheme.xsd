@@ -1,0 +1,1216 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.cern.ch/cms/DDL" xmlns="http://www.cern.ch/cms/DDL" elementFormDefault="unqualified">
+
+
+
+
+
+<!-- Including other schema files (same namespace) -->
+
+
+
+<!-- Element definitions -->
+
+
+<!-- Type definitions -->
+
+<xsd:annotation>
+	<xsd:documentation xml:lang="en">
+		Certain primitive types are overloaded within the DDL. The reason is maintainability. When reading data it will be easier to see how certain pieces need to interpreted. For example, instead of reading in a float, it is possible to see that this is a length type.
+	</xsd:documentation>
+</xsd:annotation>
+
+<xsd:simpleType name="lengthT">
+	<xsd:restriction base="xsd:float"/>
+</xsd:simpleType>
+
+<xsd:simpleType name="weightT">
+	<xsd:restriction base="xsd:float"/>
+</xsd:simpleType>
+
+<xsd:simpleType name="densityT">
+	<xsd:restriction base="xsd:float"/>
+</xsd:simpleType>
+
+<xsd:simpleType name="angleT">
+	<xsd:restriction base="xsd:float"/>
+</xsd:simpleType>
+
+<xsd:annotation>
+	<xsd:documentation xml:lang="en">
+		This file also contains the definition of units. Attached to a type, users can specify the unit related to the type. For example for length this is m. cm. or mm. If this is not specified the default DDL unit is used.
+	</xsd:documentation>
+</xsd:annotation>
+
+<xsd:simpleType name="lengthUnitT">
+	<xsd:restriction base="xsd:string">
+		<xsd:enumeration value="m"/>
+		<xsd:enumeration value="cm"/>
+		<xsd:enumeration value="mm"/>
+	</xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="weightUnitT">
+	<xsd:restriction base="xsd:string">
+		<xsd:enumeration value="kg"/>
+		<xsd:enumeration value="g"/>
+		<xsd:enumeration value="mg"/>
+	</xsd:restriction>
+</xsd:simpleType>
+
+
+<xsd:simpleType name="densityUnitT">
+	<xsd:restriction base="xsd:string">
+		<xsd:enumeration value="kg/m^3"/>
+		<xsd:enumeration value="g/cm^3"/>
+		<xsd:enumeration value="mg/cm^3"/>
+	</xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="angleUnitT">
+	<xsd:restriction base="xsd:string">
+		<xsd:enumeration value="degree"/>
+		<xsd:enumeration value="radian"/>
+	</xsd:restriction>
+</xsd:simpleType>
+
+<xsd:annotation>
+	<xsd:documentation xml:lang="en">
+		The unit type describes the units that can be used if users define their own parameters attached to certain parts. This is not an exhaustive list, but tries to be as complete as possible.
+	</xsd:documentation>
+</xsd:annotation>
+
+<xsd:simpleType name="unitT">
+	<xsd:restriction base="xsd:string">
+		<xsd:enumeration value="ms"/> 
+		<xsd:enumeration value="electronvolt"/> 
+		<xsd:enumeration value="ohm"/> 
+		<xsd:enumeration value="nanoampere"/> 
+		<xsd:enumeration value="keV"/> 
+		<xsd:enumeration value="picosecond"/> 
+		<xsd:enumeration value="kelvin"/> 
+		<xsd:enumeration value="nanometer"/> 
+		<xsd:enumeration value="angstrom "/> 
+		<xsd:enumeration value="kilometer"/> 
+		<xsd:enumeration value="hertz"/> 
+		<xsd:enumeration value="radian"/> 
+		<xsd:enumeration value="kiloelectronvolt"/> 
+		<xsd:enumeration value="perCent"/> 
+		<xsd:enumeration value="kilogauss"/> 
+		<xsd:enumeration value="fermi"/> 
+		<xsd:enumeration value="microampere"/> 
+		<xsd:enumeration value="weber"/> 
+		<xsd:enumeration value="curie"/> 
+		<xsd:enumeration value="ampere"/> 
+		<xsd:enumeration value="megaelectronvolt"/> 
+		<xsd:enumeration value="steradian"/> 
+		<xsd:enumeration value="meter"/> 
+		<xsd:enumeration value="watt"/> 
+		<xsd:enumeration value="gauss"/> 
+		<xsd:enumeration value="picofarad"/>
+		<xsd:enumeration value="PeV"/>
+		<xsd:enumeration value="degree"/>
+		<xsd:enumeration value="teraelectronvolt"/>
+		<xsd:enumeration value="picobarn"/>
+		<xsd:enumeration value="TeV"/> 
+		<xsd:enumeration value="cm"/>
+		<xsd:enumeration value="kg"/>
+		<xsd:enumeration value="millisecond"/> 
+		<xsd:enumeration value="microfarad"/>
+		<xsd:enumeration value="km"/>
+		<xsd:enumeration value="tesla"/>
+		<xsd:enumeration value="m^2"/>
+		<xsd:enumeration value="m^3"/>
+		<xsd:enumeration value="volt"/>
+		<xsd:enumeration value="henry"/>
+		<xsd:enumeration value="milliradian"/>
+		<xsd:enumeration value="eplus"/> 
+		<xsd:enumeration value="mole"/> 
+		<xsd:enumeration value="milliampere"/>
+		<xsd:enumeration value="kilovolt"/>
+		<xsd:enumeration value="millifarad"/>
+		<xsd:enumeration value="bar"/>
+		<xsd:enumeration value="micrometer"/>
+		<xsd:enumeration value="atmosphere"/>
+		<xsd:enumeration value="gigaelectronvolt"/>
+		<xsd:enumeration value="perMillion"/>
+		<xsd:enumeration value="newton"/> 
+		<xsd:enumeration value="eV"/>
+		<xsd:enumeration value="milligram"/>
+		<xsd:enumeration value="megavolt"/>
+		<xsd:enumeration value="e_SI"/>
+		<xsd:enumeration value="lumen"/>
+		<xsd:enumeration value="cm^2"/>
+		<xsd:enumeration value="GeV"/>
+		<xsd:enumeration value="cm^3"/>
+		<xsd:enumeration value="barn"/>
+		<xsd:enumeration value="g"/>
+		<xsd:enumeration value="megahertz"/>
+		<xsd:enumeration value="gram"/>
+		<xsd:enumeration value="candela"/>
+		<xsd:enumeration value="nanosecond"/>
+		<xsd:enumeration value="MeV"/>
+		<xsd:enumeration value="nanofarad"/>
+		<xsd:enumeration value="km^2"/>
+		<xsd:enumeration value="km^3"/>
+		<xsd:enumeration value="petaelectronvolt"/>
+		<xsd:enumeration value="mm^2"/>
+		<xsd:enumeration value="m"/>
+		<xsd:enumeration value="mm^3"/> 
+		<xsd:enumeration value="centimeter"/>
+		<xsd:enumeration value="coulomb"/>
+		<xsd:enumeration value="gray"/>
+		<xsd:enumeration value="s"/>
+		<xsd:enumeration value="pascal"/>
+		<xsd:enumeration value="mg"/>
+		<xsd:enumeration value="millimeter"/>
+		<xsd:enumeration value="microsecond"/> 
+		<xsd:enumeration value="kilogram"/>
+		<xsd:enumeration value="becquerel"/>
+		<xsd:enumeration value="lux"/>
+		<xsd:enumeration value="mm"/>
+		<xsd:enumeration value="second"/>
+		<xsd:enumeration value="kilohertz"/>
+		<xsd:enumeration value="farad"/>
+		<xsd:enumeration value="joule"/>
+	</xsd:restriction>
+</xsd:simpleType>
+
+
+<!-- Attribute definitions -->
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- DDLReference.xsd -->
+
+
+<xsd:annotation>
+	<xsd:documentation xml:lang="en">
+		This schema describes references between data. 5 types of references have been identified. These point respectively to: Solids, Material, Rotation, LogicalPart and Parameter. I would have been possible to use Xlink/xpointer or key/keyrefs. But xlink is a very verbose way of describing links, and key/keyrefs are only defined on one file. The references also have an optional "url" attribute that points to the file, where the reference is pointing to an element. The rLogicalPart has an extra optional attribute "parent" that describes the parent.
+	</xsd:documentation>
+</xsd:annotation>
+
+<!-- Elements -->
+
+<xsd:element name="rSolid" type="ReferenceType" />
+
+<xsd:element name="rMaterial" type="ReferenceType" />
+
+<xsd:element name="rRotation" type="ReferenceType"/>
+
+<xsd:element name="rLogicalPart" type="rLogicalPartType" />
+
+<xsd:element name="rParameter" type="ReferenceType"/>
+
+<xsd:element name="PartSelector" type="PartSelectorType"/>
+
+<!-- Types -->
+
+<xsd:complexType name="ReferenceType">
+   <xsd:attributeGroup ref="ReferenceAttributes"/>
+</xsd:complexType>
+
+<xsd:complexType name="rLogicalPartType">
+  <xsd:complexContent>
+    <xsd:extension base="ReferenceType">
+      <xsd:sequence>
+         <xsd:element name="comment" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+      </xsd:sequence>
+      <xsd:attributeGroup ref="rLogicalPartAttributes"/>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="PartSelectorType">
+	<xsd:attributeGroup ref="PartSelectorAttributes"/>
+</xsd:complexType>
+
+<!-- Attributes -->
+
+
+<!-- default value of subtrees is false -->
+
+<xsd:attributeGroup name="PartSelectorAttributes">
+	<xsd:attribute name="path" type="xsd:string" use="required"/>
+	<xsd:attribute name="subtrees" type="xsd:boolean" use="optional"/>
+</xsd:attributeGroup>
+
+<xsd:annotation>
+	<xsd:documentation xml:lang="en"> 
+		The format of the string path will be based on the following grammar in order to locate parts in the exploded/compact view It is based on Xpath, but simpeler. This means it is easy to parse and to understand for physicists. In the exploded view you identify parts by there label (only physicalparts), their name (in a logical part) and their copy number (in case of parameterizations) 
+
+
+ PATH           == (ELEMENT)*    
+ ELEMENT        == PhysicalPartID | LogicalPartID | NavElement
+ LogicPartID    == //string  
+ PhysicalPartID == PosPartLabel (copynumber)^(0,1) 
+ NavElement     == "*" | ".."
+ PosPartLabel   == /string 
+ copynumber     == [ integer (, integer)* ]  
+
+ the string can contain the wild character *. e.g. "tk*r" all strings starting with tk and ending on r. "*" and ".." represent "the following part in the path no matter how deep in the tree" and "go to parent" respectively.
+ </xsd:documentation>
+ </xsd:annotation>
+
+
+<!-- Terminal symbols: //, string, /, [ , integer, ] -->
+
+
+<xsd:attributeGroup name="ReferenceAttributes">
+   <xsd:attribute name="name" type="xsd:string" use="required"/>
+   <xsd:attribute name="url"  type="xsd:anyURI" use="optional"/>
+</xsd:attributeGroup> 
+
+<xsd:attributeGroup name="rLogicalPartAttributes">
+   <xsd:attribute name="parent" type="xsd:boolean" use="optional"/>
+</xsd:attributeGroup>    
+
+
+
+<!-- DDLSolid.xsd -->
+
+
+<xsd:annotation>
+	<xsd:documentation xml:lang="en">
+		Describes the different types of solids that can be used in the definition of the detector description. Most of these descriptions are based on the GEANT3 syntax. 
+	</xsd:documentation>
+</xsd:annotation>
+
+<!-- Include namespaces -->
+
+
+
+<!-- Element definitions -->
+
+<xsd:element name="Solid" type="SolidType" abstract="true"/>
+
+<!--              Not used in first iteration -->
+<!--
+<xsd:element name="SubstractionSolid" type="SubstractionSolidType" substitutionGroup="Solid"/>
+-->
+
+<xsd:element name="Trapezoid" type="TrapezoidType" substitutionGroup="Solid"/>
+
+<xsd:element name="Box" type="BoxType" substitutionGroup="Solid"/>
+
+<xsd:element name="Cone" type="ConeType" substitutionGroup="Solid"/>
+
+<xsd:element name="Polycone" type="PolyconeType" substitutionGroup="Solid"/>
+
+<xsd:element name="Trd1" type="Trd1Type" substitutionGroup="Solid"/>
+
+<xsd:element name="Tube" type="TubeType" substitutionGroup="Solid"/>
+
+<xsd:element name="Tubs" type="TubsType" substitutionGroup="Solid"/>
+
+<xsd:element name="ShapeLessSolid" type="ShapeLessSolidType" substitutionGroup="Solid"/>
+
+<xsd:element name="Z-section" type="Z-sectionType"/>
+
+<!-- Type definitions -->
+
+<xsd:complexType name="SolidType">
+   <xsd:sequence>
+      <xsd:element name="comment" type="xsd:string" minOccurs='0' maxOccurs='1'/>
+   </xsd:sequence>
+   <xsd:attributeGroup ref="SolidAttributes"/>
+</xsd:complexType>
+
+<!--              Not used in first iteration -->
+<!--
+<xsd:complexType name="SubstractionSolidType">
+  <xsd:complexContent>
+     <xsd:extension base="SolidType">
+       <xsd:sequence>
+          <xsd:element ref="Solid" minOccurs='2' maxOccurs='2'/>
+       </xsd:sequence> 
+       <xsd:attributeGroup ref="SubstractionSolidAttributes"/>
+     </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+-->
+
+<xsd:complexType name="TrapezoidType">
+  <xsd:complexContent>
+     <xsd:extension base="SolidType">
+       <xsd:attributeGroup ref="TrapezoidAttributes"/>
+     </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="BoxType">
+  <xsd:complexContent>
+    <xsd:extension base="SolidType">
+      <xsd:attributeGroup ref="BoxAttributes"/>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="ConeType">
+  <xsd:complexContent>
+    <xsd:extension base="SolidType">
+       <xsd:attributeGroup ref="ConeAttributes"/>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="PolyconeType">
+   <xsd:complexContent>
+     <xsd:extension base="SolidType">
+       <xsd:sequence>
+         <xsd:element ref="Z-section" minOccurs='2' maxOccurs='unbounded'/>
+       </xsd:sequence>
+     <xsd:attributeGroup ref="PolyconeAttributes"/>
+   </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="Z-sectionType">
+   <xsd:attributeGroup ref="Z-sectionAttributes"/>
+</xsd:complexType>
+
+<xsd:complexType name="Trd1Type">
+  <xsd:complexContent>
+     <xsd:extension base="SolidType">
+        <xsd:attributeGroup ref="Trd1Attributes"/>
+     </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+
+<xsd:complexType name="TubeType">
+   <xsd:complexContent>
+      <xsd:extension base="SolidType">
+         <xsd:attributeGroup ref="TubeAttributes"/>
+      </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+
+
+<xsd:complexType name="TubsType">
+   <xsd:complexContent>
+      <xsd:extension base="SolidType">
+         <xsd:attributeGroup ref="TubsAttributes"/>
+      </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="ShapeLessSolidType">
+   <xsd:complexContent>
+      <xsd:extension base="SolidType">
+      </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+
+<!-- Attribute definitions -->
+
+<xsd:attributeGroup name="SolidAttributes">
+   <xsd:attribute name="name" type="xsd:string" use="required"/>
+</xsd:attributeGroup>
+
+<!--              Not used in first iteration -->
+<!--
+<xsd:attributeGroup name="SubstractionSolidAttributes">
+  <xsd:attribute name="ID" type="xsd:integer" use="required"/>
+</xsd:attributeGroup>
+-->
+
+<xsd:attributeGroup name="TrapezoidAttributes">
+    <xsd:attribute name="ALP1" type="angleT" use="required"/>
+    <xsd:attribute name="ALP2" type="angleT" use="required"/>
+    <xsd:attribute name="Bl1" type="lengthT" use="required"/>
+    <xsd:attribute name="Bl2" type="lengthT" use="required"/>
+    <xsd:attribute name="Dz" type="lengthT" use="required"/>
+    <xsd:attribute name="H1" type="lengthT" use="required"/>
+    <xsd:attribute name="H2" type="lengthT" use="required"/>
+    <xsd:attribute name="Phi" type="angleT" use="required"/>
+    <xsd:attribute name="Thet" type="angleT" use="required"/>
+    <xsd:attribute name="TL1" type="lengthT" use="required"/>
+    <xsd:attribute name="TL2" type="lengthT" use="required"/>
+    <xsd:attribute name="lengthUnit" type="lengthUnitT" use="optional"/>
+    <xsd:attribute name="angleUnit" type="angleUnitT" use="optional"/>
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="BoxAttributes">
+    <xsd:attribute name="Dx" type="lengthT" use="required"/>
+    <xsd:attribute name="Dy" type="lengthT" use="required"/>
+    <xsd:attribute name="Dz" type="lengthT" use="required"/>
+    <xsd:attribute name="lengthUnit" type="lengthUnitT" use="optional"/>
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="ConeAttributes">
+	<xsd:attribute name="Dz" type="lengthT" use="required"/> 
+	<xsd:attribute name="RMN1" type="lengthT" use="required"/> 
+	<xsd:attribute name="RMX1" type="lengthT" use="required"/> 
+	<xsd:attribute name="RMN2" type="lengthT" use="required"/> 
+	<xsd:attribute name="RMX2" type="lengthT" use="required"/> 
+	<xsd:attribute name="lengthUnit" type="lengthUnitT" use="optional"/> 
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="PolyconeAttributes">
+	<xsd:attribute name="Phi1" type="angleT" use="required"/>
+	<xsd:attribute name="DPHI" type="angleT" use="required"/>
+	<xsd:attribute name="angleUnit" type="angleUnitT" use="optional"/>
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="Z-sectionAttributes">
+   <xsd:attribute name="z" type="xsd:float" use="required"/>
+   <xsd:attribute name="RMIN" type="lengthT" use="required"/>
+   <xsd:attribute name="RMAX" type="lengthT" use="required"/>
+   <xsd:attribute name="lengthUnit" type="lengthUnitT" use="optional"/> 
+</xsd:attributeGroup>
+ 
+<xsd:attributeGroup name="Trd1Attributes">
+   <xsd:attribute name="DX1" type="lengthT" use="required"/> 
+   <xsd:attribute name="DX2" type="lengthT" use="required"/> 
+   <xsd:attribute name="DY" type="lengthT" use="required"/> 
+   <xsd:attribute name="DZ" type="lengthT" use="required"/> 
+   <xsd:attribute name="lengthUnit" type="lengthUnitT" use="optional"/> 
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="TubeAttributes">
+	<xsd:attribute name="RMIN" type="lengthT" use="required"/>
+	<xsd:attribute name="RMAX" type="lengthT" use="required"/>
+	<xsd:attribute name="DZ" type="lengthT" use="required"/>
+	<xsd:attribute name="lengthUnit" type="lengthUnitT" use="optional"/> 
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="TubsAttributes"> 
+	<xsd:attribute name="RMIN" type="lengthT" use="required"/> 
+	<xsd:attribute name="RMAX" type="lengthT" use="required"/> 
+	<xsd:attribute name="DZ" type="lengthT" use="required"/> 
+	<xsd:attribute name="PHI1" type="angleT" use="required"/> 
+	<xsd:attribute name="PHI2" type="angleT" use="required"/> 
+	<xsd:attribute name="lengthUnit" type="lengthUnitT" use="optional"/> 
+	<xsd:attribute name="angleUnit" type="angleUnitT" use="optional"/>
+</xsd:attributeGroup>
+
+
+            
+<!-- DDLRotation.xsd -->
+
+
+<xsd:annotation>
+	<xsd:documentation xml:lang="en">
+		Rotations are defined as described in GEANT3. It describes ONLY a rotation, and there is no handiness. The rotation will be used for positioning the PosParts in the LogicalParts, are defined relative to this LogicalPart.
+	</xsd:documentation>
+</xsd:annotation>
+
+<!-- Include namespaces -->
+
+
+<!-- Element definition -->
+
+<xsd:element name="Rotation" type="RotationType"/>
+
+<!-- Type definition -->
+
+<xsd:complexType name="RotationType">
+   <xsd:attributeGroup ref="RotationAttributes"/>
+</xsd:complexType>
+
+<!-- Attribute definition -->
+
+<xsd:attributeGroup name="RotationAttributes">
+   <xsd:attribute name="name" type="xsd:string" use="required"/>
+   <xsd:attribute name="theta1" type="angleT" use="required"/>
+   <xsd:attribute name="phi1" type="angleT" use="required"/>
+   <xsd:attribute name="theta2" type="angleT" use="required"/>
+   <xsd:attribute name="phi2" type="angleT" use="required"/>
+   <xsd:attribute name="theta3" type="angleT" use="required"/>
+   <xsd:attribute name="phi3" type="angleT" use="required"/>
+   <xsd:attribute name="angleUnit" type="angleUnitT" use="optional"/>
+</xsd:attributeGroup>
+
+<!-- DDLConstraints.xsd -->
+
+
+<xsd:annotation>
+	<xsd:documentation xml:lang="en">
+		There are two types of constraints. Constraints on the parts. e.g. the name should start with "tk". Or constraints on specific parameters. e.g. parameter should be smaller than 5. Within the DDL we have a very simple constraint mechanism. Other more general constraint mechanisms can be found in projects such as Protege
+	</xsd:documentation>
+</xsd:annotation>
+
+<!-- Include namespaces -->
+
+
+<!-- Element definitions -->
+
+<xsd:element name="Constraint" type="ConstraintType" abstract="true"/>
+
+<xsd:element name="ModelConstraint" type="ModelConstraintType" substitutionGroup="Constraint"/>
+
+<xsd:element name="ParameterConstraint" type="ParameterConstraintType" substitutionGroup="Constraint"/>
+
+<xsd:element name="Prefix" type="PType"/>
+
+<xsd:element name="Postfix" type="PType"/>
+
+
+<!-- Type definitions -->
+
+<xsd:complexType name="ConstraintType">
+  <xsd:sequence>
+     <xsd:element name="comment" type="xsd:string" minOccurs='0' maxOccurs='1'/>
+  </xsd:sequence>
+  <xsd:attributeGroup ref="ConstraintAttributes"/>
+</xsd:complexType>
+
+<xsd:complexType name="ModelConstraintType">
+  <xsd:complexContent>
+     <xsd:extension base="ConstraintType">
+        <xsd:sequence>
+          <xsd:element ref="PartSelector" minOccurs='0' maxOccurs='unbounded' />
+          <xsd:element ref="Prefix" minOccurs='0' maxOccurs='1'/>
+          <xsd:element ref="Postfix" minOccurs='0' maxOccurs='1'/>
+        </xsd:sequence>
+     </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="ParameterConstraintType">
+  <xsd:complexContent>
+    <xsd:extension base="ConstraintType">
+    <xsd:sequence>
+      <xsd:element ref="rParameter" minOccurs='1' maxOccurs='unbounded'/>
+      <xsd:element name="Rule" type="xsd:string" minOccurs='1' maxOccurs='unbounded'/>
+    </xsd:sequence>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<!-- the string for the rule element will have the following structure: -->
+<!-- Parameter Sign (= {=,<=,>=,<,>} ) Value -->
+<!-- Furthermore, the rules will be interpreted as AND clauses -->
+
+<xsd:complexType name="PType">
+  <xsd:attributeGroup ref="PAttributes"/>
+</xsd:complexType>
+
+<!-- Attribute definitions -->
+
+<xsd:attributeGroup name="ConstraintAttributes">
+  <xsd:attribute name="label" type="xsd:string" use="optional"/>
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="PAttributes">
+  <xsd:attribute name="value" type="xsd:string"/>
+</xsd:attributeGroup>
+
+<!-- DDLSpecPar.xsd -->
+
+
+	
+<!-- Include schema parts -->
+
+
+
+<!-- Element definitions -->
+
+<xsd:element name="SpecPar" type="SpecParType"/>
+
+
+
+<xsd:element name="SValue" type="SValueType"/>
+
+<xsd:element name="FValue" type="FValueType"/>
+
+<xsd:element name="IValue" type="IValueType"/>
+
+<xsd:element name="DValue" type="DValueType"/>
+
+
+
+<!-- Type definitions -->
+
+<xsd:complexType name="SpecParType">
+  <xsd:sequence>
+    <xsd:element ref="PartSelector" minOccurs='0' maxOccurs='unbounded' />
+    <xsd:element ref="SValue" minOccurs='0' maxOccurs='unbounded'/>
+    <xsd:element ref="IValue" minOccurs='0' maxOccurs='unbounded'/>
+    <xsd:element ref="FValue" minOccurs='0' maxOccurs='unbounded'/>
+    <xsd:element ref="DValue" minOccurs='0' maxOccurs='unbounded'/>
+  </xsd:sequence>
+  <xsd:attributeGroup ref="SpecParAttributes"/>
+</xsd:complexType>
+
+
+
+<xsd:complexType name="SValueType">
+  <xsd:attributeGroup ref="SValueAttributes"/>
+</xsd:complexType>
+
+<xsd:complexType name="IValueType">
+  <xsd:attributeGroup ref="IValueAttributes"/>
+</xsd:complexType>
+
+<xsd:complexType name="FValueType">
+  <xsd:attributeGroup ref="FValueAttributes"/>
+</xsd:complexType>
+
+<xsd:complexType name="DValueType">
+  <xsd:attributeGroup ref="DValueAttributes"/>
+</xsd:complexType>
+
+
+<!-- Attribute definitions -->
+
+<xsd:attributeGroup name="SpecParAttributes">
+  <xsd:attribute name="name" type="xsd:string" use="required"/>
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="SValueAttributes">
+	<xsd:attribute name="name" type="xsd:string" use="required"/>
+  <xsd:attribute name="value" type="xsd:string" use="required"/>
+  <xsd:attribute name="unit" type="unitT" use="optional"/>
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="FValueAttributes">
+	<xsd:attribute name="name" type="xsd:string" use="required"/>
+  <xsd:attribute name="value" type="xsd:float" use="required"/>
+  <xsd:attribute name="unit" type="unitT" use="optional"/>
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="IValueAttributes">
+  <xsd:attribute name="name" type="xsd:string" use="required"/>
+  <xsd:attribute name="value" type="xsd:integer" use="required"/>
+  <xsd:attribute name="unit" type="unitT" use="optional"/>
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="DValueAttributes">
+  <xsd:attribute name="name" type="xsd:string" use="required"/>
+  <xsd:attribute name="value" type="xsd:double" use="required"/>
+  <xsd:attribute name="unit" type="unitT" use="optional"/>
+</xsd:attributeGroup>
+
+<!-- currently only standard values are supported. But users can build -->
+<!-- there own schema using the same references to logical and physical parts -->
+<!-- but with another namespace -->
+<!-- DDLMaterial.xsd -->
+
+
+<xsd:annotation>
+	<xsd:documentation xml:lang="en">
+		There are 2 types of material that inherit from the general material element: elementary materials and composite materials. Elementary materials describe materials such as oxygen, iron, etc.. composite are mixtures of material (which can themselves also be composites)
+	</xsd:documentation>
+</xsd:annotation>
+
+<!-- Including other schema files (same namespace) -->
+
+
+
+
+<!-- Element definitions -->
+
+<xsd:element name="Material" type="MaterialType" abstract="true"/>
+
+<xsd:element name="ElementaryMaterial" type="ElementaryMaterialType" substitutionGroup="Material"/>
+
+<xsd:element name="CompositeMaterial" type="CompositeMaterialType" substitutionGroup="Material"/>
+
+<xsd:element name="MaterialFraction" type="MaterialFractionType"/>
+
+
+
+<!-- Type definitions -->
+
+<xsd:complexType name="MaterialType">
+  <xsd:sequence>
+     <xsd:element name="comment" type="xsd:string" minOccurs='0' maxOccurs='1'/>
+  </xsd:sequence>
+  <xsd:attributeGroup ref="MaterialAttributes"/>
+</xsd:complexType>
+
+<xsd:complexType name="ElementaryMaterialType">
+   <xsd:complexContent>
+      <xsd:extension base="MaterialType">
+         <xsd:attributeGroup ref="ElementaryMaterialAttributes"/>
+      </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="CompositeMaterialType">
+   <xsd:complexContent>
+     <xsd:extension base="MaterialType">
+       <xsd:sequence>
+            <xsd:element ref="MaterialFraction" minOccurs='2' maxOccurs='unbounded' />
+       </xsd:sequence>
+       <xsd:attributeGroup ref="CompositeMaterialAttributes"/>
+     </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="MaterialFractionType">
+  <xsd:sequence>
+      <xsd:element ref="rMaterial" minOccurs='1' maxOccurs='1'/>
+  </xsd:sequence>
+  <xsd:attributeGroup ref="MaterialFractionAttributes"/>
+</xsd:complexType>
+
+
+<!-- Attribute definitions -->
+
+<xsd:attributeGroup name="MaterialAttributes">
+   <xsd:attribute name="name"          type="xsd:string" use="required"/>
+   <xsd:attribute name="symbol"        type="xsd:string" use="optional"/>
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="ElementaryMaterialAttributes">
+	<xsd:attribute name="atomicNumber" type="xsd:integer" use="required" />
+	<xsd:attribute name="density" type="densityT" use="required" />
+	<xsd:attribute name="atomicWeight" type="weightT" use="required" />
+	<xsd:attribute name="weightUnit" type="weightUnitT" use="optional"/>
+	<xsd:attribute name="lengthUnit" type="lengthUnitT" use="optional"/>
+	<xsd:attribute name="densityUnit" type="densityUnitT" use="optional"/>
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="CompositeMaterialAttributes">
+  <xsd:attribute name="method"          use="required">
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="compound by atomic proportion"/>
+           <xsd:enumeration value="mixture by weight"/>
+           <xsd:enumeration value="mixture by volume"/>
+         </xsd:restriction>
+      </xsd:simpleType>
+   </xsd:attribute>
+   <xsd:attribute name="density" type="densityT" use="required"/>
+   <xsd:attribute name="densityUnit" type="densityUnitT" use="optional"/>
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="MaterialFractionAttributes">
+   <xsd:attribute name="fraction" type="xsd:float" use="required"/>
+</xsd:attributeGroup>
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- DDLPosPart.xsd -->
+
+
+<xsd:annotation>
+	<xsd:documentation xml:lang="en">
+		This schema describes position parts (PosParts). A position part is based on a logical part and via a rotation and translation it is placed in another logical part. The rotation can be referenced or be defined in line. Furthermore it is possible to refer to functions that describe a parameterized positioning.
+	</xsd:documentation>
+</xsd:annotation>
+			
+<!-- Including other schema files -->
+
+
+
+<!-- Element definitions -->
+
+<xsd:element name="PosPart" type="PosPartType"/>
+
+<xsd:element name="Translation" type="TranslationType"/>
+
+<!-- Not used in the first prototype -->
+<!--
+<xsd:element name="DVT" type="DVTType"/>
+
+<xsd:element name="DVN" type="DVNType"/>
+
+<xsd:element name="DVX" type="DVXType"/>
+-->
+
+<xsd:element name="CALL" type="CALLType"/>
+
+<!-- Type definitions -->
+
+<xsd:complexType name="PosPartType">
+  <xsd:sequence>
+     <xsd:element ref="rLogicalPart" minOccurs='2' maxOccurs='2'/>
+     <xsd:group ref="RotationOptions"/>
+     <xsd:element ref="Translation" minOccurs='0' maxOccurs='unbounded'/>
+     <xsd:element ref="CALL" minOccurs='0' maxOccurs='1'/>
+  </xsd:sequence>
+  <xsd:attributeGroup ref="PosPartAttributes"/>
+</xsd:complexType>
+
+<xsd:group name="RotationOptions">
+  <xsd:choice>
+    <xsd:element ref="Rotation" minOccurs='0' maxOccurs='1' />
+    <xsd:element ref="rRotation" minOccurs='0' maxOccurs='1'/>
+  </xsd:choice>
+</xsd:group>
+
+<!--
+<xsd:group name="ParameterOptions">
+   <xsd:choice>
+  <xsd:element ref="DVT" minOccurs='0' maxOccurs='1'/>
+      <xsd:element ref="DVN" minOccurs='0' maxOccurs='1'/>
+      <xsd:element ref="DVX" minOccurs='0' maxOccurs='1'/>
+      <xsd:element ref="CALL" minOccurs='0' maxOccurs='1'/>
+   </xsd:choice>
+</xsd:group>
+-->
+
+<xsd:complexType name="TranslationType">
+   <xsd:attributeGroup ref="TranslationAttributes"/>
+</xsd:complexType>
+
+<!--
+<xsd:complexType name="DVTType">
+   <xsd:attributeGroup ref="DVTAttributes"/>
+</xsd:complexType>
+
+<xsd:complexType name="DVNType">
+   <xsd:attributeGroup ref="DVNAttributes"/>
+</xsd:complexType>
+
+<xsd:complexType name="DVXType">
+   <xsd:attributeGroup ref="DVXAttributes"/>
+</xsd:complexType>
+-->
+
+<xsd:complexType name="CALLType">
+   <xsd:attributeGroup ref="CALLAttributes"/>
+</xsd:complexType>
+
+<!-- Attribute definitions -->
+
+<xsd:attributeGroup name="PosPartAttributes">
+   <xsd:attribute name="label" type="xsd:string" use="optional"/>
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="TranslationAttributes">
+   <xsd:attribute name="x" type="xsd:float" use="required"/>
+   <xsd:attribute name="y" type="xsd:float" use="required"/>
+   <xsd:attribute name="z" type="xsd:float" use="required"/>
+</xsd:attributeGroup>
+
+<!-- These attributes will not be used in the first prototype -->
+<!--
+<xsd:attributeGroup name="DVTAttributes">
+   <xsd:attribute name="step" type="xsd:float" use="required"/>
+   <xsd:attribute name="iaxis" type="xsd:integer" use="required"/>
+   <xsd:attribute name="numed" type="xsd:integer" use="required"/>
+   <xsd:attribute name="ndvmx" type="xsd:integer" use="required"/>
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="DVNAttributes">
+   <xsd:attribute name="ndiv" type="xsd:integer" use="required"/>
+   <xsd:attribute name="iaxis" type="xsd:integer" use="required"/>
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="DVXAttributes">
+   <xsd:attribute name="step" type="xsd:float" use="required"/>
+   <xsd:attribute name="iaxis" type="xsd:integer" use="required"/>
+   <xsd:attribute name="numed" type="xsd:integer" use="required"/>
+   <xsd:attribute name="ndvmx" type="xsd:integer" use="required"/>
+   <xsd:attribute name="ndiv" type="xsd:integer" use="required"/>
+   <xsd:attribute name="co" type="xsd:float" use="required"/>
+</xsd:attributeGroup>
+-->
+
+<xsd:annotation>
+	<xsd:documentation xml:lang="en">
+		The call element is used to make external calls to fuctions that describe parameterizations. The functionName attribute is a string that will have the following format: f([vector of parameters],function name). I will return a vector of rotations and translations.
+	</xsd:documentation>
+</xsd:annotation>
+
+<xsd:attributeGroup name="CALLAttributes">
+   <xsd:attribute name="functionName" type="xsd:string" use="required"/>
+</xsd:attributeGroup>
+
+   
+<!-- DDLLogicalPart.xsd -->
+
+
+<xsd:annotation>
+	<xsd:documentation xml:lang="en">
+		It describes the definition of a logical part. A logicalpart definition is based on a solid and a type of material. These can either be defined "inline" or be referenced
+	</xsd:documentation>
+</xsd:annotation>
+
+<!-- Including other schema files -->
+
+
+
+
+
+<!-- Element definitions -->
+
+<xsd:element name="LogicalPart" type="LogicalPartType"/>
+
+<!-- Type definitions -->
+
+
+<xsd:complexType name="LogicalPartType">
+  <xsd:sequence>
+     <xsd:group ref="SolidOptions"/>
+     <xsd:group ref="MaterialOptions"/> 
+  </xsd:sequence>
+  <xsd:attributeGroup ref="LogicalPartAttributes"/> 
+</xsd:complexType>
+
+<xsd:group name="SolidOptions">
+   <xsd:choice>
+      <xsd:element ref="Solid"/>
+      <xsd:element ref="rSolid"/>
+   </xsd:choice>
+</xsd:group>
+
+<xsd:group name="MaterialOptions">
+   <xsd:choice>
+      <xsd:element ref="Material"/>
+      <xsd:element ref="rMaterial"/> 
+   </xsd:choice>     
+</xsd:group>
+  
+
+<!-- Attributes -->
+
+<xsd:annotation>
+	<xsd:documentation xml:lang="en">
+		The sensitive attribute should be set true if this document is a sensitive logicalpart
+	</xsd:documentation>
+</xsd:annotation>
+
+<xsd:attributeGroup name="LogicalPartAttributes">
+  <xsd:attribute name="name" type="xsd:string" use="required"/>
+  <xsd:attribute name="sensitive" type="xsd:boolean" use="optional"/>
+</xsd:attributeGroup>
+
+<!-- DDLSections.xsd -->
+
+
+
+	<xsd:annotation>
+		<xsd:documentation xml:lang="en">
+			Describes the different sections that define the different "parts" of the DDL. These sections are based on schema descriptions of these different "parts" Within these sections in the instance documents, there can be references to other data in other instance documents.
+		</xsd:documentation>
+	</xsd:annotation>
+
+<!-- Include sub schemas -->
+
+<!-- Include mechanism does not work with this file under Xerces java 1.4.0 -->
+
+<!-- Element definitions-->
+
+<xsd:element name="DDDefinition" type="DDDefinitionType"/>
+
+<xsd:element name="Section" type="SectionType" abstract="true"/>
+
+<xsd:element name="LogicalPartSection" type="LogicalPartSectionType" substitutionGroup="Section"/>
+
+<xsd:element name="PosPartSection" type="PosPartSectionType" substitutionGroup="Section"/>
+
+<xsd:element name="RotationSection" type="RotationSectionType" substitutionGroup="Section"/>
+
+<xsd:element name="MaterialSection" type="MaterialSectionType" substitutionGroup="Section"/>
+
+<xsd:element name="SpecParSection" type="SpecParSectionType" substitutionGroup="Section"/>
+
+<xsd:element name="ConstraintsSection" type="ConstraintsSectionType" substitutionGroup="Section"/>
+
+<xsd:element name="SolidSection" type="SolidSectionType" substitutionGroup="Section"/>
+
+<!-- Type definitions -->
+
+<xsd:complexType name="DDDefinitionType">
+   <xsd:sequence>
+      <xsd:element ref="Section" minOccurs='0' maxOccurs='unbounded'/>
+   </xsd:sequence>
+</xsd:complexType>
+
+<xsd:complexType name="SectionType">
+   <xsd:sequence>
+      <xsd:element name="comment" type="xsd:string" minOccurs='0' maxOccurs='1'/>
+   </xsd:sequence>
+   <xsd:attributeGroup ref="SectionAttributes"/>
+</xsd:complexType>
+
+<xsd:complexType name="LogicalPartSectionType">
+   <xsd:complexContent>
+      <xsd:extension base="SectionType">
+         <xsd:sequence>
+            <xsd:element ref="LogicalPart" minOccurs='1' maxOccurs='unbounded' />
+         </xsd:sequence>
+      </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="PosPartSectionType">
+   <xsd:complexContent>
+      <xsd:extension base="SectionType">
+         <xsd:sequence>
+            <xsd:element ref="PosPart" minOccurs='1' maxOccurs='unbounded' />
+         </xsd:sequence>
+      </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="RotationSectionType">
+   <xsd:complexContent>
+      <xsd:extension base="SectionType">
+         <xsd:sequence>
+            <xsd:element ref="Rotation" minOccurs='1' maxOccurs='unbounded' />
+         </xsd:sequence>
+      </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="MaterialSectionType">
+   <xsd:complexContent>
+      <xsd:extension base="SectionType">
+         <xsd:sequence>
+            <xsd:element ref="Material" minOccurs='1' maxOccurs='unbounded' />
+         </xsd:sequence>
+      </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="SolidSectionType">
+   <xsd:complexContent>
+      <xsd:extension base="SectionType">
+         <xsd:sequence>
+            <xsd:element ref="Solid" minOccurs='1' maxOccurs='unbounded' />
+         </xsd:sequence>
+      </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="SpecParSectionType">
+   <xsd:complexContent>
+      <xsd:extension base="SectionType">
+         <xsd:sequence>
+            <xsd:element ref="SpecPar" minOccurs='1' maxOccurs='unbounded' />
+         </xsd:sequence>
+      </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="ConstraintsSectionType">
+   <xsd:complexContent>
+      <xsd:extension base="SectionType">
+         <xsd:sequence>
+            <xsd:element ref="Constraint" minOccurs='1' maxOccurs='unbounded' />
+         </xsd:sequence>
+      </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+
+<!-- Attribute definition -->
+
+<xsd:attributeGroup name="SectionAttributes">
+  <xsd:attribute name="label" type="xsd:string" use="optional"/>
+</xsd:attributeGroup>
+
+<!-- DDLSchemaConstraints.xsd -->
+
+
+	<!-- not supported yet -->
+<!--
+<xsd:unique name="constraint1">
+	<xsd:selector xpath="LogicalPartSection/LogicalPart"/>
+	<xsd:field xpath="@name"/>
+</xsd:unique>
+
+<xsd:unique name="constraint2">
+	<xsd:selector xpath="PosPartSection/PosPart"/>
+	<xsd:field xpath="@label"/>
+</xsd:unique>
+
+<xsd:unique name="constraint3">
+	<xsd:selector xpath="RotationSection/Rotation"/>
+	<xsd:field xpath="@ID"/>
+</xsd:unique>
+
+<xsd:unique name="constraint4">
+	<xsd:selector xpath="MaterialSection/"/>
+	<xsd:field xpath="@label"/>
+</xsd:unique>
+
+<xsd:unique name="constraint5">
+	<xsd:selector xpath="MaterialSection/Material"/>
+	<xsd:field xpath="@name"/>
+</xsd:unique>
+
+<xsd:unique name="constraint6">
+	<xsd:selector xpath="MaterialSection/Material"/>
+	<xsd:field xpath="@symbol"/>
+</xsd:unique>
+
+<xsd:unique name="constraint7">
+	<xsd:selector xpath="SpecParSection/SpecPar"/>
+	<xsd:field xpath="@name"/>
+</xsd:unique>
+
+<xsd:unique name="constraint8">
+	<xsd:selector xpath="SolidSection/Solid"/>
+	<xsd:field xpath="@name"/>
+</xsd:unique>
+
+-->
+<!-- Not yet usable within a collection of XML files -->
+<!--
+<xsd:key name="kMaterial">
+	<xsd:selector xpath="MaterialSection/Material"/>
+	<xsd:field xpath="@name"/>
+</xsd:key>
+
+<xsd:key name="kLogicalPart">
+	<xsd:selector xpath="LogicalPartSection/LogicalPart"/>
+	<xsd:field xpath="@name"/>
+</xsd:key>
+
+<xsd:key name="kPosPart">
+	<xsd:selector xpath="PosPartSection/PosPart"/>
+	<xsd:field xpath="@label"/>
+</xsd:key>
+
+<xsd:key name="kRotation">
+	<xsd:selector xpath="RotationSection/Rotation"/>
+	<xsd:field xpath="@name"/>
+</xsd:key>
+
+<xsd:key name="kParameter">
+	<xsd:selector xpath="SpecParSection/SpecPar"/>
+	<xsd:field xpath="@name"/>
+</xsd:key>
+
+<xsd:keyref name="krMaterial1" refer="kMaterial">
+	<xsd:selector xpath="LogicalPartSection/LogicalPart/rMaterial"/>
+	<xsd:selector xpath="@name"/>
+</xsd:keyref>
+
+<xsd:keyref name="krMaterial2" refer="kMaterial">
+	<xsd:selector xpath="MaterialSection/CompositeMaterial/MaterialFraction/rMaterial"/>
+	<xsd:selector xpath="@name"/>
+</xsd:keyref>
+
+<xsd:keyref name="krLogicalPart1" refer="kLogicalPart">
+	<xsd:selector xpath="PosPartSection/PosPar/rLogicalPart"/>
+	<xsd:selector xpath="@name"/>
+</xsd:keyref>
+
+<xsd:keyref name="krRotation1" refer="kRotation">
+	<xsd:selector xpath="PosPartSection/PosPar/rRotation"/>
+	<xsd:selector xpath="@name"/>
+</xsd:keyref>
+
+<xsd:keyref name="krParameter1" refer="kParameter">
+	<xsd:selector xpath="ConstraintSection/ParameterConstraint/rParameter"/>
+	<xsd:selector xpath="@name"/>
+</xsd:keyref>
+-->
+
+</xsd:schema>

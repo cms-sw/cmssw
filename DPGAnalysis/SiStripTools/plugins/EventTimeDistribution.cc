@@ -68,10 +68,6 @@ class EventTimeDistribution : public edm::EDAnalyzer {
   const edm::InputTag _historyProduct;
   const edm::InputTag _apvphasecoll;
   const std::string _phasepart;
-  const bool _wantdbxvsbxincycle;
-  const bool _wantdbxvsbx;
-  const bool _wantbxincyclevsbx;
-  const bool _wantorbitvsbxincycle;
   unsigned int _nevents;
   const double _binsize;
 
@@ -80,7 +76,6 @@ class EventTimeDistribution : public edm::EDAnalyzer {
   TH1F** _dbx;
   TH1F** _bx;
   TH1F** _bxincycle;
-  TH1F** _orbit;
   TH2F** _dbxvsbxincycle;
   TH2F** _dbxvsbx;
   TH2F** _bxincyclevsbx;
@@ -103,25 +98,19 @@ EventTimeDistribution::EventTimeDistribution(const edm::ParameterSet& iConfig):
   _historyProduct(iConfig.getParameter<edm::InputTag>("historyProduct")),
   _apvphasecoll(iConfig.getParameter<edm::InputTag>("apvPhaseCollection")),
   _phasepart(iConfig.getUntrackedParameter<std::string>("phasePartition","None")),
-  _wantdbxvsbxincycle(iConfig.getUntrackedParameter<bool>("wantDBXvsBXincycle",false)),
-  _wantdbxvsbx(iConfig.getUntrackedParameter<bool>("wantDBXvsBX",false)),
-  _wantbxincyclevsbx(iConfig.getUntrackedParameter<bool>("wantBXincyclevsBX",false)),
-  _wantorbitvsbxincycle(iConfig.getUntrackedParameter<bool>("wantOrbitvsBXincycle",false)),
   _nevents(0),
   _binsize(iConfig.getUntrackedParameter<double>("minBinSizeInSec",1.)),
-  _rhm(),
-  _dbxvsbxincycle(0),   _dbxvsbx(0),   _bxincyclevsbx(0),   _orbitvsbxincycle(0)
+  _rhm()
 {
    //now do what ever initialization is needed
 
   _dbx = _rhm.makeTH1F("dbx","dbx",1000,-0.5,999.5);
   _bx = _rhm.makeTH1F("bx","BX number",3564,-0.5,3563.5);
   _bxincycle = _rhm.makeTH1F("bxcycle","bxcycle",70,-0.5,69.5);
-  _orbit = _rhm.makeTH1F("orbit","orbit",3600,0,11223*_binsize*3600);
-  if(_wantdbxvsbxincycle) _dbxvsbxincycle = _rhm.makeTH2F("dbxvsbxincycle","dbxvsbxincycle",70,-0.5,69.5,1000,-0.5,999.5);
-  if(_wantdbxvsbx) _dbxvsbx = _rhm.makeTH2F("dbxvsbx","dbxvsbx",3564,-0.5,3563.5,1000,-0.5,999.5);
-  if(_wantbxincyclevsbx) _bxincyclevsbx = _rhm.makeTH2F("bxincyclevsbx","bxincyclevsbx",3564,-0.5,3563.5,70,-0.5,69.5);
-  if(_wantorbitvsbxincycle) _orbitvsbxincycle = _rhm.makeTH2F("orbitvsbxincycle","orbitvsbxincycle",70,-0.5,69.5,3600,0,11223*_binsize*3600);
+  _dbxvsbxincycle = _rhm.makeTH2F("dbxvsbxincycle","dbxvsbxincycle",70,-0.5,69.5,1000,-0.5,999.5);
+  _dbxvsbx = _rhm.makeTH2F("dbxvsbx","dbxvsbx",3564,-0.5,3563.5,1000,-0.5,999.5);
+  _bxincyclevsbx = _rhm.makeTH2F("bxincyclevsbx","bxincyclevsbx",3564,-0.5,3563.5,70,-0.5,69.5);
+  _orbitvsbxincycle = _rhm.makeTH2F("orbitvsbxincycle","orbitvsbxincycle",70,-0.5,69.5,3600,0,11223*_binsize*3600);
 
   edm::LogInfo("UsedAPVCyclePhaseCollection") << " APVCyclePhaseCollection " << _apvphasecoll << " used";
 
@@ -171,11 +160,10 @@ EventTimeDistribution::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    (*_dbx)->Fill(he->deltaBX());
    (*_bx)->Fill(iEvent.bunchCrossing());
    (*_bxincycle)->Fill(tbx%70);
-   (*_orbit)->Fill(iEvent.orbitNumber());
-   if(_dbxvsbxincycle && *_dbxvsbxincycle) (*_dbxvsbxincycle)->Fill(tbx%70,he->deltaBX());
-   if(_dbxvsbx && *_dbxvsbx) (*_dbxvsbx)->Fill(iEvent.bunchCrossing(),he->deltaBX());
-   if(_bxincyclevsbx && *_bxincyclevsbx) (*_bxincyclevsbx)->Fill(iEvent.bunchCrossing(),tbx%70);
-   if(_orbitvsbxincycle && *_orbitvsbxincycle) (*_orbitvsbxincycle)->Fill(tbx%70,iEvent.orbitNumber());
+   (*_dbxvsbxincycle)->Fill(tbx%70,he->deltaBX());
+   (*_dbxvsbx)->Fill(iEvent.bunchCrossing(),he->deltaBX());
+   (*_bxincyclevsbx)->Fill(iEvent.bunchCrossing(),tbx%70);
+   (*_orbitvsbxincycle)->Fill(tbx%70,iEvent.orbitNumber());
 
 
 }
@@ -185,30 +173,48 @@ EventTimeDistribution::beginRun(const edm::Run& iRun, const edm::EventSetup&)
 {
 
   _rhm.beginRun(iRun);
-  if(*_dbx) {    (*_dbx)->GetXaxis()->SetTitle("#DeltaBX"); }
-
-  if(*_bx) { (*_bx)->GetXaxis()->SetTitle("BX");  }
-
-  if(*_bxincycle) {  (*_bxincycle)->GetXaxis()->SetTitle("Event BX mod(70)"); }
-
-  if(*_orbit) {
-    (*_orbit)->SetBit(TH1::kCanRebin);
-    (*_orbit)->GetXaxis()->SetTitle("time [Orb#]"); 
+  if(*_dbx) {
+    (*_dbx)->GetXaxis()->SetTitle("#DeltaBX"); 
   }
-
-  if(_dbxvsbxincycle && *_dbxvsbxincycle) {
+  else {
+    edm::LogWarning("NullPointer") << "The dbx pointer is null !!";
+  }
+  if(*_bx) {
+    (*_bx)->GetXaxis()->SetTitle("BX"); 
+  }
+  else {
+    edm::LogWarning("NullPointer") << "The bx pointer is null !!";
+  }
+  if(*_bxincycle) {
+    (*_bxincycle)->GetXaxis()->SetTitle("Event BX mod(70)"); 
+  }
+  else {
+    edm::LogWarning("NullPointer") << "The bxincycle pointer is null !!";
+  }
+  if(*_dbxvsbxincycle) {
     (*_dbxvsbxincycle)->GetXaxis()->SetTitle("Event BX mod(70)"); (*_dbxvsbxincycle)->GetYaxis()->SetTitle("#DeltaBX"); 
   }
-
-  if(_dbxvsbx && *_dbxvsbx) { (*_dbxvsbx)->GetXaxis()->SetTitle("BX"); (*_dbxvsbx)->GetYaxis()->SetTitle("#DeltaBX"); }
-
-  if(_bxincyclevsbx && *_bxincyclevsbx) {
-    (*_bxincyclevsbx)->GetXaxis()->SetTitle("BX"); (*_bxincyclevsbx)->GetYaxis()->SetTitle("Event BX mod(70)");
+  else {
+    edm::LogWarning("NullPointer") << "The dbxvsbxincycle pointer is null !!";
   }
-
-  if(_orbitvsbxincycle && *_orbitvsbxincycle) {
+  if(*_dbxvsbx) {
+    (*_dbxvsbx)->GetXaxis()->SetTitle("BX"); (*_dbxvsbx)->GetYaxis()->SetTitle("#DeltaBX"); 
+  }
+  else {
+    edm::LogWarning("NullPointer") << "The dbxvsbx pointer is null !!";
+  }
+  if(*_bxincyclevsbx) {
+    (*_bxincyclevsbx)->GetXaxis()->SetTitle("BX"); (*_bxincyclevsbx)->GetYaxis()->SetTitle("Event BX mod(70)"); 
+  }
+  else {
+    edm::LogWarning("NullPointer") << "The bxincyclevsbx pointer is null !!";
+  }
+  if(*_orbitvsbxincycle) {
     (*_orbitvsbxincycle)->SetBit(TH1::kCanRebin);
     (*_orbitvsbxincycle)->GetXaxis()->SetTitle("Event BX mod(70)"); (*_orbitvsbxincycle)->GetYaxis()->SetTitle("time [Orb#]"); 
+  }
+  else {
+    edm::LogWarning("NullPointer") << "The orbitvsbxincycle pointer is null !!";
   }
 }
 

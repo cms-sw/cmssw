@@ -64,7 +64,9 @@ regionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProdu
       ClusterCollectionLabel = cms.InputTag( "siStripClusters" ),
       MaxNumberOfPixelClusters = cms.uint32(3000),
       PixelClusterCollectionLabel = cms.InputTag("siPixelClusters"),
-      doClusterCheck = cms.bool( True )
+      doClusterCheck = cms.bool( True ),
+      #this is dangerous, but what the heck
+      silentClusterCheck = cms.untracked.bool(True)
     ) ,
 
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),

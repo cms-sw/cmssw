@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.cern.ch/cms/DDL" xmlns="http://www.cern.ch/cms/DDL" elementFormDefault="unqualified">
+
+	<!-- not supported yet -->
+<!--
+<xsd:unique name="constraint1">
+	<xsd:selector xpath="LogicalPartSection/LogicalPart"/>
+	<xsd:field xpath="@name"/>
+</xsd:unique>
+
+<xsd:unique name="constraint2">
+	<xsd:selector xpath="PosPartSection/PosPart"/>
+	<xsd:field xpath="@label"/>
+</xsd:unique>
+
+<xsd:unique name="constraint3">
+	<xsd:selector xpath="RotationSection/Rotation"/>
+	<xsd:field xpath="@ID"/>
+</xsd:unique>
+
+<xsd:unique name="constraint4">
+	<xsd:selector xpath="MaterialSection/"/>
+	<xsd:field xpath="@label"/>
+</xsd:unique>
+
+<xsd:unique name="constraint5">
+	<xsd:selector xpath="MaterialSection/Material"/>
+	<xsd:field xpath="@name"/>
+</xsd:unique>
+
+<xsd:unique name="constraint6">
+	<xsd:selector xpath="MaterialSection/Material"/>
+	<xsd:field xpath="@symbol"/>
+</xsd:unique>
+
+<xsd:unique name="constraint7">
+	<xsd:selector xpath="SpecParSection/SpecPar"/>
+	<xsd:field xpath="@name"/>
+</xsd:unique>
+
+<xsd:unique name="constraint8">
+	<xsd:selector xpath="SolidSection/Solid"/>
+	<xsd:field xpath="@name"/>
+</xsd:unique>
+
+-->
+<!-- Not yet usable within a collection of XML files -->
+<!--
+<xsd:key name="kMaterial">
+	<xsd:selector xpath="MaterialSection/Material"/>
+	<xsd:field xpath="@name"/>
+</xsd:key>
+
+<xsd:key name="kLogicalPart">
+	<xsd:selector xpath="LogicalPartSection/LogicalPart"/>
+	<xsd:field xpath="@name"/>
+</xsd:key>
+
+<xsd:key name="kPosPart">
+	<xsd:selector xpath="PosPartSection/PosPart"/>
+	<xsd:field xpath="@label"/>
+</xsd:key>
+
+<xsd:key name="kRotation">
+	<xsd:selector xpath="RotationSection/Rotation"/>
+	<xsd:field xpath="@name"/>
+</xsd:key>
+
+<xsd:key name="kParameter">
+	<xsd:selector xpath="SpecParSection/SpecPar"/>
+	<xsd:field xpath="@name"/>
+</xsd:key>
+
+<xsd:keyref name="krMaterial1" refer="kMaterial">
+	<xsd:selector xpath="LogicalPartSection/LogicalPart/rMaterial"/>
+	<xsd:selector xpath="@name"/>
+</xsd:keyref>
+
+<xsd:keyref name="krMaterial2" refer="kMaterial">
+	<xsd:selector xpath="MaterialSection/CompositeMaterial/MaterialFraction/rMaterial"/>
+	<xsd:selector xpath="@name"/>
+</xsd:keyref>
+
+<xsd:keyref name="krLogicalPart1" refer="kLogicalPart">
+	<xsd:selector xpath="PosPartSection/PosPar/rLogicalPart"/>
+	<xsd:selector xpath="@name"/>
+</xsd:keyref>
+
+<xsd:keyref name="krRotation1" refer="kRotation">
+	<xsd:selector xpath="PosPartSection/PosPar/rRotation"/>
+	<xsd:selector xpath="@name"/>
+</xsd:keyref>
+
+<xsd:keyref name="krParameter1" refer="kParameter">
+	<xsd:selector xpath="ConstraintSection/ParameterConstraint/rParameter"/>
+	<xsd:selector xpath="@name"/>
+</xsd:keyref>
+-->
+
+</xsd:schema>
