@@ -66,7 +66,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "GR_R_38X_V12::All"
+process.GlobalTag.globaltag = "GR10_P_V12::All"
 
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
