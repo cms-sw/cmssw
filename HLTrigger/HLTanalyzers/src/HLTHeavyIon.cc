@@ -101,9 +101,14 @@ void HLTHeavyIon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("hiHF",&hiHF,"hiHF/F");
   HltTree->Branch("hiHFplus",&hiHFplus,"hiHFplus/F");
   HltTree->Branch("hiHFminus",&hiHFminus,"hiHFminus/F");
+  HltTree->Branch("hiZDC",&hiZDC,"hiZDC/F");
+  HltTree->Branch("hiZDCplus",&hiZDCplus,"hiZDCplus/F");
+  HltTree->Branch("hiZDCminus",&hiZDCminus,"hiZDCminus/F");
+
   HltTree->Branch("hiHFhit",&hiHFhit,"hiHFhit/F");
   HltTree->Branch("hiHFhitPlus",&hiHFhitPlus,"hiHFhitPlus/F");
   HltTree->Branch("hiHFhitMinus",&hiHFhitMinus,"hiHFhitMinus/F");
+
   HltTree->Branch("hiET",&hiET,"hiET/F");
   HltTree->Branch("hiEE",&hiEE,"hiEE/F");
   HltTree->Branch("hiEB",&hiEB,"hiEB/F");
@@ -162,11 +167,16 @@ void HLTHeavyIon::analyze(const edm::Handle<edm::TriggerResults>                
   hiHFhitPlus = centrality->EtHFhitSumPlus();
   hiHFhitMinus = centrality->EtHFhitSumMinus();
 
+  hiZDC = centrality->zdcSum();
+  hiZDCplus = centrality->zdcSumPlus();
+  hiZDCminus = centrality->zdcSumMinus();
+
   hiEEplus = centrality->EtEESumPlus();
   hiEEminus = centrality->EtEESumMinus();
   hiEE = centrality->EtEESum();
   hiEB = centrality->EtEBSum();
   hiET = centrality->EtMidRapiditySum();
+
   
   if(evtPlanes.isValid()){
      nEvtPlanes = evtPlanes->size();
