@@ -9,7 +9,7 @@ N=$1
 
 ulimit -c 0
 
-cd ${HOME}/DQM/dqm-GUI
+cd ${HOME}/DQM/dqm-gui
 
 LD_LIBRARY_PATH=
 VO_CMS_SW_DIR=${PWD}/rpms
@@ -30,7 +30,7 @@ FILES=`find /data/ecalod-disk01/dqm-data/root/ -name 'DQM_V*.root' -mtime -1 | x
 
 for F in $FILES; do
   echo "Add: "$F
-  visDQMIndex add --dataset /Global/Online/ALL /data/ecalod-disk01/dqm-GUI/idx $F
+  visDQMIndex add --dataset /Global/Online/ALL /data/ecalod-disk01/dqm-gui/idx $F
 done
 
 echo "Index refresh: end"

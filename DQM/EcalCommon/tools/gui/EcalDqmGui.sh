@@ -7,7 +7,7 @@ fi
 
 ulimit -c 0
 
-cd ${HOME}/DQM/dqm-GUI
+cd ${HOME}/DQM/dqm-gui
 
 LD_LIBRARY_PATH=
 VO_CMS_SW_DIR=${PWD}/rpms

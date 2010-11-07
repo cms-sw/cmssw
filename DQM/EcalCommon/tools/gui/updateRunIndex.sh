@@ -2,7 +2,7 @@
 
 ulimit -c 0
 
-cd ${HOME}/DQM/dqm-GUI
+cd ${HOME}/DQM/dqm-gui
 
 LD_LIBRARY_PATH=
 VO_CMS_SW_DIR=${PWD}/rpms
@@ -19,7 +19,7 @@ touch /tmp/updateRunIndex.lock
 
 echo "Index update: begin"
 
-./visDQMImport /data/ecalod-disk01/dqm-GUI/idx /data/ecalod-disk01/dqm-data/root
+./visDQMImport /data/ecalod-disk01/dqm-gui/idx /data/ecalod-disk01/dqm-data/root
 
 echo "Index update: end"
 

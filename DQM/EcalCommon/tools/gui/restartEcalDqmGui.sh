@@ -1,5 +1,5 @@
 #!/bin/sh
 
-${HOME}/DQM/dqm-GUI/EcalDqmGui.sh restart
+${HOME}/DQM/dqm-gui/EcalDqmGui.sh restart
 
 exit 0
