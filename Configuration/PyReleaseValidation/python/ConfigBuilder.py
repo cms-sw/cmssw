@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.249 $"
+__version__ = "$Revision: 1.250 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -1218,7 +1218,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.249 $"),
+					    (version=cms.untracked.string("$Revision: 1.250 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
@@ -1255,6 +1255,9 @@ class ConfigBuilder(object):
         # production info
         if not hasattr(self.process,"configurationMetadata"):
 		self.build_production_info(self._options.evt_type, self._options.number)
+	else:
+		#the PSet was added via a load
+		self.addedObjects.append(("Production Info","configurationMetadata"))
 
 	self.pythonCfgCode +="\n"
 	for comment,object in self.addedObjects:
