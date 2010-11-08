@@ -45,7 +45,7 @@ using namespace reco;
 
 SeedFilter::SeedFilter(const edm::ParameterSet& conf)
  {
-  edm::LogInfo("EtaPhiRegionSeedFactory") << "Enter the EtaPhiRegionSeedFactory";
+  edm::LogInfo ("EtaPhiRegionSeedFactory") << "Enter the EtaPhiRegionSeedFactory";
   edm::ParameterSet regionPSet = conf.getParameter<edm::ParameterSet>("RegionPSet");
 
   ptmin_        = regionPSet.getParameter<double>("ptMin");
@@ -64,7 +64,7 @@ SeedFilter::SeedFilter(const edm::ParameterSet& conf)
   // -1 = look for existing hit collections for both pixels and strips
   // 0 = look for pixel hit collections and build strip hits on demand (regional unpacking)
   // 1 = build both pixel and strip hits on demand (regional unpacking)
-  hitsfactoryMode_ = hitsfactoryPSet.getUntrackedParameter<int>("useOnDemandTracker");
+  hitsfactoryMode_ = hitsfactoryPSet.getUntrackedParameter<int>("useOnDemandTracker",-1);
 
   // get orderd hits generator from factory
   OrderedHitsGenerator*  hitsGenerator = OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet);

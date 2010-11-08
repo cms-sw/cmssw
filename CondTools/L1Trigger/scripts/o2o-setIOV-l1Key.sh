@@ -24,12 +24,10 @@ shift $(($OPTIND - 1))
 run=$1
 l1Key=$2
 
-release=CMSSW_3_8_2
-version=008
+release=CMSSW_3_5_0
+version=007
 
 echo "`date` : o2o-setIOV-l1Key-slc5.sh $run $l1Key" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
-
-#ping -c 3 cmsnfshome0 | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
 
 if [ $# -lt 2 ]
     then
@@ -46,8 +44,7 @@ eval `scramv1 run -sh`
 # Check for semaphore file
 if [ -f o2o-setIOV.lock ]
     then
-    echo "$0 already running.  Aborting process."  | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
-    tail -2 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
+    echo "$0 already running.  Aborting process."
     exit 50
 else
     touch o2o-setIOV.lock
@@ -61,7 +58,7 @@ trap "rm -f o2o-setIOV.lock; mv tmp.log tmp.log.save; exit" 1 2 3 4 5 6 7 8 9 10
 rm -f tmp.log
 echo "`date` : setting TSC IOVs" >& tmp.log
 tscKey=`$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh -t ${l1Key}`
-echo "`date` : parsed tscKey = ${tscKey}" >> tmp.log 2>&1
+echo "`date` : parsed tscKey = ${tscKey}" >& tmp.log
 $CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-iov.sh -x ${run} ${tscKey} CRAFT09 >> tmp.log 2>&1
 o2ocode1=$?
 
@@ -79,8 +76,6 @@ if [ ${nflag} -eq 0 ]
     o2ocode2=$?
 fi
 
-tail -1 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
-#tail -9 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
 cat tmp.log | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
 
 # log TSC key and RS keys

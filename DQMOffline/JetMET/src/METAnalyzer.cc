@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/09/23 20:39:10 $
- *  $Revision: 1.35 $
+ *  $Date: 2010/09/29 12:24:55 $
+ *  $Revision: 1.36 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -784,6 +784,13 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       bTechTriggersNOT = false;
     }
   
+  if (_techTrigsAND.size()==0)
+    bTechTriggersAND = true;
+  if (_techTrigsOR.size()==0)
+    bTechTriggersOR = true;
+  if (_techTrigsNOT.size()==0)
+    bTechTriggersNOT = false;
+
   bTechTriggers = bTechTriggersAND && bTechTriggersOR && !bTechTriggersNOT;
   
   // ==========================================================

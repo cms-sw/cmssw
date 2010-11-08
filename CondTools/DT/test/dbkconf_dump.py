@@ -27,7 +27,7 @@ process.essource = cms.ESSource("PoolDBESSource",
     )
 )
 
-process.conf_dump = cms.EDAnalyzer("DTKeyedConfigDBDump")
+process.conf_dump = cms.EDFilter("DTKeyedConfigDBDump")
 
 process.p = cms.Path(process.conf_dump)
 

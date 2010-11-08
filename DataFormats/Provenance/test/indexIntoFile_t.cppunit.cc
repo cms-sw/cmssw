@@ -35,6 +35,7 @@ class TestIndexIntoFile: public CppUnit::TestFixture
   CPPUNIT_TEST(testIterLastLumiRangeNoEvents);
   CPPUNIT_TEST(testSkip);
   CPPUNIT_TEST(testSkip2);
+  CPPUNIT_TEST(testSkip3);
   CPPUNIT_TEST(testFind);
   CPPUNIT_TEST(testDuplicateCheckerFunctions);
   CPPUNIT_TEST_SUITE_END();
@@ -104,6 +105,7 @@ public:
   void testIterLastLumiRangeNoEvents();
   void testSkip();
   void testSkip2();
+  void testSkip3();
   void testFind();
   void testDuplicateCheckerFunctions();
 
@@ -1887,6 +1889,35 @@ void TestIndexIntoFile::testSkip2() {
   skipEventForward(iterNum);
   checkSkipped(0, 2, 101, 1);
   check(iterNum, kRun, 4, 7, -1, 0 , 0);
+}
+
+void TestIndexIntoFile::testSkip3() {
+  edm::IndexIntoFile indexIntoFile;
+  indexIntoFile.addEntry(fakePHID1, 1,     1,    0, 0); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1,     0,    0, 0); // Run
+  indexIntoFile.addEntry(fakePHID1, 2,   101,    0, 1); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 2,   101,    0, 2); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 2,   102, 1001, 0); // Event
+  indexIntoFile.addEntry(fakePHID1, 2,   102,    0, 3); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 2,   103,    0, 4); // Lumi
+  indexIntoFile.addEntry(fakePHID1, 2,     0,    0, 1); // Run
+  indexIntoFile.sortVector_Run_Or_Lumi_Entries();
+
+  edm::IndexIntoFile::IndexIntoFileItr iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
+
+  skipEventForward(iterFirst);
+  checkSkipped(0, 2, 102, 0);
+  check(iterFirst, kRun, 2, 6, -1, 0, 0);
+
+  std::vector<IndexIntoFile::EventEntry>&  eventEntries  = indexIntoFile.eventEntries();
+  eventEntries.push_back(IndexIntoFile::EventEntry(1001, 0));
+  indexIntoFile.sortEventEntries();
+
+  edm::IndexIntoFile::IndexIntoFileItr iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
+
+  skipEventForward(iterNum);
+  checkSkipped(0, 2, 102, 0);
+  check(iterNum, kRun, 2, 6, -1, 0, 0);
 }
 
 void TestIndexIntoFile::testFind() {

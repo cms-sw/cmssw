@@ -1,5 +1,6 @@
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h"
 
+#include <iostream>
 #include <iomanip>
 
 OpticalAlignParam::OpticalAlignParam()

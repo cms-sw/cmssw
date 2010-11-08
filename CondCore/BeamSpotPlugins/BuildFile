@@ -5,3 +5,11 @@
 <use name=CondCore/ESSources>
 
 <flags EDM_PLUGIN=1>
+<export>
+   <lib name=CondCoreBeamSpotPlugins>
+   <use name=CondFormats/BeamSpotObjects>
+   <use name=CondFormats/DataRecord>
+   <use name=CondCore/DBCommon>
+   <use name=FWCore/PluginManager>
+   <use name=CondCore/ESSources>
+</export>

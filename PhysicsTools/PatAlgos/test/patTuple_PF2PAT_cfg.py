@@ -12,7 +12,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 # process.load("PhysicsTools.PFCandProducer.Sources.source_ZtoMus_DBS_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False))
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 process.out.fileName = cms.untracked.string('patTuple_PF2PAT.root')
 
 # load the PAT config

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/09/22 19:40:15 $
- *  $Revision: 1.65 $
+ *  $Date: 2010/09/28 15:41:49 $
+ *  $Revision: 1.66 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -573,6 +573,13 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       bTechTriggersNOT = false;
     }
   
+  if (_techTrigsAND.size()==0)
+    bTechTriggersAND = true;
+  if (_techTrigsOR.size()==0)
+    bTechTriggersOR = true;
+  if (_techTrigsNOT.size()==0)
+    bTechTriggersNOT = false;
+
   bTechTriggers = bTechTriggersAND && bTechTriggersOR && !bTechTriggersNOT;
     
   bool bJetCleanup = bTechTriggers && bPrimaryVertex && bPhysicsDeclared;

@@ -29,7 +29,7 @@ class lumiTime(object):
         '''
         given a orbit number, return its corresponding unixtimestamp. Default run begin time counting from orbit=0
         '''
-        orbittime=OrbitToTime(begStrTime,orbitnumber,begorbit)
+        orbittime=self.OrbitToTime(begStrTime,orbitnumber,begorbit)
         return time.mktime(orbittime.timetuple())+orbittime.microsecond/1e6
     def StrToDatetime(self,strTime,customfm=''):
         '''convert string timestamp to python datetime

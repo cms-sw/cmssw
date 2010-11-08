@@ -11,13 +11,13 @@ from DQM.HLTEvF.FourVectorHLTOnline_cff import *
 # jet met
 from DQM.HLTEvF.HLTMonJetMETDQMSource_cff import * 
 # muon
-#from DQM.HLTEvF.HLTMonMuonDQM_cff import *
-#from DQM.HLTEvF.HLTLocalRecoDT_cff import *
-#from DQM.HLTEvF.HLTLocalRecoRPC_cff import *
-#from DQM.HLTEvF.HLTLocalRecoSiStrip_cff import *
-#from DQM.HLTEvF.HLTLocalRecoSiPixel_cff import *
+from DQM.HLTEvF.HLTMonMuonDQM_cff import *
+from DQM.HLTEvF.HLTLocalRecoDT_cff import *
+from DQM.HLTEvF.HLTLocalRecoRPC_cff import *
+from DQM.HLTEvF.HLTLocalRecoSiStrip_cff import *
+from DQM.HLTEvF.HLTLocalRecoSiPixel_cff import *
 # onia
-#from DQM.HLTEvF.HLTMonOnia_cff import *
+from DQM.HLTEvF.HLTMonOnia_cff import *
 # alca
 from DQM.HLTEvF.HLTMonAlCaPi0_cff import *
 from DQM.HLTEvF.HLTMonAlCaPhySim_cff import *

@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.cern.ch/cms/DDL" xmlns="http://www.cern.ch/cms/DDL" elementFormDefault="unqualified">
+
+<xsd:annotation>
+	<xsd:documentation xml:lang="en">
+		There are 2 types of material that inherit from the general material element: elementary materials and composite materials. Elementary materials describe materials such as oxygen, iron, etc.. composite are mixtures of material (which can themselves also be composites)
+	</xsd:documentation>
+</xsd:annotation>
+
+<!-- Including other schema files (same namespace) -->
+
+<xsd:include schemaLocation="DDLReference.xsd" />
+
+<xsd:include schemaLocation="DDLTypes.xsd"/>
+
+
+<!-- Element definitions -->
+
+<xsd:element name="Material" type="MaterialType" abstract="true"/>
+
+<xsd:element name="ElementaryMaterial" type="ElementaryMaterialType" substitutionGroup="Material"/>
+
+<xsd:element name="CompositeMaterial" type="CompositeMaterialType" substitutionGroup="Material"/>
+
+<xsd:element name="MaterialFraction" type="MaterialFractionType"/>
+
+
+
+<!-- Type definitions -->
+
+<xsd:complexType name="MaterialType">
+  <xsd:sequence>
+     <xsd:element name="comment" type="xsd:string" minOccurs='0' maxOccurs='1'/>
+  </xsd:sequence>
+  <xsd:attributeGroup ref="MaterialAttributes"/>
+</xsd:complexType>
+
+<xsd:complexType name="ElementaryMaterialType">
+   <xsd:complexContent>
+      <xsd:extension base="MaterialType">
+         <xsd:attributeGroup ref="ElementaryMaterialAttributes"/>
+      </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="CompositeMaterialType">
+   <xsd:complexContent>
+     <xsd:extension base="MaterialType">
+       <xsd:sequence>
+            <xsd:element ref="MaterialFraction" minOccurs='2' maxOccurs='unbounded' />
+       </xsd:sequence>
+       <xsd:attributeGroup ref="CompositeMaterialAttributes"/>
+     </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="MaterialFractionType">
+  <xsd:sequence>
+      <xsd:element ref="rMaterial" minOccurs='1' maxOccurs='1'/>
+  </xsd:sequence>
+  <xsd:attributeGroup ref="MaterialFractionAttributes"/>
+</xsd:complexType>
+
+
+<!-- Attribute definitions -->
+
+<xsd:attributeGroup name="MaterialAttributes">
+   <xsd:attribute name="name"          type="xsd:string" use="required"/>
+   <xsd:attribute name="symbol"        type="xsd:string" use="optional"/>
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="ElementaryMaterialAttributes">
+	<xsd:attribute name="atomicNumber" type="xsd:integer" use="required" />
+	<xsd:attribute name="density" type="densityT" use="required" />
+	<xsd:attribute name="atomicWeight" type="weightT" use="required" />
+	<xsd:attribute name="weightUnit" type="weightUnitT" use="optional"/>
+	<xsd:attribute name="lengthUnit" type="lengthUnitT" use="optional"/>
+	<xsd:attribute name="densityUnit" type="densityUnitT" use="optional"/>
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="CompositeMaterialAttributes">
+  <xsd:attribute name="method"          use="required">
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="compound by atomic proportion"/>
+           <xsd:enumeration value="mixture by weight"/>
+           <xsd:enumeration value="mixture by volume"/>
+         </xsd:restriction>
+      </xsd:simpleType>
+   </xsd:attribute>
+   <xsd:attribute name="density" type="densityT" use="required"/>
+   <xsd:attribute name="densityUnit" type="densityUnitT" use="optional"/>
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="MaterialFractionAttributes">
+   <xsd:attribute name="fraction" type="dimensionlessT" use="required"/>
+</xsd:attributeGroup>
+
+</xsd:schema>
+
+
+
+
+
+
+
+
+
+
+

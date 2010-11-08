@@ -31,10 +31,8 @@ namespace reco {
     };
 
     // size_t on 32-bit Os X is type unsigned long, which doesn't match uint32_t,
-    // so add unsigned long if it doesn't match any of the other integral types.
-    // Use "unsigned long" rather than size_t as PtrVector has unsigned long as
-    // size_type
-    typedef boost::mpl::if_<matches_another_integral_type<unsigned long>,
+    // so add size_t if it doesn't match any of the other integral types
+    typedef boost::mpl::if_<matches_another_integral_type<size_t>,
         boost::variant<int8_t, uint8_t,
                        int16_t, uint16_t,
                        int32_t, uint32_t,
@@ -45,7 +43,7 @@ namespace reco {
                        int16_t, uint16_t,
                        int32_t, uint32_t,
                        int64_t, uint64_t,
-                       unsigned long,
+                       size_t,
                        double,float,
                        std::string> >::type AnyMethodArgument;
 
@@ -68,7 +66,7 @@ namespace reco {
                 if (type_ == typeid(uint32_t)) { return retOk_<int,uint32_t>(t,0); }
                 if (type_ == typeid(int64_t))  { return retOk_<int,int64_t> (t,0); }
                 if (type_ == typeid(uint64_t)) { return retOk_<int,uint64_t>(t,0); }
-                if (type_ == typeid(unsigned long)) { return retOk_<int,unsigned long>  (t,0); } // harmless if unsigned long matches another type
+                if (type_ == typeid(size_t))   { return retOk_<int,size_t>  (t,0); } // harmless if size_t matches another type
                 if (type_ == typeid(double))   { return retOk_<int,double>  (t,1); }
                 if (type_ == typeid(float))    { return retOk_<int,float>   (t,1); }
                 return std::pair<AnyMethodArgument,int>(t,-1);

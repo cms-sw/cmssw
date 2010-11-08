@@ -248,23 +248,20 @@ int DCCSCBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalID){
     
   }// End 'if EE id exist'
   
-  else {
-    // in case EEDetId do not exist
+  else if (zs_) {// in case EE did not exist
+    
     // In EE we may have crystals with no valid EEDetId
-    if (! mapper_->isGhost(mapper_->getActiveDCC(), towerId_, stripId)) { // check the VFE is not a 'ghost'
-      
-      // this is real EE VFE - print warning
-      if (! DCCDataUnpacker::silentMode_) {
-        edm::LogWarning("IncorrectBlock")
-          << "An EEDetId was requested that does not exist "
-          << "(LV1 " << event_->l1A()
-          << " fed " << mapper_->getActiveDCC()
-          << " tower " << towerId_
-          << " strip " << stripId
-          << " xtal " << xtalId << ")";
-      }
+    if (! DCCDataUnpacker::silentMode_) {
+      edm::LogWarning("IncorrectBlock")
+        << "An EEDetId was requested that does not exist "
+        << "(LV1 " << event_->l1A()
+        << " fed " << mapper_->getActiveDCC()
+        << " tower " << towerId_
+        << " strip " << stripId
+        << " xtal " << xtalId << ")";
     }
   }
+  
   
   //Point to begin of next xtal Block
   data_ += numbDWInXtalBlock_;

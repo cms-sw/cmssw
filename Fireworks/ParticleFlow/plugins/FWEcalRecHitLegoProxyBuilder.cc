@@ -86,4 +86,4 @@ FWEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList *
    }
 }
 
-REGISTER_FWPROXYBUILDER( FWEcalRecHitLegoProxyBuilder, EcalRecHit, "Ecal RecHit", FWViewType::kLegoBit );
+REGISTER_FWPROXYBUILDER( FWEcalRecHitLegoProxyBuilder, EcalRecHit, "Ecal RecHit PF", FWViewType::kLegoBit );

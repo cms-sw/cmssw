@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.26 2010/08/17 10:20:51 amraktad Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.31 2010/10/22 14:34:45 amraktad Exp $
 //
 
 // system include files
@@ -51,8 +51,23 @@ FWProxyBuilderBase::Product::Product(FWViewType::EType t, const FWViewContext* c
 
 FWProxyBuilderBase::Product::~Product()
 {
-   m_elements->DestroyElements();
-   m_elements->DecDenyDestroy();
+   // remove product from projected scene (RhoPhi or RhoZ)
+   TEveProjectable* pable = dynamic_cast<TEveProjectable*>(m_elements);
+   // don't have to check cast, because TEveElementList is TEveProjectable
+   for (TEveProjectable::ProjList_i i = pable->BeginProjecteds(); i != pable->EndProjecteds(); ++i)
+   {
+      TEveElement* projected  = (*i)->GetProjectedAsElement();
+      (*projected->BeginParents())->RemoveElement(projected);
+   }
+
+   // remove from 3D scenes
+   while (m_elements->HasParents())
+   {
+      TEveElement* parent = *m_elements->BeginParents();
+      parent->RemoveElement(m_elements);
+   }
+
+   m_elements->Annihilate();
 }
 
 //______________________________________________________________________________
@@ -93,9 +108,6 @@ FWProxyBuilderBase::setHaveWindow(bool iFlag)
       if(m_mustBuild) {
          build();
       }
-      if(m_modelsChanged) {
-         applyChangesToAllModels();
-      }
    }
 }
 
@@ -103,6 +115,9 @@ void
 FWProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
 {
    m_item=0;
+
+   cleanLocal();
+
    for (Product_it i = m_products.begin(); i!= m_products.end(); i++)
    {
 
@@ -111,7 +126,6 @@ FWProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
    }
 
    m_products.clear();
-   cleanLocal();
 }
 
 void 
@@ -152,9 +166,7 @@ FWProxyBuilderBase::build()
                   pmgr->SetCurrentDepth(item()->layer());
                   size_t cnt = 0;
 
-                  // LATER: when root patches are in CMSSW use TEveProjected::GetProjectedAsElement() instead of dynamic_cast
-                  // TEveElement* projectedAsElement = (*i)->GetProjectedAsElement();                              
-                  TEveElement* projectedAsElement = dynamic_cast<TEveElement*>(*i);
+                  TEveElement* projectedAsElement = (*i)->GetProjectedAsElement();
                   TEveElement::List_i parentIt = projectedAsElement->BeginChildren();
                   for (TEveElement::List_i prodIt = elms->BeginChildren(); prodIt != elms->EndChildren(); ++prodIt, ++cnt)
                   {
@@ -198,22 +210,6 @@ FWProxyBuilderBase::build()
       }
    }
    m_mustBuild = false;
-}
-
-void
-FWProxyBuilderBase::applyChangesToAllModels()
-{
-   for (Product_it i = m_products.begin(); i!= m_products.end(); ++i)
-      applyChangesToAllModels(*i);
-
-   m_modelsChanged=false;
-}
-
-void
-FWProxyBuilderBase::applyChangesToAllModels(Product* p)
-{
-   FWModelIds ids(m_ids.begin(), m_ids.end());
-   modelChanges(ids, p);
 }
 
 //______________________________________________________________________________
@@ -482,6 +478,22 @@ FWProxyBuilderBase::createCompound(bool set_color, bool propagate_color_to_all_c
       c->CSCApplyMainTransparencyToMatchingChildren();
    }
    return c;
+}
+
+void
+FWProxyBuilderBase::increaseComponentTransparency(unsigned int index, TEveElement* holder,
+                                                    const std::string& name, Char_t transpOffset)
+{
+   // Helper function to increse transparency of certain components.
+
+   const FWDisplayProperties& dp = item()->modelInfo(index).displayProperties();
+   Char_t transp = TMath::Min(100, transpOffset + (100 - transpOffset) * dp.transparency() / 100);
+   TEveElement::List_t matches;
+   holder->FindChildren(matches, name.c_str());
+   for (TEveElement::List_i m = matches.begin(); m != matches.end(); ++m)
+   {
+      (*m)->SetMainTransparency(transp);
+   }
 }
 
 //
