@@ -48,6 +48,16 @@ process.out.outputCommands = cms.untracked.vstring('drop *',
                                                    *patEventContentNoCleaning ) 
 
 
+# top projections in PF2PAT:
+
+process.pfNoPileUpPFlow.enable = True 
+process.pfNoMuonPFlow.enable = False 
+process.pfNoElectronPFlow.enable = True 
+process.pfNoTauPFlow.enable = True 
+process.pfNoJetPFlow.enable = True 
+
+process.pfNoMuon.verbose = True
+
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
 #  parameters:

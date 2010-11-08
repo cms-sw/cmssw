@@ -12,11 +12,14 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 # process.load("PhysicsTools.PFCandProducer.Sources.source_ZtoMus_DBS_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False))
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
-process.out.fileName = cms.untracked.string('patTuple_PF2PAT.root')
+# process.load("PhysicsTools.PFCandProducer.Sources.source_ZtoMus_DBS_cfi")
+
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.out.fileName = cms.untracked.string('patTuple_PATandPF2PAT.root')
 
 # load the PAT config
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
+
 
 # Configure PAT to use PF2PAT instead of AOD sources
 # this function will modify the PAT sequences. It is currently 
@@ -35,6 +38,7 @@ usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix
 # to switch default tau to HPS tau uncomment the following:
 #adaptPFTaus(process,"hpsPFTau",postfix=postfix)
 
+
 # Let it run
 process.p = cms.Path(
     getattr(process,"patPF2PATSequence"+postfix)
@@ -49,6 +53,16 @@ from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
 process.out.outputCommands = cms.untracked.vstring('drop *',
                                                    *patEventContentNoCleaning ) 
 
+
+# top projections in PF2PAT:
+
+process.pfNoPileUpPFlow.enable = True 
+process.pfNoMuonPFlow.enable = True 
+process.pfNoElectronPFlow.enable = True 
+process.pfNoTauPFlow.enable = True 
+process.pfNoJetPFlow.enable = True 
+
+process.pfNoMuon.verbose = True
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
