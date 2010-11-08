@@ -17,13 +17,18 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
       toGet = cms.VPSet(
       cms.PSet(
             record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_Spring10_V5_AK5Calo'),
+            tag    = cms.string('JetCorrectorParametersCollection_Spring10_V6_AK5Calo'),
             label  = cms.untracked.string('AK5CaloLocal')
             ),
       cms.PSet(
             record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_Spring10_V5_IC5Calo'),
-            label  = cms.untracked.string('IC5CaloLocal')
+            tag    = cms.string('JetCorrectorParametersCollection_Spring10_V6_AK5PF'),
+            label  = cms.untracked.string('AK5PFLocal')
+            ),
+      cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_Summer10_V6_AK5JPT'),
+            label  = cms.untracked.string('AK5JPTLocal')
             ),                                                                                
        ),
       connect = cms.string('sqlite:JEC_Spring10.db')
@@ -37,11 +42,19 @@ process.demo1 = cms.EDAnalyzer('JetCorrectorDBReader',
         globalTag      = cms.untracked.string('JEC_Spring10')
 )
 
+
 process.demo2 = cms.EDAnalyzer('JetCorrectorDBReader', 
-        payloadName    = cms.untracked.string('IC5CaloLocal'),
+        payloadName    = cms.untracked.string('AK5PFLocal'),
+        printScreen    = cms.untracked.bool(False),
+        createTextFile = cms.untracked.bool(False),
+        globalTag      = cms.untracked.string('JEC_Spring10')
+)
+
+process.demo3 = cms.EDAnalyzer('JetCorrectorDBReader', 
+        payloadName    = cms.untracked.string('AK5JPTLocal'),
         printScreen    = cms.untracked.bool(False),
         createTextFile = cms.untracked.bool(False),
         globalTag      = cms.untracked.string('JEC_Spring10')                               
 )
 
-process.p = cms.Path(process.demo1 * process.demo2)
+process.p = cms.Path(process.demo1 * process.demo2 * process.demo3)
