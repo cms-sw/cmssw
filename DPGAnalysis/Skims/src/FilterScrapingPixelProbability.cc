@@ -13,7 +13,7 @@ using namespace std;
 
 FilterScrapingPixelProbability::FilterScrapingPixelProbability(const edm::ParameterSet& iConfig)
 {
-  //cout << "FilterScrapingPixelProbability::FilterScrapingPixelProbability " << endl;
+  //std::cout << "FilterScrapingPixelProbability::FilterScrapingPixelProbability " << std::endl;
 
   apply_filter                 = iConfig.getUntrackedParameter<bool>  ( "apply_filter"                , true  );
   select_collision             = iConfig.getUntrackedParameter<bool>  ( "select_collision"            , true  );
@@ -42,7 +42,7 @@ bool FilterScrapingPixelProbability::filter( edm::Event& iEvent, const edm::Even
   const reco::TrackCollection *tracks = trackCollection.product();
   reco::TrackCollection::const_iterator tciter;
 
-  //cout << "(int)tracks->size() = " << (int)tracks->size() << endl;
+  //std::cout << "(int)tracks->size() = " << (int)tracks->size() << std::endl;
   
   if ( (int)tracks->size() > 0 )
     {

@@ -11,7 +11,6 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/MuonDetId>
 <use name=CondFormats/CSCObjects>
-<use name=EventFilter/CSCRawToDigi>
 <use name=root>
 <use name=rootcore>
 <use name=DataFormats/L1GlobalMuonTrigger>

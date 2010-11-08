@@ -54,6 +54,7 @@ class PointToPointConnection(ZoomableWidget):
         self._selectableFlag = True
         self._selectedFlag = False
         self._deletableFlag = True
+        self._deletedFlag = False
         self._sourcePoint = sourcePoint
         self._targetPoint = targetPoint
         self._dragReferencePoint = None
@@ -804,16 +805,18 @@ class PointToPointConnection(ZoomableWidget):
         if event.key() == Qt.Key_Backspace or event.key() == Qt.Key_Delete:
             #print __name__ +'.keyPressEvent', event.key()
             self.delete()
+            self.emit(SIGNAL("deleteButtonPressed"))
 
     def delete(self):
         """ Deletes this connection.
         """
+        if self._deletedFlag:
+            return False
         if not self.isDeletable():
-            return None
-        if hasattr(self.parent(), "connectionAboutToDelete"):
-            self.parent().connectionAboutToDelete(self)
-        self.emit(SIGNAL("connectionDeleted"))
+            return False
         self.deleteLater()
+        self.emit(SIGNAL("connectionDeleted"))
+        return True
 
 class PortConnection(PointToPointConnection):
     """ Connection line between to PortWidgets.
@@ -826,6 +829,8 @@ class PortConnection(PointToPointConnection):
         self._sourcePort = sourcePort
         self._sinkPort = sinkPort
         PointToPointConnection.__init__(self, workspace, None, None)
+        self._sourcePort.attachConnection(self)
+        self._sinkPort.attachConnection(self)
         
     def sourcePort(self):
         """ Returns attached source port.
@@ -865,6 +870,11 @@ class PortConnection(PointToPointConnection):
         if port == self._sinkPort:
             return True
         return False
+    
+    def delete(self):
+        if PointToPointConnection.delete(self):
+            self._sinkPort.detachConnection(self)
+            self._sourcePort.detachConnection(self)
 
 class LinearPortConnection(PortConnection):
     """ PortConnection with linear connection

@@ -31,125 +31,33 @@ class AddPhotonUserIsolation(ConfigToolBase):
         gamIsoDepositEcalFromHits.ExtractorPSet.barrelEcalHits = cms.InputTag("reducedEcalRecHitsEB")
         gamIsoDepositEcalFromHits.ExtractorPSet.endcapEcalHits = cms.InputTag("reducedEcalRecHitsEE")
         
-        # key to define the parameter sets
-        isolationKey=0
         # add pre-requisits to the photon
         for obj in range(len(isolationTypes)):
             if ( isolationTypes[obj] == 'Tracker' or isolationTypes[obj] == 'All'):
                 print "adding predefined userIsolation to pat::Photon for Tracker"
                 print " -> to access this information call pat::Photon::userIsolation(pat::TrackIso) in your analysis code <-"
-                isolationKey=isolationKey+1
                 from PhysicsTools.PatAlgos.recoLayer0.photonIsolation_cff import patPhotonTrackIsolation
                 process.patPhotonTrackIsolation
                 process.patDefaultSequence.replace( process.patPhotons, process.patPhotonTrackIsolation*process.patPhotons )
-                
+                process.patPhotons.isoDeposits.tracker = cms.InputTag("gamIsoDepositTk")
+                process.patPhotons.userIsolation.tracker = cms.PSet( src = cms.InputTag("gamIsoFromDepsTk") )
+
             if ( isolationTypes[obj] == 'Ecal'    or isolationTypes[obj] == 'All'):
                 print "adding predefined userIsolation to pat::Photon for Ecal"
                 print " -> to access this information call pat::Photon::userIsolation(pat::EcalIso ) in your analysis code <-"
-                isolationKey=isolationKey+10
                 from PhysicsTools.PatAlgos.recoLayer0.photonIsolation_cff import patPhotonEcalIsolation
                 process.patPhotonEcalIsolation            
                 process.patDefaultSequence.replace( process.patPhotons, process.patPhotonEcalIsolation*process.patPhotons )
+                process.patPhotons.isoDeposits.ecal = cms.InputTag("gamIsoDepositEcalFromHits")
+                process.patPhotons.userIsolation.ecal = cms.PSet( src = cms.InputTag("gamIsoFromDepsEcalFromHits") )
                 
             if ( isolationTypes[obj] == 'Hcal'    or isolationTypes[obj] == 'All'):
                 print "adding predefined userIsolation to pat::Photon for Hcal"
                 print " -> to access this information call pat::Photon::userIsolation(pat::HcalIso ) in your analysis code <-"
-                isolationKey=isolationKey+100
                 from PhysicsTools.PatAlgos.recoLayer0.photonIsolation_cff import patPhotonHcalIsolation            
                 process.patPhotonHcalIsolation = patPhotonHcalIsolation
-                process.patDefaultSequence.replace( process.patPhotons, process.patPhotonHcalIsolation*process.patPhotons )  
-                
-        # do the corresponding replacements in the pat photon
-        if ( isolationKey ==   1 ):
-            # tracker
-            process.patPhotons.isoDeposits = cms.PSet(
-                tracker = cms.InputTag("gamIsoDepositTk"),
-            )
-            process.patPhotons.userIsolation = cms.PSet(
-                tracker = cms.PSet(
-                src = cms.InputTag("gamIsoFromDepsTk"),
-                ),
-            )
-        if ( isolationKey ==  10 ):
-            # ecal
-            process.patPhotons.isoDeposits = cms.PSet(
-                ecal    = cms.InputTag("gamIsoDepositEcalFromHits"),
-            )
-            process.patPhotons.userIsolation = cms.PSet(
-                ecal = cms.PSet(
-                src = cms.InputTag("gamIsoFromDepsEcalFromHits"),
-                ),
-            )
-        if ( isolationKey == 100 ):
-            # hcal
-            process.patPhotons.isoDeposits = cms.PSet(
-                hcal    = cms.InputTag("gamIsoDepositHcalFromTowers"),
-            )
-            process.patPhotons.userIsolation = cms.PSet(
-                hcal = cms.PSet(
-                src = cms.InputTag("gamIsoFromDepsHcalFromTowers"),
-                ),
-            )
-        if ( isolationKey ==  11 ):
-            # ecal + tracker
-            process.patPhotons.isoDeposits = cms.PSet(
-                tracker = cms.InputTag("gamIsoDepositTk"),
-                ecal    = cms.InputTag("gamIsoDepositEcalFromHits"),
-            )
-            process.patPhotons.userIsolation = cms.PSet(
-                tracker = cms.PSet(
-                src = cms.InputTag("gamIsoFromDepsTk"),
-                ),
-                ecal = cms.PSet(
-                src = cms.InputTag("gamIsoFromDepsEcalFromHits"),
-                ),
-            )
-        if ( isolationKey == 101 ):
-            # hcal + tracker
-            process.patPhotons.isoDeposits = cms.PSet(
-                tracker = cms.InputTag("gamIsoDepositTk"),
-                hcal    = cms.InputTag("gamIsoDepositHcalFromTowers"),
-            )
-            process.patPhotons.userIsolation = cms.PSet(
-                tracker = cms.PSet(
-                src = cms.InputTag("gamIsoFromDepsTk"),
-                ),
-                hcal = cms.PSet(
-                src = cms.InputTag("gamIsoFromDepsHcalFromTowers"),
-                ),
-            )
-        if ( isolationKey == 110 ):
-            # hcal + ecal
-            process.patPhotons.isoDeposits = cms.PSet(
-                ecal    = cms.InputTag("gamIsoDepositEcalFromHits"),
-                hcal    = cms.InputTag("gamIsoDepositHcalFromTowers"),
-            )
-            process.patPhotons.userIsolation = cms.PSet(
-                ecal = cms.PSet(
-                src = cms.InputTag("gamIsoFromDepsEcalFromHits"),
-                ),
-                hcal = cms.PSet(
-                src = cms.InputTag("gamIsoFromDepsHcalFromTowers"),
-                ),
-            )
-        if ( isolationKey == 111 ):
-            # hcal + ecal + tracker
-            process.patPhotons.isoDeposits = cms.PSet(
-                tracker = cms.InputTag("gamIsoDepositTk"),
-                ecal    = cms.InputTag("gamIsoDepositEcalFromHits"),
-                hcal    = cms.InputTag("gamIsoDepositHcalFromTowers"),
-            )
-            process.patPhotons.userIsolation = cms.PSet(
-                tracker = cms.PSet(
-                src = cms.InputTag("gamIsoFromDepsTk"),
-                ),
-                ecal = cms.PSet(
-                src = cms.InputTag("gamIsoFromDepsEcalFromHits"),
-                ),
-                hcal = cms.PSet(
-                src = cms.InputTag("gamIsoFromDepsHcalFromTowers"),
-                ),
-            )
-
+                process.patDefaultSequence.replace( process.patPhotons, process.patPhotonHcalIsolation*process.patPhotons )
+                process.patPhotons.isoDeposits.hcal = cms.InputTag("gamIsoDepositHcalFromTowers")
+                process.patPhotons.userIsolation.hcal = cms.PSet( src = cms.InputTag("gamIsoFromDepsHcalFromTowers") )
 
 addPhotonUserIsolation=AddPhotonUserIsolation()

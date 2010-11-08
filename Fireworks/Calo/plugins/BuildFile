@@ -1,0 +1,7 @@
+<library file=*.cc name=FireworksCaloPlugins>
+  <use name=Fireworks/Calo>
+  <use name=DataFormats/PatCandidates>
+  <use name=Fireworks/Tracks>
+  <flags EDM_PLUGIN=1>
+</library>
+

@@ -8,13 +8,22 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:56 EST 2009
-// $Id: FWDetailViewBase.cc,v 1.22 2010/06/01 19:02:08 amraktad Exp $
+// $Id: FWDetailViewBase.cc,v 1.20 2010/01/14 15:55:13 amraktad Exp $
 //
 
 // system include files
+#include "TGPack.h"
+#include "TCanvas.h"
 #include "TBox.h"
 #include "TEllipse.h"
+
+#include "TRootEmbeddedCanvas.h"
+#include "TGLEmbeddedViewer.h"
+#include "TGLViewer.h"
 #include "TEveViewer.h"
+#include "TEveManager.h"
+#include "TEveScene.h"
+#include "RVersion.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWDetailViewBase.h"
@@ -23,14 +32,15 @@
 
 FWDetailViewBase::FWDetailViewBase(const std::type_info& iInfo) :
    m_item(0),
+   m_eveWindow(0),
    m_helper(iInfo)
 {
 }
 
 FWDetailViewBase::~FWDetailViewBase()
 {
+   if (m_eveWindow) m_eveWindow->DestroyWindow();
 }
-
 
 void
 FWDetailViewBase::build (const FWModelId &iID)

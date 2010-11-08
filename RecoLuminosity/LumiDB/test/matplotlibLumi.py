@@ -82,7 +82,19 @@ def plotRun(fig):
     ax.plot(runlist,[0.8*x for x in lumivalues])
     ax.grid(True)
     fig.subplots_adjust(bottom=0.18,left=0.18)
-    
+def plotHist(fig):
+    x=[1,2,3,4,5,6]
+    y=[1,2,3,4,5,6]
+    binsize=1
+    ax=fig.add_subplot(111)
+    ax.set_xlabel(r'Run')
+    ax.set_ylabel(r'Luminosity $\mu$b$^{-1}$')
+    print binsize
+    #ax.bar(x,y,width=binsize,drawstyle='steps',edgecolor='r',fill=False,label='Recorded')
+    ax.plot(x,y,drawstyle='steps')
+    ax.grid(True)
+    ax.legend()
+    fig.subplots_adjust(bottom=0.18,left=0.18)
 if __name__=='__main__':
     fig=Figure(figsize=(5,4),dpi=100)
     #a=fig.add_subplot(111)
@@ -103,6 +115,7 @@ if __name__=='__main__':
     
     #drawBatch(fig,'testbatch.png')
     #plotDate(fig)
-    plotRun(fig)
+    #plotRun(fig)
+    plotHist(fig)
     drawInteractive(fig)
     #print drawHTTPstring()

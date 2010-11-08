@@ -214,18 +214,7 @@ class ConnectableWidget(VispaWidget, VispaWidgetOwner):
         #logging.debug(self.__class__.__name__ +": mouseReleaseEvent()")
         self.releaseMouse()
         VispaWidget.mouseReleaseEvent(self, event)
-         
-#    def delete(self):
-#        """ Deletes this widget.
-#        
-#        Asks parent (ConnectableWidgetOwner) to remove all connections attached to any of this widgets ports and deletes the widget.
-#        """
-#        if not self.isDeletable():
-#            return None
-#        if isinstance(self.parent(), VispaWidgetOwner):
-#            self.parent().widgetAboutToDelete(self)
-#        VispaWidget.delete(self)
-            
+
     def ports(self):
         """ Returns list containing all source and sink port widgets.
         """
@@ -252,12 +241,18 @@ class ConnectableWidget(VispaWidget, VispaWidgetOwner):
             self._ports[len(self._ports) - 1].setDescription(description)
         self.scheduleRearangeContent()
         
+    def deleteLater(self):
+        if self._menuWidget:
+            self.removeMenu()
+        for port in self._ports:
+            port.deleteAttachedConnections()
+        VispaWidget.deleteLater(self)
+        
     def removePort(self, port):
         """ Removes given port if it is port of this widget.
         """
         if port in self._ports:
-            if isinstance(self.parent(), VispaWidgetOwner):
-                self.parent().deleteConnectionsAttachedToPort(port)
+            port.deleteAttachedConnections()
             self._ports.remove(port)
             port.setParent(None)
             port.deleteLater()
@@ -268,8 +263,7 @@ class ConnectableWidget(VispaWidget, VispaWidgetOwner):
             if port.name() == name and port.description() == description:
                 return True
         return False
-         
-        
+
     def removePorts(self, filter=None):
         """ Remove registered ports.
         
@@ -282,9 +276,7 @@ class ConnectableWidget(VispaWidget, VispaWidgetOwner):
         ports = self._ports[:]
         for port in ports:
             if not filter or port.portType() == filter:
-                if parentIsWidgetOwner or isinstance(self.parent(), VispaWidgetOwner):
-                    parentIsWidgetOwner = True
-                    self.parent().deleteConnectionsAttachedToPort(port)
+                port.deleteAttachedConnections()
                 self._ports.remove(port)
                 port.setParent(None)
                 port.deleteLater()
@@ -320,6 +312,8 @@ class ConnectableWidget(VispaWidget, VispaWidgetOwner):
     def port(self, name, type):
         """ Returns port with given name and of given type.
         """
+        if name == None:
+            return None
         for port in self._ports:
             if port.portType() == type and port.name() == name:
                 return port
@@ -365,6 +359,18 @@ class ConnectableWidget(VispaWidget, VispaWidgetOwner):
         VispaWidget.rearangeContent(self)
         self.arrangePorts()     # has to be after rearangeContent(), prevents infinite loop (..getDistance())
 
+    def centerSinglePortVertically(self, ports, portX):
+        """ Centers port vertically within body part (widget without title) of ModuleWidget.
+        
+        ports can either be the list of source or sink ports of ModuleWidget.
+        portX specifies the designated x coordinate to be adjustable for sinks and sources.
+        """
+        if len(ports) != 1 or not isinstance(ports[0], PortWidget):
+            logging.warning(self.__class__.__name__ + ": centerSinglePortVertically() - This method was designed for plugins with one port. Falling back to default arrangement.")
+            return False
+        ports[0].move(portX, (self.height() + self.getDistance("titleFieldHeight")) * 0.5)
+        return True
+    
     def arrangePorts(self, filter=None):
         """ Sets positions of set ports depending on zoom factor.
         
@@ -516,6 +522,7 @@ class ConnectableWidget(VispaWidget, VispaWidgetOwner):
             self.removeMenu()
     
     def removeMenu(self):
+        self._menuWidget.hide()
         self._menuWidget.setParent(None)
         self._menuWidget.deleteLater()
         self._menuWidget = None
@@ -525,7 +532,8 @@ class ConnectableWidget(VispaWidget, VispaWidgetOwner):
             headerOffset = 0
             if isinstance(self.parent(), VispaWidget):
                 headerOffset = self.parent().getDistance("titleFieldBottom")
-            self._menuWidget.move(max(0, self.x() + 0.3* self.width(), self.x() - 0.5* (self._menuWidget.width() - self.width())), max(0, headerOffset, self.y() - self._menuWidget.height() +1))
+            self._menuWidget.move(max(0, self.x() - 0.5* (self._menuWidget.width() - self.width())), 
+                                  max(0, headerOffset, self.y() - self._menuWidget.height() +1))
         
     def dragWidget(self, pPos):
         VispaWidget.dragWidget(self, pPos)
@@ -535,4 +543,20 @@ class ConnectableWidget(VispaWidget, VispaWidgetOwner):
         VispaWidget.select(self, sel, multiSelect)
         if not sel and self._menuWidget:
             self._menuWidget.hide()
+    
+    def move(self, *target):
+        VispaWidget.move(self, *target)
+        if self._menuWidget:
+            self._menuWidget.hide()
+        self.updateAttachedConnections()
             
+    def updateAttachedConnections(self):
+        for port in self._ports:
+            port.updateAttachedConnections()
+            
+    def attachedConnections(self):
+        connections = []
+        for port in self._ports:
+            connections += port.attachedConnections()
+        return connections
+        

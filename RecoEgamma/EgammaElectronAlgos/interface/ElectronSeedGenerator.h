@@ -82,9 +82,13 @@ class ElectronSeedGenerator
   float nSigmasDeltaZ1_; // first z window size if not using the reco vertex
   float deltaZ1WithVertex_; // first z window size when using the reco vertex
   float sizeWindowENeg_;
-  float phimin2_,phimax2_;
+  float phiMin2B_ ;
+  float phiMax2B_ ;
+  float phiMin2F_ ;
+  float phiMax2F_ ;
   float deltaPhi1Low_, deltaPhi1High_;
-  float deltaPhi2_;
+  float deltaPhi2B_;
+  float deltaPhi2F_;
 
   PixelHitMatcher *myMatchEle;
   PixelHitMatcher *myMatchPos;
@@ -98,6 +102,7 @@ class ElectronSeedGenerator
   KFUpdator * theUpdator;
   PropagatorWithMaterial * thePropagator;
 
+  std::string theMeasurementTrackerName;
   const MeasurementTracker*     theMeasurementTracker;
   const NavigationSchool*       theNavigationSchool;
 

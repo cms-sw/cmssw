@@ -49,4 +49,4 @@ FEVTDEBUGHLTEventContent.outputCommands.extend(RecoHIFEVT.outputCommands)
 RECODEBUGEventContent.outputCommands.extend(HiMixRAW.outputCommands)
 RECODEBUGEventContent.outputCommands.extend(RecoHIRECO.outputCommands)
 
-
+from Configuration.EventContent.EventContent_cff import DQMEventContent

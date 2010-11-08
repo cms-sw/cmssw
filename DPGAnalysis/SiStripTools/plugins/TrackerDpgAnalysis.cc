@@ -17,7 +17,7 @@
 // part of the code was inspired by http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/YGao/LhcTrackAnalyzer/
 // part of the code was inspired by 
 // other inputs from Andrea Giammanco, Gaelle Boudoul, Andrea Venturi, Steven Lowette, Gavril Giurgiu
-// $Id: TrackerDpgAnalysis.cc,v 1.6 2010/05/14 12:06:34 delaer Exp $
+// $Id: TrackerDpgAnalysis.cc,v 1.8 2010/07/27 15:14:31 delaer Exp $
 //
 //
 
@@ -257,8 +257,8 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig):hltConf
    for(size_t i = 0; i<trackLabel_.size(); ++i) {
      char buffer1[256];
      char buffer2[256];
-     sprintf(buffer1,"trackid%d",i);
-     sprintf(buffer2,"trackid%d/i",i);
+     sprintf(buffer1,"trackid%lu",(unsigned long)i);
+     sprintf(buffer2,"trackid%lu/i",(unsigned long)i);
      clusters_->Branch(buffer1,trackid_+i,buffer2);
    }
    clusters_->Branch("onTrack",&onTrack_,"onTrack/O");
@@ -288,8 +288,8 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig):hltConf
    for(size_t i = 0; i<trackLabel_.size(); ++i) {
      char buffer1[256];
      char buffer2[256];
-     sprintf(buffer1,"trackid%d",i);
-     sprintf(buffer2,"trackid%d/i",i);
+     sprintf(buffer1,"trackid%lu",(unsigned long)i);
+     sprintf(buffer2,"trackid%lu/i",(unsigned long)i);
      pixclusters_->Branch(buffer1,trackid_+i,buffer2);
    }
    pixclusters_->Branch("onTrack",&onTrack_,"onTrack/O");
@@ -311,11 +311,11 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig):hltConf
    for(size_t i = 0; i<trackLabel_.size(); ++i) {
      char buffer1[256];
      char buffer2[256];
-     sprintf(buffer1,"tracks%d",i);
-     sprintf(buffer2,"track%d information",i);
+     sprintf(buffer1,"tracks%lu",(unsigned long)i);
+     sprintf(buffer2,"track%lu information",(unsigned long)i);
      TTree* thetracks_ = dir->make<TTree>(buffer1,buffer2);
-     sprintf(buffer1,"trackid%d",i);
-     sprintf(buffer2,"trackid%d/i",i);
+     sprintf(buffer1,"trackid%lu",(unsigned long)i);
+     sprintf(buffer2,"trackid%lu/i",(unsigned long)i);
      thetracks_->Branch(buffer1,globaltrackid_+i,buffer2);
      thetracks_->Branch("eventid",&eventid_,"eventid/i");
      thetracks_->Branch("runid",&runid_,"runid/i");
@@ -360,11 +360,11 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig):hltConf
    for(size_t i = 0; i<trackLabel_.size(); ++i) {
      char buffer1[256];
      char buffer2[256];
-     sprintf(buffer1,"misingHits%d",i);
-     sprintf(buffer2,"missing hits from track collection %d",i);
+     sprintf(buffer1,"misingHits%lu",(unsigned long)i);
+     sprintf(buffer2,"missing hits from track collection %lu",(unsigned long)i);
      TTree* themissingHits_ = dir->make<TTree>(buffer1,buffer2);
-     sprintf(buffer1,"trackid%d",i);
-     sprintf(buffer2,"trackid%d/i",i);
+     sprintf(buffer1,"trackid%lu",(unsigned long)i);
+     sprintf(buffer2,"trackid%lu/i",(unsigned long)i);
      themissingHits_->Branch(buffer1,globaltrackid_+i,buffer2);
      themissingHits_->Branch("eventid",&eventid_,"eventid/i");
      themissingHits_->Branch("runid",&runid_,"runid/i");
@@ -429,11 +429,11 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig):hltConf
    event_->Branch("physicsDeclared",&physicsDeclared_,"physicsDeclared/s");
    event_->Branch("HLTDecisionBits",HLTDecisionBits_,"HLTDecisionBits[256]/O");
    char buffer[256];
-   sprintf(buffer,"ntracks[%d]/i",trackLabel_.size());
+   sprintf(buffer,"ntracks[%lu]/i",(unsigned long)trackLabel_.size());
    event_->Branch("ntracks",ntracks_,buffer);
-   sprintf(buffer,"ntrajs[%d]/i",trackLabel_.size());
+   sprintf(buffer,"ntrajs[%lu]/i",(unsigned long)trackLabel_.size());
    event_->Branch("ntrajs",ntrajs_,buffer);
-   sprintf(buffer,"lowPixelProbabilityFraction[%d]/F",trackLabel_.size());
+   sprintf(buffer,"lowPixelProbabilityFraction[%lu]/F",(unsigned long)trackLabel_.size());
    event_->Branch("lowPixelProbabilityFraction",lowPixelProbabilityFraction_,buffer);
    event_->Branch("nclusters",&nclusters_,"nclusters/i");
    event_->Branch("npixClusters",&npixClusters_,"npixClusters/i");
@@ -476,6 +476,9 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig):hltConf
    readoutmap_->Branch("moduleName",moduleName_,"moduleName/C");
    readoutmap_->Branch("moduleId",moduleId_,"moduleId/C");
    readoutmap_->Branch("delay",&delay_,"delay/F");
+   readoutmap_->Branch("globalX",&globalX_,"globalX/F");
+   readoutmap_->Branch("globalY",&globalY_,"globalY/F");
+   readoutmap_->Branch("globalZ",&globalZ_,"globalZ/F");
 }
 
 TrackerDpgAnalysis::~TrackerDpgAnalysis()
@@ -937,10 +940,27 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 void 
 TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
+
+   //geometry
+   iSetup.get<TrackerDigiGeometryRecord>().get(tracker_);
+
+   //HLT names
+   bool changed (true);
+   if (hltConfig_.init(iRun,iSetup,HLTLabel_.process(),changed)) {
+     if (changed) {
+       hlNames_=hltConfig_.triggerNames();
+     }
+   }
+   int i=0;
+   for(std::vector<std::string>::const_iterator it = hlNames_.begin(); it<hlNames_.end();++it) {
+     std::cout << (i++) << " = " << (*it) << std::endl;
+   } 
+
    // read the delay offsets for each device from input files
    // this is only for the so-called "random delay" run
    std::map<uint32_t,float> delayMap = delay(delayFileNames_);
    TrackerMap tmap("Delays");
+
    // cabling I (readout)
    iSetup.get<SiStripFedCablingRcd>().get( cabling_ );
    const std::vector< uint16_t > & feds = cabling_->feds() ;
@@ -966,12 +986,18 @@ TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
          fedCh_ = conn->fedCh();
          fiberLength_ = conn->fiberLength();
 	 delay_ = delayMap[dcuId_];
+	 const StripGeomDetUnit* sgdu = static_cast<const StripGeomDetUnit*>(tracker_->idToDet(detid_));
+	 Surface::GlobalPoint gp = sgdu->surface().toGlobal(LocalPoint(0,0));
+	 globalX_ = gp.x();
+	 globalY_ = gp.y();
+	 globalZ_ = gp.z();
 	 readoutmap_->Fill();
          tmap.fill_current_val(detid_,delay_);
        }
      }
    }
    if(delayMap.size()) tmap.save(true, 0, 0, "delaymap.png");
+
    // cabling II (DCU map)
    ifstream cablingFile(cablingFileName_.c_str());
    if(cablingFile.is_open()) {
@@ -994,22 +1020,6 @@ TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
                                   << std::endl << " Looking for " << cablingFileName_.c_str() << "." 
 				  << std::endl << " Please specify a valid filename through the PSUFileName untracked parameter.";
    }
-
-   //geometry
-   iSetup.get<TrackerDigiGeometryRecord>().get(tracker_);
-
-   //HLT names
-   bool changed (true);
-   if (hltConfig_.init(iRun,iSetup,HLTLabel_.process(),changed)) {
-     if (changed) {
-       hlNames_=hltConfig_.triggerNames();
-     }
-   }
-   int i=0;
-   for(std::vector<std::string>::const_iterator it = hlNames_.begin(); it<hlNames_.end();++it) {
-     std::cout << (i++) << " = " << (*it) << std::endl;
-   } 
-
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -1017,13 +1027,13 @@ void
 TrackerDpgAnalysis::endJob() {
   for(size_t i = 0; i<tracks_.size();++i) {
     char buffer[256];
-    sprintf(buffer,"trackid%d",i);
+    sprintf(buffer,"trackid%lu",(unsigned long)i);
     if(tracks_[i]->GetEntries()) tracks_[i]->BuildIndex(buffer,"eventid");
   }
   /* not needed: missing hits is a high-level quantity
   for(size_t i = 0; i<missingHits_.size();++i) {
     char buffer[256];
-    sprintf(buffer,"trackid%d",i);
+    sprintf(buffer,"trackid%lu",(unsigned long)i);
     if(missingHits_[i]->GetEntries()) missingHits_[i]->BuildIndex(buffer);
   }
   */

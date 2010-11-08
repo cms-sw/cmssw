@@ -46,7 +46,10 @@ class pp(Scenario):
                  'HcalCalDijets',
                  'SiStripCalMinBias',
                  'EcalCalElectron',
-                 'DtCalib']
+                 'DtCalib',
+                 'TkAlJpsiMuMu',
+                 'TkAlUpsilonMuMu',
+                 'TkAlZMuMu']
         step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)

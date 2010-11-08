@@ -141,17 +141,6 @@ FastSimParamMuonAOD = cms.PSet(
 
 #####################################################################
 #
-# RECO Data Tier definition
-#
-#####################################################################
-
-RECOEventContent.outputCommands.extend(FastSimRecoLocalTrackerRECO.outputCommands)
-RECOEventContent.outputCommands.extend(FastSimRecoLocalCaloRECO.outputCommands)
-RECOEventContent.outputCommands.extend(FastSimRecoTrackerRECO.outputCommands)
-RECOEventContent.outputCommands.extend(FastSimParamMuonRECO.outputCommands)
-
-#####################################################################
-#
 # AOD Data Tier definition
 #
 #####################################################################
@@ -161,6 +150,31 @@ AODEventContent.outputCommands.extend(FastSimRecoLocalCaloAOD.outputCommands)
 AODEventContent.outputCommands.extend(FastSimRecoTrackerAOD.outputCommands)
 AODEventContent.outputCommands.extend(FastSimParamMuonAOD.outputCommands)
 #AODEventContent.outputCommands.extend(FastSimCJPT.outputCommands)
+
+#####################################################################
+#
+# AODSIM Data Tier definition
+#
+#####################################################################
+
+AODSIMEventContent.outputCommands.extend(FastSimCoreAOD.outputCommands)
+AODSIMEventContent.outputCommands.extend(FastSimRecoLocalTrackerAOD.outputCommands)
+AODSIMEventContent.outputCommands.extend(FastSimRecoLocalCaloAOD.outputCommands)
+AODSIMEventContent.outputCommands.extend(FastSimRecoTrackerAOD.outputCommands)
+AODSIMEventContent.outputCommands.extend(FastSimParamMuonAOD.outputCommands)
+#AODSIMEventContent.outputCommands.extend(FastSimCJPT.outputCommands)
+
+
+#####################################################################
+#
+# RECO Data Tier definition
+#
+#####################################################################
+
+RECOEventContent.outputCommands.extend(FastSimRecoLocalTrackerRECO.outputCommands)
+RECOEventContent.outputCommands.extend(FastSimRecoLocalCaloRECO.outputCommands)
+RECOEventContent.outputCommands.extend(FastSimRecoTrackerRECO.outputCommands)
+RECOEventContent.outputCommands.extend(FastSimParamMuonRECO.outputCommands)
 
 #####################################################################
 #
@@ -176,18 +190,17 @@ RECOSIMEventContent.outputCommands.extend(FastSimParamMuonRECO.outputCommands)
 
 #####################################################################
 #
-# AODSIM Data Tier definition
+# RECODEBUG Data Tier definition
 #
 #####################################################################
 
-AODSIMEventContent.outputCommands.extend(FastSimCoreAOD.outputCommands)
-AODSIMEventContent.outputCommands.extend(FastSimRecoLocalTrackerAOD.outputCommands)
-AODSIMEventContent.outputCommands.extend(FastSimRecoLocalCaloAOD.outputCommands)
-AODSIMEventContent.outputCommands.extend(FastSimRecoTrackerAOD.outputCommands)
-AODSIMEventContent.outputCommands.extend(FastSimParamMuonAOD.outputCommands)
-#AODSIMEventContent.outputCommands.extend(FastSimCJPT.outputCommands)
+RECODEBUGEventContent.outputCommands.extend(FastSimCoreRECO.outputCommands)
+RECODEBUGEventContent.outputCommands.extend(FastSimRecoLocalTrackerRECO.outputCommands)
+RECODEBUGEventContent.outputCommands.extend(FastSimRecoLocalCaloRECO.outputCommands)
+RECODEBUGEventContent.outputCommands.extend(FastSimRecoTrackerRECO.outputCommands)
+RECODEBUGEventContent.outputCommands.extend(FastSimParamMuonRECO.outputCommands)
 
-#####################################################################
+####################################################################
 #
 # FEVT Data Tier re-definition
 #

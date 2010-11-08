@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2010/02/15 18:00:24 $
- * $Revision: 1.124 $
+ * $Date: 2010/03/27 20:07:57 $
+ * $Revision: 1.125 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -20,7 +20,7 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h>
+#include "DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h"
 
 EBTriggerTowerClient::EBTriggerTowerClient(const edm::ParameterSet& ps) {
 

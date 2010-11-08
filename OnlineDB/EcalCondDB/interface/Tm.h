@@ -1,4 +1,4 @@
-// $Id: Tm.h,v 1.2 2006/06/19 14:43:14 egeland Exp $
+// $Id: Tm.h,v 1.1 2006/03/01 23:39:51 egeland Exp $
 
 #ifndef TM_HH
 #define TM_HH
@@ -8,13 +8,11 @@
 #include <iostream>
 #include <time.h>
 #include <stdint.h>
-#include <limits.h>
 
 // Wrapper class for time.h tm struct
 class Tm {
   static const uint64_t NEG_INF_MICROS = 0;
-  // GO: maximum UNIX time
-  static const uint64_t PLUS_INF_MICROS = (uint64_t)INT_MAX * 1000000;
+  static const uint64_t PLUS_INF_MICROS = (uint64_t)-1;
 
  public:
   // Default constructor makes a null Tm

@@ -28,6 +28,7 @@ using stor::testhelper::allocate_frame_with_sample_header;
 
 class testI2OChain : public CppUnit::TestFixture
 {
+  typedef toolbox::mem::Reference Reference;
   CPPUNIT_TEST_SUITE(testI2OChain);
   // CPPUNIT_TEST(default_chain);
   CPPUNIT_TEST(null_reference);

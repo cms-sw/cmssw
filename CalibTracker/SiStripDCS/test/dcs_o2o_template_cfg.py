@@ -104,11 +104,14 @@ process.SiStripDetVOffBuilder = cms.Service(
     onlineDB = cms.string('oracle://cms_omds_tunnel/CMS_TRK_R'),
     #authPath = cms.string('/opt/cmssw/shifter/o2o_dcs/connection_files'),
     authPath = cms.string('/exports/slc4/CMSSW/Development/Users/gbenelli/connection_files'),
-
-    # Format for date/time vector:  year, month, day, hour, minute, second, nanosecond      
-    Tmin = cms.untracked.vint32(2009, 11, 23,  4,  0, 0, 000),
-    Tmax = cms.untracked.vint32(2009, 11, 23,  16,  0, 0, 000),
     
+    # Format for date/time vector:  year, month, day, hour, minute, second, nanosecond      
+    #     Tmin = cms.untracked.vint32(2009, 11, 23,  4,  0, 0, 000),
+    #     Tmax = cms.untracked.vint32(2009, 11, 23,  8,  0, 0, 000),
+    
+    Tmin = cms.vint32(2009, 12, 11,  20,  33, 25, 000),
+    Tmax = cms.vint32(2009, 12, 12,  8,  0, 0, 000),
+
     # Do NOT change this unless you know what you are doing!
     TSetMin = cms.vint32(2007, 11, 26, 0, 0, 0, 0),                                             
     

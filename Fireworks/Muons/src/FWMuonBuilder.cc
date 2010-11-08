@@ -2,33 +2,30 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.28 2010/06/18 12:44:06 yana Exp $
+// $Id: FWMuonBuilder.cc,v 1.15 2010/01/21 21:02:13 amraktad Exp $
 //
 
+// system include files
+#include "TEveTrackPropagator.h"
 #include "TEveVSDStructs.h"
+#include "TEveCompound.h"
+#include "TEveManager.h"
 #include "TEveTrack.h"
 #include "TEveStraightLineSet.h"
 #include "TEveGeoNode.h"
 
+// user include files
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/src/CmsShowMain.h"
 #include "Fireworks/Core/interface/FWMagField.h"
-#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
-#include "Fireworks/Core/interface/fwLog.h"
-
-#include "Fireworks/Candidates/interface/CandidateUtils.h"
-
-#include "Fireworks/Tracks/interface/TrackUtils.h"
 #include "Fireworks/Tracks/interface/estimate_field.h"
-
+#include "Fireworks/Tracks/interface/TrackUtils.h"
 #include "Fireworks/Muons/interface/FWMuonBuilder.h"
-#include "Fireworks/Muons/interface/SegmentUtils.h"
-#include "Fireworks/Muons/interface/CSCUtils.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+
 
 namespace  {
 std::vector<TEveVector> getRecoTrajectoryPoints( const reco::Muon* muon,
@@ -62,149 +59,57 @@ std::vector<TEveVector> getRecoTrajectoryPoints( const reco::Muon* muon,
 //______________________________________________________________________________
 
 void addMatchInformation( const reco::Muon* muon,
-                          FWProxyBuilderBase* pb,
+                          const FWEventItem* iItem,
                           TEveElement* parentList,
                           bool showEndcap)
 {
-  std::set<unsigned int> ids;
-  const DetIdToMatrix* geom = pb->context().getGeom();
-  
-  const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
-   
-  //need to use auto_ptr since the segmentSet may not be passed to muonList
-  std::auto_ptr<TEveStraightLineSet> segmentSet(new TEveStraightLineSet);
-  segmentSet->SetLineWidth(4);
-
-  for ( std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin(), 
-                                                        chambersEnd = matches.end(); 
-        chamber != chambersEnd; ++chamber )
-  {
-    DetId id = chamber->id;
-
-    if ( ids.insert(id.rawId()).second &&  // ensure that we add same chamber only once
-         ( chamber->detector() != MuonSubdetId::CSC || showEndcap ) )
-    {
-      TEveGeoShape* shape = geom->getShape(id.rawId());
-   
-      if (shape) 
-      {
-        shape->SetElementName("Chamber");
-        shape->RefMainTrans().Scale(0.999, 0.999, 0.999);
-        pb->setupAddElement(shape, parentList);
+   std::set<unsigned int> ids;
+   const DetIdToMatrix* geom = iItem->getGeom();
+   const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
+   //need to use auto_ptr since the segmentSet may not be passed to muonList
+   std::auto_ptr<TEveStraightLineSet> segmentSet(new TEveStraightLineSet);
+   segmentSet->SetLineWidth(4);
+   segmentSet->SetMainColor(iItem->defaultDisplayProperties().color());
+   std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin();
+   for ( ; chamber != matches.end(); ++chamber )
+   {
+      DetId id = chamber->id;
+      if ( ids.insert(id.rawId()).second &&  // ensure that we add same chamber only once
+           ( id.subdetId() != MuonSubdetId::CSC || showEndcap ) ){
+         TEveGeoShape* shape = geom->getShape( chamber->id.rawId() );
+         if(0!=shape) {
+            shape->RefMainTrans().Scale(0.999, 0.999, 0.999);
+            shape->SetMainTransparency(65);
+            shape->SetMainColor(iItem->defaultDisplayProperties().color());
+            parentList->AddElement(shape);
+         }
       }
+      const TGeoHMatrix* matrix = geom->getMatrix( chamber->id.rawId() );
+      if ( matrix ) {
+         // make muon segment 20 cm long along local z-axis
+         // add segments
+         for ( std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->segmentMatches.begin();
+               segment != chamber->segmentMatches.end(); ++segment )
+         {
+            Double_t localSegmentInnerPoint[3];
+            Double_t localSegmentOuterPoint[3];
+            Double_t globalSegmentInnerPoint[3];
+            Double_t globalSegmentOuterPoint[3];
+            localSegmentOuterPoint[0] = segment->x + segment->dXdZ * 10;
+            localSegmentOuterPoint[1] = segment->y + segment->dYdZ * 10;
+            localSegmentOuterPoint[2] = 10;
+            localSegmentInnerPoint[0] = segment->x - segment->dXdZ * 10;
+            localSegmentInnerPoint[1] = segment->y - segment->dYdZ * 10;
+            localSegmentInnerPoint[2] = -10;
+            matrix->LocalToMaster( localSegmentInnerPoint, globalSegmentInnerPoint );
+            matrix->LocalToMaster( localSegmentOuterPoint, globalSegmentOuterPoint );
 
-      else
-      {
-        fwLog(fwlog::kWarning) 
-          <<"ERROR: failed to get shape of muon chamber with detid: "
-          << id.rawId() <<std::endl;
+            segmentSet->AddLine(globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
+                                globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
+         }
       }
-    }
-     
-    const TGeoHMatrix* matrix = geom->getMatrix(id.rawId());
-    
-    if ( ! matrix )
-    {
-      fwLog(fwlog::kError) <<" failed to get matrix for muon chamber with detid: "
-                           << id.rawId() <<std::endl;
-      return;
-    }
-
-    for( std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->segmentMatches.begin(),
-                                                          segmentEnd = chamber->segmentMatches.end();
-         segment != segmentEnd; ++segment )
-    {
-
-      double segmentLength = 0.0;
-      double segmentLimit  = 0.0;
-
-      if ( chamber->detector() == MuonSubdetId::DT )
-        segmentLength = 17.0; // FIXME: Can we get this from TGeoShape?
-
-      else if ( chamber->detector() == MuonSubdetId::CSC )
-      {
-        CSCDetId cscDetId(id);
-
-        double length    = 0.0;
-        double thickness = 0.0;
-        
-        // FIXME: Can we get this information from TGeoShape?
-        fireworks::fillCSCChamberParameters(cscDetId.station(), 
-                                            cscDetId.ring(), 
-                                            length, thickness);
-
-        segmentLength = thickness*0.5;
-        segmentLimit  = length*0.5;
-
-        // Check if CSC segment position lies outside the chamber: a pathology of the reconstruction.
-        // If so, do not draw segment.
-
-        if ( fabs(segment->y) > segmentLimit )
-        {
-          fwLog(fwlog::kWarning) <<" position of CSC segment lies outside the chamber; station: "
-                                 << cscDetId.station() <<"  ring: "<< cscDetId.ring() << std::endl;   
-          
-          continue;
-        }
-      }
-      
-      else
-      {
-        fwLog(fwlog::kWarning) <<" MuonSubdetId: "<< chamber->detector() <<std::endl;
-        continue;
-      }
-
-      double segmentPosition[3] = 
-      {
-        segment->x, segment->y, 0.0
-      };
-      
-      double segmentDirection[3] = 
-      {
-        segment->dXdZ, segment->dYdZ, 0.0
-      };
-
-      double localSegmentInnerPoint[3];
-      double localSegmentOuterPoint[3];
-
-      fireworks::createSegment(chamber->detector(), true, 
-                               segmentLength, segmentLimit, 
-                               segmentPosition, segmentDirection,
-                               localSegmentInnerPoint, localSegmentOuterPoint);
-                               
-      double localSegmentCenterPoint[3] = 
-      {
-        segment->x, segment->y, 0.0
-      };
-
-      double globalSegmentInnerPoint[3];
-      double globalSegmentCenterPoint[3];
-      double globalSegmentOuterPoint[3];
-      
-      matrix->LocalToMaster( localSegmentInnerPoint, globalSegmentInnerPoint );
-      matrix->LocalToMaster( localSegmentCenterPoint, globalSegmentCenterPoint );
-      matrix->LocalToMaster( localSegmentOuterPoint, globalSegmentOuterPoint );
-         
-      if( globalSegmentInnerPoint[1]*globalSegmentOuterPoint[1] > 0 ) 
-      {
-        segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
-                             globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
-      }         
-
-      else 
-      {
-        if( fabs(globalSegmentInnerPoint[1]) > fabs(globalSegmentOuterPoint[1]) )
-          segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
-                               globalSegmentCenterPoint[0], globalSegmentCenterPoint[1], globalSegmentCenterPoint[2] );
-        else
-          segmentSet->AddLine( globalSegmentCenterPoint[0], globalSegmentCenterPoint[1], globalSegmentCenterPoint[2],
-                               globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
-      }               
-    } 
-  }
-   
-  if ( !matches.empty() ) 
-    pb->setupAddElement( segmentSet.release(), parentList );
+   }
+   if ( !matches.empty() ) parentList->AddElement( segmentSet.release() );
 }
 
 //______________________________________________________________________________
@@ -245,10 +150,20 @@ buggyMuon( const reco::Muon* muon,
 //
 FWMuonBuilder::FWMuonBuilder()
 {
+   //NOTE: We call IncRefCount and IncDenyDestroy since TEveTrackPropagator actually has two reference counts being done on it
+   // We only want the one using IncRefCount to actually cause the deletion which is why 'IncDenyDestroy' does not have a matching
+   // DecDenyDestroy.  I'm still using a edm::FWEvePtr to hold the Propagator since I want to know if the propagator is deleted
+   m_trackerPropagator.reset(new TEveTrackPropagator()); // propagate within tracker
+   m_trackerPropagator->IncRefCount();
+   m_trackerPropagator->IncDenyDestroy();
+   m_trackerPropagator->SetMaxR( 850 );
+   m_trackerPropagator->SetMaxZ( 1100 );
+   m_trackerPropagator->SetMaxStep(5);
 }
 
 FWMuonBuilder::~FWMuonBuilder()
 {
+   m_trackerPropagator->DecRefCount();
 }
 
 //
@@ -262,32 +177,37 @@ FWMuonBuilder::calculateField(const reco::Muon& iData, FWMagField* field)
 
    // if auto field estimation mode, do extra loop over muons.
    // use both inner and outer track if available
-   if ( field->getSource() == FWMagField::kNone ) {
-      if ( fabs( iData.eta() ) > 2.0 || iData.pt() < 3 ) return;
-      if ( iData.innerTrack().isAvailable() ){
-         double estimate = fw::estimate_field( *( iData.innerTrack() ), true );
-         if ( estimate >= 0 ) field->guessField( estimate );
+   if ( field->getAutodetect() ) {
+     if ( fabs( iData.eta() ) > 2.0 || iData.pt() < 3 ) return;
+     if ( iData.innerTrack().isAvailable() ){
+       double estimate = fw::estimate_field(*(iData.innerTrack()),true);
+       if ( estimate >= 0 ) field->guessField( estimate );
 	 
-      }
-      if ( iData.outerTrack().isAvailable() ){
-         double estimate = fw::estimate_field( *( iData.outerTrack() ) );
-         if ( estimate >= 0 ) field->guessFieldIsOn( estimate > 0.5 );
-      }
+     }
+     if ( iData.outerTrack().isAvailable() ){
+       double estimate = fw::estimate_field(*(iData.outerTrack()));
+       if ( estimate >= 0 ) field->guessFieldIsOn( estimate > 0.5 );
+     }
    }
 }
 
 //______________________________________________________________________________
 
 void
-FWMuonBuilder::buildMuon(FWProxyBuilderBase* pb,
+FWMuonBuilder::buildMuon(const FWEventItem* iItem,
                          const reco::Muon* muon,
                          TEveElement* tList,
                          bool showEndcap,
                          bool tracksOnly)
 {
-   calculateField(*muon, pb->context().getField());
+   calculateField(*muon, iItem->context().getField());
 
-  
+   // workaround for missing GetFieldObj() in TEveTrackPropagator, default stepper is kHelix
+   if (m_trackerPropagator->GetStepper() == TEveTrackPropagator::kHelix) {
+      m_trackerPropagator->SetStepper(TEveTrackPropagator::kRungeKutta);
+      m_trackerPropagator->SetMagFieldObj(iItem->context().getField());
+   }
+
    TEveRecTrack recTrack;
    recTrack.fBeta = 1.;
 
@@ -303,15 +223,16 @@ FWMuonBuilder::buildMuon(FWProxyBuilderBase* pb,
    if ( muon->isTrackerMuon() && 
 	muon->innerTrack().isAvailable() &&
 	muon->isMatchesValid() &&
-	!buggyMuon( &*muon, pb->context().getGeom() ) )
+	!buggyMuon( &*muon, iItem->getGeom() ) )
    {
       TEveTrack* trk = fireworks::prepareTrack(*(muon->innerTrack()),
-                                               pb->context().getMuonTrackPropagator(),
-					       getRecoTrajectoryPoints(muon,pb->item()) );
+                                               m_trackerPropagator.get(),
+                                               iItem->defaultDisplayProperties().color(),
+                                               getRecoTrajectoryPoints(muon,iItem) );
       trk->MakeTrack();
-      pb->setupAddElement(trk, tList);
+      tList->AddElement( trk );
       if ( ! tracksOnly )
-	 addMatchInformation( &(*muon), pb, tList, showEndcap );
+	 addMatchInformation( &(*muon), iItem, tList, showEndcap );
       return;
    } 
 
@@ -336,32 +257,39 @@ FWMuonBuilder::buildMuon(FWProxyBuilderBase* pb,
 					   muon->outerTrack()->outerPosition().z()) );
       }
       TEveTrack* trk = fireworks::prepareTrack(*(muon->globalTrack()),
-                                               pb->context().getMuonTrackPropagator(),
+                                               m_trackerPropagator.get(),
+                                               iItem->defaultDisplayProperties().color(),
                                                extraPoints);
       trk->MakeTrack();
-      pb->setupAddElement(trk, tList);
+      tList->AddElement( trk );
       return;
    }
 
    if ( muon->innerTrack().isAvailable() )
    {
-      TEveTrack* trk = fireworks::prepareTrack(*(muon->innerTrack()), pb->context().getMuonTrackPropagator());
+      TEveTrack* trk = fireworks::prepareTrack(*(muon->innerTrack()),
+                                               m_trackerPropagator.get(),
+                                               iItem->defaultDisplayProperties().color());
       trk->MakeTrack();
-      pb->setupAddElement(trk, tList);
+      tList->AddElement( trk );
       return;
    }
 
    if ( muon->outerTrack().isAvailable() )
    {
-      TEveTrack* trk = fireworks::prepareTrack(*(muon->outerTrack()), pb->context().getMuonTrackPropagator());
+      TEveTrack* trk = fireworks::prepareTrack(*(muon->outerTrack()),
+                                               m_trackerPropagator.get(),
+                                               iItem->defaultDisplayProperties().color());
       trk->MakeTrack();
-      pb->setupAddElement(trk, tList);
+      tList->AddElement( trk );
       return;
    }
    
    // if got that far it means we have nothing but a candidate
    // show it anyway.
-   TEveTrack* trk = fireworks::prepareCandidate(*muon, pb->context().getMuonTrackPropagator());
+   TEveTrack* trk = fireworks::prepareTrack(*muon,
+					    m_trackerPropagator.get(),
+					    iItem->defaultDisplayProperties().color());
    trk->MakeTrack();
-   pb->setupAddElement(trk, tList);
+   tList->AddElement( trk );
 }

@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2010/01/05 10:14:40 $
- * $Revision: 1.62 $
+ * $Date: 2009/07/08 15:34:47 $
+ * $Revision: 1.61 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -48,7 +48,7 @@ using namespace std;
 // Contructor
 DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   // switch for the verbosity
-  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask]: Constructor" << endl;
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") <<"[DTDigiTask]: Constructor"<<endl;
 
   // The label to retrieve the digis 
   dtDigiLabel = ps.getParameter<InputTag>("dtDigiLabel");
@@ -123,7 +123,7 @@ void DTDigiTask::beginJob(){
 
 
 void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
-  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask]: begin run" << endl;
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") <<"[DTDigiTask]: begin run"<<endl;
 
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
@@ -143,15 +143,11 @@ void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
     dbe->setCurrentFolder(topFolder());
     nEventMonitor = dbe->bookFloat("nProcessedEvents");
     for(int wh = -2; wh <= 2; ++wh) { // loop over wheels
-      if(doAllHitsOccupancies) bookHistos(wh,string("Occupancies"),"OccupancyAllHits");
-      if(doNoiseOccupancies) bookHistos(wh,string("Occupancies"),"OccupancyNoiseHits");
-      if(doInTimeOccupancies) bookHistos(wh,string("Occupancies"),"OccupancyInTimeHits");
+      if(doAllHitsOccupancies) bookHistos(wh, string("Occupancies"), "OccupancyAllHits");
+      if(doNoiseOccupancies) bookHistos(wh, string("Occupancies"), "OccupancyNoiseHits");
+      if(doInTimeOccupancies) bookHistos(wh, string("Occupancies"), "OccupancyInTimeHits");
 
-      if(lookForSyncNoise || filterSyncNoise) {
-	bookHistos(wh,string("SynchNoise"),"SyncNoiseEvents");
-	bookHistos(wh,string("SynchNoise"),"SyncNoiseChambs");
-      }
-
+      if(lookForSyncNoise || filterSyncNoise) bookHistos(wh, string("SynchNoise"), "SyncNoiseEvents" );
       for(int st = 1; st <= 4; ++st) { // loop over stations
 	for(int sect = 1; sect <= 14; ++sect) { // loop over sectors
 	  if((sect == 13 || sect == 14) && st != 4) continue;
@@ -160,11 +156,11 @@ void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
 
 	  // Occupancies 
 	  if (doAllHitsOccupancies) 
-	    bookHistos(dtChId,string("Occupancies"),"OccupancyAllHits_perCh");
+	    bookHistos(dtChId, string("Occupancies"), "OccupancyAllHits_perCh");
 	  if(doNoiseOccupancies) 
-	    bookHistos(dtChId,string("Occupancies"),"OccupancyNoise_perCh");
+	    bookHistos(dtChId, string("Occupancies"), "OccupancyNoise_perCh");
 	  if(doInTimeOccupancies)
-	    bookHistos(dtChId,string("Occupancies"),"OccupancyInTimeHits_perCh");
+	    bookHistos(dtChId, string("Occupancies"), "OccupancyInTimeHits_perCh" );
 
 
 
@@ -173,12 +169,12 @@ void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
 	    if(st == 4 && sl == 2) continue;
 	    const  DTSuperLayerId dtSLId(wh,st,sect,sl);
 	    if(isLocalRun) {
-	      bookHistos(dtSLId,string("TimeBoxes"),"TimeBox");
+	      bookHistos(dtSLId, string("TimeBoxes"), "TimeBox");
 	    } else {
 	      // TimeBoxes for different triggers
-	      bookHistos(dtSLId,string("TimeBoxes"),"TimeBoxDTonly");
-	      bookHistos(dtSLId,string("TimeBoxes"),"TimeBoxNoDT");
-	      bookHistos(dtSLId,string("TimeBoxes"),"TimeBoxDTalso");
+	      bookHistos(dtSLId, string("TimeBoxes"), "TimeBoxDTonly");
+	      bookHistos(dtSLId, string("TimeBoxes"), "TimeBoxNoDT");
+	      bookHistos(dtSLId, string("TimeBoxes"), "TimeBoxDTalso");
 	    }
 	  }
 	}
@@ -191,32 +187,27 @@ void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
 
 
 void DTDigiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-
-  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask]: Begin of LS transition" << endl;
+  LogTrace("DTDQM|DTMonitorModule|DTDigiTask") <<"[DTDigiTask]: Begin of LS transition"<<endl;
   
   // Reset the MonitorElements every n (= ResetCycle) Lumi Blocks
-  int lumiBlock = lumiSeg.id().luminosityBlock(); 
-  if(lumiBlock % resetCycle == 0) {
+  if(lumiSeg.id().luminosityBlock() % resetCycle == 0) {
     LogVerbatim("DTDQM|DTMonitorModule|DTDigiTask")
-      <<"[DTDigiTask]: Reset at the LS transition : " 
-      << lumiBlock << endl;
+      <<"[DTDigiTask]: Reset at the LS transition : "<<lumiSeg.id().luminosityBlock()<<endl;
     // Loop over all ME
-    map<string,map<uint32_t,MonitorElement*> >::const_iterator histosIt  = digiHistos.begin();
-    map<string,map<uint32_t,MonitorElement*> >::const_iterator histosEnd = digiHistos.end();
-    for(;histosIt != histosEnd ; ++histosIt) {
-      map<uint32_t,MonitorElement*>::const_iterator histoIt  = (*histosIt).second.begin();
-      map<uint32_t,MonitorElement*>::const_iterator histoEnd = (*histosIt).second.end();
-      for(;histoIt != histoEnd; ++histoIt) { (*histoIt).second->Reset(); }
+    for(map<string, map<uint32_t, MonitorElement*> > ::const_iterator histo = digiHistos.begin();
+	histo != digiHistos.end(); histo++) {
+      for(map<uint32_t, MonitorElement*> ::const_iterator ht = (*histo).second.begin();
+	  ht != (*histo).second.end(); ht++) {
+	(*ht).second->Reset();
+      }
     }
 
     // loop over wheel summaries
-    map<string,map<int,MonitorElement*> >::const_iterator whHistosIt  = wheelHistos.begin();
-    map<string,map<int,MonitorElement*> >::const_iterator whHistosEnd = wheelHistos.end();
-    for(; whHistosIt != whHistosEnd ; ++whHistosIt) {
-      if ((*whHistosIt).first.find("Sync") == string::npos) { // FIXME skips synch noise plots
-	map<int,MonitorElement*>::const_iterator histoIt  = (*whHistosIt).second.begin();
-	map<int,MonitorElement*>::const_iterator histoEnd = (*whHistosIt).second.end();
-	for(;histoIt != histoEnd; ++histoIt) { (*histoIt).second->Reset(); }
+    for(map<string, map<int, MonitorElement*> > ::const_iterator histos = wheelHistos.begin();
+	histos != wheelHistos.end(); ++histos) {
+      for(map<int, MonitorElement*>::const_iterator histo = (*histos).second.begin();
+	  histo != (*histos).second.end(); ++histo) {
+	(*histo).second->Reset();
       }
     }
   }
@@ -429,20 +420,13 @@ void DTDigiTask::bookHistos(const int wheelId, string folder, string histoTag) {
     (wheelHistos[histoTag])[wheelId]->setAxisTitle("sector",1);
   } else if(folder == "SynchNoise") {
     dbe->setCurrentFolder("DT/05-Noise/SynchNoise");
-    if (histoTag== "SyncNoiseEvents") {
-      string histoTitle = "# of Syncronous-noise events WHEEL: "+wheel.str();
-      (wheelHistos[histoTag])[wheelId] = dbe->book2D(histoName,histoTitle,12,1,13,4,1,5);
-      (wheelHistos[histoTag])[wheelId]->setBinLabel(1,"MB1",2);
-      (wheelHistos[histoTag])[wheelId]->setBinLabel(2,"MB2",2);
-      (wheelHistos[histoTag])[wheelId]->setBinLabel(3,"MB3",2);
-      (wheelHistos[histoTag])[wheelId]->setBinLabel(4,"MB4",2);
-      (wheelHistos[histoTag])[wheelId]->setAxisTitle("sector",1);
-    } else if (histoTag== "SyncNoiseChambs") {
-      string histoTitle = "# of Synchornous-noise chamb per evt. WHEEL: "+wheel.str();
-      (wheelHistos[histoTag])[wheelId] = dbe->book1D(histoName,histoTitle,50,0.5,50.5);
-      (wheelHistos[histoTag])[wheelId]->setAxisTitle("# of noisy chambs.",1);
-      (wheelHistos[histoTag])[wheelId]->setAxisTitle("# of evts.",2);
-    }
+    string histoTitle = "# of Syncronous-noise events WHEEL: "+wheel.str();
+    (wheelHistos[histoTag])[wheelId] = dbe->book2D(histoName,histoTitle,12,1,13,4,1,5);
+    (wheelHistos[histoTag])[wheelId]->setBinLabel(1,"MB1",2);
+    (wheelHistos[histoTag])[wheelId]->setBinLabel(2,"MB2",2);
+    (wheelHistos[histoTag])[wheelId]->setBinLabel(3,"MB3",2);
+    (wheelHistos[histoTag])[wheelId]->setBinLabel(4,"MB4",2);
+    (wheelHistos[histoTag])[wheelId]->setAxisTitle("sector",1);
   }
 
 }
@@ -493,77 +477,33 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
       hitMap[chId] += (((*dtLayerId_It).second).second - ((*dtLayerId_It).second).first);
     }
 
-
     
     // check chamber with # of digis above threshold and flag them as noisy
-    map<DTChamberId,int>::const_iterator hitMapIt  = hitMap.begin();
-    map<DTChamberId,int>::const_iterator hitMapEnd = hitMap.end();
-
-    map<int,int> chMap;
-
-    for (; hitMapIt != hitMapEnd; ++hitMapIt) {
-      if((hitMapIt->second) > maxTDCHits) { 
-
-	DTChamberId chId = hitMapIt->first;
-	int wh = chId.wheel();
-	
-	LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask] Synch noise in chamber: " << chId
-						     << " with # digis: " << hitMapIt->second << endl;
-	
-	if(chMap.find(wh) == chMap.end()) { chMap[wh] = 0; }
-	chMap[wh]++ ;
-	
-	syncNoisyChambers.insert(chId);
-	
-	wheelHistos["SyncNoiseEvents"][wh]->Fill(chId.sector(),chId.station()); 
-	
-	// Only needed in case of ratio map not used right now
-	// FIXME check and optimize
-	// nSynchNoiseEvents[iter->first]++;	
-	// FIXME: should update all chambers each event 
-	// wheelHistos["SyncNoiseEvents"][(*iter).first.wheel()]->setBinContent((*iter).first.sector(),(*iter).first.station(),
-	// 								(double)nSynchNoiseEvents[iter->first]/(double)nevents); 
+    for (map<DTChamberId,int>::iterator iter = hitMap.begin(); iter != hitMap.end(); iter++) {
+      if((iter->second) > maxTDCHits) { 
+	LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask] Synch noise in chamber: " << iter->first
+						     << " with # digis: " << iter->second << endl;
+	syncNoisyChambers.insert(iter->first);
+	nSynchNoiseEvents[iter->first]++;// FIXME check and optimize	
+	// FIXME: should update all chambers each event
+// 	wheelHistos["SyncNoiseEvents"][(*iter).first.wheel()]->setBinContent((*iter).first.sector(),(*iter).first.station(),
+// 									     (double)nSynchNoiseEvents[iter->first]/(double)nevents); 
+	wheelHistos["SyncNoiseEvents"][(*iter).first.wheel()]->setBinContent((*iter).first.sector(),(*iter).first.station(),
+									     (double)nSynchNoiseEvents[iter->first]); 
 
       }
     }
-
-    // fill # of noisy ch per wheel plot
-    map<int,int>::const_iterator chMapIt  = chMap.begin();
-    map<int,int>::const_iterator chMapEnd = chMap.end();
-    for (; chMapIt != chMapEnd; ++chMapIt) { 
-      wheelHistos["SyncNoiseChambs"][(*chMapIt).first]->Fill((*chMapIt).second); 
-    }   
     
     // clear the map of # of digis per chamber: not needed anymore
     hitMap.clear();
 
+    // log
     if (syncNoisyChambers.size() != 0) {
-      LogVerbatim("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask] Synch Noise in event: " << nevents;
-      if(filterSyncNoise) LogVerbatim("DTDQM|DTMonitorModule|DTDigiTask") << "\tnoisy time-boxes and occupancy will not be filled!" << endl; 
+      LogVerbatim("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask]** Synch Noise in event: " << nevents;
+      if(filterSyncNoise) LogVerbatim("DTDQM|DTMonitorModule|DTDigiTask") << "       noisy time-boxes and occupancy will not be filled!" << endl; 
       syncNumTot++;
       syncNum++;
     }
-
-    // Logging of "large" synch Noisy events in private DQM
-    if (syncNoisyChambers.size() > 3) {
-      time_t eventTime = time_t(event.time().value()>>32);
-
-      LogVerbatim("DTDQM|DTMonitorModule|DTDigiTask|DTSynchNoise") 
-	<< "[DTDigiTask] At least 4 Synch Noisy chambers in Run : " << event.id().run() 
-	<< " Lumi : "  << event.id().luminosityBlock()
-	<< " Event : " << event.id().event()
-	<< " at time : " << ctime(&eventTime) << endl;
-
-      set<DTChamberId>::const_iterator chIt  = syncNoisyChambers.begin();
-      set<DTChamberId>::const_iterator chEnd = syncNoisyChambers.end();
-
-      stringstream synchNoisyCh;
-      for (;chIt!=chEnd;++chIt) { synchNoisyCh << " " << (*chIt); }
-      LogVerbatim("DTDQM|DTMonitorModule|DTDigiTask|DTSynchNoise") << 
-	"[DTDigiTask] Chamber List :" << synchNoisyCh.str() << endl;
-      
-    }
-
 
     if (nevents%1000 == 0) {
       LogVerbatim("DTDQM|DTMonitorModule|DTDigiTask") << (syncNumTot*100./nevents) << "% sync noise events since the beginning \n"
@@ -774,19 +714,15 @@ string DTDigiTask::triggerSource() {
 
 
 string DTDigiTask::topFolder() const {
-
   if(tpMode) return string("DT/10-TestPulses/");
   return string("DT/01-Digi/");
-
 }
 
 
 
 
 void DTDigiTask::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup) {
-
-// To be used for ratio plots not used right now
-//  Update all histos for SynchNoise if needed
+  // Update all histos for SynchNoise if needed
 //   if(lookForSyncNoise || filterSyncNoise) {
 //     //loop over chambers with synch noise events and update their entries in the histos
 //     for(map<DTChamberId, int>::const_iterator nEvPerch = nSynchNoiseEvents.begin();
@@ -794,7 +730,6 @@ void DTDigiTask::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const e
 //       DTChamberId chId = (*nEvPerch).first;
 //       wheelHistos["SyncNoiseEvents"][chId.wheel()]->setBinContent(chId.sector(),chId.station(),
 // 								  (double)nSynchNoiseEvents[chId]/(double)nevents); 
-//    }
-//  }
-
+//     }
+//   }
 }

@@ -3,11 +3,7 @@
 #include "EventFilter/EcalDigiToRaw/interface/TCCBlockFormatter.h"
 
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
-
-#include "EventFilter/EcalRawToDigi/interface/DCCRawDataDefinitions.h"
-
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-
 
 using namespace std;
 
@@ -48,14 +44,14 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
 
 	int FEDid = FEDNumbering::MINECALFEDID + iDCC;
 
-	// note: row is a 64 bit word
+
 	int NTT_max = 68;	// Barrel case
 	int Nrows_TCC = 17;  	// Barrel case    (without the header row)
 	int NTCC = 1;        	// Barrel case; number of TCC blocks
 	int itcc_block = 1;     // Barrel case
 
         if (IsEndCap) {
-         	Nrows_TCC = 8;         	// one row is a 64 bit word
+         	Nrows_TCC = 8;
          	NTCC = 4;		// 4 TTC in EndCap case. Use some custom numbering since
 		int pair = TCCid % 2;	// the TCCid is written to the RawData.
                 int inner = ( detid.ietaAbs() >= 22) ? 1 : 0;
@@ -68,7 +64,7 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
         int nsamples = trigprim.size();
 	if (! AllTPsamples_) nsamples = 1;
 
-	int iTT = TheMapping -> iTT(detid);   // number of tp inside a fed
+	int iTT = TheMapping -> iTT(detid);
 	if (debug_) cout << "This is a TrigTower  iDCC iTT iTCCBlock TCCid " << dec << 
 		iDCC << " " << iTT << " " << itcc_block << " " << TCCid << endl;
         if (debug_) cout << "ieta iphi " << dec << detid.ieta() << " " << detid.iphi() << endl;
@@ -78,33 +74,32 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
 	}
 
 	int FE_index;
-	
-	// rawdata points to the block which will be built for TCC data  
+
  	if ((int)rawdata.size() != HEADER_SIZE) {
-	  FE_index = rawdata.size() / 8 - NTCC*(Nrows_TCC+1);         // as far as raw data have been generated 
-	  FE_index ++;                                                // infer position in TCC block
-	  if (debug_) cout << "TCCid already there. FE_index = " << FE_index << endl;
+		FE_index = rawdata.size() / 8 - NTCC*(Nrows_TCC+1);
+		FE_index ++;
+		if (debug_) cout << "TCCid already there. FE_index = " << FE_index << endl;
   	}
 	else {
  		if (debug_) cout << "New TTCid added on Raw data, TTCid = " << dec << TCCid << " 0x" << hex << TCCid << endl;
-		FE_index = rawdata.size() / 8;                    // size in unites of 64 bits word
+		FE_index = rawdata.size() / 8;
 	        int fe_index = FE_index;
-		for (int iblock=0; iblock < NTCC; iblock++) {     // do this once per fed in EB, four times in EE
+		for (int iblock=0; iblock < NTCC; iblock++) {
 		   rawdata.resize (rawdata.size() + 8);
-		   unsigned char* ppData = rawdata.data();        // use this to navigate and create the binary
-		   ppData[8*fe_index] = TCCid & 0xFF;             // fed_index increases in units of bytes
-		   ppData[8*fe_index+2] = bx & 0xFF;              // bx takes bits 0-11: 0-7+8-11
+		   unsigned char* ppData = rawdata.data();
+		   ppData[8*fe_index] = TCCid & 0xFF;
+		   ppData[8*fe_index+2] = bx & 0xFF;
 		   ppData[8*fe_index+3] = (bx & 0xF00)>>8;
 		   ppData[8*fe_index+3] |= 0x60;
-		   ppData[8*fe_index+4] = lv1 & 0xFF;             // same game done for lv1, which takes bits 0-11: 0-7+8-11 
-	 	   ppData[8*fe_index+5] = (lv1 & 0xF00)>>8;       // lv1
+		   ppData[8*fe_index+4] = lv1 & 0xFF;
+	 	   ppData[8*fe_index+5] = (lv1 & 0xF00)>>8;
 		   ppData[8*fe_index+6] = NTT_max;
-		   ppData[8*fe_index+6] |= ((nsamples & 0x1)<<7); // nsamples: number time samples
+		   ppData[8*fe_index+6] |= ((nsamples & 0x1)<<7);
 		   ppData[8*fe_index+7] = ((nsamples & 0xE)>>1);
 		   ppData[8*fe_index+7] |= 0x60;
 		   if (iblock == 0) FE_index ++;
 		   fe_index += Nrows_TCC+1;
-		   rawdata.resize (rawdata.size() + 8*Nrows_TCC);    // 17 lines of TPG data in EB, 8 in EE
+		   rawdata.resize (rawdata.size() + 8*Nrows_TCC);    // 17 lines TPG data 
 		}
 		if (debug_) cout << "Added headers and empty lines : " << endl;
 		if (debug_) print(rawdata);
@@ -122,16 +117,16 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
 
 	// -- Now the TCC Block :
 
-	int jTT = (iTT-1);                                // jTT is the TP number insided a block;
-	int irow = jTT/4 + (itcc_block-1)*(Nrows_TCC+1);  // you fit 4 TP's per row; move forward if you're not in the first block;
-	int ival = jTT % 4;                               // for each block you have to skip, move of (Nrows_TCC +1) - 1 is for the TCC header
+	int jTT = (iTT-1);
+	int irow = jTT/4 + (itcc_block-1)*(Nrows_TCC+1);
+	int ival = jTT % 4;
 
 	// RTC required TP's tp follow global phi also in EB+, thus swap them inside the single TCC 
-	// here you could swap ival -> 3-ival to swap phi insied EB+ supermodules  
-	if(NUMB_SM_EB_PLU_MIN <= iDCC && iDCC <= NUMB_SM_EB_PLU_MAX)
-	  {ival = 3-ival;}
+ 	// here you could swap ival -> 3-ival to swap phi insied EB+ supermodules  
+ 	if(28 <= iDCC && iDCC <= 45)
+ 	  {ival = 3-ival;}
 
-	FE_index += irow;                                 // ival is location inside a TP row; varies between 0-3
+	FE_index += irow;
 
         if (debug_) cout << "Now add tower " << dec << iTT << " irow ival " << dec << irow << " " << dec << ival << endl;
         if (debug_) cout << "new data will be added at line " << dec << FE_index << endl;
@@ -144,8 +139,8 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
 		cout << "in TCCBlock : this tower has a non zero flag" << endl;
 		cout << "Fedid  iTT  flag " << dec << FEDid << " " << iTT << " " << "0x" << hex << ttflag << endl;
 	}
-	pData[8*FE_index + ival*2] = et & 0xFF;                   // ival is location inside a TP row; varies between 0-3; tp goes in bits 0-7
-	pData[8*FE_index + ival*2+1] = (ttflag<<1) + (fg&0x1);    // fg follows in bit 8; ttfg is in bits 9-11 
+	pData[8*FE_index + ival*2] = et & 0xFF;
+	pData[8*FE_index + ival*2+1] = (ttflag<<1) + (fg&0x1); 
 	if (IsEndCap) {
 		// re-write the TCCid  and N_Tower_Max :
 		int ibase = 8*(FE_index - (int)(jTT/4) -1);

@@ -12,8 +12,6 @@
 
 #include "GeneratorInterface/Pythia8Interface/interface/RandomP8.h"
 
-#include "GeneratorInterface/Pythia8Interface/interface/UserHooks.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -30,8 +28,6 @@
 #include "GeneratorInterface/Pythia8Interface/interface/LHAupLesHouches.h"
 
 #include "HepPID/ParticleIDTranslations.hh"
-
-#include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
 using namespace gen;
 using namespace Pythia8;
@@ -102,13 +98,9 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
 	//Pythia8::Rndm::init(seed);
 
     RandomP8* RP8 = new RandomP8();
-    //UserHooks* UH = new PtHatReweightUserHook();
 
 	pythia.reset(new Pythia);
-
     pythia->setRndmEnginePtr(RP8);
-    //pythia->setUserHooksPtr(UH);
-
 	pythiaEvent = &pythia->event;
 
 	for(ParameterCollector::const_iterator line = parameters.begin();
@@ -149,9 +141,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     RandomP8* RP8 = new RandomP8();
 
     pythia.reset(new Pythia);
-
     pythia->setRndmEnginePtr(RP8);
-
     pythiaEvent = &pythia->event;
 
     for(ParameterCollector::const_iterator line = parameters.begin();
@@ -331,8 +321,8 @@ void Pythia8Hadronizer::finalizeEvent()
 	}
 }
 
-typedef edm::GeneratorFilter<Pythia8Hadronizer, ExternalDecayDriver> Pythia8GeneratorFilter;
+typedef edm::GeneratorFilter<Pythia8Hadronizer> Pythia8GeneratorFilter;
 DEFINE_FWK_MODULE(Pythia8GeneratorFilter);
 
-typedef edm::HadronizerFilter<Pythia8Hadronizer, ExternalDecayDriver> Pythia8HadronizerFilter;
+typedef edm::HadronizerFilter<Pythia8Hadronizer> Pythia8HadronizerFilter;
 DEFINE_FWK_MODULE(Pythia8HadronizerFilter);

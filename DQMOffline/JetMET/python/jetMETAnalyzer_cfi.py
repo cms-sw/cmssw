@@ -78,7 +78,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
          METCollectionLabel = cms.InputTag("metNoHF"),
          Source             = cms.string("CaloMETNoHF")
      ),
- 
+     
      #
      # For caloMETAnalysis "metHO"
      #
@@ -102,7 +102,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
            Filter = cms.untracked.bool(True)
          )
      ),
- 
+                                
      #
      # For pfMETAnalysis
      #

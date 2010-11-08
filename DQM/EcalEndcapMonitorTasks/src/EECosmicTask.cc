@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2010/03/27 20:08:01 $
- * $Revision: 1.54 $
+ * $Date: 2010/06/14 15:00:39 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  *
 */
@@ -22,9 +22,9 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EECosmicTask.h>
+#include "DQM/EcalEndcapMonitorTasks/interface/EECosmicTask.h"
 
 EECosmicTask::EECosmicTask(const edm::ParameterSet& ps){
 

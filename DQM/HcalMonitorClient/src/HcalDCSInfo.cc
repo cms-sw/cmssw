@@ -57,7 +57,7 @@ void HcalDCSInfo::beginJob() {
   DCSSummaryMap_->setBinLabel(7,"HFlumi");
   DCSSummaryMap_->setBinLabel(1,"Status",2);
 
-  dqmStore_->setCurrentFolder(rootFolder_+"/EventInfo/DCSSummaryContents");
+  dqmStore_->setCurrentFolder(rootFolder_+"/EventInfo/DCSContents");
   DCSFractionHB_= dqmStore_->bookFloat("Hcal_HB");  
   DCSFractionHE_= dqmStore_->bookFloat("Hcal_HE");  
   DCSFractionHO_= dqmStore_->bookFloat("Hcal_HO");  

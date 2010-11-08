@@ -13,7 +13,7 @@
 //
 // Original Author:  Benedikt Hegner 
 //         Created:  Tue Mar 09 01:32:51 CET 2010
-// $Id: JetCorrectorDBReader.cc,v 1.1 2010/03/15 08:28:21 kkousour Exp $
+// $Id: JetCorrectorDBReader.cc,v 1.3.2.2 2010/10/05 14:22:26 kkousour Exp $
 //
 //
 
@@ -47,14 +47,15 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
  
-  std::string mLabel;
-  bool mCreateTextFile;
+  std::string mPayloadName;
+  bool mCreateTextFile,mPrintScreen;
 };
 
 
 JetCorrectorDBReader::JetCorrectorDBReader(const edm::ParameterSet& iConfig)
 {
-  mLabel          = iConfig.getUntrackedParameter<std::string>("label");
+  mPayloadName    = iConfig.getUntrackedParameter<std::string>("payloadName");
+  mPrintScreen    = iConfig.getUntrackedParameter<bool>("printScreen");
   mCreateTextFile = iConfig.getUntrackedParameter<bool>("createTextFile");
 }
 
@@ -66,15 +67,23 @@ JetCorrectorDBReader::~JetCorrectorDBReader()
 
 void JetCorrectorDBReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  edm::ESHandle<JetCorrectorParameters> JetCorParams;
-  std::cout <<"Inspecting jet correction parameters with label: "<< mLabel <<std::endl;
-  iSetup.get<JetCorrectionsRecord>().get(mLabel,JetCorParams);
-  if (mCreateTextFile)
-    {
-      std::cout<<"Creating txt file: "<<mLabel+".txt"<<std::endl;
-      JetCorParams->printFile(mLabel+".txt");
-    }
-  JetCorParams->printScreen();
+  edm::ESHandle<JetCorrectorParametersCollection> JetCorParamsColl;
+  std::cout <<"Inspecting JEC payload with label: "<< mPayloadName <<std::endl;
+  iSetup.get<JetCorrectionsRecord>().get(mPayloadName,JetCorParamsColl);
+  std::vector<JetCorrectorParametersCollection::key_type> keys;
+  JetCorParamsColl->validKeys( keys );
+  for ( std::vector<JetCorrectorParametersCollection::key_type>::const_iterator ibegin = keys.begin(),
+	  iend = keys.end(), ikey = ibegin; ikey != iend; ++ikey ) {
+    JetCorrectorParameters const & JetCorParams = (*JetCorParamsColl)[*ikey];
+    std::cout<<"object label: "<<JetCorParamsColl->findLabel(*ikey)<<std::endl;
+    if (mCreateTextFile)
+      {
+	std::cout<<"Creating txt file: "<<mPayloadName+"_"+JetCorParamsColl->findLabel(*ikey)+".txt"<<std::endl;
+	JetCorParams.printFile(mPayloadName+"_"+JetCorParamsColl->findLabel(*ikey)+".txt");
+      }
+    if (mPrintScreen)
+      JetCorParams.printScreen();
+  }
 }
 
 void 

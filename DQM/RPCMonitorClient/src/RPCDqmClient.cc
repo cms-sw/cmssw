@@ -132,7 +132,6 @@ void  RPCDqmClient::endRun(const Run& r, const EventSetup& c){
 
 }
 
-
 void RPCDqmClient::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   if (!enableDQMClients_) return;
 

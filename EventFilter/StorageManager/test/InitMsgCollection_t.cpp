@@ -32,6 +32,7 @@ private:
 
 void testInitMsgCollection::testAdditions()
 {
+  using toolbox::mem::Reference;
   if (_initMsgCollection.get() == 0)
     {
       _initMsgCollection.reset(new InitMsgCollection());

@@ -240,8 +240,18 @@ void PFCandidate::setV0Ref(const reco::VertexCompositeCandidateRef& ref) {
 
 }
 
-
-
+bool PFCandidate::overlap(const reco::Candidate & other) const {
+    CandidatePtr myPtr = sourceCandidatePtr(0);
+    if (myPtr.isNull()) return false;
+    for (size_t i = 0, n = other.numberOfSourceCandidatePtrs(); i < n; ++i) {
+        CandidatePtr otherPtr = other.sourceCandidatePtr(i);
+        if ((otherPtr == myPtr) || 
+            (sourcePtr_.isNonnull() && otherPtr.isNonnull() && sourcePtr_->overlap(*otherPtr))) {
+                return true;
+        }
+    }
+    return false;
+}
 
 
 

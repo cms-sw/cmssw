@@ -39,13 +39,26 @@ alcaBeamSpotProducer.AlcaBeamSpotProducerParameters.resetEveryNLumi = 1
 
 # ------------------------------------------------------------------------------
 # this is for filtering on L1 technical trigger bit
-from L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff import *
-from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import hltLevel1GTSeed
-L1CollTrigger = hltLevel1GTSeed.clone()
+# Set the HLT paths
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+ALCARECOHltFilterForBS = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    andOr = True, ## choose logical OR between Triggerbits
+##     HLTPaths = [
+##     #Minimum Bias
+##     "HLT_MinBias*"
+##     ],
+    eventSetupPathsKey = 'PromptCalibProdForBS',
+    throw = False # tolerate triggers stated above, but not available
+    )
 
-L1CollTrigger.L1TechTriggerSeeding = cms.bool(True)
-L1CollTrigger.L1SeedsLogicalExpression = cms.string('0 AND ( 40 OR 41 ) AND NOT (36 OR 37 OR 38 OR 39)')
-# FIXME: to be checked
+
+#from L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff import *
+#from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import hltLevel1GTSeed
+#L1CollTrigger = hltLevel1GTSeed.clone()
+
+#L1CollTrigger.L1TechTriggerSeeding = cms.bool(True)
+#L1CollTrigger.L1SeedsLogicalExpression = cms.string('0 AND ( 40 OR 41 ) AND NOT (36 OR 37 OR 38 OR 39)')
+
 
 # ------------------------------------------------------------------------------
 # configuration to reproduce offlinePrimaryVertices
@@ -67,7 +80,7 @@ L1CollTrigger.L1SeedsLogicalExpression = cms.string('0 AND ( 40 OR 41 ) AND NOT 
 # alcaBeamSpotProducer.PVFitter.VertexCollection = "offlinePrimaryVerticesForBS"
                      
 seqALCARECOPromptCalibProd = cms.Sequence(ALCARECOTkAlMinBiasFilterForBS *
-                                          L1CollTrigger *
+                                          ALCARECOHltFilterForBS *
 #                                           offlineBeamSpotForBS +
 #                                           offlinePrimaryVerticesForBS +
                                           alcaBeamSpotProducer)

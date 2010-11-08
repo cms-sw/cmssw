@@ -1,20 +1,18 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Electron.h" 
 #include "TopQuarkAnalysis/Examples/plugins/TopMuonAnalyzer.h"
 
 
 TopMuonAnalyzer::TopMuonAnalyzer(const edm::ParameterSet& cfg):
-  inputElec_(cfg.getParameter<edm::InputTag>("inputElec")),
-  inputMuon_(cfg.getParameter<edm::InputTag>("inputMuon"))
+  input_  (cfg.getParameter<edm::InputTag>("input"  )),
+  verbose_(cfg.getParameter<bool>         ("verbose"))
 {
   edm::Service<TFileService> fs;
   
-  Num_Muons   = fs->make<TH1I>("Number_of_Muons",  "Num_{Muons}",    10,  0 ,  10 );
-  Num_Leptons = fs->make<TH1I>("Number_of_Leptons","Num_{Leptons}",  10,  0 ,  10 );
-  pt_Muons    = fs->make<TH1F>("pt_of_Muons",      "pt_{Muons}",    100,  0., 300.);
-  energy_Muons= fs->make<TH1F>("energy_of_Muons",  "energy_{Muons}",100,  0., 300.);
-  eta_Muons   = fs->make<TH1F>("eta_of_Muons",  "eta_{Muons}",      100, -3.,   3.);
-  phi_Muons   = fs->make<TH1F>("phi_of_Muons",  "phi_{Muons}",      100, -4.,   4.);
+  mult_ = fs->make<TH1F>("mult", "multiplicity (muons)", 10,  0 ,   10);
+  en_   = fs->make<TH1F>("en"  , "energy (muons)",       60,  0., 300.);
+  pt_   = fs->make<TH1F>("pt"  , "pt (muons)",           60,  0., 300.);
+  eta_  = fs->make<TH1F>("eta" , "eta (muons)",          30, -3.,   3.);
+  phi_  = fs->make<TH1F>("phi" , "phi (muons)",          40, -4.,   4.);
   
 }
 
@@ -25,22 +23,49 @@ TopMuonAnalyzer::~TopMuonAnalyzer()
 void
 TopMuonAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
 {
-  edm::Handle<std::vector<pat::Electron> > elecs;
-  evt.getByLabel(inputElec_, elecs);
-  
   edm::Handle<std::vector<pat::Muon> > muons;
-  evt.getByLabel(inputMuon_, muons); 
+  evt.getByLabel(input_, muons); 
 
-  Num_Muons  ->Fill( muons->size() ); 
-  Num_Leptons->Fill( elecs->size() + muons->size() );
+  // fill histograms
 
-  for( std::vector<pat::Muon>::const_iterator muon=muons->begin(); 
-       muon!=muons->end(); ++muon){
-    pt_Muons    ->Fill( muon->pt()     );
-    energy_Muons->Fill( muon->energy() );
-    eta_Muons   ->Fill( muon->eta()    );
-    phi_Muons   ->Fill( muon->phi()    );
-  }   
+  mult_->Fill( muons->size() ); 
+  for(std::vector<pat::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
+    pt_ ->Fill( muon->pt()     );
+    en_ ->Fill( muon->energy() );
+    eta_->Fill( muon->eta()    );
+    phi_->Fill( muon->phi()    );
+  }
+
+  // produce printout if desired
+
+  if( muons->size()<1 || !verbose_ )
+    return;
+
+  unsigned i=0;
+
+  std::cout << "==================================================================="
+            << std::endl;
+  std::cout << std::setw(5 ) << "mu  :"
+            << std::setw(13) << "pt :"
+            << std::setw(13) << "eta :"
+            << std::setw(13) << "phi :"
+	    << std::setw(13) << "relIso :"
+	    << std::setw(6 ) << "GLB :"
+	    << std::setw(4 ) << "TRK" << std::endl;
+  std::cout << "-------------------------------------------------------------------"
+            << std::endl;
+  for(std::vector<pat::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
+    std::cout << std::setw(3 ) << i << " : "
+	      << std::setw(10) << muon->pt() << " : "
+	      << std::setw(10) << muon->eta() << " : "
+	      << std::setw(10) << muon->phi() << " : "
+	      << std::setw(10) << (muon->trackIso()+muon->caloIso())/muon->pt() << " : "
+	      << std::setw( 3) << muon->isGlobalMuon() << " : "
+      	      << std::setw( 3) << muon->isTrackerMuon() << std::endl;
+    i++;
+  }
+  std::cout << "==================================================================="
+            << std::endl;
 }
 
 void TopMuonAnalyzer::beginJob()

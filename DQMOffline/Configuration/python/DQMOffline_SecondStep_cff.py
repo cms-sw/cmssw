@@ -12,6 +12,7 @@ from DQM.DTMonitorClient.dtDQMOfflineClients_cff import *
 from DQM.RPCMonitorClient.RPCTier0Client_cff import *
 from DQM.CSCMonitorModule.csc_dqm_offlineclient_collisions_cff import *
 from DQM.EcalPreshowerMonitorClient.es_dqm_client_offline_cff import *
+from DQM.BeamMonitor.AlcaBeamMonitorClient_cff import *
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 
 DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
@@ -35,11 +36,14 @@ from DQMOffline.Trigger.DQMOffline_Trigger_Client_cff import *
 from DQMOffline.Trigger.DQMOffline_HLT_Client_cff import *
 from DQMOffline.RecoB.dqmCollector_cff import *
 
+hltOfflineDQMClient.remove(jetMETHLTOfflineClient)
+
 DQMOffline_SecondStep_PrePOG = cms.Sequence( muonQualityTests *
                                              photonOfflineDQMClient *
                                              triggerOfflineDQMClient *
                                              hltOfflineDQMClient *
-                                             bTagCollectorSequence )
+                                             bTagCollectorSequence *
+                                             alcaBeamMonitorClient )
 
 DQMOffline_SecondStepPOG = cms.Sequence( dqmRefHistoRootFileGetter *
                                          DQMOffline_SecondStep_PrePOG *

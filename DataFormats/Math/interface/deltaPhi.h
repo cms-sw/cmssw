@@ -24,20 +24,10 @@ namespace reco {
     return deltaPhi(phi1, static_cast<double>(phi2));
   }
   
-
-  inline float deltaPhi(float phi1, float phi2) { 
-    float result = phi1 - phi2;
-    while (result > float(M_PI)) result -= float(2*M_PI);
-    while (result <= -float(M_PI)) result += float(2*M_PI);
-    return result;
-  }
-
-  /*
   inline double deltaPhi(float phi1, float phi2) {
     return deltaPhi(static_cast<double>(phi1),
 		    static_cast<double>(phi2));
   } 
-  */
 
   template<typename T1, typename T2>
     inline double deltaPhi(T1& t1, T2 & t2) {
@@ -45,7 +35,7 @@ namespace reco {
   }      
 
   template <typename T> 
-    inline T deltaPhi (T phi1, T phi2) { 
+    T deltaPhi (T phi1, T phi2) { 
     T result = phi1 - phi2;
     while (result > M_PI) result -= 2*M_PI;
     while (result <= -M_PI) result += 2*M_PI;

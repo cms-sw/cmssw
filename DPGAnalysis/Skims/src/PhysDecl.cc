@@ -66,16 +66,16 @@ bool PhysDecl::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       if(debugOn)
 	{
-	  cout << "HLT_debug: Run " << irun << " Ev " << ievt << " LB " << ils << " BX " << bx << " Acc: " ;
+	  std::cout << "HLT_debug: Run " << irun << " Ev " << ievt << " LB " << ils << " BX " << bx << " Acc: " ;
 	  const unsigned int n(hlNames_.size());
 	  for (unsigned int i=0; i!=n; ++i) 
 	    {
 	      if (HLTR->accept(i)) 
 		{
-		  cout << hlNames_[i] << ",";
+		  std::cout << hlNames_[i] << ",";
 		}
 	    }
-	  cout << endl;
+	  std::cout << std::endl;
 	}
       
     }
@@ -87,13 +87,13 @@ bool PhysDecl::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
   L1GlobalTriggerReadoutRecord const* gtrr = gtrr_handle.product();
  
   L1GtFdlWord fdlWord = gtrr->gtFdlWord();
-  //   cout << "phys decl. bit=" << fdlWord.physicsDeclared() << endl;
+  //   std::cout << "phys decl. bit=" << fdlWord.physicsDeclared() << std::endl;
   if (fdlWord.physicsDeclared() ==1) accepted=true;
 
 
   if (debugOn) {
     
-    cout << "PhysDecl_debug: Run " << irun << " Event " << ievt << " Lumi Block " << ils << " Bunch Crossing " << bx << " Accepted " << accepted << endl;
+    std::cout << "PhysDecl_debug: Run " << irun << " Event " << ievt << " Lumi Block " << ils << " Bunch Crossing " << bx << " Accepted " << accepted << std::endl;
   }
  
   if (applyfilter)

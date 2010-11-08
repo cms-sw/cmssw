@@ -11,7 +11,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb  2 16:40:52 EST 2009
-// $Id: FWTableViewTableManager.h,v 1.5 2010/04/16 19:48:14 chrjones Exp $
+// $Id: FWTableViewTableManager.h,v 1.3 2009/05/08 20:04:41 jmuelmen Exp $
 //
 
 // system include files
@@ -28,7 +28,6 @@
 
 // forward declarations
 class FWTableView;
-class FWFramedTextTableCellRenderer;
 
 class FWTableViewTableManager : public FWTableManagerBase {
      friend class FWTableView;
@@ -65,9 +64,9 @@ public:
      // virtual std::vector<unsigned int> maxWidthForColumns() const;
 
      ///Returns 'true' if this table has row headers. Defaults return value is false.
-     virtual bool hasRowHeaders() const ;
+     // virtual bool hasRowHeaders() const ;
      ///Returns the renderer for the row header for the sorted row number iSortedRowNumber
-     virtual FWTableCellRendererBase* rowHeader(int iSortedRowNumber) const ;
+     // virtual FWTableCellRendererBase* rowHeader(int iSortedRowNumber) const ;
 
      ///Called if mouse button pressed in Row Header, defaults is to do nothing
      //virtual void buttonPressedInRowHeader(Int_t row, Event_t* event, Int_t relX, Int_t relY);
@@ -101,11 +100,6 @@ protected:
      TGGC *m_graphicsContext;
      TGGC *m_highlightContext;
      FWTextTableCellRenderer *m_renderer;
-
-     TGGC *m_rowContext;
-     TGGC *m_rowFillContext;
-     FWFramedTextTableCellRenderer *m_rowRenderer;
-   
      std::vector<FWExpressionEvaluator> m_evaluators;
      std::vector<FWTableViewManager::TableEntry> *m_tableFormats;
      //FWTableViewTableManager(const FWTableViewTableManager&); // stop default

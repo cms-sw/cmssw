@@ -22,6 +22,15 @@ TtFullHadKinFitProducer::TtFullHadKinFitProducer(const edm::ParameterSet& cfg):
   mW_                 (cfg.getParameter<double>("mW"  )),
   mTop_               (cfg.getParameter<double>("mTop"))
 {
+  if(cfg.exists("udscResolutions") && cfg.exists("bResolutions")){
+    udscResolutions_ = cfg.getParameter <std::vector<edm::ParameterSet> >("udscResolutions");
+    bResolutions_    = cfg.getParameter <std::vector<edm::ParameterSet> >("bResolutions");
+  }
+  else if(cfg.exists("udscResolutions") || cfg.exists("bResolutions")){
+    if(cfg.exists("udscResolutions")) throw cms::Exception("WrongConfig") << "Parameter 'bResolutions' is needed if parameter 'udscResolutions' is defined!\n";
+    else                              throw cms::Exception("WrongConfig") << "Parameter 'udscResolutions' is needed if parameter 'bResolutions' is defined!\n";
+  }
+
   // define kinematic fit interface
   fitter = new TtFullHadKinFitter(param(jetParam_), maxNrIter_, maxDeltaS_, maxF_, constraints(constraints_), mW_, mTop_);
 
@@ -251,7 +260,7 @@ TtFullHadKinFitProducer::produce(edm::Event& event, const edm::EventSetup& setup
 	jetCombi[TtFullHadEvtPartons::LightPBar] = corJet((*jets)[combi[TtFullHadEvtPartons::LightPBar]], "wMix");
 	  
 	// do the kinematic fit
-	int status = fitter->fit(jetCombi);
+	int status = fitter->fit(jetCombi,udscResolutions_,bResolutions_);
 	  
 	if( status == 0 ) { 
 	  // fill struct KinFitResults if converged

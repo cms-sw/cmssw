@@ -24,9 +24,10 @@ hcalRecHitMonitor=cms.EDAnalyzer("HcalRecHitMonitor",
 
                                  HLTResultsLabel              = cms.untracked.InputTag("TriggerResults","","HLT"),
                                  # triggers required to meet Hcal HLT or Min Bias conditions
-                                 HcalHLTBits                  = cms.untracked.vstring("HLT_L1Tech_HCAL_HF_coincidence_PM"),
-                                 MinBiasHLTBits               = cms.untracked.vstring("HLT_MinBiasBSC"),
-
+                                 HcalHLTBits                  = cms.untracked.vstring("HLT_L1Tech_HCAL_HF_coincidence_PM",
+                                                                                      "HLT_L1Tech_HCAL_HF"),
+                                 MinBiasHLTBits               = cms.untracked.vstring("HLT_MinBiasBSC",
+                                                                                      "HLT_L1Tech_BSC_minBias"),
                                  # Energy thresholds for some BPTX plots
                                  energyThreshold              = cms.untracked.double(2.),
                                  ETThreshold                  = cms.untracked.double(0.),

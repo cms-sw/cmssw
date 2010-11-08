@@ -6,7 +6,7 @@ process = cms.Process("makeSD")
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('JetMETAOD and Tau central skim'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/Skimming/test/CSmaker_JetMETAOD_Tau_PDJetMETTau_1e29_reprocess361p3_cfg.py,v $')
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/Skimming/test/CSmaker_JetMETAOD_Tau_PDJetMETTau_1e29_reprocess361p4_cfg.py,v $')
 )
 
 
@@ -18,7 +18,7 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Configuration.StandardSequences.GeometryExtended_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load('Configuration.EventContent.EventContent_cff')
-process.GlobalTag.globaltag = "GR_R_36X_V12A::All"  
+process.GlobalTag.globaltag = "GR_R_36X_V12B::All"  
 
 
 process.source = cms.Source("PoolSource",

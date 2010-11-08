@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
   edm::CPUTimer t;
   int nloops = 1000;
   if (argc > 1) nloops = atoi(argv[1]);
-  cout << "Doing " << nloops << " loops" << endl;
+  std::cout << "Doing " << nloops << " loops" << std::endl;
 
   t.start();
   for (int i = 0; i != nloops; ++i)
@@ -26,6 +26,6 @@ int main(int argc, char* argv[])
     }
   t.stop();
 
-  cout << "Time per lock: " << t.cpuTime()/nloops << '\n';
+  std::cout << "Time per lock: " << t.cpuTime()/nloops << '\n';
   
 }

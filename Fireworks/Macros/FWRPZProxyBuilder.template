@@ -1,0 +1,47 @@
+// -*- C++ -*-
+// $Id$
+//
+
+// include files
+#include "Fireworks/Core/interface/FWRPZ2DSimpleProxyBuilderTemplate.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
+// #include "TEvePointSet.h"
+
+class _NAME_ : public FWRPZ2DSimpleProxyBuilderTemplate<_TYPE_>  {
+   
+public:
+   _NAME_(){}	
+   virtual ~_NAME_(){}
+   
+   REGISTER_PROXYBUILDER_METHODS();
+ 
+private:
+   _NAME_(const _NAME_&); // stop default
+   
+   const _NAME_& operator=(const _NAME_&); // stop default
+   
+   void buildRhoPhi(const _TYPE_& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
+   void buildRhoZ(const _TYPE_& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
+};
+
+void 
+_NAME_::buildRhoPhi(const _TYPE_& iData, unsigned int iIndex,TEveElement& oItemHolder) const
+{
+   //// Just an example that creates a bunch of points
+   // TEvePointSet* pointSet = new TEvePointSet();
+   // pointSet->SetMainColor(item()->defaultDisplayProperties().color());
+   // pointSet->SetNextPoint( iData.x(), iData.y(), iData.z() );
+   // oItemHolder.AddElement( pointSet );
+}
+
+void 
+_NAME_::buildRhoZ(const _TYPE_& iData, unsigned int iIndex,TEveElement& oItemHolder) const
+{
+   //// Just an example that creates a bunch of points
+   // TEvePointSet* pointSet = new TEvePointSet();
+   // pointSet->SetMainColor(item()->defaultDisplayProperties().color());
+   // pointSet->SetNextPoint( iData.x(), iData.y(), iData.z() );
+   // oItemHolder.AddElement( pointSet );
+}
+
+REGISTER_FWRPZDATAPROXYBUILDERBASE(_NAME_,_TYPE_,"_PURPOSE_");

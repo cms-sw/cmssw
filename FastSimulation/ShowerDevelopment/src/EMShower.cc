@@ -368,13 +368,15 @@ EMShower::compute() {
       // Preshower : Expected number of mips + fluctuation
       }
       else if ( hcal ) {
+
 	nS = ( theNumberOfSpots[i] * gam(bSpot[i]*tt,aSpot[i]) 
 	       * bSpot[i] * dt 
 	       / tgamma(aSpot[i]))* theHCAL->spotFraction();
 	double nSo = nS ;
-	
 	nS = random->poissonShoot(nS);
-	dE *= nS/nSo;
+	// 'Quick and dirty' fix (but this line should be better removed):
+	if( nSo > 0. && nS/nSo < 10.) dE *= nS/nSo;
+
 //	if(true)
 //	  {
 //	    std::cout << " theHCAL->spotFraction = " <<theHCAL->spotFraction() <<std::endl;

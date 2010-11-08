@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/28 08:09:04 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/03/08 17:12:09 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -17,6 +17,9 @@
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 #include <sys/time.h>
 #include "DataFormats/Provenance/interface/Timestamp.h"

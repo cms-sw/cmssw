@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 offlinePrimaryVerticesWithBS = cms.EDProducer("PrimaryVertexProducer",
     PVSelParameters = cms.PSet(
-        maxDistanceToBeam = cms.double(1.0) # meaningless for constrained fits
+        maxDistanceToBeam = cms.double(2) # meaningless for constrained fits
     ),
     verbose = cms.untracked.bool(False),
     algorithm = cms.string('AdaptiveVertexFitter'),
@@ -11,17 +11,17 @@ offlinePrimaryVerticesWithBS = cms.EDProducer("PrimaryVertexProducer",
     beamSpotLabel = cms.InputTag("offlineBeamSpot"),
     minNdof  = cms.double(2.0),
     TkFilterParameters = cms.PSet(
-        maxNormalizedChi2 = cms.double(5.0),
+        maxNormalizedChi2 = cms.double(20.0),
         minSiliconLayersWithHits = cms.int32(5), # >=5  (TDR > 7 hits)
         minPixelLayersWithHits = cms.int32(2),   # >=2  (TDR > 2 hits)
-        maxD0Significance = cms.double(5.0),     # keep most primary tracks
+        maxD0Significance = cms.double(100.0),     # keep most primary tracks
         minPt = cms.double(0.0),                 # better for softish events
         trackQuality= cms.string("any")
     ),
     TkClusParameters = cms.PSet(
         algorithm   = cms.string("gap"),
         TkGapClusParameters = cms.PSet( 
-            zSeparation = cms.double(0.1)        # 1 mm max separation betw.tracks inside clusters
+            zSeparation = cms.double(0.2)        # 1 mm max separation betw.tracks inside clusters
         )
 
     )

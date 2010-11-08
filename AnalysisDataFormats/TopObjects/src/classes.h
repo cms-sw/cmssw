@@ -22,8 +22,6 @@ namespace {
   typedef edm::Ptr<pat::Muon> PtrMuon;
   typedef edm::Ptr<pat::Electron> PtrElec;
   struct dictionary {
-    TString tstr;
-    edm::Wrapper<TString> w_tstr;
     edm::Wrapper<std::vector<std::vector<int> > > w_v_vint;
 
     PtrMet  p_met;
@@ -58,6 +56,7 @@ namespace {
     std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > v_p_compcand_vint;
     edm::Wrapper<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > > w_v_p_compcand_vint;
 
+    std::map<TtEvent::HypoClassKey, int> m_key_int;
     std::map<TtEvent::HypoClassKey, std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > > m_key_v_p_compcand_vint;
 
     TtDilepEvtSolution ttdilep;

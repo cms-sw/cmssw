@@ -241,14 +241,27 @@ def addPFCandidates(process,src,patLabel='PFParticles',cut="",postfix=""):
     applyPostfix(process, "selectedPatCandidateSummary", postfix).candidates.append(cms.InputTag('selectedPat' + patLabel))
 
         
-def switchToPFMET(process,input=cms.InputTag('pfMET'), postfix=""):
+def switchToPFMET(process,input=cms.InputTag('pfMET'), type1=False, postfix=""):
     print 'MET: using ', input
-    oldMETSource = applyPostfix(process, "patMETs",postfix).metSource
-    applyPostfix(process, "patMETs",postfix).metSource = input
-    applyPostfix(process, "patMETs",postfix).addMuonCorrections = False
-    getattr(process, "patDefaultSequence"+postfix).remove(
+    if( not type1 ):
+        oldMETSource = applyPostfix(process, "patMETs",postfix).metSource
+        applyPostfix(process, "patMETs",postfix).metSource = input
+        applyPostfix(process, "patMETs",postfix).addMuonCorrections = False
+        getattr(process, "patDefaultSequence"+postfix).remove(
         applyPostfix(process, "patMETCorrections",postfix)
         )
+    else:
+        # type1 corrected MET
+        # name of coreccted MET hardcoded in PAT and meaningless
+        print 'Apply type1 corrections for MET'
+        applyPostfix(process, "metJESCorAK5CaloJet",postfix).inputUncorMetLabel = input.getModuleLabel()
+        applyPostfix(process, "metJESCorAK5CaloJet",postfix).metType = 'PFMET'
+        applyPostfix(process, "metJESCorAK5CaloJet",postfix).jetPTthreshold = 1.0
+        applyPostfix(process, "patMETs",postfix).metSource = "metJESCorAK5CaloJet"+postfix
+        applyPostfix(process, "patMETs",postfix).addMuonCorrections = False
+        getattr(process, "patDefaultSequence"+postfix).remove(
+            applyPostfix(process, "metJESCorAK5CaloJetMuons",postfix)
+            )
 
 def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='IC5', postfix = ""):
 
@@ -274,7 +287,8 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='IC5', postfix =
                         doJTA=True,
                         doBTagging=True,
                         jetCorrLabel=( algo, 'PF' ), 
-                        doType1MET=False,
+                        #doType1MET=False,
+                        doType1MET=True,
                         genJetCollection = genJetCollection,
                         doJetID = True,
 			postfix = postfix
@@ -350,7 +364,7 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='IC5', runOnMC=True, postfix = ""
     switchToPFMET(process, cms.InputTag('pfMET'+postfix), postfix=postfix)
     
     # Unmasked PFCandidates
-    addPFCandidates(process,cms.InputTag('pfNoJet'+postfix),patLabel='PFParticles',cut="",postfix=postfix)
+    addPFCandidates(process,cms.InputTag('pfNoJet'+postfix),patLabel='PFParticles'+postfix,cut="",postfix=postfix)
 
     if runOnMC:
         process.load("PhysicsTools.PFCandProducer.genForPF2PAT_cff")

@@ -1,131 +1,36 @@
 import FWCore.ParameterSet.Config as cms
 from CondCore.DBCommon.CondDBCommon_cfi import *
-CondDBCommon.connect = 'frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS'
+#CondDBCommon.connect = 'frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS'
+CondDBCommon.connect = cms.string('sqlite_file:JEC_Spring10.db')
 
-JECEra = 'Summer09_7TeV_ReReco332_'
 
 PoolDBESSource = cms.ESSource("PoolDBESSource",
   CondDBCommon,
   toGet = cms.VPSet( 
       cms.PSet( 
          record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string(JECEra + 'L2Relative_IC5Calo'), 
-         label  = cms.untracked.string('L2Relative_IC5Calo') 
-      ), 
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string(JECEra + 'L2Relative_IC5PF'), 
-         label  = cms.untracked.string('L2Relative_IC5PF') 
-      ), 
-#      cms.PSet( 
-#         record = cms.string('JetCorrectionsRecord'), 
-#         tag    = cms.string(JECEra + 'L2Relative_AK5JPT'), 
-#         label  = cms.untracked.string('L2Relative_AK5JPT') 
-#      ), 
-#      cms.PSet( 
-#         record = cms.string('JetCorrectionsRecord'), 
-#         tag    = cms.string(JECEra + 'L2Relative_AK5TRK'), 
-#         label  = cms.untracked.string('L2Relative_AK5TRK') 
-#      ),
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string(JECEra + 'L2Relative_AK5Calo'), 
-         label  = cms.untracked.string('L2Relative_AK5Calo') 
-      ), 
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string(JECEra + 'L2Relative_AK5PF'), 
-         label  = cms.untracked.string('L2Relative_AK5PF') 
-      ), 
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string(JECEra + 'L2Relative_AK7Calo'), 
-         label  = cms.untracked.string('L2Relative_AK7Calo') 
-      ), 
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string(JECEra + 'L2Relative_AK7PF'), 
-         label  = cms.untracked.string('L2Relative_AK7PF') 
-      ), 
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string(JECEra + 'L2Relative_KT4Calo'), 
-         label  = cms.untracked.string('L2Relative_KT4Calo') 
-      ), 
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string(JECEra + 'L2Relative_KT4PF'), 
-         label  = cms.untracked.string('L2Relative_KT4PF') 
-      ), 
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string(JECEra + 'L2Relative_KT6Calo'), 
-         label  = cms.untracked.string('L2Relative_KT6Calo') 
-      ), 
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string(JECEra + 'L2Relative_KT6PF'), 
-         label  = cms.untracked.string('L2Relative_KT6PF') 
-      ),  
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string(JECEra + 'L3Absolute_IC5Calo'), 
-         label  = cms.untracked.string('L3Absolute_IC5Calo') 
-      ), 
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string(JECEra + 'L3Absolute_IC5PF'), 
-         label  = cms.untracked.string('L3Absolute_IC5PF') 
-      ), 
-#      cms.PSet( 
-#         record = cms.string('JetCorrectionsRecord'), 
-#         tag    = cms.string(JECEra + 'L3Absolute_AK5JPT'), 
-#         label  = cms.untracked.string('L3Absolute_AK5JPT') 
-#      ), 
-#      cms.PSet( 
-#         record = cms.string('JetCorrectionsRecord'), 
-#         tag    = cms.string(JECEra + 'L3Absolute_AK5TRK'), 
-#         label  = cms.untracked.string('L3Absolute_AK5TRK') 
-#      ),
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string(JECEra + 'L3Absolute_AK5Calo'), 
-         label  = cms.untracked.string('L3Absolute_AK5Calo') 
-      ), 
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string(JECEra + 'L3Absolute_AK5PF'), 
-         label  = cms.untracked.string('L3Absolute_AK5PF') 
-      ), 
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string(JECEra + 'L3Absolute_AK7Calo'), 
-         label  = cms.untracked.string('L3Absolute_AK7Calo') 
-      ), 
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string(JECEra + 'L3Absolute_AK7PF'), 
-         label  = cms.untracked.string('L3Absolute_AK7PF') 
-      ), 
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string(JECEra + 'L3Absolute_KT4Calo'), 
-         label  = cms.untracked.string('L3Absolute_KT4Calo') 
-      ), 
-      cms.PSet( 
-         record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string(JECEra + 'L3Absolute_KT4PF'), 
-         label  = cms.untracked.string('L3Absolute_KT4PF') 
+         tag    = cms.string('JEC_Spring10_AK5Calo'), 
+         label  = cms.untracked.string('JEC_Spring10_AK5Calo') 
       )
-#      cms.PSet( 
-#         record = cms.string('JetCorrectionsRecord'), 
-#         tag    = cms.string(JECEra + 'L3Absolute_KT6Calo'), 
-#         label  = cms.untracked.string('L3Absolute_KT6Calo') 
-#      ), 
-#      cms.PSet( 
-#         record = cms.string('JetCorrectionsRecord'), 
-#         tag    = cms.string(JECEra + 'L3Absolute_KT6PF'), 
-#         label  = cms.untracked.string('L3Absolute_KT6PF') 
-#      )
+  )
+)
+PoolDBESSource = cms.ESSource("PoolDBESSource",
+  CondDBCommon,
+  toGet = cms.VPSet( 
+      cms.PSet( 
+         record = cms.string('JetCorrectionsRecord'), 
+         tag    = cms.string('JEC_Spring10_AK5PF'), 
+         label  = cms.untracked.string('JEC_Spring10_AK5PF') 
+      )
+  )
+)
+PoolDBESSource = cms.ESSource("PoolDBESSource",
+  CondDBCommon,
+  toGet = cms.VPSet( 
+      cms.PSet( 
+         record = cms.string('JetCorrectionsRecord'), 
+         tag    = cms.string('JEC_Summer10_AK5JPT'), 
+         label  = cms.untracked.string('JEC_Summer10_AK5JPT') 
+      )
   )
 )

@@ -1,6 +1,6 @@
 /** \file CSCSegment.cc
  *
- *  $Date: 2010/05/11 17:39:51 $
+ *  $Date: 2010/05/22 17:42:15 $
  *  \author Matteo Sani
  */
 
@@ -82,11 +82,13 @@ AlgebraicMatrix CSCSegment::projectionMatrix() const {
   return theProjectionMatrix;
 }
 
-void CSCSegment::setDuplicateSegments(std::vector<CSCSegment*> duplicates){
+void CSCSegment::setDuplicateSegments(std::vector<CSCSegment*> & duplicates){
   theDuplicateSegments.clear();
   for(unsigned int i=0; i<duplicates.size(); ++i){
     theDuplicateSegments.push_back(*duplicates[i]);
-  }
+    //avoid copying duplicates of duplicates of duplicates...
+    theDuplicateSegments.back().theDuplicateSegments.resize(0);
+ }
 }
 
 bool CSCSegment::testSharesAllInSpecificRecHits( const std::vector<CSCRecHit2D>& specificRecHits_1,

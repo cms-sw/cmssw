@@ -1,5 +1,6 @@
 #include "HLTMessages.h"
 
+const char * kSubEventMap                 = "subevent map";
 const char * kRecjets                     = "uncorrected reconstructed jets";
 const char * kRecCorjets                  = "corrected reconstructed jets";
 const char * kGenjets                     = "generator jets";
@@ -62,6 +63,8 @@ const char * kIsoEleTrackIsol             = "isol Track electron";
 const char * kNonIsoEleTrackIsol          = "isol Track electron";
 const char * kL1IsoPixelSeeds             = "pixelSeed-SC association map for electron";
 const char * kL1NonIsoPixelSeeds          = "pixelSeed-SC for electron";
+const char * kNonIsoR9                    = "Spike-cleaning";
+const char * kIsoR9                       = "Spike-cleaning"; 
 
 const char * kEErechits                   = "ECAL Endcap RecHits";
 const char * kEBrechits                   = "ECAL Barrel RecHits"; 

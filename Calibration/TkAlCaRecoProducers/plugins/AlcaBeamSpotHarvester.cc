@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/06/30 20:49:57 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/10/07 17:09:10 $
+ *  $Revision: 1.8 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
 
@@ -26,6 +26,7 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 //#include "CondCore/Utilities/bin/cmscond_export_iov.cpp"
 //#include "CondCore/Utilities/interface/Utilities.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
 
 #include <iostream> 
 
@@ -35,10 +36,12 @@ using namespace reco;
 
 //--------------------------------------------------------------------------------------------------
 AlcaBeamSpotHarvester::AlcaBeamSpotHarvester(const edm::ParameterSet& iConfig) :
-  theAlcaBeamSpotManager_(iConfig)
+  beamSpotOutputBase_    (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotOutputBase")),
+  outputrecordName_      (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("outputRecordName", "BeamSpotObjectsRcd")),
+  sigmaZValue_           (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<double>("SigmaZValue")),
+  theAlcaBeamSpotManager_(iConfig),
+  metadataForOfflineDropBox_(iConfig.getParameter<ParameterSet>("metadataOfflineDropBox"))
 {  
-  beamSpotOutputBase_ = iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotOutputBase");
-  outputrecordName_ = iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("outputRecordName", "BeamSpotObjectsRcd");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,7 +54,12 @@ void AlcaBeamSpotHarvester::beginJob() {}
 void AlcaBeamSpotHarvester::endJob() {}  
 
 //--------------------------------------------------------------------------------------------------
-void AlcaBeamSpotHarvester::analyze(const edm::Event&, const edm::EventSetup&) {}
+void AlcaBeamSpotHarvester::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
+//  edm::LogInfo("AlcaBeamSpotHarvester")
+//      << "Lumi: " << iEvent.luminosityBlock() 
+//      << " Time: " << iEvent.time().unixTime() 
+//      << std::endl;
+}
 
 //--------------------------------------------------------------------------------------------------
 void AlcaBeamSpotHarvester::beginRun(const edm::Run&, const edm::EventSetup&){
@@ -69,7 +77,12 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
       BeamSpotObjects *aBeamSpot = new BeamSpotObjects();
       aBeamSpot->SetType(it->second.type());
       aBeamSpot->SetPosition(it->second.x0(),it->second.y0(),it->second.z0());
-      aBeamSpot->SetSigmaZ(it->second.sigmaZ());
+      if(sigmaZValue_ == -1){
+        aBeamSpot->SetSigmaZ(it->second.sigmaZ());
+      }
+      else{
+        aBeamSpot->SetSigmaZ(sigmaZValue_);
+      }
       aBeamSpot->Setdxdz(it->second.dxdz());
       aBeamSpot->Setdydz(it->second.dydz());
       aBeamSpot->SetBeamWidthX(it->second.BeamWidthX());
@@ -84,7 +97,13 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
 	}
       }
 
+      if(sigmaZValue_ > 0){
+        aBeamSpot->SetCovariance(3,3,0.000025);
+      }
+
       cond::Time_t thisIOV = 1;
+
+
 
       // run based      
       if (beamSpotOutputBase_ == "runbased" ) {
@@ -95,9 +114,8 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
 	edm::LuminosityBlockID lu(iRun.id().run(),it->first);
 	thisIOV = (cond::Time_t)(lu.value()); 
       }
-
       if (poolDbService->isNewTagRequest(outputrecordName_) ) {
-          edm::LogInfo("AlcaBeamSpotSpotHarvester")
+          edm::LogInfo("AlcaBeamSpotHarvester")
               << "new tag requested" << std::endl;
           //poolDbService->createNewIOV<BeamSpotObjects>(aBeamSpot, poolDbService->beginOfTime(),poolDbService->endOfTime(),"BeamSpotObjectsRcd");
 	  
@@ -105,11 +123,15 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
 	  poolDbService->writeOne<BeamSpotObjects>(aBeamSpot, thisIOV, outputrecordName_);
       } 
       else {
-        edm::LogInfo("AlcaBeamSpotSpotHarvester")
+        edm::LogInfo("AlcaBeamSpotHarvester")
             << "no new tag requested, appending IOV" << std::endl;
         //poolDbService->appendSinceTime<BeamSpotObjects>(aBeamSpot, poolDbService->currentTime(),"BeamSpotObjectsRcd");
 	poolDbService->writeOne<BeamSpotObjects>(aBeamSpot, thisIOV, outputrecordName_);
       }
+
+
+
+
 /*
       int         argc = 15;
       const char* argv[] = {"endRun"
@@ -122,14 +144,41 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
 			   ,"-e","10"
 			   };
       
-      edm::LogInfo("AlcaBeamSpotSpotHarvester")
+      edm::LogInfo("AlcaBeamSpotHarvester")
         << "Running utilities!" 
 	<< utilities.run(argc,(char**)argv);
-      edm::LogInfo("AlcaBeamSpotSpotHarvester")
+      edm::LogInfo("AlcaBeamSpotHarvester")
         << "Run utilities!" 
 	<< std::endl;
 */
     }
+
+
+
+    edm::Service<edm::JobReport> jr;
+    if (jr.isAvailable()) {
+      std::map<std::string, std::string> jrInfo;
+      jrInfo["Source"] = "AlcaHarvesting";
+      jrInfo["FileClass"] = "ALCA";
+
+
+      jrInfo["inputtag"] = poolDbService->tag(outputrecordName_);
+      if(beamSpotOutputBase_ == "runbased") {
+	jrInfo["Timetype"] = "runnumber";
+      } else if(beamSpotOutputBase_ == "lumibased") {
+	jrInfo["Timetype"] = "lumiid";
+      }
+
+      jrInfo["destDB"] = metadataForOfflineDropBox_.getUntrackedParameter<std::string>("destDB");
+      jrInfo["destDBValidation"] = metadataForOfflineDropBox_.getUntrackedParameter<std::string>("destDBValidation");
+      jrInfo["tag"] = metadataForOfflineDropBox_.getUntrackedParameter<std::string>("tag");
+      jrInfo["DuplicateTagPROMPT"] = metadataForOfflineDropBox_.getUntrackedParameter<std::string>("DuplicateTagPROMPT");
+
+      std::string filename = poolDbService->session().connectionString();
+      jr->reportAnalysisFile(filename, jrInfo);
+    }
+
+
   }
 }
 

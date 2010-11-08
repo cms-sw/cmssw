@@ -29,10 +29,16 @@ class EcalTriggerPrimitiveSample {
   /// get the Trigger tower Flag (3 bits)
   int ttFlag() const { return (theSample>>9)&0x7; }
 
-  /// gets the L1A spike detection flag. 
-  /// @return 1 if the trigger primitive was forced to zero because a spike was detected by L1 trigger,
-  ///         0 otherwise
+  /// Gets the L1A spike detection flag. Beware the flag is inverted.
+  /// Deprecated, use instead sFGVB() method, whose name is less missleading
+  /// @return 0 spike like pattern
+  ///         1 EM shower like pattern
   int l1aSpike() const { return (theSample >>12) & 0x1; }
+
+  /// Gets the "strip fine grain veto bit" (sFGVB) used as L1A spike detection
+  /// @return 0 spike like pattern
+  ///         1 EM shower like pattern
+  int sFGVB() const { return (theSample >>12) & 0x1; }
   
   /// for streaming
   uint16_t operator()() { return theSample; }

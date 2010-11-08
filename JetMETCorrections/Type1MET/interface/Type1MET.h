@@ -15,7 +15,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.h,v 1.2 2010/05/03 17:36:23 jdamgov Exp $
+// $Id: Type1MET.h,v 1.2 2010/05/16 15:21:59 jdamgov Exp $
 //
 //
 
@@ -33,7 +33,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "JetMETCorrections/Type1MET/interface/Type1METAlgo.h"
 
-//using namespace std;
+
 
 namespace cms 
 {

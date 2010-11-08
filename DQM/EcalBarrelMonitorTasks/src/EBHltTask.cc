@@ -1,8 +1,8 @@
 /*
  * \file EBHltTask.cc
  *
- * $Date: 2010/03/26 11:24:50 $
- * $Revision: 1.13 $
+ * $Date: 2010/08/08 08:46:05 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -27,7 +27,7 @@
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBHltTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBHltTask.h"
 
 EBHltTask::EBHltTask(const edm::ParameterSet& ps){
 
@@ -62,7 +62,7 @@ EBHltTask::EBHltTask(const edm::ParameterSet& ps){
   meEBFedsIntegrityErrors_ = 0;
 
   map = 0;
-  
+
 }
 
 EBHltTask::~EBHltTask(){
@@ -187,23 +187,23 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   if ( e.getByLabel(FEDRawDataCollection_, allFedRawData) ) {
 
     for ( int ism=1; ism<=36; ism++ ) {
-      
+
       const FEDRawData& fedData = allFedRawData->FEDData( EBFirstFED + ism - 1 );
-      
+
       int length = fedData.size()/sizeof(uint64_t);
 
       if ( length > 0 ) {
 
 	if ( meEBFedsOccupancy_ ) meEBFedsOccupancy_->Fill( EBFirstFED + ism - 1 );
-	
+
 	uint64_t * pData = (uint64_t *)(fedData.data());
 	uint64_t * fedTrailer = pData + (length - 1);
 	bool crcError = (*fedTrailer >> 2 ) & 0x1;
-	
+
 	if (crcError) FedsSizeErrors[ism-1]++;
-	
+
       }
-      
+
     }
 
   } else {

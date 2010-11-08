@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorSelector.h
  *
- * $Date: 2006/09/28 22:17:54 $
- * $Revision: 1.3 $
+ * $Date: 2010/03/28 03:22:30 $
+ * $Revision: 1.5 $
  * \author W. Fisher
  *
 */
@@ -15,8 +15,6 @@
 #include <iostream>
 #include <vector>
 #include <string>
-
-using namespace std;
 
 static const int HCAL_BEAM_TRIGGER       = 0x0001;
 static const int DO_HCAL_DIGIMON         = 0x0002;

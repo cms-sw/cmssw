@@ -42,7 +42,7 @@ process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 
 # HLT paths - defined by configDB
 # This one is created on the fly by FastSimulation/Configuration/test/IntegrationTestWithHLT_py.csh
-process.load("FastSimulation.Configuration.HLT_1E31_cff")
+process.load("FastSimulation.Configuration.HLT_GRun_cff")
 
 
 

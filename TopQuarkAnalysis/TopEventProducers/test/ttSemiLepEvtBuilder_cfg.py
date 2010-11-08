@@ -14,13 +14,13 @@ process.MessageLogger.cerr.TtSemiLeptonicEvent = cms.untracked.PSet(
 ## define input
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_6_0/RelValTTbar/GEN-SIM-RECO/START36_V4-v1/0014/EEA7EEC1-FC49-DF11-9E91-003048678D9A.root'
+    '/store/relval/CMSSW_3_8_2/RelValTTbar/GEN-SIM-RECO/MC_38Y_V9-v1/0018/E8B5D618-96AF-DF11-835A-003048679070.root'
     )
 )
 
 ## define maximal number of events to loop over
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(50)
 )
 
 ## configure process options
@@ -33,7 +33,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 
 ## configure conditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START36_V4::All')
+process.GlobalTag.globaltag = cms.string('START38_V7::All')
 
 ## load magnetic field
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -51,7 +51,7 @@ process.ttSemiLepEvent.verbosity = 1
 ## choose which hypotheses to produce
 from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
 addTtSemiLepHypotheses(process,
-                       ["kGeom", "kWMassMaxSumPt", "kMaxSumPtWMass", "kMVADisc", "kKinFit"]
+                       ["kGeom", "kWMassDeltaTopMass", "kWMassMaxSumPt", "kMaxSumPtWMass", "kMVADisc", "kKinFit"]
                        )
 #removeTtSemiLepHypGenMatch(process)
 
@@ -60,6 +60,9 @@ addTtSemiLepHypotheses(process,
 
 ## change maximum number of jets taken into account per event (default: 4)
 #setForAllTtSemiLepHypotheses(process, "maxNJets", 5)
+
+## solve kinematic equation to determine neutrino pz
+#setForAllTtSemiLepHypotheses(process, "neutrinoSolutionType", 2)
 
 ## change maximum number of jet combinations taken into account per event (default: 1)
 #process.findTtSemiLepJetCombMVA.maxNComb        = -1
@@ -79,7 +82,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName     = cms.untracked.string('ttSemiLepEvtBuilder.root'),
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p') ),
     outputCommands = cms.untracked.vstring('drop *'),                      
-    dropMetaDataForDroppedData = cms.untracked.bool(True)
+    dropMetaData = cms.untracked.string('DROPPED')
 )
 process.outpath = cms.EndPath(process.out)
 

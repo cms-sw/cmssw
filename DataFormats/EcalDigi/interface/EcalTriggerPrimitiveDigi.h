@@ -9,7 +9,9 @@
 
 
 /** \class EcalTriggerPrimitiveDigi
-      
+
+see also EcalTrigPrimCompactColl.
+
 $Id : $
 */
 
@@ -49,11 +51,16 @@ class EcalTriggerPrimitiveDigi {
   /// get the Trigger tower Flag of interesting sample
   int ttFlag() const; 
 
-  /// gets the L1A spike detection flag. 
-  /// @return 1 if the trigger primitive was forced to zero because a spike was detected by L1 trigger,
-  ///         0 if it wasn't
-  ///         -1 if failed to retrieve the sample of interest (see #sampleOfInterest())), that contains this information:
-  int l1aSpike() const;
+  /// Gets the "strip fine grain veto bit" (sFGVB) used as L1A spike detection
+  /// @return 0 spike like pattern
+  ///         1 EM shower like pattern
+  int sFGVB() const;
+
+  /// Gets the L1A spike detection flag. Beware the flag is inverted.
+  /// Deprecated, use instead sFGVB() method, whose name is less missleading
+  /// @return 0 spike like pattern
+  ///         1 EM shower like pattern
+  int l1aSpike() const { return sFGVB(); }
   
   /// True if debug mode (# of samples > 1)
   bool isDebug() const;

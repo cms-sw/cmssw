@@ -1,10 +1,16 @@
 #! /usr/bin/env python
-import unittest
-import os.path
+import os
 import sys
-
 import logging
-#logging.root.setLevel(logging.DEBUG)
+
+import signal
+
+import ConfigParser
+import optparse
+import webbrowser
+import math
+import unittest
+import time
 
 try:
     distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
@@ -17,7 +23,7 @@ try:
 except Exception:
     distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]),".."))
 
-sys.path.append(distBaseDirectory)
+sys.path.insert(0,distBaseDirectory)
 from Vispa.Main.Directories import *
 distBinaryBaseDirectory=os.path.join(baseDirectory,"dist")
 sys.path.append(distBinaryBaseDirectory)
@@ -36,14 +42,10 @@ QCoreApplication.addLibraryPath(qt_plugins_path)
 qt_plugins_path=os.path.abspath(os.path.expandvars("$CMSSW_RELEASE_BASE/../../../external/qt/4.5.2-cms2/plugins"))
 QCoreApplication.addLibraryPath(qt_plugins_path)
 
-setWebsiteUrl('http://twiki.cern.ch/twiki/bin/view/CMS/SWGuideConfigEditor')
+setWebsiteUrl('http://twiki.cern.ch/twiki/bin/view/CMS/SWGuideConfigBrowser')
 
-from Vispa.Main.Application import Application
-#Application.NO_PROCESS_EVENTS=True
-from Vispa.Share.ThreadChain import ThreadChain
-#ThreadChain.NO_THREADS_FLAG=True
-
-from Vispa.Share import Profiling
+from Vispa.Main.Application import *
+from Vispa.Plugins.ConfigEditor.ConfigEditorPlugin import *
 
 if __name__ == "__main__":
     if not os.path.exists(preferencesDirectory):
@@ -53,5 +55,6 @@ if __name__ == "__main__":
         except IOError:
             print "Directory could not be created. No logging."
     app = Application(sys.argv)
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
     app.mainWindow().setWindowTitle("ConfigBrowser")
     app.run()

@@ -1,4 +1,4 @@
-// $Id: Normal.cc,v 1.7 2009/08/28 16:41:26 mommsen Exp $
+// $Id: Normal.cc,v 1.8 2009/09/29 07:57:56 mommsen Exp $
 /// @file: Normal.cc
 
 #include "EventFilter/StorageManager/interface/StateMachine.h"
@@ -33,7 +33,7 @@ Normal::~Normal()
 
 string Normal::do_stateName() const
 {
-  return string( "Normal" );
+  return std::string( "Normal" );
 }
 
 void Normal::do_moveToFailedState( xcept::Exception& exception ) const

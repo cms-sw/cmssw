@@ -92,7 +92,7 @@ RefCountedKinematicTree LagrangeParentParticleFitter::fit(RefCountedKinematicTre
    exPoint = refPar;
    AlgebraicVector vlp = cs->value(exPoint).first;
    for(int i = 1; i< vl.num_row();i++)
-   {df += abs(vlp(i));}
+   {df += std::abs(vlp(i));}
    nstep++; 
   }while(df>theMaxDiff && nstep<theMaxStep);
   
@@ -118,12 +118,12 @@ RefCountedKinematicTree LagrangeParentParticleFitter::fit(RefCountedKinematicTre
 }
 */
 
-vector<RefCountedKinematicTree>  LagrangeParentParticleFitter::fit(vector<RefCountedKinematicTree> trees, 
+std::vector<RefCountedKinematicTree>  LagrangeParentParticleFitter::fit(std::vector<RefCountedKinematicTree> trees, 
                                                                            KinematicConstraint * cs)const					  
 {
  
  InputSort iSort;
- vector<RefCountedKinematicParticle> prt = iSort.sort(trees);
+ std::vector<RefCountedKinematicParticle> prt = iSort.sort(trees);
  int nStates = prt.size(); 
 
 //making full initial parameters and covariance
@@ -133,7 +133,7 @@ vector<RefCountedKinematicTree>  LagrangeParentParticleFitter::fit(vector<RefCou
  AlgebraicVector chi_in(nStates,0);
  AlgebraicVector ndf_in(nStates,0);
  int l_c=0;
- for(vector<RefCountedKinematicParticle>::const_iterator i = prt.begin(); i != prt.end(); i++)
+ for(std::vector<RefCountedKinematicParticle>::const_iterator i = prt.begin(); i != prt.end(); i++)
  {
   AlgebraicVector7 lp = (*i)->currentState().kinematicParameters().vector();
   for(int j = 1; j != 8; j++){part(7*l_c + j) = lp(j-1);}
@@ -190,7 +190,7 @@ vector<RefCountedKinematicTree>  LagrangeParentParticleFitter::fit(vector<RefCou
    if(ifail != 0) {
      LogDebug("KinematicConstrainedVertexFitter")
 	<< "Fit failed: unable to invert covariance matrix\n";
-     return vector<RefCountedKinematicTree>();
+     return std::vector<RefCountedKinematicTree>();
    }
   
 //lagrangian multipliers  
@@ -229,19 +229,19 @@ vector<RefCountedKinematicTree>  LagrangeParentParticleFitter::fit(vector<RefCou
   exPoint = refPar;
   AlgebraicVector vlp = cs->value(exPoint).first;
   for(int i = 1; i< vl.num_row();i++)
-  {df += abs(vlp(i));}
+  {df += std::abs(vlp(i));}
   nstep++; 
  }while(df>theMaxDiff && nstep<theMaxStep);
 //here math and iterative part is finished, starting an output production
 //creating an output KinematicParticle and putting it on its place in the tree
  
 //vector of refitted particles and trees 
- vector<RefCountedKinematicParticle> refPart;
- vector<RefCountedKinematicTree> refTrees = trees;
+ std::vector<RefCountedKinematicParticle> refPart;
+ std::vector<RefCountedKinematicTree> refTrees = trees;
  
  int j=1;
- vector<RefCountedKinematicTree>::const_iterator tr = refTrees.begin();
- for(vector<RefCountedKinematicParticle>::const_iterator i = prt.begin(); i!= prt.end(); i++)
+ std::vector<RefCountedKinematicTree>::const_iterator tr = refTrees.begin();
+ for(std::vector<RefCountedKinematicParticle>::const_iterator i = prt.begin(); i!= prt.end(); i++)
  {
   AlgebraicVector7 lRefPar;
   for(int k = 1; k<8 ; k++)

@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyTask.h
  *
- * $Date: 2010/03/12 11:36:30 $
- * $Revision: 1.26 $
+ * $Date: 2010/05/06 07:51:11 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  *
 */
@@ -13,10 +13,11 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -115,7 +116,7 @@ edm::ESHandle<CaloGeometry> pGeometry_;
 float geometryEE[EEDetId::kSizeForDenseIndexing][2];
 
 bool init_;
-bool initGeometry_;
+bool initCaloGeometry_;
 
 };
 

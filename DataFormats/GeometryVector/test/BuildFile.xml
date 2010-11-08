@@ -1,3 +1,0 @@
-<use  name="DataFormats/GeometryVector"/>
-<bin  file="BasicVector_t.cpp" name="DataFormatsBasicVector_t">
-</bin>

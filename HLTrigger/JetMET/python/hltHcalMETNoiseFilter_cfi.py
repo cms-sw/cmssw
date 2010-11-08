@@ -20,6 +20,7 @@ hltHcalMETNoiseFilter = cms.EDFilter(
     needEMFCoincidence = cms.bool(True),
 
     # cuts
+    minRBXEnergy = cms.double(50.0),
     minRatio = cms.double(0.65),
     maxRatio = cms.double(0.98),
     minHPDHits = cms.int32(17),

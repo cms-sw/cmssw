@@ -12,8 +12,8 @@
 
 /** \class HcalHotCellMonitor
   *
-  * $Date: 2010/03/01 19:13:45 $
-  * $Revision: 1.37.2.3 $
+  * $Date: 2010/07/19 22:33:37 $
+  * $Revision: 1.41 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -82,10 +82,13 @@ class HcalHotCellMonitor: public HcalBaseDQMonitor {
   // Booleans to control which of the three hot cell checking routines are used
   bool test_neighbor_;
   bool test_energy_;
+  bool test_et_;
   bool test_persistent_;
 
   double energyThreshold_, HBenergyThreshold_, HEenergyThreshold_, HOenergyThreshold_, HFenergyThreshold_;
+  double ETThreshold_, HBETThreshold_, HEETThreshold_, HOETThreshold_, HFETThreshold_;
   double persistentThreshold_, HBpersistentThreshold_, HEpersistentThreshold_, HOpersistentThreshold_, HFpersistentThreshold_;
+  double persistentETThreshold_, HBpersistentETThreshold_, HEpersistentETThreshold_, HOpersistentETThreshold_, HFpersistentETThreshold_;
 
   double HFfarfwdScale_;
 
@@ -95,20 +98,27 @@ class HcalHotCellMonitor: public HcalBaseDQMonitor {
   double HBnsigma_, HEnsigma_, HOnsigma_, HFnsigma_;
   EtaPhiHists   AboveNeighborsHotCellsByDepth;
   EtaPhiHists   AboveEnergyThresholdCellsByDepth;
+  EtaPhiHists   AboveETThresholdCellsByDepth;
   EtaPhiHists   AbovePersistentThresholdCellsByDepth; 
+  EtaPhiHists   AbovePersistentETThresholdCellsByDepth;
 
   double SiPMscale_;
   int aboveneighbors[85][72][4];
   int aboveenergy[85][72][4]; // when rechit is above threshold energy
+  int aboveet[85][72][4]; // when rechit is above threshold et
   int abovepersistent[85][72][4]; // when rechit is consistently above some threshold
+  int abovepersistentET[85][72][4];
   int rechit_occupancy_sum[85][72][4];
-  float rechit_energy_sum[85][72][4];
-  
+
+  bool excludeHORing2_;
+
+
   // Diagnostic plots
   MonitorElement* d_HBenergyVsNeighbor;
   MonitorElement* d_HEenergyVsNeighbor;
   MonitorElement* d_HOenergyVsNeighbor;
   MonitorElement* d_HFenergyVsNeighbor;
+
   int hbVsNeighbor[500];
   int heVsNeighbor[500];
   int hoVsNeighbor[500];
