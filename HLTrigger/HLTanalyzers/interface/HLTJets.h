@@ -55,12 +55,12 @@ public:
   void setup(const edm::ParameterSet& pSet, TTree* tree);
 
   /** Analyze the Data */
-  void analyze(const edm::Handle<CaloJetCollection>      & recojets,
-	       const edm::Handle<CaloJetCollection>      & corjets,
-	       const edm::Handle<GenJetCollection>       & gjets,
-	       const edm::Handle<CaloMETCollection>      & rmets,
-	       const edm::Handle<GenMETCollection>       & gmets,
-	       const edm::Handle<METCollection>          & ht,
+  void analyze(const edm::Handle<reco::CaloJetCollection>      & recojets,
+	       const edm::Handle<reco::CaloJetCollection>      & corjets,
+	       const edm::Handle<reco::GenJetCollection>       & gjets,
+	       const edm::Handle<reco::CaloMETCollection>      & rmets,
+	       const edm::Handle<reco::GenMETCollection>       & gmets,
+	       const edm::Handle<reco::METCollection>          & ht,
 	       const edm::Handle<reco::HLTTauCollection> & myHLTTau,
 	       const edm::Handle<CaloTowerCollection>    & caloTowers,
 	       double thresholdForSavingTowers,

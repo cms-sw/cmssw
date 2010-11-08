@@ -88,8 +88,8 @@ class L1GctMet
 
   L1GctHtMissLut* m_htMissLut;
 
-  etmiss_internal cordicTranslateAlgo (const int ex, const int ey, const bool of) const;
-  etmiss_internal useHtMissLutAlgo    (const int ex, const int ey, const bool of) const;
+  etmiss_internal cordicTranslateAlgo (const int ex, const int ey) const;
+  etmiss_internal useHtMissLutAlgo    (const int ex, const int ey) const;
   etmiss_internal oldGctAlgo          (const int ex, const int ey) const;
   etmiss_internal floatingPointAlgo   (const int ex, const int ey) const;
 

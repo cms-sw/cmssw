@@ -1291,7 +1291,7 @@ float CompareToMedian::runTest(const MonitorElement *me){
   
   nBinsX = h->GetNbinsX();
   nBinsY = h->GetNbinsY();
-  int entries;
+  int entries = 0;
   float median = 0.0;
 
   //Median calculated with partially sorted vector
@@ -1301,10 +1301,10 @@ float CompareToMedian::runTest(const MonitorElement *me){
     for (int binY = 1; binY <= nBinsY; binY++){
       int bin = h->GetBin(binX, binY);
       double content = (double)h->GetBinContent(bin);
-      entries = me->getTProfile2D()->GetBinEntries(bin);
       if ( content == 0 && !_emptyBins)
 	continue;
       binValues.push_back(content);
+      entries = me->getTProfile2D()->GetBinEntries(bin);
     }
     if (binValues.empty())
       continue;
@@ -1336,6 +1336,10 @@ float CompareToMedian::runTest(const MonitorElement *me){
       }
       continue;
     }
+
+    //Cut on stat: will mask rings with no enought of statistics
+    if (median*entries < _statCut )
+      continue;
      
     // If median is off the absolute cuts, declare everything bad (if bin has non zero entries)
     if(median > _maxMed || median < _minMed){

@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
 
- version $Id: BSFitter.cc,v 1.20 2010/05/28 22:53:01 yumiceva Exp $
+ version $Id: BSFitter.cc,v 1.21 2010/06/09 19:19:24 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -210,7 +210,7 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
                 
                 reco::BeamSpot tmp_lh = Fit_d_z_likelihood(tmp_par,tmp_error_par);
                 
-                if ( isnan(ff_minimum) || isinf(ff_minimum) ) {
+                if ( isnan(ff_minimum) || std::isinf(ff_minimum) ) {
                     edm::LogWarning("BSFitter") << "BSFitter: Result is non physical. Log-Likelihood fit to extract beam width did not converge." << std::endl;
                     tmp_lh.setType(reco::BeamSpot::Unknown);
                     return tmp_lh;                    
@@ -244,7 +244,7 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 			
 			reco::BeamSpot tmp_lh = Fit_dres_z_likelihood(tmp_par2);
 
-			if ( isnan(ff_minimum) || isinf(ff_minimum) ) {
+			if ( isnan(ff_minimum) || std::isinf(ff_minimum) ) {
 			
                 edm::LogWarning("BSFitter") << "Result is non physical. Log-Likelihood fit did not converge." << std::endl;
 				tmp_lh.setType(reco::BeamSpot::Unknown);

@@ -46,6 +46,7 @@ namespace
     
     shape->SetVertices( vtx );
     shape->SetTransMatrix( array );
+    shape->SetDrawFrame(false);
     shape->SetMainTransparency( 75 );
   }
 }
@@ -72,74 +73,77 @@ private:
 void
 FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type, const FWViewContext* )
 {
-  const DTDigiCollection* digis = 0;
-  iItem->get( digis );
+   const DTDigiCollection* digis = 0;
+   iItem->get( digis );
 	
-  if( ! digis )
-  {
-    return;
-  }
-  const FWGeometry *geom = iItem->getGeom();
+   if( ! digis )
+   {
+      return;
+   }
+   const FWGeometry *geom = iItem->getGeom();
 	
-  for( DTDigiCollection::DigiRangeIterator det = digis->begin(), detEnd = digis->end(); det != detEnd; ++det )
-  {
-    const DTLayerId& layerId = (*det).first;
-    unsigned int rawid = layerId.rawId();
-    const DTDigiCollection::Range &range = (*det).second;
+   for( DTDigiCollection::DigiRangeIterator det = digis->begin(), detEnd = digis->end(); det != detEnd; ++det )
+   {
+      const DTLayerId& layerId = (*det).first;
+      unsigned int rawid = layerId.rawId();
+      const DTDigiCollection::Range &range = (*det).second;
 
-    if( ! geom->contains( rawid ))
-    {
-      fwLog( fwlog::kWarning ) << "failed to get geometry of DT with detid: "
-			       << rawid << std::endl;
+      if( ! geom->contains( rawid ))
+      {
+         fwLog( fwlog::kWarning ) << "failed to get geometry of DT with detid: "
+                                  << rawid << std::endl;
 
-      TEveCompound* compound = createCompound();
-      setupAddElement( compound, product );
+         TEveCompound* compound = createCompound();
+         setupAddElement( compound, product );
 
-      continue;
-    }
+         continue;
+      }
 
-    const float* pars = geom->getParameters( rawid );
-    FWGeometry::IdToInfoItr det = geom->find( rawid );
+      const float* pars = geom->getParameters( rawid );
+      FWGeometry::IdToInfoItr det = geom->find( rawid );
 
-    int superLayer = layerId.superlayerId().superLayer();
+      int superLayer = layerId.superlayerId().superLayer();
 
-    float localPos[3] = { 0.0, 0.0, 0.0 };
+      float localPos[3] = { 0.0, 0.0, 0.0 };
 		
-    // Loop over the digis of this DetUnit
-    for( DTDigiCollection::const_iterator it = range.first;
-	 it != range.second; ++it )
-    {
-      TEveCompound* compound = createCompound();
-      setupAddElement( compound, product );
-
-      // The x wire position in the layer, starting from its wire number.
-      float firstChannel = pars[3];
-      float nChannels = pars[5];
-      localPos[0] = ((*it).wire() - ( firstChannel - 1 ) - 0.5 ) * pars[0] - nChannels / 2.0 * pars[0];
-
-      if( type == FWViewType::k3D || type == FWViewType::kISpy )
+      // Loop over the digis of this DetUnit
+      for( DTDigiCollection::const_iterator it = range.first;
+           it != range.second; ++it )
       {
-	TEveBox* box = new TEveBox;
-	setupAddElement( box, compound );
-	addTube( box, *det, localPos, pars );
-      }
-      if(( type == FWViewType::kRhoPhi && superLayer != 2 ) ||
-	 ( type == FWViewType::kRhoZ && superLayer == 2 ))
-      {
-	TEvePointSet* pointSet = new TEvePointSet;
-	pointSet->SetMarkerStyle( 24 );
-	setupAddElement( pointSet, compound );	
+         // The x wire position in the layer, starting from its wire number.
+         float firstChannel = pars[3];
+         float nChannels = pars[5];
+         localPos[0] = ((*it).wire() - ( firstChannel - 1 ) - 0.5 ) * pars[0] - nChannels / 2.0 * pars[0];
 
-	float globalPos[3];			
-	geom->localToGlobal( *det, localPos, globalPos );
-	pointSet->SetNextPoint( globalPos[0],  globalPos[1],  globalPos[2] );
+         if( type == FWViewType::k3D || type == FWViewType::kISpy )
+         {
+            TEveBox* box = new TEveBox;
+            setupAddElement( box, product );
+            addTube( box, *det, localPos, pars );
+         }
+         else if(( type == FWViewType::kRhoPhi && superLayer != 2 ) ||
+                 ( type == FWViewType::kRhoZ && superLayer == 2 ))
+         {
+            TEvePointSet* pointSet = new TEvePointSet;
+            pointSet->SetMarkerStyle( 24 );
+            setupAddElement( pointSet, product);	
 
-	TEveBox* box = new TEveBox;
-	setupAddElement( box, compound );
-	addTube( box, *det, localPos, pars );
-      }
-    }		
-  }
+            float globalPos[3];			
+            geom->localToGlobal( *det, localPos, globalPos );
+            pointSet->SetNextPoint( globalPos[0],  globalPos[1],  globalPos[2] );
+
+            TEveBox* box = new TEveBox;
+            setupAddElement( box, product );
+            addTube( box, *det, localPos, pars );
+         }
+         else
+         {
+            TEveCompound* compound = createCompound();
+            setupAddElement( compound, product );
+
+         }
+      }		
+   }
 }
 
 REGISTER_FWPROXYBUILDER( FWDTDigiProxyBuilder, DTDigiCollection, "DT Digis", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );

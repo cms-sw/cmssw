@@ -1,14 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+import copy
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-import HLTrigger.HLTfilters.hltHighLevel_cfi
-higgsToZZ4LeptonsHLTFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-higgsToZZ4LeptonsHLTFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT8E29")
-#Summer08
-#higgsToZZ4LeptonsHLTFilter.HLTPaths = cms.vstring('HLT_LooseIsoEle15_LW_L1R', 'HLT_DoubleEle10_LW_OnlyPixelM_L1R', 'HLT_IsoMu9', 'HLT_DoubleMu3')
-##STARTUP 31X
-#higgsToZZ4LeptonsHLTFilter.HLTPaths = cms.vstring('HLT_Ele10_LW_EleId_L1R', 'HLT_DoubleEle5_SW_L1R', 'HLT_Mu9', 'HLT_DoubleMu3')
-##IDEAL 31X  
-#higgsToZZ4LeptonsHLTFilter.HLTPaths = cms.vstring('HLT_Ele15_SW_LooseTrackIso_L1R', 'HLT_DoubleEle10_SW_L1R', 'HLT_IsoMu9', 'HLT_DoubleMu3')
-higgsToZZ4LeptonsHLTFilter.andOr = cms.bool(True)
+higgsToZZ4LeptonsHLTFilter = copy.deepcopy(hltHighLevel)
+higgsToZZ4LeptonsHLTFilter.HLTPaths = ['HLT_IsoMu11', 'HLT_Mu15_L1Mu7', 'HLT_DoubleMu3', 'HLT_IsoEle15_L1I', 'HLT_IsoEle18_L1R', 
+    'HLT_DoubleIsoEle10_L1I', 'HLT_DoubleIsoEle12_L1R']
 

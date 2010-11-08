@@ -42,15 +42,15 @@ hltJetHI.andOr = True
 
 # photon trigger
 hltPhotonHI = hltJetHI.clone()
-hltPhotonHI.HLTPaths = ["HLT_Photon15"]
+hltPhotonHI.HLTPaths = ["HLT_HIPhoton15"]
 
 # dimuon trigger
 hltMuHI = hltJetHI.clone()
-hltMuHI.HLTPaths = ["HLT_L1DoubleMuOpen"]
+hltMuHI.HLTPaths = ["HLT_HIL1DoubleMuOpen"]
 
 ##### Analysis selections #####
 
-# jets
+# PAT jets
 selectedPatJets = cms.EDFilter("PATJetSelector",
     src = cms.InputTag("patJets"),
     cut = cms.string("et > 40")
@@ -62,10 +62,39 @@ countPatJets = cms.EDFilter("PATCandViewCountFilter",
     src = cms.InputTag("selectedPatJets")
     )
 
-dijets = cms.EDFilter("EtMinCaloJetCountFilter",
-    src = cms.InputTag("iterativeConePu5CaloJets"),
-    etMin = cms.double(10.0),
-    minNumber = cms.uint32(2)
+# reco jets and dijets
+
+from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import *
+icPu5CaloJetsL2L3 = cms.EDProducer('CaloJetCorrectionProducer',
+    src = cms.InputTag('iterativeConePu5CaloJets'),
+    correctors = cms.vstring('ic5CaloL2L3')
+    )
+
+leadingCaloJet = cms.EDFilter( "LargestEtCaloJetSelector",
+    src = cms.InputTag( "icPu5CaloJetsL2L3" ),
+    filter = cms.bool( False ),
+    maxNumber = cms.uint32( 1 )
+    )
+
+goodLeadingJet = cms.EDFilter("CaloJetSelector",
+    src = cms.InputTag("leadingCaloJet"),
+    cut = cms.string("et > 80")
+    )
+
+goodSecondJet = cms.EDFilter("CaloJetSelector",
+    src = cms.InputTag("icPu5CaloJetsL2L3"),
+    cut = cms.string("et > 50")
+    )
+
+backToBackDijets = cms.EDProducer("CandViewShallowCloneCombiner",
+    checkCharge = cms.bool(False),
+    cut = cms.string('abs(deltaPhi(daughter(0).phi,daughter(1).phi)) > 2.5'),
+    decay = cms.string("goodLeadingJet goodSecondJet")
+    )
+
+dijetFilter = cms.EDFilter("CandViewCountFilter",
+    src = cms.InputTag("backToBackDijets"),
+    minNumber = cms.uint32(1)
     )
 
 # muons
@@ -94,5 +123,23 @@ dimuonsMassCutFilter = cms.EDFilter("CandViewCountFilter",
 # photons
 goodPhotons = cms.EDFilter("PhotonSelector",
     src = cms.InputTag("photons"),
-    cut = cms.string('et > 10.0')
+    cut = cms.string('et > 10.0 && hadronicOverEm < 0.1 && r9 > 0.8')
+)
+
+photonFilter = cms.EDFilter("EtMinPhotonCountFilter",
+    src = cms.InputTag("goodPhotons"),
+    etMin = cms.double(40.0),
+    minNumber = cms.uint32(1)
+)
+
+# Z -> ee
+photonCombiner = cms.EDProducer("CandViewShallowCloneCombiner",
+  checkCharge = cms.bool(False),
+  cut = cms.string('60 < mass < 120'),
+  decay = cms.string('goodPhotons goodPhotons')
+)
+
+photonPairCounter = cms.EDFilter("CandViewCountFilter",
+  src = cms.InputTag("photonCombiner"),
+  minNumber = cms.uint32(1)
 )

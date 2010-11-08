@@ -180,7 +180,7 @@ bool HLTPixelClusterShapeFilter::filter(edm::Event& event, const edm::EventSetup
   // construct polynomial cut on cluster vertex quality vs. npixelhits
   double polyCut=0;
   for(unsigned int i=0; i < clusterPars_.size(); i++) {
-    polyCut += clusterPars_[i]*pow((double)nPxlHits,(int)i);
+    polyCut += clusterPars_[i]*std::pow((double)nPxlHits,(int)i);
   }
   if(nPxlHits < nhitsTrunc_) 
     polyCut=0;             // don't use cut below nhitsTrunc_ pixel hits

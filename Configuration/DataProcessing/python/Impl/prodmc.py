@@ -15,7 +15,6 @@ from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
 from Configuration.PyReleaseValidation.ConfigBuilder import Options
 from Configuration.PyReleaseValidation.ConfigBuilder import defaultOptions
 from Configuration.PyReleaseValidation.ConfigBuilder import installFilteredStream
-from Configuration.PyReleaseValidation.ConfigBuilder import addOutputModule
 
 
 class prodmc(Scenario):
@@ -42,12 +41,13 @@ class prodmc(Scenario):
         options.isMC = True
         options.isData = False
         options.beamspot = None
-        options.eventcontent = None
+        options.eventcontent = ','.join(writeTiers)
+        options.datatier = ','.join(writeTiers)
         options.magField = 'AutoFromDBCurrent'
         options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
 
         process = cms.Process('RECO')
-        cb = ConfigBuilder(options, process = process)
+        cb = ConfigBuilder(options, process = process, with_output = True)
 
         # Input source
         process.source = cms.Source("PoolSource",
@@ -55,9 +55,6 @@ class prodmc(Scenario):
         )
         cb.prepare()
 
-        for tier in writeTiers: 
-          addOutputModule(process, tier, tier)        
- 
         return process
 
 

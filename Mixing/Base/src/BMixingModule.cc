@@ -98,9 +98,6 @@ namespace
 		int varSize = (int) dataProbFunctionVar.size();
 		int probSize = (int) dataProb.size();
 		
-		if ((dataProbFunctionVar[0] != 0) || (dataProbFunctionVar[varSize - 1] != (varSize - 1))) 
-		  throw cms::Exception("BadProbFunction") << "Please, check the variables of the probability function! The first variable should be 0 and the difference between two variables should be 1." << endl;
-		
 		// Complete the vector containing the probability  function data
 		// with the values "0"
 		if (probSize < varSize){

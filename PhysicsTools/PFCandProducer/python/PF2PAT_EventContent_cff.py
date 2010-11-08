@@ -123,7 +123,7 @@ prunedAODForPF2PATEventContent = cms.PSet(
         'keep *_pfElectronTranslator_*_*',
         'keep recoSuperClusters_corrected*_*_*',
          'keep *_TriggerResults_*_*',
-        'keep *_hltTriggerSummaryAOD_*_*'
+    'keep *_hltTriggerSummaryAOD_*_*'
 
         )
 )

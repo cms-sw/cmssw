@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/07/26 19:55:28 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/08/13 22:35:17 $
+ *  $Revision: 1.7 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
 
@@ -26,6 +26,7 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 //#include "CondCore/Utilities/bin/cmscond_export_iov.cpp"
 //#include "CondCore/Utilities/interface/Utilities.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
 
 #include <iostream> 
 
@@ -38,7 +39,8 @@ AlcaBeamSpotHarvester::AlcaBeamSpotHarvester(const edm::ParameterSet& iConfig) :
   beamSpotOutputBase_    (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotOutputBase")),
   outputrecordName_      (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("outputRecordName", "BeamSpotObjectsRcd")),
   sigmaZValue_           (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<double>("SigmaZValue")),
-  theAlcaBeamSpotManager_(iConfig)
+  theAlcaBeamSpotManager_(iConfig),
+  metadataForOfflineDropBox_(iConfig.getParameter<ParameterSet>("metadataOfflineDropBox"))
 {  
 }
 
@@ -101,6 +103,8 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
 
       cond::Time_t thisIOV = 1;
 
+
+
       // run based      
       if (beamSpotOutputBase_ == "runbased" ) {
 	thisIOV = (cond::Time_t) iRun.id().run();
@@ -124,6 +128,10 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
         //poolDbService->appendSinceTime<BeamSpotObjects>(aBeamSpot, poolDbService->currentTime(),"BeamSpotObjectsRcd");
 	poolDbService->writeOne<BeamSpotObjects>(aBeamSpot, thisIOV, outputrecordName_);
       }
+
+
+
+
 /*
       int         argc = 15;
       const char* argv[] = {"endRun"
@@ -144,6 +152,32 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
 	<< std::endl;
 */
     }
+
+
+
+    edm::Service<edm::JobReport> jr;
+    if (jr.isAvailable()) {
+      std::map<std::string, std::string> jrInfo;
+      jrInfo["Source"] = "AlcaHarvesting";
+      jrInfo["FileClass"] = "ALCA";
+
+
+      jrInfo["inputtag"] = poolDbService->tag(outputrecordName_);
+      if(beamSpotOutputBase_ == "runbased") {
+	jrInfo["Timetype"] = "runnumber";
+      } else if(beamSpotOutputBase_ == "lumibased") {
+	jrInfo["Timetype"] = "lumiid";
+      }
+
+      jrInfo["destDB"] = metadataForOfflineDropBox_.getUntrackedParameter<std::string>("destDB");
+      jrInfo["tag"] = metadataForOfflineDropBox_.getUntrackedParameter<std::string>("tag");
+      jrInfo["DuplicateTagPROMPT"] = metadataForOfflineDropBox_.getUntrackedParameter<std::string>("DuplicateTagPROMPT");
+
+      std::string filename = poolDbService->session().connectionString();
+      jr->reportAnalysisFile(filename, jrInfo);
+    }
+
+
   }
 }
 

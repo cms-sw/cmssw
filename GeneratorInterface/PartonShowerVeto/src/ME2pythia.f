@@ -621,7 +621,7 @@ c     Return if not MLM matching (or non-matched subprocess)
          GOTO 999
       ENDIF
 
-      write(*,*)'Throw event if it contains an excluded resonance'
+C      write(*,*)'Throw event if it contains an excluded resonance'
       NRES=0
       DO I=1,NUP
 c	     write(*,*)'cycling on particles'

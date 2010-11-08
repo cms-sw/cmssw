@@ -1,8 +1,8 @@
 /*
  * \file AlcaBeamMonitor.cc
  * \author Lorenzo Uplegger/FNAL
- * $Date: 2010/09/22 22:53:37 $
- * $Revision: 1.6 $
+ * $Date: 2010/09/24 06:36:04 $
+ * $Revision: 1.7 $
  *
  */
 
@@ -481,21 +481,21 @@ void AlcaBeamMonitor::endLuminosityBlock(const LuminosityBlock& iLumi, const Eve
       else if(itM->second == "Lumibased PrimaryVertex-DataBase fit"){
         if(resultsMap.find("PV") != resultsMap.end() && resultsMap.find("DB") != resultsMap.end()){
           theValuesContainer_->Fill(position  ,resultsMap["PV"].first-resultsMap["DB"].first);//Value
-          theValuesContainer_->Fill(position+1,sqrt(pow(resultsMap["PV"].second,2)+pow(resultsMap["DB"].second,2)));//Error	  
+          theValuesContainer_->Fill(position+1,std::sqrt(std::pow(resultsMap["PV"].second,2)+std::pow(resultsMap["DB"].second,2)));//Error	  
           theValuesContainer_->Fill(position+2,1);//ok
         }
       }
       else if(itM->second == "Lumibased PrimaryVertex-Scalers fit"){
         if(resultsMap.find("PV") != resultsMap.end() && resultsMap.find("SC") != resultsMap.end()){
           theValuesContainer_->Fill(position  ,resultsMap["PV"].first-resultsMap["SC"].first);//Value
-          theValuesContainer_->Fill(position+1,sqrt(pow(resultsMap["PV"].second,2)+pow(resultsMap["SC"].second,2)));//Error	  
+          theValuesContainer_->Fill(position+1,std::sqrt(std::pow(resultsMap["PV"].second,2)+std::pow(resultsMap["SC"].second,2)));//Error	  
           theValuesContainer_->Fill(position+2,1);//ok
         }
       }
       else if(itM->second == "Lumibased Scalers-DataBase fit"){
         if(resultsMap.find("SC") != resultsMap.end() && resultsMap.find("DB") != resultsMap.end()){
           theValuesContainer_->Fill(position  ,resultsMap["SC"].first-resultsMap["DB"].first);//Value
-          theValuesContainer_->Fill(position+1,sqrt(pow(resultsMap["SC"].second,2)+pow(resultsMap["DB"].second,2)));//Error	  
+          theValuesContainer_->Fill(position+1,std::sqrt(std::pow(resultsMap["SC"].second,2)+std::pow(resultsMap["DB"].second,2)));//Error	  
           theValuesContainer_->Fill(position+2,1);//ok
         }
       }
@@ -508,11 +508,11 @@ void AlcaBeamMonitor::endLuminosityBlock(const LuminosityBlock& iLumi, const Eve
           double error = 0;
 	  if(vertexResults.size() != 0){
 	    for(vector<pair<double,double> >::iterator itPV=vertexResults.begin(); itPV!=vertexResults.end(); itPV++){
-              error += pow((*itPV).first-resultsMap["DB"].first-theValuesContainer_->getTProfile()->GetBinContent(position+1),2.);
+              error += std::pow((*itPV).first-resultsMap["DB"].first-theValuesContainer_->getTProfile()->GetBinContent(position+1),2.);
             }
-	    error = sqrt(error)/vertexResults.size();
+	    error = std::sqrt(error)/vertexResults.size();
 	  }
-//          theValuesContainer_->Fill(position+1,sqrt(pow((*itPV).second,2)+pow(resultsMap["DB"].second,2)));//Error	  
+//          theValuesContainer_->Fill(position+1,std::sqrt(std::pow((*itPV).second,2)+std::pow(resultsMap["DB"].second,2)));//Error	  
           theValuesContainer_->Fill(position+1,error);//Error	  
 */
           theValuesContainer_->Fill(position+1,theValuesContainer_->getTProfile()->GetBinError(position+1));//Error	  
@@ -528,11 +528,11 @@ void AlcaBeamMonitor::endLuminosityBlock(const LuminosityBlock& iLumi, const Eve
           double error = 0;
 	  if(vertexResults.size() != 0){
 	    for(vector<pair<double,double> >::iterator itPV=vertexResults.begin(); itPV!=vertexResults.end(); itPV++){
-              error += pow((*itPV).first-resultsMap["SC"].first-theValuesContainer_->getTProfile()->GetBinContent(position+1),2.);
+              error += std::pow((*itPV).first-resultsMap["SC"].first-theValuesContainer_->getTProfile()->GetBinContent(position+1),2.);
             }
-	    error = sqrt(error)/vertexResults.size();
+	    error = std::sqrt(error)/vertexResults.size();
 	  }
-//          theValuesContainer_->Fill(position+1,sqrt(pow((*itPV).second,2)+pow(resultsMap["SC"].second,2)));//Error	  
+//          theValuesContainer_->Fill(position+1,std::sqrt(std::pow((*itPV).second,2)+std::pow(resultsMap["SC"].second,2)));//Error	  
           theValuesContainer_->Fill(position+1,error);//Error	  
 */
           theValuesContainer_->Fill(position+1,theValuesContainer_->getTProfile()->GetBinError(position+1));//Error	  

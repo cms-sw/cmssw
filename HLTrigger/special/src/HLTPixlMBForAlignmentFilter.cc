@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/09/11 09:28:19 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/01/10 09:42:27 $
+ *  $Revision: 1.2 $
  *
  *  \author Mika Huhtinen
  *
@@ -124,8 +124,8 @@ bool HLTPixlMBForAlignmentFilter::filter(edm::Event& iEvent, const edm::EventSet
          int nincone=0;
 //       check isolation wrt ALL tracks, not only those above ptcut
          for (ipixl=apixl; ipixl!=epixl; ipixl++){ 
-           double phidist=abs( phistore.at(i) - ipixl->momentum().phi() );
-           double etadist=abs( etastore.at(i) - ipixl->momentum().eta() );
+           double phidist=std::abs( phistore.at(i) - ipixl->momentum().phi() );
+           double etadist=std::abs( etastore.at(i) - ipixl->momentum().eta() );
            double trkdist = sqrt(phidist*phidist + etadist*etadist);
            if (trkdist < min_isol_) nincone++;
          }
