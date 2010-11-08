@@ -4,13 +4,13 @@
 /**_________________________________________________________________
    class:   BeamFitter.h
    package: RecoVertex/BeamSpotProducer
-   
+
 
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
- 
- version $Id: BeamFitter.h,v 1.40 2010/09/01 20:19:29 yumiceva Exp $
+
+ version $Id: BeamFitter.h,v 1.41 2010/11/03 13:44:17 friis Exp $
 
  ________________________________________________________________**/
 
@@ -42,7 +42,7 @@ class BeamFitter {
   bool runBeamWidthFitter();
   bool runPVandTrkFitter();
   bool runFitterNoTxt();
-  
+
   reco::BeamSpot getBeamWidth() { return fbeamWidthFit; }
   void runAllFitter();
   void resetTrkVector() { fBSvector.clear(); }
@@ -63,7 +63,9 @@ class BeamFitter {
   TH1F * getCutFlow() { return h1cutFlow; }
   void resetCutFlow() {
     h1cutFlow->Reset();
-    for (unsigned int i=0; i<sizeof(countPass)/sizeof(countPass[0]); i++) countPass[i]=0;
+    ftotal_tracks = 0;
+    for (unsigned int i=0; i<sizeof(countPass)/sizeof(countPass[0]); i++)
+      countPass[i]=0;
   }
   int* getFitLSRange() {
     int *tmp=new int[2];
@@ -123,7 +125,7 @@ class BeamFitter {
   bool isMuon_;
   bool fitted_;
   bool ffilename_changed;
-  
+
   // ntuple
   TH1F* h1z;
   bool saveNtuple_;
@@ -164,7 +166,7 @@ class BeamFitter {
   bool fpvValid;
   double fpvx, fpvy, fpvz;
   std::time_t freftime[2];
-  
+
   //beam fit results
   TTree* ftreeFit_;
   int frunFit;
