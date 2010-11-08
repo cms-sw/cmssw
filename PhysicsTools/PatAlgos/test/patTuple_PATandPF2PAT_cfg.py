@@ -13,6 +13,12 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False))
 
 # process.load("PhysicsTools.PFCandProducer.Sources.source_ZtoMus_DBS_cfi")
+runOnMC = False
+
+if runOnMC == False:
+    # at CERN: 
+    process.source.fileNames = cms.untracked.vstring('rfio:////castor/cern.ch/cms/store/data/Run2010B/Jet/RECO/PromptReco-v2/000/149/294/A46DE078-05E5-DF11-88F9-0030487C7E18.root')
+
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.out.fileName = cms.untracked.string('patTuple_PATandPF2PAT.root')
@@ -31,7 +37,7 @@ from PhysicsTools.PatAlgos.tools.pfTools import *
 # collections have standard names + postfix (e.g. patElectronPFlow)  
 postfix = "PFlow"
 jetAlgo="AK5"
-usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix) 
+usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=runOnMC, postfix=postfix) 
 # to run second PF2PAT+PAT with differnt postfix uncomment the following lines
 # and add it to path
 #postfix2 = "PFlow2"
@@ -45,6 +51,11 @@ usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix
 #adaptPFTaus(process,"hpsPFTau",postfix=postfix)
 
 
+if runOnMC == False:
+    # removing MC matching for standard PAT sequence
+    # for the PF2PAT+PAT sequence, it is done in the usePF2PAT function
+    removeMCMatchingPF2PAT( process, '' ) 
+
 # Let it run
 process.p = cms.Path(
     getattr(process,"patPF2PATSequence"+postfix)
@@ -56,8 +67,6 @@ if not postfix=="":
 
 # Add PF2PAT output to the created file
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
-#process.load("PhysicsTools.PFCandProducer.PF2PAT_EventContent_cff")
-#process.out.outputCommands =  cms.untracked.vstring('drop *')
 process.out.outputCommands = cms.untracked.vstring('drop *',
                                                    *patEventContentNoCleaning ) 
 
@@ -69,6 +78,8 @@ process.pfNoMuonPFlow.enable = True
 process.pfNoElectronPFlow.enable = True 
 process.pfNoTauPFlow.enable = True 
 process.pfNoJetPFlow.enable = True 
+
+# verbose flags for the PF2PAT modules
 
 process.pfNoMuon.verbose = True
 
@@ -92,3 +103,6 @@ process.pfNoMuon.verbose = True
 #   process.options.wantSummary = True    ##  (to suppress the long output at the end of the job)    
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 10
+
+# to relax the muon isolation, uncomment the following:
+#process.pfIsolatedMuonsPFlow.combinedIsolationCut = 99999
