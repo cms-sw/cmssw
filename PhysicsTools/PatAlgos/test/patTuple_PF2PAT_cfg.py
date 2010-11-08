@@ -27,6 +27,12 @@ from PhysicsTools.PatAlgos.tools.pfTools import *
 postfix = "PFlow"
 jetAlgo="AK5"
 usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix) 
+# to run second PF2PAT+PAT with differnt postfix uncomment the following lines
+# and add it to path
+#postfix2 = "PFlow2"
+#jetAlgo2="AK7"
+#usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo2, runOnMC=True, postfix=postfix2) 
+
 # to use tau-cleaned jet collection uncomment the following:
 #useTauCleanedPFJets(process, jetAlgo=jetAlgo, postfix=postfix)
 
@@ -38,6 +44,8 @@ usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix
 process.p = cms.Path(
 #    process.patDefaultSequence  +
     getattr(process,"patPF2PATSequence"+postfix)
+#    second PF2PAT
+#    + getattr(process,"patPF2PATSequence"+postfix2)
 )
 
 # Add PF2PAT output to the created file
