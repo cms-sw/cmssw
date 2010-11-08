@@ -6,8 +6,8 @@
  *  
  *  This class is an EDProducer making the HLT summary object for AOD
  *
- *  $Date: 2010/10/31 08:36:21 $
- *  $Revision: 1.13 $
+ *  $Date: 2010/10/31 09:37:14 $
+ *  $Revision: 1.14 $
  *
  *  \author Martin Grunewald
  *
@@ -42,8 +42,6 @@
 
 class TriggerSummaryProducerAOD : public edm::EDProducer {
   
-  typedef std::set<std::string> InputStringSet;
-
  public:
   explicit TriggerSummaryProducerAOD(const edm::ParameterSet&);
   ~TriggerSummaryProducerAOD();
@@ -82,18 +80,38 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   /// the pointer to the current TriggerNamesService
   edm::service::TriggerNamesService* tns_;
 
-  /// list of L3 collection labels
-  InputStringSet                collectionTagsEvent_;
-  InputStringSet                collectionTagsGlobal_;
-  /// list of L3 filter labels
-  InputStringSet                filterTagsEvent_;
-  InputStringSet                filterTagsGlobal_;
+  /// InputTag ordering class
+  struct OrderInputTag {
+    bool ignoreProcess_;
+    OrderInputTag(bool ignoreProcess): ignoreProcess_(ignoreProcess) { };
+    bool operator()(const edm::InputTag& l, const edm::InputTag& r) const {
+      int c = l.label().compare(r.label());
+      if(0==c) {
+	if(ignoreProcess_) {
+	  return l.instance()<r.instance();
+	}
+	c = l.instance().compare(r.instance());
+	if(0==c) {
+	  return l.process()<r.process();
+	}
+      }
+      return c < 0;
+    };
+  };
+  typedef std::set<edm::InputTag,OrderInputTag> InputTagSet;
+
+  /// list of L3 filter tags
+  InputTagSet filterTagsGlobal_;
+
+  /// list of L3 collection tags
+  InputTagSet collectionTagsEvent_;
+  InputTagSet collectionTagsGlobal_;
 
   /// trigger object collection
   trigger::TriggerObjectCollection toc_;
   std::vector<std::string> tags_;
   /// global map for indices into toc_: offset per input L3 collection
-  std::map<edm::ProductID,int> offset_;
+  std::map<edm::ProductID,unsigned int> offset_;
 
   /// handles to the filter objects
   std::vector<edm::Handle<trigger::TriggerFilterObjectWithRefs> > fobs_;
@@ -104,9 +122,6 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
 
   /// packing decision
   std::vector<bool> maskFilters_;
-
-  /// tokenized version using InputTag
-  std::vector<edm::InputTag> collectionTokensEvent_; 
 
 };
 #endif

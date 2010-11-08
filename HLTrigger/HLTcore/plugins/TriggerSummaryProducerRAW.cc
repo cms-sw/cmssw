@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/04/21 08:13:05 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/10/31 10:49:08 $
+ *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
@@ -32,11 +32,11 @@ TriggerSummaryProducerRAW::TriggerSummaryProducerRAW(const edm::ParameterSet& ps
       if (tns_!=0) {
 	pn_=tns_->getProcessName();
       } else {
-	LogDebug("TriggerSummaryProducerRaw") << "HLT Error: TriggerNamesService pointer = 0!";
+	edm::LogError("TriggerSummaryProducerRaw") << "HLT Error: TriggerNamesService pointer = 0!";
 	pn_="*";
       }
     } else {
-      LogDebug("TriggerSummaryProducerRaw") << "HLT Error: TriggerNamesService not available!";
+      edm::LogError("TriggerSummaryProducerRaw") << "HLT Error: TriggerNamesService not available!";
       pn_="*";
     }
     selector_=edm::ProcessNameSelector(pn_);
@@ -69,12 +69,12 @@ TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
    // get all filter objects created in requested process
    iEvent.getMany(selector_,fobs_);
-   const size_type nfob(fobs_.size());
+   const unsigned int nfob(fobs_.size());
    LogDebug("TriggerSummaryProducerRaw") << "Number of filter objects found: " << nfob;
 
    // construct single RAW product
    auto_ptr<TriggerEventWithRefs> product(new TriggerEventWithRefs(pn_,nfob));
-   for (size_type ifob=0; ifob!=nfob; ++ifob) {
+   for (unsigned int ifob=0; ifob!=nfob; ++ifob) {
      const string& label    (fobs_[ifob].provenance()->moduleLabel());
      const string& instance (fobs_[ifob].provenance()->productInstanceName());
      const string& process  (fobs_[ifob].provenance()->processName());
