@@ -37,9 +37,7 @@ class HeavyIons(Scenario):
 
         """
 
-        skims = ['SiStripCalZeroBias',
-                 'SiStripCalMinBias',
-                 'TkAlMinBiasHI']
+        skims = ['SiStripCalZeroBias']
         step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
@@ -79,8 +77,7 @@ class HeavyIons(Scenario):
 
         """
 
-        skims = ['SiStripCalZeroBias',
-                 'TkAlMinBiasHI']
+        skims = ['SiStripCalZeroBias']
         step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
