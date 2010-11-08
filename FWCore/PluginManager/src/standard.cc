@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Apr  7 17:10:11 EDT 2007
-// $Id: standard.cc,v 1.3 2010/09/01 16:02:23 chrjones Exp $
+// $Id: standard.cc,v 1.4 2010/10/05 16:35:12 eulisse Exp $
 //
 
 // system include files
@@ -24,7 +24,7 @@ namespace edmplugin {
       PluginManager::Config returnValue;
       
 #ifdef __APPLE__
-      const char *path = getenv ("DYLD_LIBRARY_PATH");
+      const char *path = getenv ("DYLD_FALLBACK_LIBRARY_PATH");
 #else
       const char *path = getenv ("LD_LIBRARY_PATH");
 #endif
