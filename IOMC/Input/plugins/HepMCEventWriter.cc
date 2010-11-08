@@ -65,4 +65,4 @@ void HepMCEventWriter::analyze(const edm::Event &event, const edm::EventSetup &e
 
 }
 
-DEFINE_ANOTHER_FWK_MODULE(HepMCEventWriter);
+DEFINE_FWK_MODULE(HepMCEventWriter);
