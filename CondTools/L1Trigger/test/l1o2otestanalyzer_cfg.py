@@ -13,11 +13,6 @@ options.register('runNumber',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Run number; default gives latest IOV")
-options.register('tagBase',
-                 'IDEAL', #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.string,
-                 "IOV tags = object_{tagBase}")
 options.register('inputDBConnect',
                  'sqlite_file:l1config.db', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -50,12 +45,17 @@ options.register('printPayloadTokens',
                  "Print payload tokens (long)")
 options.parseArguments()
 
+# Define CondDB tags
+from CondTools.L1Trigger.L1CondEnum_cfi import L1CondEnum
+from CondTools.L1Trigger.L1O2OTags_cfi import initL1O2OTags
+initL1O2OTags()
+
 # Input DB
 from CondTools.L1Trigger.L1CondDBSource_cff import initCondDBSource
 initCondDBSource( process,
                   inputDBConnect = options.inputDBConnect,
                   inputDBAuth = options.inputDBAuth,
-                  tagBase = options.tagBase,
+                  tagBaseVec = initL1O2OTags.tagBaseVec,
                   includeRSTags = options.printRSKeys )
 
 from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
@@ -65,17 +65,17 @@ outputDB = cms.Service("PoolDBOutputService",
                        connect = cms.string(options.inputDBConnect),
                        toPut = cms.VPSet(cms.PSet(
     record = cms.string("L1TriggerKeyRcd"),
-    tag = cms.string("L1TriggerKey_" + options.tagBase)),
+    tag = cms.string("L1TriggerKey_" + initL1O2OTags.tagBaseVec[ L1CondEnum.L1TriggerKey ])),
                                          cms.PSet(
     record = cms.string("L1TriggerKeyListRcd"),
-    tag = cms.string("L1TriggerKeyList_" + options.tagBase))
+    tag = cms.string("L1TriggerKeyList_" + initL1O2OTags.tagBaseVec[ L1CondEnum.L1TriggerKeyList ]))
                                          ))
 outputDB.DBParameters.authenticationPath = options.inputDBAuth
 
 # PoolDBOutputService for printing out ESRecords
 if options.printRSKeys == 1:
     from CondTools.L1Trigger.L1RSSubsystemParams_cfi import initL1RSSubsystems
-    initL1RSSubsystems( tagBase = options.tagBase )
+    initL1RSSubsystems( tagBaseVec = initL1O2OTags.tagBaseVec )
     outputDB.toPut.extend(initL1RSSubsystems.params.recordInfo)
 
 process.add_(outputDB)

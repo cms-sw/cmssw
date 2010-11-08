@@ -2,6 +2,20 @@
 
 # L1Trigger O2O - validate L1 key, called by cron job
 
+pflag=0
+while getopts 'ph' OPTION
+  do
+  case $OPTION in
+      p) pflag=1
+          ;;
+      h) echo "Usage: [-p]"
+          echo "  -p: centrally installed release, not on local machine"
+          exit
+          ;;
+  esac
+done
+shift $(($OPTIND - 1))
+
 #==============================================================================
 # Environment
 #==============================================================================
@@ -69,10 +83,15 @@ fi
 #cd ~zrwan/CMSSW_3_5_0/cronjob
 cd /nfshome0/popcondev/L1Job/${release}/validate-l1Key
 
-export SCRAM_ARCH=""
-export VO_CMS_SW_DIR=""
-source /opt/cmssw/cmsset_default.sh
-#source /nfshome0/cmssw2/scripts/setup.sh
+if [ ${pflag} -eq 0 ]
+    then
+    export SCRAM_ARCH=""
+    export VO_CMS_SW_DIR=""
+    source /opt/cmssw/cmsset_default.sh
+else
+    source /nfshome0/cmssw2/scripts/setup.sh
+    centralRel="-p"
+fi
 eval `scramv1 run -sh`
 
 #next=`~zrwan/CMSSW_3_5_0/cronjob/getNext.sh ${lastID}`
@@ -104,7 +123,7 @@ echo "tsc_key = ${tsc_key}" >> ${logFile}
 
 rm -f temp.log
 
-$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getConditions.sh -n ${tsc_key} >& temp.log
+$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getConditions.sh -n ${centralRel} ${tsc_key} >& temp.log
 o2ocode1=$?
 
 cat temp.log >> ${logFile}

@@ -1,0 +1,60 @@
+def initL1O2OTags():
+
+    import FWCore.ParameterSet.Config as cms
+    from CondTools.L1Trigger.L1CondEnum_cfi import L1CondEnum
+
+    initL1O2OTags.tagBaseVec = [None] * L1CondEnum.NumL1Cond
+
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1TriggerKeyList ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1TriggerKey ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1JetEtScale ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1EmEtScale ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1HtMissScale ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1HfRingEtScale ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1MuTriggerScales ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1MuTriggerPtScale ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1MuGMTScales ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1MuCSCTFConfiguration ] = "CRAFT09v2_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1MuCSCTFAlignment ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1MuCSCPtLut ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1MuDTEtaPatternLut ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1MuDTExtLut ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1MuDTPhiLut ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1MuDTPtaLut ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1MuDTQualPatternLut ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1MuDTTFParameters ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1RPCConfig ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1RPCConeDefinition ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1RPCHsbConfig ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1RPCBxOrConfig ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1MuGMTParameters ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1RCTParameters ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1CaloEcalScale ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1CaloHcalScale ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1GctJetFinderParams ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1GtBoardMaps ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1GtParameters ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1GtStableParameters ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1GtTriggerMaskVetoAlgoTrig ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1GtTriggerMenu ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1GtPsbSetup ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1CaloGeometry ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1MuDTTFMasks ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1MuGMTChannelMask ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1RCTChannelMask ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1RCTNoisyChannelMask ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1GctChannelMask ] = "CRAFT09_hlt"
+
+#    initL1O2OTags.tagBaseVec[ L1CondEnum.L1GtPrescaleFactorsAlgoTrig ] = "CRAFT09_hlt"
+#    initL1O2OTags.tagBaseVec[ L1CondEnum.L1GtPrescaleFactorsTechTrig ] = "CRAFT09_hlt"
+#    initL1O2OTags.tagBaseVec[ L1CondEnum.L1GtTriggerMaskAlgoTrig ] = "CRAFT09_hlt"
+#    initL1O2OTags.tagBaseVec[ L1CondEnum.L1GtTriggerMaskTechTrig ] = "CRAFT09_hlt"
+#    initL1O2OTags.tagBaseVec[ L1CondEnum.L1GtTriggerMaskVetoTechTrig ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1GtPrescaleFactorsAlgoTrig ] = "CRAFT09v2_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1GtPrescaleFactorsTechTrig ] = "CRAFT09v2_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1GtTriggerMaskAlgoTrig ] = "CRAFT09v2_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1GtTriggerMaskTechTrig ] = "CRAFT09v2_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1GtTriggerMaskVetoTechTrig ] = "CRAFT09v2_hlt"
+    
+#    for i in range( 0, L1CondEnum.NumL1Cond ):
+#        print i, initL1O2OTags.tagBaseVec[ i ]

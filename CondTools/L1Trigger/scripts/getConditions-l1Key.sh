@@ -9,16 +9,18 @@
 # are not in the specified L1KEY, these default conditions will be valid for
 # 1-inf.
 
-tagbase=CRAFT09
-
 nflag=0
-while getopts 'nh' OPTION
+pflag=0
+while getopts 'nph' OPTION
   do
   case $OPTION in
       n) nflag=1
           ;;
+      p) pflag=1
+	  ;;
       h) echo "Usage: [-n] l1Key"
           echo "  -n: no RS"
+	  echo "  -p: centrally installed release, not on local machine"
           exit
           ;;
   esac
@@ -41,11 +43,15 @@ fi
 
 ln -sf /nfshome0/centraltspro/secure/authentication.xml .
 
-export SCRAM_ARCH=""
-export VO_CMS_SW_DIR=""
-source /opt/cmssw/cmsset_default.sh
-#source /nfshome0/cmssw2/scripts/setup.sh
-#export SCRAM_ARCH=slc5_ia32_gcc434
+if [ ${pflag} -eq 0 ]
+    then
+    export SCRAM_ARCH=""
+    export VO_CMS_SW_DIR=""
+    source /opt/cmssw/cmsset_default.sh
+else
+    source /nfshome0/cmssw2/scripts/setup.sh
+    centralRel="-p"
+fi
 eval `scramv1 run -sh`
 
 echo "`date` : initializing sqlite file for L1KEY ${l1Key}"
@@ -57,12 +63,12 @@ else
 fi
 
 # copy default objects
-cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadCondDB_cfg.py tagBase=${tagbase}_hlt inputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T inputDBAuth=/nfshome0/popcondev/conddb
-cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteIOVDummy_cfg.py tagBase=${tagbase}_hlt
+cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadCondDB_cfg.py inputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T inputDBAuth=/nfshome0/popcondev/conddb
+cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteIOVDummy_cfg.py useO2OTags=1
 
 echo "`date` : writing TSC payloads"
 tscKey=`$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh -t ${l1Key}`
-$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-key.sh -c ${tscKey} ${tagbase}
+$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-key.sh -c ${centralRel} ${tscKey}
 o2ocode=$?
 
 if [ ${o2ocode} -eq 0 ]
@@ -74,7 +80,7 @@ else
 fi
 
 echo "`date` : setting TSC IOVs"
-$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-iov.sh 10 ${tscKey} ${tagbase}
+$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-iov.sh ${centralRel} 10 ${tscKey}
 o2ocode=$?
 
 if [ ${o2ocode} -eq 0 ]
@@ -88,7 +94,7 @@ fi
 if [ ${nflag} -eq 0 ]
     then
     echo "`date` : writing RS payloads and setting RS IOVs"
-    $CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-rs-keysFromL1Key.sh 10 ${tagbase} ${l1Key}
+    $CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-rs-keysFromL1Key.sh ${centralRel} 10 ${l1Key}
     o2ocode=$?
 
     if [ ${o2ocode} -eq 0 ]

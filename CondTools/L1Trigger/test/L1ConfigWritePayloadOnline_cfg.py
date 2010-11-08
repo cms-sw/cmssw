@@ -15,11 +15,6 @@ options.register('tscKey',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "TSC key")
-options.register('tagBase',
-                 'CRAFT_hlt', #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.string,
-                 "IOV tags = object_{tagBase}")
 options.register('outputDBConnect',
                  'sqlite_file:l1config.db', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -148,12 +143,17 @@ process.load("L1TriggerConfig.L1GtConfigProducers.l1GtParametersOnline_cfi")
 process.load("L1TriggerConfig.L1GtConfigProducers.l1GtPsbSetupOnline_cfi")
 process.load("L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMenuOnline_cfi")
 
+# Define CondDB tags
+from CondTools.L1Trigger.L1CondEnum_cfi import L1CondEnum
+from CondTools.L1Trigger.L1O2OTags_cfi import initL1O2OTags
+initL1O2OTags()
+
 # writer modules
 from CondTools.L1Trigger.L1CondDBPayloadWriter_cff import initPayloadWriter
 initPayloadWriter( process,
                    outputDBConnect = options.outputDBConnect,
                    outputDBAuth = options.outputDBAuth,
-                   tagBase = options.tagBase )
+                   tagBaseVec = initL1O2OTags.tagBaseVec )
 
 if options.logTransactions == 1:
     initPayloadWriter.outputDB.logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
@@ -173,15 +173,15 @@ process.outputDB = cms.ESSource("PoolDBESSource",
                                 process.CondDBCommon,
                                 toGet = cms.VPSet(cms.PSet(
     record = cms.string('L1TriggerKeyListRcd'),
-    tag = cms.string( "L1TriggerKeyList_" + options.tagBase )
+    tag = cms.string( "L1TriggerKeyList_" + initL1O2OTags.tagBaseVec[ L1CondEnum.L1TriggerKeyList ] )
     ),
                                                   cms.PSet(
     record = cms.string('L1GtStableParametersRcd'),
-    tag = cms.string( "L1GtStableParameters_" + options.tagBase )
+    tag = cms.string( "L1GtStableParameters_" + initL1O2OTags.tagBaseVec[ L1CondEnum.L1GtStableParameters ] )
     ),
                                                   cms.PSet(
     record = cms.string('L1CaloGeometryRecord'),
-    tag = cms.string( "L1CaloGeometry_" + options.tagBase )
+    tag = cms.string( "L1CaloGeometry_" + initL1O2OTags.tagBaseVec[ L1CondEnum.L1CaloGeometry ] )
     )),
                                 RefreshEachRun=cms.untracked.bool(True)
                                 )

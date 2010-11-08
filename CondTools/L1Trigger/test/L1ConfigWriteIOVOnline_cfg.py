@@ -21,11 +21,6 @@ options.register('runNumber',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Run number")
-options.register('tagBase',
-                 'CRAFT_hlt', #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.string,
-                 "IOV tags = object_{tagBase}")
 options.register('outputDBConnect',
                  'sqlite_file:l1config.db', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -43,12 +38,17 @@ options.register('logTransactions',
                  "Record transactions in log DB")
 options.parseArguments()
 
+# Define CondDB tags
+from CondTools.L1Trigger.L1CondEnum_cfi import L1CondEnum
+from CondTools.L1Trigger.L1O2OTags_cfi import initL1O2OTags
+initL1O2OTags()
+
 # writer modules
 from CondTools.L1Trigger.L1CondDBIOVWriter_cff import initIOVWriter
 initIOVWriter( process,
                outputDBConnect = options.outputDBConnect,
                outputDBAuth = options.outputDBAuth,
-               tagBase = options.tagBase,
+               tagBaseVec = initL1O2OTags.tagBaseVec,
                tscKey = options.tscKey )
 
 if options.logTransactions == 1:
@@ -69,7 +69,7 @@ process.outputDB = cms.ESSource("PoolDBESSource",
                                 process.CondDBCommon,
                                 toGet = cms.VPSet(cms.PSet(
     record = cms.string('L1TriggerKeyListRcd'),
-    tag = cms.string('L1TriggerKeyList_' + options.tagBase)
+    tag = cms.string('L1TriggerKeyList_' + initL1O2OTags.tagBaseVec[ L1CondEnum.L1TriggerKeyList ])
     )),
                                 RefreshEachRun=cms.untracked.bool(True)
                                 )

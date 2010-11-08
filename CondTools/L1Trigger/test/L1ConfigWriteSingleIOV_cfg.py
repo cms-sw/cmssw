@@ -30,6 +30,16 @@ options.register('tagName',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "IOV tags = {tagName}_{tagBase}")
+options.register('useO2OTags',
+                 0, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "0 = use uniform tags, 1 = ignore tagBase and use O2O tags")
+options.register('condIndex',
+                 -999, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Index in L1CondEnum of record")
 options.register('runNumber',
                  1000, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -52,13 +62,25 @@ options.register('outputDBAuth',
                  "Authentication path for outputDB")
 options.parseArguments()
 
+# Define CondDB tags
+if options.useO2OTags == 0:
+    from CondTools.L1Trigger.L1CondEnum_cfi import L1CondEnum
+    from CondTools.L1Trigger.L1UniformTags_cfi import initL1UniformTags
+    initL1UniformTags( tagBase = options.tagBase )
+    tagBaseVec = initL1UniformTags.tagBaseVec
+else:
+    from CondTools.L1Trigger.L1CondEnum_cfi import L1CondEnum
+    from CondTools.L1Trigger.L1O2OTags_cfi import initL1O2OTags
+    initL1O2OTags()
+    tagBaseVec = initL1O2OTags.tagBaseVec
+
 # Get L1TriggerKeyList from DB
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.outputDB = cms.ESSource("PoolDBESSource",
     process.CondDBCommon,
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('L1TriggerKeyListRcd'),
-        tag = cms.string('L1TriggerKeyList_' + options.tagBase)
+        tag = cms.string('L1TriggerKeyList_' + tagBaseVec[ L1CondEnum.L1TriggerKeyList ])
     ))
 )
 process.outputDB.connect = cms.string(options.outputDBConnect)
@@ -69,13 +91,13 @@ from CondTools.L1Trigger.L1CondDBIOVWriter_cff import initIOVWriter
 initIOVWriter( process,
                outputDBConnect = options.outputDBConnect,
                outputDBAuth = options.outputDBAuth,
-               tagBase = options.tagBase,
+               tagBaseVec = tagBaseVec,
                tscKey = options.tscKey )
 process.L1CondDBIOVWriter.ignoreTriggerKey = cms.bool(True)
 process.L1CondDBIOVWriter.toPut = cms.VPSet(cms.PSet(
     record = cms.string(options.recordName),
     type = cms.string(options.objectType),
-    tag = cms.string(options.tagName + '_' + options.tagBase)
+    tag = cms.string(options.tagName + '_' + tagBaseVec[ options.condIndex ])
 ))
 
 process.maxEvents = cms.untracked.PSet(

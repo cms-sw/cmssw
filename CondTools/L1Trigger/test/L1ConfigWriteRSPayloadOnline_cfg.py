@@ -8,11 +8,6 @@ process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing()
-options.register('tagBase',
-                 'CRAFT_hlt', #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.string,
-                 "IOV tags = object_{tagBase}")
 options.register('outputDBConnect',
                  'sqlite_file:l1config.db', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -93,12 +88,17 @@ options.register('L1GtTriggerMaskVetoTechTrigRcdKey',
 
 options.parseArguments()
 
+# Define CondDB tags
+from CondTools.L1Trigger.L1CondEnum_cfi import L1CondEnum
+from CondTools.L1Trigger.L1O2OTags_cfi import initL1O2OTags
+initL1O2OTags()
+
 if options.keysFromDB == 1:
     process.load("CondTools.L1Trigger.L1ConfigRSKeys_cff")
 else:
     process.load("CondTools.L1Trigger.L1TriggerKeyDummy_cff")
     from CondTools.L1Trigger.L1RSSubsystemParams_cfi import initL1RSSubsystems
-    initL1RSSubsystems( tagBase = options.tagBase,
+    initL1RSSubsystems( tagBaseVec = initL1O2OTags.tagBaseVec,
                         L1MuDTTFMasksRcdKey = options.L1MuDTTFMasksRcdKey,
                         L1MuGMTChannelMaskRcdKey = options.L1MuGMTChannelMaskRcdKey,
                         L1RCTChannelMaskRcdKey = options.L1RCTChannelMaskRcdKey,
@@ -116,7 +116,7 @@ process.outputDB = cms.ESSource("PoolDBESSource",
     process.CondDBCommon,
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('L1TriggerKeyListRcd'),
-        tag = cms.string('L1TriggerKeyList_' + options.tagBase )
+        tag = cms.string('L1TriggerKeyList_' + initL1O2OTags.tagBaseVec[ L1CondEnum.L1TriggerKeyList ] )
     ))
 )
 #process.es_prefer_outputDB = cms.ESPrefer("PoolDBESSource","outputDB")
@@ -131,7 +131,7 @@ from CondTools.L1Trigger.L1CondDBPayloadWriter_cff import initPayloadWriter
 initPayloadWriter( process,
                    outputDBConnect = options.outputDBConnect,
                    outputDBAuth = options.outputDBAuth,
-                   tagBase = options.tagBase )
+                   tagBaseVec = initL1O2OTags.tagBaseVec,
 process.L1CondDBPayloadWriter.writeL1TriggerKey = cms.bool(False)
 
 if options.logTransactions == 1:

@@ -1,11 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process('L1')
 
+# Define CondDB tags
+from CondTools.L1Trigger.L1CondEnum_cfi import L1CondEnum
+from CondTools.L1Trigger.L1O2OTags_cfi import initL1O2OTags
+initL1O2OTags()
+
 from CondTools.L1Trigger.L1CondDBSource_cff import initCondDBSource
 initCondDBSource(
     process,
     inputDBConnect = 'sqlite_file:l1config.db',
-    tagBase = 'CRAFT09_hlt',
+    tagBaseVec = initL1O2OTags.tagBaseVec,
     includeAllTags = True
 )
 process.maxEvents = cms.untracked.PSet(
