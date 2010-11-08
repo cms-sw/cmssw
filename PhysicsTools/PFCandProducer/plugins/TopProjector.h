@@ -80,9 +80,13 @@ class TopProjector : public edm::EDProducer {
 			const edm::Handle< std::vector<Bottom> >& allPFCandidates ) const;
 
 
+  /// enable? if not, all candidates in the bottom collection are copied to the output collection
+  bool            enable_;
+
   /// verbose ?
   bool            verbose_;
 
+  /// name of the top projection
   std::string     name_;
  
   /// input tag for the top (masking) collection
@@ -96,7 +100,8 @@ class TopProjector : public edm::EDProducer {
 
 
 template< class Top, class Bottom>
-TopProjector< Top, Bottom >::TopProjector(const edm::ParameterSet& iConfig) {
+TopProjector< Top, Bottom >::TopProjector(const edm::ParameterSet& iConfig) : 
+  enable_(iConfig.getParameter<bool>("enable")) {
 
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose",false);
   name_ = iConfig.getUntrackedParameter<std::string>("name","No Name");
@@ -176,10 +181,8 @@ void TopProjector< Top, Bottom >::produce(edm::Event& iEvent,
   // at the beginning, all bottom objects are unmasked.
   std::vector<bool> masked( bottoms->size(), false);
     
-
-
-  processCollection( tops, bottoms, masked, name_.c_str(), iEvent );
-
+  if( enable_ )
+    processCollection( tops, bottoms, masked, name_.c_str(), iEvent );
 
   const BottomCollection& inCands = *bottoms;
 
