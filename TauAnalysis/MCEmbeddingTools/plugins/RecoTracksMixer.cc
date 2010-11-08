@@ -2,7 +2,7 @@
 //
 // Package:    RecoTracksMixer
 // Class:      RecoTracksMixer
-// 
+//
 /**\class RecoTracksMixer RecoTracksMixer.cc TauAnalysis/RecoTracksMixer/src/RecoTracksMixer.cc
 
  Description: <one line class summary>
@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Fri Apr  9 12:15:56 CEST 2010
-// $Id: RecoTracksMixer.cc,v 1.1 2010/04/13 11:18:57 fruboes Exp $
+// $Id: RecoTracksMixer.cc,v 1.2 2010/09/06 11:21:38 fruboes Exp $
 //
 //
 
@@ -47,7 +47,7 @@ class RecoTracksMixer : public edm::EDProducer {
       virtual void endJob() ;
       edm::InputTag _tracks1;
       edm::InputTag _tracks2;
-      
+
       // ----------member data ---------------------------
 };
 
@@ -67,14 +67,14 @@ RecoTracksMixer::RecoTracksMixer(const edm::ParameterSet& iConfig) :
   _tracks1(iConfig.getParameter< edm::InputTag > ("trackCol1")),
   _tracks2(iConfig.getParameter< edm::InputTag > ("trackCol2"))
 {
-  
+
    produces<reco::TrackCollection>();
 }
 
 
 RecoTracksMixer::~RecoTracksMixer()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -90,7 +90,7 @@ void
 RecoTracksMixer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-   
+
    std::vector< edm::Handle<reco::TrackCollection> > cols;
    edm::Handle<reco::TrackCollection> tks1;
    iEvent.getByLabel( _tracks1, tks1);
@@ -100,13 +100,13 @@ RecoTracksMixer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    cols.push_back(tks1);
    cols.push_back(tks2);
- 
+
    std::auto_ptr< reco::TrackCollection  > newCol(new reco::TrackCollection );
 
    //std::cout << "##########################################\n";
-   int i  = 0; 
+   //int i  = 0;
    std::vector< edm::Handle<reco::TrackCollection> >::iterator it = cols.begin();
-   for(;it != cols.end(); ++it) 
+   for(;it != cols.end(); ++it)
    {
      //std::cout << " col " << i++ << std::endl;
      for ( reco::TrackCollection::const_iterator itT = (*it)->begin() ; itT != (*it)->end(); ++itT)
@@ -122,19 +122,19 @@ RecoTracksMixer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
 
    }
-   
+
    iEvent.put(newCol);
 
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 RecoTracksMixer::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 RecoTracksMixer::endJob() {
 }
 
