@@ -147,12 +147,9 @@ class StandardTester(object):
                   'pat1'     : ['cmsRun ../PhysicsTools/PatAlgos/test/IntegrationTest_cfg.py'],
                 }
 
-        hltTests = { 'hlt1' : ['cmsDriver.py TTbar_Tauola.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW -n 10 --conditions auto:startup --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAW --fileout file:RelVal_DigiL1Raw_8E29.root',
-                      'ln -s RelVal_DigiL1Raw_8E29.root RelVal_DigiL1Raw_GRun.root',
+        hltTests = { 'hlt1' : ['cmsDriver.py TTbar_Tauola.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW -n 10 --conditions auto:startup --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAW --fileout file:RelVal_DigiL1Raw_GRun.root',
                       'cmsRun ../HLTrigger/Configuration/test/OnLine_HLT_GRun.py' ], 
-
-                     'hlt2' : ['cmsDriver.py TTbar_Tauola.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW -n 10 --conditions auto:mc --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAW --fileout file:RelVal_DigiL1Raw_1E31.root',
-                      'ln -s RelVal_DigiL1Raw_1E31.root RelVal_DigiL1Raw_HIon.root',
+                     'hlt2' : ['cmsDriver.py TTbar_Tauola.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW -n 10 --conditions START39_V4HI::All --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAW --fileout file:RelVal_DigiL1Raw_HIon.root',
                       'cmsRun ../HLTrigger/Configuration/test/OnLine_HLT_HIon.py'],
                      'hlt3' : ['cmsRun ../HLTrigger/Configuration/test/OnData_HLT_GRun.py'],
                      'hlt4' : ['cmsRun ../HLTrigger/Configuration/test/OnData_HLT_HIon.py'],
