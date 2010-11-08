@@ -85,13 +85,21 @@ inline CSCChamberTimeCorrections *  CSCChamberTimeCorrectionsValues::prefill(boo
   }
 
 
-  // for MC there will be one value for ME1/1 and one for all other chambers
+  // for MC there will is a different correction for each chamber type
   if (isMC){
-    for(i=1;i<=MAX_SIZE;++i){
-      if (i<= 36 || (i>= 235 && i<=270))
-	chamberObj->chamberCorrections[i-1].cfeb_timing_corr=(short int)(-1*ME11offset*FACTOR+0.5*(-1*ME11offset>=0)-0.5*(-1*ME11offset<0));
-      else
-	chamberObj->chamberCorrections[i-1].cfeb_timing_corr=(short int)(-1*nonME11offset*FACTOR+0.5*(-1*nonME11offset>=0)-0.5*(-1*nonME11offset<0));
+    float OffsetByType;
+    for(i=1;i<=MAX_SIZE;++i){   
+      if (i<= 36 || (i>= 235 && i<=270)) OffsetByType=172.; // 1/1
+      else if (i<= 72 || (i>= 271 && i<=306)) OffsetByType=168.; // 1/2
+      else if (i<= 108 || (i>= 307 && i<=342)) OffsetByType=177.; // 1/3
+      else if (i<= 126 || (i>= 343 && i<=360)) OffsetByType=171.; // 2/1
+      else if (i<= 162 || (i>= 361 && i<=396)) OffsetByType=175.; // 2/2
+      else if (i<= 180 || (i>= 397 && i<=414)) OffsetByType=171.; // 3/1
+      else if (i<= 216 || (i>= 415 && i<=450)) OffsetByType=175; // 3/2
+      else if (i<= 234 || (i>= 451 && i<=468)) OffsetByType=172.; // 4/1
+      else OffsetByType=175; // 4/2
+
+	chamberObj->chamberCorrections[i-1].cfeb_timing_corr=(short int)(-1*OffsetByType*FACTOR+0.5*(-1*OffsetByType>=0)-0.5*(-1*OffsetByType<0));
     }
 
     return chamberObj;
@@ -192,7 +200,7 @@ inline CSCChamberTimeCorrections *  CSCChamberTimeCorrectionsValues::prefill(boo
   }
   fclose(foffset);  
   
-  //Read in a 2nd order correction for chamber offsets derived from data 
+  //Read in a 3rd order correction for chamber offsets derived from data 
   FILE *foffsetAgain = fopen("/afs/cern.ch/user/d/deisher/public/TimingCorrections2009/CathodeTimingCorrection_DB_12082010.txt","r");
   while (!feof(foffsetAgain)){
     //note space at end of format string to convert last \n
