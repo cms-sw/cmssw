@@ -106,10 +106,6 @@ patTaus = cms.EDProducer("PATTauProducer",
         byTaNCfrTenthPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrTenthPercent")
     ),
 
-    # tau decay mode configurables
-    addDecayMode = cms.bool(False),
-    decayModeSrc = cms.InputTag("shrinkingConePFTauDecayModeProducer"),                    
-
     # mc matching configurables
     addGenMatch      = cms.bool(True),
     embedGenMatch    = cms.bool(True),
