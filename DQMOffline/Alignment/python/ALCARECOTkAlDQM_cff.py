@@ -216,6 +216,8 @@ ALCARECOTkAlMinBiasHITrackingDQM = ALCARECOTkAlMinBiasTrackingDQM.clone(
 ALCARECOTkAlMinBiasHITkAlDQM = ALCARECOTkAlMinBiasTkAlDQM.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
+    ReferenceTrackProducer = 'hiSelectedTracks',
+    CaloJetCollection = 'iterativeConePu5CaloJets',
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
 # margins and settings
@@ -279,11 +281,10 @@ ALCARECOTkAlLASDigiDQM= DQMOffline.Alignment.LaserAlignmentT0ProducerDQM_cfi.Las
     LowerAdcThreshold = 15,
     UpperAdcThreshold = 220,
     DigiProducerList = cms.VPSet(
-        cms.PSet(
-            DigiLabel = cms.string( 'ZeroSuppressed' ),
-            DigiType = cms.string( 'Processed' ),
-            DigiProducer = cms.string( 'ALCARECOTkAlLAST0Producer' )
-        )
+    cms.PSet(DigiLabel = cms.string( 'ZeroSuppressed' ),
+             DigiType = cms.string( 'Processed' ),
+             DigiProducer = cms.string( 'laserAlignmentT0Producer' )
+             )
     )
 )
 ALCARECOTkAlLASDQM = cms.Sequence( ALCARECOTkAlLASDigiDQM )
