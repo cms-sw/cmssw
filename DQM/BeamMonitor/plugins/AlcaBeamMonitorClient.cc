@@ -1,8 +1,8 @@
 /*
  * \file AlcaBeamMonitorClient.cc
  * \author Lorenzo Uplegger/FNAL
- * $Date: 2010/09/24 06:36:04 $
- * $Revision: 1.2 $
+ * $Date: 2010/10/05 18:07:13 $
+ * $Revision: 1.3 $
  *
  */
 
@@ -25,7 +25,8 @@ using namespace edm;
 //----------------------------------------------------------------------------------------------------------------------
 AlcaBeamMonitorClient::AlcaBeamMonitorClient( const ParameterSet& ps ) :
   parameters_         (ps),
-  monitorName_        (parameters_.getUntrackedParameter<string>("MonitorName","YourSubsystemName"))
+  monitorName_        (parameters_.getUntrackedParameter<string>("MonitorName","YourSubsystemName")),
+  numberOfValuesToSave_ (0)
 {
   dbe_            = Service<DQMStore>().operator->();
   
