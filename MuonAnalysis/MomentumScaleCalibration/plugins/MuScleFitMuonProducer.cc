@@ -56,6 +56,7 @@ class MuScleFitMuonProducer : public edm::EDProducer {
       template<class T> std::auto_ptr<T> applyCorrection(const edm::Handle<T> & allMuons);
 
   edm::InputTag theMuonLabel_;
+  bool patMuons_;
   edm::ESHandle<MuScleFitDBobject> dbObject_;
   unsigned long long dbObjectCacheId_;
   boost::shared_ptr<MomentumScaleCorrector> corrector_;
@@ -63,6 +64,7 @@ class MuScleFitMuonProducer : public edm::EDProducer {
 
 MuScleFitMuonProducer::MuScleFitMuonProducer(const edm::ParameterSet& iConfig) :
   theMuonLabel_( iConfig.getParameter<edm::InputTag>( "MuonLabel" ) ),
+  patMuons_( iConfig.getParameter<bool>( "PatMuons" ) ),
   dbObjectCacheId_(0)
 {
   produces<reco::MuonCollection>();
@@ -109,10 +111,11 @@ void MuScleFitMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   // Create the corrector and set the parameters
   corrector_.reset(new MomentumScaleCorrector( dbObject_.product() ) );
-  
+
+  if( patMuons_ == patMuons
   edm::Handle<reco::MuonCollection> allMuons;
   iEvent.getByLabel (theMuonLabel_, allMuons);
-  
+
   // put into the Event
   // iEvent.put(pOut);
   iEvent.put(applyCorrection(allMuons));
