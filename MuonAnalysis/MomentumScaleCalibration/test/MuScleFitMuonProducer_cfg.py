@@ -5,34 +5,27 @@ process = cms.Process("MUSCLEFITMUONPRODUCER")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1000)
 )
 
 process.source = cms.Source("PoolSource",
-    # replace 'myfile.root' with the source file you want to use
     fileNames = cms.untracked.vstring(
-    "rfio:/castor/cern.ch/user/d/demattia/MuScleFit/Summer09/Zmumu/Filter_Zmumu_1.root",
-    "rfio:/castor/cern.ch/user/d/demattia/MuScleFit/Summer09/Zmumu/Filter_Zmumu_10.root",
-    "rfio:/castor/cern.ch/user/d/demattia/MuScleFit/Summer09/Zmumu/Filter_Zmumu_11.root",
-    "rfio:/castor/cern.ch/user/d/demattia/MuScleFit/Summer09/Zmumu/Filter_Zmumu_12.root",
-    "rfio:/castor/cern.ch/user/d/demattia/MuScleFit/Summer09/Zmumu/Filter_Zmumu_13.root",
-    "rfio:/castor/cern.ch/user/d/demattia/MuScleFit/Summer09/Zmumu/Filter_Zmumu_14.root",
-    "rfio:/castor/cern.ch/user/d/demattia/MuScleFit/Summer09/Zmumu/Filter_Zmumu_15.root",
-    "rfio:/castor/cern.ch/user/d/demattia/MuScleFit/Summer09/Zmumu/Filter_Zmumu_16.root",
-    "rfio:/castor/cern.ch/user/d/demattia/MuScleFit/Summer09/Zmumu/Filter_Zmumu_17.root",
-    "rfio:/castor/cern.ch/user/d/demattia/MuScleFit/Summer09/Zmumu/Filter_Zmumu_18.root",
-    "rfio:/castor/cern.ch/user/d/demattia/MuScleFit/Summer09/Zmumu/Filter_Zmumu_19.root",
-    "rfio:/castor/cern.ch/user/d/demattia/MuScleFit/Summer09/Zmumu/Filter_Zmumu_2.root",
-    "rfio:/castor/cern.ch/user/d/demattia/MuScleFit/Summer09/Zmumu/Filter_Zmumu_20.root",
-    "rfio:/castor/cern.ch/user/d/demattia/MuScleFit/Summer09/Zmumu/Filter_Zmumu_21.root",
-    "rfio:/castor/cern.ch/user/d/demattia/MuScleFit/Summer09/Zmumu/Filter_Zmumu_3.root",
-    "rfio:/castor/cern.ch/user/d/demattia/MuScleFit/Summer09/Zmumu/Filter_Zmumu_4.root",
-    "rfio:/castor/cern.ch/user/d/demattia/MuScleFit/Summer09/Zmumu/Filter_Zmumu_5.root",
-    "rfio:/castor/cern.ch/user/d/demattia/MuScleFit/Summer09/Zmumu/Filter_Zmumu_6.root",
-    "rfio:/castor/cern.ch/user/d/demattia/MuScleFit/Summer09/Zmumu/Filter_Zmumu_7.root",
-    "rfio:/castor/cern.ch/user/d/demattia/MuScleFit/Summer09/Zmumu/Filter_Zmumu_8.root",
-    "rfio:/castor/cern.ch/user/d/demattia/MuScleFit/Summer09/Zmumu/Filter_Zmumu_9.root"
+      "file:/home/demattia/3C83C26B-8B91-DF11-9CE6-90E6BAE8CC13.root"
     )
+)
+
+process.poolDBESSource = cms.ESSource("PoolDBESSource",
+   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+   DBParameters = cms.PSet(
+        messageLevel = cms.untracked.int32(2),
+        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+    ),
+    timetype = cms.untracked.string('runnumber'),
+    connect = cms.string('sqlite_file:dummyScale.db'),
+    toGet = cms.VPSet(cms.PSet(
+        record = cms.string('MuScleFitDBobjectRcd'),
+        tag = cms.string('JPsi_1_3_invNb_innerTrack')
+    ))
 )
 
 process.MuScleFitMuonProducer = cms.EDProducer(

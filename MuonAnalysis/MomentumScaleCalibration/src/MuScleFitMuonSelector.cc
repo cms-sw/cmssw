@@ -143,16 +143,22 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<re
     }
     muons = fillMuonCollection(tracks); 
   }
-  else if( (muonType_<4 && muonType_>0) || muonType_>=10 ) { // Muons (glb,sta,trk)
+  else if( (muonType_<4 && muonType_>=0) || muonType_>=10 ) { // Muons (glb,sta,trk)
     std::vector<reco::Track> tracks;
     if( PATmuons_ == true ) {
       edm::Handle<pat::MuonCollection> allMuons;
       event.getByLabel( muonLabel_, allMuons );
-      for( std::vector<pat::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
-	//std::cout<<"pat muon is global "<<muon->isGlobalMuon()<<std::endl;
-        takeSelectedMuonType(muon, tracks);
+      if( muonType_ == 0 ) {
+	// Take directly the muon
+	muons = fillMuonCollection(*allMuons);
       }
-      muons = fillMuonCollection(tracks);
+      else {
+	for( std::vector<pat::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
+	  //std::cout<<"pat muon is global "<<muon->isGlobalMuon()<<std::endl;
+	  takeSelectedMuonType(muon, tracks);
+	}
+	muons = fillMuonCollection(tracks);
+      }
     }
     else {
       edm::Handle<reco::MuonCollection> allMuons;

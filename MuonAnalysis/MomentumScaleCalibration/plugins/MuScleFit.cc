@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/10/19 16:36:51 $
-//  $Revision: 1.96 $
+//  $Date: 2010/10/22 17:48:07 $
+//  $Revision: 1.98 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -286,7 +286,7 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) :
     MuScleFitUtils::MuonTypeForCheckMassWindow = theMuonType_-1;
     MuScleFitUtils::MuonType = theMuonType_-1;
   }
-  else if(theMuonType_ == 4 || theMuonType_ >= 10 || theMuonType_==-1 || theMuonType_==-2 || theMuonType_==-3 || theMuonType_==-4) {
+  else if(theMuonType_ == 0 || theMuonType_ == 4 || theMuonType_ >= 10 || theMuonType_==-1 || theMuonType_==-2 || theMuonType_==-3 || theMuonType_==-4) {
     MuScleFitUtils::MuonTypeForCheckMassWindow = 2;
     MuScleFitUtils::MuonType = 2;
   }
@@ -625,7 +625,9 @@ void MuScleFit::selectMuons(const edm::Event & event)
 				MuScleFitUtils::SavedPair.back().second,
 				event.run(), event.id().event()));
   // Fill the internal genPair tree from the external one
-  MuScleFitUtils::genPair.push_back(std::make_pair( genMuonPairs_.back().mu1, genMuonPairs_.back().mu2 ));
+  if( MuScleFitUtils::speedup == false ) {
+    MuScleFitUtils::genPair.push_back(std::make_pair( genMuonPairs_.back().mu1, genMuonPairs_.back().mu2 ));
+  }
 }
 
 void MuScleFit::selectMuons(const int maxEvents, const TString & treeFileName)
