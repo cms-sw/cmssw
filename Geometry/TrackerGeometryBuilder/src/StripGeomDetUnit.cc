@@ -24,9 +24,5 @@ const StripTopology& StripGeomDetUnit::specificTopology() const {
 
 void StripGeomDetUnit::setSurfaceDeformation(const SurfaceDeformation * deformation)
 {
-  if (deformation) {
-    theSurfaceDeformation = deformation;
-  } else {
-    theSurfaceDeformation = 0;
-  }
+  theSurfaceDeformation = deformation;
 }
