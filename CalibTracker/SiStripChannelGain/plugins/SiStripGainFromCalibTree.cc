@@ -85,7 +85,6 @@ using namespace __gnu_cxx;
 using __gnu_cxx::hash_map;
 using __gnu_cxx::hash;
 
-
 struct stAPVGain{
    unsigned int Index; 
    unsigned int Bin;
@@ -241,6 +240,12 @@ SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
    edm::ESHandle<SiStripGain> gainHandle;
    iSetup.get<SiStripGainRcd>().get(gainHandle);
    if(!gainHandle.isValid()){printf("\n#####################\n\nERROR --> gainHandle is not valid\n\n#####################\n\n");exit(0);}
+ 
+   size_t numberOfTag = gainHandle->getNumberOfTags();
+   for(unsigned int i=0;i<gainHandle->getNumberOfTags();i++){
+      printf("Reccord %i --> Rcd Name = %s    Label Name = %s\n",i,gainHandle->getRcdName(i).c_str(), gainHandle->getLabelName(i).c_str());
+   }
+ 
 
    edm::ESHandle<SiStripQuality> SiStripQuality_;
    iSetup.get<SiStripQualityRcd>().get(SiStripQuality_);
@@ -272,7 +277,7 @@ SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
                 APV->FitWidthErr   = -1;
                 APV->FitChi2       = -1;
                 APV->Gain          = -1;
-                APV->PreviousGain  =  1;
+                APV->PreviousGain  = 1;
                 APV->x             = DetUnit->position().basicVector().x();
                 APV->y             = DetUnit->position().basicVector().y();
                 APV->z             = DetUnit->position().basicVector().z();
@@ -282,6 +287,12 @@ SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
                 APV->Thickness     = DetUnit->surface().bounds().thickness();
 		APV->NEntries	   = 0;
                 APV->isMasked      = SiStripQuality_->IsApvBad(Detid.rawId(),j);
+
+		if(!FirstSetOfConstants){
+		   if(gainHandle->getNumberOfTags()!=2){printf("ERROR: NUMBER OF GAIN TAG IS EXPECTED TO BE 2\n");fflush(stdout);exit(0);};		   
+		   APV->PreviousGain  = gainHandle->getApvGain(APV->APVId,gainHandle->getRange(APV->DetId, 1),1);
+                   printf("DETID = %7i APVID=%1i Previous Gain=%8.4f\n",APV->DetId,APV->APVId,APV->PreviousGain);
+		}
 
                 APVsCollOrdered.push_back(APV);
 		APVsColl[(APV->DetId<<3) | APV->APVId] = APV;
@@ -351,10 +362,10 @@ bool SiStripGainFromCalibTree::IsGoodLandauFit(double* FitResults){
 
 void SiStripGainFromCalibTree::algoAnalyzeTheTree()
 {
+   for(unsigned int i=0;i<VInputFiles.size();i++){
+      printf("Openning file %3i/%3i --> %s\n",i+1,VInputFiles.size(),VInputFiles[i].c_str()); fflush(stdout);
       TChain* tree = new TChain("gainCalibrationTree/tree");
-      for(unsigned int i=0;i<VInputFiles.size();i++){
-         tree->Add(VInputFiles[i].c_str());
-      }
+      tree->Add(VInputFiles[i].c_str());
 
       TString EventPrefix("");
       TString EventSuffix("");
@@ -393,10 +404,10 @@ void SiStripGainFromCalibTree::algoAnalyzeTheTree()
       std::vector<double>*         gainused       = 0;    tree->SetBranchAddress(CalibPrefix + "gainused"       + CalibSuffix, &gainused      , NULL);
 
 
-      std::cout << "TreeEntries = " << tree->GetEntries() << endl; 
+      printf("Number of Events = %i + %i = %i\n",NEvent,(unsigned int)tree->GetEntries(),(unsigned int)(NEvent+tree->GetEntries()));
       printf("Progressing Bar              :0%%       20%%       40%%       60%%       80%%       100%%\n");
       printf("Looping on the Tree          :");
-      int TreeStep = tree->GetEntries()/50;
+      int TreeStep = tree->GetEntries()/50;if(TreeStep<=1)TreeStep=1;
       for (unsigned int ientry = 0; ientry < tree->GetEntries(); ientry++) {
 //      for (unsigned int ientry = 0; ientry < tree->GetEntries() && ientry<50000; ientry++) {
       if(ientry%TreeStep==0){printf(".");fflush(stdout);}
@@ -441,11 +452,13 @@ void SiStripGainFromCalibTree::algoAnalyzeTheTree()
 
             
             int Charge = 0;
-            if(useCalibration){
+            if(useCalibration || !FirstSetOfConstants){
                bool Saturation = false;
                for(unsigned int s=0;s<(*nstrips)[i];s++){
                   int StripCharge =  (*amplitude)[FirstAmplitude-(*nstrips)[i]+s];
-                  StripCharge=(int)(StripCharge/APV->CalibGain);
+                  if(useCalibration && !FirstSetOfConstants){ StripCharge=(int)(StripCharge*(APV->PreviousGain/APV->CalibGain));
+                  }else if(useCalibration){                   StripCharge=(int)(StripCharge/APV->CalibGain);
+                  }else if(!FirstSetOfConstants){             StripCharge=(int)(StripCharge*APV->PreviousGain);}
                   if(StripCharge>1024){
                      StripCharge = 255;
                      Saturation = true;
@@ -489,6 +502,8 @@ void SiStripGainFromCalibTree::algoAnalyzeTheTree()
 
          }// END OF ON-CLUSTER LOOP
       }printf("\n");// END OF EVENT LOOP
+
+   }
 }
 
 
@@ -549,7 +564,7 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
           BAD++;
       }
       if(APV->Gain<=0)           APV->Gain  = 1;
-      if(!FirstSetOfConstants)   APV->Gain *= APV->PreviousGain;
+//      if(!FirstSetOfConstants)   APV->Gain *= APV->PreviousGain;
 
 
       //printf("%5i/%5i:  %6i - %1i  %5E Entries --> MPV = %f +- %f\n",I,APVsColl.size(),APV->DetId, APV->APVId, Proj->GetEntries(), FitResults[0], FitResults[1]);fflush(stdout);

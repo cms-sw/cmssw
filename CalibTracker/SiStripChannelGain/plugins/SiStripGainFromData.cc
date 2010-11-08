@@ -76,6 +76,9 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 using namespace __gnu_cxx;
+using __gnu_cxx::hash_map;
+using __gnu_cxx::hash;
+
 
 struct stAPVGain{unsigned int Index; int DetId; int APVId; int SubDet; float Eta; float R; float Phi; float Thickness; double MPV; double Gain; double PreviousGain; char Side;};
 
