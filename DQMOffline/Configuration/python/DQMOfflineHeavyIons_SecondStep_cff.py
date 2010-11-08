@@ -32,13 +32,15 @@ DQMOfflineHeavyIons_SecondStepDPG = cms.Sequence( dqmRefHistoRootFileGetter *
 
 from DQMOffline.Muon.muonQualityTests_cff import *
 #from DQMOffline.EGamma.photonOfflineDQMClient_cff import *
-#from DQMOffline.Trigger.DQMOffline_Trigger_Client_cff import *
-#from DQMOffline.Trigger.DQMOffline_HLT_Client_cff import *
+from DQMOffline.Trigger.DQMOffline_Trigger_Client_cff import *
+from DQMOffline.Trigger.DQMOffline_HLT_Client_cff import *
+
+hltOfflineDQMClient.remove(jetMETHLTOfflineClient)
 
 DQMOfflineHeavyIons_SecondStep_PrePOG = cms.Sequence( muonQualityTests 
                                                       #* photonOfflineDQMClient 
-                                                      #* triggerOfflineDQMClient 
-                                                      #* hltOfflineDQMClient
+                                                      * triggerOfflineDQMClient 
+                                                      * hltOfflineDQMClient
                                                       * alcaBeamMonitorClient 
                                                       )
 
