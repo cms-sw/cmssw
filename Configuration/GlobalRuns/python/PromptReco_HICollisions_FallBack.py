@@ -30570,4 +30570,4 @@ process.ptSeedParameterization = cms.PSet(
         3.478874)
 )
 
-process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.pathALCARECOSiStripCalZeroBias,process.pathALCARECOSiStripCalMinBias,process.l1hwval_step,process.dqmoffline_step,process.endjob_step,process.outputRECORECOPath)
+process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.pathALCARECOSiStripCalZeroBias,process.l1hwval_step,process.dqmoffline_step,process.endjob_step,process.outputRECORECOPath)
