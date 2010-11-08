@@ -12,7 +12,7 @@ def boolItemToString(param):
         return "true"
     return "false"
 def stringItemToString(param):
-    return "'"+param+"'"
+    return '"'+param+'"'
 
 def simpleValueToString(param):
     return simpleItemToString(param.value())
@@ -74,15 +74,15 @@ def printVPSetDescription(spacing,descName,pList,label,depth):
         print newSpacing+"{"
         newerSpacing = newSpacing+"  "
         otherTempName = "temp"+str(depth+1)
-        print newerSpacing+"edm::ParameterSet "+otherTempName+";";
+        print newerSpacing+"edm::ParameterSet "+otherTempName+";"
         printParameterSet(newerSpacing,tempName,i,depth+1)
-        print newerSpacing+tempName+".push_back("+otherTempName+");";
+        print newerSpacing+tempName+".push_back("+otherTempName+");"
         print newSpacing+"}"
     
     trackiness=""
-    if not pList.isTracked:
+    if not pList.isTracked():
         trackiness="Untracked"
-    print newSpacing+descName+".addVPSet"+trackiness+"('"+label+"',"+newDescName+","+tempName+");"
+    print newSpacing+descName+".addVPSet"+trackiness+'("'+label+'",'+newDescName+","+tempName+");"
     print spacing+"}"
 
 def printListTypeParameterDescription(spacing,descName,pList,label,depth):
@@ -96,11 +96,11 @@ def printListTypeParameterDescription(spacing,descName,pList,label,depth):
     print newSpacing+"std::vector<"+itemType+"> "+tempName+";"
     print newSpacing+tempName+".reserve("+str(len(pList))+");"
     for i in pList:
-        print newSpacing+tempName+".push_back("+converter(i)+")";
+        print newSpacing+tempName+".push_back("+converter(i)+");"
     trackiness=""
-    if not pList.isTracked:
+    if not pList.isTracked():
         trackiness="Untracked"
-    print newSpacing+descName+".add"+trackiness+"<std::vector<"+itemType+"> >('"+label+"',"+tempName+");"
+    print newSpacing+descName+".add"+trackiness+"<std::vector<"+itemType+'> >("'+label+'",'+tempName+");"
     print spacing+"}"
 
 def printParameterSetDescription(spacing,descName, pset, depth):
@@ -112,9 +112,9 @@ def printParameterSetDescription(spacing,descName, pset, depth):
             print newSpacing+"edm::ParameterSetDescription "+newDescName+";"
             printParameterSetDescription(newSpacing,newDescName,p,depth+1)
             trackiness=""
-            if not p.isTracked:
+            if not p.isTracked():
                 trackiness="Untracked"
-            print newSpacing+descName+".add"+trackiness+"<edm::ParameterSetDescription>('"+l+"',"+newDescName+");"
+            print newSpacing+descName+".add"+trackiness+'<edm::ParameterSetDescription>("'+l+'",'+newDescName+");"
             print spacing+"}"
         else:
             if isinstance(p,_ValidatingParameterListBase):
@@ -123,10 +123,10 @@ def printParameterSetDescription(spacing,descName, pset, depth):
                 #raise RuntimeError()
             else:
                 trackiness=""
-                if not p.isTracked:
+                if not p.isTracked():
                     trackiness="Untracked"
                 (t,c) = simpleParamHandlers[type(p).__name__]
-                print spacing+descName+".add"+trackiness+"<"+t+">('"+l+"',"+c(p)+");"
+                print spacing+descName+".add"+trackiness+"<"+t+'>("'+l+'",'+c(p)+");"
 
 def printVPSet(spacing,psetName,pList,label,depth):
     print spacing+"{"
@@ -144,9 +144,9 @@ def printVPSet(spacing,psetName,pList,label,depth):
         print newSpacing+"}"
     
     trackiness=""
-    if not pList.isTracked:
+    if not pList.isTracked():
         trackiness="Untracked"
-    print newSpacing+psetName+".add"+trackiness+"Parameter<std::vector<edm::ParameterSet> >('"+label+"',"+tempName+");"
+    print newSpacing+psetName+".add"+trackiness+'Parameter<std::vector<edm::ParameterSet> >("'+label+'",'+tempName+");"
     print spacing+"}"
 
 def printListTypeParameter(spacing,psetName,pList,label,depth):
@@ -160,11 +160,11 @@ def printListTypeParameter(spacing,psetName,pList,label,depth):
     print newSpacing+"std::vector<"+itemType+"> "+tempName+";"
     print newSpacing+tempName+".reserve("+str(len(pList))+");"
     for i in pList:
-        print newSpacing+tempName+".push_back("+converter(i)+")";
+        print newSpacing+tempName+".push_back("+converter(i)+");"
     trackiness=""
-    if not pList.isTracked:
+    if not pList.isTracked():
         trackiness="Untracked"
-    print newSpacing+psetName+".add"+trackiness+"Parameter<std::vector<"+itemType+"> >('"+label+"',"+tempName+");"
+    print newSpacing+psetName+".add"+trackiness+'Parameter<std::vector<'+itemType+'> >("'+label+'",'+tempName+");"
     print spacing+"}"
 
 
@@ -177,9 +177,9 @@ def printParameterSet(spacing,psetName, pset, depth):
             print newSpacing+"edm::ParameterSet "+newPSetName+";"
             printParameterSet(newSpacing,newPSetName,p,depth+1)
             trackiness=""
-            if not p.isTracked:
+            if not p.isTracked():
                 trackiness="Untracked"
-            print newSpacing+psetName+".add"+trackiness+"Parameter<edm::ParameterSet>('"+l+"',"+newPSetName+");"
+            print newSpacing+psetName+".add"+trackiness+'Parameter<edm::ParameterSet>("'+l+'",'+newPSetName+");"
             print spacing+"}"
         else:
             if isinstance(p,_ValidatingParameterListBase):
@@ -188,10 +188,10 @@ def printParameterSet(spacing,psetName, pset, depth):
                 #raise RuntimeError()
             else:
                 trackiness=""
-                if not p.isTracked:
+                if not p.isTracked():
                     trackiness="Untracked"
                 (t,c) = simpleParamHandlers[type(p).__name__]
-                print spacing+psetName+".add"+trackiness+"Parameter<"+t+">('"+l+"',"+c(p)+");"
+                print spacing+psetName+".add"+trackiness+"Parameter<"+t+'>("'+l+'",'+c(p)+");"
                 
 
 import optparse
@@ -231,9 +231,10 @@ if mod is None:
     raise RuntimeError("No module found in file '"+filename+"'")
 
 spacing = "  ";
-print mod.type_()+"::fillDescriptions(ConfigurationDescriptions& descriptions) {"
-print spacing+"ParameterSetDescription desc;"
+print "void"
+print mod.type_()+"::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {"
+print spacing+"edm::ParameterSetDescription desc;"
 #print mod.parameters_()
 printParameterSetDescription(spacing,"desc",mod,0)
-print spacing+"descriptions.add('"+modLabel+"');"
+print spacing+'descriptions.add("'+modLabel+'",desc);'
 print "}"
