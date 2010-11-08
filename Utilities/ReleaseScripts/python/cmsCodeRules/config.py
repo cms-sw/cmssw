@@ -63,7 +63,7 @@ Configuration[ruleName] = {}
 
 Configuration[ruleName]['description'] = 'Search for "catch(...)" statements in *.cc, *.cxx files'
 Configuration[ruleName]['filesToMatch'] = ['*.cc', '*.cxx']
-Configuration[ruleName]['exceptPaths'] = []
+Configuration[ruleName]['exceptPaths'] = ['FWCore/*', 'EventFilter/*', '*/*/test/*', '*/*/bin/*']
 Configuration[ruleName]['skip']  = [comment]
 Configuration[ruleName]['filter'] = 'catch\(\s*\.\.\.\s*\)' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
