@@ -13,10 +13,10 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False))
 
 # process.load("PhysicsTools.PFCandProducer.Sources.source_ZtoMus_DBS_cfi")
-runOnMC = False
+runOnMC = True
 
 if runOnMC == False:
-    # at CERN: 
+    # a jet data file at CERN: 
     process.source.fileNames = cms.untracked.vstring('rfio:////castor/cern.ch/cms/store/data/Run2010B/Jet/RECO/PromptReco-v2/000/149/294/A46DE078-05E5-DF11-88F9-0030487C7E18.root')
 
 
