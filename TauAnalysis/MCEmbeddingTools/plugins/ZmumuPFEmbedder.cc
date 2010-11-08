@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Dec  9 16:14:56 CET 2009
-// $Id: ZmumuPFEmbedder.cc,v 1.7 2010/09/06 11:21:40 fruboes Exp $
+// $Id: ZmumuPFEmbedder.cc,v 1.8 2010/10/15 11:42:36 zeise Exp $
 //
 //
 
@@ -130,8 +130,8 @@ ZmumuPFEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    {
       edm::Handle< std::vector< reco::Muon > > selectedZMuonsHandle;
       if (iEvent.getByLabel(_selectedMuons, selectedZMuonsHandle))
-			   for (size_t idx = 0; idx < selectedZMuonsHandle->at(0).numberOfDaughters(); ++idx)
-	          toBeAdded.push_back(selectedZMuonsHandle->at(idx).p4());
+        for (size_t idx = 0; idx < selectedZMuonsHandle->size(); ++idx)
+          toBeAdded.push_back(selectedZMuonsHandle->at(idx).p4());
    }
 
    if (toBeAdded.size() == 0)
