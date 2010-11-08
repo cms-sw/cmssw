@@ -112,13 +112,20 @@ void MuScleFitMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   // Create the corrector and set the parameters
   corrector_.reset(new MomentumScaleCorrector( dbObject_.product() ) );
 
-  if( patMuons_ == patMuons
-  edm::Handle<reco::MuonCollection> allMuons;
-  iEvent.getByLabel (theMuonLabel_, allMuons);
+  if( patMuons_ == true ) {
+    edm::Handle<pat::MuonCollection> allMuons;
+    iEvent.getByLabel (theMuonLabel_, allMuons);
+    iEvent.put(applyCorrection(allMuons));
+  }
+  else {
+    edm::Handle<reco::MuonCollection> allMuons;
+    iEvent.getByLabel (theMuonLabel_, allMuons);
+    iEvent.put(applyCorrection(allMuons));
+  }
 
   // put into the Event
   // iEvent.put(pOut);
-  iEvent.put(applyCorrection(allMuons));
+  // iEvent.put(applyCorrection(allMuons));
   
 /*  std::auto_ptr<reco::MuonCollection> pOut(new reco::MuonCollection);
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MUSCLEFITMUONPRODUCER")
@@ -31,7 +32,8 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
 
 process.MuScleFitMuonProducer = cms.EDProducer(
     'MuScleFitMuonProducer',
-    MuonLabel = cms.InputTag("muons")
+    MuonLabel = cms.InputTag("muons"),
+    PatMuons = cms.bool(False)
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
