@@ -100,3 +100,35 @@ SKIMStreamSuperCluster = cms.FilteredStream(
     dataTier = cms.untracked.string('RECO')
     )
 
+from Configuration.Skimming.PDWG_LeptonSkim_cff import *
+SingleMuPath = cms.Path(filterSingleMu)
+DoubleMuPath = cms.Path(filterDoubleMu)
+MuElectronPath = cms.Path(filterMuonElectron)
+MuPFElectronPath = cms.Path(filterMuonPFElectron)
+DoubleElectronPath = cms.Path(filterDoubleElectron)
+DoublePFElectronPath = cms.Path(filterDoublePFElectron)
+SKIMStreamDiLeptonMu = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'DiLeptonMu',
+    paths = (DoubleMuPath,MuElectronPath,MuPFElectronPath),
+    content = skimRecoContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RECO')
+    )
+SKIMStreamSingleMu = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'SingleMu',
+    paths = (SingleMuPath),
+    content = skimRecoContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RECO')
+    )
+SKIMStreamDiLeptonEle = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'DiLeptonEle',
+    paths = (DoubleElectronPath,DoublePFElectronPath,MuElectronPath,MuPFElectronPath),
+    content = skimRecoContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RECO')
+    )
+
