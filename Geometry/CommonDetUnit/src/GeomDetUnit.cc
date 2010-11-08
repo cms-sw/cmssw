@@ -20,5 +20,7 @@ void GeomDetUnit::setSurfaceDeformation(const SurfaceDeformation * deformation)
 {
   throw cms::Exception("Geometry") 
     << "setting SurfaceDeformation not implemented for DetId "
-    << geographicalId().rawId();
+    << geographicalId().rawId() << " det="
+    << geographicalId().det() << " subdetId="
+    << geographicalId().subdetId();
 }
