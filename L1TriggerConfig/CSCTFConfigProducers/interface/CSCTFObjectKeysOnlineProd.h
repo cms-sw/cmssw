@@ -3,11 +3,12 @@
 
 class CSCTFObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
    public:
-      CSCTFObjectKeysOnlineProd(const edm::ParameterSet& iConfig)
-         : L1ObjectKeysOnlineProdBase( iConfig ) {}
+      CSCTFObjectKeysOnlineProd(const edm::ParameterSet& iConfig) ;
       ~CSCTFObjectKeysOnlineProd() {}
 
       virtual void fillObjectKeys( ReturnType pL1TriggerKey ) ;
    private:
+      bool m_enableConfiguration ;
+      bool m_enablePtLut ;
 };
 
