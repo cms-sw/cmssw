@@ -33,13 +33,14 @@ public:
   /// NOTE (A.M.): The actual surface deformation object being a member of
   /// PixelGeomDetUnit is only temporary. Eventually it will move to a dedicated
   /// proxy topology class which will be a member of PixelGeomDetUnit.
-  const SurfaceDeformation * surfaceDeformation() const { 
+  virtual const SurfaceDeformation * surfaceDeformation() const { 
     return theSurfaceDeformation.operator->();
   }
 
 private:
 
-  /// set the SurfaceDeformation for this StripGeomDetUnit.
+  /// set the SurfaceDeformation for this StripGeomDetUnit. StripGeomDetUnit
+  /// takes over ownership of SurfaceDeformation.
   /// NOTE (A.M.): The actual surface deformation object being a member of
   /// StripGeomDetUnit is only temporary. Eventually it will move to a dedicated
   /// proxy topology class which will be a member of PixelGeomDetUnit.
