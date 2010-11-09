@@ -23,13 +23,13 @@ CSCBaseElectronicsSim::CSCBaseElectronicsSim(const edm::ParameterSet & p)
   theShapingTime(p.getParameter<int>("shapingTime")),
   thePeakTimeSigma(p.getParameter<double>("peakTimeSigma")),
   theBunchTimingOffsets(p.getParameter<std::vector<double> >("bunchTimingOffsets")),
-  theTimingCalibrationError(p.getParameter<std::vector<double> >("timingCalibrationError")),
   theSignalStartTime(p.getParameter<double>("signalStartTime")),
   theSignalStopTime(p.getParameter<double>("signalStopTime")),
   theSamplingTime(p.getParameter<double>("samplingTime")),
   theNumberOfSamples(static_cast<int>((theSignalStopTime-theSignalStartTime)/theSamplingTime)),
   theOffsetOfBxZero(p.getParameter<int>("timeBitForBxZero")),
   theSignalPropagationSpeed(p.getParameter<std::vector<double> >("signalSpeed")),
+  theTimingCalibrationError(p.getParameter<std::vector<double> >("timingCalibrationError")),
   doNoise_(p.getParameter<bool>("doNoise")),
   theRandGaussQ(0)
 {
