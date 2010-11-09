@@ -62,6 +62,34 @@ from FWCore.Modules.logErrorHarvester_cfi import *
 # "Export" Section
 reconstruction         = cms.Sequence(localreco        *globalreco       *highlevelreco*logErrorHarvester)
 
+#need a fully expanded sequence copy
+reconstruction_fromRECO = reconstruction.expandAndClone() # copy does not work well
+reconstruction_fromRECO.remove(siPixelClusters)
+reconstruction_fromRECO.remove(siStripZeroSuppression)
+reconstruction_fromRECO.remove(siStripClusters)
+reconstruction_fromRECO.remove(dt1DRecHits)
+reconstruction_fromRECO.remove(dt1DCosmicRecHits)
+reconstruction_fromRECO.remove(csc2DRecHits)
+reconstruction_fromRECO.remove(rpcRecHits)
+reconstruction_fromRECO.remove(ecalGlobalUncalibRecHit)
+reconstruction_fromRECO.remove(ecalDetIdToBeRecovered)
+reconstruction_fromRECO.remove(ecalRecHit)
+reconstruction_fromRECO.remove(ecalCompactTrigPrim)
+reconstruction_fromRECO.remove(ecalTPSkim)
+reconstruction_fromRECO.remove(ecalPreshowerRecHit)
+reconstruction_fromRECO.remove(selectDigi)
+reconstruction_fromRECO.remove(hbheprereco)
+reconstruction_fromRECO.remove(hbhereco)
+reconstruction_fromRECO.remove(hfreco)
+reconstruction_fromRECO.remove(horeco)
+reconstruction_fromRECO.remove(hcalnoise)
+reconstruction_fromRECO.remove(zdcreco)
+reconstruction_fromRECO.remove(castorreco)
+#reconstruction_fromRECO.remove()
+#reconstruction_fromRECO.remove()
+#reconstruction_fromRECO.remove()
+
+
 #sequences with additional stuff
 reconstruction_withPixellessTk  = cms.Sequence(localreco        *globalreco_plusPL*highlevelreco*logErrorHarvester)
 reconstruction_withRS  = cms.Sequence(localreco        *globalreco_plusRS*highlevelreco*logErrorHarvester)
