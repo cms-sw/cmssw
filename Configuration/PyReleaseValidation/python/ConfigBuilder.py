@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.251 $"
+__version__ = "$Revision: 1.252 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -592,6 +592,8 @@ class ConfigBuilder(object):
 	    if self._options.isMC==True:
 		    self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineHeavyIonsMC_cff"
 
+
+	self.RAW2RECODefaultSeq=','.join([self.RAW2DIGIDefaultSeq,self.RECODefaultSeq])
 		    
 
         # the magnetic field
@@ -896,6 +898,21 @@ class ConfigBuilder(object):
 	if (fastSim and 'HLT' in self.stepMap.keys()):
                 self.finalizeFastSimHLT()
 
+    def prepare_RAW2RECO(self, sequence = None):
+	    if ','in sequence:
+		    seqReco=sequence.split(',')[1]
+		    seqDigi=sequence.split(',')[0]
+	    else:
+		    print "RAW2RECO requires two specifications",sequence,"insufficient"
+		    
+	    self.loadDefaultOrSpecifiedCFF(seqDigi,self.RAW2DIGIDefaultCFF)
+	    self.process.raw2digi_step = cms.Path( getattr(self.process, seqDigi.split('.')[-1]) )
+	    self.schedule.append(self.process.raw2digi_step)
+
+	    self.loadDefaultOrSpecifiedCFF(seqReco,self.RECODefaultCFF)
+	    self.process.reconstruction_step = cms.Path( getattr(self.process, seqReco.split('.')[-1]) )
+	    self.schedule.append(self.process.reconstruction_step)
+	    return
 
     def prepare_RAW2DIGI(self, sequence = "RawToDigi"):
 	    self.loadDefaultOrSpecifiedCFF(sequence,self.RAW2DIGIDefaultCFF)
@@ -1219,7 +1236,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.251 $"),
+					    (version=cms.untracked.string("$Revision: 1.252 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
