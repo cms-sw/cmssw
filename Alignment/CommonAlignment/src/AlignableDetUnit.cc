@@ -22,14 +22,11 @@ AlignableDetUnit::AlignableDetUnit(const GeomDetUnit *geomDetUnit) : // rely on 
     this->setAlignmentPositionError(*(geomDetUnit->alignmentPositionError()), false);
   }
 
-  /* FIXME: Commented out to have a version for alignment framework tests
   if (geomDetUnit->surfaceDeformation()) { // take over surface modification
     // 2nd argument w/o effect:
     this->setSurfaceDeformation(geomDetUnit->surfaceDeformation(), false);
   }
-  */
-  this->setSurfaceDeformation(0, false);
-
+  
   theDeepComponents.push_back(this);
 
 }
