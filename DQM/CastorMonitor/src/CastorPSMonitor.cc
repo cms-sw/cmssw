@@ -268,7 +268,7 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
                   sumDigiADC +=   bunch_it->tsAdc[ts]; //std::cout<< " signal(ADC) in TS:"<<ts << " =" << bunch_it->tsAdc[ts] << std::endl; 
 
 		  ////---- check whether the channel is saturated
-		  if(bunch_it->tsAdc[ts]>127.0) {
+		  if(bunch_it->tsAdc[ts]>126.95) {
                     saturated = true;
 		    std::cout<< "WARNING: ==> Module:" << bunch_it->detid.module() << " Sector:" << bunch_it->detid.sector() << " SATURATED !!! in TS:"<< ts <<std::endl;   
                  }
@@ -334,7 +334,7 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
  //-- define the fraction of saturated events for a particular channel
  double fractionSaturated =  double(saturatedMap[module][sector])/double(ievt_) ;
  ////---- channel is saturated (in more than saturatedThreshold_ events) 
- std::cout<< "==> module: " << module << " sector: " << sector << " ==> N_saturation:" << saturatedMap[module][sector] << " events:"<< ievt_ << " fraction:" << fractionSaturated << std::endl;
+ if(fVerbosity>0) std::cout<< "==> module: " << module << " sector: " << sector << " ==> N_saturation:" << saturatedMap[module][sector] << " events:"<< ievt_ << " fraction:" << fractionSaturated << std::endl;
 
  if( fractionSaturated > saturatedThreshold_ ) 
    { status = -0.25; statusRS=0.88 ; statusSaturated=-1.0; }
