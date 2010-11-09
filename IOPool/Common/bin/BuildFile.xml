@@ -3,7 +3,10 @@
   <use   name="rootcore"/>
   <use   name="rootcintex"/>
   <use   name="DataFormats/Provenance"/>
+  <use   name="FWCore/Catalog"/>
   <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="FWCore/Services"/>
   <use   name="FWCore/Utilities"/>
   <use   name="DataFormats/StdDictionaries"/>
   <use   name="uuid"/>
