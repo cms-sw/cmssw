@@ -57,7 +57,6 @@ def switchToCaloTau(process,
 #        againstElectron     = cms.InputTag("caloRecoTauDiscriminationAgainstElectron" + postfix),
 #        againstMuon         = cms.InputTag("caloRecoTauDiscriminationAgainstMuon" + postfix)
 #    )
-    applyPostfix(process, "patTaus" + patTauLabel, postfix).addDecayMode = False
     ## Isolation is somewhat an issue, so we start just by turning it off
     print "NO PF Isolation will be computed for CaloTau (this could be improved later)"
     applyPostfix(process, "patTaus" + patTauLabel, postfix).isolation   = cms.PSet()
@@ -100,7 +99,6 @@ def _switchToPFTau(process,
     
     applyPostfix(process, "patTaus" + patTauLabel, postfix).tauSource = pfTauLabelNew
     applyPostfix(process, "patTaus" + patTauLabel, postfix).tauIDSources = _buildIDSourcePSet(pfTauType, idSources, postfix)
-    applyPostfix(process, "patTaus" + patTauLabel, postfix).decayModeSrc = cms.InputTag(pfTauType + "DecayModeProducer")
 
     applyPostfix(process, "cleanPatTaus" + patTauLabel, postfix).preselection = \
       'tauID("leadingTrackFinding") > 0.5 & tauID("leadingPionPtCut") > 0.5 & tauID("byIsolationUsingLeadingPion") > 0.5' \
@@ -150,9 +148,6 @@ def switchToPFTauFixedCone(process,
 
     _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'fixedConePFTau', fixedConeIDSources,
                    patTauLabel = patTauLabel, postfix = postfix)
-    
-    # PFTauDecayMode objects produced only for shrinking cone reco::PFTaus
-    applyPostfix(process, "patTaus" + patTauLabel, postfix).addDecayMode = cms.bool(False)
 
 # switch to hadron-plus-strip(s) (HPS) PFTau collection
 def switchToPFTauHPS(process, 
@@ -162,9 +157,6 @@ def switchToPFTauHPS(process,
                      postfix = ""):
     _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'hpsPFTau', hpsTauIDSources,
                    patTauLabel = patTauLabel, postfix = postfix)
-    
-    # PFTauDecayMode objects produced only for shrinking cone reco::PFTaus
-    applyPostfix(process, "patTaus" + patTauLabel, postfix).addDecayMode = cms.bool(False)
     
     ## adapt cleanPatTaus
     getattr(process, "cleanPatTaus" + patTauLabel).preselection = \
