@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.24 2010/10/01 09:45:20 amraktad Exp $
+// $Id: FWEveView.h,v 1.25 2010/11/04 22:38:54 amraktad Exp $
 //
 
 
@@ -90,6 +90,7 @@ public:
 protected:
    virtual void resetCamera();
    virtual void pointLineScalesChanged();
+   virtual void cameraGuideChanged();
 
    // scales
    virtual TEveCaloViz* getEveCalo() const { return 0; }

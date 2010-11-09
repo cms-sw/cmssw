@@ -7,6 +7,7 @@
 #include "TGLViewerBase.h"
 #include "TGLViewer.h"
 #include "TImage.h"
+#include "TEveManager.h"
 
 #include "Fireworks/Core/interface/CmsAnnotation.h"
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
@@ -14,7 +15,6 @@
 
 CmsAnnotation::CmsAnnotation(TGLViewerBase *parent, Float_t posx, Float_t posy) :
    TGLOverlayElement(TGLOverlayElement::kUser),
-   fVisible(true),
    fPosX(posx), fPosY(posy),
    fMouseX(0),  fMouseY(0),
    fDrag(kNone),
@@ -43,8 +43,7 @@ CmsAnnotation::~CmsAnnotation()
 void
 CmsAnnotation::Render(TGLRnrCtx& rnrCtx)
 { 
-   if (fVisible == 0 ||
-       rnrCtx.GetCamera()->RefViewport().Width() == 0 || 
+   if (rnrCtx.GetCamera()->RefViewport().Width() == 0 || 
        rnrCtx.GetCamera()->RefViewport().Height() == 0 ) return;
    
    static UInt_t ttid_black = 0;
@@ -307,10 +306,17 @@ void CmsAnnotation::MouseLeave()
 
 
 //______________________________________________________________________
+bool CmsAnnotation::getVisible() const
+{
+   return GetState() == TGLOverlayElement::kActive;
+}
+
+//______________________________________________________________________
 void CmsAnnotation::setVisible(Bool_t x)
 {
-   fVisible = x;
-   fParent->RequestDraw();
+   SetState(x ? (TGLOverlayElement::kActive) : (TGLOverlayElement::kInvisible));
+   fParent->Changed();
+   gEve->Redraw3D();
 }
 
 //______________________________________________________________________________

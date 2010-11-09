@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.35 2010/10/20 20:09:23 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.36 2010/10/27 16:27:22 amraktad Exp $
 //
 
 // system include files
@@ -307,8 +307,6 @@ FWColorManager::setColorSetViewer(TGLViewer* v, Color_t iColor)
        (iColor == kWhiteIndex && v->IsColorSetDark()) )
    { 
       v->SwitchColorSet();
-      v->RequestDraw(TGLRnrCtx::kLODHigh);
-
       return kTRUE;
    }
    return kFALSE;

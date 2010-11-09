@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.19 2010/10/26 16:09:10 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.20 2010/11/04 22:38:55 amraktad Exp $
 //
 
 // system include files
@@ -21,6 +21,7 @@
 #include "TGLLightSet.h"
 #include "TGLPerspectiveCamera.h"
 #include "TGLOrthoCamera.h"
+#include "TEveManager.h"
 #include "TEveElement.h"
 #include "TEveScene.h"
 #include "TEveCalo.h"
@@ -185,7 +186,8 @@ void
 FWLegoViewBase::showOverlay()
 {
    if (m_overlay) m_overlay->SetShowScales(m_showOverlay.value());
-   viewerGL()->RequestDraw();
+   viewerGL()->Changed();
+   gEve->Redraw3D();
 }
 
 //_______________________________________________________________________________
@@ -303,7 +305,8 @@ FWLegoViewBase::setProjectionMode()
 {
    m_lego->SetProjection((TEveCaloLego::EProjection_e)m_projectionMode.value());
    m_lego->ElementChanged();
-   viewerGL()->RequestDraw();
+   viewerGL()->Changed();
+   gEve->Redraw3D();
 }
 
 void
@@ -311,7 +314,8 @@ FWLegoViewBase::setCell2DMode()
 {
    m_lego->Set2DMode((TEveCaloLego::E2DMode_e)m_cell2DMode.value());
    m_lego->ElementChanged();
-   viewerGL()->RequestDraw();
+   viewerGL()->Changed();
+   gEve->Redraw3D();
 }
 
 void 

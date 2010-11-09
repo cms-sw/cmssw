@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.40 2010/11/04 22:38:54 amraktad Exp $
+// $Id: FWEveView.cc,v 1.41 2010/11/05 14:35:49 amraktad Exp $
 //
 
 
@@ -156,7 +156,7 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
    m_cameraGuide = new TGLCameraGuide(0.9, 0.1, 0.08);
    m_cameraGuide->SetState(TGLOverlayElement::kInvisible);
    embeddedViewer->AddOverlayElement(m_cameraGuide);
-   m_showCameraGuide.changed_.connect(boost::bind(&TGLCameraGuide::SetBinaryState,m_cameraGuide, _1));
+   m_showCameraGuide.changed_.connect(boost::bind(&FWEveView::cameraGuideChanged,this));
 
    m_pointSmooth.changed_.connect(boost::bind(&FWEveView::pointLineScalesChanged,this));
    m_pointSize.changed_.connect(boost::bind(&FWEveView::pointLineScalesChanged,this));
@@ -214,7 +214,16 @@ FWEveView::pointLineScalesChanged()
    viewerGL()->SetLineScale   (m_lineWidth.value());
    viewerGL()->SetOLLineW     (m_lineOutlineScale.value());
    viewerGL()->SetWFLineW     (m_lineWireframeScale.value());
-   viewerGL()->RequestDraw();
+   viewerGL()->Changed();
+   gEve->Redraw3D();
+}
+
+void
+FWEveView::cameraGuideChanged()
+{
+   m_cameraGuide->SetBinaryState(m_showCameraGuide.value());
+   viewerGL()->Changed();
+   gEve->Redraw3D();
 }
 
 void

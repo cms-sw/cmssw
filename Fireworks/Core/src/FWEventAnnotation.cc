@@ -1,4 +1,5 @@
 #include "TGLViewer.h"
+#include "TEveManager.h"
 
 #include "Fireworks/Core/interface/FWEventAnnotation.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
@@ -25,7 +26,12 @@ FWEventAnnotation::~FWEventAnnotation()
 void
 FWEventAnnotation::setLevel(long x)
 { 
-   m_level = x;
+   if (x != m_level)
+   {
+      m_level = x;
+      fParent->Changed();
+      gEve->Redraw3D();
+   }
    updateOverlayText();
 }
 
@@ -64,7 +70,12 @@ FWEventAnnotation::updateOverlayText()
 	 fText += event->bunchCrossing();
       }
    }
-   fParent->RequestDraw();
+
+   if (m_level)
+   {
+      fParent->Changed();
+      gEve->Redraw3D();
+   }
 }
 
 void

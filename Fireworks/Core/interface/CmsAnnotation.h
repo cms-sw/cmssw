@@ -30,7 +30,7 @@ public:
    Float_t getSize() const { return fSize; }
    void    setSize(Float_t x) { fSize = x; }
    
-   bool    getVisible() const { return fVisible; }
+   bool    getVisible() const;
    void    setVisible(bool x);
    
    bool    getAllowDestroy() const { return fAllowDestroy; }
@@ -39,8 +39,6 @@ public:
 private:
    CmsAnnotation(const CmsAnnotation&); // stop default
    const CmsAnnotation& operator=(const CmsAnnotation&); // stop default
-   
-   bool              fVisible;
    
    Float_t           fPosX;           // x position [0, 1]
    Float_t           fPosY;           // y position [0, 1]

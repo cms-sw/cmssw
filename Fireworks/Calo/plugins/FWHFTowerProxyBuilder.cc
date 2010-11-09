@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:27 CEST 2010
-// $Id: FWHFTowerProxyBuilder.cc,v 1.18 2010/09/07 15:46:45 yana Exp $
+// $Id: FWHFTowerProxyBuilder.cc,v 1.19 2010/09/20 15:58:17 yana Exp $
 //
 
 // system include files
@@ -233,6 +233,6 @@ FWHFTowerProxyBuilderBase::fillTowerForDetId( unsigned int rawid, float val )
    return tower; 
 }
 
-REGISTER_FWPROXYBUILDER(FWHFTowerProxyBuilderBase, HFRecHitCollection, "HFLego", FWViewType::kLegoHFBit);
+REGISTER_FWPROXYBUILDER(FWHFTowerProxyBuilderBase, HFRecHitCollection, "HFLego", FWViewType::kLegoHFBit |FWViewType::kAllRPZBits | FWViewType::k3DBit );
 
 

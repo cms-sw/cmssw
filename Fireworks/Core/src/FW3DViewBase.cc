@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.18 2010/10/06 15:43:08 matevz Exp $
+// $Id: FW3DViewBase.cc,v 1.19 2010/11/03 18:36:29 matevz Exp $
 //
 #include <boost/bind.hpp>
 
@@ -18,6 +18,7 @@
 #include "TGLScenePad.h"
 #include "TGLViewer.h"
 #include "TGLPerspectiveCamera.h"
+#include "TEveManager.h"
 #include "TEveElement.h"
 #include "TEveScene.h"
 
@@ -79,7 +80,8 @@ void
 FW3DViewBase::showWireFrame( bool x)
 {
    geoScene()->GetGLScene()->SetStyle(x ? TGLRnrCtx::kWireFrame : TGLRnrCtx::kFill);  
-   viewerGL()->RequestDraw();
+   viewerGL()->Changed();
+   gEve->Redraw3D();
 }
 
 //______________________________________________________________________________
