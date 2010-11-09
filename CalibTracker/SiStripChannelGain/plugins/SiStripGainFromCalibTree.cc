@@ -363,7 +363,7 @@ bool SiStripGainFromCalibTree::IsGoodLandauFit(double* FitResults){
 void SiStripGainFromCalibTree::algoAnalyzeTheTree()
 {
    for(unsigned int i=0;i<VInputFiles.size();i++){
-      printf("Openning file %3i/%3i --> %s\n",i+1,VInputFiles.size(),VInputFiles[i].c_str()); fflush(stdout);
+      printf("Openning file %3i/%3i --> %s\n",i+1, (int)VInputFiles.size(), (char*)(VInputFiles[i].c_str())); fflush(stdout);
       TChain* tree = new TChain("gainCalibrationTree/tree");
       tree->Add(VInputFiles[i].c_str());
 
