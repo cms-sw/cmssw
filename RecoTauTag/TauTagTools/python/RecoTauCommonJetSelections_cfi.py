@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import copy
 
 '''
 
@@ -93,8 +94,23 @@ tau_histograms = cms.VPSet(
 )
 
 tau_histograms.extend(kin_plots)
+# Make plots of underlying jet pt and matched pt as well.
+for kinematic_var in kin_plots:
+    jetPtVersion = copy.deepcopy(kinematic_var)
+    jetPtVersion.name = kinematic_var.name.value() + "OfJet"
+    jetPtVersion.description = kinematic_var.description.value() + "Of Jet"
+    #jetPtVersion.plotquantity = "jetRef()." + kinematic_var.plotquantity.value()
+    jetPtVersion.plotquantity = "pfTauTagInfoRef().pfjetRef()." + kinematic_var.plotquantity.value()
+    tau_histograms.append(jetPtVersion)
 
+    matchedVersion = copy.deepcopy(kinematic_var)
+    matchedVersion.name = kinematic_var.name.value() + "OfMatched"
+    matchedVersion.description = kinematic_var.description.value() + "Of Matched"
+    matchedVersion.plotquantity = "alternatLorentzVect()." +\
+            kinematic_var.plotquantity.value()
+    tau_histograms.append(matchedVersion)
 
+# Add some resolution plots
 tau_histograms.append(
     cms.PSet(
         min = cms.untracked.double(-20.5),
