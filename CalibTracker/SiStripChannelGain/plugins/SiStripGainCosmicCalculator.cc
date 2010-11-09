@@ -3,7 +3,7 @@
 // Class:      SiStripGainCosmicCalculator
 // Original Author:  G. Bruno, D. Kcira
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripGainCosmicCalculator.cc,v 1.10 2010/04/12 23:23:46 elmer Exp $
+// $Id: SiStripGainCosmicCalculator.cc,v 1.11 2010/10/03 08:31:48 elmer Exp $
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainCosmicCalculator.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -184,9 +184,9 @@ void SiStripGainCosmicCalculator::algoAnalyze(const edm::Event & iEvent, const e
         ((TH1F*) HlistOtherHistos->FindObject("LocalPosition_cm"))->Fill(local_position.x());
         ((TH1F*) HlistOtherHistos->FindObject("LocalPosition_normalized"))->Fill(local_position.x()/module_width);
         double module_thickness = moduleThickness(thedetid, &iSetup);
-//        int ifirststrip= cluster->firstStrip();
-//        int theapvpairid = int(float(ifirststrip)/256.);
-        TH1F* histopointer = (TH1F*) HlistAPVPairs->FindObject(Form("ChargeAPVPair_%i_%i,thedetid,theapvpairid"));
+        int ifirststrip= cluster->firstStrip();
+        int theapvpairid = int(float(ifirststrip)/256.);
+        TH1F* histopointer = (TH1F*) HlistAPVPairs->FindObject(Form("ChargeAPVPair_%i_%i",thedetid,theapvpairid));
         if( histopointer ){
           short cCharge = 0;
           for(unsigned int iampl = 0; iampl<ampls.size(); iampl++){

@@ -241,7 +241,7 @@ SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
    iSetup.get<SiStripGainRcd>().get(gainHandle);
    if(!gainHandle.isValid()){printf("\n#####################\n\nERROR --> gainHandle is not valid\n\n#####################\n\n");exit(0);}
  
-   size_t numberOfTag = gainHandle->getNumberOfTags();
+//   size_t numberOfTag = gainHandle->getNumberOfTags();
    for(unsigned int i=0;i<gainHandle->getNumberOfTags();i++){
       printf("Reccord %i --> Rcd Name = %s    Label Name = %s\n",i,gainHandle->getRcdName(i).c_str(), gainHandle->getLabelName(i).c_str());
    }
