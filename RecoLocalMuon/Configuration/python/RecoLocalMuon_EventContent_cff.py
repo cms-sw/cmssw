@@ -26,6 +26,8 @@ RecoLocalMuonFEVT = cms.PSet(
 RecoLocalMuonRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_dt1DRecHits_*_*', 
         'keep *_dt4DSegments_*_*', 
+        'keep *_dt1DCosmicRecHits_*_*',
+        'keep *_dt4DCosmicSegments_*_*',
         'keep *_csc2DRecHits_*_*', 
         'keep *_cscSegments_*_*', 
         'keep *_rpcRecHits_*_*')
