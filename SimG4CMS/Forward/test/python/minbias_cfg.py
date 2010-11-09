@@ -140,7 +140,7 @@ process.g4SimHits.HFShower.EminLibrary      = 0.0
 
 process.g4SimHits.CastorSD.useShowerLibrary = True
 process.g4SimHits.CastorSD.minEnergyInGeVforUsingSLibrary = 1.0   # default = 1.0
-process.g4SimHits.CastorShowerLibrary.FileName = 'SimG4CMS/Forward/test/castorShowerLibrary.root'
+process.g4SimHits.CastorShowerLibrary.FileName = 'SimG4CMS/Forward/data/castorShowerLibrary.root'
 process.g4SimHits.CastorShowerLibrary.BranchEvt = 'hadShowerLibInfo.'
 process.g4SimHits.CastorShowerLibrary.BranchEM  = 'emParticles.'
 process.g4SimHits.CastorShowerLibrary.BranchHAD = 'hadParticles.'
