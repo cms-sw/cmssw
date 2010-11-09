@@ -2,7 +2,7 @@
 import sys
 import os
 
-import dbs_discovery
+import electronDbsDiscovery
 
 import FWCore.ParameterSet.Config as cms
 
@@ -26,7 +26,7 @@ process.source = cms.Source ("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
 )
 
-process.source.fileNames.extend(dbs_discovery.search())
+process.source.fileNames.extend(electronDbsDiscovery.search())
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 process.out = cms.OutputModule("PoolOutputModule",

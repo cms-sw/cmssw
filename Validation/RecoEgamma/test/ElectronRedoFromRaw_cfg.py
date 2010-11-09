@@ -1,10 +1,10 @@
 from ElectronRedoFromRaw_driver_cfg import *
 
 import os
-import dbs_discovery
+import electronDbsDiscovery
 
 process.source.fileNames = cms.untracked.vstring()
-process.source.fileNames.extend(dbs_discovery.search())
+process.source.fileNames.extend(electronDbsDiscovery.search())
 process.source.secondaryFileNames = cms.untracked.vstring()
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
@@ -28,7 +28,7 @@ process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']+'::All'
 
 #import sys
 #import os
-#import dbs_discovery
+#import electronDbsDiscovery
 #import FWCore.ParameterSet.Config as cms
 #
 #from TrackingTools.Configuration.TrackingTools_cff import *
@@ -52,7 +52,7 @@ process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']+'::All'
 #    secondaryFileNames = cms.untracked.vstring(),
 #)
 #
-#process.source.fileNames.extend(dbs_discovery.search())
+#process.source.fileNames.extend(electronDbsDiscovery.search())
 #process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 #
 #process.out = cms.OutputModule("PoolOutputModule",
