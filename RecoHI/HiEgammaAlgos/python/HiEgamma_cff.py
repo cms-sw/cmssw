@@ -6,9 +6,8 @@ from RecoEcal.EgammaClusterProducers.hybridClusteringSequence_cff import *
 from RecoEcal.EgammaClusterProducers.multi5x5ClusteringSequence_cff import *
 from RecoEcal.EgammaClusterProducers.multi5x5PreshowerClusteringSequence_cff import *
 from RecoEcal.EgammaClusterProducers.preshowerClusteringSequence_cff import *
-from RecoEcal.EgammaClusterProducers.dynamicHybridClusteringSequence_cff import *
 
-hiEcalClusteringSequence = cms.Sequence(islandClusteringSequence*hybridClusteringSequence*dynamicHybridClusteringSequence*multi5x5ClusteringSequence*multi5x5PreshowerClusteringSequence*preshowerClusteringSequence)
+hiEcalClusteringSequence = cms.Sequence(islandClusteringSequence*hybridClusteringSequence*multi5x5ClusteringSequence*multi5x5PreshowerClusteringSequence*preshowerClusteringSequence)
 
 # high purity tracks
 highPurityTracks = cms.EDFilter("TrackSelector",
