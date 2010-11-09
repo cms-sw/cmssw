@@ -32,6 +32,7 @@ my $useStepper = 0;
 my $PBfile;
 my $EPcfg = "";
 my $SMcfg = "";
+my $PBcfg = "";
 
 # hostname, default
 my $hostname = $ENV{"HOST"};
@@ -157,8 +158,14 @@ if ($doSM) {
 }
 
 if ($doPB) {
-    open(CFG,">./cfg/playback.cfg") or die ("Can't open file: $!\n");
-    print CFG makeCfgPlayback($PBfile);
+    $PBcfg = $doPyCfg ? "$pwd/cfg/pb.py" : "$pwd/cfg/pb.cfg";
+    open(CFG,">$PBcfg") or die ("Can't open file: $!\n");
+    if ($doPyCfg){
+	print CFG makeCfgPlaybackPython($PBfile);}
+    else{
+	print CFG makeCfgPlayback($PBfile);}
+
+
     close(CFG);
 }
 
@@ -210,22 +217,16 @@ if ($doTrigger) {
  }
 
 my @BUproperties = ("runNumber","unsignedInt",$runNumber,
-			 "replay","boolean","false",
-			 "queueSize","unsignedInt","32",
-			 "crc","boolean","true",
-			 "overwriteEvtId","boolean","false",
-			 "eventBufferSize","unsignedInt","0x400000");
-
-
-my @Triggerproperties = ("triggerSourceId","unsignedInt","812",
-		    "fedPayloadSize","unsignedInt","32");
-
-my @EVMproperties = ("taClass","string","evf::AutoTrigger",
-		     "taInstance","unsignedInt","0",
-		     "nbEvtIdsInBuilder","unsignedInt","1024");
+		    "replay","boolean","false",
+		    "queueSize","unsignedInt","256",
+		    "fedSizeMean","unsignedInt","16",
+		    "crc","boolean","true",
+		    "useFixedFedSize","boolean","true",
+		    "overwriteEvtId","boolean","false",
+		    "eventBufferSize","unsignedInt","0x400000");
 
     
-my @PBproperties = ("parameterSet","string","file:$pwd/cfg/playback.cfg",
+my @PBproperties = ("parameterSet","string","file:$PBcfg",
 		    "hasSharedMemory","boolean","false",
 		    "hasPrescaleService","boolean","false");
 
@@ -234,17 +235,19 @@ my @RBproperties = ("runNumber",   "unsignedInt",$runNumber,
 		    "doCrcCheck",  "unsignedInt","1",
 		    "processKillerEnabled","boolean","false",
 		    "monSleepSec", "unsignedInt","5",
-		    "nbRawCells",  "unsignedInt","16",
-		    "nbRecoCells", "unsignedInt","8",
-		    "nbDqmCells",  "unsignedInt","8",
+		    "nbRawCells",  "unsignedInt","32",
+		    "nbRecoCells", "unsignedInt","32",
+		    "nbDqmCells",  "unsignedInt","24",
 		    "rawCellSize", "unsignedInt","0x200000",
 		    "recoCellSize","unsignedInt","0x400000",
                     "dqmCellSize", "unsignedInt","0x100000");
 
 if (!$doEP) { push (@RPproperties,"doDropEvents","boolean","true"); }
 
-my @EPproperties = ("parameterSet",  "string",      "file:$EPcfg",
-		    "runNumber",     "unsignedInt", $runNumber);
+
+my @EPproperties = ("parameterSet",    "string",      "file:$EPcfg",
+		    "runNumber",       "unsignedInt", $runNumber,
+		    "nbSubProcesses",  "unsignedInt", $forkProcesses);
                       
 
 if (!$doSM) { push (@EPproperties,"outputEnabled","boolean","false"); }
@@ -603,7 +606,7 @@ sub makeCfgFu
     $result = $result . "  source = DaqSource\n";
     $result = $result . "  {\n";
     $result = $result . "    untracked string          readerPluginName    = \"FUShmReader\"\n";
-    $result = $result . "    untracked uint32          evtsPerLS           = 100\n";
+    $result = $result . "    untracked uint32          evtsPerLS           = 1000\n";
     $result = $result . "  }\n\n";
     $result = $result . "  // paths\n";
     $result = $result . "  path p0 = { errorInjector }\n";
@@ -720,7 +723,7 @@ sub makeCfgFuPython
 
     $result = $result . "process.source = cms.Source(\"DaqSource\",\n";
     $result = $result . "    readerPluginName    = cms.untracked.string(\'FUShmReader\'),\n";
-    $result = $result . "    evtsPerLS           = cms.untracked.uint32(100)\n";
+    $result = $result . "    evtsPerLS           = cms.untracked.uint32(1000)\n";
     $result = $result . "    )\n\n";
     
     $result = $result . "process.DQMStore = cms.Service (\"DQMStore\") \n\n";
@@ -774,8 +777,10 @@ sub makeCfgFuPython
     $result = $result . "    product_to_get = cms.string(\'m3\')\n";
     $result = $result . "    )\n\n";
 
-    $result = $result . "process.errorInjector = cms.EDAnalyzer(\"ExceptionGenerator\")\n\n";
-
+    $result = $result . "process.errorInjector = cms.EDAnalyzer(\"ExceptionGenerator\",\n";
+    $result = $result . "    defaultAction       = cms.untracked.int32(9),\n";
+    $result = $result . "    defaultQualifier    = cms.untracked.int32(1000)\n";
+    $result = $result . "    )\n\n";
     if ($doDQM) {
 	$result = $result . "process.dqm = cms.EDAnalyzer(\"SMDQMSourceExample\")\n\n";
     }
@@ -840,7 +845,8 @@ sub makeCfgSmPython
     $result = $result . "process.out = cms.OutputModule( \"EventStreamFileWriter\",\n";
     $result = $result . "    streamLabel = cms.string(\"A\"),\n";
     $result = $result . "    maxSize = cms.int32(2048),\n";
-    $result = $result . "    SelectEvents = cms.untracked.PSet(SelectEvents=cms.vstring(\"*\"))\n";
+    $result = $result . "    SelectEvents = cms.untracked.PSet(SelectEvents=cms.vstring(\"*\")),\n";
+    $result = $result . "    SelectHLTOutput = cms.untracked.string(\"out\")\n";
     $result = $result . ")\n\n";
 
     $result = $result . "process.e1 = cms.EndPath( process.out )\n";
@@ -898,6 +904,75 @@ sub makeCfgPlayback
     
     return $result;
 }
+
+
+################################################################################
+sub makeCfgPlaybackPython
+{
+    my ($file) = (@_);
+
+    my @input_files;
+
+    if ($file =~ m/\.root$/) {
+	push (@input_files, $file);
+    }
+    else {
+	open (FILELIST,$file);
+	while (<FILELIST>) {
+	    my $next_file = $_;
+	    chomp($next_file);
+	    if ($next_file =~ m/\.root$/) { push (@input_files, $next_file); }
+	    else { print("ERROR: $next_file does not appear to be a ROOT file.\n"); }
+	}
+    }
+    
+    my $result = "";
+    $result = $result . "import FWCore.ParameterSet.Config as cms\n";
+    $result = $result . "process = cms.Process(\"PB\") \n";
+
+    $result = $result . "process.source = cms.Source(\"PoolSource\",\n";
+    $result = $result . "   fileNames = cms.untracked.vstring (";
+    foreach (@input_files) { $result = $result . "\n      'file:" . $_ . "',"; }
+    $result =~ s/,$/\n     )\n/;
+    $result = $result . "  )\n\n";
+
+    $result = $result . "process.MessageLogger = cms.Service (\"MessageLogger\",\n";
+    $result = $result . "    destinations = cms.untracked.vstring(\'cout\', \'log4cplus\', \'cerr\'),\n";
+    $result = $result . "    cout = cms.untracked.PSet (\n" .
+			"    optionalPSet = cms.untracked.bool(True),\n" .
+	                "    threshold = cms.untracked.string(\'WARNING\'),\n" .
+			"    FwkReport = cms.untracked.PSet(\n" .
+			"        optionalPSet = cms.untracked.bool(False),\n" .
+			"        reportEvery = cms.untracked.int32(10000000),\n" .
+			"        limit = cms.untracked.int32(1)\n" .
+			"        ),\n" .
+			"    ),\n";
+    $result = $result . "    cerr = cms.untracked.PSet (\n" .
+			"    optionalPSet = cms.untracked.bool(True),\n" .
+	                "    threshold = cms.untracked.string(\'WARNING\'),\n" .
+			"    FwkReport = cms.untracked.PSet(\n" .
+			"        optionalPSet = cms.untracked.bool(False),\n" .
+			"        reportEvery = cms.untracked.int32(10000000),\n" .
+			"        limit = cms.untracked.int32(1)\n" .
+			"        ),\n" .
+			"    ),\n";
+    $result = $result . "    log4cplus = cms.untracked.PSet(\n" .
+	                "    threshold = cms.untracked.string(\'WARNING\')\n" .
+                        "    ),\n" .
+			"   categories = cms.untracked.vstring('FwkReport')\n";
+    $result = $result . "   )\n\n";
+
+
+    $result = $result . "process.playback = cms.EDAnalyzer(\"PlaybackRawDataProvider\",\n";
+    $result = $result . "   queueSize = cms.untracked.uint32(32)\n";
+    $result = $result . ")\n\n";
+
+    $result = $result . "#path(s)\n";
+    $result = $result . "process.p = cms.Path( process.playback )\n\n\n";
+
+    return $result;
+}
+
 
 
 ################################################################################
