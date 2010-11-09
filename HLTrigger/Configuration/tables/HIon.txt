@@ -1,13 +1,18 @@
 HLT_HIZeroBias
+HLT_HIZeroBiasXOR
 HLT_HIZeroBiasPixel_SingleTrack
 HLT_HIMinBiasBSC
 HLT_HIMinBiasBSC_Core
+HLT_HIMinBiasBSC_OR
+HLT_HIMinBiasBSC_OR_Core
 HLT_HIMinBiasHF
+HLT_HIMinBiasHF_Core
 HLT_HIMinBiasPixel_SingleTrack
 HLT_HIMinBiasZDC_Calo
 HLT_HIBptxXOR
 HLT_HIL1Algo_BptxAND
 HLT_HIL1Algo_BptxAND_NotBSC2
+HLT_HIL1Algo_HFAny
 HLT_HIL1Algo_NotBSC2
 HLT_HIL1Algo_Unprotected
 HLT_HIL1Algo_ZDC
@@ -26,7 +31,6 @@ HLT_HIL1ETT60_Core
 HLT_HIL1Tech_BSC_minBias
 HLT_HIL1Tech_BSC_minBias_OR
 HLT_HIL1Tech_BSC_HighMultiplicity
-HLT_HIL1Tech_HCAL_HF
 HLT_HIUpcEcal
 HLT_HIUpcEcal_Core
 HLT_HIUpcMu
