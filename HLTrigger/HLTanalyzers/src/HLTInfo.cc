@@ -61,7 +61,7 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   for ( std::vector<std::string>::iterator iParam = parameterNames.begin();
         iParam != parameterNames.end(); iParam++ ){
     if ( (*iParam) == "Debug" ) _Debug =  myHltParams.getParameter<bool>( *iParam );
-    if ( (*iParam) == "DoHeavyIon" ) _OR_BXes=  myHltParams.getParameter<bool>(*iParam);    
+    if ( (*iParam) == "DoHeavyIon" ) _OR_BXes=  myHltParams.getUntrackedParameter<bool>(*iParam,false);    
   }
 
   HltEvtCnt = 0;
