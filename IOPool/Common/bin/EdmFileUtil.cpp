@@ -127,7 +127,7 @@ int main(int argc, char* argv[]) {
       edm::RootAutoLibraryLoader::enable();
     }
 
-    edm::InputFileCatalog catalog(in, catalogIn);
+    edm::InputFileCatalog catalog(in, catalogIn, true);
     std::vector<std::string> const& filesIn = catalog.fileNames();
 
     if (json) {
