@@ -115,6 +115,7 @@ void HLTHeavyIon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("hiEEplus",&hiEEplus,"hiEEplus/F");
   HltTree->Branch("hiEEminus",&hiEEminus,"hiEEminus/F");
   HltTree->Branch("hiNpix",&hiNpix,"hiNpix/I");
+  HltTree->Branch("hiNpixelTracks",&hiNpixelTracks,"hiNpixelTracks/I");
   HltTree->Branch("hiNtracks",&hiNtracks,"hiNtracks/I");
   HltTree->Branch("hiNevtPlane",&nEvtPlanes,"hiNevtPlane/I");
   HltTree->Branch("hiEvtPlanes",hiEvtPlane,"hiEvtPlanes/F");
@@ -155,6 +156,7 @@ void HLTHeavyIon::analyze(const edm::Handle<edm::TriggerResults>                
    hiBin = *binHandle;
 
   hiNpix = centrality->multiplicityPixel();
+  hiNpixelTracks = centrality->NpixelTracks();
   hiNtracks = centrality->Ntracks();
   hiNtracksPtCut = centrality->NtracksPtCut();
   hiNtracksEtaCut = centrality->NtracksEtaCut();
