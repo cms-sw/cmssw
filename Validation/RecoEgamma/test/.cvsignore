@@ -1,7 +1,7 @@
 *.olog
 *.oref
 *.root
-dbs_discovery.txt
+electronDbsDiscovery.txt
 Step1*Raw_cfg.py
 Step2*Reco_cfg.py
 Step3*Histos_cfg.py
