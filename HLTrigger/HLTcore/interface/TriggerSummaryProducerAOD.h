@@ -6,8 +6,8 @@
  *  
  *  This class is an EDProducer making the HLT summary object for AOD
  *
- *  $Date: 2010/10/31 09:37:14 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/11/08 15:47:45 $
+ *  $Revision: 1.15 $
  *
  *  \author Martin Grunewald
  *
@@ -84,7 +84,7 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   struct OrderInputTag {
     bool ignoreProcess_;
     OrderInputTag(bool ignoreProcess): ignoreProcess_(ignoreProcess) { };
-    bool operator()(const edm::InputTag& l, const edm::InputTag& r) const {
+    inline bool operator()(const edm::InputTag& l, const edm::InputTag& r) const {
       int c = l.label().compare(r.label());
       if(0==c) {
 	if(ignoreProcess_) {
@@ -101,6 +101,7 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   typedef std::set<edm::InputTag,OrderInputTag> InputTagSet;
 
   /// list of L3 filter tags
+  InputTagSet filterTagsEvent_;
   InputTagSet filterTagsGlobal_;
 
   /// list of L3 collection tags

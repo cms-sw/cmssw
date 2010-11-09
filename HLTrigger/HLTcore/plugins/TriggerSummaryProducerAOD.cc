@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/10/31 11:19:34 $
- *  $Revision: 1.41 $
+ *  $Date: 2010/11/08 15:47:45 $
+ *  $Revision: 1.42 $
  *
  *  \author Martin Grunewald
  *
@@ -56,6 +56,7 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
   pn_(ps.getParameter<std::string>("processName")),
   selector_(edm::ProcessNameSelector(pn_)),
   tns_(),
+  filterTagsEvent_(pn_!="*"),
   filterTagsGlobal_(pn_!="*"),
   collectionTagsEvent_(pn_!="*"),
   collectionTagsGlobal_(pn_!="*"),
@@ -83,6 +84,7 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
       pn_="*";
     }
     selector_=edm::ProcessNameSelector(pn_);
+    filterTagsEvent_     =InputTagSet(pn_!="*");
     filterTagsGlobal_    =InputTagSet(pn_!="*");
     collectionTagsEvent_ =InputTagSet(pn_!="*");
     collectionTagsGlobal_=InputTagSet(pn_!="*");
@@ -158,6 +160,7 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    /// Record the InputTags of those L3 filters and L3 collections.
    maskFilters_.clear();
    maskFilters_.resize(nfob);
+   filterTagsEvent_.clear();
    collectionTagsEvent_.clear();
    unsigned int nf(0);
    for (unsigned int ifob=0; ifob!=nfob; ++ifob) {
@@ -170,7 +173,7 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
        const string& label    (fobs_[ifob].provenance()->moduleLabel());
        const string& instance (fobs_[ifob].provenance()->productInstanceName());
        const string& process  (fobs_[ifob].provenance()->processName());
-       filterTagsGlobal_.insert(InputTag(label,instance,process));
+       filterTagsEvent_.insert(InputTag(label,instance,process));
        for (unsigned int icol=0; icol!=ncol; ++icol) {
 	 // overwrite process name (usually not set)
 	 tokenizeTag(collectionTags_[icol],tagLabel,tagInstance,tagProcess);
@@ -178,9 +181,37 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
        }
      }
    }
+   /// check uniqueness count
+   if (filterTagsEvent_.size()!=nf) {
+     LogError("TriggerSummaryProducerAOD")
+       << "Mismatch in number of filter tags: "
+       << filterTagsEvent_.size() << "!=" << nf ;
+   }
 
    /// accumulate for endJob printout
    collectionTagsGlobal_.insert(collectionTagsEvent_.begin(),collectionTagsEvent_.end());
+   filterTagsGlobal_.insert(filterTagsEvent_.begin(),filterTagsEvent_.end());
+
+   /// debug printout
+   if (isDebugEnabled()) {
+
+     /// event-by-event tags
+     const unsigned int nc(collectionTagsEvent_.size());
+     LogTrace("TriggerSummaryProducerAOD") << "Number of unique collections requested " << nc;
+     const InputTagSet::const_iterator cb(collectionTagsEvent_.begin());
+     const InputTagSet::const_iterator ce(collectionTagsEvent_.end());
+     for ( InputTagSet::const_iterator ci=cb; ci!=ce; ++ci) {
+       LogTrace("TriggerSummaryProducerAOD") << distance(cb,ci) << " " << ci->encode();
+     }
+     const unsigned int nf(filterTagsEvent_.size());
+     LogTrace("TriggerSummaryProducerAOD") << "Number of unique filters requested " << nf;
+     const InputTagSet::const_iterator fb(filterTagsEvent_.begin());
+     const InputTagSet::const_iterator fe(filterTagsEvent_.end());
+     for ( InputTagSet::const_iterator fi=fb; fi!=fe; ++fi) {
+       LogTrace("TriggerSummaryProducerAOD") << distance(fb,fi) << " " << fi->encode();
+     }
+
+   }
 
    ///
    /// Now the processing:
