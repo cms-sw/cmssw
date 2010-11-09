@@ -26,26 +26,45 @@ static const int nbinsMax = 40;
 using namespace std;
 bool descend(float i,float j) { return (i<j); }
 
-void makeMCtableFromOpenHLT(int nbins = 20, const string label = "Npart", const char * tag = "NpartBins", const char* mc = "AMPT"){
+void makeTable(int nbins = 40, const string label = "HFhits", const char * tag = "Preliminary_NoEffCor_AMPT_d1107", const char* dataset = "DATA"){
+
+  bool DATA = false;
+  bool SIM = true;
+  bool MC = false;
+  double EFF = 1;
+  double MXS = 1. - EFF;
 
    // Retrieving data
   int maxEvents = -200;
   vector<int> runnums;
   
-  const char* infileName = Form("../prod/%s/combined_*.root",mc);
+  //  const char* infileName = Form("/net/hisrv0001/home/yetkin/hidsk0001/analysis/prod/%s_RECO_391/test.root",dataset);
+  const char* infileName = Form("/net/hisrv0001/home/yetkin/hidsk0001/centrality/prod/%s/test.root",dataset);
+
   //  TFile* infile = new TFile(infileName,"read");
   TChain* t = new TChain("HltTree");
+  //  TChain* t = new TChain("hltanalysis/HltTree");
+
   t->Add(infileName);
 
   // Creating output table
-  TFile* outFile = new TFile("tables_d1101.root","update");
+  TFile* outFile = new TFile("tables_d1108.root","update");
    TDirectory* dir = outFile->mkdir(tag);
    dir->cd();
    TNtuple* nt = new TNtuple("nt","","hf:bin:b:npart:ncoll:nhard");
+   CentralityBins* bins = new CentralityBins("noname","Test tag", nbins);
+   bins->table_.reserve(nbins);
 
   TH1D::SetDefaultSumw2();
-  CentralityBins* bins = new CentralityBins("noname","Test tag", nbins);
-  bins->table_.reserve(nbins);
+
+  int runMC = 1;
+  TFile * inputMCfile;
+  CentralityBins* inputMCtable;
+  
+  if(DATA){
+    inputMCfile = new TFile("tables_d1103.root","read");
+    inputMCtable = (CentralityBins*)inputMCfile->Get("CentralityTable_HFhits40_AMPT2760GeV_v1_mc_MC_38Y_V12/run1");
+  }
 
   // Setting up variables & branches
   double binboundaries[nbinsMax+1];
@@ -56,10 +75,13 @@ void makeMCtableFromOpenHLT(int nbins = 20, const string label = "Npart", const 
   //  TTree* t = (TTree*)infile->Get("HltTree");
   int run;
 
-  t->SetBranchAddress("b",&b);
-  t->SetBranchAddress("Npart",&npart);
-  t->SetBranchAddress("Ncoll",&ncoll);
-  t->SetBranchAddress("Nhard",&nhard);
+  if(SIM){
+    t->SetBranchAddress("b",&b);
+    t->SetBranchAddress("Npart",&npart);
+    t->SetBranchAddress("Ncoll",&ncoll);
+    t->SetBranchAddress("Nhard",&nhard);
+  }
+
   t->SetBranchAddress("hiHFhit",&hfhit);
   t->SetBranchAddress("hiHF",&hf);
   t->SetBranchAddress("hiEB",&eb);
@@ -115,10 +137,11 @@ void makeMCtableFromOpenHLT(int nbins = 20, const string label = "Npart", const 
   cout<<"(";
 
   int bin = 0;
+  double dev = events;
   for(int i = 0; i< nbins; ++i){
      // Find the boundary 
-     int entry = (int)(i*(events/nbins));
-     binboundaries[i] = values[entry];
+    int entry = (int)(i*(dev/nbins));
+    binboundaries[i] = values[entry];
 
      cout<<" "<<binboundaries[i];
      if(i < nbins - 1) cout<<",";
@@ -127,13 +150,14 @@ void makeMCtableFromOpenHLT(int nbins = 20, const string label = "Npart", const 
 
   cout<<"-------------------------------------"<<endl;
 
+  if(!DATA){
+
   // Determining Glauber results in various bins
   dir->cd();
   TH2D* hNpart = new TH2D("hNpart","",nbins,binboundaries,500,0,500);
   TH2D* hNcoll = new TH2D("hNcoll","",nbins,binboundaries,2000,0,2000);
   TH2D* hNhard = new TH2D("hNhard","",nbins,binboundaries,250,0,250);
   TH2D* hb = new TH2D("hb","",nbins,binboundaries,300,0,30);
-
 
   for(unsigned int iev = 0; iev < events && (maxEvents < 0 || iev< maxEvents); ++iev){
      if( iev % 100 == 0 ) cout<<"Processing event : "<<iev<<endl;
@@ -185,7 +209,6 @@ void makeMCtableFromOpenHLT(int nbins = 20, const string label = "Npart", const 
   cout<<"-------------------------------------"<<endl;
   cout<<"# Bin NpartMean NpartSigma NcollMean NcollSigma bMean bSigma BinEdge"<<endl;
 
-
   // Enter values in table
   for(int i = 0; i < nbins; ++i){
      int ii = nbins-i;
@@ -197,7 +220,7 @@ void makeMCtableFromOpenHLT(int nbins = 20, const string label = "Npart", const 
      bins->table_[i].b_var = hbSigma->GetBinContent(ii);
      bins->table_[i].n_hard_mean = hNhardMean->GetBinContent(ii);
      bins->table_[i].n_hard_var = hNhardSigma->GetBinContent(ii);
-     bins->table_[i].bin_edge = binboundaries[ii];
+     bins->table_[i].bin_edge = binboundaries[ii-1];
 
      cout<<i<<" "
 	 <<hNpartMean->GetBinContent(ii)<<" "
@@ -227,13 +250,46 @@ void makeMCtableFromOpenHLT(int nbins = 20, const string label = "Npart", const 
      hbMean->Delete();
      hbSigma->Delete();
   }
-  
-  //  for(int i = 0; i < runnums.size(); ++i){
-  CentralityBins* binsForRun = (CentralityBins*) bins->Clone();
-  binsForRun->SetName(Form("run%d",1));
-  //  binsForRun->SetName(Form("run%d",runnums[i]));
-  binsForRun->Write();
-     //  }
+ 
+  }else{
+    cout<<"-------------------------------------"<<endl;
+    cout<<"# Bin NpartMean NpartSigma NcollMean NcollSigma bMean bSigma BinEdge"<<endl;
+
+    // Enter values in table
+    for(int i = 0; i < nbins; ++i){
+      int ii = nbins-i;
+      bins->table_[i].n_part_mean = inputMCtable->NpartMeanOfBin(i);
+      bins->table_[i].n_part_var = inputMCtable->NpartSigmaOfBin(i);
+      bins->table_[i].n_coll_mean = inputMCtable->NcollMeanOfBin(i);
+      bins->table_[i].n_coll_var = inputMCtable->NcollSigmaOfBin(i);
+      bins->table_[i].b_mean = inputMCtable->bMeanOfBin(i);
+      bins->table_[i].b_var = inputMCtable->bSigmaOfBin(i);
+      bins->table_[i].n_hard_mean = inputMCtable->NhardMeanOfBin(i);
+      bins->table_[i].n_hard_var = inputMCtable->NhardSigmaOfBin(i);
+      bins->table_[i].bin_edge = binboundaries[ii-1];
+
+      cout<<i<<" "
+	  <<bins->table_[i].n_part_mean<<" "
+          <<bins->table_[i].n_part_var<<" "
+          <<bins->table_[i].n_coll_mean<<" "
+          <<bins->table_[i].n_coll_var<<" "
+          <<bins->table_[i].b_mean<<" "
+          <<bins->table_[i].b_var<<" "
+          <<bins->table_[i].n_hard_mean<<" "
+          <<bins->table_[i].n_hard_var<<" "
+          <<bins->table_[i].bin_edge<<" "<<endl;
+
+    }
+    cout<<"-------------------------------------"<<endl;
+
+  }
+
+
+  outFile->cd(); 
+  dir->cd();
+
+  bins->SetName(Form("run%d",1));
+  bins->Write();
   nt->Write();  
   bins->Delete();
   outFile->Write();
