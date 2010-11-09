@@ -24,10 +24,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
-static const edm::ProductID s_id;
-static const edm::BranchDescription s_branch;
-static const edm::Provenance s_prov(s_branch,s_id);
-
 namespace {
    //This is used by the shared_ptr required to be passed to BasicHandle to keep the shared_ptr from doing the delete
    struct null_deleter
@@ -37,6 +33,10 @@ namespace {
       }
    };
 }
+static const edm::ProductID s_id;
+static edm::ConstBranchDescription s_branch = edm::ConstBranchDescription( edm::BranchDescription() );
+static const edm::Provenance s_prov(boost::shared_ptr<edm::ConstBranchDescription>(&s_branch, null_deleter()) ,s_id);
+
 
 namespace fwlite
 {
