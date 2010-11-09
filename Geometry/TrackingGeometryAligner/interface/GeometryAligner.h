@@ -170,10 +170,8 @@ void GeometryAligner::attachSurfaceDeformations( C* geometry,
     while ( (*iPair).first != (*iItem).m_rawId ) {
 
       // remove SurfaceDeformation from GeomDetUnit (i.e. set NULL pointer)
-      /* FIXME (AM): NOT YET ACTIVE
-	GeomDetUnit* geomDetUnit = (*iPair).second;
-	this->setSurfaceDeformation( *geomDetUnit, 0 );
-      */
+      GeomDetUnit* geomDetUnit = (*iPair).second;
+      this->setSurfaceDeformation( *geomDetUnit, 0 );
 
       ++iPair;
       if ( iPair==theMap.end() )
@@ -182,7 +180,6 @@ void GeometryAligner::attachSurfaceDeformations( C* geometry,
 	  << " not found in geometry";
     }
     
-    /* FIXME (AM): NOT YET ACTIVE
     // get the parameters and put them into a vector
     AlignmentSurfaceDeformations::ParametersConstIteratorPair iteratorPair = surfaceDeformations->parameters(itemIndex);
     std::vector<double> parameters;
@@ -192,10 +189,14 @@ void GeometryAligner::attachSurfaceDeformations( C* geometry,
     SurfaceDeformation * surfDef = SurfaceDeformationFactory::create( (*iItem).m_parametrizationType, parameters);
     GeomDetUnit* geomDetUnit = (*iPair).second;
     this->setSurfaceDeformation( *geomDetUnit, surfDef );
-    //delete surfDef;
-    ++nSurfDef;
-    */
+    // delete is not needed since SurfaceDeformation is passed as a
+    // DeepCopyPointerByClone which takes over ownership. Needs to be
+    // cleaned up and checked once SurfaceDeformation are moved to
+    // proxy topology classes
+    //delete surfDef; 
 
+    ++nSurfDef;
+    
     ++itemIndex;
   }
   
