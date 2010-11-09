@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Tue Oct 19 12:00:50 CEST 2010
-// $Id$
+// $Id: FWDigitSetProxyBuilder.cc,v 1.1 2010/10/20 19:26:58 amraktad Exp $
 //
 
 // system include files
@@ -21,6 +21,7 @@
 
 #include "Fireworks/Core/interface/FWDigitSetProxyBuilder.h"
 #include "Fireworks/Core/interface/FWFromEveSelectorBase.h"
+#include "Fireworks/Core/interface/FWDisplayProperties.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
@@ -106,16 +107,16 @@ TEveDigitSet* FWDigitSetProxyBuilder::digitSet(TEveElement* product)
    return static_cast<TEveDigitSet*>(*product->BeginChildren());
 }
 
-void FWDigitSetProxyBuilder::addBox(TEveBoxSet* boxSet, const float* pnts)
+void FWDigitSetProxyBuilder::addBox(TEveBoxSet* boxSet, const float* pnts, const FWDisplayProperties& dp)
 {
    boxSet->AddBox(pnts);
-   boxSet->DigitValue(item()->defaultDisplayProperties().isVisible());
+   boxSet->DigitValue(dp.isVisible());
 
-   if (item()->defaultDisplayProperties().isVisible()) 
-      boxSet->DigitColor(item()->defaultDisplayProperties().color(), item()->defaultDisplayProperties().transparency());
+   if (dp.isVisible()) 
+      boxSet->DigitColor(dp.color(), dp.transparency());
 
-   if (item()->defaultDisplayProperties().transparency())
-      boxSet->SetMainTransparency(item()->defaultDisplayProperties().transparency());
+   if (dp.transparency())
+      boxSet->SetMainTransparency(dp.transparency());
 }
 
 void FWDigitSetProxyBuilder::modelChanges(const FWModelIds& iIds, Product* product)

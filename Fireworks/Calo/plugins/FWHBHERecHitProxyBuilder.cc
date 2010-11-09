@@ -47,6 +47,7 @@ FWHBHERecHitProxyBuilder::build( const FWEventItem* iItem, TEveElementList* prod
    }
 
    TEveBoxSet* boxSet = addBoxSetToProduct(product);
+   int index = 0;
    for (std::vector<HBHERecHit>::const_iterator it = collection->begin() ; it != collection->end(); ++it)
    {  
       const float* corners = context().getGeom()->getCorners((*it).detid());
@@ -54,7 +55,7 @@ FWHBHERecHitProxyBuilder::build( const FWEventItem* iItem, TEveElementList* prod
       if (corners)
          fireworks::energyScaledBox3DCorners(corners, (*it).energy() / m_maxEnergy, scaledCorners, true);
 
-      addBox(boxSet, &scaledCorners[0]);
+     addBox(boxSet, &scaledCorners[0], iItem->modelInfo(index++).displayProperties());
    }
 }
 

@@ -38,6 +38,7 @@ void FWCastorRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList
 
 
    TEveBoxSet* boxSet = addBoxSetToProduct(product);
+   int index = 0;
    for (std::vector<CastorRecHit>::const_iterator it = collection->begin() ; it != collection->end(); ++it)
    {  
       const float* corners = item()->getGeom()->getCorners((*it).detid());
@@ -47,7 +48,7 @@ void FWCastorRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList
       std::vector<float> scaledCorners(24);
       fireworks::energyTower3DCorners(corners, (*it).energy() * 10, scaledCorners);
 
-      addBox(boxSet, &scaledCorners[0]);
+      addBox(boxSet, &scaledCorners[0], iItem->modelInfo(index++).displayProperties());
    }
 }
 

@@ -29,6 +29,7 @@ void FWPRCaloTowerProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
 
 
    TEveBoxSet* boxSet = addBoxSetToProduct(product);
+   int index = 0;
    for (std::vector<CaloTower>::const_iterator it = collection->begin() ; it != collection->end(); ++it)
    {  
       const float* corners = item()->getGeom()->getCorners((*it).id().rawId());
@@ -38,7 +39,8 @@ void FWPRCaloTowerProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
       std::vector<float> scaledCorners(24);
       fireworks::energyTower3DCorners(corners, (*it).et(), scaledCorners);
 
-      addBox(boxSet, &scaledCorners[0]);
+     addBox(boxSet, &scaledCorners[0], iItem->modelInfo(index++).displayProperties());
+
    }
 } 
 

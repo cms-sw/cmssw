@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Tue Oct 19 12:00:57 CEST 2010
-// $Id$
+// $Id: FWDigitSetProxyBuilder.h,v 1.1 2010/10/20 19:26:58 amraktad Exp $
 //
 
 // system include files
@@ -27,6 +27,7 @@
 // forward declarations
 class TEveDigitSet;
 class TEveBoxSet;
+class FWDisplayProperties;
 
 class FWDigitSetProxyBuilder : public FWProxyBuilderBase
 {
@@ -45,7 +46,7 @@ public:
 
 protected:
    TEveBoxSet* addBoxSetToProduct(TEveElementList* product);
-   void addBox(TEveBoxSet* set, const float* pnts);
+   void addBox(TEveBoxSet* set, const float* pnts, const FWDisplayProperties& dp);
 
 private:
    FWDigitSetProxyBuilder(const FWDigitSetProxyBuilder&); // stop default

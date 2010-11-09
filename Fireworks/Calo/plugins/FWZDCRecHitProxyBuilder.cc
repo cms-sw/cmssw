@@ -37,6 +37,7 @@ void FWZDCRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* p
 
 
    TEveBoxSet* boxSet = addBoxSetToProduct(product);
+   int index = 0;
    for (std::vector<ZDCRecHit>::const_iterator it = collection->begin() ; it != collection->end(); ++it)
    {  
       const float* corners = item()->getGeom()->getCorners((*it).detid());
@@ -45,7 +46,7 @@ void FWZDCRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* p
       if (corners == 0) 
          fireworks::energyTower3DCorners(corners, (*it).energy(), scaledCorners);
 
-      addBox(boxSet, &scaledCorners[0]);
+      addBox(boxSet, &scaledCorners[0], iItem->modelInfo(index++).displayProperties());
    }
 }
 
