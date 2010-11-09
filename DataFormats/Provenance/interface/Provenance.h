@@ -36,16 +36,17 @@ namespace edm {
   class ProductProvenance;
   class Provenance {
   public:
-    Provenance(ConstBranchDescription const& p, ProductID const& pid);
-    Provenance(BranchDescription const& p, ProductID const& pid);
+    Provenance(boost::shared_ptr<ConstBranchDescription> const& p, ProductID const& pid);
 
     ~Provenance() {}
 
     Parentage const& event() const {return parentage();}
-    BranchDescription const& product() const {return branchDescription_.me();}
+    BranchDescription const& product() const {return branchDescription_->me();}
 
-    BranchDescription const& branchDescription() const {return branchDescription_.me();}
-    ConstBranchDescription const& constBranchDescription() const {return branchDescription_;}
+    BranchDescription const& branchDescription() const {return branchDescription_->me();}
+    ConstBranchDescription const& constBranchDescription() const {return *branchDescription_;}
+    boost::shared_ptr<ConstBranchDescription> const &  constBranchDescriptionPtr() const {return branchDescription_;}
+    
     bool productProvenanceResolved() const {
       return productProvenancePtr_;
     }
@@ -90,8 +91,21 @@ namespace edm {
       productProvenancePtr_ = prov;
     }
 
+    void setProductID(ProductID const& pid) {
+      productID_ = pid;
+    }
+    
+    void setBranchDescription(boost::shared_ptr<ConstBranchDescription> const& p) {
+      branchDescription_ = p;
+    }
+    void resetProductProvenance() {
+      productProvenancePtr_.reset();
+    }
+    
+    void swap(Provenance&);
+    
   private:
-    ConstBranchDescription const branchDescription_;
+    boost::shared_ptr<ConstBranchDescription> branchDescription_;
     ProductID productID_;
     mutable boost::shared_ptr<ProductProvenance> productProvenancePtr_;
     mutable boost::shared_ptr<BranchMapper> store_;

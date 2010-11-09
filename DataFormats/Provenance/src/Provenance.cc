@@ -9,13 +9,7 @@
 
 namespace edm {
 
-  Provenance::Provenance(BranchDescription const& p, ProductID const& pid) :
-    branchDescription_(p),
-    productID_(pid),
-    productProvenancePtr_() {
-  }
-
-  Provenance::Provenance(ConstBranchDescription const& p, ProductID const& pid) :
+   Provenance::Provenance(boost::shared_ptr<ConstBranchDescription> const& p, ProductID const& pid) :
     branchDescription_(p),
     productID_(pid),
     productProvenancePtr_() {
@@ -24,7 +18,7 @@ namespace edm {
   boost::shared_ptr<ProductProvenance>
   Provenance::resolve() const {
     if (productProvenancePtr_.get() == 0) {
-      productProvenancePtr_ = store_->branchIDToProvenance(branchDescription_.branchID());
+      productProvenancePtr_ = store_->branchIDToProvenance(branchDescription_->branchID());
     }
     return productProvenancePtr_;
   }
@@ -103,6 +97,14 @@ namespace edm {
     return a.product() == b.product();
   }
 
+
+   void 
+   Provenance::swap(Provenance& iOther) {
+      branchDescription_.swap(iOther.branchDescription_);
+      productID_.swap(iOther.productID_);
+      productProvenancePtr_.swap(iOther.productProvenancePtr_);
+      store_.swap(iOther.store_);
+   }
 
 }
 

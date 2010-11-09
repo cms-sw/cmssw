@@ -26,7 +26,7 @@ namespace edm {
         boost::shared_ptr<ProductProvenance> productProvenance) {
     if (product()) {
       throw edm::Exception(errors::InsertFailure)
-          << "Attempt to insert more than one product on branch " << groupData().branchDescription_->branchName() << "\n";
+          << "Attempt to insert more than one product on branch " << groupData().branchDescription()->branchName() << "\n";
     }
     assert(branchDescription().produced());
     assert(edp.get() != 0);
@@ -130,11 +130,11 @@ namespace edm {
   GroupData::checkType(EDProduct const& prod) const {
     // Check if the types match.
     TypeID typeID(prod.dynamicTypeInfo());
-    if (typeID != branchDescription_->typeID()) {
+    if (typeID != branchDescription()->typeID()) {
       // Types do not match.
       throw edm::Exception(errors::EventCorruption)
-          << "Product on branch " << branchDescription_->branchName() << " is of wrong type.\n"
-          << "It is supposed to be of type " << branchDescription_->className() << ".\n"
+          << "Product on branch " << branchDescription()->branchName() << " is of wrong type.\n"
+          << "It is supposed to be of type " << branchDescription()->className() << ".\n"
           << "It is actually of type " << typeID.className() << ".\n";
     }
   }
@@ -150,7 +150,7 @@ namespace edm {
 
   void
   Group::setProductProvenance(boost::shared_ptr<ProductProvenance> prov) const {
-    groupData().prov_->setProductProvenance(prov);
+    groupData().prov_.setProductProvenance(prov);
   }
 
   // This routine returns true if it is known that currently there is no real product.
@@ -221,22 +221,19 @@ namespace edm {
 
   void
   Group::setProvenance(boost::shared_ptr<BranchMapper> mapper, ProductID const& pid) {
-    assert(!groupData().prov_);
-    groupData().prov_.reset(new Provenance(branchDescription(), pid));
-    groupData().prov_->setStore(mapper);
+    //assert(!groupData().prov_);
+    groupData().prov_.setProductID(pid);
+    groupData().prov_.setStore(mapper);
   }
 
   void
   Group::setProvenance(boost::shared_ptr<BranchMapper> mapper) {
-    if (!groupData().prov_) {
-      groupData().prov_.reset(new Provenance(branchDescription(), ProductID()));
-    }
-    groupData().prov_->setStore(mapper);
+    groupData().prov_.setStore(mapper);
   }
 
   Provenance*
   Group::provenance() const {
-    return groupData().prov_.get();
+    return &(groupData().prov_);
   }
 
   void

@@ -26,33 +26,32 @@ namespace edm {
 
   struct GroupData {
     explicit GroupData(boost::shared_ptr<ConstBranchDescription> bd) :
-       branchDescription_(bd),
        product_(),
-       prov_() {}
+       prov_(bd,ProductID()) {}
     ~GroupData() {}
 
 
     void checkType(EDProduct const& prod) const;
+    
+    boost::shared_ptr<ConstBranchDescription> const& branchDescription() const {
+      return prov_.constBranchDescriptionPtr();
+    }
 
     void swap(GroupData& other) {
-       branchDescription_.swap(other.branchDescription_);
        product_.swap(other.product_);
        prov_.swap(other.prov_);
     }
     void resetBranchDescription(boost::shared_ptr<ConstBranchDescription> bd) {
-      branchDescription_.swap(bd);
+      prov_.setBranchDescription(bd);
     }
     void resetGroupData() {
       product_.reset();
-      prov_.reset();
+      prov_.resetProductProvenance();
     }
-
-    // "const" data (some data may change only when a new input file is merged)
-    boost::shared_ptr<ConstBranchDescription> branchDescription_;
 
     // "non-const data" (updated every event)
     mutable boost::shared_ptr<EDProduct> product_;
-    mutable boost::shared_ptr<Provenance> prov_;
+    mutable Provenance prov_;
   };
 
   // Free swap function
@@ -88,7 +87,7 @@ namespace edm {
     void setProductProvenance(boost::shared_ptr<ProductProvenance> prov) const;
 
     // Retrieves a reference to the event independent provenance.
-    ConstBranchDescription const& branchDescription() const {return *groupData().branchDescription_;}
+    ConstBranchDescription const& branchDescription() const {return *groupData().branchDescription();}
 
     // Sets the pointer to the event independent provenance.
     void resetBranchDescription(boost::shared_ptr<ConstBranchDescription> bd) {groupData().resetBranchDescription(bd);}
@@ -127,7 +126,7 @@ namespace edm {
     bool isMatchingSequence(Reflex::Type const& wanted) const;
 
     // Retrieves the product ID of the product.
-    ProductID const& productID() const {return groupData().prov_->productID();};
+    ProductID const& productID() const {return groupData().prov_.productID();};
 
     // Puts the product and its per event(lumi)(run) provenance into the Group.
     void putProduct(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance) {
