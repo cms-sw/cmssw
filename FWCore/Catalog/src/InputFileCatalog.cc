@@ -86,11 +86,14 @@ namespace edm {
     } else {
       pfn = fileLocator_->pfn(lfn);
     }
-    if (pfn.empty() && !noThrow) {
-      throw cms::Exception("LogicalFileNameNotFound", "FileCatalog::findFile()\n")
-        << "Logical file name '" << lfn << "' was not found in the file catalog.\n"
-        << "If you wanted a local file, you forgot the 'file:' prefix\n"
-        << "before the file name in your configuration file.\n";
+    if (pfn.empty()) {
+      if (!noThrow) {
+        throw cms::Exception("LogicalFileNameNotFound", "FileCatalog::findFile()\n")
+          << "Logical file name '" << lfn << "' was not found in the file catalog.\n"
+          << "If you wanted a local file, you forgot the 'file:' prefix\n"
+          << "before the file name in your configuration file.\n";
+      }
+      pfn = lfn;
     }
     if (overrideFallbackFileLocator_) {
       fallbackPfn = overrideFallbackFileLocator_->pfn(lfn);
