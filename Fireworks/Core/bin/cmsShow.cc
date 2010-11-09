@@ -85,7 +85,7 @@ void signal_handler_wrapper(int sid, siginfo_t* sinfo, void* sctx)
 }
 }
 
-void run_app(TApplication &app, int argc, char **argv, bool attachGdb)
+void run_app(TApplication &app, int argc, char **argv)
 {
    //Remove when FWLite handles the MessageLogger
    edm::MessageLoggerQ::setMLscribe_ptr(boost::shared_ptr<edm::service::AbstractMLscribe>(new SilentMLscribe));
@@ -102,28 +102,14 @@ void run_app(TApplication &app, int argc, char **argv, bool attachGdb)
    gSystem->ResetSignal(kSigPipe);
    gSystem->ResetSignal(kSigFloatingException);
    
-
-   if (attachGdb)
-   {
-      struct sigaction sac;
-      sac.sa_sigaction = signal_handler_wrapper;
-      sigemptyset(&sac.sa_mask);
-      sac.sa_flags = SA_SIGINFO;
-      sigaction(SIGILL,  &sac, 0);
-      sigaction(SIGSEGV, &sac, 0);
-      sigaction(SIGBUS,  &sac, 0);
-      sigaction(SIGFPE,  &sac, 0);
-   }
-   else
-   {
-      signal(SIGABRT, SIG_DFL);
-      signal(SIGBUS, SIG_DFL);
-      signal(SIGSEGV, SIG_DFL);
-      signal(SIGILL, SIG_DFL);
-      signal(SIGSYS, SIG_DFL);
-      signal(SIGFPE, SIG_DFL);
-      signal(SIGPIPE, SIG_DFL);   
-   }
+   struct sigaction sac;
+   sac.sa_sigaction = signal_handler_wrapper;
+   sigemptyset(&sac.sa_mask);
+   sac.sa_flags = SA_SIGINFO;
+   sigaction(SIGILL,  &sac, 0);
+   sigaction(SIGSEGV, &sac, 0);
+   sigaction(SIGBUS,  &sac, 0);
+   sigaction(SIGFPE,  &sac, 0);
 
    app.Run();
    pMain.reset();
@@ -153,7 +139,6 @@ int main (int argc, char **argv)
 
    // check root interactive promp
    bool isri = false;
-   bool attachGdb = false;
    for (Int_t i =0; i<argc; i++)
    {
       if (strncmp(argv[i], "-r", 2) == 0 ||
@@ -161,11 +146,6 @@ int main (int argc, char **argv)
       {
          isri=true;
       }
-      else if (strncmp(argv[i], "-d", 2) == 0 ||
-               strncmp(argv[i], "--debug", 6) == 0)
-      {
-         attachGdb = true;
-      } 
    }
 
    if (isri) {
@@ -177,10 +157,10 @@ int main (int argc, char **argv)
       std::cout<<""<<std::endl;
 
       TRint app("cmsShow", &dummyArgc, dummyArgv);
-      run_app(app,argc, argv, attachGdb);
+      run_app(app,argc, argv);
    } else {
       TApplication app("cmsShow", &dummyArgc, dummyArgv);
-      run_app(app,argc, argv, attachGdb);
+      run_app(app,argc, argv);
    }
 
    return 0;
