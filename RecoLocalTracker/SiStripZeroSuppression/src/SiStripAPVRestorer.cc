@@ -41,9 +41,13 @@ void SiStripAPVRestorer::init(const edm::EventSetup& es){
   if(n_cache_id != noise_cache_id) {
     es.get<SiStripNoisesRcd>().get( noiseHandle );
     noise_cache_id = n_cache_id;
+  } else {
+    noise_cache_id = n_cache_id;
   }
   if(q_cache_id != quality_cache_id) {
     es.get<SiStripQualityRcd>().get( qualityHandle );
+    quality_cache_id = q_cache_id;
+  }else {
     quality_cache_id = q_cache_id;
   }
   

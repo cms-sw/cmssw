@@ -17,21 +17,28 @@ SiStripZeroSuppression(edm::ParameterSet const& conf)
     storeCM(conf.getParameter<bool>("storeCM")),
     doAPVRestore(conf.getParameter<bool>("doAPVRestore")),
     mergeCollections(conf.getParameter<bool>("mergeCollections"))
+	
 {
   
   if(doAPVRestore){
-    produceRawDigis=conf.getParameter<bool>("produceRawDigis");
+    produceRawDigis = conf.getParameter<bool>("produceRawDigis");
     produceCalculatedBaseline = conf.getParameter<bool>("produceCalculatedBaseline");
     produceBaselinePoints = conf.getParameter<bool>("produceBaselinePoints");
     storeInZScollBadAPV = conf.getParameter<bool>("storeInZScollBadAPV");
-    useCMMeanMap =conf.getParameter<bool>("useCMMeanMap");
-    fixCM= conf.getParameter<bool>("fixCM"); 
+    useCMMeanMap = conf.getParameter<bool>("useCMMeanMap");
+    fixCM = conf.getParameter<bool>("fixCM");
+  } else {
+    produceRawDigis = false;
+    produceCalculatedBaseline = false;
+    produceBaselinePoints = false;
+    storeInZScollBadAPV = false;
+    useCMMeanMap = false;
+    fixCM = false;	
   }
   
   if(mergeCollections){
     storeCM = false;
     produceRawDigis = false;
-    mergeCollections =false;
   }
   
   for(tag_iterator_t inputTag = inputTags.begin(); inputTag != inputTags.end(); ++inputTag ){
