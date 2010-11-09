@@ -104,11 +104,24 @@ PFCandidateRef RecoTauConstructor::convertToRef(
   return pfRef;
 }
 
+namespace {
+// Make sure the two products come from the same EDM source
+template<typename T1, typename T2>
+void checkMatchedProductIds(const T1& t1, const T2& t2) {
+    if (t1.id() != t2.id()) {
+      throw cms::Exception("MismatchedPFCandSrc") << "Error: the input tag"
+          << " for the PF candidate collection provided to the RecoTauBuilder "
+          << " does not match the one that was used to build the source jets."
+          << " Please update the pfCandSrc paramters for the PFTau builders.";
+    }
+}
+}
+
 // Convert from a Ptr to a Ref
 PFCandidateRef RecoTauConstructor::convertToRef(
     const PFCandidatePtr& pfPtr) const {
   if(pfPtr.isNonnull()) {
-    assert(pfPtr.id() == pfCands_.id());
+    checkMatchedProductIds(pfPtr, pfCands_);
     return PFCandidateRef(pfCands_, pfPtr.key());
   } else return PFCandidateRef();
 }
@@ -117,7 +130,7 @@ PFCandidateRef RecoTauConstructor::convertToRef(
 PFCandidateRef RecoTauConstructor::convertToRef(
     const CandidatePtr& candPtr) const {
   if(candPtr.isNonnull()) {
-    assert(candPtr.id() == pfCands_.id());
+    checkMatchedProductIds(candPtr, pfCands_);
     return PFCandidateRef(pfCands_, candPtr.key());
   } else return PFCandidateRef();
 }
