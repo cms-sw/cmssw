@@ -73,6 +73,14 @@ void RecoTauMVAHelper::fillValues(const reco::PFTauRef& tau) const {
   }
 }
 
+// Get values
+const PhysicsTools::Variable::ValueList&
+RecoTauMVAHelper::discriminants(const PFTauRef& tau) const {
+  values_.clear();
+  fillValues(tau);
+  return values_;
+}
+
 // Apply the MVA to a given tau
 double RecoTauMVAHelper::operator()(const reco::PFTauRef &tau) const {
   // Clear output

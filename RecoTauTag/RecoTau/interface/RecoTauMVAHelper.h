@@ -44,11 +44,14 @@ class RecoTauMVAHelper {
     void setEvent(const edm::Event& evt, const edm::EventSetup &es);
 
     // Apply MVA to tau and return result
-    double operator()(const reco::PFTauRef &tau) const;
+    double operator()(const PFTauRef &tau) const;
+
+    // Retrive the raw input for a given tau that would be passed to the MVA
+    const PhysicsTools::Variable::ValueList& discriminants(
+        const PFTauRef& tau) const;
 
     // Add a training event of type <target> with given weight
-    void train(const reco::PFTauRef &tau, bool target,
-               double weight = 1.0) const;
+    void train(const PFTauRef &tau, bool target, double weight = 1.0) const;
   private:
     // Name of computer in the DB record
     std::string name_;
