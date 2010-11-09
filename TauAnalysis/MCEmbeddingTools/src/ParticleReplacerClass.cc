@@ -1,5 +1,7 @@
 #include "TauAnalysis/MCEmbeddingTools/interface/ParticleReplacerClass.h"
 
+#include "HepMC/IO_HEPEVT.h"
+
 #ifndef TXGIVE
 #define TXGIVE txgive_
 extern "C" {
@@ -19,6 +21,7 @@ ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& pset, bool
   generatorMode_(pset.getParameter<std::string>("generatorMode")),
   tauola_(pset.getParameter< edm::ParameterSet>("TauolaOptions")),
   printEvent_(verbose),
+  outTree(0),
   maxNumberOfAttempts_(pset.getUntrackedParameter<int>("maxNumberOfAttempts", 1000))
 {
 // 	using namespace reco;
@@ -75,8 +78,10 @@ ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& pset, bool
 	minVisibleTransverseMomentum_ = pset.getUntrackedParameter<double>("minVisibleTransverseMomentum",10.);
 
 	edm::Service<TFileService> fileService_;
-	outTree = fileService_->make<TTree>( "event_generation","This tree stores information about the event generation");
-	outTree->Branch("attempts",&attempts,"attempts/I");
+        if(fileService_.isAvailable()) {
+          outTree = fileService_->make<TTree>( "event_generation","This tree stores information about the event generation");
+          outTree->Branch("attempts",&attempts,"attempts/I");
+        }
 
 	edm::LogInfo("Replacer") << "generatorMode = "<< generatorMode_<< "\n";
 	edm::LogInfo("Replacer") << "replacementMode = "<< replacementMode_<< "\n";
@@ -307,6 +312,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCo
 	unsigned int cntVisPt_all = 0;
 	unsigned int cntVisPt_pass = 0;
 	
+        HepMC::IO_HEPEVT conv;
 	for (int i = 0; i<maxNumberOfAttempts_; i++)
 	{
 		++cntVisPt_all;
@@ -317,6 +323,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCo
 		}
 
 		if (generatorMode_ == "Tauola")	// TAUOLA
+			conv.write_event(evt);
 			tempevt=tauola_.decay(evt);
 
 		if (testEvent(tempevt))
@@ -333,11 +340,11 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCo
 		LogError("Replacer") << "failed to create an event where the visible momenta exceed "<< minVisibleTransverseMomentum_ << " GeV ";
 		attempts=-1;
 		eventWeight=0;
-		outTree->Fill();
+                if(outTree) outTree->Fill();
 		return std::auto_ptr<HepMC::GenEvent>(0);
 	}
 	attempts=nr_of_trials;
-	outTree->Fill();	
+	if(outTree) outTree->Fill();	
 
 	// recover the status codes
 	if (replacementMode_==0)
