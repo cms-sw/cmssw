@@ -20,27 +20,26 @@
 //-----------------------------------------------------------------------------
 class FWPFEcalRecHitRPProxyBuilder : public FWProxyBuilderTemplate<EcalRecHit>
 {
-	private:
-		FWPFEcalRecHitRPProxyBuilder( const FWPFEcalRecHitRPProxyBuilder& );					// Stop default
-		const FWPFEcalRecHitRPProxyBuilder& operator=( const FWPFEcalRecHitRPProxyBuilder& );	// Stop default
+   private:
+      FWPFEcalRecHitRPProxyBuilder( const FWPFEcalRecHitRPProxyBuilder& );               // Stop default
+      const FWPFEcalRecHitRPProxyBuilder& operator=( const FWPFEcalRecHitRPProxyBuilder& );   // Stop default
 
-		TEveVector calculateCentre( const float *corners );
+      TEveVector calculateCentre( const float *corners );
 
-	protected:
-		std::vector<FWPFRhoPhiRecHit*> towers;
+      std::vector<FWPFRhoPhiRecHit*> towers;
 
-	public:
-		static std::string typeOfBuilder() { return "simple#"; }
+   public:
+      static std::string typeOfBuilder() { return "simple#"; }
 
-		FWPFEcalRecHitRPProxyBuilder(){}
-		virtual ~FWPFEcalRecHitRPProxyBuilder(){}
+      FWPFEcalRecHitRPProxyBuilder(){}
+      virtual ~FWPFEcalRecHitRPProxyBuilder(){}
 
-		virtual void build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext* );
+      virtual void build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext* );
 
-		virtual bool havePerViewProduct( FWViewType::EType ) const { return true; }
-		virtual void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );
-		virtual void cleanLocal() { towers.clear(); }	// This needs to also take care of all children
+      virtual bool havePerViewProduct( FWViewType::EType ) const { return true; }
+      virtual void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );
+      virtual void cleanLocal() { towers.clear(); }   // This needs to also take care of all children
 
-		REGISTER_PROXYBUILDER_METHODS();
+      REGISTER_PROXYBUILDER_METHODS();
 };
 #endif
