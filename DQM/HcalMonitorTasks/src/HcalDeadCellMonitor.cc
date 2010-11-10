@@ -31,6 +31,7 @@ HcalDeadCellMonitor::HcalDeadCellMonitor(const edm::ParameterSet& ps)
   minDeadEventCount_    = ps.getUntrackedParameter<int>("minDeadEventCount",1000);
 
   excludeHORing2_       = ps.getUntrackedParameter<bool>("excludeHORing2",false);
+  excludeHORing1_       = ps.getUntrackedParameter<bool>("excludeHORing1",false);
 
   // Set which dead cell checks will be performed
   /* Dead cells can be defined in the following ways:
@@ -375,6 +376,16 @@ void HcalDeadCellMonitor::reset()
 	    DigiPresentByDepth.depth[3]->Fill(-1*ieta,iphi,2);
 	  }
     }
+  // Mark HORing1 channels as present  (fill with a 2, rather than a 1, to distinguish between this setting and actual presence)
+  if (excludeHORing1_==true && DigiPresentByDepth.depth.size()>3)
+    {
+      for (int ieta=5;ieta<=10;++ieta)
+	for (int iphi=1;iphi<=72;++iphi)
+	  {
+	    DigiPresentByDepth.depth[3]->Fill(ieta,iphi,2);
+	    DigiPresentByDepth.depth[3]->Fill(-1*ieta,iphi,2);
+	  }
+    }
   FillUnphysicalHEHFBins(DigiPresentByDepth);
 
 
@@ -402,6 +413,16 @@ void HcalDeadCellMonitor::reset()
       if (excludeHORing2_==true && RecHitPresentByDepth.depth.size()>3)
 	{
 	  for (int ieta=11;ieta<=15;++ieta)
+	    for (int iphi=1;iphi<=72;++iphi)
+	      {
+		RecHitPresentByDepth.depth[3]->Fill(ieta,iphi,2);
+		RecHitPresentByDepth.depth[3]->Fill(-1*ieta,iphi,2);
+	      }
+	}
+      // Mark HORing1 channels as present  (fill with a 2, rather than a 1, to distinguish between this setting and actual presence)
+      if (excludeHORing1_==true && RecHitPresentByDepth.depth.size()>3)
+	{
+	  for (int ieta=5;ieta<=10;++ieta)
 	    for (int iphi=1;iphi<=72;++iphi)
 	      {
 		RecHitPresentByDepth.depth[3]->Fill(ieta,iphi,2);
@@ -825,6 +846,9 @@ void HcalDeadCellMonitor::fillNevents_recentdigis()
 		      // Don't fill HORing2 if boolean enabled
 		      if (excludeHORing2_==true && abs(ieta)>10 && isSiPM(ieta,iphi,depth+1)==false)
 			continue;
+		      // Don't fill HORing1 if boolean enabled
+		      if (excludeHORing1_==true && abs(ieta)>4)
+			continue;
 
 		      // no digi was found for the N events; Fill cell as bad for all N events (N = checkN);
 		      if (RecentMissingDigisByDepth.depth[depth]) RecentMissingDigisByDepth.depth[depth]->Fill(ieta+zside,iphi,deadevt_);
@@ -901,6 +925,8 @@ void HcalDeadCellMonitor::fillNevents_recentrechits()
 		  if (debug_>2) 
 		    std::cout <<"DEAD CELL; BELOW ENERGY THRESHOLD; subdet = "<<subdet<<" ieta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth+1<<std::endl;
 		  if (excludeHORing2_==true && abs(ieta)>10 && isSiPM(ieta,iphi,depth+1)==false)
+		    continue;
+		  if (excludeHORing1_==true && abs(ieta)>4)
 		    continue;
 	  
 		  if (RecentMissingRecHitsByDepth.depth[depth]) RecentMissingRecHitsByDepth.depth[depth]->Fill(ieta+zside,iphi,deadevt_);
@@ -1012,6 +1038,12 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 			      --NumBadHO;
 			      --NumBadHO12;
 			    }
+			  // Don't include HORing1 if boolean set; subtract away those counters
+			  else if (excludeHORing1_==true && abs(ieta)>4)
+			    {
+			      --NumBadHO;
+			      --NumBadHO12;
+			    }
 			}
 		      else if (subdet==HcalForward)
 			{
@@ -1031,6 +1063,8 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 			  ++neverpresentHO;
 			  if (excludeHORing2_==true && abs(ieta)>10 && isSiPM(ieta,iphi,depth+1)==false)
 			    --neverpresentHO;
+			  else if (excludeHORing1_==true && abs(ieta)>4)
+			    --neverpresentHO;
 			}
 		      else if (subdet==HcalForward) ++neverpresentHF;
 		    }
@@ -1043,6 +1077,8 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 			{
 			  ++unoccupiedHO;
 			  if (excludeHORing2_==true && abs(ieta)>10 && isSiPM(ieta,iphi,depth+1)==false)
+			    --unoccupiedHO;
+			  else if (excludeHORing1_==true && abs(ieta)>4)
 			    --unoccupiedHO;
 			}
 		      else if (subdet==HcalForward) ++unoccupiedHF;
@@ -1059,6 +1095,8 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 			      ++energyneverpresentHO;
 			      if (excludeHORing2_==true && abs(ieta)>10 && isSiPM(ieta,iphi,depth+1)==false)
 				--energyneverpresentHO; 
+			      else if (excludeHORing1_==true && abs(ieta)>4)
+				--energyneverpresentHO; 
 			    }
 			  else if (subdet==HcalForward) ++energyneverpresentHF;
 			}
@@ -1070,6 +1108,8 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 			    {
 			      ++belowenergyHO;
 			      if (excludeHORing2_==true && abs(ieta)>10 && isSiPM(ieta,iphi,depth+1)==false)
+				--belowenergyHO;
+			      else if (excludeHORing2_==true && abs(ieta)>4)
 				--belowenergyHO;
 			    }
 			  else if (subdet==HcalForward) ++belowenergyHF;

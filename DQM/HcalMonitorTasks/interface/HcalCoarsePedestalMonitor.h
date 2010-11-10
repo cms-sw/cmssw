@@ -9,8 +9,8 @@
 
 /** \class HcalCoarsePedestalMonitor
   *  
-  * $Date: 2010/07/17 01:00:31 $
-  * $Revision: 1.2 $
+  * $Date: 2010/08/09 18:28:14 $
+  * $Revision: 1.3 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -62,6 +62,7 @@ private:  ///Methods, variables accessible only within class code
   edm::InputTag digiLabel_;
   int minEvents_;
   bool excludeHORing2_;
+  bool excludeHORing1_;
 
 };
 

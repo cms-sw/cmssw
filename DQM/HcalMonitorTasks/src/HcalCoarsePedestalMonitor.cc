@@ -32,6 +32,7 @@ HcalCoarsePedestalMonitor::HcalCoarsePedestalMonitor(const edm::ParameterSet& ps
   ADCDiffThresh_         = ps.getUntrackedParameter<double>("ADCDiffThresh",1.);
   minEvents_             = ps.getUntrackedParameter<int>("minEvents",100); // minimum number of events needed before histograms are filled
   excludeHORing2_       = ps.getUntrackedParameter<bool>("excludeHORing2",false);
+  excludeHORing1_       = ps.getUntrackedParameter<bool>("excludeHORing1",false);
 
 }
 
@@ -102,6 +103,11 @@ void HcalCoarsePedestalMonitor::setup()
     excludeHORing2->Fill(1);
   else
     excludeHORing2->Fill(0);
+  MonitorElement* excludeHORing1 = dbe_->bookInt("excludeHORing1");
+  if (excludeHORing1_==true)
+    excludeHORing1->Fill(1);
+  else
+    excludeHORing1->Fill(0);
 
   this->reset();
   return;
@@ -240,6 +246,9 @@ void HcalCoarsePedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
 	  // Don't fill cells that are part of HO ring 2 if an exclusion is applied
 	  if (excludeHORing2_==true && abs(ieta)>10 && isSiPM(ieta,iphi,4)==false)
+	    continue;
+	  // Don't fill cells that are part of HO ring 1 if an exclusion is applied
+	  if (excludeHORing1_==true && abs(ieta)>4)
 	    continue;
 
 	  // 'value' is the average pedestal over the 8 time slices.

@@ -12,8 +12,8 @@
 
 /** \class HcalHotCellMonitor
   *
-  * $Date: 2010/07/19 22:33:37 $
-  * $Revision: 1.41 $
+  * $Date: 2010/08/03 14:04:38 $
+  * $Revision: 1.42 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -111,6 +111,7 @@ class HcalHotCellMonitor: public HcalBaseDQMonitor {
   int rechit_occupancy_sum[85][72][4];
 
   bool excludeHORing2_;
+  bool excludeHORing1_;
 
 
   // Diagnostic plots
