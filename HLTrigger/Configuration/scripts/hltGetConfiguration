@@ -12,10 +12,8 @@ import argparse, textwrap
 # available "type"s and relative global tags
 globalTag = {
   'FULL': 'auto:startup',
-  '8E29': 'auto:startup',
   'GRun': 'auto:startup',       # use as default
   'data': 'auto:hltonline',
-  '1E31': 'auto:startup',
   'HIon': 'auto:startup',
 }
 
@@ -285,6 +283,7 @@ confdbOptions = {
 }
 
 confdbSource = None
+menu = HltMenu()
 
 if configuration.doCff:
     confdbOptions['essources'].append( "-GlobalTag" )
@@ -370,7 +369,6 @@ if configuration.doCff:
     confdbOptions['psets'].append( "-maxEvents" )
     confdbOptions['psets'].append( "-options" )
 
-    menu = HltMenu()
     menu.getRawConfigurationFromDB(configuration.menuConfig, confdbSource, confdbOptions, configuration.doCff)
 
     # if running on MC, adapt the configuration accordingly
@@ -381,13 +379,11 @@ if configuration.doCff:
     if configuration.menuUnprescale:
       menu.unprescale()
 
-    data = menu.data
-
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
     if configuration.menuL1.override:
       if not configuration.menuL1.connect:
         configuration.menuL1.connect = "GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')"
-      data = data + """
+      menu.data += """
 # override the L1 menu (requires the GlobalTag to be defined)
 if 'GlobalTag' in locals():
     GlobalTag.toGet.append(
@@ -423,7 +419,6 @@ else:
     confdbOptions['services'].append( "-FUShmDQMOutputService" )
     confdbOptions['paths'].append( "-OfflineOutput" )
 
-    menu = HltMenu()
     menu.getRawConfigurationFromDB(configuration.menuConfig, confdbSource, confdbOptions, configuration.doCff)
 
     # if running on MC, adapt the configuration accordingly
@@ -434,10 +429,9 @@ else:
     if configuration.menuUnprescale:
       menu.unprescale()
 
-    data = menu.data
-
-    if configuration.processType in ('1E31', 'HIon'):
-      data = data + """
+    # manual override some Heavy Ion parameters
+    if configuration.processType in ('HIon', ):
+      menu.data += """
 # HIon paths in smart prescalers
 if 'hltPreHLTDQMSmart' in process.__dict__:
     process.hltPreHLTDQMSmart.throw = cms.bool( False )
@@ -448,14 +442,15 @@ if 'hltPreExpressSmart' in process.__dict__:
 if 'hltPreDQMSmart' in process.__dict__:
     process.hltPreDQMSmart.throw = cms.bool( False )
 """        
+
     # FIXME - find a better way to override the output modules
-    data = re.sub( 
+    menu.data = re.sub( 
       r'process\.hltOutput(\w+) *= *cms\.OutputModule\( *"ShmStreamConsumer" *,',
       r'process.hltOutput\1 = cms.OutputModule( "PoolOutputModule",\n    fileName = cms.untracked.string( "output\1.root" ),\n    fastCloning = cms.untracked.bool( False ),', 
-      data
+      menu.data
     )
 
-    data = data + """
+    menu.data += """
 # set process name
 process.setName_('%s')
 
@@ -477,21 +472,21 @@ process.options = cms.untracked.PSet(
 
     if configuration.runOnline:
       if configuration.menuGlobalTag:
-        data = data + """
+        menu.data += """
 # override the GlobalTag 
 if 'GlobalTag' in process.__dict__:
     process.GlobalTag.globaltag = '%s'
 """ % configuration.menuGlobalTag
 
     else:
-      data = data + """
+      menu.data += """
 # override the GlobalTag connection string and pfnPrefix
 if 'GlobalTag' in process.__dict__:
 """
 
       # override the GlobalTag connection string and pfnPrefix
-      data = data + "    process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'\n"
-      data = data + "    process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n"
+      menu.data += "    process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'\n"
+      menu.data += "    process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n"
       if configuration.runOnData:
         # do not override the GlobalTag unless one was specified on the command line 
         pass
@@ -508,16 +503,16 @@ if 'GlobalTag' in process.__dict__:
         # when running on data, do not override the GlobalTag unless one was specified on the command line
         pass
       elif configuration.menuGlobalTag[0:5] == 'auto:':
-        data = data + "    from Configuration.PyReleaseValidation.autoCond import autoCond\n"
-        data = data + "    process.GlobalTag.globaltag = autoCond['%s']\n" % configuration.menuGlobalTag[5:]
+        menu.data += "    from Configuration.PyReleaseValidation.autoCond import autoCond\n"
+        menu.data += "    process.GlobalTag.globaltag = autoCond['%s']\n" % configuration.menuGlobalTag[5:]
       else:
-        data = data + "    process.GlobalTag.globaltag = '%s'\n" % configuration.menuGlobalTag
+        menu.data += "    process.GlobalTag.globaltag = '%s'\n" % configuration.menuGlobalTag
 
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
     if configuration.menuL1.override:
       if not configuration.menuL1.connect:
         configuration.menuL1.connect = "process.GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')"
-      data = data + """
+      menu.data += """
 # override the L1 menu
 if 'GlobalTag' in process.__dict__:
     process.GlobalTag.toGet.append(
@@ -530,7 +525,7 @@ if 'GlobalTag' in process.__dict__:
 """ % (configuration.menuL1.override, configuration.menuL1.connect)
 
     # the following is stolen from HLTrigger.Configuration.customL1THLT_Options
-    data = data + """
+    menu.data += """
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:
     process.hltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults','',process.name_() )
@@ -557,5 +552,5 @@ process.MessageLogger.categories.append('HLTrigReport')
 
 
 # dump the final configuration
-print data
+print menu.data
 
