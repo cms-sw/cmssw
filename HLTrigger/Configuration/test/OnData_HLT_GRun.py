@@ -18217,24 +18217,25 @@ if 'GlobalTag' in process.__dict__:
 
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:
-    process.hltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults','',process.name_() )
+    process.hltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
 
 if 'hltDQMHLTScalers' in process.__dict__:
-    process.hltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults','',process.name_() )
+    process.hltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
 
 if 'hltPreExpressSmart' in process.__dict__:
-    process.hltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults','',process.name_() )
+    process.hltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
 
 if 'hltPreHLTMONSmart' in process.__dict__:
-    process.hltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults','',process.name_() )
+    process.hltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults','',HLTGRun )
 
 if 'hltPreDQMSmart' in process.__dict__:
-    process.hltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults','',process.name_() )
+    process.hltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults','',HLTGRun )
 
 if 'hltDQML1SeedLogicScalers' in process.__dict__:
-    process.hltDQML1SeedLogicScalers.processname = process.name_()
+    process.hltDQML1SeedLogicScalers.processname = HLTGRun
 
-process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
-process.MessageLogger.categories.append('L1GtTrigReport')
-process.MessageLogger.categories.append('HLTrigReport')
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
+    process.MessageLogger.categories.append('L1GtTrigReport')
+    process.MessageLogger.categories.append('HLTrigReport')
 
