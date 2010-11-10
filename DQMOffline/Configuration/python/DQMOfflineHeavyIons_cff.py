@@ -43,7 +43,7 @@ DQMOfflineHeavyIonsPrePOG = cms.Sequence( muonMonitors
                                           * triggerOfflineDQMSource
                                           #* pvMonitor
                                           * alcaBeamMonitor
-                                          * dqmPhysics
+                                          * dqmPhysicsHI
                                           )
 
 DQMOfflineHeavyIonsPOG = cms.Sequence( DQMOfflineHeavyIonsPrePOG *
