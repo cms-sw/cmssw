@@ -199,7 +199,7 @@ def pipe(cmdline, input = None):
   return out
 
 
-class HltMenu(object):
+class HLTProcess(object):
   def __init__(self):
     self.data     = None
     self.labels   = {}
@@ -243,6 +243,19 @@ class HltMenu(object):
       raise ImportError('%s is not a valid HLT menu' % configuration.menuConfig.value)
 
     self.data = data
+
+
+  def addGlobalOptions(self):
+    # add global options
+    menu.data += """
+# add global options
+%(process)smaxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32( 100 )
+)
+%(process)soptions = cms.untracked.PSet(
+    wantSummary = cms.untracked.bool( True )
+)
+"""
 
 
   def fixForMC(self, configuration):
@@ -349,6 +362,45 @@ if 'GlobalTag' in %%(dict)s:
     )
 
 
+  # override the process name and adapt the relevant filters
+  def overrideProcessName(self, configuration):
+    # the following was stolen and adapted from HLTrigger.Configuration.customL1THLT_Options
+    self.data += """
+# override the process name
+%%(process)ssetName_('%(processName)s')
+
+# adapt HLT modules to the correct process name
+if 'hltTrigReport' in %%(dict)s:
+    %%(process)shltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults', '', '%(processName)s' )
+
+if 'hltDQMHLTScalers' in %%(dict)s:
+    %%(process)shltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults', '', '%(processName)s' )
+
+if 'hltPreExpressSmart' in %%(dict)s:
+    %%(process)shltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults', '', '%(processName)s' )
+
+if 'hltPreHLTMONSmart' in %%(dict)s:
+    %%(process)shltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults', '', '%(processName)s' )
+
+if 'hltPreDQMSmart' in %%(dict)s:
+    %%(process)shltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults', '', '%(processName)s' )
+
+if 'hltDQML1SeedLogicScalers' in %%(dict)s:
+    %%(process)shltDQML1SeedLogicScalers.processname = '%(processName)s'
+""" % configuration.__dict__
+
+
+  def updateMessageLogger(self):
+    # request summary informations from the MessageLogger
+    self.data += """
+if 'MessageLogger' in %(dict)s:
+    %(process)sMessageLogger.categories.append('TriggerSummaryProducerAOD')
+    %(process)sMessageLogger.categories.append('L1GtTrigReport')
+    %(process)sMessageLogger.categories.append('HLTrigReport')
+"""
+
+
+
 # parse command line arguments and options
 args = parser.parse_args( namespace = configuration )
 
@@ -363,7 +415,7 @@ confdbOptions = {
 }
 
 confdbSource = None
-menu = HltMenu()
+menu = HLTProcess()
 
 if configuration.doCff:
     confdbOptions['essources'].append( "-GlobalTag" )
@@ -457,8 +509,11 @@ if configuration.doCff:
     # if requested, remove the HLT prescales
     menu.unprescale(configuration)
 
+    # if requested or necessary, override the GlobalTag and connection strings
+    #menu.overrideGlobalTag(configuration)
+
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
-    menu.overrideL1Menu(configuration)
+    #menu.overrideL1Menu(configuration)
 
 else:
     if configuration.runOnline:
@@ -489,6 +544,9 @@ else:
     # if running on MC, adapt the configuration accordingly
     menu.fixForMC(configuration)
 
+    # override the process name and adapt the relevant filters
+    menu.overrideProcessName(configuration)
+
     # if required, remove the HLT prescales
     menu.unprescale(configuration)
 
@@ -497,29 +555,20 @@ else:
       menu.data += """
 # HIon paths in smart prescalers
 if 'hltPreHLTDQMSmart' in %(dict)s:
-    %(process)shltPreHLTDQMSmart.throw = cms.bool( False )
+    %(process)shltPreHLTDQMSmart.throw  = cms.bool( False )
 if 'hltPreHLTMONSmart' in %(dict)s:
-    %(process)shltPreHLTMONSmart.throw = cms.bool( False )
+    %(process)shltPreHLTMONSmart.throw  = cms.bool( False )
 if 'hltPreExpressSmart' in %(dict)s:
     %(process)shltPreExpressSmart.throw = cms.bool( False )
 if 'hltPreDQMSmart' in %(dict)s:
-    %(process)shltPreDQMSmart.throw = cms.bool( False )
+    %(process)shltPreDQMSmart.throw     = cms.bool( False )
 """        
 
+    # override the output modules to output root files
     menu.overrideOutput(configuration)
 
-    menu.data += """
-# set process name
-%%(process)ssetName_('%(processName)s')
-
-# add global options
-%%(process)smaxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32( 100 )
-)
-%%(process)soptions = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool( True )
-)
-""" % configuration.__dict__
+    # add global options
+    menu.addGlobalOptions()
 
     # if requested or necessary, override the GlobalTag and connection strings
     menu.overrideGlobalTag(configuration)
@@ -527,34 +576,9 @@ if 'hltPreDQMSmart' in %(dict)s:
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
     menu.overrideL1Menu(configuration)
 
-    # the following is stolen from HLTrigger.Configuration.customL1THLT_Options
-    menu.data += """
-# adapt HLT modules to the correct process name
-if 'hltTrigReport' in %%(dict)s:
-    %%(process)shltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults', '', '%(processName)s' )
-
-if 'hltDQMHLTScalers' in %%(dict)s:
-    %%(process)shltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults', '', '%(processName)s' )
-
-if 'hltPreExpressSmart' in %%(dict)s:
-    %%(process)shltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults', '', '%(processName)s' )
-
-if 'hltPreHLTMONSmart' in %%(dict)s:
-    %%(process)shltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults','',%(processName)s )
-
-if 'hltPreDQMSmart' in %%(dict)s:
-    %%(process)shltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults','',%(processName)s )
-
-if 'hltDQML1SeedLogicScalers' in %%(dict)s:
-    %%(process)shltDQML1SeedLogicScalers.processname = %(processName)s
-
-if 'MessageLogger' in %%(dict)s:
-    %%(process)sMessageLogger.categories.append('TriggerSummaryProducerAOD')
-    %%(process)sMessageLogger.categories.append('L1GtTrigReport')
-    %%(process)sMessageLogger.categories.append('HLTrigReport')
-""" % configuration.__dict__
+    # request summary informations from the MessageLogger
+    menu.updateMessageLogger()
 
 
 # dump the final configuration
 print menu.data % menu.labels
-
