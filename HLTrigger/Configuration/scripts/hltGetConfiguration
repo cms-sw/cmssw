@@ -245,28 +245,30 @@ class HltMenu(object):
     self.data = data
 
 
-  def fixForMC(self):
-    # override the raw data collection label
-    self.data = re.sub( r'cms\.InputTag\( "source" \)',            r'cms.InputTag( "rawDataCollector" )',           self.data)
-    self.data = re.sub( r'cms\.untracked\.InputTag\( "source" \)', r'cms.untracked.InputTag( "rawDataCollector" )', self.data)
-    self.data = re.sub( r'cms\.string\( "source" \)',              r'cms.string( "rawDataCollector" )',             self.data)
+  def fixForMC(self, configuration):
+    if not configuration.runOnData:
+      # override the raw data collection label
+      self.data = re.sub( r'cms\.InputTag\( "source" \)',            r'cms.InputTag( "rawDataCollector" )',           self.data)
+      self.data = re.sub( r'cms\.untracked\.InputTag\( "source" \)', r'cms.untracked.InputTag( "rawDataCollector" )', self.data)
+      self.data = re.sub( r'cms\.string\( "source" \)',              r'cms.string( "rawDataCollector" )',             self.data)
 
-    # override the preshower baseline setting for MC - needed for 3.5.x (x >= 7) and 3.6.x
-    self.data += """
+      # override the preshower baseline setting for MC - needed for 3.5.x (x >= 7) and 3.6.x
+      self.data += """
 # override the preshower baseline setting for MC
 if 'ESUnpackerWorkerESProducer' in %(dict)s:
     %(process)sESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
-""" % self.labels
+"""
 
 
-  def unprescale(self):
-    self.data += """
+  def unprescale(self, configuration):
+    if configuration.menuUnprescale:
+      self.data += """
 # remove the HLT prescales
 if 'PrescaleService' in %(dict)s:
     %(process)sPrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
     %(process)sPrescaleService.lvl1Labels = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
     %(process)sPrescaleService.prescaleTable = cms.VPSet( )
-""" % self.labels
+"""
 
 
   def overrideGlobalTag(self, configuration):
@@ -442,12 +444,10 @@ if configuration.doCff:
     menu.getRawConfigurationFromDB(configuration.menuConfig, confdbSource, confdbOptions, configuration.doCff)
 
     # if running on MC, adapt the configuration accordingly
-    if not configuration.runOnData:
-      menu.fixForMC()
+    menu.fixForMC(configuration)
 
     # if required, remove the HLT prescales
-    if configuration.menuUnprescale:
-      menu.unprescale()
+    menu.unprescale(configuration)
 
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
     menu.overrideL1Menu(configuration)
@@ -479,12 +479,10 @@ else:
     menu.getRawConfigurationFromDB(configuration.menuConfig, confdbSource, confdbOptions, configuration.doCff)
 
     # if running on MC, adapt the configuration accordingly
-    if not configuration.runOnData:
-      menu.fixForMC()
+    menu.fixForMC(configuration)
 
     # if required, remove the HLT prescales
-    if configuration.menuUnprescale:
-      menu.unprescale()
+    menu.unprescale(configuration)
 
     # manual override some Heavy Ion parameters
     if configuration.processType in ('HIon', ):
