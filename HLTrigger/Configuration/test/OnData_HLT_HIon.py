@@ -4981,6 +4981,12 @@ process.HLTMONOutput = cms.EndPath( process.hltPreHLTMON + process.hltPreHLTMONS
 process.NanoDSTOutput = cms.EndPath( process.hltPreNanoDST + process.hltOutputNanoDST )
 
 
+# remove the HLT prescales
+if 'PrescaleService' in process.__dict__:
+    process.PrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
+    process.PrescaleService.lvl1Labels = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
+    process.PrescaleService.prescaleTable = cms.VPSet( )
+
 # HIon paths in smart prescalers
 if 'hltPreHLTDQMSmart' in process.__dict__:
     process.hltPreHLTDQMSmart.throw = cms.bool( False )
@@ -4990,12 +4996,6 @@ if 'hltPreExpressSmart' in process.__dict__:
     process.hltPreExpressSmart.throw = cms.bool( False )
 if 'hltPreDQMSmart' in process.__dict__:
     process.hltPreDQMSmart.throw = cms.bool( False )
-
-# remove HLT prescales
-if 'PrescaleService' in process.__dict__:
-    process.PrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
-    process.PrescaleService.lvl1Labels = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
-    process.PrescaleService.prescaleTable = cms.VPSet( )
 
 # set process name
 process.setName_('HLTHIon')

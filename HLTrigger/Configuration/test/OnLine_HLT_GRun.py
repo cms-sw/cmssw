@@ -18185,7 +18185,7 @@ process.NanoDSTOutput = cms.EndPath( process.hltPreNanoDST + process.hltOutputNa
 if 'ESUnpackerWorkerESProducer' in process.__dict__:
     process.ESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
 
-# remove HLT prescales
+# remove the HLT prescales
 if 'PrescaleService' in process.__dict__:
     process.PrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
     process.PrescaleService.lvl1Labels = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
