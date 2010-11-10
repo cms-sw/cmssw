@@ -6,7 +6,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2010/09/27 11:38:30 $ by $Author: argiro $
+# last update: $Date: 2010/11/08 15:36:09 $ by $Author: argiro $
 
 # ECAL calibration with eta
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalEtaCalib_cff import *
@@ -26,7 +26,7 @@ ALCARECOStreamEcalCalEtaCalib = cms.FilteredStream(
         )
 
 
-# last update: $Date: 2010/09/27 11:38:30 $ by $Author: argiro $
+# last update: $Date: 2010/11/08 15:36:09 $ by $Author: argiro $
 
 # ECAL calibration with pi0
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPi0Calib_cff import *
@@ -66,7 +66,7 @@ ALCARECOStreamEcalCalPhiSym = cms.FilteredStream(
 
 
 # HCAL calibration with min.bias
-from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBiasHI_cff import *
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_cff import *
 
 from DQMOffline.Configuration.AlCaRecoDQMHI_cff import *
 
