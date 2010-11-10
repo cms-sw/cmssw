@@ -160,14 +160,16 @@ if (host == cmsPlayHostEB) | (host == cmsPlayHostEE) :
 onlyEB = 0
 onlyEE = 0
 
+fNamePrefix = os.path.basename(__file__).split("_")[0]
+
 if (liveECAL == 1) | (liveCMS == 1) | (playCMS == 1) :
-  if (host == ecalHostEB) | (host == cmsLiveHostEB) | (host == cmsPlayHostEB) :
+  if (fNamePrefix == 'eb') & ((host == ecalHostEB) | (host == cmsLiveHostEB) | (host == cmsPlayHostEB)) :
     onlyEB = 1
     onlyEE = 0
     print "Running EB only."
 
 if (liveECAL == 1) | (liveCMS == 1) | (playCMS == 1) :
-  if (host == ecalHostEE) | (host == cmsLiveHostEE) | (host == cmsPlayHostEE) :
+  if (fNamePrefix == 'ee') & ((host == ecalHostEE) | (host == cmsLiveHostEE) | (host == cmsPlayHostEE)) :
     onlyEB = 0
     onlyEE = 1
     print "Running EE only."
