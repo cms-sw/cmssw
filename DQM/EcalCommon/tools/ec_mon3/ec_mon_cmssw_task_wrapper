@@ -81,8 +81,6 @@ import os, sys, socket
 onlyEB = 0
 onlyEE = 0
 
-liveECAL  = 0
-
 EOF1
 
 my $localDAQ  = 0;
@@ -122,11 +120,11 @@ if (host == ecalHostEC) :
   print "ERROR: Wrong host configuration."
   sys.exit(1)
 
+liveECAL = 0
+
 if (host == ecalHostEB) | (host == ecalHostEE) :
-  if (liveECAL == 1) :
-    if (localDAQ == 1) | (globalDAQ == 1) :
-      print "ERROR: Wrong Live/Local/Global configuration."
-      sys.exit(1)
+  if (localDAQ == 0) & (globalDAQ == 0) :
+    liveECAL == 1
   else :
     if (localDAQ == 1) & (globalDAQ == 1) :
       print "ERROR: Wrong Local/Global configuration."
@@ -145,19 +143,11 @@ liveCMS = 0
 playCMS = 0
 
 if (host == cmsLiveHostEB) | (host == cmsLiveHostEE) :
-  liveECAL  = 0
-  localDAQ  = 0
-  globalDAQ = 0
-  liveCMS   = 1
-  playCMS   = 0
+  liveCMS = 1
   print "Running Central Live DQM."
 
 if (host == cmsPlayHostEB) | (host == cmsPlayHostEE) :
-  liveECAL  = 0
-  localDAQ  = 0
-  globalDAQ = 0
-  liveCMS   = 0
-  playCMS   = 1
+  playCMS = 1
   print "Running Central Playback DQM."
 
 if (liveECAL == 1) :
