@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.36 2010/11/03 11:49:43 innocent Exp $
- *  $Date: 2010/11/03 11:49:43 $
- *  $Revision: 1.36 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.37 2010/11/04 15:59:28 innocent Exp $
+ *  $Date: 2010/11/04 15:59:28 $
+ *  $Revision: 1.37 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -17,6 +17,59 @@
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
 #include <vector>
 
+<<<<<<< EcalUncalibRecHitRatioMethodAlgo.h
+template < class C > class EcalUncalibRecHitRatioMethodAlgo {
+      public:
+	struct Ratio {
+		int index;
+                int step;
+		double value;
+		double error;
+	};
+	struct Tmax {
+		int index;
+                int step;
+		double value;
+		double error;
+                double amplitude;
+                double chi2;
+	};
+	struct CalculatedRecHit {
+		double amplitudeMax;
+		double timeMax;
+		double timeError;
+                double chi2;
+	};
+
+	virtual ~ EcalUncalibRecHitRatioMethodAlgo < C > () { };
+	virtual EcalUncalibratedRecHit makeRecHit(const C & dataFrame,
+						  const double *pedestals,
+                                                  const double* pedestalRMSes,
+						  const double *gainRatios,
+						  std::vector < double >&timeFitParameters,
+						  std::vector < double >&amplitudeFitParameters,
+						  std::pair < double, double >&timeFitLimits);
+
+        // more function to be able to compute
+        // amplitude and time separately
+        void init( const C &dataFrame, const double * pedestals, const double * pedestalRMSes, const double * gainRatios );
+        void computeTime(std::vector < double >&timeFitParameters, std::pair < double, double >&timeFitLimits, std::vector< double > &amplitudeFitParameters);
+        void computeAmplitude( std::vector< double > &amplitudeFitParameters );
+        CalculatedRecHit getCalculatedRecHit() { return calculatedRechit_; };
+	bool fixMGPAslew( const C &dataFrame );
+
+      protected:
+	std::vector < double > amplitudes_;
+        std::vector < double > amplitudeErrors_;
+	std::vector < Ratio > ratios_;
+	std::vector < Tmax > times_;
+        std::vector < Tmax > timesAB_;
+
+        double pedestal_;
+	int    num_;
+        double ampMaxError_;
+=======
+>>>>>>> 1.37
 
 #include "DataFormats/Math/interface/SSEArray.h"
 #include "DataFormats/Math/interface/sse_mathfun.h"
@@ -329,6 +382,42 @@ chi2, float & amp) const {
 }
 
 
+<<<<<<< EcalUncalibRecHitRatioMethodAlgo.h
+template <class C>
+bool EcalUncalibRecHitRatioMethodAlgo<C>::fixMGPAslew( const C &dataFrame )
+{
+
+  // This fuction finds sample(s) preceeding gain switching and
+  // inflates errors on this sample, therefore, making this sample
+  // invisible for Ratio Method. Only gain switching DOWN is
+  // considered Only gainID=1,2,3 are considered. In case of the
+  // saturation (gainID=0), we keep "distorted" sample because it is
+  // the only chance to make time measurement; the qualilty of it will
+  // be bad anyway.
+
+  bool result = false;
+
+  int GainIdPrev;
+  int GainIdNext;
+  for (int iSample = 1; iSample < C::MAXSAMPLES; iSample++) {
+    GainIdPrev = dataFrame.sample(iSample-1).gainId();
+    GainIdNext = dataFrame.sample(iSample).gainId();
+    if( GainIdPrev>=1 && GainIdPrev<=3 && 
+        GainIdNext>=1 && GainIdNext<=3 && 
+        GainIdPrev<GainIdNext ){
+      amplitudes_[iSample-1]=1e-9;
+      amplitudeErrors_[iSample-1]=1e+9;
+      result = true;      
+    }
+  }
+  return result;
+
+}
+
+template<class C>
+void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&timeFitParameters,
+	    std::pair < double, double >&timeFitLimits, std::vector < double >&amplitudeFitParameters)
+=======
 
 
 
@@ -337,6 +426,7 @@ chi2, float & amp) const {
 template<class C, typename Scalar>
 void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < InputScalar > const & timeFitParameters,
 	    std::pair < InputScalar, InputScalar > const & timeFitLimits, std::vector < InputScalar > const & amplitudeFitParameters)
+>>>>>>> 1.37
 {
   //////////////////////////////////////////////////////////////
   //                                                          //
@@ -706,4 +796,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmplitude( std::vector< 
 				      calculatedRechit_.timeMax - 5,
 				      calculatedRechit_.timeError);
 }
+
+
+
 #endif

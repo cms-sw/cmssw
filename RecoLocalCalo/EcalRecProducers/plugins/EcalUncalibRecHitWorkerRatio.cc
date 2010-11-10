@@ -70,13 +70,40 @@ EcalUncalibRecHitWorkerRatio::run( const edm::Event & evt,
         EcalUncalibratedRecHit uncalibRecHit;
 
 	if (detid.subdetId()==EcalEndcap) {
-	   uncalibRecHit = uncalibMaker_endcap_.makeRecHit(*itdg, pedVec, pedRMSVec, gainRatios, EEtimeFitParameters_, EEamplitudeFitParameters_, EEtimeFitLimits_);
-           EcalUncalibRecHitRatioMethodAlgo<EEDataFrame>::CalculatedRecHit crh = uncalibMaker_endcap_.getCalculatedRecHit();
-           uncalibRecHit.setJitterError( sqrt(pow(crh.timeError,2) + pow(EEtimeConstantTerm_,2)/pow(clockToNsConstant,2)) );
+	  uncalibMaker_endcap_.init(*itdg, pedVec, pedRMSVec, gainRatios);
+          uncalibMaker_endcap_.computeTime(EEtimeFitParameters_, 
+					   EEtimeFitLimits_, 
+					   EEamplitudeFitParameters_ );
+          uncalibMaker_endcap_.computeAmplitude(EEamplitudeFitParameters_);
+          EcalUncalibRecHitRatioMethodAlgo<EEDataFrame>::CalculatedRecHit crh = 
+	                                    uncalibMaker_endcap_.getCalculatedRecHit();
+          uncalibRecHit.setAmplitude( crh.amplitudeMax );
+          uncalibRecHit.setJitter( crh.timeMax - 5 );
+          uncalibRecHit.setJitterError( std::sqrt(pow(crh.timeError,2) + 
+				        std::pow(EEtimeConstantTerm_,2)/
+                                        std::pow(clockToNsConstant,2)) );
+
         } else {
-           uncalibRecHit = uncalibMaker_barrel_.makeRecHit(*itdg, pedVec, pedRMSVec, gainRatios, EBtimeFitParameters_, EBamplitudeFitParameters_, EBtimeFitLimits_);
-           EcalUncalibRecHitRatioMethodAlgo<EBDataFrame>::CalculatedRecHit crh = uncalibMaker_barrel_.getCalculatedRecHit();
-           uncalibRecHit.setJitterError( sqrt(pow(crh.timeError,2) + pow(EBtimeConstantTerm_,2)/pow(clockToNsConstant,2)) );
+
+	  uncalibMaker_barrel_.init(*itdg, pedVec, pedRMSVec, gainRatios);
+	  bool gainSwitch = uncalibMaker_barrel_.fixMGPAslew(*itdg);
+          uncalibMaker_barrel_.computeTime(EBtimeFitParameters_, 
+					   EBtimeFitLimits_, 
+					   EBamplitudeFitParameters_ );
+          uncalibMaker_barrel_.computeAmplitude(EBamplitudeFitParameters_);
+          EcalUncalibRecHitRatioMethodAlgo<EBDataFrame>::CalculatedRecHit crh = 
+	                                    uncalibMaker_barrel_.getCalculatedRecHit();
+          uncalibRecHit.setAmplitude( crh.amplitudeMax );
+	  if(gainSwitch){
+	    // introduce additional 1ns shift
+	    uncalibRecHit.setJitter( crh.timeMax - 5 + 0.04 );
+	  }else{
+	    uncalibRecHit.setJitter( crh.timeMax - 5);
+	  }
+          uncalibRecHit.setJitterError( std::sqrt(pow(crh.timeError,2) + 
+					std::pow(EBtimeConstantTerm_,2)/
+                                        std::pow(clockToNsConstant,2)) );
+
         }
         result.push_back(uncalibRecHit);
 
