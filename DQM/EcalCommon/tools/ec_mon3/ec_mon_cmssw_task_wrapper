@@ -124,7 +124,7 @@ liveECAL = 0
 
 if (host == ecalHostEB) | (host == ecalHostEE) :
   if (localDAQ == 0) & (globalDAQ == 0) :
-    liveECAL == 1
+    liveECAL = 1
   else :
     if (localDAQ == 1) & (globalDAQ == 1) :
       print "ERROR: Wrong Local/Global configuration."
