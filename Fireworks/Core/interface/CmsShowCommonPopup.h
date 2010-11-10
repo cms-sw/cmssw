@@ -51,6 +51,8 @@ private:
    FWColorSelect* m_colorSelectWidget[kFWGeomColorSize];
  
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
+
+   ClassDef(CmsShowCommonPopup, 1);
 };
 
 

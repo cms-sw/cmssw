@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:12 EDT 2008
-// $Id: CmsShowViewPopup.h,v 1.18 2010/09/15 18:14:22 amraktad Exp $
+// $Id: CmsShowViewPopup.h,v 1.19 2010/09/24 18:51:18 amraktad Exp $
 //
 
 // system include files
@@ -111,6 +111,8 @@ private:
    FWColorManager* m_colorManager;
    FWViewBase*     m_viewBase;
    TEveWindow*     m_eveWindow;
+
+   ClassDef(CmsShowViewPopup, 1);
 };
 
 

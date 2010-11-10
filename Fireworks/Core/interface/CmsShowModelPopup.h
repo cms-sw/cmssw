@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowModelPopup.h,v 1.16 2010/09/07 17:43:04 amraktad Exp $
+// $Id: CmsShowModelPopup.h,v 1.17 2010/09/15 18:14:22 amraktad Exp $
 //
 
 // system include files
@@ -69,7 +69,7 @@ public:
                      UInt_t w = 1, UInt_t h = 1);
    virtual ~CmsShowModelPopup();
 
-  virtual void CloseWindow() { UnmapWindow(); }
+   virtual void CloseWindow() { UnmapWindow(); }
    // ---------- const member functions ---------------------
 
    // ---------- static member functions --------------------
@@ -106,6 +106,8 @@ private:
    const FWColorManager* m_colorManager;
    TGHSlider            *m_opacitySlider;
    FWDialogBuilder*     m_dialogBuilder;
+
+   ClassDef(CmsShowModelPopup, 1);
 };
 
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 18:13:29 EDT 2008
-// $Id: FWGUIValidatingTextEntry.h,v 1.4 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWGUIValidatingTextEntry.h,v 1.5 2009/10/02 17:55:27 dmytro Exp $
 //
 
 // system include files
@@ -62,6 +62,8 @@ private:
 
    FWValidatorBase* m_validator;
    std::vector<std::pair<boost::shared_ptr<std::string>, std::string> > m_options;
+
+   ClassDef(FWGUIValidatingTextEntry, 1);
 };
 
 

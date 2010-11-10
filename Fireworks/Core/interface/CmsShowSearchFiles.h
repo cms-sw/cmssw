@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowSearchFiles.h,v 1.2 2009/11/16 17:26:31 chrjones Exp $
+// $Id: CmsShowSearchFiles.h,v 1.3 2009/11/16 21:02:28 chrjones Exp $
 //
 
 // system include files
@@ -63,6 +63,8 @@ private:
    std::vector<bool> m_prefixComplete;
    TGTextButton* m_openButton;
    bool m_openCalled;
+
+   ClassDef(CmsShowSearchFiles, 1);
 };
 
 

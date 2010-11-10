@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 24 18:52:28 CEST 2010
-// $Id: FWEveViewScaleEditor.h,v 1.1 2010/09/24 18:51:18 amraktad Exp $
+// $Id: FWEveViewScaleEditor.h,v 1.2 2010/09/26 19:54:56 amraktad Exp $
 //
 
 // system include files
@@ -58,6 +58,8 @@ private:
    FWViewEnergyScale* m_scale;
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
    TGCheckButton* m_globalScalesBtn;
+
+   ClassDef(FWEveViewScaleEditor, 1);
 };
 
 

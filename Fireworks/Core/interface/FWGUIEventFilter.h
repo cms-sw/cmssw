@@ -14,7 +14,7 @@ class FWCustomIconsButton;
 class FWGUIEventSelector;
 
 class FWGUIEventFilter: public TGTransientFrame,
-                               CSGActionSupervisor
+                        CSGActionSupervisor
 {
 public:
    FWGUIEventFilter(const TGWindow* parent);
@@ -56,5 +56,7 @@ private:
    TGLabel*             m_stateLabel;
    TGTextButton*        m_applyBtn;
    FWCustomIconsButton* m_addBtn;
+
+   ClassDef(FWGUIEventFilter, 1);
 };
 

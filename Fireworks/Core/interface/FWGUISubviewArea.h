@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:29 EST 2008
-// $Id: FWGUISubviewArea.h,v 1.24 2010/01/25 13:33:37 amraktad Exp $
+// $Id: FWGUISubviewArea.h,v 1.25 2010/03/26 20:20:20 matevz Exp $
 //
 
 #include "TGFrame.h"
@@ -83,6 +83,8 @@ private:
    TGPictureButton* m_dockButton;
    TGPictureButton* m_closeButton;
    TGPictureButton* m_infoButton;
+
+   ClassDef(FWGUISubviewArea, 1);
 };
 
 #endif

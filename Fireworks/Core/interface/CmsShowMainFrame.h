@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.39 2010/09/03 17:58:54 matevz Exp $
+// $Id: CmsShowMainFrame.h,v 1.40 2010/09/16 15:36:55 amraktad Exp $
 //
 
 // system include files
@@ -137,6 +137,7 @@ private:
 
    TGPopupMenu *m_newViewerMenu;
 
+   ClassDef(CmsShowMainFrame, 1);
 };
 
 

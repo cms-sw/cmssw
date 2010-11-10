@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:42 EDT 2008
-// $Id: CmsShowEDI.h,v 1.16 2010/06/03 13:38:31 eulisse Exp $
+// $Id: CmsShowEDI.h,v 1.17 2010/09/15 18:14:22 amraktad Exp $
 //
 
 // system include files
@@ -51,7 +51,7 @@ class CmsShowEDI : public TGTransientFrame
 
 public:
    CmsShowEDI(const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1, FWSelectionManager* selMgr = 0,
-   FWColorManager* colorMgr=0);
+              FWColorManager* colorMgr=0);
    virtual ~CmsShowEDI();
 
    virtual void CloseWindow() { UnmapWindow(); }
@@ -115,6 +115,8 @@ private:
    TGTextView* m_selectError;
    FWExpressionValidator* m_validator;
    FWColorManager* m_colorManager;
+
+   ClassDef(CmsShowEDI, 1);
 };
 
 
