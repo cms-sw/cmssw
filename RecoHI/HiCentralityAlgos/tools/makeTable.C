@@ -26,29 +26,34 @@ static const int nbinsMax = 40;
 using namespace std;
 bool descend(float i,float j) { return (i<j); }
 
-void makeTable(int nbins = 40, const string label = "HFhits", const char * tag = "Preliminary_NoEffCor_AMPT_d1107", const char* dataset = "DATA"){
+void makeTable(int nbins = 40, const string label = "HFhits", const char * tag = "Preliminary_NoEffCor_AMPT_run150476_d1110", const char* dataset = "DATA"){
 
-  bool DATA = false;
-  bool SIM = true;
+  bool DATA = true;
+  bool SIM = false;
   bool MC = false;
   double EFF = 1;
   double MXS = 1. - EFF;
+
+  const char* bit0 = "HLT_HIMinBiasHF";
+  const char* bit1 = "L1_BscMinBiasThreshold1";
+
 
    // Retrieving data
   int maxEvents = -200;
   vector<int> runnums;
   
-  //  const char* infileName = Form("/net/hisrv0001/home/yetkin/hidsk0001/analysis/prod/%s_RECO_391/test.root",dataset);
-  const char* infileName = Form("/net/hisrv0001/home/yetkin/hidsk0001/centrality/prod/%s/test.root",dataset);
+  string infileNames[500] = {
+    Form("/d101/frankma/data/HIAllPhysics/HR10AllPR2/%s/*.root",dataset)
+  };
+  int nFiles = 1;
+  TChain* t = new TChain("hltanalysis/HltTree");
 
-  //  TFile* infile = new TFile(infileName,"read");
-  TChain* t = new TChain("HltTree");
-  //  TChain* t = new TChain("hltanalysis/HltTree");
-
-  t->Add(infileName);
+  for(int i = 0; i < nFiles; ++i){
+    t->Add(infileNames[i].data());
+  }
 
   // Creating output table
-  TFile* outFile = new TFile("tables_d1108.root","update");
+  TFile* outFile = new TFile("tables_data_d1110.root","update");
    TDirectory* dir = outFile->mkdir(tag);
    dir->cd();
    TNtuple* nt = new TNtuple("nt","","hf:bin:b:npart:ncoll:nhard");
@@ -62,7 +67,7 @@ void makeTable(int nbins = 40, const string label = "HFhits", const char * tag =
   CentralityBins* inputMCtable;
   
   if(DATA){
-    inputMCfile = new TFile("tables_d1103.root","read");
+    inputMCfile = new TFile("AMPT_Organ_Glauber.root","read");
     inputMCtable = (CentralityBins*)inputMCfile->Get("CentralityTable_HFhits40_AMPT2760GeV_v1_mc_MC_38Y_V12/run1");
   }
 
@@ -72,8 +77,11 @@ void makeTable(int nbins = 40, const string label = "HFhits", const char * tag =
 
   float b,npart,ncoll,nhard,hf,hfhit,eb,ee,etmr,parameter;
   int npix,ntrks;
-  //  TTree* t = (TTree*)infile->Get("HltTree");
   int run;
+  int trig[20];
+
+  t->SetBranchAddress(bit0,&(trig[0]));
+  t->SetBranchAddress(bit1,&(trig[1]));
 
   if(SIM){
     t->SetBranchAddress("b",&b);
@@ -99,16 +107,19 @@ void makeTable(int nbins = 40, const string label = "HFhits", const char * tag =
   bool binHFhit = label.compare("HFhits") == 0;
   bool binEB = label.compare("EB") == 0;
   bool binEE = label.compare("EE") == 0;
-  bool binETMR = label.compare("ETMR") == 0;
+  bool binETMR = label.compare("ETmidRapidity") == 0;
   bool binNpix = label.compare("PixelHits") == 0;
   bool binNtrks = label.compare("Ntracks") == 0;
 
   // Determining bins of cross section
   // loop over events
+  double dev = 0;
   unsigned int events=t->GetEntries();
   for(unsigned int iev = 0; iev < events && (maxEvents < 0 || iev< maxEvents); ++iev){
     if( iev % 100 == 0 ) cout<<"Processing event : "<<iev<<endl;
     t->GetEntry(iev);
+
+    if(!trig[0]) continue;
 
     if(binNpart) parameter = npart;
     if(binNcoll) parameter = ncoll;
@@ -124,6 +135,8 @@ void makeTable(int nbins = 40, const string label = "HFhits", const char * tag =
  
     values.push_back(parameter);
     if(runnums.size() == 0 || runnums[runnums.size()-1] != run) runnums.push_back(run);
+
+    dev += 1;
   }
   
   if(label.compare("b") == 0) sort(values.begin(),values.end(),descend);
@@ -137,7 +150,6 @@ void makeTable(int nbins = 40, const string label = "HFhits", const char * tag =
   cout<<"(";
 
   int bin = 0;
-  double dev = events;
   for(int i = 0; i< nbins; ++i){
      // Find the boundary 
     int entry = (int)(i*(dev/nbins));
@@ -162,6 +174,8 @@ void makeTable(int nbins = 40, const string label = "HFhits", const char * tag =
   for(unsigned int iev = 0; iev < events && (maxEvents < 0 || iev< maxEvents); ++iev){
      if( iev % 100 == 0 ) cout<<"Processing event : "<<iev<<endl;
      t->GetEntry(iev);
+     if(!trig[0]) continue;
+
      if(binNpart) parameter = npart;
      if(binNcoll) parameter = ncoll;
      if(binNhard) parameter = nhard;
