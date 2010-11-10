@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2010/08/30 13:14:09 $
- * $Revision: 1.80 $
+ * $Date: 2010/11/10 16:57:45 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -414,20 +414,20 @@ void EEClusterTask::setup(void){
     meSCCrystalSiz_->setAxisTitle("cluster size in crystals", 1);
 
     sprintf(histo, "EECLT SC seed crystal energy");
-    meSCSeedEne_ = dqmStore_->book1D(histo, histo, 100, 0., 15.);
+    meSCSeedEne_ = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     meSCSeedEne_->setAxisTitle("seed crystal energy (GeV)", 1);
 
     sprintf(histo, "EECLT SC e2");
-    meSCEne2_ = dqmStore_->book1D(histo, histo, 100, 0., 15.);
+    meSCEne2_ = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     meSCEne2_->setAxisTitle("seed + highest neighbor crystal energy (GeV)", 1);
 
     sprintf(histo, "EECLT SC energy vs seed crystal energy");
-    meSCEneVsEMax_ = dqmStore_->book2D(histo, histo, 50, 0., 15., 50, 0., 15.);
+    meSCEneVsEMax_ = dqmStore_->book2D(histo, histo, 50, 0., 10., 50, 0., 10.);
     meSCEneVsEMax_->setAxisTitle("seed crystal energy (GeV)", 1);
     meSCEneVsEMax_->setAxisTitle("cluster energy (GeV)", 2);
 
     sprintf(histo, "EECLT SC energy (low scale)");
-    meSCEneLowScale_ = dqmStore_->book1D(histo, histo, 100, 0., 15.);
+    meSCEneLowScale_ = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     meSCEneLowScale_->setAxisTitle("cluster energy (GeV)", 1);
 
     sprintf(histo, "EECLT SC seed occupancy map EE -");
