@@ -17,7 +17,7 @@
 
 //timestamp stuff
 #include "DataFormats/Provenance/interface/Timestamp.h"
-#include "CondTools/RPC/interface/RPCRunIOV.h"
+#include "CoralBase/TimeStamp.h"
 #include <sys/time.h>
 
 /////////////////
@@ -33,6 +33,7 @@
 #include "TMultiGraph.h"
 #include "TLegend.h"
 #include "TF1.h"
+#include "TDatime.h"
 
 #include <string>
 #include <fstream>
@@ -239,6 +240,38 @@ namespace cond {
     return y;
   }
   
+  unsigned long long toUNIX(int date, int time)
+  {
+    int yea_ = (int)date/100; 
+    int yea = 2000 + (date - yea_*100);
+    int mon_ = (int)yea_/100;
+    int mon = yea_ - mon_*100;
+    int day = (int)yea_/100;
+    int sec_ = (int)time/100;
+    int sec = time - sec_*100;
+    int min_ = (int)sec_/100;
+    int min = sec_ - min_*100;
+    int hou = (int)sec_/100;
+    int nan = 0;
+    coral::TimeStamp TS;  
+    TS = coral::TimeStamp(yea, mon, day, hou, min, sec, nan);
+    
+    long long UT = (TS.year()-1970)*31536000+static_cast<int>(trunc((TS.year()-1972)/4))*86400+
+      (((TS.month()-1)*31)*86400)+((TS.day()-1)*86400)+TS.hour()*3600+TS.minute()*60+TS.second();
+    
+    if (TS.month() == 3) UT = UT - 3*86400;
+    if (TS.month() == 4) UT = UT - 3*86400;
+    if (TS.month() == 5) UT = UT - 4*86400;
+    if (TS.month() == 6) UT = UT - 4*86400;
+    if (TS.month() == 7) UT = UT - 5*86400;
+    if (TS.month() == 8) UT = UT - 5*86400;
+    if (TS.month() == 9) UT = UT - 5*86400;
+    if (TS.month() == 10) UT = UT - 6*86400;
+    if (TS.month() == 11) UT = UT - 6*86400;
+    if (TS.month() == 12) UT = UT - 7*86400;
+    
+    return UT;
+  }
   
   // return the real name of the file including extension...
   template<>
@@ -286,7 +319,7 @@ namespace cond {
 
     std::vector<RPCObImon::I_Item> const & imon = object().ObImon_rpc;
     
-    RPCRunIOV *iovHelp=new RPCRunIOV();
+    //    RPCRunIOV *iovHelp=new RPCRunIOV();
     
     std::map<int,std::pair<std::vector<double>,std::vector<double> > > dpidMap;
     for(unsigned int i = 0;i < imon.size(); ++i){
@@ -294,17 +327,17 @@ namespace cond {
 	if(imon[i].dpid!=pvssCont[p].dpid || pvssCont[p].suptype!=0 || pvssCont[p].region!=0)continue;
 	if(dpidMap.find(imon[i].dpid)==dpidMap.end()){
 	  std::vector<double> dumVec1;dumVec1.push_back(imon[i].value);
-	  std::vector<double> dumVec2;dumVec2.push_back((double)iovHelp->toUNIX(imon[i].day,imon[i].time));
+	  std::vector<double> dumVec2;dumVec2.push_back((double)/*iovHelp->*/toUNIX(imon[i].day,imon[i].time));
 	  dpidMap[imon[i].dpid]=make_pair(dumVec1,dumVec2);
 	}
 	else {
 	  dpidMap[imon[i].dpid].first.push_back(imon[i].value);
-	  dpidMap[imon[i].dpid].second.push_back((double)iovHelp->toUNIX(imon[i].day,imon[i].time));
+	  dpidMap[imon[i].dpid].second.push_back((double)/*iovHelp->*/toUNIX(imon[i].day,imon[i].time));
 	}
       }
     }
     
-    delete iovHelp;
+    //    delete iovHelp;
 
     double maxMean(-1.),maxRms(-1.);
     double minMean(9999.),minRms(9999.);
@@ -321,7 +354,7 @@ namespace cond {
       double rms(0.);
       for(std::vector<double>::iterator rmsIt=meanAndVals.second.begin();
 	  rmsIt!=meanAndVals.second.end();++rmsIt){
-	rms+=pow(*rmsIt-meanAndVals.first/(double)meanAndVals.second.size(),2);
+	rms+=pow((*rmsIt-meanAndVals.first)/(double)meanAndVals.second.size(),2);
       }
       rmsDistr->Fill(sqrt(rms));
       if(sqrt(rms)>maxRms){
@@ -330,7 +363,7 @@ namespace cond {
       }
       if(sqrt(rms)<minRms){
 	minRms=sqrt(rms);
-	if(mIt->second.first.size()>5)
+	if(mIt->second.first.size()>10)
 	  minIt=mIt;
       }
       means.push_back(meanAndVals.first);
@@ -369,7 +402,8 @@ namespace cond {
     iRmsDistr->Draw("AP");
     
 
-    c.cd(4);
+    TVirtualPad *p4=c.cd(4);
+    p4->SetLogy(1);
     TMultiGraph *mProf=new TMultiGraph();
     TLegend *leg=new TLegend(0.65,0.91,0.99,0.99);
     TGraph *minProf=new TGraph(minIt->second.first.size(),&minIt->second.second[0],&minIt->second.first[0]);
@@ -469,10 +503,28 @@ namespace cond {
     
     dbSes.close();
     
-    TGraph trend(vecI.size(),static_cast<const float *>(&floats[0]),static_cast<const float *>(&vecI[0]));
+    std::vector<unsigned long long> lngs ;
+    for(std::vector<float>::const_iterator fIt=floats.begin();fIt!=floats.end();fIt++){
+      lngs.push_back((unsigned long long)*fIt);
+      //      std::cout<<*fIt<<" "<<(long double)*fIt<<" "<<(unsigned long long)*fIt<<" "<<vecI[0]<<" "<<(unsigned long long)vecI[0]<<std::endl;
+    }
+    std::vector<unsigned long long> const longs=lngs;
+
+    //    TGraph trend(vecI.size(),static_cast<const float *>(&longs[0]),static_cast<const float *>(&vecI[0]));
+    std::cout<<(int)longs[longs.size()-1]-longs[0]<<std::endl;
+    TH1F trend("trend","trend",(int)longs[longs.size()-1]-longs[0],longs[0],longs[longs.size()-1]);
+    //TH1F trend("trend","trend",floats.size(),static_cast<const float* >(&floats[0]));
+    trend.GetXaxis()->SetTimeDisplay(1);
+    trend.GetXaxis()->SetTimeFormat("%d/%m/%y %H:%M");
     trend.SetLineColor(2);
     trend.SetLineWidth(2);
     trend.GetYaxis()->SetTitle("<I> (#muA)");
+
+    std::cout<<"Bins "<<trend.GetNbinsX()<<std::endl;
+    for(unsigned int fill=0;fill<=longs.size();fill++){
+      trend.SetBinContent(longs[fill]-longs[0],vecI[fill]);
+      std::cout<<fill<<" "<<floats[fill]<<" "<<longs[fill]-longs[0]<<" "<<vecI[fill]<<std::endl;
+    }
 
     float min(*(floats.begin())),max(*(floats.end()-1));
     float scaleToggle((max-min)/max);
@@ -481,7 +533,7 @@ namespace cond {
     if(scaleToggle>=0.1)
       c.SetLogx(1);
 
-    trend.Draw("LA*");
+    trend.Draw(/*"LA*"*/);
 
     TLegend leg(0.65,0.91,0.99,0.99);
     leg.AddEntry(&trend,"Imon trend","lpf");
@@ -502,8 +554,7 @@ namespace cond {
 namespace condPython {
   template<>
   void defineWhat<RPCObImon>() {
-    using namespace boost::python;
-
+    
     enum_<cond::rpcobimon::How>("How")
       .value("detid",cond::rpcobimon::detid)
       .value("day",cond::rpcobimon::day) 
