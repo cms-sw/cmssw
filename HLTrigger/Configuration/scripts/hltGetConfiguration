@@ -340,6 +340,14 @@ if 'GlobalTag' in %%(dict)s:
 """ % configuration.menuL1.__dict__
 
 
+  def overrideOutput(self, configuration):
+    # FIXME - find a better way to override the output modules
+    self.data = re.sub( 
+      r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\( *"ShmStreamConsumer" *,',
+      r'%(process)shltOutput\2 = cms.OutputModule( "PoolOutputModule",\n    fileName = cms.untracked.string( "output\2.root" ),\n    fastCloning = cms.untracked.bool( False ),', 
+      self.data
+    )
+
 
 # parse command line arguments and options
 args = parser.parse_args( namespace = configuration )
@@ -446,7 +454,7 @@ if configuration.doCff:
     # if running on MC, adapt the configuration accordingly
     menu.fixForMC(configuration)
 
-    # if required, remove the HLT prescales
+    # if requested, remove the HLT prescales
     menu.unprescale(configuration)
 
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
@@ -498,12 +506,7 @@ if 'hltPreDQMSmart' in %(dict)s:
     %(process)shltPreDQMSmart.throw = cms.bool( False )
 """        
 
-    # FIXME - find a better way to override the output modules
-    menu.data = re.sub( 
-      r'process\.hltOutput(\w+) *= *cms\.OutputModule\( *"ShmStreamConsumer" *,',
-      r'process.hltOutput\1 = cms.OutputModule( "PoolOutputModule",\n    fileName = cms.untracked.string( "output\1.root" ),\n    fastCloning = cms.untracked.bool( False ),', 
-      menu.data
-    )
+    menu.overrideOutput(configuration)
 
     menu.data += """
 # set process name
@@ -527,28 +530,29 @@ if 'hltPreDQMSmart' in %(dict)s:
     # the following is stolen from HLTrigger.Configuration.customL1THLT_Options
     menu.data += """
 # adapt HLT modules to the correct process name
-if 'hltTrigReport' in %(dict)s:
-    %(process)shltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults','',%(process)sname_() )
+if 'hltTrigReport' in %%(dict)s:
+    %%(process)shltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults', '', '%(processName)s' )
 
-if 'hltDQMHLTScalers' in %(dict)s:
-    %(process)shltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults','',%(process)sname_() )
+if 'hltDQMHLTScalers' in %%(dict)s:
+    %%(process)shltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults', '', '%(processName)s' )
 
-if 'hltPreExpressSmart' in %(dict)s:
-    %(process)shltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults','',%(process)sname_() )
+if 'hltPreExpressSmart' in %%(dict)s:
+    %%(process)shltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults', '', '%(processName)s' )
 
-if 'hltPreHLTMONSmart' in %(dict)s:
-    %(process)shltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults','',%(process)sname_() )
+if 'hltPreHLTMONSmart' in %%(dict)s:
+    %%(process)shltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults','',%(processName)s )
 
-if 'hltPreDQMSmart' in %(dict)s:
-    %(process)shltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults','',%(process)sname_() )
+if 'hltPreDQMSmart' in %%(dict)s:
+    %%(process)shltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults','',%(processName)s )
 
-if 'hltDQML1SeedLogicScalers' in %(dict)s:
-    %(process)shltDQML1SeedLogicScalers.processname = %(process)sname_()
+if 'hltDQML1SeedLogicScalers' in %%(dict)s:
+    %%(process)shltDQML1SeedLogicScalers.processname = %(processName)s
 
-%(process)sMessageLogger.categories.append('TriggerSummaryProducerAOD')
-%(process)sMessageLogger.categories.append('L1GtTrigReport')
-%(process)sMessageLogger.categories.append('HLTrigReport')
-"""
+if 'MessageLogger' in %%(dict)s:
+    %%(process)sMessageLogger.categories.append('TriggerSummaryProducerAOD')
+    %%(process)sMessageLogger.categories.append('L1GtTrigReport')
+    %%(process)sMessageLogger.categories.append('HLTrigReport')
+""" % configuration.__dict__
 
 
 # dump the final configuration
