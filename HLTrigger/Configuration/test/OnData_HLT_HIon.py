@@ -4981,6 +4981,28 @@ process.HLTMONOutput = cms.EndPath( process.hltPreHLTMON + process.hltPreHLTMONS
 process.NanoDSTOutput = cms.EndPath( process.hltPreNanoDST + process.hltOutputNanoDST )
 
 
+# override the process name
+process.setName_('HLTHIon')
+
+# adapt HLT modules to the correct process name
+if 'hltTrigReport' in process.__dict__:
+    process.hltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults', '', 'HLTHIon' )
+
+if 'hltDQMHLTScalers' in process.__dict__:
+    process.hltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults', '', 'HLTHIon' )
+
+if 'hltPreExpressSmart' in process.__dict__:
+    process.hltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults', '', 'HLTHIon' )
+
+if 'hltPreHLTMONSmart' in process.__dict__:
+    process.hltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults', '', 'HLTHIon' )
+
+if 'hltPreDQMSmart' in process.__dict__:
+    process.hltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults', '', 'HLTHIon' )
+
+if 'hltDQML1SeedLogicScalers' in process.__dict__:
+    process.hltDQML1SeedLogicScalers.processname = 'HLTHIon'
+
 # remove the HLT prescales
 if 'PrescaleService' in process.__dict__:
     process.PrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
@@ -4989,16 +5011,13 @@ if 'PrescaleService' in process.__dict__:
 
 # HIon paths in smart prescalers
 if 'hltPreHLTDQMSmart' in process.__dict__:
-    process.hltPreHLTDQMSmart.throw = cms.bool( False )
+    process.hltPreHLTDQMSmart.throw  = cms.bool( False )
 if 'hltPreHLTMONSmart' in process.__dict__:
-    process.hltPreHLTMONSmart.throw = cms.bool( False )
+    process.hltPreHLTMONSmart.throw  = cms.bool( False )
 if 'hltPreExpressSmart' in process.__dict__:
     process.hltPreExpressSmart.throw = cms.bool( False )
 if 'hltPreDQMSmart' in process.__dict__:
-    process.hltPreDQMSmart.throw = cms.bool( False )
-
-# set process name
-process.setName_('HLTHIon')
+    process.hltPreDQMSmart.throw     = cms.bool( False )
 
 # add global options
 process.maxEvents = cms.untracked.PSet(
@@ -5024,25 +5043,6 @@ if 'GlobalTag' in process.__dict__:
             connect = cms.untracked.string( "sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/sqlFile/L1Menu_CollisionsHeavyIons2010_v0_mc.db" )
         )
     )
-
-# adapt HLT modules to the correct process name
-if 'hltTrigReport' in process.__dict__:
-    process.hltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults', '', 'HLTHIon' )
-
-if 'hltDQMHLTScalers' in process.__dict__:
-    process.hltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults', '', 'HLTHIon' )
-
-if 'hltPreExpressSmart' in process.__dict__:
-    process.hltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults', '', 'HLTHIon' )
-
-if 'hltPreHLTMONSmart' in process.__dict__:
-    process.hltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults','',HLTHIon )
-
-if 'hltPreDQMSmart' in process.__dict__:
-    process.hltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults','',HLTHIon )
-
-if 'hltDQML1SeedLogicScalers' in process.__dict__:
-    process.hltDQML1SeedLogicScalers.processname = HLTHIon
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
