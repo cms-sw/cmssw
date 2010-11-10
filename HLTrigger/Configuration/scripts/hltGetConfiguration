@@ -2,6 +2,7 @@
 
 import sys
 import os
+import re
 import commands
 import getopt
 import shlex, subprocess
@@ -10,6 +11,7 @@ import argparse, textwrap
 
 # available "type"s and relative global tags
 globalTag = {
+  'FULL': 'auto:startup',
   '8E29': 'auto:startup',
   'GRun': 'auto:startup',       # use as default
   'data': 'auto:hltonline',
@@ -328,13 +330,13 @@ if configuration.doCff:
 
     if not configuration.runOnData:
       # FIXME - this should be done looking into the python objects, not working on the text representation
-      data = pipe("sed -e 's/cms.InputTag( \"source\" )/cms.InputTag( \"rawDataCollector\" )/'", data)
-      data = pipe("sed -e 's/cms.untracked.InputTag( \"source\" )/cms.untracked.InputTag( \"rawDataCollector\" )/'", data)
-      data = pipe("sed -e 's/cms.string( \"source\" )/cms.string( \"rawDataCollector\" )/'", data)
+      data = re.sub( r'cms\.InputTag\( "source" \)',            r'cms.InputTag( "rawDataCollector" )',           data)
+      data = re.sub( r'cms\.untracked\.InputTag\( "source" \)', r'cms.untracked.InputTag( "rawDataCollector" )', data)
+      data = re.sub( r'cms\.string\( "source" \)',              r'cms.string( "rawDataCollector" )',             data)
 
 #   if configuration.processType in ('1E31', 'HIon'):
 #     # FIXME - should have a proper L1 MC/DESIGN/1E31 menue
-#     data = pipe("sed -e 's/\<L1_DoubleEG2\>/L1_DoubleEG1/'", data)
+#     data = re.sub( r'\bL1_DoubleEG2\b', r'L1_DoubleEG1', data)
 
     # override the preshower baseline setting for MC - needed for 3.5.x (x >= 7) and 3.6.x
     if not configuration.runOnData:
@@ -402,13 +404,13 @@ else:
 
     if not configuration.runOnData:
       # FIXME - this should be done looking into the python objects, not working on the text representation
-      data = pipe("sed -e 's/cms.InputTag( \"source\" )/cms.InputTag( \"rawDataCollector\" )/'", data)
-      data = pipe("sed -e 's/cms.untracked.InputTag( \"source\" )/cms.untracked.InputTag( \"rawDataCollector\" )/'", data)
-      data = pipe("sed -e 's/cms.string( \"source\" )/cms.string( \"rawDataCollector\" )/'", data)
+      data = re.sub( r'cms\.InputTag\( "source" \)',            r'cms.InputTag( "rawDataCollector" )',              data)
+      data = re.sub( r'cms\.untracked\.InputTag\( "source" \)', r'cms.untracked.InputTag( "rawDataCollector" )',    data)
+      data = re.sub( r'cms\.string\( "source" \)',              r'cms.string( "rawDataCollector" )',                data)
 
     if configuration.processType in ('1E31', 'HIon'):
 #     # FIXME - should have a proper L1 MC/DESIGN/1E31 menue
-#     data = pipe("sed -e 's/\<L1_DoubleEG2\>/L1_DoubleEG1/'", data)
+#     data = re.sub( r'\bL1_DoubleEG2\b', r'L1_DoubleEG1', data)
       data = data + """
 # HIon paths in smart prescalers
 if 'hltPreHLTDQMSmart' in process.__dict__:
@@ -421,7 +423,11 @@ if 'hltPreDQMSmart' in process.__dict__:
     process.hltPreDQMSmart.throw = cms.bool( False )
 """        
     # FIXME - find a better way to override the output modules
-    data = pipe("sed -e's/process\.hltOutput\(\w\+\) *= *cms\.OutputModule( *\"ShmStreamConsumer\" *,/process.hltOutput\\1 = cms.OutputModule( \"PoolOutputModule\",\\n    fileName = cms.untracked.string( \"output\\1.root\" ),\\n    fastCloning = cms.untracked.bool( False ),/' ", data)
+    data = re.sub( 
+      r'process.hltOutput(\w+) *= *cms\.OutputModule\( *"ShmStreamConsumer" *,',
+      r'process.hltOutput\1 = cms.OutputModule( "PoolOutputModule",\n    fileName = cms.untracked.string( "output\1.root" ),\n    fastCloning = cms.untracked.bool( False ),', 
+      data
+    )
 
     # override the preshower baseline setting for MC - needed for 3.5.x (x >= 7) and 3.6.x
     if not configuration.runOnData:
