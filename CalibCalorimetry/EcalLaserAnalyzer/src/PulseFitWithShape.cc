@@ -1,7 +1,7 @@
 /* 
  *  \class PulseFitWithShape
  *
- *  $Date: 2010/10/21 23:08:38 $
+ *  $Date: 2010/11/10 14:23:32 $
  *  \author: Julie Malcles - CEA/Saclay
  */
 
@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include "TMath.h"
+#include <cmath>
 
 //ClassImp(PulseFitWithShape)
 
@@ -162,7 +163,7 @@ double PulseFitWithShape::doFit(double *adc, double *cova)
   
   for(int is=0; is<nsamplef; is++){
 
-    if(fabs(adc[is+nsampleo]) > fabs(qm) ){
+    if(std::fabs(adc[is+nsampleo]) > std::fabs(qm) ){
       qm=adc[is+nsampleo];
       im=nsampleo+is;
     }
@@ -202,7 +203,7 @@ double PulseFitWithShape::doFit(double *adc, double *cova)
   resi= new double[fNsamples];  
   for (int j=0;j<fNsamples;j++) resi[j]=0;
 
-  while(fabs(chi2old-chi2) > 0.1 && iloop < nloop)
+  while(std::fabs(chi2old-chi2) > 0.1 && iloop < nloop)
     {
       iloop++;
       chi2old=chi2;
@@ -327,7 +328,7 @@ double PulseFitWithShape::doFit(double *adc, double *cova)
 	  if(qm > 5.*noise ) deltat=(y*u-v*x)/(z*v-w*y)/xpar[0];
 	  if(deltat>1.)deltat=1.;
 	  if(deltat<-1.)deltat=-1.;
-	  //if(fabs(xpar[2]+deltat-tdc_f)>1.5)
+	  //if(std::fabs(xpar[2]+deltat-tdc_f)>1.5)
 	  //{
 	  //  fittdc=0;
 	  //  xpar[2]=tdc_f;
