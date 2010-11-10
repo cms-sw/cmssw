@@ -204,7 +204,7 @@ def pipe(cmdline, input = None):
 class HltMenu(object):
   def __init__(self):
     self.data     = None
-    self.fragment = False
+    self.labels   = {}
 
   @staticmethod
   def _build_query(config):
@@ -225,13 +225,19 @@ class HltMenu(object):
     return ' '.join(['--%s %s' % (key, ','.join(vals)) for key, vals in opts.iteritems() if vals])
 
   def _build_cmdline(self, config, src, opts, fragment):
-    self.fragment = fragment
-    if not self.fragment:
+    if not fragment:
       return 'edmConfigFromDB %s %s %s'       % (self._build_query(config), self._build_source(src), self._build_options(opts))
     else:
       return 'edmConfigFromDB --cff %s %s %s' % (self._build_query(config), self._build_source(src), self._build_options(opts))
 
   def getRawConfigurationFromDB(self, config, src, opts, fragment):
+    if fragment:
+      self.labels['process'] = ''
+      self.labels['dict']    = 'locals()'
+    else:
+      self.labels['process'] = 'process.'
+      self.labels['dict']    = 'process.__dict__'
+
     cmdline = self._build_cmdline(configuration.menuConfig, confdbSource, confdbOptions, fragment)
     data = pipe(cmdline)
     
@@ -240,6 +246,7 @@ class HltMenu(object):
 
     self.data = data
 
+
   def fixForMC(self):
     # override the raw data collection label
     self.data = re.sub( r'cms\.InputTag\( "source" \)',            r'cms.InputTag( "rawDataCollector" )',           self.data)
@@ -247,18 +254,21 @@ class HltMenu(object):
     self.data = re.sub( r'cms\.string\( "source" \)',              r'cms.string( "rawDataCollector" )',             self.data)
 
     # override the preshower baseline setting for MC - needed for 3.5.x (x >= 7) and 3.6.x
-    if self.fragment:
-      self.data += """
+    self.data += """
 # override the preshower baseline setting for MC
-if 'ESUnpackerWorkerESProducer' in locals():
-    ESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
-"""
-    else:
-      self.data += """
-# override the preshower baseline setting for MC
-if 'ESUnpackerWorkerESProducer' in process.__dict__:
-    process.ESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
-"""
+if 'ESUnpackerWorkerESProducer' in %(dict)s:
+    %(process)sESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
+""" % self.labels
+
+
+  def unprescale(self):
+    self.data += """
+# remove the HLT prescales
+if 'PrescaleService' in %(dict)s:
+    %(process)sPrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
+    %(process)sPrescaleService.lvl1Labels = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
+    %(process)sPrescaleService.prescaleTable = cms.VPSet( )
+""" % self.labels
 
 
 # parse command line arguments and options
@@ -363,20 +373,15 @@ if configuration.doCff:
     menu = HltMenu()
     menu.getRawConfigurationFromDB(configuration.menuConfig, confdbSource, confdbOptions, configuration.doCff)
 
+    # if running on MC, adapt the configuration accordingly
     if not configuration.runOnData:
       menu.fixForMC()
 
-    data = menu.data
-
     # if required, remove the HLT prescales
     if configuration.menuUnprescale:
-      data = data + """
-# remove the HLT prescales
-if 'PrescaleService' in locals():
-    PrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
-    PrescaleService.lvl1Labels = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
-    PrescaleService.prescaleTable = cms.VPSet( )
-"""
+      menu.unprescale()
+
+    data = menu.data
 
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
     if configuration.menuL1.override:
@@ -421,8 +426,13 @@ else:
     menu = HltMenu()
     menu.getRawConfigurationFromDB(configuration.menuConfig, confdbSource, confdbOptions, configuration.doCff)
 
+    # if running on MC, adapt the configuration accordingly
     if not configuration.runOnData:
       menu.fixForMC()
+
+    # if required, remove the HLT prescales
+    if configuration.menuUnprescale:
+      menu.unprescale()
 
     data = menu.data
 
@@ -440,20 +450,10 @@ if 'hltPreDQMSmart' in process.__dict__:
 """        
     # FIXME - find a better way to override the output modules
     data = re.sub( 
-      r'process.hltOutput(\w+) *= *cms\.OutputModule\( *"ShmStreamConsumer" *,',
+      r'process\.hltOutput(\w+) *= *cms\.OutputModule\( *"ShmStreamConsumer" *,',
       r'process.hltOutput\1 = cms.OutputModule( "PoolOutputModule",\n    fileName = cms.untracked.string( "output\1.root" ),\n    fastCloning = cms.untracked.bool( False ),', 
       data
     )
-
-    # if required, remove the HLT prescales
-    if configuration.menuUnprescale:
-      data = data + """
-# remove HLT prescales
-if 'PrescaleService' in process.__dict__:
-    process.PrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
-    process.PrescaleService.lvl1Labels = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
-    process.PrescaleService.prescaleTable = cms.VPSet( )
-"""
 
     data = data + """
 # set process name
