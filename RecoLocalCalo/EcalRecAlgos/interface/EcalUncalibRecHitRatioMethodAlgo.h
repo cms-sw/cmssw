@@ -17,59 +17,6 @@
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
 #include <vector>
 
-<<<<<<< EcalUncalibRecHitRatioMethodAlgo.h
-template < class C > class EcalUncalibRecHitRatioMethodAlgo {
-      public:
-	struct Ratio {
-		int index;
-                int step;
-		double value;
-		double error;
-	};
-	struct Tmax {
-		int index;
-                int step;
-		double value;
-		double error;
-                double amplitude;
-                double chi2;
-	};
-	struct CalculatedRecHit {
-		double amplitudeMax;
-		double timeMax;
-		double timeError;
-                double chi2;
-	};
-
-	virtual ~ EcalUncalibRecHitRatioMethodAlgo < C > () { };
-	virtual EcalUncalibratedRecHit makeRecHit(const C & dataFrame,
-						  const double *pedestals,
-                                                  const double* pedestalRMSes,
-						  const double *gainRatios,
-						  std::vector < double >&timeFitParameters,
-						  std::vector < double >&amplitudeFitParameters,
-						  std::pair < double, double >&timeFitLimits);
-
-        // more function to be able to compute
-        // amplitude and time separately
-        void init( const C &dataFrame, const double * pedestals, const double * pedestalRMSes, const double * gainRatios );
-        void computeTime(std::vector < double >&timeFitParameters, std::pair < double, double >&timeFitLimits, std::vector< double > &amplitudeFitParameters);
-        void computeAmplitude( std::vector< double > &amplitudeFitParameters );
-        CalculatedRecHit getCalculatedRecHit() { return calculatedRechit_; };
-	bool fixMGPAslew( const C &dataFrame );
-
-      protected:
-	std::vector < double > amplitudes_;
-        std::vector < double > amplitudeErrors_;
-	std::vector < Ratio > ratios_;
-	std::vector < Tmax > times_;
-        std::vector < Tmax > timesAB_;
-
-        double pedestal_;
-	int    num_;
-        double ampMaxError_;
-=======
->>>>>>> 1.37
 
 #include "DataFormats/Math/interface/SSEArray.h"
 #include "DataFormats/Math/interface/sse_mathfun.h"
@@ -144,6 +91,9 @@ public:
   void computeAmplitude( std::vector< InputScalar > const & amplitudeFitParameters ) ;
 
   CalculatedRecHit const & getCalculatedRecHit() const { return calculatedRechit_; };
+
+  bool fixMGPAslew( const C &dataFrame );
+
 
  typedef mathSSE::Array<Scalar, C::MAXSAMPLES> Array;
    
@@ -382,7 +332,6 @@ chi2, float & amp) const {
 }
 
 
-<<<<<<< EcalUncalibRecHitRatioMethodAlgo.h
 template <class C>
 bool EcalUncalibRecHitRatioMethodAlgo<C>::fixMGPAslew( const C &dataFrame )
 {
@@ -414,19 +363,12 @@ bool EcalUncalibRecHitRatioMethodAlgo<C>::fixMGPAslew( const C &dataFrame )
 
 }
 
-template<class C>
-void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&timeFitParameters,
-	    std::pair < double, double >&timeFitLimits, std::vector < double >&amplitudeFitParameters)
-=======
-
-
 
 
 
 template<class C, typename Scalar>
 void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeTime(std::vector < InputScalar > const & timeFitParameters,
 	    std::pair < InputScalar, InputScalar > const & timeFitLimits, std::vector < InputScalar > const & amplitudeFitParameters)
->>>>>>> 1.37
 {
   //////////////////////////////////////////////////////////////
   //                                                          //
@@ -796,7 +738,4 @@ void EcalUncalibRecHitRatioMethodAlgo<C,Scalar>::computeAmplitude( std::vector< 
 				      calculatedRechit_.timeMax - 5,
 				      calculatedRechit_.timeError);
 }
-
-
-
 #endif
