@@ -26,16 +26,16 @@ namespace spr{
   struct propagatedTrackID {
     propagatedTrackID() {ok=false; okECAL=false; okHCAL=false;}
     bool                                  ok, okECAL, okHCAL;
-    DetId                                 detIdECAL, detIdHCAL;
-    double                                etaECAL, phiECAL;
-    double                                etaHCAL, phiHCAL;
+    DetId                                 detIdECAL, detIdHCAL, detIdEHCAL;
+    double                                etaECAL, etaHCAL;
+    double                                phiECAL, phiHCAL;
     reco::TrackCollection::const_iterator trkItr;
   };
 
   struct propagatedTrackDirection {
     propagatedTrackDirection() {ok=false; okECAL=false; okHCAL=false;}
     bool                                  ok, okECAL, okHCAL;
-    DetId                                 detIdECAL, detIdHCAL;
+    DetId                                 detIdECAL, detIdHCAL, detIdEHCAL;
     GlobalPoint                           pointECAL, pointHCAL;
     GlobalVector                          directionECAL, directionHCAL;
     reco::TrackCollection::const_iterator trkItr;

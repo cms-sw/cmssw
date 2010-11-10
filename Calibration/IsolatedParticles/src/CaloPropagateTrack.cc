@@ -38,6 +38,7 @@ namespace spr{
       vdet.ok     = (pTrack->quality(trackQuality_));
       vdet.detIdECAL = DetId(0);
       vdet.detIdHCAL = DetId(0);
+      vdet.detIdEHCAL= DetId(0);
       if (debug) std::cout << "Propagate track " << indx << " p " << trkItr->p() << " eta " << trkItr->eta() << " phi " << trkItr->phi() << " Flag " << vdet.ok << std::endl;
 
       std::pair<math::XYZPoint,bool> info = spr::propagateECAL (pTrack, bField, debug);
@@ -51,6 +52,7 @@ namespace spr{
 	} else {
 	  vdet.detIdECAL = endcapGeom->getClosestCell(point);
 	}
+	vdet.detIdEHCAL = gHB->getClosestCell(point);
       }
       info = spr::propagateHCAL (pTrack, bField, debug);
       vdet.okHCAL = info.second;
@@ -73,7 +75,7 @@ namespace spr{
 	} else {
 	  std::cout << (EEDetId)(vdets[i].detIdECAL); 
 	}
-	std::cout << " HCAL (" << vdets[i].okHCAL << ") " << (HcalDetId)(vdets[i].detIdHCAL) << std::endl;
+	std::cout << " HCAL (" << vdets[i].okHCAL << ") " << (HcalDetId)(vdets[i].detIdHCAL) << " Or " << (HcalDetId)(vdets[i].detIdEHCAL) << std::endl;
       }
     }
   }
@@ -94,6 +96,7 @@ namespace spr{
       trkD.ok     = (pTrack->quality(trackQuality_));
       trkD.detIdECAL = DetId(0);
       trkD.detIdHCAL = DetId(0);
+      trkD.detIdEHCAL= DetId(0);
       if (debug) std::cout << "Propagate track " << indx << " p " << trkItr->p() << " eta " << trkItr->eta() << " phi " << trkItr->phi() << " Flag " << trkD.ok << std::endl;
 
       spr::propagatedTrack info = spr::propagateTrackToECAL (pTrack, bField, debug);
@@ -107,6 +110,7 @@ namespace spr{
 	} else {
 	  trkD.detIdECAL = endcapGeom->getClosestCell(point);
 	}
+	trkD.detIdEHCAL = gHB->getClosestCell(point);
       }
       info = spr::propagateTrackToHCAL (pTrack, bField, debug);
       point = GlobalPoint(info.point.x(),info.point.y(),info.point.z());
@@ -138,7 +142,7 @@ namespace spr{
 		    << trkDir[i].directionHCAL << " " 
 		    << (HcalDetId)(trkDir[i].detIdHCAL); 
 	}
-	std::cout << std::endl;
+	std::cout << " Or " << (HcalDetId)(trkDir[i].detIdEHCAL) << std::endl;
       }
     }
   }
