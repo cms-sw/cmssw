@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2010/09/28 12:28:19 $
- * $Revision: 1.54 $
+ * $Date: 2010/09/28 13:00:30 $
+ * $Revision: 1.55 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -16,6 +16,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -26,7 +27,11 @@
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 
@@ -613,9 +618,22 @@ void EESelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
 
       anaDigiInit();
 
+      // channel status
+      edm::ESHandle<EcalChannelStatus> pChannelStatus;
+      c.get<EcalChannelStatusRcd>().get(pChannelStatus);
+      const EcalChannelStatus* chStatus = pChannelStatus.product();  
+
       for (unsigned int digis=0; digis<eeDigis->size(); ++digis) {
         EEDataFrame eedf = (*eeDigis)[digis];
-        anaDigi(eedf, *eeSrFlags);
+        EEDetId id = eedf.id();
+        EcalChannelStatusMap::const_iterator chit;
+        chit = chStatus->getMap().find(id.rawId());
+        uint16_t statusCode = -1;
+        if( chit != chStatus->getMap().end() ) {
+          EcalChannelStatusCode ch_code = (*chit);
+          statusCode = ch_code.getStatusCode();
+        }
+        anaDigi(eedf, *eeSrFlags, statusCode);
       }
 
       //low interest channels:
@@ -659,6 +677,18 @@ void EESelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
       edm::LogWarning("EESelectiveReadoutTask") << EEDigiCollection_ << " not available";
     }
 
+    // initialize dcchs_ to mask disabled towers
+    std::map< int, std::vector<short> > towersStatus;
+    edm::Handle<EcalRawDataCollection> dcchs;
+
+    if( e.getByLabel(FEDRawDataCollection_, dcchs) ) {
+      for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+        if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
+        int ism = Numbers::iSM( *dcchItr, EcalEndcap );
+        towersStatus.insert(std::make_pair(ism, dcchItr->getFEStatus()));
+      }
+    }
+
     for ( EESrFlagCollection::const_iterator it = eeSrFlags->begin(); it != eeSrFlags->end(); ++it ) {
 
       EcalScDetId id = it->id();
@@ -668,6 +698,7 @@ void EESelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
       int ix = id.ix();
       int iy = id.iy();
       int iDcc = dccNumOfRU(id);
+      int ism = Numbers::iSM( id );
       int isc = Numbers::iSC( id );
 
       int zside = id.zside();
@@ -680,11 +711,14 @@ void EESelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
 
       int flag = it->value() & ~EcalSrFlag::SRF_FORCED_MASK;
 
+      int status=0;
+      if( towersStatus[ism].size() > 0 ) status = (towersStatus[ism])[isc];
+
       if(flag == EcalSrFlag::SRF_FULL) {
         nEvtFullReadout[ix-1][iy-1][iz]++;
         nFRO[iz]++;
         if(nPerRu_[iDcc-1][isc] == 0) {
-          nEvtDroppedReadoutIfFR[ix-1][iy-1][iz]++;
+          if(status != 1) nEvtDroppedReadoutIfFR[ix-1][iy-1][iz]++;
           nDroppedFRO[iz]++;
         }
       }
@@ -696,7 +730,7 @@ void EESelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
       if(flag == EcalSrFlag::SRF_ZS1 || flag == EcalSrFlag::SRF_ZS2) {
         nEvtZSReadout[ix-1][iy-1][iz]++;
         if(nPerRu_[iDcc-1][isc] == getCrystalCount(iDcc,isc)) {
-          nEvtCompleteReadoutIfZS[ix-1][iy-1][iz]++;
+          if(status != 1) nEvtCompleteReadoutIfZS[ix-1][iy-1][iz]++;
           nCompleteZS[iz]++;
         }
       }
@@ -917,7 +951,7 @@ void EESelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
 
 }
 
-void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCollection& srFlagColl){
+void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCollection& srFlagColl, uint16_t statusCode){
   
   EEDetId id = frame.id();
   int ism = Numbers::iSM( id );
@@ -970,10 +1004,10 @@ void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCol
     if ( ism >= 1 && ism <= 9 ) {
       if(highInterest) {
 	++nEeHI_[0];
-        EEHighInterestZsFIR_[0]->Fill( dccZsFIRval );
+        if(statusCode != 9) EEHighInterestZsFIR_[0]->Fill( dccZsFIRval );
       } else{ //low interest
 	++nEeLI_[0];
-        EELowInterestZsFIR_[0]->Fill( dccZsFIRval );
+        if(statusCode != 9) EELowInterestZsFIR_[0]->Fill( dccZsFIRval );
       }
     } else {
       if(highInterest) {

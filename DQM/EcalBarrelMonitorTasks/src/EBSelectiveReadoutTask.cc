@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2010/08/12 09:05:47 $
- * $Revision: 1.47 $
+ * $Date: 2010/08/30 13:14:08 $
+ * $Revision: 1.48 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -16,6 +16,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -25,7 +26,11 @@
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 
@@ -419,9 +424,22 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
 
       anaDigiInit();
 
+      // channel status
+      edm::ESHandle<EcalChannelStatus> pChannelStatus;
+      c.get<EcalChannelStatusRcd>().get(pChannelStatus);
+      const EcalChannelStatus* chStatus = pChannelStatus.product();  
+
       for (unsigned int digis=0; digis<ebDigis->size(); ++digis){
         EBDataFrame ebdf = (*ebDigis)[digis];
-        anaDigi(ebdf, *ebSrFlags);
+        EBDetId id = ebdf.id();
+        EcalChannelStatusMap::const_iterator chit;
+        chit = chStatus->getMap().find(id.rawId());
+        uint16_t statusCode = -1;
+        if( chit != chStatus->getMap().end() ) {
+          EcalChannelStatusCode ch_code = (*chit);
+          statusCode = ch_code.getStatusCode();
+        }
+        anaDigi(ebdf, *ebSrFlags, statusCode);
       }
 
       //low interest channels:
@@ -452,6 +470,18 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
       edm::LogWarning("EBSelectiveReadoutTask") << EBDigiCollection_ << " not available";
     }
 
+    // initialize dcchs_ to mask disabled towers
+    std::map< int, std::vector<short> > towersStatus;
+    edm::Handle<EcalRawDataCollection> dcchs;
+
+    if( e.getByLabel(FEDRawDataCollection_, dcchs) ) {
+      for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+        if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
+        int ism = Numbers::iSM( *dcchItr, EcalBarrel );
+        towersStatus.insert(std::make_pair(ism, dcchItr->getFEStatus()));
+      }
+    }
+
     for ( EBSrFlagCollection::const_iterator it = ebSrFlags->begin(); it != ebSrFlags->end(); ++it ) {
 
       EcalTrigTowerDetId id = it->id();
@@ -472,11 +502,14 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
 
       int flag = it->value() & ~EcalSrFlag::SRF_FORCED_MASK;
 
+      int status=0;
+      if( towersStatus[ism].size() > 0 ) status = (towersStatus[ism])[itt];
+
       if(flag == EcalSrFlag::SRF_FULL) {
         nEvtFullReadout[iptindex][ietindex]++;
         nFRO++;
         if(nPerRu_[ism-1][itt-1] == 0) {
-          nEvtDroppedReadoutIfFR[iptindex][ietindex]++;
+          if(status != 1) nEvtDroppedReadoutIfFR[iptindex][ietindex]++;
           nDroppedFRO++;
         }
       }
@@ -488,7 +521,7 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
       if(flag == EcalSrFlag::SRF_ZS1 || flag == EcalSrFlag::SRF_ZS2) {
         nEvtZSReadout[iptindex][ietindex]++;
         if(nPerRu_[ism-1][itt-1] == getCrystalCount()) {
-          nEvtCompleteReadoutIfZS[iptindex][ietindex]++;
+          if(status != 1) nEvtCompleteReadoutIfZS[iptindex][ietindex]++;
           nCompleteZS++;
         }
       }
@@ -684,7 +717,7 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
 
 }
 
-void EBSelectiveReadoutTask::anaDigi(const EBDataFrame& frame, const EBSrFlagCollection& srFlagColl){
+void EBSelectiveReadoutTask::anaDigi(const EBDataFrame& frame, const EBSrFlagCollection& srFlagColl, uint16_t statusCode){
 
   EBDetId id = frame.id();
 
@@ -729,12 +762,13 @@ void EBSelectiveReadoutTask::anaDigi(const EBDataFrame& frame, const EBSrFlagCol
 
     int dccZsFIRval = dccZsFIR(frame, firWeights_, firstFIRSample_, 0);
 
+    // do not consider channels at fixed gain 1
     if(highInterest){
       ++nEbHI_;
-      EBHighInterestZsFIR_->Fill( dccZsFIRval );
+      if(statusCode != 9) EBHighInterestZsFIR_->Fill( dccZsFIRval );
     } else{//low interest
       ++nEbLI_;
-      EBLowInterestZsFIR_->Fill( dccZsFIRval );
+      if(statusCode != 9) EBLowInterestZsFIR_->Fill( dccZsFIRval );
     }
     ++nPerDcc_[dccNum(id)-1];
     ++nPerRu_[ism-1][itt-1];
