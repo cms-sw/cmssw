@@ -255,7 +255,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                 EcalUncalibRecHitRatioMethodAlgo<EBDataFrame>::CalculatedRecHit crh = ratioMethod_barrel_.getCalculatedRecHit();
 				if(gainSwitch){
 				  // introduce additional 1ns shift
-				  uncalibRecHit.setJitter( crh.timeMax - 5 + 0.04 );
+				  uncalibRecHit.setJitter( crh.timeMax - 5 - 0.04 );
 				}else{
 				  uncalibRecHit.setJitter( crh.timeMax - 5);
 				}
