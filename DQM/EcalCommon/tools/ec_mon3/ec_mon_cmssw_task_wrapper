@@ -78,6 +78,9 @@ import FWCore.ParameterSet.Config as cms
 
 import os, sys, socket
 
+onlyEB = 0
+onlyEE = 0
+
 liveECAL  = 0
 
 EOF1
@@ -119,9 +122,6 @@ if (host == ecalHostEC) :
   print "ERROR: Wrong host configuration."
   sys.exit(1)
 
-liveCMS = 0
-playCMS = 0
-
 if (host == ecalHostEB) | (host == ecalHostEE) :
   if (liveECAL == 1) :
     if (localDAQ == 1) | (globalDAQ == 1) :
@@ -141,6 +141,9 @@ if (host == ecalHostEB) | (host == ecalHostEE) :
     print "ERROR: Unknown Ecal configuration."
     sys.exit(1)
 
+liveCMS = 0
+playCMS = 0
+
 if (host == cmsLiveHostEB) | (host == cmsLiveHostEE) :
   liveECAL  = 0
   localDAQ  = 0
@@ -157,31 +160,30 @@ if (host == cmsPlayHostEB) | (host == cmsPlayHostEE) :
   playCMS   = 1
   print "Running Central Playback DQM."
 
-onlyEB = 0
-onlyEE = 0
-
-fNamePrefix = os.path.basename(sys._getframe(0).f_code.co_filename).split("_")[0]
-
-if (liveECAL == 1) | (liveCMS == 1) | (playCMS == 1) :
-  if (fNamePrefix == 'eb') & ((host == ecalHostEB) | (host == cmsLiveHostEB) | (host == cmsPlayHostEB)) :
+if (liveECAL == 1) :
+  if (host == ecalHostEB) :
     onlyEB = 1
     onlyEE = 0
-    print "Running EB only."
 
-if (liveECAL == 1) | (liveCMS == 1) | (playCMS == 1) :
-  if (fNamePrefix == 'ee') & ((host == ecalHostEE) | (host == cmsLiveHostEE) | (host == cmsPlayHostEE)) :
+if (liveECAL == 1) :
+  if (host == ecalHostEE) :
     onlyEB = 0
     onlyEE = 1
-    print "Running EE only."
 
 if (liveECAL == 1) | (liveCMS == 1) | (playCMS == 1) :
-  if (onlyEB == 1) & (onlyEE == 1) :
+  if ((onlyEB == 1) & (onlyEE == 1)) | ((onlyEB == 0) & (onlyEE == 0)) :
     print "ERROR: Wrong EB/EE configuration."
     sys.exit(1)
 
 if (localDAQ == 0) & (globalDAQ == 0) & (liveECAL == 0) & (liveCMS == 0) & (playCMS == 0) :
   print "ERROR: Unknown configuration."
   sys.exit(1)
+
+if (onlyEB == 1) & (onlyEE == 0) :
+    print "Running EB only."
+
+if (onlyEB == 0) & (onlyEE == 1) :
+    print "Running EE only."
 
 os.environ['TNS_ADMIN'] = '/etc'
 
