@@ -34,7 +34,7 @@ float RadialStripTopology::stripAngle(float strip) const { return   phiOfOneEdge
 float RadialStripTopology::yDistanceToIntersection( float y ) const { return   yAxisOrientation()*y + originToIntersection() ;}
 
 float RadialStripTopology::localStripLength(const LocalPoint& lp) const {  
-  return detHeight() * std::sqrt(1.f + std::pow( lp.x()/yDistanceToIntersection(lp.y()), 2) );
+  return detHeight() * std::sqrt(1.f + std::pow( lp.x()/yDistanceToIntersection(lp.y()), 2.f) );
 }
 
 float RadialStripTopology::xOfStrip(int strip, float y) const { 
@@ -73,8 +73,8 @@ LocalError RadialStripTopology::localError(float strip, float stripErr2) const {
     // s1(std::sin(phi)), c1(std::cos(phi)),
     // cs(s1*c1), s2(s1*s1), c2(1-s2), // rotation matrix
 
-    tt( stripErr2 * std::pow( centreToIntersection()*angularWidth() ,2) ), // tangential sigma^2   *c2
-    rr( std::pow(detHeight(), 2) * (1.f/12.f) ),                                   // radial sigma^2( uniform prob density along strip)  *c2
+    tt( stripErr2 * std::pow( centreToIntersection()*angularWidth() ,2.f) ), // tangential sigma^2   *c2
+    rr( std::pow(detHeight(), 2.f) * (1.f/12.f) ),                                   // radial sigma^2( uniform prob density along strip)  *c2
 
     xx( tt + t2*rr  ),
     yy( t2*tt + rr  ),
@@ -107,8 +107,8 @@ MeasurementError RadialStripTopology::measurementError(const LocalPoint& p,  con
     t(yAxisOrientation() * p.x() / yHitToInter),   // tan(strip angle) 
     cs(t/(1+t*t)), s2(t*cs), c2(1-s2),             // rotation matrix
 
-    T2( 1./(std::pow(angularWidth(),2) * ( std::pow(p.x(),2) + std::pow(yHitToInter,2)) )), // 1./tangential measurement unit (local pitch) ^2
-    R2( c2/std::pow(detHeight(),2) ),                                    // 1./ radial measurement unit (strip length) ^2
+    T2( 1./(std::pow(angularWidth(),2.f) * ( std::pow(p.x(),2.f) + std::pow(yHitToInter,2.f)) )), // 1./tangential measurement unit (local pitch) ^2
+    R2( c2/std::pow(detHeight(),2.f) ),                                    // 1./ radial measurement unit (strip length) ^2
 
     uu(       ( c2*e.xx() - 2*cs*e.xy() + s2*e.yy() )   * T2 ),
     vv(       ( s2*e.xx() + 2*cs*e.xy() + c2*e.yy() )   * R2 ),
@@ -125,7 +125,7 @@ float RadialStripTopology::localPitch(const LocalPoint& lp) const {
   const float fangle = stripAngle(static_cast<float>(istrip) - 0.5); // angle of strip centre
   return
     yDistanceToIntersection( lp.y() ) * std::sin(angularWidth()) /
-    std::pow( std::cos(fangle-0.5f*angularWidth()), 2);
+    std::pow( std::cos(fangle-0.5f*angularWidth()), 2.f);
 }
     
 
