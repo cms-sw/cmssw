@@ -32,13 +32,8 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset):
 	  pset.existsAs<vector<string> >("fixVars")?pset.getParameter<vector<string> >("fixVars"):vector<string>()
 	  )
 {
-  fitter.setQuiet(pset.getUntrackedParameter("Quiet",false));
-
   if (pset.existsAs<uint32_t>("binsForMassPlots")) {
     fitter.setBinsForMassPlots(pset.getParameter<uint32_t>("binsForMassPlots"));
-  }
-  if (pset.existsAs<std::string>("WeightVariable")) {
-    fitter.setWeightVar(pset.getParameter<std::string>("WeightVariable"));
   }
   const ParameterSet variables = pset.getParameter<ParameterSet>("Variables");
   vector<string> variableNames = variables.getParameterNamesForType<vector<string> >();
@@ -65,36 +60,6 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset):
     }
   }
 
-  if (pset.existsAs<ParameterSet>("Expressions")) {
-    const ParameterSet exprs = pset.getParameter<ParameterSet>("Expressions");
-    vector<string> exprNames = exprs.getParameterNamesForType<vector<string> >();
-    for (vector<string>::const_iterator name = exprNames.begin(); name != exprNames.end(); name++) {
-        vector<string> expr = exprs.getParameter<vector<string> >(*name);
-        if(expr.size()>=2){
-            vector<string> args(expr.begin()+2,expr.end());
-            fitter.addExpression(*name, expr[0], expr[1], args);
-        }else{
-            LogError("TagProbeFitTreeAnalyzer")<<"Could not create expr: "<<*name<<
-                ". Example: qop = cms.vstring(\"qOverP\", \"charge/p\", \"charge\", \"p\") ";
-        }
-    }
-  }
-
-
-  if (pset.existsAs<ParameterSet>("Cuts")) {
-    const ParameterSet cuts = pset.getParameter<ParameterSet>("Cuts");
-    vector<string> cutNames = cuts.getParameterNamesForType<vector<string> >();
-    for (vector<string>::const_iterator name = cutNames.begin(); name != cutNames.end(); name++) {
-        vector<string> cat = cuts.getParameter<vector<string> >(*name);
-        if(cat.size()==3){
-            fitter.addThresholdCategory(*name, cat[0], cat[1], atof(cat[2].c_str()));
-        }else{
-            LogError("TagProbeFitTreeAnalyzer")<<"Could not create cut: "<<*name<<
-                ". Example: matched = cms.vstring(\"Matched\", \"deltaR\", \"0.5\") ";
-        }
-    }
-  }
-
   if(pset.existsAs<ParameterSet>("PDFs")){
     const ParameterSet pdfs = pset.getParameter<ParameterSet>("PDFs");
     vector<string> pdfNames = pdfs.getParameterNamesForType<vector<string> >();
@@ -113,8 +78,8 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset):
 
 void TagProbeFitTreeAnalyzer::calculateEfficiency(string name, const edm::ParameterSet& pset){
   vector<string> effCatState = pset.getParameter<vector<string> >("EfficiencyCategoryAndState");
-  if(effCatState.empty() ||  (effCatState.size() % 2 == 1)){
-    cout<<"EfficiencyCategoryAndState must be a even-sized list of category names and states of that category (cat1, state1, cat2, state2, ...)."<<endl;
+  if(effCatState.size() != 2){
+    cout<<"EfficiencyCategoryAndState must specify a category and a state of that category"<<endl;
     exit(1);
   }
 
@@ -146,13 +111,7 @@ void TagProbeFitTreeAnalyzer::calculateEfficiency(string name, const edm::Parame
     exit(2);
   }
 
-  vector<string> effCats, effStates;
-  for (size_t i = 0, n = effCatState.size()/2; i < n; ++i) {
-    effCats.push_back(effCatState[2*i]);
-    effStates.push_back(effCatState[2*i+1]);
-  }
-
-  fitter.calculateEfficiency(name, effCats, effStates, unbinnedVariables, binnedVariables, mappedCategories, binToPDFmap, true);
+  fitter.calculateEfficiency(name, effCatState[0], effCatState[1], unbinnedVariables, binnedVariables, mappedCategories, binToPDFmap, true);
 }
 
 //define this as a plug-in

@@ -852,7 +852,10 @@ namespace evf{
 	*out << "    </th>"                                                       << std::endl;
       }
     *out << "  </tr>"							<< std::endl;
-  
+    if(mwr && mwr->checkWeb("DaqSource"))
+      *out << "    <tr><td ><a href=\"/" << urn 
+	   << "module=DaqSource\">DaqSource</a> </td></tr>";
+    
     for(unsigned int idesc = 0; idesc < descs_.size(); idesc++)
       {
 	*out << "  <tr>"							<< std::endl;

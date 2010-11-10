@@ -93,7 +93,7 @@ HLTCaloTowerFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
   // look at all objects, check cuts and add to filter object
   unsigned int n = 0;
   for (CaloTowerCollection::const_iterator i = caloTowers->begin(); i != caloTowers->end(); ++i) {
-    if ( (i->pt() >= min_Pt_) and ( (max_Eta_ < 0.0) or (abs(i->eta()) <= max_Eta_) ) )
+    if ( (i->pt() >= min_Pt_) and ( (max_Eta_ < 0.0) or (std::abs(i->eta()) <= max_Eta_) ) )
       ++n;
       //edm::Ref<CaloTowerCollection> ref(towers, std::distance(caloTowers->begin(), i));
       //filterobject->addObject(TriggerJet, ref);

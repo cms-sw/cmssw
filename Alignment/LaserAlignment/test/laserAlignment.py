@@ -23,16 +23,11 @@ process.MessageLogger = cms.Service( "MessageLogger",
 ## all db records
 
 ### THIS ONE HAS BEEN LOCALLY MODIFIED!!!
-#process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_noesprefer_cff" )
+process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_noesprefer_cff" )
 #process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_cff" )
 
-#process.GlobalTag.globaltag = 'IDEAL_V12::All'
+process.GlobalTag.globaltag = 'IDEAL_V12::All'
 #process.GlobalTag.globaltag = 'CRAFT_ALL_V11::All'
-
-
-process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_cff" )
-#process.GlobalTag.globaltag = 'GR09_31X_V5P::All'
-process.GlobalTag.globaltag = cms.string('GR_R_37X_V6::All')
 
 
 ## get the tracker alignment records from this file
@@ -49,8 +44,7 @@ process.trackerAlignment = cms.ESSource( "PoolDBESSource",
       tag = cms.string( 'AlignmentErrors' )
     )
   ),
-  #connect = cms.string( 'sqlite_file:/afs/cern.ch/user/o/olzem/cms/cmssw/CMSSW_2_2_12/src/Alignment/LaserAlignment/test/Alignments_S.db' )
-  connect = cms.string( 'sqlite_file:/afs/cern.ch/user/w/wittmer/CMSSW_3_7_0_patch3/src/Alignment/LaserAlignment/test/Alignments.db' )
+  connect = cms.string( 'sqlite_file:/afs/cern.ch/user/o/olzem/cms/cmssw/CMSSW_2_2_12/src/Alignment/LaserAlignment/test/Alignments_S.db' )
 )
 
 ## prefer these alignment record
@@ -83,8 +77,7 @@ process.PoolDBOutputService.DBParameters.messageLevel = 2
 ## input files
 process.source = cms.Source( "PoolSource",
   fileNames = cms.untracked.vstring(
-    #'file:/afs/cern.ch/user/o/olzem/scratch0/filterDQM/70664/TkAlLAS.root'
-    'file:TkAlLAS_Run140124_LASFilter_test.root'
+    'file:/afs/cern.ch/user/o/olzem/scratch0/filterDQM/70664/TkAlLAS.root'
     #'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_0.root',
     #'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_1.root',
     #'file:/afs/cern.ch/user/o/olzem/scratch0/cms/las/prod/nt/TkAlLAS_2.root',

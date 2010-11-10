@@ -20,7 +20,7 @@
 using namespace std;
 
 
-FP420ClusterMain::FP420ClusterMain(const edm::ParameterSet& conf, int dn, int sn, int pn, int rn):conf_(conf),dn0(dn),sn0(sn),pn0(pn),rn0(rn)  { 
+FP420ClusterMain::FP420ClusterMain(const edm::ParameterSet& conf, int dn, int sn, int pn):conf_(conf),dn0(dn),sn0(sn),pn0(pn)  { 
   
   verbosity         = conf_.getUntrackedParameter<int>("VerbosityLevel");
   ElectronPerADC_   = conf_.getParameter<double>("ElectronFP420PerAdc");
@@ -53,26 +53,15 @@ FP420ClusterMain::FP420ClusterMain(const edm::ParameterSet& conf, int dn, int sn
   pitchX= 0.050;
   moduleThicknessY = 0.250; // mm
   moduleThicknessX = 0.250; // mm
-
-  //numStripsY = 200;        // Y plate number of strips:200*0.050=10mm (xytype=1)
-  //numStripsX = 400;        // X plate number of strips:400*0.050=20mm (xytype=2)
-  numStripsY = 144;        // Y plate number of strips:144*0.050=7.2mm (xytype=1)
-  numStripsX = 160;        // X plate number of strips:160*0.050=8.0mm (xytype=2)
-
-  //numStripsYW = 50;        // Y plate number of W strips:50 *0.400=20mm (xytype=1) - W have ortogonal projection
-  //numStripsXW = 25;        // X plate number of W strips:25 *0.400=10mm (xytype=2) - W have ortogonal projection
-  numStripsYW = 20;        // Y plate number of W strips:20 *0.400=8.0mm (xytype=1) - W have ortogonal projection
-  numStripsXW = 18;        // X plate number of W strips:18 *0.400=7.2mm (xytype=2) - W have ortogonal projection
+  numStripsY = 201;        // Y plate number of strips:200*0.050=10mm (xytype=1)
+  numStripsX = 401;        // X plate number of strips:400*0.050=20mm (xytype=2)
+  numStripsYW = 51;        // Y plate number of W strips:50 *0.400=20mm (xytype=1) - W have ortogonal projection
+  numStripsXW = 26;        // X plate number of W strips:25 *0.400=10mm (xytype=2) - W have ortogonal projection
   
   //  sn0 = 4;
   //  pn0 = 9;
-
-
-  theFP420NumberingScheme = new FP420NumberingScheme();
-
-
   if (verbosity > 1) {
-    std::cout << "FP420ClusterMain constructor: sn0 = " << sn0 << " pn0=" << pn0 << " dn0=" << dn0 << " rn0=" << rn0 << std::endl;
+    std::cout << "FP420ClusterMain constructor: sn0 = " << sn0 << " pn0=" << pn0 << " dn0=" << dn0 << std::endl;
     std::cout << "FP420ClusterMain constructor: ENC = " << ENC_ << std::endl;
     std::cout << " Thick300 = " << Thick300 << std::endl;
     std::cout << " BadElectrodeProbability = " << BadElectrodeProbability_ << std::endl;
@@ -148,9 +137,14 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
     for (int det=1; det<dn0; det++) {
       for (int sector=1; sector<sn0; sector++) {
 	for (int zmodule=1; zmodule<pn0; zmodule++) {
-	  for (int zside=1; zside<rn0; zside++) {
+	  for (int zside=1; zside<3; zside++) {
+	    int sScale = 2*(pn0-1), dScale = 2*(pn0-1)*(sn0-1);
+	    //	int det= 1;
+	    //      int index = CaloNumberingPacker::packCastorIndex(det,zside, sector, zmodule);
+	    //      int index = FP420NumberingScheme::packFP420Index(det, zside, sector, zmodule);
 	    // intindex is a continues numbering of FP420
-	    unsigned int detID = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
+	    int zScale=2;  unsigned int detID = dScale*(det - 1)+sScale*(sector - 1)+zScale*(zmodule - 1)+zside;
+	    // int zScale=10;	unsigned int intindex = sScale*(sector - 1)+zScale*(zside - 1)+zmodule;
 	    if (verbosity > 0) {
 	      std::cout << " FP420ClusterMain:1 run loop   index no  iu = " << detID  << std::endl;
 	    }	  
@@ -189,7 +183,7 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
 	    // }
 	    
 	    if (verbosity > 0) {
-	      std::cout << " FP420ClusterMain: input->get DONE dcollector.size()=" << dcollector.size() << std::endl;
+	      std::cout << " FP420ClusterMain: input->get DONE " << std::endl;
 	    }	  
 	    
 	    DigiCollectionFP420::ContainerIterator sort_begin = digiRange.first;
@@ -211,7 +205,7 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
 	      if ( clusterMode_ == "ClusterProducerFP420" ) {
 		
 		std::vector<ClusterFP420> collector;
-		// 	    std::vector<ClusterFP420> collector;
+		// 	    vector<ClusterFP420> collector;
 		
 		if (UseNoiseBadElectrodeFlagFromDB_==false){	  
 		  
@@ -244,7 +238,7 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
 		  //	      std::vector<ClusterFP420> collector;
 		  //  collector = threeThreshold_->clusterizeDetUnit(digiRangeIteratorBegin,digiRangeIteratorEnd,detID,vnoise);
 		  //   if (dcollector.size()>0){
-		  collector = threeThreshold_->clusterizeDetUnitPixels(digiRangeIteratorBegin,digiRangeIteratorEnd,detID,vnoise,xytype,verbosity);
+		  collector = threeThreshold_->clusterizeDetUnitPixels(digiRangeIteratorBegin,digiRangeIteratorEnd,detID,vnoise,xytype);
 		  //   }
 		  if (verbosity > 0) {
 		    std::cout << " FP420ClusterMain:6 threeThreshold OK " << std::endl;
@@ -303,16 +297,15 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
       }//for
     }//for
     
-    if (verbosity == -50 ) {
-
+    if (verbosity > 0) {
       //     check of access to the collector:
       for (int det=1; det<dn0; det++) {
 	for (int sector=1; sector<sn0; sector++) {
 	  for (int zmodule=1; zmodule<pn0; zmodule++) {
-	    for (int zside=1; zside<rn0; zside++) {
-	      // intindex is a continues numbering of FP420
-	      unsigned int iu = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
-		std::cout <<" iu = " << iu <<" sector = " << sector <<" zmodule = " << zmodule <<" zside = " << zside << "  det=" << det << std::endl;
+	    for (int zside=1; zside<3; zside++) {
+	      int sScale = 2*(pn0-1), dScale = 2*(pn0-1)*(sn0-1);
+	      int zScale=2;  unsigned int iu = dScale*(det - 1)+sScale*(sector - 1)+zScale*(zmodule - 1)+zside;
+	      // int zScale=10;	unsigned int intindex = sScale*(sector - 1)+zScale*(zside - 1)+zmodule;
 	      std::vector<ClusterFP420> collector;
 	      collector.clear();
 	      ClusterCollectionFP420::Range outputRange;
@@ -329,8 +322,8 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
 	      std::cout <<"  ======renew collector size = " << collector.size() << std::endl;
 	      std::cout <<" ===" << std::endl;
 	      std::cout <<" ===" << std::endl;
-	      std::vector<ClusterFP420>::const_iterator simHitIter = collector.begin();
-	      std::vector<ClusterFP420>::const_iterator simHitIterEnd = collector.end();
+	      vector<ClusterFP420>::const_iterator simHitIter = collector.begin();
+	      vector<ClusterFP420>::const_iterator simHitIterEnd = collector.end();
 	      // loop in #clusters
 	      for (;simHitIter != simHitIterEnd; ++simHitIter) {
 		const ClusterFP420 icluster = *simHitIter;

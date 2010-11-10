@@ -95,7 +95,7 @@ QcdUeDQM::QcdUeDQM(const ParameterSet &parameters) :
   if (parameters.exists("hltProcNames"))
      hltProcNames_ = parameters.getUntrackedParameter<vector<string> >("hltProcNames");
   else {
-     hltProcNames_.push_back("FU");
+    //     hltProcNames_.push_back("FU");
      hltProcNames_.push_back("HLT");
   }
 
@@ -194,36 +194,18 @@ void QcdUeDQM::beginLuminosityBlock(const LuminosityBlock &l,
 void QcdUeDQM::beginRun(const Run &run, const EventSetup &iSetup)
 {
 
-  isHltConfigSuccessful_ = false; // init
-
-  // Begin run, get or create needed structures.  TODO: can this be called several times in DQM???
-
-  //--- htlConfig_
-  bool changed(true);
-  if (hltConfig.init(run,iSetup,"HLT",changed)) {
-    if (changed) {
-      //LogInfo("QcdUeDQM")  << "QcdUeDQM:analyze: The number of valid triggers has changed since beginning of job." << std::endl;
-    }
-  }
-
- if ( hltConfig.size() <= 0 ) return;
-  
-
-
-
-
  // indicating change of HLT cfg at run boundries
  // for HLTConfigProvider::init()
- bool isHltCfgChange = false; // currently unused
+ bool isHltCfgChange = false;
+ isHltConfigSuccessful_ = false; // init
 
- bool isinit = false;
  string teststr;
  for(size_t i=0; i<hltProcNames_.size(); ++i) {
    if (i>0) 
      teststr += ", ";
    teststr += hltProcNames_.at(i);
    if ( hltConfig.init( run, iSetup, hltProcNames_.at(i), isHltCfgChange ) ) {
-     isinit = true;
+     isHltConfigSuccessful_ = true;
      hltUsedResName_ = hltResName_;
      if (hltResName_.find(':')==string::npos)
        hltUsedResName_ += "::";
@@ -234,7 +216,7 @@ void QcdUeDQM::beginRun(const Run &run, const EventSetup &iSetup)
    }
  }
  
- if (!isinit)return;
+ if ( ! isHltConfigSuccessful_ )return;
 
   // setup "Any" bit
   hltTrgBits_.clear();

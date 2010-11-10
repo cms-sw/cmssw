@@ -34,6 +34,8 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
+
+
 /// EgammaCoreTools
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
@@ -76,12 +78,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 //
-
+#include <map>
 #include <vector>
-#include <string>
-
-using std::vector;
-using std::string;
 
 /** \class PhotonAnalyzer
  **  
@@ -108,7 +106,6 @@ class SimTrack;
 class PhotonAnalyzer : public edm::EDAnalyzer
 {
 
-
  public:
    
   //
@@ -125,45 +122,37 @@ class PhotonAnalyzer : public edm::EDAnalyzer
 
   float  phiNormalization( float& a);
 
-  MonitorElement* bookHisto(string histoName, string title, int bin, double min, double max);
+  void book3DHistoVector();
+  void book2DHistoVector();
+  void book1DHistoVector();
 
-  vector<vector<MonitorElement*> > book2DHistoVector(string histoType, string histoName, string title, 
-							       int xbin, double xmin, double xmax,
-							       int ybin=1,double ymin=1, double ymax=2);
-
-  vector<vector<vector<MonitorElement*> > > book3DHistoVector(string histoType, string histoName, string title, 
-							       int xbin, double xmin, double xmax,
-							       int ybin=1,double ymin=1, double ymax=2);
-
-
-  void fill2DHistoVector(vector<vector<MonitorElement*> >& histoVector,double x, int cut, int type);
-  void fill2DHistoVector(vector<vector<MonitorElement*> >& histoVector,double x, double y, int cut, int type);
-
-  void fill3DHistoVector(vector<vector<vector<MonitorElement*> > >& histoVector,double x, int cut, int type, int part);
-  void fill3DHistoVector(vector<vector<vector<MonitorElement*> > >& histoVector,double x, double y, int cut, int type, int part);
-
+  void fill3DHistoVector(std::vector<std::vector<std::vector<MonitorElement*> > >& histoVector,double x, int cut, int type, int part);
+  void fill2DHistoVector(std::vector<std::vector<MonitorElement*> >& histoVector,double x, double y, int cut, int type);
+  void fill2DHistoVector(std::vector<std::vector<MonitorElement*> >& histoVector,double x, int cut, int type);
+  void fill1DHistoVector();
 
 
   //////////
 
-  string fName_;
+  std::string fName_;
   int verbosity_;
 
   unsigned int prescaleFactor_;
 
-  string photonProducer_;       
-  string photonCollection_;
+  std::string photonProducer_;       
+  std::string photonCollection_;
 
-  string barrelRecHitProducer_;
-  string barrelRecHitCollection_;
+  std::string barrelRecHitProducer_;
+  std::string barrelRecHitCollection_;
 
-  string endcapRecHitProducer_;
-  string endcapRecHitCollection_;
+  std::string endcapRecHitProducer_;
+  std::string endcapRecHitCollection_;
 
   edm::InputTag triggerEvent_;
 
   double minPhoEtCut_;
   double invMassEtCut_;
+
 
   double cutStep_;
   int numberOfSteps_;
@@ -171,10 +160,13 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   bool useBinning_;
   bool useTriggerFiltering_;
   bool standAlone_;
-  string outputFileName_;
+  std::string outputFileName_;
   
 
   int isolationStrength_; 
+
+  bool isHeavyIon_;
+
 
   edm::ParameterSet parameters_;
            
@@ -183,35 +175,21 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   DQMStore *dbe_;
   std::stringstream currentFolder_;
 
-  int histo_index_photons_;
-  int histo_index_conversions_;
-  int histo_index_efficiency_;
-  int histo_index_invMass_;
-
-
   int nEvt_;
   int nEntry_;
 
-  vector<string> types_;
-  vector<string> parts_;
-
+  std::vector<std::string> triggerLabels;
+   
   //////////
 
-  MonitorElement* totalNumberOfHistos_efficiencyFolder;
-  MonitorElement* totalNumberOfHistos_invMassFolder;
-  MonitorElement* totalNumberOfHistos_photonsFolder;
-  MonitorElement* totalNumberOfHistos_conversionsFolder;
-
+  MonitorElement*  h_filters_;
 
   MonitorElement* h_phoEta_Loose_;
   MonitorElement* h_phoEta_Tight_;
+  MonitorElement* h_phoEta_HLT_;
   MonitorElement* h_phoEt_Loose_;
   MonitorElement* h_phoEt_Tight_;
-
-  MonitorElement* h_phoEta_preHLT_;
-  MonitorElement* h_phoEta_postHLT_;
-  MonitorElement* h_phoEt_preHLT_;
-  MonitorElement* h_phoEt_postHLT_;
+  MonitorElement* h_phoEt_HLT_;
 
   MonitorElement* h_convEta_Loose_;
   MonitorElement* h_convEta_Tight_;
@@ -228,151 +206,325 @@ class PhotonAnalyzer : public edm::EDAnalyzer
 
  ////////2D vectors of histograms
 
+  std::vector<MonitorElement*> h_nTrackIsolSolidVsEta_isol_;
+  std::vector<MonitorElement*> h_trackPtSumSolidVsEta_isol_;
+  std::vector<MonitorElement*> h_nTrackIsolHollowVsEta_isol_;
+  std::vector<MonitorElement*> h_trackPtSumHollowVsEta_isol_;
+  std::vector<MonitorElement*> h_ecalSumVsEta_isol_;
+  std::vector<MonitorElement*> h_hcalSumVsEta_isol_;
 
-  vector<vector<MonitorElement*> > h_nTrackIsolSolidVsEta_;
-  vector<vector<MonitorElement*> > h_trackPtSumSolidVsEta_;
-  vector<vector<MonitorElement*> > h_nTrackIsolHollowVsEta_;
-  vector<vector<MonitorElement*> > h_trackPtSumHollowVsEta_;
-  vector<vector<MonitorElement*> > h_ecalSumVsEta_;
-  vector<vector<MonitorElement*> > h_hcalSumVsEta_;
+  std::vector<std::vector<MonitorElement*> > h_nTrackIsolSolidVsEta_;
+  std::vector<std::vector<MonitorElement*> > h_trackPtSumSolidVsEta_;
+  std::vector<std::vector<MonitorElement*> > h_nTrackIsolHollowVsEta_;
+  std::vector<std::vector<MonitorElement*> > h_trackPtSumHollowVsEta_;
+  std::vector<std::vector<MonitorElement*> > h_ecalSumVsEta_;
+  std::vector<std::vector<MonitorElement*> > h_hcalSumVsEta_;
 
+  std::vector<MonitorElement*> h_nTrackIsolSolidVsEt_isol_;
+  std::vector<MonitorElement*> h_trackPtSumSolidVsEt_isol_;
+  std::vector<MonitorElement*> h_nTrackIsolHollowVsEt_isol_;
+  std::vector<MonitorElement*> h_trackPtSumHollowVsEt_isol_;
+  std::vector<MonitorElement*> h_ecalSumVsEt_isol_;
+  std::vector<MonitorElement*> h_hcalSumVsEt_isol_;
 
-  vector<vector<MonitorElement*> > h_nTrackIsolSolidVsEt_;
-  vector<vector<MonitorElement*> > h_trackPtSumSolidVsEt_;
-  vector<vector<MonitorElement*> > h_nTrackIsolHollowVsEt_;
-  vector<vector<MonitorElement*> > h_trackPtSumHollowVsEt_;
-  vector<vector<MonitorElement*> > h_ecalSumVsEt_;
-  vector<vector<MonitorElement*> > h_hcalSumVsEt_;
+  std::vector<std::vector<MonitorElement*> > h_nTrackIsolSolidVsEt_;
+  std::vector<std::vector<MonitorElement*> > h_trackPtSumSolidVsEt_;
+  std::vector<std::vector<MonitorElement*> > h_nTrackIsolHollowVsEt_;
+  std::vector<std::vector<MonitorElement*> > h_trackPtSumHollowVsEt_;
+  std::vector<std::vector<MonitorElement*> > h_ecalSumVsEt_;
+  std::vector<std::vector<MonitorElement*> > h_hcalSumVsEt_;
 
+  std::vector<MonitorElement*> h_nTrackIsolSolid_isol_;
+  std::vector<MonitorElement*> h_trackPtSumSolid_isol_;
+  std::vector<MonitorElement*> h_nTrackIsolHollow_isol_;
+  std::vector<MonitorElement*> h_trackPtSumHollow_isol_;
+  std::vector<MonitorElement*> h_ecalSum_isol_;
+  std::vector<MonitorElement*> h_hcalSum_isol_;
 
-  vector<vector<MonitorElement*> > h_nTrackIsolSolid_;
-  vector<vector<MonitorElement*> > h_trackPtSumSolid_;
-  vector<vector<MonitorElement*> > h_nTrackIsolHollow_;
-  vector<vector<MonitorElement*> > h_trackPtSumHollow_;
-  vector<vector<MonitorElement*> > h_ecalSum_;
-  vector<vector<MonitorElement*> > h_hcalSum_;
-
-
-  vector<vector<MonitorElement*> > p_nTrackIsolSolidVsEta_;
-  vector<vector<MonitorElement*> > p_trackPtSumSolidVsEta_;
-  vector<vector<MonitorElement*> > p_nTrackIsolHollowVsEta_;
-  vector<vector<MonitorElement*> > p_trackPtSumHollowVsEta_;
-  vector<vector<MonitorElement*> > p_ecalSumVsEta_;
-  vector<vector<MonitorElement*> > p_hcalSumVsEta_;
-
-  vector<vector<MonitorElement*> > p_nTrackIsolSolidVsEt_;
-  vector<vector<MonitorElement*> > p_trackPtSumSolidVsEt_;
-  vector<vector<MonitorElement*> > p_nTrackIsolHollowVsEt_;
-  vector<vector<MonitorElement*> > p_trackPtSumHollowVsEt_;
-
-  vector<vector<MonitorElement*> > p_r9VsEt_;
-  vector<vector<MonitorElement*> > p_r9VsEta_;
-
-  vector<vector<MonitorElement*> > p_e1x5VsEt_;
-  vector<vector<MonitorElement*> > p_e1x5VsEta_;
-
-  vector<vector<MonitorElement*> > p_e2x5VsEt_;
-  vector<vector<MonitorElement*> > p_e2x5VsEta_;
-
-  vector<vector<MonitorElement*> > p_maxEXtalOver3x3VsEt_;
-  vector<vector<MonitorElement*> > p_maxEXtalOver3x3VsEta_;
-
-  vector<vector<MonitorElement*> > p_r1x5VsEt_;
-  vector<vector<MonitorElement*> > p_r1x5VsEta_;
-
-  vector<vector<MonitorElement*> > p_r2x5VsEt_;
-  vector<vector<MonitorElement*> > p_r2x5VsEta_;
-
-  vector<vector<MonitorElement*> > p_sigmaIetaIetaVsEta_;
-
-  vector<vector<MonitorElement*> > p_dCotTracksVsEta_;
-
-  vector<vector<MonitorElement*> > p_hOverEVsEta_;
-  vector<vector<MonitorElement*> > p_hOverEVsEt_;
-
-  vector<vector<MonitorElement*> > h_phoEta_;
-  vector<vector<MonitorElement*> > h_phoPhi_;
-
-  vector<vector<MonitorElement*> > h_scEta_;
-  vector<vector<MonitorElement*> > h_scPhi_;
-
-  vector<vector<MonitorElement*> > h_phoConvEtaForEfficiency_;
-  vector<vector<MonitorElement*> > h_phoConvPhiForEfficiency_;
-
-  vector<vector<MonitorElement*> > h_phoEta_BadChannels_;
-  vector<vector<MonitorElement*> > h_phoEt_BadChannels_;
-  vector<vector<MonitorElement*> > h_phoPhi_BadChannels_;
-
-  vector<vector<MonitorElement*> > h_phoConvEta_;
-  vector<vector<MonitorElement*> > h_phoConvPhi_;
-
-  vector<vector<MonitorElement*> > h_convVtxRvsZ_;
-  vector<vector<MonitorElement*> > h_convVtxZ_;
-  vector<vector<MonitorElement*> > h_convVtxYvsX_;
-  vector<vector<MonitorElement*> > h_convVtxR_;
-
-  vector<vector<MonitorElement*> > h_r9VsEt_;
-  vector<vector<MonitorElement*> > h_r9VsEta_;
+  std::vector<std::vector<MonitorElement*> > h_nTrackIsolSolid_;
+  std::vector<std::vector<MonitorElement*> > h_trackPtSumSolid_;
+  std::vector<std::vector<MonitorElement*> > h_nTrackIsolHollow_;
+  std::vector<std::vector<MonitorElement*> > h_trackPtSumHollow_;
+  std::vector<std::vector<MonitorElement*> > h_ecalSum_;
+  std::vector<std::vector<MonitorElement*> > h_hcalSum_;
 
 
-  vector<vector<MonitorElement*> > h_e1x5VsEt_;
-  vector<vector<MonitorElement*> > h_e1x5VsEta_;
 
-  vector<vector<MonitorElement*> > h_e2x5VsEt_;
-  vector<vector<MonitorElement*> > h_e2x5VsEta_;
+  std::vector<MonitorElement*> p_nTrackIsolSolidVsEta_isol_;
+  std::vector<MonitorElement*> p_trackPtSumSolidVsEta_isol_;
+  std::vector<MonitorElement*> p_nTrackIsolHollowVsEta_isol_;
+  std::vector<MonitorElement*> p_trackPtSumHollowVsEta_isol_;
+  std::vector<MonitorElement*> p_ecalSumVsEta_isol_;
+  std::vector<MonitorElement*> p_hcalSumVsEta_isol_;
 
-  vector<vector<MonitorElement*> > h_maxEXtalOver3x3VsEt_;
-  vector<vector<MonitorElement*> > h_maxEXtalOver3x3VsEta_;
+  std::vector<std::vector<MonitorElement*> > p_nTrackIsolSolidVsEta_;
+  std::vector<std::vector<MonitorElement*> > p_trackPtSumSolidVsEta_;
+  std::vector<std::vector<MonitorElement*> > p_nTrackIsolHollowVsEta_;
+  std::vector<std::vector<MonitorElement*> > p_trackPtSumHollowVsEta_;
+  std::vector<std::vector<MonitorElement*> > p_ecalSumVsEta_;
+  std::vector<std::vector<MonitorElement*> > p_hcalSumVsEta_;
 
-  vector<vector<MonitorElement*> > h_r1x5VsEt_;
-  vector<vector<MonitorElement*> > h_r1x5VsEta_;
+  std::vector<MonitorElement*> p_nTrackIsolSolidVsEt_isol_;
+  std::vector<MonitorElement*> p_trackPtSumSolidVsEt_isol_;
+  std::vector<MonitorElement*> p_nTrackIsolHollowVsEt_isol_;
+  std::vector<MonitorElement*> p_trackPtSumHollowVsEt_isol_;
 
-  vector<vector<MonitorElement*> > h_r2x5VsEt_;
-  vector<vector<MonitorElement*> > h_r2x5VsEta_;
 
-  vector<vector<MonitorElement*> > h_sigmaIetaIetaVsEta_;
+  std::vector<std::vector<MonitorElement*> > p_nTrackIsolSolidVsEt_;
+  std::vector<std::vector<MonitorElement*> > p_trackPtSumSolidVsEt_;
+  std::vector<std::vector<MonitorElement*> > p_nTrackIsolHollowVsEt_;
+  std::vector<std::vector<MonitorElement*> > p_trackPtSumHollowVsEt_;
 
-  vector<vector<MonitorElement*> > h_tkChi2_;
 
-  vector<vector<MonitorElement*> > h_vertexChi2Prob_;
+  std::vector<MonitorElement*> p_ecalSumVsEt_part_;
+  std::vector<MonitorElement*> p_hcalSumVsEt_part_;
 
-  vector<vector<MonitorElement*> > p_nHitsVsEta_;
+  std::vector<std::vector<MonitorElement*> > p_ecalSumVsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_hcalSumVsEt_isol_;
 
-  vector<vector<MonitorElement*> > p_tkChi2VsEta_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > p_ecalSumVsEt_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > p_hcalSumVsEt_;
+
+
+  std::vector<MonitorElement*> p_r9VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_r9VsEt_;
+
+  std::vector<MonitorElement*> p_e1x5VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_e1x5VsEt_;
+
+  std::vector<MonitorElement*> p_r9VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_r9VsEta_;
+
+  std::vector<MonitorElement*> p_e1x5VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_e1x5VsEta_;
+
+  std::vector<MonitorElement*> p_e2x5VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_e2x5VsEt_;
+
+  std::vector<MonitorElement*> p_e2x5VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_e2x5VsEta_;
+
+  std::vector<MonitorElement*> p_maxEXtalOver3x3VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_maxEXtalOver3x3VsEt_;
+
+  std::vector<MonitorElement*> p_maxEXtalOver3x3VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_maxEXtalOver3x3VsEta_;
+
+
+  std::vector<MonitorElement*> p_r1x5VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_r1x5VsEt_;
+
+  std::vector<MonitorElement*> p_r1x5VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_r1x5VsEta_;
+
+  std::vector<MonitorElement*> p_r2x5VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_r2x5VsEt_;
+
+  std::vector<MonitorElement*> p_r2x5VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_r2x5VsEta_;
+
+  std::vector<MonitorElement*> p_sigmaIetaIetaVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_sigmaIetaIetaVsEta_;
+
+  std::vector<MonitorElement*> p_dCotTracksVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_dCotTracksVsEta_;
+
+
+  std::vector<MonitorElement*> p_hOverEVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_hOverEVsEta_;
+  std::vector<MonitorElement*> p_hOverEVsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_hOverEVsEt_;
+
+
+  std::vector<MonitorElement*> h_phoEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_phoEta_;
+  std::vector<MonitorElement*> h_phoPhi_isol_;
+  std::vector<std::vector<MonitorElement*> > h_phoPhi_;
+
+  std::vector<MonitorElement*> h_phoConvEtaForEfficiency_isol_;
+  std::vector<std::vector<MonitorElement*> > h_phoConvEtaForEfficiency_;
+  std::vector<MonitorElement*> h_phoConvPhiForEfficiency_isol_;
+  std::vector<std::vector<MonitorElement*> > h_phoConvPhiForEfficiency_;
+
+  std::vector<MonitorElement*> h_phoEta_BadChannels_isol_;
+  std::vector<std::vector<MonitorElement*> > h_phoEta_BadChannels_;
+  std::vector<MonitorElement*> h_phoEt_BadChannels_isol_;
+  std::vector<std::vector<MonitorElement*> > h_phoEt_BadChannels_;
+  std::vector<MonitorElement*> h_phoPhi_BadChannels_isol_;
+  std::vector<std::vector<MonitorElement*> > h_phoPhi_BadChannels_;
+
+
+  std::vector<MonitorElement*> h_scEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_scEta_;
+  std::vector<MonitorElement*> h_scPhi_isol_;
+  std::vector<std::vector<MonitorElement*> > h_scPhi_;
+
+  std::vector<MonitorElement*> h_phoConvEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_phoConvEta_;
+  std::vector<MonitorElement*> h_phoConvPhi_isol_;
+  std::vector<std::vector<MonitorElement*> > h_phoConvPhi_;
+
+  std::vector<MonitorElement*> h_convVtxRvsZ_isol_;
+  std::vector<std::vector<MonitorElement*> > h_convVtxRvsZ_;
+  std::vector<MonitorElement*> h_convVtxZ_isol_;
+  std::vector<std::vector<MonitorElement*> > h_convVtxZ_;
+  std::vector<MonitorElement*> h_convVtxYvsX_isol_;
+  std::vector<std::vector<MonitorElement*> > h_convVtxYvsX_;
+  std::vector<MonitorElement*> h_convVtxR_isol_;
+  std::vector<std::vector<MonitorElement*> > h_convVtxR_;
+
+  std::vector<MonitorElement*> h_r9VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > h_r9VsEt_;
+
+  std::vector<MonitorElement*> h_r9VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_r9VsEta_;
+
+
+/*   std::vector<MonitorElement*> h_profiler9VsEt_isol_; */
+/*   std::vector<std::vector<MonitorElement*> > h_profiler9VsEt_; */
+
+/*   std::vector<MonitorElement*> h_profiler9VsEta_isol_; */
+/*   std::vector<std::vector<MonitorElement*> > h_profiler9VsEta_; */
+
+
+
+
+
+
+
+
+  std::vector<MonitorElement*> h_e1x5VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > h_e1x5VsEt_;
+
+  std::vector<MonitorElement*> h_e1x5VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_e1x5VsEta_;
+
+  std::vector<MonitorElement*> h_e2x5VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > h_e2x5VsEt_;
+
+  std::vector<MonitorElement*> h_e2x5VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_e2x5VsEta_;
+
+  std::vector<MonitorElement*> h_maxEXtalOver3x3VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > h_maxEXtalOver3x3VsEt_;
+
+  std::vector<MonitorElement*> h_maxEXtalOver3x3VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_maxEXtalOver3x3VsEta_;
+
+  std::vector<MonitorElement*> h_r1x5VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > h_r1x5VsEt_;
+
+  std::vector<MonitorElement*> h_r1x5VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_r1x5VsEta_;
+
+  std::vector<MonitorElement*> h_r2x5VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > h_r2x5VsEt_;
+
+  std::vector<MonitorElement*> h_r2x5VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_r2x5VsEta_;
+
+  std::vector<MonitorElement*> h_sigmaIetaIetaVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_sigmaIetaIetaVsEta_;
+
+  std::vector<MonitorElement*> h_tkChi2_isol_;
+  std::vector<std::vector<MonitorElement*> > h_tkChi2_;
+
+  std::vector<MonitorElement*> h_vertexChi2_isol_;
+  std::vector<std::vector<MonitorElement*> > h_vertexChi2_;
+
+  std::vector<MonitorElement*> p_nHitsVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_nHitsVsEta_;
+
+  std::vector<MonitorElement*> p_tkChi2VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_tkChi2VsEta_;
 
 
   ////////3D vectors of histograms
 
-  vector<vector<vector<MonitorElement*> > > p_ecalSumVsEt_;
-  vector<vector<vector<MonitorElement*> > > p_hcalSumVsEt_;
+  std::vector<MonitorElement*> h_phoE_part_;
+  std::vector<std::vector<MonitorElement*> > h_phoE_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_phoE_;
 
-  vector<vector<vector<MonitorElement*> > > h_phoE_;
-  vector<vector<vector<MonitorElement*> > > h_phoEt_;
-  vector<vector<vector<MonitorElement*> > > h_r9_;
+  std::vector<MonitorElement*> h_phoEt_part_;
+  std::vector<std::vector<MonitorElement*> > h_phoEt_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_phoEt_;
 
-  vector<vector<vector<MonitorElement*> > > h_hOverE_;
-  vector<vector<vector<MonitorElement*> > > h_h1OverE_;
-  vector<vector<vector<MonitorElement*> > > h_h2OverE_;
+  std::vector<MonitorElement*> h_r9_part_;
+  std::vector<std::vector<MonitorElement*> > h_r9_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_r9_;
 
-  vector<vector<vector<MonitorElement*> > > h_phoSigmaIetaIeta_;
+  std::vector<MonitorElement*> h_hOverE_part_;
+  std::vector<std::vector<MonitorElement*> > h_hOverE_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_hOverE_;
 
-  vector<vector<vector<MonitorElement*> > > h_nPho_;
+  std::vector<MonitorElement*> h_h1OverE_part_;
+  std::vector<std::vector<MonitorElement*> > h_h1OverE_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_h1OverE_;
 
-  vector<vector<vector<MonitorElement*> > > h_phoConvE_;
-  vector<vector<vector<MonitorElement*> > > h_phoConvEt_;
-  vector<vector<vector<MonitorElement*> > > h_phoConvR9_;
+  std::vector<MonitorElement*> h_h2OverE_part_;
+  std::vector<std::vector<MonitorElement*> > h_h2OverE_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_h2OverE_;
 
-  vector<vector<vector<MonitorElement*> > > h_nConv_;
 
-  vector<vector<vector<MonitorElement*> > > h_eOverPTracks_;
-  vector<vector<vector<MonitorElement*> > > h_pOverETracks_;
+  std::vector<MonitorElement*> h_phoSigmaIetaIeta_part_;
+  std::vector<std::vector<MonitorElement*> > h_phoSigmaIetaIeta_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_phoSigmaIetaIeta_;
 
-  vector<vector<vector<MonitorElement*> > > h_dCotTracks_;
+  std::vector<MonitorElement*> h_nPho_part_;
+  std::vector<std::vector<MonitorElement*> > h_nPho_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_nPho_;
 
-  vector<vector<vector<MonitorElement*> > > h_dPhiTracksAtVtx_;
-  vector<vector<vector<MonitorElement*> > > h_dPhiTracksAtEcal_;
+  std::vector<MonitorElement*> h_phoDistribution_part_;
+  std::vector<std::vector<MonitorElement*> > h_phoDistribution_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_phoDistribution_;
 
-  vector<vector<vector<MonitorElement*> > > h_dEtaTracksAtEcal_;
+
+  std::vector<MonitorElement*> h_phoConvE_part_;
+  std::vector<std::vector<MonitorElement*> > h_phoConvE_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_phoConvE_;
+
+  std::vector<MonitorElement*> h_phoConvEt_part_;
+  std::vector<std::vector<MonitorElement*> > h_phoConvEt_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_phoConvEt_;
+
+  std::vector<MonitorElement*> h_phoConvR9_part_;
+  std::vector<std::vector<MonitorElement*> > h_phoConvR9_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_phoConvR9_;
+
+  std::vector<MonitorElement*> h_nConv_part_;
+  std::vector<std::vector<MonitorElement*> > h_nConv_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_nConv_;
+
+  std::vector<MonitorElement*> h_eOverPTracks_part_;
+  std::vector<std::vector<MonitorElement*> > h_eOverPTracks_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_eOverPTracks_;
+
+  std::vector<MonitorElement*> h_pOverETracks_part_;
+  std::vector<std::vector<MonitorElement*> > h_pOverETracks_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_pOverETracks_;
+
+  std::vector<MonitorElement*> h_dCotTracks_part_;
+  std::vector<std::vector<MonitorElement*> > h_dCotTracks_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_dCotTracks_;
+
+  std::vector<MonitorElement*> h_dPhiTracksAtVtx_part_;
+  std::vector<std::vector<MonitorElement*> > h_dPhiTracksAtVtx_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_dPhiTracksAtVtx_;
+
+  std::vector<MonitorElement*> h_dPhiTracksAtEcal_part_;
+  std::vector<std::vector<MonitorElement*> > h_dPhiTracksAtEcal_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_dPhiTracksAtEcal_;
+
+  std::vector<MonitorElement*> h_dEtaTracksAtEcal_part_;
+  std::vector<std::vector<MonitorElement*> > h_dEtaTracksAtEcal_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_dEtaTracksAtEcal_;
+
+
+
+  //
+  //
+  
+
 
 };
 

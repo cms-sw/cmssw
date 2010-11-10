@@ -1,10 +1,10 @@
-#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
+#include "Fireworks/Core/interface/FWDigitSetProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
-class FWPRCaloTowerProxyBuilder : public FWSimpleProxyBuilderTemplate<CaloTower>
+class FWPRCaloTowerProxyBuilder : public FWDigitSetProxyBuilder
 {
 public:
    FWPRCaloTowerProxyBuilder( void ) {}  
@@ -16,18 +16,30 @@ private:
    FWPRCaloTowerProxyBuilder( const FWPRCaloTowerProxyBuilder& ); 			// stop default
    const FWPRCaloTowerProxyBuilder& operator=( const FWPRCaloTowerProxyBuilder& ); 	// stop default
 
-   void build( const CaloTower& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
+   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );	
 };
 
-void
-FWPRCaloTowerProxyBuilder::build( const CaloTower& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) 
-{
-  const float* corners = item()->getGeom()->getCorners( iData.id().rawId() );
-  if( corners == 0 ) {
-    return;
-  }
-  
-  fireworks::drawEnergyTower3D( corners, iData.et(), &oItemHolder, this, false );
-}
 
-REGISTER_FWPROXYBUILDER( FWPRCaloTowerProxyBuilder, CaloTower, "CaloTower", FWViewType::kISpyBit );
+void FWPRCaloTowerProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
+{
+   const CaloTowerCollection* collection = 0;
+   iItem->get( collection );
+   if (! collection)
+      return;
+
+
+   TEveBoxSet* boxSet = addBoxSetToProduct(product);
+   for (std::vector<CaloTower>::const_iterator it = collection->begin() ; it != collection->end(); ++it)
+   {  
+      const float* corners = item()->getGeom()->getCorners((*it).id().rawId());
+      if (corners == 0) 
+         continue;
+
+      std::vector<float> scaledCorners(24);
+      fireworks::energyTower3DCorners(corners, (*it).et(), scaledCorners);
+
+      addBox(boxSet, &scaledCorners[0]);
+   }
+} 
+
+REGISTER_FWPROXYBUILDER( FWPRCaloTowerProxyBuilder, CaloTowerCollection, "CaloTower", FWViewType::kISpyBit );

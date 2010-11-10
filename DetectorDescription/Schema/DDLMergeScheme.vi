@@ -1,0 +1,80 @@
+" make sure that every element in the xsd (xml) file is written on 1 line!! 
+" otherwise this script does not delete the proper stuff!!
+a
+<!-- DDLTypes.xsd -->
+
+.
+:r DDLTypes.xsd
+1,3d
+:%s/<?/frankvar1
+:%s/<xsd:schema/frankvar2
+:$
+a
+<!-- DDLReference.xsd -->
+
+.
+:r DDLReference.xsd
+:$
+a
+<!-- DDLSolid.xsd -->
+
+.
+:r DDLSolid.xsd
+:$
+a
+<!-- DDLRotation.xsd -->
+
+.
+:r DDLRotation.xsd
+:$
+a
+<!-- DDLConstraints.xsd -->
+
+.
+:r DDLConstraints.xsd 
+:$
+a
+<!-- DDLSpecPar.xsd -->
+
+.
+:r DDLSpecPar.xsd
+:$
+a
+<!-- DDLMaterial.xsd -->
+
+.
+:r DDLMaterial.xsd
+:$
+a
+<!-- DDLPosPart.xsd -->
+
+.
+:r DDLPosPart.xsd
+:$
+a
+<!-- DDLLogicalPart.xsd -->
+
+.
+:r DDLLogicalPart.xsd
+:$
+a
+<!-- DDLSections.xsd -->
+
+.
+:r DDLSections.xsd
+:$
+a
+<!-- DDLSchemaConstraints.xsd -->
+
+.
+:r DDLSchemaConstraints.xsd
+:$
+:g/<?/d
+:g/xsd:schema/d
+:%s/frankvar1/<?
+:%s/frankvar2/<xsd:schema
+:g/xsd:include/d
+:$
+a
+</xsd:schema>
+.

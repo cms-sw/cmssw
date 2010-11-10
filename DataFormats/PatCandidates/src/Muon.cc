@@ -1,5 +1,5 @@
 //
-// $Id: Muon.cc,v 1.27 2010/09/14 15:15:15 kukartse Exp $
+// $Id: Muon.cc,v 1.26 2010/05/13 15:52:13 rwolf Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -186,14 +186,6 @@ reco::PFCandidateRef Muon::pfCandidateRef() const {
   }
 }
 
-/// reference to the parent PF candidate for use in TopProjector
-reco::CandidatePtr Muon::sourceCandidatePtr( size_type i ) const {
-  if (embeddedPFCandidate_) {
-    return reco::CandidatePtr( pfCandidateRef_.id(), pfCandidateRef_.get(), pfCandidateRef_.key() ); 
-  } else {
-    return reco::CandidatePtr();
-  }
-}
 
 /// embed the Track reconstructed in the tracker only
 void Muon::embedTrack() {

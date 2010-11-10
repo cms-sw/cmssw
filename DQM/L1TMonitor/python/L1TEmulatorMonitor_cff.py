@@ -28,12 +28,18 @@ valGtDigis.AlternativeNrBxBoardEvm = 0x2
 from DQM.L1TMonitor.L1TDEMON_cfi import *
 from DQM.L1TMonitor.L1TdeECAL_cfi import *
 from DQM.L1TMonitor.L1TdeGCT_cfi import *
-
 from DQM.L1TMonitor.L1TdeRCT_cfi import *
 l1tderct.rctSourceData = 'gctDigis'
 l1tderct.rctSourceEmul = 'valRctDigis'
-
 from DQM.L1TMonitor.L1TdeCSCTF_cfi import *
+l1decsctf.dataTrackProducer = cms.InputTag("csctfDigis")
+l1decsctf.emulTrackProducer = cms.InputTag("valCsctfTrackDigis")
+l1decsctf.lctProducer       = cms.InputTag("csctfDigis")
+l1decsctf.PTLUT				= cms.PSet(
+									LowQualityFlag = cms.untracked.uint32(4),
+									ReadPtLUT = cms.untracked.bool(False),
+									PtMethod = cms.untracked.uint32(1)
+)
 
 from DQM.L1TMonitor.l1GtHwValidation_cfi import *
 

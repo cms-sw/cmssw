@@ -31,6 +31,8 @@ from DQMOffline.EGamma.cosmicPhotonAnalyzer_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_cosmics_cff import *
 from DQM.Physics.DQMPhysics_cff import *
 
+triggerCosmicOfflineDQMSource.remove(jetMETHLTOfflineSource)
+
 DQMOfflineCosmicsPrePOG = cms.Sequence( muonCosmicMonitors *
                                         jetMETDQMOfflineSourceCosmic *
                                         egammaCosmicPhotonMonitors *

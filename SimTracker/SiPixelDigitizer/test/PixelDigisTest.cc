@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.23 2010/02/11 00:15:06 wmtan Exp $
+// $Id: PixelDigisTest.cc,v 1.22 2010/01/12 07:17:14 hegner Exp $
 //
 //
 // system include files
@@ -63,21 +63,6 @@
 // for simulated Tracker hits
 //#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-// For L1
-#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
-
-// For HLT
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "FWCore/Common/interface/TriggerNames.h"
-
-
 // To use root histos
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -91,17 +76,13 @@
 #include <TH2F.h>
 #include <TH1F.h>
 
-#define HISTOS
-#define L1
-#define HLT
-
-
 using namespace std;
 
 // Enable this to look at simlinks (link simhit->digis)
 // Can be used only with simulated data.
 //#define USE_SIM_LINKS
 
+#define HISTOS
 
 //
 // class decleration
@@ -147,9 +128,6 @@ private:
   //TH2F *htest, *htest2;
   TH2F *hdetMap3,*hdetMap2,*hdetMap1, *hpixMap1, *hpixMap2, *hpixMap3,
     * hpixMapNoise; 
-
-  TH1F *hevent, *hlumi, *horbit, *hbx0, *hlumi0, *hlumi1,*hbx1,*hbx2,*hbx3,*hbx4,*hbx5,*hbx6;
-  TH1F *hdets, *hdigis, *hdigis1, *hdigis2,*hdigis3,*hdigis4,*hdigis5; 
 
 #endif
 
@@ -316,27 +294,6 @@ void PixelDigisTest::beginJob() {
     //htest->SetOption("colz");
     //htest2->SetOption("colz");
 
-  hevent = fs->make<TH1F>("hevent","event",1000,0,10000000.);
-  horbit = fs->make<TH1F>("horbit","orbit",100, 0,100000000.);
-
-  hlumi1  = fs->make<TH1F>("hlumi1", "lumi", 2000,0,2000.);
-  hlumi0  = fs->make<TH1F>("hlumi0", "lumi", 2000,0,2000.);
-
-  hbx6    = fs->make<TH1F>("hbx6",   "bx",   4000,0,4000.);  
-  hbx5    = fs->make<TH1F>("hbx5",   "bx",   4000,0,4000.);  
-  hbx4    = fs->make<TH1F>("hbx4",   "bx",   4000,0,4000.);  
-  hbx3    = fs->make<TH1F>("hbx3",   "bx",   4000,0,4000.);  
-  hbx2    = fs->make<TH1F>("hbx2",   "bx",   4000,0,4000.);  
-  hbx1    = fs->make<TH1F>("hbx1",   "bx",   4000,0,4000.);  
-  hbx0    = fs->make<TH1F>("hbx0",   "bx",   4000,0,4000.);  
-
-  hdets  = fs->make<TH1F>( "hdets",  "Dets with hits", 2000, -0.5, 1999.5);
-  hdigis = fs->make<TH1F>( "hdigis", "All Digis", 2000, -0.5, 1999.5);
-  hdigis1 = fs->make<TH1F>( "hdigis1", "All Digis for full events", 2000, -0.5, 1999.5);
-  hdigis2 = fs->make<TH1F>( "hdigis2", "BPix Digis", 2000, -0.5, 1999.5);
-  hdigis3 = fs->make<TH1F>( "hdigis3", "Fpix Digis", 2000, -0.5, 1999.5);
-  hdigis4 = fs->make<TH1F>( "hdigis4", "All Digis - on bunch", 2000, -0.5, 1999.5);
-  hdigis5 = fs->make<TH1F>( "hdigis5", "All Digis - off bunch ", 2000, -0.5, 1999.5);
 #endif
 
 }
@@ -346,42 +303,6 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 			   const edm::EventSetup& iSetup) {
   using namespace edm;
   if(PRINT) cout<<" Analyze PixelDigisTest "<<endl;
-
-
-  int run       = iEvent.id().run();
-  int event     = iEvent.id().event();
-  int lumiBlock = iEvent.luminosityBlock();
-  int bx        = iEvent.bunchCrossing();
-  int orbit     = iEvent.orbitNumber();
-
-  hbx0->Fill(float(bx));
-  hlumi0->Fill(float(lumiBlock));
-
-  // eliminate bunches with beam
-  bool bunch = false;
-  if( bx==410 || bx==460 || bx==510) bunch = true;
-  else if( bx==560 || bx==610 || bx==660 ) bunch = true;
-  else if( bx==1292 || bx==1342 || bx==1392 ) bunch = true;
-  else if( bx==1454 || bx==1504 || bx==1554 ) bunch = true;
-  else if( bx==2501 || bx==2601 ) bunch = true;
-  else if( bx==3080 || bx==3030 || bx == 3180 ) bunch = true;
-
-  if(bx>=1 && bx<=351) { if( (bx%50) == 1 ) bunch = true; }
-  else if(bx>=892 && bx<=1245) {
-    if( ((bx-892)%50) == 0 ) bunch = true;
-    else if( ((bx-895)%50) == 0 ) bunch = true;
-  } else if(bx>=1786 && bx<=2286) { if( ((bx-1786)%50) == 0 ) bunch = true; }
-  else if(bx>=2671 && bx<=3021) { if( ((bx-2671)%50) == 0 ) bunch = true; }
-
-  if(bunch) {
-    //cout<<" reject "<<bx<<endl;
-    hbx2->Fill(float(bx));
-  } else {
-    if(bx==892) cout<<" something wrong"<<endl;
-    if(bx==1245) cout<<" something wrong"<<endl;
-    if(bx==3021) cout<<" something wrong"<<endl;
-    if(bx==2286) cout<<" something wrong"<<endl;
-  } 
 
     // Get digis
   edm::Handle< edm::DetSetVector<PixelDigi> > pixelDigis;
@@ -615,7 +536,7 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 	 } // noise
        } else if(layer==2) {
 	 // look for the noisy pixel
-	 bool noise = false; // (ladder==6) && (module==-2) && (col==364) && (row==1);
+	 bool noise = (ladder==6) && (module==-2) && (col==364) && (row==1);
 	 if(noise) {
 	   //cout<<" noise pixel "<<layer<<" "<<sector<<" "<<shell<<endl;
 	   hpixMapNoise->Fill(float(col),float(row));
@@ -738,34 +659,6 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
   if(PRINT) 
     cout << " Number of full det-units = " <<numberOfDetUnits
 	 <<" total digis = "<<totalNumOfDigis<<endl;
-  hdets->Fill(float(numberOfDetUnits));
-  hdigis->Fill(float(totalNumOfDigis));
-
-  if(numberOfDetUnits>0) {
-    hevent->Fill(float(event));
-    hlumi1->Fill(float(lumiBlock));
-    hbx1->Fill(float(bx));
-    horbit->Fill(float(orbit));
-
-    hdigis1->Fill(float(totalNumOfDigis));
-    float tmp = float(totalNumOfDigis1) + float(totalNumOfDigis2) 
-      + float(totalNumOfDigis3); 
-    hdigis2->Fill(tmp);
-    tmp = float(totalNumOfDigisF1) + float(totalNumOfDigisF2);  
-    hdigis3->Fill(tmp);
-
-    if(bunch) hdigis4->Fill(float(totalNumOfDigis));
-    else hdigis5->Fill(float(totalNumOfDigis));
-
-    if(numberOfDetUnits>20) hbx3->Fill(float(bx));
-
-    if(totalNumOfDigis>100) hbx4->Fill(float(bx));
-    else if(totalNumOfDigis>4) hbx5->Fill(float(bx));
-    else hbx6->Fill(float(bx));
-
-
-  }
-
   
 #ifdef HISTOS
   hdigisPerLay1 ->Fill(float(totalNumOfDigis1));
