@@ -433,15 +433,15 @@ else:
     if configuration.processType in ('HIon', ):
       menu.data += """
 # HIon paths in smart prescalers
-if 'hltPreHLTDQMSmart' in process.__dict__:
-    process.hltPreHLTDQMSmart.throw = cms.bool( False )
-if 'hltPreHLTMONSmart' in process.__dict__:
-    process.hltPreHLTMONSmart.throw = cms.bool( False )
-if 'hltPreExpressSmart' in process.__dict__:
-    process.hltPreExpressSmart.throw = cms.bool( False )
-if 'hltPreDQMSmart' in process.__dict__:
-    process.hltPreDQMSmart.throw = cms.bool( False )
-"""        
+if 'hltPreHLTDQMSmart' in %(dict)s:
+    %(process)shltPreHLTDQMSmart.throw = cms.bool( False )
+if 'hltPreHLTMONSmart' in %(dict)s:
+    %(process)shltPreHLTMONSmart.throw = cms.bool( False )
+if 'hltPreExpressSmart' in %(dict)s:
+    %(process)shltPreExpressSmart.throw = cms.bool( False )
+if 'hltPreDQMSmart' in %(dict)s:
+    %(process)shltPreDQMSmart.throw = cms.bool( False )
+""" % menu.labels        
 
     # FIXME - find a better way to override the output modules
     menu.data = re.sub( 
@@ -452,16 +452,16 @@ if 'hltPreDQMSmart' in process.__dict__:
 
     menu.data += """
 # set process name
-process.setName_('%s')
+%(process)ssetName_('%%s')
 
 # add global options
-process.maxEvents = cms.untracked.PSet(
+%(process)smaxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( 100 )
 )
-process.options = cms.untracked.PSet(
+%(process)soptions = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True )
 )
-""" % configuration.processName
+""" % menu.labels % configuration.processName
 
     # overwrite GlobalTag
     # the logic is:
@@ -474,19 +474,19 @@ process.options = cms.untracked.PSet(
       if configuration.menuGlobalTag:
         menu.data += """
 # override the GlobalTag 
-if 'GlobalTag' in process.__dict__:
-    process.GlobalTag.globaltag = '%s'
-""" % configuration.menuGlobalTag
+if 'GlobalTag' in %(dict)s:
+    %(process)sGlobalTag.globaltag = '%%s'
+""" % menu.labels % configuration.menuGlobalTag
 
     else:
       menu.data += """
 # override the GlobalTag connection string and pfnPrefix
-if 'GlobalTag' in process.__dict__:
-"""
+if 'GlobalTag' in %(dict)s:
+""" % menu.labels
 
       # override the GlobalTag connection string and pfnPrefix
-      menu.data += "    process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'\n"
-      menu.data += "    process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n"
+      menu.data += "    %(process)sGlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'\n" % menu.labels
+      menu.data += "    %(process)sGlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n" % menu.labels
       if configuration.runOnData:
         # do not override the GlobalTag unless one was specified on the command line 
         pass
@@ -504,51 +504,51 @@ if 'GlobalTag' in process.__dict__:
         pass
       elif configuration.menuGlobalTag[0:5] == 'auto:':
         menu.data += "    from Configuration.PyReleaseValidation.autoCond import autoCond\n"
-        menu.data += "    process.GlobalTag.globaltag = autoCond['%s']\n" % configuration.menuGlobalTag[5:]
+        menu.data += "    %(process)sGlobalTag.globaltag = autoCond['%%s']\n" % menu.labels % configuration.menuGlobalTag[5:]
       else:
-        menu.data += "    process.GlobalTag.globaltag = '%s'\n" % configuration.menuGlobalTag
+        menu.data += "    %(process)sGlobalTag.globaltag = '%%s'\n" % menu.labels % configuration.menuGlobalTag
 
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
     if configuration.menuL1.override:
       if not configuration.menuL1.connect:
-        configuration.menuL1.connect = "process.GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')"
+        configuration.menuL1.connect = "%(process)sGlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')" % menu.labels
       menu.data += """
 # override the L1 menu
-if 'GlobalTag' in process.__dict__:
-    process.GlobalTag.toGet.append(
+if 'GlobalTag' in %(dict)s:
+    %(process)sGlobalTag.toGet.append(
         cms.PSet(  
             record  = cms.string( "L1GtTriggerMenuRcd" ),
-            tag     = cms.string( "%s" ),
-            connect = cms.untracked.string( %s )
+            tag     = cms.string( "%%s" ),
+            connect = cms.untracked.string( %%s )
         )
     )
-""" % (configuration.menuL1.override, configuration.menuL1.connect)
+""" % menu.labels % (configuration.menuL1.override, configuration.menuL1.connect)
 
     # the following is stolen from HLTrigger.Configuration.customL1THLT_Options
     menu.data += """
 # adapt HLT modules to the correct process name
-if 'hltTrigReport' in process.__dict__:
-    process.hltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults','',process.name_() )
+if 'hltTrigReport' in %(dict)s:
+    %(process)shltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults','',%(process)sname_() )
 
-if 'hltDQMHLTScalers' in process.__dict__:
-    process.hltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults','',process.name_() )
+if 'hltDQMHLTScalers' in %(dict)s:
+    %(process)shltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults','',%(process)sname_() )
 
-if 'hltPreExpressSmart' in process.__dict__:
-    process.hltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults','',process.name_() )
+if 'hltPreExpressSmart' in %(dict)s:
+    %(process)shltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults','',%(process)sname_() )
 
-if 'hltPreHLTMONSmart' in process.__dict__:
-    process.hltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults','',process.name_() )
+if 'hltPreHLTMONSmart' in %(dict)s:
+    %(process)shltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults','',%(process)sname_() )
 
-if 'hltPreDQMSmart' in process.__dict__:
-    process.hltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults','',process.name_() )
+if 'hltPreDQMSmart' in %(dict)s:
+    %(process)shltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults','',%(process)sname_() )
 
-if 'hltDQML1SeedLogicScalers' in process.__dict__:
-    process.hltDQML1SeedLogicScalers.processname = process.name_()
+if 'hltDQML1SeedLogicScalers' in %(dict)s:
+    %(process)shltDQML1SeedLogicScalers.processname = %(process)sname_()
 
-process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
-process.MessageLogger.categories.append('L1GtTrigReport')
-process.MessageLogger.categories.append('HLTrigReport')
-"""
+%(process)sMessageLogger.categories.append('TriggerSummaryProducerAOD')
+%(process)sMessageLogger.categories.append('L1GtTrigReport')
+%(process)sMessageLogger.categories.append('HLTrigReport')
+""" % menu.labels
 
 
 # dump the final configuration
