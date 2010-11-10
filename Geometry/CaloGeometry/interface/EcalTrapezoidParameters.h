@@ -63,8 +63,6 @@
 // forward declarations
 
 
-template class std::vector<HepGeom::Point3D<double> > ;
-
 class EcalTrapezoidParameters
 {
       // ---------- friend classes and functions ---------------
