@@ -1,13 +1,37 @@
 <library   file="RPCObImonPyWrapper.cc" name="RPCObImonPyInterface">
   <use   name="CondCore/Utilities"/>
   <use   name="CondFormats/RPCObjects"/>
+  <use   name="Geometry/RPCGeometry"/>
   <use   name="boost"/>
   <use   name="boost_filesystem"/>
   <use   name="boost_python"/>
   <use   name="boost_regex"/>
+  <use   name="rootgraphics"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="RPCObTempPyWrapper.cc" name="RPCObTempPyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/RPCObjects"/>
+  <use   name="Geometry/RPCGeometry"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <use   name="rootgraphics"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="RPCObVmonPyWrapper.cc" name="RPCObVmonPyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/RPCObjects"/>
+  <use   name="Geometry/RPCGeometry"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <use   name="rootgraphics"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="RPCObGasPyWrapper.cc" name="RPCObGasPyInterface">
   <use   name="CondCore/Utilities"/>
   <use   name="CondFormats/RPCObjects"/>
   <use   name="boost"/>
