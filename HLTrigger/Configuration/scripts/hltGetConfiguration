@@ -216,11 +216,20 @@ def build_source(src):
 def build_options(opts):
   return ' '.join(['--%s %s' % (key, ','.join(vals)) for key, vals in opts.iteritems() if vals])
 
-def build_cmdline(config, src, opts, full = True):
-  if full:
+def build_cmdline(config, src, opts, fragment):
+  if not fragment:
     return 'edmConfigFromDB %s %s %s'       % (build_query(config), build_source(src), build_options(opts))
   else:
     return 'edmConfigFromDB --cff %s %s %s' % (build_query(config), build_source(src), build_options(opts))
+
+def get_raw_hlt_configuration_from_db(config, src, opts, fragment):
+  cmdline = build_cmdline(configuration.menuConfig, confdbSource, confdbOptions, fragment)
+  data = pipe(cmdline)
+  
+  if 'Exhausted Resultset' in data or 'CONFIG_NOT_FOUND' in data:
+    raise ImportError('%s is not a valid HLT menu' % configuration.menuConfig.value)
+
+  return data
 
 
 # parse command line arguments and options
@@ -322,11 +331,7 @@ if configuration.doCff:
     confdbOptions['psets'].append( "-maxEvents" )
     confdbOptions['psets'].append( "-options" )
 
-    cmdline = build_cmdline(configuration.menuConfig, confdbSource, confdbOptions, False)
-    data = pipe(cmdline)
-
-    if 'Exhausted Resultset' in data or 'CONFIG_NOT_FOUND' in data:
-      raise ImportError('%s is not a valid HLT menu' % configuration.menuConfig.value)
+    data = get_raw_hlt_configuration_from_db(configuration.menuConfig, confdbSource, confdbOptions, configuration.doCff)
 
     if not configuration.runOnData:
       # FIXME - this should be done looking into the python objects, not working on the text representation
@@ -396,11 +401,7 @@ else:
     confdbOptions['services'].append( "-FUShmDQMOutputService" )
     confdbOptions['paths'].append( "-OfflineOutput" )
 
-    cmdline = build_cmdline(configuration.menuConfig, confdbSource, confdbOptions)
-    data = pipe(cmdline)
-
-    if 'Exhausted Resultset' in data or 'CONFIG_NOT_FOUND' in data:
-      raise ImportError('%s is not a valid HLT menu' % configuration.menuConfig.value)
+    data = get_raw_hlt_configuration_from_db(configuration.menuConfig, confdbSource, confdbOptions, configuration.doCff)
 
     if not configuration.runOnData:
       # FIXME - this should be done looking into the python objects, not working on the text representation
