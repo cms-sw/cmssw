@@ -452,16 +452,16 @@ if 'hltPreDQMSmart' in %(dict)s:
 
     menu.data += """
 # set process name
-%(process)ssetName_('%%s')
+%%(process)ssetName_('%s')
 
 # add global options
-%(process)smaxEvents = cms.untracked.PSet(
+%%(process)smaxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( 100 )
 )
-%(process)soptions = cms.untracked.PSet(
+%%(process)soptions = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True )
 )
-""" % menu.labels % configuration.processName
+""" % configuration.processName % menu.labels
 
     # overwrite GlobalTag
     # the logic is:
@@ -474,9 +474,9 @@ if 'hltPreDQMSmart' in %(dict)s:
       if configuration.menuGlobalTag:
         menu.data += """
 # override the GlobalTag 
-if 'GlobalTag' in %(dict)s:
-    %(process)sGlobalTag.globaltag = '%%s'
-""" % menu.labels % configuration.menuGlobalTag
+if 'GlobalTag' in %%(dict)s:
+    %%(process)sGlobalTag.globaltag = '%s'
+""" % configuration.menuGlobalTag % menu.labels
 
     else:
       menu.data += """
@@ -504,9 +504,9 @@ if 'GlobalTag' in %(dict)s:
         pass
       elif configuration.menuGlobalTag[0:5] == 'auto:':
         menu.data += "    from Configuration.PyReleaseValidation.autoCond import autoCond\n"
-        menu.data += "    %(process)sGlobalTag.globaltag = autoCond['%%s']\n" % menu.labels % configuration.menuGlobalTag[5:]
+        menu.data += "    %%(process)sGlobalTag.globaltag = autoCond['%s']\n" % configuration.menuGlobalTag[5:] % menu.labels
       else:
-        menu.data += "    %(process)sGlobalTag.globaltag = '%%s'\n" % menu.labels % configuration.menuGlobalTag
+        menu.data += "    %%(process)sGlobalTag.globaltag = '%s'\n" % configuration.menuGlobalTag % menu.labels
 
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
     if configuration.menuL1.override:
@@ -514,15 +514,15 @@ if 'GlobalTag' in %(dict)s:
         configuration.menuL1.connect = "%(process)sGlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')" % menu.labels
       menu.data += """
 # override the L1 menu
-if 'GlobalTag' in %(dict)s:
-    %(process)sGlobalTag.toGet.append(
+if 'GlobalTag' in %%(dict)s:
+    %%(process)sGlobalTag.toGet.append(
         cms.PSet(  
             record  = cms.string( "L1GtTriggerMenuRcd" ),
-            tag     = cms.string( "%%s" ),
-            connect = cms.untracked.string( %%s )
+            tag     = cms.string( "%s" ),
+            connect = cms.untracked.string( %s )
         )
     )
-""" % menu.labels % (configuration.menuL1.override, configuration.menuL1.connect)
+""" % (configuration.menuL1.override, configuration.menuL1.connect) % menu.labels
 
     # the following is stolen from HLTrigger.Configuration.customL1THLT_Options
     menu.data += """
