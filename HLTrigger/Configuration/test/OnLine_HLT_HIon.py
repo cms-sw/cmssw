@@ -4981,6 +4981,10 @@ process.HLTMONOutput = cms.EndPath( process.hltPreHLTMON + process.hltPreHLTMONS
 process.NanoDSTOutput = cms.EndPath( process.hltPreNanoDST + process.hltOutputNanoDST )
 
 
+# override the preshower baseline setting for MC
+if 'ESUnpackerWorkerESProducer' in process.__dict__:
+    process.ESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
+
 # HIon paths in smart prescalers
 if 'hltPreHLTDQMSmart' in process.__dict__:
     process.hltPreHLTDQMSmart.throw = cms.bool( False )
@@ -4990,10 +4994,6 @@ if 'hltPreExpressSmart' in process.__dict__:
     process.hltPreExpressSmart.throw = cms.bool( False )
 if 'hltPreDQMSmart' in process.__dict__:
     process.hltPreDQMSmart.throw = cms.bool( False )
-
-# override the preshower baseline setting for MC
-if 'ESUnpackerWorkerESProducer' in process.__dict__:
-    process.ESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
 
 # remove HLT prescales
 if 'PrescaleService' in process.__dict__:
