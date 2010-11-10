@@ -269,6 +269,76 @@ if 'PrescaleService' in %(dict)s:
 """ % self.labels
 
 
+  def overrideGlobalTag(self, configuration):
+    # overwrite GlobalTag
+    # the logic is:
+    #   - for running online, do nothing, unless a globaltag has been specified on the command line
+    #   - for running offline on data, only add the pfnPrefix
+    #   - for running offline on mc, take the GT from the command line of the configuration.processType
+    #      - if the GT is "auto:...", insert the code to read it from Configuration.PyReleaseValidation.autoCond
+    text = ''
+    if configuration.runOnline:
+      if configuration.menuGlobalTag:
+        text += """
+# override the GlobalTag 
+if 'GlobalTag' in %%(dict)s:
+    %%(process)sGlobalTag.globaltag = '%(menuGlobalTag)s'
+"""
+
+    else:
+      text += """
+# override the GlobalTag connection string and pfnPrefix
+if 'GlobalTag' in %%(dict)s:
+"""
+
+      # override the GlobalTag connection string and pfnPrefix
+      text += "    %%(process)sGlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'\n"
+      text += "    %%(process)sGlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n"
+
+      if configuration.runOnData:
+        # do not override the GlobalTag unless one was specified on the command line 
+        pass
+      else:
+        # check if a specific GlobalTag was specified on the command line, or choose one from the configuration.processType
+        if not configuration.menuGlobalTag:
+          if configuration.processType in globalTag:
+            configuration.menuGlobalTag = globalTag[configuration.processType]
+          else:
+            configuration.menuGlobalTag = globalTag['GRun']
+
+      # check if the GlobalTag is an autoCond or an explicit tag
+      if not configuration.menuGlobalTag:
+        # when running on data, do not override the GlobalTag unless one was specified on the command line
+        pass
+      elif configuration.menuGlobalTag[0:5] == 'auto:':
+        configuration.menuGlobalTagAuto = configuration.menuGlobalTag[5:]
+        text += "    from Configuration.PyReleaseValidation.autoCond import autoCond\n"
+        text += "    %%(process)sGlobalTag.globaltag = autoCond['%(menuGlobalTagAuto)s']\n"
+      else:
+        text += "    %%(process)sGlobalTag.globaltag = '%(menuGlobalTag)s'\n"
+
+    self.data += text % configuration.__dict__
+
+
+  def overrideL1Menu(self, configuration):
+    # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
+    if configuration.menuL1.override:
+      if not configuration.menuL1.connect:
+        configuration.menuL1.connect = "%(process)sGlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')"
+      menu.data += """
+# override the L1 menu
+if 'GlobalTag' in %%(dict)s:
+    %%(process)sGlobalTag.toGet.append(
+        cms.PSet(  
+            record  = cms.string( "L1GtTriggerMenuRcd" ),
+            tag     = cms.string( "%(override)s" ),
+            connect = cms.untracked.string( %(connect)s )
+        )
+    )
+""" % configuration.menuL1.__dict__
+
+
+
 # parse command line arguments and options
 args = parser.parse_args( namespace = configuration )
 
@@ -380,20 +450,7 @@ if configuration.doCff:
       menu.unprescale()
 
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
-    if configuration.menuL1.override:
-      if not configuration.menuL1.connect:
-        configuration.menuL1.connect = "GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')"
-      menu.data += """
-# override the L1 menu (requires the GlobalTag to be defined)
-if 'GlobalTag' in locals():
-    GlobalTag.toGet.append(
-        cms.PSet(  
-            record  = cms.string( "L1GtTriggerMenuRcd" ),
-            tag     = cms.string( "%s" ),
-            connect = cms.untracked.string( %s )
-        )
-    )
-""" % (configuration.menuL1.override, configuration.menuL1.connect)
+    menu.overrideL1Menu(configuration)
 
 else:
     if configuration.runOnline:
@@ -452,7 +509,7 @@ if 'hltPreDQMSmart' in %(dict)s:
 
     menu.data += """
 # set process name
-%%(process)ssetName_('%s')
+%%(process)ssetName_('%(processName)s')
 
 # add global options
 %%(process)smaxEvents = cms.untracked.PSet(
@@ -461,68 +518,13 @@ if 'hltPreDQMSmart' in %(dict)s:
 %%(process)soptions = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True )
 )
-""" % configuration.processName
+""" % configuration.__dict__
 
-    # overwrite GlobalTag
-    # the logic is:
-    #   - for running online, do nothing, unless a globaltag has been specified on the command line
-    #   - for running offline on data, only add the pfnPrefix
-    #   - for running offline on mc, take the GT from the command line of the configuration.processType
-    #      - if the GT is "auto:...", insert the code to read it from Configuration.PyReleaseValidation.autoCond
-
-    if configuration.runOnline:
-      if configuration.menuGlobalTag:
-        menu.data += """
-# override the GlobalTag 
-if 'GlobalTag' in %%(dict)s:
-    %%(process)sGlobalTag.globaltag = '%s'
-""" % configuration.menuGlobalTag
-
-    else:
-      menu.data += """
-# override the GlobalTag connection string and pfnPrefix
-if 'GlobalTag' in %(dict)s:
-"""
-
-      # override the GlobalTag connection string and pfnPrefix
-      menu.data += "    %(process)sGlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'\n"
-      menu.data += "    %(process)sGlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n"
-      if configuration.runOnData:
-        # do not override the GlobalTag unless one was specified on the command line 
-        pass
-      else:
-        # check if a specific GlobalTag was specified on the command line, or choose one from the configuration.processType
-        if not configuration.menuGlobalTag:
-          if configuration.processType in globalTag:
-            configuration.menuGlobalTag = globalTag[configuration.processType]
-          else:
-            configuration.menuGlobalTag = globalTag['GRun']
-
-      # check if the GlobalTag is an autoCond or an explicit tag
-      if not configuration.menuGlobalTag:
-        # when running on data, do not override the GlobalTag unless one was specified on the command line
-        pass
-      elif configuration.menuGlobalTag[0:5] == 'auto:':
-        menu.data += "    from Configuration.PyReleaseValidation.autoCond import autoCond\n"
-        menu.data += "    %%(process)sGlobalTag.globaltag = autoCond['%s']\n" % configuration.menuGlobalTag[5:]
-      else:
-        menu.data += "    %%(process)sGlobalTag.globaltag = '%s'\n" % configuration.menuGlobalTag
+    # if requested or necessary, override the GlobalTag and connection strings
+    menu.overrideGlobalTag(configuration)
 
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
-    if configuration.menuL1.override:
-      if not configuration.menuL1.connect:
-        configuration.menuL1.connect = "%(process)sGlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')"
-      menu.data += """
-# override the L1 menu
-if 'GlobalTag' in %%(dict)s:
-    %%(process)sGlobalTag.toGet.append(
-        cms.PSet(  
-            record  = cms.string( "L1GtTriggerMenuRcd" ),
-            tag     = cms.string( "%s" ),
-            connect = cms.untracked.string( %s )
-        )
-    )
-""" % (configuration.menuL1.override, configuration.menuL1.connect)
+    menu.overrideL1Menu(configuration)
 
     # the following is stolen from HLTrigger.Configuration.customL1THLT_Options
     menu.data += """
