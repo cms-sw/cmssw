@@ -31,6 +31,7 @@
 #include "TGMsgBox.h"
 #include "TROOT.h"
 #include "TSystem.h"
+#include "TStopwatch.h"
 #include "TTimer.h"
 #include "TEveManager.h"
 
@@ -175,9 +176,13 @@ CmsShowMainBase::draw()
    if (m_contextPtr->getField()->getSource() != FWMagField::kUser)
       m_contextPtr->getField()->checkFiledInfo(m_navigatorPtr->getCurrentEvent());
 
+   TStopwatch sw;
    m_viewManager->eventBegin();
    m_eiManager->newEvent(m_navigatorPtr->getCurrentEvent());
    m_viewManager->eventEnd();
+   sw.Stop();
+   fwLog(fwlog::kDebug) << "CmsShowMainBase::draw CpuTime " << sw.CpuTime()
+                        <<" RealTime " << sw.RealTime() << std::endl;
 
    if (!m_autoSaveAllViewsFormat.empty())
    {

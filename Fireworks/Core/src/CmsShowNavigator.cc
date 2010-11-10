@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.97 2010/08/16 15:33:20 matevz Exp $
+// $Id: CmsShowNavigator.cc,v 1.98 2010/09/02 19:54:04 matevz Exp $
 //
 
 #include "DataFormats/FWLite/interface/Event.h"
@@ -207,7 +207,7 @@ CmsShowNavigator::goTo(FileQueue_i fi, int event)
       CpuInfo_t  cpuInfo;
       MemInfo_t  memInfo;
       ProcInfo_t procInfo;
-      gSystem->GetCpuInfo(&cpuInfo, 1000);
+      gSystem->GetCpuInfo(&cpuInfo, 0);
       gSystem->GetMemInfo(&memInfo);
       gSystem->GetProcInfo(&procInfo);
       
@@ -215,11 +215,12 @@ CmsShowNavigator::goTo(FileQueue_i fi, int event)
       fwLog(fwlog::kDebug) << "memInfo.fSwapUsed\t" << memInfo.fSwapUsed<< std::endl; 
       fwLog(fwlog::kDebug) << "procInfo.fMemResident\t" << procInfo.fMemResident << std::endl;
       fwLog(fwlog::kDebug) << "procInfo.fMemVirtual\t" << procInfo.fMemVirtual << std::endl;
-      fwLog(fwlog::kDebug) << "cpuInfo.fUser \t" << cpuInfo.fUser << std::endl;
-      fwLog(fwlog::kDebug) << "cpuInfo.fSys \t" << cpuInfo.fSys  << std::endl;
+      fwLog(fwlog::kDebug) << "cpuInfo.fLoad1m \t" << cpuInfo.fLoad1m << std::endl;
+      fwLog(fwlog::kDebug) << "cpuInfo.fLoad5m \t" << cpuInfo.fLoad5m << std::endl;
    }
    
    (*m_currentFile)->event()->to(event);
+   (*m_currentFile)->tree()->LoadTree(event);
    m_currentEvent = event;
 
    newEvent_.emit();
