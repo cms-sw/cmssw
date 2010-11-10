@@ -441,7 +441,7 @@ if 'hltPreExpressSmart' in %(dict)s:
     %(process)shltPreExpressSmart.throw = cms.bool( False )
 if 'hltPreDQMSmart' in %(dict)s:
     %(process)shltPreDQMSmart.throw = cms.bool( False )
-""" % menu.labels        
+"""        
 
     # FIXME - find a better way to override the output modules
     menu.data = re.sub( 
@@ -461,7 +461,7 @@ if 'hltPreDQMSmart' in %(dict)s:
 %%(process)soptions = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True )
 )
-""" % configuration.processName % menu.labels
+""" % configuration.processName
 
     # overwrite GlobalTag
     # the logic is:
@@ -476,17 +476,17 @@ if 'hltPreDQMSmart' in %(dict)s:
 # override the GlobalTag 
 if 'GlobalTag' in %%(dict)s:
     %%(process)sGlobalTag.globaltag = '%s'
-""" % configuration.menuGlobalTag % menu.labels
+""" % configuration.menuGlobalTag
 
     else:
       menu.data += """
 # override the GlobalTag connection string and pfnPrefix
 if 'GlobalTag' in %(dict)s:
-""" % menu.labels
+"""
 
       # override the GlobalTag connection string and pfnPrefix
-      menu.data += "    %(process)sGlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'\n" % menu.labels
-      menu.data += "    %(process)sGlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n" % menu.labels
+      menu.data += "    %(process)sGlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'\n"
+      menu.data += "    %(process)sGlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n"
       if configuration.runOnData:
         # do not override the GlobalTag unless one was specified on the command line 
         pass
@@ -504,14 +504,14 @@ if 'GlobalTag' in %(dict)s:
         pass
       elif configuration.menuGlobalTag[0:5] == 'auto:':
         menu.data += "    from Configuration.PyReleaseValidation.autoCond import autoCond\n"
-        menu.data += "    %%(process)sGlobalTag.globaltag = autoCond['%s']\n" % configuration.menuGlobalTag[5:] % menu.labels
+        menu.data += "    %%(process)sGlobalTag.globaltag = autoCond['%s']\n" % configuration.menuGlobalTag[5:]
       else:
-        menu.data += "    %%(process)sGlobalTag.globaltag = '%s'\n" % configuration.menuGlobalTag % menu.labels
+        menu.data += "    %%(process)sGlobalTag.globaltag = '%s'\n" % configuration.menuGlobalTag
 
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
     if configuration.menuL1.override:
       if not configuration.menuL1.connect:
-        configuration.menuL1.connect = "%(process)sGlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')" % menu.labels
+        configuration.menuL1.connect = "%(process)sGlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')"
       menu.data += """
 # override the L1 menu
 if 'GlobalTag' in %%(dict)s:
@@ -522,7 +522,7 @@ if 'GlobalTag' in %%(dict)s:
             connect = cms.untracked.string( %s )
         )
     )
-""" % (configuration.menuL1.override, configuration.menuL1.connect) % menu.labels
+""" % (configuration.menuL1.override, configuration.menuL1.connect)
 
     # the following is stolen from HLTrigger.Configuration.customL1THLT_Options
     menu.data += """
@@ -548,9 +548,9 @@ if 'hltDQML1SeedLogicScalers' in %(dict)s:
 %(process)sMessageLogger.categories.append('TriggerSummaryProducerAOD')
 %(process)sMessageLogger.categories.append('L1GtTrigReport')
 %(process)sMessageLogger.categories.append('HLTrigReport')
-""" % menu.labels
+"""
 
 
 # dump the final configuration
-print menu.data
+print menu.data % menu.labels
 
