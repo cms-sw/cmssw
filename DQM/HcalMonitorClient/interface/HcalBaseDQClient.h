@@ -12,8 +12,8 @@
 /*
  * \file HcalBaseDQClient.h
  * 
- * $Date: 2010/03/20 20:55:43 $
- * $Revision: 1.1.2.6 $
+ * $Date: 2010/03/25 11:17:14 $
+ * $Revision: 1.3 $
  * \author J. Temple
  * \brief Hcal Monitor Client base class
  * based on code in EcalBarrelMonitorClient/interface/EBClient.h
@@ -70,7 +70,11 @@ class HcalBaseDQClient
 
   MonitorElement* ProblemCells;
   EtaPhiHists* ProblemCellsByDepth;
+  MonitorElement* ProblemCellsHO12;
+  EtaPhiHists* ProblemCellsByDepthHO12;
+
   std::vector<std::string> problemnames_;
+  std::vector<std::string> problemnamesho12_;
 
   std::map<HcalDetId, unsigned int> badstatusmap;
   DQMStore* dqmStore_;

@@ -11,8 +11,8 @@
 /*
  * \file HcalHotCellClient.cc
  * 
- * $Date: 2010/08/02 18:47:13 $
- * $Revision: 1.73 $
+ * $Date: 2010/08/09 18:59:26 $
+ * $Revision: 1.74 $
  * \author J. Temple
  * \brief Hot Cell Client class
  */
@@ -47,6 +47,8 @@ HcalHotCellClient::HcalHotCellClient(std::string myname, const edm::ParameterSet
 						ps.getUntrackedParameter<int>("minevents",100));
   ProblemCellsByDepth=0;
   ProblemCells=0;
+  ProblemCellsByDepthHO12=0;
+  ProblemCellsHO12=0;
 }
 
 void HcalHotCellClient::analyze()
@@ -62,6 +64,7 @@ void HcalHotCellClient::calculateProblems()
   double totalevents=0;
   int etabins=0, phibins=0, zside=0;
   double problemvalue=0;
+  double problemvalueho12=0;
 
   // Clear away old problems
   if (ProblemCells!=0)
@@ -69,6 +72,12 @@ void HcalHotCellClient::calculateProblems()
       ProblemCells->Reset();
       (ProblemCells->getTH2F())->SetMaximum(1.05);
       (ProblemCells->getTH2F())->SetMinimum(0.);
+    }
+  if (ProblemCellsHO12!=0)
+    {
+      ProblemCellsHO12->Reset();
+      (ProblemCellsHO12->getTH2F())->SetMaximum(1.05);
+      (ProblemCellsHO12->getTH2F())->SetMinimum(0.);
     }
   for  (unsigned int d=0;ProblemCellsByDepth!=0 && d<ProblemCellsByDepth->depth.size();++d)
     {
@@ -79,7 +88,14 @@ void HcalHotCellClient::calculateProblems()
 	  (ProblemCellsByDepth->depth[d]->getTH2F())->SetMinimum(0.);
 	}
     }
-
+  for  (unsigned int d=0;ProblemCellsByDepthHO12!=0 && d<ProblemCellsByDepthHO12->depth.size();++d)
+    if (ProblemCellsByDepthHO12->depth[d]!=0) 
+      {
+	ProblemCellsByDepthHO12->depth[d]->Reset();
+	(ProblemCellsByDepthHO12->depth[d]->getTH2F())->SetMaximum(1.05);
+	(ProblemCellsByDepthHO12->depth[d]->getTH2F())->SetMinimum(0.);
+      }
+  
   // Get histograms that are used in testing
   TH2F* HotAboveThresholdByDepth[4];
   TH2F* HotAlwaysAboveThresholdByDepth[4];
@@ -133,6 +149,9 @@ void HcalHotCellClient::calculateProblems()
   for (unsigned int d=0;ProblemCellsByDepth!=0 && d<ProblemCellsByDepth->depth.size();++d)
     {
       if (ProblemCellsByDepth->depth[d]==0) continue;
+      if (d==3)
+	if (ProblemCellsByDepthHO12->depth[d]==0) continue;
+
       if (HotAboveETThresholdByDepth[d]) totalevents = std::max(totalevents, HotAboveETThresholdByDepth[d]->GetBinContent(0));
       else if (HotAlwaysAboveETThresholdByDepth[d]) totalevents = std::max(totalevents, HotAlwaysAboveETThresholdByDepth[d]->GetBinContent(0));
       else if (HotAboveThresholdByDepth[d]) totalevents = std::max(totalevents, HotAboveThresholdByDepth[d]->GetBinContent(0));
@@ -144,6 +163,7 @@ void HcalHotCellClient::calculateProblems()
       etabins=(ProblemCellsByDepth->depth[d]->getTH2F())->GetNbinsX();
       phibins=(ProblemCellsByDepth->depth[d]->getTH2F())->GetNbinsY();
       problemvalue=0;
+      problemvalueho12=0;
       for (int eta=0;eta<etabins;++eta)
 	{
 	  int ieta=CalcIeta(eta,d+1);
@@ -151,43 +171,85 @@ void HcalHotCellClient::calculateProblems()
 	  for (int phi=0;phi<phibins;++phi)
 	    {
 	      problemvalue=0; // problem fraction sums over all three tests
-	      // If cell is never-present in all runs, then problemvalue = event
-	      if (HotAboveETThresholdByDepth[d]!=0)
-		problemvalue+=HotAboveETThresholdByDepth[d]->GetBinContent(eta+1,phi+1);
-	      if (HotAboveThresholdByDepth[d]!=0)
-		problemvalue+=HotAboveThresholdByDepth[d]->GetBinContent(eta+1,phi+1);
-	      if (HotAlwaysAboveThresholdByDepth[d]!=0)
-		problemvalue+=HotAlwaysAboveThresholdByDepth[d]->GetBinContent(eta+1,phi+1);
-	      if (neighbortest==true && HotNeighborsByDepth[d]!=0)
-		problemvalue+=HotNeighborsByDepth[d]->GetBinContent(eta+1,phi+1);
-	      if (problemvalue==0) continue;
-	      problemvalue/=totalevents; // problem value is a rate; should be between 0 and 1
-	      problemvalue = std::min(1.,problemvalue);
-	       
-	      zside=0;
-	      if (isHF(eta,d+1)) // shift ieta by 1 for HF
-		ieta<0 ? zside = -1 : zside = 1;
-	       
-	      // For problem cells that exceed our allowed rate,
-	      // set the values to -1 if the cells are already marked in the status database
-	      if (problemvalue>minerrorrate_)
+	      problemvalueho12=0; // problem fraction sums over all three tests
+	      if ((d < 3) || (d==3&&fabs(ieta)<5))
 		{
-		  HcalSubdetector subdet=HcalEmpty;
-		  if (isHB(eta,d+1))subdet=HcalBarrel;
-		  else if (isHE(eta,d+1)) subdet=HcalEndcap;
-		  else if (isHF(eta,d+1)) subdet=HcalForward;
-		  else if (isHO(eta,d+1)) subdet=HcalOuter;
-		  HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1));
-		  if (badstatusmap.find(hcalid)!=badstatusmap.end())
-		    problemvalue=999;
-		}
-	      ProblemCellsByDepth->depth[d]->setBinContent(eta+1,phi+1,problemvalue);
-	      if (ProblemCells!=0) ProblemCells->Fill(ieta+zside,phi+1,problemvalue);
+		  // If cell is never-present in all runs, then problemvalue = event
+		  if (HotAboveETThresholdByDepth[d]!=0)
+		    problemvalue+=HotAboveETThresholdByDepth[d]->GetBinContent(eta+1,phi+1);
+		  if (HotAboveThresholdByDepth[d]!=0)
+		    problemvalue+=HotAboveThresholdByDepth[d]->GetBinContent(eta+1,phi+1);
+		  if (HotAlwaysAboveThresholdByDepth[d]!=0)
+		    problemvalue+=HotAlwaysAboveThresholdByDepth[d]->GetBinContent(eta+1,phi+1);
+		  if (neighbortest==true && HotNeighborsByDepth[d]!=0)
+		    problemvalue+=HotNeighborsByDepth[d]->GetBinContent(eta+1,phi+1);
+		  if (problemvalue==0) continue;
+		  problemvalue/=totalevents; // problem value is a rate; should be between 0 and 1
+		  problemvalue = std::min(1.,problemvalue);
+		  
+		  zside=0;
+		  if (isHF(eta,d+1)) // shift ieta by 1 for HF
+		    ieta<0 ? zside = -1 : zside = 1;
+		  
+		  // For problem cells that exceed our allowed rate,
+		  // set the values to -1 if the cells are already marked in the status database
+		  if (problemvalue>minerrorrate_)
+		    {
+		      HcalSubdetector subdet=HcalEmpty;
+		      if (isHB(eta,d+1))subdet=HcalBarrel;
+		      else if (isHE(eta,d+1)) subdet=HcalEndcap;
+		      else if (isHF(eta,d+1)) subdet=HcalForward;
+		      else if (isHO(eta,d+1)) subdet=HcalOuter;
+		      HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1));
+		      if (badstatusmap.find(hcalid)!=badstatusmap.end())
+			problemvalue=999;
+		    }
+		  ProblemCellsByDepth->depth[d]->setBinContent(eta+1,phi+1,problemvalue);
+		  if (ProblemCells!=0) ProblemCells->Fill(ieta+zside,phi+1,problemvalue);
+		}//end of HBEFHO0
+	      else
+		{
+		  // If cell is never-present in all runs, then problemvalueho12 = event
+		  if (HotAboveETThresholdByDepth[d]!=0)
+		    problemvalueho12+=HotAboveETThresholdByDepth[d]->GetBinContent(eta+1,phi+1);
+		  if (HotAboveThresholdByDepth[d]!=0)
+		    problemvalueho12+=HotAboveThresholdByDepth[d]->GetBinContent(eta+1,phi+1);
+		  if (HotAlwaysAboveThresholdByDepth[d]!=0)
+		    problemvalueho12+=HotAlwaysAboveThresholdByDepth[d]->GetBinContent(eta+1,phi+1);
+		  if (neighbortest==true && HotNeighborsByDepth[d]!=0)
+		    problemvalueho12+=HotNeighborsByDepth[d]->GetBinContent(eta+1,phi+1);
+		  if (problemvalueho12==0) continue;
+		  problemvalueho12/=totalevents; // problem value is a rate; should be between 0 and 1
+		  problemvalueho12 = std::min(1.,problemvalueho12);
+		  
+		  zside=0;
+
+		  // For problem cells that exceed our allowed rate,
+		  // set the values to -1 if the cells are already marked in the status database
+		  if (problemvalueho12>minerrorrate_)
+		    {
+		      HcalSubdetector subdet=HcalEmpty;
+		      if (isHB(eta,d+1))subdet=HcalBarrel;
+		      else if (isHE(eta,d+1)) subdet=HcalEndcap;
+		      else if (isHF(eta,d+1)) subdet=HcalForward;
+		      else if (isHO(eta,d+1)) subdet=HcalOuter;
+		      HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1));
+		      if (badstatusmap.find(hcalid)!=badstatusmap.end())
+			problemvalueho12=999;
+		    }
+		  ProblemCellsByDepthHO12->depth[d]->setBinContent(eta+1,phi+1,problemvalueho12);
+		  if (ProblemCellsHO12!=0) ProblemCellsHO12->Fill(ieta+zside,phi+1,problemvalueho12);
+		}//end of HO12
 	    } // loop on phi
 	} // loop on eta
     } // loop on depth
    
   if (ProblemCells==0)
+    {
+      if (debug_>0) std::cout <<"<HcalHotCellClient::analyze> ProblemCells histogram does not exist!"<<std::endl;
+      return;
+    }
+  if (ProblemCellsHO12==0)
     {
       if (debug_>0) std::cout <<"<HcalHotCellClient::analyze> ProblemCells histogram does not exist!"<<std::endl;
       return;
@@ -204,8 +266,21 @@ void HcalHotCellClient::calculateProblems()
 	    ProblemCells->setBinContent(eta+1,phi+1,1.);
 	}
     }
+  etabins=(ProblemCellsHO12->getTH2F())->GetNbinsX();
+  phibins=(ProblemCellsHO12->getTH2F())->GetNbinsY();
+  for (int eta=0;eta<etabins;++eta)
+    {
+      for (int phi=0;phi<phibins;++phi)
+	{
+	  if (ProblemCellsHO12->getBinContent(eta+1,phi+1)>1. && ProblemCellsHO12->getBinContent(eta+1,phi+1)<999)
+	    ProblemCellsHO12->setBinContent(eta+1,phi+1,1.);
+	}
+    }
+
   FillUnphysicalHEHFBins(*ProblemCellsByDepth);
   FillUnphysicalHEHFBins(ProblemCells);
+  FillUnphysicalHEHFBins(*ProblemCellsByDepthHO12);
+  FillUnphysicalHEHFBins(ProblemCellsHO12);
   return;
 }
 
@@ -244,6 +319,22 @@ void HcalHotCellClient::beginRun(void)
   ProblemCellsByDepth->setup(dqmStore_," Problem Hot Cell Rate");
   for (unsigned int i=0; i<ProblemCellsByDepth->depth.size();++i)
     problemnames_.push_back(ProblemCellsByDepth->depth[i]->getName());
+
+  dqmStore_->setCurrentFolder(subdir_);
+  problemnamesho12_.clear();
+  ProblemCellsHO12=dqmStore_->book2D(" ProblemHotCellsHO12",
+				 " Problem Hot Cell Rate for HO12;ieta;iphi",
+				 31,-15.5,15.5,
+				 //85,-42.5,42.5,
+				 72,0.5,72.5);
+  problemnamesho12_.push_back(ProblemCells->getName());
+  if (debug_>1)
+    std::cout << "Tried to create ProblemCellsHO12 Monitor Element in directory "<<subdir_<<"  \t  Failed?  "<<(ProblemCellsHO12==0)<<std::endl;
+  dqmStore_->setCurrentFolder(subdir_+"problem_hotcells");
+  ProblemCellsByDepthHO12=new EtaPhiHists();
+  ProblemCellsByDepthHO12->setup(dqmStore_," Problem Hot Cell Rate HO12");
+  for (unsigned int i=0; i<ProblemCellsByDepthHO12->depth.size();++i)
+    problemnamesho12_.push_back(ProblemCellsByDepthHO12->depth[i]->getName());
   nevts_=0;
 }
 
@@ -260,6 +351,7 @@ bool HcalHotCellClient::hasErrors_Temp(void)
       return false;
     }
   int problemcount=0;
+  int problemcountho12=0;
   int ieta=-9999;
 
   for (int depth=0;depth<4; ++depth)
@@ -272,11 +364,23 @@ bool HcalHotCellClient::hasErrors_Temp(void)
             {
               ieta=CalcIeta(hist_eta,depth+1);
 	      if (ieta==-9999) continue;
-	      if (ProblemCellsByDepth->depth[depth]==0)
-		continue;
-	      if (ProblemCellsByDepth->depth[depth]->getBinContent(hist_eta,hist_phi)>minerrorrate_)
-		++problemcount;
-
+	      if ((depth<3)|| (depth==3&&fabs(ieta)<5))
+		{
+		  if (ProblemCellsByDepth->depth[depth]==0)
+		    continue;
+		  if (ProblemCellsByDepth->depth[depth]->getBinContent(hist_eta,hist_phi)>minerrorrate_)
+		    ++problemcount;
+		}
+	      else
+		{
+		  if (ProblemCellsByDepthHO12->depth[depth]==0)
+		    continue;
+		  if (ProblemCellsByDepthHO12->depth[depth]->getBinContent(hist_eta,hist_phi)>minerrorrate_)
+		    {
+		      ++problemcount;
+		      ++problemcountho12;
+		    }
+		}
 	    } // for (int hist_phi=1;...)
 	} // for (int hist_eta=1;...)
     } // for (int depth=0;...)
@@ -320,54 +424,94 @@ void HcalHotCellClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& m
 	    {
 	      iphi=hist_phi+1;
 	      
-	      // ProblemCells have already been normalized
-	      binval=ProblemCellsByDepth->depth[d]->getBinContent(hist_eta+1,hist_phi+1);
-	      
-	      // Set subdetector labels for output
-	      if (d<2)
+	      if ((d<3)||(d==3&&fabs(ieta)<5))
 		{
-		  if (isHB(hist_eta,d+1)) 
-		    subdet=HcalBarrel;
-		  else if (isHE(hist_eta,d+1)) 
+		  // ProblemCells have already been normalized
+		  binval=ProblemCellsByDepth->depth[d]->getBinContent(hist_eta+1,hist_phi+1);
+		  
+		  // Set subdetector labels for output
+		  if (d<2)
+		    {
+		      if (isHB(hist_eta,d+1)) 
+			subdet=HcalBarrel;
+		      else if (isHE(hist_eta,d+1)) 
+			subdet=HcalEndcap;
+		      else if (isHF(hist_eta,d+1)) 
+			subdet=HcalForward;
+		    }
+		  else if (d==2) 
 		    subdet=HcalEndcap;
-		  else if (isHF(hist_eta,d+1)) 
-		    subdet=HcalForward;
-		}
-	      else if (d==2) 
-		subdet=HcalEndcap;
-	      else if (d==3) 
-		subdet=HcalOuter;
-	      // Set correct depth label
-	      
-	      HcalDetId myid((HcalSubdetector)(subdet), ieta, iphi, d+1);
-	      // Need this to keep from flagging non-existent HE/HF cells
-	      if (!validDetId((HcalSubdetector)(subdet), ieta, iphi, d+1))
-		continue;
-
-	      int hotcell=0;
-	      if (binval>minerrorrate_)
-		hotcell=1;
-	      if (hotcell==1 && debug_>0)
-		std::cout <<"Hot Cell :  subdetector = "<<subdet<<" (eta,phi,depth) = ("<<ieta<<", "<<iphi<<", "<<d+1<<"):  "<<binval*100.<<"%"<<std::endl;
-	      
-	      // DetID not found in quality list; add it.  (This shouldn't happen!)
-	      if (myqual.find(myid)==myqual.end())
-		{
-		  myqual[myid]=(hotcell<<HcalChannelStatus::HcalCellHot);  // 
+		  else if (d==3) 
+		    subdet=HcalOuter;
+		  // Set correct depth label
+		  
+		  HcalDetId myid((HcalSubdetector)(subdet), ieta, iphi, d+1);
+		  // Need this to keep from flagging non-existent HE/HF cells
+		  if (!validDetId((HcalSubdetector)(subdet), ieta, iphi, d+1))
+		    continue;
+		  
+		  int hotcell=0;
+		  if (binval>minerrorrate_)
+		    hotcell=1;
+		  if (hotcell==1 && debug_>0)
+		    std::cout <<"Hot Cell :  subdetector = "<<subdet<<" (eta,phi,depth) = ("<<ieta<<", "<<iphi<<", "<<d+1<<"):  "<<binval*100.<<"%"<<std::endl;
+		  
+		  // DetID not found in quality list; add it.  (This shouldn't happen!)
+		  if (myqual.find(myid)==myqual.end())
+		    {
+		      myqual[myid]=(hotcell<<HcalChannelStatus::HcalCellHot);  // 
+		    }
+		  else
+		    {
+		      int mask=(1<<HcalChannelStatus::HcalCellHot);
+		      // hot cell found; 'or' the hot cell mask with existing ID
+		      if (hotcell==1)
+			myqual[myid] |=mask;
+		      // cell is not found, 'and' the inverse of the mask with the existing ID.
+		      // Does this work correctly?  I think so, but need to verify.
+		      // Also, do we want to allow the client to turn off hot cell masks, or only add them?
+		      else
+			myqual[myid] &=~mask;
+		    }
 		}
 	      else
 		{
-		  int mask=(1<<HcalChannelStatus::HcalCellHot);
-		  // hot cell found; 'or' the hot cell mask with existing ID
-		  if (hotcell==1)
-		    myqual[myid] |=mask;
-		  // cell is not found, 'and' the inverse of the mask with the existing ID.
-		  // Does this work correctly?  I think so, but need to verify.
-		  // Also, do we want to allow the client to turn off hot cell masks, or only add them?
+		  // ProblemCells have already been normalized
+		  binval=ProblemCellsByDepthHO12->depth[d]->getBinContent(hist_eta+1,hist_phi+1);
+		  
+		  if (d==3) 
+		    subdet=HcalOuter;
+		  // Set correct depth label
+		  
+		  HcalDetId myid((HcalSubdetector)(subdet), ieta, iphi, d+1);
+		  // Need this to keep from flagging non-existent HE/HF cells
+		  if (!validDetId((HcalSubdetector)(subdet), ieta, iphi, d+1))
+		    continue;
+		  
+		  int hotcell=0;
+		  if (binval>minerrorrate_)
+		    hotcell=1;
+		  if (hotcell==1 && debug_>0)
+		    std::cout <<"Hot Cell :  subdetector = "<<subdet<<"12 (eta,phi,depth) = ("<<ieta<<", "<<iphi<<", "<<d+1<<"):  "<<binval*100.<<"%"<<std::endl;
+		  
+		  // DetID not found in quality list; add it.  (This shouldn't happen!)
+		  if (myqual.find(myid)==myqual.end())
+		    {
+		      myqual[myid]=(hotcell<<HcalChannelStatus::HcalCellHot);  // 
+		    }
 		  else
-		    myqual[myid] &=~mask;
+		    {
+		      int mask=(1<<HcalChannelStatus::HcalCellHot);
+		      // hot cell found; 'or' the hot cell mask with existing ID
+		      if (hotcell==1)
+			myqual[myid] |=mask;
+		      // cell is not found, 'and' the inverse of the mask with the existing ID.
+		      // Does this work correctly?  I think so, but need to verify.
+		      // Also, do we want to allow the client to turn off hot cell masks, or only add them?
+		      else
+			myqual[myid] &=~mask;
+		    }
 		}
-	      
 	    } // for (int hist_phi=1;hist_phi<=phibins;++hist_phi)
 	} // for (int hist_eta=1;hist_eta<=etabins;++hist_eta)
     } // for (int d=0;d<4;++d)
