@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.111 2010/09/13 14:36:47 matevz Exp $
+// $Id: FWGUIManager.h,v 1.112 2010/11/04 22:38:54 amraktad Exp $
 //
 
 // system include files
@@ -215,9 +215,7 @@ public:
 private:
    FWGUIManager(const FWGUIManager&);    // stop default
    const FWGUIManager& operator=(const FWGUIManager&);    // stop default
-   
-   void selectionChanged(const FWSelectionManager&);
-   
+      
    TEveWindow* getSwapCandidate();
    
    void newItem(const FWEventItem*);
