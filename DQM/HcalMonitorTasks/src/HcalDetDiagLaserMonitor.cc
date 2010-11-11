@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy,591 R-013,+41227674265,
 //         Created:  Wed Mar  3 12:14:16 CET 2010
-// $Id: HcalDetDiagLaserMonitor.cc,v 1.14 2010/04/08 15:43:17 temple Exp $
+// $Id: HcalDetDiagLaserMonitor.cc,v 1.15 2010/11/11 01:49:42 temple Exp $
 //
 //
 
@@ -304,7 +304,7 @@ HcalDetDiagLaserMonitor::HcalDetDiagLaserMonitor(const edm::ParameterSet& iConfi
     subdir_.append("/");
   subdir_=prefixME_+subdir_;
   debug_           = iConfig.getUntrackedParameter<int>("debug",0);
-  rawdatalabel_    = iConfig.getUntrackedParameter<edm::InputTag>("FEDRawDataCollection");
+  rawdatalabel_    = iConfig.getUntrackedParameter<edm::InputTag>("RawDataLabel");
 
 
   LaserTimingThreshold = iConfig.getUntrackedParameter<double>("LaserTimingThreshold",0.2);
