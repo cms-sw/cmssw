@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_9_0/GRun/V3 (CMSSW_3_8_1_HLT25)
+# /dev/CMSSW_3_9_0/GRun/V4 (CMSSW_3_8_1_HLT25)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_9_0/GRun/V3')
+  tableName = cms.string('/dev/CMSSW_3_9_0/GRun/V4')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -18181,33 +18181,14 @@ process.HLTMONOutput = cms.EndPath( process.hltPreHLTMON + process.hltPreHLTMONS
 process.NanoDSTOutput = cms.EndPath( process.hltPreNanoDST + process.hltOutputNanoDST )
 
 
-# override the process name
-process.setName_('HLTGRun')
-
-# adapt HLT modules to the correct process name
-if 'hltTrigReport' in process.__dict__:
-    process.hltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
-
-if 'hltDQMHLTScalers' in process.__dict__:
-    process.hltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
-
-if 'hltPreExpressSmart' in process.__dict__:
-    process.hltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
-
-if 'hltPreHLTMONSmart' in process.__dict__:
-    process.hltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
-
-if 'hltPreDQMSmart' in process.__dict__:
-    process.hltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
-
-if 'hltDQML1SeedLogicScalers' in process.__dict__:
-    process.hltDQML1SeedLogicScalers.processname = 'HLTGRun'
-
-# remove the HLT prescales
+# remove HLT prescales
 if 'PrescaleService' in process.__dict__:
     process.PrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
     process.PrescaleService.lvl1Labels = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
     process.PrescaleService.prescaleTable = cms.VPSet( )
+
+# set process name
+process.setName_('HLTGRun')
 
 # add global options
 process.maxEvents = cms.untracked.PSet(
@@ -18234,8 +18215,26 @@ if 'GlobalTag' in process.__dict__:
         )
     )
 
-if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
-    process.MessageLogger.categories.append('L1GtTrigReport')
-    process.MessageLogger.categories.append('HLTrigReport')
+# adapt HLT modules to the correct process name
+if 'hltTrigReport' in process.__dict__:
+    process.hltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults','',process.name_() )
+
+if 'hltDQMHLTScalers' in process.__dict__:
+    process.hltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults','',process.name_() )
+
+if 'hltPreExpressSmart' in process.__dict__:
+    process.hltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults','',process.name_() )
+
+if 'hltPreHLTMONSmart' in process.__dict__:
+    process.hltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults','',process.name_() )
+
+if 'hltPreDQMSmart' in process.__dict__:
+    process.hltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults','',process.name_() )
+
+if 'hltDQML1SeedLogicScalers' in process.__dict__:
+    process.hltDQML1SeedLogicScalers.processname = process.name_()
+
+process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
+process.MessageLogger.categories.append('L1GtTrigReport')
+process.MessageLogger.categories.append('HLTrigReport')
 
