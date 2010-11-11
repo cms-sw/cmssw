@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2010/08/30 13:14:08 $
- * $Revision: 1.48 $
+ * $Date: 2010/11/10 10:43:29 $
+ * $Revision: 1.49 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -762,13 +762,14 @@ void EBSelectiveReadoutTask::anaDigi(const EBDataFrame& frame, const EBSrFlagCol
 
     int dccZsFIRval = dccZsFIR(frame, firWeights_, firstFIRSample_, 0);
 
-    // do not consider channels at fixed gain 1
     if(highInterest){
       ++nEbHI_;
-      if(statusCode != 9) EBHighInterestZsFIR_->Fill( dccZsFIRval );
+      // if(statusCode != 9) EBHighInterestZsFIR_->Fill( dccZsFIRval );
+      EBHighInterestZsFIR_->Fill( dccZsFIRval );
     } else{//low interest
       ++nEbLI_;
-      if(statusCode != 9) EBLowInterestZsFIR_->Fill( dccZsFIRval );
+      // if(statusCode != 9) EBLowInterestZsFIR_->Fill( dccZsFIRval );
+      EBLowInterestZsFIR_->Fill( dccZsFIRval );
     }
     ++nPerDcc_[dccNum(id)-1];
     ++nPerRu_[ism-1][itt-1];
