@@ -1,13 +1,17 @@
 #ifndef Fireworks_Core_CmsShowCommonPopup_h
 #define Fireworks_Core_CmsShowCommonPopup_h
 
+#ifndef __CINT__
 #include <boost/shared_ptr.hpp>
+#endif
 #include "GuiTypes.h"
 #include "TGFrame.h"
-#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWParameterSetterEditorBase.h"
+#ifndef __CINT__
+#include "Fireworks/Core/interface/FWColorManager.h"
+#endif
 
-class TGSlider;
+class TGHSlider;
 class TGLabel;
 class TGTextButton;
 class TGCheckButton;
@@ -34,6 +38,8 @@ public:
    void changeGeomTransparency2D(int);
    void changeGeomTransparency3D(int);
    void colorSetChanged();
+ 
+   ClassDef(CmsShowCommonPopup, 0);
 
 private:
    CmsShowCommonPopup(const CmsShowCommonPopup&);
@@ -48,11 +54,10 @@ private:
    TGHSlider      *m_gammaSlider;
    TGTextButton   *m_gammaButton;
 
+#ifndef __CINT__
    FWColorSelect* m_colorSelectWidget[kFWGeomColorSize];
- 
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
-
-   ClassDef(CmsShowCommonPopup, 1);
+#endif
 };
 
 

@@ -16,17 +16,19 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.40 2010/09/16 15:36:55 amraktad Exp $
+// $Id: CmsShowMainFrame.h,v 1.41 2010/11/10 20:07:06 amraktad Exp $
 //
 
 // system include files
 #include <TQObject.h>
 #include <RQ_OBJECT.h>
-#include <sigc++/sigc++.h>
 #include <vector>
 #include <TGFrame.h>
 
+#ifndef __CINT__
+#include <sigc++/sigc++.h>
 #include "Fireworks/Core/interface/CSGActionSupervisor.h"
+#endif
 
 // user include files
 
@@ -52,7 +54,11 @@ namespace edm {
    class EventBase;
 }
 
-class CmsShowMainFrame : public TGMainFrame, public CSGActionSupervisor, public sigc::trackable {
+class CmsShowMainFrame : public TGMainFrame
+#ifndef __CINT__
+                       , public CSGActionSupervisor, public sigc::trackable
+#endif
+{
    friend class FWGUIManager;
 public:
    CmsShowMainFrame(const TGWindow *p = 0,UInt_t w = 1,UInt_t h = 1,FWGUIManager *m = 0);
@@ -95,6 +101,8 @@ public:
 
    void bindCSGActionKeys(const TGMainFrame* f) const;
 
+   ClassDef(CmsShowMainFrame, 0);
+
 protected:
    FWCustomIconsButton* m_filterEnableBtn;
    TGTextButton*        m_filterShowGUIBtn;
@@ -136,8 +144,6 @@ private:
    TGStatusBar* m_statBar;
 
    TGPopupMenu *m_newViewerMenu;
-
-   ClassDef(CmsShowMainFrame, 1);
 };
 
 

@@ -8,13 +8,6 @@
   <class name="FWGUIManager"/>
   <class name="FWDetailViewManager"/>
   <class name="FWEveViewManager"/>
-  <class name="CmsShowEDI"/>
-  <class name="FWGUIValidatingTextEntry"/>
-  <class name="CmsShowCommonPopup"/>
-  <class name="CmsShowModelPopup"/>
-  <class name="CmsShowViewPopup"/>
-  <class name="FWEveViewScaleEditor"/>
-  <class name="FWGUISubviewArea"/>
   <class name="FWConfiguration"/>
   <class name="FWParameterSetterBase"/>
   <class name="FWDoubleParameterSetter"/>
@@ -33,16 +26,12 @@
   <class name="FWEnumParameter"/>
   <class name="FWConfiguration::KeyValues"/>
   <class name="CSGAction"/>
-  <class name="CmsShowMainFrame"/>
   <class name="CmsShowMain"/>
   <class name="FWViewBase"/>
   <class name="FWTableView"/>
   <class name="FWTriggerTableView"/>
   <class name="FWL1TriggerTableView"/>
-  <class name="FWGUIEventFilter"/>
   <class name="FWGUIEventSelector"/>
-  <class name="CmsShowModelPopupDetailViewButtonAdapter"/>
-  <class name="CmsShowSearchFiles"/>
   <class name="FWTEventList"/>
   <class name="FWTSelectorToEventList"/>
 </lcgdict>

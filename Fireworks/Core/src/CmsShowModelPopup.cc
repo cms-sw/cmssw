@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.30 2010/09/07 18:05:39 amraktad Exp $
+// $Id: CmsShowModelPopup.cc,v 1.31 2010/09/15 18:14:22 amraktad Exp $
 //
 
 // system include file
@@ -26,6 +26,7 @@
 #include "TG3DLine.h"
 #include "TGFont.h"
 #include "TGSlider.h"
+#include "TGButton.h"
 
 // user include files
 #include "Fireworks/Core/interface/CmsShowModelPopup.h"
@@ -47,13 +48,6 @@
 //
 // static data member definitions
 //
-
-void
-CmsShowModelPopupDetailViewButtonAdapter::wasClicked()
-{
-   m_popup->clicked(m_index);
-}
-
 //
 // constructors and destructor
 //
@@ -87,11 +81,9 @@ CmsShowModelPopup::CmsShowModelPopup(FWDetailViewManager* iManager,
       .addHSeparator();
 
    // Dummy button for detail views. Can be overidden.
-   TGTextButton *detailedViewButton;  
-   m_dialogBuilder->addTextButton("Open Detailed View", &detailedViewButton);
+   TGTextButton *detailedViewButton = new TGTextButton(this, "Open Detailed View", 0); 
+   AddFrame(detailedViewButton, new TGLayoutHints(kLHintsExpandX, 4, 4, 4, 4));
    m_openDetailedViewButtons.push_back(detailedViewButton);
-   m_adapters.push_back(new CmsShowModelPopupDetailViewButtonAdapter(this, 0));
-   m_openDetailedViewButtons.back()->Connect("Clicked()","CmsShowModelPopupDetailViewButtonAdapter", m_adapters.back(), "wasClicked()");
 
    m_colorSelectWidget->Connect("ColorChosen(Color_t)", "CmsShowModelPopup", this, "changeModelColor(Color_t)");
    m_isVisibleButton->Connect("Toggled(Bool_t)", "CmsShowModelPopup", this, "toggleModelVisible(Bool_t)");
@@ -118,9 +110,6 @@ CmsShowModelPopup::~CmsShowModelPopup()
    m_opacitySlider->Disconnect("PositionChanged(Int_t)", this, "changeModelOpacity(Int_t)");
    m_isVisibleButton->Disconnect("Toggled(Bool_t)", this, "toggleModelVisible(Bool_t)");
    disconnectAll();
-   
-   for(size_t i = 0, e = m_adapters.size(); i != e; ++i)
-      delete m_adapters[i];
 }
 
 //
@@ -206,16 +195,14 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
          for(size_t index = m_openDetailedViewButtons.size(); index < viewChoices.size(); ++index)
          { 
             // printf("add new button %s \n ",  viewChoices[index].c_str());
-            m_dialogBuilder->addTextButton("xx", &button);
-            button->SetEnabled(true);
+            button = new TGTextButton(this, "dummy", index);
+            AddFrame(button, new TGLayoutHints(kLHintsExpandX, 4, 4, 4, 4));
             TGCompositeFrame* cf = (TGCompositeFrame*)button->GetParent();
             cf->MapWindow();
             cf->MapSubwindows();
             m_openDetailedViewButtons.push_back(button);
-            m_adapters.push_back(new CmsShowModelPopupDetailViewButtonAdapter(this, index));
-            button->Connect("Clicked()",
-                            "CmsShowModelPopupDetailViewButtonAdapter", 
-                            m_adapters.back(), "wasClicked()");
+
+            button->Connect("Clicked()", "CmsShowModelPopup", this, "clicked()");
          }
       }
       else if (!viewChoices.empty())
@@ -381,8 +368,10 @@ CmsShowModelPopup::openDetailedView()
 }
 
 void
-CmsShowModelPopup::clicked(int iIndex)
+CmsShowModelPopup::clicked()
 {
+   TGTextButton *cs = static_cast<TGTextButton *>(gTQSender);
+   int iIndex = cs->WidgetId();
    std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(*(m_models.begin()));
    
    m_detailViewManager->openDetailViewFor( *(m_models.begin()), *(viewChoices.begin()+iIndex) );

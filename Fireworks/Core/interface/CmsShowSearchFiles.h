@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowSearchFiles.h,v 1.3 2009/11/16 21:02:28 chrjones Exp $
+// $Id: CmsShowSearchFiles.h,v 1.4 2010/11/10 20:07:07 amraktad Exp $
 //
 
 // system include files
@@ -53,6 +53,9 @@ public:
    void openClicked();
    
    void hyperlinkClicked(const char*);
+
+   ClassDef(CmsShowSearchFiles, 0);
+
 private:
    void sendToWebBrowser(const char* iWebFile);
    TGTextButton* m_choosePrefix;
@@ -63,8 +66,6 @@ private:
    std::vector<bool> m_prefixComplete;
    TGTextButton* m_openButton;
    bool m_openCalled;
-
-   ClassDef(CmsShowSearchFiles, 1);
 };
 
 

@@ -16,14 +16,15 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 24 18:52:28 CEST 2010
-// $Id: FWEveViewScaleEditor.h,v 1.2 2010/09/26 19:54:56 amraktad Exp $
+// $Id: FWEveViewScaleEditor.h,v 1.3 2010/11/10 20:07:07 amraktad Exp $
 //
 
 // system include files
 
 // user include files
+#ifndef __CINT__
 #include <boost/shared_ptr.hpp>
-
+#endif
 #include "TGFrame.h"
 #include "Fireworks/Core/interface/FWParameterSetterEditorBase.h"
 
@@ -47,6 +48,8 @@ public:
    // ---------- member functions ---------------------------
    void useGlobalScales();
 
+   ClassDef(FWEveViewScaleEditor, 0);
+
 private:
    FWEveViewScaleEditor(const FWEveViewScaleEditor&); // stop default
 
@@ -56,10 +59,10 @@ private:
    
    // ---------- member data --------------------------------
    FWViewEnergyScale* m_scale;
+#ifndef __CINT__
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
+#endif
    TGCheckButton* m_globalScalesBtn;
-
-   ClassDef(FWEveViewScaleEditor, 1);
 };
 
 

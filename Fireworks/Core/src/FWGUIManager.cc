@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.221 2010/09/16 15:36:55 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.222 2010/11/04 22:38:55 amraktad Exp $
 
 //
 
@@ -115,7 +115,7 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
 
    measureWMOffsets();
 
-   m_context->selectionManager()->selectionChanged_.connect(boost::bind(&FWGUIManager::selectionChanged,this,_1));
+   //   m_context->selectionManager()->selectionChanged_.connect(boost::bind(&FWGUIManager::selectionChanged,this,_1));
    FWEventItemsManager* im = (FWEventItemsManager*) m_context->eventItemsManager();
    im->newItem_.connect(boost::bind(&FWGUIManager::newItem, this, _1) );
 

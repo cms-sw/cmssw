@@ -16,11 +16,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:29 EST 2008
-// $Id: FWGUISubviewArea.h,v 1.25 2010/03/26 20:20:20 matevz Exp $
+// $Id: FWGUISubviewArea.h,v 1.26 2010/11/10 20:07:07 amraktad Exp $
 //
 
 #include "TGFrame.h"
+#ifndef __CINT__
 #include <sigc++/signal.h>
+#endif
 #include <string>
 
 // forward declarations
@@ -60,16 +62,19 @@ public:
 
    void selectButtonToggle();
 
+#ifndef __CINT__
    sigc::signal<void, FWGUISubviewArea*> swap_;
    sigc::signal<void, FWGUISubviewArea*> goingToBeDestroyed_;
    sigc::signal<void, FWGUISubviewArea*> selected_;
    sigc::signal<void, FWGUISubviewArea*> unselected_;
-
+#endif
    void setInfoButton(bool downp);
 
    TEveWindow* getEveWindow();
 
    static FWGUISubviewArea* getToolBarFromWindow(TEveWindow*);
+
+   ClassDef(FWGUISubviewArea, 0);
 
 private:
    FWGUISubviewArea(const FWGUISubviewArea&);    // stop default
@@ -83,8 +88,6 @@ private:
    TGPictureButton* m_dockButton;
    TGPictureButton* m_closeButton;
    TGPictureButton* m_infoButton;
-
-   ClassDef(FWGUISubviewArea, 1);
 };
 
 #endif

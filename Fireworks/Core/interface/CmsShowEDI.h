@@ -16,16 +16,20 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:42 EDT 2008
-// $Id: CmsShowEDI.h,v 1.17 2010/09/15 18:14:22 amraktad Exp $
+// $Id: CmsShowEDI.h,v 1.18 2010/11/10 20:07:06 amraktad Exp $
 //
 
 // system include files
+#ifndef __CINT__
 #include <sigc++/connection.h>
+#endif
 #include "GuiTypes.h"
 #include "TGFrame.h"
 
 // user include files
-#include "Fireworks/Core/interface/FWModelChangeSignal.h"
+
+//#include "Fireworks/Core/interface/FWModelChangeSignal.h"
+
 #include "Fireworks/Core/interface/FWDataCategories.h"
 
 // forward declarations
@@ -81,6 +85,9 @@ public:
    void moveToLayer(Long_t);
 
    void show(FWDataCategories);
+
+   ClassDef(CmsShowEDI, 0);
+
 private:
    CmsShowEDI(const CmsShowEDI&);    // stop default
 
@@ -108,15 +115,15 @@ private:
    TGTextEntry* m_instanceEntry;
    TGTextEntry* m_processEntry;
    FWEventItem* m_item;
+#ifndef __CINT__
    sigc::connection m_displayChangedConn;
    sigc::connection m_modelChangedConn;
    sigc::connection m_destroyedConn;
+#endif
    TGTextView* m_filterError;
    TGTextView* m_selectError;
    FWExpressionValidator* m_validator;
    FWColorManager* m_colorManager;
-
-   ClassDef(CmsShowEDI, 1);
 };
 
 

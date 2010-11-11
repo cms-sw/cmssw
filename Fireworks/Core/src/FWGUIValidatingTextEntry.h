@@ -16,14 +16,15 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 18:13:29 EDT 2008
-// $Id: FWGUIValidatingTextEntry.h,v 1.5 2009/10/02 17:55:27 dmytro Exp $
+// $Id: FWGUIValidatingTextEntry.h,v 1.6 2010/11/10 20:07:06 amraktad Exp $
 //
 
 // system include files
 #include <vector>
 #include <string>
+#ifndef __CINT__
 #include <boost/shared_ptr.hpp>
-
+#endif
 // user include files
 #include "TGTextEntry.h"
 
@@ -50,6 +51,9 @@ public:
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
 
    void keyPressedInPopup(TGFrame*, UInt_t keysym, UInt_t mask);
+ 
+   ClassDef(FWGUIValidatingTextEntry, 0);
+
 private:
    FWGUIValidatingTextEntry(const FWGUIValidatingTextEntry&); // stop default
 
@@ -61,9 +65,9 @@ private:
    TGListBox* m_list;
 
    FWValidatorBase* m_validator;
+#ifndef __CINT__
    std::vector<std::pair<boost::shared_ptr<std::string>, std::string> > m_options;
-
-   ClassDef(FWGUIValidatingTextEntry, 1);
+#endif
 };
 
 

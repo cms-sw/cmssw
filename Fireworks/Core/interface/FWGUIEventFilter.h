@@ -3,8 +3,10 @@
 #include "TGFrame.h"
 
 #include "Fireworks/Core/interface/FWEventSelector.h"
+#ifndef __CINT__
 #include "Fireworks/Core/interface/FWHLTValidator.h"
 #include "Fireworks/Core/interface/CSGActionSupervisor.h"
+#endif
 
 class TGLabel;
 class TGButtonGroup;
@@ -13,8 +15,10 @@ class CSGAction;
 class FWCustomIconsButton;
 class FWGUIEventSelector;
 
-class FWGUIEventFilter: public TGTransientFrame,
-                        CSGActionSupervisor
+class FWGUIEventFilter: public TGTransientFrame
+#ifndef __CINT__
+                        ,CSGActionSupervisor
+#endif
 {
 public:
    FWGUIEventFilter(const TGWindow* parent);
@@ -38,6 +42,8 @@ public:
    void changeFilterMode(Int_t);
    int  getFilterMode();
    void updateFilterStateLabel(int);
+
+   ClassDef(FWGUIEventFilter, 0);
    
 private:   
    static const int m_entryHeight = 20;
@@ -49,14 +55,14 @@ private:
    bool              m_filtersRemoved;
    
    std::list<FWGUIEventSelector*> m_guiSelectors;
+#ifndef __CINT__
    FWHLTValidator*      m_validator;
+#endif
    TGCompositeFrame*    m_selectionFrameParent;
    TGCompositeFrame*    m_selectionFrame;
    TGButtonGroup*       m_btnGroup;
    TGLabel*             m_stateLabel;
    TGTextButton*        m_applyBtn;
    FWCustomIconsButton* m_addBtn;
-
-   ClassDef(FWGUIEventFilter, 1);
 };
 

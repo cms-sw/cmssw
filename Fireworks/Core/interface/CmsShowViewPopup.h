@@ -16,14 +16,15 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:12 EDT 2008
-// $Id: CmsShowViewPopup.h,v 1.19 2010/09/24 18:51:18 amraktad Exp $
+// $Id: CmsShowViewPopup.h,v 1.20 2010/11/10 20:07:07 amraktad Exp $
 //
 
 // system include files
 #include <vector>
+#ifndef __CINT__
 #include <boost/shared_ptr.hpp>
 #include <sigc++/sigc++.h>
-
+#endif
 #include "TGFrame.h"
 
 // user include files
@@ -64,7 +65,9 @@ public:
 private:
    TGTab* m_tab;
    std::string m_selectedTabName;
+#ifndef __CINT__
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
+#endif
 }; 
 
 //==============================================================================
@@ -92,8 +95,11 @@ public:
    void changeBackground();
    void backgroundColorWasChanged();
    TEveWindow* getEveWindow() const { return m_eveWindow; }
-
+#ifndef __CINT__
    sigc::signal<void> closed_;
+#endif
+
+   ClassDef(CmsShowViewPopup, 0);
 
 private:
    CmsShowViewPopup(const CmsShowViewPopup&);    // stop default
@@ -111,8 +117,6 @@ private:
    FWColorManager* m_colorManager;
    FWViewBase*     m_viewBase;
    TEveWindow*     m_eveWindow;
-
-   ClassDef(CmsShowViewPopup, 1);
 };
 
 

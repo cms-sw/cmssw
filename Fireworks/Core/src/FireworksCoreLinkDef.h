@@ -9,6 +9,19 @@
 #include "Fireworks/Core/src/FWCompactVerticalLayout.h"
 #include "Fireworks/Core/src/FWModelContextMenuHandler.h"
 
+#include "Fireworks/Core/interface/CmsShowEDI.h"
+#include "Fireworks/Core/interface/FWEveViewScaleEditor.h"
+#include "Fireworks/Core/interface/CmsShowSearchFiles.h"
+
+#include "Fireworks/Core/interface/FWGUISubviewArea.h"
+#include "Fireworks/Core/interface/CmsShowMainFrame.h"
+#include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
+
+#include "Fireworks/Core/interface/CmsShowModelPopup.h"
+#include "Fireworks/Core/interface/FWGUIEventFilter.h"
+#include "Fireworks/Core/interface/CmsShowCommonPopup.h"
+#include "Fireworks/Core/interface/CmsShowViewPopup.h"
+
 #ifdef __CINT__
 #pragma link off all globals;
 #pragma link off all classes;
@@ -32,6 +45,17 @@
 #pragma link C++ class FWCompactVerticalLayout;
 #pragma link C++ class FWModelContextMenuHandler;
 
+#pragma link C++ class CmsShowEDI;
+#pragma link C++ class FWEveViewScaleEditor;
+#pragma link C++ class CmsShowSearchFiles;
 
+#pragma link C++ class FWGUISubviewArea;
+#pragma link C++ class CmsShowMainFrame;
+#pragma link C++ class FWGUIValidatingTextEntry;
+
+#pragma link C++ class CmsShowModelPopup;
+#pragma link C++ class FWGUIEventFilter;
+#pragma link C++ class CmsShowCommonPopup;
+#pragma link C++ class CmsShowViewPopup;
 
 #endif

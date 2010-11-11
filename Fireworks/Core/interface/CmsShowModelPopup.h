@@ -16,18 +16,22 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowModelPopup.h,v 1.17 2010/09/15 18:14:22 amraktad Exp $
+// $Id: CmsShowModelPopup.h,v 1.18 2010/11/10 20:07:07 amraktad Exp $
 //
 
 // system include files
 #include <set>
 #include <vector>
+#ifndef __CINT__
 #include <sigc++/connection.h>
+#endif
 #include "GuiTypes.h"
 #include "TGFrame.h"
 
 // user include files
+#ifndef __CINT__
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
+#endif
 
 // forward declarations
 class FWEventItem;
@@ -44,19 +48,6 @@ class FWSelectionManager;
 class FWDialogBuilder;
 
 class CmsShowModelPopup;
-
-class CmsShowModelPopupDetailViewButtonAdapter {
-public:
-   CmsShowModelPopupDetailViewButtonAdapter(CmsShowModelPopup* iPopup,
-                                            int iIndex):
-   m_popup(iPopup),
-   m_index(iIndex)
-   {}
-   void wasClicked();
-private:
-   CmsShowModelPopup* m_popup;
-   int m_index;
-};
 
 class CmsShowModelPopup : public TGTransientFrame
 {
@@ -84,30 +75,32 @@ public:
    void toggleModelVisible(Bool_t on = kTRUE);
    void openDetailedView();
 
+   void clicked();
+
+   ClassDef(CmsShowModelPopup, 0);
+
 private:
    CmsShowModelPopup(const CmsShowModelPopup&);    // stop default
 
    const CmsShowModelPopup& operator=(const CmsShowModelPopup&);    // stop default
 
-   void clicked(int);
    
    // ---------- member data --------------------------------
    TGLabel* m_modelLabel;
    FWColorSelect* m_colorSelectWidget;
    TGCheckButton* m_isVisibleButton;
    std::vector<TGTextButton*> m_openDetailedViewButtons;
-   std::vector<CmsShowModelPopupDetailViewButtonAdapter*> m_adapters;
+
+#ifndef __CINT__
    std::set<FWModelId> m_models;
    sigc::connection m_modelChangedConn;
    sigc::connection m_destroyedConn;
    sigc::connection m_changes;
-
+#endif
    FWDetailViewManager* m_detailViewManager;
    const FWColorManager* m_colorManager;
    TGHSlider            *m_opacitySlider;
-   FWDialogBuilder*     m_dialogBuilder;
-
-   ClassDef(CmsShowModelPopup, 1);
+   FWDialogBuilder*      m_dialogBuilder;
 };
 
 
