@@ -3,7 +3,7 @@
 // Package:     Muons
 // Class  :     FWDTRecHitProxyBuilder
 //
-// $Id: FWDTRecHitProxyBuilder.cc,v 1.11 2010/09/06 15:49:55 yana Exp $
+// $Id: FWDTRecHitProxyBuilder.cc,v 1.12 2010/09/07 15:46:48 yana Exp $
 //
 
 #include "TEvePointSet.h"
@@ -64,7 +64,7 @@ FWDTRecHitProxyBuilder::buildViewType( const DTRecHit1DPair& iData, unsigned int
   float lLocalPos[3] = { leftRecHit->localPosition().x(), 0.0, 0.0 };
   float rLocalPos[3] = { rightRecHit->localPosition().x(), 0.0, 0.0 };
 
-  if(( type == FWViewType::kRhoPhi && superLayer != 2 ) ||
+  if(( (type == FWViewType::kRhoPhi || type == FWViewType::kRhoPhiPF) && superLayer != 2 ) ||
     ( type == FWViewType::kRhoZ && superLayer == 2 ) ||
      type == FWViewType::k3D ||
      type == FWViewType::kISpy )

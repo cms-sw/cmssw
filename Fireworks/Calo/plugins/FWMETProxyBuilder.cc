@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMETProxyBuilder.cc,v 1.25 2010/10/01 09:45:19 amraktad Exp $
+// $Id: FWMETProxyBuilder.cc,v 1.26 2010/10/22 14:34:44 amraktad Exp $
 //
 
 // system include files
@@ -109,20 +109,7 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
    m_lines.push_back(fireworks::scaleMarker(marker, met.energy(), met.et(), vc));  // register for scales
    setupAddElement( marker, &oItemHolder );
       
-
-
-   if( type == FWViewType::kRhoPhi )
-   {
-      double min_phi = phi-M_PI/36/2;
-      double max_phi = phi+M_PI/36/2;
-
-      TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
-      TEveGeoShape *element = fireworks::getShape( "spread", new TGeoTubeSeg( r_ecal - 2, r_ecal, 1, min_phi*180/M_PI, max_phi*180/M_PI ), 0 );
-      element->SetPickable( kTRUE );
-      setupAddElement( element, &oItemHolder );
-   }
-   
-   else if ( type == FWViewType::kRhoZ ) 
+   if ( type == FWViewType::kRhoZ ) 
    {
       TEveScalableStraightLineSet* tip = new TEveScalableStraightLineSet( "tip" );
       tip->SetLineWidth(2);
@@ -137,7 +124,16 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
       tip->SetScale(caloScale->getValToHeight()*met.et());
       setupAddElement( tip, &oItemHolder );
    }   
+   else
+   { 
+      double min_phi = phi-M_PI/36/2;
+      double max_phi = phi+M_PI/36/2;
 
+      TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
+      TEveGeoShape *element = fireworks::getShape( "spread", new TGeoTubeSeg( r_ecal - 2, r_ecal, 1, min_phi*180/M_PI, max_phi*180/M_PI ), 0 );
+      element->SetPickable( kTRUE );
+      setupAddElement( element, &oItemHolder );
+   }
 }
 
 REGISTER_FWPROXYBUILDER( FWMETProxyBuilder, reco::MET, "recoMET", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Dec  5 09:56:09 EST 2008
-// $Id: FWCandidateProxyBuilder.cc,v 1.7 2010/05/03 15:47:36 amraktad Exp $
+// $Id: FWCandidateProxyBuilder.cc,v 1.8 2010/06/18 12:47:32 yana Exp $
 //
 
 #include "TEveTrack.h"
@@ -49,4 +49,4 @@ FWCandidateProxyBuilder::build(const reco::Candidate& iData, unsigned int iIndex
 //
 // static member functions
 //
-REGISTER_FWPROXYBUILDER(FWCandidateProxyBuilder, reco::Candidate, "Candidates", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER(FWCandidateProxyBuilder, reco::Candidate, "Candidates", FWViewType::kAll3DBits | FWViewType::kAllRPZBits);

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 14:52:01 EST 2008
-// $Id: FWPhotonProxyBuilder.cc,v 1.18 2010/09/07 15:46:47 yana Exp $
+// $Id: FWPhotonProxyBuilder.cc,v 1.19 2010/10/20 19:26:58 amraktad Exp $
 //
 
 #include "TEveBoxSet.h"
@@ -46,7 +46,7 @@ FWPhotonProxyBuilder::buildViewType( const reco::Photon& photon, unsigned int iI
 {  
    const FWGeometry *geom = item()->getGeom();
  
-   if( type == FWViewType::kRhoPhi )
+   if( type == FWViewType::kRhoPhi || type == FWViewType::kRhoPhiPF )
    {
       fireworks::makeRhoPhiSuperCluster( this,
                                          photon.superCluster(),

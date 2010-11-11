@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Oct 21 20:40:28 CEST 2010
-// $Id$
+// $Id: FWTauProxyBuilderBase.cc,v 1.1 2010/10/22 14:34:45 amraktad Exp $
 //
 
 // system include files
@@ -63,8 +63,23 @@ FWTauProxyBuilderBase::buildBaseTau( const reco::BaseTau& iTau, const reco::Jet&
       float ecalZ  = barrel ? context().caloZ1() : context().caloZ2();
   
       TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet( "energy" );
-      if ( type == FWViewType::kRhoPhi ) 
-      {	 
+     
+      if( type == FWViewType::kRhoZ )
+      {
+         double r(0);
+         ( theta <  context().caloTransAngle() || M_PI-theta < context().caloTransAngle()) ?
+            r = ecalZ/fabs(cos(theta)) :
+            r = ecalR/sin(theta);
+   
+         fireworks::addRhoZEnergyProjection( this, comp, ecalR, ecalZ, m_minTheta-0.003, m_maxTheta+0.003, phi);
+
+         marker->SetScaleCenter( 0., (phi>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta) );
+         marker->AddLine(0., (phi>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
+                         0., (phi>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
+
+      }
+      else
+      {
          std::pair<double,double> phiRange = fireworks::getPhiRange( m_phis, phi );
          double min_phi = phiRange.first-M_PI/36/2;
          double max_phi = phiRange.second+M_PI/36/2;
@@ -82,20 +97,6 @@ FWTauProxyBuilderBase::buildBaseTau( const reco::BaseTau& iTau, const reco::Jet&
          marker->AddLine( ecalR*cos( phi ), ecalR*sin( phi ), 0,
                           ( ecalR+size )*cos( phi ), ( ecalR+size )*sin( phi ), 0);
       }
-      else if( type == FWViewType::kRhoZ )
-      {
-         double r(0);
-         ( theta <  context().caloTransAngle() || M_PI-theta < context().caloTransAngle()) ?
-            r = ecalZ/fabs(cos(theta)) :
-            r = ecalR/sin(theta);
-   
-         fireworks::addRhoZEnergyProjection( this, comp, ecalR, ecalZ, m_minTheta-0.003, m_maxTheta+0.003, phi);
-
-         marker->SetScaleCenter( 0., (phi>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta) );
-         marker->AddLine(0., (phi>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
-                         0., (phi>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
-
-      }  
       marker->SetLineWidth(4);  
       FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");    
       marker->SetScale(caloScale->getValToHeight()*(caloScale->getPlotEt() ?  iTau.et() : iTau.energy()));

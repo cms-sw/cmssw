@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.26 2010/10/21 17:44:04 amraktad Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.27 2010/10/22 14:34:44 amraktad Exp $
 //
 
 #include "TEveJetCone.h"
@@ -107,14 +107,7 @@ FWJetProxyBuilder::buildViewType(const reco::Jet& iData, unsigned int iIndex, TE
       double theta = iData.theta();
       double phi = iData.phi();
 
-      if( type == FWViewType::kRhoPhi )
-      {  
-         float ecalR = context().caloR1() + 4;
-         marker->SetScaleCenter(ecalR*cos(phi), ecalR*sin(phi), 0);
-         marker->AddLine(ecalR*cos(phi), ecalR*sin(phi), 0, (ecalR+size)*cos(phi), (ecalR+size)*sin(phi), 0);
-
-      }
-      else
+      if ( type == FWViewType::kRhoZ )
       {  
          static const float_t offr = 4;
          float r_ecal = context().caloR1() + offr;
@@ -134,6 +127,12 @@ FWJetProxyBuilder::buildViewType(const reco::Jet& iData, unsigned int iIndex, TE
          marker->SetScaleCenter( 0., (phi>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta) );
          marker->AddLine( 0., (phi>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
                           0., (phi>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
+      }
+      else
+      {
+         float ecalR = context().caloR1() + 4;
+         marker->SetScaleCenter(ecalR*cos(phi), ecalR*sin(phi), 0);
+         marker->AddLine(ecalR*cos(phi), ecalR*sin(phi), 0, (ecalR+size)*cos(phi), (ecalR+size)*sin(phi), 0);
       }
 
       marker->SetLineWidth(4);  

@@ -121,7 +121,7 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
             setupAddElement( box, product );
             addTube( box, *det, localPos, pars );
          }
-         else if(( type == FWViewType::kRhoPhi && superLayer != 2 ) ||
+         else if(( ( type == FWViewType::kRhoPhi ||  type == FWViewType::kRhoPhiPF ) && superLayer != 2 ) ||
                  ( type == FWViewType::kRhoZ && superLayer == 2 ))
          {
             TEvePointSet* pointSet = new TEvePointSet;

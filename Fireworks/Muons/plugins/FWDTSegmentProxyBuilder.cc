@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWDTSegmentProxyBuilder.cc,v 1.12 2010/09/07 15:46:48 yana Exp $
+// $Id: FWDTSegmentProxyBuilder.cc,v 1.13 2010/10/19 09:00:59 chrjones Exp $
 //
 
 #include "TEveGeoNode.h"
@@ -94,6 +94,6 @@ FWDTSegmentProxyBuilder::build( const DTRecSegment4D& iData,
   }
 }
 
-REGISTER_FWPROXYBUILDER( FWDTSegmentProxyBuilder, DTRecSegment4D, "DT-segments", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit );
+REGISTER_FWPROXYBUILDER( FWDTSegmentProxyBuilder, DTRecSegment4D, "DT-segments", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
 
 

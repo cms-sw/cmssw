@@ -3,7 +3,7 @@
 // Package:     Muons
 // Class  :     FWMuonRhoPhiProxyBuilder
 //
-// $Id: FWMuonRhoPhiProxyBuilder.cc,v 1.11 2010/06/18 12:44:05 yana Exp $
+// $Id: FWMuonRhoPhiProxyBuilder.cc,v 1.1 2010/07/30 08:36:01 yana Exp $
 //
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
@@ -50,4 +50,4 @@ FWMuonRhoPhiProxyBuilder::localModelChanges( const FWModelId& iId, TEveElement* 
    increaseComponentTransparency( iId.index(), iCompound, "Chamber", 40 );
 }
 
-REGISTER_FWPROXYBUILDER( FWMuonRhoPhiProxyBuilder, reco::Muon, "Muons", FWViewType::kRhoPhiBit );
+REGISTER_FWPROXYBUILDER( FWMuonRhoPhiProxyBuilder, reco::Muon, "Muons", FWViewType::kRhoPhiBit |  FWViewType::kRhoPhiPFBit);

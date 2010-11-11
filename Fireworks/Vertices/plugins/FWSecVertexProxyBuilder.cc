@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWSecVertexProxyBuilder.cc,v 1.2 2010/04/20 20:49:45 amraktad Exp $
+// $Id: FWSecVertexProxyBuilder.cc,v 1.3 2010/05/03 15:47:48 amraktad Exp $
 //
 #include <vector>
 
@@ -96,4 +96,4 @@ FWSecVertexProxyBuilder::build(const reco::SecondaryVertexTagInfo& iData, unsign
    setupAddElement(pointSet, &oItemHolder);
 }
 
-REGISTER_FWPROXYBUILDER(FWSecVertexProxyBuilder, reco::SecondaryVertexTagInfo, "SecVertex", FWViewType::k3DBit | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER(FWSecVertexProxyBuilder, reco::SecondaryVertexTagInfo, "SecVertex", FWViewType::k3DBit | FWViewType::kAllRPZBits);
