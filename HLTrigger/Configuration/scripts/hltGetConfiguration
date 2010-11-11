@@ -147,6 +147,11 @@ parser.add_argument('--dataset',
                     metavar = 'DATASET',
                     default = None,
                     help    = 'Take the input files from the specified %(metavar)s' )
+parser.add_argument('--timing', 
+                    dest    = 'menuTiming', 
+                    action  = 'store_true', 
+                    default = False,
+                    help    = 'Instrument the menu with the modules and EndPath needed for timing studies' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--output',
@@ -425,6 +430,30 @@ if 'MessageLogger' in %(dict)s:
 
 
 
+  def instrumentTiming(self, configuration):
+    # instrument the menu with the modules and EndPath needed for timing studies
+    self.data += """
+# instrument the menu with the modules and EndPath needed for timing studies
+%(process)sPathTimerService = cms.Service( "PathTimerService",
+)
+%(process)shltTimer = cms.EDProducer( "PathTimerInserter",
+)
+%(process)shltOutputTiming = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputTiming.root" ),
+    fastCloning = cms.untracked.bool( False ),
+    splitLevel = cms.untracked.int32( 0 ),
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string( 'RECO' ),
+        filterName = cms.untracked.string( '' )
+    ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep HLTPerformanceInfo_*_*_*' )
+)
+
+%(process)sTimingOutput = cms.EndPath( %(process)shltTimer + %(process)shltOutputTimer )
+"""
+
+
 # parse command line arguments and options
 args = parser.parse_args( namespace = configuration )
 
@@ -539,6 +568,9 @@ if configuration.doCff:
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
     #menu.overrideL1Menu(configuration)
 
+    # if requested, instrument the menu with the modules and EndPath needed for timing studies
+    menu.instrumentTiming(configuration)
+
 else:
     if configuration.runOnline:
       # online we always run on data
@@ -602,6 +634,9 @@ if 'hltPreDQMSmart' in %(dict)s:
 
     # request summary informations from the MessageLogger
     menu.updateMessageLogger()
+
+    # if requested, instrument the menu with the modules and EndPath needed for timing studies
+    menu.instrumentTiming(configuration)
 
 
 # dump the final configuration
