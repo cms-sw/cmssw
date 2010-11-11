@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.cc,v 1.13 2009/11/30 11:14:25 loizides Exp $
+// $Id: QcdLowPtDQM.cc,v 1.14 2010/03/03 09:32:40 olzem Exp $
 
 #include "DQM/Physics/src/QcdLowPtDQM.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -784,7 +784,7 @@ void QcdLowPtDQM::fillHltBits(const Event &iEvent)
                           (int)hltTrgDeci_.at(i), hltTrgUsedNames_.at(i).c_str()));
     } else {
       print(2,Form("Problem slot %i for bit %i for %s",
-                   i, tbit, triggerResultsHLT->size(), hltTrgUsedNames_.at(i).c_str()));
+                   i, tbit, hltTrgUsedNames_.at(i).c_str()));
     }
   }
 
