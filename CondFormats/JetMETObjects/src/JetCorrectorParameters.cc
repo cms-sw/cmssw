@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.cc,v 1.16 2010/11/05 16:02:33 srappocc Exp $
+// $Id: JetCorrectorParameters.cc,v 1.17 2010/11/07 19:15:23 kkousour Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -473,7 +473,7 @@ JetCorrectorParametersCollection::getL5Bin( std::string const & flav ){
   std::vector<std::string>::const_iterator found = 
     find( l5Flavors_.begin(), l5Flavors_.end(), flav );
   if ( found != l5Flavors_.end() ) {
-    return (found - l5Flavors_.begin() + 1) * 10;
+    return (found - l5Flavors_.begin() + 1) * 100;
   }
   else return L5Flavor;
 }
@@ -491,7 +491,7 @@ JetCorrectorParametersCollection::getL7Bin( std::string const & flav ){
 // Check if this is an L5 hashed value
 bool JetCorrectorParametersCollection::isL5( key_type k ) {
   return k == L5Flavor ||
-    ( k / 10 > 0 && k / 1000 == 0 );
+    ( k / 100 > 0 && k / 1000 == 0 );
 }
 // Check if this is an L7 hashed value
 bool JetCorrectorParametersCollection::isL7( key_type k ) {
