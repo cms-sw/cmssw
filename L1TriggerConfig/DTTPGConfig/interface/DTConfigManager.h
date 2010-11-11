@@ -36,6 +36,8 @@
 #include "DataFormats/MuonDetId/interface/DTTracoId.h"
 #include "DataFormats/MuonDetId/interface/DTSectCollId.h"
 
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigPedestals.h"
+
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -49,15 +51,15 @@ class DTConfigManager {
 
  public:
   
-  typedef std::map<DTBtiId,DTConfigBti>            		innerBtiMap;
-  typedef std::map<DTTracoId,DTConfigTraco>        	   innerTracoMap;
-  typedef std::map<DTChamberId,innerBtiMap>        	   BtiMap;
-  typedef std::map<DTChamberId,innerTracoMap>           TracoMap;
-  typedef std::map<DTChamberId,DTConfigTSTheta>        TSThetaMap;
-  typedef std::map<DTChamberId,DTConfigTSPhi>           TSPhiMap;
-  typedef std::map<DTChamberId,DTConfigTrigUnit>         TrigUnitMap;
-  typedef std::map<DTChamberId,DTConfigLUTs>   		 LUTMap;
-  typedef std::map<DTSectCollId,DTConfigSectColl>  	  SectCollMap;
+  typedef std::map<DTBtiId,DTConfigBti> innerBtiMap;
+  typedef std::map<DTTracoId,DTConfigTraco> innerTracoMap;
+  typedef std::map<DTChamberId,innerBtiMap> BtiMap;
+  typedef std::map<DTChamberId,innerTracoMap> TracoMap;
+  typedef std::map<DTChamberId,DTConfigTSTheta> TSThetaMap;
+  typedef std::map<DTChamberId,DTConfigTSPhi> TSPhiMap;
+  typedef std::map<DTChamberId,DTConfigTrigUnit> TrigUnitMap;
+  typedef std::map<DTChamberId,DTConfigLUTs> LUTMap;
+  typedef std::map<DTSectCollId,DTConfigSectColl> SectCollMap;
 
  public:
   
@@ -94,6 +96,23 @@ class DTConfigManager {
   //! Get desired SectorCollector configuration
   DTConfigSectColl* getDTConfigSectColl(DTSectCollId) const;
 
+  //! Get desired Pedestals configuration
+  DTConfigPedestals* getDTConfigPedestals() const;
+ 
+  //! Get global debug flag
+  inline bool getDTTPGDebug() const { return my_dttpgdebug; };
+
+  //! Get BX Offset for a given vdrift config
+  int getBXOffset() const;
+
+  //! Lut from DB flag
+  inline bool lutFromDB() const { return my_lutfromdb; }
+
+  //! Use Bti acceptance parameters (LL,LH,CL,CH,RL,RH)
+  inline bool useAcceptParam() const { return my_acceptparam; }
+
+
+
   //! Set DTConfigBti for desired chip
   void setDTConfigBti(DTBtiId,DTConfigBti);
 
@@ -115,34 +134,28 @@ class DTConfigManager {
   //! Set DTConfigSectColl for desired chip
   void setDTConfigSectColl(DTSectCollId sectcollid ,DTConfigSectColl conf){ my_sectcollmap[sectcollid] = conf; };
 
-  //! Get global debug flag
-  inline bool getDTTPGDebug() const { return my_dttpgdebug; };
+  //! Set DTConfigPedestals configuration 
+  void setDTConfigPedestals(DTConfigPedestals pedestals) { my_pedestals = pedestals; };
 
   //! SetGlobalDebug flag
-  inline void setDTTPGDebug(bool debug) { my_dttpgdebug = debug; };
-  
-  //! Get BX Offset
-  int getBXOffset() const;
-
-  //! Lut from DB flag
-  inline bool lutFromDB() const { return m_lutfromdb; }
-
-  //! Use Bti acceptance parameters (LL,LH,CL,CH,RL,RH)
-  inline bool useAcceptParam() const { return m_acceptparam; }
+  inline void setDTTPGDebug(bool debug) { my_dttpgdebug = debug; }
    
   //! Set lut from DB flag
-  inline void setLutFromDB(bool lutFromDB) { m_lutfromdb = lutFromDB; }
+  inline void setLutFromDB(bool lutFromDB) { my_lutfromdb = lutFromDB; }
 
   //! Set the use of Bti acceptance parameters (LL,LH,CL,CH,RL,RH)
-  inline void setUseAcceptParam(bool acceptparam) { m_acceptparam = acceptparam; }
+  inline void setUseAcceptParam(bool acceptparam) { my_acceptparam = acceptparam; }
 
-  //! SV 091111 Dump luts string commands from configuration parameters
-  void dumpLUTParam(DTChamberId &chambid) const;
+
+
+
+  //! Dump luts string commands from configuration parameters
+  void dumpLUTParam(DTChamberId &chambid) const; /* SV 091111 */ 
+
 
  private:
 
   // maps for the whole config structure
-  // BTI & TRACO use map<..,map<..,..> > to optimize access
   BtiMap       my_btimap;
   TracoMap     my_tracomap;
   TSThetaMap   my_tsthetamap;
@@ -150,12 +163,13 @@ class DTConfigManager {
   TrigUnitMap  my_trigunitmap; 
   LUTMap       my_lutmap;
   SectCollMap  my_sectcollmap;
+  DTConfigPedestals my_pedestals;
   
-  int my_bxoffset;
   bool my_dttpgdebug;
 
-  bool m_lutfromdb;
-  bool m_acceptparam;
+  bool my_lutfromdb;
+  bool my_acceptparam;
+
 };
 
 #endif
