@@ -803,7 +803,7 @@ if (liveECAL == 1) :
 
 EOF2
 
-printf CONFIGFILE "fileList = = cms.untracked.vstring()\n";
+printf CONFIGFILE "fileList = cms.untracked.vstring()\n";
 
 if ( $filnam ) {
   printf CONFIGFILE "fileList.extend( ['file:$filnam'] )\n";
