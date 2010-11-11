@@ -1,6 +1,5 @@
 #include "PhysicsTools/JetMCAlgos/plugins/TauGenJetProducer.h"
 
-
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,14 +13,12 @@
 
 #include "PhysicsTools/HepMCCandAlgos/interface/GenParticlesHelper.h"
 
-
 using namespace std;
 using namespace edm;
 using namespace reco;
 
-TauGenJetProducer::TauGenJetProducer(const edm::ParameterSet& iConfig) {
-  
-
+TauGenJetProducer::TauGenJetProducer(const edm::ParameterSet& iConfig) 
+{
   inputTagGenParticles_ 
     = iConfig.getParameter<InputTag>("GenParticles");
 
@@ -31,19 +28,12 @@ TauGenJetProducer::TauGenJetProducer(const edm::ParameterSet& iConfig) {
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
 
-
-
   produces<GenJetCollection>();
 }
 
-
-
 TauGenJetProducer::~TauGenJetProducer() { }
 
-
-
 void TauGenJetProducer::beginJob() { }
-
 
 void TauGenJetProducer::produce(Event& iEvent, 
 				const EventSetup& iSetup) {
@@ -52,7 +42,7 @@ void TauGenJetProducer::produce(Event& iEvent,
 
   bool found = iEvent.getByLabel( inputTagGenParticles_, genParticles);
   
-  if(!found ) {
+  if ( !found ) {
     std::ostringstream  err;
     err<<" cannot get collection: "
        <<inputTagGenParticles_<<std::endl;
@@ -61,8 +51,7 @@ void TauGenJetProducer::produce(Event& iEvent,
   }
 
   std::auto_ptr<GenJetCollection> 
-    pOutVisTaus(new GenJetCollection() );
-
+    pOutVisTaus(new GenJetCollection());
 
   using namespace GenParticlesHelper;
 
@@ -70,11 +59,17 @@ void TauGenJetProducer::produce(Event& iEvent,
   findParticles( *genParticles,
 		 allStatus2Taus, 15, 2);
 
-  for( IGR iTau=allStatus2Taus.begin(); iTau!=allStatus2Taus.end(); ++iTau) {
+  for ( IGR iTau=allStatus2Taus.begin(); iTau!=allStatus2Taus.end(); ++iTau ) {
 
     // look for all status 1 (stable) descendents 
     GenParticleRefVector descendents;
     findDescendents( *iTau, descendents, 1);
+
+    // CV: skip status 2 taus that radiate-off a photon
+    //    --> have a status 2 tau lepton in the list of descendents
+    GenParticleRefVector status2TauDaughters;
+    findDescendents( *iTau, status2TauDaughters, 2, 15 );
+    if ( status2TauDaughters.size() > 0 ) continue;
     
     // loop on descendents, and take all except neutrinos
     math::XYZTLorentzVector sumVisMom;
@@ -84,11 +79,10 @@ void TauGenJetProducer::produce(Event& iEvent,
     if(verbose_)
       cout<<"tau "<<(*iTau)<<endl;
 
-
     for(IGR igr = descendents.begin(); 
 	igr!= descendents.end(); ++igr ) {
       
-      int absPdgId = abs(  (*igr)->pdgId());
+      int absPdgId = abs((*igr)->pdgId());
       
       // neutrinos
       if(!includeNeutrinos_ ) {
