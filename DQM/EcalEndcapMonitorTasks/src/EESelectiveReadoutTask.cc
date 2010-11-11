@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2010/11/10 10:43:29 $
- * $Revision: 1.56 $
+ * $Date: 2010/11/11 08:40:51 $
+ * $Revision: 1.57 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -628,7 +628,7 @@ void EESelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
         EEDetId id = eedf.id();
         EcalChannelStatusMap::const_iterator chit;
         chit = chStatus->getMap().find(id.rawId());
-        uint16_t statusCode = -1;
+        uint16_t statusCode = 0;
         if( chit != chStatus->getMap().end() ) {
           EcalChannelStatusCode ch_code = (*chit);
           statusCode = ch_code.getStatusCode();

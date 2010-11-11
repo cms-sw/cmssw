@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2010/11/10 10:43:29 $
- * $Revision: 1.49 $
+ * $Date: 2010/11/11 08:40:48 $
+ * $Revision: 1.50 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -434,7 +434,7 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
         EBDetId id = ebdf.id();
         EcalChannelStatusMap::const_iterator chit;
         chit = chStatus->getMap().find(id.rawId());
-        uint16_t statusCode = -1;
+        uint16_t statusCode = 0;
         if( chit != chStatus->getMap().end() ) {
           EcalChannelStatusCode ch_code = (*chit);
           statusCode = ch_code.getStatusCode();
