@@ -21,7 +21,6 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 
 
 //---------------
@@ -33,7 +32,7 @@
 //----------------
 // Constructors --
 //----------------
-DTSCTrigUnit::DTSCTrigUnit(DTChamber *stat, DTTTrigBaseSync *sync) {
+DTSCTrigUnit::DTSCTrigUnit(DTChamber *stat) {
 
   DTChamberId chambid = stat->id();
   // bool geom_debug = conf_manager->getDTConfigTrigUnit(chambid)->debug();
@@ -43,7 +42,7 @@ DTSCTrigUnit::DTSCTrigUnit(DTChamber *stat, DTTTrigBaseSync *sync) {
   _geom = new DTTrigGeom(stat, false); // CB FIXME: update when debug will be read via PSet
 
   // create BTI
-  _theBTIs = new DTBtiCard(_geom, sync);
+  _theBTIs = new DTBtiCard(_geom);
 
   // create TSTheta
   _theTSTheta = new DTTSTheta(_geom, _theBTIs);
