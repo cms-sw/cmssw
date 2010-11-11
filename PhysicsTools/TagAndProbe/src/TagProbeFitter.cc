@@ -123,10 +123,7 @@ string TagProbeFitter::calculateEfficiency(string dirName, vector<string> effCat
   //go to home directory
   outputDirectory->cd();
   //make a directory corresponding to this efficiency binning
-  //gDirectory->mkdir(dirName.c_str())->cd();
-  TDirectory* dir = gDirectory->mkdir(dirName.c_str());
-  if(dir) dir->cd();
-  else gDirectory->cd(dirName.c_str());
+  gDirectory->mkdir(dirName.c_str())->cd();
 
 
   RooArgSet dataVars;
@@ -284,8 +281,12 @@ string TagProbeFitter::calculateEfficiency(string dirName, vector<string> effCat
     
     cout<<"Fitting bin:  "<<dirName<<endl;
     //make a directory for each bin
-    outputFile->cd();
-    gDirectory->mkdir(dirName)->cd();
+    // gDirectory->mkdir(dirName)->cd();
+    TDirectory *dir = (TDirectory *) gDirectory->Get(dirName);
+    if (!dir) dir = gDirectory->mkdir(dirName,dirName);
+    dir->cd();
+
+
     //create a workspace
     RooWorkspace* w = new RooWorkspace();
     //import the data
@@ -335,9 +336,9 @@ string TagProbeFitter::calculateEfficiency(string dirName, vector<string> effCat
   //save the efficiency data
   fitEfficiency.Write();
   //gDirectory->mkdir("fit_eff_plots")->cd();
-  dir = gDirectory->mkdir("fit_eff_plots");
-  if(dir) dir->cd();
-  else gDirectory->cd("fit_eff_plots");
+  TDirectory *dir = (TDirectory *) gDirectory->Get("fit_eff_plots");
+  if (!dir) dir = gDirectory->mkdir("fit_eff_plots","fit_eff_plots");
+  dir->cd();
   saveEfficiencyPlots(fitEfficiency, effName, binnedVariables, mappedCategories);
   gDirectory->cd("..");
 
@@ -347,10 +348,10 @@ string TagProbeFitter::calculateEfficiency(string dirName, vector<string> effCat
   gDirectory->cd("..");*/
 
   cntEfficiency.Write();
-  // gDirectory->mkdir("cnt_eff_plots")->cd();
-  dir = gDirectory->mkdir("cnt_eff_plots");
-  if(dir) dir->cd();
-  else gDirectory->cd("cnt_eff_plots");
+  //gDirectory->mkdir("cnt_eff_plots")->cd();
+  dir = (TDirectory *) gDirectory->Get("cnt_eff_plots");
+  if (!dir) dir = gDirectory->mkdir("cnt_eff_plots","cnt_eff_plots");
+  dir->cd();
   saveEfficiencyPlots(cntEfficiency, effName, binnedVariables, mappedCategories);
   gDirectory->cd("..");
   //empty string means no error
@@ -521,6 +522,10 @@ void TagProbeFitter::setInitialValues(RooWorkspace* w){
     w->var("numBackgroundPass")->setConstant(false);
     w->var("numBackgroundFail")->setConstant(false);
   }
+
+  // if signal fraction is 1 then set the number of background events to 0.
+  RooRealVar* fBkgPass = w->var("numBackgroundPass");
+  if(signalFractionInPassing==1.0) { fBkgPass->setVal(0.0); fBkgPass->setConstant(true); }
 
   // save initial state for reference
   w->saveSnapshot("initialState",w->components());

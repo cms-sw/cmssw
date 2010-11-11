@@ -42,16 +42,19 @@ process.TagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     # each pdf needs to define "signal", "backgroundPass", "backgroundFail" pdfs, "efficiency[0.9,0,1]" and "signalFractionInPassing[0.9]" are used for initial values  
     PDFs = cms.PSet(
         gaussPlusLinear = cms.vstring(
-            "CBExGaussShape::signalRes(mass, mean[91.2, 86.0, 92.0], sigma[2.3, 0.5, 10.0],alpha[-1.2858e-01], n[9.7234e+01], sigma_2[-2.9786e+01], frac[9.6256e-01 )",  ### the signal function goes here
-                        #"Gaussian::signalY(mass, mean[91.2, 89.0, 93.0], sigma[2.3,0.5, 10.0])",
-                        #"ZGeneratorLineShape::signalPhy(mass, input/ZeeGenLevel.root, Mass)",
-                        "ZGeneratorLineShape::signalPhy(mass)",
-                        "RooExponential::backgroundPass(mass, cPass[-0.02, -5, 0])",
-                        "RooExponential::backgroundFail(mass, cFail[-0.02, -5, 0])",
-                        #"RooAbsPdf::signal((const RooAbsPdf&) signalX, 'signal')",
-                        "FCONV::signal(mass, signalPhy, signalRes)",
-                        "efficiency[0.9,0,1]",
-                        "signalFractionInPassing[0.9]"
+##     "CBExGaussShape::signalRes(mass, mean[2.0946e-01], sigma[8.5695e-04],alpha[3.8296e-04], n[6.7489e+00], sigma_2[2.5849e+00], frac[6.5704e-01])",  ### the signal function goes here
+     "CBExGaussShape::signalRes(mass, mean[2.0946e-01, -5., 5.], sigma[8.5695e-04],alpha[3.8296e-04], n[6.7489e+00], sigma_2[2.5849e+00], frac[6.5704e-01])",  ### the signal function goes here     
+    "ZGeneratorLineShape::signalPhy(mass)",
+    "RooExponential::backgroundPass(mass, cPass[-0.02, -5, 0])",
+    "RooExponential::backgroundFail(mass, cFail[-0.02, -5, 0])",
+    "FCONV::signal(mass, signalPhy, signalRes)",
+    "efficiency[0.9,0,1]",
+    "signalFractionInPassing[1.0]"
+    #"Gaussian::signal(mass, mean[91.2, 89.0, 93.0], sigma[2.3, 0.5, 10.0])",
+    #"RooExponential::backgroundPass(mass, cPass[0,-10,10])",
+    #"RooExponential::backgroundFail(mass, cFail[0,-10,10])",
+    #"efficiency[0.9,0,1]",
+    #"signalFractionInPassing[0.9]"
         ),
     ),
 
@@ -66,8 +69,8 @@ process.TagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
             UnbinnedVariables = cms.vstring("mass"),
             #specifies the binning of parameters
             BinnedVariables = cms.PSet(
-                 probe_gsfEle_pt = cms.vdouble( 20, 100 ),
-                 probe_gsfEle_eta = cms.vdouble( -2.5, 2.5 )
+                 probe_gsfEle_pt = cms.vdouble( 20, 35, 50, 100 ),
+                 probe_gsfEle_eta = cms.vdouble( -2.5, -1.5, 0, 1.5, 2.5 )
             ),
             #first string is the default followed by binRegExp - PDFname pairs
             BinToPDFmap = cms.vstring("gaussPlusLinear")
@@ -77,8 +80,8 @@ process.TagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
             UnbinnedVariables = cms.vstring("mass"),
             BinnedVariables = cms.PSet(
                 mcTrue = cms.vstring("false"),
-                 probe_gsfEle_pt = cms.vdouble( 20, 100 ),
-                 probe_gsfEle_eta = cms.vdouble( -2.5, 2.5 )
+                 probe_gsfEle_pt = cms.vdouble( 20, 35, 50, 100 ),
+                 probe_gsfEle_eta = cms.vdouble( -2.5, -1.5, 0, 1.5, 2.5 )
             ),
             #unspecified binToPDFmap means no fitting
             BinToPDFmap = cms.vstring()
@@ -87,8 +90,8 @@ process.TagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
             EfficiencyCategoryAndState = cms.vstring("probe_passingId80","pass"),
             UnbinnedVariables = cms.vstring("mass"),
             BinnedVariables = cms.PSet(
-                 probe_gsfEle_pt = cms.vdouble( 20, 100 ),
-                 probe_gsfEle_eta = cms.vdouble( -2.5, 2.5 )
+                 probe_gsfEle_pt = cms.vdouble( 20, 35, 50, 100 ),
+                 probe_gsfEle_eta = cms.vdouble( -2.5, -1.5, 0, 1.5, 2.5 )
             ),
             BinToPDFmap = cms.vstring("gaussPlusLinear")
         ),
@@ -97,8 +100,8 @@ process.TagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
             UnbinnedVariables = cms.vstring("mass"),
             BinnedVariables = cms.PSet(
                 mcTrue = cms.vstring("false"),
-                probe_gsfEle_pt = cms.vdouble( 20, 100 ),
-                probe_gsfEle_eta = cms.vdouble( -2.5, 2.5 )
+                probe_gsfEle_pt = cms.vdouble( 20, 35, 50, 100 ),
+                probe_gsfEle_eta = cms.vdouble( -2.5, -1.5, 0, 1.5, 2.5 )
             ),
             BinToPDFmap = cms.vstring()
         )
