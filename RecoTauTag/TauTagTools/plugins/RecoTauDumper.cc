@@ -36,7 +36,7 @@ void RecoTauDumper::analyze(const edm::Event& evt, const edm::EventSetup& es) {
   evt.getByLabel(tauSrc_, tauView);
 
   std::ostringstream output;
-  output << " * * * reco::PFTau Dump " << std::endl;
+  output << " * * * reco::PFTau Dump - Source: " << tauSrc_ << std::endl;
   BOOST_FOREACH(const reco::PFTau& tau, *tauView) {
     output << " ------------------------------------" << std::endl;
     output << tau << std::endl;
