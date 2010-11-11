@@ -7,7 +7,6 @@
 #include <iostream>
 #include <map>
 #include "CondCore/ORA/interface/Reference.h"
-#include "CondCore/ORA/interface/NamedRef.h"
 #include "CondCore/ORA/interface/Database.h"
 #include "CondCore/ORA/interface/Ptr.h"
 #include "CondCore/ORA/interface/PVector.h"
@@ -1182,38 +1181,6 @@ class SG {
   ora::UniqueRef<IBase> m_ref;
   ora::UniqueRef<IBase> m_ref2;
 };
-
-class SH {
-
-  public:
-  
-  SH():m_intData(0),m_ref(){}
-  SH(unsigned int id):m_intData(id),m_ref(){
-  }
-
-  ~SH(){
-  }
-    
-    
-  bool operator==(const SH& rhs) const {
-    if(m_intData!=rhs.m_intData) return false;
-    if( m_ref ){
-      if(!m_ref->operator==( *rhs.m_ref )) {
-        return false;
-      }
-    } else {
-      if( rhs.m_ref ) return false;
-    }
-    return true;
-  }
-  bool operator!=(const SH& rhs) const {
-    return !operator==(rhs);
-  }
-  
-  unsigned int m_intData;
-  ora::NamedRef<SimpleClass> m_ref;
-};
-
 
 }  // namespace testORA
 

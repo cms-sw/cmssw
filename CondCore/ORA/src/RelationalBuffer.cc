@@ -1,6 +1,5 @@
 #include "RelationalBuffer.h"
 #include "RelationalOperation.h"
-#include "MultiRecordInsertOperation.h"
 
 ora::RelationalBuffer::RelationalBuffer( coral::ISchema& schema ):
   m_schema( schema ),
@@ -25,11 +24,6 @@ ora::BulkInsertOperation& ora::RelationalBuffer::newBulkInsert( const std::strin
   return *newOperation;  
 }
 
-ora::MultiRecordInsertOperation& ora::RelationalBuffer::newMultiRecordInsert( const std::string& tableName ){
-  MultiRecordInsertOperation* newOperation = new MultiRecordInsertOperation( tableName, m_schema );
-  m_operations.push_back( std::make_pair(newOperation,false) );
-  return *newOperation;  
-}
 
 ora::UpdateOperation& ora::RelationalBuffer::newUpdate( const std::string& tableName,
                                                         bool addToResult ){

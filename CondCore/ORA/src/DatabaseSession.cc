@@ -1,3 +1,5 @@
+#include "CondCore/ORA/interface/Configuration.h"
+#include "CondCore/ORA/interface/ConnectionPool.h"
 #include "CondCore/ORA/interface/Exception.h"
 #include "DatabaseSession.h"
 #include "IDatabaseSchema.h"
@@ -208,55 +210,6 @@ ora::Handle<ora::DatabaseContainer> ora::DatabaseSession::containerHandle( int c
 
 const std::map<int, ora::Handle<ora::DatabaseContainer> >& ora::DatabaseSession::containers(){
   return m_transactionCache->containers();
-}
-
-void ora::DatabaseSession::setObjectName( const std::string& name, 
-                                          int containerId, 
-                                          int itemId ){
-  m_schema->namingServiceTable().setObjectName( name, containerId, itemId );
-}
-
-bool ora::DatabaseSession::eraseObjectName( const std::string& name ){
-  return m_schema->namingServiceTable().eraseObjectName( name );
-}
-
-ora::Object ora::DatabaseSession::fetchObjectByName( const std::string& name ){
-  ora::Object ret;
-  std::pair<int,int> oid;
-  if( m_schema->namingServiceTable().getObjectByName( name, oid ) ){
-    ora::Handle<ora::DatabaseContainer> cont = containerHandle( oid.first );
-    if( cont ) ret = Object( cont->fetchItem( oid.second ), cont->type() );
-  }
-  return ret;
-}
-
-boost::shared_ptr<void> ora::DatabaseSession::fetchTypedObjectByName( const std::string& name, 
-                                                                      const Reflex::Type& asType ){
-  boost::shared_ptr<void> ret = m_transactionCache->getNamedReference( name );
-  if( !ret.get() ){
-    std::pair<int,int> oid;
-    if( m_schema->namingServiceTable().getObjectByName( name, oid ) ){
-      ora::Handle<ora::DatabaseContainer> cont = containerHandle( oid.first );
-      void* ptr = 0;
-      if( cont ) {
-        ptr = cont->fetchItemAsType( oid.second, asType );
-        if( ptr) ret = boost::shared_ptr<void>( ptr, RflxDeleter( cont->type() ) );
-      }
-    }
-    if( ret.get() ) m_transactionCache->setNamedReference( name, ret );
-  }
-  return ret;
-}
-
-bool ora::DatabaseSession::getNamesForContainer( int containerId, 
-                                                 std::vector<std::string>& destination ){
-  return m_schema->namingServiceTable().getNamesForContainer( containerId, destination );
-}
-    
-bool ora::DatabaseSession::getNamesForObject( int containerId, 
-                                              int itemId, 
-                                              std::vector<std::string>& destination ){
-  return m_schema->namingServiceTable().getNamesForObject( containerId, itemId, destination );
 }
 
 ora::Handle<ora::DatabaseUtilitySession> ora::DatabaseSession::utility(){

@@ -1147,11 +1147,5 @@ ora::IMappingSchema& ora::PoolDatabaseSchema::mappingSchema(){
   return m_mappingSchema;  
 }
 
-ora::INamingServiceTable& ora::PoolDatabaseSchema::namingServiceTable(){
-  INamingServiceTable* t = 0;
-  throwException( "No NamingService table found in the database.",
-                  "PoolDatabaseSchema::namingServiceTable" );
-  return *t;
-}
   
     

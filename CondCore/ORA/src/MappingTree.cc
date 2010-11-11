@@ -94,10 +94,6 @@ namespace ora {
           iT->second.m_dataColumns.insert( std::make_pair( dataCols[1],
                                                            coral::AttributeSpecification::typeNameForId( typeid(int) ) ));
           break;
-        case MappingElement::NamedReference :
-          iT->second.m_dataColumns.insert( std::make_pair( dataCols[0],
-                                                           coral::AttributeSpecification::typeNameForId( typeid(std::string) ) ));   
-          break;
         case MappingElement::UniqueReference :
           iT->second.m_dataColumns.insert( std::make_pair( dataCols[0],
                                                            coral::AttributeSpecification::typeNameForId( typeid(std::string) ) ));

@@ -15,7 +15,7 @@ namespace ora {
   class ContainerSchema;
 
   class IArrayHandler;
-  class MultiRecordInsertOperation;
+  class BulkInsertOperation;
   class MultiRecordSelectOperation;
 
   class STLContainerWriter : public IRelationalWriter {
@@ -48,7 +48,7 @@ namespace ora {
     private:
       bool m_associative;
       DataElement* m_offset;
-      MultiRecordInsertOperation* m_insertOperation;
+      BulkInsertOperation* m_insertOperation;
       std::auto_ptr<IArrayHandler> m_arrayHandler;
       std::auto_ptr<IRelationalWriter> m_keyWriter; 
       std::auto_ptr<IRelationalWriter> m_dataWriter;

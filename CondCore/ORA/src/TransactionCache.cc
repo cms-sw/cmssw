@@ -7,8 +7,7 @@ ora::TransactionCache::TransactionCache():
   m_containersByName(),
   m_containersById(),
   m_utility(),
-  m_loaded( false ),
-  m_namedRefCache(){
+  m_loaded( false ){
 }
 
 ora::TransactionCache::~TransactionCache(){
@@ -26,7 +25,6 @@ void ora::TransactionCache::clear(){
   m_containersById.clear();
   m_containersByName.clear();
   m_loaded = false;
-  m_namedRefCache.clear();
 }
 
 void ora::TransactionCache::setDbExists( bool exists ){
@@ -93,29 +91,3 @@ void ora::TransactionCache::setLoaded(){
   m_loaded = true;
 }
 
-void ora::TransactionCache::cleanUpNamedRefCache(){
-  std::vector<std::string> namesToDelete;
-  for( std::map<std::string,boost::weak_ptr<void> >::const_iterator iEntry = m_namedRefCache.begin();
-       iEntry != m_namedRefCache.end(); iEntry++ ){
-    if( iEntry->second.expired() ) namesToDelete.push_back( iEntry->first );
-  }
-  for( std::vector<std::string>::const_iterator iName = namesToDelete.begin();
-       iName != namesToDelete.end(); iName++ ){
-    m_namedRefCache.erase( *iName );
-  }
-}
-
-void ora::TransactionCache::setNamedReference( const std::string& name, 
-                                               boost::shared_ptr<void>& data ){
-  m_namedRefCache.insert( std::make_pair( name, boost::weak_ptr<void>(data) ) );  
-}
-
-boost::shared_ptr<void> ora::TransactionCache::getNamedReference( const std::string& name ){
-  cleanUpNamedRefCache();
-  boost::shared_ptr<void> ret;
-  std::map<std::string,boost::weak_ptr<void> >::const_iterator iEntry = m_namedRefCache.find( name );
-  if( iEntry != m_namedRefCache.end() ){
-    ret = iEntry->second.lock();
-  }
-  return ret;
-}

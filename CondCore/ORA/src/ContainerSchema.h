@@ -67,8 +67,6 @@ namespace ora {
 
     coral::ISchema& storageSchema();
 
-    DatabaseSession& dbSession();
-
     private:
     void initClassDict();
     bool loadMappingForDependentClass( const Reflex::Type& dependentClass );

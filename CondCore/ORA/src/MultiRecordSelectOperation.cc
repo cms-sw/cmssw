@@ -1,8 +1,24 @@
 #include "CondCore/ORA/interface/Exception.h"
 #include "MultiRecordSelectOperation.h"
-#include "RecordManip.h"
 // externals 
+#include "CoralBase/Attribute.h"
 #include "CoralBase/Blob.h"
+
+namespace {
+  void newRecordFromAttributeList( ora::Record & rec, const coral::AttributeList& data ){
+    for( size_t i=0;i<data.size();i++ ){
+      rec.set( i, const_cast<void*>(data[i].addressOfData()) );
+    }
+  }
+  
+  void newAttributeListFromRecord( coral::AttributeList& alist, const ora::Record& data ){
+    for( size_t i=0;i<data.size();i++ ){
+      alist[i].setValueFromAddress( data.get(i) );
+    }
+  }
+  
+}
+
 
 ora::MultiRecordSelectOperation::MultiRecordSelectOperation( const std::string& tableName,
                                                               coral::ISchema& schema ):

@@ -15,7 +15,7 @@ namespace ora {
   class ContainerSchema;
   class IRelationalData;
   class IArrayHandler;
-  class MultiRecordInsertOperation;
+  class BulkInsertOperation;
   class IVectorLoader;
   
   class QueryableVectorWriter: public IRelationalWriter {
@@ -43,7 +43,7 @@ namespace ora {
 
     private:
       DataElement* m_offset;
-      MultiRecordInsertOperation* m_insertOperation;
+      BulkInsertOperation* m_insertOperation;
       std::auto_ptr<IArrayHandler> m_arrayHandler;
       std::auto_ptr<IRelationalWriter> m_dataWriter;
   };

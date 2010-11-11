@@ -83,8 +83,6 @@ namespace ora {
     
     void flush();
 
-    bool getNames( std::vector<std::string>& destination );
-
     private:
     boost::shared_ptr<void> fetchItemAsType(int itemId, const std::type_info& asTypeInfo);
     int insertItem( const void* data, const std::type_info& typeInfo );

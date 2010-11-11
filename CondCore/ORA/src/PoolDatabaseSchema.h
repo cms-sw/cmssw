@@ -216,7 +216,6 @@ namespace ora {
     IContainerHeaderTable& containerHeaderTable();
     IDatabaseTable& classVersionTable();
     IMappingSchema& mappingSchema();
-    INamingServiceTable& namingServiceTable();
 
     private:
     coral::ISchema& m_schema;

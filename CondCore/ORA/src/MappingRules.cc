@@ -444,15 +444,6 @@ ora::MappingRules::columnNameForOID( const std::string& variableName,
 }
 
 std::string
-ora::MappingRules::columnNameForNamedReference( const std::string& variableName,
-                                                const std::string& scope )
-{
-  std::stringstream ret;
-  ret << "R" << columnNameForVariable( variableName, scope, false )<<"_NAME";
-  return ret.str();
-}
-
-std::string
 ora::MappingRules::columnNameForRefMetadata( const std::string& variableName,
                                              const std::string& scope )
 {

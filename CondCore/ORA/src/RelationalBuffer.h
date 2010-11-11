@@ -18,7 +18,6 @@ namespace ora {
   class IRelationalOperation;
   class InsertOperation;
   class BulkInsertOperation;
-  class MultiRecordInsertOperation;
   class UpdateOperation;
   class DeleteOperation;
 
@@ -32,7 +31,6 @@ namespace ora {
 
     InsertOperation& newInsert( const std::string& tableName );
     BulkInsertOperation& newBulkInsert( const std::string& tableName );
-    MultiRecordInsertOperation& newMultiRecordInsert( const std::string& tableName );
     UpdateOperation& newUpdate( const std::string& tableName, bool addToResult=false );
     DeleteOperation& newDelete( const std::string& tableName, bool addToResult=false );
 

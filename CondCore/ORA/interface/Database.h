@@ -121,21 +121,6 @@ namespace ora {
     void flush();
 
     ///
-    void setObjectName( const std::string& name, const OId& oid );
-   
-    ///
-    bool eraseObjectName( const std::string& name );
-
-    ///
-    Object fetchItemByName( const std::string& name );
-
-    ///
-    template <typename T> boost::shared_ptr<T> fetchByName( const std::string& name );
-
-    ///
-    bool getNamesForObject( const OId& oid, std::vector<std::string>& destination );
-
-    ///
     DatabaseUtility utility();
 
     public:
@@ -162,10 +147,7 @@ namespace ora {
 
     ///
     Container getContainer( const std::type_info& typeInfo );
-
-    ///
-    boost::shared_ptr<void> getTypedObjectByName( const std::string& name, const std::type_info& typeInfo );    
-
+    
     private:
 
     boost::shared_ptr<DatabaseImpl> m_impl;
@@ -218,11 +200,6 @@ void ora::Database::update( const ora::OId& oid,
   cont.update( oid.itemId(), data );
 }
 
-template <typename T>
-inline
-boost::shared_ptr<T> ora::Database::fetchByName( const std::string& name ){
-  return boost::static_pointer_cast<T>( getTypedObjectByName( name, typeid(T) ) );
-}
 
 
 #endif

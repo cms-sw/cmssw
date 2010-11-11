@@ -106,17 +106,6 @@ namespace ora {
     virtual void setMappingVersion( const std::string& classId, int containerId, const std::string& mappingVersion ) = 0;
   };
 
-  class INamingServiceTable: public IDatabaseTable  {
-    public:
-    virtual ~INamingServiceTable(){
-    }
-    virtual void setObjectName( const std::string& name, int contId, int itemId ) = 0;
-    virtual bool eraseObjectName( const std::string& name ) = 0;
-    virtual bool getObjectByName( const std::string& name, std::pair<int,int>& destination ) = 0;
-    virtual bool getNamesForObject( int contId, int itemId, std::vector<std::string>& destination ) = 0;
-    virtual bool getNamesForContainer( int contId, std::vector<std::string>& destination ) = 0;
-  };
-
   class IDatabaseSchema {
     public:
 
@@ -138,7 +127,6 @@ namespace ora {
     virtual IContainerHeaderTable& containerHeaderTable() = 0;
     virtual IDatabaseTable& classVersionTable() = 0;
     virtual IMappingSchema& mappingSchema() = 0;
-    virtual INamingServiceTable& namingServiceTable() = 0;
     coral::ISchema& storageSchema();
     
     private:

@@ -90,8 +90,6 @@ namespace ora {
     
     void flush();
 
-    bool getNames( std::vector<std::string>& destination );
-
     private:
     std::auto_ptr<ContainerSchema> m_schema;
     std::auto_ptr<WriteBuffer> m_writeBuffer;

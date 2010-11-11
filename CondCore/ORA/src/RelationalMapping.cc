@@ -1,6 +1,5 @@
 #include "CondCore/ORA/interface/Exception.h"
 #include "CondCore/ORA/interface/Reference.h"
-#include "CondCore/ORA/interface/NamedRef.h"
 #include "RelationalMapping.h"
 #include "TableRegister.h"
 #include "MappingElement.h"
@@ -37,7 +36,7 @@ ora::RelationalMapping::_sizeInColumns(const Reflex::Type& topLevelClassType,
   bool isPrimitive = ora::ClassUtils::isTypePrimitive( typ );
 
   // primitive and string
-  if( isPrimitive || isOraPolyPointer || ora::ClassUtils::isTypeNamedReference( typ)) {
+  if( isPrimitive || isOraPolyPointer ) {
     ++sz;
   } else if (typ.IsArray()){
     size_t arraySize = 0;
@@ -127,10 +126,6 @@ ora::IRelationalMapping* ora::RelationalMappingFactory::newProcessor( const Refl
   else if ( resType.TypeInfo() == typeid(ora::Reference) ||
             resType.HasBase( Reflex::Type::ByTypeInfo( typeid(ora::Reference) ) ) ){
     return new OraReferenceMapping( attributeType, m_tableRegister );
-  }
-  else if ( resType.TypeInfo() == typeid(ora::NamedReference) ||
-            resType.HasBase( Reflex::Type::ByTypeInfo( typeid(ora::NamedReference) ) ) ){
-    return new NamedRefMapping( attributeType, m_tableRegister );
   }
   else { // embeddedobject
     return new ObjectMapping( attributeType, m_tableRegister );
@@ -307,36 +302,6 @@ void ora::OraPtrMapping::process( MappingElement& parentElement,
   RelationalMappingFactory factory( m_tableRegister );
   std::auto_ptr<IRelationalMapping> processor( factory.newProcessor( ptrType ) );
   processor->process( me, ptrTypeName, attributeNameForSchema, scopeNameForSchema );
-}
-
-ora::NamedRefMapping::NamedRefMapping( const Reflex::Type& attributeType, TableRegister& tableRegister ):
-  m_type( attributeType ),
-  m_tableRegister( m_tableRegister ){
-}
-
-ora::NamedRefMapping::~NamedRefMapping(){
-}
-
-void ora::NamedRefMapping::process( MappingElement& parentElement, 
-                                    const std::string& attributeName,
-                                    const std::string& attributeNameForSchema, 
-                                    const std::string& scopeNameForSchema ){
-  std::string typeName = m_type.Name(Reflex::SCOPED);
-  ora::MappingElement& me = parentElement.appendSubElement( ora::MappingElement::namedReferenceMappingElementType(), attributeName, typeName, parentElement.tableName() );
-
-  std::vector< std::string > cols;
-  std::string inputCol = ora::MappingRules::columnNameForNamedReference( attributeNameForSchema, scopeNameForSchema );
-  std::string columnName(inputCol);
-  unsigned int i=0;
-  while(m_tableRegister.checkColumn(parentElement.tableName(),columnName)){
-    columnName = ora::MappingRules::newNameForSchemaObject( inputCol, i, ora::MappingRules::MaxColumnNameLength );
-    i++;
-  }
-  m_tableRegister.insertColumn(parentElement.tableName(),columnName);
-  cols.push_back(columnName);
-
-  me.setColumnNames( cols );
-  
 }
 
 ora::ArrayMapping::ArrayMapping( const Reflex::Type& attributeType, TableRegister& tableRegister ):
