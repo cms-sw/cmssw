@@ -35,6 +35,8 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+
 class RecoTauProducer : public edm::EDProducer {
   public:
     typedef reco::tau::RecoTauBuilderPlugin Builder;
@@ -51,6 +53,8 @@ class RecoTauProducer : public edm::EDProducer {
     edm::InputTag piZeroSrc_;
     BuilderList builders_;
     ModifierList modifiers_;
+    // Optional selection on the output of the taus
+    std::auto_ptr<StringCutObjectSelector<reco::PFTau> > outputSelector_;
 };
 
 RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset) {
@@ -79,6 +83,15 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset) {
     // Build the plugin
     modifiers_.push_back(
         RecoTauModifierPluginFactory::get()->create(pluginType, *modfierPSet));
+  }
+
+  // Check if we want to apply a final output selection
+  if (pset.exists("outputSelection")) {
+    std::string selection = pset.getParameter<std::string>("outputSelection");
+    if (selection != "") {
+      outputSelector_.reset(
+          new StringCutObjectSelector<reco::PFTau>(selection));
+    }
   }
   produces<reco::PFTauCollection>();
 }
@@ -119,8 +132,17 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
       std::vector<reco::PFTau> taus((*builder)(jetRef, piZeros));
       // Grow the vector if necessary
       output->reserve(output->size() + taus.size());
-      // Ensure the jetRef is set correctly
-      output->insert(output->end(), taus.begin(), taus.end());
+      // Copy without selection
+      if (!outputSelector_.get()) {
+        output->insert(output->end(), taus.begin(), taus.end());
+      } else {
+        // Copy only those that pass the selection.
+        BOOST_FOREACH(const reco::PFTau& tau, taus) {
+          if ((*outputSelector_)(tau)) {
+            output->push_back(tau);
+          }
+        }
+      }
     }
   }
 
