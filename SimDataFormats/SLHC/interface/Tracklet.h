@@ -34,6 +34,12 @@
 /// option which is supposed to be the   ///
 /// "true" one: 'isBeamSpot00()'         ///
 /// Added momentum fit with TRUE helix   ///
+///                                      ///
+/// Changed by:                          ///
+/// Nicola Pozzobon                      ///
+/// UNIPD                                ///
+/// 2010, November                       ///
+/// Get rid of Cramer, keeping helix     ///
 /// ////////////////////////////////////////
 
 #ifndef TRACKLET_H
@@ -216,18 +222,17 @@ public:
     double twoPointPz() const {
       GlobalPoint inner = theStubs.begin()->second->position();
       GlobalPoint outer = theStubs.rbegin()->second->position();
-      /// No need of distinction between beamspot and 00
-      /// Find circumference center using Cramer!
-      double xo = outer.x();
-      double yo = outer.y();
-      double xi = inner.x();
-      double yi = inner.y();
-      double xc = this->axis().x();
-      double yc = this->axis().y();
-      /// Find angles wrt center
-      double phio = atan2( yo-yc, xo-xc );
-      double phii = atan2( yi-yc, xi-xc );
-      double phioi = phio - phii;
+      if (this->isBeamSpot00()==false) {
+        inner = GlobalPoint(inner.x()-this->vertex().x(), inner.y()-this->vertex().y(), inner.z() );
+        outer = GlobalPoint(outer.x()-this->vertex().x(), outer.y()-this->vertex().y(), outer.z() );
+      }      
+      double phidiff = outer.phi() - inner.phi();
+      double r1 = inner.perp();
+      double r2 = outer.perp();
+      double x2 = r1*r1 + r2*r2 - 2*r1*r2*cos(phidiff);
+      double radius = 0.5*sqrt(x2)/sin(fabs(phidiff));
+      double phioi = acos(1 - x2/(2*radius*radius));
+      ///
       double pigreco = 4.0*atan(1.0);
       if ( fabs(phioi) >= pigreco) {
         if ( phioi>0 ) phioi = phioi - 2*pigreco;
@@ -245,12 +250,25 @@ public:
     
     double twoPointPhi() const {
       double trkQ = -this->deltaPhiNorm() / fabs( this->deltaPhiNorm() );
-      double xv = this->vertex().x();
-      double yv = this->vertex().y();
-      double xc = this->axis().x();
-      double yc = this->axis().y();
-      /// Find angles wrt center
-      return atan2( trkQ*(xc-xv), -trkQ*(yc-yv) );
+
+      GlobalPoint inner = theStubs.begin()->second->position();
+      GlobalPoint outer = theStubs.rbegin()->second->position();
+      if (this->isBeamSpot00()==false) {
+        inner = GlobalPoint(inner.x()-this->vertex().x(), inner.y()-this->vertex().y(), inner.z() );
+        outer = GlobalPoint(outer.x()-this->vertex().x(), outer.y()-this->vertex().y(), outer.z() );
+      }
+      double phidiff = outer.phi() - inner.phi();
+      double r1 = inner.perp();
+      double r2 = outer.perp();
+      double x2 = r1*r1 + r2*r2 - 2*r1*r2*cos(phidiff);
+      double radius = 0.5*sqrt(x2)/sin(fabs(phidiff));
+      double vertexangle = acos(0.5*r2/radius);
+      vertexangle = outer.phi() - trkQ*vertexangle;
+      vertexangle = vertexangle + trkQ*2.0*atan(1.0);
+      double pigreco = 4.0*atan(1.0);
+      if ( vertexangle > pigreco ) vertexangle -= 2*pigreco;
+      else if ( vertexangle <= -pigreco ) vertexangle += 2*pigreco;
+      return vertexangle;
     }
 
     std::string print(unsigned int i = 0 ) const {
@@ -296,4 +314,5 @@ std::ostream& operator << (std::ostream& os, const cmsUpgrades::Tracklet< T >& a
 }
 
 #endif
+
 

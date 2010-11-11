@@ -5,7 +5,7 @@
 <use name=DataFormats/Math>
 <use name=boost>
 <use name=rootrflx>
-
+<use name=hepmc>
 <use name=L1Trigger/DTTrigger>
 <use name=L1Trigger/DTBti>
 <use name=L1Trigger/DTTrackFinder>
@@ -14,6 +14,9 @@
 <use name=SLHCUpgradeSimulations/Utilities>
 <use name=RecoTracker/TkSeedGenerator>
 <use name=clhep>
+
+<use name=SimDataFormats/GeneratorProducts>
+
 
 
 <export>
@@ -25,6 +28,8 @@
    <use name=FWCore/Framework>
    <use name=rootrflx>
    <use name=clhep>
+
+   <use name=SimDataFormats/GeneratorProducts>
 
 </export>
 
