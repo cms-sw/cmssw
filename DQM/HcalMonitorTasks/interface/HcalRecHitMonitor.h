@@ -10,8 +10,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2010/03/26 15:30:22 $
-  * $Revision: 1.48 $
+  * $Date: 2010/06/25 19:30:48 $
+  * $Revision: 1.49 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -227,6 +227,7 @@ class HcalRecHitMonitor: public HcalBaseDQMonitor {
   MonitorElement* h_HETimeVsEnergy;
   MonitorElement* h_HOTimeVsEnergy;
   MonitorElement* h_HFTimeVsEnergy;
+  MonitorElement* HFP_HFM_Energy;
 
   bool HBpresent_, HEpresent_, HOpresent_, HFpresent_;
 
