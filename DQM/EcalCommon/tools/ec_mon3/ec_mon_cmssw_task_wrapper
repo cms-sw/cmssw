@@ -803,31 +803,35 @@ if (liveECAL == 1) :
 
 EOF2
 
+printf CONFIGFILE "fileList = = cms.untracked.vstring()\n";
+
 if ( $filnam ) {
-  printf CONFIGFILE "process.source.fileNames = ['file:$filnam']\n";
+  printf CONFIGFILE "fileList.extend( ['file:$filnam'] )\n";
 } elsif ( @filelist != 0 ) {
   my $i=0;
-  printf CONFIGFILE "process.source.fileNames = [";
+  printf CONFIGFILE "fileList.extend( [";
   printf CONFIGFILE "'file:$config{'ec_mon_master_rundir'}/daq-data/$filelist[$i]'";
-  for ($i=1; $i < @filelist && $i < 255; $i++) {
+  for ($i=1; $i < @filelist; $i++) {
     printf CONFIGFILE ",\n";
-    printf CONFIGFILE "                            ";
+    printf CONFIGFILE "                  ";
     printf CONFIGFILE "'file:$config{'ec_mon_master_rundir'}/daq-data/$filelist[$i]'";
   }
-  printf CONFIGFILE "]\n";
+  printf CONFIGFILE "] )\n";
 } elsif ( @filelist_archived != 0 ) {
   my $i=0;
-  printf CONFIGFILE "process.source.fileNames = [";
+  printf CONFIGFILE "fileList.extend( [";
   printf CONFIGFILE "'file:$config{'ec_mon_master_rundir'}/daq-data/trash/$filelist_archived[$i]'";
-  for ($i=1; $i < @filelist_archived && $i < 255; $i++) {
+  for ($i=1; $i < @filelist_archived; $i++) {
     printf CONFIGFILE ",\n";
-    printf CONFIGFILE "                            ";
+    printf CONFIGFILE "                  ";
     printf CONFIGFILE "'file:$config{'ec_mon_master_rundir'}/daq-data/trash/$filelist_archived[$i]'";
   }
-  printf CONFIGFILE "]\n";
+  printf CONFIGFILE "] )\n";
 } else {
   exit 1;
 }
+
+printf CONFIGFILE "process.source.fileNames = fileList\n";
 
 close CONFIGFILE;
 
