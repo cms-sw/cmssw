@@ -50,6 +50,7 @@ namespace {
             if (demangledName[index] == ' ') {
               demangledName.erase(index, 1);
             }
+            break;
           }
         }
         ++inx;
