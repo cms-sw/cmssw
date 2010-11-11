@@ -81,6 +81,10 @@ import os, sys, socket
 onlyEB = 0
 onlyEE = 0
 
+if (onlyEB == 1) & (onlyEE == 1) :
+  print "ERROR: Wrong EB/EE configuration."
+  sys.exit(1)
+
 EOF1
 
 my $localDAQ  = 0;
@@ -100,6 +104,10 @@ print CONFIGFILE "localDAQ  = $localDAQ\n";
 print CONFIGFILE "globalDAQ = $globalDAQ\n";
 
 print CONFIGFILE <<EOF2;
+
+if (localDAQ == 1) & (globalDAQ == 1) :
+  print "ERROR: Wrong Local/Global configuration."
+  sys.exit(1)
 
 ecalHostEC    = 'srv-s2f19-29'.lower()
 
@@ -123,21 +131,13 @@ if (host == ecalHostEC) :
 liveECAL = 0
 
 if (host == ecalHostEB) | (host == ecalHostEE) :
-  if (localDAQ == 0) & (globalDAQ == 0) :
-    liveECAL = 1
-  else :
-    if (localDAQ == 1) & (globalDAQ == 1) :
-      print "ERROR: Wrong Local/Global configuration."
-      sys.exit(1)
   if (localDAQ == 1) :
     print "Running Ecal Local DQM."
-  elif (globalDAQ == 1) :
+  if (globalDAQ == 1) :
     print "Running Ecal Global DQM."
-  elif (liveECAL == 1) :
+  if (localDAQ == 0) & (globalDAQ == 0) :
+    liveECAL = 1
     print "Running Ecal Live DQM."
-  else :
-    print "ERROR: Unknown Ecal configuration."
-    sys.exit(1)
 
 liveCMS = 0
 playCMS = 0
@@ -150,24 +150,19 @@ if (host == cmsPlayHostEB) | (host == cmsPlayHostEE) :
   playCMS = 1
   print "Running Central Playback DQM."
 
-if (liveECAL == 1) :
-  if (host == ecalHostEB) :
-    onlyEB = 1
-    onlyEE = 0
+if (localDAQ == 0) & (globalDAQ == 0) & (liveECAL == 0) & (liveCMS == 0) & (playCMS == 0) :
+  print "ERROR: Unknown configuration."
+  sys.exit(1)
 
-if (liveECAL == 1) :
-  if (host == ecalHostEE) :
-    onlyEB = 0
-    onlyEE = 1
+if (localDAQ == 1) | (globalDAQ == 1) :
+  if ((onlyEB == 1) & (onlyEE == 0)) | ((onlyEB == 0) & (onlyEE == 1)) :
+    print "ERROR: Wrong EB/EE configuration."
+    sys.exit(1)
 
 if (liveECAL == 1) | (liveCMS == 1) | (playCMS == 1) :
   if ((onlyEB == 1) & (onlyEE == 1)) | ((onlyEB == 0) & (onlyEE == 0)) :
     print "ERROR: Wrong EB/EE configuration."
     sys.exit(1)
-
-if (localDAQ == 0) & (globalDAQ == 0) & (liveECAL == 0) & (liveCMS == 0) & (playCMS == 0) :
-  print "ERROR: Unknown configuration."
-  sys.exit(1)
 
 if (onlyEB == 1) & (onlyEE == 0) :
     print "Running EB only."
