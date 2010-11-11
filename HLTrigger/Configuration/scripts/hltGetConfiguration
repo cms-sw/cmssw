@@ -149,6 +149,20 @@ parser.add_argument('--dataset',
                     help    = 'Take the input files from the specified %(metavar)s' )
 
 group = parser.add_mutually_exclusive_group()
+group.add_argument('--output',
+                    dest    = 'menuOutput',
+                    action  = 'store',
+                    metavar = 'OUTPUT',
+                    choices = [ 'all', 'minimal', 'none' ], 
+                    default = 'all',
+                    help    = 'Specify "all" (default) to output all output modules, "minimal" to only output the TriggerResults, "none" to drop all output modules' )
+group.add_argument('--no-output',
+                    dest    = 'menuOutput',
+                    action  = 'store_const',
+                    const   = 'none',
+                    help    = 'Same as "--output none"' )
+
+group = parser.add_mutually_exclusive_group()
 group.add_argument('--data', 
                     dest    = 'runOnData', 
                     action  = 'store_true', 
@@ -354,7 +368,17 @@ if 'GlobalTag' in %%(dict)s:
 
 
   def overrideOutput(self, configuration):
-    # FIXME - find a better way to override the output modules
+    reOutputModule = re.compile(r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\(.*\n([^)].*\n)*\) *\n')
+    if configuration.menuOutput == 'none':
+      # drop all output modules
+      self.data = reOutputModule.sub('', self.data)
+
+    elif configuration.menuOutput == 'minimal':
+      # drop all output modules except "HLTDQMResults"
+      repl = lambda match: (match.group(2) == 'HLTDQMResults') and match.group() or ''
+      self.data = reOutputModule.sub(repl, self.data)
+
+    # override the "online" ShmStreamConsumer output modules with "offline" PoolOutputModule's
     self.data = re.sub( 
       r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\( *"ShmStreamConsumer" *,',
       r'%(process)shltOutput\2 = cms.OutputModule( "PoolOutputModule",\n    fileName = cms.untracked.string( "output\2.root" ),\n    fastCloning = cms.untracked.bool( False ),', 
