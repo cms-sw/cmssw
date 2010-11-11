@@ -58,9 +58,3 @@
 </bin>
 <bin   file="test_AnyData.cpp" name="testORARecordDetails">
 </bin>
-<bin   file="testNameService.cc" name="testNameService">
-  <lib   name="testORADict"/>
-</bin>
-<bin   file="testNamedReference.cc" name="testNamedReference">
-  <lib   name="testORADict"/>
-</bin>
