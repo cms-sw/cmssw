@@ -109,7 +109,7 @@ namespace ora {
   
   class BulkInsertOperation : public InputRelationalData, public IRelationalOperation {
     public:
-    explicit BulkInsertOperation( const std::string& tableName, coral::ISchema& schema );
+    BulkInsertOperation( const std::string& tableName, coral::ISchema& schema );
     ~BulkInsertOperation();
     coral::IBulkOperation& setUp( int rowCacheSize );
 
