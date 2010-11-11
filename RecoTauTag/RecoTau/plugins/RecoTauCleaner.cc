@@ -17,6 +17,7 @@
 
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <algorithm>
+#include <memory>
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -30,6 +31,8 @@
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
+
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 template<typename Prod>
 class RecoTauCleanerImpl : public edm::EDProducer {
@@ -57,6 +60,8 @@ class RecoTauCleanerImpl : public edm::EDProducer {
     std::auto_ptr<Predicate> predicate_;
     edm::InputTag tauSrc_;
     CleanerList cleaners_;
+    // Optional selection on the output of the taus
+    std::auto_ptr<StringCutObjectSelector<reco::PFTau> > outputSelector_;
 };
 
 template<typename Prod>
@@ -74,6 +79,15 @@ RecoTauCleanerImpl<Prod>::RecoTauCleanerImpl(const edm::ParameterSet& pset) {
     // Build the plugin
     cleaners_.push_back(
         RecoTauCleanerPluginFactory::get()->create(pluginType, *cleanerPSet));
+  }
+
+  // Check if we want to apply a final output selection
+  if (pset.exists("outputSelection")) {
+    std::string selection = pset.getParameter<std::string>("outputSelection");
+    if (selection != "") {
+      outputSelector_.reset(
+          new StringCutObjectSelector<reco::PFTau>(selection));
+    }
   }
 
   // Build the predicate that ranks our taus.  The predicate takes a list of
@@ -136,7 +150,10 @@ void RecoTauCleanerImpl<Prod>::produce(edm::Event& evt,
   // Copy clean refs into output
   for (PFTauRefs::const_iterator tau = cleanTaus.begin();
        tau != cleanTaus.end(); ++tau) {
-    output->push_back(convert<output_type>(*tau));
+    // If we are applying an output selection, check if it passes
+    if (!outputSelector_.get() && (*outputSelector_)(**tau)) {
+      output->push_back(convert<output_type>(*tau));
+    }
   }
   evt.put(output);
 }
