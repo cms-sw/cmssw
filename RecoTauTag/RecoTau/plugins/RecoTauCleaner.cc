@@ -151,7 +151,11 @@ void RecoTauCleanerImpl<Prod>::produce(edm::Event& evt,
   for (PFTauRefs::const_iterator tau = cleanTaus.begin();
        tau != cleanTaus.end(); ++tau) {
     // If we are applying an output selection, check if it passes
-    if (outputSelector_.get() && (*outputSelector_)(**tau)) {
+    bool selected = true;
+    if (outputSelector_.get() && !(*outputSelector_)(**tau)) {
+      selected = false;
+    }
+    if (selected) {
       output->push_back(convert<output_type>(*tau));
     }
   }
