@@ -18,7 +18,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContentHeavyIons_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('centralSkimsHI nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -58,9 +58,9 @@ process.SKIMStreamPhoton = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('photonSkimPath')
     ),
-    fileName = cms.untracked.string('ZEE.root'),
+    fileName = cms.untracked.string('Photon.root'),
     dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string('ZEE'),
+        filterName = cms.untracked.string('Photon'),
         dataTier = cms.untracked.string('RAW-RECO')
     )
 )
