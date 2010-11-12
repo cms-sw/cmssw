@@ -17,6 +17,7 @@
 #include <sstream>
 #include <algorithm>
 #include <map>
+#include <cctype>
 #include <boost/tokenizer.hpp>
 
 using namespace std;
@@ -88,7 +89,8 @@ void PlotManager::processCommand(istream& in)
     // Extract command from buffer
     stringstream ss(buffer); ss >> cmd;
     if ( cmd.empty() || cmd[0] == '#' ) continue;
-    transform(cmd.begin(), cmd.end(), cmd.begin(), _toupper);
+    int (*pf)(int)=std::toupper;
+    transform(cmd.begin(), cmd.end(), cmd.begin(), pf);
 
     buffer.erase(0, cmd.size()+1);
 
