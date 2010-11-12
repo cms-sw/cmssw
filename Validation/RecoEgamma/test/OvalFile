@@ -1,7 +1,7 @@
 
-<var name="TEST_RELEASE" value="3_10_0_pre1">
-<var name="TEST_GLOBAL_TAG" value="MC_39Y_V2">
-<var name="TEST_GLOBAL_STARTUP_TAG" value="START39_V2">
+<var name="TEST_RELEASE" value="3_10_0_pre2">
+<var name="TEST_GLOBAL_TAG" value="MC_39Y_V3">
+<var name="TEST_GLOBAL_STARTUP_TAG" value="START39_V3">
 <var name="TEST_GLOBAL_VERSION" value="v1">
 
 The difffile tag below implies that after each run the eventual file electronHistos.root is automatically
@@ -23,9 +23,9 @@ The VAL_* variables are configuration variables for electronValidation.csh,
 which compares the histograms from two releases. electronValidation.csh relies
 on the ROOT script electronValidation.C.
 
-<var name="VAL_NEW_RELEASE" value="3_10_0_pre1">
-<var name="VAL_REF_RELEASE" value="391">
-<var name="VAL_COMMENT" value="The same as 391 : use of mode for extrapolated positions, fix for large erreurs in the combination.">
+<var name="VAL_NEW_RELEASE" value="3_10_0_pre2">
+<var name="VAL_REF_RELEASE" value="3_10_0_pre1">
+<var name="VAL_COMMENT" value="No electron code change.">
 <var name="STORE_RELEASE" value="${VAL_NEW_RELEASE}">
 
 <!--var name="VAL_WEB" value="/afs/cern.ch/user/c/chamont/www/validation"-->
