@@ -174,7 +174,6 @@ class BaseTreeFiller : boost::noncopyable {
         mutable uint32_t run_, lumi_, event_, mNPV_;
 
         mutable float mPVx_,mPVy_,mPVz_,mBSx_,mBSy_,mBSz_; 
-	mutable float mCScostheta_,  mCSsin2theta_, mCStanphi_;
 
         mutable float mMET_,mSumET_,mMETSign_,mtcMET_,mtcSumET_,
 	  mtcMETSign_,mpfMET_,mpfSumET_,mpfMETSign_;

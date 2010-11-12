@@ -84,10 +84,6 @@ tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet iC
       tree_->Branch("event_BeamSpot_x"       ,&mBSx_              ,"mBSx/F");
       tree_->Branch("event_BeamSpot_y"       ,&mBSy_              ,"mBSy/F");
       tree_->Branch("event_BeamSpot_z"       ,&mBSz_              ,"mBSz/F");
-      //.... Store Colins Soper variables for vector bosons: needed to compute Forward-Backward asymmetry
-      tree_->Branch("pair_ColinsSoper_costheta",&mCScostheta_     ,"mCScostheta/F");
-      tree_->Branch("pair_ColinsSoper_sin2theta",&mCSsin2theta_   ,"mCSsin2theta/F");
-      tree_->Branch("pair_ColinsSoper_tanphi",&mCStanphi_         ,"mCStanphi/F");
     }
 
     ignoreExceptions_ = iConfig.existsAs<bool>("ignoreExceptions") ? iConfig.getParameter<bool>("ignoreExceptions") : false;
@@ -230,26 +226,6 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
           mpfSumET_ = (*pfmet)[0].sumEt();
           mpfMETSign_ = (*pfmet)[0].significance();
         }
-
-        /////// Colins Soper variables  /////
-	// *********** FIXME: Need to figure out how to access tag, probe, and pair information 
-	// at the same time.
-	double res[3] = { -10., -10., -10.};
-	// 	TLorentzVector daughter1 = tag->p4();
-	// 	TLorentzVector daughter2 = probe->p4();
-	// 	if(tag->charge()<0) {
-	// 	  mu = daughter1;
-	// 	  mubar = daughter2;
-	// 	}
-	// 	else {
-	// 	  mu = daughter2;
-	// 	  mubar = daughter1;
-	// 	}
-	// 	calCSVariables(mu, mubar, res, pair->pz()<0.0);
-
-	mCScostheta_     = res[0];
-	mCSsin2theta_    = res[1];
-	mCStanphi_       = res[2];
     }
 
 }

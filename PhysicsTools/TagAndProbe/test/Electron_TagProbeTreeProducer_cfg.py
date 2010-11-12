@@ -454,11 +454,27 @@ process.tagHLT = cms.EDProducer("CandViewShallowCloneCombiner",
 )
 
 
+process.CSVarsTagGsf = cms.EDProducer("ColinsSoperVariablesComputer",
+    parentBoson = cms.InputTag("tagGsf")
+)
+process.CSVarsTagIso = cms.EDProducer("ColinsSoperVariablesComputer",
+    parentBoson = cms.InputTag("tagIso")
+)
+process.CSVarsTagId = cms.EDProducer("ColinsSoperVariablesComputer",
+    parentBoson = cms.InputTag("tagId")
+)
+
+process.CSVarsGsfGsf = cms.EDProducer("ColinsSoperVariablesComputer",
+    parentBoson = cms.InputTag("GsfGsf")
+)
+
 
 process.allTagsAndProbes = cms.Sequence(
     process.tagSC + process.SCSC + process.tagPhoton +
     process.tagGsf + process.GsfGsf +
-    process.tagIso + process.tagId + process.tagHLT
+    process.tagIso + process.tagId + process.tagHLT +
+    process.CSVarsTagGsf + process.CSVarsTagIso +
+    process.CSVarsTagId + process.CSVarsGsfGsf
 )
 
 
@@ -1016,6 +1032,21 @@ process.GsfGsfToIso = cms.EDAnalyzer("TagProbeFitTreeProducer",
     #probeMatches  = cms.InputTag("McMatchGsf"),
     allProbes     = cms.InputTag("PassingGsf")
 )
+process.GsfGsfToIso.variables.probe_dRjet = cms.InputTag("GsfDRToNearestJet")
+process.GsfGsfToIso.variables.probe_nJets = cms.InputTag("JetMultiplicityInGsfEvents")
+process.GsfGsfToIso.variables.probe_dist = cms.InputTag("GsfConvRejVars","dist")
+process.GsfGsfToIso.variables.probe_dcot = cms.InputTag("GsfConvRejVars","dcot")
+process.GsfGsfToIso.variables.probe_convradius = cms.InputTag("GsfConvRejVars","convradius")
+process.GsfGsfToIso.variables.probe_passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
+process.GsfGsfToIso.tagVariables.dRjet = cms.InputTag("GsfDRToNearestJet")
+process.GsfGsfToIso.tagVariables.nJets = cms.InputTag("JetMultiplicityInGsfEvents")
+process.GsfGsfToIso.tagVariables.dist = cms.InputTag("GsfConvRejVars","dist")
+process.GsfGsfToIso.tagVariables.dcot = cms.InputTag("GsfConvRejVars","dcot")
+process.GsfGsfToIso.tagVariables.convradius = cms.InputTag("GsfConvRejVars","convradius")
+process.GsfGsfToIso.tagVariables.passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
+process.GsfGsfToIso.pairVariables.costheta = cms.InputTag("CSVarsGsfGsf","costheta")
+process.GsfGsfToIso.pairVariables.sin2theta = cms.InputTag("CSVarsGsfGsf","sin2theta")
+process.GsfGsfToIso.pairVariables.tanphi = cms.InputTag("CSVarsGsfGsf","tanphi")
 
 
 ##     ____      __       __    ___           
@@ -1052,6 +1083,9 @@ process.GsfToIso.tagVariables.dist = cms.InputTag("GsfConvRejVars","dist")
 process.GsfToIso.tagVariables.dcot = cms.InputTag("GsfConvRejVars","dcot")
 process.GsfToIso.tagVariables.convradius = cms.InputTag("GsfConvRejVars","convradius")
 process.GsfToIso.tagVariables.passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
+process.GsfToIso.pairVariables.costheta = cms.InputTag("CSVarsTagGsf","costheta")
+process.GsfToIso.pairVariables.sin2theta = cms.InputTag("CSVarsTagGsf","sin2theta")
+process.GsfToIso.pairVariables.tanphi = cms.InputTag("CSVarsTagGsf","tanphi")
 
 
 ##    ___                 __    ___    _ 
@@ -1087,6 +1121,11 @@ process.IsoToId.tagVariables.dist = cms.InputTag("GsfConvRejVars","dist")
 process.IsoToId.tagVariables.dcot = cms.InputTag("GsfConvRejVars","dcot")
 process.IsoToId.tagVariables.convradius = cms.InputTag("GsfConvRejVars","convradius")
 process.IsoToId.tagVariables.passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
+process.IsoToId.pairVariables.costheta = cms.InputTag("CSVarsTagIso","costheta")
+process.IsoToId.pairVariables.sin2theta = cms.InputTag("CSVarsTagIso","sin2theta")
+process.IsoToId.pairVariables.tanphi = cms.InputTag("CSVarsTagIso","tanphi")
+
+
 
 ##    ___    _       __    _   _ _   _____ 
 ##   |_ _|__| |      \ \  | | | | | |_   _|
@@ -1118,8 +1157,11 @@ process.IdToHLT.tagVariables.dist = cms.InputTag("GsfConvRejVars","dist")
 process.IdToHLT.tagVariables.dcot = cms.InputTag("GsfConvRejVars","dcot")
 process.IdToHLT.tagVariables.convradius = cms.InputTag("GsfConvRejVars","convradius")
 process.IdToHLT.tagVariables.passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
+process.IdToHLT.pairVariables.costheta = cms.InputTag("CSVarsTagId","costheta")
+process.IdToHLT.pairVariables.sin2theta = cms.InputTag("CSVarsTagId","sin2theta")
+process.IdToHLT.pairVariables.tanphi = cms.InputTag("CSVarsTagId","tanphi")
 
- 
+
 process.tree_sequence = cms.Sequence(
     process.SCToGsf +
     process.SCSCbad +
