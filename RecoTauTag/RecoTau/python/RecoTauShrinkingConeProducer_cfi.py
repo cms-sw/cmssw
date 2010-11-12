@@ -13,6 +13,8 @@ _shrinkingConeRecoTausConfig = cms.PSet(
     name = cms.string("shrinkingCone"),
     primaryVertexSrc = cms.InputTag("offlinePrimaryVertices"),
     qualityCuts = PFTauQualityCuts.signalQualityCuts,
+    # If true, consider PFLeptons (e/mu) as charged hadrons.
+    usePFLeptons = cms.bool(True),
     pfCandSrc = cms.InputTag("particleFlow"),
     plugin = cms.string("RecoTauBuilderConePlugin"),
     leadObjectPt = cms.double(5.0),

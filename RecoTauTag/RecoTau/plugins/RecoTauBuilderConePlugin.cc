@@ -66,6 +66,7 @@ class RecoTauBuilderConePlugin : public RecoTauBuilderPlugin {
         const std::vector<RecoTauPiZero>& piZeros) const;
   private:
     RecoTauQualityCuts qcuts_;
+    bool usePFLeptonsAsChargedHadrons_;
     double leadObjecPtThreshold_;
     /* String function to extract values from PFJets */
     typedef StringObjectFunction<reco::PFJet> JetFunc;
@@ -83,6 +84,7 @@ class RecoTauBuilderConePlugin : public RecoTauBuilderPlugin {
 RecoTauBuilderConePlugin::RecoTauBuilderConePlugin(
     const edm::ParameterSet& pset):RecoTauBuilderPlugin(pset),
     qcuts_(pset.getParameter<edm::ParameterSet>("qualityCuts")),
+    usePFLeptonsAsChargedHadrons_(pset.getParameter<bool>("usePFLeptons")),
     leadObjecPtThreshold_(pset.getParameter<double>("leadObjectPt")),
     matchingCone_(pset.getParameter<std::string>("matchingCone")),
     signalConeChargedHadrons_(pset.getParameter<std::string>(
@@ -123,8 +125,15 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
   typedef std::vector<PFCandidatePtr> PFCandPtrs;
 
   // Get the PF Charged hadrons + quality cuts
-  PFCandPtrs pfchs = qcuts_.filterRefs(
-      pfCandidates(*jet, reco::PFCandidate::h));
+  PFCandPtrs pfchs;
+  if (!usePFLeptonsAsChargedHadrons_) {
+    pfchs = qcuts_.filterRefs(pfCandidates(*jet, reco::PFCandidate::h));
+  } else {
+    // Check if we want to include electrons in muons in "charged hadron"
+    // collection.  This is the "classic" behavior.
+    pfchs = qcuts_.filterRefs(pfChargedCands(*jet));
+  }
+
   // Get the PF gammas
   PFCandPtrs pfGammas = qcuts_.filterRefs(
       pfCandidates(*jet, reco::PFCandidate::gamma));
