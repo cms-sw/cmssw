@@ -50,7 +50,7 @@ private:
 
 class AboveSeed {
  public:
-  AboveSeed(float aseed,const ElectrodNoiseVector& vnoise) : seed(aseed), vnoise_(vnoise) {};
+  AboveSeed(float aseed,const ElectrodNoiseVector& vnoise) : verb(0), seed(aseed), vnoise_(vnoise) {};
 
   bool operator()(const HDigiFP420& digi) { return ( !vnoise_[digi.channel()].getDisable() && 
                                                digi.adc() >= seed * vnoise_[digi.channel()].getNoise()) ;}
