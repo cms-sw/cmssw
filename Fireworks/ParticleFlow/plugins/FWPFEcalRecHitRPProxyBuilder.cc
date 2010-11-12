@@ -86,4 +86,4 @@ FWPFEcalRecHitRPProxyBuilder::build( const FWEventItem *iItem, TEveElementList *
 }
 
 //______________________________________________________________________________________________________
-REGISTER_FWPROXYBUILDER( FWPFEcalRecHitRPProxyBuilder, EcalRecHit, "Ecal RecHit PF", FWViewType::kRhoPhiBit );
+REGISTER_FWPROXYBUILDER( FWPFEcalRecHitRPProxyBuilder, EcalRecHit, "Ecal RecHit PF", FWViewType::kRhoPhiPFBit );
