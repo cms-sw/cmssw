@@ -103,36 +103,6 @@ void SiStripNoises::encode(const InputVector& Vi, std::vector<unsigned char>& Vo
   }
 }
 
-uint16_t SiStripNoises::decode (const uint16_t& strip, const Range& range) const{
-  const unsigned char *data = &*(range.second -1);  // pointer to the last byte of data
-  static const uint16_t BITS_PER_STRIP = 9;
-
-  uint32_t lowBit        = strip * BITS_PER_STRIP;
-  uint8_t firstByteBit   = (lowBit & 7);//module 8
-  uint8_t firstByteNBits = 8 - firstByteBit;
-  uint8_t firstByteMask  = 0xffu << firstByteBit;
-  uint8_t secondByteMask = ~(0xffu << (BITS_PER_STRIP - firstByteNBits));
-  uint16_t value         =   ((uint16_t(*(data-lowBit/8  )) & firstByteMask) >> firstByteBit) | ((uint16_t(*(data-lowBit/8-1)) & secondByteMask) << firstByteNBits);
-  
-  /*
-  if(strip  < 25){
-    std::cout       << "***************DECODE*********************"<<"\n"
-		    << "strip "<<strip << " " 
-		    << value 
-		    <<"\t   :"<<print_as_binary(value) 
-		    <<"\t  :"<<print_as_binary(    ((uint16_t(*(data-lowBit/8  )) & firstByteMask) >>   firstByteBit)       )
-		    << "-"<<print_as_binary(  ((uint16_t(*(data-lowBit/8-1)) & secondByteMask) <<firstByteNBits)    )
-		    << "\t *(data-lowBit/8) " << print_as_binary(    *(data-lowBit/8 ))
-		    << "\t *(data-lowBit/8-1) " << print_as_binary(    *(data-lowBit/8 -1 ))
-		    << "\tlowBit:"<< lowBit
-		    << "\tfirstByteMask :"<<print_as_binary(firstByteMask)
-		    << "\tsecondByteMask:"<<print_as_binary(secondByteMask)
-		    << "\tfirstByteBit:"<<print_as_binary(firstByteBit)
-		    << std::endl;
-  }
-  */
-  return value;
-}
 
 //============ Methods for bulk-decoding all noises for a module ================
 
