@@ -7,7 +7,6 @@ ak5PFJetsRecoTauPiZeros = cms.EDProducer(
     "RecoTauPiZeroProducer",
     src = cms.InputTag("ak5PFJets"),
     builders = cms.VPSet(
-        builders.allSinglePhotons,
         builders.combinatoricPhotonPairs,
         builders.strips,
     ),
@@ -34,7 +33,6 @@ ak5PFJetsLegacyHPSPiZeros = cms.EDProducer(
     "RecoTauPiZeroProducer",
     src = cms.InputTag("ak5PFJets"),
     builders = cms.VPSet(
-        builders.allSinglePhotons,
         builders.strips,
     ),
     ranking = cms.VPSet(
