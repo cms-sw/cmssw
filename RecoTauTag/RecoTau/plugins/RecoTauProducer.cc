@@ -55,6 +55,10 @@ class RecoTauProducer : public edm::EDProducer {
     ModifierList modifiers_;
     // Optional selection on the output of the taus
     std::auto_ptr<StringCutObjectSelector<reco::PFTau> > outputSelector_;
+    // Whether or not to add build a tau from a jet for which the builders
+    // return no taus.  The tau will have no content, only the four vector of
+    // the orginal jet.
+    bool buildNullTaus_;
 };
 
 RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset) {
@@ -93,6 +97,7 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset) {
           new StringCutObjectSelector<reco::PFTau>(selection));
     }
   }
+  buildNullTaus_ = pset.getParameter<bool>("buildNullTaus");
   produces<reco::PFTauCollection>();
 }
 
@@ -127,22 +132,36 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     // Get the PiZeros associated with this jet
     const std::vector<reco::RecoTauPiZero>& piZeros = (*piZeroAssoc)[jetRef];
     // Loop over our builders and create the set of taus for this jet
+    unsigned int nTausBuilt = 0;
     for (BuilderList::const_iterator builder = builders_.begin();
         builder != builders_.end(); ++builder) {
-      std::vector<reco::PFTau> taus((*builder)(jetRef, piZeros));
+      // Get a ptr_vector of taus from the builder
+      reco::tau::RecoTauBuilderPlugin::output_type taus(
+          (*builder)(jetRef, piZeros));
+      // Check this size of the taus built.
       // Grow the vector if necessary
       output->reserve(output->size() + taus.size());
       // Copy without selection
       if (!outputSelector_.get()) {
         output->insert(output->end(), taus.begin(), taus.end());
+        nTausBuilt += taus.size();
       } else {
         // Copy only those that pass the selection.
         BOOST_FOREACH(const reco::PFTau& tau, taus) {
           if ((*outputSelector_)(tau)) {
+            nTausBuilt++;
             output->push_back(tau);
           }
         }
       }
+    }
+    // If we didn't build *any* taus for this jet, build a null tau if desired.
+    // The null PFTau has no content, but it's four vector is set to that of the
+    // jet.
+    if (!nTausBuilt && buildNullTaus_) {
+      reco::PFTau nullTau(std::numeric_limits<int>::quiet_NaN(), jetRef->p4());
+      nullTau.setjetRef(jetRef);
+      output->push_back(nullTau);
     }
   }
 

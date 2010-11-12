@@ -31,6 +31,8 @@
  *
  */
 
+#include <boost/ptr_container/ptr_vector.hpp>
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -49,6 +51,9 @@ namespace reco { namespace tau {
 /* Class that constructs PFTau(s) from a PFJet and its associated PiZeros */
 class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin {
   public:
+    typedef boost::ptr_vector<reco::PFTau> output_type;
+    typedef std::auto_ptr<output_type> return_type;
+
     explicit RecoTauBuilderPlugin(const edm::ParameterSet& pset):
       RecoTauEventHolderPlugin(pset){
         pfCandSrc_ = pset.getParameter<edm::InputTag>("pfCandSrc");
@@ -59,7 +64,7 @@ class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin {
 
     /// Construct one or more PFTaus from the a PFJet and its asscociated
     /// reconstructed PiZeros
-    virtual std::vector<reco::PFTau> operator()(const reco::PFJetRef& jet,
+    virtual return_type operator()(const reco::PFJetRef& jet,
         const std::vector<reco::RecoTauPiZero>& piZeros) const = 0;
 
     /// Hack to be able to convert Ptrs to Refs

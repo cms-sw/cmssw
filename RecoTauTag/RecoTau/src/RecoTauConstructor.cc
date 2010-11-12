@@ -5,29 +5,34 @@
 
 namespace reco { namespace tau {
 
+
+
 RecoTauConstructor::RecoTauConstructor(const PFJetRef& jet,
     const edm::Handle<PFCandidateCollection>& pfCands,
     bool copyGammasFromPiZeros):pfCands_(pfCands) {
 
+  // Initialize tau
+  tau_.reset(new PFTau());
+
   copyGammas_ = copyGammasFromPiZeros;
   // Initialize our Accessors
   collections_[std::make_pair(kSignal, kChargedHadron)] =
-      &tau_.selectedSignalPFChargedHadrCands_;
+      &tau_->selectedSignalPFChargedHadrCands_;
   collections_[std::make_pair(kSignal, kGamma)] =
-      &tau_.selectedSignalPFGammaCands_;
+      &tau_->selectedSignalPFGammaCands_;
   collections_[std::make_pair(kSignal, kNeutralHadron)] =
-      &tau_.selectedSignalPFNeutrHadrCands_;
+      &tau_->selectedSignalPFNeutrHadrCands_;
   collections_[std::make_pair(kSignal, kAll)] =
-      &tau_.selectedSignalPFCands_;
+      &tau_->selectedSignalPFCands_;
 
   collections_[std::make_pair(kIsolation, kChargedHadron)] =
-      &tau_.selectedIsolationPFChargedHadrCands_;
+      &tau_->selectedIsolationPFChargedHadrCands_;
   collections_[std::make_pair(kIsolation, kGamma)] =
-      &tau_.selectedIsolationPFGammaCands_;
+      &tau_->selectedIsolationPFGammaCands_;
   collections_[std::make_pair(kIsolation, kNeutralHadron)] =
-      &tau_.selectedIsolationPFNeutrHadrCands_;
+      &tau_->selectedIsolationPFNeutrHadrCands_;
   collections_[std::make_pair(kIsolation, kAll)] =
-      &tau_.selectedIsolationPFCands_;
+      &tau_->selectedIsolationPFCands_;
 
   // Build our temporary sorted collections, since you can't use stl sorts on
   // RefVectors
@@ -37,7 +42,7 @@ RecoTauConstructor::RecoTauConstructor(const PFJetRef& jet,
         new SortedListPtr::element_type);
   }
 
-  tau_.setjetRef(jet);
+  tau_->setjetRef(jet);
 }
 
 void RecoTauConstructor::addPFCand(Region region, ParticleType type,
@@ -59,13 +64,13 @@ void RecoTauConstructor::reserve(Region region, ParticleType type, size_t size){
 
 void RecoTauConstructor::reservePiZero(Region region, size_t size) {
   if(region == kSignal) {
-    tau_.signalPiZeroCandidates_.reserve(size);
+    tau_->signalPiZeroCandidates_.reserve(size);
     // If we are building the gammas with the pizeros, resize that
     // vector as well
     if(copyGammas_)
       reserve(kSignal, kGamma, 2*size);
   } else {
-    tau_.isolationPiZeroCandidates_.reserve(size);
+    tau_->isolationPiZeroCandidates_.reserve(size);
     if(copyGammas_)
       reserve(kIsolation, kGamma, 2*size);
   }
@@ -73,14 +78,14 @@ void RecoTauConstructor::reservePiZero(Region region, size_t size) {
 
 void RecoTauConstructor::addPiZero(Region region, const RecoTauPiZero& piZero) {
   if(region == kSignal) {
-    tau_.signalPiZeroCandidates_.push_back(piZero);
+    tau_->signalPiZeroCandidates_.push_back(piZero);
     // Copy the daughter gammas into the gamma collection if desired
     if(copyGammas_) {
       addPFCands(kSignal, kGamma, piZero.daughterPtrVector().begin(),
           piZero.daughterPtrVector().end());
     }
   } else {
-    tau_.isolationPiZeroCandidates_.push_back(piZero);
+    tau_->isolationPiZeroCandidates_.push_back(piZero);
     if(copyGammas_) {
       addPFCands(kIsolation, kGamma, piZero.daughterPtrVector().begin(),
           piZero.daughterPtrVector().end());
@@ -146,11 +151,11 @@ template<typename T> bool ptDescendingRef(const T& a, const T& b) {
 
 void RecoTauConstructor::sortAndCopyIntoTau() {
   // The pizeros are a special case, as we can sort them in situ
-  std::sort(tau_.signalPiZeroCandidates_.begin(),
-            tau_.signalPiZeroCandidates_.end(),
+  std::sort(tau_->signalPiZeroCandidates_.begin(),
+            tau_->signalPiZeroCandidates_.end(),
             ptDescending<RecoTauPiZero>);
-  std::sort(tau_.isolationPiZeroCandidates_.begin(),
-            tau_.isolationPiZeroCandidates_.end(),
+  std::sort(tau_->isolationPiZeroCandidates_.begin(),
+            tau_->isolationPiZeroCandidates_.end(),
             ptDescending<RecoTauPiZero>);
 
   // Sort each of our sortable collections, and copy them into the final
@@ -167,21 +172,21 @@ void RecoTauConstructor::sortAndCopyIntoTau() {
   }
 }
 
-const PFTau& RecoTauConstructor::get(bool setupLeadingObjects) {
+std::auto_ptr<reco::PFTau> RecoTauConstructor::get(bool setupLeadingObjects) {
   // Copy the sorted collections into the interal tau refvectors
   sortAndCopyIntoTau();
 
   // Setup all the important member variables of the tau
   // Set charge of tau
-  tau_.setCharge(
+  tau_->setCharge(
       sumPFCandCharge(getCollection(kSignal, kChargedHadron)->begin(),
                       getCollection(kSignal, kChargedHadron)->end()));
 
   // Set PDG id
-  tau_.setPdgId(tau_.charge() > 0 ? 15 : -15);
+  tau_->setPdgId(tau_->charge() > 0 ? 15 : -15);
 
   // Set P4
-  tau_.setP4(
+  tau_->setP4(
       sumPFCandP4(
         getCollection(kSignal, kAll)->begin(),
         getCollection(kSignal, kAll)->end()
@@ -189,7 +194,7 @@ const PFTau& RecoTauConstructor::get(bool setupLeadingObjects) {
       );
 
   // Set charged isolation quantities
-  tau_.setisolationPFChargedHadrCandsPtSum(
+  tau_->setisolationPFChargedHadrCandsPtSum(
       sumPFCandPt(
         getCollection(kIsolation, kChargedHadron)->begin(),
         getCollection(kIsolation, kChargedHadron)->end()
@@ -197,16 +202,16 @@ const PFTau& RecoTauConstructor::get(bool setupLeadingObjects) {
       );
 
   // Set gamma isolation quantities
-  tau_.setisolationPFGammaCandsEtSum(
+  tau_->setisolationPFGammaCandsEtSum(
       sumPFCandPt(
         getCollection(kIsolation, kGamma)->begin(),
         getCollection(kIsolation, kGamma)->end()
         )
       );
   // Set em fraction
-  tau_.setemFraction(sumPFCandPt(
+  tau_->setemFraction(sumPFCandPt(
           getCollection(kSignal, kGamma)->begin(),
-          getCollection(kSignal, kGamma)->end()) / tau_.pt());
+          getCollection(kSignal, kGamma)->end()) / tau_->pt());
 
   if(setupLeadingObjects)
   {
@@ -218,7 +223,7 @@ const PFTau& RecoTauConstructor::get(bool setupLeadingObjects) {
         );
 
     if(leadingCand != getCollection(kSignal, kAll)->end())
-      tau_.setleadPFCand(*leadingCand);
+      tau_->setleadPFCand(*leadingCand);
 
     // Hardest charged object in signal cone
     Iter leadingChargedCand = leadPFCand(
@@ -227,7 +232,7 @@ const PFTau& RecoTauConstructor::get(bool setupLeadingObjects) {
         );
 
     if(leadingChargedCand != getCollection(kSignal, kChargedHadron)->end())
-      tau_.setleadPFChargedHadrCand(*leadingChargedCand);
+      tau_->setleadPFChargedHadrCand(*leadingChargedCand);
 
     // Hardest gamma object in signal cone
     Iter leadingGammaCand = leadPFCand(
@@ -236,7 +241,7 @@ const PFTau& RecoTauConstructor::get(bool setupLeadingObjects) {
         );
 
     if(leadingGammaCand != getCollection(kSignal, kGamma)->end())
-      tau_.setleadPFNeutralCand(*leadingGammaCand);
+      tau_->setleadPFNeutralCand(*leadingGammaCand);
   }
   return tau_;
 }

@@ -55,17 +55,17 @@ class RecoTauConstructor {
 
     /// Set leading PFChargedHadron candidate
     template<typename T> void setleadPFChargedHadrCand(const T& cand) {
-      tau_.setleadPFChargedHadrCand(convertToRef(cand));
+      tau_->setleadPFChargedHadrCand(convertToRef(cand));
     }
 
     /// Set leading PFGamma candidate
     template<typename T> void setleadPFNeutralCand(const T& cand) {
-      tau_.setleadPFNeutralCand(convertToRef(cand));
+      tau_->setleadPFNeutralCand(convertToRef(cand));
     }
 
     /// Set leading PF candidate
     template<typename T> void setleadPFCand(const T& cand) {
-      tau_.setleadPFCand(convertToRef(cand));
+      tau_->setleadPFCand(convertToRef(cand));
     }
 
     /// Append a PFCandidateRef to a given collection
@@ -100,7 +100,7 @@ class RecoTauConstructor {
       }
 
     // Build and return the associated tau
-    const PFTau& get(bool setupLeadingCandidates=true);
+    std::auto_ptr<reco::PFTau> get(bool setupLeadingCandidates=true);
 
   private:
     typedef std::pair<Region, ParticleType> CollectionKey;
@@ -122,8 +122,7 @@ class RecoTauConstructor {
     PFCandidateRef convertToRef(const PFCandidateRef& pfRef) const;
 
     const edm::Handle<PFCandidateCollection>& pfCands_;
-    // FIXME make this a auto_ptr
-    PFTau tau_;
+    std::auto_ptr<reco::PFTau> tau_;
     CollectionMap collections_;
 
     // Keep sorted (by descending pt) collections

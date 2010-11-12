@@ -15,7 +15,7 @@ class RecoTauBuilderCombinatoricPlugin : public RecoTauBuilderPlugin {
   public:
     explicit RecoTauBuilderCombinatoricPlugin(const edm::ParameterSet& pset);
     virtual ~RecoTauBuilderCombinatoricPlugin() {}
-    virtual std::vector<reco::PFTau> operator() (const reco::PFJetRef& jet,
+    virtual return_type operator() (const reco::PFJetRef& jet,
          const std::vector<RecoTauPiZero>& piZeros) const;
   private:
     RecoTauQualityCuts qcuts_;
@@ -44,13 +44,14 @@ RecoTauBuilderCombinatoricPlugin::RecoTauBuilderCombinatoricPlugin(
   }
 }
 
-std::vector<reco::PFTau> RecoTauBuilderCombinatoricPlugin::operator()(
+RecoTauBuilderCombinatoricPlugin::return_type
+RecoTauBuilderCombinatoricPlugin::operator()(
     const reco::PFJetRef& jet,
     const std::vector<RecoTauPiZero>& piZeros) const {
   typedef std::vector<PFCandidatePtr> PFCandPtrs;
   typedef std::vector<RecoTauPiZero> PiZeroList;
 
-  std::vector<PFTau> output;
+  output_type output;
 
   // Update the primary vertex used by the quality cuts.  The PV is supplied by
   // the base class.
@@ -160,7 +161,7 @@ std::vector<reco::PFTau> RecoTauBuilderCombinatoricPlugin::operator()(
       }
     }
   }
-  return output;
+  return output.release();
 }
 }}  // end namespace reco::tau
 

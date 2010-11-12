@@ -62,8 +62,7 @@ class RecoTauBuilderConePlugin : public RecoTauBuilderPlugin {
     explicit RecoTauBuilderConePlugin(const edm::ParameterSet& pset);
     ~RecoTauBuilderConePlugin() {}
     // Build a tau from a jet
-    std::vector<reco::PFTau> operator()(
-        const reco::PFJetRef& jet,
+    return_type operator()(const reco::PFJetRef& jet,
         const std::vector<RecoTauPiZero>& piZeros) const;
   private:
     RecoTauQualityCuts qcuts_;
@@ -100,7 +99,7 @@ RecoTauBuilderConePlugin::RecoTauBuilderConePlugin(
         pset.getParameter<std::string>("isoConeNeutralHadrons"))
 {}
 
-std::vector<reco::PFTau> RecoTauBuilderConePlugin::operator()(
+RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
     const reco::PFJetRef& jet,
     const std::vector<RecoTauPiZero>& piZeros) const {
   /* Define our filters */
@@ -113,7 +112,7 @@ std::vector<reco::PFTau> RecoTauBuilderConePlugin::operator()(
           std::vector<RecoTauPiZero>::const_iterator> PiZeroDRFilterIter;
 
   // Define output.  We only produce one tau per jet for the cone algo.
-  std::vector<reco::PFTau> output;
+  output_type output;
 
   // Our tau builder - the true indicates to automatically copy gamma candidates
   // from the pizeros.
@@ -152,6 +151,10 @@ std::vector<reco::PFTau> RecoTauBuilderConePlugin::operator()(
     leadPFCH = *leadPFCH_iter;
     // Set leading candidate
     tau.setleadPFChargedHadrCand(leadPFCH);
+  } else {
+    // If there is no leading charged candidate at all, return nothing - the
+    // producer class that owns the plugin will build a null tau if desired.
+    return output.release();
   }
 
   // Find the leading neutral candidate
@@ -179,15 +182,6 @@ std::vector<reco::PFTau> RecoTauBuilderConePlugin::operator()(
   }
 
   tau.setleadPFCand(leadPFCand);
-
-  // If there is no leading charged candidate at all, return a blank tau
-  if (leadPFCH.isNull()) {
-    // Set the P4 as that of the jet.
-    PFTau tau(0, jet->p4());
-    tau.setjetRef(jet);
-    output.push_back(tau);
-    return output;
-  }
 
   // Our cone axis is defined about the lead charged hadron
   reco::Candidate::LorentzVector coneAxis = leadPFCH->p4();
@@ -263,7 +257,7 @@ std::vector<reco::PFTau> RecoTauBuilderConePlugin::operator()(
   // leading candidtes, we already did that explicitly above.
 
   output.push_back(tau.get(false));
-  return output;
+  return output.release();
 }
 }}  // end namespace reco::tauk
 
