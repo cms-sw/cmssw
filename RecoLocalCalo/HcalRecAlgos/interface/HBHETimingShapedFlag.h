@@ -6,32 +6,39 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 
 
-// Use this class to compare Energies
-template <class T>
-class compareEnergyTimePair {
-public:
-  bool operator()(const T& h1,
-                  const T& h2) const {
-    return (h1.first < h2.first);
-  }
-};
-
-
-
 class HBHETimingShapedFlagSetter {
  public:
   HBHETimingShapedFlagSetter();
-  HBHETimingShapedFlagSetter(std::vector<double> tfilterEnvelope);
-  HBHETimingShapedFlagSetter(std::vector<double> tfilterEnvelope,
+  HBHETimingShapedFlagSetter(const std::vector<double>& tfilterEnvelope);
+  HBHETimingShapedFlagSetter(const std::vector<double>& tfilterEnvelope,
 			     bool ignorelowest,
 			     bool ignorehighest,
 			     double win_offset,
 			     double win_gain);
   ~HBHETimingShapedFlagSetter();
   void Clear();
+
+  void dumpInfo();
+
+  // returns status suitable for flag setting
+  // This routine made available for reflagger code
+  //
+  int timingStatus(const HBHERecHit& hbhe);
+
+  // Sets "HBHETimingShapedCutsBits" field in response to output
+  // from "timingStatus()"
+  //
   void SetTimingShapedFlags(HBHERecHit& hbhe);
+
  private:
-  std::vector<std::pair<double,double> > tfilterEnvelope_;
+  // key   = integer GeV (to avoid FP issues),
+  // value = low/high values for timing in ns
+  //
+  typedef std::map<int,std::pair<double,double> > TfilterEnvelope_t;
+  TfilterEnvelope_t tfilterEnvelope_;
+
+  void makeTfilterEnvelope(std::vector<double> v_userEnvelope);
+
   bool ignorelowest_;
   bool ignorehighest_;
   double win_offset_;
