@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2010/10/19 16:36:51 $
- *  $Revision: 1.25 $
+ *  $Date: 2010/10/22 17:47:21 $
+ *  $Revision: 1.27 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -684,7 +684,7 @@ class HPartVSPt : public Histograms
 };
 
 // ---------------------------------------------------
-// A set of histograms of Z mass versus muon variables
+// A set of histograms of resonance mass versus muon variables
 class HMassVSPart : public Histograms
 {
  public:
@@ -695,6 +695,22 @@ class HMassVSPart : public Histograms
     // ---------------------
     hMassVSPt_       = new TH2F( name+"_MassVSPt", "resonance mass vs muon transverse momentum", 200, 0., maxPt, 6000, minMass, maxMass );
     hMassVSEta_      = new TH2F( name+"_MassVSEta", "resonance mass vs muon pseudorapidity", 60, -6., 6., 6000, minMass, maxMass );
+    
+    // -- r.c. 2010-----
+    
+    // J/Psi mass -----
+    //   hMassVSEtaPhiPlus_      = new TH3F( name+"_MassVSEtaPhiPlus", "resonance mass vs muon+ phi/pseudorapidity",6, -3.2, 3.2, 20, -2.5, 2.5, 600, minMass, maxMass );
+    // hMassVSEtaPhiMinus_      = new TH3F( name+"_MassVSEtaPhiMinus", "resonance mass vs muon- phi/pseudorapidity", 6, -3.2, 3.2, 20, -2.5, 2.5, 600, minMass, maxMass );
+ 
+    //Z mass -----------
+      hMassVSEtaPhiPlus_      = new TH3F( name+"_MassVSEtaPhiPlus", "resonance mass vs muon+ phi/pseudorapidity",4, -3.2, 3.2, 4, -2.5, 2.5,600, minMass, maxMass );
+     hMassVSEtaPhiMinus_      = new TH3F( name+"_MassVSEtaPhiMinus", "resonance mass vs muon- phi/pseudorapidity", 4, -3.2, 3.2, 4, -2.5, 2.5, 600, minMass, maxMass );
+
+
+    hMassVSEtaPlus_      = new TH2F( name+"_MassVSEtaPlus", "resonance mass vs muon+ pseudorapidity", 60, -6., 6., 6000, minMass, maxMass );
+    hMassVSEtaMinus_      = new TH2F( name+"_MassVSEtaMinus", "resonance mass vs muon- pseudorapidity", 60, -6., 6., 6000, minMass, maxMass );
+    // ----------------------
+    
     hMassVSPhiPlus_  = new TH2F( name+"_MassVSPhiPlus", "resonance mass vs muon+ phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass );
     hMassVSPhiMinus_ = new TH2F( name+"_MassVSPhiMinus", "resonance mass vs muon- phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass );
     //hMassVSPt_prof       = new TProfile (name+"_MassVSPt_prof", "resonance mass vs muon transverse momentum", 100, 0., 200., minMass, maxMass);
@@ -707,6 +723,13 @@ class HMassVSPart : public Histograms
     name_=name;
     hMassVSPt_       = (TH2F *) file->Get(name+"_MassVSPt");
     hMassVSEta_      = (TH2F *) file->Get(name+"_MassVSEta");
+    
+
+    hMassVSEtaPhiPlus_    = (TH3F *) file->Get(name+"_MassVSEtaPlus");
+    hMassVSEtaPhiMinus_   = (TH3F *) file->Get(name+"_MassVSEtaMinus");
+    hMassVSEtaPlus_      = (TH2F *) file->Get(name+"_MassVSEtaPlus");
+    hMassVSEtaMinus_      = (TH2F *) file->Get(name+"_MassVSEtaMinus");
+    
     hMassVSPhiPlus_  = (TH2F *) file->Get(name+"_MassVSPhiPlus");
     hMassVSPhiMinus_ = (TH2F *) file->Get(name+"_MassVSPhiMinus");
     //hMassVSPt_prof       = (TProfile *) file->Get(name+"_MassVSPt_prof");
@@ -720,6 +743,11 @@ class HMassVSPart : public Histograms
     delete hMassVSEta_;
     delete hMassVSPhiPlus_;
     delete hMassVSPhiMinus_;
+
+    delete hMassVSEtaPhiPlus_;
+    delete hMassVSEtaPhiMinus_;
+    delete hMassVSEtaPlus_;
+    delete hMassVSEtaMinus_;
   }
 
   virtual void Fill(const reco::Particle::LorentzVector & p41, const reco::Particle::LorentzVector & p42, const int charge, const double & weight = 1.) {
@@ -732,13 +760,19 @@ class HMassVSPart : public Histograms
      //hMassVSPt_prof_->Fill(momentum1.perp(),momentum2.m()); 
      hMassVSEta_->Fill(momentum1.eta(),momentum2.m(), weight); 
      //hMassVSEta_prof_->Fill(momentum1.eta(),momentum2.m()); 
+
      if(charge>0){
+
        hMassVSPhiPlus_->Fill(momentum1.phi(),momentum2.m(), weight);
-       //hMassVSPhiPlus_prof_->Fill(momentum1.phi(),momentum2.m());
+       hMassVSEtaPlus_->Fill(momentum1.eta(),momentum2.m(), weight); 
+       hMassVSEtaPhiPlus_->Fill(momentum1.phi(),momentum1.eta(),momentum2.m(), weight);
+       
      }
      else if(charge<0){
        hMassVSPhiMinus_->Fill(momentum1.phi(),momentum2.m(), weight);
-       //hMassVSPhiMinus_prof_->Fill(momentum1.phi(),momentum2.m());
+       hMassVSEtaMinus_->Fill(momentum1.eta(),momentum2.m(), weight); 
+       hMassVSEtaPhiMinus_->Fill(momentum1.phi(),momentum1.eta(),momentum2.m(), weight);
+
      }
      else {
        LogDebug("Histograms") << "HMassVSPart: wrong charge value = " << charge << std::endl;
@@ -751,6 +785,12 @@ class HMassVSPart : public Histograms
     hMassVSEta_->Write();
     hMassVSPhiPlus_->Write();
     hMassVSPhiMinus_->Write();
+
+    hMassVSEtaPhiPlus_->Write();
+    hMassVSEtaPhiMinus_->Write();
+    hMassVSEtaPlus_->Write();
+    hMassVSEtaMinus_->Write();
+
     //hMassVSPt_prof_->Write();
     //hMassVSEta_prof_->Write();    
     //hMassVSPhiPlus_prof_->Write();
@@ -762,6 +802,12 @@ class HMassVSPart : public Histograms
     hMassVSEta_->Clear();    
     hMassVSPhiPlus_->Clear();
     hMassVSPhiMinus_->Clear();
+
+    hMassVSEtaPhiPlus_->Clear();   
+    hMassVSEtaPhiMinus_->Clear();   
+    hMassVSEtaPlus_->Clear();   
+    hMassVSEtaMinus_->Clear();    
+
     //hMassVSPt_prof_->Clear();
     //hMassVSEta_prof_->Clear();    
     //hMassVSPhiPlus_prof_->Clear();
@@ -773,6 +819,13 @@ class HMassVSPart : public Histograms
   TH2F* hMassVSEta_;
   TH2F* hMassVSPhiPlus_; 
   TH2F* hMassVSPhiMinus_; 
+
+ 
+  TH3F* hMassVSEtaPhiPlus_;
+  TH3F* hMassVSEtaPhiMinus_;
+  TH2F* hMassVSEtaPlus_;
+  TH2F* hMassVSEtaMinus_; 
+
   //TProfile* hMassVSPt_prof_;
   //TProfile* hMassVSEta_prof_;
   //TProfile* hMassVSPhiPlus_prof_;

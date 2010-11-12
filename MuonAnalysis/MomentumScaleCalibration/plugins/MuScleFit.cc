@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/10/22 17:48:07 $
-//  $Revision: 1.98 $
+//  $Date: 2010/11/08 14:48:01 $
+//  $Revision: 1.99 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -737,8 +737,23 @@ void MuScleFit::duringFastLoop()
     // Fill histogram of Res mass vs muon variables
     mapHisto_["hRecBestResVSMu"]->Fill (recMu1, bestRecRes, -1);
     mapHisto_["hRecBestResVSMu"]->Fill (recMu2, bestRecRes, +1);
+
+    
+    //-- rc 2010 filling histograms for mu+ /mu- ------
+    //  mapHisto_["hRecBestResVSMuMinus"]->Fill (recMu1, bestRecRes, -1);
+    // mapHisto_["hRecBestResVSMuPlus"]->Fill (recMu2, bestRecRes, +1);
+  
+    //-- rc 2010 filling histograms MassVsMuEtaPhi------
+    //  mapHisto_["hRecBestResVSMuEtaPhi"]->Fill (recMu1, bestRecRes,-1);
+    //  mapHisto_["hRecBestResVSMuEtaPhi"]->Fill (recMu2, bestRecRes,+1);
+
     // Fill histogram of Res mass vs Res variables
     mapHisto_["hRecBestResVSRes"]->Fill (bestRecRes, bestRecRes, +1);
+
+
+
+
+
 
     std::vector<double> * parval;
     std::vector<double> initpar;

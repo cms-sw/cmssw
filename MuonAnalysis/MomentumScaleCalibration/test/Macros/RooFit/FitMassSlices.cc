@@ -1,7 +1,7 @@
 #ifndef FitMassSlices_cc
 #define FitMassSlices_cc
 
-#include "/home/destroyar/Desktop/MuScleFit/RooFitTest/Macros/FitSlices.cc"
+#include "FitSlices.cc"
 #include "TFile.h"
 #include "TH1F.h"
 #include "TROOT.h"
@@ -40,6 +40,28 @@ class FitMassSlices : public FitSlices
 	     xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
 	     signalType, backgroundType,
 	     inputFile, dir);
+
+
+    fitSlice(histoBaseName+"_MassVSEtaPlus", histoBaseTitle+"EtaPlus",
+             xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
+             signalType, backgroundType,
+             inputFile, dir);
+
+    fitSlice(histoBaseName+"_MassVSEtaMinus", histoBaseTitle+"EtaMinus",
+             xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
+             signalType, backgroundType,
+             inputFile, dir);
+
+    fitSlice(histoBaseName+"_MassVSEtaPhiPlus", histoBaseTitle+"EtaPhiPlus",
+             xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
+             signalType, backgroundType,
+             inputFile, dir);
+ 
+    fitSlice(histoBaseName+"_MassVSEtaPhiMinus", histoBaseTitle+"EtaPhiMinus",
+             xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
+             signalType, backgroundType,
+             inputFile, dir);
+
 
     fitSlice(histoBaseName+"_MassVSPhiPlus", histoBaseTitle+"PhiPlus",
     	     xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,

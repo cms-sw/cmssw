@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2010/10/22 17:47:44 $
- *  $Revision: 1.45 $
+ *  $Date: 2010/10/22 17:58:33 $
+ *  $Revision: 1.46 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -308,7 +308,11 @@ std::pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const st
   double minDeltaMass = 999999;
   std::pair<reco::LeafCandidate,reco::LeafCandidate> bestMassMuons;
   for (std::vector<reco::LeafCandidate>::const_iterator Muon1=muons.begin(); Muon1!=muons.end(); ++Muon1) {
+    //rc2010
+    if (debug>0) std::cout << "muon_1_charge:"<<(*Muon1).charge() << std::endl;
     for (std::vector<reco::LeafCandidate>::const_iterator Muon2=Muon1+1; Muon2!=muons.end(); ++Muon2) {
+   //rc2010
+      if (debug>0) std::cout << "after_2" << std::endl;
       if (((*Muon1).charge()*(*Muon2).charge())>0) {
 	continue; // This also gets rid of Muon1==Muon2...
       }

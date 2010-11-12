@@ -5,7 +5,7 @@
 #include "RooHist.h"
 #include "RooCurve.h"
 #include "TPaveText.h"
-#include "/home/destroyar/Desktop/MuScleFit/RooFitTest/Macros/FitMass.cc"
+#include "FitMass.cc"
 
 void CompareMass()
 {
