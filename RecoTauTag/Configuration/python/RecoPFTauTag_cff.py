@@ -36,7 +36,7 @@ from RecoTauTag.Configuration.FixedConePFTaus_cfi import *
 from RecoTauTag.Configuration.ShrinkingConePFTaus_cfi import *
 # Use the legacy PiZero reconstruction for shrinking cone taus
 from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi import \
-        ak5PFJetsLegacyTaNCPiZeros
+        ak5PFJetsLegacyTaNCPiZeros, ak5PFJetsLegacyHPSPiZeros
 ak5PFJetsLegacyTaNCPiZeros.src = cms.InputTag("ak5PFJets")
 shrinkingConePFTauProducer.jetSrc = cms.InputTag("ak5PFJets")
 shrinkingConePFTauProducer.piZeroSrc = cms.InputTag(
@@ -68,6 +68,9 @@ combinatoricRecoTausDiscriminationByLeadingPionPtCut = \
 
 from RecoTauTag.Configuration.HPSPFTaus_cfi import *
 from RecoTauTag.Configuration.HPSTancTaus_cfi import *
+
+# FIXME remove this once final pi zero reco is decided
+combinatoricRecoTaus.piZeroSrc = cms.InputTag("ak5PFJetsLegacyHPSPiZeros")
 
 #-------------------------------------------------------------------------------
 #------------------ PFTauTagInfo workaround ------------------------------------
@@ -101,6 +104,8 @@ PFTau = cms.Sequence(
     produceAndDiscriminateShrinkingConePFTaus *
     produceShrinkingConeDiscriminationByTauNeuralClassifier *
     # Build combinatoric base taus
+    # FIXME remove this once final pi zero reco is decided
+    ak5PFJetsLegacyHPSPiZeros *
     combinatoricRecoTaus *
     produceAndDiscriminateHPSPFTaus *
     hpsTancTauSequence
