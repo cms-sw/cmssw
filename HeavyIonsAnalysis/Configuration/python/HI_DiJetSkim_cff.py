@@ -7,6 +7,13 @@ hltJetHI.HLTPaths = ["HLT_HIJet35U"]
 hltJetHI.throw = False
 hltJetHI.andOr = True
 
+# selection of valid vertex
+primaryVertexFilterForJets = cms.EDFilter("VertexSelector",
+    src = cms.InputTag("hiSelectedVertex"),
+    cut = cms.string("!isFake && abs(z) <= 25 && position.Rho <= 2"), 
+    filter = cms.bool(True),   # otherwise it won't filter the events
+    )
+
 # jet energy correction (L2+L3) ??
 from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import *
 icPu5CaloJetsL2L3 = cms.EDProducer('CaloJetCorrectionProducer',
@@ -24,12 +31,13 @@ jetEtFilter = cms.EDFilter("EtMinCaloJetCountFilter",
 # dijet E_T filter
 dijetEtFilter = cms.EDFilter("EtMinCaloJetCountFilter",
     src = cms.InputTag("icPu5CaloJetsL2L3"),
-    etMin = cms.double(70.0),
+    etMin = cms.double(50.0),
     minNumber = cms.uint32(2)
     )
 
 # dijet skim sequence
 diJetSkimSequence = cms.Sequence(hltJetHI
+                                 * primaryVertexFilterForJets
                                  * icPu5CaloJetsL2L3
                                  * jetEtFilter
                                  # * dijetEtFilter

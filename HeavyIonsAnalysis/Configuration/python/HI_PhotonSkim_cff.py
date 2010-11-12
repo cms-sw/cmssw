@@ -10,7 +10,7 @@ hltPhotonHI.andOr = True
 # photon selection
 goodPhotons = cms.EDFilter("PhotonSelector",
     src = cms.InputTag("photons"),
-    cut = cms.string('et > 20 && hadronicOverEm < 0.1 && r9 > 0.8')
+    cut = cms.string('et > 20 && hadronicOverEm < 0.1 && r9 > 0.8 && sigmaIetaIeta > 0.002')
 )
 
 # leading photon E_T filter
@@ -38,6 +38,13 @@ photonSkimSequence = cms.Sequence(hltPhotonHI
                                   * cleanPhotonFilter
                                   )
 
+# selection of valid vertex
+primaryVertexFilterForZEE = cms.EDFilter("VertexSelector",
+    src = cms.InputTag("hiSelectedVertex"),
+    cut = cms.string("!isFake && abs(z) <= 25 && position.Rho <= 2"), 
+    filter = cms.bool(True),   # otherwise it won't filter the events
+    )
+
 # two-photon E_T filter
 twoPhotonFilter = cms.EDFilter("EtMinPhotonCountFilter",
     src = cms.InputTag("goodPhotons"),
@@ -59,6 +66,7 @@ photonPairCounter = cms.EDFilter("CandViewCountFilter",
 
 # Z->ee skim sequence
 zEESkimSequence = cms.Sequence(hltPhotonHI
+                               * primaryVertexFilterForZEE
                                * goodPhotons
                                * twoPhotonFilter
                                * hiPhotonCleaningSequence
