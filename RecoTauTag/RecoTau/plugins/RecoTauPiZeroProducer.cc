@@ -179,7 +179,7 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt,
       }
     }
     // Add to association
-    print(cleanPiZeros, std::cout);
+    //print(cleanPiZeros, std::cout);
     association->setValue(jet.key(), cleanPiZeros);
   }
   evt.put(association);
