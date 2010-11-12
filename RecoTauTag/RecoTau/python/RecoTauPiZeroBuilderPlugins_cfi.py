@@ -12,14 +12,14 @@ from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
 
 # Produce a PiZero candidate for each photon - the "trivial" case
 allSinglePhotons = cms.PSet(
-    name = cms.string("SinglePhotons"),
+    name = cms.string("1"),
     plugin = cms.string("RecoTauPiZeroTrivialPlugin"),
     qualityCuts = PFTauQualityCuts.signalQualityCuts,
 )
 
 # Produce a PiZero candidate for each possible photon pair
 combinatoricPhotonPairs = cms.PSet(
-    name = cms.string("Combinatoric"),
+    name = cms.string("2"),
     plugin = cms.string("RecoTauPiZeroCombinatoricPlugin"),
     qualityCuts = PFTauQualityCuts.signalQualityCuts,
     # Determine the maximum number of PiZeros to use. -1 for all
@@ -32,12 +32,12 @@ combinatoricPhotonPairs = cms.PSet(
 
 # Produce a "strips" of photons
 strips = cms.PSet(
-    name = cms.string("Strips"),
+    name = cms.string("s"),
     plugin = cms.string("RecoTauPiZeroStripPlugin"),
     qualityCuts = PFTauQualityCuts.signalQualityCuts,
     primaryVertexSrc = cms.InputTag("offlinePrimaryVertices"),
     # Clusterize photons and electrons (PF numbering)
-    stripCandidatesParticleIds   = cms.vint32(2, 4),         
-    stripEtaAssociationDistance  = cms.double(0.05),        
-    stripPhiAssociationDistance  = cms.double(0.2),        
+    stripCandidatesParticleIds   = cms.vint32(2, 4),
+    stripEtaAssociationDistance  = cms.double(0.05),
+    stripPhiAssociationDistance  = cms.double(0.2),
 )
