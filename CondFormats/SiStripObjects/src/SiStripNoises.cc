@@ -50,12 +50,12 @@ void SiStripNoises::getDetIds(std::vector<uint32_t>& DetIds_) const {
 	}
 }
 
-float SiStripNoises::getNoise(const uint16_t& strip, const Range& range) const {
+float SiStripNoises::getNoise(uint16_t strip, const Range& range) {
 	if (9*strip>=(range.second-range.first)*8){
 		throw cms::Exception("CorruptedData")
 			<< "[SiStripNoises::getNoise] looking for SiStripNoises for a strip out of range: strip " << strip;
 	}
-	return   static_cast<float> (decode(strip,range)/10.0);
+	return getNoiseFast(strip,range);
 }
 
 void SiStripNoises::setData(float noise_, InputVector& v){
@@ -136,16 +136,6 @@ uint16_t SiStripNoises::decode (const uint16_t& strip, const Range& range) const
 
 //============ Methods for bulk-decoding all noises for a module ================
 
-
-/// Get 9 bit words from a bit stream, starting from the right, skipping the first 'skip' bits (0 < skip < 8).
-/// Ptr must point to the rightmost byte that has some bits of this word, and is updated by this function
-inline uint16_t SiStripNoises::get9bits(const uint8_t * &ptr, int8_t skip) const {
-    uint8_t maskThis = (0xFF << skip);
-    uint8_t maskThat = ((2 << skip) - 1);
-    uint16_t ret = ( ((*ptr) & maskThis) >> skip );
-    --ptr;
-    return ret | ( ((*ptr) & maskThat) << (8 - skip) );
-}
 
 
 void SiStripNoises::allNoises(std::vector<float> &noises, const Range& range) const {
