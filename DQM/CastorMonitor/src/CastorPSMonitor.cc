@@ -174,10 +174,11 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
   if(firstTime_)     
     {
       //===> show the array of sigmas
-      for (int i=0; i<14; i++)
-        for (int k=0; k<16; k++)
-	  std::cout<< "module:"<<i+1<< " sector:"<<k+1<< " Sigma=" <<   PedSigmaInChannel[i][k] << std::endl;   
-      
+      for (int i=0; i<14; i++){
+        for (int k=0; k<16; k++){
+	if(fVerbosity>0)  std::cout<< "module:"<<i+1<< " sector:"<<k+1<< " Sigma=" <<   PedSigmaInChannel[i][k] << std::endl;   
+	}
+      }
       for (std::vector<HcalGenericDetId>::const_iterator it = listEMap.begin(); it != listEMap.end(); it++)
 	{     
 	  HcalGenericDetId mygenid(it->rawId());
