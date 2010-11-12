@@ -45,20 +45,36 @@ hbheprereco = cms.EDProducer(
                                     outerMin      = cms.double(0.), # was 0.
                                     outerMax      = cms.double(0.1), # was 0.1
                                     TimingEnergyThreshold = cms.double(30.)),
-    # shaped cut parameters are pairs of (energy, time threshold) values
-    # These must be ordered by increaseing energy!
-    timingshapedcutsParameters = cms.PSet(tfilterEnvelope=cms.vdouble(4.00,12.04,
-                                                                      13.00,10.56,
-                                                                      23.50,8.82,
-                                                                      37.00,7.38,
-                                                                      56.00,6.30,
-                                                                      81.00,5.64,
-                                                                      114.50,5.44,
-                                                                      175.50,5.38,
-                                                                      350.50,5.14),
-                                          ignorelowest  = cms.bool(True), # ignores hits with energies below lowest envelope threshold
-                                          ignorehighest = cms.bool(False), # ignores hits with energies above highest envelope threshold
-                                          win_offset    = cms.double(0.),
-                                          win_gain      = cms.double(1.))
-
+    
+    # shaped cut parameters are triples of (energy, low time threshold, high time threshold) values.
+    # The low and high thresholds must straddle zero (i.e., low<0, high>0); use win_offset to shift.
+    # win_gain is applied to both threshold values before win_offset.
+    # Energy ordering is no longer required on input, but guaranteed by the software.
+    #  note that energies are rounded to the nearest GeV.
+    #
+    timingshapedcutsParameters = cms.PSet(tfilterEnvelope=cms.vdouble(  50.0,  -2.0,  4.25,
+                                                                        52.0,  -2.0,  4.09,
+                                                                        54.0,  -2.0,  3.95,
+                                                                        56.0,  -2.0,  3.82,
+                                                                        58.0,  -2.0,  3.71,
+                                                                        60.0,  -2.0,  3.60,
+                                                                        63.0,  -2.0,  3.46,
+                                                                        66.0,  -2.0,  3.33,
+                                                                        69.0,  -2.0,  3.22,
+                                                                        73.0,  -2.0,  3.10,
+                                                                        77.0,  -2.0,  2.99,
+                                                                        82.0,  -2.0,  2.87,
+                                                                        88.0,  -2.0,  2.75,
+                                                                        95.0,  -2.0,  2.64,
+                                                                        103.0, -2.0,  2.54,
+                                                                        113.0, -2.0,  2.44,
+                                                                        127.0, -2.0,  2.33,
+                                                                        146.0, -2.0,  2.23,
+                                                                        176.0, -2.0,  2.13,
+                                                                        250.0, -2.0,  2.00 ),
+                                          win_offset = cms.double(0.0),
+                                          win_gain   = cms.double(3.0),
+                                          ignorelowest=cms.bool(True),
+                                          ignorehighest=cms.bool(False)
+                                          )
     )
