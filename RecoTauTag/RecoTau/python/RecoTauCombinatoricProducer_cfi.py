@@ -65,6 +65,7 @@ _combinatoricTauConfig = cms.PSet(
     name = cms.string("combinatoric"),
     plugin = cms.string("RecoTauBuilderCombinatoricPlugin"),
     pfCandSrc = cms.InputTag("particleFlow"),
+    usePFLeptons = cms.bool(True),
     qualityCuts = PFTauQualityCuts.signalQualityCuts,
     primaryVertexSrc = cms.InputTag("offlinePrimaryVertices"),
     decayModes = cms.VPSet(

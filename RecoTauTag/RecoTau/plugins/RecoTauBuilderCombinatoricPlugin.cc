@@ -19,6 +19,7 @@ class RecoTauBuilderCombinatoricPlugin : public RecoTauBuilderPlugin {
          const std::vector<RecoTauPiZero>& piZeros) const;
   private:
     RecoTauQualityCuts qcuts_;
+    bool usePFLeptonsAsChargedHadrons_;
     struct decayModeInfo {
       uint32_t maxPiZeros_;
       uint32_t maxPFCHs_;
@@ -30,7 +31,8 @@ class RecoTauBuilderCombinatoricPlugin : public RecoTauBuilderPlugin {
 
 RecoTauBuilderCombinatoricPlugin::RecoTauBuilderCombinatoricPlugin(
     const edm::ParameterSet& pset): RecoTauBuilderPlugin(pset),
-    qcuts_(pset.getParameter<edm::ParameterSet>("qualityCuts")) {
+    qcuts_(pset.getParameter<edm::ParameterSet>("qualityCuts")),
+    usePFLeptonsAsChargedHadrons_(pset.getParameter<bool>("usePFLeptons")) {
   typedef std::vector<edm::ParameterSet> VPSet;
   const VPSet& decayModes = pset.getParameter<VPSet>("decayModes");
   for (VPSet::const_iterator dm = decayModes.begin();
@@ -58,8 +60,16 @@ RecoTauBuilderCombinatoricPlugin::operator()(
   qcuts_.setPV(primaryVertex());
 
   // Get PFCHs from this jet.  They are already sorted by descending Pt
-  PFCandPtrs pfchs = qcuts_.filterRefs(
-      pfCandidates(*jet, reco::PFCandidate::h));
+  PFCandPtrs pfchs;
+  if (!usePFLeptonsAsChargedHadrons_) {
+    pfchs = qcuts_.filterRefs(pfCandidates(*jet, reco::PFCandidate::h));
+  } else {
+    // Check if we want to include electrons in muons in "charged hadron"
+    // collection.  This is the preferred behavior, as the PF lepton selections
+    // are very loose.
+    pfchs = qcuts_.filterRefs(pfChargedCands(*jet));
+  }
+
   PFCandPtrs pfnhs = qcuts_.filterRefs(
       pfCandidates(*jet, reco::PFCandidate::h0));
 
