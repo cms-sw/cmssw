@@ -17,9 +17,13 @@ DELTA_M_PIZERO = 'abs(mass() - 0.13579)'
 isInStrip = cms.PSet(
     name = cms.string('InStrip'),
     plugin = cms.string('RecoTauPiZeroStringQuality'),
-    selection = cms.string('maxDeltaEta() < %(phi)f && maxDeltaEta() < %(eta)f'%
-                           {'eta':builders.strips.stripEtaAssociationDistance.value(),
-                            'phi':builders.strips.stripPhiAssociationDistance.value() }),
+    #selection = cms.string('maxDeltaPhi() < %(phi)f && maxDeltaEta() < %(eta)f'%
+                           #{'eta':builders.strips.stripEtaAssociationDistance.value(),
+                            #'phi':builders.strips.stripPhiAssociationDistance.value() }),
+    # Mike pointed out the max value of the strip can be greater than what the
+    # intial cuts are and still be consistent.  Until there is a good way to
+    # deal with this just cut on the algo name.
+    selection = cms.string('algoIs("%s")' % builders.strips.name.value()),
     selectionPassFunction = cms.string(DELTA_M_PIZERO),
     selectionFailValue = cms.double(1000)
 )
