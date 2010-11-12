@@ -39,6 +39,7 @@ TAU_DISC_PLUGIN(MainTrackPtFraction);
 TAU_DISC_PLUGIN(IsolationChargedAveragePtFraction);
 TAU_DISC_PLUGIN(ScaledEtaJetCollimation);
 TAU_DISC_PLUGIN(ScaledPhiJetCollimation);
+TAU_DISC_PLUGIN(ScaledOpeningDeltaR);
 TAU_VEC_DISC_PLUGIN(Dalitz2);
 
 

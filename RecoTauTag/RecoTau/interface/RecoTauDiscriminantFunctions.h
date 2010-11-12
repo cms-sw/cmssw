@@ -42,6 +42,7 @@ double MainTrackPtFraction(Tau tau);
 double IsolationChargedAveragePtFraction(Tau tau);
 double ScaledEtaJetCollimation(Tau tau);
 double ScaledPhiJetCollimation(Tau tau);
+double ScaledOpeningDeltaR(Tau tau);
 VDouble Dalitz2(Tau tau);
 
 // Sum of charged isolation activity above/below 1 GeV

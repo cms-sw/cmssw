@@ -107,6 +107,24 @@ double ScaledEtaJetCollimation(Tau tau) {
   return tau.jetRef()->pt()*sqrt(tau.jetRef()->etaetaMoment());
 }
 
+double ScaledOpeningDeltaR(Tau tau) {
+  double max = 0.0;
+  const PFCandidateRefVector& cands = tau.signalPFCands();
+  for (size_t i = 0; i < cands.size()-1; ++i) {
+    for (size_t j = i+1; j < cands.size(); ++j) {
+      double deltaRVal = deltaR(cands[i]->p4(), cands[j]->p4());
+      if (deltaRVal > max) {
+        max = deltaRVal;
+      }
+    }
+  }
+  // Correct for resolution
+  if ( max < 0.05 )
+    max = 0.05;
+  // Make invariant of PT
+  return max*tau.pt();;
+}
+
 double ScaledPhiJetCollimation(Tau tau) {
   return tau.jetRef()->pt()*sqrt(tau.jetRef()->phiphiMoment());
 }
