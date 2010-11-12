@@ -36,6 +36,10 @@ std::vector<PFCandidatePtr> pfCandidates(const PFJet& jet,
 std::vector<PFCandidatePtr> pfCandidates(const PFJet& jet,
                                          const std::vector<int>& particleIds,
                                          bool sort=true);
+
+/// Extract all non-neutral candidates from a PFJet
+std::vector<PFCandidatePtr> pfChargedCands(const PFJet& jet, bool sort=true);
+
 /// Extract all pfGammas from a PFJet
 std::vector<PFCandidatePtr> pfGammas(const PFJet& jet, bool sort=true);
 

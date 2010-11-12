@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-typedef std::vector<reco::PFCandidatePtr> PFCandPtrs; 
+typedef std::vector<reco::PFCandidatePtr> PFCandPtrs;
 typedef PFCandPtrs::iterator PFCandIter;
 
 namespace reco { namespace tau {
@@ -52,18 +52,33 @@ std::vector<reco::PFCandidatePtr> pfCandidates(const reco::PFJet& jet, const std
 {
   PFCandPtrs output;
   // Get each desired candidate type, unsorted for now
-  for(std::vector<int>::const_iterator particleId = particleIds.begin(); 
+  for(std::vector<int>::const_iterator particleId = particleIds.begin();
       particleId != particleIds.end(); ++particleId) {
     PFCandPtrs selectedPFCands = pfCandidates(jet, *particleId, false);
     output.insert(output.end(), selectedPFCands.begin(), selectedPFCands.end());
-  } 
+  }
   if (sort) std::sort(output.begin(), output.end(), SortPFCandsDescendingPt());
   return output;
 }
 
-std::vector<reco::PFCandidatePtr> pfGammas(const reco::PFJet& jet, bool sort)
-{
+std::vector<reco::PFCandidatePtr> pfGammas(const reco::PFJet& jet, bool sort) {
   return pfCandidates(jet, reco::PFCandidate::gamma, sort);
 }
+
+std::vector<reco::PFCandidatePtr> pfChargedCands(const reco::PFJet& jet,
+                                                 bool sort) {
+  PFCandPtrs output;
+  PFCandPtrs mus = pfCandidates(jet, reco::PFCandidate::mu, false);
+  PFCandPtrs es = pfCandidates(jet, reco::PFCandidate::e, false);
+  PFCandPtrs chs = pfCandidates(jet, reco::PFCandidate::h, false);
+  output.reserve(mus.size() + es.size() + chs.size());
+  output.insert(output.end(), mus.begin(), mus.end());
+  output.insert(output.end(), es.begin(), es.end());
+  output.insert(output.end(), chs.begin(), chs.end());
+  if (sort) std::sort(output.begin(), output.end(), SortPFCandsDescendingPt());
+  return output;
+}
+
+
 
 } }
