@@ -431,8 +431,9 @@ if 'MessageLogger' in %(dict)s:
 
 
   def instrumentTiming(self, configuration):
-    # instrument the menu with the modules and EndPath needed for timing studies
-    self.data += """
+    if configuration.menuTiming:
+      # instrument the menu with the modules and EndPath needed for timing studies
+      self.data += """
 # instrument the menu with the modules and EndPath needed for timing studies
 %(process)sPathTimerService = cms.Service( "PathTimerService",
 )

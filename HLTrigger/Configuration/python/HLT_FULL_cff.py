@@ -22309,22 +22309,3 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Activity_L1A, HLT_Activity
 if 'ESUnpackerWorkerESProducer' in locals():
     ESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
 
-# instrument the menu with the modules and EndPath needed for timing studies
-PathTimerService = cms.Service( "PathTimerService",
-)
-hltTimer = cms.EDProducer( "PathTimerInserter",
-)
-hltOutputTiming = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputTiming.root" ),
-    fastCloning = cms.untracked.bool( False ),
-    splitLevel = cms.untracked.int32( 0 ),
-    dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string( 'RECO' ),
-        filterName = cms.untracked.string( '' )
-    ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep HLTPerformanceInfo_*_*_*' )
-)
-
-TimingOutput = cms.EndPath( hltTimer + hltOutputTiming )
-

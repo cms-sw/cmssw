@@ -5272,22 +5272,3 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('L1GtTrigReport')
     process.MessageLogger.categories.append('HLTrigReport')
 
-# instrument the menu with the modules and EndPath needed for timing studies
-process.PathTimerService = cms.Service( "PathTimerService",
-)
-process.hltTimer = cms.EDProducer( "PathTimerInserter",
-)
-process.hltOutputTiming = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputTiming.root" ),
-    fastCloning = cms.untracked.bool( False ),
-    splitLevel = cms.untracked.int32( 0 ),
-    dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string( 'RECO' ),
-        filterName = cms.untracked.string( '' )
-    ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep HLTPerformanceInfo_*_*_*' )
-)
-
-process.TimingOutput = cms.EndPath( process.hltTimer + process.hltOutputTiming )
-
