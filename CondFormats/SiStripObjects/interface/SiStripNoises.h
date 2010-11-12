@@ -71,7 +71,7 @@ class SiStripNoises
   std::vector<ratioData> operator / (SiStripNoises d) ;
 
  private:
-  static  encode(const InputVector& Vi, std::vector<unsigned char>& Vo_CHAR);
+  static  void encode(const InputVector& Vi, std::vector<unsigned char>& Vo_CHAR);
 
   static inline uint16_t decode (uint16_t strip, const Range& range);
 
