@@ -450,7 +450,7 @@ if 'MessageLogger' in %(dict)s:
       'keep HLTPerformanceInfo_*_*_*' )
 )
 
-%(process)sTimingOutput = cms.EndPath( %(process)shltTimer + %(process)shltOutputTimer )
+%(process)sTimingOutput = cms.EndPath( %(process)shltTimer + %(process)shltOutputTiming )
 """
 
 
