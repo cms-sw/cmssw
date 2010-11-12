@@ -32,9 +32,9 @@ namespace reco {
          size_t numberOfGammas() const;
 
          /// Number of electron constituents
-         size_t numberOfElectrons() const; 
+         size_t numberOfElectrons() const;
 
-         /// Maximum DeltaPhi between a constituent and the four vector 
+         /// Maximum DeltaPhi between a constituent and the four vector
          double maxDeltaPhi() const;
 
          /// Maxmum DeltaEta between a constituent and the four vector
@@ -42,6 +42,9 @@ namespace reco {
 
          /// Algorithm that built this piZero
          const std::string& algo() const;
+
+         /// Check whether a given algo produced this pi zero
+         bool algoIs(const std::string& algo) const;
 
          void print(std::ostream& out=std::cout) const;
 

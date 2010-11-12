@@ -220,8 +220,10 @@ void PFTau::dump(std::ostream& out) const {
     if(!theLeadPFCand){
         out<<"No Lead PFCand "<<std::endl;
     }else{
+        out<<"Lead PFCand Particle Id " << (*theLeadPFCand).particleId() << std::endl;
         out<<"Lead PFCand Pt "<<(*theLeadPFCand).pt()<<std::endl;
         out<<"Lead PFCand Charge "<<(*theLeadPFCand).charge()<<std::endl;
+        out<<"Lead PFCand TrkRef "<<(*theLeadPFCand).trackRef().isNonnull()<<std::endl;
         out<<"Inner point position (x,y,z) of the PFTau ("<<vx()<<","<<vy()<<","<<vz()<<")"<<std::endl;
         out<<"Charge of the PFTau "<<charge()<<std::endl;
         out<<"Et of the highest Et HCAL PFCluster "<<maximumHCALPFClusterEt()<<std::endl;
