@@ -5267,6 +5267,16 @@ if 'GlobalTag' in process.__dict__:
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
     process.GlobalTag.globaltag = 'START39_V4HI::All'
 
+# override the L1 menu
+if 'GlobalTag' in process.__dict__:
+    process.GlobalTag.toGet.append(
+        cms.PSet(  
+            record  = cms.string( "L1GtTriggerMenuRcd" ),
+            tag     = cms.string( "L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2010_v2_mc" ),
+            connect = cms.untracked.string( "sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/sqlFile/L1Menu_CollisionsHeavyIons2010_v2_mc.db" )
+        )
+    )
+
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
     process.MessageLogger.categories.append('L1GtTrigReport')
