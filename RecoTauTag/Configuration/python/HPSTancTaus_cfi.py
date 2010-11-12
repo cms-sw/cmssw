@@ -179,6 +179,38 @@ _leadPionPrediscriminant = cms.PSet(
     )
 )
 
+# Build the HPS selection discriminator
+hpsTancTausDiscriminationByDecayModeSelection = hpsSelectionDiscriminator.clone(
+    PFTauProducer = cms.InputTag("hpsTancTaus"),
+)
+
+from RecoTauTag.Configuration.HPSPFTaus_cfi import requireDecayMode,\
+        hpsPFTauDiscriminationByLooseIsolation,\
+        hpsPFTauDiscriminationByMediumIsolation,\
+        hpsPFTauDiscriminationByTightIsolation
+
+# Update the decay mode prediscriminant
+hpsTancRequireDecayMode = requireDecayMode.clone()
+hpsTancRequireDecayMode.decayMode.Producer = cms.InputTag(
+    "hpsTancTausDiscriminationByDecayModeSelection")
+
+# Build the isolation discriminators
+hpsTancTausDiscriminationByLooseIsolation = \
+        hpsPFTauDiscriminationByLooseIsolation.clone(
+            PFTauProducer = cms.InputTag("hpsTancTaus"),
+            Prediscriminants = hpsTancRequireDecayMode
+        )
+hpsTancTausDiscriminationByMediumIsolation = \
+        hpsPFTauDiscriminationByMediumIsolation.clone(
+            PFTauProducer = cms.InputTag("hpsTancTaus"),
+            Prediscriminants = hpsTancRequireDecayMode
+        )
+hpsTancTausDiscriminationByTightIsolation = \
+        hpsPFTauDiscriminationByTightIsolation.clone(
+            PFTauProducer = cms.InputTag("hpsTancTaus"),
+            Prediscriminants = hpsTancRequireDecayMode
+        )
+
 # Rerun the TaNC on our clean taus - in the future, rekey.
 hpsTancTausDiscriminationByTancRaw = \
         combinatoricRecoTausDiscriminationByTanc.clone(
@@ -211,7 +243,6 @@ hpsTancTausDiscriminationByTancLoose = cms.EDProducer(
     )
 )
 
-
 hpsTancTausDiscriminationByTancMedium = \
         hpsTancTausDiscriminationByTancLoose.clone()
 hpsTancTausDiscriminationByTancMedium.Prediscriminants.tancCut.cut = 0.98
@@ -242,4 +273,8 @@ hpsTancTauSequence = cms.Sequence(
     + hpsTancTausDiscriminationByTancLoose
     + hpsTancTausDiscriminationByTancMedium
     + hpsTancTausDiscriminationByTancTight
+    + hpsTancTausDiscriminationByDecayModeSelection
+    + hpsTancTausDiscriminationByLooseIsolation
+    + hpsTancTausDiscriminationByMediumIsolation
+    + hpsTancTausDiscriminationByTightIsolation
 )
