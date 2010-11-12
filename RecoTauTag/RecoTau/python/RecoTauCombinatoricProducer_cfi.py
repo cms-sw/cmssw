@@ -80,6 +80,7 @@ combinatoricRecoTaus = cms.EDProducer(
     "RecoTauProducer",
     jetSrc = cms.InputTag("ak5PFJets"),
     piZeroSrc = cms.InputTag("ak5PFJetsRecoTauPiZeros"),
+    buildNullTaus = cms.bool(True),
     builders = cms.VPSet(
         _combinatoricTauConfig,
     ),

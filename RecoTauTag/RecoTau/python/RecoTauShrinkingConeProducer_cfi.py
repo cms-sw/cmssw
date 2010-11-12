@@ -32,12 +32,14 @@ shrinkingConeRecoTaus = cms.EDProducer(
     builders = cms.VPSet(
         _shrinkingConeRecoTausConfig
     ),
+    # Build an empty tau in the case that a jet does not have any tracks
+    buildNullTaus = cms.bool(True),
     modifiers = cms.VPSet(
-        cms.PSet(
-            name = cms.string('twoprong'),
-            plugin = cms.string("RecoTauTwoProngFilter"),
-            minPtFractionForSecondProng = cms.double(0.1),
-        ),
+        #cms.PSet(
+            #name = cms.string('twoprong'),
+            #plugin = cms.string("RecoTauTwoProngFilter"),
+            #minPtFractionForSecondProng = cms.double(0.1),
+        #),
         #cms.PSet(
             #name = cms.string('filterphotons'),
             #plugin = cms.string("RecoTauPhotonFilter"),
