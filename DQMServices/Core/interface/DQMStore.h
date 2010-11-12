@@ -6,6 +6,7 @@
 # endif
 
 # include "DQMServices/Core/interface/DQMDefinitions.h"
+# include "classlib/utils/Regexp.h"
 # include <vector>
 # include <string>
 # include <list>
@@ -45,7 +46,7 @@ public:
     KeepRunDirs,
     StripRunDirs
   };
-
+  
   //-------------------------------------------------------------------------
   // ---------------------- Constructors ------------------------------------
   DQMStore(const edm::ParameterSet &pset);
@@ -351,7 +352,7 @@ private:
 public:
   void				getAllTags(std::vector<std::string> &into) const;
   std::vector<MonitorElement*>	getAllContents(const std::string &path) const;
-  std::vector<MonitorElement*>	getMatchingContents(const std::string &pattern) const;
+  std::vector<MonitorElement*>	getMatchingContents(const std::string &pattern, lat::Regexp::Syntax syntaxType = lat::Regexp::Wildcard) const;
 private:
 
   // ---------------- Miscellaneous -----------------------------

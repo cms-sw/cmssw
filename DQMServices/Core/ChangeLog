@@ -1,0 +1,6 @@
+2010-11-12  Marco Rovere  <marco.rovere@cern.ch>
+
+	* src/DQMStore.cc (getMatchingContents): Added the possibility to
+	filter MEs based on different flavors of re. The default, for
+	backward compatibility, is still based on Wildcards syntax.
+

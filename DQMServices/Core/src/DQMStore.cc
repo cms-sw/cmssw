@@ -1490,12 +1490,12 @@ DQMStore::getAllContents(const std::string &path) const
 /// get vector with children of folder, including all subfolders + their children;
 /// matches names against a wildcard pattern matched against the full ME path
 std::vector<MonitorElement*>
-DQMStore::getMatchingContents(const std::string &pattern) const
+DQMStore::getMatchingContents(const std::string &pattern, lat::Regexp::Syntax syntaxType /* = Wildcard */) const
 {
   lat::Regexp rx;
   try
   {
-    rx = lat::Regexp(pattern, 0, lat::Regexp::Wildcard);
+    rx = lat::Regexp(pattern, 0, syntaxType);
     rx.study();
   }
   catch (lat::Error &e)
