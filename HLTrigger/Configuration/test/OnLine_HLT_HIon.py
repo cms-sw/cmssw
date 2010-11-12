@@ -5289,5 +5289,5 @@ process.hltOutputTiming = cms.OutputModule( "PoolOutputModule",
       'keep HLTPerformanceInfo_*_*_*' )
 )
 
-process.TimingOutput = cms.EndPath( process.hltTimer + process.hltOutputTimer )
+process.TimingOutput = cms.EndPath( process.hltTimer + process.hltOutputTiming )
 
