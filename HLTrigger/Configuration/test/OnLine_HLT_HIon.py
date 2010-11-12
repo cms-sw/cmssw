@@ -5211,28 +5211,47 @@ process.HLTMONOutput = cms.EndPath( process.hltPreHLTMON + process.hltPreHLTMONS
 process.NanoDSTOutput = cms.EndPath( process.hltPreNanoDST + process.hltOutputNanoDST )
 
 
-# HIon paths in smart prescalers
-if 'hltPreHLTDQMSmart' in process.__dict__:
-    process.hltPreHLTDQMSmart.throw = cms.bool( False )
-if 'hltPreHLTMONSmart' in process.__dict__:
-    process.hltPreHLTMONSmart.throw = cms.bool( False )
-if 'hltPreExpressSmart' in process.__dict__:
-    process.hltPreExpressSmart.throw = cms.bool( False )
-if 'hltPreDQMSmart' in process.__dict__:
-    process.hltPreDQMSmart.throw = cms.bool( False )
-
 # override the preshower baseline setting for MC
 if 'ESUnpackerWorkerESProducer' in process.__dict__:
     process.ESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
 
-# remove HLT prescales
+# override the process name
+process.setName_('HLTHIon')
+
+# adapt HLT modules to the correct process name
+if 'hltTrigReport' in process.__dict__:
+    process.hltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults', '', 'HLTHIon' )
+
+if 'hltDQMHLTScalers' in process.__dict__:
+    process.hltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults', '', 'HLTHIon' )
+
+if 'hltPreExpressSmart' in process.__dict__:
+    process.hltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults', '', 'HLTHIon' )
+
+if 'hltPreHLTMONSmart' in process.__dict__:
+    process.hltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults', '', 'HLTHIon' )
+
+if 'hltPreDQMSmart' in process.__dict__:
+    process.hltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults', '', 'HLTHIon' )
+
+if 'hltDQML1SeedLogicScalers' in process.__dict__:
+    process.hltDQML1SeedLogicScalers.processname = 'HLTHIon'
+
+# remove the HLT prescales
 if 'PrescaleService' in process.__dict__:
     process.PrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
     process.PrescaleService.lvl1Labels = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
     process.PrescaleService.prescaleTable = cms.VPSet( )
 
-# set process name
-process.setName_('HLTHIon')
+# HIon paths in smart prescalers
+if 'hltPreHLTDQMSmart' in process.__dict__:
+    process.hltPreHLTDQMSmart.throw  = cms.bool( False )
+if 'hltPreHLTMONSmart' in process.__dict__:
+    process.hltPreHLTMONSmart.throw  = cms.bool( False )
+if 'hltPreExpressSmart' in process.__dict__:
+    process.hltPreExpressSmart.throw = cms.bool( False )
+if 'hltPreDQMSmart' in process.__dict__:
+    process.hltPreDQMSmart.throw     = cms.bool( False )
 
 # add global options
 process.maxEvents = cms.untracked.PSet(
@@ -5248,26 +5267,27 @@ if 'GlobalTag' in process.__dict__:
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
     process.GlobalTag.globaltag = 'START39_V4HI::All'
 
-# adapt HLT modules to the correct process name
-if 'hltTrigReport' in process.__dict__:
-    process.hltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults','',process.name_() )
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
+    process.MessageLogger.categories.append('L1GtTrigReport')
+    process.MessageLogger.categories.append('HLTrigReport')
 
-if 'hltDQMHLTScalers' in process.__dict__:
-    process.hltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults','',process.name_() )
+# instrument the menu with the modules and EndPath needed for timing studies
+process.PathTimerService = cms.Service( "PathTimerService",
+)
+process.hltTimer = cms.EDProducer( "PathTimerInserter",
+)
+process.hltOutputTiming = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputTiming.root" ),
+    fastCloning = cms.untracked.bool( False ),
+    splitLevel = cms.untracked.int32( 0 ),
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string( 'RECO' ),
+        filterName = cms.untracked.string( '' )
+    ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep HLTPerformanceInfo_*_*_*' )
+)
 
-if 'hltPreExpressSmart' in process.__dict__:
-    process.hltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults','',process.name_() )
-
-if 'hltPreHLTMONSmart' in process.__dict__:
-    process.hltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults','',process.name_() )
-
-if 'hltPreDQMSmart' in process.__dict__:
-    process.hltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults','',process.name_() )
-
-if 'hltDQML1SeedLogicScalers' in process.__dict__:
-    process.hltDQML1SeedLogicScalers.processname = process.name_()
-
-process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
-process.MessageLogger.categories.append('L1GtTrigReport')
-process.MessageLogger.categories.append('HLTrigReport')
+process.TimingOutput = cms.EndPath( process.hltTimer + process.hltOutputTimer )
 

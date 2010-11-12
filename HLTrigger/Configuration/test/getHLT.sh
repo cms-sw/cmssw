@@ -73,7 +73,7 @@ function getConfigForOnline() {
   local L1T="L1Menu_Collisions2010_v0"
   local L1TPP="L1Menu_Collisions2010_v0"
 # local L1THI="L1Menu_CollisionsHeavyIons2010_v0"
-  local L1THI="sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/sqlFile/L1Menu_CollisionsHeavyIons2010_v0_mc.db:L1Menu_CollisionsHeavyIons2010_v0"
+  local L1THI="sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/sqlFile/L1Menu_CollisionsHeavyIons2010_v2_mc.db:L1Menu_CollisionsHeavyIons2010_v2"
 
   log "    dumping full HLT for $NAME"
   # override L1 menus
