@@ -15,6 +15,9 @@
 #                                         *before* the the above features were implemented!
 #
 
+#2010-10-10[gb]: modify to show REPACKED files too!
+
+
 #Example Call:
 #./cleanupOrphans.pl --max=10 --closedfiles --clean --age=30 --FILES_ALL --contains=Transfer --host=srv-C2C07-15
 
@@ -27,7 +30,7 @@ use Getopt::Long;
 use File::Basename;
 
 #use constant MIN_CLEAN_AGE => 7; #won't delete anything under X days
-use constant MIN_CLEAN_AGE =>  2; #won't delete anything under X days
+use constant MIN_CLEAN_AGE =>  5; #won't delete anything under X days
 
 
 
@@ -84,6 +87,7 @@ my $DO_FILES_INJECTED="";
 my $DO_FILES_TRANS_NEW="";
 my $DO_FILES_TRANS_COPIED="";
 my $DO_FILES_TRANS_CHECKED="";
+my $DO_FILES_TRANS_REPACKED="";
 my $DO_FILES_TRANS_INSERTED="";
 my $DO_FILES_DELETED="";
 my $DO_FILES_NO_STATUS="";
@@ -112,6 +116,7 @@ my $SQLcheck = "select" .
 	", CMS_STOMGR.FILES_TRANS_NEW.FILENAME".
         ", CMS_STOMGR.FILES_TRANS_COPIED.FILENAME".
 	", CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME".
+	", CMS_STOMGR.FILES_TRANS_REPACKED.FILENAME".
 	", CMS_STOMGR.FILES_TRANS_INSERTED.FILENAME".
 	", CMS_STOMGR.FILES_DELETED.FILENAME".
 	" from CMS_STOMGR.FILES_CREATED " .
@@ -123,6 +128,8 @@ my $SQLcheck = "select" .
 	"on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_COPIED.FILENAME " .
         "left outer join CMS_STOMGR.FILES_TRANS_CHECKED ".
 	"on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME " .
+        "left outer join CMS_STOMGR.FILES_TRANS_REPACKED ".
+	"on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_REPACKED.FILENAME " .
         "left outer join CMS_STOMGR.FILES_TRANS_INSERTED ".
         "on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_INSERTED.FILENAME " .
         "left outer join CMS_STOMGR.FILES_DELETED ".
@@ -153,13 +160,19 @@ sub getStatus($)
     my $rowsCcheck = $checkHan->execute($filename) or die("Error: Query failed - $dbh->errstr \n");
     
     my @result = $checkHan->fetchrow_array;
+
+
+#####	print "$filename: \n $result[0] 1:  $result[1] 2:  $result[2] 3:  $result[3] 4:  $result[4] 5:  $result[5] 6:  $result[6] 7:  $result[7] \n"; 
+
     unless($result[0]) {return -1;}
     unless($result[1]) {return 0;}
     unless($result[2]) {return 1;}
     unless($result[3]) {return 10;}
     unless($result[4]) {return 20;}
-    unless($result[5]) {return 30 unless($result[6])}  #extra unless($result[6]): want to be sure to skip over gap where DELETED is still filled!
-    unless($result[6]) {return 40;}
+#    unless($result[5]) {return 30;}
+    unless($result[5]) {return 30 unless($result[7])}  #extra unless($result[7]): want to be sure to skip over gap where DELETED is still filled!
+    unless($result[6]) {return 35 unless($result[7])}  #extra unless($result[7]): want to be sure to skip over gap where DELETED is still filled!
+    unless($result[7]) {return 40;}
     return 99;
 }   
 
@@ -174,6 +187,7 @@ sub report($)
     my $TOTAL_FILES_TRANS_NEW = 0;
     my $TOTAL_FILES_TRANS_COPIED = 0;
     my $TOTAL_FILES_TRANS_CHECKED = 0;
+    my $TOTAL_FILES_TRANS_REPACKED = 0;
     my $TOTAL_FILES_TRANS_INSERTED = 0;
     my $TOTAL_FILES_DELETED = 0;
     my $TOTAL_FILES_NO_STATUS = 0;
@@ -195,13 +209,14 @@ sub report($)
 	my $FILES_TRANS_NEW = 0;
 	my $FILES_TRANS_COPIED = 0;
 	my $FILES_TRANS_CHECKED = 0;
+	my $FILES_TRANS_REPACKED = 0;
 	my $FILES_TRANS_INSERTED = 0;
 	my $FILES_DELETED = 0;
 	my $FILES_NO_STATUS = 0;
 	
 	chomp $host;
 	print "----- $host -----\n";
-	my @files;
+	my @files; 
 	if ($host eq $runHost) {@files = `find $path $AGE_QUERY $CONTAINS_QUERY -name '*.dat'`;}
 	else {@files = `ssh $host "find $path $AGE_QUERY $CONTAINS_QUERY -name '*.dat'"`;}
 	foreach $file (@files){
@@ -245,6 +260,9 @@ sub report($)
 		elsif ($status == 10) {$FILES_TRANS_NEW = $FILES_TRANS_NEW + 1;}
 		elsif ($status == 20) {$FILES_TRANS_COPIED = $FILES_TRANS_COPIED + 1;}
 		elsif ($status == 30) {$FILES_TRANS_CHECKED = $FILES_TRANS_CHECKED + 1;}
+		elsif ($status == 35) {$FILES_TRANS_REPACKED = $FILES_TRANS_REPACKED + 1;}
+
+
 		elsif ($status == 40) {$FILES_TRANS_INSERTED = $FILES_TRANS_INSERTED + 1;}
 		elsif ($status == 99) {$FILES_DELETED = $FILES_DELETED + 1;}
 		else {
@@ -261,6 +279,7 @@ sub report($)
         $TOTAL_FILES_TRANS_NEW = $TOTAL_FILES_TRANS_NEW + $FILES_TRANS_NEW;
         $TOTAL_FILES_TRANS_COPIED = $TOTAL_FILES_TRANS_COPIED + $FILES_TRANS_COPIED;
         $TOTAL_FILES_TRANS_CHECKED = $TOTAL_FILES_TRANS_CHECKED + $FILES_TRANS_CHECKED;
+        $TOTAL_FILES_TRANS_REPACKED = $TOTAL_FILES_TRANS_REPACKED + $FILES_TRANS_REPACKED;
         $TOTAL_FILES_TRANS_INSERTED = $TOTAL_FILES_TRANS_INSERTED + $FILES_TRANS_INSERTED;
         $TOTAL_FILES_DELETED = $TOTAL_FILES_DELETED + $FILES_DELETED;
 	$TOTAL_FILES_NO_STATUS = $TOTAL_FILES_NO_STATUS + $FILES_NO_STATUS;
@@ -276,6 +295,7 @@ sub report($)
 	print "FILES_TRANS_NEW $FILES_TRANS_NEW \n";
 	print "FILES_TRANS_COPIED $FILES_TRANS_COPIED \n";
 	print "FILES_TRANS_CHECKED $FILES_TRANS_CHECKED \n";
+	print "FILES_TRANS_REPACKED $FILES_TRANS_REPACKED \n";
 	print "FILES_TRANS_INSERTED $FILES_TRANS_INSERTED \n";
 	print "FILES_DELETED $FILES_DELETED \n";
 	print "FILES_NO_STATUS_IN_DB $FILES_NO_STATUS \n";
@@ -297,6 +317,7 @@ sub clean($)
     my $TOTAL_FILES_TRANS_NEW = 0;
     my $TOTAL_FILES_TRANS_COPIED = 0;
     my $TOTAL_FILES_TRANS_CHECKED = 0;
+    my $TOTAL_FILES_TRANS_REPACKED = 0;
     my $TOTAL_FILES_TRANS_INSERTED = 0;
     my $TOTAL_FILES_DELETED = 0;
     my $TOTAL_FILES_NO_STATUS = 0;
@@ -329,6 +350,7 @@ sub clean($)
 	my $FILES_TRANS_NEW = 0;
 	my $FILES_TRANS_COPIED = 0;
 	my $FILES_TRANS_CHECKED = 0;
+	my $FILES_TRANS_REPACKED = 0;
 	my $FILES_TRANS_INSERTED = 0;
 	my $FILES_DELETED = 0;
 	my $FILES_NO_STATUS = 0;
@@ -388,6 +410,14 @@ sub clean($)
 			$FILES_DONE = $FILES_DONE + 1;
 		    }
 		}
+		elsif ($status == 35) {
+		    if ($DO_FILES_TRANS_REPACKED){
+			$FAILED_DELETES = $FAILED_DELETES + &delete_file($host, $file, $basename, $status);
+			$FILES_TRANS_REPACKED = $FILES_TRANS_REPACKED + 1;
+			$COMPLETED_DELETES = $COMPLETED_DELETES + 1;
+			$FILES_DONE = $FILES_DONE + 1;
+		    }
+		}
 		elsif ($status == 40) {
 		    if ($DO_FILES_TRANS_INSERTED){
 			$FAILED_DELETES = $FAILED_DELETES + &delete_file($host, $file, $basename, $status);
@@ -427,6 +457,7 @@ sub clean($)
         $TOTAL_FILES_TRANS_NEW = $TOTAL_FILES_TRANS_NEW + $FILES_TRANS_NEW;
         $TOTAL_FILES_TRANS_COPIED = $TOTAL_FILES_TRANS_COPIED + $FILES_TRANS_COPIED;
         $TOTAL_FILES_TRANS_CHECKED = $TOTAL_FILES_TRANS_CHECKED + $FILES_TRANS_CHECKED;
+        $TOTAL_FILES_TRANS_REPACKED = $TOTAL_FILES_TRANS_REPACKED + $FILES_TRANS_REPACKED;
         $TOTAL_FILES_TRANS_INSERTED = $TOTAL_FILES_TRANS_INSERTED + $FILES_TRANS_INSERTED;
         $TOTAL_FILES_DELETED = $TOTAL_FILES_DELETED + $FILES_DELETED;
 	$TOTAL_FILES_NO_STATUS = $TOTAL_FILES_NO_STATUS + $FILES_NO_STATUS;
@@ -437,6 +468,7 @@ sub clean($)
 	print "\t FILES_TRANS_NEW $FILES_TRANS_NEW\n";
 	print "\t FILES_TRANS_COPIED $FILES_TRANS_COPIED\n";
 	print "\t FILES_TRANS_CHECKED $FILES_TRANS_CHECKED\n";
+	print "\t FILES_TRANS_REPACKED $FILES_TRANS_REPACKED\n";
 	print "\t FILES_TRANS_INSERTED $FILES_TRANS_INSERTED\n";
 	print "\t FILES_DELETED $FILES_DELETED\n";
 	if ($DO_FILES_NO_STATUS){
@@ -455,6 +487,7 @@ sub clean($)
 	print APPLOG "            [$mday-$mon-$year $hour:$min:$sec $host]FILES_TRANS_NEW $FILES_TRANS_NEW\n";
 	print APPLOG "            [$mday-$mon-$year $hour:$min:$sec $host]FILES_TRANS_COPIED $FILES_TRANS_COPIED\n";
 	print APPLOG "            [$mday-$mon-$year $hour:$min:$sec $host]FILES_TRANS_CHECKED $FILES_TRANS_CHECKED\n";
+	print APPLOG "            [$mday-$mon-$year $hour:$min:$sec $host]FILES_TRANS_REPACKED $FILES_TRANS_REPACKED\n";
 	print APPLOG "            [$mday-$mon-$year $hour:$min:$sec $host]FILES_TRANS_INSERTED $FILES_TRANS_INSERTED\n";
 	print APPLOG "            [$mday-$mon-$year $hour:$min:$sec $host]FILES_DELETED $FILES_DELETED\n";
 	print APPLOG "            [$mday-$mon-$year $hour:$min:$sec $host]FILES_NO_STATUS_IN_DB $FILES_NO_STATUS\n";
@@ -595,6 +628,7 @@ sub show_usage($)
 	"   --FILES_TRANS_NEW\n".
 	"   --FILES_TRANS_COPIED\n".
 	"   --FILES_TRANS_CHECKED\n".
+	"   --FILES_TRANS_REPACKED\n".
 	"   --FILES_TRANS_INSERTED\n".
 	"   --FILES_DELETED\n".
 	"   --FILES_ALL\n\n\n".
@@ -667,6 +701,10 @@ foreach my $arg (@ARGV)
 	$DO_FILES = 1;
         $DO_FILES_TRANS_CHECKED = 1;
     }
+    if ("$arg" eq "--FILES_TRANS_REPACKED"){
+	$DO_FILES = 1;
+        $DO_FILES_TRANS_REPACKED = 1;
+    }
     if ("$arg" eq "--FILES_TRANS_INSERTED"){
 	$DO_FILES = 1;
         $DO_FILES_TRANS_INSERTED = 1;
@@ -683,6 +721,7 @@ foreach my $arg (@ARGV)
         $DO_FILES_TRANS_NEW=1;
         $DO_FILES_TRANS_COPIED=1;
         $DO_FILES_TRANS_CHECKED=1;
+        $DO_FILES_TRANS_REPACKED=1;
         $DO_FILES_TRANS_INSERTED=1;
         $DO_FILES_DELETED=1;
     }
