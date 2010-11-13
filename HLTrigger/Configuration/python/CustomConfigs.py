@@ -1,5 +1,16 @@
 import FWCore.ParameterSet.Config as cms
-def customise(process):
+
+from L1Trigger.Configuration import patchToRerunL1Emulator
+
+
+def Base(process):
+#   default modifications
+    process.options.wantSummary = cms.untracked.bool(True)
+
+    process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
+    process.MessageLogger.categories.append('L1GtTrigReport')
+    process.MessageLogger.categories.append('HLTrigReport')
+
     if 'hltTrigReport' in process.__dict__:
         process.hltTrigReport.HLTriggerResults = cms.InputTag( 'TriggerResults','',process.name_() )
 
@@ -9,12 +20,54 @@ def customise(process):
     if 'hltDQML1SeedLogicScalers' in process.__dict__:
         process.hltDQML1SeedLogicScalers.processname = process.name_()
 
-    process.options.wantSummary = cms.untracked.bool(True)
-    process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
-    process.MessageLogger.categories.append('L1GtTrigReport')
-    process.MessageLogger.categories.append('HLTrigReport')
+    return(process)
 
-    # drop on input the previous HLT results
+
+def L1T(process):
+#   modifications when running L1T only
+
+    process.load('L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi')
+    process.l1GtTrigReport.L1GtRecordInputTag = cms.InputTag( "simGtDigis" )
+
+    process.L1AnalyzerEndpath = cms.EndPath( process.l1GtTrigReport )
+    process.schedule.append(process.L1AnalyzerEndpath)
+
+    Base(process)
+
+    return(process)
+
+
+def L1THLT(process):
+#   modifications when running L1T+HLT
+
+    Base(process)
+
+    return(process)
+
+
+def L1THLT2(process):
+#   modifications when re-running L1T+HLT    
+
+#   run trigger primitive generation on unpacked digis, then central L1
+
+    process.load("L1Trigger.Configuration.CaloTriggerPrimitives_cff")
+    process.simEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
+    process.simHcalTriggerPrimitiveDigis.inputLabel = ('hcalDigis', 'hcalDigis')
+
+#   patch the process to use 'sim*Digis' from the L1 emulator
+#   instead of 'hlt*Digis' from the RAW data
+
+    patchToRerunL1Emulator.switchToSimGtDigis( process )
+
+    Base(process)
+
+    return(process)
+
+
+def HLTData(process):
+#   modifications when running on real data (currently pp [not HI] only!)
+
+#   drop on input the previous HLT results
     process.source.inputCommands = cms.untracked.vstring (
         'keep *',
         'drop *_hltL1GtObjectMap_*_*',
@@ -22,7 +75,7 @@ def customise(process):
         'drop *_hltTriggerSummaryAOD_*_*',
     )
 
-    # override the L1 menu
+#   override the L1 menu
     if 'toGet' not in process.GlobalTag.__dict__:
         process.GlobalTag.toGet = cms.VPSet()
     process.GlobalTag.toGet.append(
@@ -33,7 +86,7 @@ def customise(process):
         )
     )
 
-    # override RAW data name to rn on data
+#   override RAW data name to rn on data
     process.hltFEDSelector.inputTag                      = "source"
     process.hltGetRaw.RawDataCollection                  = "source"
     process.hltGtDigis.DaqGtInputTag                     = "source"
@@ -61,4 +114,6 @@ def customise(process):
     process.hltSiPixelHLTSource.RawInput                 = "source"
     process.hltSiStripFEDCheck.RawDataTag                = "source"
 
+    Base(process)
+    
     return(process)
