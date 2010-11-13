@@ -169,6 +169,16 @@ TStorageFactoryFile::~TStorageFactoryFile(void)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
+
+Bool_t
+TStorageFactoryFile::ReadBuffer(char *buf, Long64_t pos, Int_t len)
+{
+  // This function needs to be optimized to minimize seeks.
+  // See TFile::ReadBuffer(char *buf, Long64_t pos, Int_t len) in ROOT 5.27.06.
+  Seek(pos);
+  return ReadBuffer(buf, len);
+}
+
 Bool_t
 TStorageFactoryFile::ReadBuffer(char *buf, Int_t len)
 {

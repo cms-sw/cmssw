@@ -18,6 +18,7 @@ public:
   ~TStorageFactoryFile(void);
 
   virtual Bool_t	ReadBuffer(char *buf, Int_t len);
+  virtual Bool_t	ReadBuffer(char *buf, Long64_t pos, Int_t len);
   virtual Bool_t	ReadBufferAsync(Long64_t off, Int_t len);
   virtual Bool_t	ReadBuffers(char *buf,  Long64_t *pos, Int_t *len, Int_t nbuf);
   virtual Bool_t	WriteBuffer(const char *buf, Int_t len);
