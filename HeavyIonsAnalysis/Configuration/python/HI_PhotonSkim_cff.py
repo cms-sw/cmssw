@@ -13,6 +13,10 @@ goodPhotons = cms.EDFilter("PhotonSelector",
     cut = cms.string('et > 20 && hadronicOverEm < 0.1 && r9 > 0.8 && sigmaIetaIeta > 0.002')
 )
 
+goodPhotonsForZEE = goodPhotons.clone(
+    cut=cms.string('et > 20 && hadronicOverEm < 0.2 && r9 > 0.5 && sigmaIetaIeta > 0.002')
+)
+
 # leading photon E_T filter
 photonFilter = cms.EDFilter("EtMinPhotonCountFilter",
     src = cms.InputTag("goodPhotons"),
@@ -25,6 +29,8 @@ from RecoHI.HiEgammaAlgos.HiEgamma_cff import *
 
 # photon selection of spike-cleaned collection
 goodCleanPhotons = goodPhotons.clone(src=cms.InputTag("cleanPhotons"))
+goodCleanPhotonsForZEE = goodPhotonsForZEE.clone(src=cms.InputTag("cleanPhotons"))
+
 
 # leading E_T filter on cleaned collection
 cleanPhotonFilter = photonFilter.clone(src=cms.InputTag("goodCleanPhotons"))
@@ -47,7 +53,7 @@ primaryVertexFilterForZEE = cms.EDFilter("VertexSelector",
 
 # two-photon E_T filter
 twoPhotonFilter = cms.EDFilter("EtMinPhotonCountFilter",
-    src = cms.InputTag("goodPhotons"),
+    src = cms.InputTag("goodPhotonsForZEE"),
     etMin = cms.double(20.0),
     minNumber = cms.uint32(2)
 )
@@ -56,7 +62,7 @@ twoPhotonFilter = cms.EDFilter("EtMinPhotonCountFilter",
 photonCombiner = cms.EDProducer("CandViewShallowCloneCombiner",
   checkCharge = cms.bool(False),
   cut = cms.string('60 < mass < 120'),
-  decay = cms.string('goodCleanPhotons goodCleanPhotons')
+  decay = cms.string('goodCleanPhotonsForZEE goodCleanPhotonsForZEE')
 )
 
 photonPairCounter = cms.EDFilter("CandViewCountFilter",
@@ -67,10 +73,10 @@ photonPairCounter = cms.EDFilter("CandViewCountFilter",
 # Z->ee skim sequence
 zEESkimSequence = cms.Sequence(hltPhotonHI
                                * primaryVertexFilterForZEE
-                               * goodPhotons
+                               * goodPhotonsForZEE
                                * twoPhotonFilter
                                * hiPhotonCleaningSequence
-                               * goodCleanPhotons
+                               * goodCleanPhotonsForZEE
                                * photonCombiner
                                * photonPairCounter
                                )
