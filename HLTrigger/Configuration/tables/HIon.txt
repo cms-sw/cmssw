@@ -4,6 +4,8 @@ HLT_HIZeroBiasPixel_SingleTrack
 HLT_HIMinBiasBSC
 HLT_HIMinBiasBSC_OR
 HLT_HIMinBiasHF
+HLT_HIMinBiasHF_Core
+HLT_HIMinBiasHf_OR
 HLT_HIMinBiasHfOrBSC
 HLT_HIMinBiasHfOrBSC_Core
 HLT_HIMinBiasPixel_SingleTrack
@@ -18,11 +20,13 @@ HLT_HIL1SingleMu5
 HLT_HIL1SingleMu7
 HLT_HIL1DoubleMuOpen
 HLT_HIL1DoubleMuOpen_Core
-HLT_HIL1DoubleMu3
 HLT_HIL2Mu3
+HLT_HIL2Mu5Tight
 HLT_HIL2Mu5Tight_Core
+HLT_HIL2Mu20
 HLT_HIL2Mu20_Core
 HLT_HIL2DoubleMu0
+HLT_HIL2DoubleMu3
 HLT_HIL2DoubleMu3_Core
 HLT_HIUpcEcal
 HLT_HIUpcEcal_Core
@@ -44,6 +48,8 @@ HLT_HIJet75U_Core
 HLT_HIJet90U
 HLT_HIJet90U_Core
 HLT_HIStoppedHSCP35
+HLT_HIActivityHF_Coincidence3
+HLT_HIActivityHF_Single3
 HLT_HIClusterVertexCompatibility
 HLT_HICentralityVeto
 HLT_HIRandom
