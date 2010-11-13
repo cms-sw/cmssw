@@ -2,9 +2,9 @@
 #define _FWPFCLUSTERLEGOPROXYBUILDER_H_
 
 //
-// Package:     		Particle Flow
-// Class:     			FWPFClusterLegoProxyBuilder
-// Original Author:		Simon Harris
+// Package:             Particle Flow
+// Class:               FWPFClusterLegoProxyBuilder
+// Original Author:     Simon Harris
 //
 
 #include <math.h>
@@ -23,30 +23,30 @@
 
 class FWPFClusterLegoProxyBuilder : public FWProxyBuilderTemplate<reco::PFCluster>
 {
-	private:
-		// Disable default copy constructor
-		FWPFClusterLegoProxyBuilder( const FWPFClusterLegoProxyBuilder& );
-		// Disable default assignment operator
-		const FWPFClusterLegoProxyBuilder& operator=( const FWPFClusterLegoProxyBuilder& );
+   private:
+      // Disable default copy constructor
+      FWPFClusterLegoProxyBuilder( const FWPFClusterLegoProxyBuilder& );
+      // Disable default assignment operator
+      const FWPFClusterLegoProxyBuilder& operator=( const FWPFClusterLegoProxyBuilder& );
 
-        // ------------------------- member functions -------------------------------
-        float calculateET( const reco::PFCluster &cluster );
+      // ------------------------- member functions -------------------------------
+      float calculateET( const reco::PFCluster &cluster );
 
     public:
-	    static std::string typeOfBuilder() { return "simple#"; }
+      static std::string typeOfBuilder() { return "simple#"; }
 
-        // -------------------- Constructor(s)/Destructors --------------------------
-	    FWPFClusterLegoProxyBuilder(){}
-	    virtual ~FWPFClusterLegoProxyBuilder(){}
+      // -------------------- Constructor(s)/Destructors --------------------------
+      FWPFClusterLegoProxyBuilder(){}
+      virtual ~FWPFClusterLegoProxyBuilder(){}
 
-	    // ------------------------- member functions -------------------------------
-	    virtual void build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext* );
-        virtual void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );
-	    virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
-        virtual void localModelChanges( const FWModelId &iId, TEveElement *iCompound,
+      // ------------------------- member functions -------------------------------
+      virtual void build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext* );
+      virtual void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );
+      virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
+      virtual void localModelChanges( const FWModelId &iId, TEveElement *iCompound,
                                         FWViewType::EType viewType, const FWViewContext *vc );
-	
-	    REGISTER_PROXYBUILDER_METHODS();
+   
+      REGISTER_PROXYBUILDER_METHODS();
 
 };
 #endif

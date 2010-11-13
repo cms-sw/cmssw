@@ -13,35 +13,35 @@
 
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"	/* Included for pat::Jet declaration */
+#include "DataFormats/PatCandidates/interface/Jet.h"   /* Included for pat::Jet declaration */
 
 
 
- /*************************************************************************\
-(				FORWARD DECLARATIONS	       		    )
- \*************************************************************************/
+ /***************************************************\
+(            FORWARD DECLARATIONS                     )
+ \***************************************************/
 
 template<class T>
 class FWPFPatJet3DProxyBuilder : public FWSimpleProxyBuilderTemplate<T> {
 
 public:
-	FWPFPatJet3DProxyBuilder();
-	virtual ~FWPFPatJet3DProxyBuilder();
+   FWPFPatJet3DProxyBuilder();
+   virtual ~FWPFPatJet3DProxyBuilder();
 
 
- /*************************************************************************\
-(				MEMBER FUNCTIONS	       		    )
- \*************************************************************************/
+ /***************************************************\
+(            MEMBER FUNCTIONS                         )
+ \***************************************************/
 
 private:
-	FWPFPatJet3DProxyBuilder(const FWPFPatJet3DProxyBuilder&); // Stop default
-	const FWPFPatJet3DProxyBuilder& operator=(const FWPFPatJet3DProxyBuilder&); // Stop default
+   FWPFPatJet3DProxyBuilder(const FWPFPatJet3DProxyBuilder&); // Stop default
+   const FWPFPatJet3DProxyBuilder& operator=(const FWPFPatJet3DProxyBuilder&); // Stop default
 
-	void build(const T&, unsigned int, TEveElement&, const FWViewContext*);
+   void build(const T&, unsigned int, TEveElement&, const FWViewContext*);
 
 
- /*************************************************************************\
-(				MEMBER DATA 	       		            )
- \*************************************************************************/
+ /***************************************************\
+(            MEMBER DATA                              )
+ \***************************************************/
 };
 #endif

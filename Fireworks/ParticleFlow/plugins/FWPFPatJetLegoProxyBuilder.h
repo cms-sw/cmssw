@@ -18,19 +18,19 @@
 template <class T>
 class FWPFPatJetLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<T> {
 public:
-	FWPFPatJetLegoProxyBuilder();
-	virtual ~FWPFPatJetLegoProxyBuilder();
+   FWPFPatJetLegoProxyBuilder();
+   virtual ~FWPFPatJetLegoProxyBuilder();
 
-	// -------------------- member functions --------------------------
-	virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
-	virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
-	virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound, FWViewType::EType viewType, const FWViewContext* vc);
+   // -------------------- member functions --------------------------
+   virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
+   virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
+   virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound, FWViewType::EType viewType, const FWViewContext* vc);
 
 private:
-	FWPFPatJetLegoProxyBuilder(const FWPFPatJetLegoProxyBuilder&);			//stop default
-	const FWPFPatJetLegoProxyBuilder& operator=(FWPFPatJetLegoProxyBuilder&);	//stop default
+   FWPFPatJetLegoProxyBuilder(const FWPFPatJetLegoProxyBuilder&);             //stop default
+   const FWPFPatJetLegoProxyBuilder& operator=(FWPFPatJetLegoProxyBuilder&);  //stop default
 
-	void build(const T&, unsigned int, TEveElement&, const FWViewContext*);
+   void build(const T&, unsigned int, TEveElement&, const FWViewContext*);
 
 };
 #endif

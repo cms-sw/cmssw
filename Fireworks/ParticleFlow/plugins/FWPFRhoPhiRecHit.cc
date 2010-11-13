@@ -78,7 +78,7 @@ FWPFRhoPhiRecHit::ModScale()
    // Scale centres
    TEveVector sc1 = m_corners[1];   // Bottom right corner
    TEveVector sc2 = m_corners[0];   // Bottom left corner
-   TEveVector v1 = sc1;         // Used to store normalized vectors
+   TEveVector v1 = sc1;             // Used to store normalized vectors
    TEveVector v2 = sc2;
 
    v1.Normalize();

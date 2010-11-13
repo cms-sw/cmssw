@@ -18,16 +18,16 @@ FWPFLegoCandidate::FWPFLegoCandidate( const LegoCandidateData &lc, const FWViewC
 
     // energy auto scale
     FWViewEnergyScale *scaleE = vc->getEnergyScale( "PFenergy" );
-	scaleE->setMaxVal( m_energy );
+   scaleE->setMaxVal( m_energy );
 
     // et auto scale
     FWViewEnergyScale *scaleEt = vc->getEnergyScale( "PFet" );
-	scaleEt->setMaxVal( m_et );
+   scaleEt->setMaxVal( m_et );
 
     float base = 0.001;     // Floor offset 1%
     
     // First vertical line
-	FWViewEnergyScale *caloScale = vc->getEnergyScale("Calo");
+   FWViewEnergyScale *caloScale = vc->getEnergyScale("Calo");
     float val = caloScale->getPlotEt() ? m_et : m_energy;
 
     AddLine(eta,phi, base, 
@@ -59,7 +59,7 @@ FWPFLegoCandidate::getScale( const FWViewContext *vc, const fireworks::Context &
 {
     float s = 0.f;
     
-	FWViewEnergyScale *caloScale = vc->getEnergyScale("Calo");
+   FWViewEnergyScale *caloScale = vc->getEnergyScale("Calo");
 
     if( context.getCaloData()->Empty() && caloScale->getScaleMode() == FWViewEnergyScale::kAutoScale )
     {

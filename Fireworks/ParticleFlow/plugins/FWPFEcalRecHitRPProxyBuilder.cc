@@ -53,7 +53,7 @@ FWPFEcalRecHitRPProxyBuilder::build( const FWEventItem *iItem, TEveElementList *
 
       TEveVector centre = calculateCentre( vertices );
       TEveVector lVec = TEveVector( vertices[0], vertices[1], 0 );   // Bottom left corner of tower
-      TEveVector rVec = TEveVector( vertices[9], vertices[10], 0 );   // Bottom right corner of tower
+      TEveVector rVec = TEveVector( vertices[9], vertices[10], 0 );  // Bottom right corner of tower
       
       lPhi = lVec.Phi();
       rPhi = rVec.Phi();
