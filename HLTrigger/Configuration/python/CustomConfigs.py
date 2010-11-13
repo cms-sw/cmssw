@@ -5,6 +5,7 @@ from L1Trigger.Configuration import patchToRerunL1Emulator
 
 def Base(process):
 #   default modifications
+
     process.options.wantSummary = cms.untracked.bool(True)
 
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
@@ -32,7 +33,7 @@ def L1T(process):
     process.L1AnalyzerEndpath = cms.EndPath( process.l1GtTrigReport )
     process.schedule.append(process.L1AnalyzerEndpath)
 
-    Base(process)
+    process=Base(process)
 
     return(process)
 
@@ -40,7 +41,7 @@ def L1T(process):
 def L1THLT(process):
 #   modifications when running L1T+HLT
 
-    Base(process)
+    process=Base(process)
 
     return(process)
 
@@ -59,7 +60,7 @@ def L1THLT2(process):
 
     patchToRerunL1Emulator.switchToSimGtDigis( process )
 
-    Base(process)
+    process=Base(process)
 
     return(process)
 
@@ -114,6 +115,6 @@ def HLTData(process):
     process.hltSiPixelHLTSource.RawInput                 = "source"
     process.hltSiStripFEDCheck.RawDataTag                = "source"
 
-    Base(process)
+    process=Base(process)
     
     return(process)
