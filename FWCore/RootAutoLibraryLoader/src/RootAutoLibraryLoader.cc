@@ -338,7 +338,7 @@ namespace edm {
    TClass*
    RootAutoLibraryLoader::GetClass(char const* classname, Bool_t load) {
       TClass* returnValue = 0;
-      if(classname == classNameAttemptingToLoad_) {
+      if(classNameAttemptingToLoad_ != 0 && !strcmp(classname, classNameAttemptingToLoad_)) {
          // We can try to see if the class name contains "basic_string<char>".
          // If so, we replace "basic_string<char>" with "string" and try again.
          std::string className(classname);
