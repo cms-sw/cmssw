@@ -1,5 +1,5 @@
 //
-// $Id: HiEgammaSCEnergyCorrectionAlgo.cc,v 1.4 2010/10/28 15:46:53 yjlee Exp $
+// $Id: HiEgammaSCEnergyCorrectionAlgo.cc,v 1.5 2010/10/28 19:02:30 yjlee Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoHI/HiEgammaAlgos/interface/HiEgammaSCEnergyCorrectionAlgo.h"
@@ -33,25 +33,14 @@ HiEgammaSCEnergyCorrectionAlgo::HiEgammaSCEnergyCorrectionAlgo(double noise,
 
 }
 
-HiEgammaSCEnergyCorrectionAlgo::~HiEgammaSCEnergyCorrectionAlgo()
-{
-  recHits_m->clear();
-  delete recHits_m;
-}
 
-reco::SuperCluster HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster &cl, 
-								 const EcalRecHitCollection &rhc, reco::CaloCluster::AlgoId theAlgo, const CaloSubdetectorGeometry* geometry,
-								 const CaloTopology *topology, EcalClusterFunctionBaseClass* EnergyCorrection)
+
+reco::SuperCluster 
+HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster &cl, 
+						const EcalRecHitCollection &rhc, reco::CaloCluster::AlgoId theAlgo, 
+						const CaloSubdetectorGeometry* geometry,
+						const CaloTopology *topology, EcalClusterFunctionBaseClass* EnergyCorrection)
 {	
-   // Insert the recHits into map	
-   // (recHits needed as number of crystals in the seed cluster
-   // with energy above 2sigma noise required)
-   EcalRecHitCollection::const_iterator it;
-   for (it = rhc.begin(); it != rhc.end(); it++)
-   {
-      std::pair<DetId, EcalRecHit> map_entry(it->id(), *it);
-      recHits_m->insert(map_entry);
-   }
 	
    // Print out a little bit of trivial info to be sure all is well
    if (verbosity_ <= pINFO)
@@ -110,17 +99,17 @@ reco::SuperCluster HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::S
       std::cout << "   bremsEnergy " << bremsEnergy << std::endl;
    }
 
-   // Create the pointer ot class SuperClusterShapeAlgo
+   // Create a SuperClusterShapeAlgo
    // which calculates phiWidth and etaWidth
-   SuperClusterShapeAlgo* SCShape = new SuperClusterShapeAlgo(&rhc, geometry);
+   SuperClusterShapeAlgo SCShape(&rhc, geometry);
 
    double phiWidth = 0.;
    double etaWidth = 0.;
  
    // Calculate phiWidth & etaWidth for SuperClusters
-   SCShape->Calculate_Covariances(cl);
-   phiWidth = SCShape->phiWidth();
-   etaWidth = SCShape->etaWidth();
+   SCShape.Calculate_Covariances(cl);
+   phiWidth = SCShape.phiWidth();
+   etaWidth = SCShape.etaWidth();
 
    // Calculate r9 and 5x5 energy
    float e3x3    =   EcalClusterTools::e3x3(  *(cl.seed()), &rhc, &(*topology));
@@ -135,7 +124,10 @@ reco::SuperCluster HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::S
    // if r9 > maxR9_ -> uncaptured brem.
    if ((r9 < minR9Barrel_&&theBase == EcalBarrel) || (r9 < minR9Endcap_&&theBase == EcalEndcap)) {     
       // if r9 is greater than threshold, then use the SC raw energy
-      newEnergy = (cl.rawEnergy())/ fEta(cl.eta(), theAlgo, theBase) / fBrem(phiWidth/etaWidth, theAlgo, theBase)/fEtEta(cl.energy()/cosh(cl.eta()), cl.eta(), theAlgo, theBase);
+      newEnergy = (cl.rawEnergy())/ fEta(cl.eta(), theAlgo, theBase) / 
+	fBrem(phiWidth/etaWidth, theAlgo, theBase)
+	/fEtEta(cl.energy()/cosh(cl.eta()), cl.eta(), theAlgo, theBase);
+
    }  else {
       if (r9 < maxR9_) {
          // use 5x5 energy if r9 < threshold
@@ -164,10 +156,6 @@ reco::SuperCluster HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::S
    corrCl.setPhiWidth(phiWidth);
    corrCl.setEtaWidth(etaWidth);
 
-   // Return the corrected cluster
-   recHits_m->clear();
- 
-   delete SCShape;
    return corrCl;
 }
 
@@ -194,7 +182,7 @@ float HiEgammaSCEnergyCorrectionAlgo::fEtEta(float et, float eta, reco::CaloClus
 
 }
 
-float HiEgammaSCEnergyCorrectionAlgo::fEta(float eta, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase)
+float HiEgammaSCEnergyCorrectionAlgo::fEta(float eta, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase) const
 {
   int offset = 0;
   float factor;
@@ -213,7 +201,7 @@ float HiEgammaSCEnergyCorrectionAlgo::fEta(float eta, reco::CaloCluster::AlgoId 
   return factor;
 }
 
-float HiEgammaSCEnergyCorrectionAlgo::fBrem(float brem, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase)
+float HiEgammaSCEnergyCorrectionAlgo::fBrem(float brem, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase) const
 {
   int det = 0;
   int offset = 0;
@@ -241,33 +229,31 @@ float HiEgammaSCEnergyCorrectionAlgo::fBrem(float brem, reco::CaloCluster::AlgoI
 
 //   char *var ="rawEnergy/cosh(genMatchedEta)/(1.01606-0.0162668*abs(eta))/genMatchedPt/(1.022-0.02812*phiWidth/etaWidth+0.001637*phiWidth*phiWidth/etaWidth/etaWidth)/((0.682554+0.0253013*scSize-(0.0007907)*scSize*scSize+(1.166e-5)*scSize*scSize*scSize-(6.7387e-8)*scSize*scSize*scSize*scSize)*(scSize<40)+(scSize>=40))/((1.016-0.009877*((clustersSize<=4)*clustersSize+(clustersSize>4)*4)))";
 
-float HiEgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase)
+float HiEgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase) const
 {
 
-  float p0 = 0, p1 = 0, p2 = 0, p3 = 0, p4 = 0;
   float x  = (float) nCry;
-  float result =1.;
+  float result =1.f;
   
   if((theBase == EcalBarrel) && (theAlgo == reco::CaloCluster::island)) { 
-        p0 = 0.682554;     
-        p1 = 0.0253013;
-        p2 = -0.0007907;
-        p3 = 1.166e-5;
-        p4 = -6.7387e-8;
-        if (x < 10.) x = 10.;
-        if (x < 40.) result = p0 + p1*x + p2*x*x + p3*x*x*x + p4*x*x*x*x; else result = 1;
+        float const p0 = 0.682554f;     
+        float const p1 = 0.0253013f;
+        float const p2 = -0.0007907f;
+        float const p3 = 1.166e-5f;
+        float const p4 = -6.7387e-8f;
+        if (x < 10.f) x = 10.f;
+        if (x < 40.f) result = p0 + x*(p1 + x*(p2 + x*(p3 + x*p4))); else result = 1.f;
       }
         
     else if((theBase == EcalEndcap) && (theAlgo == reco::CaloCluster::island)) {    
         
-        p0 = 0.712185;     
-        p1 = 0.0273609;
-        p2 = -0.00103818;
-        p3 = 2.01828e-05;
-        p4 = -1.71438e-07;
-        if (x < 10.) x = 10.;
-        result = p0 + p1*x + p2*x*x + p3*x*x*x + p4*x*x*x*x;
-        if (x < 40.) result = p0 + p1*x + p2*x*x + p3*x*x*x + p4*x*x*x*x; else result = 1;   
+        float const p0 = 0.712185f;     
+        float const p1 = 0.0273609f;
+        float const p2 = -0.00103818f;
+        float const p3 = 2.01828e-05f;
+        float const p4 = -1.71438e-07f;
+        if (x < 10.f) x = 10.f;
+	if (x < 40.f) result = p0 + x*(p1 + x*(p2 + x*(p3 + x*p4))); else result = 1.f;   
       }
       
     else {
@@ -277,14 +263,13 @@ float HiEgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry, reco::CaloCluster::Al
       }
     }
   
-  if (result > 1.5) result = 1.5;
-  if (result < 0.5) result = 0.5;
+  if (result > 1.5f) result = 1.5f;
+  if (result < 0.5f) result = 0.5f;
 
   return result;  
 }
 
-int HiEgammaSCEnergyCorrectionAlgo::nCrystalsGT2Sigma(const reco::BasicCluster &seed)
-{
+int HiEgammaSCEnergyCorrectionAlgo::nCrystalsGT2Sigma(reco::BasicCluster const & seed, EcalRecHitCollection const &rhc) const {
   // return number of crystals 2Sigma above
   // electronic noise
   
@@ -299,12 +284,10 @@ int HiEgammaSCEnergyCorrectionAlgo::nCrystalsGT2Sigma(const reco::BasicCluster &
   }
 
   int nCry = 0;
-  std::vector<std::pair<DetId,float > >::iterator hit;
-  std::map<DetId, EcalRecHit>::iterator aHit;
   for(hit = hits.begin(); hit != hits.end(); hit++)
     {
       // need to get hit by DetID in order to get energy
-      aHit = recHits_m->find((*hit).first);
+      EcalRecHitCollection::const_iterator aHit = rhc.find((*hit).first);
       if(aHit->second.energy()>2.*sigmaElectronicNoise_) nCry++;
     }
 
