@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.39 2010/09/21 12:35:35 argiro Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.40 2010/11/14 14:08:48 innocent Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -86,14 +86,14 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
 
   //Create the pointer ot class SuperClusterShapeAlgo
   //which calculates phiWidth and etaWidth
-  SuperClusterShapeAlgo* SCShape = new SuperClusterShapeAlgo(&rhc, geometry);
+  SuperClusterShapeAlgo  SCShape(&rhc, geometry);
 
   double phiWidth = 0.;
   double etaWidth = 0.;
   //Calculate phiWidth & etaWidth for SuperClusters
-  SCShape->Calculate_Covariances(cl);
-  phiWidth = SCShape->phiWidth();
-  etaWidth = SCShape->etaWidth();
+  SCShape.Calculate_Covariances(cl);
+  phiWidth = SCShape.phiWidth();
+  etaWidth = SCShape.etaWidth();
 
   // Calculate the new supercluster energy 
   //as a function of number of crystals in the seed basiccluster for Endcap 
@@ -131,14 +131,10 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   corrCl.setPhiWidth(phiWidth);
   corrCl.setEtaWidth(etaWidth);
 
-  // Return the corrected cluster
-  recHits_m->clear();
- 
-  delete SCShape;
-  return corrCl;
+   return corrCl;
 }
 
-float EgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase) {
+float EgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase) const {
 
   float p0 = 0, p1 = 0, p2 = 0, p3 = 0, p4 = 0;
   float x  =  nCry;
@@ -163,11 +159,11 @@ float EgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry, reco::CaloCluster::Algo
       } 
     else 
       {
-	p0 =  5.65474e+00; 
-	p1 = -6.31640e-01; 
-	p2 =  3.14218e-02; 
-	p3 = -6.84256e-04; 
-	p4 =  5.50659e-06; 
+	p0 =  5.65474e+00f; 
+	p1 = -6.31640e-01f; 
+	p2 =  3.14218e-02f; 
+	p3 = -6.84256e-04f; 
+	p4 =  5.50659e-06f; 
       }
     if (x > 40.f) x = 40.f;
   }
@@ -203,6 +199,7 @@ float EgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry, reco::CaloCluster::Algo
       {
         std::cout << "trying to correct unknown cluster!!!" << std::endl;
       }
+    return 1.f;
   }
   result = p0 + x*(p1 + x*(p2 + x*(p3 + x*p4)));
   
