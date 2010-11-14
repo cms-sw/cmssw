@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.41 2010/11/14 14:13:48 innocent Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.42 2010/11/14 14:14:28 innocent Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-EgammaSCEnergyCorrectionAlgo::EgammaSCEnergyCorrectionAlgo(double noise, 
+EgammaSCEnergyCorrectionAlgo::EgammaSCEnergyCorrectionAlgo(float noise, 
 							   reco::CaloCluster::AlgoId theAlgo,
 							   const edm::ParameterSet& pset,
 							   EgammaSCEnergyCorrectionAlgo::VerbosityLevel verbosity
@@ -236,7 +236,7 @@ int EgammaSCEnergyCorrectionAlgo::nCrystalsGT2Sigma(reco::BasicCluster const & s
   for(hit = hits.begin(); hit != hits.end(); hit++) {
       // need to get hit by DetID in order to get energy
       aHit = rhc.find((*hit).first);
-      if(aHit.energy()>2*sigmaElectronicNoise_) nCry++;
+      if((*aHit).energy()>2.f*sigmaElectronicNoise_) nCry++;
     }
 
   if (verbosity_ <= pINFO)
