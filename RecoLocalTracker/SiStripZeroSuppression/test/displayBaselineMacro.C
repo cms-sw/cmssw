@@ -20,7 +20,7 @@ class displayBaselineMacro {
 public:
   TFile *f, *fo;
   TString BaseDir;
-  TString dir[2];
+  TString dir[3];
   TString fullPath, title, subDet, genSubDet;
   TCanvas *C;
   void loop(int limit){
@@ -66,6 +66,18 @@ public:
 	  hb->Draw("same");
 	}
 	
+	f->cd();
+	//f->cd(dir[1]);
+	TH1F* hc = (TH1F*) f->Get(dir[2]+"/"+obj->GetName());
+	
+	if(hc!=0){
+	  hc->SetLineWidth(2);
+	  hc->SetLineStyle(2);
+	  hc->SetLineColor(3);
+	  //leg.AddEntry(hb,"clusters","lep");
+	  hc->Draw("same");
+	}
+	
 	else
 	  std::cout << "not found " << obj->GetName()<< std::endl;
 	//leg.Draw();
@@ -91,7 +103,7 @@ public:
     //BaseDir="DQMData/Results/SpyChannel/";
     dir[0]="ProcessedRawDigis";
     dir[1]="Baseline";
-
+    dir[2]="Clusters";
     //f->cd();
     loop(limit);
 	fo->Write();

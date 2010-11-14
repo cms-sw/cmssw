@@ -33,8 +33,8 @@ class SiStripAPVRestorer {
   virtual ~SiStripAPVRestorer() {};
 
   void     init(const edm::EventSetup& es);
-  int16_t  inspect(const uint32_t&, std::vector<int16_t>&);
-  void     restore(std::vector<int16_t>&, const std::vector< std::pair<short,float> >& );
+  int16_t  inspect(const uint32_t&, std::vector<int16_t>&, const std::vector< std::pair<short,float> >&);
+  void     restore(std::vector<int16_t>&);
   void     fixAPVsCM(edm::DetSet<SiStripProcessedRawDigi>& );
   void     LoadMeanCMMap(edm::Event&);
   RawDigiMap& GetBaselineMap(){return BaselineMap_;}
@@ -46,8 +46,8 @@ class SiStripAPVRestorer {
 
  private:
  
-  template<typename T>float median( std::vector<T>& );
-  template<typename T>void IterativeMedian(std::vector<T>&, uint16_t); 
+  //template<typename T>float median( std::vector<T>& );
+  //template<typename T>void IterativeMedian(std::vector<T>&, uint16_t); 
   
   template<typename T >int16_t NullInspect(std::vector<T>&);
   template<typename T >int16_t AbnormalBaselineInspect(std::vector<T>&);

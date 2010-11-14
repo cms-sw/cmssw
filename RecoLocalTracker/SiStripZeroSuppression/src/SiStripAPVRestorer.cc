@@ -24,7 +24,8 @@ SiStripAPVRestorer::SiStripAPVRestorer(const edm::ParameterSet& conf):
   minStripsToFit_(conf.getParameter<uint32_t>("minStripsToFit")),
   distortionThreshold_(conf.getParameter<uint32_t>("distortionThreshold")),
   CutToAvoidSignal_(conf.getParameter<double>("CutToAvoidSignal")),
-  nSaturatedStrip_(conf.getParameter<uint32_t>("nSaturatedStrip"))	
+  nSaturatedStrip_(conf.getParameter<uint32_t>("nSaturatedStrip")),
+  noise_cache_id(-1), quality_cache_id(-1)	
   
 {
   apvFlags_.clear();
@@ -55,7 +56,7 @@ void SiStripAPVRestorer::init(const edm::EventSetup& es){
 }
 
 
-int16_t SiStripAPVRestorer::inspect( const uint32_t& detId,std::vector<int16_t>& digis) {
+int16_t SiStripAPVRestorer::inspect( const uint32_t& detId,std::vector<int16_t>& digis, const std::vector< std::pair<short,float> >& vmedians) {
   
   detId_ = detId;
   
@@ -64,6 +65,7 @@ int16_t SiStripAPVRestorer::inspect( const uint32_t& detId,std::vector<int16_t>&
   SmoothedMaps_.clear();
   BaselineMap_.erase(BaselineMap_.begin(), BaselineMap_.end()); 
     
+  for(size_t i=0; i< vmedians.size(); ++i) median_.push_back(vmedians[i].second);
 	
   if(InspectAlgo_=="BaselineFollower") return this->BaselineFollowerInspect(digis);
   if(InspectAlgo_=="AbnormalBaseline") return this->AbnormalBaselineInspect(digis);
@@ -74,7 +76,7 @@ int16_t SiStripAPVRestorer::inspect( const uint32_t& detId,std::vector<int16_t>&
 }
 
 
-void SiStripAPVRestorer::restore( std::vector<int16_t>& digis, const std::vector< std::pair<short,float> >& vmedians ) {
+void SiStripAPVRestorer::restore( std::vector<int16_t>& digis ) {
 	
   if(ForceNoRestore_) return;
   
@@ -87,10 +89,10 @@ void SiStripAPVRestorer::restore( std::vector<int16_t>& digis, const std::vector
       if(algoToUse=="Flat"){
 	this->FlatRestore(digis, APV);
       }else if(algoToUse=="BaselineFollower"){
-	float median = vmedians[APV].second;
-	this->BaselineFollowerRestore(digis, APV, median);
-      }else if(algoToUse=="IterativeMedian"){
-	this->IterativeMedian(digis, APV);
+	
+	this->BaselineFollowerRestore(digis, APV, median_[APV]);
+   //   }else if(algoToUse=="IterativeMedian"){
+	//this->IterativeMedian(digis, APV);
       }else{
 	throw cms::Exception("Unregistered Restore Algorithm") << "SiStripAPVRestorer possibilities: (Flat), (BaselineFollower)";
       }
@@ -110,8 +112,6 @@ int16_t SiStripAPVRestorer::BaselineFollowerInspect(std::vector<T>& digis){
   std::vector<T> singleAPVdigi;
   singleAPVdigi.clear();
   
-  std::vector<T> singleAPVdigiCopy;
-  singleAPVdigiCopy.clear();  
   
   int16_t nAPVflagged = 0;
   
@@ -123,14 +123,13 @@ int16_t SiStripAPVRestorer::BaselineFollowerInspect(std::vector<T>& digis){
     int MeanAPVCM = 128;
     if(useRealMeanCM_&&itCMMap!= MeanCMmap_.end()) MeanAPVCM =(itCMMap->second)[APV];
     
-    singleAPVdigi.clear(); singleAPVdigiCopy.clear();
+    singleAPVdigi.clear(); 
     for(int16_t strip = APV*128; strip < (APV+1)*128; ++strip){
       singleAPVdigi.push_back(digis[strip]); 
-      singleAPVdigiCopy.push_back(digis[strip]);
+      
     }
     
     
-    median_.push_back(this->median(singleAPVdigiCopy));
     float DeltaCM = median_[APV] -MeanAPVCM; 
     //if(DeltaCM > DeltaCMThreshold_){		      //to be modified when code is extended
     //	apvFlags_.push_back( RestoreAlgo_ );              
@@ -167,8 +166,6 @@ int16_t SiStripAPVRestorer::BaselineAndSaturationInspect(std::vector<T>& digis){
   std::vector<T> singleAPVdigi;
   singleAPVdigi.clear();
   
-  std::vector<T> singleAPVdigiCopy;
-  singleAPVdigiCopy.clear();  
   
   int16_t nAPVflagged = 0;
   
@@ -181,14 +178,13 @@ int16_t SiStripAPVRestorer::BaselineAndSaturationInspect(std::vector<T>& digis){
     if(useRealMeanCM_&&itCMMap!= MeanCMmap_.end()) MeanAPVCM =(itCMMap->second)[APV];
     
     singleAPVdigi.clear();
-    singleAPVdigiCopy.clear();
+   
     uint16_t nSatStrip =0;
     for(int16_t strip = APV*128; strip < (APV+1)*128; ++strip){
       singleAPVdigi.push_back(digis[strip]);
-      singleAPVdigiCopy.push_back(digis[strip]);
       if(digis[strip] >=1023) ++nSatStrip;
     }
-    median_.push_back(this->median(singleAPVdigiCopy));
+    
     float DeltaCM = median_[APV] -MeanAPVCM; 
     
     
@@ -376,7 +372,9 @@ bool inline SiStripAPVRestorer::FlatRegionsFinder(std::vector<int16_t>& adcs, Di
   
   //uint32_t idToLook = 369120382;  //to be removed
   //============================= Height above local minimum ===============================                    
-  float adcsLocalMinSubtracted[128];
+  std::vector<float> adcsLocalMinSubtracted;
+  adcsLocalMinSubtracted.clear();
+  adcsLocalMinSubtracted.insert(adcsLocalMinSubtracted.begin(), 128,0);
   for(uint32_t istrip=0; istrip<128; ++istrip) {
     float localmin = 999.9;		
     for(uint16_t jstrip=std::max(0,(int)(istrip-nSmooth_/2)); jstrip<std::min(128,(int)(istrip+nSmooth_/2)); ++jstrip) {
@@ -523,7 +521,7 @@ void inline SiStripAPVRestorer::BaselineFollower(DigiMap& smoothedpoints, std::v
 
 //CM subtracion method implementation ================================
 //====================================================================
-
+/*
 template<typename T>
 inline
 float SiStripAPVRestorer::median( std::vector<T>& sample) {
@@ -534,70 +532,12 @@ float SiStripAPVRestorer::median( std::vector<T>& sample) {
     return *mid;
   return ( *std::max_element(sample.begin(), mid) + *mid ) / 2.;
 }
-
-
-template<typename T>
-inline
-void SiStripAPVRestorer::
-IterativeMedian(std::vector<T>& digis, uint16_t APV){
-
-  SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detId_);
-  SiStripQuality::Range detQualityRange = qualityHandle->getRange(detId_);
-
-  typename std::vector<T>::iterator fs,ls;
-  float offset = 0;  
-  std::vector< std::pair<float,float> > subset;
-  subset.reserve(128);
-
-    
-  subset.clear();
-  // fill subset vector with all good strips and their noises
-  for (uint16_t istrip=APV*128; istrip<(APV+1)*128; ++istrip){
-    if ( !qualityHandle->IsStripBad(detQualityRange,istrip) ){
-      std::pair<float,float> pin((float)digis[istrip], (float)noiseHandle->getNoiseFast(istrip,detNoiseRange));
-      subset.push_back( pin );
-    }
-  }
-  
-  // caluate offset for all good strips (first iteration)
-  if (subset.size() != 0)
-    offset = pairMedian(subset);
-  
-  // for second, third... iterations, remove strips over threshold
-  // and recalculate offset on remaining strips
-  for ( int ii = 0; ii<2; ++ii ){
-    std::vector< std::pair<float,float> >::iterator si = subset.begin();
-    while(  si != subset.end() ){
-      if( si->first-offset > CutToAvoidSignal_*si->second )  
-	si = subset.erase(si);
-      else
-	++si;
-    }
-    if ( subset.size() == 0 ) break;
-    offset = pairMedian(subset);
-  }        
-  
-  
-  // remove offset
-  fs = digis.begin()+APV*128;
-  ls = digis.begin()+(APV+1)*128;
-  while (fs < ls) {
-    *fs = static_cast<T>(*fs-offset);
-    fs++;
-  }
-  
-  
-}
+*/
 
 
 
-inline float SiStripAPVRestorer::pairMedian( std::vector<std::pair<float,float> >& sample) {
-  std::vector<std::pair<float,float> >::iterator mid = sample.begin() + sample.size()/2;
-  std::nth_element(sample.begin(), mid, sample.end());
-  if( sample.size() & 1 ) //odd size
-    return (*mid).first;
-  return ( (*std::max_element(sample.begin(), mid)).first + (*mid).first ) / 2.;
-}
+
+
 
 
 //Other method implementation ==============================================

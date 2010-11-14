@@ -172,11 +172,16 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
     int16_t nAPVflagged = 0;
 	
     if ( "ProcessedRaw" == inputTag.instance()) {
-      std::vector<int16_t> processedRawDigis;
+      std::vector<int16_t> processedRawDigis, processedRawDigisCopy ;
       transform(rawDigis->begin(), rawDigis->end(), back_inserter(processedRawDigis), boost::bind(&SiStripRawDigi::adc , _1));
-      if( doAPVRestore ) nAPVflagged = algorithms->restorer->inspect( rawDigis->id, processedRawDigis );
+	  if( doAPVRestore ){
+	   	processedRawDigisCopy.assign(processedRawDigis.begin(), processedRawDigis.end());
+	  }
       algorithms->subtractorCMN->subtract( rawDigis->id, processedRawDigis);
-      if( doAPVRestore ) algorithms->restorer->restore( processedRawDigis, algorithms->subtractorCMN->getAPVsCM() );
+      if( doAPVRestore ){
+	    nAPVflagged = algorithms->restorer->inspect( rawDigis->id, processedRawDigisCopy, algorithms->subtractorCMN->getAPVsCM() );
+		algorithms->restorer->restore( processedRawDigis );
+	  }
       algorithms->suppressor->suppress( processedRawDigis, suppressedDigis );
       
       const std::vector< std::pair<short,float> >& vmedians= algorithms->subtractorCMN->getAPVsCM();
@@ -190,11 +195,16 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
       //	this->storeBaselinePoints(rawDigis->id, baselinpoints);
       // }
     } else if ( "VirginRaw" == inputTag.instance()) {
-      std::vector<int16_t> processedRawDigis(rawDigis->size());
+      std::vector<int16_t> processedRawDigis(rawDigis->size()), processedRawDigisCopy;
       algorithms->subtractorPed->subtract( *rawDigis, processedRawDigis);
-      if( doAPVRestore ) nAPVflagged = algorithms->restorer->inspect( rawDigis->id, processedRawDigis );
+       if( doAPVRestore ){
+	    processedRawDigisCopy.assign(processedRawDigis.begin(), processedRawDigis.end());
+	  }
       algorithms->subtractorCMN->subtract( rawDigis->id, processedRawDigis);
-      if( doAPVRestore ) algorithms->restorer->restore( processedRawDigis, algorithms->subtractorCMN->getAPVsCM() );
+      if( doAPVRestore ){
+	      nAPVflagged = algorithms->restorer->inspect( rawDigis->id, processedRawDigisCopy, algorithms->subtractorCMN->getAPVsCM() );
+    	  algorithms->restorer->restore( processedRawDigis );
+	  }
       algorithms->suppressor->suppress( processedRawDigis, suppressedDigis );
       
       const std::vector< std::pair<short,float> >& vmedians = algorithms->subtractorCMN->getAPVsCM();
@@ -202,7 +212,7 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
       if(produceCalculatedBaseline&& nAPVflagged > 0){
 	std::map< uint16_t, std::vector < int16_t> >& baselinemap = algorithms->restorer->GetBaselineMap();
 	this->storeBaseline(rawDigis->id, vmedians, baselinemap);
-      }
+      }	  
       // if(produceBaselinePoints&& nAPVflagged > 0){
       //	std::vector< std::map< uint16_t, int16_t> >&  baselinpoints = algorithms->restorer->GetSmoothedPoints();
       //	this->storeBaselinePoints(rawDigis->id, baselinpoints);

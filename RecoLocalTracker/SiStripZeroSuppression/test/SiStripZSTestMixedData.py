@@ -11,10 +11,10 @@ process = cms.Process('TEST')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.StandardSequences.MixingNoPileUp_cff')
+#process.load('Configuration.StandardSequences.MixingNoPileUp_cff')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load('Configuration.StandardSequences.RawToDigi_cff')
+process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.ReconstructionHeavyIons_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
@@ -42,7 +42,8 @@ process.source = cms.Source("PoolSource",
     #'/store/express/Run2010B/ExpressPhysics/FEVT/Express-v2/000/146/417/10F981FF-5EC6-DF11-9657-0030486733B4.root'
     #'file:../testGenSimOnReco/SingleZmumu_MatchVertexDM_DIGI2RAW.root'
     #'file:DMRawSimOnReco_DIGI2RAW.root'
-    'file:DMRawSimOnReco_DIGI2RAW.root'
+    #'file:DMRawSimOnReco_DIGI2RAW.root'
+	'/store/data/Run2010B/HeavyIonTest/RAW/v1/000/146/421/E6B24CF0-5EC6-DF11-B52D-00304879FC6C.root'
     )
 )
 
@@ -50,7 +51,7 @@ process.source = cms.Source("PoolSource",
 process.RECOoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     #outputCommands = process.RECOEventContent.outputCommands,
-    fileName = cms.untracked.string('hiRecoDM_RECO_dist40_10ev.root'),
+    fileName = cms.untracked.string('hiReco_E6B24CF0-5EC6-DF11-B52D-00304879FC6C_10ev.root'),
 	#fileName = cms.untracked.string('test.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
@@ -63,35 +64,28 @@ process.RECOoutput = cms.OutputModule("PoolOutputModule",
 #                                               'keep *_*_APVCM_*'])
 
 # Other statements
-process.GlobalTag.globaltag = 'MC_38Y_V12::All'
+process.GlobalTag.globaltag = 'MC_39Y_V4::All'
+#process.GlobalTag.globaltag = 'MC_38Y_V12::All'
 #process.GlobalTag.globaltag = 'START38_V8::All'
 #process.GlobalTag.globaltag = 'GR_R_38X_V7::All'
 #process.siStripDigis.ProductLabel = "source"
-process.siStripZeroSuppression.storeCM = cms.bool(True)
+#process.siStripZeroSuppression.storeCM = cms.bool(True)
+#process.siStripZeroSuppression.produceRawDigis = cms.bool(True)
+#process.siStripZeroSuppression.produceCalculatedBaseline = cms.bool(True)
+#process.siStripZeroSuppression.produceBaselinePoints = cms.bool(False)
+
+## Offline Silicon Tracker Zero Suppression
+process.siStripZeroSuppression.Algorithms.PedestalSubtractionFedMode = cms.bool(False)
+process.siStripZeroSuppression.Algorithms.CommonModeNoiseSubtractionMode = cms.string("IteratedMedian")
+process.siStripZeroSuppression.doAPVRestore = cms.bool(True)
 process.siStripZeroSuppression.produceRawDigis = cms.bool(True)
 process.siStripZeroSuppression.produceCalculatedBaseline = cms.bool(True)
-process.siStripZeroSuppression.produceBaselinePoints = cms.bool(False)
+process.siStripZeroSuppression.storeCM = cms.bool(True)
+process.siStripZeroSuppression.storeInZScollBadAPV = cms.bool(True)
+
 
     
-# Filter and Monitor HIP modules
-process.load("TkDPG.Utilities.SiStripFedCMExtractorService_cfi")
-process.SiStripFedCMExtractorService.FedBufferSource = "rawDataCollector"
-process.SiStripFedCMExtractorService.useVirginRawData = True
-process.SiStripFedCMExtractorService.printDebug = True
-process.SiStripFedCMExtractorService.InitCounts = 5
 
-process.TkDetMap = cms.Service("TkDetMap")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
-
-process.load("TkDPG.HipAnalysis.SiStripProcessedRawDigiSkimProducer_cfi")
-process.siStripProcessedRawDigisSkim.maxCM=-60;
-
-process.load("TkDPG.HipAnalysis.SiStripDummySpyChannelMonitor_cfi")
-process.siStripDummySpyChannelMonitor.maxHistoNumber  = cms.uint32(100)
-process.siStripDummySpyChannelMonitor.outputFile = cms.string("HipMonitor.root")
-
-process.hipmonitor = cms.Sequence(process.siStripProcessedRawDigisSkim *
-                                  process.siStripDummySpyChannelMonitor)
 
 
 process.TimerService = cms.Service("TimerService", useCPUtime = cms.untracked.bool(True) # set to false for wall-clock-time
@@ -100,7 +94,6 @@ process.TimerService = cms.Service("TimerService", useCPUtime = cms.untracked.bo
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.siStripDigis)
 process.reconstruction_step = cms.Path(process.striptrackerlocalreco)
-process.hipmonitor_step = cms.Path(process.hipmonitor)
 process.endjob_step = cms.Path(process.endOfProcess)
 process.RECOoutput_step = cms.EndPath(process.RECOoutput)
 #process.Timer_step = cms.Path(process.myTimer)

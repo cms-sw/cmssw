@@ -40,11 +40,16 @@ process.options = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    'file:hiRecoDM_RECO_dist40_10ev.root'
+	'file:merge_EventDisplay_run_150431_RECO.root'
+	#'file:hiReco_E6B24CF0-5EC6-DF11-B52D-00304879FC6C_10ev.root'
+   #'file:ExpressOutput.root'
+   #'file:outputRECORECO.root'
     )
 )
+process.DefaultAlgorithms.PedestalSubtractionFedMode = cms.bool(False)
 
-process.SiStripBaselineAnalyzer.outputFile = cms.untracked.string("HistoRoot_hiRecoDM_RECO_dist40_10ev.root")
+process.SiStripBaselineAnalyzer.outputFile = cms.untracked.string("HistoRoot_merge_EventDisplay_run_150431_RECO_v1.root")
+#process.SiStripBaselineAnalyzer.outputFile = cms.untracked.string("HistoRoot_ExpressOutput.root")
 process.SiStripBaselineAnalyzer.nModuletoDisplay = cms.uint32(10000) 
 # Output definition
 process.RECOoutput = cms.OutputModule("PoolOutputModule",
@@ -62,9 +67,10 @@ process.RECOoutput = cms.OutputModule("PoolOutputModule",
 #                                               'keep *_*_APVCM_*'])
 
 # Other statements
-process.GlobalTag.globaltag = 'MC_38Y_V12::All'
-#process.GlobalTag.globaltag = 'START38_V8::All'
-#process.GlobalTag.globaltag = 'GR_R_38X_V7::All'
+
+process.GlobalTag.globaltag = 'GR_R_39X_V1::All'
+#process.GlobalTag.globaltag = 'MC_39Y_V4::All'
+
 
     
 
