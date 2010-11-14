@@ -35,7 +35,7 @@ RecoTauBuilderCombinatoricPlugin::RecoTauBuilderCombinatoricPlugin(
     const edm::ParameterSet& pset): RecoTauBuilderPlugin(pset),
     qcuts_(pset.getParameter<edm::ParameterSet>("qualityCuts")),
     usePFLeptonsAsChargedHadrons_(pset.getParameter<bool>("usePFLeptons")),
-    isolationConeSize_(pset.getParameter<bool>("isolationConeSize")) {
+    isolationConeSize_(pset.getParameter<double>("isolationConeSize")) {
   typedef std::vector<edm::ParameterSet> VPSet;
   const VPSet& decayModes = pset.getParameter<VPSet>("decayModes");
   for (VPSet::const_iterator dm = decayModes.begin();
