@@ -1,8 +1,8 @@
 /*
  * \file L1TDTTFClient.cc
  *
- * $Date: 2010/10/27 13:37:08 $
- * $Revision: 1.4 $
+ * $Date: 2010/11/01 11:27:53 $
+ * $Revision: 1.5 $
  * \author G. Codispoti
  *
  */
@@ -429,8 +429,13 @@ void L1TDTTFClient::beginLuminosityBlock( const edm::LuminosityBlock& lumiSeg,
 void L1TDTTFClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 				       const edm::EventSetup& c)
 {
-  makeSummary();
-  if ( occupancy_r_ ) normalize( occupancy_r_ );
+
+  /// Processing by Luminosity Block
+  if (  online_  ) {
+    makeSummary();
+    if ( occupancy_r_ ) normalize( occupancy_r_ );
+  }
+
 }
 
 //--------------------------------------------------------
