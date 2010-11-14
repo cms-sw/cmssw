@@ -14,11 +14,13 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.SkimsHeavyIons_cff')
+process.load('Configuration.StandardSequences.ReconstructionHeavyIons_cff')
+process.load('RecoHI.HiEgammaAlgos.HiElectronSequence_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContentHeavyIons_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('centralSkimsHI nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -90,14 +92,42 @@ process.SKIMStreamZMM = cms.OutputModule("PoolOutputModule",
 # Other statements
 process.GlobalTag.globaltag = 'GR10_P_V12::All'
 
+# Valid vertex filter
+process.primaryVertexFilter = cms.EDFilter("VertexSelector",
+    src = cms.InputTag("hiSelectedVertex"),
+    cut = cms.string("!isFake && abs(z) <= 25 && position.Rho <= 2"), 
+    filter = cms.bool(True),   # otherwise it won't filter the events
+    )
+
+# Refine photon cuts
+process.goodPhotons.cut = cms.string('et > 20 && hadronicOverEm < 0.1 && r9 > 0.8 && sigmaIetaIeta > 0.002')
+
+# Looser photon cuts for ZEE
+process.goodPhotonsForZEE = process.goodPhotons.clone(
+    cut=cms.string('et > 20 && hadronicOverEm < 0.2 && r9 > 0.5 && sigmaIetaIeta > 0.002')
+    )
+process.goodCleanPhotonsForZEE = process.goodPhotonsForZEE.clone(src=cms.InputTag("cleanPhotons"))
+process.twoPhotonFilter.src = cms.InputTag("goodPhotonsForZEE")
+process.photonCombiner.decay = cms.string('goodCleanPhotonsForZEE goodCleanPhotonsForZEE')
+process.fullZEESkimSequence = cms.Sequence(process.hltPhotonHI
+                                           * process.primaryVertexFilter
+                                           * process.goodPhotonsForZEE
+                                           * process.twoPhotonFilter
+                                           * process.hiPhotonCleaningSequence
+                                           * process.goodCleanPhotonsForZEE
+                                           * process.photonCombiner * process.photonPairCounter
+                                           * process.siPixelRecHits * process.siStripMatchedRecHits
+                                           * process.hiPrimSeeds * process.hiElectronSequence)
+
+
 # Path and EndPath definitions
-process.zEESkimPath = cms.Path(process.zEESkimSequence)
+process.zEESkimPath = cms.Path(process.fullZEESkimSequence)
 
-process.photonSkimPath = cms.Path(process.photonSkimSequence)
+process.photonSkimPath = cms.Path(process.photonSkimSequence*process.primaryVertexFilter)
 
-process.diJetSkimPath = cms.Path(process.diJetSkimSequence)
+process.diJetSkimPath = cms.Path(process.diJetSkimSequence*process.primaryVertexFilter)
 
-process.zMMSkimPath = cms.Path(process.zMMSkimSequence)
+process.zMMSkimPath = cms.Path(process.zMMSkimSequence*process.primaryVertexFilter)
 
 process.SKIMStreamDiJetOutPath = cms.EndPath(process.SKIMStreamDiJet)
 
