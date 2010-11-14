@@ -57,6 +57,8 @@ if options.signal == 1:
     #minGammaEt = PFTauQualityCuts.isolationQualityCuts.minGammaEt,
 #)
 
+_KIN_CUT = "pt > 20 & abs(eta) < 2.5"
+
 process = cms.Process("Eval")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(40000) )
 
@@ -84,7 +86,7 @@ process.source = cms.Source(
     skipEvents = cms.untracked.uint32(20000)
 )
 
-_KIN_CUT = "pt > 10 & abs(eta) < 2.5"
+_KIN_CUT = "pt > 20 & abs(eta) < 2.5"
 
 # For signal, select jets that match a hadronic decaymode
 process.kinematicSignalJets = cms.EDFilter(
@@ -135,6 +137,11 @@ print process.PFTau.remove(process.shrinkingConePFTauDiscriminationAgainstElectr
 print process.PFTau.remove(process.shrinkingConePFTauDiscriminationAgainstMuon)
 print process.PFTau.remove(process.hpsPFTauDiscriminationAgainstElectron)
 print process.PFTau.remove(process.hpsPFTauDiscriminationAgainstMuon)
+
+print "Adding kinematic selection to cleaners"
+process.hpsPFTauProducer.outputSelection = cms.string(_KIN_CUT)
+process.hpsTancTaus.outputSelection = cms.string(_KIN_CUT)
+process.shrinkingConePFTauProducer.outputSelection = cms.string(_KIN_CUT)
 
 # RecoTau modifier that takes a PFJet -> tau GenJet matching and embed the true
 # four vector and decay mode in unused PFTau variables

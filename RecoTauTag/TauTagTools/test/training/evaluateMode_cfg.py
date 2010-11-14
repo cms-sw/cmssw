@@ -123,7 +123,7 @@ decay_mode_translator = {
     (3, 1) : 'threeProng1Pi0',
 }
 
-_KIN_CUT = "pt > 10 & abs(eta) < 2.5"
+_KIN_CUT = "pt > 20 & abs(eta) < 2.5"
 
 # For signal, select jets that match a hadronic decaymode
 process.kinematicSignalJets = cms.EDFilter(
@@ -191,6 +191,9 @@ process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
 process.ak5PFJetsRecoTauPiZeros.src = "inputJets"
 process.combinatoricRecoTaus.jetSrc = "inputJets"
 #process.combinatoricRecoTaus.builders = cms.VPSet(_combinatoricTauConfig)
+# Add PFTauTagInfo workaround
+process.main += process.ak5PFJetTracksAssociatorAtVertex
+process.main += process.pfRecoTauTagInfoProducer
 process.main += process.ak5PFJetsRecoTauPiZeros
 process.main += process.combinatoricRecoTaus
 process.main += process.hpsTancTauSequence

@@ -56,6 +56,8 @@ print _computer_name
     #minGammaEt = PFTauQualityCuts.isolationQualityCuts.minGammaEt,
 #)
 
+_KIN_CUT = 'pt > 20 & abs(eta) < 2.5'
+
 process = cms.Process("TrainTaNC")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
@@ -126,7 +128,7 @@ process.looper = cms.Looper(
 
 # Build a combinatoric tau producer that only builds the desired decay modes
 from RecoTauTag.RecoTau.RecoTauCombinatoricProducer_cfi \
-        import _combinatoricTauConfig
+        import _combinatoricTauConfig, combinatoricRecoTaus
 
 selectedDecayModes = cms.VPSet()
 for decayMode in _combinatoricTauConfig.decayModes:
@@ -204,7 +206,7 @@ process.signalPiZeros = process.ak5PFJetsRecoTauPiZeros.clone(
 process.signalSequence += process.signalPiZeros
 
 # Tau production step
-process.signalRawTaus = cms.EDProducer(
+process.signalRawTaus = combinatoricRecoTaus.clone(
     "RecoTauProducer",
     jetSrc = cms.InputTag("signalJetsDMMatched"),
     piZeroSrc = cms.InputTag("signalPiZeros"),
@@ -235,10 +237,19 @@ process.signalTausDMTruthMatching = process.signalJetsDMTruthMatching.clone(
 )
 process.signalSequence += process.signalTausDMTruthMatching
 
+# Take only those with pt > 20
+process.signalRawTausKinematicCut = cms.EDFilter(
+    "PFTauViewRefSelector",
+    src = cms.InputTag("signalRawTausLeadPionPt"),
+    cut = cms.string(_KIN_CUT),
+    filter = cms.bool(True),
+)
+process.signalSequence += process.signalRawTausKinematicCut
+
 # Select the final collection of taus passed to the trainer
 process.signalTaus = cms.EDProducer(
     "RecoTauCleaner",
-    src = cms.InputTag("signalRawTausLeadPionPt"),
+    src = cms.InputTag("signalRawTausKinematicCut"),
     cleaners = cms.VPSet(
         cms.PSet(
             name = cms.string("TruthPtMatch"),
@@ -268,7 +279,6 @@ process.backgroundSelectEvents = cms.EDFilter(
 process.backgroundPiZeros = process.ak5PFJetsRecoTauPiZeros.clone(
     jetSrc = cms.InputTag("preselectedBackgroundJets")
 )
-process.signalSequence += process.signalPiZeros
 
 process.backgroundRawTaus = process.signalRawTaus.clone(
     jetSrc = cms.InputTag("preselectedBackgroundJets"),
@@ -276,6 +286,14 @@ process.backgroundRawTaus = process.signalRawTaus.clone(
 )
 process.backgroundRawTausLeadPionPt = process.signalRawTausLeadPionPt.clone(
     src = cms.InputTag("backgroundRawTaus")
+)
+
+# Take only those with pt > 20
+process.backgroundRawTausKinematicCut = cms.EDFilter(
+    "PFTauViewRefSelector",
+    src = cms.InputTag("backgroundRawTausLeadPionPt"),
+    cut = cms.string(_KIN_CUT),
+    filter = cms.bool(True),
 )
 
 # Select (randomly) only one tau for each jet
@@ -294,7 +312,8 @@ process.backgroundSequence = cms.Sequence(
     process.backgroundSelectEvents *
     process.backgroundPiZeros *
     process.backgroundRawTaus *
-    process.backgroundRawTausLeadPionPt
+    process.backgroundRawTausLeadPionPt *
+    process.backgroundRawTausKinematicCut
     #* process.backgroundTaus
 )
 process.backgroundPath = cms.Path(process.backgroundSequence)
@@ -303,7 +322,7 @@ process.backgroundPath = cms.Path(process.backgroundSequence)
 process.trainer = cms.EDAnalyzer(
     "RecoTauMVATrainer",
     signalSrc = cms.InputTag("signalTaus"),
-    backgroundSrc = cms.InputTag("backgroundRawTausLeadPionPt"),
+    backgroundSrc = cms.InputTag("backgroundRawTausKinematicCut"),
     computerName = cms.string(_computer_name),
     dbLabel = cms.string("trainer"),
 )

@@ -8,7 +8,7 @@ LOG=${DIR}/log
 EVAL=${DIR}/eval
 XML=${DIR}/xml
 
-all: eval_tanc.pdf plots/skim_plots.pdf
+all: ${EVAL}/eval.pdf 
 
 clean:
 	rm -f ${DB}/*
@@ -59,6 +59,8 @@ ${TRANS}/background_transform_%.root: ${DB}/computers.db evaluateMode_cfg.py bac
 
 .PRECIOUS: ${DB}/1prong0pi0.db ${DB}/1prong1pi0.db ${DB}/1prong2pi0.db ${DB}/3prong0pi0.db 
 
+.SECONDARY:
+
 # Merge the computers together
 ${DB}/computers.db: ${DB}/1prong0pi0.mva ${DB}/1prong1pi0.mva ${DB}/1prong2pi0.mva ${DB}/3prong0pi0.mva 
 	rm -f $@
@@ -71,9 +73,9 @@ ${DB}/%.mva: ${DB}/%.db
 #################################################################
 #  Running the actual training - depends on MVA definition and samples
 #################################################################
-${DB}/%.db: ${XML}/%.xml signalfiles.list backgroundfiles.list #trainMVA_cfg.py
+${DB}/%.db: ${XML}/%.xml signalfiles.list backgroundfiles.list trainMVA_cfg.py
 	rm -f ${LOG}/${@F}.log
-	cmsRun trainMVA_cfg.py xml=$< \
+	nice cmsRun trainMVA_cfg.py xml=$< \
 	  tracks=`echo $< | sed "s|[^0-9]*\([0-9]\)prong\([0-9]\)pi0.*.xml|\1|"` \
 	  pizeros=`echo $< | sed "s|[^0-9]*\([0-9]\)prong\([0-9]\)pi0.*.xml|\2|"` \
 	  inputFiles_load=signalfiles.list \
@@ -92,10 +94,10 @@ signalfiles.list:
 
 backgroundfiles.list:
 	ls /data1/friis/TauMVATraining2/Background_Run2010A/background_training*.root \
-	  | tail -n 50 \
+	  | tail -n 100 \
 	  | awk 'NR % 3 != 0' | sed "s|^|file:|" >> $@
 	ls /data1/friis/TauMVATraining2/Background_Run2010B/background_training*.root \
-	  | tail -n 50  \
+	  | tail -n 100  \
 	  | awk 'NR % 3 != 0' | sed "s|^|file:|" >> $@
 
 # unbiased testing datasets
