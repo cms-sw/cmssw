@@ -70,6 +70,12 @@ photonPairCounter = cms.EDFilter("CandViewCountFilter",
   minNumber = cms.uint32(1)
 )
 
+# run electron sequence (after remaking pixel seeds)
+from Configuration.StandardSequences.ReconstructionHeavyIons_cff import *
+from RecoHI.HiEgammaAlgos.HiElectronSequence_cff import *
+rechits = cms.Sequence(siPixelRecHits*siStripMatchedRecHits)
+electrons = cms.Path(rechits*hiPrimSeeds*hiElectronSequence)
+
 # Z->ee skim sequence
 zEESkimSequence = cms.Sequence(hltPhotonHI
                                * primaryVertexFilterForZEE
@@ -79,5 +85,6 @@ zEESkimSequence = cms.Sequence(hltPhotonHI
                                * goodCleanPhotonsForZEE
                                * photonCombiner
                                * photonPairCounter
+                               * electrons
                                )
 
