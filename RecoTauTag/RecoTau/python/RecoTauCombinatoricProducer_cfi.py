@@ -82,6 +82,9 @@ combinatoricRecoTaus = cms.EDProducer(
     jetSrc = cms.InputTag("ak5PFJets"),
     piZeroSrc = cms.InputTag("ak5PFJetsRecoTauPiZeros"),
     buildNullTaus = cms.bool(True),
+    # Make maximum size from which to collect isolation cone objects, w.r.t to
+    # the axis of the signal cone objects
+    isolationConeSize = cms.double(0.5),
     builders = cms.VPSet(
         _combinatoricTauConfig,
     ),
