@@ -1,5 +1,5 @@
 //
-// $Id: HiEgammaSCEnergyCorrectionAlgo.cc,v 1.5 2010/10/28 19:02:30 yjlee Exp $
+// $Id: HiEgammaSCEnergyCorrectionAlgo.cc,v 1.6 2010/11/14 09:46:50 innocent Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoHI/HiEgammaAlgos/interface/HiEgammaSCEnergyCorrectionAlgo.h"
@@ -16,7 +16,6 @@ HiEgammaSCEnergyCorrectionAlgo::HiEgammaSCEnergyCorrectionAlgo(double noise,
 {
   sigmaElectronicNoise_ = noise;
   verbosity_ = verbosity;
-  recHits_m = new std::map<DetId, EcalRecHit>();
   
   // Parameters
   p_fBrem_ = pSet.getParameter< std::vector <double> > ("fBremVect");
@@ -86,7 +85,7 @@ HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster &cl,
    }
 
    // Get number of crystals 2sigma above noise in seed basiccluster      
-   int nCryGT2Sigma = nCrystalsGT2Sigma(*seedC);
+   int nCryGT2Sigma = nCrystalsGT2Sigma(*seedC,rhc);
    if (verbosity_ <= pINFO)
    {
       std::cout << "   nCryGT2Sigma " << nCryGT2Sigma << std::endl;
@@ -159,7 +158,7 @@ HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster &cl,
    return corrCl;
 }
 
-float HiEgammaSCEnergyCorrectionAlgo::fEtEta(float et, float eta, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase)
+float HiEgammaSCEnergyCorrectionAlgo::fEtEta(float et, float eta, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase) const
 {
   int offset = 0;
   float factor;
@@ -273,7 +272,7 @@ int HiEgammaSCEnergyCorrectionAlgo::nCrystalsGT2Sigma(reco::BasicCluster const &
   // return number of crystals 2Sigma above
   // electronic noise
   
-  std::vector<std::pair<DetId,float > > hits = seed.hitsAndFractions();
+  std::vector<std::pair<DetId,float > > const & hits = seed.hitsAndFractions();
 
   if (verbosity_ <= pINFO)
   {
@@ -284,11 +283,12 @@ int HiEgammaSCEnergyCorrectionAlgo::nCrystalsGT2Sigma(reco::BasicCluster const &
   }
 
   int nCry = 0;
-  for(hit = hits.begin(); hit != hits.end(); hit++)
+  for(std::vector<std::pair<DetId,float > >::const_iterator hit = hits.begin(); hit != hits.end(); ++hit)
     {
       // need to get hit by DetID in order to get energy
       EcalRecHitCollection::const_iterator aHit = rhc.find((*hit).first);
-      if(aHit->second.energy()>2.*sigmaElectronicNoise_) nCry++;
+      // better the hit to exists....
+      if(aHit->energy()>2.*sigmaElectronicNoise_) ++nCry;
     }
 
   if (verbosity_ <= pINFO)
