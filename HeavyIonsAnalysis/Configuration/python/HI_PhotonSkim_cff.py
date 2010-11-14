@@ -74,7 +74,7 @@ photonPairCounter = cms.EDFilter("CandViewCountFilter",
 from Configuration.StandardSequences.ReconstructionHeavyIons_cff import *
 from RecoHI.HiEgammaAlgos.HiElectronSequence_cff import *
 rechits = cms.Sequence(siPixelRecHits*siStripMatchedRecHits)
-electrons = cms.Path(rechits*hiPrimSeeds*hiElectronSequence)
+electrons = cms.Sequence(rechits*hiPrimSeeds*hiElectronSequence)
 
 # Z->ee skim sequence
 zEESkimSequence = cms.Sequence(hltPhotonHI
