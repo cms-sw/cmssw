@@ -14,6 +14,7 @@
 
 #include "RecoTauTag/RecoTau/interface/RecoTauBuilderPlugins.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
+#include "RecoTauTag/RecoTau/interface/ConeTools.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauConstructor.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 
@@ -24,38 +25,6 @@
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 
 namespace reco { namespace tau {
-
-namespace {
-// Predicate class that tests if a candidate lies within some deltaR (min,
-// max) about a supplied axis
-template<class CandType>
-class DeltaRFilter {
-  public:
-    DeltaRFilter(const reco::Candidate::LorentzVector& axis,
-                 double min, double max): axis_(axis), min_(min), max_(max) {}
-    bool operator()(const CandType& b) {
-      double deltaR = reco::deltaR<reco::Candidate::LorentzVector>
-          (axis_, b.p4());
-      return(deltaR >= min_ && deltaR < max_);
-    }
-  private:
-    reco::Candidate::LorentzVector axis_;
-    const double min_;
-    const double max_;
-};
-
-// Wrapper around DeltaRFilter to support reference types like Ptr<>
-template<class CandType>
-class DeltaRPtrFitler {
-  public:
-    DeltaRPtrFitler(const reco::Candidate::LorentzVector& axis,
-                    double min, double max): filter_(axis, min, max) {}
-    bool operator()(const CandType& b) { return filter_(*b); }
-  private:
-    DeltaRFilter<typename CandType::value_type> filter_;
-};
-}
-
 
 class RecoTauBuilderConePlugin : public RecoTauBuilderPlugin {
   public:
@@ -104,15 +73,8 @@ RecoTauBuilderConePlugin::RecoTauBuilderConePlugin(
 RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
     const reco::PFJetRef& jet,
     const std::vector<RecoTauPiZero>& piZeros) const {
-  /* Define our filters */
-  typedef DeltaRPtrFitler<PFCandidatePtr> PFCandPtrDRFilter;
-  typedef boost::filter_iterator< PFCandPtrDRFilter,
-          std::vector<PFCandidatePtr>::const_iterator> PFCandPtrDRFilterIter;
-
-  typedef DeltaRFilter<RecoTauPiZero> PiZeroDRFilter;
-  typedef boost::filter_iterator< PiZeroDRFilter,
-          std::vector<RecoTauPiZero>::const_iterator> PiZeroDRFilterIter;
-
+  // Get access to our cone tools
+  using namespace cone;
   // Define output.  We only produce one tau per jet for the cone algo.
   output_type output;
 

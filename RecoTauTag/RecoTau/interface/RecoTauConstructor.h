@@ -102,6 +102,10 @@ class RecoTauConstructor {
     // Build and return the associated tau
     std::auto_ptr<reco::PFTau> get(bool setupLeadingCandidates=true);
 
+    // Get the four vector of the signal objects added so far
+    const reco::Candidate::LorentzVector& p4() const { return p4_; }
+
+
   private:
     typedef std::pair<Region, ParticleType> CollectionKey;
     typedef std::map<CollectionKey, PFCandidateRefVector*> CollectionMap;
@@ -127,6 +131,9 @@ class RecoTauConstructor {
 
     // Keep sorted (by descending pt) collections
     SortedCollectionMap sortedCollections_;
+
+    // Keep track of the signal cone four vector in case we want it
+    reco::Candidate::LorentzVector p4_;
 };
 } } // end reco::tau namespace
 #endif

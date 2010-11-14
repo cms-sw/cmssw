@@ -8,6 +8,7 @@
 #include "RecoTauTag/RecoTau/interface/CombinatoricGenerator.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauConstructor.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
+#include "RecoTauTag/RecoTau/interface/ConeTools.h"
 
 namespace reco { namespace tau {
 
@@ -20,6 +21,7 @@ class RecoTauBuilderCombinatoricPlugin : public RecoTauBuilderPlugin {
   private:
     RecoTauQualityCuts qcuts_;
     bool usePFLeptonsAsChargedHadrons_;
+    double isolationConeSize_;
     struct decayModeInfo {
       uint32_t maxPiZeros_;
       uint32_t maxPFCHs_;
@@ -32,7 +34,8 @@ class RecoTauBuilderCombinatoricPlugin : public RecoTauBuilderPlugin {
 RecoTauBuilderCombinatoricPlugin::RecoTauBuilderCombinatoricPlugin(
     const edm::ParameterSet& pset): RecoTauBuilderPlugin(pset),
     qcuts_(pset.getParameter<edm::ParameterSet>("qualityCuts")),
-    usePFLeptonsAsChargedHadrons_(pset.getParameter<bool>("usePFLeptons")) {
+    usePFLeptonsAsChargedHadrons_(pset.getParameter<bool>("usePFLeptons")),
+    isolationConeSize_(pset.getParameter<bool>("isolationConeSize")) {
   typedef std::vector<edm::ParameterSet> VPSet;
   const VPSet& decayModes = pset.getParameter<VPSet>("decayModes");
   for (VPSet::const_iterator dm = decayModes.begin();
@@ -125,6 +128,8 @@ RecoTauBuilderCombinatoricPlugin::operator()(
             RecoTauConstructor::kGamma, 2*piZerosToBuild);  // k-factor = 2
         tau.reservePiZero(RecoTauConstructor::kSignal, piZerosToBuild);
 
+        // FIXME - are all these reserves okay?  will they get propagated to the
+        // dataformat size if they are wrong?
         tau.reserve(
             RecoTauConstructor::kIsolation,
             RecoTauConstructor::kChargedHadron, pfchs.size() - tracksToBuild);
@@ -136,36 +141,80 @@ RecoTauBuilderCombinatoricPlugin::operator()(
 
         // Set signal and isolation components for charged hadrons, after
         // converting them to a PFCandidateRefVector
-        tau.addPFCands(RecoTauConstructor::kSignal,
-                       RecoTauConstructor::kChargedHadron,
-                       trackCombo->combo_begin(),
-                       trackCombo->combo_end());
-        tau.addPFCands(RecoTauConstructor::kIsolation,
-                       RecoTauConstructor::kChargedHadron,
-                       trackCombo->remainder_begin(),
-                       trackCombo->remainder_end());
+        tau.addPFCands(
+            RecoTauConstructor::kSignal, RecoTauConstructor::kChargedHadron,
+            trackCombo->combo_begin(), trackCombo->combo_end()
+            );
+
+        // Get signal PiZero constituents and add them to the tau.
+        // The sub-gammas are automatically added.
+        tau.addPiZeros(
+            RecoTauConstructor::kSignal,
+            piZeroCombo->combo_begin(), piZeroCombo->combo_end()
+            );
+
+        // Now build isolation collections
+        // Load our isolation tools
+        using namespace reco::tau::cone;
+        PFCandPtrDRFilter isolationConeFilter(tau.p4(), 0, isolationConeSize_);
+
+        PiZeroDRFilter isolationConeFilterPiZero(
+            tau.p4(), 0, isolationConeSize_);
+
+
+        // Filter the isolation candidates in a DR cone
+        tau.addPFCands(
+            RecoTauConstructor::kIsolation, RecoTauConstructor::kChargedHadron,
+            boost::make_filter_iterator(
+                isolationConeFilter,
+                trackCombo->remainder_begin(), trackCombo->remainder_end()),
+            boost::make_filter_iterator(
+                isolationConeFilter,
+                trackCombo->remainder_end(), trackCombo->remainder_end())
+            );
 
         // Add all the candidates that weren't included in the combinatoric
         // generation
-        tau.addPFCands(RecoTauConstructor::kIsolation,
-                       RecoTauConstructor::kChargedHadron,
-                       pfch_end, pfchs.end());
+        tau.addPFCands(
+            RecoTauConstructor::kIsolation, RecoTauConstructor::kChargedHadron,
+            boost::make_filter_iterator(
+                isolationConeFilter,
+                pfch_end, pfchs.end()),
+            boost::make_filter_iterator(
+                isolationConeFilter,
+                pfchs.end(), pfchs.end())
+            );
 
         // Add all the netural hadron candidates to the isolation collection
-        tau.addPFCands(RecoTauConstructor::kIsolation,
-                       RecoTauConstructor::kNeutralHadron,
-                       pfnhs.begin(), pfnhs.end());
+        tau.addPFCands(
+            RecoTauConstructor::kIsolation, RecoTauConstructor::kNeutralHadron,
+            boost::make_filter_iterator(
+                isolationConeFilter,
+                pfnhs.begin(), pfnhs.end()),
+            boost::make_filter_iterator(
+                isolationConeFilter,
+                pfnhs.end(), pfnhs.end())
+            );
 
-        // Get PiZero constituents and add them to the tau.
-        // The sub-gammas are automatically added.
-        tau.addPiZeros(RecoTauConstructor::kSignal,
-                       piZeroCombo->combo_begin(),
-                       piZeroCombo->combo_end());
-        tau.addPiZeros(RecoTauConstructor::kIsolation,
-                       piZeroCombo->remainder_begin(),
-                       piZeroCombo->remainder_end());
-        tau.addPiZeros(RecoTauConstructor::kIsolation,
-                       piZero_end, piZeros.end());
+        tau.addPiZeros(
+            RecoTauConstructor::kIsolation,
+            boost::make_filter_iterator(
+                isolationConeFilterPiZero,
+                piZeroCombo->remainder_begin(), piZeroCombo->remainder_end()),
+            boost::make_filter_iterator(
+                isolationConeFilterPiZero,
+                piZeroCombo->remainder_end(), piZeroCombo->remainder_end())
+            );
+
+        tau.addPiZeros(
+            RecoTauConstructor::kIsolation,
+            boost::make_filter_iterator(
+                isolationConeFilterPiZero,
+                piZero_end, piZeros.end()),
+            boost::make_filter_iterator(
+                isolationConeFilterPiZero,
+                piZeros.end(), piZeros.end())
+            );
 
         output.push_back(tau.get(true));
       }

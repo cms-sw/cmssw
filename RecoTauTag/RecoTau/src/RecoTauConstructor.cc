@@ -47,6 +47,10 @@ RecoTauConstructor::RecoTauConstructor(const PFJetRef& jet,
 
 void RecoTauConstructor::addPFCand(Region region, ParticleType type,
     const PFCandidateRef& ref) {
+  if (region == kSignal) {
+    // Keep track of the four vector of the signal vector products added so far.
+    p4_ += ref->p4();
+  }
   getSortedCollection(region, type)->push_back(ref);
   // Add to global collection
   getSortedCollection(region, kAll)->push_back(ref);
@@ -186,12 +190,13 @@ std::auto_ptr<reco::PFTau> RecoTauConstructor::get(bool setupLeadingObjects) {
   tau_->setPdgId(tau_->charge() > 0 ? 15 : -15);
 
   // Set P4
-  tau_->setP4(
-      sumPFCandP4(
-        getCollection(kSignal, kAll)->begin(),
-        getCollection(kSignal, kAll)->end()
-        )
-      );
+  tau_->setP4(p4_);
+//  tau_->setP4(
+//      sumPFCandP4(
+//        getCollection(kSignal, kAll)->begin(),
+//        getCollection(kSignal, kAll)->end()
+//        )
+//      );
 
   // Set charged isolation quantities
   tau_->setisolationPFChargedHadrCandsPtSum(
