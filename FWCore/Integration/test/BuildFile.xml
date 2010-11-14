@@ -62,6 +62,10 @@
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_RunMerge.sh"/>
     <use   name="FWCore/Utilities"/>
   </bin>
+  <bin   file="TestIntegration.cpp" name="TestIntegrationRefMerge">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_RefMerge.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
   <bin   file="TestIntegration.cpp" name="TestIntegrationParameterSet">
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_ParameterSet.sh"/>
     <use   name="FWCore/Utilities"/>
