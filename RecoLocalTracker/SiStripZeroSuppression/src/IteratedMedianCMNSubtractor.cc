@@ -5,6 +5,136 @@
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include <cmath>
+#include "boost/iterator/filter_iterator.hpp"
+#include "boost/ref.hpp"
+
+namespace {
+  struct SelectElem {
+    std::pair<float,float>  const * begin;
+    bool const * ok;
+    SelectElem() : begin(0), ok(0){}
+    SelectElem(std::pair<float,float> const * isample, bool const * iok):
+      begin(isample), ok(iok){}
+    bool operator()(std::pair<float,float> const & elem) const {
+      return ok[&elem-begin];
+    }
+  };
+
+
+
+
+  float quick_select(float arr[], int n) {
+    int low, high ;
+    int median;
+    int middle, ll, hh;
+    
+    low = 0 ; high = n-1 ; median = (low + high) / 2;
+    for (;;) {
+      if (high <= low) /* One element only */
+	return arr[median] ;
+      
+      if (high == low + 1) {  /* Two elements only */
+	if (arr[low] > arr[high])
+	  std::swap(arr[low], arr[high]) ;
+	return arr[median] ;
+      }
+      
+      /* Find median of low, middle and high items; swap into position low */
+      middle = (low + high) / 2;
+      if (arr[middle] > arr[high])    std::swap(arr[middle], arr[high]) ;
+      if (arr[low] > arr[high])       std::swap(arr[low], arr[high]) ;
+      if (arr[middle] > arr[low])     std::swap(arr[middle], arr[low]) ;
+      
+      /* Swap low item (now in position middle) into position (low+1) */
+      std::swap(arr[middle], arr[low+1]) ;
+      
+      /* Nibble from each end towards middle, swapping items when stuck */
+      ll = low + 1;
+      hh = high;
+      for (;;) {
+        do ll++; while (arr[low] > arr[ll]) ;
+        do hh--; while (arr[hh]  > arr[low]) ;
+	
+        if (hh < ll)
+	  break;
+	
+        std::swap(arr[ll], arr[hh]) ;
+      }
+      
+      /* Swap middle item (in position low) back into correct position */
+      std::swap(arr[low], arr[hh]) ;
+      
+      /* Re-set active partition */
+      if (hh <= median)
+        low = ll;
+      if (hh >= median)
+        high = hh - 1;
+    }
+    return 0.f; // compiler
+  }
+  
+
+  namespace wirth {
+
+    typedef float elem_type ;
+    
+    
+    /*---------------------------------------------------------------------------
+      Function :   kth_smallest()
+      In       :   array of elements, # of elements in the array, rank k
+      Out      :   one element
+      Job      :   find the kth smallest element in the array
+      Notice   :   use the median() macro defined below to get the median. 
+      
+      Reference:
+      
+      Author: Wirth, Niklaus 
+      Title: Algorithms + data structures = programs 
+      Publisher: Englewood Cliffs: Prentice-Hall, 1976 
+      Physical description: 366 p. 
+      Series: Prentice-Hall Series in Automatic Computation 
+      
+      ---------------------------------------------------------------------------*/
+    
+    
+    inline elem_type kth_smallest(elem_type a[], int n, int k) {
+      int i,j,l,m ;
+      elem_type x ;
+      
+      l=0 ; m=n-1 ;
+      while (l<m) {
+        x=a[k] ;
+        i=l ;
+        j=m ;
+        do {
+	  while (a[i]<x) i++ ;
+	  while (x<a[j]) j-- ;
+	  if (i<=j) {
+	    std::swap(a[i],a[j]) ;
+	    i++ ; j-- ;
+	  }
+        } while (i<=j) ;
+        if (j<k) l=i ;
+        if (k<i) m=j ;
+      }
+      return a[k] ;
+    }
+    
+
+    inline elem_type median(elem_type a[], int n) { return kth_smallest(a,n,(((n)&1)?((n)/2):(((n)/2)-1))); }
+  }
+
+
+  typedef boost::filter_iterator<SelectElem, std::pair<float,float> const *> ElemIterator;
+  inline float pairMedian(ElemIterator b, ElemIterator e) {
+    float sample[128]; int size=0;
+    for (;b!=e; ++b) sample[size++] = (*b).first;
+    // std::cout << "size in median " << size << std::endl;
+    //    return  wirth::median(sample,size);
+    return  quick_select(sample,size);
+  }
+}
+
 
 void IteratedMedianCMNSubtractor::init(const edm::EventSetup& es){
   uint32_t n_cache_id = es.get<SiStripNoisesRcd>().cacheIdentifier();
@@ -28,47 +158,62 @@ inline
 void IteratedMedianCMNSubtractor::
 subtract_(const uint32_t& detId,std::vector<T>& digis){
 
+  // std::cout << "IMCMNS " << iterations_ << " " <<  _vmedians.size() << std::endl;
+
+
   SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detId);
   SiStripQuality::Range detQualityRange = qualityHandle->getRange(detId);
 
   typename std::vector<T>::iterator fs,ls;
   float offset = 0;  
-  std::vector< std::pair<float,float> > subset;
-  subset.reserve(128);
-
+  std::pair<float,float> subset[128];
+  bool ok[128];
+  int subsetSize=0;
+  typedef std::pair<float,float> const * iterator;
+  SelectElem selector(subset,ok);
+  
   _vmedians.clear(); 
 
   for( uint16_t APV=0; APV< digis.size()/128; ++APV)
   {
-    subset.clear();
+    subsetSize=0;
     // fill subset vector with all good strips and their noises
     for (uint16_t istrip=APV*128; istrip<(APV+1)*128; ++istrip)
     {
       if ( !qualityHandle->IsStripBad(detQualityRange,istrip) )
       {
-        std::pair<float,float> pin((float)digis[istrip], (float)noiseHandle->getNoise(istrip,detNoiseRange));
-        subset.push_back( pin );
+        std::pair<float,float> pin((float)digis[istrip], (float)noiseHandle->getNoiseFast(istrip,detNoiseRange));
+        subset[subsetSize]= pin;
+	ok[subsetSize++]=true;
       }
     }
+    if (subsetSize == 0) continue;
+    //std::sort(subset,subset+subsetSize);
+
+    // std::cout << "subset size " << subsetSize << std::endl;
+
+    ElemIterator begin(selector,subset,subset+subsetSize);
+    ElemIterator end(selector,subset+subsetSize,subset+subsetSize);
 
     // caluate offset for all good strips (first iteration)
-    if (subset.size() != 0)
-      offset = pairMedian(subset);
+    offset = pairMedian(begin,end);
 
     // for second, third... iterations, remove strips over threshold
     // and recalculate offset on remaining strips
+    int nokold=subsetSize;
     for ( int ii = 0; ii<iterations_-1; ++ii )
     {
-      std::vector< std::pair<float,float> >::iterator si = subset.begin();
-      while(  si != subset.end() )
+      int nok=0;
+      for (int j=0; j!=subsetSize;++j)
       {
-        if( si->first-offset > cut_to_avoid_signal_*si->second )  
-          si = subset.erase(si);
-        else
-          ++si;
+	iterator si = subset+j;
+	ok[j] =  si->first-offset < cut_to_avoid_signal_*si->second;
+	++nok;
       }
-      if ( subset.size() == 0 ) break;
-      offset = pairMedian(subset);
+      if (nok==nokold) break;   // std::cout << "converged at " << ii << std::endl;
+      if (nok == 0 ) break;
+      offset = pairMedian(begin,end);
+      nokold=nok;
     }        
 
     _vmedians.push_back(std::pair<short,float>(APV,offset));
@@ -82,15 +227,9 @@ subtract_(const uint32_t& detId,std::vector<T>& digis){
     }
 
   }
+  // std::cout << "IMCMNS end " <<  _vmedians.size() << std::endl;
+
 }
 
 
-
-inline float IteratedMedianCMNSubtractor::pairMedian( std::vector<std::pair<float,float> >& sample) {
-  std::vector<std::pair<float,float> >::iterator mid = sample.begin() + sample.size()/2;
-  std::nth_element(sample.begin(), mid, sample.end());
-  if( sample.size() & 1 ) //odd size
-    return (*mid).first;
-  return ( (*std::max_element(sample.begin(), mid)).first + (*mid).first ) / 2.;
-}
 

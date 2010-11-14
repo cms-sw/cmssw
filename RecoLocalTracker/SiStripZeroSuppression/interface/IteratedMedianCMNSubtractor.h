@@ -21,9 +21,7 @@ class IteratedMedianCMNSubtractor : public SiStripCommonModeNoiseSubtractor {
 
   template<typename T >void subtract_(const uint32_t&,std::vector<T>&);
 
-  inline float pairMedian( std::vector<std::pair<float,float> >& sample);
-
-
+ 
   IteratedMedianCMNSubtractor(double sigma, int iterations) : 
     cut_to_avoid_signal_(sigma),
     iterations_(iterations),

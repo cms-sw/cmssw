@@ -397,7 +397,7 @@ bool inline SiStripAPVRestorer::FlatRegionsFinder(std::vector<int16_t>& adcs, Di
     int16_t adc = adcs[istrip]; 
     
     
-    if( adcsLocalMinSubtracted[istrip] < nSigmaNoiseDerTh_ * (float)noiseHandle->getNoise(istrip+APVn*128,detNoiseRange)
+    if( adcsLocalMinSubtracted[istrip] < nSigmaNoiseDerTh_ * (float)noiseHandle->getNoiseFast(istrip+APVn*128,detNoiseRange)
 	&& adc - median < hitStripThreshold_) {
       //&& std::abs(adc - adcsLocalMinSubtracted[istrip]) < hitStripThreshold_) {           //count of many consecutive strips
       consecpoints.insert(consecpoints.end(), std::pair<uint16_t, int16_t >(istrip, adc));
@@ -554,7 +554,7 @@ IterativeMedian(std::vector<T>& digis, uint16_t APV){
   // fill subset vector with all good strips and their noises
   for (uint16_t istrip=APV*128; istrip<(APV+1)*128; ++istrip){
     if ( !qualityHandle->IsStripBad(detQualityRange,istrip) ){
-      std::pair<float,float> pin((float)digis[istrip], (float)noiseHandle->getNoise(istrip,detNoiseRange));
+      std::pair<float,float> pin((float)digis[istrip], (float)noiseHandle->getNoiseFast(istrip,detNoiseRange));
       subset.push_back( pin );
     }
   }
