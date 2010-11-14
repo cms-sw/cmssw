@@ -5,25 +5,23 @@
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include <cmath>
-#include "boost/iterator/filter_iterator.hpp"
-#include "boost/ref.hpp"
 
+
+
+// this part should be moved to a "utility" package
+// unit tests need to be added
 namespace {
-  struct SelectElem {
-    std::pair<float,float>  const * begin;
-    bool const * ok;
-    SelectElem() : begin(0), ok(0){}
-    SelectElem(std::pair<float,float> const * isample, bool const * iok):
-      begin(isample), ok(iok){}
-    bool operator()(std::pair<float,float> const & elem) const {
-      return ok[&elem-begin];
-    }
-  };
 
-
-
-
-  float quick_select(float arr[], int n) {
+  // fastest median search to date 
+  //  http://ndevilla.free.fr/median/median/index.html
+  // code adapted from http://ndevilla.free.fr/median/median/src/quickselect.c
+  /*
+   *  This Quickselect routine is based on the algorithm described in
+   *  "Numerical recipes in C", Second Edition,
+   *  Cambridge University Press, 1992, Section 8.5, ISBN 0-521-43108-5
+   *  This code by Nicolas Devillard - 1998. Public domain.
+   */
+  inline float quick_select(float arr[], int n) {
     int low, high ;
     int median;
     int middle, ll, hh;
@@ -123,13 +121,28 @@ namespace {
 
     inline elem_type median(elem_type a[], int n) { return kth_smallest(a,n,(((n)&1)?((n)/2):(((n)/2)-1))); }
   }
+}
 
 
+#include "boost/iterator/filter_iterator.hpp"
+
+namespace {
+  struct SelectElem {
+    std::pair<float,float>  const * begin;
+    bool const * ok;
+    SelectElem() : begin(0), ok(0){}
+    SelectElem(std::pair<float,float> const * isample, bool const * iok):
+      begin(isample), ok(iok){}
+    bool operator()(std::pair<float,float> const & elem) const {
+      return ok[&elem-begin];
+    }
+  };
+  
+  
   typedef boost::filter_iterator<SelectElem, std::pair<float,float> const *> ElemIterator;
   inline float pairMedian(ElemIterator b, ElemIterator e) {
     float sample[128]; int size=0;
     for (;b!=e; ++b) sample[size++] = (*b).first;
-    // std::cout << "size in median " << size << std::endl;
     //    return  wirth::median(sample,size);
     return  quick_select(sample,size);
   }
@@ -139,7 +152,7 @@ namespace {
 void IteratedMedianCMNSubtractor::init(const edm::EventSetup& es){
   uint32_t n_cache_id = es.get<SiStripNoisesRcd>().cacheIdentifier();
   uint32_t q_cache_id = es.get<SiStripQualityRcd>().cacheIdentifier();
-
+  
   if(n_cache_id != noise_cache_id) {
     es.get<SiStripNoisesRcd>().get( noiseHandle );
     noise_cache_id = n_cache_id;
@@ -157,8 +170,6 @@ template<typename T>
 inline
 void IteratedMedianCMNSubtractor::
 subtract_(const uint32_t& detId,std::vector<T>& digis){
-
-  // std::cout << "IMCMNS " << iterations_ << " " <<  _vmedians.size() << std::endl;
 
 
   SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detId);
@@ -187,8 +198,8 @@ subtract_(const uint32_t& detId,std::vector<T>& digis){
 	ok[subsetSize++]=true;
       }
     }
+
     if (subsetSize == 0) continue;
-    //std::sort(subset,subset+subsetSize);
 
     // std::cout << "subset size " << subsetSize << std::endl;
 
