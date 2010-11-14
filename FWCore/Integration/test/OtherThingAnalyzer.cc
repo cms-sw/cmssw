@@ -10,7 +10,9 @@
 
 namespace edmtest {
   OtherThingAnalyzer::OtherThingAnalyzer(edm::ParameterSet const& pset) :
-    thingWasDropped_(pset.getUntrackedParameter<bool>("thingWasDropped", false)) {
+    thingWasDropped_(pset.getUntrackedParameter<bool>("thingWasDropped", false)),
+    otherTag_(pset.getUntrackedParameter<edm::InputTag>("other",edm::InputTag("OtherThing","testUserTag")))
+ {
   }
 
   void OtherThingAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
@@ -19,7 +21,7 @@ namespace edmtest {
 
   void OtherThingAnalyzer::doit(edm::Event const& dv, std::string const& label) {
     edm::Handle<OtherThingCollection> otherThings;
-    assert(dv.getByLabel("OtherThing", label, otherThings));
+    dv.getByLabel(otherTag_, otherThings);
     edm::LogInfo("OtherThingAnalyzer") << " --------------- next event ------------ \n";
     int i = 0;
     for (OtherThingCollection::const_iterator it = otherThings->begin(), itEnd = otherThings->end();
