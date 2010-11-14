@@ -66,6 +66,7 @@ _combinatoricTauConfig = cms.PSet(
     plugin = cms.string("RecoTauBuilderCombinatoricPlugin"),
     pfCandSrc = cms.InputTag("particleFlow"),
     usePFLeptons = cms.bool(True),
+    isolationConeSize = cms.double(0.5),
     qualityCuts = PFTauQualityCuts.signalQualityCuts,
     primaryVertexSrc = cms.InputTag("offlinePrimaryVertices"),
     decayModes = cms.VPSet(
@@ -84,7 +85,6 @@ combinatoricRecoTaus = cms.EDProducer(
     buildNullTaus = cms.bool(True),
     # Make maximum size from which to collect isolation cone objects, w.r.t to
     # the axis of the signal cone objects
-    isolationConeSize = cms.double(0.5),
     builders = cms.VPSet(
         _combinatoricTauConfig,
     ),
