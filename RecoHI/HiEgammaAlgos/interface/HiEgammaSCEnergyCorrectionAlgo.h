@@ -26,7 +26,7 @@ public:
   enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 }; 
   
   // public member functions
-  HiEgammaSCEnergyCorrectionAlgo(double noise, 
+  HiEgammaSCEnergyCorrectionAlgo(float noise, 
 				 reco::CaloCluster::AlgoId theAlgo,
 				 const edm::ParameterSet& pSet, 
 				 VerbosityLevel verbosity = pERROR
@@ -60,7 +60,7 @@ private:
   // 2sigma noise level
   int nCrystalsGT2Sigma(reco::BasicCluster const & seed, EcalRecHitCollection const &rhc) const;
     
-    double sigmaElectronicNoise_;
+  float sigmaElectronicNoise_;
   
    //  the verbosity level
   VerbosityLevel verbosity_;

@@ -1,5 +1,5 @@
 //
-// $Id: HiEgammaSCEnergyCorrectionAlgo.cc,v 1.6 2010/11/14 09:46:50 innocent Exp $
+// $Id: HiEgammaSCEnergyCorrectionAlgo.cc,v 1.7 2010/11/14 09:52:42 innocent Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoHI/HiEgammaAlgos/interface/HiEgammaSCEnergyCorrectionAlgo.h"
@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-HiEgammaSCEnergyCorrectionAlgo::HiEgammaSCEnergyCorrectionAlgo(double noise, 
+HiEgammaSCEnergyCorrectionAlgo::HiEgammaSCEnergyCorrectionAlgo(float noise, 
 							   reco::CaloCluster::AlgoId theAlgo,
 							   const edm::ParameterSet& pSet,
 							   HiEgammaSCEnergyCorrectionAlgo::VerbosityLevel verbosity
@@ -77,7 +77,7 @@ HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster &cl,
  
    // Find the detector region of the supercluster
    // where is the seed cluster?
-   std::vector<std::pair<DetId, float> > seedHits = seedC->hitsAndFractions();  
+   std::vector<std::pair<DetId, float> > const & seedHits = seedC->hitsAndFractions();  
    EcalSubdetector theBase = EcalSubdetector(seedHits.at(0).first.subdetId());
    if (verbosity_ <= pINFO)
    {
@@ -171,11 +171,12 @@ float HiEgammaSCEnergyCorrectionAlgo::fEtEta(float et, float eta, reco::CaloClus
   // Et dependent correction
   factor = (p_fEtEta_[0+offset] + p_fEtEta_[1+offset]*sqrt(et));
   // eta dependent correction
-  factor *= (p_fEtEta_[2+offset] + p_fEtEta_[3+offset]*fabs(eta) + p_fEtEta_[4+offset]*eta*eta + p_fEtEta_[5+offset]*eta*eta*fabs(eta) + + p_fEtEta_[6+offset]*eta*eta*eta*eta);
+  factor *= (p_fEtEta_[2+offset] + p_fEtEta_[3+offset]*fabs(eta) +
+	     p_fEtEta_[4+offset]*eta*eta + p_fEtEta_[5+offset]*eta*eta*fabs(eta) + + p_fEtEta_[6+offset]*eta*eta*eta*eta);
 
   // Constraint correction factor
-  if (factor< 0.66 ) factor = 0.66;
-  if (factor> 1.5  ) factor = 1.5;
+  if (factor< 0.66f ) factor = 0.66f;
+  if (factor> 1.5f  ) factor = 1.5f;
 
   return factor;
 
@@ -194,8 +195,8 @@ float HiEgammaSCEnergyCorrectionAlgo::fEta(float eta, reco::CaloCluster::AlgoId 
   factor = (p_fEta_[0+offset] + p_fEta_[1+offset]*fabs(eta) + p_fEta_[2+offset]*eta*eta);
 
   // Constraint correction factor
-  if (factor< 0.66 ) factor = 0.66;
-  if (factor> 1.5  ) factor = 1.5;
+  if (factor< 0.66f ) factor = 0.66f;
+  if (factor> 1.5f  ) factor = 1.5f;
 
   return factor;
 }
@@ -220,8 +221,8 @@ float HiEgammaSCEnergyCorrectionAlgo::fBrem(float brem, reco::CaloCluster::AlgoI
   };
 
   // Constraint correction factor
-  if (factor< 0.66 ) factor = 0.66;
-  if (factor> 1.5  ) factor = 1.5;
+  if (factor< 0.66f ) factor = 0.66f;
+  if (factor> 1.5f  ) factor = 1.5f;
   
   return factor;
 }
@@ -288,7 +289,7 @@ int HiEgammaSCEnergyCorrectionAlgo::nCrystalsGT2Sigma(reco::BasicCluster const &
       // need to get hit by DetID in order to get energy
       EcalRecHitCollection::const_iterator aHit = rhc.find((*hit).first);
       // better the hit to exists....
-      if(aHit->energy()>2.*sigmaElectronicNoise_) ++nCry;
+      if(aHit->energy()>2.f*sigmaElectronicNoise_) ++nCry;
     }
 
   if (verbosity_ <= pINFO)
