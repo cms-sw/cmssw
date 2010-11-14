@@ -11,7 +11,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.32 $'),
+    version = cms.untracked.string('$Revision: 1.33 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/Configuration/test/SUSY_pattuple_cfg.py,v $'),
     annotation = cms.untracked.string('SUSY pattuple definition')
 )
@@ -31,19 +31,31 @@ options = VarParsing.VarParsing ('standard')
 options.output = "SUSYPAT.root"
 options.maxEvents = 100
 #  for SusyPAT configuration
-options.register('GlobalTag', "", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "GlobalTag to use (otherwise default Pat GT is used)")
+options.register('GlobalTag', "", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "GlobalTag to use (if empty default Pat GT is used)")
 options.register('mcInfo', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "process MonteCarlo data")
-options.register('JetCorrections', 'Spring10', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Jet corrections to use, default 'Spring10'")
+options.register('jetCorrections', 'L2Relative', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "Level of jet corrections to use: Note the factors are read from DB via GlobalTag")
+options.jetCorrections.append('L3Absolute')
 options.register('hltName', 'HLT', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "HLT menu to use for trigger matching")
 options.register('mcVersion', '', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "'35X' for samples from Spring10 production, not needed for new productions")
-options.register('jetTypes', 'IC5Calo', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "Additional jet types that will be produced (AK5Calo and AK5PF, cross cleaned in PF2PAT, are included anyway)")
-options.jetTypes.append('AK5JPT')
+options.register('jetTypes', 'AK5JPT', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "Additional jet types that will be produced (AK5Calo and AK5PF, cross cleaned in PF2PAT, are included anyway)")
 options.register('hltSelection', '', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "hlTriggers (OR) used to filter events")
 options.register('doValidation', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Include the validation histograms from SusyDQM (needs extra tags)")
 options.register('doExtensiveMatching', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Matching to simtracks (needs extra tags)")
 options.register('doSusyTopProjection', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Apply Susy selection in PF2PAT to obtain lepton cleaned jets (needs validation)")
 options.register('electronHLTMatches', 'HLT_Ele15_LW_L1R', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "HLT paths matched to electrons")
-options.register('muonHLTMatches', 'HLT_Mu9', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "HLT paths matched to muons")
+options.electronHLTMatches.append('HLT_Ele15_SW_L1R')
+options.electronHLTMatches.append('HLT_Ele15_SW_CaloEleId_L1R')
+options.electronHLTMatches.append('HLT_Ele15_SW_EleId_L1R')
+options.electronHLTMatches.append('HLT_Ele17_SW_TightEleId_L1R')
+options.electronHLTMatches.append('HLT_Ele17_SW_TighterEleId_L1R_v1')
+options.electronHLTMatches.append('HLT_Ele22_SW_TighterCaloIdIsol_L1R_v1')
+options.electronHLTMatches.append('HLT_Ele22_SW_TighterCaloIdIsol_L1R_v2')
+options.electronHLTMatches.append('HLT_Ele22_SW_TighterEleId_L1R_v1')
+options.electronHLTMatches.append('HLT_Ele22_SW_TighterEleId_L1R_v2')
+options.electronHLTMatches.append('HLT_Ele22_SW_TighterEleId_L1R_v3')
+options.register('muonHLTMatches', 'HLT_Mu15_v1', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "HLT paths matched to muons")
+options.muonHLTMatches.append('HLT_Mu_9')
+options.muonHLTMatches.append('HLT_Mu_11')
 options.register('tauHLTMatches', 'HLT_Jet15U', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "HLT paths matched to taus")
 options.tauHLTMatches.append('HLT_Jet30U')
 options.tauHLTMatches.append('HLT_Jet50U')
@@ -75,7 +87,7 @@ if options.GlobalTag:
 ############################# START SUSYPAT specifics ####################################
 from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands
 #Apply SUSYPAT
-addDefaultSUSYPAT(process,options.mcInfo,options.hltName,options.JetCorrections,options.mcVersion,options.jetTypes,options.doValidation,options.doExtensiveMatching,options.doSusyTopProjection,options.electronHLTMatches,options.muonHLTMatches,options.tauHLTMatches,options.jetHLTMatches,options.photonHLTMatches)
+addDefaultSUSYPAT(process,options.mcInfo,options.hltName,options.jetCorrections,options.mcVersion,options.jetTypes,options.doValidation,options.doExtensiveMatching,options.doSusyTopProjection,options.electronHLTMatches,options.muonHLTMatches,options.tauHLTMatches,options.jetHLTMatches,options.photonHLTMatches)
 SUSY_pattuple_outputCommands = getSUSY_pattuple_outputCommands( process )
 ############################## END SUSYPAT specifics ####################################
 
