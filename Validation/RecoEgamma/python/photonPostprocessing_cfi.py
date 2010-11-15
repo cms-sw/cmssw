@@ -9,6 +9,7 @@ photonPostprocessing = cms.EDAnalyzer("PhotonPostprocessing",
 
     standAlone = cms.bool(False),
     batch = cms.bool(False),                                     
+    Verbosity = cms.untracked.int32(0),
 
 
     etBin = photonValidation.etBin,
