@@ -79,8 +79,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2010/10/21 11:23:57 $ 
- **  $Revision: 1.65 $
+ **  $Date: 2010/11/15 13:55:03 $ 
+ **  $Revision: 1.66 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -1546,43 +1546,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     }      
   }
 
-
-  /*
-  //////////////////////////////////////////////////////////////////////
-  for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
-    if ( iPho->pt() < minPhoEtCut_ ) continue;
-    if ( ! (  fabs(iPho->eta() ) <= BARL || ( fabs(iPho->eta()) >= END_LO && fabs(iPho->eta() ) <=END_HI ) ) ) 
-      continue;  // all ecal fiducial region
-
-    bool  phoIsInBarrel=false;
-    bool  phoIsInEndcap=false;
-    if ( fabs(iPho->eta() ) < 1.479 ) {
-      phoIsInBarrel=true;
-    } else {
-      phoIsInEndcap=true;
-    }
-    
-    for (reco::PhotonCollection::const_iterator iPho2=iPho+1; iPho2!=photonCollection.end(); iPho2++){
-      math::XYZTLorentzVector p12 = iPho->p4()+iPho2->p4();
-      float gamgamMass2 = p12.Dot(p12);
-      
-      h_gamgamMass_[0][0] -> Fill(sqrt( gamgamMass2 ));
-      if ( phoIsInBarrel ) h_gamgamMass_[0][1] -> Fill(sqrt( gamgamMass2 ));
-      if ( phoIsInEndcap ) h_gamgamMass_[0][2] -> Fill(sqrt( gamgamMass2 ));
-      
-      if ( iPho->hasConversionTracks() ) {
-	h_gamgamMass_[1][0] -> Fill(sqrt( gamgamMass2 ));
-	if ( phoIsInBarrel ) h_gamgamMass_[1][1] -> Fill(sqrt( gamgamMass2 ));
-	if ( phoIsInEndcap ) h_gamgamMass_[1][2] -> Fill(sqrt( gamgamMass2 ));
-      } else {
-	h_gamgamMass_[2][0] -> Fill(sqrt( gamgamMass2 ));
-	if ( phoIsInBarrel ) h_gamgamMass_[2][1] -> Fill(sqrt( gamgamMass2 ));
-	if ( phoIsInEndcap ) h_gamgamMass_[2][2] -> Fill(sqrt( gamgamMass2 ));
-      }
-
-    }
-  }
-  */  
 
   //  cout << " PhotonValidator mcPhotons.size() " << mcPhotons.size() << endl;
   for ( std::vector<PhotonMCTruth>::const_iterator mcPho=mcPhotons.begin(); mcPho !=mcPhotons.end(); mcPho++) {
