@@ -21,6 +21,31 @@ namespace triggerExpression {
 
 class Data {
 public:
+  // default ctor
+  Data() :
+    // configuration
+    m_hltResultsTag(""),
+    m_l1tResultsTag(""),
+    m_daqPartitions(0x01),
+    m_l1tIgnoreMask(false),
+    m_l1techIgnorePrescales(false),
+    m_throw(true),
+    // l1 values and status
+    m_l1tResults(0),
+    m_l1tMenu(0),
+    m_l1tAlgoMask(0),
+    m_l1tTechMask(0),
+    m_l1tCacheID(),
+    m_l1tUpdated(false),
+    // hlt values and status
+    m_hltResults(0),
+    m_hltMenu(0),
+    m_hltCacheID(),
+    m_hltUpdated(false),
+    // event values
+    m_eventNumber()
+  { }
+
   explicit Data(const edm::ParameterSet & config) :
     // configuration
     m_hltResultsTag(config.getParameter<edm::InputTag>("hltResults")),
