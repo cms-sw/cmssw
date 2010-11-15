@@ -11,6 +11,9 @@
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+
 //#include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
 //
 //DQM services
@@ -25,8 +28,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2010/10/19 17:48:36 $ 
- **  $Revision: 1.33 $
+ **  $Date: 2010/10/21 11:24:06 $ 
+ **  $Revision: 1.34 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -40,6 +43,7 @@ class TProfile;
 class TTree;
 class SimVertex;
 class SimTrack;
+
 
 
 class PhotonValidator : public edm::EDAnalyzer
@@ -295,6 +299,8 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_convEta_[3];
   MonitorElement* h_convPhi_[2];
   MonitorElement* h_convERes_[2][3];
+  MonitorElement*  p_eResVsR_;
+
   MonitorElement* h_convPtRes_[2][3];
 
   MonitorElement* h_invMass_[2][3];
@@ -508,7 +514,21 @@ class PhotonValidator : public edm::EDAnalyzer
 
 
 
+class  sortPhotons
+{
+  public:
+    bool operator () (const reco::Photon & lhs, const reco::Photon & rhs) 
+    {
+        return lhs.et() > rhs.et();
+    }
 };
+
+
+
+};
+
+
+
 
 
 
