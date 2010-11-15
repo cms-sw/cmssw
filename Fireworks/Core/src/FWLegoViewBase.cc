@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.21 2010/11/09 16:56:24 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.22 2010/11/15 17:14:27 amraktad Exp $
 //
 
 // system include files
@@ -51,7 +51,7 @@
 // constructors and destructor
 //
 FWLegoViewBase::FWLegoViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId) :
-   FWEveView(iParent, typeId, 4),
+   FWEveView(iParent, typeId),
    m_lego(0),
    m_overlay(0),
    m_autoRebin(this,"Auto rebin on zoom-out",false),
