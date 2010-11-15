@@ -1,0 +1,3 @@
+<bin file="combine.cpp" name="combine">
+  <use name="HiggsAnalysis/CombinedLimit"/>
+</bin>
