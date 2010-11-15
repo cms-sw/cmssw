@@ -9,7 +9,7 @@ selection_95relIso = cms.PSet (
     sihih_EB =    cms.untracked.double(1.0e-02),
     dphi_EB =     cms.untracked.double(8.0e-01),
     deta_EB =     cms.untracked.double(7.0e-03),
-    hoe_EB =      cms.untracked.double(5.0e-01),
+    hoe_EB =      cms.untracked.double(1.5e-01),
     cIso_EB =     cms.untracked.double(10000.),
     
     trackIso_EE = cms.untracked.double(8.0e-02),
@@ -32,7 +32,7 @@ selection_95cIso = cms.PSet (
     sihih_EB =    cms.untracked.double(1.0e-02),
     dphi_EB =     cms.untracked.double(8.0e-01),
     deta_EB =     cms.untracked.double(7.0e-03),
-    hoe_EB =      cms.untracked.double(5.0e-01),
+    hoe_EB =      cms.untracked.double(1.5e-01),
     cIso_EB =     cms.untracked.double(1.5e-01),
     
     trackIso_EE = cms.untracked.double(100000.),
