@@ -93,8 +93,8 @@
  **  
  **
  **  $Id: TkConvValidator
- **  $Date: 2010/10/20 16:58:30 $ 
- **  $Revision: 1.2 $
+ **  $Date: 2010/11/04 19:18:25 $ 
+ **  $Revision: 1.3 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/
@@ -742,6 +742,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       
       theConvTP_.clear();
       //      std::cout << " TkConvValidator TrackingParticles   TrackingParticleCollection size "<<  trackingParticles.size() <<  "\n";
+      //duplicated TP collections for two associations
       for(size_t i = 0; i < tpForEfficiency.size(); ++i){
 	TrackingParticleRef tp (TPHandleForEff,i);
 	if ( fabs( tp->vx() - (*mcPho).vertex().x() ) < 0.0001   &&
@@ -795,9 +796,14 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
      for (reco::ConversionCollection::const_iterator conv = convHandle->begin();conv!=convHandle->end();++conv) {
        
 	const reco::Conversion aConv = (*conv);
-        if ( ! mergedTracks_ ) 
+        if ( ! mergedTracks_ ) {
 	  if (! ( aConv.quality(reco::Conversion::generalTracksOnly)  && aConv.quality(reco::Conversion::highPurity) ) ) continue;
+	} else {
+	  if ( !aConv.quality(reco::Conversion::highPurity)  ) continue;
+	}
 
+
+	//problematic?
 	std::vector<edm::RefToBase<reco::Track> > tracks = aConv.tracks();
 
 	const reco::Vertex& vtx = aConv.conversionVertex();
@@ -811,29 +817,45 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	//reco::TrackRef tk1 = aConv.tracks().front();
 	//reco::TrackRef tk2 = aConv.tracks().back();
 	//std::cout << "SIM to RECO  conversion track pt " << tk1->pt() << " " << tk2->pt() << endl;
-      	
-	//RefToBase<reco::Track> tfrb1(tk1);
-	//RefToBase<reco::Track> tfrb2(tk2);
-	RefToBaseVector<reco::Track> tc;
-	tc.push_back(tfrb1);
-	tc.push_back(tfrb2);
+	//
+	//Use two RefToBaseVector and do two association actions to avoid that if two tracks from different collection
+	RefToBaseVector<reco::Track> tc1, tc2;
+	tc1.push_back(tfrb1);
+	tc2.push_back(tfrb2);
 	bool isAssociated = false;
-	reco::SimToRecoCollection q = theTrackAssociator_->associateSimToReco(tc,theConvTP_,&e);
-	try { 
-	  std::vector<std::pair<RefToBase<reco::Track>, double> > trackV1 = q[theConvTP_[0]];
-	  std::vector<std::pair<RefToBase<reco::Track>, double> > trackV2 = q[theConvTP_[1]];
-	  if (!(trackV1.size()&&trackV2.size())) continue;
+	reco::SimToRecoCollection q1 = theTrackAssociator_->associateSimToReco(tc1,theConvTP_,&e);
+	reco::SimToRecoCollection q2 = theTrackAssociator_->associateSimToReco(tc2,theConvTP_,&e);
+	//try { 
+	  std::vector<std::pair<RefToBase<reco::Track>, double> > trackV1, trackV2;
+
+	  int tp_1 = 0, tp_2 = 1;//the index of associated tp in theConvTP_ for two tracks
+	  if (q1.find(theConvTP_[0])!=q1.end()){
+	      trackV1 = (std::vector<std::pair<RefToBase<reco::Track>, double> >) q1[theConvTP_[0]];
+	  } else if (q1.find(theConvTP_[1])!=q1.end()){
+	      trackV1 = (std::vector<std::pair<RefToBase<reco::Track>, double> >) q1[theConvTP_[1]];
+	      tp_1 = 1;
+	  }
+	  if (q2.find(theConvTP_[1])!=q2.end()){
+	      trackV2 = (std::vector<std::pair<RefToBase<reco::Track>, double> >) q2[theConvTP_[1]];
+	  } else if (q2.find(theConvTP_[0])!=q2.end()){
+	      trackV2 = (std::vector<std::pair<RefToBase<reco::Track>, double> >) q2[theConvTP_[0]];
+	      tp_2 = 0;
+	  }
+	  if (!(trackV1.size()&&trackV2.size()))
+	      continue;
+	  if (tp_1 == tp_2) continue;
+
 	  edm::RefToBase<reco::Track> tr1 = trackV1.front().first;
 	  edm::RefToBase<reco::Track> tr2 = trackV2.front().first;
 	  //std::cout << "associated tp1 " <<theConvTP_[0]->pt() << " to track with  pT=" << tr1->pt() << " " << (tr1.get())->pt() << endl;
 	  //std::cout << "associated tp2 " <<theConvTP_[1]->pt() << " to track with  pT=" << tr2->pt() << " " << (tr2.get())->pt() << endl;
-	  myAss.insert( std::make_pair (tr1.get(),theConvTP_[0] ) );
-	  myAss.insert( std::make_pair (tr2.get(),theConvTP_[1]) );
+	  myAss.insert( std::make_pair (tr1.get(),theConvTP_[tp_1] ) );
+	  myAss.insert( std::make_pair (tr2.get(),theConvTP_[tp_2]) );
 
-	} catch (Exception event) {
+	//} catch (Exception event) {
 	  //cout << "continue: " << event.what()  << endl;
-	  continue;
-	}
+	//  continue;
+	//}
 
 
 	isAssociated = true;
@@ -883,9 +905,9 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     bool  phoIsInEndcap=false;
     RefToBase<reco::Track> tk1 = aConv.tracks().front();
     RefToBase<reco::Track> tk2 = aConv.tracks().back();
-    RefToBaseVector<reco::Track> tc;
-    tc.push_back(tk1);
-    tc.push_back(tk2);
+    RefToBaseVector<reco::Track> tc1, tc2;
+    tc1.push_back(tk1);
+    tc2.push_back(tk2);
 
     //std::cout << " RECO to SIM conversion track pt " << tk1->pt() << " " << tk2->pt() << endl;
     const reco::Track refTk1 = aConv.conversionVertex().refittedTracks().front();
@@ -1033,10 +1055,15 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       if ( theConvTP_.size() < 2 )   continue;
 
       associated = false;
-      reco::RecoToSimCollection p =  theTrackAssociator_->associateRecoToSim(tc,theConvTP_,&e);
+      reco::RecoToSimCollection p1 =  theTrackAssociator_->associateRecoToSim(tc1,theConvTP_,&e);
+      reco::RecoToSimCollection p2 =  theTrackAssociator_->associateRecoToSim(tc2,theConvTP_,&e);
       try{ 
-	std::vector<std::pair<TrackingParticleRef, double> > tp1 = p[tk1];
-	std::vector<std::pair<TrackingParticleRef, double> > tp2 = p[tk2];
+	std::vector<std::pair<TrackingParticleRef, double> > tp1 = p1[tk1];
+	std::vector<std::pair<TrackingParticleRef, double> > tp2 = p2[tk2];
+	if (!(tp1.size()&&tp2.size())){
+	    tp1 = p1[tk2];
+	    tp2 = p2[tk1];
+	}
 	if (tp1.size()&&tp2.size()) {
 	  TrackingParticleRef tpr1 = tp1.front().first;
 	  TrackingParticleRef tpr2 = tp2.front().first;

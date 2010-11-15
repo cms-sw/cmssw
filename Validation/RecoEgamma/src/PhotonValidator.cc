@@ -43,8 +43,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
@@ -81,8 +79,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2010/10/19 17:48:44 $ 
- **  $Revision: 1.64 $
+ **  $Date: 2010/10/21 11:23:57 $ 
+ **  $Revision: 1.65 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -929,6 +927,11 @@ void  PhotonValidator::beginJob() {
     h_convERes_[0][0] = dbe_->book1D(histname+"All"," Conversion rec/true Energy: All ecal ", resBin,resMin, resMax);
     h_convERes_[0][1] = dbe_->book1D(histname+"Barrel"," Conversion rec/true Energy: Barrel ",resBin,resMin, resMax);
     h_convERes_[0][2] = dbe_->book1D(histname+"Endcap"," Conversion rec/true Energy: Endcap ",resBin,resMin, resMax);
+
+    histname="p_EResVsR";
+    p_eResVsR_ = dbe_->bookProfile(histname+"All"," photons conversion E/Etrue vs R: all Ecal ",rBin,rMin,rMax, 100, 0.,1.5,"");
+
+
     histname = "convPtRes";
     h_convPtRes_[1][0] = dbe_->book1D(histname+"All"," Conversion Pt rec/true  from tracks : All ecal ", resBin,0.,1.5);
     h_convPtRes_[1][1] = dbe_->book1D(histname+"Barrel"," Conversion Pt rec/true  from tracks: Barrel ",resBin,0., 1.5);
@@ -1453,6 +1456,98 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     nSimConv_[i]=0;
 
 
+  std::vector<reco::Photon> myPhotons;
+  for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
+    if ( fabs(iPho->eta()) > 2.5 ) continue;
+    myPhotons.push_back(*iPho);
+  }
+  
+  std::sort(myPhotons.begin(), myPhotons.end(), sortPhotons()); 
+  if ( myPhotons.size() >=2 ) {
+    if ( myPhotons[0].et() > 40 && myPhotons[1].et() > 25 ) {
+            
+      math::XYZTLorentzVector p12 = myPhotons[0].p4()+myPhotons[1].p4();
+      float gamgamMass2 = p12.Dot(p12);
+      if (  gamgamMass2 > 0 ) {
+	
+	// total 
+	h_gamgamMass_[0][0] -> Fill(sqrt( gamgamMass2 ));
+        if (  myPhotons[0].isEB() && 	 myPhotons[1].isEB() ) 
+	  h_gamgamMass_[0][1] -> Fill(sqrt( gamgamMass2 ));	
+        if ( (  myPhotons[0].isEE() && 	 myPhotons[1].isEE() )  ||
+	     (  myPhotons[0].isEE() && 	 myPhotons[1].isEB() ) ||
+	     (  myPhotons[0].isEB() && 	 myPhotons[1].isEE() ) )
+	  h_gamgamMass_[0][2] -> Fill(sqrt( gamgamMass2 ));	
+
+
+	// Golden photons 
+	if (  myPhotons[0].r9() > 0.93 &&  myPhotons[1].r9() > 0.93 ) {
+	  h_gamgamMass_[1][0] -> Fill(sqrt( gamgamMass2 ));
+	  if (  myPhotons[0].isEB() && 	 myPhotons[1].isEB() ) 
+	    h_gamgamMass_[1][1] -> Fill(sqrt( gamgamMass2 ));	
+	  if ( (  myPhotons[0].isEE() && 	 myPhotons[1].isEE() )  ||
+	       (  myPhotons[0].isEE() && 	 myPhotons[1].isEB() ) ||
+	       (  myPhotons[0].isEB() && 	 myPhotons[1].isEE() ) )
+	    h_gamgamMass_[1][2] -> Fill(sqrt( gamgamMass2 ));	
+	}
+
+
+	// both photons converted
+	if ( myPhotons[0].conversions().size() > 0 && myPhotons[1].conversions().size() >0 ) {
+	  if ( myPhotons[0].conversions()[0]->nTracks() ==2 &&  myPhotons[1].conversions()[0]->nTracks() ==2  ) {
+	    float chi2Prob1 = ChiSquaredProbability( myPhotons[0].conversions()[0]->conversionVertex().chi2(),  myPhotons[0].conversions()[0]->conversionVertex().ndof() );
+	    float chi2Prob2 = ChiSquaredProbability( myPhotons[1].conversions()[0]->conversionVertex().chi2(),  myPhotons[1].conversions()[0]->conversionVertex().ndof() );
+	    if ( chi2Prob1 > 0.0005 &&  chi2Prob2 > 0.0005 ) {
+	      h_gamgamMass_[2][0] -> Fill(sqrt( gamgamMass2 ));
+	      if (  myPhotons[0].isEB() && 	 myPhotons[1].isEB() ) {
+		h_gamgamMass_[2][1] -> Fill(sqrt( gamgamMass2 )); 
+	      }
+	      if ( (  myPhotons[0].isEE() && 	 myPhotons[1].isEE() )  ||
+		   (  myPhotons[0].isEE() && 	 myPhotons[1].isEB() ) ||
+		   (  myPhotons[0].isEB() && 	 myPhotons[1].isEE() ) )
+		h_gamgamMass_[2][2] -> Fill(sqrt( gamgamMass2 )); {
+	      }
+	    }
+	  }
+
+
+	} else if ( myPhotons[0].conversions().size() > 0 && myPhotons[1].conversions().size() ==0 && myPhotons[1].r9() > 0.93  )  { 	// one photon converted
+	  if ( myPhotons[0].conversions()[0]->nTracks() ==2 ) {
+	    float chi2Prob1 = ChiSquaredProbability( myPhotons[0].conversions()[0]->conversionVertex().chi2(),  myPhotons[0].conversions()[0]->conversionVertex().ndof() );
+	    if ( chi2Prob1 > 0.0005 ) {
+	      h_gamgamMass_[2][0] -> Fill(sqrt( gamgamMass2 ));
+	      if (  myPhotons[0].isEB() &&  myPhotons[1].isEB() ) {
+		h_gamgamMass_[2][1] -> Fill(sqrt( gamgamMass2 ));
+	      }
+	      if (  myPhotons[0].isEE() ||  myPhotons[1].isEE() ) {
+		h_gamgamMass_[2][2] -> Fill(sqrt( gamgamMass2 ));
+	      }
+	    }
+	  }
+
+
+	} else if ( myPhotons[1].conversions().size() > 0 && myPhotons[0].conversions().size() ==0 &&  myPhotons[0].r9() > 0.93 )  { 	// one photon converted
+	  if ( myPhotons[1].conversions()[0]->nTracks() ==2 ) {
+	    float chi2Prob1 = ChiSquaredProbability( myPhotons[1].conversions()[0]->conversionVertex().chi2(),  myPhotons[1].conversions()[0]->conversionVertex().ndof() );
+	    if ( chi2Prob1 > 0.0005 ) {
+	      h_gamgamMass_[2][0] -> Fill(sqrt( gamgamMass2 ));
+	      if (  myPhotons[0].isEB() && myPhotons[1].isEB() ) {
+		h_gamgamMass_[2][1] -> Fill(sqrt( gamgamMass2 ));
+	      }
+	      if (  myPhotons[0].isEE() ||  myPhotons[1].isEE() ) {
+		h_gamgamMass_[2][2] -> Fill(sqrt( gamgamMass2 ));
+	      }
+	    }
+	  }
+	}
+
+
+      }
+    }      
+  }
+
+
+  /*
   //////////////////////////////////////////////////////////////////////
   for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
     if ( iPho->pt() < minPhoEtCut_ ) continue;
@@ -1487,7 +1582,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
     }
   }
-  
+  */  
 
   //  cout << " PhotonValidator mcPhotons.size() " << mcPhotons.size() << endl;
   for ( std::vector<PhotonMCTruth>::const_iterator mcPho=mcPhotons.begin(); mcPho !=mcPhotons.end(); mcPho++) {
@@ -2009,24 +2104,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  nRecConv_++;
 	  
 	  
-	  if ( tracks.size()==2 ) {
-	    h_convEta_[0]->Fill( aConv->caloCluster()[0]->eta() );
-	    h_convPhi_[0]->Fill( aConv->caloCluster()[0]->phi() );
-	    h_convERes_[0][0]->Fill( aConv->caloCluster()[0]->energy() / (*mcPho).fourMomentum().e() );
-	    h_r9VsNofTracks_[0][0]->Fill( r9, aConv->nTracks() ) ; 
-	    
-	    if ( phoIsInBarrel )  {
-	      h_convERes_[0][1]->Fill(aConv->caloCluster()[0]->energy() / (*mcPho).fourMomentum().e() );
-	      h_r9VsNofTracks_[0][1]->Fill( r9, aConv->nTracks() ) ; 
-	      h_mvaOut_[1]-> Fill(like);
-	    }
-	    if ( phoIsInEndcap ) {
-	      h_convERes_[0][2]->Fill(aConv->caloCluster()[0]->energy() / (*mcPho).fourMomentum().e() );
-	      h_r9VsNofTracks_[0][2]->Fill( r9, aConv->nTracks() ) ; 
-	      h_mvaOut_[2]-> Fill(like);
-	    }
-	    
-	  }
 	  std::map<reco::TrackRef,TrackingParticleRef> myAss;
 	  std::map<reco::TrackRef,TrackingParticleRef>::const_iterator itAss;
 	  std::map<reco::TrackRef,TrackingParticleRef>::const_iterator itAssMin;
@@ -2152,6 +2229,29 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 		  h_SimConvTwoMTracksAndVtxPGT0005_[4]->Fill(  (*mcPho).fourMomentum().et()); 
 		  
 		}
+		
+		if (  chi2Prob > 0.0005 ) {
+		  h_convEta_[0]->Fill( aConv->caloCluster()[0]->eta() );
+		  h_convPhi_[0]->Fill( aConv->caloCluster()[0]->phi() );
+		  h_convERes_[0][0]->Fill( aConv->caloCluster()[0]->energy() / (*mcPho).fourMomentum().e() );
+		  h_r9VsNofTracks_[0][0]->Fill( r9, aConv->nTracks() ) ; 
+		  
+		  if ( phoIsInBarrel )  {
+		    h_convERes_[0][1]->Fill(aConv->caloCluster()[0]->energy() / (*mcPho).fourMomentum().e() );
+		    h_r9VsNofTracks_[0][1]->Fill( r9, aConv->nTracks() ) ; 
+		    h_mvaOut_[1]-> Fill(like);
+		  }
+		  if ( phoIsInEndcap ) {
+		    h_convERes_[0][2]->Fill(aConv->caloCluster()[0]->energy() / (*mcPho).fourMomentum().e() );
+		    h_r9VsNofTracks_[0][2]->Fill( r9, aConv->nTracks() ) ; 
+		    h_mvaOut_[2]-> Fill(like);
+		  }
+		  
+		}
+		
+
+
+
 	      }	
 	      
 	      ///////////  Quantities per conversion
@@ -2175,6 +2275,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 		h2_EoverPVsR_[0]->Fill (mcConvR_, eoverp);
 		p_EoverPVsEta_[0]->Fill (mcEta_, eoverp);
 		p_EoverPVsR_[0]->Fill (mcConvR_, eoverp);
+		p_eResVsR_ ->Fill ( mcConvR_, photonE / (*mcPho).fourMomentum().e() ); 
 		h2_PoverPtrueVsEta_[0]->Fill (mcEta_,refP/ (*mcPho).fourMomentum().e()  ) ;
 		p_PoverPtrueVsEta_[0]->Fill (mcEta_,refP/ (*mcPho).fourMomentum().e()  ) ;
 
@@ -2284,9 +2385,12 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 		h2_convVtxdRVsEta_ ->Fill (mcEta_, sqrt(aConv->conversionVertex().position().perp2()) - mcConvR_ );
 		p_convVtxdRVsR_ ->Fill (mcConvR_, sqrt(aConv->conversionVertex().position().perp2()) - mcConvR_ );
 		p_convVtxdRVsEta_ ->Fill (mcEta_, sqrt(aConv->conversionVertex().position().perp2()) - mcConvR_ );
-		p_convVtxdXVsX_ ->Fill (mcConvX_, aConv->conversionVertex().position().x() - mcConvX_ );
-		p_convVtxdYVsY_ ->Fill (mcConvY_, aConv->conversionVertex().position().y() - mcConvY_ );
-		p_convVtxdZVsZ_ ->Fill (mcConvZ_, aConv->conversionVertex().position().z() - mcConvZ_ );
+		float signX= aConv->refittedPairMomentum().x()/fabs(aConv->refittedPairMomentum().x());
+		float signY= aConv->refittedPairMomentum().y()/fabs(aConv->refittedPairMomentum().y());
+		float signZ= aConv->refittedPairMomentum().z()/fabs(aConv->refittedPairMomentum().z());
+		p_convVtxdXVsX_ ->Fill (mcConvX_, (aConv->conversionVertex().position().x() - mcConvX_)*signX );
+		p_convVtxdYVsY_ ->Fill (mcConvY_, (aConv->conversionVertex().position().y() - mcConvY_)*signY );
+		p_convVtxdZVsZ_ ->Fill (mcConvZ_, (aConv->conversionVertex().position().z() - mcConvZ_)*signZ );
 		
 
 		h2_convVtxRrecVsTrue_ -> Fill (mcConvR_, sqrt(aConv->conversionVertex().position().perp2()) );
