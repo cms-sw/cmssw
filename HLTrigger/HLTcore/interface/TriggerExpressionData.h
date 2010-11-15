@@ -21,7 +21,7 @@ namespace triggerExpression {
 
 class Data {
 public:
-  // default ctor
+  // default c'tor
   Data() :
     // configuration
     m_hltResultsTag(""),
@@ -46,6 +46,7 @@ public:
     m_eventNumber()
   { }
 
+  // explicit c'tor from a PArameterSet
   explicit Data(const edm::ParameterSet & config) :
     // configuration
     m_hltResultsTag(config.getParameter<edm::InputTag>("hltResults")),
@@ -70,7 +71,68 @@ public:
     m_eventNumber()
   { }
 
+  // explicit c'tor from single arguments
+  Data(
+    edm::InputTag const & hltResultsTag,
+    edm::InputTag const & l1tResultsTag,
+    unsigned int          daqPartitions,
+    bool                  l1tIgnoreMask,
+    bool                  l1techIgnorePrescales,
+    bool                  doThrow
+  ) :
+    // configuration
+    m_hltResultsTag(hltResultsTag),
+    m_l1tResultsTag(l1tResultsTag),
+    m_daqPartitions(daqPartitions),
+    m_l1tIgnoreMask(l1tIgnoreMask),
+    m_l1techIgnorePrescales(l1techIgnorePrescales),
+    m_throw(doThrow),
+    // l1 values and status
+    m_l1tResults(0),
+    m_l1tMenu(0),
+    m_l1tAlgoMask(0),
+    m_l1tTechMask(0),
+    m_l1tCacheID(),
+    m_l1tUpdated(false),
+    // hlt values and status
+    m_hltResults(0),
+    m_hltMenu(0),
+    m_hltCacheID(),
+    m_hltUpdated(false),
+    // event values
+    m_eventNumber()
+  { }
+
+  // set the new event
   bool setEvent(const edm::Event & event, const edm::EventSetup & setup);
+
+  // re-configuration accessors 
+
+  void setHltResultsTag(edm::InputTag const & tag) {
+    m_hltResultsTag = tag;
+  }
+
+  void setL1tResultsTag(edm::InputTag const & tag) {
+    m_l1tResultsTag = tag;
+  }
+
+  void setDaqPartitions(unsigned int daqPartitions) {
+    m_daqPartitions = daqPartitions;
+  }
+
+  void setL1tIgnoreMask(bool l1tIgnoreMask) {
+    m_l1tIgnoreMask = l1tIgnoreMask;
+  }
+
+  void setL1techIgnorePrescales(bool l1techIgnorePrescales) {
+    m_l1techIgnorePrescales = l1techIgnorePrescales;
+  }
+
+  void setThrow(bool doThrow) {
+    m_throw = doThrow;
+  }
+
+  // read-only accessors
 
   bool hasL1T() const {
     return not m_l1tResultsTag.label().empty();
