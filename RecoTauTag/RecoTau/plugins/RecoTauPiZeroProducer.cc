@@ -16,6 +16,7 @@
 #include <boost/ptr_container/ptr_list.hpp>
 #include <boost/foreach.hpp>
 #include <algorithm>
+#include <functional>
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -58,12 +59,16 @@ class RecoTauPiZeroProducer : public edm::EDProducer {
     builderList builders_;
     rankerList rankers_;
     std::auto_ptr<PiZeroPredicate> predicate_;
+    double piZeroMass_;
 };
 
 RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
   src_ = pset.getParameter<edm::InputTag>("src");
 
   typedef std::vector<edm::ParameterSet> VPSet;
+  // Get the mass hypothesis for the pizeros
+  piZeroMass_ = pset.getParameter<double>("massHypothesis");
+
   // Get each of our PiZero builders
   const VPSet& builders = pset.getParameter<VPSet>("builders");
 
@@ -177,6 +182,13 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt,
             dirtyPiZeros.begin(), dirtyPiZeros.end(), *toAdd, *predicate_);
         dirtyPiZeros.insert(insertionPoint, toAdd);
       }
+    }
+    // Apply the mass hypothesis if desired
+    if (piZeroMass_ >= 0) {
+      std::for_each(
+          cleanPiZeros.begin(), cleanPiZeros.end(),
+          std::bind2nd(
+              std::mem_fun_ref(&reco::RecoTauPiZero::setMass), piZeroMass_));
     }
     // Add to association
     //print(cleanPiZeros, std::cout);

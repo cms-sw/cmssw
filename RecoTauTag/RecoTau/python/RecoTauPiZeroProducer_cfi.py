@@ -6,6 +6,7 @@ import RecoTauTag.RecoTau.RecoTauPiZeroQualityPlugins_cfi as ranking
 ak5PFJetsRecoTauPiZeros = cms.EDProducer(
     "RecoTauPiZeroProducer",
     src = cms.InputTag("ak5PFJets"),
+    massHypothesis = cms.double(0.136),
     builders = cms.VPSet(
         builders.combinatoricPhotonPairs,
         builders.strips,
@@ -20,6 +21,7 @@ ak5PFJetsRecoTauPiZeros = cms.EDProducer(
 ak5PFJetsLegacyTaNCPiZeros = cms.EDProducer(
     "RecoTauPiZeroProducer",
     src = cms.InputTag("ak5PFJets"),
+    massHypothesis = cms.double(0.136),
     builders = cms.VPSet(
         builders.allSinglePhotons,
         builders.combinatoricPhotonPairs,
@@ -32,6 +34,7 @@ ak5PFJetsLegacyTaNCPiZeros = cms.EDProducer(
 ak5PFJetsLegacyHPSPiZeros = cms.EDProducer(
     "RecoTauPiZeroProducer",
     src = cms.InputTag("ak5PFJets"),
+    massHypothesis = cms.double(0.136),
     builders = cms.VPSet(
         builders.strips,
     ),
