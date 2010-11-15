@@ -36,6 +36,7 @@ photonValidation.OutputMEsInRootFile = True
 photonValidation.OutputFileName = 'PhotonValidationRelVal380_QCD_Pt_20_30.root'
 
 photonPostprocessing.batch = cms.bool(True)
+photonPostprocessing.standalone = cms.bool(True)
 photonPostprocessing.InputFileName = photonValidation.OutputFileName
 
 process.source = cms.Source("PoolSource",

@@ -23,7 +23,7 @@ dqmStoreStats.runOnEndJob = cms.untracked.bool(True)
 
 
 process.maxEvents = cms.untracked.PSet(
-#input = cms.untracked.int32(10)
+input = cms.untracked.int32(10)
 )
 
 
@@ -35,6 +35,7 @@ photonValidation.OutputMEsInRootFile = True
 photonValidation.OutputFileName = 'PhotonValidationRelVal3_10_0_pre2_SingleGammaPt35.root'
 
 photonPostprocessing.batch = cms.bool(True)
+photonPostprocessing.standalone = cms.bool(True)
 photonPostprocessing.InputFileName = photonValidation.OutputFileName
 
 process.source = cms.Source("PoolSource",

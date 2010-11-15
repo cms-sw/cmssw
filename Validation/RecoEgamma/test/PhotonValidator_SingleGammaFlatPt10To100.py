@@ -35,6 +35,7 @@ photonValidation.OutputMEsInRootFile = True
 photonValidation.OutputFileName = 'PhotonValidationRelVal380_SingleGammaFlatPt10To100.root'
 
 photonPostprocessing.batch = cms.bool(True)
+photonPostprocessing.standalone = cms.bool(True)
 photonPostprocessing.InputFileName = photonValidation.OutputFileName
 
 process.source = cms.Source("PoolSource",

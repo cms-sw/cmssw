@@ -35,6 +35,7 @@ photonValidation.OutputMEsInRootFile = True
 photonValidation.OutputFileName = 'PhotonValidationRelVal3_10_0_pre2_H130GGgluonfusion.root'
 
 photonPostprocessing.batch = cms.bool(True)
+photonPostprocessing.standalone = cms.bool(True)
 photonPostprocessing.InputFileName = photonValidation.OutputFileName
 
 process.source = cms.Source("PoolSource",

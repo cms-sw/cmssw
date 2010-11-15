@@ -37,6 +37,7 @@ from Validation.RecoEgamma.photonPostprocessing_cfi import *
 photonValidation.OutputMEsInRootFile = True
 photonValidation.OutputFileName = 'PhotonValidationRelVal3_10_0_pre2_QCD_Pt_80_120.root'
 photonPostprocessing.batch = cms.bool(True)
+photonPostprocessing.standalone = cms.bool(True)
 photonPostprocessing.InputFileName = photonValidation.OutputFileName
 
 
