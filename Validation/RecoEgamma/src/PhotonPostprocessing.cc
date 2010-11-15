@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonPostprocessing
- **  $Date: 2009/12/18 20:45:13 $ 
+ **  $Date: 2010/08/25 14:19:49 $ 
  **  author: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   
@@ -39,6 +39,28 @@ PhotonPostprocessing::PhotonPostprocessing(const edm::ParameterSet& pset)
 
 
 
+  etMin = parameters_.getParameter<double>("etMin");
+  etMax = parameters_.getParameter<double>("etMax");
+  etBin = parameters_.getParameter<int>("etBin");
+
+
+  etaMin = parameters_.getParameter<double>("etaMin");
+  etaMax = parameters_.getParameter<double>("etaMax");
+  etaBin = parameters_.getParameter<int>("etaBin");
+  etaBin2 = parameters_.getParameter<int>("etaBin2");
+
+  phiMin = parameters_.getParameter<double>("phiMin");
+  phiMax = parameters_.getParameter<double>("phiMax");
+  phiBin = parameters_.getParameter<int>("phiBin");
+
+  rMin = parameters_.getParameter<double>("rMin");
+  rMax = parameters_.getParameter<double>("rMax");
+  rBin = parameters_.getParameter<int>("rBin");
+
+  zMin = parameters_.getParameter<double>("zMin");
+  zMax = parameters_.getParameter<double>("zMax");
+  zBin = parameters_.getParameter<int>("zBin");
+
  
 
 }
@@ -57,31 +79,25 @@ void PhotonPostprocessing::analyze(const edm::Event& e, const edm::EventSetup& e
 {}
 
 
-void PhotonPostprocessing::endJob()
+void PhotonPostprocessing::endJob() {
+
+if(standAlone_) runPostprocessing();
+
+}
+
+void PhotonPostprocessing::endRun(const edm::Run& run, const edm::EventSetup& setup) {
+
+  if(!standAlone_) runPostprocessing();
+
+}
+
+
+void PhotonPostprocessing::runPostprocessing()
 {
 
-  double etMin = parameters_.getParameter<double>("etMin");
-  double etMax = parameters_.getParameter<double>("etMax");
-  int etBin = parameters_.getParameter<int>("etBin");
 
 
-  double etaMin = parameters_.getParameter<double>("etaMin");
-  double etaMax = parameters_.getParameter<double>("etaMax");
-  int etaBin = parameters_.getParameter<int>("etaBin");
-  int etaBin2 = parameters_.getParameter<int>("etaBin2");
-
-  double phiMin = parameters_.getParameter<double>("phiMin");
-  double phiMax = parameters_.getParameter<double>("phiMax");
-  int    phiBin = parameters_.getParameter<int>("phiBin");
-
-  double rMin = parameters_.getParameter<double>("rMin");
-  double rMax = parameters_.getParameter<double>("rMax");
-  int    rBin = parameters_.getParameter<int>("rBin");
-
-  double zMin = parameters_.getParameter<double>("zMin");
-  double zMax = parameters_.getParameter<double>("zMax");
-  int    zBin = parameters_.getParameter<int>("zBin");
-
+  std::cout << " Beginning of runPost " << std::endl;
 
   std::string simInfoPathName = "EgammaV/PhotonValidator/SimulationInfo/";
   std::string convPathName    = "EgammaV/PhotonValidator/ConversionInfo/";
@@ -163,6 +179,7 @@ void PhotonPostprocessing::endJob()
   histname = "deadChVsEtBkg";
   bkgDeadChEt_ =  dbe_->book1D(histname,"Fraction of bkg with >=1 dead Xtal vs simulated Et",etBin,etMin, etMax) ;
 
+  std::cout << " Fuck 1 ! " << std::endl;
 
   
   // efficiencies

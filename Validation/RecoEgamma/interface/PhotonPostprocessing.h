@@ -35,7 +35,7 @@
  **  
  **
  **  $Id: PhotonPostprocessing
- **  $Date: 2010/01/25 20:26:27 $ 
+ **  $Date: 2010/08/25 14:20:15 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **     
@@ -64,6 +64,9 @@ class PhotonPostprocessing : public edm::EDAnalyzer
   virtual void beginJob() ;
   virtual void endJob() ;
   virtual void endLuminosityBlock( const edm::LuminosityBlock& , const edm::EventSetup& ) ;
+  virtual void endRun(const edm::Run& , const edm::EventSetup& ) ;
+  virtual void runPostprocessing();
+
  private:
   //
 
@@ -79,18 +82,30 @@ class PhotonPostprocessing : public edm::EDAnalyzer
   edm::ParameterSet parameters_;
 
 
-  double etMin;
-  double etMax;
-  int etBin;
-  double etaMin;
-  double etaMax;
-  int etaBin;
   bool standAlone_;
   bool batch_;
   std::string outputFileName_;
   std::string inputFileName_;
 
   std::stringstream currentFolder_;
+
+
+  double etMin;
+  double etMax;
+  int    etBin;
+  double etaMin;
+  double etaMax;
+  int    etaBin;
+  int    etaBin2;
+  double phiMin;
+  double phiMax;
+  int    phiBin;
+  double rMin;
+  double rMax;
+  int    rBin;
+  double zMin;
+  double zMax;
+  int    zBin;
 
 
 
