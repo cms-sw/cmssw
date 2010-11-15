@@ -1,11 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-hltEgammaHcalIsol = cms.EDProducer("EgammaHLTHcalIsolationProducersRegional",
-    hfRecHitProducer = cms.InputTag("hfreco"),
-    recoEcalCandidateProducer = cms.InputTag("hltRecoEcalCandidate"),
-    egHcalIsoPtMin = cms.double(0.0),
-    egHcalIsoConeSize = cms.double(0.15),
-    hbRecHitProducer = cms.InputTag("hbhereco")
+hltEgammaHcalIsolationProducersRegional= cms.EDProducer( "EgammaHLTHcalIsolationProducersRegional",
+    recoEcalCandidateProducer = cms.InputTag( "hltRecoEcalCandidate" ),
+    hbheRecHitProducer = cms.InputTag( "hbhereco" ),
+    eMinHB = cms.double( 0.7 ),
+    eMinHE = cms.double( 0.8 ),
+    etMinHB = cms.double( -1.0 ),
+    etMinHE = cms.double( -1.0 ),
+    innerCone = cms.double( 0.0 ),
+    outerCone = cms.double( 0.14 ),
+    depth = cms.int32( -1 ),
+    doEtSum = cms.bool( False )
 )
-
 
