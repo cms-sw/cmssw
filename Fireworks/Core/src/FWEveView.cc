@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.41 2010/11/05 14:35:49 amraktad Exp $
+// $Id: FWEveView.cc,v 1.42 2010/11/09 16:56:24 amraktad Exp $
 //
 
 
@@ -256,14 +256,11 @@ FWEveView::resetCamera()
 void
 FWEveView::setMaxTowerHeight()
 {
-   if ( typeId() != FWViewType::kLego && typeId() != FWViewType::kLegoHF)
+   FWViewEnergyScale*  caloScale = viewContext()->getEnergyScale("Calo");
+   if (caloScale)
    {
-      FWViewEnergyScale*  caloScale = viewContext()->getEnergyScale("Calo");
-      if (caloScale)
-      {
-         getEveCalo()->SetMaxTowerH(caloScale->getMaxTowerHeight());
-         energyScalesChanged();
-      }
+      getEveCalo()->SetMaxTowerH(caloScale->getMaxTowerHeight());
+      energyScalesChanged();
    }
 }
 
@@ -289,8 +286,7 @@ FWEveView::updateEnergyScales()
    {
       TEveCaloViz* calo = getEveCalo();
       calo->SetMaxValAbs(caloScale->getMaxFixedVal());
-      if (calo && (typeId() != FWViewType::kLego && typeId() != FWViewType::kLegoHF))
-         calo->SetMaxTowerH(caloScale->getMaxTowerHeight());
+      calo->SetMaxTowerH(caloScale->getMaxTowerHeight());
       calo->SetPlotEt(caloScale->getPlotEt());
       
       if (caloScale->getScaleMode() == FWViewEnergyScale::kFixedScale)
@@ -345,7 +341,8 @@ FWEveView::energyScalesChanged()
    FWViewEnergyScale* caloScale = viewContext()->getEnergyScale("Calo");
    if (caloScale) 
    {
-      // printf("FEEveView scale changed %f \n", getEveCalo()->GetValToHeight());
+      // printf("max H %f max val %f \n",   getEveCalo()->GetMaxTowerH(), getEveCalo()->GetMaxVal());
+      // printf("%s FEEveView scale changed %f  \n", typeName().c_str(),  getEveCalo()->GetValToHeight()); fflush(stdout);
       caloScale->setMaxVal(getEveCalo()->GetMaxVal());
       caloScale->setValToHeight(getEveCalo()->GetValToHeight());
       viewContext()->scaleChanged();

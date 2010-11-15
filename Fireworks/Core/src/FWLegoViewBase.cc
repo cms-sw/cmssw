@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.20 2010/11/04 22:38:55 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.21 2010/11/09 16:56:24 amraktad Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 #include "TEveScene.h"
 #include "TEveCalo.h"
 #include "TEveTrans.h"
+#include "TEveScene.h"
 #include "TEveCaloLegoOverlay.h"
 
 // user include files
@@ -136,12 +137,13 @@ FWLegoViewBase::setContext(const fireworks::Context& ctx)
    data->GetEtaBins()->SetTitleSize(0.03);
 
    m_lego = new TEveCaloLego(data);
-   m_lego->InitMainTrans();
-   m_lego->RefMainTrans().SetScale(TMath::TwoPi(), TMath::TwoPi(), TMath::Pi());
    m_lego->Set2DMode((TEveCaloLego::E2DMode_e)m_cell2DMode.value());
    m_lego->SetDrawNumberCellPixels(m_drawValuesIn2D.value());
    m_lego->SetAutoRebin(m_autoRebin.value());
    m_lego->SetPixelsPerBin(m_pixelsPerBin.value());
+
+   m_lego->InitMainTrans();
+   m_lego->RefMainTrans().SetScale(TMath::TwoPi(), TMath::TwoPi(), TMath::Pi()*0.01);
 
    // note, do not restore max tower height, since it has not value
    FWViewEnergyScale*  caloScale = viewContext()->getEnergyScale("Calo");
@@ -337,4 +339,3 @@ FWLegoViewBase::populateController(ViewerParameterGUI& gui) const
       addParam(&m_autoRebin).
       addParam(&m_pixelsPerBin);
 }
-

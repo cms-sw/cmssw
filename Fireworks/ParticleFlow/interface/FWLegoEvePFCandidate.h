@@ -25,8 +25,6 @@ public:
    void updateScale( const FWViewContext*,  const fireworks::Context&);
 
 private:
-   float getScale( const FWViewContext*, const fireworks::Context&) const;
-
    float  m_energy;
    float  m_et;
 };

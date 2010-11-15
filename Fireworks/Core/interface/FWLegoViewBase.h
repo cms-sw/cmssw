@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWLegoViewBase.h,v 1.12 2010/09/23 18:30:00 amraktad Exp $
+// $Id: FWLegoViewBase.h,v 1.13 2010/09/26 19:54:56 amraktad Exp $
 //
 
 // system include files
@@ -70,7 +70,6 @@ private:
    void setPixelsPerBin();
    void setFontSizein2D();
    void autoScale();
-   void updateLegoScale();
    void showOverlay();
    void setProjectionMode();
    void setCell2DMode();

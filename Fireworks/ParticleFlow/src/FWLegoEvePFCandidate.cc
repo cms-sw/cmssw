@@ -15,21 +15,13 @@ FWLegoEvePFCandidate::FWLegoEvePFCandidate(const reco::PFCandidate& iData, const
    m_et =  iData.et();
    m_energy = iData.energy();
 
-   // energy auto scale  
-   FWViewEnergyScale* scaleE = vc->getEnergyScale("PFenergy");
-   scaleE->setMaxVal(m_energy);
-
-   //et auto scale
-   FWViewEnergyScale* scaleEt = vc->getEnergyScale("PFet");
-   scaleEt->setMaxVal(m_et);
-
    float base = 0.001; // flour offset 1%
 
    // first vertical  line , which is et/energy
    FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");
    float val = caloScale->getPlotEt() ?  m_et : m_energy;
    AddLine(iData.eta(),iData.phi(), base, 
-           iData.eta(),iData.phi(), base + val*getScale(vc, context));
+           iData.eta(),iData.phi(), base + val*caloScale->getValToHeight());
 
 
    AddMarker(0, 1.f);
@@ -52,40 +44,6 @@ FWLegoEvePFCandidate::FWLegoEvePFCandidate(const reco::PFCandidate& iData, const
    }
 }
 
-float
-FWLegoEvePFCandidate::getScale(const FWViewContext* vc, const fireworks::Context& context) const
-{
-   float s = 0.f;
- 
-   FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");
-   if (context.getCaloData()->Empty()  && caloScale->getScaleMode() == FWViewEnergyScale::kAutoScale)
-   {
-      // presume plotEt flag is same for "Calo" and particle flow 
-      if (caloScale->getPlotEt())
-      {
-         s = vc->getEnergyScale("PFet")->getMaxVal();
-      }
-      else
-      {
-         s = vc->getEnergyScale("PFenergy")->getMaxVal();
-      }
-      
-      // check (if this is used in simple proxy builder than assert will be better)
-      if (s == 0.f) {
-         fwLog(fwlog::kError) << "FWLegoEvePFCandidate max value is zero !";
-         s = 1.f;
-      }
-      
-      // height of TEveCaloLego is TMath::Pi(), see FWLegoViewBase::setContext()
-      return TMath::Pi()/s;      
-   }
-   else
-   {
-      // height of TEveCaloLego is TMath::Pi(), see FWLegoViewBase::setContext()
-      return caloScale->getValToHeight()*TMath::Pi();
-   }
-}
-
 void
 FWLegoEvePFCandidate::updateScale(const FWViewContext* vc, const fireworks::Context& context)
 {
@@ -93,12 +51,12 @@ FWLegoEvePFCandidate::updateScale(const FWViewContext* vc, const fireworks::Cont
    float val = caloScale->getPlotEt() ?  m_et : m_energy;
 
    // printf("update scale %f \n", getScale(vc, context)); fflush(stdout);
-   
+   float scaleFac =  caloScale->getValToHeight();
    // resize first line
    TEveChunkManager::iterator li(GetLinePlex());
    li.next();
    TEveStraightLineSet::Line_t& l = * (TEveStraightLineSet::Line_t*) li(); 
-   l.fV2[2] = l.fV1[2] + val*getScale(vc, context);
+   l.fV2[2] = l.fV1[2] + val*scaleFac;
 
    // move end point
    TEveChunkManager::iterator mi(GetMarkerPlex());

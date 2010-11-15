@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel 
 //         Created:  Fri Sep 24 18:52:19 CEST 2010
-// $Id: FWEveViewScaleEditor.cc,v 1.2 2010/09/26 19:57:21 amraktad Exp $
+// $Id: FWEveViewScaleEditor.cc,v 1.3 2010/09/27 10:46:11 amraktad Exp $
 //
 
 // system include files
@@ -45,13 +45,7 @@ FWEveViewScaleEditor::FWEveViewScaleEditor(TGCompositeFrame* w, FWViewEnergyScal
    addParam(&m_scale->m_plotEt);
    addParam(&m_scale->m_scaleMode);
    addParam(&m_scale->m_fixedValToHeight, "FixedMode");
-   
-   int vt = m_scale->getView()->typeId();
-   if (vt != FWViewType::kLego && vt != FWViewType::kLegoHF )
-   {
-      addParam(&m_scale->m_maxTowerHeight, "AutomaticMode");
-   }
-   
+   addParam(&m_scale->m_maxTowerHeight, "AutomaticMode");   
    
    typedef  std::vector<boost::shared_ptr<FWParameterSetterBase> > sList;
    for (sList::iterator i = m_setters.begin(); i!=m_setters.end(); ++i)
