@@ -673,6 +673,7 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, std::s
       VectorOfGraphs[i]->Draw("p");
     }
     OverlayLegend.Draw("same");
+    //OverlayLegend.SetTextSize(1.5);
     DeanCan.SaveAs(CanvasName.replace(CanvasName.find("."),CanvasName.size()-CanvasName.find("."),"_Overlay.gif").c_str());
   }
 
