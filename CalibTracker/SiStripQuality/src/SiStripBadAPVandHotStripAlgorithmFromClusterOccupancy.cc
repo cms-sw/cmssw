@@ -414,6 +414,7 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::AnalyzeOccupancy(SiS
 	      poissonprob[i]         = 0;
 	    }
 
+	  number_strips        = (medianValues[it].numberApvs)*128;
 	  apv_number           = apv+1;
 	  apvMedianOccupancy   = medianValues[it].apvMedian[apv];
 	  apvAbsoluteOccupancy = medianValues[it].apvabsoluteOccupancy[apv];
@@ -569,6 +570,9 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::evaluatePoissonian(s
 
 void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::setBasicTreeParameters(int detid){
   DetId DetectorID=DetId(detid);
+
+  detrawid = detid;
+  subdetid = DetectorID.subdetId();
 
   if (SiStripDetId(detid).stereo() !=0 ) isstereo = 1; // It's a stereo module
   else                                   isstereo = 0; // It's an rphi module
