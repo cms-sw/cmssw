@@ -70,13 +70,22 @@ class WorkFlowRunner(Thread):
 
         inFile = 'file:raw.root'
         if 'REALDATA' in self.wf.cmdStep1:
-            realDataRe = re.compile('REALDATA:\s*(/[A-Za-z].*?),(\s*RUN:\s*(?P<run>\d+),)?(\s*FILES:\s*(?P<files>\d+),)?(\s*EVENTS:\s*(?P<events>\d+))?,\s*LABEL:\s*(?P<label>.*)')
+            realDataRe = re.compile('REALDATA:\s*(/[A-Za-z].*?),(\s*RUN:\s*(?P<run>\d+),)?(\s*FILES:\s*(?P<files>\d+),)?(\s*EVENTS:\s*(?P<events>\d+))?,\s*LABEL:\s*(?P<label>.*),\s*LOCATION:\s*(?P<location>.*)\s*')
             realDataMatch = realDataRe.match(self.wf.cmdStep1)
             if realDataMatch:
                 run = None
                 if realDataMatch.group("run") : run = realDataMatch.group("run")
                 label  = realDataMatch.group("label")
+                location = realDataMatch.group("location").lower().strip()
+                if 'caf' in location:
+                    print "ignoring workflow ",self.wf.numId, self.wf.nameId, ' as this is on CAF ...'
+                    self.npass = [0,0,0,0]
+                    self.nfail = [0,0,0,0]
 
+                    logStat = 'Step1-NOTRUN Step2-NOTRUN Step3-NOTRUN  Step4-NOTRUN ' 
+                    self.report+='%s_%s %s - time %s; exit: %s %s %s %s \n' % (self.wf.numId, self.wf.nameId, logStat, 0, 0,0,0,0)
+                    return
+                
                 files  = None
                 events = None
                 if realDataMatch.group("files") : files=realDataMatch.group("files")
@@ -93,7 +102,7 @@ class WorkFlowRunner(Thread):
                     lf = open(wfDir+'/step1_'+self.wf.nameId+'-dbsquery.log', 'r')
                     lines = lf.readlines()
                     lf.close()
-                    if not lines:
+                    if not lines or len(lines)==0 :
                         inFile = "NoFileFoundInDBS"
                         retStep1 = -95
                     else:
@@ -308,6 +317,7 @@ class MatrixReader(object):
                 name = realMatch.group(2).strip().replace('<','').replace('>','').replace(':','')
                 next = realMatch.group(3).strip().replace('+','').replace(',', ' ')
                 cmd  = realMatch.group(4).strip()
+
                 step2 = "None"
                 step3 = "None"
                 step4 = "None"
@@ -409,16 +419,16 @@ class MatrixReader(object):
         for wf in self.workFlows:
             if selected and float(wf.numId) not in selected: continue
             n1+=1
-            print fmt1 % (wf.numId, wf.nameId, wf.cmdStep1[:maxLen])
+            print fmt1 % (wf.numId, wf.nameId, (wf.cmdStep1+' ')[:maxLen])
             if wf.cmdStep2:
                 n2+=1
-                print fmt2 % ( ' ', 2, wf.cmdStep2[:maxLen])
+                print fmt2 % ( ' ', 2, (wf.cmdStep2+' ')[:maxLen])
                 if wf.cmdStep3:
                     n3+=1
-                    print fmt2 % ( ' ', 3, wf.cmdStep3[:maxLen])
+                    print fmt2 % ( ' ', 3, (wf.cmdStep3+' ')[:maxLen])
                     if wf.cmdStep4:
                         n4+=1
-                        print fmt2 % ( ' ', 4, wf.cmdStep4[:maxLen])
+                        print fmt2 % ( ' ', 4, (wf.cmdStep4+' ')[:maxLen])
 
         print n1, 'workflows for step1,'
         print n2, 'workflows for step1 + step2,'
