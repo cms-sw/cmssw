@@ -50,7 +50,7 @@
         <PARAM name="MaxRel">5.</PARAM>
         <PARAM name="UseEmptyBins">0</PARAM>
         <PARAM name="MinAbs">0.</PARAM>
-        <PARAM name="MaxAbs">20.</PARAM> 
+        <PARAM name="MaxAbs">50.</PARAM> 
 	<PARAM name="error">0.30</PARAM>
         <PARAM name="warning">0.70</PARAM>
         <PARAM name="StatCut">100</PARAM>
@@ -61,7 +61,7 @@
         <PARAM name="MaxRel">5.</PARAM>
         <PARAM name="UseEmptyBins">0</PARAM>
         <PARAM name="MinAbs">0.</PARAM>
-        <PARAM name="MaxAbs">75.</PARAM>
+        <PARAM name="MaxAbs">120.</PARAM>
         <PARAM name="error">0.30</PARAM>
         <PARAM name="warning">0.70</PARAM>
         <PARAM name="StatCut">200</PARAM>
@@ -149,9 +149,6 @@
      <PARAM name="xmin">0</PARAM> 
      <PARAM name="xmax">10.0</PARAM> 
 </QTEST>
-<LINK name="*nFEDErrors">
-  <TestName activate="true">MeanWithinExpectedRange:nFEDErrors</TestName>
-</LINK>
 <LINK name="*nBadChannelStatusBits">
   <TestName activate="true">MeanWithinExpectedRange:nBadChannelStatusBits</TestName>
 </LINK>
