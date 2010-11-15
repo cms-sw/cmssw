@@ -43,9 +43,7 @@ hiEcalClustersIsolation = cms.Sequence(hiEgammaSequence * hiEgammaIsolationSeque
 
 # HI Spike Clean Sequence
 import RecoHI.HiEgammaAlgos.hiSpikeCleaner_cfi
-hiSpikeCleanedSC = RecoHI.HiEgammaAlgos.hiSpikeCleaner_cfi.hiSpikeCleaner.clone(
-    swissCutThr    = cms.untracked.double(0.83)
-)
+hiSpikeCleanedSC = RecoHI.HiEgammaAlgos.hiSpikeCleaner_cfi.hiSpikeCleaner.clone()
 cleanPhotonCore = photonCore.clone(
     scHybridBarrelProducer = cms.InputTag("hiSpikeCleanedSC")
 )
