@@ -21,4 +21,3 @@ l1tdttfClient.online = cms.untracked.bool(False)
 l1tmonitorClient = cms.Sequence(l1tcsctfseqClient*l1tdttfseqClient*l1trpctfseqClient*l1tdemonseqClient*l1tGctseqClient*l1tEventInfoseqClient)
 
 triggerOfflineDQMClient = cms.Sequence(l1tmonitorClient)
-triggerOfflineDQMClient.remove(l1tdttfClient)
