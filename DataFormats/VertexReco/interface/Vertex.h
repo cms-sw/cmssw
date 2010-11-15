@@ -15,7 +15,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.35 2010/04/16 07:47:56 arizzi Exp $
+ * \version $Id: Vertex.h,v 1.36 2010/04/16 08:08:27 arizzi Exp $
  *
  */
 #include <Rtypes.h>
@@ -51,7 +51,7 @@ namespace reco {
     /// default constructor - The vertex will not be valid. Position, error,
     /// chi2, ndof will have random entries, and the vectors of tracks will be empty
     /// Use the isValid method to check that your vertex is valid. 
-    Vertex() { validity_ = false;}
+    Vertex():  chi2_( 0.0 ), ndof_( 0 ), position_(0.,0.,0. ) { validity_ = false;}
     /// Constructor for a fake vertex.
     Vertex( const Point &, const Error &);
     /// constructor for a valid vertex, with all data
