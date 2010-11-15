@@ -49,7 +49,9 @@ void RecoTauConstructor::addPFCand(Region region, ParticleType type,
     const PFCandidateRef& ref) {
   if (region == kSignal) {
     // Keep track of the four vector of the signal vector products added so far.
-    p4_ += ref->p4();
+    // If a photon add it if we are not using PiZeros to build the gammas
+    if ( (type != kGamma) || !copyGammas_ )
+      p4_ += ref->p4();
   }
   getSortedCollection(region, type)->push_back(ref);
   // Add to global collection
@@ -85,6 +87,9 @@ void RecoTauConstructor::addPiZero(Region region, const RecoTauPiZero& piZero) {
     tau_->signalPiZeroCandidates_.push_back(piZero);
     // Copy the daughter gammas into the gamma collection if desired
     if(copyGammas_) {
+      // If we are using the pizeros to build the gammas, make sure we update
+      // the four vector correctly.
+      p4_ += piZero.p4();
       addPFCands(kSignal, kGamma, piZero.daughterPtrVector().begin(),
           piZero.daughterPtrVector().end());
     }

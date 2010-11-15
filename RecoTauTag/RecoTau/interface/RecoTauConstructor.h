@@ -11,6 +11,11 @@
  * lead track information, and copy the gamma candidates owned by the
  * reconstructed pi zeros into the appropriate PiZero collection.
  *
+ * If the gammas are copied from the PiZeros, the four vector will be
+ * built using the PiZeros + Charged Hadrons.  This can be different than
+ * the Gammas + Charged Hadrons, as the PiZero may have a mass hypothesis set by
+ * the RecoTauPiZeroProducer
+ *
  * Note that the p4 of the tau is *always* set as the sum of objects in
  * signal cone.
  *
