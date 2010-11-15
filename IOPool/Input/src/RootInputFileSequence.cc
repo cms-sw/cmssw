@@ -11,7 +11,6 @@
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -212,9 +211,6 @@ namespace edm {
       indexesIntoFiles_[currentIndexIntoFile] = rootFile_->indexIntoFileSharedPtr();
       rootFile_->reportOpened(primary() ?
          (primaryFiles_ ? "primaryFiles" : "secondaryFiles") : "mixingFiles");
-      if (primaryFiles_) {
-        BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
-      }
     } else {
       if(!skipBadFiles) {
         throw edm::Exception(edm::errors::FileOpenError) <<

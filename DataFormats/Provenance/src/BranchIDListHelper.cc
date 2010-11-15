@@ -13,8 +13,9 @@ namespace edm {
     branchIDToIndexMap_(),
     branchListIndexMapper_() {}
 
-  void
+  bool
   BranchIDListHelper:: updateFromInput(BranchIDLists const& bidlists, std::string const& fileName) {
+    bool unchanged = true;
     BranchIDListRegistry& breg = *BranchIDListRegistry::instance();
     BranchIDListRegistry::collection_type& bdata = breg.data();
     BranchIDToIndexMap& branchIDToIndexMap = breg.extra().branchIDToIndexMap_;
@@ -34,7 +35,11 @@ namespace edm {
 	}
       }
       branchListIndexMapper.insert(std::make_pair(oldBlix, blix));
+      if (oldBlix != blix) {
+        unchanged = false;
+      }
     }
+    return unchanged;
   }
 
   void

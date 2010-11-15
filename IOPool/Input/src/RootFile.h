@@ -92,6 +92,7 @@ namespace edm {
     FileFormatVersion fileFormatVersion() const {return fileFormatVersion_;}
     int whyNotFastClonable() const {return whyNotFastClonable_;}
     boost::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
+    bool branchListIndexesUnchanged() const {return branchListIndexesUnchanged_;}
     boost::shared_ptr<FileBlock> createFileBlock() const;
     bool setEntryAtItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) {
       return event ? setEntryAtEvent(run, lumi, event) : (lumi ? setEntryAtLumi(run, lumi) : setEntryAtRun(run));
@@ -169,6 +170,7 @@ namespace edm {
     bool noEventSort_;
     int whyNotFastClonable_;
     boost::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
+    bool branchListIndexesUnchanged_;
     JobReport::Token reportToken_;
     EventAuxiliary eventAux_;
     RootTree eventTree_;

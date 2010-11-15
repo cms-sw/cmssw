@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "FWCore/Sources/interface/EventSkipperByID.h"
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
@@ -135,6 +136,7 @@ namespace edm {
       noEventSort_(noEventSort),
       whyNotFastClonable_(0),
       hasNewlyDroppedBranch_(),
+      branchListIndexesUnchanged_(false),
       reportToken_(0),
       eventAux_(),
       eventTree_(filePtr_, InEvent, treeMaxVirtualSize, treeCacheSize, input::defaultLearningEntries),
@@ -386,6 +388,11 @@ namespace edm {
     // Determine if this file is fast clonable.
     setIfFastClonable(remainingEvents, remainingLumis);
 
+    // Update the branch id info.
+    if (!secondaryFile) {
+      branchListIndexesUnchanged_ = BranchIDListHelper::updateFromInput(*branchIDLists_, file_);
+    }
+
     setRefCoreStreamer(true);  // backward compatibility
 
     // We are done with our initial reading of EventAuxiliary.
@@ -520,6 +527,7 @@ namespace edm {
                                                      whyNotFastClonable(),
                                                      hasNewlyDroppedBranch(),
                                                      file_,
+                                                     branchListIndexesUnchanged(),
                                                      branchChildren_));
   }
 
