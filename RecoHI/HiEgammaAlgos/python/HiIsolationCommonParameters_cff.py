@@ -7,5 +7,6 @@ isolationInputParameters = cms.PSet(
    hfreco = cms.InputTag("hfreco"),
    hbhereco = cms.InputTag("hbhereco"),
    track = cms.InputTag("highPurityTracks")
-)
+   photons = cms.InputTag("cleanPhotons")
+   )
 
