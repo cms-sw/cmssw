@@ -317,7 +317,7 @@ namespace edm {
       }
       // We now check if we can fast copy the auxiliary branches.
       // We can do so only if we can otherwise fast copy,
-      // the input file has the current format (these branches are in the Events Tree).
+      // the input file has the current format (these branches are in the Events Tree),
       // and there are no newly dropped or produced products,
       Service<ConstProductRegistry> reg;
       canFastCloneAux_ = (whyNotFastClonable_ == FileBlock::CanFastClone) &&
@@ -325,6 +325,8 @@ namespace edm {
                           !om_->hasNewlyDroppedBranch()[InEvent] &&
                           !fb.hasNewlyDroppedBranch()[InEvent] &&
                           !reg->anyProductProduced();
+      // NOTE: Pending a bugfix, we disable fast cloning of auxiliary branches for now.
+      canFastCloneAux_ = false;
 
       // Report the fast copying status.
       Service<JobReport> reportSvc;
