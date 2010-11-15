@@ -1,4 +1,4 @@
-// $Id: Photon.cc,v 1.19 2008/12/15 19:51:22 nancy Exp $
+// $Id: Photon.cc,v 1.20 2009/03/24 18:03:39 nancy Exp $
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
 
@@ -10,8 +10,8 @@ Photon::Photon( const LorentzVector & p4,
 		const Point & vtx) : 
     RecoCandidate( 0, p4, vtx, 22 ), 
     caloPosition_( caloPos ),
-    photonCore_(core)
-
+    photonCore_(core),
+    pixelSeed_(false)
 { }
 
 
