@@ -1,23 +1,60 @@
 #! /bin/bash
+#set -x
 
-
+source /afs/cern.ch/cms/caf/setup.sh
 curdir=$( pwd )
-
-#workdir="/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/bonato/DEVEL/HIPWorkflow/CMSSW_3_2_4/src/"
-#CASTOR_OUT="/castor/cern.ch/cms/store/user/bonato/CRAFTReproSkims/Craft09/4T/"
 
 workdir="<MYCMSSW>/src/"
 CASTOR_OUT="<CASTOROUT>"
 
-##DQM_OUT="/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/bonato/DEVEL/HIPWorkflow/ALCARECOskim/v1.4/MONITORING/DQM/CTF/"
 DQM_OUT="${curdir}/MONITORING/DQM/CTF/"
 #DQM_OUT=$1 
 ALCAFILELIST=$1
 MAXEVENTS=18000
 
 
+checkCorruptedFiles(){
+
+
+    FOUND=4 #not found by default 
+    if [ $# != 1 ]
+	then
+#	echo "wrong number of input parameters ( $# ). Please provide a number (index of job to check). Exiting with error."
+	echo 3
+    fi
+ 
+    LISTBADJOBS="/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/bonato/CMSSW_3_8_4_patch2/src/Alignment/TrackerAlignment/scripts/badjobs_Run2010A-v4.lst" 
+  #  echo "Called checkCorruptedFiles with input $1"
+
+    IND=$1
+   while read myline
+
+      do
+#      echo "LINE is $myline" 
+#      VAR1=$( echo $myline | awk '{print $1}' )
+#      VAR2=$( echo $VAR1 | sed 's/^M$//' )
+      if [[ "$1" -eq "$myline" ]]
+	  then
+#	echo "Found INDEX $1"
+	FOUND=0
+	  break
+    #  else
+	#  echo "INDEX $1 !!== $myline"
+      fi
+    done  < $LISTBADJOBS
+    
+    echo $FOUND
+    
+}
+# end checkCorruptedFiles()
+
+
+
+########################
+### START MAIN BODY OF THE SCRIPT
+
 #check if output directory exists
-nsls $CASTOR_OUT
+nsls -d /castor/cern.ch/cms/$CASTOR_OUT
 if [ $? -ne 0 ]
 then
 echo "Output directory: "
@@ -36,11 +73,11 @@ if [ $# -gt 1 ]
     then  
     if [ $2 -gt 2 ]
 	then
-	echo "Cleaning from Prescaled files the output directory: $CASTOR_OUT"  
-	for file in $(nsls $CASTOR_OUT/ | grep 'Prescaled') 
+	echo "Cleaning from Prescaled files the output directory: /castor/cern.ch/cms/$CASTOR_OUT"  
+	for file in $(nsls /castor/cern.ch/cms/$CASTOR_OUT/ | grep 'Prescaled') 
 	  do
 #echo "deleting $file"
-	  rfrm  $CASTOR_OUT/$file
+	  rfrm  /castor/cern.ch/cms/$CASTOR_OUT/$file
 	  let cnt=cnt+1
 	done
 	echo "Deleted $cnt files"
@@ -81,7 +118,8 @@ done
 #It is fast, do it locally
 cd $curdir
 dqmtotfile="${curdir}/TkAlDQMHitMaps_CTF_${TAG}.root"
-replace "<DQMLIST>" $dqmlist "<DQMTOTFILE>" $dqmtotfile  < mergemytree_cfg.tpl > mergemytree_${TAG}_cfg.py
+#replace "<DQMLIST>" $dqmlist "<DQMTOTFILE>" $dqmtotfile  < mergemytree_cfg.tpl > mergemytree_${TAG}_cfg.py
+sed -e "s|<DQMLIST>|${dqmlist}|g"  -e "s|<DQMTOTFILE>|${dqmtotfile}|g"   < mergemytree_cfg.tpl > mergemytree_${TAG}_cfg.py
 echo "Merging DQM into $dqmtotfile"
 time cmsRun mergemytree_${TAG}_cfg.py
 
@@ -97,7 +135,11 @@ time cmsRun mergemytree_${TAG}_cfg.py
     let TOTFILES=TOTFILES+1
     TOTEVTS=$(sed -n $TOTFILES'p' ../data/nevents${TAG}.out)
 #echo "The file #$TOTFILES has $TOTEVTS events"
-
+    if [ $TOTEVTS == 0 ]
+	then
+#	echo "The file #$TOTFILES has $TOTEVTS events"
+	continue
+    fi 
     TOTSPLITS=$(( ( $TOTEVTS / $MAXEVENTS ) +1 ))
     firstev=0
     lastev=-1
@@ -115,7 +157,7 @@ time cmsRun mergemytree_${TAG}_cfg.py
 	  lastev=$MAXEVENTS    #$(( ($MAXEVENTS*$nsplits) ))
 	  JOB=$JOBTAG"_file"$INDEX 
 	  CFG_FILE=$BASE_TPL"."$TAG"_cfg."$INDEX".py"
-	  replace "<JOB>" $JOB "<INPATH>"  $i  "<INIEVT>" $firstev "<FINEVT>" $lastev "<ALCATAG>" $ALCATAG "<MERGEDHITMAP>" $dqmtotfile < $TPL_FILE > $CFG_FILE
+	  sed -e "s|<JOB>|${JOB}|g"  -e "s|<INPATH>|${i}|g"   -e "s|<INIEVT>|${firstev}|g"  -e "s|<FINEVT>|${lastev}|g"  -e "s|<ALCATAG>|${ALCATAG}|g"  -e "s|<MERGEDHITMAP>|${dqmtotfile}|g"  < $TPL_FILE > $CFG_FILE
 	  let INDEX=INDEX+1
 	  let nsplits=nsplits+1
 # 	  if [ $INDEX -ge 3 ]
@@ -131,7 +173,7 @@ time cmsRun mergemytree_${TAG}_cfg.py
 	lastev=-1
 	JOB=$JOBTAG"_file"$INDEX 
 	CFG_FILE=$BASE_TPL"."$TAG"_cfg."$INDEX".py"
-	replace "<JOB>" $JOB "<INPATH>"  $i  "<INIEVT>" $firstev "<FINEVT>" $lastev  "<ALCATAG>" $ALCATAG "<MERGEDHITMAP>" $dqmtotfile< $TPL_FILE > $CFG_FILE
+	sed -e "s|<JOB>|${JOB}|g"  -e "s|<INPATH>|${i}|g"   -e "s|<INIEVT>|${firstev}|g"  -e "s|<FINEVT>|${lastev}|g"  -e "s|<ALCATAG>|${ALCATAG}|g"  -e "s|<MERGEDHITMAP>|$dqmtotfile|g"  < $TPL_FILE > $CFG_FILE
 	let INDEX=INDEX+1
 # 	if [ $INDEX -ge 3 ]
 # 	    then
@@ -142,11 +184,11 @@ time cmsRun mergemytree_${TAG}_cfg.py
     fi
 
 
-# if [ $INDEX -ge 3 ]
+#     if [ $INDEX -ge 3 ]
 # 	then
-# 	    echo "Reached a maximum number of files: $INDEX. Stopping the submission"
+# 	echo "Reached a maximum number of files: $INDEX. Stopping the submission"
 # 	break
-# 	fi
+#     fi
 
 #echo "--- moving to next file. At the moment INDEX=$INDEX"
   done
@@ -159,25 +201,41 @@ echo "TOTPRESCALEDJOBS = $TOTPRESCALEDJOBS"
 
 
 #submit them
+echo
+echo
+echo "@@@@@@@@@@@@@@@@@@@@@"
+echo
 INDEX=1
 while [ $INDEX -le $TOTPRESCALEDJOBS ]
 do
 JOBNAME="ALCAPresc"$TAG"_"$INDEX
 LOGFILE="${JOBNAME}.log"
 CFG_FILE=$BASE_TPL"."$TAG"_cfg."$INDEX".py"
-echo "Submitting $JOBNAME with config file $CFG_FILE"
-if [ $INDEX -lt 100 ]
-then 
-#echo "dummy D"
-bsub -q cmscaf1nd -J $JOBNAME -oo $LOGFILE presc_exec.sh "$curdir/$CFG_FILE" "$CASTOR_OUT"  "$DQM_OUT"
-elif [ $INDEX -lt 200 ] 
+
+
+CHECKCORRUPTED=1 # if greater than zero it overrides the checks
+FILECORRUPTED=$( checkCorruptedFiles $INDEX )
+
+
+if [[ $FILECORRUPTED == 0 || CHECKCORRUPTED -gt 0 ]]
 then
-#echo "dummy E"
-bsub -q cmsexpress -J $JOBNAME -oo $LOGFILE presc_exec.sh "$curdir/$CFG_FILE" "$CASTOR_OUT"  "$DQM_OUT"
-else
-#echo "dummy F"
-bsub -q cmscaf1nh    -J $JOBNAME -oo $LOGFILE presc_exec.sh "$curdir/$CFG_FILE" "$CASTOR_OUT"  "$DQM_OUT"
-fi
+    echo "Submitting $JOBNAME with config file $CFG_FILE"
+    REM=0
+    let "REM=$INDEX % 300"
+    if [ $REM -lt 100 ]
+	then 
+#echo "dummy D" > /dev/null
+	bsub -q cmscaf1nd -J $JOBNAME -oo $LOGFILE presc_exec.sh "$curdir/$CFG_FILE" "$CASTOR_OUT"  "$DQM_OUT"
+    elif [ $REM -lt 200 ] 
+	then
+	#echo "dummy E" > /dev/null
+	bsub -q cmsexpress -J $JOBNAME -oo $LOGFILE presc_exec.sh "$curdir/$CFG_FILE" "$CASTOR_OUT"  "$DQM_OUT"
+    else
+	#echo "dummy F" > /dev/null
+	bsub -q cmscaf1nd    -J $JOBNAME -oo $LOGFILE presc_exec.sh "$curdir/$CFG_FILE" "$CASTOR_OUT"  "$DQM_OUT"
+    fi
+
+fi #end if file is corrupted
 
 let INDEX=INDEX+1
 done #end while loop on submissions

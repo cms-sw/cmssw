@@ -4,6 +4,8 @@
 # $2 : output directory
 # $3 : output DQM directory (optional)
 
+source /afs/cern.ch/cms/caf/setup.sh
+
 curdir="$(pwd)"
 #workdir="/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/bonato/DEVEL/HIPWorkflow/CMSSW_3_2_4/src/"
 workdir="<MYCMSSW>"
@@ -21,8 +23,8 @@ fi
 # set up the CMS environment (choose your release and working area):
 echo Setting up CMSSW environment in $workdir
 cd $workdir
-eval `scramv1 runtime -sh`
-export STAGE_SVCCLASS=cmscafuser
+eval `scram runtime -sh`
+#export STAGE_SVCCLASS=cmscafuser
 ###rehash ### useless in bash shell, only for tcsh
 
 
@@ -30,7 +32,7 @@ export STAGE_SVCCLASS=cmscafuser
 echo Running in $curdir...
 cd $curdir
 
-rfcp $1 $2/logfiles/
+rfcp $1 /castor/cern.ch/cms/$2/logfiles/
 #cp   $1 "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/bonato/DEVEL/HIPWorkflow/ALCARECOskim/v1.3/MONITORING/logfiles/"
 
 BASE_JOBNAME=$(basename "$1" .py)
@@ -47,7 +49,7 @@ echo "File list in $(pwd): "
 ls -lh
 echo "---------"
 
-export STAGE_SVCCLASS=cmscafuser
+#export STAGE_SVCCLASS=cmscafuser
 #rfcp *Skimmed*.root "$2"
 
 for dqmfile in $(ls  *TracksStatistics*.root)
@@ -67,11 +69,34 @@ if [[ "$dqmfile" =~ "CosmicTF" ]]; then rfcp $dqmfile $dqmdir/CosmicTF/$HITFILE 
 done
 
 rm -f *TracksStatistics*.root  *HitMaps*.root
-rfcp ALCASkim*.root "$2/"
-rfcp *.log "$2/logfiles/"
-rfcp *.out "$2/logfiles/"
 
+for outROOT in $( ls  ALCA*kim*.root )
+do
+cmsStageOut $outROOT "$2/"
 
+if [ $? -ne 0 ]
+then
+echo "Error in copying the .root file to CASTOR !"
+fi
+let STATUScp=$STATUScp+$?
+done
+echo "Copying to /castor/cern.ch/cms/$2/logfiles/" 
+STATUScp=0
+for outLOG in $( ls  *.out )
+do
+cp $outLOG "${dqmdir}/../logfiles/"
+let STATUScp=$STATUScp+$?
+cmsStageOut $outLOG "$2/"
+let STATUScp=$STATUScp+$?
+done
+
+for outLOG in $( ls  *.log )
+do
+cmsStageOut $outLOG "$2/"
+let STATUScp=$STATUScp+$?
+cp $outLOG "${dqmdir}/../logfiles/"
+let STATUScp=$STATUScp+$?
+done
 
 #### # for skimfile in $( ls  ALCASkim*.root )
 #### # do
@@ -92,5 +117,5 @@ rm -f *.out
 for logfile in $( ls ${dqmdir}/../logfiles/*.log ) 
 do
 gzip  $logfile
-##rm -f $logfile
+rm -f $logfile
 done 

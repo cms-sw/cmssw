@@ -80,6 +80,10 @@ process.OutALCARECOTkAlCosmicsPrescaled = cms.OutputModule("PoolOutputModule",
 #         "keep *_ctfWithMaterialTracksP5_*_*",
          "keep *_*Skimmed*_*_*",
          "keep *_TkAlHitAssoMap*_*_*",
+       'keep L1AcceptBunchCrossings_*_*_*',
+        'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
+        'keep *_TriggerResults_*_*',
+        'keep DcsStatuss_scalersRawToDigi_*_*',
          "keep *_MEtoEDMConverter_*_*"
      ),
 ###    "keep Si*Cluster*_*_*_*", # for cosmics keep also clusters

@@ -57,7 +57,10 @@ fi
 if [ $takenext == 4 ] 
 then
 IND=0
-echo $line >> ${TAG}".out"
+###if [ $line -gt 0 ] #don't include zero events ALCARECO
+###    then
+    echo $line >> ${TAG}".out"
+###fi
 takenext=0
 fi
 

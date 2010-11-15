@@ -6,8 +6,8 @@ process = cms.Process("ALCASKIMTkAl")
 ##__________________________Messages & Convenience____________________________________-
 process.load("FWCore.MessageService.MessageLogger_cfi")
 MessageLogger = cms.Service("MessageLogger",
-       destinations = cms.untracked.vstring('LOGFILE_CosmicsSkimmed_<JOB>'),
-       statistics   = cms.untracked.vstring('LOGFILE_CosmicsSkimmed_<JOB>'),
+       destinations = cms.untracked.vstring('LOGFILE_MinBiasSkimmed_<JOB>'),
+       statistics   = cms.untracked.vstring('LOGFILE_MinBiasSkimmed_<JOB>'),
        categories   = cms.untracked.vstring('Alignment','AlcaRecoAnalyzer',''),
        debugModules = cms.untracked.vstring( '*' ),
 
@@ -20,11 +20,10 @@ MessageLogger = cms.Service("MessageLogger",
            Alignment = cms.untracked.PSet( limit = cms.untracked.int32(1000) )
        )
    )
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 ##__________________________________Source_____________________________________________
 process.source = cms.Source("PoolSource",
-	useCSA08Kludge = cms.untracked.bool(True),
         skipEvents = cms.untracked.uint32(<INIEVT>),                 
    	fileNames = cms.untracked.vstring(
       	  'rfio:/castor/cern.ch/cms/<INPATH>'
@@ -49,9 +48,8 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 # setting global tag
-#process.GlobalTag.globaltag = "MC_31X_V6::All"
-process.GlobalTag.globaltag = "MC_3XY_V10::All"
-
+#process.GlobalTag.globaltag = "GR_R_38X_V13A::All"
+process.GlobalTag.globaltag = "GR10_P_V11::All"
 
 
 ##__________________________________Filter____________________________________________

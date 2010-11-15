@@ -23,7 +23,6 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 ##__________________________________Source_____________________________________________
 process.source = cms.Source("PoolSource",
-	useCSA08Kludge = cms.untracked.bool(True),
         skipEvents = cms.untracked.uint32(<INIEVT>),                 
    	fileNames = cms.untracked.vstring(
       	  'rfio:/castor/cern.ch/cms/<INPATH>'
@@ -41,7 +40,8 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 # setting global tag
-process.GlobalTag.globaltag = "MC_3XY_V10::All"
+#process.GlobalTag.globaltag = "GR_R_38X_V13A::All"
+process.GlobalTag.globaltag = "GR10_P_V11::All"
 
 
 ##__________________________________Filter____________________________________________
@@ -80,6 +80,10 @@ process.OutALCARECOTkAlMinBiasPrescaled = cms.OutputModule("PoolOutputModule",
 #         "keep *_ctfWithMaterialTracksP5_*_*",
          "keep *_*Skimmed*_*_*",
          "keep *_TkAlHitAssoMap*_*_*",
+       'keep L1AcceptBunchCrossings_*_*_*',
+        'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
+        'keep *_TriggerResults_*_*',
+        'keep DcsStatuss_scalersRawToDigi_*_*',
          "keep *_MEtoEDMConverter_*_*"
      ),
 ###    "keep Si*Cluster*_*_*_*", # for cosmics keep also clusters

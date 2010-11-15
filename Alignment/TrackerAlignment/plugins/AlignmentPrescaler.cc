@@ -24,6 +24,7 @@
 #include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
 #include "DataFormats/Alignment/interface/AliClusterValueMap.h"
 
+#include "Riostream.h"
 
 AlignmentPrescaler::AlignmentPrescaler(const edm::ParameterSet &iConfig):
   src_(iConfig.getParameter<edm::InputTag>("src")),
@@ -43,6 +44,7 @@ AlignmentPrescaler::~AlignmentPrescaler(){
 
 void AlignmentPrescaler::beginJob(){
   //
+  std::cout<<"in AlignmentPrescaler::beginJob"<<std::flush;
    fpresc_=new TFile(prescfilename_.c_str(),"READ");
    tpresc_=(TTree*)fpresc_->Get(presctreename_.c_str());
    tpresc_->BuildIndex("DetId");
@@ -50,7 +52,7 @@ void AlignmentPrescaler::beginJob(){
    tpresc_->SetBranchStatus("DetId",1);
    tpresc_->SetBranchStatus("PrescaleFactor",1);
    tpresc_->SetBranchStatus("PrescaleFactorOverlap",1);
-
+   cout<<" Branches activated "<<std::flush;
    detid_=0;
    hitPrescFactor_=99.0;
    overlapPrescFactor_=88.0;
@@ -58,10 +60,10 @@ void AlignmentPrescaler::beginJob(){
    tpresc_->SetBranchAddress("DetId",&detid_);
    tpresc_->SetBranchAddress("PrescaleFactor",&hitPrescFactor_);
    tpresc_->SetBranchAddress("PrescaleFactorOverlap",&overlapPrescFactor_);
-   
+   cout<<" addressed "<<std::flush;   
    myrand_=new TRandom3();
    //   myrand_->SetSeed();
-
+   cout<<" ok "<<std::endl;
 
 }
 
@@ -74,7 +76,7 @@ void AlignmentPrescaler::endJob( ){
 }
 
 void AlignmentPrescaler::produce(edm::Event &iEvent, const edm::EventSetup &iSetup){
-  //  std::cout<<"\n\n#################\n### Starting the AlignmentPrescaler::produce ; Event: "<<iEvent.id().run() <<", "<<iEvent.id().event()<<std::endl;
+  // std::cout<<"\n\n#################\n### Starting the AlignmentPrescaler::produce ; Event: "<<iEvent.id().run() <<", "<<iEvent.id().event()<<std::endl;
   edm::Handle<reco::TrackCollection> Tracks;
   iEvent.getByLabel(src_, Tracks);
  
@@ -117,22 +119,48 @@ void AlignmentPrescaler::produce(edm::Event &iEvent, const edm::EventSetup &iSet
       bool isOverlapHit=false;
       //  bool first=true;
       //ugly...
-      const SiStripRecHit2D* striphit = dynamic_cast<const SiStripRecHit2D*>(hit);
       const SiPixelRecHit*   pixelhit= dynamic_cast<const SiPixelRecHit*>(hit);
+      const SiStripRecHit1D* stripHit1D = dynamic_cast<const SiStripRecHit1D*>(hit);
+      const SiStripRecHit2D* stripHit2D = dynamic_cast<const SiStripRecHit2D*>(hit);
+
       AlignmentClusterFlag tmpflag(hit->geographicalId());
+      int stripType=0;
       if(subdetId>2){// SST case
-	if(striphit!=0){
-	  SiStripRecHit2D::ClusterRef stripclust(striphit->cluster());
-	  tmpflag=InValMap[stripclust];
-	  tmpflag.SetDetId(hit->geographicalId());
-	  if(tmpflag.isOverlap())isOverlapHit=true;
-	  // cout<<"~*~*~* Prescale for module "<<tmpflag.detId().rawId()<<"("<<InValMap[stripclust].detId().rawId() <<") is "<<hitPrescFactor_<<flush;
-	  //if(tmpflag.isOverlap())cout<<" (it is Overlap)"<<flush;
-	  //	  else cout<<endl;
+	const std::type_info &type = typeid(*hit); 	 
+	if (type == typeid(SiStripRecHit1D))	stripType=1;
+	else  if (type == typeid(SiStripRecHit2D))	stripType=2;
+	else	stripType=3;
+
+	if(stripType==1) { 
+	  //	  const SiStripRecHit1D* stripHit1D = dynamic_cast<const SiStripRecHit1D*>(hit);
 	  
-	}//end if striphit!=0
+	  if(stripHit1D!=0){
+	    SiStripRecHit1D::ClusterRef stripclust(stripHit1D->cluster());
+	    tmpflag=InValMap[stripclust];
+	    tmpflag.SetDetId(hit->geographicalId());
+	    if(tmpflag.isOverlap())isOverlapHit=true;
+	    // std::cout<<"~*~*~* Prescale (1D) for module "<<tmpflag.detId().rawId()<<"("<<InValMap[stripclust].detId().rawId() <<") is "<<hitPrescFactor_<<std::flush;
+	    //  if(tmpflag.isOverlap())cout<<" (it is Overlap)"<<endl;
+	    // else cout<<endl;
+	    
+	  }//end if striphit1D!=0
+	}
+	else if (stripType==2) {
+	  //const SiStripRecHit2D* stripHit2D = dynamic_cast<const SiStripRecHit2D*>(hit);
+	  if(stripHit2D!=0){
+	    SiStripRecHit2D::ClusterRef stripclust(stripHit2D->cluster());
+	    tmpflag=InValMap[stripclust];
+	    tmpflag.SetDetId(hit->geographicalId());
+	    if(tmpflag.isOverlap())isOverlapHit=true;
+	    // std::cout<<"~*~*~* Prescale (2D) for module "<<tmpflag.detId().rawId()<<"("<<InValMap[stripclust].detId().rawId() <<") is "<<hitPrescFactor_<<std::flush;
+	    //  if(tmpflag.isOverlap())cout<<" (it is Overlap)"<<endl;
+	    // else cout<<endl;
+	  
+	  }//end if striphit2D!=0
+	}
       }//end if is a strip hit
       else{
+	//	const SiPixelRecHit*   pixelhit= dynamic_cast<const SiPixelRecHit*>(hit);
 	if(pixelhit!=0){
 	  //npxlhits++;
 	  SiPixelClusterRefNew pixclust(pixelhit->cluster());
@@ -156,9 +184,15 @@ void AlignmentPrescaler::produce(edm::Event &iEvent, const edm::EventSetup &iSet
 	tmpflag.SetTakenFlag();
 
 	if(subdetId>2){
-	  SiStripRecHit2D::ClusterRef stripclust(striphit->cluster());
-	  InValMap[stripclust]=tmpflag;//.SetTakenFlag();
-	  
+	  if(stripType==1){
+	    SiStripRecHit1D::ClusterRef stripclust(stripHit1D->cluster());
+	    InValMap[stripclust]=tmpflag;//.SetTakenFlag();
+	  }
+	  else if(stripType==2){
+	    SiStripRecHit1D::ClusterRef stripclust(stripHit2D->cluster());
+	    InValMap[stripclust]=tmpflag;//.SetTakenFlag();
+	  }
+	  else std::cout<<"Unknown type of strip hit"<<std::endl;
 	}
 	else{
 	  SiPixelClusterRefNew pixclust(pixelhit->cluster());

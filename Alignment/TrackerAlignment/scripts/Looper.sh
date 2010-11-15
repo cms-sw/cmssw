@@ -1,4 +1,5 @@
 #! /bin/bash
+source /afs/cern.ch/cms/caf/setup.sh
 
 echo ""
 echo "#############################################################################"
@@ -14,15 +15,16 @@ echo "Program launched from $(hostname) at $(date) "
 echo
 echo
 
-CASTOR_OUT="/castor/cern.ch/cms/store/user/bonato/CRAFTReproSkims/Summer09/test/"
+##########CASTOR_OUT="/castor/cern.ch/cms/store/caf/user/bonato/Collisions2010/Oct2010/"
+CASTOR_OUT="/store/caf/user/bonato/Collisions2010/Run2010B/Sept2010/"
+###CASTOR_OUT="/store/caf/user/bonato/Collisions2010/Run2010A-v2/"
 MYCMSSW_RELEASE="$CMSSW_BASE"
 
-#prepare the scripts
-replace "<CASTOROUT>" $CASTOR_OUT < SkimLooper.tpl > SkimLooper.sh
-replace "<CASTOROUT>" $CASTOR_OUT  "<MYCMSSW>" $MYCMSSW_RELEASE < PrescaleLooper.tpl > PrescaleLooper.sh
-replace "<MYCMSSW>" $MYCMSSW_RELEASE < skim_exec.tpl > skim_exec.sh
-replace "<MYCMSSW>" $MYCMSSW_RELEASE < presc_exec.tpl > presc_exec.sh
-
+###prepare the scripts
+sed -e "s|<CASTOROUT>|${CASTOR_OUT}|g" < SkimLooper.tpl > SkimLooper.sh
+sed -e "s|<CASTOROUT>|${CASTOR_OUT}|g" -e "s|<MYCMSSW>|$MYCMSSW_RELEASE|g"  < PrescaleLooper.tpl > PrescaleLooper.sh
+sed -e "s|<MYCMSSW>|$MYCMSSW_RELEASE|g"  < skim_exec.tpl > skim_exec.sh
+sed -e  "s|<MYCMSSW>|$MYCMSSW_RELEASE|g" < presc_exec.tpl > presc_exec.sh
 
 
 #prepare list of files counting the eevents from DBS
@@ -30,9 +32,9 @@ for ALCATAG in  $( cat "taglist.txt" )
 do
 echo ""
 echo "Counting events for ${ALCATAG} ; Log in ./log_nevents_${ALCATAG}.out"
-time ./cntevts_in_file.sh  "../data/${ALCATAG}.dat" $ALCATAG &> log_nevents_${ALCATAG}.out
+#time ./cntevts_in_file.sh  "../data/${ALCATAG}.dat" $ALCATAG &> log_nevents_${ALCATAG}.out
 done
-
+########exit 0
 
 #first loop: SKIMMING
 echo ""
@@ -45,7 +47,8 @@ if [ $? != 0 ]
     then
     exit 2
 fi
-sleep 1200 #wait for half an hour
+
+sleep 1800 #wait for half an hour
 
 #check that all the files from SkimLooper are done
 SKIM_DONE=1
