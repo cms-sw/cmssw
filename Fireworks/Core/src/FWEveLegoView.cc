@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 13:09:53 CEST 2010
-// $Id: FWEveLegoView.cc,v 1.85 2010/09/26 19:57:21 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.86 2010/11/15 17:14:27 amraktad Exp $
 //
 
 // system include files
@@ -22,6 +22,7 @@
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
+#include "Fireworks/Core/interface/FWGUIManager.h"
 
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 #include "Fireworks/Core/interface/fwLog.h"
@@ -76,7 +77,7 @@ FWEveLegoView::energyScalesChanged()
 
    FWViewEnergyScale* caloScale = viewContext()->getEnergyScale("Calo");
    TEveCaloData* data = context().getCaloData();
-   if (data->Empty() && caloScale->getScaleMode() == FWViewEnergyScale::kAutoScale)
+   if (FWGUIManager::getGUIManager()->getCurrentEvent() && data->Empty() && caloScale->getScaleMode() == FWViewEnergyScale::kAutoScale)
    {
       fwLog(fwlog::kError) <<"Error in automatic scale mode:Tower collection empty. Please switch to fixed-scale mode. \n";
       return;
