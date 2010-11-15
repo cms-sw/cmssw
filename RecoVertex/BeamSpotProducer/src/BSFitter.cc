@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
 
- version $Id: BSFitter.cc,v 1.21 2010/06/09 19:19:24 yumiceva Exp $
+ version $Id: BSFitter.cc,v 1.22 2010/10/13 14:47:48 eulisse Exp $
 
 ________________________________________________________________**/
 
@@ -569,6 +569,10 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 	//std::cout << "fitted "<< std::endl;
 	TF1 *fgaus = h1z->GetFunction("gaus");
 	//std::cout << "got function" << std::endl;
+	if (!fgaus){	
+	  edm::LogError("NoBeamSpotFit")<<"gaussian fit failed. no BS d0 fit";		
+	  return reco::BeamSpot();
+	}
 	double fpar[2] = {fgaus->GetParameter(1), fgaus->GetParameter(2) };
     
 	reco::BeamSpot::CovarianceMatrix matrix;
