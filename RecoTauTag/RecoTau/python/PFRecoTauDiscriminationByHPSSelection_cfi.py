@@ -4,7 +4,7 @@ from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
 
 hpsSelectionDiscriminator = cms.EDProducer(
     "PFRecoTauDiscriminationByHPSSelection",
-    PFTauProducer = cms.InputTag('combinatoricRecoTaus'), 
+    PFTauProducer = cms.InputTag('combinatoricRecoTaus'),
     Prediscriminants = noPrediscriminants,
     matchingCone = cms.double(0.1),
     minTauPt = cms.double(15.),
@@ -14,7 +14,9 @@ hpsSelectionDiscriminator = cms.EDProducer(
             nCharged = cms.uint32(1),
             nPiZeros = cms.uint32(0),
             # Always passes
-            minMass = cms.double(0),
+            # If an PF electron is selected as the lead track, the tau can have
+            # negative mass. FIXME - investigate this
+            minMass = cms.double(-0.1),
             maxMass = cms.double(1),
         ),
         cms.PSet(
