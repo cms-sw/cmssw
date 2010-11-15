@@ -193,6 +193,7 @@ StripValidationPlots::beginJob()
   oss << 1; //runNumber
 
   dqmStore_ = edm::Service<DQMStore>().operator->();
+  dqmStore_->setCurrentFolder("ChannelStatusPlots");
 
   for (int i=0; i<768; i++)
     {
@@ -470,6 +471,12 @@ StripValidationPlots::beginJob()
     projYNHitsGoodStripsVsStripNumber[i]->GetYaxis()->SetTitle("N_{strips}");
   }
 
+}
+
+// ------------ method called once each job just after ending the event loop  ------------
+void 
+StripValidationPlots::endJob() {
+
   infile = new TFile(infilename.c_str(),"READ");
   intree = (TTree*)infile->Get("stripOccupancy");
 
@@ -495,12 +502,6 @@ StripValidationPlots::beginJob()
   intree->SetBranchAddress("StripOccupancy",       &StripOccupancy);
   intree->SetBranchAddress("StripHits",            &StripHits);
   intree->SetBranchAddress("PoissonProb",          &PoissonProb);
-
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-StripValidationPlots::endJob() {
 
   for (int i=0; i<intree->GetEntries(); /* */)
     {
@@ -621,7 +622,7 @@ StripValidationPlots::endJob() {
     }
 
   dqmStore_->cd();
-  dqmStore_->save(outfilename.c_str());
+  dqmStore_->save(outfilename.c_str(),"ChannelStatusPlots");
 
 }
 

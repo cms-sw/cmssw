@@ -55,7 +55,7 @@ class APVValidationPlots : public edm::EDAnalyzer {
 
   std::ostringstream oss;
 
-  DQMStore* dqmStore_;
+  DQMStore* dqmStore;
 
   MonitorElement* tmp;
 
@@ -94,7 +94,7 @@ class APVValidationPlots : public edm::EDAnalyzer {
    Float_t         APVGlobalPositionY;
    Float_t         APVGlobalPositionZ;
    Int_t           APVNumber;
-   Double_t        APVAbsoluteOccupancy;
+   Int_t           APVAbsoluteOccupancy;
    Double_t        APVMedianOccupancy;
 
 
@@ -150,7 +150,8 @@ APVValidationPlots::beginJob()
   oss.str("");
   oss << 1; //runNumber
 
-  dqmStore_ = edm::Service<DQMStore>().operator->();
+  dqmStore = edm::Service<DQMStore>().operator->();
+  dqmStore->setCurrentFolder("ChannelStatusPlots");
 
   // Initialize histograms
   subDetName.push_back(""); subDetName.push_back("TIB"); subDetName.push_back("TID"); subDetName.push_back("TOB"); subDetName.push_back("TEC");
@@ -177,7 +178,7 @@ APVValidationPlots::beginJob()
       {
         histoTitle += " " + layerName[i] + " " + oss.str();
       }
-      tmp = dqmStore_->book2D(histoName.c_str(), histoTitle.c_str(), 1000, 0., 6., 1000, -1., 3.);
+      tmp = dqmStore->book2D(histoName.c_str(), histoTitle.c_str(), 1000, 0., 6., 1000, -1., 3.);
       medianVsAbsoluteOccupancy[i][j] = tmp->getTH2F();
       medianVsAbsoluteOccupancy[i][j]->Rebin2D(10,10);
       medianVsAbsoluteOccupancy[i][j]->GetXaxis()->SetTitle("log_{10}(Abs. Occupancy)");
@@ -197,7 +198,7 @@ APVValidationPlots::beginJob()
       {
         histoTitle += " " + layerName[i] + " " + oss.str();
       }
-      tmp = dqmStore_->book1D(histoName.c_str(), histoTitle.c_str(), 1000, -1., 3.);
+      tmp = dqmStore->book1D(histoName.c_str(), histoTitle.c_str(), 1000, -1., 3.);
       medianOccupancy[i][j] = tmp->getTH1F();
       medianOccupancy[i][j]->GetXaxis()->SetTitle("log_{10}(Occupancy)");
       medianOccupancy[i][j]->GetYaxis()->SetTitle("APVs");
@@ -216,12 +217,18 @@ APVValidationPlots::beginJob()
       {
         histoTitle += " " + layerName[i] + " " + oss.str();
       }
-      tmp = dqmStore_->book1D(histoName.c_str(), histoTitle.c_str(), 1000, 0., 6.);
+      tmp = dqmStore->book1D(histoName.c_str(), histoTitle.c_str(), 1000, 0., 6.);
       absoluteOccupancy[i][j] = tmp->getTH1F();
       absoluteOccupancy[i][j]->GetXaxis()->SetTitle("log_{10}(Occupancy)");
       absoluteOccupancy[i][j]->GetYaxis()->SetTitle("APVs");
     }
   }
+
+}
+
+// ------------ method called once each job just after ending the event loop  ------------
+void 
+APVValidationPlots::endJob() {
 
   infile = new TFile(infilename.c_str(),"READ");
   intree = (TTree*)infile->Get("moduleOccupancy");
@@ -244,18 +251,15 @@ APVValidationPlots::beginJob()
   intree->SetBranchAddress("APVAbsoluteOccupancy", &APVAbsoluteOccupancy);
   intree->SetBranchAddress("APVMedianOccupancy",   &APVMedianOccupancy);
 
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-APVValidationPlots::endJob() {
-
   for (int i=0; i<intree->GetEntries(); i++)
     {
       intree->GetEntry(i);
 
-      double logMedianOccupancy = log10(APVMedianOccupancy);
-      double logAbsoluteOccupancy = log10(APVAbsoluteOccupancy);
+      double logMedianOccupancy = -1;
+      double logAbsoluteOccupancy = -1;
+
+      if (APVMedianOccupancy>0) logMedianOccupancy = log10(APVMedianOccupancy);
+      if (APVAbsoluteOccupancy>0) logAbsoluteOccupancy = log10(APVAbsoluteOccupancy);
 
       // The layer/disk information is stored in Layer_Ring for TIB/TOB and in Disc for TID/TEC
       unsigned int layer = 0;
@@ -276,11 +280,10 @@ APVValidationPlots::endJob() {
       medianVsAbsoluteOccupancy[SubDetId-2][layer]->Fill(logAbsoluteOccupancy,logMedianOccupancy);
       medianOccupancy[SubDetId-2][layer]->Fill(logMedianOccupancy);
       absoluteOccupancy[SubDetId-2][layer]->Fill(logAbsoluteOccupancy);
-
     }
 
-  dqmStore_->cd();
-  dqmStore_->save(outfilename.c_str());
+  dqmStore->cd();
+  dqmStore->save(outfilename.c_str(),"ChannelStatusPlots");
 
 }
 
