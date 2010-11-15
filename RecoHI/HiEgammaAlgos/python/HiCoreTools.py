@@ -1,6 +1,6 @@
 from FWCore.GuiBrowsers.ConfigToolBase import *
 
-from PhysicsTools.PatAlgos.tools.helpers import *
+from RecoHI.HiEgammaAlgos.HiHelperTools import *
 
 class RestrictInputToAOD(ConfigToolBase):
 
@@ -57,7 +57,7 @@ class RemoveMCMatching(ConfigToolBase):
     _defaultParameters=dicttypes.SortedKeysDict()
     def __init__(self):
         ConfigToolBase.__init__(self)
-        self.addParameter(self._defaultParameters,'names',['All'], "collection name; supported are 'Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'", allowedValues=['Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'])
+        self.addParameter(self._defaultParameters,'names',['All'], "collection name; supported are 'Photons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll','PFTaus','PFMuons'", allowedValues=['Photons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll','PFTaus','PFMuons'])
         self.addParameter(self._defaultParameters,'postfix',"", "postfix of default sequence")
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
@@ -85,9 +85,6 @@ class RemoveMCMatching(ConfigToolBase):
             if( names[obj] == 'Photons'   or names[obj] == 'All' ):
                 print "removing MC dependencies for photons"
                 _removeMCMatchingForPATObject(process, 'photonMatch', 'patPhotons', postfix) 
-            if( names[obj] == 'Electrons' or names[obj] == 'All' ):
-                print "removing MC dependencies for electrons"
-                _removeMCMatchingForPATObject(process, 'electronMatch', 'patElectrons', postfix) 
             if( names[obj] == 'Muons'     or names[obj] == 'All' ):
                 print "removing MC dependencies for muons"
                 _removeMCMatchingForPATObject(process, 'muonMatch', 'patMuons', postfix) 
@@ -106,15 +103,15 @@ class RemoveMCMatching(ConfigToolBase):
                 tauProducer.addGenJetMatch      = False
                 tauProducer.embedGenJetMatch    = False
                 tauProducer.genJetMatch         = ''         
-            if( names[obj] == 'Jets'      or names[obj] == 'All' ):
+            if( names[obj] == 'Jets'  ):#    or names[obj] == 'All' ):
                 print "removing MC dependencies for jets"
                 ## remove mc extra modules for jets
                 getattr(process,"patHeavyIonDefaultSequence"+postfix).remove(
                     applyPostfix(process, "patJetPartonMatch", postfix))
                 getattr(process,"patHeavyIonDefaultSequence"+postfix).remove(
                     applyPostfix(process, "patJetGenJetMatch", postfix))
-                getattr(process,"patHeavyIonDefaultSequence"+postfix).remove(
-                    applyPostfix(process, "patJetFlavourId", postfix))
+#                getattr(process,"patHeavyIonDefaultSequence"+postfix).remove(
+#                    applyPostfix(process, "patJetFlavourId", postfix))
                 ## remove mc extra configs for jets
                 jetProducer = getattr(process, jetCollectionString()+postfix)
                 jetProducer.addGenPartonMatch   = False
@@ -125,7 +122,7 @@ class RemoveMCMatching(ConfigToolBase):
                 jetProducer.getJetMCFlavour     = False
                 jetProducer.JetPartonMapSource  = ''
                 ## adjust output
-                process.out.outputCommands.append("drop *_selectedPatJets*_genJets_*")
+                #         process.out.outputCommands.append("drop *_selectedPatJets*_genJets_*")
                 
             if( names[obj] == 'METs'      or names[obj] == 'All' ):
                 ## remove mc extra configs for jets
@@ -232,10 +229,6 @@ class RemoveSpecificPATObjects(ConfigToolBase):
             if( names[obj] == 'Photons' ):
                 removeIfInSequence(process, 'patPhotonIsolation', "patHeavyIonDefaultSequence", postfix)
                 removeIfInSequence(process, 'photonMatch', "patHeavyIonDefaultSequence", postfix)
-            if( names[obj] == 'Electrons' ):
-                removeIfInSequence(process, 'patElectronId', "patHeavyIonDefaultSequence", postfix)
-                removeIfInSequence(process, 'patElectronIsolation', "patHeavyIonDefaultSequence", postfix)
-                removeIfInSequence(process, 'electronMatch', "patHeavyIonDefaultSequence", postfix)
             if( names[obj] == 'Muons' ):
                 removeIfInSequence(process, 'muonMatch', "patHeavyIonDefaultSequence", postfix)
             if( names[obj] == 'Taus' ):
@@ -250,7 +243,7 @@ class RemoveSpecificPATObjects(ConfigToolBase):
                 removeIfInSequence(process, 'patJetCorrections', "patHeavyIonDefaultSequence", postfix)
                 removeIfInSequence(process, 'patJetPartonMatch', "patHeavyIonDefaultSequence", postfix)
                 removeIfInSequence(process, 'patJetGenJetMatch', "patHeavyIonDefaultSequence", postfix)
-                removeIfInSequence(process, 'patJetFlavourId', "patHeavyIonDefaultSequence", postfix)
+#                removeIfInSequence(process, 'patJetFlavourId', "patHeavyIonDefaultSequence", postfix)
             if( names[obj] == 'METs' ):
                 removeIfInSequence(process, 'patMETCorrections', "patHeavyIonDefaultSequence", postfix)
         
