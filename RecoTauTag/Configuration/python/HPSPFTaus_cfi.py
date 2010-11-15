@@ -136,8 +136,6 @@ hpsPFTauProducer = cms.EDProducer(
     cleaners = cms.VPSet(
         # Prefer taus that dont' have charge == 3
         cleaners.unitCharge,
-        # Prefer taus above 15 GeV
-        cleaners.ptGt15,
         # Prefer taus that pass HPS selections
         cms.PSet(
             name = cms.string("HPS_Select"),
