@@ -77,7 +77,6 @@
 #include "TLeaf.h"
 #include "TGaxis.h"
 #include "TGraphAsymmErrors.h"
-#include <tdrstyle.C>
 #include "TLatex.h"
 #include "TLegend.h"
 
