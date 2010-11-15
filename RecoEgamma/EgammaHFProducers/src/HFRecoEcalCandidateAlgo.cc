@@ -25,10 +25,10 @@ HFRecoEcalCandidateAlgo::HFRecoEcalCandidateAlgo(bool correct,double e9e25Cut,do
 }
 
 RecoEcalCandidate HFRecoEcalCandidateAlgo::correctEPosition(const SuperCluster& original , const HFEMClusterShape& shape) {
-  double energyCorrect=.7515;
-  double etaCorrect=.0144225-.00484597*sin(6.17851*shape.CellEta());//0.01139;
-  double phiAmpCorrect=-.006483;
-  double phiFreqCorrect=6.45377;
+  double energyCorrect=0.7397;//.7515;
+  double etaCorrect=.00938422+0.00682824*sin(6.28318531*shape.CellEta());//.0144225-.00484597*sin(6.17851*shape.CellEta());//0.01139;
+  double phiAmpCorrect=0.00644091;//-0.006483;
+  double phiFreqCorrect=6.28318531;//6.45377;
 
   double corEnergy= original.energy()/energyCorrect;
   double corEta=original.eta();
@@ -69,9 +69,10 @@ void HFRecoEcalCandidateAlgo::produce(const edm::Handle<SuperClusterCollection>&
     if (m_correct)
       theCand=correctEPosition(supClus,clusShape);
 
-    
+    double e9e25=clusShape.eLong3x3()/clusShape.eLong5x5();
     // EMID cuts...  
-    if((clusShape.e9e25()> m_e9e25Cut)&&((clusShape.eCOREe9()-(clusShape.eSeL()*1.125)) > m_intercept2DCut)){
+    //if((clusShape.e9e25()> m_e9e25Cut)&&((clusShape.eCOREe9()-(clusShape.eSeL()*1.125)) > m_intercept2DCut)){
+    if((e9e25> m_e9e25Cut)&&((clusShape.eCOREe9()-(clusShape.eSeL()*1.125)) > m_intercept2DCut)){
       theCand.setSuperCluster(theClusRef);
       RecoECand.push_back(theCand);
     }

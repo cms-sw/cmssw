@@ -104,6 +104,8 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
       if (j2!=hf.end())
          eshort*=m_correctionByEta[indexByEta(j2->id())];
       if (((elong-eshort)/(elong+eshort))>m_maximumSL) continue;
+      if ((m_usePMTFlag)&&(j->flagField(4,1))) continue;
+      if ((m_usePulseFlag)&&(il->flagField(1,1))) continue;
 
       HFCompleteHit ahit;
       double eta=geom.getPosition(j->id()).eta();
@@ -246,13 +248,13 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 	}
 	
 	// cut on "PMT HIT" flag
-	if ((il!=hf.end())&&(il->flagField(0,1))&&(m_usePMTFlag)) {
+	if ((il!=hf.end())&&(il->flagField(4,1))&&(m_usePMTFlag)) {//HFPET flag for lone/short doil->flagField(0,1)
 	  if (dp==0 && de==0) clusterOk=false; // somehow, the seed is hosed
 	  continue;
 	}
 
 	// cut on "Pulse shape HIT" flag
-	if ((il!=hf.end())&&(il->flagField(1,1))&&(m_usePulseFlag)) {
+	if ((il!=hf.end())&&(il->flagField(1,1))&&(m_usePulseFlag)) {//HF DIGI TIME flag
 	  if (dp==0 && de==0) clusterOk=false; // somehow, the seed is hosed
 	  continue;
 	}
