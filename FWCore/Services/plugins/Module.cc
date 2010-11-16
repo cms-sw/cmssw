@@ -40,13 +40,13 @@ typedef edm::serviceregistry::NoArgsMaker<PrintLoadingPlugins> PrintLoadingPlugi
 DEFINE_FWK_SERVICE_MAKER(PrintLoadingPlugins, PrintLoadingPluginsMaker);
 typedef edm::serviceregistry::ParameterSetMaker<edm::SiteLocalConfig,SiteLocalConfigService> SiteLocalConfigMaker;
 DEFINE_FWK_SERVICE_MAKER(SiteLocalConfigService,SiteLocalConfigMaker);
-#if defined(__linux__)
-DEFINE_FWK_SERVICE(SimpleMemoryCheck);
-DEFINE_FWK_SERVICE(SimpleProfiling);
 typedef edm::serviceregistry::ParameterSetMaker<edm::RootHandlers,InitRootHandlers> RootHandlersMaker;
 DEFINE_FWK_SERVICE_MAKER(InitRootHandlers, RootHandlersMaker);
 typedef edm::serviceregistry::ParameterSetMaker<UnixSignalService> UnixSignalMaker;
 DEFINE_FWK_SERVICE_MAKER(UnixSignalService, UnixSignalMaker);
+#if defined(__linux__)
+DEFINE_FWK_SERVICE(SimpleMemoryCheck);
+DEFINE_FWK_SERVICE(SimpleProfiling);
 DEFINE_FWK_SERVICE_MAKER(EnableFloatingPointExceptions,edm::serviceregistry::AllArgsMaker<EnableFloatingPointExceptions>);
 #endif
 DEFINE_FWK_SERVICE_MAKER(LoadAllDictionaries,edm::serviceregistry::ParameterSetMaker<LoadAllDictionaries>);
