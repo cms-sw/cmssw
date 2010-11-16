@@ -19,6 +19,8 @@ import FWCore.ParameterSet.Config as cms
 from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi import \
         ak5PFJetsRecoTauPiZeros
 
+# The computation of the lead track signed transverse impact parameter depends
+# on the transient tracks
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import \
         TransientTrackBuilderESProducer
 
@@ -70,7 +72,7 @@ from RecoTauTag.Configuration.HPSPFTaus_cfi import *
 from RecoTauTag.Configuration.HPSTancTaus_cfi import *
 
 # FIXME remove this once final pi zero reco is decided
-combinatoricRecoTaus.piZeroSrc = cms.InputTag("ak5PFJetsLegacyHPSPiZeros")
+#combinatoricRecoTaus.piZeroSrc = cms.InputTag("ak5PFJetsLegacyHPSPiZeros")
 
 #-------------------------------------------------------------------------------
 #------------------ PFTauTagInfo workaround ------------------------------------
