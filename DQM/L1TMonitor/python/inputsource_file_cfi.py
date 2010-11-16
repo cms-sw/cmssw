@@ -15,7 +15,7 @@ dataType = 'RAW'
 runNumber = 143657
 #runNumber = 137028
 
-maxNumberEvents = 1000
+maxNumberEvents = 5000
 
 ###################### end user choices ###################
 
