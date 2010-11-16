@@ -93,6 +93,20 @@ combinatoricRecoTaus = cms.EDProducer(
             name = cms.string("sipt"),
             plugin = cms.string("RecoTauImpactParameterSignificancePlugin"),
             pvSrc = cms.InputTag("offlinePrimaryVertices"),
-        )
+        ),
+        # Electron rejection
+        cms.PSet(
+            name = cms.string("elec_rej"),
+            plugin = cms.string("RecoTauElectronRejectionPlugin"),
+            #Electron rejection parameters
+            ElectronPreIDProducer                = cms.InputTag("elecpreid"),
+            EcalStripSumE_deltaPhiOverQ_minValue = cms.double(-0.1),
+            EcalStripSumE_deltaPhiOverQ_maxValue = cms.double(0.5),
+            EcalStripSumE_minClusEnergy          = cms.double(0.1),
+            EcalStripSumE_deltaEta               = cms.double(0.03),
+            ElecPreIDLeadTkMatch_maxDR           = cms.double(0.01),
+            maximumForElectrionPreIDOutput       = cms.double(-0.1),
+            DataType = cms.string("AOD"),
+        ),
     ),
 )
