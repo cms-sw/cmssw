@@ -229,6 +229,7 @@ int main(int argc, char* argv[]) {
       int nlumis = edm::numEntries(tfile, edm::poolNames::luminosityBlockTreeName());
       int nevents = edm::numEntries(tfile, edm::poolNames::eventTreeName());
       if (json) {
+        if (j > 0) std::cout << ',' << std::endl;
         std::cout << "{\"file\":\"" << datafile << '"'
                   << ",\"runs\":" << nruns
                   << ",\"lumis\":" << nlumis
