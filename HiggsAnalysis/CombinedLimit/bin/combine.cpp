@@ -33,6 +33,10 @@
 #include <RooRandom.h>
 #include <iostream>
 #include <cstdlib>
+#include <boost/program_options.hpp>
+#include <string>
+
+using namespace std;
 
 extern TString method;
 extern Float_t t_cpu_, t_real_;
@@ -42,56 +46,92 @@ extern TDirectory *readToysFromHere;
 
 void combine(TString hlfFile, double &limit, int &iToy, TTree *tree, int nToys=0, bool withSystematics=true);
 
-void higgsCombineByHand(TString name, TString datacard, int iMass, TString whichMethod="mcmc", size_t runToys=0, int seed=42, bool saveToys=false, const char *toysFile = 0) {
-    bool doSyst = true;
-    method = whichMethod;
-    if (method.Index(".nosyst") != -1) {
-        method.ReplaceAll(".nosyst","");
-        doSyst = false;
-    }
-    RooRandom::randomGenerator()->SetSeed(seed); 
-
-    TString massName = TString::Format("mH%d.", iMass);
-    TString toyName  = "";  if (runToys !=  0) toyName  = TString::Format("%d.",   seed);
-    TString fileName = "higgsCombine"+name+"."+whichMethod+"."+massName+toyName+"root";
-    TFile *test = new TFile(fileName,"RECREATE");
-    TTree *t = new TTree("test","test");
-    int syst, iToy, iChannel; 
-    double mass, limit; 
-    t->Branch("limit",&limit,"limit/D");
-    t->Branch("mh",   &mass, "mh/D");
-    t->Branch("syst", &syst, "syst/I");
-    t->Branch("iToy", &iToy, "iToy/I");
-    t->Branch("iChannel", &iChannel, "iChannel/I");
-    t->Branch("t_cpu",   &t_cpu_,  "t_cpu/F");
-    t->Branch("t_real",  &t_real_, "t_real/F");
-
-    //if (saveToys) writeToysHere = new RooWorkspace("toys","toys"); 
-    if (saveToys) writeToysHere = test->mkdir("toys","toys"); 
-    if (toysFile) readToysFromHere = TFile::Open(toysFile);
-
-    syst = doSyst;
-    mass = iMass;
-    iChannel = 0;
-    combine(datacard, limit, iToy, t, runToys, syst);
-
-    test->WriteTObject(t);
-    test->Close();
-}
 int main(int argc, char **argv) {
-    if (argc < 4) { 
-        std::cout << "higgsCombineByHand(TString name, TString datacard, int iMass, TString whichMethod=\"mcmc\", size_t runToys=0, int seed=42, bool saveToys=false)" << std::endl; 
-        return 1; 
-    }
-    TString name(argv[1]);
-    TString datacard(argv[2]);
-    int iMass = atoi(argv[3]);
-    TString whichMethod(argc > 4 ? argv[4] : "mcmc" );
-    size_t runToys  =  (argc > 5 ? atoi(argv[5]) :  0);  
-    int    seed     =  (argc > 6 ? atoi(argv[6]) : 42);
-    bool   saveToys =  (argc > 7 ? atoi(argv[7]) :  0);
-    const char *toysFile = (argc > 8 ? argv[8] : 0);
-    higgsCombineByHand(name,datacard,iMass,whichMethod,runToys,seed,saveToys,toysFile);
+  using namespace boost;
+  namespace po = boost::program_options;
+
+  string name;
+  string datacard;
+  int iMass;
+  string whichMethod;
+  unsigned int runToys;
+  int    seed;
+  bool   saveToys;
+  string toysFile;
+
+  po::options_description desc("Allowed options");
+  desc.add_options()
+    ("help,h", "produce help message")
+    ("name,n", po::value<string>(&name), "name")
+    ("datacard,d", po::value<string>(&datacard), "datacard file")
+    ("mass,m", po::value<int>(&iMass)->default_value(120), "minimum value for fit range")
+    ("method,M", po::value<string>(&whichMethod)->default_value("mcmc"), "method to extract upper limit")
+    ("toys,t", po::value<unsigned int>(&runToys)->default_value(0), "number of toy MC (0 = no toys)")
+    ("seed,s", po::value<int>(&seed)->default_value(123456), "toy MC random seed")
+    ("saveToys,w", po::value<bool>(&saveToys)->default_value(false), "save results of toy MC")
+    ("toysFile,f", po::value<string>(&toysFile)->default_value(""), "toy MC output file")
+    ;
+
+  po::positional_options_description p;
+  p.add("datacard", -1);
+
+  po::variables_map vm;
+  po::store(po::command_line_parser(argc, argv).
+	    options(desc).positional(p).run(), vm);
+  po::notify(vm);
+  
+  if(vm.count("help")) {
+    cout << "Usage: options_description [options]\n";
+    cout << desc;
+    return 0;
+  }
+  if(name == "") {
+    cerr << "Missing name" << endl;
+    cout << "Usage: options_description [options]\n";
+    cout << desc;
+    return 1001;
+  }
+  if(datacard == "") {
+    cerr << "Missing datacard file" << endl;
+    cout << "Usage: options_description [options]\n";
+    cout << desc;
+    return 1002;
+  }
+
+  bool doSyst = true;
+  method = whichMethod;
+  if (method.Index(".nosyst") != -1) {
+    method.ReplaceAll(".nosyst","");
+    doSyst = false;
+  }
+  RooRandom::randomGenerator()->SetSeed(seed); 
+  
+  TString massName = TString::Format("mH%d.", iMass);
+  TString toyName  = "";  if (runToys !=  0) toyName  = TString::Format("%d.", seed);
+  TString fileName = "higgsCombine" + name + "."+whichMethod+"."+massName+toyName+"root";
+  TFile *test = new TFile(fileName, "RECREATE");
+  TTree *t = new TTree("test", "test");
+  int syst, iToy, iChannel; 
+  double mass, limit; 
+  t->Branch("limit",&limit,"limit/D");
+  t->Branch("mh",   &mass, "mh/D");
+  t->Branch("syst", &syst, "syst/I");
+  t->Branch("iToy", &iToy, "iToy/I");
+  t->Branch("iChannel", &iChannel, "iChannel/I");
+  t->Branch("t_cpu",   &t_cpu_,  "t_cpu/F");
+  t->Branch("t_real",  &t_real_, "t_real/F");
+  
+  //if (saveToys) writeToysHere = new RooWorkspace("toys","toys"); 
+  if (saveToys) writeToysHere = test->mkdir("toys","toys"); 
+  if (toysFile != "") readToysFromHere = TFile::Open(TString(toysFile.c_str()));
+  
+  syst = doSyst;
+  mass = iMass;
+  iChannel = 0;
+  combine(datacard, limit, iToy, t, runToys, syst);
+  
+  test->WriteTObject(t);
+  test->Close();
 }
 
 

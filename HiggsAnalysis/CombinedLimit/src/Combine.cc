@@ -565,9 +565,9 @@ void combine(TString hlfFile, double &limit, int &iToy, TTree *tree, int nToys=0
     }  else {
         TString txtFile = (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile);
         if (!withSystematics) {
-            gSystem->Exec("python '"+pwd+"/lands2hlf.py' --stat '"+txtFile+"' > model.hlf"); 
+            gSystem->Exec("python '"+pwd+"/../python/lands2hlf.py' --stat '"+txtFile+"' > model.hlf"); 
         } else {
-            gSystem->Exec("python '"+pwd+"/lands2hlf.py' '"+txtFile+"' > model.hlf"); 
+            gSystem->Exec("python '"+pwd+"/../python/lands2hlf.py' '"+txtFile+"' > model.hlf"); 
         }
         fileToLoad = "model.hlf";
     }
