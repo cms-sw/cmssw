@@ -24,6 +24,7 @@ from Validation.Mixing.mixCollectionValidation_cfi import *
 from Validation.RecoJets.JetValidation_cff import *
 from Validation.RecoMET.METRelValForDQM_cff import *
 from Validation.RecoVertex.VertexValidation_cff import *
+from Validation.RecoEgamma.egammaValidation_cff import *
 
 globalValidation = cms.Sequence(   trackerHitsValidation 
                                  + trackerDigisValidation 
@@ -47,4 +48,6 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + mixCollectionValidation 
                                  + JetValidation 
                                  + METValidation
-                                 + vertexValidation )
+                                 + vertexValidation
+                                 + egammaValidation
+)
