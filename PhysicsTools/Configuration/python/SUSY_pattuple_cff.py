@@ -163,7 +163,7 @@ def loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,pos
         process.tauMatchPF.matched = "mergedTruth"
         
     #Remove jet pt cut
-    process.pfJetsPF.ptMin = 0.
+    #process.pfJetsPF.ptMin = 0.
     #include tau decay mode in pat::Taus (elese it will just be uninitialized)
     process.patTausPF.addDecayMode = True
     process.patTausPF.decayModeSrc = "shrinkingConePFTauDecayModeProducerPF" 
@@ -182,9 +182,14 @@ def loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,pos
         filter = cms.bool(False),
     )
     #Electrons
+    #relax all selectors *before* pat-lepton creation
+    process.pfElectronsFromVertexPF.dzCut = 9999.0
+    process.pfElectronsFromVertexPF.d0Cut = 9999.0
+    process.pfSelectedElectronsPF.cut = ""
     process.pfRelaxedElectronsPF = process.pfIsolatedElectronsPF.clone(combinedIsolationCut = 3.)
+    
     process.pfIsolatedElectronsPF.combinedIsolationCut = 0.2
-    process.pfElectronsFromVertex = cms.EDFilter(
+    process.pfElectronsFromGoodVertex = cms.EDFilter(
         "IPCutPFCandidateSelector",
         src = cms.InputTag("pfIsolatedElectronsPF"),  # PFCandidate source
         vertices = cms.InputTag("goodVertices"),  # vertices source
@@ -193,23 +198,29 @@ def loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,pos
         d0SigCut = cms.double(99.),  # transverse IP significance
         dzSigCut = cms.double(99.),  # longitudinal IP significance
     )
+   
     electronSelection =  "abs( eta ) < 2.5 & pt > 5"
     electronSelection += " & mva_e_pi > 0.4" # same as patElectron::mva()
-    electronSelection += " & gsfTrackRef().isNonnull() & gsfTrackRef().trackerExpectedHitsInner().numberOfHits() > 1"
+    electronSelection += " & gsfTrackRef().isNonnull() & gsfTrackRef().trackerExpectedHitsInner().numberOfHits() < 1"
     process.pfUnclusteredElectronsPF = cms.EDFilter( "GenericPFCandidateSelector",
-        src = cms.InputTag("pfIsolatedElectronsPF"), #pfSelectedElectronsPF
+        src = cms.InputTag("pfElectronsFromGoodVertex"), #pfSelectedElectronsPF
         cut = cms.string(electronSelection)
     )    
     process.pfElectronSequencePF.replace(process.pfIsolatedElectronsPF,
                                          process.pfIsolatedElectronsPF + 
-                                         process.goodVertices * process.pfElectronsFromVertex + 
+                                         process.goodVertices * process.pfElectronsFromGoodVertex + 
                                          process.pfUnclusteredElectronsPF + process.pfRelaxedElectronsPF)
     process.patElectronsPF.pfElectronSource = "pfRelaxedElectronsPF"
     process.pfNoElectronPF.topCollection  = "pfUnclusteredElectronsPF"
     #Muons
+    #relaxe built-in preselection
+    process.pfMuonsFromVertexPF.dzCut = 9999.0
+    process.pfMuonsFromVertexPF.d0Cut = 9999.0
+    process.pfSelectedMuonsPF.cut = ""
     process.pfRelaxedMuonsPF = process.pfIsolatedMuonsPF.clone(combinedIsolationCut = 3)
+    
     process.pfIsolatedMuonsPF.combinedIsolationCut = 0.2
-    process.pfMuonsFromVertex = cms.EDFilter(
+    process.pfMuonsFromGoodVertex = cms.EDFilter(
         "IPCutPFCandidateSelector",
         src = cms.InputTag("pfIsolatedMuonsPF"),  # PFCandidate source
         vertices = cms.InputTag("goodVertices"),  # vertices source
@@ -227,12 +238,12 @@ def loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,pos
     muonSelection += " & muonRef().globalTrack().hitPattern().numberOfValidMuonHits() > 0"
     muonSelection += " & muonRef().innerTrack().hitPattern().numberOfValidPixelHits() > 0"
     process.pfUnclusteredMuonsPF = cms.EDFilter( "GenericPFCandidateSelector",
-        src = cms.InputTag("pfIsolatedMuonsPF"), #pfSelectedMuonsPF
+        src = cms.InputTag("pfMuonsFromGoodVertex"), #pfSelectedMuonsPF
         cut = cms.string(muonSelection)
     )    
     process.pfMuonSequencePF.replace(process.pfIsolatedMuonsPF,
                                      process.pfIsolatedMuonsPF + 
-                                     process.goodVertices * process.pfMuonsFromVertex +
+                                     process.goodVertices * process.pfMuonsFromGoodVertex +
                                      process.pfUnclusteredMuonsPF + process.pfRelaxedMuonsPF)
     process.patMuonsPF.pfMuonSource  = "pfRelaxedMuonsPF"
     process.pfNoMuonPF.topCollection = "pfUnclusteredMuonsPF"
