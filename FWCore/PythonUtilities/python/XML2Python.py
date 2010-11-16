@@ -5,17 +5,22 @@
 import re
 import os
 import xml.sax.handler
+import pprint
 
 class DataNode (object):
+
+    spaces = 4
 
     def __init__ (self, **kwargs):
         self._attrs = {}     # XML attributes and child elements
         self._data  = None   # child text data
         self._ncDict = kwargs.get ('nameChangeDict', {})
 
+
     def __len__ (self):
         # treat single element as a list of 1
         return 1
+
 
     def __getitem__ (self, key):
         if isinstance (key, basestring):
@@ -23,17 +28,21 @@ class DataNode (object):
         else:
             return [self][key]
 
+
     def __contains__ (self, name):
         return self._attrs.has_key(name)
 
+
     def __nonzero__ (self):
         return bool (self._attrs or self._data)
+
 
     def __getattr__ (self, name):
         if name.startswith('__'):
             # need to do this for Python special methods???
             raise AttributeError (name)
         return self._attrs.get (name, None)
+
 
     def _add_xml_attr (self, name, value):
         change = self._ncDict.get (name)
@@ -49,8 +58,10 @@ class DataNode (object):
         else:
             self._attrs[name] = value
 
+
     def __str__ (self):
-        return self._data or ''
+        return self.stringify()
+
 
     def __repr__ (self):
         items = sorted (self._attrs.items())
@@ -58,8 +69,91 @@ class DataNode (object):
             items.append(('data', self._data))
         return u'{%s}' % ', '.join([u'%s:%s' % (k,repr(v)) for k,v in items])
 
+
     def attributes (self):
         return self._attrs
+
+
+    @staticmethod
+    def isiterable (obj):
+        return getattr (obj, '__iter__', False)
+
+
+    @staticmethod
+    def _outputValues (obj, name, offset):
+        retval = ' ' * offset
+        if name:
+            retval += '%s: ' % name
+            offset += len (name) + DataNode.spaces
+        # if this is a list
+        if isinstance (obj, list):
+            first = True
+            for value in obj:
+                print "value", value, value.__class__.__name__
+                if first:
+                    tempoffset = offset
+                    first = False
+                    retval += '[\n ' + ' ' * offset
+                else:
+                    retval += ',\n ' + ' ' * offset
+                    tempoffset = offset
+                if isinstance (value, DataNode):
+                    retval += value.stringify (offset=tempoffset)
+                    print "  calling stringify for %s" % value
+                elif DataNode.isiterable (value):
+                    retval += DataNode._outputValues (value, '', offset)
+                else:
+                    retval += "%s" % value
+            retval += '\n' + ' ' * (offset - 2) +']\n'
+            return retval
+        retval += pprint.pformat(obj,
+                                 indent= offset,
+                                 width=1)
+        return retval
+
+
+    def stringify (self, name = '', offset = 0):
+        # is this just data and nothing below
+        if self._data and not len (self._attrs):
+            return _outputValues (self._data, name, offset)
+            retval = ' ' * offset
+            if name:
+                retval += '%s : %s\n' % \
+                          (name,
+                           pprint.pformat (self._data,
+                                          indent= offset+DataNode.spaces,
+                                          width=1) )
+            else:
+                retval += pprint.pformat (self._data,
+                                          indent=offset+DataNode.spaces,
+                                          width=1)
+            return retval
+        # this has attributes
+        retval = ''
+        if name:
+            retval += '\n' + ' ' * offset
+            retval += '%s: ' % name
+        first = True
+        for key, value in sorted (self._attrs.iteritems()):
+            if first:
+                retval += '{ \n'
+                tempspace = offset + 3
+                first = False
+            else:
+                retval += ',\n'
+                tempspace = offset + 3
+            if isinstance (value, DataNode):
+                retval += value.stringify (key, tempspace)
+            else:
+                retval += DataNode._outputValues (value, key, tempspace)
+        # this has data too
+        if self._data:
+            retval += ',\n'
+            tempspace = offset + 3
+            retval += DataNode._ouptputValues (self._data, name, tempspace)
+        retval += '\n ' + ' ' * offset + '}'
+        return retval 
+        
 
 
 class TreeBuilder (xml.sax.handler.ContentHandler):
