@@ -178,7 +178,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
   TLeaf* yLf = CalibTree->GetLeaf("TrajGlbY");
   TLeaf* zLf = CalibTree->GetLeaf("TrajGlbZ");
   TLeaf* ResXSigLf = CalibTree->GetLeaf("ResXSig");
-  TLeaf* BunchLf;
+  TLeaf* BunchLf(0);
   for(int l=0; l < 35; l++) {
     goodlayertotal[l] = 0;
     goodlayerfound[l] = 0;
