@@ -1,0 +1,12 @@
+<library   file="*.cc" name="EventFilterFEDInterfacePlugins">
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/Sources"/>
+  <use   name="DataFormats/FEDRawData"/>
+  <use   name="root"/>
+  <use   name="boost"/>
+  <flags   EDM_PLUGIN="1"/>
+  <flags   CPPFLAGS="-g"/>
+  <flags   LDFLAGS="-g"/>
+</library>
