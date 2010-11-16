@@ -75,9 +75,10 @@ L1GctJetFinderParams::L1GctJetFinderParams(double rgnEtLsb,
 
   // check number of coefficients against expectation
   unsigned expCoeffs = 0;
-  if (corrType_ == 2) expCoeffs=8;
-  if (corrType_ == 3) expCoeffs=4;
-  if (corrType_ == 4) expCoeffs=100000;
+  if (corrType_ == 2) expCoeffs=8;  // ORCA style
+  if (corrType_ == 3) expCoeffs=4;  // Simple
+  if (corrType_ == 4) expCoeffs=11;  // piecewise-cubic
+  if (corrType_ == 5) expCoeffs=6;  // PF
 
   // correction types 1 and 4 can have any number of parameters
   if (corrType_ != 1 &&
@@ -364,13 +365,22 @@ std::ostream& operator << (std::ostream& os, const L1GctJetFinderParams& fn)
     switch (fn.getCorrType())
     {
       case 1:
-        os << "Power series energy correction for jets is enabled" << std::endl;
+        os << "Function = Power series" << std::endl;
         break;
       case 2:
-        os << "ORCA-style energy correction for jets is enabled" << std::endl;
+        os << "Function = ORCA" << std::endl;
+        break;
+      case 3:
+        os << "Function = Simple" << std::endl;
+        break;
+      case 4:
+        os << "Function = PiecewiseCubic" << std::endl;
+        break;
+      case 5:
+        os << "Function = PF" << std::endl;
         break;
       default:
-        os << "Unrecognised calibration function type" << std::endl;
+        os << "Unrecognised" << std::endl;
         break; 
     }
     std::vector< std::vector<double> > jetCoeffs = fn.getJetCorrCoeffs();
