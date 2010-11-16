@@ -4,6 +4,8 @@ from FWCore.PythonUtilities.XML2Python import xml2obj
 from FWCore.PythonUtilities.LumiList   import LumiList
 from pprint import pprint
 import optparse
+import sys
+
 
 if __name__ == '__main__':
     
@@ -22,7 +24,17 @@ if __name__ == '__main__':
             print "'%s' is not an framework job report.  Skipping." % fjr
             continue
         for inputFile in obj.InputFile:
-            for run in inputFile.Runs.Run:
+            try:
+                runList = inputFile.Runs.Run
+            except:
+                try:
+                    print "'%s' in '%s' contains no runs.  Skipping." % \
+                          (inputFile.PFN, fjr)
+                except:
+                    print "Some run in '%s' contains no runs.  Skipping." % \
+                          fjr
+                continue
+            for run in runList:
                 runNumber = int (run.ID)
                 runList = runsLumisDict.setdefault (runNumber, [])
                 for lumiPiece in run.LumiSection:
