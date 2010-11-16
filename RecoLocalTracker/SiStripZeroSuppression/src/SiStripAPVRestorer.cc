@@ -8,6 +8,7 @@
 
 
 SiStripAPVRestorer::SiStripAPVRestorer(const edm::ParameterSet& conf):
+  quality_cache_id(-1), noise_cache_id(-1),
   ForceNoRestore_(conf.getParameter<bool>("ForceNoRestore")),
   SelfSelectRestoreAlgo_(conf.getParameter<bool>("SelfSelectRestoreAlgo")),
   InspectAlgo_(conf.getParameter<std::string>("APVInspectMode")),
@@ -24,8 +25,8 @@ SiStripAPVRestorer::SiStripAPVRestorer(const edm::ParameterSet& conf):
   minStripsToFit_(conf.getParameter<uint32_t>("minStripsToFit")),
   distortionThreshold_(conf.getParameter<uint32_t>("distortionThreshold")),
   CutToAvoidSignal_(conf.getParameter<double>("CutToAvoidSignal")),
-  nSaturatedStrip_(conf.getParameter<uint32_t>("nSaturatedStrip")),
-  noise_cache_id(-1), quality_cache_id(-1)	
+  nSaturatedStrip_(conf.getParameter<uint32_t>("nSaturatedStrip"))
+	
   
 {
   apvFlags_.clear();
