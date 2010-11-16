@@ -9,7 +9,7 @@
 
 
 PositionCalc::PositionCalc(const edm::ParameterSet& par) :
-  param_LogWeighted_   ( par.getParameter<double>("Logweighted")) ,
+  param_LogWeighted_   ( par.getParameter<bool>("LogWeighted")) ,
   param_T0_barl_       ( par.getParameter<double>("T0_barl")) , 
   param_T0_endc_       ( par.getParameter<double>("T0_endc")) , 
   param_T0_endcPresh_  ( par.getParameter<double>("T0_endcPresh")) , 
