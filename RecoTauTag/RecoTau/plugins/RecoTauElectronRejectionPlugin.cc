@@ -81,13 +81,13 @@ void RecoTauElectronRejectionPlugin::operator()(PFTau& tau) const {
   reco::TrackRef myElecTrk;
 
   typedef std::pair<reco::PFBlockRef, unsigned> ElementInBlock;
-  typedef std::vector< ElementInBlock > ElementsInBlocks; 
+  typedef std::vector< ElementInBlock > ElementsInBlocks;
 
   PFCandidateRef myleadPFChargedCand = tau.leadPFChargedHadrCand();
   // Build list of PFCands in tau
   PFCandidateRefVector myPFCands;
   myPFCands.reserve(tau.isolationPFCands().size()+tau.signalPFCands().size());
-  
+
   std::copy(tau.isolationPFCands().begin(), tau.isolationPFCands().end(),
       std::back_inserter(myPFCands));
   std::copy(tau.signalPFCands().begin(), tau.signalPFCands().end(),
@@ -175,15 +175,15 @@ void RecoTauElectronRejectionPlugin::operator()(PFTau& tau) const {
                 double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myElecTrkEcalPos,clusPos);
                 double deltaEta = abs(myElecTrkEcalPos.eta()-clusPos.eta());
                 double deltaPhiOverQ = deltaPhi/(double)myElecTrk->charge();
-                if (en >= EcalStripSumE_minClusEnergy_ && deltaEta<EcalStripSumE_deltaEta_ && deltaPhiOverQ > EcalStripSumE_deltaPhiOverQ_minValue_ && deltaPhiOverQ < EcalStripSumE_deltaPhiOverQ_maxValue_) { 
+                if (en >= EcalStripSumE_minClusEnergy_ && deltaEta<EcalStripSumE_deltaEta_ && deltaPhiOverQ > EcalStripSumE_deltaPhiOverQ_minValue_ && deltaPhiOverQ < EcalStripSumE_deltaPhiOverQ_maxValue_) {
                   myStripClusterE += en;
                 }
-              }	  
+              }
             }
           } //end elements in blocks
         } //end loop over PFcands
-      } //end RECO case       
-    } // end check for null electrk  
+      } //end RECO case
+    } // end check for null electrk
   } // end check for null pfChargedHadrCand
 
   if ((myHCALenergy+myECALenergy)>0.)
@@ -208,7 +208,7 @@ void RecoTauElectronRejectionPlugin::operator()(PFTau& tau) const {
   tau.setecalStripSumEOverPLead((float)myStripClusterE);
   tau.setmaximumHCALPFClusterEt(myMaximumHCALPFClusterEt);
   tau.setelectronPreIDOutput(myElectronPreIDOutput);
-  if (myElecTrk.isNonnull()) 
+  if (myElecTrk.isNonnull())
     tau.setelectronPreIDTrack(myElecTrk);
   if (myElectronPreIDOutput > maximumForElectrionPreIDOutput_)
     myElecPreid = true;
@@ -221,6 +221,6 @@ void RecoTauElectronRejectionPlugin::operator()(PFTau& tau) const {
 }
 }} // end namespace reco::tau
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_EDM_PLUGIN(RecoTauModifierPluginFactory, 
-    reco::tau::RecoTauElectronRejectionPlugin, 
+DEFINE_EDM_PLUGIN(RecoTauModifierPluginFactory,
+    reco::tau::RecoTauElectronRejectionPlugin,
     "RecoTauElectronRejectionPlugin");
