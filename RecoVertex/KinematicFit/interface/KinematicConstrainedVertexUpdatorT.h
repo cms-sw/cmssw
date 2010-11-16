@@ -13,7 +13,6 @@ namespace KineDebug3 {
     int n;
     Count() : n(0){}
     ~Count() {
-      std::cout << "===>>> " << n << " call to KinematicConstrainedVertexUpdatorT" << std::endl;
     }
 
   };
