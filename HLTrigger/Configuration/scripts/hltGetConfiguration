@@ -141,6 +141,11 @@ parser.add_argument('--unprescale',
                     action  = 'store_true', 
                     default = False, 
                     help    = 'Run without any HLT prescales' )
+parser.add_argument('--open', 
+                    dest    = 'menuOpen', 
+                    action  = 'store_true', 
+                    default = False, 
+                    help    = 'Run the HLT in "open" mode, overriding all ED/HLTFilters to always pass' )
 parser.add_argument('--dataset', 
                     dest    = 'menuDataset', 
                     action  = 'store', 
@@ -301,6 +306,16 @@ if 'PrescaleService' in %(dict)s:
     %(process)sPrescaleService.lvl1Labels = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
     %(process)sPrescaleService.prescaleTable = cms.VPSet( )
 """
+
+
+  def instrumentOpenMode(self, configuration):
+    if configuration.menuOpen:
+      # find all EDfilters
+      filters = [ match[1] for match in re.findall(r'(process\.)?\b(\w+) = cms.EDFilter', self.data) ] 
+      # wrap all EDfilters with "cms.ignore( ... )"
+      re_filters  = re.compile( r'\b((process\.)?(' + r'|'.join(filters) + r'))\b' )
+      re_sequence = re.compile( r'cms\.(Path|Sequence)\((.*)\)' )
+      self.data = re_sequence.sub( lambda line: re_filters.sub( r'cms.ignore( \1 )', line.group(0) ), self.data )
 
 
   def overrideGlobalTag(self, configuration):
@@ -563,6 +578,9 @@ if configuration.doCff:
     # if requested, remove the HLT prescales
     menu.unprescale(configuration)
 
+    # if requested, override all ED/HLTfilters to always pass ("open" mode)
+    menu.instrumentOpenMode(configuration)
+
     # if requested or necessary, override the GlobalTag and connection strings
     #menu.overrideGlobalTag(configuration)
 
@@ -606,6 +624,9 @@ else:
 
     # if required, remove the HLT prescales
     menu.unprescale(configuration)
+
+    # if requested, override all ED/HLTfilters to always pass ("open" mode)
+    menu.instrumentOpenMode(configuration)
 
     # manual override some Heavy Ion parameters
     if configuration.processType in ('HIon', ):
