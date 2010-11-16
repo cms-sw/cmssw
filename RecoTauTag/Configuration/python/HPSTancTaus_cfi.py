@@ -299,6 +299,7 @@ hpsTancTauSequence = cms.Sequence(
     + selected3prong0pi0TancTaus
     + hpsTancTausDecayModeClean
     + hpsTancTaus
+    + hpsTancTausDiscriminationByLeadingTrackFinding
     + hpsTancTausDiscriminationByLeadingPionPtCut
     + hpsTancTausDiscriminationByLeadingTrackPtCut
     + hpsTancTausDiscriminationAgainstElectron
