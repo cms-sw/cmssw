@@ -2,12 +2,12 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/28 20:10:01 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/06/28 09:48:01 $
+ *  $Revision: 1.6 $
  *  \author A. Vilela Pereira
  */
 
-#include "CalibMuon/DTCalibration/plugins/DTTTrigOffsetCalibration.h"
+#include "DTTTrigOffsetCalibration.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -22,11 +22,11 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
 #include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
-
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
+#include "CalibMuon/DTCalibration/interface/DTSegmentSelector.h"
 
 /* C++ Headers */
 #include <map>
@@ -38,55 +38,37 @@
 using namespace std;
 using namespace edm;
 
-DTTTrigOffsetCalibration::DTTTrigOffsetCalibration(const ParameterSet& pset) {
+DTTTrigOffsetCalibration::DTTTrigOffsetCalibration(const ParameterSet& pset):
+  select_(pset),
+  theRecHits4DLabel_(pset.getParameter<InputTag>("recHits4DLabel")),
+  doTTrigCorrection_(pset.getUntrackedParameter<bool>("doT0SegCorrection", false)),
+  theCalibChamber_(pset.getUntrackedParameter<string>("calibChamber", "All")),
+  dbLabel_(pset.getUntrackedParameter<string>("dbLabel", "")) {
 
   LogVerbatim("Calibration") << "[DTTTrigOffsetCalibration] Constructor called!";
 
   // the root file which will contain the histos
   string rootFileName = pset.getUntrackedParameter<string>("rootFileName","DTT0SegHistos.root");
-  theFile_ = new TFile(rootFileName.c_str(), "RECREATE");
-  theFile_->cd();
-
-  dbLabel  = pset.getUntrackedParameter<string>("dbLabel", "");
-
-  // Do t0-seg correction to ttrig
-  doTTrigCorrection_ = pset.getUntrackedParameter<bool>("doT0SegCorrection", false);
-
-  // Chamber/s to calibrate
-  theCalibChamber_ =  pset.getUntrackedParameter<string>("calibChamber", "All");
-
-  // the name of the 4D rec hits collection
-  theRecHits4DLabel_ = pset.getParameter<InputTag>("recHits4DLabel");
-
-  //get the switch to check the noisy channels
-  checkNoisyChannels_ = pset.getParameter<bool>("checkNoisyChannels");
-
-  // get maximum chi2 value 
-  theMaxChi2_ =  pset.getParameter<double>("maxChi2");
-
-  // Maximum incidence angle for Phi SL 
-  theMaxPhiAngle_ =  pset.getParameter<double>("maxAnglePhi");
-
-  // Maximum incidence angle for Theta SL 
-  theMaxZAngle_ =  pset.getParameter<double>("maxAngleZ");
+  rootFile_ = new TFile(rootFileName.c_str(), "RECREATE");
+  rootFile_->cd();
 }
 
 void DTTTrigOffsetCalibration::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
   if(doTTrigCorrection_){
     ESHandle<DTTtrig> tTrig;
-    setup.get<DTTtrigRcd>().get(dbLabel,tTrig);
-    tTrigMap = &*tTrig;
+    setup.get<DTTtrigRcd>().get(dbLabel_,tTrig);
+    tTrigMap_ = &*tTrig;
     LogVerbatim("Calibration") << "[DTTTrigOffsetCalibration]: TTrig version: " << tTrig->version() << endl; 
   }
 }
 
 DTTTrigOffsetCalibration::~DTTTrigOffsetCalibration(){
-  theFile_->Close();
+  rootFile_->Close();
   LogVerbatim("Calibration") << "[DTTTrigOffsetCalibration] Destructor called!";
 }
 
 void DTTTrigOffsetCalibration::analyze(const Event & event, const EventSetup& eventSetup) {
-  theFile_->cd();
+  rootFile_->cd();
   DTChamberId chosenChamberId;
 
   if(theCalibChamber_ != "All") {
@@ -106,15 +88,13 @@ void DTTTrigOffsetCalibration::analyze(const Event & event, const EventSetup& ev
   Handle<DTRecSegment4DCollection> all4DSegments;
   event.getByLabel(theRecHits4DLabel_, all4DSegments); 
 
-  // Get the map of noisy channels
+  /*// Get the map of noisy channels
   ESHandle<DTStatusFlag> statusMap;
-  if(checkNoisyChannels_) eventSetup.get<DTStatusFlagRcd>().get(statusMap);
+  if(checkNoisyChannels_) eventSetup.get<DTStatusFlagRcd>().get(statusMap);*/
 
   // Loop over segments by chamber
   DTRecSegment4DCollection::id_iterator chamberIdIt;
-  for (chamberIdIt = all4DSegments->id_begin();
-       chamberIdIt != all4DSegments->id_end();
-       ++chamberIdIt){
+  for(chamberIdIt = all4DSegments->id_begin(); chamberIdIt != all4DSegments->id_end(); ++chamberIdIt){
 
     // Get the chamber from the setup
     const DTChamber* chamber = dtGeom->chamber(*chamberIdIt);
@@ -132,57 +112,25 @@ void DTTTrigOffsetCalibration::analyze(const Event & event, const EventSetup& ev
     DTRecSegment4DCollection::range range = all4DSegments->get((*chamberIdIt));
 
     // Loop over the rechits of this DetUnit
-    for (DTRecSegment4DCollection::const_iterator segment = range.first;
-         segment!=range.second; ++segment){
+    for(DTRecSegment4DCollection::const_iterator segment  = range.first;
+                                                 segment != range.second; ++segment){
 
       LogTrace("Calibration") << "Segment local pos (in chamber RF): " << (*segment).localPosition()
                               << "\nSegment global pos: " << chamber->toGlobal((*segment).localPosition());
       
-      //get the segment chi2
-      double chiSquare = ((*segment).chi2()/(*segment).degreesOfFreedom());
-      // cut on the segment chi2 
-      if(chiSquare > theMaxChi2_) continue;
+      if( !select_(event, eventSetup, *segment) ) continue;
 
-      // get the Phi 2D segment and plot the angle in the chamber RF
-      if(!((*segment).phiSegment())){
-        LogTrace("Calibration") << "No phi segment";
-      }
+      /*
       LocalPoint phiSeg2DPosInCham;  
       LocalVector phiSeg2DDirInCham;
-
-      bool segmNoisy = false;
       map<DTSuperLayerId,vector<DTRecHit1D> > hitsBySLMap; 
-
       if((*segment).hasPhi()){
         const DTChamberRecSegment2D* phiSeg = (*segment).phiSegment();  // phiSeg lives in the chamber RF
         phiSeg2DPosInCham = phiSeg->localPosition();  
         phiSeg2DDirInCham = phiSeg->localDirection();
-
-        vector<DTRecHit1D> phiHits = phiSeg->specificRecHits();
-        for(vector<DTRecHit1D>::const_iterator hit = phiHits.begin();
-            hit != phiHits.end(); ++hit) {
-          DTWireId wireId = (*hit).wireId();
-          DTSuperLayerId slId =  wireId.superlayerId();
-          hitsBySLMap[slId].push_back(*hit); 
-
-          // Check for noisy channels to skip them
-          if(checkNoisyChannels_) {
-            bool isNoisy = false;
-            bool isFEMasked = false;
-            bool isTDCMasked = false;
-            bool isTrigMask = false;
-            bool isDead = false;
-            bool isNohv = false;
-            statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
-            if(isNoisy) {
-              LogTrace("Calibration") << "Wire: " << wireId << " is noisy, skipping!";
-              segmNoisy = true;
-            }      
-          }
-        }
+        hitsBySLMap[phiSeg->superLayerId()] = phiSeg->specificRecHits();
       }
-
-      // get the Theta 2D segment and plot the angle in the chamber RF
+      // Get the Theta 2D segment and plot the angle in the chamber RF
       LocalVector zSeg2DDirInCham;
       LocalPoint zSeg2DPosInCham;
       if((*segment).hasZed()) {
@@ -191,67 +139,30 @@ void DTTTrigOffsetCalibration::analyze(const Event & event, const EventSetup& ev
         zSeg2DPosInCham = chamber->toLocal(sl->toGlobal((*zSeg).localPosition())); 
         zSeg2DDirInCham = chamber->toLocal(sl->toGlobal((*zSeg).localDirection()));
         hitsBySLMap[zSeg->superLayerId()] = zSeg->specificRecHits();
+      }
+      */
 
-        // Check for noisy channels to skip them
-        vector<DTRecHit1D> zHits = zSeg->specificRecHits();
-        for(vector<DTRecHit1D>::const_iterator hit = zHits.begin();
-            hit != zHits.end(); ++hit) {
-          DTWireId wireId = (*hit).wireId();
-          if(checkNoisyChannels_) {
-            bool isNoisy = false;
-            bool isFEMasked = false;
-            bool isTDCMasked = false;
-            bool isTrigMask = false;
-            bool isDead = false;
-            bool isNohv = false;
-            statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
-            if(isNoisy) {
-              LogTrace("Calibration") << "Wire: " << wireId << " is noisy, skipping!";
-              segmNoisy = true;
-            }      
-          }
-        }
-      } 
-
-      if (segmNoisy) continue;
-
-      LocalPoint segment4DLocalPos = (*segment).localPosition();
-      LocalVector segment4DLocalDir = (*segment).localDirection();
-      if(fabs(atan(segment4DLocalDir.y()/segment4DLocalDir.z())* 180./Geom::pi()) > theMaxZAngle_) continue; // cut on the angle
-      if(fabs(atan(segment4DLocalDir.x()/segment4DLocalDir.z())* 180./Geom::pi()) > theMaxPhiAngle_) continue; // cut on the angle
       // Fill t0-seg values
-      if((*segment).hasPhi()) {
+      if( (*segment).hasPhi() ) {
 	//if((segment->phiSegment()->t0()) != 0.00){
-        if(segment->phiSegment()->ist0Valid()){
+        if( segment->phiSegment()->ist0Valid() ){
 	  (theT0SegHistoMap_[*chamberIdIt])[0]->Fill(segment->phiSegment()->t0());
 	}
       }
-      if((*segment).hasZed()){
+      if( (*segment).hasZed() ){
     	//if((segment->zSegment()->t0()) != 0.00){
-        if(segment->zSegment()->ist0Valid()){
+        if( segment->zSegment()->ist0Valid() ){
 	  (theT0SegHistoMap_[*chamberIdIt])[1]->Fill(segment->zSegment()->t0());
 	}
       }
-      
-      // Fill t0-seg values
-    //      if((*segment).hasPhi()) (theT0SegHistoMap_[*chamberIdIt])[0]->Fill(segment->phiSegment()->t0());
-    //  if((*segment).hasZed()) (theT0SegHistoMap_[*chamberIdIt])[1]->Fill(segment->zSegment()->t0());
-      //if((*segment).hasZed() && (*segment).hasPhi()) {}
-
-      /*//loop over the segments 
-      for(map<DTSuperLayerId,vector<DTRecHit1D> >::const_iterator slIdAndHits = hitsBySLMap.begin(); slIdAndHits != hitsBySLMap.end();  ++slIdAndHits) {
-        if (slIdAndHits->second.size() < 3) continue;
-        DTSuperLayerId slId =  slIdAndHits->first;
-
-      }*/
-    }
-  }
-}
+    } // DTRecSegment4DCollection::const_iterator segment
+  } // DTRecSegment4DCollection::id_iterator chamberIdIt
+} // DTTTrigOffsetCalibration::analyze
 
 void DTTTrigOffsetCalibration::endJob() {
-  theFile_->cd();
+  rootFile_->cd();
   
-  LogVerbatim("Calibration") << "[DTTTrigOffsetCalibration]Writing histos to file!" << endl;
+  LogVerbatim("Calibration") << "[DTTTrigOffsetCalibration] Writing histos to file!" << endl;
 
   for(ChamberHistosMap::const_iterator itChHistos = theT0SegHistoMap_.begin(); itChHistos != theT0SegHistoMap_.end(); ++itChHistos){
     for(vector<TH1F*>::const_iterator itHist = (*itChHistos).second.begin();
@@ -275,7 +186,7 @@ void DTTTrigOffsetCalibration::endJob() {
         float ttrigMean = 0;
         float ttrigSigma = 0;
 	float kFactor = 0;
-        tTrigMap->get(*itSl,ttrigMean,ttrigSigma,kFactor,DTTimeUnits::ns);
+        tTrigMap_->get(*itSl,ttrigMean,ttrigSigma,kFactor,DTTimeUnits::ns);
         //FIXME: verify if values make sense
         // Set new values
         float ttrigMeanNew = ttrigMean;
@@ -287,7 +198,7 @@ void DTTTrigOffsetCalibration::endJob() {
         tTrig->set(*itSl,ttrigMeanNew,ttrigSigmaNew,kFactorNew,DTTimeUnits::ns);
       }
     }
-    LogVerbatim("Calibration")<< "[DTTTrigOffsetCalibration]Writing ttrig object to DB!" << endl;
+    LogVerbatim("Calibration")<< "[DTTTrigOffsetCalibration] Writing ttrig object to DB!" << endl;
     // Write the object to DB
     string tTrigRecord = "DTTtrigRcd";
     DTCalibDBUtils::writeToDB(tTrigRecord, tTrig);
@@ -329,8 +240,8 @@ void DTTTrigOffsetCalibration::bookHistos(DTChamberId chId) {
 
   vector<TH1F*> histos;
   // Note the order matters
-  histos.push_back(new TH1F(("hRPhiSegT0"+chHistoName).c_str(), "t0 from Phi segments", 250, -60., 60.));
-  if(chId.station() != 4) histos.push_back(new TH1F(("hRZSegT0"+chHistoName).c_str(), "t0 from Z segments", 250, -60., 60.));
+  histos.push_back(new TH1F(("hRPhiSegT0"+chHistoName).c_str(), "t0 from Phi segments", 500, -60., 60.));
+  if(chId.station() != 4) histos.push_back(new TH1F(("hRZSegT0"+chHistoName).c_str(), "t0 from Z segments", 500, -60., 60.));
 
   theT0SegHistoMap_[chId] = histos;
 }
