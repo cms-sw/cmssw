@@ -277,11 +277,11 @@ hpsTancTausDiscriminationByTancLoose = cms.EDProducer(
 
 hpsTancTausDiscriminationByTancMedium = \
         hpsTancTausDiscriminationByTancLoose.clone()
-hpsTancTausDiscriminationByTancMedium.Prediscriminants.tancCut.cut = 0.98
+hpsTancTausDiscriminationByTancMedium.Prediscriminants.tancCut.cut = 0.97
 
 hpsTancTausDiscriminationByTancTight = \
         hpsTancTausDiscriminationByTancLoose.clone()
-hpsTancTausDiscriminationByTancTight.Prediscriminants.tancCut.cut = 0.99
+hpsTancTausDiscriminationByTancTight.Prediscriminants.tancCut.cut = 0.985
 
 hpsTancTauSequence = cms.Sequence(
     combinatoricRecoTausDiscriminationByTanc
