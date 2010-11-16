@@ -18,10 +18,15 @@ struct stPlots {
    TH1D*  BS_Is;	   TH1D*  AS_Is;
    TH1D*  BS_Im;           TH1D*  AS_Im;
 
+   TH2D*  BS_EtaIs;        TH2D*  AS_EtaIs;
+   TH2D*  BS_EtaIm;        TH2D*  AS_EtaIm;
    TH2D*  BS_EtaP;	   TH2D*  AS_EtaP;
    TH2D*  BS_EtaPt;	   TH2D*  AS_EtaPt;
    TH2D*  BS_PIs;	   TH2D*  AS_PIs;
    TH2D*  BS_PIm;          TH2D*  AS_PIm;
+   TH2D*  BS_PtIs;         TH2D*  AS_PtIs;
+   TH2D*  BS_PtIm;         TH2D*  AS_PtIm;
+
 
    double WN_TotalE;       double UN_TotalE;
    double WN_TotalTE;      double UN_TotalTE;
@@ -115,6 +120,12 @@ void stPlots_Init(stPlots& st, string BaseName)
    Name = BaseName + "_BS_Im"   ; st.BS_Im    = new TH1D(Name.c_str(), Name.c_str(), 10000, 0, dEdxUpLim[dEdxMassIndex]); st.BS_Im->Sumw2();
    Name = BaseName + "_AS_Im"   ; st.AS_Im    = new TH1D(Name.c_str(), Name.c_str(), 10000, 0, dEdxUpLim[dEdxMassIndex]); st.AS_Im->Sumw2();
 
+   Name = BaseName + "_BS_EtaIs"; st.BS_EtaIs = new TH2D(Name.c_str(), Name.c_str(), 50,-3, 3, 250, 0, dEdxUpLim[dEdxSeleIndex]);
+   Name = BaseName + "_AS_EtaIs"; st.AS_EtaIs = new TH2D(Name.c_str(), Name.c_str(), 50,-3, 3, 250, 0, dEdxUpLim[dEdxSeleIndex]);
+
+   Name = BaseName + "_BS_EtaIm"; st.BS_EtaIm = new TH2D(Name.c_str(), Name.c_str(), 50,-3, 3, 250, 0, dEdxUpLim[dEdxMassIndex]);
+   Name = BaseName + "_AS_EtaIm"; st.AS_EtaIm = new TH2D(Name.c_str(), Name.c_str(), 50,-3, 3, 250, 0, dEdxUpLim[dEdxMassIndex]);
+
    Name = BaseName + "_BS_EtaP" ; st.BS_EtaP  = new TH2D(Name.c_str(), Name.c_str(), 50,-3, 3, 100, 0, PtHistoUpperBound);
    Name = BaseName + "_AS_EtaP" ; st.AS_EtaP  = new TH2D(Name.c_str(), Name.c_str(), 50,-3, 3, 100, 0, PtHistoUpperBound);
 
@@ -126,6 +137,12 @@ void stPlots_Init(stPlots& st, string BaseName)
 
    Name = BaseName + "_BS_PIm"  ; st.BS_PIm   = new TH2D(Name.c_str(), Name.c_str(), 250, 0, PtHistoUpperBound, 250, 0, dEdxUpLim[dEdxMassIndex]);
    Name = BaseName + "_AS_PIm"  ; st.AS_PIm   = new TH2D(Name.c_str(), Name.c_str(), 250, 0, PtHistoUpperBound, 250, 0, dEdxUpLim[dEdxMassIndex]);
+
+   Name = BaseName + "_BS_PtIs" ; st.BS_PtIs  = new TH2D(Name.c_str(), Name.c_str(), 250, 0, PtHistoUpperBound, 250, 0, dEdxUpLim[dEdxSeleIndex]);
+   Name = BaseName + "_AS_PtIs" ; st.AS_PtIs  = new TH2D(Name.c_str(), Name.c_str(), 250, 0, PtHistoUpperBound, 250, 0, dEdxUpLim[dEdxSeleIndex]);
+
+   Name = BaseName + "_BS_PtIm" ; st.BS_PtIm  = new TH2D(Name.c_str(), Name.c_str(), 250, 0, PtHistoUpperBound, 250, 0, dEdxUpLim[dEdxMassIndex]);
+   Name = BaseName + "_AS_PtIm" ; st.AS_PtIm  = new TH2D(Name.c_str(), Name.c_str(), 250, 0, PtHistoUpperBound, 250, 0, dEdxUpLim[dEdxMassIndex]);
 }
 
 
@@ -155,6 +172,10 @@ void stPlots_InitFromFile(stPlots& st, string BaseName, TFile* InputFile)
    st.AS_Im     = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_AS_Im");
    st.BS_Is     = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_BS_Is");
    st.AS_Is     = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_AS_Is");
+   st.BS_EtaIs  = (TH2D*)GetObjectFromPath(InputFile,  BaseName + "_BS_EtaIs");
+   st.AS_EtaIs  = (TH2D*)GetObjectFromPath(InputFile,  BaseName + "_AS_EtaIs");
+   st.BS_EtaIm  = (TH2D*)GetObjectFromPath(InputFile,  BaseName + "_BS_EtaIm");
+   st.AS_EtaIm  = (TH2D*)GetObjectFromPath(InputFile,  BaseName + "_AS_EtaIm");
    st.BS_EtaP   = (TH2D*)GetObjectFromPath(InputFile,  BaseName + "_BS_EtaP");
    st.AS_EtaP   = (TH2D*)GetObjectFromPath(InputFile,  BaseName + "_AS_EtaP");
    st.BS_EtaPt  = (TH2D*)GetObjectFromPath(InputFile,  BaseName + "_BS_EtaPt");
@@ -163,6 +184,11 @@ void stPlots_InitFromFile(stPlots& st, string BaseName, TFile* InputFile)
    st.AS_PIs    = (TH2D*)GetObjectFromPath(InputFile,  BaseName + "_AS_PIs");
    st.BS_PIm    = (TH2D*)GetObjectFromPath(InputFile,  BaseName + "_BS_PIm");
    st.AS_PIm    = (TH2D*)GetObjectFromPath(InputFile,  BaseName + "_AS_PIm");
+   st.BS_PtIs   = (TH2D*)GetObjectFromPath(InputFile,  BaseName + "_BS_PtIs");
+   st.AS_PtIs   = (TH2D*)GetObjectFromPath(InputFile,  BaseName + "_AS_PtIs");
+   st.BS_PtIm   = (TH2D*)GetObjectFromPath(InputFile,  BaseName + "_BS_PtIm");
+   st.AS_PtIm   = (TH2D*)GetObjectFromPath(InputFile,  BaseName + "_AS_PtIm");
+
 }
 
 void stPlots_Clear(stPlots& st)
@@ -179,10 +205,14 @@ void stPlots_Clear(stPlots& st)
    delete st.BS_Pt;           delete st.AS_Pt;
    delete st.BS_Is;           delete st.AS_Is;
    delete st.BS_Im;           delete st.AS_Im;
+   delete st.BS_EtaIs;        delete st.AS_EtaIs;
+   delete st.BS_EtaIm;        delete st.AS_EtaIm;
    delete st.BS_EtaP;         delete st.AS_EtaP;
    delete st.BS_EtaPt;        delete st.AS_EtaPt;
    delete st.BS_PIs;          delete st.AS_PIs;
    delete st.BS_PIm;          delete st.AS_PIm;
+   delete st.BS_PtIs;         delete st.AS_PtIs;
+   delete st.BS_PtIm;         delete st.AS_PtIm;
 }
 
 
@@ -348,6 +378,38 @@ void stPlots_Draw(stPlots& st, string SavePath, string LegendTitle)
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos[0] = (TH1*)st.BS_EtaIs;                 legend.push_back("Before Cut");
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", dEdxLegend[dEdxSeleIndex], 0,0, 0,0, false);
+   c1->SetLogz(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"EtaIs_BS", true);
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos[0] = (TH1*)st.AS_EtaIs;                 legend.push_back("After Cut");
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", dEdxLegend[dEdxSeleIndex], 0,0, 0,0, false);
+   c1->SetLogz(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"EtaIs_AS", true);
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos[0] = (TH1*)st.BS_EtaIm;                 legend.push_back("Before Cut");
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", dEdxLegend[dEdxMassIndex], 0,0, 0,0, false);
+   c1->SetLogz(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"EtaIm_BS", true);
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos[0] = (TH1*)st.AS_EtaIm;                 legend.push_back("After Cut");
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", dEdxLegend[dEdxMassIndex], 0,0, 0,0, false);
+   c1->SetLogz(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"EtaIm_AS", true);
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_EtaP;                  legend.push_back("Before Cut");
    DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", "p (GeV/c)", 0,0, 0,0, false);
    c1->SetLogz(true);
@@ -396,6 +458,22 @@ void stPlots_Draw(stPlots& st, string SavePath, string LegendTitle)
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos[0] = (TH1*)st.BS_PtIs;                  legend.push_back("Before Cut");
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "p_{T} (GeV/c)", dEdxLegend[dEdxSeleIndex], 0,0, 0,0, false);
+   c1->SetLogz(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"PtIs_BS", true);
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos[0] = (TH1*)st.BS_PtIm;                  legend.push_back("Before Cut");
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "p_{T} (GeV/c)", dEdxLegend[dEdxMassIndex], 0,0, 0,0, false);
+   c1->SetLogz(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"PtIm_BS", true);
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.AS_PIs;                   legend.push_back("After Cut");
    DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "p (GeV/c)", dEdxLegend[dEdxSeleIndex], 0,0, 0,0, false);
    c1->SetLogz(true);
@@ -409,6 +487,40 @@ void stPlots_Draw(stPlots& st, string SavePath, string LegendTitle)
    c1->SetLogz(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"PIm_AS", true);
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos[0] = (TH1*)st.AS_PtIs;                  legend.push_back("After Cut");
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "p_{T} (GeV/c)", dEdxLegend[dEdxSeleIndex], 0,0, 0,0, false);
+   c1->SetLogz(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"PtIs_AS", true);
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos[0] = (TH1*)st.AS_PtIm;                  legend.push_back("After Cut");
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "p_{T} (GeV/c)", dEdxLegend[dEdxMassIndex], 0,600, 0,25, false);
+   c1->SetLogz(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"PtIm_AS", true);
+   delete c1;
+
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   st.BS_EtaIs->Rebin2D(1,5);
+   Histos[0] =            (TH1*)st.BS_EtaIs->ProjectionY("H1_PY",st.BS_EtaIs->GetXaxis()->FindBin( 0.0),st.BS_EtaIs->GetXaxis()->FindBin( 0.9)); legend.push_back("0.0 < |#eta| < 0.9");
+   Histos[1] =            (TH1*)st.BS_EtaIs->ProjectionY("H2_PY",st.BS_EtaIs->GetXaxis()->FindBin( 0.9),st.BS_EtaIs->GetXaxis()->FindBin( 1.4)); legend.push_back("0.9 < |#eta| < 1.4");
+   Histos[2] =            (TH1*)st.BS_EtaIs->ProjectionY("H3_PY",st.BS_EtaIs->GetXaxis()->FindBin( 1.4),st.BS_EtaIs->GetXaxis()->FindBin( 2.5)); legend.push_back("1.4 < |#eta| < 2.5");
+   ((TH1*)Histos[0])->Add((TH1*)st.BS_EtaIs->ProjectionY("H1_PY",st.BS_EtaIs->GetXaxis()->FindBin(-0.9),st.BS_EtaIs->GetXaxis()->FindBin( 0.0)),1);
+   ((TH1*)Histos[1])->Add((TH1*)st.BS_EtaIs->ProjectionY("H2_PY",st.BS_EtaIs->GetXaxis()->FindBin(-1.4),st.BS_EtaIs->GetXaxis()->FindBin(-0.9)),1);
+   ((TH1*)Histos[2])->Add((TH1*)st.BS_EtaIs->ProjectionY("H3_PY",st.BS_EtaIs->GetXaxis()->FindBin(-2.5),st.BS_EtaIs->GetXaxis()->FindBin(-1.4)),1);
+
+   DrawSuperposedHistos((TH1**)Histos, legend, "HIST HP",  dEdxLegend[dEdxSeleIndex], "#Tracks", 0,0, 0,0, false);
+   DrawLegend(Histos,legend,LegendTitle,"LP");
+   c1->SetLogy(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"EtaIs_BS_Projected", true);
+   delete  Histos[0]; delete Histos[1];  delete Histos[2];
    delete c1;
 }
 

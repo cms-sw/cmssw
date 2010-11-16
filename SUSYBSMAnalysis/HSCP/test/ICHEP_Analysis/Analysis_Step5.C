@@ -77,24 +77,27 @@ void Analysis_Step5()
    dEdxSeleIndex = 11;
    std::vector<string> Legends;                 std::vector<string> Inputs;
 
-  WPMap("Results/SplitMode0/MinHit09/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/", 75,2000);
-  WPMap("Results/SplitMode0/MinHit09/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/", 75,2000);
-   return;
+//  WPMap("Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/", 75,2000);
+//  WPMap("Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/", 75,2000);
 
+//  WPMap("Results/Eta25/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/", 75,2000);
+//  WPMap("Results/Eta25/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/", 75,2000);
+//  return;
 
 
 /*
-  WPMap("Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/",  0,2000);
-  WPMap("Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/", 75,2000);
-  WPMap("Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/", 0,2000, false);
-  WPMap("Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/", 0,75, false);
+  WPMap("Results/Eta25/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/",  0,2000);
+  WPMap("Results/Eta25/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/", 75,2000);
+  WPMap("Results/Eta25/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/", 0,2000, false);
+  WPMap("Results/Eta25/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/", 0,75, false);
 
-  WPMap("Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/",  0,2000);
-  WPMap("Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/", 75,2000);
-  WPMap("Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/",  0,2000, false);
-  WPMap("Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/",  0,75, false);
+  WPMap("Results/Eta25/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/",  0,2000);
+  WPMap("Results/Eta25/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/", 75,2000);
+  WPMap("Results/Eta25/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/",  0,2000, false);
+  WPMap("Results/Eta25/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/",  0,75, false);
+*/
 
-
+/*
    std::vector<double> CutEff;
    CutEff.push_back(pow(10,-0.25));
    CutEff.push_back(pow(10,-0.50));
@@ -116,13 +119,13 @@ void Analysis_Step5()
    CutEff.push_back(pow(10,-4.50));
 
    Legends.clear();                             Inputs.clear();
-   Legends.push_back("Harmonic-2");             Inputs.push_back("Results/SplitMode2/MinHit01/Sele_dedxSTCNPHarm2/Mass_dedxSTCNPHarm2/Type1/");
-   Legends.push_back("Asymmetric Smirnov");     Inputs.push_back("Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/");
+   Legends.push_back("Harmonic-2");             Inputs.push_back("Results/Eta25/PtErr015/SplitMode2/MinHit01/Sele_dedxSTCNPHarm2/Mass_dedxSTCNPHarm2/Type1/");
+   Legends.push_back("Asymmetric Smirnov");     Inputs.push_back("Results/Eta25/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/");
    CutEfficiency(Inputs, Legends,  CutEff);
 
    Legends.clear();                             Inputs.clear();
-   Legends.push_back("Harmonic-2");             Inputs.push_back("Results/SplitMode2/MinHit01/Sele_dedxSTCNPHarm2/Mass_dedxSTCNPHarm2/Type0/");
-   Legends.push_back("Asymmetric Smirnov");     Inputs.push_back("Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/");
+   Legends.push_back("Harmonic-2");             Inputs.push_back("Results/Eta25/PtErr015/SplitMode2/MinHit01/Sele_dedxSTCNPHarm2/Mass_dedxSTCNPHarm2/Type0/");
+   Legends.push_back("Asymmetric Smirnov");     Inputs.push_back("Results/Eta25/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/");
    CutEfficiency(Inputs, Legends,  CutEff);
 */
 
@@ -138,96 +141,196 @@ void Analysis_Step5()
    PtEff.push_back(-1.0);   IEff.push_back(-1.0);
    PtEff.push_back(-0.5);   IEff.push_back(-0.5);
 
-   Legends.clear();                             Inputs.clear();
-   Legends.push_back("Harmonic-2");             Inputs.push_back("Results/SplitMode2/MinHit01/Sele_dedxSTCNPHarm2/Mass_dedxSTCNPHarm2/Type1/");
-   Legends.push_back("Asymmetric Smirnov");     Inputs.push_back("Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/");
-   WPMap1D(Inputs, Legends,  75,1000, PtEff, IEff);
+//   Legends.clear();                             Inputs.clear();
+//   Legends.push_back("Harmonic-2");             Inputs.push_back("Results/Eta25/PtErr015/SplitMode2/MinHit01/Sele_dedxSTCNPHarm2/Mass_dedxSTCNPHarm2/Type1/");
+//   Legends.push_back("Asymmetric Smirnov");     Inputs.push_back("Results/Eta25/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/");
+//   WPMap1D(Inputs, Legends,  75,1000, PtEff, IEff);
+
+//   Legends.clear();                             Inputs.clear();
+//   Legends.push_back("Harmonic-2");             Inputs.push_back("Results/Eta25/PtErr015/SplitMode2/MinHit01/Sele_dedxSTCNPHarm2/Mass_dedxSTCNPHarm2/Type0/");
+//   Legends.push_back("Asymmetric Smirnov");     Inputs.push_back("Results/Eta25/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/");
+//   WPMap1D(Inputs, Legends,  75,1000, PtEff, IEff);
 
    Legends.clear();                             Inputs.clear();
-   Legends.push_back("Harmonic-2");             Inputs.push_back("Results/SplitMode2/MinHit01/Sele_dedxSTCNPHarm2/Mass_dedxSTCNPHarm2/Type0/");
-   Legends.push_back("Asymmetric Smirnov");     Inputs.push_back("Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/");
-   WPMap1D(Inputs, Legends,  75,1000, PtEff, IEff);
+//   Legends.push_back("#eta & hit splitting");   Inputs.push_back("Results/Eta25/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/");
+   Legends.push_back("hit splitting");          Inputs.push_back("Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/");
+   Legends.push_back("no splitting");           Inputs.push_back("Results/Eta25/PtErr015/SplitMode0/MinHit09/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/");
+   WPMap1D(Inputs, Legends,  75,2000, PtEff, IEff);
 
    Legends.clear();                             Inputs.clear();
-   Legends.push_back("#eta & hit splitting");   Inputs.push_back("Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/");
-   Legends.push_back("hit splitting");          Inputs.push_back("Results/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/");
-   Legends.push_back("no splitting");           Inputs.push_back("Results/SplitMode0/MinHit09/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/");
-   WPMap1D(Inputs, Legends,  75,1000, PtEff, IEff);
+//   Legends.push_back("#eta & hit splitting");   Inputs.push_back("Results/Eta25/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/");
+   Legends.push_back("hit splitting");          Inputs.push_back("Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/");
+   Legends.push_back("no splitting");           Inputs.push_back("Results/Eta25/PtErr015/SplitMode0/MinHit09/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/");
+   WPMap1D(Inputs, Legends,  75,2000, PtEff, IEff);
 
-   Legends.clear();                             Inputs.clear();
-   Legends.push_back("#eta & hit splitting");   Inputs.push_back("Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/");
-   Legends.push_back("hit splitting");          Inputs.push_back("Results/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/");
-   Legends.push_back("no splitting");           Inputs.push_back("Results/SplitMode0/MinHit09/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/");
-   WPMap1D(Inputs, Legends,  75,1000, PtEff, IEff);
+//   CheckHitSplitSloap_Plot("SAVE_BUG/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt+00/WPI+00/");
 
-   CheckHitSplitSloap_Plot("Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt+00/WPI+00/");
+   MakeHitSplit_Plot("Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt+00/WPI+00/");
+   MakeHitSplit_Plot("Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt+00/WPI+00/");
+return;
 
-   MakeHitSplit_Plot("Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt+00/WPI+00/");
-   MakeHitSplit_Plot("Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt+00/WPI+00/");
+   MakeCompPlot("TkOnlyClusterCleaning", "Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt+00/WPI+00/", "Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxASmi/Mass_dedxCNPHarm2/Type0/WPPt+00/WPI+00/");
+   MakeCompPlot("TkMuonClusterCleaning", "Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt+00/WPI+00/", "Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxASmi/Mass_dedxCNPHarm2/Type1/WPPt+00/WPI+00/");
 
-   MakeCompPlot("TkOnlyClusterCleaning", "Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt+00/WPI+00/", "Results/SplitMode2/MinHit01/Sele_dedxASmi/Mass_dedxCNPHarm2/Type0/WPPt+00/WPI+00/");
-   MakeCompPlot("TkMuonClusterCleaning", "Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt+00/WPI+00/", "Results/SplitMode2/MinHit01/Sele_dedxASmi/Mass_dedxCNPHarm2/Type1/WPPt+00/WPI+00/");
-
-   InputDir = "Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt+00/WPI+00/";
+   InputDir = "Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt+00/WPI+00/";
    Make2DPlot_Core(InputDir);
-   InputDir = "Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt+00/WPI+00/";
-   Make2DPlot_Core(InputDir);
+   InputDir = "Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt+00/WPI+00/";
 */
-
 /*
    dEdxSeleIndex = 11; 
    bool RecomputeRecale = true;
    for(double Pt=0;Pt>-5.0;Pt-=0.5){
    for(double  I=0; I>-5.0; I-=0.5){      
       char tmp[2048];
-      sprintf(tmp,"Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt%+03i/WPI%+03i/",(int)(10*Pt),(int)(10*I));
+      sprintf(tmp,"Results/Eta25/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt%+03i/WPI%+03i/",(int)(10*Pt),(int)(10*I));
       CheckPredictionRescale(tmp, RecomputeRecale);
-      sprintf(tmp,"Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt%+03i/WPI%+03i/",(int)(10*Pt),(int)(10*I));
+      sprintf(tmp,"Results/Eta25/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt%+03i/WPI%+03i/",(int)(10*Pt),(int)(10*I));
       CheckPredictionRescale(tmp, RecomputeRecale);
       RecomputeRecale = false;
    }}
 */
 
 
-//   InputDir = "Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-15/WPI-40/";
-   InputDir = "Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-15/WPI-40/";
+
+
+/*
+
+//   InputDir = "Results/Eta10/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-15/WPI-40/";
+//   InputDir = "Results/Eta10/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-15/WPI-40/";
+//   InputDir = "Results/Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-25/WPI-35/";
+   InputDir = "Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-30/WPI-40/"; //X
+//   InputDir = "Results/Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-30/WPI-35/"; //X
    CheckPredictionRescale(InputDir, true); 
 //   Make2DPlot_Core(InputDir);
 //   SelectionPlot(InputDir);
 //   PredictionAndControlPlot(InputDir);
-   dEdxVsP_Plot_Core(InputDir);
+//   dEdxVsP_Plot_Core(InputDir);
 
-//   InputDir = "Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-25/WPI-45/";
-   InputDir = "Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-15/WPI-50/";
+//   InputDir = "Results/Eta10/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-25/WPI-45/";
+//   InputDir = "Results/Eta10/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-15/WPI-50/";
+//   InputDir = "Results/Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-25/WPI-45/";
+   InputDir = "Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-35/WPI-45/"; //X
+//   InputDir = "Results/Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-35/WPI-40/"; //X
    CheckPredictionRescale(InputDir, true);
 //   Make2DPlot_Core(InputDir);
 //   SelectionPlot(InputDir);
 //   PredictionAndControlPlot(InputDir);
-   dEdxVsP_Plot_Core(InputDir);
-
-//   InputDir = "Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-10/WPI-15/";
-   InputDir = "Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-10/WPI-20/";
-   CheckPredictionRescale(InputDir, true);
+//   dEdxVsP_Plot_Core(InputDir);
+*/
+//   InputDir = "Results/Eta10/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-10/WPI-15/";
+//   InputDir = "Results/Eta10/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-10/WPI-20/";
+//   InputDir = "Results/Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-10/WPI-15/";
+   InputDir = "Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-10/WPI-15/"; //X
+//   InputDir = "Results/Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-05/WPI-10/"; //X
+//   CheckPredictionRescale(InputDir, true);
 //   Make2DPlot_Core(InputDir);
-//   SelectionPlot(InputDir);
+   SelectionPlot(InputDir);
 //   PredictionAndControlPlot(InputDir);
-   dEdxVsP_Plot_Core(InputDir);
+//   dEdxVsP_Plot_Core(InputDir);
 
-//   InputDir = "Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-20/WPI-20/";
-   InputDir = "Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-20/WPI-25/";
-   CheckPredictionRescale(InputDir, true);
+//   InputDir = "Results/Eta10/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-20/WPI-20/";
+//   InputDir = "Results/Eta10/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-20/WPI-25/";
+//   InputDir = "Results/Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-20/WPI-25/";
+//   InputDir = "Results/Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-15/WPI-20/";
+//   InputDir = "Results/Eta10/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-15/WPI-20/";
+   InputDir = "Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-15/WPI-20/"; //X
+//   InputDir = "Results/Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-10/WPI-15/"; //X
+//   CheckPredictionRescale(InputDir, true);
 //   Make2DPlot_Core(InputDir);
-//   SelectionPlot(InputDir);
+   SelectionPlot(InputDir);
 //   PredictionAndControlPlot(InputDir);
-   dEdxVsP_Plot_Core(InputDir);
-
-
+//   dEdxVsP_Plot_Core(InputDir);
 
 
 
 
 /*
-   TFile* InputFile = new TFile("Results/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt+00/WPI+00/DumpHistos.root");
+   string Input    = "Results/Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-30/WPI-35/DumpHistos.root";
+   TFile* InputFile = new TFile(Input.c_str());
+   TH2D* Hist1    = (TH2D*)GetObjectFromPath(InputFile, "Gluino400_AS_EtaP");
+   TH1D* Hist1Eta = (TH1D*)Hist1->ProjectionX();
+   printf("Eta<10 --> %f Entries\n",Hist1Eta->Integral());
+   printf("Eta<10 --> %f Entries\n",Hist1Eta->Integral(Hist1Eta->GetXaxis()->FindBin(-2.6), Hist1Eta->GetXaxis()->FindBin(2.6)));
+
+   Input          = "Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-30/WPI-40/DumpHistos.root";
+   InputFile      = new TFile(Input.c_str());
+   TH2D* Hist2    = (TH2D*)GetObjectFromPath(InputFile, "Gluino400_AS_EtaP");
+   TH1D* Hist2Eta = (TH1D*)Hist2->ProjectionX();
+   printf("Eta<25 --> %f Entries\n",Hist2Eta->Integral());
+   printf("Eta<25 --> %f Entries\n",Hist2Eta->Integral(Hist2Eta->GetXaxis()->FindBin(-2.6), Hist2Eta->GetXaxis()->FindBin(2.6)));
+
+   TCanvas* c1;
+   TObject** Histos = new TObject*[10];
+   std::vector<string> legend;
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos[0] = Hist1Eta;                          legend.push_back("|#eta| < 1.0");
+   Histos[1] = Hist2Eta;                          legend.push_back("|#eta| < 2.5");
+   DrawSuperposedHistos((TH1**)Histos, legend, "PH",  "#eta", "arbitrary units", 0,0, 0,0);
+   DrawLegend(Histos,legend,"","PL");
+//   c1->SetLogy(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,"./","EtaAS_TkMuon");
+   delete c1;
+
+
+
+
+   Input    = "Results/Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-35/WPI-40/DumpHistos.root";
+   InputFile = new TFile(Input.c_str());
+   Hist1    = (TH2D*)GetObjectFromPath(InputFile, "Gluino400_AS_EtaP");
+   Hist1Eta = (TH1D*)Hist1->ProjectionX();
+   printf("Eta<10 --> %f Entries\n",Hist1Eta->Integral());
+   printf("Eta<10 --> %f Entries\n",Hist1Eta->Integral(Hist1Eta->GetXaxis()->FindBin(-2.6), Hist1Eta->GetXaxis()->FindBin(2.6)));
+
+   Input          = "Results/Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-35/WPI-45/DumpHistos.root";
+   InputFile      = new TFile(Input.c_str());
+   Hist2    = (TH2D*)GetObjectFromPath(InputFile, "Gluino400_AS_EtaP");
+   Hist2Eta = (TH1D*)Hist2->ProjectionX();
+   printf("Eta<25 --> %f Entries\n",Hist2Eta->Integral());
+   printf("Eta<25 --> %f Entries\n",Hist2Eta->Integral(Hist2Eta->GetXaxis()->FindBin(-2.6), Hist2Eta->GetXaxis()->FindBin(2.6)));
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos[0] = Hist1Eta;                          legend.push_back("|#eta| < 1.0");
+   Histos[1] = Hist2Eta;                          legend.push_back("|#eta| < 2.5");
+   DrawSuperposedHistos((TH1**)Histos, legend, "PH",  "#eta", "arbitrary units", 0,0, 0,0);
+   DrawLegend(Histos,legend,"","PL");
+//   c1->SetLogy(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,"./","EtaAS_TkOnly");
+   delete c1;
+*/
+
+
+/*
+   string Input     = "Results/Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-30/WPI-35/DumpHistos.root";
+   TFile* InputFile = new TFile(Input.c_str());
+   TH2D* Hist1      = (TH2D*)GetObjectFromPath(InputFile, "Gluino400_AS_EtaIs");
+   TH1D* Hist1Eta09 = (TH1D*)Hist1->ProjectionY("H1Eta09" ,Hist1->GetXaxis()->FindBin(-0.9), Hist1->GetXaxis()->FindBin( 0.0));
+   TH1D* Hist1Eta14 = (TH1D*)Hist1->ProjectionY("H1Eta14" ,Hist1->GetXaxis()->FindBin(-1.4), Hist1->GetXaxis()->FindBin(-0.9));
+ //     Hist1Eta14->Add((TH1D*)Hist1->ProjectionY("H1Eta14b",Hist1->GetXaxis()->FindBin( 0.9), Hist1->GetXaxis()->FindBin( 1.4)),1.0);
+   TH1D* Hist1Eta25 = (TH1D*)Hist1->ProjectionY("H1Eta25" ,Hist1->GetXaxis()->FindBin(-2.5), Hist1->GetXaxis()->FindBin(-1.4));
+ //     Hist1Eta25->Add((TH1D*)Hist1->ProjectionY("H1Eta25b",Hist1->GetXaxis()->FindBin( 1.4), Hist1->GetXaxis()->FindBin( 2.5)),1.0);
+
+   TCanvas* c1;
+   TObject** Histos = new TObject*[10];
+   std::vector<string> legend;
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos[0] = Hist1Eta09;                        legend.push_back("0.0 < |#eta| < 0.9");
+   Histos[1] = Hist1Eta14;                        legend.push_back("0.9 < |#eta| < 1.4");
+   Histos[2] = Hist1Eta25;                        legend.push_back("1.4 < |#eta| < 2.5");
+   DrawSuperposedHistos((TH1**)Histos, legend, "PH",  "I_{as}", "arbitrary units", 0,0, 0,0);
+   DrawLegend(Histos,legend,"","PL");
+//   c1->SetLogy(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,"./","EtaAS_TkMuon");
+   delete c1;
+*/
+
+
+
+
+/*
+   TFile* InputFile = new TFile("Results/Eta10/PtErr015/SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt+00/WPI+00/DumpHistos.root");
 
    TH1D*   hist  = (TH1D*)GetObjectFromPath(InputFile, "CutFinder_Pt_Data"   );
   int binMin = hist->GetXaxis()->FindBin(10);
@@ -682,6 +785,8 @@ void WPMap1D(std::vector<string> InputPatterns, std::vector<string> Legends, dou
       DrawPreliminary(IntegratedLuminosity);
 
       SaveCanvas(c1, SavePath, string("Map1D_SvsP_") + signals[j].Name );
+      c1->SetLogy(true);
+      SaveCanvas(c1, SavePath, string("Map1D_SvsP_") + signals[j].Name + "_Log");
       delete c1;
    }
 }
@@ -945,6 +1050,7 @@ void SelectionPlot(string InputPattern){
  
    stPlots DataPlots, MCTrPlots, SignPlots[signals.size()];
    stPlots_InitFromFile(DataPlots,"Data", InputFile);
+
    stPlots_InitFromFile(MCTrPlots,"MCTr", InputFile);
    for(unsigned int s=0;s<signals.size();s++){
       if(!signals[s].MakePlot)continue;
@@ -952,20 +1058,19 @@ void SelectionPlot(string InputPattern){
 
       printf("PLOT SIGNAL %i\n",s);
       stPlots_DrawComparison(SignPlots[s], MCTrPlots, DataPlots, signals[s], SavePath + "/Selection_Comp_" + signals[s].Name, LegendTitle);
-//      stPlots_Clear(SignPlots[s]);
+      stPlots_Draw(SignPlots[s], SavePath + "/Selection_" +  signals[s].Name, LegendTitle);
    }
 
-//   stPlots_Draw(DataPlots, SavePath + "/Selection_Data", LegendTitle);
-//   stPlots_Draw(MCTrPlots, SavePath + "/Selection_MCTr", LegendTitle);
+   stPlots_Draw(DataPlots, SavePath + "/Selection_Data", LegendTitle);
+   stPlots_Draw(MCTrPlots, SavePath + "/Selection_MCTr", LegendTitle);
 
-/*
    stPlots_Clear(DataPlots);
    stPlots_Clear(MCTrPlots);
    for(unsigned int s=0;s<signals.size();s++){
       if(!signals[s].MakePlot)continue;
       stPlots_Clear(SignPlots[s]);
    }
-*/
+
 }
 
 
@@ -1471,7 +1576,7 @@ void dEdxVsP_Plot_Core(string InputPattern){
       if     (M<100){ Data_PIm_075->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
       else if(M<200){ Data_PIm_150->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
       else if(M<300){ Data_PIm_300->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
-      else if(M<400){ Data_PIm_450->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
+      else if(M<395){ Data_PIm_450->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
       else          { Data_PIm_All->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
    }}
 
@@ -1846,35 +1951,47 @@ void CheckPredictionRescale(string InputPattern, bool RecomputeRescale)
    TH1D* Resc1 = (TH1D*)(Pred1->Clone("Resc1"));
    Resc1->Scale(Rescale);
 
-   double D,P,R;
+
+
+
    printf("%s\n",InputPattern.c_str());
-   D = Data1->Integral(Data1->GetXaxis()->FindBin( 0.0), Data1->GetXaxis()->FindBin(999.0));
-   P = Pred1->Integral(Pred1->GetXaxis()->FindBin( 0.0), Pred1->GetXaxis()->FindBin(999.0));
-   R = Resc1->Integral(Resc1->GetXaxis()->FindBin( 0.0), Resc1->GetXaxis()->FindBin(999.0));
-//   printf("INTEGRAL in [ 0,999] --> P = %9.3f R = %9.3f D = %9.3f  D/P = %8.3f  D/R = %8.3f\n", P, R, D, D/P, D/R);
-   printf("INTEGRAL in [ 0,999] --> P = %9.3f R = %9.3f +- %9.3f D = %9.3f\n", P, R, R*(1*RMS), D);
+   double M,D,P,R, Rerr;
+   M = MCTr1->Integral(MCTr1->GetXaxis()->FindBin( 0.0),  MCTr1->GetXaxis()->FindBin(1999.0));
+   D = Data1->Integral(Data1->GetXaxis()->FindBin( 0.0),  Data1->GetXaxis()->FindBin(1999.0));  
+   P = Pred1->Integral(Pred1->GetXaxis()->FindBin( 0.0),  Pred1->GetXaxis()->FindBin(1999.0));
+   R = Resc1->Integral(Resc1->GetXaxis()->FindBin( 0.0),  Resc1->GetXaxis()->FindBin(1999.0));   
+   Rerr = 0; for(int i=Resc1->GetXaxis()->FindBin( 0.0);i<Resc1->GetXaxis()->FindBin(1999.0);i++){ Rerr += pow(Resc1->GetBinError(i),2); }  Rerr = sqrt(Rerr);
+   printf("INTEGRAL in [  0,1999] --> M = %9.3f P = %9.3f R = %9.3f +- %9.3f(stat) +- %9.3f(syst) (=%9.3f) D = %9.3f\n", M, P, R, Rerr,R*(2*RMS),sqrt(Rerr*Rerr + pow(R*(2*RMS),2)), D);
 
-   D = Data1->Integral(Data1->GetXaxis()->FindBin( 0.0), Data1->GetXaxis()->FindBin( 75.0));
-   P = Pred1->Integral(Pred1->GetXaxis()->FindBin( 0.0), Pred1->GetXaxis()->FindBin( 75.0));
-   R = Resc1->Integral(Resc1->GetXaxis()->FindBin( 0.0), Resc1->GetXaxis()->FindBin( 75.0));
-//   printf("INTEGRAL in [ 0, 75] --> P = %9.3f R = %9.3f D = %9.3f  D/P = %8.3f  D/R = %8.3f\n", P, R, D, D/P, D/R);
+   M = MCTr1->Integral(MCTr1->GetXaxis()->FindBin(75.0),  MCTr1->GetXaxis()->FindBin(1999.0));
+   D = Data1->Integral(Data1->GetXaxis()->FindBin(75.0),  Data1->GetXaxis()->FindBin(1999.0));
+   P = Pred1->Integral(Pred1->GetXaxis()->FindBin(75.0),  Pred1->GetXaxis()->FindBin(1999.0));
+   R = Resc1->Integral(Resc1->GetXaxis()->FindBin(75.0),  Resc1->GetXaxis()->FindBin(1999.0));
+   Rerr = 0; for(int i=Resc1->GetXaxis()->FindBin(75.0);i<Resc1->GetXaxis()->FindBin(1999.0);i++){ Rerr += pow(Resc1->GetBinError(i),2); }  Rerr = sqrt(Rerr);
+   printf("INTEGRAL in [ 75,1999] --> M = %9.3f P = %9.3f R = %9.3f +- %9.3f(stat) +- %9.3f(syst) (=%9.3f) D = %9.3f\n", M, P, R, Rerr,R*(2*RMS),sqrt(Rerr*Rerr + pow(R*(2*RMS),2)), D);
 
-   D = Data1->Integral(Data1->GetXaxis()->FindBin(75.0), Data1->GetXaxis()->FindBin(999.0));
-   P = Pred1->Integral(Pred1->GetXaxis()->FindBin(75.0), Pred1->GetXaxis()->FindBin(999.0));
-   R = Resc1->Integral(Resc1->GetXaxis()->FindBin(75.0), Resc1->GetXaxis()->FindBin(999.0));
-   //printf("INTEGRAL in [75,999] --> P = %9.3f R = %9.3f D = %9.3f  D/P = %8.3f  D/R = %8.3f\n", P, R, D, D/P, D/R);
-   printf("INTEGRAL in [ 75,999] --> P = %9.3f R = %9.3f +-%6.3f D = %9.3f\n", P, R, R*(2*RMS), D);
+   M = MCTr1->Integral(MCTr1->GetXaxis()->FindBin(75.0),  MCTr1->GetXaxis()->FindBin(100.0));
+   D = Data1->Integral(Data1->GetXaxis()->FindBin(75.0),  Data1->GetXaxis()->FindBin(100.0));
+   P = Pred1->Integral(Pred1->GetXaxis()->FindBin(75.0),  Pred1->GetXaxis()->FindBin(100.0));
+   R = Resc1->Integral(Resc1->GetXaxis()->FindBin(75.0),  Resc1->GetXaxis()->FindBin(100.0));
+   Rerr = 0; for(int i=Resc1->GetXaxis()->FindBin(75.0);i<Resc1->GetXaxis()->FindBin(100.0);i++){ Rerr += pow(Resc1->GetBinError(i),2); }  Rerr = sqrt(Rerr);
+   printf("INTEGRAL in [ 75, 100] --> M = %9.3f P = %9.3f R = %9.3f +- %9.3f(stat) +- %9.3f(syst) (=%9.3f) D = %9.3f\n", M, P, R, Rerr,R*(2*RMS),sqrt(Rerr*Rerr + pow(R*(2*RMS),2)), D);
+
+   M = MCTr1->Integral(MCTr1->GetXaxis()->FindBin(100.0),  MCTr1->GetXaxis()->FindBin(1999.0));
+   D = Data1->Integral(Data1->GetXaxis()->FindBin(100.0),  Data1->GetXaxis()->FindBin(1999.0));
+   P = Pred1->Integral(Pred1->GetXaxis()->FindBin(100.0),  Pred1->GetXaxis()->FindBin(1999.0));
+   R = Resc1->Integral(Resc1->GetXaxis()->FindBin(100.0),  Resc1->GetXaxis()->FindBin(1999.0));
+   Rerr = 0; for(int i=Resc1->GetXaxis()->FindBin(100.0);i<Resc1->GetXaxis()->FindBin(1999.0);i++){ Rerr += pow(Resc1->GetBinError(i),2); }  Rerr = sqrt(Rerr);
+   printf("INTEGRAL in [100,1999] --> M = %9.3f P = %9.3f R = %9.3f +- %9.3f(stat) +- %9.3f(syst) (=%9.3f) D = %9.3f\n", M, P, R, Rerr,R*(2*RMS),sqrt(Rerr*Rerr + pow(R*(2*RMS),2)), D);
+
+   M = MCTr1->Integral(MCTr1->GetXaxis()->FindBin(300.0),  MCTr1->GetXaxis()->FindBin(1999.0));
+   D = Data1->Integral(Data1->GetXaxis()->FindBin(300.0),  Data1->GetXaxis()->FindBin(1999.0));
+   P = Pred1->Integral(Pred1->GetXaxis()->FindBin(300.0),  Pred1->GetXaxis()->FindBin(1999.0));
+   R = Resc1->Integral(Resc1->GetXaxis()->FindBin(300.0),  Resc1->GetXaxis()->FindBin(1999.0));
+   Rerr = 0; for(int i=Resc1->GetXaxis()->FindBin(300.0);i<Resc1->GetXaxis()->FindBin(1999.0);i++){ Rerr += pow(Resc1->GetBinError(i),2); }  Rerr = sqrt(Rerr);
+   printf("INTEGRAL in [300,1999] --> M = %9.3f P = %9.3f R = %9.3f +- %9.3f(stat) +- %9.3f(syst) (=%9.3f) D = %9.3f\n", M, P, R, Rerr,R*(2*RMS),sqrt(Rerr*Rerr + pow(R*(2*RMS),2)), D);
 
 
-   D = Data1->Integral(Data1->GetXaxis()->FindBin(75.0), Data1->GetXaxis()->FindBin(100.0));
-   P = Pred1->Integral(Pred1->GetXaxis()->FindBin(75.0), Pred1->GetXaxis()->FindBin(100.0));
-   R = Resc1->Integral(Resc1->GetXaxis()->FindBin(75.0), Resc1->GetXaxis()->FindBin(100.0));
-   //printf("INTEGRAL in [75,100] --> P = %9.3f R = %9.3f D = %9.3f  D/P = %8.3f  D/R = %8.3f\n", P, R, D, D/P, D/R);
-
-   D = Data1->Integral(Data1->GetXaxis()->FindBin(100.0), Data1->GetXaxis()->FindBin(999.0));
-   P = Pred1->Integral(Pred1->GetXaxis()->FindBin(100.0), Pred1->GetXaxis()->FindBin(999.0));
-   R = Resc1->Integral(Resc1->GetXaxis()->FindBin(100.0), Resc1->GetXaxis()->FindBin(999.0));
-   printf("INTEGRAL in [150,999] --> P = %9.3f R = %9.3f D = %9.3f  D/P = %8.3f  D/R = %8.3f\n", P, R, D, D/P, D/R);
 /*
    unsigned int CountBin=1;
    double BinWidth = Data1->GetBinWidth(1);
@@ -1897,6 +2014,9 @@ void CheckPredictionRescale(string InputPattern, bool RecomputeRescale)
    Resc1->Rebin(10);
    Data1->Rebin(10);
 
+   Resc1->Reset();
+   MassPredictionFromABCD(InputPattern,Resc1);
+   Resc1->Scale(Rescale);
 
    double Max = std::max(Data1->GetMaximum(), Resc1->GetMaximum());
    Max        = std::max(MCTr1->GetMaximum(), Max);
@@ -1943,7 +2063,9 @@ void CheckPredictionRescale(string InputPattern, bool RecomputeRescale)
 
    TH1D* Resc1Err = (TH1D*) Resc1->Clone("Resc1Err");
    for(unsigned int i=0;i<(unsigned int)Resc1->GetNbinsX();i++){
-      Resc1Err->SetBinError(i,Resc1->GetBinContent(i)*2*RMS);
+      double error2 = pow(Resc1Err->GetBinError(i),2);
+      error2 += pow(Resc1->GetBinContent(i)*2*RMS,2);
+      Resc1Err->SetBinError(i,sqrt(error2));
       if(Resc1Err->GetBinContent(i)<=Min)Resc1Err->SetBinContent(i,0);
    }
    Resc1Err->SetLineColor(8);
@@ -1959,7 +2081,7 @@ void CheckPredictionRescale(string InputPattern, bool RecomputeRescale)
    Resc1->SetMarkerSize(1.0);
    Resc1->SetLineColor(2);
    Resc1->SetFillColor(0);
-   Resc1->Draw("same");
+   Resc1->Draw("same HIST P");
 
    Data1->SetMarkerStyle(20);
    Data1->SetMarkerColor(1);
@@ -1967,6 +2089,7 @@ void CheckPredictionRescale(string InputPattern, bool RecomputeRescale)
    Data1->SetLineColor(1);
    Data1->SetFillColor(0);
    Data1->Draw("E1 same");
+
 
    leg = new TLegend(0.79,0.93,0.44,0.73);
    if(IsTrackerOnly){ 
@@ -2161,10 +2284,10 @@ void MakeHitSplit_Plot(string InputPattern){
 
 
    TFile* InputFile = new TFile(Input.c_str());
-   TH1D* Data_05_I  = (TH1D*)GetObjectFromPath(InputFile, "CutFinder_I_Data_SSHit05");
+   TH1D* Data_05_I  = (TH1D*)GetObjectFromPath(InputFile, "CutFinder_I_Data_SSHit08");
    TH1D* Data_10_I  = (TH1D*)GetObjectFromPath(InputFile, "CutFinder_I_Data_SSHit10");
    TH1D* Data_15_I  = (TH1D*)GetObjectFromPath(InputFile, "CutFinder_I_Data_SSHit15");
-   TH1D* Data_20_I  = (TH1D*)GetObjectFromPath(InputFile, "CutFinder_I_Data_SSHit20");
+   TH1D* Data_20_I  = (TH1D*)GetObjectFromPath(InputFile, "CutFinder_I_Data_SSHit17");
 //   TH1D* Data_05_I  = (TH1D*)GetObjectFromPath(InputFile, "CutFinder_I_Data_SSHit05_Eta10to15");
 //   TH1D* Data_10_I  = (TH1D*)GetObjectFromPath(InputFile, "CutFinder_I_Data_SSHit10_Eta10to15");
 //   TH1D* Data_15_I  = (TH1D*)GetObjectFromPath(InputFile, "CutFinder_I_Data_SSHit15_Eta10to15");
@@ -2178,10 +2301,10 @@ void MakeHitSplit_Plot(string InputPattern){
    Data_15_I->Scale(1.0/Data_15_I->Integral());
    Data_20_I->Scale(1.0/Data_20_I->Integral());
 
-   TH1D* Data_05_Pt = (TH1D*)GetObjectFromPath(InputFile, "CutFinder_Pt_Data_SSHit05");
+   TH1D* Data_05_Pt = (TH1D*)GetObjectFromPath(InputFile, "CutFinder_Pt_Data_SSHit08");
    TH1D* Data_10_Pt = (TH1D*)GetObjectFromPath(InputFile, "CutFinder_Pt_Data_SSHit10");
    TH1D* Data_15_Pt = (TH1D*)GetObjectFromPath(InputFile, "CutFinder_Pt_Data_SSHit15");
-   TH1D* Data_20_Pt = (TH1D*)GetObjectFromPath(InputFile, "CutFinder_Pt_Data_SSHit20");
+   TH1D* Data_20_Pt = (TH1D*)GetObjectFromPath(InputFile, "CutFinder_Pt_Data_SSHit17");
 //   TH1D* Data_05_Pt = (TH1D*)GetObjectFromPath(InputFile, "CutFinder_Pt_Data_SSHit05_Eta10to15");
 //   TH1D* Data_10_Pt = (TH1D*)GetObjectFromPath(InputFile, "CutFinder_Pt_Data_SSHit10_Eta10to15");
 //   TH1D* Data_15_Pt = (TH1D*)GetObjectFromPath(InputFile, "CutFinder_Pt_Data_SSHit15_Eta10to15");
@@ -2275,10 +2398,10 @@ void MakeHitSplit_Plot(string InputPattern){
    }
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
-   leg->AddEntry(Data_05_I, "05 dE/dx Hits"   ,"P");
-   leg->AddEntry(Data_10_I, "10 dE/dx Hits"   ,"P");
-   leg->AddEntry(Data_15_I, "15 dE/dx Hits"   ,"P");
-   leg->AddEntry(Data_20_I, "20 dE/dx Hits"   ,"P");
+   leg->AddEntry(Data_05_I, "<09 dE/dx Hits"   ,"P");
+   leg->AddEntry(Data_10_I, " 10 dE/dx Hits"   ,"P");
+   leg->AddEntry(Data_15_I, " 15 dE/dx Hits"   ,"P");
+   leg->AddEntry(Data_20_I, ">16 dE/dx Hits"   ,"P");
    leg->Draw();
 
    DrawPreliminary(IntegratedLuminosity);
@@ -2324,10 +2447,10 @@ void MakeHitSplit_Plot(string InputPattern){
    }
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
-   leg->AddEntry(Data_05_Pt, "05 dE/dx Hits"   ,"P");
-   leg->AddEntry(Data_10_Pt, "10 dE/dx Hits"   ,"P");
-   leg->AddEntry(Data_15_Pt, "15 dE/dx Hits"   ,"P");
-   leg->AddEntry(Data_20_Pt, "20 dE/dx Hits"   ,"P");
+   leg->AddEntry(Data_05_Pt, "<09 dE/dx Hits"   ,"P");
+   leg->AddEntry(Data_10_Pt, " 10 dE/dx Hits"   ,"P");
+   leg->AddEntry(Data_15_Pt, " 15 dE/dx Hits"   ,"P");
+   leg->AddEntry(Data_20_Pt, ">16 dE/dx Hits"   ,"P");
    leg->Draw();
 
    DrawPreliminary(IntegratedLuminosity);

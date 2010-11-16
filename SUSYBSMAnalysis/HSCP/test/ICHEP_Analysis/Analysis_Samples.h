@@ -26,7 +26,7 @@ struct stSignal{
 void GetSignalDefinition(std::vector<stSignal>& signals){
    signals.push_back(stSignal("Gluino", "Gluino200"    , "#tilde{g} 200"         , 200, -1, 1, 606.000000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino300"    , "#tilde{g} 300"         , 300, -1, 0,  57.200000) ); //NLO
-   signals.push_back(stSignal("Gluino", "Gluino400"    , "#tilde{g} 400"         , 400, -1, 0,   8.980000) ); //NLO
+   signals.push_back(stSignal("Gluino", "Gluino400"    , "#tilde{g} 400"         , 400, -1, 1,   8.980000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino500"    , "#tilde{g} 500"         , 500, -1, 1,   1.870000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino600"    , "#tilde{g} 600"         , 600, -1, 0,   0.465000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino900"    , "#tilde{g} 900"         , 900, -1, 1,   0.012800) ); //NLO
@@ -50,7 +50,7 @@ void GetSignalDefinition(std::vector<stSignal>& signals){
    signals.push_back(stSignal("Gluino", "Gluino900_2C" , "#tilde{g} 900 2C"      , 900,  2, 0,   0.012800) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino200N"   , "#tilde{g} 200"         , 200, -1, 1, 606.000000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino300N"   , "#tilde{g} 300"         , 300, -1, 0,  57.200000) ); //NLO
-   signals.push_back(stSignal("Gluino", "Gluino400N"   , "#tilde{g} 400"         , 400, -1, 0,   8.980000) ); //NLO
+   signals.push_back(stSignal("Gluino", "Gluino400N"   , "#tilde{g} 400"         , 400, -1, 1,   8.980000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino500N"   , "#tilde{g} 500"         , 500, -1, 1,   1.870000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino600N"   , "#tilde{g} 600"         , 600, -1, 0,   0.465000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino900N"   , "#tilde{g} 900"         , 900, -1, 1,   0.012800) ); //NLO

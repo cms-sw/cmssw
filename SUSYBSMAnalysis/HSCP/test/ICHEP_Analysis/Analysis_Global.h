@@ -40,10 +40,11 @@ float              GlobalMaxChi2 =  10.00;
 int                GlobalMinQual =   2;
 unsigned int       GlobalMinNOH  =   1;
 unsigned int       GlobalMinNOM  =   3;
-double             GlobalMaxPterr=   0.40;
+double             GlobalMaxPterr=   0.15;
 //double             GlobalMinPt   =   7.50;
 double             GlobalMinPt   =   15.00;
 double             GlobalMinI    =   0.0;
+float              GlobalMaxEta  =  2.5; 
 
 double		   MinCandidateMass = 100;
 

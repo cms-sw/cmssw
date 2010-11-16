@@ -106,7 +106,7 @@ int      JobIdToIndex(string JobId);
 TGraph* PopulateTheGraph(TGraph* in, double Min, double Max, double Step);
 
 void GetSignalMeanHSCPPerEvent(string InputPattern);
-double FindIntersection(TGraph* obs, TGraph* th, double Min, double Max, double Step, double ThUncertainty=0);
+double FindIntersection(TGraph* obs, TGraph* th, double Min, double Max, double Step, double ThUncertainty=0, bool debug=false);
 int ReadXSection(string InputFile, double* Mass, double* XSec, double* Low, double* High,  double* ErrLow, double* ErrHigh);
 TCutG* GetErrorBand(string name, int N, double* Mass, double* Low, double* High);
 
@@ -168,7 +168,11 @@ void Analysis_Step6(){
 //   Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-25/WPI-30/");
 //   Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-20/WPI-35/");
 //   stGraph tkmu = Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-15/WPI-40/");
-   stGraph tkmu = Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-15/WPI-40/");
+//   stGraph tkmu = Analysis_Step6_Core("SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-25/WPI-35/");
+//   stGraph tkmu = Analysis_Step6_Core("SplitMode0/MinHit09/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-20/WPI-45/");
+//   stGraph tkmu = Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-30/WPI-30/");
+   stGraph tkmu = Analysis_Step6_Core("Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-30/WPI-40/"); //X
+//   stGraph tkmu = Analysis_Step6_Core("Eta10/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type1/WPPt-30/WPI-35/"); //X
 
    MinRange = 75;
    Mode     = 0;
@@ -178,7 +182,11 @@ void Analysis_Step6(){
 //   Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-35/WPI-35/");
 //   stGraph tkonly =  Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-25/WPI-45/");
 //   stGraph tkonly =  Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-25/WPI-50/");
-   stGraph tkonly =  Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-15/WPI-50/");
+//   stGraph tkonly =  Analysis_Step6_Core("SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-25/WPI-45/");
+//   stGraph tkonly =  Analysis_Step6_Core("SplitMode0/MinHit09/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-20/WPI-50/");
+//   stGraph tkonly =  Analysis_Step6_Core("SplitMode2/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-30/WPI-40/");
+//   stGraph tkonly =  Analysis_Step6_Core("Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-35/WPI-45/");//X
+   stGraph tkonly =  Analysis_Step6_Core("Eta25/PtErr015/SplitMode1/MinHit01/Sele_dedxSTASmi/Mass_dedxSTCNPHarm2/Type0/WPPt-35/WPI-40/");//X
 
 
    string outpath = string("Results/EXCLUSION/Paper/");
@@ -631,6 +639,9 @@ stGraph Analysis_Step6_Core(string InputPattern){
 
 
    c1 = new TCanvas("c1", "c1",600,600);
+//   double Stop_MassNo130   [] = {Stop_Mass[1]   , Stop_Mass   [2], Stop_Mass   [3], Stop_Mass   [4]};
+//   double Stop_XSecObsNo130[] = {Stop_XSecObs[1], Stop_XSecObs[2], Stop_XSecObs[3], Stop_XSecObs[4]};
+//   TGraph* StopExclusion = new TGraph(4,Stop_MassNo130,Stop_XSecObsNo130);
    TGraph* StopExclusion = new TGraph(5,Stop_Mass,Stop_XSecObs);
    StopExclusion->SetLineColor(2);
    StopExclusion->SetLineWidth(2);
@@ -644,6 +655,9 @@ stGraph Analysis_Step6_Core(string InputPattern){
    SaveCanvas(c1, outpath, "ExclusionPlot_Stop");
    delete c1;
    c1 = new TCanvas("c1", "c1",600,600);
+//   double Stop2C_MassNo130   [] = {Stop2C_Mass[1]   , Stop2C_Mass   [2], Stop2C_Mass   [3], Stop2C_Mass   [4]};
+//   double Stop2C_XSecObsNo130[] = {Stop2C_XSecObs[1], Stop2C_XSecObs[2], Stop2C_XSecObs[3], Stop2C_XSecObs[4]};
+//   TGraph* StopExclusion2C = new TGraph(4,Stop2C_MassNo130,Stop2C_XSecObsNo130);
    TGraph* StopExclusion2C = new TGraph(5,Stop2C_Mass,Stop2C_XSecObs);
    StopExclusion2C->SetLineColor(kRed-4);
    StopExclusion2C->SetLineWidth(2);
@@ -658,6 +672,9 @@ stGraph Analysis_Step6_Core(string InputPattern){
    delete c1;
 
    c1 = new TCanvas("c1", "c1",600,600);
+//   double StopN_MassNo130   [] = {StopN_Mass[1]   , StopN_Mass   [2], StopN_Mass   [3], StopN_Mass   [4]};
+//   double StopN_XSecObsNo130[] = {StopN_XSecObs[1], StopN_XSecObs[2], StopN_XSecObs[3], StopN_XSecObs[4]};
+//   TGraph* StopNExclusion = new TGraph(4,StopN_MassNo130,StopN_XSecObsNo130);
    TGraph* StopNExclusion = new TGraph(5,StopN_Mass,StopN_XSecObs);
    StopNExclusion->SetLineColor(2);
    StopNExclusion->SetLineWidth(2);
@@ -937,7 +954,9 @@ stAllInfo Exclusion_Counting(string signal, string pattern, double Ratio_0C, dou
 //   toReturn.XSec_Exp  = CLA (IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.20, NPred, NPred*RescaleError, 1);		//Last '1' is for logPrior integration
 //   toReturn.XSec_Obs  = CL95(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.20, 0.0  , 0.0               , 0, false, 1);   //Last '1' is for logPrior integration
 //   toReturn.XSec_Exp  = CLA (IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, NPred, NPred*RescaleError, 1);           //Last '1' is for logPrior integration
-   toReturn.XSec_Obs  = CL95(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15, 0.0  , 0.0               , 0, false, 1);   //Last '1' is for logPrior integration
+   toReturn.XSec_Obs  = 99999999;
+   if(Eff!=0)
+   toReturn.XSec_Obs  = CL95(IntegratedLuminosity, IntegratedLuminosity*0.11, Eff, Eff*0.15,NPred, NPred*RescaleError              , 0, false, 1);   //Last '1' is for logPrior integration
    toReturn.Eff       = Eff;
    toReturn.Eff_SYSTA = Eff_SYSTA;
    toReturn.Eff_SYSTB = Eff_SYSTB;
@@ -1798,22 +1817,29 @@ void GetSignalMeanHSCPPerEvent(string InputPattern)
    return;
 }
 
-double FindIntersection(TGraph* obs, TGraph* th, double Min, double Max, double Step, double ThUncertainty){
+double FindIntersection(TGraph* obs, TGraph* th, double Min, double Max, double Step, double ThUncertainty, bool debug){
+
+   double Intersection = -1;
 
    double ThShift = 1.0-ThUncertainty;
    double PreviousX = Min;
    double PreviousV = obs->Eval(PreviousX, 0, "") - (ThShift * th->Eval(PreviousX, 0, "")) ;
    if(PreviousV>0)return -1;
-   for(double x=Min+=Step;x<Max;x+=Step){           
+   for(double x=Min+=Step;x<Max;x+=Step){                 
       double V = obs->Eval(x, 0, "") - (ThShift * th->Eval(x, 0, "") );
+      if(debug){
+         printf("%7.2f --> Obs=%6.2E  Th=%6.2E",x,obs->Eval(x, 0, ""),ThShift * th->Eval(x, 0, ""));
+         if(V>=0)printf("   X\n");
+         else printf("\n");
+      }
       if(V<0){
          PreviousX = x;
          PreviousV = V;
       }else{
-         return PreviousX;
+         Intersection = PreviousX;
       }
    }
-   return -1;
+   return Intersection;
 }
 
 
