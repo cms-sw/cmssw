@@ -53,6 +53,7 @@ from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
 #process.load("PhysicsTools.PFCandProducer.PF2PAT_EventContent_cff")
 #process.out.outputCommands =  cms.untracked.vstring('drop *')
 process.out.outputCommands = cms.untracked.vstring('drop *',
+                                                   'keep recoPFCandidates_particleFlow_*_*',
                                                    *patEventContentNoCleaning ) 
 
 

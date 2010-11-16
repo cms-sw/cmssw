@@ -68,6 +68,7 @@ if not postfix=="":
 # Add PF2PAT output to the created file
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
 process.out.outputCommands = cms.untracked.vstring('drop *',
+                                                   'keep recoPFCandidates_particleFlow_*_*',
                                                    *patEventContentNoCleaning ) 
 
 
