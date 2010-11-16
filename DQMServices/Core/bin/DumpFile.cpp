@@ -141,7 +141,7 @@ hexlify(const std::string &x)
   for (size_t i = 0, e = x.size(); i != e; ++i)
   {
     char buf[3];
-    sprintf(buf, "%02x", (unsigned) x[i]);
+    sprintf(buf, "%02x", (unsigned) (unsigned char) x[i]);
     result += buf[0];
     result += buf[1];
   }
