@@ -71,15 +71,11 @@ CosmicClusterProducer::CosmicClusterProducer(const edm::ParameterSet& ps)
   double endcapSupThreshold         = ps.getParameter<double>("EndcapSupThr");
 
   // Parameters for the position calculation:
-  std::map<std::string,double> providedParameters;
-  providedParameters.insert(std::make_pair("LogWeighted",ps.getParameter<bool>("posCalc_logweight")));
-  providedParameters.insert(std::make_pair("T0_barl",ps.getParameter<double>("posCalc_t0_barl")));
-  providedParameters.insert(std::make_pair("T0_endc",ps.getParameter<double>("posCalc_t0_endc")));
-  providedParameters.insert(std::make_pair("T0_endcPresh",ps.getParameter<double>("posCalc_t0_endcPresh")));
-  providedParameters.insert(std::make_pair("W0",ps.getParameter<double>("posCalc_w0")));
-  providedParameters.insert(std::make_pair("X0",ps.getParameter<double>("posCalc_x0")));
-  posCalculator_ = PositionCalc(providedParameters);
-  shapeAlgo_ = ClusterShapeAlgo(providedParameters);
+  edm::ParameterSet posCalcParameters = 
+    ps.getParameter<edm::ParameterSet>("posCalcParameters");
+
+  posCalculator_ = PositionCalc(posCalcParameters);
+  shapeAlgo_ = ClusterShapeAlgo(posCalcParameters);
 
   clustershapecollectionEB_ = ps.getParameter<std::string>("clustershapecollectionEB");
   clustershapecollectionEE_ = ps.getParameter<std::string>("clustershapecollectionEE");

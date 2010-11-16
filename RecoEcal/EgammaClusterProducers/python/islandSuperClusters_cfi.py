@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: islandSuperClusters.cfi,v 1.5 2007/03/30 13:30:58 futyand Exp $
+# $Id: islandSuperClusters_cfi.py,v 1.2 2008/04/21 03:24:12 rpw Exp $
 #
 # Island SuperCluster producer
 islandSuperClusters = cms.EDProducer("SuperClusterProducer",
@@ -18,7 +18,14 @@ islandSuperClusters = cms.EDProducer("SuperClusterProducer",
     doBarrel = cms.bool(True),
     doEndcaps = cms.bool(True),
     endcapClusterCollection = cms.string('islandEndcapBasicClusters'),
-    barrelClusterProducer = cms.string('islandBasicClusters')
+    barrelClusterProducer = cms.string('islandBasicClusters'),
+    posCalcParameters = cms.PSet( T0_barl      = cms.double(7.4),
+                                  T0_endc      = cms.double(3.1),        
+                                  T0_endcPresh = cms.double(1.2),
+                                  LogWeighted  = cms.bool(True),
+                                  W0           = cms.double(4.2),
+                                  X0           = cms.double(0.89)
+                                 )                                 
 )
 
 

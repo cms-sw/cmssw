@@ -14,11 +14,13 @@ uncleanedNonDuplicatedHybridSuperClusters = cms.EDProducer("CleanAndMergeProduce
             # some extras (taken from hybridSuperClusters_cfi.py )
             ecalhitproducer = cms.string('ecalRecHit'),
             ecalhitcollection = cms.string('EcalRecHitsEB'),
-            posCalc_t0 = cms.double(7.4),
-            posCalc_logweight = cms.bool(True),
-            posCalc_w0 = cms.double(4.2),
-            posCalc_x0 = cms.double(0.89),
-
+            posCalcParameters = cms.PSet( T0_barl      = cms.double(7.4),
+                                          T0_endc      = cms.double(3.1), 
+                                          T0_endcPresh = cms.double(1.2),
+                                          LogWeighted  = cms.bool(True),
+                                          W0           = cms.double(4.2),
+                                          X0           = cms.double(0.89)
+                                          )
             
             )
 

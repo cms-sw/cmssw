@@ -63,16 +63,10 @@ Multi5x5ClusterProducer::Multi5x5ClusterProducer(const edm::ParameterSet& ps)
 
   std::vector<int> v_chstatus = ps.getParameter<std::vector<int> >("RecHitFlagToBeExcluded");
 
-
   // Parameters for the position calculation:
-  std::map<std::string,double> providedParameters;
-  providedParameters.insert(std::make_pair("LogWeighted",ps.getParameter<bool>("posCalc_logweight")));
-  providedParameters.insert(std::make_pair("T0_barl",ps.getParameter<double>("posCalc_t0_barl")));
-  providedParameters.insert(std::make_pair("T0_endc",ps.getParameter<double>("posCalc_t0_endc")));
-  providedParameters.insert(std::make_pair("T0_endcPresh",ps.getParameter<double>("posCalc_t0_endcPresh")));
-  providedParameters.insert(std::make_pair("W0",ps.getParameter<double>("posCalc_w0")));
-  providedParameters.insert(std::make_pair("X0",ps.getParameter<double>("posCalc_x0")));
-  posCalculator_ = PositionCalc(providedParameters);
+  edm::ParameterSet posCalcParameters = 
+    ps.getParameter<edm::ParameterSet>("posCalcParameters");
+  posCalculator_ = PositionCalc(posCalcParameters);
 
   // Produces a collection of barrel and a collection of endcap clusters
   produces< reco::BasicClusterCollection >(endcapClusterCollection_);

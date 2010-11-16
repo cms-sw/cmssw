@@ -49,14 +49,11 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
   hitproducer_ = ps.getParameter<std::string>("ecalhitproducer");
   hitcollection_ =ps.getParameter<std::string>("ecalhitcollection");
    
-  //Setup for core tools objects.
-  std::map<std::string,double> providedParameters;  
-  providedParameters.insert(std::make_pair("LogWeighted",ps.getParameter<bool>("posCalc_logweight")));
-  providedParameters.insert(std::make_pair("T0_barl",ps.getParameter<double>("posCalc_t0")));
-  providedParameters.insert(std::make_pair("W0",ps.getParameter<double>("posCalc_w0")));
-  providedParameters.insert(std::make_pair("X0",ps.getParameter<double>("posCalc_x0")));
+  //Setup for core tools objects. 
+  edm::ParameterSet posCalcParameters = 
+    ps.getParameter<edm::ParameterSet>("posCalcParameters");
 
-  posCalculator_ = PositionCalc(providedParameters);
+  posCalculator_ = PositionCalc(posCalcParameters);
 
   hybrid_p = new HybridClusterAlgo(ps.getParameter<double>("HybridBarrelSeedThr"), 
                                    ps.getParameter<int>("step"),
