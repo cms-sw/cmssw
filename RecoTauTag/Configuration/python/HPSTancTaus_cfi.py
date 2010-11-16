@@ -4,7 +4,7 @@ from RecoTauTag.RecoTau.TauDiscriminatorTools import adaptTauDiscriminator, \
         producerIsTauTypeMapper
 import copy
 
-TANC_TRANSFORM = cms.VPSet()
+from RecoTauTag.RecoTau.hpstanc_transforms import transforms
 
 # Apply the TaNC to the input tau collection
 from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
@@ -116,7 +116,7 @@ selected3prong0pi0TancTaus = selected1prong0pi0TancTaus.clone(
 #Produce the transformed TaNC output
 combinatoricRecoTausTancTransform = cms.EDProducer(
     "RecoTauMVATransform",
-    transforms = TANC_TRANSFORM, # blank for now
+    transforms = transforms, # blank for now
     PFTauProducer = cms.InputTag("combinatoricRecoTaus"),
     toTransform = cms.InputTag("combinatoricRecoTausDiscriminationByTanc"),
     Prediscriminants = noPrediscriminants
@@ -255,7 +255,7 @@ hpsTancTausDiscriminationByTanc = \
         combinatoricRecoTausTancTransform.clone(
             PFTauProducer = cms.InputTag("hpsTancTaus"),
             toTransform = cms.InputTag("hpsTancTausDiscriminationByTancRaw"),
-            transforms = TANC_TRANSFORM,
+            transforms = transforms,
             Prediscriminants = _leadPionPrediscriminant
         )
 
