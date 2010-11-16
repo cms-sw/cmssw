@@ -424,33 +424,31 @@ namespace edm {
         edm::CPUTimer timer;
         if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, 0,&timer);
       }
-      catch (cms::Exception& ex) {
-        Exception e(errors::EventProcessorFailure,
-                           "EventProcessingStopped", ex);
+      catch (cms::Exception& e) {
+        e << "EventProcessingStopped\n";
         e << "Attempt to insert TriggerResults into event failed.\n";
-        e.raise();
+        throw;
       }
 
       if (endpathsAreActive_) runEndPaths<T>(ep, es);
     }
-    catch(cms::Exception& ex) {
-      actions::ActionCodes action = (T::isEvent_ ? act_table_->find(ex.rootCause()) : actions::Rethrow);
+    catch(cms::Exception& e) {
+      actions::ActionCodes action = (T::isEvent_ ? act_table_->find(e.rootCause()) : actions::Rethrow);
       assert (action != actions::SkipEvent);
       assert (action != actions::FailPath);
       assert (action != actions::FailModule);
       switch(action) {
       case actions::IgnoreCompletely: {
-  	LogWarning(ex.category())
+  	LogWarning(e.category())
   	  << "exception being ignored for current event:\n"
-  	  << ex.what();
+  	  << e.what();
   	break;
       }
       default: {
         state_ = Ready;
-        Exception e(errors::EventProcessorFailure,
-			     "EventProcessingStopped", ex);
+        e << "EventProcessingStopped\n";
 	e << "an exception occurred during current event processing\n";
-        e.raise();
+        throw;
       }
       }
     }

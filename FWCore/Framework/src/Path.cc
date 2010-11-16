@@ -60,9 +60,9 @@ namespace edm {
 	      "add \"SkipEvent = cms.untracked.vstring('ProductNotFound')\" to the \"options\" PSet in the configuration.\n";
             }
 	  }
-          throw Exception(errors::ScheduleExecutionFailure,
-              "ProcessingStopped", e)
-              << "Exception going through path " << name_ << "\n";
+          e << "ProcessingStopped\n";
+          e << "Exception going through path " << name_ << "\n";
+          throw;
       }
     }
 
