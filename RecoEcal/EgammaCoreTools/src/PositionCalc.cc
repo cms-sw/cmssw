@@ -4,17 +4,20 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-PositionCalc::PositionCalc( std::map<std::string,double> providedParameters ) :
-   param_LogWeighted_  ( providedParameters.find("LogWeighted")->second ) ,
-   param_T0_barl_      ( providedParameters.find("T0_barl")->second     ) , 
-   param_T0_endc_      ( providedParameters.find("T0_endc")->second     ) , 
-   param_T0_endcPresh_ ( providedParameters.find("T0_endcPresh")->second ) , 
-   param_W0_           ( providedParameters.find("W0")->second           ) ,
-   param_X0_           ( providedParameters.find("X0")->second           ) ,
-   m_esGeom            ( 0 ) ,
-   m_esPlus            ( false ) ,
-   m_esMinus           ( false )
+
+
+PositionCalc::PositionCalc(const edm::ParameterSet& par) :
+  param_LogWeighted_   ( par.getParameter<double>("Logweighted")) ,
+  param_T0_barl_       ( par.getParameter<double>("T0_barl")) , 
+  param_T0_endc_       ( par.getParameter<double>("T0_endc")) , 
+  param_T0_endcPresh_  ( par.getParameter<double>("T0_endcPresh")) , 
+  param_W0_            ( par.getParameter<double>("W0")) ,
+  param_X0_            ( par.getParameter<double>("X0")) ,
+  m_esGeom             ( 0 ) ,
+  m_esPlus             ( false ) ,
+  m_esMinus            ( false )
 {
 }
 
@@ -116,17 +119,19 @@ PositionCalc::Calculate_Location( const std::vector< std::pair<DetId, float> >& 
      const double ctreta (center_cell->getPosition().eta());
 
 	 // for barrel, use barrel T0; 
-	 // for endcap: if preshower present && in preshower fiducial, use preshower T0
-	 //             else use endcap only T0
+	 // for endcap: if preshower present && in preshower fiducial, 
+         //             use preshower T0
+	 // else use endcap only T0
 
+     const double preshowerStartEta =  1.653;
      const int subdet = maxId.subdetId();
-	 const Double32_t T0 ( subdet == EcalBarrel ? param_T0_barl_ :
-			       ( ( ( 1.653 < fabs( ctreta ) ) &&
-				   ( ( ( 0 < ctreta ) && 
-				       m_esPlus          ) ||
-				     ( ( 0 > ctreta ) &&
-				       m_esMinus         )   )    ) ?
-				 param_T0_endcPresh_ : param_T0_endc_ ) ) ;
+	 const double T0 ( subdet == EcalBarrel ? param_T0_barl_ :
+			   ( ( ( preshowerStartEta < fabs( ctreta ) ) &&
+			       ( ( ( 0 < ctreta ) && 
+				   m_esPlus          ) ||
+				 ( ( 0 > ctreta ) &&
+				   m_esMinus         )   )    ) ?
+			     param_T0_endcPresh_ : param_T0_endc_ ) ) ;
 
 	 // Calculate shower depth
 	 const float maxDepth ( param_X0_ * ( T0 + log( eTot ) ) ) ;

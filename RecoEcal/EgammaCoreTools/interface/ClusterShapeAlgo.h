@@ -7,7 +7,7 @@
  *
  * \author Michael A. Balazs, UVa
  * 
- * \version $Id: ClusterShapeAlgo.h,v 1.15 2007/05/10 21:10:47 tsirig Exp $
+ * \version $Id: ClusterShapeAlgo.h,v 1.16 2007/08/07 12:13:30 rahatlou Exp $
  *
  */
 
@@ -23,6 +23,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class CaloSubdetectorTopology;
 
@@ -37,7 +38,7 @@ class ClusterShapeAlgo
 {
 
  public:
-  ClusterShapeAlgo(const std::map<std::string,double> & passedParameterMap);
+  ClusterShapeAlgo(const edm::ParameterSet& par);
   ClusterShapeAlgo() { };
   reco::ClusterShape Calculate(const reco::BasicCluster &passedCluster,
                                const EcalRecHitCollection *hits,
@@ -87,7 +88,7 @@ class ClusterShapeAlgo
   // Calculation of Zernike-Moments for general values of (n,m)
   double calc_AbsZernikeMoment(const reco::BasicCluster &passedCluster, int n, int m, double R0);
 
-  std::map<std::string,double> parameterMap_;
+  edm::ParameterSet parameterSet_;
 
   std::pair<DetId, double> energyMap_[5][5];
   int e2x2_Diagonal_X_, e2x2_Diagonal_Y_;

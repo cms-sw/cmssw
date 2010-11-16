@@ -16,7 +16,8 @@
 #include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-ClusterShapeAlgo::ClusterShapeAlgo(const std::map<std::string,double> & passedParameterMap) : parameterMap_(passedParameterMap) {}
+ClusterShapeAlgo::ClusterShapeAlgo(const edm::ParameterSet& par) : 
+  parameterSet_(par) {}
 
 reco::ClusterShape ClusterShapeAlgo::Calculate(const reco::BasicCluster &passedCluster,
                                                const EcalRecHitCollection *hits,
@@ -313,7 +314,7 @@ void ClusterShapeAlgo::Calculate_Covariances(const reco::BasicCluster &passedClu
 {
   if (e5x5_ > 0.)
     {
-      double w0_ = parameterMap_.find("W0")->second;
+      double w0_ = parameterSet_.getParameter<double>("W0");
       
       
       // first find energy-weighted mean position - doing it when filling the energy map might save time
@@ -623,7 +624,7 @@ void ClusterShapeAlgo::Calculate_EnergyDepTopology (const reco::BasicCluster &pa
 
       // if logarithmic weight is requested, apply cut on minimum energy of the recHit
       if(logW) {
-        double w0_ = parameterMap_.find("W0")->second;
+        double w0_ = parameterSet_.getParameter<double>("W0");
 
         if ( clEdep.deposited_energy == 0 ) {
           LogDebug("ClusterShapeAlgo") << "Crystal has zero energy; skipping... ";

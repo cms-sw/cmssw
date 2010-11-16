@@ -8,19 +8,19 @@
  *
  * \author Ted Kolberg, ND
  * 
- * \version $Id: PositionCalc.h,v 1.12 2009/02/27 17:17:18 heltsley Exp $
+ * \version $Id: PositionCalc.h,v 1.13 2009/03/25 18:00:08 ferriff Exp $
  *
  */
 
 #include <vector>
 #include <map>
-#include "Rtypes.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 class PositionCalc
 {
@@ -28,7 +28,7 @@ class PositionCalc
   // You must call Initialize before you can calculate positions or 
   // covariances.
 
-  PositionCalc(std::map<std::string,double> providedParameters);
+  PositionCalc(const edm::ParameterSet& par);
   PositionCalc() { };
 
   const PositionCalc& operator=(const PositionCalc& rhs);
@@ -43,16 +43,16 @@ class PositionCalc
 				     const CaloSubdetectorGeometry* iESGeom = 0 ) ;
 
  private:
-  bool        param_LogWeighted_;
-  Double32_t  param_T0_barl_;
-  Double32_t  param_T0_endc_;
-  Double32_t  param_T0_endcPresh_;
-  Double32_t  param_W0_;
-  Double32_t  param_X0_;
+  bool    param_LogWeighted_;
+  double  param_T0_barl_;
+  double  param_T0_endc_;
+  double  param_T0_endcPresh_;
+  double  param_W0_;
+  double  param_X0_;
 
-      const CaloSubdetectorGeometry* m_esGeom ;
-      bool m_esPlus ;
-      bool m_esMinus ;
+  const CaloSubdetectorGeometry* m_esGeom ;
+  bool m_esPlus ;
+  bool m_esMinus ;
 
 };
 
