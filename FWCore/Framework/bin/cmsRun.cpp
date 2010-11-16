@@ -148,11 +148,11 @@ int main(int argc, char* argv[])
   std::vector<std::string> defaultServices;
   defaultServices.reserve(6);
   defaultServices.push_back("MessageLogger");
-#ifdef linux
   defaultServices.push_back("InitRootHandlers");
+#ifdef linux
   defaultServices.push_back("EnableFloatingPointExceptions");
-  defaultServices.push_back("UnixSignalService");
 #endif
+  defaultServices.push_back("UnixSignalService");
   defaultServices.push_back("AdaptorConfig");
   defaultServices.push_back("SiteLocalConfigService");
 
