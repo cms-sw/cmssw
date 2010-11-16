@@ -79,8 +79,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2010/11/15 13:55:03 $ 
- **  $Revision: 1.66 $
+ **  $Date: 2010/11/15 13:58:03 $ 
+ **  $Revision: 1.67 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -1294,7 +1294,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   // Fiducial region
   // const float TRK_BARL =0.9;
   const float BARL = 1.4442; // DAQ TDR p.290
-  const float END_LO = 1.566;
+  //  const float END_LO = 1.566; // unused
   const float END_HI = 2.5;
   // Electron mass
   //const Float_t mElec= 0.000511;

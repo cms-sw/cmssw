@@ -93,8 +93,8 @@
  **  
  **
  **  $Id: TkConvValidator
- **  $Date: 2010/11/04 19:18:25 $ 
- **  $Revision: 1.3 $
+ **  $Date: 2010/11/15 13:55:03 $ 
+ **  $Revision: 1.4 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/
@@ -174,9 +174,9 @@ void  TkConvValidator::beginJob() {
   double dPhiTracksMax = parameters_.getParameter<double>("dPhiTracksMax"); 
   int dPhiTracksBin = parameters_.getParameter<int>("dPhiTracksBin"); 
   
-  double dEtaTracksMin = parameters_.getParameter<double>("dEtaTracksMin"); 
-  double dEtaTracksMax = parameters_.getParameter<double>("dEtaTracksMax"); 
-  int    dEtaTracksBin = parameters_.getParameter<int>("dEtaTracksBin"); 
+  //  double dEtaTracksMin = parameters_.getParameter<double>("dEtaTracksMin");  // unused
+  //  double dEtaTracksMax = parameters_.getParameter<double>("dEtaTracksMax"); // unused
+  //  int    dEtaTracksBin = parameters_.getParameter<int>("dEtaTracksBin");  // unused
 
   double dCotTracksMin = parameters_.getParameter<double>("dCotTracksMin"); 
   double dCotTracksMax = parameters_.getParameter<double>("dCotTracksMax"); 
@@ -602,10 +602,10 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   // Fiducial region
   // const float TRK_BARL =0.9;
   const float BARL = 1.4442; // DAQ TDR p.290
-  const float END_LO = 1.566;
+  //  const float END_LO = 1.566; // unused
   const float END_HI = 2.5;
   // Electron mass
-  const Float_t mElec= 0.000511;
+  //  const Float_t mElec= 0.000511; // unused
 
 
   nEvt_++;  
@@ -688,7 +688,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
   edm::Handle<edm::HepMCProduct> hepMC;
   e.getByLabel("generator",hepMC);
-  const HepMC::GenEvent *myGenEvent = hepMC->GetEvent();
+  //  const HepMC::GenEvent *myGenEvent = hepMC->GetEvent(); // unused
 
 
   // get generated jets
@@ -810,8 +810,8 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	//requires two tracks and a valid vertex
 	if (tracks.size() !=2 || !(vtx.isValid())) continue;
 	
-	bool  phoIsInBarrel=false;
-	bool  phoIsInEndcap=false;
+	//	bool  phoIsInBarrel=false; // unused
+	//	bool  phoIsInEndcap=false; // unused
 	RefToBase<reco::Track> tfrb1 = aConv.tracks().front();
 	RefToBase<reco::Track> tfrb2 = aConv.tracks().back();
 	//reco::TrackRef tk1 = aConv.tracks().front();
@@ -1013,7 +1013,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
     bool associated = false;  
     float mcConvPt_= -99999999; 
-    float mcPhi= 0; 
+    //    float mcPhi= 0; // unused
     float simPV_Z=0;
     for ( std::vector<PhotonMCTruth>::const_iterator mcPho=mcPhotons.begin(); mcPho !=mcPhotons.end(); mcPho++) {
       mcConvPt_= (*mcPho).fourMomentum().et();     

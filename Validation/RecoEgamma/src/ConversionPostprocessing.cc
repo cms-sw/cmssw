@@ -9,7 +9,7 @@
  **  
  **
  **  $Id: ConversionPostprocessing
- **  $Date: 2010/08/25 14:19:49 $ 
+ **  $Date: 2010/10/20 12:33:14 $ 
  **  author: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   
@@ -65,7 +65,7 @@ void ConversionPostprocessing::endJob()
 
   double etaMin = parameters_.getParameter<double>("etaMin");
   double etaMax = parameters_.getParameter<double>("etaMax");
-  int etaBin = parameters_.getParameter<int>("etaBin");
+  //  int etaBin = parameters_.getParameter<int>("etaBin"); // unused
   int etaBin2 = parameters_.getParameter<int>("etaBin2");
 
   double phiMin = parameters_.getParameter<double>("phiMin");
