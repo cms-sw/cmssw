@@ -4,9 +4,9 @@ import sys
 import os
 import re
 import commands
-import getopt
 import shlex, subprocess
-import argparse, textwrap
+import argparse
+from extend_argparse import *
 
 
 # available "type"s and relative global tags
@@ -19,42 +19,17 @@ globalTag = {
 
 
 # define a class to store all options and arguments
-class Configuration(object):
+class HltConfiguration(object):
   pass
 
-configuration = Configuration()
-
-
-# argparse's formatters remove newlines from comand descriptions, so we define a new one
-class HelpFormatterRespectNewlines(argparse.HelpFormatter):
-    """Help message formatter which retains line breaks in argument descriptions.
-
-    Only the name of this class is considered a public API. All the methods
-    provided by the class are considered an implementation detail.
-    """
-
-    def _split_lines(self, text, width):
-        lines = []
-        for line in text.splitlines():
-          line = self._whitespace_matcher.sub(' ', line).strip()
-          lines.extend( textwrap.wrap(line, width) )
-        return lines
-
-# argparse's formatters are not really able to discover the terminale size, so we override them
-def FixedWidthFormatter(formatter, width):
-  def f(*args, **keywords):
-    # add or replace the "width" parameter
-    keywords['width'] = width
-    return formatter(*args, **keywords)
-
-  return f
+configuration = HltConfiguration()
 
 textwidth = int( os.popen("stty size", "r").read().split()[1] )
 formatter = FixedWidthFormatter( HelpFormatterRespectNewlines, width = textwidth )
 
 
 # type used to store a reference to an L1 menu
-class MenuL1(object):
+class ConnectionL1TMenu(object):
   def __init__(self, value):
     self.override = None
     self.connect  = None
@@ -70,7 +45,7 @@ class MenuL1(object):
 
 
 # type used to store a reference to an HLT configuration
-class MenuHLT(object):
+class ConnectionHLTMenu(object):
   def __init__(self, value):
     self.value  = value
     self.db     = None
@@ -105,7 +80,7 @@ parser = argparse.ArgumentParser(
 # required argument
 parser.add_argument('menuConfig',
                     action  = 'store', 
-                    type    = MenuHLT,
+                    type    = ConnectionHLTMenu,
                     metavar = 'MENU', 
                     help    = 'HLT menu to dump from the database. Supported formats are:\n- [hltdev:]/path/to/configuration[/Vn]\n- orcoff:/path/to/configuration[/Vn]\n- run:runnumber\nThe possible databases are "hltdev" (default, used for offline development) and "orcoff:" (ued for online menus). If no version is specified, the latest one is automatically used.\nIf "run:" is used instead, the actual HLT menu for thegiven run number is looked up and used.' )
 
@@ -132,8 +107,8 @@ parser.add_argument('--globaltag',
 parser.add_argument('--l1', 
                     dest    = 'menuL1', 
                     action  = 'store',
-                    type    = MenuL1,
-                    default = MenuL1(None),
+                    type    = ConnectionL1TMenu,
+                    default = ConnectionL1TMenu(None),
                     metavar = 'MENU', 
                     help    = 'Override the L1 menu, using the payload "L1GtTriggerMenu_<%(metavar)s>_mc" from the database.\nThe default behaviour is to run with the L1 menu from the GlobalTag' )
 parser.add_argument('--unprescale', 
