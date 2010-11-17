@@ -198,12 +198,15 @@ void ZMuMuMuonUserData::produce( Event & evt, const EventSetup & ) {
     float muHLTDeltaR = -1;
     float muHLTDeltaPhi = -1;
     float muHLTDeltaEta = -1;
+    float muHLTPt = -1;
     float muHLTDeltaPtOverPt = -1;
+
     for (unsigned int  i = 0; i < muHLTSize ; i++) {
       const  pat::TriggerObject muHLT = muHLTMatches[i];
       muHLTDeltaR = deltaR(muHLT, m);      
       muHLTDeltaEta = fabs(muHLT.eta() - m.eta());      
       muHLTDeltaPhi = fabs(muHLT.phi() - m.phi());      
+      muHLTPt = muHLT.pt();      
       muHLTDeltaPtOverPt = fabs(muHLT.pt() - m.pt())/ muHLT.pt();      
     }    
 	
@@ -216,6 +219,7 @@ void ZMuMuMuonUserData::produce( Event & evt, const EventSetup & ) {
     m.addUserFloat("zDau_HLTDeltaR",muHLTDeltaR);
     m.addUserFloat("zDau_HLTDeltaEta",muHLTDeltaEta);
     m.addUserFloat("zDau_HLTDeltaPhi",muHLTDeltaPhi);
+    m.addUserFloat("zDau_HLTPt",muHLTPt);
     m.addUserFloat("zDau_HLTDeltaPtOverPt",muHLTDeltaPtOverPt);
     m.addUserFloat("zDau_dzFromPV", zDaudzFromPV);
     m.addUserFloat("zDau_Chi2", zDauChi2);
