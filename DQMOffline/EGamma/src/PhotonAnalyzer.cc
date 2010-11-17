@@ -9,7 +9,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2010/09/24 16:25:51 $ 
+ **  $Date: 2010/09/28 21:11:39 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -51,6 +51,8 @@ PhotonAnalyzer::PhotonAnalyzer( const edm::ParameterSet& pset )
     outputFileName_         = pset.getParameter<string>("OutputFileName");
 
     isolationStrength_      = pset.getParameter<int>("isolationStrength");
+
+    isHeavyIon_             = pset.getUntrackedParameter<bool>("isHeavyIon",false);
 
     parameters_ = pset;
    
@@ -200,19 +202,29 @@ void PhotonAnalyzer::beginJob()
 
     vector<MonitorElement*> temp1DVectorEta;
     vector<MonitorElement*> temp1DVectorPhi;
+    vector<vector<MonitorElement*> > temp2DVectorPhi;
+
+
     for(int cut = 0; cut != numberOfSteps_; ++cut){ //looping over Et cut values
       for(uint type=0;type!=types_.size();++type){  //looping over isolation type
 	currentFolder_.str("");
-	currentFolder_ << "Egamma/PhotonAnalyzer/" << types_[type] << "Photons/Et above " << cut*cutStep_ << " GeV/Conversions";
+	currentFolder_ << "Egamma/PhotonAnalyzer/" << types_[type] << "Photons/Et above " << (cut+1)*cutStep_ << " GeV/Conversions";
 	dbe_->setCurrentFolder(currentFolder_.str());
+
 	temp1DVectorEta.push_back(dbe_->book1D("phoConvEtaForEfficiency","Converted Photon #eta;#eta",etaBin,etaMin,etaMax));
-	temp1DVectorPhi.push_back(dbe_->book1D("phoConvPhiForEfficiency","Converted Photon #phi;#phi",phiBin,phiMin,phiMax));
+	for(uint part=0;part!=parts_.size();++part){
+	  temp1DVectorPhi.push_back(dbe_->book1D("phoConvPhiForEfficiency"+parts_[part],"Converted Photon #phi;#phi",phiBin,phiMin,phiMax));
+	}
+	temp2DVectorPhi.push_back(temp1DVectorPhi);
+	temp1DVectorPhi.clear();
       }
       h_phoConvEtaForEfficiency_.push_back(temp1DVectorEta);
       temp1DVectorEta.clear();
-      h_phoConvPhiForEfficiency_.push_back(temp1DVectorPhi);
-      temp1DVectorPhi.clear();
+      h_phoConvPhiForEfficiency_.push_back(temp2DVectorPhi);
+      temp2DVectorPhi.clear();
     }
+
+
 
  
     //Invariant mass plots
@@ -240,11 +252,11 @@ void PhotonAnalyzer::beginJob()
 
     //photon eta/phi
     h_phoEta_ = book2DHistoVector("1D","phoEta","#eta;#eta",etaBin,etaMin,etaMax) ;
-    h_phoPhi_ = book2DHistoVector("1D","phoPhi","#phi;#phi",phiBin,phiMin,phiMax) ;
+    h_phoPhi_ = book3DHistoVector("1D","phoPhi","#phi;#phi",phiBin,phiMin,phiMax) ;
 
     //supercluster eta/phi
     h_scEta_ = book2DHistoVector("1D","scEta","SuperCluster #eta;#eta",etaBin,etaMin,etaMax) ;
-    h_scPhi_ = book2DHistoVector("1D","scPhi","SuperCluster #phi;#phi",phiBin,phiMin,phiMax) ;
+    h_scPhi_ = book3DHistoVector("1D","scPhi","SuperCluster #phi;#phi",phiBin,phiMin,phiMax) ;
 
     //SHOWER SHAPE VARIABLES
 
@@ -366,7 +378,7 @@ void PhotonAnalyzer::beginJob()
     //GEOMETRICAL VARIABLES
 
     h_phoConvEta_ = book2DHistoVector("1D","phoConvEta","#eta;#eta",etaBin,etaMin,etaMax);
-    h_phoConvPhi_ = book2DHistoVector("1D","phoConvPhi","#phi;#phi",phiBin,phiMin,phiMax);
+    h_phoConvPhi_ = book3DHistoVector("1D","phoConvPhi","#phi;#phi",phiBin,phiMin,phiMax);
 
     //NUMBER OF PHOTONS
 
@@ -395,11 +407,14 @@ void PhotonAnalyzer::beginJob()
     
     //VERTEX RELATED VARIABLES
 
-    h_convVtxRvsZ_ = book2DHistoVector("2D","convVtxRvsZ","Vertex Position;Z (cm);R (cm)",zBin,zMin,zMax,rBin,rMin,rMax);
-    h_convVtxZ_    = book2DHistoVector("1D","convVtxZ",   "Vertex Position: #eta > 1.5;Z (cm)",zBin,zMin,zMax);
+    h_convVtxRvsZ_ = book2DHistoVector("2D","convVtxRvsZ","Vertex Position;Z (cm);R (cm)",1000,zMin,zMax,rBin,rMin,rMax);
+    h_convVtxZEndcap_    = book2DHistoVector("1D","convVtxZEndcap",   "Vertex Position: #eta > 1.5;Z (cm)",zBin,zMin,zMax);
+    h_convVtxZ_    = book2DHistoVector("1D","convVtxZ",   "Vertex Position;Z (cm)",zBin,zMin,zMax);
     h_convVtxR_    = book2DHistoVector("1D","convVtxR",   "Vertex Position: #eta < 1;R (cm)",rBin,rMin,rMax);
     h_convVtxYvsX_ = book2DHistoVector("2D","convVtxYvsX","Vertex Position: #eta < 1;X (cm);Y (cm)",xBin,xMin,xMax,yBin,yMin,yMax);
     
+
+
     h_vertexChi2Prob_ = book2DHistoVector("1D","vertexChi2Prob","#chi^{2} Probability of Vertex Fitting;#chi^{2}",100,0.,1.0);
 
 
@@ -553,8 +568,12 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
        
     edm::Ref<reco::PhotonCollection> photonref(photonHandle, photonCounter);
     photonCounter++;
-    bool  isLoosePhoton = (loosePhotonID)[photonref];
-    bool  isTightPhoton = (tightPhotonID)[photonref];
+
+    bool isLoosePhoton(false), isTightPhoton(false);
+    if ( !isHeavyIon_ ) {
+      isLoosePhoton = (loosePhotonID)[photonref];
+      isTightPhoton = (tightPhotonID)[photonref];
+    }
 
 
     //find out which part of the Ecal contains the photon
@@ -620,15 +639,15 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 
 
-    for (int cut=0; cut !=numberOfSteps_; ++cut) {  //loop over different transverse energy cuts
+    for (int cut = 0; cut !=numberOfSteps_; ++cut) {  //loop over different transverse energy cuts
       double Et =  (*iPho).et();
       bool passesCuts = false;
 
       //sorting the photon into the right Et-dependant folder
-      if ( useBinning_ && Et > cut*cutStep_ && ( (Et < (cut+1)*cutStep_)  | (cut == numberOfSteps_-1) ) ){
+      if ( useBinning_ && Et > (cut+1)*cutStep_ && ( (Et < (cut+2)*cutStep_)  | (cut == numberOfSteps_-1) ) ){
 	passesCuts = true;
       }
-      else if ( !useBinning_ && Et > cut*cutStep_ ){
+      else if ( !useBinning_ && Et > (cut+1)*cutStep_ ){
 	passesCuts = true;
       }
 
@@ -707,8 +726,8 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	fill2DHistoVector(h_phoEta_,(*iPho).eta(),cut,type);	
 	fill2DHistoVector(h_scEta_, (*iPho).superCluster()->eta(),cut,type);
 
-	fill2DHistoVector(h_phoPhi_,(*iPho).phi(),cut,type);
-	fill2DHistoVector(h_scPhi_, (*iPho).superCluster()->phi(),cut,type);
+	fill3DHistoVector(h_phoPhi_,(*iPho).phi(),cut,type,part);
+	fill3DHistoVector(h_scPhi_, (*iPho).superCluster()->phi(),cut,type,part);
 
 	//shower shape variables
 
@@ -790,9 +809,17 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	  if ( aConv->nTracks() <2 ) continue; 
 
 	  //fill histogram for denominator of vertex reconstruction efficiency plot
-	  if(cut==0) h_phoEta_Vertex_->Fill(aConv->pairMomentum().eta());
+	  if(cut==0) h_phoEta_Vertex_->Fill(aConv->refittedPairMomentum().eta());
 
 	  if ( !(aConv->conversionVertex().isValid()) ) continue;
+
+  	  float chi2Prob = ChiSquaredProbability( aConv->conversionVertex().chi2(), aConv->conversionVertex().ndof() );
+
+	  if(chi2Prob<0.0005) continue;
+
+	  fill2DHistoVector(h_vertexChi2Prob_,chi2Prob,cut,type);
+
+
 
 	  fill3DHistoVector(h_phoConvE_, (*iPho).energy(),cut,type,part);
 	  fill3DHistoVector(h_phoConvEt_,(*iPho).et(),cut,type,part);
@@ -807,25 +834,24 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	    h_convEt_Tight_->Fill( (*iPho).et() );
 	  }
 
-	  fill2DHistoVector(h_phoConvEta_,aConv->pairMomentum().eta(),cut,type);
-	  fill2DHistoVector(h_phoConvPhi_,aConv->pairMomentum().phi(),cut,type);
+	  fill2DHistoVector(h_phoConvEta_,aConv->refittedPairMomentum().eta(),cut,type);
+	  fill3DHistoVector(h_phoConvPhi_,aConv->refittedPairMomentum().phi(),cut,type,part);
 
 	  //we use the photon position because we'll be dividing it by a photon histogram (not a conversion histogram)
  	  fill2DHistoVector(h_phoConvEtaForEfficiency_,(*iPho).eta(),cut,type);
- 	  fill2DHistoVector(h_phoConvPhiForEfficiency_,(*iPho).phi(),cut,type);
+ 	  fill3DHistoVector(h_phoConvPhiForEfficiency_,(*iPho).phi(),cut,type,part);
 
-  	  float chi2Prob = ChiSquaredProbability( aConv->conversionVertex().normalizedChi2(), aConv->conversionVertex().ndof() );
-	  fill2DHistoVector(h_vertexChi2Prob_,chi2Prob,cut,type);
 	  
 	  //vertex histograms
 	  double convR= sqrt(aConv->conversionVertex().position().perp2());
-	  double scalar = aConv->conversionVertex().position().x()*aConv->pairMomentum().x() + aConv->conversionVertex().position().y()*aConv->pairMomentum().y();
+	  double scalar = aConv->conversionVertex().position().x()*aConv->refittedPairMomentum().x() + aConv->conversionVertex().position().y()*aConv->refittedPairMomentum().y();
 	  if ( scalar < 0 ) convR= -convR;
 	  
-	  fill2DHistoVector(h_convVtxRvsZ_,fabs( aConv->conversionVertex().position().z() ), convR,cut,type);//trying to "see" R-Z view of tracker
-	  
+	  fill2DHistoVector(h_convVtxRvsZ_,aConv->conversionVertex().position().z(), convR,cut,type);//trying to "see" R-Z view of tracker
+	  fill2DHistoVector(h_convVtxZ_,aConv->conversionVertex().position().z(), cut,type);
+	    
 	  if(fabs(aConv->caloCluster()[0]->eta()) > 1.5){//trying to "see" tracker endcaps
-	    fill2DHistoVector(h_convVtxZ_,fabs(aConv->conversionVertex().position().z()), cut,type);
+	    fill2DHistoVector(h_convVtxZEndcap_,aConv->conversionVertex().position().z(), cut,type);
 	  }
 	  else if(fabs(aConv->caloCluster()[0]->eta()) < 1){//trying to "see" tracker barrel
 	    fill2DHistoVector(h_convVtxR_,convR,cut,type);
@@ -872,8 +898,8 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	  fill3DHistoVector(h_dPhiTracksAtVtx_,DPhiTracksAtVtx,cut,type,part);
 	  fill3DHistoVector(h_dPhiTracksAtEcal_,fabs(dPhiTracksAtEcal),cut,type,part);
 	  fill3DHistoVector(h_dEtaTracksAtEcal_, dEtaTracksAtEcal,cut,type,part);
-	  fill3DHistoVector(h_eOverPTracks_,aConv->EoverP(),cut,type,part);
-	  fill3DHistoVector(h_pOverETracks_,1./aConv->EoverP(),cut,type,part);
+	  fill3DHistoVector(h_eOverPTracks_,aConv->EoverPrefittedTracks(),cut,type,part);
+	  fill3DHistoVector(h_pOverETracks_,1./aConv->EoverPrefittedTracks(),cut,type,part);
 	  fill3DHistoVector(h_dCotTracks_,aConv->pairCotThetaSeparation(),cut,type,part);
 
 
@@ -893,8 +919,14 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
       for (reco::PhotonCollection::const_iterator iPho2=iPho+1; iPho2!=photonCollection.end(); iPho2++){
 	
 	edm::Ref<reco::PhotonCollection> photonref2(photonHandle, photonCounter); //note: it's correct to use photonCounter and not photonCounter+1 
-	bool  isTightPhoton2 = (tightPhotonID)[photonref2];                      //since it has already been incremented earlier
-	bool  isLoosePhoton2 = (loosePhotonID)[photonref2];
+	                                                                          //since it has already been incremented earlier
+	
+	bool  isTightPhoton2(false), isLoosePhoton2(false);
+	
+	if ( !isHeavyIon_ ) {
+	  isTightPhoton2 = (tightPhotonID)[photonref2];
+	  isLoosePhoton2 = (loosePhotonID)[photonref2];
+	}
 	
 	bool isIsolated2=false;
 	if ( isolationStrength_ == 0)  isIsolated2 = isLoosePhoton2;
@@ -929,7 +961,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
     
 
   //filling number of photons/conversions per event histograms
-  for (int cut=0; cut !=numberOfSteps_; ++cut) {
+  for (int cut = 0; cut !=numberOfSteps_; ++cut) {
     for(uint type=0;type!=types_.size();++type){
       for(uint part=0;part!=parts_.size();++part){
 	h_nPho_[cut][type][part]-> Fill (float(nPho[cut][type][part]));
@@ -1026,6 +1058,7 @@ MonitorElement* PhotonAnalyzer::bookHisto(string histoName, string title, int bi
     histo_index = histo_index_efficiency_;
   }
 
+  histo_number_stream << "h_";
   if(histo_index<10)   histo_number_stream << "0";
   histo_number_stream << histo_index;
 
@@ -1059,6 +1092,7 @@ vector<vector<MonitorElement*> > PhotonAnalyzer::book2DHistoVector(string histoT
   }
 
   stringstream histo_number_stream;
+  histo_number_stream << "h_";
   if(histo_index<10)   histo_number_stream << "0";
   histo_number_stream << histo_index << "_";
 
@@ -1068,7 +1102,7 @@ vector<vector<MonitorElement*> > PhotonAnalyzer::book2DHistoVector(string histoT
     for(uint type=0;type!=types_.size();++type){  //looping over isolation type
 
       currentFolder_.str("");
-      currentFolder_ << "Egamma/PhotonAnalyzer/" << types_[type] << "Photons/Et above " << cut*cutStep_ << " GeV";
+      currentFolder_ << "Egamma/PhotonAnalyzer/" << types_[type] << "Photons/Et above " << (cut+1)*cutStep_ << " GeV";
       if(conversionPlot) currentFolder_ << "/Conversions";
 
       dbe_->setCurrentFolder(currentFolder_.str());
@@ -1122,6 +1156,7 @@ vector<vector<vector<MonitorElement*> > > PhotonAnalyzer::book3DHistoVector(stri
   }
 
   stringstream histo_number_stream;
+  histo_number_stream << "h_";
   if(histo_index<10)   histo_number_stream << "0";
   histo_number_stream << histo_index << "_";
 
@@ -1133,7 +1168,7 @@ vector<vector<vector<MonitorElement*> > > PhotonAnalyzer::book3DHistoVector(stri
       for(uint part=0;part!=parts_.size();++part){    //looping over different parts of the ecal
 
 	currentFolder_.str("");
-	currentFolder_ << "Egamma/PhotonAnalyzer/" << types_[type] << "Photons/Et above " << cut*cutStep_ << " GeV";
+	currentFolder_ << "Egamma/PhotonAnalyzer/" << types_[type] << "Photons/Et above " << (cut+1)*cutStep_ << " GeV";
 	if(conversionPlot) currentFolder_ << "/Conversions";
 	
 	dbe_->setCurrentFolder(currentFolder_.str());
