@@ -890,7 +890,7 @@ def setupSession (connectString, siteconfpath, parameters, debug = False):
         msg = coral.MessageStream ('')
         msg.setMsgVerbosity (coral.message_Level_Debug)
         parameters.verbose = True
-    session = svc.connect (connectString, accessMode = coral.access_Update)
+    session = svc.connect (connectString, accessMode = coral.access_ReadOnly)
     session.typeConverter().setCppTypeForSqlType ("unsigned int", "NUMBER (10)")
     session.typeConverter().setCppTypeForSqlType ("unsigned long long", "NUMBER (20)")
     return session, svc
