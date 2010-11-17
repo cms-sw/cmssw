@@ -7,7 +7,7 @@
  * stores isolation, shower shape and additional info
  * needed for identification
  * 
- * \version $Id: Photon.h,v 1.31 2010/01/14 17:32:03 nancy Exp $
+ * \version $Id: Photon.h,v 1.32 2010/01/21 19:51:57 sani Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -28,7 +28,7 @@ namespace reco {
     struct  ShowerShape;
     
     /// default constructor
-    Photon() : RecoCandidate() { }
+    Photon() : RecoCandidate() { pixelSeed_=false; }
 
     /// copy constructor
     Photon ( const Photon&); 
