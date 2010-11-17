@@ -63,7 +63,7 @@ bool CandidateSelector::isSelected(HSCParticle& candidate)
    }
 
    if(candidate.hasRpcInfo()  && maxBetaRpc>=0  && candidate.rpc ().beta     > maxBetaRpc ){return false;}
-   if(candidate.hasCaloInfo() && maxBetaEcal>=0 && candidate.calo().ecalbeta > maxBetaEcal){return false;}
+   if(candidate.hasCaloInfo() && maxBetaEcal>=0 && candidate.calo().ecalBeta > maxBetaEcal){return false;}
 
    return true;
 }
