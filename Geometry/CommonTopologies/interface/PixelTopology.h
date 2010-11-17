@@ -32,9 +32,8 @@ class PixelTopology : public Topology {
   virtual float localX(const float mpX) const = 0;
   virtual float localY(const float mpY) const = 0;
 
-/*  GF: These two need to be added! */
-/*   virtual bool isItBigPixelInX(const int ixbin) const = 0;  */
-/*   virtual bool isItBigPixelInY(const int iybin) const = 0;  */
+  virtual bool isItBigPixelInX(const int ixbin) const = 0;
+  virtual bool isItBigPixelInY(const int iybin) const = 0;
   virtual bool containsBigPixelInX(const int& ixmin, const int& ixmax) const = 0;
   virtual bool containsBigPixelInY(const int& iymin, const int& iymax) const = 0;
 
