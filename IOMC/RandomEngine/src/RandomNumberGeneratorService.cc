@@ -617,25 +617,10 @@ RandomNumberGeneratorService::postModuleEndRun(ModuleDescription const& iDesc) {
 void
 RandomNumberGeneratorService::preModuleBeginLumi(ModuleDescription const& iDesc){
   push(iDesc.moduleLabel());
-
-  if (currentEngine_ != engineMap_.end()) {
-    engineStateStack_.push_back(currentEngine_->second->put());
-  }
 }
 
 void
 RandomNumberGeneratorService::postModuleBeginLumi(ModuleDescription const& iDesc) {
-  if (currentEngine_ != engineMap_.end()) {
-    if (engineStateStack_.back() != currentEngine_->second->put()) {
-      throw edm::Exception(edm::errors::LogicError)
-        << "It is illegal to generate random numbers during beginLumi because \n"
-           "that makes it very difficult to reproduce the processing of individual\n"
-           "events.  Random numbers were generated in beginLumi in the module with\n"
-	   "class name \"" << iDesc.moduleName() << "\"\n"
-	   "and module label \"" << iDesc.moduleLabel() << "\"\n";
-    }
-    engineStateStack_.pop_back();
-  }
   pop();
 }
 
