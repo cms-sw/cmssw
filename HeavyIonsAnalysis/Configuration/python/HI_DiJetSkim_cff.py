@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # HLT jet trigger
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 hltJetHI = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-hltJetHI.HLTPaths = ["HLT_HIJet35U"]
+hltJetHI.HLTPaths = ["HLT_HIJet50U"]
 hltJetHI.throw = False
 hltJetHI.andOr = True
 
@@ -28,11 +28,32 @@ jetEtFilter = cms.EDFilter("EtMinCaloJetCountFilter",
     minNumber = cms.uint32(1)
     )
 
-# dijet E_T filter
-dijetEtFilter = cms.EDFilter("EtMinCaloJetCountFilter",
+# Dijet requirement
+process.leadingCaloJet = cms.EDFilter( "LargestEtCaloJetSelector",
+    src = cms.InputTag( "icPu5CaloJetsL2L3" ),
+    filter = cms.bool( False ),
+    maxNumber = cms.uint32( 1 )
+    )
+
+process.goodLeadingJet = cms.EDFilter("CaloJetSelector",
+    src = cms.InputTag("leadingCaloJet"),
+    cut = cms.string("et > 130")
+    )
+
+process.goodSecondJet = cms.EDFilter("CaloJetSelector",
     src = cms.InputTag("icPu5CaloJetsL2L3"),
-    etMin = cms.double(50.0),
-    minNumber = cms.uint32(2)
+    cut = cms.string("et > 30")
+    )
+
+process.backToBackDijets = cms.EDProducer("CandViewShallowCloneCombiner",
+    checkCharge = cms.bool(False),
+    cut = cms.string('abs(deltaPhi(daughter(0).phi,daughter(1).phi)) > 2.5'),
+    decay = cms.string("goodLeadingJet goodSecondJet")
+    )
+
+process.dijetFilter = cms.EDFilter("CandViewCountFilter",
+    src = cms.InputTag("backToBackDijets"),
+    minNumber = cms.uint32(1)
     )
 
 # dijet skim sequence
@@ -40,5 +61,9 @@ diJetSkimSequence = cms.Sequence(hltJetHI
                                  * primaryVertexFilterForJets
                                  * icPu5CaloJetsL2L3
                                  * jetEtFilter
-                                 # * dijetEtFilter
+                                 * leadingCaloJet
+                                 * goodLeadingJet
+                                 * goodSecondJet
+                                 * backToBackDijets
+                                 * dijetFilter
                                  )
