@@ -9,6 +9,7 @@ process.source = cms.Source("AlpgenSource",
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 
+process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.Services_cff")
 
 # The Pythia6-based "hadronizer"
