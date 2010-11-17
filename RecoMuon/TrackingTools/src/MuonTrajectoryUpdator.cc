@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2009/09/16 17:08:54 $
- *  $Revision: 1.34 $
+ *  $Date: 2009/09/17 19:59:24 $
+ *  $Revision: 1.35 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -16,6 +16,7 @@
 
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
@@ -63,6 +64,9 @@ MuonTrajectoryUpdator::MuonTrajectoryUpdator(const edm::ParameterSet& par,
 
   // Flag needed for the rescaling
   theFirstTSOSFlag = true;
+
+  // Exlude RPC from the fit?
+   theRPCExFlag = par.getParameter<bool>("ExcludeRPCFromFit");
 }
 
 MuonTrajectoryUpdator::MuonTrajectoryUpdator( NavigationDirection fitDirection,
@@ -129,11 +133,21 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
         pair<bool,double> thisChi2 = estimator()->estimate(propagatedTSOS, *((*recHit).get()));
 
 	LogTrace(metname) << "Estimation for Kalman Fit. Chi2: " << thisChi2.second;
+
+	// Is an RPC hit? Prepare the variable to possibly exluding it from the fit
+	bool wantIncludeThisHit = true;
+	if (theRPCExFlag && 
+	    (*recHit)->geographicalId().det() == DetId::Muon &&
+	    (*recHit)->geographicalId().subdetId() == MuonSubdetId::RPC){
+	  wantIncludeThisHit = false;	
+	  LogTrace(metname) << "This is an RPC hit and the present configuration is such that it will be excluded from the fit";
+	}
+
 	
         // The Chi2 cut was already applied in the estimator, which
         // returns 0 if the chi2 is bigger than the cut defined in its
         // constructor
-        if ( thisChi2.first ) {
+	if (thisChi2.first && wantIncludeThisHit) {
           updated=true;
 	  
           LogTrace(metname) << endl 
@@ -168,7 +182,7 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
 	}
 	else {
           if(useInvalidHits) {
-            LogTrace(metname) << "  Compatible RecHit with too large chi2"
+            LogTrace(metname) << "  Compatible RecHit with too large chi2 (or made with RPC)"
 			    << "  --> trajectory NOT updated, invalid RecHit added." << endl;
 
 	    MuonTransientTrackingRecHit::MuonRecHitPointer invalidRhPtr = MuonTransientTrackingRecHit::specificBuild( (*recHit)->det(), (*recHit)->hit() );
