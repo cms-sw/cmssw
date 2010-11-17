@@ -8,13 +8,16 @@ import EventFilter.HcalRawToDigi.HcalRawToDigi_cfi
 hcalDigiAlCaMB = EventFilter.HcalRawToDigi.HcalRawToDigi_cfi.hcalDigis.clone()
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi
 hbherecoNoise = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi.hbheprereco.clone()
+import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi
+hbherecoMB = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi.hbheprereco.clone()
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi
 hfrecoNoise = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi.hfreco.clone()
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi
 hfrecoMBspecial = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi.hfreco.clone()
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi
 horecoNoise = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi.horeco.clone()
-
+import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi
+horecoMB = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi.horeco.clone()
 #add GT digi:
 import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
 gtDigisAlCaMB = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
@@ -26,7 +29,7 @@ hcalminbiasHLT =  HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     throw = False #dont throw except on unknown path name 
 )
 
-seqALCARECOHcalCalMinBias = cms.Sequence(hcalminbiasHLT*hcalDigiAlCaMB*gtDigisAlCaMB*hbherecoNoise*hfrecoNoise*hfrecoMBspecial*horecoNoise)
+seqALCARECOHcalCalMinBias = cms.Sequence(hcalminbiasHLT*hcalDigiAlCaMB*gtDigisAlCaMB*hbherecoNoise*hbherecoMB*hfrecoNoise*hfrecoMBspecial*horecoNoise*horecoMB)
 
 gtDigisAlCaMB.DaqGtInputTag = 'source'
 
@@ -55,4 +58,6 @@ hbherecoNoise.dropZSmarkedPassed = cms.bool(False)
 hfrecoNoise.dropZSmarkedPassed = cms.bool(False)
 horecoNoise.dropZSmarkedPassed = cms.bool(False)
 hfrecoMBspecial.dropZSmarkedPassed = cms.bool(False)
+hbherecoMB.dropZSmarkedPassed = cms.bool(False)
+horecoMB.dropZSmarkedPassed = cms.bool(False)
 
