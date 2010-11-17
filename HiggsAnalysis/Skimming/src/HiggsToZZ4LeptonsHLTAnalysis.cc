@@ -66,6 +66,20 @@ HiggsToZZ4LeptonsHLTAnalysis::HiggsToZZ4LeptonsHLTAnalysis(const edm::ParameterS
       if (loc > 0) collection.erase(loc, 1);
       loc = collection.find( "_", 0 );
       if (loc > 0) collection.erase(loc, 1);
+      loc = collection.find( "_", 0 );
+      if (loc > 0) collection.erase(loc, 1);
+      loc = collection.find( "_", 0 );
+      if (loc > 0) collection.erase(loc, 1);
+      loc = collection.find( "_", 0 );
+      if (loc > 0) collection.erase(loc, 1);
+      loc = collection.find( "_", 0 );
+      if (loc > 0) collection.erase(loc, 1);
+      loc = collection.find( "_", 0 );
+      if (loc > 0) collection.erase(loc, 1);
+      loc = collection.find( "_", 0 );
+      if (loc > 0) collection.erase(loc, 1);
+      loc = collection.find( "_", 0 );
+      if (loc > 0) collection.erase(loc, 1);
     }
     valias.push_back(collection);
     produces<bool >(valias.at(j)).setBranchAlias( valias.at(j) );
