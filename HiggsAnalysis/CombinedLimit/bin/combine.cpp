@@ -116,6 +116,9 @@ int main(int argc, char **argv) {
   if (found != string::npos) {
     whichMethod.replace(found, nosyst.length(),"");
     doSyst = false;
+    cout << ">>> no systematics included" << endl;
+  } else {
+    cout << ">>> including systematics" << endl;
   }
   if      (whichMethod == kHybrid) method = hybrid;
   else if (whichMethod == kProfileLikelihood) method = profileLikelihood;
@@ -128,6 +131,8 @@ int main(int argc, char **argv) {
     cout << desc;
     return 1003;
   }
+  cout << ">>> method used to compute upper limit is " << whichMethod << endl;
+  cout << ">>> random number generator seed is " << seed << endl;
   RooRandom::randomGenerator()->SetSeed(seed); 
   
   TString massName = TString::Format("mH%d.", iMass);
