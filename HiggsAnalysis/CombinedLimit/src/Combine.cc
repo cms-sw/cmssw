@@ -1,6 +1,7 @@
 /**************************************
   Simple multiChannel significance & limit calculator
 ***************************************/
+#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 #include <cstring>
 #include <cerrno>
 #include <iostream>
@@ -56,7 +57,8 @@
 using namespace RooStats;
 
 TCanvas *c1 = new TCanvas("c1", "c1");
-TString method="undefined";
+
+MethodType method = undefined;
 
 Float_t t_cpu_, t_real_;
 //RooWorkspace *writeToysHere = 0;
@@ -73,11 +75,11 @@ bool mklimit(RooWorkspace *w, RooAbsData &data, double &limit, bool withSystemat
     TStopwatch timer;
     bool ret = false;
     try {
-        if      (method == "hybrid")           ret = mklimit_h2(w,data,limit,withSystematics,verbose);
-        else if (method == "profileLikelihood") ret = mklimit_pl(w,data,limit,withSystematics,verbose);
-        else if (method == "bayesianFlatPrior") ret = mklimit_bf(w,data,limit,withSystematics,verbose);
-        else if (method == "mcmc")              ret = mklimit_mcmc(w,data,limit,false,withSystematics,verbose);
-        else if (method == "mcmcUniform")       ret = mklimit_mcmc(w,data,limit,true ,withSystematics,verbose);
+        if      (method == hybrid)           ret = mklimit_h2(w,data,limit,withSystematics,verbose);
+        else if (method == profileLikelihood) ret = mklimit_pl(w,data,limit,withSystematics,verbose);
+        else if (method == bayesianFlatPrior) ret = mklimit_bf(w,data,limit,withSystematics,verbose);
+        else if (method == mcmc)              ret = mklimit_mcmc(w,data,limit,false,withSystematics,verbose);
+        else if (method == mcmcUniform)       ret = mklimit_mcmc(w,data,limit,true ,withSystematics,verbose);
         else std::cerr << "Unknown method " << method << std::endl;
     } catch (std::exception &ex) {
         std::cerr << "Caught exception " << ex.what() << std::endl;
@@ -553,7 +555,7 @@ void combine(RooWorkspace *w, double &limit, int &iToy, TTree *tree, int nToys=0
 
 }
 
-void combine(TString hlfFile, double &limit, int &iToy, TTree *tree, int nToys=0, bool withSystematics=true) {
+void combine(TString hlfFile, double &limit, int &iToy, TTree *tree, int nToys, bool withSystematics) {
     TString pwd(gSystem->pwd());
     TString tmpDir = "roostats-XXXXXX"; 
     mkdtemp(const_cast<char *>(tmpDir.Data()));

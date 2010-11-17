@@ -27,6 +27,7 @@
   See higgsCombineSimple.cxx for the documentation of the other input parameters and of the output
 */
 //#include "higgsCombine_Common.cxx"
+#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 #include <TString.h>
 #include <TFile.h>
 #include <TTree.h>
@@ -37,14 +38,6 @@
 #include <string>
 
 using namespace std;
-
-extern TString method;
-extern Float_t t_cpu_, t_real_;
-//RooWorkspace *writeToysHere = 0;
-extern TDirectory *writeToysHere;
-extern TDirectory *readToysFromHere;
-
-void combine(TString hlfFile, double &limit, int &iToy, TTree *tree, int nToys=0, bool withSystematics=true);
 
 int main(int argc, char **argv) {
   using namespace boost;
@@ -99,10 +92,22 @@ int main(int argc, char **argv) {
   }
 
   bool doSyst = true;
-  method = whichMethod;
-  if (method.Index(".nosyst") != -1) {
-    method.ReplaceAll(".nosyst","");
+  const string nosyst(".nosyst");
+  size_t found = whichMethod.find(nosyst);
+  if (found != string::npos) {
+    whichMethod.replace(found, nosyst.length(),"");
     doSyst = false;
+  }
+  if      (whichMethod == "hybrid") method = hybrid;
+  else if (whichMethod == "profileLikelihood") method = profileLikelihood;
+  else if (whichMethod == "bayesianFlatPrior") method = bayesianFlatPrior;
+  else if (whichMethod == "mcmc") method = mcmc;
+  else if (whichMethod == "mcmcUniform") method = mcmcUniform;
+  else {
+    cerr << "Unsupported method: " << whichMethod << endl;
+    cout << "Usage: options_description [options]\n";
+    cout << desc;
+    return 1003;
   }
   RooRandom::randomGenerator()->SetSeed(seed); 
   
