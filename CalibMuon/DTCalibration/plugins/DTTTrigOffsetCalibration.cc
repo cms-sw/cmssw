@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/06/28 09:48:01 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/11/16 19:06:59 $
+ *  $Revision: 1.7 $
  *  \author A. Vilela Pereira
  */
 
@@ -28,8 +28,6 @@
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
 #include "CalibMuon/DTCalibration/interface/DTSegmentSelector.h"
 
-/* C++ Headers */
-#include <map>
 #include <string>
 #include <sstream>
 #include "TFile.h"
@@ -88,10 +86,6 @@ void DTTTrigOffsetCalibration::analyze(const Event & event, const EventSetup& ev
   Handle<DTRecSegment4DCollection> all4DSegments;
   event.getByLabel(theRecHits4DLabel_, all4DSegments); 
 
-  /*// Get the map of noisy channels
-  ESHandle<DTStatusFlag> statusMap;
-  if(checkNoisyChannels_) eventSetup.get<DTStatusFlagRcd>().get(statusMap);*/
-
   // Loop over segments by chamber
   DTRecSegment4DCollection::id_iterator chamberIdIt;
   for(chamberIdIt = all4DSegments->id_begin(); chamberIdIt != all4DSegments->id_end(); ++chamberIdIt){
@@ -119,28 +113,6 @@ void DTTTrigOffsetCalibration::analyze(const Event & event, const EventSetup& ev
                               << "\nSegment global pos: " << chamber->toGlobal((*segment).localPosition());
       
       if( !select_(event, eventSetup, *segment) ) continue;
-
-      /*
-      LocalPoint phiSeg2DPosInCham;  
-      LocalVector phiSeg2DDirInCham;
-      map<DTSuperLayerId,vector<DTRecHit1D> > hitsBySLMap; 
-      if((*segment).hasPhi()){
-        const DTChamberRecSegment2D* phiSeg = (*segment).phiSegment();  // phiSeg lives in the chamber RF
-        phiSeg2DPosInCham = phiSeg->localPosition();  
-        phiSeg2DDirInCham = phiSeg->localDirection();
-        hitsBySLMap[phiSeg->superLayerId()] = phiSeg->specificRecHits();
-      }
-      // Get the Theta 2D segment and plot the angle in the chamber RF
-      LocalVector zSeg2DDirInCham;
-      LocalPoint zSeg2DPosInCham;
-      if((*segment).hasZed()) {
-        const DTSLRecSegment2D* zSeg = (*segment).zSegment();  // zSeg lives in the SL RF
-        const DTSuperLayer* sl = chamber->superLayer(zSeg->superLayerId());
-        zSeg2DPosInCham = chamber->toLocal(sl->toGlobal((*zSeg).localPosition())); 
-        zSeg2DDirInCham = chamber->toLocal(sl->toGlobal((*zSeg).localDirection()));
-        hitsBySLMap[zSeg->superLayerId()] = zSeg->specificRecHits();
-      }
-      */
 
       // Fill t0-seg values
       if( (*segment).hasPhi() ) {
