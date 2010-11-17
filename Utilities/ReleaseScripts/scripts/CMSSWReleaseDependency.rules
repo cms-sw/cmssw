@@ -3,7 +3,6 @@
 ####################################################
 [allowed-uses]
 
-
 #geant4 (direct)
 Alignment/LaserAlignmentSimulation/.*  : geant4.*
 SimG4CMS/.*                            : geant4.*
@@ -45,7 +44,7 @@ CondTools/Ecal/.*                       : oracle.*
 OnlineDB/SiStripESSources/.*            : oracle.*
 OnlineDB/SiStripConfigDb/.*             : oracle.*
 DQM/EcalBarrelMonitorClient/.*          : oracle.*
-DQM/EcalEndcapMonitorClient/.*		: oracle.*
+DQM/EcalEndcapMonitorClient/.*          : oracle.*
 
 #rootinteractive (direct)
 CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/.* : rootinteractive
@@ -63,6 +62,7 @@ Vis.*                                   : qt.*, soqt, coin
 #xdaq (direct)
 CaloOnlineTools/HcalOnlineDb/.*         : xdaq
 DQM/EcalBarrelMonitorClient/.*          : xdaq
+DQM/EcalEndcapMonitorClient/.*          : xdaq
 DQM/SiStripMonitorClient/.*             : xdaq
 DQM/TrackerCommon/.*                    : xdaq
 DQMServices/XdaqCollector/.*            : xdaq
@@ -78,7 +78,7 @@ EventFilter/Utilities/.*                : xdaq
 #xdaq (indirect)
 IORawData/DaqSource/.*                  : xdaq
 DQM/SiPixelMonitorClient/.*		: xdaq
-EventFilter/Goodies/.*			: xdaq
+EventFilter/Goodies/.*                  : xdaq
 
 #Reco and Track exceptions for DQM usage
 RecoEGamma/Examples/.*                  : DQM.*
@@ -88,10 +88,21 @@ RecoParticleFlow/PFRootEvent/.*         : DQM.*
 RecoParticleFlow/PFTracking/test/.*     : DQM.*
 RecoTauTag/HLTProducers/.*              : DQM.*
 
+#Iguana exception for Iguana and Vis   
+Iguana/.* : Iguana/.*
+Vis.*     : Iguana/.*
+
+# Fireworks dependnecy
+Fireworks/.* : Fireworks/.*
+
+#Vis.* exception for Vis.*
+Vis.* : Vis.*
+
 ####################################################
 #                    allowed-usedby                #
 ####################################################
 [allowed-usedby]
+Iguana/Utilities : .*
 
 ####################################################
 #                   not-allowed-uses               #
@@ -113,3 +124,6 @@ qt.*            : .*
 rootinteractive : .*
 soqt            : .*
 xdaq            : .*
+Iguana/.*       : .*
+Fireworks/.*    : .*
+Vis.*           : .*
