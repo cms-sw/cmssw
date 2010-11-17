@@ -22,13 +22,14 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     useTriggerFiltering = cms.bool(False),                             
     standAlone = cms.bool(False),
                                 
-    minPhoEtCut = cms.double(0.0),
+    minPhoEtCut = cms.double(20.0),
     invMassEtCut = cms.double(20.0),                             
               
-    cutStep = cms.double(50.0),
+    cutStep = cms.double(20.0),
     numberOfSteps = cms.int32(1),
 
-                                
+    isHeavyIon = cms.untracked.bool(False),
+
     # DBE verbosity
     Verbosity = cms.untracked.int32(0),
                                 # 1 provides basic output
@@ -75,21 +76,21 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     numberMin = cms.double(0),                               
     numberMax = cms.double(10), 
 
-    xBin = cms.int32(100),
-    xMin = cms.double(-80),                               
-    xMax = cms.double(80),
+    xBin = cms.int32(600),
+    xMin = cms.double(-60),                               
+    xMax = cms.double(60),
                                 
-    yBin = cms.int32(100),
-    yMin = cms.double(-80),                               
-    yMax = cms.double(80),
+    yBin = cms.int32(600),
+    yMin = cms.double(-60),                               
+    yMax = cms.double(60),
                                 
     rBin = cms.int32(400),
     rMin = cms.double(0),                               
     rMax = cms.double(80),                                
 
-    zBin = cms.int32(100),
-    zMin = cms.double(0),                               
-    zMax = cms.double(180),
+    zBin = cms.int32(400),
+    zMin = cms.double(-200),                               
+    zMax = cms.double(200),
 
     dEtaTracksBin = cms.int32(100),
     dEtaTracksMin = cms.double(-0.2),
