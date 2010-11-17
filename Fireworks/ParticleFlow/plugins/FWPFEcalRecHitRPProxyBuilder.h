@@ -8,8 +8,6 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/Context.h"
-#include "Fireworks/Core/interface/FWViewContext.h"
-#include "Fireworks/Core/interface/FWViewEnergyScale.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "Fireworks/ParticleFlow/plugins/FWPFRhoPhiRecHit.h"
@@ -21,10 +19,11 @@
 class FWPFEcalRecHitRPProxyBuilder : public FWProxyBuilderTemplate<EcalRecHit>
 {
    private:
-      FWPFEcalRecHitRPProxyBuilder( const FWPFEcalRecHitRPProxyBuilder& );               // Stop default
+      FWPFEcalRecHitRPProxyBuilder( const FWPFEcalRecHitRPProxyBuilder& );                    // Stop default
       const FWPFEcalRecHitRPProxyBuilder& operator=( const FWPFEcalRecHitRPProxyBuilder& );   // Stop default
 
       TEveVector calculateCentre( const float *corners );
+      float      calculateEt( const TEveVector &centre, float E );
 
       std::vector<FWPFRhoPhiRecHit*> towers;
 
@@ -38,7 +37,7 @@ class FWPFEcalRecHitRPProxyBuilder : public FWProxyBuilderTemplate<EcalRecHit>
 
       virtual bool havePerViewProduct( FWViewType::EType ) const { return true; }
       virtual void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );
-      virtual void cleanLocal() { towers.clear(); }   // This needs to also take care of all children
+      virtual void cleanLocal();
 
       REGISTER_PROXYBUILDER_METHODS();
 };

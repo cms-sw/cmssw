@@ -4,17 +4,27 @@
 void
 FWPFEcalRecHitRPProxyBuilder::scaleProduct( TEveElementList *parent, FWViewType::EType type, const FWViewContext *vc )
 {
-   FWViewEnergyScale *caloScale = vc->getEnergyScale( "Calo" );
    typedef std::vector<FWPFRhoPhiRecHit*> rpRecHits;
    unsigned int index = 0;
-
+   
    for( rpRecHits::iterator i = towers.begin(); i != towers.end(); ++i )
    {
-      float value = caloScale->getPlotEt() ? (*i)->GetEt() : (*i)->GetEnergy();
-      TEveScalableStraightLineSet *ls = (*i)->GetLineSet();
-      towers[index]->updateScale( ls, caloScale->getValToHeight() * value, index );
+      towers[index]->updateScale( vc );
       index++;
    }
+}
+
+//______________________________________________________________________________________________________
+void
+FWPFEcalRecHitRPProxyBuilder::cleanLocal()
+{
+   typedef std::vector<FWPFRhoPhiRecHit*> rpRecHits;
+   for( rpRecHits::iterator i = towers.begin(); i != towers.end(); ++i )
+   {
+      (*i)->clean();
+   }
+
+   towers.clear();
 }
 
 //______________________________________________________________________________________________________
@@ -37,17 +47,34 @@ FWPFEcalRecHitRPProxyBuilder::calculateCentre( const float *vertices )
 }
 
 //______________________________________________________________________________________________________
+float
+FWPFEcalRecHitRPProxyBuilder::calculateEt( const TEveVector &centre, float E )
+{
+   TEveVector vec = centre;
+   float et;
+
+   vec.Normalize();
+   vec *= E;
+   et = vec.Perp();
+
+   return et;
+}
+
+//______________________________________________________________________________________________________
 void
 FWPFEcalRecHitRPProxyBuilder::build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc )
 {
+   cleanLocal();  // Called so that previous isn't used when new view is added
+
    for( unsigned int index = 0; index < static_cast<unsigned int>( iItem->size() ); index++ )
    {
       TEveCompound *itemHolder = createCompound();
       product->AddElement( itemHolder );
 
       bool added = false;
-      float E;
-      double lPhi, rPhi;
+      float E, et;
+      float ecalR = context().caloR1();
+      Double_t lPhi, rPhi;
       const EcalRecHit &iData = modelData( index );
       const float *vertices = item()->getGeom()->getCorners( iData.detid() );
 
@@ -58,20 +85,14 @@ FWPFEcalRecHitRPProxyBuilder::build( const FWEventItem *iItem, TEveElementList *
       lPhi = lVec.Phi();
       rPhi = rVec.Phi();
       E = iData.energy();
-
-      if( index == 0 )
-      {
-         FWPFRhoPhiRecHit *rh = new FWPFRhoPhiRecHit( this, itemHolder, vc, centre, E, lPhi, rPhi, true );
-         towers.push_back( rh );
-         continue;
-      }
+      et = calculateEt( centre, E );
 
       for( unsigned int i = 0; i < towers.size(); i++ )
       {   // Small range to catch rounding inaccuracies etc.
-         double phi = towers[i]->GetlPhi();
-         if( lPhi == phi || ( ( lPhi < phi + 0.0005 ) && ( lPhi > phi - 0.0005 ) ) )
+         Double_t phi = towers[i]->getlPhi();
+         if( ( lPhi == phi ) || ( ( lPhi < phi + 0.0005 ) && ( lPhi > phi - 0.0005 ) ) )
          {
-            towers[i]->Add( this, itemHolder, vc, E );
+            towers[i]->addChild( this, itemHolder, vc, E, et );
             added = true;
             break;
          }
@@ -79,7 +100,13 @@ FWPFEcalRecHitRPProxyBuilder::build( const FWEventItem *iItem, TEveElementList *
    
       if( !added )
       {
-         FWPFRhoPhiRecHit *rh = new FWPFRhoPhiRecHit( this, itemHolder, vc, centre, E, lPhi, rPhi, true );
+         rVec.fX = ecalR * cos( rPhi ); rVec.fY = ecalR * sin( rPhi );
+         lVec.fX = ecalR * cos( lPhi ); lVec.fY = ecalR * sin( lPhi );
+         std::vector<TEveVector> bCorners(2);
+         bCorners[0] = lVec;
+         bCorners[1] = rVec;
+
+         FWPFRhoPhiRecHit *rh = new FWPFRhoPhiRecHit( this, itemHolder, vc, E, et, lPhi, rPhi, bCorners );
          towers.push_back( rh );
       }
    }
