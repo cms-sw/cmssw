@@ -35,7 +35,7 @@
  **  
  **
  **  $Id: PhotonPostprocessing
- **  $Date: 2010/08/25 14:20:15 $ 
+ **  $Date: 2010/11/15 19:32:39 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **     
@@ -65,7 +65,7 @@ class PhotonPostprocessing : public edm::EDAnalyzer
   virtual void endJob() ;
   virtual void endLuminosityBlock( const edm::LuminosityBlock& , const edm::EventSetup& ) ;
   virtual void endRun(const edm::Run& , const edm::EventSetup& ) ;
-  virtual void runPostprocessing();
+ 
 
  private:
   //
@@ -74,7 +74,7 @@ class PhotonPostprocessing : public edm::EDAnalyzer
 
   void dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator,std::string type);
   void dividePlots(MonitorElement* dividend, MonitorElement* numerator, double denominator); 
-      
+  virtual void runPostprocessing();      
 
   DQMStore *dbe_;
   int verbosity_;
