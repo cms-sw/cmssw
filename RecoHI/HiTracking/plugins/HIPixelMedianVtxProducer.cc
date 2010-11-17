@@ -100,12 +100,13 @@ void HIPixelMedianVtxProducer::produce
 			if(tracks.size() > 100)       // In high multiplicity events, use most probable position instead of median  
 			{
 				
+			        // FIXME: the binning should be a configuration parameter
 				// Find maximum bin
-				TH1F hmax("hmax","hmax",400,-20,20);
+				TH1F hmax("hmax","hmax",20*30,-1*30,30);
 				
 				for(std::vector<const reco::Track *>::const_iterator
 					track = tracks.begin(); track!= tracks.end(); track++)
-					if(fabs((*track)->vz()) < 20)
+					if(fabs((*track)->vz()) < 30)
 						hmax.Fill((*track)->vz());
 				
 				int maxBin = hmax.GetMaximumBin();
