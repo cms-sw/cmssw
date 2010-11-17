@@ -220,7 +220,7 @@ class HLTProcess(object):
     else:
       return 'edmConfigFromDB --cff %s %s %s' % (self._build_query(config), self._build_source(src), self._build_options(opts))
 
-  def getRawConfigurationFromDB(self, config, src, opts, fragment):
+  def getRawConfigurationFromDB(self, config, confdb, fragment):
     if fragment:
       self.labels['process'] = ''
       self.labels['dict']    = 'locals()'
@@ -228,7 +228,7 @@ class HLTProcess(object):
       self.labels['process'] = 'process.'
       self.labels['dict']    = 'process.__dict__'
 
-    cmdline = self._build_cmdline(configuration.menuConfig, confdbSource, confdbOptions, fragment)
+    cmdline = self._build_cmdline(configuration.menuConfig, confdb.source, confdb.options, fragment)
     data = pipe(cmdline)
     
     if 'Exhausted Resultset' in data or 'CONFIG_NOT_FOUND' in data:
@@ -441,104 +441,142 @@ if 'MessageLogger' in %(dict)s:
 # parse command line arguments and options
 configuration = parser.parse_args()
 
-# Initialize everything
-confdbOptions = {
-    'essources' : [],
-    'esmodules' : [],
-    'modules'   : [],
-    'services'  : [],
-    'paths'     : [],
-    'psets'     : [],
-}
+class ConfDB(object):
+  def __init__(self, config):
+    self.options = {
+      'essources' : [],
+      'esmodules' : [],
+      'modules'   : [],
+      'services'  : [],
+      'paths'     : [],
+      'psets'     : [],
+    }
+    self.source = None
 
-confdbSource = None
-menu = HLTProcess()
+    # common configuration for all scenarios
+    self.options['services'].append( "-FUShmDQMOutputService" )
+    self.options['paths'].append( "-OfflineOutput" )
+
+    # adapt source and options to the current scenario
+    self.build_source(config)
+    self.build_options(config)
+
+
+  def build_options(self, config):
+    if config.doCff:
+      # extract a configuration file fragment
+      self.options['essources'].append( "-GlobalTag" )
+      self.options['essources'].append( "-Level1MenuOverride" )
+      self.options['essources'].append( "-HepPDTESSource" )
+      self.options['essources'].append( "-XMLIdealGeometryESSource" )
+      self.options['essources'].append( "-eegeom" )
+      self.options['essources'].append( "-es_hardcode" )
+      self.options['essources'].append( "-magfield" )
+
+      self.options['esmodules'].append( "-AutoMagneticFieldESProducer" )
+      self.options['esmodules'].append( "-SlaveField0" )
+      self.options['esmodules'].append( "-SlaveField20" )
+      self.options['esmodules'].append( "-SlaveField30" )
+      self.options['esmodules'].append( "-SlaveField35" )
+      self.options['esmodules'].append( "-SlaveField38" )
+      self.options['esmodules'].append( "-SlaveField40" )
+      self.options['esmodules'].append( "-VBF0" )
+      self.options['esmodules'].append( "-VBF20" )
+      self.options['esmodules'].append( "-VBF30" )
+      self.options['esmodules'].append( "-VBF35" )
+      self.options['esmodules'].append( "-VBF38" )
+      self.options['esmodules'].append( "-VBF40" )
+      self.options['esmodules'].append( "-CSCGeometryESModule" )
+      self.options['esmodules'].append( "-CaloGeometryBuilder" )
+      self.options['esmodules'].append( "-CaloTowerGeometryFromDBEP" )
+      self.options['esmodules'].append( "-CaloTowerHardcodeGeometryEP" )
+      self.options['esmodules'].append( "-CastorGeometryFromDBEP" )
+      self.options['esmodules'].append( "-CastorHardcodeGeometryEP" )
+      self.options['esmodules'].append( "-DTGeometryESModule" )
+      self.options['esmodules'].append( "-EcalBarrelGeometryEP" )
+      self.options['esmodules'].append( "-EcalBarrelGeometryFromDBEP" )
+      self.options['esmodules'].append( "-EcalElectronicsMappingBuilder" )
+      self.options['esmodules'].append( "-EcalEndcapGeometryEP" )
+      self.options['esmodules'].append( "-EcalEndcapGeometryFromDBEP" )
+      self.options['esmodules'].append( "-EcalLaserCorrectionService" )
+      self.options['esmodules'].append( "-EcalPreshowerGeometryEP" )
+      self.options['esmodules'].append( "-EcalPreshowerGeometryFromDBEP" )
+      self.options['esmodules'].append( "-HcalGeometryFromDBEP" )
+      self.options['esmodules'].append( "-HcalHardcodeGeometryEP" )
+      self.options['esmodules'].append( "-HcalTopologyIdealEP" )
+      self.options['esmodules'].append( "-MuonNumberingInitialization" )
+      self.options['esmodules'].append( "-ParametrizedMagneticFieldProducer" )
+      self.options['esmodules'].append( "-RPCGeometryESModule" )
+      self.options['esmodules'].append( "-SiStripGainESProducer" )
+      self.options['esmodules'].append( "-SiStripRecHitMatcherESProducer" )
+      self.options['esmodules'].append( "-SiStripQualityESProducer" )
+      self.options['esmodules'].append( "-StripCPEfromTrackAngleESProducer" )
+      self.options['esmodules'].append( "-TrackerDigiGeometryESModule" )
+      self.options['esmodules'].append( "-TrackerGeometricDetESModule" )
+      self.options['esmodules'].append( "-VolumeBasedMagneticFieldESProducer" )
+      self.options['esmodules'].append( "-XMLFromDBSource" )
+      self.options['esmodules'].append( "-ZdcGeometryFromDBEP" )
+      self.options['esmodules'].append( "-ZdcHardcodeGeometryEP" )
+      self.options['esmodules'].append( "-hcal_db_producer" )
+      self.options['esmodules'].append( "-l1GtTriggerMenuXml" )
+      self.options['esmodules'].append( "-L1GtTriggerMaskAlgoTrigTrivialProducer" )
+      self.options['esmodules'].append( "-L1GtTriggerMaskTechTrigTrivialProducer" )
+      self.options['esmodules'].append( "-sistripconn" )
+
+      self.options['services'].append( "-PrescaleService" )
+      self.options['services'].append( "-MessageLogger" )
+      self.options['services'].append( "-DQM" )
+      self.options['services'].append( "-DQMStore" )
+      self.options['services'].append( "-MicroStateService" )
+      self.options['services'].append( "-ModuleWebRegistry" )
+      self.options['services'].append( "-TimeProfilerService" )
+
+      self.options['paths'].append( "-HLTOutput" )
+      self.options['paths'].append( "-ExpressOutput" )
+      self.options['paths'].append( "-EventDisplayOutput" )
+      self.options['paths'].append( "-AlCaOutput" )
+      self.options['paths'].append( "-AlCaPPOutput" )
+      self.options['paths'].append( "-AlCaHIOutput" )
+      self.options['paths'].append( "-DQMOutput" )
+      self.options['paths'].append( "-HLTDQMOutput" )
+      self.options['paths'].append( "-HLTDQMResultsOutput" )
+      self.options['paths'].append( "-HLTMONOutput" )
+      self.options['paths'].append( "-NanoDSTOutput" )
+
+      self.options['psets'].append( "-maxEvents" )
+      self.options['psets'].append( "-options" )
+
+    else:
+      # extract a *full* configuration file
+      if not configuration.runOnData or configuration.menuL1.override:
+        # remove any eventual L1 override from the table
+        self.options['essources'].append( "-Level1MenuOverride" )
+        self.options['esmodules'].append( "-l1GtTriggerMenuXml" )
+
+
+  def build_source(self, configuration):
+    if configuration.runOnline:
+      # online we always run on data
+      self.source =  "file:/tmp/InputCollection.root"
+    else:
+      # offline we can run on data, on mc, or on a user-specified dataset
+      if configuration.menuDataset:
+        # query DBS and extract the files for the specified dataset
+        files = pipe("dbsql 'find file where dataset like %s'" % configuration.menuDataset)
+        files = [ f for f in files.split('\n') if 'store' in f ][0:10]
+        self.source = ','.join(files)
+      elif configuration.runOnData:
+        self.source = "/store/data/Run2010A/MinimumBias/RAW/v1/000/144/011/140DA3FD-AAB1-DF11-8932-001617E30E28.root"
+      else:
+        self.source =  "file:RelVal_DigiL1Raw_%s.root" % configuration.processType
+
+
+# Initialize everything
+menu   = HLTProcess()
+confdb = ConfDB(configuration)
+menu.getRawConfigurationFromDB(configuration.menuConfig, confdb, configuration.doCff)
 
 if configuration.doCff:
-    confdbOptions['essources'].append( "-GlobalTag" )
-    confdbOptions['essources'].append( "-Level1MenuOverride" )
-    confdbOptions['essources'].append( "-HepPDTESSource" )
-    confdbOptions['essources'].append( "-XMLIdealGeometryESSource" )
-    confdbOptions['essources'].append( "-eegeom" )
-    confdbOptions['essources'].append( "-es_hardcode" )
-    confdbOptions['essources'].append( "-magfield" )
-
-    confdbOptions['esmodules'].append( "-AutoMagneticFieldESProducer" )
-    confdbOptions['esmodules'].append( "-SlaveField0" )
-    confdbOptions['esmodules'].append( "-SlaveField20" )
-    confdbOptions['esmodules'].append( "-SlaveField30" )
-    confdbOptions['esmodules'].append( "-SlaveField35" )
-    confdbOptions['esmodules'].append( "-SlaveField38" )
-    confdbOptions['esmodules'].append( "-SlaveField40" )
-    confdbOptions['esmodules'].append( "-VBF0" )
-    confdbOptions['esmodules'].append( "-VBF20" )
-    confdbOptions['esmodules'].append( "-VBF30" )
-    confdbOptions['esmodules'].append( "-VBF35" )
-    confdbOptions['esmodules'].append( "-VBF38" )
-    confdbOptions['esmodules'].append( "-VBF40" )
-    confdbOptions['esmodules'].append( "-CSCGeometryESModule" )
-    confdbOptions['esmodules'].append( "-CaloGeometryBuilder" )
-    confdbOptions['esmodules'].append( "-CaloTowerGeometryFromDBEP" )
-    confdbOptions['esmodules'].append( "-CaloTowerHardcodeGeometryEP" )
-    confdbOptions['esmodules'].append( "-CastorGeometryFromDBEP" )
-    confdbOptions['esmodules'].append( "-CastorHardcodeGeometryEP" )
-    confdbOptions['esmodules'].append( "-DTGeometryESModule" )
-    confdbOptions['esmodules'].append( "-EcalBarrelGeometryEP" )
-    confdbOptions['esmodules'].append( "-EcalBarrelGeometryFromDBEP" )
-    confdbOptions['esmodules'].append( "-EcalElectronicsMappingBuilder" )
-    confdbOptions['esmodules'].append( "-EcalEndcapGeometryEP" )
-    confdbOptions['esmodules'].append( "-EcalEndcapGeometryFromDBEP" )
-    confdbOptions['esmodules'].append( "-EcalLaserCorrectionService" )
-    confdbOptions['esmodules'].append( "-EcalPreshowerGeometryEP" )
-    confdbOptions['esmodules'].append( "-EcalPreshowerGeometryFromDBEP" )
-    confdbOptions['esmodules'].append( "-HcalGeometryFromDBEP" )
-    confdbOptions['esmodules'].append( "-HcalHardcodeGeometryEP" )
-    confdbOptions['esmodules'].append( "-HcalTopologyIdealEP" )
-    confdbOptions['esmodules'].append( "-MuonNumberingInitialization" )
-    confdbOptions['esmodules'].append( "-ParametrizedMagneticFieldProducer" )
-    confdbOptions['esmodules'].append( "-RPCGeometryESModule" )
-    confdbOptions['esmodules'].append( "-SiStripGainESProducer" )
-    confdbOptions['esmodules'].append( "-SiStripRecHitMatcherESProducer" )
-    confdbOptions['esmodules'].append( "-SiStripQualityESProducer" )
-    confdbOptions['esmodules'].append( "-StripCPEfromTrackAngleESProducer" )
-    confdbOptions['esmodules'].append( "-TrackerDigiGeometryESModule" )
-    confdbOptions['esmodules'].append( "-TrackerGeometricDetESModule" )
-    confdbOptions['esmodules'].append( "-VolumeBasedMagneticFieldESProducer" )
-    confdbOptions['esmodules'].append( "-XMLFromDBSource" )
-    confdbOptions['esmodules'].append( "-ZdcGeometryFromDBEP" )
-    confdbOptions['esmodules'].append( "-ZdcHardcodeGeometryEP" )
-    confdbOptions['esmodules'].append( "-hcal_db_producer" )
-    confdbOptions['esmodules'].append( "-l1GtTriggerMenuXml" )
-    confdbOptions['esmodules'].append( "-L1GtTriggerMaskAlgoTrigTrivialProducer" )
-    confdbOptions['esmodules'].append( "-L1GtTriggerMaskTechTrigTrivialProducer" )
-    confdbOptions['esmodules'].append( "-sistripconn" )
-
-    confdbOptions['services'].append( "-PrescaleService" )
-    confdbOptions['services'].append( "-MessageLogger" )
-    confdbOptions['services'].append( "-DQM" )
-    confdbOptions['services'].append( "-DQMStore" )
-    confdbOptions['services'].append( "-FUShmDQMOutputService" )
-    confdbOptions['services'].append( "-MicroStateService" )
-    confdbOptions['services'].append( "-ModuleWebRegistry" )
-    confdbOptions['services'].append( "-TimeProfilerService" )
-
-    confdbOptions['paths'].append( "-HLTOutput" )
-    confdbOptions['paths'].append( "-ExpressOutput" )
-    confdbOptions['paths'].append( "-EventDisplayOutput" )
-    confdbOptions['paths'].append( "-AlCaOutput" )
-    confdbOptions['paths'].append( "-AlCaPPOutput" )
-    confdbOptions['paths'].append( "-AlCaHIOutput" )
-    confdbOptions['paths'].append( "-DQMOutput" )
-    confdbOptions['paths'].append( "-HLTDQMOutput" )
-    confdbOptions['paths'].append( "-HLTDQMResultsOutput" )
-    confdbOptions['paths'].append( "-HLTMONOutput" )
-    confdbOptions['paths'].append( "-NanoDSTOutput" )
-    confdbOptions['paths'].append( "-OfflineOutput" )
-
-    confdbOptions['psets'].append( "-maxEvents" )
-    confdbOptions['psets'].append( "-options" )
-
-    menu.getRawConfigurationFromDB(configuration.menuConfig, confdbSource, confdbOptions, configuration.doCff)
 
     # if running on MC, adapt the configuration accordingly
     menu.fixForMC(configuration)
@@ -559,30 +597,6 @@ if configuration.doCff:
     menu.instrumentTiming(configuration)
 
 else:
-    if configuration.runOnline:
-      # online we always run on data
-      confdbSource =  "file:/tmp/InputCollection.root"
-    else:
-      # offline we can run on data, on mc, or on a user-specified dataset
-      if configuration.menuDataset:
-        # query DBS and extract the files for the specified dataset
-        files = pipe("dbsql 'find file where dataset like %s'" % configuration.menuDataset)
-        files = [ f for f in files.split('\n') if 'store' in f ][0:10]
-        confdbSource = ','.join(files)
-      elif configuration.runOnData:
-        confdbSource = "/store/data/Run2010A/MinimumBias/RAW/v1/000/144/011/140DA3FD-AAB1-DF11-8932-001617E30E28.root"
-      else:
-        confdbSource =  "file:RelVal_DigiL1Raw_%s.root" % configuration.processType
-
-    if not configuration.runOnData or configuration.menuL1.override:
-      # remove any eventual L1 override from the table
-      confdbOptions['essources'].append( "-Level1MenuOverride" )
-      confdbOptions['esmodules'].append( "-l1GtTriggerMenuXml" )
-
-    confdbOptions['services'].append( "-FUShmDQMOutputService" )
-    confdbOptions['paths'].append( "-OfflineOutput" )
-
-    menu.getRawConfigurationFromDB(configuration.menuConfig, confdbSource, confdbOptions, configuration.doCff)
 
     # if running on MC, adapt the configuration accordingly
     menu.fixForMC(configuration)
