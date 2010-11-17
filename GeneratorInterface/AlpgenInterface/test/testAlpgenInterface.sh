@@ -5,33 +5,30 @@
 # Any questions, please contact Thiago Tomei (IFT-UNESP / SPRACE). 
 
 # Modify these defaults to suit your environment.
-ARCHITECTURE=slc4_ia32_gcc345
+ARCHITECTURE=$SCRAM_ARCH
 ALPGEN_PATH=$CMS_PATH/sw/$ARCHITECTURE/external/alpgen/213-cms
 ALPGEN_BIN_PATH=$ALPGEN_PATH/bin
-ALPGEN_EXECUTABLE=wjetgen
 
+# Hi!
+echo "++++++++++++++++++++"
+echo "+ ALPGEN INTERFACE +"
+echo "++++++++++++++++++++"
+echo "" 
+echo "Starting basic sanity checks for Alpgen in CMSSW" 
+echo ""
 # See the available executables.
+echo "The Alpgen executables should be found in $ALPGEN_BIN_PATH"
 echo "Available executables in $ALPGEN_BIN_PATH:"
 ls $ALPGEN_BIN_PATH
 echo ""
-
-# Parameters for the ALPGEN input file.
-# Also, the exclusive / inclusive option.
-# Must be either True or False
-LABEL=w1j
-IH2=-1
-ENERGY=980.0
-ICKKW=1
-NJETS=1
-ETMIN=20.0
-DRMIN=0.7
-EXCLUSIVE=True
 
 # Create an empty input file.
 if ls input.skel &> /dev/null
   then \rm input.skel
 fi
 touch input.skel
+
+# Some functions that we define for later use
 
 # A function to create the input file using a here document.
 create_input_file ()
@@ -134,11 +131,24 @@ echo "===================="
 echo
 }
 
+# Parameters for the ALPGEN input file.
+# Also, the exclusive / inclusive option.
+# Must be either True or False
+ALPGEN_EXECUTABLE=wjetgen
+LABEL=w1j
+IH2=-1
+ENERGY=980.0
+ICKKW=1
+NJETS=1
+ETMIN=20.0
+DRMIN=0.7
+EXCLUSIVE=True
 # Run test and display test results
 run_test
 display_test_results
 
 # Now you just change the values and run new tests.
+# Test Z+jets
 ALPGEN_EXECUTABLE=zjetgen
 LABEL=z0j
 IH2=1
@@ -151,9 +161,9 @@ EXCLUSIVE=False
 run_test
 display_test_results
 
-
+# Test bbbar+jets
 ALPGEN_EXECUTABLE=2Qgen
-LABEL=ttbar1j
+LABEL=bbbar1j
 IH2=1
 ENERGY=5000.0
 ICKKW=1
