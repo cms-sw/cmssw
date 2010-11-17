@@ -1,8 +1,8 @@
 ///  \author    : Gero Flucke
 ///  date       : October 2010
-///  $Revision$
-///  $Date$
-///  (last update by $Author$)
+///  $Revision: 1.1 $
+///  $Date: 2010/10/26 19:00:00 $
+///  (last update by $Author: flucke $)
 
 #include "Geometry/CommonTopologies/interface/BowedSurfaceDeformation.h"
 #include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"
@@ -10,7 +10,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // already included via header:
-// #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 // #include <vector>
 
 //------------------------------------------------------------------------------
@@ -40,14 +39,10 @@ int BowedSurfaceDeformation::type() const
 
 //------------------------------------------------------------------------------
 SurfaceDeformation::Local2DVector 
-BowedSurfaceDeformation::positionCorrection(const AlgebraicVector5 &trackPred,
+BowedSurfaceDeformation::positionCorrection(const Local2DPoint &localPos,
+					    const LocalTrackAngles &localAngles,
 					    double length, double width) const
 {
-  // AlgebraicVector5 &trackPred:
-  // [1] dxdz : direction tangent in local xz-plane
-  // [2] dydz : direction tangent in local yz-plane
-  // [3] x    : local x-coordinate
-  // [4] y    : local y-coordinate
 
 // different widthes at high/low y could somehow be treated by theRelWidthLowY
 //   if (widthLowY > 0. && widthHighY != widthLowY) {
@@ -58,8 +53,8 @@ BowedSurfaceDeformation::positionCorrection(const AlgebraicVector5 &trackPred,
 //   }
 //   const double width = widthHighY;
   
-  double uRel = (width  ? 2. * trackPred[3] / width  : 0.);  // relative u (-1 .. +1)
-  double vRel = (length ? 2. * trackPred[4] / length : 0.);  // relative v (-1 .. +1)
+  double uRel = (width  ? 2. * localPos.x() / width  : 0.);  // relative u (-1 .. +1)
+  double vRel = (length ? 2. * localPos.y() / length : 0.);  // relative v (-1 .. +1)
   // 'range check':
   const double cutOff = 1.5;
   if (uRel < -cutOff) { uRel = -cutOff; } else if (uRel > cutOff) { uRel = cutOff; }
@@ -73,8 +68,8 @@ BowedSurfaceDeformation::positionCorrection(const AlgebraicVector5 &trackPred,
     + (vRel * vRel - 1./3.) * theSagittaY;
 
   // positive dxdz/dydz and positive dw mean negative shift in x/y: 
-  const Local2DVector::ScalarType x = -dw * trackPred[1]; // [1] = dxdz
-  const Local2DVector::ScalarType y = -dw * trackPred[2]; // [2] = dydz
+  const Local2DVector::ScalarType x = -dw * localAngles.dxdz();
+  const Local2DVector::ScalarType y = -dw * localAngles.dydz();
   
   return Local2DVector(x, y);
 }

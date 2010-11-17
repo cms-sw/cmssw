@@ -1,8 +1,8 @@
 ///  \author    : Gero Flucke
 ///  date       : October 2010
-///  $Revision$
-///  $Date$
-///  (last update by $Author$)
+///  $Revision: 1.1 $
+///  $Date: 2010/10/26 19:00:00 $
+///  (last update by $Author: flucke $)
 
 #include "Geometry/CommonTopologies/interface/TwoBowedSurfacesDeformation.h"
 #include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"
@@ -10,7 +10,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // already included via header:
-// #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 // #include <vector>
 
 //------------------------------------------------------------------------------
@@ -39,15 +38,10 @@ int TwoBowedSurfacesDeformation::type() const
 
 //------------------------------------------------------------------------------
 SurfaceDeformation::Local2DVector 
-TwoBowedSurfacesDeformation::positionCorrection(const AlgebraicVector5 &trackPred,
+TwoBowedSurfacesDeformation::positionCorrection(const Local2DPoint &localPos,
+						const LocalTrackAngles &localAngles,
 						double length, double width) const
 {
-  // AlgebraicVector5 &trackPred:
-  // [1] dxdz : direction tangent in local xz-plane
-  // [2] dydz : direction tangent in local yz-plane
-  // [3] x    : local x-coordinate
-  // [4] y    : local y-coordinate
-
   const double ySplit = this->parameters().back();
 
 // treatment of different widthes at high/low y could be done by theRelWidthLowY or so
@@ -59,13 +53,13 @@ TwoBowedSurfacesDeformation::positionCorrection(const AlgebraicVector5 &trackPre
 //   const double width = widthHighY;
   
   // Some signs depend on whether we are in surface part below or above ySplit:
-  const double sign = (trackPred[4] < ySplit ? +1. : -1.); 
+  const double sign = (localPos.y() < ySplit ? +1. : -1.); 
   const double yMiddle = ySplit * 0.5 - sign * length * .25;
   // 'calibrate' y length and transform y to be w.r.t. surface middle
-  const double myY = trackPred[4] - yMiddle;
+  const double myY = localPos.y() - yMiddle;
   const double myLength = length * 0.5 + sign * ySplit;
   
-  double uRel = 2. * trackPred[3] / width;  // relative u (-1 .. +1)
+  double uRel = 2. * localPos.x() / width;  // relative u (-1 .. +1)
   double vRel = 2. * myY / myLength;        // relative v (-1 .. +1)
   // 'range check':
   const double cutOff = 1.5;
@@ -85,17 +79,17 @@ TwoBowedSurfacesDeformation::positionCorrection(const AlgebraicVector5 &trackPre
     + (vRel * vRel - 1./3.) * (pars[2] + sign * pars[11]) // sagittaY
     + sign * pars[5]                 // different dw
     + myY          * sign * pars[6]  // different dalpha
-    - trackPred[3] * sign * pars[7]; // different dbeta
+    - localPos.x() * sign * pars[7]; // different dbeta
   // 2nd, translate the dw effect to shifts in x and y
   // Positive dxdz/dydz and positive dw mean negative shift in x/y: 
-  Local2DVector::ScalarType x = -dw * trackPred[1]; // [1] = dxdz
-  Local2DVector::ScalarType y = -dw * trackPred[2]; // [2] = dydz
+  Local2DVector::ScalarType x = -dw * localAngles.dxdz();
+  Local2DVector::ScalarType y = -dw * localAngles.dydz();
   // 3rd, treat in-plane differences depending on surface from xy-shifts... 
   x += (sign * pars[3]); // different du
   y += (sign * pars[4]); // different dv
   //     ...and gamma-rotation
   x -= myY          * (sign * pars[8]); // different dgamma for u
-  y += trackPred[3] * (sign * pars[8]); // different dgamma for v
+  y += localPos.x() * (sign * pars[8]); // different dgamma for v
 
   return Local2DVector(x, y);
 }

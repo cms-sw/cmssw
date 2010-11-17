@@ -9,14 +9,14 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2010
-///  $Revision$
-///  $Date$
-///  (last update by $Author$)
+///  $Revision: 1.1 $
+///  $Date: 2010/10/26 18:59:59 $
+///  (last update by $Author: flucke $)
 
 #include "DataFormats/GeometryVector/interface/Vector2DBase.h"
+#include "DataFormats/GeometryVector/interface/Point2DBase.h"
 #include "DataFormats/GeometryVector/interface/LocalTag.h"
-// class AlgebraicVector5; doesn't work, it's a typedef...
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "Geometry/CommonTopologies/interface/Topology.h"
 
 #include <vector>
 
@@ -24,6 +24,8 @@ class SurfaceDeformation
 {
  public:
   typedef Vector2DBase<double, LocalTag> Local2DVector;
+  typedef Point2DBase <double, LocalTag> Local2DPoint;
+  typedef Topology::LocalTrackAngles     LocalTrackAngles;
 
   virtual SurfaceDeformation* clone() const = 0;
 
@@ -31,15 +33,13 @@ class SurfaceDeformation
   virtual int type() const = 0;
 
   /// correction to add to local position depending on 
-  /// - track paramters, i.e.
-  ///    trackPred[0] q/p : 
-  ///    trackPred[1] dxdz: direction tangent in local xz-plane
-  ///    trackPred[2] dydz: direction tangent in local yz-plane
-  ///    trackPred[3] x   : local x-coordinate
-  ///    trackPred[4] y   : local y-coordinate
+  /// - track parameters in local frame (from LocalTrajectoryParameters):
+  ///   * track position as Local2DPoint(x,y)
+  ///   * track angles   as LocalTrackAngles(dxdz, dydz)
   /// - length of surface (local y-coordinate)
   /// - width of surface (local x-coordinate)
-  virtual Local2DVector positionCorrection(const AlgebraicVector5 &trackPred,
+  virtual Local2DVector positionCorrection(const Local2DPoint &localPos,
+					   const LocalTrackAngles &localAngles,
 					   double length, double width) const = 0;
 
   /// update information with parameters of 'other',

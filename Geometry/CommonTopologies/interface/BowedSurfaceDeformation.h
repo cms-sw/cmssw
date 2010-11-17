@@ -11,14 +11,13 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2010
-///  $Revision$
-///  $Date$
-///  (last update by $Author$)
+///  $Revision: 1.1 $
+///  $Date: 2010/10/26 19:00:00 $
+///  (last update by $Author: flucke $)
 
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
 // already included in the above:
-// #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 // #include <vector>
 
 class BowedSurfaceDeformation : public SurfaceDeformation
@@ -37,16 +36,14 @@ class BowedSurfaceDeformation : public SurfaceDeformation
   virtual int type() const;
 
   /// correction to add to local position depending on 
-  /// - track paramters, i.e.
-  ///    trackPred[0] q/p : 
-  ///    trackPred[1] dxdz: direction tangent in local xz-plane
-  ///    trackPred[2] dydz: direction tangent in local yz-plane
-  ///    trackPred[3] x   : local x-coordinate
-  ///    trackPred[4] y   : local y-coordinate
+  /// - track parameters in local frame (from LocalTrajectoryParameters):
+  ///   * track position as Local2DPoint(x,y)
+  ///   * track angles   as LocalTrackAngles(dxdz, dydz)
   /// - length of surface (local y-coordinate)
   /// - width of surface (local x-coordinate)
-  virtual Local2DVector positionCorrection(const AlgebraicVector5 &trackPred,
-					   double length, double width) const;
+  virtual Local2DVector positionCorrection(const Local2DPoint &localPos,
+                                           const LocalTrackAngles &localAngles,
+                                           double length, double width) const;
 
   /// update information with parameters of 'other',
   /// false in case the type or some parameters do not match and thus
