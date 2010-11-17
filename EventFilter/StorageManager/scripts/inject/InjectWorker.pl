@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.55 2010/11/04 10:48:30 babar Exp $
+# $Id: InjectWorker.pl,v 1.56 2010/11/04 15:10:15 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -395,14 +395,6 @@ sub get_from_runcond {
                       . $sth->errstr );
             }
             else {
-
-                # XXX Debugging stuff ... Should be trashed
-                unless ($cached) {
-                    $heap->{$kind}->{$runnumber} = $cached =
-                      $kind eq 'HLTkey'
-                      ? '/cdaq/physics/Run2010/v2.0/HLT_Cosmics/V1'
-                      : 8;
-                }
                 $kernel->post( 'logger',
                     debug =>
                       "Obtained $kind key $key = $cached for run $runnumber" );
