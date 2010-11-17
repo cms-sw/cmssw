@@ -76,9 +76,16 @@ private:
   /// Alpgen _unw.par file as an AlpgenHeader
   AlpgenHeader			header;
 
+  /// Name of the extra header file
+  std::string			extraHeaderFileName_;
+
+  /// Name given to the extra header
+  std::string			extraHeaderName_;
+
   /// configuration flags
   bool				writeAlpgenWgtFile;
   bool				writeAlpgenParFile;
+  bool				writeExtraHeader;
 };
 
 AlpgenSource::AlpgenSource(const edm::ParameterSet &params,
@@ -86,8 +93,11 @@ AlpgenSource::AlpgenSource(const edm::ParameterSet &params,
   edm::ExternalInputSource(params, desc, false), 
   skipEvents_(params.getUntrackedParameter<unsigned int>("skipEvents", 0)),
   nEvent_(0), lheAlpgenUnwParHeader("AlpgenUnwParFile"),
+  extraHeaderFileName_(params.getUntrackedParameter<std::string>("extraHeaderFileName","")),
+  extraHeaderName_(params.getUntrackedParameter<std::string>("extraHeaderName","")),
   writeAlpgenWgtFile(params.getUntrackedParameter<bool>("writeAlpgenWgtFile", true)),
-  writeAlpgenParFile(params.getUntrackedParameter<bool>("writeAlpgenParFile", true))
+  writeAlpgenParFile(params.getUntrackedParameter<bool>("writeAlpgenParFile", true)),
+  writeExtraHeader(params.getUntrackedParameter<bool>("writeExtraHeader", false))
 {
   std::vector<std::string> allFileNames = fileNames();
 
@@ -230,7 +240,18 @@ void AlpgenSource::beginRun(edm::Run &run)
     }
   }
 
-  // Bbuild the final Run info object. Backwards-compatible order.
+  // If requested by the user, we also add any specific header provided.
+  // Nota bene: the header is put in the LHERunInfoProduct AS IT WAS GIVEN.
+  // That means NO CROSS-CHECKS WHATSOEVER. Use with care.
+  LHERunInfoProduct::Header extraHeader(extraHeaderName_.c_str());
+  if(writeExtraHeader) {
+    std::ifstream extraascii(extraHeaderFileName_.c_str());
+    while(extraascii.getline(buffer,512)) {
+      extraHeader.addLine(std::string(buffer) + "\n");
+    }
+  }
+
+  // Build the final Run info object. Backwards-compatible order.
   std::auto_ptr<LHERunInfoProduct> runInfo(new LHERunInfoProduct(heprup));
   runInfo->addHeader(comments);
   runInfo->addHeader(lheAlpgenUnwParHeader);
@@ -239,6 +260,8 @@ void AlpgenSource::beginRun(edm::Run &run)
   if (writeAlpgenParFile)
     runInfo->addHeader(lheAlpgenParHeader);
   runInfo->addHeader(slha);
+  if(writeExtraHeader)
+    runInfo->addHeader(extraHeader);
   run.put(runInfo);
 
   // Open the .unw file in the heap, and set the global pointer to it.
