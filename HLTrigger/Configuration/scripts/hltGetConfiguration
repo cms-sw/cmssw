@@ -18,16 +18,6 @@ globalTag = {
 }
 
 
-# define a class to store all options and arguments
-class HltConfiguration(object):
-  pass
-
-configuration = HltConfiguration()
-
-textwidth = int( os.popen("stty size", "r").read().split()[1] )
-formatter = FixedWidthFormatter( HelpFormatterRespectNewlines, width = textwidth )
-
-
 # type used to store a reference to an L1 menu
 class ConnectionL1TMenu(object):
   def __init__(self, value):
@@ -70,9 +60,13 @@ class ConnectionHLTMenu(object):
 
 
 # define an argparse parser to parse our options
+textwidth = int( os.popen("stty size", "r").read().split()[1] )
+formatter = FixedWidthFormatter( HelpFormatterRespectNewlines, width = textwidth )
+configuration = argparse.Namespace()
+
 parser = argparse.ArgumentParser(
   description       = 'Extract an HLT configuration (or fragment thereof) from the ConfDB database.''',
-  epilog            = 'Note: using "--online", overriding the GlobalTag or the L1 menu  is meaingful only in a full, self-contained dump. A cff file does not provide the modules to be overriden.''', 
+  epilog            = 'Note: using "--online", overriding the GlobalTag or the L1 menu is meaingful only in a full, self-contained dump. A cff file does not provide the modules to be overriden.''', 
   argument_default  = argparse.SUPPRESS,
   formatter_class   = formatter,
   add_help          = False )
