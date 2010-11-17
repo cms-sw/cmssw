@@ -1,12 +1,12 @@
-#ifndef DTTTrigCorrection_H
-#define DTTTrigCorrection_H
+#ifndef CalibMuon_DTCalibration_DTTTrigCorrection_h
+#define CalibMuon_DTCalibration_DTTTrigCorrection_h
 
 /** \class DTTTrigCorrection
  *  Class which read a ttrig DB and correct it with
  *  the near SL (or the global average)
  *
- *  $Date: 2010/01/19 09:51:31 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/02/16 10:03:23 $
+ *  $Revision: 1.7 $
  *  \author S. Maselli - INFN Torino
  */
 
@@ -38,10 +38,10 @@ public:
 protected:
 
 private:
+  std::string dbLabel_;
+
   const DTTtrig* tTrigMap_;
   edm::ESHandle<DTGeometry> muonGeom_;
-
-  std::string dbLabel;
 
   DTTTrigBaseCorrection* correctionAlgo_;
 };

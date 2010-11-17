@@ -4,8 +4,8 @@
 /** \class DTVDriftCalibration
  *  No description available.
  *
- *  $Date: 2008/08/04 16:27:49 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/11/17 12:13:51 $
+ *  $Revision: 1.4 $
  *  \author M. Giunta
  */
 
@@ -16,8 +16,9 @@
 
 #include "CalibMuon/DTCalibration/interface/vDriftHistos.h"
 #include "CalibMuon/DTCalibration/interface/DTTMax.h"
-#include "CalibMuon/DTCalibration/plugins/DTCalibrationMap.h"
 #include "CalibMuon/DTCalibration/interface/DTSegmentSelector.h"
+
+#include "DTCalibrationMap.h"
 
 #include <string>
 #include <vector>

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/09 22:44:10 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/11/17 12:13:51 $
+ *  $Revision: 1.7 $
  *  \author M. Giunta
  */
 
@@ -226,7 +226,7 @@ void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSe
       //loop over the segments 
       for(map<DTSuperLayerId,vector<DTRecHit1D> >::const_iterator slIdAndHits = hitsBySLMap.begin(); slIdAndHits != hitsBySLMap.end();  ++slIdAndHits) {
         if (slIdAndHits->second.size() < 3) continue;
-        DTSuperLayerId slId =  slIdAndHits->first;
+        DTSuperLayerId slId = slIdAndHits->first;
 
         // Create the DTTMax, that computes the 4 TMax
         DTTMax slSeg(slIdAndHits->second, *(chamber->superLayer(slIdAndHits->first)),chamber->toGlobal((*segment).localDirection()), chamber->toGlobal((*segment).localPosition()), theSync);

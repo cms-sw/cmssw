@@ -4,12 +4,10 @@
 /** \class DTTTrigBaseCorrection
  *  Base class to define the tTrig corrections for entering in DB
  *
- *  $Date: 2007/03/07 18:32:31 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/12/11 16:34:34 $
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
-
-#include <utility>
 
 namespace edm {
   class EventSetup;
@@ -17,7 +15,6 @@ namespace edm {
 }
 
 class DTSuperLayerId;
-
 
 struct DTTTrigData {
 public:
@@ -31,8 +28,6 @@ public:
   double kFactor;
 }; 
 
-
-
 class DTTTrigBaseCorrection {
 public:
    // Constructor
@@ -44,11 +39,4 @@ public:
    virtual DTTTrigData correction(const DTSuperLayerId&) = 0;
 }; 
 
-
-
-
-
 #endif
-
-
-
