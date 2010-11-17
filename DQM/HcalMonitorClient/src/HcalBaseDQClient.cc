@@ -26,8 +26,6 @@ HcalBaseDQClient::HcalBaseDQClient(std::string s, const edm::ParameterSet& ps)
 
   ProblemCells=0;
   ProblemCellsByDepth=0;
-  ProblemCellsHO12=0;
-  ProblemCellsByDepthHO12=0;
 }
 
 void HcalBaseDQClient::beginJob()
@@ -141,37 +139,6 @@ void HcalBaseDQClient::htmlOutput(std::string htmlDir)
 	}
       htmlFile<<"</table>"<<std::endl;
    }
-  if (ProblemCellsHO12!=0)
-    {
-      (ProblemCellsHO12->getTH2F())->SetMaximum(1.05);
-      (ProblemCellsHO12->getTH2F())->SetMinimum(0.);
-      htmlFile << "<table align=\"center\" border=\"1\" cellspacing=\"0\" " << std::endl;
-      htmlFile << "cellpadding=\"10\"> " << std::endl;
-      htmlFile<<"<tr align=\"center\">"<<std::endl;
-      htmlAnyHisto(-1,ProblemCellsHO12->getTH2F(),"ieta","iphi",92, htmlFile,htmlDir,debug_);
-      htmlFile<<"</tr>"<<std::endl;
-      htmlFile<<"</table>"<<std::endl;
-    }
-  if (ProblemCellsByDepthHO12!=0)
-    {
-      htmlFile << "<table align=\"center\" border=\"1\" cellspacing=\"0\" " << std::endl;
-      htmlFile << "cellpadding=\"10\"> " << std::endl;
-      for (unsigned int i=0;i<ProblemCellsByDepthHO12->depth.size()/2;++i)
-	{
-	  if (ProblemCellsByDepthHO12->depth[2*i]==0) continue;
-	  if (ProblemCellsByDepthHO12->depth[2*i+1]==0) continue;
-	  (ProblemCellsByDepthHO12->depth[2*i]->getTH2F())->SetMaximum(1.05);
-	  (ProblemCellsByDepthHO12->depth[2*i]->getTH2F())->SetMinimum(0.);
-	  (ProblemCellsByDepthHO12->depth[2*i+1]->getTH2F())->SetMaximum(1.05);
-	  (ProblemCellsByDepthHO12->depth[2*i+1]->getTH2F())->SetMinimum(0.);
-	  htmlFile<<"<tr align=\"center\">"<<std::endl;
-	  htmlAnyHisto(-1,ProblemCellsByDepthHO12->depth[2*i]->getTH2F(),"ieta","iphi",92, htmlFile,htmlDir,debug_);
-	  htmlAnyHisto(-1,ProblemCellsByDepthHO12->depth[2*i+1]->getTH2F(),"ieta","iphi",92, htmlFile,htmlDir,debug_);
-	  
-	  htmlFile<<"</tr>"<<std::endl;
-	}
-      htmlFile<<"</table>"<<std::endl;
-    }
     
   htmlFile << "<table align=\"center\" border=\"1\" cellspacing=\"0\" " << std::endl;
   htmlFile << "cellpadding=\"10\"> " << std::endl;

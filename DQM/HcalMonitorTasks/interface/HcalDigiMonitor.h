@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2010/09/22 20:27:16 $
-  * $Revision: 1.63 $
+  * $Date: 2010/11/10 20:00:33 $
+  * $Revision: 1.64 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -88,7 +88,6 @@ public:
 private:  ///Methods, variables accessible only within class code
   bool passedMinBiasHLT_;
   bool excludeHORing2_;
-  bool excludeHORing1_;
  
   void fill_Nevents();
   void zeroCounters();

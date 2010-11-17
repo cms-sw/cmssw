@@ -11,8 +11,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2010/05/30 19:16:30 $
-  * $Revision: 1.46 $
+  * $Date: 2010/11/10 20:00:33 $
+  * $Revision: 1.47 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -94,7 +94,6 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
   bool endLumiProcessed_;
 
   bool excludeHORing2_;
-  bool excludeHORing1_;
 };
 
 #endif
