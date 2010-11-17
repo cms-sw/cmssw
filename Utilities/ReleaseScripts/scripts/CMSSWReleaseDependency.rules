@@ -77,6 +77,7 @@ EventFilter/Utilities/.*                : xdaq
 
 #xdaq (indirect)
 IORawData/DaqSource/.*                  : xdaq
+DQM/SiPixelMonitorClient/.*		: xdaq
 
 #Reco and Track exceptions for DQM usage
 RecoEGamma/Examples/.*                  : DQM.*
