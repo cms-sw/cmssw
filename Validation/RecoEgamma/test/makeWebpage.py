@@ -47,7 +47,7 @@ for line in template:
     else:
         page.write(line)
 
-page.write('<h1> Track based conversions: '+sys.argv[3]+' vs '+sys.argv[2]+' Validation<br> Sample used: '+sys.argv[4]+ '<br><h3>In all plots below, '+sys.argv[2]+' is in purple, '+sys.argv[3]+' in black<br></h3>')
+page.write('<h1> Track based conversions: '+sys.argv[3]+' vs '+sys.argv[2]+' Validation<br> Sample used: '+sys.argv[4]+ '<br><h3>In all plots below, '+sys.argv[2]+' is in purple, '+sys.argv[3]+' in black<br> Responsible: N. Marinelli</h3>')
 
 # add all the plots in the directory
 for i in range(len(list)):
