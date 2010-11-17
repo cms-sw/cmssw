@@ -19,7 +19,6 @@
 
 #include "xdata/InfoSpace.h"
 #include "xdata/UnsignedInteger32.h"
-#include "xdata/Integer32.h"
 #include "xdata/Double.h"
 #include "xdata/Boolean.h"
 #include "xdata/String.h"
@@ -81,7 +80,6 @@ namespace evf {
     // i2o callbacks
     void I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef);
     void I2O_BU_DISCARD_Callback(toolbox::mem::Reference *bufRef);
-    void I2O_BU_CONFIRM_Callback(toolbox::mem::Reference *bufRef);
     
     // xdata::ActionListener callback
     void actionPerformed(xdata::Event& e);
@@ -126,38 +124,9 @@ namespace evf {
     toolbox::mem::Reference *createMsgChain(evf::BUEvent *evt,
 					    unsigned int fuResourceId);
     
-    void recycle(const U32, const U32, const U32);
     
     void dumpFrame(unsigned char* data,unsigned int len);
-
   
-    U32 packEvtIdRqstsAndOrReleasesMsg
-      (
-       const EvtIdRqstAndOrRelease &element,
-       toolbox::mem::Reference     *ref
-       )
-      {
-	EvtIdRqstsAndOrReleasesMsg *msg =
-	  (EvtIdRqstsAndOrReleasesMsg*)(ref->getDataLocation());
-	
-	
-	// Insert and update number of elements
-	msg->elements[msg->nbElements] = element;
-	msg->nbElements++;
-	
-	// Calculate the size of the message with its new element
-	size_t msgSize = sizeof(EvtIdRqstsAndOrReleasesMsg) -
-	  sizeof(EvtIdRqstAndOrRelease) +
-	  sizeof(EvtIdRqstAndOrRelease) * msg->nbElements;
-	
-	// Store the message size in both the I2O header and the reference
-	msg->PvtMessageFrame.StdMessageFrame.MessageSize = msgSize >> 2;
-	ref->setDataSize(msgSize);
-	
-	// Return the number of elements in the message
-	return msg->nbElements;
-      }
-
   
   private:
     //
@@ -169,12 +138,6 @@ namespace evf {
 
     // BU application descriptor
     xdaq::ApplicationDescriptor    *buAppDesc_;
-
-    // EVM application descriptor
-    xdaq::ApplicationDescriptor    *evmAppDesc_;
-
-    // EVM instance number
-    xdata::Integer32                evmInstance_;
     
     // FU application descriptor
     xdaq::ApplicationDescriptor    *fuAppDesc_;
@@ -190,19 +153,12 @@ namespace evf {
     
     // resource management
     std::vector<evf::BUEvent*>      events_;
-    std::vector<toolbox::mem::Reference *>     resTrigPairs_;
     std::queue<unsigned int>        rqstIds_;
     std::queue<unsigned int>        freeIds_;
-    std::queue<unsigned int>        allocatedIds_;
     std::queue<unsigned int>        builtIds_;
     std::set<unsigned int>          sentIds_;
     unsigned int                    evtNumber_;
     std::vector<unsigned int>       validFedIds_;
-
-    /**
-     * Buffer size used for EvtIdRqstsAndOrReleasesMsgs.
-     */
-    size_t evtIdRqstsAndOrReleasesBufSize_;
 
     bool                            isBuilding_;
     bool                            isSending_;
@@ -253,7 +209,6 @@ namespace evf {
     xdata::Boolean                  replay_;
     xdata::Boolean                  crc_;
     xdata::Boolean                  overwriteEvtId_;
-    xdata::Boolean                  forceGT_;
     xdata::UnsignedInteger32        firstEvent_;
     xdata::UnsignedInteger32        queueSize_;
     xdata::UnsignedInteger32        eventBufferSize_;
@@ -263,19 +218,6 @@ namespace evf {
     xdata::UnsignedInteger32        fedSizeWidth_;
     xdata::Boolean                  useFixedFedSize_;
     xdata::UnsignedInteger32        monSleepSec_;
-
-    /**
-     * Exported read/write parameter specifying the packing factor of
-     * I2O_EVM_ALLOCATE_CLEAR messages.
-     */
-    xdata::UnsignedInteger32 I2O_EVM_ALLOCATE_CLEAR_Packing_;
-
-    /**
-     * Pointer to the BufRef of the current EvtIdRqstsAndOrReleasesMsg.
-     */
-    toolbox::mem::Reference *evtIdRqstsAndOrReleasesBufRef_;
-
-
 
     // gaussian aprameters for randpm fed size generation (log-normal)
     double                          gaussianMean_;

@@ -20,8 +20,8 @@ class DQMHistoryCreateTrend
    * This is because we do not want to mix them for some misconfiguration.
    */
   void operator()(const DQMHistoryTrendsConfig & trend);
-  inline void setDB(std::string dbName, std::string dbTag, std::string authPath = "") {
-    inspector_->setDB(dbName, dbTag, authPath);
+  inline void setDB(std::string dbName, std::string dbTag, std::string dbUser="", std::string dbPassword="", std::string dbBlob="") {
+    inspector_->setDB(dbName, dbTag, dbUser, dbPassword, dbBlob);
   }
   inline void setDebug(const int i) {
     inspector_->setDebug(i);
@@ -34,10 +34,6 @@ class DQMHistoryCreateTrend
   }
   inline void setWhiteList(const std::string & listItems) {
     inspector_->setWhiteList(listItems);
-  }
-  inline void setWhiteListFromFile(const std::string & listFileName) {
-    std::cout << "Reading white list from file: " << listFileName << std::endl;
-    inspector_->setWhiteList(inspector_->readListFromFile(listFileName));
   }
   inline void closeFile() {
     inspector_->closeFile();

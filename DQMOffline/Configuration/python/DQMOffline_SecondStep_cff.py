@@ -36,6 +36,8 @@ from DQMOffline.Trigger.DQMOffline_Trigger_Client_cff import *
 from DQMOffline.Trigger.DQMOffline_HLT_Client_cff import *
 from DQMOffline.RecoB.dqmCollector_cff import *
 
+hltOfflineDQMClient.remove(jetMETHLTOfflineClient)
+
 DQMOffline_SecondStep_PrePOG = cms.Sequence( muonQualityTests *
                                              photonOfflineDQMClient *
                                              triggerOfflineDQMClient *

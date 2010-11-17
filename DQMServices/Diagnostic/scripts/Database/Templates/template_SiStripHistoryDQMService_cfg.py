@@ -133,22 +133,7 @@ process.SiStripHistoryDQMService = cms.Service(
     cms.PSet( keyName = cms.untracked.string("Summary_ClusterWidth__OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat"))
     ,
     cms.PSet( keyName = cms.untracked.string("Summary_ClusterWidth__OffTrack"), quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
 
-    # FED errors:
-    cms.PSet( keyName = cms.untracked.string("nFEDErrors"), quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("nBadActiveChannelStatusBits"), quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("nBadChannelStatusBits"), quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("nAPVAddressError"), quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("nUnlocked"), quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("nOutOfSync"), quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("TotalNumberOfClusterProfile"), quantitiesToExtract = cms.untracked.vstring("user_ymean"))
     )
 )
 

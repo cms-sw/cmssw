@@ -80,9 +80,9 @@ int main(int argc, char *argv[]){
   //rprint->printCorrelationASCII();
 
   if (ocfg->doPrintAll) {
-    //    rprint->printRatesTex(ocfg,omenu);    
+    rprint->printRatesTex(ocfg,omenu);    
     rprint->printRatesTwiki(ocfg,omenu);     
-    //    rprint->printPrescalesCfg(ocfg,omenu);
+    rprint->printPrescalesCfg(ocfg,omenu);
     rprint->writeHistos(ocfg,omenu);
     char sLumi[10],sEnergy[10];
     sprintf(sEnergy,"%1.0f",ocfg->cmsEnergy);

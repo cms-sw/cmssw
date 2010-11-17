@@ -25,7 +25,7 @@ DCCDataUnpacker::DCCDataUnpacker(
 }
 
 
-void DCCDataUnpacker::unpack(uint64_t * buffer, unsigned int bufferSize, unsigned int smId, unsigned int fedId){
+void DCCDataUnpacker::unpack(uint64_t * buffer, uint bufferSize, uint smId, uint fedId){
   //buffer is pointer to binary data
   //See if this fed is on EB or in EE
 

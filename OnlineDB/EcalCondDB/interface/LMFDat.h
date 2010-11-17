@@ -36,13 +36,6 @@ class LMFDat : public LMFUnique {
     return runiov;
   }
 
-  Tm getSubrunStart() const {
-    return getLMFRunIOV().getSubRunStart();
-  }
-
-  void getPrevious(LMFDat *dat) throw(runtime_error);
-  void getNext(LMFDat *dat) throw(runtime_error);
-
   virtual std::string getTableName() {
     return m_tableName;
   }
@@ -117,20 +110,15 @@ class LMFDat : public LMFUnique {
   virtual int fetchData() throw(runtime_error);
   void fetch() throw(runtime_error);
   void fetch(int logic_id) throw(runtime_error);
-  void fetch(int logic_id, const Tm &tm) throw(runtime_error);
-  void fetch(int logic_id, const Tm *timestamp, int dir) throw(runtime_error);
-  void fetch(const EcalLogicID &id, const Tm &tm) throw(runtime_error);
-  void fetch(const EcalLogicID &id, const Tm &tm, int dir) throw(runtime_error);
   void fetch(const EcalLogicID &id) 
     throw(runtime_error);
 
   virtual bool isValid();
  protected:
-  void getNeighbour(LMFDat *dat, int which) throw(runtime_error);
   int writeDB() throw(runtime_error);
   bool check();
   std::string buildInsertSql();
-  std::string buildSelectSql(int logic_id = 0, int direction = 0);
+  std::string buildSelectSql(int logic_id = 0);
   void getKeyTypes() throw(runtime_error);
 
   int m_max;

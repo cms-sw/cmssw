@@ -10,13 +10,15 @@ __selectionName = 'SiStripCalMinBias'
 ALCARECOSiStripCalMinBiasTrackingDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
+    SeedProducer = 'hiPixelTrackSeeds',
+    TCProducer = 'hiPrimTrackCandidates',
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
     BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
 # margins and settings
-    TkSizeBin = 71,
+    TkSizeBin = 300,
     TkSizeMin = -0.5,
-    TkSizeMax = 70.5,
+    TkSizeMax = 299.5,
     TrackPtMax = 30
 )
 

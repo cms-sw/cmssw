@@ -5,22 +5,21 @@
  *
  *  Implementation of a 3D regular grid.
  *
-*  \author T. Todorov
+ *  $Date: 2009/08/17 09:14:01 $
+ *  $Revision: 1.4 $
+ *  \author T. Todorov
  */
 
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
-#include "DataFormats/Math/interface/SSEVec.h"
 #include "MagneticField/Interpolation/src/Grid1D.h"
 #include <vector>
 
 class Grid3D {
 public:
 
-  typedef Basic3DVector<float>  ReturnType;
-  // typedef double   Scalar;
-  typedef mathSSE::Vec3F ValueType;
-  typedef float   Scalar;
- 
+  typedef Basic3DVector<float>   ValueType;
+  typedef double   Scalar;
+
   Grid3D() {}
 
   Grid3D( const Grid1D& ga, const Grid1D& gb, const Grid1D& gc,
@@ -31,21 +30,8 @@ public:
      stride2_ = gridc_.nodes();
   }
 
-  Grid3D( const Grid1D& ga, const Grid1D& gb, const Grid1D& gc,
-	  std::vector<ReturnType>& data);
-
-
-  int index(int i, int j, int k) const {return i*stride1_ + j*stride2_ + k;}
-  int stride1() const { return stride1_;}
-  int stride2() const { return stride2_;}
-  int stride3() const { return 1;}
-  const ValueType& operator()(int i) const {
-    return data_[i];
-  }
-
-  ReturnType operator()(int i, int j, int k) const {
-    const ValueType& result = (*this)(index(i,j,k));
-    return ReturnType(result);
+  const ValueType& operator()( int i, int j, int k) const {
+    return data_[index(i,j,k)];
   }
 
   const Grid1D& grida() const {return grida_;}
@@ -67,6 +53,7 @@ private:
   int stride1_;
   int stride2_;
 
+  int index(int i, int j, int k) const {return i*stride1_ + j*stride2_ + k;}
 
 };
 

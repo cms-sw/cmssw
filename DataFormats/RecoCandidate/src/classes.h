@@ -32,6 +32,7 @@
 #include "DataFormats/Common/interface/OneToValue.h"
 #include "DataFormats/Common/interface/OneToManyWithQuality.h"
 #include "DataFormats/Common/interface/OneToManyWithQualityGeneric.h"
+#include "DataFormats/Common/interface/OwnVector.h"
 
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
@@ -137,6 +138,7 @@ namespace {
 
 /*     edm::Wrapper<edm::RefVector<std::vector<reco::RecoChargedRefCandidateBase>,reco::RecoChargedRefCandidateBase,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedRefCandidateBase>,reco::RecoChargedRefCandidateBase> > > tpaaa3; */
 
+    edm::Wrapper<edm::OwnVector<reco::RecoCandidate> > wovrc;
 
   };
 }

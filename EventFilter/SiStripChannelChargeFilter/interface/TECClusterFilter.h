@@ -27,8 +27,8 @@ namespace cms
 
   private:
    std::string clusterProducer;
-   uint ChargeThresholdTEC;
-   uint minNrOfTECClusters;
+   unsigned int ChargeThresholdTEC;
+   unsigned int minNrOfTECClusters;
    std::vector<uint32_t> ModulesToBeExcluded;
   };
 }

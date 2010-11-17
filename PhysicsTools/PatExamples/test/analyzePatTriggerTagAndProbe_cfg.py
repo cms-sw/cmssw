@@ -1,34 +1,29 @@
 import FWCore.ParameterSet.Config as cms
 
-## Declare Process
 process = cms.Process( "TEST" )
 
-## Configure MessageLogger
 process.load( "FWCore.MessageService.MessageLogger_cfi" )
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( False )
 )
 
-## Declare input
-from PhysicsTools.PatExamples.samplesCERN_cff import *
-
 process.source = cms.Source( "PoolSource",
-    fileNames = zjetsTrigger
+    fileNames = cms.untracked.vstring(
+        'file:/afs/cern.ch/cms/Tutorials/TWIKI_DATA/edmPatTrigger_zjets_patTutoial_june10.root'
+    )
 )
-
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( -1 )
 )
 
-## Define output file
 process.TFileService = cms.Service( "TFileService",
     fileName = cms.string( 'analyzePatTriggerTagAndProbe.root' )
 )
 
-## Define tag and probre analyzer
 process.tagAndProbeAnalysis = cms.EDAnalyzer( "PatTriggerTagAndProbe",
+    trigger      = cms.InputTag( "patTrigger" ),
     triggerEvent = cms.InputTag( "patTriggerEvent" ),
-    muons        = cms.InputTag( "cleanPatMuons" ),
+    muons        = cms.InputTag( "selectedPatMuons" ),
     muonMatch    = cms.string( 'muonTriggerMatchHLTMuons' )
 )
 

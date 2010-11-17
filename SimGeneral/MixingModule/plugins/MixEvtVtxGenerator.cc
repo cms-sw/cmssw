@@ -1,8 +1,8 @@
 #ifndef HI_MixEvtVtxGenerator_H
 #define HI_MixEvtVtxGenerator_H
 /*
-*   $Date: 2010/02/16 17:10:09 $
-*   $Revision: 1.2 $
+*   $Date: 2010/02/25 00:34:24 $
+*   $Revision: 1.3 $
 */
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -17,6 +17,9 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
+
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "TMatrixD.h"
 
@@ -40,6 +43,7 @@ class MixEvtVtxGenerator : public edm::EDProducer
    virtual void produce( edm::Event&, const edm::EventSetup& );
       
    virtual HepMC::FourVector* getVertex(edm::Event&);
+   virtual HepMC::FourVector* getRecVertex(edm::Event&);
    
    protected:
 
@@ -49,16 +53,22 @@ class MixEvtVtxGenerator : public edm::EDProducer
    private :
 
    edm::InputTag            signalLabel;
-  edm::InputTag            hiLabel;
+   edm::InputTag            hiLabel;
+   bool                     useRecVertex;
+   std::vector<double>      vtxOffset;
 
 };
 
 MixEvtVtxGenerator::MixEvtVtxGenerator( const ParameterSet& pset ) 
 	: fVertex(0), boost_(0),
 	  signalLabel(pset.getParameter<edm::InputTag>("signalLabel")),
-          hiLabel(pset.getParameter<edm::InputTag>("heavyIonLabel"))
+          hiLabel(pset.getParameter<edm::InputTag>("heavyIonLabel")),
+	  useRecVertex(pset.exists("useRecVertex")?pset.getParameter<bool>("useRecVertex"):false)
+	  
 {   
    produces<bool>("matchedVertex"); 
+   vtxOffset.resize(3);
+   if(pset.exists("vtxOffset")) vtxOffset=pset.getParameter< std::vector<double> >("vtxOffset");
 }
 
 MixEvtVtxGenerator::~MixEvtVtxGenerator() 
@@ -102,6 +112,39 @@ HepMC::FourVector* MixEvtVtxGenerator::getVertex( Event& evt){
 }
 
 
+HepMC::FourVector* MixEvtVtxGenerator::getRecVertex( Event& evt){
+
+  Handle<reco::VertexCollection> input;
+  evt.getByLabel(hiLabel,input);
+
+  double aX,aY,aZ;
+
+  aX = input->begin()->position().x() + vtxOffset[0];
+  aY = input->begin()->position().y() + vtxOffset[1];
+  aZ = input->begin()->position().z() + vtxOffset[2];
+
+  /*
+  std::cout << "reco::Vertex = " << input->begin()->position().x()
+	    << ", " << input->begin()->position().y()
+	    << ", " << input->begin()->position().z()
+	    << std::endl;
+
+  std::cout << "offset = " << vtxOffset[0]
+	    << ", " << vtxOffset[1]
+	    << ", " << vtxOffset[2]
+	    << std::endl;
+
+  std::cout << "embedded GEN vertex = " << aX
+	    << ", " << aY << ", " << aZ << std::endl;
+  */
+  
+  if(!fVertex) fVertex = new HepMC::FourVector();
+  fVertex->set(10.0*aX,10.0*aY,10.0*aZ,0.0); // HepMC positions in mm (RECO in cm)
+  
+  return fVertex;
+
+}
+
 void MixEvtVtxGenerator::produce( Event& evt, const EventSetup& )
 {
    
@@ -112,7 +155,8 @@ void MixEvtVtxGenerator::produce( Event& evt, const EventSetup& )
    
    // generate new vertex & apply the shift 
    //
-   HepMCEvt->applyVtxGen( getVertex(evt) ) ;
+
+   HepMCEvt->applyVtxGen( useRecVertex ? getRecVertex(evt) : getVertex(evt) ) ;
 
    //   HepMCEvt->boostToLab( GetInvLorentzBoost(), "vertex" );
    //   HepMCEvt->boostToLab( GetInvLorentzBoost(), "momentum" );

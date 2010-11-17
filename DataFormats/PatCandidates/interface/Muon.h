@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.33 2010/09/14 15:15:15 kukartse Exp $
+// $Id: Muon.h,v 1.32 2010/05/12 12:31:38 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -17,7 +17,7 @@
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
 
-  \version  $Id: Muon.h,v 1.33 2010/09/14 15:15:15 kukartse Exp $
+  \version  $Id: Muon.h,v 1.32 2010/05/12 12:31:38 rwolf Exp $
 */
 
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -113,12 +113,6 @@ namespace pat {
       } 
       /// embed the IsolatedPFCandidate pointed to by pfCandidateRef_
       void embedPFCandidate();
-      /// get the number of non-null PF candidates
-      size_t numberOfSourceCandidatePtrs() const { 
-	return pfCandidateRef_.isNonnull() ? 1 : 0;
-      }
-      /// get the candidate pointer with index i
-      reco::CandidatePtr sourceCandidatePtr( size_type i ) const;
 
       // ---- methods for accessing muon identification ----
       /// accessor for the various muon id algorithms currently defined

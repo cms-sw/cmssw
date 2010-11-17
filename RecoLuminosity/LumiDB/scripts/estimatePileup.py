@@ -5,11 +5,13 @@ import array
 import optparse
 from RecoLuminosity.LumiDB import csvSelectionParser, selectionParser
 import RecoLuminosity.LumiDB.lumiQueryAPI as LumiQueryAPI
+import re
 
 from pprint import pprint
 
 def fillPileupHistogram (deadTable, parameters,
-                         runNumber = 0, hist = None, debug = False):
+                         runNumber = 0, hist = None, debug = False,
+                         mode='deadtable'):
     '''Given a deadtable and run number, will (create if necessary
     and) fill histogram with expected pileup distribution.  If a
     histogram is created, it is owned by the user and is his/her
@@ -24,29 +26,42 @@ def fillPileupHistogram (deadTable, parameters,
                           -0.5, parameters.maxPileupBin + 0.5)
         upper  = parameters.maxPileupBin
     for lumiSection, deadArray in sorted (deadTable.iteritems()):
-        if len(deadArray) <= parameters.xingIndex:
-            # for some reason the xing instantaneous luminosity
-            # information isn't there.  Print a warning and then skip
-            # it:
-            if parameters.noWarnings:
+        if mode == 'csv':
+            numerator     = float (deadArray[1])
+            denominator   = float (deadArray[0])
+            instLumiArray =        deadArray[2]
+            livetime = 1
+            if numerator < 0:
+                numerator = 0
+            if denominator:
+                livetime = numerator / denominator
+        else:
+            # we got everything from lumiDB
+            if len(deadArray) <= parameters.xingIndex:
+                # for some reason the xing instantaneous luminosity
+                # information isn't there.  Print a warning and then skip
+                # it:
+                if parameters.noWarnings:
+                    continue
+                if runNumber:
+                    print "No Xing Instantaneous luminosity information for run %d, lumi section %d" \
+                          % (runNumber, lumiSection)
+                else:
+                    print "No Xing Instantaneous luminosity information for lumi section %d" \
+                          % lumiSection
                 continue
-            if runNumber:
-                print "No Xing Instantaneous luminosity information for run %d, lumi section %d" \
-                      % (runNumber, lumiSection)
-            else:
-                print "No Xing Instantaneous luminosity information for lumi section %d" \
-                      % lumiSection
-            continue
-        livetime = 1
-        numerator   = float (deadArray[0])
-        denominator = float (deadArray[2] * deadArray[4])
-        if denominator:
-            livetime = 1 - numerator / denominator        
-        xingInstLumiArray = deadArray[parameters.xingIndex]
-        # here we only want the instantaneous luminosities and don't
-        # care which crosings they fall in.  So we only want the odd 
-        instLumiArray = [(xingInstLumiArray[index], xingInstLumiArray[index + 1]) \
-                         for index in xrange( 0, len (xingInstLumiArray), 2 ) ]
+            numerator   = float (deadArray[0])
+            denominator = float (deadArray[2] * deadArray[4])
+            xingInstLumiArray = deadArray[parameters.xingIndex]
+            # here we only want the instantaneous luminosities and don't
+            # care which crosings they fall in.  So we only want the odd 
+            instLumiArray = [(xingInstLumiArray[index], xingInstLumiArray[index + 1]) \
+                             for index in xrange( 0, len (xingInstLumiArray), 2 ) ]
+            livetime = 1
+            if numerator < 0:
+                numerator = 0
+            if denominator:
+                livetime = 1 - numerator / denominator
         # totalInstLumi = reduce(lambda x, y: x+y, instLumiArray) # not needed
         for xing, xingInstLumi in instLumiArray:
             xingIntLumi = xingInstLumi * parameters.lumiSectionLen * livetime
@@ -109,6 +124,8 @@ if __name__ == '__main__':
                             help = 'lumi data version, optional for all, default %default')
     inputGroup.add_option  ('--hltpath', dest = 'hltpath', action = 'store',
                            help = 'specific hltpath to calculate the recorded luminosity, default to all')
+    inputGroup.add_option  ('--csvInput', dest = 'csvInput', type='string', default='',
+                            help = 'Use CSV file from lumiCalc.py instead of lumiDB')
     pileupGroup.add_option ('--xingMinLum', dest = 'xingMinLum', type='float', default = 1e-3,
                             help = 'Minimum luminosity considered for "lsbylsXing" action, default %default')
     pileupGroup.add_option ('--minBiasXsec', dest = 'minBiasXsec', type='float', default = parameters.minBiasXsec,
@@ -161,10 +178,64 @@ if __name__ == '__main__':
                                         options.siteconfpath, parameters,options.debug)
 
     ## Let's start the fun
-    if not options.inputfile and not options.runnumber:
-        raise "must specify either a run (-r) or an input run selection file (-i)"
-    lumiXing = False
+    if not options.inputfile and not options.runnumber and not options.csvInput:
+        raise "must specify either a run (-r), an input run selection file (-i), or an input CSV file (--csvInput)"
+    pileupHist = ROOT.TH1F (parameters.pileupHistName, parameters.pileupHistName,
+                      parameters.maxPileupBin + 1,
+                      -0.5, parameters.maxPileupBin + 0.5)
+    histList = []
+    if options.csvInput:
+        # we're going to read in the CSV file and use this as not only
+        # the selection of which run/events to use, but also the
+        # source of the lumi information.
+        sepRE = re.compile (r'[\s,;:]+')
+        runLumiDict = {}    
+        events = open (options.csvInput, 'r')
+        csvDict = {}
+        for line in events:
+            pieces = sepRE.split (line.strip())
+            if len (pieces) < 6:
+                continue
+            if len (pieces) % 2:
+                # not an even number
+                continue
+            try:
+                run,       lumi     = int  ( pieces[0] ), int  ( pieces[1] )
+                delivered, recorded = float( pieces[2] ), float( pieces[3] )
+                xingInstLumiArray = [( int(orbit), float(lum) ) \
+                                     for orbit, lum in zip( pieces[4::2],
+                                                            pieces[5::2] ) ]
+            except:
+                continue
+            csvDict.setdefault (run, {})[lumi] = \
+                               ( delivered, recorded, xingInstLumiArray )
+        events.close()
+        for runNumber, lumiDict in sorted( csvDict.iteritems() ):
+            if options.saveRuns:
+                hist = fillPileupHistogram (lumiDict, parameters,
+                                            runNumber = runNumber,
+                                            debug = options.debugLumi,
+                                            mode='csv')
+                pileupHist.Add (hist)
+                histList.append (hist)
+            else:
+                fillPileupHistogram (lumiDict, parameters,
+                                     hist = pileupHist,
+                                     debug = options.debugLumi,
+                                     mode='csv')
+            
+        histFile = ROOT.TFile.Open (output, 'recreate')
+        if not histFile:
+            raise RuntimeError, \
+                  "Could not open '%s' as an output root file" % output
+        pileupHist.Write()
+        for hist in histList:
+            hist.Write()
+        histFile.Close()
+        #pprint (csvDict)
+        sys.exit()
 
+        
     ## Get input source
     if options.runnumber:
         inputRange = options.runnumber
@@ -183,10 +254,6 @@ if __name__ == '__main__':
 
     recordedData  = LumiQueryAPI.recordedLumiForRange  (session, parameters, inputRange)
     ## pprint (recordedData)
-    pileupHist = ROOT.TH1F (parameters.pileupHistName, parameters.pileupHistName,
-                      parameters.maxPileupBin + 1,
-                      -0.5, parameters.maxPileupBin + 0.5)
-    histList = []
     for runDTarray in recordedData:
         runNumber = runDTarray[0]
         deadTable = runDTarray[2]

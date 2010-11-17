@@ -5,3 +5,10 @@
 <use name=CondFormats/DataRecord>
 
 <flags EDM_PLUGIN=1>
+<export>
+   <lib name=CondCoreOptAlignPlugins>
+   <use name=FWCore/Framework>
+   <use name=CondCore/ESSources>
+   <use name=CondFormats/OptAlignObjects>
+   <use name=CondFormats/DataRecord>
+</export>

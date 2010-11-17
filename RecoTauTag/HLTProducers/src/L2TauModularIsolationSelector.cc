@@ -38,7 +38,7 @@ void
 L2TauModularIsolationSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-   Handle<L2TauInfoAssociation> Imap;
+   edm::Handle<L2TauInfoAssociation> Imap;
 
    std::auto_ptr<CaloJetCollection> l2IsolCaloJets( new CaloJetCollection );
    iEvent.getByLabel(associationInput_ ,Imap); 
