@@ -72,7 +72,7 @@ def _buildIDSourcePSet(pfTauType, idSources, postfix =""):
     """ Build a PSet defining the tau ID sources to embed into the pat::Tau """
     output = cms.PSet()
     for label, discriminator in idSources:
-        setattr(output, label, cms.InputTag(pfTauType+discriminator+postfix))
+        setattr(output, label, cms.InputTag(pfTauType + discriminator + postfix))
     return output
 
 def _switchToPFTau(process,
@@ -128,12 +128,29 @@ tancTauIDSources = [
     ("byTaNCfrHalfPercent", "DiscriminationByTaNCfrHalfPercent"),
     ("byTaNCfrQuarterPercent", "DiscriminationByTaNCfrQuarterPercent"),
     ("byTaNCfrTenthPercent", "DiscriminationByTaNCfrTenthPercent") ]
+
 # Hadron-plus-strip(s) (HPS) Tau Discriminators
 hpsTauIDSources = [
     ("leadingTrackFinding", "DiscriminationByDecayModeFinding"),
     ("byLooseIsolation", "DiscriminationByLooseIsolation"),
     ("byMediumIsolation", "DiscriminationByMediumIsolation"),
     ("byTightIsolation", "DiscriminationByTightIsolation"),
+    ("againstElectron", "DiscriminationAgainstElectron"),
+    ("againstMuon", "DiscriminationAgainstMuon")]
+
+# Discriminators of new HPS + TaNC combined Tau id. algorithm
+hpsTancTauIDSources = [
+    ("leadingTrackFinding", "DiscriminationByLeadingTrackFinding"),
+    ("leadingTrackPtCut", "DiscriminationByLeadingTrackPtCut"),
+    ("leadingPionPtCut", "DiscriminationByLeadingPionPtCut"),
+    ("byTaNCraw", "DiscriminationByTancRaw"),
+    ("byTaNC", "DiscriminationByTanc"),
+    ("byTaNCloose", "DiscriminationByTanc"),
+    ("byTaNCmedium", "DiscriminationByTanc"),
+    ("byTaNCtight", "DiscriminationByTanc"),
+    ("byHPSloose", "DiscriminationByLooseIsolation"),
+    ("byHPSmedium", "DiscriminationByMediumIsolation"),
+    ("byHPStight", "DiscriminationByTightIsolation"),
     ("againstElectron", "DiscriminationAgainstElectron"),
     ("againstMuon", "DiscriminationAgainstMuon")]
 
@@ -147,6 +164,20 @@ def switchToPFTauFixedCone(process,
     fixedConeIDSources.extend(classicPFTauIDSources)
 
     _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'fixedConePFTau', fixedConeIDSources,
+                   patTauLabel = patTauLabel, postfix = postfix)
+
+# switch to PFTau collection produced for shrinking signal cone of size dR = 5.0/Et(PFTau)
+def switchToPFTauShrinkingCone(process,
+                               pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
+                               pfTauLabelNew = cms.InputTag('shrinkingConePFTauProducer'),
+                               patTauLabel = "",
+                               postfix = ""):
+    shrinkingIDSources = copy.copy(classicTauIDSources)
+    shrinkingIDSources.extend(classicPFTauIDSources)
+    # Only shrinkingCone has associated TaNC discriminators, so add them here
+    shrinkingIDSources.extend(tancTauIDSources)
+    
+    _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'shrinkingConePFTau', shrinkingIDSources,
                    patTauLabel = patTauLabel, postfix = postfix)
 
 # switch to hadron-plus-strip(s) (HPS) PFTau collection
@@ -163,19 +194,19 @@ def switchToPFTauHPS(process,
       'tauID("leadingTrackFinding") > 0.5 & tauID("byMediumIsolation") > 0.5' \
      + ' & tauID("againstMuon") > 0.5 & tauID("againstElectron") > 0.5'
 
-# switch to PFTau collection produced for shrinking signal cone of size dR = 5.0/Et(PFTau)
-def switchToPFTauShrinkingCone(process,
-                               pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
-                               pfTauLabelNew = cms.InputTag('shrinkingConePFTauProducer'),
-                               patTauLabel = "",
-                               postfix = ""):
-    shrinkingIDSources = copy.copy(classicTauIDSources)
-    shrinkingIDSources.extend(classicPFTauIDSources)
-    # Only shrinkingCone has associated TaNC discriminators, so add them here
-    shrinkingIDSources.extend(tancTauIDSources)
-    
-    _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'shrinkingConePFTau', shrinkingIDSources,
+# switch to hadron-plus-strip(s) (HPS) PFTau collection
+def switchToPFTauHPSpTaNC(process, 
+                          pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
+                          pfTauLabelNew = cms.InputTag('hpsTancTaus'),
+                          patTauLabel = "",
+                          postfix = ""):
+    _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'hpsTancTaus', hpsTancTauIDSources,
                    patTauLabel = patTauLabel, postfix = postfix)
+    
+    ## adapt cleanPatTaus
+    getattr(process, "cleanPatTaus" + patTauLabel).preselection = \
+      'tauID("leadingPionPtCut") > 0.5 & tauID("byHPSmedium") > 0.5' \
+     + ' & tauID("againstMuon") > 0.5 & tauID("againstElectron") > 0.5'
 
 # Select switcher by string
 def switchToPFTauByType(process,
