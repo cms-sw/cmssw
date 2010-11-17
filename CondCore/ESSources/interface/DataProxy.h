@@ -103,7 +103,7 @@ public:
   DataProxyWrapper(cond::DbSession& session,
 		   const std::string & iovtoken, std::string const & ilabel, const char * source=0) :
     cond::DataProxyWrapperBase(ilabel),
-    m_proxy(new PayProxy(session,iovtoken,false, source)),
+    m_proxy(new PayProxy(session,iovtoken,true, source)), //errorPolicy set to true: PayloadProxy should catch and re-throw ORA exceptions
     m_edmProxy(new DataProxy(m_proxy)){
     //NOTE: We do this so that the type 'DataT' will get registered
     // when the plugin is dynamically loaded
@@ -123,7 +123,7 @@ public:
   // late initialize (to allow to load ALL library first)
   virtual void lateInit(cond::DbSession& session, const std::string & iovtoken,
 			std::string const & il, std::string const & cs, std::string const & tag) {
-    m_proxy.reset(new PayProxy(session,iovtoken,false, 
+    m_proxy.reset(new PayProxy(session,iovtoken,true, //errorPolicy set to true: PayloadProxy should catch and re-throw ORA exceptions
 			       m_source.empty() ?  (const char *)(0) : m_source.c_str() 
 			       )
 		  );
