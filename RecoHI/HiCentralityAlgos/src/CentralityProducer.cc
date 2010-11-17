@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.29 2010/10/27 12:25:22 yilmaz Exp $
+// $Id: CentralityProducer.cc,v 1.30 2010/11/06 10:58:46 yilmaz Exp $
 //
 //
 
@@ -46,6 +46,8 @@
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -87,7 +89,7 @@ class CentralityProducer : public edm::EDFilter {
    bool producePixelTracks_;
 
   bool doPixelCut_;
-
+   bool pixelBarrelOnly_;
   double midRapidityRange_;
   double trackPtCut_;
   double trackEtaCut_;
@@ -102,6 +104,7 @@ class CentralityProducer : public edm::EDFilter {
    edm::InputTag srcPixelhits_;
    edm::InputTag srcTracks_;
    edm::InputTag srcPixelTracks_;
+   edm::InputTag srcVertex_;
 
    edm::InputTag reuseTag_;
 
@@ -160,6 +163,8 @@ class CentralityProducer : public edm::EDFilter {
    if(producePixelhits_){
      srcPixelhits_ = iConfig.getParameter<edm::InputTag>("srcPixelhits");
      doPixelCut_ = iConfig.getParameter<bool>("doPixelCut");
+     pixelBarrelOnly_  = iConfig.getParameter<bool>("pixelBarrelOnly");
+     srcVertex_ = iConfig.getParameter<edm::InputTag>("srcVertex");
    }
    if(produceTracks_) srcTracks_ = iConfig.getParameter<edm::InputTag>("srcTracks");
    if(producePixelTracks_) srcPixelTracks_ = iConfig.getParameter<edm::InputTag>("srcPixelTracks");
@@ -264,7 +269,7 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
   }
   
-  if(produceBasicClusters_){
+  if(!produceEcalhits_ && produceBasicClusters_){
      creco->etEESumPlus_ = 0;
      creco->etEESumMinus_ = 0;
      creco->etEBSum_ = 0;
@@ -294,6 +299,38 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      creco->etEESumPlus_ = inputCentrality->EtEESumPlus();
      creco->etEBSum_ = inputCentrality->EtEBSum();
   }
+
+  if(produceEcalhits_){
+     creco->etEESumPlus_ = 0;
+     creco->etEESumMinus_ = 0;
+     creco->etEBSum_ = 0;
+
+     Handle<EcalRecHitCollection> ebHits;
+     Handle<EcalRecHitCollection> eeHits;
+
+     for(unsigned int i = 0; i < ebHits->size(); ++i){
+	const EcalRecHit & hit= (*ebHits)[i];
+	const GlobalPoint& pos=caloGeo_->getPosition(hit.id());
+	double et = hit.energy()*sin(pos.theta());
+	creco->etEBSum_ += et;
+     }
+
+     for(unsigned int i = 0; i < eeHits->size(); ++i){
+        const EcalRecHit & hit= (*eeHits)[i];
+        const GlobalPoint& pos=caloGeo_->getPosition(hit.id());
+        double et = hit.energy()*sin(pos.theta());
+	double eta = pos.eta();
+	if(eta > 0){
+	   creco->etEESumPlus_ += et;
+	}else{
+	   creco->etEESumMinus_ += et;
+	}
+     }
+  }else{
+     creco->etEESumMinus_ = inputCentrality->EtEESumMinus();
+     creco->etEESumPlus_ = inputCentrality->EtEESumPlus();
+     creco->etEBSum_ = inputCentrality->EtEBSum();
+  }
   
   if(producePixelhits_){
      creco->pixelMultiplicity_ = 0;
@@ -302,12 +339,23 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      iEvent.getByLabel(srcPixelhits_,rchts);
      rechits = rchts.product();
      int nPixel =0 ;
+
+     edm::Handle<reco::VertexCollection> vtx;
+     iEvent.getByLabel(srcVertex_,vtx);
+
+     math::XYZVector vtxPos(0,0,0);
+     if(vtx->size() > 0) vtxPos = math::XYZVector((*vtx)[0].x(),(*vtx)[0].y(),(*vtx)[0].z());
+
+
      for (SiPixelRecHitCollection::const_iterator it = rechits->begin(); it!=rechits->end();it++)
      {
         SiPixelRecHitCollection::DetSet hits = *it;
         DetId detId = DetId(hits.detId());
         SiPixelRecHitCollection::const_iterator recHitMatch = rechits->find(detId);
         const SiPixelRecHitCollection::DetSet recHitRange = *recHitMatch;
+	unsigned int detType=detId.det();    // det type, tracker=1
+	unsigned int subid=detId.subdetId(); //subdetector type, barrel=1, fpix=2
+	if (pixelBarrelOnly_ && (detType!=1||subid!=1)) continue;
         for ( SiPixelRecHitCollection::DetSet::const_iterator recHitIterator = recHitRange.begin(); 
 	      recHitIterator != recHitRange.end(); ++recHitIterator) {
 	  // add selection if needed, now all hits.
@@ -315,7 +363,8 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    const SiPixelRecHit * recHit = &(*recHitIterator);
 	    const PixelGeomDetUnit* pixelLayer = dynamic_cast<const PixelGeomDetUnit*> (trackGeo_->idToDet(recHit->geographicalId()));
 	    GlobalPoint gpos = pixelLayer->toGlobal(recHit->localPosition());
-	    math::XYZVector rechitPos(gpos.x(),gpos.y(),gpos.z());
+
+	    math::XYZVector rechitPos(gpos.x()-vtxPos.x(),gpos.y()-vtxPos.y(),gpos.z()-vtxPos.z());
 	    double abeta = fabs(rechitPos.eta());
 	    int clusterSize = recHit->cluster()->size();
             if (                abeta < 0.5 && clusterSize < 1) continue;
