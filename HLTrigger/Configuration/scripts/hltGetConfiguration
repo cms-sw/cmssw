@@ -62,7 +62,6 @@ class ConnectionHLTMenu(object):
 # define an argparse parser to parse our options
 textwidth = int( os.popen("stty size", "r").read().split()[1] )
 formatter = FixedWidthFormatter( HelpFormatterRespectNewlines, width = textwidth )
-configuration = argparse.Namespace()
 
 parser = argparse.ArgumentParser(
   description       = 'Extract an HLT configuration (or fragment thereof) from the ConfDB database.''',
@@ -440,7 +439,7 @@ if 'MessageLogger' in %(dict)s:
 
 
 # parse command line arguments and options
-args = parser.parse_args( namespace = configuration )
+configuration = parser.parse_args()
 
 # Initialize everything
 confdbOptions = {
