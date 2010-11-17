@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from Validation.RecoEgamma.tpSelection_cfi import *
 from Validation.RecoEgamma.photonValidator_cfi import *
+from Validation.RecoEgamma.tkConvValidator_cfi import *
+
 from SimTracker.TrackAssociation.TrackAssociatorByHits_cfi import *
 import SimTracker.TrackAssociation.TrackAssociatorByHits_cfi
 TrackAssociatorByHits.Cut_RecoToSim = 0.5
@@ -20,5 +22,5 @@ photonValidation.rBin = 48
 photonValidation.eoverpMin = 0.
 photonValidation.eoverpMax = 5.
 #
-photonValidationSequence = cms.Sequence(tpSelection*photonValidation)
+photonValidationSequence = cms.Sequence(tpSelection*photonValidation*tpSelecForFakeRate*tpSelecForEfficiency*tkConversionValidation)
 
