@@ -32,6 +32,7 @@ CondTools/Hcal/.*                       : oracle.*
 OnlineDB/CSCCondDB/.*                   : oracle.*
 OnlineDB/EcalCondDB/.*                  : oracle.*
 OnlineDB/SiStripO2O/.*                  : oracle.*
+OnlineDB/Oracle/.*                  	: oracle.*
 
 #oracleocci (indirect)
 CalibCalorimetry/EcalSRTools/.*         : oracle.*
@@ -43,6 +44,8 @@ CondCore/EcalPlugins/.*                 : oracle.*
 CondTools/Ecal/.*                       : oracle.*
 OnlineDB/SiStripESSources/.*            : oracle.*
 OnlineDB/SiStripConfigDb/.*             : oracle.*
+DQM/EcalBarrelMonitorClient/.*          : oracle.*
+DQM/EcalEndcapMonitorClient/.*		: oracle.*
 
 #rootinteractive (direct)
 CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/.* : rootinteractive
