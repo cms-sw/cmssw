@@ -93,8 +93,8 @@
  **  
  **
  **  $Id: TkConvValidator
- **  $Date: 2010/11/15 13:55:03 $ 
- **  $Revision: 1.4 $
+ **  $Date: 2010/11/16 09:32:29 $ 
+ **  $Revision: 1.5 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/
@@ -893,8 +893,13 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
   for (reco::ConversionCollection::const_iterator conv = convHandle->begin();conv!=convHandle->end();++conv) {
     const reco::Conversion aConv = (*conv);
-    if ( ! mergedTracks_ ) 
+    if ( ! mergedTracks_ ) {
       if (! ( aConv.quality(reco::Conversion::generalTracksOnly)  && aConv.quality(reco::Conversion::highPurity) ) ) continue;
+    } else {
+      if ( !aConv.quality(reco::Conversion::highPurity)  ) continue;
+    }
+    
+
 
     std::vector<edm::RefToBase<reco::Track> > tracks = aConv.tracks();
     const reco::Vertex& vtx = aConv.conversionVertex();
