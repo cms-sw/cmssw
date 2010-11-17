@@ -1515,7 +1515,7 @@ FWPathsPopup::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMo
       }
          
       // Clear text on new row click
-      int index = m_psTable->rowToIndex()[iRow];
+      // FIXME: int index = m_psTable->rowToIndex()[iRow];
       m_psTable->setSelection(iRow, iColumn, iKeyMod);
    }
 }
