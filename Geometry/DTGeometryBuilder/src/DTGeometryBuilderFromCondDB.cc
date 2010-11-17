@@ -145,9 +145,9 @@ DTGeometryBuilderFromCondDB::buildLayer(DTSuperLayer* sl,
   RCPPlane surf(plane(rig.tranStart(idt), rig.rotStart(idt), bound));//tran, rot, bound));
 
   // Loop on wires
-  int firstWire=int(*(rig.shapeStart(idt) +4 ));//par[4]);
-  int WCounter=int(*(rig.shapeStart(idt) + 5));//par[5]);
-  double sensibleLenght=*(rig.shapeStart(idt))/cm;//par[6]/cm;
+  int firstWire=int(*(rig.shapeStart(idt) + 4 ));//par[4]);
+  int WCounter=int(*(rig.shapeStart(idt) + 5 ));//par[5]);
+  double sensibleLenght=(*(rig.shapeStart(idt) + 6 ))/cm;//par[6]/cm;
   DTTopology topology(firstWire, WCounter, sensibleLenght);
 
   DTLayerType layerType;
