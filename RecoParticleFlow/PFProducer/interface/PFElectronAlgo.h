@@ -91,6 +91,8 @@ class PFElectronAlgo {
 		 AssMap& associatedToEcal_,
 		 std::vector<bool>& active);
   
+  unsigned int whichTrackAlgo(const reco::TrackRef& trackRef);
+
   std::vector<reco::PFCandidate> elCandidate_;
   std::vector<reco::PFCandidate> allElCandidate_;
   std::map<unsigned int,std::vector<reco::PFCandidate> > electronConstituents_;

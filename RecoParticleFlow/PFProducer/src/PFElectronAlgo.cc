@@ -743,9 +743,9 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	    if(ecalConvElems.size() > 0) {
 	      // Further Cleaning: DANIELE This could be improved!
 	      TrackRef trkRef =   TrkEl->trackRef();
-	      // iteration 1,2,3,4 correspond to algo = 1/5,6,7,8
-	      unsigned int Algo = trkRef->algo() < 5 ? 
-		trkRef->algo()-1 : trkRef->algo()-5;
+	      // iter0, iter1, iter2, iter3 = Algo < 3
+	      unsigned int Algo = whichTrackAlgo(trkRef);
+
 	      float secpin = trkRef->p();	
 	      
 	      const reco::PFBlockElementCluster * clust =  
@@ -753,7 +753,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	      float eneclust  =clust->clusterRef()->energy();
 
 	      //1)  ******* Reject secondary KF tracks linked to also an HCAL cluster with H/(E+H) > 0.1
-	      //            This is applied also the KF linked to locked ECAL cluster
+	      //            This is applied also to KF linked to locked ECAL cluster
 	      //            NOTE: trusting the H/(E+H) and not the conv brem selection increse the number
 	      //                  of charged hadrons around the electron. DANIELE? re-think about this. 
 	      std::multimap<double, unsigned int> hcalConvElems;
@@ -1215,13 +1215,14 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	    if(localactive[index] == true) {
 
 	      // Check that this cluster is not closer to another GSF
-	      std::multimap<double, unsigned> sortedGsf;
-	      block.associatedElements( index,  linkData,
-					sortedGsf,
-					reco::PFBlockElement::GSF,
-					reco::PFBlock::LINKTEST_ALL );
-	      unsigned jGsf = sortedGsf.begin()->second;
-	      if ( jGsf != gsfIs[iEle]) continue; 
+	      // remove in high energetic jets this is dangerous. 
+// 	      std::multimap<double, unsigned> sortedGsf;
+// 	      block.associatedElements( index,  linkData,
+// 					sortedGsf,
+// 					reco::PFBlockElement::GSF,
+// 					reco::PFBlock::LINKTEST_ALL );
+// 	      unsigned jGsf = sortedGsf.begin()->second;
+// 	      if ( jGsf != gsfIs[iEle]) continue; 
 
 	      EcalElemsIndex.push_back(index);
 	      localactive[index] = false;
@@ -1410,7 +1411,9 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
     unsigned int nhits_gsf = 0;
     int NumBrem = 0;
     reco::TrackRef RefKF;  
-
+    double posX=0.;
+    double posY=0.;
+    double posZ=0.;
 
     unsigned int gsf_index =  igsf->first;
     const reco::PFBlockElementGsfTrack * GsfEl  =  
@@ -1481,7 +1484,9 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	  //	  Ene_ecalgsf = pfcalib_.energyEm(*clusterRef,ps1Ene,ps2Ene);	  
 	  Ene_ecalgsf = pfcalib_.energyEm(*clusterRef,ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections_);	  
 	  //	  std::cout << "Test " << Ene_ecalgsf <<  " PS1 / PS2 " << ps1 << " " << ps2 << std::endl;
-
+	  posX += Ene_ecalgsf * clusterRef->position().X();
+	  posY += Ene_ecalgsf * clusterRef->position().Y();
+	  posZ += Ene_ecalgsf * clusterRef->position().Z();
 
 	  if (DebugIDOutputs)  
 	    cout << " setIdOutput! GSF ECAL Cluster E " << Ene_ecalgsf
@@ -1503,6 +1508,10 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	  reco::PFClusterRef clusterRef = elements[(assogsf_index[ielegsf])].clusterRef();	  	  
 	  float TempClus_energy = pfcalib_.energyEm(*clusterRef,ps1Ene,ps2Ene,applyCrackCorrections_);	 
 	  Ene_extraecalgsf += TempClus_energy;
+	  posX += TempClus_energy * clusterRef->position().X();
+	  posY += TempClus_energy * clusterRef->position().Y();
+	  posZ += TempClus_energy * clusterRef->position().Z();	  
+
 	  if (DebugIDOutputs)
 	    cout << " setIdOutput! Extra ECAL Cluster E " 
 		 << TempClus_energy << " Tot " <<  Ene_extraecalgsf << endl;
@@ -1541,6 +1550,10 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 		elements[(assobrem_index[ibrem])].clusterRef();
 	      float BremClus_energy = pfcalib_.energyEm(*clusterRef,ps1EneFromBrem,ps2EneFromBrem,applyCrackCorrections_);
 	      Ene_ecalbrem += BremClus_energy;
+	      posX +=  BremClus_energy * clusterRef->position().X();
+	      posY +=  BremClus_energy * clusterRef->position().Y();
+	      posZ +=  BremClus_energy * clusterRef->position().Z();	  
+	      
 	      NumBrem++;
 	      if (DebugIDOutputs) cout << " setIdOutput::BREM Cluster " 
 				       <<  BremClus_energy << " eta,phi " 
@@ -1642,6 +1655,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	BDToutput_[cgsf] = mvaValue;
 	
 
+
 	// IMPORTANT Additional conditions
 	if(mvaValue > mvaEleCut_) {
 	  // Check if the ecal cluster is isolated. 
@@ -1661,6 +1675,22 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	  unsigned int itrackHcalLinked = 0;
 	  float SumExtraKfP = 0.;
 
+
+	  double Etotal = Ene_ecalgsf + Ene_ecalbrem + Ene_extraecalgsf;
+	  posX /=Etotal;
+	  posY /=Etotal;
+	  posZ /=Etotal;
+	  math::XYZPoint sc_pflow(posX,posY,posZ);
+	  double ETtotal = Etotal*sin(sc_pflow.Theta());
+	  double phiTrack = RefGSF->phiMode();
+	  double dphi_normalsc = sc_pflow.Phi() - phiTrack;
+	  if ( dphi_normalsc < -M_PI ) 
+	    dphi_normalsc = dphi_normalsc + 2.*M_PI;
+	  else if ( dphi_normalsc > M_PI ) 
+	    dphi_normalsc = dphi_normalsc - 2.*M_PI;
+	  dphi_normalsc = fabs(dphi_normalsc);
+	
+  
 	  if(ecalGsf_index < 100000) {
 	    vector<unsigned int> assoecalgsf_index = associatedToEcal_.find(ecalGsf_index)->second;
 	    for(unsigned int itrk =0; itrk<assoecalgsf_index.size();itrk++) {
@@ -1675,9 +1705,9 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 		
 
 		reco::TrackRef trackref =  kfTk->trackRef();
-		// iteration 1,2,3,4 correspond to algo = 1/5,6,7,8
-		unsigned int Algo = trackref->algo() < 5 ? 
-		  trackref->algo()-1 : trackref->algo()-5;
+		unsigned int Algo = whichTrackAlgo(trackref);
+		// iter0, iter1, iter2, iter3 = Algo < 3
+		// algo 4,5,6,7
 		if(Algo < 3) {
 		  if(DebugIDOutputs) 
 		    cout << " The ecalGsf cluster is not isolated: >0 KF extra with algo < 3" << endl;
@@ -1699,11 +1729,16 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	    }
 	  }
 	  if( iextratrack > 0) {
-	    if(iextratrack > 3 || HOverHE > 0.05 || (SumExtraKfP/Ene_ecalgsf) > 1.) {
+	    if(iextratrack > 3 || HOverHE > 0.05 || (SumExtraKfP/Ene_ecalgsf) > 1. 
+	       || (ETtotal > 50. && iextratrack > 1 && (Ene_hcalgsf/Ene_ecalgsf) > 0.1) ) {
 
 	      if(DebugIDOutputs) 
-		cout << " *****This electron candidate is discarded  # tracks "		
-		     << iextratrack << " HOverHE " << HOverHE << " SumExtraKfP/Ene_ecalgsf " << SumExtraKfP/Ene_ecalgsf  << endl;
+		cout << " *****This electron candidate is discarded: Non isolated  # tracks "		
+		     << iextratrack << " HOverHE " << HOverHE 
+		     << " SumExtraKfP/Ene_ecalgsf " << SumExtraKfP/Ene_ecalgsf 
+		     << " ETtotal " << ETtotal
+		     << " Ene_hcalgsf/Ene_ecalgsf " << Ene_hcalgsf/Ene_ecalgsf
+		     << endl;
 
 	      BDToutput_[cgsf] = mvaValue-2.;
 	      lockExtraKf_[cgsf] = false;
@@ -1718,7 +1753,6 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 
 		BDToutput_[cgsf] = mvaValue;
 		lockExtraKf_[cgsf] = false;
-
 		if(DebugIDOutputs)
 		  cout << " *****This electron is reactivated  # tracks "		
 		       << iextratrack << " #tracks hcal linked " << itrackHcalLinked 
@@ -1730,16 +1764,31 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	  }
 	  // This is a pion:
 	  if (HOverPin > 1. && HOverHE > 0.1 && EtotPinMode < 0.5) {
+	    if(DebugIDOutputs) 
+	      cout << " *****This electron candidate is discarded  HCAL ENERGY "	
+		   << " HOverPin " << HOverPin << " HOverHE " << HOverHE  << " EtotPinMode" << EtotPinMode << endl;
 	    BDToutput_[cgsf] = mvaValue-4.;
 	    lockExtraKf_[cgsf] = false;
 	  }
+	  
+	  // Reject Crazy E/p values... to be understood in the future how to train a 
+	  // BDT in order to avoid to select this bad electron candidates. 
+	
+	  if( EtotPinMode < 0.2 && EGsfPoutMode < 0.2 ) {
+	    if(DebugIDOutputs) 
+	      cout << " *****This electron candidate is discarded  Low ETOTPIN "
+		   << " EtotPinMode " << EtotPinMode << " EGsfPoutMode " << EGsfPoutMode << endl;
+	    BDToutput_[cgsf] = mvaValue-6.;
+	  }
+	  
+	  // For not-preselected Gsf Tracks ET > 50 GeV, apply dphi preselection
+	  if(ETtotal > 50. && dphi_normalsc > 0.1 ) {
+	    if(DebugIDOutputs) 
+	      cout << " *****This electron candidate is discarded  Large ANGLE "
+		   << " ETtotal " << ETtotal << " EGsfPoutMode " << dphi_normalsc << endl;
+	    BDToutput_[cgsf] =  mvaValue-6.;
+	  }
  	}
-
-	// Reject Crazy E/p values... to be understood in the future how to train a 
-	// BDT in order to avoid to select this bad electron candidates. 
-	
-	if( EtotPinMode < 0.2 && EGsfPoutMode < 0.2 ) BDToutput_[cgsf] = mvaValue-6.;
-	
 
 
 	if (DebugIDOutputs) {
@@ -1768,7 +1817,6 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	  cout << " !!!!!!!!!!!!!!!! the BDT output !!!!!!!!!!!!!!!!!: direct " << mvaValue 
 	       << " corrected " << BDToutput_[cgsf] <<  endl; 
 	  
-
 	}
       }
       else {
@@ -2452,4 +2500,30 @@ void PFElectronAlgo::SetActive(const reco::PFBlockRef&  blockRef,
 }
 void PFElectronAlgo::setEGElectronCollection(const reco::GsfElectronCollection & egelectrons) {
   theGsfElectrons_ = & egelectrons;
+}
+unsigned int PFElectronAlgo::whichTrackAlgo(const reco::TrackRef& trackRef) {
+  unsigned int Algo = 0; 
+  switch (trackRef->algo()) {
+  case TrackBase::ctf:
+  case TrackBase::iter0:
+  case TrackBase::iter1:
+    Algo = 0;
+    break;
+  case TrackBase::iter2:
+    Algo = 1;
+    break;
+  case TrackBase::iter3:
+    Algo = 2;
+    break;
+  case TrackBase::iter4:
+    Algo = 3;
+    break;
+  case TrackBase::iter5:
+    Algo = 4;
+    break;
+  default:
+    Algo = 5;
+    break;
+  }
+  return Algo;
 }
