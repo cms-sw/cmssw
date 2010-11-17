@@ -13,7 +13,7 @@
 //
 // Original Author:  Loic QUERTENMONT
 //         Created:  Thu Mar 11 12:19:07 CEST 2010
-// $Id: HSCPTreeBuilder.cc,v 1.4 2010/05/12 04:58:29 querten Exp $
+// $Id: HSCPTreeBuilder.cc,v 1.5 2010/06/23 17:12:35 querten Exp $
 //
 
 
@@ -117,6 +117,7 @@ using namespace __gnu_cxx;
 #define MAX_VERTICES 1000
 #define MAX_HSCPS    10000
 #define MAX_GENS     10000
+#define MAX_ECALCRYS 10
 
 class HSCPTreeBuilder : public edm::EDFilter {
 	public:
@@ -224,8 +225,28 @@ class HSCPTreeBuilder : public edm::EDFilter {
                 float          Muon_cb_fIBeta     [MAX_HSCPS];
                 float          Muon_cb_fIBeta_err [MAX_HSCPS];
                 int            Muon_cb_ndof       [MAX_HSCPS];          
-                float          Calo_ecal_beta     [MAX_HSCPS];
                 float          Rpc_beta           [MAX_HSCPS];
+
+                float          Calo_ecal_crossedE         [MAX_HSCPS];
+                float          Calo_ecal_beta             [MAX_HSCPS];
+                float          Calo_ecal_beta_err         [MAX_HSCPS];
+                float          Calo_ecal_invBeta_err      [MAX_HSCPS];
+                float          Calo_ecal_dEdx             [MAX_HSCPS];
+                float          Calo_ecal_time             [MAX_HSCPS];
+                float          Calo_ecal_time_err         [MAX_HSCPS];
+                int            Calo_ecal_numCrysCrossed   [MAX_HSCPS];
+                float          Calo_ecal_swissCrossKs     [MAX_HSCPS][MAX_ECALCRYS];
+                float          Calo_ecal_e1OverE9s        [MAX_HSCPS][MAX_ECALCRYS];
+                float          Calo_ecal_trackLengths     [MAX_HSCPS][MAX_ECALCRYS];
+                float          Calo_ecal_trackExitEtas    [MAX_HSCPS][MAX_ECALCRYS];
+                float          Calo_ecal_trackExitPhis    [MAX_HSCPS][MAX_ECALCRYS];
+                float          Calo_ecal_energies         [MAX_HSCPS][MAX_ECALCRYS];
+                float          Calo_ecal_outOfTimeEnergies[MAX_HSCPS][MAX_ECALCRYS];
+                float          Calo_ecal_chi2s            [MAX_HSCPS][MAX_ECALCRYS];
+                float          Calo_ecal_outOfTimeChi2s   [MAX_HSCPS][MAX_ECALCRYS];
+                float          Calo_ecal_times            [MAX_HSCPS][MAX_ECALCRYS];
+                float          Calo_ecal_timeErrors       [MAX_HSCPS][MAX_ECALCRYS];
+                unsigned int   Calo_ecal_detIds           [MAX_HSCPS][MAX_ECALCRYS];
 
                 unsigned int   NGens;
                 int            Gen_pdgId          [MAX_GENS];
@@ -348,8 +369,28 @@ HSCPTreeBuilder::beginJob()
    MyTree->Branch("Muon_cb_fIBeta_err" ,Muon_cb_fIBeta_err ,"Muon_cb_fIBeta_err[NHSCPs]/F");
    MyTree->Branch("Muon_cb_ndof"       ,Muon_cb_ndof       ,"Muon_cb_ndof[NHSCPs]/I");
 
-   MyTree->Branch("Calo_eca_beta"      ,Calo_ecal_beta     ,"Calo_ecal_beta[NHSCPs]/F");
    MyTree->Branch("Rpc_beta"           ,Rpc_beta           ,"Rpc_beta[NHSCPs]/F");
+
+   MyTree->Branch("Calo_ecal_crossedE"         ,Calo_ecal_crossedE      ,"Calo_ecal_crossedE[NHSCPs]/F");
+   MyTree->Branch("Calo_ecal_beta"             ,Calo_ecal_beta          ,"Calo_ecal_beta[NHSCPs]/F");
+   MyTree->Branch("Calo_ecal_beta_err"         ,Calo_ecal_beta_err      ,"Calo_ecal_beta_err[NHSCPs]/F");
+   MyTree->Branch("Calo_ecal_invBeta_err"      ,Calo_ecal_invBeta_err   ,"Calo_ecal_invBeta_err[NHSCPs]/F");
+   MyTree->Branch("Calo_ecal_dEdx"             ,Calo_ecal_dEdx          ,"Calo_ecal_dEdx[NHSCPs]/F");
+   MyTree->Branch("Calo_ecal_time"             ,Calo_ecal_time          ,"Calo_ecal_time[NHSCPs]/F");
+   MyTree->Branch("Calo_ecal_time_err"         ,Calo_ecal_time_err      ,"Calo_ecal_time_err[NHSCPs]/F");
+   MyTree->Branch("Calo_ecal_numCrysCrossed"   ,Calo_ecal_numCrysCrossed,"Calo_ecal_numCrysCrossed[NHSCPs]/I");
+   MyTree->Branch("Calo_ecal_swissCrossKs"     ,Calo_ecal_swissCrossKs  ,"Calo_ecal_swissCrossKs[NHSCPs][10]/F");
+   MyTree->Branch("Calo_ecal_e1OverE9s"        ,Calo_ecal_e1OverE9s     ,"Calo_ecal_e1OverE9s[NHSCPs][10]/F");
+   MyTree->Branch("Calo_ecal_trackLengths"     ,Calo_ecal_trackLengths  ,"Calo_ecal_trackLengths[NHSCPs][10]/F");
+   MyTree->Branch("Calo_ecal_trackExitEtas"    ,Calo_ecal_trackExitEtas ,"Calo_ecal_trackExitEtas[NHSCPs][10]/F");
+   MyTree->Branch("Calo_ecal_trackExitPhis"    ,Calo_ecal_trackExitPhis ,"Calo_ecal_trackExitPhis[NHSCPs][10]/F");
+   MyTree->Branch("Calo_ecal_energies"         ,Calo_ecal_energies      ,"Calo_ecal_energies[NHSCPs][10]/F");
+   MyTree->Branch("Calo_ecal_outOfTimeEnergies",Calo_ecal_outOfTimeEnergies      ,"Calo_ecal_outOfTimeEnergies[NHSCPs][10]/F");
+   MyTree->Branch("Calo_ecal_chi2s"            ,Calo_ecal_chi2s      ,"Calo_ecal_chi2s[NHSCPs][10]/F");
+   MyTree->Branch("Calo_ecal_outOfTimeChi2s"   ,Calo_ecal_outOfTimeChi2s      ,"Calo_ecal_outOfTimeChi2s[NHSCPs][10]/F");
+   MyTree->Branch("Calo_ecal_times"            ,Calo_ecal_times         ,"Calo_ecal_times[NHSCPs][10]/F");
+   MyTree->Branch("Calo_ecal_timeErrors"       ,Calo_ecal_timeErrors    ,"Calo_ecal_timeErrors[NHSCPs][10]/F");
+   MyTree->Branch("Calo_ecal_detIds"           ,Calo_ecal_detIds        ,"Calo_ecal_detIds[NHSCPs][10]/I");
 
    if(reccordGenInfo){
    MyTree->Branch("NGens"              ,&NGens             ,"NGens/I");
@@ -511,8 +552,31 @@ HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          Muon_cb_ndof       [NHSCPs] = hscp.muonTimeCombined().nDof();
       }
 
-      if(Hscp_hasCalo){
-         Calo_ecal_beta     [NHSCPs] = hscp.calo().ecalbeta;     
+      if(hscp.hasCaloInfo()){
+         Calo_ecal_crossedE      [NHSCPs] = hscp.calo().ecalCrossedEnergy;
+         Calo_ecal_beta          [NHSCPs] = hscp.calo().ecalBeta;
+         Calo_ecal_beta_err      [NHSCPs] = hscp.calo().ecalBetaError;
+         Calo_ecal_invBeta_err   [NHSCPs] = hscp.calo().ecalInvBetaError;
+         Calo_ecal_dEdx          [NHSCPs] = hscp.calo().ecalDeDx;
+         Calo_ecal_time          [NHSCPs] = hscp.calo().ecalTime;
+         Calo_ecal_time_err      [NHSCPs] = hscp.calo().ecalTimeError;
+         Calo_ecal_numCrysCrossed[NHSCPs] = hscp.calo().ecalCrysCrossed;
+         for(int i=0; i < Calo_ecal_numCrysCrossed[NHSCPs] && i < MAX_ECALCRYS; ++i)
+         {
+           Calo_ecal_swissCrossKs     [NHSCPs][i] = hscp.calo().ecalSwissCrossKs[i];
+           Calo_ecal_e1OverE9s        [NHSCPs][i] = hscp.calo().ecalE1OverE9s[i];
+           Calo_ecal_trackLengths     [NHSCPs][i] = hscp.calo().ecalTrackLengths[i];
+           GlobalPoint exitPosition = hscp.calo().ecalTrackExitPositions[i];
+           Calo_ecal_trackExitEtas    [NHSCPs][i] = exitPosition.eta();
+           Calo_ecal_trackExitPhis    [NHSCPs][i] = exitPosition.phi();
+           Calo_ecal_energies         [NHSCPs][i] = hscp.calo().ecalEnergies[i];
+           Calo_ecal_outOfTimeEnergies[NHSCPs][i] = hscp.calo().ecalOutOfTimeEnergies[i];
+           Calo_ecal_chi2s            [NHSCPs][i] = hscp.calo().ecalChi2s[i];
+           Calo_ecal_outOfTimeChi2s   [NHSCPs][i] = hscp.calo().ecalOutOfTimeChi2s[i];
+           Calo_ecal_times            [NHSCPs][i] = hscp.calo().ecalTimes[i];
+           Calo_ecal_timeErrors       [NHSCPs][i] = hscp.calo().ecalTimeErrors[i];
+           Calo_ecal_detIds           [NHSCPs][i] = hscp.calo().ecalDetIds[i];
+         }
       }
 
       if(Hscp_hasRpc){
