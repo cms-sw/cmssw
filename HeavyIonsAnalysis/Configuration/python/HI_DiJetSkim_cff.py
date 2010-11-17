@@ -29,29 +29,29 @@ jetEtFilter = cms.EDFilter("EtMinCaloJetCountFilter",
     )
 
 # Dijet requirement
-process.leadingCaloJet = cms.EDFilter( "LargestEtCaloJetSelector",
+leadingCaloJet = cms.EDFilter( "LargestEtCaloJetSelector",
     src = cms.InputTag( "icPu5CaloJetsL2L3" ),
     filter = cms.bool( False ),
     maxNumber = cms.uint32( 1 )
     )
 
-process.goodLeadingJet = cms.EDFilter("CaloJetSelector",
+goodLeadingJet = cms.EDFilter("CaloJetSelector",
     src = cms.InputTag("leadingCaloJet"),
     cut = cms.string("et > 130")
     )
 
-process.goodSecondJet = cms.EDFilter("CaloJetSelector",
+goodSecondJet = cms.EDFilter("CaloJetSelector",
     src = cms.InputTag("icPu5CaloJetsL2L3"),
     cut = cms.string("et > 30")
     )
 
-process.backToBackDijets = cms.EDProducer("CandViewShallowCloneCombiner",
+backToBackDijets = cms.EDProducer("CandViewShallowCloneCombiner",
     checkCharge = cms.bool(False),
     cut = cms.string('abs(deltaPhi(daughter(0).phi,daughter(1).phi)) > 2.5'),
     decay = cms.string("goodLeadingJet goodSecondJet")
     )
 
-process.dijetFilter = cms.EDFilter("CandViewCountFilter",
+dijetFilter = cms.EDFilter("CandViewCountFilter",
     src = cms.InputTag("backToBackDijets"),
     minNumber = cms.uint32(1)
     )
