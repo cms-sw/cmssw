@@ -182,7 +182,7 @@ HSCParticleProducer = cms.EDProducer("HSCParticleProducer",
    useBetaFromTk      = cms.bool(True),
    useBetaFromMuon    = cms.bool(True),
    useBetaFromRpc     = cms.bool(True),
-   useBetaFromEcal    = cms.bool(False),
+   useBetaFromEcal    = cms.bool(True),
 
    #TAG OF THE REQUIRED INPUT COLLECTION (ONLY ACTIVATED CALCULATOR)
    tracks             = cms.InputTag("TrackRefitter"),
@@ -202,6 +202,8 @@ HSCParticleProducer = cms.EDProducer("HSCParticleProducer",
    muontimingDt       = cms.InputTag("muontiming:dt"),
    muontimingCsc      = cms.InputTag("muontiming:csc"),
    muontimingCombined = cms.InputTag("muontiming:combined"),
+   EBRecHitCollection = cms.InputTag("ecalRecHit:EcalRecHitsEB"),
+   EERecHitCollection = cms.InputTag("ecalRecHit:EcalRecHitsEE"),
 
    #TRACK SELECTION FOR THE HSCP SEED
    minMuP             = cms.double(5),
