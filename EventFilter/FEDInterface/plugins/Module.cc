@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
-#include "EventFilter/Utilities/plugins/EvFFEDSelector.h"
+#include "EventFilter/FEDInterface/plugins/EvFFEDSelector.h"
 
 using namespace evf;
 
