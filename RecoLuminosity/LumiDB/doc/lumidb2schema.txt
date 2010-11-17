@@ -1,103 +1,192 @@
-Indices:
-create index hlt_runnum on hlt(runnum);
-create index hlt_cmslsnum on hlt(cmslsnum asc);
-create index trg_runnum on trg(runnum);
-create index trg_cmslsnum on trg(cmslsnum asc);
-create index lumisummary_runnum on lumisummary(runnum);
-create index lumisummary_cmslsnum on lumisummary(cmslsnum asc);
-create index lumisummary_lumiversion on lumisummary(lumiversion);
-create index cmsrunsummary_fillnum on cmsrunsummary(fillnum asc);
-create index cmsrunsummary_hltkey on cmsrunsummary(hltkey);
+1.          
+create table revisions(
+     revision_id uint64 PK,
+     branch_id uint64 not null,
+     name string,
+     comment string,
+     ctime   timestamp
+)
+create table revisions_id(     #id helper table
+     nextid uint64 PK
+)
+create index revisions_branchid_idx on revision(branchid)
 
-alter table CMSRUNSUMMARY add ("STARTTIME" timestamp(6) );
-alter table CMSRUNSUMMARY add ("STOPTIME" timestamp(6) );
+2.
+create table luminorms(
+     data_id  uint64 PK
+     entry_id    uint64 not null references luminorms_entries(entry_id),
+     defaultnorm  float not null,
+     norm_1       float,
+     energy_1     float,
+     norm_2       float,
+     energy_2     float
+)
+create table luminorms_entries(   #versionable entity helper table
+     entry_id uint64 PK,
+     revision_id uint64 not null references revisions(revision_id)
+)
+create table luminorms_id(          #id helper table
+     nextid uint64 PK
+)
+create table luminorms_entries_id(    #id helper table
+     nextid uint64 PK
+)
+create table luminorms_rev(   
+    data_id uint64 not null references luminorms(data_id),
+    revision_id uint64 not null references revisions(revision_id) 
+)
+3.
+create table lumidata(             #verionable data table
+     data_id uint64 PK,
+     entry_id    uint64 not null references lumidata_entries(entry_id),
+     source     string,
+     runnum     uint32
+)
+create table lumidata_id(          #id helper table
+     nextid uint64 PK
+)
+create table lumidata_entries(       #versionable entity table
+     entry_id     uint64 not null   ,
+     revision_id  uint64 not null references revision(revision_id)
+)
+create table lumidata_rev(   
+    data_id uint64 not null references lumidata(data_id),
+    revision_id uint64 not null references revision(revision_id) 
+)
+constraint lumidata_rev_uc unique(data_id,revision_id)
+create table lumidata_entries_id(   
+     nextid uint64 PK
+)
 
-alter table LUMIDETAIL drop constraint DETAILSOURCE;
-alter table LUMIDETAIL add (constraint DETAILSOURCE foreign key (LUMISUMMARY_ID) references LUMISUMMARY (LUMISUMMARY_ID) ON DELETE CASCADE);
+4.
+create table cmsrunsummary(        #data table
+     runnum uint64 PK,
+     hltkey string not null,
+     l1key  string,
+     fillnum uint32,
+     sequence    string,
+     starttime   timestamp(6),
+     stoptime    timestamp(6)
+)
+5. 
+create table lumisummary(         #data table
+     lumidata_id  uint64 not null refrences lumidata(data_id),
+     runnum      uint32,  (redundant)
+     cmslsnum    uint32,
+     lumilsnum   uint32,
+     cmsalive    uint16,
+     instlumi     float,
+     instlumierror  float,
+     instlumiquality  short,
+     beamstatus   string,
+     beamenergy float,
+     cmsbxindexblob blob,
+     beamintensityblob_1 blob,
+     beamintesnsityblob_2 blob,
+     numorbit       uint32,
+     startorbit   uint32
+)
+6.
+create table lumidetail(           #data table
+     lumidata_id  uint64 not null references lumidata(data_id),
+     runnum       uint32, (redundant)
+     cmslsnum     uint32,
+     algoname     string,
+     bxlumivalue  blob,
+     bxlumierror    blob,
+     bxlumiquality blob
+)
+7.
+create table trgdata(                #verionable data table
+     data_id uint64 PK,
+     entry_id  uint64 not null references trgdata_entries(entry_id),
+     source string,
+     runnum   uint32,
+     bitzeroname string,
+     bitnameclob clob
+)
+create table trgdata_rev(   
+    data_id uint64 not null references trgdata(data_id),
+    revision_id uint64 not null references revisions(revision_id) 
+)
+constraint trgdata_rev_uc unique(data_id,revision_id)
+create table trgdata_entries(       
+     entry_id    uint64 not null	     ,
+     revision_id uint64 not null references revisions(revision_id) 
+)
+create table trgdata_id(             #id helper table
+     nextid uint64 PK
+)
+create table trgdata_entries_id(       #id helper table
+     nextid uint64 PK
+)
+8.
+create table lstrg(          #data table
+     data_id uint64 not null references trgdata(data_id),
+     runnum    uint32,   (redundant)
+     cmslsnum  uint32,
+     deadtimecount uint64,
+     bitzerocount uint32,
+     bitzeroprescale uint32,
+     deadfrac float,
+     pescalesblob   blob,
+     trgcountblob   blob
+)
+9.
+create table hltdata(                #vesionable data table
+    data_id uint64 PK,	     
+    entry_id    uint64 not null references hltdata_entries(entry_id),
+    runnum    uint32,
+    source    string,
+    npath    uint32,
+    pathnameclob clob
+)
+create table hltdata_entries(       
+     entry_id    uint64 PK,
+     revision_id uint64 not null references revisions(revision_id) ,
+)
+create table hltdata_id(         
+     nextid uint64 PK
+)
+create table hltdata_entries_id(     
+     nextid uint64 PK
+)
+create table hltdata_rev(   
+    data_id uint64 not null references hltdata(data_id),
+    revision_id uint64 not null references revisions(revision_id) 
+)
+constraint hltdata_rev_uc unique(dataid,revision_id)
+10.
+create table lshlt(         
+   data_id uint64 not null references hltdata(data_id),
+   runnum   uint32 not null,
+   cmslsnum uint32 not null,
+   prescaleblob blob,
+   hltcountblob    blob,
+   hltacceptblob     blob
+)
+11.
+create table trghltmap(           
+   hltkey string not null,
+   hltpathname string not null,
+   l1seed      string not null
+)
+12.
+create table lumivalidation(      
+   runnum uint32 not null,
+   cmslsnum uint32 not null,
+   flag string,
+   comment string
+)
 
+new applications:
 
-Glossary: FK=Foreign Key, PK=Primary Key
-          lumiversion represents each lumi (re)processing
-========
-table 1:  LUMIVALIDATION 
-columns:  runnum(uint32,PK), NOT NULL
-          cmslsnum(uint32,PK), NOT NULL 
-	  flag(string), NOT NULL
-          comment(string), NOT NULL
+lumiNorm create -name a -defaultnorm value -normbyenergy "[{energy1:norm1},{energy2:norm2}]" -minrun 1234 -maxrun 5678 -m comment
+lumiNorm describe -name a
+lumiNorm list --verbose
+lumiNorm modify -name a -normbyenergy "[{energy1:norm1},{energy2:norm2}]" -minrun 1234  -maxrun 6789 -m comment
 
-========
-table 2:  CMSRUNSUMMARY 
-columns:  runnum(uint32,PK), NOT NULL
-          fillnum(uint32) 
-          sequence(string),  NOT NULL
-          hltkey(string),    NOT NULL
-          startime(timestamp(6)) 
-          stoptime(timestamp(6))
+lumiTagCommit tagname -m comment 
+lumiTagCopy -sourcetag a -desttag b -m comment  
+lumiTagDescribe tagname -datatype 'lumi,trg,hlt,norm' --verbose
 
-=======
-table 3:  LUMISUMMARY (insert one row per run+lumiLS+lumiversion from LUMI_RAW file)
-columns:  
-	  lumisummary_id(uint64, PK) NOT NULL
-          runnum(uint32),            NOT NULL 
-          cmslsnum(uint32),	     
-          lumilsnum(uint32),         NOT NULL
-          lumisource(string),        NOT NULL
-          instlumi(float),           NOT NULL
-          instlumierror(float),      NOT NULL
-          instlumiquality(short),    NOT NULL
-          cmsalive(short),           NOT NULL
-          startorbit(uint32),        NOT NULL
-          numorbit(uint32),          NOT NULL 
-          lumisectionquality(short)  NOT NULL // use max 3 bits [HLX,HF,BRAN]
-          beamenergy(float)          NOT NULL 
-          beamstatus(string)         NOT NULL
-          beamintensityBlob(blob)  
-          trgprescale(uint32)  
-          trgdeadtimecount(uint32)
-	  trgbitzercount(string)     
-          trgbitsblob(blob)   [[bitalias,bitcount]]
-          hltpathsblob(blob)   [[pathname,inputcount,acceptcount]]
-          
-======
-table 4:  LUMIDETAIL (insert 1 rows per run+lumiLS+lumiversion+algorithm from LUMI_RAW file)
-columns: 
-          lumidetail_id(uint64, PK)  NOT NULL
-          lumisummary_id(FK refers to LUMISUMMARY.lumisummary_id), NOT NULL
-	  bxlumivalue(blob),//blob of float                        NOT NULL
-          bxlumierror(blob), //blob of float                       NOT NULL
-          bxlumiquality(blob), //blob of short                     NOT NULL
-          algoname(string), //occ1,occ2,et,bran                    NOT NULL
-          
-======
-table 5: TRGHLTMAP (insert 1 row per hltpath-l1seed / populated from ConfDB+L1Seed expression parser)
-         hltkey(string),        NOT NULL
-         hltpathname(string),   NOT NULL
-         l1seed(string)         NOT NULL
-
-======
-table 6: LUMINORM
-         luminorm_id (uint32, PK) NOT NULL
-         luminormversion (string) NOT NULL
-         creationtime(timestamp(6)) NOT NULL
-         norm_1 (float)  NOT NULL
-	 bunchnormblob_1(blob)	
-         energy_1 (float)
-         norm_2 (float)
-	 bunchnormblob_2 (blob)		
-         energy_2 (float)
-	 startrunnum (uint32)
-	 
-
-======== tables for global versioning and norm factors ======
-table 7: LUMIVERSION
-         majorversion(short)         
-         minorversion(short)
-	 lumisource(string)             
-         luminorm_id(uin32)            
-	 runnum(uint32)
-				       
- ====== other helper id tables======
-         lumisummary_id, NEXTID (uint64,PK)
-         lumidetail_id, NEXTID (uint64,PK),
-	 luminorm_id, NEXTID (uint32,PK),  
- 
