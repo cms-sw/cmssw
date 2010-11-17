@@ -1,766 +1,794 @@
 #!/usr/bin/env perl
+# $Id: smCleanupFiles.pl,v 1.10 2010/08/16 10:03:02 gbauer Exp $
 
-# Script to make REPORTS and/or DELETE "global" area files abandoned on SM disk
-# Script looks at disks, finds files, and if '--clean' option specified it will:
-# 1) delete the file
-# 2) enter file in the FILES_DELETED table if not *already* there
-#    [Note: this *breaks* the continuity sequence of FILES_xxxx tables]
-# 3) enter file in the FILES_ORPHANS table with:
-#          COMMENT_STR = "deleted"     IF the file was     NOW inserted into the DELETED table
-#                      = "redeleted"   IF the file was NOT NOW inserted into the DELETED table
-#                                           because it was already(!) in the DELETED table
-#                      = "faildelete"  IF the file was NOT inserted into the DELETED table
-#                                         because the attempt failed for some reason!
-#                      = ""            IF the file was inserted into the ORPHANS table
-#                                         *before* the the above features were implemented!
-#
-
-#2010-10-10[gb]: modify to show REPACKED files too!
-
-
-#Example Call:
-#./cleanupOrphans.pl --max=10 --closedfiles --clean --age=30 --FILES_ALL --contains=Transfer --host=srv-C2C07-15
-
-
-
-
+use strict;
 use warnings;
 use DBI;
 use Getopt::Long;
 use File::Basename;
-
-#use constant MIN_CLEAN_AGE => 7; #won't delete anything under X days
-use constant MIN_CLEAN_AGE =>  5; #won't delete anything under X days
+use File::Find ();
 
 
+my ($help, $debug, $nothing, $now, $force, $execute, $maxfiles, $fileagemin, $skipdelete, $dbagemax, $dbrepackagemax0, $dbrepackagemax, $dbtdelete);
+my ($hostname, $filename, $dataset, $stream, $config);
+my ($runnumber, $uptorun, $safety, $rmexitcode, $chmodexitcode );
+my ($constraint_runnumber, $constraint_uptorun, $constraint_filename, $constraint_hostname, $constraint_dataset);
 
-
-#get host running from
-my $runHost = `hostname`;
-chomp $runHost;
-
-#Get the user
-my $user = `whoami`;
-chomp $user;
-
-#get current time info
-my @ltime = localtime(time);
-my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = @ltime;
-$year+= 1900;
-$mon++;
-
-#config file
-my $configFile = "/nfshome0/smpro/sm_scripts_cvs/operations/cleanupOrphans.cfg";
-#parses configuration file
-open CONFIG, $configFile or die "Can't open config file: $configFile:$!\n";
-while (<CONFIG>) {
-    chomp;                  # no newline
-    s/#.*//;                # no comments
-    s/^\s+//;               # no leading white
-    s/\s+$//;               # no trailing white
-    next unless length;     # anything left?
-    my ($var, $value) = split(/\s*=\s*/, $_, 2);
-    $Con{$var} = $value;
-} 
-close CONFIG;
-
-#load host list
-if (! -e $Con{"HOSTLIST"} ){
-    die "ERROR: File $Con{'HOSTLIST'} missing!";
-}
-
-my $DO = "";
-my $DO_HOST = "";
-my $DO_REPORT="";
-my $DO_FULL_REPORT="";
-my $DO_CLEAN="";
-my $DO_OPEN="";
-my $DO_CLOSED="";
-my $DO_FILES="";
-my $DO_FILES_EMU="";
-my $DO_FILE_MAX=99999999;
-my $DO_FILE_AGE=0;
-my $DO_FILE_CONTAINS="";
-my $DO_FILES_CREATED="";
-my $DO_FILES_INJECTED="";
-
-my $DO_FILES_TRANS_NEW="";
-my $DO_FILES_TRANS_COPIED="";
-my $DO_FILES_TRANS_CHECKED="";
-my $DO_FILES_TRANS_REPACKED="";
-my $DO_FILES_TRANS_INSERTED="";
-my $DO_FILES_DELETED="";
-my $DO_FILES_NO_STATUS="";
-
-#Set up Database Stuff
-my $reader = "XXX";
-my $phrase = "xxx";
-
-$dbconfig = $Con{"DB_CONFIG"};
-if (-e $dbconfig){
-    eval `sudo -u smpro cat $dbconfig`;
-}
-else{
-    die("Error: Unable to access database user information");
-}
-
-
-#Connect to the database
-my $dbi = "DBI:Oracle:cms_rcms";
-my $dbh = DBI->connect($dbi,$reader,$phrase) or die("Error: Connection to Oracle DB failed");
-
-#Skeleton query for checking the status of a file
-my $SQLcheck = "select" .
-        "  CMS_STOMGR.FILES_CREATED.FILENAME".
-	", CMS_STOMGR.FILES_INJECTED.FILENAME".
-	", CMS_STOMGR.FILES_TRANS_NEW.FILENAME".
-        ", CMS_STOMGR.FILES_TRANS_COPIED.FILENAME".
-	", CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME".
-	", CMS_STOMGR.FILES_TRANS_REPACKED.FILENAME".
-	", CMS_STOMGR.FILES_TRANS_INSERTED.FILENAME".
-	", CMS_STOMGR.FILES_DELETED.FILENAME".
-	" from CMS_STOMGR.FILES_CREATED " .
-        "left outer join CMS_STOMGR.FILES_INJECTED ".
-	"on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_INJECTED.FILENAME " .
-        "left outer join CMS_STOMGR.FILES_TRANS_NEW ".
-	"on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_NEW.FILENAME " .
-        "left outer join CMS_STOMGR.FILES_TRANS_COPIED  ".
-	"on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_COPIED.FILENAME " .
-        "left outer join CMS_STOMGR.FILES_TRANS_CHECKED ".
-	"on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME " .
-        "left outer join CMS_STOMGR.FILES_TRANS_REPACKED ".
-	"on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_REPACKED.FILENAME " .
-        "left outer join CMS_STOMGR.FILES_TRANS_INSERTED ".
-        "on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_INSERTED.FILENAME " .
-        "left outer join CMS_STOMGR.FILES_DELETED ".
-        "on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_DELETED.FILENAME " .
-        "where CMS_STOMGR.FILES_CREATED.FILENAME=?";
-my $checkHan = $dbh->prepare($SQLcheck) or die("Error: DB query prepare failed - $dbh->errstr \n");
-
-
-#Skeleton query to verify absence/presence in DELETED table:
-my $SQLQueryDeleted = "select CMS_STOMGR.FILES_DELETED.DTIME from CMS_STOMGR.FILES_DELETED where CMS_STOMGR.FILES_DELETED.FILENAME=?";
-my $QueryHanDeleted = $dbh->prepare($SQLQueryDeleted) or die("Error: DB query prepare failed - $dbh->errstr\n");
+my ($reader, $phrase);
+my ($dbi, $dbh);
+my ($minRunSMI, $fileageSMI);
+my %h_notfiles;
 
 
 
-#Skeleton insert to make entry into DELETED:
-my $SQLEntryDeleted = "insert into CMS_STOMGR.FILES_DELETED(FILENAME,DTIME) VALUES (?,sysdate)";
-my $entryHanDeleted = $dbh->prepare($SQLEntryDeleted) or die("Error: DB query prepare failed - $dbh->errstr\n");
-
-
-#Skeleton insert to make simulataneou entry into orphans table
-my $SQLEntryOrphan = "insert into CMS_STOMGR.FILES_ORPHANS(FILENAME,DTIME,HOST,STATUS,COMMENT_STR) VALUES (?,sysdate,?,?,?)";
-my $entryHanOrphan = $dbh->prepare($SQLEntryOrphan) or die("Error: DB query prepare failed - $dbh->errstr\n");
-
-#Routine to get the status of a give file (based on previously existing separate script
-sub getStatus($)
+#-----------------------------------------------------------------
+sub usage
 {
-    my $filename = shift;
-    my $rowsCcheck = $checkHan->execute($filename) or die("Error: Query failed - $dbh->errstr \n");
-    
-    my @result = $checkHan->fetchrow_array;
+  print "
+  ##############################################################################
 
+  Usage $0 [--help] [--debug] [--nothing]  [--now]
+  Almost all the parameters are obvious. Non-obvious ones are:
+   --now : suppress 'sleep' in delete based on host ID
 
-#####	print "$filename: \n $result[0] 1:  $result[1] 2:  $result[2] 3:  $result[3] 4:  $result[4] 5:  $result[5] 6:  $result[6] 7:  $result[7] \n"; 
-
-    unless($result[0]) {return -1;}
-    unless($result[1]) {return 0;}
-    unless($result[2]) {return 1;}
-    unless($result[3]) {return 10;}
-    unless($result[4]) {return 20;}
-#    unless($result[5]) {return 30;}
-    unless($result[5]) {return 30 unless($result[7])}  #extra unless($result[7]): want to be sure to skip over gap where DELETED is still filled!
-    unless($result[6]) {return 35 unless($result[7])}  #extra unless($result[7]): want to be sure to skip over gap where DELETED is still filled!
-    unless($result[7]) {return 40;}
-    return 99;
-}   
-
-#Generate a report (but not delete)
-sub report($)
-{
-    my $path = shift;
-
-    my $TOTAL_FILES_DONE = 0;
-    my $TOTAL_FILES_CREATED = 0;
-    my $TOTAL_FILES_INJECTED = 0;
-    my $TOTAL_FILES_TRANS_NEW = 0;
-    my $TOTAL_FILES_TRANS_COPIED = 0;
-    my $TOTAL_FILES_TRANS_CHECKED = 0;
-    my $TOTAL_FILES_TRANS_REPACKED = 0;
-    my $TOTAL_FILES_TRANS_INSERTED = 0;
-    my $TOTAL_FILES_DELETED = 0;
-    my $TOTAL_FILES_NO_STATUS = 0;
-    
-    #If we want to restrict to a minimum age
-    my $AGE_QUERY = "";
-    if ($DO_FILE_AGE > 0) { $AGE_QUERY = "-mtime +$DO_FILE_AGE"; }
-
-    #Keyword
-    my $CONTAINS_QUERY = "";
-    if ($DO_FILE_CONTAINS){ $CONTAINS_QUERY = "-name '*$DO_FILE_CONTAINS*'";}
-    
-    my @hosts = `cat $Con{"HOSTLIST"} | grep -i c2`;
-    if ($DO_HOST){ @hosts = $DO_HOST; }
-    foreach $host (@hosts ){
-	my $FILES_DONE = 0;
-	my $FILES_CREATED = 0;
-	my $FILES_INJECTED = 0;
-	my $FILES_TRANS_NEW = 0;
-	my $FILES_TRANS_COPIED = 0;
-	my $FILES_TRANS_CHECKED = 0;
-	my $FILES_TRANS_REPACKED = 0;
-	my $FILES_TRANS_INSERTED = 0;
-	my $FILES_DELETED = 0;
-	my $FILES_NO_STATUS = 0;
-	
-	chomp $host;
-	print "----- $host -----\n";
-	my @files; 
-	if ($host eq $runHost) {@files = `find $path $AGE_QUERY $CONTAINS_QUERY -name '*.dat'`;}
-	else {@files = `ssh $host "find $path $AGE_QUERY $CONTAINS_QUERY -name '*.dat'"`;}
-	foreach $file (@files){
-	    chomp $file;
-	    if ($FILES_DONE < $DO_FILE_MAX){
-		my $basename = `basename $file`;
-		chomp $basename;
-		my $status = &getStatus($basename);
-		if ($DO_FULL_REPORT){
-		    my $filedata;
-		    if ($host eq $runHost) {$filedata = `find $file -printf '%TD, %kK'`;}
-		    else {$filedata = `ssh $host "find $file -printf '%TD, %kK' "`;}
-		    print "$host, $filedata, $status, $file\n";
-
-
-#             my $filename1=`echo  $file | cut -d'/' -f6`;
-# 		    chomp $filename1;
-# 	    print "FILE: ||$filename1|| \n";
-# 	     
-#             my $entrycheckDeleted   = $QueryHanDeleted->execute($filename1);
-#             @entryresultDELETED     = $QueryHanDeleted->fetchrow_array;
-#             my $origentryErrDeleted = $QueryHanDeleted->errstr;
-# 	    print "DELETED Query:  $entryresultDELETED[0]; ";
-# 	    print "  $entrycheckDeleted; $origentryErrDeleted \n";
-#                 if (defined($origentryErrDeleted)){ #failed to find in DB
-#                     print "DELETED entry not found: error: $origentryErrDeleted \n";
-#                 }
-# 
-#                 if (!defined($entryresultDELETED[0])){ #failed to find in DB
-#                     print "DELETED entry $entryresultDELETED[0] not defined: $entryresultDELETED[0]|| \n";
-#                 }
-# 
-# 
-# 	    print " \n";
-
-
-
-		}
-		if ($status == 0) {$FILES_CREATED = $FILES_CREATED + 1;}
-		elsif ($status == 1) {$FILES_INJECTED = $FILES_INJECTED + 1;}
-		elsif ($status == 10) {$FILES_TRANS_NEW = $FILES_TRANS_NEW + 1;}
-		elsif ($status == 20) {$FILES_TRANS_COPIED = $FILES_TRANS_COPIED + 1;}
-		elsif ($status == 30) {$FILES_TRANS_CHECKED = $FILES_TRANS_CHECKED + 1;}
-		elsif ($status == 35) {$FILES_TRANS_REPACKED = $FILES_TRANS_REPACKED + 1;}
-
-
-		elsif ($status == 40) {$FILES_TRANS_INSERTED = $FILES_TRANS_INSERTED + 1;}
-		elsif ($status == 99) {$FILES_DELETED = $FILES_DELETED + 1;}
-		else {
-		    $FILES_NO_STATUS = $FILES_NO_STATUS + 1;
-		    #print "Internal error: unknown inject status\n";
-		}
-		$FILES_DONE = $FILES_DONE + 1;	      
-	    }
-	}
-	
-        $TOTAL_FILES_DONE = $TOTAL_FILES_DONE + $FILES_DONE;
-        $TOTAL_FILES_CREATED = $TOTAL_FILES_CREATED + $FILES_CREATED;
-        $TOTAL_FILES_INJECTED = $TOTAL_FILES_INJECTED + $FILES_INJECTED;
-        $TOTAL_FILES_TRANS_NEW = $TOTAL_FILES_TRANS_NEW + $FILES_TRANS_NEW;
-        $TOTAL_FILES_TRANS_COPIED = $TOTAL_FILES_TRANS_COPIED + $FILES_TRANS_COPIED;
-        $TOTAL_FILES_TRANS_CHECKED = $TOTAL_FILES_TRANS_CHECKED + $FILES_TRANS_CHECKED;
-        $TOTAL_FILES_TRANS_REPACKED = $TOTAL_FILES_TRANS_REPACKED + $FILES_TRANS_REPACKED;
-        $TOTAL_FILES_TRANS_INSERTED = $TOTAL_FILES_TRANS_INSERTED + $FILES_TRANS_INSERTED;
-        $TOTAL_FILES_DELETED = $TOTAL_FILES_DELETED + $FILES_DELETED;
-	$TOTAL_FILES_NO_STATUS = $TOTAL_FILES_NO_STATUS + $FILES_NO_STATUS;
-
-	print "\nDirectory Size\n";
-	my $hostSizes;
-	if ($host eq $runHost) {$hostSizes = `du -h $path`;}
-	else {$hostSizes = `ssh $host "du -h $path"` ;}
-	print "$hostSizes";
-	print "FILE CATEGORIES ON DISK: \n";
-	print "FILES_CREATED $FILES_CREATED \n";
-	print "FILES_INJECTED $FILES_INJECTED \n";
-	print "FILES_TRANS_NEW $FILES_TRANS_NEW \n";
-	print "FILES_TRANS_COPIED $FILES_TRANS_COPIED \n";
-	print "FILES_TRANS_CHECKED $FILES_TRANS_CHECKED \n";
-	print "FILES_TRANS_REPACKED $FILES_TRANS_REPACKED \n";
-	print "FILES_TRANS_INSERTED $FILES_TRANS_INSERTED \n";
-	print "FILES_DELETED $FILES_DELETED \n";
-	print "FILES_NO_STATUS_IN_DB $FILES_NO_STATUS \n";
-	print "^^^^^^ $host ^^^^^^\n\n";	
-    }
-	
-
+  ##############################################################################
+ \n";
+  exit 0;
 }
 
-#Actually delete files
-sub clean($)
+#-----------------------------------------------------------------
+#subroutine for getting formatted time for SQL to_date method
+sub gettimestamp($)
+		 {
+		     my $stime = shift;
+		     my @ltime = localtime($stime);
+		     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = @ltime;
+		     
+		     $year += 1900;
+		     $mon++;
+		     
+		     my $timestr = $year."-";
+		     if ($mon < 10) {
+			 $timestr=$timestr . "0";
+		     }
+		     
+		     $timestr=$timestr . $mon . "-";
+		     
+		     if ($mday < 10) {
+			 $timestr=$timestr . "0";
+		     }
+		     
+		     $timestr=$timestr . $mday . " " . $hour . ":" . $min . ":" . $sec;
+		     return $timestr;
+		 }
+
+#-----------------------------------------------------------------
+sub deletefiles()
 {
-    my $path = shift;
+
+# Look for files in FILES_TRANS_CHECKED - implies closed and safety >= 100 in the old scheme.
+# Alternate queries for different values of these? even needed?
+# These files need to be in FILES_CREATED and FILES_INJECTED to
+# check correct hostname and pathname. They must not be in FILES_DELETED.
+#
+# this query contains some optimizations from DB experts: do not muck with this lightly! [gb 02Jun2010]
+    my $basesql = "select fi.PATHNAME, fc.FILENAME, fc.HOSTNAME from CMS_STOMGR.FILES_CREATED fc " .
+                      "inner join CMS_STOMGR.FILES_INJECTED fi " .
+                              "on fc.FILENAME = fi.FILENAME    and  fi.ITIME > systimestamp - $dbagemax " .
+                      "inner join CMS_STOMGR.FILES_TRANS_CHECKED ftc " .
+                              "on fc.FILENAME = ftc.FILENAME   and ftc.ITIME > systimestamp - $dbagemax " .
+                      "left outer join CMS_STOMGR.FILES_TRANS_REPACKED ftr   " . 
+                              "on fc.FILENAME = ftr.FILENAME   and ftr.ITIME > systimestamp - $dbagemax " .
+                      "left outer join CMS_STOMGR.FILES_DELETED fd " .
+                              "on fc.FILENAME = fd.FILENAME " .
+			      "where fc.CTIME > systimestamp - $dbagemax and  " .
+                              "( ftr.FILENAME is not null or ftc.ITIME < systimestamp - $dbrepackagemax)" .
+                              "and fd.FILENAME is null ";
+ 
+# Sorting by time
+    my $endsql = " order by ITIME";
+
     
-    my $TOTAL_FILES_ELSE = 0;
-    my $TOTAL_FILES_DONE = 0;
-    my $TOTAL_FILES_CREATED = 0;
-    my $TOTAL_FILES_INJECTED = 0;
-    my $TOTAL_FILES_TRANS_NEW = 0;
-    my $TOTAL_FILES_TRANS_COPIED = 0;
-    my $TOTAL_FILES_TRANS_CHECKED = 0;
-    my $TOTAL_FILES_TRANS_REPACKED = 0;
-    my $TOTAL_FILES_TRANS_INSERTED = 0;
-    my $TOTAL_FILES_DELETED = 0;
-    my $TOTAL_FILES_NO_STATUS = 0;
-
-    #Open log file (specific to user and month)
-    my $logfile = "/tmp/cleanupOrphans-$year-$mon-$user.log"; 
-    open APPLOG, ">>$logfile";
-    print APPLOG "\n-------------------- $mday-$mon-$year $hour:$min:$sec --------------------\n";
+# Additional constraints
+    $constraint_runnumber = '';
+    $constraint_uptorun   = '';
+    $constraint_filename  = '';
+    $constraint_hostname  = '';
+    $constraint_dataset   = '';
     
-    #Adjust file age param if less than minimum for deletes
-    my $tempDO_FILE_AGE = $DO_FILE_AGE;
-    if ($DO_FILE_AGE < MIN_CLEAN_AGE){ 
-	$DO_FILE_AGE = MIN_CLEAN_AGE;
-	print "Age param too small for clean: setting to $DO_FILE_AGE.\n";
-    }
-
-    my $AGE_QUERY = "";
-    if ($DO_FILE_AGE > 0) { $AGE_QUERY = "-mtime +$DO_FILE_AGE"; }
-
-    my $CONTAINS_QUERY = "";
-    if ($DO_FILE_CONTAINS){ $CONTAINS_QUERY = "-name '*$DO_FILE_CONTAINS*'";}
+    if ($runnumber) { $constraint_runnumber = " and RUNNUMBER = $runnumber"; }
+    if ($uptorun)   { $constraint_uptorun   = " and RUNNUMBER >= $uptorun";  }
+    if ($filename)  { $constraint_filename  = " and CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME = '$filename'";}
+    if ($hostname)  { $constraint_hostname  = " and HOSTNAME = '$hostname'";}
+    if ($dataset)   { $constraint_dataset   = " and SETUPLABEL = '$dataset'";}
     
-    my @hosts = `cat $Con{"HOSTLIST"} | grep -i c2`;
-    if ($DO_HOST){ @hosts = $DO_HOST; }
-    foreach $host (@hosts ){
-	my $FILES_ELSE = 0;
-	my $FILES_DONE = 0;
-	my $FILES_CREATED = 0;
-	my $FILES_INJECTED = 0;
-	my $FILES_TRANS_NEW = 0;
-	my $FILES_TRANS_COPIED = 0;
-	my $FILES_TRANS_CHECKED = 0;
-	my $FILES_TRANS_REPACKED = 0;
-	my $FILES_TRANS_INSERTED = 0;
-	my $FILES_DELETED = 0;
-	my $FILES_NO_STATUS = 0;
-	my $COMPLETED_DELETES = 0;
-	my $FAILED_DELETES = 0;
+# Compose DB query
+    my $myquery = '';
+    $myquery = "$basesql $constraint_runnumber $constraint_uptorun $constraint_filename $constraint_hostname $constraint_dataset $endsql";
+    
+    $debug && print "******BASE QUERY:\n   $myquery,\n";
+    
+        
+    my $insertDel = $dbh->prepare("insert into CMS_STOMGR.FILES_DELETED (FILENAME,DTIME) VALUES (?,TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))");
+    my $sth  = $dbh->prepare($myquery);
+    
+    
+    
+    my $predate=`date`;
+    print "PreQuery: $predate...\n";
+    
+    $sth->execute() || die "Initial DB query failed: $dbh->errstr\n";
+    
+    my $postdate=`date`;
+    print "PostQuery: $postdate...\n";
+    
+
+############## Parse and process the result
+    my $nFiles   = 0;
+    my $nRMFiles = 0;
+    my $nRMind   = 0;
+    
+    
+    
+    my @row;
+    
+    $debug && print "MAXFILES: $maxfiles\n";
+    
+    while ( $nFiles<$maxfiles &&  (@row = $sth->fetchrow_array) ) {
 	
-	chomp $host;
-	print "----- $host -----\n";
-	print APPLOG "    ----- $host -----\n";
+	$rmexitcode = 9999;    # Be over-cautious and set a non-zero default
+	$debug   && print "       --------------------------------------------------------------------\n";
+	$nFiles++;
 	
-	my @files;
-	if ($host eq $runHost) {@files = `find $path $AGE_QUERY $CONTAINS_QUERY -name '*.dat'`;}
-	else {@files = `ssh $host "find $path $AGE_QUERY $CONTAINS_QUERY -name '*.dat'"`;}
-	foreach $file (@files){
-	    chomp $file;
-	    if ($FILES_DONE+$FILES_ELSE < $DO_FILE_MAX){
-		my $basename = `basename $file`;
-		chomp $basename;
-		my $status = &getStatus($basename);
-		if ($status == 0) {
-		    if ($DO_FILES_CREATED){
-			$FAILED_DELETES = $FAILED_DELETES + &delete_file($host, $file, $basename, $status);
-			$FILES_CREATED = $FILES_CREATED + 1;
-			$COMPLETED_DELETES = $COMPLETED_DELETES + 1;
-			$FILES_DONE = $FILES_DONE + 1;
-		    }
-		}
-		elsif ($status == 1) {
-		    if ($DO_FILES_INJECTED){
-			$FAILED_DELETES = $FAILED_DELETES + &delete_file($host, $file, $basename, $status);
-			$FILES_INJECTED = $FILES_INJECTED + 1;
-			$COMPLETED_DELETES = $COMPLETED_DELETES + 1;
-			$FILES_DONE = $FILES_DONE + 1;
-		    }
-		}
-		elsif ($status == 10) {
-		    if ($DO_FILES_TRANS_NEW){
-			$FAILED_DELETES = $FAILED_DELETES + &delete_file($host, $file, $basename, $status);
-			$FILES_TRANS_NEW = $FILES_TRANS_NEW + 1;
-			$COMPLETED_DELETES = $COMPLETED_DELETES + 1;
-			$FILES_DONE = $FILES_DONE + 1;
-		    }
-		}
-		elsif ($status == 20) {
-		    if ($DO_FILES_TRANS_COPIED){
-			$FAILED_DELETES = $FAILED_DELETES + &delete_file($host, $file, $basename, $status);
-			$FILES_TRANS_COPIED = $FILES_TRANS_COPIED + 1;
-			$COMPLETED_DELETES = $COMPLETED_DELETES + 1;
-			$FILES_DONE = $FILES_DONE + 1;
-		    }
-		}
-		elsif ($status == 30) {
-		    if ($DO_FILES_TRANS_CHECKED){
-			$FAILED_DELETES = $FAILED_DELETES + &delete_file($host, $file, $basename, $status);
-			$FILES_TRANS_CHECKED = $FILES_TRANS_CHECKED + 1;
-			$COMPLETED_DELETES = $COMPLETED_DELETES + 1;
-			$FILES_DONE = $FILES_DONE + 1;
-		    }
-		}
-		elsif ($status == 35) {
-		    if ($DO_FILES_TRANS_REPACKED){
-			$FAILED_DELETES = $FAILED_DELETES + &delete_file($host, $file, $basename, $status);
-			$FILES_TRANS_REPACKED = $FILES_TRANS_REPACKED + 1;
-			$COMPLETED_DELETES = $COMPLETED_DELETES + 1;
-			$FILES_DONE = $FILES_DONE + 1;
-		    }
-		}
-		elsif ($status == 40) {
-		    if ($DO_FILES_TRANS_INSERTED){
-			$FAILED_DELETES = $FAILED_DELETES + &delete_file($host, $file, $basename, $status);
-			$FILES_TRANS_INSERTED = $FILES_TRANS_INSERTED = 1;
-			$COMPLETED_DELETES = $COMPLETED_DELETES + 1;
-			$FILES_DONE = $FILES_DONE + 1;
-		    }
-		}
-		elsif ($status == 99) {
-		    if ($DO_FILES_DELETED){
-			$FAILED_DELETES = $FAILED_DELETES + &delete_file($host, $file, $basename, $status);
-			$FILES_DELETED = $FILES_DELETED + 1;
-			$COMPLETED_DELETES = $COMPLETED_DELETES + 1;
-			$FILES_DONE = $FILES_DONE + 1;
-		    }
-		}
-		else {	   
-		    #print "Internal error: unknown inject status\n";
-		    if ($DO_FILES_NO_STATUS){
-			$FAILED_DELETES = $FAILED_DELETES + &delete_file($host, $file, $basename, $status);
-			$FILES_NO_STATUS = $FILES_NO_STATUS + 1;
-			$COMPLETED_DELETES = $COMPLETED_DELETES + 1;
-			$FILES_DONE = $FILES_DONE + 1;
-		    }
-		    else{
-#comment this out so "other" files (eg not in db) are not counted against the delete!			$FILES_ELSE = $FILES_ELSE + 1;
-		    }
-		}	      
-	    } 
-	}
-	$COMPLETED_DELETES = $COMPLETED_DELETES - $FAILED_DELETES;
-
-	$TOTAL_FILES_ELSE = $TOTAL_FILES_ELSE + $FILES_ELSE;
-	$TOTAL_FILES_DONE = $TOTAL_FILES_DONE + $FILES_DONE;
-        $TOTAL_FILES_CREATED = $TOTAL_FILES_CREATED + $FILES_CREATED;
-        $TOTAL_FILES_INJECTED = $TOTAL_FILES_INJECTED + $FILES_INJECTED;
-        $TOTAL_FILES_TRANS_NEW = $TOTAL_FILES_TRANS_NEW + $FILES_TRANS_NEW;
-        $TOTAL_FILES_TRANS_COPIED = $TOTAL_FILES_TRANS_COPIED + $FILES_TRANS_COPIED;
-        $TOTAL_FILES_TRANS_CHECKED = $TOTAL_FILES_TRANS_CHECKED + $FILES_TRANS_CHECKED;
-        $TOTAL_FILES_TRANS_REPACKED = $TOTAL_FILES_TRANS_REPACKED + $FILES_TRANS_REPACKED;
-        $TOTAL_FILES_TRANS_INSERTED = $TOTAL_FILES_TRANS_INSERTED + $FILES_TRANS_INSERTED;
-        $TOTAL_FILES_DELETED = $TOTAL_FILES_DELETED + $FILES_DELETED;
-	$TOTAL_FILES_NO_STATUS = $TOTAL_FILES_NO_STATUS + $FILES_NO_STATUS;
+	#keep track of smallest run number processed:
+	my ($currrun) = ($row[1] =~ /[a-zA-Z0-9]+\.([0-9]+)\..*/);
+	if( $minRunSMI >  $currrun ){ $minRunSMI = $currrun;}
 	
-	print "FILES ON DISK: $FILES_DONE\n";
-	print "\t FILES_CREATED $FILES_CREATED\n";
-	print "\t FILES_INJECTED $FILES_INJECTED\n";
-	print "\t FILES_TRANS_NEW $FILES_TRANS_NEW\n";
-	print "\t FILES_TRANS_COPIED $FILES_TRANS_COPIED\n";
-	print "\t FILES_TRANS_CHECKED $FILES_TRANS_CHECKED\n";
-	print "\t FILES_TRANS_REPACKED $FILES_TRANS_REPACKED\n";
-	print "\t FILES_TRANS_INSERTED $FILES_TRANS_INSERTED\n";
-	print "\t FILES_DELETED $FILES_DELETED\n";
-	if ($DO_FILES_NO_STATUS){
-	    print "\t FILES_NO_STATUS_IN_DB $FILES_NO_STATUS\n"; 
+	# get .ind file name
+	my $file =  "$row[0]/$row[1]";
+  	    $debug   && print "          $file   \n";
+	my $fileIND;
+	if ( $file =~ /^(.*)\.(?:dat|root)$/ ) {
+	    $fileIND = $1 . '.ind';
 	}
-	else {
-	    print "\t FILES_NO_STATUS_IN_DB(NOT DELETED) $FILES_ELSE\n";
-	}
-	print "SUCCESSFUL DELETES: $COMPLETED_DELETES\n";
-	print "FAILED DELETES: $FAILED_DELETES\n";
-	print "Logfile: $logfile\n";
 	
-	print APPLOG "        [$mday-$mon-$year $hour:$min:$sec $host]FILES ON DISK: $FILES_DONE\n";
-	print APPLOG "            [$mday-$mon-$year $hour:$min:$sec $host]FILES_CREATED $FILES_CREATED\n";
-	print APPLOG "            [$mday-$mon-$year $hour:$min:$sec $host]FILES_INJECTED $FILES_INJECTED\n";
-	print APPLOG "            [$mday-$mon-$year $hour:$min:$sec $host]FILES_TRANS_NEW $FILES_TRANS_NEW\n";
-	print APPLOG "            [$mday-$mon-$year $hour:$min:$sec $host]FILES_TRANS_COPIED $FILES_TRANS_COPIED\n";
-	print APPLOG "            [$mday-$mon-$year $hour:$min:$sec $host]FILES_TRANS_CHECKED $FILES_TRANS_CHECKED\n";
-	print APPLOG "            [$mday-$mon-$year $hour:$min:$sec $host]FILES_TRANS_REPACKED $FILES_TRANS_REPACKED\n";
-	print APPLOG "            [$mday-$mon-$year $hour:$min:$sec $host]FILES_TRANS_INSERTED $FILES_TRANS_INSERTED\n";
-	print APPLOG "            [$mday-$mon-$year $hour:$min:$sec $host]FILES_DELETED $FILES_DELETED\n";
-	print APPLOG "            [$mday-$mon-$year $hour:$min:$sec $host]FILES_NO_STATUS_IN_DB $FILES_NO_STATUS\n";
-	print APPLOG "        [$mday-$mon-$year $hour:$min:$sec $host]SUCCESSFUL DELETES: $COMPLETED_DELETES\n";
-	print APPLOG "        [$mday-$mon-$year $hour:$min:$sec $host]FAILED DELETES: $FAILED_DELETES\n";
-    }
-    close APPLOG;
-
-    #reset the age param to original value
-    $DO_FILE_AGE = $tempDO_FILE_AGE;
-}
-
-sub delete_file($)
-{
-    my $targetHost = shift;
-    my $targetFile = shift;
-    my $filename = shift;
-    my $targetStatus = shift;
-    substr($targetFile, index($targetFile, '.dat'), 4) = '.*';
-    my $chmodexitcode = 0;
-    my $rmexitcode = 0;
-    my $numberFailed = 0;
-
-
-    if ($DO_FILES_EMU){ #Right now this does this same thing but lists diagnostics
-	if ($targetHost eq $runHost) {
-	    $chmodexitcode = system("sudo chmod 666 $targetFile");
-	    $rmexitcode = system("rm -f $targetFile");
-	}
-	else {
-	    $chmodexitcode = system("ssh $targetHost 'sudo chmod 666 $targetFile'"); 
-	    $rmexitcode = system("ssh $targetHost 'rm -f $targetFile'");
-	}
-	if ($rmexitcode != 0){
-	    print "Failed: $filename\n";
-	    print APPLOG "Failed: $filename\n";
-	    $numberFailed = $numberFailed + 1;
-	}
-	else{
-	    print "Removed: $filename\n";
-	}
-    }
-    else { #No diagnostics
-	if ($targetHost eq $runHost) {
-	    $chmodexitcode = system("sudo chmod 666 $targetFile");
-	    $rmexitcode = system("rm -f $targetFile");
-	}
-	else {
-	    $chmodexitcode = system("ssh $targetHost 'sudo chmod 666 $targetFile'"); 
-	    $rmexitcode = system("ssh $targetHost 'rm -f $targetFile'");
-	}
-	if ($rmexitcode != 0){
-	    $numberFailed = $numberFailed + 1;
-	    print APPLOG "Failed: $filename\n";
-	}
-    }
-
-
-
-
-
-    if ($rmexitcode == 0){ #successful delete, so enter in DB
-	if ($targetStatus > -1){ #Can't enter in table if not already in DB
-            my $orphanscomment="redeleted";
-
-#           Check if files ALREADY in DELETED (not supposed to be, but has happened)
-            my $entrycheckDeleted   = $QueryHanDeleted->execute($filename);
-            @entryresultDELETED     = $QueryHanDeleted->fetchrow_array;
-            if (!defined($entryresultDELETED[0])){ #file NOT in DELETED so go ahead and enter it 
-####
-####		print "try to enter file $filename into DELETED table \n";
-
-#               Enter in DELETED Table:
-		$entryHanDeleted->execute($filename);
-		$entryErrDeleted = $entryHanDeleted->errstr;
-		if (defined($entryErrDeleted)){ #failed to enter in DB
-		    #Maybe exit, maybe log entry???
-		    print "DELETED DB insert produced error: $entryErrDeleted \n";
-	            print APPLOG "DELETED DB insert produced error: $entryErrDeleted FOR:\n";
-                    $fday=`date +%c`;
-                    $ftimes=`date +%s`;
-	            print APPLOG "$filename  $fday  $ftimes"; 
-		    $orphanscomment="faildelete";
-		}
-		else {
-		    $orphanscomment="deleted";
-####
-####		    print "file was NOT in DELETED DB, re-set   orphanscomment=$orphanscomment \n";
-		}
-	    }else{
-####
-####		print "file $filename was already in DELETED table \n";
-	    }
-####
-####		print "try to enter file $filename into ORPHANS table \n";
-#           Enter in ORPHANS Table:
-	    $entryHanOrphan->bind_param(1,$filename);
-	    $entryHanOrphan->bind_param(2,$host);
-	    $entryHanOrphan->bind_param(3,$targetStatus);
-	    $entryHanOrphan->bind_param(4,$orphanscomment);
-	    $entryHanOrphan->execute();
-	    my $entryErr = $entryHanOrphan->errstr;
-	    if (defined($entryErr)){ #failed to enter in DB
-		#Maybe exit, maybe log entry???
-		print "Orphan DB insert produced error: $entryErr  \n";
-		print  APPLOG "Orphan DB insert produced error: $entryErr FOR: \n";
-		$fday=`date +%c`;
-		$ftimes=`date +%s`;
-		print APPLOG "$filename || $host || $targetStatus || $orphanscomment || $fday  $ftimes"; 
-	    }
+	if ( -e $file ) {
+	    my $FILEAGEMIN   =  (time - (stat(_))[9])/60;
+	    $debug   && print "$FILEAGEMIN $fileagemin\n";
 	    
+	    if ($execute && $FILEAGEMIN > $fileagemin) {
+		if ( unlink( $file ) == 1 ) {
+		    # unlink should return 1: removed 1 file
+		    $rmexitcode = 0;
+		} else {
+		    print "Removal of $file failed\n";
+		    $rmexitcode = 9996;
+		}
+	    } elsif (!$execute && $FILEAGEMIN > $fileagemin) {
+		#if we're not executing anything want to fake
+		print "Pretending to remove $file\n";
+		$rmexitcode = 0;
+	    } elsif ($FILEAGEMIN < $fileagemin) {
+		$debug   && print "File $file too young to die\n";
+		$rmexitcode = 9995;
+	    } else {
+		print "This should never happen. File $file has issues!\n";
+		$rmexitcode = 9994;
+	    }
+	} elsif ($force) {
+	    print "File $file does not exist, but force=1, so continue\n";
+	    $rmexitcode = 0;
+	} elsif ( ! -d $row[0] ) {
+	    print "Path $row[0] does not exist. Are the disks mounted?\n";
+	    $rmexitcode = 9998;
+	} else {
+	    print "File $file does not exist\n";
+	    $rmexitcode = 9997;
+	}
+	#$rmexitcode =0;
+	# check file was really removed
+	if ($rmexitcode != 0) {
+	    print "Could not delete file: $file (rmexitcode=$rmexitcode)\n";
+	} elsif ( ! -e $file ) {
+	    $nRMFiles++;
+	    
+	    # insert file into deleted db
+	    $insertDel->bind_param(1,$row[1]);
+	    $insertDel->bind_param(2,gettimestamp(time));
+	    $execute && ($insertDel->execute() || die "DB insert into deleted files failed: $insertDel->errstr\n");
+	    my $delErr = $insertDel->errstr;
+	    if(defined($delErr)) {
+		print "Delete DB insert produced error: $delErr\n";
+	    } else {
+		$debug && print "File inserted into deleted DB, rm .ind\n";
+		if ( $execute && -e $fileIND) {
+		    my $rmIND = `rm -f $fileIND`;
+		    if (! -e "$fileIND" ) {$nRMind++;}
+		}
+	    }
+	} else {
+	    print "Unlink returned success, but file $file is still there!\n";
+	}
+
+
+}
+
+
+# Only print summary if STDIN is a tty, so not in cron
+#if( -t STDIN ) {
+    print "\n=================> DONE!:\n";
+    print ">>BASE QUERY WAS:\n   $myquery,\n";
+    print " $nFiles Files Processed\n" .
+      " $nRMFiles Files rm-ed\n" .
+      " $nRMind ind Files removed\n\n\n";
+#}
+
+
+  my  $gbNEWdebug =`echo "$nRMFiles Files rm-ed"  >> /tmp/gbDebugClean2.txt`;
+
+
+#make sure handles are done
+$sth->finish();
+
+
+}
+
+
+#---------------------------helper function for uncountfiles()----
+sub wantedfiles {
+    # Data.00129762.1825.A.storageManager.01.0000.dat
+    ! /\.EcalCalibration\./
+	&& /(^[^.]+)\.([0-9]+)\..*\.([0-9]+)\.[0-9]+\.dat$/
+	&& $h_notfiles{$2}{$3}{$1}++;
+}
+
+#----------------------------------------------uncountfiles()----
+sub uncountfiles(){
+# routine to check disk for file unaccounted for in the DB and enter (N_UNACCOUNT) number in SM_INSTANCES table
+    
+#satadir:
+#    my $nsata=`df | grep -ic sata`;
+#    if( $nsata <1 ) { return;} 
+    
+#prepare SQL's:
+#diagnostic query:
+    my $qinstancesql = "SELECT CMS_STOMGR.SM_INSTANCES.RUNNUMBER,SETUPLABEL,INSTANCE,HOSTNAME,NVL(N_CREATED,0),NVL(N_INJECTED,0),NVL(N_DELETED,0),NVL(N_UNACCOUNT,0) " .
+        	       "from CMS_STOMGR.SM_INSTANCES where RUNNUMBER=? and HOSTNAME=?";
+    
+
+#query to zero out N_UNACCOUNT counter:
+    my $upallinstancesql = "UPDATE CMS_STOMGR.SM_INSTANCES SET N_UNACCOUNT=0 " .
+	                   "where HOSTNAME=? and  RUNNUMBER>? ";
+
+#( RUNNUMBER>? or LAST_WRITE_TIME > systimestamp - $fileageSMI ) ";
+
+#	                   "where HOSTNAME=? and ( RUNNUMBER>? or LAST_WRITE_TIME+$fileageSMI>sysdate) ";
+print      "where HOSTNAME=? and ( RUNNUMBER>? or LAST_WRITE_TIME+$fileageSMI>sysdate) \n";
+
+
+#merge to enter info into DB:
+    my $mergesql = " merge into CMS_STOMGR.SM_INSTANCES using dual on (CMS_STOMGR.SM_INSTANCES.RUNNUMBER=? AND " .
+                   "            CMS_STOMGR.SM_INSTANCES.HOSTNAME=? AND CMS_STOMGR.SM_INSTANCES.INSTANCE=? )    " .
+                   " when matched then update set  N_UNACCOUNT=?-TO_NUMBER(NVL(N_INJECTED,0))+TO_NUMBER(NVL(N_DELETED,0)) " .
+                   " when not matched then insert (RUNNUMBER,HOSTNAME,INSTANCE,SETUPLABEL,N_UNACCOUNT) values (?,?, ?, ?, ?) ";
+
+    
+    
+
+#check what file are ACTUALLY on disk by desired filesystems
+    File::Find::find({wanted => \&wantedfiles}, </store/sata*/gcd/closed/>);
+
+
+    my $qinstance     = $dbh->prepare($qinstancesql);
+    my $upallinstance = $dbh->prepare($upallinstancesql);
+    my $merge         = $dbh->prepare($mergesql);
+
+
+
+#put in and extra buffer of look at files older than the min-run number  just in case they need updating
+    $minRunSMI = $minRunSMI - 1000;
+    
+#global update to initialize counters to zero:
+    print "global update with minrun=$minRunSMI and age=$fileageSMI days\n";
+    $upallinstance->bind_param(1,$hostname);
+    $upallinstance->bind_param(2,$minRunSMI);
+    my $upallinstanceCheck = $upallinstance->execute() or die("Error: Global Zeroing of SM_INSTANCES - $dbh->errstr \n");
+
+    $upallinstance->finish();
+
+    
+    
+    
+    for my $run ( sort keys %h_notfiles ) {
+	for my $instance ( sort keys %{$h_notfiles{$run}} ) {
+	    for my $label ( sort keys %{$h_notfiles{$run}{$instance}} ) {
+		print "************ run= $run  instance=$instance  label=$label \n ";
+		
+		if($run > 129710){
+		    
+		    print "run= $run; instance=$instance  label=$label  files=$h_notfiles{$run}{$instance}{$label} \n";
+		    
+		    
+		    $qinstance->bind_param(1,$run);
+		    $qinstance->bind_param(2,$hostname);
+		    my $qinstanceCheck = $qinstance->execute() or die("Error: Query2 failed - $dbh->errstr \n");
+		    my @result = $qinstance->fetchrow_array;
+		    my $diff = $h_notfiles{$run}{$instance}{$label}-$result[5]+$result[6];
+		    print "SELECT-OUT: $result[0], Label=$result[1], INST=$result[2], $result[3], CREA=$result[4], INJ=$result[5], DELE=$result[6], UNACC=$result[7] || diff=$diff\n";
+		    
+		    
+##update SM_INSTANCES:
+		    print "UPDATE instances for RUN $run  with disk file count=$h_notfiles{$run}{$instance}{$label} \n";
+		    $merge->bind_param(1,$run);
+		    $merge->bind_param(2,$hostname);
+		    $merge->bind_param(3,$instance);
+		    $merge->bind_param(4,$h_notfiles{$run}{$instance}{$label});
+		    $merge->bind_param(5,$run);
+		    $merge->bind_param(6,$hostname);
+		    $merge->bind_param(7,$instance);
+		    $merge->bind_param(8,$label);
+		    $merge->bind_param(9,$h_notfiles{$run}{$instance}{$label});
+		    my $mergeCheck = $merge->execute() or die("Error: Update of SM_INSTANCES for Host $hostname  Run $run - $dbh->errst \n");
+		    
+		    
+## #check results:
+		    $qinstanceCheck = $qinstance->execute() or die("Error: Query failed - $dbh->errstr \n");
+		    @result = $qinstance->fetchrow_array;
+		    $diff = $h_notfiles{$run}{$instance}{$label}-$result[5]+$result[6];
+		    print "SELECT-OUT: $result[0], Label=$result[1], INST=$result[2], $result[3], CREA=$result[4], INJ=$result[5], DELE=$result[6], UNACC=$result[7] || diff=$diff\n";
+		    
+		    
+		    
+		    print "-------------------\n";
+		  
+		    
+		} 
+	    }
 	}
     }
-    return $numberFailed;
+    
+    
+## 
+## my %touchruns=();
+## foreach my $ifile (@Files) {
+##     my ($run) = ($ifile =~ /[a-zA-Z0-9]+\.([0-9]+)\..*/);
+##     if($minRunSMI > $run){$minRunSMI = $run;}
+##     if (exists $touchruns{$run}){
+## 	$touchruns{$run} =  $touchruns{$run}+1;
+##     }else{
+## 	$touchruns{$run} =  1;
+##     }
+## }
+## 
+## #put in and extra buffer of look at old file entries just in case for updating
+## $minRunSMI = $minRunSMI - 1000;
+## 
+## 
+## #global update to initialize counters to zero:
+## print "global update with minrun=$minRunSMI and age=$fileageSMI days\n";
+## $upallinstance->bind_param(1,$hostname);
+## $upallinstance->bind_param(2,$minRunSMI);
+## my $upallinstanceCheck = $upallinstance->execute() or die("Error: Global Zeroing of SM_INSTANCES - $dbh->errstr \n");
+## 
+## 
+## 
+## #cycle through Runs which have files on disk:
+## foreach my $run (keys %touchruns) {
+##     print " ********* RUN=$run, NFiles=$touchruns{$run} \n";
+##     if($run > 129710){
+## 
+##  	$qinstance->bind_param(1,$run);
+##  	$qinstance->bind_param(2,$hostname);
+##  	my $qinstanceCheck = $qinstance->execute() or die("Error: Query2 failed - $dbh->errstr \n");
+##  	print "CHECK: $qinstanceCheck || \n";
+##  	my @result = $qinstance->fetchrow_array;	
+##  	print "----RESULT dump:..||\n";
+##  	print @result;
+##  	print "\n---------\n";      
+##         my $diff = $touchruns{$run}-$result[4]+$result[5];
+##  	print "SELECT-OUT: $result[0], INST=$result[1], $result[2], CREA=$result[3], INJ=$result[4], DELE=$result[5], UNACC=$result[6] || diff=$diff\n";
+##  		
+## 	
+## ##update SM_INSTANCES:
+## 	print "UPDATE instances for RUN $run  with disk file count=$touchruns{$run} \n";
+## 
+##        
+## 	$merge->bind_param(1,$run);
+## 	$merge->bind_param(2,$hostname);
+## 	$merge->bind_param(3,$touchruns{$run});
+## 	$merge->bind_param(4,$run);
+## 	$merge->bind_param(5,$hostname);
+## 	$merge->bind_param(6,-99);
+## 	$merge->bind_param(7,$touchruns{$run});
+## 	my $mergeCheck = $merge->execute() or die("Error: Update of SM_INSTANCES for Host $hostname  Run $run - $dbh->errst \n");
+## 	
+## 	
+## ## #check results:
+##  	$qinstanceCheck = $qinstance->execute() or die("Error: Query failed - $dbh->errstr \n");
+##  	print "CHECK: $qinstanceCheck || \n";
+##  	@result = $qinstance->fetchrow_array;
+##         $diff = $touchruns{$run}-$result[4]+$result[5];
+##  	print "UPDATED-OUT: $result[0], INST=$result[1], $result[2], CREA=$result[3], INJ=$result[4], DELE=$result[5], UNACC=$result[6] || diff=$diff\n";
+## 
+##  	print "-------------------\n";
+## ## 	
+## 	
+## 	
+## #    }else{
+## #	print "Run  $run is too old to process for !Files\n";
+##     }
+##     
+## }
+    
+#keep these 'finishes' of DB at the end, so ALL worked or a rollback?
+    $qinstance->finish();
+    $merge->finish();
+    
+    
 }
 
-sub show_usage($)
+#-----------------------------------------------------------------
+sub deleteCopyManager()
 {
-    my $message = "$0 usage:\n\n".
-	"   -h                     print this help\n".
-	"   --help                 print this help\n\n".
-	"Actions:\n".
-	"   --report               print report\n".
-	"   --fullreport           print report with file names\n".
-	"   --clean                clean files\n\n".
-	"Options:\n".
-	"   --age=X                act only in files older than X days\n".
-	"   --max=X                act only on up to X files per node\n".
-	"   --host=hostname        provide hostname to run\n\n".
-	"File Types:\n".
-	"Actions only applied to selected file type.  You must select one file ype at least\n\n".
-	"   --closedfiles          process closed files\n".
-	"   --openfiles            process open files\n\n".
-	"File Status:\n".
-	"Only selected file status will be cleaned.  You must select one file status at least.\n\n".
-	"   --FILES_CREATED\n".
-	"   --FILES_INJECTED\n".
-	"   --FILES_TRANS_NEW\n".
-	"   --FILES_TRANS_COPIED\n".
-	"   --FILES_TRANS_CHECKED\n".
-	"   --FILES_TRANS_REPACKED\n".
-	"   --FILES_TRANS_INSERTED\n".
-	"   --FILES_DELETED\n".
-	"   --FILES_ALL\n\n\n".
-	"Configure directories, list of PCs, and external calls in $configFile\n\n";
-    print "$message";
-}
+    my $dir="/store/copymanager/Logs";
+    
+    print "search in $dir \n";
+    if( -d $dir ){
+	
+	my $string = `df $dir | grep dev`;
+	my ($favail) = ($string =~ /.*\ ([0-9]+)\%.*/);
+	print "----- Initial disk usage $favail\n";
+	
+	#delete older than 45 days:
+	my $delete =`find /store/copymanager/Logs/*/ -cmin +64800  -type f   -exec sudo -u cmsprod  rm -f \'{}\' \\\; >& /dev/null`;
+	
+	$string = `df $dir | grep dev`;
+	($favail) = ($string =~ /.*\ ([0-9]+)\%.*/);
+	print "----- 45-day disk usage $favail\n";
+	
+	if( $favail > 85 ){
+	    
+	    #delete older than 32 days:
+	    $delete = `find /store/copymanager/Logs/*/ -cmin +46080  -type f  -exec sudo -u cmsprod  rm -f \'{}\' \\\; >& /dev/null`;
+	    
+	    $string = `df $dir | grep dev`;
+	    ($favail) = ($string =~ /.*\ ([0-9]+)\%.*/);
+	    print "----- 32-day disk usage $favail\n";
+	    my $gbdebug1 =`echo "-----   32-day disk usage $favail" >> /tmp/gbDebugClean2.txt`;
+	    my $gbdebug2 =`echo "2: $delete" >> /tmp/gbDebugClean2.txt`;
 
-#Entry Point
-foreach my $arg (@ARGV)
-{
-    if ("$arg" eq "-h") { &show_usage(); }
-    if ("$arg" eq "--help") { &show_usage(); }
-    if ("$arg" eq "--report") {
-	$DO = 1;
-        $DO_REPORT = 1;
-    }
-    if ("$arg" eq "--fullreport"){
-        $DO = 1;
-        $DO_REPORT = 1;
-        $DO_FULL_REPORT = 1;
-    }
-    if ("$arg" eq "--clean"){
-	$DO = 1;
-	$DO_CLEAN = 1;
-    }
-    if ("$arg" eq "--listfiles") { $DO_FILES_EMU = 1; }
-    if ("$arg" eq "--openfiles") { $DO_OPEN = 1; }
-    if ("$arg" eq "--closedfiles") { $DO_CLOSED = 1; }
-    if ($arg =~ /^--age=/) {
-	my @parts = split(/=/, $arg);
-	$DO_FILE_AGE = $parts[1];
-    }
-    if ($arg =~ /^--max=/) {
-	my @parts = split(/=/, $arg);
-	$DO_FILE_MAX = $parts[1];
-    }
-    if ($arg =~ /^--host=/) {
-	my @parts = split(/=/, $arg);
-	$DO_HOST = $parts[1];
-    }
-    if ($arg =~ /^--hostlist=/) {
-	my @parts = split(/=/, $arg);
-	$Con{"HOSTLIST"} = $parts[1];
-    }
-    if ($arg =~ /^--contains=/) {
-	my @parts = split(/=/, $arg);
-	$DO_FILE_CONTAINS = $parts[1];
-    }
-    if ("$arg" eq "--FILES_NO_STATUS"){
-        $DO_FILES = 1;
-	$DO_FILES_NO_STATUS = 1;
-    }
-    if ("$arg" eq "--FILES_CREATED"){
-	$DO_FILES = 1;
-        $DO_FILES_CREATED = 1;
-    }
-    if ("$arg" eq "--FILES_INJECTED"){
-	$DO_FILES = 1;
-        $DO_FILES_INJECTED = 1;
-    }
-    if ("$arg" eq "--FILES_NEW"){
-	$DO_FILES = 1;
-        $DO_FILES_TRANS_NEW = 1;
-    }
-    if ("$arg" eq "--FILES_TRANS_COPIED"){
-	$DO_FILES = 1;
-        $DO_FILES_TRANS_COPIED = 1;
-    }
-    if ("$arg" eq "--FILES_TRANS_CHECKED"){
-	$DO_FILES = 1;
-        $DO_FILES_TRANS_CHECKED = 1;
-    }
-    if ("$arg" eq "--FILES_TRANS_REPACKED"){
-	$DO_FILES = 1;
-        $DO_FILES_TRANS_REPACKED = 1;
-    }
-    if ("$arg" eq "--FILES_TRANS_INSERTED"){
-	$DO_FILES = 1;
-        $DO_FILES_TRANS_INSERTED = 1;
-    }
-    if ("$arg" eq "--FILES_DELETED"){
-	$DO_FILES = 1;
-        $DO_FILES_DELETED = 1;
-    }
-    if ("$arg" eq "--FILES_ALL"){
-	$DO_FILES=1;
-        $DO_FILES_DELETED=1;
-        $DO_FILES_CREATED=1;
-        $DO_FILES_INJECTED=1;
-        $DO_FILES_TRANS_NEW=1;
-        $DO_FILES_TRANS_COPIED=1;
-        $DO_FILES_TRANS_CHECKED=1;
-        $DO_FILES_TRANS_REPACKED=1;
-        $DO_FILES_TRANS_INSERTED=1;
-        $DO_FILES_DELETED=1;
-    }
-}
-
-if (!$DO){
-    print "Syntax error: you must select 1 action at least";
-    &show_usage();
-}
-if (!$DO_OPEN && !$DO_CLOSED){
-    print "Missing parameter: you must select 1 type of files at least (open/closed).";
-    &show_usage();
-}
-
-if ($DO_REPORT){
-    if ($DO_OPEN) { report($Con{"CHECK_PATH_OPEN"}); }
-    if ($DO_CLOSED) {report($Con{"CHECK_PATH_CLOSED"}); }
-}
-
-if ($DO_CLEAN){
-    if ($DO_FILES){
-	#Confirm that clean wanted
-	print "Do you really want to clean files?(y/n) ";
-	my $answer = <STDIN>;
-	chomp $answer;
-	if ("$answer" eq "y" | "$answer" eq "yes"){
-	    if ($DO_OPEN) { clean($Con{"CHECK_PATH_OPEN"}); }
-	    if ($DO_CLOSED) {clean($Con{"CHECK_PATH_CLOSED"}); }
+	    
+	    
+	    #brutal action: Manager files older than 15 days, and /tmp area older than 8 days
+	    if( $favail > 94 ){
+		$delete = `find /store/copymanager/Logs/*/ -cmin +21600  -type f  -exec sudo -u cmsprod  rm -f \'{}\' \\\; >& /dev/null`;
+		
+		my $gbdebug3 =`echo "3: $delete" >> /tmp/gbDebugClean2.txt`;
+		
+		$delete = `sudo -u cmsprod find /tmp/* -cmin +4320  -type f  -exec sudo rm -f {} \; >& /dev/null`;
+		
+		
+		#emergency action: Manager files older than 3 days, and /tmp area older than 3 days
+		if( $favail > 96 ){
+		    
+		    $delete = `find /store/copymanager/Logs/*/ -cmin +4320  -type f  -exec sudo -u cmsprod  rm -f \'{}\' \\\; >& /dev/null`;
+		    
+		    $delete = `find /tmp/* -cmin +4320  -type f  -exec sudo -u   rm -f {} \; >& /dev/null`;
+		    
+		}
+	    }
 	}
-    }
-    else {
-	print "Missing parameter: You must select 1 file status at least.";
-	&show_usage();
+	
+	$string = `df $dir | grep dev`;
+	($favail) = ($string =~ /.*\ ([0-9]+)\%.*/);
+	print "----- FINAL disk usage $favail\n";
+	
+	my $gbdebug =`echo "----- FINAL disk usage $favail " >> /tmp/gbDebugClean2.txt`;
     }
 }
 
-#Close DB
-$checkHan->finish();
-$entryHanOrphan->finish();
-$QueryHanDeleted->finish();
+
+###################################################################
+######################### MAIN ####################################
+
+$help       = 0;
+$debug      = 0;
+$nothing    = 0;
+$now        = 0;
+$filename   = '';
+$dataset    = '';
+$uptorun    = 0;
+$runnumber  = 0;
+$safety     = 100;
+$hostname   = '';
+$execute    = 1;
+$maxfiles   = 100000;     #     -- max number of files out of DB query to process for DELETE
+$fileagemin     = 130;    #min  -- min age for a file to be deleted
+$dbagemax       =  45;    #days -- make DB query for files to delete out to dbagemax 
+$dbrepackagemax0=   4.01; #days -- max age for a file (after CHECK) before it gets deleted EVEN IF no REPACK!
+$dbtdelete      =   6.0;  #hrs  -- cycle time to complete deletes over all nodes
+$force      = 0;
+$config     = "/opt/injectworker/.db.conf";
+
+
+$hostname   = `hostname -s`;
+chomp($hostname);
+
+GetOptions(
+           "help"          =>\$help,
+           "debug"         =>\$debug,
+           "nothing"       =>\$nothing,
+           "now"           =>\$now,
+           "force"         =>\$force,
+           "config=s"      =>\$config,
+           "hostname=s"    =>\$hostname,
+           "run=i"         =>\$runnumber,
+           "runnumber=i"   =>\$runnumber,
+	   "uptorun=s"	   =>\$uptorun,
+	   "filename=s"	   =>\$filename,
+	   "dataset=s"	   =>\$dataset,
+           "stream=s"      =>\$stream,
+           "maxfiles=i"    =>\$maxfiles,
+           "fileagemin=i"  =>\$fileagemin,
+           "dbagemax=i"    =>\$dbagemax,
+           "dbrepackagemax0=i"    =>\$dbrepackagemax0,
+           "skipdelete"    =>\$skipdelete
+	  );
+
+$help && usage;
+if ($nothing) { $execute = 0; $debug = 1; }
+
+
+#override any input---to overcome /etc/cron.d call!!
+$maxfiles   = 100000;
+
+
+my $sysindx=-1;
+# sysindex = 0;  maindaq
+# sysindex = 1;  minidaq
+# sysindex = 2;  daqval
+
+
+#check what is the percentage of maximally full "Sata" array:
+my $maxdisk=-1;
+for my $string (`df -h | grep sata `){
+    my ( my $prcnt ) = ($string =~ /.+\ +.+\ +.+\ +.+\ +([0-9]+)\%.*/);
+    print " prcnt: $prcnt | $string \n";
+    if($maxdisk < $prcnt){ $maxdisk= $prcnt; }
+}
+
+
+#set max age parameter for unrepacked files:
+$dbrepackagemax = $dbrepackagemax0;
+
+#OVERRIDE max age param for unrepacked files if disks getting too full
+if   ( $maxdisk > 90 ){$dbrepackagemax =  0.04/24; $dbtdelete = 1.0; $fileagemin= 24*60*$dbrepackagemax ; } #
+elsif( $maxdisk > 83 ){$dbrepackagemax =  0.15/24; $dbtdelete = 1.5; $fileagemin= 24*60*$dbrepackagemax ; } #
+elsif( $maxdisk > 78 ){$dbrepackagemax =  0.25/24; $dbtdelete = 1.5; $fileagemin= 24*60*$dbrepackagemax ; } #
+elsif( $maxdisk > 76 ){$dbrepackagemax =  1.0/24;  $dbtdelete = 1.5; $fileagemin= 24*60*$dbrepackagemax ; }
+elsif( $maxdisk > 74 ){$dbrepackagemax =  2.0/24;  $dbtdelete = 3.0; }
+elsif( $maxdisk > 70 ){$dbrepackagemax =  6.0/24;  $dbtdelete = 3.0; }
+elsif( $maxdisk > 65 ){$dbrepackagemax = 12.0/24;  $dbtdelete = 3.0; }
+elsif( $maxdisk > 60 ){$dbrepackagemax = 24.0/24;  $dbtdelete = 6.0; }
+elsif( $maxdisk > 55 ){$dbrepackagemax = 48.0/24;  $dbtdelete = 6.0; }
+elsif( $maxdisk > 50 ){$dbrepackagemax = 72.0/24;  $dbtdelete = 6.0; }
+#else {  ;}
+
+print ">> maxdisk= $maxdisk; $dbrepackagemax,  $dbtdelete, $fileagemin \n";
+
+#=======define other delete cycle params
+my $maxSM = 18;                        #max number of SM's (16+2spares)
+my $tcron = 20;                        #cron job cycle time in min
+
+
+
+#=======figure out which nodes should delete and when in this time cycle:
+my $dcyle = 60*$dbtdelete/$maxSM;         #normal cycle time (min) for deletes alotted per node
+my $ncyc;  {use integer; $ncyc=$maxSM/$dbtdelete;}
+
+
+
+#what's the current time at start of cycle; and *relative* to start of cycle:
+my $hour   = `date +%H`+0;
+my $min    = `date +%M`+0;
+my $hour6  =  (60*$hour+$min)%(60*$dbtdelete);
+   $hour6  =  $hour6/60;
+#my $min1  = `date +%M`+0;
+#   $min   = 0;
+
+`date`;
+    print "\n TIMES: hour=$hour:$min; hour6=$hour6=$hour%$dbtdelete; min=$min  \n";
+
+my $sleeptime = 0;
+
+
+my $gbdebug2 =`echo "*********************************************************************************** " >> /tmp/gbDebugClean2.txt`;
+   $gbdebug2 =`echo "*********************** $hostname  $hour:$min ******maxdisk: $maxdisk%  *********** " >> /tmp/gbDebugClean2.txt`;
+
+my $hourPC  = 0; 
+my $minPC   = 0; 
+my $hourPC3 = 0; 
+my $minPC20 = 0; 
+my $deltaT  = 0;
+
+#figure out what timing delays we want for cleaning etc for particular node:
+my ($rack, $node);
+if       ( ( $rack, $node ) = ( $hostname =~ /srv-c2c0([67])-(\d+)$/i ) ){ # main SM
+    $sysindx = 0;
+    $hourPC  = ( 2*($node-12) + 10*($rack-6) )%$maxSM + ($rack-6);
+    $minPC   = $hourPC%$ncyc;
+    $hourPC3 = ($hourPC - $minPC)/$ncyc;
+    $minPC20 = $dcyle*$minPC;
+    
+    #time diff for scheduling deletes
+    $deltaT   = 60*($hourPC3-$hour6) +  $minPC20;                #-$min;
+
+    print " $deltaT   = 60*($hourPC3-$hour6) +  $minPC20 \n";    #-$min \n";    
+    print " standard SM, deltaT=  $deltaT  \n";
+    
+    
+}elsif ( ($rack, $node ) = ( $hostname =~ /dvsrv-c2f3([7])-(\d+)$/i ) ){   # daqval SM
+    $sysindx = 2;
+    #   haven't decided what to do for daqval SM's yet!
+    exit 0;
+}elsif (  $hostname =~ /cmsdisk1/i ||  $hostname =~ /srv-C2D05-02/i  ){    # minidaq SM
+    $sysindx = 1;
+    #force deletion near c07-20's slot cuz it's probably not having to do much anyhow
+    #but do it only ONCE per day (15:07 hrs)
+    $deltaT = 60*($hour-15)+$min;    
+    $node   = 20;
+    $rack   =  7;
+    $sleeptime = 0.5;
+    print "..do cmsdisk1 sleep!  \n";
+    sleep(60*1);
+}else {
+    #unknown machine
+    exit 0;
+}
+
+
+
+print "$hostname: $hour ($hour6) h AND $min min ===> deltaTime= $deltaT\n";
+
+
+
+#put in a short delay just to say away from clock boundaries
+$sleeptime = 2*($node-10);
+$sleeptime = 0.08;
+
+
+
+if(0<$deltaT && $deltaT < $tcron - 0.5){                #times are in min!
+    $sleeptime = $deltaT%$tcron + $sleeptime;
+}
+
+print "$hostname:  $rack $node REAL sleep time: $sleeptime \n";
+
+
+my $date=`date`;
+print "$date  ..maybe sleep 60*$sleeptime...\n";
+
+if( !$now && $sleeptime>0 ){ 
+ 
+  my $gbdebug1 =`echo "$date   sleep $sleeptime min" >> /tmp/gbDebugClean2.txt`;
+   sleep(60*$sleeptime);
+}
+
+$date=`date`;
+print "$date  ..sleep done...\n";
+
+
+
+
+# Execute the following stuff ONLY IF there is a "sata" disk array
+if( $maxdisk != -1 ) { 
+
+
+
+$reader = "xxx";
+$phrase = "xxx";
+my ($hltdbi, $hltreader, $hltphrase);
+if(-e $config) {
+    eval `su smpro -c "cat $config"`;
+} else {
+    print "Error: Can not read config file $config, exiting!\n";
+    usage();
+}
+
+
+$dbi    = "DBI:Oracle:cms_rcms";
+$dbh    = DBI->connect($dbi,$reader,$phrase)
+    or die "Can't make DB connection: $DBI::errstr\n";
+
+
+
+#default params for filling SM_INSTANCES table
+$minRunSMI   = 134000; #smallest run number being handled
+$fileageSMI  = 5;         #in days
+
+$date=`date`;
+  my $gbdebug1 =`echo "$date------------ $hostname: $hour6- AND $min ===> deltaTime= $deltaT || deltcycle=$dbtdelete hrs; minrepack=$dbrepackagemax day; minage=$fileagemin min; sleep $sleeptime min" >> /tmp/gbDebugClean2.txt`;
+
+
+
+#=======DELETE cycle for data files :
+
+#get updated time:
+    #what's the current time:
+ $hour  = `date +%H`+0;
+ $min   = `date +%M`+0;
+ $hour6 =  (60*$hour+$min)%(60*$dbtdelete);
+ $hour6 =  $hour6/60;
+ $min   = 0.0;
+
+
+
+$deltaT   = 60*($hourPC3-$hour6) +  $minPC20;
+if($sysindx == 1){
+    $deltaT = 60*($hour-15)+$min;
+}
+
+
+print "$hostname: post sleep check: $hour ($hour6) h AND $min min ===> deltaTime= $deltaT\n";
+
+$sleeptime= 60*($node-12);
+
+
+   $date=`date`;
+if( abs($deltaT) < 1.5  ||  $now  ){ 
+    if( !$now ){ sleep 2;}
+    
+
+    my  $gbNEWdebug =`date:  >> /tmp/gbDebugClean2.txt`;
+    $gbNEWdebug =`echo ">>>> DELETE:  $hostname: $hour6- AND $min ===> deltaTime= $deltaT  " >> /tmp/gbDebugClean2.txt`;
+    
+    print "$date ..execute DELETES cycle...\n";
+    if (!$skipdelete) { deletefiles(); }
+    $date=`date`;
+    print "$date ..DONE executing DELETES...\n";
+    
+    #if we did a file delete, kill the snooze time for the UNACCTFILES:
+    $sleeptime=0;
+
+}else{
+    
+    print "unsatisfied, eXIT!..\n";
+    sleep 1;
+}
+
+
+
+$date=`date`;
+print "$date  ..execute !Files...(but sleep $sleeptime sec first)... \n";
+sleep $sleeptime;
+uncountfiles();
+$date=`date`;
+print "$date ..DONE executing unDELETES...\n";
+
+
 $dbh->disconnect;
+
+}
+
+my  $gbdebug =`date >> /tmp/gbDebugClean2.txt`;
+$gbdebug =`echo "    $hour && $min: Delta-t= $deltaT " >> /tmp/gbDebugClean2.txt`;
+
+
+
+
+
+#=======MIGRATE worker/manager files :
+if($now ||  abs($deltaT) < 8   ) { 
+    my $date=`date`;
+    print " $date: cleanup CopyManager if there  \n";
+    deleteCopyManager(); 
+
+    $date=`date`;
+    print "$date .. move copyworker work-logs.... \n";
+    my $clnmngr = `sudo -u cmsprod  perl /cmsnfshome0/nfshome0/gbauer/cleanupCopyWorkerWorkDir.pl`;
+    
+}
+
+    $date=`date`;
+    print "$date .. all done!\n";
 
