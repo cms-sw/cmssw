@@ -32,7 +32,6 @@ HcalHotCellMonitor::HcalHotCellMonitor(const edm::ParameterSet& ps)
 
   // exclude HO ring 2
   excludeHORing2_       = ps.getUntrackedParameter<bool>("excludeHORing2",false);
-  excludeHORing1_       = ps.getUntrackedParameter<bool>("excludeHORing1",false);
 
 
   // Set which hot cell checks will be performed
@@ -511,9 +510,6 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
 	{
 	  // Skip HO ring 2 when required
 	  if (abs(ieta)>10 && excludeHORing2_==true)
-	    continue;
-	  // Skip HO ring 1 when required
-	  if (abs(ieta)>4 && excludeHORing1_==true)
 	    continue;
 
 	  if (en>=HOenergyThreshold_)

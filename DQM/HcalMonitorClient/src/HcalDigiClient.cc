@@ -11,8 +11,8 @@
 /*
  * \file HcalDigiClient.cc
  * 
- * $Date: 2010/11/10 20:01:34 $
- * $Revision: 1.66 $
+ * $Date: 2010/11/17 19:17:42 $
+ * $Revision: 1.67 $
  * \author J. Temple
  * \brief DigiClient class
  */
@@ -148,8 +148,6 @@ void HcalDigiClient::calculateProblems()
   for (unsigned int d=0;ProblemCellsByDepth!=0 && d<ProblemCellsByDepth->depth.size();++d)
     {
       if (ProblemCellsByDepth->depth[d]==0) continue;
-      if (d==3)
-	if (ProblemCellsByDepth->depth[d]==0) continue;
 
       if (BadDigisByDepth[d]==0 || GoodDigisByDepth[d]==0) continue;
       totalevents=(int)GoodDigisByDepth[d]->GetBinContent(0,0);

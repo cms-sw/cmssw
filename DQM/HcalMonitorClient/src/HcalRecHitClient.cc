@@ -11,8 +11,8 @@
 /*
  * \file HcalRecHitClient.cc
  * 
- * $Date: 2010/03/25 21:27:42 $
- * $Revision: 1.49 $
+ * $Date: 2010/11/10 20:01:34 $
+ * $Revision: 1.50 $
  * \author J. Temple
  * \brief Dead Cell Client class
  */
@@ -47,7 +47,6 @@ HcalRecHitClient::HcalRecHitClient(std::string myname, const edm::ParameterSet& 
 						ps.getUntrackedParameter<int>("minevents",1));
   enoughevents_=false;
   ProblemCellsByDepth=0;
-  ProblemCellsByDepthHO12=0;
 }
 
 void HcalRecHitClient::analyze()
@@ -249,7 +248,6 @@ void HcalRecHitClient::calculateProblems()
   double totalevents=0;
   int etabins=0, phibins=0, zside=0;
   double problemvalue=0;
-  double problemvalueho12=0;
   std::vector<std::string> name = HcalEtaPhiHistNames(); // use this to get EtaPhiHistograms that feed problem calculation, once they exist (see analyze function for example usage of HcalEtaPhiHistNames())
 
   // Get histograms used in determining rechit problem rate, 
@@ -268,12 +266,6 @@ void HcalRecHitClient::calculateProblems()
       (ProblemCells->getTH2F())->SetMaximum(1.05);
       (ProblemCells->getTH2F())->SetMinimum(0.);
     }
-  if (ProblemCellsHO12!=0)
-    {
-      ProblemCellsHO12->Reset();
-      (ProblemCellsHO12->getTH2F())->SetMaximum(1.05);
-      (ProblemCellsHO12->getTH2F())->SetMinimum(0.);
-    }
   for  (unsigned int d=0;d<ProblemCellsByDepth->depth.size();++d)
     {
       if (ProblemCellsByDepth->depth[d]!=0) 
@@ -283,19 +275,10 @@ void HcalRecHitClient::calculateProblems()
 	  (ProblemCellsByDepth->depth[d]->getTH2F())->SetMinimum(0.);
 	}
     }
-  for  (unsigned int d=0;d<ProblemCellsByDepthHO12->depth.size();++d)
-    if (ProblemCellsByDepthHO12->depth[d]!=0) 
-      {
-	ProblemCellsByDepthHO12->depth[d]->Reset();
-	(ProblemCellsByDepthHO12->depth[d]->getTH2F())->SetMaximum(1.05);
-	(ProblemCellsByDepthHO12->depth[d]->getTH2F())->SetMinimum(0.);
-      }
   
   for (unsigned int d=0;d<ProblemCellsByDepth->depth.size();++d)
     {
       if (ProblemCellsByDepth->depth[d]==0) continue;
-      if (d==3)
-	if (ProblemCellsByDepthHO12->depth[d]==0) continue;
 
       // Get total events from some future histogram
       //totalevents=DigiPresentByDepth[d]->GetBinContent(0); // get totalevents from each depth, in case they differ
@@ -303,7 +286,6 @@ void HcalRecHitClient::calculateProblems()
       etabins=(ProblemCellsByDepth->depth[d]->getTH2F())->GetNbinsX();
       phibins=(ProblemCellsByDepth->depth[d]->getTH2F())->GetNbinsY();
       problemvalue=0;
-      problemvalueho12=0;
       for (int eta=0;eta<etabins;++eta)
 	{
 	  int ieta=CalcIeta(eta,d+1);
@@ -311,67 +293,35 @@ void HcalRecHitClient::calculateProblems()
 	  for (int phi=0;phi<phibins;++phi)
 	    {
 	      problemvalue=0;
-	      problemvalueho12=0;
-	      if ((d < 3) || (d==3&&fabs(ieta)<5))
+	      // Add histograms here when rechit testing decided upon
+	      /*if (DigiPresentByDepth[d]!=0 && DigiPresentByDepth[d]->GetBinContent(eta+1,phi+1)>0) 
+		problemvalue=totalevents; */
+	      
+	      if (problemvalue==0) continue;
+	      problemvalue/=totalevents; // problem value is a rate; should be between 0 and 1
+	      problemvalue = std::min(1.,problemvalue);
+	      
+	      zside=0;
+	      if (isHF(eta,d+1)) // shift ieta by 1 for HF
+		ieta<0 ? zside = -1 : zside = 1;
+	      
+	      // For problem cells that exceed our allowed rate,
+	      // set the values to 999 if the cells are already marked in the status database
+	      if (problemvalue>minerrorrate_)
 		{
-		  // Add histograms here when rechit testing decided upon
-		  /*if (DigiPresentByDepth[d]!=0 && DigiPresentByDepth[d]->GetBinContent(eta+1,phi+1)>0) 
-		    problemvalue=totalevents; */
-
-		  if (problemvalue==0) continue;
-		  problemvalue/=totalevents; // problem value is a rate; should be between 0 and 1
-		  problemvalue = std::min(1.,problemvalue);
-		  
-		  zside=0;
-		  if (isHF(eta,d+1)) // shift ieta by 1 for HF
-		    ieta<0 ? zside = -1 : zside = 1;
-		  
-		  // For problem cells that exceed our allowed rate,
-		  // set the values to 999 if the cells are already marked in the status database
-		  if (problemvalue>minerrorrate_)
-		    {
-		      HcalSubdetector subdet=HcalEmpty;
-		      if (isHB(eta,d+1))subdet=HcalBarrel;
-		      else if (isHE(eta,d+1)) subdet=HcalEndcap;
-		      else if (isHF(eta,d+1)) subdet=HcalForward;
-		      else if (isHO(eta,d+1)) subdet=HcalOuter;
-		      HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1));
-		      if (badstatusmap.find(hcalid)!=badstatusmap.end())
-			problemvalue=999;
-		    }
-		  
-		  
-		  ProblemCellsByDepth->depth[d]->setBinContent(eta+1,phi+1,problemvalue);
-		  if (ProblemCells!=0) ProblemCells->Fill(ieta+zside,phi+1,problemvalue);
-		}//end HBEFHO0
-	      else
-		{
-		  // Add histograms here when rechit testing decided upon
-		  /*if (DigiPresentByDepth[d]!=0 && DigiPresentByDepth[d]->GetBinContent(eta+1,phi+1)>0) 
-		    problemvalueho12=totalevents; */
-		  if (problemvalueho12==0) continue;
-		  problemvalueho12/=totalevents; // problem value is a rate; should be between 0 and 1
-		  problemvalueho12 = std::min(1.,problemvalueho12);
-		  
-		  zside=0;
-
-		  // For problem cells that exceed our allowed rate,
-		  // set the values to 999 if the cells are already marked in the status database
-		  if (problemvalueho12>minerrorrate_)
-		    {
-		      HcalSubdetector subdet=HcalEmpty;
-		      if (isHB(eta,d+1))subdet=HcalBarrel;
-		      else if (isHE(eta,d+1)) subdet=HcalEndcap;
-		      else if (isHF(eta,d+1)) subdet=HcalForward;
-		      else if (isHO(eta,d+1)) subdet=HcalOuter;
-		      HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1));
-		      if (badstatusmap.find(hcalid)!=badstatusmap.end())
-			problemvalueho12=999;
-		    }
-		  
-		  ProblemCellsByDepthHO12->depth[d]->setBinContent(eta+1,phi+1,problemvalueho12);
-		  if (ProblemCellsHO12!=0) ProblemCellsHO12->Fill(ieta+zside,phi+1,problemvalueho12);
-		}//end HO12
+		  HcalSubdetector subdet=HcalEmpty;
+		  if (isHB(eta,d+1))subdet=HcalBarrel;
+		  else if (isHE(eta,d+1)) subdet=HcalEndcap;
+		  else if (isHF(eta,d+1)) subdet=HcalForward;
+		  else if (isHO(eta,d+1)) subdet=HcalOuter;
+		  HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1));
+		  if (badstatusmap.find(hcalid)!=badstatusmap.end())
+		    problemvalue=999;
+		}
+	      
+	      
+	      ProblemCellsByDepth->depth[d]->setBinContent(eta+1,phi+1,problemvalue);
+	      if (ProblemCells!=0) ProblemCells->Fill(ieta+zside,phi+1,problemvalue);
 	    } // loop on phi
 	} // loop on eta
     } // loop on depth
@@ -393,20 +343,8 @@ void HcalRecHitClient::calculateProblems()
 	    ProblemCells->setBinContent(eta+1,phi+1,1.);
 	}
     }
-  etabins=(ProblemCellsHO12->getTH2F())->GetNbinsX();
-  phibins=(ProblemCellsHO12->getTH2F())->GetNbinsY();
-  for (int eta=0;eta<etabins;++eta)
-    {
-      for (int phi=0;phi<phibins;++phi)
-	{
-	  if (ProblemCellsHO12->getBinContent(eta+1,phi+1)>1. && ProblemCellsHO12->getBinContent(eta+1,phi+1)<999)
-	    ProblemCellsHO12->setBinContent(eta+1,phi+1,1.);
-	}
-    }
   FillUnphysicalHEHFBins(*ProblemCellsByDepth);
   FillUnphysicalHEHFBins(ProblemCells);
-  FillUnphysicalHEHFBins(*ProblemCellsByDepthHO12);
-  FillUnphysicalHEHFBins(ProblemCellsHO12);
   return;
 
 }
@@ -446,21 +384,6 @@ void HcalRecHitClient::beginRun(void)
   for (unsigned int i=0; i<ProblemCellsByDepth->depth.size();++i)
     problemnames_.push_back(ProblemCellsByDepth->depth[i]->getName());
 
-  dqmStore_->setCurrentFolder(subdir_);
-  problemnamesho12_.clear();
-  ProblemCellsHO12=dqmStore_->book2D(" ProblemRecHitsHO12",
-				 "Problem RecHit Rate for HO12;ieta;iphi",
-				 31,-15.5,15.5,
-				 //85,-42.5,42.5,
-				 72,0.5,72.5);
-  problemnamesho12_.push_back(ProblemCellsHO12->getName());
-  if (debug_>1)
-    std::cout << "Tried to create ProblemCellsHO12 Monitor Element in directory "<<subdir_<<"  \t  Failed?  "<<(ProblemCellsHO12==0)<<std::endl;
-  dqmStore_->setCurrentFolder(subdir_+"problem_rechits");
-  ProblemCellsByDepthHO12=new EtaPhiHists();
-  ProblemCellsByDepthHO12->setup(dqmStore_," Problem RecHit Rate");
-  for (unsigned int i=0; i<ProblemCellsByDepthHO12->depth.size();++i)
-    problemnamesho12_.push_back(ProblemCellsByDepthHO12->depth[i]->getName());
   nevts_=0;
 
   dqmStore_->setCurrentFolder(subdir_+"Distributions_AllRecHits");
@@ -536,13 +459,7 @@ bool HcalRecHitClient::hasErrors_Temp(void)
       if (debug_>1) std::cout <<"<HcalRecHitClient::hasErrors_Temp>  ProblemCells histogram does not exist!"<<std::endl;
       return false;
     }
-  if (!ProblemCellsHO12)
-    {
-      if (debug_>1) std::cout <<"<HcalRecHitClient::hasErrors_Temp>  ProblemCellsHO12 histogram does not exist!"<<std::endl;
-      return false;
-    }
   int problemcount=0;
-  int problemcountho12=0;
   int ieta=-9999;
 
   for (int depth=0;depth<4; ++depth)
@@ -555,23 +472,10 @@ bool HcalRecHitClient::hasErrors_Temp(void)
             {
               ieta=CalcIeta(hist_eta,depth+1);
 	      if (ieta==-9999) continue;
-	      if ((depth<3)|| (depth==3&&fabs(ieta)<5))
-		{
-		  if (ProblemCellsByDepth->depth[depth]==0)
-		    continue;
-		  if (ProblemCellsByDepth->depth[depth]->getBinContent(hist_eta,hist_phi)>minerrorrate_)
-		    ++problemcount;
-		}
-	      else
-		{
-		  if (ProblemCellsByDepthHO12->depth[depth]==0)
-		    continue;
-		  if (ProblemCellsByDepthHO12->depth[depth]->getBinContent(hist_eta,hist_phi)>minerrorrate_)
-		    {
-		      ++problemcount;
-		      ++problemcountho12;
-		    }
-		}
+	      if (ProblemCellsByDepth->depth[depth]==0)
+		continue;
+	      if (ProblemCellsByDepth->depth[depth]->getBinContent(hist_eta,hist_phi)>minerrorrate_)
+		++problemcount;
 	    } // for (int hist_phi=1;...)
 	} // for (int hist_eta=1;...)
     } // for (int depth=0;...)
