@@ -70,11 +70,11 @@ int main(int argc, char **argv) {
     if(i != methods.begin()) methodsDesc += ", ";
     methodsDesc += *i;
   }
-
+  
   po::options_description desc("Allowed options");
   desc.add_options()
     ("help,h", "Produce help message")
-    ("name,n", po::value<string>(&name), "Name")
+    ("name,n", po::value<string>(&name), "Name of the job")
     ("datacard,d", po::value<string>(&datacard), "Datacard file")
     ("mass,m", po::value<int>(&iMass)->default_value(120), "Minimum value for fit range")
     ("method,M", po::value<string>(&whichMethod)->default_value("mcmc"), methodsDesc.c_str())
@@ -83,15 +83,20 @@ int main(int argc, char **argv) {
     ("saveToys,w", po::value<bool>(&saveToys)->default_value(false), "Save results of toy MC")
     ("toysFile,f", po::value<string>(&toysFile)->default_value(""), "Toy MC output file")
     ;
-
   po::positional_options_description p;
   p.add("datacard", -1);
-
   po::variables_map vm;
-  po::store(po::command_line_parser(argc, argv).
-	    options(desc).positional(p).run(), vm);
-  po::notify(vm);
   
+  try{
+    po::store(po::command_line_parser(argc, argv).
+	      options(desc).positional(p).run(), vm);
+    po::notify(vm);
+  } catch(...) {
+    cerr << "Invalid options" << endl;
+    cout << "Usage: options_description [options]\n";
+    cout << desc;
+    return 1000;
+  }
   if(vm.count("help")) {
     cout << "Usage: options_description [options]\n";
     cout << desc;
