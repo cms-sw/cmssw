@@ -20,7 +20,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContentHeavyIons_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.4 $'),
+    version = cms.untracked.string('$Revision: 1.5 $'),
     annotation = cms.untracked.string('centralSkimsHI nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -30,9 +30,10 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/hidata/HIRun2010/HIAllPhysics/RECO/PromptReco-v1/000/150/063/B497BEDB-8BE8-DF11-B09D-0030487A18F2.root'),
-    secondaryFileNames = cms.untracked.vstring("/store/hidata/HIRun2010/HIAllPhysics/RAW/v1/000/150/063/1C76D53B-88E8-DF11-B7D1-0030487CD812.root"),
-    #eventsToProcess = cms.untracked.VEventRange('150063:517644-150063:517644'),
+    fileNames = cms.untracked.vstring(
+    '/store/hidata/HIRun2010/HICorePhysics/RECO/PromptReco-v3/000/151/353/DC04F2F3-32F2-DF11-BD72-0030487C5CE2.root'),
+    secondaryFileNames = cms.untracked.vstring(
+    '/store/hidata/HIRun2010/HICorePhysics/RAW/v1/000/151/353/00B95950-00F2-DF11-9485-001D09F252DA.root')
 )
 
 process.options = cms.untracked.PSet(
@@ -120,12 +121,55 @@ process.fullZEESkimSequence = cms.Sequence(process.hltPhotonHI
                                            * process.hiPrimSeeds * process.hiElectronSequence)
 
 
+# Higher trigger thresholds
+process.hltJetHI.HLTPaths = ["HLT_HIJet50U_Core"]
+process.hltPhotonHI.HLTPaths = ["HLT_HIPhoton20_Core"]
+process.hltZMMHI.HLTPaths = ["HLT_HIL2DoubleMu3_Core"]
+
+
+# Dijet requirement
+process.leadingCaloJet = cms.EDFilter( "LargestEtCaloJetSelector",
+    src = cms.InputTag( "icPu5CaloJetsL2L3" ),
+    filter = cms.bool( False ),
+    maxNumber = cms.uint32( 1 )
+    )
+
+process.goodLeadingJet = cms.EDFilter("CaloJetSelector",
+    src = cms.InputTag("leadingCaloJet"),
+    cut = cms.string("et > 130")
+    )
+
+process.goodSecondJet = cms.EDFilter("CaloJetSelector",
+    src = cms.InputTag("icPu5CaloJetsL2L3"),
+    cut = cms.string("et > 30")
+    )
+
+process.backToBackDijets = cms.EDProducer("CandViewShallowCloneCombiner",
+    checkCharge = cms.bool(False),
+    cut = cms.string('abs(deltaPhi(daughter(0).phi,daughter(1).phi)) > 2.5'),
+    decay = cms.string("goodLeadingJet goodSecondJet")
+    )
+
+process.dijetFilter = cms.EDFilter("CandViewCountFilter",
+    src = cms.InputTag("backToBackDijets"),
+    minNumber = cms.uint32(1)
+    )
+
+process.backToBackSequence = cms.Sequence(process.leadingCaloJet*process.goodLeadingJet*
+                                          process.goodSecondJet*process.backToBackDijets*
+                                          process.dijetFilter)
+
+process.particleFlowSequence = cms.Sequence(process.siPixelRecHits * process.siStripMatchedRecHits *
+                                            process.heavyIonTracking * process.HiParticleFlowReco)
+
+
 # Path and EndPath definitions
 process.zEESkimPath = cms.Path(process.fullZEESkimSequence)
 
 process.photonSkimPath = cms.Path(process.photonSkimSequence*process.primaryVertexFilter)
 
-process.diJetSkimPath = cms.Path(process.diJetSkimSequence*process.primaryVertexFilter)
+process.diJetSkimPath = cms.Path(process.diJetSkimSequence*process.primaryVertexFilter*
+                                 process.backToBackSequence*process.particleFlowSequence)
 
 process.zMMSkimPath = cms.Path(process.zMMSkimSequence*process.primaryVertexFilter)
 
