@@ -98,6 +98,19 @@ Fireworks/.* : Fireworks/.*
 #Vis.* exception for Vis.*
 Vis.* : Vis.*
 
+#Generator.* exception for Generator.* & FastSimulation
+Generator.*        : Generator.*
+FastSimulation/.*  : Generator.*
+
+#f77compiler exception
+Generator.*                      : f77compiler
+ElectroWeakAnalysis/Utilities/.* : f77compiler
+
+#FastSim exception
+FastSimulation/.*                : FastSimulation/.*
+GeneratorInterface/GenFilters/.* : FastSimulation/BaseParticlePropagator,FastSimulation/Particle
+RecoParticleFlow/PF.*            : FastSimulation/.*,GeneratorInterface/.*
+
 ####################################################
 #                    allowed-usedby                #
 ####################################################
@@ -117,13 +130,16 @@ Track.*         : DQM.*
 #                 not-allowed-usedby               #
 ####################################################
 [not-allowed-usedby]
-coin            : .*
-geant4.*        : .*
-oracle.*        : .*
-qt.*            : .*
-rootinteractive : .*
-soqt            : .*
-xdaq            : .*
-Iguana/.*       : .*
-Fireworks/.*    : .*
-Vis.*           : .*
+coin              : .*
+geant4.*          : .*
+oracle.*          : .*
+qt.*              : .*
+rootinteractive   : .*
+soqt              : .*
+xdaq              : .*
+Iguana/.*         : .*
+Fireworks/.*      : .*
+Vis.*             : .*
+f77compiler       : .*
+Generator.*       : .*
+FastSimulation.*  : .* 
