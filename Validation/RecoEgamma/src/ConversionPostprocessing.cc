@@ -36,6 +36,26 @@ ConversionPostprocessing::ConversionPostprocessing(const edm::ParameterSet& pset
   inputFileName_  = pset.getParameter<std::string>("InputFileName");
 
 
+  etMin = parameters_.getParameter<double>("etMin");
+  etMax = parameters_.getParameter<double>("etMax");
+  etBin = parameters_.getParameter<int>("etBin");
+
+  etaMin = parameters_.getParameter<double>("etaMin");
+  etaMax = parameters_.getParameter<double>("etaMax");
+  etaBin = parameters_.getParameter<int>("etaBin");
+  etaBin2 = parameters_.getParameter<int>("etaBin2");
+
+  phiMin = parameters_.getParameter<double>("phiMin");
+  phiMax = parameters_.getParameter<double>("phiMax");
+  phiBin = parameters_.getParameter<int>("phiBin");
+
+  rMin = parameters_.getParameter<double>("rMin");
+  rMax = parameters_.getParameter<double>("rMax");
+  rBin = parameters_.getParameter<int>("rBin");
+
+  zMin = parameters_.getParameter<double>("zMin");
+  zMax = parameters_.getParameter<double>("zMax");
+  zBin = parameters_.getParameter<int>("zBin");
 
  
 
@@ -55,30 +75,23 @@ void ConversionPostprocessing::analyze(const edm::Event& e, const edm::EventSetu
 {}
 
 
-void ConversionPostprocessing::endJob()
+void ConversionPostprocessing::endJob() {
+
+if(standAlone_) runPostprocessing();
+
+}
+
+void ConversionPostprocessing::endRun(const edm::Run& run, const edm::EventSetup& setup) {
+
+  if(!standAlone_) runPostprocessing();
+
+}
+
+
+
+void ConversionPostprocessing::runPostprocessing()
 {
 
-  double etMin = parameters_.getParameter<double>("etMin");
-  double etMax = parameters_.getParameter<double>("etMax");
-  int etBin = parameters_.getParameter<int>("etBin");
-
-
-  double etaMin = parameters_.getParameter<double>("etaMin");
-  double etaMax = parameters_.getParameter<double>("etaMax");
-  //  int etaBin = parameters_.getParameter<int>("etaBin"); // unused
-  int etaBin2 = parameters_.getParameter<int>("etaBin2");
-
-  double phiMin = parameters_.getParameter<double>("phiMin");
-  double phiMax = parameters_.getParameter<double>("phiMax");
-  int    phiBin = parameters_.getParameter<int>("phiBin");
-
-  double rMin = parameters_.getParameter<double>("rMin");
-  double rMax = parameters_.getParameter<double>("rMax");
-  int    rBin = parameters_.getParameter<int>("rBin");
-
-  double zMin = parameters_.getParameter<double>("zMin");
-  double zMax = parameters_.getParameter<double>("zMax");
-  int    zBin = parameters_.getParameter<int>("zBin");
 
 
   std::string simInfoPathName = "EgammaV/ConversionValidator/SimulationInfo/";

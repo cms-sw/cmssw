@@ -35,7 +35,7 @@
  **  
  **
  **  $Id: ConversionPostprocessing
- **  $Date: 2010/08/25 14:20:15 $ 
+ **  $Date: 2010/10/20 12:33:40 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **     
@@ -64,6 +64,8 @@ class ConversionPostprocessing : public edm::EDAnalyzer
   virtual void beginJob() ;
   virtual void endJob() ;
   virtual void endLuminosityBlock( const edm::LuminosityBlock& , const edm::EventSetup& ) ;
+  virtual void endRun(const edm::Run& , const edm::EventSetup& ) ;
+
  private:
   //
 
@@ -71,26 +73,38 @@ class ConversionPostprocessing : public edm::EDAnalyzer
 
   void dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator,std::string type);
   void dividePlots(MonitorElement* dividend, MonitorElement* numerator, double denominator); 
-      
+  virtual void runPostprocessing();      
 
   DQMStore *dbe_;
   int verbosity_;
 
   edm::ParameterSet parameters_;
-
-
-  double etMin;
-  double etMax;
-  int etBin;
-  double etaMin;
-  double etaMax;
-  int etaBin;
+  
   bool standAlone_;
   bool batch_;
   std::string outputFileName_;
   std::string inputFileName_;
 
   std::stringstream currentFolder_;
+
+
+  double etMin;
+  double etMax;
+  int    etBin;
+  double etaMin;
+  double etaMax;
+  int    etaBin;
+  int    etaBin2;
+  double phiMin;
+  double phiMax;
+  int    phiBin;
+  double rMin;
+  double rMax;
+  int    rBin;
+  double zMin;
+  double zMax;
+  int    zBin;
+  
 
 
   MonitorElement*  convEffEtaTwoTracks_;
