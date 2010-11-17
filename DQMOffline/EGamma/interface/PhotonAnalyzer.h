@@ -87,7 +87,7 @@ using std::string;
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2010/05/10 19:25:45 $ 
+ **  $Date: 2010/06/03 15:46:38 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -175,6 +175,8 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   
 
   int isolationStrength_; 
+
+  bool isHeavyIon_;
 
   edm::ParameterSet parameters_;
            
@@ -291,22 +293,19 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   vector<vector<MonitorElement*> > p_hOverEVsEt_;
 
   vector<vector<MonitorElement*> > h_phoEta_;
-  vector<vector<MonitorElement*> > h_phoPhi_;
-
   vector<vector<MonitorElement*> > h_scEta_;
-  vector<vector<MonitorElement*> > h_scPhi_;
+
 
   vector<vector<MonitorElement*> > h_phoConvEtaForEfficiency_;
-  vector<vector<MonitorElement*> > h_phoConvPhiForEfficiency_;
 
   vector<vector<MonitorElement*> > h_phoEta_BadChannels_;
   vector<vector<MonitorElement*> > h_phoEt_BadChannels_;
   vector<vector<MonitorElement*> > h_phoPhi_BadChannels_;
 
   vector<vector<MonitorElement*> > h_phoConvEta_;
-  vector<vector<MonitorElement*> > h_phoConvPhi_;
 
   vector<vector<MonitorElement*> > h_convVtxRvsZ_;
+  vector<vector<MonitorElement*> > h_convVtxZEndcap_;
   vector<vector<MonitorElement*> > h_convVtxZ_;
   vector<vector<MonitorElement*> > h_convVtxYvsX_;
   vector<vector<MonitorElement*> > h_convVtxR_;
@@ -349,6 +348,12 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   vector<vector<vector<MonitorElement*> > > h_phoE_;
   vector<vector<vector<MonitorElement*> > > h_phoEt_;
   vector<vector<vector<MonitorElement*> > > h_r9_;
+  vector<vector<vector<MonitorElement*> > > h_phoPhi_;
+  vector<vector<vector<MonitorElement*> > > h_scPhi_;
+  vector<vector<vector<MonitorElement*> > > h_phoConvPhiForEfficiency_;
+  vector<vector<vector<MonitorElement*> > > h_phoConvPhi_;
+
+
 
   vector<vector<vector<MonitorElement*> > > h_hOverE_;
   vector<vector<vector<MonitorElement*> > > h_h1OverE_;
