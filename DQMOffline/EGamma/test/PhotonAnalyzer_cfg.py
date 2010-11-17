@@ -16,10 +16,10 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 
-'file:/afs/crc.nd.edu/group/NDCMS/data01/PhotonDQM_rootfiles/RelVal370pre3Photons1.root',
-'file:/afs/crc.nd.edu/group/NDCMS/data01/PhotonDQM_rootfiles/RelVal370pre3Photons2.root',
-'file:/afs/crc.nd.edu/group/NDCMS/data01/PhotonDQM_rootfiles/RelVal370pre3Photons3.root'
-
+## 'file:/afs/crc.nd.edu/group/NDCMS/data01/PhotonDQM_rootfiles/RelVal370pre3Photons1.root',
+## 'file:/afs/crc.nd.edu/group/NDCMS/data01/PhotonDQM_rootfiles/RelVal370pre3Photons2.root',
+## 'file:/afs/crc.nd.edu/group/NDCMS/data01/PhotonDQM_rootfiles/RelVal370pre3Photons3.root'
+'file:/pscratch/ndcms/bestman/storage/cms/tauAnalysis/RelVelZEE_38X.root'
 ))
 
 from DQMOffline.EGamma.photonAnalyzer_cfi import *
