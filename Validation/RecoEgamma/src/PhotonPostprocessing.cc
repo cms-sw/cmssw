@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonPostprocessing
- **  $Date: 2010/08/25 14:19:49 $ 
+ **  $Date: 2010/11/15 19:32:21 $ 
  **  author: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   
@@ -179,9 +179,6 @@ void PhotonPostprocessing::runPostprocessing()
   histname = "deadChVsEtBkg";
   bkgDeadChEt_ =  dbe_->book1D(histname,"Fraction of bkg with >=1 dead Xtal vs simulated Et",etBin,etMin, etMax) ;
 
-  std::cout << " Fuck 1 ! " << std::endl;
-
-  
   // efficiencies
   dividePlots(dbe_->get(effPathName+"recoEffVsEta"),dbe_->get(simInfoPathName+"h_MatchedSimPhoEta"),dbe_->get(simInfoPathName+"h_SimPhoEta"), "effic");
   dividePlots(dbe_->get(effPathName+"recoEffVsPhi"),dbe_->get(simInfoPathName+"h_MatchedSimPhoPhi"),dbe_->get(simInfoPathName+"h_SimPhoPhi"),"effic");
