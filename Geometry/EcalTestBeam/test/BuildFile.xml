@@ -11,6 +11,7 @@
   <use   name="FWCore/MessageLogger"/>
   <use   name="CommonTools/UtilAlgos"/>
   <use   name="CondFormats/Alignment"/>
+  <use   name="Geometry/Records"/>
   <library   file="ee/*.cc" name="testEcalEndcapTestBeamModule">
     <flags   EDM_PLUGIN="1"/>
   </library>

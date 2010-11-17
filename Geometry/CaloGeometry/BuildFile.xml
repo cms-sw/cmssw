@@ -1,8 +1,6 @@
-<use   name="DataFormats/DetId"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="DataFormats/HcalDetId"/>
 <use   name="DataFormats/CaloTowers"/>
-<use   name="FWCore/Framework"/>
 <use   name="DataFormats/GeometryVector"/>
 <use   name="clhep"/>
 <export>
