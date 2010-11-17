@@ -25,6 +25,16 @@ class GeomDetType;
 
 class Topology {
 public:
+    /** Track angles in the local frame, needed to handle surface deformations */
+    class LocalTrackAngles {
+        public:
+            LocalTrackAngles(double dxdz, double dydz) : dxdz_(dxdz), dydz_(dydz) {}
+            double dydz() const { return dydz_; }
+            double dxdz() const { return dxdz_; }
+        private:
+            double dxdz_, dydz_;
+    };
+
 
   virtual ~Topology() {}
   
@@ -42,6 +52,35 @@ public:
   measurementError( const LocalPoint&, const LocalError& ) const = 0;
 
   virtual int channel( const LocalPoint& p) const = 0;
+
+  // new sets of methods taking also an angle
+  /// conversion taking also the angle from the predicted track state 
+  virtual LocalPoint localPosition( const MeasurementPoint &mp, const LocalTrackAngles &dir) const {
+      return localPosition(mp);
+  }
+
+  /// conversion taking also the angle from the predicted track state 
+  virtual LocalError 
+  localError( const MeasurementPoint &mp, const MeasurementError &me, const LocalTrackAngles &dir ) const {
+      return localError(mp,me);
+  }
+
+  /// conversion taking also the angle from the track state
+  virtual MeasurementPoint measurementPosition( const LocalPoint &lp, const LocalTrackAngles &dir) const {
+      return measurementPosition(lp);
+  }
+
+  /// conversion taking also the angle from the track state
+  virtual MeasurementError 
+  measurementError( const LocalPoint &lp, const LocalError &le, const LocalTrackAngles &dir) const {
+      return measurementError(lp, le);
+  }
+
+  /// conversion taking also the angle from the track state
+  virtual int channel( const LocalPoint &lp, const LocalTrackAngles &dir) const {
+      return channel(lp);
+  }
+
 
 private:
 
