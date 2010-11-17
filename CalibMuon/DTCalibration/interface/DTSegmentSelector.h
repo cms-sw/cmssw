@@ -2,8 +2,8 @@
 #define CalibMuon_DTCalibration_DTSegmentSelector_h
 
 /*
- *  $Date: 2010/06/28 09:48:01 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/11/16 19:07:34 $
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 
@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+class DTRecSegment2D;
 class DTRecSegment4D;
 class DTStatusFlag;
 
@@ -27,8 +28,7 @@ class DTSegmentSelector {
       bool operator() (edm::Event const&, edm::EventSetup const&, DTRecSegment4D const&);
     
    private:
-      template <class T>
-      bool checkNoisySegment(edm::ESHandle<DTStatusFlag> const&, T const&);
+      bool checkNoisySegment(edm::ESHandle<DTStatusFlag> const&, DTRecSegment2D const&);
 
       bool checkNoisyChannels_;
       double maxChi2_;

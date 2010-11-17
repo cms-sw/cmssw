@@ -6,8 +6,10 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecHit1D.h"
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
@@ -71,16 +73,16 @@ bool DTSegmentSelector::operator() (edm::Event const& event, edm::EventSetup con
   return result;
 }
 
-template <class T>
-bool DTSegmentSelector::checkNoisySegment(edm::ESHandle<DTStatusFlag> const& statusMap, T const& segment){
+bool DTSegmentSelector::checkNoisySegment(edm::ESHandle<DTStatusFlag> const& statusMap, DTRecSegment2D const& segment){
 
   bool segmentNoisy = false;
 
-  std::vector<DTRecHit1D> const& recHits = segment.specificRecHits();
-  std::vector<DTRecHit1D>::const_iterator recHit = recHits.begin();
-  std::vector<DTRecHit1D>::const_iterator recHits_end = recHits.end();
+  std::vector<TrackingRecHit const*> recHits = segment.recHits();
+  std::vector<TrackingRecHit const*>::iterator recHit = recHits.begin();
+  std::vector<TrackingRecHit const*>::iterator recHits_end = recHits.end();  
   for(; recHit != recHits_end; ++recHit){
-     DTWireId wireId = recHit->wireId();
+     DTRecHit1D const* dtHit1D = dynamic_cast<DTRecHit1D const*>(*recHit);
+     DTWireId wireId = dtHit1D->wireId();
      // Check for noisy channels to skip them
      bool isNoisy = false, isFEMasked = false, isTDCMasked = false, isTrigMask = false,
           isDead = false, isNohv = false;

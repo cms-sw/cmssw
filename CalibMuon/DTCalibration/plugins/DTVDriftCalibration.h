@@ -4,23 +4,23 @@
 /** \class DTVDriftCalibration
  *  No description available.
  *
- *  $Date: 2007/07/12 07:25:47 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/08/04 16:27:49 $
+ *  $Revision: 1.3 $
  *  \author M. Giunta
  */
 
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-//#include "CalibMuon/DTCalibration/plugins/vDriftHistos.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
+
 #include "CalibMuon/DTCalibration/interface/vDriftHistos.h"
-//#include "CalibMuon/DTCalibration/plugins/DTTMax.h"
 #include "CalibMuon/DTCalibration/interface/DTTMax.h"
 #include "CalibMuon/DTCalibration/plugins/DTCalibrationMap.h"
-#include "DataFormats/MuonDetId/interface/DTWireId.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CalibMuon/DTCalibration/interface/DTSegmentSelector.h"
+
 #include <string>
 #include <vector>
-
 
 namespace edm {
   class ParameterSet;
@@ -48,6 +48,8 @@ public:
 protected:
 
 private:
+
+  DTSegmentSelector select_;
 
   // The class containing TMax information
   typedef DTTMax::TMax TMax;
@@ -79,15 +81,15 @@ private:
   h2DSegm *h2DSegmRPhi;
   h4DSegm *h4DSegmAllCh;
 
-//   //Divide cellInfo by given granularity (to be implemented)
-//   DTVDriftCalibration::cellInfo* partition(const DTWireId& wireId); 
+  // Divide cellInfo by given granularity (to be implemented)
+  // DTVDriftCalibration::cellInfo* partition(const DTWireId& wireId); 
 
   // Specify the granularity for the TMax histograms
   enum TMaxGranularity {byChamber, bySL, byPartition};
   TMaxGranularity theGranularity;
  
   // The label used to retrieve 4D segments from the event
-  std::string  theRecHits4DLabel;
+  edm::InputTag theRecHits4DLabel;
 
   // Debug flag
   bool debug;
@@ -98,8 +100,8 @@ private:
   // The file which will contain the tMax histograms
   TFile *theFile;
 
- // The fitter
-   DTMeanTimerFitter *theFitter;
+  // The fitter
+  DTMeanTimerFitter *theFitter;
 
   // Perform the vDrift and t0 evaluation or just fill the
   //  tMaxHists (if you read the dataset in different jobs)
@@ -112,7 +114,7 @@ private:
   std::map<DTWireId, cellInfo*> theWireIdAndCellMap;
 
   // Switch for checking of noisy channels
-  bool checkNoisyChannels;
+  //bool checkNoisyChannels;
 
   // The module for t0 subtraction
   DTTTrigBaseSync *theSync;//FIXME: should be const
@@ -121,13 +123,13 @@ private:
   edm::ParameterSet theCalibFilePar;
 
   // Maximum value for the 4D Segment chi2
-  double theMaxChi2;
+  //double theMaxChi2;
 
   // Maximum incident angle for Phi Seg 
-  double theMaxPhiAngle;
+  //double theMaxPhiAngle;
 
   // Maximum incident angle for Theta Seg
-  double theMaxZAngle;
+  //double theMaxZAngle;
 
   // Choose the chamber you want to calibrate
   std::string theCalibChamber;
