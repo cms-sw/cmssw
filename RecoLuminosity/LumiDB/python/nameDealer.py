@@ -2,6 +2,9 @@
 '''
 central place for all the table names
 '''
+def revisionTableName():
+       return 'REVISIONS'
+
 def cmsrunsummaryTableName():
        return 'CMSRUNSUMMARY'
 
@@ -13,12 +16,25 @@ def lumisummaryTableName():
 
 def lumidetailTableName():
 	return 'LUMIDETAIL'
+def luminormTableName():
+       return 'LUMINORMS'
+def trgdataTableName():
+       return 'TRGDATA'
 
+def lstrgTableName():
+       return 'LSTRG'
+       
 def trgTableName():
 	return 'TRG'
 
 def hltTableName():
 	return 'HLT'
+
+def hltdataTableName():
+       return 'HLTDATA'
+
+def lshltTableName():
+       return 'LSTRG'
 
 def trghltMapTableName():
         return 'TRGHLTMAP'
@@ -37,6 +53,12 @@ def idTableName( dataTableName ):
 
 def idTableColumnDefinition():
 	return ('NEXTID','unsigned long long')
+
+def revmapTableName( dataTableName ):
+       return dataTableName+'_REV'
+
+def entryTableName( dataTableName ):
+       return dataTableName+'_ENTRIES'
 
 if __name__ == "__main__":
     pass

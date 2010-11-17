@@ -82,6 +82,15 @@ class dbUtil(object):
             editor.insertRow( inputData )
         except Exception, e:
             raise Exception, 'dbUtil.insertOneRow:'+str(e)
+
+    def singleUpdate( self,tableName,setClause,updateCondition,inputData):
+        try:
+            dataEditor=self.__schema.tableHandle(tableName).dataEditor()
+            n=dataEditor.updateRows(setClause,updateCondition,inputData)
+            return n
+        except Exception, e:
+            raise RuntimeError('dbUtil.updateOneRow:'+str(e))
+    
     def updateRows( self,tableName,updateAction,updateCondition,bindvarDef,bulkinput):
         '''
         update rows, note update must be ordered
@@ -89,7 +98,7 @@ class dbUtil(object):
            tableName, string
            updateAction,string  e.g. flag=:newflag
            conditionstring, string ,e.g. runnum=:runnum and cmslsnum=:cmslsnum
-           bindvarDef,[('newflag':'string'),('runnum','unsigned int'),('cmslsnum','unsigned int')]
+           bindvarDef,[('newflag','string'),('runnum','unsigned int'),('cmslsnum','unsigned int')]
            bulkinput,[[('newflag','GOOD'),('runnum',1234),('cmslsnum',1)],[]]
         '''
         try:
@@ -116,7 +125,7 @@ class dbUtil(object):
         try:
             dataEditor=self.__schema.tableHandle(tableName).dataEditor()
             insertdata=coral.AttributeList()
-            for (columnname,columntype) in tabrowDef:
+            for (columnname,columntype) in tabrowDef.items():
                 insertdata.extend(columnname,columntype)                
             bulkOperation=dataEditor.bulkInsert(insertdata,len(bulkinput))
             for valuelist in bulkinput:
@@ -159,19 +168,25 @@ class dbUtil(object):
         except Exception, e:
             raise Exception, str(e)
 
-    def createTable( self,description,withIdTable=False):
+    def createTable( self,description,withIdTable=False,withEntryTables=False,withRevMapTable=False):
         """
         Create table if non-existing, create Id table if required
         """
         try:
-          tableHandle=self.__schema.createTable(description)
-          tableHandle.privilegeManager().grantToPublic(coral.privilege_Select)
-          if withIdTable is True:
+            tableHandle=self.__schema.createTable(description)
             tableName=tableHandle.description().name()
-            self.createIDTable(tableName,True)
+            tableHandle.privilegeManager().grantToPublic(coral.privilege_Select)
+            if withIdTable is True:
+                self.createIDTable(tableName,True)
+            if withEntryTables is True:
+                entrytableName=nameDealer.entryTableName(tableName)
+                self.createEntryTable(tableName,True)
+                self.createIDTable(entrytableName,True)
+            if withRevMapTable is True:
+                self.createRevMapTable(tableName,True)
         except Exception, e:
-          raise Exception, str(e)
-        
+            raise RuntimeError('dbUtil.createTable'+str(e))
+
     def tableExists( self,tableName ):
         """
         Tell whether table exists
@@ -208,7 +223,53 @@ class dbUtil(object):
           inputData[ nameDealer.idTableColumnDefinition()[0] ].setData(0)
           editor.insertRow( inputData )
         except Exception, e:
-          raise Exception, str(e)
-
+          raise RuntimeError('dbUtil.createIDTable'+str(e))
+      
+    def createEntryTable( self, tableName, deleteOld=True ):
+        """
+        Create Entry table  for the given table.\n
+        Input: name of the table which needs new associated id table
+        Output: name of the id table created
+        """
+        try:
+          entrytableName=nameDealer.entryTableName(tableName)
+          if deleteOld is True:
+            self.__schema.dropIfExistsTable(entrytableName)
+          else:
+            if self.__schema.existsTable(entrytableName):
+               print 'table '+entrytableName+' exists, do nothing'
+               return
+          description = coral.TableDescription()
+          description.setName( entrytableName )
+          description.insertColumn( 'ENTRY_ID' ,'unsigned long long')
+          description.insertColumn( 'REVISION_ID' ,'unsigned long long')
+          tableHandle=self.__schema.createTable( description )
+          tableHandle.privilegeManager().grantToPublic(coral.privilege_Select)
+        except Exception, e:
+          raise RuntimeError(' dbUtil.createEntryTable '+str(e))
+      
+    def createRevMapTable( self, tableName, deleteOld=True ):
+        """
+        Create Rev table  for the given table.\n
+        Input: name of the table
+        Output: name of the id table 
+        """
+        try:
+          revmaptableName=nameDealer.revmapTableName(tableName)
+          if deleteOld is True:
+            self.__schema.dropIfExistsTable(revmaptableName)
+          else:
+            if self.__schema.existsTable(revmaptableName):
+               print 'table '+revmaptableName+' exists, do nothing'
+               return
+          description = coral.TableDescription()
+          description.setName( revmaptableName )
+          description.insertColumn( 'DATA_ID','unsigned long long')
+          description.insertColumn( 'REVISION_ID' ,'unsigned long long')
+          tableHandle=self.__schema.createTable( description )
+          tableHandle.privilegeManager().grantToPublic(coral.privilege_Select)
+        except Exception, e:
+          raise RuntimeError(' dbUtil.createRevMapTable '+str(e))     
+      
 if __name__ == "__main__":
     pass
