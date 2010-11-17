@@ -43,7 +43,7 @@ using std::vector;
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2010/05/13 20:05:27 $ 
+ **  $Date: 2010/06/03 15:47:22 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -81,6 +81,10 @@ class PhotonOfflineClient : public edm::EDAnalyzer
   vector<vector<MonitorElement*> > book2DHistoVector(string histoType, string histoName, string title, 
 							       int xbin, double xmin, double xmax,
 							       int ybin=1,double ymin=1, double ymax=2);
+  vector<vector<vector<MonitorElement*> > > book3DHistoVector(string histoType, string histoName, string title, 
+							       int xbin, double xmin, double xmax,
+							       int ybin=1,double ymin=1, double ymax=2);
+
 
 
   MonitorElement* retrieveHisto(string dir, string name);
@@ -100,7 +104,7 @@ class PhotonOfflineClient : public edm::EDAnalyzer
   MonitorElement* p_convFractionVsEtTight_;
 
   vector<vector<MonitorElement*> > p_convFractionVsEta_;
-  vector<vector<MonitorElement*> > p_convFractionVsPhi_;
+  vector<vector<vector<MonitorElement*> > > p_convFractionVsPhi_;
   vector<vector<MonitorElement*> > p_convFractionVsEt_;
 
   vector<vector<MonitorElement*> > p_badChannelsFractionVsEta_;
@@ -146,7 +150,9 @@ class PhotonOfflineClient : public edm::EDAnalyzer
   int histo_index_invMass_;
   
   vector<string> types_;
-   
+  vector<string> parts_;
+
+
 };
 
 
