@@ -1212,7 +1212,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	  for( std::multimap<double, unsigned int>::iterator it = hcalGsfElems.begin();
 	       it != hcalGsfElems.end();it++) {
 	    unsigned int index = it->second;
-	    if(localactive[index] == true) {
+	    //  if(localactive[index] == true) {
 
 	      // Check that this cluster is not closer to another GSF
 	      // remove in high energetic jets this is dangerous. 
@@ -1227,7 +1227,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	      EcalElemsIndex.push_back(index);
 	      localactive[index] = false;
 	      
-	    }
+	      // }
 	  }
 	  // if the closest ecal cluster has been link with the KF, check KF - HCAL link
 	  if(hcalGsfElems.size() == 0 && ClosestEcalWithKf == true) {
