@@ -1,7 +1,6 @@
 <use   name="boost"/>
 <use   name="root"/>
 <use   name="clhep"/>
-<use   name="geant4"/>
 <use   name="FWCore/Framework"/>
 <use   name="QCDAnalysis/ChargedHadronSpectra"/>
 <library   file="ParticleIdentifier.cc" name="ParticleIdentifier">
