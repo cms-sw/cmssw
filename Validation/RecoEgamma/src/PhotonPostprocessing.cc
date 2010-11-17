@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonPostprocessing
- **  $Date: 2010/11/15 19:32:21 $ 
+ **  $Date: 2010/11/17 17:24:54 $ 
  **  author: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   
@@ -95,9 +95,6 @@ void PhotonPostprocessing::endRun(const edm::Run& run, const edm::EventSetup& se
 void PhotonPostprocessing::runPostprocessing()
 {
 
-
-
-  std::cout << " Beginning of runPost " << std::endl;
 
   std::string simInfoPathName = "EgammaV/PhotonValidator/SimulationInfo/";
   std::string convPathName    = "EgammaV/PhotonValidator/ConversionInfo/";
