@@ -39,6 +39,12 @@
 
 using namespace std;
 
+const char * kHybrid = "hybrid";
+const char * kProfileLikelihood = "profileLikelihood";
+const char * kBayesianFlatPrior = "bayesianFlatPrior";
+const char * kMcmc = "mcmc";
+const char * kMcmcUniform = "mcmcUniform";
+
 int main(int argc, char **argv) {
   using namespace boost;
   namespace po = boost::program_options;
@@ -52,17 +58,30 @@ int main(int argc, char **argv) {
   bool   saveToys;
   string toysFile;
 
+  vector<const char *> methods;
+  methods.push_back(kHybrid);
+  methods.push_back(kProfileLikelihood);
+  methods.push_back(kBayesianFlatPrior);
+  methods.push_back(kMcmc);
+  methods.push_back(kMcmcUniform);
+  
+  string methodsDesc("Method to extract upper limit. Supported methods are: ");
+  for(vector<const char *>::const_iterator i = methods.begin(); i != methods.end(); ++i) {
+    if(i != methods.begin()) methodsDesc += ", ";
+    methodsDesc += *i;
+  }
+
   po::options_description desc("Allowed options");
   desc.add_options()
-    ("help,h", "produce help message")
-    ("name,n", po::value<string>(&name), "name")
-    ("datacard,d", po::value<string>(&datacard), "datacard file")
-    ("mass,m", po::value<int>(&iMass)->default_value(120), "minimum value for fit range")
-    ("method,M", po::value<string>(&whichMethod)->default_value("mcmc"), "method to extract upper limit")
-    ("toys,t", po::value<unsigned int>(&runToys)->default_value(0), "number of toy MC (0 = no toys)")
-    ("seed,s", po::value<int>(&seed)->default_value(123456), "toy MC random seed")
-    ("saveToys,w", po::value<bool>(&saveToys)->default_value(false), "save results of toy MC")
-    ("toysFile,f", po::value<string>(&toysFile)->default_value(""), "toy MC output file")
+    ("help,h", "Produce help message")
+    ("name,n", po::value<string>(&name), "Name")
+    ("datacard,d", po::value<string>(&datacard), "Datacard file")
+    ("mass,m", po::value<int>(&iMass)->default_value(120), "Minimum value for fit range")
+    ("method,M", po::value<string>(&whichMethod)->default_value("mcmc"), methodsDesc.c_str())
+    ("toys,t", po::value<unsigned int>(&runToys)->default_value(0), "Number of toy MC (0 = no toys)")
+    ("seed,s", po::value<int>(&seed)->default_value(123456), "Toy MC random seed")
+    ("saveToys,w", po::value<bool>(&saveToys)->default_value(false), "Save results of toy MC")
+    ("toysFile,f", po::value<string>(&toysFile)->default_value(""), "Toy MC output file")
     ;
 
   po::positional_options_description p;
@@ -98,11 +117,11 @@ int main(int argc, char **argv) {
     whichMethod.replace(found, nosyst.length(),"");
     doSyst = false;
   }
-  if      (whichMethod == "hybrid") method = hybrid;
-  else if (whichMethod == "profileLikelihood") method = profileLikelihood;
-  else if (whichMethod == "bayesianFlatPrior") method = bayesianFlatPrior;
-  else if (whichMethod == "mcmc") method = mcmc;
-  else if (whichMethod == "mcmcUniform") method = mcmcUniform;
+  if      (whichMethod == kHybrid) method = hybrid;
+  else if (whichMethod == kProfileLikelihood) method = profileLikelihood;
+  else if (whichMethod == kBayesianFlatPrior) method = bayesianFlatPrior;
+  else if (whichMethod == kMcmc) method = mcmc;
+  else if (whichMethod == kMcmcUniform) method = mcmcUniform;
   else {
     cerr << "Unsupported method: " << whichMethod << endl;
     cout << "Usage: options_description [options]\n";
