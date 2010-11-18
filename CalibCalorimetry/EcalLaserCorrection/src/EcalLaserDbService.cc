@@ -156,15 +156,15 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
           t_f = timestamp.t2.value();
           p_i = apdpnpair.p1;
           p_f = apdpnpair.p2;
-          edm::LogWarning("EcalLaserDbService") << "The event timestamp t=" << t 
-                  << " is lower than t1=" << t_i << ". Extrapolating...";
+          //edm::LogWarning("EcalLaserDbService") << "The event timestamp t=" << t 
+          //        << " is lower than t1=" << t_i << ". Extrapolating...";
   } else if ( t > timestamp.t3.value() ) {
           t_i = timestamp.t2.value();
           t_f = timestamp.t3.value();
           p_i = apdpnpair.p2;
           p_f = apdpnpair.p3;
-          edm::LogWarning("EcalLaserDbService") << "The event timestamp t=" << t 
-                  << " is greater than t3=" << t_f << ". Extrapolating...";
+          //edm::LogWarning("EcalLaserDbService") << "The event timestamp t=" << t 
+          //        << " is greater than t3=" << t_f << ". Extrapolating...";
   }
 
   if ( apdpnref != 0 && (t_i - t_f) != 0) {
