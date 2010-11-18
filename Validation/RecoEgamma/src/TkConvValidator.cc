@@ -93,8 +93,8 @@
  **  
  **
  **  $Id: TkConvValidator
- **  $Date: 2010/11/16 09:32:29 $ 
- **  $Revision: 1.5 $
+ **  $Date: 2010/11/17 18:29:42 $ 
+ **  $Revision: 1.6 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/
@@ -108,14 +108,13 @@ TkConvValidator::TkConvValidator( const edm::ParameterSet& pset )
     fName_     = pset.getUntrackedParameter<std::string>("Name");
     verbosity_ = pset.getUntrackedParameter<int>("Verbosity");
     parameters_ = pset;
-
-    
+  
     conversionCollectionProducer_ = pset.getParameter<std::string>("convProducer");
     conversionCollection_ = pset.getParameter<std::string>("conversionCollection");
     // conversionTrackProducer_ = pset.getParameter<std::string>("trackProducer");
     minPhoEtCut_ = pset.getParameter<double>("minPhoEtCut");   
     mergedTracks_ = pset.getParameter<bool>("mergedTracks");
-    
+    isRunCentrally_=   pset.getParameter<bool>("isRunCentrally"); 
 
   }
 
@@ -796,10 +795,10 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
      for (reco::ConversionCollection::const_iterator conv = convHandle->begin();conv!=convHandle->end();++conv) {
        
 	const reco::Conversion aConv = (*conv);
-        if ( ! mergedTracks_ ) {
-	  if (! ( aConv.quality(reco::Conversion::generalTracksOnly)  && aConv.quality(reco::Conversion::highPurity) ) ) continue;
+        if (  mergedTracks_ ) {
+	  if ( !( aConv.quality(reco::Conversion::arbitratedMerged) &&   aConv.quality(reco::Conversion::highPurity) )  ) continue;
 	} else {
-	  if ( !aConv.quality(reco::Conversion::highPurity)  ) continue;
+	  if (! ( aConv.quality(reco::Conversion::generalTracksOnly)  && aConv.quality(reco::Conversion::highPurity) ) ) continue;
 	}
 
 
@@ -893,10 +892,11 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
   for (reco::ConversionCollection::const_iterator conv = convHandle->begin();conv!=convHandle->end();++conv) {
     const reco::Conversion aConv = (*conv);
-    if ( ! mergedTracks_ ) {
-      if (! ( aConv.quality(reco::Conversion::generalTracksOnly)  && aConv.quality(reco::Conversion::highPurity) ) ) continue;
+    if (  mergedTracks_ ) {
+      if ( !( aConv.quality(reco::Conversion::arbitratedMerged) &&   aConv.quality(reco::Conversion::highPurity) )  ) continue; 
+      
     } else {
-      if ( !aConv.quality(reco::Conversion::highPurity)  ) continue;
+      if (! ( aConv.quality(reco::Conversion::generalTracksOnly)  && aConv.quality(reco::Conversion::highPurity) ) ) continue;
     }
     
 
@@ -1259,10 +1259,8 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 void TkConvValidator::endJob() {
 
 
-
-  bool outputMEsInRootFile = parameters_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = parameters_.getParameter<std::string>("OutputFileName");
-  if(outputMEsInRootFile){
+  if ( ! isRunCentrally_ ) {
     dbe_->save(outputFileName);
   }
   
