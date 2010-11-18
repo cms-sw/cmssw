@@ -28,8 +28,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2010/10/21 11:24:06 $ 
- **  $Revision: 1.34 $
+ **  $Date: 2010/11/15 19:47:51 $ 
+ **  $Revision: 1.35 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -109,6 +109,10 @@ class PhotonValidator : public edm::EDAnalyzer
   PhotonMCTruthFinder*  thePhotonMCTruthFinder_;
   TrackAssociatorBase * theTrackAssociator_;
 
+  bool fastSim_;
+  bool isRunCentrally_;
+
+
   double minPhoEtCut_;
   double convTrackMinPtCut_;
   double likelihoodCut_;
@@ -128,8 +132,7 @@ class PhotonValidator : public edm::EDAnalyzer
   bool dCotCutOn_;
   double dCotCutValue_;
   double dCotHardCutValue_;
-  bool signal_;
-  bool fastSim_;
+
 
   /// global variable for the MC photon
   double mcPhi_;

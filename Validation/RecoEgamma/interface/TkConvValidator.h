@@ -37,8 +37,8 @@ class SimTrack;
  **  
  **
  **  $Id: TkConvValidator
- **  $Date: 2010/10/20 16:55:05 $ 
- **  $Revision: 1.2 $
+ **  $Date: 2010/11/04 19:18:37 $ 
+ **  $Revision: 1.3 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/
@@ -95,6 +95,8 @@ class TkConvValidator : public edm::EDAnalyzer
 
   PhotonMCTruthFinder*  thePhotonMCTruthFinder_;
   TrackAssociatorBase * theTrackAssociator_;
+
+  bool isRunCentrally_;
 
   double minPhoEtCut_;
   double trkIsolExtRadius_;
@@ -291,6 +293,7 @@ class TkConvValidator : public edm::EDAnalyzer
 
   MonitorElement* h_match_;
 
+  MonitorElement* p2_effRZ_; 
 
 };
 
