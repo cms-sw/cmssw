@@ -21,9 +21,12 @@ nowrite(const char *why)
 LocalCacheFile::LocalCacheFile(Storage *base, const std::string &tmpdir /* = "" */)
   : image_(base->size()),
     file_(0),
-    storage_(base)
+    storage_(base),
+    closedFile_(false),
+    cacheCount_(0),
+    cacheTotal_((image_ + CHUNK_SIZE - 1) / CHUNK_SIZE)
 {
-  present_.resize((image_ + CHUNK_SIZE - 1) / CHUNK_SIZE, 0);
+  present_.resize(cacheTotal_, 0);
 
   std::string pattern(tmpdir);
   if (pattern.empty())
@@ -91,6 +94,12 @@ LocalCacheFile::cache(IOOffset start, IOOffset end)
 	  << ": got only " << nread << " bytes back";
 
       present_[index] = 1;
+      ++cacheCount_;
+      if (cacheCount_ == cacheTotal_)
+      {
+        storage_->close();
+        closedFile_ = true;
+      }
     }
 
     start += len;
@@ -170,7 +179,10 @@ LocalCacheFile::flush(void)
 void
 LocalCacheFile::close(void)
 {
-  storage_->close();
+  if (!closedFile_)
+  {
+    storage_->close();
+  }
   file_->close();
 }
 

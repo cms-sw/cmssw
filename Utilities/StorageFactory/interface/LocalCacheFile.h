@@ -38,6 +38,9 @@ private:
   std::vector<char>	present_;
   File			*file_;
   Storage		*storage_;
+  bool                  closedFile_;
+  unsigned int          cacheCount_;
+  unsigned int          cacheTotal_;
 };
 
 #endif // STORAGE_FACTORY_LOCAL_CACHE_FILE_H
