@@ -70,6 +70,7 @@ int main(int argc, char **argv) {
     if(i != methods.begin()) methodsDesc += ", ";
     methodsDesc += *i;
   }
+  methodsDesc += ". Add postfix \".nosyst\" to ignore systematic errors";
   
   po::options_description desc("Allowed options");
   desc.add_options()
