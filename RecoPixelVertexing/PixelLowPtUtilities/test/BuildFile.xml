@@ -1,6 +1,5 @@
 <use   name="boost"/>
 <use   name="root"/>
-<use   name="geant4"/>
 <use   name="FWCore/Framework"/>
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/Records"/>
