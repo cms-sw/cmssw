@@ -5,8 +5,8 @@
  *  Produces histograms from v-drift computation in
  *  segment fit to be used for v-drift calibration
  *
- *  $Date: 2010/11/16 19:06:59 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/11/18 11:40:19 $
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 
@@ -19,6 +19,7 @@
 class DTChamberId;
 class TFile;
 class TH1F;
+class TH2F;
 
 class DTVDriftT0FitCalibration : public edm::EDAnalyzer {
 public:
@@ -32,7 +33,8 @@ public:
   void endJob();
   
 private:
-  typedef std::map<DTChamberId, std::vector<TH1F*> > ChamberHistosMap;
+  typedef std::map<DTChamberId, std::vector<TH1F*> > ChamberHistosMapTH1F;
+  typedef std::map<DTChamberId, std::vector<TH2F*> > ChamberHistosMapTH2F;
   void bookHistos(DTChamberId);
 
   DTSegmentSelector select_;
@@ -42,7 +44,8 @@ private:
   std::string theCalibChamber_;
 
   TFile* rootFile_;
-  ChamberHistosMap theVDriftHistoMap_;
+  ChamberHistosMapTH1F theVDriftHistoMapTH1F_;
+  ChamberHistosMapTH2F theVDriftHistoMapTH2F_;
 };
 #endif
 

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/17 18:15:42 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/11/18 11:40:19 $
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 
@@ -28,6 +28,7 @@
 #include <sstream>
 #include "TFile.h"
 #include "TH1F.h"
+#include "TH2F.h"
 
 using namespace std;
 using namespace edm;
@@ -63,12 +64,14 @@ void DTVDriftT0FitCalibration::analyze(const Event & event, const EventSetup& ev
     linestr << theCalibChamber_;
     linestr >> selWheel >> selStation >> selSector;
     chosenChamberId = DTChamberId(selWheel, selStation, selSector);
-    LogVerbatim("Calibration") << " chosen chamber " << chosenChamberId << endl;
+    LogVerbatim("Calibration") << " Chosen chamber: " << chosenChamberId << endl;
   }
 
+  /*
   // Get the DT Geometry
   ESHandle<DTGeometry> dtGeom;
   eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+  */
 
   // Get the rechit collection from the event
   Handle<DTRecSegment4DCollection> all4DSegments;
@@ -79,11 +82,11 @@ void DTVDriftT0FitCalibration::analyze(const Event & event, const EventSetup& ev
   for(chamberIdIt = all4DSegments->id_begin(); chamberIdIt != all4DSegments->id_end(); ++chamberIdIt){
 
     // Get the chamber from the setup
-    const DTChamber* chamber = dtGeom->chamber(*chamberIdIt);
+    //const DTChamber* chamber = dtGeom->chamber(*chamberIdIt);
     LogTrace("Calibration") << "Chamber Id: " << *chamberIdIt;
 
     // Book histos
-    if(theVDriftHistoMap_.find(*chamberIdIt) == theVDriftHistoMap_.end()){
+    if(theVDriftHistoMapTH1F_.find(*chamberIdIt) == theVDriftHistoMapTH1F_.end()){
       bookHistos(*chamberIdIt);
     }
    
@@ -97,20 +100,23 @@ void DTVDriftT0FitCalibration::analyze(const Event & event, const EventSetup& ev
     for(DTRecSegment4DCollection::const_iterator segment  = range.first;
                                                  segment != range.second; ++segment){
 
-      LogTrace("Calibration") << "Segment local pos (in chamber RF): " << (*segment).localPosition()
-                              << "\nSegment global pos: " << chamber->toGlobal((*segment).localPosition());
+      /*LogTrace("Calibration") << "Segment local pos (in chamber RF): " << (*segment).localPosition()
+                              << "\nSegment global pos: " << chamber->toGlobal((*segment).localPosition());*/
+      LogTrace("Calibration") << "Segment local pos (in chamber RF): " << (*segment).localPosition();
       
       if( !select_(event, eventSetup, *segment) ) continue;
 
       // Fill t0-seg values
       if( (*segment).hasPhi() ) {
         if( segment->phiSegment()->ist0Valid() ){
-	  (theVDriftHistoMap_[*chamberIdIt])[0]->Fill(segment->phiSegment()->vDrift());
+	  (theVDriftHistoMapTH1F_[*chamberIdIt])[0]->Fill(segment->phiSegment()->vDrift());
+          (theVDriftHistoMapTH2F_[*chamberIdIt])[0]->Fill(segment->localPosition().z(),segment->phiSegment()->vDrift());
 	}
       }
       if( (*segment).hasZed() ){
         if( segment->zSegment()->ist0Valid() ){
-	  (theVDriftHistoMap_[*chamberIdIt])[1]->Fill(segment->zSegment()->vDrift());
+	  (theVDriftHistoMapTH1F_[*chamberIdIt])[1]->Fill(segment->zSegment()->vDrift());
+          (theVDriftHistoMapTH2F_[*chamberIdIt])[1]->Fill(segment->localPosition().z(),segment->zSegment()->vDrift()); 
 	}
       }
     } // DTRecSegment4DCollection::const_iterator segment
@@ -122,16 +128,21 @@ void DTVDriftT0FitCalibration::endJob() {
   
   LogVerbatim("Calibration") << "[DTVDriftT0FitCalibration] Writing histos to file!" << endl;
 
-  for(ChamberHistosMap::const_iterator itChHistos = theVDriftHistoMap_.begin(); itChHistos != theVDriftHistoMap_.end(); ++itChHistos){
-     for(vector<TH1F*>::const_iterator itHist = (*itChHistos).second.begin();
-                                       itHist != (*itChHistos).second.end(); ++itHist) (*itHist)->Write();
+  for(ChamberHistosMapTH1F::const_iterator itChHistos = theVDriftHistoMapTH1F_.begin(); itChHistos != theVDriftHistoMapTH1F_.end(); ++itChHistos){
+     vector<TH1F*>::const_iterator itHistTH1F = (*itChHistos).second.begin();
+     vector<TH1F*>::const_iterator itHistTH1F_end = (*itChHistos).second.end();
+     for(; itHistTH1F != itHistTH1F_end; ++itHistTH1F) (*itHistTH1F)->Write();
+
+     vector<TH2F*>::const_iterator itHistTH2F = theVDriftHistoMapTH2F_[(*itChHistos).first].begin();
+     vector<TH2F*>::const_iterator itHistTH2F_end = theVDriftHistoMapTH2F_[(*itChHistos).first].end();
+     for(; itHistTH2F != itHistTH2F_end; ++itHistTH2F) (*itHistTH2F)->Write();
   }
 
   if(writeVDriftDB_){
     // Create the object to be written to DB
     DTMtime* mTimeMap = new DTMtime();
 
-    for(ChamberHistosMap::const_iterator itChHistos = theVDriftHistoMap_.begin(); itChHistos != theVDriftHistoMap_.end(); ++itChHistos){
+    for(ChamberHistosMapTH1F::const_iterator itChHistos = theVDriftHistoMapTH1F_.begin(); itChHistos != theVDriftHistoMapTH1F_.end(); ++itChHistos){
        DTChamberId chId = itChHistos->first;
        // Get SuperLayerId's for each ChamberId
        vector<DTSuperLayerId> slIds;
@@ -174,11 +185,14 @@ void DTVDriftT0FitCalibration::bookHistos(DTChamberId chId) {
     "_St" + station.str() +
     "_Sec" + sector.str();
 
-  vector<TH1F*> histos;
-  // Note the order matters
-  histos.push_back(new TH1F(("hRPhiVDrift" + chHistoName).c_str(), "v-drift from Phi segments", 500, -60., 60.));
-  if(chId.station() != 4)
-     histos.push_back(new TH1F(("hRZVDrift" + chHistoName).c_str(), "v-drift from Z segments", 500, -60., 60.));
+  vector<TH1F*> histosTH1F;
+  histosTH1F.push_back(new TH1F(("hRPhiVDriftCorr" + chHistoName).c_str(), "v-drift corr. from Phi segments", 200, -0.4, 0.4));
+  if(chId.station() != 4) histosTH1F.push_back(new TH1F(("hRZVDriftCorr" + chHistoName).c_str(), "v-drift corr. from Z segments", 200, -0.4, 0.4));
+  
+  vector<TH2F*> histosTH2F;
+  histosTH2F.push_back(new TH2F(("hRPhiVDriftCorrVsSegmPosZ" + chHistoName).c_str(), "v-drift corr. vs. segment z position from Phi segments", 250, -125., 125., 200, -0.4, 0.4));
+  if(chId.station() != 4) histosTH2F.push_back(new TH2F(("hRZVDriftCorrVsSegmPosZ" + chHistoName).c_str(), "v-drift corr. vs. segment z position from Z segments", 250, -125., 125., 200, -0.4, 0.4));
 
-  theVDriftHistoMap_[chId] = histos;
+  theVDriftHistoMapTH1F_[chId] = histosTH1F;
+  theVDriftHistoMapTH2F_[chId] = histosTH2F;
 }

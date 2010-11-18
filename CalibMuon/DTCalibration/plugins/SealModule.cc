@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 
+#include "CalibMuon/DTCalibration/interface/DTCalibMuonSelection.h"
 #include "CalibMuon/DTCalibration/plugins/DTMapGenerator.h"
 #include "CalibMuon/DTCalibration/plugins/DTTTrigCalibration.h"
 #include "CalibMuon/DTCalibration/plugins/DTTTrigWriter.h"
@@ -16,7 +17,7 @@
 #include "CalibMuon/DTCalibration/plugins/DTNoiseComputation.h"
 #include "CalibMuon/DTCalibration/plugins/DTNoiseCalibration.h"
 #include "CalibMuon/DTCalibration/plugins/DTTTrigOffsetCalibration.h"
-#include "CalibMuon/DTCalibration/interface/DTCalibMuonSelection.h"
+#include "CalibMuon/DTCalibration/plugins/DTVDriftT0FitCalibration.h"
 
 #include "CalibMuon/DTCalibration/plugins/DTFakeTTrigESProducer.h"
 #include "CalibMuon/DTCalibration/plugins/DTFakeT0ESProducer.h"
@@ -31,6 +32,7 @@
 #include "CalibMuon/DTCalibration/interface/DTVDriftPluginFactory.h"
 #include "CalibMuon/DTCalibration/plugins/DTVDriftMeanTimer.h"
 
+DEFINE_FWK_MODULE(DTCalibMuonSelection);
 DEFINE_FWK_MODULE(DTMapGenerator);
 DEFINE_FWK_MODULE(DTTTrigCalibration);
 DEFINE_FWK_MODULE(DTTTrigWriter);
@@ -44,7 +46,8 @@ DEFINE_FWK_MODULE(DTVDriftWriter);
 DEFINE_FWK_MODULE(DTNoiseComputation);
 DEFINE_FWK_MODULE(DTNoiseCalibration);
 DEFINE_FWK_MODULE(DTTTrigOffsetCalibration);
-DEFINE_FWK_MODULE(DTCalibMuonSelection);
+DEFINE_FWK_MODULE(DTVDriftT0FitCalibration);
+
 DEFINE_FWK_EVENTSETUP_SOURCE(DTFakeTTrigESProducer);
 DEFINE_FWK_EVENTSETUP_SOURCE(DTFakeT0ESProducer);
 DEFINE_FWK_EVENTSETUP_SOURCE(DTFakeVDriftESProducer);
