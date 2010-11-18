@@ -12,9 +12,12 @@
 #include "CalibMuon/DTCalibration/interface/DTVDriftBaseAlgo.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <string>
+
 class DTMtime;
-class TFile;
 class DTResidualFitter;
+class TH1F;
+class TFile;
 
 class DTVDriftSegment: public DTVDriftBaseAlgo {
 public:
@@ -24,6 +27,9 @@ public:
    virtual void setES(const edm::EventSetup& setup);
    virtual DTVDriftData compute(const DTSuperLayerId&);
 private:
+   TH1F* getHisto(const DTSuperLayerId&);
+   std::string getHistoName(const DTSuperLayerId&);
+
    const DTMtime* mTimeMap_;
    TFile* rootFile_;
    DTResidualFitter* fitter_;

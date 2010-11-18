@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/18 20:33:11 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/11/18 20:59:09 $
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 
@@ -36,7 +36,7 @@ using namespace edm;
 DTVDriftSegmentCalibration::DTVDriftSegmentCalibration(const ParameterSet& pset):
   select_(pset),
   theRecHits4DLabel_(pset.getParameter<InputTag>("recHits4DLabel")),
-  writeVDriftDB_(pset.getUntrackedParameter<bool>("writeVDriftDB", false)),
+  //writeVDriftDB_(pset.getUntrackedParameter<bool>("writeVDriftDB", false)),
   theCalibChamber_(pset.getUntrackedParameter<string>("calibChamber", "All")) {
 
   LogVerbatim("Calibration") << "[DTVDriftSegmentCalibration] Constructor called!";
@@ -74,10 +74,12 @@ void DTVDriftSegmentCalibration::analyze(const Event & event, const EventSetup& 
     chosenChamberId = DTChamberId(selWheel, selStation, selSector);
     LogVerbatim("Calibration") << " Chosen chamber: " << chosenChamberId << endl;
   }
-
   // Loop over segments by chamber
   DTRecSegment4DCollection::id_iterator chamberIdIt;
   for(chamberIdIt = all4DSegments->id_begin(); chamberIdIt != all4DSegments->id_end(); ++chamberIdIt){
+
+    // Calibrate just the chosen chamber/s    
+    if((theCalibChamber_ != "All") && ((*chamberIdIt) != chosenChamberId)) continue;
 
     // Book histos
     if(theVDriftHistoMapTH1F_.find(*chamberIdIt) == theVDriftHistoMapTH1F_.end()){
@@ -85,9 +87,6 @@ void DTVDriftSegmentCalibration::analyze(const Event & event, const EventSetup& 
       bookHistos(*chamberIdIt);
     }
    
-    // Calibrate just the chosen chamber/s    
-    if((theCalibChamber_ != "All") && ((*chamberIdIt) != chosenChamberId)) continue;
-
     // Get the chamber from the setup
     const DTChamber* chamber = dtGeom->chamber(*chamberIdIt);
     // Get the range for the corresponding ChamberId
@@ -139,36 +138,9 @@ void DTVDriftSegmentCalibration::endJob() {
      for(; itHistTH2F != itHistTH2F_end; ++itHistTH2F) (*itHistTH2F)->Write();
   }
 
-  if(writeVDriftDB_){
-    // Create the object to be written to DB
-    DTMtime* mTimeMap = new DTMtime();
-
-    for(ChamberHistosMapTH1F::const_iterator itChHistos = theVDriftHistoMapTH1F_.begin(); itChHistos != theVDriftHistoMapTH1F_.end(); ++itChHistos){
-       DTChamberId chId = itChHistos->first;
-       // Get SuperLayerId's for each ChamberId
-       vector<DTSuperLayerId> slIds;
-       slIds.push_back(DTSuperLayerId(chId,1));
-       slIds.push_back(DTSuperLayerId(chId,3));
-       if(chId.station() != 4) slIds.push_back(DTSuperLayerId(chId,2));
-
-       for(vector<DTSuperLayerId>::const_iterator itSl = slIds.begin(); itSl != slIds.end(); ++itSl){      
-          // Set values
-          // FIXME: Placeholder; fit vDrift here
-          double vDriftMean = 0.;
-          double vDriftSigma = 0.;
-          // vdrift is cm/ns , resolution is cm
-          mTimeMap->set(*itSl,
-                        vDriftMean,
-	                vDriftSigma,
-		        DTVelocityUnits::cm_per_ns);
- 
-      }
-    }
-    LogVerbatim("Calibration")<< "[DTVDriftSegmentCalibration] Writing ttrig object to DB!" << endl;
-    // Write the object to DB
-    string record = "DTMtimeRcd";
-    DTCalibDBUtils::writeToDB<DTMtime>(record, mTimeMap);
-  } 
+  /*if(writeVDriftDB_){
+     // ...
+  }*/ 
 }
 
 // Book a set of histograms for a given Chamber

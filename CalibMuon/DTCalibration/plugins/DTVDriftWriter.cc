@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/17 17:54:23 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/11/18 20:58:24 $
+ *  $Revision: 1.9 $
  *  Author of original version: M. Giunta
  *  \author A. Vilela Pereira
  */
@@ -20,6 +20,7 @@
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
 
 #include "CondFormats/DTObjects/interface/DTMtime.h"
+#include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
 
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
 #include "CalibMuon/DTCalibration/interface/DTVDriftPluginFactory.h"
@@ -89,8 +90,8 @@ void DTVDriftWriter::endJob() {
 		            resolutionNew,
 		            DTVelocityUnits::cm_per_ns);
            LogVerbatim("Calibration") << "vDrift for: " << slId
-                                      << " Mean " << vDriftMean
-                                      << " Resolution " << vDriftSigma;
+                                      << " Mean " << vDriftNew
+                                      << " Resolution " << resolutionNew;
         } catch(cms::Exception& e){
            LogError("Calibration") << e.explainSelf();
            // Go back to original value in case of error

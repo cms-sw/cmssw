@@ -2,7 +2,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/17 17:54:23 $
+ *  $Date: 2010/11/18 20:59:09 $
  *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
@@ -17,6 +17,7 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
+#include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
 
 #include "CalibMuon/DTCalibration/interface/DTResidualFitter.h"
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
@@ -24,8 +25,8 @@
 #include <string>
 #include <vector>
 
+#include "TH1F.h"
 #include "TFile.h"
-#include "TString.h"
 
 using namespace std;
 using namespace edm;
@@ -57,27 +58,27 @@ DTVDriftData DTVDriftSegment::compute(DTSuperLayerId const& slId) {
   float vDrift = 0., resolution = 0.;
   int status = mTimeMap_->get(slId,vDrift,resolution,DTVelocityUnits::cm_per_ns);
 
+   if(status != 0) throw cms::Exception("DTCalibration") << "Could not find vDrift entry in DB for"
+                                                         << slId << endl;
   // For RZ superlayers use original value
   if(slId.superLayer() == 2){
-     if(status != 0) throw cms::Exception("DTCalibration") << "Could not find vDrift entry in DB for"
-                                                       << slId << endl;
-
      return DTVDriftData(vDrift,resolution);
   } else{
-     const TH1F* vDriftCorrHisto = getHisto(slId);
+     TH1F* vDriftCorrHisto = getHisto(slId);
      int nSigmas = 1;
-     DTResidualFitResult fitResult = fitter_->fitResiduals(vDriftCorrHisto,nSigmas);
+     DTResidualFitResult fitResult = fitter_->fitResiduals(*vDriftCorrHisto,nSigmas);
      LogTrace("Calibration") << "[DTVDriftSegment]: \n"
                              << " Fit Mean  = " << fitResult.fitMean << " +/- " << fitResult.fitMeanError << "\n"
                              << " Fit Sigma = " << fitResult.fitSigma << " +/- " << fitResult.fitSigmaError;
 
-     float vDriftNew = fitResult.fitMean;
-     float resolutionNew = (!status) ? resolution : 0.;
+     float vDriftCorr = fitResult.fitMean;
+     float vDriftNew = vDrift*(1. - vDriftCorr); 
+     float resolutionNew = resolution;
      return DTVDriftData(vDriftNew,resolutionNew);
   }
 }
 
-const TH1F* DTVDriftSegment::getHisto(const DTSuperLayerId& slId) {
+TH1F* DTVDriftSegment::getHisto(const DTSuperLayerId& slId) {
   string histoName = getHistoName(slId);
   TH1F* histo = static_cast<TH1F*>(rootFile_->Get(histoName.c_str()));
   if(!histo) throw cms::Exception("DTCalibration") << "v-drift correction histogram not found:"
