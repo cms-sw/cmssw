@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: smCleanupFiles.pl,v 1.9 2010/08/16 09:53:47 gbauer Exp $
+# $Id: cleanupOrphans.pl,v 1.4 2010/11/17 10:26:04 gbauer Exp $
 
 use strict;
 use warnings;
@@ -9,7 +9,7 @@ use File::Basename;
 use File::Find ();
 
 
-my ($help, $debug, $nothing, $now, $force, $execute, $maxfiles, $fileagemin, $skipdelete, $dbagemax);
+my ($help, $debug, $nothing, $now, $force, $execute, $maxfiles, $fileagemin, $skipdelete, $dbagemax, $dbrepackagemax0, $dbrepackagemax, $dbtdelete);
 my ($hostname, $filename, $dataset, $stream, $config);
 my ($runnumber, $uptorun, $safety, $rmexitcode, $chmodexitcode );
 my ($constraint_runnumber, $constraint_uptorun, $constraint_filename, $constraint_hostname, $constraint_dataset);
@@ -77,11 +77,14 @@ sub deletefiles()
                               "on fc.FILENAME = fi.FILENAME    and  fi.ITIME > systimestamp - $dbagemax " .
                       "inner join CMS_STOMGR.FILES_TRANS_CHECKED ftc " .
                               "on fc.FILENAME = ftc.FILENAME   and ftc.ITIME > systimestamp - $dbagemax " .
+                      "left outer join CMS_STOMGR.FILES_TRANS_REPACKED ftr   " . 
+                              "on fc.FILENAME = ftr.FILENAME   and ftr.ITIME > systimestamp - $dbagemax " .
                       "left outer join CMS_STOMGR.FILES_DELETED fd " .
                               "on fc.FILENAME = fd.FILENAME " .
-			      "where fc.CTIME > systimestamp - $dbagemax and  fd.FILENAME is null ";
+			      "where fc.CTIME > systimestamp - $dbagemax and  " .
+                              "( ftr.FILENAME is not null or ftc.ITIME < systimestamp - $dbrepackagemax)" .
+                              "and fd.FILENAME is null ";
  
-
 # Sorting by time
     my $endsql = " order by ITIME";
 
@@ -143,6 +146,7 @@ sub deletefiles()
 	
 	# get .ind file name
 	my $file =  "$row[0]/$row[1]";
+  	    $debug   && print "          $file   \n";
 	my $fileIND;
 	if ( $file =~ /^(.*)\.(?:dat|root)$/ ) {
 	    $fileIND = $1 . '.ind';
@@ -220,6 +224,9 @@ sub deletefiles()
 #}
 
 
+  my  $gbNEWdebug =`echo "$nRMFiles Files rm-ed"  >> /tmp/gbDebugClean2.txt`;
+
+
 #make sure handles are done
 $sth->finish();
 
@@ -239,42 +246,51 @@ sub wantedfiles {
 sub uncountfiles(){
 # routine to check disk for file unaccounted for in the DB and enter (N_UNACCOUNT) number in SM_INSTANCES table
     
-#satadir:
-#    my $nsata=`df | grep -ic sata`;
-#    if( $nsata <1 ) { return;} 
     
-#prepare SQL's:
-#diagnostic query:
+    
+#-------------------------prepare SQL's:
+    #diagnostic query:
     my $qinstancesql = "SELECT CMS_STOMGR.SM_INSTANCES.RUNNUMBER,SETUPLABEL,INSTANCE,HOSTNAME,NVL(N_CREATED,0),NVL(N_INJECTED,0),NVL(N_DELETED,0),NVL(N_UNACCOUNT,0) " .
-        	       "from CMS_STOMGR.SM_INSTANCES where RUNNUMBER=? and HOSTNAME=?";
+	"from CMS_STOMGR.SM_INSTANCES where RUNNUMBER=? and HOSTNAME=?";
     
-
-#query to zero out N_UNACCOUNT counter:
+    
+    #query to zero out N_UNACCOUNT counter:
     my $upallinstancesql = "UPDATE CMS_STOMGR.SM_INSTANCES SET N_UNACCOUNT=0 " .
-	                   "where HOSTNAME=? and  RUNNUMBER>? ";
-
-#( RUNNUMBER>? or LAST_WRITE_TIME > systimestamp - $fileageSMI ) ";
-
+	"where HOSTNAME=? and  RUNNUMBER>? ";
+    
+    
 #	                   "where HOSTNAME=? and ( RUNNUMBER>? or LAST_WRITE_TIME+$fileageSMI>sysdate) ";
-print      "where HOSTNAME=? and ( RUNNUMBER>? or LAST_WRITE_TIME+$fileageSMI>sysdate) \n";
-
-
+    print      "where HOSTNAME=? and ( RUNNUMBER>? or LAST_WRITE_TIME+$fileageSMI>sysdate) \n";
+    
+    
 #merge to enter info into DB:
-    my $mergesql = " merge into CMS_STOMGR.SM_INSTANCES using dual on (CMS_STOMGR.SM_INSTANCES.RUNNUMBER=? AND " .
-                   "            CMS_STOMGR.SM_INSTANCES.HOSTNAME=? AND CMS_STOMGR.SM_INSTANCES.INSTANCE=? )    " .
-                   " when matched then update set  N_UNACCOUNT=?-TO_NUMBER(NVL(N_INJECTED,0))+TO_NUMBER(NVL(N_DELETED,0)) " .
-                   " when not matched then insert (RUNNUMBER,HOSTNAME,INSTANCE,SETUPLABEL,N_UNACCOUNT) values (?,?, ?, ?, ?) ";
+
+    my $mergesql_x = " merge into CMS_STOMGR.SM_INSTANCES using dual on (CMS_STOMGR.SM_INSTANCES.RUNNUMBER=? AND " .
+	"            CMS_STOMGR.SM_INSTANCES.HOSTNAME=? AND CMS_STOMGR.SM_INSTANCES.INSTANCE=? )    " .
+	" when matched then update set N_UNACCOUNT=?-TO_NUMBER(NVL(N_INJECTED,0))+TO_NUMBER(NVL(N_DELETED,0))  " .
+	" when not matched then insert (RUNNUMBER,HOSTNAME,INSTANCE,SETUPLABEL,N_UNACCOUNT) values (?,?, ?, ?, ?) ";
+    
+    my $mergesql_1 = " merge into CMS_STOMGR.SM_INSTANCES using dual on (CMS_STOMGR.SM_INSTANCES.RUNNUMBER=? AND " .
+	"            CMS_STOMGR.SM_INSTANCES.HOSTNAME=? AND CMS_STOMGR.SM_INSTANCES.INSTANCE=? )    " .
+	" when matched then update set  N_UNACCOUNT=?-TO_NUMBER(NVL(N_INJECTED,0))+TO_NUMBER(NVL(N_DELETED,0)), DISKFULL=? " .
+	" when not matched then insert (RUNNUMBER,HOSTNAME,INSTANCE,SETUPLABEL,N_UNACCOUNT,DISKFULL) values (?,?, ?, ?, ?, ?) ";
+
+
 
     
-    
+    my $maxdisk = maxdiskspace(); 
+    print "MAXDISK:  $maxdisk \n";   
 
 #check what file are ACTUALLY on disk by desired filesystems
     File::Find::find({wanted => \&wantedfiles}, </store/sata*/gcd/closed/>);
-
+    
 
     my $qinstance     = $dbh->prepare($qinstancesql);
     my $upallinstance = $dbh->prepare($upallinstancesql);
-    my $merge         = $dbh->prepare($mergesql);
+    my $merge_1       = $dbh->prepare($mergesql_1);
+    my $merge_x       = $dbh->prepare($mergesql_x);
+    my $merge;
+
 
 
 
@@ -291,12 +307,14 @@ print      "where HOSTNAME=? and ( RUNNUMBER>? or LAST_WRITE_TIME+$fileageSMI>sy
 
     
     
-    
-    for my $run ( sort keys %h_notfiles ) {
+    my $nrun=0;
+    for my $run ( sort {$b <=> $a} keys %h_notfiles ) {
 	for my $instance ( sort keys %{$h_notfiles{$run}} ) {
 	    for my $label ( sort keys %{$h_notfiles{$run}{$instance}} ) {
 		print "************ run= $run  instance=$instance  label=$label \n ";
+		$nrun++;
 		
+
 		if($run > 129710){
 		    
 		    print "run= $run; instance=$instance  label=$label  files=$h_notfiles{$run}{$instance}{$label} \n";
@@ -309,6 +327,17 @@ print      "where HOSTNAME=? and ( RUNNUMBER>? or LAST_WRITE_TIME+$fileageSMI>sy
 		    my $diff = $h_notfiles{$run}{$instance}{$label}-$result[5]+$result[6];
 		    print "SELECT-OUT: $result[0], Label=$result[1], INST=$result[2], $result[3], CREA=$result[4], INJ=$result[5], DELE=$result[6], UNACC=$result[7] || diff=$diff\n";
 		    
+                    my $offst = 0;
+                    if($nrun == 1 ){
+			$merge=$merge_1;
+                        $offst = 1;
+			$merge->bind_param( 5,$maxdisk);
+			$merge->bind_param(11,$maxdisk);
+     	print "merge->bind_param(10,$maxdisk); \n";
+		    } else {
+			$merge=$merge_x;
+     	print "merge_x \n";
+		    }
 		    
 ##update SM_INSTANCES:
 		    print "UPDATE instances for RUN $run  with disk file count=$h_notfiles{$run}{$instance}{$label} \n";
@@ -316,11 +345,11 @@ print      "where HOSTNAME=? and ( RUNNUMBER>? or LAST_WRITE_TIME+$fileageSMI>sy
 		    $merge->bind_param(2,$hostname);
 		    $merge->bind_param(3,$instance);
 		    $merge->bind_param(4,$h_notfiles{$run}{$instance}{$label});
-		    $merge->bind_param(5,$run);
-		    $merge->bind_param(6,$hostname);
-		    $merge->bind_param(7,$instance);
-		    $merge->bind_param(8,$label);
-		    $merge->bind_param(9,$h_notfiles{$run}{$instance}{$label});
+		    $merge->bind_param(5+$offst,$run);
+		    $merge->bind_param(6+$offst,$hostname);
+		    $merge->bind_param(7+$offst,$instance);
+		    $merge->bind_param(8+$offst,$label);
+		    $merge->bind_param(9+$offst,$h_notfiles{$run}{$instance}{$label});
 		    my $mergeCheck = $merge->execute() or die("Error: Update of SM_INSTANCES for Host $hostname  Run $run - $dbh->errst \n");
 		    
 		    
@@ -447,8 +476,8 @@ sub deleteCopyManager()
 	    $string = `df $dir | grep dev`;
 	    ($favail) = ($string =~ /.*\ ([0-9]+)\%.*/);
 	    print "----- 32-day disk usage $favail\n";
-	    my $gbdebug1 =`echo "-----   32-day disk usage $favail" >> /tmp/gbdebugClean.txt`;
-	    my $gbdebug2 =`echo "2: $delete" >> /tmp/gbdebugClean.txt`;
+	    my $gbdebug1 =`echo "-----   32-day disk usage $favail" >> /tmp/gbDebugClean2.txt`;
+	    my $gbdebug2 =`echo "2: $delete" >> /tmp/gbDebugClean2.txt`;
 
 	    
 	    
@@ -456,7 +485,7 @@ sub deleteCopyManager()
 	    if( $favail > 94 ){
 		$delete = `find /store/copymanager/Logs/*/ -cmin +21600  -type f  -exec sudo -u cmsprod  rm -f \'{}\' \\\; >& /dev/null`;
 		
-		my $gbdebug3 =`echo "3: $delete" >> /tmp/gbdebugClean.txt`;
+		my $gbdebug3 =`echo "3: $delete" >> /tmp/gbDebugClean2.txt`;
 		
 		$delete = `sudo -u cmsprod find /tmp/* -cmin +4320  -type f  -exec sudo rm -f {} \; >& /dev/null`;
 		
@@ -476,10 +505,21 @@ sub deleteCopyManager()
 	($favail) = ($string =~ /.*\ ([0-9]+)\%.*/);
 	print "----- FINAL disk usage $favail\n";
 	
-	my $gbdebug =`echo "----- FINAL disk usage $favail " >> /tmp/gbdebugClean.txt`;
+	my $gbdebug =`echo "----- FINAL disk usage $favail " >> /tmp/gbDebugClean2.txt`;
     }
 }
 
+#-----------------------------------------------------------------
+sub maxdiskspace(){
+    my $maxdisk=-1;
+    for my $string (`df -h | grep sata `){
+	my ( my $prcnt ) = ($string =~ /.+\ +.+\ +.+\ +.+\ +([0-9]+)\%.*/);
+	if($maxdisk < $prcnt){ $maxdisk= $prcnt; }
+    }
+    
+    return $maxdisk;
+}
+#-----------------------------------------------------------------
 
 ###################################################################
 ######################### MAIN ####################################
@@ -495,10 +535,11 @@ $runnumber  = 0;
 $safety     = 100;
 $hostname   = '';
 $execute    = 1;
-$maxfiles   = 400000;
-$fileagemin = 130;  #min
-#$dbagemax   = 365;  #days
-$dbagemax   = 45;  #days
+$maxfiles   = 100000;     #     -- max number of files out of DB query to process for DELETE
+$fileagemin     = 130;    #min  -- min age for a file to be deleted
+$dbagemax       =  45;    #days -- make DB query for files to delete out to dbagemax 
+$dbrepackagemax0=   4.01; #days -- max age for a file (after CHECK) before it gets deleted EVEN IF no REPACK!
+$dbtdelete      =   6.0;  #hrs  -- cycle time to complete deletes over all nodes
 $force      = 0;
 $config     = "/opt/injectworker/.db.conf";
 
@@ -523,78 +564,159 @@ GetOptions(
            "maxfiles=i"    =>\$maxfiles,
            "fileagemin=i"  =>\$fileagemin,
            "dbagemax=i"    =>\$dbagemax,
+           "dbrepackagemax0=i"    =>\$dbrepackagemax0,
            "skipdelete"    =>\$skipdelete
 	  );
 
 $help && usage;
 if ($nothing) { $execute = 0; $debug = 1; }
 
-#special OVERRIDE!!!
-$maxfiles   = 400000;
+
+#override any input---to overcome /etc/cron.d call!!
+$maxfiles   = 100000;
+
+
+my $sysindx=-1;
+# sysindex = 0;  maindaq
+# sysindex = 1;  minidaq
+# sysindex = 2;  daqval
 
 
 
-#what's the current time:
-my $hour  = `date +%H`+0;
-my $hour6 =  $hour%6;
-my $min   = `date +%M`+0;
 
+#check what is the percentage of maximally full "Sata" array:
+my $maxdisk = maxdiskspace();
+#my $maxdisk=-1;
+#for my $string (`df -h | grep sata `){
+#    my ( my $prcnt ) = ($string =~ /.+\ +.+\ +.+\ +.+\ +([0-9]+)\%.*/);
+#    if($maxdisk < $prcnt){ $maxdisk= $prcnt; }
+#}
+
+
+#set max age parameter for unrepacked files:
+$dbrepackagemax = $dbrepackagemax0;
+
+#OVERRIDE max age param for unrepacked files if disks getting too full
+if   ( $maxdisk > 90 ){$dbrepackagemax =  0.04/24; $dbtdelete = 1.0; $fileagemin= 24*60*$dbrepackagemax ; } #
+elsif( $maxdisk > 83 ){$dbrepackagemax =  0.15/24; $dbtdelete = 1.5; $fileagemin= 24*60*$dbrepackagemax ; } #
+elsif( $maxdisk > 78 ){$dbrepackagemax =  0.25/24; $dbtdelete = 1.5; $fileagemin= 24*60*$dbrepackagemax ; } #
+elsif( $maxdisk > 76 ){$dbrepackagemax =  1.0/24;  $dbtdelete = 1.5; $fileagemin= 24*60*$dbrepackagemax ; }
+elsif( $maxdisk > 74 ){$dbrepackagemax =  2.0/24;  $dbtdelete = 3.0; }
+elsif( $maxdisk > 70 ){$dbrepackagemax =  6.0/24;  $dbtdelete = 3.0; }
+elsif( $maxdisk > 65 ){$dbrepackagemax = 12.0/24;  $dbtdelete = 3.0; }
+elsif( $maxdisk > 60 ){$dbrepackagemax = 24.0/24;  $dbtdelete = 6.0; }
+elsif( $maxdisk > 55 ){$dbrepackagemax = 48.0/24;  $dbtdelete = 6.0; }
+elsif( $maxdisk > 50 ){$dbrepackagemax = 72.0/24;  $dbtdelete = 6.0; }
+#else {  ;}
+
+print ">> maxdisk= $maxdisk; $dbrepackagemax,  $dbtdelete, $fileagemin \n";
+
+#=======define other delete cycle params
+my $maxSM = 18;                        #max number of SM's (16+2spares)
+my $tcron = 20;                        #cron job cycle time in min
+
+
+
+#=======figure out which nodes should delete and when in this time cycle:
+my $dcyle = 60*$dbtdelete/$maxSM;         #normal cycle time (min) for deletes alotted per node
+my $ncyc;  {use integer; $ncyc=$maxSM/$dbtdelete;}
+
+
+
+#what's the current time at start of cycle; and *relative* to start of cycle:
+my $hour   = `date +%H`+0;
+my $min    = `date +%M`+0;
+my $hour6  =  (60*$hour+$min)%(60*$dbtdelete);
+   $hour6  =  $hour6/60;
+#my $min1  = `date +%M`+0;
+#   $min   = 0;
+
+`date`;
+    print "\n TIMES: hour=$hour:$min; hour6=$hour6=$hour%$dbtdelete; min=$min  \n";
 
 my $sleeptime = 0;
-#figure out what timing delays we want for cleaning etc:
-my ($rack, $node, $deltaT);
+
+
+my $gbdebug2 =`echo "*********************************************************************************** " >> /tmp/gbDebugClean2.txt`;
+   $gbdebug2 =`echo "*********************** $hostname  $hour:$min ******maxdisk: $maxdisk%  *********** " >> /tmp/gbDebugClean2.txt`;
+
+my $hourPC  = 0; 
+my $minPC   = 0; 
+my $hourPC3 = 0; 
+my $minPC20 = 0; 
+my $deltaT  = 0;
+
+#figure out what timing delays we want for cleaning etc for particular node:
+my ($rack, $node);
 if       ( ( $rack, $node ) = ( $hostname =~ /srv-c2c0([67])-(\d+)$/i ) ){ # main SM
-    my $hourPC  = ( 2*($node-12) + 10*($rack-6) )%18 + ($rack-6);
-    my $minPC   = $hourPC%3;
-    my $hourPC3 = ($hourPC - $minPC)/3;
-    my $minPC20 = 20*$minPC;
+    $sysindx = 0;
+    $hourPC  = ( 2*($node-12) + 10*($rack-6) )%$maxSM + ($rack-6);
+    $minPC   = $hourPC%$ncyc;
+    $hourPC3 = ($hourPC - $minPC)/$ncyc;
+    $minPC20 = $dcyle*$minPC;
+    
     #time diff for scheduling deletes
-    $deltaT   = 60*($hour6-$hourPC3) +  $min-$minPC20;
-#       print " standard SM, tdiff=  $deltaT  \n";
+    $deltaT   = 60*($hourPC3-$hour6) +  $minPC20;                #-$min;
+
+    print " $deltaT   = 60*($hourPC3-$hour6) +  $minPC20 \n";    #-$min \n";    
+    print " standard SM, deltaT=  $deltaT  \n";
+    
+    
 }elsif ( ($rack, $node ) = ( $hostname =~ /dvsrv-c2f3([7])-(\d+)$/i ) ){   # daqval SM
- #   haven't decided what to do for daqval SM's yet!
-     exit 0;
+    $sysindx = 2;
+    #   haven't decided what to do for daqval SM's yet!
+    exit 0;
 }elsif (  $hostname =~ /cmsdisk1/i ||  $hostname =~ /srv-C2D05-02/i  ){    # minidaq SM
-     #force deletion near c07-20's slot cuz it's probably not having to do much anyhow
-     #but do it only ONCE per day (15:07 hrs)
-     $deltaT = 60*($hour-15);    
-     $node   = 20;
-     $rack   =  7;
-     $sleeptime = 0.5;
-     print "..do cmsdisk1 sleep!  \n";
-     sleep(60*1);
- }else {
+    $sysindx = 1;
+    #force deletion near c07-20's slot cuz it's probably not having to do much anyhow
+    #but do it only ONCE per day (15:07 hrs)
+    $deltaT = 60*($hour-15)+$min;    
+    $node   = 20;
+    $rack   =  7;
+    $sleeptime = 0.5;
+    print "..do cmsdisk1 sleep!  \n";
+    sleep(60*1);
+}else {
     #unknown machine
     exit 0;
 }
 
-#     print " standard SM, tdiff=  $deltaT  \n";
 
 
 print "$hostname: $hour ($hour6) h AND $min min ===> deltaTime= $deltaT\n";
 
 
-#setup sleep delays for Unaccounted files (to span 18 min cycle)
-my  $interval = 18;
-#print "     $sleeptime = ( 2*($node-12) + 10*($rack-6) )%$interval + ($rack-6); \n";
-    $sleeptime = $sleeptime + ( 2*($node-12) + 10*($rack-6) )%$interval + ($rack-6);
+
+#put in a short delay just to say away from clock boundaries
+$sleeptime = 2*($node-10);
+$sleeptime = 0.08;
 
 
-print "$hostname:  $rack $node sleep time: $sleeptime \n";
 
+if(0<$deltaT && $deltaT < $tcron - 0.5){                #times are in min!
+    $sleeptime = $deltaT%$tcron + $sleeptime;
+}
 
-#count sata-mounts, if NONE, then no need to try and do disk inventory OR clean!
-my $nsata=`df | grep -ic sata`;
-if( $nsata >0 ) { 
-    
+print "$hostname:  $rack $node REAL sleep time: $sleeptime \n";
+
 
 my $date=`date`;
 print "$date  ..maybe sleep 60*$sleeptime...\n";
-if( abs($deltaT) > 7 &&  !$now  ){ 
+
+if( !$now && $sleeptime>0 ){ 
+ 
+  my $gbdebug1 =`echo "$date   sleep $sleeptime min" >> /tmp/gbDebugClean2.txt`;
    sleep(60*$sleeptime);
 }
+
 $date=`date`;
 print "$date  ..sleep done...\n";
+
+
+
+
+# Execute the following stuff ONLY IF there is a "sata" disk array
+if( $maxdisk != -1 ) { 
 
 
 
@@ -619,18 +741,43 @@ $dbh    = DBI->connect($dbi,$reader,$phrase)
 $minRunSMI   = 134000; #smallest run number being handled
 $fileageSMI  = 5;         #in days
 
+$date=`date`;
+  my $gbdebug1 =`echo "$date------------ $hostname: $hour6- AND $min ===> deltaTime= $deltaT || deltcycle=$dbtdelete hrs; minrepack=$dbrepackagemax day; minage=$fileagemin min; sleep $sleeptime min" >> /tmp/gbDebugClean2.txt`;
 
-  my $gbdebug1 =`echo "----- $hostname: $hour6- AND $min ===> deltaTime= $deltaT " >> /tmp/gbdebugClean.txt`;
+
+
+#=======DELETE cycle for data files :
+
+#get updated time:
+    #what's the current time:
+ $hour  = `date +%H`+0;
+ $min   = `date +%M`+0;
+ $hour6 =  (60*$hour+$min)%(60*$dbtdelete);
+ $hour6 =  $hour6/60;
+ $min   = 0.0;
+
+
+
+$deltaT   = 60*($hourPC3-$hour6) +  $minPC20;
+if($sysindx == 1){
+    $deltaT = 60*($hour-15)+$min;
+}
+
+
+print "$hostname: post sleep check: $hour ($hour6) h AND $min min ===> deltaTime= $deltaT\n";
+
+$sleeptime= 60*($node-12);
 
 
    $date=`date`;
-if( abs($deltaT) < 7  ||  $now  ){ 
-    if( !$now ){ sleep 10;}
+if( abs($deltaT) < 1.5  ||  $now  ){ 
+    if( !$now ){ sleep 2;}
     
-    my  $gbNEWdebug =`date:  >> /tmp/gbdebugNewClean.txt`;
-    $gbNEWdebug =`echo "$hostname: $hour6- AND $min ===> deltaTime= $deltaT  " >> /tmp/gbdebugNewClean.txt`;
+
+    my  $gbNEWdebug =`date:  >> /tmp/gbDebugClean2.txt`;
+    $gbNEWdebug =`echo ">>>> DELETE:  $hostname: $hour6- AND $min ===> deltaTime= $deltaT  " >> /tmp/gbDebugClean2.txt`;
     
-     print "$date ..execute DELETES cycle...\n";
+    print "$date ..execute DELETES cycle...\n";
     if (!$skipdelete) { deletefiles(); }
     $date=`date`;
     print "$date ..DONE executing DELETES...\n";
@@ -647,8 +794,9 @@ if( abs($deltaT) < 7  ||  $now  ){
 
 
 $date=`date`;
-print "$date  ..execute !Files...\n";
-uncountfiles();
+print "$date  ..execute !Files...(but sleep $sleeptime sec first)... \n";
+sleep $sleeptime;
+if( $maxdisk > -1 ){uncountfiles();}  #sata dir must exist to bother and make call!
 $date=`date`;
 print "$date ..DONE executing unDELETES...\n";
 
@@ -657,10 +805,14 @@ $dbh->disconnect;
 
 }
 
-my  $gbdebug =`date >> /tmp/gbdebugClean.txt`;
-$gbdebug =`echo "    $hour && $min: Delta-t= $deltaT " >> /tmp/gbdebugClean.txt`;
+my  $gbdebug =`date >> /tmp/gbDebugClean2.txt`;
+$gbdebug =`echo "    $hour && $min: Delta-t= $deltaT " >> /tmp/gbDebugClean2.txt`;
 
 
+
+
+
+#=======MIGRATE worker/manager files :
 if($now ||  abs($deltaT) < 8   ) { 
     my $date=`date`;
     print " $date: cleanup CopyManager if there  \n";
@@ -672,6 +824,6 @@ if($now ||  abs($deltaT) < 8   ) {
     
 }
 
-    my $date=`date`;
+    $date=`date`;
     print "$date .. all done!\n";
 
