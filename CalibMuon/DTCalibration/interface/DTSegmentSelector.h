@@ -2,8 +2,8 @@
 #define CalibMuon_DTCalibration_DTSegmentSelector_h
 
 /*
- *  $Date: 2010/11/17 12:13:50 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/11/18 10:35:51 $
+ *  $Revision: 1.3 $
  *  \author A. Vilela Pereira
  */
 
@@ -29,7 +29,7 @@ class DTSegmentSelector {
          maxAngleZ_(pset.getParameter<double>("maxAngleZ")) {
       }
       ~DTSegmentSelector() {}
-      bool operator() (edm::Event const&, edm::EventSetup const&, DTRecSegment4D const&);
+      bool operator() (DTRecSegment4D const&, edm::Event const&, edm::EventSetup const&);
     
    private:
       bool checkNoisySegment(edm::ESHandle<DTStatusFlag> const&, std::vector<DTRecHit1D> const&);

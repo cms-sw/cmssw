@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/16 19:06:59 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/11/17 18:15:42 $
+ *  $Revision: 1.8 $
  *  \author A. Vilela Pereira
  */
 
@@ -112,18 +112,18 @@ void DTTTrigOffsetCalibration::analyze(const Event & event, const EventSetup& ev
       LogTrace("Calibration") << "Segment local pos (in chamber RF): " << (*segment).localPosition()
                               << "\nSegment global pos: " << chamber->toGlobal((*segment).localPosition());
       
-      if( !select_(event, eventSetup, *segment) ) continue;
+      if( !select_(*segment, event, eventSetup) ) continue;
 
       // Fill t0-seg values
       if( (*segment).hasPhi() ) {
-	//if((segment->phiSegment()->t0()) != 0.00){
-        if( segment->phiSegment()->ist0Valid() ){
+        //if( segment->phiSegment()->ist0Valid() ){ 
+	if( (segment->phiSegment()->t0()) != 0.00 ){
 	  (theT0SegHistoMap_[*chamberIdIt])[0]->Fill(segment->phiSegment()->t0());
 	}
       }
       if( (*segment).hasZed() ){
-    	//if((segment->zSegment()->t0()) != 0.00){
-        if( segment->zSegment()->ist0Valid() ){
+        //if( segment->zSegment()->ist0Valid() ){ 
+    	if( (segment->zSegment()->t0()) != 0.00 ){
 	  (theT0SegHistoMap_[*chamberIdIt])[1]->Fill(segment->zSegment()->t0());
 	}
       }

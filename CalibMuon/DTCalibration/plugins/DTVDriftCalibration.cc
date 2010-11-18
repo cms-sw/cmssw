@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/17 12:13:51 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/11/17 17:54:23 $
+ *  $Revision: 1.8 $
  *  \author M. Giunta
  */
 
@@ -173,7 +173,7 @@ void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSe
       LogTrace("Calibration") << "Segment local pos (in chamber RF): " << (*segment).localPosition()
                               << "\nSegment global pos: " << chamber->toGlobal((*segment).localPosition());
 
-      if( !select_(event, eventSetup, *segment) ) continue;
+      if( !select_(*segment, event, eventSetup) ) continue;
 
       LocalPoint phiSeg2DPosInCham;  
       LocalVector phiSeg2DDirInCham;

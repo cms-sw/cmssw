@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/18 11:40:19 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/11/18 15:54:53 $
+ *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 
@@ -56,8 +56,16 @@ DTVDriftT0FitCalibration::~DTVDriftT0FitCalibration(){
 
 void DTVDriftT0FitCalibration::analyze(const Event & event, const EventSetup& eventSetup) {
   rootFile_->cd();
-  DTChamberId chosenChamberId;
 
+  // Get the DT Geometry
+  ESHandle<DTGeometry> dtGeom;
+  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+
+  // Get the rechit collection from the event
+  Handle<DTRecSegment4DCollection> all4DSegments;
+  event.getByLabel(theRecHits4DLabel_, all4DSegments); 
+
+  DTChamberId chosenChamberId;
   if(theCalibChamber_ != "All") {
     stringstream linestr;
     int selWheel, selStation, selSector;
@@ -67,56 +75,49 @@ void DTVDriftT0FitCalibration::analyze(const Event & event, const EventSetup& ev
     LogVerbatim("Calibration") << " Chosen chamber: " << chosenChamberId << endl;
   }
 
-  /*
-  // Get the DT Geometry
-  ESHandle<DTGeometry> dtGeom;
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
-  */
-
-  // Get the rechit collection from the event
-  Handle<DTRecSegment4DCollection> all4DSegments;
-  event.getByLabel(theRecHits4DLabel_, all4DSegments); 
-
   // Loop over segments by chamber
   DTRecSegment4DCollection::id_iterator chamberIdIt;
   for(chamberIdIt = all4DSegments->id_begin(); chamberIdIt != all4DSegments->id_end(); ++chamberIdIt){
 
-    // Get the chamber from the setup
-    //const DTChamber* chamber = dtGeom->chamber(*chamberIdIt);
-    LogTrace("Calibration") << "Chamber Id: " << *chamberIdIt;
-
     // Book histos
     if(theVDriftHistoMapTH1F_.find(*chamberIdIt) == theVDriftHistoMapTH1F_.end()){
+      LogTrace("Calibration") << "   Booking histos for Chamber: " << *chamberIdIt;
       bookHistos(*chamberIdIt);
     }
    
     // Calibrate just the chosen chamber/s    
     if((theCalibChamber_ != "All") && ((*chamberIdIt) != chosenChamberId)) continue;
 
+    // Get the chamber from the setup
+    const DTChamber* chamber = dtGeom->chamber(*chamberIdIt);
     // Get the range for the corresponding ChamberId
     DTRecSegment4DCollection::range range = all4DSegments->get((*chamberIdIt));
-
     // Loop over the rechits of this DetUnit
     for(DTRecSegment4DCollection::const_iterator segment  = range.first;
                                                  segment != range.second; ++segment){
 
-      /*LogTrace("Calibration") << "Segment local pos (in chamber RF): " << (*segment).localPosition()
-                              << "\nSegment global pos: " << chamber->toGlobal((*segment).localPosition());*/
-      LogTrace("Calibration") << "Segment local pos (in chamber RF): " << (*segment).localPosition();
       
-      if( !select_(event, eventSetup, *segment) ) continue;
+      LogTrace("Calibration") << "Segment local pos (in chamber RF): " << (*segment).localPosition()
+                              << "\nSegment global pos: " << chamber->toGlobal((*segment).localPosition());
+      
+      if( !select_(*segment, event, eventSetup) ) continue;
 
-      // Fill t0-seg values
+      // Fill v-drift values
       if( (*segment).hasPhi() ) {
-        if( segment->phiSegment()->ist0Valid() ){
-	  (theVDriftHistoMapTH1F_[*chamberIdIt])[0]->Fill(segment->phiSegment()->vDrift());
-          (theVDriftHistoMapTH2F_[*chamberIdIt])[0]->Fill(segment->localPosition().z(),segment->phiSegment()->vDrift());
+         //if( segment->phiSegment()->ist0Valid() ){
+         double segmentVDrift = segment->phiSegment()->vDrift();
+         if( segmentVDrift != 0.00 ){   
+	    (theVDriftHistoMapTH1F_[*chamberIdIt])[0]->Fill(segmentVDrift);
+            (theVDriftHistoMapTH2F_[*chamberIdIt])[0]->Fill(segment->localPosition().x(),segmentVDrift);
+            (theVDriftHistoMapTH2F_[*chamberIdIt])[1]->Fill(segment->localPosition().y(),segmentVDrift);
 	}
       }
+      // Probably not meaningful 
       if( (*segment).hasZed() ){
-        if( segment->zSegment()->ist0Valid() ){
-	  (theVDriftHistoMapTH1F_[*chamberIdIt])[1]->Fill(segment->zSegment()->vDrift());
-          (theVDriftHistoMapTH2F_[*chamberIdIt])[1]->Fill(segment->localPosition().z(),segment->zSegment()->vDrift()); 
+         //if( segment->zSegment()->ist0Valid() ){
+         double segmentVDrift = segment->zSegment()->vDrift();
+         if( segmentVDrift != 0.00 ){
+	    (theVDriftHistoMapTH1F_[*chamberIdIt])[1]->Fill(segmentVDrift);
 	}
       }
     } // DTRecSegment4DCollection::const_iterator segment
@@ -173,8 +174,6 @@ void DTVDriftT0FitCalibration::endJob() {
 // Book a set of histograms for a given Chamber
 void DTVDriftT0FitCalibration::bookHistos(DTChamberId chId) {
 
-  LogTrace("Calibration") << "   Booking histos for Chamber: " << chId;
-
   // Compose the chamber name
   stringstream wheel; wheel << chId.wheel();
   stringstream station; station << chId.station();
@@ -190,8 +189,9 @@ void DTVDriftT0FitCalibration::bookHistos(DTChamberId chId) {
   if(chId.station() != 4) histosTH1F.push_back(new TH1F(("hRZVDriftCorr" + chHistoName).c_str(), "v-drift corr. from Z segments", 200, -0.4, 0.4));
   
   vector<TH2F*> histosTH2F;
-  histosTH2F.push_back(new TH2F(("hRPhiVDriftCorrVsSegmPosZ" + chHistoName).c_str(), "v-drift corr. vs. segment z position from Phi segments", 250, -125., 125., 200, -0.4, 0.4));
-  if(chId.station() != 4) histosTH2F.push_back(new TH2F(("hRZVDriftCorrVsSegmPosZ" + chHistoName).c_str(), "v-drift corr. vs. segment z position from Z segments", 250, -125., 125., 200, -0.4, 0.4));
+  histosTH2F.push_back(new TH2F(("hRPhiVDriftCorrVsSegmPosX" + chHistoName).c_str(), "v-drift corr. vs. segment x position", 250, -125., 125., 200, -0.4, 0.4));
+  histosTH2F.push_back(new TH2F(("hRPhiVDriftCorrVsSegmPosY" + chHistoName).c_str(), "v-drift corr. vs. segment y position", 250, -125., 125., 200, -0.4, 0.4));
+  //if(chId.station() != 4) ...
 
   theVDriftHistoMapTH1F_[chId] = histosTH1F;
   theVDriftHistoMapTH2F_[chId] = histosTH2F;
