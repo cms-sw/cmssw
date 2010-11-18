@@ -1,6 +1,3 @@
-<use   name="Geometry/CaloGeometry"/>
-<use   name="DataFormats/HcalDetId"/>
-<use   name="DataFormats/EcalDetId"/>
 <use   name="FWCore/Framework"/>
 <library   file="CaloGeometryAnalyzer.cc" name="testCaloGeometryESProducer">
   <use name="rootgraphics"/>
@@ -8,11 +5,17 @@
   <use name="Geometry/EcalAlgo"/>
   <use name="CommonTools/Utils"/>
   <use name="CommonTools/UtilAlgos"/>
+  <use name="Geometry/CaloGeometry"/>
+  <use name="DataFormats/HcalDetId"/>
+  <use name="DataFormats/EcalDetId"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="dumpEcalTrigTowerMapping.cc" name="testEcalTrigTowerMappingSProducer">
   <use name="Geometry/Records"/>
   <use name="Geometry/CaloTopology"/>
+  <use name="Geometry/CaloGeometry"/>
+  <use name="DataFormats/HcalDetId"/>
+  <use name="DataFormats/EcalDetId"/>
   <use name="rootgraphics"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
@@ -20,6 +23,9 @@
   <use name="Geometry/CaloTopology"/>
   <use name="rootgraphics"/>
   <use name="Geometry/Records"/>
+  <use name="Geometry/CaloGeometry"/>
+  <use name="DataFormats/HcalDetId"/>
+  <use name="DataFormats/EcalDetId"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="CaloAlignmentRcdRead.cc" name="CaloAlignmentRcdRead">
@@ -37,5 +43,8 @@
 </library>
 <bin   file="dumpEEIndices2D.cpp">
   <use name="rootgraphics"/>
+  <use name="Geometry/CaloGeometry"/>
+  <use name="DataFormats/HcalDetId"/>
+  <use name="DataFormats/EcalDetId"/>
   <flags NO_TESTRUN="1"/>
 </bin>

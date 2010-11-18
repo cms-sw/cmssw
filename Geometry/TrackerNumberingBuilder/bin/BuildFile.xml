@@ -1,11 +1,9 @@
 <library   name="GeometricDetLoader" file="stubs/GeometricDetLoader.cc">
   <use   name="CondCore/DBOutputService"/>
-  <use   name="CondFormats/DataRecord"/>
   <use   name="DetectorDescription/Core"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/ServiceRegistry"/>
-  <use   name="Geometry/TrackerGeometryBuilder"/>
   <use   name="Geometry/TrackerNumberingBuilder"/>
   <use   name="Geometry/Records"/>
   <flags   EDM_PLUGIN="1"/>

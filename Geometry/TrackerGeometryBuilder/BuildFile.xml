@@ -1,4 +1,3 @@
-<use   name="DataFormats/DetId"/>
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/SiPixelDetId"/>
 <use   name="DataFormats/SiStripDetId"/>
