@@ -13,6 +13,9 @@ public:
 
   virtual ~StripTopology() {}
 
+  // GF: I hate the stupid hiding feature of C++, see
+  // http://www.parashift.com/c%2B%2B-faq-lite/strange-inheritance.html#faq-23.9
+  using Topology::localPosition;
   virtual LocalPoint localPosition( float strip ) const = 0;
   /// conversion taking also the angle from the predicted track state 
   virtual LocalPoint localPosition( float strip, const Topology::LocalTrackAngles &dir ) const { 
