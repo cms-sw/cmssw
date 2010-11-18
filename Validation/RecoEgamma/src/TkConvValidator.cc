@@ -93,8 +93,8 @@
  **  
  **
  **  $Id: TkConvValidator
- **  $Date: 2010/11/17 18:29:42 $ 
- **  $Revision: 1.6 $
+ **  $Date: 2010/11/18 15:10:39 $ 
+ **  $Revision: 1.7 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/
@@ -1103,7 +1103,6 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       else 
 	match=2;
       
-      //std::cout << " Match " << match << " mcConvPt_ " << mcConvPt_ << std::endl;
       h_match_->Fill(float(match));
       //////// here reco is matched to sim or is fake
       if ( match == 1) nRecConvAss_++; 
