@@ -10,7 +10,7 @@
 //
 // Original Author:  Massimiliano Chiorboli,40 4-A01,+41227671535,
 //         Created:  Wed Mar 31 21:49:08 CEST 2010
-// $Id: LeptonRecoSkim.h,v 1.10 2010/08/12 14:42:19 chiorbo Exp $
+// $Id: LeptonRecoSkim.h,v 1.1 2010/11/05 18:37:50 torimoto Exp $
 //
 //
 #include <memory>
@@ -55,8 +55,6 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
-
-using namespace reco;
 
 class LeptonRecoSkim : public edm::EDFilter {
  public:
