@@ -2,8 +2,8 @@
 #define CalibMuon_DTCalibration_DTSegmentSelector_h
 
 /*
- *  $Date: 2010/11/16 19:07:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/11/17 12:13:50 $
+ *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 
@@ -12,14 +12,18 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-class DTRecSegment2D;
+#include <vector>
+
 class DTRecSegment4D;
+class DTRecHit1D;
 class DTStatusFlag;
 
 class DTSegmentSelector {
    public:
       DTSegmentSelector(edm::ParameterSet const& pset):
          checkNoisyChannels_(pset.getParameter<bool>("checkNoisyChannels")),
+         minHitsPhi_(pset.getParameter<int>("minHitsPhi")),
+         minHitsZ_(pset.getParameter<int>("minHitsZ")),
          maxChi2_(pset.getParameter<double>("maxChi2")),
          maxAnglePhi_(pset.getParameter<double>("maxAnglePhi")),
          maxAngleZ_(pset.getParameter<double>("maxAngleZ")) {
@@ -28,9 +32,11 @@ class DTSegmentSelector {
       bool operator() (edm::Event const&, edm::EventSetup const&, DTRecSegment4D const&);
     
    private:
-      bool checkNoisySegment(edm::ESHandle<DTStatusFlag> const&, DTRecSegment2D const&);
+      bool checkNoisySegment(edm::ESHandle<DTStatusFlag> const&, std::vector<DTRecHit1D> const&);
 
       bool checkNoisyChannels_;
+      int minHitsPhi_;
+      int minHitsZ_;
       double maxChi2_;
       double maxAnglePhi_;
       double maxAngleZ_;

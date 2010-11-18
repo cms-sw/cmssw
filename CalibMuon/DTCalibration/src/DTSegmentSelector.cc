@@ -23,66 +23,73 @@ bool DTSegmentSelector::operator() (edm::Event const& event, edm::EventSetup con
   eventSetup.get<MuonGeometryRecord>().get(dtGeom);
   */
  
-  bool segmentNoisy = false;
-  if(checkNoisyChannels_){
-     // Get the map of noisy channels
-     edm::ESHandle<DTStatusFlag> statusMap;
-     setup.get<DTStatusFlagRcd>().get(statusMap);
+  edm::ESHandle<DTStatusFlag> statusMap;
+  if(checkNoisyChannels_) setup.get<DTStatusFlagRcd>().get(statusMap);
 
-     if( segment.hasPhi() ){
-        const DTChamberRecSegment2D* phiSeg = segment.phiSegment();
-        segmentNoisy = checkNoisySegment(statusMap,*phiSeg); 
-     }
-     if( segment.hasZed() ){
-        const DTSLRecSegment2D* zSeg = segment.zSegment();
-        segmentNoisy = checkNoisySegment(statusMap,*zSeg);
-     }
-  }
-  if(segmentNoisy) result = false;
-
-  /*
   // Get the Phi 2D segment
+  int nPhiHits = -1;
+  bool segmentNoisyPhi = false;
   if( segment.hasPhi() ){
      const DTChamberRecSegment2D* phiSeg = segment.phiSegment();  // phiSeg lives in the chamber RF
-     LocalPoint phiSeg2DPosInCham = phiSeg->localPosition();  
-     LocalVector phiSeg2DDirInCham = phiSeg->localDirection();
+     //LocalPoint phiSeg2DPosInCham = phiSeg->localPosition();  
+     //LocalVector phiSeg2DDirInCham = phiSeg->localDirection();
+     std::vector<DTRecHit1D> phiRecHits = phiSeg->specificRecHits();
+     nPhiHits = phiRecHits.size(); 
+     if(checkNoisyChannels_) segmentNoisyPhi = checkNoisySegment(statusMap,phiRecHits);
   }
   // Get the Theta 2D segment
+  int nZHits = -1;
+  bool segmentNoisyZ = false;
   if( segment.hasZed() ){
      const DTSLRecSegment2D* zSeg = segment.zSegment();  // zSeg lives in the SL RF
-     const DTSuperLayer* sl = chamber->superLayer(zSeg->superLayerId());
-     LocalPoint zSeg2DPosInCham = chamber->toLocal(sl->toGlobal((*zSeg).localPosition())); 
-     LocalVector zSeg2DDirInCham = chamber->toLocal(sl->toGlobal((*zSeg).localDirection()));
+     //const DTSuperLayer* sl = chamber->superLayer(zSeg->superLayerId());
+     //LocalPoint zSeg2DPosInCham = chamber->toLocal(sl->toGlobal((*zSeg).localPosition())); 
+     //LocalVector zSeg2DDirInCham = chamber->toLocal(sl->toGlobal((*zSeg).localDirection()));
+     std::vector<DTRecHit1D> zRecHits = zSeg->specificRecHits();
+     nZHits = zRecHits.size();
+     if(checkNoisyChannels_) segmentNoisyZ = checkNoisySegment(statusMap,zRecHits);
   } 
-  */
 
-  // Selection 
-  // Get the segment chi2
+  // Segment selection 
+  // Discard segment if it has a noisy cell
+  if(segmentNoisyPhi || segmentNoisyZ)
+     result = false;
+
+  // 2D-segment number of hits
+  if(nPhiHits < minHitsPhi_)
+     result = false;
+
+  if(nZHits < minHitsZ_)
+     result = false;
+
+  // Segment chi2
   double chiSquare = segment.chi2()/segment.degreesOfFreedom();
-  // Cut on the segment chi2 
-  if(chiSquare > maxChi2_) result = false;
+  if(chiSquare > maxChi2_)
+     result = false;
+
+  // Segment angle
   LocalPoint segment4DLocalPos = segment.localPosition();
   LocalVector segment4DLocalDir = segment.localDirection();
-  // Cut on angle
-  if( fabs( atan(segment4DLocalDir.y()/segment4DLocalDir.z())*180./Geom::pi() ) > maxAngleZ_) 
+  double angleZ = fabs( atan(segment4DLocalDir.y()/segment4DLocalDir.z())*180./Geom::pi() ); 
+  if( angleZ > maxAngleZ_)
      result = false;
-  // Cut on angle 
-  if( fabs( atan(segment4DLocalDir.x()/segment4DLocalDir.z())*180./Geom::pi() ) > maxAnglePhi_)
+
+  double anglePhi = fabs( atan(segment4DLocalDir.x()/segment4DLocalDir.z())*180./Geom::pi() );
+  if( anglePhi > maxAnglePhi_)
      result = false;
 
   return result;
 }
 
-bool DTSegmentSelector::checkNoisySegment(edm::ESHandle<DTStatusFlag> const& statusMap, DTRecSegment2D const& segment){
+bool DTSegmentSelector::checkNoisySegment(edm::ESHandle<DTStatusFlag> const& statusMap, std::vector<DTRecHit1D> const& dtHits){
 
   bool segmentNoisy = false;
 
-  std::vector<TrackingRecHit const*> recHits = segment.recHits();
-  std::vector<TrackingRecHit const*>::iterator recHit = recHits.begin();
-  std::vector<TrackingRecHit const*>::iterator recHits_end = recHits.end();  
-  for(; recHit != recHits_end; ++recHit){
-     DTRecHit1D const* dtHit1D = dynamic_cast<DTRecHit1D const*>(*recHit);
-     DTWireId wireId = dtHit1D->wireId();
+  std::vector<DTRecHit1D>::const_iterator dtHit = dtHits.begin();
+  std::vector<DTRecHit1D>::const_iterator dtHits_end = dtHits.end();
+  for(; dtHit != dtHits_end; ++dtHit){
+     //DTRecHit1D const* dtHit1D = dynamic_cast<DTRecHit1D const*>(*recHit);
+     DTWireId wireId = dtHit->wireId();
      // Check for noisy channels to skip them
      bool isNoisy = false, isFEMasked = false, isTDCMasked = false, isTrigMask = false,
           isDead = false, isNohv = false;
