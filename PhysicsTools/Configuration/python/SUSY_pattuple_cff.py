@@ -168,6 +168,9 @@ def loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,pos
     process.patTausPF.addDecayMode = True
     process.patTausPF.decayModeSrc = "shrinkingConePFTauDecayModeProducerPF" 
 
+    #PF type I corrected MET
+    addPFTypeIMet(process)
+
     #-- Enable pileup sequence -------------------------------------------------------------
     #process.pfPileUpPF.Vertices = "offlinePrimaryVertices"
     #process.pfPileUpPF.Enable = True    
@@ -338,6 +341,26 @@ def addTypeIIMet(process) :
         process.patMETs,
         process.patMETs+
         process.patMETsAK5CaloTypeII
+        )
+
+def addPFTypeIMet(process):
+    from JetMETCorrections.Type1MET.MetType1Corrections_cff import metJESCorAK5PFJet 
+    process.metJESCorAK5PFTypeI = metJESCorAK5PFJet.clone( 
+        inputUncorJetsLabel = "patJetsPF", 
+        metType = "pat",                  
+        inputUncorMetLabel = "pfMet",         
+        useTypeII = False, 
+        jetPTthreshold = cms.double(6.0)  
+    )
+    process.patMETsTypeIPF = process.patMETsPF.clone(
+        metSource = cms.InputTag("metJESCorAK5PFTypeI")
+    )
+    # Add to producersLayer1 sequence
+    process.makePatMETsPF.replace(
+        process.patMETsPF,
+        process.patMETsPF+
+        process.metJESCorAK5PFTypeI+
+        process.patMETsTypeIPF
         )
 
 def addTagInfos(process,jetMetCorrections):
