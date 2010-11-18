@@ -70,7 +70,6 @@ from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import patTrigger
 patTrigger.onlyStandAlone = True
 
 ### ==== Then perform a match for all HLT triggers of interest
-from PhysicsTools.PatAlgos.triggerLayer1.triggerMatcher_cfi import muonTriggerMatchHLTMu3
 muonTriggerMatchHLT = cms.EDProducer( "PATTriggerMatcherDRDPtLessByR",
     src     = cms.InputTag( "patMuonsWithoutTrigger" ),
     matched = cms.InputTag( "patTrigger" ),
