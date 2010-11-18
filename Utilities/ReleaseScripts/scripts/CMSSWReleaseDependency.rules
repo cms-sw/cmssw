@@ -3,11 +3,21 @@
 ####################################################
 [allowed-uses]
 
+!SimDataFormats/GeneratorProducts/.*  : geant4.*
+!SimDataFormats/Track/.*              : geant4.*
+!SimDataFormats/TrackingAnalysis/.*   : geant4.*
+!SimDataFormats/Vertex/.*             : geant4.*
+!SimDataFormats/TrackingHit/.*        : geant4.*
+!SimTracker/Common/.*                 : geant4.*
+!SimTracker/TrackerHitAssociation/.*  : geant4.*
+
+
 #geant4 (direct)
 Alignment/LaserAlignmentSimulation/.*  : geant4.*
 SimG4CMS/.*                            : geant4.*
 SimG4Core/.*                           : geant4.*
 SimTracker/TrackerMaterialAnalysis/.*  : geant4.*
+SimDataFormats/ValidationFormats/.*    : geant4.*
 TrackPropagation/Geant4e/.*            : geant4.*
 Validation/CheckOverlap/.*             : geant4.*
 Validation/EcalHits/.*                 : geant4.*
@@ -15,12 +25,18 @@ Validation/Geometry/.*                 : geant4.*
 Validation/HcalHits/.*                 : geant4.*
 VisExamples/VisG4ExN02/.*              : geant4.*
 VisGeant4/.*                           : geant4.*
+IOMC/RandomEngine/bin/.*               : geant4core
 
 #geant4 (indirect)
 FastSimulation/Calorimetry/.*          : geant4.*
 FastSimulation/EventProducer/.*        : geant4.*
 VisSimulation/VisSimBase/.*            : geant4.*
-
+Validation/TrackerHits/.*              : geant4.*
+Validation/GlobalRecHits/.*            : geant4.*
+Validation/GlobalHits/.*               : geant4.*
+Validation/GlobalDigis/.*              : geant4.*
+SimRomanPot/SimFP420/.*                : geant4.*
+RecoRomanPot/RecoFP420/.*              : geant4.*
 
 #oracle (direct)
 CalibTracker/SiStripLorentzAngle/.*     : oracle
