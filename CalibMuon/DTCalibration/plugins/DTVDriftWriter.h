@@ -5,8 +5,8 @@
  *  Instantiates configurable algo plugin to
  *  compute and write vDrift DB.
  * 
- *  $Date: 2007/07/11 12:21:01 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/11/17 17:54:23 $
+ *  $Revision: 1.2 $
  *  Author of original version: M. Giunta
  *  \author A. Vilela Pereira 
  */
@@ -17,7 +17,7 @@
 
 #include <string>
 
-//class DTMtime;
+class DTMtime;
 class DTGeometry;
 class DTVDriftBaseAlgo;
 
@@ -33,11 +33,8 @@ public:
  
 private:
   std::string granularity_; // enforced by SL
-  double vDriftDef_;
-  double vDriftResoDef_;
 
-  // The object to be written to DB
-  //DTMtime* mTimeMap_;
+  const DTMtime* mTimeMap_;
   edm::ESHandle<DTGeometry> dtGeom_;
 
   DTVDriftBaseAlgo* vDriftAlgo_; 

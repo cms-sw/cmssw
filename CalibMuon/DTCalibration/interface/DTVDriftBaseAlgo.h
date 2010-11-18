@@ -4,7 +4,7 @@
 /** \class DTVDriftBaseAlgo
  *  Base class to define algorithm for vDrift computation 
  *
- *  $Date: 2008/12/11 16:34:34 $
+ *  $Date: 2010/11/17 17:54:23 $
  *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
@@ -18,10 +18,12 @@ class DTSuperLayerId;
 
 struct DTVDriftData {
 public:
-  DTVDriftData(double vdrift_mean, double vdrift_sigma): mean(vdrift_mean), sigma(vdrift_sigma) {}
+  DTVDriftData(double vdrift_mean, double vdrift_resolution):
+     vdrift(vdrift_mean),
+     resolution(vdrift_resolution) {}
 
-  double mean;
-  double sigma;
+  double vdrift;
+  double resolution;
 }; 
 
 class DTVDriftBaseAlgo {
@@ -32,5 +34,4 @@ public:
    virtual void setES(const edm::EventSetup& setup) = 0;
    virtual DTVDriftData compute(const DTSuperLayerId&) = 0;
 }; 
-
 #endif

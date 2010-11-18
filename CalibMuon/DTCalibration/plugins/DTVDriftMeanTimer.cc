@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/09 22:44:10 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/11/17 17:54:23 $
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 
@@ -15,11 +15,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 
 #include "CalibMuon/DTCalibration/interface/DTMeanTimerFitter.h"
-#include "CalibMuon/DTCalibration/interface/vDriftHistos.h"
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
 
 #include <string>
