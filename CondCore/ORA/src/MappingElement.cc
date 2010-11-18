@@ -102,6 +102,13 @@ ora::MappingElement::blobMappingElementType()
   return s_blobMappingElementType;
 }
 
+std::string
+ora::MappingElement::namedReferenceMappingElementType()
+{
+  static std::string s_namedReferenceMappingElementType = "NamedReference";
+  return s_namedReferenceMappingElementType;
+}
+
 bool
 ora::MappingElement::isValidMappingElementType( const std::string& elementType )
 {
@@ -118,7 +125,8 @@ ora::MappingElement::isValidMappingElementType( const std::string& elementType )
            elementType == OraArrayMappingElementType() ||
            elementType == pointerMappingElementType() ||
            elementType == referenceMappingElementType() ||
-           elementType == blobMappingElementType() );
+           elementType == blobMappingElementType() ||
+           elementType == namedReferenceMappingElementType() );
 }
 
 std::string
@@ -163,6 +171,9 @@ ora::MappingElement::elementTypeAsString( ora::MappingElement::ElementType eleme
     break;
   case Blob :
     return  blobMappingElementType();
+    break;
+  case NamedReference :
+    return  namedReferenceMappingElementType();
     break;
   case Pointer :
     return  pointerMappingElementType();
@@ -232,6 +243,9 @@ ora::MappingElement::elementTypeFromString( const std::string& elementType )
   }
   else if ( elementType == blobMappingElementType() ) {
     return Blob;
+  }
+  else if ( elementType == namedReferenceMappingElementType() ) {
+    return NamedReference;
   }
 
   return result;

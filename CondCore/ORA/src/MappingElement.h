@@ -32,7 +32,8 @@ namespace ora {
                    OraPointer,
                    UniqueReference,
                    OraArray,
-                   Blob } ElementType;
+                   Blob,
+                   NamedReference } ElementType;
 
     /// Returns the name of the class mapping element type
     static std::string classMappingElementType();
@@ -62,6 +63,8 @@ namespace ora {
     static std::string referenceMappingElementType();
     /// Returns the name of the blob mapping element type
     static std::string blobMappingElementType();
+    /// Returns the name of the named reference element type
+    static std::string namedReferenceMappingElementType();
     /// Checks if the provided element type is valid
     static bool isValidMappingElementType( const std::string& elementType );
 

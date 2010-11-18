@@ -30,6 +30,8 @@ namespace ora {
 
     bool isType( const Reflex::Type& type, const Reflex::Type& baseType );
 
+    bool findBaseType( Reflex::Type& type, Reflex::Type& baseType, Reflex::OffsetFunction& func );
+
     std::string demangledName( const std::type_info& typeInfo );
 
     Reflex::Type lookupDictionary( const std::type_info& typeInfo, bool throwFlag = true );
@@ -63,6 +65,8 @@ namespace ora {
     Reflex::Type resolvedType(const Reflex::Type& typ);
 
     bool isTypeOraReference( const Reflex::Type& typ);
+
+    bool isTypeNamedReference( const Reflex::Type& typ);
 
     bool isTypeOraPointer( const Reflex::Type& typ);
     

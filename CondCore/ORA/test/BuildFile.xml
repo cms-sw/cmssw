@@ -4,7 +4,7 @@
 <use   name="CondFormats/Common"/>
 <use   name="DataFormats/StdDictionaries"/>
 <use   name="FWCore/PluginManager"/>
-<library   name="testORADict" file="">
+<library   name="testORADict" file="classes.cc">
 </library>
 <bin   file="testORABasicException.cc" name="testORABasicException">
 </bin>
@@ -57,4 +57,10 @@
 <bin   file="test_Record.cpp" name="testORARecord">
 </bin>
 <bin   file="test_AnyData.cpp" name="testORARecordDetails">
+</bin>
+<bin   file="testNameService.cc" name="testNameService">
+  <lib   name="testORADict"/>
+</bin>
+<bin   file="testNamedReference.cc" name="testNamedReference">
+  <lib   name="testORADict"/>
 </bin>
