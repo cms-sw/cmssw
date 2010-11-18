@@ -34,20 +34,18 @@ process.maxEvents = cms.untracked.PSet(
 
 from Validation.RecoEgamma.photonValidationSequence_cff import *
 from Validation.RecoEgamma.photonPostprocessing_cfi import *
-photonValidation.OutputMEsInRootFile = True
+from Validation.RecoEgamma.conversionPostprocessing_cfi import *
+
 photonValidation.OutputFileName = 'PhotonValidationRelVal3_10_0_pre2_QCD_Pt_80_120.root'
-photonPostprocessing.batch = cms.bool(True)
+
 photonPostprocessing.standalone = cms.bool(True)
 photonPostprocessing.InputFileName = photonValidation.OutputFileName
+photonPostprocessing.OuputFileName = photonValidation.OutputFileName
 
-
-from Validation.RecoEgamma.tkConvValidator_cfi import *
-from Validation.RecoEgamma.conversionPostprocessing_cfi import *
-tkConversionValidation.OutputMEsInRootFile = True
 tkConversionValidation.OutputFileName = 'ConversionValidationRelVal3_10_0_pre2_QCD_Pt_80_120.root'
-conversionPostprocessing.batch = cms.bool(True)
+conversionPostprocessing.standalone = cms.bool(True)
 conversionPostprocessing.InputFileName = tkConversionValidation.OutputFileName
-
+conversionPostprocessing.OuputFileName = tkConversionValidation.OutputFileName
 
 
 process.source = cms.Source("PoolSource",
@@ -107,8 +105,7 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('pippo.root')
 )
 
-
-process.p1 = cms.Path(process.tpSelection*process.photonValidationSequence*process.photonPostprocessing*process.tpSelecForEfficiency*process.tpSelecForFakeRate*process.tkConversionValidation*conversionPostprocessing*process.dqmStoreStats)
+process.p1 = cms.Path(process.tpSelection*process.photonValidationSequence*process.photonPostprocessing*process.conversionPostprocessing*process.dqmStoreStats)
 process.schedule = cms.Schedule(process.p1)
 
 

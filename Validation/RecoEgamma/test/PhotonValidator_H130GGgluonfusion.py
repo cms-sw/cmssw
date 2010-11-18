@@ -12,6 +12,7 @@ process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 process.load("Validation.RecoEgamma.photonValidationSequence_cff")
 process.load("Validation.RecoEgamma.photonPostprocessing_cfi")
+process.load("Validation.RecoEgamma.conversionPostprocessing_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'START39_V3::All'
 
@@ -30,19 +31,27 @@ process.maxEvents = cms.untracked.PSet(
 
 from Validation.RecoEgamma.photonValidationSequence_cff import *
 from Validation.RecoEgamma.photonPostprocessing_cfi import *
+from Validation.RecoEgamma.conversionPostprocessing_cfi import *
 
-photonValidation.OutputMEsInRootFile = True
-photonValidation.OutputFileName = 'PhotonValidationRelVal3_10_0_pre2_H130GGgluonfusion.root'
+photonValidation.OutputFileName = 'PhotonValidationRelVal3_10_0_pre2_H130GGgluonfusion_2.root'
 
-photonPostprocessing.batch = cms.bool(True)
 photonPostprocessing.standalone = cms.bool(True)
 photonPostprocessing.InputFileName = photonValidation.OutputFileName
+photonPostprocessing.OuputFileName = photonValidation.OutputFileName
+
+conversionPostprocessing.standalone = cms.bool(True)
+conversionPostprocessing.InputFileName = tkConversionValidation.OutputFileName
+conversionPostprocessing.OuputFileName = tkConversionValidation.OutputFileName
+
 
 process.source = cms.Source("PoolSource",
 noEventSort = cms.untracked.bool(True),
 duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
                             
     fileNames = cms.untracked.vstring(
+
+
+        
         '/store/relval/CMSSW_3_10_0_pre2/RelValH130GGgluonfusion/GEN-SIM-RECO/START39_V3-v1/0058/DA7E9CD0-ACE2-DF11-A12E-0030486790A6.root',
         '/store/relval/CMSSW_3_10_0_pre2/RelValH130GGgluonfusion/GEN-SIM-RECO/START39_V3-v1/0058/DA59D867-AEE2-DF11-B4CD-003048678C62.root',
         '/store/relval/CMSSW_3_10_0_pre2/RelValH130GGgluonfusion/GEN-SIM-RECO/START39_V3-v1/0058/92592207-AEE2-DF11-BF8A-0018F3D0961E.root',
@@ -87,5 +96,5 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('pippo.root')
 )
 
-process.p1 = cms.Path(process.tpSelection*process.photonValidationSequence*process.photonPostprocessing*process.dqmStoreStats)
+process.p1 = cms.Path(process.tpSelection*process.photonValidationSequence*process.photonPostprocessing*process.conversionPostprocessing*process.dqmStoreStats)
 process.schedule = cms.Schedule(process.p1)

@@ -12,6 +12,7 @@ process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 process.load("Validation.RecoEgamma.photonValidationSequence_cff")
 process.load("Validation.RecoEgamma.photonPostprocessing_cfi")
+process.load("Validation.RecoEgamma.conversionPostprocessing_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'START39_V3::All'
 
@@ -31,14 +32,19 @@ process.maxEvents = cms.untracked.PSet(
 
 from Validation.RecoEgamma.photonValidationSequence_cff import *
 from Validation.RecoEgamma.photonPostprocessing_cfi import *
+from Validation.RecoEgamma.conversionPostprocessing_cfi import *
 
-photonValidation.OutputMEsInRootFile = True
 photonValidation.OutputFileName = 'PhotonValidationRelVal3_10_0_pre2_PhotonJets_Pt_10.root'
 
-
-photonPostprocessing.batch = cms.bool(True)
 photonPostprocessing.standalone = cms.bool(True)
 photonPostprocessing.InputFileName = photonValidation.OutputFileName
+photonPostprocessing.OuputFileName = photonValidation.OutputFileName
+
+conversionPostprocessing.standalone = cms.bool(True)
+conversionPostprocessing.InputFileName = tkConversionValidation.OutputFileName
+conversionPostprocessing.OuputFileName = tkConversionValidation.OutputFileName
+
+
 
 process.source = cms.Source("PoolSource",
 noEventSort = cms.untracked.bool(True),
@@ -89,5 +95,5 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('pippo.root')
 )
 
-process.p1 = cms.Path(process.tpSelection*process.photonValidationSequence*process.photonPostprocessing*process.dqmStoreStats)
+process.p1 = cms.Path(process.tpSelection*process.photonValidationSequence*process.photonPostprocessing*process.conversionPostprocessing*process.dqmStoreStats)
 process.schedule = cms.Schedule(process.p1)

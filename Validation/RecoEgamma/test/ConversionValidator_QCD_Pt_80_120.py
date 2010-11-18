@@ -23,7 +23,7 @@ dqmStoreStats.runOnEndJob = cms.untracked.bool(True)
 
 
 process.maxEvents = cms.untracked.PSet(
-#input = cms.untracked.int32(1000)
+#input = cms.untracked.int32(10)
 )
 
 
@@ -31,11 +31,11 @@ process.maxEvents = cms.untracked.PSet(
 from Validation.RecoEgamma.tkConvValidator_cfi import *
 from Validation.RecoEgamma.conversionPostprocessing_cfi import *
 
-tkConversionValidation.OutputMEsInRootFile = True
 tkConversionValidation.OutputFileName = 'ConversionValidationRelVal3_10_0_pre2_QCD_Pt_80_120.root'
-#tkConversionValidation.mergedTracks = True
+#tkConversionValidation.OutputFileName = 'ConversionValidationRelVal3_10_0_pre2_QCD_Pt_80_120_TESTExplicitMergedHP.root'
+tkConversionValidation.mergedTracks = True
 
-conversionPostprocessing.batch = cms.bool(True)
+conversionPostprocessing.standalone = cms.bool(True)
 conversionPostprocessing.InputFileName = tkConversionValidation.OutputFileName
 
 

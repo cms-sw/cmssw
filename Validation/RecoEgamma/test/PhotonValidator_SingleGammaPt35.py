@@ -12,8 +12,9 @@ process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 process.load("Validation.RecoEgamma.photonValidationSequence_cff")
 process.load("Validation.RecoEgamma.photonPostprocessing_cfi")
+process.load("Validation.RecoEgamma.conversionPostprocessing_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_38Y_V3::All'
+process.GlobalTag.globaltag = 'MC_39Y_V3::All'
 
 process.DQMStore = cms.Service("DQMStore");
 process.load("DQMServices.Components.DQMStoreStats_cfi")
@@ -30,19 +31,26 @@ input = cms.untracked.int32(10)
 
 from Validation.RecoEgamma.photonValidationSequence_cff import *
 from Validation.RecoEgamma.photonPostprocessing_cfi import *
+from Validation.RecoEgamma.conversionPostprocessing_cfi import *
 
-photonValidation.OutputMEsInRootFile = True
-photonValidation.OutputFileName = 'PhotonValidationRelVal3_10_0_pre2_SingleGammaPt35.root'
 
-photonPostprocessing.batch = cms.bool(True)
+photonValidation.OutputFileName = 'PhotonValidationRelVal3_10_0_pre2_SingleGammaPt35TEST.root'
+
 photonPostprocessing.standalone = cms.bool(True)
 photonPostprocessing.InputFileName = photonValidation.OutputFileName
+photonPostprocessing.OuputFileName = photonValidation.OutputFileName
+
+conversionPostprocessing.standalone = cms.bool(True)
+conversionPostprocessing.InputFileName = tkConversionValidation.OutputFileName
+conversionPostprocessing.OuputFileName = tkConversionValidation.OutputFileName
+
 
 process.source = cms.Source("PoolSource",
 noEventSort = cms.untracked.bool(True),
 duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
                             
     fileNames = cms.untracked.vstring(
+
         '/store/relval/CMSSW_3_10_0_pre2/RelValSingleGammaPt35/GEN-SIM-RECO/MC_39Y_V3-v1/0060/6CDA45D3-EFE2-DF11-9B79-002618943972.root',
         '/store/relval/CMSSW_3_10_0_pre2/RelValSingleGammaPt35/GEN-SIM-RECO/MC_39Y_V3-v1/0057/A0B54C33-7FE2-DF11-94D8-003048678F78.root',
         '/store/relval/CMSSW_3_10_0_pre2/RelValSingleGammaPt35/GEN-SIM-RECO/MC_39Y_V3-v1/0057/66CE66C3-82E2-DF11-BD95-002618943834.root'
@@ -78,5 +86,5 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 
 
 
-process.p1 = cms.Path(process.tpSelection*process.photonValidationSequence*process.photonPostprocessing*process.dqmStoreStats)
+process.p1 = cms.Path(process.tpSelection*process.photonValidationSequence*process.photonPostprocessing*process.conversionPostprocessing*process.dqmStoreStats)
 process.schedule = cms.Schedule(process.p1)
