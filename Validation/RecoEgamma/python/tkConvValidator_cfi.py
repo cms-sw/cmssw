@@ -35,7 +35,7 @@ tpSelecForFakeRate.minHit = 0
 
 tkConversionValidation = cms.EDAnalyzer("TkConvValidator",
     Name = cms.untracked.string('tkConversionValidation'),
-    OutputMEsInRootFile = cms.bool(False),
+    isRunCentrally = cms.bool(False),
     OutputFileName = cms.string('ValidationHistos.root'),
     convProducer = cms.string('trackerOnlyConversions'),
     conversionCollection = cms.string(''),

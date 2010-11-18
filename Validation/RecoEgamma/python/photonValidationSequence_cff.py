@@ -14,7 +14,6 @@ TrackAssociatorByHits.Quality_SimToReco = 0.5
 photonValidation.minPhoEtCut = 10
 photonValidation.eMax  = 500
 photonValidation.etMax = 500
-photonValidation.signal = True
 ## same for all
 photonValidation.convTrackMinPtCut = 1.
 photonValidation.useTP = True

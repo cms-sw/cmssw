@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 photonValidation = cms.EDAnalyzer("PhotonValidator",
     Name = cms.untracked.string('photonValidation'),
-    OutputMEsInRootFile = cms.bool(False),
     OutputFileName = cms.string('PhotonValidationHistos.root'),
     scEndcapProducer = cms.string('correctedMulti5x5SuperClustersWithPreshower'),
     scBarrelProducer = cms.string('correctedHybridSuperClusters'),
@@ -20,7 +19,7 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
     label_tp = cms.InputTag("tpSelection"),                              
     Verbosity = cms.untracked.int32(0),
     fastSim = cms.bool(False),
-    signal =  cms.bool(True),
+    isRunCentrally = cms.bool(False),
 #
     minPhoEtCut = cms.double(0.),
     convTrackMinPtCut = cms.double(1.),
