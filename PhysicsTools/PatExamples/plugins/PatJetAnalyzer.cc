@@ -104,7 +104,8 @@ PatJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup)
   // loop jets
   for(edm::View<pat::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
     // print jec factors
-    print(jet, jet-jets->begin());
+    // print(jet, jet-jets->begin());
+
     // fill basic kinematics
     fill( "pt" , jet->correctedJet(corrLevel_).pt());
     fill( "eta", jet->eta());
@@ -132,7 +133,14 @@ PatJetAnalyzer::print(edm::View<pat::Jet>::const_iterator& jet, unsigned int idx
   //edm::LogInfo log("JEC");
   std::cout << "[" << idx << "] :: eta=" << std::setw(10) << jet->eta() << " phi=" << std::setw(10) << jet->phi() << " size: " << jet->availableJECLevels().size() << std::endl;
   for(unsigned int idx=0; idx<jet->availableJECLevels().size(); ++idx){
-    pat::Jet correctedJet=jet->correctedJet(idx);
+    pat::Jet correctedJet;
+    if(jet->availableJECLevels()[idx].find("L5Flavor")!=std::string::npos|| 
+       jet->availableJECLevels()[idx].find("L7Parton")!=std::string::npos ){
+      correctedJet=jet->correctedJet(idx, pat::JetCorrFactors::UDS);
+    }
+    else{
+      correctedJet=jet->correctedJet(idx, pat::JetCorrFactors::NONE );
+    }
     std::cout << std::setw(10) << correctedJet.currentJECLevel() << " pt=" << std::setw(10) << correctedJet.pt() << std::endl;
   }
 }

@@ -64,11 +64,26 @@ simulationZjets = cms.untracked.vstring(
 
 ##   1000 Ttbar events as defined on WorkBookPATExampleTopQuarks
 simulationTtbar = cms.untracked.vstring(
-     'file:/uscms_data/d3/rwolf/PATTutorial/Nov10/patTuple_ttbar.root'
+    'file:/uscms_data/d3/rwolf/PATTutorial/Nov10/patTuple_ttbar.root'
 )
 
 zjetsTrigger  = cms.untracked.vstring(
     'file:/uscms_data/d3/vadler/PATTutorial/Nov10/patTuple_zjets_trigger.root' 
 )
 
+zjetsRECO = cms.untracked.vstring(
+    '/store/relval/CMSSW_3_8_6/RelValZMM/GEN-SIM-RECO/START38_V13-v1/0065/4480844B-C0E7-DF11-BF0B-00248C0BE016.root'
+   ,'/store/relval/CMSSW_3_8_6/RelValZMM/GEN-SIM-RECO/START38_V13-v1/0065/A2D27DD8-C0E7-DF11-8097-003048678B92.root'
+   ,'/store/relval/CMSSW_3_8_6/RelValZMM/GEN-SIM-RECO/START38_V13-v1/0066/6283B892-C4E7-DF11-A042-001A928116C2.root'
+   ,'/store/relval/CMSSW_3_8_6/RelValZMM/GEN-SIM-RECO/START38_V13-v1/0066/ACEB41AE-C7E7-DF11-B4C2-0018F3D09624.root'
+   ,'/store/relval/CMSSW_3_8_6/RelValZMM/GEN-SIM-RECO/START38_V13-v1/0066/CCCA8B52-C6E7-DF11-BFCB-001A92971BDA.root'
+   ,'/store/relval/CMSSW_3_8_6/RelValZMM/GEN-SIM-RECO/START38_V13-v1/0068/0E4FF83A-23E8-DF11-8629-003048678FE6.root'
+)
 
+ttbarRECO = cms.untracked.vstring(
+    '/store/relval/CMSSW_3_8_6/RelValZTT/GEN-SIM-RECO/START38_V13-v1/0066/222B9DB7-CBE7-DF11-B15C-002618943901.root'
+   ,'/store/relval/CMSSW_3_8_6/RelValZTT/GEN-SIM-RECO/START38_V13-v1/0066/8A853D23-C6E7-DF11-97F5-003048678A7E.root'
+   ,'/store/relval/CMSSW_3_8_6/RelValZTT/GEN-SIM-RECO/START38_V13-v1/0066/E4303389-C4E7-DF11-A1B2-002618943960.root'
+   ,'/store/relval/CMSSW_3_8_6/RelValZTT/GEN-SIM-RECO/START38_V13-v1/0066/F21D4814-C5E7-DF11-BFD2-0026189437ED.root'
+   ,'/store/relval/CMSSW_3_8_6/RelValZTT/GEN-SIM-RECO/START38_V13-v1/0068/F417E83D-1DE8-DF11-A809-002618943856.root'
+) 
