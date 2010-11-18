@@ -3,7 +3,6 @@
 <use   name="DataFormats/SiPixelDetId"/>
 <use   name="DataFormats/SiStripDetId"/>
 <use   name="DetectorDescription/Core"/>
-<use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/CommonTopologies"/>

@@ -1,6 +1,5 @@
 <use name="Geometry/MuonNumbering"/>
 <use name="Geometry/RPCGeometry"/>
-<use name="CondFormats/GeometryObjects"/>
 <use name="DetectorDescription/Core"/>
 <export>
  <lib name="1"/>

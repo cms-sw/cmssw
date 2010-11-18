@@ -1,5 +1,4 @@
 <use   name="DataFormats/GeometrySurface"/>
-<use   name="DataFormats/DetId"/>
 <use   name="DetectorDescription/Core"/>
 <use   name="DetectorDescription/Base"/>
 <export>
