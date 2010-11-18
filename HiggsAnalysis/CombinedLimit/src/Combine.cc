@@ -69,13 +69,54 @@ void printRAD(const RooAbsData *d) ;
 bool mklimit_h2(RooWorkspace *w, RooAbsData &data, double &limit, bool withSystematics=true, bool verbose=false) ;
 bool mklimit_pl(RooWorkspace *w, RooAbsData &data, double &limit, bool withSystematics=true, bool verbose=false) ;
 bool mklimit_bf(RooWorkspace *w, RooAbsData &data, double &limit, bool withSystematics=true, bool verbose=false) ;
-bool mklimit_mcmc(RooWorkspace *w, RooAbsData &data, double &limit, bool uniformProposal, bool withSystematics=true, bool verbose=false) ;
+bool mklimit_mcmc(RooWorkspace *w, RooAbsData &data, double &limit, bool uniformProposal, bool withSystematics=true, bool verbose=false); 
+void combine(RooWorkspace *w, double &limit, int &iToy, TTree *tree, int nToys=0, bool withSystematics=true);
+
+void doCombination(TString hlfFile, double &limit, int &iToy, TTree *tree, int nToys, bool withSystematics) {
+  TString pwd(gSystem->pwd());
+  TString tmpDir = "roostats-XXXXXX"; 
+  mkdtemp(const_cast<char *>(tmpDir.Data()));
+  gSystem->cd(tmpDir.Data());
+  
+  TString fileToLoad;
+  if (hlfFile.EndsWith(".hlf")) {
+    fileToLoad = (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile);
+  }  else {
+    TString txtFile = (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile);
+    if (!withSystematics) {
+      gSystem->Exec("python '"+pwd+"/../python/lands2hlf.py' --stat '"+txtFile+"' > model.hlf"); 
+    } else {
+      gSystem->Exec("python '"+pwd+"/../python/lands2hlf.py' '"+txtFile+"' > model.hlf"); 
+    }
+    fileToLoad = "model.hlf";
+  }
+  // Load the model, but going in a temporary directory to avoid polluting the current one with garbage from 'cexpr'
+  RooStats::HLFactory hlf("factory", fileToLoad);
+  gSystem->cd(pwd);
+  RooWorkspace *w = hlf.GetWs();
+  if (w == 0) {
+    std::cerr << "Could not read HLF from file " <<  (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile) << std::endl;
+    return;
+  }
+  if (w->data("data_obs") == 0) {
+    if (w->pdf("model_b")->canBeExtended()) {
+      RooDataHist *bdata_obs = w->pdf("model_b")->generateBinned(*w->set("observables"), RooFit::Asimov()); 
+      bdata_obs->SetName("data_obs");
+      w->import(*bdata_obs);
+    } else {
+      RooDataSet *data_obs = new RooDataSet("data_obs", "data_obs", *w->set("observables")); 
+      data_obs->add(*w->set("observables"));
+      w->import(*data_obs);
+    }
+  }
+  combine(w, limit, iToy, tree, nToys, withSystematics);
+}
 
 bool mklimit(RooWorkspace *w, RooAbsData &data, double &limit, bool withSystematics=true, bool verbose=false) {
   TStopwatch timer;
   bool ret = false;
   try {
-    if      (method == hybrid)           ret = mklimit_h2(w,data,limit,withSystematics,verbose);
+    if      (method == hybrid)            ret = mklimit_h2(w,data,limit,withSystematics,verbose);
     else if (method == profileLikelihood) ret = mklimit_pl(w,data,limit,withSystematics,verbose);
     else if (method == bayesianFlatPrior) ret = mklimit_bf(w,data,limit,withSystematics,verbose);
     else if (method == mcmc)              ret = mklimit_mcmc(w,data,limit,false,withSystematics,verbose);
@@ -395,6 +436,7 @@ struct SimpleShapeChannel {
   std::vector<double> nB;
   double dB; 
 };
+
 RooWorkspace *mksimpleShapeModel(const std::vector<SimpleShapeChannel> &channels, double dS,  bool withSystematics=true) 
 {
   std::cout << "Preparing combination of " << channels.size() << " channels.\n";
@@ -457,7 +499,6 @@ RooWorkspace *mksimpleShapeModel(const std::vector<SimpleShapeChannel> &channels
       npoissonians_s += TString(ich+j ? "," : "")+"counting"+schb+"_s";
       npoissonians_b += TString(ich+j ? "," : "")+"counting"+schb+"_b";
     }
-    
   }
   w->factory("set::poi(r)");
   w->factory("set::observables("+nobservables+")");
@@ -483,8 +524,7 @@ RooWorkspace *mksimpleShapeModel(const std::vector<SimpleShapeChannel> &channels
   return w;
 }
 
-
-void combine(RooWorkspace *w, double &limit, int &iToy, TTree *tree, int nToys=0, bool withSystematics=true) {
+void combine(RooWorkspace *w, double &limit, int &iToy, TTree *tree, int nToys, bool withSystematics) {
   using namespace RooFit;
   using namespace RooStats;
   /*
@@ -550,47 +590,6 @@ void combine(RooWorkspace *w, double &limit, int &iToy, TTree *tree, int nToys=0
       delete absdata_toy;
     }
   }
-  
-}
-
-void combine(TString hlfFile, double &limit, int &iToy, TTree *tree, int nToys, bool withSystematics) {
-  TString pwd(gSystem->pwd());
-  TString tmpDir = "roostats-XXXXXX"; 
-  mkdtemp(const_cast<char *>(tmpDir.Data()));
-  gSystem->cd(tmpDir.Data());
-  
-  TString fileToLoad;
-  if (hlfFile.EndsWith(".hlf")) {
-    fileToLoad = (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile);
-  }  else {
-    TString txtFile = (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile);
-    if (!withSystematics) {
-      gSystem->Exec("python '"+pwd+"/../python/lands2hlf.py' --stat '"+txtFile+"' > model.hlf"); 
-    } else {
-      gSystem->Exec("python '"+pwd+"/../python/lands2hlf.py' '"+txtFile+"' > model.hlf"); 
-    }
-    fileToLoad = "model.hlf";
-  }
-  // Load the model, but going in a temporary directory to avoid polluting the current one with garbage from 'cexpr'
-  RooStats::HLFactory hlf("factory", fileToLoad);
-  gSystem->cd(pwd);
-  RooWorkspace *w = hlf.GetWs();
-  if (w == 0) {
-    std::cerr << "Could not read HLF from file " <<  (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile) << std::endl;
-    return;
-  }
-  if (w->data("data_obs") == 0) {
-    if (w->pdf("model_b")->canBeExtended()) {
-      RooDataHist *bdata_obs = w->pdf("model_b")->generateBinned(*w->set("observables"), RooFit::Asimov()); 
-      bdata_obs->SetName("data_obs");
-      w->import(*bdata_obs);
-    } else {
-      RooDataSet *data_obs = new RooDataSet("data_obs", "data_obs", *w->set("observables")); 
-      data_obs->add(*w->set("observables"));
-      w->import(*data_obs);
-    }
-  }
-  combine(w, limit, iToy, tree, nToys, withSystematics);
 }
 
 void combine(int channels, double nS[], double nB[], double dS, double dB[], 
@@ -604,7 +603,6 @@ void combine(const std::vector<SimpleShapeChannel> &channels, double dS,
   RooWorkspace *w = mksimpleShapeModel(channels, dS, withSystematics);
   combine(w, limit, iToy, tree, nToys, withSystematics);
 }
-
 
 bool readChannel(const char *fileName, int mass, double &nS, double &nB, double &dB) {
   FILE *f = fopen(fileName, "r");
@@ -676,4 +674,3 @@ bool readChannelShape(const char *fileName, int mass, std::vector<SimpleShapeCha
   }
 }
 
-void higgsCombine_Common() { }

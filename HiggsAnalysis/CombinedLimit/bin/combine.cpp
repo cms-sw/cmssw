@@ -162,7 +162,7 @@ int main(int argc, char **argv) {
   syst = doSyst;
   mass = iMass;
   iChannel = 0;
-  combine(datacard, limit, iToy, t, runToys, syst);
+  doCombination(datacard, limit, iToy, t, runToys, syst);
   
   test->WriteTObject(t);
   test->Close();
