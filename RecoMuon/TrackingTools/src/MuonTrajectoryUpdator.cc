@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2009/09/17 19:59:24 $
- *  $Revision: 1.35 $
+ *  $Date: 2010/11/17 09:25:17 $
+ *  $Revision: 1.36 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -147,9 +147,10 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
         // The Chi2 cut was already applied in the estimator, which
         // returns 0 if the chi2 is bigger than the cut defined in its
         // constructor
-	if (thisChi2.first && wantIncludeThisHit) {
+	if (thisChi2.first) {
           updated=true;
-	  
+	  if (wantIncludeThisHit) { // This split is a trick to have the RPC hits counted as updatable (in used chamber counting), while are not actually included in the fit when the proper obtion is activated.
+
           LogTrace(metname) << endl 
 			    << "     Kalman Start" << "\n" << "\n";
           LogTrace(metname) << "  Meas. Position : " << (**recHit).globalPosition() << "\n"
@@ -178,7 +179,8 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
 									*recHit, thisChi2.second, detLayer, 
 									measurement);
 	  // FIXME: check!
-	  trajectory.push(updatedMeasurement, thisChi2.second);	  
+	  trajectory.push(updatedMeasurement, thisChi2.second);	
+	  }  
 	}
 	else {
           if(useInvalidHits) {
