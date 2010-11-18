@@ -106,8 +106,8 @@ FactorizedJetCorrector::FactorizedJetCorrector(const std::vector<JetCorrectorPar
       else if (ss == "L7Parton")
         mLevels.push_back(kL7);
       mCorrectors.push_back(new SimpleJetCorrector(fParameters[i]));
-      mBinTypes.push_back(mapping(mCorrectors[0]->parameters().definitions().binVar()));
-      mParTypes.push_back(mapping(mCorrectors[0]->parameters().definitions().parVar()));
+      mBinTypes.push_back(mapping(mCorrectors[i]->parameters().definitions().binVar()));
+      mParTypes.push_back(mapping(mCorrectors[i]->parameters().definitions().parVar()));
     }  
 }
 
