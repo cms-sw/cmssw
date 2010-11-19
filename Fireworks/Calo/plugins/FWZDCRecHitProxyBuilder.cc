@@ -12,6 +12,7 @@
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "DataFormats/HcalRecHit/interface/ZDCRecHit.h"
 #include "DataFormats/Common/interface/SortedCollection.h"
+#include "TEveBoxSet.h"
 
 class FWZDCRecHitProxyBuilder :  public FWDigitSetProxyBuilder
 {
@@ -37,14 +38,19 @@ void FWZDCRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* p
 
 
    TEveBoxSet* boxSet = addBoxSetToProduct(product);
+   boxSet->SetAntiFlick(kTRUE);
    int index = 0;
    for (std::vector<ZDCRecHit>::const_iterator it = collection->begin() ; it != collection->end(); ++it)
    {  
       const float* corners = item()->getGeom()->getCorners((*it).detid());
 
       std::vector<float> scaledCorners(24);
-      if (corners != 0) 
+      if (corners != 0) {
          fireworks::energyTower3DCorners(corners, (*it).energy(), scaledCorners);
+         // Invert the normals:
+         // for (int i = 0; i < 12; ++i)
+         //    std::swap(scaledCorners[i], scaledCorners[i+12]);
+      }
 
       addBox(boxSet, &scaledCorners[0], iItem->modelInfo(index++).displayProperties());
    }
