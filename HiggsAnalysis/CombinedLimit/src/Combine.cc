@@ -214,6 +214,11 @@ bool mklimit_mcmc(RooWorkspace *w, RooAbsData &data, double &limit, bool uniform
   if (fit == 0) { std::cerr << "Fit failed." << std::endl; return false; }
   fit->Print("V");
   w->loadSnapshot("clean");
+
+  if (withSystematics && (w->set("nuisances") == 0)) {
+    std::cerr << "ERROR: nuisances not set. Perhaps you wanted to run with no systematics?\n" << std::endl;
+    abort();
+  }
   
   ModelConfig modelConfig("sb_model", w);
   modelConfig.SetPdf(*w->pdf("model_s"));
@@ -260,6 +265,10 @@ bool mklimit_h2(RooWorkspace *w, RooAbsData &data, double &limit, bool withSyste
   
   HybridCalculatorOriginal* hc = new HybridCalculatorOriginal(data,*altModel,*nullModel);
   if (withSystematics) {
+    if ((w->set("nuisances") == 0) || (w->pdf("nuisancePdf") == 0)) {
+          std::cerr << "ERROR: nuisances or nuisancePdf not set. Perhaps you wanted to run with no systematics?\n" << std::endl;
+          abort();
+    }
     hc->UseNuisance(true);
     hc->SetNuisancePdf(*w->pdf("nuisancePdf"));
     hc->SetNuisanceParameters(*w->set("nuisances"));
@@ -550,6 +559,10 @@ void combine(RooWorkspace *w, double &limit, int &iToy, TTree *tree, int nToys, 
     w->loadSnapshot("clean");
     RooDataSet *systDs = 0;
     if (withSystematics && (readToysFromHere == 0)) {
+      if (nuisances == 0 || w->pdf("nuisancePdf") == 0) {
+        std::cerr << "ERROR: nuisances or nuisancePdf not set. Perhaps you wanted to run with no systematics?\n" << std::endl;
+        abort();
+      }
       systDs = w->pdf("nuisancePdf")->generate(*nuisances, nToys);
     }
     for (iToy = 1; iToy <= nToys; ++iToy) {
