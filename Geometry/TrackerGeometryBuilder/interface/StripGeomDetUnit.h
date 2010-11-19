@@ -1,10 +1,11 @@
 #ifndef Geometry_TrackerGeometryBuilder_StripGeomDetUnit_H
 #define Geometry_TrackerGeometryBuilder_StripGeomDetUnit_H
 
-#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
+#include <boost/shared_ptr.hpp>
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "Geometry/TrackerTopology/interface/ProxyStripTopology.h"
 
 class StripGeomDetType;
 class StripTopology;
@@ -17,38 +18,44 @@ class SurfaceDeformation;
 class StripGeomDetUnit : public GeomDetUnit {
 public:
 
-  StripGeomDetUnit( BoundPlane* sp, StripGeomDetType* type,const GeometricDet* gd);
+  StripGeomDetUnit( BoundPlane* sp, StripGeomDetType* type, const GeometricDet* gd);
 
   // Det interface
 
+  /// NOTE (A.M.): The actual pointer to StripGeomDetType is now a member of the
+  /// proxy topology. As StripGeomDetType has the actual topology as a pointer,
+  /// it is possible to access this topology in two different ways. Once via
+  /// the proxy topology (through topology() and specificTopology()) which includes
+  /// corrections for the surface deformations, and once via the GeomDetType
+  /// (through type().topology() and the like).
   virtual const GeomDetType& type() const;
 
+  /// Returns a reference to the strip proxy topology
   virtual const Topology& topology() const;
 
-  virtual StripGeomDetType& specificType() const { return *theType;}
+  /// NOTE (A.M.): The actual pointer to StripGeomDetType is now a member of the
+  /// proxy topology. As StripGeomDetType has the actual topology as a pointer,
+  /// it is possible to access this topology in two different ways. Once via
+  /// the proxy topology (through topology() and specificTopology()) which includes
+  /// corrections for the surface deformations, and once via the GeomDetType
+  /// (through type().topology() and the like).
+  virtual StripGeomDetType& specificType() const;
 
+  /// Returns a reference to the strip proxy topology
   virtual const StripTopology& specificTopology() const;
 
   /// Return pointer to surface deformation.
-  /// NOTE (A.M.): The actual surface deformation object being a member of
-  /// StripGeomDetUnit is only temporary. Eventually it will move to a dedicated
-  /// proxy topology class which will become a member of StripGeomDetUnit.
   virtual const SurfaceDeformation * surfaceDeformation() const { 
-    return theSurfaceDeformation.operator->();
+    return theTopology->surfaceDeformation();
   }
 
 private:
 
-  /// set the SurfaceDeformation for this StripGeomDetUnit. PixelGeomDetUnit
-  /// takes over ownership of SurfaceDeformation.
-  /// NOTE (A.M.): The actual surface deformation object being a member of
-  /// StripGeomDetUnit is only temporary. Eventually it will move to a dedicated
-  /// proxy topology class which will become a member of StripGeomDetUnit.
+  /// set the SurfaceDeformation for this StripGeomDetUnit to proxy topology.
   virtual void setSurfaceDeformation(const SurfaceDeformation * deformation);
 
-  StripGeomDetType* theType;
+  boost::shared_ptr<ProxyStripTopology> theTopology;
   const GeometricDet* theGD;
-  DeepCopyPointerByClone<const SurfaceDeformation> theSurfaceDeformation;
 };
 
 #endif // Tracker_StripGeomDetUnit_H
