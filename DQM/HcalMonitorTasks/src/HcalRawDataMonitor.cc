@@ -252,9 +252,9 @@ void HcalRawDataMonitor::setup(void){
   label_ySpigots(meChannSumm_DataIntegrityCheck_, 3); // 2 bins + 1 margin per spgt
       
   dbe_->setCurrentFolder(subdir_ + "Corruption/Channel Data Integrity");
-  char label[10];
+  char label[256];
   for (int f=0; f<NUMDCCS; f++){      
-    sprintf(label, "FED %03d Channel Integrity", f+700);
+    snprintf(label, 256, "FED %03d Channel Integrity", f+700);
     meChann_DataIntegrityCheck_[f] =  dbe_->book2D(label,label,
 						    TWO_CHANN,0,TWO_CHANN,
 						    TWO__SPGT,0,TWO__SPGT);
@@ -416,10 +416,10 @@ void HcalRawDataMonitor::setup(void){
   type = "HTR UnSuppressed Event Fractions";
   meUSFractSpigs_ = dbe_->book1D(type,type,481,0,481);
   for(int f=0; f<NUMDCCS; f++) {
-    sprintf(label, "FED 7%02d", f);
+    snprintf(label, 256, "FED 7%02d", f);
     meUSFractSpigs_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f), label);
     for(int s=1; s<HcalDCCHeader::SPIGOT_COUNT; s++) {
-      sprintf(label, "sp%02d", s);
+      snprintf(label, 256, "sp%02d", s);
       meUSFractSpigs_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f)+s, label);}}
 
   // Firmware version
@@ -1153,27 +1153,27 @@ void HcalRawDataMonitor::endJob(void){
 
 //No size checking; better have enough y-axis bins!
 void HcalRawDataMonitor::label_ySpigots(MonitorElement* me_ptr, int ybins) {
-  char label[10];
+  char label[32];
   for (int spig=0; spig<HcalDCCHeader::SPIGOT_COUNT; spig++) {
-    sprintf(label, "Spgt %02d", spig);
+    snprintf(label, 32, "Spgt %02d", spig);
     me_ptr->setBinLabel((2+(spig*ybins)), label, 2); //margin of 1 at low value
   }
 }
 
 //No size checking; better have enough x-axis bins!
 void HcalRawDataMonitor::label_xChanns(MonitorElement* me_ptr, int xbins) {
-  char label[10];
+  char label[32];
   for (int ch=0; ch<HcalHTRData::CHANNELS_PER_SPIGOT; ch++) {
-    sprintf(label, "Ch %02d", ch+1);
+    snprintf(label, 32, "Ch %02d", ch+1);
     me_ptr->setBinLabel((2+(ch*xbins)), label, 1); //margin of 3 at low value
   }
 }
 
 //No size checking; better have enough x-axis bins!
 void HcalRawDataMonitor::label_xFEDs(MonitorElement* me_ptr, int xbins) {
-  char label[10];
+  char label[32];
   for (int thfed=0; thfed<NUMDCCS; thfed++) {
-    sprintf(label, "%03d", thfed+700);
+    snprintf(label, 32, "%03d", thfed+700);
     me_ptr->setBinLabel((2+(thfed*xbins)), label, 1); //margin of 1 at low value
   }
 }
