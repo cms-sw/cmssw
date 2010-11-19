@@ -55,4 +55,4 @@ reducedEcalRecHitsEE = cms.EDProducer("ReducedRecHitCollectionProducer",
 #selected digis
 from RecoEcal.EgammaClusterProducers.ecalDigiSelector_cff import *
 
-reducedRecHitsSequence = cms.Sequence(interestingEcalDetIdEB*interestingEcalDetIdEE*reducedEcalRecHitsEB*reducedEcalRecHitsEE*seldigis)
+reducedEcalRecHitsSequence = cms.Sequence(interestingEcalDetIdEB*interestingEcalDetIdEE*reducedEcalRecHitsEB*reducedEcalRecHitsEE*seldigis)
