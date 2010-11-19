@@ -117,9 +117,7 @@ void TauPhotonTester::analyze( const Event& e, const EventSetup& )
       tau_in_vtx_flag = false;
       tau_out_vtx_flag = false;
       tau_gamma_vtx_flag = false;
-      
-      int barcode = (*vtx)->barcode();
-      
+            
       if ( (*vtx)->particles_in_size() == 1 && 
 	         abs((*((*vtx)->particles_in_const_begin()))->pdg_id()) == 15 )
       {

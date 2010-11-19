@@ -69,6 +69,9 @@ void HZZ4muAnalyzer::analyze( const Event& e, const EventSetup& )
   double pthat = ( GenInfoHandle->hasBinningValues() ? 
                   (GenInfoHandle->binningValues())[0] : 0.0);
   cout << " qScale = " << qScale << " pthat = " << pthat << endl;
+  //
+  // this (commented out) code below just exemplifies how to access certain info 
+  //
   //double evt_weight1 = GenInfoHandle->weights()[0]; // this is "stanrd Py6 evt weight;
                                                     // corresponds to PYINT1/VINT(97)
   //double evt_weight2 = GenInfoHandle->weights()[1]; // in case you run in CSA mode or otherwise

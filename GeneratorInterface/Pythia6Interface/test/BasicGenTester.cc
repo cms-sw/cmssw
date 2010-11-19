@@ -126,7 +126,6 @@ void BasicGenTester::analyze( const Event& e, const EventSetup& )
   
    double NChgPartFS = 0;
    double NNeuPartFS = 0; 
-   double NTotPartFS = 0;
    for ( HepMC::GenEvent::particle_const_iterator part = Evt->particles_begin();
 	 part != Evt->particles_end(); ++part ) 
    {
