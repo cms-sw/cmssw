@@ -94,7 +94,11 @@ namespace {
 
 int main(int argc, char* argv[])
 {
-  
+  struct rlimit limits;
+  limits.rlim_cur = RLIM_INFINITY;
+  limits.rlim_max = RLIM_INFINITY;
+  setrlimit(RLIMIT_NOFILE, &limits);
+
   // We must initialize the plug-in manager first
   try {
     edmplugin::PluginManager::configure(edmplugin::standard::config());
