@@ -31,6 +31,7 @@
 
 #include "CalibMuon/DTCalibration/interface/DTVDriftPluginFactory.h"
 #include "CalibMuon/DTCalibration/plugins/DTVDriftMeanTimer.h"
+#include "CalibMuon/DTCalibration/plugins/DTVDriftSegment.h"
 
 DEFINE_FWK_MODULE(DTCalibMuonSelection);
 DEFINE_FWK_MODULE(DTMapGenerator);
@@ -58,3 +59,4 @@ DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,DTTTrigMatchRPhi,"DTTTrigMatchRPhi");
 DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,DTTTrigFillWithAverage,"DTTTrigFillWithAverage");
 
 DEFINE_EDM_PLUGIN(DTVDriftPluginFactory,DTVDriftMeanTimer,"DTVDriftMeanTimer");
+DEFINE_EDM_PLUGIN(DTVDriftPluginFactory,DTVDriftSegment,"DTVDriftSegment");

@@ -60,7 +60,7 @@ hltDTActivityFilter = cms.EDFilter( "HLTDTActivityFilter",
 
 goodMuons = cms.EDFilter("CandViewSelector",
     src = cms.InputTag("muons"),
-    cut = cms.string('(isGlobalMuon = 1 | isTrackerMuon = 1) & abs(eta) < 1.2'),
+    cut = cms.string('(isGlobalMuon = 1 | isTrackerMuon = 1) & abs(eta) < 1.2 & pt > 5.0'),
     filter = cms.bool(True) 
 )
 #muonFilter = cms.EDFilter("CandViewCountFilter",

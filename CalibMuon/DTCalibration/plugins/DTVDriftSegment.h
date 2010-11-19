@@ -5,7 +5,7 @@
  *  Concrete implementation of a DTVDriftBaseAlgo.
  *  Computes vDrift using fit result segment by segment.
  *
- *  $Revision: 1.1 $
+ *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 
@@ -29,6 +29,8 @@ public:
 private:
    TH1F* getHisto(const DTSuperLayerId&);
    std::string getHistoName(const DTSuperLayerId&);
+
+   unsigned int nSigmas_;
 
    const DTMtime* mTimeMap_;
    TFile* rootFile_;

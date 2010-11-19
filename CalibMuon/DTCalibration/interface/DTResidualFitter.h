@@ -2,8 +2,8 @@
 #define CalibMuon_DTCalibration_DTResidualFitter_h
 
 /*
- *  $Date: 2010/11/18 20:59:52 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/11/18 21:38:41 $
+ *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 
@@ -24,9 +24,12 @@ public:
 
 class DTResidualFitter {
 public:
-   DTResidualFitter();
+   DTResidualFitter(bool debug = false);
    ~DTResidualFitter();
 
    DTResidualFitResult fitResiduals(TH1F& histo, int nSigmas = 1);
+
+private:
+   bool debug_;
 };
 #endif

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/18 20:59:09 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/11/18 21:38:41 $
+ *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 
@@ -31,11 +31,14 @@
 using namespace std;
 using namespace edm;
 
-DTVDriftSegment::DTVDriftSegment(const ParameterSet& pset) {
+DTVDriftSegment::DTVDriftSegment(const ParameterSet& pset):
+  nSigmas_( pset.getUntrackedParameter<unsigned int>("nSigmasFitRange", 1) ) {
+
   string rootFileName = pset.getParameter<string>("rootFileName");
   rootFile_ = new TFile(rootFileName.c_str(), "READ");
 
-  fitter_ = new DTResidualFitter();
+  bool debug = pset.getUntrackedParameter<bool>("debug",false);
+  fitter_ = new DTResidualFitter(debug);
   //bool debug = pset.getUntrackedParameter<bool>("debug", false);
   //if(debug) fitter_->setVerbosity(1);
 }
@@ -46,7 +49,7 @@ DTVDriftSegment::~DTVDriftSegment() {
 }
 
 void DTVDriftSegment::setES(const edm::EventSetup& setup) {
-  // Get the map of ttrig from the Setup
+  // Get the map of vdrift from the setup
   ESHandle<DTMtime> mTime;
   setup.get<DTMtimeRcd>().get(mTime);
   mTimeMap_ = &*mTime;
@@ -58,18 +61,30 @@ DTVDriftData DTVDriftSegment::compute(DTSuperLayerId const& slId) {
   float vDrift = 0., resolution = 0.;
   int status = mTimeMap_->get(slId,vDrift,resolution,DTVelocityUnits::cm_per_ns);
 
-   if(status != 0) throw cms::Exception("DTCalibration") << "Could not find vDrift entry in DB for"
-                                                         << slId << endl;
+  if(status != 0) throw cms::Exception("DTCalibration") << "Could not find vDrift entry in DB for"
+                                                        << slId << endl;
+
   // For RZ superlayers use original value
   if(slId.superLayer() == 2){
+     LogTrace("Calibration") << "[DTVDriftSegment]: RZ superlayer\n"
+                             << "                   Will use original vDrift and resolution.";
      return DTVDriftData(vDrift,resolution);
   } else{
      TH1F* vDriftCorrHisto = getHisto(slId);
-     int nSigmas = 1;
-     DTResidualFitResult fitResult = fitter_->fitResiduals(*vDriftCorrHisto,nSigmas);
+     // If empty histogram 
+     if(vDriftCorrHisto->GetEntries() == 0){
+        LogError("Calibration") << "[DTVDriftSegment]: Histogram " << vDriftCorrHisto->GetName() << " is empty.\n"
+                                << "                   Will use original vDrift and resolution.";
+        return DTVDriftData(vDrift,resolution);                              
+     }
+   
+     LogTrace("Calibration") << "[DTVDriftSegment]: Fitting histogram " << vDriftCorrHisto->GetName(); 
+     DTResidualFitResult fitResult = fitter_->fitResiduals(*vDriftCorrHisto,nSigmas_);
      LogTrace("Calibration") << "[DTVDriftSegment]: \n"
-                             << " Fit Mean  = " << fitResult.fitMean << " +/- " << fitResult.fitMeanError << "\n"
-                             << " Fit Sigma = " << fitResult.fitSigma << " +/- " << fitResult.fitSigmaError;
+                             << "   Fit Mean  = " << fitResult.fitMean << " +/- "
+                                                  << fitResult.fitMeanError << "\n"
+                             << "   Fit Sigma = " << fitResult.fitSigma << " +/- "
+                                                  << fitResult.fitSigmaError;
 
      float vDriftCorr = fitResult.fitMean;
      float vDriftNew = vDrift*(1. - vDriftCorr); 

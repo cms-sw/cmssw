@@ -5,8 +5,8 @@
  *  Produces histograms from v-drift computation in
  *  segment fit to be used for v-drift calibration
  *
- *  $Date: 2010/11/18 15:54:53 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/11/18 20:59:10 $
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 
@@ -28,6 +28,7 @@ public:
   // Destructor
   virtual ~DTVDriftSegmentCalibration();
 
+  void beginJob();
   void beginRun(const edm::Run& run, const edm::EventSetup& setup);
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
   void endJob();

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/18 20:59:09 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/11/18 21:38:41 $
+ *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 
@@ -45,6 +45,10 @@ DTVDriftSegmentCalibration::DTVDriftSegmentCalibration(const ParameterSet& pset)
   string rootFileName = pset.getUntrackedParameter<string>("rootFileName","DTVDriftHistos.root");
   rootFile_ = new TFile(rootFileName.c_str(), "RECREATE");
   rootFile_->cd();
+}
+
+void DTVDriftSegmentCalibration::beginJob(){
+  TH1::SetDefaultSumw2(true);
 }
 
 void DTVDriftSegmentCalibration::beginRun(const edm::Run& run, const edm::EventSetup& setup) {}

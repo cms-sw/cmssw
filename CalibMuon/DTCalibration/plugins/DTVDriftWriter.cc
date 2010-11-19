@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/18 20:58:24 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/11/18 21:38:41 $
+ *  $Revision: 1.10 $
  *  Author of original version: M. Giunta
  *  \author A. Vilela Pereira
  */
@@ -37,7 +37,7 @@ DTVDriftWriter::DTVDriftWriter(const ParameterSet& pset):
 
   LogVerbatim("Calibration") << "[DTVDriftWriter]Constructor called!";
 
-  if(granularity_ != "mySL")
+  if(granularity_ != "bySL")
      throw cms::Exception("Configuration") << "[DTVDriftWriter] Check parameter calibGranularity: " << granularity_ << " option not available.";
 
   // Get the concrete algo from the factory
