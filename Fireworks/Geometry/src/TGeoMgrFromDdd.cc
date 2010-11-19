@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jul  2 16:11:42 CEST 2010
-// $Id: TGeoMgrFromDdd.cc,v 1.2 2010/09/22 17:24:19 matevz Exp $
+// $Id: TGeoMgrFromDdd.cc,v 1.3 2010/09/22 17:33:31 matevz Exp $
 //
 
 // system include files
@@ -232,7 +232,7 @@ TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord)
 
 TGeoShape* 
 TGeoMgrFromDdd::createShape(const std::string& iName,
-		      const DDSolid&     iSolid)
+			    const DDSolid&     iSolid)
 {
    TGeoShape* rSolid= nameToShape_[iName];
    if (rSolid == 0)
@@ -268,7 +268,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
                                     params[2]/cm,
                                     params[0]/cm,
                                     params[3]/deg,
-                                    params[4]/deg);
+                                    params[3]/deg + params[4]/deg);
 	    break;
 	 case ddtrap:
 	    rSolid =new TGeoTrap(
@@ -333,9 +333,14 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    //implementation taken from SimG4Core/Geometry/src/DDG4SolidConverter.cc
 	    static DDRotationMatrix s_rot(ROOT::Math::RotationX(90.*deg));
 	    DDPseudoTrap pt(iSolid);
-	    assert(pt.radius() < 0);
+	    //FIXME: assert(pt.radius() < 0);
+	    if(pt.radius() < 0) 
+	    {	      
+	      std::cout << "WARNING: DDPseudoTrap radius is " << pt.radius() << " for " << iName << " of a shape " << iSolid << std::endl;
+	    }
+	    
 	    double x=0;
-	    double r = fabs(pt.radius());
+	    double r = pt.radius();
 	    if( pt.atMinusZ()) {
 	       x=pt.x1();
 	    } else {
@@ -402,6 +407,13 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    }
 	    break;
 	 }
+//          case ddtrunctubs:
+// 	 {
+// 	    DDTruncTubs ttube(iSolid);
+// 	    if(!ttube) {
+// 	       throw cms::Exception("GeomConvert") <<"conversion to DDTruncTubs failed";
+// 	    }
+// 	 }
 	 case ddunion:
 	 {
 	    DDBooleanSolid boolSolid(iSolid);
@@ -458,7 +470,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
    }
    if (rSolid == 0)
    {
-      std::cerr <<"COULD NOT MAKE "<<iName<<std::endl;
+      std::cerr <<"COULD NOT MAKE "<<iName<<" of a shape "<<iSolid<<std::endl;
    }
    return rSolid;
 }
