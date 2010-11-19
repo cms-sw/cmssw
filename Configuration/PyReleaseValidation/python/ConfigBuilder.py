@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.254 $"
+__version__ = "$Revision: 1.255 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -1057,6 +1057,14 @@ class ConfigBuilder(object):
 		    
 		    ##the HACK ends above
 		    #in order to access the trigger result: same as DQM
+		    import sys
+		    sys.setrecursionlimit(10000) 
+		    if self._options.hltProcess:
+			    self.renameHLTprocessInSequence(sequence.split('.')[-1], self._options.hltProcess)
+			    self.renameHLTprocessInSequence('prevalidation', self._options.hltProcess)			    
+		    else:
+			    self.renameHLTprocessInSequence(sequence.split('.')[-1], self.process.name_())
+			    self.renameHLTprocessInSequence('prevalidation', self.process.name_())
 		    self.process.validation_step = cms.EndPath( getattr(self.process, sequence.split('.')[-1]) )
 		    self.process.prevalidation_step = cms.Path( self.process.prevalidation )
 		    self.schedule.append(self.process.prevalidation_step)
@@ -1116,9 +1124,11 @@ class ConfigBuilder(object):
             def enter(self,visitee):
                     label = ''
                     try:
-                      label = visitee.label()
+			    label = visitee.label()
                     except AttributeError:
-                      label = '<Module not in a Process>'
+			    label = '<Module not in a Process>'
+		    except:
+			    label = 'other execption'
                     self.doIt(visitee, label)
 
             def leave(self,visitee):
@@ -1280,7 +1290,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.254 $"),
+					    (version=cms.untracked.string("$Revision: 1.255 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
