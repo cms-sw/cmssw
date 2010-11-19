@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2010/02/02 22:02:26 $
- *  $Revision: 1.117 $
+ *  $Date: 2010/03/08 15:44:58 $
+ *  $Revision: 1.118 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -98,8 +98,6 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
 
   // cut on muons with low momenta
   LogTrace(category) << " STA pt " << staCandIn.second->pt() << " rho " << staCandIn.second->innerMomentum().Rho() << " R " << staCandIn.second->innerMomentum().R() << " theCut " << thePtCut;
-
-  if ( (staCandIn).second->pt() < thePtCut || (staCandIn).second->innerMomentum().Rho() < thePtCut || (staCandIn).second->innerMomentum().R() < 2.5 ) return CandidateContainer();
 
   // convert the STA track into a Trajectory if Trajectory not already present
   TrackCand staCand(staCandIn);
