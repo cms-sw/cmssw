@@ -61,7 +61,6 @@ from FWCore.Modules.logErrorHarvester_cfi import *
 # "Export" Section
 reconstruction         = cms.Sequence(localreco        *globalreco       *highlevelreco*logErrorHarvester)
 
-=======
 #need a fully expanded sequence copy
 reconstruction_fromRECO = reconstruction.expandAndClone() # copy does not work well
 reconstruction_fromRECO.remove(siPixelClusters)
