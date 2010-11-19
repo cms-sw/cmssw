@@ -14,7 +14,7 @@ process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 
 from CondCore.DBCommon.CondDBSetup_cfi import *
 process.jec = cms.ESSource("PoolDBESSource",CondDBSetup,
-                   connect = cms.string("sqlite:JEC_Spring10.db"),
+                           connect = cms.string("frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS"),                                    
                    toGet =  cms.VPSet(
                        cms.PSet(record = cms.string("JetCorrectionsRecord"),
                                 tag = cms.string("JetCorrectorParametersCollection_Spring10_V8_AK5Calo"),

@@ -9,67 +9,67 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
    toPut = cms.VPSet( 
       cms.PSet(
          record = cms.string('AK5Calo'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V6_AK5Calo'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V8_AK5Calo'), 
          label  = cms.string('AK5Calo') 
       ),
       cms.PSet(
          record = cms.string('AK5PF'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V6_AK5PF'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V8_AK5PF'), 
          label  = cms.string('AK5PF') 
       ),
       cms.PSet(
          record = cms.string('AK5JPT'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Summer10_V6_AK5JPT'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Summer10_V8_AK5JPT'), 
          label  = cms.string('AK5JPT') 
       ),
       cms.PSet(
          record = cms.string('AK5TRK'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V6_AK5TRK'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V8_AK5TRK'), 
          label  = cms.string('AK5TRK') 
       ),
       cms.PSet(
-         record = cms.string('AK7Calo'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V6_AK7Calo'), 
+         record = cms.string('AK7Calo'),
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V8_AK7Calo'), 
          label  = cms.string('AK7Calo') 
       ),
       cms.PSet(
          record = cms.string('AK7PF'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V6_AK7PF'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V8_AK7PF'), 
          label  = cms.string('AK7PF') 
       ),
       cms.PSet(
          record = cms.string('AK7JPT'),                           
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V6_AK7JPT'),
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V8_AK7JPT'),
          label  = cms.string('AK7JPT')                                          
       ),
       cms.PSet(
          record = cms.string('IC5Calo'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V6_IC5Calo'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V8_IC5Calo'), 
          label  = cms.string('IC5Calo') 
       ),
      cms.PSet(
          record = cms.string('IC5PF'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V6_IC5PF'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V8_IC5PF'), 
          label  = cms.string('IC5PF') 
       ),
       cms.PSet(
          record = cms.string('KT4Calo'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V6_KT4Calo'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V8_KT4Calo'), 
          label  = cms.string('KT4Calo') 
       ),
       cms.PSet(
          record = cms.string('KT4PF'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V6_KT4PF'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V8_KT4PF'), 
          label  = cms.string('KT4PF') 
       ),
       cms.PSet(
          record = cms.string('KT6Calo'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V6_KT6Calo'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V8_KT6Calo'), 
          label  = cms.string('KT6Calo') 
       ),
       cms.PSet(
          record = cms.string('KT6PF'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V6_KT6PF'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Spring10_V8_KT6PF'), 
          label  = cms.string('KT6PF') 
       )
    ) 
