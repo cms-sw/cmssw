@@ -50,3 +50,6 @@ RECODEBUGEventContent.outputCommands.extend(HiMixRAW.outputCommands)
 RECODEBUGEventContent.outputCommands.extend(RecoHIRECO.outputCommands)
 
 from Configuration.EventContent.EventContent_cff import DQMEventContent
+
+
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlMinBiasHI_noDrop.outputCommands)
