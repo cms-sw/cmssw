@@ -14,7 +14,7 @@ primaryVertexFilterForJets = cms.EDFilter("VertexSelector",
     filter = cms.bool(True),   # otherwise it won't filter the events
     )
 
-# jet energy correction (L2+L3) ??
+# jet energy correction (L2+L3)
 from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import *
 icPu5CaloJetsL2L3 = cms.EDProducer('CaloJetCorrectionProducer',
     src = cms.InputTag('iterativeConePu5CaloJets'),
@@ -42,7 +42,7 @@ goodLeadingJet = cms.EDFilter("CaloJetSelector",
 
 goodSecondJet = cms.EDFilter("CaloJetSelector",
     src = cms.InputTag("icPu5CaloJetsL2L3"),
-    cut = cms.string("et > 30")
+    cut = cms.string("et > 50")
     )
 
 backToBackDijets = cms.EDProducer("CandViewShallowCloneCombiner",

@@ -20,7 +20,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContentHeavyIons_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.5 $'),
+    version = cms.untracked.string('$Revision: 1.6 $'),
     annotation = cms.untracked.string('centralSkimsHI nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -141,7 +141,7 @@ process.goodLeadingJet = cms.EDFilter("CaloJetSelector",
 
 process.goodSecondJet = cms.EDFilter("CaloJetSelector",
     src = cms.InputTag("icPu5CaloJetsL2L3"),
-    cut = cms.string("et > 30")
+    cut = cms.string("et > 50")
     )
 
 process.backToBackDijets = cms.EDProducer("CandViewShallowCloneCombiner",
