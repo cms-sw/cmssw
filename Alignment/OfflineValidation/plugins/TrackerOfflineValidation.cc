@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.42 2010/09/23 11:17:20 emiglior Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.43 2010/11/19 12:39:16 flucke Exp $
 //
 //
 
@@ -673,8 +673,8 @@ TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali,
 	       << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
     localyname << "h_localy_subdet_" << subdetandlayer.first 
 	       << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
-    localxtitle << "u local for module " << id.rawId() << "; u_{pred,r}";
-    localytitle << "v local for module " << id.rawId() << "; v_{pred,r}";
+    localxtitle << "u local for module " << id.rawId() << "; u_{tr,r}";
+    localytitle << "v local for module " << id.rawId() << "; v_{tr,r}";
 
     resxvsxprofilename << "p_residuals_x_vs_x_subdet_" << subdetandlayer.first 
 		       << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
