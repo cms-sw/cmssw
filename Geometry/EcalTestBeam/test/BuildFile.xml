@@ -7,8 +7,8 @@
   <use   name="FWCore/MessageLogger"/>
   <use   name="Geometry/Records"/>
   <library   file="ee/*.cc" name="testEcalEndcapTestBeamModule">
-    <use name="Geometry/EcalTestBeam"/>
-    <use name="Geometry/CaloTopology"/>
+    <use name="DetectorDescription/Core"/>
+    <use name="Geometry/EcalCommonData"/>
     <use name="Geometry/EcalAlgo"/>
     <use name="CommonTools/UtilAlgos"/>
     <use name="CondFormats/Alignment"/>

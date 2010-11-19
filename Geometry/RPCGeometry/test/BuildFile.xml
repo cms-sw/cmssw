@@ -1,7 +1,6 @@
 <use   name="Geometry/RPCGeometry"/>
 <use   name="Geometry/Records"/>
 <use   name="FWCore/Framework"/>
-<use   name="Geometry/CSCGeometry"/>
 <flags   EDM_PLUGIN="1"/>
 <library   file="RPCGeometryAnalyzer.cc" name="testGeometryRPCGeometry">
 </library>
@@ -12,4 +11,5 @@
 <library   file="RPCGEO.cc" name="testGeometryRPCGEO">
 </library>
 <library   file="RPCCSC.cc" name="testGeometryRPCCSC">
+  <use name="Geometry/CSCGeometry"/>
 </library>

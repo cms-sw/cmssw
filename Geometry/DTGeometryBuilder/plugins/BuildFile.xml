@@ -2,7 +2,6 @@
  <use name="CondFormats/Alignment"/>
  <use name="CondFormats/DataRecord"/>
  <use name="CondFormats/GeometryObjects"/>
- <use name="DataFormats/TrackingRecHit"/>
  <use name="DetectorDescription/Core"/>
  <use name="FWCore/Framework"/>
  <use name="FWCore/ParameterSet"/>
@@ -10,7 +9,6 @@
  <use name="Geometry/Records"/>
  <use name="Geometry/TrackingGeometryAligner"/>
  <use name="Geometry/DTGeometryBuilder"/>
- <use name="Geometry/CommonTopologies"/>
  <use name="boost"/>
 
 <library file="DTGeometryESModule.cc">

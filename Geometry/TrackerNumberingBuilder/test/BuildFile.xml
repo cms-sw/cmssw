@@ -1,8 +1,8 @@
 <use   name="Geometry/TrackerNumberingBuilder"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="FWCore/Framework"/>
 <use   name="Geometry/Records"/>
 <library   file="ModuleNumbering.cc" name="ModuleNumbering">
+  <use name="Geometry/TrackerGeometryBuilder"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="GeometricDetAnalyzer.cc" name="testGeometryTrackerNumberingBuilder">

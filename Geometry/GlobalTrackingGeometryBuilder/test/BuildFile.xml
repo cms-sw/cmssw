@@ -1,13 +1,8 @@
-<use   name="DataFormats/DetId"/>
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/Records"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="Geometry/CSCGeometry"/>
-<use   name="Geometry/RPCGeometry"/>
-<use   name="Geometry/DTGeometry"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="root"/>
+<use   name="rootcore"/>
 <library   file="GlobalTrackingGeometryTest.cc" name="testGlobalTrackingGeometry">
   <flags   EDM_PLUGIN="1"/>
 </library>
