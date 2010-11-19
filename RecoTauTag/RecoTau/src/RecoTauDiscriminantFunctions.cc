@@ -104,7 +104,8 @@ double IsolationNeutralHadronPtFraction(Tau tau) {
 }
 
 double ScaledEtaJetCollimation(Tau tau) {
-  return tau.jetRef()->pt()*sqrt(tau.jetRef()->etaetaMoment());
+  return tau.jetRef()->pt()*sqrt(std::abs(
+          tau.jetRef()->etaetaMoment()));
 }
 
 double ScaledOpeningDeltaR(Tau tau) {
@@ -126,7 +127,8 @@ double ScaledOpeningDeltaR(Tau tau) {
 }
 
 double ScaledPhiJetCollimation(Tau tau) {
-  return tau.jetRef()->pt()*sqrt(tau.jetRef()->phiphiMoment());
+  return tau.jetRef()->pt()*sqrt(std::abs(
+          tau.jetRef()->phiphiMoment()));
 }
 
 double IsolationChargedAveragePtFraction(Tau tau) {

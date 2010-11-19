@@ -1,4 +1,5 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauMVAHelper.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <boost/foreach.hpp>
 #include <boost/bind.hpp>
@@ -65,6 +66,14 @@ void RecoTauMVAHelper::fillValues(const reco::PFTauRef& tau) const {
        plugin != plugins_.end(); ++plugin) {
     PhysicsTools::AtomicId id = plugin->first;
     std::vector<double> pluginOutput = (plugin->second)->operator()(tau);
+    // Check for nans
+    for(size_t instance = 0; instance < pluginOutput.size(); ++instance) {
+      if (std::isnan(pluginOutput[instance])) {
+        edm::LogError("CorruptedMVAInput") << "A nan was detected in"
+            << " the tau MVA variable " << id << " returning zero instead!";
+        pluginOutput[instance] = 0.0;
+      }
+    }
     //std::cout << "id: " << id << " first: " << pluginOutput[0] << std::endl;
     // Build values and copy into values vector
     std::for_each(pluginOutput.begin(), pluginOutput.end(),
