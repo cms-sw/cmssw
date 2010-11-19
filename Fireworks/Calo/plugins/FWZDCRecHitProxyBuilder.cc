@@ -43,7 +43,7 @@ void FWZDCRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* p
       const float* corners = item()->getGeom()->getCorners((*it).detid());
 
       std::vector<float> scaledCorners(24);
-      if (corners == 0) 
+      if (corners != 0) 
          fireworks::energyTower3DCorners(corners, (*it).energy(), scaledCorners);
 
       addBox(boxSet, &scaledCorners[0], iItem->modelInfo(index++).displayProperties());
