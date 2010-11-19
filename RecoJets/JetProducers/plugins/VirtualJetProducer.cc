@@ -8,6 +8,7 @@
 
 #include "RecoJets/JetProducers/plugins/VirtualJetProducer.h"
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
+#include "RecoJets/JetProducers/interface/BackgroundEstimator.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -214,6 +215,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   if(doFastJetNonUniform_){
     puCenters_ = iConfig.getParameter<std::vector<double> >("puCenters");
     puWidth_ = iConfig.getParameter<double>("puWidth");
+    nExclude_ = iConfig.getParameter<unsigned int>("nExclude");
   }
   produces<std::vector<double> >("rhos");
   produces<std::vector<double> >("sigmas");
@@ -425,6 +427,12 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
 
   std::auto_ptr<std::vector<T> > jets(new std::vector<T>() );
   jets->reserve(fjJets_.size());
+
+  // declare jet collection without the two jets, 
+  // for unbiased background estimation.
+  std::vector<fastjet::PseudoJet> fjexcluded_jets;
+  fjexcluded_jets=fjJets_;
+  if(fjexcluded_jets.size()>2) fjexcluded_jets.resize(nExclude_);
       
   for (unsigned int ijet=0;ijet<fjJets_.size();++ijet) {
     // allocate this jet
@@ -484,14 +492,13 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
 
       for(int ie = 0; ie < nEta; ++ie){
 	double eta = puCenters_[ie];
-	double rho = 0;
-	double sigma = 0;
 	double etamin=eta-puWidth_;
 	double etamax=eta+puWidth_;
 	fastjet::RangeDefinition range_rho(etamin,etamax);
-	clusterSequenceWithArea->get_median_rho_and_sigma(range_rho, true, rho, sigma);
-	rhos->push_back(rho);
-	sigmas->push_back(sigma);
+	fastjet::BackgroundEstimator bkgestim(*clusterSequenceWithArea,range_rho);
+	bkgestim.set_excluded_jets(fjexcluded_jets);
+	rhos->push_back(bkgestim.rho());
+	sigmas->push_back(bkgestim.sigma());
       }
       iEvent.put(rhos,"rhos");
       iEvent.put(sigmas,"sigmas");
@@ -499,7 +506,7 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       std::auto_ptr<double> rho(new double(0.0));
       std::auto_ptr<double> sigma(new double(0.0));
       double mean_area = 0;
-      
+     
       fastjet::ClusterSequenceArea const * clusterSequenceWithArea =
 	dynamic_cast<fastjet::ClusterSequenceArea const *> ( &*fjClusterSeq_ );
       clusterSequenceWithArea->get_median_rho_and_sigma(*fjRangeDef_,false,*rho,*sigma,mean_area);

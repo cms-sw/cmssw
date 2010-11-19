@@ -183,6 +183,7 @@ protected:
   // Parameters of the eta-dependent rho calculation
   std::vector<double>             puCenters_;
   double                          puWidth_;
+  unsigned int                    nExclude_;
 
   std::string                     jetCollInstanceName_;       // instance name for output jet collection
   boost::shared_ptr<PileUpSubtractor>  subtractor_;
