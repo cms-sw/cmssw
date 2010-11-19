@@ -16,7 +16,8 @@ cosmicMuons = cms.EDProducer("CosmicMuonProducer",
             RescaleError = cms.bool(False),
             RescaleErrorFactor = cms.double(1.0),
             Granularity = cms.int32(2),
-            UseInvalidHits = cms.bool(False)
+            UseInvalidHits = cms.bool(False),
+            ExcludeRPCFromFit = cms.bool(True)
         ),
         RPCRecSegmentLabel = cms.InputTag("rpcRecHits"),
         MuonTrajectoryUpdatorParameters = cms.PSet(
@@ -24,7 +25,8 @@ cosmicMuons = cms.EDProducer("CosmicMuonProducer",
             RescaleError = cms.bool(False),
             RescaleErrorFactor = cms.double(1.0),
             Granularity = cms.int32(0),
-            UseInvalidHits = cms.bool(False)
+            UseInvalidHits = cms.bool(False),
+            ExcludeRPCFromFit = cms.bool(True)
         ),
         EnableRPCMeasurement = cms.bool(True),
         CSCRecSegmentLabel = cms.InputTag("cscSegments"),
