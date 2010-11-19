@@ -9,6 +9,7 @@ TrackerDigiGeometryESModule = cms.ESProducer("TrackerDigiGeometryESModule",
     appendToDataLabel = cms.string(''),
     fromDDD = cms.bool(True),
     applyAlignment = cms.bool(True), # to be abondoned
+    applySurfaceDeformation = cms.bool(True),
 
     alignmentsLabel = cms.string('')
 )

@@ -8,10 +8,12 @@
 // Alignments
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -29,6 +31,7 @@ TrackerDigiGeometryESModule::TrackerDigiGeometryESModule(const edm::ParameterSet
 {
 
     applyAlignment_ = p.getParameter<bool>("applyAlignment");
+    applySurfaceDeformation_ = p.getParameter<bool>("applySurfaceDeformation");
     fromDDD_ = p.getParameter<bool>("fromDDD");
 
     setWhatProduced(this);
@@ -46,7 +49,6 @@ TrackerDigiGeometryESModule::~TrackerDigiGeometryESModule() {}
 boost::shared_ptr<TrackerGeometry> 
 TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord)
 { 
-
   //
   // Called whenever the alignments, alignment errors or global positions change
   //
@@ -68,13 +70,28 @@ TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord)
     if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
       edm::LogInfo("Config") << "@SUB=TrackerDigiGeometryRecord::produce"
 			     << "Alignment(Error)s and global position (label '"
-			     << alignmentsLabel_ << "') empty: Geometry producer (label "
+	 		     << alignmentsLabel_ << "') empty: Geometry producer (label "
 			     << "'" << myLabel_ << "') assumes fake and does not apply.";
     } else {
       GeometryAligner ali;
       ali.applyAlignments<TrackerGeometry>(&(*_tracker), &(*alignments), &(*alignmentErrors),
                                            align::DetectorGlobalPosition(*globalPosition,
                                                                          DetId(DetId::Tracker)));
+    }
+
+    if (applySurfaceDeformation_) {
+      edm::ESHandle<AlignmentSurfaceDeformations> surfaceDeformations;
+      iRecord.getRecord<TrackerSurfaceDeformationRcd>().get(alignmentsLabel_, surfaceDeformations);
+      // apply if not empty:
+      if (surfaceDeformations->empty()) {
+	edm::LogInfo("Config") << "@SUB=TrackerDigiGeometryRecord::produce"
+			       << "AlignmentSurfaceDeformations (label '"
+			       << alignmentsLabel_ << "') empty: Geometry producer (label "
+			       << "'" << myLabel_ << "') assumes fake and does not apply.";
+      } else {
+	GeometryAligner ali;
+	ali.attachSurfaceDeformations<TrackerGeometry>(&(*_tracker), &(*surfaceDeformations));
+      }
     }
   }
 
