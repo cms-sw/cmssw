@@ -19,17 +19,10 @@ LocalPoint ProxyStripTopology::localPosition( const MeasurementPoint& mp,
 					      const Topology::LocalTrackAngles &dir ) const
 {
   if (!this->surfaceDeformation()) return specificTopology().localPosition(mp);
- 
-  SurfaceDeformation::Local2DVector posCorr =
-    this->surfaceDeformation()->positionCorrection(SurfaceDeformation::Local2DPoint(mp.x(), mp.y()),
-						   dir,
-						   theBounds.length(),
-						   theBounds.width());
-  LocalPoint localPos = specificTopology().localPosition(mp);
-
-  // Do something with the correction
   
-  return localPos;
+  // Add code to actually use SurfaceDeformation
+  
+  return specificTopology().localPosition(mp);
 }
 
 LocalPoint ProxyStripTopology::localPosition( float strip ) const
