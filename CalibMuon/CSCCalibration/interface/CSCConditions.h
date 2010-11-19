@@ -66,6 +66,9 @@ public:
   //return chamber timing correction in ns given detId of chamber 
   float chamberTimingCorrection( const CSCDetId & detId) const;
 
+  //return anode bx offset in bx given detId of chamber 
+  float anodeBXoffset( const CSCDetId & detId) const;
+
   /// return  bad channel words per CSCLayer - 1 bit per channel
   const std::bitset<80>& badStripWord( const CSCDetId& id ) const;
   const std::bitset<112>& badWireWord( const CSCDetId& id ) const;
