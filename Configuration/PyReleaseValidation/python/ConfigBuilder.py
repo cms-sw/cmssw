@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.253 $"
+__version__ = "$Revision: 1.254 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -1021,10 +1021,49 @@ class ConfigBuilder(object):
 		    if not 'DIGI' in self.stepMap:
 			    self.loadAndRemember('Configuration.StandardSequences.ReMixingSeeds_cff')
 	    if 'HLT' in self.stepMap:
+		    ### terrible hack for NOW
+		    self.executeAndRemember('process.prevalidation = cms.Sequence( cms.SequencePlaceholder("mix") )')
+		    def move(self,process,valSeqName,prevalSeqName,modules):
+			    valSeq = getattr(process,valSeqName)
+			    for module in modules:
+				    m=getattr(process,module)
+				    self.executeAndRemember("process.%s *= process.%s"%(prevalSeqName,module))
+				    self.executeAndRemember("process.%s.remove( process.%s )"%(valSeqName,module))
+				    
+		    move(self,self.process,
+			 sequence.split('.')[-1],
+			 'prevalidation',
+			 ['cutsRecoTracksHp',
+			  'cutsRecoTracksZero',
+			  'cutsRecoTracksZeroHp',
+			  'cutsRecoTracksFirst',
+			  'cutsRecoTracksFirstHp',
+			  'cutsRecoTracksSecond',
+			  'cutsRecoTracksSecondHp',
+			  'cutsRecoTracksThird',
+			  'cutsRecoTracksThirdHp',
+			  'cutsRecoTracksFourth',
+			  'cutsRecoTracksFourthHp',
+			  'cutsRecoTracksFifth',
+			  'cutsRecoTracksFifthHp',
+			  'genpartWenu',
+			  'fiducialWenu',
+			  'genpartZee',
+			  'fiducialZee',
+			  'genpartGammaJet',
+			  'fiducialGammaJet',
+			  'genpartDiGamma',
+			  'fiducialDiGamma'])
+		    
+		    ##the HACK ends above
 		    #in order to access the trigger result: same as DQM
 		    self.process.validation_step = cms.EndPath( getattr(self.process, sequence.split('.')[-1]) )
+		    self.process.prevalidation_step = cms.Path( self.process.prevalidation )
+		    self.schedule.append(self.process.prevalidation_step)
+		    
 	    else:
 		    self.process.validation_step = cms.Path( getattr(self.process, sequence.split('.')[-1]) )
+		    
 	    if 'genvalid' in sequence.split('.')[-1]:
 		    self.loadAndRemember("IOMC.RandomEngine.IOMC_cff")
 	    self.schedule.append(self.process.validation_step)
@@ -1177,10 +1216,11 @@ class ConfigBuilder(object):
 	self.loadDefaultOrSpecifiedCFF(sequence,self.ENDJOBDefaultCFF)
 	sequence=sequence.split('.')[-1]
 	
-	if "FASTSIM" in self.stepMap.keys():
-            self.process.endjob_step = cms.EndPath( getattr(self.process, sequence) )
-        else:
-            self.process.endjob_step = cms.Path( getattr(self.process, sequence) )
+	#if "FASTSIM" in self.stepMap.keys():
+        #    self.process.endjob_step = cms.EndPath( getattr(self.process, sequence) )
+        #else:
+	#it goes in endpath no matter what
+	self.process.endjob_step = cms.EndPath( getattr(self.process, sequence) )
 
         self.schedule.append(self.process.endjob_step)
 
@@ -1240,7 +1280,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.253 $"),
+					    (version=cms.untracked.string("$Revision: 1.254 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
