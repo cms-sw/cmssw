@@ -50,11 +50,10 @@ globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing+trackingGlobalReco+
 globalreco_plusRS = cms.Sequence(globalreco*rstracks)
 globalreco_plusPL= cms.Sequence(globalreco*ctfTracksPixelLess)
 
-highlevelreco = cms.Sequence(particleFlowReco*reducedRecHitsSequence*egammarecoFull*jetHighLevelReco*tautagging*metrecoPlusHCALNoise*btagging*recoPFMET*PFTau*regionalCosmicTracksSeq*muoncosmichighlevelreco)
 
-#highlevelreco = cms.Sequence(recoJetAssociations*tautagging*particleFlowReco*egammarecoFull*metrecoPlusHCALNoise*reducedRecHitsSequence*btagging*recoPFJets*recoPFMET*PFTau)
-#emergency sequence wo conversions
-#highlevelreco_woConv = cms.Sequence(particleFlowReco*reducedRecHitsSequence*jetHighLevelReco*tautagging*egammareco_woConvPhotons*metrecoPlusHCALNoise*btagging*recoPFMET*PFTau)
+reducedRecHits = cms.Sequence ( reducedEcalRecHitsSequence * reducedHcalRecHitsSequence )
+
+highlevelreco = cms.Sequence(particleFlowReco*reducedRecHits*egammarecoFull*jetHighLevelReco*tautagging*metrecoPlusHCALNoise*btagging*recoPFMET*PFTau*regionalCosmicTracksSeq*muoncosmichighlevelreco)
 
 
 from FWCore.Modules.logErrorHarvester_cfi import *
@@ -62,6 +61,7 @@ from FWCore.Modules.logErrorHarvester_cfi import *
 # "Export" Section
 reconstruction         = cms.Sequence(localreco        *globalreco       *highlevelreco*logErrorHarvester)
 
+=======
 #need a fully expanded sequence copy
 reconstruction_fromRECO = reconstruction.expandAndClone() # copy does not work well
 reconstruction_fromRECO.remove(siPixelClusters)
@@ -97,7 +97,6 @@ reconstruction_HcalNZS = cms.Sequence(localreco_HcalNZS*globalreco       *highle
 
 #sequences without some stuffs
 #
-#reconstruction_woConv        = cms.Sequence(localreco*globalreco*highlevelreco_woConv*muoncosmicreco*logErrorHarvester)
 reconstruction_woCosmicMuons = cms.Sequence(localreco*globalreco*highlevelreco       *logErrorHarvester)
 
 
