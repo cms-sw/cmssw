@@ -12,8 +12,6 @@ from RecoLocalCalo.Configuration.ecalLocalRecoSequence_cff import *
 #
 # changed by tommaso. now the calibrations are read from Configuration/StaqndardSequences/data/*Conditions.cff
 #
-# HCAL calibrations
-#include "CalibCalorimetry/HcalPlugins/data/hardwired_conditions.cfi"
 #HCAL reconstruction
 from RecoLocalCalo.Configuration.hcalLocalReco_cff import *
 from RecoLocalCalo.Configuration.hcalGlobalReco_cff import *
@@ -22,6 +20,9 @@ from RecoLocalCalo.Configuration.hcalGlobalReco_cff import *
 #
 calolocalreco = cms.Sequence(ecalLocalRecoSequence+hcalLocalRecoSequence)
 caloglobalreco = cms.Sequence(hcalGlobalRecoSequence)
+
+from RecoLocalCalo.HcalRecProducers.HcalHitSelection_cfi import *
+reducedHcalRecHitsSequence = cms.Sequence( reducedHcalRecHits )
 
 #
 # R.Ofierzynski (29.Oct.2009): add NZS sequence

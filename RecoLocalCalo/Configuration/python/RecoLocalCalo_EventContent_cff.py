@@ -16,6 +16,7 @@ RecoLocalCaloFEVT = cms.PSet(
                                            'keep HFRecHitsSorted_hfrecoMB_*_*',
                                            'keep ZDCDataFramesSorted_*Digis_*_*',
                                            'keep ZDCRecHitsSorted_*_*_*',
+                                           'keep *_reducedHcalRecHits_*_*',
                                            'keep *_castorreco_*_*',
         )
 )
@@ -29,6 +30,7 @@ RecoLocalCaloRECO = cms.PSet(
                                            'keep HFRecHitsSorted_hfrecoMB_*_*',
                                            'keep ZDCDataFramesSorted_*Digis_*_*',
                                            'keep ZDCRecHitsSorted_*_*_*',
+                                           'keep *_reducedHcalRecHits_*_*',
                                            'keep *_castorreco_*_*',
         )
 )
@@ -36,6 +38,7 @@ RecoLocalCaloRECO = cms.PSet(
 RecoLocalCaloAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
     'keep *_castorreco_*_*',
+    'keep *_reducedHcalRecHits_*_*',
     )
 )
 RecoLocalCaloFEVT.outputCommands.extend(ecalLocalRecoFEVT.outputCommands)
