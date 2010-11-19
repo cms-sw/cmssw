@@ -88,6 +88,8 @@ public:
   void setOutputDir( std::string dir );
   void setTreeBaseDir( std::string dir = "TrackerOfflineValidationStandalone");
 
+  TH1* addHists(const char *selection, const TString &residType = "xPrime", bool printModuleIds = false);//add hists fulfilling 'selection' on TTree; residType: xPrime,yPrime,xPrimeNorm,yPrimeNorm,x,y,xNorm; if (printModuleIds): cout DetIds
+
 private : 
   TList getTreeList();
   std::string treeBaseDir;
@@ -529,6 +531,104 @@ void  PlotAlignmentValidation::plotDMR(const std::string variable, Int_t minHits
  c=0;
 }
 
+TH1* PlotAlignmentValidation::addHists(const char *selection, const TString &residType,
+				       bool printModuleIds)
+{
+  enum ResidType {
+    xPrimeRes, yPrimeRes, xPrimeNormRes, yPrimeNormRes, xRes, yRes, xNormRes /*yResNorm*/
+  };
+  ResidType rType = xPrimeRes;
+  if (residType == "xPrime") rType = xPrimeRes;
+  else if (residType == "yPrime") rType = yPrimeRes;
+  else if (residType == "xPrimeNorm") rType = xPrimeNormRes;
+  else if (residType == "yPrimeNorm") rType = yPrimeNormRes;
+  else if (residType == "x") rType = xRes;
+  else if (residType == "y") rType = yRes;
+  else if (residType == "xNorm") rType = xNormRes;
+  // else if (residType == "yNorm") rType = yResNorm;
+  else {
+    std::cout << "PlotAlignmentValidation::addHists: Unknown residual type "
+	      << residType << std::endl; 
+    return 0;
+  }
+
+  TFile *f = (*sourceList.begin())->getFile();
+  TTree *tree= (*sourceList.begin())->getTree();
+  if (!f || !tree) {
+    std::cout << "PlotAlignmentValidation::addHists: no tree or no file" << std::endl;
+    return 0;
+  }
+
+  // first loop on tree to find out which entries (i.e. modules) fulfill the selection
+  // 'Entry$' gives the entry number in the tree
+  Long64_t nSel = tree->Draw("Entry$", selection, "goff");
+  if (nSel == -1) return 0; // error in selection
+  if (nSel == 0) {
+    std::cout << "PlotAlignmentValidation::addHists: no selected module." << std::endl;
+    return 0;
+  }
+  // copy entry numbers that fulfil the selection
+  const std::vector<double> selected(tree->GetV1(), tree->GetV1() + nSel);
+
+  TH1 *h = 0;       // becomes result
+  UInt_t nEmpty = 0;// selected, but empty hists
+  Long64_t nentries =  tree->GetEntriesFast();
+  std::vector<double>::const_iterator iterEnt = selected.begin();
+
+  // second loop on tree:
+  // for each selected entry get the hist from the file and merge
+  TkOffTreeVariables *treeMem = 0; // ROOT will initilise
+  tree->SetBranchAddress("TkOffTreeVariables", &treeMem);
+  for (Long64_t i = 0; i < nentries; i++){
+    if (i < *iterEnt - 0.1             // smaller index (with tolerance): skip
+	|| iterEnt == selected.end()) { // at the end: skip 
+      continue;
+    } else if (TMath::Abs(i - *iterEnt) < 0.11) {
+      ++iterEnt; // take this entry!
+    } else std::cout << "Must not happen: " << i << " " << *iterEnt << std::endl;
+
+    tree->GetEntry(i);
+    if (printModuleIds) {
+      std::cout << treeMem->moduleId << ": " << treeMem->entries << " entries" << std::endl;
+    }
+    if (treeMem->entries <= 0) {  // little speed up: skip empty hists
+      ++nEmpty;
+      continue;
+    }
+    TString hName;
+    switch(rType) {
+    case xPrimeRes:     hName = treeMem->histNameX.c_str();          break;
+    case yPrimeRes:     hName = treeMem->histNameY.c_str();          break;
+    case xPrimeNormRes: hName = treeMem->histNameNormX.c_str();      break;
+    case yPrimeNormRes: hName = treeMem->histNameNormY.c_str();      break;
+    case xRes:          hName = treeMem->histNameLocalX.c_str();     break;
+    case yRes:          hName = treeMem->histNameLocalY.c_str();     break;
+    case xNormRes:      hName = treeMem->histNameNormLocalX.c_str(); break;
+      /*case yResNorm:      hName = treeMem->histNameNormLocalY.c_str(); break;*/
+    }
+    TH1 *newHist = static_cast<TH1*>(f->FindKeyAny(hName)->ReadObj());
+    if (!newHist) {
+      std::cout << "Hist " << hName << " not found in file, break loop." << std::endl;
+      break;
+    }
+    if (!h) { // first hist: clone, but rename keeping only first part of name
+      TString name(newHist->GetName());
+      Ssiz_t pos_ = 0;
+      for (UInt_t i = 0; i < 3; ++i) pos_ = name.Index("_", pos_+1);
+      name = name(0, pos_); // only up to three '_'
+	h = static_cast<TH1*>(newHist->Clone("summed_"+name));
+	h->SetTitle(Form("%s: %d modules", selection, nSel));
+    } else { // otherwise just add
+      h->Add(newHist);
+    }
+    delete newHist;
+  }
+
+  std::cout << "PlotAlignmentValidation::addHists" << "Result is merged from " << nSel-nEmpty
+	    << " modules, " << nEmpty << " hists were empty." << std::endl;
+  return h;
+}
+
 std::pair<float,float> 
 PlotAlignmentValidation::fitGauss(TH1 *hist,int color) 
 {
@@ -712,8 +812,10 @@ void  PlotAlignmentValidation::setHistStyle( TH1& hist,const char* titleX, const
   else if( titelYAxis.Contains("rmsNormX") )titel_Yaxis<<"RMS(x_'{pred}-x'_{hit}/#sigma)";
   else if( titelYAxis.Contains("meanLocalX") )titel_Yaxis<<"#LTx_{pred}-x_{hit}#GT[cm]";
   else if( titelYAxis.Contains("rmsLocalX") )titel_Yaxis<<"RMS(x_{pred}-x_{hit})[cm]";
-  else if*/ ( titelYAxis.Contains("layer")&& titelYAxis.Contains("subDetId")||titelYAxis.Contains("#modules") )titel_Yaxis<<"#modules";
-  else if ( titelYAxis.Contains("ring")&& titelYAxis.Contains("subDetId")||titelYAxis.Contains("#modules") )titel_Yaxis<<"#modules";
+  else if*/ ( (titelYAxis.Contains("layer") && titelYAxis.Contains("subDetId"))
+	      || titelYAxis.Contains("#modules") )titel_Yaxis<<"#modules";
+  else if ( (titelYAxis.Contains("ring") && titelYAxis.Contains("subDetId"))
+	    || titelYAxis.Contains("#modules") )titel_Yaxis<<"#modules";
   else titel_Yaxis<<titleY<<"[cm]";
 
   
