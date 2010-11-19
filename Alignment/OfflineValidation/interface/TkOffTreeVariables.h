@@ -30,6 +30,7 @@ struct TkOffTreeVariables
     isDoubleSide = isStereo = false;
     // std::string's
     histNameLocalX = histNameNormLocalX 
+      = histNameLocalY /* = histNameNormLocalY */
       = histNameX = histNameNormX
       = histNameY = histNameNormY = "";
   }
@@ -78,8 +79,8 @@ struct TkOffTreeVariables
     outerInner, module;  //orientation of modules in TIB:1/2= int/ext string, TID:1/2=back/front ring, TEC 1/2=back/front petal
 
   Bool_t isDoubleSide, isStereo; // (!isDoubleSide) is a detUnit, (isDoubleSide) is a Det (glued Modules) // (!isStereo) is a rPhi-module, (isStereo) is the stereo module from a Det
-  std::string histNameLocalX, histNameNormLocalX, histNameX, histNameNormX,
-    histNameY, histNameNormY;    
+  std::string histNameLocalX, histNameNormLocalX,  histNameLocalY, /* histNameNormLocalY, */
+    histNameX, histNameNormX, histNameY, histNameNormY;    
 };
   
 #endif

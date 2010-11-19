@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.41 2010/09/03 06:59:37 mussgill Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.42 2010/09/23 11:17:20 emiglior Exp $
 //
 //
 
@@ -83,6 +83,7 @@ public:
   ~TrackerOfflineValidation();
   
   enum HistogrammType { XResidual, NormXResidual, 
+			YResidual, /*NormYResidual, */
 			XprimeResidual, NormXprimeResidual, 
 			YprimeResidual, NormYprimeResidual,
 			XResidualProfile, YResidualProfile };
@@ -90,10 +91,13 @@ public:
 private:
 
   struct ModuleHistos{
-    ModuleHistos() :  ResHisto(), NormResHisto(), ResXprimeHisto(), NormResXprimeHisto(), 
+    ModuleHistos() :  ResHisto(), NormResHisto(), ResYHisto(), /*NormResYHisto(),*/
+		      ResXprimeHisto(), NormResXprimeHisto(), 
 		      ResYprimeHisto(), NormResYprimeHisto() {} 
     TH1* ResHisto;
     TH1* NormResHisto;
+    TH1* ResYHisto;
+    /* TH1* NormResYHisto; */
     TH1* ResXprimeHisto;
     TH1* NormResXprimeHisto;
     TH1* ResYprimeHisto;
@@ -628,6 +632,7 @@ TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali,
   
   // construct histogramm title and name
   std::stringstream histoname, histotitle, normhistoname, normhistotitle, 
+    yhistoname, yhistotitle,
     xprimehistoname, xprimehistotitle, normxprimehistoname, normxprimehistotitle,
     yprimehistoname, yprimehistotitle, normyprimehistoname, normyprimehistotitle,
     localxname, localxtitle, localyname, localytitle,
@@ -643,6 +648,8 @@ TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali,
   
   histoname << "h_residuals_subdet_" << subdetandlayer.first 
 	    << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
+  yhistoname << "h_y_residuals_subdet_" << subdetandlayer.first 
+	     << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
   xprimehistoname << "h_xprime_residuals_subdet_" << subdetandlayer.first 
 		  << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
   yprimehistoname << "h_yprime_residuals_subdet_" << subdetandlayer.first 
@@ -653,12 +660,13 @@ TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali,
 		      << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
   normyprimehistoname << "h_normyprimeresiduals_subdet_" << subdetandlayer.first 
 		      << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
-  histotitle << "Residual for module " << id.rawId() << ";x_{pred} - x_{rec} [cm]";
-  normhistotitle << "Normalized Residual for module " << id.rawId() << ";x_{pred} - x_{rec}/#sigma";
-  xprimehistotitle << "X' Residual for module " << id.rawId() << ";(x_{pred} - x_{rec})' [cm]";
-  normxprimehistotitle << "Normalized X' Residual for module " << id.rawId() << ";(x_{pred} - x_{rec})'/#sigma";
-  yprimehistotitle << "Y' Residual for module " << id.rawId() << ";(y_{pred} - y_{rec})' [cm]";
-  normyprimehistotitle << "Normalized Y' Residual for module " << id.rawId() << ";(y_{pred} - y_{rec})'/#sigma";
+  histotitle << "X Residual for module " << id.rawId() << ";x_{tr} - x_{hit} [cm]";
+  yhistotitle << "Y Residual for module " << id.rawId() << ";y_{tr} - y_{hit} [cm]";
+  normhistotitle << "Normalized Residual for module " << id.rawId() << ";x_{tr} - x_{hit}/#sigma";
+  xprimehistotitle << "X' Residual for module " << id.rawId() << ";(x_{tr} - x_{hit})' [cm]";
+  normxprimehistotitle << "Normalized X' Residual for module " << id.rawId() << ";(x_{tr} - x_{hit})'/#sigma";
+  yprimehistotitle << "Y' Residual for module " << id.rawId() << ";(y_{tr} - y_{hit})' [cm]";
+  normyprimehistotitle << "Normalized Y' Residual for module " << id.rawId() << ";(y_{tr} - y_{hit})'/#sigma";
   
   if ( moduleLevelProfiles_ ) {
     localxname << "h_localx_subdet_" << subdetandlayer.first 
@@ -676,10 +684,10 @@ TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali,
 		       << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
     resyvsyprofilename << "p_residuals_y_vs_y_subdet_" << subdetandlayer.first 
 		       << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
-    resxvsxprofiletitle << "U Residual vs u for module " << id.rawId() << "; u_{pred,r} ;(u_{pred} - u_{rec})/tan#alpha [cm]";
-    resyvsxprofiletitle << "V Residual vs u for module " << id.rawId() << "; u_{pred,r} ;(v_{pred} - v_{rec})/tan#beta  [cm]";
-    resxvsyprofiletitle << "U Residual vs v for module " << id.rawId() << "; v_{pred,r} ;(u_{pred} - u_{rec})/tan#alpha [cm]";
-    resyvsyprofiletitle << "V Residual vs v for module " << id.rawId() << "; v_{pred,r} ;(v_{pred} - v_{rec})/tan#beta  [cm]";
+    resxvsxprofiletitle << "U Residual vs u for module " << id.rawId() << "; u_{tr,r} ;(u_{tr} - u_{hit})/tan#alpha [cm]";
+    resyvsxprofiletitle << "V Residual vs u for module " << id.rawId() << "; u_{tr,r} ;(v_{tr} - v_{hit})/tan#beta  [cm]";
+    resxvsyprofiletitle << "U Residual vs v for module " << id.rawId() << "; v_{tr,r} ;(u_{tr} - u_{hit})/tan#alpha [cm]";
+    resyvsyprofiletitle << "V Residual vs v for module " << id.rawId() << "; v_{tr,r} ;(v_{tr} - v_{hit})/tan#beta  [cm]";
   }
   
   if( this->isDetOrDetUnit( subtype ) ) {
@@ -734,11 +742,17 @@ TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali,
       histStruct.ResYprimeHisto = this->bookTH1F(moduleLevelHistsTransient, tfd,
 						 yprimehistoname.str().c_str(),yprimehistotitle.str().c_str(),
 						 nbins, xmin, xmax);
+      if (lCoorHistOn_) { // un-primed y-residual
+	this->getBinning(id.subdetId(), YResidual, nbins, xmin, xmax);
+	histStruct.ResYHisto = this->bookTH1F(moduleLevelHistsTransient, tfd, 
+					      yhistoname.str().c_str(), yhistotitle.str().c_str(),
+					      nbins, xmin, xmax);
+      }
       this->getBinning(id.subdetId(), NormYprimeResidual, nbins, xmin, xmax);
       histStruct.NormResYprimeHisto = this->bookTH1F(moduleLevelHistsTransient, tfd, 
 						     normyprimehistoname.str().c_str(),normyprimehistotitle.str().c_str(),
 						     nbins, xmin, xmax);
-
+      // Here we could add un-primed normalised y-residuals if(lCoorHistOn_)...
       if ( moduleLevelProfiles_ ) {
 	this->getBinning(id.subdetId(), YResidualProfile, nbins, xmin, xmax);      
 	
@@ -848,10 +862,12 @@ TrackerOfflineValidation::getBinning(uint32_t subDetId,
       if(isPixel) binningPSet = parSet_.getParameter<edm::ParameterSet>("TH1NormXprimeResPixelModules");
       else binningPSet        = parSet_.getParameter<edm::ParameterSet>("TH1NormXprimeResStripModules");
       break;
+    case YResidual : // borrow y-residual binning from yprime
     case YprimeResidual :
       if(isPixel) binningPSet = parSet_.getParameter<edm::ParameterSet>("TH1YResPixelModules");                
       else binningPSet        = parSet_.getParameter<edm::ParameterSet>("TH1YResStripModules");                
       break; 
+      /* case NormYResidual :*/
     case NormYprimeResidual :
       if(isPixel) binningPSet = parSet_.getParameter<edm::ParameterSet>("TH1NormYResPixelModules");             
       else binningPSet        = parSet_.getParameter<edm::ParameterSet>("TH1NormYResStripModules");  
@@ -1057,6 +1073,10 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
       if (lCoorHistOn_) {
 	histStruct.ResHisto->Fill(itH->resX);
 	if(itH->resErrX != 0) histStruct.NormResHisto->Fill(itH->resX/itH->resErrX);
+	if (this->isPixel(detid.subdetId()) || stripYResiduals_ ) {
+	  histStruct.ResYHisto->Fill(itH->resY);
+	  // here add un-primed normalised y-residuals if wanted
+	}
       }
       if (itH->resXprime != -999.) {
 	histStruct.ResXprimeHisto->Fill(itH->resXprime);
@@ -1579,6 +1599,7 @@ TrackerOfflineValidation::fillTree(TTree& tree,
 
       treeMem.histNameLocalX = it->second.ResHisto->GetName();
       treeMem.histNameNormLocalX = it->second.NormResHisto->GetName();
+      if (it->second.ResYHisto) treeMem.histNameLocalY = it->second.ResYHisto->GetName();
     }
 
     // mean and RMS values in local y (extracted from histograms(normalized Yprime on module level)
