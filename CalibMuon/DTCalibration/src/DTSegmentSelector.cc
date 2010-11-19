@@ -56,10 +56,10 @@ bool DTSegmentSelector::operator() (DTRecSegment4D const& segment, edm::Event co
      result = false;
 
   // 2D-segment number of hits
-  if(nPhiHits < minHitsPhi_)
+  if(segment.hasPhi() && nPhiHits < minHitsPhi_)
      result = false;
 
-  if(nZHits < minHitsZ_)
+  if(segment.hasZed() && nZHits < minHitsZ_)
      result = false;
 
   // Segment chi2
