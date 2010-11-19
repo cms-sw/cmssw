@@ -49,11 +49,16 @@ if __name__ == '__main__':
     del q
     allfills.sort()
     runsperfill={}
+    runtimes={}
     if options.fillnum:
         if int(options.fillnum) in allfills:
             q=session.nominalSchema().newQuery()
             runsperfill=lumiQueryAPI.runsByfillrange(q,int(options.fillnum),int(options.fillnum))
             del q
+            for run in runsperfill[int(options.fillnum)]:
+                q=session.nominalSchema().newQuery()
+                runtimes[run]=lumiQueryAPI.runsummaryByrun(q,run)[3]
+                del q
     else:
         q=session.nominalSchema().newQuery()
         runsperfill=lumiQueryAPI.runsByfillrange(q,min(allfills),max(allfills))
@@ -61,7 +66,6 @@ if __name__ == '__main__':
         runs=runsperfill.values()#list of lists
         allruns=[item for sublist in runs for item in sublist]
         allruns.sort()
-        runtimes={}
         for run in allruns:
             q=session.nominalSchema().newQuery()
             runtimes[run]=lumiQueryAPI.runsummaryByrun(q,run)[3]
