@@ -18,6 +18,7 @@ class CSCChamberTimeCorrections{
     short int cfeb_tmb_skew_delay;
     short int cfeb_timing_corr;
     short int cfeb_cable_delay;
+    short int anode_bx_offset;
   };
   int factor_precision;
 
