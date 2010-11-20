@@ -152,7 +152,8 @@ hpsTancTauIDSources = [
     ("byHPSmedium", "DiscriminationByMediumIsolation"),
     ("byHPStight", "DiscriminationByTightIsolation"),
     ("againstElectron", "DiscriminationAgainstElectron"),
-    ("againstMuon", "DiscriminationAgainstMuon")]
+    ("againstMuon", "DiscriminationAgainstMuon"),
+    ("againstCaloMuon", "DiscriminationAgainstCaloMuon") ]
 
 # switch to PFTau collection produced for fixed dR = 0.07 signal cone size
 def switchToPFTauFixedCone(process,
