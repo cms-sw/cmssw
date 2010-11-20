@@ -91,6 +91,8 @@ hiNewGlobalTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWit
 hiNewGlobalTracks.clusterRemovalInfo = 'hiNewClusters'
 hiNewGlobalTracks.src                = 'hiNewTrackCandidates'
 hiNewGlobalTracks.TrajectoryInEvent  = cms.bool(True)
+hiNewGlobalTracks.AlgorithmName = 'iter1'
+
 
 #################################
 #selection
