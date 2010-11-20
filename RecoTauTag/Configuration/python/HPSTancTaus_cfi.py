@@ -221,6 +221,13 @@ hpsTancTausDiscriminationAgainstMuon = copy.deepcopy(
 adaptTauDiscriminator(hpsTancTausDiscriminationAgainstMuon,
                       "hpsTancTaus", newTauTypeMapper=producerIsTauTypeMapper)
 
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstCaloMuon_cfi import \
+        pfRecoTauDiscriminationAgainstCaloMuon
+hpsTancTausDiscriminationAgainstCaloMuon = copy.deepcopy(
+    pfRecoTauDiscriminationAgainstCaloMuon)
+adaptTauDiscriminator(hpsTancTausDiscriminationAgainstCaloMuon,
+                      "hpsTancTaus", newTauTypeMapper=producerIsTauTypeMapper)
+
 # Update the decay mode prediscriminant
 hpsTancRequireDecayMode = requireDecayMode.clone()
 hpsTancRequireDecayMode.decayMode.Producer = cms.InputTag(
@@ -304,6 +311,7 @@ hpsTancTauSequence = cms.Sequence(
     + hpsTancTausDiscriminationByLeadingTrackPtCut
     + hpsTancTausDiscriminationAgainstElectron
     + hpsTancTausDiscriminationAgainstMuon
+    + hpsTancTausDiscriminationAgainstCaloMuon
     + hpsTancTausDiscriminationByTancRaw
     + hpsTancTausDiscriminationByTanc
     + hpsTancTausDiscriminationByTancLoose
