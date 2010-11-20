@@ -61,7 +61,7 @@ webpage.setOutputDir(benchmark2.fullName())
 
 # do the plots
 if webpage.options_.macro != "":
-    os.system('root -l ' + macro)
+    os.system('root -b ' + macro)
 
 valtools.testFileType(indexhtml, ".html")
 infonotfoundhtml = "%s/%s" % (webpage.templates_,"infoNotFound.html")
