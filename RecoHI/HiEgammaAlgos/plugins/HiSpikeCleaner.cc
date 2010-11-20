@@ -13,7 +13,7 @@
 //
 // Original Author:  Yong Kim,32 4-A08,+41227673039,
 //         Created:  Mon Nov  1 18:22:21 CET 2010
-// $Id: HiSpikeCleaner.cc,v 1.4 2010/11/02 23:44:49 kimy Exp $
+// $Id: HiSpikeCleaner.cc,v 1.5 2010/11/03 22:31:25 edwenger Exp $
 //
 //
 
@@ -199,13 +199,13 @@ HiSpikeCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 
 	 if ( fabs(it->time()) > TimingCut_ ) {
 	    flagS = false;
-	    std::cout << " timing = " << it->time() << std::endl;
-	    std::cout << " timing is bad........" << std::endl; 
+	    //	    std::cout << " timing = " << it->time() << std::endl;
+	    //   std::cout << " timing is bad........" << std::endl; 
 	 }
 	 if ( swissCrx > (float)swissCutThr_ ) {
 	    flagS = false ;     // swissCross cut
-	    std::cout << "swissCross = " << swissCrx <<std::endl;   
-	    std::cout << " removed by swiss cross cut" << std::endl;
+	    //	    std::cout << "swissCross = " << swissCrx <<std::endl;   
+	    //   std::cout << " removed by swiss cross cut" << std::endl;
 	 }
 	 // - kGood        --> good channel
 	 // - kProblematic --> problematic (e.g. noisy)
