@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.30 2010/11/06 10:58:46 yilmaz Exp $
+// $Id: CentralityProducer.cc,v 1.31 2010/11/17 13:07:01 yilmaz Exp $
 //
 //
 
@@ -169,7 +169,7 @@ class CentralityProducer : public edm::EDFilter {
    if(produceTracks_) srcTracks_ = iConfig.getParameter<edm::InputTag>("srcTracks");
    if(producePixelTracks_) srcPixelTracks_ = iConfig.getParameter<edm::InputTag>("srcPixelTracks");
    
-   reuseAny_ = !produceHFhits_ || !produceHFtowers_ || !produceBasicClusters_ || !produceEcalhits_ || !produceZDChits_;
+   reuseAny_ = iConfig.getParameter<bool>("reUseCentrality");
    if(reuseAny_) reuseTag_ = iConfig.getParameter<edm::InputTag>("srcReUse");
 
    useQuality_   = iConfig.getParameter<bool>("UseQuality");
@@ -231,8 +231,10 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   creco->etHFhitSumMinus_ += rechit.energy();
      }       
   }else{
+    if(reuseAny_){
      creco->etHFhitSumMinus_ = inputCentrality->EtHFhitSumMinus();
      creco->etHFhitSumPlus_ = inputCentrality->EtHFhitSumPlus();
+    }
   }
   
   if(produceHFtowers_ || produceETmidRap_){
@@ -264,9 +266,11 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   }else creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
 	}
   }else{
+    if(reuseAny_){
      creco->etHFtowerSumMinus_ = inputCentrality->EtHFtowerSumMinus();
      creco->etHFtowerSumPlus_ = inputCentrality->EtHFtowerSumPlus();
      creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
+    }
   }
   
   if(!produceEcalhits_ && produceBasicClusters_){
@@ -295,9 +299,9 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	creco->etEBSum_ += et;
      }
   }else{
-     creco->etEESumMinus_ = inputCentrality->EtEESumMinus();
-     creco->etEESumPlus_ = inputCentrality->EtEESumPlus();
-     creco->etEBSum_ = inputCentrality->EtEBSum();
+    creco->etEESumMinus_ = inputCentrality->EtEESumMinus();
+    creco->etEESumPlus_ = inputCentrality->EtEESumPlus();
+    creco->etEBSum_ = inputCentrality->EtEBSum();
   }
 
   if(produceEcalhits_){
@@ -327,9 +331,11 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
      }
   }else{
-     creco->etEESumMinus_ = inputCentrality->EtEESumMinus();
-     creco->etEESumPlus_ = inputCentrality->EtEESumPlus();
-     creco->etEBSum_ = inputCentrality->EtEBSum();
+    if(reuseAny_){
+      creco->etEESumMinus_ = inputCentrality->EtEESumMinus();
+      creco->etEESumPlus_ = inputCentrality->EtEESumPlus();
+      creco->etEBSum_ = inputCentrality->EtEBSum();
+    }
   }
   
   if(producePixelhits_){
@@ -345,7 +351,6 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
      math::XYZVector vtxPos(0,0,0);
      if(vtx->size() > 0) vtxPos = math::XYZVector((*vtx)[0].x(),(*vtx)[0].y(),(*vtx)[0].z());
-
 
      for (SiPixelRecHitCollection::const_iterator it = rechits->begin(); it!=rechits->end();it++)
      {
@@ -379,18 +384,16 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
      creco->pixelMultiplicity_ = nPixel;
   }else{
-     creco->pixelMultiplicity_ = inputCentrality->multiplicityPixel();
+    if(reuseAny_)creco->pixelMultiplicity_ = inputCentrality->multiplicityPixel();
   }
 
   if(produceTracks_){
      edm::Handle<reco::TrackCollection> tracks;
      iEvent.getByLabel(srcTracks_,tracks);
      int nTracks = 0;
-
      double trackCounter = 0;
      double trackCounterEta = 0;
      double trackCounterEtaPt = 0;
-
      for(unsigned int i = 0 ; i < tracks->size(); ++i){
        const Track& track = (*tracks)[i];
        if(useQuality_ && !track.quality(trackQuality_)) continue;
@@ -407,12 +410,18 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      creco->ntracksPtCut_ = trackCounter; 
      creco->ntracksEtaCut_ = trackCounterEta;
      creco->ntracksEtaPtCut_ = trackCounterEtaPt;
-
   }else{
-     creco->trackMultiplicity_ = inputCentrality->Ntracks();
-     creco->ntracksPtCut_= inputCentrality->NtracksPtCut();
-     creco->ntracksEtaCut_= inputCentrality->NtracksEtaCut();
-     creco->ntracksEtaPtCut_= inputCentrality->NtracksEtaPtCut();
+    if(reuseAny_){
+      creco->trackMultiplicity_ = inputCentrality->Ntracks();
+      creco->ntracksPtCut_= inputCentrality->NtracksPtCut();
+      creco->ntracksEtaCut_= inputCentrality->NtracksEtaCut();
+      creco->ntracksEtaPtCut_= inputCentrality->NtracksEtaPtCut();
+    }else{
+      creco->trackMultiplicity_ = 0;
+      creco->ntracksPtCut_= 0;
+      creco->ntracksEtaCut_= 0;
+      creco->ntracksEtaPtCut_= 0;
+    }
   }
 
   if(producePixelTracks_){
@@ -422,7 +431,8 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     creco->nPixelTracks_ = nPixelTracks;
   }
   else{
-    creco->nPixelTracks_ = inputCentrality->NpixelTracks();
+    if(reuseAny_) creco->nPixelTracks_ = inputCentrality->NpixelTracks();
+    else creco->nPixelTracks_ = 0;
   }
 
   if(produceZDChits_){
@@ -444,8 +454,10 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	creco->zdcSumMinus_ = -9;
      }
   }else{
-     creco->zdcSumMinus_ = inputCentrality->zdcSumMinus();
-     creco->zdcSumPlus_ = inputCentrality->zdcSumPlus();
+    if(reuseAny_){
+      creco->zdcSumMinus_ = inputCentrality->zdcSumMinus();
+      creco->zdcSumPlus_ = inputCentrality->zdcSumPlus();
+    }
   }
   
   iEvent.put(creco);

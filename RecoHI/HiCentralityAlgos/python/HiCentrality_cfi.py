@@ -6,18 +6,15 @@ hiCentrality = cms.EDFilter("reco::CentralityProducer",
                             
                             produceHFhits = cms.bool(True),
                             produceHFtowers = cms.bool(True),
-                            produceEcalhits = cms.bool(False),
+                            produceEcalhits = cms.bool(True),
                             produceBasicClusters = cms.bool(True),
                             produceZDChits = cms.bool(True),
                             produceETmidRapidity = cms.bool(True),
                             producePixelhits = cms.bool(True),
                             produceTracks = cms.bool(True),
                             producePixelTracks = cms.bool(True),
-                            trackEtaCut = cms.double(2),
-                            trackPtCut = cms.double(1),
-                            
-                            midRapidityRange = cms.double(1),
-                            
+                            reUseCentrality = cms.bool(False),
+
                             srcHFhits = cms.InputTag("hfreco"),
                             srcTowers = cms.InputTag("towerMaker"),
                             srcEBhits = cms.InputTag("ecalRecHits","EcalRecHitsEB"),
@@ -27,13 +24,19 @@ hiCentrality = cms.EDFilter("reco::CentralityProducer",
                             srcBasicClustersEE = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
                             srcZDChits = cms.InputTag("zdcreco"),
                             srcPixelhits = cms.InputTag("siPixelRecHits"),
+                            srcTracks = cms.InputTag("hiSelectedTracks"),
+                            srcReUse = cms.InputTag("hiCentrality"),
+                            srcPixelTracks = cms.InputTag("hiPixel3PrimTracks"),
+                            
                             doPixelCut = cms.bool(False),
                             pixelBarrelOnly = cms.bool(True),
-                            srcTracks = cms.InputTag("hiSelectedTracks"),
+                            trackEtaCut = cms.double(2),
+                            trackPtCut = cms.double(1),
+                            midRapidityRange = cms.double(1),
+                            
                             UseQuality = cms.bool(True),
-                            TrackQuality = cms.string('highPurity'),
-                            srcReUse = cms.InputTag("hiCentrality"),
-                            srcPixelTracks = cms.InputTag("hiPixel3PrimTracks")
-                              )
+                            TrackQuality = cms.string('highPurity')
+                            
+                            )
 
 
