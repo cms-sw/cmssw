@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.28 2010/10/26 16:09:11 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.29 2010/11/04 22:38:55 amraktad Exp $
 //
 
 // system include files
@@ -133,11 +133,7 @@ FWRPZView::setContext(const fireworks::Context& ctx)
 
    m_calo->SetEndCapPos(context().caloZ1(false));
    m_calo->SetAutoRange(false);
-
-   FWViewEnergyScale*  caloScale = viewContext()->getEnergyScale("Calo");
-   m_calo->SetMaxTowerH(caloScale->getMaxTowerHeight());
-   m_calo->SetScaleAbs(caloScale->getScaleMode() == FWViewEnergyScale::kFixedScale);
-   m_calo->SetMaxValAbs(caloScale->getMaxFixedVal());
+   m_calo->SetScaleAbs(true);
 }
 
 void

@@ -37,6 +37,7 @@
 #include "TGLOverlay.h"
 
 #include "Fireworks/Core/interface/FWEveView.h"
+#include "Fireworks/Core/interface/FWViewType.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 #include "Fireworks/Core/interface/FWEventAnnotation.h"
 #include "Fireworks/Core/interface/CmsAnnotation.h"
@@ -252,18 +253,6 @@ FWEveView::resetCamera()
 }
 
 //______________________________________________________________________________
-
-void
-FWEveView::setMaxTowerHeight()
-{
-   FWViewEnergyScale*  caloScale = viewContext()->getEnergyScale("Calo");
-   if (caloScale)
-   {
-      getEveCalo()->SetMaxTowerH(caloScale->getMaxTowerHeight());
-      energyScalesChanged();
-   }
-}
-
 bool
 FWEveView::useGlobalScales() const
 {
@@ -274,80 +263,35 @@ FWEveView::useGlobalScales() const
    return true;
 }
 
-
-
 void
 FWEveView::updateEnergyScales()
 {
-   bool drawAnnotation = false;
-
    FWViewEnergyScale*  caloScale = viewContext()->getEnergyScale("Calo");
    if (caloScale)
    {
       TEveCaloViz* calo = getEveCalo();
-      calo->SetMaxValAbs(caloScale->getMaxFixedVal());
-      calo->SetMaxTowerH(caloScale->getMaxTowerHeight());
+      
+      // tell scale about max value in current event
+      // for now only TEveCaloData votes for scale in automatic mode
+      if (!calo->GetData()->Empty())
+         caloScale->setMaxVal(calo->GetData()->GetMaxVal(caloScale->getPlotEt()));
+      
+      // update TEveCaloViz
       calo->SetPlotEt(caloScale->getPlotEt());
+      calo->SetMaxValAbs(caloScale->getMaxTowerHeight()/caloScale->getValToHeight());
+            
+      // ! lego views special, do not edit maxTowerH 
+      if (FWViewType::isLego(typeId()) == false)
+         calo->SetMaxTowerH(caloScale->getMaxTowerHeight()); 
       
-      if (caloScale->getScaleMode() == FWViewEnergyScale::kFixedScale)
-      {
-         if (calo->GetScaleAbs() == false)
-         {
-            calo->SetScaleAbs(true);
-         }
-      }
-      else if (caloScale->getScaleMode() == FWViewEnergyScale::kAutoScale)
-      {
-         if (calo->GetScaleAbs()) 
-         {
-            calo->SetScaleAbs(false);
-         }
-      }
-      else if (caloScale->getScaleMode() == FWViewEnergyScale::kCombinedScale)
-      {
-         float dataMax = calo->GetData()->GetMaxVal(calo->GetPlotEt());
-         bool fixed = (caloScale->getMaxFixedVal() >= dataMax);
-
-         if (fixed != calo->GetScaleAbs())
-         {
-            calo->SetScaleAbs(fixed);
-
-            fwLog(fwlog::kInfo) << Form("%-7s Scale mode has changed to %-9s CaloMaxVal = %.1f > threshold (ValuteToH*MaxTowerH = %f)",
-                                        typeName().c_str(),
-                                        fixed ? "Fixed" :"Automatic",
-                                        dataMax, caloScale->getMaxFixedVal()) << std::endl; fflush(stdout); 
-         }
-
-         drawAnnotation = !fixed;
-      }
-
-      if (drawAnnotation)
-      {
-         m_energyMaxValAnnotation->setText(Form("%s = %.2f GeV", calo->GetPlotEt() ? "Et":"E", calo->GetData()->GetMaxVal(calo->GetPlotEt())));
-      
-      }
-
-      m_energyMaxValAnnotation->SetState(drawAnnotation ? TGLOverlayElement::kActive : TGLOverlayElement::kInvisible);
-
-      // emit signals at end 
-      energyScalesChanged();
-   }
-}
-
-/* Emit signal to proxy builders when scale have changes */
-void
-FWEveView::energyScalesChanged()
-{
-   FWViewEnergyScale* caloScale = viewContext()->getEnergyScale("Calo");
-   if (caloScale) 
-   {
-      // printf("max H %f max val %f \n",   getEveCalo()->GetMaxTowerH(), getEveCalo()->GetMaxVal());
-      // printf("%s FEEveView scale changed %f  \n", typeName().c_str(),  getEveCalo()->GetValToHeight()); fflush(stdout);
-      caloScale->setMaxVal(getEveCalo()->GetMaxVal());
-      caloScale->setValToHeight(getEveCalo()->GetValToHeight());
-      viewContext()->scaleChanged();
       getEveCalo()->ElementChanged();
+      
+      // context to emit signal  
+      viewContext()->scaleChanged();
       gEve->Redraw3D();
+      
+     // printf("max val in  event>>>> %f %f\n", getEveCalo()->GetMaxVal(), caloScale->getMaxVal());
+     // printf("%s  %f %f \n",typeName().c_str(), getEveCalo()->GetValToHeight(), caloScale->getValToHeight());      
    }
 }
 

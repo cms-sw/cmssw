@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Jun 18 20:37:44 CEST 2010
-// $Id: FWViewEnergyScale.cc,v 1.4 2010/09/27 10:46:11 amraktad Exp $
+// $Id: FWViewEnergyScale.cc,v 1.5 2010/09/29 16:19:49 amraktad Exp $
 //
 
 #include <stdexcept>
@@ -16,11 +16,13 @@
 #include <boost/bind.hpp>
 
 #include "Rtypes.h"
+#include "TMath.h"
 #include "Fireworks/Core/interface/FWEveView.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/CmsShowCommon.h"
 
+float FWViewEnergyScale::s_initMaxVal = 100;
 
 //
 // constants, enums and typedefs
@@ -39,8 +41,7 @@ m_scaleMode(this, "ScaleMode", 1l, 1l, 2l),
 m_fixedValToHeight(this, "ValueToHeight [GeV/m]", 50.0, 1.0, 100.0),
 m_maxTowerHeight(this, "MaxTowerH [m]", 1.0, 0.01, 3.0 ),
 m_plotEt(this, "PlotEt", true),
-m_maxVal(0.f),
-m_valToHeight(1.f),
+m_maxVal(s_initMaxVal),
 m_view(view)
 {
    m_useGlobalScales.changed_.connect(boost::bind(&FWEveView::updateEnergyScales, m_view));
@@ -58,27 +59,16 @@ FWViewEnergyScale::~FWViewEnergyScale()
 {
 }
 
-void
-FWViewEnergyScale::setValToHeight(float x)
+void  
+FWViewEnergyScale::reset()
 {
-   m_valToHeight = x;
-}
-
-float
-FWViewEnergyScale::getValToHeight() const
-{
-   return m_valToHeight;  
+   m_maxVal = s_initMaxVal;
 }
 
 bool 
 FWViewEnergyScale::setMaxVal(float s)
 {
-   if (s > m_maxVal )
-   {
-      m_maxVal = s;
-      return true;
-   }
-   
+   m_maxVal = s;   
    return false;
 }
 
@@ -88,14 +78,7 @@ FWViewEnergyScale::getMaxVal() const
    return m_maxVal;
 }
 
-void  
-FWViewEnergyScale::reset()
-{
-   m_maxVal = 0.f;
-   m_valToHeight = 1.f;
-}
-
-
+//________________________________________________________
 long   
 FWViewEnergyScale::getScaleMode() const
 {  
@@ -114,17 +97,6 @@ FWViewEnergyScale::getMaxFixedVal() const
       return m_fixedValToHeight.value()*m_maxTowerHeight.value();
 }
 
-double
-FWViewEnergyScale::getMaxTowerHeight() const
-{
-  const static int m_to_cm = 100; // parameters in [m], TEveCaloViz in [cm]
-
-   if (getUseGlobalScales())
-      return m_to_cm * m_view->context().commonPrefs()->getEnergyMaxTowerHeight();
-   else
-      return m_to_cm * m_maxTowerHeight.value();
-}
-
 bool
 FWViewEnergyScale::getPlotEt() const
 {
@@ -133,4 +105,34 @@ FWViewEnergyScale::getPlotEt() const
    else
       return m_plotEt.value();
 }
-  
+
+double
+FWViewEnergyScale::getMaxTowerHeight() const
+{
+   // lego XYZ dimensions are[ etaRng x 2Pi() x Pi() ]
+   if (FWViewType::isLego(m_view->typeId()))
+      return TMath::Pi();
+   
+   // RPZ and 3D views, include m->cm conversion
+   if (getUseGlobalScales())
+      return 100 * m_view->context().commonPrefs()->getEnergyMaxTowerHeight();
+   else
+      return 100 * m_maxTowerHeight.value();
+}
+
+//________________________________________________________
+
+float
+FWViewEnergyScale::getValToHeight() const
+{ 
+   // check if in combined mode
+   int mode = getScaleMode();
+   if (mode == kCombinedScale)
+      mode = (m_maxVal >  getMaxFixedVal()) ? kFixedScale : kAutoScale;
+   
+   // get converison
+   if (mode == kFixedScale)
+      return getMaxTowerHeight() / getMaxFixedVal();
+   else
+      return getMaxTowerHeight() / m_maxVal;
+}

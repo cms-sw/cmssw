@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 13:09:53 CEST 2010
-// $Id: FWEveLegoView.cc,v 1.86 2010/11/15 17:14:27 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.87 2010/11/15 19:54:29 amraktad Exp $
 //
 
 // system include files
@@ -66,28 +66,4 @@ FWEveLegoView::setBackgroundColor(Color_t c)
 {
    m_boundaries->SetLineColor(context().colorManager()->isColorSetDark() ? kGray+2 : kGray+1);
    FWEveView::setBackgroundColor(c);
-}
-
-
-void
-FWEveLegoView::energyScalesChanged()
-{
-   // Virtual method of FWEveView::energyScalesChanged. Overriden here to 
-   // apply context's calo data scale to  kLegoPFECAL view type.
-
-   FWViewEnergyScale* caloScale = viewContext()->getEnergyScale("Calo");
-   TEveCaloData* data = context().getCaloData();
-   if (FWGUIManager::getGUIManager()->getCurrentEvent() && data->Empty() && caloScale->getScaleMode() == FWViewEnergyScale::kAutoScale)
-   {
-      fwLog(fwlog::kError) <<"Error in automatic scale mode:Tower collection empty. Please switch to fixed-scale mode. \n";
-      return;
-   }
-   float maxVal = data->GetMaxVal(caloScale->getPlotEt());
-   caloScale->setMaxVal(maxVal);
-   float valToHeight = caloScale->getMaxTowerHeight()/maxVal;
-   valToHeight *= 0.01*TMath::Pi(); // this call will be obsolete when scene apply transformation matrix to child nodes
-   caloScale->setValToHeight(valToHeight);
-   viewContext()->scaleChanged();
-   getEveCalo()->ElementChanged();
-   gEve->Redraw3D();
 }

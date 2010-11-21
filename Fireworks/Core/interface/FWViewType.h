@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Mon Mar 22 12:08:40 CET 2010
-// $Id: FWViewType.h,v 1.11 2010/11/05 10:54:33 amraktad Exp $
+// $Id: FWViewType.h,v 1.12 2010/11/05 14:06:52 amraktad Exp $
 //
 #include <string>
 
@@ -60,6 +60,7 @@ public:
 
    static const std::string& idToName(int);
    static bool isProjected(int);
+   static bool isLego(int);
    
    FWViewType(EType);
    virtual ~FWViewType();

@@ -45,7 +45,9 @@ FWEveViewScaleEditor::FWEveViewScaleEditor(TGCompositeFrame* w, FWViewEnergyScal
    addParam(&m_scale->m_plotEt);
    addParam(&m_scale->m_scaleMode);
    addParam(&m_scale->m_fixedValToHeight, "FixedMode");
-   addParam(&m_scale->m_maxTowerHeight, "AutomaticMode");   
+   
+   if (FWViewType::isLego(m_scale->getView()->typeId()) == false)
+      addParam(&m_scale->m_maxTowerHeight, "AutomaticMode");
    
    typedef  std::vector<boost::shared_ptr<FWParameterSetterBase> > sList;
    for (sList::iterator i = m_setters.begin(); i!=m_setters.end(); ++i)

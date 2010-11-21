@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.22 2010/11/15 17:14:27 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.23 2010/11/15 19:53:12 amraktad Exp $
 //
 
 // system include files
@@ -143,21 +143,13 @@ FWLegoViewBase::setContext(const fireworks::Context& ctx)
    m_lego->SetPixelsPerBin(m_pixelsPerBin.value());
 
    m_lego->InitMainTrans();
-   m_lego->RefMainTrans().SetScale(TMath::TwoPi(), TMath::TwoPi(), TMath::Pi()*0.01);
-
-   // note, do not restore max tower height, since it has not value
-   FWViewEnergyScale*  caloScale = viewContext()->getEnergyScale("Calo");
-   m_lego->SetScaleAbs(caloScale->getScaleMode() == FWViewEnergyScale::kFixedScale);
-   m_lego->SetMaxValAbs(caloScale->getMaxFixedVal());
-   
+   m_lego->RefMainTrans().SetScale(TMath::TwoPi(), TMath::TwoPi(), TMath::Pi());
+   m_lego->SetScaleAbs(true);
    
    // set flat in 2D
    m_lego->SetHasFixedHeightIn2DMode(true);
    m_lego->SetFixedHeightValIn2DMode(0.001);
    eventScene()->AddElement(m_lego);
-
-   // possiblity for outline
-   m_lego->SetPlotEt(caloScale->getPlotEt());
 
    TEveLegoEventHandler* eh = dynamic_cast<TEveLegoEventHandler*>( viewerGL()->GetEventHandler());
    eh->SetLego(m_lego);

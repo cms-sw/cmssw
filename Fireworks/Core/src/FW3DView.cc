@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  7 14:40:47 CEST 2010
-// $Id: FW3DView.cc,v 1.50 2010/10/01 09:45:20 amraktad Exp $
+// $Id: FW3DView.cc,v 1.51 2010/10/26 16:09:10 amraktad Exp $
 //
 
 // system include files
@@ -39,9 +39,7 @@
 //
 FW3DView::FW3DView(TEveWindowSlot* slot, FWViewType::EType typeId):
    FW3DViewBase(slot, typeId),
-   m_calo(0),
-   m_caloEndCap1(0),
-   m_caloEndCap2(0)
+   m_calo(0)
 {
    viewerGL()->CurrentCamera().SetFixDefCenter(kTRUE);  
 
@@ -71,8 +69,7 @@ void FW3DView::setContext(const fireworks::Context& ctx)
 
    FWViewEnergyScale*  caloScale = viewContext()->getEnergyScale("Calo");
    m_calo->SetMaxTowerH(caloScale->getMaxTowerHeight());
-   m_calo->SetScaleAbs(caloScale->getScaleMode() == FWViewEnergyScale::kFixedScale);
-   m_calo->SetMaxValAbs(caloScale->getMaxFixedVal());
+   m_calo->SetScaleAbs(true);
 
    m_calo->SetBarrelRadius(context().caloR1(false));
    m_calo->SetEndCapPos(context().caloZ1(false));
@@ -84,38 +81,5 @@ void FW3DView::setContext(const fireworks::Context& ctx)
       float_t eps = 0.005;
       m_calo->SetEta(-context().caloTransEta() -eps, context().caloTransEta() + eps);
       m_calo->SetAutoRange(false);
-
-      // back
-      /*
-      m_caloEndCap1 = new TEveCalo3D(data);
-      m_caloEndCap1->SetElementName("endcap backwad");
-
-      m_caloEndCap1->SetMaxTowerH(m_energyMaxTowerHeight.value());
-      m_caloEndCap1->SetScaleAbs(m_energyScaleMode.value() == FWEveView::kFixedScale);
-      m_caloEndCap1->SetMaxValAbs(m_energyMaxAbsVal.value());
-
-      m_caloEndCap1->SetBarrelRadius(context().caloR2(false));
-      m_caloEndCap1->SetEndCapPos(context().caloZ2(false));
-      m_caloEndCap1->SetFrameTransparency(80);
-      m_caloEndCap1->SetEta(-context().caloMaxEta(), -context().caloTransEta() + eps);
-      m_caloEndCap1->SetAutoRange(false);
-      eventScene()->AddElement(m_caloEndCap1);
-   
-      // front
-
-      m_caloEndCap2 = new TEveCalo3D(data);
-      m_caloEndCap2->SetElementName("endcap forward");
-
-      m_caloEndCap2->SetMaxTowerH(m_energyMaxTowerHeight.value());
-      m_caloEndCap2->SetScaleAbs(m_energyScaleMode.value() == FWEveView::kFixedScale);
-      m_caloEndCap2->SetMaxValAbs(m_energyMaxAbsVal.value());
-
-      m_caloEndCap2->SetBarrelRadius(context().caloR2(false));
-      m_caloEndCap2->SetEndCapPos(context().caloZ2());
-      m_caloEndCap2->SetFrameTransparency(80);
-      m_caloEndCap2->SetEta(context().caloTransEta() -eps, context().caloMaxEta());
-      m_caloEndCap2->SetAutoRange(false);
-      eventScene()->AddElement(m_caloEndCap2);*/
    }
-
 }

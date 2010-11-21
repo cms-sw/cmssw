@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.25 2010/11/04 22:38:54 amraktad Exp $
+// $Id: FWEveView.h,v 1.26 2010/11/09 16:56:23 amraktad Exp $
 //
 
 
@@ -84,8 +84,6 @@ public:
    // ---------- static member functions --------------------
    
    virtual void updateEnergyScales();
-   virtual void energyScalesChanged();
-   virtual void setMaxTowerHeight();
    
 protected:
    virtual void resetCamera();
