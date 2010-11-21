@@ -532,8 +532,8 @@ void ReadPixClusters::analyze(const edm::Event& e,
       //hrowsB->Fill(float(rows));
       
       PXBDetId pdetId = PXBDetId(detid);
-      unsigned int detTypeP=pdetId.det();
-      unsigned int subidP=pdetId.subdetId();
+      //unsigned int detTypeP=pdetId.det();
+      //unsigned int subidP=pdetId.subdetId();
       // Barell layer = 1,2,3
       layerC=pdetId.layer();
       // Barrel ladder id 1-20,32,44.
@@ -615,7 +615,7 @@ void ReadPixClusters::analyze(const edm::Event& e,
       bool edgeInY = false; // to topologu class
       bool cluBigInX = false; // does this clu include a big pixel
       bool cluBigInY = false; // does this clu include a big pixel
-      int noisy = 0;
+      //int noisy = 0;
 
       if(pixelsVec.size()>maxPixPerClu) maxPixPerClu = pixelsVec.size();
  

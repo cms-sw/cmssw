@@ -14,5 +14,8 @@
 <use   name="DataFormats/DetId"/>
 <use   name="RecoLocalTracker/SiPixelClusterizer"/>
 <flags   EDM_PLUGIN="1"/>
-<library   file="ReadPixClusters.cc" name="ReadPixClusters">
+<library   file="TestClusters.cc" name="TestClusters">
 </library>
+#<flags   EDM_PLUGIN="1"/>
+#<library   file="ReadPixClusters.cc" name="ReadPixClusters">
+#</library>
