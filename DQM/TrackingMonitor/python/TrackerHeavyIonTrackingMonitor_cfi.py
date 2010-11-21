@@ -25,8 +25,8 @@ TrackerHeavyIonTrackMon.doSeedParameterHistos = cms.bool(True)
 TrackerHeavyIonTrackMon.doLumiAnalysis        = cms.bool(True)                       
 
 # Number of Tracks per Event
-TrackerHeavyIonTrackMon.TkSizeBin             = cms.int32(300)
-TrackerHeavyIonTrackMon.TkSizeMax             = cms.double(299.5)                        
+TrackerHeavyIonTrackMon.TkSizeBin             = cms.int32(600)
+TrackerHeavyIonTrackMon.TkSizeMax             = cms.double(1799.5)                        
 TrackerHeavyIonTrackMon.TkSizeMin             = cms.double(-0.5)
 
 # chi2 dof
