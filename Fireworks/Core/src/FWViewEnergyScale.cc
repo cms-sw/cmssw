@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Jun 18 20:37:44 CEST 2010
-// $Id: FWViewEnergyScale.cc,v 1.5 2010/09/29 16:19:49 amraktad Exp $
+// $Id: FWViewEnergyScale.cc,v 1.6 2010/11/21 11:18:14 amraktad Exp $
 //
 
 #include <stdexcept>
@@ -89,12 +89,12 @@ FWViewEnergyScale::getScaleMode() const
 }
 
 double
-FWViewEnergyScale::getMaxFixedVal() const
+FWViewEnergyScale::getValToHeightFixed() const
 { 
    if (getUseGlobalScales())
-      return m_view->context().commonPrefs()->getEnergyMaxAbsVal();
+      return m_view->context().commonPrefs()->getEnergyToHeightFixed();
    else
-      return m_fixedValToHeight.value()*m_maxTowerHeight.value();
+      return m_fixedValToHeight.value();
 }
 
 bool
@@ -110,8 +110,8 @@ double
 FWViewEnergyScale::getMaxTowerHeight() const
 {
    // lego XYZ dimensions are[ etaRng x 2Pi() x Pi() ]
-   if (FWViewType::isLego(m_view->typeId()))
-      return TMath::Pi();
+   //if (FWViewType::isLego(m_view->typeId()))
+   // return TMath::Pi();
    
    // RPZ and 3D views, include m->cm conversion
    if (getUseGlobalScales())
@@ -128,11 +128,22 @@ FWViewEnergyScale::getValToHeight() const
    // check if in combined mode
    int mode = getScaleMode();
    if (mode == kCombinedScale)
-      mode = (m_maxVal >  getMaxFixedVal()) ? kFixedScale : kAutoScale;
+      mode = (m_maxVal > getValToHeightFixed()*getMaxTowerHeight()/100) ? kFixedScale : kAutoScale;
    
    // get converison
    if (mode == kFixedScale)
-      return getMaxTowerHeight() / getMaxFixedVal();
+   {
+      // apply default constructor height 
+      if (FWViewType::isLego(m_view->typeId()))
+         return TMath::Pi() / getValToHeightFixed();
+      else     
+         return 100/ getValToHeightFixed();
+   }
    else
-      return getMaxTowerHeight() / m_maxVal;
+   {
+      if (FWViewType::isLego(m_view->typeId()))
+         return TMath::Pi()/ m_maxVal;
+      else     
+         return getMaxTowerHeight() / m_maxVal;
+   }
 }

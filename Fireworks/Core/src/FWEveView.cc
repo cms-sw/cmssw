@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.42 2010/11/09 16:56:24 amraktad Exp $
+// $Id: FWEveView.cc,v 1.44 2010/11/21 11:18:13 amraktad Exp $
 //
 
 
@@ -273,25 +273,28 @@ FWEveView::updateEnergyScales()
       
       // tell scale about max value in current event
       // for now only TEveCaloData votes for scale in automatic mode
-      if (!calo->GetData()->Empty())
+      if (!calo->GetData()->Empty() )
          caloScale->setMaxVal(calo->GetData()->GetMaxVal(caloScale->getPlotEt()));
       
-      // update TEveCaloViz
+      // update TEveCaloViz, do not edit lego since maxTowerH is never changing
       calo->SetPlotEt(caloScale->getPlotEt());
-      calo->SetMaxValAbs(caloScale->getMaxTowerHeight()/caloScale->getValToHeight());
-            
-      // ! lego views special, do not edit maxTowerH 
-      if (FWViewType::isLego(typeId()) == false)
-         calo->SetMaxTowerH(caloScale->getMaxTowerHeight()); 
-      
+      if ( ! FWViewType::isLego(typeId()) ) 
+      {
+         if ((caloScale->getScaleMode() == FWViewEnergyScale::kAutoScale) )
+            calo->SetMaxTowerH(caloScale->getMaxTowerHeight()); 
+         else
+            calo->SetMaxTowerH(100); //defualt constructor H
+      }
+      calo->SetMaxValAbs(calo->GetMaxTowerH()/caloScale->getValToHeight());
+
       getEveCalo()->ElementChanged();
       
       // context to emit signal  
       viewContext()->scaleChanged();
       gEve->Redraw3D();
       
-     // printf("max val in  event>>>> %f %f\n", getEveCalo()->GetMaxVal(), caloScale->getMaxVal());
-     // printf("%s  %f %f \n",typeName().c_str(), getEveCalo()->GetValToHeight(), caloScale->getValToHeight());      
+      // printf("max val in  event>>>> %f %f\n", getEveCalo()->GetMaxVal(), caloScale->getMaxVal());
+      // printf("%s  %f %f \n",typeName().c_str(), getEveCalo()->GetValToHeight(), caloScale->getValToHeight());      
    }
 }
 

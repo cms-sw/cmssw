@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.23 2010/11/15 19:53:12 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.24 2010/11/21 11:18:14 amraktad Exp $
 //
 
 // system include files
@@ -143,8 +143,9 @@ FWLegoViewBase::setContext(const fireworks::Context& ctx)
    m_lego->SetPixelsPerBin(m_pixelsPerBin.value());
 
    m_lego->InitMainTrans();
-   m_lego->RefMainTrans().SetScale(TMath::TwoPi(), TMath::TwoPi(), TMath::Pi());
+   m_lego->RefMainTrans().SetScale(TMath::TwoPi(), TMath::TwoPi(), 1);
    m_lego->SetScaleAbs(true);
+   m_lego->SetMaxTowerH(TMath::Pi()); 
    
    // set flat in 2D
    m_lego->SetHasFixedHeightIn2DMode(true);

@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 10 14:51:07 CEST 2010
-// $Id: CmsShowCommon.h,v 1.6 2010/09/26 19:54:56 amraktad Exp $
+// $Id: CmsShowCommon.h,v 1.7 2010/09/27 10:46:00 amraktad Exp $
 //
 
 #include <sigc++/signal.h>
@@ -45,8 +45,8 @@ public:
    virtual void addTo(FWConfiguration&) const;
 
    long   getEnergyScaleMode()      const { return m_energyScaleMode.value(); }
-   double getEnergyMaxAbsVal()      const { return  m_energyFixedValToHeight.value()*m_energyMaxTowerHeight.value(); }
-   double getEnergyMaxTowerHeight() const { return  m_energyMaxTowerHeight.value(); }
+   double getEnergyToHeightFixed()  const { return m_energyFixedValToHeight.value(); }
+   double getEnergyMaxTowerHeight() const { return m_energyMaxTowerHeight.value(); }
    bool   getEnergyPlotEt()         const { return m_energyPlotEt.value(); }
 
    // ---------- static member functions --------------------
