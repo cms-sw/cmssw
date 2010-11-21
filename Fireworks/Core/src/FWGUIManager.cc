@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.223 2010/11/11 19:45:49 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.224 2010/11/11 19:53:23 amraktad Exp $
 
 //
 
@@ -142,6 +142,12 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
                                                 this);
       m_cmsShowMainFrame->SetWindowName("CmsShow");
       m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
+      for (int i = 0 ; i < FWViewType::kTypeSize; ++i)
+      {
+         bool separator = (i == FWViewType::kGlimpse || i == FWViewType::kTableL1);
+         CSGAction* action = m_cmsShowMainFrame->createNewViewerAction(FWViewType::idToName(i), separator);
+         action->activated.connect(boost::bind(&FWGUIManager::newViewSlot, this, FWViewType::idToName(i)));
+      }
 
       m_detailViewManager  = new FWDetailViewManager(m_context->colorManager());
       m_contextMenuHandler = new FWModelContextMenuHandler(m_context->selectionManager(), m_detailViewManager, m_context->colorManager(), this);
@@ -243,8 +249,6 @@ FWGUIManager::registerViewBuilder(const std::string& iName,
                                   ViewBuildFunctor& iBuilder)
 {
    m_nameToViewBuilder[iName]=iBuilder;
-   CSGAction* action=m_cmsShowMainFrame->createNewViewerAction(iName);
-   action->activated.connect(boost::bind(&FWGUIManager::newViewSlot, this, iName));
 }
 
 

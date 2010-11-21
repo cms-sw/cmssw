@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Mar 26 12:25:02 CET 2010
-// $Id: FWViewType.cc,v 1.14 2010/11/05 10:54:33 amraktad Exp $
+// $Id: FWViewType.cc,v 1.15 2010/11/21 11:18:14 amraktad Exp $
 //
 
 // system include files
@@ -36,15 +36,15 @@ FWViewType::static_initializer::static_initializer()
   sName[k3D           ] = "3D";
   sName[kRhoPhi       ] = "Rho Phi";
   sName[kRhoZ         ] = "Rho Z";
-  sName[kRhoPhiPF     ] = "Rho Phi PF";
   sName[kISpy         ] = "iSpy";
   sName[kGlimpse      ] = "Glimpse";
   sName[kLego         ] = "Lego";
   sName[kLegoHF       ] = "HF";
-  sName[kLegoPFECAL   ] = "PF ECAL Lego";
   sName[kTable        ] = "Table";
   sName[kTableTrigger ] = "TriggerTable";
   sName[kTableL1      ] = "L1TriggerTable";
+  sName[kLegoPFECAL   ] = "PF ECAL Lego";
+  sName[kRhoPhiPF     ] = "PF Rho Phi";
 }
 
 FWViewType::static_initializer init_statics;

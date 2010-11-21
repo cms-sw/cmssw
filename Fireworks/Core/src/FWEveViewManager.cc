@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.37 2010/10/18 17:32:25 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.38 2010/11/04 22:38:54 amraktad Exp $
 //
 
 // system include files
@@ -111,9 +111,13 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) :
    
    // view construction called via GUI mng
    FWGUIManager::ViewBuildFunctor f =  boost::bind(&FWEveViewManager::buildView, this, _1, _2);
-   for (int i = FWViewType::k3D; i <= FWViewType::kGlimpse; i++)
-     iGUIMgr->registerViewBuilder(FWViewType::idToName(i), f);
-
+   for (int i = 0; i < FWViewType::kTypeSize; i++)
+   {
+      if ( i == FWViewType::kTable || i == FWViewType::kTableTrigger || i == FWViewType::kTableL1)
+         continue;
+      iGUIMgr->registerViewBuilder(FWViewType::idToName(i), f);
+   }
+   
    // signal
    gEve->GetHighlight()->SetPickToSelect(TEveSelection::kPS_Master);
    TEveSelection* eveSelection = gEve->GetSelection();

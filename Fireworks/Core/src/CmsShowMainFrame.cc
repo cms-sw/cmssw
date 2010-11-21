@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.105 2010/09/16 15:42:21 yana Exp $
+// $Id: CmsShowMainFrame.cc,v 1.106 2010/11/02 19:02:28 matevz Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -515,10 +515,11 @@ CmsShowMainFrame::~CmsShowMainFrame() {
 //
 
 CSGAction*
-CmsShowMainFrame::createNewViewerAction(const std::string& iActionName)
+CmsShowMainFrame::createNewViewerAction(const std::string& iActionName, bool separator)
 {
    CSGAction* action(new CSGAction(this, iActionName.c_str()));
    action->createMenuEntry(m_newViewerMenu);
+   if (separator) m_newViewerMenu->AddSeparator();
    return action;
 }
 

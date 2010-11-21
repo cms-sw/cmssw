@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.41 2010/11/10 20:07:06 amraktad Exp $
+// $Id: CmsShowMainFrame.h,v 1.42 2010/11/11 19:45:49 amraktad Exp $
 //
 
 // system include files
@@ -95,7 +95,7 @@ public:
       return m_playEventsBack;
    }
 
-   CSGAction* createNewViewerAction(const std::string& iActionName);
+   CSGAction* createNewViewerAction(const std::string& iActionName, bool seaprator);
 
    void showFWorksInfo();
 
