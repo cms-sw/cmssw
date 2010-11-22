@@ -10,7 +10,26 @@ import os.path
 
 from Utilities.ReleaseScripts.cmsCodeRules.Formatter import SimpleHTMLFormatter
 from Utilities.ReleaseScripts.cmsCodeRules.pickleFileParser import readPicFiles
-from Utilities.ReleaseScripts.cmsCodeRules.config import rulesNames, ordering, Configuration, htmlPath
+from Utilities.ReleaseScripts.cmsCodeRules.config import rulesNames, ordering, Configuration, htmlPath, checkPath
+
+# helper function:
+
+def getIB(pathIn):
+
+    ib = None
+    wkDay = None
+    dirs = os.path.abspath(pathIn).split('/')
+    for item in dirs:
+        if item.startswith('CMSSW_'):
+            ib = item
+            break
+
+    if ib:
+        import datetime
+        fooYr, m, d, hr = ib.split('-')
+        wkDay = datetime.date( int(fooYr[-4:]), int(m), int(d) ).strftime("%a")
+
+    return ib, wkDay
 
 class BuildViewer(object):
 
@@ -29,12 +48,14 @@ class BuildViewer(object):
 
     def showResults(self):
 
+        ib, wkDay = getIB(checkPath)
+
         rulesResults = readPicFiles(self.pickleDir, True)
-        createLogFiles(rulesResults, self.logsDir)
+        createLogFiles(rulesResults, self.logsDir, wkDay)
 
         self.formatter.writeAnchor(ref='top')
-        self.formatter.writeH2("CMSSW code rules violation")
-
+        self.formatter.writeH2("CMSSW code rules violation for "+ib)
+            
         self.formatter.startTable([20,20,20,20,50], 
 ['Rule','Packages', 'Files','Sum of violations','Description'], id =
 'descriptionTable', tableAttr='border="0" cellspacing="5" cellpadding="5"')
@@ -114,7 +135,7 @@ def numberConverter(number):
        number = (3-length)*str(0) + number
     return number
 
-def createLogFiles(rulesResult, logsDir):
+def createLogFiles(rulesResult, logsDir, wkDay):
     logDir = join(logsDir,"logs")
     if os.path.exists(logDir):
         rmtree(logDir)
@@ -130,7 +151,7 @@ def createLogFiles(rulesResult, logsDir):
                 for path, lineNumbers in packageResult:
                     for line in lineNumbers:
                         directory = join(package, path)
-                        file.write('<a href="http://cmslxr.fnal.gov/lxr/source/%s#%s">%s:%s</a>\n'%(directory, numberConverter(line), directory, line))
+                        file.write('<a href="http://cmslxr.fnal.gov/lxr/source/%s?v=%s#%s">%s:%s</a>\n'%(directory, wkDay, numberConverter(line), directory, line))
                         file.write("<br/>")
                 file.write('\n')
                 file.close()
