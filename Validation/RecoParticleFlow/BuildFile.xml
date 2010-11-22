@@ -1,5 +1,5 @@
 <use   name="root"/>
-<use   name="rootinteractive"/>
+<use   name="rootgpad"/>
 <use   name="rootcore"/>
 <use   name="rootrflx"/>
 <export>
