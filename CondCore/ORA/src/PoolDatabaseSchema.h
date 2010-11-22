@@ -32,6 +32,7 @@ namespace ora {
     ~PoolDbCache();
     void add( int id, const PoolDbCacheData& data );
     const std::string& nameById( int id );
+    int idByName( const std::string& name );
     PoolDbCacheData& find( int id );
     void remove( int id );
     std::map<std::string,PoolDbCacheData* >& sequences();
@@ -197,6 +198,29 @@ namespace ora {
     coral::ISchema& m_schema;
     PoolDbCache* m_dbCache;
   };
+
+  class CondMetadataTable : public INamingServiceTable {
+    public:
+    static std::string& tableName();
+    static std::string& objectNameColumn();
+    static std::string& tokenColumn();
+    static std::string& timetypeColumn();
+   public: 
+    CondMetadataTable( coral::ISchema& dbSchema, PoolDbCache& dbCache );
+    virtual ~CondMetadataTable();
+    void setObjectName( const std::string& name, int contId, int itemId );
+    bool eraseObjectName( const std::string& name );
+    bool getObjectByName( const std::string& name, std::pair<int,int>& destination );
+    bool getNamesForObject( int contId, int itemId, std::vector<std::string>& destination );
+    bool getNamesForContainer( int contId, std::vector<std::string>& destination );
+   public:
+    bool exists();
+    void create();
+    void drop();    
+  private:
+    coral::ISchema& m_schema; 
+    PoolDbCache& m_dbCache;
+  };
   
   class PoolDatabaseSchema: public IDatabaseSchema {
     public:
@@ -228,6 +252,7 @@ namespace ora {
     PoolContainerHeaderTable m_containerHeaderTable;
     PoolClassVersionTable m_classVersionTable;
     PoolMappingSchema m_mappingSchema;
+    CondMetadataTable m_metadataTable;
   };  
   
 }

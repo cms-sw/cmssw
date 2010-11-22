@@ -1,4 +1,5 @@
 #include "CondCore/ORA/interface/Exception.h"
+#include "CondCore/ORA/interface/PoolToken.h"
 #include "PoolDatabaseSchema.h"
 #include "MappingRules.h"
 #include "MappingElement.h"
@@ -361,6 +362,18 @@ void ora::PoolDbCache::add( int id, const PoolDbCacheData& data ){
 const std::string& ora::PoolDbCache::nameById( int id ){
   PoolDbCacheData& data = find( id );
   return data.m_name;
+}
+
+int ora::PoolDbCache::idByName(  const std::string& name ){
+  int ret = -1;
+  for(std::map<int,PoolDbCacheData >::const_iterator iData = m_idMap.begin();
+      iData != m_idMap.end(); iData++ ){
+    if( iData->second.m_name == name ){
+      ret = iData->first;
+      break;
+    }
+  }
+  return ret;
 }
 
 ora::PoolDbCacheData& ora::PoolDbCache::find( int id ){
@@ -1067,6 +1080,164 @@ void ora::PoolMappingSchema::setMappingVersion( const std::string& classId,
   classVersionTable.dataEditor().updateRows( setClause,whereClause, inputData  );
 }
 
+std::string& ora::CondMetadataTable::tableName(){
+  static std::string s_name("METADATA");
+  return s_name;
+}
+
+std::string& ora::CondMetadataTable::objectNameColumn(){
+  static std::string s_column("NAME");
+  return s_column;
+}
+
+std::string& ora::CondMetadataTable::tokenColumn(){
+  static std::string s_column("TOKEN");
+  return s_column;
+}
+
+std::string& ora::CondMetadataTable::timetypeColumn(){
+  static std::string s_column("TIMETYPE");
+  return s_column;
+}
+
+ora::CondMetadataTable::CondMetadataTable( coral::ISchema& dbSchema, 
+                                           PoolDbCache& dbCache ):
+  m_schema( dbSchema ),
+  m_dbCache( dbCache ){
+}
+
+ora::CondMetadataTable::~CondMetadataTable(){
+}
+
+void ora::CondMetadataTable::setObjectName( const std::string& name, 
+                                            int contId, int itemId ){
+  coral::AttributeList dataToInsert;
+  dataToInsert.extend<std::string>( objectNameColumn() );
+  dataToInsert.extend<std::string>( tokenColumn());
+  dataToInsert.extend<int>( timetypeColumn());
+  ora::PoolDbCacheData& contData = m_dbCache.find( contId );
+  std::string token = cond::writeToken( contData.m_name, contId, itemId, contData.m_className );
+  dataToInsert[ objectNameColumn() ].data<std::string>() = name;
+  dataToInsert[ tokenColumn() ].data<std::string>()  = token;
+  dataToInsert[ timetypeColumn() ].data<int>()  = -1; // is it fine ???
+  coral::ITable& containerTable = m_schema.tableHandle( tableName() );
+  containerTable.dataEditor().insertRow( dataToInsert );  
+}
+
+bool ora::CondMetadataTable::eraseObjectName( const std::string& name ){
+  coral::AttributeList whereData;
+  whereData.extend<std::string>( objectNameColumn() );
+  whereData.begin()->data<std::string>() = name;
+  std::string condition = objectNameColumn() + " = :" + objectNameColumn();
+  return m_schema.tableHandle( tableName() ).dataEditor().deleteRows( condition, whereData )>0;
+}
+
+bool ora::CondMetadataTable::getObjectByName( const std::string& name, 
+                                              std::pair<int,int>& destination ){
+  bool ret = false;
+  coral::ITable& containerTable = m_schema.tableHandle( tableName() );
+  std::auto_ptr<coral::IQuery> query( containerTable.newQuery());
+  coral::AttributeList outputBuffer;
+  outputBuffer.extend<std::string>( tokenColumn() );
+  query->defineOutput( outputBuffer );
+  query->addToOutputList( tokenColumn() );
+  std::ostringstream condition;
+  condition << objectNameColumn()<<"= :"<< objectNameColumn();
+  coral::AttributeList condData;
+  condData.extend<std::string>( objectNameColumn() );
+  coral::AttributeList::iterator iAttribute = condData.begin();
+  iAttribute->data< std::string >() = name;
+  query->setCondition( condition.str(), condData );
+  coral::ICursor& cursor = query->execute();
+  while ( cursor.next() ) {
+    ret = true;
+    const coral::AttributeList& row = cursor.currentRow();
+    std::string token = row[ tokenColumn() ].data< std::string >();
+    std::pair<std::string,int> tokData = cond::parseToken( token ); 
+    destination.first = m_dbCache.idByName( tokData.first );
+    destination.second = tokData.second;
+  }
+  return ret;
+}
+
+bool ora::CondMetadataTable::getNamesForObject( int contId, 
+                                                int itemId, 
+                                                std::vector<std::string>& destination ){
+  bool ret = false;
+  coral::ITable& containerTable = m_schema.tableHandle( tableName() );
+  std::auto_ptr<coral::IQuery> query( containerTable.newQuery());
+  coral::AttributeList outputBuffer;
+  outputBuffer.extend<std::string>( objectNameColumn() );
+  query->defineOutput( outputBuffer );
+  query->addToOutputList( objectNameColumn() );
+  std::ostringstream condition;
+  condition << tokenColumn()<<"= :"<< tokenColumn();
+  ora::PoolDbCacheData& contData = m_dbCache.find( contId );
+  std::string token = cond::writeToken( contData.m_name, contId, itemId, contData.m_className );
+  coral::AttributeList condData;
+  condData.extend<std::string>( tokenColumn() );
+  coral::AttributeList::iterator iAttribute = condData.begin();
+  iAttribute->data< std::string >() = token;
+  query->setCondition( condition.str(), condData );
+  coral::ICursor& cursor = query->execute();
+  while ( cursor.next() ) {
+    ret = true;
+    const coral::AttributeList& row = cursor.currentRow();
+    std::string name = row[ objectNameColumn() ].data< std::string >();
+    destination.push_back( name );
+  }
+  return ret;
+}
+
+bool ora::CondMetadataTable::getNamesForContainer( int contId, 
+                                                   std::vector<std::string>& destination ){
+  
+  bool ret = false;
+  coral::ITable& containerTable = m_schema.tableHandle( tableName() );
+  std::auto_ptr<coral::IQuery> query( containerTable.newQuery());
+  coral::AttributeList outputBuffer;
+  outputBuffer.extend<std::string>( objectNameColumn() );
+  query->defineOutput( outputBuffer );
+  query->addToOutputList( objectNameColumn() );
+  std::ostringstream condition;
+  condition << tokenColumn()<<" LIKE :"<< tokenColumn();
+  ora::PoolDbCacheData& contData = m_dbCache.find( contId );
+  std::string tokenFragment = cond::writeTokenContainerFragment( contData.m_name, contData.m_className )+"%";
+  coral::AttributeList condData;
+  condData.extend<std::string>( tokenColumn() );
+  coral::AttributeList::iterator iAttribute = condData.begin();
+  iAttribute->data< std::string >() = tokenFragment;
+  query->setCondition( condition.str(), condData );
+  coral::ICursor& cursor = query->execute();
+  while ( cursor.next() ) {
+    ret = true;
+    const coral::AttributeList& row = cursor.currentRow();
+    std::string name = row[ objectNameColumn() ].data< std::string >();
+    destination.push_back( name );
+  }
+  return ret;
+}
+  
+bool ora::CondMetadataTable::exists(){
+  return m_schema.existsTable( tableName() );
+}
+
+void ora::CondMetadataTable::create(){
+  if( m_schema.existsTable( tableName() )){
+    throwException( "Metadata table already exists in this schema.",
+                    "CondMetadataTable::create");
+  }
+  throwException( "Cond Metadata table cannot be created.","CondMetadataTable::create");  
+}
+
+void ora::CondMetadataTable::drop(){
+  if( !m_schema.existsTable( tableName() )){
+    throwException( "Metadata table does not exists in this schema.",
+                    "CondMetadataTable::drop");
+  }
+  throwException( "Cond Metadata table cannot be dropped.","CondMetadataTable::drop");  
+}
+
 bool ora::PoolDatabaseSchema::existsMainTable( coral::ISchema& dbSchema ){
   PoolMainTable tmp( dbSchema );
   return tmp.exists();
@@ -1082,7 +1253,8 @@ ora::PoolDatabaseSchema::PoolDatabaseSchema( coral::ISchema& dbSchema ):
   m_mappingElementTable( dbSchema ),
   m_containerHeaderTable( dbSchema ),
   m_classVersionTable( dbSchema ),
-  m_mappingSchema( dbSchema ){
+  m_mappingSchema( dbSchema ),
+  m_metadataTable( dbSchema, m_dbCache ){
   m_sequenceTable.init( m_dbCache );
   m_containerHeaderTable.init( m_dbCache );
   m_mappingSchema.init( m_dbCache );
@@ -1095,6 +1267,7 @@ bool ora::PoolDatabaseSchema::exists(){
   if(!m_mainTable.exists()){
     return false;
   }
+
   if(!m_sequenceTable.exists() ||
      !m_mappingVersionTable.exists() ||
      !m_mappingElementTable.exists() ||
@@ -1102,6 +1275,10 @@ bool ora::PoolDatabaseSchema::exists(){
      !m_classVersionTable.exists()){
     throwException( "POOL database is corrupted..",
                     "PoolDatabaseSchema::exists");
+  }
+  if( !m_metadataTable.exists()){
+    throwException( "Metadata table has not been found.",
+                    "PoolDatabaseSchema::exists");    
   }
   return true;
 }
@@ -1148,10 +1325,7 @@ ora::IMappingSchema& ora::PoolDatabaseSchema::mappingSchema(){
 }
 
 ora::INamingServiceTable& ora::PoolDatabaseSchema::namingServiceTable(){
-  INamingServiceTable* t = 0;
-  throwException( "No NamingService table found in the database.",
-                  "PoolDatabaseSchema::namingServiceTable" );
-  return *t;
+  return m_metadataTable;
 }
   
     
