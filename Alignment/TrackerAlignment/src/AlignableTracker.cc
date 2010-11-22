@@ -67,6 +67,14 @@ void AlignableTracker::detsToAlignables( const TrackingGeometry::DetContainer& d
           << "[AlignableTracker] Pixel GeomDet (subdetector " << subdetId << ") not GeomDetUnit.\n";
       }
       alis.push_back(new AlignableDetUnit(detUnit));
+
+      // Add pixel modules to list of units since they are in fact units
+      if (!aliUnits) {
+	aliUnits = &alignableLists_.get(moduleName + "Unit");
+	aliUnits->reserve(576); // ugly hardcode to save some memory due to vector doubling
+      }
+      aliUnits->push_back(alis.back());
+    
     } else if (subdetId == SiStripDetId::TIB || subdetId == SiStripDetId::TID
 	       || subdetId == SiStripDetId::TOB || subdetId == SiStripDetId::TEC) {
       // In strip we have:
@@ -97,6 +105,13 @@ void AlignableTracker::detsToAlignables( const TrackingGeometry::DetContainer& d
               << "[AlignableTracker] pure 1D GeomDet (subdetector " << subdetId << ") not GeomDetUnit.\n";
           }
           alis.push_back(new AlignableDetUnit(detUnit));
+
+	  // Add pure 1D-modules to list of units since they are in fact units
+ 	  if (!aliUnits) {
+	    aliUnits = &alignableLists_.get(moduleName + "Unit");
+	    aliUnits->reserve(576); // ugly hardcode to save some memory due to vector doubling
+	  }
+	  aliUnits->push_back(alis.back());
         }
       } // no else: glued components of AlignableDet constructed within AlignableDet, see above
     } else {
