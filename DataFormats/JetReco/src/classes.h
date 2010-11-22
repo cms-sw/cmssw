@@ -9,6 +9,7 @@
 #include "Math/CylindricalEta3D.h" 
 #include "Math/PtEtaPhiM4D.h" 
 #include "Math/PxPyPzE4D.h" 
+
 #include "DataFormats/JetReco/interface/CaloJetCollection.h" 
 #include "DataFormats/JetReco/interface/JPTJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
@@ -23,8 +24,19 @@
 #include "DataFormats/JetReco/interface/JetID.h"
 #include "DataFormats/JetReco/interface/CastorJetID.h"
 #include "DataFormats/JetReco/interface/TrackExtrapolation.h"
-#include "DataFormats/Common/interface/Wrapper.h"
 
+#include "DataFormats/JetReco/interface/PattRecoPeak.h"
+#include "DataFormats/JetReco/interface/PattRecoNode.h"
+#include "DataFormats/JetReco/interface/PattRecoTree.h"
+#include "DataFormats/JetReco/interface/FFTJetProducerSummary.h"
+#include "DataFormats/JetReco/interface/FFTCaloJetCollection.h" 
+#include "DataFormats/JetReco/interface/FFTJPTJetCollection.h"
+#include "DataFormats/JetReco/interface/FFTGenJetCollection.h"
+#include "DataFormats/JetReco/interface/FFTPFJetCollection.h"
+#include "DataFormats/JetReco/interface/FFTTrackJetCollection.h"
+#include "DataFormats/JetReco/interface/FFTBasicJetCollection.h"
+
+#include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/FwdRef.h" 
 #include "DataFormats/Common/interface/RefProd.h" 
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -246,6 +258,148 @@ namespace {
     edm::Wrapper<edm::RefVector<std::vector<reco::TrackExtrapolation> > > wrv_xtrp;
     edm::Wrapper<edm::RefProd<std::vector<reco::TrackExtrapolation> > > wrp_xtrp;
 
+    // FFTJet interface
+    reco::FFTJet<float> fftjet_float;
+    reco::FFTJet<double> fftjet_double;
+    reco::PattRecoPeak<float> pattRecoPeak_float;
+    reco::PattRecoPeak<double> pattRecoPeak_double;
+    reco::PattRecoNode<reco::PattRecoPeak<float> > pattRecoNode_Peak_float;
+    reco::PattRecoNode<reco::PattRecoPeak<double> > pattRecoNode_Peak_double;
+    std::vector<reco::PattRecoNode<reco::PattRecoPeak<float> > > v_pattRecoNode_Peak_float;
+    std::vector<reco::PattRecoNode<reco::PattRecoPeak<double> > > v_pattRecoNode_Peak_double;
+    reco::PattRecoTree<float,reco::PattRecoPeak<float> > pattRecoTree_Peak_float;
+    reco::PattRecoTree<double,reco::PattRecoPeak<double> > pattRecoTree_Peak_double;
+    edm::Wrapper<reco::PattRecoTree<float,reco::PattRecoPeak<float> > > wr_pattRecoTree_Peak_double;
+    edm::Wrapper<reco::PattRecoTree<double,reco::PattRecoPeak<double> > > wr_pattRecoTree_Peak_float;
+
+    reco::FFTJetProducerSummary fftjet_smry;
+    edm::Wrapper<reco::FFTJetProducerSummary> wr_fftjet_smry;
+
+    reco::FFTGenJetCollection o2_fft_1;
+    reco::FFTGenJetRef r2_fft_1;
+    reco::FFTGenJetFwdRef fwdr2_fft_1;
+    reco::FFTGenJetFwdPtr fwdp2_fft_1;
+    reco::FFTGenJetRefVector rr2_fft_1;
+    reco::FFTGenJetFwdRefVector fwdrr2_fft_1;
+    reco::FFTGenJetFwdPtrVector fwdpr2_fft_1;
+    reco::FFTGenJetRefProd rrr2_fft_1;
+    edm::Wrapper<reco::FFTGenJetCollection> w2_fft_1;
+    edm::Wrapper<reco::FFTGenJetRefVector> wrv2_fft_1;
+    edm::Wrapper<reco::FFTGenJetFwdRefVector> wfwdrv2_fft_1;
+    edm::Wrapper<reco::FFTGenJetFwdPtrVector> wfwdpv2_fft_1;
+    edm::reftobase::Holder<reco::Candidate, reco::FFTGenJetRef> rtb2_fft_1;
+    reco::JetTrackMatch<reco::FFTGenJetCollection> jtm2_fft_1;
+    edm::reftobase::Holder<reco::Jet, reco::FFTGenJetRef> hgj_fft_1;
+    edm::reftobase::RefHolder<reco::FFTGenJetRef> rhgj_fft_1;
+    edm::Ptr<reco::FFTGenJet> ptrgj_fft_1;
+    edm::PtrVector<reco::FFTGenJet> ptrvgj_fft_1;
+    edm::Association<reco::FFTGenJetCollection> a_gj_fft_1;
+    edm::Wrapper<edm::Association<reco::FFTGenJetCollection> > w_a_gj_fft_1;
+
+    reco::FFTCaloJetCollection o2_fft_2;
+    reco::FFTCaloJetRef r2_fft_2;
+    reco::FFTCaloJetFwdRef fwdr2_fft_2;
+    reco::FFTCaloJetFwdPtr fwdp2_fft_2;
+    reco::FFTCaloJetRefVector rr2_fft_2;
+    reco::FFTCaloJetFwdRefVector fwdrr2_fft_2;
+    reco::FFTCaloJetFwdPtrVector fwdpr2_fft_2;
+    reco::FFTCaloJetRefProd rrr2_fft_2;
+    edm::Wrapper<reco::FFTCaloJetCollection> w2_fft_2;
+    edm::Wrapper<reco::FFTCaloJetRefVector> wrv2_fft_2;
+    edm::Wrapper<reco::FFTCaloJetFwdRefVector> wfwdrv2_fft_2;
+    edm::Wrapper<reco::FFTCaloJetFwdPtrVector> wfwdpv2_fft_2;
+    edm::reftobase::Holder<reco::Candidate, reco::FFTCaloJetRef> rtb2_fft_2;
+    reco::JetTrackMatch<reco::FFTCaloJetCollection> jtm2_fft_2;
+    edm::reftobase::Holder<reco::Jet, reco::FFTCaloJetRef> hgj_fft_2;
+    edm::reftobase::RefHolder<reco::FFTCaloJetRef> rhgj_fft_2;
+    edm::Ptr<reco::FFTCaloJet> ptrgj_fft_2;
+    edm::PtrVector<reco::FFTCaloJet> ptrvgj_fft_2;
+    edm::Association<reco::FFTCaloJetCollection> a_gj_fft_2;
+    edm::Wrapper<edm::Association<reco::FFTCaloJetCollection> > w_a_gj_fft_2;
+
+    reco::FFTBasicJetCollection o2_fft_3;
+    reco::FFTBasicJetRef r2_fft_3;
+    reco::FFTBasicJetFwdRef fwdr2_fft_3;
+    reco::FFTBasicJetFwdPtr fwdp2_fft_3;
+    reco::FFTBasicJetRefVector rr2_fft_3;
+    reco::FFTBasicJetFwdRefVector fwdrr2_fft_3;
+    reco::FFTBasicJetFwdPtrVector fwdpr2_fft_3;
+    reco::FFTBasicJetRefProd rrr2_fft_3;
+    edm::Wrapper<reco::FFTBasicJetCollection> w2_fft_3;
+    edm::Wrapper<reco::FFTBasicJetRefVector> wrv2_fft_3;
+    edm::Wrapper<reco::FFTBasicJetFwdRefVector> wfwdrv2_fft_3;
+    edm::Wrapper<reco::FFTBasicJetFwdPtrVector> wfwdpv2_fft_3;
+    edm::reftobase::Holder<reco::Candidate, reco::FFTBasicJetRef> rtb2_fft_3;
+    reco::JetTrackMatch<reco::FFTBasicJetCollection> jtm2_fft_3;
+    edm::reftobase::Holder<reco::Jet, reco::FFTBasicJetRef> hgj_fft_3;
+    edm::reftobase::RefHolder<reco::FFTBasicJetRef> rhgj_fft_3;
+    edm::Ptr<reco::FFTBasicJet> ptrgj_fft_3;
+    edm::PtrVector<reco::FFTBasicJet> ptrvgj_fft_3;
+    edm::Association<reco::FFTBasicJetCollection> a_gj_fft_3;
+    edm::Wrapper<edm::Association<reco::FFTBasicJetCollection> > w_a_gj_fft_3;
+
+    reco::FFTPFJetCollection o2_fft_4;
+    reco::FFTPFJetRef r2_fft_4;
+    reco::FFTPFJetFwdRef fwdr2_fft_4;
+    reco::FFTPFJetFwdPtr fwdp2_fft_4;
+    reco::FFTPFJetRefVector rr2_fft_4;
+    reco::FFTPFJetFwdRefVector fwdrr2_fft_4;
+    reco::FFTPFJetFwdPtrVector fwdpr2_fft_4;
+    reco::FFTPFJetRefProd rrr2_fft_4;
+    edm::Wrapper<reco::FFTPFJetCollection> w2_fft_4;
+    edm::Wrapper<reco::FFTPFJetRefVector> wrv2_fft_4;
+    edm::Wrapper<reco::FFTPFJetFwdRefVector> wfwdrv2_fft_4;
+    edm::Wrapper<reco::FFTPFJetFwdPtrVector> wfwdpv2_fft_4;
+    edm::reftobase::Holder<reco::Candidate, reco::FFTPFJetRef> rtb2_fft_4;
+    reco::JetTrackMatch<reco::FFTPFJetCollection> jtm2_fft_4;
+    edm::reftobase::Holder<reco::Jet, reco::FFTPFJetRef> hgj_fft_4;
+    edm::reftobase::RefHolder<reco::FFTPFJetRef> rhgj_fft_4;
+    edm::Ptr<reco::FFTPFJet> ptrgj_fft_4;
+    edm::PtrVector<reco::FFTPFJet> ptrvgj_fft_4;
+    edm::Association<reco::FFTPFJetCollection> a_gj_fft_4;
+    edm::Wrapper<edm::Association<reco::FFTPFJetCollection> > w_a_gj_fft_4;
+
+    reco::FFTTrackJetCollection o2_fft_6;
+    reco::FFTTrackJetRef r2_fft_6;
+    reco::FFTTrackJetFwdRef fwdr2_fft_6;
+    reco::FFTTrackJetFwdPtr fwdp2_fft_6;
+    reco::FFTTrackJetRefVector rr2_fft_6;
+    reco::FFTTrackJetFwdRefVector fwdrr2_fft_6;
+    reco::FFTTrackJetFwdPtrVector fwdpr2_fft_6;
+    reco::FFTTrackJetRefProd rrr2_fft_6;
+    edm::Wrapper<reco::FFTTrackJetCollection> w2_fft_6;
+    edm::Wrapper<reco::FFTTrackJetRefVector> wrv2_fft_6;
+    edm::Wrapper<reco::FFTTrackJetFwdRefVector> wfwdrv2_fft_6;
+    edm::Wrapper<reco::FFTTrackJetFwdPtrVector> wfwdpv2_fft_6;
+    edm::reftobase::Holder<reco::Candidate, reco::FFTTrackJetRef> rtb2_fft_6;
+    reco::JetTrackMatch<reco::FFTTrackJetCollection> jtm2_fft_6;
+    edm::reftobase::Holder<reco::Jet, reco::FFTTrackJetRef> hgj_fft_6;
+    edm::reftobase::RefHolder<reco::FFTTrackJetRef> rhgj_fft_6;
+    edm::Ptr<reco::FFTTrackJet> ptrgj_fft_6;
+    edm::PtrVector<reco::FFTTrackJet> ptrvgj_fft_6;
+    edm::Association<reco::FFTTrackJetCollection> a_gj_fft_6;
+    edm::Wrapper<edm::Association<reco::FFTTrackJetCollection> > w_a_gj_fft_6;
+
+    reco::FFTJPTJetCollection o2_fft_7;
+    reco::FFTJPTJetRef r2_fft_7;
+    reco::FFTJPTJetFwdRef fwdr2_fft_7;
+    reco::FFTJPTJetFwdPtr fwdp2_fft_7;
+    reco::FFTJPTJetRefVector rr2_fft_7;
+    reco::FFTJPTJetFwdRefVector fwdrr2_fft_7;
+    reco::FFTJPTJetFwdPtrVector fwdpr2_fft_7;
+    reco::FFTJPTJetRefProd rrr2_fft_7;
+    edm::Wrapper<reco::FFTJPTJetCollection> w2_fft_7;
+    edm::Wrapper<reco::FFTJPTJetRefVector> wrv2_fft_7;
+    edm::Wrapper<reco::FFTJPTJetFwdRefVector> wfwdrv2_fft_7;
+    edm::Wrapper<reco::FFTJPTJetFwdPtrVector> wfwdpv2_fft_7;
+    edm::reftobase::Holder<reco::Candidate, reco::FFTJPTJetRef> rtb2_fft_7;
+    reco::JetTrackMatch<reco::FFTJPTJetCollection> jtm2_fft_7;
+    edm::reftobase::Holder<reco::Jet, reco::FFTJPTJetRef> hgj_fft_7;
+    edm::reftobase::RefHolder<reco::FFTJPTJetRef> rhgj_fft_7;
+    edm::Ptr<reco::FFTJPTJet> ptrgj_fft_7;
+    edm::PtrVector<reco::FFTJPTJet> ptrvgj_fft_7;
+    edm::Association<reco::FFTJPTJetCollection> a_gj_fft_7;
+    edm::Wrapper<edm::Association<reco::FFTJPTJetCollection> > w_a_gj_fft_7;
   };
 }
 #endif
