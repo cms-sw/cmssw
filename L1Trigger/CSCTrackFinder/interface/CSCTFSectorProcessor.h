@@ -51,6 +51,8 @@ public:
 
   void readParameters(const edm::ParameterSet& pset);
 
+  void printDisclaimer(int firmSP, int firmFA);
+
  private:
   // disallow copy and assignment
   CSCTFSectorProcessor& operator=(const CSCTFSectorProcessor& rhs) { return *this; };
@@ -100,6 +102,10 @@ public:
   std::map<std::string, CSCSectorReceiverLUT*> srLUTs_; // indexed by FPGA
   CSCTFSPCoreLogic* core_;
   CSCTFPtLUT* ptLUT_;
+
+  // firmware map
+  std::map<int, int> firmSP_Map; 
+  bool isCoreVerbose;
 };
 
 #endif

@@ -13,3 +13,4 @@
 <use   name="DataFormats/L1GlobalMuonTrigger"/>
 <use   name="boost"/>
 
+<flags ADD_SUBDIR="1"/>

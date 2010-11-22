@@ -102,22 +102,32 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   singlesTrackOutput = 999;
   rescaleSinglesPhi  = -1;
 
+  m_firmSP = -1;
+  m_firmFA = -1;
+  m_firmDD = -1;
+  m_firmVM = -1;
+
+  isCoreVerbose = pset.getParameter<bool>("isCoreVerbose");
+
   if(initializeFromPSet) readParameters(pset);
 
+
+  // Sector Receiver LUTs initialization
   edm::ParameterSet srLUTset = pset.getParameter<edm::ParameterSet>("SRLUT");
   for(int i = 1; i <= 4; ++i)
     {
       if(i == 1)
-        for(int j = 0; j < 2; j++)
+	for(int j = 0; j < 2; j++)
           {
             srLUTs_[FPGAs[j]] = new CSCSectorReceiverLUT(endcap, sector, j+1, i, srLUTset, TMB07);
-          }
+	  }
       else
-        srLUTs_[FPGAs[i]] = new CSCSectorReceiverLUT(endcap, sector, 0, i, srLUTset, TMB07);
+	srLUTs_[FPGAs[i]] = new CSCSectorReceiverLUT(endcap, sector, 0, i, srLUTset, TMB07);
     }
 
   core_ = new CSCTFSPCoreLogic();
 
+  // Pt LUTs initialization
   if(initializeFromPSet){
     edm::ParameterSet ptLUTset = pset.getParameter<edm::ParameterSet>("PTLUT");
     ptLUT_ = new CSCTFPtLUT(ptLUTset, scales, ptScale);
@@ -126,7 +136,28 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
     ptLUT_=0;
     LogDebug("CSCTFSectorProcessor") << "Looking for PT LUT in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
   }
+
+  // firmware map initialization
+  // all the information are based on the firmware releases 
+  // documented at http://www.phys.ufl.edu/~uvarov/SP05/SP05.htm
+
+  // map is <m_firmSP, core_version>
+  // it may happen that the same core is used for different firmware
+  // versions, e.g. change in the wrapper only
+
+  // this mapping accounts for runs starting from 132440
+  // schema is year+month+day
+  firmSP_Map.insert(std::pair<int,int>(20100210,20100122));
+  firmSP_Map.insert(std::pair<int,int>(20100617,20100122));
+  firmSP_Map.insert(std::pair<int,int>(20100629,20100122));
+
+  firmSP_Map.insert(std::pair<int,int>(20100728,20100728));
+
+  firmSP_Map.insert(std::pair<int,int>(20100901,20100901));
+
+  firmSP_Map.insert(std::pair<int,int>(20101011,20101011));
 }
+
 
 void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
   if(!initializeFromPSet){
@@ -184,7 +215,7 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
                                    << "\nQualityEnableME4b (in general accept all LCT qualities, i.e. 0xFFFF is expected)=" << QualityEnableME4b
                                    << "\nQualityEnableME4c (in general accept all LCT qualities, i.e. 0xFFFF is expected)=" << QualityEnableME4c
 
-                                   << "\nkill_fiber="         << kill_fiber
+                                   << "\nkill_fiber="          << kill_fiber
                                    << "\nSingles Output Link=" << singlesTrackOutput
 
     //the DAT_ETA registers meaning are explained at Table 2 of
@@ -248,22 +279,21 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
 				   << "\nFirmware DD year+month+day:" << m_firmDD
 				   << "\nFirmware VM year+month+day:" << m_firmVM;
 
-  if (m_firmSP <= 20100210) 
-    edm::LogInfo( "CSCTFSectorProcessor" ) << "\n\n"
-					   << "******************************* \n"
-					   << "***       DISCLAIMER        *** \n"
-					   << "******************************* \n"
-					   << "\n Firmware SP version (year+month+day)=" << m_firmSP
-					   << "\n -> KNOWN BUGS IN THE FIRMWARE:\n"
-					   << "\t * Wrong phi assignment for singles\n"
-					   << "\t * Wrapper passes to the core only even quality DT stubs\n"
-					   << "\n -> BUGS ARE GOING TO BE EMULATED BY THE SOFTWARE\n\n";
+
+  printDisclaimer(m_firmSP,m_firmFA);
+
+  // set core verbosity: for debugging only purpouses
+  // in general the output is handled to Alex Madorsky
+  core_ -> SetVerbose(isCoreVerbose);
+
+  // Set the SP firmware 
+  core_ -> SetSPFirmwareVersion (m_firmSP);
  
   // Set the firmware for the CORE
-  core_ -> SetFirmwareVersion (m_firmSP);
-  LogDebug( "CSCTFSectorProcessor" ) << "\nCore Firmware is set to " << core_ -> GetFirmwareVersion();
+  int firmVersCore = firmSP_Map.find(m_firmSP)->second;
+  core_ -> SetCoreFirmwareVersion (firmVersCore);
+  edm::LogInfo( "CSCTFSectorProcessor" ) << "\nCore Firmware is set to " << core_ -> GetCoreFirmwareVersion();
   // ---------------------------------------------------------------------------
-
 
   // Check if parameters were not initialized in both: constuctor (from .cf? file) and initialize method (from EventSetup)
   if(m_bxa_depth<0) throw cms::Exception("CSCTFSectorProcessor")<<"BXAdepth parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
@@ -409,6 +439,7 @@ void CSCTFSectorProcessor::readParameters(const edm::ParameterSet& pset){
   m_firmFA = pset.getParameter<unsigned int>("firmwareFA");
   m_firmDD = pset.getParameter<unsigned int>("firmwareDD");
   m_firmVM = pset.getParameter<unsigned int>("firmwareVM");
+
 }
 
 CSCTFSectorProcessor::~CSCTFSectorProcessor()
@@ -568,22 +599,22 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
   if(run_core){
     core_->loadData(processedStubs, m_endcap, m_sector, m_minBX, m_maxBX);
     if( core_->run(m_endcap, m_sector, m_latency,
-                   m_etamin[0], m_etamin[1], m_etamin[2], m_etamin[3],
-                   m_etamin[4], m_etamin[5], m_etamin[6], m_etamin[7],
-                   m_etamax[0], m_etamax[1], m_etamax[2], m_etamax[3],
-                   m_etamax[4], m_etamax[5], m_etamax[6], m_etamax[7],
-                   m_etawin[0], m_etawin[1], m_etawin[2],
-                   m_etawin[3], m_etawin[4], m_etawin[5], m_etawin[6],
-                   m_mindphip, m_mindetap,
-                   m_mindeta12_accp,  m_maxdeta12_accp, m_maxdphi12_accp,
-                   m_mindeta13_accp,  m_maxdeta13_accp, m_maxdphi13_accp,
-                   m_mindeta112_accp,  m_maxdeta112_accp, m_maxdphi112_accp,
-                   m_mindeta113_accp,  m_maxdeta113_accp, m_maxdphi113_accp,
-                   m_mindphip_halo, m_mindetap_halo,
-                   m_straightp, m_curvedp,
-                   m_mbaPhiOff, m_mbbPhiOff,
-                   m_bxa_depth, m_allowALCTonly, m_allowCLCTonly, m_preTrigger, m_widePhi,
-                   m_minBX, m_maxBX) )
+		   m_etamin[0], m_etamin[1], m_etamin[2], m_etamin[3],
+		   m_etamin[4], m_etamin[5], m_etamin[6], m_etamin[7],
+		   m_etamax[0], m_etamax[1], m_etamax[2], m_etamax[3],
+		   m_etamax[4], m_etamax[5], m_etamax[6], m_etamax[7],
+		   m_etawin[0], m_etawin[1], m_etawin[2],
+		   m_etawin[3], m_etawin[4], m_etawin[5], m_etawin[6],
+		   m_mindphip, m_mindetap,
+		   m_mindeta12_accp,  m_maxdeta12_accp, m_maxdphi12_accp,
+		   m_mindeta13_accp,  m_maxdeta13_accp, m_maxdphi13_accp,
+		   m_mindeta112_accp,  m_maxdeta112_accp, m_maxdphi112_accp,
+		   m_mindeta113_accp,  m_maxdeta113_accp, m_maxdphi113_accp,
+		   m_mindphip_halo, m_mindetap_halo,
+		   m_straightp, m_curvedp,
+		   m_mbaPhiOff, m_mbbPhiOff,
+		   m_bxa_depth, m_allowALCTonly, m_allowCLCTonly, m_preTrigger, m_widePhi,
+		   m_minBX, m_maxBX) )
       {
         l1_tracks = core_->tracks();
       }
@@ -603,21 +634,21 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
         ptdat thePtData = ptLUT_->Pt(thePtAddress);
 
         if(thePtAddress.track_fr)
-          {
-            titr->setRank(thePtData.front_rank);
-            titr->setChargeValidPacked(thePtData.charge_valid_front);
-          }
+	  {
+	    titr->setRank(thePtData.front_rank);
+	    titr->setChargeValidPacked(thePtData.charge_valid_front);
+	  }
         else
-          {
-            titr->setRank(thePtData.rear_rank);
-            titr->setChargeValidPacked(thePtData.charge_valid_rear);
-          }
+	  {
+	    titr->setRank(thePtData.rear_rank);
+	    titr->setChargeValidPacked(thePtData.charge_valid_rear);
+	  }
 
-        if( ((titr->ptLUTAddress()>>16)&0xf)==15 )
-          {
-            int unmodBx = titr->bx();
-            titr->setBx(unmodBx+2);
-          }
+	if( ((titr->ptLUTAddress()>>16)&0xf)==15 )
+	  {
+	    int unmodBx = titr->bx();
+	    titr->setBx(unmodBx+2);
+	  }
       }
   } //end of if(run_core)
 
@@ -631,17 +662,17 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
     for(std::vector<csctf::TrackStub>::iterator itr=stub_vec_filtered.begin(); itr!=stub_vec_filtered.end(); itr++){
       int station = itr->station()-1;
       if(station != 4){
-        int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(itr->getDetId().rawId()));
-        int mpc = ( subSector ? subSector-1 : station+1 );
-        if( (mpc==0&&trigger_on_ME1a) || (mpc==1&&trigger_on_ME1b) ||
-            (mpc==2&&trigger_on_ME2)  || (mpc==3&&trigger_on_ME3)  ||
-            (mpc==4&&trigger_on_ME4)  ||
-            (mpc==5&& ( (trigger_on_MB1a&&subSector%2==1) || (trigger_on_MB1d&&subSector%2==0) ) ) ){
-          int bx = itr->getBX() - m_minBX;
-          if( bx<0 || bx>=7 ) edm::LogWarning("CSCTFTrackBuilder::buildTracks()") << " LCT BX is out of ["<<m_minBX<<","<<m_maxBX<<") range: "<<itr->getBX();
-          else
-            if( itr->isValid() ) myStubContainer[bx].push_back(*itr);
-        }
+	int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(itr->getDetId().rawId()));
+	int mpc = ( subSector ? subSector-1 : station+1 );
+	if( (mpc==0&&trigger_on_ME1a) || (mpc==1&&trigger_on_ME1b) ||
+	    (mpc==2&&trigger_on_ME2)  || (mpc==3&&trigger_on_ME3)  ||
+	    (mpc==4&&trigger_on_ME4)  ||
+	    (mpc==5&& ( (trigger_on_MB1a&&subSector%2==1) || (trigger_on_MB1d&&subSector%2==0) ) ) ){
+	  int bx = itr->getBX() - m_minBX;
+	  if( bx<0 || bx>=7 ) edm::LogWarning("CSCTFTrackBuilder::buildTracks()") << " LCT BX is out of ["<<m_minBX<<","<<m_maxBX<<") range: "<<itr->getBX();
+	  else
+	    if( itr->isValid() ) myStubContainer[bx].push_back(*itr);
+	}
       }
     }
 
@@ -658,77 +689,77 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
       // tracks are not ordered to be accessible by bx => loop them all
       std::vector<csc::L1Track> tracks = l1_tracks.get();
       for(std::vector<csc::L1Track>::iterator trk=tracks.begin(); trk<tracks.end(); trk++)
-        if( (trk->BX() == bx-shift && trk->outputLink() == singlesTrackOutput)
-            || (((trk->ptLUTAddress()>>16)&0xf)==15 && trk->BX()-2 == bx-shift) ){
-          coreTrackExists = true;
-          break;
-        }
+	if( (trk->BX() == bx-shift && trk->outputLink() == singlesTrackOutput)
+	    || (((trk->ptLUTAddress()>>16)&0xf)==15 && trk->BX()-2 == bx-shift) ){
+	  coreTrackExists = true;
+	  break;
+	}
       if( coreTrackExists == false ){
-        csc::L1TrackId trackId(m_endcap,m_sector);
-        csc::L1Track   track(trackId);
-        track.setBx(bx-shift);
-        track.setOutputLink(singlesTrackOutput);
-        //CSCCorrelatedLCTDigiCollection singles;
-        std::vector<csctf::TrackStub> stubs = myStubContainer[bx].get();
-        // Select best quality stub, and assign its eta/phi coordinates to the track
-        int qualityME=0, qualityMB=0, ME=100, MB=100, linkME=7;
-        std::vector<csctf::TrackStub>::const_iterator bestStub=stubs.end();
-        for(std::vector<csctf::TrackStub>::const_iterator st_iter=stubs.begin(); st_iter!=stubs.end(); st_iter++){
-          int station = st_iter->station()-1;
-          int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(st_iter->getDetId().rawId()));
-          int mpc = ( subSector ? subSector-1 : station+1 );
-          // Sort MB stubs first (priority: quality OR MB1a > MB1b for the same quality)
-          if( mpc==5 &&  (st_iter->getQuality()>qualityMB || (st_iter->getQuality()==qualityMB&&subSector<MB)) ){
-            qualityMB = st_iter->getQuality();
-            MB        = subSector;
-            if(ME>4) bestStub = st_iter; // do not select this stub if ME already had any candidate
-          }
-          // Sort ME stubs (priority: quality OR ME1a > ME1b > ME2 > ME3 > ME4 for the same quality)
-          if( mpc<5  && (st_iter->getQuality()> qualityME
-                         || (st_iter->getQuality()==qualityME && mpc< ME)
-                         || (st_iter->getQuality()==qualityME && mpc==ME && st_iter->getMPCLink()<linkME))) {
-            qualityME = st_iter->getQuality();
-            ME        = mpc;
-            linkME    = st_iter->getMPCLink();
-            bestStub  = st_iter;
-          }
-        }
-        unsigned rescaled_phi = 999;
-        if (m_firmSP <= 20100210) {
-          // buggy implementation of the phi for singles in the wrapper... 
-          // at the end data/emulator have to agree: e.g. wrong in the same way
-          // BUG: getting the lowest 7 bits instead the 7 most significant ones.
-          rescaled_phi = unsigned(24*(bestStub->phiPacked()&0x7f)/128.);
-        }
-        else {
-          // correct implementation :-)
-          rescaled_phi = unsigned(24*(bestStub->phiPacked()>>5)/128.);
-        }
+	csc::L1TrackId trackId(m_endcap,m_sector);
+	csc::L1Track   track(trackId);
+	track.setBx(bx-shift);
+	track.setOutputLink(singlesTrackOutput);
+	//CSCCorrelatedLCTDigiCollection singles;
+	std::vector<csctf::TrackStub> stubs = myStubContainer[bx].get();
+	// Select best quality stub, and assign its eta/phi coordinates to the track
+	int qualityME=0, qualityMB=0, ME=100, MB=100, linkME=7;
+	std::vector<csctf::TrackStub>::const_iterator bestStub=stubs.end();
+	for(std::vector<csctf::TrackStub>::const_iterator st_iter=stubs.begin(); st_iter!=stubs.end(); st_iter++){
+	  int station = st_iter->station()-1;
+	  int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(st_iter->getDetId().rawId()));
+	  int mpc = ( subSector ? subSector-1 : station+1 );
+	  // Sort MB stubs first (priority: quality OR MB1a > MB1b for the same quality)
+	  if( mpc==5 &&  (st_iter->getQuality()>qualityMB || (st_iter->getQuality()==qualityMB&&subSector<MB)) ){
+	    qualityMB = st_iter->getQuality();
+	    MB        = subSector;
+	    if(ME>4) bestStub = st_iter; // do not select this stub if ME already had any candidate
+	  }
+	  // Sort ME stubs (priority: quality OR ME1a > ME1b > ME2 > ME3 > ME4 for the same quality)
+	  if( mpc<5  && (st_iter->getQuality()> qualityME
+			 || (st_iter->getQuality()==qualityME && mpc< ME)
+			 || (st_iter->getQuality()==qualityME && mpc==ME && st_iter->getMPCLink()<linkME))) {
+	    qualityME = st_iter->getQuality();
+	    ME        = mpc;
+	    linkME    = st_iter->getMPCLink();
+	    bestStub  = st_iter;
+	  }
+	}
+	unsigned rescaled_phi = 999;
+	if (m_firmSP <= 20100210) {
+	  // buggy implementation of the phi for singles in the wrapper... 
+	  // at the end data/emulator have to agree: e.g. wrong in the same way
+	  // BUG: getting the lowest 7 bits instead the 7 most significant ones.
+	  rescaled_phi = unsigned(24*(bestStub->phiPacked()&0x7f)/128.);
+	}
+	else {
+	  // correct implementation :-)
+	  rescaled_phi = unsigned(24*(bestStub->phiPacked()>>5)/128.);
+	}
 
-        unsigned unscaled_phi =              bestStub->phiPacked()>>7       ;
-        track.setLocalPhi(rescaleSinglesPhi?rescaled_phi:unscaled_phi);
-        track.setEtaPacked((bestStub->etaPacked()>>2)&0x1f);
-        switch( bestStub->station() ){
-        case 1: track.setStationIds(bestStub->getMPCLink(),0,0,0,0); break;
-        case 2: track.setStationIds(0,bestStub->getMPCLink(),0,0,0); break;
-        case 3: track.setStationIds(0,0,bestStub->getMPCLink(),0,0); break;
-        case 4: track.setStationIds(0,0,0,bestStub->getMPCLink(),0); break;
-        case 5: track.setStationIds(0,0,0,0,bestStub->getMPCLink()); break;
-        default: edm::LogError("CSCTFSectorProcessor::run()") << "Illegal LCT link="<<bestStub->station()<<"\n"; break;
-        }
-        //   singles.insertDigi(CSCDetId(st_iter->getDetId().rawId()),*st_iter);
-        //tracksFromSingles.push_back(L1CSCTrack(track,singles));
-        track.setPtLUTAddress( (11<<16) | ((bestStub->etaPacked()<<9)&0xf000) );
-        ptadd thePtAddress( track.ptLUTAddress() );
-        ptdat thePtData = ptLUT_->Pt(thePtAddress);
-        if( thePtAddress.track_fr ){
-          track.setRank(thePtData.front_rank);
-          track.setChargeValidPacked(thePtData.charge_valid_front);
-        } else {
-          track.setRank(thePtData.rear_rank);
-          track.setChargeValidPacked(thePtData.charge_valid_rear);
-        }
-        tracksFromSingles.push_back(track);
+	unsigned unscaled_phi =              bestStub->phiPacked()>>7       ;
+	track.setLocalPhi(rescaleSinglesPhi?rescaled_phi:unscaled_phi);
+	track.setEtaPacked((bestStub->etaPacked()>>2)&0x1f);
+	switch( bestStub->station() ){
+	case 1: track.setStationIds(bestStub->getMPCLink(),0,0,0,0); break;
+	case 2: track.setStationIds(0,bestStub->getMPCLink(),0,0,0); break;
+	case 3: track.setStationIds(0,0,bestStub->getMPCLink(),0,0); break;
+	case 4: track.setStationIds(0,0,0,bestStub->getMPCLink(),0); break;
+	case 5: track.setStationIds(0,0,0,0,bestStub->getMPCLink()); break;
+	default: edm::LogError("CSCTFSectorProcessor::run()") << "Illegal LCT link="<<bestStub->station()<<"\n"; break;
+	}
+	//   singles.insertDigi(CSCDetId(st_iter->getDetId().rawId()),*st_iter);
+	//tracksFromSingles.push_back(L1CSCTrack(track,singles));
+	track.setPtLUTAddress( (11<<16) | ((bestStub->etaPacked()<<9)&0xf000) );
+	ptadd thePtAddress( track.ptLUTAddress() );
+	ptdat thePtData = ptLUT_->Pt(thePtAddress);
+	if( thePtAddress.track_fr ){
+	  track.setRank(thePtData.front_rank);
+	  track.setChargeValidPacked(thePtData.charge_valid_front);
+	} else {
+	  track.setRank(thePtData.rear_rank);
+	  track.setChargeValidPacked(thePtData.charge_valid_rear);
+	}
+	tracksFromSingles.push_back(track);
       }
     }
   std::vector<csc::L1Track> single_tracks = tracksFromSingles.get();
@@ -738,3 +769,35 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
   return (l1_tracks.get().size() > 0);
 }
 
+// according to the firmware versions print some more information
+void CSCTFSectorProcessor::printDisclaimer(int firmSP, int firmFA){
+  
+  edm::LogInfo( "CSCTFSectorProcessor" ) << "\n\n"
+					 << "******************************* \n"
+					 << "***       DISCLAIMER        *** \n"
+					 << "******************************* \n"
+					 << "\n Firmware SP version (year+month+day)=" << firmSP
+					 << "\n Firmware FA/VM/DD version (year+month+day)=" << firmFA;
+  if (firmSP==20100210)
+    edm::LogInfo( "CSCTFSectorProcessor" ) << " -> KNOWN BUGS IN THE FIRMWARE:\n"
+					   << "\t * Wrong phi assignment for singles\n"
+					   << "\t * Wrapper passes to the core only even quality DT stubs\n"
+					   << "\n -> BUGS ARE GOING TO BE EMULATED BY THE SOFTWARE\n\n";
+
+  else 
+    edm::LogInfo( "CSCTFSectorProcessor" ) << "\t * Correct phi assignment for singles\n";
+  
+  if (firmSP==20100629){
+    edm::LogInfo( "CSCTFSectorProcessor" ) << "\t * Correct MB quality masking in the wrapper\n";
+    edm::LogInfo( "CSCTFSectorProcessor" ) << "\t * Core is 20100122\n";
+  }
+
+  if (firmSP==20100728)
+    edm::LogInfo( "CSCTFSectorProcessor" ) << "\t * Inverted MB clocks\n";
+
+  if (firmSP==20100901)
+    edm::LogInfo( "CSCTFSectorProcessor" ) << "\t * Inverted charge bit\n";
+
+  if (firmSP==20101011)
+    edm::LogInfo( "CSCTFSectorProcessor" ) << "\t * Added CSC-DT assembling tracks ME1-MB2/1\n";
+}

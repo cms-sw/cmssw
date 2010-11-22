@@ -29,8 +29,8 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 		run_core = cms.bool(True),
 		trigger_on_MB1a = cms.bool(False),
 		trigger_on_MB1d = cms.bool(False),
-		trigger_on_ME1a = cms.bool(True),
-		trigger_on_ME1b = cms.bool(True),
+		trigger_on_ME1a = cms.bool(False),
+		trigger_on_ME1b = cms.bool(False),
 		trigger_on_ME2 = cms.bool(False),
 		trigger_on_ME3 = cms.bool(False),
 		trigger_on_ME4 = cms.bool(False),
@@ -98,11 +98,15 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 		firmwareFA = cms.uint32(20090521),
 		firmwareDD = cms.uint32(20090521),
 		firmwareVM = cms.uint32(20090521),
+
+                isCoreVerbose = cms.bool(False),
+                                   
 		initializeFromPSet = cms.bool(False)
 	),
+                                 
 	isTMB07 = cms.bool(True),
 	useDT = cms.bool(True),
-	readDtDirect = cms.bool(False),
+	readDtDirect = cms.bool(True),
 )
 
 

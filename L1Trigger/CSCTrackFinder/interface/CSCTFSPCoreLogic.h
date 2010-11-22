@@ -6,7 +6,12 @@
 #include <DataFormats/L1CSCTrackFinder/interface/TrackStub.h>
 #include <DataFormats/L1CSCTrackFinder/interface/L1Track.h>
 
-class vpp_generated;
+// different cores
+#include <L1Trigger/CSCTrackFinder/src/core_2010_01_22/vpp_generated.h>
+#include <L1Trigger/CSCTrackFinder/src/core_2010_07_28/vpp_generated.h>
+#include <L1Trigger/CSCTrackFinder/src/core_2010_09_01/vpp_generated.h>
+#include <L1Trigger/CSCTrackFinder/src/core_2010_10_11/vpp_generated.h>
+
 
 class CSCTFSPCoreLogic
 {
@@ -53,7 +58,9 @@ class CSCTFSPCoreLogic
 
  public:
 
-  CSCTFSPCoreLogic() : runme(false) {}
+    CSCTFSPCoreLogic() : runme(false),
+      spFirmwareVersion(0), coreFirmwareVersion(0),
+      verboseCore(false){}
 
   void loadData(const CSCTriggerContainer<csctf::TrackStub>&,
 		const unsigned& endcap, const unsigned& sector,
@@ -85,15 +92,26 @@ class CSCTFSPCoreLogic
 
   CSCTriggerContainer<csc::L1Track> tracks();
   
-  void SetFirmwareVersion(const unsigned int fwVer) {firmwareVersion=fwVer; }
-  unsigned int GetFirmwareVersion() {return firmwareVersion; }
+  void SetSPFirmwareVersion(const unsigned int fwVer) {spFirmwareVersion=fwVer; }
+  unsigned int GetSPFirmwareVersion() {return spFirmwareVersion; }
+
+  void SetCoreFirmwareVersion(const unsigned int fwVer) {coreFirmwareVersion=fwVer; }
+  unsigned int GetCoreFirmwareVersion() {return coreFirmwareVersion; }
+
+  void SetVerbose(const bool verb) { verboseCore=verb; }
+  bool IsVerbose() { return verboseCore; }
 
  private:
-  static vpp_generated sp_;
+  vpp_generated_2010_01_22 sp_2010_01_22_;
+  vpp_generated_2010_07_28 sp_2010_07_28_;
+  vpp_generated_2010_09_01 sp_2010_09_01_;
+  vpp_generated_2010_10_11 sp_2010_10_11_;
   std::vector<SPio> io_;
   bool runme;
   CSCTriggerContainer<csc::L1Track> mytracks;
-  unsigned int firmwareVersion;
+  unsigned int spFirmwareVersion;
+  unsigned int coreFirmwareVersion;
+  bool verboseCore;
 };
 
 #endif
