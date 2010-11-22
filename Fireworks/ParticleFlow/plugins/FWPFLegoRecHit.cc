@@ -8,7 +8,7 @@ FWPFLegoRecHit::FWPFLegoRecHit( const std::vector<TEveVector> &corners, TEveElem
    buildTower( corners, vc );
    buildLineSet( corners, vc );
    
-   //pb->setupAddElement( m_tower, m_itemHolder );
+   pb->setupAddElement( m_tower, m_itemHolder );
    pb->setupAddElement( m_ls, m_itemHolder );
 }
 
@@ -80,7 +80,6 @@ FWPFLegoRecHit::updateScale( const FWViewContext *vc, const fireworks::Context &
    FWViewEnergyScale *caloScale = vc->getEnergyScale( "Calo" );
    float val = caloScale->getPlotEt() ? m_et : m_energy;
    float scale = caloScale->getValToHeight() * val;
-   scale = val*caloScale->getValToHeight();
 
    if( scale < 0 )
       scale *= -1;
@@ -90,9 +89,10 @@ FWPFLegoRecHit::updateScale( const FWViewContext *vc, const fireworks::Context &
    for( unsigned int i = 0; i < 4; ++i )
    {
       data = m_tower->GetVertex( i );
-      m_tower->SetVertex( i+4, data[0], data[1], 0 );
-      m_tower->SetVertex( i,  data[0], data[1], scale);
+      m_tower->SetVertex( i, data[0], data[1], 0 );
+      m_tower->SetVertex( i+4,  data[0], data[1], scale);
    }
+   m_tower->StampTransBBox();
 
    // Scale lineset
    std::vector<TEveVector> lineSetCorners(4);
@@ -121,5 +121,5 @@ FWPFLegoRecHit::updateScale( const FWViewContext *vc, const fireworks::Context &
       l.fV2[2] = scale + 0.001;
 
       i++;
-   }   
+   }
 }
