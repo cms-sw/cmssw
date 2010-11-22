@@ -8,9 +8,9 @@
  *  additional constraints on eta, phi, r, x, y or z are possible.
  *  Furthermore stores the 'selection' of selected AlignmentParameters.
  *
- *  $Date: 2008/02/12 19:15:35 $
- *  $Revision: 1.8 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2010/09/10 11:36:58 $
+ *  $Revision: 1.9 $
+ *  (last update by $Author: mussgill $)
  */
 
 #include "Alignment/CommonAlignment/interface/Utilities.h"
@@ -65,10 +65,17 @@ class AlignmentParameterSelector {
   /// true if alignable is DetUnit deselected by Unit<Rphi/Stereo> selection 
   bool detUnitDeselected(const Alignable *alignable) const;
   /// true if geometrical restrictions in eta, phi, r, x, y, z not satisfied
-  bool outsideRanges(const Alignable *alignable) const;
+  bool outsideGeometricalRanges(const Alignable *alignable) const;
+  /// true if DetId restrictions are not satisfied
+  bool outsideDetIdRanges(const Alignable *alignable) const;
   /// true if ranges.size() is even and ranges[i] <= value < ranges[i+1] for any even i
   /// ( => false if ranges.empty() == true), if(isPhi==true) takes into account phi periodicity
-  bool insideRanges(double value, const std::vector<double> &ranges, bool isPhi = false) const;
+  /// for the integer specialized method, true is returned for ranges[i] <= value <= ranges[i+1]
+  /// and isPhi is ignored
+  template<typename T> bool insideRanges(T value, const std::vector<T> &ranges,
+					 bool isPhi = false) const;
+  /// true if value is member of vector of values
+  bool isMemberOfVector(int value, const std::vector<int> &values) const;
   /// Decomposing input string 's' into parts separated by 'delimiter'
   std::vector<std::string> decompose(const std::string &s, std::string::value_type delimiter) const;
   /// Converting std::string into std::vector<char>
@@ -83,6 +90,13 @@ class AlignmentParameterSelector {
   unsigned int addAllLayers(const std::vector<char> &paramSel);
   unsigned int addAllAlignables(const std::vector<char> &paramSel);
 
+  void setPXBDetIdCuts(const edm::ParameterSet &pSet);
+  void setPXFDetIdCuts(const edm::ParameterSet &pSet);
+  void setTIBDetIdCuts(const edm::ParameterSet &pSet);
+  void setTIDDetIdCuts(const edm::ParameterSet &pSet);
+  void setTOBDetIdCuts(const edm::ParameterSet &pSet);
+  void setTECDetIdCuts(const edm::ParameterSet &pSet);
+  
  private:
   AlignableTracker* theTracker;
   AlignableMuon*    theMuon;
@@ -98,6 +112,75 @@ class AlignmentParameterSelector {
   std::vector<double> theRangesY;
   std::vector<double> theRangesZ;
 
+  /// DetId restrictions in eta, phi, r, x, y, z to be applied for next addSelection
+  std::vector<int>    theDetIds;
+  std::vector<int>    theDetIdRanges;
+  std::vector<int>    theExcludedDetIds;
+  std::vector<int>    theExcludedDetIdRanges;
+  struct PXBDetIdRanges {
+    std::vector<int>    theLadderRanges;
+    std::vector<int>    theLayerRanges;
+    std::vector<int>    theModuleRanges;
+    void clear() {
+      theLadderRanges.clear(); theLayerRanges.clear();
+      theModuleRanges.clear();
+    }
+  }                   thePXBDetIdRanges;
+  struct PXFDetIdRanges {
+    std::vector<int>    theBladeRanges;
+    std::vector<int>    theDiskRanges;
+    std::vector<int>    theModuleRanges;
+    std::vector<int>    thePanelRanges;
+    std::vector<int>    theSideRanges;
+    void clear() { 
+      theBladeRanges.clear(); theDiskRanges.clear();
+      theModuleRanges.clear(); thePanelRanges.clear();
+      theSideRanges.clear();
+    }
+  }                   thePXFDetIdRanges;
+  struct TIBDetIdRanges {
+    std::vector<int>    theLayerRanges;
+    std::vector<int>    theModuleRanges;
+    std::vector<int>    theStringRanges;
+    std::vector<int>    theSideRanges;
+    void clear() { 
+      theLayerRanges.clear(); theModuleRanges.clear();
+      theSideRanges.clear(); theStringRanges.clear();
+    }
+  }                   theTIBDetIdRanges;
+  struct TIDDetIdRanges {
+    std::vector<int>    theDiskRanges; 
+    std::vector<int>    theModuleRanges;
+    std::vector<int>    theRingRanges;
+    std::vector<int>    theSideRanges;  
+    void clear() { 
+      theDiskRanges.clear(); theModuleRanges.clear();
+      theRingRanges.clear(); theSideRanges.clear();
+    }
+  }                   theTIDDetIdRanges;
+  struct TOBDetIdRanges {
+    std::vector<int>    theLayerRanges; 
+    std::vector<int>    theModuleRanges;
+    std::vector<int>    theRodRanges;  
+    std::vector<int>    theSideRanges;
+    void clear() { 
+      theLayerRanges.clear(); theModuleRanges.clear();
+      theRodRanges.clear(); theSideRanges.clear();
+    }
+  }                   theTOBDetIdRanges;  
+  struct TECDetIdRanges {
+    std::vector<int>    theWheelRanges; 
+    std::vector<int>    thePetalRanges; 
+    std::vector<int>    theModuleRanges;
+    std::vector<int>    theRingRanges;
+    std::vector<int>    theSideRanges;  
+    void clear() { 
+      theWheelRanges.clear(); thePetalRanges.clear();
+      theModuleRanges.clear(); theRingRanges.clear();
+      theSideRanges.clear();
+    }
+  }                   theTECDetIdRanges;
+    
   // further switches used in add(...)
   bool theOnlyDS;
   bool theOnlySS;
@@ -116,4 +199,9 @@ class AlignmentParameterSelector {
   std::string setSpecials(const std::string &name);
 
 };
+
+template<> bool
+AlignmentParameterSelector::insideRanges<int>(int value, const std::vector<int> &ranges,
+					      bool isPhi) const;
+
 #endif

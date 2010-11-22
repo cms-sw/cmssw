@@ -1,9 +1,9 @@
 /** \file AlignmentParameterSelector.cc
  *  \author Gero Flucke, Nov. 2006
  *
- *  $Date: 2009/07/28 12:38:40 $
- *  $Revision: 1.18 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2010/09/10 11:36:58 $
+ *  $Revision: 1.19 $
+ *  (last update by $Author: mussgill $)
  */
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
@@ -12,7 +12,14 @@
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"  // for enums TID/TIB/etc.
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -44,6 +51,13 @@ void AlignmentParameterSelector::clearGeometryCuts()
   theRangesX.clear();
   theRangesY.clear();
   theRangesZ.clear();
+
+  thePXBDetIdRanges.clear();
+  thePXFDetIdRanges.clear();
+  theTIBDetIdRanges.clear();
+  theTIDDetIdRanges.clear();
+  theTOBDetIdRanges.clear();
+  theTECDetIdRanges.clear();
 }
 
 //__________________________________________________________________________________________________
@@ -87,6 +101,7 @@ void AlignmentParameterSelector::setGeometryCuts(const edm::ParameterSet &pSet)
   const std::vector<std::string> parameterNames(pSet.getParameterNames());
   for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(),
 	 iEnd = parameterNames.end(); iParam != iEnd; ++iParam) {
+
     // Calling swap is more efficient than assignment:
     if (*iParam == "etaRanges") {
       pSet.getParameter<std::vector<double> >(*iParam).swap(theRangesEta);
@@ -100,8 +115,192 @@ void AlignmentParameterSelector::setGeometryCuts(const edm::ParameterSet &pSet)
       pSet.getParameter<std::vector<double> >(*iParam).swap(theRangesY);
     } else if (*iParam == "zRanges") {
       pSet.getParameter<std::vector<double> >(*iParam).swap(theRangesZ);
+    } else if (*iParam == "detIds") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(theDetIds);
+    } else if (*iParam == "detIdRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(theDetIdRanges);
+    } else if (*iParam == "excludedDetIds") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(theExcludedDetIds);
+    } else if (*iParam == "excludedDetIdRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(theExcludedDetIdRanges);
+    } else if (*iParam == "pxbDetId") {
+      const edm::ParameterSet & pxbDetIdPSet = pSet.getParameterSet(*iParam);
+      this->setPXBDetIdCuts(pxbDetIdPSet);
+    } else if (*iParam == "pxfDetId") {
+      const edm::ParameterSet & pxfDetIdPSet = pSet.getParameterSet(*iParam);
+      this->setPXFDetIdCuts(pxfDetIdPSet);
+    } else if (*iParam == "tibDetId") {
+      const edm::ParameterSet & tibDetIdPSet = pSet.getParameterSet(*iParam);
+      this->setTIBDetIdCuts(tibDetIdPSet);
+    } else if (*iParam == "tidDetId") {
+      const edm::ParameterSet & tidDetIdPSet = pSet.getParameterSet(*iParam);
+      this->setTIDDetIdCuts(tidDetIdPSet);
+    } else if (*iParam == "tobDetId") {
+      const edm::ParameterSet & tobDetIdPSet = pSet.getParameterSet(*iParam);
+      this->setTOBDetIdCuts(tobDetIdPSet);
+    } else if (*iParam == "tecDetId") {
+      const edm::ParameterSet & tecDetIdPSet = pSet.getParameterSet(*iParam);
+      this->setTECDetIdCuts(tecDetIdPSet);
     } else {
       throw cms::Exception("BadConfig") << "[AlignmentParameterSelector::setGeometryCuts] "
+					<< "Unknown parameter '" << *iParam << "'.\n";
+    }
+  }
+}
+
+//________________________________________________________________________________
+void AlignmentParameterSelector::setPXBDetIdCuts(const edm::ParameterSet &pSet)
+{
+  // Allow non-specified arrays to be interpreted as empty (i.e. no selection),
+  // but take care that nothing unknown is configured (to fetch typos!). 
+
+  const std::vector<std::string> parameterNames(pSet.getParameterNames());
+  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(),
+	 iEnd = parameterNames.end(); iParam != iEnd; ++iParam) {
+
+    // Calling swap is more efficient than assignment:
+    if (*iParam == "ladderRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(thePXBDetIdRanges.theLadderRanges);
+    } else if (*iParam == "layerRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(thePXBDetIdRanges.theLayerRanges);
+    } else if (*iParam == "moduleRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(thePXBDetIdRanges.theModuleRanges);
+    } else {
+      throw cms::Exception("BadConfig") << "[AlignmentParameterSelector::setPXBDetIdCuts] "
+					<< "Unknown parameter '" << *iParam << "'.\n";
+    }
+  }
+}
+
+//________________________________________________________________________________
+void AlignmentParameterSelector::setPXFDetIdCuts(const edm::ParameterSet &pSet)
+{
+  // Allow non-specified arrays to be interpreted as empty (i.e. no selection),
+  // but take care that nothing unknown is configured (to fetch typos!). 
+
+  const std::vector<std::string> parameterNames(pSet.getParameterNames());
+  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(),
+	 iEnd = parameterNames.end(); iParam != iEnd; ++iParam) {
+
+    // Calling swap is more efficient than assignment:
+    if (*iParam == "bladeRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(thePXFDetIdRanges.theBladeRanges);
+    } else if (*iParam == "diskRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(thePXFDetIdRanges.theDiskRanges);
+    } else if (*iParam == "moduleRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(thePXFDetIdRanges.theModuleRanges);
+    } else if (*iParam == "panelRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(thePXFDetIdRanges.thePanelRanges);
+    } else if (*iParam == "sideRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(thePXFDetIdRanges.theSideRanges);
+    } else {
+      throw cms::Exception("BadConfig") << "[AlignmentParameterSelector::setPXFDetIdCuts] "
+					<< "Unknown parameter '" << *iParam << "'.\n";
+    }
+  }
+}
+
+//________________________________________________________________________________
+void AlignmentParameterSelector::setTIBDetIdCuts(const edm::ParameterSet &pSet)
+{
+  // Allow non-specified arrays to be interpreted as empty (i.e. no selection),
+  // but take care that nothing unknown is configured (to fetch typos!). 
+
+  const std::vector<std::string> parameterNames(pSet.getParameterNames());
+  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(),
+	 iEnd = parameterNames.end(); iParam != iEnd; ++iParam) {
+
+    // Calling swap is more efficient than assignment:
+    if (*iParam == "layerRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(theTIBDetIdRanges.theLayerRanges);
+    } else if (*iParam == "moduleRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(theTIBDetIdRanges.theModuleRanges);
+    } else if (*iParam == "stringRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(theTIBDetIdRanges.theStringRanges);
+    } else if (*iParam == "sideRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(theTIBDetIdRanges.theSideRanges);
+    } else {
+      throw cms::Exception("BadConfig") << "[AlignmentParameterSelector::setTIBDetIdCuts] "
+					<< "Unknown parameter '" << *iParam << "'.\n";
+    }
+  }
+}
+
+//________________________________________________________________________________
+void AlignmentParameterSelector::setTIDDetIdCuts(const edm::ParameterSet &pSet)
+{
+  // Allow non-specified arrays to be interpreted as empty (i.e. no selection),
+  // but take care that nothing unknown is configured (to fetch typos!). 
+
+  const std::vector<std::string> parameterNames(pSet.getParameterNames());
+  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(),
+	 iEnd = parameterNames.end(); iParam != iEnd; ++iParam) {
+
+    // Calling swap is more efficient than assignment:
+    if (*iParam == "diskRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(theTIDDetIdRanges.theDiskRanges);
+    } else if (*iParam == "moduleRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(theTIDDetIdRanges.theModuleRanges);
+    } else if (*iParam == "ringRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(theTIDDetIdRanges.theRingRanges);
+    } else if (*iParam == "sideRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(theTIDDetIdRanges.theSideRanges);
+    } else {
+      throw cms::Exception("BadConfig") << "[AlignmentParameterSelector::setTIDDetIdCuts] "
+					<< "Unknown parameter '" << *iParam << "'.\n";
+    }
+  }
+}
+
+//________________________________________________________________________________
+void AlignmentParameterSelector::setTOBDetIdCuts(const edm::ParameterSet &pSet)
+{
+  // Allow non-specified arrays to be interpreted as empty (i.e. no selection),
+  // but take care that nothing unknown is configured (to fetch typos!). 
+
+  const std::vector<std::string> parameterNames(pSet.getParameterNames());
+  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(),
+	 iEnd = parameterNames.end(); iParam != iEnd; ++iParam) {
+
+    // Calling swap is more efficient than assignment:
+    if (*iParam == "layerRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(theTOBDetIdRanges.theLayerRanges);
+    } else if (*iParam == "moduleRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(theTOBDetIdRanges.theModuleRanges);
+    } else if (*iParam == "sideRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(theTOBDetIdRanges.theSideRanges);
+    } else if (*iParam == "rodRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(theTOBDetIdRanges.theRodRanges);
+    } else {
+      throw cms::Exception("BadConfig") << "[AlignmentParameterSelector::setTOBDetIdCuts] "
+					<< "Unknown parameter '" << *iParam << "'.\n";
+    }
+  }
+}
+
+//________________________________________________________________________________
+void AlignmentParameterSelector::setTECDetIdCuts(const edm::ParameterSet &pSet)
+{
+  // Allow non-specified arrays to be interpreted as empty (i.e. no selection),
+  // but take care that nothing unknown is configured (to fetch typos!). 
+
+  const std::vector<std::string> parameterNames(pSet.getParameterNames());
+  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(),
+	 iEnd = parameterNames.end(); iParam != iEnd; ++iParam) {
+
+    // Calling swap is more efficient than assignment:
+    if (*iParam == "wheelRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(theTECDetIdRanges.theWheelRanges);
+    } else if (*iParam == "petalRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(theTECDetIdRanges.thePetalRanges);
+    } else if (*iParam == "moduleRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(theTECDetIdRanges.theModuleRanges);
+    } else if (*iParam == "ringRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(theTECDetIdRanges.theRingRanges);
+    } else if (*iParam == "sideRanges") {
+      pSet.getParameter<std::vector<int> >(*iParam).swap(theTECDetIdRanges.theSideRanges);
+    } else {
+      throw cms::Exception("BadConfig") << "[AlignmentParameterSelector::setTECDetIdCuts] "
 					<< "Unknown parameter '" << *iParam << "'.\n";
     }
   }
@@ -298,9 +497,10 @@ unsigned int AlignmentParameterSelector::add(const align::Alignables &alignables
   for (align::Alignables::const_iterator iAli = alignables.begin();
        iAli != alignables.end(); ++iAli) {
 
-    if (!this->layerDeselected(*iAli)      // check layers
-	&& !this->detUnitDeselected(*iAli) // check detunit selection
-	&& !this->outsideRanges(*iAli)) {  // check ranges
+    if (!this->layerDeselected(*iAli)             // check layers
+	&& !this->detUnitDeselected(*iAli)        // check detunit selection
+	&& !this->outsideGeometricalRanges(*iAli) // check geometrical ranges
+	&& !this->outsideDetIdRanges(*iAli)) {    // check DetId ranges
       // all fine, so add to output arrays
       theSelectedAlignables.push_back(*iAli);
       theSelectedParameters.push_back(paramSel);
@@ -362,24 +562,121 @@ bool AlignmentParameterSelector::detUnitDeselected(const Alignable *ali) const
 }
 
 //_________________________________________________________________________
-bool AlignmentParameterSelector::outsideRanges(const Alignable *alignable) const
+bool AlignmentParameterSelector::outsideGeometricalRanges(const Alignable *alignable) const
 {
-
   const align::PositionType& position(alignable->globalPosition());
 
-  if (!theRangesEta.empty() && !this->insideRanges((position.eta()), theRangesEta)) return true;
-  if (!theRangesPhi.empty() && !this->insideRanges((position.phi()), theRangesPhi,true))return true;
-  if (!theRangesR.empty()   && !this->insideRanges((position.perp()),theRangesR)) return true;
-  if (!theRangesX.empty()   && !this->insideRanges((position.x()),   theRangesX)) return true;
-  if (!theRangesY.empty()   && !this->insideRanges((position.y()),   theRangesY)) return true;
-  if (!theRangesZ.empty()   && !this->insideRanges((position.z()),   theRangesZ)) return true;
-
+  if (!theRangesEta.empty() && !this->insideRanges<double>((position.eta()),  theRangesEta)) return true;
+  if (!theRangesPhi.empty() && !this->insideRanges<double>((position.phi()),  theRangesPhi, true))return true;
+  if (!theRangesR.empty()   && !this->insideRanges<double>((position.perp()), theRangesR)) return true;
+  if (!theRangesX.empty()   && !this->insideRanges<double>((position.x()),    theRangesX)) return true;
+  if (!theRangesY.empty()   && !this->insideRanges<double>((position.y()),    theRangesY)) return true;
+  if (!theRangesZ.empty()   && !this->insideRanges<double>((position.z()),    theRangesZ)) return true;
+  
   return false;
 }
 
 //_________________________________________________________________________
-bool AlignmentParameterSelector::insideRanges(double value, const std::vector<double> &ranges,
-                                            bool isPhi) const
+bool AlignmentParameterSelector::outsideDetIdRanges(const Alignable *alignable) const
+{
+  //const DetId detId(alignable->geomDetId());
+  const DetId detId(alignable->id());
+  const int subdetId = detId.subdetId();
+  
+  if (!theDetIds.empty() &&
+      !this->isMemberOfVector((detId.rawId()), theDetIds)) return true;
+  if (!theDetIdRanges.empty() &&
+      !this->insideRanges<int>((detId.rawId()), theDetIdRanges)) return true;
+  if (!theExcludedDetIds.empty() &&
+      this->isMemberOfVector((detId.rawId()), theExcludedDetIds)) return true;
+  if (!theExcludedDetIdRanges.empty() &&
+      this->insideRanges<int>((detId.rawId()), theExcludedDetIdRanges)) return true;
+
+  if (detId.det()==DetId::Tracker) {
+    
+    if (subdetId==static_cast<int>(PixelSubdetector::PixelBarrel)) {
+      const PXBDetId pxbDetId(detId);
+      if (!thePXBDetIdRanges.theLadderRanges.empty() && 
+	  !this->insideRanges<int>(pxbDetId.ladder(), thePXBDetIdRanges.theLadderRanges)) return true;
+      if (!thePXBDetIdRanges.theLayerRanges.empty() && 
+	  !this->insideRanges<int>(pxbDetId.layer(), thePXBDetIdRanges.theLayerRanges)) return true;
+      if (!thePXBDetIdRanges.theModuleRanges.empty() && 
+	  !this->insideRanges<int>(pxbDetId.module(), thePXBDetIdRanges.theModuleRanges)) return true;
+    }
+    
+    if (subdetId==static_cast<int>(PixelSubdetector::PixelEndcap)) {
+      const PXFDetId pxfDetId(detId);
+      if (!thePXFDetIdRanges.theBladeRanges.empty() && 
+	  !this->insideRanges<int>(pxfDetId.blade(), thePXFDetIdRanges.theBladeRanges)) return true;
+      if (!thePXFDetIdRanges.theDiskRanges.empty() && 
+	  !this->insideRanges<int>(pxfDetId.disk(), thePXFDetIdRanges.theDiskRanges)) return true;
+      if (!thePXFDetIdRanges.theModuleRanges.empty() && 
+	  !this->insideRanges<int>(pxfDetId.module(), thePXFDetIdRanges.theModuleRanges)) return true;
+      if (!thePXFDetIdRanges.thePanelRanges.empty() && 
+	  !this->insideRanges<int>(pxfDetId.panel(), thePXFDetIdRanges.thePanelRanges)) return true;
+      if (!thePXFDetIdRanges.theSideRanges.empty() && 
+	  !this->insideRanges<int>(pxfDetId.side(), thePXFDetIdRanges.theSideRanges)) return true;
+    }
+    
+    if (subdetId==static_cast<int>(SiStripDetId::TIB)) {
+      const TIBDetId tibDetId(detId);
+      if (!theTIBDetIdRanges.theLayerRanges.empty() && 
+	  !this->insideRanges<int>(tibDetId.layer(), theTIBDetIdRanges.theLayerRanges)) return true;
+      if (!theTIBDetIdRanges.theModuleRanges.empty() && 
+	  !this->insideRanges<int>(tibDetId.module(), theTIBDetIdRanges.theModuleRanges)) return true;
+      if (!theTIBDetIdRanges.theSideRanges.empty() && 
+	  !this->insideRanges<int>(tibDetId.side(), theTIBDetIdRanges.theSideRanges)) return true;
+      if (!theTIBDetIdRanges.theStringRanges.empty() && 
+	  !this->insideRanges<int>(tibDetId.stringNumber(), theTIBDetIdRanges.theStringRanges)) return true;
+    }
+    
+    if (subdetId==static_cast<int>(SiStripDetId::TID)) {
+      const TIDDetId tidDetId(detId);
+      if (!theTIDDetIdRanges.theDiskRanges.empty() && 
+	  !this->insideRanges<int>(tidDetId.diskNumber(), theTIDDetIdRanges.theDiskRanges)) return true;
+      if (!theTIDDetIdRanges.theModuleRanges.empty() && 
+	  !this->insideRanges<int>(tidDetId.moduleNumber(), theTIDDetIdRanges.theModuleRanges)) return true;
+      if (!theTIDDetIdRanges.theRingRanges.empty() && 
+	  !this->insideRanges<int>(tidDetId.ring(), theTIDDetIdRanges.theRingRanges)) return true;
+      if (!theTIDDetIdRanges.theSideRanges.empty() && 
+	  !this->insideRanges<int>(tidDetId.side(), theTIDDetIdRanges.theSideRanges)) return true;
+    }
+    
+    if (subdetId==static_cast<int>(SiStripDetId::TOB)) {
+      const TOBDetId tobDetId(detId);
+      if (!theTOBDetIdRanges.theLayerRanges.empty() && 
+	  !this->insideRanges<int>(tobDetId.layer(), theTOBDetIdRanges.theLayerRanges)) return true;
+      if (!theTOBDetIdRanges.theModuleRanges.empty() && 
+	  !this->insideRanges<int>(tobDetId.module(), theTOBDetIdRanges.theModuleRanges)) return true;
+      if (!theTOBDetIdRanges.theRodRanges.empty() && 
+	  !this->insideRanges<int>(tobDetId.rodNumber(), theTOBDetIdRanges.theRodRanges)) return true;
+      if (!theTOBDetIdRanges.theSideRanges.empty() && 
+	  !this->insideRanges<int>(tobDetId.side(), theTOBDetIdRanges.theSideRanges)) return true;
+    }
+
+    if (subdetId==static_cast<int>(SiStripDetId::TEC)) {
+      const TECDetId tecDetId(detId);
+      if (!theTECDetIdRanges.theWheelRanges.empty() && 
+	  !this->insideRanges<int>(tecDetId.wheel(), theTECDetIdRanges.theWheelRanges)) return true;
+      if (!theTECDetIdRanges.thePetalRanges.empty() && 
+	  !this->insideRanges<int>(tecDetId.petalNumber(), theTECDetIdRanges.thePetalRanges)) return true;
+      if (!theTECDetIdRanges.theModuleRanges.empty() && 
+	  !this->insideRanges<int>(tecDetId.module(), theTECDetIdRanges.theModuleRanges)) return true;
+      if (!theTECDetIdRanges.theRingRanges.empty() && 
+	  !this->insideRanges<int>(tecDetId.ring(), theTECDetIdRanges.theRingRanges)) return true;
+      if (!theTECDetIdRanges.theSideRanges.empty() && 
+	  !this->insideRanges<int>(tecDetId.side(), theTECDetIdRanges.theSideRanges)) return true;
+    }
+    
+  }
+  
+  return false;
+}
+
+//_________________________________________________________________________
+template<typename T> bool AlignmentParameterSelector::insideRanges(T value,
+								   const std::vector<T> &ranges,
+								   bool isPhi) const
 {
   // might become templated on <double> ?
 
@@ -405,7 +702,32 @@ bool AlignmentParameterSelector::insideRanges(double value, const std::vector<do
       return true;
     }
   }
+  
+  return false;
+}
 
+//_________________________________________________________________________
+template<> bool AlignmentParameterSelector::insideRanges<int>(int value,
+							      const std::vector<int> &ranges,
+							      bool /*isPhi*/) const
+{
+  if (ranges.size()%2 != 0) {
+    cms::Exception("BadConfig") << "@SUB=AlignmentParameterSelector::insideRanges" 
+                                << " need even number of entries in ranges instead of "
+                                << ranges.size();
+    return false;
+  }
+
+  for (unsigned int i = 0; i < ranges.size(); i += 2) {
+    if (ranges[i] <= value && value <= ranges[i+1]) return true;
+  }
+  
+  return false;
+}
+
+bool AlignmentParameterSelector::isMemberOfVector(int value, const std::vector<int> &values) const
+{
+  if (std::find(values.begin(), values.end(), value)!=values.end()) return true;
   return false;
 }
 
