@@ -2,7 +2,6 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="DQMServices/Core"/>
-<use   name="SimDataFormats/ValidationFormats"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="DataFormats/DetId"/>
 <use   name="Geometry/CommonDetUnit"/>
