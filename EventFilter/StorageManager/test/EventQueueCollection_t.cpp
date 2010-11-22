@@ -182,7 +182,7 @@ add_and_pop_helper(boost::shared_ptr<EventQueueCollection> pcoll)
   CPPUNIT_ASSERT(outstanding_bytes() == 0);
   EventQueueCollection& coll = *pcoll;
   // We want events to go bad very rapidly.
-  double expiration_interval = 1.0;
+  double expiration_interval = 5;
 
   // Make some queues of each flavor, with very little capacity.  We want
   // them to fill rapidly.
@@ -237,9 +237,10 @@ add_and_pop_helper(boost::shared_ptr<EventQueueCollection> pcoll)
   CPPUNIT_ASSERT(!coll.empty(q2));
   CPPUNIT_ASSERT(coll.empty(q3));
   
-  // Now sleep for 1 second. Our queues should have all become stale;
+  // Now sleep for the expiration interval.
+  // Our queues should have all become stale;
   // they should also all be empty.
-  ::sleep(1);
+  ::sleep(expiration_interval);
   std::vector<QueueID> stale_queues;
   coll.clearStaleQueues(stale_queues);
   //CPPUNIT_ASSERT(stale_queues.size() == coll.size());
