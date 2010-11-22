@@ -11,6 +11,9 @@
 bool
 FWFFMetadataManager::doUpdate(FWJobMetadataUpdateRequest* request)
 {
+   // Clean up previous data.
+   usableData().clear();
+
    assert(m_typeAndReps);
    FWFFMetadataUpdateRequest *fullRequest = dynamic_cast<FWFFMetadataUpdateRequest*>(request);
    if (!fullRequest)
