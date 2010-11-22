@@ -17,7 +17,7 @@ FWPFLegoCandidate::FWPFLegoCandidate( const LegoCandidateData &lc, const FWViewC
     float base = 0.001;     // Floor offset 1%
     
     // First vertical line
-   FWViewEnergyScale *caloScale = vc->getEnergyScale("Calo");
+    FWViewEnergyScale *caloScale = vc->getEnergyScale("Calo");
     float val = caloScale->getPlotEt() ? m_et : m_energy;
 
     AddLine(eta,phi, base, 
@@ -58,9 +58,9 @@ FWPFLegoCandidate::updateScale( const FWViewContext *vc, const fireworks::Contex
     TEveStraightLineSet::Line_t &l = * (TEveStraightLineSet::Line_t*) li();
     l.fV2[2] = l.fV1[2] + val*caloScale->getValToHeight();
 
-    // move end point
+    // move end point (marker)
     TEveChunkManager::iterator mi( GetMarkerPlex() );
     mi.next();
     TEveStraightLineSet::Marker_t &m = * (TEveStraightLineSet::Marker_t *) mi();
-    m.fV[2] = l.fV2[2];
+    m.fV[2] = l.fV2[2]; // Set to new top of line
 }

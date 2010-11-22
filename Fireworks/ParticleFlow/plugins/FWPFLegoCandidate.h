@@ -4,7 +4,7 @@
 #include "TEveLine.h"
 #include "TEveStraightLineSet.h"
 #include "Rtypes.h"
-
+using namespace std;
 
 class TEveTrack;
 class FWViewContext;

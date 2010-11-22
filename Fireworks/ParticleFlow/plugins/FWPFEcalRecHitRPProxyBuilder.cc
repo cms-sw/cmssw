@@ -64,7 +64,7 @@ FWPFEcalRecHitRPProxyBuilder::calculateEt( const TEveVector &centre, float E )
 void
 FWPFEcalRecHitRPProxyBuilder::build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc )
 {
-   cleanLocal();  // Called so that previous isn't used when new view is added
+   cleanLocal();  // Called so that previous data isn't used when new view is added
 
    for( unsigned int index = 0; index < static_cast<unsigned int>( iItem->size() ); index++ )
    {
