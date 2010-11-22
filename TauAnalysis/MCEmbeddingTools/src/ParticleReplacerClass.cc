@@ -328,10 +328,15 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCo
 
 		if (testEvent(tempevt))
 		{
-			if (retevt==0)
-				retevt=tempevt;
+			if (retevt==0) {
+			  retevt=tempevt;
+                        } else {
+                          delete tempevt; 
+                        }
 			++cntVisPt_pass;
-		}
+		} else {
+                  delete tempevt;
+                }
 	}
 	eventWeight = (double)cntVisPt_pass / (double)cntVisPt_all;
 	std::cout << minVisibleTransverseMomentum_ << " " << cntVisPt_pass << "\t" << cntVisPt_all << "\n";
