@@ -6,9 +6,9 @@
 //
 // Original Author: J.Bendavid
 //
-// $Author: stenson $
-// $Date: 2010/05/03 23:47:08 $
-// $Revision: 1.26 $
+// $Author: bendavid $
+// $Date: 2010/09/17 19:46:18 $
+// $Revision: 1.1 $
 //
 
 #include <memory>
@@ -63,7 +63,7 @@
     int trackerOnlyPreferCollection = conf_.getParameter<int>("trackerOnlyPreferCollection");
     int arbitratedEcalSeededPreferCollection = conf_.getParameter<int>("arbitratedEcalSeededPreferCollection");    
     int arbitratedMergedPreferCollection = conf_.getParameter<int>("arbitratedMergedPreferCollection");
-    
+    int arbitratedMergedEcalGeneralPreferCollection = conf_.getParameter<int>("arbitratedMergedEcalGeneralPreferCollection");    
 
     // get Inputs 
     // if 1 input list doesn't exist, make an empty list, issue a warning, and continue
@@ -199,7 +199,10 @@
       }      
       if ( arbitratedMergedPreferCollection==0 || ( (arbitratedMergedPreferCollection==3 || arbitratedMergedPreferCollection==2) && !selected1[i]) ){
         outputTrks->back().setIsArbitratedMerged(false);
-      }      
+      }    
+      if ( arbitratedMergedEcalGeneralPreferCollection==0 || ( (arbitratedMergedEcalGeneralPreferCollection==3 || arbitratedMergedEcalGeneralPreferCollection==2) && !selected1[i]) ){
+        outputTrks->back().setIsArbitratedMergedEcalGeneral(false);
+      }       
     }//end faux loop over tracks
    }//end more than 0 track
 
@@ -226,6 +229,9 @@
       if ( arbitratedMergedPreferCollection==0 || ( (arbitratedMergedPreferCollection==3 || arbitratedMergedPreferCollection==1) && !selected2[i]) ){
         outputTrks->back().setIsArbitratedMerged(false);
       }      
+      if ( arbitratedMergedEcalGeneralPreferCollection==0 || ( (arbitratedMergedEcalGeneralPreferCollection==3 || arbitratedMergedEcalGeneralPreferCollection==1) && !selected2[i]) ){
+        outputTrks->back().setIsArbitratedMergedEcalGeneral(false);
+      }            
 
     }//end faux loop over tracks
    }//end more than 0 track

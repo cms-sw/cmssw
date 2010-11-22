@@ -16,4 +16,5 @@ conversionTrackMerger = cms.EDProducer("ConversionTrackMerger",
     trackerOnlyPreferCollection = cms.int32(-1),
     arbitratedEcalSeededPreferCollection = cms.int32(-1),
     arbitratedMergedPreferCollection = cms.int32(3),
+    arbitratedMergedEcalGeneralPreferCollection = cms.int32(-1),    
 )

@@ -12,22 +12,25 @@ ckfTracksFromConversions = cms.Sequence(conversionTrackCandidates*ckfOutInTracks
 
 
 
-#producer from general tracks collection, set tracker only and merged arbitrated flag
+#producer from general tracks collection, set tracker only, merged arbitrated, merged arbitrated ecal/general flags
 generalConversionTrackProducer = RecoEgamma.EgammaPhotonProducers.conversionTrackProducer_cfi.conversionTrackProducer.clone(
     TrackProducer = cms.string('generalTracks'),
     setTrackerOnly = cms.bool(True),
+    setArbitratedMergedEcalGeneral = cms.bool(True),
 )
 
-#producer from inout ecal seeded tracks, set arbitratedecalseeded and mergedarbitrated flags
+#producer from inout ecal seeded tracks, set arbitratedecalseeded, mergedarbitratedecalgeneral and mergedarbitrated flags
 inOutConversionTrackProducer = RecoEgamma.EgammaPhotonProducers.conversionTrackProducer_cfi.conversionTrackProducer.clone(
     TrackProducer = cms.string('ckfInOutTracksFromConversions'),
     setArbitratedEcalSeeded = cms.bool(True),
+    setArbitratedMergedEcalGeneral = cms.bool(True),    
 )
 
-#producer from outin ecal seeded tracks, set arbitratedecalseeded and mergedarbitrated flags
+#producer from outin ecal seeded tracks, set arbitratedecalseeded, mergedarbitratedecalgeneral and mergedarbitrated flags
 outInConversionTrackProducer = RecoEgamma.EgammaPhotonProducers.conversionTrackProducer_cfi.conversionTrackProducer.clone(
     TrackProducer = cms.string('ckfOutInTracksFromConversions'),
     setArbitratedEcalSeeded = cms.bool(True),
+    setArbitratedMergedEcalGeneral = cms.bool(True),    
 )
 
 #producer from gsf tracks, set only mergedarbitrated flag (default behaviour)
@@ -37,7 +40,7 @@ gsfConversionTrackProducer = RecoEgamma.EgammaPhotonProducers.conversionTrackPro
 
 conversionTrackProducers = cms.Sequence(generalConversionTrackProducer*inOutConversionTrackProducer*outInConversionTrackProducer*gsfConversionTrackProducer)
 
-#merge two ecal-seeded collections, with arbitration by nhits then chi^2/ndof for both ecalseededarbitrated and mergedarbitrated flags
+#merge two ecal-seeded collections, with arbitration by nhits then chi^2/ndof for ecalseededarbitrated, mergedarbitratedecalgeneral and mergedarbitrated flags
 inOutOutInConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conversionTrackMerger_cfi.conversionTrackMerger.clone(
     TrackProducer1 = cms.string('inOutConversionTrackProducer'),
     TrackProducer2 = cms.string('outInConversionTrackProducer'),
@@ -49,20 +52,22 @@ inOutOutInConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conversionTra
     # 3: arbitrate output/flag (remove duplicates by shared hits), arbitration first by number of hits, second by chisq/ndof  
     arbitratedEcalSeededPreferCollection = cms.int32(3),    
     arbitratedMergedPreferCollection = cms.int32(3),
+    arbitratedMergedEcalGeneralPreferCollection = cms.int32(3),        
 )
 
 #merge ecalseeded collections with collection from general tracks
 #trackeronly flag is forwarded from the generaltrack-based collections
 #ecalseeded flag is forwarded from the ecal seeded collection
-#arbitratedmerged flag is set based on shared hit matching, arbitration by nhits then chi^2/ndof
+#arbitratedmerged and arbitratedmergedecalgeneral flags is set based on shared hit matching, arbitration by nhits then chi^2/ndof
 generalInOutOutInConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conversionTrackMerger_cfi.conversionTrackMerger.clone(
     TrackProducer1 = cms.string('inOutOutInConversionTrackMerger'),
     TrackProducer2 = cms.string('generalConversionTrackProducer'),
     arbitratedMergedPreferCollection = cms.int32(3),
+    arbitratedMergedEcalGeneralPreferCollection = cms.int32(3),        
 )
 
 #merge the result of the above with the collection from gsf tracks
-#trackeronly and mergedecal flags are forwarded
+#trackeronly, arbitratedmergedecalgeneral, and mergedecal flags are forwarded
 #arbitratedmerged flag set based on overlap removal by shared hits, with precedence given to gsf tracks
 gsfGeneralInOutOutInConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conversionTrackMerger_cfi.conversionTrackMerger.clone(
     TrackProducer1 = cms.string('generalInOutOutInConversionTrackMerger'),

@@ -9,4 +9,5 @@ conversionTrackProducer = cms.EDProducer("ConversionTrackProducer",
     setTrackerOnly = cms.bool(False),
     setArbitratedEcalSeeded = cms.bool(False),
     setArbitratedMerged = cms.bool(True),
+    setArbitratedMergedEcalGeneral = cms.bool(False),    
 )

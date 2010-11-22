@@ -8,8 +8,8 @@
 // Original Author: J.Bendavid
 //
 // $Author: bendavid $
-// $Date: 2010/09/17 19:46:18 $
-// $Revision: 1.1 $
+// $Date: 2010/09/27 09:27:15 $
+// $Revision: 1.2 $
 //
 
 #include <memory>
@@ -52,7 +52,7 @@
     bool setTrackerOnly = conf_.getParameter<bool>("setTrackerOnly");
     bool setArbitratedEcalSeeded = conf_.getParameter<bool>("setArbitratedEcalSeeded");    
     bool setArbitratedMerged = conf_.getParameter<bool>("setArbitratedMerged");
-    
+    bool setArbitratedMergedEcalGeneral = conf_.getParameter<bool>("setArbitratedMergedEcalGeneral");    
     
     //get input collection (through edm::View)
     edm::Handle<edm::View<reco::Track> > hTrks;
@@ -103,7 +103,8 @@
       convTrack.setIsTrackerOnly(setTrackerOnly);
       convTrack.setIsArbitratedEcalSeeded(setArbitratedEcalSeeded);
       convTrack.setIsArbitratedMerged(setArbitratedMerged);
-      
+      convTrack.setIsArbitratedMergedEcalGeneral(setArbitratedMergedEcalGeneral);
+            
       //fill trajectory association if configured, using correct map depending on track type
       if (useTrajectory) {
         if (gsftracktrajmap.size()) {
