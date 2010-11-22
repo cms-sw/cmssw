@@ -17,14 +17,15 @@ public:
   // http://www.parashift.com/c%2B%2B-faq-lite/strange-inheritance.html#faq-23.9
   using Topology::localPosition;
   virtual LocalPoint localPosition( float strip ) const = 0;
-  /// conversion taking also the angle from the predicted track state 
-  virtual LocalPoint localPosition( float strip, const Topology::LocalTrackAngles &dir ) const { 
+  /// conversion taking also the predicted track state 
+  virtual LocalPoint localPosition( float strip, const Topology::LocalTrackPred &/*trkPred*/) const { 
     return localPosition(strip); 
   }
   virtual LocalError localError( float strip, float stripErr2 ) const = 0;
 
   /// conversion taking also the angle from the predicted track state
-  virtual LocalError localError( float strip, float stripErr2, const Topology::LocalTrackAngles &dir ) const {
+  virtual LocalError localError( float strip, float stripErr2,
+				 const Topology::LocalTrackPred &/*trkPred*/) const {
     return localError(strip, stripErr2); 
   } 
   virtual LocalError localError( const MeasurementPoint&,
@@ -33,7 +34,7 @@ public:
   /// conversion taking also the angle from the predicted track state
   virtual LocalError localError( const MeasurementPoint& mp,
                                  const MeasurementError& me,
-                                 const Topology::LocalTrackAngles &dir ) const {
+                                 const Topology::LocalTrackPred &/*trkPred*/ ) const {
     return localError(mp, me);
   }
   virtual float strip( const LocalPoint& ) const = 0;
@@ -51,10 +52,6 @@ public:
   }
   virtual float stripAngle( float strip ) const = 0;
 
-  /// conversion taking also the angle from the track state (LocalTrajectoryParameters)
-  virtual float stripAngle( float strip, const Topology::LocalTrackAngles &dir ) const {
-    return stripAngle( strip );
-  }
   virtual int nstrips() const = 0;
 
   virtual float stripLength() const = 0;
