@@ -33,11 +33,11 @@ HLT_HIUpcEcal_Core
 HLT_HIUpcMu
 HLT_HIUpcMu_Core
 HLT_HIPhoton15
-HLT_HIPhoton15_Core
+HLT_HIPhoton15_Cleaned_Core
 HLT_HIPhoton20
-HLT_HIPhoton20_Core
+HLT_HIPhoton20_Cleaned_Core
 HLT_HIPhoton30
-HLT_HIPhoton30_Core
+HLT_HIPhoton30_Cleaned_Core
 HLT_HIDoublePhoton5_CEP_L1R
 HLT_HIJet35U
 HLT_HIJet35U_Core
@@ -64,7 +64,6 @@ AlCaHIOutput
 DQMOutput
 HLTDQMOutput
 HLTDQMResultsOutput
-HLTMONOutput
 NanoDSTOutput
 HLTriggerFirstPath
 HLTAnalyzerEndpath

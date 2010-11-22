@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_9_0/GRun/V12 (CMSSW_3_8_1_HLT25)
+# /dev/CMSSW_3_9_0/GRun/V13 (CMSSW_3_8_1_HLT27)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_9_0/GRun/V12')
+  tableName = cms.string('/dev/CMSSW_3_9_0/GRun/V13')
 )
 
 streams = cms.PSet( 
@@ -2740,7 +2740,8 @@ hltIterativeCone5CaloJets = cms.EDProducer( "FastjetJetProducer",
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 hltMCJetCorJetIcone5HF07 = cms.EDProducer( "CaloJetCorrectionProducer",
     src = cms.InputTag( "hltIterativeCone5CaloJets" ),
@@ -3164,7 +3165,8 @@ hltIterativeCone5CaloJetsRegional = cms.EDProducer( "FastjetJetProducer",
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 hltMCJetCorJetIcone5Regional = cms.EDProducer( "CaloJetCorrectionProducer",
     src = cms.InputTag( "hltIterativeCone5CaloJetsRegional" ),
@@ -10975,7 +10977,8 @@ hltIconeTau1Regional = cms.EDProducer( "FastjetJetProducer",
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 hltCaloTowersTau2Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -11015,7 +11018,8 @@ hltIconeTau2Regional = cms.EDProducer( "FastjetJetProducer",
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 hltCaloTowersTau3Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -11055,7 +11059,8 @@ hltIconeTau3Regional = cms.EDProducer( "FastjetJetProducer",
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 hltCaloTowersTau4Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -11095,7 +11100,8 @@ hltIconeTau4Regional = cms.EDProducer( "FastjetJetProducer",
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 hltCaloTowersCentral1Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -11135,7 +11141,8 @@ hltIconeCentral1Regional = cms.EDProducer( "FastjetJetProducer",
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 hltCaloTowersCentral2Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -11175,7 +11182,8 @@ hltIconeCentral2Regional = cms.EDProducer( "FastjetJetProducer",
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 hltCaloTowersCentral3Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -11215,7 +11223,8 @@ hltIconeCentral3Regional = cms.EDProducer( "FastjetJetProducer",
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 hltCaloTowersCentral4Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -11255,7 +11264,8 @@ hltIconeCentral4Regional = cms.EDProducer( "FastjetJetProducer",
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 hltL2TauJets = cms.EDProducer( "L2TauJetsMerger",
     EtMin = cms.double( 15.0 ),
@@ -12045,7 +12055,8 @@ hltStoppedHSCPIterativeCone5CaloJets = cms.EDProducer( "FastjetJetProducer",
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 hltStoppedHSCP1CaloJetEnergy20 = cms.EDFilter( "HLT1CaloJetEnergy",
     inputTag = cms.InputTag( "hltStoppedHSCPIterativeCone5CaloJets" ),
@@ -13572,7 +13583,8 @@ hltIcone5PFJets = cms.EDProducer( "FastjetJetProducer",
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 hltIcone5ConvPFJets = cms.EDProducer( "PFJetToCaloProducer",
     Source = cms.InputTag( "hltIcone5PFJets" )

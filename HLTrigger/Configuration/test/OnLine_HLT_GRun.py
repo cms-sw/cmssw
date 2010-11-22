@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_9_0/GRun/V12 (CMSSW_3_8_1_HLT25)
+# /dev/CMSSW_3_9_0/GRun/V13 (CMSSW_3_8_1_HLT27)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_9_0/GRun/V12')
+  tableName = cms.string('/dev/CMSSW_3_9_0/GRun/V13')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -3464,7 +3464,8 @@ process.hltIterativeCone5CaloJets = cms.EDProducer( "FastjetJetProducer",
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 process.hltMCJetCorJetIcone5HF07 = cms.EDProducer( "CaloJetCorrectionProducer",
     src = cms.InputTag( "hltIterativeCone5CaloJets" ),
@@ -3888,7 +3889,8 @@ process.hltIterativeCone5CaloJetsRegional = cms.EDProducer( "FastjetJetProducer"
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 process.hltMCJetCorJetIcone5Regional = cms.EDProducer( "CaloJetCorrectionProducer",
     src = cms.InputTag( "hltIterativeCone5CaloJetsRegional" ),
@@ -11699,7 +11701,8 @@ process.hltIconeTau1Regional = cms.EDProducer( "FastjetJetProducer",
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 process.hltCaloTowersTau2Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -11739,7 +11742,8 @@ process.hltIconeTau2Regional = cms.EDProducer( "FastjetJetProducer",
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 process.hltCaloTowersTau3Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -11779,7 +11783,8 @@ process.hltIconeTau3Regional = cms.EDProducer( "FastjetJetProducer",
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 process.hltCaloTowersTau4Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -11819,7 +11824,8 @@ process.hltIconeTau4Regional = cms.EDProducer( "FastjetJetProducer",
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 process.hltCaloTowersCentral1Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -11859,7 +11865,8 @@ process.hltIconeCentral1Regional = cms.EDProducer( "FastjetJetProducer",
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 process.hltCaloTowersCentral2Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -11899,7 +11906,8 @@ process.hltIconeCentral2Regional = cms.EDProducer( "FastjetJetProducer",
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 process.hltCaloTowersCentral3Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -11939,7 +11947,8 @@ process.hltIconeCentral3Regional = cms.EDProducer( "FastjetJetProducer",
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 process.hltCaloTowersCentral4Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -11979,7 +11988,8 @@ process.hltIconeCentral4Regional = cms.EDProducer( "FastjetJetProducer",
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 process.hltL2TauJets = cms.EDProducer( "L2TauJetsMerger",
     EtMin = cms.double( 15.0 ),
@@ -12769,7 +12779,8 @@ process.hltStoppedHSCPIterativeCone5CaloJets = cms.EDProducer( "FastjetJetProduc
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 process.hltStoppedHSCP1CaloJetEnergy20 = cms.EDFilter( "HLT1CaloJetEnergy",
     inputTag = cms.InputTag( "hltStoppedHSCPIterativeCone5CaloJets" ),
@@ -14296,7 +14307,8 @@ process.hltIcone5PFJets = cms.EDProducer( "FastjetJetProducer",
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" )
+    subtractorName = cms.string( "" ),
+    sumRecHits = cms.bool( False )
 )
 process.hltIcone5ConvPFJets = cms.EDProducer( "PFJetToCaloProducer",
     Source = cms.InputTag( "hltIcone5PFJets" )
