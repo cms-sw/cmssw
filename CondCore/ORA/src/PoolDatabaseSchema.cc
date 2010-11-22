@@ -1132,6 +1132,12 @@ bool ora::CondMetadataTable::eraseObjectName( const std::string& name ){
   return m_schema.tableHandle( tableName() ).dataEditor().deleteRows( condition, whereData )>0;
 }
 
+bool ora::CondMetadataTable::eraseAllNames(){
+  std::string condition("");
+  coral::AttributeList whereData;
+  return m_schema.tableHandle( tableName() ).dataEditor().deleteRows( condition, whereData )>0;
+}
+
 bool ora::CondMetadataTable::getObjectByName( const std::string& name, 
                                               std::pair<int,int>& destination ){
   bool ret = false;
@@ -1217,7 +1223,26 @@ bool ora::CondMetadataTable::getNamesForContainer( int contId,
   }
   return ret;
 }
+ 
+bool ora::CondMetadataTable::getAllNames( std::vector<std::string>& destination ){
   
+  bool ret = false;
+  coral::ITable& containerTable = m_schema.tableHandle( tableName() );
+  std::auto_ptr<coral::IQuery> query( containerTable.newQuery());
+  coral::AttributeList outputBuffer;
+  outputBuffer.extend<std::string>( objectNameColumn() );
+  query->defineOutput( outputBuffer );
+  query->addToOutputList( objectNameColumn() );
+  coral::ICursor& cursor = query->execute();
+  while ( cursor.next() ) {
+    ret = true;
+    const coral::AttributeList& row = cursor.currentRow();
+    std::string name = row[ objectNameColumn() ].data< std::string >();
+    destination.push_back( name );
+  }
+  return ret;
+}
+ 
 bool ora::CondMetadataTable::exists(){
   return m_schema.existsTable( tableName() );
 }

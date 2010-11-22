@@ -138,6 +138,11 @@ void ora::Container::flush(){
   m_dbContainer->flush();
 }
 
+void ora::Container::setItemName( const std::string& name, 
+                                  int itemId ){
+  m_dbContainer->setItemName( name, itemId );
+}
+
 bool ora::Container::getNames( std::vector<std::string>& destination ){
   return m_dbContainer->getNames( destination );
 }

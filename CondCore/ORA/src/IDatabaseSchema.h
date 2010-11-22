@@ -112,9 +112,11 @@ namespace ora {
     }
     virtual void setObjectName( const std::string& name, int contId, int itemId ) = 0;
     virtual bool eraseObjectName( const std::string& name ) = 0;
+    virtual bool eraseAllNames() = 0;
     virtual bool getObjectByName( const std::string& name, std::pair<int,int>& destination ) = 0;
     virtual bool getNamesForObject( int contId, int itemId, std::vector<std::string>& destination ) = 0;
     virtual bool getNamesForContainer( int contId, std::vector<std::string>& destination ) = 0;
+    virtual bool getAllNames( std::vector<std::string>& destination ) = 0;
   };
 
   class IDatabaseSchema {

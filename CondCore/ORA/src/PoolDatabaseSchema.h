@@ -10,8 +10,8 @@ namespace ora {
     struct PoolDbCacheData {
       PoolDbCacheData();
         
-        PoolDbCacheData( int id, const std::string& name, const std::string& className,
-                         const std::string& mappingVersion, unsigned int nobjWritten );
+      PoolDbCacheData( int id, const std::string& name, const std::string& className,
+                       const std::string& mappingVersion, unsigned int nobjWritten );
 
       ~PoolDbCacheData();
 
@@ -210,9 +210,11 @@ namespace ora {
     virtual ~CondMetadataTable();
     void setObjectName( const std::string& name, int contId, int itemId );
     bool eraseObjectName( const std::string& name );
+    bool eraseAllNames();
     bool getObjectByName( const std::string& name, std::pair<int,int>& destination );
     bool getNamesForObject( int contId, int itemId, std::vector<std::string>& destination );
     bool getNamesForContainer( int contId, std::vector<std::string>& destination );
+    bool getAllNames( std::vector<std::string>& destination );
    public:
     bool exists();
     void create();

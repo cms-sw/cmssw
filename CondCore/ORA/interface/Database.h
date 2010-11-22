@@ -126,6 +126,12 @@ namespace ora {
     ///
     bool eraseObjectName( const std::string& name );
 
+    /// 
+    bool eraseAllNames();
+
+    ///
+    bool getItemId( const std::string& name, OId& destination );
+
     ///
     Object fetchItemByName( const std::string& name );
 
@@ -134,6 +140,9 @@ namespace ora {
 
     ///
     bool getNamesForObject( const OId& oid, std::vector<std::string>& destination );
+
+    ///
+    bool listObjectNames( std::vector<std::string>& destination );
 
     ///
     DatabaseUtility utility();

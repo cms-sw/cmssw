@@ -300,6 +300,16 @@ bool ora::Database::eraseObjectName( const std::string& name ){
   return m_impl->m_session->eraseObjectName( name );  
 }
 
+bool ora::Database::eraseAllNames(){
+  checkTransaction();
+  return m_impl->m_session->eraseAllNames();
+}
+
+bool ora::Database::getItemId( const std::string& name, ora::OId& destination ){
+  checkTransaction();
+  return m_impl->m_session->getItemId( name, destination );  
+}
+
 boost::shared_ptr<void> ora::Database::getTypedObjectByName( const std::string& name, const std::type_info& typeInfo ){
   checkTransaction();
   Reflex::Type objType = ClassUtils::lookupDictionary( typeInfo );
@@ -315,6 +325,11 @@ bool ora::Database::getNamesForObject( const ora::OId& oid,
                                        std::vector<std::string>& destination ){
   checkTransaction();
   return m_impl->m_session->getNamesForObject( oid.containerId(), oid.itemId(), destination );
+}
+
+bool ora::Database::listObjectNames( std::vector<std::string>& destination ){
+  checkTransaction();
+  return m_impl->m_session->listObjectNames( destination );
 }
 
 ora::DatabaseUtility ora::Database::utility(){

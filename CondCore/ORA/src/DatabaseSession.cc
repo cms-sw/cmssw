@@ -220,6 +220,10 @@ bool ora::DatabaseSession::eraseObjectName( const std::string& name ){
   return m_schema->namingServiceTable().eraseObjectName( name );
 }
 
+bool ora::DatabaseSession::eraseAllNames(){
+  return m_schema->namingServiceTable().eraseAllNames();
+}
+
 ora::Object ora::DatabaseSession::fetchObjectByName( const std::string& name ){
   ora::Object ret;
   std::pair<int,int> oid;
@@ -228,6 +232,15 @@ ora::Object ora::DatabaseSession::fetchObjectByName( const std::string& name ){
     if( cont ) ret = Object( cont->fetchItem( oid.second ), cont->type() );
   }
   return ret;
+}
+
+bool ora::DatabaseSession::getItemId( const std::string& name, ora::OId& destination ){
+  std::pair<int,int> oidData;
+  if( m_schema->namingServiceTable().getObjectByName( name, oidData ) ){
+    destination = OId( oidData.first, oidData.second );
+    return true;
+  }
+  return false;
 }
 
 boost::shared_ptr<void> ora::DatabaseSession::fetchTypedObjectByName( const std::string& name, 
@@ -257,6 +270,11 @@ bool ora::DatabaseSession::getNamesForObject( int containerId,
                                               int itemId, 
                                               std::vector<std::string>& destination ){
   return m_schema->namingServiceTable().getNamesForObject( containerId, itemId, destination );
+}
+
+bool ora::DatabaseSession::listObjectNames( std::vector<std::string>& destination ){
+  
+  return m_schema->namingServiceTable().getAllNames( destination );
 }
 
 ora::Handle<ora::DatabaseUtilitySession> ora::DatabaseSession::utility(){

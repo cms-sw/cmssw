@@ -90,6 +90,8 @@ namespace ora {
     
     void flush();
 
+    void setItemName( const std::string& name, int itemId );
+
     bool getNames( std::vector<std::string>& destination );
 
     private:
