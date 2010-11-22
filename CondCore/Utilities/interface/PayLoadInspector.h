@@ -3,7 +3,7 @@
 #include "CondCore/ORA/interface/Object.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
-#include "CondCore/DBCommon/interface/PoolToken.h"
+#include "CondCore/ORA/interface/PoolToken.h"
 #include "TFile.h"
 #include "Cintex/Cintex.h"
 #include <sstream>
