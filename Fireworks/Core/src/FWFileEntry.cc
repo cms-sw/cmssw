@@ -1,6 +1,7 @@
 #include <boost/regex.hpp>
 
 #include "TFile.h"
+#include "TTreeCache.h"
 #include "TError.h"
 #include "TMath.h"
 
@@ -31,7 +32,8 @@ FWFileEntry::~FWFileEntry()
    delete m_globalEventList;
 }
 
-void FWFileEntry::openFile(){
+void FWFileEntry::openFile()
+{
    gErrorIgnoreLevel = 3000; // suppress warnings about missing dictionaries
    TFile *newFile = TFile::Open(m_name.c_str());
    if (newFile == 0 || newFile->IsZombie() || !newFile->Get("Events")) {
@@ -46,13 +48,22 @@ void FWFileEntry::openFile(){
 
    if (m_eventTree == 0)
    { 
-      throw  std::runtime_error("Cannot find TTree 'Events' in the data file");
+      throw std::runtime_error("Cannot find TTree 'Events' in the data file");
    }
+
+   // This now set in DataHelper
+   //TTreeCache::SetLearnEntries(2);
+   //m_eventTree->SetCacheSize(10*1024*1024);
+   //TTreeCache *tc = (TTreeCache*) m_file->GetCacheRead();
+   //tc->AddBranch(m_event->auxBranch_,kTRUE);
+   //tc->StartLearningPhase();
 }
 
 void FWFileEntry::closeFile()
 {
    if (m_file) {
+      printf("Reading %lld bytes in %d transactions.\n",
+             m_file->GetBytesRead(), m_file->GetReadCalls());
       m_file->Close();
       delete m_file;
    }
@@ -196,7 +207,7 @@ void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng)
       if (item == 0) 
          continue;
       //FIXME: hack to get full branch name filled
-      if (item->m_event == 0 ) 
+      if (item->m_event == 0) 
       {
           item->m_event = m_event;
           item->getPrimaryData();

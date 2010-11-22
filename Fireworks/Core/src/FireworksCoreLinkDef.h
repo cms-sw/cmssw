@@ -21,6 +21,7 @@
 #include "Fireworks/Core/interface/FWGUIEventFilter.h"
 #include "Fireworks/Core/interface/CmsShowCommonPopup.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
+#include "Fireworks/Core/interface/FWInvMassDialog.h"
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -57,5 +58,6 @@
 #pragma link C++ class FWGUIEventFilter;
 #pragma link C++ class CmsShowCommonPopup;
 #pragma link C++ class CmsShowViewPopup;
+#pragma link C++ class FWInvMassDialog;
 
 #endif

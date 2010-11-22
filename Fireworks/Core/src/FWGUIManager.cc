@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.224 2010/11/11 19:53:23 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.225 2010/11/21 20:52:25 amraktad Exp $
 
 //
 
@@ -48,6 +48,7 @@
 #include "Fireworks/Core/interface/FWViewType.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/interface/FWJobMetadataManager.h"
+#include "Fireworks/Core/interface/FWInvMassDialog.h"
 
 #include "Fireworks/Core/interface/FWConfiguration.h"
 
@@ -65,6 +66,7 @@
 #include "Fireworks/Core/interface/CmsShowCommonPopup.h"
 #include "Fireworks/Core/interface/CmsShowModelPopup.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
+#include "Fireworks/Core/interface/FWInvMassDialog.h"
 
 #include "Fireworks/Core/interface/CmsShowHelpPopup.h"
 
@@ -105,6 +107,7 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
    m_modelPopup(0),
    m_viewPopup(0),
    m_commonPopup(0),
+   m_invMassDialog(0),
    m_helpPopup(0),
    m_shortcutPopup(0),
    m_helpGLPopup(0),
@@ -164,6 +167,8 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       getAction(cmsshow::sBackgroundColor)->activated.connect(sigc::mem_fun(m_context->colorManager(), &FWColorManager::switchBackground));
       getAction(cmsshow::sShowCommonInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showCommonPopup));
 
+      getAction(cmsshow::sShowInvMassDialog)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showInvMassDialog));
+
       getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
       assert(getAction(cmsshow::sHelp) != 0);
       getAction(cmsshow::sHelp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createHelpPopup));
@@ -200,6 +205,7 @@ void FWGUIManager::connectSubviewAreaSignals(FWGUISubviewArea* a)
 //
 FWGUIManager::~FWGUIManager()
 {
+   delete m_invMassDialog;
    delete m_summaryManager;
    delete m_detailViewManager;
    delete m_cmsShowMainFrame;
@@ -686,6 +692,17 @@ FWGUIManager::setViewPopup(TEveWindow* ew) {
    }
    m_viewPopup->reset(vb, ew);
    m_viewPopup->MapRaised();
+}
+
+void
+FWGUIManager::showInvMassDialog()
+{
+   if (! m_invMassDialog)
+   {
+      m_invMassDialog = new FWInvMassDialog(m_context->selectionManager());
+      m_cmsShowMainFrame->bindCSGActionKeys(m_invMassDialog);
+   }
+   m_invMassDialog->MapRaised();
 }
 
 void

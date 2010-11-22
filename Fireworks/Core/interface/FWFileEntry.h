@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWFileEntry
-// $Id: FWFileEntry.h,v 1.10 2009/12/11 12:50:16 amraktad Exp $
+// $Id: FWFileEntry.h,v 1.11 2010/08/16 15:33:20 matevz Exp $
 //
 
 // system include files
@@ -14,7 +14,10 @@
 #include "TTree.h"
 
 // user include files
+// MT -- to get auxBranch
+#define private public
 #include "DataFormats/FWLite/interface/Event.h"
+#undef private
 #include "Fireworks/Core/interface/FWEventSelector.h"
 #include "Fireworks/Core/interface/FWTEventList.h"
 #include "Fireworks/Core/interface/FWConfigurable.h"

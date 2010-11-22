@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.112 2010/11/04 22:38:54 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.113 2010/11/11 19:53:22 amraktad Exp $
 //
 
 // system include files
@@ -64,6 +64,7 @@ class FWGUISubviewArea;
 class FWSelectionManager;
 class FWSummaryManager;
 class FWDetailViewManager;
+class FWInvMassDialog;
 class CSGAction;
 class CSGContinuousAction;
 
@@ -134,7 +135,9 @@ public:
    void popupViewClosed();
    
    void showSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY, FWViewContextMenuHandlerBase* iHandler);
-   
+
+   void showInvMassDialog();
+
    // help
    void createHelpPopup ();
    void createShortcutPopup ();
@@ -256,7 +259,8 @@ private:
    CmsShowModelPopup*      m_modelPopup;
    CmsShowViewPopup*       m_viewPopup;
    CmsShowCommonPopup*     m_commonPopup;
-   
+   FWInvMassDialog*        m_invMassDialog;
+
    // help
    CmsShowHelpPopup *m_helpPopup;
    CmsShowHelpPopup  *m_shortcutPopup;
