@@ -20,8 +20,9 @@ FWPFLegoRecHit::setupEveBox( const std::vector<TEveVector> &corners )
       m_tower->SetVertex( i, corners[i] );
 
    m_tower->SetPickable( true );
-   //   m_tower->SetDrawFrame(true);
+   m_tower->SetDrawFrame(true);
    m_tower->SetLineWidth( 1.0 );
+   m_tower->SetLineColor( kBlack );
 }
 
 //______________________________________________________________________________________________________

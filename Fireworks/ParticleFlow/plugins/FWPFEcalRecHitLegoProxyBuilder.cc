@@ -16,17 +16,13 @@ void
 FWPFEcalRecHitLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveElement *iCompound,
                                                    FWViewType::EType viewType, const FWViewContext *vc )
 {
-   iCompound->CSCApplyMainColorToMatchingChildren();
-   TEveElement *el = iCompound->FindChild( "EcalRecHitLineSet" );
-   if( el )
-   {
-      TEveStraightLineSet* line = static_cast<TEveStraightLineSet*>(el);
-      const FWDisplayProperties &p = item()->modelInfo(iId.index()).displayProperties();
-      line->SetMainColor(p.color() );
-      line->SetLineColor(kBlack);
-      line->SetMarkerColor(p.color());
-      line->StampObjProps();
-   }
+   const FWDisplayProperties &p = item()->modelInfo(iId.index()).displayProperties();
+
+   TEveStraightLineSet* line = static_cast<TEveStraightLineSet*>(iCompound->FirstChild());
+   line->SetMarkerColor(p.color());
+
+   TEveBox* box = static_cast<TEveBox*>(iCompound->LastChild());
+   box->SetLineColor(kBlack);
 }
 
 //______________________________________________________________________________________________________
