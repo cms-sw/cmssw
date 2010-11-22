@@ -1,5 +1,6 @@
 <use   name="RelationalAccess"/>
 <use   name="CondCore/DBCommon"/>
+<use   name="CondCore/ORA"/>
 <export>
   <lib   name="1"/>
 </export>

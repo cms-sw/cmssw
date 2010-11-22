@@ -27,12 +27,14 @@ int main(){
     //test errors
     coralDb.transaction().start(true);
     if(metadata.hasTag("crap")) std::cout << "wrong" << std::endl;
+    /**
     try {
       cond::MetaDataEntry result; 
       metadata.getEntryByTag("crap", result);
     } catch (cond::Exception const & ce) {
       std::cout << "OK " << ce.what() << std::endl;
     }
+    **/
     try { 
       metadata.getToken("crap");
     } catch (cond::Exception const & ce) {
@@ -56,12 +58,14 @@ int main(){
     //test errors
     coralDb.transaction().start(true);
     if(metadata.hasTag("crap")) std::cout << "wrong: crap shall not be there" << std::endl;
+    /**
     try {
       cond::MetaDataEntry result; 
       metadata.getEntryByTag("crap", result);
     } catch (cond::Exception const & ce) {
       std::cout << "OK " << ce.what() << std::endl;
     }
+    **/
     try { 
       metadata.getToken("crap");
     } catch (cond::Exception const & ce) {
@@ -80,7 +84,9 @@ int main(){
     if(!metadata.hasTag("mytest1")) std::cout << "wrong: mytest1 IS there" << std::endl;
     std::string tok1=metadata.getToken("mytest1");
     cond::MetaDataEntry r1;
+    /**
     metadata.getEntryByTag("mytest1",r1);
+    **/
     coralDb.transaction().commit();
 
     std::cout<<"got token1 "<<tok1<<std::endl;
@@ -95,7 +101,9 @@ int main(){
     coralDb.transaction().start(true);
     std::string tok2=metadata.getToken("mytest2");
     cond::MetaDataEntry r2;
+    /**
     metadata.getEntryByTag("mytest2",r2);
+    **/
     coralDb.transaction().commit();
     std::cout<<"got token2 "<<tok2<<std::endl;
     std::cout<<"got entry tagname "<<r2.tagname<<std::endl;
@@ -106,9 +114,11 @@ int main(){
       std::cout<<"timestamp"<<std::endl;
     }
     std::string newtok2="newtoken2";
+    /**
     coralDb.transaction().start(false);
      metadata.replaceToken("mytest2",newtok2);
     coralDb.transaction().commit();
+    **/
 
     coralDb.transaction().start(true);
     std::string mytok2=metadata.getToken("mytest2");
