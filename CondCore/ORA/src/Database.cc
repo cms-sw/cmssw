@@ -150,7 +150,7 @@ bool ora::Database::drop(){
   return dropped;
 }
 
-void ora::Database::open( bool writingAccess ){
+void ora::Database::open( bool writingAccess /*=false*/){
   checkTransaction();
   if( !m_impl->m_session->exists() ){
     if( writingAccess && m_impl->m_session->configuration().properties().getFlag( Configuration::automaticDatabaseCreation() ) ){
@@ -175,7 +175,7 @@ std::set< std::string > ora::Database::containers() {
 
 ora::Container ora::Database::createContainer( const std::string& name,
                                                const std::type_info& typeInfo ){
-  open();
+  open( true );
   if( m_impl->m_session->containerHandle( name ) ){
     throwException("Container with name \""+name+"\" already exists in the database.",
                    "Database::createContainer");
@@ -186,7 +186,7 @@ ora::Container ora::Database::createContainer( const std::string& name,
 }
 
 ora::Container ora::Database::createContainer( const std::type_info& typeInfo ){
-  open();
+  open( true );
   Reflex::Type contType = ClassUtils::lookupDictionary( typeInfo );
   std::string name = nameFromClass( contType );
   if( m_impl->m_session->containerHandle( name ) ){
@@ -199,7 +199,7 @@ ora::Container ora::Database::createContainer( const std::type_info& typeInfo ){
 
 ora::Container ora::Database::createContainer( const std::string& className,
                                                std::string name ){
-  open();
+  open( true );
   Reflex::Type contType =  ClassUtils::lookupDictionary( className );
   if( name.empty() ) name = nameForContainer( className );
   if( m_impl->m_session->containerHandle( name ) ){
@@ -225,7 +225,7 @@ ora::Container ora::Database::getContainer( const std::type_info& typeInfo ){
 }
 
 bool ora::Database::dropContainer( const std::string& name ){
-  open();
+  open( true );
   if( !m_impl->m_session->containerHandle( name ) ){
     return false;
   }  
@@ -270,19 +270,19 @@ ora::OId ora::Database::insertItem(const std::string& containerName,
 
 void ora::Database::updateItem(const OId& oid,
                                const Object& dataObject ){
-  open();
+  open( true );
   Container cont = containerHandle( oid.containerId() );
   cont.updateItem( oid.itemId(), dataObject );
 }
 
 void ora::Database::erase(const OId& oid){
-  open();
+  open( true );
   Container cont = containerHandle( oid.containerId() );
   cont.erase( oid.itemId() );
 }
 
 void ora::Database::flush(){
-  open();
+  open( true );
   const std::map<int,Handle<DatabaseContainer> >& containers = m_impl->m_session->containers();
   for( std::map<int,Handle<DatabaseContainer> >::const_iterator iCont = containers.begin();
        iCont != containers.end(); ++iCont ){
@@ -291,44 +291,44 @@ void ora::Database::flush(){
 }
 
 void ora::Database::setObjectName( const std::string& name, const OId& oid ){
-  checkTransaction();
+  open( true );
   m_impl->m_session->setObjectName( name, oid.containerId(), oid.itemId() );
 }
 
 bool ora::Database::eraseObjectName( const std::string& name ){
-  checkTransaction();
+  open( true );
   return m_impl->m_session->eraseObjectName( name );  
 }
 
 bool ora::Database::eraseAllNames(){
-  checkTransaction();
+  open( true );
   return m_impl->m_session->eraseAllNames();
 }
 
 bool ora::Database::getItemId( const std::string& name, ora::OId& destination ){
-  checkTransaction();
+  open();
   return m_impl->m_session->getItemId( name, destination );  
 }
 
 boost::shared_ptr<void> ora::Database::getTypedObjectByName( const std::string& name, const std::type_info& typeInfo ){
-  checkTransaction();
+  open();
   Reflex::Type objType = ClassUtils::lookupDictionary( typeInfo );
   return m_impl->m_session->fetchTypedObjectByName( name, objType );
 }
 
 ora::Object ora::Database::fetchItemByName( const std::string& name ){
-  checkTransaction();
+  open();
   return  m_impl->m_session->fetchObjectByName( name );
 }
 
 bool ora::Database::getNamesForObject( const ora::OId& oid, 
                                        std::vector<std::string>& destination ){
-  checkTransaction();
+  open();
   return m_impl->m_session->getNamesForObject( oid.containerId(), oid.itemId(), destination );
 }
 
 bool ora::Database::listObjectNames( std::vector<std::string>& destination ){
-  checkTransaction();
+  open();
   return m_impl->m_session->listObjectNames( destination );
 }
 
