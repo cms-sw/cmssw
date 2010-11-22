@@ -9,8 +9,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2010
-///  $Revision: 1.1 $
-///  $Date: 2010/10/26 18:59:59 $
+///  $Revision: 1.2 $
+///  $Date: 2010/11/17 15:55:09 $
 ///  (last update by $Author: flucke $)
 
 #include "DataFormats/GeometryVector/interface/Vector2DBase.h"
@@ -24,7 +24,7 @@ class SurfaceDeformation
 {
  public:
   typedef Vector2DBase<double, LocalTag> Local2DVector;
-  typedef Point2DBase <double, LocalTag> Local2DPoint;
+  typedef Topology::Local2DPoint         Local2DPoint;
   typedef Topology::LocalTrackAngles     LocalTrackAngles;
 
   virtual SurfaceDeformation* clone() const = 0;
