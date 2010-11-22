@@ -20,7 +20,19 @@ class GeomDetType;
  *  The Digitizer uses the Topology to transform energy deposits in the 
  *  local frame into signals on the readout channels, and the clusterizer
  *  (or the RecHit) uses the Topology for the inverse transformation,
- *  from channel numbers to local coordinates. 
+ *  from channel numbers to local coordinates.
+ *
+ *  If the surface of a Topology deviates from its perfect shape,
+ *  e.g. a bowed instead of a flat surface (bowed silicon sensors)
+ *  or if built from two surfaces that might be misaligned with respect
+ *  to each other (double sensor silicon modules), conversion might depend 
+ *  on a track prediction.
+ *  Conversions from local to measurement frame therefore need the
+ *  'LocalTrackAngles', conversions the other way round need also track
+ *   position predictions, bound together with the angles to a 'LocalTrackPred'.
+ *  Default implementation of methods requiring more arguments is to
+ *  call the simple method, ignoring the track state.
+ *  Concrete implementations should overwrite this where appropiate.
  */
 
 class Topology {
@@ -34,8 +46,24 @@ public:
         private:
             double dxdz_, dydz_;
     };
-
-
+    typedef Point2DBase <double, LocalTag> Local2DPoint;
+    /** Track prediction in local frame (2D point and angles), 
+	needed to handle surface deformations*/
+    class LocalTrackPred {
+    public:
+    LocalTrackPred(double x, double y, double dxdz, double dydz) : point_(x,y),angles_(dxdz,dydz){}
+      /// Ctr. from array (is that too fragile?), order is: dxdz, dydz, x, y
+      /// as from '&(LocalTrajectoryParameters::vector()[1])'
+      /// (Take care: no check for null pointer!)
+    LocalTrackPred(const double *angles_x_y) :
+      point_(angles_x_y[2], angles_x_y[3]), angles_(angles_x_y[0], angles_x_y[1]) {}
+      const Local2DPoint& point() const {return point_;}
+      const LocalTrackAngles& angles() const {return angles_;}
+    private:
+      Local2DPoint     point_; /// local x, y
+      LocalTrackAngles angles_;/// local dxdz, dydz
+    };
+    
   virtual ~Topology() {}
   
   // Conversion between measurement (strip, pixel, ...) coordinates
@@ -55,13 +83,14 @@ public:
 
   // new sets of methods taking also an angle
   /// conversion taking also the angle from the predicted track state 
-  virtual LocalPoint localPosition( const MeasurementPoint &mp, const LocalTrackAngles &dir) const {
+  virtual LocalPoint localPosition(const MeasurementPoint &mp, const LocalTrackPred &/*trkPred*/) const {
       return localPosition(mp);
   }
 
   /// conversion taking also the angle from the predicted track state 
   virtual LocalError 
-  localError( const MeasurementPoint &mp, const MeasurementError &me, const LocalTrackAngles &dir ) const {
+  localError(const MeasurementPoint &mp, const MeasurementError &me,
+	     const LocalTrackPred &/*trkPred*/) const {
       return localError(mp,me);
   }
 
