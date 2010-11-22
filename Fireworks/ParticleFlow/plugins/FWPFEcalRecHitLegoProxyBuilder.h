@@ -27,36 +27,42 @@
 
 class FWPFEcalRecHitLegoProxyBuilder : public FWProxyBuilderTemplate<EcalRecHit>
 {
-   private:
-      // Disable default copy constructor
-      FWPFEcalRecHitLegoProxyBuilder( const FWPFEcalRecHitLegoProxyBuilder& );
-      // Disable default assignment operator
-      const FWPFEcalRecHitLegoProxyBuilder& operator=( const FWPFEcalRecHitLegoProxyBuilder& );
+private:
+   // Disable default copy constructor
+   FWPFEcalRecHitLegoProxyBuilder( const FWPFEcalRecHitLegoProxyBuilder& );
+   // Disable default assignment operator
+   const FWPFEcalRecHitLegoProxyBuilder& operator=( const FWPFEcalRecHitLegoProxyBuilder& );
 
    // ------------------------- Member Functions -------------------------------
-      TEveVector calculateCentre( const std::vector<TEveVector> & corners );
-      float calculateEt( const TEveVector &centre, float E );
+   float calculateEt( const TEveVector &centre, float E );
 
    // --------------------------- Data Members ---------------------------------
-      float m_maxEnergy;
-      float m_maxEt;
-      std::vector<FWPFLegoRecHit*> m_recHits;
+   float m_maxEnergyLog;
+   float m_maxEtLog;
+   std::vector<FWPFLegoRecHit*> m_recHits;
+protected:
 
-   public:
+   virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                  FWViewType::EType viewType, const FWViewContext* vc);
+public:
    // -------------------- Constructor(s)/Destructors --------------------------
-      FWPFEcalRecHitLegoProxyBuilder(){}
-      virtual ~FWPFEcalRecHitLegoProxyBuilder(){}
+   FWPFEcalRecHitLegoProxyBuilder(){}
+   virtual ~FWPFEcalRecHitLegoProxyBuilder(){}
 
-      static std::string typeOfBuilder() { return "simple#"; }
+   static std::string typeOfBuilder() { return "simple#"; }
 
-      virtual void build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext* );
-      virtual void localModelChanges( const FWModelId &iId, TEveElementList *iCompound,
-                                      FWViewType::EType viewType, const FWViewContext *vc );
-      virtual void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );
-      virtual bool havePerViewProduct( FWViewType::EType ) const { return true; }
-      virtual void cleanLocal() { m_recHits.clear(); }
+   virtual void build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext* );
 
-      REGISTER_PROXYBUILDER_METHODS();
+
+   virtual void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );
+   virtual bool havePerViewProduct( FWViewType::EType ) const { return true; }
+   virtual void cleanLocal() { m_recHits.clear(); }
+
+   // needed by LegoRecHit
+   TEveVector  calculateCentre( const std::vector<TEveVector> & corners ) const;
+   float getMaxValLog(bool et) const { return et ? m_maxEtLog : m_maxEnergyLog; }
+
+   REGISTER_PROXYBUILDER_METHODS();
 
 };
 #endif

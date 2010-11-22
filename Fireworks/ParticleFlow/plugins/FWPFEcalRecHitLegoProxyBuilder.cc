@@ -5,27 +5,33 @@ void
 FWPFEcalRecHitLegoProxyBuilder::scaleProduct( TEveElementList *parent, FWViewType::EType type, const FWViewContext *vc )
 {
    typedef std::vector<FWPFLegoRecHit*> rh;
-   FWViewEnergyScale *caloScale = vc->getEnergyScale( "Calo" );
-   float val = caloScale->getPlotEt() ? m_maxEt : m_maxEnergy;
+
    // printf("FWPFEcalRecHitLegoProxyBuilder::scaleProduct >> scale %f \n", caloScale->getValToHeight());
    for( rh::iterator i = m_recHits.begin(); i != m_recHits.end(); ++i )
-      (*i)->updateScale( vc, context(), val );
+      (*i)->updateScale( vc);
 }
 
 //______________________________________________________________________________________________________
 void
-FWPFEcalRecHitLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveElementList *iCompound,
+FWPFEcalRecHitLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveElement *iCompound,
                                                    FWViewType::EType viewType, const FWViewContext *vc )
 {
    iCompound->CSCApplyMainColorToMatchingChildren();
-   TEveElement *line = iCompound->FindChild( "LegoRecHitLine" );
-   if( line )
-      line->SetMainColor( kBlack );
+   TEveElement *el = iCompound->FindChild( "EcalRecHitLineSet" );
+   if( el )
+   {
+      TEveStraightLineSet* line = static_cast<TEveStraightLineSet*>(el);
+      const FWDisplayProperties &p = item()->modelInfo(iId.index()).displayProperties();
+      line->SetMainColor(p.color() );
+      line->SetLineColor(kBlack);
+      line->SetMarkerColor(p.color());
+      line->StampObjProps();
+   }
 }
 
 //______________________________________________________________________________________________________
 TEveVector
-FWPFEcalRecHitLegoProxyBuilder::calculateCentre( const std::vector<TEveVector> &corners )
+FWPFEcalRecHitLegoProxyBuilder::calculateCentre( const std::vector<TEveVector> &corners ) const
 {
    TEveVector centre;
 
@@ -58,9 +64,11 @@ FWPFEcalRecHitLegoProxyBuilder::calculateEt( const TEveVector &centre, float E )
 void
 FWPFEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc )
 {
-   m_maxEnergy = 0.0f;
-   m_maxEt = 0.0f;
-   m_recHits.clear();   // Could just call cleanLocal() here
+   //cleanLocal called before the build, no need to free recHit vec
+
+   float maxEnergy = 0.0f;
+   float maxEt = 0.0f;
+
    for( int index = 0; index < static_cast<int>(iItem->size() ); ++index )
    {
       TEveCompound *itemHolder = createCompound();
@@ -87,20 +95,22 @@ FWPFEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList
          etaphiCorners[i+4].fX = etaphiCorners[i].fX;
          etaphiCorners[i+4].fY = etaphiCorners[i].fY;       // Top can simply be plotted exactly over the top of the bottom face
          etaphiCorners[i+4].fZ = 0.001;
+         // printf("%f %f %d \n",  etaphiCorners[i].fX, etaphiCorners[i].fY, i);
       }
-
       centre = calculateCentre( etaphiCorners );
       energy = iData.energy();
       et = calculateEt( centre, energy );
 
-      if( energy > m_maxEnergy )
-         m_maxEnergy = energy;
-      if( energy > m_maxEt )
-         m_maxEt = et;
+      if( energy > maxEnergy )
+         maxEnergy = energy;
+      if( energy > maxEt )
+         maxEt = et;
 
+      m_maxEnergyLog = log(maxEnergy);
+      m_maxEtLog = log(maxEt);
 
-      FWPFLegoRecHit *recHit = new FWPFLegoRecHit( etaphiCorners, itemHolder, this, vc, centre, energy, et );
-      recHit->setSquareColor( kBlack );
+      FWPFLegoRecHit *recHit = new FWPFLegoRecHit( etaphiCorners, itemHolder, this, vc, energy, et );
+      recHit->setSquareColor(item()->defaultDisplayProperties().color());
       m_recHits.push_back( recHit );
    }
 }

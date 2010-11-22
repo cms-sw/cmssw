@@ -15,7 +15,6 @@
 #include "TEveChunkManager.h"
 
 // User include files
-#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 #include "Fireworks/Core/interface/Context.h"
@@ -28,34 +27,34 @@ class FWPFEcalRecHitLegoProxyBuilder;
 
 class FWPFLegoRecHit
 {
-   private:
-      FWPFLegoRecHit( const FWPFLegoRecHit& );                    // Disable default
-      const FWPFLegoRecHit& operator=( const FWPFLegoRecHit& );   // Disable default
+private:
+   FWPFLegoRecHit( const FWPFLegoRecHit& );                    // Disable default
+   const FWPFLegoRecHit& operator=( const FWPFLegoRecHit& );   // Disable default
 
    // ------------------------- Member Functions -------------------------------
-      void setupEveBox( const std::vector<TEveVector> &corners );
-      void convertToTower( std::vector<TEveVector> &corners, float scale );
-      void buildTower( const std::vector<TEveVector> &corners, const FWViewContext *vc );
-      void buildLineSet( const std::vector<TEveVector> &corners, const FWViewContext *vc );
+   void setupEveBox( const std::vector<TEveVector> &corners );
+   void convertToTower( std::vector<TEveVector> &corners, float scale );
+   void buildTower( const std::vector<TEveVector> &corners, const FWViewContext *vc );
+   void buildLineSet( const std::vector<TEveVector> &corners, const FWViewContext *vc );
 
    // --------------------------- Data Members ---------------------------------
-      TEveElement          *m_itemHolder;
-      TEveBox              *m_tower;
-      TEveStraightLineSet  *m_ls;
-      TEveVector           m_centre;
-      float                m_energy;
-      float                m_et;
-      float                m_height;
+   FWPFEcalRecHitLegoProxyBuilder* m_builder;
 
-   public:
+   TEveBox              *m_tower;
+   TEveStraightLineSet  *m_ls;
+   float                 m_energy;
+   float                 m_et;
+
+
+public:
    // -------------------- Constructor(s)/Destructors --------------------------
-      FWPFLegoRecHit( const std::vector<TEveVector> &corners, TEveElement *comp, FWProxyBuilderBase *pb,
-                      const FWViewContext *vc, const TEveVector &centre, float e, float et );
-      virtual ~FWPFLegoRecHit(){}
+   FWPFLegoRecHit( const std::vector<TEveVector> &corners, TEveElement *comp, FWPFEcalRecHitLegoProxyBuilder*pb,
+                   const FWViewContext *vc, float e, float et );
+   virtual ~FWPFLegoRecHit(){}
 
-      void updateScale( const FWViewContext *vc, const fireworks::Context &context, float scale );
-      void setSquareColor( Color_t c ) { m_ls->SetMainColor(c); }
+   void updateScale( const FWViewContext *vc);
+   void setSquareColor( Color_t c ) { m_ls->SetMarkerColor(c); m_ls->SetLineColor(kBlack); }
 
-      TEveBox *getTower() { return m_tower; }
+   TEveBox *getTower() { return m_tower; }
 };
 #endif
