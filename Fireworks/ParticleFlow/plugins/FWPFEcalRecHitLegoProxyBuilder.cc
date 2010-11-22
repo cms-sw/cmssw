@@ -13,16 +13,28 @@ FWPFEcalRecHitLegoProxyBuilder::scaleProduct( TEveElementList *parent, FWViewTyp
 
 //______________________________________________________________________________________________________
 void
-FWPFEcalRecHitLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveElement *iCompound,
+FWPFEcalRecHitLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveElement *parent,
                                                    FWViewType::EType viewType, const FWViewContext *vc )
 {
-   const FWDisplayProperties &p = item()->modelInfo(iId.index()).displayProperties();
-
-   TEveStraightLineSet* line = static_cast<TEveStraightLineSet*>(iCompound->FirstChild());
-   line->SetMarkerColor(p.color());
-
-   TEveBox* box = static_cast<TEveBox*>(iCompound->LastChild());
-   box->SetLineColor(kBlack);
+   for (TEveElement::List_i i = parent->BeginChildren(); i!= parent->EndChildren(); ++i)
+   {
+      TEveBox* box =dynamic_cast<TEveBox*>(*i);
+      if (box)
+      {
+         box->SetLineColor(kBlack);
+	 box->StampObjProps();
+      }
+      else
+      {
+         TEveStraightLineSet* line =dynamic_cast<TEveStraightLineSet*>(*i);
+         if (line)
+         {
+            const FWDisplayProperties &p = item()->modelInfo(iId.index()).displayProperties();
+            line->SetMarkerColor(p.color());
+            line->StampObjProps();
+         }
+      }
+   }
 }
 
 //______________________________________________________________________________________________________
