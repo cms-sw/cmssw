@@ -1,8 +1,8 @@
 #ifndef HI_MixEvtVtxGenerator_H
 #define HI_MixEvtVtxGenerator_H
 /*
-*   $Date: 2010/02/25 00:34:24 $
-*   $Revision: 1.3 $
+*   $Date: 2010/10/11 11:40:10 $
+*   $Revision: 1.4 $
 */
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -92,9 +92,9 @@ HepMC::FourVector* MixEvtVtxGenerator::getVertex( Event& evt){
     HepMC::GenEvent::particle_const_iterator ptend=inev->particles_end();
     while(!genvtx || ( genvtx->particles_in_size() == 1 && pt != ptend ) ){
       if(!genvtx) cout<<"No Gen Vertex!"<<endl;
-      ++pt;
       if(pt == ptend) cout<<"End reached!"<<endl;
       genvtx = (*pt)->production_vertex();
+      ++pt;
     }
   }
   double aX,aY,aZ,aT;
