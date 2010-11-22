@@ -1,3 +1,8 @@
+2010-11-22 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-04-07
+	* Increase queue expiration interval to avoid spurious unit-test failures.
+
 2010-11-05 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-04-06
