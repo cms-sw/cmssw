@@ -72,7 +72,8 @@ FWPFLegoRecHit::buildLineSet( const std::vector<TEveVector> &corners, const FWVi
    m_ls->AddLine(c.fX + d, c.fY +d, z, c.fX - d, c.fY +d, z);
    m_ls->AddLine(c.fX - d, c.fY +d, z, c.fX - d, c.fY -d, z);
 
-
+   // last line is trick to add a marker in line set
+   // the line has no dimesions and is not visible
    m_ls->SetMarkerStyle(1);
    m_ls->AddLine(c.fX, c.fY, z, c.fX, c.fY, z);
    m_ls->AddMarker(0, 0.);
@@ -107,6 +108,7 @@ FWPFLegoRecHit::updateScale( const FWViewContext *vc )
    while( li.next() )
    {
       TEveStraightLineSet::Line_t &l = *( TEveStraightLineSet::Line_t* ) li();
+      // move onle Z coordinate of first and second(last) line point
       l.fV1[2] = scale + 0.001;
       l.fV2[2] = scale + 0.001;
    }
