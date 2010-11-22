@@ -2,7 +2,7 @@
 #define COND_DBCommon_DbSession_h
 
 #include "CondCore/ORA/interface/Database.h"
-#include "CondCore/DBCommon/interface/PoolToken.h"
+#include "CondCore/ORA/interface/PoolToken.h"
 #include <string>
 #include <boost/shared_ptr.hpp>
 

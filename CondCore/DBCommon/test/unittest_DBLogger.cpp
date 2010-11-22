@@ -3,7 +3,7 @@
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/LogDBEntry.h"
 #include "CondCore/DBCommon/interface/Logger.h"
-#include "CondCore/DBCommon/interface/PoolToken.h"
+#include "CondCore/ORA/interface/PoolToken.h"
 #include "CondCore/DBCommon/interface/SharedLibraryName.h"
 #include "CondCore/DBCommon/interface/UserLogInfo.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"

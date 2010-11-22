@@ -1,10 +1,9 @@
 #include "CondCore/DBCommon/interface/ClassID.h"
+#include "CondCore/ORA/interface/Guid.h"
 #include <typeinfo>
-#include "Guid.h"
 #include "cxxabi.h"
 
 namespace cond {
-  void genMD5(const std::string& s, void* code);
   
   char const * className(const std::type_info& t) {
     int status=0;
