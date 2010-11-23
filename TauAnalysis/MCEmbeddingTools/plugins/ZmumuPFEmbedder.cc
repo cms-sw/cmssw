@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Dec  9 16:14:56 CET 2009
-// $Id: ZmumuPFEmbedder.cc,v 1.8 2010/10/15 11:42:36 zeise Exp $
+// $Id: ZmumuPFEmbedder.cc,v 1.9 2010/11/08 12:03:01 mkortela Exp $
 //
 //
 
@@ -29,6 +29,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/View.h"
 #include <DataFormats/RecoCandidate/interface/RecoCandidate.h>
 #include <DataFormats/Candidate/interface/CompositeRefCandidate.h>
 #include <DataFormats/MuonReco/interface/Muon.h>
@@ -128,7 +129,7 @@ ZmumuPFEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    else
    {
-      edm::Handle< std::vector< reco::Muon > > selectedZMuonsHandle;
+      edm::Handle< edm::View< reco::Muon > > selectedZMuonsHandle;
       if (iEvent.getByLabel(_selectedMuons, selectedZMuonsHandle))
         for (size_t idx = 0; idx < selectedZMuonsHandle->size(); ++idx)
           toBeAdded.push_back(selectedZMuonsHandle->at(idx).p4());
