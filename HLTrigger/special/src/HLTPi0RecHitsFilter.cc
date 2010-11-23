@@ -256,38 +256,17 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
     
   }
   
-  
-  
-
-
-  ParameterLogWeighted_ = iConfig.getParameter<bool> ("ParameterLogWeighted");
-  ParameterX0_ = iConfig.getParameter<double> ("ParameterX0");
-  ParameterT0_barl_ = iConfig.getParameter<double> ("ParameterT0_barl");
-  ParameterT0_endc_ = iConfig.getParameter<double> ("ParameterT0_endc");
-  ParameterT0_endcPresh_ = iConfig.getParameter<double> ("ParameterT0_endcPresh");
-  ParameterW0_ = iConfig.getParameter<double> ("ParameterW0");
-  
-  
   ///  l1IsolatedTag_ = iConfig.getParameter< edm::InputTag > ("l1IsolatedTag");
   ///  l1NonIsolatedTag_ = iConfig.getParameter< edm::InputTag > ("l1NonIsolatedTag");
   //SB comment out, no usage in the following code
   //  l1SeedFilterTag_ = iConfig.getParameter< edm::InputTag > ("l1SeedFilterTag");
 
-    
-
   debug_ = iConfig.getParameter<int> ("debugLevel");
- 
   
- 
-  providedParameters.insert(std::make_pair("LogWeighted",ParameterLogWeighted_));
-  providedParameters.insert(std::make_pair("X0",ParameterX0_));
-  providedParameters.insert(std::make_pair("T0_barl",ParameterT0_barl_));
-  providedParameters.insert(std::make_pair("T0_endc",ParameterT0_endc_));
-  providedParameters.insert(std::make_pair("T0_endcPresh",ParameterT0_endcPresh_));
-  providedParameters.insert(std::make_pair("W0",ParameterW0_));
-  
-  posCalculator_ = PositionCalc(providedParameters);
-  
+   //Setup for core tools objects. 
+  edm::ParameterSet posCalcParameters = iConfig.getParameter<edm::ParameterSet>("posCalcParameters");
+  posCalculator_ = PositionCalc(posCalcParameters);
+
   //register your products
   doBarrel = true; 
   if(doSelForPi0Barrel_ && doSelForEtaBarrel_){
