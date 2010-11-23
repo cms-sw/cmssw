@@ -1,7 +1,7 @@
 /** \file TwoBowedSurfacesAlignmentParameters.cc
  *
- *  Version    : $Revision: 1.14 $
- *  last update: $Date: 2008/09/02 15:08:12 $
+ *  Version    : $Revision: 1.1 $
+ *  last update: $Date: 2010/10/26 20:41:08 $
  *  by         : $Author: flucke $
  */
 
@@ -241,11 +241,19 @@ double TwoBowedSurfacesAlignmentParameters::ySplitFromAlignable(const Alignable 
   const align::PositionType pos(ali->globalPosition());  
   const double r = pos.perp();
 
-  // The returned numbers come from CMS-NOTE 2003/10.
-  // (FIXME: according to Andreas Mussgiller, but GF has not found the page ...)
+  if (ali->geomDetId().subdetId() == 6) {
+    edm::LogInfo("Alignment") << "@SUB=ySplitFromAlignable" << ali->surface().length() 
+			      << " TEC r " << r;
+  }
+
+  // The returned numbers for TEC are calculated as stated below from
+  // what is found in CMS-NOTE 2003/20.
   // Note that at that time it was planned to use ST sensors for the outer TEC
   // while in the end there are only a few of them in the tracker - the others are HPK.
-  // No idea whether there are subtle changes in geometry...
+  // No idea whether there are subtle changes in geometry.
+  // The numbers have been cross checked with y-residuals in data, see 
+  // https://hypernews.cern.ch/HyperNews/CMS/get/recoTracking/1018/1/1/2/1/1/1/2/1.html.
+
   if (r < 58.) { // Pixel, TIB, TID or TEC ring 1-4
     edm::LogError("Alignment") << "@SUB=TwoBowedSurfacesAlignmentParameters::ySplitFromAlignable"
 			       << "There are no split modules for radii < 58, but r = " << r;
@@ -253,11 +261,46 @@ double TwoBowedSurfacesAlignmentParameters::ySplitFromAlignable(const Alignable 
   } else if (fabs(pos.z()) < 118.) { // TOB
     return 0.;
   } else if (r > 90.) { // TEC ring 7
-    return 0.9;
-  } else if (r > 75.) { // TEC ring 6
+    // W7a Height active= 106.900mm (Tab. 2) (but 106.926 mm p. 40!?)
+    // W7a R min active = 888.400mm (Paragraph 5.5.7)
+    // W7a R max active = W7a R min active + W7a Height active = 
+    //                  = 888.400mm + 106.900mm = 995.300mm
+    // W7b Height active=  94.900mm (Tab. 2)  (but 94.876 mm p. 41!?)
+    // W7b R min active = 998.252mm (Paragraph 5.5.8)
+    // W7b R max active = 998.252mm + 94.900mm = 1093.152mm
+    // mean radius module = 0.5*(1093.152mm + 888.400mm) = 990.776mm
+    // mean radius gap = 0.5*(998.252mm + 995.300mm) = 996.776mm
+    // ySplit = (mean radius gap - mean radius module) // local y and r have same directions!
+    //        = 996.776mm - 990.776mm = 6mm
     return 0.6;
+  } else if (r > 75.) { // TEC ring 6
+    // W6a Height active= 96.100mm (Tab. 2) (but 96.136 mm p. 38!?)
+    // W6a R min active = 727.000mm (Paragraph 5.5.5)
+    // W6a R max active = W6a R min active + W6a Height active = 
+    //                  = 727.000mm + 96.100mm = 823.100mm
+    // W6b Height active= 84.900mm (Tab. 2) (but 84.936 mm p. 39!?)
+    // W6b R min active = 826.060mm (Paragraph 5.5.6)
+    // W6b R max active = 826.060mm + 84.900mm = 910.960mm
+    // mean radius module = 0.5*(910.960mm + 727.000mm) = 818.980mm
+    // mean radius gap = 0.5*(826.060mm + 823.100mm) = 824.580mm
+    //          -1: local y and r have opposite directions!
+    // ySplit = -1*(mean radius gap - mean radius module)
+    //        = -1*(824.580mm - 818.980mm) = -5.6mm
+    return -0.56;
   } else {              // TEC ring 5 - smaller radii alreay excluded before
-    return 0.9;
+    // W5a Height active= 81.200mm (Tab. 2) (but 81.169 mm p. 36!?)
+    // W5a R min active = 603.200mm (Paragraph 5.5.3)
+    // W5a R max active = W5a R min active + W5a Height active = 
+    //                  = 603.200mm + 81.200mm = 684.400mm
+    // W5b Height active= 63.200mm (Tab. 2) (63.198 mm on p. 37)
+    // W5b R min active = 687.293mm (Abschnitt 5.5.4 der note)
+    // W5b R max active = 687.293mm + 63.200mm = 750.493mm
+    // mean radius module = 0.5*(750.493mm + 603.200mm) = 676.8465mm
+    // mean radius gap = 0.5*(687.293mm + 684.400mm) = 685.8465mm
+    //          -1: local y and r have opposite directions!
+    // ySplit = -1*(mean radius gap - mean radius module)
+    //        = -1*(685.8465mm - 676.8465mm) = -9mm
+    return -0.9;
   }
   //  return 0.;
 }
