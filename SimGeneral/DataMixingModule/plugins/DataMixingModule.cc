@@ -107,13 +107,13 @@ namespace edm
     }
     else{  // Full Simulation options
 
-       cout<<"FastSim False!!!"<<endl;
+      //cout<<"FastSim False!!!"<<endl;
 
     // declare the products to produce
     // Start with EM
     if(MergeEMDigis_) {
 
-       cout<<"EM Digis TRUE!!!"<<endl;
+      // cout<<"EM Digis TRUE!!!"<<endl;
 
       EBDigiCollectionDM_        = ps.getParameter<std::string>("EBDigiCollectionDM");
       EEDigiCollectionDM_        = ps.getParameter<std::string>("EEDigiCollectionDM");
@@ -141,7 +141,7 @@ namespace edm
     // Hcal next
 
     if(MergeHcalDigis_){
-       cout<<"Hcal Digis TRUE!!!"<<endl;
+      //       cout<<"Hcal Digis TRUE!!!"<<endl;
 
       HBHEDigiCollectionDM_ = ps.getParameter<std::string>("HBHEDigiCollectionDM");
       HODigiCollectionDM_   = ps.getParameter<std::string>("HODigiCollectionDM");
