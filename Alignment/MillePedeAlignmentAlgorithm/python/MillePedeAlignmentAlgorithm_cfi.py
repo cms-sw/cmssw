@@ -49,8 +49,8 @@ MillePedeAlignmentAlgorithm = cms.PSet(
         minHieraConstrCoeff = cms.double(1.e-7), # min abs value of coeff. in hierarchy constr.
         minHieraParPerConstr = cms.uint32(2), # ignore hierarchy constraints with less params
 
-		# specify additional steering files
-		additionalSteerFiles = cms.vstring()
+        # specify additional steering files
+        additionalSteerFiles = cms.vstring() # obsolete - can be given as entries in 'options'
     ),
 
     pedeReader = cms.PSet(
@@ -65,9 +65,9 @@ MillePedeAlignmentAlgorithm = cms.PSet(
     # (note: if 'fileDir' empty, the one from 'pedeSteerer' will be used...): 
     pedeReaderInputs = cms.VPSet(),
 
-    TrajectoryFactory = ReferenceTrajectoryFactory, # from TrajectoryFactories
-	# BzeroReferenceTrajectoryFactory,
-	# TwoBodyDecayReferenceTrajectoryFactory,
+    TrajectoryFactory = BrokenLinesTrajectoryFactory,  # from TrajectoryFactories
+	# BrokenLinesBzeroTrajectoryFactory
+	# TwoBodyDecayReferenceTrajectoryFactory, # for this overwrite MaterialEffects for BL
     minNumHits = cms.uint32(7), ## minimum number of hits (with alignable parameters)
     max2Dcorrelation = cms.double(0.05), ## if correlation >5% 2D measurements in TID/TEC get diagonalized
 
