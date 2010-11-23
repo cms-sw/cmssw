@@ -142,7 +142,7 @@ public:
   edm::InputTag segmentDigiTag_;
   edm::InputTag tracksTag;
   //
-  uint printout_NEvents;
+  unsigned int printout_NEvents;
   bool isData;
   bool isIPdata;
   bool isBeamdata;
@@ -152,7 +152,7 @@ public:
   double minP;
   double maxP;
   double maxNormChi2;
-  uint minTrackHits;
+  unsigned int minTrackHits;
 
   bool applyIPangleCuts;
   double local_DY_DZ_Max;
