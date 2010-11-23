@@ -43,7 +43,7 @@ namespace edm {
       typedef std::vector<std::string> vstring;
 
       // we cannot have parameters in the main process section so look
-      // for an untrakced (optional) ParameterSet called "options" for
+      // for an untracked (optional) ParameterSet called "options" for
       // now.  Notice that all exceptions (most actally) throw
       // edm::Exception with the configuration category.  This
       // category should probably be more specific or a derived
