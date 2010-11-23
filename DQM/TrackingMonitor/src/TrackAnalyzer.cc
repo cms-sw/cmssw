@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/04/19 21:54:43 $
- *  $Revision: 1.13 $
+ *  $Date: 2010/06/02 06:56:54 $
+ *  $Revision: 1.14 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -25,6 +25,7 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
     , doTrackerSpecific_( conf_.getParameter<bool>("doTrackerSpecific") )
     , doAllPlots_( conf_.getParameter<bool>("doAllPlots") )
     , doBSPlots_ ( conf_.getParameter<bool>("doBeamSpotPlots") )
+    , doGoodTrackPlots_ ( conf_.getParameter<bool>("doGoodTrackPlots") )
     , NumberOfRecHitsPerTrack(NULL)
     , NumberOfRecHitsFoundPerTrack(NULL)
     , NumberOfRecHitsLostPerTrack(NULL)
@@ -86,7 +87,13 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
     , NumberOfPixEndcapLayersPerTrackVsPhiProfile(NULL)
     , NumberOfPixEndcapLayersPerTrackVsEtaProfile(NULL)
 
+    , GoodTrackChi2oNDF(NULL)
+    , GoodTrackNumberOfRecHitsPerTrack(NULL)
+
 {
+
+  //  std::cout << "TrackAnalyzer::TrackAnalyzer() - doGoodTrackPlots_ = "  << doGoodTrackPlots_ << std::endl;
+
 }
 
 TrackAnalyzer::~TrackAnalyzer() 
@@ -316,6 +323,28 @@ void TrackAnalyzer::beginJob(DQMStore * dqmStore_)
     {
         bookHistosForState(StateName, dqmStore_);
     }
+
+    // book histos for good tracks (HP + Pt>1GeV)
+    // ---------------------------------------------------------------------------------//
+
+    if ( doGoodTrackPlots_ ) {
+
+      dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
+
+      histname = "GoodTrackChi2oNDF_";
+      GoodTrackChi2oNDF = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, Chi2NDFBin, Chi2NDFMin, Chi2NDFMax);
+      GoodTrackChi2oNDF->setAxisTitle("Good Track #chi^{2}/ndf",1);
+      GoodTrackChi2oNDF->setAxisTitle("Number of Tracks"  ,2);
+
+      dqmStore_->setCurrentFolder(MEFolderName+"/HitProperties");
+
+      histname = "GoodTrackNumberOfRecHitsPerTrack_";
+      GoodTrackNumberOfRecHitsPerTrack = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, TKHitBin, TKHitMin, TKHitMax);
+      GoodTrackNumberOfRecHitsPerTrack->setAxisTitle("Number of RecHits of each Good Track");
+      GoodTrackNumberOfRecHitsPerTrack->setAxisTitle("Number of Tracks", 2);
+
+    }
+
 }
 
 // -- Analyse
@@ -390,6 +419,16 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     {
         fillHistosForState(iSetup, track, StateName);
     }
+
+    // Good Tracks plots
+
+    if ( doGoodTrackPlots_ ) {
+      if ( track.quality(reco::TrackBase::highPurity) && track.pt() > 1. ) {
+	GoodTrackChi2oNDF->Fill(track.normalizedChi2());
+	GoodTrackNumberOfRecHitsPerTrack->Fill(track.recHitsSize());
+      }
+    }
+
 }
 
 
@@ -660,6 +699,25 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore * dqmStore_)
     tkmes.NumberOfLayersPerTrackVsEtaProfile->setAxisTitle("Track #eta",1);
     tkmes.NumberOfLayersPerTrackVsEtaProfile->setAxisTitle("Number of Layers of each Track",2);
 
+    if ( doGoodTrackPlots_ ) {
+
+      histname = "GoodTrackPt_" + histTag;
+      tkmes.GoodTrackPt = dqmStore_->book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+      tkmes.GoodTrackPt->setAxisTitle("Good Track p_{T} (GeV/c)", 1);
+      tkmes.GoodTrackPt->setAxisTitle("Number of Tracks",2);
+      
+      histname = "GoodTrackEta_" + histTag;
+      tkmes.GoodTrackEta = dqmStore_->book1D(histname, histname, EtaBin, EtaMin, EtaMax);
+      tkmes.GoodTrackEta->setAxisTitle("Good Track #eta", 1);
+      tkmes.GoodTrackEta->setAxisTitle("Number of Tracks",2);
+      
+      histname = "GoodTrackPhi_" + histTag;
+      tkmes.GoodTrackPhi = dqmStore_->book1D(histname, histname, PhiBin, PhiMin, PhiMax);
+      tkmes.GoodTrackPhi->setAxisTitle("Good Track #phi", 1);
+      tkmes.GoodTrackPhi->setAxisTitle("Number of Tracks",2);
+
+    }
+
     // now put the MEs in the map
     TkParameterMEMap.insert( std::make_pair(sname, tkmes) );
 }
@@ -672,6 +730,8 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
     //get the kinematic parameters
     double p, px, py, pz, pt, theta, phi, eta, q;
     double pxerror, pyerror, pzerror, pterror, perror, phierror, etaerror;
+
+    bool isHighPurity = track.quality(reco::TrackBase::highPurity);
 
     if (sname == "default") 
     {
@@ -692,6 +752,7 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
         perror   = -1.0;
         phierror = track.phiError();
         etaerror = track.etaError();
+
     } 
     else 
     {
@@ -725,6 +786,9 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
         perror   = sqrt(partialPterror+errors(5,5)*pow(TSOS.globalMomentum().z(),2))/TSOS.globalMomentum().mag();
         phierror = sqrt(TSOS.curvilinearError().matrix()(2,2));
         etaerror = sqrt(TSOS.curvilinearError().matrix()(1,1))*fabs(sin(TSOS.globalMomentum().theta()));
+
+	
+
     }
 
     std::map<std::string, TkParameterMEs>::iterator iPos = TkParameterMEMap.find(sname); 
@@ -785,6 +849,15 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
 	    
 
         }
+
+	if ( doGoodTrackPlots_ ) {
+	  if ( isHighPurity && pt > 1. ) {
+	    tkmes.GoodTrackPt->Fill(pt);
+	    tkmes.GoodTrackEta->Fill(eta);
+	    tkmes.GoodTrackPhi->Fill(phi);
+	  }
+	}
+
     }
 }
 
@@ -1133,6 +1206,8 @@ void TrackAnalyzer::doTrackerSpecificFillHists(const reco::Track & track)
 void TrackAnalyzer::setLumiFlag() {
   if (Chi2oNDF) Chi2oNDF->setLumiFlag();
   if (NumberOfRecHitsPerTrack) NumberOfRecHitsPerTrack->setLumiFlag();
+  if (GoodTrackChi2oNDF) GoodTrackChi2oNDF->setLumiFlag();
+  if (GoodTrackNumberOfRecHitsPerTrack) GoodTrackNumberOfRecHitsPerTrack->setLumiFlag();
 }
 //
 // -- Apply SoftReset 
@@ -1140,6 +1215,8 @@ void TrackAnalyzer::setLumiFlag() {
 void TrackAnalyzer::doSoftReset(DQMStore * dqmStore_) {
   dqmStore_->softReset(Chi2oNDF);
   dqmStore_->softReset(NumberOfRecHitsPerTrack);
+  dqmStore_->softReset(GoodTrackChi2oNDF);
+  dqmStore_->softReset(GoodTrackNumberOfRecHitsPerTrack);
 }
 //
 // -- Remove SoftReset
@@ -1147,6 +1224,8 @@ void TrackAnalyzer::doSoftReset(DQMStore * dqmStore_) {
 void TrackAnalyzer::undoSoftReset(DQMStore * dqmStore_) {
   dqmStore_->disableSoftReset(Chi2oNDF);
   dqmStore_->disableSoftReset(NumberOfRecHitsPerTrack);
+  dqmStore_->disableSoftReset(GoodTrackChi2oNDF);
+  dqmStore_->disableSoftReset(GoodTrackNumberOfRecHitsPerTrack);
 }
 
 

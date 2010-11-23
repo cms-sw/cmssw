@@ -8,7 +8,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackAnalyzer.h,v 1.6 2010/01/17 20:00:42 dutta Exp $
+// $Id: TrackAnalyzer.h,v 1.7 2010/04/19 21:54:38 dutta Exp $
 
 #include <memory>
 #include <fstream>
@@ -50,6 +50,7 @@ class TrackAnalyzer
         bool doTrackerSpecific_;
         bool doAllPlots_;
         bool doBSPlots_;
+	bool doGoodTrackPlots_;
 
         MonitorElement* NumberOfRecHitsPerTrack;
         MonitorElement* NumberOfRecHitsFoundPerTrack;
@@ -112,6 +113,9 @@ class TrackAnalyzer
         MonitorElement* NumberOfPixEndcapLayersPerTrackVsPhiProfile;
         MonitorElement* NumberOfPixEndcapLayersPerTrackVsEtaProfile;
 
+        MonitorElement* GoodTrackChi2oNDF;
+        MonitorElement* GoodTrackNumberOfRecHitsPerTrack;
+
         struct TkParameterMEs 
         {
             TkParameterMEs()
@@ -156,6 +160,10 @@ class TrackAnalyzer
                 , Chi2oNDFVsThetaProfile(NULL)
                 , Chi2oNDFVsPhiProfile(NULL)
                 , Chi2oNDFVsEtaProfile(NULL)
+
+		, GoodTrackPt(NULL)
+		, GoodTrackEta(NULL)
+		, GoodTrackPhi(NULL)
             {}
 
             MonitorElement* TrackP;
@@ -199,6 +207,10 @@ class TrackAnalyzer
             MonitorElement* Chi2oNDFVsThetaProfile;
             MonitorElement* Chi2oNDFVsPhiProfile;
             MonitorElement* Chi2oNDFVsEtaProfile;
+
+	    MonitorElement* GoodTrackPt;
+	    MonitorElement* GoodTrackEta;
+	    MonitorElement* GoodTrackPhi;
         };
 
         std::map<std::string, TkParameterMEs> TkParameterMEMap;

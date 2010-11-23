@@ -28,17 +28,18 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     doAllPlots            = cms.bool(False),
     doBeamSpotPlots       = cms.bool(True),
     doSeedParameterHistos = cms.bool(True),
+    doGoodTrackPlots      = cms.bool(False),
     
     # paramters of the Track
     # ============================================================ 
     
     # chi2
-    Chi2Bin = cms.int32(100),
+    Chi2Bin = cms.int32(50),
     Chi2Max = cms.double(199.5),
     Chi2Min = cms.double(-0.5),
 
     # chi2 dof
-    Chi2NDFBin = cms.int32(100),
+    Chi2NDFBin = cms.int32(50),
     Chi2NDFMax = cms.double(19.5),
     Chi2NDFMin = cms.double(-0.5),
 
@@ -173,19 +174,19 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     TrackPtMin = cms.double(0.1),
     
     # Track px
-    TrackPxBin = cms.int32(100),
-    TrackPxMax = cms.double(20.0),                        
-    TrackPxMin = cms.double(-20.0),
+    TrackPxBin = cms.int32(50),
+    TrackPxMax = cms.double(50.0),                        
+    TrackPxMin = cms.double(-50.0),
     
     # Track py
-    TrackPyBin = cms.int32(100),
-    TrackPyMax = cms.double(20.0),                        
-    TrackPyMin = cms.double(-20.0),
+    TrackPyBin = cms.int32(50),
+    TrackPyMax = cms.double(50.0),                        
+    TrackPyMin = cms.double(-50.0),
     
     # Track pz
-    TrackPzBin = cms.int32(100),
-    TrackPzMax = cms.double(30.0),                        
-    TrackPzMin = cms.double(-30.0),
+    TrackPzBin = cms.int32(50),
+    TrackPzMax = cms.double(50.0),                        
+    TrackPzMin = cms.double(-50.0),
                             
     # track theta
     ThetaBin = cms.int32(100),
@@ -203,37 +204,37 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     PhiMin = cms.double(-3.2),
 
     # Track |p|	error
-    pErrBin = cms.int32(100),
-    pErrMax = cms.double(0.1),
+    pErrBin = cms.int32(50),
+    pErrMax = cms.double(1.0),
     pErrMin = cms.double(0.0),
 
     # Track pT error
-    ptErrBin = cms.int32(100),
-    ptErrMax = cms.double(0.1),
+    ptErrBin = cms.int32(50),
+    ptErrMax = cms.double(1.0),
     ptErrMin = cms.double(0.0),
     
     # Track px error
-    pxErrBin = cms.int32(100),
-    pxErrMax = cms.double(0.5),
+    pxErrBin = cms.int32(50),
+    pxErrMax = cms.double(1.0),
     pxErrMin = cms.double(0.0),
     
     # Track py error
-    pyErrBin = cms.int32(100),
-    pyErrMax = cms.double(0.5),
+    pyErrBin = cms.int32(50),
+    pyErrMax = cms.double(1.0),
     pyErrMin = cms.double(0.0),
     
     # Track pz error
-    pzErrBin = cms.int32(100),
-    pzErrMax = cms.double(0.5),
+    pzErrBin = cms.int32(50),
+    pzErrMax = cms.double(1.0),
     pzErrMin = cms.double(0.0),
 
     # track eta error
-    etaErrBin = cms.int32(100),
+    etaErrBin = cms.int32(50),
     etaErrMax = cms.double(0.1),
     etaErrMin = cms.double(0.0),
     
     # track phi Error
-    phiErrBin = cms.int32(100),
+    phiErrBin = cms.int32(50),
     phiErrMax = cms.double(0.1),
     phiErrMin = cms.double(0.0),
 
@@ -283,12 +284,12 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     SeedDzMin = cms.double(-30.0),                        
 
     # Track Candidate dxy (transverse impact parameter)
-    TCDxyBin = cms.int32(200),
+    TCDxyBin = cms.int32(100),
     TCDxyMax = cms.double(100.0),
     TCDxyMin = cms.double(-100.0),                                                
 
     # Track Candidate dz (transverse impact parameter)
-    TCDzBin = cms.int32(200),
+    TCDzBin = cms.int32(100),
     TCDzMax = cms.double(400.0),
     TCDzMin = cms.double(-400.0),                                                
 

@@ -28,6 +28,7 @@ MonitorTrackSTAMuons = cms.EDAnalyzer("TrackingMonitor",
     doAllPlots            = cms.bool(False),
     doBeamSpotPlots       = cms.bool(False),
     doSeedParameterHistos = cms.bool(False), 
+    doGoodTrackPlots      = cms.bool(False),
 
     # paramters of the Track
     # ============================================================ 

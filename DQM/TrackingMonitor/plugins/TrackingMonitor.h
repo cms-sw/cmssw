@@ -10,7 +10,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackingMonitor.h,v 1.6 2010/05/06 06:48:50 dutta Exp $
+// $Id: TrackingMonitor.h,v 1.7 2010/05/12 07:14:47 dutta Exp $
 
 #include <memory>
 #include <fstream>
@@ -64,6 +64,10 @@ class TrackingMonitor : public edm::EDAnalyzer
         MonitorElement * NumberOfTracks;
         MonitorElement * NumberOfMeanRecHitsPerTrack;
         MonitorElement * NumberOfMeanLayersPerTrack;  
+
+	// Good Tracks 
+        MonitorElement * NumberOfGoodTracks;
+        MonitorElement * FractionOfGoodTracks;
 
         // Track Seeds 
         MonitorElement * NumberOfSeeds;

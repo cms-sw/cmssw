@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/06/17 06:01:01 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/11/17 10:15:52 $
+ *  $Revision: 1.18 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -48,6 +48,8 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
     , NumberOfTracks(NULL)
     , NumberOfMeanRecHitsPerTrack(NULL)
     , NumberOfMeanLayersPerTrack(NULL)
+    , NumberOfGoodTracks(NULL)
+    , FractionOfGoodTracks(NULL)
     , NumberOfSeeds(NULL)
     , NumberOfTrackCandidates(NULL)
     , builderName( conf_.getParameter<std::string>("TTRHBuilder"))
@@ -143,6 +145,16 @@ void TrackingMonitor::beginJob(void)
     NumberOfMeanLayersPerTrack->setAxisTitle("Mean number of Layers per Track", 1);
     NumberOfMeanLayersPerTrack->setAxisTitle("Entries", 2);
 
+    histname = "NumberOfGoodTracks_" + CatagoryName;
+    NumberOfGoodTracks = dqmStore_->book1D(histname, histname, TKNoBin, TKNoMin, TKNoMax);
+    NumberOfGoodTracks->setAxisTitle("Number of Good Tracks per Event", 1);
+    NumberOfGoodTracks->setAxisTitle("Number of Events", 2);
+
+    histname = "FractionOfGoodTracks_" + CatagoryName;
+    FractionOfGoodTracks = dqmStore_->book1D(histname, histname, 101, -0.005, 1.005);
+    FractionOfGoodTracks->setAxisTitle("Fraction of High Purity Tracks (Tracks with Pt>1GeV)", 1);
+    FractionOfGoodTracks->setAxisTitle("Entries", 2);
+
     theTrackAnalyzer->beginJob(dqmStore_);
 
     // book the Seed Property histograms
@@ -165,6 +177,8 @@ void TrackingMonitor::beginJob(void)
     }
     if (doLumiAnalysis) {
       if (NumberOfTracks) NumberOfTracks->setLumiFlag();
+      if (NumberOfGoodTracks) NumberOfGoodTracks->setLumiFlag();
+      if (FractionOfGoodTracks) FractionOfGoodTracks->setLumiFlag();
       theTrackAnalyzer->setLumiFlag();    
     }
     if (doTrackerSpecific_) {
@@ -237,6 +251,8 @@ void TrackingMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
 void TrackingMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&  eSetup) {
   if (doLumiAnalysis) {
     dqmStore_->softReset(NumberOfTracks);
+    dqmStore_->softReset(NumberOfGoodTracks);
+    dqmStore_->softReset(FractionOfGoodTracks);
     theTrackAnalyzer->doSoftReset(dqmStore_);    
   }
 }
@@ -270,9 +286,18 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
        reco::TrackCollection trackCollection = *trackHandle;
         // calculate the mean # rechits and layers
         int totalNumTracks = 0, totalRecHits = 0, totalLayers = 0;
+	int totalNumHPTracks = 0, totalNumPt1Tracks = 0, totalNumHPPt1Tracks = 0;
 
         for (reco::TrackCollection::const_iterator track = trackCollection.begin(); track!=trackCollection.end(); ++track) 
         {
+
+	    if( track->quality(reco::TrackBase::highPurity) ) {
+	      ++totalNumHPTracks;
+	      if ( track->pt() >= 1. ) ++totalNumHPPt1Tracks;
+	    }
+	    
+	    if ( track->pt() >= 1. ) ++totalNumPt1Tracks;
+
 
             if( Quality == "highPurity") 
             {
@@ -296,6 +321,11 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         }
 
         NumberOfTracks->Fill(totalNumTracks);
+        NumberOfGoodTracks->Fill(totalNumHPPt1Tracks);
+
+	double frac = 0.;
+	if (totalNumPt1Tracks > 0) frac = static_cast<double>(totalNumHPPt1Tracks)/static_cast<double>(totalNumPt1Tracks);
+	FractionOfGoodTracks->Fill(frac);
 
         if( totalNumTracks > 0 )
         {
@@ -395,6 +425,8 @@ void TrackingMonitor::endRun(const edm::Run&, const edm::EventSetup&)
 {
   if (doLumiAnalysis) {
     dqmStore_->disableSoftReset(NumberOfTracks);
+    dqmStore_->disableSoftReset(NumberOfGoodTracks);
+    dqmStore_->disableSoftReset(FractionOfGoodTracks);
     theTrackAnalyzer->undoSoftReset(dqmStore_);    
   }
   
