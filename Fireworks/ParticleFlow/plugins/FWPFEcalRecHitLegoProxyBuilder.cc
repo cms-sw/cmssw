@@ -18,13 +18,6 @@ FWPFEcalRecHitLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveEle
 {
    for (TEveElement::List_i i = parent->BeginChildren(); i!= parent->EndChildren(); ++i)
    {
-      TEveBox* box =dynamic_cast<TEveBox*>(*i);
-      if (box)
-      {
-         box->SetLineColor(kBlack);
-	 box->StampObjProps();
-      }
-      else
       {
          TEveStraightLineSet* line =dynamic_cast<TEveStraightLineSet*>(*i);
          if (line)

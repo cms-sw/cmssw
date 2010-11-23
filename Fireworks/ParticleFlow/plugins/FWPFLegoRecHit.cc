@@ -20,7 +20,7 @@ FWPFLegoRecHit::setupEveBox( const std::vector<TEveVector> &corners )
       m_tower->SetVertex( i, corners[i] );
 
    m_tower->SetPickable( true );
-   m_tower->SetDrawFrame(true);
+   m_tower->SetDrawFrame(false);
    m_tower->SetLineWidth( 1.0 );
    m_tower->SetLineColor( kBlack );
 }
@@ -55,27 +55,18 @@ void
 FWPFLegoRecHit::buildLineSet( const std::vector<TEveVector> &corners, const FWViewContext *vc )
 {
    m_ls = new TEveStraightLineSet( "EcalRecHitLineSet" );
-   FWViewEnergyScale *caloScale = vc->getEnergyScale( "Calo" );
-   float val = caloScale->getPlotEt() ? m_et : m_energy;
 
-   float z = caloScale->getValToHeight() * val;
-   if( z < 0 )
-      z *= -1;
-   z += 0.001;
-
-
-   TEveVector c = m_builder->calculateCentre(corners);
-   float d = log( 1 + val ) /m_builder->getMaxValLog(caloScale->getPlotEt());
-   d =  (corners[1].fX - corners[0].fX) * 0.5 *d;
-   m_ls->AddLine(c.fX - d, c.fY -d, z, c.fX + d, c.fY -d, z);
-   m_ls->AddLine(c.fX + d, c.fY -d, z, c.fX + d, c.fY +d, z);
-   m_ls->AddLine(c.fX + d, c.fY +d, z, c.fX - d, c.fY +d, z);
-   m_ls->AddLine(c.fX - d, c.fY +d, z, c.fX - d, c.fY -d, z);
+   // no need to set anything, all is re-set in updateScales()
+   // reserve space for square outline
+   TEveVector c;
+   m_ls->AddLine(c.fX, c.fY, c.fZ, c.fX, c.fY, c.fZ);
+   m_ls->AddLine(c.fX, c.fY, c.fZ, c.fX, c.fY, c.fZ);
+   m_ls->AddLine(c.fX, c.fY, c.fZ, c.fX, c.fY, c.fZ);
+   m_ls->AddLine(c.fX, c.fY, c.fZ, c.fX, c.fY, c.fZ);
 
    // last line is trick to add a marker in line set
-   // the line has no dimesions and is not visible
    m_ls->SetMarkerStyle(1);
-   m_ls->AddLine(c.fX, c.fY, z, c.fX, c.fY, z);
+   m_ls->AddLine(c.fX, c.fY, c.fZ, c.fX, c.fY, c.fZ);
    m_ls->AddMarker(0, 0.);
 }
 
@@ -93,23 +84,45 @@ FWPFLegoRecHit::updateScale( const FWViewContext *vc )
       scale *= -1;
 
    // Reposition top points of tower
-   const Float_t *data;
+   const float *data;
+   TEveVector c;
    for( unsigned int i = 0; i < 4; ++i )
    {
       data = m_tower->GetVertex( i );
+      c.fX += data[0];
+      c.fY += data[1];
       m_tower->SetVertex( i, data[0], data[1], 0 );
       m_tower->SetVertex( i+4,  data[0], data[1], scale);
    }
-   m_tower->StampTransBBox();
+   c *= 0.25;
+   // Scale lineset 
+   float s = log( 1 + val ) /m_builder->getMaxValLog(caloScale->getPlotEt());
+   float d = 0.5 * ( m_tower->GetVertex(1)[0]  -m_tower->GetVertex(0)[0]);
+   d *= s;
+   float z =  scale * 1.001;
+   setLine(0, c.fX - d, c.fY -d, z, c.fX + d, c.fY -d, z);
+   setLine(1, c.fX + d, c.fY -d, z, c.fX + d, c.fY +d, z);
+   setLine(2, c.fX + d, c.fY +d, z, c.fX - d, c.fY +d, z);
+   setLine(3, c.fX - d, c.fY +d, z, c.fX - d, c.fY -d, z);
 
-   // Scale lineset
-   std::vector<TEveVector> lineSetCorners(4);
-   TEveChunkManager::iterator li( m_ls->GetLinePlex() ); 
-   while( li.next() )
-   {
-      TEveStraightLineSet::Line_t &l = *( TEveStraightLineSet::Line_t* ) li();
-      // move onle Z coordinate of first and second(last) line point
-      l.fV1[2] = scale + 0.001;
-      l.fV2[2] = scale + 0.001;
-   }
+   setLine(4, c.fX, c.fY, z, c.fX, c.fY, z); // marker
+
+   // stamp changed elements
+   m_tower->StampTransBBox();
+   m_ls->StampTransBBox();
+}
+
+void FWPFLegoRecHit::setLine(int idx, float x1, float y1, float z1, float x2, float y2, float z2)
+{
+   // AMT: this func should go in TEveStraightLineSet class
+
+   TEveStraightLineSet::Line_t* l = ((TEveStraightLineSet::Line_t*)(m_ls->GetLinePlex().Atom(idx)));
+
+   l->fV1[0] = x1;
+   l->fV1[1] = y1;
+   l->fV1[2] = z1; 
+
+   l->fV2[0] = x2;
+   l->fV2[1] = y2;
+   l->fV2[2] = z2;
 }

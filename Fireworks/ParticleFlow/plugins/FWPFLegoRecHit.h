@@ -56,5 +56,6 @@ public:
    void setSquareColor( Color_t c ) { m_ls->SetMarkerColor(c); m_ls->SetLineColor(kBlack); }
 
    TEveBox *getTower() { return m_tower; }
+   void  setLine(int idx, float x1, float y1, float z1, float x2, float y2, float z2);
 };
 #endif
