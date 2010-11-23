@@ -401,14 +401,14 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   bool digiOK_   = true;
   bool rechitOK_ = true;
 
- 
+  //-- TAKE IT AWAY for the time being
   ////---- try to get raw data and unpacker report
-  edm::Handle<FEDRawDataCollection> RawData;  
-  iEvent.getByLabel(inputLabelRaw_,RawData);
-  if (!RawData.isValid()) {
-    rawOK_=false;
-  }
-  
+  //edm::Handle<FEDRawDataCollection> RawData;  
+  //iEvent.getByLabel(inputLabelRaw_,RawData);
+  //if (!RawData.isValid()) {
+  //  rawOK_=false;
+  //}
+
   /*
   edm::Handle<HcalUnpackerReport> report; 
   iEvent.getByType(report);  
