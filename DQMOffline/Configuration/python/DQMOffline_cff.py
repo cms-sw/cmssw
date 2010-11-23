@@ -34,6 +34,8 @@ from DQMOffline.RecoB.PrimaryVertexMonitor_cff import *
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 from DQM.Physics.DQMPhysics_cff import *
 
+triggerOfflineDQMSource.remove(jetMETHLTOfflineSource)
+
 DQMOfflinePrePOG = cms.Sequence( muonMonitors *
                                  jetMETDQMOfflineSource *
                                  egammaDQMOffline *

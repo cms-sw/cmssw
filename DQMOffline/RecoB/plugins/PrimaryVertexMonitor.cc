@@ -178,7 +178,7 @@ void PrimaryVertexMonitor::vertexPlots(const Vertex & v, const BeamSpot& beamSpo
     for (int i = 0; i != 3; i++) {
       for (int j = i; j != 3; j++) {
 	index++;
-	nans[i]->Fill(index*1., isnan(v.covariance(i, j))*1.);
+	nans[i]->Fill(index*1., std::isnan(v.covariance(i, j))*1.);
 	// in addition, diagonal element must be positive
 	if (j == i && v.covariance(i, j) < 0) {
 	  nans[i]->Fill(index*1., 1.);

@@ -171,7 +171,7 @@ namespace cscdqm {
         if (getEMUHisto(h::EMU_FED_ENTRIES, mo)) mo->Fill(id); 
 
         const uint16_t *data = (uint16_t *) fedData.data();
-        const uint16_t  dataSize = long(fedData.size() / 2);
+        const size_t dataSize = fedData.size() / 2;
         const short unsigned int* udata = (short unsigned int*) fedData.data();
         
         /** CSC DCC Examiner object */

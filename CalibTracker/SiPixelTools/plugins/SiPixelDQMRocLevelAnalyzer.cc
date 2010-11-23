@@ -1,4 +1,4 @@
-#include "SiPixelDQMRocLevelAnalyzer.h"
+#include "CalibTracker/SiPixelTools/interface/SiPixelDQMRocLevelAnalyzer.h"
 
 SiPixelDQMRocLevelAnalyzer::SiPixelDQMRocLevelAnalyzer(const edm::ParameterSet& iConfig):conf_(iConfig)
 {
@@ -502,5 +502,5 @@ SiPixelDQMRocLevelAnalyzer::FillRocLevelHistos(TH1F *hrocdep, TH1F *hdist, std::
   }
 }
 
-// -- define this as a plug-in
-DEFINE_FWK_MODULE(SiPixelDQMRocLevelAnalyzer);
+// //define this as a plug-in
+// DEFINE_FWK_MODULE(SiPixelDQMRocLevelAnalyzer);

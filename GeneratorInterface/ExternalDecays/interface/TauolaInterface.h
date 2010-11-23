@@ -48,35 +48,6 @@ namespace gen {
        
    };
 
-/* this is the code for new Tauola++ 
-
-   class TauolaInterface
-   {
-      public:
-      
-      // ctor & dtor
-      TauolaInterface( const edm::ParameterSet& );
-      ~TauolaInterface();
-      
-      void enablePolarization()  { fPolarization = true; return; }
-      void disablePolarization() { fPolarization = false; return; }
-      void init( const edm::EventSetup& );
-      const std::vector<int>& operatesOnParticles() { return fPDGs; }
-      HepMC::GenEvent* decay( HepMC::GenEvent* );
-      void statistics() ;
-      
-      private: 
-      
-      //            
-      std::vector<int>                         fPDGs;
-      bool                                     fPolarization;      
-      edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
-      bool                                     fIsInitialized;
-       
-   };
-
-*/
-
 }
 
 #endif

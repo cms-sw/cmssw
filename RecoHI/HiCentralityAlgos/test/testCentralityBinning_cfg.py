@@ -3,15 +3,13 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'MC_38Y_V8::All'
-
-process.GlobalTag.toGet = cms.VPSet(
-    cms.PSet(record = cms.string("HeavyIonRcd"),
-             tag = cms.string("CentralityTable_HFhits40_Hydjet2760GeV_v0_mc"),
-             connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS")
-             )
+process.HeavyIonGlobalParameters = cms.PSet(
+    centralityVariable = cms.string("HFhits"),
+    nonDefaultGlauberModel = cms.string("AMPT_2760GeV")
     )
+
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = 'START39_V4HI::All'
 
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(-1)

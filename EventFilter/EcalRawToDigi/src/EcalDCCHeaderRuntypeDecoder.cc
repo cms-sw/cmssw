@@ -8,9 +8,9 @@
 EcalDCCHeaderRuntypeDecoder::EcalDCCHeaderRuntypeDecoder(){;}
 EcalDCCHeaderRuntypeDecoder::~EcalDCCHeaderRuntypeDecoder(){;}
 
-bool EcalDCCHeaderRuntypeDecoder::Decode( ulong TrigType,            // global header,     bits 56-59
-					  ulong detTrigType,         // dcc header word 2, bits 32-47
-					  ulong runType,             // dcc header word 2, bits  0-31
+bool EcalDCCHeaderRuntypeDecoder::Decode( unsigned long TrigType,            // global header,     bits 56-59
+					  unsigned long detTrigType,         // dcc header word 2, bits 32-47
+					  unsigned long runType,             // dcc header word 2, bits  0-31
 					  EcalDCCHeaderBlock* EcalDCCHeaderInfos)
 {
   
@@ -82,7 +82,7 @@ bool EcalDCCHeaderRuntypeDecoder::Decode( ulong TrigType,            // global h
 
 
 
-void EcalDCCHeaderRuntypeDecoder::DecodeSettingGlobal ( ulong TrigType, ulong detTrigType,  EcalDCCHeaderBlock * theHeader ){
+void EcalDCCHeaderRuntypeDecoder::DecodeSettingGlobal ( unsigned long TrigType, unsigned long detTrigType,  EcalDCCHeaderBlock * theHeader ){
 
   // TCC commands are decoded both in global (type ==5) and in local (type ==6)
   // keep an eye on the possible: EcalDCCHeaderBlock::CALIB_GLOBAL

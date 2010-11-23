@@ -169,51 +169,7 @@ inline CSCChamberTimeCorrections *  CSCChamberTimeCorrectionsValues::prefill(boo
     chamberObj->chamberCorrections[chamberSerial-1].cfeb_cable_delay= (short int)delay;
   }
   fclose(fdelay);  
-
-  //Read in a 2nd order correction for chamber offsets derived from data 
-  FILE *foffset = fopen("/afs/cern.ch/user/d/deisher/public/TimingCorrections2009/offset_26July2010_codeOverhaul_slope012.txt","r");
-  float offset;
-  int iE,iS,iR,iC;
-  while (!feof(foffset)){
-    //note space at end of format string to convert last \n
-    int check = fscanf(foffset,"%d %d %d %d %f \n",&iE,&iS,&iR,&iC,&offset);
-    if (check != 5){
-      printf("offset file has an unexpected format \n");
-      assert(0);  
-    }
-    int chamberSerial = 0;
-    if (iS ==1 && iR ==4)
-      iR =1;
-    chamberSerial = indexer.chamberIndex(iE,iS,iR,iC);
-    //printf("chamberLabel %s (%d %d %d %d) chamberSerial %d delay %d \n",label,c_endcap,c_station, c_ring, c_chamber, chamberSerial,delay);
-    float temp= float(chamberObj->chamberCorrections[chamberSerial-1].cfeb_timing_corr)/FACTOR;
-    chamberObj->chamberCorrections[chamberSerial-1].cfeb_timing_corr= (short int)((temp-offset)*FACTOR+0.5*(temp>=offset)-0.5*(temp<offset));
-    printf("Serial %d old corr  %f change %f newcorr %f \n",chamberSerial,temp,offset,(float)chamberObj->chamberCorrections[chamberSerial-1].cfeb_timing_corr/FACTOR);
-  }
-  fclose(foffset);  
   
-  //Read in a 2nd order correction for chamber offsets derived from data 
-  FILE *foffsetAgain = fopen("/afs/cern.ch/user/d/deisher/public/TimingCorrections2009/CathodeTimingCorrection_DB_12082010.txt","r");
-  while (!feof(foffsetAgain)){
-    //note space at end of format string to convert last \n
-    int check = fscanf(foffsetAgain,"%d %d %d %d %f \n",&iE,&iS,&iR,&iC,&offset);
-    if (check != 5){
-      printf("offsetAgain file has an unexpected format \n");
-      assert(0);  
-    }
-    int chamberSerial = 0;
-    if (iS ==1 && iR ==4)
-      iR =1;
-    chamberSerial = indexer.chamberIndex(iE,iS,iR,iC);
-    //printf("chamberLabel %s (%d %d %d %d) chamberSerial %d delay %d \n",label,c_endcap,c_station, c_ring, c_chamber, chamberSerial,delay);
-    float temp= float(chamberObj->chamberCorrections[chamberSerial-1].cfeb_timing_corr)/FACTOR;
-    chamberObj->chamberCorrections[chamberSerial-1].cfeb_timing_corr= (short int)((temp-offset)*FACTOR+0.5*(temp>=offset)-0.5*(temp<offset));
-    printf("Serial %d old corr  %f change %f newcorr %f \n",chamberSerial,temp,offset,(float)chamberObj->chamberCorrections[chamberSerial-1].cfeb_timing_corr/FACTOR);
-  }
-  fclose(foffsetAgain);  
-
-
-
   return chamberObj;
 }
 

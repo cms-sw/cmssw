@@ -39,9 +39,6 @@ class FIPConfiguration : public DDLDocumentProvider {
   /// Read in the configuration file.
   int readConfig(const std::string& filename);
 
-  /// Read in the configuration file.
-  int readConfig(const std::string& filename, bool fullPath);
-
   /// Return a list of files as a std::vector of strings.
   virtual const std::vector < std::string >&  getFileList(void) const;
 

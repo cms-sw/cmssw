@@ -6,18 +6,7 @@
  * GO: september 2010
  * This new procedure allows multiple IOVs with the same start date
  * IOVs have a mask based on which one can assign a given IOV to a given table
-<<<<<<< update_iov_dates_procedure_test.sql
- * To test the script you have to run generate_iovs.pl before and send its
- * output to ttt.sql
- * ./generate_iovs.sql > ttt.sql
- * then run this script and check results using report.txt
- * 
- * TODO: MAKE IT INDEPENDENT ON TRIGGER NAME
- *       FINISH
- *
-=======
  *	
->>>>>>> 1.4
  */
 
 WHENEVER SQLERROR EXIT
@@ -37,17 +26,6 @@ END;
 
 EXEC TESTDB;
 
-<<<<<<< update_iov_dates_procedure_test.sql
-/* Ok: we are running on the right database */
-
-CREATE OR REPLACE FUNCTION bitnot (x IN NUMBER) RETURN NUMBER AS
-BEGIN
-  return (-1-x);
-END;
-/
-
-=======
->>>>>>> 1.4
 CREATE OR REPLACE PROCEDURE update_iov_dates_test
 ( my_table IN VARCHAR2,
   my_mask IN NUMBER,
@@ -59,141 +37,31 @@ CREATE OR REPLACE PROCEDURE update_iov_dates_test
   new_end IN OUT DATE,
   new_tag_id IN NUMBER ) IS
   
-<<<<<<< update_iov_dates_procedure_test.sql
-  sql_str    VARCHAR(1000);
-  tn         VARCHAR(25);
-  tnc        NUMBER;
-=======
   sql_str VARCHAR(1000);
   future_start DATE;
   dat_table_id NUMBER;
   table_name VARCHAR(25);
   tN VARCHAR(25);
->>>>>>> 1.4
   last_start DATE;
-<<<<<<< update_iov_dates_procedure_test.sql
-  last_iov   NUMBER;
-  new_iov    NUMBER;
-  zero_iov   NUMBER;
-  last_mask  NUMBER;
-  new_mask   NUMBER;
-  my_rows    NUMBER;
-  i          NUMBER;
-  j          NUMBER;
-=======
   last_end DATE;
   last_iov NUMBER;
   new_iov NUMBER;
   last_mask NUMBER;
   rows NUMBER;
   I NUMBER;
->>>>>>> 1.4
 
   BEGIN
-    dbms_output.enable(100000);
+    dbms_output.enable;
     -- Ensure IoV time has positive duration
     IF new_end <= new_start THEN
        raise_application_error(-20000, 'IOV must have ' || start_col || ' < ' 
                                || end_col);
     END IF;
     -- Look for records containing this mask
-<<<<<<< update_iov_dates_procedure_test.sql
-    sql_str := 'SELECT COUNT(IOV_ID) FROM ' || my_table || 
-      ' WHERE BITAND(MASK, :my_mask) > 0 AND TAG_ID = :t AND ' || end_col || 
-=======
     sql_str := 'SELECT IOV_ID FROM ' || my_table || 
       ' WHERE BITAND(MASK, ' ||
 	my_mask || ') > 0 AND TAG_ID = :t AND ' || end_col || 
->>>>>>> 1.4
 	' >= TO_DATE(''31-12-9999 23:59:59'', ''DD-MM-YYYY HH24:MI:SS'')';
-<<<<<<< update_iov_dates_procedure_test.sql
-    EXECUTE IMMEDIATE sql_str INTO my_rows USING my_mask, new_tag_id;
-    IF my_mask != 0 THEN
-       dbms_output.put_line('----------------------------------------');
-    END IF;
-    dbms_output.put_line(sql_str);
-    dbms_output.put_line('Searching for mask ' || my_mask || ' tag ' || new_tag_id);
-    dbms_output.put_line('Found ' || my_rows || ' rows with good mask');
-    -- Case select
-    IF my_rows = 0 THEN
-       -- do nothing, just insert the row
-       dbms_output.put_line('Inserting row with mask ' || my_mask || ' and tag ' || new_tag_id);	
-       return;
-    ELSE
-       -- IOV_ID found with the same bits: update them
-       FOR i IN 1..my_rows LOOP
-          -- look for IOV's with the same bits on
-          sql_str := 'SELECT IOV_ID, MASK, SINCE FROM ' || my_table || 
-             ' WHERE BITAND(MASK, ' ||
-	     my_mask || ') > 0 AND TAG_ID = :t AND ' || end_col || 
-	     ' >= TO_DATE(''31-12-9999 23:59:59'', ''DD-MM-YYYY HH24:MI:SS'')' ||
-             ' AND ROWNUM = 1';
-	  dbms_output.put_line(sql_str);
-          EXECUTE IMMEDIATE sql_str INTO last_iov, last_mask, last_start USING new_tag_id;
-          dbms_output.put_line('Required insertion of data with mask: ' || my_mask);
-          dbms_output.put_line('Found  data with mask               : ' || last_mask 
-             || ' and IOV ' || last_iov);
-          dbms_output.put_line('       and start date on ' || last_start);
-          -- update the mask of those measurements not yet redone
-          new_mask := BITAND(last_mask, BITNOT(my_mask));
-          IF new_mask > 0 THEN 
-             sql_str := 'UPDATE ' || my_table || ' SET MASK = BITAND(' ||
-                ':last_mask, BITNOT(:my_mask)) WHERE IOV_ID = :last_iov AND BITAND( ' 
-                || ':last_mask , BITNOT(:my_mask)) > 0';
-             dbms_output.put_line(sql_str);
-             EXECUTE IMMEDIATE sql_str USING last_mask, my_mask, last_iov, last_mask,
-	        my_mask;	
-             -- insert new record and update related tables (use mask 0 to avoid
-             -- retriggering this procedure)
-	     last_mask := BITAND(last_mask, my_mask);
-             sql_str := 'INSERT INTO ' || my_table || ' VALUES (' ||
-	        my_sequence || '.NextVal, 0, :tag_id, :since, :till)';
-	     dbms_output.put_line('INSERTing new record with mask ' || last_mask || 
-                ' and since, till = ' || last_start || ', ' || new_start);
-             EXECUTE IMMEDIATE sql_str USING new_tag_id, last_start, new_start;
-	     -- get the last inserted id
-             sql_str := 'SELECT IOV_ID FROM ' || my_table || 
-	        ' WHERE MASK = 0';
-             EXECUTE IMMEDIATE sql_str INTO zero_iov;
-             dbms_output.put_line('Found IOV_ID = ' || zero_iov || 
-                ' with mask = 0');
-             -- still we have to update tables
-	     j := 1;
-             WHILE j <= my_mask LOOP
-                -- we loop on tables looking for the just changed IOV_ID and modify it as the last one
-	        sql_str := 'SELECT COUNT(TABLE_NAME) FROM ' || my_dattable || 
-                   ' WHERE BITAND(BITAND(ID, :j), :my_mask) > 0';
-                EXECUTE IMMEDIATE sql_str INTO tnc USING j, my_mask;
-                IF tnc > 0 THEN
-  	           sql_str := 'SELECT TABLE_NAME FROM ' || 
-                      my_dattable || 
-                      ' WHERE BITAND(BITAND(ID, :j), :my_mask) > 0';
-                   EXECUTE IMMEDIATE sql_str INTO tn USING j, my_mask;
-                   dbms_output.put_line('Found table ' || tn || 
-                      ' to be updated');
-                   dbms_output.put_line('      Setting IOV_ID = ' || 
-                      zero_iov || ' from ' || last_iov);
-	           sql_str := 'UPDATE ' || tn || ' SET IOV_ID = :zero_iov WHERE IOV_ID = '
-                      || ':last_iov';
-                   EXECUTE IMMEDIATE sql_str USING zero_iov, last_iov;
-                   dbms_output.put_line(sql_str);
-                END IF;
-                j := j * 2;
-	     END LOOP;
-             -- remask last insert id
-             sql_str := 'UPDATE ' || my_table || ' SET MASK = :my_mask WHERE MASK = 0';
-             EXECUTE IMMEDIATE sql_str USING my_mask;	
-	     dbms_output.put_line(sql_str || ' using ' || my_mask);
-          ELSE
-           -- update the till of this last measurement
-             sql_str := 'UPDATE ' || my_table || ' SET TILL = :new_start ' || 
-	        ' WHERE IOV_ID = :last_iov';
-             EXECUTE IMMEDIATE sql_str USING new_start, last_iov;
-	     dbms_output.put_line('Updated IOV ' || last_iov || ' Set TILL = ' ||
-		new_start);
-          END IF;
-       END LOOP;
-=======
     EXECUTE IMMEDIATE sql_str INTO last_iov USING new_tag_id;
     IF last_iov IS NOT NULL THEN 
        -- record found
@@ -241,8 +109,10 @@ CREATE OR REPLACE PROCEDURE update_iov_dates_test
 	     EXECUTE IMMEDIATE sql_str USING new_iov, last_iov;
           END LOOP;	
        END IF;
->>>>>>> 1.4
     END IF;
+    EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+       dbms_output.put_line('NO DATA FOUND');
   END;
 /
 

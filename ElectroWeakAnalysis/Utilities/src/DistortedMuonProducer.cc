@@ -24,8 +24,7 @@ class DistortedMuonProducer : public edm::EDProducer {
       edm::InputTag genMatchMapTag_;
       std::vector<double> etaBinEdges_;
 
-      std::vector<double> shiftOnOneOverPt_; // in [1/GeV]
-      std::vector<double> relativeShiftOnPt_;
+      std::vector<double> momentumScaleShift_;
       std::vector<double> uncertaintyOnOneOverPt_; // in [1/GeV]
       std::vector<double> relativeUncertaintyOnPt_;
 
@@ -64,14 +63,9 @@ DistortedMuonProducer::DistortedMuonProducer(const edm::ParameterSet& pset) {
       std::vector<double> defDistortion;
       defDistortion.push_back(0.);
 
-      shiftOnOneOverPt_ = pset.getUntrackedParameter<std::vector<double> > ("ShiftOnOneOverPt",defDistortion); // in [1/GeV]
-      if (shiftOnOneOverPt_.size()==1 && ninputs_expected>1) {
-            for (unsigned int i=1; i<ninputs_expected; i++){ shiftOnOneOverPt_.push_back(shiftOnOneOverPt_[0]);}
-      }
-
-      relativeShiftOnPt_ = pset.getUntrackedParameter<std::vector<double> > ("RelativeShiftOnPt",defDistortion);
-      if (relativeShiftOnPt_.size()==1 && ninputs_expected>1) {
-            for (unsigned int i=1; i<ninputs_expected; i++){ relativeShiftOnPt_.push_back(relativeShiftOnPt_[0]);}
+      momentumScaleShift_ = pset.getUntrackedParameter<std::vector<double> > ("MomentumScaleShift",defDistortion);
+      if (momentumScaleShift_.size()==1 && ninputs_expected>1) {
+            for (unsigned int i=1; i<ninputs_expected; i++){ momentumScaleShift_.push_back(momentumScaleShift_[0]);}
       }
 
       uncertaintyOnOneOverPt_ = pset.getUntrackedParameter<std::vector<double> > ("UncertaintyOnOneOverPt",defDistortion); // in [1/GeV]
@@ -94,8 +88,7 @@ DistortedMuonProducer::DistortedMuonProducer(const edm::ParameterSet& pset) {
 
   // Send a warning if there are inconsistencies in vector sizes !!
       bool effWrong = efficiencyRatioOverMC_.size()!=ninputs_expected;
-      bool momWrong =    shiftOnOneOverPt_.size()!=ninputs_expected 
-                      || relativeShiftOnPt_.size()!=ninputs_expected 
+      bool momWrong =    momentumScaleShift_.size()!=ninputs_expected 
                       || uncertaintyOnOneOverPt_.size()!=ninputs_expected 
                       || relativeUncertaintyOnPt_.size()!=ninputs_expected;
       if ( effWrong and momWrong) {
@@ -158,8 +151,7 @@ void DistortedMuonProducer::produce(edm::Event& ev, const edm::EventSetup& iSetu
 
             // Initialize parameters
             double effRatio = 0.;
-            double shift1 = 0.;
-            double shift2 = 0.;
+            double shift = 0.;
             double sigma1 = 0.;
             double sigma2 = 0.;
 
@@ -181,11 +173,9 @@ void DistortedMuonProducer::produce(edm::Event& ev, const edm::EventSetup& iSetu
                   continue;
             }
 
-            // Set shifts
-            shift1 = shiftOnOneOverPt_[etaBin];
-            shift2 = relativeShiftOnPt_[etaBin];
-            LogTrace("") << "\tshiftOnOneOverPt= " << shift1*100 << " [%]"; 
-            LogTrace("") << "\trelativeShiftOnPt= " << shift2*100 << " [%]"; 
+            // Set shift
+            shift = momentumScaleShift_[etaBin];
+            LogTrace("") << "\tmomentumScaleShift= " << shift*100 << " [%]"; 
 
             // Set resolutions
             sigma1 = uncertaintyOnOneOverPt_[etaBin];
@@ -207,7 +197,7 @@ void DistortedMuonProducer::produce(edm::Event& ev, const edm::EventSetup& iSetu
             
             // New muon
             double ptmu = mu->pt();
-            ptmu += ptgen * ( shift1*ptgen + shift2 + sigma1*rndg1*ptgen + sigma2*rndg2);
+            ptmu += ptgen * ( shift + sigma1*rndg1*ptgen + sigma2*rndg2);
             reco::Muon* newmu = mu->clone();
             newmu->setP4 (
                   reco::Particle::PolarLorentzVector (

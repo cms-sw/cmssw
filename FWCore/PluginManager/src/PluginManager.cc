@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 14:28:58 EDT 2007
-// $Id: PluginManager.cc,v 1.9 2007/07/03 19:17:37 chrjones Exp $
+// $Id: PluginManager.cc,v 1.10 2008/10/21 15:45:04 eulisse Exp $
 //
 
 // system include files
@@ -69,7 +69,7 @@ PluginManager::PluginManager(const PluginManager::Config& iConfig) :
         continue;
       }
       alreadySeen.insert(*itPath);
-      boost::filesystem::path dir(*itPath,boost::filesystem::no_check);
+      boost::filesystem::path dir(*itPath);
       if( exists( dir) ) {
         if(not is_directory(dir) ) {
           throw cms::Exception("PluginManagerBadPath") <<"The path '"<<dir.native_file_string()<<"' for the PluginManager is not a directory";
@@ -228,7 +228,7 @@ PluginManager::load(const std::string& iCategory,
     //try to make one
     goingToLoad_(p);
     Sentry s(loadingLibraryNamed_(), p.native_file_string());
-    //boost::filesystem::path native(p.native_file_string(),boost::filesystem::no_check);
+    //boost::filesystem::path native(p.native_file_string());
     boost::shared_ptr<SharedLibrary> ptr( new SharedLibrary(p) );
     loadables_[p]=ptr;
     justLoaded_(*ptr);
@@ -256,7 +256,7 @@ PluginManager::tryToLoad(const std::string& iCategory,
     //try to make one
     goingToLoad_(p);
     Sentry s(loadingLibraryNamed_(), p.native_file_string());
-    //boost::filesystem::path native(p.native_file_string(),boost::filesystem::no_check);
+    //boost::filesystem::path native(p.native_file_string());
     boost::shared_ptr<SharedLibrary> ptr( new SharedLibrary(p) );
     loadables_[p]=ptr;
     justLoaded_(*ptr);

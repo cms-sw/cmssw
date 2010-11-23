@@ -2,7 +2,7 @@
 #include "CondCore/ORA/interface/Selection.h"
 #include "CondCore/ORA/interface/QueryableVectorData.h"
 #include "QueryableVectorStreamer.h"
-#include "RelationalOperation.h"
+#include "MultiRecordInsertOperation.h"
 #include "RelationalStreamerFactory.h"
 #include "MappingElement.h"
 #include "ContainerSchema.h"
@@ -367,7 +367,7 @@ bool ora::QueryableVectorWriter::build( DataElement& offset,
   RelationalStreamerFactory streamerFactory( m_schema );
   
   // first open the insert on the extra table...
-  m_insertOperation = &operationBuffer.newBulkInsert( m_mappingElement.tableName() );
+  m_insertOperation = &operationBuffer.newMultiRecordInsert( m_mappingElement.tableName() );
   const std::vector<std::string>& columns = m_mappingElement.columnNames();
   if( !columns.size() ){
     throwException( "Id columns not found in the mapping.",
@@ -443,12 +443,6 @@ void ora::QueryableVectorWriter::write( int oid,
   size_t persistentSize = m_arrayHandler->persistentSize( storageAddress  );
 
   if ( containerSize == 0 || containerSize < persistentSize ) return;
-  if ( containerSize > MAXARRAYSIZE ){
-    std::stringstream ms;
-    ms << "Cannot store non-blob array with size>" << MAXARRAYSIZE;
-    throwException( ms.str(),
-                    "QueryableVectorWriter::write" );    
-  }
 
   size_t startElementIndex = m_arrayHandler->startElementIndex( storageAddress );
 
@@ -461,7 +455,7 @@ void ora::QueryableVectorWriter::write( int oid,
                     "QueryableVectorWriter::write" );
   }
 
-  coral::IBulkOperation& bulkInsert = m_insertOperation->setUp( containerSize-startElementIndex+1 );
+  InsertCache& bulkInsert = m_insertOperation->setUp( containerSize-startElementIndex+1 );
 
   for ( size_t iIndex = startElementIndex; iIndex < containerSize; ++iIndex ) {
 

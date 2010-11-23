@@ -635,8 +635,8 @@ void Fit::FillMatricesWithMeasurements()
 
     //-------- Array of derivatives with respect to entries
     ALIint measdim = (*vmcite)->dim(); 
-    std::vector<ALIdouble> derivRE;
-    //    derivRE = new ALIdouble[measdim];
+    ALIdouble* derivRE;
+    derivRE = new ALIdouble[measdim];
 
     //-------- Fill matrix A:
     //------ Loop only Entries affecting this Measurement
@@ -659,7 +659,7 @@ void Fit::FillMatricesWithMeasurements()
 	}
       }
     }
-    //    delete[] derivRE;
+    delete[] derivRE;
     
     //---------- Fill matrices W, y and f:
     //------ Loop Measurement coordinates
@@ -907,16 +907,13 @@ FitQuality Fit::getFitQuality( const ALIbool canBeGood )
   if(ALIUtils::debug >= 5) DatMatrix->Dump("DatMatrix");
   //op  ALIMatrix* DSMat = new ALIMatrix(*DatMatrix * *AtMatrix * *WMatrix * *PDMatrix);
   ALIMatrix* DSMat = new ALIMatrix(*DatMatrix * *AtMatrix * *WMatrix * *yfMatrix);
-  if(ALIUtils::debug >= 5) {
-    ALIMatrix* DSMattemp = new ALIMatrix(*DatMatrix * *AtMatrix * *WMatrix);
-    DSMattemp->Dump("DSMattempMatrix=Dat*At*W");
-    ALIMatrix* DSMattemp2 = new ALIMatrix(*AtMatrix * *WMatrix * *yfMatrix);
-    DSMattemp2->Dump("DSMattempMatrix2=At*W*yf");
-    ALIMatrix* DSMattemp3 = new ALIMatrix(*AtMatrix * *WMatrix);
-    DSMattemp3->Dump("DSMattempMatrix3=At*W");
-    AtMatrix->Dump("AtMatrix");
-    }
-
+  ALIMatrix* DSMattemp = new ALIMatrix(*DatMatrix * *AtMatrix * *WMatrix);
+  if(ALIUtils::debug >= 5) DSMattemp->Dump("DSMattempMatrix=Dat*At*W");
+  ALIMatrix* DSMattemp2 = new ALIMatrix(*AtMatrix * *WMatrix * *yfMatrix);
+  if(ALIUtils::debug >= 5) DSMattemp2->Dump("DSMattempMatrix2=At*W*yf");
+  ALIMatrix* DSMattemp3 = new ALIMatrix(*AtMatrix * *WMatrix);
+  if(ALIUtils::debug >= 5) DSMattemp3->Dump("DSMattempMatrix3=At*W");
+  if(ALIUtils::debug >= 5) AtMatrix->Dump("AtMatrix");
   /*  for( int ii = 0; ii < DatMatrix->NoColumns(); ii++ ){
     std::cout << ii << " DS term " << (*DatMatrix)(0,ii) * (*DSMattemp2)(ii,0) << std::endl;
     }*/

@@ -23,9 +23,6 @@ AnalyticalCurvilinearJacobian::AnalyticalCurvilinearJacobian
    //dbg::dbg_trace(1,"ACJ1", globalParameters.vector(),x,p,s,theJacobian);
 }
 
-#ifdef TRPRFN_SSE
-#include "AnalyticalCurvilinearJacobianSSE.icc"
-#else
 
 AnalyticalCurvilinearJacobian::AnalyticalCurvilinearJacobian
 (const GlobalTrajectoryParameters& globalParameters,
@@ -196,14 +193,14 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
     double qbp2 = qbp * qbp;
     double thirdOrder41 = 1./3 * h2 * s3 * qbp * temp2;
     double fourthOrder41 = 1./8 * h3 * s4 * qbp2 * temp1;
-    theJacobian(3,0) = secondOrder41 + (thirdOrder41 + fourthOrder41);
+    theJacobian(3,0) = secondOrder41 + thirdOrder41 + fourthOrder41;
 
     double temp3 = hp11*v21 + hp12*v22 + hp13*v23;
     double secondOrder51 = 0.5 * qp * temp3 * s2;
     double temp4 = ghnmp1*v21 + ghnmp2*v22 + ghnmp3*v23;
     double thirdOrder51 = 1./3 * h2 * s3 * qbp * temp4;
     double fourthOrder51 = 1./8 * h3 * s4 * qbp2 * temp3;
-    theJacobian(4,0) = secondOrder51 + (thirdOrder51 + fourthOrder51);
+    theJacobian(4,0) = secondOrder51 + thirdOrder51 + fourthOrder51;
   }
 
   theJacobian(3,1) = (sint*(v11*u21 + v12*u22          ) +
@@ -236,68 +233,6 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 
   theJacobian(4,4) = (v11*v21 + v12*v22 + v13*v23);
   // end of TRPRFN
-}
-
-#endif
-
-void AnalyticalCurvilinearJacobian::computeInfinitesimalJacobian 
-(const GlobalTrajectoryParameters& globalParameters,
- const GlobalPoint&, 
- const GlobalVector& p, 
- const GlobalVector& h, 
- const double& s) {
-  /*
-   * origin  TRPROP
-   *
-   C *** ERROR PROPAGATION ALONG A PARTICLE TRAJECTORY IN A MAGNETIC FIELD
-   C     ROUTINE ASSUMES THAT IN THE INTERVAL (X1,X2) THE QUANTITIES 1/P
-   C     AND (HX,HY,HZ) ARE RATHER CONSTANT. DELTA(PHI) MUST NOT BE TOO LARGE
-   C
-   C     Authors: A. Haas and W. Wittek
-   C
-   
-  */
-  
-  
-  double qbp = globalParameters.signedInverseMomentum();
-  double absS = s;
-  
-  // average momentum
-  GlobalVector tn = (globalParameters.momentum()+p).unit(); 
-  double sinl = tn.z(); 
-  double cosl = std::sqrt(1.-sinl*sinl); 
-  double cosl1 = 1./cosl;
-  double tgl=sinl*cosl1;
-  double sinp = tn.y()*cosl1;
-  double cosp = tn.x()*cosl1;
-
-  // define average magnetic field and gradient 
-  // at initial point - inlike TRPROP
-  double b0= h.x()*cosp+h.y()*sinp;
-  double b2=-h.x()*sinp+h.y()*cosp;
-  double b3=-b0*sinl+h.z()*cosl;
-
-  theJacobian(3,2)=absS*cosl;
-  theJacobian(4,1)=absS;
-
-
-  theJacobian(1,0) =  absS*b2;
-  //if ( qbp<0) theJacobian(1,0) = -theJacobian(1,0);
-  theJacobian(1,2) = -b0*(absS*qbp);
-  theJacobian(1,3) =  b3*(b2*qbp*(absS*qbp));
-  theJacobian(1,4) = -b2*(b2*qbp*(absS*qbp));
-  
-  theJacobian(2,0) = -absS*b3*cosl1;
-  // if ( qbp<0) theJacobian(2,0) = -theJacobian(2,0);
-  theJacobian(2,1) = b0*(absS*qbp)*cosl1*cosl1;
-  theJacobian(2,2) = 1.+tgl*b2*(absS*qbp);
-  theJacobian(2,3) = -b3*(b3*qbp*(absS*qbp)*cosl1);
-  theJacobian(2,4) =  b2*(b3*qbp*(absS*qbp)*cosl1);
-  
-  theJacobian(3,4) = -b3*tgl*(absS*qbp);
-  theJacobian(4,3) =  b3*tgl*(absS*qbp);
-
-
 }
 
 void

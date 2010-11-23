@@ -7,23 +7,23 @@
 
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TAPDPulse.h>
 #include <TMath.h>
-# include <iostream>
+#include <iostream>
+#include <cassert>
 using namespace std;
 
-#include <cassert>
 //ClassImp(TAPDPulse)
 
 
 // Default Constructor...
 TAPDPulse::TAPDPulse()
 {
-  init(10,3,1,2,2,9,3,8,0.4,0.95,0.8,0.0,20000.0);
+  init(10,3,1,2,2,9,3,8,0.4,0.95,0.8);
 }
 
 // Constructor...
-TAPDPulse::TAPDPulse( int nsamples, int presample, int firstsample, int lastsample, int timingcutlow, int timingcuthigh, int timingquallow, int timingqualhigh, double ratiomincutlow, double ratiomincuthigh, double ratiomaxcutlow, double pulsemaxcutlow,  double pulsemaxcuthigh)
+TAPDPulse::TAPDPulse( int nsamples, int presample, int firstsample, int lastsample, int timingcutlow, int timingcuthigh, int timingquallow, int timingqualhigh, double ratiomincutlow, double ratiomincuthigh, double ratiomaxcutlow)
 {
-  init( nsamples,  presample,  firstsample,  lastsample,  timingcutlow, timingcuthigh,  timingquallow,  timingqualhigh,ratiomincutlow,ratiomincuthigh, ratiomaxcutlow , pulsemaxcutlow, pulsemaxcuthigh);
+  init( nsamples,  presample,  firstsample,  lastsample,  timingcutlow, timingcuthigh,  timingquallow,  timingqualhigh,ratiomincutlow,ratiomincuthigh, ratiomaxcutlow );
 }
 
 // Destructor
@@ -31,7 +31,7 @@ TAPDPulse::~TAPDPulse()
 {
 }
 
-void TAPDPulse::init(int nsamples, int presample, int firstsample, int lastsample, int timingcutlow, int timingcuthigh, int timingquallow, int timingqualhigh, double ratiomincutlow, double ratiomincuthigh, double ratiomaxcutlow, double pulsemaxcutlow,  double pulsemaxcuthigh)
+void TAPDPulse::init(int nsamples, int presample, int firstsample, int lastsample, int timingcutlow, int timingcuthigh, int timingquallow, int timingqualhigh, double ratiomincutlow, double ratiomincuthigh, double ratiomaxcutlow)
 {
   _nsamples=10;
   assert(nsamples==_nsamples);
@@ -49,8 +49,6 @@ void TAPDPulse::init(int nsamples, int presample, int firstsample, int lastsampl
   _ratiomincutlow=ratiomincutlow;
   _ratiomincuthigh=ratiomincuthigh;
   _ratiomaxcutlow=ratiomaxcutlow;
-  _pulsemaxcuthigh=pulsemaxcuthigh;
-  _pulsemaxcutlow=pulsemaxcutlow;
 
   for(int i=0;i<_nsamples;i++){
     adc_[i]=0.0;
@@ -73,7 +71,6 @@ bool TAPDPulse::setPulse(double *adc){
   isPedCalc_=false;
   return done;
 }
-
 double TAPDPulse::getMax(){
 
   if(isMaxFound_) return adcMax_; 
@@ -137,30 +134,16 @@ bool TAPDPulse::areFitSamplesOK(){
   bool ok=true;
   if(!isMaxFound_) getMax();
   if ((iadcMax_-_firstsample)<_presample || (iadcMax_+_lastsample)>_nsamples-1) ok=false;
-  
   return ok;
   
 }
 bool TAPDPulse::isPulseOK(){
 
-  bool okMax=isPulseMaxOK();
   bool okSamples=areFitSamplesOK();
   bool okTiming=isTimingOK();
   bool okPulse=arePulseRatioOK();
 
-  bool ok=(okMax && okSamples && okTiming && okPulse);
-
-  return ok;
-}
-bool TAPDPulse::isPulseMaxOK(){
-
-  bool ok=true;
-
-  if(!isMaxFound_) getMax();
-  double ped=0;
-  if(isPedCalc_)ped=pedestal_; 
-  else ped=adc_[0];
-  if( (adcMax_-ped) <_pulsemaxcutlow || (adcMax_-ped) > _pulsemaxcuthigh ) ok = false;
+  bool ok=(okSamples && okTiming && okPulse);
 
   return ok;
 }

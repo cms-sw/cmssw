@@ -30,7 +30,7 @@ bool L1TechReader::operator()(const Data & data) const {
                               ((uint64_t) psb.bData(0) << 16) | 
                               ((uint64_t) psb.aData(0));
     BOOST_FOREACH(const value_type & trigger, m_triggers)
-      if (psbTriggerWord & (0x01 << trigger.second))
+      if (psbTriggerWord & ((uint64_t) 0x01 << trigger.second))
         return true;
   } else {
     BOOST_FOREACH(const value_type & trigger, m_triggers)

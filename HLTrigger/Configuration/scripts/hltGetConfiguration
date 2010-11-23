@@ -2,67 +2,185 @@
 
 import sys
 import os
+import re
 import commands
-import getopt
 import shlex, subprocess
+import argparse
+from extend_argparse import *
 
+
+# available "type"s and relative global tags
 globalTag = {
-  '8E29': 'auto:startup',
-  'GRun': 'auto:startup',
+  'FULL': 'auto:startup',
+  'GRun': 'auto:startup',       # use as default
   'data': 'auto:hltonline',
-  '1E31': 'auto:startup',
   'HIon': 'auto:startup',
-  None:   'auto:startup',      # use as default
 }
 
-def usage():
-    print 'Usage:'
-    print '  hltGetConfiguration [--process <Name>] [--type <Type>]'
-    print '                      [--globaltag <GlobalTag::All>] [--unprescale] [--l1 <L1_MENU_vX>]'
-    print '                      [--data|--mc] [--cff|--full [--online|--offline [--dataset <DATASET>]]]'
-    print '                      <HLT menu from ConfDB>'
-    print
-    print 'Options:'
-    print '  --process          Override the process name [default is "HLT"]'
-    print '  --type             Set global options acording to a specific HLT luminosity and type (GRun, 8E29, 1E31, HIon)'
-    print '                     The default is to use the "GRun" settings, for rerunning an online-like menu on data and MC'
-    print
-    print '  --globaltag        Override the GlobalTag in the HLT menu:'
-    print '                     when running on data, the default behaviour is to not override the GobalTag in the HLT menu'
-    print '                     when running on MC, the default comes from the "type" and the current PyRelVal configuration'
-    print '                     To run on data with a different release than the menu was designed for, try "auto:hltonline"'
-    print '  --unprescale       Remove any HLT prescales'
-    print '  --l1               Override the L1 menu, using the payload "L1GtTriggerMenu_<L1_MENU_vX>_mc" from the database'
-    print
-    print '  --data             Prepare a menu for running on data (RAW in "source") [this is the default]'
-    print '  --mc               Prepare a menu for running on MC (RAW in "rawDataCollector")'
-    print '  --cff              Generate a stripped down configuration file fragment, for inclusion by e.g. cmsDriver.py'
-    print '  --full             Generate a full configuration file, with minimal modifications [this is the default]'
-    print '  --online           Take the online compliant connection string and GlobalTag from the menu [only valid in "full" mode]'
-    print '  --offline          Override the connection string and GlobalTag with offline values [only valid in "full" mode, this is the default]'
-    print '  --dataset          Take the input files from the specified DATASET [only valid for "offline" mode]'
-    print
-    print 'Notes:'
-    print '     using "--online" and "--mc" together is not supported (there is no online compliant GlobalTag for MC)'
-    print '     using "--online/--offline" is meaingful only in conjunction with "--full"'
-    print '     using "--dataset" is meaingful only in conjunction with "--offline" '
+
+# type used to store a reference to an L1 menu
+class ConnectionL1TMenu(object):
+  def __init__(self, value):
+    self.override = None
+    self.connect  = None
+
+    # extract the connection string and configuration name
+    if value:
+      if ':' in value:
+        self.override = "L1GtTriggerMenu_%s_mc" % value.rsplit(':', 1)[1]
+        self.connect  = '"%s"' % value.rsplit(':', 1)[0]
+      else:
+        self.override = "L1GtTriggerMenu_%s_mc" % value
+        self.connect  = None
 
 
-processName     = 'HLT'
-processType     = ''
-doCff           = False
-runOnData       = True
-runOnline       = False
-menuL1Override  = ''
-menuL1Connect   = ''
-menuGlobalTag   = ''
-menuConfig      = ''
-menuConfigDB    = ''
-menuConfigName  = ''
-menuConfigRun   = ''
-menuDataset     = ''
-menuUnprescale  = False
+# type used to store a reference to an HLT configuration
+class ConnectionHLTMenu(object):
+  def __init__(self, value):
+    self.value  = value
+    self.db     = None
+    self.name   = None
+    self.run    = None
 
+    # extract the database and configuration name
+    if value:
+      if ':' in self.value:
+        (db, name) = self.value.split(':')
+        if db == 'run':
+          self.run  = name
+        elif db in ('hltdev', 'orcoff'):
+          self.db   = db
+          self.name = name
+        else:
+          print 'Unknown ConfDB database "%s", valid values are "hltdev" (default) and "orcoff")' % db
+          sys.exit(1)
+      else:
+        self.db   = 'hltdev'
+        self.name = self.value
+
+
+# define an argparse parser to parse our options
+textwidth = int( os.popen("stty size", "r").read().split()[1] )
+formatter = FixedWidthFormatter( HelpFormatterRespectNewlines, width = textwidth )
+
+parser = argparse.ArgumentParser(
+  description       = 'Extract an HLT configuration (or fragment thereof) from the ConfDB database.''',
+  epilog            = 'Note: using "--online", overriding the GlobalTag or the L1 menu is meaingful only in a full, self-contained dump. A cff file does not provide the modules to be overriden.''', 
+  argument_default  = argparse.SUPPRESS,
+  formatter_class   = formatter,
+  add_help          = False )
+
+# required argument
+parser.add_argument('menuConfig',
+                    action  = 'store', 
+                    type    = ConnectionHLTMenu,
+                    metavar = 'MENU', 
+                    help    = 'HLT menu to dump from the database. Supported formats are:\n- [hltdev:]/path/to/configuration[/Vn]\n- orcoff:/path/to/configuration[/Vn]\n- run:runnumber\nThe possible databases are "hltdev" (default, used for offline development) and "orcoff:" (ued for online menus). If no version is specified, the latest one is automatically used.\nIf "run:" is used instead, the actual HLT menu for thegiven run number is looked up and used.' )
+
+# options
+parser.add_argument('--process', 
+                    dest    = 'processName', 
+                    action  = 'store', 
+                    default = 'HLT', 
+                    metavar = 'PROCESS', 
+                    help    = 'Override the process name (the default is %(default)s)' )
+parser.add_argument('--type', 
+                    dest    = 'processType', 
+                    action  = 'store', 
+                    metavar = 'TYPE', 
+                    choices = globalTag, 
+                    default = None,
+                    help    = 'Set global options acording to a specific HLT luminosity and type (%(choices)s).' )
+parser.add_argument('--globaltag', 
+                    dest    = 'menuGlobalTag', 
+                    action  = 'store', 
+                    metavar = 'TAG', 
+                    default = None,
+                    help    = 'Override the GlobalTag in the HLT menu:\n- when running on data, the default behaviour is to not override the GobalTag in the HLT menu;\n- when running on MC, the default behaviour is to use the GlobalTag from "type" and the current PyRelVal configuration.\nTo run on data with a different release than the menu was designed for, try "auto:hltonline"' )
+parser.add_argument('--l1', 
+                    dest    = 'menuL1', 
+                    action  = 'store',
+                    type    = ConnectionL1TMenu,
+                    default = ConnectionL1TMenu(None),
+                    metavar = 'MENU', 
+                    help    = 'Override the L1 menu, using the payload "L1GtTriggerMenu_<%(metavar)s>_mc" from the database.\nThe default behaviour is to run with the L1 menu from the GlobalTag' )
+parser.add_argument('--unprescale', 
+                    dest    = 'menuUnprescale', 
+                    action  = 'store_true', 
+                    default = False, 
+                    help    = 'Run without any HLT prescales' )
+parser.add_argument('--open', 
+                    dest    = 'menuOpen', 
+                    action  = 'store_true', 
+                    default = False, 
+                    help    = 'Run the HLT in "open" mode, overriding all ED/HLTFilters to always pass' )
+parser.add_argument('--dataset', 
+                    dest    = 'menuDataset', 
+                    action  = 'store', 
+                    metavar = 'DATASET',
+                    default = None,
+                    help    = 'Take the input files from the specified %(metavar)s' )
+parser.add_argument('--timing', 
+                    dest    = 'menuTiming', 
+                    action  = 'store_true', 
+                    default = False,
+                    help    = 'Instrument the menu with the modules and EndPath needed for timing studies' )
+
+group = parser.add_mutually_exclusive_group()
+group.add_argument('--output',
+                    dest    = 'menuOutput',
+                    action  = 'store',
+                    metavar = 'OUTPUT',
+                    choices = [ 'all', 'minimal', 'none' ], 
+                    default = 'all',
+                    help    = 'Use\n- "all" to output all output modules (default),\n- "minimal" to only output the TriggerResults,\n- "none" to drop all output modules' )
+group.add_argument('--no-output',
+                    dest    = 'menuOutput',
+                    action  = 'store_const',
+                    const   = 'none',
+                    help    = 'Same as "--output none"' )
+
+group = parser.add_mutually_exclusive_group()
+group.add_argument('--data', 
+                    dest    = 'runOnData', 
+                    action  = 'store_true', 
+                    default = True, 
+                    help    = 'Prepare a menu for running on data (raw events in "source") (default)' )
+group.add_argument('--mc', 
+                    dest    = 'runOnData', 
+                    action  = 'store_false', 
+                    help    = 'Prepare a menu for running on MC (raw events in "rawDataCollector")' )
+
+group = parser.add_mutually_exclusive_group()
+group.add_argument('--full', 
+                    dest    = 'doCff', 
+                    action  = 'store_false', 
+                    default = False, 
+                    help    = 'Generate a full configuration file, with minimal modifications (default)' )
+group.add_argument('--cff', 
+                    dest    = 'doCff', 
+                    action  = 'store_true', 
+                    help    = 'Generate a stripped down configuration file fragment, for inclusion by e.g. cmsDriver.py' )
+
+group = parser.add_mutually_exclusive_group()
+group.add_argument('--online', 
+                    dest    = 'runOnline', 
+                    action  = 'store_true', 
+                    help    = 'Generate a configuration file suitable for running online (use the online compliant connection string)' )
+group.add_argument('--offline', 
+                    dest    = 'runOnline', 
+                    action  = 'store_false', 
+                    default = False, 
+                    help    = 'Generate a configuration file suitable for running offline (override the connection string) (default)' )
+
+# redefine "--help" to be the last option, and use a customized message 
+parser.add_argument('--help', 
+                    action  = 'help', 
+                    help    = 'Show this help message and exit' )
+
+
+
+# wrapper around subprocess to simplify te interface
 def pipe(cmdline, input = None):
   args = shlex.split(cmdline)
   if input is not None:
@@ -73,434 +191,457 @@ def pipe(cmdline, input = None):
   return out
 
 
-def build_query(db, menu, run):
-  if run:
-    return '--runNumber %s' % run
-  else:
-    return '--%s --configName %s' % (db, menu)
+class HLTProcess(object):
+  def __init__(self):
+    self.data     = None
+    self.labels   = {}
 
-def build_source(src):
-  if src is None:
-    return '--noedsources'
-  else:
-    return '--input ' + src
-
-def build_options(opts):
-  return ' '.join(['--%s %s' % (key, ','.join(vals)) for key, vals in opts.iteritems() if vals])
-
-def build_cmdline(db, menu, run, src, opts, full = True):
-  if full:
-    return 'edmConfigFromDB %s %s %s'       % (build_query(db, menu, run), build_source(src), build_options(opts))
-  else:
-    return 'edmConfigFromDB --cff %s %s %s' % (build_query(db, menu, run), build_source(src), build_options(opts))
-
-
-def parse_options(args):
-  # global variables
-  global processName
-  global processType
-  global doCff
-  global runOnData
-  global runOnline
-  global menuL1Override
-  global menuL1Connect
-  global menuGlobalTag
-  global menuConfig
-  global menuConfigDB
-  global menuConfigName
-  global menuConfigRun
-  global menuDataset
-  global menuUnprescale
-
-  # valid options
-  options = ( 'process=', 'l1=', 'globaltag=', 'type=', 'data', 'mc', 'online', 'offline', 'full', 'cff', 'dataset=', 'unprescale' )
-
-  try:
-    (opts, args) = getopt.gnu_getopt(args, 'f', options)
-  except getopt.error, error:
-    print 'Error:', error.msg
-    print
-    usage()
-    sys.exit(1)
-
-  for (opt, value) in opts:
-    # set the process name
-    if opt == '--process':
-      processName = value
-    elif opt == '--type':
-      processType = value
-    # generate a cff fragment
-    elif opt == '--cff':
-      doCff = True
-    # generate a full configuration file
-    elif opt == '--full':
-      doCff = False
-    # specify L1 menu and force L1 override
-    elif opt == '--l1':
-      if ':' in value:
-        menuL1Override = "L1GtTriggerMenu_%s_mc" % value.rsplit(':', 1)[1]
-        menuL1Connect  = '"%s"' % value.rsplit(':', 1)[0]
-      else:
-        menuL1Override = "L1GtTriggerMenu_%s_mc" % value
-    # specify GlobalTag
-    elif opt == '--globaltag':
-      menuGlobalTag = value
-    # run on data (RAW in 'source')
-    elif opt == '--data':
-      runOnData = True
-    # run on MC (RAW in 'rawDataCollector')
-    elif opt == '--mc':
-      runOnData = False
-    # run online (keep online compliant GlobalTag from the menu)
-    elif opt == '--online':
-      runOnline = True
-    # run offline(overrithe the GlobalTag from the menu with an offline one)
-    elif opt == '--offline':
-      runOnline = False
-    # set input files from a dataset through DBS
-    elif opt == '--dataset':
-      menuDataset = value
-    elif opt == '--unprescale':
-      menuUnprescale = True
+  @staticmethod
+  def _build_query(config):
+    if config.run:
+      return '--runNumber %s' % config.run
     else:
-      print 'Invalid option: %s', opt
-      usage()
-      sys.exit(1)
+      return '--%s --configName %s' % (config.db, config.name)
 
-  # look for the required arguments
-  try:
-      menuConfig  = args[0]
-  except:
-      usage()
-      sys.exit(1)
-
-  # extract the database and configuration name
-  if ':' in menuConfig:
-    (db, name) = menuConfig.split(':')
-    if db == 'run':
-      menuConfigDB   = ''
-      menuConfigName = ''
-      menuConfigRun  = name
-    elif db in ('hltdev', 'orcoff'):
-      menuConfigDB   = db
-      menuConfigName = name
-      menuConfigRun  = ''
+  @staticmethod
+  def _build_source(src):
+    if src is None:
+      return '--noedsources'
     else:
-      print 'Unknown ConfDB database "%s", valid values are "hltdev" (default) and "orcoff")' % menuConfigDB
-      sys.exit(1)
-  else:
-    menuConfigDB   = 'hltdev'
-    menuConfigName = menuConfig
-    menuConfigRun  = ''
+      return '--input ' + src
 
-# parse command line arguments and options
-parse_options(sys.argv[1:])
+  @staticmethod
+  def _build_options(opts):
+    return ' '.join(['--%s %s' % (key, ','.join(vals)) for key, vals in opts.iteritems() if vals])
 
-# Initialize everything
-menuConfigOptions = {
-    'essources' : [],
-    'esmodules' : [],
-    'modules'   : [],
-    'services'  : [],
-    'paths'     : [],
-    'psets'     : [],
-}
+  def _build_cmdline(self, config, src, opts, fragment):
+    if not fragment:
+      return 'edmConfigFromDB %s %s %s'       % (self._build_query(config), self._build_source(src), self._build_options(opts))
+    else:
+      return 'edmConfigFromDB --cff %s %s %s' % (self._build_query(config), self._build_source(src), self._build_options(opts))
 
-menuConfigSource = None
+  def getRawConfigurationFromDB(self, config, confdb, fragment):
+    if fragment:
+      self.labels['process'] = ''
+      self.labels['dict']    = 'locals()'
+    else:
+      self.labels['process'] = 'process.'
+      self.labels['dict']    = 'process.__dict__'
 
-if doCff:
-    menuConfigOptions['essources'].append( "-GlobalTag" )
-    menuConfigOptions['essources'].append( "-Level1MenuOverride" )
-    menuConfigOptions['essources'].append( "-HepPDTESSource" )
-    menuConfigOptions['essources'].append( "-XMLIdealGeometryESSource" )
-    menuConfigOptions['essources'].append( "-eegeom" )
-    menuConfigOptions['essources'].append( "-es_hardcode" )
-    menuConfigOptions['essources'].append( "-magfield" )
-
-    menuConfigOptions['esmodules'].append( "-AutoMagneticFieldESProducer" )
-    menuConfigOptions['esmodules'].append( "-SlaveField0" )
-    menuConfigOptions['esmodules'].append( "-SlaveField20" )
-    menuConfigOptions['esmodules'].append( "-SlaveField30" )
-    menuConfigOptions['esmodules'].append( "-SlaveField35" )
-    menuConfigOptions['esmodules'].append( "-SlaveField38" )
-    menuConfigOptions['esmodules'].append( "-SlaveField40" )
-    menuConfigOptions['esmodules'].append( "-VBF0" )
-    menuConfigOptions['esmodules'].append( "-VBF20" )
-    menuConfigOptions['esmodules'].append( "-VBF30" )
-    menuConfigOptions['esmodules'].append( "-VBF35" )
-    menuConfigOptions['esmodules'].append( "-VBF38" )
-    menuConfigOptions['esmodules'].append( "-VBF40" )
-    menuConfigOptions['esmodules'].append( "-CSCGeometryESModule" )
-    menuConfigOptions['esmodules'].append( "-CaloGeometryBuilder" )
-    menuConfigOptions['esmodules'].append( "-CaloTowerGeometryFromDBEP" )
-    menuConfigOptions['esmodules'].append( "-CaloTowerHardcodeGeometryEP" )
-    menuConfigOptions['esmodules'].append( "-CastorGeometryFromDBEP" )
-    menuConfigOptions['esmodules'].append( "-CastorHardcodeGeometryEP" )
-    menuConfigOptions['esmodules'].append( "-DTGeometryESModule" )
-    menuConfigOptions['esmodules'].append( "-EcalBarrelGeometryEP" )
-    menuConfigOptions['esmodules'].append( "-EcalBarrelGeometryFromDBEP" )
-    menuConfigOptions['esmodules'].append( "-EcalElectronicsMappingBuilder" )
-    menuConfigOptions['esmodules'].append( "-EcalEndcapGeometryEP" )
-    menuConfigOptions['esmodules'].append( "-EcalEndcapGeometryFromDBEP" )
-    menuConfigOptions['esmodules'].append( "-EcalLaserCorrectionService" )
-    menuConfigOptions['esmodules'].append( "-EcalPreshowerGeometryEP" )
-    menuConfigOptions['esmodules'].append( "-EcalPreshowerGeometryFromDBEP" )
-    menuConfigOptions['esmodules'].append( "-HcalGeometryFromDBEP" )
-    menuConfigOptions['esmodules'].append( "-HcalHardcodeGeometryEP" )
-    menuConfigOptions['esmodules'].append( "-HcalTopologyIdealEP" )
-    menuConfigOptions['esmodules'].append( "-MuonNumberingInitialization" )
-    menuConfigOptions['esmodules'].append( "-ParametrizedMagneticFieldProducer" )
-    menuConfigOptions['esmodules'].append( "-RPCGeometryESModule" )
-    menuConfigOptions['esmodules'].append( "-SiStripGainESProducer" )
-    menuConfigOptions['esmodules'].append( "-SiStripRecHitMatcherESProducer" )
-    menuConfigOptions['esmodules'].append( "-SiStripQualityESProducer" )
-    menuConfigOptions['esmodules'].append( "-StripCPEfromTrackAngleESProducer" )
-    menuConfigOptions['esmodules'].append( "-TrackerDigiGeometryESModule" )
-    menuConfigOptions['esmodules'].append( "-TrackerGeometricDetESModule" )
-    menuConfigOptions['esmodules'].append( "-VolumeBasedMagneticFieldESProducer" )
-    menuConfigOptions['esmodules'].append( "-XMLFromDBSource" )
-    menuConfigOptions['esmodules'].append( "-ZdcGeometryFromDBEP" )
-    menuConfigOptions['esmodules'].append( "-ZdcHardcodeGeometryEP" )
-    menuConfigOptions['esmodules'].append( "-hcal_db_producer" )
-    menuConfigOptions['esmodules'].append( "-l1GtTriggerMenuXml" )
-    menuConfigOptions['esmodules'].append( "-L1GtTriggerMaskAlgoTrigTrivialProducer" )
-    menuConfigOptions['esmodules'].append( "-L1GtTriggerMaskTechTrigTrivialProducer" )
-    menuConfigOptions['esmodules'].append( "-sistripconn" )
-
-    menuConfigOptions['services'].append( "-PrescaleService" )
-    menuConfigOptions['services'].append( "-MessageLogger" )
-    menuConfigOptions['services'].append( "-DQM" )
-    menuConfigOptions['services'].append( "-DQMStore" )
-    menuConfigOptions['services'].append( "-FUShmDQMOutputService" )
-    menuConfigOptions['services'].append( "-MicroStateService" )
-    menuConfigOptions['services'].append( "-ModuleWebRegistry" )
-    menuConfigOptions['services'].append( "-TimeProfilerService" )
-
-    menuConfigOptions['paths'].append( "-HLTOutput" )
-    menuConfigOptions['paths'].append( "-HLTHIOutput" )
-    menuConfigOptions['paths'].append( "-ExpressOutput" )
-    menuConfigOptions['paths'].append( "-EventDisplayOutput" )
-    menuConfigOptions['paths'].append( "-AlCaOutput" )
-    menuConfigOptions['paths'].append( "-DQMOutput" )
-    menuConfigOptions['paths'].append( "-HLTDQMOutput" )
-    menuConfigOptions['paths'].append( "-HLTDQMResultsOutput" )
-    menuConfigOptions['paths'].append( "-HLTMONOutput" )
-    menuConfigOptions['paths'].append( "-NanoDSTOutput" )
-    menuConfigOptions['paths'].append( "-OfflineOutput" )
-
-    menuConfigOptions['psets'].append( "-maxEvents" )
-    menuConfigOptions['psets'].append( "-options" )
-
-    cmdline = build_cmdline(menuConfigDB, menuConfigName, menuConfigRun, menuConfigSource, menuConfigOptions, False)
+    cmdline = self._build_cmdline(configuration.menuConfig, confdb.source, confdb.options, fragment)
     data = pipe(cmdline)
-
+    
     if 'Exhausted Resultset' in data or 'CONFIG_NOT_FOUND' in data:
-      raise ImportError('%s is not a valid HLT menu' % menuConfig)
+      raise ImportError('%s is not a valid HLT menu' % configuration.menuConfig.value)
 
-    if not runOnData:
-      # FIXME - this should be done looking into the python objects, not working on the text representation
-      data = pipe("sed -e 's/cms.InputTag( \"source\" )/cms.InputTag( \"rawDataCollector\" )/'", data)
-      data = pipe("sed -e 's/cms.string( \"source\" )/cms.string( \"rawDataCollector\" )/'", data)
+    self.data = data
 
-    if processType in ('1E31', 'HIon'):
-      # FIXME - should have a proper L1 MC/DESIGN/1E31 menue
-      data = pipe("sed -e 's/\<L1_DoubleEG2\>/L1_DoubleEG1/'", data)
 
-    # override the preshower baseline setting for MC - needed for 3.5.x (x >= 7) and 3.6.x
-    if not runOnData:
-      data = data + """
-# override the preshower baseline setting for MC
-if 'ESUnpackerWorkerESProducer' in locals():
-    ESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
-"""
-
-    # if required, remove the HLT prescales
-    if menuUnprescale:
-      data = data + """
-# remove the HLT prescales
-if 'PrescaleService' in locals():
-    PrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
-    PrescaleService.lvl1Labels = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
-    PrescaleService.prescaleTable = cms.VPSet( )
-"""
-
-    # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
-    if menuL1Override:
-      if not menuL1Connect:
-        menuL1Connect = "GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')"
-      data = data + """
-# override the L1 menu (requires the GlobalTag to be defined)
-if 'GlobalTag' in locals():
-    GlobalTag.toGet.append(
-        cms.PSet(  
-            record  = cms.string( "L1GtTriggerMenuRcd" ),
-            tag     = cms.string( "%s" ),
-            connect = cms.untracked.string( %s )
-        )
-    )
-""" % (menuL1Override, menuL1Connect)
-
-else:
-    if runOnline:
-      # online we always run on data
-      menuConfigSource =  "file:/tmp/InputCollection.root"
-    else:
-      # offline we can run on data, on mc, or on a user-specified dataset
-      if menuDataset:
-        # query DBS and extract the files for the specified dataset
-        files = pipe("dbsql 'find file where dataset like %s'" % menuDataset)
-        files = [ f for f in files.split('\n') if 'store' in f ][0:10]
-        menuConfigSource = ','.join(files)
-      elif runOnData:
-        menuConfigSource = "/store/data/Run2010A/MinimumBias/RAW/v1/000/144/011/140DA3FD-AAB1-DF11-8932-001617E30E28.root"
-      else:
-        menuConfigSource =  "file:RelVal_DigiL1Raw_%s.root" % processType
-
-    if not runOnData or menuL1Override:
-      # remove any eventual L1 override from the table
-      menuConfigOptions['essources'].append( "-Level1MenuOverride" )
-      menuConfigOptions['esmodules'].append( "-l1GtTriggerMenuXml" )
-
-    menuConfigOptions['services'].append( "-FUShmDQMOutputService" )
-    menuConfigOptions['paths'].append( "-OfflineOutput" )
-
-    cmdline = build_cmdline(menuConfigDB, menuConfigName, menuConfigRun, menuConfigSource, menuConfigOptions)
-    data = pipe(cmdline)
-
-    if 'Exhausted Resultset' in data or 'CONFIG_NOT_FOUND' in data:
-      raise ImportError('%s is not a valid HLT menu' % menuConfig)
-
-    if not runOnData:
-      # FIXME - this should be done looking into the python objects, not working on the text representation
-      data = pipe("sed -e 's/cms.InputTag( \"source\" )/cms.InputTag( \"rawDataCollector\" )/'", data)
-      data = pipe("sed -e 's/cms.string( \"source\" )/cms.string( \"rawDataCollector\" )/'", data)
-
-    if processType in ('1E31', 'HIon'):
-      # FIXME - should have a proper L1 MC/DESIGN/1E31 menue
-      data = pipe("sed -e 's/\<L1_DoubleEG2\>/L1_DoubleEG1/'", data)
-
-    # FIXME - find a better way to override the output modules
-    data = pipe("sed -e's/process\.hltOutput\(\w\+\) *= *cms\.OutputModule( *\"ShmStreamConsumer\" *,/process.hltOutput\\1 = cms.OutputModule( \"PoolOutputModule\",\\n    fileName = cms.untracked.string( \"output\\1.root\" ),/' ", data)
-
-    # override the preshower baseline setting for MC - needed for 3.5.x (x >= 7) and 3.6.x
-    if not runOnData:
-      data = data + """
-# override the preshower baseline setting for MC
-if 'ESUnpackerWorkerESProducer' in process.__dict__:
-    process.ESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
-"""
-
-    # if required, remove the HLT prescales
-    if menuUnprescale:
-      data = data + """
-# remove HLT prescales
-if 'PrescaleService' in process.__dict__:
-    process.PrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
-    process.PrescaleService.lvl1Labels = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
-    process.PrescaleService.prescaleTable = cms.VPSet( )
-"""
-
-    data = data + """
-# set process name
-process.setName_('%s')
-
+  def addGlobalOptions(self):
+    # add global options
+    menu.data += """
 # add global options
-process.maxEvents = cms.untracked.PSet(
+%(process)smaxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( 100 )
 )
-process.options = cms.untracked.PSet(
+%(process)soptions = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True )
 )
-""" % processName
+"""
 
+
+  def fixForMC(self, configuration):
+    if not configuration.runOnData:
+      # override the raw data collection label
+      self.data = re.sub( r'cms\.InputTag\( "source" \)',            r'cms.InputTag( "rawDataCollector" )',           self.data)
+      self.data = re.sub( r'cms\.untracked\.InputTag\( "source" \)', r'cms.untracked.InputTag( "rawDataCollector" )', self.data)
+      self.data = re.sub( r'cms\.string\( "source" \)',              r'cms.string( "rawDataCollector" )',             self.data)
+
+      # override the preshower baseline setting for MC - needed for 3.5.x (x >= 7) and 3.6.x
+      self.data += """
+# override the preshower baseline setting for MC
+if 'ESUnpackerWorkerESProducer' in %(dict)s:
+    %(process)sESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
+"""
+
+
+  def unprescale(self, configuration):
+    if configuration.menuUnprescale:
+      self.data += """
+# remove the HLT prescales
+if 'PrescaleService' in %(dict)s:
+    %(process)sPrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
+    %(process)sPrescaleService.lvl1Labels = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
+    %(process)sPrescaleService.prescaleTable = cms.VPSet( )
+"""
+
+
+  def instrumentOpenMode(self, configuration):
+    if configuration.menuOpen:
+      # find all EDfilters
+      filters = [ match[1] for match in re.findall(r'(process\.)?\b(\w+) = cms.EDFilter', self.data) ] 
+      # wrap all EDfilters with "cms.ignore( ... )"
+      re_filters  = re.compile( r'\b((process\.)?(' + r'|'.join(filters) + r'))\b' )
+      re_sequence = re.compile( r'cms\.(Path|Sequence)\((.*)\)' )
+      self.data = re_sequence.sub( lambda line: re_filters.sub( r'cms.ignore( \1 )', line.group(0) ), self.data )
+
+
+  def overrideGlobalTag(self, configuration):
     # overwrite GlobalTag
     # the logic is:
     #   - for running online, do nothing, unless a globaltag has been specified on the command line
     #   - for running offline on data, only add the pfnPrefix
-    #   - for running offline on mc, take the GT from the command line of the processType
+    #   - for running offline on mc, take the GT from the command line of the configuration.processType
     #      - if the GT is "auto:...", insert the code to read it from Configuration.PyReleaseValidation.autoCond
-
-    if runOnline:
-      if menuGlobalTag:
-        data = data + """
+    text = ''
+    if configuration.runOnline:
+      if configuration.menuGlobalTag:
+        text += """
 # override the GlobalTag 
-if 'GlobalTag' in process.__dict__:
-    process.GlobalTag.globaltag = '%s'
-""" % menuGlobalTag
+if 'GlobalTag' in %%(dict)s:
+    %%(process)sGlobalTag.globaltag = '%(menuGlobalTag)s'
+"""
 
     else:
-      data = data + """
+      text += """
 # override the GlobalTag connection string and pfnPrefix
-if 'GlobalTag' in process.__dict__:
+if 'GlobalTag' in %%(dict)s:
 """
 
       # override the GlobalTag connection string and pfnPrefix
-      data = data + "    process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'\n"
-      data = data + "    process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n"
-      if runOnData:
+      text += "    %%(process)sGlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'\n"
+      text += "    %%(process)sGlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n"
+
+      if configuration.runOnData:
         # do not override the GlobalTag unless one was specified on the command line 
         pass
       else:
-        # check if a specific GlobalTag was specified on the command line, or choose one from the processType
-        if not menuGlobalTag:
-          if processType in globalTag:
-            menuGlobalTag = globalTag[processType]
+        # check if a specific GlobalTag was specified on the command line, or choose one from the configuration.processType
+        if not configuration.menuGlobalTag:
+          if configuration.processType in globalTag:
+            configuration.menuGlobalTag = globalTag[configuration.processType]
           else:
-            menuGlobalTag = globalTag[None]
+            configuration.menuGlobalTag = globalTag['GRun']
 
       # check if the GlobalTag is an autoCond or an explicit tag
-      if not menuGlobalTag:
+      if not configuration.menuGlobalTag:
         # when running on data, do not override the GlobalTag unless one was specified on the command line
         pass
-      elif menuGlobalTag[0:5] == 'auto:':
-        data = data + "    from Configuration.PyReleaseValidation.autoCond import autoCond\n"
-        data = data + "    process.GlobalTag.globaltag = autoCond['%s']\n" % menuGlobalTag[5:]
+      elif configuration.menuGlobalTag[0:5] == 'auto:':
+        configuration.menuGlobalTagAuto = configuration.menuGlobalTag[5:]
+        text += "    from Configuration.PyReleaseValidation.autoCond import autoCond\n"
+        text += "    %%(process)sGlobalTag.globaltag = autoCond['%(menuGlobalTagAuto)s']\n"
       else:
-        data = data + "    process.GlobalTag.globaltag = '%s'\n" % menuGlobalTag
+        text += "    %%(process)sGlobalTag.globaltag = '%(menuGlobalTag)s'\n"
 
+    self.data += text % configuration.__dict__
+
+
+  def overrideL1Menu(self, configuration):
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
-    if menuL1Override:
-      if not menuL1Connect:
-        menuL1Connect = "process.GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')"
-      data = data + """
+    if configuration.menuL1.override:
+      if not configuration.menuL1.connect:
+        configuration.menuL1.connect = "%(process)sGlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')"
+      menu.data += """
 # override the L1 menu
-if 'GlobalTag' in process.__dict__:
-    process.GlobalTag.toGet.append(
+if 'GlobalTag' in %%(dict)s:
+    %%(process)sGlobalTag.toGet.append(
         cms.PSet(  
             record  = cms.string( "L1GtTriggerMenuRcd" ),
-            tag     = cms.string( "%s" ),
-            connect = cms.untracked.string( %s )
+            tag     = cms.string( "%(override)s" ),
+            connect = cms.untracked.string( %(connect)s )
         )
     )
-""" % (menuL1Override, menuL1Connect)
+""" % configuration.menuL1.__dict__
 
-    # the following is stolen from HLTrigger.Configuration.customL1THLT_Options
-    data = data + """
+
+  def overrideOutput(self, configuration):
+    reOutputModule = re.compile(r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\(.*\n([^)].*\n)*\) *\n')
+    if configuration.menuOutput == 'none':
+      # drop all output modules
+      self.data = reOutputModule.sub('', self.data)
+
+    elif configuration.menuOutput == 'minimal':
+      # drop all output modules except "HLTDQMResults"
+      repl = lambda match: (match.group(2) == 'HLTDQMResults') and match.group() or ''
+      self.data = reOutputModule.sub(repl, self.data)
+
+    # override the "online" ShmStreamConsumer output modules with "offline" PoolOutputModule's
+    self.data = re.sub( 
+      r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\( *"ShmStreamConsumer" *,',
+      r'%(process)shltOutput\2 = cms.OutputModule( "PoolOutputModule",\n    fileName = cms.untracked.string( "output\2.root" ),\n    fastCloning = cms.untracked.bool( False ),', 
+      self.data
+    )
+
+
+  # override the process name and adapt the relevant filters
+  def overrideProcessName(self, configuration):
+    # the following was stolen and adapted from HLTrigger.Configuration.customL1THLT_Options
+    self.data += """
+# override the process name
+%%(process)ssetName_('%(processName)s')
+
 # adapt HLT modules to the correct process name
-if 'hltTrigReport' in process.__dict__:
-    process.hltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults','',process.name_() )
+if 'hltTrigReport' in %%(dict)s:
+    %%(process)shltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults', '', '%(processName)s' )
 
-if 'hltDQMHLTScalers' in process.__dict__:
-    process.hltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults','',process.name_() )
+if 'hltDQMHLTScalers' in %%(dict)s:
+    %%(process)shltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults', '', '%(processName)s' )
 
-if 'hltPreExpressSmart' in process.__dict__:
-    process.hltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults','',process.name_() )
+if 'hltPreExpressSmart' in %%(dict)s:
+    %%(process)shltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults', '', '%(processName)s' )
 
-if 'hltPreHLTMONSmart' in process.__dict__:
-    process.hltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults','',process.name_() )
+if 'hltPreHLTMONSmart' in %%(dict)s:
+    %%(process)shltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults', '', '%(processName)s' )
 
-if 'hltPreDQMSmart' in process.__dict__:
-    process.hltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults','',process.name_() )
+if 'hltPreDQMSmart' in %%(dict)s:
+    %%(process)shltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults', '', '%(processName)s' )
 
-if 'hltDQML1SeedLogicScalers' in process.__dict__:
-    process.hltDQML1SeedLogicScalers.processname = process.name_()
+if 'hltDQML1SeedLogicScalers' in %%(dict)s:
+    %%(process)shltDQML1SeedLogicScalers.processname = '%(processName)s'
+""" % configuration.__dict__
 
-process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
-process.MessageLogger.categories.append('L1GtTrigReport')
-process.MessageLogger.categories.append('HLTrigReport')
+
+  def updateMessageLogger(self):
+    # request summary informations from the MessageLogger
+    self.data += """
+if 'MessageLogger' in %(dict)s:
+    %(process)sMessageLogger.categories.append('TriggerSummaryProducerAOD')
+    %(process)sMessageLogger.categories.append('L1GtTrigReport')
+    %(process)sMessageLogger.categories.append('HLTrigReport')
 """
 
 
-# dump the final configuration
-print data
 
+  def instrumentTiming(self, configuration):
+    if configuration.menuTiming:
+      # instrument the menu with the modules and EndPath needed for timing studies
+      self.data += """
+# instrument the menu with the modules and EndPath needed for timing studies
+%(process)sPathTimerService = cms.Service( "PathTimerService",
+)
+%(process)shltTimer = cms.EDProducer( "PathTimerInserter",
+)
+%(process)shltOutputTiming = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputTiming.root" ),
+    fastCloning = cms.untracked.bool( False ),
+    splitLevel = cms.untracked.int32( 0 ),
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string( 'RECO' ),
+        filterName = cms.untracked.string( '' )
+    ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep HLTPerformanceInfo_*_*_*' )
+)
+
+%(process)sTimingOutput = cms.EndPath( %(process)shltTimer + %(process)shltOutputTiming )
+"""
+
+
+# parse command line arguments and options
+configuration = parser.parse_args()
+
+class ConfDB(object):
+  def __init__(self, config):
+    self.options = {
+      'essources' : [],
+      'esmodules' : [],
+      'modules'   : [],
+      'services'  : [],
+      'paths'     : [],
+      'psets'     : [],
+    }
+    self.source = None
+
+    # common configuration for all scenarios
+    self.options['services'].append( "-FUShmDQMOutputService" )
+    self.options['paths'].append( "-OfflineOutput" )
+
+    # adapt source and options to the current scenario
+    self.build_source(config)
+    self.build_options(config)
+
+
+  def build_options(self, config):
+    if config.doCff:
+      # extract a configuration file fragment
+      self.options['essources'].append( "-GlobalTag" )
+      self.options['essources'].append( "-Level1MenuOverride" )
+      self.options['essources'].append( "-HepPDTESSource" )
+      self.options['essources'].append( "-XMLIdealGeometryESSource" )
+      self.options['essources'].append( "-eegeom" )
+      self.options['essources'].append( "-es_hardcode" )
+      self.options['essources'].append( "-magfield" )
+
+      self.options['esmodules'].append( "-AutoMagneticFieldESProducer" )
+      self.options['esmodules'].append( "-SlaveField0" )
+      self.options['esmodules'].append( "-SlaveField20" )
+      self.options['esmodules'].append( "-SlaveField30" )
+      self.options['esmodules'].append( "-SlaveField35" )
+      self.options['esmodules'].append( "-SlaveField38" )
+      self.options['esmodules'].append( "-SlaveField40" )
+      self.options['esmodules'].append( "-VBF0" )
+      self.options['esmodules'].append( "-VBF20" )
+      self.options['esmodules'].append( "-VBF30" )
+      self.options['esmodules'].append( "-VBF35" )
+      self.options['esmodules'].append( "-VBF38" )
+      self.options['esmodules'].append( "-VBF40" )
+      self.options['esmodules'].append( "-CSCGeometryESModule" )
+      self.options['esmodules'].append( "-CaloGeometryBuilder" )
+      self.options['esmodules'].append( "-CaloTowerGeometryFromDBEP" )
+      self.options['esmodules'].append( "-CaloTowerHardcodeGeometryEP" )
+      self.options['esmodules'].append( "-CastorGeometryFromDBEP" )
+      self.options['esmodules'].append( "-CastorHardcodeGeometryEP" )
+      self.options['esmodules'].append( "-DTGeometryESModule" )
+      self.options['esmodules'].append( "-EcalBarrelGeometryEP" )
+      self.options['esmodules'].append( "-EcalBarrelGeometryFromDBEP" )
+      self.options['esmodules'].append( "-EcalElectronicsMappingBuilder" )
+      self.options['esmodules'].append( "-EcalEndcapGeometryEP" )
+      self.options['esmodules'].append( "-EcalEndcapGeometryFromDBEP" )
+      self.options['esmodules'].append( "-EcalLaserCorrectionService" )
+      self.options['esmodules'].append( "-EcalPreshowerGeometryEP" )
+      self.options['esmodules'].append( "-EcalPreshowerGeometryFromDBEP" )
+      self.options['esmodules'].append( "-HcalGeometryFromDBEP" )
+      self.options['esmodules'].append( "-HcalHardcodeGeometryEP" )
+      self.options['esmodules'].append( "-HcalTopologyIdealEP" )
+      self.options['esmodules'].append( "-MuonNumberingInitialization" )
+      self.options['esmodules'].append( "-ParametrizedMagneticFieldProducer" )
+      self.options['esmodules'].append( "-RPCGeometryESModule" )
+      self.options['esmodules'].append( "-SiStripGainESProducer" )
+      self.options['esmodules'].append( "-SiStripRecHitMatcherESProducer" )
+      self.options['esmodules'].append( "-SiStripQualityESProducer" )
+      self.options['esmodules'].append( "-StripCPEfromTrackAngleESProducer" )
+      self.options['esmodules'].append( "-TrackerDigiGeometryESModule" )
+      self.options['esmodules'].append( "-TrackerGeometricDetESModule" )
+      self.options['esmodules'].append( "-VolumeBasedMagneticFieldESProducer" )
+      self.options['esmodules'].append( "-XMLFromDBSource" )
+      self.options['esmodules'].append( "-ZdcGeometryFromDBEP" )
+      self.options['esmodules'].append( "-ZdcHardcodeGeometryEP" )
+      self.options['esmodules'].append( "-hcal_db_producer" )
+      self.options['esmodules'].append( "-l1GtTriggerMenuXml" )
+      self.options['esmodules'].append( "-L1GtTriggerMaskAlgoTrigTrivialProducer" )
+      self.options['esmodules'].append( "-L1GtTriggerMaskTechTrigTrivialProducer" )
+      self.options['esmodules'].append( "-sistripconn" )
+
+      self.options['services'].append( "-PrescaleService" )
+      self.options['services'].append( "-MessageLogger" )
+      self.options['services'].append( "-DQM" )
+      self.options['services'].append( "-DQMStore" )
+      self.options['services'].append( "-MicroStateService" )
+      self.options['services'].append( "-ModuleWebRegistry" )
+      self.options['services'].append( "-TimeProfilerService" )
+
+      self.options['paths'].append( "-HLTOutput" )
+      self.options['paths'].append( "-ExpressOutput" )
+      self.options['paths'].append( "-EventDisplayOutput" )
+      self.options['paths'].append( "-AlCaOutput" )
+      self.options['paths'].append( "-AlCaPPOutput" )
+      self.options['paths'].append( "-AlCaHIOutput" )
+      self.options['paths'].append( "-DQMOutput" )
+      self.options['paths'].append( "-HLTDQMOutput" )
+      self.options['paths'].append( "-HLTDQMResultsOutput" )
+      self.options['paths'].append( "-HLTMONOutput" )
+      self.options['paths'].append( "-NanoDSTOutput" )
+
+      self.options['psets'].append( "-maxEvents" )
+      self.options['psets'].append( "-options" )
+
+    else:
+      # extract a *full* configuration file
+      if not configuration.runOnData or configuration.menuL1.override:
+        # remove any eventual L1 override from the table
+        self.options['essources'].append( "-Level1MenuOverride" )
+        self.options['esmodules'].append( "-l1GtTriggerMenuXml" )
+
+
+  def build_source(self, configuration):
+    if configuration.runOnline:
+      # online we always run on data
+      self.source =  "file:/tmp/InputCollection.root"
+    else:
+      # offline we can run on data, on mc, or on a user-specified dataset
+      if configuration.menuDataset:
+        # query DBS and extract the files for the specified dataset
+        files = pipe("dbsql 'find file where dataset like %s'" % configuration.menuDataset)
+        files = [ f for f in files.split('\n') if 'store' in f ][0:10]
+        self.source = ','.join(files)
+      elif configuration.runOnData:
+        self.source = "/store/data/Run2010A/MinimumBias/RAW/v1/000/144/011/140DA3FD-AAB1-DF11-8932-001617E30E28.root"
+      else:
+        self.source =  "file:RelVal_DigiL1Raw_%s.root" % configuration.processType
+
+
+# Initialize everything
+menu   = HLTProcess()
+confdb = ConfDB(configuration)
+menu.getRawConfigurationFromDB(configuration.menuConfig, confdb, configuration.doCff)
+
+if configuration.doCff:
+
+    # if running on MC, adapt the configuration accordingly
+    menu.fixForMC(configuration)
+
+    # if requested, remove the HLT prescales
+    menu.unprescale(configuration)
+
+    # if requested, override all ED/HLTfilters to always pass ("open" mode)
+    menu.instrumentOpenMode(configuration)
+
+    # if requested or necessary, override the GlobalTag and connection strings
+    #menu.overrideGlobalTag(configuration)
+
+    # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
+    #menu.overrideL1Menu(configuration)
+
+    # if requested, instrument the menu with the modules and EndPath needed for timing studies
+    menu.instrumentTiming(configuration)
+
+else:
+
+    # if running on MC, adapt the configuration accordingly
+    menu.fixForMC(configuration)
+
+    # override the process name and adapt the relevant filters
+    menu.overrideProcessName(configuration)
+
+    # if required, remove the HLT prescales
+    menu.unprescale(configuration)
+
+    # if requested, override all ED/HLTfilters to always pass ("open" mode)
+    menu.instrumentOpenMode(configuration)
+
+    # manual override some Heavy Ion parameters
+    if configuration.processType in ('HIon', ):
+      menu.data += """
+# HIon paths in smart prescalers
+if 'hltPreHLTDQMSmart' in %(dict)s:
+    %(process)shltPreHLTDQMSmart.throw  = cms.bool( False )
+if 'hltPreHLTMONSmart' in %(dict)s:
+    %(process)shltPreHLTMONSmart.throw  = cms.bool( False )
+if 'hltPreExpressSmart' in %(dict)s:
+    %(process)shltPreExpressSmart.throw = cms.bool( False )
+if 'hltPreDQMSmart' in %(dict)s:
+    %(process)shltPreDQMSmart.throw     = cms.bool( False )
+"""        
+
+    # override the output modules to output root files
+    menu.overrideOutput(configuration)
+
+    # add global options
+    menu.addGlobalOptions()
+
+    # if requested or necessary, override the GlobalTag and connection strings
+    menu.overrideGlobalTag(configuration)
+
+    # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
+    menu.overrideL1Menu(configuration)
+
+    # request summary informations from the MessageLogger
+    menu.updateMessageLogger()
+
+    # if requested, instrument the menu with the modules and EndPath needed for timing studies
+    menu.instrumentTiming(configuration)
+
+
+# dump the final configuration
+print menu.data % menu.labels

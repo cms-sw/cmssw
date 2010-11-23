@@ -24,15 +24,15 @@ process.SiStripConfigDb.UsingDb = True
 process.SiStripConfigDb.ConfDb = ''
 process.SiStripConfigDb.Partitions = cms.untracked.PSet(
       PartTIBD= cms.untracked.PSet(
-                PartitionName = cms.untracked.string("TI_27-JAN-2010_2"),
+                PartitionName = cms.untracked.string("TI_13-JUN-2009_1"),
                 ForceCurrentState = cms.untracked.bool(False),
                 ForceVersions = cms.untracked.bool(True), 
-                CablingVersion = cms.untracked.vuint32(74,0),
-                FecVersion = cms.untracked.vuint32(634,0),
-                FedVersion = cms.untracked.vuint32(888,0),
-                DcuDetIdsVersion = cms.untracked.vuint32(9,12),
-                MaskVersion = cms.untracked.vuint32(95,0),
-                DcuPsuMapVersion = cms.untracked.vuint32(273,0)
+                CablingVersion = cms.untracked.vuint32(72,0),
+                FecVersion = cms.untracked.vuint32(568,0),
+                FedVersion = cms.untracked.vuint32(747,0),
+                DcuDetIdsVersion = cms.untracked.vuint32(9,0),
+                MaskVersion = cms.untracked.vuint32(85,0),
+                DcuPsuMapVersion = cms.untracked.vuint32(265,1)
                 
         )
     )

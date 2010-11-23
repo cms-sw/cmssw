@@ -116,9 +116,7 @@ private:
   double theComparatorTimeOffset;
   // tweaks the timing of the SCA
   std::vector<double> theSCATimingOffsets;
-  // remeber toe TOF correction in comparators,
-  // so we can undo it for SCA
-  float theAverageTimeOfFlight;
+
 };
 
 #endif
