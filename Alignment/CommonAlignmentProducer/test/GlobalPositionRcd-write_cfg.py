@@ -23,44 +23,52 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 )
 
 process.GlobalPositionRcdWrite = cms.EDAnalyzer("GlobalPositionRcdWrite",
-    hcal = cms.PSet(
-        beta = cms.double(0.0),
-        alpha = cms.double(0.0),
+
+    # setting 'useEulerAngles' to 'True' lets the module interpret the angles
+    # 'alpha', 'beta' and 'gamma' as Euler angles. This is the original behavior
+    # of the module. If 'useEulerAngles' is 'False' the angles 'alpha', 'beta'
+    # and 'gamma' are interpreted as rotations around the X, Y and Z axes,
+    # respectively.
+    useEulerAngles = cms.bool(False),
+
+    tracker = cms.PSet(
         y = cms.double(0.0),
         x = cms.double(0.0),
         z = cms.double(0.0),
+        alpha = cms.double(0.0),
+        beta = cms.double(0.0),
         gamma = cms.double(0.0)
     ),
     muon = cms.PSet(
-        beta = cms.double(0.0),
-        alpha = cms.double(0.0),
         y = cms.double(0.0),
         x = cms.double(0.0),
         z = cms.double(0.0),
-        gamma = cms.double(0.0)
-    ),
-    tracker = cms.PSet(
-        beta = cms.double(0.0),
         alpha = cms.double(0.0),
-        y = cms.double(0.0),
-        x = cms.double(0.0),
-        z = cms.double(0.0),
+        beta = cms.double(0.0),
         gamma = cms.double(0.0)
     ),
     ecal = cms.PSet(
-        beta = cms.double(0.0),
-        alpha = cms.double(0.0),
         y = cms.double(0.0),
         x = cms.double(0.0),
         z = cms.double(0.0),
+        alpha = cms.double(0.0),
+        beta = cms.double(0.0),
+        gamma = cms.double(0.0)
+    ),
+    hcal = cms.PSet(
+        y = cms.double(0.0),
+        x = cms.double(0.0),
+        z = cms.double(0.0),
+        alpha = cms.double(0.0),
+        beta = cms.double(0.0),
         gamma = cms.double(0.0)
     ),
     calo = cms.PSet(
-        beta = cms.double(0.0),
-        alpha = cms.double(0.0),
         y = cms.double(0.0),
         x = cms.double(0.0),
         z = cms.double(0.0),
+        alpha = cms.double(0.0),
+        beta = cms.double(0.0),
         gamma = cms.double(0.0)
     )
 )
