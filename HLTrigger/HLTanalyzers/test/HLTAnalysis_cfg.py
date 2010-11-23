@@ -42,7 +42,8 @@ if (isData):
 if (isData):
     # GLOBAL_TAG='GR09_H_V6OFF::All' # collisions 2009
     # GLOBAL_TAG='GR10_H_V6A::All' # collisions2010 tag for CMSSW_3_6_X
-    GLOBAL_TAG='GR10_H_V8_T2::All' # collisions2010 tag for CMSSW_3_8_X
+    # GLOBAL_TAG='GR10_H_V8_T2::All' # collisions2010 tag for CMSSW_3_8_X
+    GLOBAL_TAG='GR10_H_V12::All' # Temporary tag for CMSSW_3_10_X
 else:
     GLOBAL_TAG='MC_31X_V2::All'
     if (MENU == "LUMI8e29"): GLOBAL_TAG= 'STARTUP3X_V15::All'
