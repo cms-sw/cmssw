@@ -10,13 +10,15 @@ class PathValidator(object):
         pass
 
 class EndPathValidator(object):
+    def __init__(self):   
+        self.filtersOnEndpaths = []
     def enter(self,visitee):
         if isinstance(visitee,EDFilter):
-	    if (visitee.type_() not in ["TriggerResultsFilter", "HLTPrescaler"]):
-                raise ValueError("EndPath cannot contain an EDFilter, "+visitee.type_()+", with label "+visitee.label_())
+	    if (visitee.type_() in ["TriggerResultsFilter", "HLTPrescaler"]):
+                if (visitee.type_() not in self.filtersOnEndpaths):
+                    self.filtersOnEndpaths.append(visitee.type_())
     def leave(self,visitee):
         pass
-
 
 if __name__=="__main__":
     import unittest
@@ -45,9 +47,8 @@ if __name__=="__main__":
             p1.visit(pathValidator)
             self.assertRaises(ValueError, p2.visit, pathValidator) 
             ep1.visit(endpathValidator) 
-            self.assertRaises(ValueError, ep2.visit, endpathValidator)
-            self.assertRaises(ValueError, ep3.visit, endpathValidator)
+            ep2.visit(endpathValidator) 
+            ep3.visit(endpathValidator) 
 
     unittest.main()
-
 

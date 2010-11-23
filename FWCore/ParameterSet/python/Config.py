@@ -681,6 +681,7 @@ class Process(object):
             #self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.sequences_())
             self.endpaths_()[endpathname].visit(endpathValidator)
             self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.__dict__)
+        processPSet.addVString(False, "@filters_on_endpaths", endpathValidator.filtersOnEndpaths)
         # all the placeholders should be resolved now, so...
         if self.schedule_() != None:
             self.schedule_().enforceDependencies()

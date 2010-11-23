@@ -30,18 +30,9 @@
   is always the first module in the endpath.  The TriggerResultInserter
   is given a fixed label of "TriggerResults".
 
-  The Schedule throws an exception if an output modules is present
-  in a path.  It belongs in an endpath.
-
-  The Schedule throws an exception if a filter is present
-  in an endpath.  It belongs in a path.
-
-  The Schedule issues a warning if a producer is present
-  in an endpath.  It belongs in a path. 
-
   Processing of an event happens by pushing the event through the Paths.
   The scheduler performs the reset() on each of the workers independent
-  of the Path objects. 
+  of the Path objects.
 
   ------------------------
 
@@ -113,18 +104,17 @@ namespace edm {
     typedef std::vector<WorkerInPath> PathWorkers;
 
     Schedule(boost::shared_ptr<ParameterSet> proc_pset,
-	     service::TriggerNamesService& tns,
-	     WorkerRegistry& wregistry,
-	     ProductRegistry& pregistry,
-	     ActionTable& actions,
-	     boost::shared_ptr<ActivityRegistry> areg,
-	     boost::shared_ptr<ProcessConfiguration> processConfiguration);
+             service::TriggerNamesService& tns,
+             WorkerRegistry& wregistry,
+             ProductRegistry& pregistry,
+             ActionTable& actions,
+             boost::shared_ptr<ActivityRegistry> areg,
+             boost::shared_ptr<ProcessConfiguration> processConfiguration);
 
     enum State { Ready = 0, Running, Latched };
 
     template <typename T>
-    void processOneOccurrence(typename T::MyPrincipal& principal, 
-		     EventSetup const& eventSetup);
+    void processOneOccurrence(typename T::MyPrincipal& principal, EventSetup const& eventSetup);
 
     void beginJob();
     void endJob();
@@ -161,7 +151,7 @@ namespace edm {
 
     void preForkReleaseResources();
     void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
-     
+
     std::pair<double, double> timeCpuReal() const {
       return std::pair<double, double>(stopwatch_->cpuTime(), stopwatch_->realTime());
     }
@@ -173,14 +163,13 @@ namespace edm {
     /// *** passed to the caller. Do not call delete on these
     /// *** pointers!
     std::vector<ModuleDescription const*> getAllModuleDescriptions() const;
-    
+
     ///adds to oLabelsToFill the labels for all paths in the process
-    void availablePaths( std::vector<std::string>& oLabelsToFill) const;
-    
+    void availablePaths(std::vector<std::string>& oLabelsToFill) const;
+
     ///adds to oLabelsToFill in execution order the labels of all modules in path iPathLabel
-    void modulesInPath(const std::string& iPathLabel,
+    void modulesInPath(std::string const& iPathLabel,
                        std::vector<std::string>& oLabelsToFill) const;
-    
 
     /// Return the number of events this Schedule has tried to process
     /// (inclues both successes and failures, including failures due
@@ -211,18 +200,18 @@ namespace edm {
 
     /// Return the trigger report information on paths,
     /// modules-in-path, modules-in-endpath, and modules.
-    void getTriggerReport(TriggerReport& rep) const;      
+    void getTriggerReport(TriggerReport& rep) const;
 
     /// Return whether a module has reached its maximum count.
     bool const terminate() const;
 
     ///  Clear all the counters in the trigger report.
     void clearCounters();
-    
+
     /// clone the type of module with label iLabel but configure with iPSet.
     /// Returns true if successful.
-    bool changeModule(const std::string& iLabel,
-                      const ParameterSet& iPSet);
+    bool changeModule(std::string const& iLabel,
+                      ParameterSet const& iPSet);
 
 
   private:
@@ -258,7 +247,7 @@ namespace edm {
     void reportSkipped(LuminosityBlockPrincipal const&) const {}
     void reportSkipped(RunPrincipal const&) const {}
 
-    void fillWorkers(std::string const& name, PathWorkers& out);
+    void fillWorkers(std::string const& name, bool ignoreFilters, PathWorkers& out);
     void fillTrigPath(int bitpos, std::string const& name, TrigResPtr);
     void fillEndPath(int bitpos, std::string const& name);
 
@@ -315,12 +304,12 @@ namespace edm {
       EventSetup const* es_;
     };
   }
-  
+
   // -----------------------------
   // ProcessOneOccurrence is a functor that has bound a specific
   // Principal and Event Setup, and can be called with a Path, to
   // execute Path::processOneOccurrence for that event
-    
+
   template <typename T>
   class ProcessOneOccurrence {
   public:
@@ -330,7 +319,7 @@ namespace edm {
 
       void operator()(Path& p) {p.processOneOccurrence<T>(ep, es);}
 
-  private:      
+  private:
     typename T::MyPrincipal&   ep;
     EventSetup const& es;
   };
@@ -342,31 +331,31 @@ namespace edm {
       assert(0 != aWorker);
       labelToWorkers_[aWorker->description().moduleLabel()] = aWorker;
     }
-    
-    template <class T>
+
+    template <typename T>
     void runNow(typename T::MyPrincipal& p, EventSetup const& es) {
       //do nothing for event since we will run when requested
       if(!T::isEvent_) {
         for(std::map<std::string, Worker*>::iterator it = labelToWorkers_.begin(), itEnd=labelToWorkers_.end();
             it != itEnd;
             ++it) {
-          edm::CPUTimer timer;
-          it->second->doWork<T>(p,es,0,&timer);
+          CPUTimer timer;
+          it->second->doWork<T>(p, es, 0, &timer);
         }
       }
     }
 
   private:
     virtual bool tryToFillImpl(std::string const& moduleLabel,
-			       EventPrincipal& event,
-			       EventSetup const& eventSetup,
+                               EventPrincipal& event,
+                               EventSetup const& eventSetup,
                                CurrentProcessingContext const* iContext) {
       std::map<std::string, Worker*>::const_iterator itFound =
         labelToWorkers_.find(moduleLabel);
       if(itFound != labelToWorkers_.end()) {
-        edm::CPUTimer timer;
-	  itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(event, eventSetup, iContext,&timer);
-	  return true;
+        CPUTimer timer;
+        itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(event, eventSetup, iContext, &timer);
+        return true;
       }
       return false;
     }
@@ -379,7 +368,7 @@ namespace edm {
     Service<JobReport> reportSvc;
     reportSvc->reportSkippedEvent(ep.id().run(), ep.id().event());
   }
-  
+
   template <typename T>
   void
   Schedule::processOneOccurrence(typename T::MyPrincipal& ep, EventSetup const& es) {
@@ -398,11 +387,11 @@ namespace edm {
       // being processed
       std::auto_ptr<ScheduleSignalSentry<T> > sentry;
       try {
- 	sentry = std::auto_ptr<ScheduleSignalSentry<T> >(new ScheduleSignalSentry<T>(actReg_.get(), &ep, &es));
+         sentry = std::auto_ptr<ScheduleSignalSentry<T> >(new ScheduleSignalSentry<T>(actReg_.get(), &ep, &es));
         //make sure the unscheduled items see this transition [Event will be a no-op]
-        unscheduled_->runNow<T>(ep,es);
+        unscheduled_->runNow<T>(ep, es);
         if (runTriggerPaths<T>(ep, es)) {
-	  if (T::isEvent_) ++total_passed_;
+          if (T::isEvent_) ++total_passed_;
         }
         state_ = Latched;
       }
@@ -411,18 +400,18 @@ namespace edm {
         assert (action != actions::IgnoreCompletely);
         assert (action != actions::FailPath);
         assert (action != actions::FailModule);
-	if (action == actions::SkipEvent) {
+        if (action == actions::SkipEvent) {
             LogWarning(e.category())
               << "an exception occurred and all paths for the event are being skipped: \n"
               << e.what();
         } else {
- 	  throw;
+           throw;
         }
       }
 
       try {
-        edm::CPUTimer timer;
-        if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, 0,&timer);
+        CPUTimer timer;
+        if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, 0, &timer);
       }
       catch (cms::Exception& e) {
         e << "EventProcessingStopped\n";
@@ -439,22 +428,22 @@ namespace edm {
       assert (action != actions::FailModule);
       switch(action) {
       case actions::IgnoreCompletely: {
-  	LogWarning(e.category())
-  	  << "exception being ignored for current event:\n"
-  	  << e.what();
-  	break;
+          LogWarning(e.category())
+            << "exception being ignored for current event:\n"
+            << e.what();
+          break;
       }
       default: {
         state_ = Ready;
         e << "EventProcessingStopped\n";
-	e << "an exception occurred during current event processing\n";
+        e << "an exception occurred during current event processing\n";
         throw;
       }
       }
     }
     catch(...) {
       LogError("PassingThrough")
-	<< "an exception occurred during current event processing\n";
+        << "an exception occurred during current event processing\n";
       state_ = Ready;
       throw;
     }
@@ -485,12 +474,11 @@ namespace edm {
     //
     // using namespace boost::lambda;
     // for_all(end_paths_,
-    //          bind(&Path::processOneOccurrence, 
+    //          bind(&Path::processOneOccurrence,
     //               boost::lambda::_1, // qualification to avoid ambiguity
     //               var(ep),           //  pass by reference (not copy)
     //               constant_ref(es))); // pass by const-reference (not copy)
   }
-  
 }
 
 #endif
