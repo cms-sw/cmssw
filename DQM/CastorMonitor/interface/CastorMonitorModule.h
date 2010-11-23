@@ -164,6 +164,7 @@ public:
   bool fedsListed_;
   
   //edm::InputTag inputLabelGT_;
+  edm::InputTag inputLabelRaw_;
   edm::InputTag inputLabelDigi_;
   edm::InputTag inputLabelRecHitCASTOR_;
   //edm::InputTag inputLabelCaloTower_;

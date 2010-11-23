@@ -22,6 +22,7 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
 
  
    ////---- get steerable variables
+  inputLabelRaw_ = ps.getParameter<edm::InputTag>("rawLabel");
   inputLabelDigi_        = ps.getParameter<edm::InputTag>("digiLabel");
   inputLabelRecHitCASTOR_  = ps.getParameter<edm::InputTag>("CastorRecHitLabel"); 
   fVerbosity = ps.getUntrackedParameter<int>("debug", 0);                        //-- show debug 
@@ -403,7 +404,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
  
   ////---- try to get raw data and unpacker report
   edm::Handle<FEDRawDataCollection> RawData;  
-  iEvent.getByType(RawData);
+  iEvent.getByLabel(inputLabelRaw_,RawData);
   if (!RawData.isValid()) {
     rawOK_=false;
   }

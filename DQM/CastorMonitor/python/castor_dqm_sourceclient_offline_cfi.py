@@ -13,6 +13,7 @@ castorOfflineMonitor = cms.EDAnalyzer("CastorMonitorModule",
                            showTiming          = cms.untracked.bool(False),
                            dump2database       = cms.untracked.bool(False),
                            pedestalsInFC = cms.untracked.bool(False),
+                           rawLabel = cms.InputTag("source"),
                            digiLabel = cms.InputTag("castorDigis"),
                            CastorRecHitLabel = cms.InputTag("castorreco"),
                           
