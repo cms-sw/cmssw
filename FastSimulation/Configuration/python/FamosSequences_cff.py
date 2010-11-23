@@ -46,6 +46,11 @@ from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
 # ECAL clusters
 from RecoEcal.Configuration.RecoEcal_cff import *
 reducedEcalRecHitsSequence.remove(seldigis)
+# HCAL clusters
+from RecoLocalCalo.HcalRecProducers.HcalHitSelection_cfi import *
+reducedHcalRecHitsSequence = cms.Sequence( reducedHcalRecHits )
+
+reducedRecHits = cms.Sequence ( reducedEcalRecHitsSequence * reducedHcalRecHitsSequence )
 
 
 # Calo Towers
@@ -472,7 +477,7 @@ famosWithBTagging = cms.Sequence(
     ak5JetTracksAssociatorAtVertex+
     ecalClusters+
     famosMuonSequence+
-    reducedEcalRecHitsSequence+ 
+    reducedRecHits+ 
     famosBTaggingSequence
     )
 
@@ -526,12 +531,10 @@ reconstructionWithFamos = cms.Sequence(
     caloJetMetGen+
     caloJetMet+
     PFJetMet+
-#    paramMuons+
-#    muIsolation_ParamGlobalMuons+
     ic5JetTracksAssociatorAtVertex+
     ak5JetTracksAssociatorAtVertex+
     famosTauTaggingSequence+
-    reducedEcalRecHitsSequence+
+    reducedRecHits+
     famosBTaggingSequence+
     famosPFTauTaggingSequence
 )
