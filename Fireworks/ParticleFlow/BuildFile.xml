@@ -2,6 +2,7 @@
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="rootcore"/>
 <lib name="Eve"/>
+<lib name="Geom"/>
 <export>
   <lib name="1"/>
 </export>
