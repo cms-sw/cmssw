@@ -102,8 +102,8 @@ int main(int argc, char* argv[])
 // there.
 #ifdef __APPLE__
   struct rlimit limits;
-  limits.rlim_cur = RLIM_INFINITY;
-  limits.rlim_max = RLIM_INFINITY;
+  getrlimit(RLIMIT_NOFILE, &limits);
+  limits.rlim_cur = (OPEN_MAX < limits.rlim_max) ? OPEN_MAX : limits.rlim_max;
   setrlimit(RLIMIT_NOFILE, &limits);
 #endif
 
