@@ -80,7 +80,9 @@ double JetEta(Tau tau) {
 }
 
 double JetWidth(Tau tau) {
-  return std::sqrt(tau.jetRef()->etaetaMoment() + tau.jetRef()->phiphiMoment());
+  return std::sqrt(
+      std::abs(tau.jetRef()->etaetaMoment()) +
+      std::abs(tau.jetRef()->phiphiMoment()));
 }
 
 double SignalPtFraction(Tau tau) {
