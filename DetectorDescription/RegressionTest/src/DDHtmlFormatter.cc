@@ -17,9 +17,6 @@ namespace std { } using namespace std;
 #include "DetectorDescription/Core/src/Solid.h"
 //***** Explicit template instantiation of Singleton
 #include "DetectorDescription/Base/interface/Singleton.icc"
-template class DDI::Singleton<std::map<std::string,std::set<DDLogicalPart> > >;
-template class DDI::Singleton<std::map<std::string,std::set<DDMaterial> > >;
-template class DDI::Singleton<std::map<std::string,std::set<DDSpecifics> > >;
 //*****
 
 ostream & operator<<(ostream & o, const DDHtmlFormatter & f)
