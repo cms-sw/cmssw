@@ -40,6 +40,13 @@ piZeroAnalysis = cms.EDAnalyzer("PiZeroAnalyzer",
     selePi0BeltDeta = cms.double(0.05),
     seleMinvMaxPi0 = cms.double(0.5),
     seleMinvMinPi0 = cms.double(0.0),
+    posCalcParameters = cms.PSet(T0_barl      = cms.double(5.7),
+                                 T0_endc      = cms.double(3.1),        
+                                 T0_endcPresh = cms.double(1.2),
+                                 LogWeighted  = cms.bool(True),
+                                 W0           = cms.double(4.2),
+                                 X0           = cms.double(0.89)
+                                 ),                             
 #                                
     OutputMEsInRootFile = cms.bool(False),
  

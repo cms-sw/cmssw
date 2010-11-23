@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PiZeroAnalyzer
- **  $Date: 2010/01/11 09:41:12 $ 
+ **  $Date: 2010/03/10 16:02:56 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -191,13 +191,11 @@ void PiZeroAnalyzer::makePizero ( const edm::EventSetup& es, const edm::Handle<E
   const CaloSubdetectorGeometry *geometryES_p;
   geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
   geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-  // Initialize the Position Calc
-  std::map<std::string,double> providedParameters;  
-  providedParameters.insert(std::make_pair("LogWeighted",ParameterLogWeighted_));
-  providedParameters.insert(std::make_pair("X0",ParameterX0_));
-  providedParameters.insert(std::make_pair("T0_barl",ParameterT0_barl_));
-  providedParameters.insert(std::make_pair("W0",ParameterW0_));
-  PositionCalc posCalculator_ = PositionCalc(providedParameters);
+
+  // Parameters for the position calculation:
+  edm::ParameterSet posCalcParameters = 
+    parameters_.getParameter<edm::ParameterSet>("posCalcParameters");
+  PositionCalc posCalculator_ = PositionCalc(posCalcParameters);
   //
   std::map<DetId, EcalRecHit> recHitsEB_map;
   //

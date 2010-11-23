@@ -44,16 +44,19 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   minR9Endcap_        = conf_.getParameter<double>("minR9Endcap");
   usePrimaryVertex_ = conf_.getParameter<bool>("usePrimaryVertex");
  
- 
+  edm::ParameterSet posCalcParameters = 
+    config.getParameter<edm::ParameterSet>("posCalcParameters");
+  posCalculator_ = PositionCalc(posCalcParameters);
+
   // Parameters for the position calculation:
-  std::map<std::string,double> providedParameters;
-  providedParameters.insert(std::make_pair("LogWeighted",conf_.getParameter<bool>("posCalc_logweight")));
-  providedParameters.insert(std::make_pair("T0_barl",conf_.getParameter<double>("posCalc_t0_barl")));
-  providedParameters.insert(std::make_pair("T0_endc",conf_.getParameter<double>("posCalc_t0_endc")));
-  providedParameters.insert(std::make_pair("T0_endcPresh",conf_.getParameter<double>("posCalc_t0_endcPresh")));
-  providedParameters.insert(std::make_pair("W0",conf_.getParameter<double>("posCalc_w0")));
-  providedParameters.insert(std::make_pair("X0",conf_.getParameter<double>("posCalc_x0")));
-  posCalculator_ = PositionCalc(providedParameters);
+  //  std::map<std::string,double> providedParameters;
+  // providedParameters.insert(std::make_pair("LogWeighted",conf_.getParameter<bool>("posCalc_logweight")));
+  //providedParameters.insert(std::make_pair("T0_barl",conf_.getParameter<double>("posCalc_t0_barl")));
+  //providedParameters.insert(std::make_pair("T0_endc",conf_.getParameter<double>("posCalc_t0_endc")));
+  //providedParameters.insert(std::make_pair("T0_endcPresh",conf_.getParameter<double>("posCalc_t0_endcPresh")));
+  //providedParameters.insert(std::make_pair("W0",conf_.getParameter<double>("posCalc_w0")));
+  //providedParameters.insert(std::make_pair("X0",conf_.getParameter<double>("posCalc_x0")));
+  //posCalculator_ = PositionCalc(providedParameters);
   // cut values for pre-selection
   preselCutValuesBarrel_.push_back(conf_.getParameter<double>("minSCEtBarrel")); 
   preselCutValuesBarrel_.push_back(conf_.getParameter<double>("maxHoverEBarrel")); 
