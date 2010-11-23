@@ -6,7 +6,6 @@
 #include <iostream>
 #include <typeinfo>
 
-#include "OnlineDB/Oracle/interface/Oracle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 //#include "CondCore/PopCon/interface/LogReader.h"
@@ -59,7 +58,6 @@ namespace popcon
 
 		private:
     RPCEMap * eMap;
-    oracle::occi::Connection* conn;
     cond::DbSession * session;
     cond::DbConnection * connection ;
     std::string m_name;

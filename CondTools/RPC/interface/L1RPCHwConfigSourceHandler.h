@@ -6,7 +6,6 @@
 #include <iostream>
 #include <typeinfo>
 
-#include "OnlineDB/Oracle/interface/Oracle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 //#include "CondCore/PopCon/interface/LogReader.h"
@@ -49,8 +48,6 @@ namespace popcon
 
                 private:
     L1RPCHwConfig * disabledDevs;
-    oracle::occi::Environment* env;
-    oracle::occi::Connection* conn;
     cond::DbSession * session;
     cond::DbConnection * connection ;
     std::string m_name;
