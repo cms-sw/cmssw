@@ -9,9 +9,15 @@ TrackerDigiGeometryESModule = cms.ESProducer("TrackerDigiGeometryESModule",
     appendToDataLabel = cms.string(''),
     fromDDD = cms.bool(False),
     applyAlignment = cms.bool(True), # to be abondoned
-    applySurfaceDeformation = cms.bool(True),
 
     alignmentsLabel = cms.string('')
 )
 
-
+import Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi
+FakeTrackerSurfaceDeformationSource = Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi.FakeAlignmentSource.clone(
+    produceTracker = cms.bool(False),
+    produceDT = cms.bool(False),
+    produceCSC = cms.bool(False),
+    produceGlobalPosition = cms.bool(False),
+    produceTrackerSurfaceDeformation = cms.bool(True)
+)
