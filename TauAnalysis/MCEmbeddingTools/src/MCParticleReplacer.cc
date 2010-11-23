@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
+#include "FWCore/Framework/interface/Event.h"
 
 // replacementMode =
 //	0 - remove Myons from existing HepMCProduct and implant taus (+decay products)
