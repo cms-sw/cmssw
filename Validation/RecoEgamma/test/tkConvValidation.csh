@@ -18,19 +18,19 @@
 #=============BEGIN CONFIGURATION=================
 setenv TYPE TrackBasedConversions
 setenv CMSSWver1 3_9_0
-setenv CMSSWver2 3_10_0
+setenv CMSSWver2 3_9_2
 setenv OLDRELEASE 390
-setenv NEWRELEASE 3_10_0
+setenv NEWRELEASE 392
 setenv OLDPRERELEASE 
-setenv NEWPRERELEASE pre2
+setenv NEWPRERELEASE 
 
 
 setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
-setenv NEWRELEASE ${NEWRELEASE}_${NEWPRERELEASE}
+setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
 
 
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
+#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
@@ -40,8 +40,8 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
 
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
+setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
 
 #setenv WorkDir1    /data/pccmsnd1/b/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
@@ -232,13 +232,13 @@ Double_t nold=$i->GetEntries();
 $i->SetStats(0);
 $i->SetMinimum(0.);
 if ( $i==convVtxdR || $i==convVtxdX  ||$i==convVtxdY  ) {
-$i->SetMaximum (1300);
+$i->SetMaximum (2000);
 } else if ( $i==convVtxdR_barrel ||  $i==convVtxdX_barrel ||  $i==convVtxdY_barrel ) {
-$i->SetMaximum (1000);
+$i->SetMaximum (1200);
 } else if ( $i==convVtxdR_endcap  ||  $i==convVtxdX_endcap ||  $i==convVtxdY_endcap ) {
-$i->SetMaximum (600);
+$i->SetMaximum (1000);
 } else if ( $i==convVtxdZ_endcap ) {
-$i->SetMaximum (400);
+$i->SetMaximum (500);
 } else if ( $i==hDPhiTracksAtVtxAll ) {
 $i->SetMaximum (2000);
 } else if ( $i==hDPhiTracksAtVtxBarrel ||  $i==hDPhiTracksAtVtxEndcap ) {
