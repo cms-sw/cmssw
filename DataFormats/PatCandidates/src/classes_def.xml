@@ -248,6 +248,7 @@
   <class name="pat::TriggerEvent" />
   <class name="edm::Wrapper<pat::TriggerEvent>" />
 
+  <enum name="pat::IsolationKeys" />
   <class name="std::pair<pat::IsolationKeys,reco::IsoDeposit>" />
   <class name="std::vector<std::pair<pat::IsolationKeys,reco::IsoDeposit> >" />
 
