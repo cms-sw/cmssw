@@ -93,8 +93,8 @@
  **  
  **
  **  $Id: TkConvValidator
- **  $Date: 2010/11/18 15:10:39 $ 
- **  $Revision: 1.7 $
+ **  $Date: 2010/11/18 15:20:16 $ 
+ **  $Revision: 1.8 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/
@@ -1161,7 +1161,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       float dR=sqrt(aConv.conversionVertex().position().perp2()) - mcConvR_;
       float dZ=aConv.conversionVertex().position().z() - mcConvZ_;
       p2_convVtxdRVsRZ_ ->Fill (mcConvZ_,mcConvR_, dR );      
-      p2_convVtxdZVsRZ_ ->Fill (mcConvZ_,mcConvR_, fabs(dZ) );
+      p2_convVtxdZVsRZ_ ->Fill (mcConvZ_,mcConvR_, dZ );
 
 
 
