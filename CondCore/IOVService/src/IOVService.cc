@@ -46,6 +46,11 @@ cond::IOVService::payloadToken( const std::string& iovToken,
   }
 }
 
+cond::TimeType cond::IOVService::timeType( const std::string& iovToken ) {
+  cond::IOVSequence const & iov=iovSeq(iovToken);
+  return iov.timeType();
+}
+
 bool cond::IOVService::isValid( const std::string& iovToken,
 				cond::Time_t currenttime ){
   

@@ -25,7 +25,7 @@ namespace cond{
     
     std::string payloadContainerName( const std::string& iovtoken );
     
-    //void loadDicts( const std::string& iovToken);
+    cond::TimeType timeType( const std::string& iovToken );
     
     void deleteAll( bool withPayload=false );
 
@@ -55,10 +55,10 @@ namespace cond{
                                            cond::Time_t till,
                                            bool outOfOrder
 					   );
+    
   private:
-
     cond::IOVSequence const & iovSeq(const std::string& iovToken);
-
+    
     cond::DbSession m_dbSess;
     std::string m_token;
     boost::shared_ptr<cond::IOVSequence> m_iov;
