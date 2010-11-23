@@ -26,7 +26,7 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('MC_38Y_V13::All')
+process.GlobalTag.globaltag = cms.string('MC_38Y_V14::All')
 
 ## produce decaySubset
 process.load("TopQuarkAnalysis.TopEventProducers.producers.TopDecaySubset_cfi")
