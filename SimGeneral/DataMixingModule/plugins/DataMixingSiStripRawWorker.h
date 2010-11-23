@@ -1,7 +1,7 @@
-#ifndef DataMixingSiStripWorker_h
-#define SimDataMixingSiStripWorker_h
+#ifndef DataMixingSiStripRawWorker_h
+#define SimDataMixingSiStripRawWorker_h
 
-/** \class DataMixingSiStripWorker
+/** \class DataMixingSiStripRawWorker
  *
  * DataMixingModule is the EDProducer subclass 
  * that overlays rawdata events on top of MC,
@@ -25,6 +25,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 
 #include <map>
 #include <vector>
@@ -33,17 +34,17 @@
 
 namespace edm
 {
-  class DataMixingSiStripWorker
+  class DataMixingSiStripRawWorker
     {
     public:
 
-      DataMixingSiStripWorker();
+      DataMixingSiStripRawWorker();
 
      /** standard constructor*/
-      explicit DataMixingSiStripWorker(const edm::ParameterSet& ps);
+      explicit DataMixingSiStripRawWorker(const edm::ParameterSet& ps);
 
       /**Default destructor*/
-      virtual ~DataMixingSiStripWorker();
+      virtual ~DataMixingSiStripRawWorker();
 
       void putSiStrip(edm::Event &e) ;
       void addSiStripSignals(const edm::Event &e); 
@@ -53,28 +54,26 @@ namespace edm
     private:
       // data specifiers
 
-      edm::InputTag SistripLabelSig_ ;        // name given to collection of SiStrip digis
-      edm::InputTag SiStripPileInputTag_ ;    // InputTag for pileup strips
-      std::string SiStripDigiCollectionDM_  ; // secondary name to be given to new SiStrip digis
+      edm::InputTag Sistripdigi_collectionSig_ ; // primary name given to collection of SiStrip digis
+      edm::InputTag SistripLabelSig_ ;           // secondary name given to collection of SiStrip digis
+      edm::InputTag SiStripPileInputTag_;        // InputTag for pileup strips
+      edm::InputTag SiStripRawInputTag_ ;        // InputTag for strips with rawdigis
+      std::string SiStripDigiCollectionDM_  ;    // secondary name to be given to new SiStrip raw digis
+      std::string SiStripRawDigiSource_ ;        // which collection is rawdigis: either "SIGNAL" or "PILEUP" 
 
       // 
 
       typedef std::vector<SiStripDigi> OneDetectorMap;   // maps by strip ID for later combination - can have duplicate strips
       typedef std::map<uint32_t, OneDetectorMap> SiGlobalIndex; // map to all data for each detector ID
-
+      
       SiGlobalIndex SiHitStorage_;
 
-
-      //      unsigned int eventId_; //=0 for signal, from 1-n for pileup events
+      // SiStripDigi and SiStripRawDigi collections
+      const edm::DetSetVector<SiStripDigi>    *digicollection_;
+      const edm::DetSetVector<SiStripRawDigi> *rawdigicollection_;
 
       Selector * sel_;
       std::string label_;
-
-      class StrictWeakOrdering{
-      public:
-	bool operator() (SiStripDigi i,SiStripDigi j) const {return i.strip() < j.strip();}
-      };
-
 
     };
 }//edm

@@ -92,7 +92,7 @@ namespace edm
 
    const EBRecHitCollection*  EBRecHits = 0;
 
-   if(e.getByLabel(EBProducerSig_.label(),EBrechitCollectionSig_.label(), pEBRecHits) ){
+   if(e.getByLabel(EBProducerSig_, pEBRecHits) ){
      EBRecHits = pEBRecHits.product(); // get a ptr to the product
      LogDebug("DataMixingEMWorker") << "total # EB rechits: " << EBRecHits->size();
    }
@@ -120,7 +120,7 @@ namespace edm
    const EERecHitCollection*  EERecHits = 0;
 
    
-   if(e.getByLabel(EEProducerSig_.label(),EErechitCollectionSig_.label(), pEERecHits) ){
+   if(e.getByLabel(EEProducerSig_, pEERecHits) ){
      EERecHits = pEERecHits.product(); // get a ptr to the product
      LogDebug("DataMixingEMWorker") << "total # EE rechits: " << EERecHits->size();
    } 
@@ -148,7 +148,7 @@ namespace edm
    const ESRecHitCollection*  ESRecHits = 0;
 
    
-   if(e.getByLabel( ESProducerSig_.label(),ESrechitCollectionSig_.label(), pESRecHits) ){
+   if(e.getByLabel( ESProducerSig_, pESRecHits) ){
      ESRecHits = pESRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # ES rechits: " << ESRecHits->size();
