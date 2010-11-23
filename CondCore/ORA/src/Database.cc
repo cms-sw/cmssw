@@ -225,7 +225,7 @@ ora::Container ora::Database::getContainer( const std::type_info& typeInfo ){
 }
 
 bool ora::Database::dropContainer( const std::string& name ){
-  open( true );
+  open();
   if( !m_impl->m_session->containerHandle( name ) ){
     return false;
   }  
@@ -270,19 +270,19 @@ ora::OId ora::Database::insertItem(const std::string& containerName,
 
 void ora::Database::updateItem(const OId& oid,
                                const Object& dataObject ){
-  open( true );
+  open();
   Container cont = containerHandle( oid.containerId() );
   cont.updateItem( oid.itemId(), dataObject );
 }
 
 void ora::Database::erase(const OId& oid){
-  open( true );
+  open();
   Container cont = containerHandle( oid.containerId() );
   cont.erase( oid.itemId() );
 }
 
 void ora::Database::flush(){
-  open( true );
+  open();
   const std::map<int,Handle<DatabaseContainer> >& containers = m_impl->m_session->containers();
   for( std::map<int,Handle<DatabaseContainer> >::const_iterator iCont = containers.begin();
        iCont != containers.end(); ++iCont ){
@@ -296,12 +296,12 @@ void ora::Database::setObjectName( const std::string& name, const OId& oid ){
 }
 
 bool ora::Database::eraseObjectName( const std::string& name ){
-  open( true );
+  open();
   return m_impl->m_session->eraseObjectName( name );  
 }
 
 bool ora::Database::eraseAllNames(){
-  open( true );
+  open();
   return m_impl->m_session->eraseAllNames();
 }
 
