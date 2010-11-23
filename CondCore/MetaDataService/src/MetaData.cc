@@ -52,12 +52,16 @@ cond::MetaData::addMapping(const std::string& name,
 const std::string 
 cond::MetaData::getToken( const std::string& name ) const{
   bool ok=false;
-  std::string iovtoken;
+  std::string iovtoken("");
+  if(!m_userSession.storage().exists())
+    return iovtoken;
   try{
     ora::OId oid;
     ok = m_userSession.storage().getItemId( name, oid );
-    ora::Container cont = m_userSession.storage().containerHandle( oid.containerId() );
-    iovtoken = writeToken( cont.name(), oid.containerId(), oid.itemId(), cont.className() );    
+    if(ok) {
+      ora::Container cont = m_userSession.storage().containerHandle( oid.containerId() );
+      iovtoken = writeToken( cont.name(), oid.containerId(), oid.itemId(), cont.className() );  
+    }
   }catch(const std::exception& er){
     mdError("MetaData::getToken", name,er.what() );
   }
@@ -67,6 +71,8 @@ cond::MetaData::getToken( const std::string& name ) const{
 
 bool cond::MetaData::hasTag( const std::string& name ) const{
   bool result=false;
+  if(!m_userSession.storage().exists())
+    return result;
   try{
     ora::OId oid;
     result = m_userSession.storage().getItemId( name, oid );
