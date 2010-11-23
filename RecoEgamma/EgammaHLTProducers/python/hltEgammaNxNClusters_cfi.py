@@ -15,13 +15,14 @@ hltSimple3x3Clusters= cms.EDProducer("EgammaHLTNxNClusterProducer",
    doEndcaps = cms.bool( True ),
    clusEtaSize = cms.int32(3),
    clusPhiSize = cms.int32(3),
-   posCalc_logweight = cms.bool( True ),
-   posCalc_t0_barl = cms.double( 7.4 ),
-   posCalc_t0_endc = cms.double( 3.1 ),
-   posCalc_t0_endcPresh = cms.double( 1.2 ),
-   posCalc_w0 = cms.double( 4.2 ),
-   posCalc_x0 = cms.double( 0.89 ),
    maxNumberofSeeds = cms.int32( 1000 ),
    maxNumberofClusters = cms.int32( 200 ),
-   debugLevel = cms.int32( 0 )
+   debugLevel = cms.int32( 0 ),
+   posCalcParameters = cms.PSet( T0_barl      = cms.double(7.4),
+                                 T0_endc      = cms.double(3.1),        
+                                 T0_endcPresh = cms.double(1.2),
+                                 LogWeighted  = cms.bool(True),
+                                 W0           = cms.double(4.2),
+                                 X0           = cms.double(0.89)
+                                 )                                  
 )

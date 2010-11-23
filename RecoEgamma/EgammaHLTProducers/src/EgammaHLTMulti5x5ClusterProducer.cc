@@ -77,14 +77,7 @@ EgammaHLTMulti5x5ClusterProducer::EgammaHLTMulti5x5ClusterProducer(const edm::Pa
   regionPhiMargin_   = ps.getParameter<double>("regionPhiMargin");
 
   // Parameters for the position calculation:
-  std::map<std::string,double> providedParameters;
-  providedParameters.insert(std::make_pair("LogWeighted",ps.getParameter<bool>("posCalc_logweight")));
-  providedParameters.insert(std::make_pair("T0_barl",ps.getParameter<double>("posCalc_t0_barl")));
-  providedParameters.insert(std::make_pair("T0_endc",ps.getParameter<double>("posCalc_t0_endc")));
-  providedParameters.insert(std::make_pair("T0_endcPresh",ps.getParameter<double>("posCalc_t0_endcPresh")));
-  providedParameters.insert(std::make_pair("W0",ps.getParameter<double>("posCalc_w0")));
-  providedParameters.insert(std::make_pair("X0",ps.getParameter<double>("posCalc_x0")));
-  posCalculator_ = PositionCalc(providedParameters);
+  posCalculator_ = PositionCalc( ps.getParameter<edm::ParameterSet>("posCalcParameters") );
 
   // exclude recHit flags from seeding
   std::vector<int> v_chstatus = ps.getParameter<std::vector<int> >("RecHitFlagToBeExcluded");

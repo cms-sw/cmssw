@@ -10,12 +10,10 @@ hltHybridSuperClusters = cms.EDProducer("EgammaHLTHybridClusterProducer",
     regionPhiMargin = cms.double(0.4),
     ecalhitcollection = cms.string('EcalRecHitsEB'),
     # position calculation parameters
-    posCalc_logweight = cms.bool(True),
     doIsolated = cms.bool(True),
     # output collections
     #    string clustershapecollection = ""
     basicclusterCollection = cms.string(''),
-    posCalc_w0 = cms.double(4.2),
     l1UpperThr = cms.double(999.0),
     l1LowerThr = cms.double(0.0),
     eseed = cms.double(0.35),
@@ -27,11 +25,9 @@ hltHybridSuperClusters = cms.EDProducer("EgammaHLTHybridClusterProducer",
     # L1 trigger candidate matching parameters
     l1TagIsolated = cms.InputTag("l1extraParticles","Isolated"),
     superclusterCollection = cms.string(''),
-    posCalc_x0 = cms.double(0.89),
     # clustering parameters
     HybridBarrelSeedThr = cms.double(1.0),
     l1TagNonIsolated = cms.InputTag("l1extraParticles","NonIsolated"),
-    posCalc_t0 = cms.double(7.4),
     l1LowerThrIgnoreIsolation = cms.double(999.0),
     # flags to be excluded
     RecHitFlagToBeExcluded = cms.vint32(),
@@ -46,7 +42,14 @@ hltHybridSuperClusters = cms.EDProducer("EgammaHLTHybridClusterProducer",
     dynamicEThresh = cms.bool(False),
     dynamicPhiRoad = cms.bool(False),
     # input collection
-    ecalhitproducer = cms.InputTag("ecalRecHit")
+    ecalhitproducer = cms.InputTag("ecalRecHit"),
+    posCalcParameters = cms.PSet( T0_barl      = cms.double(7.4),
+                                  T0_endc      = cms.double(6.3),        
+                                  T0_endcPresh = cms.double(3.6),
+                                  LogWeighted  = cms.bool(True),
+                                  W0           = cms.double(4.2),
+                                  X0           = cms.double(0.89)
+                                 ),                                            
 )
 
 
