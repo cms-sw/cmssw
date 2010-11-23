@@ -18,7 +18,6 @@ class  TrackerDigiGeometryESModule: public edm::ESProducer{
   /// Called when geometry description changes
   boost::shared_ptr<TrackerGeometry> _tracker;
   bool applyAlignment_; // Switch to apply alignment corrections
-  bool applySurfaceDeformation_; // Switch to apply alignment surface deformations
   bool fromDDD_;
   const std::string alignmentsLabel_;
   const std::string myLabel_;

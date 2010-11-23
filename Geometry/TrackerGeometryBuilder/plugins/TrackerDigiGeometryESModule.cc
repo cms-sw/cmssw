@@ -31,7 +31,6 @@ TrackerDigiGeometryESModule::TrackerDigiGeometryESModule(const edm::ParameterSet
 {
 
     applyAlignment_ = p.getParameter<bool>("applyAlignment");
-    applySurfaceDeformation_ = p.getParameter<bool>("applySurfaceDeformation");
     fromDDD_ = p.getParameter<bool>("fromDDD");
 
     setWhatProduced(this);
@@ -79,22 +78,20 @@ TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord)
                                                                          DetId(DetId::Tracker)));
     }
 
-    if (applySurfaceDeformation_) {
-      edm::ESHandle<AlignmentSurfaceDeformations> surfaceDeformations;
-      iRecord.getRecord<TrackerSurfaceDeformationRcd>().get(alignmentsLabel_, surfaceDeformations);
-      // apply if not empty:
-      if (surfaceDeformations->empty()) {
-	edm::LogInfo("Config") << "@SUB=TrackerDigiGeometryRecord::produce"
-			       << "AlignmentSurfaceDeformations (label '"
-			       << alignmentsLabel_ << "') empty: Geometry producer (label "
-			       << "'" << myLabel_ << "') assumes fake and does not apply.";
-      } else {
-	GeometryAligner ali;
-	ali.attachSurfaceDeformations<TrackerGeometry>(&(*_tracker), &(*surfaceDeformations));
-      }
+    edm::ESHandle<AlignmentSurfaceDeformations> surfaceDeformations;
+    iRecord.getRecord<TrackerSurfaceDeformationRcd>().get(alignmentsLabel_, surfaceDeformations);
+    // apply if not empty:
+    if (surfaceDeformations->empty()) {
+      edm::LogInfo("Config") << "@SUB=TrackerDigiGeometryRecord::produce"
+			     << "AlignmentSurfaceDeformations (label '"
+			     << alignmentsLabel_ << "') empty: Geometry producer (label "
+			     << "'" << myLabel_ << "') assumes fake and does not apply.";
+    } else {
+      GeometryAligner ali;
+      ali.attachSurfaceDeformations<TrackerGeometry>(&(*_tracker), &(*surfaceDeformations));
     }
   }
-
+  
   return _tracker;
 } 
 
