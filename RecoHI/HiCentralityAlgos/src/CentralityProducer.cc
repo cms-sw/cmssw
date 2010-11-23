@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.32 2010/11/21 17:41:40 yilmaz Exp $
+// $Id: CentralityProducer.cc,v 1.33 2010/11/22 12:05:47 yilmaz Exp $
 //
 //
 
@@ -200,7 +200,7 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   using namespace reco;
 
-  if(!trackGeo_ && doPixelCut_){
+  if(!trackGeo_){
     edm::ESHandle<TrackerGeometry> tGeo;
     iSetup.get<TrackerDigiGeometryRecord>().get(tGeo);
     trackGeo_ = tGeo.product();
@@ -257,20 +257,19 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      if(isHF && eta < 0){
 		 creco->etHFtowerSumMinus_ += tower.pt();
 	      }
-	   }else{
-	      creco->etHFtowerSumMinus_ = inputCentrality->EtHFtowerSumMinus();
-	      creco->etHFtowerSumPlus_ = inputCentrality->EtHFtowerSumPlus();
 	   }
 	   if(produceETmidRap_){
 	      if(fabs(eta) < midRapidityRange_) creco->etMidRapiditySum_ += tower.pt()/(midRapidityRange_*2.);
-	   }else creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
+	   }
 	}
   }else{
-    if(reuseAny_){
-     creco->etHFtowerSumMinus_ = inputCentrality->EtHFtowerSumMinus();
-     creco->etHFtowerSumPlus_ = inputCentrality->EtHFtowerSumPlus();
-     creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
-    }
+     if(reuseAny_){
+	if(!produceHFtowers_){ 
+	   creco->etHFtowerSumMinus_ = inputCentrality->EtHFtowerSumMinus();
+	   creco->etHFtowerSumPlus_ = inputCentrality->EtHFtowerSumPlus();
+	}
+	if(!produceETmidRap_) creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
+     }
   }
   
   if(!produceEcalhits_ && produceBasicClusters_){
