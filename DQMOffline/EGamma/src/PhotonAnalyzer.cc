@@ -170,10 +170,10 @@ void PhotonAnalyzer::beginJob()
     dbe_->setCurrentFolder("Egamma/PhotonAnalyzer");
 
     //int values stored in MEs to keep track of how many histograms are in each folder
-    //  totalNumberOfHistos_efficiencyFolder =  dbe_->bookInt("numberOfHistogramsInEfficiencyFolder");
-    // totalNumberOfHistos_photonsFolder =     dbe_->bookInt("numberOfHistogramsInPhotonsFolder");
-    //totalNumberOfHistos_conversionsFolder = dbe_->bookInt("numberOfHistogramsInConversionsFolder");
-    //totalNumberOfHistos_invMassFolder =     dbe_->bookInt("numberOfHistogramsInInvMassFolder");
+    totalNumberOfHistos_efficiencyFolder =  dbe_->bookInt("numberOfHistogramsInEfficiencyFolder");
+    totalNumberOfHistos_photonsFolder =     dbe_->bookInt("numberOfHistogramsInPhotonsFolder");
+    totalNumberOfHistos_conversionsFolder = dbe_->bookInt("numberOfHistogramsInConversionsFolder");
+    totalNumberOfHistos_invMassFolder =     dbe_->bookInt("numberOfHistogramsInInvMassFolder");
   
 
     //Efficiency histograms
@@ -972,24 +972,45 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 }//End of Analyze method
 
+void PhotonAnalyzer::endRun(const edm::Run& run, const edm::EventSetup& setup)
+{
+  if(!standAlone_){
 
+    dbe_->setCurrentFolder("Egamma/PhotonAnalyzer");
+    
+    //keep track of how many histos are in each folder
+    totalNumberOfHistos_efficiencyFolder->Fill(histo_index_efficiency_);
+    totalNumberOfHistos_invMassFolder->Fill(histo_index_invMass_);
+    totalNumberOfHistos_photonsFolder->Fill(histo_index_photons_);
+    totalNumberOfHistos_conversionsFolder->Fill(histo_index_conversions_);
+       
+  }
+  
+}
 
 
 void PhotonAnalyzer::endJob()
 {
   //dbe_->showDirStructure();
-
-  dbe_->setCurrentFolder("Egamma/PhotonAnalyzer");
-
   if(standAlone_){
+    dbe_->setCurrentFolder("Egamma/PhotonAnalyzer");
+    
+    //keep track of how many histos are in each folder
+    totalNumberOfHistos_efficiencyFolder->Fill(histo_index_efficiency_);
+    totalNumberOfHistos_invMassFolder->Fill(histo_index_invMass_);
+    totalNumberOfHistos_photonsFolder->Fill(histo_index_photons_);
+    totalNumberOfHistos_conversionsFolder->Fill(histo_index_conversions_);
+    
+    
     dbe_->save(outputFileName_);
   }
-
-
+  
+  
+}
 
   ////////////BEGIN AUXILIARY FUNCTIONS//////////////
 
-}
+
 
 float PhotonAnalyzer::phiNormalization(float & phi)
 {

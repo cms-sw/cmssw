@@ -87,7 +87,7 @@ using std::string;
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2010/06/03 15:46:38 $ 
+ **  $Date: 2010/11/17 17:03:42 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -119,6 +119,8 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
   virtual void beginJob() ;
   virtual void endJob() ;
+  virtual void endRun(const edm::Run& , const edm::EventSetup& ) ;
+
  
  private:
   //
