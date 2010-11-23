@@ -19,4 +19,4 @@ hcalRawDataMonitor.FEDRawDataCollection = 'rawDataCollector'
 l1tfed.rawTag = 'rawDataCollector'
 ecalPreshowerFEDIntegrityTask.FEDRawDataCollection = 'rawDataCollector'
 ecalPreshowerRawDataTask.FEDRawDataCollection = 'rawDataCollector'
-
+castorOfflineMonitor.rawLabel = 'rawDataCollector'
