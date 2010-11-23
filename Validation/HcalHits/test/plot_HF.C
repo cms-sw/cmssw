@@ -1,7 +1,7 @@
 // Commands executed in a GLOBAL scope, e.g. created hitograms aren't erased...
-void plot_HF(TString  inputfile="HF_ref.root",
+void plot_HF(TString  inputfile="simevent_HF.root",
 	     TString outputfile="HF_histo.root",
-	     Int_t drawmode = 0,
+	     Int_t drawmode = 2,
              TString    reffile="../data/HF_ref.root")
 {
   // Option to no-action(0)/draw(1)/save(2) (default = 0) histograms in gif.
