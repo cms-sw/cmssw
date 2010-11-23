@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_9_0/GRun/V13 (CMSSW_3_8_1_HLT27)
+# /dev/CMSSW_3_10_0/pre6/GRun/V1 (CMSSW_3_8_1_HLT27)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_9_0/GRun/V13')
+  tableName = cms.string('/dev/CMSSW_3_10_0/pre6/GRun/V1')
 )
 
 streams = cms.PSet( 
@@ -15227,7 +15227,7 @@ hltCSCMonitorModule = cms.EDAnalyzer( "CSCMonitorModule",
       FOLDER_PAR = cms.untracked.string( "" ),
       FRAEFF_AUTO_UPDATE_FREQ = cms.untracked.uint32( 200 ),
       EFF_COLD_THRESHOLD = cms.untracked.double( 0.1 ),
-      FOLDER_EMU = cms.untracked.string( "CSC/FEDIntegrity/" ),
+      FOLDER_EMU = cms.untracked.string( "CSC/FEDIntegrity_EvF" ),
       DDU_BINCHECK_MASK = cms.untracked.uint32( 384563190 ),
       PROCESS_CSC = cms.untracked.bool( False ),
       PROCESS_EFF_HISTOS = cms.untracked.bool( False ),
@@ -15274,6 +15274,7 @@ hltEcalRawToRecHitByproductProducer = cms.EDProducer( "EcalRawToRecHitByproductP
 )
 hltEBHltTask = cms.EDAnalyzer( "EBHltTask",
     prefixME = cms.untracked.string( "EcalBarrel" ),
+    folderName = cms.untracked.string( "FEDIntegrity_EvF" ),
     EBDetIdCollection0 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityDCCSizeErrors' ),
     EBDetIdCollection1 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityGainErrors' ),
     EBDetIdCollection2 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityChIdErrors' ),
@@ -15288,6 +15289,7 @@ hltEBHltTask = cms.EDAnalyzer( "EBHltTask",
 )
 hltEEHltTask = cms.EDAnalyzer( "EEHltTask",
     prefixME = cms.untracked.string( "EcalEndcap" ),
+    folderName = cms.untracked.string( "FEDIntegrity_EvF" ),
     EEDetIdCollection0 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityDCCSizeErrors' ),
     EEDetIdCollection1 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityGainErrors' ),
     EEDetIdCollection2 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityChIdErrors' ),
@@ -15302,6 +15304,7 @@ hltEEHltTask = cms.EDAnalyzer( "EEHltTask",
 )
 hltESFEDIntegrityTask = cms.EDAnalyzer( "ESFEDIntegrityTask",
     prefixME = cms.untracked.string( "EcalPreshower" ),
+    FEDDirName = cms.untracked.string( "FEDIntegrity_EvF" ),
     ESDCCCollections = cms.InputTag( "NotUsed" ),
     ESKChipCollections = cms.InputTag( "NotUsed" ),
     FEDRawDataCollection = cms.InputTag( "rawDataCollector" )
@@ -15310,17 +15313,18 @@ hltL1tfed = cms.EDAnalyzer( "L1TFED",
     rawTag = cms.InputTag( "rawDataCollector" ),
     DQMStore = cms.untracked.bool( True ),
     disableROOToutput = cms.untracked.bool( True ),
+    FEDDirName = cms.untracked.string( "L1T/FEDIntegrity_EvF" ),
     L1FEDS = cms.vint32( 745, 760, 780, 812, 813 )
 )
 hltSiPixelHLTSource = cms.EDAnalyzer( "SiPixelHLTSource",
     RawInput = cms.InputTag( "rawDataCollector" ),
     ErrorInput = cms.InputTag( "hltSiPixelDigis" ),
-    DirName = cms.untracked.string( "Pixel/FEDIntegrity" ),
+    DirName = cms.untracked.string( "Pixel/FEDIntegrity_EvF" ),
     outputFile = cms.string( "Pixel_DQM_HLT.root" )
 )
 hltSiStripFEDCheck = cms.EDAnalyzer( "SiStripFEDCheckPlugin",
     RawDataTag = cms.InputTag( "rawDataCollector" ),
-    DirName = cms.untracked.string( "SiStrip/FEDIntegrity" ),
+    DirName = cms.untracked.string( "SiStrip/FEDIntegrity_EvF" ),
     HistogramUpdateFrequency = cms.untracked.uint32( 1000 ),
     DoPayloadChecks = cms.untracked.bool( False ),
     CheckChannelLengths = cms.untracked.bool( False ),
@@ -15329,7 +15333,8 @@ hltSiStripFEDCheck = cms.EDAnalyzer( "SiStripFEDCheckPlugin",
     CheckChannelStatus = cms.untracked.bool( False )
 )
 hltRPCFEDIntegrity = cms.EDAnalyzer( "RPCFEDIntegrity",
-    RPCRawCountsInputTag = cms.untracked.InputTag( "hltMuonRPCDigis" )
+    RPCRawCountsInputTag = cms.untracked.InputTag( "hltMuonRPCDigis" ),
+    RPCPrefixDir = cms.untracked.string( "RPC/FEDIntegrity_EvF" )
 )
 hltFEDSelector = cms.EDProducer( "EvFFEDSelector",
     inputTag = cms.InputTag( "rawDataCollector" ),
