@@ -2,6 +2,7 @@
 from SequenceTypes import *
 from Modules import OutputModule, EDProducer, EDFilter, EDAnalyzer
 
+
 class PathValidator(object):
     def enter(self,visitee):
         if isinstance(visitee,OutputModule):
@@ -10,11 +11,12 @@ class PathValidator(object):
         pass
 
 class EndPathValidator(object):
+    _presetFilters = ["TriggerResultsFilter", "HLTPrescaler"]
     def __init__(self):   
         self.filtersOnEndpaths = []
     def enter(self,visitee):
         if isinstance(visitee,EDFilter):
-	    if (visitee.type_() in ["TriggerResultsFilter", "HLTPrescaler"]):
+	    if (visitee.type_() in self._presetFilters):
                 if (visitee.type_() not in self.filtersOnEndpaths):
                     self.filtersOnEndpaths.append(visitee.type_())
     def leave(self,visitee):
