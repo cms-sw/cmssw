@@ -30,9 +30,9 @@ HLTMuon::HLTMuon() {
 void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 
     edm::ParameterSet myEmParams = pSet.getParameter<edm::ParameterSet>("RunParameters") ;
-    vector<std::string> parameterNames = myEmParams.getParameterNames() ;
+    std::vector<std::string> parameterNames = myEmParams.getParameterNames() ;
 
-    for ( vector<std::string>::iterator iParam = parameterNames.begin();
+    for ( std::vector<std::string>::iterator iParam = parameterNames.begin();
             iParam != parameterNames.end(); iParam++ ){
         if  ( (*iParam) == "Monte" ) _Monte =  myEmParams.getParameter<bool>( *iParam );
         else if ( (*iParam) == "Debug" ) _Debug =  myEmParams.getParameter<bool>( *iParam );

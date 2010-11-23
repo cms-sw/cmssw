@@ -191,7 +191,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   }
 
   treeWeight=xSection_*filterEff_;
-  cout << "\n Setting HltTree weight to " << treeWeight << " = " << xSection_ << "*" << filterEff_ << " (cross section * gen filter efficiency)\n" << endl;
+  std::cout << "\n Setting HltTree weight to " << treeWeight << " = " << xSection_ << "*" << filterEff_ << " (cross section * gen filter efficiency)\n" << std::endl;
 
   // Setup the different analysis
   if(_DoJets) jet_analysis_.setup(conf, HltTree);
@@ -322,8 +322,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<reco::EvtPlaneCollection> evtPlanes;
 
   // new stuff for the egamma EleId
-   edm::InputTag ecalRechitEBTag (string("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
-   edm::InputTag ecalRechitEETag (string("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
+  edm::InputTag ecalRechitEBTag (std::string("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
+  edm::InputTag ecalRechitEETag (std::string("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
    EcalClusterLazyTools* lazyTools = 0;
    if(_DoElectrons) lazyTools = new EcalClusterLazyTools( iEvent, iSetup, ecalRechitEBTag, ecalRechitEETag);
 
@@ -331,7 +331,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  edm::InputTag BSProducer_(string("hltOfflineBeamSpot"));
+  edm::InputTag BSProducer_(std::string("hltOfflineBeamSpot"));
 
   // get EventSetup stuff needed for the AlCa pi0 path
   edm::ESHandle< EcalElectronicsMapping > ecalmapping;

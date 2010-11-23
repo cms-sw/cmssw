@@ -28,9 +28,9 @@ HLTMCtruth::HLTMCtruth() {
 void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 
   edm::ParameterSet myMCParams = pSet.getParameter<edm::ParameterSet>("RunParameters") ;
-  vector<std::string> parameterNames = myMCParams.getParameterNames() ;
+  std::vector<std::string> parameterNames = myMCParams.getParameterNames() ;
   
-  for ( vector<std::string>::iterator iParam = parameterNames.begin();
+  for ( std::vector<std::string>::iterator iParam = parameterNames.begin();
 	iParam != parameterNames.end(); iParam++ ){
      if  ( (*iParam) == "Monte" ) _Monte =  myMCParams.getParameter<bool>( *iParam );
      if ( (*iParam) == "Debug" ) _Debug =  myMCParams.getParameter<bool>( *iParam );

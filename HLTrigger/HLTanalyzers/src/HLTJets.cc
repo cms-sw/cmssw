@@ -25,9 +25,9 @@ HLTJets::HLTJets() {
 void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 
   edm::ParameterSet myJetParams = pSet.getParameter<edm::ParameterSet>("RunParameters") ;
-  vector<std::string> parameterNames = myJetParams.getParameterNames() ;
+  std::vector<std::string> parameterNames = myJetParams.getParameterNames() ;
   
-  for ( vector<std::string>::iterator iParam = parameterNames.begin();
+  for ( std::vector<std::string>::iterator iParam = parameterNames.begin();
 	iParam != parameterNames.end(); iParam++ ){
     if  ( (*iParam) == "Monte" ) _Monte =  myJetParams.getParameter<bool>( *iParam );
     else if ( (*iParam) == "Debug" ) _Debug =  myJetParams.getParameter<bool>( *iParam );

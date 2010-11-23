@@ -100,7 +100,7 @@ private:
 
   HLTConfigProvider hltConfig_; 
   L1GtUtils m_l1GtUtils;
-  string processName_;
+  std::string processName_;
 
   bool _OR_BXes;
   int UnpackBxInEvent; // save number of BXs unpacked in event

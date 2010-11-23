@@ -45,9 +45,9 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
 {
 
    edm::ParameterSet myMCParams = pSet.getParameter<edm::ParameterSet>("RunParameters") ;
-   vector<std::string> parameterNames = myMCParams.getParameterNames() ;
+   std::vector<std::string> parameterNames = myMCParams.getParameterNames() ;
 
-   for ( vector<std::string>::iterator iParam = parameterNames.begin();
+   for ( std::vector<std::string>::iterator iParam = parameterNames.begin();
 	 iParam != parameterNames.end(); iParam++ ){
       if ( (*iParam) == "DoPhotons" ) _DoPhotons =  myMCParams.getUntrackedParameter<bool>( *iParam ,true);
       if ( (*iParam) == "DoElectrons" ) _DoElectrons =  myMCParams.getUntrackedParameter<bool>( *iParam ,true);
