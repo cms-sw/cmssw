@@ -18,11 +18,13 @@
         <use name="FWCore/Framework"/>
         <use name="FWCore/PluginManager"/>
         <use name="FWCore/ParameterSet"/>
+        <lib name="Geom"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
 
 <library file="DumpFWRecoGeometry.cc" name="FireworksGeometryDumpFWRecoGeometryPlugin">
 	<use name="Fireworks/Geometry"/>
+        <lib name="Eve"/>
 	<lib name="Geom"/>
 	<use name="rootcore"/>
         <use name="FWCore/Framework"/>
