@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.43 $
-///  last update: $Date: 2010/09/10 11:46:17 $
+///  Revision   : $Revision: 1.44 $
+///  last update: $Date: 2010/10/29 12:32:49 $
 ///  by         : $Author: mussgill $
 
 #include "AlignmentProducer.h"
@@ -174,8 +174,6 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
 {
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob";
 
-  nevent_ = 0;
-
   // Create the geometries from the ideal geometries (first time only)
   this->createGeometries_( iSetup );
   
@@ -342,6 +340,8 @@ void AlignmentProducer::startingNewLoop(unsigned int iLoop )
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::startingNewLoop" 
                             << "Starting loop number " << iLoop;
 
+  nevent_ = 0;
+
   theAlignmentAlgo->startNewLoop();
 
   for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
@@ -376,11 +376,22 @@ void AlignmentProducer::startingNewLoop(unsigned int iLoop )
 edm::EDLooper::Status 
 AlignmentProducer::endOfLoop(const edm::EventSetup& iSetup, unsigned int iLoop)
 {
-  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::endOfLoop" 
-                            << "Ending loop " << iLoop;
+
+  if (0 == nevent_) {
+    // beginOfJob is usually called by the framework in the first event of the first loop
+    // (a hack: beginOfJob needs the EventSetup that is not well defined without an event)
+    // and the algorithms rely on the initialisations done in beginOfJob. We cannot call 
+    // this->beginOfJob(iSetup); here either since that will access the EventSetup to get
+    // some geometry information that is not defined either without having seen an event.
+    edm::LogError("Alignment") << "@SUB=AlignmentProducer::endOfLoop" 
+                               << "Did not process any events in loop " << iLoop
+                               << ", stop processing without terminating algorithm.";
+    return kStop;
+  }
 
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::endOfLoop" 
-                            << "Terminating algorithm.";
+                            << "Ending loop " << iLoop << ", terminating algorithm.";
+
   theAlignmentAlgo->terminate();
 
   for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
@@ -397,7 +408,7 @@ edm::EDLooper::Status
 AlignmentProducer::duringLoop( const edm::Event& event, 
   const edm::EventSetup& setup )
 {
-  nevent_++;
+  ++nevent_;
 
   // reading in survey records
   this->readInSurveyRcds(setup);
