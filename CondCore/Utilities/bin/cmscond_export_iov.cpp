@@ -75,6 +75,7 @@ int cond::ExportIOVUtilities::execute(){
 
   std::string sourceiovtoken("");
   std::string destiovtoken("");
+  bool newIOV = true;
   cond::TimeType sourceiovtype;
 
   cond::DbSession sourcedb = openDbSession("sourceConnect", true);
@@ -83,55 +84,42 @@ int cond::ExportIOVUtilities::execute(){
   // find tag in source
   sourcedb.transaction().start(true);
   cond::MetaData  sourceMetadata(sourcedb);
-  if( !sourceMetadata.hasTag(inputTag) ){
+  sourceiovtoken=sourceMetadata.getToken(inputTag);
+  if(sourceiovtoken.empty()) 
     throw std::runtime_error(std::string("tag ")+inputTag+std::string(" not found") );
-  }
-  //sourceiovtoken=sourceMetadata->getToken(inputTag);
-  cond::MetaDataEntry entry;
-  sourceMetadata.getEntryByTag(inputTag,entry);
-  sourceiovtoken=entry.iovtoken;
-  sourceiovtype=entry.timetype;
   
-  //sourcedb.transaction().commit();
   if(debug){
     std::cout<<"source iov token "<<sourceiovtoken<<std::endl;
+  }
+  
+  cond::IOVService iovmanager(sourcedb);
+  sourceiovtype=iovmanager.timeType(sourceiovtoken);
+  if(debug){
     std::cout<<"source iov type "<<sourceiovtype<<std::endl;
   }
+  std::string payloadContainer=iovmanager.payloadContainerName(sourceiovtoken);
   
   // find tag in destination
   cond::DbScopedTransaction transaction(destdb);
   transaction.start(false);
-  //destdb.initializeMapping( cond::IOVNames::iovMappingVersion(),
-  //                          cond::IOVNames::iovMappingXML());
-  
+  int oldSize=0;
   cond::MetaData  metadata( destdb );
   if( metadata.hasTag(destTag) ){
-      cond::MetaDataEntry entry;
-      metadata.getEntryByTag(destTag,entry);
-      destiovtoken=entry.iovtoken;
-      if (sourceiovtype!=entry.timetype) {
-        throw std::runtime_error("iov type in source and dest differs");
-      }
-  }
-  //transaction.commit();
-  if(debug){
-    std::cout<<"destination iov token "<< destiovtoken <<std::endl;
-  }
-  bool newIOV = destiovtoken.empty();
-  cond::IOVService iovmanager(sourcedb);
-  //sourcedb.transaction().start(true);
-  std::string payloadContainer=iovmanager.payloadContainerName(sourceiovtoken);
-  //iovmanager.loadDicts(sourceiovtoken);
-  //sourcedb.transaction().commit();
-  
-  since = std::max(since, cond::timeTypeSpecs[sourceiovtype].beginValue);
-  till  = std::min(till,  cond::timeTypeSpecs[sourceiovtype].endValue);
-  int oldSize=0;
-  if (!newIOV) {
+    destiovtoken=metadata.getToken(destTag);
+    newIOV = false;
     // grab info
     IOVProxy iov(destdb, destiovtoken, true, true);
     oldSize=iov.size();
+    if (sourceiovtype!=iov.timetype()) {
+      throw std::runtime_error("iov type in source and dest differs");
+    }
   }
+  if(debug){
+    std::cout<<"destination iov token "<< destiovtoken <<std::endl;
+  }
+  
+  since = std::max(since, cond::timeTypeSpecs[sourceiovtype].beginValue);
+  till  = std::min(till,  cond::timeTypeSpecs[sourceiovtype].endValue);
   
   // setup logDB
   std::auto_ptr<cond::Logger> logdb;
@@ -146,10 +134,7 @@ int cond::ExportIOVUtilities::execute(){
   a.provenance=sourceConnect+"/"+inputTag;
   a.usertext="exportIOV V2.1;";
   if (newIOV) a.usertext+= "new tag;";
-  //sourcedb.transaction().start(true);
   
-  //cond::DbScopedTransaction transaction(destdb);
-  //transaction.start(false);
   if (newIOV) {
     // store payload mapping
     if (exportMapping) {

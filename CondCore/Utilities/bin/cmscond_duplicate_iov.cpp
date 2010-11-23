@@ -75,22 +75,19 @@ int cond::DuplicateIOVUtilities::execute(){
   {
     destDb.transaction().start(true);
     cond::MetaData  metadata(destDb);
-    if( !metadata.hasTag(sourceTag) ){
-      throw std::runtime_error(std::string("tag ")+sourceTag+std::string(" not found") );
-    }
     {
-      cond::MetaDataEntry entry;
-      metadata.getEntryByTag(sourceTag,entry);
-      iovtoken=entry.iovtoken;
-      iovtype=entry.timetype;
+      iovtoken = metadata.getToken(sourceTag);
+      if(iovtoken.empty()) 
+	throw std::runtime_error(std::string("tag ")+sourceTag+std::string(" not found") );
+      cond::IOVService iovmanager(destDb);
+      iovtype=iovmanager.timeType(iovtoken);
       timetypestr = cond::timeTypeSpecs[iovtype].name;
     }
     if( metadata.hasTag(destTag) ){
-      cond::MetaDataEntry entry;
-      metadata.getEntryByTag(destTag,entry);
-      destiovtoken=entry.iovtoken;
-      if (iovtype!=entry.timetype) {
-        // throw...
+      destiovtoken=metadata.getToken(destTag);
+      cond::IOVService iovmanager( destDb );
+      if (iovtype!=iovmanager.timeType(destiovtoken)) {
+        throw std::runtime_error("iov type in source and dest differs");
       }
     }
     destDb.transaction().commit();
