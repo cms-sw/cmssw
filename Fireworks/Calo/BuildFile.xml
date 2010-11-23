@@ -12,6 +12,7 @@
 <use name="rootgpad"/>
 <use name="rootphysics"/>
 <lib name="Eve"/>
+<lib name="Geom"/>
 <export>
   <lib name="1"/>
 </export>
