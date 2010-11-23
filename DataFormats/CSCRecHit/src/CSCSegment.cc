@@ -1,6 +1,6 @@
 /** \file CSCSegment.cc
  *
- *  $Date: 2010/05/22 17:42:15 $
+ *  $Date: 2010/09/09 10:09:21 $
  *  \author Matteo Sani
  */
 
@@ -20,7 +20,7 @@ CSCSegment::CSCSegment(std::vector<const CSCRecHit2D*> proto_segment, LocalPoint
 	LocalVector direction, AlgebraicSymMatrix errors, double chi2) : 
   RecSegment(buildDetId(proto_segment.front()->cscDetId())),
   theOrigin(origin), 
-  theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2) {
+  theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2), aME11a_duplicate(false) {
 
   for(unsigned int i=0; i<proto_segment.size(); ++i)
     theCSCRecHits.push_back(*proto_segment[i]);
