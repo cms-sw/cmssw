@@ -5,5 +5,7 @@
  <use name="SimDataFormats/CaloHit"/>
  <use name="SimDataFormats/Vertex"/>
  <use name="SimDataFormats/TrackingAnalysis"/>
+ <lib name="Eve"/>
+ <lib name="EG"/>
  <flags EDM_PLUGIN="1"/>
 </library>
