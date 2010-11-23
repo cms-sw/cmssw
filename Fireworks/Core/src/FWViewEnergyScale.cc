@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Jun 18 20:37:44 CEST 2010
-// $Id: FWViewEnergyScale.cc,v 1.6 2010/11/21 11:18:14 amraktad Exp $
+// $Id: FWViewEnergyScale.cc,v 1.7 2010/11/21 19:36:19 amraktad Exp $
 //
 
 #include <stdexcept>
@@ -128,8 +128,10 @@ FWViewEnergyScale::getValToHeight() const
    // check if in combined mode
    int mode = getScaleMode();
    if (mode == kCombinedScale)
-      mode = (m_maxVal > getValToHeightFixed()*getMaxTowerHeight()/100) ? kFixedScale : kAutoScale;
-   
+   {
+      mode = (getMaxTowerHeight() > 100*m_maxVal/getValToHeightFixed()) ? kFixedScale : kAutoScale;   
+      // printf("fixed[%d] comapring %f %f \n", mode == kFixedScale , getMaxTowerHeight(), 100*m_maxVal/getValToHeightFixed());
+   }
    // get converison
    if (mode == kFixedScale)
    {

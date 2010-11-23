@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.44 2010/11/21 11:18:13 amraktad Exp $
+// $Id: FWEveView.cc,v 1.45 2010/11/21 19:36:19 amraktad Exp $
 //
 
 
@@ -280,7 +280,12 @@ FWEveView::updateEnergyScales()
       calo->SetPlotEt(caloScale->getPlotEt());
       if ( ! FWViewType::isLego(typeId()) ) 
       {
-         if ((caloScale->getScaleMode() == FWViewEnergyScale::kAutoScale) )
+         int mode =  caloScale->getScaleMode();
+         if (mode == FWViewEnergyScale::kCombinedScale)
+            mode = (caloScale->getMaxTowerHeight() < 100*caloScale->getMaxVal()/caloScale->getValToHeightFixed()) ? FWViewEnergyScale::kFixedScale :FWViewEnergyScale::kAutoScale;
+   
+ 
+         if ((mode == FWViewEnergyScale::kAutoScale) )
             calo->SetMaxTowerH(caloScale->getMaxTowerHeight()); 
          else
             calo->SetMaxTowerH(100); //defualt constructor H
@@ -288,7 +293,7 @@ FWEveView::updateEnergyScales()
       calo->SetMaxValAbs(calo->GetMaxTowerH()/caloScale->getValToHeight());
 
       getEveCalo()->ElementChanged();
-      
+          
       // context to emit signal  
       viewContext()->scaleChanged();
       gEve->Redraw3D();
