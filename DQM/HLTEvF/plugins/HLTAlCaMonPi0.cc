@@ -131,24 +131,10 @@ eventCounter_(0)
     seleEtaBeltDetaEndCap_ = ps.getParameter<double> ("seleEtaBeltDetaEndCap");  
 
 
-
-  ParameterLogWeighted_ = ps.getParameter<bool> ("ParameterLogWeighted");
-  ParameterX0_ = ps.getParameter<double> ("ParameterX0");
-  ParameterT0_barl_ = ps.getParameter<double> ("ParameterT0_barl");
-  ParameterT0_endc_ = ps.getParameter<double> ("ParameterT0_endc");
-  ParameterT0_endcPresh_ = ps.getParameter<double> ("ParameterT0_endcPresh");
-  ParameterW0_ = ps.getParameter<double> ("ParameterW0");
-
-  std::map<std::string,double> providedParameters;  
-  providedParameters.insert(std::make_pair("LogWeighted",ParameterLogWeighted_));
-  providedParameters.insert(std::make_pair("X0",ParameterX0_));
-  providedParameters.insert(std::make_pair("T0_barl",ParameterT0_barl_));
-  providedParameters.insert(std::make_pair("T0_endc",ParameterT0_endc_));
-  providedParameters.insert(std::make_pair("T0_endcPresh",ParameterT0_endcPresh_));
-  providedParameters.insert(std::make_pair("W0",ParameterW0_));
-  
-  posCalculator_ = PositionCalc(providedParameters);
-
+  // Parameters for the position calculation:
+  edm::ParameterSet posCalcParameters = 
+    ps.getParameter<edm::ParameterSet>("posCalcParameters");
+  posCalculator_ = PositionCalc(posCalcParameters);
 
 }
 
