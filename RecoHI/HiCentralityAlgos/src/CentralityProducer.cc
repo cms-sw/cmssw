@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.33 2010/11/22 12:05:47 yilmaz Exp $
+// $Id: CentralityProducer.cc,v 1.34 2010/11/23 10:46:08 yilmaz Exp $
 //
 //
 
@@ -236,7 +236,7 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      creco->etHFhitSumPlus_ = inputCentrality->EtHFhitSumPlus();
     }
   }
-  
+
   if(produceHFtowers_ || produceETmidRap_){
      creco->etHFtowerSumPlus_ = 0;
      creco->etHFtowerSumMinus_ = 0;
@@ -272,37 +272,6 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
   }
   
-  if(!produceEcalhits_ && produceBasicClusters_){
-     creco->etEESumPlus_ = 0;
-     creco->etEESumMinus_ = 0;
-     creco->etEBSum_ = 0;
-     
-     Handle<BasicClusterCollection> clusters;
-     iEvent.getByLabel(srcBasicClustersEE_, clusters);
-     for( size_t i = 0; i<clusters->size(); ++ i){
-	const BasicCluster & cluster = (*clusters)[ i ];
-	double eta = cluster.eta();
-	double tg = cluster.position().rho()/cluster.position().r();
-	double et = cluster.energy()*tg;
-	if(eta > 0)
-	   creco->etEESumPlus_ += et;
-	if(eta < 0)
-	   creco->etEESumMinus_ += et;
-     }
-     
-     iEvent.getByLabel(srcBasicClustersEB_, clusters);
-     for( size_t i = 0; i<clusters->size(); ++ i){
-	const BasicCluster & cluster = (*clusters)[ i ];
-	double tg = cluster.position().rho()/cluster.position().r();
-        double et = cluster.energy()*tg;
-	creco->etEBSum_ += et;
-     }
-  }else{
-    creco->etEESumMinus_ = inputCentrality->EtEESumMinus();
-    creco->etEESumPlus_ = inputCentrality->EtEESumPlus();
-    creco->etEBSum_ = inputCentrality->EtEBSum();
-  }
-
   if(produceEcalhits_){
      creco->etEESumPlus_ = 0;
      creco->etEESumMinus_ = 0;
@@ -310,6 +279,9 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
      Handle<EcalRecHitCollection> ebHits;
      Handle<EcalRecHitCollection> eeHits;
+
+     iEvent.getByLabel(srcEBhits_,ebHits);
+     iEvent.getByLabel(srcEEhits_,eeHits);
 
      for(unsigned int i = 0; i < ebHits->size(); ++i){
 	const EcalRecHit & hit= (*ebHits)[i];
