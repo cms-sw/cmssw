@@ -105,7 +105,8 @@ FWPFLegoRecHit::updateScale( const FWViewContext *vc )
    setLine(2, c.fX + d, c.fY +d, z, c.fX - d, c.fY +d, z);
    setLine(3, c.fX - d, c.fY +d, z, c.fX - d, c.fY -d, z);
 
-   setLine(4, c.fX, c.fY, z, c.fX, c.fY, z); // marker
+   TEveStraightLineSet::Marker_t* m = ((TEveStraightLineSet::Marker_t*)(m_ls->GetMarkerPlex().Atom(0)));
+   m->fV[0] = c.fX; m->fV[1] = c.fY; m->fV[2] = z;
 
    // stamp changed elements
    m_tower->StampTransBBox();
