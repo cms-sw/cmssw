@@ -63,6 +63,7 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
       fChain->SetBranchStatus("AlCa_*",kTRUE);
     }
     if (cfg->selectBranchOpenHLT) {
+      fChain->SetBranchStatus("*pf*",kTRUE); 
       fChain->SetBranchStatus("*oh*",kTRUE);
       fChain->SetBranchStatus("*recoJet*",kTRUE);
       fChain->SetBranchStatus("*recoMet*",kTRUE);
