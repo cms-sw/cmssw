@@ -35,24 +35,12 @@
 #include <RooUniform.h>
 #include <RooWorkspace.h>
 
-#include <RooStats/BayesianCalculator.h>
-#include <RooStats/FeldmanCousins.h>
 #include <RooStats/HLFactory.h>
-#include <RooStats/HybridCalculatorOriginal.h>
-#include <RooStats/HypoTestInverter.h>
-#include <RooStats/HypoTestInverterPlot.h>
-#include <RooStats/HypoTestInverterResult.h>
-#include <RooStats/LikelihoodInterval.h>
-#include <RooStats/LikelihoodIntervalPlot.h>
-#include <RooStats/MCMCCalculator.h>
-#include <RooStats/MCMCInterval.h>
-#include <RooStats/ModelConfig.h>
-#include <RooStats/ModelConfig.h>
-#include <RooStats/PointSetInterval.h>
-#include <RooStats/ProfileLikelihoodCalculator.h>
-#include <RooStats/ProposalHelper.h>
-#include <RooStats/UniformProposal.h>
-#include <RooStats/SimpleInterval.h>
+#include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Hybrid.h"
+#include "HiggsAnalysis/CombinedLimit/interface/BayesianFlatPrior.h"
+#include "HiggsAnalysis/CombinedLimit/interface/MarkovChainMC.h"
+#include <memory>
 
 using namespace RooStats;
 
@@ -66,10 +54,6 @@ TDirectory *writeToysHere = 0;
 TDirectory *readToysFromHere = 0;
 
 void printRAD(const RooAbsData *d) ;
-bool mklimit_h2(RooWorkspace *w, RooAbsData &data, double &limit, bool withSystematics=true, bool verbose=false) ;
-bool mklimit_pl(RooWorkspace *w, RooAbsData &data, double &limit, bool withSystematics=true, bool verbose=false) ;
-bool mklimit_bf(RooWorkspace *w, RooAbsData &data, double &limit, bool withSystematics=true, bool verbose=false) ;
-bool mklimit_mcmc(RooWorkspace *w, RooAbsData &data, double &limit, bool uniformProposal, bool withSystematics=true, bool verbose=false); 
 void combine(RooWorkspace *w, const std::string &dataset, double &limit, int &iToy, TTree *tree, int nToys=0, bool withSystematics=true);
 
 void doCombination(TString hlfFile, const std::string &dataset, double &limit, int &iToy, TTree *tree, int nToys, bool withSystematics) {
@@ -115,13 +99,19 @@ void doCombination(TString hlfFile, const std::string &dataset, double &limit, i
 bool mklimit(RooWorkspace *w, RooAbsData &data, double &limit, bool withSystematics=true, bool verbose=false) {
   TStopwatch timer;
   bool ret = false;
+  std::auto_ptr<LimitAlgo> algo;
   try {
-    if      (method == hybrid)            ret = mklimit_h2(w,data,limit,withSystematics,verbose);
-    else if (method == profileLikelihood) ret = mklimit_pl(w,data,limit,withSystematics,verbose);
-    else if (method == bayesianFlatPrior) ret = mklimit_bf(w,data,limit,withSystematics,verbose);
-    else if (method == mcmc)              ret = mklimit_mcmc(w,data,limit,false,withSystematics,verbose);
-    else if (method == mcmcUniform)       ret = mklimit_mcmc(w,data,limit,true ,withSystematics,verbose);
-    else std::cerr << "Unknown method " << method << std::endl;
+    if      (method == hybrid) algo.reset(new Hybrid(verbose, withSystematics));
+    else if (method == profileLikelihood) algo.reset(new ProfileLikelihood(verbose));
+    else if (method == bayesianFlatPrior) algo.reset(new BayesianFlatPrior(verbose, withSystematics));
+    else if (method == mcmc)              algo.reset(new MarkovChainMC(verbose, withSystematics, false));
+    else if (method == mcmcUniform)       algo.reset(new MarkovChainMC(verbose, withSystematics, true));
+    else {
+      std::cerr << "Unknown method " << method << std::endl;
+      return false;
+    }
+    return algo->run(w, data, limit);
+    
   } catch (std::exception &ex) {
     std::cerr << "Caught exception " << ex.what() << std::endl;
     return false;
@@ -136,210 +126,6 @@ bool mklimit(RooWorkspace *w, RooAbsData &data, double &limit, bool withSystemat
   timer.Stop(); t_cpu_ = timer.CpuTime()/60.; t_real_ = timer.RealTime()/60.;
   printf("Done in %.2f min (cpu), %.2f min (real)\n", t_cpu_, t_real_);
   return ret;
-}
-
-bool mklimit_pl(RooWorkspace *w, RooAbsData &data, double &limit, bool withSystematics, bool verbose) {
-  RooRealVar *r = w->var("r");
-  RooArgSet  poi(*r);
-  double rMax = r->getMax();
-  for (;;) {
-    ProfileLikelihoodCalculator plcB(data, *w->pdf("model_s"), poi);
-    plcB.SetConfidenceLevel(0.95);
-    LikelihoodInterval* plInterval = plcB.GetInterval();
-    if (plInterval == 0) return false;
-    limit = plInterval->UpperLimit(*r); 
-    delete plInterval;
-    if (limit >= 0.75*r->getMax()) { 
-      std::cout << "Limit r < " << limit << "; r max < " << r->getMax() << std::endl;
-      if (r->getMax()/rMax > 20) return false;
-      r->setMax(r->getMax()*2); 
-      continue;
-    }
-    if (verbose) {
-      /*
-	ProfileLikelihoodCalculator plcS(data, *w->pdf("model_s"), poi);
-	RooArgSet nullParamValues; 
-	nullParamValues.addClone(*r); ((RooRealVar&)nullParamValues["r"]).setVal(0);
-	plcS.SetNullParameters(nullParamValues);
-	double plSig = plcS.GetHypoTest()->Significance();
-      */
-      
-      std::cout << "\n -- Profile Likelihood -- " << "\n";
-      std::cout << "Limit: r < " << limit << " @ 95% CL" << std::endl;
-      //std::cout << "Significance: " << plSig << std::endl;
-      
-    }
-    break;
-  }
-  return true;
-}
-
-bool mklimit_bf(RooWorkspace *w, RooAbsData &data, double &limit, bool withSystematics, bool verbose) {
-  RooRealVar *r = w->var("r");
-  RooUniform  flatPrior("flatPrior","flatPrior",*r);
-  RooArgSet  poi(*r);
-  double rMax = r->getMax();
-  for (;;) {
-    BayesianCalculator bcalc(data, *w->pdf("model_s"), poi, flatPrior, (withSystematics ? w->set("nuisances") : 0));
-    bcalc.SetLeftSideTailFraction(0);
-    bcalc.SetConfidenceLevel(0.95); 
-    SimpleInterval* bcInterval = bcalc.GetInterval();
-    if (bcInterval == 0) return false;
-    limit = bcInterval->UpperLimit();
-    if (limit >= 0.75*r->getMax()) { 
-      std::cout << "Limit r < " << limit << "; r max < " << r->getMax() << std::endl;
-      if (r->getMax()/rMax > 20) return false;
-      r->setMax(r->getMax()*2); 
-      continue;
-    }
-    std::cout << "\n -- Bayesian, flat prior -- " << "\n";
-    std::cout << "Limit: r < " << limit << " @ 95% CL" << std::endl;
-    if (0 && verbose) {
-      RooPlot *bcPlot = bcalc.GetPosteriorPlot(true,0.1); 
-      bcPlot->Draw(); 
-      c1->Print("plots/bc_plot.png");
-    }
-    break;
-  }
-  return true;
-}
-
-bool mklimit_mcmc(RooWorkspace *w, RooAbsData &data, double &limit, bool uniformProposal, bool withSystematics, bool verbose) {
-  RooRealVar *r = w->var("r");
-  RooArgSet  poi(*r);
-  RooArgSet const &obs = *w->set("observables");
-  
-  RooUniform  flatPrior("flatPrior","flatPrior",*r);
-  RooFitResult *fit = w->pdf("model_s")->fitTo(data, RooFit::Save());
-  if (fit == 0) { std::cerr << "Fit failed." << std::endl; return false; }
-  fit->Print("V");
-  w->loadSnapshot("clean");
-
-  if (withSystematics && (w->set("nuisances") == 0)) {
-    std::cerr << "ERROR: nuisances not set. Perhaps you wanted to run with no systematics?\n" << std::endl;
-    abort();
-  }
-  
-  ModelConfig modelConfig("sb_model", w);
-  modelConfig.SetPdf(*w->pdf("model_s"));
-  modelConfig.SetObservables(obs);
-  modelConfig.SetParametersOfInterest(poi);
-  if (withSystematics) modelConfig.SetNuisanceParameters(*w->set("nuisances"));
-  
-  ProposalHelper ph;
-  ph.SetVariables((RooArgSet&)fit->floatParsFinal());
-  ph.SetCovMatrix(fit->covarianceMatrix());
-  ph.SetUpdateProposalParameters(true);
-  ph.SetCacheSize(100);
-  ProposalFunction* pdfProp = ph.GetProposalFunction();  // that was easyA
-  if (uniformProposal) { pdfProp = new UniformProposal(); } // might do this in a cleaner way in the future
-  
-  MCMCCalculator mc(data, modelConfig);
-  mc.SetNumIters( 200000 ); 
-  mc.SetConfidenceLevel(0.95);
-  mc.SetNumBurnInSteps( 500 ); 
-  mc.SetProposalFunction(*pdfProp);
-  mc.SetNumBins (1000) ; // bins to use for RooRealVars in histograms
-  mc.SetLeftSideTailFraction(0);
-  mc.SetPriorPdf(flatPrior);
-  
-  MCMCInterval* mcInt = (MCMCInterval*)mc.GetInterval(); 
-  if (mcInt == 0) return false;
-  limit = mcInt->UpperLimit(*r);
-  std::cout << "\n -- MCMC, flat prior -- " << "\n";
-  std::cout << "Limit: r < " << limit << " @ 95% CL" << std::endl;
-  std::cout << "Interval:    [ " << mcInt->LowerLimit(*r)             << " , " << mcInt->UpperLimit(*r)             << " ] @ 90% CL" << std::endl;
-  std::cout << "Interval DH: [ " << mcInt->LowerLimitByDataHist(*r)   << " , " << mcInt->UpperLimitByDataHist(*r)   << " ] @ 90% CL" << std::endl;
-  std::cout << "Interval H:  [ " << mcInt->LowerLimitByHist(*r)       << " , " << mcInt->UpperLimitByHist(*r)       << " ] @ 90% CL" << std::endl;
-  //std::cout << "Interval K:  [ " << mcInt->LowerLimitByKeys(*r)       << " , " << mcInt->UpperLimitByKeys(*r)       << " ] @ 90% CL" << std::endl;
-  std::cout << "Interval S:  [ " << mcInt->LowerLimitShortest(*r)     << " , " << mcInt->UpperLimitShortest(*r)     << " ] @ 90% CL" << std::endl;
-  std::cout << "Interval TF: [ " << mcInt->LowerLimitTailFraction(*r) << " , " << mcInt->UpperLimitTailFraction(*r) << " ] @ 90% CL" << std::endl;
-  return true;
-}
-
-bool mklimit_h2(RooWorkspace *w, RooAbsData &data, double &limit, bool withSystematics, bool verbose) {
-  RooRealVar *r = w->var("r"); r->setConstant(true);
-  RooArgSet  poi(*r);
-  w->loadSnapshot("clean");
-  RooAbsPdf *altModel  = w->pdf("model_s"), *nullModel = w->pdf("model_b");
-  
-  HybridCalculatorOriginal* hc = new HybridCalculatorOriginal(data,*altModel,*nullModel);
-  if (withSystematics) {
-    if ((w->set("nuisances") == 0) || (w->pdf("nuisancePdf") == 0)) {
-          std::cerr << "ERROR: nuisances or nuisancePdf not set. Perhaps you wanted to run with no systematics?\n" << std::endl;
-          abort();
-    }
-    hc->UseNuisance(true);
-    hc->SetNuisancePdf(*w->pdf("nuisancePdf"));
-    hc->SetNuisanceParameters(*w->set("nuisances"));
-  } else {
-    hc->UseNuisance(false);
-  }
-  hc->SetTestStatistic(1); // 3 = TeV
-  hc->PatchSetExtended(false); // Number counting, each dataset has 1 entry 
-  hc->SetNumberOfToys(500);
-  
-  double clsTarget = 0.05, clsAcc  = 0.005, rAcc = 0.1, rRelAcc = 0.05; 
-  double clsMin = 1, clsMax = 0, clsMinErr = 0, clsMaxErr = 0;
-  double rMin   = 0, rMax = r->getMax();
-  
-  std::cout << "Search for upper limit to the limit" << std::endl;
-  HybridResult *hcResult = 0;
-  for (;;) {
-    r->setVal(r->getMax()); hcResult = hc->GetHypoTest();
-    std::cout << "r = " << r->getVal() << ": CLs = " << hcResult->CLs() << " +/- " << hcResult->CLsError() << std::endl;
-    if (hcResult->CLs() == 0) break;
-    r->setMax(r->getMax()*2);
-    if (r->getVal()/rMax >= 20) { 
-      std::cerr << "Cannot set higher limit: at r = " << r->getVal() << " still get CLs = " << hcResult->CLs() << std::endl;
-      return false;
-    }
-  }
-  rMax = r->getMax();
-  
-  std::cout << "Now doing proper bracketing & bisection" << std::endl;
-  do {
-    r->setVal(0.5*(rMin+rMax));
-    hcResult = hc->GetHypoTest();
-    if (hcResult == 0) {
-      std::cerr << "Hypotest failed" << std::endl;
-      return false;
-    }
-    double clsMid = hcResult->CLs(), clsMidErr = hcResult->CLsError();
-    std::cout << "r = " << r->getVal() << ": CLs = " << clsMid << " +/- " << clsMidErr << std::endl;
-    while (fabs(clsMid-clsTarget) < 3*clsMidErr && clsMidErr >= clsAcc) {
-      HybridResult *more = hc->GetHypoTest();
-      hcResult->Add(more);
-      clsMid    = hcResult->CLs(); 
-      clsMidErr = hcResult->CLsError();
-      std::cout << "r = " << r->getVal() << ": CLs = " << clsMid << " +/- " << clsMidErr << std::endl;
-    }
-    if (verbose) {
-      std::cout << "r = " << r->getVal() << ": \n" <<
-	"\tCLs      = " << hcResult->CLs()      << " +/- " << hcResult->CLsError()      << "\n" <<
-	"\tCLb      = " << hcResult->CLb()      << " +/- " << hcResult->CLbError()      << "\n" <<
-	"\tCLsplusb = " << hcResult->CLsplusb() << " +/- " << hcResult->CLsplusbError() << "\n" <<
-	std::endl;
-    }
-    if (fabs(clsMid-clsTarget) <= clsAcc) {
-      std::cout << "reached accuracy." << std::endl;
-      break;
-    }
-    if ((clsMid>clsTarget) == (clsMax>clsTarget)) {
-      rMax = r->getVal(); clsMax = clsMid; clsMaxErr = clsMidErr;
-    } else {
-      rMin = r->getVal(); clsMin = clsMid; clsMinErr = clsMidErr;
-    }
-  } while (rMax-rMin > std::max(rAcc, rRelAcc * r->getVal()));
-  if (clsMinErr == 0 && clsMaxErr == 0) {
-    std::cerr << "Error: both boundaries have no passing/failing toys.\n";
-    return false;
-  }
-  limit = r->getVal();
-  std::cout << "\n -- HypoTestInverter -- \n";
-  std::cout << "Limit: r < " << limit << " +/- " << (rMax - rMin) << "\n";
-  
-  return true;
 }
 
 void printRDH(RooDataHist *data) {
