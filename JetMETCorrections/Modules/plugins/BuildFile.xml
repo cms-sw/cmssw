@@ -9,6 +9,5 @@
   <use   name="JetMETCorrections/Algorithms"/>
   <use   name="JetMETCorrections/Objects"/>
   <use   name="JetMETCorrections/Modules"/>
-  <use   name="PhysicsTools/UtilAlgos"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
