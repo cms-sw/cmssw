@@ -4,8 +4,8 @@ from RecoEgamma.ElectronIdentification.likelihoodPdfsDB_cfi import *
 from RecoEgamma.ElectronIdentification.likelihoodESetup_cfi import *
 eidLikelihoodExt = cms.EDProducer("EleIdLikelihoodExtProducer",
     src = cms.InputTag("gsfElectrons"),
-    reducedBarrelRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-    reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+    reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
+    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
     doLikelihood = cms.bool(True)
 )
 
