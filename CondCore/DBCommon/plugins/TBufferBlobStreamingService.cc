@@ -112,7 +112,8 @@ namespace {
 }
 
 boost::shared_ptr<coral::Blob> cond::TBufferBlobStreamingService::write( const void* addr,
-									 Reflex::Type const & classDictionary ){
+									 Reflex::Type const & classDictionary,
+                                                                         bool ){
   TBufferBlobTypeInfo theType( classDictionary );
   if (theType.m_class && theType.m_class->GetActualClass(addr) != theType.m_class)
     throw cond::Exception("TBufferBlobWriter::write object to stream is "
