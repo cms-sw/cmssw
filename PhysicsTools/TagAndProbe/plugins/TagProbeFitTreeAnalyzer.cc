@@ -26,7 +26,7 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset):
           pset.getParameter<string>("InputDirectoryName"),
           pset.getParameter<string>("InputTreeName"),
           pset.getParameter<string>("OutputFileName"),
-          pset.existsAs<uint>("NumCPU")?pset.getParameter<uint>("NumCPU"):1,
+          pset.existsAs<unsigned int>("NumCPU")?pset.getParameter<unsigned int>("NumCPU"):1,
           pset.existsAs<bool>("SaveWorkspace")?pset.getParameter<bool>("SaveWorkspace"):false,
 	  pset.existsAs<bool>("floatShapeParameters")?pset.getParameter<bool>("floatShapeParameters"):true,
 	  pset.existsAs<vector<string> >("fixVars")?pset.getParameter<vector<string> >("fixVars"):vector<string>()
@@ -113,8 +113,8 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset):
 
 void TagProbeFitTreeAnalyzer::calculateEfficiency(string name, const edm::ParameterSet& pset){
   vector<string> effCatState = pset.getParameter<vector<string> >("EfficiencyCategoryAndState");
-  if(effCatState.size() != 2){
-    cout<<"EfficiencyCategoryAndState must specify a category and a state of that category"<<endl;
+  if(effCatState.empty() ||  (effCatState.size() % 2 == 1)){
+    cout<<"EfficiencyCategoryAndState must be a even-sized list of category names and states of that category (cat1, state1, cat2, state2, ...)."<<endl;
     exit(1);
   }
 
@@ -146,7 +146,13 @@ void TagProbeFitTreeAnalyzer::calculateEfficiency(string name, const edm::Parame
     exit(2);
   }
 
-  fitter.calculateEfficiency(name, effCatState[0], effCatState[1], unbinnedVariables, binnedVariables, mappedCategories, binToPDFmap, true);
+  vector<string> effCats, effStates;
+  for (size_t i = 0, n = effCatState.size()/2; i < n; ++i) {
+    effCats.push_back(effCatState[2*i]);
+    effStates.push_back(effCatState[2*i+1]);
+  }
+
+  fitter.calculateEfficiency(name, effCats, effStates, unbinnedVariables, binnedVariables, mappedCategories, binToPDFmap, true);
 }
 
 //define this as a plug-in

@@ -69,25 +69,25 @@
 //class NavigationSchool;
 
 
-using namespace std;
-using namespace edm;
-using namespace reco;
+
+
+
 
 class EgammaHLTPixelMatchElectronAlgo {
 
 public:
 
-  EgammaHLTPixelMatchElectronAlgo(const ParameterSet& conf);
+  EgammaHLTPixelMatchElectronAlgo(const edm::ParameterSet& conf);
 
   ~EgammaHLTPixelMatchElectronAlgo();
 
-  void setupES(const EventSetup& setup);
-  void run(Event&, ElectronCollection&);
+  void setupES(const edm::EventSetup& setup);
+  void run(edm::Event&, reco::ElectronCollection&);
 
  private:
 
   // create electrons from tracks
-  void process(edm::Handle<TrackCollection> tracksH, ElectronCollection & outEle, Global3DPoint & bs);  
+  void process(edm::Handle<reco::TrackCollection> tracksH, reco::ElectronCollection & outEle, Global3DPoint & bs);  
 
 
   // input configuration
@@ -100,8 +100,8 @@ public:
   //TrajectoryCleaner*               theTrajectoryCleaner;
   //TransientInitialStateEstimator*  theInitialStateEstimator;
   
-  ESHandle<MagneticField>                theMagField;
-  ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
+  edm::ESHandle<MagneticField>                theMagField;
+  edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
 
   //const MeasurementTracker*     theMeasurementTracker;
   //const NavigationSchool*       theNavigationSchool;

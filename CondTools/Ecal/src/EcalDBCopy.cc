@@ -56,10 +56,6 @@
 #include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
 #include "CondFormats/DataRecord/interface/EcalClusterLocalContCorrParametersRcd.h"
 
-#include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/AlignmentRecord/interface/EBAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/EEAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/ESAlignmentRcd.h"
 
 #include <vector>
 
@@ -157,12 +153,6 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
     cacheID = evtSetup.get<EcalClusterLocalContCorrParametersRcd>().cacheIdentifier();
   } else if (container == "EcalTPGCrystalStatus") {
     cacheID = evtSetup.get<EcalTPGCrystalStatusRcd>().cacheIdentifier();
-  } else if (container == "EBAlignment") {
-    cacheID = evtSetup.get<EBAlignmentRcd>().cacheIdentifier();
-  } else if (container == "EEAlignment") {
-    cacheID = evtSetup.get<EEAlignmentRcd>().cacheIdentifier();
-  } else if (container == "ESAlignment") {
-    cacheID = evtSetup.get<ESAlignmentRcd>().cacheIdentifier();
   }
 
   else {
@@ -357,27 +347,6 @@ else if (container == "EcalIntercalibConstantsMC") {
     const EcalClusterLocalContCorrParameters* obj = handle.product();
     cout << "tbweight pointer is: "<< obj<< endl;
    dbOutput->createNewIOV<const EcalClusterLocalContCorrParameters>( new EcalClusterLocalContCorrParameters(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
-
-  } else if (container == "EBAlignment") {
-    edm::ESHandle<Alignments> handle;
-    evtSetup.get<EBAlignmentRcd>().get(handle);
-    const Alignments* obj = handle.product();
-    cout << "EB alignment pointer is: "<< obj<< endl;
-    dbOutput->createNewIOV<const Alignments>( new Alignments(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
-
-  } else if (container == "EEAlignment") {
-    edm::ESHandle<Alignments> handle;
-    evtSetup.get<EEAlignmentRcd>().get(handle);
-    const Alignments* obj = handle.product();
-    cout << "EE alignment pointer is: "<< obj<< endl;
-    dbOutput->createNewIOV<const Alignments>( new Alignments(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
-
-  } else if (container == "ESAlignment") {
-    edm::ESHandle<Alignments> handle;
-    evtSetup.get<ESAlignmentRcd>().get(handle);
-    const Alignments* obj = handle.product();
-    cout << "ES alignment pointer is: "<< obj<< endl;
-    dbOutput->createNewIOV<const Alignments>( new Alignments(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
   } else {
     throw cms::Exception("Unknown container");

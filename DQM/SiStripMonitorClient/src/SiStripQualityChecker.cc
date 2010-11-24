@@ -92,7 +92,9 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
     SiStripUtility::getTopFolderPath(dqm_store, "SiStrip", strip_dir); 
     if (strip_dir.size() == 0) strip_dir = "SiStrip";
 
-    dqm_store->setCurrentFolder(strip_dir+"/EventInfo"); 
+    // Non Standard Plots and should be put outside EventInfo folder
+
+    dqm_store->setCurrentFolder(strip_dir+"/MechanicalView"); 
       
     std::string hname, htitle;
     hname  = "detFractionReportMap";
@@ -105,7 +107,10 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
     SToNReportMap         = dqm_store->book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
     SToNReportMap->setAxisTitle("Sub Detector Type", 1);
     SToNReportMap->setAxisTitle("Layer/Disc Number", 2);
-    
+
+    // this is the main reportSummary 2D plot and should be in EventInfo    
+    dqm_store->setCurrentFolder(strip_dir+"/EventInfo"); 
+
     hname  = "reportSummaryMap";
     htitle = "SiStrip Report Summary Map";
     SummaryReportMap      = dqm_store->book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);

@@ -150,6 +150,7 @@ Bool_t Dataset::checkEvent(const std::vector<Int_t>& triggerBit)
 {
   pass      = kFALSE;
   const UInt_t    numTriggers = size();
+
   for (UInt_t iTrig = 0; iTrig < numTriggers; ++iTrig) {
     ////std::cout << operator[](iTrig).index << ":" << triggerBit[operator[](iTrig).index] << " ";
     if (triggerBit[operator[](iTrig).index] == 1) {

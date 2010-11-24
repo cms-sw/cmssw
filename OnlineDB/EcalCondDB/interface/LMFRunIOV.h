@@ -1,99 +1,77 @@
 #ifndef LMFRUNIOV_H
 #define LMFRUNIOV_H
 
-#include "OnlineDB/EcalCondDB/interface/LMFUnique.h"
+#include <stdexcept>
+#include <iostream>
+
+#include "OnlineDB/EcalCondDB/interface/IIOV.h"
 #include "OnlineDB/EcalCondDB/interface/LMFRunTag.h"
-#include "OnlineDB/EcalCondDB/interface/LMFSeqDat.h"
-#include "OnlineDB/EcalCondDB/interface/LMFTrigType.h"
-#include "OnlineDB/EcalCondDB/interface/LMFColor.h"
-#include "OnlineDB/EcalCondDB/interface/LMFDefFabric.h"
+#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
 
-#include <string>
+typedef int subrun_t;
 
-/*
- Copyright (c) Giovanni.Organtini@roma1.infn.it 2010
-*/
-
-
-class LMFRunIOV : public LMFUnique {
+class LMFRunIOV : public IIOV {
  public:
   friend class EcalCondDBInterface;
 
   LMFRunIOV();
-  LMFRunIOV(oracle::occi::Environment* env,
-	    oracle::occi::Connection* conn);
-  LMFRunIOV(EcalDBConnection *c);
   ~LMFRunIOV();
 
   // Methods for user data
-  LMFRunIOV& setLMFRunTag(const LMFRunTag &tag);
-  LMFRunIOV& setLMFRunTag(int tag_id);
-  LMFRunIOV& setSequence(LMFSeqDat &seq);
-  LMFRunIOV& setSequence(LMFSeqDat *seq);
-  LMFRunIOV& setTriggerType(LMFTrigType &tt);
-  LMFRunIOV& setTriggerType(int trigType_id);
-  LMFRunIOV& setTriggerType(std::string trigShortName);
-  LMFRunIOV& setLmr(int n);
-  LMFRunIOV& setColor(const LMFColor &c);
-  LMFRunIOV& setColor(std::string name);
-  LMFRunIOV& setColor(int color_id);
-  LMFRunIOV& setColorIndex(int color_index);
-  LMFRunIOV& setSubRunStart(Tm start);
-  LMFRunIOV& setSubRunEnd(Tm end);
-  LMFRunIOV& setSubRunType(const std::string &x);
-
+  void setLMFRunTag(LMFRunTag tag);
   LMFRunTag getLMFRunTag() const;
-  LMFSeqDat getSequence() const;
-  LMFTrigType getTriggerType() const;
+  void setRunIOV(RunIOV iov);
+  RunIOV getRunIOV();
 
-  int getLmr() const;
-  std::string getSubRunType() const;
-  std::string getColorShortName() const; 
-  std::string getColorLongName() const;
-  LMFColor getLMFColor() const;
-  LMFColor getColor() const { return getLMFColor(); }
-  Tm getSubRunStart() const;
-  Tm getSubRunEnd() const;
-  Tm getDBInsertionTime() const;
-  bool isValid();
-  
-  std::list<LMFRunIOV> fetchBySequence(const LMFSeqDat &s);
-  std::list<LMFRunIOV> fetchBySequence(const LMFSeqDat &s, int lmr);
-  std::list<LMFRunIOV> fetchBySequence(const LMFSeqDat &s, int lmr, int type,
-				       int color);
-  std::list<LMFRunIOV> fetchLastBeforeSequence(const LMFSeqDat &s, int lmr, 
-					       int type, int color);
-  
+  inline void setSubRunNumber(subrun_t subrun){m_subRunNum=subrun;}
+  inline run_t getSubRunNumber() const{return m_subRunNum;}
+
+  inline int getSequenceNumber() const{return m_subRunNum/1000000;}
+  inline int getLMRNumber() const{return (m_subRunNum-(m_subRunNum/1000000)*1000000)/100;}
+  inline int getLaserType() const{return (m_subRunNum%100);}
+  inline void setSubRunStart(Tm start){m_subRunStart=start;}
+  inline Tm getSubRunStart() const{return m_subRunStart;}
+  inline void setSubRunEnd(Tm end){m_subRunEnd=end;}
+  inline Tm getSubRunEnd() const{return m_subRunEnd;}
+  inline void setDBInsertionTime(Tm x){m_dbtime=x;}
+  inline Tm getDBInsertionTime() const{return m_dbtime;}
+  inline void setSubRunType(std::string x){m_subrun_type=x;}
+  inline std::string getSubRunType() const{return m_subrun_type;}
+
+  void setID(int id);
+
+  // Methods from IUniqueDBObject
+  int getID(){ return m_ID;} ;
+  int fetchID() throw(std::runtime_error);
+  void setByID(int id) throw(std::runtime_error);
+
   // Operators
-  bool operator==(const LMFRunIOV &m) const
-  {
-    return ( getLMFRunTag()   == m.getLMFRunTag() &&
-	     getSequence()    == m.getSequence() &&
-	     getLmr()         == m.getLmr() &&
-	     getLMFColor()    == m.getLMFColor() &&
-	     getTriggerType() == m.getTriggerType() &&
-	     getSubRunType()  == m.getSubRunType() &&
-	     getSubRunStart() == m.getSubRunStart() &&
-	     getSubRunEnd()   == m.getSubRunEnd() );
-  }
-  
-  bool operator!=(const LMFRunIOV &m) const { return !(*this == m); }
-  
-  std::string fetchIdSql(Statement *stmt);
-  std::string setByIDSql(Statement *stmt, int id);
-  std::string writeDBSql(Statement *stmt);
-  void getParameters(ResultSet *rset);
+  inline bool operator==(const LMFRunIOV &m) const
+    {
+      return ( m_lmfRunTag   == m.m_lmfRunTag &&
+	       m_runIOV      == m.m_runIOV &&
+	       m_subRunNum   == m.m_subRunNum &&
+	       m_subRunStart == m.m_subRunStart &&
+	       m_subRunEnd   == m.m_subRunEnd );
+    }
+
+  inline bool operator!=(const LMFRunIOV &m) const { return !(*this == m); }
 
  private:
-  void checkFabric();
-  void initialize();
-  std::list<LMFRunIOV> fetchBySequence(vector<int> par,
-				       const std::string &sql,
-				       const std::string &method)
-    throw (std::runtime_error);
+  // User data for this IOV
+  LMFRunTag m_lmfRunTag;
+  RunIOV m_runIOV;
+  subrun_t m_subRunNum;
+  Tm m_subRunStart;
+  Tm m_subRunEnd;
+  Tm m_dbtime;
+  std::string m_subrun_type;
 
-  LMFDefFabric *_fabric;
+  int writeDB() throw(std::runtime_error);
+  void fetchParentIDs(int* lmfRunTagID, int* runIOVID) throw(std::runtime_error);
+
+  void setByRun(LMFRunTag* lmftag, RunIOV* runiov, subrun_t subrun) throw(std::runtime_error);
 };
 
 #endif

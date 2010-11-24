@@ -36,11 +36,11 @@ class TtFullHadKinFitProducer : public edm::EDProducer {
   // convert vector of unsigned int's to vector of Contraint's
   std::vector<TtFullHadKinFitter::Constraint> constraints(std::vector<unsigned int>& configParameters);
   // helper function for b-tagging
-  bool doBTagging(unsigned int& bTags_, unsigned int& bJetCounter,
-		  edm::Handle<std::vector<pat::Jet> >& jets, std::vector<int>& combi,
-		  std::string& bTagAlgo_, double& minBTagValueBJets_, double& maxBTagValueNonBJets_);
+  bool doBTagging(const bool& useBTagging_, const unsigned int& bTags_, const unsigned int& bJetCounter,
+		  const std::vector<pat::Jet>& jets, std::vector<int>& combi,
+		  const std::string& bTagAlgo_, const double& minBTagValueBJets_, const double& maxBTagValueNonBJets_);
   /// helper function to construct the proper corrected jet for its corresponding quarkType
-    pat::Jet corJet(const pat::Jet& jet, const std::string& quarkType);
+  pat::Jet corJet(const pat::Jet& jet, const std::string& quarkType);
 
  private:
   /// input tag for jets
@@ -56,7 +56,9 @@ class TtFullHadKinFitProducer : public edm::EDProducer {
   double minBTagValueBJet_;
   /// max value of bTag for a non-b-jet
   double maxBTagValueNonBJet_;
-  /// switch to tell whether to use b-tagging with 1 or 2 b-jets or not (=0)
+  /// switch to tell whether to use b-tagging or not
+  bool useBTagging_;
+  /// minimal number of b-jets
   unsigned int bTags_;
   /// correction level for jets
   std::string jetCorrectionLevel_;
@@ -78,6 +80,8 @@ class TtFullHadKinFitProducer : public edm::EDProducer {
   double mW_;
   /// top mass value used for constraints
   double mTop_;
+  /// store the resolutions for the jets
+  std::vector<edm::ParameterSet> udscResolutions_, bResolutions_;
 
   /// kinematic fit interface
   TtFullHadKinFitter* fitter;
@@ -95,6 +99,14 @@ class TtFullHadKinFitProducer : public edm::EDProducer {
     std::vector<int> JetCombi;
     bool operator< (const KinFitResult& rhs) { return Chi2 < rhs.Chi2; };
   };
+
+ public:
+  /// do the fitting and return fit result
+  std::list<KinFitResult> fit(const std::vector<pat::Jet>& jets, const bool& useBTagging, const int& bTags, const std::string& bTagAlgo, 
+			      const double& minBTagValueBJet, const double& maxBTagValueNonBJet,
+			      const std::vector<edm::ParameterSet>& udscResolutions, const std::vector<edm::ParameterSet>& bResolutions,
+			      const std::string& jetCorrectionLevel, const int& maxNJets, const int& maxNComb,
+			      const bool& useOnlyMatch, const bool& invalidMatch, const std::vector<int>& match);
 };
 
 #endif

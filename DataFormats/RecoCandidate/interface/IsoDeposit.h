@@ -228,11 +228,6 @@ namespace reco {
 			 const AbsVetos & vetos = AbsVetos(),        //additional vetos 
 			 bool skipDepositVeto = false                //skip exclusion of veto 
 			 ) const;
-    // maximum value among the non-vetoed deposits in the cone
-    double nearestDR(	 double coneSize,                            //dR in which deposit is computed
-			 const AbsVetos & vetos = AbsVetos(),        //additional vetos 
-			 bool skipDepositVeto = false                //skip exclusion of veto 
-			 ) const;
 
 
 

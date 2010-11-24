@@ -7,7 +7,7 @@ maxEvents = cms.untracked.PSet(
 # # the source
 # source = cms.Source("NewEventStreamFileReader",
 #                      fileNames = cms.untracked.vstring(
-#  'file:/localdatadisk/DTDQM/GlobalCRAFT1.00071092.0001.A.storageManager.00.0000.dat',
+#      'file:/localdatadisk/DTDQM/GlobalCRAFT1.00071092.0001.A.storageManager.00.0000.dat',
 #  'file:/localdatadisk/DTDQM/GlobalCRAFT1.00071092.0003.A.storageManager.00.0000.dat',
 #  'file:/localdatadisk/DTDQM/GlobalCRAFT1.00071092.0003.A.storageManager.00.0001.dat',
 #  'file:/localdatadisk/DTDQM/GlobalCRAFT1.00071092.0003.A.storageManager.00.0002.dat',

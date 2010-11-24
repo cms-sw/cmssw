@@ -21,10 +21,6 @@
 
 
 
-using namespace std;
-using namespace edm;
-using namespace reco;
-
 namespace ipf2pat {
   
   typedef pf2pat::TopProjectorAlgo<PFJet, PFCandidate> TPPFJetsOnPFCandidates;

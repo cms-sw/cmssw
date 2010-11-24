@@ -4,10 +4,10 @@ TrackerSeedCleanerCommon = cms.PSet(
     TrackerSeedCleaner = cms.PSet(
         cleanerFromSharedHits = cms.bool(True),
         # should be true only for tests
-        ptCleaner = cms.bool(False),
+        ptCleaner = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
-        beamSpot = cms.InputTag("offlineBeamSpot"),
-        directionCleaner = cms.bool(False)
+        beamSpot = cms.InputTag("hltOfflineBeamSpot"),
+        directionCleaner = cms.bool(True)
     )
 )
 

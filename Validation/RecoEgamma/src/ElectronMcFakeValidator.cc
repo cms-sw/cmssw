@@ -412,12 +412,12 @@ void ElectronMcFakeValidator::beginJob()
   // isolation
   h1_ele_tkSumPt_dr03 = bookH1withSumw2("h_ele_tkSumPt_dr03","tk isolation sum, dR=0.3",100,0.0,20.,"TkIsoSum, cone 0.3 (GeV/c)");
   h1_ele_ecalRecHitSumEt_dr03 = bookH1withSumw2("h_ele_ecalRecHitSumEt_dr03","ecal isolation sum, dR=0.3",100,0.0,20.,"EcalIsoSum, cone 0.3 (GeV)");
-  h1_ele_hcalDepth1TowerSumEt_dr03 = bookH1withSumw2("h_ele_hcalDepth1TowerSumEt_dr03","hcal depth1 isolation sum, dR=0.3",100,0.0,20.,"Hcal1IsoSum, cone 0.3 (GeV)");
-  h1_ele_hcalDepth2TowerSumEt_dr03 = bookH1withSumw2("h_ele_hcalDepth2TowerSumEt_dr03","hcal depth2 isolation sum, dR=0.3",100,0.0,20.,"Hcal2IsoSum, cone 0.3 (GeV)");
+  h1_ele_hcalTowerSumEt_dr03_depth1 = bookH1withSumw2("h_ele_hcalTowerSumEt_dr03_depth1","hcal depth1 isolation sum, dR=0.3",100,0.0,20.,"Hcal1IsoSum, cone 0.3 (GeV)");
+  h1_ele_hcalTowerSumEt_dr03_depth2 = bookH1withSumw2("h_ele_hcalTowerSumEt_dr03_depth2","hcal depth2 isolation sum, dR=0.3",100,0.0,20.,"Hcal2IsoSum, cone 0.3 (GeV)");
   h1_ele_tkSumPt_dr04 = bookH1withSumw2("h_ele_tkSumPt_dr04","tk isolation sum, dR=0.4",100,0.0,20.,"TkIsoSum, cone 0.4 (GeV/c)");
   h1_ele_ecalRecHitSumEt_dr04 = bookH1withSumw2("h_ele_ecalRecHitSumEt_dr04","ecal isolation sum, dR=0.4",100,0.0,20.,"EcalIsoSum, cone 0.4 (GeV)");
-  h1_ele_hcalDepth1TowerSumEt_dr04 = bookH1withSumw2("h_ele_hcalDepth1TowerSumEt_dr04","hcal depth1 isolation sum, dR=0.4",100,0.0,20.,"Hcal1IsoSum, cone 0.4 (GeV)");
-  h1_ele_hcalDepth2TowerSumEt_dr04 = bookH1withSumw2("h_ele_hcalDepth2TowerSumEt_dr04","hcal depth2 isolation sum, dR=0.4",100,0.0,20.,"Hcal2IsoSum, cone 0.4 (GeV)");
+  h1_ele_hcalTowerSumEt_dr04_depth1 = bookH1withSumw2("h_ele_hcalTowerSumEt_dr04_depth1","hcal depth1 isolation sum, dR=0.4",100,0.0,20.,"Hcal1IsoSum, cone 0.4 (GeV)");
+  h1_ele_hcalTowerSumEt_dr04_depth2 = bookH1withSumw2("h_ele_hcalTowerSumEt_dr04_depth2","hcal depth2 isolation sum, dR=0.4",100,0.0,20.,"Hcal2IsoSum, cone 0.4 (GeV)");
 
   // fbrem
   h1_ele_fbrem = bookH1withSumw2("h_ele_fbrem","ele brem fraction, mode of GSF components",100,0.,1.,"P_{in} - P_{out} / P_{in}");
@@ -844,12 +844,12 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
 
       h1_ele_tkSumPt_dr03->Fill(bestGsfElectron.dr03TkSumPt());
       h1_ele_ecalRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
-      h1_ele_hcalDepth1TowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalDepth1TowerSumEt());
-      h1_ele_hcalDepth2TowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalDepth2TowerSumEt());
+      h1_ele_hcalTowerSumEt_dr03_depth1->Fill(bestGsfElectron.dr03HcalDepth1TowerSumEt());
+      h1_ele_hcalTowerSumEt_dr03_depth2->Fill(bestGsfElectron.dr03HcalDepth2TowerSumEt());
       h1_ele_tkSumPt_dr04->Fill(bestGsfElectron.dr04TkSumPt());
       h1_ele_ecalRecHitSumEt_dr04->Fill(bestGsfElectron.dr04EcalRecHitSumEt());
-      h1_ele_hcalDepth1TowerSumEt_dr04->Fill(bestGsfElectron.dr04HcalDepth1TowerSumEt());
-      h1_ele_hcalDepth2TowerSumEt_dr04->Fill(bestGsfElectron.dr04HcalDepth2TowerSumEt());
+      h1_ele_hcalTowerSumEt_dr04_depth1->Fill(bestGsfElectron.dr04HcalDepth1TowerSumEt());
+      h1_ele_hcalTowerSumEt_dr04_depth2->Fill(bestGsfElectron.dr04HcalDepth2TowerSumEt());
 
      } // gsf electron found
 

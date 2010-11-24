@@ -11,7 +11,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 ## Source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-      '/store/relval/CMSSW_3_6_0/RelValTTbar/GEN-SIM-RECO/START36_V4-v1/0013/306F945C-9A49-DF11-85F8-0018F3D0965A.root'
+      '/store/relval/CMSSW_3_8_6/RelValTTbar/GEN-SIM-RECO/START38_V13-v1/0065/2856A4C7-B5E7-DF11-BE1D-00304867BFA8.root'
     )
 )
 ## Maximal Number of Events
@@ -20,11 +20,12 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 ## Geometry and Detector Conditions (needed for a few patTuple production steps)
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START38_V6::All')
+process.GlobalTag.globaltag = cms.string('START38_V14::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-## Standard PAT Configuration File
+##Standard PAT Configuration File
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
+#process.load("PhysicsTools.PatAlgos.patTestJEC_cfi")
 
 ## Output Module Configuration (expects a path 'p')
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent

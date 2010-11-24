@@ -26,7 +26,7 @@ class BasicDataAccessor(object):
         """
         raise NotImplementedError
     
-    def setProperty(self, object, name, value):
+    def setProperty(self, object, name, value, categoryName):
         """ Change the property 'name' of an object to a new value.
         """
         raise NotImplementedError
@@ -81,9 +81,10 @@ class BasicDataAccessorInterface(object):
     the accessor are accessible via __getattr__. A script in which all attributes
     of the objects can be accessed can be run. 
     """
-    def __init__(self, object, accessor):
+    def __init__(self, object, accessor, throwAttributeErrors=True):
         self._object = object
         self._accessor = accessor
+        self._throwAttributeErrors=throwAttributeErrors
         
     def __getattr__(self, attr):
         if attr in [p[1] for p in self._accessor.properties(self._object)]:
@@ -93,7 +94,10 @@ class BasicDataAccessorInterface(object):
         elif hasattr(self._accessor, attr):
             return getattr(self._accessor, attr)(self._object)
         else:
-            raise AttributeError("object has no property '" + attr + "'")
+            if self._throwAttributeErrors:
+                raise AttributeError("object has no property '" + attr + "'")
+            else:
+                return "???"
 
     def runScript(self, script):
         object = self

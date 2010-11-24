@@ -1,8 +1,9 @@
 //Auxiliary function
-void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const int nHist1, const int nHist2, const int nProf, const int nHistTot, TString ref_vers, TString val_vers, TString HistDir="DQMData/CaloTowersV/CaloTowersTask");
+void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const int nHist1, const int nHist2, const int nProf, const int nHistTot, TString ref_vers, TString val_vers);
 
-//Macro takes 3 parameters as arguments: the version to be validated, the reference version and the histogram directory
-void CombinedCaloTowers(TString ref_vers="210", TString val_vers="210pre6", TString HistDir="DQMData/CaloTowersV/CaloTowersTask"){
+//Macro takes 2 parameters as arguments: the version to be validated and the reference version
+void CombinedCaloTowers(TString ref_vers="210",
+			TString val_vers="210pre6"){
   
   //Information contained in stream (in order): 
   //Name of histograms in root file, 1/0 switch whether they should be processed. If yes, then:
@@ -38,9 +39,9 @@ void CombinedCaloTowers(TString ref_vers="210", TString val_vers="210pre6", TStr
   const int HF_nHistTot = 20;
 
   //Order matters! InputCaloTowers.txt has histograms in the order HB-HE-HF
-  ProcessSubDetCT(HB_ref_file, HB_val_file, CalTowStream, HB_nHist1, HB_nHist2, HB_nProf, HB_nHistTot, ref_vers, val_vers, HistDir);
-  ProcessSubDetCT(HE_ref_file, HE_val_file, CalTowStream, HE_nHist1, HE_nHist2, HE_nProf, HE_nHistTot, ref_vers, val_vers, HistDir);
-  ProcessSubDetCT(HF_ref_file, HF_val_file, CalTowStream, HF_nHist1, HF_nHist2, HE_nProf, HF_nHistTot, ref_vers, val_vers, HistDir);
+  ProcessSubDetCT(HB_ref_file, HB_val_file, CalTowStream, HB_nHist1, HB_nHist2, HB_nProf, HB_nHistTot, ref_vers, val_vers);
+  ProcessSubDetCT(HE_ref_file, HE_val_file, CalTowStream, HE_nHist1, HE_nHist2, HE_nProf, HE_nHistTot, ref_vers, val_vers);
+  ProcessSubDetCT(HF_ref_file, HF_val_file, CalTowStream, HF_nHist1, HF_nHist2, HE_nProf, HF_nHistTot, ref_vers, val_vers);
 
   //Close ROOT files
   HB_ref_file.Close();
@@ -54,7 +55,7 @@ void CombinedCaloTowers(TString ref_vers="210", TString val_vers="210pre6", TStr
   return;  
 }
 
-void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const int nHist1, const int nHist2, const int nProf, const int nHistTot, TString ref_vers, TString val_vers, TString HistDir){
+void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const int nHist1, const int nHist2, const int nProf, const int nHistTot, TString ref_vers, TString val_vers){
 
   TCanvas *myc = new TCanvas("myc","",800,600);
   
@@ -108,10 +109,10 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
     
     if (DimSwitch == "1D"){
       //Get histograms from files
-      ref_file.cd(HistDir);   
+      ref_file.cd("DQMData/CaloTowersV/CaloTowersTask");   
       ref_hist1[nh1] = (TH1F*) gDirectory->Get(HistName);
       
-      val_file.cd(HistDir);   
+      val_file.cd("DQMData/CaloTowersV/CaloTowersTask");   
       val_hist1[nh1] = (TH1F*) gDirectory->Get(HistName);
       
       //Rebin histograms -- has to be done first
@@ -224,10 +225,10 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
 
     else if (DimSwitch == "2D"){
       //Get histograms from files
-      ref_file.cd(HistDir);   
+      ref_file.cd("DQMData/CaloTowersV/CaloTowersTask");   
       ref_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
       
-      val_file.cd(HistDir);   
+      val_file.cd("DQMData/CaloTowersV/CaloTowersTask");   
       val_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
 
       //Set the colors, styles, titles, stat boxes and format x-axis for the histograms 
@@ -280,12 +281,12 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
       
       ctstr>>HistName2;
 
-      ref_file.cd(HistDir);   
+      ref_file.cd("DQMData/CaloTowersV/CaloTowersTask");   
       
       ref_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
       ref_prof[npi]  = (TProfile*) gDirectory->Get(HistName2);
       
-      val_file.cd(HistDir);   
+      val_file.cd("DQMData/CaloTowersV/CaloTowersTask");   
       
       val_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
       val_prof[npi]  = (TProfile*) gDirectory->Get(HistName2);

@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowModelPopup.h,v 1.14 2010/05/31 15:24:45 eulisse Exp $
+// $Id: CmsShowModelPopup.h,v 1.12 2009/05/27 15:40:13 chrjones Exp $
 //
 
 // system include files
@@ -38,7 +38,6 @@ class FWColorSelect;
 class TGLabel;
 class TGTextButton;
 class TGTextButton;
-class TGHSlider;
 class FWDetailViewManager;
 class FWSelectionManager;
 
@@ -63,9 +62,7 @@ class CmsShowModelPopup : public TGTransientFrame
 public:
    friend class CmsShowModelPopupDetailViewButtonAdapter;
    
-   CmsShowModelPopup(FWDetailViewManager*, FWSelectionManager*, 
-                     const FWColorManager*, const TGWindow* p = 0, 
-                     UInt_t w = 1, UInt_t h = 1);
+   CmsShowModelPopup(FWDetailViewManager*, FWSelectionManager*, const FWColorManager*, const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1);
    virtual ~CmsShowModelPopup();
 
   virtual void CloseWindow() { UnmapWindow(); }
@@ -78,7 +75,6 @@ public:
    void updateDisplay();
    void disconnectAll();
    void changeModelColor(Color_t iColor);
-   void changeModelOpacity(Int_t opacity = 100);
    void toggleModelVisible(Bool_t on = kTRUE);
    void openDetailedView();
 
@@ -102,7 +98,6 @@ private:
 
    FWDetailViewManager* m_detailViewManager;
    const FWColorManager* m_colorManager;
-   TGHSlider            *m_opacitySlider;
 };
 
 

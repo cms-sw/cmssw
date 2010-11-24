@@ -1,5 +1,5 @@
 destDB oracle://cms_orcoff_prep/CMS_COND_GEOMETRY
-tag XMLFILE_Geometry_TagXX_ExtendedLiMax_mc
+tag XMLFILE_Geometry_ExtendedLiMax_TagXX
 inputtag
 since
 Timetype runnumber

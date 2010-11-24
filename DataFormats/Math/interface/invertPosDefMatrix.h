@@ -34,21 +34,13 @@ inline bool invertPosDefMatrix(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T
 #if defined(__SSE3__)
 #include <pmmintrin.h>
 
-namespace mathSSE {
+namespace MathSSE {
   struct M2 {
-    // the matrix is shuffed
-    struct M {double m00,m01,m11,m10;};
     union {
-      double m[4];
       __m128d r[2];
-      M mm;
+      double m[4];
     };
     
-
-    // load shuffled
-    inline M2(double i00, double i01, double i10, double i11) {
-      mm.m00=i00; mm.m01=i01; mm.m11=i11; mm.m10=i10; }
-
     double & operator[](int i) { return m[i];}
     __m128d & r0() { return r[0]; }
     __m128d & r1() { return r[1]; }
@@ -60,6 +52,8 @@ namespace mathSSE {
     
     // assume second row is already shuffled
     inline bool invert() {
+      //  load 2-3 as 3-2
+      // __m128d tmp = _mm_shuffle_pd(r1(),r1(),1);
       __m128d tmp = r1();
       // mult and sub
       __m128d det  = _mm_mul_pd(r0(),tmp);
@@ -68,6 +62,8 @@ namespace mathSSE {
       det = _mm_sub_pd(det,det2);
       // m0 /det, m1/-det -> m3, m2
       r1() = _mm_div_pd(r0(),det);
+      //back in order
+      // r1() = _mm_shuffle_pd(r1(),r1(),1);
       // m3/det, m2/-det -> m0 m1
       r0() = _mm_div_pd(tmp,det);
       double d; _mm_store_sd(&d,det);
@@ -79,7 +75,8 @@ namespace mathSSE {
 
 template<>
 inline bool invertPosDefMatrix<double,2>(ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > & m) {
-  mathSSE::M2 mm(m.Array()[0], m.Array()[1], m.Array()[1], m.Array()[2]);
+  // load shuffled
+  MathSSE::M2 mm = { m.Array()[0], m.Array()[1], m.Array()[2], m.Array()[1]  };
 
   bool ok = mm.invert();
   if (ok) {
@@ -94,7 +91,7 @@ template<>
 inline bool invertPosDefMatrix<double,2>(ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > const & mIn,
 				  ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > & mOut) {
  
-  mathSSE::M2 mm(mIn.Array()[0], mIn.Array()[1], mIn.Array()[1], mIn.Array()[2]);
+  MathSSE::M2 mm = { mIn.Array()[0], mIn.Array()[1], mIn.Array()[2], mIn.Array()[1]  };
 
   bool ok = mm.invert();
   mOut.Array()[0] = mm[0];

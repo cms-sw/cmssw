@@ -104,7 +104,11 @@ particleFlow = cms.EDProducer("PFProducer",
     minDeltaMet = cms.double(0.4),
 
     # Check HF cleaning
-    cleanedHF = cms.InputTag("particleFlowRecHitHCAL","Cleaned"),
+    cleanedHF = cms.VInputTag(
+                cms.InputTag("particleFlowRecHitHCAL","Cleaned"),
+                cms.InputTag("particleFlowClusterHFHAD","Cleaned"),
+                cms.InputTag("particleFlowClusterHFEM","Cleaned")
+                ),
     
     # number of sigmas for neutral energy detection
     pf_nsigma_ECAL = cms.double(0.0),

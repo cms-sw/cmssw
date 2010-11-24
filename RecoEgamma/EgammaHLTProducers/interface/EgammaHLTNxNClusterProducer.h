@@ -38,7 +38,7 @@ Description: simple NxN ( 3x3 etc) clustering ,( for low energy photon reconstru
 
 #include "TVector3.h"
 #include <vector>
-using namespace std;
+
 
 
 // Less than operator for sorting EcalRecHits according to energy.

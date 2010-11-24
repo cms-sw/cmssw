@@ -23,9 +23,9 @@ HLTMuon::HLTMuon() {
 void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 
   edm::ParameterSet myEmParams = pSet.getParameter<edm::ParameterSet>("RunParameters") ;
-  vector<std::string> parameterNames = myEmParams.getParameterNames() ;
+  std::vector<std::string> parameterNames = myEmParams.getParameterNames() ;
   
-  for ( vector<std::string>::iterator iParam = parameterNames.begin();
+  for ( std::vector<std::string>::iterator iParam = parameterNames.begin();
 	iParam != parameterNames.end(); iParam++ ){
     if  ( (*iParam) == "Monte" ) _Monte =  myEmParams.getParameter<bool>( *iParam );
     else if ( (*iParam) == "Debug" ) _Debug =  myEmParams.getParameter<bool>( *iParam );
@@ -125,25 +125,25 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 }
 
 /* **Analyze the event** */
-void HLTMuon::analyze(const edm::Handle<MuonCollection>                 & Muon,
-                      const edm::Handle<l1extra::L1MuonParticleCollection>   & MuCands1, 
-		      const edm::Handle<RecoChargedCandidateCollection> & MuCands2,
-		      const edm::Handle<edm::ValueMap<bool> >           & isoMap2,
-		      const edm::Handle<RecoChargedCandidateCollection> & MuCands3,
-		      const edm::Handle<edm::ValueMap<bool> >           & isoMap3,
-	              const edm::Handle<RecoChargedCandidateCollection> & oniaPixelCands,
-	              const edm::Handle<RecoChargedCandidateCollection> & oniaTrackCands,
+void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & Muon,
+                      const edm::Handle<l1extra::L1MuonParticleCollection>    & MuCands1, 
+		      const edm::Handle<reco::RecoChargedCandidateCollection> & MuCands2,
+		      const edm::Handle<edm::ValueMap<bool> >                 & isoMap2,
+		      const edm::Handle<reco::RecoChargedCandidateCollection> & MuCands3,
+		      const edm::Handle<edm::ValueMap<bool> >                 & isoMap3,
+	              const edm::Handle<reco::RecoChargedCandidateCollection> & oniaPixelCands,
+	              const edm::Handle<reco::RecoChargedCandidateCollection> & oniaTrackCands,
                       const reco::BeamSpot::Point & BSPosition,
 		      TTree* HltTree) {
 
   //std::cout << " Beginning HLTMuon " << std::endl;
 
   if (Muon.isValid()) {
-    MuonCollection mymuons;
+    reco::MuonCollection mymuons;
     mymuons = * Muon;
     std::sort(mymuons.begin(),mymuons.end(),PtGreater());
     nmuon = mymuons.size();
-    typedef MuonCollection::const_iterator muiter;
+    typedef reco::MuonCollection::const_iterator muiter;
     int imu=0;
     for (muiter i=mymuons.begin(); i!=mymuons.end(); i++) {
       muonpt[imu] = i->pt();
@@ -158,22 +158,22 @@ void HLTMuon::analyze(const edm::Handle<MuonCollection>                 & Muon,
 
   l1extra::L1MuonParticleCollection myMucands1; 
   myMucands1 = * MuCands1; 
-  //  RecoChargedCandidateCollection myMucands1;
+  //  reco::RecoChargedCandidateCollection myMucands1;
   std::sort(myMucands1.begin(),myMucands1.end(),PtGreater()); 
 
   /////////////////////////////// Open-HLT muons ///////////////////////////////
 
   // Dealing with L2 muons
-  RecoChargedCandidateCollection myMucands2;
+  reco::RecoChargedCandidateCollection myMucands2;
   if (MuCands2.isValid()) {
-//     RecoChargedCandidateCollection myMucands2;
+//     reco::RecoChargedCandidateCollection myMucands2;
     myMucands2 = * MuCands2;
     std::sort(myMucands2.begin(),myMucands2.end(),PtGreater());
     nmu2cand = myMucands2.size();
-    typedef RecoChargedCandidateCollection::const_iterator cand;
+    typedef reco::RecoChargedCandidateCollection::const_iterator cand;
     int imu2c=0;
     for (cand i=myMucands2.begin(); i!=myMucands2.end(); i++) {
-      TrackRef tk = i->get<TrackRef>();
+      reco::TrackRef tk = i->get<reco::TrackRef>();
 
       muonl2pt[imu2c] = tk->pt();
       // eta (we require |eta|<2.5 in all filters
@@ -234,7 +234,7 @@ void HLTMuon::analyze(const edm::Handle<MuonCollection>                 & Muon,
 	     (j->phi() == l1->phi()) &&
 	     (j->gmtMuonCand().quality() == l1->gmtMuonCand().quality()))
 	    {break;}
-	  //	  cout << << endl;
+	  //	  std::cout << << std::endl;
 	  //          if ( tkl1 == l1 ) {break;} 
           imu1idx++; 
         } 
@@ -249,27 +249,27 @@ void HLTMuon::analyze(const edm::Handle<MuonCollection>                 & Muon,
   else {nmu2cand = 0;}
 
   // Dealing with L3 muons
-  RecoChargedCandidateCollection myMucands3;
+  reco::RecoChargedCandidateCollection myMucands3;
   if (MuCands3.isValid()) {
     myMucands3 = * MuCands3;
     std::sort(myMucands3.begin(),myMucands3.end(),PtGreater());
     nmu3cand = myMucands3.size();
-    typedef RecoChargedCandidateCollection::const_iterator cand;
+    typedef reco::RecoChargedCandidateCollection::const_iterator cand;
     int imu3c=0;
     for (cand i=myMucands3.begin(); i!=myMucands3.end(); i++) {
-      TrackRef tk = i->get<TrackRef>();
+      reco::TrackRef tk = i->get<reco::TrackRef>();
 
-      TrackRef staTrack;
-      typedef MuonTrackLinksCollection::const_iterator l3muon;
+      reco::TrackRef staTrack;
+      typedef reco::MuonTrackLinksCollection::const_iterator l3muon;
       int il3 = 0;
       //find the corresponding L2 track
       staTrack = tk->seedRef().castTo<edm::Ref< L3MuonTrajectorySeedCollection> >()->l2Track();
       il3++;
       int imu2idx = 0;
       if (MuCands2.isValid()) {
-	typedef RecoChargedCandidateCollection::const_iterator candl2;
+	typedef reco::RecoChargedCandidateCollection::const_iterator candl2;
 	for (candl2 i=myMucands2.begin(); i!=myMucands2.end(); i++) {
-	  TrackRef tkl2 = i->get<TrackRef>();
+	  reco::TrackRef tkl2 = i->get<reco::TrackRef>();
 	  if ( tkl2 == staTrack ) {break;}
 	  imu2idx++;
 	}
@@ -327,15 +327,15 @@ void HLTMuon::analyze(const edm::Handle<MuonCollection>                 & Muon,
   else {nmu3cand = 0;}
 
   // Dealing with Onia Pixel tracks
-  RecoChargedCandidateCollection myOniaPixelCands;
+  reco::RecoChargedCandidateCollection myOniaPixelCands;
   if (oniaPixelCands.isValid()) {
     myOniaPixelCands = * oniaPixelCands;
     std::sort(myOniaPixelCands.begin(),myOniaPixelCands.end(),PtGreater());
     nOniaPixelCand = myOniaPixelCands.size();
-    typedef RecoChargedCandidateCollection::const_iterator cand;
+    typedef reco::RecoChargedCandidateCollection::const_iterator cand;
     int ic=0;
     for (cand i=myOniaPixelCands.begin(); i!=myOniaPixelCands.end(); i++) {
-      TrackRef tk = i->get<TrackRef>();
+      reco::TrackRef tk = i->get<reco::TrackRef>();
 
       oniaPixelpt[ic] = tk->pt();
       oniaPixeleta[ic] = tk->eta();
@@ -352,15 +352,15 @@ void HLTMuon::analyze(const edm::Handle<MuonCollection>                 & Muon,
   else {nOniaPixelCand = 0;}
 
   // Dealing with Onia Tracks
-  RecoChargedCandidateCollection myOniaTrackCands;
+  reco::RecoChargedCandidateCollection myOniaTrackCands;
   if (oniaTrackCands.isValid()) {
     myOniaTrackCands = * oniaTrackCands;
     std::sort(myOniaTrackCands.begin(),myOniaTrackCands.end(),PtGreater());
     nOniaTrackCand = myOniaTrackCands.size();
-    typedef RecoChargedCandidateCollection::const_iterator cand;
+    typedef reco::RecoChargedCandidateCollection::const_iterator cand;
     int ic=0;
     for (cand i=myOniaTrackCands.begin(); i!=myOniaTrackCands.end(); i++) {
-      TrackRef tk = i->get<TrackRef>();
+      reco::TrackRef tk = i->get<reco::TrackRef>();
 
       oniaTrackpt[ic] = tk->pt();
       oniaTracketa[ic] = tk->eta();

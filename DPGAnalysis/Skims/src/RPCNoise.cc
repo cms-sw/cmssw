@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Henry Schmitt
 //         Created:  Thu Oct 30 21:31:44 CET 2008
-// $Id: RPCNoise.cc,v 1.1 2008/11/02 20:05:36 schmittm Exp $
+// $Id: RPCNoise.cc,v 1.2 2009/12/18 00:03:10 wmtan Exp $
 //
 //
 // system include files
@@ -157,7 +157,7 @@ class RPCNoise : public edm::EDFilter {
 
 RPCNoise::RPCNoise(const edm::ParameterSet& pset)
 {
-  histogramFileName  = pset.getUntrackedParameter<string>("histogramFileName","histos.root");
+  histogramFileName  = pset.getUntrackedParameter<std::string>("histogramFileName","histos.root");
   fillHistograms     = pset.getUntrackedParameter<bool>("fillHistograms",true);
   nRPCHitsCut        = pset.getUntrackedParameter<int>("nRPCHitsCut",40);
   nCSCStripsCut      = pset.getUntrackedParameter<int>("nCSCStripsCut",50);
@@ -232,10 +232,10 @@ RPCNoise::beginJob()
 
 void 
 RPCNoise::endJob() {
-  cout << "\n\t===============================================================\n"
-       << "\tnumber of events analyzed      = " << nEventsAnalyzed << endl
-       << "\tnumber of events selected      = " << nEventsSelected << endl
-       << "\tfirst and last orbit number    : " << firstOrbit << ", " << lastOrbit << ", " << lastOrbit-firstOrbit << endl
+  std::cout << "\n\t===============================================================\n"
+       << "\tnumber of events analyzed      = " << nEventsAnalyzed << std::endl
+       << "\tnumber of events selected      = " << nEventsSelected << std::endl
+       << "\tfirst and last orbit number    : " << firstOrbit << ", " << lastOrbit << ", " << lastOrbit-firstOrbit << std::endl
        << "\t===============================================================\n\n";
 
 
@@ -301,10 +301,10 @@ RPCNoise::filter(edm::Event& event, const edm::EventSetup& eventSetup){
 
   bool printThisLine = (nEventsAnalyzed%100 == 0);
   if (printThisLine) {
-  cout << "======================================"
+  std::cout << "======================================"
        << " analyzed= " << nEventsAnalyzed 
        << ", selected= " << nEventsSelected
-       << "\trun,event: " << iRun << ", " << iEvent << endl;
+       << "\trun,event: " << iRun << ", " << iEvent << std::endl;
   }
 
   /*
@@ -333,13 +333,13 @@ RPCNoise::filter(edm::Event& event, const edm::EventSetup& eventSetup){
   if (fillHistograms) {dOrbit->Fill(deltaOrbit);}
 
   if (nEventsAnalyzed < 200) {
-    cout << iEvent 
+    std::cout << iEvent 
       //	 << "\tsec,usec: " << sec << ", " << usec
-      //	 << "\tfloatTime= " << setprecision(16) << floatTime
+      //	 << "\tfloatTime= " << std::setprecision(16) << floatTime
       //	 << "\tctime: " << ctime(sec)
 	 << "\torbit,bx,mTime: " << thisOrbit << "," << bx << "," << mTime
 	 << "\tdelta= " << deltaOrbit
-	 << endl;
+	 << std::endl;
   }
 
 
@@ -374,14 +374,14 @@ RPCNoise::filter(edm::Event& event, const edm::EventSetup& eventSetup){
       if (kRing < 0) cornerFlag = 2;
     }
     if (nEventsAnalyzed < 100) {
-      cout << "Region/Station/Ring/Sector/Layer: "
+      std::cout << "Region/Station/Ring/Sector/Layer: "
 	   << kRegion << " / "
 	   << kStation << " / "
 	   << kRing << " / "
 	   << kSector << " / "
 	   << kLayer 
 	   << "\tbx,clSize: " << bx << ", " << clSize
-	   << endl;
+	   << std::endl;
     }
     if (fillHistograms) {
       RPCBX->Fill(bx);
@@ -478,9 +478,9 @@ RPCNoise::filter(edm::Event& event, const edm::EventSetup& eventSetup){
   // Analysis
   //==============
 
-  if (nEventsAnalyzed < 1000) {cout << "\tnumber of CSC DIGIS = " << nW << ", " << nS 
+  if (nEventsAnalyzed < 1000) {std::cout << "\tnumber of CSC DIGIS = " << nW << ", " << nS 
 				    << "\tDT DIGIS = " << nDT
-				    << "\tRPC Rechits = " << nRPC << endl;}
+				    << "\tRPC Rechits = " << nRPC << std::endl;}
 
   if (fillHistograms) {
 

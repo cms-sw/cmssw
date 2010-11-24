@@ -1,7 +1,5 @@
 <lcgdict>
 
-  <class name="TString" />
-  <class name="edm::Wrapper<TString>" />
   <class name="edm::Wrapper<std::vector<std::vector<int> > >" />
 
   <class name="PtrMet" />
@@ -36,6 +34,7 @@
   <class name="std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > >" />
   <class name="edm::Wrapper<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >" />
 
+  <class name="std::map<TtEvent::HypoClassKey, int>" />
   <class name="std::map<TtEvent::HypoClassKey, std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >" />
 
   <class name="TtDilepEvtSolution" />

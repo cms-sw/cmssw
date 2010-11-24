@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateReco.cc (Version 8.11)
+//  SiPixelTemplateReco.cc (Version 8.10)
 //
 //  Add goodness-of-fit to algorithm, include single pixel clusters in chi2 calculation
 //  Try "decapitation" of large single pixels
@@ -37,7 +37,6 @@
 //        - include minimum value for prob2D (1.e-30)
 //  V8.07 - Tune 2-d probability: consider only pixels above threshold and use threshold value for zero signal pixels (non-zero template)
 //  V8.10 - Remove 2-d probability for ineffectiveness and replace with simple cluster charge probability
-//  V8.11 - Change probQ to upper tail probability always (rather than two-sided tail probability)
 //
 //
 //  Created by Morris Swartz on 10/27/06.
@@ -975,10 +974,8 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 //  Use faster but less accurate TMath Vavilov distribution function
 			prvav = TMath::VavilovI(xvav, kappa, beta2);
       }
-//  Change to upper tail probability
-//		if(prvav > 0.5) prvav = 1. - prvav;
-//		probQ = (float)(2.*prvav);
-		probQ = 1. - prvav;
+		if(prvav > 0.5) prvav = 1. - prvav;
+		probQ = (float)(2.*prvav);
 		if(probQ < probQmin) {probQ = probQmin;}
 	} else {
 		probQ = -1;

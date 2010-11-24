@@ -9,7 +9,7 @@ process.MessageLogger.cerr.threshold = 'INFO'
 ## define input
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_InterestingEvents-Dec19thSkim_341_v1/0005/B641315C-ACED-DE11-82E1-0030486792B6.root'
+    '/store/data/Run2010B/Mu/AOD/PromptReco-v2/000/148/068/44373387-5DDB-DF11-A923-000423D94494.root'
     )
 )
 ## define maximal number of events to loop over
@@ -25,7 +25,7 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('GR09_R_36X_V3::All')
+process.GlobalTag.globaltag = cms.string('MC_38Y_V14::All')
 
 #-------------------------------------------------
 # PAT and TQAF configuration
@@ -34,12 +34,7 @@ process.GlobalTag.globaltag = cms.string('GR09_R_36X_V3::All')
 ## std sequence for PAT
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
-from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run36xOn35xInput
-run36xOn35xInput(process)
-
-## remove MC specific stuff in PAT
-from PhysicsTools.PatAlgos.tools.coreTools import *
-removeMCMatching(process, ["All"])
+process.patJets.addTagInfos = False
 
 ## std sequence for TQAF
 process.load("TopQuarkAnalysis.TopEventProducers.tqafSequences_cff")
@@ -64,6 +59,10 @@ process.out = cms.OutputModule("PoolOutputModule",
                                                       ## DROPPED for drop for dropped data
 )
 process.outpath = cms.EndPath(process.out)
+
+## remove MC specific stuff in PAT
+from PhysicsTools.PatAlgos.tools.coreTools import *
+removeMCMatching(process, ["All"])
 
 ## PAT content
 from PhysicsTools.PatAlgos.patEventContent_cff import *

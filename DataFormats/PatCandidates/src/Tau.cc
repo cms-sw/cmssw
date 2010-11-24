@@ -1,5 +1,5 @@
 //
-// $Id: Tau.cc,v 1.15 2010/02/03 10:32:03 veelken Exp $
+// $Id: Tau.cc,v 1.17 2010/09/27 15:24:08 mbluj Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
@@ -302,6 +302,7 @@ void Tau::embedSignalPFCands() {
   for (unsigned int i = 0; i < candRefVec.size(); i++) {
     signalPFCands_.push_back(*candRefVec.at(i));
   }
+  embeddedSignalPFCands_ = true;
 }
 void Tau::embedSignalPFChargedHadrCands() {
   if (!isPFTau() ) {//additional check with warning in pat::tau producer
@@ -311,6 +312,7 @@ void Tau::embedSignalPFChargedHadrCands() {
   for (unsigned int i = 0; i < candRefVec.size(); i++) {
     signalPFChargedHadrCands_.push_back(*candRefVec.at(i));
   }
+  embeddedSignalPFChargedHadrCands_ = true;
 }
 void Tau::embedSignalPFNeutralHadrCands() {
   if (!isPFTau() ) {//additional check with warning in pat::tau producer
@@ -320,6 +322,7 @@ void Tau::embedSignalPFNeutralHadrCands() {
   for (unsigned int i = 0; i < candRefVec.size(); i++) {
     signalPFNeutralHadrCands_.push_back(*candRefVec.at(i));
   }
+  embeddedSignalPFNeutralHadrCands_ = true;
 }
 void Tau::embedSignalPFGammaCands() {
   if (!isPFTau() ) {//additional check with warning in pat::tau producer
@@ -329,6 +332,7 @@ void Tau::embedSignalPFGammaCands() {
   for (unsigned int i = 0; i < candRefVec.size(); i++) {
     signalPFGammaCands_.push_back(*candRefVec.at(i));
   }
+  embeddedSignalPFGammaCands_ = true;
 }
 
 void Tau::embedIsolationPFCands() {
@@ -339,6 +343,7 @@ void Tau::embedIsolationPFCands() {
   for (unsigned int i = 0; i < candRefVec.size(); i++) {
     isolationPFCands_.push_back(*candRefVec.at(i));
   }
+  embeddedIsolationPFCands_ = true;
 }
 
 void Tau::embedIsolationPFChargedHadrCands() {
@@ -349,6 +354,7 @@ void Tau::embedIsolationPFChargedHadrCands() {
   for (unsigned int i = 0; i < candRefVec.size(); i++) {
     isolationPFChargedHadrCands_.push_back(*candRefVec.at(i));
   }
+  embeddedIsolationPFChargedHadrCands_ = true;
 }
 void Tau::embedIsolationPFNeutralHadrCands() {
   if (!isPFTau() ) {//additional check with warning in pat::tau producer
@@ -358,6 +364,7 @@ void Tau::embedIsolationPFNeutralHadrCands() {
   for (unsigned int i = 0; i < candRefVec.size(); i++) {
     isolationPFNeutralHadrCands_.push_back(*candRefVec.at(i));
   }
+  embeddedIsolationPFNeutralHadrCands_ = true;
 }
 void Tau::embedIsolationPFGammaCands() {
   if (!isPFTau() ) {//additional check with warning in pat::tau producer
@@ -367,6 +374,7 @@ void Tau::embedIsolationPFGammaCands() {
   for (unsigned int i = 0; i < candRefVec.size(); i++) {
     isolationPFGammaCands_.push_back(*candRefVec.at(i));
   }
+  embeddedIsolationPFGammaCands_ = true;
 }
 
 const reco::PFCandidateRef Tau::leadPFChargedHadrCand() const { 

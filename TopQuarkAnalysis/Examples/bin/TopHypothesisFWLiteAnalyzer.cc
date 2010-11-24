@@ -13,43 +13,21 @@
 #include "TopQuarkAnalysis/Examples/interface/RootHistograms.h"
 #include "TopQuarkAnalysis/Examples/interface/RootPostScript.h"
 
-
 int main(int argc, char* argv[]) 
 {
   if( argc<4 ){
     // -------------------------------------------------  
-    std::cerr << "ERROR:: " 
-	      << "Wrong number of arguments!" << std::endl 
-	      << "        Please specify:" << std::endl
-	      << "        * filepath" << std::endl
-	      << "        * process name" << std::endl
-	      << "        * HypoClassKey" << std::endl;
+    std::cerr << "ERROR: Wrong number of arguments!"     << std::endl 
+	      << "Please specify: * file name"    << std::endl
+	      << "                * process name" << std::endl
+	      << "                * HypoClassKey" << std::endl
+	      << "Example: TopHypothesisFWLiteAnalyzer ttSemiLepEvtBuilder.root TEST kGeom" << std::endl;
     // -------------------------------------------------  
     return -1;
   }
 
-  // parse HypoClassKey
-  TtEvent::HypoClassKey hypoClassKey;
-  if     (!strcmp(argv[3], "kWMassMaxSumPt")) hypoClassKey = TtEvent::kWMassMaxSumPt;
-  else if(!strcmp(argv[3], "kMaxSumPtWMass")) hypoClassKey = TtEvent::kMaxSumPtWMass;
-  else if(!strcmp(argv[3], "kGeom"         )) hypoClassKey = TtEvent::kGeom;
-  else if(!strcmp(argv[3], "kKinFit"       )) hypoClassKey = TtEvent::kKinFit;
-  else if(!strcmp(argv[3], "kGenMatch"     )) hypoClassKey = TtEvent::kGenMatch;
-  else if(!strcmp(argv[3], "kMVADisc"      )) hypoClassKey = TtEvent::kMVADisc; 
-  else{
-    // -------------------------------------------------  
-    std::cerr << "ERROR:: " 
-	      << "Unknown HypoClassKey!" << std::endl
-	      << "        Please specify one out of the following keys:" << std::endl
-	      << "        * kWMassMaxSumPt" << std::endl
-	      << "        * kMaxSumPtWMass" << std::endl
-	      << "        * kGeom" << std::endl
-	      << "        * kKinFit" << std::endl
-	      << "        * kGenMatch" << std::endl
-	      << "        * kMVADisc" << std::endl;
-    // -------------------------------------------------  
-    return -1;
-  }
+  // get HypoClassKey
+  std::string hypoClassKey = argv[3];
 
   // load framework libraries
   gSystem->Load( "libFWCoreFWLite" );
@@ -77,9 +55,8 @@ int main(int argc, char* argv[])
   if( inFile ) inFile->GetObject("Events", events_); 
   if( events_==0 ){
     // -------------------------------------------------  
-    std::cerr << "ERROR:: " 
-	      << "Unable to retrieve TTree Events!" << std::endl
-	      << "        Either wrong file name or the tree doesn't exist" << std::endl;
+    std::cerr << "ERROR: Unable to retrieve TTree Events!"           << std::endl
+	      << "Either wrong file name or the tree doesn't exist." << std::endl;
     // -------------------------------------------------  
     return -1;
   }
@@ -106,7 +83,7 @@ int main(int argc, char* argv[])
   // -------------------------------------------------
   for(int evt=0; evt<nevt; ++evt){
     // set branch address
-    semiLepEvt_-> SetAddress( &semiLepEvt );
+    semiLepEvt_->SetAddress( &semiLepEvt );
     // get event
     decay_     ->GetEntry( evt );
     genEvt_    ->GetEntry( evt );
@@ -151,37 +128,10 @@ int main(int argc, char* argv[])
   
   // save histograms to file
   TFile outFile( "analyzeHypothesis.root", "recreate" );
-  switch( hypoClassKey ){
-  case TtEvent::kGeom : 
-    outFile.mkdir("analyzeGeom");
-    outFile.cd("analyzeGeom");
-    break;
-  case TtEvent::kWMassMaxSumPt : 
-    outFile.mkdir("analyzeMaxSumPtWMass");
-    outFile.cd("analyzeMaxSumPtWMass");
-    break;
-  case TtEvent::kMaxSumPtWMass : 
-    outFile.mkdir("analyzeMaxSumPtWMass");
-    outFile.cd("analyzeMaxSumPtWMass");
-    break;
-  case TtEvent::kKinFit : 
-    outFile.mkdir("analyzeKinFit");
-    outFile.cd("analyzeKinFit");
-    break;
-  case TtEvent::kGenMatch : 
-    outFile.mkdir("analyzeGenMatch");
-    outFile.cd("analyzeGenMatch");
-    break;
-  case TtEvent::kMVADisc : 
-    outFile.mkdir("analyzeMVADisc");
-    outFile.cd("analyzeMVADisc");
-    break;
-  case TtEvent::kKinSolution : 
-    // Just to suppress compiler warnings...
-    // This analyzer only supports semileptonic hypo classes so far,
-    // other keys are rejected in the very first part of the analyzer.
-    break;
-  }
+  // strip the leading "k" from the hypoClassKey to build directory name
+  TString outDir = "analyze" + std::string(hypoClassKey, 1, hypoClassKey.length());
+  outFile.mkdir(outDir);
+  outFile.cd(outDir);
   hadWPt_    ->Write( );
   hadWMass_  ->Write( );
   hadTopPt_  ->Write( );

@@ -5,8 +5,8 @@
  *  Analysis on DT residuals to validate the kFactor
  *
  *
- *  $Date: 2010/01/05 10:14:39 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/10/31 08:51:46 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -68,7 +68,7 @@ class DTCalibValidation: public edm::EDAnalyzer{
   //DaqMonitorBEInterface* theDbe;
 
   // Switch for verbosity
-  //bool debug;
+  bool debug;
   edm::ParameterSet parameters;
   int wrongSegment;
   int rightSegment;

@@ -137,7 +137,6 @@ public :
   Float_t         ohBJetMuL3Tag[10];   //[NohBJetL2] 
   Int_t           ohBJetPerfL25Tag[10];   //[NohBJetL2] 
   Int_t           ohBJetPerfL3Tag[10];   //[NohBJetL2] 
-  //ccla
   Int_t           recoNVrt;           // reconstructed vertex info
   Float_t         recoVrtX[10];       //
   Float_t         recoVrtY[10];       //
@@ -145,7 +144,6 @@ public :
   Int_t           recoVrtNtrk[10];    //
   Float_t         recoVrtChi2[10];    //
   Float_t         recoVrtNdof[10];    //
-
   Int_t           NrecoElec;
   Float_t         recoElecPt[4000];   //[NrecoElec]
   Float_t         recoElecPhi[4000];   //[NrecoElec]
@@ -322,8 +320,7 @@ public :
   bool ohEleLWL1Dupl[8000];
   bool ohPhotL1Dupl[8000]; 
 
-  //L1's
-  /* For 8E29 Menu */
+  //L1 algorithm bits
   Int_t           L1_DoubleEG05_TopBottom;
   Int_t           L1_DoubleMuTopBottom; 
   Int_t           L1_Mu3QE8_Jet6;  
@@ -341,6 +338,7 @@ public :
   Int_t           L1_EG5_TripleJet6;  
   Int_t           L1_SingleJet6;  
   Int_t           L1_SingleJet10;
+  Int_t           L1_SingleJet10_NotBptxC_Ext;
   Int_t           L1_ETM30;  
   Int_t           L1_QuadJet6; 
   Int_t           L1_TripleJet14; 
@@ -363,7 +361,8 @@ public :
   Int_t           L1_ETM40; 
   Int_t           L1_ETM70; 
   Int_t           L1_ETM80; 
-  Int_t           L1_ETT60; 
+  Int_t           L1_ETT60;
+  Int_t           L1_ETT100; 
   Int_t           L1_HTT50; 
   Int_t           L1_HTT100; 
   Int_t           L1_HTT200; 
@@ -422,7 +421,7 @@ public :
   Int_t           L1_SingleTauJet4;
   Int_t           L1_DoubleForJet10_EtaOpp;
 
-  // ccla - L1 Technical bits (06Dec09)
+  // L1 Technical bits
   Int_t           L1Tech_BPTX_minus_v0;
   Int_t           L1Tech_BPTX_minus_v0_5bx;
   Int_t           L1Tech_BPTX_minus_AND_not_plus_v0;
@@ -489,14 +488,12 @@ public :
   Int_t           L1Tech_RPC_TTU_pointing_Cosmics_v0_5bx;
   Int_t           L1Tech_RPC_TTU_RBst1_collisions_v0;
   Int_t           L1Tech_RPC_TTU_RBst1_collisions_v0_5bx;
-
   Int_t           L1Tech_HCAL_HF_MM_or_PP_or_PM_v0;
   Int_t           L1Tech_HCAL_HF_MM_or_PP_or_PM_v0_5bx;
   Int_t           L1Tech_HCAL_HF_coincidence_PM_v1;
   Int_t           L1Tech_HCAL_HF_coincidence_PM_v1_5bx;
   Int_t           L1Tech_HCAL_HF_MMP_or_MPP_v0;
   Int_t           L1Tech_HCAL_HF_MMP_or_MPP_v0_5bx;
-
   Int_t           L1Tech_ZDC_loose_vertex_v0;
   Int_t           L1Tech_ZDC_loose_vertex_v0_5bx;
   Int_t           L1Tech_ZDC_minus_over_threshold_v0;
@@ -517,6 +514,8 @@ public :
   Int_t           L1_BptxPlus_NotBptxMinus_5bx;
   Int_t           L1_BptxMinus_NotBptxPlus;
   Int_t           L1_BptxMinus_NotBptxPlus_5bx;
+  Int_t           L1_BptxXOR_BscMinBiasOR;
+  Int_t           L1_BptxXOR_BscMinBiasOR_5bx;
   Int_t           L1_BscHighMultiplicity;
   Int_t           L1_BscHighMultiplicity_5bx;
   Int_t           L1_BscMinBiasInnerThreshold1;
@@ -527,6 +526,165 @@ public :
   Int_t           L1_BscMinBiasOR_5bx;
   Int_t           L1_BscMinBiasOR_BptxPlusORMinus;
   Int_t           L1_BscMinBiasOR_BptxPlusORMinus_5bx;
+  Int_t           L1_BscMinBiasOR_BptxPlusANDMinus;
+  Int_t           L1_BscMinBiasOR_BptxPlusANDMinus_5bx; 
+
+  //L1 algorithm bit prescales
+  Int_t           L1_DoubleEG05_TopBottom_Prescl;
+  Int_t           L1_DoubleMuTopBottom_Prescl; 
+  Int_t           L1_Mu3QE8_Jet6_Prescl;  
+  Int_t           L1_Mu5QE8_Jet6_Prescl; 
+  Int_t           L1_IsoEG10_Jet6_ForJet6_Prescl; 
+  Int_t           L1_SingleJet20_Prescl; 
+  Int_t           L1_SingleJet40_Prescl; 
+  Int_t           L1_SingleJet60_Prescl; 
+  Int_t           L1_DoubleJet30_Prescl;  
+  Int_t           L1_SingleTauJet10_Prescl; 
+  Int_t           L1_SingleTauJet20_Prescl; 
+  Int_t           L1_SingleTauJet50_Prescl; 
+  Int_t           L1_DoubleTauJet14_Prescl; 
+  Int_t           L1_Mu5_Jet6_Prescl;  
+  Int_t           L1_EG5_TripleJet6_Prescl;  
+  Int_t           L1_SingleJet6_Prescl;  
+  Int_t           L1_SingleJet10_Prescl;
+  Int_t           L1_SingleJet10_NotBptxC_Ext_Prescl;
+  Int_t           L1_ETM30_Prescl;  
+  Int_t           L1_QuadJet6_Prescl; 
+  Int_t           L1_TripleJet14_Prescl; 
+  Int_t           L1_DoubleEG1_Prescl; 
+  Int_t           L1_DoubleEG2_Prescl; 
+  Int_t           L1_DoubleEG5_Prescl; 
+  Int_t           L1_DoubleHfBitCountsRing1_P1N1_Prescl; 
+  Int_t           L1_DoubleHfBitCountsRing2_P1N1_Prescl; 
+  Int_t           L1_DoubleHfRingEtSumsRing1_P200N200_Prescl; 
+  Int_t           L1_DoubleHfRingEtSumsRing1_P4N4_Prescl; 
+  Int_t           L1_DoubleHfRingEtSumsRing2_P200N200_Prescl; 
+  Int_t           L1_DoubleHfRingEtSumsRing2_P4N4_Prescl; 
+  Int_t           L1_DoubleJet70_Prescl; 
+  Int_t           L1_DoubleMu3_Prescl; 
+  Int_t           L1_DoubleMuOpen_Prescl; 
+  Int_t           L1_DoubleTauJet30_Prescl; 
+  Int_t           L1_EG10_Jet15_Prescl; 
+  Int_t           L1_EG5_TripleJet15_Prescl; 
+  Int_t           L1_ETM20_Prescl; 
+  Int_t           L1_ETM40_Prescl; 
+  Int_t           L1_ETM70_Prescl; 
+  Int_t           L1_ETM80_Prescl; 
+  Int_t           L1_ETT60_Prescl; 
+  Int_t           L1_ETT100_Prescl;  
+  Int_t           L1_HTT50_Prescl; 
+  Int_t           L1_HTT100_Prescl; 
+  Int_t           L1_HTT200_Prescl; 
+  Int_t           L1_HTT300_Prescl; 
+  Int_t           L1_IsoEG10_Jet15_ForJet10_Prescl; 
+  Int_t           L1_MinBias_HTT10_Prescl; 
+  Int_t           L1_Mu3QE8_EG5_Prescl; 
+  Int_t           L1_Mu3QE8_Jet15_Prescl;  
+  Int_t           L1_Mu5QE8_Jet15_Prescl; 
+  Int_t           L1_QuadJet15_Prescl; 
+  Int_t           L1_SingleEG1_Prescl; 
+  Int_t           L1_SingleEG10_Prescl; 
+  Int_t           L1_SingleEG12_Prescl; 
+  Int_t           L1_SingleEG15_Prescl; 
+  Int_t           L1_SingleEG2_Prescl; 
+  Int_t           L1_SingleEG20_Prescl; 
+  Int_t           L1_SingleEG5_Prescl; 
+  Int_t           L1_SingleEG8_Prescl; 
+  Int_t           L1_SingleHfBitCountsRing1_1_Prescl; 
+  Int_t           L1_SingleHfBitCountsRing2_1_Prescl; 
+  Int_t           L1_SingleHfRingEtSumsRing1_200_Prescl; 
+  Int_t           L1_SingleHfRingEtSumsRing1_4_Prescl; 
+  Int_t           L1_SingleHfRingEtSumsRing2_200_Prescl; 
+  Int_t           L1_SingleHfRingEtSumsRing2_4_Prescl; 
+  Int_t           L1_SingleIsoEG10_Prescl; 
+  Int_t           L1_SingleIsoEG12_Prescl; 
+  Int_t           L1_SingleIsoEG15_Prescl; 
+  Int_t           L1_SingleIsoEG5_Prescl; 
+  Int_t           L1_SingleIsoEG8_Prescl; 
+  Int_t           L1_SingleJet100_Prescl; 
+  Int_t           L1_SingleJet15_Prescl; 
+  Int_t           L1_SingleJet30_Prescl; 
+  Int_t           L1_SingleJet50_Prescl; 
+  Int_t           L1_SingleJet70_Prescl; 
+  Int_t           L1_SingleMu0_Prescl; 
+  Int_t           L1_SingleMu10_Prescl; 
+  Int_t           L1_SingleMu14_Prescl; 
+  Int_t           L1_SingleMu20_Prescl; 
+  Int_t           L1_SingleMu3_Prescl; 
+  Int_t           L1_SingleMu5_Prescl; 
+  Int_t           L1_SingleMu7_Prescl; 
+  Int_t           L1_SingleMuBeamHalo_Prescl; 
+  Int_t           L1_SingleMuOpen_Prescl; 
+  Int_t           L1_SingleTauJet30_Prescl; 
+  Int_t           L1_SingleTauJet40_Prescl; 
+  Int_t           L1_SingleTauJet60_Prescl; 
+  Int_t           L1_SingleTauJet80_Prescl; 
+  Int_t           L1_TripleJet30_Prescl; 
+  Int_t           L1_ZeroBias_Prescl;  
+  Int_t           L1_ZeroBias_Ext_Prescl;  
+  Int_t           L1_SingleCenJet2_Prescl;
+  Int_t           L1_SingleCenJet4_Prescl;
+  Int_t           L1_SingleForJet2_Prescl;
+  Int_t           L1_SingleForJet4_Prescl;
+  Int_t           L1_SingleTauJet2_Prescl;
+  Int_t           L1_SingleTauJet4_Prescl;
+  Int_t           L1_DoubleForJet10_EtaOpp_Prescl;
+
+  // L1 Technical bit prescales
+  Int_t           L1Tech_BPTX_minus_v0_Prescl;
+  Int_t           L1Tech_BPTX_minus_AND_not_plus_v0_Prescl;
+  Int_t           L1Tech_BPTX_plus_v0_Prescl;
+  Int_t           L1Tech_BPTX_plus_AND_NOT_minus_v0_Prescl;
+  Int_t           L1Tech_BPTX_plus_AND_minus_v0_Prescl;
+  Int_t           L1Tech_BPTX_plus_AND_minus_instance1_v0_Prescl;
+  Int_t           L1Tech_BPTX_plus_OR_minus_v0_Prescl;
+  Int_t           L1Tech_BPTX_quiet_v0_Prescl;
+  Int_t           L1Tech_BSC_HighMultiplicity_v0_Prescl;
+  Int_t           L1Tech_BSC_halo_beam1_inner_v0_Prescl;
+  Int_t           L1Tech_BSC_halo_beam1_outer_v0_Prescl;
+  Int_t           L1Tech_BSC_halo_beam2_inner_v0_Prescl;
+  Int_t           L1Tech_BSC_halo_beam2_outer_v0_Prescl;
+  Int_t           L1Tech_BSC_minBias_OR_v0_Prescl;
+  Int_t           L1Tech_BSC_minBias_inner_threshold1_v0_Prescl;
+  Int_t           L1Tech_BSC_minBias_inner_threshold2_v0_Prescl;
+  Int_t           L1Tech_BSC_minBias_threshold1_v0_Prescl;
+  Int_t           L1Tech_BSC_minBias_threshold2_v0_Prescl;
+  Int_t           L1Tech_BSC_splash_beam1_v0_Prescl;
+  Int_t           L1Tech_BSC_splash_beam2_v0_Prescl;
+  Int_t           L1Tech_HCAL_HBHE_totalOR_v0_Prescl;
+  Int_t           L1Tech_HCAL_HF_totalOR_coincidenceHFM_v0_Prescl;
+  Int_t           L1Tech_HCAL_HF_totalOR_coincidenceHFP_v0_Prescl;
+  Int_t           L1Tech_HCAL_HF_totalOR_minBias_v0_Prescl;
+  Int_t           L1Tech_HCAL_HO_totalOR_v0_Prescl;
+  Int_t           L1Tech_RPC_TTU_RB0_Cosmics_v0_Prescl;
+  Int_t           L1Tech_RPC_TTU_RBminus1_Cosmics_v0_Prescl;
+  Int_t           L1Tech_RPC_TTU_RBminus2_Cosmics_v0_Prescl;
+  Int_t           L1Tech_RPC_TTU_RBplus1_Cosmics_v0_Prescl;
+  Int_t           L1Tech_RPC_TTU_RBplus2_Cosmics_v0_Prescl;
+  Int_t           L1Tech_RPC_TTU_barrel_Cosmics_v0_Prescl;
+  Int_t           L1Tech_RPC_TTU_pointing_Cosmics_v0_Prescl;
+  Int_t           L1Tech_RPC_TTU_RBst1_collisions_v0_Prescl;
+  Int_t           L1Tech_HCAL_HF_MM_or_PP_or_PM_v0_Prescl;
+  Int_t           L1Tech_HCAL_HF_coincidence_PM_v1_Prescl;
+  Int_t           L1Tech_HCAL_HF_MMP_or_MPP_v0_Prescl;
+  Int_t           L1Tech_ZDC_loose_vertex_v0_Prescl;
+  Int_t           L1Tech_ZDC_minus_over_threshold_v0_Prescl;
+  Int_t           L1Tech_ZDC_plus_over_threshold_v0_Prescl;
+  Int_t           L1Tech_ZDC_tight_vertex_v0_Prescl;
+
+  // BSC and BPTX algorithm bit prescales
+  Int_t           L1_BptxMinus_Prescl;
+  Int_t           L1_BptxPlus_Prescl;
+  Int_t           L1_BptxPlusORMinus_Prescl;
+  Int_t           L1_BptxPlus_NotBptxMinus_Prescl;
+  Int_t           L1_BptxMinus_NotBptxPlus_Prescl;
+  Int_t           L1_BptxXOR_BscMinBiasOR_Prescl;
+  Int_t           L1_BscHighMultiplicity_Prescl;
+  Int_t           L1_BscMinBiasInnerThreshold1_Prescl;
+  Int_t           L1_BscMinBiasInnerThreshold2_Prescl;
+  Int_t           L1_BscMinBiasOR_Prescl;
+  Int_t           L1_BscMinBiasOR_BptxPlusORMinus_Prescl;
+  Int_t           L1_BscMinBiasOR_BptxPlusANDMinus_Prescl; 
 
   // Here we declare any emulated L1 bits 
   Int_t           OpenL1_ZeroBias;
@@ -540,9 +698,10 @@ public :
   Int_t           OpenL1_SingleTauJet2; 
   Int_t           OpenL1_SingleTauJet4; 
   Int_t           OpenL1_DoubleForJet10_EtaOpp; 
+  Int_t           OpenL1_QuadJet8U;
 
 
-  // JH - 1E31 MC menu
+  // 8E29 and 1E31 MC menus
   Int_t           HLT_L1Jet15; 
   Int_t           HLT_Jet30; 
   Int_t           HLT_Jet50; 
@@ -626,8 +785,8 @@ public :
   Int_t           AlCa_EcalPhiSym; 
   Int_t           AlCa_EcalPi0_1E31; 
   Int_t           AlCa_EcalEta_1E31; 
-
-  // 8E29 menu
+  Int_t           HLT_IsoTrackHE_1E31; 
+  Int_t           HLT_IsoTrackHB_1E31;
   Int_t           HLT_L1Jet6U;
   Int_t           HLT_Jet15U;
   Int_t           HLT_Jet30U;
@@ -680,68 +839,106 @@ public :
   Int_t           AlCa_RPCMuonNoHits;
   Int_t           AlCa_RPCMuonNormalisation;  
 
-  // Commissioning and other HLT Paths for the CRAFT09 cosmics menu
-  Int_t           HLT_Random;
-  Int_t           HLT_L2Mu3_NoVertex;
-  Int_t           HLT_OIstateTkMu3;
-  Int_t           HLT_TrackPointing;
-  Int_t           HLT_EgammaSuperClusterOnly_L1R;
-  Int_t           AlCa_EcalPi0_Cosmics; 
-  Int_t           AlCa_EcalEta_Cosmics; 
-  Int_t           HLT_DataIntegrity; 
-  Int_t           HLT_L1_BPTX; 
-  Int_t           HLT_L1_BSC; 
-  Int_t           HLT_L1_HFtech; 
-  Int_t           HLT_HFThreshold; 
+  // Autogenerated from ConfDB - Int_t
+  Int_t           HLT_Mu0_TkMu0_OST_Jpsi;
+  Int_t           HLT_Mu3_TkMu0_OST_Jpsi;
+  Int_t           HLT_Mu5_TkMu0_OST_Jpsi;
+  Int_t           HLT_Ele12_SW_TightEleId_L1R;
+  Int_t           HLT_Ele12_SW_TightEleIdIsol_L1R;
+  Int_t           HLT_Ele12_SW_TightEleIdIsol_NoDEtaInEE_L1R;
+  Int_t           HLT_Photon20_NoHE_L1R;
+  Int_t           HLT_Photon50_NoHE_L1R;
+  Int_t           HLT_DoubleJet25U_ForwardBackward;
+  Int_t           HLT_QuadJet20U;
+  Int_t           HLT_QuadJet25U;
+  Int_t           HLT_MET65;
+  Int_t           HLT_HT140U;
+  Int_t           HLT_L2Mu25;
+  Int_t           HLT_Mu20_NoVertex;
+  Int_t           HLT_Ele12_SW_EleId_L1R;
+  Int_t           HLT_Ele12_SW_EleIdIsol_L1R;
+  Int_t           HLT_Ele12_SW_EleIdIsol_NoDEtaInEE_L1R;
+  Int_t           HLT_Ele17_SW_L1R;
+  Int_t           HLT_Ele17_SW_CaloEleId_L1R;
+  Int_t           HLT_Ele17_SW_LooseEleId_L1R;
+  Int_t           HLT_Ele17_SW_EleId_L1R;
+  Int_t           HLT_Ele22_SW_CaloEleId_L1R;
+  Int_t           HLT_Ele40_SW_L1R;
+  Int_t           HLT_Photon50_NoHE_Cleaned_L1R;
+  Int_t           HLT_DoublePhoton17_L1R;
+  Int_t           HLT_SingleIsoTau20_Trk5_MET20;
+  Int_t           HLT_SingleIsoTau20_Trk15_MET20;
+  Int_t           HLT_SingleIsoTau30_Trk5_MET20;
+  Int_t           HLT_SingleIsoTau30_Trk5_L120or30;
+  Int_t           HLT_DoubleIsoTau15_OneLeg_Trk5;
+  Int_t           HLT_DoubleIsoTau15_Trk5;
+  Int_t           HLT_BTagMu_Jet20U;
+  Int_t           HLT_PixelTracks_Multiplicity100;
   Int_t           HLT_Physics;
-  Int_t           HLT_PhysicsNoMuon;
-  Int_t           HLT_Calibration; 
-  Int_t           HLT_EcalCalibration;
-  Int_t           HLT_PixelFEDSize; 
-  Int_t           HLT_GlobalRunHPDNoise; 
-
-
-
-  
-  // HLT paths for the 2009 Circulating Beam menu 
-  Int_t           HLT_L2Mu0_NoVertex;
-  Int_t           HLT_TkMu3_NoVertex;
-  Int_t           HLT_IsoTrackHB_8E29;
-  Int_t           HLT_IsoTrackHE_8E29;
-  Int_t           HLT_IsoTrackHB_1E31; 
-  Int_t           HLT_IsoTrackHE_1E31; 
-  Int_t           HLT_MinBiasPixel_DoubleIsoTrack5;
-  Int_t           HLT_MinBiasPixel_DoubleTrack;
-  Int_t           HLT_MinBiasPixel_SingleTrack;
-  Int_t           HLT_TechTrigHCALNoise;
-  Int_t           HLT_HcalNZS_8E29;
-  Int_t           HLT_HcalPhiSym;
+  Int_t           HLT_Jet70U;
+  Int_t           HLT_Jet100U;
+  Int_t           HLT_DiJetAve15U;
+  Int_t           HLT_DiJetAve30U;
+  Int_t           HLT_L1ETT100;
+  Int_t           HLT_EcalOnly_SumEt160;
+  Int_t           HLT_Mu3_Track3_Jpsi;
+  Int_t           HLT_Ele10_SW_EleId_L1R;
+  Int_t           HLT_Ele15_SW_CaloEleId_L1R;
+  Int_t           HLT_DoubleEle4_SW_eeRes_L1R;
+  Int_t           HLT_Photon30_Cleaned_L1R;
+  Int_t           HLT_Photon50_L1R;
+  Int_t           HLT_Photon50_Cleaned_L1R;
+  Int_t           HLT_DoublePhoton20_L1R;
+  Int_t           HLT_SingleLooseIsoTau25_Trk5;
+  Int_t           HLT_SingleIsoTau20_Trk5;
+  Int_t           HLT_StoppedHSCP;
+  Int_t           HLT_L1Tech_BSC_minBias_OR;
+  Int_t           HLT_IsoTrackHE;
+  Int_t           HLT_IsoTrackHB;
   Int_t           HLT_HcalNZS;
-
-  // Add-ons for Circulation beam v2 (2009Nov18)
-  Int_t           HLT_DTErrors;
-  Int_t           HLT_HcalCalibration;
-  Int_t           HLT_LogMonitor;
-  Int_t           HLT_Activity_PixelClusters;
-  Int_t           HLT_Activity_Ecal;
-  Int_t           HLT_Activity_EcalREM;
-  Int_t           HLT_L1SingleEG2_NoBPTX;
-  Int_t           HLT_RPCBarrelCosmics;
-  Int_t           HLT_L1_BPTX_MinusOnly;
-  Int_t           HLT_L1_BPTX_PlusOnly;
+  Int_t           AlCa_EcalPi0;
+  Int_t           AlCa_EcalEta;
   Int_t           HLT_Activity_L1A;
+  Int_t           HLT_Activity_PixelClusters;
   Int_t           HLT_L1SingleForJet;
   Int_t           HLT_L1SingleEG2;
-  Int_t           HLT_MinBias;
-  Int_t           HLT_MinBiasBSC;
-  Int_t           HLT_MinBiasBSC_OR;
-  Int_t           HLT_HighMultiplicityBSC;
-
-  // Splash Feb 2010
-  Int_t          HLT_SplashEcalSumET;
-  Int_t          HLT_L1SingleEG20;
-
-  // Autogenerated from ConfDB - Int_t
+  Int_t           HLT_MinBiasPixel_SingleTrack;
+  Int_t           HLT_MinBiasPixel_DoubleTrack;
+  Int_t           HLT_MinBiasPixel_DoubleIsoTrack5;
+  Int_t           HLT_RPCBarrelCosmics;
+  Int_t           HLT_IsoTrackHE_8E29;
+  Int_t           HLT_IsoTrackHB_8E29;
+  Int_t           HLT_HcalPhiSym;
+  Int_t           HLT_HcalNZS_8E29;
+  Int_t           HLT_DTErrors;
+  Int_t           HLT_Calibration;
+  Int_t           HLT_EcalCalibration;
+  Int_t           HLT_HcalCalibration;
+  Int_t           HLT_Random;
+  Int_t           HLT_GlobalRunHPDNoise;
+  Int_t           HLT_TechTrigHCALNoise;
+  Int_t           HLT_L1_BPTX;
+  Int_t           HLT_L1_BPTX_MinusOnly;
+  Int_t           HLT_L1_BPTX_PlusOnly;
+  Int_t           HLT_L2Mu0_NoVertex;
+  Int_t           HLT_LogMonitor;
+  Int_t           HLT_Activity_Ecal_SC17;
+  Int_t           HLT_DiJetAve50U_8E29;
+  Int_t           HLT_L1DoubleMuOpen_Tight;
+  Int_t           HLT_Mu0_TkMu0_Jpsi;
+  Int_t           HLT_Mu0_TkMu0_Jpsi_NoCharge;
+  Int_t           HLT_Mu3_TkMu0_Jpsi;
+  Int_t           HLT_Mu3_TkMu0_Jpsi_NoCharge;
+  Int_t           HLT_Mu5_TkMu0_Jpsi;
+  Int_t           HLT_Mu5_TkMu0_Jpsi_NoCharge;
+  Int_t           HLT_Photon15_TrackIso_Cleaned_L1R;
+  Int_t           HLT_Photon15_LooseEcalIso_Cleaned_L1R;
+  Int_t           HLT_Photon30_L1R;
+  Int_t           HLT_SingleLooseIsoTau20_Trk5;
+  Int_t           HLT_SingleLooseIsoTau25;
+  Int_t           HLT_MultiVertex6;
+  Int_t           HLT_MultiVertex8_L1ETT60;
+  Int_t           HLT_PixelTracks_Multiplicity85;
   Int_t           HLT_L1Tech_BSC_minBias;
   Int_t           HLT_Activity_CSC;
   Int_t           HLT_Activity_Ecal_SC7;
@@ -879,31 +1076,228 @@ public :
   Int_t           HLT_DoublePhoton5_CEP_L1R;
   Int_t           HLT_ZeroBias1kHz;
 
-  // Add-ons for Circulation beam v2 (2009Nov18)
-  TBranch        *b_HLT_DTErrors;   //!
-  TBranch        *b_HLT_HcalCalibration;   //!
-  TBranch        *b_HLT_LogMonitor;   //!
-  TBranch        *b_HLT_Activity_PixelClusters;   //!
-  TBranch        *b_HLT_Activity_Ecal;   //!
-  TBranch        *b_HLT_Activity_EcalREM;   //!
-  TBranch        *b_HLT_L1SingleEG2_NoBPTX;   //!
-  TBranch        *b_HLT_RPCBarrelCosmics;   //!
-  TBranch        *b_HLT_L1_BPTX_MinusOnly;   //!
-  TBranch        *b_HLT_L1_BPTX_PlusOnly;   //!
-  TBranch        *b_HLT_Activity_L1A;   //!
-  TBranch        *b_HLT_L1SingleForJet;   //!
-  TBranch        *b_HLT_L1SingleEG2;   //!
-  TBranch        *b_HLT_MinBias;   //!
-  TBranch        *b_HLT_MinBiasBSC;   //!
-  TBranch        *b_HLT_MinBiasBSC_OR;   //!
-  TBranch        *b_HLT_HighMultiplicityBSC;   //!
-  TBranch        *b_NohPixelTracksL3;   //!
-  TBranch        *b_ohPixelTracksL3Pt;    //!
-  TBranch        *b_ohPixelTracksL3Eta;   //!
-  TBranch        *b_ohPixelTracksL3Phi;    //!
-  TBranch        *b_ohPixelTracksL3Vz;    //!
+  // Autogenerated from ConfDB - Prescale Int_t
+  Int_t           HLT_IsoMu9_Prescl;
+  Int_t           HLT_Mu0_TkMu0_OST_Jpsi_Prescl;
+  Int_t           HLT_Mu3_TkMu0_OST_Jpsi_Prescl;
+  Int_t           HLT_Mu5_TkMu0_OST_Jpsi_Prescl;
+  Int_t           HLT_Ele12_SW_TightEleId_L1R_Prescl;
+  Int_t           HLT_Ele12_SW_TightEleIdIsol_L1R_Prescl;
+  Int_t           HLT_Ele12_SW_TightEleIdIsol_NoDEtaInEE_L1R_Prescl;
+  Int_t           HLT_Photon20_NoHE_L1R_Prescl;
+  Int_t           HLT_Photon50_NoHE_L1R_Prescl;
+  Int_t           HLT_DiJetAve70U_Prescl;
+  Int_t           HLT_DoubleJet25U_ForwardBackward_Prescl;
+  Int_t           HLT_QuadJet20U_Prescl;
+  Int_t           HLT_QuadJet25U_Prescl;
+  Int_t           HLT_MET65_Prescl;
+  Int_t           HLT_HT140U_Prescl;
+  Int_t           HLT_L2Mu25_Prescl;
+  Int_t           HLT_Mu11_Prescl;
+  Int_t           HLT_Mu20_NoVertex_Prescl;
+  Int_t           HLT_Ele12_SW_EleId_L1R_Prescl;
+  Int_t           HLT_Ele12_SW_EleIdIsol_L1R_Prescl;
+  Int_t           HLT_Ele12_SW_EleIdIsol_NoDEtaInEE_L1R_Prescl;
+  Int_t           HLT_Ele17_SW_L1R_Prescl;
+  Int_t           HLT_Ele17_SW_CaloEleId_L1R_Prescl;
+  Int_t           HLT_Ele17_SW_LooseEleId_L1R_Prescl;
+  Int_t           HLT_Ele17_SW_EleId_L1R_Prescl;
+  Int_t           HLT_Ele22_SW_CaloEleId_L1R_Prescl;
+  Int_t           HLT_Ele40_SW_L1R_Prescl;
+  Int_t           HLT_Photon20_L1R_Prescl;
+  Int_t           HLT_Photon50_NoHE_Cleaned_L1R_Prescl;
+  Int_t           HLT_DoublePhoton17_L1R_Prescl;
+  Int_t           HLT_SingleIsoTau20_Trk5_MET20_Prescl;
+  Int_t           HLT_SingleIsoTau20_Trk15_MET20_Prescl;
+  Int_t           HLT_SingleIsoTau30_Trk5_MET20_Prescl;
+  Int_t           HLT_SingleIsoTau30_Trk5_L120or30_Prescl;
+  Int_t           HLT_DoubleIsoTau15_OneLeg_Trk5_Prescl;
+  Int_t           HLT_DoubleIsoTau15_Trk5_Prescl;
+  Int_t           HLT_BTagMu_Jet20U_Prescl;
+  Int_t           HLT_L2Mu5_Photon9_L1R_Prescl;
+  Int_t           HLT_PixelTracks_Multiplicity100_Prescl;
+  Int_t           HLT_Physics_Prescl;
+  Int_t           HLT_Jet70U_Prescl;
+  Int_t           HLT_Jet100U_Prescl;
+  Int_t           HLT_DiJetAve15U_Prescl;
+  Int_t           HLT_DiJetAve30U_Prescl;
+  Int_t           HLT_DiJetAve50U_Prescl;
+  Int_t           HLT_L1ETT100_Prescl;
+  Int_t           HLT_EcalOnly_SumEt160_Prescl;
+  Int_t           HLT_L1Mu30_Prescl;
+  Int_t           HLT_L2Mu15_Prescl;
+  Int_t           HLT_Mu3_Track3_Jpsi_Prescl;
+  Int_t           HLT_Ele10_SW_EleId_L1R_Prescl;
+  Int_t           HLT_Ele15_SW_EleId_L1R_Prescl;
+  Int_t           HLT_Ele15_SW_CaloEleId_L1R_Prescl;
+  Int_t           HLT_Ele20_SiStrip_L1R_Prescl;
+  Int_t           HLT_Ele25_SW_L1R_Prescl;
+  Int_t           HLT_DoubleEle4_SW_eeRes_L1R_Prescl;
+  Int_t           HLT_DoubleEle10_SW_L1R_Prescl;
+  Int_t           HLT_Photon30_Cleaned_L1R_Prescl;
+  Int_t           HLT_Photon50_L1R_Prescl;
+  Int_t           HLT_Photon50_Cleaned_L1R_Prescl;
+  Int_t           HLT_DoublePhoton15_L1R_Prescl;
+  Int_t           HLT_DoublePhoton20_L1R_Prescl;
+  Int_t           HLT_SingleLooseIsoTau25_Trk5_Prescl;
+  Int_t           HLT_SingleIsoTau20_Trk5_Prescl;
+  Int_t           HLT_SingleIsoTau30_Trk5_Prescl;
+  Int_t           HLT_StoppedHSCP_Prescl;
+  Int_t           HLT_L1Tech_BSC_minBias_OR_Prescl;
+  Int_t           HLT_IsoTrackHE_Prescl;
+  Int_t           HLT_IsoTrackHB_Prescl;
+  Int_t           HLT_HcalNZS_Prescl;
+  Int_t           AlCa_EcalPi0_Prescl;
+  Int_t           AlCa_EcalEta_Prescl;
+  Int_t           HLT_Activity_L1A_Prescl;
+  Int_t           HLT_Activity_PixelClusters_Prescl;
+  Int_t           HLT_Activity_CSC_Prescl;
+  Int_t           HLT_Activity_DT_Prescl;
+  Int_t           HLT_Activity_DT_Tuned_Prescl;
+  Int_t           HLT_Activity_Ecal_SC7_Prescl;
+  Int_t           HLT_Activity_Ecal_SC17_Prescl;
+  Int_t           HLT_SelectEcalSpikes_L1R_Prescl;
+  Int_t           HLT_SelectEcalSpikesHighEt_L1R_Prescl;
+  Int_t           HLT_L1SingleForJet_Prescl;
+  Int_t           HLT_L1SingleCenJet_Prescl;
+  Int_t           HLT_L1SingleTauJet_Prescl;
+  Int_t           HLT_L1Jet6U_Prescl;
+  Int_t           HLT_L1Jet6U_NoBPTX_Prescl;
+  Int_t           HLT_L1Jet10U_Prescl;
+  Int_t           HLT_L1Jet10U_NoBPTX_Prescl;
+  Int_t           HLT_Jet15U_Prescl;
+  Int_t           HLT_Jet15U_HcalNoiseFiltered_Prescl;
+  Int_t           HLT_Jet30U_Prescl;
+  Int_t           HLT_Jet50U_Prescl;
+  Int_t           HLT_FwdJet20U_Prescl;
+  Int_t           HLT_DiJetAve15U_8E29_Prescl;
+  Int_t           HLT_DiJetAve30U_8E29_Prescl;
+  Int_t           HLT_DiJetAve50U_8E29_Prescl;
+  Int_t           HLT_DoubleJet15U_ForwardBackward_Prescl;
+  Int_t           HLT_QuadJet15U_Prescl;
+  Int_t           HLT_L1MET20_Prescl;
+  Int_t           HLT_MET45_Prescl;
+  Int_t           HLT_MET100_Prescl;
+  Int_t           HLT_HT100U_Prescl;
+  Int_t           HLT_L1MuOpen_Prescl;
+  Int_t           HLT_L1MuOpen_DT_Prescl;
+  Int_t           HLT_L1MuOpen_AntiBPTX_Prescl;
+  Int_t           HLT_L1Mu_Prescl;
+  Int_t           HLT_L1Mu20_Prescl;
+  Int_t           HLT_L2Mu0_Prescl;
+  Int_t           HLT_L2Mu3_Prescl;
+  Int_t           HLT_L2Mu5_Prescl;
+  Int_t           HLT_L2Mu9_Prescl;
+  Int_t           HLT_L2Mu11_Prescl;
+  Int_t           HLT_IsoMu3_Prescl;
+  Int_t           HLT_Mu3_Prescl;
+  Int_t           HLT_Mu5_Prescl;
+  Int_t           HLT_Mu7_Prescl;
+  Int_t           HLT_Mu9_Prescl;
+  Int_t           HLT_L1DoubleMuOpen_Prescl;
+  Int_t           HLT_L1DoubleMuOpen_Tight_Prescl;
+  Int_t           HLT_L2DoubleMu0_Prescl;
+  Int_t           HLT_DoubleMu0_Prescl;
+  Int_t           HLT_DoubleMu3_Prescl;
+  Int_t           HLT_Mu0_L1MuOpen_Prescl;
+  Int_t           HLT_Mu3_L1MuOpen_Prescl;
+  Int_t           HLT_Mu5_L1MuOpen_Prescl;
+  Int_t           HLT_Mu0_L2Mu0_Prescl;
+  Int_t           HLT_Mu3_L2Mu0_Prescl;
+  Int_t           HLT_Mu5_L2Mu0_Prescl;
+  Int_t           HLT_Mu0_Track0_Jpsi_Prescl;
+  Int_t           HLT_Mu0_TkMu0_Jpsi_Prescl;
+  Int_t           HLT_Mu0_TkMu0_Jpsi_NoCharge_Prescl;
+  Int_t           HLT_Mu3_Track0_Jpsi_Prescl;
+  Int_t           HLT_Mu3_TkMu0_Jpsi_Prescl;
+  Int_t           HLT_Mu3_TkMu0_Jpsi_NoCharge_Prescl;
+  Int_t           HLT_Mu5_Track0_Jpsi_Prescl;
+  Int_t           HLT_Mu5_TkMu0_Jpsi_Prescl;
+  Int_t           HLT_Mu5_TkMu0_Jpsi_NoCharge_Prescl;
+  Int_t           HLT_L1SingleEG2_Prescl;
+  Int_t           HLT_L1SingleEG5_Prescl;
+  Int_t           HLT_L1SingleEG8_Prescl;
+  Int_t           HLT_L1DoubleEG5_Prescl;
+  Int_t           HLT_Ele10_LW_L1R_Prescl;
+  Int_t           HLT_Ele10_LW_EleId_L1R_Prescl;
+  Int_t           HLT_Ele10_SW_L1R_Prescl;
+  Int_t           HLT_Ele15_LW_L1R_Prescl;
+  Int_t           HLT_Ele15_SW_L1R_Prescl;
+  Int_t           HLT_Ele15_SC10_LW_L1R_Prescl;
+  Int_t           HLT_Ele15_SiStrip_L1R_Prescl;
+  Int_t           HLT_Ele20_LW_L1R_Prescl;
+  Int_t           HLT_Ele20_SW_L1R_Prescl;
+  Int_t           HLT_DoubleEle5_SW_L1R_Prescl;
+  Int_t           HLT_Photon10_Cleaned_L1R_Prescl;
+  Int_t           HLT_Photon15_Cleaned_L1R_Prescl;
+  Int_t           HLT_Photon15_TrackIso_Cleaned_L1R_Prescl;
+  Int_t           HLT_Photon15_LooseEcalIso_Cleaned_L1R_Prescl;
+  Int_t           HLT_Photon20_Cleaned_L1R_Prescl;
+  Int_t           HLT_Photon30_L1R_Prescl;
+  Int_t           HLT_DoublePhoton4_eeRes_L1R_Prescl;
+  Int_t           HLT_DoublePhoton4_Jpsi_L1R_Prescl;
+  Int_t           HLT_DoublePhoton4_Upsilon_L1R_Prescl;
+  Int_t           HLT_DoublePhoton5_Jpsi_L1R_Prescl;
+  Int_t           HLT_DoublePhoton5_Upsilon_L1R_Prescl;
+  Int_t           HLT_DoublePhoton5_CEP_L1R_Prescl;
+  Int_t           HLT_DoublePhoton5_L1R_Prescl;
+  Int_t           HLT_DoublePhoton10_L1R_Prescl;
+  Int_t           HLT_SingleLooseIsoTau20_Prescl;
+  Int_t           HLT_SingleLooseIsoTau20_Trk5_Prescl;
+  Int_t           HLT_SingleLooseIsoTau25_Prescl;
+  Int_t           HLT_DoubleLooseIsoTau15_Prescl;
+  Int_t           HLT_BTagIP_Jet50U_Prescl;
+  Int_t           HLT_BTagMu_Jet10U_Prescl;
+  Int_t           HLT_StoppedHSCP_8E29_Prescl;
+  Int_t           HLT_L1Mu14_L1SingleEG10_Prescl;
+  Int_t           HLT_L1Mu14_L1SingleJet6U_Prescl;
+  Int_t           HLT_L1Mu14_L1ETM30_Prescl;
+  Int_t           HLT_ZeroBias_Prescl;
+  Int_t           HLT_ZeroBiasPixel_SingleTrack_Prescl;
+  Int_t           HLT_MinBiasPixel_SingleTrack_Prescl;
+  Int_t           HLT_MinBiasPixel_DoubleTrack_Prescl;
+  Int_t           HLT_MinBiasPixel_DoubleIsoTrack5_Prescl;
+  Int_t           HLT_MultiVertex6_Prescl;
+  Int_t           HLT_MultiVertex8_L1ETT60_Prescl;
+  Int_t           HLT_CSCBeamHalo_Prescl;
+  Int_t           HLT_CSCBeamHaloOverlapRing1_Prescl;
+  Int_t           HLT_CSCBeamHaloOverlapRing2_Prescl;
+  Int_t           HLT_CSCBeamHaloRing2or3_Prescl;
+  Int_t           HLT_L1_BscMinBiasOR_BptxPlusORMinus_Prescl;
+  Int_t           HLT_L1_BptxXOR_BscMinBiasOR_Prescl;
+  Int_t           HLT_L1Tech_BSC_minBias_Prescl;
+  Int_t           HLT_L1Tech_BSC_halo_Prescl;
+  Int_t           HLT_L1Tech_BSC_halo_forPhysicsBackground_Prescl;
+  Int_t           HLT_L1Tech_BSC_HighMultiplicity_Prescl;
+  Int_t           HLT_L1Tech_RPC_TTU_RBst1_collisions_Prescl;
+  Int_t           HLT_L1Tech_HCAL_HF_Prescl;
+  Int_t           HLT_TrackerCosmics_Prescl;
+  Int_t           HLT_RPCBarrelCosmics_Prescl;
+  Int_t           HLT_IsoTrackHE_8E29_Prescl;
+  Int_t           HLT_IsoTrackHB_8E29_Prescl;
+  Int_t           HLT_HcalPhiSym_Prescl;
+  Int_t           HLT_HcalNZS_8E29_Prescl;
+  Int_t           AlCa_EcalPhiSym_Prescl;
+  Int_t           AlCa_EcalPi0_8E29_Prescl;
+  Int_t           AlCa_EcalEta_8E29_Prescl;
+  Int_t           AlCa_RPCMuonNoHits_Prescl;
+  Int_t           AlCa_RPCMuonNoTriggers_Prescl;
+  Int_t           AlCa_RPCMuonNormalisation_Prescl;
+  Int_t           HLT_DTErrors_Prescl;
+  Int_t           HLT_Calibration_Prescl;
+  Int_t           HLT_EcalCalibration_Prescl;
+  Int_t           HLT_HcalCalibration_Prescl;
+  Int_t           HLT_Random_Prescl;
+  Int_t           HLT_PixelTracks_Multiplicity70_Prescl;
+  Int_t           HLT_PixelTracks_Multiplicity85_Prescl;
+  Int_t           HLT_GlobalRunHPDNoise_Prescl;
+  Int_t           HLT_TechTrigHCALNoise_Prescl;
+  Int_t           HLT_L1_BPTX_Prescl;
+  Int_t           HLT_L1_BPTX_MinusOnly_Prescl;
+  Int_t           HLT_L1_BPTX_PlusOnly_Prescl;
+  Int_t           HLT_L2Mu0_NoVertex_Prescl;
+  Int_t           HLT_LogMonitor_Prescl;
 
-  
   // List of branches
   TBranch        *b_NrecoJetCal;   //!
   TBranch        *b_NrecoJetGen;   //!
@@ -999,7 +1393,11 @@ public :
   TBranch        *b_ohBJetMuL3Tag;   //! 
   TBranch        *b_ohBJetPerfL25Tag;   //! 
   TBranch        *b_ohBJetPerfL3Tag;   //! 
-
+  TBranch        *b_NohPixelTracksL3;   //!
+  TBranch        *b_ohPixelTracksL3Pt;   //!
+  TBranch        *b_ohPixelTracksL3Eta;   //!
+  TBranch        *b_ohPixelTracksL3Phi;   //!
+  TBranch        *b_ohPixelTracksL3Vz;  //!
   TBranch        *b_recoNVrt;    //!
   TBranch        *b_recoVrtX;    //!
   TBranch        *b_recoVrtY;    //!
@@ -1007,8 +1405,6 @@ public :
   TBranch        *b_recoVrtNtrk;    //!
   TBranch        *b_recoVrtChi2;    //!
   TBranch        *b_recoVrtNdof;    //!
-
-
   TBranch        *b_NrecoElec;   //!
   TBranch        *b_recoElecPt;   //!
   TBranch        *b_recoElecPhi;   //!
@@ -1181,6 +1577,7 @@ public :
   TBranch        *b_Bx;  //!
   TBranch        *b_Orbit;  //!
 
+  //L1 algorithm bits 
   TBranch        *b_L1_DoubleMuTopBottom;   //! 
   TBranch        *b_L1_DoubleEG05_TopBottom;   //! 
   TBranch           *b_L1_SingleJet20;   //! 
@@ -1192,12 +1589,11 @@ public :
   TBranch           *b_L1_SingleTauJet50;   //! 
   TBranch           *b_L1_DoubleTauJet14;   //! 
   TBranch        *b_L1_IsoEG10_Jet6_ForJet6;   //! 
-
-  //L1's
   TBranch        *b_L1_Mu5_Jet6;   //!
   TBranch        *b_L1_EG5_TripleJet6; //!   
   TBranch        *b_L1_SingleJet6; //!  
   TBranch        *b_L1_SingleJet10; //!
+  TBranch        *b_L1_SingleJet10_NotBptxC_Ext; //!
   TBranch        *b_L1_ETM30; //!  
   TBranch        *b_L1_QuadJet6;   //! 
   TBranch        *b_L1_TripleJet14;   //!  
@@ -1220,7 +1616,8 @@ public :
   TBranch        *b_L1_ETM40;   //! 
   TBranch        *b_L1_ETM70;   //! 
   TBranch        *b_L1_ETM80;   //! 
-  TBranch        *b_L1_ETT60;   //! 
+  TBranch        *b_L1_ETT60;   //!
+  TBranch        *b_L1_ETT100;   //! 
   TBranch        *b_L1_HTT50;   //! 
   TBranch        *b_L1_HTT100;   //! 
   TBranch        *b_L1_HTT200;   //! 
@@ -1281,7 +1678,7 @@ public :
   TBranch        *b_L1_SingleTauJet4;   //!    
   TBranch        *b_L1_DoubleForJet10_EtaOpp;   //!    
 
-  // ccla - L1 Technical bits  (06Dec09)
+  // L1 Technical bits
   TBranch        *b_L1Tech_BPTX_minus_v0;   //!
   TBranch        *b_L1Tech_BPTX_minus_v0_5bx;   //!
   TBranch        *b_L1Tech_BPTX_minus_AND_not_plus_v0;   //!
@@ -1348,14 +1745,12 @@ public :
   TBranch        *b_L1Tech_RPC_TTU_pointing_Cosmics_v0_5bx;   //!
   TBranch        *b_L1Tech_RPC_TTU_RBst1_collisions_v0;   //!
   TBranch        *b_L1Tech_RPC_TTU_RBst1_collisions_v0_5bx; //!
-
   TBranch        *b_L1Tech_HCAL_HF_MM_or_PP_or_PM_v0; //!
   TBranch        *b_L1Tech_HCAL_HF_MM_or_PP_or_PM_v0_5bx; //!
   TBranch        *b_L1Tech_HCAL_HF_coincidence_PM_v1; //!
   TBranch        *b_L1Tech_HCAL_HF_coincidence_PM_v1_5bx; //!
   TBranch        *b_L1Tech_HCAL_HF_MMP_or_MPP_v0; //!
   TBranch        *b_L1Tech_HCAL_HF_MMP_or_MPP_v0_5bx; //!
-
   TBranch        *b_L1Tech_ZDC_loose_vertex_v0;   //!
   TBranch        *b_L1Tech_ZDC_loose_vertex_v0_5bx;   //!
   TBranch        *b_L1Tech_ZDC_minus_over_threshold_v0;   //!
@@ -1372,6 +1767,8 @@ public :
   TBranch        *b_L1_BptxPlusORMinus_5bx;   //!
   TBranch        *b_L1_BptxPlus_NotBptxMinus; //!
   TBranch        *b_L1_BptxPlus_NotBptxMinus_5bx; //!
+  TBranch        *b_L1_BptxXOR_BscMinBiasOR; //!
+  TBranch        *b_L1_BptxXOR_BscMinBiasOR_5bx; //!
   TBranch        *b_L1_BptxMinus_NotBptxPlus; //!
   TBranch        *b_L1_BptxMinus_NotBptxPlus_5bx; //!
   TBranch        *b_L1_BscHighMultiplicity;   //!
@@ -1384,8 +1781,164 @@ public :
   TBranch        *b_L1_BscMinBiasOR_5bx;   //!
   TBranch        *b_L1_BscMinBiasOR_BptxPlusORMinus;   //!
   TBranch        *b_L1_BscMinBiasOR_BptxPlusORMinus_5bx;   //!
+  TBranch        *b_L1_BscMinBiasOR_BptxPlusANDMinus;  //! 
+  TBranch        *b_L1_BscMinBiasOR_BptxPlusANDMinus_5bx;  //!
 
-  // JH - 1E31 MC menu
+  //L1 algorithm bit prescales 
+  TBranch        *b_L1_DoubleMuTopBottom_Prescl;   //! 
+  TBranch        *b_L1_DoubleEG05_TopBottom_Prescl;   //! 
+  TBranch           *b_L1_SingleJet20_Prescl;   //! 
+  TBranch           *b_L1_SingleJet40_Prescl;   //! 
+  TBranch           *b_L1_SingleJet60_Prescl;   //! 
+  TBranch           *b_L1_DoubleJet30_Prescl;   //!  
+  TBranch           *b_L1_SingleTauJet10_Prescl;   //! 
+  TBranch           *b_L1_SingleTauJet20_Prescl;   //! 
+  TBranch           *b_L1_SingleTauJet50_Prescl;   //! 
+  TBranch           *b_L1_DoubleTauJet14_Prescl;   //! 
+  TBranch        *b_L1_IsoEG10_Jet6_ForJet6_Prescl;   //! 
+  TBranch        *b_L1_Mu5_Jet6_Prescl;   //!
+  TBranch        *b_L1_EG5_TripleJet6_Prescl; //!   
+  TBranch        *b_L1_SingleJet6_Prescl; //!  
+  TBranch        *b_L1_SingleJet10_Prescl; //!
+  TBranch        *b_L1_SingleJet10_NotBptxC_Ext_Prescl; //!
+  TBranch        *b_L1_ETM30_Prescl; //!  
+  TBranch        *b_L1_QuadJet6_Prescl;   //! 
+  TBranch        *b_L1_TripleJet14_Prescl;   //!  
+  TBranch        *b_L1_DoubleEG1_Prescl;   //! 
+  TBranch        *b_L1_DoubleEG2_Prescl;   //! 
+  TBranch        *b_L1_DoubleEG5_Prescl;   //! 
+  TBranch        *b_L1_DoubleHfBitCountsRing1_P1N1_Prescl;   //! 
+  TBranch        *b_L1_DoubleHfBitCountsRing2_P1N1_Prescl;   //! 
+  TBranch        *b_L1_DoubleHfRingEtSumsRing1_P200N200_Prescl;   //! 
+  TBranch        *b_L1_DoubleHfRingEtSumsRing1_P4N4_Prescl;   //! 
+  TBranch        *b_L1_DoubleHfRingEtSumsRing2_P200N200_Prescl;   //! 
+  TBranch        *b_L1_DoubleHfRingEtSumsRing2_P4N4_Prescl;   //! 
+  TBranch        *b_L1_DoubleJet70_Prescl;   //! 
+  TBranch        *b_L1_DoubleMu3_Prescl;   //! 
+  TBranch        *b_L1_DoubleMuOpen_Prescl;   //! 
+  TBranch        *b_L1_DoubleTauJet30_Prescl;   //! 
+  TBranch        *b_L1_EG10_Jet15_Prescl;   //! 
+  TBranch        *b_L1_EG5_TripleJet15_Prescl;   //! 
+  TBranch        *b_L1_ETM20_Prescl;   //! 
+  TBranch        *b_L1_ETM40_Prescl;   //! 
+  TBranch        *b_L1_ETM70_Prescl;   //! 
+  TBranch        *b_L1_ETM80_Prescl;   //! 
+  TBranch        *b_L1_ETT60_Prescl;   //!
+  TBranch        *b_L1_ETT100_Prescl;   //! 
+  TBranch        *b_L1_HTT50_Prescl;   //! 
+  TBranch        *b_L1_HTT100_Prescl;   //! 
+  TBranch        *b_L1_HTT200_Prescl;   //! 
+  TBranch        *b_L1_HTT300_Prescl;   //! 
+  TBranch        *b_L1_IsoEG10_Jet15_ForJet10_Prescl;   //! 
+  TBranch        *b_L1_MinBias_HTT10_Prescl;   //! 
+  TBranch        *b_L1_Mu3QE8_EG5_Prescl;   //!
+  TBranch        *b_L1_Mu3QE8_Jet15_Prescl;   //!  
+  TBranch        *b_L1_Mu5QE8_Jet15_Prescl;   //! 
+  TBranch        *b_L1_Mu3QE8_Jet6_Prescl;   //!  
+  TBranch        *b_L1_Mu5QE8_Jet6_Prescl;   //! 
+  TBranch        *b_L1_QuadJet15_Prescl;   //! 
+  TBranch        *b_L1_SingleEG1_Prescl;   //! 
+  TBranch        *b_L1_SingleEG10_Prescl;   //! 
+  TBranch        *b_L1_SingleEG12_Prescl;   //! 
+  TBranch        *b_L1_SingleEG15_Prescl;   //! 
+  TBranch        *b_L1_SingleEG2_Prescl;   //! 
+  TBranch        *b_L1_SingleEG20_Prescl;   //! 
+  TBranch        *b_L1_SingleEG5_Prescl;   //! 
+  TBranch        *b_L1_SingleEG8_Prescl;   //! 
+  TBranch        *b_L1_SingleHfBitCountsRing1_1_Prescl;   //! 
+  TBranch        *b_L1_SingleHfBitCountsRing2_1_Prescl;   //! 
+  TBranch        *b_L1_SingleHfRingEtSumsRing1_200_Prescl;   //! 
+  TBranch        *b_L1_SingleHfRingEtSumsRing1_4_Prescl;   //! 
+  TBranch        *b_L1_SingleHfRingEtSumsRing2_200_Prescl;   //! 
+  TBranch        *b_L1_SingleHfRingEtSumsRing2_4_Prescl;   //! 
+  TBranch        *b_L1_SingleIsoEG10_Prescl;   //! 
+  TBranch        *b_L1_SingleIsoEG12_Prescl;   //! 
+  TBranch        *b_L1_SingleIsoEG15_Prescl;   //! 
+  TBranch        *b_L1_SingleIsoEG5_Prescl;   //! 
+  TBranch        *b_L1_SingleIsoEG8_Prescl;   //! 
+  TBranch        *b_L1_SingleJet100_Prescl;   //! 
+  TBranch        *b_L1_SingleJet15_Prescl;   //! 
+  TBranch        *b_L1_SingleJet30_Prescl;   //! 
+  TBranch        *b_L1_SingleJet50_Prescl;   //! 
+  TBranch        *b_L1_SingleJet70_Prescl;   //! 
+  TBranch        *b_L1_SingleMu0_Prescl;   //! 
+  TBranch        *b_L1_SingleMu10_Prescl;   //! 
+  TBranch        *b_L1_SingleMu14_Prescl;   //! 
+  TBranch        *b_L1_SingleMu20_Prescl;   //! 
+  TBranch        *b_L1_SingleMu3_Prescl;   //! 
+  TBranch        *b_L1_SingleMu5_Prescl;   //! 
+  TBranch        *b_L1_SingleMu7_Prescl;   //! 
+  TBranch        *b_L1_SingleMuBeamHalo_Prescl;   //! 
+  TBranch        *b_L1_SingleMuOpen_Prescl;   //! 
+  TBranch        *b_L1_SingleTauJet30_Prescl;   //! 
+  TBranch        *b_L1_SingleTauJet40_Prescl;   //! 
+  TBranch        *b_L1_SingleTauJet60_Prescl;   //! 
+  TBranch        *b_L1_SingleTauJet80_Prescl;   //! 
+  TBranch        *b_L1_TripleJet30_Prescl;   //! 
+  TBranch        *b_L1_ZeroBias_Prescl;   //!
+  TBranch        *b_L1_ZeroBias_Ext_Prescl;   //!
+  TBranch        *b_L1_SingleCenJet2_Prescl;   //!    
+  TBranch        *b_L1_SingleCenJet4_Prescl;   //!    
+  TBranch        *b_L1_SingleForJet2_Prescl;   //!    
+  TBranch        *b_L1_SingleForJet4_Prescl;   //!    
+  TBranch        *b_L1_SingleTauJet2_Prescl;   //!    
+  TBranch        *b_L1_SingleTauJet4_Prescl;   //!    
+  TBranch        *b_L1_DoubleForJet10_EtaOpp_Prescl;   //!    
+
+  // L1 Technical bit prescales
+  TBranch        *b_L1Tech_BPTX_minus_v0_Prescl;   //!
+  TBranch        *b_L1Tech_BPTX_minus_AND_not_plus_v0_Prescl;   //!
+  TBranch        *b_L1Tech_BPTX_plus_v0_Prescl;   //!
+  TBranch        *b_L1Tech_BPTX_plus_AND_NOT_minus_v0_Prescl;   //!
+  TBranch        *b_L1Tech_BPTX_plus_AND_minus_v0_Prescl;   //!
+  TBranch        *b_L1Tech_BPTX_plus_AND_minus_instance1_v0_Prescl;   //!
+  TBranch        *b_L1Tech_BPTX_plus_OR_minus_v0_Prescl;   //!
+  TBranch        *b_L1Tech_BPTX_quiet_v0_Prescl;   //!
+  TBranch        *b_L1Tech_BSC_HighMultiplicity_v0_Prescl;   //!
+  TBranch        *b_L1Tech_BSC_halo_beam1_inner_v0_Prescl;   //!
+  TBranch        *b_L1Tech_BSC_halo_beam1_outer_v0_Prescl;   //!
+  TBranch        *b_L1Tech_BSC_halo_beam2_inner_v0_Prescl;   //!
+  TBranch        *b_L1Tech_BSC_halo_beam2_outer_v0_Prescl;   //!
+  TBranch        *b_L1Tech_BSC_minBias_OR_v0_Prescl;   //!
+  TBranch        *b_L1Tech_BSC_minBias_inner_threshold1_v0_Prescl;   //!
+  TBranch        *b_L1Tech_BSC_minBias_inner_threshold2_v0_Prescl;   //!
+  TBranch        *b_L1Tech_BSC_minBias_threshold1_v0_Prescl;   //!
+  TBranch        *b_L1Tech_BSC_minBias_threshold2_v0_Prescl;   //!
+  TBranch        *b_L1Tech_BSC_splash_beam1_v0_Prescl;   //!
+  TBranch        *b_L1Tech_BSC_splash_beam2_v0_Prescl;   //!
+  TBranch        *b_L1Tech_HCAL_HBHE_totalOR_v0_Prescl;   //!
+  TBranch        *b_L1Tech_HCAL_HF_totalOR_coincidenceHFM_v0_Prescl;   //!
+  TBranch        *b_L1Tech_HCAL_HF_totalOR_coincidenceHFP_v0_Prescl;   //!
+  TBranch        *b_L1Tech_HCAL_HF_totalOR_minBias_v0_Prescl;   //!
+  TBranch        *b_L1Tech_HCAL_HO_totalOR_v0_Prescl;   //!
+  TBranch        *b_L1Tech_RPC_TTU_RB0_Cosmics_v0_Prescl;   //!
+  TBranch        *b_L1Tech_RPC_TTU_RBminus1_Cosmics_v0_Prescl;   //!
+  TBranch        *b_L1Tech_RPC_TTU_RBminus2_Cosmics_v0_Prescl;   //!
+  TBranch        *b_L1Tech_RPC_TTU_RBplus1_Cosmics_v0_Prescl;   //!
+  TBranch        *b_L1Tech_RPC_TTU_RBplus2_Cosmics_v0_Prescl;   //!
+  TBranch        *b_L1Tech_RPC_TTU_barrel_Cosmics_v0_Prescl;   //!
+  TBranch        *b_L1Tech_RPC_TTU_pointing_Cosmics_v0_Prescl;   //!
+  TBranch        *b_L1Tech_RPC_TTU_RBst1_collisions_v0_Prescl;   //!
+  TBranch        *b_L1Tech_HCAL_HF_MM_or_PP_or_PM_v0_Prescl; //!
+  TBranch        *b_L1Tech_HCAL_HF_coincidence_PM_v1_Prescl; //!
+  TBranch        *b_L1Tech_HCAL_HF_MMP_or_MPP_v0_Prescl; //!
+  TBranch        *b_L1Tech_ZDC_loose_vertex_v0_Prescl;   //!
+  TBranch        *b_L1Tech_ZDC_minus_over_threshold_v0_Prescl;   //!
+  TBranch        *b_L1Tech_ZDC_plus_over_threshold_v0_Prescl;   //!
+  TBranch        *b_L1Tech_ZDC_tight_vertex_v0_Prescl;   //!
+  TBranch        *b_L1_BptxMinus_Prescl;   //!
+  TBranch        *b_L1_BptxPlus_Prescl;   //!
+  TBranch        *b_L1_BptxPlusORMinus_Prescl;   //!
+  TBranch        *b_L1_BptxPlus_NotBptxMinus_Prescl; //!
+  TBranch        *b_L1_BptxMinus_NotBptxPlus_Prescl; //!
+  TBranch        *b_L1_BscHighMultiplicity_Prescl;   //!
+  TBranch        *b_L1_BscMinBiasInnerThreshold1_Prescl;   //!
+  TBranch        *b_L1_BscMinBiasInnerThreshold2_Prescl;   //!
+  TBranch        *b_L1_BscMinBiasOR_Prescl;   //!
+  TBranch        *b_L1_BscMinBiasOR_BptxPlusORMinus_Prescl;   //!
+  TBranch        *b_L1_BscMinBiasOR_BptxPlusANDMinus_Prescl; //!  
+
+  // 8E29 and 1E31 MC menus
   TBranch        *b_HLT_L1Jet15;   //!  
   TBranch        *b_HLT_Jet30;   //! 
   TBranch        *b_HLT_Jet50;   //! 
@@ -1469,8 +2022,6 @@ public :
   TBranch        *b_AlCa_EcalPhiSym;   //! 
   TBranch        *b_AlCa_EcalPi0_1E31;   //! 
   TBranch        *b_AlCa_EcalEta_1E31;   //! 
-
-  // 8E29 menu
   TBranch        *b_HLT_L1Jet6U;   //!
   TBranch        *b_HLT_Jet15U;   //!
   TBranch        *b_HLT_Jet30U;   //!
@@ -1523,44 +2074,106 @@ public :
   TBranch        *b_AlCa_RPCMuonNoHits;   //!
   TBranch        *b_AlCa_RPCMuonNormalisation;   //!
 
-  // Commissioning and other HLT Paths for the CRAFT09 cosmics menu 
-  TBranch        *b_HLT_Random;   //! 
-  TBranch        *b_HLT_L2Mu3_NoVertex;   //! 
-  TBranch        *b_HLT_OIstateTkMu3;   //! 
-  TBranch        *b_HLT_TrackPointing;   //! 
-  TBranch        *b_HLT_EgammaSuperClusterOnly_L1R;   //! 
-  TBranch        *b_AlCa_EcalPi0_Cosmics;   //!  
-  TBranch        *b_AlCa_EcalEta_Cosmics;   //!  
-  TBranch        *b_HLT_DataIntegrity;   //!  
-  TBranch        *b_HLT_L1_BPTX;   //!  
-  TBranch        *b_HLT_L1_BSC;   //!  
-  TBranch        *b_HLT_L1_HFtech;   //!  
-  TBranch        *b_HLT_HFThreshold;   //!  
-  TBranch        *b_HLT_Physics;   //!  
-  TBranch        *b_HLT_PhysicsNoMuon;   //!  
-  TBranch        *b_HLT_Calibration;   //!  
-  TBranch        *b_HLT_EcalCalibration;   //!  
-  TBranch        *b_HLT_PixelFEDSize;   //!  
-  TBranch        *b_HLT_GlobalRunHPDNoise;   //!  
-
-  // HLT paths for the 2009 Circulating Beam menu
-  TBranch        *b_HLT_L2Mu0_NoVertex;   //!
-  TBranch        *b_HLT_TkMu3_NoVertex;   //!
-  TBranch        *b_HLT_IsoTrackHB_8E29;   //!
-  TBranch        *b_HLT_IsoTrackHE_8E29;   //!
-  TBranch        *b_HLT_MinBiasPixel_DoubleIsoTrack5;   //!
-  TBranch        *b_HLT_MinBiasPixel_DoubleTrack;   //!
-  TBranch        *b_HLT_MinBiasPixel_SingleTrack;   //!
-  TBranch        *b_HLT_TechTrigHCALNoise;   //!
-  TBranch        *b_HLT_HcalNZS_8E29;   //!
-  TBranch        *b_HLT_HcalNZS;   //!
-  TBranch        *b_HLT_HcalPhiSym;   //!
-
-  // Splash Feb 2010
-  TBranch        *b_HLT_SplashEcalSumET;   //!
-  TBranch        *b_HLT_L1SingleEG20;   //!
-
   // Autogenerated from ConfDB - TBranch
+  TBranch        *b_HLT_Mu0_TkMu0_OST_Jpsi;   //!
+  TBranch        *b_HLT_Mu3_TkMu0_OST_Jpsi;   //!
+  TBranch        *b_HLT_Mu5_TkMu0_OST_Jpsi;   //!
+  TBranch        *b_HLT_Ele12_SW_TightEleId_L1R;   //!
+  TBranch        *b_HLT_Ele12_SW_TightEleIdIsol_L1R;   //!
+  TBranch        *b_HLT_Ele12_SW_TightEleIdIsol_NoDEtaInEE_L1R;   //!
+  TBranch        *b_HLT_Photon20_NoHE_L1R;   //!
+  TBranch        *b_HLT_Photon50_NoHE_L1R;   //!
+  TBranch        *b_HLT_DoubleJet25U_ForwardBackward;   //!
+  TBranch        *b_HLT_QuadJet20U;   //!
+  TBranch        *b_HLT_QuadJet25U;   //!
+  TBranch        *b_HLT_MET65;   //!
+  TBranch        *b_HLT_HT140U;   //!
+  TBranch        *b_HLT_L2Mu25;   //!
+  TBranch        *b_HLT_Mu20_NoVertex;   //!
+  TBranch        *b_HLT_Ele12_SW_EleId_L1R;   //!
+  TBranch        *b_HLT_Ele12_SW_EleIdIsol_L1R;   //!
+  TBranch        *b_HLT_Ele12_SW_EleIdIsol_NoDEtaInEE_L1R;   //!
+  TBranch        *b_HLT_Ele17_SW_L1R;   //!
+  TBranch        *b_HLT_Ele17_SW_CaloEleId_L1R;   //!
+  TBranch        *b_HLT_Ele17_SW_LooseEleId_L1R;   //!
+  TBranch        *b_HLT_Ele17_SW_EleId_L1R;   //!
+  TBranch        *b_HLT_Ele22_SW_CaloEleId_L1R;   //!
+  TBranch        *b_HLT_Ele40_SW_L1R;   //!
+  TBranch        *b_HLT_Photon50_NoHE_Cleaned_L1R;   //!
+  TBranch        *b_HLT_DoublePhoton17_L1R;   //!
+  TBranch        *b_HLT_SingleIsoTau20_Trk5_MET20;   //!
+  TBranch        *b_HLT_SingleIsoTau20_Trk15_MET20;   //!
+  TBranch        *b_HLT_SingleIsoTau30_Trk5_MET20;   //!
+  TBranch        *b_HLT_SingleIsoTau30_Trk5_L120or30;   //!
+  TBranch        *b_HLT_DoubleIsoTau15_OneLeg_Trk5;   //!
+  TBranch        *b_HLT_DoubleIsoTau15_Trk5;   //!
+  TBranch        *b_HLT_BTagMu_Jet20U;   //!
+  TBranch        *b_HLT_PixelTracks_Multiplicity100;   //!
+  TBranch        *b_HLT_Physics;   //!
+  TBranch        *b_HLT_Jet70U;   //!
+  TBranch        *b_HLT_Jet100U;   //!
+  TBranch        *b_HLT_DiJetAve15U;   //!
+  TBranch        *b_HLT_DiJetAve30U;   //!
+  TBranch        *b_HLT_L1ETT100;   //!
+  TBranch        *b_HLT_EcalOnly_SumEt160;   //!
+  TBranch        *b_HLT_Mu3_Track3_Jpsi;   //!
+  TBranch        *b_HLT_Ele10_SW_EleId_L1R;   //!
+  TBranch        *b_HLT_Ele15_SW_CaloEleId_L1R;   //!
+  TBranch        *b_HLT_DoubleEle4_SW_eeRes_L1R;   //!
+  TBranch        *b_HLT_Photon30_Cleaned_L1R;   //!
+  TBranch        *b_HLT_Photon50_L1R;   //!
+  TBranch        *b_HLT_Photon50_Cleaned_L1R;   //!
+  TBranch        *b_HLT_DoublePhoton20_L1R;   //!
+  TBranch        *b_HLT_SingleLooseIsoTau25_Trk5;   //!
+  TBranch        *b_HLT_SingleIsoTau20_Trk5;   //!
+  TBranch        *b_HLT_StoppedHSCP;   //!
+  TBranch        *b_HLT_L1Tech_BSC_minBias_OR;   //!
+  TBranch        *b_HLT_IsoTrackHE;   //!
+  TBranch        *b_HLT_IsoTrackHB;   //!
+  TBranch        *b_HLT_HcalNZS;   //!
+  TBranch        *b_AlCa_EcalPi0;   //!
+  TBranch        *b_AlCa_EcalEta;   //!
+  TBranch        *b_HLT_Activity_L1A;   //!
+  TBranch        *b_HLT_Activity_PixelClusters;   //!
+  TBranch        *b_HLT_L1SingleForJet;   //!
+  TBranch        *b_HLT_L1SingleEG2;   //!
+  TBranch        *b_HLT_MinBiasPixel_SingleTrack;   //!
+  TBranch        *b_HLT_MinBiasPixel_DoubleTrack;   //!
+  TBranch        *b_HLT_MinBiasPixel_DoubleIsoTrack5;   //!
+  TBranch        *b_HLT_RPCBarrelCosmics;   //!
+  TBranch        *b_HLT_IsoTrackHE_8E29;   //!
+  TBranch        *b_HLT_IsoTrackHB_8E29;   //!
+  TBranch        *b_HLT_HcalPhiSym;   //!
+  TBranch        *b_HLT_HcalNZS_8E29;   //!
+  TBranch        *b_HLT_DTErrors;   //!
+  TBranch        *b_HLT_Calibration;   //!
+  TBranch        *b_HLT_EcalCalibration;   //!
+  TBranch        *b_HLT_HcalCalibration;   //!
+  TBranch        *b_HLT_Random;   //!
+  TBranch        *b_HLT_GlobalRunHPDNoise;   //!
+  TBranch        *b_HLT_TechTrigHCALNoise;   //!
+  TBranch        *b_HLT_L1_BPTX;   //!
+  TBranch        *b_HLT_L1_BPTX_MinusOnly;   //!
+  TBranch        *b_HLT_L1_BPTX_PlusOnly;   //!
+  TBranch        *b_HLT_L2Mu0_NoVertex;   //!
+  TBranch        *b_HLT_LogMonitor;   //!
+  TBranch        *b_HLT_Activity_Ecal_SC17;   //!
+  TBranch        *b_HLT_DiJetAve50U_8E29;   //!
+  TBranch        *b_HLT_L1DoubleMuOpen_Tight;   //!
+  TBranch        *b_HLT_Mu0_TkMu0_Jpsi;   //!
+  TBranch        *b_HLT_Mu0_TkMu0_Jpsi_NoCharge;   //!
+  TBranch        *b_HLT_Mu3_TkMu0_Jpsi;   //!
+  TBranch        *b_HLT_Mu3_TkMu0_Jpsi_NoCharge;   //!
+  TBranch        *b_HLT_Mu5_TkMu0_Jpsi;   //!
+  TBranch        *b_HLT_Mu5_TkMu0_Jpsi_NoCharge;   //!
+  TBranch        *b_HLT_Photon15_TrackIso_Cleaned_L1R;   //!
+  TBranch        *b_HLT_Photon15_LooseEcalIso_Cleaned_L1R;   //!
+  TBranch        *b_HLT_Photon30_L1R;   //!
+  TBranch        *b_HLT_SingleLooseIsoTau20_Trk5;   //!
+  TBranch        *b_HLT_SingleLooseIsoTau25;   //!
+  TBranch        *b_HLT_MultiVertex6;   //!
+  TBranch        *b_HLT_MultiVertex8_L1ETT60;   //!
+  TBranch        *b_HLT_PixelTracks_Multiplicity85;   //!
   TBranch        *b_HLT_L1Tech_BSC_minBias;   //!
   TBranch        *b_HLT_Activity_CSC;   //!
   TBranch        *b_HLT_Activity_Ecal_SC7;   //!
@@ -1700,6 +2313,228 @@ public :
   TBranch        *b_HLT_DoublePhoton5_CEP_L1R;   //!
   TBranch        *b_HLT_ZeroBias1kHz;   //!
 
+  // Autogenerated from ConfDB - Prescale TBranch
+  TBranch        *b_HLT_IsoMu9_Prescl;   //!
+  TBranch        *b_HLT_Mu0_TkMu0_OST_Jpsi_Prescl;   //!
+  TBranch        *b_HLT_Mu3_TkMu0_OST_Jpsi_Prescl;   //!
+  TBranch        *b_HLT_Mu5_TkMu0_OST_Jpsi_Prescl;   //!
+  TBranch        *b_HLT_Ele12_SW_TightEleId_L1R_Prescl;   //!
+  TBranch        *b_HLT_Ele12_SW_TightEleIdIsol_L1R_Prescl;   //!
+  TBranch        *b_HLT_Ele12_SW_TightEleIdIsol_NoDEtaInEE_L1R_Prescl;   //!
+  TBranch        *b_HLT_Photon20_NoHE_L1R_Prescl;   //!
+  TBranch        *b_HLT_Photon50_NoHE_L1R_Prescl;   //!
+  TBranch        *b_HLT_DiJetAve70U_Prescl;   //!
+  TBranch        *b_HLT_DoubleJet25U_ForwardBackward_Prescl;   //!
+  TBranch        *b_HLT_QuadJet20U_Prescl;   //!
+  TBranch        *b_HLT_QuadJet25U_Prescl;   //!
+  TBranch        *b_HLT_MET65_Prescl;   //!
+  TBranch        *b_HLT_HT140U_Prescl;   //!
+  TBranch        *b_HLT_L2Mu25_Prescl;   //!
+  TBranch        *b_HLT_Mu11_Prescl;   //!
+  TBranch        *b_HLT_Mu20_NoVertex_Prescl;   //!
+  TBranch        *b_HLT_Ele12_SW_EleId_L1R_Prescl;   //!
+  TBranch        *b_HLT_Ele12_SW_EleIdIsol_L1R_Prescl;   //!
+  TBranch        *b_HLT_Ele12_SW_EleIdIsol_NoDEtaInEE_L1R_Prescl;   //!
+  TBranch        *b_HLT_Ele17_SW_L1R_Prescl;   //!
+  TBranch        *b_HLT_Ele17_SW_CaloEleId_L1R_Prescl;   //!
+  TBranch        *b_HLT_Ele17_SW_LooseEleId_L1R_Prescl;   //!
+  TBranch        *b_HLT_Ele17_SW_EleId_L1R_Prescl;   //!
+  TBranch        *b_HLT_Ele22_SW_CaloEleId_L1R_Prescl;   //!
+  TBranch        *b_HLT_Ele40_SW_L1R_Prescl;   //!
+  TBranch        *b_HLT_Photon20_L1R_Prescl;   //!
+  TBranch        *b_HLT_Photon50_NoHE_Cleaned_L1R_Prescl;   //!
+  TBranch        *b_HLT_DoublePhoton17_L1R_Prescl;   //!
+  TBranch        *b_HLT_SingleIsoTau20_Trk5_MET20_Prescl;   //!
+  TBranch        *b_HLT_SingleIsoTau20_Trk15_MET20_Prescl;   //!
+  TBranch        *b_HLT_SingleIsoTau30_Trk5_MET20_Prescl;   //!
+  TBranch        *b_HLT_SingleIsoTau30_Trk5_L120or30_Prescl;   //!
+  TBranch        *b_HLT_DoubleIsoTau15_OneLeg_Trk5_Prescl;   //!
+  TBranch        *b_HLT_DoubleIsoTau15_Trk5_Prescl;   //!
+  TBranch        *b_HLT_BTagMu_Jet20U_Prescl;   //!
+  TBranch        *b_HLT_L2Mu5_Photon9_L1R_Prescl;   //!
+  TBranch        *b_HLT_PixelTracks_Multiplicity100_Prescl;   //!
+  TBranch        *b_HLT_Physics_Prescl;   //!
+  TBranch        *b_HLT_Jet70U_Prescl;   //!
+  TBranch        *b_HLT_Jet100U_Prescl;   //!
+  TBranch        *b_HLT_DiJetAve15U_Prescl;   //!
+  TBranch        *b_HLT_DiJetAve30U_Prescl;   //!
+  TBranch        *b_HLT_DiJetAve50U_Prescl;   //!
+  TBranch        *b_HLT_L1ETT100_Prescl;   //!
+  TBranch        *b_HLT_EcalOnly_SumEt160_Prescl;   //!
+  TBranch        *b_HLT_L1Mu30_Prescl;   //!
+  TBranch        *b_HLT_L2Mu15_Prescl;   //!
+  TBranch        *b_HLT_Mu3_Track3_Jpsi_Prescl;   //!
+  TBranch        *b_HLT_Ele10_SW_EleId_L1R_Prescl;   //!
+  TBranch        *b_HLT_Ele15_SW_EleId_L1R_Prescl;   //!
+  TBranch        *b_HLT_Ele15_SW_CaloEleId_L1R_Prescl;   //!
+  TBranch        *b_HLT_Ele20_SiStrip_L1R_Prescl;   //!
+  TBranch        *b_HLT_Ele25_SW_L1R_Prescl;   //!
+  TBranch        *b_HLT_DoubleEle4_SW_eeRes_L1R_Prescl;   //!
+  TBranch        *b_HLT_DoubleEle10_SW_L1R_Prescl;   //!
+  TBranch        *b_HLT_Photon30_Cleaned_L1R_Prescl;   //!
+  TBranch        *b_HLT_Photon50_L1R_Prescl;   //!
+  TBranch        *b_HLT_Photon50_Cleaned_L1R_Prescl;   //!
+  TBranch        *b_HLT_DoublePhoton15_L1R_Prescl;   //!
+  TBranch        *b_HLT_DoublePhoton20_L1R_Prescl;   //!
+  TBranch        *b_HLT_SingleLooseIsoTau25_Trk5_Prescl;   //!
+  TBranch        *b_HLT_SingleIsoTau20_Trk5_Prescl;   //!
+  TBranch        *b_HLT_SingleIsoTau30_Trk5_Prescl;   //!
+  TBranch        *b_HLT_StoppedHSCP_Prescl;   //!
+  TBranch        *b_HLT_L1Tech_BSC_minBias_OR_Prescl;   //!
+  TBranch        *b_HLT_IsoTrackHE_Prescl;   //!
+  TBranch        *b_HLT_IsoTrackHB_Prescl;   //!
+  TBranch        *b_HLT_HcalNZS_Prescl;   //!
+  TBranch        *b_AlCa_EcalPi0_Prescl;   //!
+  TBranch        *b_AlCa_EcalEta_Prescl;   //!
+  TBranch        *b_HLT_Activity_L1A_Prescl;   //!
+  TBranch        *b_HLT_Activity_PixelClusters_Prescl;   //!
+  TBranch        *b_HLT_Activity_CSC_Prescl;   //!
+  TBranch        *b_HLT_Activity_DT_Prescl;   //!
+  TBranch        *b_HLT_Activity_DT_Tuned_Prescl;   //!
+  TBranch        *b_HLT_Activity_Ecal_SC7_Prescl;   //!
+  TBranch        *b_HLT_Activity_Ecal_SC17_Prescl;   //!
+  TBranch        *b_HLT_SelectEcalSpikes_L1R_Prescl;   //!
+  TBranch        *b_HLT_SelectEcalSpikesHighEt_L1R_Prescl;   //!
+  TBranch        *b_HLT_L1SingleForJet_Prescl;   //!
+  TBranch        *b_HLT_L1SingleCenJet_Prescl;   //!
+  TBranch        *b_HLT_L1SingleTauJet_Prescl;   //!
+  TBranch        *b_HLT_L1Jet6U_Prescl;   //!
+  TBranch        *b_HLT_L1Jet6U_NoBPTX_Prescl;   //!
+  TBranch        *b_HLT_L1Jet10U_Prescl;   //!
+  TBranch        *b_HLT_L1Jet10U_NoBPTX_Prescl;   //!
+  TBranch        *b_HLT_Jet15U_Prescl;   //!
+  TBranch        *b_HLT_Jet15U_HcalNoiseFiltered_Prescl;   //!
+  TBranch        *b_HLT_Jet30U_Prescl;   //!
+  TBranch        *b_HLT_Jet50U_Prescl;   //!
+  TBranch        *b_HLT_FwdJet20U_Prescl;   //!
+  TBranch        *b_HLT_DiJetAve15U_8E29_Prescl;   //!
+  TBranch        *b_HLT_DiJetAve30U_8E29_Prescl;   //!
+  TBranch        *b_HLT_DiJetAve50U_8E29_Prescl;   //!
+  TBranch        *b_HLT_DoubleJet15U_ForwardBackward_Prescl;   //!
+  TBranch        *b_HLT_QuadJet15U_Prescl;   //!
+  TBranch        *b_HLT_L1MET20_Prescl;   //!
+  TBranch        *b_HLT_MET45_Prescl;   //!
+  TBranch        *b_HLT_MET100_Prescl;   //!
+  TBranch        *b_HLT_HT100U_Prescl;   //!
+  TBranch        *b_HLT_L1MuOpen_Prescl;   //!
+  TBranch        *b_HLT_L1MuOpen_DT_Prescl;   //!
+  TBranch        *b_HLT_L1MuOpen_AntiBPTX_Prescl;   //!
+  TBranch        *b_HLT_L1Mu_Prescl;   //!
+  TBranch        *b_HLT_L1Mu20_Prescl;   //!
+  TBranch        *b_HLT_L2Mu0_Prescl;   //!
+  TBranch        *b_HLT_L2Mu3_Prescl;   //!
+  TBranch        *b_HLT_L2Mu5_Prescl;   //!
+  TBranch        *b_HLT_L2Mu9_Prescl;   //!
+  TBranch        *b_HLT_L2Mu11_Prescl;   //!
+  TBranch        *b_HLT_IsoMu3_Prescl;   //!
+  TBranch        *b_HLT_Mu3_Prescl;   //!
+  TBranch        *b_HLT_Mu5_Prescl;   //!
+  TBranch        *b_HLT_Mu7_Prescl;   //!
+  TBranch        *b_HLT_Mu9_Prescl;   //!
+  TBranch        *b_HLT_L1DoubleMuOpen_Prescl;   //!
+  TBranch        *b_HLT_L1DoubleMuOpen_Tight_Prescl;   //!
+  TBranch        *b_HLT_L2DoubleMu0_Prescl;   //!
+  TBranch        *b_HLT_DoubleMu0_Prescl;   //!
+  TBranch        *b_HLT_DoubleMu3_Prescl;   //!
+  TBranch        *b_HLT_Mu0_L1MuOpen_Prescl;   //!
+  TBranch        *b_HLT_Mu3_L1MuOpen_Prescl;   //!
+  TBranch        *b_HLT_Mu5_L1MuOpen_Prescl;   //!
+  TBranch        *b_HLT_Mu0_L2Mu0_Prescl;   //!
+  TBranch        *b_HLT_Mu3_L2Mu0_Prescl;   //!
+  TBranch        *b_HLT_Mu5_L2Mu0_Prescl;   //!
+  TBranch        *b_HLT_Mu0_Track0_Jpsi_Prescl;   //!
+  TBranch        *b_HLT_Mu0_TkMu0_Jpsi_Prescl;   //!
+  TBranch        *b_HLT_Mu0_TkMu0_Jpsi_NoCharge_Prescl;   //!
+  TBranch        *b_HLT_Mu3_Track0_Jpsi_Prescl;   //!
+  TBranch        *b_HLT_Mu3_TkMu0_Jpsi_Prescl;   //!
+  TBranch        *b_HLT_Mu3_TkMu0_Jpsi_NoCharge_Prescl;   //!
+  TBranch        *b_HLT_Mu5_Track0_Jpsi_Prescl;   //!
+  TBranch        *b_HLT_Mu5_TkMu0_Jpsi_Prescl;   //!
+  TBranch        *b_HLT_Mu5_TkMu0_Jpsi_NoCharge_Prescl;   //!
+  TBranch        *b_HLT_L1SingleEG2_Prescl;   //!
+  TBranch        *b_HLT_L1SingleEG5_Prescl;   //!
+  TBranch        *b_HLT_L1SingleEG8_Prescl;   //!
+  TBranch        *b_HLT_L1DoubleEG5_Prescl;   //!
+  TBranch        *b_HLT_Ele10_LW_L1R_Prescl;   //!
+  TBranch        *b_HLT_Ele10_LW_EleId_L1R_Prescl;   //!
+  TBranch        *b_HLT_Ele10_SW_L1R_Prescl;   //!
+  TBranch        *b_HLT_Ele15_LW_L1R_Prescl;   //!
+  TBranch        *b_HLT_Ele15_SW_L1R_Prescl;   //!
+  TBranch        *b_HLT_Ele15_SC10_LW_L1R_Prescl;   //!
+  TBranch        *b_HLT_Ele15_SiStrip_L1R_Prescl;   //!
+  TBranch        *b_HLT_Ele20_LW_L1R_Prescl;   //!
+  TBranch        *b_HLT_Ele20_SW_L1R_Prescl;   //!
+  TBranch        *b_HLT_DoubleEle5_SW_L1R_Prescl;   //!
+  TBranch        *b_HLT_Photon10_Cleaned_L1R_Prescl;   //!
+  TBranch        *b_HLT_Photon15_Cleaned_L1R_Prescl;   //!
+  TBranch        *b_HLT_Photon15_TrackIso_Cleaned_L1R_Prescl;   //!
+  TBranch        *b_HLT_Photon15_LooseEcalIso_Cleaned_L1R_Prescl;   //!
+  TBranch        *b_HLT_Photon20_Cleaned_L1R_Prescl;   //!
+  TBranch        *b_HLT_Photon30_L1R_Prescl;   //!
+  TBranch        *b_HLT_DoublePhoton4_eeRes_L1R_Prescl;   //!
+  TBranch        *b_HLT_DoublePhoton4_Jpsi_L1R_Prescl;   //!
+  TBranch        *b_HLT_DoublePhoton4_Upsilon_L1R_Prescl;   //!
+  TBranch        *b_HLT_DoublePhoton5_Jpsi_L1R_Prescl;   //!
+  TBranch        *b_HLT_DoublePhoton5_Upsilon_L1R_Prescl;   //!
+  TBranch        *b_HLT_DoublePhoton5_CEP_L1R_Prescl;   //!
+  TBranch        *b_HLT_DoublePhoton5_L1R_Prescl;   //!
+  TBranch        *b_HLT_DoublePhoton10_L1R_Prescl;   //!
+  TBranch        *b_HLT_SingleLooseIsoTau20_Prescl;   //!
+  TBranch        *b_HLT_SingleLooseIsoTau20_Trk5_Prescl;   //!
+  TBranch        *b_HLT_SingleLooseIsoTau25_Prescl;   //!
+  TBranch        *b_HLT_DoubleLooseIsoTau15_Prescl;   //!
+  TBranch        *b_HLT_BTagIP_Jet50U_Prescl;   //!
+  TBranch        *b_HLT_BTagMu_Jet10U_Prescl;   //!
+  TBranch        *b_HLT_StoppedHSCP_8E29_Prescl;   //!
+  TBranch        *b_HLT_L1Mu14_L1SingleEG10_Prescl;   //!
+  TBranch        *b_HLT_L1Mu14_L1SingleJet6U_Prescl;   //!
+  TBranch        *b_HLT_L1Mu14_L1ETM30_Prescl;   //!
+  TBranch        *b_HLT_ZeroBias_Prescl;   //!
+  TBranch        *b_HLT_ZeroBiasPixel_SingleTrack_Prescl;   //!
+  TBranch        *b_HLT_MinBiasPixel_SingleTrack_Prescl;   //!
+  TBranch        *b_HLT_MinBiasPixel_DoubleTrack_Prescl;   //!
+  TBranch        *b_HLT_MinBiasPixel_DoubleIsoTrack5_Prescl;   //!
+  TBranch        *b_HLT_MultiVertex6_Prescl;   //!
+  TBranch        *b_HLT_MultiVertex8_L1ETT60_Prescl;   //!
+  TBranch        *b_HLT_CSCBeamHalo_Prescl;   //!
+  TBranch        *b_HLT_CSCBeamHaloOverlapRing1_Prescl;   //!
+  TBranch        *b_HLT_CSCBeamHaloOverlapRing2_Prescl;   //!
+  TBranch        *b_HLT_CSCBeamHaloRing2or3_Prescl;   //!
+  TBranch        *b_HLT_L1_BscMinBiasOR_BptxPlusORMinus_Prescl;   //!
+  TBranch        *b_HLT_L1_BptxXOR_BscMinBiasOR_Prescl;   //!
+  TBranch        *b_HLT_L1Tech_BSC_minBias_Prescl;   //!
+  TBranch        *b_HLT_L1Tech_BSC_halo_Prescl;   //!
+  TBranch        *b_HLT_L1Tech_BSC_halo_forPhysicsBackground_Prescl;   //!
+  TBranch        *b_HLT_L1Tech_BSC_HighMultiplicity_Prescl;   //!
+  TBranch        *b_HLT_L1Tech_RPC_TTU_RBst1_collisions_Prescl;   //!
+  TBranch        *b_HLT_L1Tech_HCAL_HF_Prescl;   //!
+  TBranch        *b_HLT_TrackerCosmics_Prescl;   //!
+  TBranch        *b_HLT_RPCBarrelCosmics_Prescl;   //!
+  TBranch        *b_HLT_IsoTrackHE_8E29_Prescl;   //!
+  TBranch        *b_HLT_IsoTrackHB_8E29_Prescl;   //!
+  TBranch        *b_HLT_HcalPhiSym_Prescl;   //!
+  TBranch        *b_HLT_HcalNZS_8E29_Prescl;   //!
+  TBranch        *b_AlCa_EcalPhiSym_Prescl;   //!
+  TBranch        *b_AlCa_EcalPi0_8E29_Prescl;   //!
+  TBranch        *b_AlCa_EcalEta_8E29_Prescl;   //!
+  TBranch        *b_AlCa_RPCMuonNoHits_Prescl;   //!
+  TBranch        *b_AlCa_RPCMuonNoTriggers_Prescl;   //!
+  TBranch        *b_AlCa_RPCMuonNormalisation_Prescl;   //!
+  TBranch        *b_HLT_DTErrors_Prescl;   //!
+  TBranch        *b_HLT_Calibration_Prescl;   //!
+  TBranch        *b_HLT_EcalCalibration_Prescl;   //!
+  TBranch        *b_HLT_HcalCalibration_Prescl;   //!
+  TBranch        *b_HLT_Random_Prescl;   //!
+  TBranch        *b_HLT_PixelTracks_Multiplicity70_Prescl;   //!
+  TBranch        *b_HLT_PixelTracks_Multiplicity85_Prescl;   //!
+  TBranch        *b_HLT_GlobalRunHPDNoise_Prescl;   //!
+  TBranch        *b_HLT_TechTrigHCALNoise_Prescl;   //!
+  TBranch        *b_HLT_L1_BPTX_Prescl;   //!
+  TBranch        *b_HLT_L1_BPTX_MinusOnly_Prescl;   //!
+  TBranch        *b_HLT_L1_BPTX_PlusOnly_Prescl;   //!
+  TBranch        *b_HLT_L2Mu0_NoVertex_Prescl;   //!
+  TBranch        *b_HLT_LogMonitor_Prescl;   //!
+
   // Cut on mu quality
   Int_t           NL1OpenMu;
   Float_t         L1OpenMuPt[10];   //[NL1OpenMu]
@@ -1784,6 +2619,8 @@ public :
 		       float L1TauEtThr, float L1CenJetThr);
   int OpenHltTauL2SCPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso,
 			   float L1TauEtThr, float L1CenJetThr);
+  int OpenHltTauL2SCMETPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso, float met,
+  		  float L1TauThr, float L1CenJetThr);
   int OpenHlt2Tau1LegL3IsoPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt,
 				 float L1TauEtThr, float L1CenJetThr);
   int OpenHltElecTauL2SCPassed(float elecEt, int elecL1iso, float elecTiso, float elecHiso,
@@ -1817,8 +2654,11 @@ public :
   int OpenHltQuadCorJetPassed(double pt);
   int OpenHltJRMuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso,double ptl3hi);
   int OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold) ;
+  int OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold, double etajetthreshold) ;
+  int OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold, double etajetthreshold, int Njetthreshjold) ;
   int OpenHltMHT(double MHTthreshold, double jetthreshold) ;
   int OpenHlt1PixelTrackPassed(float minpt, float minsep, float miniso);
+  int readRefPrescaleFromFile(TString st); 
 
   std::map<TString, std::vector<TString> >&
     GetL1SeedsOfHLTPathMap() { return map_L1SeedsOfStandardHLTPath; }; // mapping to all seeds
@@ -1848,12 +2688,14 @@ private:
   std::vector<int> L3MuPixCandIDForUps;
   std::map<TString,int> map_BitOfStandardHLTPath;
   std::map<TString,int> map_L1BitOfStandardHLTPath;
+  std::map<TString,int> map_RefPrescaleOfStandardHLTPath;
 
   std::map<TString, std::vector<TString> > map_L1SeedsOfStandardHLTPath; // mapping to all seeds
   std::map<TString, std::vector<int> > map_RpnTokenIdOfStandardHLTPath; // mapping to algo token
 
   TRandom3 random; // for random prescale method
   inline int GetIntRandom() { return (int)(9999999.*random.Rndm()); }
+  inline int GetFloatRandom() {return (9999999.*random.Rndm()); }
 
   bool prescaleResponse(OHltMenu *menu, OHltConfig *cfg, OHltRateCounter *rc,int i);
   bool prescaleResponseL1(OHltMenu *menu, OHltConfig *cfg, OHltRateCounter *rc,int i);
@@ -2355,13 +3197,11 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("LumiBlock", &LumiBlock, &b_LumiBlock); 
   fChain->SetBranchAddress("Bx", &Bx, &b_Bx); 
   fChain->SetBranchAddress("Orbit", &Orbit, &b_Orbit); 
-  //20X
 
+  //L1 algorithm bits 
   fChain->SetBranchAddress("L1_DoubleMuTopBottom", &L1_DoubleMuTopBottom, &b_L1_DoubleMuTopBottom); 
   fChain->SetBranchAddress("L1_DoubleEG05_TopBottom", &L1_DoubleEG05_TopBottom, &b_L1_DoubleEG05_TopBottom); 
   fChain->SetBranchAddress("L1_IsoEG10_Jet6_ForJet6", &L1_IsoEG10_Jet6_ForJet6, &b_L1_IsoEG10_Jet6_ForJet6); 
-
-
   fChain->SetBranchAddress("L1_SingleJet20", &L1_SingleJet20, &b_L1_SingleJet20); 
   fChain->SetBranchAddress("L1_SingleJet40", &L1_SingleJet40, &b_L1_SingleJet40); 
   fChain->SetBranchAddress("L1_SingleJet60", &L1_SingleJet60, &b_L1_SingleJet60); 
@@ -2369,16 +3209,13 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleTauJet20", &L1_SingleTauJet20, &b_L1_SingleTauJet20); 
   fChain->SetBranchAddress("L1_SingleTauJet50", &L1_SingleTauJet50, &b_L1_SingleTauJet50); 
   fChain->SetBranchAddress("L1_DoubleJet30", &L1_DoubleJet30, &b_L1_DoubleJet30);   
-  
-  //L1's
   fChain->SetBranchAddress("L1_TripleJet14", &L1_TripleJet14, &b_L1_TripleJet14);  
   fChain->SetBranchAddress("L1_QuadJet6", &L1_QuadJet6, &b_L1_QuadJet6); 
-
   fChain->SetBranchAddress("L1_Mu5_Jet6", &L1_Mu5_Jet6, &b_L1_Mu5_Jet6);
   fChain->SetBranchAddress("L1_EG5_TripleJet6", &L1_EG5_TripleJet6, &b_L1_EG5_TripleJet6);
   fChain->SetBranchAddress("L1_SingleJet6", &L1_SingleJet6, &b_L1_SingleJet6);
   fChain->SetBranchAddress("L1_SingleJet10", &L1_SingleJet10, &b_L1_SingleJet10);
-
+  fChain->SetBranchAddress("L1_SingleJet10_NotBptxC_Ext", &L1_SingleJet10_NotBptxC_Ext, &b_L1_SingleJet10_NotBptxC_Ext);
   fChain->SetBranchAddress("L1_DoubleEG1", &L1_DoubleEG1, &b_L1_DoubleEG1); 
   fChain->SetBranchAddress("L1_DoubleEG2", &L1_DoubleEG2, &b_L1_DoubleEG2); 
   fChain->SetBranchAddress("L1_DoubleEG5", &L1_DoubleEG5, &b_L1_DoubleEG5); 
@@ -2399,7 +3236,8 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_ETM40", &L1_ETM40, &b_L1_ETM40); 
   fChain->SetBranchAddress("L1_ETM70", &L1_ETM70, &b_L1_ETM70); 
   fChain->SetBranchAddress("L1_ETM80", &L1_ETM80, &b_L1_ETM80); 
-  fChain->SetBranchAddress("L1_ETT60", &L1_ETT60, &b_L1_ETT60); 
+  fChain->SetBranchAddress("L1_ETT60", &L1_ETT60, &b_L1_ETT60);
+  fChain->SetBranchAddress("L1_ETT100", &L1_ETT100, &b_L1_ETT100); 
   fChain->SetBranchAddress("L1_HTT50", &L1_HTT50, &b_L1_HTT50); 
   fChain->SetBranchAddress("L1_HTT100", &L1_HTT100, &b_L1_HTT100); 
   fChain->SetBranchAddress("L1_HTT200", &L1_HTT200, &b_L1_HTT200); 
@@ -2460,7 +3298,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleTauJet4", &L1_SingleTauJet4, &b_L1_SingleTauJet4);
   fChain->SetBranchAddress("L1_DoubleForJet10_EtaOpp", &L1_DoubleForJet10_EtaOpp, &b_L1_DoubleForJet10_EtaOpp);
 
-  // ccla - L1 Technical bits  (06Dec09)
+  // L1 Technical bits
   fChain->SetBranchAddress("L1Tech_BPTX_minus.v0", &L1Tech_BPTX_minus_v0, &b_L1Tech_BPTX_minus_v0);
   fChain->SetBranchAddress("L1Tech_BPTX_minus.v0_5bx", &L1Tech_BPTX_minus_v0_5bx, &b_L1Tech_BPTX_minus_v0_5bx);
   fChain->SetBranchAddress("L1Tech_BPTX_minus_AND_not_plus.v0", &L1Tech_BPTX_minus_AND_not_plus_v0, &b_L1Tech_BPTX_minus_AND_not_plus_v0);
@@ -2527,14 +3365,12 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1Tech_RPC_TTU_pointing_Cosmics.v0_5bx", &L1Tech_RPC_TTU_pointing_Cosmics_v0_5bx, &b_L1Tech_RPC_TTU_pointing_Cosmics_v0_5bx);
   fChain->SetBranchAddress("L1Tech_RPC_TTU_RBst1_collisions.v0", &L1Tech_RPC_TTU_RBst1_collisions_v0, &b_L1Tech_RPC_TTU_RBst1_collisions_v0);
   fChain->SetBranchAddress("L1Tech_RPC_TTU_RBst1_collisions.v0_5bx", &L1Tech_RPC_TTU_RBst1_collisions_v0_5bx, &b_L1Tech_RPC_TTU_RBst1_collisions_v0_5bx);
-
   fChain->SetBranchAddress("L1Tech_HCAL_HF_MM_or_PP_or_PM.v0", &L1Tech_HCAL_HF_MM_or_PP_or_PM_v0, &b_L1Tech_HCAL_HF_MM_or_PP_or_PM_v0);
   fChain->SetBranchAddress("L1Tech_HCAL_HF_MM_or_PP_or_PM.v0_5bx", &L1Tech_HCAL_HF_MM_or_PP_or_PM_v0_5bx, &b_L1Tech_HCAL_HF_MM_or_PP_or_PM_v0_5bx);
   fChain->SetBranchAddress("L1Tech_HCAL_HF_coincidence_PM.v1", &L1Tech_HCAL_HF_coincidence_PM_v1, &b_L1Tech_HCAL_HF_coincidence_PM_v1);
   fChain->SetBranchAddress("L1Tech_HCAL_HF_coincidence_PM.v1_5bx", &L1Tech_HCAL_HF_coincidence_PM_v1_5bx, &b_L1Tech_HCAL_HF_coincidence_PM_v1_5bx);
   fChain->SetBranchAddress("L1Tech_HCAL_HF_MMP_or_MPP.v0", &L1Tech_HCAL_HF_MMP_or_MPP_v0, &b_L1Tech_HCAL_HF_MMP_or_MPP_v0);
   fChain->SetBranchAddress("L1Tech_HCAL_HF_MMP_or_MPP.v0_5bx", &L1Tech_HCAL_HF_MMP_or_MPP_v0_5bx, &b_L1Tech_HCAL_HF_MMP_or_MPP_v0_5bx);
-
   fChain->SetBranchAddress("L1Tech_ZDC_loose_vertex.v0", &L1Tech_ZDC_loose_vertex_v0, &b_L1Tech_ZDC_loose_vertex_v0);
   fChain->SetBranchAddress("L1Tech_ZDC_loose_vertex.v0_5bx", &L1Tech_ZDC_loose_vertex_v0_5bx, &b_L1Tech_ZDC_loose_vertex_v0_5bx);
   fChain->SetBranchAddress("L1Tech_ZDC_minus_over_threshold.v0", &L1Tech_ZDC_minus_over_threshold_v0, &b_L1Tech_ZDC_minus_over_threshold_v0);
@@ -2543,18 +3379,18 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1Tech_ZDC_plus_over_threshold.v0_5bx", &L1Tech_ZDC_plus_over_threshold_v0_5bx, &b_L1Tech_ZDC_plus_over_threshold_v0_5bx);
   fChain->SetBranchAddress("L1Tech_ZDC_tight_vertex.v0", &L1Tech_ZDC_tight_vertex_v0, &b_L1Tech_ZDC_tight_vertex_v0);
   fChain->SetBranchAddress("L1Tech_ZDC_tight_vertex.v0_5bx", &L1Tech_ZDC_tight_vertex_v0_5bx, &b_L1Tech_ZDC_tight_vertex_v0_5bx);
-
   fChain->SetBranchAddress("L1_BptxMinus", &L1_BptxMinus, &b_L1_BptxMinus);
   fChain->SetBranchAddress("L1_BptxMinus_5bx", &L1_BptxMinus_5bx, &b_L1_BptxMinus_5bx);
   fChain->SetBranchAddress("L1_BptxPlus", &L1_BptxPlus, &b_L1_BptxPlus);
   fChain->SetBranchAddress("L1_BptxPlus_5bx", &L1_BptxPlus_5bx, &b_L1_BptxPlus_5bx);
   fChain->SetBranchAddress("L1_BptxPlusORMinus", &L1_BptxPlusORMinus, &b_L1_BptxPlusORMinus);
   fChain->SetBranchAddress("L1_BptxPlusORMinus_5bx", &L1_BptxPlusORMinus_5bx, &b_L1_BptxPlusORMinus_5bx);
+  fChain->SetBranchAddress("L1_BptxXOR_BscMinBiasOR", &L1_BptxXOR_BscMinBiasOR, &b_L1_BptxXOR_BscMinBiasOR);
+  fChain->SetBranchAddress("L1_BptxXOR_BscMinBiasOR_5bx", &L1_BptxXOR_BscMinBiasOR_5bx, &b_L1_BptxXOR_BscMinBiasOR_5bx);
   fChain->SetBranchAddress("L1_BptxPlus_NotBptxMinus", &L1_BptxPlus_NotBptxMinus, &b_L1_BptxPlus_NotBptxMinus);
   fChain->SetBranchAddress("L1_BptxPlus_NotBptxMinus_5bx", &L1_BptxPlus_NotBptxMinus_5bx, &b_L1_BptxPlus_NotBptxMinus_5bx);
   fChain->SetBranchAddress("L1_BptxMinus_NotBptxPlus", &L1_BptxMinus_NotBptxPlus, &b_L1_BptxMinus_NotBptxPlus);
   fChain->SetBranchAddress("L1_BptxMinus_NotBptxPlus_5bx", &L1_BptxMinus_NotBptxPlus_5bx, &b_L1_BptxMinus_NotBptxPlus_5bx);
-
   fChain->SetBranchAddress("L1_BscHighMultiplicity", &L1_BscHighMultiplicity, &b_L1_BscHighMultiplicity);
   fChain->SetBranchAddress("L1_BscHighMultiplicity_5bx", &L1_BscHighMultiplicity_5bx, &b_L1_BscHighMultiplicity_5bx);
   fChain->SetBranchAddress("L1_BscMinBiasInnerThreshold1", &L1_BscMinBiasInnerThreshold1, &b_L1_BscMinBiasInnerThreshold1);
@@ -2565,9 +3401,165 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_BscMinBiasOR_5bx", &L1_BscMinBiasOR_5bx, &b_L1_BscMinBiasOR_5bx);
   fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusORMinus", &L1_BscMinBiasOR_BptxPlusORMinus, &b_L1_BscMinBiasOR_BptxPlusORMinus);
   fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusORMinus_5bx", &L1_BscMinBiasOR_BptxPlusORMinus_5bx, &b_L1_BscMinBiasOR_BptxPlusORMinus_5bx);
+  fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusANDMinus", &L1_BscMinBiasOR_BptxPlusANDMinus, &b_L1_BscMinBiasOR_BptxPlusANDMinus); 
+  fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusANDMinus_5bx", &L1_BscMinBiasOR_BptxPlusANDMinus_5bx, &b_L1_BscMinBiasOR_BptxPlusANDMinus_5bx);
 
 
-  // JH - 1E31 MC menu
+  //L1 algorithm bit prescales
+  fChain->SetBranchAddress("L1_DoubleMuTopBottom_Prescl", &L1_DoubleMuTopBottom_Prescl, &b_L1_DoubleMuTopBottom_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleEG05_TopBottom_Prescl", &L1_DoubleEG05_TopBottom_Prescl, &b_L1_DoubleEG05_TopBottom_Prescl); 
+  fChain->SetBranchAddress("L1_IsoEG10_Jet6_ForJet6_Prescl", &L1_IsoEG10_Jet6_ForJet6_Prescl, &b_L1_IsoEG10_Jet6_ForJet6_Prescl); 
+  fChain->SetBranchAddress("L1_SingleJet20_Prescl", &L1_SingleJet20_Prescl, &b_L1_SingleJet20_Prescl); 
+  fChain->SetBranchAddress("L1_SingleJet40_Prescl", &L1_SingleJet40_Prescl, &b_L1_SingleJet40_Prescl); 
+  fChain->SetBranchAddress("L1_SingleJet60_Prescl", &L1_SingleJet60_Prescl, &b_L1_SingleJet60_Prescl); 
+  fChain->SetBranchAddress("L1_SingleTauJet10_Prescl", &L1_SingleTauJet10_Prescl, &b_L1_SingleTauJet10_Prescl); 
+  fChain->SetBranchAddress("L1_SingleTauJet20_Prescl", &L1_SingleTauJet20_Prescl, &b_L1_SingleTauJet20_Prescl); 
+  fChain->SetBranchAddress("L1_SingleTauJet50_Prescl", &L1_SingleTauJet50_Prescl, &b_L1_SingleTauJet50_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleJet30_Prescl", &L1_DoubleJet30_Prescl, &b_L1_DoubleJet30_Prescl);   
+  fChain->SetBranchAddress("L1_TripleJet14_Prescl", &L1_TripleJet14_Prescl, &b_L1_TripleJet14_Prescl);  
+  fChain->SetBranchAddress("L1_QuadJet6_Prescl", &L1_QuadJet6_Prescl, &b_L1_QuadJet6_Prescl); 
+  fChain->SetBranchAddress("L1_Mu5_Jet6_Prescl", &L1_Mu5_Jet6_Prescl, &b_L1_Mu5_Jet6_Prescl);
+  fChain->SetBranchAddress("L1_EG5_TripleJet6_Prescl", &L1_EG5_TripleJet6_Prescl, &b_L1_EG5_TripleJet6_Prescl);
+  fChain->SetBranchAddress("L1_SingleJet6_Prescl", &L1_SingleJet6_Prescl, &b_L1_SingleJet6_Prescl);
+  fChain->SetBranchAddress("L1_SingleJet10_Prescl", &L1_SingleJet10_Prescl, &b_L1_SingleJet10_Prescl);
+  fChain->SetBranchAddress("L1_SingleJet10_NotBptxC_Ext_Prescl", &L1_SingleJet10_NotBptxC_Ext_Prescl, &b_L1_SingleJet10_NotBptxC_Ext_Prescl);
+  fChain->SetBranchAddress("L1_DoubleEG1_Prescl", &L1_DoubleEG1_Prescl, &b_L1_DoubleEG1_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleEG2_Prescl", &L1_DoubleEG2_Prescl, &b_L1_DoubleEG2_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleEG5_Prescl", &L1_DoubleEG5_Prescl, &b_L1_DoubleEG5_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleHfBitCountsRing1_P1N1_Prescl", &L1_DoubleHfBitCountsRing1_P1N1_Prescl, &b_L1_DoubleHfBitCountsRing1_P1N1_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleHfBitCountsRing2_P1N1_Prescl", &L1_DoubleHfBitCountsRing2_P1N1_Prescl, &b_L1_DoubleHfBitCountsRing2_P1N1_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleHfRingEtSumsRing1_P200N200_Prescl", &L1_DoubleHfRingEtSumsRing1_P200N200_Prescl, &b_L1_DoubleHfRingEtSumsRing1_P200N200_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleHfRingEtSumsRing1_P4N4_Prescl", &L1_DoubleHfRingEtSumsRing1_P4N4_Prescl, &b_L1_DoubleHfRingEtSumsRing1_P4N4_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleHfRingEtSumsRing2_P200N200_Prescl", &L1_DoubleHfRingEtSumsRing2_P200N200_Prescl, &b_L1_DoubleHfRingEtSumsRing2_P200N200_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleHfRingEtSumsRing2_P4N4_Prescl", &L1_DoubleHfRingEtSumsRing2_P4N4_Prescl, &b_L1_DoubleHfRingEtSumsRing2_P4N4_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleJet70_Prescl", &L1_DoubleJet70_Prescl, &b_L1_DoubleJet70_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleMu3_Prescl", &L1_DoubleMu3_Prescl, &b_L1_DoubleMu3_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleMuOpen_Prescl", &L1_DoubleMuOpen_Prescl, &b_L1_DoubleMuOpen_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleTauJet30_Prescl", &L1_DoubleTauJet30_Prescl, &b_L1_DoubleTauJet30_Prescl); 
+  fChain->SetBranchAddress("L1_EG10_Jet15_Prescl", &L1_EG10_Jet15_Prescl, &b_L1_EG10_Jet15_Prescl); 
+  fChain->SetBranchAddress("L1_EG5_TripleJet15_Prescl", &L1_EG5_TripleJet15_Prescl, &b_L1_EG5_TripleJet15_Prescl); 
+  fChain->SetBranchAddress("L1_ETM20_Prescl", &L1_ETM20_Prescl, &b_L1_ETM20_Prescl); 
+  fChain->SetBranchAddress("L1_ETM30_Prescl", &L1_ETM30_Prescl, &b_L1_ETM30_Prescl);
+  fChain->SetBranchAddress("L1_ETM40_Prescl", &L1_ETM40_Prescl, &b_L1_ETM40_Prescl); 
+  fChain->SetBranchAddress("L1_ETM70_Prescl", &L1_ETM70_Prescl, &b_L1_ETM70_Prescl); 
+  fChain->SetBranchAddress("L1_ETM80_Prescl", &L1_ETM80_Prescl, &b_L1_ETM80_Prescl); 
+  fChain->SetBranchAddress("L1_ETT60_Prescl", &L1_ETT60_Prescl, &b_L1_ETT60_Prescl); 
+  fChain->SetBranchAddress("L1_ETT100_Prescl", &L1_ETT100_Prescl, &b_L1_ETT100_Prescl);  
+  fChain->SetBranchAddress("L1_HTT50_Prescl", &L1_HTT50_Prescl, &b_L1_HTT50_Prescl); 
+  fChain->SetBranchAddress("L1_HTT100_Prescl", &L1_HTT100_Prescl, &b_L1_HTT100_Prescl); 
+  fChain->SetBranchAddress("L1_HTT200_Prescl", &L1_HTT200_Prescl, &b_L1_HTT200_Prescl); 
+  fChain->SetBranchAddress("L1_HTT300_Prescl", &L1_HTT300_Prescl, &b_L1_HTT300_Prescl); 
+  fChain->SetBranchAddress("L1_IsoEG10_Jet15_ForJet10_Prescl", &L1_IsoEG10_Jet15_ForJet10_Prescl, &b_L1_IsoEG10_Jet15_ForJet10_Prescl); 
+  fChain->SetBranchAddress("L1_MinBias_HTT10_Prescl", &L1_MinBias_HTT10_Prescl, &b_L1_MinBias_HTT10_Prescl); 
+  fChain->SetBranchAddress("L1_Mu3QE8_EG5_Prescl", &L1_Mu3QE8_EG5_Prescl, &b_L1_Mu3QE8_EG5_Prescl); 
+  fChain->SetBranchAddress("L1_Mu3QE8_Jet15_Prescl", &L1_Mu3QE8_Jet15_Prescl, &b_L1_Mu3QE8_Jet15_Prescl);  
+  fChain->SetBranchAddress("L1_Mu5QE8_Jet15_Prescl", &L1_Mu5QE8_Jet15_Prescl, &b_L1_Mu5QE8_Jet15_Prescl); 
+  fChain->SetBranchAddress("L1_Mu3QE8_Jet6_Prescl", &L1_Mu3QE8_Jet6_Prescl, &b_L1_Mu3QE8_Jet6_Prescl);  
+  fChain->SetBranchAddress("L1_Mu5QE8_Jet6_Prescl", &L1_Mu5QE8_Jet6_Prescl, &b_L1_Mu5QE8_Jet6_Prescl); 
+  fChain->SetBranchAddress("L1_QuadJet15_Prescl", &L1_QuadJet15_Prescl, &b_L1_QuadJet15_Prescl); 
+  fChain->SetBranchAddress("L1_SingleEG1_Prescl", &L1_SingleEG1_Prescl, &b_L1_SingleEG1_Prescl); 
+  fChain->SetBranchAddress("L1_SingleEG10_Prescl", &L1_SingleEG10_Prescl, &b_L1_SingleEG10_Prescl); 
+  fChain->SetBranchAddress("L1_SingleEG12_Prescl", &L1_SingleEG12_Prescl, &b_L1_SingleEG12_Prescl); 
+  fChain->SetBranchAddress("L1_SingleEG15_Prescl", &L1_SingleEG15_Prescl, &b_L1_SingleEG15_Prescl); 
+  fChain->SetBranchAddress("L1_SingleEG2_Prescl", &L1_SingleEG2_Prescl, &b_L1_SingleEG2_Prescl); 
+  fChain->SetBranchAddress("L1_SingleEG20_Prescl", &L1_SingleEG20_Prescl, &b_L1_SingleEG20_Prescl); 
+  fChain->SetBranchAddress("L1_SingleEG5_Prescl", &L1_SingleEG5_Prescl, &b_L1_SingleEG5_Prescl); 
+  fChain->SetBranchAddress("L1_SingleEG8_Prescl", &L1_SingleEG8_Prescl, &b_L1_SingleEG8_Prescl); 
+  fChain->SetBranchAddress("L1_SingleHfBitCountsRing1_1_Prescl", &L1_SingleHfBitCountsRing1_1_Prescl, &b_L1_SingleHfBitCountsRing1_1_Prescl); 
+  fChain->SetBranchAddress("L1_SingleHfBitCountsRing2_1_Prescl", &L1_SingleHfBitCountsRing2_1_Prescl, &b_L1_SingleHfBitCountsRing2_1_Prescl); 
+  fChain->SetBranchAddress("L1_SingleHfRingEtSumsRing1_200_Prescl", &L1_SingleHfRingEtSumsRing1_200_Prescl, &b_L1_SingleHfRingEtSumsRing1_200_Prescl); 
+  fChain->SetBranchAddress("L1_SingleHfRingEtSumsRing1_4_Prescl", &L1_SingleHfRingEtSumsRing1_4_Prescl, &b_L1_SingleHfRingEtSumsRing1_4_Prescl); 
+  fChain->SetBranchAddress("L1_SingleHfRingEtSumsRing2_200_Prescl", &L1_SingleHfRingEtSumsRing2_200_Prescl, &b_L1_SingleHfRingEtSumsRing2_200_Prescl); 
+  fChain->SetBranchAddress("L1_SingleHfRingEtSumsRing2_4_Prescl", &L1_SingleHfRingEtSumsRing2_4_Prescl, &b_L1_SingleHfRingEtSumsRing2_4_Prescl); 
+  fChain->SetBranchAddress("L1_SingleIsoEG10_Prescl", &L1_SingleIsoEG10_Prescl, &b_L1_SingleIsoEG10_Prescl); 
+  fChain->SetBranchAddress("L1_SingleIsoEG12_Prescl", &L1_SingleIsoEG12_Prescl, &b_L1_SingleIsoEG12_Prescl); 
+  fChain->SetBranchAddress("L1_SingleIsoEG15_Prescl", &L1_SingleIsoEG15_Prescl, &b_L1_SingleIsoEG15_Prescl); 
+  fChain->SetBranchAddress("L1_SingleIsoEG5_Prescl", &L1_SingleIsoEG5_Prescl, &b_L1_SingleIsoEG5_Prescl); 
+  fChain->SetBranchAddress("L1_SingleIsoEG8_Prescl", &L1_SingleIsoEG8_Prescl, &b_L1_SingleIsoEG8_Prescl); 
+  fChain->SetBranchAddress("L1_SingleJet100_Prescl", &L1_SingleJet100_Prescl, &b_L1_SingleJet100_Prescl); 
+  fChain->SetBranchAddress("L1_SingleJet15_Prescl", &L1_SingleJet15_Prescl, &b_L1_SingleJet15_Prescl); 
+  fChain->SetBranchAddress("L1_SingleJet30_Prescl", &L1_SingleJet30_Prescl, &b_L1_SingleJet30_Prescl); 
+  fChain->SetBranchAddress("L1_SingleJet50_Prescl", &L1_SingleJet50_Prescl, &b_L1_SingleJet50_Prescl); 
+  fChain->SetBranchAddress("L1_SingleJet70_Prescl", &L1_SingleJet70_Prescl, &b_L1_SingleJet70_Prescl); 
+  fChain->SetBranchAddress("L1_SingleMu0_Prescl", &L1_SingleMu0_Prescl, &b_L1_SingleMu0_Prescl); 
+  fChain->SetBranchAddress("L1_SingleMu10_Prescl", &L1_SingleMu10_Prescl, &b_L1_SingleMu10_Prescl); 
+  fChain->SetBranchAddress("L1_SingleMu14_Prescl", &L1_SingleMu14_Prescl, &b_L1_SingleMu14_Prescl); 
+  fChain->SetBranchAddress("L1_SingleMu20_Prescl", &L1_SingleMu20_Prescl, &b_L1_SingleMu20_Prescl); 
+  fChain->SetBranchAddress("L1_SingleMu3_Prescl", &L1_SingleMu3_Prescl, &b_L1_SingleMu3_Prescl); 
+  fChain->SetBranchAddress("L1_SingleMu5_Prescl", &L1_SingleMu5_Prescl, &b_L1_SingleMu5_Prescl); 
+  fChain->SetBranchAddress("L1_SingleMu7_Prescl", &L1_SingleMu7_Prescl, &b_L1_SingleMu7_Prescl); 
+  fChain->SetBranchAddress("L1_SingleMuBeamHalo_Prescl", &L1_SingleMuBeamHalo_Prescl, &b_L1_SingleMuBeamHalo_Prescl); 
+  fChain->SetBranchAddress("L1_SingleMuOpen_Prescl", &L1_SingleMuOpen_Prescl, &b_L1_SingleMuOpen_Prescl); 
+  fChain->SetBranchAddress("L1_SingleTauJet30_Prescl", &L1_SingleTauJet30_Prescl, &b_L1_SingleTauJet30_Prescl); 
+  fChain->SetBranchAddress("L1_SingleTauJet40_Prescl", &L1_SingleTauJet40_Prescl, &b_L1_SingleTauJet40_Prescl); 
+  fChain->SetBranchAddress("L1_SingleTauJet60_Prescl", &L1_SingleTauJet60_Prescl, &b_L1_SingleTauJet60_Prescl); 
+  fChain->SetBranchAddress("L1_SingleTauJet80_Prescl", &L1_SingleTauJet80_Prescl, &b_L1_SingleTauJet80_Prescl); 
+  fChain->SetBranchAddress("L1_TripleJet30_Prescl", &L1_TripleJet30_Prescl, &b_L1_TripleJet30_Prescl); 
+  fChain->SetBranchAddress("L1_ZeroBias_Prescl", &L1_ZeroBias_Prescl, &b_L1_ZeroBias_Prescl);
+  fChain->SetBranchAddress("L1_ZeroBias_Ext_Prescl", &L1_ZeroBias_Ext_Prescl, &b_L1_ZeroBias_Ext_Prescl);
+  fChain->SetBranchAddress("L1_SingleCenJet2_Prescl", &L1_SingleCenJet2_Prescl, &b_L1_SingleCenJet2_Prescl);
+  fChain->SetBranchAddress("L1_SingleCenJet4_Prescl", &L1_SingleCenJet4_Prescl, &b_L1_SingleCenJet4_Prescl);
+  fChain->SetBranchAddress("L1_SingleForJet2_Prescl", &L1_SingleForJet2_Prescl, &b_L1_SingleForJet2_Prescl);
+  fChain->SetBranchAddress("L1_SingleForJet4_Prescl", &L1_SingleForJet4_Prescl, &b_L1_SingleForJet4_Prescl);
+  fChain->SetBranchAddress("L1_SingleTauJet2_Prescl", &L1_SingleTauJet2_Prescl, &b_L1_SingleTauJet2_Prescl);
+  fChain->SetBranchAddress("L1_SingleTauJet4_Prescl", &L1_SingleTauJet4_Prescl, &b_L1_SingleTauJet4_Prescl);
+  fChain->SetBranchAddress("L1_DoubleForJet10_EtaOpp_Prescl", &L1_DoubleForJet10_EtaOpp_Prescl, &b_L1_DoubleForJet10_EtaOpp_Prescl);
+
+  // L1 Technical bit prescales
+  fChain->SetBranchAddress("L1Tech_BPTX_minus.v0_Prescl", &L1Tech_BPTX_minus_v0_Prescl, &b_L1Tech_BPTX_minus_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_BPTX_minus_AND_not_plus.v0_Prescl", &L1Tech_BPTX_minus_AND_not_plus_v0_Prescl, &b_L1Tech_BPTX_minus_AND_not_plus_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_BPTX_plus.v0_Prescl", &L1Tech_BPTX_plus_v0_Prescl, &b_L1Tech_BPTX_plus_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_BPTX_plus_AND_NOT_minus.v0_Prescl", &L1Tech_BPTX_plus_AND_NOT_minus_v0_Prescl, &b_L1Tech_BPTX_plus_AND_NOT_minus_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_BPTX_plus_AND_minus.v0_Prescl", &L1Tech_BPTX_plus_AND_minus_v0_Prescl, &b_L1Tech_BPTX_plus_AND_minus_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_BPTX_plus_AND_minus_instance1.v0_Prescl", &L1Tech_BPTX_plus_AND_minus_instance1_v0_Prescl, &b_L1Tech_BPTX_plus_AND_minus_instance1_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_BPTX_plus_OR_minus.v0_Prescl", &L1Tech_BPTX_plus_OR_minus_v0_Prescl, &b_L1Tech_BPTX_plus_OR_minus_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_BPTX_quiet.v0_Prescl", &L1Tech_BPTX_quiet_v0_Prescl, &b_L1Tech_BPTX_quiet_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_BSC_HighMultiplicity.v0_Prescl", &L1Tech_BSC_HighMultiplicity_v0_Prescl, &b_L1Tech_BSC_HighMultiplicity_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_BSC_halo_beam1_inner.v0_Prescl", &L1Tech_BSC_halo_beam1_inner_v0_Prescl, &b_L1Tech_BSC_halo_beam1_inner_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_BSC_halo_beam1_outer.v0_Prescl", &L1Tech_BSC_halo_beam1_outer_v0_Prescl, &b_L1Tech_BSC_halo_beam1_outer_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_BSC_halo_beam2_inner.v0_Prescl", &L1Tech_BSC_halo_beam2_inner_v0_Prescl, &b_L1Tech_BSC_halo_beam2_inner_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_BSC_halo_beam2_outer.v0_Prescl", &L1Tech_BSC_halo_beam2_outer_v0_Prescl, &b_L1Tech_BSC_halo_beam2_outer_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_BSC_minBias_OR.v0_Prescl", &L1Tech_BSC_minBias_OR_v0_Prescl, &b_L1Tech_BSC_minBias_OR_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_BSC_minBias_inner_threshold1.v0_Prescl", &L1Tech_BSC_minBias_inner_threshold1_v0_Prescl, &b_L1Tech_BSC_minBias_inner_threshold1_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_BSC_minBias_inner_threshold2.v0_Prescl", &L1Tech_BSC_minBias_inner_threshold2_v0_Prescl, &b_L1Tech_BSC_minBias_inner_threshold2_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_BSC_minBias_threshold1.v0_Prescl", &L1Tech_BSC_minBias_threshold1_v0_Prescl, &b_L1Tech_BSC_minBias_threshold1_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_BSC_minBias_threshold2.v0_Prescl", &L1Tech_BSC_minBias_threshold2_v0_Prescl, &b_L1Tech_BSC_minBias_threshold2_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_BSC_splash_beam1.v0_Prescl", &L1Tech_BSC_splash_beam1_v0_Prescl, &b_L1Tech_BSC_splash_beam1_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_BSC_splash_beam2.v0_Prescl", &L1Tech_BSC_splash_beam2_v0_Prescl, &b_L1Tech_BSC_splash_beam2_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_HCAL_HBHE_totalOR.v0_Prescl", &L1Tech_HCAL_HBHE_totalOR_v0_Prescl, &b_L1Tech_HCAL_HBHE_totalOR_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_HCAL_HF_totalOR_coincidenceHFM.v0_Prescl", &L1Tech_HCAL_HF_totalOR_coincidenceHFM_v0_Prescl, &b_L1Tech_HCAL_HF_totalOR_coincidenceHFM_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_HCAL_HF_totalOR_coincidenceHFP.v0_Prescl", &L1Tech_HCAL_HF_totalOR_coincidenceHFP_v0_Prescl, &b_L1Tech_HCAL_HF_totalOR_coincidenceHFP_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_HCAL_HF_totalOR_minBias.v0_Prescl", &L1Tech_HCAL_HF_totalOR_minBias_v0_Prescl, &b_L1Tech_HCAL_HF_totalOR_minBias_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_HCAL_HO_totalOR.v0_Prescl", &L1Tech_HCAL_HO_totalOR_v0_Prescl, &b_L1Tech_HCAL_HO_totalOR_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_RPC_TTU_RB0_Cosmics.v0_Prescl", &L1Tech_RPC_TTU_RB0_Cosmics_v0_Prescl, &b_L1Tech_RPC_TTU_RB0_Cosmics_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_RPC_TTU_RBminus1_Cosmics.v0_Prescl", &L1Tech_RPC_TTU_RBminus1_Cosmics_v0_Prescl, &b_L1Tech_RPC_TTU_RBminus1_Cosmics_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_RPC_TTU_RBminus2_Cosmics.v0_Prescl", &L1Tech_RPC_TTU_RBminus2_Cosmics_v0_Prescl, &b_L1Tech_RPC_TTU_RBminus2_Cosmics_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_RPC_TTU_RBplus1_Cosmics.v0_Prescl", &L1Tech_RPC_TTU_RBplus1_Cosmics_v0_Prescl, &b_L1Tech_RPC_TTU_RBplus1_Cosmics_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_RPC_TTU_RBplus2_Cosmics.v0_Prescl", &L1Tech_RPC_TTU_RBplus2_Cosmics_v0_Prescl, &b_L1Tech_RPC_TTU_RBplus2_Cosmics_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_RPC_TTU_barrel_Cosmics.v0_Prescl", &L1Tech_RPC_TTU_barrel_Cosmics_v0_Prescl, &b_L1Tech_RPC_TTU_barrel_Cosmics_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_RPC_TTU_pointing_Cosmics.v0_Prescl", &L1Tech_RPC_TTU_pointing_Cosmics_v0_Prescl, &b_L1Tech_RPC_TTU_pointing_Cosmics_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_RPC_TTU_RBst1_collisions.v0_Prescl", &L1Tech_RPC_TTU_RBst1_collisions_v0_Prescl, &b_L1Tech_RPC_TTU_RBst1_collisions_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_HCAL_HF_MM_or_PP_or_PM.v0_Prescl", &L1Tech_HCAL_HF_MM_or_PP_or_PM_v0_Prescl, &b_L1Tech_HCAL_HF_MM_or_PP_or_PM_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_HCAL_HF_coincidence_PM.v1_Prescl", &L1Tech_HCAL_HF_coincidence_PM_v1_Prescl, &b_L1Tech_HCAL_HF_coincidence_PM_v1_Prescl);
+  fChain->SetBranchAddress("L1Tech_HCAL_HF_MMP_or_MPP.v0_Prescl", &L1Tech_HCAL_HF_MMP_or_MPP_v0_Prescl, &b_L1Tech_HCAL_HF_MMP_or_MPP_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_ZDC_loose_vertex.v0_Prescl", &L1Tech_ZDC_loose_vertex_v0_Prescl, &b_L1Tech_ZDC_loose_vertex_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_ZDC_minus_over_threshold.v0_Prescl", &L1Tech_ZDC_minus_over_threshold_v0_Prescl, &b_L1Tech_ZDC_minus_over_threshold_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_ZDC_plus_over_threshold.v0_Prescl", &L1Tech_ZDC_plus_over_threshold_v0_Prescl, &b_L1Tech_ZDC_plus_over_threshold_v0_Prescl);
+  fChain->SetBranchAddress("L1Tech_ZDC_tight_vertex.v0_Prescl", &L1Tech_ZDC_tight_vertex_v0_Prescl, &b_L1Tech_ZDC_tight_vertex_v0_Prescl);
+  fChain->SetBranchAddress("L1_BptxMinus_Prescl", &L1_BptxMinus_Prescl, &b_L1_BptxMinus_Prescl);
+  fChain->SetBranchAddress("L1_BptxPlus_Prescl", &L1_BptxPlus_Prescl, &b_L1_BptxPlus_Prescl);
+  fChain->SetBranchAddress("L1_BptxPlusORMinus_Prescl", &L1_BptxPlusORMinus_Prescl, &b_L1_BptxPlusORMinus_Prescl);
+  fChain->SetBranchAddress("L1_BptxPlus_NotBptxMinus_Prescl", &L1_BptxPlus_NotBptxMinus_Prescl, &b_L1_BptxPlus_NotBptxMinus_Prescl);
+  fChain->SetBranchAddress("L1_BptxMinus_NotBptxPlus_Prescl", &L1_BptxMinus_NotBptxPlus_Prescl, &b_L1_BptxMinus_NotBptxPlus_Prescl);
+  fChain->SetBranchAddress("L1_BscHighMultiplicity_Prescl", &L1_BscHighMultiplicity_Prescl, &b_L1_BscHighMultiplicity_Prescl);
+  fChain->SetBranchAddress("L1_BscMinBiasInnerThreshold1_Prescl", &L1_BscMinBiasInnerThreshold1_Prescl, &b_L1_BscMinBiasInnerThreshold1_Prescl);
+  fChain->SetBranchAddress("L1_BscMinBiasInnerThreshold2_Prescl", &L1_BscMinBiasInnerThreshold2_Prescl, &b_L1_BscMinBiasInnerThreshold2_Prescl);
+  fChain->SetBranchAddress("L1_BscMinBiasOR_Prescl", &L1_BscMinBiasOR_Prescl, &b_L1_BscMinBiasOR_Prescl);
+  fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusORMinus_Prescl", &L1_BscMinBiasOR_BptxPlusORMinus_Prescl, &b_L1_BscMinBiasOR_BptxPlusORMinus_Prescl);
+  fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusANDMinus_Prescl", &L1_BscMinBiasOR_BptxPlusANDMinus_Prescl, &b_L1_BscMinBiasOR_BptxPlusANDMinus_Prescl); 
+
+
+  // 8E29 and 1E31 MC menus
   fChain->SetBranchAddress("HLT_L1Jet15", &HLT_L1Jet15, &b_HLT_L1Jet15); 
   fChain->SetBranchAddress("HLT_Jet30", &HLT_Jet30, &b_HLT_Jet30); 
   fChain->SetBranchAddress("HLT_Jet50", &HLT_Jet50, &b_HLT_Jet50); 
@@ -2651,8 +3643,6 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("AlCa_EcalPhiSym", &AlCa_EcalPhiSym, &b_AlCa_EcalPhiSym); 
   fChain->SetBranchAddress("AlCa_EcalPi0_1E31", &AlCa_EcalPi0_1E31, &b_AlCa_EcalPi0_1E31); 
   fChain->SetBranchAddress("AlCa_EcalEta_1E31", &AlCa_EcalEta_1E31, &b_AlCa_EcalEta_1E31); 
-
-  // 8E29 menu
   fChain->SetBranchAddress("HLT_L1Jet6U", &HLT_L1Jet6U, &b_HLT_L1Jet6U);
   fChain->SetBranchAddress("HLT_Jet15U", &HLT_Jet15U, &b_HLT_Jet15U);
   fChain->SetBranchAddress("HLT_Jet30U", &HLT_Jet30U, &b_HLT_Jet30U);
@@ -2705,41 +3695,106 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("AlCa_RPCMuonNoHits", &AlCa_RPCMuonNoHits, &b_AlCa_RPCMuonNoHits);
   fChain->SetBranchAddress("AlCa_RPCMuonNormalisation", &AlCa_RPCMuonNormalisation, &b_AlCa_RPCMuonNormalisation);
 
-  // Commissioning and other HLT Paths for the CRAFT09 cosmics menu 
-  fChain->SetBranchAddress("HLT_Random", &HLT_Random, &b_HLT_Random); 
-  fChain->SetBranchAddress("HLT_L2Mu3_NoVertex", &HLT_L2Mu3_NoVertex, &b_HLT_L2Mu3_NoVertex); 
-  fChain->SetBranchAddress("HLT_OIstateTkMu3", &HLT_OIstateTkMu3, &b_HLT_OIstateTkMu3); 
-  fChain->SetBranchAddress("HLT_TrackPointing", &HLT_TrackPointing, &b_HLT_TrackPointing); 
-  fChain->SetBranchAddress("HLT_EgammaSuperClusterOnly_L1R", &HLT_EgammaSuperClusterOnly_L1R, &b_HLT_EgammaSuperClusterOnly_L1R); 
-  fChain->SetBranchAddress("AlCa_EcalPi0_Cosmics", &AlCa_EcalPi0_Cosmics, &b_AlCa_EcalPi0_Cosmics);  
-  fChain->SetBranchAddress("AlCa_EcalEta_Cosmics", &AlCa_EcalEta_Cosmics, &b_AlCa_EcalEta_Cosmics);  
-  fChain->SetBranchAddress("HLT_DataIntegrity", &HLT_DataIntegrity, &b_HLT_DataIntegrity);  
-  fChain->SetBranchAddress("HLT_L1_BPTX", &HLT_L1_BPTX, &b_HLT_L1_BPTX);  
-  fChain->SetBranchAddress("HLT_L1_BSC", &HLT_L1_BSC, &b_HLT_L1_BSC);  
-  fChain->SetBranchAddress("HLT_L1_HFtech", &HLT_L1_HFtech, &b_HLT_L1_HFtech);  
-  fChain->SetBranchAddress("HLT_HFThreshold", &HLT_HFThreshold, &b_HLT_HFThreshold);  
-  fChain->SetBranchAddress("HLT_Physics", &HLT_Physics, &b_HLT_Physics);  
-  fChain->SetBranchAddress("HLT_PhysicsNoMuon", &HLT_PhysicsNoMuon, &b_HLT_PhysicsNoMuon);  
-  fChain->SetBranchAddress("HLT_Calibration", &HLT_Calibration, &b_HLT_Calibration);  
-  fChain->SetBranchAddress("HLT_EcalCalibration", &HLT_EcalCalibration, &b_HLT_EcalCalibration);  
-  fChain->SetBranchAddress("HLT_PixelFEDSize", &HLT_PixelFEDSize, &b_HLT_PixelFEDSize);  
-  fChain->SetBranchAddress("HLT_GlobalRunHPDNoise", &HLT_GlobalRunHPDNoise, &b_HLT_GlobalRunHPDNoise);  
-
-  // HLT paths for the 2009 Circulating Beam menu
-  fChain->SetBranchAddress("HLT_L2Mu0_NoVertex", &HLT_L2Mu0_NoVertex, &b_HLT_L2Mu0_NoVertex);
-  fChain->SetBranchAddress("HLT_TkMu3_NoVertex", &HLT_TkMu3_NoVertex, &b_HLT_TkMu3_NoVertex);
-  fChain->SetBranchAddress("HLT_IsoTrackHB_8E29", &HLT_IsoTrackHB_8E29, &b_HLT_IsoTrackHB_8E29);
-  fChain->SetBranchAddress("HLT_IsoTrackHE_8E29", &HLT_IsoTrackHE_8E29, &b_HLT_IsoTrackHE_8E29);
-  fChain->SetBranchAddress("HLT_MinBiasPixel_DoubleIsoTrack5", &HLT_MinBiasPixel_DoubleIsoTrack5, &b_HLT_MinBiasPixel_DoubleIsoTrack5);
-  fChain->SetBranchAddress("HLT_MinBiasPixel_DoubleTrack", &HLT_MinBiasPixel_DoubleTrack, &b_HLT_MinBiasPixel_DoubleTrack);
-  fChain->SetBranchAddress("HLT_MinBiasPixel_SingleTrack", &HLT_MinBiasPixel_SingleTrack, &b_HLT_MinBiasPixel_SingleTrack);
-  fChain->SetBranchAddress("HLT_TechTrigHCALNoise", &HLT_TechTrigHCALNoise, &b_HLT_TechTrigHCALNoise);
-  fChain->SetBranchAddress("HLT_HcalNZS_8E29", &HLT_HcalNZS_8E29, &b_HLT_HcalNZS_8E29);
-  fChain->SetBranchAddress("HLT_HcalNZS", &HLT_HcalNZS, &b_HLT_HcalNZS);
-  fChain->SetBranchAddress("HLT_HcalPhiSym", &HLT_HcalPhiSym, &b_HLT_HcalPhiSym);
-  fChain->SetBranchAddress("HLT_SplashEcalSumET", &HLT_SplashEcalSumET, &b_HLT_SplashEcalSumET);
-
   // Autogenerated from ConfDB - SetBranchAddressBits
+  fChain->SetBranchAddress("HLT_Mu0_TkMu0_OST_Jpsi", &HLT_Mu0_TkMu0_OST_Jpsi, &b_HLT_Mu0_TkMu0_OST_Jpsi);
+  fChain->SetBranchAddress("HLT_Mu3_TkMu0_OST_Jpsi", &HLT_Mu3_TkMu0_OST_Jpsi, &b_HLT_Mu3_TkMu0_OST_Jpsi);
+  fChain->SetBranchAddress("HLT_Mu5_TkMu0_OST_Jpsi", &HLT_Mu5_TkMu0_OST_Jpsi, &b_HLT_Mu5_TkMu0_OST_Jpsi);
+  fChain->SetBranchAddress("HLT_Ele12_SW_TightEleId_L1R", &HLT_Ele12_SW_TightEleId_L1R, &b_HLT_Ele12_SW_TightEleId_L1R);
+  fChain->SetBranchAddress("HLT_Ele12_SW_TightEleIdIsol_L1R", &HLT_Ele12_SW_TightEleIdIsol_L1R, &b_HLT_Ele12_SW_TightEleIdIsol_L1R);
+  fChain->SetBranchAddress("HLT_Ele12_SW_TightEleIdIsol_NoDEtaInEE_L1R", &HLT_Ele12_SW_TightEleIdIsol_NoDEtaInEE_L1R, &b_HLT_Ele12_SW_TightEleIdIsol_NoDEtaInEE_L1R);
+  fChain->SetBranchAddress("HLT_Photon20_NoHE_L1R", &HLT_Photon20_NoHE_L1R, &b_HLT_Photon20_NoHE_L1R);
+  fChain->SetBranchAddress("HLT_Photon50_NoHE_L1R", &HLT_Photon50_NoHE_L1R, &b_HLT_Photon50_NoHE_L1R);
+  fChain->SetBranchAddress("HLT_DoubleJet25U_ForwardBackward", &HLT_DoubleJet25U_ForwardBackward, &b_HLT_DoubleJet25U_ForwardBackward);
+  fChain->SetBranchAddress("HLT_QuadJet20U", &HLT_QuadJet20U, &b_HLT_QuadJet20U);
+  fChain->SetBranchAddress("HLT_QuadJet25U", &HLT_QuadJet25U, &b_HLT_QuadJet25U);
+  fChain->SetBranchAddress("HLT_MET65", &HLT_MET65, &b_HLT_MET65);
+  fChain->SetBranchAddress("HLT_HT140U", &HLT_HT140U, &b_HLT_HT140U);
+  fChain->SetBranchAddress("HLT_L2Mu25", &HLT_L2Mu25, &b_HLT_L2Mu25);
+  fChain->SetBranchAddress("HLT_Mu20_NoVertex", &HLT_Mu20_NoVertex, &b_HLT_Mu20_NoVertex);
+  fChain->SetBranchAddress("HLT_Ele12_SW_EleId_L1R", &HLT_Ele12_SW_EleId_L1R, &b_HLT_Ele12_SW_EleId_L1R);
+  fChain->SetBranchAddress("HLT_Ele12_SW_EleIdIsol_L1R", &HLT_Ele12_SW_EleIdIsol_L1R, &b_HLT_Ele12_SW_EleIdIsol_L1R);
+  fChain->SetBranchAddress("HLT_Ele12_SW_EleIdIsol_NoDEtaInEE_L1R", &HLT_Ele12_SW_EleIdIsol_NoDEtaInEE_L1R, &b_HLT_Ele12_SW_EleIdIsol_NoDEtaInEE_L1R);
+  fChain->SetBranchAddress("HLT_Ele17_SW_L1R", &HLT_Ele17_SW_L1R, &b_HLT_Ele17_SW_L1R);
+  fChain->SetBranchAddress("HLT_Ele17_SW_CaloEleId_L1R", &HLT_Ele17_SW_CaloEleId_L1R, &b_HLT_Ele17_SW_CaloEleId_L1R);
+  fChain->SetBranchAddress("HLT_Ele17_SW_LooseEleId_L1R", &HLT_Ele17_SW_LooseEleId_L1R, &b_HLT_Ele17_SW_LooseEleId_L1R);
+  fChain->SetBranchAddress("HLT_Ele17_SW_EleId_L1R", &HLT_Ele17_SW_EleId_L1R, &b_HLT_Ele17_SW_EleId_L1R);
+  fChain->SetBranchAddress("HLT_Ele22_SW_CaloEleId_L1R", &HLT_Ele22_SW_CaloEleId_L1R, &b_HLT_Ele22_SW_CaloEleId_L1R);
+  fChain->SetBranchAddress("HLT_Ele40_SW_L1R", &HLT_Ele40_SW_L1R, &b_HLT_Ele40_SW_L1R);
+  fChain->SetBranchAddress("HLT_Photon50_NoHE_Cleaned_L1R", &HLT_Photon50_NoHE_Cleaned_L1R, &b_HLT_Photon50_NoHE_Cleaned_L1R);
+  fChain->SetBranchAddress("HLT_DoublePhoton17_L1R", &HLT_DoublePhoton17_L1R, &b_HLT_DoublePhoton17_L1R);
+  fChain->SetBranchAddress("HLT_SingleIsoTau20_Trk5_MET20", &HLT_SingleIsoTau20_Trk5_MET20, &b_HLT_SingleIsoTau20_Trk5_MET20);
+  fChain->SetBranchAddress("HLT_SingleIsoTau20_Trk15_MET20", &HLT_SingleIsoTau20_Trk15_MET20, &b_HLT_SingleIsoTau20_Trk15_MET20);
+  fChain->SetBranchAddress("HLT_SingleIsoTau30_Trk5_MET20", &HLT_SingleIsoTau30_Trk5_MET20, &b_HLT_SingleIsoTau30_Trk5_MET20);
+  fChain->SetBranchAddress("HLT_SingleIsoTau30_Trk5_L120or30", &HLT_SingleIsoTau30_Trk5_L120or30, &b_HLT_SingleIsoTau30_Trk5_L120or30);
+  fChain->SetBranchAddress("HLT_DoubleIsoTau15_OneLeg_Trk5", &HLT_DoubleIsoTau15_OneLeg_Trk5, &b_HLT_DoubleIsoTau15_OneLeg_Trk5);
+  fChain->SetBranchAddress("HLT_DoubleIsoTau15_Trk5", &HLT_DoubleIsoTau15_Trk5, &b_HLT_DoubleIsoTau15_Trk5);
+  fChain->SetBranchAddress("HLT_BTagMu_Jet20U", &HLT_BTagMu_Jet20U, &b_HLT_BTagMu_Jet20U);
+  fChain->SetBranchAddress("HLT_PixelTracks_Multiplicity100", &HLT_PixelTracks_Multiplicity100, &b_HLT_PixelTracks_Multiplicity100);
+  fChain->SetBranchAddress("HLT_Physics", &HLT_Physics, &b_HLT_Physics);
+  fChain->SetBranchAddress("HLT_Jet70U", &HLT_Jet70U, &b_HLT_Jet70U);
+  fChain->SetBranchAddress("HLT_Jet100U", &HLT_Jet100U, &b_HLT_Jet100U);
+  fChain->SetBranchAddress("HLT_DiJetAve15U", &HLT_DiJetAve15U, &b_HLT_DiJetAve15U);
+  fChain->SetBranchAddress("HLT_DiJetAve30U", &HLT_DiJetAve30U, &b_HLT_DiJetAve30U);
+  fChain->SetBranchAddress("HLT_L1ETT100", &HLT_L1ETT100, &b_HLT_L1ETT100);
+  fChain->SetBranchAddress("HLT_EcalOnly_SumEt160", &HLT_EcalOnly_SumEt160, &b_HLT_EcalOnly_SumEt160);
+  fChain->SetBranchAddress("HLT_Mu3_Track3_Jpsi", &HLT_Mu3_Track3_Jpsi, &b_HLT_Mu3_Track3_Jpsi);
+  fChain->SetBranchAddress("HLT_Ele10_SW_EleId_L1R", &HLT_Ele10_SW_EleId_L1R, &b_HLT_Ele10_SW_EleId_L1R);
+  fChain->SetBranchAddress("HLT_Ele15_SW_CaloEleId_L1R", &HLT_Ele15_SW_CaloEleId_L1R, &b_HLT_Ele15_SW_CaloEleId_L1R);
+  fChain->SetBranchAddress("HLT_DoubleEle4_SW_eeRes_L1R", &HLT_DoubleEle4_SW_eeRes_L1R, &b_HLT_DoubleEle4_SW_eeRes_L1R);
+  fChain->SetBranchAddress("HLT_Photon30_Cleaned_L1R", &HLT_Photon30_Cleaned_L1R, &b_HLT_Photon30_Cleaned_L1R);
+  fChain->SetBranchAddress("HLT_Photon50_L1R", &HLT_Photon50_L1R, &b_HLT_Photon50_L1R);
+  fChain->SetBranchAddress("HLT_Photon50_Cleaned_L1R", &HLT_Photon50_Cleaned_L1R, &b_HLT_Photon50_Cleaned_L1R);
+  fChain->SetBranchAddress("HLT_DoublePhoton20_L1R", &HLT_DoublePhoton20_L1R, &b_HLT_DoublePhoton20_L1R);
+  fChain->SetBranchAddress("HLT_SingleLooseIsoTau25_Trk5", &HLT_SingleLooseIsoTau25_Trk5, &b_HLT_SingleLooseIsoTau25_Trk5);
+  fChain->SetBranchAddress("HLT_SingleIsoTau20_Trk5", &HLT_SingleIsoTau20_Trk5, &b_HLT_SingleIsoTau20_Trk5);
+  fChain->SetBranchAddress("HLT_StoppedHSCP", &HLT_StoppedHSCP, &b_HLT_StoppedHSCP);
+  fChain->SetBranchAddress("HLT_L1Tech_BSC_minBias_OR", &HLT_L1Tech_BSC_minBias_OR, &b_HLT_L1Tech_BSC_minBias_OR);
+  fChain->SetBranchAddress("HLT_IsoTrackHE", &HLT_IsoTrackHE, &b_HLT_IsoTrackHE);
+  fChain->SetBranchAddress("HLT_IsoTrackHB", &HLT_IsoTrackHB, &b_HLT_IsoTrackHB);
+  fChain->SetBranchAddress("HLT_HcalNZS", &HLT_HcalNZS, &b_HLT_HcalNZS);
+  fChain->SetBranchAddress("AlCa_EcalPi0", &AlCa_EcalPi0, &b_AlCa_EcalPi0);
+  fChain->SetBranchAddress("AlCa_EcalEta", &AlCa_EcalEta, &b_AlCa_EcalEta);
+  fChain->SetBranchAddress("HLT_Activity_L1A", &HLT_Activity_L1A, &b_HLT_Activity_L1A);
+  fChain->SetBranchAddress("HLT_Activity_PixelClusters", &HLT_Activity_PixelClusters, &b_HLT_Activity_PixelClusters);
+  fChain->SetBranchAddress("HLT_L1SingleForJet", &HLT_L1SingleForJet, &b_HLT_L1SingleForJet);
+  fChain->SetBranchAddress("HLT_L1SingleEG2", &HLT_L1SingleEG2, &b_HLT_L1SingleEG2);
+  fChain->SetBranchAddress("HLT_MinBiasPixel_SingleTrack", &HLT_MinBiasPixel_SingleTrack, &b_HLT_MinBiasPixel_SingleTrack);
+  fChain->SetBranchAddress("HLT_MinBiasPixel_DoubleTrack", &HLT_MinBiasPixel_DoubleTrack, &b_HLT_MinBiasPixel_DoubleTrack);
+  fChain->SetBranchAddress("HLT_MinBiasPixel_DoubleIsoTrack5", &HLT_MinBiasPixel_DoubleIsoTrack5, &b_HLT_MinBiasPixel_DoubleIsoTrack5);
+  fChain->SetBranchAddress("HLT_RPCBarrelCosmics", &HLT_RPCBarrelCosmics, &b_HLT_RPCBarrelCosmics);
+  fChain->SetBranchAddress("HLT_IsoTrackHE_8E29", &HLT_IsoTrackHE_8E29, &b_HLT_IsoTrackHE_8E29);
+  fChain->SetBranchAddress("HLT_IsoTrackHB_8E29", &HLT_IsoTrackHB_8E29, &b_HLT_IsoTrackHB_8E29);
+  fChain->SetBranchAddress("HLT_HcalPhiSym", &HLT_HcalPhiSym, &b_HLT_HcalPhiSym);
+  fChain->SetBranchAddress("HLT_HcalNZS_8E29", &HLT_HcalNZS_8E29, &b_HLT_HcalNZS_8E29);
+  fChain->SetBranchAddress("HLT_DTErrors", &HLT_DTErrors, &b_HLT_DTErrors);
+  fChain->SetBranchAddress("HLT_Calibration", &HLT_Calibration, &b_HLT_Calibration);
+  fChain->SetBranchAddress("HLT_EcalCalibration", &HLT_EcalCalibration, &b_HLT_EcalCalibration);
+  fChain->SetBranchAddress("HLT_HcalCalibration", &HLT_HcalCalibration, &b_HLT_HcalCalibration);
+  fChain->SetBranchAddress("HLT_Random", &HLT_Random, &b_HLT_Random);
+  fChain->SetBranchAddress("HLT_GlobalRunHPDNoise", &HLT_GlobalRunHPDNoise, &b_HLT_GlobalRunHPDNoise);
+  fChain->SetBranchAddress("HLT_TechTrigHCALNoise", &HLT_TechTrigHCALNoise, &b_HLT_TechTrigHCALNoise);
+  fChain->SetBranchAddress("HLT_L1_BPTX", &HLT_L1_BPTX, &b_HLT_L1_BPTX);
+  fChain->SetBranchAddress("HLT_L1_BPTX_MinusOnly", &HLT_L1_BPTX_MinusOnly, &b_HLT_L1_BPTX_MinusOnly);
+  fChain->SetBranchAddress("HLT_L1_BPTX_PlusOnly", &HLT_L1_BPTX_PlusOnly, &b_HLT_L1_BPTX_PlusOnly);
+  fChain->SetBranchAddress("HLT_L2Mu0_NoVertex", &HLT_L2Mu0_NoVertex, &b_HLT_L2Mu0_NoVertex);
+  fChain->SetBranchAddress("HLT_LogMonitor", &HLT_LogMonitor, &b_HLT_LogMonitor);
+  fChain->SetBranchAddress("HLT_Activity_Ecal_SC17", &HLT_Activity_Ecal_SC17, &b_HLT_Activity_Ecal_SC17);
+  fChain->SetBranchAddress("HLT_DiJetAve50U_8E29", &HLT_DiJetAve50U_8E29, &b_HLT_DiJetAve50U_8E29);
+  fChain->SetBranchAddress("HLT_L1DoubleMuOpen_Tight", &HLT_L1DoubleMuOpen_Tight, &b_HLT_L1DoubleMuOpen_Tight);
+  fChain->SetBranchAddress("HLT_Mu0_TkMu0_Jpsi", &HLT_Mu0_TkMu0_Jpsi, &b_HLT_Mu0_TkMu0_Jpsi);
+  fChain->SetBranchAddress("HLT_Mu0_TkMu0_Jpsi_NoCharge", &HLT_Mu0_TkMu0_Jpsi_NoCharge, &b_HLT_Mu0_TkMu0_Jpsi_NoCharge);
+  fChain->SetBranchAddress("HLT_Mu3_TkMu0_Jpsi", &HLT_Mu3_TkMu0_Jpsi, &b_HLT_Mu3_TkMu0_Jpsi);
+  fChain->SetBranchAddress("HLT_Mu3_TkMu0_Jpsi_NoCharge", &HLT_Mu3_TkMu0_Jpsi_NoCharge, &b_HLT_Mu3_TkMu0_Jpsi_NoCharge);
+  fChain->SetBranchAddress("HLT_Mu5_TkMu0_Jpsi", &HLT_Mu5_TkMu0_Jpsi, &b_HLT_Mu5_TkMu0_Jpsi);
+  fChain->SetBranchAddress("HLT_Mu5_TkMu0_Jpsi_NoCharge", &HLT_Mu5_TkMu0_Jpsi_NoCharge, &b_HLT_Mu5_TkMu0_Jpsi_NoCharge);
+  fChain->SetBranchAddress("HLT_Photon15_TrackIso_Cleaned_L1R", &HLT_Photon15_TrackIso_Cleaned_L1R, &b_HLT_Photon15_TrackIso_Cleaned_L1R);
+  fChain->SetBranchAddress("HLT_Photon15_LooseEcalIso_Cleaned_L1R", &HLT_Photon15_LooseEcalIso_Cleaned_L1R, &b_HLT_Photon15_LooseEcalIso_Cleaned_L1R);
+  fChain->SetBranchAddress("HLT_Photon30_L1R", &HLT_Photon30_L1R, &b_HLT_Photon30_L1R);
+  fChain->SetBranchAddress("HLT_SingleLooseIsoTau20_Trk5", &HLT_SingleLooseIsoTau20_Trk5, &b_HLT_SingleLooseIsoTau20_Trk5);
+  fChain->SetBranchAddress("HLT_SingleLooseIsoTau25", &HLT_SingleLooseIsoTau25, &b_HLT_SingleLooseIsoTau25);
+  fChain->SetBranchAddress("HLT_MultiVertex6", &HLT_MultiVertex6, &b_HLT_MultiVertex6);
+  fChain->SetBranchAddress("HLT_MultiVertex8_L1ETT60", &HLT_MultiVertex8_L1ETT60, &b_HLT_MultiVertex8_L1ETT60);
+  fChain->SetBranchAddress("HLT_PixelTracks_Multiplicity85", &HLT_PixelTracks_Multiplicity85, &b_HLT_PixelTracks_Multiplicity85);
   fChain->SetBranchAddress("HLT_L1Tech_BSC_minBias", &HLT_L1Tech_BSC_minBias, &b_HLT_L1Tech_BSC_minBias);
   fChain->SetBranchAddress("HLT_Activity_CSC", &HLT_Activity_CSC, &b_HLT_Activity_CSC);
   fChain->SetBranchAddress("HLT_Activity_Ecal_SC7", &HLT_Activity_Ecal_SC7, &b_HLT_Activity_Ecal_SC7);
@@ -2879,6 +3934,228 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("HLT_DoublePhoton5_CEP_L1R", &HLT_DoublePhoton5_CEP_L1R, &b_HLT_DoublePhoton5_CEP_L1R);
   fChain->SetBranchAddress("HLT_ZeroBias1kHz", &HLT_ZeroBias1kHz, &b_HLT_ZeroBias1kHz);
 
+  // Autogenerated from ConfDB - Prescale SetBranchAddressBits
+  fChain->SetBranchAddress("HLT_IsoMu9_Prescl", &HLT_IsoMu9_Prescl, &b_HLT_IsoMu9_Prescl);
+  fChain->SetBranchAddress("HLT_Mu0_TkMu0_OST_Jpsi_Prescl", &HLT_Mu0_TkMu0_OST_Jpsi_Prescl, &b_HLT_Mu0_TkMu0_OST_Jpsi_Prescl);
+  fChain->SetBranchAddress("HLT_Mu3_TkMu0_OST_Jpsi_Prescl", &HLT_Mu3_TkMu0_OST_Jpsi_Prescl, &b_HLT_Mu3_TkMu0_OST_Jpsi_Prescl);
+  fChain->SetBranchAddress("HLT_Mu5_TkMu0_OST_Jpsi_Prescl", &HLT_Mu5_TkMu0_OST_Jpsi_Prescl, &b_HLT_Mu5_TkMu0_OST_Jpsi_Prescl);
+  fChain->SetBranchAddress("HLT_Ele12_SW_TightEleId_L1R_Prescl", &HLT_Ele12_SW_TightEleId_L1R_Prescl, &b_HLT_Ele12_SW_TightEleId_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele12_SW_TightEleIdIsol_L1R_Prescl", &HLT_Ele12_SW_TightEleIdIsol_L1R_Prescl, &b_HLT_Ele12_SW_TightEleIdIsol_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele12_SW_TightEleIdIsol_NoDEtaInEE_L1R_Prescl", &HLT_Ele12_SW_TightEleIdIsol_NoDEtaInEE_L1R_Prescl, &b_HLT_Ele12_SW_TightEleIdIsol_NoDEtaInEE_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon20_NoHE_L1R_Prescl", &HLT_Photon20_NoHE_L1R_Prescl, &b_HLT_Photon20_NoHE_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon50_NoHE_L1R_Prescl", &HLT_Photon50_NoHE_L1R_Prescl, &b_HLT_Photon50_NoHE_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DiJetAve70U_Prescl", &HLT_DiJetAve70U_Prescl, &b_HLT_DiJetAve70U_Prescl);
+  fChain->SetBranchAddress("HLT_DoubleJet25U_ForwardBackward_Prescl", &HLT_DoubleJet25U_ForwardBackward_Prescl, &b_HLT_DoubleJet25U_ForwardBackward_Prescl);
+  fChain->SetBranchAddress("HLT_QuadJet20U_Prescl", &HLT_QuadJet20U_Prescl, &b_HLT_QuadJet20U_Prescl);
+  fChain->SetBranchAddress("HLT_QuadJet25U_Prescl", &HLT_QuadJet25U_Prescl, &b_HLT_QuadJet25U_Prescl);
+  fChain->SetBranchAddress("HLT_MET65_Prescl", &HLT_MET65_Prescl, &b_HLT_MET65_Prescl);
+  fChain->SetBranchAddress("HLT_HT140U_Prescl", &HLT_HT140U_Prescl, &b_HLT_HT140U_Prescl);
+  fChain->SetBranchAddress("HLT_L2Mu25_Prescl", &HLT_L2Mu25_Prescl, &b_HLT_L2Mu25_Prescl);
+  fChain->SetBranchAddress("HLT_Mu11_Prescl", &HLT_Mu11_Prescl, &b_HLT_Mu11_Prescl);
+  fChain->SetBranchAddress("HLT_Mu20_NoVertex_Prescl", &HLT_Mu20_NoVertex_Prescl, &b_HLT_Mu20_NoVertex_Prescl);
+  fChain->SetBranchAddress("HLT_Ele12_SW_EleId_L1R_Prescl", &HLT_Ele12_SW_EleId_L1R_Prescl, &b_HLT_Ele12_SW_EleId_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele12_SW_EleIdIsol_L1R_Prescl", &HLT_Ele12_SW_EleIdIsol_L1R_Prescl, &b_HLT_Ele12_SW_EleIdIsol_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele12_SW_EleIdIsol_NoDEtaInEE_L1R_Prescl", &HLT_Ele12_SW_EleIdIsol_NoDEtaInEE_L1R_Prescl, &b_HLT_Ele12_SW_EleIdIsol_NoDEtaInEE_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele17_SW_L1R_Prescl", &HLT_Ele17_SW_L1R_Prescl, &b_HLT_Ele17_SW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele17_SW_CaloEleId_L1R_Prescl", &HLT_Ele17_SW_CaloEleId_L1R_Prescl, &b_HLT_Ele17_SW_CaloEleId_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele17_SW_LooseEleId_L1R_Prescl", &HLT_Ele17_SW_LooseEleId_L1R_Prescl, &b_HLT_Ele17_SW_LooseEleId_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele17_SW_EleId_L1R_Prescl", &HLT_Ele17_SW_EleId_L1R_Prescl, &b_HLT_Ele17_SW_EleId_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele22_SW_CaloEleId_L1R_Prescl", &HLT_Ele22_SW_CaloEleId_L1R_Prescl, &b_HLT_Ele22_SW_CaloEleId_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele40_SW_L1R_Prescl", &HLT_Ele40_SW_L1R_Prescl, &b_HLT_Ele40_SW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon20_L1R_Prescl", &HLT_Photon20_L1R_Prescl, &b_HLT_Photon20_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon50_NoHE_Cleaned_L1R_Prescl", &HLT_Photon50_NoHE_Cleaned_L1R_Prescl, &b_HLT_Photon50_NoHE_Cleaned_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoublePhoton17_L1R_Prescl", &HLT_DoublePhoton17_L1R_Prescl, &b_HLT_DoublePhoton17_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_SingleIsoTau20_Trk5_MET20_Prescl", &HLT_SingleIsoTau20_Trk5_MET20_Prescl, &b_HLT_SingleIsoTau20_Trk5_MET20_Prescl);
+  fChain->SetBranchAddress("HLT_SingleIsoTau20_Trk15_MET20_Prescl", &HLT_SingleIsoTau20_Trk15_MET20_Prescl, &b_HLT_SingleIsoTau20_Trk15_MET20_Prescl);
+  fChain->SetBranchAddress("HLT_SingleIsoTau30_Trk5_MET20_Prescl", &HLT_SingleIsoTau30_Trk5_MET20_Prescl, &b_HLT_SingleIsoTau30_Trk5_MET20_Prescl);
+  fChain->SetBranchAddress("HLT_SingleIsoTau30_Trk5_L120or30_Prescl", &HLT_SingleIsoTau30_Trk5_L120or30_Prescl, &b_HLT_SingleIsoTau30_Trk5_L120or30_Prescl);
+  fChain->SetBranchAddress("HLT_DoubleIsoTau15_OneLeg_Trk5_Prescl", &HLT_DoubleIsoTau15_OneLeg_Trk5_Prescl, &b_HLT_DoubleIsoTau15_OneLeg_Trk5_Prescl);
+  fChain->SetBranchAddress("HLT_DoubleIsoTau15_Trk5_Prescl", &HLT_DoubleIsoTau15_Trk5_Prescl, &b_HLT_DoubleIsoTau15_Trk5_Prescl);
+  fChain->SetBranchAddress("HLT_BTagMu_Jet20U_Prescl", &HLT_BTagMu_Jet20U_Prescl, &b_HLT_BTagMu_Jet20U_Prescl);
+  fChain->SetBranchAddress("HLT_L2Mu5_Photon9_L1R_Prescl", &HLT_L2Mu5_Photon9_L1R_Prescl, &b_HLT_L2Mu5_Photon9_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_PixelTracks_Multiplicity100_Prescl", &HLT_PixelTracks_Multiplicity100_Prescl, &b_HLT_PixelTracks_Multiplicity100_Prescl);
+  fChain->SetBranchAddress("HLT_Physics_Prescl", &HLT_Physics_Prescl, &b_HLT_Physics_Prescl);
+  fChain->SetBranchAddress("HLT_Jet70U_Prescl", &HLT_Jet70U_Prescl, &b_HLT_Jet70U_Prescl);
+  fChain->SetBranchAddress("HLT_Jet100U_Prescl", &HLT_Jet100U_Prescl, &b_HLT_Jet100U_Prescl);
+  fChain->SetBranchAddress("HLT_DiJetAve15U_Prescl", &HLT_DiJetAve15U_Prescl, &b_HLT_DiJetAve15U_Prescl);
+  fChain->SetBranchAddress("HLT_DiJetAve30U_Prescl", &HLT_DiJetAve30U_Prescl, &b_HLT_DiJetAve30U_Prescl);
+  fChain->SetBranchAddress("HLT_DiJetAve50U_Prescl", &HLT_DiJetAve50U_Prescl, &b_HLT_DiJetAve50U_Prescl);
+  fChain->SetBranchAddress("HLT_L1ETT100_Prescl", &HLT_L1ETT100_Prescl, &b_HLT_L1ETT100_Prescl);
+  fChain->SetBranchAddress("HLT_EcalOnly_SumEt160_Prescl", &HLT_EcalOnly_SumEt160_Prescl, &b_HLT_EcalOnly_SumEt160_Prescl);
+  fChain->SetBranchAddress("HLT_L1Mu30_Prescl", &HLT_L1Mu30_Prescl, &b_HLT_L1Mu30_Prescl);
+  fChain->SetBranchAddress("HLT_L2Mu15_Prescl", &HLT_L2Mu15_Prescl, &b_HLT_L2Mu15_Prescl);
+  fChain->SetBranchAddress("HLT_Mu3_Track3_Jpsi_Prescl", &HLT_Mu3_Track3_Jpsi_Prescl, &b_HLT_Mu3_Track3_Jpsi_Prescl);
+  fChain->SetBranchAddress("HLT_Ele10_SW_EleId_L1R_Prescl", &HLT_Ele10_SW_EleId_L1R_Prescl, &b_HLT_Ele10_SW_EleId_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele15_SW_EleId_L1R_Prescl", &HLT_Ele15_SW_EleId_L1R_Prescl, &b_HLT_Ele15_SW_EleId_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele15_SW_CaloEleId_L1R_Prescl", &HLT_Ele15_SW_CaloEleId_L1R_Prescl, &b_HLT_Ele15_SW_CaloEleId_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele20_SiStrip_L1R_Prescl", &HLT_Ele20_SiStrip_L1R_Prescl, &b_HLT_Ele20_SiStrip_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele25_SW_L1R_Prescl", &HLT_Ele25_SW_L1R_Prescl, &b_HLT_Ele25_SW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoubleEle4_SW_eeRes_L1R_Prescl", &HLT_DoubleEle4_SW_eeRes_L1R_Prescl, &b_HLT_DoubleEle4_SW_eeRes_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoubleEle10_SW_L1R_Prescl", &HLT_DoubleEle10_SW_L1R_Prescl, &b_HLT_DoubleEle10_SW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon30_Cleaned_L1R_Prescl", &HLT_Photon30_Cleaned_L1R_Prescl, &b_HLT_Photon30_Cleaned_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon50_L1R_Prescl", &HLT_Photon50_L1R_Prescl, &b_HLT_Photon50_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon50_Cleaned_L1R_Prescl", &HLT_Photon50_Cleaned_L1R_Prescl, &b_HLT_Photon50_Cleaned_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoublePhoton15_L1R_Prescl", &HLT_DoublePhoton15_L1R_Prescl, &b_HLT_DoublePhoton15_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoublePhoton20_L1R_Prescl", &HLT_DoublePhoton20_L1R_Prescl, &b_HLT_DoublePhoton20_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_SingleLooseIsoTau25_Trk5_Prescl", &HLT_SingleLooseIsoTau25_Trk5_Prescl, &b_HLT_SingleLooseIsoTau25_Trk5_Prescl);
+  fChain->SetBranchAddress("HLT_SingleIsoTau20_Trk5_Prescl", &HLT_SingleIsoTau20_Trk5_Prescl, &b_HLT_SingleIsoTau20_Trk5_Prescl);
+  fChain->SetBranchAddress("HLT_SingleIsoTau30_Trk5_Prescl", &HLT_SingleIsoTau30_Trk5_Prescl, &b_HLT_SingleIsoTau30_Trk5_Prescl);
+  fChain->SetBranchAddress("HLT_StoppedHSCP_Prescl", &HLT_StoppedHSCP_Prescl, &b_HLT_StoppedHSCP_Prescl);
+  fChain->SetBranchAddress("HLT_L1Tech_BSC_minBias_OR_Prescl", &HLT_L1Tech_BSC_minBias_OR_Prescl, &b_HLT_L1Tech_BSC_minBias_OR_Prescl);
+  fChain->SetBranchAddress("HLT_IsoTrackHE_Prescl", &HLT_IsoTrackHE_Prescl, &b_HLT_IsoTrackHE_Prescl);
+  fChain->SetBranchAddress("HLT_IsoTrackHB_Prescl", &HLT_IsoTrackHB_Prescl, &b_HLT_IsoTrackHB_Prescl);
+  fChain->SetBranchAddress("HLT_HcalNZS_Prescl", &HLT_HcalNZS_Prescl, &b_HLT_HcalNZS_Prescl);
+  fChain->SetBranchAddress("AlCa_EcalPi0_Prescl", &AlCa_EcalPi0_Prescl, &b_AlCa_EcalPi0_Prescl);
+  fChain->SetBranchAddress("AlCa_EcalEta_Prescl", &AlCa_EcalEta_Prescl, &b_AlCa_EcalEta_Prescl);
+  fChain->SetBranchAddress("HLT_Activity_L1A_Prescl", &HLT_Activity_L1A_Prescl, &b_HLT_Activity_L1A_Prescl);
+  fChain->SetBranchAddress("HLT_Activity_PixelClusters_Prescl", &HLT_Activity_PixelClusters_Prescl, &b_HLT_Activity_PixelClusters_Prescl);
+  fChain->SetBranchAddress("HLT_Activity_CSC_Prescl", &HLT_Activity_CSC_Prescl, &b_HLT_Activity_CSC_Prescl);
+  fChain->SetBranchAddress("HLT_Activity_DT_Prescl", &HLT_Activity_DT_Prescl, &b_HLT_Activity_DT_Prescl);
+  fChain->SetBranchAddress("HLT_Activity_DT_Tuned_Prescl", &HLT_Activity_DT_Tuned_Prescl, &b_HLT_Activity_DT_Tuned_Prescl);
+  fChain->SetBranchAddress("HLT_Activity_Ecal_SC7_Prescl", &HLT_Activity_Ecal_SC7_Prescl, &b_HLT_Activity_Ecal_SC7_Prescl);
+  fChain->SetBranchAddress("HLT_Activity_Ecal_SC17_Prescl", &HLT_Activity_Ecal_SC17_Prescl, &b_HLT_Activity_Ecal_SC17_Prescl);
+  fChain->SetBranchAddress("HLT_SelectEcalSpikes_L1R_Prescl", &HLT_SelectEcalSpikes_L1R_Prescl, &b_HLT_SelectEcalSpikes_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_SelectEcalSpikesHighEt_L1R_Prescl", &HLT_SelectEcalSpikesHighEt_L1R_Prescl, &b_HLT_SelectEcalSpikesHighEt_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_L1SingleForJet_Prescl", &HLT_L1SingleForJet_Prescl, &b_HLT_L1SingleForJet_Prescl);
+  fChain->SetBranchAddress("HLT_L1SingleCenJet_Prescl", &HLT_L1SingleCenJet_Prescl, &b_HLT_L1SingleCenJet_Prescl);
+  fChain->SetBranchAddress("HLT_L1SingleTauJet_Prescl", &HLT_L1SingleTauJet_Prescl, &b_HLT_L1SingleTauJet_Prescl);
+  fChain->SetBranchAddress("HLT_L1Jet6U_Prescl", &HLT_L1Jet6U_Prescl, &b_HLT_L1Jet6U_Prescl);
+  fChain->SetBranchAddress("HLT_L1Jet6U_NoBPTX_Prescl", &HLT_L1Jet6U_NoBPTX_Prescl, &b_HLT_L1Jet6U_NoBPTX_Prescl);
+  fChain->SetBranchAddress("HLT_L1Jet10U_Prescl", &HLT_L1Jet10U_Prescl, &b_HLT_L1Jet10U_Prescl);
+  fChain->SetBranchAddress("HLT_L1Jet10U_NoBPTX_Prescl", &HLT_L1Jet10U_NoBPTX_Prescl, &b_HLT_L1Jet10U_NoBPTX_Prescl);
+  fChain->SetBranchAddress("HLT_Jet15U_Prescl", &HLT_Jet15U_Prescl, &b_HLT_Jet15U_Prescl);
+  fChain->SetBranchAddress("HLT_Jet15U_HcalNoiseFiltered_Prescl", &HLT_Jet15U_HcalNoiseFiltered_Prescl, &b_HLT_Jet15U_HcalNoiseFiltered_Prescl);
+  fChain->SetBranchAddress("HLT_Jet30U_Prescl", &HLT_Jet30U_Prescl, &b_HLT_Jet30U_Prescl);
+  fChain->SetBranchAddress("HLT_Jet50U_Prescl", &HLT_Jet50U_Prescl, &b_HLT_Jet50U_Prescl);
+  fChain->SetBranchAddress("HLT_FwdJet20U_Prescl", &HLT_FwdJet20U_Prescl, &b_HLT_FwdJet20U_Prescl);
+  fChain->SetBranchAddress("HLT_DiJetAve15U_8E29_Prescl", &HLT_DiJetAve15U_8E29_Prescl, &b_HLT_DiJetAve15U_8E29_Prescl);
+  fChain->SetBranchAddress("HLT_DiJetAve30U_8E29_Prescl", &HLT_DiJetAve30U_8E29_Prescl, &b_HLT_DiJetAve30U_8E29_Prescl);
+  fChain->SetBranchAddress("HLT_DiJetAve50U_8E29_Prescl", &HLT_DiJetAve50U_8E29_Prescl, &b_HLT_DiJetAve50U_8E29_Prescl);
+  fChain->SetBranchAddress("HLT_DoubleJet15U_ForwardBackward_Prescl", &HLT_DoubleJet15U_ForwardBackward_Prescl, &b_HLT_DoubleJet15U_ForwardBackward_Prescl);
+  fChain->SetBranchAddress("HLT_QuadJet15U_Prescl", &HLT_QuadJet15U_Prescl, &b_HLT_QuadJet15U_Prescl);
+  fChain->SetBranchAddress("HLT_L1MET20_Prescl", &HLT_L1MET20_Prescl, &b_HLT_L1MET20_Prescl);
+  fChain->SetBranchAddress("HLT_MET45_Prescl", &HLT_MET45_Prescl, &b_HLT_MET45_Prescl);
+  fChain->SetBranchAddress("HLT_MET100_Prescl", &HLT_MET100_Prescl, &b_HLT_MET100_Prescl);
+  fChain->SetBranchAddress("HLT_HT100U_Prescl", &HLT_HT100U_Prescl, &b_HLT_HT100U_Prescl);
+  fChain->SetBranchAddress("HLT_L1MuOpen_Prescl", &HLT_L1MuOpen_Prescl, &b_HLT_L1MuOpen_Prescl);
+  fChain->SetBranchAddress("HLT_L1MuOpen_DT_Prescl", &HLT_L1MuOpen_DT_Prescl, &b_HLT_L1MuOpen_DT_Prescl);
+  fChain->SetBranchAddress("HLT_L1MuOpen_AntiBPTX_Prescl", &HLT_L1MuOpen_AntiBPTX_Prescl, &b_HLT_L1MuOpen_AntiBPTX_Prescl);
+  fChain->SetBranchAddress("HLT_L1Mu_Prescl", &HLT_L1Mu_Prescl, &b_HLT_L1Mu_Prescl);
+  fChain->SetBranchAddress("HLT_L1Mu20_Prescl", &HLT_L1Mu20_Prescl, &b_HLT_L1Mu20_Prescl);
+  fChain->SetBranchAddress("HLT_L2Mu0_Prescl", &HLT_L2Mu0_Prescl, &b_HLT_L2Mu0_Prescl);
+  fChain->SetBranchAddress("HLT_L2Mu3_Prescl", &HLT_L2Mu3_Prescl, &b_HLT_L2Mu3_Prescl);
+  fChain->SetBranchAddress("HLT_L2Mu5_Prescl", &HLT_L2Mu5_Prescl, &b_HLT_L2Mu5_Prescl);
+  fChain->SetBranchAddress("HLT_L2Mu9_Prescl", &HLT_L2Mu9_Prescl, &b_HLT_L2Mu9_Prescl);
+  fChain->SetBranchAddress("HLT_L2Mu11_Prescl", &HLT_L2Mu11_Prescl, &b_HLT_L2Mu11_Prescl);
+  fChain->SetBranchAddress("HLT_IsoMu3_Prescl", &HLT_IsoMu3_Prescl, &b_HLT_IsoMu3_Prescl);
+  fChain->SetBranchAddress("HLT_Mu3_Prescl", &HLT_Mu3_Prescl, &b_HLT_Mu3_Prescl);
+  fChain->SetBranchAddress("HLT_Mu5_Prescl", &HLT_Mu5_Prescl, &b_HLT_Mu5_Prescl);
+  fChain->SetBranchAddress("HLT_Mu7_Prescl", &HLT_Mu7_Prescl, &b_HLT_Mu7_Prescl);
+  fChain->SetBranchAddress("HLT_Mu9_Prescl", &HLT_Mu9_Prescl, &b_HLT_Mu9_Prescl);
+  fChain->SetBranchAddress("HLT_L1DoubleMuOpen_Prescl", &HLT_L1DoubleMuOpen_Prescl, &b_HLT_L1DoubleMuOpen_Prescl);
+  fChain->SetBranchAddress("HLT_L1DoubleMuOpen_Tight_Prescl", &HLT_L1DoubleMuOpen_Tight_Prescl, &b_HLT_L1DoubleMuOpen_Tight_Prescl);
+  fChain->SetBranchAddress("HLT_L2DoubleMu0_Prescl", &HLT_L2DoubleMu0_Prescl, &b_HLT_L2DoubleMu0_Prescl);
+  fChain->SetBranchAddress("HLT_DoubleMu0_Prescl", &HLT_DoubleMu0_Prescl, &b_HLT_DoubleMu0_Prescl);
+  fChain->SetBranchAddress("HLT_DoubleMu3_Prescl", &HLT_DoubleMu3_Prescl, &b_HLT_DoubleMu3_Prescl);
+  fChain->SetBranchAddress("HLT_Mu0_L1MuOpen_Prescl", &HLT_Mu0_L1MuOpen_Prescl, &b_HLT_Mu0_L1MuOpen_Prescl);
+  fChain->SetBranchAddress("HLT_Mu3_L1MuOpen_Prescl", &HLT_Mu3_L1MuOpen_Prescl, &b_HLT_Mu3_L1MuOpen_Prescl);
+  fChain->SetBranchAddress("HLT_Mu5_L1MuOpen_Prescl", &HLT_Mu5_L1MuOpen_Prescl, &b_HLT_Mu5_L1MuOpen_Prescl);
+  fChain->SetBranchAddress("HLT_Mu0_L2Mu0_Prescl", &HLT_Mu0_L2Mu0_Prescl, &b_HLT_Mu0_L2Mu0_Prescl);
+  fChain->SetBranchAddress("HLT_Mu3_L2Mu0_Prescl", &HLT_Mu3_L2Mu0_Prescl, &b_HLT_Mu3_L2Mu0_Prescl);
+  fChain->SetBranchAddress("HLT_Mu5_L2Mu0_Prescl", &HLT_Mu5_L2Mu0_Prescl, &b_HLT_Mu5_L2Mu0_Prescl);
+  fChain->SetBranchAddress("HLT_Mu0_Track0_Jpsi_Prescl", &HLT_Mu0_Track0_Jpsi_Prescl, &b_HLT_Mu0_Track0_Jpsi_Prescl);
+  fChain->SetBranchAddress("HLT_Mu0_TkMu0_Jpsi_Prescl", &HLT_Mu0_TkMu0_Jpsi_Prescl, &b_HLT_Mu0_TkMu0_Jpsi_Prescl);
+  fChain->SetBranchAddress("HLT_Mu0_TkMu0_Jpsi_NoCharge_Prescl", &HLT_Mu0_TkMu0_Jpsi_NoCharge_Prescl, &b_HLT_Mu0_TkMu0_Jpsi_NoCharge_Prescl);
+  fChain->SetBranchAddress("HLT_Mu3_Track0_Jpsi_Prescl", &HLT_Mu3_Track0_Jpsi_Prescl, &b_HLT_Mu3_Track0_Jpsi_Prescl);
+  fChain->SetBranchAddress("HLT_Mu3_TkMu0_Jpsi_Prescl", &HLT_Mu3_TkMu0_Jpsi_Prescl, &b_HLT_Mu3_TkMu0_Jpsi_Prescl);
+  fChain->SetBranchAddress("HLT_Mu3_TkMu0_Jpsi_NoCharge_Prescl", &HLT_Mu3_TkMu0_Jpsi_NoCharge_Prescl, &b_HLT_Mu3_TkMu0_Jpsi_NoCharge_Prescl);
+  fChain->SetBranchAddress("HLT_Mu5_Track0_Jpsi_Prescl", &HLT_Mu5_Track0_Jpsi_Prescl, &b_HLT_Mu5_Track0_Jpsi_Prescl);
+  fChain->SetBranchAddress("HLT_Mu5_TkMu0_Jpsi_Prescl", &HLT_Mu5_TkMu0_Jpsi_Prescl, &b_HLT_Mu5_TkMu0_Jpsi_Prescl);
+  fChain->SetBranchAddress("HLT_Mu5_TkMu0_Jpsi_NoCharge_Prescl", &HLT_Mu5_TkMu0_Jpsi_NoCharge_Prescl, &b_HLT_Mu5_TkMu0_Jpsi_NoCharge_Prescl);
+  fChain->SetBranchAddress("HLT_L1SingleEG2_Prescl", &HLT_L1SingleEG2_Prescl, &b_HLT_L1SingleEG2_Prescl);
+  fChain->SetBranchAddress("HLT_L1SingleEG5_Prescl", &HLT_L1SingleEG5_Prescl, &b_HLT_L1SingleEG5_Prescl);
+  fChain->SetBranchAddress("HLT_L1SingleEG8_Prescl", &HLT_L1SingleEG8_Prescl, &b_HLT_L1SingleEG8_Prescl);
+  fChain->SetBranchAddress("HLT_L1DoubleEG5_Prescl", &HLT_L1DoubleEG5_Prescl, &b_HLT_L1DoubleEG5_Prescl);
+  fChain->SetBranchAddress("HLT_Ele10_LW_L1R_Prescl", &HLT_Ele10_LW_L1R_Prescl, &b_HLT_Ele10_LW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele10_LW_EleId_L1R_Prescl", &HLT_Ele10_LW_EleId_L1R_Prescl, &b_HLT_Ele10_LW_EleId_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele10_SW_L1R_Prescl", &HLT_Ele10_SW_L1R_Prescl, &b_HLT_Ele10_SW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele15_LW_L1R_Prescl", &HLT_Ele15_LW_L1R_Prescl, &b_HLT_Ele15_LW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele15_SW_L1R_Prescl", &HLT_Ele15_SW_L1R_Prescl, &b_HLT_Ele15_SW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele15_SC10_LW_L1R_Prescl", &HLT_Ele15_SC10_LW_L1R_Prescl, &b_HLT_Ele15_SC10_LW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele15_SiStrip_L1R_Prescl", &HLT_Ele15_SiStrip_L1R_Prescl, &b_HLT_Ele15_SiStrip_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele20_LW_L1R_Prescl", &HLT_Ele20_LW_L1R_Prescl, &b_HLT_Ele20_LW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele20_SW_L1R_Prescl", &HLT_Ele20_SW_L1R_Prescl, &b_HLT_Ele20_SW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoubleEle5_SW_L1R_Prescl", &HLT_DoubleEle5_SW_L1R_Prescl, &b_HLT_DoubleEle5_SW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon10_Cleaned_L1R_Prescl", &HLT_Photon10_Cleaned_L1R_Prescl, &b_HLT_Photon10_Cleaned_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon15_Cleaned_L1R_Prescl", &HLT_Photon15_Cleaned_L1R_Prescl, &b_HLT_Photon15_Cleaned_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon15_TrackIso_Cleaned_L1R_Prescl", &HLT_Photon15_TrackIso_Cleaned_L1R_Prescl, &b_HLT_Photon15_TrackIso_Cleaned_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon15_LooseEcalIso_Cleaned_L1R_Prescl", &HLT_Photon15_LooseEcalIso_Cleaned_L1R_Prescl, &b_HLT_Photon15_LooseEcalIso_Cleaned_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon20_Cleaned_L1R_Prescl", &HLT_Photon20_Cleaned_L1R_Prescl, &b_HLT_Photon20_Cleaned_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon30_L1R_Prescl", &HLT_Photon30_L1R_Prescl, &b_HLT_Photon30_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoublePhoton4_eeRes_L1R_Prescl", &HLT_DoublePhoton4_eeRes_L1R_Prescl, &b_HLT_DoublePhoton4_eeRes_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoublePhoton4_Jpsi_L1R_Prescl", &HLT_DoublePhoton4_Jpsi_L1R_Prescl, &b_HLT_DoublePhoton4_Jpsi_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoublePhoton4_Upsilon_L1R_Prescl", &HLT_DoublePhoton4_Upsilon_L1R_Prescl, &b_HLT_DoublePhoton4_Upsilon_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoublePhoton5_Jpsi_L1R_Prescl", &HLT_DoublePhoton5_Jpsi_L1R_Prescl, &b_HLT_DoublePhoton5_Jpsi_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoublePhoton5_Upsilon_L1R_Prescl", &HLT_DoublePhoton5_Upsilon_L1R_Prescl, &b_HLT_DoublePhoton5_Upsilon_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoublePhoton5_CEP_L1R_Prescl", &HLT_DoublePhoton5_CEP_L1R_Prescl, &b_HLT_DoublePhoton5_CEP_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoublePhoton5_L1R_Prescl", &HLT_DoublePhoton5_L1R_Prescl, &b_HLT_DoublePhoton5_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoublePhoton10_L1R_Prescl", &HLT_DoublePhoton10_L1R_Prescl, &b_HLT_DoublePhoton10_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_SingleLooseIsoTau20_Prescl", &HLT_SingleLooseIsoTau20_Prescl, &b_HLT_SingleLooseIsoTau20_Prescl);
+  fChain->SetBranchAddress("HLT_SingleLooseIsoTau20_Trk5_Prescl", &HLT_SingleLooseIsoTau20_Trk5_Prescl, &b_HLT_SingleLooseIsoTau20_Trk5_Prescl);
+  fChain->SetBranchAddress("HLT_SingleLooseIsoTau25_Prescl", &HLT_SingleLooseIsoTau25_Prescl, &b_HLT_SingleLooseIsoTau25_Prescl);
+  fChain->SetBranchAddress("HLT_DoubleLooseIsoTau15_Prescl", &HLT_DoubleLooseIsoTau15_Prescl, &b_HLT_DoubleLooseIsoTau15_Prescl);
+  fChain->SetBranchAddress("HLT_BTagIP_Jet50U_Prescl", &HLT_BTagIP_Jet50U_Prescl, &b_HLT_BTagIP_Jet50U_Prescl);
+  fChain->SetBranchAddress("HLT_BTagMu_Jet10U_Prescl", &HLT_BTagMu_Jet10U_Prescl, &b_HLT_BTagMu_Jet10U_Prescl);
+  fChain->SetBranchAddress("HLT_StoppedHSCP_8E29_Prescl", &HLT_StoppedHSCP_8E29_Prescl, &b_HLT_StoppedHSCP_8E29_Prescl);
+  fChain->SetBranchAddress("HLT_L1Mu14_L1SingleEG10_Prescl", &HLT_L1Mu14_L1SingleEG10_Prescl, &b_HLT_L1Mu14_L1SingleEG10_Prescl);
+  fChain->SetBranchAddress("HLT_L1Mu14_L1SingleJet6U_Prescl", &HLT_L1Mu14_L1SingleJet6U_Prescl, &b_HLT_L1Mu14_L1SingleJet6U_Prescl);
+  fChain->SetBranchAddress("HLT_L1Mu14_L1ETM30_Prescl", &HLT_L1Mu14_L1ETM30_Prescl, &b_HLT_L1Mu14_L1ETM30_Prescl);
+  fChain->SetBranchAddress("HLT_ZeroBias_Prescl", &HLT_ZeroBias_Prescl, &b_HLT_ZeroBias_Prescl);
+  fChain->SetBranchAddress("HLT_ZeroBiasPixel_SingleTrack_Prescl", &HLT_ZeroBiasPixel_SingleTrack_Prescl, &b_HLT_ZeroBiasPixel_SingleTrack_Prescl);
+  fChain->SetBranchAddress("HLT_MinBiasPixel_SingleTrack_Prescl", &HLT_MinBiasPixel_SingleTrack_Prescl, &b_HLT_MinBiasPixel_SingleTrack_Prescl);
+  fChain->SetBranchAddress("HLT_MinBiasPixel_DoubleTrack_Prescl", &HLT_MinBiasPixel_DoubleTrack_Prescl, &b_HLT_MinBiasPixel_DoubleTrack_Prescl);
+  fChain->SetBranchAddress("HLT_MinBiasPixel_DoubleIsoTrack5_Prescl", &HLT_MinBiasPixel_DoubleIsoTrack5_Prescl, &b_HLT_MinBiasPixel_DoubleIsoTrack5_Prescl);
+  fChain->SetBranchAddress("HLT_MultiVertex6_Prescl", &HLT_MultiVertex6_Prescl, &b_HLT_MultiVertex6_Prescl);
+  fChain->SetBranchAddress("HLT_MultiVertex8_L1ETT60_Prescl", &HLT_MultiVertex8_L1ETT60_Prescl, &b_HLT_MultiVertex8_L1ETT60_Prescl);
+  fChain->SetBranchAddress("HLT_CSCBeamHalo_Prescl", &HLT_CSCBeamHalo_Prescl, &b_HLT_CSCBeamHalo_Prescl);
+  fChain->SetBranchAddress("HLT_CSCBeamHaloOverlapRing1_Prescl", &HLT_CSCBeamHaloOverlapRing1_Prescl, &b_HLT_CSCBeamHaloOverlapRing1_Prescl);
+  fChain->SetBranchAddress("HLT_CSCBeamHaloOverlapRing2_Prescl", &HLT_CSCBeamHaloOverlapRing2_Prescl, &b_HLT_CSCBeamHaloOverlapRing2_Prescl);
+  fChain->SetBranchAddress("HLT_CSCBeamHaloRing2or3_Prescl", &HLT_CSCBeamHaloRing2or3_Prescl, &b_HLT_CSCBeamHaloRing2or3_Prescl);
+  fChain->SetBranchAddress("HLT_L1_BscMinBiasOR_BptxPlusORMinus_Prescl", &HLT_L1_BscMinBiasOR_BptxPlusORMinus_Prescl, &b_HLT_L1_BscMinBiasOR_BptxPlusORMinus_Prescl);
+  fChain->SetBranchAddress("HLT_L1_BptxXOR_BscMinBiasOR_Prescl", &HLT_L1_BptxXOR_BscMinBiasOR_Prescl, &b_HLT_L1_BptxXOR_BscMinBiasOR_Prescl);
+  fChain->SetBranchAddress("HLT_L1Tech_BSC_minBias_Prescl", &HLT_L1Tech_BSC_minBias_Prescl, &b_HLT_L1Tech_BSC_minBias_Prescl);
+  fChain->SetBranchAddress("HLT_L1Tech_BSC_halo_Prescl", &HLT_L1Tech_BSC_halo_Prescl, &b_HLT_L1Tech_BSC_halo_Prescl);
+  fChain->SetBranchAddress("HLT_L1Tech_BSC_halo_forPhysicsBackground_Prescl", &HLT_L1Tech_BSC_halo_forPhysicsBackground_Prescl, &b_HLT_L1Tech_BSC_halo_forPhysicsBackground_Prescl);
+  fChain->SetBranchAddress("HLT_L1Tech_BSC_HighMultiplicity_Prescl", &HLT_L1Tech_BSC_HighMultiplicity_Prescl, &b_HLT_L1Tech_BSC_HighMultiplicity_Prescl);
+  fChain->SetBranchAddress("HLT_L1Tech_RPC_TTU_RBst1_collisions_Prescl", &HLT_L1Tech_RPC_TTU_RBst1_collisions_Prescl, &b_HLT_L1Tech_RPC_TTU_RBst1_collisions_Prescl);
+  fChain->SetBranchAddress("HLT_L1Tech_HCAL_HF_Prescl", &HLT_L1Tech_HCAL_HF_Prescl, &b_HLT_L1Tech_HCAL_HF_Prescl);
+  fChain->SetBranchAddress("HLT_TrackerCosmics_Prescl", &HLT_TrackerCosmics_Prescl, &b_HLT_TrackerCosmics_Prescl);
+  fChain->SetBranchAddress("HLT_RPCBarrelCosmics_Prescl", &HLT_RPCBarrelCosmics_Prescl, &b_HLT_RPCBarrelCosmics_Prescl);
+  fChain->SetBranchAddress("HLT_IsoTrackHE_8E29_Prescl", &HLT_IsoTrackHE_8E29_Prescl, &b_HLT_IsoTrackHE_8E29_Prescl);
+  fChain->SetBranchAddress("HLT_IsoTrackHB_8E29_Prescl", &HLT_IsoTrackHB_8E29_Prescl, &b_HLT_IsoTrackHB_8E29_Prescl);
+  fChain->SetBranchAddress("HLT_HcalPhiSym_Prescl", &HLT_HcalPhiSym_Prescl, &b_HLT_HcalPhiSym_Prescl);
+  fChain->SetBranchAddress("HLT_HcalNZS_8E29_Prescl", &HLT_HcalNZS_8E29_Prescl, &b_HLT_HcalNZS_8E29_Prescl);
+  fChain->SetBranchAddress("AlCa_EcalPhiSym_Prescl", &AlCa_EcalPhiSym_Prescl, &b_AlCa_EcalPhiSym_Prescl);
+  fChain->SetBranchAddress("AlCa_EcalPi0_8E29_Prescl", &AlCa_EcalPi0_8E29_Prescl, &b_AlCa_EcalPi0_8E29_Prescl);
+  fChain->SetBranchAddress("AlCa_EcalEta_8E29_Prescl", &AlCa_EcalEta_8E29_Prescl, &b_AlCa_EcalEta_8E29_Prescl);
+  fChain->SetBranchAddress("AlCa_RPCMuonNoHits_Prescl", &AlCa_RPCMuonNoHits_Prescl, &b_AlCa_RPCMuonNoHits_Prescl);
+  fChain->SetBranchAddress("AlCa_RPCMuonNoTriggers_Prescl", &AlCa_RPCMuonNoTriggers_Prescl, &b_AlCa_RPCMuonNoTriggers_Prescl);
+  fChain->SetBranchAddress("AlCa_RPCMuonNormalisation_Prescl", &AlCa_RPCMuonNormalisation_Prescl, &b_AlCa_RPCMuonNormalisation_Prescl);
+  fChain->SetBranchAddress("HLT_DTErrors_Prescl", &HLT_DTErrors_Prescl, &b_HLT_DTErrors_Prescl);
+  fChain->SetBranchAddress("HLT_Calibration_Prescl", &HLT_Calibration_Prescl, &b_HLT_Calibration_Prescl);
+  fChain->SetBranchAddress("HLT_EcalCalibration_Prescl", &HLT_EcalCalibration_Prescl, &b_HLT_EcalCalibration_Prescl);
+  fChain->SetBranchAddress("HLT_HcalCalibration_Prescl", &HLT_HcalCalibration_Prescl, &b_HLT_HcalCalibration_Prescl);
+  fChain->SetBranchAddress("HLT_Random_Prescl", &HLT_Random_Prescl, &b_HLT_Random_Prescl);
+  fChain->SetBranchAddress("HLT_PixelTracks_Multiplicity70_Prescl", &HLT_PixelTracks_Multiplicity70_Prescl, &b_HLT_PixelTracks_Multiplicity70_Prescl);
+  fChain->SetBranchAddress("HLT_PixelTracks_Multiplicity85_Prescl", &HLT_PixelTracks_Multiplicity85_Prescl, &b_HLT_PixelTracks_Multiplicity85_Prescl);
+  fChain->SetBranchAddress("HLT_GlobalRunHPDNoise_Prescl", &HLT_GlobalRunHPDNoise_Prescl, &b_HLT_GlobalRunHPDNoise_Prescl);
+  fChain->SetBranchAddress("HLT_TechTrigHCALNoise_Prescl", &HLT_TechTrigHCALNoise_Prescl, &b_HLT_TechTrigHCALNoise_Prescl);
+  fChain->SetBranchAddress("HLT_L1_BPTX_Prescl", &HLT_L1_BPTX_Prescl, &b_HLT_L1_BPTX_Prescl);
+  fChain->SetBranchAddress("HLT_L1_BPTX_MinusOnly_Prescl", &HLT_L1_BPTX_MinusOnly_Prescl, &b_HLT_L1_BPTX_MinusOnly_Prescl);
+  fChain->SetBranchAddress("HLT_L1_BPTX_PlusOnly_Prescl", &HLT_L1_BPTX_PlusOnly_Prescl, &b_HLT_L1_BPTX_PlusOnly_Prescl);
+  fChain->SetBranchAddress("HLT_L2Mu0_NoVertex_Prescl", &HLT_L2Mu0_NoVertex_Prescl, &b_HLT_L2Mu0_NoVertex_Prescl);
+  fChain->SetBranchAddress("HLT_LogMonitor_Prescl", &HLT_LogMonitor_Prescl, &b_HLT_LogMonitor_Prescl);
+
   //
   /* Also associate with the maps to speed up code! */
   fChain->SetBranchAddress("L1Tech_BPTX_plus_OR_minus.v0", &map_BitOfStandardHLTPath["L1Tech_BPTX_plus_OR_minus.v0"], &b_L1Tech_BPTX_plus_OR_minus_v0); 
@@ -2906,13 +4183,12 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_BptxPlusORMinus", &map_BitOfStandardHLTPath["L1_BptxPlusORMinus"], &b_L1_BptxPlusORMinus); 
   fChain->SetBranchAddress("L1_BptxPlus_NotBptxMinus", &map_BitOfStandardHLTPath["L1_BptxPlus_NotBptxMinus"], &b_L1_BptxPlus_NotBptxMinus); 
   fChain->SetBranchAddress("L1_BptxMinus_NotBptxPlus", &map_BitOfStandardHLTPath["L1_BptxMinus_NotBptxPlus"], &b_L1_BptxMinus_NotBptxPlus); 
-  //fChain->SetBranchAddress("", &map_BitOfStandardHLTPath[""], &b_); 
-
+  fChain->SetBranchAddress("L1_BptxXOR_BscMinBiasOR", &map_BitOfStandardHLTPath["L1_BptxXOR_BscMinBiasOR"], &b_L1_BptxXOR_BscMinBiasOR);
   fChain->SetBranchAddress("L1_Mu5_Jet6", &map_BitOfStandardHLTPath["L1_Mu5_Jet6"], &b_L1_Mu5_Jet6); 
   fChain->SetBranchAddress("L1_EG5_TripleJet6", &map_BitOfStandardHLTPath["L1_EG5_TripleJet6"], &b_L1_EG5_TripleJet6); 
   fChain->SetBranchAddress("L1_SingleJet6", &map_BitOfStandardHLTPath["L1_SingleJet6"], &b_L1_SingleJet6); 
   fChain->SetBranchAddress("L1_SingleJet10", &map_BitOfStandardHLTPath["L1_SingleJet10"], &b_L1_SingleJet10); 
-
+  fChain->SetBranchAddress("L1_SingleJet10_NotBptxC_Ext", &map_BitOfStandardHLTPath["L1_SingleJet10_NotBptxC_Ext"], &b_L1_SingleJet10_NotBptxC_Ext);
   fChain->SetBranchAddress("L1_DoubleEG1", &map_BitOfStandardHLTPath["L1_DoubleEG1"], &b_L1_DoubleEG1); 
   fChain->SetBranchAddress("L1_DoubleEG2", &map_BitOfStandardHLTPath["L1_DoubleEG2"], &b_L1_DoubleEG2); 
   fChain->SetBranchAddress("L1_DoubleEG5", &map_BitOfStandardHLTPath["L1_DoubleEG5"], &b_L1_DoubleEG5); 
@@ -2934,6 +4210,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_ETM70", &map_BitOfStandardHLTPath["L1_ETM70"], &b_L1_ETM70); 
   fChain->SetBranchAddress("L1_ETM80", &map_BitOfStandardHLTPath["L1_ETM80"], &b_L1_ETM80); 
   fChain->SetBranchAddress("L1_ETT60", &map_BitOfStandardHLTPath["L1_ETT60"], &b_L1_ETT60); 
+  fChain->SetBranchAddress("L1_ETT100", &map_BitOfStandardHLTPath["L1_ETT100"], &b_L1_ETT100);  
   fChain->SetBranchAddress("L1_HTT50", &map_BitOfStandardHLTPath["L1_HTT50"], &b_L1_HTT50); 
   fChain->SetBranchAddress("L1_HTT100", &map_BitOfStandardHLTPath["L1_HTT100"], &b_L1_HTT100); 
   fChain->SetBranchAddress("L1_HTT200", &map_BitOfStandardHLTPath["L1_HTT200"], &b_L1_HTT200); 
@@ -2992,12 +4269,10 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleTauJet2", &map_BitOfStandardHLTPath["L1_SingleTauJet2"], &b_L1_SingleTauJet2); 
   fChain->SetBranchAddress("L1_SingleTauJet4", &map_BitOfStandardHLTPath["L1_SingleTauJet4"], &b_L1_SingleTauJet4); 
   fChain->SetBranchAddress("L1_DoubleForJet10_EtaOpp", &map_BitOfStandardHLTPath["L1_DoubleForJet10_EtaOpp"], &b_L1_DoubleForJet10_EtaOpp); 
-  fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusORMinus", &map_BitOfStandardHLTPath["L1_BscMinBiasOR_BptxPlusORMinus"], &b_L1_BscMinBiasOR_BptxPlusORMinus); 
-
+  fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusORMinus", &map_BitOfStandardHLTPath["L1_BscMinBiasOR_BptxPlusORMinus"], &b_L1_BscMinBiasOR_BptxPlusORMinus);
+  fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusANDMinus", &map_BitOfStandardHLTPath["L1_BscMinBiasOR_BptxPlusANDMinus"], &b_L1_BscMinBiasOR_BptxPlusANDMinus); 
   fChain->SetBranchAddress("L1_DoubleMuTopBottom", &map_BitOfStandardHLTPath["L1_DoubleMuTopBottom"], &b_L1_DoubleMuTopBottom); 
   fChain->SetBranchAddress("L1_DoubleEG05_TopBottom", &map_BitOfStandardHLTPath["L1_DoubleEG05_TopBottom"], &b_L1_DoubleEG05_TopBottom);  
-
-
   fChain->SetBranchAddress("L1_SingleJet20", &map_BitOfStandardHLTPath["L1_SingleJet20"], &b_L1_SingleJet20); 
   fChain->SetBranchAddress("L1_SingleJet40", &map_BitOfStandardHLTPath["L1_SingleJet40"], &b_L1_SingleJet40); 
   fChain->SetBranchAddress("L1_SingleJet60", &map_BitOfStandardHLTPath["L1_SingleJet60"], &b_L1_SingleJet60); 
@@ -3010,8 +4285,137 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_TripleJet14", &map_BitOfStandardHLTPath["L1_TripleJet14"], &b_L1_TripleJet14);  
   fChain->SetBranchAddress("L1_QuadJet6", &map_BitOfStandardHLTPath["L1_QuadJet6"], &b_L1_QuadJet6); 
   fChain->SetBranchAddress("L1_IsoEG10_Jet6_ForJet6", &map_BitOfStandardHLTPath["L1_IsoEG10_Jet6_ForJet6"], &b_L1_IsoEG10_Jet6_ForJet6); 
+
+  // L1 Prescales
+  fChain->SetBranchAddress("L1Tech_BPTX_plus_OR_minus.v0_Prescl", &map_RefPrescaleOfStandardHLTPath["L1Tech_BPTX_plus_OR_minus.v0"], &b_L1Tech_BPTX_plus_OR_minus_v0_Prescl); 
+  fChain->SetBranchAddress("L1Tech_BPTX_plus_AND_minus_instance1.v0_Prescl", &map_RefPrescaleOfStandardHLTPath["L1Tech_BPTX_plus_AND_minus_instance1.v0"], &b_L1Tech_BPTX_plus_AND_minus_instance1_v0_Prescl); 
+  fChain->SetBranchAddress("L1Tech_BSC_minBias_OR.v0_Prescl", &map_RefPrescaleOfStandardHLTPath["L1Tech_BSC_minBias_OR.v0"], &b_L1Tech_BSC_minBias_OR_v0_Prescl); 
+  fChain->SetBranchAddress("L1Tech_BSC_minBias_threshold1.v0_Prescl", &map_RefPrescaleOfStandardHLTPath["L1Tech_BSC_minBias_threshold1.v0"], &b_L1Tech_BSC_minBias_threshold1_v0_Prescl); 
+  fChain->SetBranchAddress("L1Tech_BSC_minBias_threshold2.v0_Prescl", &map_RefPrescaleOfStandardHLTPath["L1Tech_BSC_minBias_threshold2.v0"], &b_L1Tech_BSC_minBias_threshold2_v0_Prescl); 
+  fChain->SetBranchAddress("L1Tech_BSC_minBias_inner_threshold1.v0_Prescl", &map_RefPrescaleOfStandardHLTPath["L1Tech_BSC_minBias_inner_threshold1.v0"], &b_L1Tech_BSC_minBias_inner_threshold1_v0_Prescl); 
+  fChain->SetBranchAddress("L1Tech_BSC_minBias_inner_threshold2.v0_Prescl", &map_RefPrescaleOfStandardHLTPath["L1Tech_BSC_minBias_inner_threshold2.v0"], &b_L1Tech_BSC_minBias_inner_threshold2_v0_Prescl); 
+  fChain->SetBranchAddress("L1Tech_BSC_halo_beam1_inner.v0_Prescl", &map_RefPrescaleOfStandardHLTPath["L1Tech_BSC_halo_beam1_inner.v0"], &b_L1Tech_BSC_halo_beam1_inner_v0_Prescl); 
+  fChain->SetBranchAddress("L1Tech_BSC_halo_beam1_outer.v0_Prescl", &map_RefPrescaleOfStandardHLTPath["L1Tech_BSC_halo_beam1_outer.v0"], &b_L1Tech_BSC_halo_beam1_outer_v0_Prescl); 
+  fChain->SetBranchAddress("L1Tech_BSC_halo_beam2_inner.v0_Prescl", &map_RefPrescaleOfStandardHLTPath["L1Tech_BSC_halo_beam2_inner.v0"], &b_L1Tech_BSC_halo_beam2_inner_v0_Prescl); 
+  fChain->SetBranchAddress("L1Tech_BSC_halo_beam2_outer.v0_Prescl", &map_RefPrescaleOfStandardHLTPath["L1Tech_BSC_halo_beam2_outer.v0"], &b_L1Tech_BSC_halo_beam2_outer_v0_Prescl); 
+  fChain->SetBranchAddress("L1Tech_BSC_HighMultiplicity.v0_Prescl", &map_RefPrescaleOfStandardHLTPath["L1Tech_BSC_HighMultiplicity.v0"], &b_L1Tech_BSC_HighMultiplicity_v0_Prescl); 
+  fChain->SetBranchAddress("L1Tech_BSC_splash_beam1.v0_Prescl", &map_RefPrescaleOfStandardHLTPath["L1Tech_BSC_splash_beam1.v0"], &b_L1Tech_BSC_splash_beam1_v0_Prescl); 
+  fChain->SetBranchAddress("L1Tech_BSC_splash_beam2.v0_Prescl", &map_RefPrescaleOfStandardHLTPath["L1Tech_BSC_splash_beam2.v0"], &b_L1Tech_BSC_splash_beam2_v0_Prescl); 
+  fChain->SetBranchAddress("L1Tech_RPC_TTU_barrel_Cosmics.v0_Prescl", &map_RefPrescaleOfStandardHLTPath["L1Tech_RPC_TTU_barrel_Cosmics.v0"], &b_L1Tech_RPC_TTU_barrel_Cosmics_v0_Prescl); 
+  fChain->SetBranchAddress("L1Tech_RPC_TTU_pointing_Cosmics.v0_Prescl", &map_RefPrescaleOfStandardHLTPath["L1Tech_RPC_TTU_pointing_Cosmics.v0"], &b_L1Tech_RPC_TTU_pointing_Cosmics_v0_Prescl); 
+  fChain->SetBranchAddress("L1Tech_RPC_TTU_RBst1_collisions.v0_Prescl", &map_RefPrescaleOfStandardHLTPath["L1Tech_RPC_TTU_RBst1_collisions.v0"], &b_L1Tech_RPC_TTU_RBst1_collisions_v0_Prescl); 
+  fChain->SetBranchAddress("L1Tech_HCAL_HF_MM_or_PP_or_PM.v0_Prescl", &map_RefPrescaleOfStandardHLTPath["L1Tech_HCAL_HF_MM_or_PP_or_PM.v0"], &b_L1Tech_HCAL_HF_MM_or_PP_or_PM_v0_Prescl); 
+  fChain->SetBranchAddress("L1Tech_HCAL_HF_coincidence_PM.v1_Prescl", &map_RefPrescaleOfStandardHLTPath["L1Tech_HCAL_HF_coincidence_PM.v1"], &b_L1Tech_HCAL_HF_coincidence_PM_v1_Prescl); 
+  fChain->SetBranchAddress("L1Tech_HCAL_HF_MMP_or_MPP.v0_Prescl", &map_RefPrescaleOfStandardHLTPath["L1Tech_HCAL_HF_MMP_or_MPP.v0"], &b_L1Tech_HCAL_HF_MMP_or_MPP_v0_Prescl); 
+  fChain->SetBranchAddress("L1Tech_HCAL_HO_totalOR.v0_Prescl", &map_RefPrescaleOfStandardHLTPath["L1Tech_HCAL_HO_totalOR.v0"], &b_L1Tech_HCAL_HO_totalOR_v0_Prescl); 
+  fChain->SetBranchAddress("L1Tech_HCAL_HBHE_totalOR.v0_Prescl", &map_RefPrescaleOfStandardHLTPath["L1Tech_HCAL_HBHE_totalOR.v0"], &b_L1Tech_HCAL_HBHE_totalOR_v0_Prescl);
+  fChain->SetBranchAddress("L1_BptxPlusORMinus_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_BptxPlusORMinus"], &b_L1_BptxPlusORMinus_Prescl); 
+  fChain->SetBranchAddress("L1_BptxPlus_NotBptxMinus_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_BptxPlus_NotBptxMinus"], &b_L1_BptxPlus_NotBptxMinus_Prescl); 
+  fChain->SetBranchAddress("L1_BptxMinus_NotBptxPlus_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_BptxMinus_NotBptxPlus"], &b_L1_BptxMinus_NotBptxPlus_Prescl); 
+  fChain->SetBranchAddress("L1_BptxXOR_BscMinBiasOR_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_BptxXOR_BscMinBiasOR"], &b_L1_BptxXOR_BscMinBiasOR);
+  fChain->SetBranchAddress("L1_Mu5_Jet6_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_Mu5_Jet6"], &b_L1_Mu5_Jet6_Prescl); 
+  fChain->SetBranchAddress("L1_EG5_TripleJet6_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_EG5_TripleJet6"], &b_L1_EG5_TripleJet6_Prescl); 
+  fChain->SetBranchAddress("L1_SingleJet6_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleJet6"], &b_L1_SingleJet6_Prescl); 
+  fChain->SetBranchAddress("L1_SingleJet10_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleJet10"], &b_L1_SingleJet10_Prescl); 
+  fChain->SetBranchAddress("L1_SingleJet10_NotBptxC_Ext_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleJet10_NotBptxC_Ext"], &b_L1_SingleJet10_NotBptxC_Ext);
+  fChain->SetBranchAddress("L1_DoubleEG1_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleEG1"], &b_L1_DoubleEG1_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleEG2_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleEG2"], &b_L1_DoubleEG2_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleEG5_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleEG5"], &b_L1_DoubleEG5_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleHfBitCountsRing1_P1N1_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleHfBitCountsRing1_P1N1"], &b_L1_DoubleHfBitCountsRing1_P1N1_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleHfBitCountsRing2_P1N1_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleHfBitCountsRing2_P1N1"], &b_L1_DoubleHfBitCountsRing2_P1N1_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleHfRingEtSumsRing1_P200N200_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleHfRingEtSumsRing1_P200N200"], &b_L1_DoubleHfRingEtSumsRing1_P200N200_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleHfRingEtSumsRing1_P4N4_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleHfRingEtSumsRing1_P4N4"], &b_L1_DoubleHfRingEtSumsRing1_P4N4_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleHfRingEtSumsRing2_P200N200_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleHfRingEtSumsRing2_P200N200"], &b_L1_DoubleHfRingEtSumsRing2_P200N200_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleHfRingEtSumsRing2_P4N4_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleHfRingEtSumsRing2_P4N4"], &b_L1_DoubleHfRingEtSumsRing2_P4N4_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleJet70_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleJet70"], &b_L1_DoubleJet70_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleMu3_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleMu3"], &b_L1_DoubleMu3_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleMuOpen_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleMuOpen"], &b_L1_DoubleMuOpen_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleTauJet30_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleTauJet30"], &b_L1_DoubleTauJet30_Prescl); 
+  fChain->SetBranchAddress("L1_EG10_Jet15_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_EG10_Jet15"], &b_L1_EG10_Jet15_Prescl); 
+  fChain->SetBranchAddress("L1_EG5_TripleJet15_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_EG5_TripleJet15"], &b_L1_EG5_TripleJet15_Prescl); 
+  fChain->SetBranchAddress("L1_ETM20_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_ETM20"], &b_L1_ETM20_Prescl); 
+  fChain->SetBranchAddress("L1_ETM30_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_ETM30"], &b_L1_ETM30_Prescl); 
+  fChain->SetBranchAddress("L1_ETM40_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_ETM40"], &b_L1_ETM40_Prescl); 
+  fChain->SetBranchAddress("L1_ETM70_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_ETM70"], &b_L1_ETM70_Prescl); 
+  fChain->SetBranchAddress("L1_ETM80_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_ETM80"], &b_L1_ETM80_Prescl); 
+  fChain->SetBranchAddress("L1_ETT60_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_ETT60"], &b_L1_ETT60_Prescl); 
+  fChain->SetBranchAddress("L1_ETT100_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_ETT100"], &b_L1_ETT100_Prescl);  
+  fChain->SetBranchAddress("L1_HTT50_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_HTT50"], &b_L1_HTT50_Prescl); 
+  fChain->SetBranchAddress("L1_HTT100_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_HTT100"], &b_L1_HTT100_Prescl); 
+  fChain->SetBranchAddress("L1_HTT200_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_HTT200"], &b_L1_HTT200_Prescl); 
+  fChain->SetBranchAddress("L1_HTT300_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_HTT300"], &b_L1_HTT300_Prescl); 
+  fChain->SetBranchAddress("L1_IsoEG10_Jet15_ForJet10_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_IsoEG10_Jet15_ForJet10"], &b_L1_IsoEG10_Jet15_ForJet10_Prescl); 
+  fChain->SetBranchAddress("L1_MinBias_HTT10_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_MinBias_HTT10"], &b_L1_MinBias_HTT10_Prescl); 
+  fChain->SetBranchAddress("L1_Mu3QE8_EG5_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_Mu3QE8_EG5"], &b_L1_Mu3QE8_EG5_Prescl); 
+  fChain->SetBranchAddress("L1_Mu3QE8_Jet15_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_Mu3QE8_Jet15"], &b_L1_Mu3QE8_Jet15_Prescl);  
+  fChain->SetBranchAddress("L1_Mu5QE8_Jet15_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_Mu5QE8_Jet15"], &b_L1_Mu5QE8_Jet15_Prescl); 
+  fChain->SetBranchAddress("L1_Mu3QE8_Jet6_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_Mu3QE8_Jet6"], &b_L1_Mu3QE8_Jet6_Prescl);  
+  fChain->SetBranchAddress("L1_Mu5QE8_Jet6_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_Mu5QE8_Jet6"], &b_L1_Mu5QE8_Jet6_Prescl); 
+  fChain->SetBranchAddress("L1_QuadJet15_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_QuadJet15"], &b_L1_QuadJet15_Prescl); 
+  fChain->SetBranchAddress("L1_SingleEG1_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleEG1"], &b_L1_SingleEG1_Prescl); 
+  fChain->SetBranchAddress("L1_SingleEG10_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleEG10"], &b_L1_SingleEG10_Prescl); 
+  fChain->SetBranchAddress("L1_SingleEG12_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleEG12"], &b_L1_SingleEG12_Prescl); 
+  fChain->SetBranchAddress("L1_SingleEG15_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleEG15"], &b_L1_SingleEG15_Prescl); 
+  fChain->SetBranchAddress("L1_SingleEG2_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleEG2"], &b_L1_SingleEG2_Prescl); 
+  fChain->SetBranchAddress("L1_SingleEG20_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleEG20"], &b_L1_SingleEG20_Prescl); 
+  fChain->SetBranchAddress("L1_SingleEG5_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleEG5"], &b_L1_SingleEG5_Prescl); 
+  fChain->SetBranchAddress("L1_SingleEG8_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleEG8"], &b_L1_SingleEG8_Prescl); 
+  fChain->SetBranchAddress("L1_SingleHfBitCountsRing1_1_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleHfBitCountsRing1_1"], &b_L1_SingleHfBitCountsRing1_1_Prescl); 
+  fChain->SetBranchAddress("L1_SingleHfBitCountsRing2_1_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleHfBitCountsRing2_1"], &b_L1_SingleHfBitCountsRing2_1_Prescl); 
+  fChain->SetBranchAddress("L1_SingleHfRingEtSumsRing1_200_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleHfRingEtSumsRing1_200"], &b_L1_SingleHfRingEtSumsRing1_200_Prescl); 
+  fChain->SetBranchAddress("L1_SingleHfRingEtSumsRing1_4_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleHfRingEtSumsRing1_4"], &b_L1_SingleHfRingEtSumsRing1_4_Prescl); 
+  fChain->SetBranchAddress("L1_SingleHfRingEtSumsRing2_200_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleHfRingEtSumsRing2_200"], &b_L1_SingleHfRingEtSumsRing2_200_Prescl); 
+  fChain->SetBranchAddress("L1_SingleHfRingEtSumsRing2_4_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleHfRingEtSumsRing2_4"], &b_L1_SingleHfRingEtSumsRing2_4_Prescl); 
+  fChain->SetBranchAddress("L1_SingleIsoEG10_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleIsoEG10"], &b_L1_SingleIsoEG10_Prescl); 
+  fChain->SetBranchAddress("L1_SingleIsoEG12_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleIsoEG12"], &b_L1_SingleIsoEG12_Prescl); 
+  fChain->SetBranchAddress("L1_SingleIsoEG15_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleIsoEG15"], &b_L1_SingleIsoEG15_Prescl); 
+  fChain->SetBranchAddress("L1_SingleIsoEG5_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleIsoEG5"], &b_L1_SingleIsoEG5_Prescl); 
+  fChain->SetBranchAddress("L1_SingleIsoEG8_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleIsoEG8"], &b_L1_SingleIsoEG8_Prescl); 
+  fChain->SetBranchAddress("L1_SingleJet100_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleJet100"], &b_L1_SingleJet100_Prescl); 
+  fChain->SetBranchAddress("L1_SingleJet15_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleJet15"], &b_L1_SingleJet15_Prescl); 
+  fChain->SetBranchAddress("L1_SingleJet30_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleJet30"], &b_L1_SingleJet30_Prescl); 
+  fChain->SetBranchAddress("L1_SingleJet50_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleJet50"], &b_L1_SingleJet50_Prescl); 
+  fChain->SetBranchAddress("L1_SingleJet70_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleJet70"], &b_L1_SingleJet70_Prescl); 
+  fChain->SetBranchAddress("L1_SingleMu0_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleMu0"], &b_L1_SingleMu0_Prescl); 
+  fChain->SetBranchAddress("L1_SingleMu10_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleMu10"], &b_L1_SingleMu10_Prescl); 
+  fChain->SetBranchAddress("L1_SingleMu14_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleMu14"], &b_L1_SingleMu14_Prescl); 
+  fChain->SetBranchAddress("L1_SingleMu20_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleMu20"], &b_L1_SingleMu20_Prescl); 
+  fChain->SetBranchAddress("L1_SingleMu3_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleMu3"], &b_L1_SingleMu3_Prescl); 
+  fChain->SetBranchAddress("L1_SingleMu5_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleMu5"], &b_L1_SingleMu5_Prescl); 
+  fChain->SetBranchAddress("L1_SingleMu7_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleMu7"], &b_L1_SingleMu7_Prescl); 
+  fChain->SetBranchAddress("L1_SingleMuBeamHalo_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleMuBeamHalo"], &b_L1_SingleMuBeamHalo_Prescl); 
+  fChain->SetBranchAddress("L1_SingleMuOpen_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleMuOpen"], &b_L1_SingleMuOpen_Prescl); 
+  fChain->SetBranchAddress("L1_SingleTauJet40_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleTauJet40"], &b_L1_SingleTauJet40_Prescl); 
+  fChain->SetBranchAddress("L1_SingleTauJet60_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleTauJet60"], &b_L1_SingleTauJet60_Prescl); 
+  fChain->SetBranchAddress("L1_SingleTauJet80_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleTauJet80"], &b_L1_SingleTauJet80_Prescl); 
+  fChain->SetBranchAddress("L1_TripleJet30_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_TripleJet30"], &b_L1_TripleJet30_Prescl); 
+  fChain->SetBranchAddress("L1_ZeroBias_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_ZeroBias"], &b_L1_ZeroBias_Prescl);
+  fChain->SetBranchAddress("L1_ZeroBias_Ext_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_ZeroBias_Ext"], &b_L1_ZeroBias_Ext_Prescl);
+  fChain->SetBranchAddress("L1_SingleCenJet2_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleCenJet2"], &b_L1_SingleCenJet2_Prescl); 
+  fChain->SetBranchAddress("L1_SingleCenJet4_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleCenJet4"], &b_L1_SingleCenJet4_Prescl); 
+  fChain->SetBranchAddress("L1_SingleForJet2_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleForJet2"], &b_L1_SingleForJet2_Prescl); 
+  fChain->SetBranchAddress("L1_SingleForJet4_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleForJet4"], &b_L1_SingleForJet4_Prescl); 
+  fChain->SetBranchAddress("L1_SingleTauJet2_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleTauJet2"], &b_L1_SingleTauJet2_Prescl); 
+  fChain->SetBranchAddress("L1_SingleTauJet4_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleTauJet4"], &b_L1_SingleTauJet4_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleForJet10_EtaOpp_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleForJet10_EtaOpp"], &b_L1_DoubleForJet10_EtaOpp_Prescl); 
+  fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusORMinus_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_BscMinBiasOR_BptxPlusORMinus"], &b_L1_BscMinBiasOR_BptxPlusORMinus_Prescl); 
+  fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusANDMinus_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_BscMinBiasOR_BptxPlusANDMinus"], &b_L1_BscMinBiasOR_BptxPlusANDMinus_Prescl);  
+  fChain->SetBranchAddress("L1_DoubleMuTopBottom_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleMuTopBottom"], &b_L1_DoubleMuTopBottom_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleEG05_TopBottom_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleEG05_TopBottom"], &b_L1_DoubleEG05_TopBottom_Prescl);  
+  fChain->SetBranchAddress("L1_SingleJet20_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleJet20"], &b_L1_SingleJet20_Prescl); 
+  fChain->SetBranchAddress("L1_SingleJet40_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleJet40"], &b_L1_SingleJet40_Prescl); 
+  fChain->SetBranchAddress("L1_SingleJet60_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleJet60"], &b_L1_SingleJet60_Prescl); 
+  fChain->SetBranchAddress("L1_SingleTauJet10_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleTauJet10"], &b_L1_SingleTauJet10_Prescl); 
+  fChain->SetBranchAddress("L1_SingleTauJet20_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleTauJet20"], &b_L1_SingleTauJet20_Prescl); 
+  fChain->SetBranchAddress("L1_SingleTauJet30_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleTauJet30"], &b_L1_SingleTauJet30_Prescl); 
+  fChain->SetBranchAddress("L1_SingleTauJet50_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleTauJet50"], &b_L1_SingleTauJet50_Prescl); 
+  fChain->SetBranchAddress("L1_DoubleJet30_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleJet30"], &b_L1_DoubleJet30_Prescl);  
+  fChain->SetBranchAddress("L1_DoubleTauJet14_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleTauJet14"], &b_L1_DoubleTauJet14_Prescl); 
+  fChain->SetBranchAddress("L1_TripleJet14_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_TripleJet14"], &b_L1_TripleJet14_Prescl);  
+  fChain->SetBranchAddress("L1_QuadJet6_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_QuadJet6"], &b_L1_QuadJet6_Prescl); 
+  fChain->SetBranchAddress("L1_IsoEG10_Jet6_ForJet6_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_IsoEG10_Jet6_ForJet6"], &b_L1_IsoEG10_Jet6_ForJet6_Prescl); 
   
-  // JH - 1E31 MC menu
+  // 8E29 and 1E31 MC menus
   fChain->SetBranchAddress("HLT_L1Jet15", &map_BitOfStandardHLTPath["HLT_L1Jet15"], &b_HLT_L1Jet15);
   fChain->SetBranchAddress("HLT_Jet30", &map_BitOfStandardHLTPath["HLT_Jet30"], &b_HLT_Jet30);
   fChain->SetBranchAddress("HLT_Jet50", &map_BitOfStandardHLTPath["HLT_Jet50"], &b_HLT_Jet50);
@@ -3095,8 +4499,6 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("AlCa_EcalPhiSym", &map_BitOfStandardHLTPath["AlCa_EcalPhiSym"], &b_AlCa_EcalPhiSym);
   fChain->SetBranchAddress("AlCa_EcalPi0_1E31", &map_BitOfStandardHLTPath["AlCa_EcalPi0_1E31"], &b_AlCa_EcalPi0_1E31);
   fChain->SetBranchAddress("AlCa_EcalEta_1E31", &map_BitOfStandardHLTPath["AlCa_EcalEta_1E31"], &b_AlCa_EcalEta_1E31);
-
-  // 8E29 menu
   fChain->SetBranchAddress("HLT_L1Jet6U", &map_BitOfStandardHLTPath["HLT_L1Jet6U"], &b_HLT_L1Jet6U);
   fChain->SetBranchAddress("HLT_Jet15U", &map_BitOfStandardHLTPath["HLT_Jet15U"], &b_HLT_Jet15U);
   fChain->SetBranchAddress("HLT_Jet30U", &map_BitOfStandardHLTPath["HLT_Jet30U"], &b_HLT_Jet30U);
@@ -3149,81 +4551,106 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("AlCa_RPCMuonNoHits", &map_BitOfStandardHLTPath["AlCa_RPCMuonNoHits"], &b_AlCa_RPCMuonNoHits);
   fChain->SetBranchAddress("AlCa_RPCMuonNormalisation", &map_BitOfStandardHLTPath["AlCa_RPCMuonNormalisation"], &b_AlCa_RPCMuonNormalisation);
 
-  // Commissioning and other HLT Paths for the CRAFT09 cosmics menu  
-  fChain->SetBranchAddress("HLT_Random", &map_BitOfStandardHLTPath["HLT_Random"], &b_HLT_Random);  
-  fChain->SetBranchAddress("HLT_L2Mu3_NoVertex", &map_BitOfStandardHLTPath["HLT_L2Mu3_NoVertex"], &b_HLT_L2Mu3_NoVertex);  
-  fChain->SetBranchAddress("HLT_OIstateTkMu3", &map_BitOfStandardHLTPath["HLT_OIstateTkMu3"], &b_HLT_OIstateTkMu3);  
-  fChain->SetBranchAddress("HLT_TrackPointing", &map_BitOfStandardHLTPath["HLT_TrackPointing"], &b_HLT_TrackPointing);  
-  fChain->SetBranchAddress("HLT_EgammaSuperClusterOnly_L1R", &map_BitOfStandardHLTPath["HLT_EgammaSuperClusterOnly_L1R"], &b_HLT_EgammaSuperClusterOnly_L1R);  
-  fChain->SetBranchAddress("AlCa_EcalPi0_Cosmics", &map_BitOfStandardHLTPath["AlCa_EcalPi0_Cosmics"], &b_AlCa_EcalPi0_Cosmics);   
-  fChain->SetBranchAddress("AlCa_EcalEta_Cosmics", &map_BitOfStandardHLTPath["AlCa_EcalEta_Cosmics"], &b_AlCa_EcalEta_Cosmics);   
-  fChain->SetBranchAddress("HLT_DataIntegrity", &map_BitOfStandardHLTPath["HLT_DataIntegrity"], &b_HLT_DataIntegrity);   
-  fChain->SetBranchAddress("HLT_L1_BPTX", &map_BitOfStandardHLTPath["HLT_L1_BPTX"], &b_HLT_L1_BPTX);   
-  fChain->SetBranchAddress("HLT_L1_BSC", &map_BitOfStandardHLTPath["HLT_L1_BSC"], &b_HLT_L1_BSC);   
-  fChain->SetBranchAddress("HLT_L1_HFtech", &map_BitOfStandardHLTPath["HLT_L1_HFtech"], &b_HLT_L1_HFtech);   
-  fChain->SetBranchAddress("HLT_HFThreshold", &map_BitOfStandardHLTPath["HLT_HFThreshold"], &b_HLT_HFThreshold);   
-  fChain->SetBranchAddress("HLT_Physics", &map_BitOfStandardHLTPath["HLT_Physics"], &b_HLT_Physics);   
-  fChain->SetBranchAddress("HLT_PhysicsNoMuon", &map_BitOfStandardHLTPath["HLT_PhysicsNoMuon"], &b_HLT_PhysicsNoMuon);   
-  fChain->SetBranchAddress("HLT_Calibration", &map_BitOfStandardHLTPath["HLT_Calibration"], &b_HLT_Calibration);   
-  fChain->SetBranchAddress("HLT_EcalCalibration", &map_BitOfStandardHLTPath["HLT_EcalCalibration"], &b_HLT_EcalCalibration);   
-  fChain->SetBranchAddress("HLT_PixelFEDSize", &map_BitOfStandardHLTPath["HLT_PixelFEDSize"], &b_HLT_PixelFEDSize);   
-  fChain->SetBranchAddress("HLT_GlobalRunHPDNoise", &map_BitOfStandardHLTPath["HLT_GlobalRunHPDNoise"], &b_HLT_GlobalRunHPDNoise);   
-
-  // HLT paths for the 2009 Circulating Beam menu
-  fChain->SetBranchAddress("HLT_L2Mu0_NoVertex", &map_BitOfStandardHLTPath["HLT_L2Mu0_NoVertex"], &b_HLT_L2Mu0_NoVertex);
-  fChain->SetBranchAddress("HLT_TkMu3_NoVertex", &map_BitOfStandardHLTPath["HLT_TkMu3_NoVertex"], &b_HLT_TkMu3_NoVertex);
-  fChain->SetBranchAddress("HLT_IsoTrackHB_8E29", &map_BitOfStandardHLTPath["HLT_IsoTrackHB_8E29"], &b_HLT_IsoTrackHB_8E29);
-  fChain->SetBranchAddress("HLT_IsoTrackHE_8E29", &map_BitOfStandardHLTPath["HLT_IsoTrackHE_8E29"], &b_HLT_IsoTrackHE_8E29);
-  fChain->SetBranchAddress("HLT_MinBiasPixel_DoubleIsoTrack5", &map_BitOfStandardHLTPath["HLT_MinBiasPixel_DoubleIsoTrack5"], &b_HLT_MinBiasPixel_DoubleIsoTrack5);
-  fChain->SetBranchAddress("HLT_MinBiasPixel_DoubleTrack", &map_BitOfStandardHLTPath["HLT_MinBiasPixel_DoubleTrack"], &b_HLT_MinBiasPixel_DoubleTrack);
-  fChain->SetBranchAddress("HLT_MinBiasPixel_SingleTrack", &map_BitOfStandardHLTPath["HLT_MinBiasPixel_SingleTrack"], &b_HLT_MinBiasPixel_SingleTrack);
-  fChain->SetBranchAddress("HLT_TechTrigHCALNoise", &map_BitOfStandardHLTPath["HLT_TechTrigHCALNoise"], &b_HLT_TechTrigHCALNoise);
-  fChain->SetBranchAddress("HLT_HcalNZS_8E29", &map_BitOfStandardHLTPath["HLT_HcalNZS_8E29"], &b_HLT_HcalNZS_8E29);
+  // Autogenerated from ConfDB - SetBranchAddressMaps
+  fChain->SetBranchAddress("HLT_Mu0_TkMu0_OST_Jpsi", &map_BitOfStandardHLTPath["HLT_Mu0_TkMu0_OST_Jpsi"], &b_HLT_Mu0_TkMu0_OST_Jpsi);
+  fChain->SetBranchAddress("HLT_Mu3_TkMu0_OST_Jpsi", &map_BitOfStandardHLTPath["HLT_Mu3_TkMu0_OST_Jpsi"], &b_HLT_Mu3_TkMu0_OST_Jpsi);
+  fChain->SetBranchAddress("HLT_Mu5_TkMu0_OST_Jpsi", &map_BitOfStandardHLTPath["HLT_Mu5_TkMu0_OST_Jpsi"], &b_HLT_Mu5_TkMu0_OST_Jpsi);
+  fChain->SetBranchAddress("HLT_Ele12_SW_TightEleId_L1R", &map_BitOfStandardHLTPath["HLT_Ele12_SW_TightEleId_L1R"], &b_HLT_Ele12_SW_TightEleId_L1R);
+  fChain->SetBranchAddress("HLT_Ele12_SW_TightEleIdIsol_L1R", &map_BitOfStandardHLTPath["HLT_Ele12_SW_TightEleIdIsol_L1R"], &b_HLT_Ele12_SW_TightEleIdIsol_L1R);
+  fChain->SetBranchAddress("HLT_Ele12_SW_TightEleIdIsol_NoDEtaInEE_L1R", &map_BitOfStandardHLTPath["HLT_Ele12_SW_TightEleIdIsol_NoDEtaInEE_L1R"], &b_HLT_Ele12_SW_TightEleIdIsol_NoDEtaInEE_L1R);
+  fChain->SetBranchAddress("HLT_Photon20_NoHE_L1R", &map_BitOfStandardHLTPath["HLT_Photon20_NoHE_L1R"], &b_HLT_Photon20_NoHE_L1R);
+  fChain->SetBranchAddress("HLT_Photon50_NoHE_L1R", &map_BitOfStandardHLTPath["HLT_Photon50_NoHE_L1R"], &b_HLT_Photon50_NoHE_L1R);
+  fChain->SetBranchAddress("HLT_DoubleJet25U_ForwardBackward", &map_BitOfStandardHLTPath["HLT_DoubleJet25U_ForwardBackward"], &b_HLT_DoubleJet25U_ForwardBackward);
+  fChain->SetBranchAddress("HLT_QuadJet20U", &map_BitOfStandardHLTPath["HLT_QuadJet20U"], &b_HLT_QuadJet20U);
+  fChain->SetBranchAddress("HLT_QuadJet25U", &map_BitOfStandardHLTPath["HLT_QuadJet25U"], &b_HLT_QuadJet25U);
+  fChain->SetBranchAddress("HLT_MET65", &map_BitOfStandardHLTPath["HLT_MET65"], &b_HLT_MET65);
+  fChain->SetBranchAddress("HLT_HT140U", &map_BitOfStandardHLTPath["HLT_HT140U"], &b_HLT_HT140U);
+  fChain->SetBranchAddress("HLT_L2Mu25", &map_BitOfStandardHLTPath["HLT_L2Mu25"], &b_HLT_L2Mu25);
+  fChain->SetBranchAddress("HLT_Mu20_NoVertex", &map_BitOfStandardHLTPath["HLT_Mu20_NoVertex"], &b_HLT_Mu20_NoVertex);
+  fChain->SetBranchAddress("HLT_Ele12_SW_EleId_L1R", &map_BitOfStandardHLTPath["HLT_Ele12_SW_EleId_L1R"], &b_HLT_Ele12_SW_EleId_L1R);
+  fChain->SetBranchAddress("HLT_Ele12_SW_EleIdIsol_L1R", &map_BitOfStandardHLTPath["HLT_Ele12_SW_EleIdIsol_L1R"], &b_HLT_Ele12_SW_EleIdIsol_L1R);
+  fChain->SetBranchAddress("HLT_Ele12_SW_EleIdIsol_NoDEtaInEE_L1R", &map_BitOfStandardHLTPath["HLT_Ele12_SW_EleIdIsol_NoDEtaInEE_L1R"], &b_HLT_Ele12_SW_EleIdIsol_NoDEtaInEE_L1R);
+  fChain->SetBranchAddress("HLT_Ele17_SW_L1R", &map_BitOfStandardHLTPath["HLT_Ele17_SW_L1R"], &b_HLT_Ele17_SW_L1R);
+  fChain->SetBranchAddress("HLT_Ele17_SW_CaloEleId_L1R", &map_BitOfStandardHLTPath["HLT_Ele17_SW_CaloEleId_L1R"], &b_HLT_Ele17_SW_CaloEleId_L1R);
+  fChain->SetBranchAddress("HLT_Ele17_SW_LooseEleId_L1R", &map_BitOfStandardHLTPath["HLT_Ele17_SW_LooseEleId_L1R"], &b_HLT_Ele17_SW_LooseEleId_L1R);
+  fChain->SetBranchAddress("HLT_Ele17_SW_EleId_L1R", &map_BitOfStandardHLTPath["HLT_Ele17_SW_EleId_L1R"], &b_HLT_Ele17_SW_EleId_L1R);
+  fChain->SetBranchAddress("HLT_Ele22_SW_CaloEleId_L1R", &map_BitOfStandardHLTPath["HLT_Ele22_SW_CaloEleId_L1R"], &b_HLT_Ele22_SW_CaloEleId_L1R);
+  fChain->SetBranchAddress("HLT_Ele40_SW_L1R", &map_BitOfStandardHLTPath["HLT_Ele40_SW_L1R"], &b_HLT_Ele40_SW_L1R);
+  fChain->SetBranchAddress("HLT_Photon50_NoHE_Cleaned_L1R", &map_BitOfStandardHLTPath["HLT_Photon50_NoHE_Cleaned_L1R"], &b_HLT_Photon50_NoHE_Cleaned_L1R);
+  fChain->SetBranchAddress("HLT_DoublePhoton17_L1R", &map_BitOfStandardHLTPath["HLT_DoublePhoton17_L1R"], &b_HLT_DoublePhoton17_L1R);
+  fChain->SetBranchAddress("HLT_SingleIsoTau20_Trk5_MET20", &map_BitOfStandardHLTPath["HLT_SingleIsoTau20_Trk5_MET20"], &b_HLT_SingleIsoTau20_Trk5_MET20);
+  fChain->SetBranchAddress("HLT_SingleIsoTau20_Trk15_MET20", &map_BitOfStandardHLTPath["HLT_SingleIsoTau20_Trk15_MET20"], &b_HLT_SingleIsoTau20_Trk15_MET20);
+  fChain->SetBranchAddress("HLT_SingleIsoTau30_Trk5_MET20", &map_BitOfStandardHLTPath["HLT_SingleIsoTau30_Trk5_MET20"], &b_HLT_SingleIsoTau30_Trk5_MET20);
+  fChain->SetBranchAddress("HLT_SingleIsoTau30_Trk5_L120or30", &map_BitOfStandardHLTPath["HLT_SingleIsoTau30_Trk5_L120or30"], &b_HLT_SingleIsoTau30_Trk5_L120or30);
+  fChain->SetBranchAddress("HLT_DoubleIsoTau15_OneLeg_Trk5", &map_BitOfStandardHLTPath["HLT_DoubleIsoTau15_OneLeg_Trk5"], &b_HLT_DoubleIsoTau15_OneLeg_Trk5);
+  fChain->SetBranchAddress("HLT_DoubleIsoTau15_Trk5", &map_BitOfStandardHLTPath["HLT_DoubleIsoTau15_Trk5"], &b_HLT_DoubleIsoTau15_Trk5);
+  fChain->SetBranchAddress("HLT_BTagMu_Jet20U", &map_BitOfStandardHLTPath["HLT_BTagMu_Jet20U"], &b_HLT_BTagMu_Jet20U);
+  fChain->SetBranchAddress("HLT_PixelTracks_Multiplicity100", &map_BitOfStandardHLTPath["HLT_PixelTracks_Multiplicity100"], &b_HLT_PixelTracks_Multiplicity100);
+  fChain->SetBranchAddress("HLT_Physics", &map_BitOfStandardHLTPath["HLT_Physics"], &b_HLT_Physics);
+  fChain->SetBranchAddress("HLT_Jet70U", &map_BitOfStandardHLTPath["HLT_Jet70U"], &b_HLT_Jet70U);
+  fChain->SetBranchAddress("HLT_Jet100U", &map_BitOfStandardHLTPath["HLT_Jet100U"], &b_HLT_Jet100U);
+  fChain->SetBranchAddress("HLT_DiJetAve15U", &map_BitOfStandardHLTPath["HLT_DiJetAve15U"], &b_HLT_DiJetAve15U);
+  fChain->SetBranchAddress("HLT_DiJetAve30U", &map_BitOfStandardHLTPath["HLT_DiJetAve30U"], &b_HLT_DiJetAve30U);
+  fChain->SetBranchAddress("HLT_L1ETT100", &map_BitOfStandardHLTPath["HLT_L1ETT100"], &b_HLT_L1ETT100);
+  fChain->SetBranchAddress("HLT_EcalOnly_SumEt160", &map_BitOfStandardHLTPath["HLT_EcalOnly_SumEt160"], &b_HLT_EcalOnly_SumEt160);
+  fChain->SetBranchAddress("HLT_Mu3_Track3_Jpsi", &map_BitOfStandardHLTPath["HLT_Mu3_Track3_Jpsi"], &b_HLT_Mu3_Track3_Jpsi);
+  fChain->SetBranchAddress("HLT_Ele10_SW_EleId_L1R", &map_BitOfStandardHLTPath["HLT_Ele10_SW_EleId_L1R"], &b_HLT_Ele10_SW_EleId_L1R);
+  fChain->SetBranchAddress("HLT_Ele15_SW_CaloEleId_L1R", &map_BitOfStandardHLTPath["HLT_Ele15_SW_CaloEleId_L1R"], &b_HLT_Ele15_SW_CaloEleId_L1R);
+  fChain->SetBranchAddress("HLT_DoubleEle4_SW_eeRes_L1R", &map_BitOfStandardHLTPath["HLT_DoubleEle4_SW_eeRes_L1R"], &b_HLT_DoubleEle4_SW_eeRes_L1R);
+  fChain->SetBranchAddress("HLT_Photon30_Cleaned_L1R", &map_BitOfStandardHLTPath["HLT_Photon30_Cleaned_L1R"], &b_HLT_Photon30_Cleaned_L1R);
+  fChain->SetBranchAddress("HLT_Photon50_L1R", &map_BitOfStandardHLTPath["HLT_Photon50_L1R"], &b_HLT_Photon50_L1R);
+  fChain->SetBranchAddress("HLT_Photon50_Cleaned_L1R", &map_BitOfStandardHLTPath["HLT_Photon50_Cleaned_L1R"], &b_HLT_Photon50_Cleaned_L1R);
+  fChain->SetBranchAddress("HLT_DoublePhoton20_L1R", &map_BitOfStandardHLTPath["HLT_DoublePhoton20_L1R"], &b_HLT_DoublePhoton20_L1R);
+  fChain->SetBranchAddress("HLT_SingleLooseIsoTau25_Trk5", &map_BitOfStandardHLTPath["HLT_SingleLooseIsoTau25_Trk5"], &b_HLT_SingleLooseIsoTau25_Trk5);
+  fChain->SetBranchAddress("HLT_SingleIsoTau20_Trk5", &map_BitOfStandardHLTPath["HLT_SingleIsoTau20_Trk5"], &b_HLT_SingleIsoTau20_Trk5);
+  fChain->SetBranchAddress("HLT_StoppedHSCP", &map_BitOfStandardHLTPath["HLT_StoppedHSCP"], &b_HLT_StoppedHSCP);
+  fChain->SetBranchAddress("HLT_L1Tech_BSC_minBias_OR", &map_BitOfStandardHLTPath["HLT_L1Tech_BSC_minBias_OR"], &b_HLT_L1Tech_BSC_minBias_OR);
+  fChain->SetBranchAddress("HLT_IsoTrackHE", &map_BitOfStandardHLTPath["HLT_IsoTrackHE"], &b_HLT_IsoTrackHE);
+  fChain->SetBranchAddress("HLT_IsoTrackHB", &map_BitOfStandardHLTPath["HLT_IsoTrackHB"], &b_HLT_IsoTrackHB);
   fChain->SetBranchAddress("HLT_HcalNZS", &map_BitOfStandardHLTPath["HLT_HcalNZS"], &b_HLT_HcalNZS);
-  fChain->SetBranchAddress("HLT_HcalPhiSym", &map_BitOfStandardHLTPath["HLT_HcalPhiSym"], &b_HLT_HcalPhiSym);
-
-  
-  // Add-ons for Circulation beam v2 (2009Nov18)
-  fChain->SetBranchAddress("HLT_DTErrors", &HLT_DTErrors, &b_HLT_DTErrors);
-  fChain->SetBranchAddress("HLT_HcalCalibration", &HLT_HcalCalibration, &b_HLT_HcalCalibration);
-  fChain->SetBranchAddress("HLT_LogMonitor", &HLT_LogMonitor, &b_HLT_LogMonitor);
-  fChain->SetBranchAddress("HLT_Activity_PixelClusters", &HLT_Activity_PixelClusters, &b_HLT_Activity_PixelClusters);
-  fChain->SetBranchAddress("HLT_Activity_Ecal", &HLT_Activity_Ecal, &b_HLT_Activity_Ecal);
-  fChain->SetBranchAddress("HLT_Activity_EcalREM", &HLT_Activity_EcalREM, &b_HLT_Activity_EcalREM);
-  fChain->SetBranchAddress("HLT_L1SingleEG2_NoBPTX", &HLT_L1SingleEG2_NoBPTX, &b_HLT_L1SingleEG2_NoBPTX);
-  fChain->SetBranchAddress("HLT_RPCBarrelCosmics", &HLT_RPCBarrelCosmics, &b_HLT_RPCBarrelCosmics);
-  fChain->SetBranchAddress("HLT_L1_BPTX_MinusOnly", &HLT_L1_BPTX_MinusOnly, &b_HLT_L1_BPTX_MinusOnly);
-  fChain->SetBranchAddress("HLT_L1_BPTX_PlusOnly", &HLT_L1_BPTX_PlusOnly, &b_HLT_L1_BPTX_PlusOnly);
-  fChain->SetBranchAddress("HLT_Activity_L1A", &HLT_Activity_L1A, &b_HLT_Activity_L1A);
-  fChain->SetBranchAddress("HLT_L1SingleForJet", &HLT_L1SingleForJet, &b_HLT_L1SingleForJet);
-  fChain->SetBranchAddress("HLT_L1SingleEG2", &HLT_L1SingleEG2, &b_HLT_L1SingleEG2);
-  fChain->SetBranchAddress("HLT_MinBias", &HLT_MinBias, &b_HLT_MinBias);
-  fChain->SetBranchAddress("HLT_MinBiasBSC", &HLT_MinBiasBSC, &b_HLT_MinBiasBSC);
-  fChain->SetBranchAddress("HLT_MinBiasBSC_OR", &HLT_MinBiasBSC_OR, &b_HLT_MinBiasBSC_OR);
-  fChain->SetBranchAddress("HLT_HighMultiplicityBSC", &HLT_HighMultiplicityBSC, &b_HLT_HighMultiplicityBSC);
-  fChain->SetBranchAddress("HLT_DTErrors", &map_BitOfStandardHLTPath["HLT_DTErrors"], &b_HLT_DTErrors);
-  fChain->SetBranchAddress("HLT_HcalCalibration", &map_BitOfStandardHLTPath["HLT_HcalCalibration"], &b_HLT_HcalCalibration);
-  fChain->SetBranchAddress("HLT_LogMonitor", &map_BitOfStandardHLTPath["HLT_LogMonitor"], &b_HLT_LogMonitor);
-  fChain->SetBranchAddress("HLT_Activity_PixelClusters", &map_BitOfStandardHLTPath["HLT_Activity_PixelClusters"], &b_HLT_Activity_PixelClusters);
-  fChain->SetBranchAddress("HLT_Activity_Ecal", &map_BitOfStandardHLTPath["HLT_Activity_Ecal"], &b_HLT_Activity_Ecal);
-  fChain->SetBranchAddress("HLT_Activity_EcalREM", &map_BitOfStandardHLTPath["HLT_Activity_EcalREM"], &b_HLT_Activity_EcalREM);
-  fChain->SetBranchAddress("HLT_L1SingleEG2_NoBPTX", &map_BitOfStandardHLTPath["HLT_L1SingleEG2_NoBPTX"], &b_HLT_L1SingleEG2_NoBPTX);
-  fChain->SetBranchAddress("HLT_RPCBarrelCosmics", &map_BitOfStandardHLTPath["HLT_RPCBarrelCosmics"], &b_HLT_RPCBarrelCosmics);
-  fChain->SetBranchAddress("HLT_L1_BPTX_MinusOnly", &map_BitOfStandardHLTPath["HLT_L1_BPTX_MinusOnly"], &b_HLT_L1_BPTX_MinusOnly);
-  fChain->SetBranchAddress("HLT_L1_BPTX_PlusOnly", &map_BitOfStandardHLTPath["HLT_L1_BPTX_PlusOnly"], &b_HLT_L1_BPTX_PlusOnly);
+  fChain->SetBranchAddress("AlCa_EcalPi0", &map_BitOfStandardHLTPath["AlCa_EcalPi0"], &b_AlCa_EcalPi0);
+  fChain->SetBranchAddress("AlCa_EcalEta", &map_BitOfStandardHLTPath["AlCa_EcalEta"], &b_AlCa_EcalEta);
   fChain->SetBranchAddress("HLT_Activity_L1A", &map_BitOfStandardHLTPath["HLT_Activity_L1A"], &b_HLT_Activity_L1A);
+  fChain->SetBranchAddress("HLT_Activity_PixelClusters", &map_BitOfStandardHLTPath["HLT_Activity_PixelClusters"], &b_HLT_Activity_PixelClusters);
   fChain->SetBranchAddress("HLT_L1SingleForJet", &map_BitOfStandardHLTPath["HLT_L1SingleForJet"], &b_HLT_L1SingleForJet);
   fChain->SetBranchAddress("HLT_L1SingleEG2", &map_BitOfStandardHLTPath["HLT_L1SingleEG2"], &b_HLT_L1SingleEG2);
-  fChain->SetBranchAddress("HLT_MinBias", &map_BitOfStandardHLTPath["HLT_MinBias"], &b_HLT_MinBias);
-  fChain->SetBranchAddress("HLT_MinBiasBSC", &map_BitOfStandardHLTPath["HLT_MinBiasBSC"], &b_HLT_MinBiasBSC);
-  fChain->SetBranchAddress("HLT_MinBiasBSC_OR", &map_BitOfStandardHLTPath["HLT_MinBiasBSC_OR"], &b_HLT_MinBiasBSC_OR);
-  fChain->SetBranchAddress("HLT_HighMultiplicityBSC", &map_BitOfStandardHLTPath["HLT_HighMultiplicityBSC"], &b_HLT_HighMultiplicityBSC);
-
-  // Splash Feb 2010
-  fChain->SetBranchAddress("HLT_SplashEcalSumET", &map_BitOfStandardHLTPath["HLT_SplashEcalSumET"], &b_HLT_SplashEcalSumET);
-  fChain->SetBranchAddress("HLT_L1SingleEG20", &map_BitOfStandardHLTPath["HLT_L1SingleEG20"], &b_HLT_L1SingleEG20);
-
-  // Autogenerated from ConfDB - SetBranchAddressMaps
+  fChain->SetBranchAddress("HLT_MinBiasPixel_SingleTrack", &map_BitOfStandardHLTPath["HLT_MinBiasPixel_SingleTrack"], &b_HLT_MinBiasPixel_SingleTrack);
+  fChain->SetBranchAddress("HLT_MinBiasPixel_DoubleTrack", &map_BitOfStandardHLTPath["HLT_MinBiasPixel_DoubleTrack"], &b_HLT_MinBiasPixel_DoubleTrack);
+  fChain->SetBranchAddress("HLT_MinBiasPixel_DoubleIsoTrack5", &map_BitOfStandardHLTPath["HLT_MinBiasPixel_DoubleIsoTrack5"], &b_HLT_MinBiasPixel_DoubleIsoTrack5);
+  fChain->SetBranchAddress("HLT_RPCBarrelCosmics", &map_BitOfStandardHLTPath["HLT_RPCBarrelCosmics"], &b_HLT_RPCBarrelCosmics);
+  fChain->SetBranchAddress("HLT_IsoTrackHE_8E29", &map_BitOfStandardHLTPath["HLT_IsoTrackHE_8E29"], &b_HLT_IsoTrackHE_8E29);
+  fChain->SetBranchAddress("HLT_IsoTrackHB_8E29", &map_BitOfStandardHLTPath["HLT_IsoTrackHB_8E29"], &b_HLT_IsoTrackHB_8E29);
+  fChain->SetBranchAddress("HLT_HcalPhiSym", &map_BitOfStandardHLTPath["HLT_HcalPhiSym"], &b_HLT_HcalPhiSym);
+  fChain->SetBranchAddress("HLT_HcalNZS_8E29", &map_BitOfStandardHLTPath["HLT_HcalNZS_8E29"], &b_HLT_HcalNZS_8E29);
+  fChain->SetBranchAddress("HLT_DTErrors", &map_BitOfStandardHLTPath["HLT_DTErrors"], &b_HLT_DTErrors);
+  fChain->SetBranchAddress("HLT_Calibration", &map_BitOfStandardHLTPath["HLT_Calibration"], &b_HLT_Calibration);
+  fChain->SetBranchAddress("HLT_EcalCalibration", &map_BitOfStandardHLTPath["HLT_EcalCalibration"], &b_HLT_EcalCalibration);
+  fChain->SetBranchAddress("HLT_HcalCalibration", &map_BitOfStandardHLTPath["HLT_HcalCalibration"], &b_HLT_HcalCalibration);
+  fChain->SetBranchAddress("HLT_Random", &map_BitOfStandardHLTPath["HLT_Random"], &b_HLT_Random);
+  fChain->SetBranchAddress("HLT_GlobalRunHPDNoise", &map_BitOfStandardHLTPath["HLT_GlobalRunHPDNoise"], &b_HLT_GlobalRunHPDNoise);
+  fChain->SetBranchAddress("HLT_TechTrigHCALNoise", &map_BitOfStandardHLTPath["HLT_TechTrigHCALNoise"], &b_HLT_TechTrigHCALNoise);
+  fChain->SetBranchAddress("HLT_L1_BPTX", &map_BitOfStandardHLTPath["HLT_L1_BPTX"], &b_HLT_L1_BPTX);
+  fChain->SetBranchAddress("HLT_L1_BPTX_MinusOnly", &map_BitOfStandardHLTPath["HLT_L1_BPTX_MinusOnly"], &b_HLT_L1_BPTX_MinusOnly);
+  fChain->SetBranchAddress("HLT_L1_BPTX_PlusOnly", &map_BitOfStandardHLTPath["HLT_L1_BPTX_PlusOnly"], &b_HLT_L1_BPTX_PlusOnly);
+  fChain->SetBranchAddress("HLT_L2Mu0_NoVertex", &map_BitOfStandardHLTPath["HLT_L2Mu0_NoVertex"], &b_HLT_L2Mu0_NoVertex);
+  fChain->SetBranchAddress("HLT_LogMonitor", &map_BitOfStandardHLTPath["HLT_LogMonitor"], &b_HLT_LogMonitor);
+  fChain->SetBranchAddress("HLT_Activity_Ecal_SC17", &map_BitOfStandardHLTPath["HLT_Activity_Ecal_SC17"], &b_HLT_Activity_Ecal_SC17);
+  fChain->SetBranchAddress("HLT_DiJetAve50U_8E29", &map_BitOfStandardHLTPath["HLT_DiJetAve50U_8E29"], &b_HLT_DiJetAve50U_8E29);
+  fChain->SetBranchAddress("HLT_L1DoubleMuOpen_Tight", &map_BitOfStandardHLTPath["HLT_L1DoubleMuOpen_Tight"], &b_HLT_L1DoubleMuOpen_Tight);
+  fChain->SetBranchAddress("HLT_Mu0_TkMu0_Jpsi", &map_BitOfStandardHLTPath["HLT_Mu0_TkMu0_Jpsi"], &b_HLT_Mu0_TkMu0_Jpsi);
+  fChain->SetBranchAddress("HLT_Mu0_TkMu0_Jpsi_NoCharge", &map_BitOfStandardHLTPath["HLT_Mu0_TkMu0_Jpsi_NoCharge"], &b_HLT_Mu0_TkMu0_Jpsi_NoCharge);
+  fChain->SetBranchAddress("HLT_Mu3_TkMu0_Jpsi", &map_BitOfStandardHLTPath["HLT_Mu3_TkMu0_Jpsi"], &b_HLT_Mu3_TkMu0_Jpsi);
+  fChain->SetBranchAddress("HLT_Mu3_TkMu0_Jpsi_NoCharge", &map_BitOfStandardHLTPath["HLT_Mu3_TkMu0_Jpsi_NoCharge"], &b_HLT_Mu3_TkMu0_Jpsi_NoCharge);
+  fChain->SetBranchAddress("HLT_Mu5_TkMu0_Jpsi", &map_BitOfStandardHLTPath["HLT_Mu5_TkMu0_Jpsi"], &b_HLT_Mu5_TkMu0_Jpsi);
+  fChain->SetBranchAddress("HLT_Mu5_TkMu0_Jpsi_NoCharge", &map_BitOfStandardHLTPath["HLT_Mu5_TkMu0_Jpsi_NoCharge"], &b_HLT_Mu5_TkMu0_Jpsi_NoCharge);
+  fChain->SetBranchAddress("HLT_Photon15_TrackIso_Cleaned_L1R", &map_BitOfStandardHLTPath["HLT_Photon15_TrackIso_Cleaned_L1R"], &b_HLT_Photon15_TrackIso_Cleaned_L1R);
+  fChain->SetBranchAddress("HLT_Photon15_LooseEcalIso_Cleaned_L1R", &map_BitOfStandardHLTPath["HLT_Photon15_LooseEcalIso_Cleaned_L1R"], &b_HLT_Photon15_LooseEcalIso_Cleaned_L1R);
+  fChain->SetBranchAddress("HLT_Photon30_L1R", &map_BitOfStandardHLTPath["HLT_Photon30_L1R"], &b_HLT_Photon30_L1R);
+  fChain->SetBranchAddress("HLT_SingleLooseIsoTau20_Trk5", &map_BitOfStandardHLTPath["HLT_SingleLooseIsoTau20_Trk5"], &b_HLT_SingleLooseIsoTau20_Trk5);
+  fChain->SetBranchAddress("HLT_SingleLooseIsoTau25", &map_BitOfStandardHLTPath["HLT_SingleLooseIsoTau25"], &b_HLT_SingleLooseIsoTau25);
+  fChain->SetBranchAddress("HLT_MultiVertex6", &map_BitOfStandardHLTPath["HLT_MultiVertex6"], &b_HLT_MultiVertex6);
+  fChain->SetBranchAddress("HLT_MultiVertex8_L1ETT60", &map_BitOfStandardHLTPath["HLT_MultiVertex8_L1ETT60"], &b_HLT_MultiVertex8_L1ETT60);
+  fChain->SetBranchAddress("HLT_PixelTracks_Multiplicity85", &map_BitOfStandardHLTPath["HLT_PixelTracks_Multiplicity85"], &b_HLT_PixelTracks_Multiplicity85);
   fChain->SetBranchAddress("HLT_L1Tech_BSC_minBias", &map_BitOfStandardHLTPath["HLT_L1Tech_BSC_minBias"], &b_HLT_L1Tech_BSC_minBias);
   fChain->SetBranchAddress("HLT_Activity_CSC", &map_BitOfStandardHLTPath["HLT_Activity_CSC"], &b_HLT_Activity_CSC);
   fChain->SetBranchAddress("HLT_Activity_Ecal_SC7", &map_BitOfStandardHLTPath["HLT_Activity_Ecal_SC7"], &b_HLT_Activity_Ecal_SC7);
@@ -3362,6 +4789,228 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("HLT_HIDoubleMu", &map_BitOfStandardHLTPath["HLT_HIDoubleMu"], &b_HLT_HIDoubleMu);
   fChain->SetBranchAddress("HLT_DoublePhoton5_CEP_L1R", &map_BitOfStandardHLTPath["HLT_DoublePhoton5_CEP_L1R"], &b_HLT_DoublePhoton5_CEP_L1R);
   fChain->SetBranchAddress("HLT_ZeroBias1kHz", &map_BitOfStandardHLTPath["HLT_ZeroBias1kHz"], &b_HLT_ZeroBias1kHz);
+
+  // Autogenerated from ConfDB - Prescale SetBranchAddressMaps
+  fChain->SetBranchAddress("HLT_IsoMu9_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_IsoMu9"], &b_HLT_IsoMu9_Prescl);
+  fChain->SetBranchAddress("HLT_Mu0_TkMu0_OST_Jpsi_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu0_TkMu0_OST_Jpsi"], &b_HLT_Mu0_TkMu0_OST_Jpsi_Prescl);
+  fChain->SetBranchAddress("HLT_Mu3_TkMu0_OST_Jpsi_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu3_TkMu0_OST_Jpsi"], &b_HLT_Mu3_TkMu0_OST_Jpsi_Prescl);
+  fChain->SetBranchAddress("HLT_Mu5_TkMu0_OST_Jpsi_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu5_TkMu0_OST_Jpsi"], &b_HLT_Mu5_TkMu0_OST_Jpsi_Prescl);
+  fChain->SetBranchAddress("HLT_Ele12_SW_TightEleId_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele12_SW_TightEleId_L1R"], &b_HLT_Ele12_SW_TightEleId_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele12_SW_TightEleIdIsol_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele12_SW_TightEleIdIsol_L1R"], &b_HLT_Ele12_SW_TightEleIdIsol_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele12_SW_TightEleIdIsol_NoDEtaInEE_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele12_SW_TightEleIdIsol_NoDEtaInEE_L1R"], &b_HLT_Ele12_SW_TightEleIdIsol_NoDEtaInEE_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon20_NoHE_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Photon20_NoHE_L1R"], &b_HLT_Photon20_NoHE_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon50_NoHE_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Photon50_NoHE_L1R"], &b_HLT_Photon50_NoHE_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DiJetAve70U_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DiJetAve70U"], &b_HLT_DiJetAve70U_Prescl);
+  fChain->SetBranchAddress("HLT_DoubleJet25U_ForwardBackward_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoubleJet25U_ForwardBackward"], &b_HLT_DoubleJet25U_ForwardBackward_Prescl);
+  fChain->SetBranchAddress("HLT_QuadJet20U_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_QuadJet20U"], &b_HLT_QuadJet20U_Prescl);
+  fChain->SetBranchAddress("HLT_QuadJet25U_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_QuadJet25U"], &b_HLT_QuadJet25U_Prescl);
+  fChain->SetBranchAddress("HLT_MET65_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_MET65"], &b_HLT_MET65_Prescl);
+  fChain->SetBranchAddress("HLT_HT140U_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_HT140U"], &b_HLT_HT140U_Prescl);
+  fChain->SetBranchAddress("HLT_L2Mu25_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L2Mu25"], &b_HLT_L2Mu25_Prescl);
+  fChain->SetBranchAddress("HLT_Mu11_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu11"], &b_HLT_Mu11_Prescl);
+  fChain->SetBranchAddress("HLT_Mu20_NoVertex_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu20_NoVertex"], &b_HLT_Mu20_NoVertex_Prescl);
+  fChain->SetBranchAddress("HLT_Ele12_SW_EleId_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele12_SW_EleId_L1R"], &b_HLT_Ele12_SW_EleId_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele12_SW_EleIdIsol_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele12_SW_EleIdIsol_L1R"], &b_HLT_Ele12_SW_EleIdIsol_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele12_SW_EleIdIsol_NoDEtaInEE_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele12_SW_EleIdIsol_NoDEtaInEE_L1R"], &b_HLT_Ele12_SW_EleIdIsol_NoDEtaInEE_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele17_SW_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele17_SW_L1R"], &b_HLT_Ele17_SW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele17_SW_CaloEleId_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele17_SW_CaloEleId_L1R"], &b_HLT_Ele17_SW_CaloEleId_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele17_SW_LooseEleId_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele17_SW_LooseEleId_L1R"], &b_HLT_Ele17_SW_LooseEleId_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele17_SW_EleId_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele17_SW_EleId_L1R"], &b_HLT_Ele17_SW_EleId_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele22_SW_CaloEleId_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele22_SW_CaloEleId_L1R"], &b_HLT_Ele22_SW_CaloEleId_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele40_SW_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele40_SW_L1R"], &b_HLT_Ele40_SW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon20_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Photon20_L1R"], &b_HLT_Photon20_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon50_NoHE_Cleaned_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Photon50_NoHE_Cleaned_L1R"], &b_HLT_Photon50_NoHE_Cleaned_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoublePhoton17_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoublePhoton17_L1R"], &b_HLT_DoublePhoton17_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_SingleIsoTau20_Trk5_MET20_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_SingleIsoTau20_Trk5_MET20"], &b_HLT_SingleIsoTau20_Trk5_MET20_Prescl);
+  fChain->SetBranchAddress("HLT_SingleIsoTau20_Trk15_MET20_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_SingleIsoTau20_Trk15_MET20"], &b_HLT_SingleIsoTau20_Trk15_MET20_Prescl);
+  fChain->SetBranchAddress("HLT_SingleIsoTau30_Trk5_MET20_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_SingleIsoTau30_Trk5_MET20"], &b_HLT_SingleIsoTau30_Trk5_MET20_Prescl);
+  fChain->SetBranchAddress("HLT_SingleIsoTau30_Trk5_L120or30_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_SingleIsoTau30_Trk5_L120or30"], &b_HLT_SingleIsoTau30_Trk5_L120or30_Prescl);
+  fChain->SetBranchAddress("HLT_DoubleIsoTau15_OneLeg_Trk5_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoubleIsoTau15_OneLeg_Trk5"], &b_HLT_DoubleIsoTau15_OneLeg_Trk5_Prescl);
+  fChain->SetBranchAddress("HLT_DoubleIsoTau15_Trk5_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoubleIsoTau15_Trk5"], &b_HLT_DoubleIsoTau15_Trk5_Prescl);
+  fChain->SetBranchAddress("HLT_BTagMu_Jet20U_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_BTagMu_Jet20U"], &b_HLT_BTagMu_Jet20U_Prescl);
+  fChain->SetBranchAddress("HLT_L2Mu5_Photon9_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L2Mu5_Photon9_L1R"], &b_HLT_L2Mu5_Photon9_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_PixelTracks_Multiplicity100_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_PixelTracks_Multiplicity100"], &b_HLT_PixelTracks_Multiplicity100_Prescl);
+  fChain->SetBranchAddress("HLT_Physics_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Physics"], &b_HLT_Physics_Prescl);
+  fChain->SetBranchAddress("HLT_Jet70U_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Jet70U"], &b_HLT_Jet70U_Prescl);
+  fChain->SetBranchAddress("HLT_Jet100U_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Jet100U"], &b_HLT_Jet100U_Prescl);
+  fChain->SetBranchAddress("HLT_DiJetAve15U_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DiJetAve15U"], &b_HLT_DiJetAve15U_Prescl);
+  fChain->SetBranchAddress("HLT_DiJetAve30U_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DiJetAve30U"], &b_HLT_DiJetAve30U_Prescl);
+  fChain->SetBranchAddress("HLT_DiJetAve50U_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DiJetAve50U"], &b_HLT_DiJetAve50U_Prescl);
+  fChain->SetBranchAddress("HLT_L1ETT100_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1ETT100"], &b_HLT_L1ETT100_Prescl);
+  fChain->SetBranchAddress("HLT_EcalOnly_SumEt160_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_EcalOnly_SumEt160"], &b_HLT_EcalOnly_SumEt160_Prescl);
+  fChain->SetBranchAddress("HLT_L1Mu30_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1Mu30"], &b_HLT_L1Mu30_Prescl);
+  fChain->SetBranchAddress("HLT_L2Mu15_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L2Mu15"], &b_HLT_L2Mu15_Prescl);
+  fChain->SetBranchAddress("HLT_Mu3_Track3_Jpsi_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu3_Track3_Jpsi"], &b_HLT_Mu3_Track3_Jpsi_Prescl);
+  fChain->SetBranchAddress("HLT_Ele10_SW_EleId_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele10_SW_EleId_L1R"], &b_HLT_Ele10_SW_EleId_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele15_SW_EleId_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele15_SW_EleId_L1R"], &b_HLT_Ele15_SW_EleId_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele15_SW_CaloEleId_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele15_SW_CaloEleId_L1R"], &b_HLT_Ele15_SW_CaloEleId_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele20_SiStrip_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele20_SiStrip_L1R"], &b_HLT_Ele20_SiStrip_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele25_SW_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele25_SW_L1R"], &b_HLT_Ele25_SW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoubleEle4_SW_eeRes_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoubleEle4_SW_eeRes_L1R"], &b_HLT_DoubleEle4_SW_eeRes_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoubleEle10_SW_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoubleEle10_SW_L1R"], &b_HLT_DoubleEle10_SW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon30_Cleaned_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Photon30_Cleaned_L1R"], &b_HLT_Photon30_Cleaned_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon50_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Photon50_L1R"], &b_HLT_Photon50_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon50_Cleaned_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Photon50_Cleaned_L1R"], &b_HLT_Photon50_Cleaned_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoublePhoton15_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoublePhoton15_L1R"], &b_HLT_DoublePhoton15_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoublePhoton20_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoublePhoton20_L1R"], &b_HLT_DoublePhoton20_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_SingleLooseIsoTau25_Trk5_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_SingleLooseIsoTau25_Trk5"], &b_HLT_SingleLooseIsoTau25_Trk5_Prescl);
+  fChain->SetBranchAddress("HLT_SingleIsoTau20_Trk5_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_SingleIsoTau20_Trk5"], &b_HLT_SingleIsoTau20_Trk5_Prescl);
+  fChain->SetBranchAddress("HLT_SingleIsoTau30_Trk5_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_SingleIsoTau30_Trk5"], &b_HLT_SingleIsoTau30_Trk5_Prescl);
+  fChain->SetBranchAddress("HLT_StoppedHSCP_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_StoppedHSCP"], &b_HLT_StoppedHSCP_Prescl);
+  fChain->SetBranchAddress("HLT_L1Tech_BSC_minBias_OR_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1Tech_BSC_minBias_OR"], &b_HLT_L1Tech_BSC_minBias_OR_Prescl);
+  fChain->SetBranchAddress("HLT_IsoTrackHE_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_IsoTrackHE"], &b_HLT_IsoTrackHE_Prescl);
+  fChain->SetBranchAddress("HLT_IsoTrackHB_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_IsoTrackHB"], &b_HLT_IsoTrackHB_Prescl);
+  fChain->SetBranchAddress("HLT_HcalNZS_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_HcalNZS"], &b_HLT_HcalNZS_Prescl);
+  fChain->SetBranchAddress("AlCa_EcalPi0_Prescl", &map_RefPrescaleOfStandardHLTPath["AlCa_EcalPi0"], &b_AlCa_EcalPi0_Prescl);
+  fChain->SetBranchAddress("AlCa_EcalEta_Prescl", &map_RefPrescaleOfStandardHLTPath["AlCa_EcalEta"], &b_AlCa_EcalEta_Prescl);
+  fChain->SetBranchAddress("HLT_Activity_L1A_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Activity_L1A"], &b_HLT_Activity_L1A_Prescl);
+  fChain->SetBranchAddress("HLT_Activity_PixelClusters_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Activity_PixelClusters"], &b_HLT_Activity_PixelClusters_Prescl);
+  fChain->SetBranchAddress("HLT_Activity_CSC_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Activity_CSC"], &b_HLT_Activity_CSC_Prescl);
+  fChain->SetBranchAddress("HLT_Activity_DT_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Activity_DT"], &b_HLT_Activity_DT_Prescl);
+  fChain->SetBranchAddress("HLT_Activity_DT_Tuned_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Activity_DT_Tuned"], &b_HLT_Activity_DT_Tuned_Prescl);
+  fChain->SetBranchAddress("HLT_Activity_Ecal_SC7_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Activity_Ecal_SC7"], &b_HLT_Activity_Ecal_SC7_Prescl);
+  fChain->SetBranchAddress("HLT_Activity_Ecal_SC17_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Activity_Ecal_SC17"], &b_HLT_Activity_Ecal_SC17_Prescl);
+  fChain->SetBranchAddress("HLT_SelectEcalSpikes_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_SelectEcalSpikes_L1R"], &b_HLT_SelectEcalSpikes_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_SelectEcalSpikesHighEt_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_SelectEcalSpikesHighEt_L1R"], &b_HLT_SelectEcalSpikesHighEt_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_L1SingleForJet_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1SingleForJet"], &b_HLT_L1SingleForJet_Prescl);
+  fChain->SetBranchAddress("HLT_L1SingleCenJet_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1SingleCenJet"], &b_HLT_L1SingleCenJet_Prescl);
+  fChain->SetBranchAddress("HLT_L1SingleTauJet_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1SingleTauJet"], &b_HLT_L1SingleTauJet_Prescl);
+  fChain->SetBranchAddress("HLT_L1Jet6U_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1Jet6U"], &b_HLT_L1Jet6U_Prescl);
+  fChain->SetBranchAddress("HLT_L1Jet6U_NoBPTX_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1Jet6U_NoBPTX"], &b_HLT_L1Jet6U_NoBPTX_Prescl);
+  fChain->SetBranchAddress("HLT_L1Jet10U_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1Jet10U"], &b_HLT_L1Jet10U_Prescl);
+  fChain->SetBranchAddress("HLT_L1Jet10U_NoBPTX_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1Jet10U_NoBPTX"], &b_HLT_L1Jet10U_NoBPTX_Prescl);
+  fChain->SetBranchAddress("HLT_Jet15U_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Jet15U"], &b_HLT_Jet15U_Prescl);
+  fChain->SetBranchAddress("HLT_Jet15U_HcalNoiseFiltered_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Jet15U_HcalNoiseFiltered"], &b_HLT_Jet15U_HcalNoiseFiltered_Prescl);
+  fChain->SetBranchAddress("HLT_Jet30U_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Jet30U"], &b_HLT_Jet30U_Prescl);
+  fChain->SetBranchAddress("HLT_Jet50U_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Jet50U"], &b_HLT_Jet50U_Prescl);
+  fChain->SetBranchAddress("HLT_FwdJet20U_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_FwdJet20U"], &b_HLT_FwdJet20U_Prescl);
+  fChain->SetBranchAddress("HLT_DiJetAve15U_8E29_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DiJetAve15U_8E29"], &b_HLT_DiJetAve15U_8E29_Prescl);
+  fChain->SetBranchAddress("HLT_DiJetAve30U_8E29_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DiJetAve30U_8E29"], &b_HLT_DiJetAve30U_8E29_Prescl);
+  fChain->SetBranchAddress("HLT_DiJetAve50U_8E29_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DiJetAve50U_8E29"], &b_HLT_DiJetAve50U_8E29_Prescl);
+  fChain->SetBranchAddress("HLT_DoubleJet15U_ForwardBackward_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoubleJet15U_ForwardBackward"], &b_HLT_DoubleJet15U_ForwardBackward_Prescl);
+  fChain->SetBranchAddress("HLT_QuadJet15U_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_QuadJet15U"], &b_HLT_QuadJet15U_Prescl);
+  fChain->SetBranchAddress("HLT_L1MET20_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1MET20"], &b_HLT_L1MET20_Prescl);
+  fChain->SetBranchAddress("HLT_MET45_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_MET45"], &b_HLT_MET45_Prescl);
+  fChain->SetBranchAddress("HLT_MET100_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_MET100"], &b_HLT_MET100_Prescl);
+  fChain->SetBranchAddress("HLT_HT100U_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_HT100U"], &b_HLT_HT100U_Prescl);
+  fChain->SetBranchAddress("HLT_L1MuOpen_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1MuOpen"], &b_HLT_L1MuOpen_Prescl);
+  fChain->SetBranchAddress("HLT_L1MuOpen_DT_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1MuOpen_DT"], &b_HLT_L1MuOpen_DT_Prescl);
+  fChain->SetBranchAddress("HLT_L1MuOpen_AntiBPTX_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1MuOpen_AntiBPTX"], &b_HLT_L1MuOpen_AntiBPTX_Prescl);
+  fChain->SetBranchAddress("HLT_L1Mu_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1Mu"], &b_HLT_L1Mu_Prescl);
+  fChain->SetBranchAddress("HLT_L1Mu20_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1Mu20"], &b_HLT_L1Mu20_Prescl);
+  fChain->SetBranchAddress("HLT_L2Mu0_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L2Mu0"], &b_HLT_L2Mu0_Prescl);
+  fChain->SetBranchAddress("HLT_L2Mu3_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L2Mu3"], &b_HLT_L2Mu3_Prescl);
+  fChain->SetBranchAddress("HLT_L2Mu5_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L2Mu5"], &b_HLT_L2Mu5_Prescl);
+  fChain->SetBranchAddress("HLT_L2Mu9_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L2Mu9"], &b_HLT_L2Mu9_Prescl);
+  fChain->SetBranchAddress("HLT_L2Mu11_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L2Mu11"], &b_HLT_L2Mu11_Prescl);
+  fChain->SetBranchAddress("HLT_IsoMu3_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_IsoMu3"], &b_HLT_IsoMu3_Prescl);
+  fChain->SetBranchAddress("HLT_Mu3_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu3"], &b_HLT_Mu3_Prescl);
+  fChain->SetBranchAddress("HLT_Mu5_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu5"], &b_HLT_Mu5_Prescl);
+  fChain->SetBranchAddress("HLT_Mu7_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu7"], &b_HLT_Mu7_Prescl);
+  fChain->SetBranchAddress("HLT_Mu9_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu9"], &b_HLT_Mu9_Prescl);
+  fChain->SetBranchAddress("HLT_L1DoubleMuOpen_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1DoubleMuOpen"], &b_HLT_L1DoubleMuOpen_Prescl);
+  fChain->SetBranchAddress("HLT_L1DoubleMuOpen_Tight_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1DoubleMuOpen_Tight"], &b_HLT_L1DoubleMuOpen_Tight_Prescl);
+  fChain->SetBranchAddress("HLT_L2DoubleMu0_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L2DoubleMu0"], &b_HLT_L2DoubleMu0_Prescl);
+  fChain->SetBranchAddress("HLT_DoubleMu0_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoubleMu0"], &b_HLT_DoubleMu0_Prescl);
+  fChain->SetBranchAddress("HLT_DoubleMu3_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoubleMu3"], &b_HLT_DoubleMu3_Prescl);
+  fChain->SetBranchAddress("HLT_Mu0_L1MuOpen_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu0_L1MuOpen"], &b_HLT_Mu0_L1MuOpen_Prescl);
+  fChain->SetBranchAddress("HLT_Mu3_L1MuOpen_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu3_L1MuOpen"], &b_HLT_Mu3_L1MuOpen_Prescl);
+  fChain->SetBranchAddress("HLT_Mu5_L1MuOpen_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu5_L1MuOpen"], &b_HLT_Mu5_L1MuOpen_Prescl);
+  fChain->SetBranchAddress("HLT_Mu0_L2Mu0_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu0_L2Mu0"], &b_HLT_Mu0_L2Mu0_Prescl);
+  fChain->SetBranchAddress("HLT_Mu3_L2Mu0_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu3_L2Mu0"], &b_HLT_Mu3_L2Mu0_Prescl);
+  fChain->SetBranchAddress("HLT_Mu5_L2Mu0_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu5_L2Mu0"], &b_HLT_Mu5_L2Mu0_Prescl);
+  fChain->SetBranchAddress("HLT_Mu0_Track0_Jpsi_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu0_Track0_Jpsi"], &b_HLT_Mu0_Track0_Jpsi_Prescl);
+  fChain->SetBranchAddress("HLT_Mu0_TkMu0_Jpsi_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu0_TkMu0_Jpsi"], &b_HLT_Mu0_TkMu0_Jpsi_Prescl);
+  fChain->SetBranchAddress("HLT_Mu0_TkMu0_Jpsi_NoCharge_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu0_TkMu0_Jpsi_NoCharge"], &b_HLT_Mu0_TkMu0_Jpsi_NoCharge_Prescl);
+  fChain->SetBranchAddress("HLT_Mu3_Track0_Jpsi_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu3_Track0_Jpsi"], &b_HLT_Mu3_Track0_Jpsi_Prescl);
+  fChain->SetBranchAddress("HLT_Mu3_TkMu0_Jpsi_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu3_TkMu0_Jpsi"], &b_HLT_Mu3_TkMu0_Jpsi_Prescl);
+  fChain->SetBranchAddress("HLT_Mu3_TkMu0_Jpsi_NoCharge_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu3_TkMu0_Jpsi_NoCharge"], &b_HLT_Mu3_TkMu0_Jpsi_NoCharge_Prescl);
+  fChain->SetBranchAddress("HLT_Mu5_Track0_Jpsi_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu5_Track0_Jpsi"], &b_HLT_Mu5_Track0_Jpsi_Prescl);
+  fChain->SetBranchAddress("HLT_Mu5_TkMu0_Jpsi_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu5_TkMu0_Jpsi"], &b_HLT_Mu5_TkMu0_Jpsi_Prescl);
+  fChain->SetBranchAddress("HLT_Mu5_TkMu0_Jpsi_NoCharge_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Mu5_TkMu0_Jpsi_NoCharge"], &b_HLT_Mu5_TkMu0_Jpsi_NoCharge_Prescl);
+  fChain->SetBranchAddress("HLT_L1SingleEG2_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1SingleEG2"], &b_HLT_L1SingleEG2_Prescl);
+  fChain->SetBranchAddress("HLT_L1SingleEG5_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1SingleEG5"], &b_HLT_L1SingleEG5_Prescl);
+  fChain->SetBranchAddress("HLT_L1SingleEG8_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1SingleEG8"], &b_HLT_L1SingleEG8_Prescl);
+  fChain->SetBranchAddress("HLT_L1DoubleEG5_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1DoubleEG5"], &b_HLT_L1DoubleEG5_Prescl);
+  fChain->SetBranchAddress("HLT_Ele10_LW_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele10_LW_L1R"], &b_HLT_Ele10_LW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele10_LW_EleId_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele10_LW_EleId_L1R"], &b_HLT_Ele10_LW_EleId_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele10_SW_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele10_SW_L1R"], &b_HLT_Ele10_SW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele15_LW_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele15_LW_L1R"], &b_HLT_Ele15_LW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele15_SW_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele15_SW_L1R"], &b_HLT_Ele15_SW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele15_SC10_LW_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele15_SC10_LW_L1R"], &b_HLT_Ele15_SC10_LW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele15_SiStrip_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele15_SiStrip_L1R"], &b_HLT_Ele15_SiStrip_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele20_LW_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele20_LW_L1R"], &b_HLT_Ele20_LW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Ele20_SW_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Ele20_SW_L1R"], &b_HLT_Ele20_SW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoubleEle5_SW_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoubleEle5_SW_L1R"], &b_HLT_DoubleEle5_SW_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon10_Cleaned_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Photon10_Cleaned_L1R"], &b_HLT_Photon10_Cleaned_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon15_Cleaned_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Photon15_Cleaned_L1R"], &b_HLT_Photon15_Cleaned_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon15_TrackIso_Cleaned_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Photon15_TrackIso_Cleaned_L1R"], &b_HLT_Photon15_TrackIso_Cleaned_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon15_LooseEcalIso_Cleaned_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Photon15_LooseEcalIso_Cleaned_L1R"], &b_HLT_Photon15_LooseEcalIso_Cleaned_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon20_Cleaned_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Photon20_Cleaned_L1R"], &b_HLT_Photon20_Cleaned_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_Photon30_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Photon30_L1R"], &b_HLT_Photon30_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoublePhoton4_eeRes_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoublePhoton4_eeRes_L1R"], &b_HLT_DoublePhoton4_eeRes_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoublePhoton4_Jpsi_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoublePhoton4_Jpsi_L1R"], &b_HLT_DoublePhoton4_Jpsi_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoublePhoton4_Upsilon_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoublePhoton4_Upsilon_L1R"], &b_HLT_DoublePhoton4_Upsilon_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoublePhoton5_Jpsi_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoublePhoton5_Jpsi_L1R"], &b_HLT_DoublePhoton5_Jpsi_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoublePhoton5_Upsilon_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoublePhoton5_Upsilon_L1R"], &b_HLT_DoublePhoton5_Upsilon_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoublePhoton5_CEP_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoublePhoton5_CEP_L1R"], &b_HLT_DoublePhoton5_CEP_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoublePhoton5_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoublePhoton5_L1R"], &b_HLT_DoublePhoton5_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_DoublePhoton10_L1R_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoublePhoton10_L1R"], &b_HLT_DoublePhoton10_L1R_Prescl);
+  fChain->SetBranchAddress("HLT_SingleLooseIsoTau20_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_SingleLooseIsoTau20"], &b_HLT_SingleLooseIsoTau20_Prescl);
+  fChain->SetBranchAddress("HLT_SingleLooseIsoTau20_Trk5_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_SingleLooseIsoTau20_Trk5"], &b_HLT_SingleLooseIsoTau20_Trk5_Prescl);
+  fChain->SetBranchAddress("HLT_SingleLooseIsoTau25_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_SingleLooseIsoTau25"], &b_HLT_SingleLooseIsoTau25_Prescl);
+  fChain->SetBranchAddress("HLT_DoubleLooseIsoTau15_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DoubleLooseIsoTau15"], &b_HLT_DoubleLooseIsoTau15_Prescl);
+  fChain->SetBranchAddress("HLT_BTagIP_Jet50U_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_BTagIP_Jet50U"], &b_HLT_BTagIP_Jet50U_Prescl);
+  fChain->SetBranchAddress("HLT_BTagMu_Jet10U_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_BTagMu_Jet10U"], &b_HLT_BTagMu_Jet10U_Prescl);
+  fChain->SetBranchAddress("HLT_StoppedHSCP_8E29_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_StoppedHSCP_8E29"], &b_HLT_StoppedHSCP_8E29_Prescl);
+  fChain->SetBranchAddress("HLT_L1Mu14_L1SingleEG10_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1Mu14_L1SingleEG10"], &b_HLT_L1Mu14_L1SingleEG10_Prescl);
+  fChain->SetBranchAddress("HLT_L1Mu14_L1SingleJet6U_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1Mu14_L1SingleJet6U"], &b_HLT_L1Mu14_L1SingleJet6U_Prescl);
+  fChain->SetBranchAddress("HLT_L1Mu14_L1ETM30_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1Mu14_L1ETM30"], &b_HLT_L1Mu14_L1ETM30_Prescl);
+  fChain->SetBranchAddress("HLT_ZeroBias_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_ZeroBias"], &b_HLT_ZeroBias_Prescl);
+  fChain->SetBranchAddress("HLT_ZeroBiasPixel_SingleTrack_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_ZeroBiasPixel_SingleTrack"], &b_HLT_ZeroBiasPixel_SingleTrack_Prescl);
+  fChain->SetBranchAddress("HLT_MinBiasPixel_SingleTrack_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_MinBiasPixel_SingleTrack"], &b_HLT_MinBiasPixel_SingleTrack_Prescl);
+  fChain->SetBranchAddress("HLT_MinBiasPixel_DoubleTrack_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_MinBiasPixel_DoubleTrack"], &b_HLT_MinBiasPixel_DoubleTrack_Prescl);
+  fChain->SetBranchAddress("HLT_MinBiasPixel_DoubleIsoTrack5_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_MinBiasPixel_DoubleIsoTrack5"], &b_HLT_MinBiasPixel_DoubleIsoTrack5_Prescl);
+  fChain->SetBranchAddress("HLT_MultiVertex6_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_MultiVertex6"], &b_HLT_MultiVertex6_Prescl);
+  fChain->SetBranchAddress("HLT_MultiVertex8_L1ETT60_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_MultiVertex8_L1ETT60"], &b_HLT_MultiVertex8_L1ETT60_Prescl);
+  fChain->SetBranchAddress("HLT_CSCBeamHalo_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_CSCBeamHalo"], &b_HLT_CSCBeamHalo_Prescl);
+  fChain->SetBranchAddress("HLT_CSCBeamHaloOverlapRing1_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_CSCBeamHaloOverlapRing1"], &b_HLT_CSCBeamHaloOverlapRing1_Prescl);
+  fChain->SetBranchAddress("HLT_CSCBeamHaloOverlapRing2_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_CSCBeamHaloOverlapRing2"], &b_HLT_CSCBeamHaloOverlapRing2_Prescl);
+  fChain->SetBranchAddress("HLT_CSCBeamHaloRing2or3_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_CSCBeamHaloRing2or3"], &b_HLT_CSCBeamHaloRing2or3_Prescl);
+  fChain->SetBranchAddress("HLT_L1_BscMinBiasOR_BptxPlusORMinus_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1_BscMinBiasOR_BptxPlusORMinus"], &b_HLT_L1_BscMinBiasOR_BptxPlusORMinus_Prescl);
+  fChain->SetBranchAddress("HLT_L1_BptxXOR_BscMinBiasOR_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1_BptxXOR_BscMinBiasOR"], &b_HLT_L1_BptxXOR_BscMinBiasOR_Prescl);
+  fChain->SetBranchAddress("HLT_L1Tech_BSC_minBias_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1Tech_BSC_minBias"], &b_HLT_L1Tech_BSC_minBias_Prescl);
+  fChain->SetBranchAddress("HLT_L1Tech_BSC_halo_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1Tech_BSC_halo"], &b_HLT_L1Tech_BSC_halo_Prescl);
+  fChain->SetBranchAddress("HLT_L1Tech_BSC_halo_forPhysicsBackground_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1Tech_BSC_halo_forPhysicsBackground"], &b_HLT_L1Tech_BSC_halo_forPhysicsBackground_Prescl);
+  fChain->SetBranchAddress("HLT_L1Tech_BSC_HighMultiplicity_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1Tech_BSC_HighMultiplicity"], &b_HLT_L1Tech_BSC_HighMultiplicity_Prescl);
+  fChain->SetBranchAddress("HLT_L1Tech_RPC_TTU_RBst1_collisions_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1Tech_RPC_TTU_RBst1_collisions"], &b_HLT_L1Tech_RPC_TTU_RBst1_collisions_Prescl);
+  fChain->SetBranchAddress("HLT_L1Tech_HCAL_HF_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1Tech_HCAL_HF"], &b_HLT_L1Tech_HCAL_HF_Prescl);
+  fChain->SetBranchAddress("HLT_TrackerCosmics_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_TrackerCosmics"], &b_HLT_TrackerCosmics_Prescl);
+  fChain->SetBranchAddress("HLT_RPCBarrelCosmics_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_RPCBarrelCosmics"], &b_HLT_RPCBarrelCosmics_Prescl);
+  fChain->SetBranchAddress("HLT_IsoTrackHE_8E29_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_IsoTrackHE_8E29"], &b_HLT_IsoTrackHE_8E29_Prescl);
+  fChain->SetBranchAddress("HLT_IsoTrackHB_8E29_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_IsoTrackHB_8E29"], &b_HLT_IsoTrackHB_8E29_Prescl);
+  fChain->SetBranchAddress("HLT_HcalPhiSym_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_HcalPhiSym"], &b_HLT_HcalPhiSym_Prescl);
+  fChain->SetBranchAddress("HLT_HcalNZS_8E29_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_HcalNZS_8E29"], &b_HLT_HcalNZS_8E29_Prescl);
+  fChain->SetBranchAddress("AlCa_EcalPhiSym_Prescl", &map_RefPrescaleOfStandardHLTPath["AlCa_EcalPhiSym"], &b_AlCa_EcalPhiSym_Prescl);
+  fChain->SetBranchAddress("AlCa_EcalPi0_8E29_Prescl", &map_RefPrescaleOfStandardHLTPath["AlCa_EcalPi0_8E29"], &b_AlCa_EcalPi0_8E29_Prescl);
+  fChain->SetBranchAddress("AlCa_EcalEta_8E29_Prescl", &map_RefPrescaleOfStandardHLTPath["AlCa_EcalEta_8E29"], &b_AlCa_EcalEta_8E29_Prescl);
+  fChain->SetBranchAddress("AlCa_RPCMuonNoHits_Prescl", &map_RefPrescaleOfStandardHLTPath["AlCa_RPCMuonNoHits"], &b_AlCa_RPCMuonNoHits_Prescl);
+  fChain->SetBranchAddress("AlCa_RPCMuonNoTriggers_Prescl", &map_RefPrescaleOfStandardHLTPath["AlCa_RPCMuonNoTriggers"], &b_AlCa_RPCMuonNoTriggers_Prescl);
+  fChain->SetBranchAddress("AlCa_RPCMuonNormalisation_Prescl", &map_RefPrescaleOfStandardHLTPath["AlCa_RPCMuonNormalisation"], &b_AlCa_RPCMuonNormalisation_Prescl);
+  fChain->SetBranchAddress("HLT_DTErrors_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_DTErrors"], &b_HLT_DTErrors_Prescl);
+  fChain->SetBranchAddress("HLT_Calibration_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Calibration"], &b_HLT_Calibration_Prescl);
+  fChain->SetBranchAddress("HLT_EcalCalibration_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_EcalCalibration"], &b_HLT_EcalCalibration_Prescl);
+  fChain->SetBranchAddress("HLT_HcalCalibration_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_HcalCalibration"], &b_HLT_HcalCalibration_Prescl);
+  fChain->SetBranchAddress("HLT_Random_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_Random"], &b_HLT_Random_Prescl);
+  fChain->SetBranchAddress("HLT_PixelTracks_Multiplicity70_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_PixelTracks_Multiplicity70"], &b_HLT_PixelTracks_Multiplicity70_Prescl);
+  fChain->SetBranchAddress("HLT_PixelTracks_Multiplicity85_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_PixelTracks_Multiplicity85"], &b_HLT_PixelTracks_Multiplicity85_Prescl);
+  fChain->SetBranchAddress("HLT_GlobalRunHPDNoise_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_GlobalRunHPDNoise"], &b_HLT_GlobalRunHPDNoise_Prescl);
+  fChain->SetBranchAddress("HLT_TechTrigHCALNoise_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_TechTrigHCALNoise"], &b_HLT_TechTrigHCALNoise_Prescl);
+  fChain->SetBranchAddress("HLT_L1_BPTX_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1_BPTX"], &b_HLT_L1_BPTX_Prescl);
+  fChain->SetBranchAddress("HLT_L1_BPTX_MinusOnly_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1_BPTX_MinusOnly"], &b_HLT_L1_BPTX_MinusOnly_Prescl);
+  fChain->SetBranchAddress("HLT_L1_BPTX_PlusOnly_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L1_BPTX_PlusOnly"], &b_HLT_L1_BPTX_PlusOnly_Prescl);
+  fChain->SetBranchAddress("HLT_L2Mu0_NoVertex_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_L2Mu0_NoVertex"], &b_HLT_L2Mu0_NoVertex_Prescl);
+  fChain->SetBranchAddress("HLT_LogMonitor_Prescl", &map_RefPrescaleOfStandardHLTPath["HLT_LogMonitor"], &b_HLT_LogMonitor_Prescl);
   
   Notify();
 }
@@ -3552,6 +5201,8 @@ void OHltTree::SetOpenL1Bits()
   else 
     OpenL1_Mu3EG5 = 0; 
 
+  map_BitOfStandardHLTPath["OpenL1_Mu3EG5"] = OpenL1_Mu3EG5;
+
   if((map_BitOfStandardHLTPath.find("L1_SingleEG5")->second == 1) && 
      (map_BitOfStandardHLTPath.find("L1_HTT100")->second == 1))  
     OpenL1_EG5_HTT100 = 1; 
@@ -3594,6 +5245,22 @@ void OHltTree::SetOpenL1Bits()
   map_BitOfStandardHLTPath["OpenL1_SingleTauJet2"] = OpenL1_SingleTauJet2; 
   map_BitOfStandardHLTPath["OpenL1_SingleTauJet4"] = OpenL1_SingleTauJet4; 
 
+  OpenL1_QuadJet8U = 0;
+  Int_t njetsforquad = 0;
+  for(Int_t j = 0; j < NL1ForJet;j++) 
+    { 
+      if(L1ForJetEt[j] > 8.0)
+        njetsforquad++; 
+    }
+  for(Int_t k = 0;k < NL1CenJet;k++) 
+    {
+      if(L1CenJetEt[k] > 8.0) 
+	njetsforquad++;  
+    }
+  if(njetsforquad >= 4)
+    OpenL1_QuadJet8U = 1;
+  map_BitOfStandardHLTPath["OpenL1_QuadJet8U"] = OpenL1_QuadJet8U;  
+
 
   OpenL1_DoubleForJet10_EtaOpp = 0;
   map_BitOfStandardHLTPath["OpenL1_DoubleForJet10_EtaOpp"] = OpenL1_DoubleForJet10_EtaOpp;
@@ -3609,7 +5276,6 @@ void OHltTree::SetOpenL1Bits()
   if(hfjetplus > 0 && hfjetminus > 0)
     OpenL1_DoubleForJet10_EtaOpp = 1;
 }
-
 
 void OHltTree::SetMapL1BitOfStandardHLTPathUsingLogicParser(OHltMenu *menu, int nentry) {
   typedef std::vector<TString> myvec;

@@ -23,7 +23,7 @@ class NTupler {
   NTupler() : useTFileService_(false){}
   virtual ~NTupler(){}
 
-  virtual uint registerleaves(edm::ProducerBase * producer) =0;
+  virtual unsigned int registerleaves(edm::ProducerBase * producer) =0;
   virtual void fill(edm::Event& iEvent)=0;
  protected:
   bool useTFileService_;

@@ -47,13 +47,6 @@ class VispaPlugin(QObject):
         self.application().statusBar().showMessage('Opening of desired file type not implemented.', 10000)
         return False
         
-    def appendNewFileAction(self, action):
-        """ Adds action to local list of new file actions.
-        
-        Entries in this list will appear in the main file menu.
-        """
-        self._createNewFileActions.append(action)
-        
     def addNewFileAction(self, label, slot=None):
         """Creates a new file action with label and optionally with a callable slot set and appends it to local new file actions list. """
         self._createNewFileActions.append(self._application.createAction(label, slot,image='filenew'))
@@ -62,3 +55,8 @@ class VispaPlugin(QObject):
         """ Returns local list of new file actions.
         """
         return self._createNewFileActions
+
+    def shutdown(self):
+        """ Cleanup actions for the plugins
+        """
+        pass

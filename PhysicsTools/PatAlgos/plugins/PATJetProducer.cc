@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.45 2010/05/06 17:27:14 rwolf Exp $
+// $Id: PATJetProducer.cc,v 1.50.2.3 2010/11/03 21:47:35 rwolf Exp $
 
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -36,6 +36,7 @@
 
 #include <vector>
 #include <memory>
+#include <algorithm>
 
 
 using namespace pat;
@@ -119,10 +120,10 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
 
   // produces vector of jets
   produces<std::vector<Jet> >();
-  produces<reco::GenJetCollection> ();
-  produces<CaloTowerCollection > ();
-  produces<reco::PFCandidateCollection > ();
-  produces<edm::OwnVector<reco::BaseTagInfo> > ();
+  produces<reco::GenJetCollection> ("genJets");
+  produces<std::vector<CaloTower>  > ("caloTowers");
+  produces<reco::PFCandidateCollection > ("pfCandidates");
+  produces<edm::OwnVector<reco::BaseTagInfo> > ("tagInfos");
 }
 
 
@@ -196,20 +197,20 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   std::auto_ptr< std::vector<Jet> > patJets ( new std::vector<Jet>() ); 
 
   std::auto_ptr<reco::GenJetCollection > genJetsOut ( new reco::GenJetCollection() );
-  std::auto_ptr<CaloTowerCollection >  caloTowersOut( new CaloTowerCollection() );
+  std::auto_ptr<std::vector<CaloTower>  >  caloTowersOut( new std::vector<CaloTower> () );
   std::auto_ptr<reco::PFCandidateCollection > pfCandidatesOut( new reco::PFCandidateCollection() );
   std::auto_ptr<edm::OwnVector<reco::BaseTagInfo> > tagInfosOut ( new edm::OwnVector<reco::BaseTagInfo>() );  
 
 
-  edm::RefProd<reco::GenJetCollection > h_genJetsOut = iEvent.getRefBeforePut<reco::GenJetCollection >( );
-  edm::RefProd<CaloTowerCollection >  h_caloTowersOut = iEvent.getRefBeforePut<CaloTowerCollection > ();
-  edm::RefProd<reco::PFCandidateCollection > h_pfCandidatesOut = iEvent.getRefBeforePut<reco::PFCandidateCollection > ();
-  edm::RefProd<edm::OwnVector<reco::BaseTagInfo> > h_tagInfosOut = iEvent.getRefBeforePut<edm::OwnVector<reco::BaseTagInfo> > ();
+  edm::RefProd<reco::GenJetCollection > h_genJetsOut = iEvent.getRefBeforePut<reco::GenJetCollection >( "genJets" );
+  edm::RefProd<std::vector<CaloTower>  >  h_caloTowersOut = iEvent.getRefBeforePut<std::vector<CaloTower>  > ( "caloTowers" );
+  edm::RefProd<reco::PFCandidateCollection > h_pfCandidatesOut = iEvent.getRefBeforePut<reco::PFCandidateCollection > ( "pfCandidates" );
+  edm::RefProd<edm::OwnVector<reco::BaseTagInfo> > h_tagInfosOut = iEvent.getRefBeforePut<edm::OwnVector<reco::BaseTagInfo> > ( "tagInfos" );
 
 
   
 
-
+  bool first=true; // this is introduced to issue warnings only for the first jet
   for (edm::View<reco::Jet>::const_iterator itJet = jets->begin(); itJet != jets->end(); itJet++) {
 
     // construct the Jet from the ref -> save ref to original object
@@ -228,11 +229,13 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	    itow != towEnd; ++itow ) {
 	caloTowersOut->push_back( **itow );
 	// set the "forward" ref to the thinned collection
-	edm::Ptr<CaloTower> caloForwardRef ( h_caloTowersOut.id(), caloTowersOut->size() - 1, h_caloTowersOut.productGetter() );
+	edm::Ref<std::vector<CaloTower> > caloTowerRef( h_caloTowersOut, caloTowersOut->size() - 1);
+	edm::Ptr<CaloTower> caloForwardRef ( h_caloTowersOut.id(), caloTowerRef.key(), h_caloTowersOut.productGetter() );
 	// set the "backward" ref to the original collection for association
-	edm::Ptr<CaloTower> caloBackRef ( *itow );
+	edm::Ptr<CaloTower> caloBackRef ( *itow );	
 	// add to the list of FwdPtr's
 	itowersRef.push_back( pat::CaloTowerFwdPtrCollection::value_type ( caloForwardRef, caloBackRef ) );
+	
       }
       ajet.setCaloTowers( itowersRef );
     }
@@ -247,7 +250,8 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	    ipart != partEnd; ++ipart ) {
 	pfCandidatesOut->push_back( **ipart );
 	// set the "forward" ref to the thinned collection
-	edm::Ptr<reco::PFCandidate> pfForwardRef ( h_pfCandidatesOut.id(), pfCandidatesOut->size() - 1,  h_caloTowersOut.productGetter() );
+	edm::Ref<reco::PFCandidateCollection> pfCollectionRef( h_pfCandidatesOut, pfCandidatesOut->size() - 1);
+	edm::Ptr<reco::PFCandidate> pfForwardRef ( h_pfCandidatesOut.id(), pfCollectionRef.key(),  h_pfCandidatesOut.productGetter() );
 	// set the "backward" ref to the original collection for association
 	edm::Ptr<reco::PFCandidate> pfBackRef ( *ipart );
 	// add to the list of FwdPtr's
@@ -256,26 +260,28 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       ajet.setPFCandidates( iparticlesRef );
     }
 
-
-    // Add Jet Energy Scale Corrections
     if (addJetCorrFactors_) {
-      // in case only one set of jet correction factors is used, clear the string
-      // that contains the name of the jcf-module, to save storage per jet:
-      if (jetCorrFactorsSrc_.size()<=1)
-        jetCorrs.front()[jetRef].clearLabel();
-      // the default jet correction is the first in the vector
-      const JetCorrFactors & jcf = jetCorrs.front()[jetRef];
-      // uncomment for debugging
-      // jcf.print();
-      //attach first (default) jet correction factors set to the jet
-      ajet.setCorrFactors(jcf);
-      // set current default which is JetCorrFactors::L3, change P4 of ajet 
-      ajet.setCorrStep(JetCorrFactors::L3);
-      
-      // add additional JetCorrs for syst. studies, if present
-      for ( size_t i = 1; i < jetCorrFactorsSrc_.size(); ++i ) {
-	const JetCorrFactors & jcf = jetCorrs[i][jetRef];
-	ajet.addCorrFactors(jcf);
+      // add additional JetCorrs to the jet 
+      for ( unsigned int i=0; i<jetCorrFactorsSrc_.size(); ++i ) {
+	const JetCorrFactors& jcf = jetCorrs[i][jetRef];
+	// uncomment for debugging
+	// jcf.print();
+	ajet.addJECFactors(jcf);
+      }
+      std::vector<std::string> levels = jetCorrs[0][jetRef].correctionLabels();
+      if(std::find(levels.begin(), levels.end(), "L2L3Residual")!=levels.end()){
+	ajet.initializeJEC(jetCorrs[0][jetRef].jecLevel("L2L3Residual"));
+      }
+      else if(std::find(levels.begin(), levels.end(), "L3Absolute")!=levels.end()){
+	ajet.initializeJEC(jetCorrs[0][jetRef].jecLevel("L3Absolute"));
+      }
+      else{
+	ajet.initializeJEC(jetCorrs[0][jetRef].jecLevel("Uncorrected"));
+	if(first){	  
+	  edm::LogWarning("L3Absolute not found") << "L2L3Residual and L3Absolute are not part of the correction applied jetCorrFactors \n"
+						  << "of module " <<  jetCorrs[0][jetRef].jecSet() << " jets will remain"
+						  << " uncorrected."; first=false;
+	}
       }
     }
 
@@ -375,16 +381,16 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     patJets->push_back(ajet);
   }
 
-  // sort jets in Et
+  // sort jets in pt
   std::sort(patJets->begin(), patJets->end(), pTComparator_);
 
   // put genEvt  in Event
   iEvent.put(patJets);
 
-  iEvent.put( genJetsOut );
-  iEvent.put( caloTowersOut );
-  iEvent.put( pfCandidatesOut );
-  iEvent.put( tagInfosOut );
+  iEvent.put( genJetsOut, "genJets" );
+  iEvent.put( caloTowersOut, "caloTowers" );
+  iEvent.put( pfCandidatesOut, "pfCandidates" );
+  iEvent.put( tagInfosOut, "tagInfos" );
   
 
 }

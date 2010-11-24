@@ -17,6 +17,8 @@
 #include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -35,9 +37,9 @@ class Type1METAlgo
  public:
   Type1METAlgo();
   virtual ~Type1METAlgo();
-  virtual void run(const reco::METCollection&, 
+  virtual void run(const reco::PFMETCollection&, 
 		   const JetCorrector&,
-		   const reco::CaloJetCollection&, 
+		   const reco::PFJetCollection&, 
 		   double, double, double, double, double, bool, bool,
                    const edm::View<reco::Muon>& ,
                    const edm::ValueMap<reco::MuonMETCorrectionData>& ,

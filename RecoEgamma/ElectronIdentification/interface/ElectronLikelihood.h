@@ -23,20 +23,6 @@ class ElectronLikelihood {
 
   //! ctor
   ElectronLikelihood (const ElectronLikelihoodCalibration *calibration,
-		      const std::vector<double> & fisherEBLt15,
-		      const std::vector<double> & fisherEBGt15,
-		      const std::vector<double> & fisherEELt15,
-		      const std::vector<double> & fisherEEGt15,
-		      const std::vector<double> & eleFracsEBlt15,
-		      const std::vector<double> & piFracsEBlt15,
-		      const std::vector<double> & eleFracsEElt15,
-		      const std::vector<double> & piFracsEElt15,
-		      const std::vector<double> & eleFracsEBgt15,
-		      const std::vector<double> & piFracsEBgt15,
-		      const std::vector<double> & eleFracsEEgt15,
-		      const std::vector<double> & piFracsEEgt15,
-		      double eleWeight,
-		      double piWeight,
 		      LikelihoodSwitches eleIDSwitches,
 		      std::string signalWeightSplitting,
 		      std::string backgroundWeightSplitting,
@@ -58,20 +44,6 @@ class ElectronLikelihood {
   //! build the likelihood model from histograms 
   //! in Barrel file and Endcap file
   void Setup (const ElectronLikelihoodCalibration *calibration,
-	      const std::vector<double> & fisherEBLt15,
-	      const std::vector<double> & fisherEBGt15,
-	      const std::vector<double> & fisherEELt15,
-	      const std::vector<double> & fisherEEGt15,
-	      const std::vector<double> & eleFracsEBlt15,
-	      const std::vector<double> & piFracsEBlt15,
-	      const std::vector<double> & eleFracsEElt15,
-	      const std::vector<double> & piFracsEElt15,
-	      const std::vector<double> & eleFracsEBgt15,
-	      const std::vector<double> & piFracsEBgt15,
-	      const std::vector<double> & eleFracsEEgt15,
-	      const std::vector<double> & piFracsEEgt15,  
-              double eleWeight,
-              double piWeight,
 	      std::string signalWeightSplitting,
 	      std::string backgroundWeightSplitting,
 	      bool splitSignalPdfs,
@@ -83,17 +55,10 @@ class ElectronLikelihood {
                     std::vector<float> &measuremnts, 
                     EcalClusterLazyTools) const ;
 
-  //! evaluate the shape Fisher discriminant
-  double CalculateFisher(const reco::GsfElectron &electron,
-			 EcalClusterLazyTools) const ;
-  
   //! likelihood below 15GeV/c
   LikelihoodPdfProduct *_EBlt15lh, *_EElt15lh;
   //! likelihood above 15GeV/c
   LikelihoodPdfProduct *_EBgt15lh, *_EEgt15lh;
-
-  //! fisher coefficients
-  std::vector<double> m_fisherEBLt15, m_fisherEBGt15, m_fisherEELt15, m_fisherEEGt15;
 
   //! general parameters of all the ele id algorithms
   LikelihoodSwitches m_eleIDSwitches ;

@@ -3,7 +3,9 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-
+// Cluster Vertexing
+#include "HIPixelClusterVtxProducer.h"
+DEFINE_FWK_MODULE(HIPixelClusterVtxProducer);
 
 // Median Vertexing
 #include "HIPixelMedianVtxProducer.h"

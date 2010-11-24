@@ -6,6 +6,7 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Utilities/interface/CPUTimer.h"
 
 #include "DataFormats/Provenance/interface/EventID.h"  

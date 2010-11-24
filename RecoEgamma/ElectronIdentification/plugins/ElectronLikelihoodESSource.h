@@ -9,11 +9,9 @@
 //      PDFs, a priori probabilities, cluster shape Fisher setup
 //      
 // Original Authors:  Emanuele Di Marco, 
-//                    Pietro Govoni,
 //                    Chiara Ilaria Rovelli, 
 //                    Paolo Meridiani
 // Universita' di Roma "La Sapienza" and INFN Roma
-// Universita' di Milano "Bicocca" and INFN Milano
 //
 // Created:  Fri Jun  25 11:25:36 CEST 2007
 //
@@ -59,34 +57,9 @@ class ElectronLikelihoodESSource : public edm::ESProducer, public  edm::EventSet
 
  private:
 
-  //! fisher coefficients
-  std::vector<double> m_fisherEBLt15;
-  std::vector<double> m_fisherEBGt15;
-  std::vector<double> m_fisherEELt15;
-  std::vector<double> m_fisherEEGt15;
-
-  //! barrel electron classes fractions
-  std::vector<double> m_eleEBFracsLt15 ;
-  std::vector<double> m_eleEBFracsGt15 ;
-  //! barrel electron classes fractions for pions
-  std::vector<double> m_piEBFracsLt15 ;
-  std::vector<double> m_piEBFracsGt15 ;
-
-  //! endcap electron classes fractions
-  std::vector<double> m_eleEEFracsLt15 ;
-  std::vector<double> m_eleEEFracsGt15 ;
-  //! endcap electron classes fractions for pions
-  std::vector<double> m_piEEFracsLt15 ;
-  std::vector<double> m_piEEFracsGt15 ;
-
   //! general parameters of the id algorithm
   LikelihoodSwitches m_eleIDSwitches ;
   
-  //! electrons weight
-  double m_eleWeight ;
-  //! pions weight
-  double m_piWeight ;
-
   //! signal pdf splitting
   std::string m_signalWeightSplitting ;
   std::string m_backgroundWeightSplitting ;

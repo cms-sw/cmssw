@@ -80,11 +80,6 @@ tpToTevPickyTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
     label_tp = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
     label_tr = cms.InputTag('tevMuons','picky')
 )
-tpToTevDytTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
-    associator = cms.string('TrackAssociatorByDeltaR'),
-    label_tp = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
-    label_tr = cms.InputTag('tevMuons','dyt')
-)
 
 tpToL2TrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
     ignoremissingtrackcollection=cms.untracked.bool(True),
@@ -135,7 +130,6 @@ tpToStaSETUpdMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAsso
 tpToGlbSETMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToTevFirstMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToTevPickyMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
-tpToTevDytMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToL3TkMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToL2MuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToL2UpdMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
@@ -185,11 +179,6 @@ tpToTevPickyMuonAssociation.tpTag = 'mergedtruth:MergedTrackTruth'
 tpToTevPickyMuonAssociation.tracksTag = 'tevMuons:picky'
 tpToTevPickyMuonAssociation.UseTracker = True
 tpToTevPickyMuonAssociation.UseMuon = True
-
-tpToTevDytMuonAssociation.tpTag = 'mergedtruth:MergedTrackTruth'
-tpToTevDytMuonAssociation.tracksTag = 'tevMuons:dyt'
-tpToTevDytMuonAssociation.UseTracker = True
-tpToTevDytMuonAssociation.UseMuon = True
 
 tpToL3TkMuonAssociation.tpTag = 'mergedtruth:MergedTrackTruth'
 tpToL3TkMuonAssociation.tracksTag = 'hltL3TkTracksFromL2'
@@ -275,7 +264,7 @@ muonAssociation_seq = cms.Sequence(
 #   +(tpToTkmuTrackAssociation+tpToStaTrackAssociation+tpToStaUpdTrackAssociation+tpToGlbTrackAssociation)
 )
 muonAssociationTEV_seq = cms.Sequence(
-    (tpToTevFirstMuonAssociation+tpToTevPickyMuonAssociation+tpToTevDytMuonAssociation)
+    (tpToTevFirstMuonAssociation+tpToTevPickyMuonAssociation)
 #    +(tpToTevFirstTrackAssociation+tpToTevPickyTrackAssociation)
 )
 muonAssociationSET_seq = cms.Sequence(
@@ -330,12 +319,6 @@ tpToTevPickyTrackAssociationFS = cms.EDProducer('TrackAssociatorEDProducer',
     associator = cms.string('TrackAssociatorByDeltaR'),
     label_tp = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
     label_tr = cms.InputTag('tevMuons','picky')
-)
-
-tpToTevDytTrackAssociationFS = cms.EDProducer('TrackAssociatorEDProducer',
-    associator = cms.string('TrackAssociatorByDeltaR'),
-    label_tp = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
-    label_tr = cms.InputTag('tevMuons','dyt')
 )
 
 tpToL2TrackAssociationFS = cms.EDProducer('TrackAssociatorEDProducer',
@@ -398,7 +381,6 @@ tpToStaUpdMuonAssociationFS  = baseMuonAssociatorFS.clone()
 tpToGlbMuonAssociationFS  = baseMuonAssociatorFS.clone()
 tpToTevFirstMuonAssociationFS = baseMuonAssociatorFS.clone()
 tpToTevPickyMuonAssociationFS = baseMuonAssociatorFS.clone()
-tpToTevDytMuonAssociationFS = baseMuonAssociatorFS.clone()
 tpToL3TkMuonAssociationFS = baseMuonAssociatorFS.clone()
 tpToL2MuonAssociationFS   = baseMuonAssociatorFS.clone()
 tpToL2UpdMuonAssociationFS   = baseMuonAssociatorFS.clone()
@@ -432,11 +414,6 @@ tpToTevPickyMuonAssociationFS.tpTag = 'mergedtruth:MergedTrackTruth'
 tpToTevPickyMuonAssociationFS.UseTracker = True
 tpToTevPickyMuonAssociationFS.UseMuon = True
 
-tpToTevDytMuonAssociationFS.tracksTag = 'tevMuons:dyt'
-tpToTevDytMuonAssociationFS.tpTag = 'mergedtruth:MergedTrackTruth'
-tpToTevDytMuonAssociationFS.UseTracker = True
-tpToTevDytMuonAssociationFS.UseMuon = True
-
 tpToL3TkMuonAssociationFS.tracksTag = 'hltL3TkTracksFromL2'
 tpToL3TkMuonAssociationFS.tpTag = 'mergedtruth:MergedTrackTruth'
 tpToL3TkMuonAssociationFS.UseTracker = True
@@ -468,7 +445,6 @@ tpToL3MuonAssociationFS.UseGrouped = False
 muonAssociationFastSim_seq = cms.Sequence(tpToTkMuonAssociationFS
                                           +tpToStaMuonAssociationFS+tpToStaUpdMuonAssociationFS+tpToGlbMuonAssociationFS
                                           +tpToTevFirstMuonAssociationFS+tpToTevPickyMuonAssociationFS
-                                          +tpToTevDytMuonAssociationFS
                                           +tpToTkmuTrackAssociationFS
 #                                          +tpToStaTrackAssociationFS+tpToStaUpdTrackAssociationFS+tpToGlbTrackAssociationFS
 #                                          +tpToTevFirstTrackAssociationFS+tpToTevPickyTrackAssociationFS

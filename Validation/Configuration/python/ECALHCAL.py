@@ -22,15 +22,14 @@ def customise(process):
         verbose = cms.untracked.bool(False)
     ))
 
-# use directly the generator output, no Hector
+    # use directly the generator output, no Hector
 
     process.g4SimHits.Generator.HepMCProductLabel = cms.string('generator')
 
-# modify the content
+    # modify the content
 
-    process.output.outputCommands.append("keep *_simHcalUnsuppressedDigis_*_*")
-
-
+    #process.output.outputCommands.append("keep *_simHcalUnsuppressedDigis_*_*")
+    process.outputModules_().iteritems().next()[1].outputCommands.append("keep *_simHcalUnsuppressedDigis_*_*")
             
 # user schedule: use only calorimeters digitization and local reconstruction
 
@@ -69,6 +68,7 @@ def customise(process):
     process.schedule.append(process.local_validation) 
 
     process.schedule.append(process.endjob_step)
-    process.schedule.append(process.out_step)
+    #process.schedule.append(process.out_step)
+    process.schedule.append(getattr(process,process.outputModules_().iteritems().next()[0]+"_step"))
 
     return(process)

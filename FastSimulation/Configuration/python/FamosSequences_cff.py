@@ -97,16 +97,17 @@ famosParticleFlowSequence = cms.Sequence(
 )
 
 # Reco Jets and MET
-from RecoJets.Configuration.RecoJets_cff import *
-from RecoJets.Configuration.JetIDProducers_cff import *
-from RecoJets.Configuration.RecoPFJets_cff import *
+from RecoJets.Configuration.RecoJetsGlobal_cff import *
+#from RecoJets.Configuration.JetIDProducers_cff import *
+#from RecoJets.Configuration.RecoPFJets_cff import *
 from RecoMET.Configuration.RecoMET_cff import *
 from RecoMET.Configuration.RecoPFMET_cff import *
 
-
 caloJetMet = cms.Sequence(
     recoJets+
-    recoJetIds+ 
+    recoJetIds+
+    recoTrackJets+
+    recoJetAssociations+recoJPTJets+
     metreco
 )
 

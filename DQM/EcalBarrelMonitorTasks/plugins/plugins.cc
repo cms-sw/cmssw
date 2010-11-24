@@ -1,62 +1,62 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBBeamHodoTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBBeamHodoTask.h"
 DEFINE_FWK_MODULE(EBBeamHodoTask);
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBBeamCaloTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBBeamCaloTask.h"
 DEFINE_FWK_MODULE(EBBeamCaloTask);
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBClusterTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBClusterTask.h"
 DEFINE_FWK_MODULE(EBClusterTask);
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBCosmicTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBCosmicTask.h"
 DEFINE_FWK_MODULE(EBCosmicTask);
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBStatusFlagsTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBStatusFlagsTask.h"
 DEFINE_FWK_MODULE(EBStatusFlagsTask);
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBIntegrityTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBIntegrityTask.h"
 DEFINE_FWK_MODULE(EBIntegrityTask);
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBLaserTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBLaserTask.h"
 DEFINE_FWK_MODULE(EBLaserTask);
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBOccupancyTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBOccupancyTask.h"
 DEFINE_FWK_MODULE(EBOccupancyTask);
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalOnlineTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBPedestalOnlineTask.h"
 DEFINE_FWK_MODULE(EBPedestalOnlineTask);
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBPedestalTask.h"
 DEFINE_FWK_MODULE(EBPedestalTask);
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBTestPulseTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBTestPulseTask.h"
 DEFINE_FWK_MODULE(EBTestPulseTask);
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBTriggerTowerTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBTriggerTowerTask.h"
 DEFINE_FWK_MODULE(EBTriggerTowerTask);
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBTimingTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBTimingTask.h"
 DEFINE_FWK_MODULE(EBTimingTask);
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBSelectiveReadoutTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBSelectiveReadoutTask.h"
 DEFINE_FWK_MODULE(EBSelectiveReadoutTask);
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBRawDataTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBRawDataTask.h"
 DEFINE_FWK_MODULE(EBRawDataTask);
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBHltTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBHltTask.h"
 DEFINE_FWK_MODULE(EBHltTask);
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBDaqInfoTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBDaqInfoTask.h"
 DEFINE_FWK_MODULE(EBDaqInfoTask);
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBDcsInfoTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBDcsInfoTask.h"
 DEFINE_FWK_MODULE(EBDcsInfoTask);
  
-#include <DQM/EcalBarrelMonitorTasks/interface/EBDataCertificationTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBDataCertificationTask.h"
 DEFINE_FWK_MODULE(EBDataCertificationTask);
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBTrendTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBTrendTask.h"
 DEFINE_FWK_MODULE(EBTrendTask);

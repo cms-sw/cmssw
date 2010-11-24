@@ -1,3 +1,4 @@
+#include <cmath>
 #include <iostream>
 #include "TopQuarkAnalysis/TopTools/interface/TopologyWorker.h"
 
@@ -650,10 +651,10 @@ void TopologyWorker::sanda() {
          SMAX=0.;
          for (J1=1;J1<4;J1++) { // 200
             for (J2=1;J2<4;J2++) { // 190
-              if(fabs(SV[J1][J2])>SMAX) { // 190
+              if(std::fabs(SV[J1][J2])>SMAX) { // 190
                  JA=J1;
                  JB=J2;
-                 SMAX=fabs(SV[J1][J2]);
+                 SMAX=std::fabs(SV[J1][J2]);
               }
             } // 190
           } // 200
@@ -663,9 +664,9 @@ void TopologyWorker::sanda() {
              RL=SV[J1][JB]/SV[JA][JB];
              for (J2=1;J2<4;J2++) { // 210
                 SV[J1][J2]=SV[J1][J2]-RL*SV[JA][J2];
-                if (fabs(SV[J1][J2])>SMAX) { // GOTO 210
+                if (std::fabs(SV[J1][J2])>SMAX) { // GOTO 210
                    JC=J1;
-                   SMAX=fabs(SV[J1][J2]);
+                   SMAX=std::fabs(SV[J1][J2]);
                  }
                } // 210
             }  // 220 
@@ -678,8 +679,8 @@ void TopologyWorker::sanda() {
             PA=TMath::Sqrt(pow(P[N+I][1],2)+pow(P[N+I][2],2)+pow(P[N+I][3],2));
 // make a random number
 	    float pa=P[N-1][I];
-	    rlu=fabs(pa)-fabs(int(pa)*1.);
-            rlu1=fabs(pa*pa)-fabs(int(pa*pa)*1.);
+	    rlu=std::fabs(pa)-std::fabs(int(pa)*1.);
+            rlu1=std::fabs(pa*pa)-std::fabs(int(pa*pa)*1.);
             SGN=pow((-1.),1.*int(rlu+0.5));
 	    for (J=1;J<4;J++) { // 230
                P[N+I][J]=SGN*P[N+I][J]/PA;
@@ -746,7 +747,7 @@ void TopologyWorker::planes_sphe(double& pnorm, double& p2, double& p3) {
          PA=sqrt(pow(P[I][1],2)+pow(P[I][2],2)+pow(P[I][3],2)); 
 	 double eta,phi;
 	 getetaphi(P[I][1],P[I][2],P[I][3],eta,phi);
-	 PWT=exp(-fabs(eta));
+	 PWT=exp(-std::fabs(eta));
 	 PWT=1.;
          for (J1=1;J1<4;J1++) { // 130
             for (J2=J1;J2<4;J2++) { // 120
@@ -792,10 +793,10 @@ void TopologyWorker::planes_sphe(double& pnorm, double& p2, double& p3) {
          SMAX=0.;
          for (J1=1;J1<4;J1++) { // 200
             for (J2=1;J2<4;J2++) { // 190
-              if(fabs(SV[J1][J2])>SMAX) { // 190
+              if(std::fabs(SV[J1][J2])>SMAX) { // 190
                  JA=J1;
                  JB=J2;
-                 SMAX=fabs(SV[J1][J2]);
+                 SMAX=std::fabs(SV[J1][J2]);
               }
             } // 190
           } // 200
@@ -805,9 +806,9 @@ void TopologyWorker::planes_sphe(double& pnorm, double& p2, double& p3) {
              RL=SV[J1][JB]/SV[JA][JB];
              for (J2=1;J2<4;J2++) { // 210
                 SV[J1][J2]=SV[J1][J2]-RL*SV[JA][J2];
-                if (fabs(SV[J1][J2])>SMAX) { // GOTO 210
+                if (std::fabs(SV[J1][J2])>SMAX) { // GOTO 210
                    JC=J1;
-                   SMAX=fabs(SV[J1][J2]);
+                   SMAX=std::fabs(SV[J1][J2]);
                  }
                } // 210
             }  // 220 
@@ -820,8 +821,8 @@ void TopologyWorker::planes_sphe(double& pnorm, double& p2, double& p3) {
             PA=TMath::Sqrt(pow(P[N+I][1],2)+pow(P[N+I][2],2)+pow(P[N+I][3],2));
 // make a random number
 	    float pa=P[N-1][I];
-	    rlu=fabs(pa)-fabs(int(pa)*1.);
-            rlu1=fabs(pa*pa)-fabs(int(pa*pa)*1.);
+	    rlu=std::fabs(pa)-std::fabs(int(pa)*1.);
+            rlu1=std::fabs(pa*pa)-std::fabs(int(pa*pa)*1.);
             SGN=pow((-1.),1.*int(rlu+0.5));
 	    for (J=1;J<4;J++) { // 230
                P[N+I][J]=SGN*P[N+I][J]/PA;
@@ -910,8 +911,8 @@ void TopologyWorker::planes_sphe(double& pnorm, double& p2, double& p3) {
 	double p32=sum22*sin(phip)*sin(phip)+sum33*cos(phip)*cos(phip)-2*sum23*cos(phip)*sin(phip);
 
      
-	double d1=fabs(p31*p31 - p21*p21);
-	double d2=fabs(p32*p32 - p22*p22);
+	double d1=std::fabs(p31*p31 - p21*p21);
+	double d2=std::fabs(p32*p32 - p22*p22);
 	//cout << " eltot " << eltot[2] << " " << eltot[3] << endl;
 	//cout << " phi " << phi << " " << phip << endl;
 	//cout << " d " << d1 << " " << d2 << endl;
@@ -978,7 +979,7 @@ void TopologyWorker::planes_sphe_wei(double& pnorm, double& p2, double& p3) {
          PA=sqrt(pow(P[I][1],2)+pow(P[I][2],2)+pow(P[I][3],2)); 
 	 // double eta,phi;
 	 // getetaphi(P[I][1],P[I][2],P[I][3],eta,phi);
-	 //  PWT=exp(-fabs(eta));
+	 //  PWT=exp(-std::fabs(eta));
 	 PWT=1.;
          for (J1=1;J1<4;J1++) { // 130
             for (J2=J1;J2<4;J2++) { // 120
@@ -1024,10 +1025,10 @@ void TopologyWorker::planes_sphe_wei(double& pnorm, double& p2, double& p3) {
          SMAX=0.;
          for (J1=1;J1<4;J1++) { // 200
             for (J2=1;J2<4;J2++) { // 190
-              if(fabs(SV[J1][J2])>SMAX) { // 190
+              if(std::fabs(SV[J1][J2])>SMAX) { // 190
                  JA=J1;
                  JB=J2;
-                 SMAX=fabs(SV[J1][J2]);
+                 SMAX=std::fabs(SV[J1][J2]);
               }
             } // 190
           } // 200
@@ -1037,9 +1038,9 @@ void TopologyWorker::planes_sphe_wei(double& pnorm, double& p2, double& p3) {
              RL=SV[J1][JB]/SV[JA][JB];
              for (J2=1;J2<4;J2++) { // 210
                 SV[J1][J2]=SV[J1][J2]-RL*SV[JA][J2];
-                if (fabs(SV[J1][J2])>SMAX) { // GOTO 210
+                if (std::fabs(SV[J1][J2])>SMAX) { // GOTO 210
                    JC=J1;
-                   SMAX=fabs(SV[J1][J2]);
+                   SMAX=std::fabs(SV[J1][J2]);
                  }
                } // 210
             }  // 220 
@@ -1052,8 +1053,8 @@ void TopologyWorker::planes_sphe_wei(double& pnorm, double& p2, double& p3) {
             PA=TMath::Sqrt(pow(P[N+I][1],2)+pow(P[N+I][2],2)+pow(P[N+I][3],2));
 // make a random number
 	    float pa=P[N-1][I];
-	    rlu=fabs(pa)-fabs(int(pa)*1.);
-            rlu1=fabs(pa*pa)-fabs(int(pa*pa)*1.);
+	    rlu=std::fabs(pa)-std::fabs(int(pa)*1.);
+            rlu1=std::fabs(pa*pa)-std::fabs(int(pa*pa)*1.);
             SGN=pow((-1.),1.*int(rlu+0.5));
 	    for (J=1;J<4;J++) { // 230
                P[N+I][J]=SGN*P[N+I][J]/PA;
@@ -1095,7 +1096,7 @@ void TopologyWorker::planes_sphe_wei(double& pnorm, double& p2, double& p3) {
       for (int k =0 ; k<m_np ; k++) {
 	 double eta,phi;
 	 getetaphi(m_mom(k,1),m_mom(k,2),m_mom(k,3),eta,phi);
-	 double W=exp(-fabs(eta*1.0));
+	 double W=exp(-std::fabs(eta*1.0));
 	for (int ia=1;ia<4;ia++) {
 	  double e=sqrt(m_mom(k,1)*m_mom(k,1) +
 			m_mom(k,2)*m_mom(k,2) +
@@ -1140,8 +1141,8 @@ void TopologyWorker::planes_sphe_wei(double& pnorm, double& p2, double& p3) {
 	double p32=sum22*sin(phip)*sin(phip)+sum33*cos(phip)*cos(phip)-2*sum23*cos(phip)*sin(phip);
 
      
-	double d1=fabs(p31*p31 - p21*p21);
-	double d2=fabs(p32*p32 - p22*p22);
+	double d1=std::fabs(p31*p31 - p21*p21);
+	double d2=std::fabs(p32*p32 - p22*p22);
 	//cout << " eltot " << eltot[2] << " " << eltot[3] << endl;
 	//cout << " phi " << phi << " " << phip << endl;
 	//cout << " d " << d1 << " " << d2 << endl;
@@ -1202,7 +1203,7 @@ void TopologyWorker::planes_thrust(double& pnorm, double& p2, double& p3) {
 	  pina[ia]=el;
 	  double ets=(e*e-el*el);
 	  etstot[ia]+=ets;
-	  eltot[ia]+=fabs(el);
+	  eltot[ia]+=std::fabs(el);
 	}
 	double a2=pina[2];
 	double a3=pina[3];
@@ -1238,8 +1239,8 @@ void TopologyWorker::planes_thrust(double& pnorm, double& p2, double& p3) {
 	double p32=sum22*sin(phip)*sin(phip)+sum33*cos(phip)*cos(phip)-2*sum23*cos(phip)*sin(phip);
 
      
-	double d1=fabs(p31*p31 - p21*p21);
-	double d2=fabs(p32*p32 - p22*p22);
+	double d1=std::fabs(p31*p31 - p21*p21);
+	double d2=std::fabs(p32*p32 - p22*p22);
 	//cout << " eltot " << eltot[2] << " " << eltot[3] << endl;
 	//cout << " phi " << phi << " " << phip << endl;
 	//cout << " d " << d1 << " " << d2 << endl;
@@ -1438,9 +1439,9 @@ void TopologyWorker::sumangles(float& sdeta, float& sdr) {
     for (int kp=k;kp<m_np;kp++){
       getetaphi(m_mom(k,1) , m_mom(k,2), m_mom(k,3), eta1,phi1);
       getetaphi(m_mom(kp,1) , m_mom(kp,2), m_mom(kp,3), eta2,phi2);
-      dphi=fabs(phi1-phi2);
+      dphi=std::fabs(phi1-phi2);
       if (dphi>3.1415) dphi=2*3.1415-dphi;
-      deta=fabs(eta1-eta2);
+      deta=std::fabs(eta1-eta2);
       dr=sqrt(dphi*dphi+deta*deta);
       sdeta+=deta;
       sdr+=dr;

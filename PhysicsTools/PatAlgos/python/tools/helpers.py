@@ -10,11 +10,11 @@ def applyPostfix(process, label, postfix):
     defaultLabels = __labelsInSequence(process, "patDefaultSequence", postfix)
     if hasattr(process, "patPF2PATSequence"):
         defaultLabels = __labelsInSequence(process, "patPF2PATSequence", postfix)
-    if label in defaultLabels:
+    if label in defaultLabels and hasattr(process, label+postfix):
         result = getattr(process, label+postfix)
-    else:
+    elif hasattr(process, label):
         print "WARNING: called applyPostfix for module/sequence %s which is not in patDefaultSequence%s!"%(label,postfix)
-        result = getattr(process, label)
+        result = getattr(process, label)    
     return result
 
 def removeIfInSequence(process, target,  sequenceLabel, postfix=""):

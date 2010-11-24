@@ -43,10 +43,12 @@ EgammaHLTPhotonTrackIsolationProducersRegional::EgammaHLTPhotonTrackIsolationPro
   egTrkIsoZSpan_                = conf_.getParameter<double>("egTrkIsoZSpan");
   egTrkIsoRSpan_                = conf_.getParameter<double>("egTrkIsoRSpan");
   egTrkIsoVetoConeSize_         = conf_.getParameter<double>("egTrkIsoVetoConeSize");
-
+ double egTrkIsoStripBarrel    = conf_.getParameter<double>("egTrkIsoStripBarrel");
+  double egTrkIsoStripEndcap    = conf_.getParameter<double>("egTrkIsoStripEndcap");
 
   test_ = new EgammaHLTTrackIsolation(egTrkIsoPtMin_,egTrkIsoConeSize_,
-				      egTrkIsoZSpan_,egTrkIsoRSpan_,egTrkIsoVetoConeSize_);
+				      egTrkIsoZSpan_,egTrkIsoRSpan_,egTrkIsoVetoConeSize_,
+				      egTrkIsoStripBarrel,egTrkIsoStripEndcap);
 
 
   //register your products

@@ -52,7 +52,7 @@ bool Data::setEvent(const edm::Event & event, const edm::EventSetup & setup) {
     if (not m_l1tResults)
       return false;
 
-    // cache the L1 trigger  masks
+    // cache the L1 trigger masks
     m_l1tAlgoMask = get<L1GtTriggerMaskAlgoTrigRcd, L1GtTriggerMask>(setup);
     m_l1tTechMask = get<L1GtTriggerMaskTechTrigRcd, L1GtTriggerMask>(setup);
 
@@ -63,6 +63,7 @@ bool Data::setEvent(const edm::Event & event, const edm::EventSetup & setup) {
     } else {
       m_l1tMenu = get<L1GtTriggerMenuRcd, L1GtTriggerMenu>(setup);
       (const_cast<L1GtTriggerMenu *>(m_l1tMenu))->buildGtConditionMap();
+      m_l1tCacheID = l1tCacheID;
       m_l1tUpdated = true;
     }
   }
@@ -79,7 +80,7 @@ bool Data::setEvent(const edm::Event & event, const edm::EventSetup & setup) {
     if (m_hltMenu->parameterSetID() == m_hltCacheID) {
       m_hltUpdated = false;
     } else {
-      m_hltCacheID  = m_hltMenu->parameterSetID();
+      m_hltCacheID = m_hltMenu->parameterSetID();
       m_hltUpdated = true;
     }
   }

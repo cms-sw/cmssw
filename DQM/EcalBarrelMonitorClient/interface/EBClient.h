@@ -1,11 +1,11 @@
-// $Id: EBClient.h,v 1.27 2010/01/25 21:12:23 dellaric Exp $
+// $Id: EBClient.h,v 1.28 2010/03/28 09:00:42 dellaric Exp $
 
 /*!
   \file EBClient.h
   \brief Ecal Barrel Monitor Client mom class
   \author B. Gobbo
-  \version $Revision: 1.27 $
-  \date $Date: 2010/01/25 21:12:23 $
+  \version $Revision: 1.28 $
+  \date $Date: 2010/03/28 09:00:42 $
 */
 
 
@@ -26,37 +26,37 @@ class EBClient {
   /*! \fn virtual void analyze(void)
     \brief analyze method
   */
-  virtual void analyze(void)      = 0;
+  virtual void analyze(void) = 0;
 
   /*! \fn virtual void beginJob(void)
     \brief begin of job method
   */
-  virtual void beginJob(void)     = 0;
+  virtual void beginJob(void) = 0;
 
   /*! \fn virtual void endJob(void)
     \brief end of job method
   */
-  virtual void endJob(void)       = 0;
+  virtual void endJob(void) = 0;
 
   /*! \fn virtual void beginRun(void)
     \brief begin of run method
   */
-  virtual void beginRun(void)     = 0;
+  virtual void beginRun(void) = 0;
 
   /*! \fn virtual void endRun(void)
     \brief end of run method
   */
-  virtual void endRun(void)       = 0;
+  virtual void endRun(void) = 0;
 
   /*! \fn virtual void setup(void)
     \brief setup method
   */
-  virtual void setup(void)        = 0;
+  virtual void setup(void) = 0;
 
   /*! \fn virtual void cleanup(void)
     \brief clean up method
   */
-  virtual void cleanup(void)      = 0;
+  virtual void cleanup(void) = 0;
 
 #ifdef WITH_ECAL_COND_DB
   /*! \fn virtual bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status);

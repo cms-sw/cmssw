@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 pfIsolatedMuons  = cms.EDFilter(
     "IsolatedPFCandidateSelector",
-    src = cms.InputTag("pfMuonsPtGt5"),
+    src = cms.InputTag("pfSelectedMuons"),
     isolationValueMaps = cms.VInputTag(
         cms.InputTag("isoValMuonWithCharged"),
         cms.InputTag("isoValMuonWithNeutral"),
@@ -19,6 +19,6 @@ pfIsolatedMuons  = cms.EDFilter(
                                  10 ),
     # not used when isCombined=False
     # default value for combined relative with DR={0.4,0.4,0.4}
-    # and weight={1.,1./3.,1.}; optimised for Z->mu,mu
-    combinedIsolationCut = cms.double(0.14) 
+    # and weight={1.,1.,1.}; optimised for Z->mu,mu
+    combinedIsolationCut = cms.double(0.15) 
     )

@@ -302,9 +302,6 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& iEvent,
   for( reco::TrackCollection::const_iterator RecoTrack = RecoTracks->begin(), RecoTrackEnd = RecoTracks->end();
        RecoTrack !=RecoTrackEnd ; ++i, ++RecoTrack) {
     AVTrackStruct trackStruct;
-    LogDebug("TrackerValidationVariables")<<"track pt "<< RecoTrack->p();
-     
-    trackStruct.p = RecoTrack->p();
     trackStruct.pt = RecoTrack->pt();
     trackStruct.ptError = RecoTrack->ptError();
     trackStruct.px = RecoTrack->px();

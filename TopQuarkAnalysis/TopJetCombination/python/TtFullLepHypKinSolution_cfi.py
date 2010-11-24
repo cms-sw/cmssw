@@ -13,7 +13,7 @@ ttFullLepHypKinSolution = cms.EDProducer("TtFullLepHypKinSolution",
     Neutrinos      = cms.InputTag("kinSolutionTtFullLepEventHypothesis","fullLepNeutrinos"),       
     NeutrinoBars   = cms.InputTag("kinSolutionTtFullLepEventHypothesis","fullLepNeutrinoBars"), 
     solutionWeight = cms.InputTag("kinSolutionTtFullLepEventHypothesis","solWeight"),
-    jetCorrectionLevel = cms.string("abs") 
+    jetCorrectionLevel = cms.string("L3Absolute") 
 )
 
 

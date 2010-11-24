@@ -1,5 +1,5 @@
 //
-// $Id: Centrality.cc,v 1.8 2010/03/23 12:46:07 yilmaz Exp $
+// $Id: Centrality.cc,v 1.7 2010/03/03 18:42:48 yilmaz Exp $
 //
 
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
@@ -24,8 +24,7 @@ etEBSum_(0),
 etEBtruncated_(0),
 pixelMultiplicity_(0),
 zdcSumPlus_(0),
-zdcSumMinus_(0),
-etMidRapiditySum_(0)
+zdcSumMinus_(0)
 {
 }
 

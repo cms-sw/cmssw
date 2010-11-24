@@ -1,4 +1,4 @@
-// $Id: DbFileHandler.cc,v 1.6.2.1 2010/06/25 11:04:08 mommsen Exp $
+// $Id: DbFileHandler.cc,v 1.7 2010/06/25 11:21:20 mommsen Exp $
 /// @file: DbFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/DbFileHandler.h>
@@ -15,7 +15,7 @@ _runNumber(0)
 {}
 
 
-void DbFileHandler::writeOld(const utils::time_point_t& timestamp, const string& str)
+void DbFileHandler::writeOld(const utils::time_point_t& timestamp, const std::string& str)
 {
   std::ofstream outputFile;
   openFile(outputFile, timestamp);
@@ -24,7 +24,7 @@ void DbFileHandler::writeOld(const utils::time_point_t& timestamp, const string&
 }
 
 
-void DbFileHandler::write(const string& str)
+void DbFileHandler::write(const std::string& str)
 {
   const utils::time_point_t timestamp = utils::getCurrentTime();
 
@@ -32,7 +32,7 @@ void DbFileHandler::write(const string& str)
   openFile(outputFile, timestamp);
   addReportHeader(outputFile, timestamp);
   outputFile << str.c_str();
-  outputFile << endl;
+  outputFile << std::endl;
   outputFile.close();
 }
 
@@ -62,7 +62,7 @@ void DbFileHandler::openFile
              << "-" << _dwParams._smInstanceString
              << ".log";
 
-  outputFile.open( dbfilename.str().c_str(), ios_base::ate | ios_base::out | ios_base::app );
+  outputFile.open( dbfilename.str().c_str(), std::ios_base::ate | std::ios_base::out | std::ios_base::app );
   if (! outputFile.is_open() )
   {
     std::ostringstream msg;

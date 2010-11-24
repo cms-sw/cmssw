@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.40 2010/04/09 11:17:46 amraktad Exp $
+// $Id: FWEventItem.h,v 1.38 2010/01/21 21:01:34 amraktad Exp $
 //
 
 // system include files
@@ -155,13 +155,14 @@ public:
    
    // ---------- static member functions --------------------
 
-   static int minLayerValue();
-   static int maxLayerValue();
-
    // ---------- member functions ---------------------------
    void setEvent(const fwlite::Event* iEvent);
-
-   const DetIdToMatrix* getGeom() const;
+   void setGeom(const DetIdToMatrix* geom){
+      m_detIdToGeo = geom;
+   }
+   const DetIdToMatrix* getGeom() const {
+      return m_detIdToGeo;
+   }
 
    void setLabels(const std::string& iModule,
                   const std::string& iProductInstance,
@@ -180,7 +181,6 @@ public:
    /**change layering*/
    void moveToFront();
    void moveToBack();
-   void moveToLayer(int layer);
 
    void unselect(int iIndex) const;
    void select(int iIndex) const;
@@ -235,6 +235,8 @@ private:
    std::string m_processName;
    const fwlite::Event* m_event;
    ROOT::Reflex::Type m_wrapperType;
+   const DetIdToMatrix* m_detIdToGeo;
+
    FWItemValueGetter m_interestingValueGetter;
 
    FWModelFilter m_filter;

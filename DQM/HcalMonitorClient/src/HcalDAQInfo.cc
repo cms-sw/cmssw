@@ -138,7 +138,7 @@ HcalDAQInfo::beginJob()
   DAQSummaryMap->setBinLabel(7,"HFlumi");
   DAQSummaryMap->setBinLabel(1,"Status",2);
 
-  dbe_->setCurrentFolder(rootFolder_+"/EventInfo/DAQSummaryContents/");
+  dbe_->setCurrentFolder(rootFolder_+"/EventInfo/DAQContents/");
   HBDaqFraction  = dbe_->bookFloat("Hcal_HB");
   HEDaqFraction  = dbe_->bookFloat("Hcal_HE");
   HODaqFraction  = dbe_->bookFloat("Hcal_HO");

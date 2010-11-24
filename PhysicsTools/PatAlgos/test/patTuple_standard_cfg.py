@@ -1,8 +1,6 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
-
-
 ## ------------------------------------------------------
 #  NOTE: you can use a bunch of core tools of PAT to
 #  taylor your PAT configuration; for a few examples
@@ -16,8 +14,6 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 ## remove certain objects from the default sequence
 # removeAllPATObjectsBut(process, ['Muons'])
 # removeSpecificPATObjects(process, ['Electrons', 'Muons', 'Taus'])
-
-
 
 ## ------------------------------------------------------
 #  NOTE: you can still run PAT in the 36X version on
@@ -57,12 +53,10 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 #                 )
 
 
-
 ## let it run
 process.p = cms.Path(
     process.patDefaultSequence
     )
-
 
 
 ## ------------------------------------------------------
@@ -73,7 +67,7 @@ process.p = cms.Path(
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
 #   process.source.fileNames = [          ##
-#    '/store/relval/CMSSW_3_5_0_pre1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0006/14920B0A-0DE8-DE11-B138-002618943926.root'
+#    '/store/relval/CMSSW_3_8_6/RelValTTbar/GEN-SIM-RECO/START38_V13-v1/0065/F438C4C4-BCE7-DF11-BC6B-002618943885.root'
 #   ]                                     ##  (e.g. 'file:AOD.root')
 #                                         ##
 #   process.maxEvents.input = ...         ##  (e.g. -1 to run on all events)

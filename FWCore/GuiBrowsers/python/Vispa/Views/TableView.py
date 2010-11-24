@@ -103,7 +103,8 @@ class TableView(AbstractView, QTableWidget):
         else:
             self._columns=[]
             ranking={}
-            for property in properties:
+            for ps in properties:
+              for property in ps:
                 if not property[1] in ranking.keys():
                     ranking[property[1]]=1
                     if property[0]!="Category":

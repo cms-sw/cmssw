@@ -2,6 +2,7 @@
 
 //This class header
 #include "FastSimulation/CalorimeterProperties/interface/HCALProperties.h"
+#include <cmath>
 #include <iostream>
 
 

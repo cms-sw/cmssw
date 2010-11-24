@@ -44,6 +44,7 @@ class ConfigEditorTabController(BrowserTabController):
         self._thread = None
         self._originalSizes=[100,1,200]
         self._toolDialog=None
+        self._updateCenterView=False
         self.setEditable(False)
         
         self._configMenu = self.plugin().application().createPluginMenu('&Config')
@@ -88,6 +89,10 @@ class ConfigEditorTabController(BrowserTabController):
 
     def updateCenterView(self, propertyView=True):
         """ Fill the center view from an item in the TreeView and update it """
+        if not self._updateCenterView:
+            # Do not update the very first time
+            self._updateCenterView=True
+            return
         statusMessage = self.plugin().application().startWorking("Updating center view")
         if propertyView:
             self.selectDataAccessor(True)
@@ -115,11 +120,12 @@ class ConfigEditorTabController(BrowserTabController):
                     self.tab().centerView().setDataObjects(self.dataAccessor().nonSequenceChildren(select))
                 else:
                     self.tab().centerView().setDataObjects([])
-            else:
+            elif self.currentCenterViewClassId() == self.plugin().viewClassId(SequenceStructureView):
                 self.tab().centerView().setArrangeUsingRelations(False)
                 self.tab().centerView().setDataObjects([select])
                 self.tab().centerView().setConnections({})
-        if self.tab().centerView().updateContent(True):
+        if (self.currentCenterViewClassId() == self.plugin().viewClassId(ConnectionStructureView) or self.currentCenterViewClassId() == self.plugin().viewClassId(SequenceStructureView)) and \
+            self.tab().centerView().updateContent(True):
             if not self.dataAccessor().isContainer(select) and self.currentCenterViewClassId() == self.plugin().viewClassId(ConnectionStructureView):
                     self.tab().centerView().select(select,500)
             else:
@@ -133,11 +139,11 @@ class ConfigEditorTabController(BrowserTabController):
             self.updateConfigHighlight()
         self.plugin().application().stopWorking(statusMessage)
         
-    def selected(self):
+    def activated(self):
         """ Shows plugin menus when user selects tab.
         """
-        logging.debug(__name__ + ": selected()")
-        BrowserTabController.selected(self)
+        logging.debug(__name__ + ": activated()")
+        BrowserTabController.activated(self)
         self.plugin().application().showPluginMenu(self._configMenu)
         self.plugin().application().showPluginToolBar(self._configToolBar)
         self._editorAction.setVisible(not self.tab().editorSplitter())
@@ -286,6 +292,7 @@ class ConfigEditorTabController(BrowserTabController):
     def readFile(self, filename):
         """ Reads in the file in a separate thread.
         """
+        self._updateCenterView=False
         thread = ThreadChain(self.dataAccessor().open, filename)
         while thread.isRunning():
             if not Application.NO_PROCESS_EVENTS:
@@ -363,7 +370,7 @@ class ConfigEditorTabController(BrowserTabController):
         self._applyPatToolAction = self.plugin().application().createAction('&Apply tool...', self.applyButtonClicked, "F3")
         self._configMenu.addAction(self._applyPatToolAction)
         self._configToolBar.addAction(self._applyPatToolAction)
-        self.selected()
+        self.activated()
 
         self._toolDataAccessor=ToolDataAccessor()
         self._toolDataAccessor.setConfigDataAccessor(self.dataAccessor())

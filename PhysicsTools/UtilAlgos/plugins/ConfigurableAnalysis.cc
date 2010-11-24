@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Mon Apr 14 11:39:51 CEST 2008
-// $Id: ConfigurableAnalysis.cc,v 1.8 2009/09/17 12:47:39 llista Exp $
+// $Id: ConfigurableAnalysis.cc,v 1.9 2009/12/18 17:52:25 wmtan Exp $
 //
 //
 
@@ -139,7 +139,7 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   for (Selections::iterator selection=selections_->begin(); selection!=selections_->end();++selection){
     //was this flow of filter actually asked for
     bool skip=true;
-    uint iFlow=0;
+    unsigned int iFlow=0;
     for (;iFlow!=flows_.size();++iFlow){if (flows_[iFlow]==selection->name()){skip=false; break;}}
     if (skip) continue;
 

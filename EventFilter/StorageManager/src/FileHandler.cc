@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.17 2010/03/19 17:33:54 mommsen Exp $
+// $Id: FileHandler.cc,v 1.19 2010/08/06 20:24:31 wmtan Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -72,16 +72,16 @@ void FileHandler::writeEvent(const I2OChain& event)
 void FileHandler::writeToSummaryCatalog() const
 {
   ostringstream currentStat;
-  string ind(":");
+  std::string ind(":");
   currentStat << _fileRecord->filePath()               << ind
               << _fileRecord->fileName()               << ind
               << fileSize()                            << ind 
               << events()                              << ind
               << utils::timeStamp(_lastEntry)          << ind
               << (int) (_lastEntry - _firstEntry)      << ind
-              << _fileRecord->whyClosed << endl;
-  string currentStatString (currentStat.str());
-  ofstream of(_diskWritingParams._fileCatalog.c_str(), ios_base::ate | ios_base::out | ios_base::app );
+              << _fileRecord->whyClosed << std::endl;
+  std::string currentStatString (currentStat.str());
+  ofstream of(_diskWritingParams._fileCatalog.c_str(), std::ios_base::ate | std::ios_base::out | std::ios_base::app );
   of << currentStatString;
   of.close();
 }
@@ -148,6 +148,35 @@ void FileHandler::insertFileInDatabase() const
 }
 
 
+bool FileHandler::tooOld(const utils::time_point_t currentTime)
+{
+  if (_diskWritingParams._lumiSectionTimeOut > 0 && 
+    (currentTime - _lastEntry) > _diskWritingParams._lumiSectionTimeOut)
+  {
+    closeFile(FilesMonitorCollection::FileRecord::timeout);
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+
+bool FileHandler::isFromLumiSection(const uint32_t lumiSection)
+{
+  if (lumiSection == _fileRecord->lumiSection)
+  {
+    closeFile(FilesMonitorCollection::FileRecord::LSended);
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+
 bool FileHandler::tooLarge(const unsigned long& dataSize)
 {
   if ( ((fileSize() + dataSize) > _maxFileSize) && (events() > 0) )
@@ -185,13 +214,13 @@ void FileHandler::moveFileToClosed
   const FilesMonitorCollection::FileRecord::ClosingReason& reason
 )
 {
-  const string openFileName(_fileRecord->completeFileName(FilesMonitorCollection::FileRecord::open));
-  const string openIndexFileName(openFileName + ".ind");
-  const string openStreamerFileName(openFileName + ".dat");
+  const std::string openFileName(_fileRecord->completeFileName(FilesMonitorCollection::FileRecord::open));
+  const std::string openIndexFileName(openFileName + ".ind");
+  const std::string openStreamerFileName(openFileName + ".dat");
 
-  const string closedFileName(_fileRecord->completeFileName(FilesMonitorCollection::FileRecord::closed));
-  const string closedIndexFileName(closedFileName + ".ind");
-  const string closedStreamerFileName(closedFileName + ".dat");
+  const std::string closedFileName(_fileRecord->completeFileName(FilesMonitorCollection::FileRecord::closed));
+  const std::string closedIndexFileName(closedFileName + ".ind");
+  const std::string closedStreamerFileName(closedFileName + ".dat");
 
   size_t openStreamerFileSize = checkFileSizeMatch(openStreamerFileName, fileSize());
 
@@ -216,7 +245,7 @@ void FileHandler::moveFileToClosed
 }
 
 
-size_t FileHandler::checkFileSizeMatch(const string& fileName, const size_t& size) const
+size_t FileHandler::checkFileSizeMatch(const std::string& fileName, const size_t& size) const
 {
   struct stat64 statBuff;
   int statStatus = stat64(fileName.c_str(), &statBuff);
@@ -254,7 +283,7 @@ bool FileHandler::sizeMismatch(const double& initialSize, const double& finalSiz
 }
 
 
-void FileHandler::makeFileReadOnly(const string& fileName) const
+void FileHandler::makeFileReadOnly(const std::string& fileName) const
 {
   int ronly  = chmod(fileName.c_str(), S_IREAD|S_IRGRP|S_IROTH);
   if (ronly != 0) {
@@ -266,7 +295,7 @@ void FileHandler::makeFileReadOnly(const string& fileName) const
 }
 
 
-void FileHandler::renameFile(const string& openFileName, const string& closedFileName) const
+void FileHandler::renameFile(const std::string& openFileName, const std::string& closedFileName) const
 {
   int result = rename( openFileName.c_str(), closedFileName.c_str() );
   if (result != 0) {

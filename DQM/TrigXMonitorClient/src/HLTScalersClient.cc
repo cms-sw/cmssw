@@ -1,6 +1,9 @@
-// $Id: HLTScalersClient.cc,v 1.17 2010/03/17 20:56:19 wittich Exp $
+// $Id: HLTScalersClient.cc,v 1.18 2010/04/02 20:48:12 wittich Exp $
 // 
 // $Log: HLTScalersClient.cc,v $
+// Revision 1.18  2010/04/02 20:48:12  wittich
+// updates to scale entries by received number of FU's
+//
 // Revision 1.17  2010/03/17 20:56:19  wittich
 // Check for good updates based on mergeCount values
 // add code for rates normalized per FU
@@ -41,6 +44,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
 #include "DQMServices/Core/interface/DQMStore.h"

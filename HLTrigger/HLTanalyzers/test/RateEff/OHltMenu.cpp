@@ -11,7 +11,8 @@ void OHltMenu::SetMapL1SeedsOfStandardHLTPath(std::map<TString, std::vector<TStr
   //std::cout<<map_L1SeedsOfStandardHLTPath.size()<<std::endl;
 }
 
-void OHltMenu::AddTrigger(TString trign, int presc, float eventS) {
+
+void OHltMenu::AddTrigger(TString trign, float presc, float eventS) {
   //used for L1 menu developemnt
   names.push_back(trign);
   seedcondition[trign] 	       	= trign;  // l1 is it's own seed
@@ -19,7 +20,7 @@ void OHltMenu::AddTrigger(TString trign, int presc, float eventS) {
   eventSizes[trign] 	       	= eventS;
 }
 
-void OHltMenu::AddTrigger(TString trign, TString seedcond, int presc, float eventS, int refpresc) {
+void OHltMenu::AddTrigger(TString trign, TString seedcond, float presc, float eventS, int refpresc) {
   names.push_back(trign);
   seedcondition[trign] 	       	= seedcond;
   prescales[trign] 	       	= presc;
@@ -27,7 +28,7 @@ void OHltMenu::AddTrigger(TString trign, TString seedcond, int presc, float even
   referenceRunPrescales[trign]  = refpresc;
 }
 
-void OHltMenu::AddL1forPreLoop(TString trign, int presc) {
+void OHltMenu::AddL1forPreLoop(TString trign, float presc) {
   L1names.push_back(trign);
   L1prescales[trign] 	       	= presc;
 }

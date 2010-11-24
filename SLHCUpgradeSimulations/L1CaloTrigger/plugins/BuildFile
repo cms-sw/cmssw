@@ -1,7 +1,0 @@
-<library file="*.cc" name=L1CaloTriggerPlugins>
-<use name=SLHCUpgradeSimulations/L1CaloTrigger>
-<use name=SimDataFormats/SLHC>
-<use name=CommonTools/UtilAlgos>
-<use name=root>
-<use name=rootcore>
-</library>

@@ -4,6 +4,7 @@ import dbs_discovery
 import FWCore.ParameterSet.Config as cms
 
 from TrackingTools.Configuration.TrackingTools_cff import *
+from RecoEgamma.Configuration.RecoEgamma_cff import *
 
 process = cms.Process("electrons")
 
@@ -46,7 +47,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.gsfElectrons.ctfTracksCheck = cms.bool(False)
 
 process.mylocalreco =  cms.Sequence(process.trackerlocalreco*process.calolocalreco)
-process.myglobalreco = cms.Sequence(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks+process.ecalClusters+process.caloTowersRec*process.vertexreco*process.particleFlowCluster)
+process.myglobalreco = cms.Sequence(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks+process.ecalClusters+process.caloTowersRec*process.vertexreco*egammarecoGlobal*process.particleFlowCluster)
 process.myelectronseeding = cms.Sequence(process.trackerDrivenElectronSeeds*process.ecalDrivenElectronSeeds*process.electronMergedSeeds)
 process.myelectrontracking = cms.Sequence(process.electronCkfTrackCandidates*process.electronGsfTracks)
 

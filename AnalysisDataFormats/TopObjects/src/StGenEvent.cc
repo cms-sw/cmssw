@@ -1,5 +1,5 @@
 //
-// $Id: StGenEvent.cc,v 1.9 2009/05/08 17:10:23 rwolf Exp $
+// $Id: StGenEvent.cc,v 1.10 2009/10/09 12:59:25 llista Exp $
 //
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -29,7 +29,7 @@ StGenEvent::decayB() const
     const reco::GenParticleCollection & partsColl = *parts_;
     const reco::GenParticle & singleLep = *singleLepton();
     for (unsigned int i = 0; i < parts_->size(); ++i) {
-      if (abs(partsColl[i].pdgId())==TopDecayID::bID && 
+      if (std::abs(partsColl[i].pdgId())==TopDecayID::bID && 
 	  reco::flavour(singleLep)== - reco::flavour(partsColl[i])) { 
 	// ... but it should be the opposite!
         cand = &partsColl[i];
@@ -47,7 +47,7 @@ StGenEvent::associatedB() const
     const reco::GenParticleCollection & partsColl = *parts_;
     const reco::GenParticle & singleLep = *singleLepton();
     for (unsigned int i = 0; i < parts_->size(); ++i) {
-      if (abs(partsColl[i].pdgId())==TopDecayID::bID && 
+      if (std::abs(partsColl[i].pdgId())==TopDecayID::bID && 
 	  reco::flavour(singleLep)== reco::flavour(partsColl[i])) { 
 	// ... but it should be the opposite!
         cand = &partsColl[i];
@@ -64,7 +64,7 @@ StGenEvent::singleLepton() const
   const reco::GenParticleCollection& partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
     if (reco::isLepton(partsColl[i]) && partsColl[i].mother() &&
-	abs(partsColl[i].mother()->pdgId())==TopDecayID::WID) {
+	std::abs(partsColl[i].mother()->pdgId())==TopDecayID::WID) {
       cand = &partsColl[i];
     }
   }
@@ -78,7 +78,7 @@ StGenEvent::singleNeutrino() const
   const reco::GenParticleCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
     if (reco::isNeutrino(partsColl[i]) && partsColl[i].mother() &&
-	abs(partsColl[i].mother()->pdgId())==TopDecayID::WID) {
+	std::abs(partsColl[i].mother()->pdgId())==TopDecayID::WID) {
       cand = &partsColl[i];
     }
   }
@@ -93,7 +93,7 @@ StGenEvent::singleW() const
     const reco::GenParticleCollection & partsColl = *parts_;
     const reco::GenParticle & singleLep = *singleLepton();
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
-      if (abs(partsColl[i].pdgId())==TopDecayID::WID &&
+      if (std::abs(partsColl[i].pdgId())==TopDecayID::WID &&
           reco::flavour(singleLep) == - reco::flavour(partsColl[i])){ 
 	// PDG Id:13=mu- 24=W+ (+24)->(-13) (-24)->(+13) opposite sign
         cand = &partsColl[i];
@@ -111,7 +111,7 @@ StGenEvent::singleTop() const
     const reco::GenParticleCollection & partsColl = *parts_;
     const reco::GenParticle & singleLep = *singleLepton();
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
-      if (abs(partsColl[i].pdgId())==TopDecayID::tID &&
+      if (std::abs(partsColl[i].pdgId())==TopDecayID::tID &&
           reco::flavour(singleLep)!=reco::flavour(partsColl[i])) {
         cand = &partsColl[i];
       }

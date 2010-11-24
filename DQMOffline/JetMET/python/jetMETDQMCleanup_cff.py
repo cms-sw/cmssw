@@ -7,12 +7,12 @@ cleaningParameters = cms.PSet(
 
     HLT_PhysDec   = cms.string("HLT_PhysicsDeclared"),
     
-    techTrigsAND    = cms.vuint32(0),
-    techTrigsOR     = cms.vuint32(40,41),
-    techTrigsNOT    = cms.vuint32(36,37,38,39),
+    techTrigsAND    = cms.vuint32(),
+    techTrigsOR     = cms.vuint32(),
+    techTrigsNOT    = cms.vuint32(),
     
     #Turn on extra checks
-    doPrimaryVertexCheck   = cms.bool(False),
+    doPrimaryVertexCheck   = cms.bool(True),
     doHLTPhysicsOn         = cms.bool(False),
     
     #Vertex cleanup parameters

@@ -211,7 +211,6 @@ process.ecalUncalibHit.EEdigiCollection = 'ecalEBunpacker:eeDigis'
 process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
 process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 
-process.ecalBarrelMonitorClient.maskFile = ''
 process.ecalBarrelMonitorClient.location = 'H4B'
 process.ecalBarrelMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'StatusFlags', 'PedestalOnline', 'Pedestal', 'TestPulse', 'Laser', 'Timing', 'BeamCalo', 'BeamHodo', 'Cluster', 'Summary']
 process.ecalBarrelMonitorClient.superModules = [19]

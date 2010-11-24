@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalTask.cc
  *
- * $Date: 2010/03/27 20:08:01 $
- * $Revision: 1.52 $
+ * $Date: 2010/07/30 05:42:47 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  *
 */
@@ -23,9 +23,9 @@
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EEPedestalTask.h>
+#include "DQM/EcalEndcapMonitorTasks/interface/EEPedestalTask.h"
 
 // #define COMMON_NOISE_ANALYSIS
 
@@ -47,11 +47,11 @@ EEPedestalTask::EEPedestalTask(const edm::ParameterSet& ps){
 
   MGPAGains_.reserve(3);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGains_.push_back(i);
-  MGPAGains_ = ps.getUntrackedParameter<vector<int> >("MGPAGains", MGPAGains_);
+  MGPAGains_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGains", MGPAGains_);
 
   MGPAGainsPN_.reserve(2);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGainsPN_.push_back(i);
-  MGPAGainsPN_ = ps.getUntrackedParameter<vector<int> >("MGPAGainsPN", MGPAGainsPN_);
+  MGPAGainsPN_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGainsPN", MGPAGainsPN_);
 
   for (int i = 0; i < 18; i++) {
     mePedMapG01_[i] = 0;

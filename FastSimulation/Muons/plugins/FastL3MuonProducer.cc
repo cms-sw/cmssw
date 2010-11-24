@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a L2 reonstructed muon and a tracker track.
  *
- *   $Date: 2008/05/14 17:43:23 $
- *   $Revision: 1.4 $
+ *   $Date: 2009/03/16 15:46:50 $
+ *   $Revision: 1.5 $
  *   \author  Patrick Janot - CERN
  */
 
@@ -24,6 +24,8 @@
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //
 // constructor with config

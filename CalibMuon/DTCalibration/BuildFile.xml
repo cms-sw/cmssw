@@ -8,14 +8,6 @@
 <use   name="CondCore/DBOutputService"/>
 <use   name="CalibMuon/DTDigiSync"/>
 <use   name="root"/>
-<use   name="rootmath"/>
-<use   name="rootcore"/>
-<use   name="roofit"/>
 <export>
   <lib   name="1"/>
-  <use   name="root"/>
-  <use   name="rootmath"/>
-  <use   name="rootcore"/>
-  <use   name="rootroofit"/>
-  <use   name="roofit"/>
 </export>

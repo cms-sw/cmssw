@@ -59,6 +59,7 @@ class RemoveMCMatching(ConfigToolBase):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'names',['All'], "collection name; supported are 'Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'", allowedValues=['Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'])
         self.addParameter(self._defaultParameters,'postfix',"", "postfix of default sequence")
+        self.addParameter(self._defaultParameters,'outputInProcess',True, "indicate whether there is an output module specified for the process (default is True)  ")
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
@@ -67,18 +68,23 @@ class RemoveMCMatching(ConfigToolBase):
 
     def __call__(self,process,
                  names     = None,
-                 postfix   = None) :
+                 postfix   = None,
+                 outputInProcess     = None) :
         if  names is None:
             names=self._defaultParameters['names'].value
         if postfix  is None:
             postfix=self._defaultParameters['postfix'].value
+        if  outputInProcess is None:
+            outputInProcess=self._defaultParameters['outputInProcess'].value
         self.setParameter('names',names)
         self.setParameter('postfix',postfix)
+        self.setParameter('outputInProcess',outputInProcess)
         self.apply(process) 
         
     def toolCode(self, process):        
         names=self._parameters['names'].value
         postfix=self._parameters['postfix'].value
+        outputInProcess=self._parameters['outputInProcess'].value
 
         print "************** MC dependence removal ************"
         for obj in range(len(names)):    
@@ -123,7 +129,11 @@ class RemoveMCMatching(ConfigToolBase):
                 jetProducer.addGenJetMatch      = False
                 jetProducer.genJetMatch         = ''
                 jetProducer.getJetMCFlavour     = False
-                jetProducer.JetPartonMapSource  = ''       
+                jetProducer.JetPartonMapSource  = ''
+                ## adjust output
+                if outputInProcess:
+                    process.out.outputCommands.append("drop *_selectedPatJets*_genJets_*")
+                
             if( names[obj] == 'METs'      or names[obj] == 'All' ):
                 ## remove mc extra configs for jets
                 metProducer = getattr(process, 'patMETs'+postfix)        

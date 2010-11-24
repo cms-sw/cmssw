@@ -26,5 +26,7 @@ validationHarvestingFS = cms.Path(HarvestingFastSim)
 
 validationHarvestingHI = cms.Path(postValidationHI)
 
-#alcaHarvesting = cms.Path()
+genHarvesting = cms.Path(postValidation_gen)
+
+alcaHarvesting = cms.Path()
 

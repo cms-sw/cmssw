@@ -1,4 +1,4 @@
-// $Id: EventStreamConfigurationInfo.cc,v 1.6 2009/12/01 13:58:08 mommsen Exp $
+// $Id: EventStreamConfigurationInfo.cc,v 1.7 2009/12/01 17:50:40 smorovic Exp $
 /// @file: EventStreamConfigurationInfo.cc
 
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
@@ -12,31 +12,31 @@ stor::operator << ( ostream& os,
                     const EventStreamConfigurationInfo& ci )
 {
 
-  os << "EventStreamConfigurationInfo:" << endl
-     << " Stream label: " << ci.streamLabel() << endl
-     << " Maximum file size, MB: " << ci.maxFileSizeMB() << endl
-     << " HLT output: " << ci.outputModuleLabel() << endl
-     << " Maximum event size, Bytes: " << ci.maxEventSize() << endl
-     << " Fraction of events written to disk: " << ci.fractionToDisk() << endl
-     << " Stream Id: " << ci.streamId() << endl;
+  os << "EventStreamConfigurationInfo:" << std::endl
+     << " Stream label: " << ci.streamLabel() << std::endl
+     << " Maximum file size, MB: " << ci.maxFileSizeMB() << std::endl
+     << " HLT output: " << ci.outputModuleLabel() << std::endl
+     << " Maximum event size, Bytes: " << ci.maxEventSize() << std::endl
+     << " Fraction of events written to disk: " << ci.fractionToDisk() << std::endl
+     << " Stream Id: " << ci.streamId() << std::endl;
 
   if( ci.useCompression() )
     {
-      os << " Compression applied at level " << ci.compressionLevel() << endl;
+      os << " Compression applied at level " << ci.compressionLevel() << std::endl;
     }
   else
     {
-      os << " Compression not applied" << endl;
+      os << " Compression not applied" << std::endl;
     }
 
   os << " Event filters:";
   if (ci.triggerSelection().size()) {
-        os << endl << ci.triggerSelection();
+        os << std::endl << ci.triggerSelection();
   }
   else
   for( unsigned int i = 0; i < ci.selEvents().size(); ++i )
     {
-      os << endl << "  " << ci.selEvents()[i];
+      os << std::endl << "  " << ci.selEvents()[i];
     }
 
     return os;

@@ -1,6 +1,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
 #include "TopQuarkAnalysis/TopSkimming/interface/TtDecayChannelSelector.h"
 
 // static const string for status check in  
@@ -62,6 +62,7 @@ TtDecayChannelSelector::~TtDecayChannelSelector()
 bool
 TtDecayChannelSelector::operator()(const reco::GenParticleCollection& parts, std::string inputType) const
 {
+  bool verbose=false; // set this to true for debugging and add TtDecayChannelSelector category to the MessageLogger in your cfg file
   unsigned int iLep=0;
   unsigned int iTop=0,iBeauty=0,iElec=0,iMuon=0,iTau=0;
   for(reco::GenParticleCollection::const_iterator top=parts.begin(); top!=parts.end(); ++top){
@@ -73,13 +74,13 @@ TtDecayChannelSelector::operator()(const reco::GenParticleCollection& parts, std
 	}
 	if( search(td, TopDecayID::WID, inputType) ){
 	  for(reco::GenParticle::const_iterator wd=td->begin(); wd!=td->end(); ++wd){
-	    if( abs(wd->pdgId())==TopDecayID::elecID ){
+	    if( std::abs(wd->pdgId())==TopDecayID::elecID ){
 	      ++iElec;
 	    }
-	    if( abs(wd->pdgId())==TopDecayID::muonID ){
+	    if( std::abs(wd->pdgId())==TopDecayID::muonID ){
 	      ++iMuon;
 	    }
-	    if( abs(wd->pdgId())==TopDecayID::tauID  ){ 
+	    if( std::abs(wd->pdgId())==TopDecayID::tauID  ){ 
 	      if(restrictTauDecays_){
 		// count as iTau if it is leptonic, one-prong
 		// or three-prong and ignore increasing iLep
@@ -99,20 +100,22 @@ TtDecayChannelSelector::operator()(const reco::GenParticleCollection& parts, std
       }
     }
   }
-  edm::LogVerbatim log("TtDecayChannelSelector_selection");
-  log << "----------------------"   << "\n"
-      << " iTop    : " << iTop      << "\n"
-      << " iBeauty : " << iBeauty   << "\n"
-      << " iElec   : " << iElec     << "\n"
-      << " iMuon   : " << iMuon     << "\n"
-      << " iTau    : " << iTau+iLep;
-  if(restrictTauDecays_ && (iTau+iLep)>0){
-    log << " (" << iTau << ")\n";
+  if(verbose) {
+    edm::LogVerbatim log("TtDecayChannelSelector");
+    log << "----------------------"   << "\n"
+	<< " iTop    : " << iTop      << "\n"
+	<< " iBeauty : " << iBeauty   << "\n"
+	<< " iElec   : " << iElec     << "\n"
+	<< " iMuon   : " << iMuon     << "\n"
+	<< " iTau    : " << iTau+iLep;
+    if(restrictTauDecays_ && (iTau+iLep)>0){
+      log << " (" << iTau << ")\n";
+    }
+    else{
+      log << "\n";
+    }
+    log << "- - - - - - - - - - - "   << "\n";
   }
-  else{
-    log << "\n";
-  }
-  log << "- - - - - - - - - - - "   << "\n";
   iLep+=iElec+iMuon+iTau;
 
   bool accept=false;
@@ -158,7 +161,8 @@ TtDecayChannelSelector::operator()(const reco::GenParticleCollection& parts, std
   else{
     edm::LogWarning ( "NoVtbDecay" ) << "Decay is not via Vtb";
   }
-  log << " accept  : " << accept;
+  if(verbose)
+    edm::LogVerbatim("TtDecayChannelSelector") << " accept  : " << accept;
   return accept;
 }
 
@@ -166,10 +170,10 @@ bool
 TtDecayChannelSelector::search(reco::GenParticleCollection::const_iterator& part, int pdgId, std::string& inputType) const
 {
   if(inputType==kGenParticles){
-    return (abs(part->pdgId())==pdgId && part->status()==TopDecayID::unfrag) ? true : false;
+    return (std::abs(part->pdgId())==pdgId && part->status()==TopDecayID::unfrag) ? true : false;
   }
   else{
-    return (abs(part->pdgId())==pdgId) ? true : false;
+    return (std::abs(part->pdgId())==pdgId) ? true : false;
   }
 }
 
@@ -177,10 +181,10 @@ bool
 TtDecayChannelSelector::search(reco::GenParticle::const_iterator& part, int pdgId, std::string& inputType) const
 {
   if(inputType==kGenParticles){
-    return (abs(part->pdgId())==pdgId && part->status()==TopDecayID::unfrag) ? true : false;
+    return (std::abs(part->pdgId())==pdgId && part->status()==TopDecayID::unfrag) ? true : false;
   }
   else{
-    return (abs(part->pdgId())==pdgId) ? true : false;
+    return (std::abs(part->pdgId())==pdgId) ? true : false;
   }
 }
 
@@ -214,7 +218,7 @@ TtDecayChannelSelector::tauDecay(const reco::Candidate& tau) const
       return tauDecay(*daughter);
     }
     // check for leptons
-    leptonic |= (abs(daughter->pdgId())==TopDecayID::elecID || abs(daughter->pdgId())==TopDecayID::muonID);
+    leptonic |= (std::abs(daughter->pdgId())==TopDecayID::elecID || std::abs(daughter->pdgId())==TopDecayID::muonID);
     // count charged particles
     nch += countProngs(*daughter);
   }

@@ -31,18 +31,18 @@ public:
  * Vector of values and  matrix of derivatives
  * calculated at given  7*NumberOfStates expansion point
  */  
-virtual pair<AlgebraicVector,AlgebraicVector> value(const AlgebraicVector& exPoint) const;
+virtual std::pair<AlgebraicVector,AlgebraicVector> value(const AlgebraicVector& exPoint) const;
  
-virtual pair<AlgebraicMatrix, AlgebraicVector> derivative(const AlgebraicVector& exPoint) const;
+virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const AlgebraicVector& exPoint) const;
 
 
 /**
  * Vector of values and matrix of derivatives calculated using 
  * current state as an expansion point
  */  
-virtual pair<AlgebraicMatrix, AlgebraicVector> derivative(const vector<RefCountedKinematicParticle> par) const;
+virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const std::vector<RefCountedKinematicParticle> par) const;
 
-virtual pair<AlgebraicVector, AlgebraicVector> value(const vector<RefCountedKinematicParticle> par) const;
+virtual std::pair<AlgebraicVector, AlgebraicVector> value(const std::vector<RefCountedKinematicParticle> par) const;
 
  
 /**

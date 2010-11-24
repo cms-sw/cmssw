@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.27 2009/12/08 01:43:11 chrjones Exp $
+// $Id: CSGAction.cc,v 1.26 2009/11/29 15:56:33 amraktad Exp $
 //
 
 // system include files
@@ -17,12 +17,15 @@
 #include <TQObject.h>
 #include <KeySymbols.h>
 #include <TGMenu.h>
+#include "TGLabel.h"
+#include "TGSlider.h"
 
 // user include files
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/src/CSGConnector.h"
 #include "Fireworks/Core/interface/CSGActionSupervisor.h"
 #include "Fireworks/Core/interface/FWCustomIconsButton.h"
+#include "Fireworks/Core/interface/FWIntValueListener.h"
 
 //
 // constants, enums and typedefs

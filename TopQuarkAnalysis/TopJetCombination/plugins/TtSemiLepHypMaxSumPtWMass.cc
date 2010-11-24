@@ -3,12 +3,13 @@
 
 TtSemiLepHypMaxSumPtWMass::TtSemiLepHypMaxSumPtWMass(const edm::ParameterSet& cfg):
   TtSemiLepHypothesis( cfg ),
-  maxNJets_         (cfg.getParameter<int>        ("maxNJets"         )),
-  wMass_            (cfg.getParameter<double>     ("wMass"            )),
-  useBTagging_      (cfg.getParameter<bool>       ("useBTagging"      )),
-  bTagAlgorithm_    (cfg.getParameter<std::string>("bTagAlgorithm"    )),
-  minBDiscBJets_    (cfg.getParameter<double>     ("minBDiscBJets"    )),
-  maxBDiscLightJets_(cfg.getParameter<double>     ("maxBDiscLightJets"))
+  maxNJets_            (cfg.getParameter<int>        ("maxNJets"            )),
+  wMass_               (cfg.getParameter<double>     ("wMass"               )),
+  useBTagging_         (cfg.getParameter<bool>       ("useBTagging"         )),
+  bTagAlgorithm_       (cfg.getParameter<std::string>("bTagAlgorithm"       )),
+  minBDiscBJets_       (cfg.getParameter<double>     ("minBDiscBJets"       )),
+  maxBDiscLightJets_   (cfg.getParameter<double>     ("maxBDiscLightJets"   )),
+  neutrinoSolutionType_(cfg.getParameter<int>        ("neutrinoSolutionType"))
 {
   if(maxNJets_<4 && maxNJets_!=-1)
     throw cms::Exception("WrongConfig") 
@@ -162,5 +163,8 @@ TtSemiLepHypMaxSumPtWMass::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   // add neutrino
   // -----------------------------------------------------
-  setCandidate(mets, 0, neutrino_);
+  if(neutrinoSolutionType_ == -1)
+    setCandidate(mets, 0, neutrino_);
+  else
+    setNeutrino(mets, leps, 0, neutrinoSolutionType_);
 }

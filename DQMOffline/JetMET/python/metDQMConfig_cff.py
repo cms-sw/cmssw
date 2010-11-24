@@ -21,7 +21,6 @@ metDQMParameters = cms.PSet(
 
     HLT_HighPtJet = cms.string("HLT_Jet50U"),
     HLT_LowPtJet  = cms.string("HLT_L1Jet6U"),
-    HLT_MinBias   = cms.string("HLT_L1_BscMinBiasOR_BptxPlusORMinus"),
     HLT_HighMET   = cms.string("HLT_MET100"),
     HLT_LowMET    = cms.string("HLT_L1MET20"),
     HLT_Ele       = cms.string("HLT_Ele15_LW_L1R"),

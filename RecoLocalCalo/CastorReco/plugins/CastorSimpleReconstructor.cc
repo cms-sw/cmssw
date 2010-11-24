@@ -12,6 +12,7 @@ using namespace std;
 #include "CalibFormats/CastorObjects/interface/CastorDbService.h"
 #include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
     
@@ -27,7 +28,7 @@ CastorSimpleReconstructor::CastorSimpleReconstructor(edm::ParameterSet const& co
     subdet_=HcalCastorDetId::SubdetectorId;
     produces<CastorRecHitCollection>();
   } else {
-    std::cout << "CastorSimpleReconstructor is not associated with CASTOR subdetector!" << std::endl;
+    edm::LogWarning("CastorSimpleReconstructor") << "CastorSimpleReconstructor is not associated with CASTOR subdetector!" << std::endl;
   }       
   
 }
@@ -41,6 +42,11 @@ void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& ev
   edm::ESHandle<CastorDbService> conditions;
   eventSetup.get<CastorDbRecord>().get(conditions);
   const CastorQIEShape* shape = conditions->getCastorShape (); // this one is generic
+  
+  // some hard coding for 2009 data
+  // get event number 
+  int runNumber = e.run();
+  if (runNumber < 129456) { CastorSimpleRecAlgo usedRecAlgo2009(1,4,false,false,0.0); reco_ = usedRecAlgo2009;}
   
   CastorCalibrations calibrations;
   

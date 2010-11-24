@@ -21,7 +21,8 @@ ecalLocalRecoRECO = cms.PSet(
         'keep *_ecalPreshowerRecHit_*_*', 
         'keep *_ecalRecHit_*_*',
         'keep EBSrFlagsSorted_ecalDigis_*_*',
-        'keep EESrFlagsSorted_ecalDigis_*_*'
+        'keep EESrFlagsSorted_ecalDigis_*_*',
+        'keep *_ecalTPSkim_*_*'
         )
 )
 #AOD content

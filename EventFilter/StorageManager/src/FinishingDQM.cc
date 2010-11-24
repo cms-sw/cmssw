@@ -1,4 +1,4 @@
-// $Id: FinishingDQM.cc,v 1.8 2009/08/28 16:41:26 mommsen Exp $
+// $Id: FinishingDQM.cc,v 1.9 2009/09/29 07:57:56 mommsen Exp $
 /// @file: FinishingDQM.cc
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
@@ -45,7 +45,7 @@ void FinishingDQM::do_exitActionWork()
 
 string FinishingDQM::do_stateName() const
 {
-  return string( "FinishingDQM" );
+  return std::string( "FinishingDQM" );
 }
 
 void FinishingDQM::do_moveToFailedState( xcept::Exception& exception ) const

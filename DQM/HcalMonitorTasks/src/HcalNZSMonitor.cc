@@ -248,7 +248,7 @@ void HcalNZSMonitor::processEvent(const FEDRawDataCollection& rawraw,
   meFEDsizeVsLumi_->Fill(currentLS+0.001, hcalSize/1024);
   
   size_t fullSize=0;
-  for (int j=0; j<FEDNumbering::MAXFEDID; ++j )
+  for (int j=0; j<=FEDNumbering::MAXFEDID; ++j )
     {
       const FEDRawData & fedData = rawraw.FEDData(j);
       fullSize+=fedData.size();

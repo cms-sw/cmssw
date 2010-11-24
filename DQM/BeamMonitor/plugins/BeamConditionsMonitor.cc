@@ -2,8 +2,8 @@
  * \file BeamConditionsMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/02/09 08:37:00 $
- * $Revision: 1.6 $
+ * $Date: 2010/05/11 23:55:02 $
+ * $Revision: 1.7 $
  *
  */
 
@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include <numeric>
 #include <math.h>
 #include <TMath.h>

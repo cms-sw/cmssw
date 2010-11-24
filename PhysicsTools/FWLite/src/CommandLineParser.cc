@@ -679,7 +679,7 @@ CommandLineParser::_runVariableCommandFromString (const string &arg)
       where = line.find_last_not_of (kSpaces);
       if (line.length() - 1 != where)
       {
-         line = line.substr (0, where - 1);
+         line = line.substr (0, where + 1);
       }
       if ('#' == line.at(0))
       {

@@ -19,7 +19,8 @@ class EdmBrowserTestCase(unittest.TestCase):
         self.app=Application(sys.argv)
         self.app.mainWindow().setWindowTitle("test EdmBrowser")
         self.app.openFile(os.path.join(examplesDirectory,"QCDDiJet_Pt50to80_Summer09_RECO_3_1_X_10events.root"))
-        self.app.run()
+        if not hasattr(unittest,"NO_GUI_TEST"):
+            self.app.run()
 
 if __name__ == "__main__":
     Profiling.analyze("unittest.main()",__file__)

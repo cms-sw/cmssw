@@ -49,7 +49,6 @@ RecoTrackerAOD = cms.PSet(
         'keep recoTracks_beamhaloTracks_*_*',
         'keep recoTracks_regionalCosmicTracks_*_*',
         'keep recoTracks_ctfPixelLess_*_*', 
-        'keep *_dedxTruncated40_*_*',
         'keep *_dedxHarmonic2_*_*',
     )
 )

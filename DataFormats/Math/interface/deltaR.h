@@ -17,7 +17,7 @@ namespace reco {
   }
   
   inline double deltaR(double eta1, double phi1, double eta2, double phi2) {
-    return std::sqrt(deltaR2 (eta1, phi1, eta2, phi2));
+    return sqrt(deltaR2 (eta1, phi1, eta2, phi2));
   }
   
   template<typename T1, typename T2>
@@ -39,7 +39,7 @@ namespace reco {
 
   template <class T>
     T deltaR (T eta1, T phi1, T eta2, T phi2) {
-    return std::sqrt (deltaR2 (eta1, phi1, eta2, phi2));
+    return sqrt (deltaR2 (eta1, phi1, eta2, phi2));
   }
 
 }
@@ -52,6 +52,5 @@ struct DeltaR {
   double operator()( const T1 & t1, const T2 & t2 ) const {
     return reco::deltaR(t1, t2);
   }
-
 };
 #endif

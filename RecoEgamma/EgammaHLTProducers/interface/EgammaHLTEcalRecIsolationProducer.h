@@ -58,6 +58,7 @@ class EgammaHLTEcalRecIsolationProducer : public edm::EDProducer {
   bool useIsolEt_; //switch for isolEt rather than isolE
   bool tryBoth_ ; // use rechits from barrel + endcap
   bool subtract_ ; // subtract SC energy (allows veto cone of zero size)
+  bool useNumCrystals_;// veto cones are specified in number of crystals not eta
 
   edm::ParameterSet conf_;
 

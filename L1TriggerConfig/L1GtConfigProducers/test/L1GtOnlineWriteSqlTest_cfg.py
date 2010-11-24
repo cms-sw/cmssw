@@ -6,7 +6,7 @@ process = cms.Process("L1ConfigWritePayloadDummy")
 
 ###################### user choices ######################
 
-testKeyL1Menu = cms.string('L1Menu_Commissioning2009_v7/L1T_Scales_20080926_startup/Imp0/0x100f')
+testKeyL1Menu = cms.string('L1Menu_Commissioning2009_v6/L1T_Scales_20080926_startup/Imp0/0x100e')
 
 ###################### end user choices ###################
 
