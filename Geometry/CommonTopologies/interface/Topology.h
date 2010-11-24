@@ -5,6 +5,7 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/LocalError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 
 class GeomDetType;
 
@@ -52,11 +53,10 @@ public:
     class LocalTrackPred {
     public:
     LocalTrackPred(double x, double y, double dxdz, double dydz) : point_(x,y),angles_(dxdz,dydz){}
-      /// Ctr. from array (is that too fragile?), order is: dxdz, dydz, x, y
-      /// as from '&(LocalTrajectoryParameters::vector()[1])'
-      /// (Take care: no check for null pointer!)
-    LocalTrackPred(const double *angles_x_y) :
-      point_(angles_x_y[2], angles_x_y[3]), angles_(angles_x_y[0], angles_x_y[1]) {}
+      /// Ctr. from local trajectory parameters as AlgebraicVector5 (q/p, dxdz, dydz, x, y)
+      /// e.g. from 'LocalTrajectoryParameters::vector()'
+    LocalTrackPred(const AlgebraicVector5& localTrajPar) :
+      point_(localTrajPar[3], localTrajPar[4]), angles_(localTrajPar[1], localTrajPar[2]) {}
       const Local2DPoint& point() const {return point_;}
       const LocalTrackAngles& angles() const {return angles_;}
     private:
