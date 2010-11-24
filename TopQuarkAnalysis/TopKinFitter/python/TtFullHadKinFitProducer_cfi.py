@@ -30,10 +30,13 @@ kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
     # ------------------------------------------------
     # option to use b-tagging
     # ------------------------------------------------
+    useBTagging         = cms.bool(True),
     bTagAlgo            = cms.string("trackCountingHighPurBJetTags"),
     minBTagValueBJet    = cms.double(3.0),
     maxBTagValueNonBJet = cms.double(3.0),
-    bTags               = cms.uint32(2), # if set to 1 also tries to take 2 if possible
+    bTags               = cms.uint32(2), # minimal number of b-tagged
+                                         # jets, if more are available
+                                         # they will be used
 
     # ------------------------------------------------
     ## specify jet correction level as, Uncorrected,
