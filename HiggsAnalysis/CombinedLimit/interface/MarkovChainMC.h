@@ -12,15 +12,18 @@
 
 class MarkovChainMC : public LimitAlgo {
 public:
- MarkovChainMC(bool verbose, bool withSystematics, bool uniformProposal) : verbose_(verbose), withSystematics_(withSystematics), uniformProposal_(uniformProposal) { }
-  virtual bool run(RooWorkspace *w, RooAbsData &data, double &limit);
+  bool run(RooWorkspace *w, RooAbsData &data, double &limit);
   virtual const std::string & name() const {
     static const std::string name("MarkovChainMC");
     return name;
   }
+  virtual boost::program_options::options_description options() {
+    boost::program_options::options_description d("Markov Chain MC specific options");
+    d.add_options()
+      ("uniformProposal,u", boost::program_options::value<bool>(&uniformProposal_)->default_value(false), "Uniform proposal");
+    return d;
+  }
 private:
-  bool verbose_;
-  bool withSystematics_;
   bool uniformProposal_;
 };
 

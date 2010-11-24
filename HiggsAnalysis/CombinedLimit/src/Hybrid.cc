@@ -3,6 +3,7 @@
 #include "RooArgSet.h"
 #include "RooStats/HybridCalculatorOriginal.h"
 #include "RooAbsPdf.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 
 using namespace RooStats;
 
@@ -13,7 +14,7 @@ bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit) {
   RooAbsPdf *altModel  = w->pdf("model_s"), *nullModel = w->pdf("model_b");
   
   HybridCalculatorOriginal* hc = new HybridCalculatorOriginal(data,*altModel,*nullModel);
-  if (withSystematics_) {
+  if (withSystematics) {
     if ((w->set("nuisances") == 0) || (w->pdf("nuisancePdf") == 0)) {
           std::cerr << "ERROR: nuisances or nuisancePdf not set. Perhaps you wanted to run with no systematics?\n" << std::endl;
           abort();
@@ -63,7 +64,7 @@ bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit) {
       clsMidErr = hcResult->CLsError();
       std::cout << "r = " << r->getVal() << ": CLs = " << clsMid << " +/- " << clsMidErr << std::endl;
     }
-    if (verbose_) {
+    if (verbose) {
       std::cout << "r = " << r->getVal() << ": \n" <<
 	"\tCLs      = " << hcResult->CLs()      << " +/- " << hcResult->CLsError()      << "\n" <<
 	"\tCLb      = " << hcResult->CLb()      << " +/- " << hcResult->CLbError()      << "\n" <<

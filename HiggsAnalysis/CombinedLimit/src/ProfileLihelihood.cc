@@ -3,6 +3,7 @@
 #include "RooArgSet.h"
 #include "RooStats/ProfileLikelihoodCalculator.h"
 #include "RooStats/LikelihoodInterval.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 
 using namespace RooStats;
 
@@ -23,7 +24,7 @@ bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit) {
       r->setMax(r->getMax()*2); 
       continue;
     }
-    if (verbose_) {
+    if (verbose) {
       /*
 	ProfileLikelihoodCalculator plcS(data, *w->pdf("model_s"), poi);
 	RooArgSet nullParamValues; 

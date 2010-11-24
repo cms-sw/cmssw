@@ -9,6 +9,7 @@
 #include "RooStats/ModelConfig.h"
 #include "RooStats/ProposalHelper.h"
 #include "RooStats/ProposalFunction.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 
 using namespace RooStats;
 
@@ -23,7 +24,7 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit) {
   fit->Print("V");
   w->loadSnapshot("clean");
 
-  if (withSystematics_ && (w->set("nuisances") == 0)) {
+  if (withSystematics && (w->set("nuisances") == 0)) {
     std::cerr << "ERROR: nuisances not set. Perhaps you wanted to run with no systematics?\n" << std::endl;
     abort();
   }
@@ -32,7 +33,7 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit) {
   modelConfig.SetPdf(*w->pdf("model_s"));
   modelConfig.SetObservables(obs);
   modelConfig.SetParametersOfInterest(poi);
-  if (withSystematics_) modelConfig.SetNuisanceParameters(*w->set("nuisances"));
+  if (withSystematics) modelConfig.SetNuisanceParameters(*w->set("nuisances"));
   
   ProposalHelper ph;
   ph.SetVariables((RooArgSet&)fit->floatParsFinal());
@@ -54,7 +55,7 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit) {
   MCMCInterval* mcInt = (MCMCInterval*)mc.GetInterval(); 
   if (mcInt == 0) return false;
   limit = mcInt->UpperLimit(*r);
-  if(verbose_) {
+  if(verbose) {
     std::cout << "\n -- MCMC, flat prior -- " << "\n";
     std::cout << "Limit: r < " << limit << " @ 95% CL" << std::endl;
     std::cout << "Interval:    [ " << mcInt->LowerLimit(*r)             << " , " << mcInt->UpperLimit(*r)             << " ] @ 90% CL" << std::endl;

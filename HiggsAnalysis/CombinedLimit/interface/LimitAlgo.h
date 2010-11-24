@@ -8,6 +8,7 @@
  *
  *
  */
+#include <boost/program_options.hpp>
 #include <string>
 class RooWorkspace;
 class RooAbsData;
@@ -15,8 +16,10 @@ class RooAbsData;
 class LimitAlgo {
 public:
   LimitAlgo() { }
+  virtual void options(const boost::program_options::variables_map &vm) { }
   virtual bool run(RooWorkspace *w, RooAbsData &data, double &limit) = 0;
   virtual const std::string & name() const = 0;
+  virtual boost::program_options::options_description options() = 0;
 };
 
 #endif

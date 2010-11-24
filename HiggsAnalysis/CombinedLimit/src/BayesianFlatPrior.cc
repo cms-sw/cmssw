@@ -5,6 +5,7 @@
 #include "RooWorkspace.h"
 #include "RooPlot.h"
 #include "TCanvas.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 #include "RooStats/BayesianCalculator.h"
 #include "RooStats/SimpleInterval.h"
 
@@ -16,7 +17,7 @@ bool BayesianFlatPrior::run(RooWorkspace *w, RooAbsData &data, double &limit) {
   RooArgSet  poi(*r);
   double rMax = r->getMax();
   for (;;) {
-    BayesianCalculator bcalc(data, *w->pdf("model_s"), poi, flatPrior, (withSystematics_ ? w->set("nuisances") : 0));
+    BayesianCalculator bcalc(data, *w->pdf("model_s"), poi, flatPrior, (withSystematics ? w->set("nuisances") : 0));
     bcalc.SetLeftSideTailFraction(0);
     bcalc.SetConfidenceLevel(0.95); 
     SimpleInterval* bcInterval = bcalc.GetInterval();
@@ -30,7 +31,7 @@ bool BayesianFlatPrior::run(RooWorkspace *w, RooAbsData &data, double &limit) {
     }
     std::cout << "\n -- Bayesian, flat prior -- " << "\n";
     std::cout << "Limit: r < " << limit << " @ 95% CL" << std::endl;
-    if (0 && verbose_) {
+    if (0 && verbose) {
       TCanvas c1("c1", "c1");
       RooPlot *bcPlot = bcalc.GetPosteriorPlot(true,0.1); 
       bcPlot->Draw(); 

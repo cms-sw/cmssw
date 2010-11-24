@@ -41,16 +41,18 @@
 using namespace RooStats;
 using namespace RooFit;
 
-std::auto_ptr<LimitAlgo> algo;
+LimitAlgo * algo;
 
 Float_t t_cpu_, t_real_;
 TDirectory *writeToysHere = 0;
 TDirectory *sprnwriteToysHere = 0;
 TDirectory *readToysFromHere = 0;
+bool verbose;
+bool withSystematics;
 
 void printRAD(const RooAbsData *d) ;
 
-bool mklimit(RooWorkspace *w, RooAbsData &data, double &limit, bool verbose=false) {
+bool mklimit(RooWorkspace *w, RooAbsData &data, double &limit) {
   TStopwatch timer;
   bool ret = false;
   try {
@@ -107,8 +109,7 @@ void printPdf(RooWorkspace *w, const char *pdfName) {
   params->Print("V");
 }
 
-
-void doCombination(TString hlfFile, const std::string &dataset, double &limit, int &iToy, TTree *tree, int nToys, bool withSystematics) {
+void doCombination(TString hlfFile, const std::string &dataset, double &limit, int &iToy, TTree *tree, int nToys) {
   TString pwd(gSystem->pwd());
   TString tmpDir = "roostats-XXXXXX"; 
   mkdtemp(const_cast<char *>(tmpDir.Data()));
@@ -162,7 +163,7 @@ void doCombination(TString hlfFile, const std::string &dataset, double &limit, i
     }
     std::cout << "Computing limit starting from observation" << std::endl;
     printRAD(dobs);
-    if (mklimit(w,*dobs,limit,true)) tree->Fill();
+    if (mklimit(w,*dobs,limit)) tree->Fill();
   }
   
   if (nToys > 0) {
@@ -205,7 +206,7 @@ void doCombination(TString hlfFile, const std::string &dataset, double &limit, i
       printRAD(absdata_toy);
       w->loadSnapshot("clean");
       printPdf(w, "model_b");
-      if (mklimit(w,*absdata_toy,limit,true)) tree->Fill();
+      if (mklimit(w,*absdata_toy,limit)) tree->Fill();
       if (writeToysHere) {
 	//writeToysHere->import(*absdata_toy, RooFit::Rename(TString::Format("toy_%d", iToy)), RooFit::Silence());
 	writeToysHere->WriteTObject(absdata_toy, TString::Format("toy_%d", iToy));

@@ -40,14 +40,9 @@
 #include "HiggsAnalysis/CombinedLimit/interface/Hybrid.h"
 #include "HiggsAnalysis/CombinedLimit/interface/BayesianFlatPrior.h"
 #include "HiggsAnalysis/CombinedLimit/interface/MarkovChainMC.h"
+#include <map>
 
 using namespace std;
-
-const char * kHybrid = "hybrid";
-const char * kProfileLikelihood = "profileLikelihood";
-const char * kBayesianFlatPrior = "bayesianFlatPrior";
-const char * kMcmc = "mcmc";
-const char * kMcmcUniform = "mcmcUniform";
 
 int main(int argc, char **argv) {
   using namespace boost;
@@ -62,33 +57,36 @@ int main(int argc, char **argv) {
   bool   saveToys;
   string toysFile;
 
-  vector<const char *> methods;
-  methods.push_back(kHybrid);
-  methods.push_back(kProfileLikelihood);
-  methods.push_back(kBayesianFlatPrior);
-  methods.push_back(kMcmc);
-  methods.push_back(kMcmcUniform);
+  map<string, LimitAlgo *> methods;
+  algo = new Hybrid(); methods.insert(make_pair(algo->name(), algo));
+  algo = new ProfileLikelihood(); methods.insert(make_pair(algo->name(), algo));
+  algo = new BayesianFlatPrior(); methods.insert(make_pair(algo->name(), algo));
+  algo = new MarkovChainMC();  methods.insert(make_pair(algo->name(), algo));
   
   string methodsDesc("Method to extract upper limit. Supported methods are: ");
-  for(vector<const char *>::const_iterator i = methods.begin(); i != methods.end(); ++i) {
+  for(map<string, LimitAlgo *>::const_iterator i = methods.begin(); i != methods.end(); ++i) {
     if(i != methods.begin()) methodsDesc += ", ";
-    methodsDesc += *i;
+    methodsDesc += i->first;
   }
-  methodsDesc += ". Add postfix \".nosyst\" to ignore systematic errors";
   
   po::options_description desc("Allowed options");
   desc.add_options()
     ("help,h", "Produce help message")
+    ("verbose,v", po::value<bool>(&verbose)->default_value(true), "Verbose mode")
     ("name,n", po::value<string>(&name), "Name of the job")
     ("datacard,d", po::value<string>(&datacard), "Datacard file")
     ("dataset,D",  po::value<string>(&dataset)->default_value("data_obs"), "Dataset for observed limit")
     ("mass,m", po::value<int>(&iMass)->default_value(120), "Minimum value for fit range")
     ("method,M", po::value<string>(&whichMethod)->default_value("mcmc"), methodsDesc.c_str())
+    ("systematics,S", po::value<bool>(&withSystematics)->default_value(false), methodsDesc.c_str())
     ("toys,t", po::value<unsigned int>(&runToys)->default_value(0), "Number of toy MC (0 = no toys)")
     ("seed,s", po::value<int>(&seed)->default_value(123456), "Toy MC random seed")
     ("saveToys,w", po::value<bool>(&saveToys)->default_value(false), "Save results of toy MC")
     ("toysFile,f", po::value<string>(&toysFile)->default_value(""), "Toy MC output file")
     ;
+  for(map<string, LimitAlgo *>::const_iterator i = methods.begin(); i != methods.end(); ++i) {
+    desc.add(i->second->options());
+  }
   po::positional_options_description p;
   p.add("datacard", -1);
   po::variables_map vm;
@@ -121,25 +119,21 @@ int main(int argc, char **argv) {
     return 1002;
   }
 
-  bool withSystematics = true;
-  const string nosyst(".nosyst");
-  size_t found = whichMethod.find(nosyst);
-  if (found != string::npos) {
-    whichMethod.replace(found, nosyst.length(),"");
-    withSystematics = false;
-    cout << ">>> no systematics included" << endl;
-  } else {
+  if(withSystematics) {
     cout << ">>> including systematics" << endl;
+  } else {
+    cout << ">>> no systematics included" << endl;
   }
 
-  bool verbose = true; // to be set as parameter
-
-  if      (whichMethod == kHybrid) algo.reset(new Hybrid(verbose, withSystematics));
-  else if (whichMethod == kProfileLikelihood) algo.reset(new ProfileLikelihood(verbose));
-  else if (whichMethod == kBayesianFlatPrior) algo.reset(new BayesianFlatPrior(verbose, withSystematics));
-  else if (whichMethod == kMcmc) algo.reset(new MarkovChainMC(verbose, withSystematics, false));
-  else if (whichMethod == kMcmcUniform) algo.reset(new MarkovChainMC(verbose, withSystematics, true));
-  else {
+  map<string, LimitAlgo *>::const_iterator i;
+  for(i = methods.begin(); i != methods.end(); ++i) {
+    if(whichMethod == i->first) {
+      algo = i->second;
+      algo->options(vm);
+      break;
+    }
+  }
+  if(i == methods.end()) {
     cerr << "Unsupported method: " << whichMethod << endl;
     cout << "Usage: options_description [options]\n";
     cout << desc;
@@ -172,7 +166,7 @@ int main(int argc, char **argv) {
   syst = withSystematics;
   mass = iMass;
   iChannel = 0;
-  doCombination(datacard, dataset, limit, iToy, t, runToys, syst);
+  doCombination(datacard, dataset, limit, iToy, t, runToys);
   
   test->WriteTObject(t);
   test->Close();

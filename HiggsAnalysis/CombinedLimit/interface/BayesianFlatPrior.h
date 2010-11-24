@@ -12,15 +12,16 @@
 
 class BayesianFlatPrior : public LimitAlgo {
 public:
- BayesianFlatPrior(bool verbose, bool withSystematics) : verbose_(verbose), withSystematics_(withSystematics) { }
   virtual bool run(RooWorkspace *w, RooAbsData &data, double &limit);
   virtual const std::string & name() const {
     static const std::string name("BayesianFlatPrior");
     return name;
   }
+  virtual boost::program_options::options_description options() {
+    boost::program_options::options_description d;
+    return d;
+  }
 private:
-  bool verbose_;
-  bool withSystematics_;
 };
 
 #endif
