@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:42 EST 2009
-// $Id: FWTableWidget.cc,v 1.17 2010/09/22 09:58:51 eulisse Exp $
+// $Id: FWTableWidget.cc,v 1.18 2010/11/24 10:16:52 amraktad Exp $
 //
 
 // system include files
@@ -447,6 +447,8 @@ FWTableWidget::dataChanged()
    m_body->dataChanged();
    if(m_rowHeader) {
       m_rowHeader->dataChanged();
+      m_rowHeader->setWidthOfTextInColumns(m_rowHeader->widthOfTextInColumns());
+      m_rowHeader->Resize();
    }
    //set sizes
    std::vector<unsigned int> columnWidths = m_body->widthOfTextInColumns();

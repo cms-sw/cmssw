@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:19 EST 2009
-// $Id: FWTabularWidget.h,v 1.2 2009/03/04 16:13:05 chrjones Exp $
+// $Id: FWTabularWidget.h,v 1.3 2009/04/08 19:02:34 chrjones Exp $
 //
 
 // system include files
@@ -78,6 +78,7 @@ class FWTabularWidget : public TGFrame
 
       FWTableManagerBase* m_table;
       std::vector<unsigned int> m_widthOfTextInColumns;
+      std::vector<unsigned int> m_widthOfTextInColumnsMax;
       int m_textHeight;
       int m_tableWidth;
 

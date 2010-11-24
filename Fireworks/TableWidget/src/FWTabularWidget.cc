@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:21 EST 2009
-// $Id: FWTabularWidget.cc,v 1.11 2010/06/03 20:52:52 matevz Exp $
+// $Id: FWTabularWidget.cc,v 1.12 2010/11/24 10:16:52 amraktad Exp $
 //
 
 // system include files
@@ -104,12 +104,24 @@ void
 FWTabularWidget::setWidthOfTextInColumns(const std::vector<unsigned int>& iNew)
 {
    assert(iNew.size() == static_cast<unsigned int>(m_table->numberOfColumns()));
+
    m_widthOfTextInColumns=iNew;
-   
+   // with of columns grow to prevent resizing/flickering on next event
+   m_widthOfTextInColumnsMax.resize(iNew.size());
+   std::vector<unsigned int>::iterator k =  m_widthOfTextInColumnsMax.begin();
+   for(std::vector<unsigned int>::iterator it = m_widthOfTextInColumns.begin(); it != m_widthOfTextInColumns.end(); ++it, ++k)
+   {
+      if ( *it < *k ) 
+         *it = *k;
+      else
+         *k = *it;
+
+   }
+
    m_tableWidth=0;
    for(std::vector<unsigned int>::const_iterator it = m_widthOfTextInColumns.begin(), itEnd = m_widthOfTextInColumns.end();
-   it!=itEnd;
-   ++it){
+       it!=itEnd;
+       ++it){
       m_tableWidth +=*it+kTextBuffer+kTextBuffer+kSeperatorWidth;
    }
    m_tableWidth +=kSeperatorWidth;
