@@ -40,12 +40,6 @@ void HLTAlCa::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   clusEtaSize_ = pSet.getParameter<int> ("clusEtaSize"); 
   clusPhiSize_ = pSet.getParameter<int> ("clusPhiSize"); 
   seleXtalMinEnergy_ = pSet.getParameter<double> ("seleXtalMinEnergy"); 
-  ParameterLogWeighted_ = pSet.getParameter<bool> ("ParameterLogWeighted"); 
-  ParameterX0_ = pSet.getParameter<double> ("ParameterX0"); 
-  ParameterT0_barl_ = pSet.getParameter<double> ("ParameterT0_barl"); 
-  ParameterT0_endc_ = pSet.getParameter<double> ("ParameterT0_endc"); 
-  ParameterT0_endcPresh_ = pSet.getParameter<double> ("ParameterT0_endcPresh"); 
-  ParameterW0_ = pSet.getParameter<double> ("ParameterW0"); 
   RegionalMatch_ = pSet.getUntrackedParameter<bool>("RegionalMatch",true); 
   ptMinEMObj_ = pSet.getParameter<double>("ptMinEMObj"); 
   EMregionEtaMargin_ = pSet.getParameter<double>("EMregionEtaMargin"); 
@@ -59,17 +53,11 @@ void HLTAlCa::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   Ptmin_jets_ = pSet.getUntrackedParameter<double>("Ptmin_jets",0.); 
 
    
+  // Parameters for the position calculation:
+  edm::ParameterSet posCalcParameters = 
+    pSet.getParameter<edm::ParameterSet>("posCalcParameters");
+  posCalculator_ = PositionCalc(posCalcParameters);
   
-  providedParameters.insert(std::make_pair("LogWeighted",ParameterLogWeighted_));
-  providedParameters.insert(std::make_pair("X0",ParameterX0_));
-  providedParameters.insert(std::make_pair("T0_barl",ParameterT0_barl_));
-  providedParameters.insert(std::make_pair("T0_endc",ParameterT0_endc_));
-  providedParameters.insert(std::make_pair("T0_endcPresh",ParameterT0_endcPresh_));
-  providedParameters.insert(std::make_pair("W0",ParameterW0_));
-  posCalculator_ = PositionCalc(providedParameters);
-  
-  
-
 
   const int kMaxClus = 2000; 
   ptClusAll = new float[kMaxClus]; 
