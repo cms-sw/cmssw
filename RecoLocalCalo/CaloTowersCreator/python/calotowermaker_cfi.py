@@ -126,7 +126,7 @@ calotowermaker = cms.EDProducer("CaloTowersCreator",
 #    The code also checks the settings of the flags for the default
 #    collection - if the recovered hits were used there, they
 #    will be skipped for the "bad" tower collection regardless of these settings                                
-     UseRejectedRecoveredHcalHits = cms.bool(False),
+     UseRejectedRecoveredHcalHits = cms.bool(True),
      UseRejectedRecoveredEcalHits = cms.bool(False),
 
 
