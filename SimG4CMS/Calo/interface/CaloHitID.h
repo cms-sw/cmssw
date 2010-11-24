@@ -12,8 +12,9 @@ class CaloHitID {
 
 public:
 
-  CaloHitID(uint32_t unitID, double timeSlice, int trackID, uint16_t depth=0);
-  CaloHitID();
+  CaloHitID(uint32_t unitID, double timeSlice, int trackID, uint16_t depth=0,
+	    int tSlice=1, bool ignoreTkID=false);
+  CaloHitID(int tSlice=1, bool ignoreTkID=false);
   CaloHitID(const CaloHitID&);
   const CaloHitID& operator=(const CaloHitID&);
   virtual ~CaloHitID();
@@ -38,6 +39,8 @@ private:
   int          theTrackID;
   int          theTimeSliceID;
   uint16_t     theDepth;
+  int          timeSliceUnit;
+  bool         ignoreTrackID;
 
 };
 

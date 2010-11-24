@@ -32,8 +32,11 @@
 HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
 	       SensitiveDetectorCatalog & clg, 
                edm::ParameterSet const & p, const SimTrackManager* manager) : 
-  CaloSD(name, cpv, clg, p, manager), numberingFromDDD(0), numberingScheme(0), 
-  showerLibrary(0), hfshower(0), showerParam(0), showerPMT(0), showerBundle(0){
+  CaloSD(name, cpv, clg, p, manager, 
+	 p.getParameter<edm::ParameterSet>("HCalSD").getParameter<int>("TimeSliceUnit"),
+	 p.getParameter<edm::ParameterSet>("HCalSD").getParameter<bool>("IgnoreTrackID")), 
+  numberingFromDDD(0), numberingScheme(0), showerLibrary(0), hfshower(0), 
+  showerParam(0), showerPMT(0), showerBundle(0){
 
   //static SimpleConfigurable<bool>   on1(false, "HCalSD:UseBirkLaw");
   //static SimpleConfigurable<double> bk1(0.013, "HCalSD:BirkC1");

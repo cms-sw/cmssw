@@ -121,3 +121,17 @@ process.generator.pythiaHepMCVerbosity = False
 process.generator.pythiaPylistVerbosity = 0
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
 
+# process.g4SimHits.ECalSD.IgnoreTrackID      = True
+# process.g4SimHits.HCalSD.IgnoreTrackID      = True
+# process.g4SimHits.ECalSD.TimeSliceUnit      = 5
+# process.g4SimHits.HCalSD.TimeSliceUnit      = 5
+
+# process.g4SimHits.HCalSD.UseShowerLibrary   = True
+# process.g4SimHits.HCalSD.UseParametrize     = False
+# process.g4SimHits.HCalSD.UsePMTHits         = False
+# process.g4SimHits.HCalSD.UseFibreBundleHits = False
+# process.g4SimHits.HFShower.UseShowerLibrary = False
+# process.g4SimHits.HFShower.UseHFGflash      = True
+# process.g4SimHits.HFShower.TrackEM          = False
+# process.g4SimHits.HFShower.OnlyLong         = True
+# process.g4SimHits.HFShower.EminLibrary      = 0.0

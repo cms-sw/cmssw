@@ -16,15 +16,16 @@
 #include "G4GFlashSpot.hh"
 #include "G4ParticleTable.hh"
 
-//#define DebugLog
+#define DebugLog
 
 CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
 	       SensitiveDetectorCatalog & clg, 
-	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
+	       edm::ParameterSet const & p, const SimTrackManager* manager,
+	       int tSlice, bool ignoreTkID) : 
   SensitiveCaloDetector(name, cpv, clg, p),
   G4VGFlashSensitiveDetector(), theTrack(0), preStepPoint(0), eminHit(0), 
-  eminHitD(0), m_trackManager(manager), currentHit(0), hcID(-1), theHC(0), 
-  meanResponse(0) {
+  eminHitD(0), m_trackManager(manager), currentHit(0), timeSlice(tSlice),
+  ignoreTrackID(ignoreTkID), hcID(-1), theHC(0), meanResponse(0) {
 
   //Add Hcal Sentitive Detector Names
 
@@ -74,8 +75,8 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
                       << "***************************************************";
 #endif
   slave      = new CaloSlaveSD(name);
-  currentID  = CaloHitID();
-  previousID = CaloHitID();
+  currentID  = CaloHitID(timeSlice, ignoreTrackID);
+  previousID = CaloHitID(timeSlice, ignoreTrackID);
   
   primAncestor = 0;
   cleanIndex = 0;
@@ -114,7 +115,9 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
                           << "        Save hits recorded before " << tmaxHit
                           << " ns and if energy is above " << eminHit/MeV
                           << " MeV (for depth 0) or " << eminHitD/MeV
-			  << " MeV (for nonzero depths)";
+			  << " MeV (for nonzero depths); Time Slice Unit " 
+			  << timeSlice << " Ignore TrackID Flag " 
+			  << ignoreTrackID;
 }
 
 CaloSD::~CaloSD() { 

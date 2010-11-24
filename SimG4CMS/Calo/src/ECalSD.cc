@@ -31,7 +31,10 @@
 ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
 	       SensitiveDetectorCatalog & clg, 
 	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
-  CaloSD(name, cpv, clg, p, manager), numberingScheme(0) {
+  CaloSD(name, cpv, clg, p, manager, 
+	 p.getParameter<edm::ParameterSet>("ECalSD").getParameter<int>("TimeSliceUnit"),
+	 p.getParameter<edm::ParameterSet>("ECalSD").getParameter<bool>("IgnoreTrackID")), 
+  numberingScheme(0) {
   
   //   static SimpleConfigurable<bool>   on1(false,  "ECalSD:UseBirkLaw");
   //   static SimpleConfigurable<double> bk1(0.00463,"ECalSD:BirkC1");

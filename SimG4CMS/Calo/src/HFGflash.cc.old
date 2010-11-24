@@ -384,10 +384,11 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
 	em_ratio->Fill(SpotPosition0.z()/cm,energyratio);
       }
 #endif
-      if (G4UniformRand()>  0.0033*energyratio) continue;
+      //      if (G4UniformRand()>  0.0033*energyratio) continue;
+      if (G4UniformRand()>  0.0033) continue;
 
-      if (emSpotEnergy/GeV < 0.0029) continue;
-      if (energyratio > 4) continue;
+//       if (emSpotEnergy/GeV < 0.0029) continue;
+//       if (energyratio > 4) continue;
 
       G4ThreeVector gfshift(0,0,22*(pow(100,0.1)/pow(preStepPoint->GetTotalEnergy()/GeV,0.1)));
 
@@ -398,7 +399,8 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
       if(G4UniformRand() > exp(-p*(11150+1650-SpotPosition.z()))) continue;
 
 
-      oneHit.position = SpotPosition;
+      //      oneHit.position = SpotPosition;
+      oneHit.position = SpotPosition0; //noshift
       oneHit.time     = timeGlobal;
       oneHit.edep     = emSpotEnergy/GeV;
       hit.push_back(oneHit);
