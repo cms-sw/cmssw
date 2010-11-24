@@ -85,7 +85,8 @@ int main(int argc, char **argv) {
     ("toysFile,f", po::value<string>(&toysFile)->default_value(""), "Toy MC output file")
     ;
   for(map<string, LimitAlgo *>::const_iterator i = methods.begin(); i != methods.end(); ++i) {
-    desc.add(i->second->options());
+    if(i->second->options().options().size() != 0) 
+      desc.add(i->second->options());
   }
   po::positional_options_description p;
   p.add("datacard", -1);

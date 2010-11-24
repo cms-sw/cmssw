@@ -17,11 +17,11 @@ public:
     static const std::string name("BayesianFlatPrior");
     return name;
   }
-  virtual boost::program_options::options_description options() {
-    boost::program_options::options_description d;
-    return d;
+  virtual const boost::program_options::options_description & options() const {
+    return options_;
   }
 private:
+  boost::program_options::options_description options_;
 };
 
 #endif

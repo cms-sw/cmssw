@@ -44,11 +44,11 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit) {
   if (uniformProposal_) { pdfProp = new UniformProposal(); } // might do this in a cleaner way in the future
   
   MCMCCalculator mc(data, modelConfig);
-  mc.SetNumIters( 200000 ); 
+  mc.SetNumIters(iterations_); 
   mc.SetConfidenceLevel(0.95);
-  mc.SetNumBurnInSteps( 500 ); 
+  mc.SetNumBurnInSteps(burnInSteps_); 
   mc.SetProposalFunction(*pdfProp);
-  mc.SetNumBins (1000) ; // bins to use for RooRealVars in histograms
+  mc.SetNumBins (numberOfBins_) ; // bins to use for RooRealVars in histograms
   mc.SetLeftSideTailFraction(0);
   mc.SetPriorPdf(flatPrior);
   
