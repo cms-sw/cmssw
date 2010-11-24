@@ -107,7 +107,7 @@ protected:
   // Define problem-tracking monitor elements -- keep here, or in the client?
   MonitorElement *ProblemsVsLB;
   MonitorElement *ProblemsVsLB_HB, *ProblemsVsLB_HE;
-  MonitorElement *ProblemsVsLB_HO, *ProblemsVsLB_HF;
+  MonitorElement *ProblemsVsLB_HO, *ProblemsVsLB_HF, *ProblemsVsLB_HBHEHF;
   MonitorElement* ProblemsCurrentLB;  // show problems just for this LB
  
   int NLumiBlocks_;

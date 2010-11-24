@@ -176,6 +176,9 @@ void HcalDigiMonitor::setup()
   ProblemsVsLB_HF=dbe_->bookProfile("HF Bad Quality Digis vs LB","HF Bad Quality Digis vs Luminosity Block",
 				     NLumiBlocks_,0.5,NLumiBlocks_+0.5,
 				     100,0,10000);
+  ProblemsVsLB_HBHEHF=dbe_->bookProfile("HBHEHF Bad Quality Digis vs LB","HBHEHF Bad Quality Digis vs Luminosity Block",
+				     NLumiBlocks_,0.5,NLumiBlocks_+0.5,
+				     100,0,10000);
 
   if (makeDiagnostics_) 
     {
@@ -712,6 +715,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   ProblemsVsLB_HE->Fill(currentLS,heHists.count_bad);
   ProblemsVsLB_HO->Fill(currentLS,hoHists.count_bad);
   ProblemsVsLB_HF->Fill(currentLS,hfHists.count_bad);
+  ProblemsVsLB_HBHEHF->Fill(currentLS,hbHists.count_bad+heHists.count_bad+hfHists.count_bad);
 
   // Fill the number of problem digis in each channel
   ProblemsCurrentLB->Fill(-1,-1,1);  // event counter

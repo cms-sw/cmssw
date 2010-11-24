@@ -7,8 +7,8 @@
 /*
  * \file HcalBaseDQMonitor.cc
  *
- * $Date: 2010/05/10 19:44:41 $
- * $Revision: 1.4 $
+ * $Date: 2010/07/20 02:58:25 $
+ * $Revision: 1.5 $
  * \author J Temple
  *
  * Base class for all Hcal DQM analyzers
@@ -43,6 +43,7 @@ HcalBaseDQMonitor::HcalBaseDQMonitor(const edm::ParameterSet& ps)
   ProblemsVsLB_HB=0;
   ProblemsVsLB_HE=0;
   ProblemsVsLB_HF=0;
+  ProblemsVsLB_HBHEHF=0;
   ProblemsVsLB_HO=0;
   ProblemsCurrentLB=0;
 } //HcalBaseDQMonitor::HcalBaseDQMonitor(const ParameterSet& ps)

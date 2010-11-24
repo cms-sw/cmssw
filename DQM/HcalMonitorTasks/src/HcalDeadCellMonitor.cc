@@ -95,12 +95,16 @@ void HcalDeadCellMonitor::setup()
   ProblemsVsLB_HF=dbe_->bookProfile("TotalDeadCells_HF_vs_LS",
 				     "Total Number of Dead HF Cells vs lumi section;Lumi Section;Dead Cells",
 				     NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
+  ProblemsVsLB_HBHEHF=dbe_->bookProfile("TotalDeadCells_HBHEHF_vs_LS",
+				     "Total Number of Dead HBHEHF Cells vs lumi section;Lumi Section;Dead Cells",
+				     NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
   
   (ProblemsVsLB->getTProfile())->SetMarkerStyle(20);
   (ProblemsVsLB_HB->getTProfile())->SetMarkerStyle(20);
   (ProblemsVsLB_HE->getTProfile())->SetMarkerStyle(20);
   (ProblemsVsLB_HO->getTProfile())->SetMarkerStyle(20);
   (ProblemsVsLB_HF->getTProfile())->SetMarkerStyle(20);
+  (ProblemsVsLB_HBHEHF->getTProfile())->SetMarkerStyle(20);
 
   dbe_->setCurrentFolder(subdir_+"dead_cell_parameters");
   MonitorElement* me=dbe_->bookInt("Test_NeverPresent_Digis");
@@ -357,7 +361,7 @@ void HcalDeadCellMonitor::reset()
   HcalBaseDQMonitor::reset();
   zeroCounters();
   deadevt_=0;
-  ProblemsVsLB->Reset(); ProblemsVsLB_HB->Reset(); ProblemsVsLB_HE->Reset(); ProblemsVsLB_HO->Reset(); ProblemsVsLB_HF->Reset();
+  ProblemsVsLB->Reset(); ProblemsVsLB_HB->Reset(); ProblemsVsLB_HE->Reset(); ProblemsVsLB_HO->Reset(); ProblemsVsLB_HF->Reset(); ProblemsVsLB_HBHEHF->Reset();
   NumberOfNeverPresentDigis->Reset(); NumberOfNeverPresentDigisHB->Reset(); NumberOfNeverPresentDigisHE->Reset(); NumberOfNeverPresentDigisHO->Reset(); NumberOfNeverPresentDigisHF->Reset();
 
   for (unsigned int depth=0;depth<DigiPresentByDepth.depth.size();++depth)
@@ -1093,6 +1097,7 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
   ProblemsVsLB_HE->Fill(currentLS,NumBadHE);
   ProblemsVsLB_HO->Fill(currentLS,NumBadHO);
   ProblemsVsLB_HF->Fill(currentLS,NumBadHF);
+  ProblemsVsLB_HBHEHF->Fill(currentLS,NumBadHB+NumBadHE+NumBadHF);
   ProblemsVsLB->Fill(currentLS,NumBadHB+NumBadHE+NumBadHO+NumBadHF);
   
   if (deadevt_<minDeadEventCount_)

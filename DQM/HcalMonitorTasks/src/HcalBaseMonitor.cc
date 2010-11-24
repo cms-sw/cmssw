@@ -85,6 +85,7 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   ProblemsVsLB_HE=0;
   ProblemsVsLB_HO=0;
   ProblemsVsLB_HF=0;
+  ProblemsVsLB_HBHEHF=0;
   
   meEVT_=0;
   meTOTALEVT_=0;
@@ -148,6 +149,8 @@ void HcalBaseMonitor::LumiBlockUpdate(int lb)
 	    ProblemsVsLB_HO->Fill(i,NumBadHO);
 	  if (ProblemsVsLB_HF)
 	    ProblemsVsLB_HF->Fill(i,NumBadHF);
+	  if (ProblemsVsLB_HBHEHF)
+	    ProblemsVsLB_HBHEHF->Fill(i,NumBadHB+NumBadHE+NumBadHF);
 	}
     }
   */
