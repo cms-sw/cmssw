@@ -52,11 +52,12 @@ public:
    static std::string typeOfBuilder() { return "simple#"; }
 
    virtual void build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext* );
+   virtual bool visibilityModelChanges(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*);
 
 
    virtual void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );
    virtual bool havePerViewProduct( FWViewType::EType ) const { return true; }
-   virtual void cleanLocal() { m_recHits.clear(); }
+   virtual void cleanLocal();
 
    // needed by LegoRecHit
    TEveVector  calculateCentre( const std::vector<TEveVector> & corners ) const;
