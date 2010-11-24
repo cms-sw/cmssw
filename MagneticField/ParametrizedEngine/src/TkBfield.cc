@@ -5,12 +5,12 @@
 // #include <iostream>
 // #include <iomanip>
 #include <cmath>
-#include "DataFormats/Math/interface/SSEVec.h"
 
+using namespace std;
 using namespace magfieldparam;
 
 
-TkBfield::TkBfield(std::string fld) {
+TkBfield::TkBfield(string fld) {
   double p1[]={4.90541,17.8768,2.02355,0.0210538,0.000321885,2.37511,0.00326725,2.07656,1.71879}; // 2.0T-2G
   double p2[]={4.41982,15.7732,3.02621,0.0197814,0.000515759,2.43385,0.00584258,2.11333,1.76079}; // 3.0T-2G
   double p3[]={4.30161,15.2586,3.51926,0.0183494,0.000606773,2.45110,0.00709986,2.12161,1.77038}; // 3.5T-2G
@@ -24,59 +24,31 @@ TkBfield::TkBfield(std::string fld) {
   if (fld=="4_0T") for (int i=0; i<9; i++) prm[i]=p5[i];
   //  cout<<std::endl<<"Instantiation of TkBfield with key "<<fld<<endl;
   if (!prm[0]) {
-    throw cms::Exception("BadParameters") << "Undefined key - " // abort!\n";
-    <<"Defined keys are: \"2_0T\" \"3_0T\" \"3_5T\" \"3_8T\" and \"4_0T\"\n";
+    throw cms::Exception("BadParameters") << "Undefined key - " // abort!"<<endl;
+    <<"Defined keys are: \"2_0T\" \"3_0T\" \"3_5T\" \"3_8T\" and \"4_0T\""<<endl;
     // exit(1);
   }
   ap2=4*prm[0]*prm[0]/(prm[1]*prm[1]);  
-  hb0=0.5*prm[2]*std::sqrt(1.0+ap2);
-  hlova=1/std::sqrt(ap2);
+  hb0=0.5*prm[2]*sqrt(1.0+ap2);
+  hlova=1/sqrt(ap2);
   ainv=2*hlova/prm[1];
   coeff=1/(prm[8]*prm[8]);
 }
 
 namespace {
-  template<typename T>
-  inline void ffunkti(T u, T * __restrict__ ff) {
+  inline void ffunkti(double u, double * __restrict__ ff) {
     // Function and its 3 derivatives
-    T a,b,a2,u2;
+    double a,b,a2,u2;
     u2=u*u; 
-    a=T(1)/(T(1)+u2);
+    a=1./(1.+u2);
     a2=-3*a*a;
-    b=mathSSE::sqrt(a);
+    b=sqrt(a);
     ff[0]=u*b;
     ff[1]=a*b;
     ff[2]=a2*ff[0];
-    ff[3]=a2*ff[1]*(T(1)-4*u2);
+    ff[3]=a2*ff[1]*(1.-4*u2);
   }
 }
-
-#if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)
-
-void  TkBfield::Bcyl(double r, double z, double * __restrict__ Bw)  const{
-  z-=prm[3];                    // max Bz point is shifted in z
-  double az=std::abs(z);
-  double zainv=z*ainv;
-
-  mathSSE::Vec2D uv(hlova-zainv,hlova+zainv);
-  mathSSE::Vec2D fuv[4];
-  ffunkti(uv,fuv);
-
-  double rat=0.5*r*ainv;
-  double rat2=rat*rat;
-  Bw[0]=hb0*rat*(fuv[1][0]-fuv[1][1]-(fuv[3][0]-fuv[3][1])*rat2*0.5);
-  Bw[1]=0;
-  Bw[2]=hb0*(fuv[0][0]+fuv[0][1]-(fuv[2][0]+fuv[2][1])*rat2);
-
-  double corBr= prm[4]*r*z*(az-prm[5])*(az-prm[5]);
-  double corBz=-prm[6]*(exp(-(z-prm[7])*(z-prm[7])*coeff) +
-			exp(-(z+prm[7])*(z+prm[7])*coeff)
-			); // double Gaussian
-  Bw[0]+=corBr;
-  Bw[2]+=corBz;
-}
-
-#else
 
 void  TkBfield::Bcyl(double r, double z, double * __restrict__ Bw)  const{
   //  if (r<1.15&&fabs(z)<2.8) // NOTE: check omitted, is done already by the wrapper! (NA)
@@ -106,7 +78,7 @@ void  TkBfield::Bcyl(double r, double z, double * __restrict__ Bw)  const{
   //   } else {
   //     cout <<"TkBfield: The point is outside the region r<1.15m && |z|<2.8m"<<endl;
 }
-#endif
+
 
 
 void TkBfield::getBrfz(double const  * __restrict__ x, double * __restrict__ Brfz)  const {

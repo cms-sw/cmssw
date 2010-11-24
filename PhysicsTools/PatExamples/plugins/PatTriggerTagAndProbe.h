@@ -35,12 +35,15 @@ class PatTriggerTagAndProbe : public edm::EDAnalyzer {
   /// helper function to set proper bin errors
   void setErrors(TH1D& h, const TH1D& ref);
   
+  /// input for patTrigger
+  edm::InputTag trigger_;
   /// input for patTriggerEvent
   edm::InputTag triggerEvent_;
   /// input for muons
   edm::InputTag muons_;
   /// input for trigger match objects
   std::string   muonMatch_;
+  
   /// management of 1d histograms
   std::map< std::string, TH1D* > histos1D_;
 };

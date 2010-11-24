@@ -17,7 +17,6 @@
 #include "vector"
 #include "string"
 #include "iostream"
-#include <fstream>
 #include "cmath"
 #include "CondCore/Utilities/interface/CondCachedIter.h"
 #include "CondFormats/DQMObjects/interface/HDQMSummary.h"
@@ -31,7 +30,9 @@ class HDQMInspector
   HDQMInspector():
     DBName_(""),
     DBTag_(""),
-    DBauth_(""),
+    DBuser_(""),
+    DBpasswd_(""),
+    DBblob_(""),
     Iterator(0),
     iDebug(0),
     iDoStat(0),
@@ -45,7 +46,9 @@ class HDQMInspector
   HDQMInspector(const HDQMInspectorConfigBase* InConfig):
     DBName_(""),
     DBTag_(""),
-    DBauth_(""),
+    DBuser_(""),
+    DBpasswd_(""),
+    DBblob_(""),
     Iterator(0),
     iDebug(0),
     iDoStat(0),
@@ -56,7 +59,7 @@ class HDQMInspector
     {
     };
   
-  virtual ~HDQMInspector() {
+  virtual ~HDQMInspector(){
     delete Iterator;
   };
   struct DetIdItemList {
@@ -65,7 +68,7 @@ class HDQMInspector
     std::vector<float> values;
   };
 
-  void setDB(const std::string & DBName, const std::string & DBTag, const std::string & DBauth = "");
+  void setDB(std::string DBName, std::string DBTag, std::string DBuser="", std::string DBpasswd="", std::string DBblob="");
   void createTrend(const std::string ListItems, const std::string CanvasName="", const int logy=0, const std::string Conditions="",
                    std::string const& Labels="", const unsigned int firstRun=1, const unsigned int lastRun=0xFFFFFFFE, int const UseYRange = 0, double const& YMin = 999999, double const& YMax = -999999);
   void createTrendLastRuns(const std::string ListItems, const std::string CanvasName="",
@@ -74,7 +77,6 @@ class HDQMInspector
   void setDoStat(int i){iDoStat=i;}
   void setBlackList(std::string const& ListItems);
   void setWhiteList(std::string const& ListItems);
-  std::string readListFromFile(const std::string & listFileName);
   void setSkip99s (bool const in) {
     fSkip99s = in;
     return;
@@ -117,7 +119,7 @@ private:
   bool isListed(unsigned int run, std::vector<unsigned int>& vList);
 
 
-  std::string DBName_, DBTag_, DBauth_;
+  std::string DBName_, DBTag_, DBuser_, DBpasswd_, DBblob_;
   
   CondCachedIter<HDQMSummary>* Iterator; 
   

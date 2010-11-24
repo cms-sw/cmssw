@@ -59,28 +59,10 @@ void OHltRatePrinter::printRatesASCII(OHltConfig *cfg, OHltMenu *menu) {
     cumulRate += spureRate[i];
     cumulRateErr += pow(spureRateErr[i],fTwo);
 
-    if(cfg->readRefPrescalesFromNtuple)    
-      { 
-        if ((menu->GetTriggerName(i).Contains("OpenHLT_")) || (menu->GetTriggerName(i).Contains("OpenAlCa_"))) { 
-	  TString st = menu->GetTriggerName(i); 
-	  TString fullhlt = st.ReplaceAll("OpenHLT","HLT");
-	  fullhlt = st.ReplaceAll("OpenAlCa","AlCa");
-
-	  // For OpenHLT emulated paths, try to "guess" the correct online prescale by matching 
-	  // the name of the corresponding full HLT path. If the full path doesn't exist, use 1 
-
-	  hltPrescaleCorrection = 1.0;  
-	  for (unsigned int j=0;j<menu->GetTriggerSize();j++) { 
-	    if(menu->GetTriggerName(j) == fullhlt)
-	      hltPrescaleCorrection  = averageRefPrescaleHLT[j];
-	  }
-        } 
-        else 
-          hltPrescaleCorrection = averageRefPrescaleHLT[i];    
-      } 
-    else    
-      hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);    
-
+    if(cfg->readRefPrescalesFromNtuple)  
+      hltPrescaleCorrection = averageRefPrescaleHLT[i];  
+    else  
+      hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);  
 
     cout<<setw(50)<<menu->GetTriggerName(i)<<" ("
 	<<setw(8)<<(int)(menu->GetPrescale(i) * hltPrescaleCorrection)<<")  "
@@ -207,20 +189,9 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
 
     if(cfg->readRefPrescalesFromNtuple)   
       {
-        if ((menu->GetTriggerName(i).Contains("OpenHLT_")) || (menu->GetTriggerName(i).Contains("OpenAlCa_"))) {  
-          TString st = menu->GetTriggerName(i);  
-          TString fullhlt = st.ReplaceAll("OpenHLT","HLT"); 
-          fullhlt = st.ReplaceAll("OpenAlCa","AlCa"); 
- 
-          // For OpenHLT emulated paths, try to "guess" the correct online prescale by matching  
-          // the name of the corresponding full HLT path. If the full path doesn't exist, use 1  
- 
-          hltPrescaleCorrection = 1.0;   
-          for (unsigned int j=0;j<menu->GetTriggerSize();j++) {  
-            if(menu->GetTriggerName(j) == fullhlt) 
-              hltPrescaleCorrection  = averageRefPrescaleHLT[j]; 
-          } 
-        }  
+	if ((menu->GetTriggerName(i).Contains("OpenHLT_"))) {
+	  hltPrescaleCorrection = 1.0;
+	}
 	else
 	  hltPrescaleCorrection = averageRefPrescaleHLT[i];   
       }

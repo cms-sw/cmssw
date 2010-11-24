@@ -46,7 +46,10 @@ def createLumi(dbsession):
     summary.insertColumn('LUMISECTIONQUALITY','short')
     summary.insertColumn('BEAMENERGY','float')
     summary.insertColumn('BEAMSTATUS','string')
-    
+    summary.insertColumn('CMSBXINDEXBLOB','blob')
+    summary.insertColumn('BEAMINTENSITYBLOB_1','blob')
+    summary.insertColumn('BEAMINTENSITYBLOB_2','blob')
+         
     summary.setPrimaryKey('LUMISUMMARY_ID')
     summary.setNotNullConstraint('RUNNUM',True)
     summary.setNotNullConstraint('CMSLSNUM',True)

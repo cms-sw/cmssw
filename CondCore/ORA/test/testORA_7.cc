@@ -24,7 +24,7 @@ class PrimitiveContainerStreamingService : public ora::IBlobStreamingService {
     
     virtual ~PrimitiveContainerStreamingService();
 
-    boost::shared_ptr<coral::Blob> write( const void* addressOfInputData, const Reflex::Type& classDictionary );
+  boost::shared_ptr<coral::Blob> write( const void* addressOfInputData, const Reflex::Type& classDictionary, bool );
 
     void read( const coral::Blob& blobData, void* addressOfContainer, const Reflex::Type& classDictionary );
 };
@@ -36,7 +36,8 @@ PrimitiveContainerStreamingService::~PrimitiveContainerStreamingService(){
 }
 
 boost::shared_ptr<coral::Blob> PrimitiveContainerStreamingService::write( const void* addressOfInputData,
-                                                                          const Reflex::Type& type ){
+                                                                          const Reflex::Type& type, 
+                                                                          bool ){
   // The actual object
   Reflex::Object theContainer( type, const_cast<void*>( addressOfInputData ) );
 

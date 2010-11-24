@@ -64,9 +64,9 @@ L2TauIsolationAlgs::clusterShape(const math::PtEtaPhiELorentzVectorCollection& h
     {
       for(math::PtEtaPhiELorentzVectorCollection::const_iterator  c = hits.begin();c!=hits.end();++c) //loop on clusters
 	{
-	  eta_rms+=c->pt()*pow(c->eta()-direction.eta(),2);
-	  phi_rms+=c->pt()*pow(ROOT::Math::VectorUtil::DeltaPhi(*c,direction),2);
-	  dr_rms+=c->pt()*pow(ROOT::Math::VectorUtil::DeltaR(*c,direction),2);
+	  eta_rms+=c->pt()*std::pow(c->eta()-direction.eta(),2);
+	  phi_rms+=c->pt()*std::pow(ROOT::Math::VectorUtil::DeltaPhi(*c,direction),2);
+	  dr_rms+=c->pt()*std::pow(ROOT::Math::VectorUtil::DeltaR(*c,direction),2);
 	  sumpt+=c->pt();			   
 	}
     }

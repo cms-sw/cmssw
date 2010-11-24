@@ -41,10 +41,10 @@ void HcalHitCorrection::clear()
 
 double HcalHitCorrection::charge(const PCaloHit & hit) const
 {
-  HcalDetId detId(hit.id());
+  DetId detId(hit.id());
   const CaloSimParameters & parameters = theParameterMap->simParameters(detId);
-  double simHitToCharge = parameters.simHitToPhotoelectrons(detId)
-                        * parameters.photoelectronsToAnalog(detId);
+  double simHitToCharge = parameters.simHitToPhotoelectrons()
+                        * parameters.photoelectronsToAnalog();
   return hit.energy() * simHitToCharge;
 }
 
@@ -89,6 +89,7 @@ double HcalHitCorrection::delay(const PCaloHit & hit) const
       double smearns=theRandGaussQ->fire()*rms;
 
       LogDebug("HcalHitCorrection") << "TimeSmear charge " << charge(hit) << " rms " << rms << " delay " << delay << " smearns " << smearns;
+
       delay+=smearns;
     }
   }

@@ -72,7 +72,17 @@ namespace edmtest
     Handle<LumiDetails> lumiDetails;
     lumiBlock.getByLabel("lumiProducer", lumiDetails);
     if(lumiDetails->isValid()){
-      std::cout << *lumiDetails << "\n";
+      //std::cout << *lumiDetails << "\n";
+      std::cout<<"lumivalue 5 "<< lumiDetails->lumiValue("OCC1",5)<<std::endl;
+      std::cout<<"lumivalue 200 "<< lumiDetails->lumiValue("OCC1",200)*6.37<<std::endl;
+      std::cout<<"lumivalue 880 "<< lumiDetails->lumiValue("OCC1",880)*6.37<<std::endl;
+      std::cout<<"lumivalue 890 "<< lumiDetails->lumiValue("OCC1",890)*6.37<<std::endl;
+      std::cout<<"lumivalue 900 "<< lumiDetails->lumiValue("OCC1",900)*6.37<<std::endl;
+      std::cout<<"lumivalue 950 "<< lumiDetails->lumiValue("OCC1",950)*6.37<<std::endl;
+      std::cout<<"lumivalue 1500 "<< lumiDetails->lumiValue("OCC1",1500)*6.37<<std::endl;
+      std::cout<<"lumivalue 2000 "<< lumiDetails->lumiValue("OCC1",2000)*6.37<<std::endl;
+      std::cout<<"lumivalue 2500 "<< lumiDetails->lumiValue("OCC1",2500)*6.37<<std::endl;
+      std::cout<<"lumivalue 3500 "<< lumiDetails->lumiValue("OCC1",3500)*6.37<<std::endl;
     }else{
       std::cout << "no valid lumi detail data" <<std::endl;
     }

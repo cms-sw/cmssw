@@ -50,3 +50,7 @@ RECODEBUGEventContent.outputCommands.extend(HiMixRAW.outputCommands)
 RECODEBUGEventContent.outputCommands.extend(RecoHIRECO.outputCommands)
 
 from Configuration.EventContent.EventContent_cff import DQMEventContent
+
+#ALCA HeavyIons
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlMinBiasHI_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalMinBiasHI_noDrop.outputCommands)

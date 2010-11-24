@@ -33,6 +33,7 @@ namespace ora {
       IRelationalData* m_relationalData;
       RelationalBuffer* m_relationalBuffer;
       IBlobStreamingService* m_blobWriter;
+      bool m_useCompression;
   };
 
   class BlobWriter : public BlobWriterBase, public IRelationalWriter {

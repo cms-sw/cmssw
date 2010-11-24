@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 10:19:07 EST 2008
-// $Id: unittest_eventitemsmanager.cc,v 1.6 2010/06/18 10:17:16 yana Exp $
+// $Id: unittest_eventitemsmanager.cc,v 1.7 2010/07/26 15:13:13 matevz Exp $
 //
 
 // system include files
@@ -56,10 +56,11 @@ BOOST_AUTO_TEST_CASE( eventitemmanager )
 {
    ROOT::Cintex::Cintex::Enable();
    FWModelChangeManager cm;
-   
+  
    FWSelectionManager sm(&cm);
    FWEventItemsManager eim(&cm);
    FWColorManager colm(&cm);
+   colm.initialize();
 
    // !!!! Passing 0 for FWJobMetadataManager
    fireworks::Context context(&cm,&sm,&eim,&colm,0);
@@ -73,11 +74,12 @@ BOOST_AUTO_TEST_CASE( eventitemmanager )
 
    TClass* cls=TClass::GetClass("std::vector<reco::Track>");
    assert(0!=cls);
-   
+
+   Color_t color1 = FWColorManager::getDefaultStartColorIndex() + 1;
    FWPhysicsObjectDesc tracks("Tracks",
                               cls,
                               "Tracks",
-                              FWDisplayProperties(1, true, 100),
+                              FWDisplayProperties(color1, true, 100),
                               "label",
                               "instance",
                               "proc");
@@ -85,7 +87,6 @@ BOOST_AUTO_TEST_CASE( eventitemmanager )
    BOOST_REQUIRE(listener.nMessages_==0);
    BOOST_REQUIRE(eim.begin()==eim.end());
 
-   Color_t color1 = 0;
    eim.add(tracks);
    BOOST_CHECK(listener.nMessages_==1);
    BOOST_CHECK(eim.end()-eim.begin() == 1);

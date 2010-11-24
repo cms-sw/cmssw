@@ -10,7 +10,7 @@ using namespace std;
 
 int main() {
 
-  bool fail = false;
+  bool fail;
 
   // temp collection of IDs
   L1CaloRegionDetId ids[22][18];
@@ -21,14 +21,13 @@ int main() {
   for (unsigned crate=0; crate<18; crate++) {
     for (unsigned card=0; card<7; card++) {
       for (unsigned rgn=0; rgn<2; rgn++) {
-        L1CaloRegionDetId r(crate, card, rgn);
-        if ( (r.rctCrate()!=crate) || (r.rctCard()!=card) || (r.rctRegion()!=rgn) ) {
-          cout << "Error! : converting RCT indices to ieta/iphi at RCT crate " << crate << " card " << card << " region " << rgn << endl;
-          fail = true;
-        }
-        if ( (r.ieta() < 22) && (r.iphi()<18) ) {
-          ids[r.ieta()][r.iphi()] = r;
-        }
+	L1CaloRegionDetId r(crate, card, rgn);
+	if ( (r.rctCrate()!=crate) || (r.rctCard()!=card) || (r.rctRegion()!=rgn) ) {
+	  cout << "Error! : converting RCT indices to ieta/iphi at RCT crate " << crate << " card " << card << " region " << rgn << endl;
+	}
+	if ( (r.ieta() < 22) && (r.iphi()<18) ) {
+	  ids[r.ieta()][r.iphi()] = r;
+	}
       }
     }
   }
@@ -38,11 +37,10 @@ int main() {
     for (unsigned rgn=0; rgn<8; rgn++) {
       L1CaloRegionDetId r(crate, 999, rgn);
       if ( (r.rctCrate()!=crate) || (r.rctRegion()!=rgn) ) {
-        cerr << "Error! : RCT crate " << crate << " HF region " << rgn << endl;
-          fail = true;
+	cerr << "Error! : RCT crate " << crate << " HF region " << rgn << endl;
       }
       if ( (r.ieta() < 22) && (r.iphi()<18) ) {
-        ids[r.ieta()][r.iphi()] = r;
+	ids[r.ieta()][r.iphi()] = r;
       }
     }
   }
@@ -50,10 +48,10 @@ int main() {
   // check ieta/iphi map is filled correctly
   for (unsigned ieta=0; ieta<22; ieta++) {
       for (unsigned iphi=0; iphi<18; iphi++) {
-        if ( ids[ieta][iphi] != L1CaloRegionDetId(ieta, iphi) ) {
-          cerr << "Error! : missing L1CaloRegionDetId from RCT constructor at ieta=" << ieta<< ", iphi=" << iphi << endl;
-          fail = true;
-        }
+	if ( ids[ieta][iphi] != L1CaloRegionDetId(ieta, iphi) ) {
+	  cerr << "Error! : missing L1CaloRegionDetId from RCT constructor at ieta=" << ieta<< ", iphi=" << iphi << endl;
+	  fail = true;
+	}
       }
   }
 
@@ -66,8 +64,8 @@ int main() {
       unsigned card = r.rctCard();
       unsigned rgn = r.rctRegion();
       if (r != L1CaloRegionDetId(crate, card, rgn) ) {
-        cerr << "Error! : converting ieta/iphi to RCT indices at ieta=" << ieta << " iphi=" << iphi << endl;
-        fail = true;
+	cerr << "Error! : converting ieta/iphi to RCT indices at ieta=" << ieta << " iphi=" << iphi << endl;
+	fail = true;
       }
     }
   }

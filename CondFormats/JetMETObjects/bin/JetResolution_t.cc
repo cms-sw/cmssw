@@ -105,11 +105,11 @@ int main(int argc,char**argv)
   TH1F* hGenPt = new TH1F("GenPt",";p_{T} [GeV]",100,0.,250.);
   TH1F* hJetPt = new TH1F("JetPt",";p_{T} [GeV]",100,0.,250.);
 
-  TH1F* hRndEta = new TH1F("RndEta",";random number",200,-5.0,5.0);
+  TH1F* hRndEta = new TH1F("RndEta",";random number",200,0.0,5.0);
   TH1F* hGenEta = new TH1F("GenEta",";#eta",51,-5.,5.);
   TH1F* hJetEta = new TH1F("JetEta",";#eta",51,-5.,5.);
 
-  TH1F* hRndPhi = new TH1F("RndPhi",";random number",200,-3.15,3.15);
+  TH1F* hRndPhi = new TH1F("RndPhi",";random number",200,0.0,5.0);
   TH1F* hGenPhi = new TH1F("GenPhi",";#varphi",41,-3.15,3.15);
   TH1F* hJetPhi = new TH1F("JetPhi",";#varphi",41,-3.15,3.15);
 
@@ -130,8 +130,8 @@ int main(int argc,char**argv)
     float rndphi  = fPhiResol->GetRandom();
     
     float jetpt   = rndpt*genpt;
-    float jeteta  = rndeta+geneta;
-    float jetphi  = rndphi+genphi;
+    float jeteta  = rndeta*geneta;
+    float jetphi  = rndphi*genphi;
         
     hRndPt->Fill(rndpt);
     hGenPt->Fill(genpt);

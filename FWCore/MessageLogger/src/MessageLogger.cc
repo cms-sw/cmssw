@@ -21,22 +21,7 @@
 //  8/11/09  mf setStandAloneMessageThreshold() and
 //		squelchStandAloneMessageCategory()
 //
-//  10/29/09 wmtan  Use explicit non-inlined constructors for LogDebug_ 
-//                  and LogTrace_
-//
-//  8/11/09  mf setStandAloneMessageThreshold() and
-//		squelchStandAloneMessageCategory()
-//
-//  9/23/10  mf Initialize debugEnabled according to 
-// 		MessageDrop::debugAlwaysSuppressed, rather than
-//		just true.  See change 21 of MessageLogger.h.
-//
-//  9/27/10  mf isDebugEnabled() - check that debugAlwaysSuppressed is
-//              false before examining debugEnabled, which in principle 
-//		ougth to be thread-specific thus more expensive to look at.
-//
-//  9/27/10b mf dtor for LogWarningThatSuppressesLikeLogInfo - see
-//		change log 22 in MessageLogger.h
+//  10/29/09 wmtan  Use explicit non-inlined constructors for LogDebug_ and LogTrace_
 //
 // ------------------------------------------------------------------------
 
@@ -53,27 +38,21 @@ LogTrace_::~LogTrace_() {}
 LogPrint::~LogPrint() {}
 LogProblem::~LogProblem() {}
 LogImportant::~LogImportant() {}
-namespace edmmltest {						// 9/27/10b mf
- LogWarningThatSuppressesLikeLogInfo::~LogWarningThatSuppressesLikeLogInfo() {}
-}
 
 void LogStatistics() {
   edm::MessageLoggerQ::MLqSUM ( ); // trigger summary info
 }
 
 bool isDebugEnabled() {
-  return ((!edm::MessageDrop::debugAlwaysSuppressed)		// 9/27/10 mf
-         && edm::MessageDrop::debugEnabled );
+  return ( edm::MessageDrop::debugEnabled );
 }
 
 bool isInfoEnabled() {
-  return ((!edm::MessageDrop::infoAlwaysSuppressed)		// 9/27/10 mf
-         && edm::MessageDrop::infoEnabled );
+  return( edm::MessageDrop::infoEnabled );
 }
 
 bool isWarningEnabled() {
-  return ((!edm::MessageDrop::warningAlwaysSuppressed)		// 9/27/10 mf
-         && edm::MessageDrop::warningEnabled );
+  return( edm::MessageDrop::warningEnabled );
 }
 
 void HaltMessageLogging() {
@@ -101,8 +80,7 @@ void GroupLogStatistics(std::string const & category) {
 }
 
 edm::LogDebug_::LogDebug_( std::string const & id, std::string const & file, int line )
-  : ap( new MessageSender(ELsuccess,id) )
-  , debugEnabled(!MessageDrop::debugAlwaysSuppressed)		//9/23/10 mf
+  : ap( new MessageSender(ELsuccess,id) ), debugEnabled(true)
 { *this
         << " "
         << stripLeadingDirectoryTree(file)
@@ -118,7 +96,7 @@ edm::LogDebug_::stripLeadingDirectoryTree(const std::string & file) const {
 
 edm::LogTrace_::LogTrace_( std::string const & id )
   : ap( new MessageSender(ELsuccess,id,true) )
-  , debugEnabled(!MessageDrop::debugAlwaysSuppressed)		//9/23/10 mf
+  , debugEnabled(true)
   {  }
 
 void setStandAloneMessageThreshold(std::string const & severity) {

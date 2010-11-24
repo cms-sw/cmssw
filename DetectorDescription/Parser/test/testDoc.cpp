@@ -192,12 +192,12 @@ int DDLTestDoc::readConfig(const std::string& filename)
     std::cout << "\nXMLException: parsing '" << filename << "'\n"
 	 << "Exception message is: \n"
 	 << std::string(StrX(toCatch.getMessage()).localForm()) << "\n" ;
-    return 1;
+    return -1;
   }
   catch (...)
     {
       std::cout << "\nUnexpected exception during parsing: '" << filename << "'\n";
-      return 3;
+      return 4;
     }
 
   fnames_ = sch->getFileNames();
@@ -433,55 +433,52 @@ int main(int argc, char *argv[])
 
   std::string const kProgramName = argv[0];
   int rc = 0;
-  if (argc < 2 || argc > 2 ) {
-    std::cout << "This is a polite exit so that scram b runtests' first run of this program does not give an error" << std::endl;
-    exit(0); // SUCCESS;
-  }
+
   // Copied from example stand-alone program in Message Logger July 18, 2007
   try {
 
-//     // A.  Instantiate a plug-in manager first.
-//     edm::AssertHandler ah;
+    // A.  Instantiate a plug-in manager first.
+    edm::AssertHandler ah;
 
-//     // B.  Load the message service plug-in.  Forget this and bad things happen!
-//     //     In particular, the job hangs as soon as the output buffer fills up.
-//     //     That's because, without the message service, there is no mechanism for
-//     //     emptying the buffers.
-//     boost::shared_ptr<edm::Presence> theMessageServicePresence;
-//     theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
-// 								 makePresence("MessageServicePresence").release());
+    // B.  Load the message service plug-in.  Forget this and bad things happen!
+    //     In particular, the job hangs as soon as the output buffer fills up.
+    //     That's because, without the message service, there is no mechanism for
+    //     emptying the buffers.
+    boost::shared_ptr<edm::Presence> theMessageServicePresence;
+    theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
+								 makePresence("MessageServicePresence").release());
 
-//     // C.  Manufacture a configuration and establish it.
-//     std::string config =
-//       "import FWCore.ParameterSet.Config as cms\n"
-//       "process = cms.Process('TEST')\n"
-//       "process.maxEvents = cms.untracked.PSet(\n"
-//       "    input = cms.untracked.int32(5)\n"
-//       ")\n"
-//       "process.source = cms.Source('EmptySource')\n"
-//       "process.JobReportService = cms.Service('JobReportService')\n"
-//       "process.InitRootHandlers = cms.Service('InitRootHandlers')\n"
-//       // "process.MessageLogger = cms.Service('MessageLogger')\n"
-//       "process.m1 = cms.EDProducer('IntProducer',\n"
-//       "    ivalue = cms.int32(11)\n"
-//       ")\n"
-//       "process.out = cms.OutputModule('PoolOutputModule',\n"
-//       "    fileName = cms.untracked.string('testStandalone.root')\n"
-//       ")\n"
-//       "process.p = cms.Path(process.m1)\n"
-//       "process.e = cms.EndPath(process.out)\n";
+    // C.  Manufacture a configuration and establish it.
+    std::string config =
+      "import FWCore.ParameterSet.Config as cms\n"
+      "process = cms.Process('TEST')\n"
+      "process.maxEvents = cms.untracked.PSet(\n"
+      "    input = cms.untracked.int32(5)\n"
+      ")\n"
+      "process.source = cms.Source('EmptySource')\n"
+      "process.JobReportService = cms.Service('JobReportService')\n"
+      "process.InitRootHandlers = cms.Service('InitRootHandlers')\n"
+      // "process.MessageLogger = cms.Service('MessageLogger')\n"
+      "process.m1 = cms.EDProducer('IntProducer',\n"
+      "    ivalue = cms.int32(11)\n"
+      ")\n"
+      "process.out = cms.OutputModule('PoolOutputModule',\n"
+      "    fileName = cms.untracked.string('testStandalone.root')\n"
+      ")\n"
+      "process.p = cms.Path(process.m1)\n"
+      "process.e = cms.EndPath(process.out)\n";
 
-//     boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets;
-//     boost::shared_ptr<edm::ParameterSet>          params_;
-//     edm::makeParameterSets(config, params_, pServiceSets);
+    boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets;
+    boost::shared_ptr<edm::ParameterSet>          params_;
+    edm::makeParameterSets(config, params_, pServiceSets);
 
-//     // D.  Create the services.
-//     edm::ServiceToken tempToken(edm::ServiceRegistry::createSet(*pServiceSets.get()));
+    // D.  Create the services.
+    edm::ServiceToken tempToken(edm::ServiceRegistry::createSet(*pServiceSets.get()));
 
-//     // E.  Make the services available.
-//     edm::ServiceRegistry::Operate operate(tempToken);
+    // E.  Make the services available.
+    edm::ServiceRegistry::Operate operate(tempToken);
 
-//     // END Copy from example stand-alone program in Message Logger July 18, 2007
+    // END Copy from example stand-alone program in Message Logger July 18, 2007
 
     std::cout  << "Initialize DDD (call AlgoInit)" << std::endl;
 
@@ -490,13 +487,13 @@ int main(int argc, char *argv[])
     std::cout << "Initialize a DDL parser " << std::endl;
     DDCompactView cpv;
     DDLParser myP(cpv);// = DDLParser::instance();
-    //until scram b runtests (if ever) does not run it by default, we will not run without at least one argument.
- //    if (argc < 2) {
-//       std::cout << "DEFAULT test using testConfiguration.xml" << std::endl;
-    if ( argc == 2 ) {
+
+    if (argc < 2) {
+      std::cout << "DEFAULT test using testConfiguration.xml" << std::endl;
+
       DDLTestDoc dp; //DDLConfiguration dp;
 
-      dp.readConfig(argv[1]);
+      dp.readConfig("testConfiguration.xml");
       dp.dumpFileList();
 
       std::cout << "About to start parsing..." << std::endl;
@@ -561,8 +558,8 @@ int main(int argc, char *argv[])
       testLogicalParts();
       testPosParts();
     } else if (argc < 3) {
-      // scram b runtests for now this should not work.
-      // just to have something!
+      
+      //just to have something!
       DDRootDef::instance().set(DDName("LP1", "testNoSections"));
       
       std::string fname = std::string(argv[1]);

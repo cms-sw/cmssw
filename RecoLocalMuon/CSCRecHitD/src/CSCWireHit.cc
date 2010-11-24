@@ -6,8 +6,7 @@ CSCWireHit::CSCWireHit() :
   theWireHitPosition(),
   theWgroups(),
   theWireHitTmax(),
-  isDeadWGAround(),
-  theTimeBinsOn(0)
+  isDeadWGAround()
 {
 theWgroupsHighBits.clear();
 for(int i=0; i<(int)theWgroups.size(); i++)
@@ -21,14 +20,12 @@ CSCWireHit::CSCWireHit( const CSCDetId& id,
                         const float& wHitPos, 
                         ChannelContainer& wgroups, 
                         const int& tmax,
-                        const bool& isNearDeadWG,
-                        const std::vector <int>& timeBinsOn ) :
+                        const bool& isNearDeadWG ) :
   theDetId( id ), 
   theWireHitPosition( wHitPos ),
   theWgroups( wgroups ),
   theWireHitTmax ( tmax ),
-  isDeadWGAround( isNearDeadWG ),
-  theTimeBinsOn( timeBinsOn )
+  isDeadWGAround( isNearDeadWG )
 {
 theWgroupsHighBits.clear();
 for(int i=0; i<(int)theWgroups.size(); i++)
@@ -62,7 +59,4 @@ CSCWireHit::print() const {
    std::cout << std::endl;
    std::cout << " TMAX: " << std::dec << tmax() << std::endl;
    std::cout << " Is Near Dead WG: " << isNearDeadWG() << std::endl;
-   std::cout << " Time bins on: ";
-   for (int i=0; i<(int) timeBinsOn().size(); i++) std::cout << timeBinsOn()[i] << " ";
-   std::cout << std::endl;
 }

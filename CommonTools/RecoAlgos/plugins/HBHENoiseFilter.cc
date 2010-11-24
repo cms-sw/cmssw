@@ -47,9 +47,6 @@ HBHENoiseFilter::HBHENoiseFilter(const edm::ParameterSet& iConfig)
   minHighEHitTime_ = iConfig.getParameter<double>("minHighEHitTime");
   maxHighEHitTime_ = iConfig.getParameter<double>("maxHighEHitTime");
   maxRBXEMF_ = iConfig.getParameter<double>("maxRBXEMF");
-  minNumIsolatedNoiseChannels_ = iConfig.getParameter<int>("minNumIsolatedNoiseChannels");
-  minIsolatedNoiseSumE_ = iConfig.getParameter<double>("minIsolatedNoiseSumE");
-  minIsolatedNoiseSumEt_ = iConfig.getParameter<double>("minIsolatedNoiseSumEt");  
 }
 
 
@@ -87,10 +84,6 @@ HBHENoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(summary.min25GeVHitTime()<minHighEHitTime_) return false;
   if(summary.max25GeVHitTime()>maxHighEHitTime_) return false;
   if(summary.minRBXEMF()<maxRBXEMF_) return false;
-  if(summary.numIsolatedNoiseChannels()>=minNumIsolatedNoiseChannels_) return false;
-  if(summary.isolatedNoiseSumE()>=minIsolatedNoiseSumE_) return false;
-  if(summary.isolatedNoiseSumEt()>=minIsolatedNoiseSumEt_) return false;
-
   return true;
 }
 

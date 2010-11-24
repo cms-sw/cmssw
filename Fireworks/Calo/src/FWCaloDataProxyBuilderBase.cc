@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 15:09:39 CEST 2010
-// $Id: FWCaloDataProxyBuilderBase.cc,v 1.2 2010/06/08 13:44:47 amraktad Exp $
+// $Id: FWCaloDataProxyBuilderBase.cc,v 1.3 2010/06/15 18:19:41 amraktad Exp $
 //
 
 // system include files
@@ -93,12 +93,6 @@ FWCaloDataProxyBuilderBase::build(const FWEventItem* iItem,
 void
 FWCaloDataProxyBuilderBase::modelChanges(const FWModelIds&, Product* p)
 {
-   applyChangesToAllModels(p);
-}
-
-void
-FWCaloDataProxyBuilderBase::applyChangesToAllModels(Product* p)
-{
    if(m_caloData && item())
    {      
       clearCaloDataSelection();
@@ -121,7 +115,6 @@ FWCaloDataProxyBuilderBase::applyChangesToAllModels(Product* p)
       m_caloData->CellSelectionChanged();
    }
 }
-
 //______________________________________________________________________________
 
 void
