@@ -28,15 +28,7 @@ public:
 				 const Topology::LocalTrackPred &/*trkPred*/) const {
     return localError(strip, stripErr2); 
   } 
-  virtual LocalError localError( const MeasurementPoint&,
-                                 const MeasurementError& ) const = 0;
-
-  /// conversion taking also the angle from the predicted track state
-  virtual LocalError localError( const MeasurementPoint& mp,
-                                 const MeasurementError& me,
-                                 const Topology::LocalTrackPred &/*trkPred*/ ) const {
-    return localError(mp, me);
-  }
+  using Topology::localError; // see comment about hiding an C++ 'using' feature above
   virtual float strip( const LocalPoint& ) const = 0;
 
   /// conversion taking also the angle from the track state (LocalTrajectoryParameters)
