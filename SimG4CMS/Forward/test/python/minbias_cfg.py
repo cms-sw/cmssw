@@ -7,7 +7,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
-process.load("Geometry.CMSCommonData.cmsHFPMTFibreXML_cfi")
+process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
@@ -106,7 +106,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('minbias2_QGSP_BERT_EML.root')
+    fileName = cms.string('minbias1_QGSP_BERT_EML.root')
 )
 
 # Event output
@@ -114,13 +114,7 @@ process.load("Configuration.EventContent.EventContent_cff")
 
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('simevent_minbias2_QGSP_BERT_EML.root')
-)
-
-process.common_maximum_timex = cms.PSet( # need to be localy redefined
-   MaxTrackTime  = cms.double(500.0),  # need to be localy redefined
-   MaxTimeNames  = cms.vstring('ZDCRegion','QuadRegion','InterimRegion'), # need to be localy redefined
-   MaxTrackTimes = cms.vdouble(2000.0,0.,0.)  # need to be localy redefined
+    fileName = cms.untracked.string('simevent_minbias1_QGSP_BERT_EML.root')
 )
 
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.caloSimHitStudy*process.rndmStore)
@@ -128,24 +122,25 @@ process.outpath = cms.EndPath(process.o1)
 process.generator.pythiaHepMCVerbosity = False
 process.generator.pythiaPylistVerbosity = 0
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
-process.g4SimHits.HCalSD.UseShowerLibrary   = False
-process.g4SimHits.HCalSD.UseParametrize     = True
-process.g4SimHits.HCalSD.UsePMTHits         = True
-process.g4SimHits.HCalSD.UseFibreBundleHits = True
-process.g4SimHits.HFShower.UseShowerLibrary = False
-process.g4SimHits.HFShower.UseHFGflash      = True
-process.g4SimHits.HFShower.TrackEM          = False
-process.g4SimHits.HFShower.OnlyLong         = True
-process.g4SimHits.HFShower.EminLibrary      = 0.0
-
+# process.g4SimHits.HCalSD.UseShowerLibrary   = False
+# process.g4SimHits.HCalSD.UseParametrize     = True
+# process.g4SimHits.HCalSD.UsePMTHits         = True
+# process.g4SimHits.HCalSD.UseFibreBundleHits = True
+# process.g4SimHits.HFShower.UseShowerLibrary = False
+# process.g4SimHits.HFShower.UseHFGflash      = True
+# process.g4SimHits.HFShower.TrackEM          = False
+# process.g4SimHits.HFShower.OnlyLong         = True
+# process.g4SimHits.HFShower.EminLibrary      = 0.0
+ 
 process.g4SimHits.CastorSD.useShowerLibrary = True
 process.g4SimHits.CastorSD.minEnergyInGeVforUsingSLibrary = 1.0   # default = 1.0
-process.g4SimHits.CastorShowerLibrary.FileName = 'SimG4CMS/Forward/data/castorShowerLibrary.root'
-process.g4SimHits.CastorShowerLibrary.BranchEvt = 'hadShowerLibInfo.'
-process.g4SimHits.CastorShowerLibrary.BranchEM  = 'emParticles.'
-process.g4SimHits.CastorShowerLibrary.BranchHAD = 'hadParticles.'
 process.g4SimHits.Generator.MinEtaCut = -7.0
-process.g4SimHits.Generator.MaxEtaCut = 7.0
+
+process.common_maximum_timex = cms.PSet( # need to be localy redefined
+   MaxTrackTime  = cms.double(500.0),  # need to be localy redefined
+   MaxTimeNames  = cms.vstring('ZDCRegion','QuadRegion','InterimRegion'), # need to be localy redefined
+   MaxTrackTimes = cms.vdouble(2000.0,0.,0.)  # need to be localy redefined
+)
 
 process.g4SimHits.StackingAction = cms.PSet(
    process.common_heavy_suppression,
@@ -176,7 +171,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     TrackMax     = cms.untracked.int32(9999999),
     TrackStep    = cms.untracked.int32(1),
     EventMin     = cms.untracked.int32(0),
-    EventMax     = cms.untracked.int32(2),
+    EventMax     = cms.untracked.int32(0),
     EventStep    = cms.untracked.int32(1),
     PDGids       = cms.untracked.vint32(),
     VerboseLevel = cms.untracked.int32(0),
