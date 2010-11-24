@@ -8,7 +8,14 @@ def customiseCommon(process):
     ####
 
     ## TRACKING:
-
+    process.newSeedFromTriplets.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(100000)
+    process.newSeedFromPairs.OrderedHitsFactoryPSet.maxElement = cms.uint32(100000)
+    process.secTriplets.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(100000)
+    process.thTripletsA.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(100000)
+    process.thTripletsB.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(100000)
+    process.fourthPLSeeds.OrderedHitsFactoryPSet.maxElement = cms.uint32(100000)
+    process.fifthSeeds.OrderedHitsFactoryPSet.maxElement = cms.uint32(100000)
+    
     ###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
 
     ### prevent bias in pixel vertex
