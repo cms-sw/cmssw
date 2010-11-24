@@ -70,9 +70,9 @@ bool mklimit_h2(RooWorkspace *w, RooAbsData &data, double &limit, bool withSyste
 bool mklimit_pl(RooWorkspace *w, RooAbsData &data, double &limit, bool withSystematics=true, bool verbose=false) ;
 bool mklimit_bf(RooWorkspace *w, RooAbsData &data, double &limit, bool withSystematics=true, bool verbose=false) ;
 bool mklimit_mcmc(RooWorkspace *w, RooAbsData &data, double &limit, bool uniformProposal, bool withSystematics=true, bool verbose=false); 
-void combine(RooWorkspace *w, double &limit, int &iToy, TTree *tree, int nToys=0, bool withSystematics=true);
+void combine(RooWorkspace *w, const std::string &dataset, double &limit, int &iToy, TTree *tree, int nToys=0, bool withSystematics=true);
 
-void doCombination(TString hlfFile, double &limit, int &iToy, TTree *tree, int nToys, bool withSystematics) {
+void doCombination(TString hlfFile, const std::string &dataset, double &limit, int &iToy, TTree *tree, int nToys, bool withSystematics) {
   TString pwd(gSystem->pwd());
   TString tmpDir = "roostats-XXXXXX"; 
   mkdtemp(const_cast<char *>(tmpDir.Data()));
@@ -98,18 +98,18 @@ void doCombination(TString hlfFile, double &limit, int &iToy, TTree *tree, int n
     std::cerr << "Could not read HLF from file " <<  (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile) << std::endl;
     return;
   }
-  if (w->data("data_obs") == 0) {
+  if (w->data(dataset.c_str()) == 0) {
     if (w->pdf("model_b")->canBeExtended()) {
       RooDataHist *bdata_obs = w->pdf("model_b")->generateBinned(*w->set("observables"), RooFit::Asimov()); 
-      bdata_obs->SetName("data_obs");
+      bdata_obs->SetName(dataset.c_str());
       w->import(*bdata_obs);
     } else {
-      RooDataSet *data_obs = new RooDataSet("data_obs", "data_obs", *w->set("observables")); 
+      RooDataSet *data_obs = new RooDataSet(dataset.c_str(), dataset.c_str(), *w->set("observables")); 
       data_obs->add(*w->set("observables"));
       w->import(*data_obs);
     }
   }
-  combine(w, limit, iToy, tree, nToys, withSystematics);
+  combine(w, dataset, limit, iToy, tree, nToys, withSystematics);
 }
 
 bool mklimit(RooWorkspace *w, RooAbsData &data, double &limit, bool withSystematics=true, bool verbose=false) {
@@ -533,7 +533,7 @@ RooWorkspace *mksimpleShapeModel(const std::vector<SimpleShapeChannel> &channels
   return w;
 }
 
-void combine(RooWorkspace *w, double &limit, int &iToy, TTree *tree, int nToys, bool withSystematics) {
+void combine(RooWorkspace *w, const std::string &dataset, double &limit, int &iToy, TTree *tree, int nToys, bool withSystematics) {
   using namespace RooFit;
   using namespace RooStats;
   /*
@@ -545,9 +545,9 @@ void combine(RooWorkspace *w, double &limit, int &iToy, TTree *tree, int nToys, 
   const RooArgSet * nuisances   = w->set("nuisances");
   w->saveSnapshot("clean", w->allVars());
   if (nToys == 0) { // observed (usually it's the Asimov data set)
-    RooAbsData *dobs = w->data("data_obs");
+    RooAbsData *dobs = w->data(dataset.c_str());
     if (dobs == 0) {
-      std::cerr << "No observed data 'data_obs' in the workspace. Cannot compute limit.\n" << std::endl;
+      std::cerr << "No observed data '" << dataset << "' in the workspace. Cannot compute limit.\n" << std::endl;
       return;
     }
     std::cout << "Computing limit starting from observation" << std::endl;
@@ -608,13 +608,13 @@ void combine(RooWorkspace *w, double &limit, int &iToy, TTree *tree, int nToys, 
 void combine(int channels, double nS[], double nB[], double dS, double dB[], 
              double &limit, int &iToy, TTree *tree, int nToys=0, bool withSystematics=true) {
   RooWorkspace *w = mksimpleModel(channels, nS, nB, dS, dB, withSystematics);
-  combine(w, limit, iToy, tree, nToys, withSystematics);
+  combine(w, "data_obs", limit, iToy, tree, nToys, withSystematics);
 }
 
 void combine(const std::vector<SimpleShapeChannel> &channels, double dS, 
              double &limit, int &iToy, TTree *tree, int nToys=0, bool withSystematics=true) {
   RooWorkspace *w = mksimpleShapeModel(channels, dS, withSystematics);
-  combine(w, limit, iToy, tree, nToys, withSystematics);
+  combine(w, "data_obs", limit, iToy, tree, nToys, withSystematics);
 }
 
 bool readChannel(const char *fileName, int mass, double &nS, double &nB, double &dB) {

@@ -15,6 +15,6 @@ enum MethodType {
 
 extern MethodType method;
 
-void doCombination(TString hlfFile, double &limit, int &iToy, TTree *tree, int nToys=0, bool withSystematics=true);
+void doCombination(TString hlfFile, const std::string &dataset, double &limit, int &iToy, TTree *tree, int nToys=0, bool withSystematics=true);
 
 #endif

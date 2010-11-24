@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
   namespace po = boost::program_options;
 
   string name;
-  string datacard;
+  string datacard, dataset;
   int iMass;
   string whichMethod;
   unsigned int runToys;
@@ -77,6 +77,7 @@ int main(int argc, char **argv) {
     ("help,h", "Produce help message")
     ("name,n", po::value<string>(&name), "Name of the job")
     ("datacard,d", po::value<string>(&datacard), "Datacard file")
+    ("dataset,D",  po::value<string>(&dataset)->default_value("data_obs"), "Dataset for observed limit")
     ("mass,m", po::value<int>(&iMass)->default_value(120), "Minimum value for fit range")
     ("method,M", po::value<string>(&whichMethod)->default_value("mcmc"), methodsDesc.c_str())
     ("toys,t", po::value<unsigned int>(&runToys)->default_value(0), "Number of toy MC (0 = no toys)")
@@ -163,7 +164,7 @@ int main(int argc, char **argv) {
   syst = doSyst;
   mass = iMass;
   iChannel = 0;
-  doCombination(datacard, limit, iToy, t, runToys, syst);
+  doCombination(datacard, dataset, limit, iToy, t, runToys, syst);
   
   test->WriteTObject(t);
   test->Close();
