@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_10_0/pre6/HIon/V3 (CMSSW_3_10_X_2010-11-23-0200)
+# /dev/CMSSW_3_10_0/pre6/HIon/V4 (CMSSW_3_10_X_2010-11-23-0200_HL1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_10_0/pre6/HIon/V3')
+  tableName = cms.string('/dev/CMSSW_3_10_0/pre6/HIon/V4')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -3057,16 +3057,18 @@ process.hltIslandBasicClustersHI = cms.EDProducer( "IslandClusterProducer",
     endcapClusterCollection = cms.string( "islandEndcapBasicClustersHI" ),
     IslandBarrelSeedThr = cms.double( 0.5 ),
     IslandEndcapSeedThr = cms.double( 0.18 ),
-    posCalc_logweight = cms.bool( True ),
-    posCalc_t0_barl = cms.double( 7.4 ),
-    posCalc_t0_endc = cms.double( 3.1 ),
-    posCalc_t0_endcPresh = cms.double( 1.2 ),
-    posCalc_w0 = cms.double( 4.2 ),
-    posCalc_x0 = cms.double( 0.89 ),
     clustershapecollectionEB = cms.string( "islandBarrelShape" ),
     clustershapecollectionEE = cms.string( "islandEndcapShape" ),
     barrelShapeAssociation = cms.string( "islandBarrelShapeAssoc" ),
-    endcapShapeAssociation = cms.string( "islandEndcapShapeAssoc" )
+    endcapShapeAssociation = cms.string( "islandEndcapShapeAssoc" ),
+    posCalcParameters = cms.PSet( 
+      LogWeighted = cms.bool( True ),
+      T0_barl = cms.double( 7.4 ),
+      T0_endc = cms.double( 3.1 ),
+      T0_endcPresh = cms.double( 1.2 ),
+      W0 = cms.double( 4.2 ),
+      X0 = cms.double( 0.89 )
+    )
 )
 process.hltIslandSuperClustersHI = cms.EDProducer( "SuperClusterProducer",
     VerbosityLevel = cms.string( "ERROR" ),
@@ -3284,10 +3286,6 @@ process.hltHybridSuperClustersL1Isolated = cms.EDProducer( "EgammaHLTHybridClust
     l1LowerThrIgnoreIsolation = cms.double( 999.0 ),
     regionEtaMargin = cms.double( 0.14 ),
     regionPhiMargin = cms.double( 0.4 ),
-    posCalc_logweight = cms.bool( True ),
-    posCalc_t0 = cms.double( 7.4 ),
-    posCalc_w0 = cms.double( 4.2 ),
-    posCalc_x0 = cms.double( 0.89 ),
     HybridBarrelSeedThr = cms.double( 1.5 ),
     step = cms.int32( 17 ),
     ethresh = cms.double( 0.1 ),
@@ -3303,6 +3301,14 @@ process.hltHybridSuperClustersL1Isolated = cms.EDProducer( "EgammaHLTHybridClust
     dynamicPhiRoad = cms.bool( False ),
     RecHitFlagToBeExcluded = cms.vint32(  ),
     RecHitSeverityToBeExcluded = cms.vint32( 999 ),
+    posCalcParameters = cms.PSet( 
+      LogWeighted = cms.bool( True ),
+      T0_barl = cms.double( 7.4 ),
+      T0_endc = cms.double( 6.3 ),
+      T0_endcPresh = cms.double( 3.6 ),
+      W0 = cms.double( 4.2 ),
+      X0 = cms.double( 0.89 )
+    ),
     bremRecoveryPset = cms.PSet(  )
 )
 process.hltCorrectedHybridSuperClustersL1Isolated = cms.EDProducer( "EgammaSCCorrectionMaker",
@@ -3344,13 +3350,15 @@ process.hltMulti5x5BasicClustersL1Isolated = cms.EDProducer( "EgammaHLTMulti5x5C
     l1LowerThrIgnoreIsolation = cms.double( 999.0 ),
     regionEtaMargin = cms.double( 0.3 ),
     regionPhiMargin = cms.double( 0.4 ),
-    posCalc_logweight = cms.bool( True ),
-    posCalc_t0_barl = cms.double( 7.4 ),
-    posCalc_t0_endc = cms.double( 3.1 ),
-    posCalc_t0_endcPresh = cms.double( 1.2 ),
-    posCalc_w0 = cms.double( 4.2 ),
-    posCalc_x0 = cms.double( 0.89 ),
-    RecHitFlagToBeExcluded = cms.vint32(  )
+    RecHitFlagToBeExcluded = cms.vint32(  ),
+    posCalcParameters = cms.PSet( 
+      LogWeighted = cms.bool( True ),
+      T0_barl = cms.double( 7.4 ),
+      T0_endc = cms.double( 3.1 ),
+      T0_endcPresh = cms.double( 1.2 ),
+      W0 = cms.double( 4.2 ),
+      X0 = cms.double( 0.89 )
+    )
 )
 process.hltMulti5x5SuperClustersL1Isolated = cms.EDProducer( "Multi5x5SuperClusterProducer",
     VerbosityLevel = cms.string( "ERROR" ),
@@ -3425,10 +3433,6 @@ process.hltHybridSuperClustersL1NonIsolated = cms.EDProducer( "EgammaHLTHybridCl
     l1LowerThrIgnoreIsolation = cms.double( 999.0 ),
     regionEtaMargin = cms.double( 0.14 ),
     regionPhiMargin = cms.double( 0.4 ),
-    posCalc_logweight = cms.bool( True ),
-    posCalc_t0 = cms.double( 7.4 ),
-    posCalc_w0 = cms.double( 4.2 ),
-    posCalc_x0 = cms.double( 0.89 ),
     HybridBarrelSeedThr = cms.double( 1.5 ),
     step = cms.int32( 17 ),
     ethresh = cms.double( 0.1 ),
@@ -3444,6 +3448,14 @@ process.hltHybridSuperClustersL1NonIsolated = cms.EDProducer( "EgammaHLTHybridCl
     dynamicPhiRoad = cms.bool( False ),
     RecHitFlagToBeExcluded = cms.vint32(  ),
     RecHitSeverityToBeExcluded = cms.vint32( 999 ),
+    posCalcParameters = cms.PSet( 
+      LogWeighted = cms.bool( True ),
+      T0_barl = cms.double( 7.4 ),
+      T0_endc = cms.double( 6.3 ),
+      T0_endcPresh = cms.double( 3.6 ),
+      W0 = cms.double( 4.2 ),
+      X0 = cms.double( 0.89 )
+    ),
     bremRecoveryPset = cms.PSet(  )
 )
 process.hltCorrectedHybridSuperClustersL1NonIsolatedTemp = cms.EDProducer( "EgammaSCCorrectionMaker",
@@ -3490,13 +3502,15 @@ process.hltMulti5x5BasicClustersL1NonIsolated = cms.EDProducer( "EgammaHLTMulti5
     l1LowerThrIgnoreIsolation = cms.double( 999.0 ),
     regionEtaMargin = cms.double( 0.3 ),
     regionPhiMargin = cms.double( 0.4 ),
-    posCalc_logweight = cms.bool( True ),
-    posCalc_t0_barl = cms.double( 7.4 ),
-    posCalc_t0_endc = cms.double( 3.1 ),
-    posCalc_t0_endcPresh = cms.double( 1.2 ),
-    posCalc_w0 = cms.double( 4.2 ),
-    posCalc_x0 = cms.double( 0.89 ),
-    RecHitFlagToBeExcluded = cms.vint32(  )
+    RecHitFlagToBeExcluded = cms.vint32(  ),
+    posCalcParameters = cms.PSet( 
+      LogWeighted = cms.bool( True ),
+      T0_barl = cms.double( 7.4 ),
+      T0_endc = cms.double( 3.1 ),
+      T0_endcPresh = cms.double( 1.2 ),
+      W0 = cms.double( 4.2 ),
+      X0 = cms.double( 0.89 )
+    )
 )
 process.hltMulti5x5SuperClustersL1NonIsolated = cms.EDProducer( "Multi5x5SuperClusterProducer",
     VerbosityLevel = cms.string( "ERROR" ),
