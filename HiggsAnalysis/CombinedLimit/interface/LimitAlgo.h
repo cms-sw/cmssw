@@ -8,7 +8,7 @@
  *
  *
  */
-
+#include <string>
 class RooWorkspace;
 class RooAbsData;
 
@@ -16,6 +16,7 @@ class LimitAlgo {
 public:
   LimitAlgo() { }
   virtual bool run(RooWorkspace *w, RooAbsData &data, double &limit) = 0;
+  virtual const std::string & name() const = 0;
 };
 
 #endif

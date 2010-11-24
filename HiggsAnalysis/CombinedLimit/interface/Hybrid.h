@@ -14,6 +14,10 @@ class Hybrid : public LimitAlgo {
 public:
  Hybrid(bool verbose, bool withSystematics) : verbose_(verbose), withSystematics_(withSystematics) { }
   virtual bool run(RooWorkspace *w, RooAbsData &data, double &limit);
+  virtual const std::string & name() const {
+    static const std::string name("Hybrid");
+    return name;
+  }
 private:
   bool verbose_;
   bool withSystematics_;

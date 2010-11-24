@@ -36,6 +36,10 @@
 #include <cstdlib>
 #include <boost/program_options.hpp>
 #include <string>
+#include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
+#include "HiggsAnalysis/CombinedLimit/interface/Hybrid.h"
+#include "HiggsAnalysis/CombinedLimit/interface/BayesianFlatPrior.h"
+#include "HiggsAnalysis/CombinedLimit/interface/MarkovChainMC.h"
 
 using namespace std;
 
@@ -117,27 +121,31 @@ int main(int argc, char **argv) {
     return 1002;
   }
 
-  bool doSyst = true;
+  bool withSystematics = true;
   const string nosyst(".nosyst");
   size_t found = whichMethod.find(nosyst);
   if (found != string::npos) {
     whichMethod.replace(found, nosyst.length(),"");
-    doSyst = false;
+    withSystematics = false;
     cout << ">>> no systematics included" << endl;
   } else {
     cout << ">>> including systematics" << endl;
   }
-  if      (whichMethod == kHybrid) method = hybrid;
-  else if (whichMethod == kProfileLikelihood) method = profileLikelihood;
-  else if (whichMethod == kBayesianFlatPrior) method = bayesianFlatPrior;
-  else if (whichMethod == kMcmc) method = mcmc;
-  else if (whichMethod == kMcmcUniform) method = mcmcUniform;
+
+  bool verbose = true; // to be set as parameter
+
+  if      (whichMethod == kHybrid) algo.reset(new Hybrid(verbose, withSystematics));
+  else if (whichMethod == kProfileLikelihood) algo.reset(new ProfileLikelihood(verbose));
+  else if (whichMethod == kBayesianFlatPrior) algo.reset(new BayesianFlatPrior(verbose, withSystematics));
+  else if (whichMethod == kMcmc) algo.reset(new MarkovChainMC(verbose, withSystematics, false));
+  else if (whichMethod == kMcmcUniform) algo.reset(new MarkovChainMC(verbose, withSystematics, true));
   else {
     cerr << "Unsupported method: " << whichMethod << endl;
     cout << "Usage: options_description [options]\n";
     cout << desc;
     return 1003;
   }
+
   cout << ">>> method used to compute upper limit is " << whichMethod << endl;
   cout << ">>> random number generator seed is " << seed << endl;
   RooRandom::randomGenerator()->SetSeed(seed); 
@@ -161,7 +169,7 @@ int main(int argc, char **argv) {
   if (saveToys) writeToysHere = test->mkdir("toys","toys"); 
   if (toysFile != "") readToysFromHere = TFile::Open(TString(toysFile.c_str()));
   
-  syst = doSyst;
+  syst = withSystematics;
   mass = iMass;
   iChannel = 0;
   doCombination(datacard, dataset, limit, iToy, t, runToys, syst);

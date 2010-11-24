@@ -14,6 +14,10 @@ class MarkovChainMC : public LimitAlgo {
 public:
  MarkovChainMC(bool verbose, bool withSystematics, bool uniformProposal) : verbose_(verbose), withSystematics_(withSystematics), uniformProposal_(uniformProposal) { }
   virtual bool run(RooWorkspace *w, RooAbsData &data, double &limit);
+  virtual const std::string & name() const {
+    static const std::string name("MarkovChainMC");
+    return name;
+  }
 private:
   bool verbose_;
   bool withSystematics_;
