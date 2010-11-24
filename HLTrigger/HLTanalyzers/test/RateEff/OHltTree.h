@@ -249,6 +249,20 @@ public :
   Float_t         ohAlcapi0etaClusAll[51];   //[Nalcapi0clusters] 
   Float_t         ohAlcapi0phiClusAll[51];   //[Nalcapi0clusters] 
   Float_t         ohAlcapi0s4s9ClusAll[51];   //[Nalcapi0clusters] 
+  Int_t           NohPFTau; 
+  Float_t         pfTauPt[60];   //[NohPFTau] 
+  Float_t         pfTauEta[60];   //[NohPFTau] 
+  Float_t         pfTauPhi[60];   //[NohPFTau] 
+  Float_t         pfTauLeadTrackPt[60];   //[NohPFTau] 
+  Float_t         pfTauLeadPionPt[60];   //[NohPFTau] 
+  Int_t           pfTauTrkIso[60];   //[NohPFTau] 
+  Int_t           pfTauGammaIso[60];   //[NohPFTau] 
+  Float_t         pfTauJetPt[60];   //[NohPFTau] 
+  Float_t         pfMHT; 
+  Int_t           NohPFJet; 
+  Float_t         pfJetPt[60];   //[NohPFJet] 
+  Float_t         pfJetEta[60];   //[NohPFJet] 
+  Float_t         pfJetPhi[60];   //[NohPFJet] 
   Int_t           NMCpart;
   Int_t           MCpid[1203000];   //[NMCpart]
   Int_t           MCstatus[1203000];   //[NMCpart]
@@ -1968,6 +1982,20 @@ public :
   TBranch        *b_ohAlcapi0etaClusAll;   //! 
   TBranch        *b_ohAlcapi0phiClusAll;   //! 
   TBranch        *b_ohAlcapi0s4s9ClusAll;   //! 
+  TBranch        *b_NohPFTau;   //! 
+  TBranch        *b_pfTauPt;   //! 
+  TBranch        *b_pfTauEta;   //! 
+  TBranch        *b_pfTauPhi;   //! 
+  TBranch        *b_pfTauLeadTrackPt;   //! 
+  TBranch        *b_pfTauLeadPionPt;   //! 
+  TBranch        *b_pfTauTrkIso;   //! 
+  TBranch        *b_pfTauGammaIso;   //! 
+  TBranch        *b_pfTauJetPt;   //! 
+  TBranch        *b_pfMHT;   //! 
+  TBranch        *b_NohPFJet;   //! 
+  TBranch        *b_pfJetPt;   //! 
+  TBranch        *b_pfJetEta;   //! 
+  TBranch        *b_pfJetPhi;   //! 
   TBranch        *b_NMCpart;   //!
   TBranch        *b_MCpid;   //!
   TBranch        *b_MCstatus;   //!
@@ -4054,6 +4082,20 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("ohOniaTrackDz", ohOniaTrackDz, &b_ohOniaTrackDz); 
   fChain->SetBranchAddress("ohOniaTrackHits", ohOniaTrackHits, &b_ohOniaTrackHits); 
   fChain->SetBranchAddress("ohOniaTrackNormChi2", ohOniaTrackNormChi2, &b_ohOniaTrackNormChi2); 
+  fChain->SetBranchAddress("NohPFTau", &NohPFTau, &b_NohPFTau); 
+  fChain->SetBranchAddress("pfTauPt", pfTauPt, &b_pfTauPt); 
+  fChain->SetBranchAddress("pfTauEta", pfTauEta, &b_pfTauEta); 
+  fChain->SetBranchAddress("pfTauPhi", pfTauPhi, &b_pfTauPhi); 
+  fChain->SetBranchAddress("pfTauLeadTrackPt", pfTauLeadTrackPt, &b_pfTauLeadTrackPt); 
+  fChain->SetBranchAddress("pfTauLeadPionPt", pfTauLeadPionPt, &b_pfTauLeadPionPt); 
+  fChain->SetBranchAddress("pfTauTrkIso", pfTauTrkIso, &b_pfTauTrkIso); 
+  fChain->SetBranchAddress("pfTauGammaIso", pfTauGammaIso, &b_pfTauGammaIso); 
+  fChain->SetBranchAddress("pfTauJetPt", pfTauJetPt, &b_pfTauJetPt); 
+  fChain->SetBranchAddress("pfMHT", &pfMHT, &b_pfMHT); 
+  fChain->SetBranchAddress("NohPFJet", &NohPFJet, &b_NohPFJet); 
+  fChain->SetBranchAddress("pfJetPt", pfJetPt, &b_pfJetPt); 
+  fChain->SetBranchAddress("pfJetEta", pfJetEta, &b_pfJetEta); 
+  fChain->SetBranchAddress("pfJetPhi", pfJetPhi, &b_pfJetPhi); 
 
   fChain->SetBranchAddress("NMCpart", &NMCpart, &b_NMCpart);
   fChain->SetBranchAddress("MCpid", MCpid, &b_MCpid);
