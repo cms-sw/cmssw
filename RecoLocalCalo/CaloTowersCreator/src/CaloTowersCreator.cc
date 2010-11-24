@@ -95,7 +95,18 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
   theEcalAcceptSeverityLevel_(conf.getParameter<unsigned int>("EcalAcceptSeverityLevel")),
 
   theRecoveredHcalHitsAreUsed_(conf.getParameter<bool>("UseHcalRecoveredHits")),
-  theRecoveredEcalHitsAreUsed_(conf.getParameter<bool>("UseEcalRecoveredHits"))
+  theRecoveredEcalHitsAreUsed_(conf.getParameter<bool>("UseEcalRecoveredHits")),
+
+  // paramaters controlling the use of rejected hits
+
+  useRejectedHitsOnly_(conf.getParameter<bool>("UseRejectedHitsOnly")),
+
+  theHcalAcceptSeverityLevelForRejectedHit_(conf.getParameter<unsigned int>("HcalAcceptSeverityLevelForRejectedHit")),
+  theEcalAcceptSeverityLevelForRejectedHit_(conf.getParameter<unsigned int>("EcalAcceptSeverityLevelForRejectedHit")),
+  useRejectedRecoveredHcalHits_(conf.getParameter<bool>("UseRejectedRecoveredHcalHits")),
+  useRejectedRecoveredEcalHits_(conf.getParameter<bool>("UseRejectedRecoveredEcalHits"))
+
+
 
 {
   EBEScale=EScales.EBScale; 
@@ -160,6 +171,19 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
 
   algo_.setHcalSevLvlComputer(hcalSevLvlComputer);
   algo_.setEcalSevLvlAlgo(ecalSevLvlAlgo);
+
+
+  algo_.setUseRejectedHitsOnly(useRejectedHitsOnly_);
+
+  algo_.setHcalAcceptSeverityLevelForRejectedHit(theHcalAcceptSeverityLevelForRejectedHit_);
+  algo_.setEcalAcceptSeverityLevelForRejectedHit(theEcalAcceptSeverityLevelForRejectedHit_);
+
+  algo_.setUseRejectedRecoveredHcalHits(useRejectedRecoveredHcalHits_);
+  algo_.setUseRejectedRecoveredEcalHits(useRejectedRecoveredEcalHits_);
+
+
+
+
 
   algo_.begin(); // clear the internal buffer
 

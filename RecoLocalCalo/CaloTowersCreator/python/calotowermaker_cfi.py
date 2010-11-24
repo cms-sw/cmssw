@@ -108,7 +108,27 @@ calotowermaker = cms.EDProducer("CaloTowersCreator",
       # regardless of the specified severity level in EcalAcceptSeverityLevel.                       
     UseEcalRecoveredHits = cms.bool(False),
                         
-                              
+
+# NOTE: The following controls the creation of towers from
+#       rejected rechits.
+#       Always make sure that UseRejectedHitsOnly=false for
+#       normal reconstructions!!!
+
+     UseRejectedHitsOnly = cms.bool(False),
+
+#    Controls for hits to be included in the "bad" tower collection.
+#    They have no effect unless UseRejectedHitsOnly=true                                
+#    Note that hits passing the   HcalAcceptSeverityLevel,  EcalAcceptSeverityLevel
+#    will be skipped as they are already in the default towers                                
+     HcalAcceptSeverityLevelForRejectedHit = cms.uint32(9999),
+     EcalAcceptSeverityLevelForRejectedHit = cms.uint32(9999),
+
+#    The code also checks the settings of the flags for the default
+#    collection - if the recovered hits were used there, they
+#    will be skipped for the "bad" tower collection regardless of these settings                                
+     UseRejectedRecoveredHcalHits = cms.bool(False),
+     UseRejectedRecoveredEcalHits = cms.bool(False),
+
 
 # flag to allow/disallow missing inputs
     AllowMissingInputs = cms.bool(False)

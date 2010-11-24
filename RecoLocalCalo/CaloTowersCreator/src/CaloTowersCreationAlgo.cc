@@ -413,6 +413,15 @@ void CaloTowersCreationAlgo::rescaleTowers(const CaloTowerCollection& ctc, CaloT
 
 void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
   DetId detId = recHit->detid();
+
+  unsigned int chStatusForCT = (detId.det()==DetId::Hcal)?
+    hcalChanStatusForCaloTower(recHit) :
+    ecalChanStatusForCaloTower(recHit);
+
+  // this is for skipping channls: mostly needed for the creation of
+  // bad towers from hits i the bad channel collections.
+  if (chStatusForCT==CaloTowersCreationAlgo::IgnoredChan) return;
+
   double threshold, weight;
   getThresholdAndWeight(detId, threshold, weight);
 
@@ -434,7 +443,7 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
 						 towerDetId.iphi());
     MetaTower & tower29 = find(towerDetId29);
 
-    unsigned int chStatusForCT = hcalChanStatusForCaloTower(recHit);
+    //////////////////////////////    unsigned int chStatusForCT = hcalChanStatusForCaloTower(recHit);
       
     // bad channels are counted regardless of energy threshold
 
@@ -495,7 +504,7 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
     
     if (det == DetId::Ecal) {
       
-      unsigned int chStatusForCT = ecalChanStatusForCaloTower(recHit);
+      /////////////////////////////      unsigned int chStatusForCT = ecalChanStatusForCaloTower(recHit);
       
       // For ECAL we count all bad channels after the metatower is complete 
 
@@ -548,7 +557,7 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
     else {
       HcalDetId hcalDetId(detId);
       
-      unsigned int chStatusForCT = hcalChanStatusForCaloTower(recHit);
+      ///////////////////////      unsigned int chStatusForCT = hcalChanStatusForCaloTower(recHit);
 
       if(hcalDetId.subdet() == HcalOuter) {
  
@@ -1395,6 +1404,38 @@ unsigned int CaloTowersCreationAlgo::hcalChanStatusForCaloTower(const CaloRecHit
   int severityLevel = theHcalSevLvlComputer->getSeverityLevel(id, recHitFlag, dbStatusFlag); 
   bool isRecovered  = theHcalSevLvlComputer->recoveredRecHit(id, recHitFlag);
 
+
+  // For use with hits rejected in the default reconstruction
+  if (useRejectedHitsOnly) {
+    
+    if (!isRecovered) {
+      if (severityLevel <= int(theHcalAcceptSeverityLevel) ||
+	  severityLevel > int(theHcalAcceptSeverityLevelForRejectedHit)) return CaloTowersCreationAlgo::IgnoredChan;
+      // this hit was either already accepted or is worse than 
+    }    
+    else {
+      
+      if (theRecoveredHcalHitsAreUsed || !useRejectedRecoveredHcalHits) {
+	// skip recovered hits either because they were already used or because there was an explicit instruction
+	return CaloTowersCreationAlgo::IgnoredChan;
+      }
+      else if (useRejectedRecoveredHcalHits) {
+	return CaloTowersCreationAlgo::RecoveredChan;
+      }  
+  
+    }  // recovered channels
+
+    // clasify channels as problematic: no good hits are supposed to be present in the
+    // extra rechit collections
+    return CaloTowersCreationAlgo::ProblematicChan;
+
+  }  // treatment of rejected hits
+
+
+
+
+  // this is for the regular reconstruction sequence
+
   if (severityLevel == 0) return CaloTowersCreationAlgo::GoodChan;
 
   if (isRecovered) {
@@ -1432,7 +1473,6 @@ unsigned int CaloTowersCreationAlgo::ecalChanStatusForCaloTower(const CaloRecHit
 
   // there should be no other ECAL types used in this reconstruction
 
-
   // The definition of ECAL severity levels uses categories that
   // are similar to the defined for CaloTower. (However, the categorization
   // for CaloTowers depends on the specified maximum acceptabel severity and therefore cannnot
@@ -1443,9 +1483,42 @@ unsigned int CaloTowersCreationAlgo::ecalChanStatusForCaloTower(const CaloRecHit
   // For definitions of ECAL severity levels see RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h
 
 
+  bool isRecovered = (severityLevel == EcalSeverityLevelAlgo::kRecovered);
+
+
+  // for use with rejected by the regular reconstruction hits
+  if (useRejectedHitsOnly) {
+    
+    if (!isRecovered) {
+      if (severityLevel <= int(theEcalAcceptSeverityLevel) ||
+	  severityLevel > int(theEcalAcceptSeverityLevelForRejectedHit)) return CaloTowersCreationAlgo::IgnoredChan;
+      // this hit was either accepted already, or counted as bad under the conditions
+    }    
+    else {
+      
+      if (theRecoveredEcalHitsAreUsed || !useRejectedRecoveredEcalHits) {
+	// skip recovered hits either because they were already used or because there was an explicit instruction
+	return CaloTowersCreationAlgo::IgnoredChan;
+      }
+      else if (useRejectedRecoveredEcalHits) {
+	return CaloTowersCreationAlgo::RecoveredChan;
+      }  
+  
+    }  // recovered channels
+
+    // clasify channels as problematic
+    return CaloTowersCreationAlgo::ProblematicChan;
+
+  }  // treatment of rejected hits
+
+
+
+
+
+  // for normal reconstruction
   if (severityLevel == EcalSeverityLevelAlgo::kGood) return CaloTowersCreationAlgo::GoodChan;
 
-  if (severityLevel == EcalSeverityLevelAlgo::kRecovered) {
+  if (isRecovered) {
     return (theRecoveredEcalHitsAreUsed) ? 
       CaloTowersCreationAlgo::RecoveredChan : CaloTowersCreationAlgo::BadChan;
   }  

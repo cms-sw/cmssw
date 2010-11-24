@@ -35,8 +35,8 @@ class DetId;
 
 /** \class CaloTowersCreationAlgo
   *  
-  * $Date: 2009/05/05 12:02:38 $
-  * $Revision: 1.17 $
+  * $Date: 2010/01/12 21:18:50 $
+  * $Revision: 1.18 $
   * \author R. Wilkinson - Caltech
   */
 
@@ -162,6 +162,22 @@ public:
   void setEcalSevLvlAlgo(const EcalSeverityLevelAlgo* a) { theEcalSevLvlAlgo =  a; }
 
 
+  // The following are needed for creating towers from rechits excluded from the  ------------------------------------
+  // derault reconstructions
+
+ // NB! Controls if rejected jits shold be used instead of the default!!!
+  void setUseRejectedHitsOnly(bool flag) { useRejectedHitsOnly = flag; } 
+
+  void setHcalAcceptSeverityLevelForRejectedHit(unsigned int level) {theHcalAcceptSeverityLevelForRejectedHit = level;} 
+  void setEcalAcceptSeverityLevelForRejectedHit(unsigned int level) {theEcalAcceptSeverityLevelForRejectedHit = level;} 
+
+  void setUseRejectedRecoveredHcalHits(bool flag) {useRejectedRecoveredHcalHits = flag; };
+  void setUseRejectedRecoveredEcalHits(bool flag) {useRejectedRecoveredEcalHits = flag; };
+
+  //-------------------------------------------------------------------------------------------------------------------
+
+
+
   // set the EE EB handles
   
   void setEbHandle(const edm::Handle<EcalRecHitCollection> eb) { theEbHandle = eb; }
@@ -270,6 +286,14 @@ private:
   bool theRecoveredHcalHitsAreUsed;
   bool theRecoveredEcalHitsAreUsed;
 
+  // controls the tower reconstruction from rejected hits
+
+  bool useRejectedHitsOnly;
+  unsigned int theHcalAcceptSeverityLevelForRejectedHit;
+  unsigned int theEcalAcceptSeverityLevelForRejectedHit;
+  unsigned int useRejectedRecoveredHcalHits;
+  unsigned int useRejectedRecoveredEcalHits;
+
 
   /// only affects energy and ET calculation.  HO is still recorded in the tower
   bool theHOIsUsed;
@@ -301,7 +325,7 @@ private:
   // clasification of channels in tower construction: the category definition is
   // affected by the setting in the configuration file
   // 
-  enum ctHitCategory {GoodChan = 0, BadChan = 1, RecoveredChan = 2, ProblematicChan = 3 };
+  enum ctHitCategory {GoodChan = 0, BadChan = 1, RecoveredChan = 2, ProblematicChan = 3, IgnoredChan = 99 };
 
 
   // the EE and EB collections for ecal anomalous cell info

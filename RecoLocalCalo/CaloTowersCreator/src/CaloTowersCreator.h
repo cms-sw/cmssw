@@ -16,10 +16,15 @@
 
 /** \class CaloTowersCreator
   *  
-  * $Date: 2009/02/25 07:41:01 $
-  * $Revision: 1.5 $
-  * \author J. Mans - Minnesota
+  * $Date: 2010/01/12 21:18:50 $
+  * $Revision: 1.6 $
+  * Original author: J. Mans - Minnesota
   */
+
+// Now we allow for the creation of towers from 
+// rejected hists as well: requested by the MET group
+// for studies of the effect of noise clean up.
+
 class CaloTowersCreator : public edm::EDProducer {
 public:
   explicit CaloTowersCreator(const edm::ParameterSet& ps);
@@ -47,6 +52,14 @@ private:
   bool theRecoveredHcalHitsAreUsed_;
   bool theRecoveredEcalHitsAreUsed_;
 
+
+  // paramaters for creating towers from rejected hits
+
+  bool useRejectedHitsOnly_;
+  unsigned int theHcalAcceptSeverityLevelForRejectedHit_;
+  unsigned int theEcalAcceptSeverityLevelForRejectedHit_;
+  bool useRejectedRecoveredHcalHits_;
+  bool useRejectedRecoveredEcalHits_;
 
 
 };
