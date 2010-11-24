@@ -609,7 +609,7 @@
       <string>1</string>
     </config>
     <config name="cameraZoomLego" version="0">
-      <string>0.936</string>
+      <string>2.936</string>
     </config>
     <config name="cameraMatrix0Lego" version="0">
       <string>1</string>
