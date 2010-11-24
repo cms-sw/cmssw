@@ -377,9 +377,9 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
 #endif
 
       if(SpotPosition0 == 0) continue;
-      double energyratio = emSpotEnergy/(preStepPoint->GetTotalEnergy()/(nSpots*e25Scale));
 
 #ifdef DebugLog
+      double energyratio = emSpotEnergy/(preStepPoint->GetTotalEnergy()/(nSpots*e25Scale));
       if (theFillHisto) {
 	em_ratio->Fill(SpotPosition0.z()/cm,energyratio);
       }
