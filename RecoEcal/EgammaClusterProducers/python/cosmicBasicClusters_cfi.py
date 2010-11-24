@@ -29,6 +29,13 @@ cosmicBasicClusters = cms.EDProducer("CosmicClusterProducer",
     endcapUnHitProducer = cms.string('ecalFixedAlphaBetaFitUncalibRecHit'),
     barrelUnHitCollection = cms.string('EcalUncalibRecHitsEB'),
     endcapUnHitCollection = cms.string('EcalUncalibRecHitsEE'),
-                                     
+    posCalcParameters = cms.PSet( T0_barl      = cms.double(7.4),
+                                  T0_endc      = cms.double(3.1), 
+                                  T0_endcPresh = cms.double(1.2),
+                                  LogWeighted  = cms.bool(True),
+                                  W0           = cms.double(4.2),
+                                  X0           = cms.double(0.89)
+                                  )
+                              
 
 )
