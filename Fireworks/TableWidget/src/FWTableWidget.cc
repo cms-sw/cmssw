@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:42 EST 2009
-// $Id: FWTableWidget.cc,v 1.16 2010/09/14 09:41:23 eulisse Exp $
+// $Id: FWTableWidget.cc,v 1.17 2010/09/22 09:58:51 eulisse Exp $
 //
 
 // system include files
@@ -462,15 +462,16 @@ FWTableWidget::dataChanged()
          }
       }
       m_header->setWidthOfTextInColumns(columnWidths);
+      m_header->Resize();
    } 
    m_body->setWidthOfTextInColumns(columnWidths);
+   m_body->Resize();
    //this updates sliders to match our new data
    handleResize(GetWidth(),GetHeight());
    gClient->NeedRedraw(m_body);
    if(m_rowHeader) {
       gClient->NeedRedraw(m_rowHeader);
    }
-   Layout();
 }
 
 void 
@@ -508,6 +509,11 @@ FWTableWidget::GetDefaultSize() const
    return returnValue;
 }
 
+void
+FWTableWidget::DoRedraw()
+{
+   // override virtual TGFrame::DoRedraw() to prevent call of gVirtualX->ClearArea();
+}
 //
 // static member functions
 //

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:21 EST 2009
-// $Id: FWTabularWidget.cc,v 1.10 2009/06/08 15:56:40 amraktad Exp $
+// $Id: FWTabularWidget.cc,v 1.11 2010/06/03 20:52:52 matevz Exp $
 //
 
 // system include files
@@ -86,7 +86,7 @@ FWTabularWidget::~FWTabularWidget()
 //
 // member functions
 //
-void 
+void
 FWTabularWidget::dataChanged()
 {
    m_textHeight = m_table->cellHeight();
@@ -113,7 +113,6 @@ FWTabularWidget::setWidthOfTextInColumns(const std::vector<unsigned int>& iNew)
       m_tableWidth +=*it+kTextBuffer+kTextBuffer+kSeperatorWidth;
    }
    m_tableWidth +=kSeperatorWidth;
-   Resize();
 }
 
 void 
