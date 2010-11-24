@@ -1,4 +1,5 @@
 <use   name="FWCore/Framework"/>
+<use   name="DQMServices/Core"/>
 <use   name="DataFormats/DTRecHit"/>
 <use   name="Geometry/Records"/>
 <use   name="Geometry/DTGeometry"/>

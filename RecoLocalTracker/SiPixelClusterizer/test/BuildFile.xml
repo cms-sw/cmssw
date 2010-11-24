@@ -6,10 +6,16 @@
 <use   name="clhep"/>
 <use   name="boost"/>
 <use   name="root"/>
+<use   name="DataFormats/L1GlobalTrigger"/>
+<use   name="CondFormats/L1TObjects"/>
+<use   name="L1Trigger/GlobalTriggerAnalyzer"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="Geometry/Records"/>
 <use   name="DataFormats/DetId"/>
 <use   name="RecoLocalTracker/SiPixelClusterizer"/>
 <flags   EDM_PLUGIN="1"/>
-<library   file="ReadPixClusters.cc" name="ReadPixClusters">
+<library   file="TestClusters.cc" name="TestClusters">
 </library>
+#<flags   EDM_PLUGIN="1"/>
+#<library   file="ReadPixClusters.cc" name="ReadPixClusters">
+#</library>
