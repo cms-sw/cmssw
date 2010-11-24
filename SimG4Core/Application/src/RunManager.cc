@@ -167,19 +167,19 @@ RunManager::~RunManager()
 void RunManager::initG4(const edm::EventSetup & es)
 {
 
-  if(!firstRun){
-    if(idealGeomRcdWatcher_.check(es)){
-      throw cms::Exception("BadConfig") 
-        << "[SimG4Core RunManager]\n"
-        << "The Geometry configuration is changed during the job execution\n"
-        << "this is not allowed, the geometry must stay unchanged\n";
-    }
-    if(idealMagRcdWatcher_.check(es)){
-      throw cms::Exception("BadConfig") 
-        << "[SimG4Core RunManager]\n"
-        << "The MagneticField configuration is changed during the job execution\n"
-        << "this is not allowed, the MagneticField must stay unchanged\n";
-    }
+  bool geomChanged = idealGeomRcdWatcher_.check(es);
+  bool magChanged = idealMagRcdWatcher_.check(es);
+  if (geomChanged && (!firstRun)) {
+    throw cms::Exception("BadConfig") 
+      << "[SimG4Core RunManager]\n"
+      << "The Geometry configuration is changed during the job execution\n"
+      << "this is not allowed, the geometry must stay unchanged\n";
+  }
+  if (magChanged && (!firstRun)) {
+    throw cms::Exception("BadConfig") 
+      << "[SimG4Core RunManager]\n"
+      << "The MagneticField configuration is changed during the job execution\n"
+      << "this is not allowed, the MagneticField must stay unchanged\n";
   }
 
   if (m_managerInitialized) return;
