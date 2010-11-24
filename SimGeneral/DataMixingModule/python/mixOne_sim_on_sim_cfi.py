@@ -30,7 +30,7 @@ mixData = cms.EDProducer("DataMixingModule",
     #
     # Input Specifications:
     #
-    SistripLabelSig = cms.InputTag("siStripDigis","ZeroSuppressed"),
+    SistripLabelSig = cms.InputTag("simSiStripDigis","ZeroSuppressed"),
                    #
     pixeldigiCollectionSig = cms.InputTag("simSiPixelDigis"),
     #

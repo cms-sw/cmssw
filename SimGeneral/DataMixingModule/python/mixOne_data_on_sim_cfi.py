@@ -43,7 +43,7 @@ mixData = cms.EDProducer("DataMixingModule",
     SiStripRawDigiSource = cms.string("NONE"), # rawdigi+digi->rawdigi (specify 'SIGNAL' or 'PILEUP')
     SiStripRawInputTag = cms.InputTag("siStripDigis","VirginRaw"),               
     #
-    SistripLabelSig = cms.InputTag("siStripDigis","ZeroSuppressed"),
+    SistripLabelSig = cms.InputTag("simSiStripDigis","ZeroSuppressed"),
                    #
     pixeldigiCollectionSig = cms.InputTag("simSiPixelDigis"),
     #
