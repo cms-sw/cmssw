@@ -97,9 +97,7 @@ tracksValidationSelectors = cms.Sequence( cutsRecoTracksHp*
                                 cutsRecoTracksFifth*
                                 cutsRecoTracksFifthHp )
 
-tracksValidation = cms.Sequence( tracksValidationSelectors * trackValidator)
-
-# for FS, selectors go into separate "prevalidation" sequence
-# (this fixes the "no EDProducer in EndPath" problem)
+# selectors go into separate "prevalidation" sequence
+tracksValidation = cms.Sequence( trackValidator)
 tracksValidationFS = cms.Sequence( trackValidator )
 
