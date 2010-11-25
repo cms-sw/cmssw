@@ -862,6 +862,8 @@ def main():
     transferLumiData(dbsession,runnumber,branchName='LUMIDATA')
     transfertrgData(dbsession,runnumber,trgresult,branchName='TRGDATA')
     transferhltData(dbsession,runnumber,hltresult,branchName='HLTDATA')
+    hinormdef={'DEFAULTNORM':2.38,'NORM_1':2.38,'ENERGY_1':3.5e03,'NORM_2':2.38,'ENERGY_2':3.5e03}
+    createLumiNorm(dbsession,'hi7TeV',normdef,branchName='LUMINORM')
     del dbsession
     del svc
     #print trgresult[0]
