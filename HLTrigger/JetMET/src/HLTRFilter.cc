@@ -74,6 +74,10 @@ HLTRFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    iEvent.put(filterobject);
 
+   // check the the input collections are available
+   if (not hemispheres.isValid() or not inputMet.isValid())
+     return false;
+
    if(hemispheres->size() ==0){  // the Hemisphere Maker will produce an empty collection of hemispheres iff the number of jets in the
      return accept_NJ_;   // event is greater than the maximum number of jets
    }
