@@ -16,8 +16,8 @@ TrackerDigiGeometryESModule = cms.ESProducer("TrackerDigiGeometryESModule",
 import Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi
 FakeTrackerSurfaceDeformationSource = Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi.FakeAlignmentSource.clone(
     produceTracker = cms.bool(False),
-    produceDT = cms.bool(True),
-    produceCSC = cms.bool(True),
+    produceDT = cms.bool(False),
+    produceCSC = cms.bool(False),
     produceGlobalPosition = cms.bool(False),
     produceTrackerSurfaceDeformation = cms.bool(True)
 )
