@@ -74,6 +74,12 @@
 	<class name="GenRunInfoProduct::XSec"/>
 	<class name="edm::Wrapper&lt;GenRunInfoProduct&gt;"/>
 
+	<!-- GenFilterInfo -->
+
+	<class name="GenFilterInfo"/>
+	<class name="edm::Wrapper&lt;GenFilterInfo&gt;"/>
+
+
 	<!-- GenEventInfoProduct -->
 
 	<class name="GenEventInfoProduct"/>

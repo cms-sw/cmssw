@@ -12,6 +12,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 namespace {
@@ -49,6 +50,7 @@ namespace {
 		// GenInfoProduct
 
 		edm::Wrapper<GenRunInfoProduct> wgenruninfo;
+		edm::Wrapper<GenFilterInfo> wgenfilterinfo;
 		edm::Wrapper<GenEventInfoProduct> wgeneventinfo;
 
 		// LHE products
