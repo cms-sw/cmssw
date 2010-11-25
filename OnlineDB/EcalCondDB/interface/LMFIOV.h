@@ -36,15 +36,17 @@ class LMFIOV : public LMFUnique {
   int getVmin() const;
   int getVmax() const;
 
+  void dump() const;
+
  private:
   // Methods from LMFUnique
-  std::string writeDBSql(Statement *stmt) { return ""; }
-  std::string fetchIdSql(Statement *stmt) { return ""; }
-  std::string fetchAllSql(Statement *stmt) const;
+  std::string writeDBSql(Statement *stmt);
+  std::string fetchIdSql(Statement *stmt); 
+  //  std::string fetchAllSql(Statement *stmt) const;
   std::string setByIDSql(Statement *stmt,
-			 int id) { return ""; }
+			 int id);
   
-  void getParameters(ResultSet *rset) {}
+  void getParameters(ResultSet *rset);
   void fetchParentIDs() {}
   LMFUnique * createObject() const;
   

@@ -106,6 +106,10 @@ std::string LMFDat::buildInsertSql() {
   return sqls;
 }
 
+std::string LMFDat::getIovIdFieldName() const {
+  return "LMF_IOV_ID";
+}
+
 std::string LMFDat::buildSelectSql(int logic_id, int direction) {
   // create the insert statement
   // if logic_id = 0 select all channels for a given iov_id
@@ -114,8 +118,8 @@ std::string LMFDat::buildSelectSql(int logic_id, int direction) {
   if (getLMFRunIOVID() > 0) {
     // in this case we are looking for all data collected during the same
     // IOV. There can be many logic_ids per IOV.
-    sql << "SELECT * FROM " << getTableName() << " WHERE LMF_IOV_ID = " 
-        << getLMFRunIOVID();
+    sql << "SELECT * FROM " << getTableName() << " WHERE "
+	<< getIovIdFieldName() << " = " << getLMFRunIOVID();
   } else {
     // in this case we are looking for a specific logic_id whose
     // data have been collected at a given time. There is only
@@ -129,7 +133,8 @@ std::string LMFDat::buildSelectSql(int logic_id, int direction) {
     sql << "SELECT * FROM (SELECT " << getTableName() << ".* FROM " 
 	<< getTableName() 
 	<< " JOIN LMF_RUN_IOV ON " 
-	<< "LMF_RUN_IOV.LMF_IOV_ID = " << getTableName() << ".LMF_IOV_ID "
+	<< "LMF_RUN_IOV.LMF_IOV_ID = " 
+	<< getTableName() << "." << getIovIdFieldName() << " "
 	<< "WHERE SUBRUN_START " << op << "= TO_DATE(:" << count;
     count++;
     sql << ", 'YYYY-MM-DD HH24:MI:SS') ORDER BY SUBRUN_START " 
@@ -215,7 +220,6 @@ void LMFDat::fetch(int logic_id, const Tm &tm)
 void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction) 
   throw(std::runtime_error)
 {
-  this->checkConnection();
   bool ok = check();
   if ((timestamp == NULL) && (getLMFRunIOVID() == 0)) {
     throw(std::runtime_error(m_className + "::fetch: Cannot fetch data with "
@@ -277,11 +281,12 @@ int LMFDat::fetchData()
   // see if any of the data is already in the database
   int s = m_data.size();
   std::string sql = "SELECT LOGIC_ID FROM " + getTableName() + " WHERE "
-    "LMF_IOV_ID = :1";
+    + getIovIdFieldName() + " = :1";
   if (m_debug) {
     cout << m_className << ":: data items for this object = " << s << endl;
     cout << m_className << "   Executing " << sql;
-    cout << " where LMF_IOV_ID = " << getLMFRunIOVID() << endl;
+    cout << " where " << getIovIdFieldName() << " = " 
+	 << getLMFRunIOVID() << endl;
   }
   try {
     Statement* stmt = m_conn->createStatement();
@@ -292,7 +297,8 @@ int LMFDat::fetchData()
     std::map<int, std::vector<float> >::iterator e = m_data.end();
     while (rset->next()) {
       if (m_debug) {
-	cout << m_className << ":: checking " << rset->getInt(1) << endl;
+	cout << m_className << ":: checking " << rset->getInt(1) << endl
+	     << std::flush;
       }
       i = m_data.find(rset->getInt(1));
       if (i != e) {
@@ -457,7 +463,7 @@ void LMFDat::getKeyTypes()
     Statement *stmt = m_conn->createStatement();
     sql = "SELECT COLUMN_NAME, DATA_TYPE FROM " 
       "USER_TAB_COLS WHERE TABLE_NAME = '" + getTableName() + "' " 
-      "AND COLUMN_NAME != 'LMF_IOV_ID' AND COLUMN_NAME != " 
+      "AND COLUMN_NAME != '" + getIovIdFieldName() +  "' AND COLUMN_NAME != " 
       "'LOGIC_ID'";
     stmt->setSQL(sql);
     ResultSet *rset = stmt->executeQuery();

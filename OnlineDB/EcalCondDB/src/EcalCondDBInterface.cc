@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.25 2010/09/30 14:16:46 organtin Exp $
+// $Id: EcalCondDBInterface.cc,v 1.27 2010/10/21 20:00:34 wmtan Exp $
 
 #include <iostream>
 #include <string>
@@ -354,6 +354,32 @@ void EcalCondDBInterface::insertRunIOV(RunIOV* iov)
 }
 
 void EcalCondDBInterface::insertLmfSeq(LMFSeqDat *iov) 
+  throw(std::runtime_error) 
+{
+  try {
+    iov->setConnection(env, conn);
+    iov->writeDB();
+  } catch(std::runtime_error &e) {
+    conn->rollback();
+    throw(e);
+  }
+  conn->commit();
+}
+
+void EcalCondDBInterface::insertLmfLmrSubIOV(LMFLmrSubIOV *iov) 
+  throw(std::runtime_error) 
+{
+  try {
+    iov->setConnection(env, conn);
+    iov->writeDB();
+  } catch(std::runtime_error &e) {
+    conn->rollback();
+    throw(e);
+  }
+  conn->commit();
+}
+
+void EcalCondDBInterface::insertLmfIOV(LMFIOV *iov) 
   throw(std::runtime_error) 
 {
   try {

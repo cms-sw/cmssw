@@ -15,7 +15,7 @@ class IDBObject {
   // give the interface class permission to use the functions
   friend class EcalCondDBInterface;
 
-  static int const ECALDB_NROWS=1000;
+  static int const ECALDB_NROWS=1024;
   
   virtual ~IDBObject() {}
 

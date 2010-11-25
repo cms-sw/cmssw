@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.28 2010/09/17 11:45:25 fra Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.30 2010/10/21 20:01:22 wmtan Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -28,12 +28,10 @@
 #include "OnlineDB/EcalCondDB/interface/RunList.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunList.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunTag.h"
-#include "OnlineDB/EcalCondDB/interface/LMFRunTag.h"
 #include "OnlineDB/EcalCondDB/interface/DCSPTMTempList.h"
 #include "OnlineDB/EcalCondDB/interface/all_fe_config_types.h"
+#include "OnlineDB/EcalCondDB/interface/all_lmf_types.h"
 #include "OnlineDB/EcalCondDB/interface/all_od_types.h"
-#include "OnlineDB/EcalCondDB/interface/LMFSeqDat.h"
-#include "OnlineDB/EcalCondDB/interface/LMFDat.h"
 
 class EcalCondDBInterface : public EcalDBConnection {
  public:
@@ -170,6 +168,10 @@ class EcalCondDBInterface : public EcalDBConnection {
 
   void updateRunConfig(ODRunConfigInfo* od) throw(std::runtime_error);
 
+  void insertLmfIOV(LMFIOV* iov)
+    throw(std::runtime_error);
+  void insertLmfLmrSubIOV(LMFLmrSubIOV* iov)
+    throw(std::runtime_error);
   void insertLmfSeq(LMFSeqDat* iov)
     throw(std::runtime_error);
   void insertLmfRunIOV(LMFRunIOV* iov)
@@ -533,7 +535,7 @@ class EcalCondDBInterface : public EcalDBConnection {
     DATT datiface;
     datiface.setConnection(env, conn);
     datiface.createReadStatement();
-    datiface.setPrefetchRowCount(1000);
+    datiface.setPrefetchRowCount(1024);
     datiface.fetchData( fillMap, iconf );
     datiface.terminateReadStatement();
 
@@ -557,7 +559,7 @@ class EcalCondDBInterface : public EcalDBConnection {
     DATT datiface;
     datiface.setConnection(env, conn);
     datiface.createReadStatement();
-    datiface.setPrefetchRowCount(1000);
+    datiface.setPrefetchRowCount(1024);
     datiface.fetchData( fillMap, iov );
     datiface.terminateReadStatement();
 
@@ -578,7 +580,7 @@ class EcalCondDBInterface : public EcalDBConnection {
     DATT datiface;
     datiface.setConnection(env, conn);
     datiface.createReadStatement();
-    datiface.setPrefetchRowCount(1000);
+    datiface.setPrefetchRowCount(1024);
     datiface.fetchHistoricalData( fillMap, t );
     datiface.terminateReadStatement();
     
@@ -601,7 +603,7 @@ class EcalCondDBInterface : public EcalDBConnection {
     DATT datiface;
     datiface.setConnection(env, conn);
     datiface.createReadStatement();
-    datiface.setPrefetchRowCount(1000);
+    datiface.setPrefetchRowCount(1024);
     datiface.fetchData( fillMap, iov , mapping_name);
     datiface.terminateReadStatement();
 
@@ -626,7 +628,7 @@ class EcalCondDBInterface : public EcalDBConnection {
     fillIOV->setByRecentData(datiface.getTable(), tag, run);
     datiface.setConnection(env, conn);
     datiface.createReadStatement();
-    datiface.setPrefetchRowCount(1000);
+    datiface.setPrefetchRowCount(1024);
     datiface.fetchData( fillMap, fillIOV );
     datiface.terminateReadStatement();
   }
@@ -650,7 +652,7 @@ class EcalCondDBInterface : public EcalDBConnection {
     fillIOV->setByRecentData(datiface.getTable(), location, run);
     datiface.setConnection(env, conn);
     datiface.createReadStatement();
-    datiface.setPrefetchRowCount(1000);
+    datiface.setPrefetchRowCount(1024);
     datiface.fetchData( fillMap, fillIOV );
     datiface.terminateReadStatement();
   }

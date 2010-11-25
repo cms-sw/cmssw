@@ -44,9 +44,10 @@ class LMFDat : public LMFUnique {
   void getPrevious(LMFDat *dat) throw(std::runtime_error);
   void getNext(LMFDat *dat) throw(std::runtime_error);
 
-  virtual std::string getTableName() {
+  virtual std::string getTableName() const {
     return m_tableName;
   }
+  virtual std::string getIovIdFieldName() const ;
   int getLMFRunIOVID();
 
   LMFDat& setData(int logic_id, const std::vector<float> &data) {
