@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_10_0/pre6/GRun/V4 (CMSSW_3_10_X_2010-11-23-0200_HL1)
+# /dev/CMSSW_3_10_0/pre6/GRun/V5 (CMSSW_3_10_X_2010-11-23-0200_HL1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_10_0/pre6/GRun/V4')
+  tableName = cms.string('/dev/CMSSW_3_10_0/pre6/GRun/V5')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -7368,8 +7368,8 @@ process.hltHybridSuperClustersL1Isolated = cms.EDProducer( "EgammaHLTHybridClust
     posCalcParameters = cms.PSet( 
       LogWeighted = cms.bool( True ),
       T0_barl = cms.double( 7.4 ),
-      T0_endc = cms.double( 6.3 ),
-      T0_endcPresh = cms.double( 3.6 ),
+      T0_endc = cms.double( 3.1 ),
+      T0_endcPresh = cms.double( 1.2 ),
       W0 = cms.double( 4.2 ),
       X0 = cms.double( 0.89 )
     ),
@@ -7515,8 +7515,8 @@ process.hltHybridSuperClustersL1NonIsolated = cms.EDProducer( "EgammaHLTHybridCl
     posCalcParameters = cms.PSet( 
       LogWeighted = cms.bool( True ),
       T0_barl = cms.double( 7.4 ),
-      T0_endc = cms.double( 6.3 ),
-      T0_endcPresh = cms.double( 3.6 ),
+      T0_endc = cms.double( 3.1 ),
+      T0_endcPresh = cms.double( 1.2 ),
       W0 = cms.double( 4.2 ),
       X0 = cms.double( 0.89 )
     ),
@@ -9485,8 +9485,8 @@ process.hltHybridSuperClustersL1IsolatedLowPt = cms.EDProducer( "EgammaHLTHybrid
     posCalcParameters = cms.PSet( 
       LogWeighted = cms.bool( True ),
       T0_barl = cms.double( 7.4 ),
-      T0_endc = cms.double( 6.3 ),
-      T0_endcPresh = cms.double( 3.6 ),
+      T0_endc = cms.double( 3.1 ),
+      T0_endcPresh = cms.double( 1.2 ),
       W0 = cms.double( 4.2 ),
       X0 = cms.double( 0.89 )
     ),
@@ -9632,8 +9632,8 @@ process.hltHybridSuperClustersL1NonIsolatedLowPt = cms.EDProducer( "EgammaHLTHyb
     posCalcParameters = cms.PSet( 
       LogWeighted = cms.bool( True ),
       T0_barl = cms.double( 7.4 ),
-      T0_endc = cms.double( 6.3 ),
-      T0_endcPresh = cms.double( 3.6 ),
+      T0_endc = cms.double( 3.1 ),
+      T0_endcPresh = cms.double( 1.2 ),
       W0 = cms.double( 4.2 ),
       X0 = cms.double( 0.89 )
     ),
