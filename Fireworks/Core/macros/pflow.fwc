@@ -666,7 +666,7 @@
      <string></string>
    </config>
    <config name="filterExpression" version="0">
-     <string></string>
+     <string>energy &gt; 0.02</string>
    </config>
    <config name="color" version="0">
      <string>1011</string>
