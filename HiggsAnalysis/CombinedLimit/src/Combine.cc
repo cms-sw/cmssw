@@ -168,6 +168,8 @@ void doCombination(TString hlfFile, const std::string &dataset, double &limit, i
   }
   
   if (nToys > 0) {
+    double expLimit = 0;
+    unsigned int nLimits = 0;
     w->loadSnapshot("clean");
     RooDataSet *systDs = 0;
     if (withSystematics && (readToysFromHere == 0)) {
@@ -207,13 +209,20 @@ void doCombination(TString hlfFile, const std::string &dataset, double &limit, i
       printRAD(absdata_toy);
       w->loadSnapshot("clean");
       printPdf(w, "model_b");
-      if (mklimit(w,*absdata_toy,limit)) tree->Fill();
+      if (mklimit(w,*absdata_toy,limit)) {
+	tree->Fill();
+	++nLimits;
+	expLimit += limit; 
+      }
       if (writeToysHere) {
 	//writeToysHere->import(*absdata_toy, RooFit::Rename(TString::Format("toy_%d", iToy)), RooFit::Silence());
 	writeToysHere->WriteTObject(absdata_toy, TString::Format("toy_%d", iToy));
       }
       delete absdata_toy;
     }
+    expLimit /= nLimits;
+    if (verbose)
+      cout << "expected limit: r < " << expLimit << " @ " << cl*100 << "%CL (" <<nLimits << " toyMC)" << endl;
   }
 }
 
