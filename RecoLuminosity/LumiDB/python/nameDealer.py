@@ -8,8 +8,8 @@ def revisionTableName():
 def cmsrunsummaryTableName():
        return 'CMSRUNSUMMARY'
 
-#def lumirunsummaryTableName():
-#	return 'LUMIRUNSUMMARY'
+def lumidataTableName():
+	return 'LUMIDATA'
 
 def lumisummaryTableName():
 	return 'LUMISUMMARY'
@@ -34,7 +34,7 @@ def hltdataTableName():
        return 'HLTDATA'
 
 def lshltTableName():
-       return 'LSTRG'
+       return 'LSHLT'
 
 def trghltMapTableName():
         return 'TRGHLTMAP'

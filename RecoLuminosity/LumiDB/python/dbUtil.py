@@ -125,8 +125,8 @@ class dbUtil(object):
         try:
             dataEditor=self.__schema.tableHandle(tableName).dataEditor()
             insertdata=coral.AttributeList()
-            for (columnname,columntype) in tabrowDef.items():
-                insertdata.extend(columnname,columntype)                
+            for (columnname,columntype) in tabrowDef:
+                insertdata.extend(columnname,columntype)
             bulkOperation=dataEditor.bulkInsert(insertdata,len(bulkinput))
             for valuelist in bulkinput:
                 for (columnname,columnvalue) in valuelist:
