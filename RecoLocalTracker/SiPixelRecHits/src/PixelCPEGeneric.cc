@@ -544,11 +544,11 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
     int col_offset = cluster.minPixelCol();
     int n_bigInX = 0;
     for (int irow = 0; irow < sizex; ++irow)
-    if ( RectangularPixelTopology::isItBigPixelInX( irow+row_offset ) )
+    if ( theTopol->isItBigPixelInX( irow+row_offset ) )
     ++n_bigInX;
     int n_bigInY = 0;
     for (int icol = 0; icol < sizey; ++icol) 
-    if ( RectangularPixelTopology::isItBigPixelInY( icol+col_offset ) )
+    if ( theTopol->isItBigPixelInY( icol+col_offset ) )
     ++n_bigInX;
     float xerr = (float)(sizex + n_bigInX) * thePitchX / sqrt(12.0);      
     float yerr = (float)(sizey + n_bigInY) * thePitchY / sqrt(12.0); 
@@ -634,13 +634,13 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 	      
 	      for (int irow = 0; irow < 7; ++irow)
 		{
-		  if ( RectangularPixelTopology::isItBigPixelInX( irow+row_offset ) )
+		  if ( theTopol->isItBigPixelInX( irow+row_offset ) )
 		    ++n_bigx;
 		}
 	      
 	      for (int icol = 0; icol < 21; ++icol) 
 		{
-		  if ( RectangularPixelTopology::isItBigPixelInY( icol+col_offset ) )
+		  if ( theTopol->isItBigPixelInY( icol+col_offset ) )
 		    ++n_bigy;
 		}
 	      

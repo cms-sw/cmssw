@@ -247,9 +247,9 @@ PixelCPEInitial::ypos(const SiPixelCluster& cluster) const {
     
   float pitch1 = thePitchY;
   float pitch2 = thePitchY;
-  if(RectangularPixelTopology::isItBigPixelInY(imin) )
+  if(theTopol->isItBigPixelInY(imin) )
     pitch1= 2.*thePitchY;
-  if(RectangularPixelTopology::isItBigPixelInY(imax) )
+  if(theTopol->isItBigPixelInY(imax) )
     pitch2= 2.*thePitchY;
    
   // position msII
