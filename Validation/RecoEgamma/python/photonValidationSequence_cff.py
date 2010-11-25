@@ -21,5 +21,8 @@ photonValidation.rBin = 48
 photonValidation.eoverpMin = 0.
 photonValidation.eoverpMax = 5.
 #
-photonValidationSequence = cms.Sequence(tpSelection*photonValidation*tpSelecForFakeRate*tpSelecForEfficiency*tkConversionValidation)
+
+# selectors go in separate "pre-" sequence
+photonPrevalidationSequence = cms.Sequence(tpSelection*tpSelecForFakeRate*tpSelecForEfficiency)
+photonValidationSequence = cms.Sequence(photonValidation*tkConversionValidation)
 
