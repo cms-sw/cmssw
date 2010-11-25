@@ -1255,7 +1255,7 @@ int main(int argc, char ** argv) {
 
       if (usePath.at(pCtr)) {
 	if (p.status().accept()) eventPathStatus.at(ievt).at(pIdx) = -1 ; 
-
+	
 	mCtr = 0 ; mIdx = 0 ; 
 	for ( size_t mm = 0; mm < (*HLTPerformanceWrapper)->getPath(piter).numberOfModules(); ++mm) {
 	  const HLTPerformanceInfo::Module & myModule=(*HLTPerformanceWrapper)->getModuleOnPath(mm, piter); 
@@ -1286,13 +1286,13 @@ int main(int argc, char ** argv) {
 	      if (modulePassed) {
 		moduleInPathOut.at(pIdx).at(mIdx)++ ;
 	      } else if (moduleIndexByPath.at(pIdx).at(mIdx) ==
-			 int(p.status().index()) && !p.status().accept()) {
+			 int(p.status().index())) {
 		eventPathStatus.at(ievt).at(pIdx) = double(mIdx) ;
 	      }
 	      mIdx++ ; 
 	    }
 	  } else {
-	    if ( (int(p.status().index()) == mCtr) && !p.status().accept() ) { // Path dies at excluded module
+              if ( (int(p.status().index()) == mCtr) ) { // Path dies at excluded module
                   // The mIdx is pointing to the next "used" module, have not gotten there yet
                   eventPathStatus.at(ievt).at(pIdx) = double(mIdx) - 0.5 ;   
               }
@@ -1317,10 +1317,8 @@ int main(int argc, char ** argv) {
 	    longestEventTimeByModule.at(mIdx) = 1000.*getTime((myModule),takeCPUtime) ;
 	    longestEventByModule.at(mIdx) = ievt ;
 	  }
-	} else {
-	   eventModuleTime.at(ievt).at(mIdx) = 0. ;  
 	}
-	mIdx++ ;
+	mIdx++ ; 
       }
     }
 
@@ -1331,7 +1329,6 @@ int main(int argc, char ** argv) {
         
     sumTime += eventTime.at(ievt) ;
     sumTimeSq += eventTime.at(ievt) * eventTime.at(ievt) ; 
-
   }
 
   int xscale = 4 ;
@@ -1691,7 +1688,6 @@ int main(int argc, char ** argv) {
     // Vector to determine which modules actually ran in the event
     std::vector<bool> moduleRan(numberOfModules,false) ; 
     bool slowPathFound = false ; 
-
     for (unsigned int i=0; i<unsigned(numberOfPaths); i++) {
       double eventPathTime = 0. ; double eventIncPathTime = 0. ;
 
@@ -1699,7 +1695,6 @@ int main(int argc, char ** argv) {
 	double mipTime = calculateMiPTime(eventModuleTime.at(ievt),
 					  eventPathStatus.at(ievt).at(i),
 					  globalModuleInPathMapper.at(i).at(j),j) ;
-
 	if (mipTime >= 0) {
 	  eventPathTime += mipTime ;
 	  int globalModuleIndex = globalModuleInPathMapper.at(i).at(j) ;
@@ -1743,24 +1738,22 @@ int main(int argc, char ** argv) {
       }
       if (uniqueSuccess) uniquePathSuccessVector.at(i)++ ; 
     }
-
     bool slowModuleFound = false ; 
     for (int i=0; i<numberOfModules; i++) {
-
       moduleTime.at(i)->Fill( 1000. * eventModuleTime.at(ievt).at(i) ) ;
       if ((moduleTimeThreshold > 0) && ((1000.*eventModuleTime.at(ievt).at(i)) > moduleTimeThreshold)) {
-	if (!slowModuleFound) { 
-	  slowModuleSummaryVector.push_back(eventInfo) ;
-	  slowModuleFound = true ;
-	}
+        if (!slowModuleFound) { 
+          slowModuleSummaryVector.push_back(eventInfo) ;
+          slowModuleFound = true ;
+        }
       }
-	// if (eventModuleTime.at(ievt).at(i) > 0)
+      // if (eventModuleTime.at(ievt).at(i) > 0)
       if (moduleRan.at(i)) {
 	moduleScaledTime.at(i)->Fill( 1000. * eventModuleTime.at(ievt).at(i) ) ;
 	for (unsigned int k=0; k<unsigned(modIdxInterested.size()); k++) {
 	  if ((i == modIdxInterested.at(k)) && (moduleTimeThreshold > 0)
 	      && ((1000.*eventModuleTime.at(ievt).at(i)) > moduleTimeThreshold))
-	      slowModInterestedVector.at(k).push_back(eventInfo) ;
+	    slowModInterestedVector.at(k).push_back(eventInfo) ;
 	}
       }
     }
