@@ -51,29 +51,6 @@ bool verbose;
 bool withSystematics;
 float cl;
 
-void printRAD(const RooAbsData *d) ;
-
-bool mklimit(RooWorkspace *w, RooAbsData &data, double &limit) {
-  TStopwatch timer;
-  bool ret = false;
-  try {
-    return algo->run(w, data, limit);    
-  } catch (std::exception &ex) {
-    std::cerr << "Caught exception " << ex.what() << std::endl;
-    return false;
-  }
-  if ((ret == false) && verbose) {
-    std::cout << "Failed for method " << algo->name() << "\n";
-    std::cout << "  --- DATA ---\n";
-    printRAD(&data);
-    std::cout << "  --- MODEL ---\n";
-    w->Print("V");
-  }
-  timer.Stop(); t_cpu_ = timer.CpuTime()/60.; t_real_ = timer.RealTime()/60.;
-  printf("Done in %.2f min (cpu), %.2f min (real)\n", t_cpu_, t_real_);
-  return ret;
-}
-
 void printRDH(RooDataHist *data) {
   std::vector<std::string> varnames, catnames;
   const RooArgSet *b0 = data->get(0);
@@ -99,6 +76,7 @@ void printRDH(RooDataHist *data) {
     printf("%8.3f\n", data->weight(*bin,0));
   }
 }
+
 void printRAD(const RooAbsData *d) {
   if (d->InheritsFrom("RooDataHist")) printRDH((RooDataHist*)d);
   else d->get(0)->Print("V");
@@ -108,6 +86,27 @@ void printPdf(RooWorkspace *w, const char *pdfName) {
   std::cout << "PDF " << pdfName << " parameters." << std::endl;
   std::auto_ptr<RooArgSet> params(w->pdf("model_b")->getVariables());
   params->Print("V");
+}
+
+bool mklimit(RooWorkspace *w, RooAbsData &data, double &limit) {
+  TStopwatch timer;
+  bool ret = false;
+  try {
+    ret = algo->run(w, data, limit);    
+  } catch (std::exception &ex) {
+    std::cerr << "Caught exception " << ex.what() << std::endl;
+    return false;
+  }
+  if ((ret == false) && verbose) {
+    std::cout << "Failed for method " << algo->name() << "\n";
+    std::cout << "  --- DATA ---\n";
+    printRAD(&data);
+    std::cout << "  --- MODEL ---\n";
+    w->Print("V");
+  }
+  timer.Stop(); t_cpu_ = timer.CpuTime()/60.; t_real_ = timer.RealTime()/60.;
+  printf("Done in %.2f min (cpu), %.2f min (real)\n", t_cpu_, t_real_);
+  return ret;
 }
 
 void doCombination(TString hlfFile, const std::string &dataset, double &limit, int &iToy, TTree *tree, int nToys) {
