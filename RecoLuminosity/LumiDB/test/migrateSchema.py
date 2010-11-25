@@ -4,7 +4,7 @@ import os,sys,array
 import coral
 from RecoLuminosity.LumiDB import argparse,idDealer,nameDealer,CommonUtil,dbUtil
 
-class newSchemaNames():
+class newSchemaNames(object):
     def __init__(self):
         self.revisionstable='REVISIONS'
         self.luminormstable='LUMINORMS'
@@ -55,7 +55,7 @@ def intlistToRange(mylist):
             low=j
     return result
 
-def getBranchRangeById(schema,mybranch_id)
+def getBranchRangeById(schema,mybranch_id):
     '''
     select revision_id from revisions where branch_id=:branch_id 
     '''
@@ -375,7 +375,6 @@ def getOldTrgData(dbsession,runnum):
             if bitnum==0 and counter!=0:
                 trgcountBlob=CommonUtil.packArraytoBlob(trgcountArray)
                 prescaleBlob=CommonUtil.packArraytoBlob(prescaleArray)
-                #databuffer[previouslsnum].append(bitnames)
                 databuffer[previouslsnum].append(trgcountBlob)
                 databuffer[previouslsnum].append(prescaleBlob)
                 bitnameList=[]
@@ -394,7 +393,6 @@ def getOldTrgData(dbsession,runnum):
 
             databuffer[cmslsnum].append(trgcountBlob)
             databuffer[cmslsnum].append(prescaleBlob)
-        #print CommonUtil.unpackBlobtoArray(databuffer[377][4],'l')
         del qHandle
         dbsession.transaction().commit()
         return [bitnames,databuffer]
@@ -403,27 +401,23 @@ def getOldTrgData(dbsession,runnum):
         del dbsession
         raise RuntimeError(' migrateSchema.getOldTrgData: '+str(e))
     
-def transfertrgData(dbsession,runnumber,trgrawdata):
+def transfertrgData(dbsession,runnumber,trgrawdata,branchName='TRGDATA'):
     '''
     input: trgdata [bitnames,databuffer], databuffer {cmslsnum:[deadtime,bitzeroname,bitzerocount,bitzeroprescale,trgcountBlob,trgprescaleBlob]}
     '''
-    n=newSchemaNames()
-    m=oldSchemaNames()
     bulkvalues=[]
     bitzeroname=trgrawdata[0].split(',')[0]
     perlsrawdatadict=trgrawdata[1]
     try:
         dbsession.transaction().start(False)
-        #iddealer=idDealer.idDealer(dbsession.nominalSchema())
-        #iddealer.generateNextIDForTable(n.trgdatatable)
-        #trgdata_id=iddealer.getIDforTable(n.trgdatatable)
-        (revision_id,entry_id,data_id)=bookNewEntry(dbsession.nominalSchema(),n.trgdatatable)
+        (revision_id,entry_id,data_id)=bookNewEntry(dbsession.nominalSchema(),nameDealer.trgdataTableName())
+        #print 'revision_id,entry_id,data_id ',revision_id,entry_id,data_id
         tabrowDefDict={'DATA_ID':'unsigned long long','ENTRY_ID':'unsigned long long','RUNNUM':'unsigned int','BITZERONAME':'string','BITNAMECLOB':'string'}
         tabrowValueDict={'DATA_ID':data_id,'ENTRY_ID':entry_id,'RUNNUM':int(runnumber),'BITZERONAME':bitzeroname,'BITNAMECLOB':trgrawdata[0]}
         db=dbUtil.dbUtil(dbsession.nominalSchema())
-        db.insertOneRow(n.trgdatatable,tabrowDefDict,tabrowValueDict)
-        addEntry(dbsession.nominalSchema(),n.trgdatatable,revision_id,entry_id,data_id)        
-        lstrgDefDict={'DATA_ID':'unsigned long long','RUNNUM':'unsigned int','CMSLSNUM':'unsigned int','DEADTIMECOUNT':'unsigned long long','BITZEROCOUNT':'unsigned int','BITZEROPRESCALE':'unsigned int','PRESCALEBLOB':'blob','TRGCOUNTBLOB':'blob'}
+        db.insertOneRow(nameDealer.trgdataTableName(),tabrowDefDict,tabrowValueDict)
+#        addEntry(dbsession.nominalSchema(),nameDealer.trgdataTableName(),revision_id,entry_id,data_id)        
+        lstrgDefDict=[('DATA_ID','unsigned long long'),('RUNNUM','unsigned int'),('CMSLSNUM','unsigned int'),('DEADTIMECOUNT','unsigned long long'),('BITZEROCOUNT','unsigned int'),('BITZEROPRESCALE','unsigned int'),('PRESCALEBLOB','blob'),('TRGCOUNTBLOB','blob')]
         for cmslsnum,perlstrg in perlsrawdatadict.items():
             deadtimecount=perlstrg[0]
             bitzeroname=perlstrg[1]
@@ -432,41 +426,37 @@ def transfertrgData(dbsession,runnumber,trgrawdata):
             trgcountblob=perlstrg[4]
             trgprescaleblob=perlstrg[5]
             bulkvalues.append([('DATA_ID',data_id),('RUNNUM',runnumber),('CMSLSNUM',cmslsnum),('DEADTIMECOUNT',deadtimecount),('BITZEROCOUNT',bitzerocount),('BITZEROPRESCALE',bitzeroprescale),('PRESCALEBLOB',trgprescaleblob),('TRGCOUNTBLOB',trgcountblob)])
-        db.bulkInsert(n.lstrgtable,lstrgDefDict,bulkvalues)
+        db.bulkInsert(nameDealer.lstrgTableName(),lstrgDefDict,bulkvalues)
+        addEntryToBranch(dbsession.nominalSchema(),nameDealer.trgdataTableName(),revision_id,entry_id,data_id,branchName,str(runnumber),'transfer2010')
         dbsession.transaction().commit()
     except Exception,e :
         dbsession.transaction().rollback()
         del dbsession
         raise RuntimeError(' migrateSchema.transfertrgData: '+str(e))
 
-def transferhltData(dbsession,runnumber,hltrawdata):
+def transferhltData(dbsession,runnumber,hltrawdata,branchName='HLTDATA'):
     '''
     input: hltdata[pathnames,databuffer] #databuffer{cmslsnum:[inputcountBlob,acceptcountBlob,prescaleBlob]}
     '''
-    n=newSchemaNames()
-    m=oldSchemaNames()
     npath=len(hltrawdata[0].split(','))
     pathnames=hltrawdata[0]
     perlsrawdatadict=hltrawdata[1]
     bulkvalues=[]
     try:
         dbsession.transaction().start(False)
-        #iddealer=idDealer.idDealer(dbsession.nominalSchema())
-        #iddealer.generateNextIDForTable(n.hltdatatable)
-        #hltdata_id=iddealer.getIDforTable(n.hltdatatable)
-        (revision_id,entry_id,data_id)=bookNewEntry(dbsession.nominalSchema(),n.hltdatatable)
+        (revision_id,entry_id,data_id)=bookNewEntry(dbsession.nominalSchema(),nameDealer.hltdataTableName())
         tabrowDefDict={'DATA_ID':'unsigned long long','ENTRY_ID':'unsigned long long','RUNNUM':'unsigned int','NPATH':'unsigned int','PATHNAMECLOB':'string'}
         tabrowValueDict={'DATA_ID':data_id,'ENTRY_ID':entry_id,'RUNNUM':int(runnumber),'NPATH':npath,'PATHNAMECLOB':pathnames}
         db=dbUtil.dbUtil(dbsession.nominalSchema())
-        db.insertOneRow(n.hltdatatable,tabrowDefDict,tabrowValueDict)
-        addEntry(dbsession.nominalSchema(),n.hltdatatable,revision_id,entry_id,data_id)
-        lshltDefDict={'DATA_ID':'unsigned long long','RUNNUM':'unsigned int','CMSLSNUM':'unsigned int','PRESCALEBLOB':'blob','HLTCOUNTBLOB':'blob','HLTACCEPTBLOB':'blob'}
+        db.insertOneRow(nameDealer.hltdataTableName(),tabrowDefDict,tabrowValueDict)
+        lshltDefDict=[('DATA_ID','unsigned long long'),('RUNNUM','unsigned int'),('CMSLSNUM','unsigned int'),('PRESCALEBLOB','blob'),('HLTCOUNTBLOB','blob'),('HLTACCEPTBLOB','blob')]
         for cmslsnum,perlshlt in perlsrawdatadict.items():
             inputcountblob=perlshlt[0]
             acceptcountblob=perlshlt[1]
             prescaleblob=perlshlt[2]
-            bulkvalues.append([('DATA_ID',data_id),('RUNNUM',runnumber),('CMSLSNUM',cmslsnum),('PRESCALEBLOB',prescaleblob),('HLTCOUNTBLOB',inputcountblob),('HLTACCEPTBLOB',acceptcountblob),('PRESCALEBLOB',prescaleblob)])
-        db.bulkInsert(n.lshlttable,lshltDefDict,bulkvalues)
+            bulkvalues.append([('DATA_ID',data_id),('RUNNUM',runnumber),('CMSLSNUM',cmslsnum),('PRESCALEBLOB',prescaleblob),('HLTCOUNTBLOB',inputcountblob),('HLTACCEPTBLOB',acceptcountblob)])
+        db.bulkInsert(nameDealer.lshltTableName(),lshltDefDict,bulkvalues)
+        addEntryToBranch(dbsession.nominalSchema(),nameDealer.hltdataTableName(),revision_id,entry_id,data_id,branchName,str(runnumber),'transfer2010')
         dbsession.transaction().commit()
     except Exception,e :
         dbsession.transaction().rollback()
@@ -495,6 +485,10 @@ def bookNewRevision(schema,datatableName):
     data_id=iddealer.generateNextIDForTable(datatableName)
     return (revision_id,data_id)
 
+def addEntryToBranch(schema,datatableName,revision_id,entry_id,data_id,branchname,name='',comment=''):
+    (parentrevision_id,parentbranch_id)=getBranchByName(schema,branchname)
+    addEntry(schema,datatableName,revision_id,entry_id,data_id,parentrevision_id,name,comment)
+     
 def addEntry(schema,datatableName,revision_id,entry_id,data_id,branch_id=0,name='',comment=''):
     '''
     1.allocate and insert a new revision into the revisions table
@@ -647,7 +641,7 @@ def getBranchByName(schema,branchName):
     except Exception,e :
         raise RuntimeError(' migrateSchema.getBranchByName: '+str(e))
     
-def createLumiNorm(dbsession,name,inputdata,branchName='LUMINORM'):
+def createLumiNorm(dbsession,name,inputdata,branchName='LUMINORM',comment=''):
     '''
     add new lumi norm entry
     inputdata={'defaultnorm':defaultnorm,'norm_1':norm_1,'energy_1':energy_1,'norm_2':norm_2,'energy_2':energy_2}
@@ -660,14 +654,15 @@ def createLumiNorm(dbsession,name,inputdata,branchName='LUMINORM'):
         tabrowDefDict={'DATA_ID':'unsigned long long','ENTRY_ID':'unsigned long long','DEFAULTNORM':'float','NORM_1':'float','ENERGY_1':'float','NORM_2':'float','ENERGY_2':'float'}
         tabrowValueDict={'DATA_ID':data_id,'ENTRY_ID':entry_id,'DEFAULTNORM':inputdata['DEFAULTNORM'],'NORM_1':inputdata['NORM_1'],'ENERGY_1':inputdata['ENERGY_1'],'NORM_2':inputdata['NORM_2'],'ENERGY_2':inputdata['ENERGY_2']}
         db.insertOneRow(nameDealer.luminormTableName(),tabrowDefDict,tabrowValueDict)
-        addEntry(dbsession.nominalSchema(),nameDealer.luminormTableName(),revision_id,entry_id,data_id,branch_id=parentrevision_id)
+        addEntryToBranch(dbsession.nominalSchema(),nameDealer.luminormTableName(),revision_id,entry_id,data_id,branchName,name,comment)
+        dbsession.transaction().commit()
     except Exception,e :
         dbsession.transaction().rollback()
         del dbsession
         raise RuntimeError(' migrateSchema.createLumiNorm: '+str(e))
     return data_id
 
-def transferLumiData(dbsession,runnum):
+def transferLumiData(dbsession,runnum,branchName='LUMIDATA'):
     '''
     select LUMISUMMARY_ID as lumisummary_id,CMSLSNUM as cmslsnum from LUMISUMMARY where RUNNUM=:runnum order by cmslsnum
     generate new data_id for lumidata
@@ -703,18 +698,13 @@ def transferLumiData(dbsession,runnum):
         dbsession.transaction().commit()
         
         dbsession.transaction().start(False)
-        (revision_id,entry_id,data_id)=bookNewEntry(dbsession.nominalSchema(),n.lumidatatable)
-        
-        #iddealer=idDealer.idDealer(dbsession.nominalSchema())
-        #iddealer.generateNextIDForTable(n.lumidatatable)
-        #lumidata_id=iddealer.getIDforTable(n.lumidatatable)
-        #insert in lumidata table
+        (revision_id,entry_id,data_id)=bookNewEntry(dbsession.nominalSchema(),nameDealer.lumidataTableName())
         print 'insert in lumidata table'
         tabrowDefDict={'DATA_ID':'unsigned long long','ENTRY_ID':'unsigned long long','RUNNUM':'unsigned int'}
         tabrowValueDict={'DATA_ID':data_id,'ENTRY_ID':entry_id,'RUNNUM':int(runnum)}
         db=dbUtil.dbUtil(dbsession.nominalSchema())
-        db.insertOneRow(n.lumidatatable,tabrowDefDict,tabrowValueDict)
-        addEntry(dbsession.nominalSchema(),n.lumidatatable,revision_id,entry_id,data_id)
+        db.insertOneRow(nameDealer.lumidataTableName(),tabrowDefDict,tabrowValueDict)
+        addEntryToBranch(dbsession.nominalSchema(),nameDealer.lumidataTableName(),revision_id,entry_id,data_id,branchName,str(runnum),'transfer2010')
         #update in lumisummary table
         print 'insert in lumisummary table'
         setClause='DATA_ID=:data_id'
@@ -724,6 +714,7 @@ def transferLumiData(dbsession,runnum):
         updateData.extend('runnum','unsigned int')
         updateData['data_id'].setData(data_id)
         updateData['runnum'].setData(int(runnum))
+        print 'about to singleUpdate'
         nrows=db.singleUpdate(n.lumisummarytable,setClause,updateCondition,updateData)
         #updates in lumidetail table
         print 'update to data_id,lumisummary_id,cmslsnum ',data_id,lumisummary_id,cmslsnum
@@ -865,12 +856,12 @@ def main():
     createNewBranch(dbsession.nominalSchema(),'HLTDATA',comment='root of hltdata',parentname='TRUNK')
     dbsession.transaction().commit()
     normdef={'DEFAULTNORM':6.37,'NORM_1':6.37,'ENERGY_1':3.5e03,'NORM_2':1.625,'ENERGY_2':0.9e03}
-    createLumiNorm(dbsession,'pp2010',normdef,branchName='LUMINORM')
+    createLumiNorm(dbsession,'pp7TeV',normdef,branchName='LUMINORM')
     trgresult=getOldTrgData(dbsession,runnumber)
     hltresult=getOldHLTData(dbsession,runnumber)
-    transferLumiData(dbsession,runnumber)   
-    transfertrgData(dbsession,runnumber,trgresult)
-    transferhltData(dbsession,runnumber,hltresult)
+    transferLumiData(dbsession,runnumber,branchName='LUMIDATA')
+    transfertrgData(dbsession,runnumber,trgresult,branchName='TRGDATA')
+    transferhltData(dbsession,runnumber,hltresult,branchName='HLTDATA')
     del dbsession
     del svc
     #print trgresult[0]
