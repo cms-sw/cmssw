@@ -12,11 +12,15 @@
 
 class ProfileLikelihood : public LimitAlgo {
 public:
+  ProfileLikelihood() ;
   virtual bool run(RooWorkspace *w, RooAbsData &data, double &limit);
   virtual const std::string & name() const {
     static const std::string name("ProfileLikelihood");
     return name;
   }
+protected:
+  std::string minimizerAlgo_;
+  float       minimizerTolerance_;
 };
 
 #endif
