@@ -10,30 +10,30 @@ if ( $num_args == 3 ) then
     set input  = $argv[1]
     set bkmrk  = $argv[3]
     set output = $argv[2]
-    if ( -e $CMSSW_BASE/src/DataFormats/HLTReco/test/bookmarkPdf.pl ) then
-        $CMSSW_BASE/src/DataFormats/HLTReco/test/bookmarkPdf.pl $input $output $bkmrk
+    if ( -e $CMSSW_BASE/src/HLTrigger/Tools/scripts/bookmarkPdf.pl ) then
+        $CMSSW_BASE/src/HLTrigger/Tools/scripts/bookmarkPdf.pl $input $output $bkmrk
     else
-        $CMSSW_RELEASE_BASE/src/DataFormats/HLTReco/test/bookmarkPdf.pl $input $output $bkmrk
+        $CMSSW_RELEASE_BASE/src/HLTrigger/Tools/scripts/bookmarkPdf.pl $input $output $bkmrk
     endif
 else if ( $num_args == 2 ) then 
     set input  = $argv[1]
     set base   = `echo $input | cut -d '.' -f 1`
     set bkmrk  = "$base-bookmark.txt"
     set output = $argv[2]
-    if ( -e $CMSSW_BASE/src/DataFormats/HLTReco/test/bookmarkPdf.pl ) then
-        $CMSSW_BASE/src/DataFormats/HLTReco/test/bookmarkPdf.pl $input $output $bkmrk
+    if ( -e $CMSSW_BASE/src/HLTrigger/Tools/scripts/bookmarkPdf.pl ) then
+        $CMSSW_BASE/src/HLTrigger/Tools/scripts/bookmarkPdf.pl $input $output $bkmrk
     else
-        $CMSSW_RELEASE_BASE/src/DataFormats/HLTReco/test/bookmarkPdf.pl $input $output $bkmrk
+        $CMSSW_RELEASE_BASE/src/HLTrigger/Tools/scripts/bookmarkPdf.pl $input $output $bkmrk
     endif
 else if ( $num_args == 1 ) then 
     set input  = $argv[1]
     set base   = `echo $input | cut -d '.' -f 1`
     set bkmrk  = "$base-bookmark.txt"
     set output = "$base-bm.pdf"
-    if ( -e $CMSSW_BASE/src/DataFormats/HLTReco/test/bookmarkPdf.pl ) then
-        $CMSSW_BASE/src/DataFormats/HLTReco/test/bookmarkPdf.pl $input $output $bkmrk
+    if ( -e $CMSSW_BASE/src/HLTrigger/Tools/scripts/bookmarkPdf.pl ) then
+        $CMSSW_BASE/src/HLTrigger/Tools/scripts/bookmarkPdf.pl $input $output $bkmrk
     else
-        $CMSSW_RELEASE_BASE/src/DataFormats/HLTReco/test/bookmarkPdf.pl $input $output $bkmrk
+        $CMSSW_RELEASE_BASE/src/HLTrigger/Tools/scripts/bookmarkPdf.pl $input $output $bkmrk
     endif
 else 
     echo "Usage: addBookmarks.csh <in.pdf> (<out.pdf>) (<bkmrk.txt>)"
