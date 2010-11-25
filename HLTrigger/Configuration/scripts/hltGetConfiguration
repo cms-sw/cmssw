@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+# TODO
+# --timing implies --no-output, unless overridden
+# fix prescaler modules with --open
+
 import sys
 import os
 import re
@@ -356,15 +360,18 @@ if 'GlobalTag' in %%(dict)s:
 
 
   def overrideOutput(self, configuration):
-    reOutputModule = re.compile(r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\(.*\n([^)].*\n)*\) *\n')
+    reOutputModuleDef = re.compile(r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\(.*\n([^)].*\n)*\) *\n')
+    reOutputModuleRef = re.compile(r' *[+*]? *\b(process\.)?hltOutput(\w+)')    # FIXME this does not cover "hltOutputX + something"
     if configuration.menuOutput == 'none':
       # drop all output modules
-      self.data = reOutputModule.sub('', self.data)
+      self.data = reOutputModuleDef.sub('', self.data)
+      self.data = reOutputModuleRef.sub('', self.data)
 
     elif configuration.menuOutput == 'minimal':
       # drop all output modules except "HLTDQMResults"
       repl = lambda match: (match.group(2) == 'HLTDQMResults') and match.group() or ''
-      self.data = reOutputModule.sub(repl, self.data)
+      self.data = reOutputModuleDef.sub(repl, self.data)
+      self.data = reOutputModuleRef.sub(repl, self.data)
 
     # override the "online" ShmStreamConsumer output modules with "offline" PoolOutputModule's
     self.data = re.sub( 
