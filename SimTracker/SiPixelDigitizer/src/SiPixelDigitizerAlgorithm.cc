@@ -36,6 +36,7 @@
 // November, 2009: new parameterization of the pixel response. (V. Cuplov)
 // December, 2009: Fix issue with different compilers.
 // October, 2010: Improvement: Removing single dead ROC (V. Cuplov)
+// November, 2010: Bug fix in removing TBMB/A half-modules (V. Cuplov)
 
 #include <vector>
 #include <iostream>
@@ -1616,22 +1617,13 @@ void SiPixelDigitizerAlgorithm::module_killing_DB(void){
   if(!isbad)
     return;
 
-  if(badmodule.errorType == 0 || badmodule.errorType == 1 || badmodule.errorType == 2){
+  if(badmodule.errorType == 0){ // this is a whole dead module.
 
     for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {
-
-           if(badmodule.errorType == 0){i->second.set(0.);} // reset amplitude
-
-           if(badmodule.errorType == 1 || badmodule.errorType == 2){
-             pair<int,int> ip = PixelDigi::channelToPixel(i->first);//get pixel pos
-     
-               if(badmodule.errorType == 1 &&  ip.first>=80 && ip.first<=159){i->second.set(0.);}
-                if(badmodule.errorType == 2 && ip.first<=79){i->second.set(0.);}
-	   }
+           i->second.set(0.); // reset amplitude
     }
   }
-
-  else { // if badmodule.errorType == 3
+  else { // all other module types: half-modules and single ROCs.
 	   // Get Bad ROC position:
 	   //follow the example of getBadRocPositions in CondFormats/SiPixelObjects/src/SiPixelQuality.cc 
   std::vector<GlobalPixel> badrocpositions (0);
@@ -1669,10 +1661,7 @@ void SiPixelDigitizerAlgorithm::module_killing_DB(void){
        }
           }
   }
-
   }
-
-  }// end error type 3 == Single dead ROC
-
+  }
 }
 
