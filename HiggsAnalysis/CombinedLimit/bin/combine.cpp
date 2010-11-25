@@ -171,6 +171,9 @@ int main(int argc, char **argv) {
   
   test->WriteTObject(t);
   test->Close();
+
+  for(map<string, LimitAlgo *>::const_iterator i = methods.begin(); i != methods.end(); ++i)
+    delete i->second;
 }
 
 
