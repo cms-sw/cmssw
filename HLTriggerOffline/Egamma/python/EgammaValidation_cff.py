@@ -127,9 +127,7 @@ for samplenum in range(len(samples.names)):
 egammaSelectors.remove(tmp)  # remove the initial dummy
 egammaValidators.remove(tmp)
 
-
-egammaValidationSequence   = cms.Sequence( egammaSelectors * egammaValidators )
-
-# for FS, selectors go into separate "prevalidation" sequence
-# (this fixes the "no EDProducer in EndPath" problem)
+# selectors go into separate "prevalidation" sequence
+egammaValidationSequence   = cms.Sequence( egammaValidators )
 egammaValidationSequenceFS = cms.Sequence( egammaValidators )
+
