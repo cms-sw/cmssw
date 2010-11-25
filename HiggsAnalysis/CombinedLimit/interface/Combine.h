@@ -12,6 +12,7 @@ extern TDirectory *readToysFromHere;
 extern LimitAlgo * algo ;
 extern bool verbose;
 extern bool withSystematics;
+extern float cl;
 
 void doCombination(TString hlfFile, const std::string &dataset, double &limit, int &iToy, TTree *tree, int nToys=0);
 

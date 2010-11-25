@@ -29,7 +29,7 @@ bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit) {
   hc->PatchSetExtended(false); // Number counting, each dataset has 1 entry 
   hc->SetNumberOfToys(500);
   
-  double clsTarget = 0.05, clsAcc  = 0.005, rAcc = 0.1, rRelAcc = 0.05; 
+  double clsTarget = 1 - cl, clsAcc  = 0.005 /* ??? */ , rAcc = 0.1, rRelAcc = 1 - cl; 
   double clsMin = 1, clsMax = 0, clsMinErr = 0, clsMaxErr = 0;
   double rMin   = 0, rMax = r->getMax();
   
@@ -87,7 +87,7 @@ bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit) {
   }
   limit = r->getVal();
   std::cout << "\n -- HypoTestInverter -- \n";
-  std::cout << "Limit: r < " << limit << " +/- " << (rMax - rMin) << "\n";
+  std::cout << "Limit: r < " << limit << " +/- " << (rMax - rMin) << "@" <<cl * 100<<"% CL\n";
   
   return true;
 }

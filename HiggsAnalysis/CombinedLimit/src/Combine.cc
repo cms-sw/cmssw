@@ -49,6 +49,7 @@ TDirectory *sprnwriteToysHere = 0;
 TDirectory *readToysFromHere = 0;
 bool verbose;
 bool withSystematics;
+float cl;
 
 void printRAD(const RooAbsData *d) ;
 

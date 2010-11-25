@@ -79,6 +79,7 @@ int main(int argc, char **argv) {
     ("mass,m", po::value<int>(&iMass)->default_value(120), "Minimum value for fit range")
     ("method,M", po::value<string>(&whichMethod)->default_value("mcmc"), methodsDesc.c_str())
     ("systematics,S", po::value<bool>(&withSystematics)->default_value(false), methodsDesc.c_str())
+    ("cl,C", po::value<float>(&cl)->default_value(0.95), methodsDesc.c_str())
     ("toys,t", po::value<unsigned int>(&runToys)->default_value(0), "Number of toy MC (0 = no toys)")
     ("seed,s", po::value<int>(&seed)->default_value(123456), "Toy MC random seed")
     ("saveToys,w", po::value<bool>(&saveToys)->default_value(false), "Save results of toy MC")

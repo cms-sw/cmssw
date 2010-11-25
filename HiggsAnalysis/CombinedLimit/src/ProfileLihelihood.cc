@@ -13,7 +13,7 @@ bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit) {
   double rMax = r->getMax();
   for (;;) {
     ProfileLikelihoodCalculator plcB(data, *w->pdf("model_s"), poi);
-    plcB.SetConfidenceLevel(0.95);
+    plcB.SetConfidenceLevel(cl);
     LikelihoodInterval* plInterval = plcB.GetInterval();
     if (plInterval == 0) return false;
     limit = plInterval->UpperLimit(*r); 
@@ -34,7 +34,7 @@ bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit) {
       */
       
       std::cout << "\n -- Profile Likelihood -- " << "\n";
-      std::cout << "Limit: r < " << limit << " @ 95% CL" << std::endl;
+      std::cout << "Limit: r < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
       //std::cout << "Significance: " << plSig << std::endl;
       
     }

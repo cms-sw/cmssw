@@ -45,7 +45,7 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit) {
   
   MCMCCalculator mc(data, modelConfig);
   mc.SetNumIters(iterations_); 
-  mc.SetConfidenceLevel(0.95);
+  mc.SetConfidenceLevel(cl);
   mc.SetNumBurnInSteps(burnInSteps_); 
   mc.SetProposalFunction(*pdfProp);
   mc.SetNumBins (numberOfBins_) ; // bins to use for RooRealVars in histograms
@@ -57,13 +57,13 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit) {
   limit = mcInt->UpperLimit(*r);
   if(verbose) {
     std::cout << "\n -- MCMC, flat prior -- " << "\n";
-    std::cout << "Limit: r < " << limit << " @ 95% CL" << std::endl;
-    std::cout << "Interval:    [ " << mcInt->LowerLimit(*r)             << " , " << mcInt->UpperLimit(*r)             << " ] @ 90% CL" << std::endl;
-    std::cout << "Interval DH: [ " << mcInt->LowerLimitByDataHist(*r)   << " , " << mcInt->UpperLimitByDataHist(*r)   << " ] @ 90% CL" << std::endl;
-    std::cout << "Interval H:  [ " << mcInt->LowerLimitByHist(*r)       << " , " << mcInt->UpperLimitByHist(*r)       << " ] @ 90% CL" << std::endl;
-    //std::cout << "Interval K:  [ " << mcInt->LowerLimitByKeys(*r)       << " , " << mcInt->UpperLimitByKeys(*r)       << " ] @ 90% CL" << std::endl;
-    std::cout << "Interval S:  [ " << mcInt->LowerLimitShortest(*r)     << " , " << mcInt->UpperLimitShortest(*r)     << " ] @ 90% CL" << std::endl;
-    std::cout << "Interval TF: [ " << mcInt->LowerLimitTailFraction(*r) << " , " << mcInt->UpperLimitTailFraction(*r) << " ] @ 90% CL" << std::endl;
+    std::cout << "Limit: r < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
+    std::cout << "Interval:    [ " << mcInt->LowerLimit(*r)             << " , " << mcInt->UpperLimit(*r)             << " ] @ " << cl * 100 << "% CL" << std::endl;
+    std::cout << "Interval DH: [ " << mcInt->LowerLimitByDataHist(*r)   << " , " << mcInt->UpperLimitByDataHist(*r)   << " ] @ " << cl * 100 << "% CL" << std::endl;
+    std::cout << "Interval H:  [ " << mcInt->LowerLimitByHist(*r)       << " , " << mcInt->UpperLimitByHist(*r)       << " ] @ " << cl * 100 << "% CL" << std::endl;
+    //std::cout << "Interval K:  [ " << mcInt->LowerLimitByKeys(*r)       << " , " << mcInt->UpperLimitByKeys(*r)       << " ] @ " << cl * 100 << "% CL" << std::endl;
+    std::cout << "Interval S:  [ " << mcInt->LowerLimitShortest(*r)     << " , " << mcInt->UpperLimitShortest(*r)     << " ] @ " << cl * 100 << "% CL" << std::endl;
+    std::cout << "Interval TF: [ " << mcInt->LowerLimitTailFraction(*r) << " , " << mcInt->UpperLimitTailFraction(*r) << " ] @ " << cl * 100 << "% CL" << std::endl;
   }
   return true;
 }

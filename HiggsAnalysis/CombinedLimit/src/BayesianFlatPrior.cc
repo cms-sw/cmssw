@@ -19,7 +19,7 @@ bool BayesianFlatPrior::run(RooWorkspace *w, RooAbsData &data, double &limit) {
   for (;;) {
     BayesianCalculator bcalc(data, *w->pdf("model_s"), poi, flatPrior, (withSystematics ? w->set("nuisances") : 0));
     bcalc.SetLeftSideTailFraction(0);
-    bcalc.SetConfidenceLevel(0.95); 
+    bcalc.SetConfidenceLevel(cl); 
     SimpleInterval* bcInterval = bcalc.GetInterval();
     if (bcInterval == 0) return false;
     limit = bcInterval->UpperLimit();
@@ -30,7 +30,7 @@ bool BayesianFlatPrior::run(RooWorkspace *w, RooAbsData &data, double &limit) {
       continue;
     }
     std::cout << "\n -- Bayesian, flat prior -- " << "\n";
-    std::cout << "Limit: r < " << limit << " @ 95% CL" << std::endl;
+    std::cout << "Limit: r < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
     if (0 && verbose) {
       TCanvas c1("c1", "c1");
       RooPlot *bcPlot = bcalc.GetPosteriorPlot(true,0.1); 
