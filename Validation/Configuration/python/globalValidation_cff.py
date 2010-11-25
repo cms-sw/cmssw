@@ -26,6 +26,12 @@ from Validation.RecoMET.METRelValForDQM_cff import *
 from Validation.RecoVertex.VertexValidation_cff import *
 from Validation.RecoEgamma.egammaValidation_cff import *
 
+# filter/producer "pre-" sequence for globalValidation
+globalPrevalidation = cms.Sequence( 
+    tracksValidationSelectors
+  * photonPrevalidationSequence
+)
+
 globalValidation = cms.Sequence(   trackerHitsValidation 
                                  + trackerDigisValidation 
                                  + trackerRecHitsValidation 
