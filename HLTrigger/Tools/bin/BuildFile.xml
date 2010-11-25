@@ -1,0 +1,9 @@
+<bin   name="hltTimingSummary" file="hltTimingSummary.cpp">
+  <flags NO_TESTRUN="1"/>
+  <use   name="boost"/>
+  <use   name="boost_program_options"/>
+  <use   name="FWCore/FWLite"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="rootcintex"/>
+  <use   name="rootgraphics"/>
+</bin>
