@@ -1,5 +1,4 @@
 <export>
   <lib   name="1"/>
 </export>
-<use   name="Geometry/CommonTopologies"/>
 <use   name="DataFormats/SiPixelDetId"/>
