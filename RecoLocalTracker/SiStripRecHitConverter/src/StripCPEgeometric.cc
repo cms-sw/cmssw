@@ -34,8 +34,8 @@ localParameters( const SiStripCluster& cluster, const LocalTrajectoryParameters&
     + 0.5*p.coveredStrips(track, ltp.position());
   const float error2 = std::max( strip.error2(), minimum_uncertainty_squared );  
 
-  return std::make_pair( p.topology->localPosition( corrected ),
-			 p.topology->localError( corrected, error2 ) );
+  return std::make_pair( p.topology->localPosition( corrected, ltp.vector()),
+			 p.topology->localError( corrected, error2, ltp.vector()));
 }
 
 stats_t<float> StripCPEgeometric::
