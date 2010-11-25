@@ -75,4 +75,4 @@ FWPFClusterLegoProxyBuilder::scaleProduct( TEveElementList* parent, FWViewType::
    }
 }
 
-REGISTER_FWPROXYBUILDER( FWPFClusterLegoProxyBuilder, reco::PFCluster, "PFCluster", FWViewType::kLegoPFECALBit );
+REGISTER_FWPROXYBUILDER( FWPFClusterLegoProxyBuilder, reco::PFCluster, "PF Cluster", FWViewType::kLegoPFECALBit );

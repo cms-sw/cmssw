@@ -61,5 +61,5 @@ public:
 template class FWPFPatJet3DProxyBuilder<reco::PFJet>;
 template class FWPFPatJet3DProxyBuilder<pat::Jet>;
 
-REGISTER_FWPROXYBUILDER(FWPFJet3DProxyBuilder, reco::PFJet, "PFJet", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
-REGISTER_FWPROXYBUILDER(FWPatJet3DProxyBuilder, pat::Jet, "PFPatJet", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
+REGISTER_FWPROXYBUILDER(FWPFJet3DProxyBuilder, reco::PFJet, "PF Jet", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
+REGISTER_FWPROXYBUILDER(FWPatJet3DProxyBuilder, pat::Jet, "PF PatJet", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );

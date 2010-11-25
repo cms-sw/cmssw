@@ -422,7 +422,7 @@
      <string>12</string>
    </config>
    <config name="purpose" version="0">
-     <string>PFCandidates</string>
+     <string>PF Candidates</string>
    </config>
    <config name="transparency" version="0">
      <string>0</string>
@@ -454,7 +454,7 @@
      <string>13</string>
    </config>
    <config name="purpose" version="0">
-     <string>PFCandidates</string>
+     <string>PF Candidates</string>
    </config>
    <config name="transparency" version="0">
      <string>0</string>
@@ -486,7 +486,7 @@
      <string>14</string>
    </config>
    <config name="purpose" version="0">
-     <string>PFCandidates</string>
+     <string>PF Candidates</string>
    </config>
    <config name="transparency" version="0">
      <string>0</string>
@@ -518,7 +518,7 @@
      <string>15</string>
    </config>
    <config name="purpose" version="0">
-     <string>PFCandidates</string>
+     <string>PF Candidates</string>
    </config>
    <config name="transparency" version="0">
      <string>0</string>
@@ -550,7 +550,7 @@
      <string>16</string>
    </config>
    <config name="purpose" version="0">
-     <string>PFCandidates</string>
+     <string>PF Candidates</string>
    </config>
    <config name="transparency" version="0">
      <string>0</string>
@@ -614,7 +614,7 @@
      <string>18</string>
    </config>
    <config name="purpose" version="0">
-     <string>PFJet</string>
+     <string>PF Jet</string>
    </config>
    <config name="transparency" version="0">
      <string>0</string>
@@ -678,7 +678,7 @@
      <string>20</string>
    </config>
    <config name="purpose" version="0">
-     <string>Ecal RecHit PF</string>
+     <string>PF Ecal RecHit</string>
    </config>
    <config name="transparency" version="0">
      <string>0</string>

@@ -8,7 +8,7 @@
 //
 // Original Author:  Colin Bernet
 //         Created:  Fri May 28 15:58:19 CEST 2010
-// $Id: FWPFCandidate3DProxyBuilder.cc,v 1.2 2010/04/08 17:19:42 cbern Exp $
+// $Id: FWPFCandidate3DProxyBuilder.cc,v 1.1 2010/05/28 16:22:30 amraktad Exp $
 //
 
 // system include files
@@ -69,4 +69,4 @@ FWPFCandidate3DProxyBuilder::build(const reco::PFCandidate& iData, unsigned int 
 //
 // static member functions
 //
-REGISTER_FWPROXYBUILDER(FWPFCandidate3DProxyBuilder, reco::PFCandidate,"PFCandidates", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
+REGISTER_FWPROXYBUILDER(FWPFCandidate3DProxyBuilder, reco::PFCandidate,"PF Candidates", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );

@@ -72,4 +72,4 @@ FWPFClusterRPProxyBuilder::scaleProduct( TEveElementList *parent, FWViewType::ET
 }
 
 //______________________________________________________________________________________________________
-REGISTER_FWPROXYBUILDER( FWPFClusterRPProxyBuilder, reco::PFCluster, "PFCluster", FWViewType::kRhoPhiPFBit );
+REGISTER_FWPROXYBUILDER( FWPFClusterRPProxyBuilder, reco::PFCluster, "PF Cluster", FWViewType::kRhoPhiPFBit );
