@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.258 $"
+__version__ = "$Revision: 1.259 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -509,6 +509,7 @@ class ConfigBuilder(object):
         self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_cff"
         self.CFWRITERDefaultCFF = "Configuration/StandardSequences/CrossingFrameWriter_cff"
 	self.REPACKDefaultCFF="Configuration/StandardSequences/DigiToRaw_Repack_cff"
+        self.GENFILTERDefaultCFF="GeneratorInterface/Core/genFilterSummary_cff"
 
         # synchronize the geometry configuration and the FullSimulation sequence to be used
         if self._options.geometry not in defaultOptions.geometryExtendedOptions:
@@ -1244,6 +1245,11 @@ class ConfigBuilder(object):
 
         self.schedule.append(self.process.endjob_step)
 
+        if 'GEN' in self.stepMap.keys():
+            self.loadAndRemember(self.GENFILTERDefaultCFF)
+            self.process.genfiltersummary_step = cms.EndPath( self.process.genFilterSummary )
+            self.schedule.append(self.process.genfiltersummary_step)
+
     def finalizeFastSimHLT(self):
             self.process.HLTSchedule.remove(self.process.HLTAnalyzerEndpath)
             self.process.reconstruction = cms.Path(self.process.reconstructionWithFamos)
@@ -1300,7 +1306,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.258 $"),
+					    (version=cms.untracked.string("$Revision: 1.259 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
