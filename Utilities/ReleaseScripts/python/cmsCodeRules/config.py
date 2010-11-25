@@ -80,7 +80,9 @@ Configuration[ruleName]['filesToMatch'] = ['*.h', '*.c', '*.cc', '*.cxx']
 Configuration[ruleName]['exceptPaths'] = []#could be file name, dir, fileName:line. But path should be only from that directory in which we are searching
 Configuration[ruleName]['skip']  = []
 Configuration[ruleName]['filter'] = '(\A|\W)(c|C)(o|O)(p|P)(y|Y)(r|R)(i|I)(g|G)(h|H)(t|T)\W(\+|=|\w|\"|\'|-|\s)*(\((c|C)\)|\d{4})' #should be regular expression
-Configuration[ruleName]['exceptFilter'] = ["\sLineo,"]
+Configuration[ruleName]['exceptFilter'] = ["\sLineo,",
+                                           "\s(FNAL|Giulio Eulisse|Matevz Tadel).* All rights reserved",
+                                           "Giovanni.Organtini\@roma1\.infn\.it"]
 # --------------------------------------------------------------------------------
 
 # configuration for rule 5
@@ -91,7 +93,7 @@ Configuration[ruleName] = {}
 
 Configuration[ruleName]['description'] = 'Search for "pragma" statement in *.c, *.cc, *.cxx, *.h files'
 Configuration[ruleName]['filesToMatch'] = ['*.h', '*.c', '*.cc', '*.cxx']
-Configuration[ruleName]['exceptPaths'] = []#could be file name, dir, fileName:line. Path should be only from that directory in which we are searching
+Configuration[ruleName]['exceptPaths'] = ['*/*LinkDef.h']#could be file name, dir, fileName:line. Path should be only from that directory in which we are searching
 Configuration[ruleName]['skip']  = [comment]
 Configuration[ruleName]['filter'] = '#\s*pragma\s' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
