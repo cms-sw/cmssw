@@ -26,10 +26,10 @@ bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit) {
     hc->UseNuisance(false);
   }
   hc->SetTestStatistic(1); // 3 = TeV
-  hc->PatchSetExtended(false); // Number counting, each dataset has 1 entry 
+  hc->PatchSetExtended(w->pdf("model_b")->canBeExtended()); // Number counting, each dataset has 1 entry 
   hc->SetNumberOfToys(nToys_);
   
-  double clsTarget = 1 - cl, clsAcc  = 0.005 /* ??? */ , rAcc = 0.1, rRelAcc = 1 - cl; 
+  double clsTarget = 1 - cl; 
   double clsMin = 1, clsMax = 0, clsMinErr = 0, clsMaxErr = 0;
   double rMin   = 0, rMax = r->getMax();
   
@@ -57,7 +57,7 @@ bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit) {
     }
     double clsMid = hcResult->CLs(), clsMidErr = hcResult->CLsError();
     std::cout << "r = " << r->getVal() << ": CLs = " << clsMid << " +/- " << clsMidErr << std::endl;
-    while (fabs(clsMid-clsTarget) < 3*clsMidErr && clsMidErr >= clsAcc) {
+    while (fabs(clsMid-clsTarget) < 3*clsMidErr && clsMidErr >= clsAccuracy_) {
       HybridResult *more = hc->GetHypoTest();
       hcResult->Add(more);
       clsMid    = hcResult->CLs(); 
@@ -71,7 +71,7 @@ bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit) {
 	"\tCLsplusb = " << hcResult->CLsplusb() << " +/- " << hcResult->CLsplusbError() << "\n" <<
 	std::endl;
     }
-    if (fabs(clsMid-clsTarget) <= clsAcc) {
+    if (fabs(clsMid-clsTarget) <= clsAccuracy_) {
       std::cout << "reached accuracy." << std::endl;
       break;
     }
@@ -80,7 +80,7 @@ bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit) {
     } else {
       rMin = r->getVal(); clsMin = clsMid; clsMinErr = clsMidErr;
     }
-  } while (rMax-rMin > std::max(rAcc, rRelAcc * r->getVal()));
+  } while (rMax-rMin > std::max(rAbsAccuracy_, rRelAccuracy_ * r->getVal()));
   if (clsMinErr == 0 && clsMaxErr == 0) {
     std::cerr << "Error: both boundaries have no passing/failing toys.\n";
     return false;
