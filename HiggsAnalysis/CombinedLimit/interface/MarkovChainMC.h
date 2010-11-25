@@ -12,8 +12,7 @@
 
 class MarkovChainMC : public LimitAlgo {
 public:
-  MarkovChainMC() :
-    options_("Markov Chain MC specific options") {
+  MarkovChainMC() : LimitAlgo("Markov Chain MC specific options") {
     options_.add_options()
       ("uniformProposal,u", boost::program_options::value<bool>(&uniformProposal_)->default_value(false), "Uniform proposal")
       ("iteration,i", boost::program_options::value<unsigned int>(&iterations_)->default_value(20000), "Number of iterations")
@@ -26,11 +25,7 @@ public:
     static const std::string name("MarkovChainMC");
     return name;
   }
-  virtual const boost::program_options::options_description & options() const {
-    return options_;
-  }
 private:
-  boost::program_options::options_description options_;
   bool uniformProposal_;
   unsigned int iterations_;
   unsigned int burnInSteps_;

@@ -131,7 +131,7 @@ int main(int argc, char **argv) {
   for(i = methods.begin(); i != methods.end(); ++i) {
     if(whichMethod == i->first) {
       algo = i->second;
-      algo->options(vm);
+      algo->applyOptions(vm);
       break;
     }
   }

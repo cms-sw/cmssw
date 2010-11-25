@@ -12,16 +12,17 @@
 
 class Hybrid : public LimitAlgo {
 public:
+  Hybrid() : LimitAlgo("Hybrid specific options") {
+    options_.add_options()
+      ("nToysH,T", boost::program_options::value<unsigned int>(&nToys_)->default_value(500), "Number of Toy MC extractions to compute CLs+b, CLb and CLs");
+  }
   virtual bool run(RooWorkspace *w, RooAbsData &data, double &limit);
   virtual const std::string & name() const {
     static const std::string name("Hybrid");
     return name;
   }
-  virtual const boost::program_options::options_description & options() const {
-    return options_;
-  }
 private:
-  boost::program_options::options_description options_;
+  unsigned int nToys_;
 };
 
 #endif

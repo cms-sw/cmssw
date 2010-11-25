@@ -17,11 +17,6 @@ public:
     static const std::string name("ProfileLikelihood");
     return name;
   }
-  virtual const boost::program_options::options_description & options() const {
-    return options_;
-  }
-private:
-  boost::program_options::options_description options_;
 };
 
 #endif

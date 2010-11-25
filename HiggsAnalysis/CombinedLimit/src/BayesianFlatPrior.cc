@@ -33,7 +33,7 @@ bool BayesianFlatPrior::run(RooWorkspace *w, RooAbsData &data, double &limit) {
     std::cout << "Limit: r < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
     if (0 && verbose) {
       TCanvas c1("c1", "c1");
-      RooPlot *bcPlot = bcalc.GetPosteriorPlot(true,0.1); 
+      RooPlot *bcPlot = bcalc.GetPosteriorPlot(true, 0.1); 
       bcPlot->Draw(); 
       c1.Print("plots/bc_plot.png");
     }

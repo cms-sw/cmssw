@@ -27,7 +27,7 @@ bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit) {
   }
   hc->SetTestStatistic(1); // 3 = TeV
   hc->PatchSetExtended(false); // Number counting, each dataset has 1 entry 
-  hc->SetNumberOfToys(500);
+  hc->SetNumberOfToys(nToys_);
   
   double clsTarget = 1 - cl, clsAcc  = 0.005 /* ??? */ , rAcc = 0.1, rRelAcc = 1 - cl; 
   double clsMin = 1, clsMax = 0, clsMinErr = 0, clsMaxErr = 0;
