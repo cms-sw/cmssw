@@ -1,8 +1,8 @@
-import argparse as __argparse
-import textwrap as __textwrap
+import argparse as _argparse
+import textwrap as _textwrap
 
 # argparse's formatters remove newlines from comand descriptions, so we define a new one
-class HelpFormatterRespectNewlines(__argparse.HelpFormatter):
+class HelpFormatterRespectNewlines(_argparse.HelpFormatter):
     """Help message formatter which retains line breaks in argument descriptions.
 
     Only the name of this class is considered a public API. All the methods
@@ -13,7 +13,7 @@ class HelpFormatterRespectNewlines(__argparse.HelpFormatter):
         lines = []
         for line in text.splitlines():
           line = self._whitespace_matcher.sub(' ', line).strip()
-          lines.extend( __textwrap.wrap(line, width) )
+          lines.extend( _textwrap.wrap(line, width) )
         return lines
 
 # argparse's formatters are not really able to discover the terminale size, so we override them
