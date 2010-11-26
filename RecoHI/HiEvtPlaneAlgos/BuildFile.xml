@@ -15,6 +15,7 @@
 <use   name="CondCore/DBCommon"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="DataFormats/CaloTowers"/>
+<use   name="DataFormats/TrackReco"/>
 <flags   EDM_PLUGIN="1"/>
 <export>
   <lib   name="1"/>
