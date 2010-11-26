@@ -19,7 +19,7 @@ ora::NamedReference::NamedReference( const NamedReference& rhs ):
 ora::NamedReference::~NamedReference(){
 }
 
-ora::NamedReference::NamedReference& ora::NamedReference::operator=( const NamedReference& rhs ){
+ora::NamedReference& ora::NamedReference::operator=( const NamedReference& rhs ){
   if( this != &rhs ){
     m_name = rhs.m_name;
     m_isPersistent = rhs.m_isPersistent;
