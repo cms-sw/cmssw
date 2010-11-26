@@ -84,7 +84,7 @@ process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 process.load("RecoMET/Configuration/RecoMET_BeamHaloId_cff")
 #process.GlobalTag.globaltag ='GR_R_38X_V13A::All'
-process.GlobalTag.globaltag ='GR10_P_V7::All'
+process.GlobalTag.globaltag ='GR10_P_V12::All'
 
 # the task - JetMET objects
 if iscosmics =="True":
@@ -180,14 +180,12 @@ process.options = cms.untracked.PSet(
 
 if iscosmics=="True":
   process.p = cms.Path(process.BeamHaloId
-                     * process.jetMETHLTOfflineSource
                      * process.jetMETDQMOfflineSourceCosmic
                      * process.dqmStoreStats
                      * process.MEtoEDMConverter
                      )
 else:
   process.p = cms.Path(process.BeamHaloId
-                     * process.jetMETHLTOfflineSource
                      * process.jetMETDQMOfflineSource
                      * process.dqmStoreStats
                      * process.MEtoEDMConverter
