@@ -2,6 +2,7 @@
   <flags NO_TESTRUN="1"/>
   <use   name="boost"/>
   <use   name="boost_program_options"/>
+  <use   name="DataFormats/HLTReco"/>
   <use   name="FWCore/FWLite"/>
   <use   name="FWCore/Framework"/>
   <use   name="rootcintex"/>
