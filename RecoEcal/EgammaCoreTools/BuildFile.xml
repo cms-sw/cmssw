@@ -5,6 +5,7 @@
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="RecoLocalCalo/EcalRecAlgos"/>
+<use   name="Geometry/Records"/>
 <use   name="clhep"/>
 <export>
   <lib   name="1"/>

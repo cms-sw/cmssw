@@ -10,6 +10,7 @@
 <use   name="FastSimulation/CaloGeometryTools"/>
 <use   name="FastSimulation/CaloHitMakers"/>
 <use   name="FastSimulation/Utilities"/>
+<use   name="Geometry/Records"/>
 <library   file="testCaloGeometryTools.cc" name="testCaloGeometryTools">
   <flags   EDM_PLUGIN="1"/>
 </library>

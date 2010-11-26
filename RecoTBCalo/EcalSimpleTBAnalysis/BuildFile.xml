@@ -8,4 +8,5 @@
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/EcalAlgo"/>
 <use   name="Geometry/CaloTopology"/>
+<use   name="Geometry/Records"/>
 <flags   EDM_PLUGIN="1"/>

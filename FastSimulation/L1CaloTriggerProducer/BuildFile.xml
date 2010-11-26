@@ -17,3 +17,4 @@
 <use   name="DataFormats/GeometryVector"/>
 <use   name="CondFormats/L1TObjects"/>
 <use   name="DataFormats/HcalRecHit"/>
+<use   name="Geometry/Records"/>

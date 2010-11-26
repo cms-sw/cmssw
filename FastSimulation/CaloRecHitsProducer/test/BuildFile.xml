@@ -12,6 +12,7 @@
 <use   name="FastSimulation/Utilities"/>
 <use   name="FastSimulation/CaloGeometryTools"/>
 <use   name="DQMServices/Core"/>
+<use   name="Geometry/Records"/>
 <library   file="DigiCheck.cc" name="DigiCheck">
   <flags   EDM_PLUGIN="1"/>
 </library>
