@@ -57,8 +57,8 @@ process.DQMStore.referenceFileName = '/afs/cern.ch/user/v/valdo/data/csc_referen
 # DQM Playback Environment
 #-----------------------------
 
-process.load("DQM.Integration.test.environment_cfi")
-process.dqmEnv.subSystemFolder    = "CSC"
+#process.load("DQM.Integration.test.environment_cfi")
+#process.dqmEnv.subSystemFolder    = "CSC"
 
 process.DQM.collectorPort = 9190
 #process.DQM.collectorHost = 'cms-uflap03.dyndns.cern.ch'
