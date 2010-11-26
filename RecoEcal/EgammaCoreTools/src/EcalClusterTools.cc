@@ -499,7 +499,7 @@ std::pair<float,float>  EcalClusterTools::mean5x5PositionInLocalCrysCoord(const 
     }
     meanDEta /=energySum;
     meanDPhi /=energySum;
-    return std::make_pair<float,float>(meanDEta,meanDPhi);
+    return std::pair<float,float>(meanDEta,meanDPhi);
 }
 
 //returns mean energy weighted x/y in normalised crystal coordinates
