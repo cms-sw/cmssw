@@ -26,6 +26,8 @@ from Validation.MuonIdentification.muonIdVal_cff import *
 from Validation.RecoMuon.muonValidationHLT_cff import *
 from Validation.EventGenerator.BasicGenValidation_cff import *
 
+prevalidation = cms.Sequence( globalPrevalidation * hltassociation )
+
 validation = cms.Sequence(cms.SequencePlaceholder("mix")
                          +basicGenTest_seq
                          *globaldigisanalyze
