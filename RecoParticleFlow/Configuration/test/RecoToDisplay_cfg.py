@@ -40,7 +40,7 @@ process.display = cms.OutputModule("PoolOutputModule",
     process.DisplayEventContent,
     #outputCommands = cms.untracked.vstring('keep *'),
     #process.RECOSIMEventContent,
-    fileName = cms.untracked.string('/tmp/pjanot/display.root')
+    fileName = cms.untracked.string('display.root')
 )
 
 # modify reconstruction sequence
