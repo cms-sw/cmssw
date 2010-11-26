@@ -18,6 +18,7 @@
 <library   file="DQMReferenceHistogramRootFileEventSetupAnalyzer.cc" name="CondToolsDQMReferenceHistogramRootFileEventSetupAnalyzer">
   <use   name="CondFormats/DataRecord"/>
   <use   name="DQMServices/Core"/>
+  <use   name="CondFormats/Common"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="DQMXMLFilePopConAnalyzer.cc" name="CondToolsDQMXMLFilePopConAnalyzer">
@@ -27,6 +28,7 @@
 </library>
 <library   file="DQMXMLFileEventSetupAnalyzer.cc" name="CondToolsDQMXMLFileEventSetupAnalyzer">
   <use   name="CondFormats/DataRecord"/>
+  <use   name="CondFormats/Common"/>
   <use   name="DQMServices/Core"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
