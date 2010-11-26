@@ -317,12 +317,13 @@ G4ThreeVector CaloSD::setToLocal(G4ThreeVector global,
 
 G4bool CaloSD::hitExists() {
    
+#ifdef DebugLog
   if (currentID.trackID()<1) {
     edm::LogWarning("CaloSim") << "***** CaloSD error: primaryID = " 
                                << currentID.trackID()
                                << " maybe detector name changed";
   }
-  
+#endif  
   // Update if in the same detector, time-slice and for same track   
   if (currentID == previousID) {
     updateHit(currentHit);
@@ -603,9 +604,11 @@ int CaloSD::getTrackID(G4Track* aTrack) {
 #endif   
   } else {
     primaryID = aTrack->GetTrackID();
+#ifdef DebugLog
     edm::LogWarning("CaloSim") << "CaloSD: Problem with primaryID **** set by "
                                << "force to TkID **** " << primaryID << " in "
                                << preStepPoint->GetTouchable()->GetVolume(0)->GetName();
+#endif
   }
   return primaryID;
 }
