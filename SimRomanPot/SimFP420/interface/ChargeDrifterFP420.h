@@ -7,11 +7,11 @@
 class ChargeDrifterFP420 : public CDrifterFP420{
  public:
   ChargeDrifterFP420(double,double,double,double,double,double,double,double,double,int);
-  CDrifterFP420::collection_type drift (const CDrifterFP420::ionization_type, const G4ThreeVector&, const int&);
+  CDrifterFP420::collection_type drift (const CDrifterFP420::ionization_type, const G4ThreeVector&, const int&, const bool&);
 
  private:
   
-  AmplitudeSegmentFP420 drift(const EnergySegmentFP420&, const G4ThreeVector&, const int&);
+  AmplitudeSegmentFP420 drift(const EnergySegmentFP420&, const G4ThreeVector&, const int&, const bool&);
   
   double modulePath;
   double constTe;

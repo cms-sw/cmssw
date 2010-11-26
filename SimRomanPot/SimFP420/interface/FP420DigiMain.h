@@ -81,6 +81,7 @@ public:
   bool noNoise; //  = false; 
   bool addNoisyPixels;//  = true ;
   bool theApplyTofCut;
+  bool theApplyChargeIneff;
 
   float elossCut;            
   double tofCut;             
