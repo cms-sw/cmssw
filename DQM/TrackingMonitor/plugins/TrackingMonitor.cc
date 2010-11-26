@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/17 10:15:52 $
- *  $Revision: 1.18 $
+ *  $Date: 2010/11/23 19:20:30 $
+ *  $Revision: 1.19 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -402,8 +402,8 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	    iEvent.getByLabel("siPixelClusters", pixel_clusters);
             if (strip_clusters.isValid() && pixel_clusters.isValid()) 
               {
-                unsigned int ncluster_pix   = (*pixel_clusters).size(); // size_type will be better
-                unsigned int ncluster_strip = (*strip_clusters).size(); // size_type will be better
+                unsigned int ncluster_pix   = (*pixel_clusters).dataSize(); 
+                unsigned int ncluster_strip = (*strip_clusters).dataSize(); 
                 double ratio = 0.0;
                 if ( ncluster_pix > 0) ratio = atan(ncluster_pix*1.0/ncluster_strip);
 

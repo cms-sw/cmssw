@@ -304,19 +304,19 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     NClusStrMin = cms.double(-0.5),
 
     # NCluster 2D
-    NClus2DPxBin  = cms.int32(20),
-    NClus2DPxMax  = cms.double(1999.5),                      
+    NClus2DPxBin  = cms.int32(50),
+    NClus2DPxMax  = cms.double(9999.5),                      
     NClus2DPxMin  = cms.double(-0.5),
-    NClus2DStrBin = cms.int32(50),
-    NClus2DStrMax = cms.double(14999.5),                      
+    NClus2DStrBin = cms.int32(150),
+    NClus2DStrMax = cms.double(29999.5),                      
     NClus2DStrMin = cms.double(-0.5),
 
     # NCluster Vs Tracks
-    NClus2DTotBin = cms.int32(50),
-    NClus2DTotMax = cms.double(14999.5),                      
+    NClus2DTotBin = cms.int32(150),
+    NClus2DTotMax = cms.double(29999.5),                      
     NClus2DTotMin = cms.double(-0.5),
-    NTrk2DBin     = cms.int32(20),
-    NTrk2DMax     = cms.double(199.5),                      
+    NTrk2DBin     = cms.int32(30),
+    NTrk2DMax     = cms.double(299.5),                      
     NTrk2DMin     = cms.double(-0.5),
                           
     TTRHBuilder = cms.string('WithTrackAngle'),
