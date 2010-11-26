@@ -104,7 +104,17 @@ public:
     std::cout << "Data stored for " << count << " xtals" << std::endl;
     coeff.dump();
     coeff.writeDB();
-  }
+    std::cout << "DELETE FROM LMF_CORR_COEF_DAT WHERE LMR_SUB_IOV_ID = "
+	      << subiov1.getID() << ";" << std::endl;
+    std::cout << "DELETE FROM LMF_CORR_COEF_DAT WHERE LMR_SUB_IOV_ID = "
+	      << subiov2.getID() << ";" << std::endl;
+    std::cout << "DELETE FROM LMF_LMR_SUB_IOV WHERE LMR_SUB_IOV_ID = " 
+	      << subiov1.getID() << ";" << std::endl;
+    std::cout << "DELETE FROM LMF_LMR_SUB_IOV WHERE LMR_SUB_IOV_ID = " 
+	      << subiov2.getID() << ";" << std::endl;
+    std::cout << "DELETE FROM LMF_IOV WHERE IOV_ID = " << iov.getID() 
+	      << ";" << std::endl;
+ }
 
 private:
   CondDBApp();  // hidden default constructor

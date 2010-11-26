@@ -292,6 +292,7 @@ int LMFDat::fetchData()
     Statement* stmt = m_conn->createStatement();
     stmt->setSQL(sql);
     stmt->setInt(1, getLMFRunIOVID());
+    stmt->setPrefetchRowCount(131072);
     ResultSet* rset = stmt->executeQuery();
     std::map<int, std::vector<float> >::iterator i = m_data.end();
     std::map<int, std::vector<float> >::iterator e = m_data.end();
@@ -305,6 +306,7 @@ int LMFDat::fetchData()
 	m_data.erase(i);
       }
     }
+    stmt->setPrefetchRowCount(0);
     m_conn->terminateStatement(stmt);
   }
   catch (oracle::occi::SQLException &e) {
