@@ -1,11 +1,11 @@
 
 
 
-autoCond = { 'mc'      : 'MC_310_V0::All',
-             'startup' : 'START310_V0::All',
+autoCond = { 'mc'      : 'MC_310_V1::All',
+             'startup' : 'START310_V1::All',
              'craft08' : 'CRFT8_37R_V1::All',
-             'craft09' : 'CRFT9_39R_V2::All',
-             'com10'   : 'GR_R_310_V0::All',
-             'hltonline' : 'GR_R_310_V0::All', # same as com10 until H tag available
+             'craft09' : 'CRFT9_310_V1::All',
+             'com10'   : 'GR_R_310_V1::All',
+             'hltonline' : 'GR_R_310_V1::All', # same as com10 until H tag available
              'starthi' : 'START39_V7HI::All'
              }
