@@ -635,26 +635,26 @@ if __name__=='__main__':
             changeSource(process,"file:filename3.root")
             self.assertEqual(changeSource._parameters['source'].value,"file:filename3.root")
     
-            self.assertEqual(process.dumpHistory(),'\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process, "file:filename.root")\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\n')
+            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\nchangeSource(process , 'file:filename2.root')\n\nchangeSource(process , 'file:filename3.root')\n")
             
             process.source.fileNames=cms.untracked.vstring("file:replacedfile.root") 
-            self.assertEqual(process.dumpHistory(),'\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process, "file:filename.root")\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\nprocess.source.fileNames = cms.untracked.vstring(\'file:replacedfile.root\')\n')
+            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\nchangeSource(process , 'file:filename2.root')\n\nchangeSource(process , 'file:filename3.root')\nprocess.source.fileNames = cms.untracked.vstring(\'file:replacedfile.root\')\n")
             
             process.disableRecording()
             changeSource.setParameter('source',"file:filename4.root")
             action=changeSource.__copy__()
             process.addAction(action)
-            self.assertEqual(process.dumpHistory(),'\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process, "file:filename.root")\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\nprocess.source.fileNames = cms.untracked.vstring(\'file:replacedfile.root\')\n')
+            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\nchangeSource(process , 'file:filename2.root')\n\nchangeSource(process , 'file:filename3.root')\nprocess.source.fileNames = cms.untracked.vstring(\'file:replacedfile.root\')\n")
             
             process.enableRecording()
             changeSource.setParameter('source',"file:filename5.root")
             action=changeSource.__copy__()
             process.addAction(action)
             process.deleteAction(3)
-            self.assertEqual(process.dumpHistory(),'\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process, "file:filename.root")\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\n\nchangeSource(process, "file:filename5.root")\n')
+            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\nchangeSource(process , 'file:filename2.root')\n\nchangeSource(process , 'file:filename3.root')\n\nchangeSource(process , 'file:filename5.root')\n")
 
             process.deleteAction(0)
-            self.assertEqual(process.dumpHistory(),'\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\n\nchangeSource(process, "file:filename5.root")\n')
+            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename2.root')\n\nchangeSource(process , 'file:filename3.root')\n\nchangeSource(process , 'file:filename5.root')\n")
             
         def testModifiedObjectsHistory(self):
             process = cms.Process('unittest')
