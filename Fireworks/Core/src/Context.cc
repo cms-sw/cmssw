@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.30 2010/10/27 16:27:22 amraktad Exp $
+// $Id: Context.cc,v 1.31 2010/10/29 18:23:25 amraktad Exp $
 //
 
 // system include files
@@ -39,12 +39,16 @@ const float Context::s_caloTransAngle = 2*atan(exp(-s_caloTransEta));
 // simplified
 const float Context::s_caloZ  = 290; 
 const float Context::s_caloR  = s_caloZ*tan(s_caloTransAngle);
+
+/*
 // barrel
 const float Context::s_caloR1 = 129;
 const float Context::s_caloZ1 = s_caloR1/tan(s_caloTransAngle);
 // endcap
 const float Context::s_caloZ2 = 315.4;
 const float Context::s_caloR2 = s_caloZ2*tan(s_caloTransAngle);
+*/
+
 // calorimeter offset between TEveCalo and outlines (used by proxy builders)
 const float Context::s_caloOffR = 10;
 const float Context::s_caloOffZ = s_caloOffR/tan(s_caloTransAngle);
@@ -70,9 +74,10 @@ Context::Context(FWModelChangeManager* iCM,
   m_muonPropagator(0),
   m_magField(0),
   m_commonPrefs(0),
+  m_maxEt(1.f),
+  m_maxEnergy(1.f),
   m_caloData(0),
-  m_caloDataHF(0),
-  m_caloSplit(false)
+  m_caloDataHF(0)
 {
   if (iColorM)
     m_commonPrefs = new CmsShowCommon(iColorM);
@@ -160,16 +165,8 @@ Context::deleteEveElements()
    // A lot of eve objects use this elements (e.g. TEveCalo, TEveTrack ...)
    // If want to have explicit delete make sure order of destruction
    // is correct: this should be called after all scenes are destroyed.
-
-   /*
-   delete m_magField;
-   m_propagator->DecDenyDestroy();
-   m_trackerPropagator->DecDenyDestroy();
-   m_muonPropagator->DecDenyDestroy();
-   m_caloData->DecDenyDestroy();
-   m_caloDataHF->DecDenyDestroy();
-   */
 }
+
 
 
 CmsShowCommon* 
@@ -178,42 +175,51 @@ Context::commonPrefs() const
    return m_commonPrefs;
 }
 
-float Context::caloR1(bool offset)  const
+void
+Context::voteMaxEtAndEnergy(float et, float energy) const
 {
-   float v = m_caloSplit ? s_caloR1 : s_caloR;
-   if (offset) v -= s_caloOffR;
-   return v;
+   m_maxEt     = TMath::Max(et    , m_maxEt    );
+   m_maxEnergy = TMath::Max(energy, m_maxEnergy);
 }
 
-float Context::caloR2(bool offset) const
+void
+Context::resetMaxEtAndEnergy() const
 {
-   float v = m_caloSplit ? s_caloR2 : s_caloR;
-   if (offset) v -= s_caloOffR;
-   return v;
-}
-float Context::caloZ1(bool offset) const
-{ 
-   float v = m_caloSplit ? s_caloZ1 : s_caloZ;
-   if (offset) v -= s_caloOffZ;
-   return v; 
+   // should not be zero, problems with infinte bbox 
+
+   m_maxEnergy = 1.f;
+   m_maxEt     = 1.f;
 }
 
-float Context::caloZ2(bool offset) const
-{ 
-   float v = m_caloSplit ? s_caloZ2 : s_caloZ;
-   if (offset) v -= s_caloOffZ; 
-   return v;
-}
-
-bool Context::caloSplit() const
+float
+Context::getMaxEnergyInEvent(bool isEt) const
 {
-   return m_caloSplit;
+   return isEt ?  m_maxEt : m_maxEnergy;
 }
 
 //
 // static member functions
 //
 
+float Context::caloR1(bool offset)
+{
+   return offset ? (s_caloR -offset) :s_caloR;
+}
+
+float Context::caloR2(bool offset)
+{
+  
+   return offset ? (s_caloR -offset) :s_caloR;
+}
+float Context::caloZ1(bool offset)
+{
+   return offset ? (s_caloZ -offset) :s_caloZ;
+}
+
+float Context::caloZ2(bool offset)
+{ 
+   return offset ? (s_caloZ -offset) :s_caloZ;
+}
 
 float Context::caloTransEta()
 {
@@ -227,6 +233,5 @@ float Context::caloTransAngle()
 
 double Context::caloMaxEta()
 {
-   using namespace  fw3dlego;
-   return xbins_hf[xbins_hf_n -1];
+   return fw3dlego::xbins_hf[fw3dlego::xbins_hf_n -1];
 }

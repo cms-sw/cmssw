@@ -10,7 +10,7 @@
 #include "Fireworks/Core/src/FWModelContextMenuHandler.h"
 
 #include "Fireworks/Core/interface/CmsShowEDI.h"
-#include "Fireworks/Core/interface/FWEveViewScaleEditor.h"
+#include "Fireworks/Core/interface/FWViewEnergyScaleEditor.h"
 #include "Fireworks/Core/interface/CmsShowSearchFiles.h"
 
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
@@ -47,7 +47,7 @@
 #pragma link C++ class FWModelContextMenuHandler;
 
 #pragma link C++ class CmsShowEDI;
-#pragma link C++ class FWEveViewScaleEditor;
+#pragma link C++ class FWViewEnergyScaleEditor;
 #pragma link C++ class CmsShowSearchFiles;
 
 #pragma link C++ class FWGUISubviewArea;

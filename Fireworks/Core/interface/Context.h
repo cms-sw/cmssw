@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:21:45 EDT 2008
-// $Id: Context.h,v 1.19 2010/09/10 20:34:04 amraktad Exp $
+// $Id: Context.h,v 1.20 2010/09/15 11:48:41 amraktad Exp $
 //
 
 // system include files
@@ -83,18 +83,21 @@ public:
 
    CmsShowCommon* commonPrefs() const;
 
-   // ---------- member functions ---------------------------
- 
-   bool  caloSplit() const;
-   float caloR1(bool offset = true) const;
-   float caloR2(bool offset = true) const;
-   float caloZ1(bool offset = true) const;
-   float caloZ2(bool offset = true) const;
+   float getMaxEnergyInEvent(bool isEt) const;
+   void  voteMaxEtAndEnergy(float Et, float energy) const;
+   void  resetMaxEtAndEnergy() const;
 
+   // ---------- member functions ---------------------------
+  
    void initEveElements();
    void deleteEveElements();
 
    // ---------- static member  ---------------------------
+
+   static float  caloR1(bool offset = true);
+   static float  caloR2(bool offset = true);
+   static float  caloZ1(bool offset = true);
+   static float  caloZ2(bool offset = true);
 
    static float  caloTransEta();
    static float  caloTransAngle();
@@ -119,12 +122,13 @@ private:
 
    FWMagField           *m_magField;
 
-   CmsShowCommon         *m_commonPrefs;
+   CmsShowCommon        *m_commonPrefs;
+
+   mutable float                 m_maxEt;
+   mutable float                 m_maxEnergy;
 
    TEveCaloDataHist     *m_caloData;
    TEveCaloDataVec      *m_caloDataHF;
-
-   bool                  m_caloSplit;
 
    // calo data
    static const float s_caloTransEta;
@@ -132,12 +136,7 @@ private:
    // simplified 
    static const float s_caloR; 
    static const float s_caloZ;
-   // barrel
-   static const float s_caloR1; 
-   static const float s_caloZ1;
-   // endcap
-   static const float s_caloR2;
-   static const float s_caloZ2;
+
    // proxy-builder offsets
    static const float s_caloOffR;
    static const float s_caloOffZ;

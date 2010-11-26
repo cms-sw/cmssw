@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.26 2010/11/09 16:56:23 amraktad Exp $
+// $Id: FWEveView.h,v 1.27 2010/11/21 11:18:13 amraktad Exp $
 //
 
 
@@ -43,6 +43,7 @@ class FWViewContext;
 class ViewerParameterGUI;
 class FWViewEnergyScale;
 class ScaleAnnotation;
+class FWViewEnergyScaleEditor;
 
 namespace fireworks
 {
@@ -60,7 +61,7 @@ public:
    virtual void eventEnd();
    virtual void eventBegin();
 
-   virtual void setContext(const fireworks::Context& x) { m_context = &x ;}
+   virtual void setContext(const fireworks::Context& x);
    const fireworks::Context& context()  { return *m_context; } 
 
    // ---------- const member functions --------------------- 
@@ -69,8 +70,6 @@ public:
    virtual FWViewContextMenuHandlerBase* contextMenuHandler() const;
    virtual void saveImageTo(const std::string& iName) const;
    virtual void populateController(ViewerParameterGUI&) const;
-
-   bool  useGlobalScales() const;
 
    TGLViewer*  viewerGL() const;
    TEveViewer* viewer()      { return m_viewer; }
@@ -82,8 +81,9 @@ public:
    
 
    // ---------- static member functions --------------------
-   
-   virtual void updateEnergyScales();
+   virtual void useGlobalEnergyScaleChanged();
+   virtual bool isEnergyScaleGlobal() const;
+   virtual void setupEnergyScale();
    
 protected:
    virtual void resetCamera();
@@ -119,6 +119,9 @@ private:
 
    const fireworks::Context*  m_context;
 
+
+
+private:
    // style parameters
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
    FWDoubleParameter   m_imageScale;
@@ -134,10 +137,13 @@ private:
    FWDoubleParameter m_lineWireframeScale;
 
    FWBoolParameter   m_showCameraGuide;
+   FWBoolParameter   m_useGlobalEnergyScale;
 
-private:
    boost::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
    std::auto_ptr<FWViewContext> m_viewContext;
+   std::auto_ptr<FWViewEnergyScale> m_localEnergyScale;
+
+   mutable FWViewEnergyScaleEditor* m_viewEnergyScaleEditor;
 };
 
 

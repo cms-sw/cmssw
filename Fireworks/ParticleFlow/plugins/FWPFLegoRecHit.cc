@@ -39,9 +39,9 @@ FWPFLegoRecHit::buildTower( const std::vector<TEveVector> &corners, const FWView
 {
    m_tower = new TEveBox( "EcalRecHitTower" );
    std::vector<TEveVector> towerCorners = corners;
-   FWViewEnergyScale *caloScale = vc->getEnergyScale( "Calo" );
+   FWViewEnergyScale *caloScale = vc->getEnergyScale();
    float val = caloScale->getPlotEt() ? m_et : m_energy;
-   float scale = caloScale->getValToHeight() * val;
+   float scale = caloScale->getScaleFactorLego() * val;
 
    if( scale < 0 )
       scale *= -1;
@@ -74,9 +74,9 @@ FWPFLegoRecHit::buildLineSet( const std::vector<TEveVector> &corners, const FWVi
 void
 FWPFLegoRecHit::updateScale( const FWViewContext *vc )
 {
-   FWViewEnergyScale *caloScale = vc->getEnergyScale( "Calo" );
+   FWViewEnergyScale *caloScale = vc->getEnergyScale();
    float val = caloScale->getPlotEt() ? m_et : m_energy;
-   float scale = caloScale->getValToHeight() * val;
+   float scale = caloScale->getScaleFactorLego() * val;
 
    // printf("scale %f %f\n",  caloScale->getValToHeight(), val);
 

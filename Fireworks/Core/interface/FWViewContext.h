@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Apr 14 18:31:27 CEST 2010
-// $Id: FWViewContext.h,v 1.4 2010/06/22 09:44:33 amraktad Exp $
+// $Id: FWViewContext.h,v 1.5 2010/09/26 19:54:56 amraktad Exp $
 //
 
 // system include files
@@ -36,10 +36,10 @@ public:
    FWViewContext();
    virtual ~FWViewContext();
 
-   FWViewEnergyScale* getEnergyScale(const std::string&) const;
+   FWViewEnergyScale* getEnergyScale() const;
+   void setEnergyScale(FWViewEnergyScale*);
+
    void scaleChanged();
-   void resetViewScales();
-   void addScale( const std::string& name, FWViewEnergyScale* s) const;
 
    mutable sigc::signal<void, const FWViewContext*> scaleChanged_;
    
@@ -49,10 +49,8 @@ private:
    const FWViewContext& operator=(const FWViewContext&); // stop default
 
    // ---------- member data --------------------------------
-   typedef std::map<std::string, FWViewEnergyScale*> Scales_t;
-   typedef Scales_t::iterator Scales_i;
 
-   mutable Scales_t m_scales;
+   FWViewEnergyScale* m_energyScale;
 };
 
 

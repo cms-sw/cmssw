@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  7 14:40:47 CEST 2010
-// $Id: FW3DView.cc,v 1.51 2010/10/26 16:09:10 amraktad Exp $
+// $Id: FW3DView.cc,v 1.52 2010/11/21 11:18:13 amraktad Exp $
 //
 
 // system include files
@@ -42,9 +42,6 @@ FW3DView::FW3DView(TEveWindowSlot* slot, FWViewType::EType typeId):
    m_calo(0)
 {
    viewerGL()->CurrentCamera().SetFixDefCenter(kTRUE);  
-
-   FWViewEnergyScale* caloScale = new FWViewEnergyScale(this);
-   viewContext()->addScale("Calo", caloScale);
 }
 
 FW3DView::~FW3DView()
@@ -67,19 +64,8 @@ void FW3DView::setContext(const fireworks::Context& ctx)
    m_calo = new TEveCalo3D(data);
    m_calo->SetElementName("calo barrel");
 
-   FWViewEnergyScale*  caloScale = viewContext()->getEnergyScale("Calo");
-   m_calo->SetMaxTowerH(caloScale->getMaxTowerHeight());
-   m_calo->SetScaleAbs(true);
-
    m_calo->SetBarrelRadius(context().caloR1(false));
    m_calo->SetEndCapPos(context().caloZ1(false));
    m_calo->SetFrameTransparency(80);
    eventScene()->AddElement(m_calo);
-
-   if (context().caloSplit())
-   {
-      float_t eps = 0.005;
-      m_calo->SetEta(-context().caloTransEta() -eps, context().caloTransEta() + eps);
-      m_calo->SetAutoRange(false);
-   }
 }

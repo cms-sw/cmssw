@@ -15,9 +15,9 @@ FWPFRhoPhiRecHit::~FWPFRhoPhiRecHit(){}
 void
 FWPFRhoPhiRecHit::updateScale( const FWViewContext *vc )
 {
-   FWViewEnergyScale *caloScale = vc->getEnergyScale( "Calo" );
+   FWViewEnergyScale *caloScale = vc->getEnergyScale();
    float value = caloScale->getPlotEt() ? m_et : m_energy;
-   Double_t scale = caloScale->getValToHeight() * value;
+   Double_t scale = caloScale->getScaleFactor3D() * value;
    unsigned int a = 0;
 
    if( scale < 0.f )
@@ -132,9 +132,9 @@ FWPFRhoPhiRecHit::buildRecHit( FWProxyBuilderBase *pb, TEveCompound *itemHolder,
    TEveVector v1, v2, v3, v4;
    TEveVector vec;
 
-   FWViewEnergyScale *caloScale = vc->getEnergyScale( "Calo" );
+   FWViewEnergyScale *caloScale = vc->getEnergyScale();
    value = caloScale->getPlotEt() ? m_et : m_energy;
-   scale = caloScale->getValToHeight() * value;
+   scale = caloScale->getScaleFactor3D() * value;
 
    v1 = bCorners[0];       // Bottom left
    v2 = bCorners[1];       // Bottom right

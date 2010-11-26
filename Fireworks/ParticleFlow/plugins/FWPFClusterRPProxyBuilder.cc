@@ -30,6 +30,7 @@ FWPFClusterRPProxyBuilder::build( const reco::PFCluster &iData, unsigned int iIn
 
    et = calculateEt( iData );
    energy = iData.energy();
+   context().voteMaxEtAndEnergy(et, energy);
    
    vec.fX = iData.x();
    vec.fY = iData.y();
@@ -37,7 +38,7 @@ FWPFClusterRPProxyBuilder::build( const reco::PFCluster &iData, unsigned int iIn
    phi = vec.Phi();
 
    const FWDisplayProperties &dp = item()->defaultDisplayProperties();
-   FWViewEnergyScale *caloScale = vc->getEnergyScale( "Calo" );
+   FWViewEnergyScale *caloScale = vc->getEnergyScale();
 
    TEveScalableStraightLineSet *ls = new TEveScalableStraightLineSet( "rhophiPFCluster" );
    ls->SetLineWidth( 4 );
@@ -45,11 +46,11 @@ FWPFClusterRPProxyBuilder::build( const reco::PFCluster &iData, unsigned int iIn
 
    ls->SetScaleCenter( ecalR * cos( phi ), ecalR * sin( phi ), 0 );
    ls->AddLine( ecalR * cos( phi ), ecalR * sin( phi ), 0, ( ecalR + size ) * cos( phi ), ( ecalR + size ) * sin( phi ), 0 );
-   ls->SetScale( caloScale->getValToHeight() * ( caloScale->getPlotEt() ? et : energy ) );
+   ls->SetScale( caloScale->getScaleFactor3D() * ( caloScale->getPlotEt() ? et : energy ) );
 
    m_clusters.push_back( ScalableLines( ls, et, energy, vc ) );
 
-   setupAddElement( ls, &oItemHolder );
+   setupAddElement( ls, &oItemHolder );     
 }
 
 //______________________________________________________________________________________________________________________________________________
@@ -57,14 +58,14 @@ void
 FWPFClusterRPProxyBuilder::scaleProduct( TEveElementList *parent, FWViewType::EType type, const FWViewContext *vc )
 {
    typedef std::vector<ScalableLines> Lines_t;
-   FWViewEnergyScale *caloScale = vc->getEnergyScale( "Calo" );
+   FWViewEnergyScale *caloScale = vc->getEnergyScale();
    
    for( Lines_t::iterator i = m_clusters.begin(); i != m_clusters.end(); ++i )
    {
       if( vc == (*i).m_vc )
       {
          float value = caloScale->getPlotEt() ? (*i).m_et : (*i).m_energy;
-         (*i).m_ls->SetScale( caloScale->getValToHeight() * value );
+         (*i).m_ls->SetScale( caloScale->getScaleFactor3D() * value );
          TEveProjected *proj = *(*i).m_ls->BeginProjecteds();
          proj->UpdateProjection();
       }

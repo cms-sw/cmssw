@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Oct 21 20:40:28 CEST 2010
-// $Id: FWTauProxyBuilderBase.cc,v 1.1 2010/10/22 14:34:45 amraktad Exp $
+// $Id: FWTauProxyBuilderBase.cc,v 1.2 2010/11/11 20:25:27 amraktad Exp $
 //
 
 // system include files
@@ -98,10 +98,12 @@ FWTauProxyBuilderBase::buildBaseTau( const reco::BaseTau& iTau, const reco::Jet&
                           ( ecalR+size )*cos( phi ), ( ecalR+size )*sin( phi ), 0);
       }
       marker->SetLineWidth(4);  
-      FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");    
-      marker->SetScale(caloScale->getValToHeight()*(caloScale->getPlotEt() ?  iTau.et() : iTau.energy()));
+      FWViewEnergyScale* caloScale = vc->getEnergyScale();    
+      marker->SetScale(caloScale->getScaleFactor3D()*(caloScale->getPlotEt() ?  iTau.et() : iTau.energy()));
       setupAddElement( marker, comp );
       m_lines.push_back(fireworks::scaleMarker(marker, iTau.et(), iTau.energy(), vc));
+
+      context().voteMaxEtAndEnergy( iTau.et(), iTau.energy());
    }
    else
    {
@@ -157,14 +159,14 @@ FWTauProxyBuilderBase::scaleProduct(TEveElementList* parent, FWViewType::EType v
    if (FWViewType::isProjected(viewType))
    {
       typedef std::vector<fireworks::scaleMarker> Lines_t;  
-      FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");
+      FWViewEnergyScale* caloScale = vc->getEnergyScale();
       // printf("%p -> %f\n", this,caloScale->getValToHeight() );
       for (Lines_t::iterator i = m_lines.begin(); i!= m_lines.end(); ++ i)
       {
          if (vc == (*i).m_vc)
          { 
             float value = caloScale->getPlotEt() ? (*i).m_et : (*i).m_energy;      
-            (*i).m_ls->SetScale(caloScale->getValToHeight()*value);
+            (*i).m_ls->SetScale(caloScale->getScaleFactor3D()*value);
             TEveProjected* proj = *(*i).m_ls->BeginProjecteds();
             proj->UpdateProjection();
          }

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.27 2010/10/22 14:34:44 amraktad Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.28 2010/11/11 20:25:27 amraktad Exp $
 //
 
 #include "TEveJetCone.h"
@@ -138,10 +138,13 @@ FWJetProxyBuilder::buildViewType(const reco::Jet& iData, unsigned int iIndex, TE
       marker->SetLineWidth(4);  
 
       marker->SetLineColor(dp.color());
-      FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");    
-      marker->SetScale(caloScale->getValToHeight()*(caloScale->getPlotEt() ?  iData.et() : iData.energy()));
+
+      FWViewEnergyScale* caloScale = vc->getEnergyScale();    
+      marker->SetScale(caloScale->getScaleFactor3D()*(caloScale->getPlotEt() ?  iData.et() : iData.energy()));
       setupAddElement( marker, &oItemHolder );
       m_lines.push_back(fireworks::scaleMarker(marker, iData.et(), iData.energy(), vc));
+
+      context().voteMaxEtAndEnergy(iData.et(), iData.energy());
    }
 }
 
@@ -163,14 +166,12 @@ void
 FWJetProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc)
 { 
    typedef std::vector<fireworks::scaleMarker> Lines_t;  
-   FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");
-   // printf("%p -> %f\n", this,caloScale->getValToHeight() );
    for (Lines_t::iterator i = m_lines.begin(); i!= m_lines.end(); ++ i)
    {
       if (vc == (*i).m_vc)
       { 
-         float value = caloScale->getPlotEt() ? (*i).m_et : (*i).m_energy;      
-         (*i).m_ls->SetScale(caloScale->getValToHeight()*value);
+         float value = vc->getEnergyScale()->getPlotEt() ? (*i).m_et : (*i).m_energy;      
+         (*i).m_ls->SetScale(vc->getEnergyScale()->getScaleFactor3D() *value);
          TEveProjected* proj = *(*i).m_ls->BeginProjecteds();
          proj->UpdateProjection();
       }

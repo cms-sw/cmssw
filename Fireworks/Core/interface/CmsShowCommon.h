@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 10 14:51:07 CEST 2010
-// $Id: CmsShowCommon.h,v 1.7 2010/09/27 10:46:00 amraktad Exp $
+// $Id: CmsShowCommon.h,v 1.8 2010/11/21 19:36:19 amraktad Exp $
 //
 
 #include <sigc++/signal.h>
@@ -29,6 +29,7 @@
 #include "Fireworks/Core/interface/FWLongParameter.h"
 #include "Fireworks/Core/interface/FWEnumParameter.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
+#include "Fireworks/Core/interface/FWViewEnergyScale.h"
 
 class CmsShowCommonPopup;
 class FWColorManager;
@@ -44,11 +45,6 @@ public:
    // ---------- const member functions ---------------------
    virtual void addTo(FWConfiguration&) const;
 
-   long   getEnergyScaleMode()      const { return m_energyScaleMode.value(); }
-   double getEnergyToHeightFixed()  const { return m_energyFixedValToHeight.value(); }
-   double getEnergyMaxTowerHeight() const { return m_energyMaxTowerHeight.value(); }
-   bool   getEnergyPlotEt()         const { return m_energyPlotEt.value(); }
-
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
@@ -61,11 +57,10 @@ public:
    void setGeomColor(FWGeomColorIndex, Color_t);
    void setGeomTransparency(int val, bool projected);
 
-   sigc::signal<void> scaleChanged_;
+   FWViewEnergyScale* getEnergyScale() const { return m_energyScale.get(); }
 
 protected:
    const FWColorManager*   colorManager() const { return m_colorManager;}
-   virtual void updateScales();
 
    // ---------- member data --------------------------------
 
@@ -80,12 +75,9 @@ protected:
    FWLongParameter     m_geomTransparency3D;
    FWLongParameter*    m_geomColors[kFWGeomColorSize];
 
-   // scales 
-   FWBoolParameter    m_energyPlotEt;
-   FWEnumParameter    m_energyScaleMode;
-   FWDoubleParameter  m_energyFixedValToHeight;
-   FWDoubleParameter  m_energyMaxTowerHeight;
-   // FWDoubleParameter  m_energyCombinedSwitch;
+ 
+   std::auto_ptr<FWViewEnergyScale>  m_energyScale;
+
 private:
    CmsShowCommon(const CmsShowCommon&); // stop default
    const CmsShowCommon& operator=(const CmsShowCommon&); // stop default

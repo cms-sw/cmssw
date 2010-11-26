@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.24 2010/11/21 11:18:14 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.25 2010/11/21 19:36:19 amraktad Exp $
 //
 
 // system include files
@@ -61,9 +61,6 @@ FWLegoViewBase::FWLegoViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId
    m_drawValuesIn2D(this,"Draw Cell2D threshold (pixels)",40l,16l,200l),
    m_showOverlay(this,"Draw scales", true)
 {
-   FWViewEnergyScale* caloScale = new FWViewEnergyScale(this);
-   viewContext()->addScale("Calo", caloScale);
-
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    viewerGL()->GetLightSet()->SetUseSpecular(false);
 

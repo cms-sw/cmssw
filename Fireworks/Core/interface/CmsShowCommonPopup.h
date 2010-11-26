@@ -44,7 +44,6 @@ public:
 private:
    CmsShowCommonPopup(const CmsShowCommonPopup&);
    const CmsShowCommonPopup& operator=(const CmsShowCommonPopup&);
-   void addParamSetter(FWParameterBase* param, TGCompositeFrame* vf, const char* title = 0);
 
    // ---------- member data --------------------------------
 

@@ -291,7 +291,6 @@ CmsShowMainBase::reloadConfiguration(const std::string &config)
                    kMBCancel,
                    &chosen);
    }
-   m_viewManager->eventEnd();
    m_guiManager->updateStatus("");
 }
 

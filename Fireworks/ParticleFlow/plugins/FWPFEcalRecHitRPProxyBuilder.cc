@@ -107,6 +107,7 @@ FWPFEcalRecHitRPProxyBuilder::build( const FWEventItem *iItem, TEveElementList *
          bCorners[1] = rVec;
 
          FWPFRhoPhiRecHit *rh = new FWPFRhoPhiRecHit( this, itemHolder, vc, E, et, lPhi, rPhi, bCorners );
+         context().voteMaxEtAndEnergy(et, E);
          towers.push_back( rh );
       }
    }

@@ -153,6 +153,8 @@ FWPFEcalRecHitLegoProxyBuilder::visibilityModelChanges(const FWModelId& iId, TEv
       centre = calculateCentre( etaphiCorners );
       energy = iData.energy();
       et = calculateEt( centre, energy );
+      context().voteMaxEtAndEnergy(et, energy);
+
       {
          FWPFLegoRecHit *recHit = new FWPFLegoRecHit( etaphiCorners, itemHolder, this, vc, energy, et );
          recHit->setSquareColor(item()->defaultDisplayProperties().color());

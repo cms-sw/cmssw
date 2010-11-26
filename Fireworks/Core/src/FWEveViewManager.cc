@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.38 2010/11/04 22:38:54 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.39 2010/11/21 20:52:25 amraktad Exp $
 //
 
 // system include files
@@ -371,7 +371,7 @@ FWEveViewManager::finishViewCreate(boost::shared_ptr<FWEveView> view)
 
    view->beingDestroyed_.connect(boost::bind(&FWEveViewManager::beingDestroyed,this,_1));
 
-  
+   view->setupEnergyScale(); // notify PB for energy scale
 
    gEve->EnableRedraw();
    view->viewerGL()->UpdateScene();
@@ -553,20 +553,20 @@ void
 FWEveViewManager::setContext(const fireworks::Context* x)
 {
    FWViewManagerBase::setContext(x);
-   x->commonPrefs()->scaleChanged_.connect(boost::bind(&FWEveViewManager::globalScalesChanged,this));
+   x->commonPrefs()->getEnergyScale()->parameterChanged_.connect(boost::bind(&FWEveViewManager::globalEnergyScaleChanged,this));
 
 }
 
 void
-FWEveViewManager::globalScalesChanged()
+FWEveViewManager::globalEnergyScaleChanged()
 {
    for (int t = 0 ; t < FWViewType::kTypeSize; ++t)
    {
       for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i) 
       {
-         if ((*i)->useGlobalScales())
+         if ((*i)->isEnergyScaleGlobal())
          {
-            (*i)->updateEnergyScales();
+            (*i)->setupEnergyScale();
          }
       }
 
@@ -588,6 +588,9 @@ void
 FWEveViewManager::eventBegin()
 {
    gEve->DisableRedraw();
+
+   context().resetMaxEtAndEnergy();
+
    for (int t = 0 ; t < FWViewType::kTypeSize; ++t)
    {
       for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i)   

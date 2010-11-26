@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:45 CET 2010
-// $Id: FWEveViewManager.h,v 1.10 2010/09/24 16:22:26 amraktad Exp $
+// $Id: FWEveViewManager.h,v 1.11 2010/11/04 22:38:54 amraktad Exp $
 //
 
 // system include files
@@ -89,7 +89,7 @@ private:
    void modelChanges(const FWModelIds& iIds);
    void itemChanged(const FWEventItem*);
    bool haveViewForBit (int) const;
-   void globalScalesChanged();
+   void globalEnergyScaleChanged();
 
    // ---------- member data --------------------------------
    

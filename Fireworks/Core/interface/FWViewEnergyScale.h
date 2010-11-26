@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Jun 18 20:37:55 CEST 2010
-// $Id: FWViewEnergyScale.h,v 1.5 2010/11/21 11:18:13 amraktad Exp $
+// $Id: FWViewEnergyScale.h,v 1.6 2010/11/21 19:36:19 amraktad Exp $
 //
 
 // system include files
@@ -34,33 +34,30 @@ class FWEveView;
 
 class FWViewEnergyScale : public FWConfigurableParameterizable
 {
-   friend class FWEveViewScaleEditor;
+   friend class FWViewEnergyScaleEditor;
    
 public:
    enum EScaleMode { kFixedScale, kAutoScale, kCombinedScale, kNone };
-   
-   FWViewEnergyScale(FWEveView* v);
+   FWViewEnergyScale(std::string name, int version);
    virtual ~FWViewEnergyScale();
 
-   // -- const functions
-   float  getValToHeight() const;
-   float  getMaxVal() const; 
-   double getMaxTowerHeight() const;
-   bool   getPlotEt() const;  
-   bool   getUseGlobalScales() const { return m_useGlobalScales.value(); }
+   void updateScaleFactors(float iMaxVal);
 
-   FWEveView* getView() const { return m_view; }
-   
-   // -- memeber functions   
-   bool  setMaxVal(float);
-   void  reset();
+   float getScaleFactor3D()   const { return m_scaleFactor3D;   }
+   float getScaleFactorLego() const { return m_scaleFactorLego; }
 
-   //protected:
-   // protected for friend editor class
-   long   getScaleMode() const;
-   double getValToHeightFixed() const;
+   bool  getPlotEt() const { return m_plotEt.value(); }
 
-   FWBoolParameter    m_useGlobalScales;
+   void scaleParameterChanged() const;
+
+   sigc::signal<void> parameterChanged_;
+
+   // added for debug
+   const std::string& name() const { return m_name; } 
+
+   virtual void setFrom(const FWConfiguration&);
+
+protected:
    FWEnumParameter    m_scaleMode;
    FWDoubleParameter  m_fixedValToHeight;
    FWDoubleParameter  m_maxTowerHeight;
@@ -70,12 +67,13 @@ private:
    FWViewEnergyScale(const FWViewEnergyScale&); // stop default
    const FWViewEnergyScale& operator=(const FWViewEnergyScale&); // stop default
 
-   // ---------- member data --------------------------------
-   float       m_maxVal;
-   FWEveView*  m_view;
-   
-  static float s_initMaxVal;
-};
+   float calculateScaleFactor(float iMaxVal, bool isLego) const;
 
+   const std::string m_name;
+
+   // cached
+   float m_scaleFactor3D;
+   float m_scaleFactorLego;
+};
 
 #endif

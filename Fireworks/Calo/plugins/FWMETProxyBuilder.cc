@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMETProxyBuilder.cc,v 1.26 2010/10/22 14:34:44 amraktad Exp $
+// $Id: FWMETProxyBuilder.cc,v 1.27 2010/11/11 20:25:27 amraktad Exp $
 //
 
 // system include files
@@ -62,7 +62,7 @@ void
 FWMETProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc)
 {
    typedef std::vector<fireworks::scaleMarker> Lines_t;
-   FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");  
+   FWViewEnergyScale* caloScale = vc->getEnergyScale();  
 
    // printf("MET %p -> %f\n", vc, caloScale->getValToHeight() );
    for (Lines_t::iterator i = m_lines.begin(); i!= m_lines.end(); ++ i)
@@ -70,7 +70,7 @@ FWMETProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type,
       if ( vc == (*i).m_vc )
       { 
          //    printf("lineset %p \n",(*i).m_ls );
-         (*i).m_ls->SetScale(caloScale->getValToHeight()*(*i).m_et);
+         (*i).m_ls->SetScale(caloScale->getScaleFactor3D()*(*i).m_et);
 
          TEveProjectable *pable = static_cast<TEveProjectable*>((*i).m_ls);
          for (TEveProjectable::ProjList_i j = pable->BeginProjecteds(); j != pable->EndProjecteds(); ++j)
@@ -91,7 +91,7 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
    double phi  = met.phi();
    double size = 1.f;
 
-   FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");   
+   FWViewEnergyScale* caloScale = vc->getEnergyScale();   
         
    TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet( "energy" );
    marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
@@ -105,9 +105,11 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
    marker->AddLine( -dx*sin(phi) + (dy+r_ecal)*cos(phi), dx*cos(phi) + (dy+r_ecal)*sin(phi), 0,
                     (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
    
-   marker->SetScale(caloScale->getValToHeight()*met.et());
+   marker->SetScale(caloScale->getScaleFactor3D()*met.et());
    m_lines.push_back(fireworks::scaleMarker(marker, met.energy(), met.et(), vc));  // register for scales
    setupAddElement( marker, &oItemHolder );
+
+
       
    if ( type == FWViewType::kRhoZ ) 
    {
@@ -121,7 +123,7 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
       
       m_lines.push_back(fireworks::scaleMarker(tip, met.energy(), met.et(), vc)); //register for scaes 
 
-      tip->SetScale(caloScale->getValToHeight()*met.et());
+      tip->SetScale(caloScale->getScaleFactor3D()*met.et());
       setupAddElement( tip, &oItemHolder );
    }   
    else
@@ -134,6 +136,8 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
       element->SetPickable( kTRUE );
       setupAddElement( element, &oItemHolder );
    }
+
+   context().voteMaxEtAndEnergy(met.et(), met.et());
 }
 
 REGISTER_FWPROXYBUILDER( FWMETProxyBuilder, reco::MET, "recoMET", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );

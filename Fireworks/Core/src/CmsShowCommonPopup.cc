@@ -10,6 +10,7 @@
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/src/FWDialogBuilder.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
+#include "Fireworks/Core/src/FWViewEnergyScaleEditor.h"
 
 #include "Fireworks/Core/interface/FWParameterSetterEditorBase.h"
 
@@ -32,12 +33,10 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
  
    FWDialogBuilder bS(vf2);
    bS.addLabel("GlobalScales", 14).vSpacer(5);
- 
-   
-   addParamSetter( &m_common->m_energyPlotEt, vf2);
-   addParamSetter( &m_common->m_energyScaleMode, vf2);
-   addParamSetter( &m_common->m_energyFixedValToHeight, vf2, "FixedMode");
-   addParamSetter( &m_common->m_energyMaxTowerHeight, vf2, "AutomaticMode");
+
+   FWViewEnergyScaleEditor* scaleEditor = new FWViewEnergyScaleEditor(m_common->m_energyScale.get(), vf2);
+   vf2->AddFrame(scaleEditor);
+
    //   addParamSetter( &m_common->m_energyCombinedSwitch, vf2, "CombinedMode");
    //
    // brigtness
@@ -153,32 +152,6 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
 
 CmsShowCommonPopup::~CmsShowCommonPopup()
 {
-}
-
-
-void
-CmsShowCommonPopup::addParamSetter(FWParameterBase* param, TGCompositeFrame* hf, const char* title)
-{
-   int leftPad = 0;
-   if (title)
-   {
-      leftPad = 10;
-      hf->AddFrame(new TGLabel(hf, title), new TGLayoutHints(kLHintsLeft, leftPad, 0, 0, 0));
-      leftPad *= 2;
-   }
-   
-  // setter
-   {
-      boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(param) );
-      ptr->attach((FWParameterBase*)param, this);
-      m_setters.push_back(ptr);
-
-      TGCompositeFrame* cframe = static_cast<TGCompositeFrame*>(ptr->build(hf));      
-      hf->AddFrame(cframe, new TGLayoutHints(kLHintsLeft, leftPad, 0, 2, 0));
-   }
-   hf->MapSubwindows();
-   hf->MapWindow();
-   Layout();
 }
 
 void

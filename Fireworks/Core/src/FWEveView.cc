@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.45 2010/11/21 19:36:19 amraktad Exp $
+// $Id: FWEveView.cc,v 1.46 2010/11/23 11:06:23 amraktad Exp $
 //
 
 
@@ -50,7 +50,7 @@
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 #include "Fireworks/Core/interface/CmsShowCommon.h"
-#include "Fireworks/Core/interface/FWEveViewScaleEditor.h"
+#include "Fireworks/Core/interface/FWViewEnergyScaleEditor.h"
 
 namespace fireworks
 {
@@ -99,7 +99,10 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
    m_lineOutlineScale(this, "Outline width scale", 1.0, 0.01, 10.0),
    m_lineWireframeScale(this, "Wireframe width scale", 1.0, 0.01, 10.0),
    m_showCameraGuide(this,"Show Camera Guide",false),
-   m_viewContext(new FWViewContext())
+   m_useGlobalEnergyScale(this, "UseGlobalEnergyScale", true),
+   m_viewContext( new FWViewContext()),
+   m_localEnergyScale( new FWViewEnergyScale(FWViewType::idToName(type), version)),
+   m_viewEnergyScaleEditor(0)
 {
    m_viewer = new TEveViewer(typeName().c_str());
 
@@ -165,6 +168,12 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
    m_lineWidth.changed_.connect(boost::bind(&FWEveView::pointLineScalesChanged,this));
    m_lineOutlineScale.changed_.connect(boost::bind(&FWEveView::pointLineScalesChanged,this));
    m_lineWireframeScale.changed_.connect(boost::bind(&FWEveView::pointLineScalesChanged,this));
+
+
+   // create scale for view  .. 
+   m_viewContext->setEnergyScale(m_localEnergyScale.get());
+   m_useGlobalEnergyScale.changed_.connect(boost::bind(&FWEveView::useGlobalEnergyScaleChanged, this));
+   m_localEnergyScale->parameterChanged_.connect(boost::bind(&FWEveView::setupEnergyScale, this));
 }
 
 FWEveView::~FWEveView()
@@ -230,14 +239,13 @@ FWEveView::cameraGuideChanged()
 void
 FWEveView::eventBegin()
 {
-   viewContext()->resetViewScales();
 }
 
 void
 FWEveView::eventEnd()
 {
    m_overlayEventInfo->setEvent();
-   updateEnergyScales();
+   setupEnergyScale();
 }
 
 void
@@ -253,54 +261,68 @@ FWEveView::resetCamera()
 }
 
 //______________________________________________________________________________
-bool
-FWEveView::useGlobalScales() const
+void 
+FWEveView::setContext(const fireworks::Context& x)
 {
-   FWViewEnergyScale*  caloScale = m_viewContext->getEnergyScale("Calo");
-   if (caloScale)
-      return caloScale->getUseGlobalScales();
-   
-   return true;
+   m_context = &x ;
+
+   // in constructor view context has local scale
+   if (m_useGlobalEnergyScale.value()) 
+      m_viewContext->setEnergyScale(context().commonPrefs()->getEnergyScale());
+}
+
+bool
+FWEveView::isEnergyScaleGlobal() const
+{
+   return m_useGlobalEnergyScale.value();
 }
 
 void
-FWEveView::updateEnergyScales()
+FWEveView::useGlobalEnergyScaleChanged()
 {
-   FWViewEnergyScale*  caloScale = viewContext()->getEnergyScale("Calo");
-   if (caloScale)
-   {
-      TEveCaloViz* calo = getEveCalo();
-      
-      // tell scale about max value in current event
-      // for now only TEveCaloData votes for scale in automatic mode
-      if (!calo->GetData()->Empty() )
-         caloScale->setMaxVal(calo->GetData()->GetMaxVal(caloScale->getPlotEt()));
-      
-      // update TEveCaloViz, do not edit lego since maxTowerH is never changing
-      calo->SetPlotEt(caloScale->getPlotEt());
-      if ( ! FWViewType::isLego(typeId()) ) 
-      {
-         int mode =  caloScale->getScaleMode();
-         if (mode == FWViewEnergyScale::kCombinedScale)
-            mode = (caloScale->getMaxTowerHeight() < 100*caloScale->getMaxVal()/caloScale->getValToHeightFixed()) ? FWViewEnergyScale::kFixedScale :FWViewEnergyScale::kAutoScale;
-   
- 
-         if ((mode == FWViewEnergyScale::kAutoScale) )
-            calo->SetMaxTowerH(caloScale->getMaxTowerHeight()); 
-         else
-            calo->SetMaxTowerH(100); //defualt constructor H
-      }
-      calo->SetMaxValAbs(calo->GetMaxTowerH()/caloScale->getValToHeight());
+   m_viewContext->setEnergyScale(m_useGlobalEnergyScale.value() ? context().commonPrefs()->getEnergyScale() : m_localEnergyScale.get());
+   if (m_viewEnergyScaleEditor) m_viewEnergyScaleEditor->setEnabled(!m_useGlobalEnergyScale.value());
+   setupEnergyScale();
+}
 
-      getEveCalo()->ElementChanged();
-          
-      // context to emit signal  
-      viewContext()->scaleChanged();
-      gEve->Redraw3D();
-      
-      // printf("max val in  event>>>> %f %f\n", getEveCalo()->GetMaxVal(), caloScale->getMaxVal());
-      // printf("%s  %f %f \n",typeName().c_str(), getEveCalo()->GetValToHeight(), caloScale->getValToHeight());      
+void
+FWEveView::setupEnergyScale()
+{
+   // Called at end of event OR if scale parameters changed.
+
+   FWViewEnergyScale*  energyScale = viewContext()->getEnergyScale();
+   // printf("setupEnergyScale %s >> scale name %s\n", typeName().c_str(), energyScale->name().c_str());
+
+   // vote with stack with max sum of calo slices
+   TEveCaloViz* calo = getEveCalo();
+   if (calo)
+      context().voteMaxEtAndEnergy(calo->GetData()->GetMaxVal(1), calo->GetData()->GetMaxVal(0));
+
+   // set cache for energy to lenght conversion
+   float maxVal = context().getMaxEnergyInEvent(energyScale->getPlotEt());
+   energyScale->updateScaleFactors(maxVal);
+   // printf("max event val %f \n", maxVal);
+   // printf("scales lego %f \n",  energyScale->getScaleFactorLego());
+
+   // configure TEveCaloViz
+   if (calo)
+   {
+      if (FWViewType::isLego(typeId()))
+      {
+         float f = energyScale->getScaleFactorLego();
+         calo->SetMaxValAbs(TMath::Pi()/f);
+      }
+      else
+      {
+         float f = energyScale->getScaleFactor3D();
+         calo->SetMaxValAbs(100/f);
+      }
+      calo->ElementChanged();
    }
+
+   // emit signal to proxy builders 
+   viewContext()->scaleChanged();
+   gEve->Redraw3D();
 }
 
 //-------------------------------------------------------------------------------
@@ -318,10 +340,8 @@ FWEveView::addTo(FWConfiguration& iTo) const
       assert ( m_overlayLogo );
       m_overlayLogo->addTo(iTo);
    }
-   
-   FWViewEnergyScale*  caloScale = m_viewContext->getEnergyScale("Calo");
-   if (caloScale)
-      caloScale->addTo(iTo);
+
+   m_viewContext->getEnergyScale()->addTo(iTo);
 }
 
 void
@@ -352,11 +372,9 @@ FWEveView::setFrom(const FWConfiguration& iFrom)
       m_overlayLogo->setFrom(iFrom);
    }
    
-   if (iFrom.version() > 5)
+   if (iFrom.version() > 4)
    {
-      FWViewEnergyScale*  caloScale = m_viewContext->getEnergyScale("Calo");
-      if (caloScale)
-         caloScale->setFrom(iFrom);
+      m_localEnergyScale->setFrom(iFrom);
    }
 }
 
@@ -519,11 +537,11 @@ FWEveView::populateController(ViewerParameterGUI& gui) const
       addParam(&m_lineOutlineScale).
       addParam(&m_lineWireframeScale);
 
-   FWViewEnergyScale*  caloScale = m_viewContext->getEnergyScale("Calo");
-   if (caloScale)
-   {
-      gui.requestTab("Scales");
-      FWEveViewScaleEditor* editor = new FWEveViewScaleEditor(gui.getTabContainer(), caloScale);
-      gui.addFrameToContainer(editor);
-   }
+
+   gui.requestTab("Scales").
+      addParam(&m_useGlobalEnergyScale);
+
+   m_viewEnergyScaleEditor = new FWViewEnergyScaleEditor(m_localEnergyScale.get(), gui.getTabContainer());
+   m_viewEnergyScaleEditor->setEnabled(!m_useGlobalEnergyScale.value());
+   gui.addFrameToContainer(m_viewEnergyScaleEditor);
 }

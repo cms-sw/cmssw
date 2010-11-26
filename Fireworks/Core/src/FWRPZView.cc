@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.29 2010/11/04 22:38:55 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.30 2010/11/21 11:18:14 amraktad Exp $
 //
 
 // system include files
@@ -50,8 +50,6 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    m_showHF(0),
    m_showEndcaps(0)
 {
-   FWViewEnergyScale* caloScale = new FWViewEnergyScale(this);
-   viewContext()->addScale("Calo", caloScale);
 
    TEveProjection::EPType_e projType = (id == FWViewType::kRhoZ) ? TEveProjection::kPT_RhoZ : TEveProjection::kPT_RPhi;
 
@@ -204,7 +202,7 @@ FWRPZView::setEtaRng()
       m_calo->SetEta(-eta_range,eta_range);
    }
 
-   FWEveView::updateEnergyScales();
+   FWEveView::setupEnergyScale();
 }
 
 void FWRPZView::showProjectionAxes( )
