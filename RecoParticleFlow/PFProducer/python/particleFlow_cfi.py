@@ -5,6 +5,10 @@ particleFlow = cms.EDProducer("PFProducer",
     # PF Blocks label
     blocks = cms.InputTag("particleFlowBlock"),
 
+    # reco::muons label and Post Muon cleaning
+    muons = cms.InputTag("muons"),
+    postMuonCleaning = cms.bool(True),
+
     # Vertices label
     vertexCollection = cms.InputTag("offlinePrimaryVertices"),
     useVerticesForNeutral = cms.bool(True),

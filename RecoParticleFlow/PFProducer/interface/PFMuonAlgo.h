@@ -43,6 +43,8 @@ class PFMuonAlgo {
   
   static bool isIsolatedMuon( const reco::MuonRef& muonRef );
 
+  static bool isTightMuonPOG(const reco::MuonRef& muonRef);
+
   static void printMuonProperties( const reco::MuonRef& muonRef );
   
  private:

@@ -323,6 +323,28 @@ PFMuonAlgo::isIsolatedMuon( const reco::MuonRef& muonRef ){
   else return false;
 }
 
+bool 
+PFMuonAlgo::isTightMuonPOG(const reco::MuonRef& muonRef) {
+
+  if(!muon::isGoodMuon(*muonRef,muon::GlobalMuonPromptTight)) return false;
+
+  if(!muonRef->isTrackerMuon()) return false;
+  
+  if(muonRef->numberOfMatches()<2) return false;
+  
+  //const reco::TrackRef& combinedMuon = muonRef->combinedMuon();    
+  const reco::TrackRef& combinedMuon = muonRef->globalTrack();    
+  
+  if(combinedMuon->hitPattern().numberOfValidTrackerHits()<11) return false;
+  
+  if(combinedMuon->hitPattern().numberOfValidPixelHits()==0) return false;
+  
+  if(combinedMuon->hitPattern().numberOfValidMuonHits()==0) return false;  
+
+  return true;
+
+}
+
 void 
 PFMuonAlgo::printMuonProperties(const reco::MuonRef& muonRef){
   

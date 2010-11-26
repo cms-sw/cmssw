@@ -102,6 +102,11 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   inputTagBlocks_ 
     = iConfig.getParameter<InputTag>("blocks");
 
+  //Post cleaning of the muons
+  inputTagMuons_ 
+    = iConfig.getParameter<InputTag>("muons");
+  postMuonCleaning_
+    = iConfig.getParameter<bool>("postMuonCleaning");
 
   usePFElectrons_
     = iConfig.getParameter<bool>("usePFElectrons");    
@@ -137,7 +142,13 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 
   // register products
   produces<reco::PFCandidateCollection>();
-  produces<reco::PFCandidateCollection>("Cleaned");
+  produces<reco::PFCandidateCollection>("CleanedHF");
+  produces<reco::PFCandidateCollection>("CleanedCosmicsMuons");
+  produces<reco::PFCandidateCollection>("CleanedTrackerAndGlobalMuons");
+  produces<reco::PFCandidateCollection>("CleanedFakeMuons");
+  produces<reco::PFCandidateCollection>("CleanedPunchThroughMuons");
+  produces<reco::PFCandidateCollection>("CleanedPunchThroughNeutralHadrons");
+  produces<reco::PFCandidateCollection>("AddedMuonsAndHadrons");
 
   if (usePFElectrons_)
     produces<reco::PFCandidateCollection>(electronOutputCol_);
@@ -398,11 +409,18 @@ PFProducer::produce(Event& iEvent,
     throw cms::Exception( "MissingProduct", err.str());
   }
 
+  // get the collection of muons 
+
+  Handle< reco::MuonCollection > muons;
+
+  LogDebug("PFProducer")<<"getting muons"<<endl;
+  found = iEvent.getByLabel( inputTagMuons_, muons );  
+
   if (useEGammaElectrons_) {
     Handle < reco::GsfElectronCollection > egelectrons;
     
     LogDebug("PFProducer")<<" Reading e/gamma electrons activated "<<endl;
-    bool found = iEvent.getByLabel( inputTagEgammaElectrons_, egelectrons );  
+    found = iEvent.getByLabel( inputTagEgammaElectrons_, egelectrons );  
     
     if(!found) {
       ostringstream err;
@@ -430,6 +448,30 @@ PFProducer::produce(Event& iEvent,
   }  
 
 
+  if ( postMuonCleaning_ ) 
+    pfAlgo_->postMuonCleaning( muons, *vertices );
+
+  // Save cosmic cleaned muon candidates
+  auto_ptr< reco::PFCandidateCollection > 
+    pCosmicsMuonCleanedCandidateCollection( pfAlgo_->transferCosmicsMuonCleanedCandidates() ); 
+  // Save tracker/global cleaned muon candidates
+  auto_ptr< reco::PFCandidateCollection > 
+    pTrackerAndGlobalCleanedMuonCandidateCollection( pfAlgo_->transferCleanedTrackerAndGlobalMuonCandidates() ); 
+  // Save fake cleaned muon candidates
+  auto_ptr< reco::PFCandidateCollection > 
+    pFakeCleanedMuonCandidateCollection( pfAlgo_->transferFakeMuonCleanedCandidates() ); 
+  // Save punch-through cleaned muon candidates
+  auto_ptr< reco::PFCandidateCollection > 
+    pPunchThroughMuonCleanedCandidateCollection( pfAlgo_->transferPunchThroughMuonCleanedCandidates() ); 
+  // Save punch-through cleaned neutral hadron candidates
+  auto_ptr< reco::PFCandidateCollection > 
+    pPunchThroughHadronCleanedCandidateCollection( pfAlgo_->transferPunchThroughHadronCleanedCandidates() ); 
+  // Save added muon candidates
+  auto_ptr< reco::PFCandidateCollection > 
+    pAddedMuonCandidateCollection( pfAlgo_->transferAddedMuonCandidates() ); 
+
+
+  // Check HF overcleaning
   reco::PFRecHitCollection hfCopy;
   for ( unsigned ihf=0; ihf<inputTagCleanedHF_.size(); ++ihf ) {
     Handle< reco::PFRecHitCollection > hfCleaned;
@@ -441,14 +483,15 @@ PFProducer::produce(Event& iEvent,
   }
   pfAlgo_->checkCleaning( hfCopy );
 
+  // Save recovered HF candidates
+  auto_ptr< reco::PFCandidateCollection > 
+    pCleanedCandidateCollection( pfAlgo_->transferCleanedCandidates() ); 
 
+  
+  // Save the final PFCandidate collection
   auto_ptr< reco::PFCandidateCollection > 
     pOutputCandidateCollection( pfAlgo_->transferCandidates() ); 
   
-  auto_ptr< reco::PFCandidateCollection > 
-    pCleanedCandidateCollection( pfAlgo_->transferCleanedCandidates() ); 
-  
-
 
   
   LogDebug("PFProducer")<<"particle flow: putting products in the event"<<endl;
@@ -459,9 +502,20 @@ PFProducer::produce(Event& iEvent,
       if (verbose_ ) std::cout << nC << ")" << (*itCand).particleId() << std::endl;
 
   }
-  
+
+  // Write in the event
   iEvent.put(pOutputCandidateCollection);
-  iEvent.put(pCleanedCandidateCollection,"Cleaned");
+  iEvent.put(pCleanedCandidateCollection,"CleanedHF");
+
+  if ( postMuonCleaning_ ) { 
+    iEvent.put(pCosmicsMuonCleanedCandidateCollection,"CleanedCosmicsMuons");
+    iEvent.put(pTrackerAndGlobalCleanedMuonCandidateCollection,"CleanedTrackerAndGlobalMuons");
+    iEvent.put(pFakeCleanedMuonCandidateCollection,"CleanedFakeMuons");
+    iEvent.put(pPunchThroughMuonCleanedCandidateCollection,"CleanedPunchThroughMuons");
+    iEvent.put(pPunchThroughHadronCleanedCandidateCollection,"CleanedPunchThroughNeutralHadrons");
+    iEvent.put(pAddedMuonCandidateCollection,"AddedMuonsAndHadrons");
+  }
+
   if(usePFElectrons_)
     {
       auto_ptr< reco::PFCandidateCollection >  

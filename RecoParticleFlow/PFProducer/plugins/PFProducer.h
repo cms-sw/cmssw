@@ -38,6 +38,7 @@ class PFProducer : public edm::EDProducer {
  private:
 
   edm::InputTag  inputTagBlocks_;
+  edm::InputTag  inputTagMuons_;
   edm::InputTag  vertices_;
   edm::InputTag  inputTagEgammaElectrons_;
   std::vector<edm::InputTag>  inputTagCleanedHF_;
@@ -46,8 +47,12 @@ class PFProducer : public edm::EDProducer {
   /// verbose ?
   bool  verbose_;
 
+  // Post muon cleaning ?
+  bool postMuonCleaning_;
+
   // Use PF electrons ?
   bool usePFElectrons_;
+
   // what about e/g electrons ?
   bool useEGammaElectrons_;
 

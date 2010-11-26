@@ -9,6 +9,7 @@
 // #include "FWCore/Framework/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 
@@ -124,6 +125,10 @@ class PFAlgo {
   /// Check HF Cleaning
   void checkCleaning( const reco::PFRecHitCollection& cleanedHF );
 
+  // Post Muon Cleaning
+  void postMuonCleaning( const edm::Handle<reco::MuonCollection>& muonh,
+			 const reco::VertexCollection& primaryVertices );
+
   /// \return collection of candidates
   const std::auto_ptr< reco::PFCandidateCollection >& pfCandidates() const {
     return pfCandidates_;
@@ -131,16 +136,45 @@ class PFAlgo {
 
   /// \return the unfiltered electron collection
   std::auto_ptr< reco::PFCandidateCollection> transferElectronCandidates()  {
-      return pfElectronCandidates_;
-    }
-
-  /// \return collection of cleaned candidates
-   std::auto_ptr< reco::PFCandidateCollection >& transferCleanedCandidates() {
-    return pfCleanedCandidates_;
+    return pfElectronCandidates_;
   }
 
+  /// \return collection of cleaned HF candidates
+  std::auto_ptr< reco::PFCandidateCollection >& transferCleanedCandidates() {
+    return pfCleanedCandidates_;
+  }
   
-  /// \return auto_ptr to the collection of candidates (transfers ownership)
+  /// \return collection of  cosmics cleaned muon candidates
+  std::auto_ptr< reco::PFCandidateCollection > transferCosmicsMuonCleanedCandidates() {
+    return pfCosmicsMuonCleanedCandidates_;
+  }
+
+  /// \return collection of  tracker/global cleaned muon candidates
+  std::auto_ptr< reco::PFCandidateCollection > transferCleanedTrackerAndGlobalMuonCandidates() {
+    return pfCleanedTrackerAndGlobalMuonCandidates_;
+  }
+
+  /// \return collection of  fake cleaned muon candidates
+  std::auto_ptr< reco::PFCandidateCollection > transferFakeMuonCleanedCandidates() {
+    return pfFakeMuonCleanedCandidates_;
+  }
+
+  /// \return collection of  punch-through cleaned muon candidates
+  std::auto_ptr< reco::PFCandidateCollection > transferPunchThroughMuonCleanedCandidates() {
+    return pfPunchThroughMuonCleanedCandidates_;
+  }
+
+  /// \return collection of  punch-through cleaned neutral hadron candidates
+  std::auto_ptr< reco::PFCandidateCollection > transferPunchThroughHadronCleanedCandidates() {
+    return pfPunchThroughHadronCleanedCandidates_;
+  }
+
+  /// \return collection of  added muon candidates
+  std::auto_ptr< reco::PFCandidateCollection > transferAddedMuonCandidates() {
+    return pfAddedMuonCandidates_;
+  }
+   
+    /// \return auto_ptr to the collection of candidates (transfers ownership)
   std::auto_ptr< reco::PFCandidateCollection >  transferCandidates() {
     return connector_.connect(pfCandidates_);
   }
@@ -195,6 +229,18 @@ class PFAlgo {
   std::auto_ptr< reco::PFCandidateCollection >    pfElectronCandidates_;
   // the post-HF-cleaned candidates
   std::auto_ptr< reco::PFCandidateCollection >    pfCleanedCandidates_;
+  /// the collection of  cosmics cleaned muon candidates
+  std::auto_ptr< reco::PFCandidateCollection >    pfCosmicsMuonCleanedCandidates_;
+  /// the collection of  tracker/global cleaned muon candidates
+  std::auto_ptr< reco::PFCandidateCollection >    pfCleanedTrackerAndGlobalMuonCandidates_;
+  /// the collection of  fake cleaned muon candidates
+  std::auto_ptr< reco::PFCandidateCollection >    pfFakeMuonCleanedCandidates_;
+  /// the collection of  punch-through cleaned muon candidates
+  std::auto_ptr< reco::PFCandidateCollection >    pfPunchThroughMuonCleanedCandidates_;
+  /// the collection of  punch-through cleaned neutral hadron candidates
+  std::auto_ptr< reco::PFCandidateCollection >    pfPunchThroughHadronCleanedCandidates_;
+  /// the collection of  added muon candidates
+  std::auto_ptr< reco::PFCandidateCollection >    pfAddedMuonCandidates_;
 
   ///Checking if a given cluster is a satellite cluster
   ///of a given charged hadron (track)
@@ -295,6 +341,7 @@ class PFAlgo {
 
   // Parameters for post HF cleaning
   bool postHFCleaning_;
+  bool postMuonCleaning_;
   double minHFCleaningPt_;
   double minSignificance_;
   double maxSignificance_;
