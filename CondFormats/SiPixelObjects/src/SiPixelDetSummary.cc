@@ -40,19 +40,19 @@ void SiPixelDetSummary::add(const DetId & detid, const float & value) {
   switch (detid.subdetId()) {
   case PixelSubdetector::PixelBarrel: {
     idet = 1;
-    il   = PixelBarrelName::PixelBarrelName(detid).layerName();
-    name = PixelBarrelName::PixelBarrelName(detid).name();
+    il   = PixelBarrelName(detid).layerName();
+    name = PixelBarrelName(detid).name();
     break;
   }
   case PixelSubdetector::PixelEndcap: {
     idet = 2;
-    PixelEndcapName::HalfCylinder hc = PixelEndcapName::PixelEndcapName(detid).halfCylinder();
-    name = PixelEndcapName::PixelEndcapName(detid).name();
+    PixelEndcapName::HalfCylinder hc = PixelEndcapName(detid).halfCylinder();
+    name = PixelEndcapName(detid).name();
     if (hc == PixelEndcapName::pI || hc == PixelEndcapName::pO) {
-      il = 3 - PixelEndcapName::PixelEndcapName(detid).diskName();
+      il = 3 - PixelEndcapName(detid).diskName();
     }
     if (hc == PixelEndcapName::mI || hc == PixelEndcapName::mO) {
-      il = 2 + PixelEndcapName::PixelEndcapName(detid).diskName();
+      il = 2 + PixelEndcapName(detid).diskName();
     }
     break;
   }
