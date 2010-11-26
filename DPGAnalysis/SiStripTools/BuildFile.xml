@@ -12,13 +12,9 @@
 <use   name="DataFormats/Scalers"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/DetId"/>
+<use   name="DataFormats/TrackReco"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/SiStripObjects"/>
-<use   name="clhepheader"/>
 <export>
   <lib   name="1"/>
-  <use   name="root"/>
-  <use   name="FWCore/MessageLogger"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="CommonTools/UtilAlgos"/>
 </export>
