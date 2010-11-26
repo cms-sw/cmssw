@@ -2,13 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("REPROD")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load("Configuration.StandardSequences.MagneticField_40T_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+#process.load("Configuration.StandardSequences.MagneticField_4T_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 from Configuration.PyReleaseValidation.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['mc']
-#process.GlobalTag.globaltag = 'START3X_V26::All'
-#process.load("Configuration.StandardSequences.FakeConditions_cff")
+process.GlobalTag.globaltag = autoCond['startup']
 
 #process.Timing =cms.Service("Timing")
 process.maxEvents = cms.untracked.PSet(
@@ -17,22 +16,21 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source(
     "PoolSource",
-    fileNames = cms.untracked.vstring(
-      'file:tt.root'
-      #'rfio:/castor/cern.ch/user/r/rebeca/Feb10PFMET/hww2l_RECOSIM.root',
-      ),
-    #eventsToProcess = cms.untracked.VEventRange('1:195-1:200'),
+    fileNames = cms.untracked.vstring(),
+    eventsToProcess = cms.untracked.VEventRange(),
+    #eventsToProcess = cms.untracked.VEventRange('1:1217421-1:1217421'),
+    #                                             '1:1220344-1:1220344',
+    #                                             '1:1655912-1:1655912',
+    #                                             '1:415027-1:415027',
+    #                                             '1:460640-1:460640',
+    #                                             '1:2054772-1:2054772'),
     secondaryFileNames = cms.untracked.vstring(),
     noEventSort = cms.untracked.bool(True),
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 )
 
-#process.MessageLogger = cms.Service("MessageLogger",
-#    rectoblk = cms.untracked.PSet(
-#        threshold = cms.untracked.string('INFO')
-#    ),
-#    destinations = cms.untracked.vstring('rectoblk')
-#)
+from RecoParticleFlow.Configuration.reco_QCDForPF_cff import fileNames
+process.source.fileNames = fileNames
 
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
@@ -40,12 +38,21 @@ process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 process.load("RecoParticleFlow.Configuration.ReDisplay_EventContent_cff")
 process.display = cms.OutputModule("PoolOutputModule",
     process.DisplayEventContent,
-    fileName = cms.untracked.string('display_tt.root')
+    #outputCommands = cms.untracked.vstring('keep *'),
+    #process.RECOSIMEventContent,
+    fileName = cms.untracked.string('/tmp/pjanot/display.root')
 )
+
+# modify reconstruction sequence
+#process.hbhereflag = process.hbhereco.clone()
+#process.hbhereflag.hbheInput = 'hbhereco'
+#process.towerMakerPF.hbheInput = 'hbhereflag'
+#process.particleFlowRecHitHCAL.hcalRecHitsHBHE = cms.InputTag("hbhereflag")
 
 # Local re-reco: Produce tracker rechits, pf rechits and pf clusters
 process.localReReco = cms.Sequence(process.siPixelRecHits+
                                    process.siStripMatchedRecHits+
+                                   #process.hbhereflag+
                                    process.particleFlowCluster)
 
 # Track re-reco
