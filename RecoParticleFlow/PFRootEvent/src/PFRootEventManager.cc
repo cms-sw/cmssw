@@ -1433,13 +1433,16 @@ void PFRootEventManager::connect( const char* infilename ) {
   options_->GetOpt("root","gsfrecTracks_inputTag", gsfrecTrackstagname);
   gsfrecTracksTag_ = edm::InputTag(gsfrecTrackstagname);
 
-  useConvBremPFRecTracks_ = false;
-  options_->GetOpt("particle_flow", "useConvBremPFRecTracks", useConvBremPFRecTracks_);
-  if ( useConvBremPFRecTracks_ ) { 
+  useConvBremGsfTracks_ = false;
+  options_->GetOpt("particle_flow", "useConvBremGsfTracks", useConvBremGsfTracks_);
+  if ( useConvBremGsfTracks_ ) { 
     std::string convBremGsfrecTrackstagname;
     options_->GetOpt("root","convBremGsfrecTracks_inputTag", convBremGsfrecTrackstagname);
     convBremGsfrecTracksTag_ = edm::InputTag(convBremGsfrecTrackstagname);
   }
+
+  useConvBremPFRecTracks_ = false;
+  options_->GetOpt("particle_flow", "useConvBremPFRecTracks", useConvBremPFRecTracks_);
 
 
   // muons branch
@@ -1725,6 +1728,11 @@ bool PFRootEventManager::processEntry(int entry) {
     } // end debug print
 
     // PJ : printout for bad events (selected by the "if")
+    /*
+    if ( fabs(resPt) > 0.4 )
+      std::cout << "'" << iEvent.id().run() << ":" << iEvent.id().event() << "-" 
+		<< iEvent.id().run() << ":" << iEvent.id().event() << "'," << std::endl;
+    */
     if ( resPt < -1. ) { 
       cout << " =====================PFJetBenchmark =================" << endl;
       cout<<"process entry "<< entry << endl;
@@ -1859,8 +1867,8 @@ bool PFRootEventManager::readFromSimulation(int entry) {
     MCTruth_ = *MCTruthHandle_;
     // cout << "Found MC truth" << endl;
   } else { 
-    cerr<<"PFRootEventManager::ProcessEntry : MCTruth Collection not found : "
-        <<entry << " " << MCTruthTag_<<endl;
+    // cerr<<"PFRootEventManager::ProcessEntry : MCTruth Collection not found : "
+    //    <<entry << " " << MCTruthTag_<<endl;
   }
 
   bool foundTP = iEvent.getByLabel(trueParticlesTag_,trueParticlesHandle_);
@@ -1868,8 +1876,8 @@ bool PFRootEventManager::readFromSimulation(int entry) {
     trueParticles_ = *trueParticlesHandle_;
     // cout << "Found " << trueParticles_.size() << " true particles" << endl;
   } else { 
-    cerr<<"PFRootEventManager::ProcessEntry : trueParticles Collection not found : "
-        <<entry << " " << trueParticlesTag_<<endl;
+    //cerr<<"PFRootEventManager::ProcessEntry : trueParticles Collection not found : "
+    //    <<entry << " " << trueParticlesTag_<<endl;
   }
 
   bool foundECAL = iEvent.getByLabel(rechitsECALTag_,rechitsECALHandle_);
@@ -1979,7 +1987,7 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if ( foundconvBremGsfrecTracks ) { 
     convBremGsfrecTracks_ = *convBremGsfrecTracksHandle_;
     // cout << "Found " << convBremGsfrecTracks_.size() << " ConvBremGsfPFRecTracks" << endl;
-  } else if ( useConvBremPFRecTracks_ ) { 
+  } else if ( useConvBremGsfTracks_ ) { 
     cerr<<"PFRootEventManager::ProcessEntry : convBremGsfrecTracks Collection not found : "
         <<entry << " " << convBremGsfrecTracksTag_<<endl;
   }
@@ -1987,7 +1995,14 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   bool foundmuons = iEvent.getByLabel(muonsTag_,muonsHandle_);
   if ( foundmuons ) { 
     muons_ = *muonsHandle_;
-    // cout << "Found " << muons_.size() << " muons" << endl;
+    /*
+    cout << "Found " << muons_.size() << " muons" << endl;
+    for ( unsigned imu=0; imu<muons_.size(); ++imu ) { 
+      std::cout << " Muon " << imu << ":" << std::endl;
+      reco::MuonRef muonref( &muons_, imu );
+      PFMuonAlgo::printMuonProperties(muonref);
+    }
+    */
   } else { 
     cerr<<"PFRootEventManager::ProcessEntry : muons Collection not found : "
         <<entry << " " << muonsTag_<<endl;
@@ -2016,8 +2031,8 @@ bool PFRootEventManager::readFromSimulation(int entry) {
     genJetsCMSSW_ = *genJetsHandle_;
     // cout << "Found " << genJetsCMSSW_.size() << " genJets" << endl;
   } else { 
-    cerr<<"PFRootEventManager::ProcessEntry : genJets Collection not found : "
-        <<entry << " " << genJetsTag_<<endl;
+    //cerr<<"PFRootEventManager::ProcessEntry : genJets Collection not found : "
+    //    <<entry << " " << genJetsTag_<<endl;
   }
 
   bool foundgenParticlesforJets = iEvent.getByLabel(genParticlesforJetsTag_,genParticlesforJetsHandle_);
@@ -2025,8 +2040,8 @@ bool PFRootEventManager::readFromSimulation(int entry) {
     genParticlesforJets_ = *genParticlesforJetsHandle_;
     // cout << "Found " << genParticlesforJets_.size() << " genParticlesforJets" << endl;
   } else { 
-    cerr<<"PFRootEventManager::ProcessEntry : genParticlesforJets Collection not found : "
-        <<entry << " " << genParticlesforJetsTag_<<endl;
+    //cerr<<"PFRootEventManager::ProcessEntry : genParticlesforJets Collection not found : "
+    //    <<entry << " " << genParticlesforJetsTag_<<endl;
   }
 
   bool foundgenParticlesforMET = iEvent.getByLabel(genParticlesforMETTag_,genParticlesforMETHandle_);
@@ -2034,8 +2049,8 @@ bool PFRootEventManager::readFromSimulation(int entry) {
     genParticlesCMSSW_ = *genParticlesforMETHandle_;
     // cout << "Found " << genParticlesCMSSW_.size() << " genParticlesforMET" << endl;
   } else { 
-    cerr<<"PFRootEventManager::ProcessEntry : genParticlesforMET Collection not found : "
-        <<entry << " " << genParticlesforMETTag_<<endl;
+    //cerr<<"PFRootEventManager::ProcessEntry : genParticlesforMET Collection not found : "
+    //    <<entry << " " << genParticlesforMETTag_<<endl;
   }
 
   bool foundcaloJets = iEvent.getByLabel(caloJetsTag_,caloJetsHandle_);
@@ -2720,6 +2735,8 @@ void PFRootEventManager::particleFlow() {
   pfAlgo_.reconstructParticles( *pfBlocks_.get() );
   //   pfAlgoOther_.reconstructParticles( blockh );
 
+  pfAlgo_.postMuonCleaning(muonsHandle_, *vertexh);
+
   pfAlgo_.checkCleaning( rechitsCLEANED_ );
 
   if( debug_) cout<< pfAlgo_<<endl;
@@ -2771,6 +2788,8 @@ void PFRootEventManager::reconstructGenJets() {
 
   genJets_.clear();
   genParticlesforJetsPtrs_.clear();
+
+  if ( !genParticlesforJets_.size() ) return;
 
   for(unsigned i=0; i<genParticlesforJets_.size(); i++) {
 

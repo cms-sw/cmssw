@@ -1,6 +1,6 @@
 
 root outfile benchmark.root
-root outtree 1
+root outtree 0
 
 //colin	mode 1
 
@@ -539,11 +539,11 @@ print PFBlocks     0
 // print reconstructed particles (PFCandidates) yes/no
 print PFCandidates  0
 // print PFCandidates pt threshold
-print PFCandidates_ptmin 0.0001
+print PFCandidates_ptmin 0.00001
 
 // print jets yes/no
 print jets 0
-print jets_ptmin 0.0
+print jets_ptmin 10.0
 
 //print Sim Particles yes/no
 print simParticles 0
@@ -565,7 +565,7 @@ particle_flow   comparison  0
 
 //tau benchmark options ---------------------------------------------------
 
-tau_benchmark	on/off	1
+tau_benchmark	on/off	0
 
 //debug yes/no
 tau_benchmark debug 0
@@ -581,7 +581,7 @@ tau_benchmark cone_merge 0.0
 
 //PFJet benchmark options ---------------------------------------------------
 
-pfjet_benchmark	on/off	1
+pfjet_benchmark	on/off	0
 
 //debug yes/no
 pfjet_benchmark debug 0
@@ -600,7 +600,7 @@ pfjet_benchmark deltaRMax 0.1
 
 //PFMET benchmark options ---------------------------------------------------
 
-pfmet_benchmark	on/off	1
+pfmet_benchmark	on/off	0
 
 // propagate the Jet Energy Corrections to the caloMET on/off
 pfmet_benchmark JECinCaloMET 0
@@ -612,7 +612,7 @@ pfmet_benchmark debug 0
 pfmet_benchmark outmetfile pfmetBenchmark.root
 
 //MET cut
-pfmet_benchmark truemetcut 10.0
+pfmet_benchmark truemetcut -1.0
 
 //MET cut (absolute value)
 pfmet_benchmark deltametcut 200.0
