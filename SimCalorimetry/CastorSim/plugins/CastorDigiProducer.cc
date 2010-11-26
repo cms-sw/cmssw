@@ -148,7 +148,7 @@ theCastorResponse->setGeometry(&*geometry);
 
 const vector<DetId>& castorCells = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
 
-std::cout<<"CastorDigiProducer::CheckGeometry number of cells: "<<castorCells.size()<<std::endl;
+//std::cout<<"CastorDigiProducer::CheckGeometry number of cells: "<<castorCells.size()<<std::endl;
 theCastorDigitizer->setDetIds(castorCells);
 }
 
