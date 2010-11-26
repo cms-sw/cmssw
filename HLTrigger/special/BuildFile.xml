@@ -1,6 +1,7 @@
 <use   name="root"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/L1TObjects"/>
+<use   name="CondFormats/EcalObjects"/>
 <use   name="DataFormats/CSCDigi"/>
 <use   name="DataFormats/CSCRecHit"/>
 <use   name="DataFormats/Common"/>
