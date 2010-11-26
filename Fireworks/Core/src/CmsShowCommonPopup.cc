@@ -10,7 +10,7 @@
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/src/FWDialogBuilder.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
-#include "Fireworks/Core/src/FWViewEnergyScaleEditor.h"
+#include "Fireworks/Core/interface/FWViewEnergyScaleEditor.h"
 
 #include "Fireworks/Core/interface/FWParameterSetterEditorBase.h"
 
