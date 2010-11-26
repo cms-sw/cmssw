@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.259 $"
+__version__ = "$Revision: 1.260 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -543,7 +543,7 @@ class ConfigBuilder(object):
         self.L1HwValDefaultSeq='L1HwVal'
         self.DQMDefaultSeq='DQMOffline'
         self.FASTSIMDefaultSeq='all'
-        self.VALIDATIONDefaultSeq='validation'
+        self.VALIDATIONDefaultSeq='prevalidation,validation'
         self.PATLayer0DefaultSeq='all'
         self.ENDJOBDefaultSeq='endOfProcess'
 	self.REPACKDefaultSeq='DigiToRawRepack'
@@ -555,6 +555,7 @@ class ConfigBuilder(object):
         # if fastsim switch event content
 	if "FASTSIM" in self.stepMap.keys():
                 self.EVTCONTDefaultCFF = "FastSimulation/Configuration/EventContent_cff"
+		self.VALIDATIONDefaultCFF = "FastSimulation.Configuration.Validation_cff"
 
         # if its MC then change the raw2digi
         if self._options.isMC==True:
@@ -798,6 +799,12 @@ class ConfigBuilder(object):
                 raise AttributeError("There is no filter sequence '"+sequence+"' defined in "+self._options.evt_type)
             else:
                 self.productionFilterSequence = sequence
+
+	#the gen filter in the endpath
+	#self.loadAndRemember(self.GENFILTERDefaultCFF)
+	#self.process.genfiltersummary_step = cms.EndPath( self.process.genFilterSummary )
+	#self.schedule.append(self.process.genfiltersummary_step)
+
         return
 
     def prepare_SIM(self, sequence = None):
@@ -1010,86 +1017,39 @@ class ConfigBuilder(object):
 
 
     def prepare_VALIDATION(self, sequence = 'validation'):
-	    if "FASTSIM" in self.stepMap.keys():
-		    self.loadAndRemember("FastSimulation.Configuration.Validation_cff")
-		    self.process.prevalidation_step = cms.Path( self.process.prevalidation )
-		    self.schedule.append( self.process.prevalidation_step )
-		    self.process.validation_step = cms.EndPath( getattr(self.process, sequence.split('.')[-1]) )
-		    self.schedule.append(self.process.validation_step)
-		    return
+	    self.loadDefaultOrSpecifiedCFF(sequence,self.VALIDATIONDefaultCFF)
+	    #in case VALIDATION:something:somethingelse -> something,somethingelse
+	    if sequence.split('.')[-1].find(',')!=-1:
+		    prevalSeqName=sequence.split('.')[-1].split(',')[0]
+		    valSeqName=sequence.split('.')[-1].split(',')[1]
 	    else:
-		    self.loadDefaultOrSpecifiedCFF(sequence,self.VALIDATIONDefaultCFF)
-		    if not 'DIGI' in self.stepMap:
-			    self.loadAndRemember('Configuration.StandardSequences.ReMixingSeeds_cff')
-	    if 'HLT' in self.stepMap:
-		    ### terrible hack for NOW
-		    self.executeAndRemember('process.prevalidation = cms.Sequence( cms.SequencePlaceholder("mix") )')
-		    def move(self,process,valSeqName,prevalSeqName,modules):
-			    valSeq = getattr(process,valSeqName)
-			    for module in modules:
-				    m=getattr(process,module)
-				    self.executeAndRemember("process.%s *= process.%s"%(prevalSeqName,module))
-				    self.executeAndRemember("process.%s.remove( process.%s )"%(valSeqName,module))
-				    
-		    move(self,self.process,
-			 sequence.split('.')[-1],
-			 'prevalidation',
-			 ['cutsRecoTracksHp',
-			  'cutsRecoTracksZero',
-			  'cutsRecoTracksZeroHp',
-			  'cutsRecoTracksFirst',
-			  'cutsRecoTracksFirstHp',
-			  'cutsRecoTracksSecond',
-			  'cutsRecoTracksSecondHp',
-			  'cutsRecoTracksThird',
-			  'cutsRecoTracksThirdHp',
-			  'cutsRecoTracksFourth',
-			  'cutsRecoTracksFourthHp',
-			  'cutsRecoTracksFifth',
-			  'cutsRecoTracksFifthHp',
-			  'genpartWenu',
-			  'fiducialWenu',
-			  'genpartZee',
-			  'fiducialZee',
-			  'genpartGammaJet',
-			  'fiducialGammaJet',
-			  'genpartDiGamma',
-			  'fiducialDiGamma',
-			  'tpSelection',
-			  'tpSelecForFakeRate',
-			  'tpSelecForEfficiency'])
+		    prevalSeqName=''
+		    valSeqName=sequence.split('.')[-1]
 		    
-		    ##the HACK ends above
-		    #in order to access the trigger result: same as DQM
-		    import sys
-		    sys.setrecursionlimit(10000) 
+	    if not 'DIGI' in self.stepMap and not 'FASTSIM' in self.stepMap:
+		    self.loadAndRemember('Configuration.StandardSequences.ReMixingSeeds_cff')
+	    #rename the HLT process in validation steps
+	    if 'HLT' in self.stepMap and not 'FASTSIM' in self.stepMap:
+		    toProcess=self.process.name_()
 		    if self._options.hltProcess:
-			    self.renameHLTprocessInSequence(sequence.split('.')[-1], self._options.hltProcess)
-			    self.renameHLTprocessInSequence('prevalidation', self._options.hltProcess)			    
-		    else:
-			    self.renameHLTprocessInSequence(sequence.split('.')[-1], self.process.name_())
-			    self.renameHLTprocessInSequence('prevalidation', self.process.name_())
-		    self.process.validation_step = cms.EndPath( getattr(self.process, sequence.split('.')[-1]) )
-		    self.process.prevalidation_step = cms.Path( self.process.prevalidation )
+			    toProcess=self._options.hltProcess
+		    self.renameHLTprocessInSequence(valSeqName, toProcess)
+		    if prevalSeqName:
+			    self.renameHLTprocessInSequence(prevalSeqName, toProcess)
+
+	    if prevalSeqName:
+		    self.process.prevalidation_step = cms.Path( getattr(self.process, prevalSeqName ) )
 		    self.schedule.append(self.process.prevalidation_step)
-		    
-	    else:
-		    if sequence.split('.')[-1].find(',')!=-1:
-			    prevalSeqName=sequence.split('.')[-1].split(',')[0]
-			    valSeqName=sequence.split('.')[-1].split(',')[1]
-			    self.process.prevalidation_step = cms.Path( getattr(self.process, prevalSeqName ) )
-			    self.process.validation_step = cms.EndPath( getattr(self.process,valSeqName ) )
-			    self.schedule.append(self.process.prevalidation_step)
-		    else:
-			    self.process.validation_step = cms.Path( getattr(self.process, sequence.split('.')[-1]) )
-		    
-	    if 'genvalid' in sequence.split('.')[-1]:
-		    self.loadAndRemember("IOMC.RandomEngine.IOMC_cff")
+	    self.process.validation_step = cms.EndPath( getattr(self.process,valSeqName ) )
 	    self.schedule.append(self.process.validation_step)
-	    #print self._options.step
-	    if not 'DIGI'  in self.stepMap:
+
+	    if valSeqName=='genvalid':
+		    self.loadAndRemember("IOMC.RandomEngine.IOMC_cff")
+
+	    if not 'DIGI' in self.stepMap:
 		    self.executeAndRemember("process.mix.playback = True")
 	    return
+	    
 
     class MassSearchReplaceProcessNameVisitor(object):
             """Visitor that travels within a cms.Sequence, looks for a parameter and replace its value
@@ -1246,9 +1206,10 @@ class ConfigBuilder(object):
         self.schedule.append(self.process.endjob_step)
 
         if 'GEN' in self.stepMap.keys():
-            self.loadAndRemember(self.GENFILTERDefaultCFF)
-            self.process.genfiltersummary_step = cms.EndPath( self.process.genFilterSummary )
-            self.schedule.append(self.process.genfiltersummary_step)
+		self.loadAndRemember(self.GENFILTERDefaultCFF)
+		self.process.genfiltersummary_step = cms.EndPath( self.process.genFilterSummary )
+		self.schedule.append(self.process.genfiltersummary_step)
+
 
     def finalizeFastSimHLT(self):
             self.process.HLTSchedule.remove(self.process.HLTAnalyzerEndpath)
@@ -1306,7 +1267,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.259 $"),
+					    (version=cms.untracked.string("$Revision: 1.260 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
