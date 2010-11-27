@@ -33,7 +33,7 @@ JetPlusTrackZSPCorJetIconePu5 = cms.EDProducer(
     PU = cms.int32(-1),
     FixedPU = cms.int32(0),
     UseZSP = cms.bool(True),
-    srcPVs  = cms.InputTag('hiSelectedVertices'),
+    srcPVs  = cms.InputTag('hiSelectedVertex'),
     alias = cms.untracked.string('JetPlusTrackZSPCorJetIcone5')
     )
     
@@ -43,6 +43,7 @@ JetPlusTrackZSPCorJetIconePu5.JetSplitMerge = cms.int32(0)
 JetPlusTrackZSPCorJetIconePu5.UseTrackQuality = cms.bool(False)
 JetPlusTrackZSPCorJetIconePu5.UseMuons = cms.bool(False)
 JetPlusTrackZSPCorJetIconePu5.UseElectrons = cms.bool(False)
+#JetPlusTrackZSPCorJetIconePu5.EfficiencyMap = cms.string("CondFormats/JetMETObjects/data/CMSSW_362HI3_TrackNonEff.txt")
 
 
 JetPlusTrackZSPCorJetSisconePu5 = cms.EDProducer(
@@ -55,7 +56,7 @@ JetPlusTrackZSPCorJetSisconePu5 = cms.EDProducer(
     tagNameOffset = cms.vstring(),
     PU = cms.int32(-1),
     FixedPU = cms.int32(0),    
-    srcPVs  = cms.InputTag('hiSelectedVertices'),
+    srcPVs  = cms.InputTag('hiSelectedVertex'),
     alias = cms.untracked.string('JetPlusTrackZSPCorJetSiscone5')
     )
 
@@ -65,6 +66,7 @@ JetPlusTrackZSPCorJetSisconePu5.JetSplitMerge = cms.int32(1)
 JetPlusTrackZSPCorJetSisconePu5.UseTrackQuality = cms.bool(False)
 JetPlusTrackZSPCorJetSisconePu5.UseMuons = cms.bool(False)
 JetPlusTrackZSPCorJetSisconePu5.UseElectrons = cms.bool(False)
+#JetPlusTrackZSPCorJetSisconePu5.EfficiencyMap = cms.string("CondFormats/JetMETObjects/data/CMSSW_362HI3_TrackNonEff.txt")
 
 JetPlusTrackZSPCorJetAntiKtPu5 = cms.EDProducer(
     "JetPlusTrackProducerAA",
@@ -76,7 +78,7 @@ JetPlusTrackZSPCorJetAntiKtPu5 = cms.EDProducer(
     tagNameOffset = cms.vstring(),
     PU = cms.int32(-1),
     FixedPU = cms.int32(0),    
-    srcPVs  = cms.InputTag('hiSelectedVertices'),
+    srcPVs  = cms.InputTag('hiSelectedVertex'),
     alias = cms.untracked.string('JetPlusTrackZSPCorJetAntiKt5')
     )
 
@@ -87,6 +89,7 @@ JetPlusTrackZSPCorJetAntiKtPu5.JetSplitMerge = cms.int32(2)
 JetPlusTrackZSPCorJetAntiKtPu5.UseTrackQuality = cms.bool(False)
 JetPlusTrackZSPCorJetAntiKtPu5.UseMuons = cms.bool(False)
 JetPlusTrackZSPCorJetAntiKtPu5.UseElectron = cms.bool(False)
+#JetPlusTrackZSPCorJetAntiKtPu5.EfficiencyMap = cms.string("CondFormats/JetMETObjects/data/CMSSW_362HI3_TrackNonEff.txt")
 
 ##### Association 
 
