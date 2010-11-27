@@ -3,6 +3,9 @@ import FWCore.ParameterSet.Config as cms
 # keep IC5 association for backward compatibility for external use
 from RecoJets.JetAssociationProducers.ic5JetTracksAssociatorAtVertex_cfi import *
 from RecoJets.JetAssociationProducers.trackExtrapolator_cfi import *
+#JPTtrackExtrapolatorAA = trackExtrapolator.clone()
+trackExtrapolator.trackSrc = cms.InputTag("hiSelectedTracks")
+
 # standard associations
 from RecoJets.JetAssociationProducers.iterativeCone5JTA_cff import *
 from RecoJets.JetAssociationProducers.sisCone5JTA_cff import *
@@ -30,7 +33,7 @@ JetPlusTrackZSPCorJetIconePu5 = cms.EDProducer(
     PU = cms.int32(-1),
     FixedPU = cms.int32(0),
     UseZSP = cms.bool(True),
-    srcPVs  = cms.InputTag('offlinePrimaryVertices'),
+    srcPVs  = cms.InputTag('hiSelectedVertices'),
     alias = cms.untracked.string('JetPlusTrackZSPCorJetIcone5')
     )
     
@@ -52,7 +55,7 @@ JetPlusTrackZSPCorJetSisconePu5 = cms.EDProducer(
     tagNameOffset = cms.vstring(),
     PU = cms.int32(-1),
     FixedPU = cms.int32(0),    
-    srcPVs  = cms.InputTag('offlinePrimaryVertices'),
+    srcPVs  = cms.InputTag('hiSelectedVertices'),
     alias = cms.untracked.string('JetPlusTrackZSPCorJetSiscone5')
     )
 
@@ -73,7 +76,7 @@ JetPlusTrackZSPCorJetAntiKtPu5 = cms.EDProducer(
     tagNameOffset = cms.vstring(),
     PU = cms.int32(-1),
     FixedPU = cms.int32(0),    
-    srcPVs  = cms.InputTag('offlinePrimaryVertices'),
+    srcPVs  = cms.InputTag('hiSelectedVertices'),
     alias = cms.untracked.string('JetPlusTrackZSPCorJetAntiKt5')
     )
 
