@@ -7,16 +7,32 @@
 // Package:    PatAlgos
 // Class:      pat::PATTriggerProducer
 //
-// $Id: PATTriggerProducer.h,v 1.13 2010/10/29 13:28:41 gpetrucc Exp $
+// $Id: PATTriggerProducer.h,v 1.12.2.2 2010/11/05 17:33:37 vadler Exp $
 //
 /**
   \class    pat::PATTriggerProducer PATTriggerProducer.h "PhysicsTools/PatAlgos/plugins/PATTriggerProducer.h"
-  \brief    Produces the pat::TriggerPathCollection, pat::TriggerFilterCollection and pat::TriggerObjectCollection.
+  \brief    Produces the full or stand-alone PAT trigger information collections
 
-   [...]
+   This producer extracts the trigger information from
+   - the edm::TriggerResults written by the HLT process,
+   - the corresponding trigger::TriggerEvent,
+   - the provenance information,
+   - the process history,
+   - the GlobalTrigger information in the event and the event setup and
+   - the L1 object collections ("l1extra")
+   re-arranges it and writes it either (full mode) to
+   - a pat::TriggerObjectCollection,
+   - a pat::TriggerFilterCollection,
+   - a pat::TriggerPathCollection and
+   - optionally a pat::TriggerAlgorithmCollection
+   or (stand-alone mode) to
+   - a pat::TriggerObjectStandAloneCollection
+
+   For me information, s.
+   https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger
 
   \author   Volker Adler
-  \version  $Id: PATTriggerProducer.h,v 1.13 2010/10/29 13:28:41 gpetrucc Exp $
+  \version  $Id: PATTriggerProducer.h,v 1.12.2.2 2010/11/05 17:33:37 vadler Exp $
 */
 
 
@@ -46,11 +62,6 @@ namespace pat {
       virtual void beginRun( edm::Run & iRun, const edm::EventSetup & iSetup );
       virtual void beginLuminosityBlock( edm::LuminosityBlock & iLuminosityBlock, const edm::EventSetup & iSetup );
       virtual void produce( edm::Event & iEvent, const edm::EventSetup & iSetup );
-
-      // I need to make a copy of these two methods taking const Run and const LumiBlock
-      // so that I can call them from 'produce', when auto-discovering process name
-      void beginConstRun( const edm::Run & iRun, const edm::EventSetup & iSetup );
-      void beginConstLuminosityBlock( const edm::LuminosityBlock & iLuminosityBlock, const edm::EventSetup & iSetup );
 
       std::string nameProcess_;     // configuration
       bool        autoProcessName_;

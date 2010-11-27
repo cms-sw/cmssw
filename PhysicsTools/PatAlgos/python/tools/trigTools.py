@@ -592,18 +592,31 @@ class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
         sequence        = self._parameters[ 'sequence' ].value
         hltProcess      = self._parameters[ 'hltProcess' ].value
         outputModule    = self._parameters[ 'outputModule' ].value
-        dictEmbedders = { 'selectedPatPhotons'  : 'PATTriggerMatchPhotonEmbedder'
-                        , 'cleanPatPhotons'     : 'PATTriggerMatchPhotonEmbedder'
-                        , 'selectedPatElectrons': 'PATTriggerMatchElectronEmbedder'
-                        , 'cleanPatElectrons'   : 'PATTriggerMatchElectronEmbedder'
-                        , 'selectedPatMuons'    : 'PATTriggerMatchMuonEmbedder'
-                        , 'cleanPatMuons'       : 'PATTriggerMatchMuonEmbedder'
-                        , 'selectedPatTaus'     : 'PATTriggerMatchTauEmbedder'
-                        , 'cleanPatTaus'        : 'PATTriggerMatchTauEmbedder'
-                        , 'selectedPatJets'     : 'PATTriggerMatchJetEmbedder'
-                        , 'cleanPatJets'        : 'PATTriggerMatchJetEmbedder'
-                        , 'patMETs'             : 'PATTriggerMatchMETEmbedder'
-                        }
+
+        # Build dictionary of known input collections
+        dictPatObjects = { 'Photons'  : 'PATTriggerMatchPhotonEmbedder'
+                         , 'Electrons': 'PATTriggerMatchElectronEmbedder'
+                         , 'Muons'    : 'PATTriggerMatchMuonEmbedder'
+                         , 'Taus'     : 'PATTriggerMatchTauEmbedder'
+                         , 'Jets'     : 'PATTriggerMatchJetEmbedder'
+                         , 'METs'     : 'PATTriggerMatchMETEmbedder'
+                         }
+        listPatSteps   = [ 'pat', 'selectedPat', 'cleanPat' ]
+        listJetAlgos   = [ 'IC5', 'SC5', 'KT4', 'KT6', 'AK5' ]
+        listJetTypes   = [ 'Calo', 'PF', 'JPT' ]
+        dictEmbedders  = {}
+        for objects in dictPatObjects.keys():
+            steps = len( listPatSteps )
+            if objects is 'METs':
+                steps = 1
+            for step in range( steps ):
+                coll = listPatSteps[ step ] + objects
+                dictEmbedders[ coll ] = dictPatObjects[ objects ]
+                if objects is 'Jets':
+                    for jetAlgo in listJetAlgos:
+                        for jetType in listJetTypes:
+                            jetColl = coll + jetAlgo + jetType
+                            dictEmbedders[ jetColl ] = dictPatObjects[ objects ]
 
         # Load default producers from existing config file, if needed
         if not hasattr( process, 'patTriggerMatchEmbedderDefaultSequence' ):

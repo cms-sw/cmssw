@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerEventProducer.cc,v 1.12 2010/08/03 10:32:43 vadler Exp $
+// $Id: PATTriggerEventProducer.cc,v 1.12.2.1 2010/10/31 16:20:32 vadler Exp $
 //
 
 
@@ -14,6 +14,8 @@
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/PatCandidates/interface/TriggerEvent.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 #include "DataFormats/Common/interface/AssociativeIterator.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -27,22 +29,23 @@ using namespace edm;
 PATTriggerEventProducer::PATTriggerEventProducer( const ParameterSet & iConfig ) :
   nameProcess_( iConfig.getParameter< std::string >( "processName" ) ),
   autoProcessName_( nameProcess_ == "*" ),
+  tagTriggerProducer_( "patTrigger" ),
+  tagsTriggerMatcher_(),
+  // L1 configuration parameters
+  tagL1Gt_(),
+  // HLT configuration parameters
   tagTriggerResults_( "TriggerResults" ),
   tagTriggerEvent_( "hltTriggerSummaryAOD" ),
-  tagTriggerProducer_( "patTrigger" ),
-  tagCondGt_(),
-  tagL1Gt_(),
-  tagsTriggerMatcher_()
+  // Conditions configuration parameters
+  tagCondGt_()
 {
 
   if ( iConfig.exists( "triggerResults" ) )     tagTriggerResults_  = iConfig.getParameter< InputTag >( "triggerResults" );
-  if ( iConfig.exists( "triggerEvent" ) )        tagTriggerEvent_        = iConfig.getParameter< InputTag >( "triggerEvent" );
+  if ( iConfig.exists( "triggerEvent" ) )       tagTriggerEvent_    = iConfig.getParameter< InputTag >( "triggerEvent" );
   if ( iConfig.exists( "patTriggerProducer" ) ) tagTriggerProducer_ = iConfig.getParameter< InputTag >( "patTriggerProducer" );
   if ( iConfig.exists( "condGtTag" ) )          tagCondGt_          = iConfig.getParameter< InputTag >( "condGtTag" );
   if ( iConfig.exists( "l1GtTag" ) )            tagL1Gt_            = iConfig.getParameter< InputTag >( "l1GtTag" );
   if ( iConfig.exists( "patTriggerMatches" ) )  tagsTriggerMatcher_ = iConfig.getParameter< std::vector< InputTag > >( "patTriggerMatches" );
-  if ( tagTriggerResults_.process().empty() ) tagTriggerResults_ = InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), nameProcess_ );
-  if ( tagTriggerEvent_.process().empty() )   tagTriggerEvent_   = InputTag( tagTriggerEvent_.label(), tagTriggerEvent_.instance(), nameProcess_ );
 
   for ( size_t iMatch = 0; iMatch < tagsTriggerMatcher_.size(); ++iMatch ) {
     produces< TriggerObjectMatch >( tagsTriggerMatcher_.at( iMatch ).label() );
@@ -54,12 +57,44 @@ PATTriggerEventProducer::PATTriggerEventProducer( const ParameterSet & iConfig )
 
 void PATTriggerEventProducer::beginRun( Run & iRun, const EventSetup & iSetup )
 {
-  if (autoProcessName_ && (nameProcess_ == "*")) return;
-  beginConstRun(iRun, iSetup);
-}
 
-void PATTriggerEventProducer::beginConstRun( const Run & iRun, const EventSetup & iSetup )
-{
+  // Initialize process name
+  if ( autoProcessName_ ) {
+    // reset
+    nameProcess_ = "*";
+    // determine process name from last run TriggerSummaryProducerAOD module in process history of input
+    const ProcessHistory & processHistory( iRun.processHistory() );
+    ProcessConfiguration processConfiguration;
+    ParameterSet processPSet;
+    // unbroken loop, which relies on time ordering (accepts the last found entry)
+    for ( ProcessHistory::const_iterator iHist = processHistory.begin(); iHist != processHistory.end(); ++iHist ) {
+      if ( processHistory.getConfigurationForProcess( iHist->processName(), processConfiguration )     &&
+           pset::Registry::instance()->getMapped( processConfiguration.parameterSetID(), processPSet ) &&
+           processPSet.exists( tagTriggerEvent_.label() )
+         ) {
+        nameProcess_ = iHist->processName();
+        LogDebug( "autoProcessName" ) << "HLT process name '" << nameProcess_ << "' discovered";
+      }
+    }
+    // terminate, if nothing is found
+    if ( nameProcess_ == "*" ) {
+      LogError( "autoProcessName" ) << "trigger::TriggerEvent product with label '" << tagTriggerEvent_.label() << "' not produced according to process history of input data\n"
+                                    << "No trigger information produced.";
+      return;
+    }
+    LogInfo( "autoProcessName" ) << "HLT process name " << nameProcess_ << " used for PAT trigger information";
+  }
+  // adapt configuration of used input tags
+  if ( tagTriggerResults_.process().empty() || tagTriggerResults_.process() == "*" ) {
+    tagTriggerResults_ = InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), nameProcess_ );
+  } else if ( tagTriggerEvent_.process() != nameProcess_ ) {
+    LogWarning( "triggerResultsTag" ) << "TriggerResults process name '" << tagTriggerResults_.process() << "' differs from HLT process name '" << nameProcess_ << "'";
+  }
+  if ( tagTriggerEvent_.process().empty() || tagTriggerEvent_.process()   == "*" ) {
+    tagTriggerEvent_ = InputTag( tagTriggerEvent_.label(), tagTriggerEvent_.instance(), nameProcess_ );
+  } else if ( tagTriggerEvent_.process() != nameProcess_ ) {
+    LogWarning( "triggerEventTag" ) << "TriggerEvent process name '" << tagTriggerEvent_.process() << "' differs from HLT process name '" << nameProcess_ << "'";
+  }
 
   gtCondRunInit_ = false;
   if ( ! tagCondGt_.label().empty() ) {
@@ -69,7 +104,7 @@ void PATTriggerEventProducer::beginConstRun( const Run & iRun, const EventSetup 
       condRun_       = *condRunBlock;
       gtCondRunInit_ = true;
     } else {
-      LogError( "noConditionsInEdm" ) << "ConditionsInRunBlock product with InputTag " << tagCondGt_.encode() << " not in run";
+      LogError( "conditionsInEdm" ) << "ConditionsInRunBlock product with InputTag '" << tagCondGt_.encode() << "' not in run";
     }
   }
 
@@ -77,7 +112,7 @@ void PATTriggerEventProducer::beginConstRun( const Run & iRun, const EventSetup 
   hltConfigInit_ = false;
   bool changed( true );
   if ( ! hltConfig_.init( iRun, iSetup, nameProcess_, changed ) ) {
-    LogError( "errorHltConfigExtraction" ) << "HLT config extraction error with process name " << nameProcess_;
+    LogError( "hltConfigExtraction" ) << "HLT config extraction error with process name '" << nameProcess_ << "'";
   } else if ( hltConfig_.size() <= 0 ) {
     LogError( "hltConfigSize" ) << "HLT config size error";
   } else hltConfigInit_ = true;
@@ -86,23 +121,19 @@ void PATTriggerEventProducer::beginConstRun( const Run & iRun, const EventSetup 
 
 void PATTriggerEventProducer::beginLuminosityBlock( LuminosityBlock & iLuminosityBlock, const EventSetup & iSetup )
 {
-  if (autoProcessName_ && (nameProcess_ == "*")) return;
-  beginConstLuminosityBlock( iLuminosityBlock, iSetup );
-}
 
-
-void PATTriggerEventProducer::beginConstLuminosityBlock( const LuminosityBlock & iLumi, const EventSetup & iSetup )
-{
+  // Terminate, if auto process name determination failed
+  if ( nameProcess_ == "*" ) return;
 
   gtCondLumiInit_ = false;
   if ( ! tagCondGt_.label().empty() ) {
     Handle< ConditionsInLumiBlock > condLumiBlock;
-    iLumi.getByLabel( tagCondGt_, condLumiBlock );
+    iLuminosityBlock.getByLabel( tagCondGt_, condLumiBlock );
     if ( condLumiBlock.isValid() ) {
       condLumi_       = *condLumiBlock;
       gtCondLumiInit_ = true;
     } else {
-      LogError( "noConditionsInEdm" ) << "ConditionsInLumiBlock product with InputTag " << tagCondGt_.encode() << " not in lumi";
+      LogError( "conditionsInEdm" ) << "ConditionsInLumiBlock product with InputTag '" << tagCondGt_.encode() << "' not in lumi";
     }
   }
 
@@ -112,21 +143,8 @@ void PATTriggerEventProducer::beginConstLuminosityBlock( const LuminosityBlock &
 void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
 {
 
-  if (autoProcessName_) {
-    Handle< trigger::TriggerEvent > handleTriggerEvent;
-    iEvent.getByLabel( edm::InputTag(tagTriggerEvent_.label(), tagTriggerEvent_.instance()), handleTriggerEvent );
-    if (!handleTriggerEvent.failedToGet()) {
-        const edm::Provenance *meta = handleTriggerEvent.provenance();
-        if (meta->processName() != nameProcess_) {
-            nameProcess_ = meta->processName();
-            LogInfo("AutoProcessName") << "Discovered trigger process name " << nameProcess_ << std::endl;
-            tagTriggerResults_ = InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), nameProcess_ );
-            tagTriggerEvent_   = InputTag( tagTriggerEvent_.label(),   tagTriggerEvent_.instance(),   nameProcess_ );
-            beginConstRun(iEvent.getRun(), iSetup);
-            beginConstLuminosityBlock(iEvent.getLuminosityBlock(), iSetup);
-        }
-    }
-  }
+  // Terminate, if auto process name determination failed
+  if ( nameProcess_ == "*" ) return;
 
   if ( ! hltConfigInit_ ) return;
 
@@ -135,7 +153,8 @@ void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
   Handle< TriggerResults > handleTriggerResults;
   iEvent.getByLabel( tagTriggerResults_, handleTriggerResults );
   if ( ! handleTriggerResults.isValid() ) {
-    LogError( "triggerResultsValid" ) << "TriggerResults product with InputTag " << tagTriggerResults_.encode() << " not in event";
+    LogError( "triggerResultsValid" ) << "TriggerResults product with InputTag '" << tagTriggerResults_.encode() << "' not in event\n"
+                                      << "No trigger information produced";
     return;
   }
   Handle< TriggerAlgorithmCollection > handleTriggerAlgorithms;
@@ -160,7 +179,7 @@ void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
         physDecl = true;
       }
     } else {
-      LogError( "l1GlobalTriggerReadoutRecordValid" ) << "L1GlobalTriggerReadoutRecord product with InputTag " << tagL1Gt_.encode() << " not in event";
+      LogError( "l1GlobalTriggerReadoutRecordValid" ) << "L1GlobalTriggerReadoutRecord product with InputTag '" << tagL1Gt_.encode() << "' not in event";
     }
   } else {
     physDecl = true;
@@ -174,22 +193,22 @@ void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
   if ( handleTriggerAlgorithms.isValid() ) {
     triggerEvent->setAlgorithms( handleTriggerAlgorithms );
   } else {
-    LogError( "triggerAlgorithmsValid" ) << "pat::TriggerAlgorithmCollection product with InputTag " << tagTriggerProducer_.encode() << " not in event";
+    LogError( "triggerAlgorithmsValid" ) << "pat::TriggerAlgorithmCollection product with InputTag '" << tagTriggerProducer_.encode() << "' not in event";
   }
   if ( handleTriggerPaths.isValid() ) {
     triggerEvent->setPaths( handleTriggerPaths );
   } else {
-    LogError( "triggerPathsValid" ) << "pat::TriggerPathCollection product with InputTag " << tagTriggerProducer_.encode() << " not in event";
+    LogError( "triggerPathsValid" ) << "pat::TriggerPathCollection product with InputTag '" << tagTriggerProducer_.encode() << "' not in event";
   }
   if ( handleTriggerFilters.isValid() ) {
     triggerEvent->setFilters( handleTriggerFilters );
   } else {
-    LogError( "triggerFiltersValid" ) << "pat::TriggerFilterCollection product with InputTag " << tagTriggerProducer_.encode() << " not in event";
+    LogError( "triggerFiltersValid" ) << "pat::TriggerFilterCollection product with InputTag '" << tagTriggerProducer_.encode() << "' not in event";
   }
   if ( handleTriggerObjects.isValid() ) {
     triggerEvent->setObjects( handleTriggerObjects );
   } else {
-    LogError( "triggerObjectsValid" ) << "pat::TriggerObjectCollection product with InputTag " << tagTriggerProducer_.encode() << " not in event";
+    LogError( "triggerObjectsValid" ) << "pat::TriggerObjectCollection product with InputTag '" << tagTriggerProducer_.encode() << "' not in event";
   }
   if ( gtCondRunInit_ ) {
     triggerEvent->setLhcFill( condRun_.lhcFillNumber );
@@ -210,7 +229,7 @@ void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
       triggerEvent->setBstMasterStatus( condEventBlock->bstMasterStatus );
       triggerEvent->setTurnCount( condEventBlock->turnCountNumber );
     } else {
-      LogError( "noConditionsInEdm" ) << "ConditionsInEventBlock product with InputTag " << tagCondGt_.encode() << " not in event";
+      LogError( "conditionsInEdm" ) << "ConditionsInEventBlock product with InputTag '" << tagCondGt_.encode() << "' not in event";
     }
   }
 
@@ -223,7 +242,7 @@ void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
       Handle< TriggerObjectStandAloneMatch > handleTriggerObjectStandAloneMatch;
       iEvent.getByLabel( labelTriggerObjectMatcher, handleTriggerObjectStandAloneMatch );
       if ( ! handleTriggerObjectStandAloneMatch.isValid() ) {
-        LogError( "triggerMatchValid" ) << "pat::TriggerObjectStandAloneMatch product with InputTag " << labelTriggerObjectMatcher << " not in event";
+        LogError( "triggerMatchValid" ) << "pat::TriggerObjectStandAloneMatch product with InputTag '" << labelTriggerObjectMatcher << "' not in event";
         continue;
       }
       AssociativeIterator< reco::CandidateBaseRef, TriggerObjectStandAloneMatch > it( *handleTriggerObjectStandAloneMatch, EdmEventItemGetter< reco::CandidateBaseRef >( iEvent ) ), itEnd( it.end() );
@@ -243,11 +262,11 @@ void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
       OrphanHandle< TriggerObjectMatch > handleTriggerObjectMatch( iEvent.put( triggerObjectMatch, labelTriggerObjectMatcher ) );
       // set product reference to trigger match association
       if ( ! handleTriggerObjectMatch.isValid() ) {
-        LogError( "triggerMatchValid" ) << "pat::TriggerObjectMatch product with InputTag " << labelTriggerObjectMatcher << " not in event";
+        LogError( "triggerMatchValid" ) << "pat::TriggerObjectMatch product with InputTag '" << labelTriggerObjectMatcher << "' not in event";
         continue;
       }
       if ( ! ( triggerEvent->addObjectMatchResult( handleTriggerObjectMatch, labelTriggerObjectMatcher ) ) ) {
-        LogWarning( "triggerObjectMatchReplication" ) << "pat::TriggerEvent contains already a pat::TriggerObjectMatch from matcher module " << labelTriggerObjectMatcher;
+        LogWarning( "triggerObjectMatchReplication" ) << "pat::TriggerEvent contains already a pat::TriggerObjectMatch from matcher module '" << labelTriggerObjectMatcher << "'";
       }
     }
   }
