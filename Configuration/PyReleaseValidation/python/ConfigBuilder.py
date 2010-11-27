@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.261 $"
+__version__ = "$Revision: 1.262 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -1040,11 +1040,12 @@ class ConfigBuilder(object):
 	    if prevalSeqName:
 		    self.process.prevalidation_step = cms.Path( getattr(self.process, prevalSeqName ) )
 		    self.schedule.append(self.process.prevalidation_step)
-	    self.process.validation_step = cms.EndPath( getattr(self.process,valSeqName ) )
-	    self.schedule.append(self.process.validation_step)
-
 	    if valSeqName.startswith('genvalid'):
 		    self.loadAndRemember("IOMC.RandomEngine.IOMC_cff")
+		    self.process.validation_step = cms.Path( getattr(self.process,valSeqName ) )
+	    else:
+		    self.process.validation_step = cms.EndPath( getattr(self.process,valSeqName ) )
+	    self.schedule.append(self.process.validation_step)
 
 	    if not 'DIGI' in self.stepMap:
 		    self.executeAndRemember("process.mix.playback = True")
@@ -1267,7 +1268,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.261 $"),
+					    (version=cms.untracked.string("$Revision: 1.262 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
