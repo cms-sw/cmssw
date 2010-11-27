@@ -511,8 +511,10 @@ int CastorSD::setTrackID (G4Step* aStep) {
   TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
   int      primaryID = trkInfo->getIDonCaloSurface();
   if (primaryID == 0) {
+#ifdef debugLog
     edm::LogWarning("ForwardSim") << "CastorSD: Problem with primaryID **** set by force "
 				  << "to TkID **** " << theTrack->GetTrackID();
+#endif
     primaryID = theTrack->GetTrackID();
   }
 
