@@ -16,7 +16,7 @@
 #include "G4GFlashSpot.hh"
 #include "G4ParticleTable.hh"
 
-#define DebugLog
+//#define DebugLog
 
 CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
 	       SensitiveDetectorCatalog & clg, 
