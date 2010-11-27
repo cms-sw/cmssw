@@ -956,7 +956,7 @@
       <string>1</string>
     </config>
     <config name="cameraZoomPF ECAL Lego" version="0">
-      <string>3.14144</string>
+      <string>1</string>
     </config>
     <config name="cameraMatrix0PF ECAL Lego" version="0">
       <string>1</string>
@@ -995,13 +995,13 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix12PF ECAL Lego" version="0">
-      <string>49.6412</string>
+      <string>16</string>
     </config>
     <config name="cameraMatrix13PF ECAL Lego" version="0">
-      <string>-0.213873</string>
+      <string>0</string>
     </config>
     <config name="cameraMatrix14PF ECAL Lego" version="0">
-      <string>-0.172819</string>
+      <string>0</string>
     </config>
     <config name="cameraMatrix15PF ECAL Lego" version="0">
       <string>1</string>

@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.47 2010/11/26 20:24:48 amraktad Exp $
+// $Id: FWEveView.cc,v 1.48 2010/11/27 22:08:24 amraktad Exp $
 //
 
 
@@ -310,7 +310,7 @@ FWEveView::setupEnergyScale()
       if (FWViewType::isLego(typeId()))
       {
          float f = energyScale->getScaleFactorLego();
-         calo->SetMaxValAbs(TMath::Pi()/f);
+         calo->SetMaxValAbs(1./f);
       }
       else
       {
