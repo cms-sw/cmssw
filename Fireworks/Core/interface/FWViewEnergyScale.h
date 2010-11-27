@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Jun 18 20:37:55 CEST 2010
-// $Id: FWViewEnergyScale.h,v 1.6 2010/11/21 19:36:19 amraktad Exp $
+// $Id: FWViewEnergyScale.h,v 1.7 2010/11/26 20:24:47 amraktad Exp $
 //
 
 // system include files
@@ -56,6 +56,7 @@ public:
    const std::string& name() const { return m_name; } 
 
    virtual void setFrom(const FWConfiguration&);
+   void SetFromCmsShowCommonConfig(long mode, float convert, float maxH, bool et);
 
 protected:
    FWEnumParameter    m_scaleMode;

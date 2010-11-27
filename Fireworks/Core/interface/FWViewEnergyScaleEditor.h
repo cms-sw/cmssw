@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 24 18:52:28 CEST 2010
-// $Id: FWViewEnergyScaleEditor.h,v 1.4 2010/11/11 19:45:49 amraktad Exp $
+// $Id: FWViewEnergyScaleEditor.h,v 1.1 2010/11/26 20:24:47 amraktad Exp $
 //
 
 // system include files
@@ -38,7 +38,7 @@ class TGCheckButton;
 class FWViewEnergyScaleEditor : public TGVerticalFrame, public FWParameterSetterEditorBase
 {
 public:
-   FWViewEnergyScaleEditor( FWViewEnergyScale* s, TGCompositeFrame* w);
+   FWViewEnergyScaleEditor( FWViewEnergyScale* s, TGCompositeFrame* w, bool addAutoScaleControll = true);
    virtual ~FWViewEnergyScaleEditor();
 
    // ---------- const member functions ---------------------
@@ -52,7 +52,6 @@ public:
 
 private:
    FWViewEnergyScaleEditor(const FWViewEnergyScaleEditor&); // stop default
-
    const FWViewEnergyScaleEditor& operator=(const FWViewEnergyScaleEditor&); // stop default
    
    void addParam(const FWParameterBase*, const char* title = 0);   

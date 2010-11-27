@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel 
 //         Created:  Fri Sep 24 18:52:19 CEST 2010
-// $Id: FWViewEnergyScaleEditor.cc,v 1.5 2010/11/21 11:18:14 amraktad Exp $
+// $Id: FWViewEnergyScaleEditor.cc,v 1.1 2010/11/26 20:24:48 amraktad Exp $
 //
 
 // system include files
@@ -33,15 +33,16 @@
 //
 // constructors and destructor
 //
-FWViewEnergyScaleEditor::FWViewEnergyScaleEditor(FWViewEnergyScale* s, TGCompositeFrame* w):
+FWViewEnergyScaleEditor::FWViewEnergyScaleEditor(FWViewEnergyScale* s, TGCompositeFrame* w, bool addAutoScaleControll):
    TGVerticalFrame(w),
    m_scale(s),
    m_enabled(true)
 { 
    addParam(&m_scale->m_plotEt);
    addParam(&m_scale->m_scaleMode);
-   addParam(&m_scale->m_fixedValToHeight, "FixedMode");
-   addParam(&m_scale->m_maxTowerHeight, "AutomaticMode");
+   addParam(&m_scale->m_fixedValToHeight, "FixedScaleMode");
+   if (addAutoScaleControll)
+      addParam(&m_scale->m_maxTowerHeight, "AutomaticScaleMode");
 }
 
 

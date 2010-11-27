@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.46 2010/11/23 11:06:23 amraktad Exp $
+// $Id: FWEveView.cc,v 1.47 2010/11/26 20:24:48 amraktad Exp $
 //
 
 
@@ -541,7 +541,7 @@ FWEveView::populateController(ViewerParameterGUI& gui) const
    gui.requestTab("Scales").
       addParam(&m_useGlobalEnergyScale);
 
-   m_viewEnergyScaleEditor = new FWViewEnergyScaleEditor(m_localEnergyScale.get(), gui.getTabContainer());
+   m_viewEnergyScaleEditor = new FWViewEnergyScaleEditor(m_localEnergyScale.get(), gui.getTabContainer(), !FWViewType::isLego(typeId()));
    m_viewEnergyScaleEditor->setEnabled(!m_useGlobalEnergyScale.value());
    gui.addFrameToContainer(m_viewEnergyScaleEditor);
 }

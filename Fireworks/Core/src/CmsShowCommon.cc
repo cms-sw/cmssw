@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 10 14:50:32 CEST 2010
-// $Id: CmsShowCommon.cc,v 1.10 2010/10/20 20:09:23 amraktad Exp $
+// $Id: CmsShowCommon.cc,v 1.11 2010/11/26 20:24:47 amraktad Exp $
 //
 
 // system include files
@@ -99,12 +99,30 @@ CmsShowCommon::setFrom(const FWConfiguration& iFrom)
       (*it)->setFrom(iFrom);      
    }  
  
-   if (iFrom.version() > 1)
-      m_energyScale->setFrom(iFrom);
+   // handle old and new energy scale configuration if existing
+   if (iFrom.valueForKey("ScaleMode"))
+   {
+      long mode  = atol(iFrom.valueForKey("ScaleMode")->value().c_str());      
 
+      float convert;
+      if (iFrom.valueForKey("EnergyToLength [GeV/m]"))
+         convert = atof(iFrom.valueForKey("EnergyToLength [GeV/m]")->value().c_str());
+      else
+         convert = atof(iFrom.valueForKey("ValueToHeight [GeV/m]")->value().c_str());
+
+      float maxH;
+      if (iFrom.valueForKey("MaximumLength [m]"))
+         maxH = atof(iFrom.valueForKey("MaximumLength [m]")->value().c_str());
+      else
+         maxH = atof(iFrom.valueForKey("MaxTowerH [m]")->value().c_str());
+         
+      int et = atoi(iFrom.valueForKey("PlotEt")->value().c_str());
+      m_energyScale->SetFromCmsShowCommonConfig(mode, convert, maxH, et);
+   }
+      
    // background
    m_colorManager->setBackgroundAndBrightness( FWColorManager::BackgroundColorIndex(m_backgroundColor.value()), m_gamma.value());
-
+   
    // geom colors
    m_colorManager->setGeomTransparency( m_geomTransparency2D.value(), true);
    m_colorManager->setGeomTransparency( m_geomTransparency3D.value(), false);

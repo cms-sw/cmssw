@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Jun 18 20:37:44 CEST 2010
-// $Id: FWViewEnergyScale.cc,v 1.8 2010/11/23 11:06:23 amraktad Exp $
+// $Id: FWViewEnergyScale.cc,v 1.9 2010/11/26 20:24:48 amraktad Exp $
 //
 
 #include <stdexcept>
@@ -26,15 +26,15 @@
 FWViewEnergyScale::FWViewEnergyScale(std::string name, int version):
 FWConfigurableParameterizable(version),
 m_scaleMode(this, "ScaleMode", 1l, 1l, 2l),
-m_fixedValToHeight(this, "ValueToHeight [GeV/m]", 50.0, 1.0, 100.0),
-m_maxTowerHeight(this, "MaxTowerH [m]", 3.0, 0.01, 30.0 ),
+m_fixedValToHeight(this, "EnergyToLength [GeV/m]", 50.0, 1.0, 100.0),
+m_maxTowerHeight(this, "MaximumLength [m]", 3.0, 0.01, 30.0 ),
 m_plotEt(this, "PlotEt", true),
 m_name(name),
 m_scaleFactor3D(1.f),
 m_scaleFactorLego(0.05f)
 {
    m_scaleMode.addEntry(kFixedScale,   "FixedScale");
-   m_scaleMode.addEntry(kAutoScale,    "AutoScale");
+   m_scaleMode.addEntry(kAutoScale,    "AutomaticScale");
    m_scaleMode.addEntry(kCombinedScale,"CombinedScale");
    
    m_scaleMode.changed_.connect(boost::bind(&FWViewEnergyScale::scaleParameterChanged,this));
@@ -98,4 +98,13 @@ FWViewEnergyScale::setFrom(const FWConfiguration& iFrom)
        ++it) {
       (*it)->setFrom(iFrom);
    }  
+}
+
+void
+FWViewEnergyScale::SetFromCmsShowCommonConfig(long mode, float convert, float maxH, bool et)
+{
+   m_scaleMode.set(mode);
+   m_fixedValToHeight.set(convert);
+   m_maxTowerHeight.set(maxH);
+   m_plotEt.set(et > 0);
 }
