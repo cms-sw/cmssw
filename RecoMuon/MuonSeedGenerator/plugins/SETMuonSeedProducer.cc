@@ -30,7 +30,8 @@ using namespace std;
 
 SETMuonSeedProducer::SETMuonSeedProducer(const ParameterSet& parameterSet)
 : thePatternRecognition(parameterSet),
-  theSeedFinder(parameterSet)
+  theSeedFinder(parameterSet),
+  theBeamSpotTag(parameterSet.getParameter<edm::InputTag>("beamSpotTag"))
 {
   const string metname = "Muon|RecoMuon|SETMuonSeedSeed";  
   //std::cout<<" The SET SEED producer started."<<std::endl;
@@ -85,7 +86,7 @@ void SETMuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& even
 
   reco::BeamSpot beamSpot;
   edm::Handle<reco::BeamSpot> beamSpotHandle;
-  event.getByLabel("offlineBeamSpot", beamSpotHandle);
+  event.getByLabel(theBeamSpotTag, beamSpotHandle);
   if ( beamSpotHandle.isValid() )
   {
     beamSpot = *beamSpotHandle;

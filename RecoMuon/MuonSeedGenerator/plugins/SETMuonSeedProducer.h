@@ -11,6 +11,7 @@
 //---- Technically all this information is stored as a TrajectorySeed. SS 
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoMuon/TrackingTools/interface/RecoMuonEnumerators.h"
 
 #include <RecoMuon/TrackingTools/interface/MuonServiceProxy.h>
@@ -62,5 +63,7 @@ class SETMuonSeedProducer : public edm::EDProducer {
 
   SETPatternRecognition thePatternRecognition;
   SETSeedFinder theSeedFinder;
+
+  edm::InputTag theBeamSpotTag;
 };
 #endif

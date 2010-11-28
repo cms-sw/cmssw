@@ -7,6 +7,7 @@ from RecoMuon.MuonSeedGenerator.MuonSeedPtScale_cfi import *
 ancientMuonSeed = cms.EDProducer("MuonSeedGenerator",
                                  ptSeedParameterization,
                                  dphiScale,
+                                 beamSpotTag = cms.InputTag("offlineBeamSpot"),
                                  scaleDT = cms.bool(True),
                                  CSCRecSegmentLabel = cms.InputTag("cscSegments"),
                                  DTRecSegmentLabel = cms.InputTag("dt4DSegments"),

@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2010/06/11 18:26:43 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/08/10 20:15:18 $
+ *  $Revision: 1.3 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -58,7 +58,8 @@ typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 MuonSeedGenerator::MuonSeedGenerator(const edm::ParameterSet& pset)
 : thePatternRecognition(new MuonSeedOrcaPatternRecognition(pset)),
   theSeedFinder(new MuonSeedFinder(pset)),
-  theSeedCleaner(new MuonSeedSimpleCleaner())
+  theSeedCleaner(new MuonSeedSimpleCleaner()),
+  theBeamSpotTag(pset.getParameter<edm::InputTag>("beamSpotTag"))
 {
   produces<TrajectorySeedCollection>(); 
 }
@@ -83,7 +84,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 
   reco::BeamSpot beamSpot;
   edm::Handle<reco::BeamSpot> beamSpotHandle;
-  event.getByLabel("offlineBeamSpot", beamSpotHandle);
+  event.getByLabel(theBeamSpotTag, beamSpotHandle);
   if ( beamSpotHandle.isValid() )
   {
     beamSpot = *beamSpotHandle;

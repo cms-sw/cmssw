@@ -8,6 +8,7 @@ from RecoMuon.MuonSeedGenerator.MuonSeedPtScale_cfi import dphiScale
 
 SETMuonSeed  = cms.EDProducer("SETMuonSeedProducer",
     MuonServiceProxy,
+    beamSpotTag = cms.InputTag("offlineBeamSpot"), 
     SETTrajBuilderParameters = cms.PSet(
         ptSeedParameterization, 
         dphiScale,
