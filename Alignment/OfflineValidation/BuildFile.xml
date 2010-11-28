@@ -12,7 +12,7 @@
 <use   name="MagneticField/Engine"/>
 <use   name="rootrflx"/>
 <use   name="CLHEP"/>
-<use   name="root"/>
+<use   name="rootmath"/>
 <export>
   <lib   name="1"/>
 </export>

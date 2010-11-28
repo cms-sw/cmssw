@@ -1,4 +1,4 @@
-<use   name="root"/>
+<use   name="rootmath"/>
 <use   name="boost"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/Utilities"/>
