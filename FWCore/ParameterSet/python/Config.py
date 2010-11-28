@@ -20,6 +20,10 @@ import DictTypes
 
 from ExceptionHandling import *
 
+#when building RECO paths we have hit the default recursion limit
+if sys.getrecursionlimit()<5000:
+   sys.setrecursionlimit(5000)
+
 def checkImportPermission(minLevel = 2, allowedPatterns = []):
     """
     Raise an exception if called by special config files. This checks
