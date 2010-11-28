@@ -2,7 +2,6 @@
 <use   name="DataFormats/CLHEP"/>
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/GeometryVector"/>
-<use   name="DataFormats/TrajectorySeed"/>
 <use   name="DataFormats/TrajectoryState"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/PluginManager"/>
