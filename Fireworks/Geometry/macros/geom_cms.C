@@ -1,12 +1,14 @@
 // Author: Matevz Tadel
 // Shows full CMS geometry.
 
+TEveGeoTopNode *g_cms_all = 0;
+
 void geom_cms()
 {
-   TEveUtil::LoadMacro("common_foos.C");
+   TEveUtil::LoadMacro("common_foos.C+");
    std_init();
 
-   make_node("/cms:World_1/cms:CMSE_1", 4, kTRUE);
+   g_cms_all = make_node("/cms:World_1/cms:CMSE_1", 4, kTRUE);
 
    gEve->FullRedraw3D(kTRUE);
 
