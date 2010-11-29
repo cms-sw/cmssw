@@ -27,7 +27,7 @@ process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 
 #process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.StandardSequences.MagneticField_40T_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.PyReleaseValidation.autoCond import autoCond
