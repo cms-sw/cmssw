@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFTracking/interface/ConvBremSeedProducer.h"
+#include "RecoParticleFlow/PFSimProducer/plugins/ConvBremSeedProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 ///RECORD NEEDED

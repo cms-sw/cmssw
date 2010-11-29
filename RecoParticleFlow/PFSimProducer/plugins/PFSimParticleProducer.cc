@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFProducer/plugins/PFSimParticleProducer.h"
+#include "RecoParticleFlow/PFSimProducer/plugins/PFSimParticleProducer.h"
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"

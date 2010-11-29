@@ -13,7 +13,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoParticleFlow/PFProducer/plugins/TauHadronDecayFilter.h"
+#include "RecoParticleFlow/PFSimProducer/plugins/TauHadronDecayFilter.h"
 
 
 #include "FastSimulation/Event/interface/FSimEvent.h"
