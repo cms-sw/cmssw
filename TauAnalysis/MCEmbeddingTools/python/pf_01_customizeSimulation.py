@@ -62,6 +62,10 @@ def customise(process):
   process.offlinePrimaryVerticesWithBS.TrackLabel = cms.InputTag("tmfTracks")
   process.offlinePrimaryVertices.TrackLabel = cms.InputTag("tmfTracks")
   process.muons.TrackExtractorPSet.inputTrackCollection = cms.InputTag("tmfTracks")
+  # I don't know why I added the following two lines, so I disable them for the moment
+  #process.offlinePrimaryVertices.beamSpotLabel = cms.InputTag("offlineBeamSpot","","RECO")
+  #process.offlinePrimaryVerticesWithBS.beamSpotLabel = cms.InputTag("offlineBeamSpot","","RECO")
+  
   try:
   	process.metreco.remove(process.BeamHaloId)
   except:
@@ -80,7 +84,10 @@ def customise(process):
   outputModule.outputCommands = process.AODSIMEventContent.outputCommands
   keepMC = cms.untracked.vstring("keep *_*_zMusExtracted_*",
                                  "keep *_dimuonsGlobal_*_*",
-                                 'keep *_generator_*_*'
+                                 'keep *_generator_*_*',
+                                 "keep *_tmfTracks_*_SELECTandSIM",
+                                 "keep *_offlinePrimaryVertices_*_SELECTandSIM",
+                                 "keep *_offlinePrimaryVerticesWithBS_*_SELECTandSIM",
   )
   outputModule.outputCommands.extend(keepMC)
 
@@ -145,6 +152,8 @@ def customise(process):
        #seqVis.catch=0
        #i.__iadd__(source)
 
+  process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
+
   import FWCore.ParameterSet.VarParsing as VarParsing
   options = VarParsing.VarParsing ('analysis')
 
@@ -169,7 +178,6 @@ def customise(process):
     print "BeamSpot in globaltag set to ", bs
   else:
     print "BeamSpot in globaltag not changed"
-
 
   print "#############################################################"
   print " Warning! PFCandidates 'electron' collection is not mixed, "
