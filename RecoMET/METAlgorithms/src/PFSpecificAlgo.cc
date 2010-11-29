@@ -46,13 +46,6 @@ reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandida
   double type6Et = 0.0;
   double type7Et = 0.0;
   
-  // added by FB for significance:
-  // this class calculates the significance
-  metsig::significanceAlgo metsigalgo;
-  // it takes a vector of objects as input. a SigInputObj contains an object's et, phi and its uncertainties on those. It is in principle also possible to add correlations
-  std::vector<metsig::SigInputObj> metSigInputVector;
-  // end of significance specific objects 
-
   for( edm::View<reco::Candidate>::const_iterator iParticle = (PFCandidates.product())->begin() ; iParticle != (PFCandidates.product())->end() ; ++iParticle )
   {   
     const Candidate* candidate = &(*iParticle);
@@ -69,7 +62,12 @@ reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandida
 	const double e     = iParticle->energy();
 	const double et    = e*sin(theta);
 	if(alsocalcsig){
-	  metSigInputVector.push_back(resolutions_.evalPF(pfCandidate));
+	    reco::CandidatePtr dau(PFCandidates, iParticle - PFCandidates->begin());
+	    if(dau.isNonnull () && dau.isAvailable()){
+		reco::PFCandidatePtr pf(dau.id(), pfCandidate, dau.key());
+		pfsignalgo_.addPFCandidate(pf);
+	    }
+	  //metSigInputVector.push_back(resolutions_.evalPF(pfCandidate));
 	}
 
 	if (pfCandidate->particleId() == 1) ChargedHadEt += et;
@@ -100,24 +98,14 @@ reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandida
   const Point vtx(0.0,0.0,0.0);
   PFMET specificPFMET( specific, met.sumet, p4, vtx );
 
-  // add the information collected during the loop to the significance algo:
-  // add the objects:
-  metsigalgo.addObjects(metSigInputVector);
-  // the following recipe is supplied for debugging, feel free to compare to 'normal' calculated quantities.
-  // and calculate the significance itself  - not done here normally
-  //  double met_r_signif, met_phi_signif, met_set_signif; // these are just the normal met,metphi and scalarmet
-  // double significance = metsigalgo.significance(met_r_signif,met_phi_signif,met_set_signif);
-  // add the MET significance information (which is a 2x2 matrix) to the MET object:
-  specificPFMET.setSignificanceMatrix(metsigalgo.getSignifMatrix());
-  // clean up metsignificance specific code:
-  metSigInputVector.clear();
-  metSigInputVector.resize(0);
+  specificPFMET.setSignificanceMatrix(pfsignalgo_.getSignifMatrix());
 
   return specificPFMET;
 }
 
-void PFSpecificAlgo::runSignificance(metsig::SignAlgoResolutions & resolutions)
+void PFSpecificAlgo::runSignificance(metsig::SignAlgoResolutions &resolutions, edm::Handle<edm::View<reco::PFJet> > jets)
 {
   alsocalcsig=true;
-  resolutions_=resolutions;
+  pfsignalgo_.setResolutions( &resolutions );
+  pfsignalgo_.addPFJets(jets);
 }
