@@ -106,7 +106,7 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
                                  
 	isTMB07 = cms.bool(True),
 	useDT = cms.bool(True),
-	readDtDirect = cms.bool(True),
+	readDtDirect = cms.bool(False),
 )
 
 
