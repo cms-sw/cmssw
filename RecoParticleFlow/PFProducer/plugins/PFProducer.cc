@@ -420,7 +420,7 @@ PFProducer::produce(Event& iEvent,
 
     if(!found) {
       ostringstream err;
-      err<<"cannot find blocks: "<<inputTagMuons_;
+      err<<"cannot find muons: "<<inputTagMuons_;
       LogError("PFProducer")<<err.str()<<endl;
     
       throw cms::Exception( "MissingProduct", err.str());
@@ -436,7 +436,7 @@ PFProducer::produce(Event& iEvent,
     
     if(!found) {
       ostringstream err;
-      err<<"cannot find blocks: "<<inputTagBlocks_;
+      err<<"cannot find electrons: "<<inputTagEgammaElectrons_;
       LogError("PFProducer")<<err.str()<<endl;
     
       throw cms::Exception( "MissingProduct", err.str());
