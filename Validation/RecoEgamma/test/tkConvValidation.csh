@@ -17,10 +17,10 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE TrackBasedConversions
-setenv CMSSWver1 3_9_0
-setenv CMSSWver2 3_9_2
-setenv OLDRELEASE 390
-setenv NEWRELEASE 392
+setenv CMSSWver1 3_9_2
+setenv CMSSWver2 3_9_4
+setenv OLDRELEASE 392
+setenv NEWRELEASE 394
 setenv OLDPRERELEASE 
 setenv NEWPRERELEASE 
 
@@ -51,7 +51,10 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 
 #Name of sample (affects output directory name and htmldescription only) 
 
-setenv SAMPLE QCD_Pt_80_120STARTUP
+
+    setenv SAMPLE SingleGammaPt10IDEAL
+#setenv SAMPLE SingleGammaPt35IDEAL
+#setenv SAMPLE QCD_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_20_30STARTUP
 #TYPE must be one ofPixelMatchGsfElectron, Photon 
 
@@ -60,16 +63,28 @@ setenv SAMPLE QCD_Pt_80_120STARTUP
 
 #Input root trees for the two cases to be compared 
 
+if ($SAMPLE == SingleGammaPt10IDEAL) then
 
-if ($SAMPLE == QCD_Pt_20_30STARTUP) then 
+setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt10.root
+setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt10.root
+
+else if ($SAMPLE == SingleGammaPt35IDEAL) then
+
+setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt35.root
+setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.root
+
+
+else if ($SAMPLE == QCD_Pt_80_120STARTUP) then 
+
+setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_QCD_Pt_80_120.root
+setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
+
+
+else if ($SAMPLE == QCD_Pt_20_30STARTUP) then 
 
 setenv OLDFILE ${WorkDir1}/ConversionValidationRelVal${OLDRELEASE}_QCD_Pt_20_30.root
 setenv NEWFILE ${WorkDir2}/ConversionValidationRelVal${NEWRELEASE}_QCD_Pt_20_30.root
 
-else if ($SAMPLE == QCD_Pt_80_120STARTUP) then 
-
-setenv OLDFILE ${WorkDir1}/ConversionValidationRelVal${OLDRELEASE}_QCD_Pt_80_120.root
-setenv NEWFILE ${WorkDir2}/ConversionValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
 
 
 
