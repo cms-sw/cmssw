@@ -5,16 +5,17 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "PhysicsTools/JetMCUtils/interface/combination.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtFullHadKinFitter.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtFullHadEvtPartons.h"
 
 /*
   \class   TtFullHadKinFitProducer TtFullHadKinFitProducer.h "TopQuarkAnalysis/TopKinFitter/plugins/TtFullHadKinFitProducer.h"
   
-  \brief   one line description to be added here...
+  \brief   Retrieve kinFit result from TtFullHadKinFitter and put it into the event
 
-  text to be added here...
+  Get jet collection and if wanted match from the event content and do the kinematic fit
+  of the event with this objects using the kinFit class from TtFullHadKinFitter and put
+  the result into the event content
   
 **/
 
@@ -29,18 +30,6 @@ class TtFullHadKinFitProducer : public edm::EDProducer {
  private:
   /// produce fitted object collections and meta data describing fit quality
   virtual void produce(edm::Event& event, const edm::EventSetup& setup);
-  // convert unsigned to Param
-  TtFullHadKinFitter::Param param(unsigned int configParameter);
-  // convert unsigned int to Constraint
-  TtFullHadKinFitter::Constraint constraint(unsigned int configParameter);
-  // convert vector of unsigned int's to vector of Contraint's
-  std::vector<TtFullHadKinFitter::Constraint> constraints(std::vector<unsigned int>& configParameters);
-  // helper function for b-tagging
-  bool doBTagging(const bool& useBTagging_, const unsigned int& bTags_, const unsigned int& bJetCounter,
-		  const std::vector<pat::Jet>& jets, std::vector<int>& combi,
-		  const std::string& bTagAlgo_, const double& minBTagValueBJets_, const double& maxBTagValueNonBJets_);
-  /// helper function to construct the proper corrected jet for its corresponding quarkType
-  pat::Jet corJet(const pat::Jet& jet, const std::string& quarkType);
 
  private:
   /// input tag for jets
@@ -83,30 +72,11 @@ class TtFullHadKinFitProducer : public edm::EDProducer {
   /// store the resolutions for the jets
   std::vector<edm::ParameterSet> udscResolutions_, bResolutions_;
 
-  /// kinematic fit interface
-  TtFullHadKinFitter* fitter;
-  /// struct for fit results
-  struct KinFitResult {
-    int Status;
-    double Chi2;
-    double Prob;
-    pat::Particle B;
-    pat::Particle BBar;
-    pat::Particle LightQ;
-    pat::Particle LightQBar;
-    pat::Particle LightP;
-    pat::Particle LightPBar;
-    std::vector<int> JetCombi;
-    bool operator< (const KinFitResult& rhs) { return Chi2 < rhs.Chi2; };
-  };
-
  public:
-  /// do the fitting and return fit result
-  std::list<KinFitResult> fit(const std::vector<pat::Jet>& jets, const bool& useBTagging, const int& bTags, const std::string& bTagAlgo, 
-			      const double& minBTagValueBJet, const double& maxBTagValueNonBJet,
-			      const std::vector<edm::ParameterSet>& udscResolutions, const std::vector<edm::ParameterSet>& bResolutions,
-			      const std::string& jetCorrectionLevel, const int& maxNJets, const int& maxNComb,
-			      const bool& useOnlyMatch, const bool& invalidMatch, const std::vector<int>& match);
+
+  /// kinematic fit interface
+  TtFullHadKinFitter::KinFit* kinFitter;
+ 
 };
 
 #endif

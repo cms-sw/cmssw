@@ -10,6 +10,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+static const unsigned int nPartons=6;
+
 /// default constructor
 TtFullHadKinFitter::TtFullHadKinFitter():
   TopKinFitter(),
@@ -277,4 +279,350 @@ TtFullHadKinFitter::addKinFitInfo(TtHadEvtSolution * asol)
     fitsol.setProbChi2( fitProb() );
   }
   return fitsol;
+}
+
+
+/// default constructor  
+TtFullHadKinFitter::KinFit::KinFit() :
+  useBTagging_(true),
+  bTags_(2),
+  bTagAlgo_("trackCountingHighPurBJetTags"),
+  minBTagValueBJet_(3.41),
+  maxBTagValueNonBJet_(3.41),
+  udscResolutions_(std::vector<edm::ParameterSet>(0)),
+  bResolutions_(std::vector<edm::ParameterSet>(0)),
+  jetCorrectionLevel_("L3Absolute"),
+  maxNJets_(-1),
+  maxNComb_(1),
+  maxNrIter_(500),
+  maxDeltaS_(5e-5),
+  maxF_(0.0001),
+  jetParam_(1),
+  mW_(80.4),
+  mTop_(173.),
+  useOnlyMatch_(false),
+  match_(std::vector<int>(0)),
+  invalidMatch_(false)
+{
+  constraints_.push_back(1);
+  constraints_.push_back(2);
+  constraints_.push_back(5);
+}
+
+/// special constructor  
+TtFullHadKinFitter::KinFit::KinFit(bool useBTagging, unsigned int bTags, std::string bTagAlgo, double minBTagValueBJet, double maxBTagValueNonBJet,
+				   std::vector<edm::ParameterSet> udscResolutions, std::vector<edm::ParameterSet> bResolutions,
+				   std::string jetCorrectionLevel, int maxNJets, int maxNComb,
+				   unsigned int maxNrIter, double maxDeltaS, double maxF, unsigned int jetParam, std::vector<unsigned> constraints, double mW, double mTop) :
+  useBTagging_(useBTagging),
+  bTags_(bTags),
+  bTagAlgo_(bTagAlgo),
+  minBTagValueBJet_(minBTagValueBJet),
+  maxBTagValueNonBJet_(maxBTagValueNonBJet),
+  udscResolutions_(udscResolutions),
+  bResolutions_(bResolutions),
+  jetCorrectionLevel_(jetCorrectionLevel),
+  maxNJets_(maxNJets),
+  maxNComb_(maxNComb),
+  maxNrIter_(maxNrIter),
+  maxDeltaS_(maxDeltaS),
+  maxF_(maxF),
+  jetParam_(jetParam),
+  constraints_(constraints),
+  mW_(mW),
+  mTop_(mTop),
+  useOnlyMatch_(false),
+  invalidMatch_(false)
+{
+  // define kinematic fit interface
+  fitter = new TtFullHadKinFitter(param(jetParam_), maxNrIter_, maxDeltaS_, maxF_, TtFullHadKinFitter::KinFit::constraints(constraints_), mW_, mTop_);
+}
+
+/// default destructor  
+TtFullHadKinFitter::KinFit::~KinFit()
+{
+  delete fitter;
+}    
+
+bool
+TtFullHadKinFitter::KinFit::doBTagging(const std::vector<pat::Jet>& jets, const unsigned int& bJetCounter, std::vector<int>& combi){
+  
+  if( !useBTagging_ ) {
+    return true;
+  }
+  if( bTags_ == 2 &&
+      jets[combi[TtFullHadEvtPartons::B        ]].bDiscriminator(bTagAlgo_) >= minBTagValueBJet_ &&
+      jets[combi[TtFullHadEvtPartons::BBar     ]].bDiscriminator(bTagAlgo_) >= minBTagValueBJet_ &&
+      jets[combi[TtFullHadEvtPartons::LightQ   ]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+      jets[combi[TtFullHadEvtPartons::LightQBar]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+      jets[combi[TtFullHadEvtPartons::LightP   ]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+      jets[combi[TtFullHadEvtPartons::LightPBar]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ ) {
+    return true;
+  }
+  else if( bTags_ == 1 ){  
+    if( bJetCounter == 1 &&
+        (jets[combi[TtFullHadEvtPartons::B        ]].bDiscriminator(bTagAlgo_) >= minBTagValueBJet_ ||
+         jets[combi[TtFullHadEvtPartons::BBar     ]].bDiscriminator(bTagAlgo_) >= minBTagValueBJet_) &&
+	 jets[combi[TtFullHadEvtPartons::LightQ   ]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+	 jets[combi[TtFullHadEvtPartons::LightQBar]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+	 jets[combi[TtFullHadEvtPartons::LightP   ]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+	 jets[combi[TtFullHadEvtPartons::LightPBar]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ ) {
+      return true;
+    }
+    else if( bJetCounter > 1 &&
+	     jets[combi[TtFullHadEvtPartons::B        ]].bDiscriminator(bTagAlgo_) >= minBTagValueBJet_ &&
+	     jets[combi[TtFullHadEvtPartons::BBar     ]].bDiscriminator(bTagAlgo_) >= minBTagValueBJet_ &&
+	     jets[combi[TtFullHadEvtPartons::LightQ   ]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+	     jets[combi[TtFullHadEvtPartons::LightQBar]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+	     jets[combi[TtFullHadEvtPartons::LightP   ]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+	     jets[combi[TtFullHadEvtPartons::LightPBar]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ ) {
+      return true;
+    }
+  }
+  else if( bTags_ == 0 ){  
+    if( bJetCounter == 0){
+      return true;
+    }
+    else if( bJetCounter == 1 &&
+	     (jets[combi[TtFullHadEvtPartons::B        ]].bDiscriminator(bTagAlgo_) >= minBTagValueBJet_ ||
+	      jets[combi[TtFullHadEvtPartons::BBar     ]].bDiscriminator(bTagAlgo_) >= minBTagValueBJet_) &&
+	      jets[combi[TtFullHadEvtPartons::LightQ   ]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+	      jets[combi[TtFullHadEvtPartons::LightQBar]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+	      jets[combi[TtFullHadEvtPartons::LightP   ]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+	      jets[combi[TtFullHadEvtPartons::LightPBar]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ ) {
+      return true;
+    }
+    else if( bJetCounter > 1 &&
+	     jets[combi[TtFullHadEvtPartons::B        ]].bDiscriminator(bTagAlgo_) >= minBTagValueBJet_ &&
+	     jets[combi[TtFullHadEvtPartons::BBar     ]].bDiscriminator(bTagAlgo_) >= minBTagValueBJet_ &&
+	     jets[combi[TtFullHadEvtPartons::LightQ   ]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+	     jets[combi[TtFullHadEvtPartons::LightQBar]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+	     jets[combi[TtFullHadEvtPartons::LightP   ]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ &&
+	     jets[combi[TtFullHadEvtPartons::LightPBar]].bDiscriminator(bTagAlgo_) <  maxBTagValueNonBJet_ ) {
+      return true;
+    }
+  }
+  else if( bTags_ > 2 ){
+    throw cms::Exception("Configuration")
+      << "Wrong number of bTags (" << bTags_ << " bTags not supported)!\n";
+    return true;
+  }
+  return false;
+}
+
+/// helper function to construct the proper corrected jet for its corresponding quarkType
+pat::Jet
+TtFullHadKinFitter::KinFit::corJet(const pat::Jet& jet, const std::string& quarkType)
+{
+  // jetCorrectionLevel was not configured
+  if(jetCorrectionLevel_.empty())
+    throw cms::Exception("Configuration")
+      << "Unconfigured jetCorrectionLevel. Please use an appropriate, non-empty string.\n";
+
+  // quarkType is unknown
+  if( !(quarkType=="wMix" ||
+	quarkType=="uds" ||
+	quarkType=="charm" ||
+	quarkType=="bottom") )
+    throw cms::Exception("Configuration")
+      << quarkType << " is unknown as a quarkType for the jetCorrectionLevel.\n";
+
+  float jecFactor = 1.;
+  if(quarkType=="wMix") jecFactor = 0.75 * jet.jecFactor(jetCorrectionLevel_, "uds") + 0.25 * jet.jecFactor(jetCorrectionLevel_, "charm");
+  else jecFactor = jet.jecFactor(jetCorrectionLevel_, quarkType);
+
+  pat::Jet ret = jet;
+  ret.setP4(ret.p4()*jecFactor);
+  return ret;
+}
+
+std::list<TtFullHadKinFitter::KinFitResult> 
+TtFullHadKinFitter::KinFit::fit(const std::vector<pat::Jet>& jets){
+
+  std::list<TtFullHadKinFitter::KinFitResult>  fitResults;
+
+  /**
+   // --------------------------------------------------------
+   // skip events with less jets than partons or invalid match
+   // --------------------------------------------------------
+  **/
+
+  if( jets.size()<nPartons || invalidMatch_ ) {
+    // indices referring to the jet combination
+    std::vector<int> invalidCombi;
+    for(unsigned int i = 0; i < nPartons; ++i) invalidCombi.push_back( -1 );
+    
+    KinFitResult result;
+    // status of the fitter
+    result.Status   = -1;
+    // chi2
+    result.Chi2     = -1.;
+    // chi2 probability
+    result.Prob     = -1.;
+    // the kinFit getters return empty objects here
+    result.B        = fitter->fittedB();
+    result.BBar     = fitter->fittedBBar();
+    result.LightQ   = fitter->fittedLightQ();
+    result.LightQBar= fitter->fittedLightQBar();
+    result.LightP   = fitter->fittedLightP();
+    result.LightPBar= fitter->fittedLightPBar();
+    result.JetCombi = invalidCombi;
+    // push back fit result
+    fitResults.push_back( result );
+    return fitResults;
+  }
+
+  /**
+     analyze different jet combinations using the KinFitter
+     (or only a given jet combination if useOnlyMatch=true)
+  **/
+
+  std::vector<int> jetIndices;
+  if(!useOnlyMatch_) {
+    for(unsigned int idx=0; idx<jets.size(); ++idx){
+      if(maxNJets_>=(int)nPartons && maxNJets_==(int)idx) break;
+      jetIndices.push_back(idx);
+    }
+  }
+  
+  std::vector<int> combi;
+  for(unsigned int idx=0; idx<nPartons; ++idx) {
+    useOnlyMatch_?combi.push_back(match_[idx]):combi.push_back(idx);
+  }
+
+  
+  unsigned int bJetCounter = 0;
+  for(std::vector<pat::Jet>::const_iterator jet = jets.begin(); jet < jets.end(); ++jet){
+    if(jet->bDiscriminator(bTagAlgo_) >= minBTagValueBJet_) ++bJetCounter;
+  }
+
+  do{
+    for(int cnt=0; cnt<TMath::Factorial(combi.size()); ++cnt){
+      // take into account indistinguishability of the two jets from the two W decays,
+      // and the two decay branches, this reduces the combinatorics by a factor of 2*2*2
+      if( (combi[TtFullHadEvtPartons::LightQ] < combi[TtFullHadEvtPartons::LightQBar] ||
+	   combi[TtFullHadEvtPartons::LightP] < combi[TtFullHadEvtPartons::LightPBar] ||
+	   combi[TtFullHadEvtPartons::B]      < combi[TtFullHadEvtPartons::BBar]      ||
+	   useOnlyMatch_) && doBTagging(jets, bJetCounter, combi) ) {
+
+	std::vector<pat::Jet> jetCombi;
+	jetCombi.resize(nPartons);
+	jetCombi[TtFullHadEvtPartons::LightQ   ] = corJet(jets[combi[TtFullHadEvtPartons::LightQ   ]], "wMix");
+	jetCombi[TtFullHadEvtPartons::LightQBar] = corJet(jets[combi[TtFullHadEvtPartons::LightQBar]], "wMix");
+	jetCombi[TtFullHadEvtPartons::B        ] = corJet(jets[combi[TtFullHadEvtPartons::B        ]], "bottom");
+	jetCombi[TtFullHadEvtPartons::BBar     ] = corJet(jets[combi[TtFullHadEvtPartons::BBar     ]], "bottom");
+	jetCombi[TtFullHadEvtPartons::LightP   ] = corJet(jets[combi[TtFullHadEvtPartons::LightP   ]], "wMix");
+	jetCombi[TtFullHadEvtPartons::LightPBar] = corJet(jets[combi[TtFullHadEvtPartons::LightPBar]], "wMix");
+	  
+	// do the kinematic fit
+	int status = fitter->fit(jetCombi,udscResolutions_,bResolutions_);
+	  
+	if( status == 0 ) { 
+	  // fill struct KinFitResults if converged
+	  TtFullHadKinFitter::KinFitResult result;
+	  result.Status   = status;
+	  result.Chi2     = fitter->fitS();
+	  result.Prob     = fitter->fitProb();
+	  result.B        = fitter->fittedB();
+	  result.BBar     = fitter->fittedBBar();
+	  result.LightQ   = fitter->fittedLightQ();
+	  result.LightQBar= fitter->fittedLightQBar();
+	  result.LightP   = fitter->fittedLightP();
+	  result.LightPBar= fitter->fittedLightPBar();
+	  result.JetCombi = combi;
+	  // push back fit result
+	  fitResults.push_back( result );
+	}
+      }
+      // don't go through combinatorics if useOnlyMatch was chosen
+      if(useOnlyMatch_){
+	break; 
+      }
+      // next permutation
+      std::next_permutation( combi.begin(), combi.end() );
+    }
+    // don't go through combinatorics if useOnlyMatch was chosen
+    if(useOnlyMatch_){
+      break;
+    }
+  }
+  while( stdcomb::next_combination( jetIndices.begin(), jetIndices.end(), combi.begin(), combi.end() ) );
+
+
+  // sort results w.r.t. chi2 values
+  fitResults.sort();
+
+  /**
+     feed out result starting with the 
+     JetComb having the smallest chi2
+  **/
+
+  if( fitResults.size() < 1 ) { 
+    // in case no fit results were stored in the list (i.e. when all fits were aborted)
+
+    KinFitResult result;
+    // status of the fitter
+    result.Status   = -1;
+    // chi2
+    result.Chi2     = -1.;
+    // chi2 probability
+    result.Prob     = -1.;
+    // the kinFit getters return empty objects here
+    result.B        = fitter->fittedB();
+    result.BBar     = fitter->fittedBBar();
+    result.LightQ   = fitter->fittedLightQ();
+    result.LightQBar= fitter->fittedLightQBar();
+    result.LightP   = fitter->fittedLightP();
+    result.LightPBar= fitter->fittedLightPBar();
+    // indices referring to the jet combination
+    std::vector<int> invalidCombi(nPartons, -1);
+    result.JetCombi = invalidCombi;
+    // push back fit result
+    fitResults.push_back( result );
+  }
+  return fitResults;
+}
+
+TtFullHadKinFitter::Param 
+TtFullHadKinFitter::KinFit::param(unsigned int configParameter) 
+{
+  TtFullHadKinFitter::Param result;
+  switch(configParameter){
+  case TtFullHadKinFitter::kEMom       : result=TtFullHadKinFitter::kEMom;       break;
+  case TtFullHadKinFitter::kEtEtaPhi   : result=TtFullHadKinFitter::kEtEtaPhi;   break;
+  case TtFullHadKinFitter::kEtThetaPhi : result=TtFullHadKinFitter::kEtThetaPhi; break;
+  default: 
+    throw cms::Exception("WrongConfig") 
+      << "Chosen jet parametrization is not supported: " << configParameter << "\n";
+    break;
+  }
+  return result;
+} 
+
+TtFullHadKinFitter::Constraint 
+TtFullHadKinFitter::KinFit::constraint(unsigned configParameter) 
+{
+  TtFullHadKinFitter::Constraint result;
+  switch(configParameter){
+  case TtFullHadKinFitter::kWPlusMass      : result=TtFullHadKinFitter::kWPlusMass;      break;
+  case TtFullHadKinFitter::kWMinusMass     : result=TtFullHadKinFitter::kWMinusMass;     break;
+  case TtFullHadKinFitter::kTopMass        : result=TtFullHadKinFitter::kTopMass;        break;
+  case TtFullHadKinFitter::kTopBarMass     : result=TtFullHadKinFitter::kTopBarMass;     break;
+  case TtFullHadKinFitter::kEqualTopMasses : result=TtFullHadKinFitter::kEqualTopMasses; break;
+  default: 
+    throw cms::Exception("WrongConfig") 
+      << "Chosen fit constraint is not supported: " << configParameter << "\n";
+    break;
+  }
+  return result;
+} 
+
+std::vector<TtFullHadKinFitter::Constraint>
+TtFullHadKinFitter::KinFit::constraints(std::vector<unsigned>& configParameters)
+{
+  std::vector<TtFullHadKinFitter::Constraint> result;
+  for(unsigned i=0; i<configParameters.size(); ++i){
+    result.push_back(constraint(configParameters[i]));
+  }
+  return result; 
 }
