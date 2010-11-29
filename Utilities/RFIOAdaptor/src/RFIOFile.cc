@@ -7,14 +7,22 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <time.h>
+#include <sys/time.h>
+
 #include <cstring>
 #include <vector>
 
 static double realNanoSecs (void)
 {
-  struct timespec ts;
-  if (clock_gettime (CLOCK_REALTIME, &ts) == 0)
-    return ts.tv_sec * 1e9 + ts.tv_nsec;
+#if _POSIX_TIMERS > 0
+  struct timespec tm;
+  if (clock_gettime(CLOCK_REALTIME, &tm) == 0)
+    return tm.tv_sec * 1e9 + tm.tv_nsec;
+#else
+  struct timeval tm;
+  if (gettimeofday(&tm, 0) == 0)
+    return tm.tv_sec * 1e9 + tm.tv_usec * 1e3;
+#endif
   return 0;
 }
 
