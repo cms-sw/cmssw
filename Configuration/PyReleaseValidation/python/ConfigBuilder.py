@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.262 $"
+__version__ = "$Revision: 1.261 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -38,6 +38,8 @@ defaultOptions.lazy_download = False
 defaultOptions.custom_conditions = ''
 defaultOptions.hltProcess = ''
 defaultOptions.inlineEventContent = True
+defaultOptions.inlineObjets =''
+defaultOptions.hideGen=False
 
 # the pile up map
 pileupMap = {'156BxLumiPileUp': 2.0,
@@ -119,8 +121,8 @@ class ConfigBuilder(object):
         # TODO: maybe a list of to be dumped objects would help as well
         self.blacklist_paths = []
         self.addedObjects = []
-	self.additionalObjects = []
         self.additionalOutputs = {}
+	
         self.productionFilterSequence = None
 
 	
@@ -157,6 +159,9 @@ class ConfigBuilder(object):
 							     )
 		    self.addedObjects.append(("Setup lazy download","AdaptorConfig"))
 
+	    #self.process.cmsDriverCommand = cms.untracked.PSet( command=cms.untracked.string('cmsDriver.py '+self._options.arguments) )
+	    #self.addedObjects.append(("what cmsDriver command was used","cmsDriverCommand"))
+	    
     def addMaxEvents(self):
         """Here we decide how many evts will be processed"""
         self.process.maxEvents=cms.untracked.PSet(input=cms.untracked.int32(int(self._options.number)))
@@ -201,31 +206,7 @@ class ConfigBuilder(object):
                 self.process.source.inputCommands = cms.untracked.vstring('drop *','keep *_generator_*_*','keep *_g4SimHits_*_*')
                 self.process.source.dropDescendantsOfDroppedBranches=cms.untracked.bool(False)
 
-            evt_type = re.sub(r'\.py$', '', self._options.evt_type)
-            evt_type = evt_type.replace(".","_")
-            if "/" in evt_type:
-                evt_type = evt_type.replace("python/","")
-                evt_type = evt_type.replace("/",".")
-            else:
-                evt_type = ('Configuration.Generator.'+evt_type).replace('/','.')
-            import os.path
-            try:
-                 __import__(evt_type)
-            except ImportError:
-                 return
-            generatorModule = sys.modules[evt_type]
-            self.process.extend(generatorModule)
-            # now add all modules and sequences to the process
-            import FWCore.ParameterSet.Modules as cmstypes
-            for name in generatorModule.__dict__:
-                theObject = getattr(generatorModule,name)
-                if isinstance(theObject, cmstypes._Module):
-                   self.additionalObjects.insert(0,name)
-                if isinstance(theObject, cms.Sequence):
-                   self.additionalObjects.append(name)
-                if isinstance(theObject, cmstypes.ESProducer):
-                   self.additionalObjects.append(name)
-        return
+	    return
 
     def addOutput(self):
         """ Add output module to the process """
@@ -509,7 +490,6 @@ class ConfigBuilder(object):
         self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_cff"
         self.CFWRITERDefaultCFF = "Configuration/StandardSequences/CrossingFrameWriter_cff"
 	self.REPACKDefaultCFF="Configuration/StandardSequences/DigiToRaw_Repack_cff"
-        self.GENFILTERDefaultCFF="GeneratorInterface/Core/genFilterSummary_cff"
 
         # synchronize the geometry configuration and the FullSimulation sequence to be used
         if self._options.geometry not in defaultOptions.geometryExtendedOptions:
@@ -523,7 +503,7 @@ class ConfigBuilder(object):
 
         self.ALCADefaultSeq=None
         self.SIMDefaultSeq=None
-        self.GENDefaultSeq=None
+        self.GENDefaultSeq='pgen'
         self.DIGIDefaultSeq='pdigi'
         self.DATAMIXDefaultSeq=None
         self.DIGI2RAWDefaultSeq='DigiToRaw'
@@ -585,6 +565,10 @@ class ConfigBuilder(object):
             self.eventcontent='FEVT'
 
         if self._options.scenario=='HeavyIons':
+	    if not self._options.himix:
+		    self.GENDefaultSeq='pgen_hi'
+	    else:
+		    self.GENDefaultSeq='pgen_himix'
             self.VALIDATIONDefaultCFF="Configuration/StandardSequences/ValidationHeavyIons_cff"
             self.VALIDATIONDefaultSeq='validationHeavyIons'
             self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentHeavyIons_cff"
@@ -755,55 +739,65 @@ class ConfigBuilder(object):
 		raise Exception("The following alcas could not be found "+str(alcaList))
 
     def prepare_GEN(self, sequence = None):
-        """ Enrich the schedule with the generation step """
-        self.loadAndRemember(self.GENDefaultCFF)
+        """ load the fragment of generator configuration """
+	#remove trailing .py
+	#support old style .cfi by changing into something.cfi into something_cfi
+	#remove python/ from the name
+	loadFragment = self._options.evt_type.replace('.py','',).replace('.','_').replace('python/','')
+	#standard location of fragments
+	if not '/' in loadFragment:
+                loadFragment='Configuration.Generator.'+loadFragment
+	else:
+		loadFragment=loadFragment.replace('/','.')
+	__import__(loadFragment)
+	generatorModule=sys.modules[loadFragment]
+	genModules=generatorModule.__dict__
+	if self._options.hideGen:
+		self.loadAndRemember(loadFragment)
+	else:
+		self.process.load(loadFragment)
+		# expose the objects from that fragment to the configuration
+		import FWCore.ParameterSet.Modules as cmstypes
+		for name in genModules:
+			theObject = getattr(generatorModule,name)
+			if isinstance(theObject, cmstypes._Module):
+				self._options.inlineObjets=name+','+self._options.inlineObjets
+			elif isinstance(theObject, cms.Sequence) or isinstance(theObject, cmstypes.ESProducer):
+				self._options.inlineObjets+=','+name
+			
+	if sequence == self.GENDefaultSeq or sequence == 'pgen_genonly':
+		if 'ProductionFilterSequence' in genModules and ('generator' in genModules or 'hiSignal' in genModules):
+			self.productionFilterSequence = 'ProductionFilterSequence'
+		elif 'generator' in genModules:
+			self.productionFilterSequence = 'generator'
 
-        #check if we are dealing with fastsim -> no vtx smearing
-	if "FASTSIM" in self.stepMap.keys():
-          self.process.pgen.remove(self.process.VertexSmearing)
-          self.process.pgen.remove(self.process.GeneInfo)
-          self.process.pgen.remove(self.process.genJetMET)
-          self.process.generation_step = cms.Path( self.process.pgen)
-          self.process.generation_step._seq = self.process.pgen._seq
+        """ Enrich the schedule with the rest of the generation step """
+	self.loadDefaultOrSpecifiedCFF(sequence,self.GENDefaultCFF)
+	genSeqName=sequence.split('.')[-1]
 
-        # replace the VertexSmearing placeholder by a concrete beamspot definition
-        else:
-          try:
-            self.loadAndRemember('Configuration/StandardSequences/VtxSmeared'+self.beamspot+'_cff')
-          except ImportError:
-            print "VertexSmearing type or beamspot",self.beamspot, "unknown."
-            raise
+	# no vtx smearing for fastsim
+	if 'FASTSIM' in self.stepMap:
+		self.executeAndRemember('process.%s.remove(process.VertexSmearing)'%(genSeqName,))
+		self.executeAndRemember('process.%s.remove(process.GeneInfo)'%(genSeqName,))
+		self.executeAndRemember('process.%s.remove(process.genJetMET)'%(genSeqName,))
+	else:
+		try:
+			self.loadAndRemember('Configuration/StandardSequences/VtxSmeared'+self.beamspot+'_cff')
+		except ImportError:
+			print "VertexSmearing type or beamspot",self.beamspot, "unknown."
+			raise
 
-          if self._options.scenario == 'HeavyIons' and self._options.himix==False:
-              self.process.generation_step = cms.Path( self.process.pgen_hi )
-          elif self._options.himix==True:
-              self.process.generation_step = cms.Path( self.process.pgen_himix )
-              self.loadAndRemember("SimGeneral/MixingModule/himixGEN_cff")
-          elif sequence == 'pgen_genonly':
-              self.process.generation_step = cms.Path ( self.process.pgen_genonly )
-          else:
-              self.process.generation_step = cms.Path( self.process.pgen )
+		if self._options.scenario == 'HeavyIons' and self._options.himix:
+			self.loadAndRemember("SimGeneral/MixingModule/himixGEN_cff")
 
+	self.process.generation_step = cms.Path( getattr(self.process,genSeqName) )
+	self.schedule.append(self.process.generation_step)
 
-
-        self.schedule.append(self.process.generation_step)
-
-        # is there a production filter sequence given?
-        if "ProductionFilterSequence" in self.additionalObjects and ("generator" in self.additionalObjects or 'hiSignal' in self.additionalObjects) and ( sequence == None or sequence == 'pgen_genonly' ):
-            sequence = "ProductionFilterSequence"
-        elif "generator" in self.additionalObjects and ( sequence == None or sequence == 'pgen_genonly' ):
-            sequence = "generator"
-
-        if sequence:
-            if sequence not in self.additionalObjects:
-                raise AttributeError("There is no filter sequence '"+sequence+"' defined in "+self._options.evt_type)
-            else:
-                self.productionFilterSequence = sequence
-
+	""" Enrich the schedule with the summary of the filter step """
 	#the gen filter in the endpath
-	#self.loadAndRemember(self.GENFILTERDefaultCFF)
-	#self.process.genfiltersummary_step = cms.EndPath( self.process.genFilterSummary )
-	#self.schedule.append(self.process.genfiltersummary_step)
+	self.loadAndRemember("GeneratorInterface/Core/genFilterSummary_cff")
+	self.process.genfiltersummary_step = cms.EndPath( self.process.genFilterSummary )
+	self.schedule.append(self.process.genfiltersummary_step)
 
         return
 
@@ -811,16 +805,16 @@ class ConfigBuilder(object):
         """ Enrich the schedule with the simulation step"""
         self.loadAndRemember(self.SIMDefaultCFF)
         if self._options.gflash==True:
-                             self.loadAndRemember("Configuration/StandardSequences/GFlashSIM_cff")
+		self.loadAndRemember("Configuration/StandardSequences/GFlashSIM_cff")
 
         if self._options.magField=='0T':
-            self.executeAndRemember("process.g4SimHits.UseMagneticField = cms.bool(False)")
+		self.executeAndRemember("process.g4SimHits.UseMagneticField = cms.bool(False)")
 
         if self._options.himix==True:
-            if self._options.geometry in defaultOptions.geometryExtendedOptions:
-                self.loadAndRemember("SimGeneral/MixingModule/himixSIMExtended_cff")
-            else:
-                self.loadAndRemember("SimGeneral/MixingModule/himixSIMIdeal_cff")
+		if self._options.geometry in defaultOptions.geometryExtendedOptions:
+			self.loadAndRemember("SimGeneral/MixingModule/himixSIMExtended_cff")
+		else:
+			self.loadAndRemember("SimGeneral/MixingModule/himixSIMIdeal_cff")
 
         self.process.simulation_step = cms.Path( self.process.psim )
         self.schedule.append(self.process.simulation_step)
@@ -839,6 +833,7 @@ class ConfigBuilder(object):
         self.process.digitisation_step = cms.Path(getattr(self.process,sequence.split('.')[-1]))
         self.schedule.append(self.process.digitisation_step)
         return
+
     def prepare_CFWRITER(self, sequence = None):
         """ Enrich the schedule with the crossing frame writer step"""
         self.loadAndRemember(self.CFWRITERDefaultCFF)
@@ -1011,11 +1006,6 @@ class ConfigBuilder(object):
         return
 
 
-    def prepare_PATLayer0(self, sequence = None):
-        """ In case people would like to have this"""
-        pass
-
-
     def prepare_VALIDATION(self, sequence = 'validation'):
 	    self.loadDefaultOrSpecifiedCFF(sequence,self.VALIDATIONDefaultCFF)
 	    #in case VALIDATION:something:somethingelse -> something,somethingelse
@@ -1046,6 +1036,7 @@ class ConfigBuilder(object):
 	    else:
 		    self.process.validation_step = cms.EndPath( getattr(self.process,valSeqName ) )
 	    self.schedule.append(self.process.validation_step)
+
 
 	    if not 'DIGI' in self.stepMap:
 		    self.executeAndRemember("process.mix.playback = True")
@@ -1193,24 +1184,10 @@ class ConfigBuilder(object):
 
 
     def prepare_ENDJOB(self, sequence = 'endOfProcess'):
-        # this one needs replacement
-
 	self.loadDefaultOrSpecifiedCFF(sequence,self.ENDJOBDefaultCFF)
 	sequence=sequence.split('.')[-1]
-	
-	#if "FASTSIM" in self.stepMap.keys():
-        #    self.process.endjob_step = cms.EndPath( getattr(self.process, sequence) )
-        #else:
-	#it goes in endpath no matter what
 	self.process.endjob_step = cms.EndPath( getattr(self.process, sequence) )
-
         self.schedule.append(self.process.endjob_step)
-
-        if 'GEN' in self.stepMap.keys():
-		self.loadAndRemember(self.GENFILTERDefaultCFF)
-		self.process.genfiltersummary_step = cms.EndPath( self.process.genFilterSummary )
-		self.schedule.append(self.process.genfiltersummary_step)
-
 
     def finalizeFastSimHLT(self):
             self.process.HLTSchedule.remove(self.process.HLTAnalyzerEndpath)
@@ -1268,7 +1245,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.262 $"),
+					    (version=cms.untracked.string("$Revision: 1.261 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
@@ -1336,11 +1313,15 @@ class ConfigBuilder(object):
         for command in self.additionalCommands:
             self.pythonCfgCode += command + "\n"
 
-        # special treatment for a production filter sequence 1/2
-        if self.productionFilterSequence:
-            # dump all additional definitions from the input definition file
-            for name in self.additionalObjects:
-                self.pythonCfgCode += dumpPython(self.process,name)
+	#comma separated list of objects that deserve to be inlined in the configuration (typically from a modified config deep down)
+	for object in self._options.inlineObjets.split(','):
+		if not object:
+			continue
+		if not hasattr(self.process,object):
+			print 'cannot inline -'+object+'- : not known'
+		else:
+			self.pythonCfgCode +='\n'
+			self.pythonCfgCode +=dumpPython(self.process,object)
 
         # dump all paths
         self.pythonCfgCode += "\n# Path and EndPath definitions\n"
@@ -1379,11 +1360,9 @@ class ConfigBuilder(object):
 
         # special treatment in case of production filter sequence 2/2
         if self.productionFilterSequence:
-                modifierCode = """
-# special treatment in case of production filter sequence
-for path in process.paths: \n    getattr(process,path)._seq = process."""+self.productionFilterSequence+"""*getattr(process,path)._seq
-"""
-                self.pythonCfgCode += modifierCode
+		self.pythonCfgCode +='# filter all path with the production filter sequence\n'
+		self.pythonCfgCode +='for path in process.paths:\n'
+		self.pythonCfgCode +='\tgetattr(process,path)._seq = process.%s * getattr(process,path)._seq \n'%(self.productionFilterSequence,)
 
         # dump customise fragment
         if self._options.customisation_file:
