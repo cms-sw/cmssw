@@ -12,12 +12,13 @@ cmsDriver.py TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff \
        --customise=TauAnalysis/MCEmbeddingTools/pf_01_customize_HLT.py \
        -n -1
 
-cmsDriver.py \
+cmsDriver.py embedded_HLT \
+       --filein="file:embedded_HLT.root" \
        -s RAW2DIGI,RECO \
        --no_exec \
        --conditions=${CONDITIONS} \
        --fileout=embedded_RECO.root \
        --python_filename=embed_RECO.py \
        --customise=TauAnalysis/MCEmbeddingTools/pf_01_customizeSimulation.py \
-       -n -1 
+       -n -1
 
