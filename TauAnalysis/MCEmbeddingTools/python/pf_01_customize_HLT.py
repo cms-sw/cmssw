@@ -41,6 +41,20 @@ def customise(process):
     index += 1  
 
 
+  hltProcessName = "HLT"	#"REDIGI38X"
+  # the following block can be used for more efficient processing by replacing the HLT variable below automatically
+  try:
+    hltProcessName = __HLT__
+  except:
+    pass
+	
+  try:
+    process.dimuonsHLTFilter.TriggerResultsTag.processName = hltProcessName
+    process.goodZToMuMuAtLeast1HLT.TrigTag.processName = hltProcessName
+    process.goodZToMuMuAtLeast1HLT.triggerEvent.processName = hltProcessName
+    process.hltTrigReport,HLTriggerResults.processName = hltProcessName
+  except:
+    pass
 
   process.VtxSmeared = cms.EDProducer("FlatEvtVtxGenerator", 
     MaxZ = cms.double(0.0),
@@ -73,8 +87,6 @@ def customise(process):
                     VarParsing.VarParsing.varType.int,         
                     "should I override beamspot in globaltag?")
 
-
-
   options.parseArguments()
   print "Setting mdtau to ", options.mdtau
   process.generator.ZTauTau.TauolaOptions.InputCards.mdtau = options.mdtau 
@@ -82,7 +94,7 @@ def customise(process):
   process.generator.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = options.mdtau 
   process.newSource.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = options.mdtau 
 
-  if options.overrideBeamSpot !=  0:
+  if options.overrideBeamSpot != 0:
     bs = cms.string("BeamSpotObjects_2009_LumiBased_v16_offline") # 38x data gt
     #bs = cms.string("BeamSpotObjects_2009_v14_offline") # 36x data gt
     #  tag = cms.string("Early10TeVCollision_3p8cm_31X_v1_mc_START"), # 35 default
@@ -104,5 +116,19 @@ def customise(process):
     myLumis = LumiList.LumiList(filename = 'my.json').getCMSSWString().split(',')
     process.source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
     process.source.lumisToProcess.extend(myLumis)
+
+  try:
+    process.generator.ZTauTau.TauolaOptions.InputCards.mdtau = __MDTAU__
+    process.generator.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = __MDTAU__
+    process.newSource.ZTauTau.TauolaOptions.InputCards.mdtau = __MDTAU__
+    process.newSource.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = __MDTAU__
+  except:
+    pass
+
+  try:
+    process.generator.ZTauTau.transformationMode = cms.untracked.int32(__TRANSFORMATIONMODE__)
+    process.generator.ZTauTau.transformationMode = cms.untracked.int32(__TRANSFORMATIONMODE__)
+  except:
+    pass
 
   return(process)
