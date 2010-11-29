@@ -36,14 +36,11 @@
 #include <vector>
 #include <string>
 
-using std::string;
-using std::vector;
-
 /** \class PhotonOfflineClient
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2010/06/03 15:47:22 $ 
+ **  $Date: 2010/11/17 17:59:10 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -76,18 +73,18 @@ class PhotonOfflineClient : public edm::EDAnalyzer
   virtual void endRun(const edm::Run& , const edm::EventSetup& ) ;
   virtual void runClient();
 
-  MonitorElement* bookHisto(string histoName, string title, int bin, double min, double max);
+  MonitorElement* bookHisto(std::string histoName, std::string title, int bin, double min, double max);
 
-  vector<vector<MonitorElement*> > book2DHistoVector(string histoType, string histoName, string title, 
+  std::vector<std::vector<MonitorElement*> > book2DHistoVector(std::string histoType, std::string histoName, std::string title, 
 							       int xbin, double xmin, double xmax,
 							       int ybin=1,double ymin=1, double ymax=2);
-  vector<vector<vector<MonitorElement*> > > book3DHistoVector(string histoType, string histoName, string title, 
+  std::vector<std::vector<std::vector<MonitorElement*> > > book3DHistoVector(std::string histoType, std::string histoName, std::string title, 
 							       int xbin, double xmin, double xmax,
 							       int ybin=1,double ymin=1, double ymax=2);
 
 
 
-  MonitorElement* retrieveHisto(string dir, string name);
+  MonitorElement* retrieveHisto(std::string dir, std::string name);
 
  private:
 
@@ -103,13 +100,13 @@ class PhotonOfflineClient : public edm::EDAnalyzer
   MonitorElement* p_convFractionVsEtaTight_;
   MonitorElement* p_convFractionVsEtTight_;
 
-  vector<vector<MonitorElement*> > p_convFractionVsEta_;
-  vector<vector<vector<MonitorElement*> > > p_convFractionVsPhi_;
-  vector<vector<MonitorElement*> > p_convFractionVsEt_;
+  std::vector<std::vector<MonitorElement*> > p_convFractionVsEta_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > p_convFractionVsPhi_;
+  std::vector<std::vector<MonitorElement*> > p_convFractionVsEt_;
 
-  vector<vector<MonitorElement*> > p_badChannelsFractionVsEta_;
-  vector<vector<MonitorElement*> > p_badChannelsFractionVsPhi_;
-  vector<vector<MonitorElement*> > p_badChannelsFractionVsEt_;
+  std::vector<std::vector<MonitorElement*> > p_badChannelsFractionVsEta_;
+  std::vector<std::vector<MonitorElement*> > p_badChannelsFractionVsPhi_;
+  std::vector<std::vector<MonitorElement*> > p_badChannelsFractionVsEt_;
 
   MonitorElement* p_vertexReconstructionEfficiencyVsEta_;
 
@@ -139,8 +136,8 @@ class PhotonOfflineClient : public edm::EDAnalyzer
   bool   standAlone_;
   bool   batch_;
 
-  string outputFileName_;
-  string inputFileName_;
+  std::string outputFileName_;
+  std::string inputFileName_;
 
   std::stringstream currentFolder_;
 
@@ -149,8 +146,8 @@ class PhotonOfflineClient : public edm::EDAnalyzer
   int histo_index_efficiency_;
   int histo_index_invMass_;
   
-  vector<string> types_;
-  vector<string> parts_;
+  std::vector<std::string> types_;
+  std::vector<std::string> parts_;
 
 
 };
