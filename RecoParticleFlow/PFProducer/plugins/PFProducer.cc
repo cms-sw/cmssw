@@ -413,8 +413,20 @@ PFProducer::produce(Event& iEvent,
 
   Handle< reco::MuonCollection > muons;
 
-  LogDebug("PFProducer")<<"getting muons"<<endl;
-  found = iEvent.getByLabel( inputTagMuons_, muons );  
+  if ( postMuonCleaning_ ) {
+
+    LogDebug("PFProducer")<<"getting muons"<<endl;
+    found = iEvent.getByLabel( inputTagMuons_, muons );  
+
+    if(!found) {
+      ostringstream err;
+      err<<"cannot find blocks: "<<inputTagMuons_;
+      LogError("PFProducer")<<err.str()<<endl;
+    
+      throw cms::Exception( "MissingProduct", err.str());
+    }
+
+  }
 
   if (useEGammaElectrons_) {
     Handle < reco::GsfElectronCollection > egelectrons;
@@ -448,7 +460,7 @@ PFProducer::produce(Event& iEvent,
   }  
 
 
-  if ( postMuonCleaning_ ) 
+  if ( postMuonCleaning_ )
     pfAlgo_->postMuonCleaning( muons, *vertices );
 
   // Save cosmic cleaned muon candidates
@@ -469,7 +481,6 @@ PFProducer::produce(Event& iEvent,
   // Save added muon candidates
   auto_ptr< reco::PFCandidateCollection > 
     pAddedMuonCandidateCollection( pfAlgo_->transferAddedMuonCandidates() ); 
-
 
   // Check HF overcleaning
   reco::PFRecHitCollection hfCopy;
