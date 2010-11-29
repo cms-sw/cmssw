@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbOnline.cc,v 1.19 2008/03/05 10:44:31 rofierzy Exp $
+// $Id: HcalDbOnline.cc,v 1.20 2009/11/18 23:03:16 lsexton Exp $
 //
 #include <limits>
 #include <string>
@@ -29,8 +29,8 @@ HcalDbOnline::HcalDbOnline (const std::string& fDb, bool fVerbose)
 {
   mEnvironment = oracle::occi::Environment::createEnvironment (oracle::occi::Environment::OBJECT);
   // decode connect string
-  unsigned ipass = fDb.find ('/');
-  unsigned ihost = fDb.find ('@');
+  size_t ipass = fDb.find ('/');
+  size_t ihost = fDb.find ('@');
   
   if (ipass == std::string::npos || ihost == std::string::npos) {
     std::cerr << "HcalDbOnline::HcalDbOnline-> Error in connection string format: " << fDb

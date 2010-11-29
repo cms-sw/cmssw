@@ -19,8 +19,8 @@ DBInterface::DBInterface (const std::string& fDb, bool fVerbose)
 {
   mEnvironment = oracle::occi::Environment::createEnvironment (oracle::occi::Environment::OBJECT);
   // decode connect string
-  unsigned ipass = fDb.find ('/');
-  unsigned ihost = fDb.find ('@');
+  size_t ipass = fDb.find ('/');
+  size_t ihost = fDb.find ('@');
 
   if (ipass == std::string::npos || ihost == std::string::npos) {
     std::cerr << "DBInterface::DBInterface-> Error in connection std::string format: " << fDb

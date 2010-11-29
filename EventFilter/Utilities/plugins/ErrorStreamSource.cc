@@ -182,7 +182,7 @@ bool ErrorStreamSource::openFile(const string& fileName)
 {
   fin_.close();
   fin_.clear();
-  unsigned int pos = fileName.find(':');
+  size_t pos = fileName.find(':');
   if (pos!=string::npos) {
     string prefix = fileName.substr(0,pos);
     if (prefix!="file") return false;

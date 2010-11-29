@@ -14,10 +14,10 @@ void ResolutionFunction::readParameters( TString fileName )
   // Loop on the file lines
   while (parametersFile) {
     getline( parametersFile, line );
-    unsigned int lineInt = line.find("value");
+    size_t lineInt = line.find("value");
 
     // if( line.find(iteration) != std::string::npos ) {
-    unsigned int iterationSubStr = line.find(iteration);
+    size_t iterationSubStr = line.find(iteration);
 
     // Take the iteration number
     if( iterationSubStr != std::string::npos ) {
@@ -58,7 +58,7 @@ void ResolutionFunction::readParameters( TString fileName )
     }
     // Take the parameters for the current iteration
     if ( (lineInt != std::string::npos) ) {
-      int subStr1 = line.find("value");
+      size_t subStr1 = line.find("value");
       std::stringstream paramStr;
       double param = 0;
       // Even if all the rest of the line is taken, the following
@@ -71,7 +71,7 @@ void ResolutionFunction::readParameters( TString fileName )
       // std::cout << "param = " << param << std::endl;
 
       // This is to extract parameter errors
-      // int subStr2 = line.find("+-");
+      // size_t subStr2 = line.find("+-");
       // std::stringstream parErrorStr;
       // double parError = 0;
       // parErrorStr << line.substr(subStr2+1);

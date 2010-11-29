@@ -54,7 +54,7 @@ void SummaryGeneratorReadoutView::fill( const std::string& top_level_dir,
     
     // Extract path and std::string corresponding to "top-level down to granularity" 
     std::string sub_dir = pwd;
-    uint32_t pos = pwd.find( gran );
+    size_t pos = pwd.find( gran );
     if ( pos != std::string::npos ) {
       sub_dir = pwd.substr( 0, pwd.find(sistrip::dir_,pos) );
     } else if ( granularity == sistrip::UNKNOWN_GRAN ) {

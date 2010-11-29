@@ -1,7 +1,7 @@
 /// \file
 ///
-/// $Date: 2009/03/15 17:10:46 $
-/// $Revision: 1.9 $
+/// $Date: 2009/03/20 17:27:42 $
+/// $Revision: 1.10 $
 ///
 /// $Author: flucke $
 /// \author Frederic Ronga - CERN-PH-CMG
@@ -247,8 +247,8 @@ edm::ParameterSet MisalignmentScenarioBuilder::getParameterSet_( const std::stri
       continue;  // nothing left in levelName to be iComponent...
     }
     // now look for numbers (separated by '_', tolerating '__' or ending with '_')
-    unsigned int lastPos = 0;
-    unsigned int pos     = numberString.find_first_of('_', lastPos);
+    size_t lastPos = 0;
+    size_t pos     = numberString.find_first_of('_', lastPos);
     while (std::string::npos != pos || std::string::npos != lastPos) {
       const std::string digit(numberString.substr(lastPos, pos - lastPos));
 

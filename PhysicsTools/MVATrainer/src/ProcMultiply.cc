@@ -70,7 +70,7 @@ void ProcMultiply::configure(DOMElement *elem)
 			(const char*)XMLSimpleStr(node->getTextContent());
 
 		Config indices;
-		for(unsigned int pos = 0, next = 0;
+		for(size_t pos = 0, next = 0;
 		    next != std::string::npos; pos = next + 1) {
 			next = data.find('*', pos);
 

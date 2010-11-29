@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDbParams.cc,v 1.12 2008/07/03 09:29:21 bainbrid Exp $
+// Last commit: $Id: SiStripDbParams.cc,v 1.13 2009/02/20 10:03:40 alinn Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -209,8 +209,8 @@ void SiStripDbParams::pset( const edm::ParameterSet& cfg ) {
 // 
 void SiStripDbParams::confdb( const std::string& confdb ) {
   confdb_ = confdb;
-  uint32_t ipass = confdb.find("/");
-  uint32_t ipath = confdb.find("@");
+  size_t ipass = confdb.find("/");
+  size_t ipath = confdb.find("@");
   if ( ipass != std::string::npos && 
        ipath != std::string::npos ) {
     user_   = confdb.substr(0,ipass); 

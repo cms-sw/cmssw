@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbPoolOCCI.cc,v 1.5 2009/11/18 23:03:16 lsexton Exp $
+// $Id: HcalDbPoolOCCI.cc,v 1.6 2009/12/04 03:42:53 elmer Exp $
 //
 #include <string>
 #include <iostream>
@@ -15,11 +15,11 @@ const bool debug = false;
 
 namespace {
   long getObjectId (const std::string& fToken) {
-    unsigned ipos = fToken.find ("OID=");
+    size_t ipos = fToken.find ("OID=");
     if (ipos != std::string::npos) {
       ipos = fToken.find ('-', ipos);
       if (ipos != std::string::npos) {
-        unsigned ipos2 = fToken.find (']', ipos);
+        size_t ipos2 = fToken.find (']', ipos);
 	if (ipos2 != std::string::npos) {
 	  while (fToken [++ipos] != '0');
 	  std::string id (fToken, ipos, ipos2-ipos);
@@ -41,8 +41,8 @@ HcalDbPoolOCCI::HcalDbPoolOCCI (const std::string& fDb)
 {
   mEnvironment = oracle::occi::Environment::createEnvironment (oracle::occi::Environment::OBJECT);
   // decode connect string
-  unsigned ipass = fDb.find ('/');
-  unsigned ihost = fDb.find ('@');
+  size_t ipass = fDb.find ('/');
+  size_t ihost = fDb.find ('@');
   
   if (ipass == std::string::npos || ihost == std::string::npos) {
     std::cerr << "HcalDbPoolOCCI::HcalDbPoolOCCI-> Error in connection string format: " << fDb

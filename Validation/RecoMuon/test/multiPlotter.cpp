@@ -12,8 +12,8 @@
  *  which had a problem with directories more than one level deep.
  *  (see macro hadd_old.C for this previous implementation).
  *
- *  $Date: 2008/06/08 17:48:23 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/06/01 17:46:14 $
+ *  $Revision: 1.8 $
  *
  *  Authors:
  *  A. Everett Purdue University
@@ -130,8 +130,8 @@ int main(int argc, char *argv[] )
     } else 
     */
     { //--- Assume the file is a space-separated list of files -//
-      unsigned int strStart = 0 ; 
-      for (unsigned int itr=infileName.find(" ",0); itr!=std::string::npos;
+      size_t strStart = 0 ; 
+      for (size_t itr=infileName.find(" ",0); itr!=std::string::npos;
 	   itr=infileName.find(" ",itr)) {
 	std::string skipped = infileName.substr(strStart,(itr-strStart)) ; 
 	itr++ ; strStart = itr ; 

@@ -700,7 +700,7 @@ int main (int argc, char* argv[])
   outputFile = path + "/" + outputFile;
 
   // substitute _ with spaces
-  unsigned int t;
+  size_t t;
   while ((t = title.find('_'))!=string::npos) title[t] = ' ';
   while ((t = xtitle.find('_'))!=string::npos) xtitle[t] = ' ';
   while ((t = ytitle.find('_'))!=string::npos) ytitle[t] = ' ';
