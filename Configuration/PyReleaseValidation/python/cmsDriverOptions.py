@@ -254,11 +254,22 @@ expertSettings.add_option("--custom_conditions",
                           dest='custom_conditions')
 
 expertSettings.add_option("--inline_eventcontent",
-                          help="expeand event content definitions",
+                          help="expand event content definitions",
                           action="store_true",
                           default=False,
                           dest="inlineEventContent")
-                  
+
+
+expertSettings.add_option("--inline_object",
+                          help="expand explicitely the definition of a list of objects",
+                          default='',
+                          dest="inlineObjets")
+
+expertSettings.add_option("--hideGen",
+                          help="do not inline the generator information, just load it",
+                          default=False,
+                          action="store_true")
+
 (options,args) = parser.parse_args() # by default the arg is sys.argv[1:]
 
 
@@ -379,9 +390,14 @@ python_config_filename = standardFileName
 # check if we have "auto" conditions, if so, expand them properly:
 if 'auto:' in options.conditions:
     from autoCond import autoCond
-    for ac,cond in autoCond.items():
-        options.conditions = options.conditions.replace('auto:'+ac, cond)
-
+    key=options.conditions.split(':')[-1]
+    if key not in autoCond:
+        print 'no correspondance for',options.conditions
+        print 'available keys are',autoCond.keys()
+        raise
+    else:
+        options.conditions = autoCond[key]
+    
 # now treat the conditions...
 conditionsSP = options.conditions.split(',')
 if len(conditionsSP) > 1:
