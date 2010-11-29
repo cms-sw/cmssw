@@ -17,11 +17,11 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 3_9_0
-setenv CMSSWver2 3_9_2
+setenv CMSSWver1 3_9_2
+setenv CMSSWver2 3_9_4
 
-setenv OLDRELEASE 390
-setenv NEWRELEASE 392
+setenv OLDRELEASE 392
+setenv NEWRELEASE 394
 setenv OLDPRERELEASE 
 setenv NEWPRERELEASE 
 
@@ -56,8 +56,8 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #setenv SAMPLE SingleGammaPt10IDEAL
 #setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
-#setenv SAMPLE H130GGgluonfusionSTARTUP
-setenv SAMPLE PhotonJets_Pt_10
+setenv SAMPLE H130GGgluonfusionSTARTUP
+#setenv SAMPLE PhotonJets_Pt_10
 #setenv SAMPLE PhotonJets_Pt_10STARTUP
 #setenv SAMPLE GammaJets_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_80_120STARTUP

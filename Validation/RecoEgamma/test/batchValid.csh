@@ -31,7 +31,7 @@ else if ( $sim == Fast ) then
 setenv confName  PhotonValidatorFastSim
 endif
 
-setenv MYWORKDIR /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_3_9_2/src/Validation/RecoEgamma/test
+setenv MYWORKDIR /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_3_9_4/src/Validation/RecoEgamma/test
 
 echo ${MYWORKDIR}
 setenv MYOUT ${MYWORKDIR}
@@ -56,9 +56,9 @@ cmsRun  conf.py > & ${outFileName}.log
 if ( $sim == Full ) then
  rfcp   ${outFileName}.log             ${MYOUT}/${outFileName}.log
 
- rfcp   PhotonValidationRelVal392_${outFileName}.root            ${MYOUT}/.
- rfcp   ConversionValidationRelVal392_${outFileName}.root        ${MYOUT}/.
+ rfcp   PhotonValidationRelVal394_${outFileName}.root            ${MYOUT}/.
+ rfcp   ConversionValidationRelVal394_${outFileName}.root        ${MYOUT}/.
 else if ( $sim == Fast ) then
  rfcp   ${outFileName}.log             ${MYOUT}/${outFileName}_FastSim.log
-rfcp   PhotonValidationRelVal392_${outFileName}_FastSim.root            ${MYOUT}/.
+rfcp   PhotonValidationRelVal394_${outFileName}_FastSim.root            ${MYOUT}/.
 endif
