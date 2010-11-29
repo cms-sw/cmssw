@@ -22,8 +22,9 @@ FWPFEcalRecHitLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveEle
          TEveStraightLineSet* line =dynamic_cast<TEveStraightLineSet*>(*i);
          if (line)
          {
-            const FWDisplayProperties &p = item()->modelInfo(iId.index()).displayProperties();
-            line->SetMarkerColor(p.color());
+            //const FWDisplayProperties &p = item()->modelInfo(iId.index()).displayProperties();
+            //line->SetMarkerColor(p.color());
+            line->SetMarkerColor( kBlack );
             line->StampObjProps();
          }
       }
@@ -85,20 +86,23 @@ FWPFEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList
       if( corners == 0 )
          continue;
 
+      int k = 3;
+      //for( i = 0, j = 3; i < 4, j > -1; ++i, --j )
       for( int i = 0; i < 4; ++i )
       {
-         int j = i * 3;
+         int j = k * 3;
          TEveVector cv = TEveVector( corners[j], corners[j+1], corners[j+2] );
-         etaphiCorners[i].fX = cv.Eta();                    // Conversion of rechit X/Y values for plotting in Eta/Phi
-         cv = TEveVector( corners[j], corners[j+1], corners[j+2] );
+         etaphiCorners[i].fX = cv.Eta();                 // Conversion of rechit X/Y values for plotting in Eta/Phi
          etaphiCorners[i].fY = cv.Phi();
-         etaphiCorners[i].fZ = 0.0;                         // Small (floor) Z offset
-
-         etaphiCorners[i+4].fX = etaphiCorners[i].fX;
-         etaphiCorners[i+4].fY = etaphiCorners[i].fY;       // Top can simply be plotted exactly over the top of the bottom face
+         etaphiCorners[i].fZ = 0.0;
+   
+         etaphiCorners[i+4].fX = etaphiCorners[i].fX;    // Top can simply be plotted exactly over the top of the bottom face
+         etaphiCorners[i+4].fY = etaphiCorners[i].fY;
          etaphiCorners[i+4].fZ = 0.001;
          // printf("%f %f %d \n",  etaphiCorners[i].fX, etaphiCorners[i].fY, i);
+         --k;
       }
+
       centre = calculateCentre( etaphiCorners );
       energy = iData.energy();
       et = calculateEt( centre, energy );
@@ -114,7 +118,8 @@ FWPFEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList
       if (iItem->modelInfo(index).displayProperties().isVisible())
       {
          FWPFLegoRecHit *recHit = new FWPFLegoRecHit( etaphiCorners, itemHolder, this, vc, energy, et );
-         recHit->setSquareColor(item()->defaultDisplayProperties().color());
+         //recHit->setSquareColor(item()->defaultDisplayProperties().color());
+         recHit->setSquareColor( kBlack );
          m_recHits.push_back( recHit );
       }
    }
@@ -157,7 +162,8 @@ FWPFEcalRecHitLegoProxyBuilder::visibilityModelChanges(const FWModelId& iId, TEv
 
       {
          FWPFLegoRecHit *recHit = new FWPFLegoRecHit( etaphiCorners, itemHolder, this, vc, energy, et );
-         recHit->setSquareColor(item()->defaultDisplayProperties().color());
+         //recHit->setSquareColor(item()->defaultDisplayProperties().color());
+         recHit->setSquareColor( kBlack );
          m_recHits.push_back( recHit );
       }
       return true;
