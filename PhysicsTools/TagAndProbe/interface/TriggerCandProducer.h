@@ -16,6 +16,8 @@
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "FWCore/Common/interface/TriggerNames.h" 
+
 
 // forward declarations
 template<class object>
@@ -35,7 +37,9 @@ class TriggerCandProducer : public edm::EDProducer
     
   edm::InputTag _inputProducer;
   edm::InputTag triggerEventTag_;
-  edm::InputTag hltTag_;
+  edm::InputTag triggerResultsTag_;
+  std::vector<edm::InputTag> hltTags_;
+  edm::InputTag theRightHLTTag_;
   double delRMatchingCut_;
   std::string filterName_;
   bool storeRefCollection_;
@@ -43,6 +47,7 @@ class TriggerCandProducer : public edm::EDProducer
   bool printIndex_;
   bool changed_;
   HLTConfigProvider hltConfig_;
+  bool skipEvent_;
 };
 #include "PhysicsTools/TagAndProbe//src/TriggerCandProducer.icc"
 #endif

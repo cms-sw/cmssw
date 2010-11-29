@@ -5,7 +5,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <string>
 
-
 template<class object >
 TriggerCandProducer<object>::TriggerCandProducer(const edm::ParameterSet& iConfig )
 {
@@ -13,22 +12,23 @@ TriggerCandProducer<object>::TriggerCandProducer(const edm::ParameterSet& iConfi
   _inputProducer = iConfig.template getParameter<edm::InputTag>("InputProducer");
   
   // **************** Trigger ******************* //
-  const edm::InputTag dTriggerEventTag("hltTriggerSummaryAOD","","HLT8E29");
+  const edm::InputTag dTriggerEventTag("hltTriggerSummaryAOD","","HLT");
   triggerEventTag_ = 
     iConfig.getUntrackedParameter<edm::InputTag>("triggerEventTag",
 						 dTriggerEventTag);
-  
-  const edm::InputTag dHLTTag("HLT_Ele15_LW_L1R", "","HLT8E29");
-  hltTag_ = iConfig.getUntrackedParameter<edm::InputTag>("hltTag",dHLTTag);
+  const edm::InputTag dTriggerResults("TriggerResults","","HLT");
+  triggerResultsTag_ = iConfig.getUntrackedParameter<edm::InputTag>("triggerResultsTag", 
+								    dTriggerResults);
+  hltTags_ = iConfig.getParameter<std::vector<edm::InputTag> >("hltTags");
   
   delRMatchingCut_ = iConfig.getUntrackedParameter<double>("triggerDelRMatch",
 							   0.30);
   // ******************************************** //
-  //Trigger path VS l1 trigger filter. Trigger Path is default.
+  //Trigger path VS L1 trigger filter. Trigger Path is default.
   isFilter_ = iConfig.getUntrackedParameter<bool>("isTriggerFilter",false);
   printIndex_ = iConfig.getUntrackedParameter<bool>("verbose",false);
 
-  produces< edm::PtrVector<object> >();
+  //  produces< edm::PtrVector<object> >();
   produces< edm::RefToBaseVector<object> >();
 }
 
@@ -55,13 +55,18 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
   using namespace reco;
   using namespace trigger;
 
-
    // Create the output collection
   std::auto_ptr< edm::RefToBaseVector<object> > 
     outColRef( new edm::RefToBaseVector<object> );
-  std::auto_ptr< edm::PtrVector<object> > 
-    outColPtr( new edm::PtrVector<object> );
+  //std::auto_ptr< edm::PtrVector<object> > 
+  // outColPtr( new edm::PtrVector<object> );
 
+  //skip event if HLT paths do not have identical process names
+  if (skipEvent_) {
+    event.put(outColRef);
+    //event.put(outColPtr);
+    return;    
+  }
 
    // Get the input collection
    edm::Handle<edm::View<object> > candHandle;
@@ -79,6 +84,65 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
    // Trigger Info
    edm::Handle<trigger::TriggerEvent> trgEvent;
    event.getByLabel(triggerEventTag_,trgEvent);
+   edm::Handle<edm::TriggerResults> pTrgResults;
+   event.getByLabel(triggerResultsTag_, pTrgResults);
+
+   //gracefully choose the single appropriate HLT path from the list of desired paths
+   std::vector<std::string> activeHLTPathsInThisEvent = hltConfig_.triggerNames();
+   std::map<std::string, bool> triggerInMenu;
+   std::map<std::string, bool> triggerUnprescaled;
+   for (std::vector<edm::InputTag>::const_iterator iMyHLT = hltTags_.begin(); 
+        iMyHLT != hltTags_.end(); ++iMyHLT) {
+     if ((triggerInMenu.find((*iMyHLT).label()) == triggerInMenu.end()) &&
+         (triggerUnprescaled.find((*iMyHLT).label()) == triggerUnprescaled.end())) {
+       triggerInMenu[(*iMyHLT).label()] = false;
+       triggerUnprescaled[(*iMyHLT).label()] = false;
+     }
+   }
+   for (std::vector<std::string>::const_iterator iHLT = activeHLTPathsInThisEvent.begin(); 
+        iHLT != activeHLTPathsInThisEvent.end(); ++iHLT) {
+     for (std::vector<edm::InputTag>::const_iterator iMyHLT = hltTags_.begin(); 
+          iMyHLT != hltTags_.end(); ++iMyHLT) {
+       if ((*iMyHLT).label() == *iHLT) {
+         triggerInMenu[(*iMyHLT).label()] = true;
+         if (hltConfig_.prescaleValue(event, eventSetup, *iHLT) == 1) {
+           triggerUnprescaled[(*iMyHLT).label()] = true;
+         }
+       }
+     }
+   }
+   unsigned int numOKHLTPaths = 0;
+   unsigned int i = 0;
+   for (std::map<std::string, bool>::const_iterator iMyHLT = triggerInMenu.begin(); 
+        iMyHLT != triggerInMenu.end(); ++iMyHLT) {
+     if (iMyHLT->second && triggerUnprescaled[iMyHLT->first]) {
+       theRightHLTTag_ = edm::InputTag(iMyHLT->first, "", hltTags_[0].process());
+       ++numOKHLTPaths;
+     }
+     ++i;
+   }
+
+   if (numOKHLTPaths == 0) {
+     stringstream err;
+     err << "Error: No unprescaled HLT paths in ";
+     err << "run " << event.run() << ", event " << event.id().event() << ", lumi section ";
+     err << event.getLuminosityBlock().luminosityBlock() << std::endl;
+     err << "Menu name: " << hltConfig_.tableName() << endl;
+     std::cerr << err.str();
+     edm::LogError("TriggerCandProducer") << err.str();
+     throw cms::Exception("GarbageInGarbageOut") << err.str();
+   }
+   if (numOKHLTPaths > 1) {
+     stringstream err;
+     err << "Error: Multiple unprescaled HLT paths in ";
+     err << "run " << event.run() << ", event " << event.id().event() << ", lumi section ";
+     err << event.getLuminosityBlock().luminosityBlock() << std::endl;
+     err << "Menu name: " << hltConfig_.tableName() << endl;
+     std::cerr << err.str();
+     edm::LogError("TriggerCandProducer") << err.str();
+     throw cms::Exception("GarbageInGarbageOut") << err.str();
+   }
+   //else std::cout << "theRightHLTTag_ = " << theRightHLTTag_ << std::endl;
 
    // Some sanity checks
    if (not trgEvent.isValid()) {
@@ -86,7 +150,7 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
        triggerEventTag_;
 
      event.put(outColRef);
-     event.put(outColPtr);
+     // event.put(outColPtr);
      return;
    }
 
@@ -101,22 +165,23 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
 
    if(isFilter_){
    //-----------------------------------------------------------------------
-   filterName_ = hltTag_.label();
+   filterName_ = theRightHLTTag_.label();
    for(int i=0; i != trgEvent->sizeFilters(); ++i) {
      std::string label(trgEvent->filterTag(i).label());
-     if( label == hltTag_.label() ) index = i;
+     if( label == theRightHLTTag_.label() ) index = i;
    }
    //-----------------------------------------------------------------------
    if(printIndex_) std::cout << "filter search: " <<  
-     hltTag_.label() << "   index: " << index << std::endl;
+     theRightHLTTag_.label() << "   index: " << index << std::endl;
    }
    else{
-     std::vector<std::string> filters 
-       = hltConfig_.moduleLabels( hltTag_.label() );
+     std::vector<std::string> filters; 
+     try { filters = hltConfig_.moduleLabels( theRightHLTTag_.label() ); }
+     catch (std::exception ex) { cout << "bad trigger\n"; }
      for(std::vector<std::string>::iterator filter =
 	   filters.begin(); filter!= filters.end(); ++filter ) {
-       
-       edm::InputTag testTag(*filter,"", hltTag_.process() );
+
+       edm::InputTag testTag(*filter,"", theRightHLTTag_.process() );
        
        int testindex = trgEvent->filterIndex(testTag);
        if ( !(testindex >= trgEvent->sizeFilters()) ) {
@@ -129,15 +194,15 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
      index = trgEvent->filterIndex( filterTag );
    }
 
-   if(printIndex_) std::cout << "hltTag_.label() " <<  
-     hltTag_.label() << "   filter name " <<  
+   if(printIndex_) std::cout << "theRightHLTTag_.label() " <<  
+     theRightHLTTag_.label() << "   filter name " <<  
      filterName_ << "  index " << index << "  sizeFilters " <<  
      trgEvent->sizeFilters() << std::endl;
 
    //-----------------------------------------------------------------
    // find how many relevant
    /*
-   edm::InputTag l1testTag(filterName_,"", hltTag_.process() );
+   edm::InputTag l1testTag(filterName_,"", theRightHLTTag_.process() );
    const int index = trgEvent->filterIndex( l1testTag );
    */
    //-----------------------------------------------------------------
@@ -145,10 +210,9 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
 
    if( index >= trgEvent->sizeFilters() ) {
      edm::LogInfo("info")<< "******** Following TRIGGER Name Not in Dataset: " <<
-       hltTag_.label();
-
+       theRightHLTTag_.label();
      event.put(outColRef);
-     event.put(outColPtr);
+     // event.put(outColPtr);
      return;
    }
 
@@ -156,8 +220,13 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
    const trigger::Keys& KEYS(trgEvent->filterKeys(index));
    const size_type nK(KEYS.size());
 
+   //did this event fire the HLT?
+   const edm::TriggerNames &trgNames = event.triggerNames(*pTrgResults);
+   const unsigned int trgIndex = trgNames.triggerIndex(theRightHLTTag_.label());
+   bool firedHLT = (trgIndex < trgNames.size()) && (pTrgResults->accept(trgIndex));
+
    // Loop over the candidate collection
-   const edm::PtrVector<object>& ptrVect = candHandle->ptrVector();
+   // const edm::PtrVector<object>& ptrVect = candHandle->ptrVector();
    const edm::RefToBaseVector<object>& refs = candHandle->refVector();
    unsigned int counter=0;
 
@@ -176,14 +245,14 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
        if( hltTrigger ) break;
      }       
 
-     if(hltTrigger) { 
+     if(hltTrigger && firedHLT) { 
        outColRef->push_back( refs[counter] );
-       outColPtr->push_back( ptrVect[counter] );
+       //outColPtr->push_back( ptrVect[counter] );
      }
    } 
 
    event.put(outColRef);
-   event.put(outColPtr);
+   // event.put(outColPtr);
 }
    
 
@@ -191,15 +260,28 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
 // ---- method called once each job just before starting event loop  ---
 template<class object>
 void TriggerCandProducer<object>::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup){
-  //std::cout << "calling init(" << "iRun" << ", " << "iSetup" << ", " << hltTag_.process() << ", " << "changed_" << ") in beginRun()" << std::endl;
-  if(!hltConfig_.init(iRun,iSetup,hltTag_.process(),changed_) ){
+
+  //verify that the process names of all the requested HLT paths are identical
+  skipEvent_ = false;
+  bool identical = true;
+  std::vector<edm::InputTag>::const_iterator iMyHLT = hltTags_.begin();
+  edm::InputTag lastTag = *iMyHLT;
+  while ((iMyHLT != hltTags_.end()) && identical) {
+    if ((*iMyHLT).process() == lastTag.process()) identical = true;
+    else identical = false;
+    lastTag = *iMyHLT;
+    ++iMyHLT;
+  }
+  if (!identical) skipEvent_ = true;
+
+  //std::cout << "calling init(" << "iRun" << ", " << "iSetup" << ", " << hltTags_[0].process() << ", " << "changed_" << ") in beginRun()" << std::endl;
+  if(!hltConfig_.init(iRun,iSetup,hltTags_[0].process(),changed_) ){
     edm::LogError("TriggerCandProducer") << 
       "Error! Can't initialize HLTConfigProvider";
     throw cms::Exception("HLTConfigProvider::init() returned non 0");
   }
   if(printIndex_ && changed_)
     std::cout << "HLT configuration changed !" << std::endl;
-  std::vector<std::string> filters = hltConfig_.moduleLabels( hltTag_.label() );
 }
 
 template<class object>

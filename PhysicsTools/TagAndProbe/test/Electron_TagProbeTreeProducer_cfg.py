@@ -1,28 +1,52 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TagProbe")
+##                      _              _       
+##   ___ ___  _ __  ___| |_ __ _ _ __ | |_ ___ 
+##  / __/ _ \| '_ \/ __| __/ _` | '_ \| __/ __|
+## | (_| (_) | | | \__ \ || (_| | | | | |_\__ \
+##  \___\___/|_| |_|___/\__\__,_|_| |_|\__|___/
+##                                              
+########################
+MC_flag = False
+GLOBAL_TAG = 'GR_R_39X_V4::All'
+HLTPath = "HLT_Ele17_SW_TightEleId_L1R"
+OUTPUT_FILE_NAME = "testNewWrite.root" 
+#HLTPath = "HLT_Ele15_SW_CaloEleId_L1R"
+#HLTPath = "HLT_Ele15_SW_L1R"
+#HLTPath = "HLT_Ele15_LW_L1R"
+#HLTPath = "HLT_Photon15_Cleaned_L1R"
+
+ELECTRON_ET_CUT_MIN = 10.0
+ELECTRON_COLL = "gsfElectrons"
+ELECTRON_CUTS = "ecalDrivenSeed==1 && (abs(superCluster.eta)<2.5) && !(1.4442<abs(superCluster.eta)<1.566) && (ecalEnergy*sin(superClusterPosition.theta)>" + str(ELECTRON_ET_CUT_MIN) + ")"
+####
+
+PHOTON_COLL = "photons"
+PHOTON_CUTS = "hadronicOverEm<0.15 && (abs(superCluster.eta)<2.5) && !(1.4442<abs(superCluster.eta)<1.566) && ((isEB && sigmaIetaIeta<0.01) || (isEE && sigmaIetaIeta<0.03)) && (superCluster.energy*sin(superCluster.position.theta)>" + str(ELECTRON_ET_CUT_MIN) + ")"
+####
+
+SUPERCLUSTER_COLL_EB = "hybridSuperClusters"
+SUPERCLUSTER_COLL_EE = "multi5x5SuperClustersWithPreshower"
+SUPERCLUSTER_CUTS = "abs(eta)<2.5 && !(1.4442< abs(eta) <1.566) && et>" + str(ELECTRON_ET_CUT_MIN)
+
+
+JET_COLL = "ak5PFJets"
+JET_CUTS = "abs(eta)<2.6 && chargedHadronEnergyFraction>0 && electronEnergyFraction<0.1 && nConstituents>1 && neutralHadronEnergyFraction<0.99 && neutralEmEnergyFraction<0.99" 
+########################
 
 ##    ___            _           _      
 ##   |_ _|_ __   ___| |_   _  __| | ___ 
 ##    | || '_ \ / __| | | | |/ _` |/ _ \
 ##    | || | | | (__| | |_| | (_| |  __/
 ##   |___|_| |_|\___|_|\__,_|\__,_|\___|
-
+##
+process = cms.Process("TagProbe")
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = GLOBAL_TAG
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 #process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-
-########################
-MC_flag = False
-
-HLTPath = "HLT_Ele17_SW_TightEleId_L1R"
-#HLTPath = "HLT_Ele15_SW_CaloEleId_L1R"
-#HLTPath = "HLT_Ele15_SW_L1R"
-#HLTPath = "HLT_Ele15_LW_L1R"
-#HLTPath = "HLT_Photon15_Cleaned_L1R"
-########################
-
 
 ##   ____             _ ____                           
 ##  |  _ \ ___   ___ | / ___|  ___  _   _ _ __ ___ ___ 
@@ -30,7 +54,6 @@ HLTPath = "HLT_Ele17_SW_TightEleId_L1R"
 ##  |  __/ (_) | (_) | |___) | (_) | |_| | | | (_|  __/
 ##  |_|   \___/ \___/|_|____/ \___/ \__,_|_|  \___\___|
 ##  
-
 process.source = cms.Source("PoolSource", 
     fileNames = cms.untracked.vstring(
        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/454/ACDEDA3C-B7D3-DF11-A7A1-0030487C6A66.root',
@@ -52,32 +75,8 @@ process.source = cms.Source("PoolSource",
        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/452/029B8885-95D3-DF11-B1FE-001617E30D4A.root',    
     )
 )
-
-
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )    
 process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMConverter_*_*")
-
-
-
-#  Photons!!! ################ 
-process.goodPhotons = cms.EDFilter("PhotonSelector",
-                                   src = cms.InputTag("photons"),
-                                   cut = cms.string("hadronicOverEm<0.15"
-                                                    " && (superCluster.energy*sin(superCluster.position.theta)>15.0)"
-                                                    " && (abs(superCluster.eta)<2.5) && !(1.4442<abs(superCluster.eta)<1.566)")
-                                   )
-
-
-process.FilteredPhotons = cms.EDFilter("PhotonRefSelector",
-         src = cms.InputTag("goodPhotons"),
-         cut = cms.string(process.goodPhotons.cut.value() +
-                          " && ( (isEB && (sigmaIetaIeta<0.01) && (hadronicOverEm<0.15))"
-                          " || (isEE && (sigmaIetaIeta<0.03) && (hadronicOverEm<0.15)))"                
-                          )
-)
-
-
-
 
 ##   ____                         ____ _           _            
 ##  / ___| _   _ _ __   ___ _ __ / ___| |_   _ ___| |_ ___ _ __ 
@@ -88,8 +87,8 @@ process.FilteredPhotons = cms.EDFilter("PhotonRefSelector",
 
 #  SuperClusters  ################
 process.superClusters = cms.EDProducer("SuperClusterMerger",
-   src = cms.VInputTag(cms.InputTag("hybridSuperClusters","", "RECO"),
-                       cms.InputTag("multi5x5SuperClustersWithPreshower","", "RECO"))  
+   src = cms.VInputTag(cms.InputTag( SUPERCLUSTER_COLL_EB ,"", "RECO"),
+                       cms.InputTag( SUPERCLUSTER_COLL_EE ,"", "RECO") )  
 )
 
 process.superClusterCands = cms.EDProducer("ConcreteEcalCandidateProducer",
@@ -100,7 +99,7 @@ process.superClusterCands = cms.EDProducer("ConcreteEcalCandidateProducer",
 #   Get the above SC's Candidates and place a cut on their Et and eta
 process.goodSuperClusters = cms.EDFilter("CandViewSelector",
       src = cms.InputTag("superClusterCands"),
-      cut = cms.string("et>15.0 && abs(eta)<2.5 && !(1.4442< abs(eta) <1.566)"),
+      cut = cms.string( SUPERCLUSTER_CUTS ),
       filter = cms.bool(True)
 )                                         
                                          
@@ -112,32 +111,29 @@ process.JetsToRemoveFromSuperCluster = cms.EDFilter("CaloJetSelector",
     src = cms.InputTag("ak5CaloJets"),
     cut = cms.string('pt>5 && energyFractionHadronic > 0.15')
 )
-
-
 process.goodSuperClustersClean = cms.EDProducer("CandViewCleaner",
-    srcCands = cms.InputTag("goodSuperClusters"),
+    srcObject = cms.InputTag("goodSuperClusters"),
     module_label = cms.string(''),
-    srcObjects = cms.VInputTag(cms.InputTag("JetsToRemoveFromSuperCluster")),
+    srcObjectsToRemove = cms.VInputTag(cms.InputTag("JetsToRemoveFromSuperCluster")),
     deltaRMin = cms.double(0.1)
 )
 
+#  Photons!!! ################ 
+process.goodPhotons = cms.EDFilter(
+    "PhotonSelector",
+    src = cms.InputTag( PHOTON_COLL ),
+    cut = cms.string(PHOTON_CUTS)
+    )
 
 
-## process.superClusters = cms.EDFilter("EgammaHLTRecoEcalCandidateProducers",
-##    scHybridBarrelProducer =  cms.InputTag("hybridSuperClusters","", "RECO"),
-##    scIslandEndcapProducer =  cms.InputTag("multi5x5SuperClustersWithPreshower","", "RECO"),    
-##    recoEcalCandidateCollection = cms.string("")
-## )
-
-
-process.sc_sequence = cms.Sequence( process.goodPhotons *
-                                    process.FilteredPhotons *
-                                    process.superClusters *
-                                    process.superClusterCands *
-                                    process.goodSuperClusters *
-                                    process.JetsToRemoveFromSuperCluster *
-                                    process.goodSuperClustersClean
-                                    )
+process.sc_sequence = cms.Sequence(
+    process.superClusters +
+    process.superClusterCands +
+    process.goodSuperClusters +
+    process.JetsToRemoveFromSuperCluster +
+    process.goodSuperClustersClean +
+    process.goodPhotons
+    )
 
 
 ##    ____      __ _____ _           _                   
@@ -146,45 +142,22 @@ process.sc_sequence = cms.Sequence( process.goodPhotons *
 ##  | |_| \__ \  _| |___| |  __/ (__| |_| | | (_) | | | |
 ##   \____|___/_| |_____|_|\___|\___|\__|_|  \___/|_| |_|
 ##  
-
 #  GsfElectron ################ 
-process.PassingGsf = cms.EDFilter("GsfElectronRefSelector",
-    src = cms.InputTag("gsfElectrons"),
-    cut = cms.string("(abs(superCluster.eta)<2.5) && !(1.4442<abs(superCluster.eta)<1.566) && ecalDrivenSeed==1"
-                     " && (ecalEnergy*sin(superClusterPosition.theta)>15.0) && (hadronicOverEm<0.15)")    
+process.goodElectrons = cms.EDFilter("GsfElectronRefSelector",
+    src = cms.InputTag( ELECTRON_COLL ),
+    cut = cms.string( ELECTRON_CUTS )    
 )
-
 
 process.GsfMatchedSuperClusterCands = cms.EDProducer("ElectronMatchedCandidateProducer",
    src     = cms.InputTag("goodSuperClustersClean"),
-   ReferenceElectronCollection = cms.untracked.InputTag("PassingGsf"),
+   ReferenceElectronCollection = cms.untracked.InputTag("goodElectrons"),
    deltaR =  cms.untracked.double(0.3)
 )
 
+process.GsfMatchedPhotonCands = process.GsfMatchedSuperClusterCands.clone()
+process.GsfMatchedPhotonCands.src = cms.InputTag("goodPhotons")
 
-process.GsfMatchedPhotonCands = cms.EDProducer("ElectronMatchedCandidateProducer",
-   src     = cms.InputTag("FilteredPhotons"),
-   ReferenceElectronCollection = cms.untracked.InputTag("PassingGsf"),
-   deltaR =  cms.untracked.double(0.3)
-)
             
-
-##     ___           _       _   _             
-##    |_ _|___  ___ | | __ _| |_(_) ___  _ __  
-##     | |/ __|/ _ \| |/ _` | __| |/ _ \| '_ \ 
-##     | |\__ \ (_) | | (_| | |_| | (_) | | | |
-##    |___|___/\___/|_|\__,_|\__|_|\___/|_| |_|
-
-                                         
-#  Isolation ################ 
-process.PassingIsolation = cms.EDFilter("GsfElectronRefSelector",
-    src = cms.InputTag("gsfElectrons"),
-    cut = cms.string(process.PassingGsf.cut.value() +
-         " && (( isEB && ( dr03TkSumPt/p4.Pt < 0.15 && dr03EcalRecHitSumEt/p4.Pt < 2.0 && dr03HcalTowerSumEt/p4.Pt < 0.12 ))"
-         " || (isEE && (dr03TkSumPt/p4.Pt < 0.08 && dr03EcalRecHitSumEt/p4.Pt < 0.06  && dr03HcalTowerSumEt/p4.Pt < 0.05 )))")
-         #" && (( isEB && ( (dr03TkSumPt + max(0., dr03EcalRecHitSumEt - 1.) + dr03HcalTowerSumEt)/(p4.Pt) < 0.15 ))"
-         #" || (isEE && ((dr03TkSumPt + dr03EcalRecHitSumEt + dr03HcalTowerSumEt)/(p4.Pt) < 0.1 )))"
-)
 
 ##    _____ _           _                     ___    _ 
 ##   | ____| | ___  ___| |_ _ __ ___  _ __   |_ _|__| |
@@ -192,54 +165,135 @@ process.PassingIsolation = cms.EDFilter("GsfElectronRefSelector",
 ##   | |___| |  __/ (__| |_| | | (_) | | | |  | | (_| |
 ##   |_____|_|\___|\___|\__|_|  \___/|_| |_| |___\__,_|
 ##   
-
 # Electron ID  ######
+process.PassingWP95 = process.goodElectrons.clone()
+process.PassingWP95.cut = cms.string(
+    process.goodElectrons.cut.value() +
+    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits <= 1)"
+    " && ((isEB"
+    " && ( dr03TkSumPt/p4.Pt < 0.15 && dr03EcalRecHitSumEt/p4.Pt < 2.0 && dr03HcalTowerSumEt/p4.Pt < 0.12 )"                     
+    " && (sigmaIetaIeta<0.01)"
+    " && ( -0.8<deltaPhiSuperClusterTrackAtVtx<0.8 )"
+    " && ( -0.007<deltaEtaSuperClusterTrackAtVtx<0.007 )"
+    " && (hadronicOverEm<0.15)"
+    ")"
+    " || (isEE"
+    " && (dr03TkSumPt/p4.Pt < 0.08 && dr03EcalRecHitSumEt/p4.Pt < 0.06  && dr03HcalTowerSumEt/p4.Pt < 0.05 )"                     
+    " && (sigmaIetaIeta<0.03)"
+    " && ( -0.7<deltaPhiSuperClusterTrackAtVtx<0.7 )"
+    " && ( -0.01<deltaEtaSuperClusterTrackAtVtx<0.01 )"
+    " && (hadronicOverEm<0.07) "
+    "))"
+    )
+process.PassingWP90 = process.goodElectrons.clone()
+process.PassingWP90.cut = cms.string(
+    process.goodElectrons.cut.value() +
+    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
+    " && ((isEB"
+    " && ( dr03TkSumPt/p4.Pt <0.12 && dr03EcalRecHitSumEt/p4.Pt < 0.09 && dr03HcalTowerSumEt/p4.Pt  < 0.1 )"
+    " && (sigmaIetaIeta<0.01)"
+    " && ( -0.8<deltaPhiSuperClusterTrackAtVtx<0.8 )"
+    " && ( -0.007<deltaEtaSuperClusterTrackAtVtx<0.007 )"
+    " && (hadronicOverEm<0.12)"
+    ")"
+    " || (isEE"
+    " && ( dr03TkSumPt/p4.Pt <0.05 && dr03EcalRecHitSumEt/p4.Pt < 0.06 && dr03HcalTowerSumEt/p4.Pt  < 0.03 )"
+    " && (sigmaIetaIeta<0.03)"
+    " && ( -0.7<deltaPhiSuperClusterTrackAtVtx<0.7 )"
+    " && ( -0.009<deltaEtaSuperClusterTrackAtVtx<0.009 )"
+    " && (hadronicOverEm<0.05) "
+    "))"
+    ) 
+process.PassingWP85 = process.goodElectrons.clone()
+process.PassingWP85.cut = cms.string(
+    process.goodElectrons.cut.value() +
+    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
+    " && ((isEB"
+    " && ( dr03TkSumPt/p4.Pt <0.09 && dr03EcalRecHitSumEt/p4.Pt < 0.08 && dr03HcalTowerSumEt/p4.Pt  < 0.1 )"
+    " && (sigmaIetaIeta<0.01)"
+    " && ( -0.6<deltaPhiSuperClusterTrackAtVtx<0.6 )"
+    " && ( -0.006<deltaEtaSuperClusterTrackAtVtx<0.006 )"
+    " && (hadronicOverEm<0.04)"
+    ")"
+    " || (isEE"
+    " && ( dr03TkSumPt/p4.Pt <0.05 && dr03EcalRecHitSumEt/p4.Pt < 0.05 && dr03HcalTowerSumEt/p4.Pt  < 0.025 )"
+    " && (sigmaIetaIeta<0.03)"
+    " && ( -0.04<deltaPhiSuperClusterTrackAtVtx<0.04 )"
+    " && ( -0.007<deltaEtaSuperClusterTrackAtVtx<0.007 )"
+    " && (hadronicOverEm<0.025) "
+    "))"
+    ) 
+process.PassingWP80 = process.goodElectrons.clone()
+process.PassingWP80.cut = cms.string(
+    process.goodElectrons.cut.value() +
+    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
+    " && ((isEB"
+    " && ( dr03TkSumPt/p4.Pt <0.09 && dr03EcalRecHitSumEt/p4.Pt < 0.07 && dr03HcalTowerSumEt/p4.Pt  < 0.1 )"
+    " && (sigmaIetaIeta<0.01)"
+    " && ( -0.06<deltaPhiSuperClusterTrackAtVtx<0.06 )"
+    " && ( -0.004<deltaEtaSuperClusterTrackAtVtx<0.004 )"
+    " && (hadronicOverEm<0.04)"
+    ")"
+    " || (isEE"
+    " && ( dr03TkSumPt/p4.Pt <0.04 && dr03EcalRecHitSumEt/p4.Pt < 0.05 && dr03HcalTowerSumEt/p4.Pt  < 0.025 )"
+    " && (sigmaIetaIeta<0.03)"
+    " && ( -0.03<deltaPhiSuperClusterTrackAtVtx<0.03 )"
+    " && ( -0.007<deltaEtaSuperClusterTrackAtVtx<0.007 )"
+    " && (hadronicOverEm<0.025) "
+    "))"
+    ) 
+process.PassingWP70 = process.goodElectrons.clone()
+process.PassingWP70.cut = cms.string(
+    process.goodElectrons.cut.value() +
+    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
+    " && ((isEB"
+    " && ( dr03TkSumPt/p4.Pt <0.05 && dr03EcalRecHitSumEt/p4.Pt < 0.06 && dr03HcalTowerSumEt/p4.Pt  < 0.03 )"
+    " && (sigmaIetaIeta<0.01)"
+    " && ( -0.03<deltaPhiSuperClusterTrackAtVtx<0.03 )"
+    " && ( -0.004<deltaEtaSuperClusterTrackAtVtx<0.004 )"
+    " && (hadronicOverEm<0.025)"
+    ")"
+    " || (isEE"
+    " && ( dr03TkSumPt/p4.Pt <0.025 && dr03EcalRecHitSumEt/p4.Pt < 0.025 && dr03HcalTowerSumEt/p4.Pt  < 0.02 )"
+    " && (sigmaIetaIeta<0.03)"
+    " && ( -0.02<deltaPhiSuperClusterTrackAtVtx<0.02 )"
+    " && ( -0.005<deltaEtaSuperClusterTrackAtVtx<0.005 )"
+    " && (hadronicOverEm<0.025) "
+    "))"
+    ) 
+process.PassingWP60 = process.goodElectrons.clone()
+process.PassingWP60.cut = cms.string(
+    process.goodElectrons.cut.value() +
+    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
+    " && ((isEB"
+    " && ( dr03TkSumPt/p4.Pt <0.04 && dr03EcalRecHitSumEt/p4.Pt < 0.04 && dr03HcalTowerSumEt/p4.Pt  < 0.03 )"
+    " && (sigmaIetaIeta<0.01)"
+    " && ( -0.025<deltaPhiSuperClusterTrackAtVtx<0.025 )"
+    " && ( -0.004<deltaEtaSuperClusterTrackAtVtx<0.004 )"
+    " && (hadronicOverEm<0.025)"
+    ")"
+    " || (isEE"
+    " && ( dr03TkSumPt/p4.Pt <0.025 && dr03EcalRecHitSumEt/p4.Pt < 0.02 && dr03HcalTowerSumEt/p4.Pt  < 0.02 )"
+    " && (sigmaIetaIeta<0.03)"
+    " && ( -0.02<deltaPhiSuperClusterTrackAtVtx<0.02 )"
+    " && ( -0.005<deltaEtaSuperClusterTrackAtVtx<0.005 )"
+    " && (hadronicOverEm<0.025) "
+    "))"
+    ) 
 
-process.PassingId = cms.EDFilter("GsfElectronRefSelector",
-    src = cms.InputTag("gsfElectrons"),
-    cut = cms.string(process.PassingIsolation.cut.value() +
-                     " && (gsfTrack.trackerExpectedHitsInner.numberOfHits <= 1)"
-                     " && ((isEB"
-                                   " && (sigmaIetaIeta<0.01)"
-                                   " && ( -0.8<deltaPhiSuperClusterTrackAtVtx<0.8 )"
-                                   " && ( -0.007<deltaEtaSuperClusterTrackAtVtx<0.007 )"
-                                   " && (hadronicOverEm<0.15)"
-                                   ")"
-                     " || (isEE"
-                                   " && (sigmaIetaIeta<0.03)"
-                                   " && ( -0.7<deltaPhiSuperClusterTrackAtVtx<0.7 )"
-                                   " && ( -0.01<deltaEtaSuperClusterTrackAtVtx<0.01 )"
-                                   " && (hadronicOverEm<0.07) "
-                                   "))"
-                     ) 
-)
-
-
-process.PassingId80 = cms.EDFilter("GsfElectronRefSelector",
-    src = cms.InputTag("gsfElectrons"),
-    cut = cms.string(process.PassingGsf.cut.value() +
-                     " && (gsfTrack.trackerExpectedHitsInner.numberOfHits <= 0)"
-                     " && ((isEB"
-                     " && ( dr03TkSumPt/p4.Pt <0.09 && dr03EcalRecHitSumEt/p4.Pt < 0.07 && dr03HcalTowerSumEt/p4.Pt  < 0.1 )"
-#                                   " && ( (dr03TkSumPt + max(0., dr03EcalRecHitSumEt - 1.) + dr03HcalTowerSumEt)/(p4.Pt) < 0.07 )"
-                                   " && (sigmaIetaIeta<0.01)"
-                                   " && ( -0.06<deltaPhiSuperClusterTrackAtVtx<0.06 )"
-                                   " && ( -0.004<deltaEtaSuperClusterTrackAtVtx<0.004 )"
-                                   " && (hadronicOverEm<0.04)"
-                                   ")"
-                     " || (isEE"
-                      " && ( dr03TkSumPt/p4.Pt <0.04 && dr03EcalRecHitSumEt/p4.Pt < 0.05 && dr03HcalTowerSumEt/p4.Pt  < 0.025 )"
-#                                   " && ( (dr03TkSumPt + dr03EcalRecHitSumEt + dr03HcalTowerSumEt)/(p4.Pt) < 0.06 )"
-                                   " && (sigmaIetaIeta<0.03)"
-                                   " && ( -0.03<deltaPhiSuperClusterTrackAtVtx<0.03 )"
-                                   " && ( -0.007<deltaEtaSuperClusterTrackAtVtx<0.007 )"
-                                   " && (hadronicOverEm<0.025) "
-                                   "))"
-                     ) 
-)
-
-
-
+##     ____ _  ____ 
+##    / ___(_)/ ___|
+##   | |   | | |    
+##   | |___| | |___ 
+##    \____|_|\____|
+##   
+process.load("RecoEgamma.ElectronIdentification.cutsInCategoriesElectronIdentificationV06_cfi")
+process.eIDSequence = cms.Sequence(
+    process.eidVeryLoose+
+    process.eidLoose+                
+    process.eidMedium+ process.eidTight+
+    process.eidSuperTight+ process.eidHyperTight1
+    )
                          
 ##    _____     _                         __  __       _       _     _             
 ##   |_   _| __(_) __ _  __ _  ___ _ __  |  \/  | __ _| |_ ___| |__ (_)_ __   __ _ 
@@ -248,21 +302,14 @@ process.PassingId80 = cms.EDFilter("GsfElectronRefSelector",
 ##     |_||_|  |_|\__, |\__, |\___|_|    |_|  |_|\__,_|\__\___|_| |_|_|_| |_|\__, |
 ##                |___/ |___/                                                |___/ 
 ##   
-
 # Trigger  ##################
 process.PassingHLT = cms.EDProducer("trgMatchedGsfElectronProducer",                     
-    InputProducer = cms.InputTag("PassingId"),                          
-    hltTag = cms.untracked.InputTag(HLTPath,"","HLT"),
-    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","","HLT")
+    InputProducer = cms.InputTag( ELECTRON_COLL ),                          
+    hltTags = cms.VInputTag(cms.InputTag(HLTPath,"","HLT")),
+    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","","HLT"),
+    triggerResultsTag = cms.untracked.InputTag("TriggerResults","","HLT")                               
 )
 
-
-process.badSuperClustersClean = cms.EDProducer("CandViewCleaner",
-    srcCands = cms.InputTag("goodSuperClustersClean"),
-    module_label = cms.string(''),
-    srcObjects = cms.VInputTag(cms.InputTag("PassingHLT")),
-    deltaRMin = cms.double(0.1)
-)
 
 ##    _____      _                        _  __     __             
 ##   | ____|_  _| |_ ___ _ __ _ __   __ _| | \ \   / /_ _ _ __ ___ 
@@ -270,63 +317,46 @@ process.badSuperClustersClean = cms.EDProducer("CandViewCleaner",
 ##   | |___ >  <| ||  __/ |  | | | | (_| | |   \ V / (_| | |  \__ \
 ##   |_____/_/\_\\__\___|_|  |_| |_|\__,_|_|    \_/ \__,_|_|  |___/
 ##   
-
 ## Here we show how to use a module to compute an external variable
-#process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
-JET_COLL = "ak5CaloJets"
-JET_CUTS = "pt > 10.0 && abs(eta)<3.0 && (0.01 < emEnergyFraction < 0.9) && (n90>5)"
+## process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
+## ak5PFResidual.useCondDB = False
 
-process.superClusterDRToNearestJet = cms.EDProducer("DeltaRNearestObjectComputer",
+process.superClusterDRToNearestJet = cms.EDProducer("DeltaRNearestJetComputer",
     probes = cms.InputTag("goodSuperClusters"),
        # ^^--- NOTA BENE: if probes are defined by ref, as in this case, 
        #       this must be the full collection, not the subset by refs.
     objects = cms.InputTag(JET_COLL),
-    objectSelection = cms.string(JET_CUTS),
+    objectSelection = cms.string(JET_CUTS + " && pt > 15.0"),
 )
-
-
 process.JetMultiplicityInSCEvents = cms.EDProducer("CandMultiplicityCounter",
     probes = cms.InputTag("goodSuperClusters"),
     objects = cms.InputTag(JET_COLL),
-    objectSelection = cms.string(JET_CUTS),
+    objectSelection = cms.string(JET_CUTS + " && pt > 15.0"),
 )
-
 process.SCConvRejVars = cms.EDProducer("ElectronConversionRejectionVars",
     probes = cms.InputTag("goodSuperClusters")
 )
+process.GsfConvRejVars = process.SCConvRejVars.clone()
+process.GsfConvRejVars.probes = cms.InputTag( ELECTRON_COLL )
+process.PhotonDRToNearestJet = process.superClusterDRToNearestJet.clone()
+process.PhotonDRToNearestJet.probes =cms.InputTag("goodPhotons")
+process.JetMultiplicityInPhotonEvents = process.JetMultiplicityInSCEvents.clone()
+process.JetMultiplicityInPhotonEvents.probes = cms.InputTag("goodPhotons")
+process.PhotonConvRejVars = process.SCConvRejVars.clone()
+process.PhotonConvRejVars.probes = cms.InputTag("goodPhotons")
 
-
-process.PhotonConvRejVars = cms.EDProducer("ElectronConversionRejectionVars",
-    probes = cms.InputTag("goodPhotons")
-)
-
-
-
-process.GsfDRToNearestJet = cms.EDProducer("DeltaRNearestObjectComputer",
-    probes = cms.InputTag("gsfElectrons"),
-    objects = cms.InputTag(JET_COLL),
-    objectSelection = cms.string(JET_CUTS),
-)
-
-
-
-process.JetMultiplicityInGsfEvents = cms.EDProducer("CandMultiplicityCounter",
-    probes = cms.InputTag("gsfElectrons"),
-    objects = cms.InputTag(JET_COLL),
-    objectSelection = cms.string(JET_CUTS),
-)
-
-
-process.GsfConvRejVars = cms.EDProducer("ElectronConversionRejectionVars",
-    probes = cms.InputTag("gsfElectrons")
-)
-                                       
+process.GsfDRToNearestJet = process.superClusterDRToNearestJet.clone()
+process.GsfDRToNearestJet.probes = cms.InputTag( ELECTRON_COLL )
+process.JetMultiplicityInGsfEvents = process.JetMultiplicityInSCEvents.clone()
+process.JetMultiplicityInGsfEvents.probes = cms.InputTag( ELECTRON_COLL )
 
 process.ext_ToNearestJet_sequence = cms.Sequence(
-    #process.ak5CaloL2L3 + 
+    #process.ak5PFResidual + 
     process.superClusterDRToNearestJet +
     process.JetMultiplicityInSCEvents +
     process.SCConvRejVars +
+    process.PhotonDRToNearestJet +
+    process.JetMultiplicityInPhotonEvents +    
     process.PhotonConvRejVars + 
     process.GsfDRToNearestJet +
     process.JetMultiplicityInGsfEvents +
@@ -339,56 +369,67 @@ process.ext_ToNearestJet_sequence = cms.Sequence(
 ##     | |/ _` |/ _` | | | | |/ _ \ |_| | '_ \| | __| |/ _ \| '_ \ 
 ##     | | (_| | (_| | | |_| |  __/  _| | | | | | |_| | (_) | | | |
 ##     |_|\__,_|\__, | |____/ \___|_| |_|_| |_|_|\__|_|\___/|_| |_|
-##              |___/                                              
-
+##              |___/
+## 
 process.Tag = process.PassingHLT.clone()
-
 process.TagMatchedSuperClusterCandsClean = cms.EDProducer("ElectronMatchedCandidateProducer",
    src     = cms.InputTag("goodSuperClustersClean"),
    ReferenceElectronCollection = cms.untracked.InputTag("Tag"),
    deltaR =  cms.untracked.double(0.3)
 )
+process.TagMatchedPhotonCands = process.TagMatchedSuperClusterCandsClean.clone()
+process.TagMatchedPhotonCands.src     = cms.InputTag("goodPhotons")
+process.WP95MatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsClean.clone()
+process.WP95MatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingWP95")
+process.WP90MatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsClean.clone()
+process.WP90MatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingWP90")
+process.WP85MatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsClean.clone()
+process.WP85MatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingWP85")
+process.WP80MatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsClean.clone()
+process.WP80MatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingWP80")
+process.WP70MatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsClean.clone()
+process.WP70MatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingWP70")
+process.WP60MatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsClean.clone()
+process.WP60MatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingWP60")
 
-
-process.TagMatchedPhotonCands = cms.EDProducer("ElectronMatchedCandidateProducer",
-   src     = cms.InputTag("FilteredPhotons"),
-   ReferenceElectronCollection = cms.untracked.InputTag("Tag"),
-   deltaR =  cms.untracked.double(0.3)
-)
-
-process.IsoMatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsClean.clone()
-process.IsoMatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingIsolation")
-process.IdMatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsClean.clone()
-process.IdMatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingId")
-
-process.Id80MatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsClean.clone()
-process.Id80MatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingId80")
-process.IsoMatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
-process.IsoMatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingIsolation")
-
-process.IdMatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
-process.IdMatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingId")
-
-process.Id80MatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
-process.Id80MatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingId80")
-
-
+process.WP95MatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
+process.WP95MatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingWP95")
+process.WP90MatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
+process.WP90MatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingWP90")
+process.WP85MatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
+process.WP85MatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingWP85")
+process.WP80MatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
+process.WP80MatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingWP80")
+process.WP70MatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
+process.WP70MatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingWP70")
+process.WP60MatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
+process.WP60MatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingWP60")
 
 process.ele_sequence = cms.Sequence(
-    process.PassingGsf * process.GsfMatchedSuperClusterCands +
+    process.goodElectrons +
+    process.GsfMatchedSuperClusterCands +
     process.GsfMatchedPhotonCands +
-    process.PassingIsolation + process.PassingId +
-    process.PassingId80 +
-    process.PassingHLT + process.Tag*
-    process.TagMatchedSuperClusterCandsClean *
-    process.badSuperClustersClean *
-    process.TagMatchedPhotonCands *
-    process.IsoMatchedSuperClusterCandsClean *
-    process.IdMatchedSuperClusterCandsClean *
-    process.Id80MatchedSuperClusterCandsClean *
-    process.IsoMatchedPhotonCands *
-    process.IdMatchedPhotonCands *
-    process.Id80MatchedPhotonCands    
+    process.PassingWP95 +
+    process.PassingWP90 +
+    process.PassingWP85 +
+    process.PassingWP80 +
+    process.PassingWP70 +
+    process.PassingWP60 +    
+    process.PassingHLT + process.Tag +
+    process.TagMatchedSuperClusterCandsClean +
+    process.TagMatchedPhotonCands +
+    process.WP95MatchedSuperClusterCandsClean +
+    process.WP90MatchedSuperClusterCandsClean +
+    process.WP85MatchedSuperClusterCandsClean +
+    process.WP80MatchedSuperClusterCandsClean +
+    process.WP70MatchedSuperClusterCandsClean +
+    process.WP60MatchedSuperClusterCandsClean +    
+    process.WP95MatchedPhotonCands +
+    process.WP90MatchedPhotonCands +
+    process.WP85MatchedPhotonCands +
+    process.WP80MatchedPhotonCands +
+    process.WP70MatchedPhotonCands +
+    process.WP60MatchedPhotonCands 
     )
 
 
@@ -400,83 +441,39 @@ process.ele_sequence = cms.Sequence(
 ##                                              
 ##   
 #  Tag & probe selection ######
-
 process.tagSC = cms.EDProducer("CandViewShallowCloneCombiner",
     decay = cms.string("Tag goodSuperClustersClean"), # charge coniugate states are implied
     checkCharge = cms.bool(False),                           
     cut   = cms.string("40 < mass < 1000"),
 )
 
-
-process.tagPhoton = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("Tag FilteredPhotons"), # charge coniugate states are implied
-    checkCharge = cms.bool(False),                           
-    cut   = cms.string("40 < mass < 1000"),
-)
-
-process.SCSC = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("badSuperClustersClean badSuperClustersClean"), # charge coniugate states are implied
-    checkCharge = cms.bool(False),                           
-    cut   = cms.string("40 < mass < 1000"),
-)
-
-process.GsfGsf = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("PassingGsf PassingGsf"), # charge coniugate states are implied
-    checkCharge = cms.bool(False),                                   
-    cut   = cms.string("40 < mass < 1000"),
-)
-
-process.tagGsf = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("Tag PassingGsf"), # charge coniugate states are implied
-    checkCharge = cms.bool(False),                                   
-    cut   = cms.string("40 < mass < 1000"),
-)
-
-
-process.tagIso = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("Tag PassingIsolation"), # charge coniugate states are implied
-    checkCharge = cms.bool(False),                                   
-    cut   = cms.string("40 < mass < 1000"),
-)
-
-
-process.tagId = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("Tag PassingId"), # charge coniugate states are implied
-    checkCharge = cms.bool(False),                                  
-    cut   = cms.string("40 < mass < 1000"),
-)
-
-
-process.tagHLT = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("Tag PassingHLT"), # charge coniugate states are implied
-    checkCharge = cms.bool(False),                                   
-    cut   = cms.string("40 < mass < 1000"),
-)
-
+process.tagPhoton = process.tagSC.clone()
+process.tagPhoton.decay = cms.string("Tag goodPhotons")
+process.GsfGsf = process.tagSC.clone()
+process.GsfGsf.decay = cms.string("goodElectrons goodElectrons")
+process.tagGsf = process.tagSC.clone()
+process.tagGsf.decay = cms.string("Tag goodElectrons")
+process.tagWP95 = process.tagSC.clone()
+process.tagWP95.decay = cms.string("Tag PassingWP95")
+process.tagWP80 = process.tagSC.clone()
+process.tagWP80.decay = cms.string("Tag PassingWP80")
 
 process.CSVarsTagGsf = cms.EDProducer("ColinsSoperVariablesComputer",
     parentBoson = cms.InputTag("tagGsf")
 )
-process.CSVarsTagIso = cms.EDProducer("ColinsSoperVariablesComputer",
-    parentBoson = cms.InputTag("tagIso")
-)
-process.CSVarsTagId = cms.EDProducer("ColinsSoperVariablesComputer",
-    parentBoson = cms.InputTag("tagId")
-)
-
-process.CSVarsGsfGsf = cms.EDProducer("ColinsSoperVariablesComputer",
-    parentBoson = cms.InputTag("GsfGsf")
-)
-
+process.CSVarsGsfGsf = process.CSVarsTagGsf.clone()
+process.CSVarsGsfGsf.parentBoson = cms.InputTag("GsfGsf")
+process.CSVarsTagWP95 = process.CSVarsTagGsf.clone()
+process.CSVarsTagWP95.parentBoson = cms.InputTag("tagWP95")
+process.CSVarsTagWP80 = process.CSVarsTagGsf.clone()
+process.CSVarsTagWP80.parentBoson = cms.InputTag("tagWP80")
 
 process.allTagsAndProbes = cms.Sequence(
-    process.tagSC + process.SCSC + process.tagPhoton +
-    process.tagGsf + process.GsfGsf +
-    process.tagIso + process.tagId + process.tagHLT +
-    process.CSVarsTagGsf + process.CSVarsTagIso +
-    process.CSVarsTagId + process.CSVarsGsfGsf
+    process.tagSC + process.tagPhoton + process.tagGsf +
+    process.GsfGsf + process.tagWP95 + process.tagWP80 +
+    process.CSVarsTagGsf + process.CSVarsTagWP95 +
+    process.CSVarsTagWP80 + process.CSVarsGsfGsf
 )
-
 
 ##    __  __  ____   __  __       _       _               
 ##   |  \/  |/ ___| |  \/  | __ _| |_ ___| |__   ___  ___ 
@@ -484,7 +481,6 @@ process.allTagsAndProbes = cms.Sequence(
 ##   | |  | | |___  | |  | | (_| | || (__| | | |  __/\__ \
 ##   |_|  |_|\____| |_|  |_|\__,_|\__\___|_| |_|\___||___/
 ##                                                        
-
 process.McMatchTag = cms.EDFilter("MCTruthDeltaRMatcherNew",
     matchPDGId = cms.vint32(11),
     src = cms.InputTag("Tag"),
@@ -492,71 +488,26 @@ process.McMatchTag = cms.EDFilter("MCTruthDeltaRMatcherNew",
     matched = cms.InputTag("genParticles"),
     checkCharge = cms.bool(True)
 )
-
-
 process.McMatchSC = cms.EDFilter("MCTruthDeltaRMatcherNew",
     matchPDGId = cms.vint32(11),
     src = cms.InputTag("goodSuperClustersClean"),
     distMin = cms.double(0.3),
     matched = cms.InputTag("genParticles")
 )
-
-
-process.McMatchPhoton = cms.EDFilter("MCTruthDeltaRMatcherNew",
-    matchPDGId = cms.vint32(11),
-    src = cms.InputTag("FilteredPhotons"),
-    distMin = cms.double(0.3),
-    matched = cms.InputTag("genParticles")
-)
-
-
-process.McMatchSCbad = cms.EDFilter("MCTruthDeltaRMatcherNew",
-    matchPDGId = cms.vint32(11),
-    src = cms.InputTag("badSuperClustersClean"),
-    distMin = cms.double(0.3),
-    matched = cms.InputTag("genParticles")
-)
-
-
-process.McMatchGsf = cms.EDFilter("MCTruthDeltaRMatcherNew",
-    matchPDGId = cms.vint32(11),
-    src = cms.InputTag("PassingGsf"),
-    distMin = cms.double(0.3),
-    matched = cms.InputTag("genParticles"),
-    checkCharge = cms.bool(True)
-)
-
-process.McMatchIso = cms.EDFilter("MCTruthDeltaRMatcherNew",
-    matchPDGId = cms.vint32(11),
-    src = cms.InputTag("PassingIsolation"),
-    distMin = cms.double(0.3),
-    matched = cms.InputTag("genParticles"),
-    checkCharge = cms.bool(True)
-)
-
-process.McMatchId = cms.EDFilter("MCTruthDeltaRMatcherNew",
-    matchPDGId = cms.vint32(11),
-    src = cms.InputTag("PassingId"),
-    distMin = cms.double(0.3),
-    matched = cms.InputTag("genParticles"),
-    checkCharge = cms.bool(True)
-)
-
-process.McMatchHLT = cms.EDFilter("MCTruthDeltaRMatcherNew",
-    matchPDGId = cms.vint32(11),
-    src = cms.InputTag("PassingHLT"),
-    distMin = cms.double(0.3),
-    matched = cms.InputTag("genParticles"),
-    checkCharge = cms.bool(True)
-)
-
-
+process.McMatchPhoton = process.McMatchSC.clone()
+process.McMatchPhoton.src = cms.InputTag("goodPhotons")
+process.McMatchGsf = process.McMatchTag.clone()
+process.McMatchGsf.src = cms.InputTag("goodElectrons")
+process.McMatchWP95 = process.McMatchTag.clone()
+process.McMatchWP95.src = cms.InputTag("PassingWP95")
+process.McMatchWP80 = process.McMatchTag.clone()
+process.McMatchWP80.src = cms.InputTag("PassingWP80")
 
 
 process.mc_sequence = cms.Sequence(
-   process.McMatchTag + process.McMatchSC + process.McMatchPhoton +
-   process.McMatchGsf + process.McMatchIso +
-   process.McMatchId  + process.McMatchHLT
+   process.McMatchTag + process.McMatchSC +
+   process.McMatchPhoton + process.McMatchGsf + 
+   process.McMatchWP95  + process.McMatchWP80
 )
 
 ############################################################################
@@ -573,11 +524,9 @@ process.mc_sequence = cms.Sequence(
 ##   | |_) / _ \ | | / __|/ _` | '_ \| |/ _ \/ __|
 ##   |  _ <  __/ |_| \__ \ (_| | |_) | |  __/\__ \
 ##   |_| \_\___|\__,_|___/\__,_|_.__/|_|\___||___/
-
-
+##
 ## I define some common variables for re-use later.
 ## This will save us repeating the same code for each efficiency category
-
 ZVariablesToStore = cms.PSet(
     eta = cms.string("eta"),
     pt  = cms.string("pt"),
@@ -597,8 +546,6 @@ ZVariablesToStore = cms.PSet(
     mt  = cms.string("mt"),    
 )   
 
-
-
 ProbeVariablesToStore = cms.PSet(
     probe_gsfEle_eta = cms.string("eta"),
     probe_gsfEle_pt  = cms.string("pt"),
@@ -611,11 +558,11 @@ ProbeVariablesToStore = cms.PSet(
     probe_gsfEle_pz  = cms.string("pz"),
     probe_gsfEle_theta  = cms.string("theta"),    
     probe_gsfEle_charge = cms.string("charge"),
-    probe_gsfEle_vx     = cms.string("vx"),
-    probe_gsfEle_vy     = cms.string("vy"),
-    probe_gsfEle_vz     = cms.string("vz"),
     probe_gsfEle_rapidity  = cms.string("rapidity"),
     probe_gsfEle_missingHits = cms.string("gsfTrack.trackerExpectedHitsInner.numberOfHits"),
+    probe_gsfEle_convDist = cms.string("convDist"),
+    probe_gsfEle_convDcot = cms.string("convDcot"),
+    probe_gsfEle_convRadius = cms.string("convRadius"),        
     probe_gsfEle_hasValidHitInFirstPixelBarrel = cms.string("gsfTrack.hitPattern.hasValidHitInFirstPixelBarrel"),
     ## super cluster quantities
     probe_sc_energy = cms.string("superCluster.energy"),
@@ -627,17 +574,28 @@ ProbeVariablesToStore = cms.PSet(
     probe_sc_theta  = cms.string("superClusterPosition.theta"),   
     probe_sc_phi    = cms.string("superCluster.phi"),
     probe_sc_size   = cms.string("superCluster.size"), # number of hits
-    probe_sc_rawEnergy = cms.string("superCluster.rawEnergy"), 
-    probe_sc_preshowerEnergy   = cms.string("superCluster.preshowerEnergy"), 
-    probe_sc_phiWidth   = cms.string("superCluster.phiWidth"), 
-    probe_sc_etaWidth   = cms.string("superCluster.etaWidth"),         
+    ## track quantities
+    probe_track_p      = cms.string("gsfTrack.p"),
+    probe_track_pt     = cms.string("gsfTrack.pt"),    
+    probe_track_px     = cms.string("gsfTrack.px"),
+    probe_track_py     = cms.string("gsfTrack.py"),
+    probe_track_pz     = cms.string("gsfTrack.pz"),
+    probe_track_eta    = cms.string("gsfTrack.eta"),
+    probe_track_theta  = cms.string("gsfTrack.theta"),   
+    probe_track_phi    = cms.string("gsfTrack.phi"),
+    probe_track_vx     = cms.string("gsfTrack.vx"),
+    probe_track_vy     = cms.string("gsfTrack.vy"),
+    probe_track_vz     = cms.string("gsfTrack.vz"),    
+    probe_track_dxy    = cms.string("gsfTrack.dxy"),
+    probe_track_d0     = cms.string("gsfTrack.d0"),
+    probe_track_dsz    = cms.string("gsfTrack.dsz"),
+    probe_track_charge = cms.string("gsfTrack.charge"),
+    probe_track_qoverp = cms.string("gsfTrack.qoverp"),
+    probe_track_normalizedChi2 = cms.string("gsfTrack.normalizedChi2"),
     ## isolation 
-    probe_gsfEle_trackiso_dr04 = cms.string("dr04TkSumPt"),
-    probe_gsfEle_ecaliso_dr04  = cms.string("dr04EcalRecHitSumEt"),
-    probe_gsfEle_hcaliso_dr04  = cms.string("dr04HcalTowerSumEt"),
-    probe_gsfEle_trackiso_dr03 = cms.string("dr03TkSumPt"),
-    probe_gsfEle_ecaliso_dr03  = cms.string("dr03EcalRecHitSumEt"),
-    probe_gsfEle_hcaliso_dr03  = cms.string("dr03HcalTowerSumEt"),
+    probe_gsfEle_trackiso = cms.string("dr03TkSumPt"),
+    probe_gsfEle_ecaliso  = cms.string("dr03EcalRecHitSumEt"),
+    probe_gsfEle_hcaliso  = cms.string("dr03HcalTowerSumEt"),
     ## classification, location, etc.    
     probe_gsfEle_classification = cms.string("classification"),
     probe_gsfEle_numberOfBrems  = cms.string("numberOfBrems"),     
@@ -650,19 +608,10 @@ ProbeVariablesToStore = cms.PSet(
     probe_gsfEle_isEB           = cms.string("isEB"),
     probe_gsfEle_isEE           = cms.string("isEE"),
     probe_gsfEle_isGap          = cms.string("isGap"),
-    probe_gsfEle_isEBEEGap      = cms.string("isEBEEGap"),
-    probe_gsfEle_isEBGap        = cms.string("isEBGap"),
-    probe_gsfEle_isEBEtaGap     = cms.string("isEBEtaGap"),
-    probe_gsfEle_isEBPhiGap     = cms.string("isEBPhiGap"),
-    probe_gsfEle_isEEGap        = cms.string("isEEGap"),
-    probe_gsfEle_isEEDeeGap     = cms.string("isEEDeeGap"),
-    probe_gsfEle_isEERingGap    = cms.string("isEERingGap"),
     ## Hcal energy over Ecal Energy
-    probe_gsfEle_HoverE         = cms.string("hcalOverEcal"),
-    probe_gsfEle_EoverP         = cms.string("eSuperClusterOverP"),        
-    probe_gsfEle_EoverPout      = cms.string("eSeedClusterOverPout"),
-    probe_gsfEle_HoverE_Depth1  = cms.string("hcalDepth1OverEcal"),
-    probe_gsfEle_HoverE_Depth2  = cms.string("hcalDepth2OverEcal"),
+    probe_gsfEle_HoverE         = cms.string("hcalOverEcal"),    
+    probe_gsfEle_EoverP         = cms.string("eSuperClusterOverP"),
+    probe_gsfEle_eSeedClusterOverP = cms.string("eSeedClusterOverP"),    
     ## Cluster shape information
     probe_gsfEle_sigmaEtaEta  = cms.string("sigmaEtaEta"),
     probe_gsfEle_sigmaIetaIeta = cms.string("sigmaIetaIeta"),
@@ -671,9 +620,7 @@ ProbeVariablesToStore = cms.PSet(
     probe_gsfEle_e5x5               = cms.string("e5x5"),
     ## is ECAL driven ? is Track driven ?
     probe_gsfEle_ecalDrivenSeed     = cms.string("ecalDrivenSeed"),
-    probe_gsfEle_trackerDrivenSeed  = cms.string("trackerDrivenSeed"),
-    ## fraction of common hits between the GSF and CTF tracks
-    probe_gsfEle_shFracInnerHits    = cms.string("shFracInnerHits")     
+    probe_gsfEle_trackerDrivenSeed  = cms.string("trackerDrivenSeed")
 )
 
 
@@ -689,11 +636,11 @@ TagVariablesToStore = cms.PSet(
     gsfEle_pz  = cms.string("pz"),
     gsfEle_theta  = cms.string("theta"),    
     gsfEle_charge = cms.string("charge"),
-    gsfEle_vx     = cms.string("vx"),
-    gsfEle_vy     = cms.string("vy"),
-    gsfEle_vz     = cms.string("vz"),
     gsfEle_rapidity  = cms.string("rapidity"),
     gsfEle_missingHits = cms.string("gsfTrack.trackerExpectedHitsInner.numberOfHits"),
+    gsfEle_convDist = cms.string("convDist"),
+    gsfEle_convDcot = cms.string("convDcot"),
+    gsfEle_convRadius = cms.string("convRadius"),     
     gsfEle_hasValidHitInFirstPixelBarrel = cms.string("gsfTrack.hitPattern.hasValidHitInFirstPixelBarrel"),
     ## super cluster quantities
     sc_energy = cms.string("superCluster.energy"),
@@ -705,17 +652,28 @@ TagVariablesToStore = cms.PSet(
     sc_theta  = cms.string("superClusterPosition.theta"),      
     sc_phi    = cms.string("superCluster.phi"),
     sc_size   = cms.string("superCluster.size"), # number of hits
-    sc_rawEnergy = cms.string("superCluster.rawEnergy"), 
-    sc_preshowerEnergy   = cms.string("superCluster.preshowerEnergy"), 
-    sc_phiWidth   = cms.string("superCluster.phiWidth"), 
-    sc_etaWidth   = cms.string("superCluster.etaWidth"),         
+    ## track quantities
+    track_p      = cms.string("gsfTrack.p"),
+    track_pt     = cms.string("gsfTrack.pt"),    
+    track_px     = cms.string("gsfTrack.px"),
+    track_py     = cms.string("gsfTrack.py"),
+    track_pz     = cms.string("gsfTrack.pz"),
+    track_eta    = cms.string("gsfTrack.eta"),
+    track_theta  = cms.string("gsfTrack.theta"),   
+    track_phi    = cms.string("gsfTrack.phi"),
+    track_vx     = cms.string("gsfTrack.vx"),
+    track_vy     = cms.string("gsfTrack.vy"),
+    track_vz     = cms.string("gsfTrack.vz"),    
+    track_dxy    = cms.string("gsfTrack.dxy"),
+    track_d0     = cms.string("gsfTrack.d0"),
+    track_dsz    = cms.string("gsfTrack.dsz"),
+    track_charge = cms.string("gsfTrack.charge"),
+    track_qoverp = cms.string("gsfTrack.qoverp"),
+    track_normalizedChi2 = cms.string("gsfTrack.normalizedChi2"),    
     ## isolation 
-    gsfEle_trackiso_dr04 = cms.string("dr04TkSumPt"),
-    gsfEle_ecaliso_dr04  = cms.string("dr04EcalRecHitSumEt"),
-    gsfEle_hcaliso_dr04  = cms.string("dr04HcalTowerSumEt"),
-    gsfEle_trackiso_dr03 = cms.string("dr03TkSumPt"),
-    gsfEle_ecaliso_dr03  = cms.string("dr03EcalRecHitSumEt"),
-    gsfEle_hcaliso_dr03  = cms.string("dr03HcalTowerSumEt"),
+    gsfEle_trackiso = cms.string("dr03TkSumPt"),
+    gsfEle_ecaliso  = cms.string("dr03EcalRecHitSumEt"),
+    gsfEle_hcaliso  = cms.string("dr03HcalTowerSumEt"),
     ## classification, location, etc.    
     gsfEle_classification = cms.string("classification"),
     gsfEle_numberOfBrems  = cms.string("numberOfBrems"),     
@@ -728,19 +686,10 @@ TagVariablesToStore = cms.PSet(
     gsfEle_isEB           = cms.string("isEB"),
     gsfEle_isEE           = cms.string("isEE"),
     gsfEle_isGap          = cms.string("isGap"),
-    gsfEle_isEBEEGap      = cms.string("isEBEEGap"),
-    gsfEle_isEBGap        = cms.string("isEBGap"),
-    gsfEle_isEBEtaGap     = cms.string("isEBEtaGap"),
-    gsfEle_isEBPhiGap     = cms.string("isEBPhiGap"),
-    gsfEle_isEEGap        = cms.string("isEEGap"),
-    gsfEle_isEEDeeGap     = cms.string("isEEDeeGap"),
-    gsfEle_isEERingGap    = cms.string("isEERingGap"),
     ## Hcal energy over Ecal Energy
-    gsfEle_HoverE         = cms.string("hcalOverEcal"),
-    gsfEle_EoverP         = cms.string("eSuperClusterOverP"),        
-    gsfEle_EoverPout      = cms.string("eSeedClusterOverPout"),
-    gsfEle_HoverE_Depth1  = cms.string("hcalDepth1OverEcal"),
-    gsfEle_HoverE_Depth2  = cms.string("hcalDepth2OverEcal"),
+    gsfEle_HoverE         = cms.string("hcalOverEcal"),    
+    gsfEle_EoverP         = cms.string("eSuperClusterOverP"),
+    gsfEle_eSeedClusterOverP = cms.string("eSeedClusterOverP"),  
     ## Cluster shape information
     gsfEle_sigmaEtaEta  = cms.string("sigmaEtaEta"),
     gsfEle_sigmaIetaIeta = cms.string("sigmaIetaIeta"),
@@ -749,97 +698,12 @@ TagVariablesToStore = cms.PSet(
     gsfEle_e5x5               = cms.string("e5x5"),
     ## is ECAL driven ? is Track driven ?
     gsfEle_ecalDrivenSeed     = cms.string("ecalDrivenSeed"),
-    gsfEle_trackerDrivenSeed  = cms.string("trackerDrivenSeed"),
-    ## fraction of common hits between the GSF and CTF tracks
-    gsfEle_shFracInnerHits    = cms.string("shFracInnerHits")
+    gsfEle_trackerDrivenSeed  = cms.string("trackerDrivenSeed")
 )
-
-
-ProbePhotonVariablesToStore = cms.PSet(
-        probe_eta = cms.string("eta"),
-        probe_phi  = cms.string("phi"),
-        probe_et  = cms.string("et"),
-        probe_e  = cms.string("energy"),
-        probe_p  = cms.string("p"),
-        probe_px  = cms.string("px"),
-        probe_py  = cms.string("py"),
-        probe_pz  = cms.string("pz"),
-        probe_theta  = cms.string("theta"),    
-        ## isolation 
-        probe_trkSumPtHollowConeDR03 = cms.string("trkSumPtHollowConeDR03"),
-        probe_ecalRecHitSumEtConeDR03  = cms.string("ecalRecHitSumEtConeDR03"),
-        probe_hcalTowerSumEtConeDR03  = cms.string("hcalTowerSumEtConeDR03"),
-        ## booleans
-        probe_isPhoton  = cms.string("isPhoton"),     
-        probe_hasConversionTracks = cms.string("hasConversionTracks"),
-
-        ## Hcal energy over Ecal Energy
-        probe_hadronicOverEm = cms.string("hadronicOverEm"),
-        ## Cluster shape information
-        probe_sigmaIetaIeta = cms.string("sigmaIetaIeta"),
-)
-
-
-ProbeSuperClusterVariablesToStore = cms.PSet(
-    probe_sc_eta = cms.string("eta"),
-    probe_sc_pt  = cms.string("pt"),
-    probe_sc_phi  = cms.string("phi"),
-    probe_sc_et  = cms.string("et"),
-    probe_sc_e  = cms.string("energy"),
-    probe_sc_p  = cms.string("p"),
-    probe_sc_px  = cms.string("px"),
-    probe_sc_py  = cms.string("py"),
-    probe_sc_pz  = cms.string("pz"),
-    probe_sc_theta  = cms.string("theta"),
-)
-
-
-TagSuperClusterVariablesToStore = cms.PSet(
-    sc_eta = cms.string("eta"),
-    sc_pt  = cms.string("pt"),
-    sc_phi  = cms.string("phi"),
-    sc_et  = cms.string("et"),
-    sc_e  = cms.string("energy"),
-    sc_p  = cms.string("p"),
-    sc_px  = cms.string("px"),
-    sc_py  = cms.string("py"),
-        sc_pz  = cms.string("pz"),
-    sc_theta  = cms.string("theta"),
-)
-
-
-
-
-
-CommonStuffForSuperClusterProbe = cms.PSet(
-   variables = cms.PSet(ProbeSuperClusterVariablesToStore),
-   ignoreExceptions =  cms.bool (False),
-   #fillTagTree      =  cms.bool (True),
-   addRunLumiInfo   =  cms.bool (True),
-   addEventVariablesInfo   =  cms.bool (True),
-   pairVariables =  cms.PSet(ZVariablesToStore),
-   pairFlags     =  cms.PSet(
-          mass60to120 = cms.string("40 < mass < 1000")
-    ),
-    tagVariables   =  cms.PSet(TagVariablesToStore),
-    tagFlags     =  cms.PSet(
-          passingGsf = cms.InputTag("PassingGsf"),
-          passingIso = cms.InputTag("PassingIsolation"),
-          passingId = cms.InputTag("PassingId"),
-          passingId80 = cms.InputTag("PassingId80"),        
-          passingHLT = cms.InputTag("PassingHLT")                
-    ),    
-)
-
-
-
-
-
 
 CommonStuffForGsfElectronProbe = cms.PSet(
     variables = cms.PSet(ProbeVariablesToStore),
     ignoreExceptions =  cms.bool (False),
-    #fillTagTree      =  cms.bool (True),
     addRunLumiInfo   =  cms.bool (True),
     addEventVariablesInfo   =  cms.bool (True),
     pairVariables =  cms.PSet(ZVariablesToStore),
@@ -848,13 +712,30 @@ CommonStuffForGsfElectronProbe = cms.PSet(
     ),
     tagVariables   =  cms.PSet(TagVariablesToStore),
     tagFlags     =  cms.PSet(
-          passingGsf = cms.InputTag("PassingGsf"),
-          passingIso = cms.InputTag("PassingIsolation"),
-          passingId = cms.InputTag("PassingId"),
-          passingId80 = cms.InputTag("PassingId80"),        
+          passingGsf = cms.InputTag("goodElectrons"),
+          isWP95 = cms.InputTag("PassingWP95"),
+          isWP90 = cms.InputTag("PassingWP90"),
+          isWP85 = cms.InputTag("PassingWP85"),          
+          isWP80 = cms.InputTag("PassingWP80"),
+          isWP70 = cms.InputTag("PassingWP70"),
+          isWP60 = cms.InputTag("PassingWP60"),          
           passingHLT = cms.InputTag("PassingHLT")     
     ),    
 )
+
+CommonStuffForSuperClusterProbe = CommonStuffForGsfElectronProbe.clone()
+CommonStuffForSuperClusterProbe.variables = cms.PSet(
+    probe_eta = cms.string("eta"),
+    probe_pt  = cms.string("pt"),
+    probe_phi  = cms.string("phi"),
+    probe_et  = cms.string("et"),
+    probe_e  = cms.string("energy"),
+    probe_p  = cms.string("p"),
+    probe_px  = cms.string("px"),
+    probe_py  = cms.string("py"),
+    probe_pz  = cms.string("pz"),
+    probe_theta  = cms.string("theta"),
+    )
 
 
 if MC_flag:
@@ -893,285 +774,165 @@ else:
          )
 
 
-
-
 ##    ____   ____       __     ____      __ 
 ##   / ___| / ___|      \ \   / ___|___ / _|
 ##   \___ \| |      _____\ \ | |  _/ __| |_ 
 ##    ___) | |___  |_____/ / | |_| \__ \  _|
 ##   |____/ \____|      /_/   \____|___/_|  
-
+##
 ## super cluster --> gsf electron
-process.SCToGsf = cms.EDAnalyzer("TagProbeFitTreeProducer",
+process.SuperClusterToGsfElectron = cms.EDAnalyzer("TagProbeFitTreeProducer",
     ## pick the defaults
     CommonStuffForSuperClusterProbe, mcTruthCommonStuff,
     # choice of tag and probe pairs, and arbitration                 
     tagProbePairs = cms.InputTag("tagSC"),
     arbitration   = cms.string("Random2"),                      
     flags = cms.PSet(
-        probe_passing = cms.InputTag("GsfMatchedSuperClusterCands"),
         probe_passingGsf = cms.InputTag("GsfMatchedSuperClusterCands"),        
-        probe_passingIso = cms.InputTag("IsoMatchedSuperClusterCandsClean"),
-        probe_passingId = cms.InputTag("IdMatchedSuperClusterCandsClean"),
-        probe_passingId80 = cms.InputTag("Id80MatchedSuperClusterCandsClean"),
-        probe_passingALL = cms.InputTag("TagMatchedSuperClusterCandsClean")
+        probe_isWP95 = cms.InputTag("WP95MatchedSuperClusterCandsClean"),
+        probe_isWP90 = cms.InputTag("WP90MatchedSuperClusterCandsClean"),
+        probe_isWP85 = cms.InputTag("WP85MatchedSuperClusterCandsClean"),        
+        probe_isWP80 = cms.InputTag("WP80MatchedSuperClusterCandsClean"),
+        probe_isWP70 = cms.InputTag("WP70MatchedSuperClusterCandsClean"),
+        probe_isWP60 = cms.InputTag("WP60MatchedSuperClusterCandsClean"),        
+        probe_passingHLT = cms.InputTag("TagMatchedSuperClusterCandsClean")
     ),
     probeMatches  = cms.InputTag("McMatchSC"),
     allProbes     = cms.InputTag("goodSuperClustersClean")
 )
-process.SCToGsf.variables.probe_dRjet = cms.InputTag("superClusterDRToNearestJet")
-process.SCToGsf.variables.probe_nJets = cms.InputTag("JetMultiplicityInSCEvents")
-process.SCToGsf.variables.probe_dist = cms.InputTag("SCConvRejVars","dist")
-process.SCToGsf.variables.probe_dcot = cms.InputTag("SCConvRejVars","dcot")
-process.SCToGsf.variables.probe_convradius = cms.InputTag("SCConvRejVars","convradius")
-process.SCToGsf.variables.probe_passConvRej = cms.InputTag("SCConvRejVars","passConvRej")
-process.SCToGsf.tagVariables.dRjet = cms.InputTag("GsfDRToNearestJet")
-process.SCToGsf.tagVariables.nJets = cms.InputTag("JetMultiplicityInGsfEvents")
-process.SCToGsf.tagVariables.dist = cms.InputTag("GsfConvRejVars","dist")
-process.SCToGsf.tagVariables.dcot = cms.InputTag("GsfConvRejVars","dcot")
-process.SCToGsf.tagVariables.convradius = cms.InputTag("GsfConvRejVars","convradius")
-process.SCToGsf.tagVariables.passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
+process.SuperClusterToGsfElectron.variables.probe_dRjet = cms.InputTag("superClusterDRToNearestJet")
+process.SuperClusterToGsfElectron.variables.probe_nJets = cms.InputTag("JetMultiplicityInSCEvents")
+process.SuperClusterToGsfElectron.variables.probe_dist = cms.InputTag("SCConvRejVars","dist")
+process.SuperClusterToGsfElectron.variables.probe_dcot = cms.InputTag("SCConvRejVars","dcot")
+process.SuperClusterToGsfElectron.variables.probe_convradius = cms.InputTag("SCConvRejVars","convradius")
+process.SuperClusterToGsfElectron.variables.probe_passConvRej = cms.InputTag("SCConvRejVars","passConvRej")
+process.SuperClusterToGsfElectron.tagVariables.dRjet = cms.InputTag("GsfDRToNearestJet")
+process.SuperClusterToGsfElectron.tagVariables.nJets = cms.InputTag("JetMultiplicityInGsfEvents")
 
 
-
-process.SCSCtoTagSC = cms.EDAnalyzer("TagProbeFitTreeProducer",
-    ## pick the defaults
-   variables = cms.PSet(ProbeSuperClusterVariablesToStore),
-   ignoreExceptions =  cms.bool (False),
-   addRunLumiInfo   =  cms.bool (True),
-   addEventVariablesInfo   =  cms.bool (True),
-   pairVariables =  cms.PSet(ZVariablesToStore),
-   pairFlags     =  cms.PSet(
-          mass60to120 = cms.string("40 < mass < 1000")
-    ),
-    tagVariables   =  cms.PSet(TagSuperClusterVariablesToStore),
-    tagFlags     =  cms.PSet(
-          flag = cms.string("pt>0")
-    ),                                         
-    isMC = cms.bool(False),
-    #mcTruthCommonStuff,
-    # choice of tag and probe pairs, and arbitration                      
-    tagProbePairs = cms.InputTag("SCSC"),
-    arbitration   = cms.string("Random2"),
-    massForArbitration = cms.double(91.1876),
-    flags = cms.PSet(
-          probe_passing = cms.InputTag("TagMatchedSuperClusterCandsClean")
-    ),
-    probeMatches  = cms.InputTag("McMatchSCbad"),         
-    allProbes     = cms.InputTag("badSuperClustersClean")
-)
 
 
 ## good photon --> gsf electron
-process.PhotonToGsf = cms.EDAnalyzer("TagProbeFitTreeProducer",
-    ## pick the defaults
-    mcTruthCommonStuff,
-    CommonStuffForSuperClusterProbe,
-    # choice of tag and probe pairs, and arbitration                 
-    tagProbePairs = cms.InputTag("tagPhoton"),
-    arbitration   = cms.string("Random2"),                      
-    flags = cms.PSet(
-        probe_passing = cms.InputTag("GsfMatchedPhotonCands"),
-        probe_passingALL = cms.InputTag("TagMatchedPhotonCands"),
-        probe_passingIso = cms.InputTag("IsoMatchedPhotonCands"),
-        probe_passingId = cms.InputTag("IdMatchedPhotonCands"),
-        probe_passingId80 = cms.InputTag("Id80MatchedPhotonCands")        
-    ),
-    probeMatches  = cms.InputTag("McMatchPhoton"),
-    allProbes     = cms.InputTag("FilteredPhotons")
-)
-process.PhotonToGsf.variables=ProbePhotonVariablesToStore
-process.PhotonToGsf.variables.probe_dist = cms.InputTag("PhotonConvRejVars","dist")
-process.PhotonToGsf.variables.probe_dcot = cms.InputTag("PhotonConvRejVars","dcot")
-process.PhotonToGsf.variables.probe_convradius = cms.InputTag("PhotonConvRejVars","convradius")
-process.PhotonToGsf.variables.probe_passConvRej = cms.InputTag("PhotonConvRejVars","passConvRej")
-process.PhotonToGsf.tagVariables.dRjet = cms.InputTag("GsfDRToNearestJet")
-process.PhotonToGsf.tagVariables.nJets = cms.InputTag("JetMultiplicityInGsfEvents")
-process.PhotonToGsf.tagVariables.dist = cms.InputTag("GsfConvRejVars","dist")
-process.PhotonToGsf.tagVariables.dcot = cms.InputTag("GsfConvRejVars","dcot")
-process.PhotonToGsf.tagVariables.convradius = cms.InputTag("GsfConvRejVars","convradius")
-process.PhotonToGsf.tagVariables.passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
+process.PhotonToGsfElectron = process.SuperClusterToGsfElectron.clone()
+process.PhotonToGsfElectron.tagProbePairs = cms.InputTag("tagPhoton")
+process.PhotonToGsfElectron.flags = cms.PSet(
+    probe_passingGsf = cms.InputTag("GsfMatchedPhotonCands"),
+    probe_passingHLT = cms.InputTag("TagMatchedPhotonCands"),
+    probe_isWP95 = cms.InputTag("WP95MatchedPhotonCands"),
+    probe_isWP90 = cms.InputTag("WP90MatchedPhotonCands"),
+    probe_isWP85 = cms.InputTag("WP85MatchedPhotonCands"),        
+    probe_isWP80 = cms.InputTag("WP80MatchedPhotonCands"),
+    probe_isWP70 = cms.InputTag("WP70MatchedPhotonCands"),
+    probe_isWP60 = cms.InputTag("WP60MatchedPhotonCands")        
+    )
+process.PhotonToGsfElectron.probeMatches  = cms.InputTag("McMatchPhoton")
+process.PhotonToGsfElectron.allProbes     = cms.InputTag("goodPhotons")
+process.PhotonToGsfElectron.variables.probe_dRjet = cms.InputTag("PhotonDRToNearestJet")
+process.PhotonToGsfElectron.variables.probe_nJets = cms.InputTag("JetMultiplicityInPhotonEvents")
+process.PhotonToGsfElectron.variables.probe_trackiso = cms.string("trkSumPtHollowConeDR03")
+process.PhotonToGsfElectron.variables.probe_ecaliso = cms.string("ecalRecHitSumEtConeDR03")
+process.PhotonToGsfElectron.variables.probe_hcaliso = cms.string("hcalTowerSumEtConeDR03")
+process.PhotonToGsfElectron.variables.probe_HoverE  = cms.string("hadronicOverEm")
+process.PhotonToGsfElectron.variables.probe_sigmaIetaIeta = cms.string("sigmaIetaIeta")
+process.PhotonToGsfElectron.variables.probe_dist = cms.InputTag("PhotonConvRejVars","dist")
+process.PhotonToGsfElectron.variables.probe_dcot = cms.InputTag("PhotonConvRejVars","dcot")
+process.PhotonToGsfElectron.variables.probe_convradius = cms.InputTag("PhotonConvRejVars","convradius")
+process.PhotonToGsfElectron.variables.probe_passConvRej = cms.InputTag("PhotonConvRejVars","passConvRej")
 
 
-process.SCSCbad = cms.EDAnalyzer("TagProbeFitTreeProducer",
-    ## pick the defaults
-   #######mcTruthCommonStuff,
-   variables = cms.PSet(ProbeSuperClusterVariablesToStore),
-   ignoreExceptions =  cms.bool (False),
-   addRunLumiInfo   =  cms.bool (True),
-   addEventVariablesInfo   =  cms.bool (True),
-   pairVariables =  cms.PSet(ZVariablesToStore),
-   pairFlags     =  cms.PSet(
-          mass60to120 = cms.string("40 < mass < 1000")
-          ),
-   tagVariables   =  cms.PSet(TagSuperClusterVariablesToStore),
-   tagFlags     =  cms.PSet(
-          flag = cms.string("pt>0")
-   ),                                         
-   isMC = cms.bool(False),
-   # choice of tag and probe pairs, and arbitration                      
-   tagProbePairs = cms.InputTag("SCSC"),
-   arbitration   = cms.string("Random2"),
-   massForArbitration = cms.double(91.1876),
-   flags = cms.PSet(
-          probe_passing = cms.InputTag("TagMatchedSuperClusterCandsClean")
-   ),
-   #probeMatches  = cms.InputTag("McMatchSCbad"),         
-   allProbes     = cms.InputTag("badSuperClustersClean")
-)
-
-process.GsfGsfToIso = cms.EDAnalyzer("TagProbeFitTreeProducer",
-    ########mcTruthCommonStuff,
-    CommonStuffForGsfElectronProbe,
-    isMC = cms.bool(False), 
-    tagProbePairs = cms.InputTag("GsfGsf"),
-    arbitration   = cms.string("Random2"),
-    flags = cms.PSet(
-        probe_passing = cms.InputTag("PassingIsolation")
-    ),
-    #probeMatches  = cms.InputTag("McMatchGsf"),
-    allProbes     = cms.InputTag("PassingGsf")
-)
-process.GsfGsfToIso.variables.probe_dRjet = cms.InputTag("GsfDRToNearestJet")
-process.GsfGsfToIso.variables.probe_nJets = cms.InputTag("JetMultiplicityInGsfEvents")
-process.GsfGsfToIso.variables.probe_dist = cms.InputTag("GsfConvRejVars","dist")
-process.GsfGsfToIso.variables.probe_dcot = cms.InputTag("GsfConvRejVars","dcot")
-process.GsfGsfToIso.variables.probe_convradius = cms.InputTag("GsfConvRejVars","convradius")
-process.GsfGsfToIso.variables.probe_passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
-process.GsfGsfToIso.tagVariables.dRjet = cms.InputTag("GsfDRToNearestJet")
-process.GsfGsfToIso.tagVariables.nJets = cms.InputTag("JetMultiplicityInGsfEvents")
-process.GsfGsfToIso.tagVariables.dist = cms.InputTag("GsfConvRejVars","dist")
-process.GsfGsfToIso.tagVariables.dcot = cms.InputTag("GsfConvRejVars","dcot")
-process.GsfGsfToIso.tagVariables.convradius = cms.InputTag("GsfConvRejVars","convradius")
-process.GsfGsfToIso.tagVariables.passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
-process.GsfGsfToIso.pairVariables.costheta = cms.InputTag("CSVarsGsfGsf","costheta")
-process.GsfGsfToIso.pairVariables.sin2theta = cms.InputTag("CSVarsGsfGsf","sin2theta")
-process.GsfGsfToIso.pairVariables.tanphi = cms.InputTag("CSVarsGsfGsf","tanphi")
-
-
-##     ____      __       __    ___           
-##    / ___|___ / _|      \ \  |_ _|___  ___  
-##   | |  _/ __| |_   _____\ \  | |/ __|/ _ \ 
-##   | |_| \__ \  _| |_____/ /  | |\__ \ (_) |
-##    \____|___/_|        /_/  |___|___/\___/ 
-##   
-##  gsf electron --> isolation
-
-process.GsfToIso = cms.EDAnalyzer("TagProbeFitTreeProducer",
+##   ____      __       __    ___                 ___    _ 
+##  / ___|___ / _|      \ \  |_ _|___  ___       |_ _|__| |
+## | |  _/ __| |_   _____\ \  | |/ __|/ _ \       | |/ _` |
+## | |_| \__ \  _| |_____/ /  | |\__ \ (_) |  _   | | (_| |
+##  \____|___/_|        /_/  |___|___/\___/  ( ) |___\__,_|
+##                                           |/            
+##  gsf electron --> isolation, electron id  etc.
+process.GsfElectronToIdToHLT = cms.EDAnalyzer("TagProbeFitTreeProducer",
     mcTruthCommonStuff, CommonStuffForGsfElectronProbe,                        
     tagProbePairs = cms.InputTag("tagGsf"),
     arbitration   = cms.string("Random2"),
     flags = cms.PSet(
-        probe_passing = cms.InputTag("PassingIsolation"),
-        probe_passingIso = cms.InputTag("PassingIsolation"),
-        probe_passingId = cms.InputTag("PassingId"),
-        probe_passingId80 = cms.InputTag("PassingId80"),        
-        probe_passingALL = cms.InputTag("PassingHLT")        
+        probe_isWP95 = cms.InputTag("PassingWP95"),
+        probe_isWP90 = cms.InputTag("PassingWP90"),
+        probe_isWP85 = cms.InputTag("PassingWP85"),        
+        probe_isWP80 = cms.InputTag("PassingWP80"),
+        probe_isWP70 = cms.InputTag("PassingWP70"),
+        probe_isWP60 = cms.InputTag("PassingWP60"),        
+        probe_passingHLT = cms.InputTag("PassingHLT")        
     ),
     probeMatches  = cms.InputTag("McMatchGsf"),
-    allProbes     = cms.InputTag("PassingGsf")
+    allProbes     = cms.InputTag("goodElectrons")
 )
-process.GsfToIso.variables.probe_dRjet = cms.InputTag("GsfDRToNearestJet")
-process.GsfToIso.variables.probe_nJets = cms.InputTag("JetMultiplicityInGsfEvents")
-process.GsfToIso.variables.probe_dist = cms.InputTag("GsfConvRejVars","dist")
-process.GsfToIso.variables.probe_dcot = cms.InputTag("GsfConvRejVars","dcot")
-process.GsfToIso.variables.probe_convradius = cms.InputTag("GsfConvRejVars","convradius")
-process.GsfToIso.variables.probe_passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
-process.GsfToIso.tagVariables.dRjet = cms.InputTag("GsfDRToNearestJet")
-process.GsfToIso.tagVariables.nJets = cms.InputTag("JetMultiplicityInGsfEvents")
-process.GsfToIso.tagVariables.dist = cms.InputTag("GsfConvRejVars","dist")
-process.GsfToIso.tagVariables.dcot = cms.InputTag("GsfConvRejVars","dcot")
-process.GsfToIso.tagVariables.convradius = cms.InputTag("GsfConvRejVars","convradius")
-process.GsfToIso.tagVariables.passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
-process.GsfToIso.pairVariables.costheta = cms.InputTag("CSVarsTagGsf","costheta")
-process.GsfToIso.pairVariables.sin2theta = cms.InputTag("CSVarsTagGsf","sin2theta")
-process.GsfToIso.pairVariables.tanphi = cms.InputTag("CSVarsTagGsf","tanphi")
+process.GsfElectronToIdToHLT.variables.probe_dRjet = cms.InputTag("GsfDRToNearestJet")
+process.GsfElectronToIdToHLT.variables.probe_nJets = cms.InputTag("JetMultiplicityInGsfEvents")
+process.GsfElectronToIdToHLT.variables.probe_eidCicVeryLoose = cms.InputTag("eidVeryLoose")
+process.GsfElectronToIdToHLT.variables.probe_eidCicLoose = cms.InputTag("eidLoose")
+process.GsfElectronToIdToHLT.variables.probe_eidCicMedium = cms.InputTag("eidMedium")
+process.GsfElectronToIdToHLT.variables.probe_eidCicTight = cms.InputTag("eidTight")
+process.GsfElectronToIdToHLT.variables.probe_eidCicSuperTight = cms.InputTag("eidSuperTight")
+process.GsfElectronToIdToHLT.variables.probe_eidCicHyperTight = cms.InputTag("eidHyperTight1")
+process.GsfElectronToIdToHLT.variables.probe_dist = cms.InputTag("GsfConvRejVars","dist")
+process.GsfElectronToIdToHLT.variables.probe_dcot = cms.InputTag("GsfConvRejVars","dcot")
+process.GsfElectronToIdToHLT.variables.probe_convradius = cms.InputTag("GsfConvRejVars","convradius")
+process.GsfElectronToIdToHLT.variables.probe_passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
+process.GsfElectronToIdToHLT.tagVariables.dRjet = cms.InputTag("GsfDRToNearestJet")
+process.GsfElectronToIdToHLT.tagVariables.nJets = cms.InputTag("JetMultiplicityInGsfEvents")
+process.GsfElectronToIdToHLT.tagVariables.eidCicVeryLoose = cms.InputTag("eidVeryLoose")
+process.GsfElectronToIdToHLT.tagVariables.eidCicLoose = cms.InputTag("eidLoose")
+process.GsfElectronToIdToHLT.tagVariables.eidCicMedium = cms.InputTag("eidMedium")
+process.GsfElectronToIdToHLT.tagVariables.eidCicTight = cms.InputTag("eidTight")
+process.GsfElectronToIdToHLT.tagVariables.eidCicSuperTight = cms.InputTag("eidSuperTight")
+process.GsfElectronToIdToHLT.tagVariables.eidCicHyperTight = cms.InputTag("eidHyperTight1")
+process.GsfElectronToIdToHLT.tagVariables.dist = cms.InputTag("GsfConvRejVars","dist")
+process.GsfElectronToIdToHLT.tagVariables.dcot = cms.InputTag("GsfConvRejVars","dcot")
+process.GsfElectronToIdToHLT.tagVariables.convradius = cms.InputTag("GsfConvRejVars","convradius")
+process.GsfElectronToIdToHLT.tagVariables.passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
+process.GsfElectronToIdToHLT.pairVariables.costheta = cms.InputTag("CSVarsTagGsf","costheta")
+process.GsfElectronToIdToHLT.pairVariables.sin2theta = cms.InputTag("CSVarsTagGsf","sin2theta")
+process.GsfElectronToIdToHLT.pairVariables.tanphi = cms.InputTag("CSVarsTagGsf","tanphi")
 
 
-##    ___                 __    ___    _ 
-##   |_ _|___  ___        \ \  |_ _|__| |
-##    | |/ __|/ _ \   _____\ \  | |/ _` |
-##    | |\__ \ (_) | |_____/ /  | | (_| |
-##   |___|___/\___/       /_/  |___\__,_|
-##   
-##  isolation --> Id
-
-process.IsoToId = cms.EDAnalyzer("TagProbeFitTreeProducer",
-    mcTruthCommonStuff, CommonStuffForGsfElectronProbe,                              
-    tagProbePairs = cms.InputTag("tagIso"),
-    arbitration   = cms.string("Random2"),
-    flags = cms.PSet(
-        probe_passing = cms.InputTag("PassingId"),
-        probe_passingId = cms.InputTag("PassingId"),
-        probe_passingId80 = cms.InputTag("PassingId80"),        
-        probe_passingALL = cms.InputTag("PassingHLT")         
-    ),
-    probeMatches  = cms.InputTag("McMatchIso"),
-    allProbes     = cms.InputTag("PassingIsolation")
-)
-process.IsoToId.variables.probe_dRjet = cms.InputTag("GsfDRToNearestJet")
-process.IsoToId.variables.probe_nJets = cms.InputTag("JetMultiplicityInGsfEvents")
-process.IsoToId.variables.probe_dist = cms.InputTag("GsfConvRejVars","dist")
-process.IsoToId.variables.probe_dcot = cms.InputTag("GsfConvRejVars","dcot")
-process.IsoToId.variables.probe_convradius = cms.InputTag("GsfConvRejVars","convradius")
-process.IsoToId.variables.probe_passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
-process.IsoToId.tagVariables.dRjet = cms.InputTag("GsfDRToNearestJet")
-process.IsoToId.tagVariables.nJets = cms.InputTag("JetMultiplicityInGsfEvents")
-process.IsoToId.tagVariables.dist = cms.InputTag("GsfConvRejVars","dist")
-process.IsoToId.tagVariables.dcot = cms.InputTag("GsfConvRejVars","dcot")
-process.IsoToId.tagVariables.convradius = cms.InputTag("GsfConvRejVars","convradius")
-process.IsoToId.tagVariables.passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
-process.IsoToId.pairVariables.costheta = cms.InputTag("CSVarsTagIso","costheta")
-process.IsoToId.pairVariables.sin2theta = cms.InputTag("CSVarsTagIso","sin2theta")
-process.IsoToId.pairVariables.tanphi = cms.InputTag("CSVarsTagIso","tanphi")
-
-
+process.GsfElectronPlusGsfElectron = process.GsfElectronToIdToHLT.clone()
+process.GsfElectronPlusGsfElectron.tagProbePairs = cms.InputTag("GsfGsf")
+process.GsfElectronPlusGsfElectron.pairVariables.costheta = cms.InputTag("CSVarsGsfGsf","costheta")
+process.GsfElectronPlusGsfElectron.pairVariables.sin2theta = cms.InputTag("CSVarsGsfGsf","sin2theta")
+process.GsfElectronPlusGsfElectron.pairVariables.tanphi = cms.InputTag("CSVarsGsfGsf","tanphi")
 
 ##    ___    _       __    _   _ _   _____ 
 ##   |_ _|__| |      \ \  | | | | | |_   _|
 ##    | |/ _` |  _____\ \ | |_| | |   | |  
 ##    | | (_| | |_____/ / |  _  | |___| |  
-##   |___\__,_|      /_/  |_| |_|_____|_|  
+##   |___\__,_|      /_/  |_| |_|_____|_|
+##
+##  WP95 --> HLT
+process.WP95ToHLT = process.GsfElectronToIdToHLT.clone()
+process.WP95ToHLT.tagProbePairs = cms.InputTag("tagWP95")
+process.WP95ToHLT.probeMatches  = cms.InputTag("McMatchWP95")
+process.WP95ToHLT.allProbes     = cms.InputTag("PassingWP95")
+process.WP95ToHLT.pairVariables.costheta = cms.InputTag("CSVarsTagWP95","costheta")
+process.WP95ToHLT.pairVariables.sin2theta = cms.InputTag("CSVarsTagWP95","sin2theta")
+process.WP95ToHLT.pairVariables.tanphi = cms.InputTag("CSVarsTagWP95","tanphi")
 
-##  Id --> HLT
-process.IdToHLT = cms.EDAnalyzer("TagProbeFitTreeProducer",
-    mcTruthCommonStuff, CommonStuffForGsfElectronProbe,                             
-    tagProbePairs = cms.InputTag("tagId"),
-    arbitration   = cms.string("Random2"),
-    flags = cms.PSet(
-        probe_passing = cms.InputTag("PassingHLT"),
-        probe_passingId80 = cms.InputTag("PassingId80")        
-    ),
-    probeMatches  = cms.InputTag("McMatchId"),
-    allProbes     = cms.InputTag("PassingId")
-)
-process.IdToHLT.variables.probe_dRjet = cms.InputTag("GsfDRToNearestJet")
-process.IdToHLT.variables.probe_nJets = cms.InputTag("JetMultiplicityInGsfEvents")
-process.IdToHLT.variables.probe_dist = cms.InputTag("GsfConvRejVars","dist")
-process.IdToHLT.variables.probe_dcot = cms.InputTag("GsfConvRejVars","dcot")
-process.IdToHLT.variables.probe_convradius = cms.InputTag("GsfConvRejVars","convradius")
-process.IdToHLT.variables.probe_passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
-process.IdToHLT.tagVariables.dRjet = cms.InputTag("GsfDRToNearestJet")
-process.IdToHLT.tagVariables.nJets = cms.InputTag("JetMultiplicityInGsfEvents")
-process.IdToHLT.tagVariables.dist = cms.InputTag("GsfConvRejVars","dist")
-process.IdToHLT.tagVariables.dcot = cms.InputTag("GsfConvRejVars","dcot")
-process.IdToHLT.tagVariables.convradius = cms.InputTag("GsfConvRejVars","convradius")
-process.IdToHLT.tagVariables.passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
-process.IdToHLT.pairVariables.costheta = cms.InputTag("CSVarsTagId","costheta")
-process.IdToHLT.pairVariables.sin2theta = cms.InputTag("CSVarsTagId","sin2theta")
-process.IdToHLT.pairVariables.tanphi = cms.InputTag("CSVarsTagId","tanphi")
+
+
+##  WP80 --> HLT
+process.WP80ToHLT = process.GsfElectronToIdToHLT.clone()
+process.WP80ToHLT.tagProbePairs = cms.InputTag("tagWP80")
+process.WP80ToHLT.probeMatches  = cms.InputTag("McMatchWP80")
+process.WP80ToHLT.allProbes     = cms.InputTag("PassingWP80")
+process.WP80ToHLT.pairVariables.costheta = cms.InputTag("CSVarsTagWP80","costheta")
+process.WP80ToHLT.pairVariables.sin2theta = cms.InputTag("CSVarsTagWP80","sin2theta")
+process.WP80ToHLT.pairVariables.tanphi = cms.InputTag("CSVarsTagWP80","tanphi")
 
 
 process.tree_sequence = cms.Sequence(
-    process.SCToGsf +
-    process.SCSCbad +
-    process.PhotonToGsf +
-    process.GsfToIso +
-    process.GsfGsfToIso +
-    process.IsoToId + process.IdToHLT
+    process.SuperClusterToGsfElectron +
+    process.PhotonToGsfElectron +
+    process.GsfElectronToIdToHLT +
+    process.GsfElectronPlusGsfElectron +
+    process.WP95ToHLT +
+    process.WP80ToHLT
 )    
-
-
 
 ##    ____       _   _     
 ##   |  _ \ __ _| |_| |__  
@@ -1179,15 +940,13 @@ process.tree_sequence = cms.Sequence(
 ##   |  __/ (_| | |_| | | |
 ##   |_|   \__,_|\__|_| |_|
 ##
-
 process.tagAndProbe = cms.Path(
-    process.sc_sequence + process.ele_sequence +
+    process.sc_sequence + process.ele_sequence + process.eIDSequence + 
     process.ext_ToNearestJet_sequence + 
     process.allTagsAndProbes +
     #process.mc_sequence + 
     process.tree_sequence
 )
-
-process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("testNewWrite.root")
-                                   )
+process.TFileService = cms.Service(
+    "TFileService", fileName = cms.string( OUTPUT_FILE_NAME )
+    )
