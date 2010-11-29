@@ -30,7 +30,7 @@ void
 FWPFLegoRecHit::convertToTower( std::vector<TEveVector> &corners, float scale )
 {
    for( size_t i = 0; i < 4; ++i )
-      corners[i].fZ = corners[i+4].fZ + scale;
+      corners[i+4].fZ = corners[i].fZ + scale;
 }
 
 //______________________________________________________________________________________________________
