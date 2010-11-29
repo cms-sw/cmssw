@@ -16,6 +16,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/METReco/interface/HcalNoiseSummary.h"
+
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/GenMET.h"
@@ -230,6 +232,17 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     edm::LogInfo("")<<"CaloTowers "<< caloTowersLabel_<<" not found!"<<std::endl;
     return;
   }
+
+  edm::InputTag HcalNoiseSummaryTag;
+
+  edm::Handle<HcalNoiseSummary> HNoiseSummary;
+  iEvent.getByLabel(HcalNoiseSummaryTag,HNoiseSummary);
+  if (!HNoiseSummary.isValid()) {
+    LogDebug("") << "CaloTowerAnalyzer: Could not find Hcal NoiseSummary product" << std::endl;
+  }
+
+  bool bHcalNoiseFilter      = HNoiseSummary->passLooseNoiseFilter();
+  if(!bHcalNoiseFilter) return;
 
   edm::View<Candidate>::const_iterator towerCand = towers->begin();
   
