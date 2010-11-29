@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2010/03/05 17:06:58 $
- *  $Revision: 1.42 $
+ *  $Date: 2010/10/13 14:54:19 $
+ *  $Revision: 1.43 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -29,7 +29,6 @@
 #include <time.h>
 #include <sys/time.h>
 #include <sys/types.h>
-#include <linux/unistd.h>
 
 #include "xgi/Method.h"
 #include "xgi/Utils.h"
@@ -451,8 +450,16 @@ namespace edm {
     pthread_mutex_lock(&mutex_);
     pthread_mutex_unlock(&signal_lock_);
     timespec ts;
+#if _POSIX_TIMERS > 0
     clock_gettime(CLOCK_REALTIME, &ts);
+#else
+    struct timeval tv; 
+    gettimeofday(&tv, NULL);
+    ts.tv_sec = tv.tv_sec + 0;
+    ts.tv_nsec = 0;
+#endif
     ts.tv_sec += timeout_sec;
+
     int rc = pthread_cond_timedwait(&cond_, &mutex_, &ts);
     if(rc == ETIMEDOUT) lsTimedOut_.value_ = true; 
   }
