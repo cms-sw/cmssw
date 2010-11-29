@@ -40,6 +40,8 @@ MCParticleReplacer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	edm::Handle< std::vector< reco::CompositeCandidate > > combCandidatesHandle;
 	if (iEvent.getByLabel(src_, combCandidatesHandle))
 	{
+		if (combCandidatesHandle->size()==0)
+			return;
 		for (size_t idx = 0; idx < combCandidatesHandle->at(0).numberOfDaughters(); ++idx)
 		{
 			int charge = combCandidatesHandle->at(0).daughter(idx)->charge();

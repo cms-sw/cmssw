@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Dec  9 16:14:56 CET 2009
-// $Id: ZmumuPFEmbedder.cc,v 1.9 2010/11/08 12:03:01 mkortela Exp $
+// $Id: ZmumuPFEmbedder.cc,v 1.10 2010/11/23 08:00:46 mkortela Exp $
 //
 //
 
@@ -123,7 +123,7 @@ ZmumuPFEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if (_useCombinedCandidate)
    {
       edm::Handle< std::vector< reco::CompositeCandidate > > combCandidatesHandle;
-      if (iEvent.getByLabel(_selectedMuons, combCandidatesHandle))
+      if (iEvent.getByLabel(_selectedMuons, combCandidatesHandle) && combCandidatesHandle->size()>0)
          for (size_t idx = 0; idx < combCandidatesHandle->at(0).numberOfDaughters(); ++idx)			// use only the first combined candidate
             toBeAdded.push_back(combCandidatesHandle->at(0).daughter(idx)->p4());
    }
