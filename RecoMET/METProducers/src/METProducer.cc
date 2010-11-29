@@ -48,20 +48,20 @@ namespace cms
   //    of MET inherit from RecoCandidate and merely extend that class with
   //    extra information)
   //-----------------------------------
-  METProducer::METProducer(const edm::ParameterSet& iConfig) : conf_(iConfig),alg_() 
+  METProducer::METProducer(const edm::ParameterSet& iConfig) : conf_(iConfig), alg_() , resolutions_(0) 
   {
     inputLabel = iConfig.getParameter<edm::InputTag>("src");
     inputType  = iConfig.getParameter<std::string>("InputType");
     METtype    = iConfig.getParameter<std::string>("METType");
     alias      = iConfig.getParameter<std::string>("alias");
     globalThreshold = iConfig.getParameter<double>("globalThreshold");
-    calculateSignificance = false ;
+    calculateSignificance_ = false ;
 
     if( METtype == "CaloMET" ) 
       {
 	noHF = iConfig.getParameter<bool>("noHF");
 	produces<CaloMETCollection>().setBranchAlias(alias.c_str()); 
-	calculateSignificance = iConfig.getParameter<bool>("calculateSignificance");
+	calculateSignificance_ = iConfig.getParameter<bool>("calculateSignificance");
       }
     else if( METtype == "GenMET" )  
       {
@@ -72,7 +72,13 @@ namespace cms
     else if( METtype == "PFMET" )
       {
 	produces<PFMETCollection>().setBranchAlias(alias.c_str()); 
-	calculateSignificance = iConfig.getParameter<bool>("calculateSignificance");
+
+	calculateSignificance_ = iConfig.getParameter<bool>("calculateSignificance");
+
+	if(calculateSignificance_){
+	    jetsLabel_ = iConfig.getParameter<edm::InputTag>("jets");
+	}
+
       }
     else if (METtype == "TCMET" )
       {
@@ -96,6 +102,11 @@ namespace cms
       }
     else                            
       produces<METCollection>().setBranchAlias(alias.c_str()); 
+
+    if (calculateSignificance_ && ( METtype == "CaloMET" || METtype == "PFMET")){
+	resolutions_ = new metsig::SignAlgoResolutions(iConfig);
+	
+    }
   }
   //--------------------------------------------------------------------------
 
@@ -154,12 +165,12 @@ namespace cms
       CaloMET calomet = calospecalgo.addInfo(input,output,noHF, globalThreshold);
 
       //Run algorithm to calculate CaloMET Significance and add to the MET Object
-      if( calculateSignificance ) 
-	{
+      if( calculateSignificance_ ) 
+      {
 	  SignCaloSpecificAlgo signcalospecalgo;
-	  metsig::SignAlgoResolutions resolutions(conf_);
+	  //metsig::SignAlgoResolutions resolutions(conf_);
 	  
-	  signcalospecalgo.calculateBaseCaloMET(input,output,resolutions,noHF,globalThreshold);
+	  signcalospecalgo.calculateBaseCaloMET(input,output,*resolutions_,noHF,globalThreshold);
 	  calomet.SetMetSignificance( signcalospecalgo.getSignificance() );
 	  calomet.setSignificanceMatrix(signcalospecalgo.getSignificanceMatrix());
 	}
@@ -188,14 +199,14 @@ namespace cms
 	pfmetcoll.reset (new PFMETCollection);
 	
 	// add resolutions and calculate significance
-	if( calculateSignificance )
+	if( calculateSignificance_ )
 	  {
-	    metsig::SignAlgoResolutions resolutions(conf_);
-	    pf.runSignificance(resolutions);
+	    //metsig::SignAlgoResolutions resolutions(conf_);
+	    edm::Handle<edm::View<reco::PFJet> > jets;
+	    event.getByLabel(jetsLabel_,jets);
+	    pf.runSignificance(*resolutions_, jets);
 	  }
-
 	pfmetcoll->push_back( pf.addInfo(input, output) );
-	
 	event.put( pfmetcoll );
       }
     //-----------------------------------
