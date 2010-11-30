@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_10_0/pre6/HIon/V5 (CMSSW_3_10_X_2010-11-23-0200_HL1)
+# /dev/CMSSW_3_10_0/pre6/HIon/V6 (CMSSW_3_10_0_pre6_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_10_0/pre6/HIon/V5')
+  tableName = cms.string('/dev/CMSSW_3_10_0/pre6/HIon/V6')
 )
 
 streams = cms.PSet( 
@@ -2037,7 +2037,8 @@ hltL2Muons = cms.EDProducer( "L2MuonProducer",
           Granularity = cms.int32( 0 ),
           RescaleErrorFactor = cms.double( 100.0 ),
           UseInvalidHits = cms.bool( True ),
-          RescaleError = cms.bool( False )
+          RescaleError = cms.bool( False ),
+          ExcludeRPCFromFit = cms.bool( False )
         ),
         EnableRPCMeasurement = cms.bool( True ),
         CSCRecSegmentLabel = cms.InputTag( "hltCscSegments" ),
@@ -2068,7 +2069,8 @@ hltL2Muons = cms.EDProducer( "L2MuonProducer",
           Granularity = cms.int32( 2 ),
           RescaleErrorFactor = cms.double( 100.0 ),
           UseInvalidHits = cms.bool( True ),
-          RescaleError = cms.bool( False )
+          RescaleError = cms.bool( False ),
+          ExcludeRPCFromFit = cms.bool( False )
         ),
         EnableRPCMeasurement = cms.bool( True ),
         BWSeedType = cms.string( "fromGenerator" ),
