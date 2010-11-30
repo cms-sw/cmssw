@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.131 2010/08/06 20:24:31 wmtan Exp $
+// $Id: StorageManager.cc,v 1.132 2010/09/08 15:22:57 mommsen Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/DiskWriter.h"
@@ -15,7 +15,6 @@
 
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
 
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include "i2o/Method.h"
@@ -39,7 +38,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.131 2010/08/06 20:24:31 wmtan Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.132 2010/09/08 15:22:57 mommsen Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -52,11 +51,6 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   std::string errorMsg = "Exception in StorageManager constructor: ";
   try
   {
-    // need the line below so that deserializeRegistry can run in
-    // order to compare two registries (cannot compare
-    // byte-for-byte) (if we keep this) need line below anyway in
-    // case we deserialize DQMEvents for collation
-    edm::RootAutoLibraryLoader::enable();
     initializeSharedResources();
     _consumerUtils.setSharedResources(_sharedResources);
   }
