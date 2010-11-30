@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_10_0/pre6/GRun/V4 (CMSSW_3_10_X_2010-11-23-0200_HL1)
+# /dev/CMSSW_3_10_0/pre6/GRun/V6 (CMSSW_3_10_0_pre6_HLT1)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_10_0/pre6/GRun/V4')
+  tableName = cms.string('/dev/CMSSW_3_10_0/pre6/GRun/V6')
 )
 
 
@@ -2246,7 +2246,8 @@ hltL2Muons = cms.EDProducer( "L2MuonProducer",
           Granularity = cms.int32( 0 ),
           RescaleErrorFactor = cms.double( 100.0 ),
           UseInvalidHits = cms.bool( True ),
-          RescaleError = cms.bool( False )
+          RescaleError = cms.bool( False ),
+          ExcludeRPCFromFit = cms.bool( False )
         ),
         EnableRPCMeasurement = cms.bool( True ),
         CSCRecSegmentLabel = cms.InputTag( "hltCscSegments" ),
@@ -2277,7 +2278,8 @@ hltL2Muons = cms.EDProducer( "L2MuonProducer",
           Granularity = cms.int32( 2 ),
           RescaleErrorFactor = cms.double( 100.0 ),
           UseInvalidHits = cms.bool( True ),
-          RescaleError = cms.bool( False )
+          RescaleError = cms.bool( False ),
+          ExcludeRPCFromFit = cms.bool( False )
         ),
         EnableRPCMeasurement = cms.bool( True ),
         BWSeedType = cms.string( "fromGenerator" ),
@@ -3757,8 +3759,8 @@ hltHybridSuperClustersL1Isolated = cms.EDProducer( "EgammaHLTHybridClusterProduc
     posCalcParameters = cms.PSet( 
       LogWeighted = cms.bool( True ),
       T0_barl = cms.double( 7.4 ),
-      T0_endc = cms.double( 6.3 ),
-      T0_endcPresh = cms.double( 3.6 ),
+      T0_endc = cms.double( 3.1 ),
+      T0_endcPresh = cms.double( 1.2 ),
       W0 = cms.double( 4.2 ),
       X0 = cms.double( 0.89 )
     ),
@@ -3904,8 +3906,8 @@ hltHybridSuperClustersL1NonIsolated = cms.EDProducer( "EgammaHLTHybridClusterPro
     posCalcParameters = cms.PSet( 
       LogWeighted = cms.bool( True ),
       T0_barl = cms.double( 7.4 ),
-      T0_endc = cms.double( 6.3 ),
-      T0_endcPresh = cms.double( 3.6 ),
+      T0_endc = cms.double( 3.1 ),
+      T0_endcPresh = cms.double( 1.2 ),
       W0 = cms.double( 4.2 ),
       X0 = cms.double( 0.89 )
     ),
@@ -9462,6 +9464,8 @@ hltParticleFlow = cms.EDProducer( "PFProducer",
     pfcluster_doEtaCorrection = cms.uint32( 1 ),
     calibHF_use = cms.bool( False ),
     blocks = cms.InputTag( "hltParticleFlowBlock" ),
+    muons = cms.InputTag( "" ),
+    postMuonCleaning = cms.bool( False ),
     usePFElectrons = cms.bool( False ),
     useEGammaElectrons = cms.bool( False ),
     egammaElectrons = cms.InputTag( "" ),
