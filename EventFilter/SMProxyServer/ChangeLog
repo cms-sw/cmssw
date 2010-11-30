@@ -1,3 +1,7 @@
+2010-10-27 William Tanenbaum <wmtan@fnal.gov>
+	* tag V01-10-02
+	* Convert BuildFiles to XML.
+
 2010-09-20 Luis I. Lopera <lilopera@cern.ch>
 	* tag V01-10-01
 	* Fix for connection retries.
