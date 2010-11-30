@@ -10,6 +10,7 @@
 #include <vector>
 #include <string>
 #include <exception>
+#include <algorithm>
 
 #include <TCanvas.h>
 #include <TFile.h>
@@ -114,7 +115,7 @@ void doCombination(TString hlfFile, const std::string &dataset, double &limit, i
   TString tmpDir = "roostats-XXXXXX"; 
   mkdtemp(const_cast<char *>(tmpDir.Data()));
   gSystem->cd(tmpDir.Data());
-  
+
   TString fileToLoad;
   if (hlfFile.EndsWith(".hlf")) {
     fileToLoad = (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile);
@@ -166,6 +167,8 @@ void doCombination(TString hlfFile, const std::string &dataset, double &limit, i
     if (mklimit(w,*dobs,limit)) tree->Fill();
   }
   
+  
+  std::vector<double> limitHistory;
   if (nToys > 0) {
     double expLimit = 0;
     unsigned int nLimits = 0;
@@ -212,6 +215,7 @@ void doCombination(TString hlfFile, const std::string &dataset, double &limit, i
 	tree->Fill();
 	++nLimits;
 	expLimit += limit; 
+        limitHistory.push_back(limit);
       }
       if (writeToysHere) {
 	//writeToysHere->import(*absdata_toy, RooFit::Rename(TString::Format("toy_%d", iToy)), RooFit::Silence());
@@ -221,7 +225,18 @@ void doCombination(TString hlfFile, const std::string &dataset, double &limit, i
     }
     expLimit /= nLimits;
     if (verbose)
-      cout << "expected limit: r < " << expLimit << " @ " << cl*100 << "%CL (" <<nLimits << " toyMC)" << endl;
+      cout << "mean   expected limit: r < " << expLimit << " @ " << cl*100 << "%CL (" <<nLimits << " toyMC)" << endl;
+      sort(limitHistory.begin(), limitHistory.end());
+      if (nLimits > 0) {
+          double medianLimit = (nLimits % 2 == 0 ? 0.5*(limitHistory[nLimits/2]+limitHistory[nLimits/2+1]) : limitHistory[nLimits/2]);
+          cout << "median expected limit: r < " << medianLimit << " @ " << cl*100 << "%CL (" <<nLimits << " toyMC)" << endl;
+          double hi68 = limitHistory[min<int>(nLimits-1,  ceil(0.84  * nLimits))];
+          double lo68 = limitHistory[min<int>(nLimits-1, floor(0.16  * nLimits))];
+          double hi95 = limitHistory[min<int>(nLimits-1,  ceil(0.975 * nLimits))];
+          double lo95 = limitHistory[min<int>(nLimits-1, floor(0.025 * nLimits))];
+          cout << "   68% expected band : " << lo68 << " < r < " << hi68 << endl;
+          cout << "   95% expected band : " << lo95 << " < r < " << hi95 << endl;
+      }
   }
 }
 
