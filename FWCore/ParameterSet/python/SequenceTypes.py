@@ -128,6 +128,14 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         else:
             returnValue.__init__()
         return returnValue
+    def copyAndExclude(self,listOfModulesToExclude):
+        """Returns a copy of the sequence which exlcudes those module in 'listOfModulesToExclude'"""
+        v = _CopyAndExcludeSequenceVisitor(listOfModulesToExclude)
+        self.visit(v)
+        result = self.__new__(type(self))
+        result.__init__(v.result())
+        return result
+        
     def expandAndClone(self):
         visitor = ExpandVisitor(type(self))
         self.visit(visitor)
@@ -588,6 +596,77 @@ class ResolveVisitor(object):
        if isinstance(visitee, SequencePlaceholder):
            pass
 
+class _CopyAndExcludeSequenceVisitor(object):
+   """Traverses a Sequence and constructs a new sequence which does not contain modules from the specified list"""
+   def __init__(self,modulesToRemove):
+       self.__modulesToIgnore = modulesToRemove
+       self.__stack = list()
+       self.__result = None
+   def enter(self,visitee):
+       if len(self.__stack) > 0:
+           #add visitee to its parent's stack entry
+           self.__stack[-1].append([visitee,False])
+       if isinstance(visitee,_SequenceLeaf):
+           if visitee in self.__modulesToIgnore:
+               self.__stack[-1][-1]=[None,True]
+       else:
+           self.__stack.append([[visitee,False]])
+   def leave(self,visitee):
+       node = visitee
+       if not isinstance(visitee,_SequenceLeaf):
+           #were any children changed?
+           # the first item in the list on the stack is
+           # the 'visitee' so we drop that in order to get just the children
+           l = self.__stack[-1][1:]
+           changed = False
+           countNulls = 0
+           nonNulls = list()
+           for c in l:
+               if c[1] == True:
+                   changed = True
+               if c[0] is None:
+                   countNulls +=1
+               else:
+                   nonNulls.append(c[0])
+           if changed:
+               if countNulls != 0:
+                   #this node must go away
+                   if len(nonNulls) == 0:
+                       #all subnodes went away 
+                       node = None
+                   else:
+                       #we assume only possible to have one non null
+                       # so replace this node with that one child
+                       node = nonNulls[0]
+               else:
+                   #some child was changed so we need to clone
+                   # this node and replace it with one that holds 
+                   # the new child(ren)
+                   children = [x[0] for x in l ]
+                   if not isinstance(visitee,Sequence):
+                       node = visitee.__new__(type(visitee))
+                       node.__init__(*children)
+                   else:
+                       node = nonNulls[0]
+       if node != visitee:
+           #we had to replace this node so now we need to 
+           # change parent's stack entry as well
+           if len(self.__stack) > 1:
+               p = self.__stack[-2]
+               #find visitee and replace
+               for i,c in enumerate(p):
+                   if c[0]==visitee:
+                       c[0]=node
+                       c[1]=True
+                       break
+       self.__result = node
+       if not isinstance(visitee,_SequenceLeaf):
+           self.__stack = self.__stack[:-1]        
+
+   def result(self):
+       return self.__result
+
+
 
 if __name__=="__main__":
     import unittest
@@ -839,8 +918,50 @@ if __name__=="__main__":
             l[:]=[]; s4.visit(namesVisitor); self.assertEqual(l,[])
             self.assertEqual(s4.dumpPython(None), "cms.Sequence()\n")
             
+        def testCopyAndExclude(self):
+            a = DummyModule("a")
+            b = DummyModule("b")
+            c = DummyModule("c")
+            d = DummyModule("d")
+            s = Sequence(a+b+c)
+            self.assertEqual(s.copyAndExclude([d]).dumpPython(None),"cms.Sequence(process.a+process.b+process.c)\n")
+            s = Sequence(a+b+c+d)
+            self.assertEqual(s.copyAndExclude([a]).dumpPython(None),"cms.Sequence(process.b+process.c+process.d)\n")
+            self.assertEqual(s.copyAndExclude([b]).dumpPython(None),"cms.Sequence(process.a+process.c+process.d)\n")
+            self.assertEqual(s.copyAndExclude([c]).dumpPython(None),"cms.Sequence(process.a+process.b+process.d)\n")
+            self.assertEqual(s.copyAndExclude([d]).dumpPython(None),"cms.Sequence(process.a+process.b+process.c)\n")
+            s=Sequence(a*b+c+d)
+            self.assertEqual(s.copyAndExclude([a]).dumpPython(None),"cms.Sequence(process.b+process.c+process.d)\n")
+            self.assertEqual(s.copyAndExclude([b]).dumpPython(None),"cms.Sequence(process.a+process.c+process.d)\n")
+            self.assertEqual(s.copyAndExclude([c]).dumpPython(None),"cms.Sequence(process.a*process.b+process.d)\n")
+            self.assertEqual(s.copyAndExclude([d]).dumpPython(None),"cms.Sequence(process.a*process.b+process.c)\n")
+            s = Sequence(a+b*c+d)
+            self.assertEqual(s.copyAndExclude([a]).dumpPython(None),"cms.Sequence(process.b*process.c+process.d)\n")
+            self.assertEqual(s.copyAndExclude([b]).dumpPython(None),"cms.Sequence(process.a+process.c+process.d)\n")
+            self.assertEqual(s.copyAndExclude([c]).dumpPython(None),"cms.Sequence(process.a+process.b+process.d)\n")
+            self.assertEqual(s.copyAndExclude([d]).dumpPython(None),"cms.Sequence(process.a+process.b*process.c)\n")
+            s2 = Sequence(a+b)
+            s = Sequence(c+s2+d)
+            self.assertEqual(s.copyAndExclude([a]).dumpPython(None),"cms.Sequence(process.c+process.b+process.d)\n")
+            self.assertEqual(s.copyAndExclude([b]).dumpPython(None),"cms.Sequence(process.c+process.a+process.d)\n")
+            self.assertEqual(s.copyAndExclude([c]).dumpPython(None),"cms.Sequence((process.a+process.b)+process.d)\n")
+            self.assertEqual(s.copyAndExclude([d]).dumpPython(None),"cms.Sequence(process.c+(process.a+process.b))\n")
+            self.assertEqual(s.copyAndExclude([a,b]).dumpPython(None),"cms.Sequence(process.c+process.d)\n")
+            s2 = Sequence(a+b+c)
+            s = Sequence(s2+d)
+            self.assertEqual(s.copyAndExclude([a]).dumpPython(None),"cms.Sequence(process.b+process.c+process.d)\n")
+            self.assertEqual(s.copyAndExclude([b]).dumpPython(None),"cms.Sequence(process.a+process.c+process.d)\n")
+            self.assertEqual(s.copyAndExclude([c]).dumpPython(None),"cms.Sequence(process.a+process.b+process.d)\n")
+            self.assertEqual(s.copyAndExclude([d]).dumpPython(None),"cms.Sequence((process.a+process.b+process.c))\n")
+            s2 = Sequence(a+b+c)
+            s = Sequence(s2*d)
+            self.assertEqual(s.copyAndExclude([a]).dumpPython(None),"cms.Sequence((process.b+process.c)*process.d)\n")
+            self.assertEqual(s.copyAndExclude([b]).dumpPython(None),"cms.Sequence((process.a+process.c)*process.d)\n")
+            self.assertEqual(s.copyAndExclude([c]).dumpPython(None),"cms.Sequence((process.a+process.b)*process.d)\n")
+            self.assertEqual(s.copyAndExclude([d]).dumpPython(None),"cms.Sequence((process.a+process.b+process.c))\n")
+            self.assertEqual(s.copyAndExclude([a,b,c]).dumpPython(None),"cms.Sequence(process.d)\n")
             
-
+            
         def testDependencies(self):
             m1 = DummyModule("m1")
             m2 = DummyModule("m2")
