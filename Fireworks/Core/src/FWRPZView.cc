@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.30 2010/11/21 11:18:14 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.31 2010/11/26 20:24:48 amraktad Exp $
 //
 
 // system include files
@@ -197,7 +197,7 @@ FWRPZView::setEtaRng()
    {
       // rng controllers only in RhoPhi
       double eta_range = context().caloMaxEta();
-      if (m_showHF->value() ) eta_range = 3.0;
+      if (!m_showHF->value() ) eta_range = 3.0;
       if (!m_showEndcaps->value() ) eta_range = context().caloTransEta();
       m_calo->SetEta(-eta_range,eta_range);
    }
