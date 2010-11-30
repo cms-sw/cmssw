@@ -45,8 +45,9 @@
 #define LOAD_INT(x) ((x) >> FSHIFT)
 #define LOAD_FRAC(x) LOAD_INT(((x) & (FIXED_1-1)) * 100)
 
-
+#ifdef linux
 #include <sys/sysinfo.h>
+#endif
 #include <errno.h>
 #include <iostream>
 #include <iomanip>
@@ -54,7 +55,9 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <time.h>
+#ifdef linux
 #include <linux/limits.h>
+#endif
 #include <sys/times.h>
 #include <sstream>
 #include "procUtils.h"
@@ -286,6 +289,7 @@ namespace evf{
 
     void uptime(std::ostringstream *out)
     {
+#ifdef linux
       int updays, uphours, upminutes;
       struct sysinfo info;
       struct tm *current_time;
@@ -322,6 +326,11 @@ namespace evf{
 	   << LOAD_FRAC(info.loads[2]) << " ";
       *out << " used memory " << std::setw(3) 
 	   << (float(info.totalram-info.freeram)/float(info.totalram))*100 << "%";
+#else
+      // FIXME: one could probably use `clock_get_uptime` and similar on 
+      // macosx to obtain at least part of the information.
+      *out << "Unable to retrieve uptime information on this platform.";
+#endif
     }
 
 
