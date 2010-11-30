@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.24 2010/09/16 18:38:11 dkotlins Exp $
+// $Id: PixelDigisTest.cc,v 1.25 2010/10/26 15:20:31 sunanda Exp $
 //
 //
 // system include files
@@ -448,11 +448,17 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
     double detR = theGeomDet->surface().position().perp();
     //const BoundPlane plane = theGeomDet->surface(); // does not work
     
-    int cols = theGeomDet->specificTopology().ncolumns();
-    int rows = theGeomDet->specificTopology().nrows();
-    float pitchX = theGeomDet->specificTopology().pitch().first;
-    float pitchY = theGeomDet->specificTopology().pitch().second;
+//     int cols = theGeomDet->specificTopology().ncolumns();
+//     int rows = theGeomDet->specificTopology().nrows();
+//     float pitchX = theGeomDet->specificTopology().pitch().first;
+//     float pitchY = theGeomDet->specificTopology().pitch().second;
     
+    const PixelTopology &topology = theGeomDet->specificTopology(); 
+    int cols = topology.ncolumns();
+    int rows = topology.nrows();
+    float pitchX = topology.pitch().first;
+    float pitchY = topology.pitch().second;
+     
     unsigned int layerC=0;
     unsigned int ladderC=0;
     unsigned int zindex=0;
@@ -602,16 +608,20 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 	   totalNumOfDigis1++;
 	   //htest2->Fill(float(module),float(adc));
 	   numOfDigisPerDet1++;
-	   if(RectangularPixelTopology::isItBigPixelInX(row)) {
-	     //cout<<" big in X "<<row<<endl;
-	     heloss1bigx->Fill(float(adc));
-	     hrows1big->Fill(float(row));
-	   }
-	   if(RectangularPixelTopology::isItBigPixelInY(col)) {
-	     //cout<<" big in Y "<<col<<endl;
-	     heloss1bigy->Fill(float(adc));
-	     hcols1big->Fill(float(col));
-	   }
+
+//old 	   if(RectangularPixelTopology::isItBigPixelInX(row)) {
+//new	   if(topology.isItBigPixelInX(row)) { 
+// 	     //cout<<" big in X "<<row<<endl;
+// 	     heloss1bigx->Fill(float(adc));
+// 	     hrows1big->Fill(float(row));
+// 	   }
+//old	   if(RectangularPixelTopology::isItBigPixelInY(col)) {
+//new	   if(topology.isItBigPixelInY(col)) {
+// 	     //cout<<" big in Y "<<col<<endl;
+// 	     heloss1bigy->Fill(float(adc));
+// 	     hcols1big->Fill(float(col));
+// 	   }
+
 	 } // noise
        } else if(layer==2) {
 	 // look for the noisy pixel
