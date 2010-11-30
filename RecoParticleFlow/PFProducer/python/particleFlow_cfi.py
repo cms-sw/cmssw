@@ -23,7 +23,7 @@ particleFlow = cms.EDProducer("PFProducer",
     # Use electron identification in PFAlgo
     usePFElectrons = cms.bool(True),
     pf_electron_output_col=cms.string('electrons'),
-    pf_electronID_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan.txt'),
+    pf_electronID_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan_IntToFloat.txt'),
                               
     pf_electron_mvaCut = cms.double(-0.1),
     # apply the crack corrections                             
