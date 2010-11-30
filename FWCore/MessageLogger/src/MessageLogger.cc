@@ -38,6 +38,10 @@
 //  9/27/10b mf dtor for LogWarningThatSuppressesLikeLogInfo - see
 //		change log 22 in MessageLogger.h
 //
+//  11/30/10 mf SnapshotMessageLog() method to force MessageDrop to capture any
+//		pointed-to strings in anticipation of key objects going
+//		away before a message is going to be issued.
+//
 // ------------------------------------------------------------------------
 
 namespace edm {
@@ -84,6 +88,13 @@ void FlushMessageLog() {
   if (MessageDrop::instance()->messageLoggerScribeIsRunning !=
   			MLSCRIBE_RUNNING_INDICATOR) return; 	// 6/20/08 mf
   edm::MessageLoggerQ::MLqFLS ( ); // Flush the message log queue
+}
+
+void snapshotMessageLog() {					// 11/30/10 mf
+  // Capture module name and label strings.
+  // Use if module objects are abuot to disappear due to exception,
+  // but a message will then be issued.
+  MessageDrop::instance()->snapshot();
 }
 
 bool isMessageProcessingSetUp() {				// 6/20/08 mf

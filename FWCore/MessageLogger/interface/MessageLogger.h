@@ -107,6 +107,10 @@
 //		   a level of messages (in this case, INFO) will be suppressed
 //		   without even being seen by the destinations. 
 //
+// 23 mf 11/30/10  SnapshotMessageLog() method to force MessageDrop to 
+//		   capture any pointed-to strings in anticipation of key 
+//		   objects going away before a message is going to be issued.
+//
 // =================================================
 
 // system include files
@@ -484,6 +488,7 @@ public:
   bool isWarningEnabled();
   void HaltMessageLogging();
   void FlushMessageLog();
+  void snapshotMessageLog(); 
   void GroupLogStatistics(std::string const & category);
   bool isMessageProcessingSetUp();
 

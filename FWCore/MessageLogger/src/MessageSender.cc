@@ -13,7 +13,7 @@
 //			LoggedErrorsSummary()
 //			
 // 2  mf 11/2/10	Use new moduleContext method of MessageDrop:
-//			see MessageDrop.cc change 17.
+//			see MessageServer/src/MessageLogger.cc change 17.
 //			
 
 

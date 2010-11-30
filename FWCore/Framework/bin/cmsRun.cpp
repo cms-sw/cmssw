@@ -75,6 +75,7 @@ namespace {
 	  edm::printUnknownException(kProgramName);
         }
       }
+      edm::snapshotMessageLog();
     }
     void on() {
       callEndJob_ = true;

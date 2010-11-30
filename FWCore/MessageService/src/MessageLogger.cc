@@ -275,6 +275,7 @@ MessageLogger::establishModule(ModuleDescription const & desc,
   nonModule_infoEnabled    = messageDrop->infoEnabled;
   nonModule_warningEnabled = messageDrop->warningEnabled;
 
+      //  std::cerr << "establishModule( " << desc.moduleName() << ")\n";
   // Change Log 17
   messageDrop->setModuleWithPhase( desc.moduleName(), desc.moduleLabel(), 
   				&desc, whichPhase );
@@ -312,6 +313,7 @@ MessageLogger::establishModuleCtor(ModuleDescription const & desc,
   nonModule_infoEnabled    = messageDrop->infoEnabled;
   nonModule_warningEnabled = messageDrop->warningEnabled;
 
+      // std::cerr << "establishModuleCtor( " << desc.moduleName() << ")\n";
   // Change Log 17
   messageDrop->setModuleWithPhase( desc.moduleName(), desc.moduleLabel(), 
   				0, whichPhase );
@@ -338,12 +340,16 @@ MessageLogger::establishModuleCtor(ModuleDescription const & desc,
     messageDrop->infoEnabled    = true;
     messageDrop->warningEnabled = true;
   }
+  messageDrop->snapshot(); 
 } // establishModuleCtor
 
 void
 MessageLogger::unEstablishModule(ModuleDescription const & desc, 
 			         const char*  state)
 {
+      // std::cerr << "unestablishModule( " << desc.moduleName() << ") "
+      //           << "state = " << *state << "\n";
+
   MessageDrop* messageDrop = MessageDrop::instance();
   messageDrop->setSinglet( state ); 			// Change Log 17	
   messageDrop->debugEnabled   = nonModule_debugEnabled;
