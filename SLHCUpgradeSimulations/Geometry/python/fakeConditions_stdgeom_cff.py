@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 siPixelFakeGainOfflineESSource = cms.ESSource("SiPixelFakeGainOfflineESSource",
-    file = cms.FileInPath('SLHCUpgradeSimulations/Geometry/data/stdgeom/PixelSkimmedGeometry_stdgeom.txt')
-)
+        file = cms.FileInPath('SLHCUpgradeSimulations/Geometry/data/stdgeom/PixelSkimmedGeometry_stdgeom.txt')
+        )
 es_prefer_fake_gain = cms.ESPrefer("SiPixelFakeGainOfflineESSource","siPixelFakeGainOfflineESSource")
 
 siPixelFakeLorentzAngleESSource = cms.ESSource("SiPixelFakeLorentzAngleESSource",
@@ -38,8 +38,8 @@ es_prefer_fake_strip_LA_sim = cms.ESPrefer("SiStripLorentzAngleSimFakeESSource",
                                                    "siStripLorentzAngleSimFakeESSource")
 
 from CalibTracker.SiStripESProducers.fake.SiStripApvGainFakeESSource_cfi import *
-SiStripApvGainGenerator.MeanGain=cms.vdouble(1.0)
-SiStripApvGainGenerator.SigmaGain=cms.vdouble(0.0)
+SiStripApvGainGenerator.MeanGain=cms.double(1.0)
+SiStripApvGainGenerator.SigmaGain=cms.double(0.0)
 SiStripApvGainGenerator.genMode = cms.string("default")
 
 myStripApvGainFakeESSource = cms.ESSource("SiStripApvGainFakeESSource")
@@ -63,6 +63,29 @@ MeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
 MeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
 MeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
 
-from RecoVertex.BeamSpotProducer.BeamSpotFakeConditionsSimpleGaussian_cff import *
+from RecoVertex.BeamSpotProducer.BeamSpotFakeParameters_cfi import *
+BeamSpotFakeConditions.X0 = cms.double(0.0)
+BeamSpotFakeConditions.Y0 = cms.double(0.0)
+BeamSpotFakeConditions.Z0 = cms.double(0.0)
+BeamSpotFakeConditions.dxdz = cms.double(0.0)
+BeamSpotFakeConditions.dydz = cms.double(0.0)
+BeamSpotFakeConditions.sigmaZ = cms.double(5.3)
+BeamSpotFakeConditions.widthX = cms.double(0.015)
+BeamSpotFakeConditions.widthY = cms.double(0.015)
+BeamSpotFakeConditions.emittanceX = cms.double(0.)
+BeamSpotFakeConditions.emittanceY = cms.double(0.)
+BeamSpotFakeConditions.betaStar = cms.double(0.)
+BeamSpotFakeConditions.errorX0 = cms.double(0.00208)
+BeamSpotFakeConditions.errorY0 = cms.double(0.00208)
+BeamSpotFakeConditions.errorZ0 = cms.double(0.00508)
+BeamSpotFakeConditions.errordxdz = cms.double(0.0)
+BeamSpotFakeConditions.errordydz = cms.double(0.0)
+BeamSpotFakeConditions.errorSigmaZ = cms.double(0.060)
+BeamSpotFakeConditions.errorWidth = cms.double(0.0013)
+
 es_prefer_beamspot = cms.ESPrefer("BeamSpotFakeConditions","")
 
+from SimGeneral.TrackingAnalysis.trackingParticles_cfi import *
+mergedtruth.volumeRadius = cms.double(100.0)
+mergedtruth.volumeZ = cms.double(900.0)
+mergedtruth.discardOutVolume = cms.bool(True)
