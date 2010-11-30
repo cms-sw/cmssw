@@ -41,7 +41,7 @@ TrackerOfflineValidation = cms.EDAnalyzer("TrackerOfflineValidation",
     ),
     # -> very broad distributions expected                                         
     TH1YResStripModules = cms.PSet(
-        Nbinx = cms.int32(100), xmin = cms.double(-10.0), xmax = cms.double(10.0)
+        Nbinx = cms.int32(100), xmin = cms.double(-11.0), xmax = cms.double(11.0)
     ),
 
     # Normalized X residuals normal local coordinates (Pixel)                                        
