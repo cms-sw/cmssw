@@ -624,8 +624,8 @@ void createTOC(TPDF* pdf, std::vector<std::string> TOC) {
   std::string page ; std::string TOCentry ; 
   for (unsigned int i=0; i<TOC.size(); i++) {
     std::string TOCline = TOC.at(i) ;
-    int locPage = TOCline.find("^^",0) ; 
-    int locSub  = TOCline.find("^",0) ; 
+    size_t locPage = TOCline.find("^^",0) ; 
+    size_t locSub  = TOCline.find("^",0) ; 
     if (locSub == locPage) {
       nTOCentries++ ;
       page = TOCline.substr(locPage+2) ;
@@ -869,8 +869,8 @@ int main(int argc, char ** argv) {
         }
       }
     } else { //--- Assume the file is a comma-separated list of modules ---//
-      unsigned int strStart = 0 ; 
-      for (unsigned int itr=startHere.find(",",0); itr!=std::string::npos;
+      size_t strStart = 0 ; 
+      for (size_t itr=startHere.find(",",0); itr!=std::string::npos;
 	   itr=startHere.find(",",itr)) {
 	std::string skipped = startHere.substr(strStart,(itr-strStart)) ; 
 	itr++ ; strStart = itr ; 
@@ -897,8 +897,8 @@ int main(int argc, char ** argv) {
         }
       }
     } else { //--- Assume the file is a comma-separated list of modules ---//
-      unsigned int strStart = 0 ; 
-      for (unsigned int itr=excludeModName.find(",",0); itr!=std::string::npos;
+      size_t strStart = 0 ; 
+      for (size_t itr=excludeModName.find(",",0); itr!=std::string::npos;
 	   itr=excludeModName.find(",",itr)) {
 	std::string skipped = excludeModName.substr(strStart,(itr-strStart)) ; 
 	itr++ ; strStart = itr ; 
@@ -926,8 +926,8 @@ int main(int argc, char ** argv) {
         }
       }
     } else { //--- Assume the file is a comma-separated list of paths ---//
-      unsigned int strStart = 0 ; 
-      for (unsigned int itr=excludePathName.find(",",0); itr!=std::string::npos;
+      size_t strStart = 0 ; 
+      for (size_t itr=excludePathName.find(",",0); itr!=std::string::npos;
 	   itr=excludePathName.find(",",itr)) {
 	std::string skipped = excludePathName.substr(strStart,(itr-strStart)) ; 
 	itr++ ; strStart = itr ; 
@@ -955,8 +955,8 @@ int main(int argc, char ** argv) {
         }
       }
     } else { //--- Assume the file is a comma-separated list of modules ---//
-      unsigned int strStart = 0 ; 
-      for (unsigned int itr=modPrintName.find(",",0); itr!=std::string::npos;
+      size_t strStart = 0 ; 
+      for (size_t itr=modPrintName.find(",",0); itr!=std::string::npos;
 	   itr=modPrintName.find(",",itr)) {
 	std::string modname = modPrintName.substr(strStart,(itr-strStart)) ; 
 	itr++ ; strStart = itr ; 
@@ -973,7 +973,7 @@ int main(int argc, char ** argv) {
     unsigned int strStart = 0 ;
     numberOfspecificTotalTime = 0;
     
-    for (unsigned int itr=strSpecificTotalTime.find("A",0); itr!=std::string::npos;
+    for (size_t itr=strSpecificTotalTime.find("A",0); itr!=std::string::npos;
 	 itr=strSpecificTotalTime.find("A",itr)) {
 
       std::string strSpecificTimePair = strSpecificTotalTime.substr(strStart,(itr-strStart)) ; 
@@ -1026,7 +1026,7 @@ int main(int argc, char ** argv) {
   TBranch::ResetCount() ;
   while ( (cand = (TBranch*)iter()) ) {
     std::string branchName = cand->GetName() ;
-    unsigned int loc = branchName.find( "HLTPerformanceInfo" ) ;
+    size_t loc = branchName.find( "HLTPerformanceInfo" ) ;
     // Fixes proposed by Chris Jones and Dan Riley
     if ( loc != std::string::npos ) hltPerfInfoBranchName = branchName ;
   }
