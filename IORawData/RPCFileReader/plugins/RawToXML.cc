@@ -46,8 +46,8 @@ RawToXML::~RawToXML()
 void RawToXML::analyze(const edm::Event& ev, const edm::EventSetup& es)
 {
   std::vector<OptoTBData> optoData; 
-  static bool debug = edm::MessageDrop::instance()->debugEnabled;
-  if (debug) LogDebug (" RawToXMLConvert") <<"Beginning To Unpack Event: ";
+//  static bool debug = edm::MessageDrop::instance()->debugEnabled;
+//  if (debug) LogDebug (" RawToXMLConvert") <<"Beginning To Unpack Event: ";
 
   edm::Handle<FEDRawDataCollection> allFEDRawData;
   ev.getByLabel(theDataLabel,allFEDRawData);
@@ -67,16 +67,16 @@ void RawToXML::analyze(const edm::Event& ev, const edm::EventSetup& es)
       FEDHeader fedHeader( reinterpret_cast<const unsigned char*>(header));
       triggerBX = fedHeader.bxID();
       moreHeaders = fedHeader.moreHeaders();
-      if (debug) {
-        std::stringstream str;
-        str <<"  header: "<< *reinterpret_cast<const std::bitset<64>*> (header) << std::endl;
-        str <<"  header triggerType: " << fedHeader.triggerType()<<std::endl;
-        str <<"  header lvl1ID:      " << fedHeader.lvl1ID() << std::endl;
-        str <<"  header bxID:        " << fedHeader.bxID() << std::endl;
-        str <<"  header sourceID:    " << fedHeader.sourceID() << std::endl;
-        str <<"  header version:     " << fedHeader.version() << std::endl;
-        LogTrace("") << str.str();
-      }
+//      if (debug) {
+//        std::stringstream str;
+//        str <<"  header: "<< *reinterpret_cast<const std::bitset<64>*> (header) << std::endl;
+//        str <<"  header triggerType: " << fedHeader.triggerType()<<std::endl;
+//        str <<"  header lvl1ID:      " << fedHeader.lvl1ID() << std::endl;
+//        str <<"  header bxID:        " << fedHeader.bxID() << std::endl;
+//        str <<"  header sourceID:    " << fedHeader.sourceID() << std::endl;
+//        str <<"  header version:     " << fedHeader.version() << std::endl;
+//        LogTrace("") << str.str();
+//      }
     }
 
 
@@ -89,24 +89,24 @@ void RawToXML::analyze(const edm::Event& ev, const edm::EventSetup& es)
       trailer--;
       FEDTrailer fedTrailer(reinterpret_cast<const unsigned char*>(trailer));
       moreTrailers = fedTrailer.moreTrailers();
-      if (debug) {
-        std::stringstream str;
-        str <<" trailer: "<<  *reinterpret_cast<const std::bitset<64>*> (trailer) << std::endl;
-        str <<"  trailer lenght:    "<<fedTrailer.lenght()<<std::endl;
-        str <<"  trailer crc:       "<<fedTrailer.crc()<<std::endl;
-        str <<"  trailer evtStatus: "<<fedTrailer.evtStatus()<<std::endl;
-        str <<"  trailer ttsBits:   "<<fedTrailer.ttsBits()<<std::endl;
-        LogTrace("") << str.str();
-      }
+//      if (debug) {
+//        std::stringstream str;
+//        str <<" trailer: "<<  *reinterpret_cast<const std::bitset<64>*> (trailer) << std::endl;
+//        str <<"  trailer lenght:    "<<fedTrailer.lenght()<<std::endl;
+//        str <<"  trailer crc:       "<<fedTrailer.crc()<<std::endl;
+//        str <<"  trailer evtStatus: "<<fedTrailer.evtStatus()<<std::endl;
+//        str <<"  trailer ttsBits:   "<<fedTrailer.ttsBits()<<std::endl;
+//        LogTrace("") << str.str();
+//      }
     }
 
-    if (debug) {
-      std::stringstream str;
-      for (const Word64* word = header+1; word != trailer; word++) {
-        str<<"    data: "<<*reinterpret_cast<const std::bitset<64>*>(word) << std::endl;
-      }
-      LogTrace("") << str.str();
-    }
+//    if (debug) {
+//      std::stringstream str;
+//      for (const Word64* word = header+1; word != trailer; word++) {
+//        str<<"    data: "<<*reinterpret_cast<const std::bitset<64>*>(word) << std::endl;
+//      }
+//      LogTrace("") << str.str();
+//    }
     EventRecords event(triggerBX);
     for (const Word64* word = header+1; word != trailer; word++) {
       for( int iRecord=1; iRecord<=4; iRecord++){
@@ -114,22 +114,22 @@ void RawToXML::analyze(const edm::Event& ev, const edm::EventSetup& es)
         DataRecord record(*pRecord);
         event.add(record);
         if (event.complete())optoData.push_back(OptoTBData(fedId,event));
-        if (debug) {
-          std::stringstream str;
-          str <<"record: "<<record.print()<<" hex: "<<std::hex<<*pRecord<<std::dec;
-          str <<" type:"<<record.type()<<DataRecord::print(record);
-          if (event.complete()) {
-            str<< " --> dccId: "<<fedId
-               << " bx:  "<<event.recordBX().bx()
-               << " rmb: " <<event.recordSLD().rmb()
-               << " lnk: "<<event.recordSLD().tbLinkInputNumber()
-               << " lb: "<<event.recordCD().lbInLink()
-               << " part: "<<event.recordCD().partitionNumber()
-               << " data: "<<event.recordCD().partitionData()
-               << " eod: "<<event.recordCD().eod();
-          }
-          LogTrace("") << str.str();
-        }
+//        if (debug) {
+//          std::stringstream str;
+//          str <<"record: "<<record.print()<<" hex: "<<std::hex<<*pRecord<<std::dec;
+//          str <<" type:"<<record.type()<<DataRecord::print(record);
+//          if (event.complete()) {
+//            str<< " --> dccId: "<<fedId
+//               << " bx:  "<<event.recordBX().bx()
+//               << " rmb: " <<event.recordSLD().rmb()
+//               << " lnk: "<<event.recordSLD().tbLinkInputNumber()
+//               << " lb: "<<event.recordCD().lbInLink()
+//               << " part: "<<event.recordCD().partitionNumber()
+//               << " data: "<<event.recordCD().partitionData()
+//               << " eod: "<<event.recordCD().eod();
+//          }
+//          LogTrace("") << str.str();
+//        }
       }
     }
   }

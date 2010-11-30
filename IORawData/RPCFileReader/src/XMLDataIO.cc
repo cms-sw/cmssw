@@ -1,5 +1,6 @@
 #include "IORawData/RPCFileReader/interface/XMLDataIO.h"
-#include "CondCore/ESSources/interface/Exception.h"
+//#include "CondCore/ESSources/interface/Exception.h"
+#include "CondCore/DBCommon/interface/Exception.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "IORawData/RPCFileReader/interface/OptoTBData.h"
 
