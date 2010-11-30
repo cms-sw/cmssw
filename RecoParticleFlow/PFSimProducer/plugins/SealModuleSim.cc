@@ -4,8 +4,8 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Utilities/interface/typelookup.h"
 
-#include "RecoParticleFlow/PFProducer/plugins/PFSimParticleProducer.h"
-#include "RecoParticleFlow/PFProducer/plugins/TauHadronDecayFilter.h"
+#include "RecoParticleFlow/PFSimProducer/plugins/PFSimParticleProducer.h"
+#include "RecoParticleFlow/PFSimProducer/plugins/TauHadronDecayFilter.h"
 
 
 
