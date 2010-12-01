@@ -17,45 +17,91 @@ MarkovChainMC::MarkovChainMC() :
     LimitAlgo("Markov Chain MC specific options") 
 {
     options_.add_options()
-        ("uniformProposal,u", "Uniform proposal")
         ("iteration,i", boost::program_options::value<unsigned int>(&iterations_)->default_value(20000), "Number of iterations")
-        ("burnInSteps,b", boost::program_options::value<unsigned int>(&burnInSteps_)->default_value(500), "Burn in steps")
+        ("burnInSteps,b", boost::program_options::value<unsigned int>(&burnInSteps_)->default_value(50), "Burn in steps")
         ("nBins,B", boost::program_options::value<unsigned int>(&numberOfBins_)->default_value(1000), "Number of bins")
+        ("proposal,p", boost::program_options::value<std::string>(&proposalTypeName_)->default_value("gaus"), 
+                              "Proposal function to use: 'fit', 'uniform', 'gaus'")
+        ("runMinos",          "Run MINOS when fitting the data")
+        ("noReset",           "Don't reset variable state after fit")
+        ("updateProposalParams", 
+                boost::program_options::value<bool>(&updateProposalParams_)->default_value(false), 
+                "Control ProposalHelper::SetUpdateProposalParameters")
+        ("proposalHelperCacheSize", 
+                boost::program_options::value<unsigned int>(&proposalHelperCacheSize_)->default_value(100), 
+                "Cache Size for ProposalHelper")
+        ("proposalHelperWidthRangeDivisor", 
+                boost::program_options::value<float>(&proposalHelperWidthRangeDivisor_)->default_value(5.), 
+                "Sets the fractional size of the gaussians in the proposal")
+        ("proposalHelperUniformFraction", 
+                boost::program_options::value<float>(&proposalHelperUniformFraction_)->default_value(0), 
+                "Add a fraction of uniform proposals to the algorithm")
     ;
 }
 
 void MarkovChainMC::applyOptions(const boost::program_options::variables_map &vm) {
-    uniformProposal_ = vm.count("uniformProposal");
+    if      (proposalTypeName_ == "fit")     proposalType_ = FitP;
+    else if (proposalTypeName_ == "uniform") proposalType_ = UniformP;
+    else if (proposalTypeName_ == "gaus")    proposalType_ = MultiGaussianP;
+    else {
+        std::cerr << "ERROR: MarkovChainMC: proposal type " << proposalTypeName_ << " not known." << "\n" << options_ << std::endl;
+        abort();
+    }
+        
+    runMinos_ = vm.count("runMinos");
+    noReset_  = vm.count("noReset");
 }
 bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit) {
   RooRealVar *r = w->var("r");
   RooArgSet  poi(*r);
   RooArgSet const &obs = *w->set("observables");
-  
-  RooUniform  flatPrior("flatPrior","flatPrior",*r);
-  RooFitResult *fit = w->pdf("model_s")->fitTo(data, RooFit::Save());
-  if (fit == 0) { std::cerr << "Fit failed." << std::endl; return false; }
-  fit->Print("V");
-  w->loadSnapshot("clean");
 
   if (withSystematics && (w->set("nuisances") == 0)) {
     std::cerr << "ERROR: nuisances not set. Perhaps you wanted to run with no systematics?\n" << std::endl;
     abort();
   }
   
+  w->loadSnapshot("clean");
+  RooUniform  flatPrior("flatPrior","flatPrior",*r);
+  std::auto_ptr<RooFitResult> fit(0);
+  if (proposalType_ == FitP) {
+      fit.reset(w->pdf("model_s")->fitTo(data, RooFit::Save(), RooFit::Minos(runMinos_)));
+      if (fit.get() == 0) { std::cerr << "Fit failed." << std::endl; return false; }
+      if (verbose > 1) fit->Print("V");
+      if (!noReset_) w->loadSnapshot("clean");
+  }
+
   ModelConfig modelConfig("sb_model", w);
   modelConfig.SetPdf(*w->pdf("model_s"));
   modelConfig.SetObservables(obs);
   modelConfig.SetParametersOfInterest(poi);
   if (withSystematics) modelConfig.SetNuisanceParameters(*w->set("nuisances"));
   
+  ProposalFunction* pdfProp = 0;
   ProposalHelper ph;
-  ph.SetVariables((RooArgSet&)fit->floatParsFinal());
-  ph.SetCovMatrix(fit->covarianceMatrix());
-  ph.SetUpdateProposalParameters(true);
-  ph.SetCacheSize(100);
-  ProposalFunction* pdfProp = ph.GetProposalFunction();  // that was easyA
-  if (uniformProposal_) { pdfProp = new UniformProposal(); } // might do this in a cleaner way in the future
+  switch (proposalType_) {
+    case UniformP:  
+        if (verbose) std::cout << "Using uniform proposal" << std::endl;
+        pdfProp = new UniformProposal();
+        break;
+    case FitP:
+        if (verbose) std::cout << "Using fit proposal" << std::endl;
+        ph.SetVariables(fit->floatParsFinal());
+        ph.SetCovMatrix(fit->covarianceMatrix());
+        pdfProp = ph.GetProposalFunction();
+        break;
+    case MultiGaussianP:
+        if (verbose) std::cout << "Using multi-gaussian proposal" << std::endl;
+        ph.SetVariables(*w->set("nuisances"));
+        ph.SetWidthRangeDivisor(proposalHelperWidthRangeDivisor_);
+        pdfProp = ph.GetProposalFunction();
+        break;
+  }
+  if (proposalType_ != UniformP) {
+      ph.SetUpdateProposalParameters(updateProposalParams_);
+      ph.SetCacheSize(proposalHelperCacheSize_);
+      if (proposalHelperUniformFraction_ > 0) ph.SetUniformFraction(proposalHelperUniformFraction_);
+  }
   
   MCMCCalculator mc(data, modelConfig);
   mc.SetNumIters(iterations_); 
@@ -66,8 +112,9 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit) {
   mc.SetLeftSideTailFraction(0);
   mc.SetPriorPdf(flatPrior);
   
-  MCMCInterval* mcInt = (MCMCInterval*)mc.GetInterval(); 
-  if (mcInt == 0) return false;
+  std::auto_ptr<MCMCInterval> mcInt((MCMCInterval*)mc.GetInterval()); 
+  if (proposalType_ == UniformP) delete pdfProp; // unfortunately, it looks like the ProposalHelper owns its proposal
+  if (mcInt.get() == 0) return false;
   limit = mcInt->UpperLimit(*r);
   if (verbose > 0) {
     std::cout << "\n -- MCMC, flat prior -- " << "\n";

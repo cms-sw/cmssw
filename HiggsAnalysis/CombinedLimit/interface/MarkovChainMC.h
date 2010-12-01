@@ -20,10 +20,15 @@ public:
     return name;
   }
 private:
-  bool uniformProposal_;
+  enum ProposalType { FitP, UniformP, MultiGaussianP };
+  std::string proposalTypeName_;
+  ProposalType proposalType_;
+  bool runMinos_, noReset_, updateProposalParams_;
   unsigned int iterations_;
   unsigned int burnInSteps_;
   unsigned int numberOfBins_;
+  unsigned int proposalHelperCacheSize_;
+  float        proposalHelperWidthRangeDivisor_, proposalHelperUniformFraction_;
 };
 
 #endif
