@@ -3,7 +3,7 @@
 // Package:     Muons
 // Class  :     FWPhotonLegoProxyBuilder
 //
-// $Id: FWPhotonLegoProxyBuilder.cc,v 1.2 2010/05/12 18:22:27 dmytro Exp $
+// $Id: FWPhotonLegoProxyBuilder.cc,v 1.3 2010/06/18 12:42:18 yana Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -39,7 +39,7 @@ void FWPhotonLegoProxyBuilder::build(const reco::Photon& iData, unsigned int iIn
 		   iData.eta()+delta, iData.phi()-delta, 0.1);
 }
 
-REGISTER_FWPROXYBUILDER(FWPhotonLegoProxyBuilder, reco::Photon, "Photons", FWViewType::kLegoBit);
+REGISTER_FWPROXYBUILDER(FWPhotonLegoProxyBuilder, reco::Photon, "Photons", FWViewType::kAllLegoBits);
 
 
 

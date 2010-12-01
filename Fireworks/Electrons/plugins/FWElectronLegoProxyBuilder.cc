@@ -3,7 +3,7 @@
 // Package:     Muons
 // Class  :     FWElectronLegoProxyBuilder
 //
-// $Id: FWElectronLegoProxyBuilder.cc,v 1.3 2010/05/12 18:22:27 dmytro Exp $
+// $Id: FWElectronLegoProxyBuilder.cc,v 1.4 2010/06/18 12:42:18 yana Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -57,4 +57,4 @@ void FWElectronLegoProxyBuilder::build(const reco::GsfElectron& iData, unsigned 
 		   track->GetEndMomentum().Eta()+delta, track->GetEndMomentum().Phi(), 0.1);
 }
 
-REGISTER_FWPROXYBUILDER(FWElectronLegoProxyBuilder, reco::GsfElectron, "Electrons", FWViewType::kLegoBit);
+REGISTER_FWPROXYBUILDER(FWElectronLegoProxyBuilder, reco::GsfElectron, "Electrons", FWViewType::kAllLegoBits);

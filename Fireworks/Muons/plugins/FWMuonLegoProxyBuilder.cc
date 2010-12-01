@@ -3,7 +3,7 @@
 // Package:     Muons
 // Class  :     FWMuonLegoProxyBuilder
 //
-// $Id: FWMuonLegoProxyBuilder.cc,v 1.11 2010/06/18 12:44:05 yana Exp $
+// $Id: FWMuonLegoProxyBuilder.cc,v 1.1 2010/07/30 08:36:01 yana Exp $
 //
 
 #include "TEvePointSet.h"
@@ -74,5 +74,5 @@ FWMuonLegoProxyBuilder::build( const reco::Muon& iData, unsigned int iIndex, TEv
    points->SetNextPoint( iData.eta(), iData.phi(), 0.1 );
 }
 
-REGISTER_FWPROXYBUILDER( FWMuonLegoProxyBuilder, reco::Muon, "Muons", FWViewType::kLegoBit );
+REGISTER_FWPROXYBUILDER( FWMuonLegoProxyBuilder, reco::Muon, "Muons", FWViewType::kAllLegoBits );
 
