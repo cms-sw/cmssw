@@ -35,7 +35,7 @@ process.VtxSmeared = cms.EDProducer("BetafuncEvtVtxGenerator",
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('PYTHIA6-MinBias at 900GeV'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/GeneratorInterface/PartonShowerVeto/Test_PSVInterface.py,v $')
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/GeneratorInterface/PartonShowerVeto/test/Test_PSVInterface.py,v $')
 )
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -46,9 +46,7 @@ process.options = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("LHESource",
     fileNames = cms.untracked.vstring(
-#    'file:zjets_short.lhe')           # Typical lhe file for KtMLM use
-    'file:zjets_short_pdfweight.lhe')  # lhe file made with pdf reweighting->suitable for ShowerKt
-#    'file:sqsq_fullstat.lhe')          # Typical SUSY lhe file (squark-squark production): test for resonance exclusion (here gluino since SPS1a is used) 
+    'file:zbb012.lhe')  # lhe file made with pdf reweighting->suitable for ShowerKt
 )
 
 
@@ -84,10 +82,9 @@ process.generator = cms.EDFilter("Pythia6HadronizerFilter",
                          'PMAS(6,1)=172.4 ! t quark mass',
                          'MSTJ(1)=1       ! Fragmentation/hadronization on or off',
                          'MSTP(61)=1      ! Parton showering on or off',
+			'PARP(67)=1',
                          'MSTP(81)=20     ! Use pt-ordered showers',
                         'MSTP(143)=1     ! Starting scale of showers',
-
-
 		), 
          # This is a vector of ParameterSet names to be read, in this order
          parameterSets = cms.vstring('pythiaUESettings', 
@@ -98,17 +95,15 @@ process.generator = cms.EDFilter("Pythia6HadronizerFilter",
         mode = cms.string("auto"),         # soup, or "inclusive" / "exclusive"
         MEMAIN_etaclmax = cms.double(5.0),
 
-######### Matching scale: qcut>xqcut for KtMLM, qcut=xqcut for ShowerKt  
-        MEMAIN_qcut = cms.double(15.0), #ShowerKt (since xqcut=15 and pdfwgt=T)
-#       MEMAIN_qcut = cms.double(15.0), #KtMLM 
+######### Matching scale:   
+        MEMAIN_qcut = cms.double(45.0), #Qcut: adapt to KtMLM or ShowerKt (with or without pt-ordered showers)
 
 ####### Use ShowerKt: 1=yes (only with pt-ordered showers!)
-#	MEMAIN_showerkt = cms.double(0),
-	MEMAIN_showerkt = cms.double(1),   
-
-        MEMAIN_minjets = cms.int32(0),     # min number of ISR partons in the lhe file
-        MEMAIN_maxjets = cms.int32(2),     # max number of ISR partons in the file
+	MEMAIN_showerkt = cms.double(0),   #determines if ShowerKt must be used (1) or not (0)
+        MEMAIN_minjets = cms.int32(0),     # min number of ISR partons in the lhe file (caution: until nqmatch!) ex: if we have zbb~+0,1,2 light partons, if nqmatch=5 then minjets=2, maxjets=4, if nqmatch=4 then minjets=0, maxjets=2
+        MEMAIN_maxjets = cms.int32(2),     # max number of ISR partons in the file (see above)
         MEMAIN_excres = cms.string(""),    # write the resonances PID to exclude, e.g."1000021,1000001" 
+        MEMAIN_nqmatch = cms.int32(5),	   #PID of the flavor until which the QCD radiation are kept in the matching procedure: if nqmatch=4, then all showered partons from b's are NOT taken into account.
         outTree_flag = cms.int32(1)        # Decides if the .tree file must be written for further sanity check (DJR plots)
      )
 

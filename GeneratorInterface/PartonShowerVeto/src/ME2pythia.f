@@ -410,6 +410,8 @@ c                        print *,'Found color singlet'
             NLJETS=NLJETS+1
 C            WRITE(*,*) ' NLJETS=',NLJETS
             PTCLUS(NLJETS)=PTPART(NPART)
+c            print *,'   Adding a jet and NLJETS=',NLJETS,' and
+c     $        PTCLUS(',NLJETS,')=',PTCLUS(NLJETS)
  140        continue
          enddo
          CALL ALPSOR(PTCLUS,nljets,KP,1)
@@ -735,6 +737,40 @@ c           Trace mothers, if non-radiating => daughter is decay - remove
  105        ISTHEP(ihep)=2
          ENDIF
       ENDDO
+
+c      DO ihep=1,NHEP
+c            print *,'Part ',ihep,' status=',ISTHEP(ihep),'
+c     $   PID=',iabs(IDHEP(ihep)),' mother number=',
+c     $  JMOHEP(1,ihep),' status=',ISTHEP(JMOHEP(1,
+c     $     ihep)),' PID=',IDHEP(JMOHEP(1,ihep))
+c      ENDDO
+
+      DO ihep=1,NHEP
+c         If status is 2 and a mother of 6<PID>nqmatch =>reject from particle list
+         IF(ISTHEP(JMOHEP(1,ihep)).EQ.2
+     $    .AND.iabs(IDHEP(JMOHEP(1,ihep))).GT.nqmatch.AND.
+     $    iabs(IDHEP(JMOHEP(1,ihep))).LT.6) THEN
+c            print *,'Have found: part ',ihep,' status=',ISTHEP(ihep),
+c     $      'PID=',iabs(IDHEP(ihep)),' mother number=',
+c     $      JMOHEP(1,ihep),' status=',ISTHEP(JMOHEP(1,
+c     $      ihep)),' PID=',IDHEP(JMOHEP(1,ihep))
+          ISTHEP(ihep)=2
+         ENDIF
+         IF(ISTHEP(ihep).eq.1.AND.iabs(IDHEP(ihep)).GT.
+     $     nqmatch.AND.iabs(IDHEP(ihep)).LT.6.AND.
+     $     ISTHEP(JMOHEP(1,ihep)).EQ.2.AND.iabs(IDHEP(JMOHEP(1,ihep)))
+     $     .EQ.21) goto 999
+      ENDDO
+c
+c      DO ihep=1,NHEP
+c          IF(ISTHEP(ihep).EQ.1)print *,'After selection:  Part ',
+c     $ ihep,' status=',ISTHEP(ihep),'PID=',iabs(IDHEP(ihep))
+c     $   ,' mother number=',JMOHEP(1,ihep),' status=',
+c     $   ISTHEP(JMOHEP(1,ihep)),' PID=',IDHEP(JMOHEP(1,ihep))
+c       ENDDO
+
+
+
 C     Prepare histogram filling
         DO I=1,4
           var2(1+I)=-1
