@@ -273,8 +273,26 @@ namespace edm {
 
     InputSourceDescription isdesc(md, preg, pCache, areg, common.maxEventsInput_, common.maxLumisInput_);
     areg->preSourceConstructionSignal_(md);
-    boost::shared_ptr<InputSource> input(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
-    areg->postSourceConstructionSignal_(md);
+    boost::shared_ptr<InputSource> input;
+    try {
+      input = boost::shared_ptr<InputSource>(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
+      areg->postSourceConstructionSignal_(md);
+    }
+    catch (edm::Exception& iException) {
+      areg->postSourceConstructionSignal_(md);
+      //we want to keep the same category code so that cmsRun will return the proper return value
+      edm::Exception toThrow(iException.categoryCode(), "Error occured while constructing main input source.");
+      toThrow << "\nSource is of type \"" << modtype << "\"\n";
+      toThrow.append(iException);
+      throw toThrow;
+    }
+    catch (cms::Exception& iException) {
+      areg->postSourceConstructionSignal_(md);
+      edm::Exception toThrow(errors::Configuration, "Error occured while constructing main input source.");
+      toThrow << "\nSource is of type \"" << modtype << "\"\n";
+      toThrow.append(iException);
+      throw toThrow;
+    }
       
     return input;
   }
