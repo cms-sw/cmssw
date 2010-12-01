@@ -18,9 +18,9 @@ addJetCollection(process,cms.InputTag('JetPlusTrackZSPCorJetAntiKt5'),
                  'AK5', 'JPT',
                  doJTA        = True,
                  doBTagging   = True,
-                 jetCorrLabel = ('AK5','JPT'),
+                 jetCorrLabel = ('AK5JPT', cms.vstring(['L1JPTOffset', 'L2Relative', 'L3Absolute', 'L2L3Residual'])),
                  doType1MET   = False,
-                 doL1Cleaning = True,
+                 doL1Cleaning = False,
                  doL1Counters = True,                 
                  genJetCollection = cms.InputTag("ak5GenJets"),
                  doJetID      = True,
@@ -31,11 +31,11 @@ addJetCollection(process,cms.InputTag('JetPlusTrackZSPCorJetAntiKt5'),
 addJetCollection(process,cms.InputTag('ak7CaloJets'),
                  'AK7', 'Calo',
                  doJTA        = True,
-                 doBTagging   = True,
-                 jetCorrLabel = ('AK7', 'Calo'),
+                 doBTagging   = False,
+                 jetCorrLabel = ('AK7Calo', cms.vstring(['L2Relative', 'L3Absolute'])),
                  doType1MET   = True,
                  doL1Cleaning = True,                 
-                 doL1Counters = True,
+                 doL1Counters = False,
                  genJetCollection=cms.InputTag("ak7GenJets"),
                  doJetID      = True,
                  jetIdLabel   = "ak7"
@@ -46,10 +46,10 @@ addJetCollection(process,cms.InputTag('kt4CaloJets'),
                  'KT4', 'Calo',
                  doJTA        = True,
                  doBTagging   = True,
-                 jetCorrLabel = ('KT4','Calo'),
+                 jetCorrLabel = ('KT4Calo', cms.vstring(['L2Relative', 'L3Absolute'])),
                  doType1MET   = True,
                  doL1Cleaning = True,                 
-                 doL1Counters = True,
+                 doL1Counters = False,
                  genJetCollection=cms.InputTag("kt4GenJets"),
                  doJetID      = True,
                  jetIdLabel   = "kt4"
@@ -60,20 +60,20 @@ addJetCollection(process,cms.InputTag('kt6CaloJets'),
                  'KT6', 'Calo',
                  doJTA        = True,
                  doBTagging   = False,
-                 jetCorrLabel = None,
+                 jetCorrLabel = ('KT6Calo', cms.vstring(['L2Relative', 'L3Absolute'])),
                  doType1MET   = False,
                  doL1Cleaning = True,                 
-                 doL1Counters = True,
+                 doL1Counters = False,
                  genJetCollection=cms.InputTag("kt6GenJets"),
                  doJetID      = True,
                  jetIdLabel   = "kt6"
                  )
 
-## uncomment the following lines to add ak55PFJets to your PAT output
+## uncomment the following lines to add ak5PFJets to your PAT output
 switchJetCollection(process,cms.InputTag('ak5PFJets'),
                  doJTA        = True,
-                 doBTagging   = False,
-                 jetCorrLabel = ('AK5', 'PF'),
+                 doBTagging   = True,
+                 jetCorrLabel = ('AK5PF', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual'])),
                  doType1MET   = True,
                  genJetCollection=cms.InputTag("ak5GenJets"),
                  doJetID      = True
@@ -94,7 +94,7 @@ process.p = cms.Path(
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
 #   process.source.fileNames = [          ##
-#    '/store/relval/CMSSW_3_5_0_pre1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0006/14920B0A-0DE8-DE11-B138-002618943926.root'
+#    '/store/relval/CMSSW_3_8_6/RelValTTbar/GEN-SIM-RECO/START38_V13-v1/0065/F438C4C4-BCE7-DF11-BC6B-002618943885.root'
 #   ]                                     ##  (e.g. 'file:AOD.root')
 #                                         ##
 process.maxEvents.input = 10              ##  (e.g. -1 to run on all events)
@@ -103,4 +103,5 @@ process.maxEvents.input = 10              ##  (e.g. -1 to run on all events)
 #                                         ##
 #   process.out.fileName = ...            ##  (e.g. 'myTuple.root')
 #                                         ##
-process.options.wantSummary = True       ##  (to suppress the long output at the end of the job)    
+process.options.wantSummary = False       ##  (to suppress the long output at the end of the job)    
+
