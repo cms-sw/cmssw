@@ -1,4 +1,4 @@
-// $Id: TriggerSelector.cc,v 1.5 2009/12/02 09:21:27 mommsen Exp $
+// $Id: TriggerSelector.cc,v 1.6 2010/02/17 23:06:15 smorovic Exp $
 /// @file: TriggerSelector.cc
 
 #include "EventFilter/StorageManager/interface/TriggerSelector.h"
@@ -275,32 +275,19 @@ namespace stor
       children_.push_back(new TreeElement(next,tr,this));
       return;
     }
-    size_t beginBlock_ =0;
-    size_t endBlock_ =0;
-    bool found_lbracket = false;
-    bool found_rbracket = false;
+    size_t beginBlock_ =str_.find('(');
+    size_t endBlock_ =str_.rfind(')');
+    bool found_lbracket = (beginBlock_ != std::string::npos);
+    bool found_rbracket = (endBlock_ != std::string::npos);
 
-    for (size_t k=0;k<str_.size();k++) {
-      if (str_.at(k)=='(') {
-	beginBlock_=k;
-	found_lbracket=true;
-	break;
-      }
-    }
-    if (str_.size()) 
-      for (size_t k=str_.size()-1;k>=0;k--) {
-	if (str_.at(k)==')') {
-	  endBlock_=k;
-	  found_rbracket=true;
-	  break;
-	}
-	if (k==0) break;
-      }
-    if ((found_lbracket != found_rbracket) || beginBlock_>endBlock_) 
+    if (found_lbracket != found_rbracket) {
       throw edm::Exception(edm::errors::Configuration) << "Syntax Error (brackets)\n";
-
-    if (found_lbracket && found_rbracket && beginBlock_<endBlock_) {
-
+    }
+    else if (found_lbracket && found_rbracket)
+    {
+      if (beginBlock_>=endBlock_) {
+        throw edm::Exception(edm::errors::Configuration) << "Syntax Error (brackets)\n";
+      }
       if (beginBlock_!=0 || endBlock_!=str_.size()-1)
 	throw edm::Exception(edm::errors::Configuration) << "Syntax Error (invalid character)\n";
 
