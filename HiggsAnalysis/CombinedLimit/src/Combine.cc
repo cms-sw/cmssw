@@ -37,6 +37,8 @@
 #include <RooWorkspace.h>
 
 #include <RooStats/HLFactory.h>
+#include "boost/filesystem.hpp"
+
 #include "HiggsAnalysis/CombinedLimit/interface/LimitAlgo.h"
 
 using namespace RooStats;
@@ -258,5 +260,7 @@ void doCombination(TString hlfFile, const std::string &dataset, double &limit, i
           cout << "   95% expected band : " << lo95 << " < r < " << hi95 << endl;
       }
   }
+
+  boost::filesystem::remove_all(tmpDir.Data());
 }
 

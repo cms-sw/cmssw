@@ -1,6 +1,7 @@
 <use name="roofit"/>
 <use name="roostats"/>
 <use   name="boost_program_options"/>
+<use   name="boost_filesystem"/>
 <export>
    <lib name="1"/>
 </export>
