@@ -40,26 +40,20 @@ DQMEventMsgView::DQMEventMsgView(void* buf):
   // determine the release tag
   len = convert32(bufPtr);
   bufPtr += sizeof(uint32);
-  if (len >= 0)
-    {
-      if (len <= MAX_STRING_SIZE) // prevent something totally crazy
-        {
-          releaseTag_.append((char *) bufPtr, len);
-        }
-      bufPtr += len;
-    }
+  if (len <= MAX_STRING_SIZE) // prevent something totally crazy // len >= 0, since len is unsigned.
+  {
+    releaseTag_.append((char *) bufPtr, len);
+  }
+  bufPtr += len;
 
   // determine the top-level folder name
   len = convert32(bufPtr);
   bufPtr += sizeof(uint32);
-  if (len >= 0)
-    {
-      if (len <= MAX_STRING_SIZE) // prevent something totally crazy
-        {
-          folderName_.append((char *) bufPtr, len);
-        }
-      bufPtr += len;
-    }
+  if (len <= MAX_STRING_SIZE) // prevent something totally crazy // len >= 0, since len is unsigned.
+  {
+    folderName_.append((char *) bufPtr, len);
+  }
+  bufPtr += len;
 
   // determine the number of subfolders
   subFolderCount_ = convert32(bufPtr);
@@ -78,15 +72,12 @@ DQMEventMsgView::DQMEventMsgView(void* buf):
       std::string subFolderName = "Subfolder " + idx;
       uint32 nameLen = convert32(bufPtr);
       bufPtr += sizeof(uint32);
-      if (nameLen >= 0)
-        {
-          if (nameLen <= MAX_STRING_SIZE) // prevent something totally crazy
-            {
-              subFolderName.clear();
-              subFolderName.append((char *) bufPtr, nameLen);
-            }
-          bufPtr += nameLen;
-        }
+      if (nameLen <= MAX_STRING_SIZE) // prevent something totally crazy // nameLen >= 0, since nameLen is unsigned.
+      {
+        subFolderName.clear();
+        subFolderName.append((char *) bufPtr, nameLen);
+      }
+      bufPtr += nameLen;
       nameListPtr_->push_back(subFolderName);
       subFolderIndexTable_[subFolderName] = idx;
     }

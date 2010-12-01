@@ -91,26 +91,20 @@ ConsRegRequestView::ConsRegRequestView(void* buf):
   // determine the consumer name
   len = convert32(bufPtr);
   bufPtr += sizeof(uint32);
-  if (len >= 0)
-    {
-      if (len <= 256)
-        {
-          consumerName_.append((char *) bufPtr, len);
-        }
-      bufPtr += len;
-    }
+  if (len <= 256) // len >= 0, since len is unsigned
+  {
+    consumerName_.append((char *) bufPtr, len);
+  }
+  bufPtr += len;
 
   // determine the consumer priority
   len = convert32(bufPtr);
   bufPtr += sizeof(uint32);
-  if (len >= 0)
-    {
-      if (len <= 64)
-        {
-          consumerPriority_.append((char *) bufPtr, len);
-        }
-      bufPtr += len;
-    }
+  if (len <= 64) // len >= 0, since len is unsigned
+  {
+    consumerPriority_.append((char *) bufPtr, len);
+  }
+  bufPtr += len;
 
   // determine the request parameter set (maintain backward compatibility
   // with sources of registration requests that don't have the param set)
@@ -118,16 +112,13 @@ ConsRegRequestView::ConsRegRequestView(void* buf):
     {
       len = convert32(bufPtr);
       bufPtr += sizeof(uint32);
-      if (len >= 0)
-        {
-          // what is a reasonable limit?  This is just to prevent
-          // a bogus, really large value from being used...
-          if (len <= 65000)
-            {
-              requestParameterSet_.append((char *) bufPtr, len);
-            }
-          bufPtr += len;
-        }
+      // what is a reasonable limit?  This is just to prevent
+      // a bogus, really large value from being used...
+      if (len <= 65000) // len >= 0, since len is unsigned
+      {
+        requestParameterSet_.append((char *) bufPtr, len);
+      }
+      bufPtr += len;
     }
 }
 
