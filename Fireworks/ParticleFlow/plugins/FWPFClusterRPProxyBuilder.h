@@ -10,8 +10,27 @@
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
 
+using namespace std;
+
 class FWPFClusterRPProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PFCluster>
 {
+   public:
+      static std::string typeOfBuilder() { return "simple#"; }
+
+        // -------------------- Constructor(s)/Destructors --------------------------
+      FWPFClusterRPProxyBuilder(){}
+      virtual ~FWPFClusterRPProxyBuilder(){}
+
+       // ------------------------- member functions -------------------------------
+      virtual void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext *vc );
+      virtual void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );
+      virtual bool havePerViewProduct( FWViewType::EType ) const { return true; }
+      virtual void cleanLocal() { m_clusters.clear(); }
+
+      virtual float getEnergy( const reco::PFCluster &iData ) const = 0;
+
+      REGISTER_PROXYBUILDER_METHODS();
+
    private:
       struct ScalableLines
       {
@@ -28,21 +47,36 @@ class FWPFClusterRPProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PFCl
       const FWPFClusterRPProxyBuilder& operator=( const FWPFClusterRPProxyBuilder& );      // Disable default
 
         // ------------------------- member functions -------------------------------
-      float calculateEt( const reco::PFCluster &cluster );
+      float calculateEt( const reco::PFCluster &cluster, float E );
+};
 
+class FWPFHcalClusterRPProxyBuilder : public FWPFClusterRPProxyBuilder
+{
    public:
-      static std::string typeOfBuilder() { return "simple#"; }
+      FWPFHcalClusterRPProxyBuilder(){}
+      virtual ~FWPFHcalClusterRPProxyBuilder(){}
 
-        // -------------------- Constructor(s)/Destructors --------------------------
-      FWPFClusterRPProxyBuilder(){}
-      virtual ~FWPFClusterRPProxyBuilder(){}
-
-       // ------------------------- member functions -------------------------------
-      virtual void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext *vc );
-      virtual void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );
-      virtual bool havePerViewProduct( FWViewType::EType ) const { return true; }
-      virtual void cleanLocal() { m_clusters.clear(); }
+      virtual float getEnergy( const reco::PFCluster &iData ) const { return iData.energy(); }
 
       REGISTER_PROXYBUILDER_METHODS();
+
+   private:
+      FWPFHcalClusterRPProxyBuilder( const FWPFHcalClusterRPProxyBuilder& );
+      const FWPFHcalClusterRPProxyBuilder& operator=( const FWPFHcalClusterRPProxyBuilder& );
+};
+
+class FWPFEcalClusterRPProxyBuilder : public FWPFClusterRPProxyBuilder
+{
+   public:
+      FWPFEcalClusterRPProxyBuilder(){}
+      virtual ~FWPFEcalClusterRPProxyBuilder(){}
+
+      virtual float getEnergy( const reco::PFCluster &iData ) const { return iData.energy(); }
+
+      REGISTER_PROXYBUILDER_METHODS();
+
+   private:
+      FWPFEcalClusterRPProxyBuilder( const FWPFEcalClusterRPProxyBuilder& );
+      const FWPFEcalClusterRPProxyBuilder& operator=( const FWPFEcalClusterRPProxyBuilder& );
 };
 #endif

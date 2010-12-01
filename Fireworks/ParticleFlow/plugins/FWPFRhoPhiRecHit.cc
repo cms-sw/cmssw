@@ -96,16 +96,13 @@ FWPFRhoPhiRecHit::updateScale( const FWViewContext *vc )
 
 //______________________________________________________________________________________________________
 void
-FWPFRhoPhiRecHit::modScale( const FWViewContext *vc )
-{
-
-}
-
-//______________________________________________________________________________________________________
-void
 FWPFRhoPhiRecHit::clean()
 {
    m_corners.clear();
+   if( m_hasChild )
+      m_child->clean();
+
+   delete this;
 }
 
 void

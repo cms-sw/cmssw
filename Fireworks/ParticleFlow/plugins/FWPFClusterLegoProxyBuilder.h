@@ -23,15 +23,6 @@
 
 class FWPFClusterLegoProxyBuilder : public FWProxyBuilderTemplate<reco::PFCluster>
 {
-   private:
-      // Disable default copy constructor
-      FWPFClusterLegoProxyBuilder( const FWPFClusterLegoProxyBuilder& );
-      // Disable default assignment operator
-      const FWPFClusterLegoProxyBuilder& operator=( const FWPFClusterLegoProxyBuilder& );
-
-      // ------------------------- member functions -------------------------------
-      float calculateET( const reco::PFCluster &cluster );
-
     public:
       static std::string typeOfBuilder() { return "simple#"; }
 
@@ -45,8 +36,48 @@ class FWPFClusterLegoProxyBuilder : public FWProxyBuilderTemplate<reco::PFCluste
       virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
       virtual void localModelChanges( const FWModelId &iId, TEveElement *iCompound,
                                         FWViewType::EType viewType, const FWViewContext *vc );
+
+      virtual float getEnergy( const reco::PFCluster &iData ) const = 0;
    
       REGISTER_PROXYBUILDER_METHODS();
 
+   private:
+      // Disable default copy constructor
+      FWPFClusterLegoProxyBuilder( const FWPFClusterLegoProxyBuilder& );
+      // Disable default assignment operator
+      const FWPFClusterLegoProxyBuilder& operator=( const FWPFClusterLegoProxyBuilder& );
+
+      // ------------------------- member functions -------------------------------
+      float calculateET( const reco::PFCluster &cluster, float E );
+};
+
+class FWPFEcalClusterLegoProxyBuilder : public FWPFClusterLegoProxyBuilder
+{
+   public:
+      FWPFEcalClusterLegoProxyBuilder(){}
+      virtual ~FWPFEcalClusterLegoProxyBuilder(){}
+
+      virtual float getEnergy( const reco::PFCluster &iData ) const { return iData.energy(); }
+
+      REGISTER_PROXYBUILDER_METHODS();
+
+   private:
+      FWPFEcalClusterLegoProxyBuilder( const FWPFEcalClusterLegoProxyBuilder& );
+      const FWPFEcalClusterLegoProxyBuilder& operator=( const FWPFEcalClusterLegoProxyBuilder& );
+};
+
+class FWPFHcalClusterLegoProxyBuilder : public FWPFClusterLegoProxyBuilder
+{
+   public:
+      FWPFHcalClusterLegoProxyBuilder(){}
+      virtual ~FWPFHcalClusterLegoProxyBuilder(){}
+
+      virtual float getEnergy( const reco::PFCluster &iData ) const { return iData.energy(); }
+
+      REGISTER_PROXYBUILDER_METHODS();
+
+   private:
+      FWPFHcalClusterLegoProxyBuilder( const FWPFHcalClusterLegoProxyBuilder& );
+      const FWPFHcalClusterLegoProxyBuilder& operator=( const FWPFHcalClusterLegoProxyBuilder& );
 };
 #endif

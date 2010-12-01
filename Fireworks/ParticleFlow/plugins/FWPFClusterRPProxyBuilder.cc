@@ -2,10 +2,9 @@
 
 //______________________________________________________________________________________________________________________________________________
 float
-FWPFClusterRPProxyBuilder::calculateEt( const reco::PFCluster &cluster )
+FWPFClusterRPProxyBuilder::calculateEt( const reco::PFCluster &cluster, float E )
 {
    float et = 0.f;
-   float E = cluster.energy();
    TEveVector vec;
 
    vec.fX = cluster.x();
@@ -28,8 +27,8 @@ FWPFClusterRPProxyBuilder::build( const reco::PFCluster &iData, unsigned int iIn
    float ecalR = context().caloR1();
    TEveVector vec;
 
-   et = calculateEt( iData );
-   energy = iData.energy();
+   energy = getEnergy( iData );
+   et = calculateEt( iData, energy );
    context().voteMaxEtAndEnergy(et, energy);
    
    vec.fX = iData.x();
@@ -50,7 +49,7 @@ FWPFClusterRPProxyBuilder::build( const reco::PFCluster &iData, unsigned int iIn
 
    m_clusters.push_back( ScalableLines( ls, et, energy, vc ) );
 
-   setupAddElement( ls, &oItemHolder );     
+   setupAddElement( ls, &oItemHolder );
 }
 
 //______________________________________________________________________________________________________________________________________________
@@ -73,4 +72,5 @@ FWPFClusterRPProxyBuilder::scaleProduct( TEveElementList *parent, FWViewType::ET
 }
 
 //______________________________________________________________________________________________________
-REGISTER_FWPROXYBUILDER( FWPFClusterRPProxyBuilder, reco::PFCluster, "PF Cluster", FWViewType::kRhoPhiPFBit );
+REGISTER_FWPROXYBUILDER( FWPFEcalClusterRPProxyBuilder, reco::PFCluster, "PF Cluster - ECAL", FWViewType::kRhoPhiPFBit );
+REGISTER_FWPROXYBUILDER( FWPFHcalClusterRPProxyBuilder, reco::PFCluster, "PF Cluster - HCAL", FWViewType::kRhoPhiBit );

@@ -105,4 +105,4 @@ FWPFCandidatesLegoProxyBuilder::localModelChanges(const FWModelId& iId, TEveElem
    }  
 }
 
-REGISTER_FWPROXYBUILDER(FWPFCandidatesLegoProxyBuilder, reco::PFCandidate, "PF Candidates", FWViewType::kLegoPFECALBit);
+REGISTER_FWPROXYBUILDER(FWPFCandidatesLegoProxyBuilder, reco::PFCandidate, "PF Candidates", FWViewType::kLegoPFECALBit | FWViewType::kLegoBit );

@@ -7,9 +7,9 @@ FWPFEcalRecHitRPProxyBuilder::scaleProduct( TEveElementList *parent, FWViewType:
    typedef std::vector<FWPFRhoPhiRecHit*> rpRecHits;
    unsigned int index = 0;
    
-   for( rpRecHits::iterator i = towers.begin(); i != towers.end(); ++i )
+   for( rpRecHits::iterator i = m_towers.begin(); i != m_towers.end(); ++i )
    {
-      towers[index]->updateScale( vc );
+      m_towers[index]->updateScale( vc );
       index++;
    }
 }
@@ -19,12 +19,10 @@ void
 FWPFEcalRecHitRPProxyBuilder::cleanLocal()
 {
    typedef std::vector<FWPFRhoPhiRecHit*> rpRecHits;
-   for( rpRecHits::iterator i = towers.begin(); i != towers.end(); ++i )
-   {
+   for( rpRecHits::iterator i = m_towers.begin(); i != m_towers.end(); ++i )
       (*i)->clean();
-   }
 
-   towers.clear();
+   m_towers.clear();
 }
 
 //______________________________________________________________________________________________________
@@ -64,7 +62,7 @@ FWPFEcalRecHitRPProxyBuilder::calculateEt( const TEveVector &centre, float E )
 void
 FWPFEcalRecHitRPProxyBuilder::build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc )
 {
-   cleanLocal();  // Called so that previous data isn't used when new view is added
+   cleanLocal();
 
    for( unsigned int index = 0; index < static_cast<unsigned int>( iItem->size() ); index++ )
    {
@@ -87,12 +85,12 @@ FWPFEcalRecHitRPProxyBuilder::build( const FWEventItem *iItem, TEveElementList *
       E = iData.energy();
       et = calculateEt( centre, E );
 
-      for( unsigned int i = 0; i < towers.size(); i++ )
+      for( unsigned int i = 0; i < m_towers.size(); i++ )
       {   // Small range to catch rounding inaccuracies etc.
-         Double_t phi = towers[i]->getlPhi();
+         Double_t phi = m_towers[i]->getlPhi();
          if( ( lPhi == phi ) || ( ( lPhi < phi + 0.0005 ) && ( lPhi > phi - 0.0005 ) ) )
          {
-            towers[i]->addChild( this, itemHolder, vc, E, et );
+            m_towers[i]->addChild( this, itemHolder, vc, E, et );
             added = true;
             break;
          }
@@ -108,10 +106,10 @@ FWPFEcalRecHitRPProxyBuilder::build( const FWEventItem *iItem, TEveElementList *
 
          FWPFRhoPhiRecHit *rh = new FWPFRhoPhiRecHit( this, itemHolder, vc, E, et, lPhi, rPhi, bCorners );
          context().voteMaxEtAndEnergy(et, E);
-         towers.push_back( rh );
+         m_towers.push_back( rh );
       }
    }
 }
 
 //______________________________________________________________________________________________________
-REGISTER_FWPROXYBUILDER( FWPFEcalRecHitRPProxyBuilder, EcalRecHit, "PF Ecal RecHit", FWViewType::kRhoPhiPFBit );
+REGISTER_FWPROXYBUILDER( FWPFEcalRecHitRPProxyBuilder, EcalRecHit, "PF Ecal RecHit", FWViewType::kRhoPhiPFBit | FWViewType::kRhoPhiBit );

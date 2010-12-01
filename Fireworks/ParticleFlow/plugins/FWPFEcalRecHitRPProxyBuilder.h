@@ -12,24 +12,18 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "Fireworks/ParticleFlow/plugins/FWPFRhoPhiRecHit.h"
 
+#include "/home/spuriousgeek/Downloads/google-perftools-1.6/src/google/profiler.h"
+
 
 //-----------------------------------------------------------------------------
 // FWPFEcalRecHitRPProxyBuilder
 //-----------------------------------------------------------------------------
 class FWPFEcalRecHitRPProxyBuilder : public FWProxyBuilderTemplate<EcalRecHit>
 {
-   private:
-      FWPFEcalRecHitRPProxyBuilder( const FWPFEcalRecHitRPProxyBuilder& );                    // Stop default
-      const FWPFEcalRecHitRPProxyBuilder& operator=( const FWPFEcalRecHitRPProxyBuilder& );   // Stop default
-
-      TEveVector calculateCentre( const float *corners );
-      float      calculateEt( const TEveVector &centre, float E );
-
-      std::vector<FWPFRhoPhiRecHit*> towers;
-
    public:
       static std::string typeOfBuilder() { return "simple#"; }
 
+   // -------------------- Constructor(s)/Destructors --------------------------
       FWPFEcalRecHitRPProxyBuilder(){}
       virtual ~FWPFEcalRecHitRPProxyBuilder(){}
 
@@ -40,5 +34,16 @@ class FWPFEcalRecHitRPProxyBuilder : public FWProxyBuilderTemplate<EcalRecHit>
       virtual void cleanLocal();
 
       REGISTER_PROXYBUILDER_METHODS();
+
+   private:
+      FWPFEcalRecHitRPProxyBuilder( const FWPFEcalRecHitRPProxyBuilder& );                    // Stop default
+      const FWPFEcalRecHitRPProxyBuilder& operator=( const FWPFEcalRecHitRPProxyBuilder& );   // Stop default
+
+   // ------------------------- Member Functions -------------------------------
+      TEveVector calculateCentre( const float *corners );
+      float      calculateEt( const TEveVector &centre, float E );
+
+   // --------------------------- Data Members ---------------------------------
+      std::vector<FWPFRhoPhiRecHit*> m_towers;
 };
 #endif

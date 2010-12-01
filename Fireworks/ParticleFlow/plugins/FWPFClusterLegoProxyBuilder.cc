@@ -2,10 +2,9 @@
 
 //______________________________________________________________________________________________________________________________________________
 float
-FWPFClusterLegoProxyBuilder::calculateET( const reco::PFCluster &iData )
+FWPFClusterLegoProxyBuilder::calculateET( const reco::PFCluster &iData, float E )
 {
     float et = 0.f;
-    float E = iData.energy();
     TEveVector vec;
     
     vec.fX = iData.x();
@@ -47,8 +46,8 @@ FWPFClusterLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList *p
       product->AddElement( itemHolder );
       LegoCandidateData lc;
 
-      lc.energy = iData.energy();
-      lc.et = calculateET( iData );
+      lc.energy = getEnergy( iData );
+      lc.et = calculateET( iData, lc.energy );
       lc.pt = lc.et;
       lc.eta = iData.eta();
       lc.phi = iData.phi();
@@ -78,4 +77,5 @@ FWPFClusterLegoProxyBuilder::scaleProduct( TEveElementList* parent, FWViewType::
    }
 }
 
-REGISTER_FWPROXYBUILDER( FWPFClusterLegoProxyBuilder, reco::PFCluster, "PF Cluster", FWViewType::kLegoPFECALBit );
+REGISTER_FWPROXYBUILDER( FWPFEcalClusterLegoProxyBuilder, reco::PFCluster, "PF Cluster - ECAL", FWViewType::kLegoPFECALBit );
+REGISTER_FWPROXYBUILDER( FWPFHcalClusterLegoProxyBuilder, reco::PFCluster, "PF Cluster - HCAL", FWViewType::kLegoBit );

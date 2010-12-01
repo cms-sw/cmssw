@@ -125,6 +125,7 @@ FWPFEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList
    }
 }
 
+//______________________________________________________________________________________________________
 bool
 FWPFEcalRecHitLegoProxyBuilder::visibilityModelChanges(const FWModelId& iId, TEveElement* itemHolder,
                                                        FWViewType::EType viewType, const FWViewContext* vc)
@@ -171,6 +172,7 @@ FWPFEcalRecHitLegoProxyBuilder::visibilityModelChanges(const FWModelId& iId, TEv
    return false;
 }
 
+//______________________________________________________________________________________________________
 void
 FWPFEcalRecHitLegoProxyBuilder::cleanLocal()
 {
