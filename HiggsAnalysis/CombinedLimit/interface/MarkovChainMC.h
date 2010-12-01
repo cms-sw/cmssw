@@ -12,14 +12,8 @@
 
 class MarkovChainMC : public LimitAlgo {
 public:
-  MarkovChainMC() : LimitAlgo("Markov Chain MC specific options") {
-    options_.add_options()
-      ("uniformProposal,u", boost::program_options::value<bool>(&uniformProposal_)->default_value(false), "Uniform proposal")
-      ("iteration,i", boost::program_options::value<unsigned int>(&iterations_)->default_value(20000), "Number of iterations")
-      ("burnInSteps,b", boost::program_options::value<unsigned int>(&burnInSteps_)->default_value(500), "Burn in steps")
-      ("nBins,B", boost::program_options::value<unsigned int>(&numberOfBins_)->default_value(1000), "Number of bins");
-    
-  }
+  MarkovChainMC() ;
+  virtual void applyOptions(const boost::program_options::variables_map &vm) ;
   bool run(RooWorkspace *w, RooAbsData &data, double &limit);
   virtual const std::string & name() const {
     static const std::string name("MarkovChainMC");

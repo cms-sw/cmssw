@@ -16,9 +16,15 @@ ProfileLikelihood::ProfileLikelihood() :
     options_.add_options()
         ("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value("Minuit2"), "Choice of minimizer (Minuit vs Minuit2)")
         ("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(1e-3),  "Tolerance for minimizer")
-        ("significance",       boost::program_options::value<bool>(&doSignificance_)->default_value(false),  "Do significance instead of upper limit")
+        ("significance",       "Compute significance instead of upper limit")
     ;
 }
+
+void ProfileLikelihood::applyOptions(const boost::program_options::variables_map &vm) 
+{
+    doSignificance_ = vm.count("significance");
+}
+
 bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit) {
   std::string minimizerTypeBackup = ROOT::Math::MinimizerOptions::DefaultMinimizerType();
   std::string minimizerAlgoBackup = ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo();
@@ -27,10 +33,10 @@ bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit) {
   if (minimizerAlgo_.find(",") != std::string::npos) {
       size_t idx = minimizerAlgo_.find(",");
       std::string type = minimizerAlgo_.substr(0,idx), algo = minimizerAlgo_.substr(idx+1);
-      if (verbose) std::cout << "Set default minimizer to " << type << ", algorithm " << algo << std::endl;
+      if (verbose > 0) std::cout << "Set default minimizer to " << type << ", algorithm " << algo << std::endl;
       ROOT::Math::MinimizerOptions::SetDefaultMinimizer(type.c_str(), algo.c_str());
   } else {
-      if (verbose) std::cout << "Set default minimizer to " << minimizerAlgo_ << std::endl;
+      if (verbose > 0) std::cout << "Set default minimizer to " << minimizerAlgo_ << std::endl;
       ROOT::Math::MinimizerOptions::SetDefaultMinimizer(minimizerAlgo_.c_str());
   }
 
@@ -62,7 +68,7 @@ bool ProfileLikelihood::runLimit(RooWorkspace *w, RooAbsData &data, double &limi
       std::cerr << "ProfileLikelihoodCalculator failed (returned upper limit equal to the lower bound)" << std::endl;
       return false;
     }
-    if (verbose) {
+    if (verbose > 0) {
       std::cout << "\n -- Profile Likelihood -- " << "\n";
       std::cout << "Limit: r < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
     }
@@ -85,7 +91,7 @@ bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooAbsData &data, doubl
       std::cerr << "ProfileLikelihoodCalculator failed (returned significance -0)" << std::endl;
       return false;
   }
-  if (verbose) {
+  if (verbose > 0) {
       std::cout << "\n -- Profile Likelihood -- " << "\n";
       std::cout << "Significance: " << limit << std::endl;
   }

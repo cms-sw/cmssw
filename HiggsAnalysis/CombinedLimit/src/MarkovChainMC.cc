@@ -13,6 +13,20 @@
 
 using namespace RooStats;
 
+MarkovChainMC::MarkovChainMC() : 
+    LimitAlgo("Markov Chain MC specific options") 
+{
+    options_.add_options()
+        ("uniformProposal,u", "Uniform proposal")
+        ("iteration,i", boost::program_options::value<unsigned int>(&iterations_)->default_value(20000), "Number of iterations")
+        ("burnInSteps,b", boost::program_options::value<unsigned int>(&burnInSteps_)->default_value(500), "Burn in steps")
+        ("nBins,B", boost::program_options::value<unsigned int>(&numberOfBins_)->default_value(1000), "Number of bins")
+    ;
+}
+
+void MarkovChainMC::applyOptions(const boost::program_options::variables_map &vm) {
+    uniformProposal_ = vm.count("uniformProposal");
+}
 bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit) {
   RooRealVar *r = w->var("r");
   RooArgSet  poi(*r);
@@ -55,7 +69,7 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit) {
   MCMCInterval* mcInt = (MCMCInterval*)mc.GetInterval(); 
   if (mcInt == 0) return false;
   limit = mcInt->UpperLimit(*r);
-  if(verbose) {
+  if (verbose > 0) {
     std::cout << "\n -- MCMC, flat prior -- " << "\n";
     std::cout << "Limit: r < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
     std::cout << "Interval:    [ " << mcInt->LowerLimit(*r)             << " , " << mcInt->UpperLimit(*r)             << " ] @ " << cl * 100 << "% CL" << std::endl;

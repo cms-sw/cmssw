@@ -18,6 +18,8 @@ public:
     static const std::string name("ProfileLikelihood");
     return name;
   }
+  virtual void applyOptions(const boost::program_options::variables_map &vm) ;
+
 protected:
   std::string minimizerAlgo_;
   float       minimizerTolerance_;

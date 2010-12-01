@@ -20,8 +20,8 @@ bool BayesianFlatPrior::run(RooWorkspace *w, RooAbsData &data, double &limit) {
     BayesianCalculator bcalc(data, *w->pdf("model_s"), poi, flatPrior, (withSystematics ? w->set("nuisances") : 0));
     bcalc.SetLeftSideTailFraction(0);
     bcalc.SetConfidenceLevel(cl); 
-    SimpleInterval* bcInterval = bcalc.GetInterval();
-    if (bcInterval == 0) return false;
+    std::auto_ptr<SimpleInterval> bcInterval(bcalc.GetInterval());
+    if (bcInterval.get() == 0) return false;
     limit = bcInterval->UpperLimit();
     if (limit >= 0.75*r->getMax()) { 
       std::cout << "Limit r < " << limit << "; r max < " << r->getMax() << std::endl;
@@ -29,11 +29,13 @@ bool BayesianFlatPrior::run(RooWorkspace *w, RooAbsData &data, double &limit) {
       r->setMax(r->getMax()*2); 
       continue;
     }
-    std::cout << "\n -- Bayesian, flat prior -- " << "\n";
-    std::cout << "Limit: r < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
-    if (0 && verbose) {
+    if (verbose > 0) {
+        std::cout << "\n -- Bayesian, flat prior -- " << "\n";
+        std::cout << "Limit: r < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
+    }
+    if (verbose > 2) {
       TCanvas c1("c1", "c1");
-      RooPlot *bcPlot = bcalc.GetPosteriorPlot(true, 0.1); 
+      std::auto_ptr<RooPlot> bcPlot(bcalc.GetPosteriorPlot(true, 0.1)); 
       bcPlot->Draw(); 
       c1.Print("plots/bc_plot.png");
     }

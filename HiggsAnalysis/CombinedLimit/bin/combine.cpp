@@ -72,17 +72,17 @@ int main(int argc, char **argv) {
   po::options_description desc("Allowed options");
   desc.add_options()
     ("help,h", "Produce help message")
-    ("verbose,v", po::value<bool>(&verbose)->default_value(true), "Verbose mode")
-    ("name,n", po::value<string>(&name), "Name of the job")
+    ("verbose,v",  po::value<int>(&verbose)->default_value(1), "Verbosity level")
+    ("name,n",     po::value<string>(&name)->default_value("Test"), "Name of the job")
     ("datacard,d", po::value<string>(&datacard), "Datacard file")
     ("dataset,D",  po::value<string>(&dataset)->default_value("data_obs"), "Dataset for observed limit")
-    ("mass,m", po::value<int>(&iMass)->default_value(120), "Minimum value for fit range")
-    ("method,M", po::value<string>(&whichMethod)->default_value("mcmc"), methodsDesc.c_str())
-    ("systematics,S", po::value<bool>(&withSystematics)->default_value(false), "Add systematic uncertainties")
-    ("cl,C", po::value<float>(&cl)->default_value(0.95), "Confidence Level")
+    ("mass,m",     po::value<int>(&iMass)->default_value(120), "Higgs mass to store in the output tree")
+    ("method,M",   po::value<string>(&whichMethod)->default_value("ProfileLikelihood"), methodsDesc.c_str())
+    ("systematics,S", po::value<bool>(&withSystematics)->default_value(true), "Add systematic uncertainties")
+    ("cl,C",   po::value<float>(&cl)->default_value(0.95), "Confidence Level")
     ("toys,t", po::value<unsigned int>(&runToys)->default_value(0), "Number of Toy MC extractions")
     ("seed,s", po::value<int>(&seed)->default_value(123456), "Toy MC random seed")
-    ("saveToys,w", po::value<bool>(&saveToys)->default_value(false), "Save results of toy MC")
+    ("saveToys,w", "Save results of toy MC")
     ("toysFile,f", po::value<string>(&toysFile)->default_value(""), "Toy MC output file")
     ;
   for(map<string, LimitAlgo *>::const_iterator i = methods.begin(); i != methods.end(); ++i) {
@@ -108,6 +108,10 @@ int main(int argc, char **argv) {
     cout << desc;
     return 0;
   }
+
+  // handle bool options
+  saveToys = vm.count("saveToys");
+
   if(name == "") {
     cerr << "Missing name" << endl;
     cout << "Usage: options_description [options]\n";

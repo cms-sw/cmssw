@@ -10,7 +10,7 @@ extern Float_t t_cpu_, t_real_;
 extern TDirectory *writeToysHere;
 extern TDirectory *readToysFromHere;
 extern LimitAlgo * algo ;
-extern bool verbose;
+extern int verbose;
 extern bool withSystematics;
 extern float cl;
 

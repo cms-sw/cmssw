@@ -50,7 +50,7 @@ Float_t t_cpu_, t_real_;
 TDirectory *writeToysHere = 0;
 TDirectory *sprnwriteToysHere = 0;
 TDirectory *readToysFromHere = 0;
-bool verbose;
+int  verbose;
 bool withSystematics;
 float cl;
 
@@ -100,7 +100,7 @@ bool mklimit(RooWorkspace *w, RooAbsData &data, double &limit) {
     std::cerr << "Caught exception " << ex.what() << std::endl;
     return false;
   }
-  if ((ret == false) && verbose) {
+  if ((ret == false) && (verbose > 1)) {
     std::cout << "Failed for method " << algo->name() << "\n";
     std::cout << "  --- DATA ---\n";
     printRAD(&data);
@@ -132,7 +132,7 @@ void doCombination(TString hlfFile, const std::string &dataset, double &limit, i
   }
 
   if (getenv("CMSSW_BASE")) {
-      if (verbose) std::cout << "CMSSW_BASE is set, so will try to get include dir for roofit from scram." << std::endl;
+      if (verbose > 1) std::cout << "CMSSW_BASE is set, so will try to get include dir for roofit from scram." << std::endl;
       FILE *pipe = popen("scram tool tag roofitcore INCLUDE", "r"); 
       if (pipe) {
           char buff[1023];
@@ -143,7 +143,7 @@ void doCombination(TString hlfFile, const std::string &dataset, double &limit, i
                   while (ilast > 0 && isspace(buff[ilast])) { buff[ilast--] = '\0'; }
                   // then pass it to root
                   gSystem->AddIncludePath(TString::Format(" -I%s ", buff));
-                  if (verbose) std::cout << "Adding " << buff << " to include path" << std::endl;
+                  if (verbose > 1) std::cout << "Adding " << buff << " to include path" << std::endl;
               } else { std::cout << "scram tool tag roofitcore INCLUDE returned " << buff << " which doesn't look like an include dir." << std::endl; }
           } else { std::cerr << "Failed to read from pipe 'scram tool tag roofitcore INCLUDE'" << std::endl; }
           pclose(pipe);
@@ -246,7 +246,7 @@ void doCombination(TString hlfFile, const std::string &dataset, double &limit, i
       delete absdata_toy;
     }
     expLimit /= nLimits;
-    if (verbose)
+    if (verbose > 0)
       cout << "mean   expected limit: r < " << expLimit << " @ " << cl*100 << "%CL (" <<nLimits << " toyMC)" << endl;
       sort(limitHistory.begin(), limitHistory.end());
       if (nLimits > 0) {

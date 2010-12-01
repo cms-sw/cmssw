@@ -7,6 +7,21 @@
 
 using namespace RooStats;
 
+Hybrid::Hybrid() : 
+LimitAlgo("Hybrid specific options") {
+    options_.add_options()
+        ("toysH,T", boost::program_options::value<unsigned int>(&nToys_)->default_value(500),    "Number of Toy MC extractions to compute CLs+b, CLb and CLs")
+        ("clsAcc",  boost::program_options::value<double>(&clsAccuracy_ )->default_value(0.005), "Absolute accuracy on CLs to reach to terminate the scan")
+        ("rAbsAcc", boost::program_options::value<double>(&rAbsAccuracy_)->default_value(0.1),   "Absolute accuracy on r to reach to terminate the scan")
+        ("rRelAcc", boost::program_options::value<double>(&rRelAccuracy_)->default_value(0.05),  "Relative accuracy on r to reach to terminate the scan")
+        ("rInterval", "Always try to compute an interval on r even after having found a point satisfiying the CL")
+    ;
+}
+
+void Hybrid::applyOptions(const boost::program_options::variables_map &vm) {
+    rInterval_ = vm.count("rInterval");
+}
+
 bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit) {
   RooRealVar *r = w->var("r"); r->setConstant(true);
   RooArgSet  poi(*r);
@@ -108,7 +123,7 @@ std::pair<double, double> Hybrid::eval(RooRealVar *r, double rVal, RooStats::Hyb
             std::cout << "r = " << rVal << ": CLs = " << clsMid << " +/- " << clsMidErr << std::endl;
         }
     }
-    if (verbose) {
+    if (verbose > 0) {
         std::cout << "r = " << r->getVal() << ": \n" <<
             "\tCLs      = " << hcResult->CLs()      << " +/- " << hcResult->CLsError()      << "\n" <<
             "\tCLb      = " << hcResult->CLb()      << " +/- " << hcResult->CLbError()      << "\n" <<
