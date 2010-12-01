@@ -10,7 +10,7 @@ process.options = cms.untracked.PSet(
 )
 
 ## Declare input
-from PhysicsTools.PatExamples.samplesFNAL_cff import zjetsTrigger
+from PhysicsTools.PatExamples.samplesCERN_cff import zjetsTrigger
 
 process.source = cms.Source( "PoolSource",
     fileNames = zjetsTrigger
