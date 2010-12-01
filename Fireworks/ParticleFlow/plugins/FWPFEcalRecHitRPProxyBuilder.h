@@ -12,8 +12,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "Fireworks/ParticleFlow/plugins/FWPFRhoPhiRecHit.h"
 
-#include "/home/spuriousgeek/Downloads/google-perftools-1.6/src/google/profiler.h"
-
 
 //-----------------------------------------------------------------------------
 // FWPFEcalRecHitRPProxyBuilder
