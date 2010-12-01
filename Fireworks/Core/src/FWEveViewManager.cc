@@ -8,15 +8,16 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.39 2010/11/21 20:52:25 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.40 2010/11/26 20:24:48 amraktad Exp $
 //
 
 // system include files
 
 // user include files
-#include "TEveSelection.h"
 #include "TEveManager.h"
+#include "TEveSelection.h"
 #include "TEveScene.h"
+#include "TEveViewer.h"
 #include "TEveCalo.h"
 #include "TGLViewer.h"
 
@@ -121,11 +122,18 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) :
    // signal
    gEve->GetHighlight()->SetPickToSelect(TEveSelection::kPS_Master);
    TEveSelection* eveSelection = gEve->GetSelection();
-   eveSelection->SetPickToSelect(TEveSelection::kPS_Master);
+   eveSelection->SetPickToSelect(TEveSelection::kPS_Master);  
    eveSelection->Connect("SelectionAdded(TEveElement*)","FWEveViewManager",this,"selectionAdded(TEveElement*)");
    eveSelection->Connect("SelectionRepeated(TEveElement*)","FWEveViewManager",this,"selectionAdded(TEveElement*)");
    eveSelection->Connect("SelectionRemoved(TEveElement*)","FWEveViewManager",this,"selectionRemoved(TEveElement*)");
    eveSelection->Connect("SelectionCleared()","FWEveViewManager",this,"selectionCleared()");
+
+
+
+#ifdef TEVEVIEW_TQSENDER_SIGNALS_FIX
+   gEve->GetHighlight()->Connect("SelectionAdded(TEveElement*)","FWEveViewManager",this,"highlightAdded(TEveElement*)");
+   gEve->GetHighlight()->Connect("SelectionRepeated(TEveElement*)","FWEveViewManager",this,"highlightAdded(TEveElement*)");
+#endif
 }
 
 FWEveViewManager::~FWEveViewManager()
@@ -704,3 +712,78 @@ FWEveViewManager::haveViewForBit(int bit) const
    return false;
 }
 
+
+/*
+AMT: temporary workaround for using TEveCaloDataHist instead of
+TEveCaloDataVec. 
+
+ */
+
+#include "TH2F.h"
+#include "TAxis.h"
+#include "TEveCaloData.h"
+
+void
+FWEveViewManager::highlightAdded(TEveElement* iElement)
+{
+
+   bool blocked = gEve->GetHighlight()->BlockSignals(true);
+
+
+   if (iElement == context().getCaloData())
+   {
+      TEveCaloData::vCellId_t& hlist =  context().getCaloData()->GetCellsHighlighted();
+      std::set<TEveCaloData::CellId_t> hset;
+
+      int etaBin, phiBin, w, newPhiBin, tower;
+      TH2F* hist =  context().getCaloData()->GetHist(0);
+      TAxis* etaAxis = hist->GetXaxis();
+      int nBinsX = etaAxis->GetNbins() + 2;
+
+      for (TEveCaloData::vCellId_i i = hlist.begin(); i != hlist.end(); ++i)
+      {
+         hist->GetBinXYZ((*i).fTower, etaBin, phiBin, w);
+         if (TMath::Abs(etaAxis->GetBinCenter(etaBin)) > 4.71475)
+         {
+            newPhiBin = ((phiBin + 1) / 4) * 4 - 1;
+            if (newPhiBin <= 0) newPhiBin = 71;
+               
+            tower = etaBin + newPhiBin*nBinsX;
+            hset.insert(TEveCaloData::CellId_t( tower, (*i).fSlice, (*i).fFraction));
+            tower += nBinsX;
+            hset.insert(TEveCaloData::CellId_t(tower, (*i).fSlice, (*i).fFraction));
+            tower += nBinsX;
+
+            if (newPhiBin == 71)
+               tower = etaBin + 1*nBinsX;
+
+            hset.insert(TEveCaloData::CellId_t(tower, (*i).fSlice, (*i).fFraction));
+            tower += nBinsX;
+            hset.insert(TEveCaloData::CellId_t(tower, (*i).fSlice, (*i).fFraction));
+         }
+         else if (TMath::Abs(etaAxis->GetBinCenter(etaBin)) > 1.747650)
+         {  
+            newPhiBin =  ((phiBin + 1)/2)*2 - 1;
+            tower = etaBin + newPhiBin*nBinsX;
+            hset.insert(TEveCaloData::CellId_t( tower, (*i).fSlice, (*i).fFraction));
+            tower += nBinsX;
+            hset.insert(TEveCaloData::CellId_t(tower, (*i).fSlice, (*i).fFraction));
+         }
+         else
+         {
+            hset.insert(*i);
+         }
+      }
+ 
+      // edit calo data list
+      hlist.clear();
+      for(std::set<TEveCaloData::CellId_t>::iterator it = hset.begin(); it != hset.end(); ++it)
+      {
+         hlist.push_back(*it);
+      }    
+      context().getCaloData()->CellSelectionChanged();
+
+   }
+
+   gEve->GetHighlight()->BlockSignals(blocked);
+}

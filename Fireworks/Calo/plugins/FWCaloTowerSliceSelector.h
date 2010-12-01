@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Jun  2 19:21:19 CEST 2010
-// $Id: FWCaloTowerSliceSelector.h,v 1.1 2010/06/02 17:34:03 amraktad Exp $
+// $Id: FWCaloTowerSliceSelector.h,v 1.2 2010/06/07 17:54:00 amraktad Exp $
 //
 
 // system include files
@@ -24,7 +24,7 @@
 // user include files
 
 #include "Fireworks/Calo/src/FWFromSliceSelector.h"
-
+class CaloTower;
 // forward declarations
 class TH2F;
 
@@ -39,6 +39,7 @@ public:
   
 private:
   TH2F* m_hist;
+    bool matchCell(const TEveCaloData::CellId_t& iCell, const CaloTower& tower) const;
 };
 
 #endif

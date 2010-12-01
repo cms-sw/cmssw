@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTowerProxyBuilder.cc,v 1.21 2010/06/15 18:19:41 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.cc,v 1.22 2010/11/05 10:54:33 amraktad Exp $
 //
 
 // system includes
@@ -74,9 +74,26 @@ FWCaloTowerProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
    FWCaloDataProxyBuilderBase::itemBeingDestroyed(iItem);
 }
 
+double
+wrapPi(double val)
+{
+   using namespace TMath;
+
+   if (val< -Pi())
+   {
+      return val += TwoPi();
+   }
+   if (val> Pi())
+   {
+      return val -= TwoPi();
+   }
+   return val;
+}
+
 void
 FWCaloTowerProxyBuilderBase::fillCaloData()
 {
+   static float d = 2.5*TMath::Pi()/180;
    m_hist->Reset();
 
    if (m_towers)
@@ -89,13 +106,44 @@ FWCaloTowerProxyBuilderBase::fillCaloData()
          for(CaloTowerCollection::const_iterator tower = m_towers->begin(); tower != m_towers->end(); ++tower,++index) {
             const FWEventItem::ModelInfo& info = item()->modelInfo(index);
             if(info.displayProperties().isVisible()) {
-               (m_hist)->Fill(tower->eta(),tower->phi(), getEt(*tower));
+               if (tower->ietaAbs() > 39)
+               {
+                  m_hist->Fill(tower->eta(),wrapPi(tower->phi() - 3*d), getEt(*tower) *0.25);
+                  m_hist->Fill(tower->eta(),wrapPi(tower->phi() -   d), getEt(*tower) *0.25);
+                  m_hist->Fill(tower->eta(),wrapPi(tower->phi() +   d), getEt(*tower) *0.25);
+                  m_hist->Fill(tower->eta(),wrapPi(tower->phi() + 3*d), getEt(*tower) *0.25);
+               }
+               else if (tower->ietaAbs() > 20)
+               {
+                  m_hist->Fill(tower->eta(),wrapPi(tower->phi() - d), getEt(*tower) *0.5);
+                  m_hist->Fill(tower->eta(),wrapPi(tower->phi() + d), getEt(*tower) *0.5);
+               }
+               else
+               {
+                  m_hist->Fill(tower->eta(),tower->phi(), getEt(*tower));
+               }
             }
             if(info.isSelected()) {
                //NOTE: I tried calling TEveCalo::GetCellList but it always returned 0, probably because of threshold issues
                // but looking at the TEveCaloHist::GetCellList code the CellId_t is just the histograms bin # and the slice
                // printf("applyChangesToAllModels ...check selected \n");
-               selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(tower->eta(),tower->phi()),m_sliceIndex));
+
+               if (tower->ietaAbs() > 39)
+               {
+                  selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(tower->eta(), wrapPi(tower->phi() -3*d)),m_sliceIndex));
+                  selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(tower->eta(), wrapPi(tower->phi() -d))  ,m_sliceIndex));
+                  selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(tower->eta(), wrapPi(tower->phi() +d))  ,m_sliceIndex));
+                  selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(tower->eta(), wrapPi(tower->phi() +3*d)),m_sliceIndex));
+               }
+               else if (tower->ietaAbs() > 20)
+               {
+                  selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(tower->eta(), wrapPi(tower->phi() -d)), m_sliceIndex));
+                  selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(tower->eta(), wrapPi(tower->phi() +d)), m_sliceIndex));
+               }
+               else
+               {
+                  selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(tower->eta(),tower->phi()),m_sliceIndex));
+               }
             }
          }
       }

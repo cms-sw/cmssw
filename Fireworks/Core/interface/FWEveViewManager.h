@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:45 CET 2010
-// $Id: FWEveViewManager.h,v 1.11 2010/11/04 22:38:54 amraktad Exp $
+// $Id: FWEveViewManager.h,v 1.12 2010/11/26 20:24:47 amraktad Exp $
 //
 
 // system include files
@@ -67,6 +67,7 @@ public:
    virtual void eventEnd();
    virtual void setContext(const fireworks::Context*);
 
+   void highlightAdded(TEveElement*);
    void selectionAdded(TEveElement*);
    void selectionRemoved(TEveElement*);
    void selectionCleared();
