@@ -1,4 +1,4 @@
-%MSG-e duplicateDestination:  pre-events
+%MSG-e duplicateDestination:  (NoModuleName) pre-events
 Duplicate name for a MessageLogger Destination: u24.log
 Only the first configuration instructions are used
 %MSG
