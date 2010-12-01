@@ -65,7 +65,9 @@
 //			as a local variable for preparation of name (never
 //			used to transfer info between functions) and change
 //			17 obviates its need.
-
+//
+// 19 mf 11/30/10	Add a messageDrop->snapshot() when establishing
+//    crj		module ctors, to cure bug 75836.
 
 // system include files
 // user include files
@@ -340,7 +342,7 @@ MessageLogger::establishModuleCtor(ModuleDescription const & desc,
     messageDrop->infoEnabled    = true;
     messageDrop->warningEnabled = true;
   }
-  messageDrop->snapshot(); 
+  messageDrop->snapshot();				// Change Log 18 
 } // establishModuleCtor
 
 void
