@@ -135,7 +135,6 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         result = self.__new__(type(self))
         result.__init__(v.result())
         return result
-        
     def expandAndClone(self):
         visitor = ExpandVisitor(type(self))
         self.visit(visitor)
@@ -610,14 +609,13 @@ class _CopyAndExcludeSequenceVisitor(object):
            if visitee in self.__modulesToIgnore:
                self.__stack[-1][-1]=[None,True]
        else:
-           self.__stack.append([[visitee,False]])
+           #need to add a stack entry to keep track of children
+           self.__stack.append(list())
    def leave(self,visitee):
        node = visitee
        if not isinstance(visitee,_SequenceLeaf):
            #were any children changed?
-           # the first item in the list on the stack is
-           # the 'visitee' so we drop that in order to get just the children
-           l = self.__stack[-1][1:]
+           l = self.__stack[-1]
            changed = False
            countNulls = 0
            nonNulls = list()
@@ -662,7 +660,6 @@ class _CopyAndExcludeSequenceVisitor(object):
        self.__result = node
        if not isinstance(visitee,_SequenceLeaf):
            self.__stack = self.__stack[:-1]        
-
    def result(self):
        return self.__result
 
@@ -960,7 +957,38 @@ if __name__=="__main__":
             self.assertEqual(s.copyAndExclude([c]).dumpPython(None),"cms.Sequence((process.a+process.b)*process.d)\n")
             self.assertEqual(s.copyAndExclude([d]).dumpPython(None),"cms.Sequence((process.a+process.b+process.c))\n")
             self.assertEqual(s.copyAndExclude([a,b,c]).dumpPython(None),"cms.Sequence(process.d)\n")
-            
+            s = Sequence(ignore(a)+b+c+d)
+            self.assertEqual(s.copyAndExclude([a]).dumpPython(None),"cms.Sequence(process.b+process.c+process.d)\n")
+            self.assertEqual(s.copyAndExclude([b]).dumpPython(None),"cms.Sequence(cms.ignore(process.a)+process.c+process.d)\n")
+            self.assertEqual(s.copyAndExclude([c]).dumpPython(None),"cms.Sequence(cms.ignore(process.a)+process.b+process.d)\n")
+            self.assertEqual(s.copyAndExclude([d]).dumpPython(None),"cms.Sequence(cms.ignore(process.a)+process.b+process.c)\n")
+            s = Sequence(a+ignore(b)+c+d)
+            self.assertEqual(s.copyAndExclude([a]).dumpPython(None),"cms.Sequence(cms.ignore(process.b)+process.c+process.d)\n")
+            self.assertEqual(s.copyAndExclude([b]).dumpPython(None),"cms.Sequence(process.a+process.c+process.d)\n")
+            self.assertEqual(s.copyAndExclude([c]).dumpPython(None),"cms.Sequence(process.a+cms.ignore(process.b)+process.d)\n")
+            self.assertEqual(s.copyAndExclude([d]).dumpPython(None),"cms.Sequence(process.a+cms.ignore(process.b)+process.c)\n")
+            s = Sequence(a+b+c+ignore(d))
+            self.assertEqual(s.copyAndExclude([a]).dumpPython(None),"cms.Sequence(process.b+process.c+cms.ignore(process.d))\n")
+            self.assertEqual(s.copyAndExclude([b]).dumpPython(None),"cms.Sequence(process.a+process.c+cms.ignore(process.d))\n")
+            self.assertEqual(s.copyAndExclude([c]).dumpPython(None),"cms.Sequence(process.a+process.b+cms.ignore(process.d))\n")
+            self.assertEqual(s.copyAndExclude([d]).dumpPython(None),"cms.Sequence(process.a+process.b+process.c)\n")
+            s = Sequence(~a+b+c+d)
+            self.assertEqual(s.copyAndExclude([a]).dumpPython(None),"cms.Sequence(process.b+process.c+process.d)\n")
+            self.assertEqual(s.copyAndExclude([b]).dumpPython(None),"cms.Sequence(~process.a+process.c+process.d)\n")
+            self.assertEqual(s.copyAndExclude([c]).dumpPython(None),"cms.Sequence(~process.a+process.b+process.d)\n")
+            self.assertEqual(s.copyAndExclude([d]).dumpPython(None),"cms.Sequence(~process.a+process.b+process.c)\n")
+            s = Sequence(a+~b+c+d)
+            self.assertEqual(s.copyAndExclude([a]).dumpPython(None),"cms.Sequence(~process.b+process.c+process.d)\n")
+            self.assertEqual(s.copyAndExclude([b]).dumpPython(None),"cms.Sequence(process.a+process.c+process.d)\n")
+            self.assertEqual(s.copyAndExclude([c]).dumpPython(None),"cms.Sequence(process.a+~process.b+process.d)\n")
+            self.assertEqual(s.copyAndExclude([d]).dumpPython(None),"cms.Sequence(process.a+~process.b+process.c)\n")
+            s = Sequence(a+b+c+~d)
+            self.assertEqual(s.copyAndExclude([a]).dumpPython(None),"cms.Sequence(process.b+process.c+~process.d)\n")
+            self.assertEqual(s.copyAndExclude([b]).dumpPython(None),"cms.Sequence(process.a+process.c+~process.d)\n")
+            self.assertEqual(s.copyAndExclude([c]).dumpPython(None),"cms.Sequence(process.a+process.b+~process.d)\n")
+            self.assertEqual(s.copyAndExclude([d]).dumpPython(None),"cms.Sequence(process.a+process.b+process.c)\n")
+
+
             
         def testDependencies(self):
             m1 = DummyModule("m1")
