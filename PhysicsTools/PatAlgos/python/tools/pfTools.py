@@ -263,7 +263,7 @@ def switchToPFMET(process,input=cms.InputTag('pfMET'), type1=False, postfix=""):
             applyPostfix(process, "metJESCorAK5CaloJetMuons",postfix)
             )
 
-def switchToPFJets(process, input=cms.InputTag('pfJets'), algo='IC5', postfix = ""):
+def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='IC5', postfix = "", inputJetCorrLabel=('AK5PF', ['L2Relative', 'L3Absolute'])):
 
     print "Switching to PFJets,  ", algo
     print "************************ "
@@ -289,7 +289,7 @@ def switchToPFJets(process, input=cms.InputTag('pfJets'), algo='IC5', postfix = 
                         jetIdLabel = algo,
                         doJTA=True,
                         doBTagging=True,
-                        jetCorrLabel=( algo, 'PF' ), 
+                        jetCorrLabel=inputJetCorrLabel, 
                         #doType1MET=False,
                         doType1MET=True,
                         genJetCollection = genJetCollection,
@@ -362,7 +362,10 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='IC5', runOnMC=True, postfix = ""
     removeIfInSequence(process,  "patPhotonIsolation",  "patDefaultSequence", postfix)
 
     # Jets
-    switchToPFJets( process, cms.InputTag('pfJets'+postfix), jetAlgo, postfix=postfix )
+    if runOnMC is True :
+        switchToPFJets( process, cms.InputTag('pfNoTau'+postfix), jetAlgo, postfix=postfix, inputJetCorrLabel=('AK5PF', ['L2Relative','L3Absolute']) )
+    else :
+        switchToPFJets( process, cms.InputTag('pfNoTau'+postfix), jetAlgo, postfix=postfix, inputJetCorrLabel=('AK5PF', ['L2Relative','L3Absolute', 'L2L3Residual']) )
     
     # Taus
     #adaptPFTaus( process ) #default (i.e. shrinkingConePFTau)
