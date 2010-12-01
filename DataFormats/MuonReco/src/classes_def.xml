@@ -84,6 +84,18 @@
   </class>
   <class name="edm::Wrapper<edm::ValueMap<reco::MuonCosmicCompatibility> >"/>
 
+  <class name="reco::MuonShower"/>
+  <class name="std::vector<reco::MuonShower>"/>
+  <class name="std::vector<reco::MuonShower>::const_iterator"/>
+  <class name="edm::Wrapper<std::vector<reco::MuonShower> >"/>
+  <class name="edm::ValueMap<reco::MuonShower>"/>
+  <class name="edm::ValueMap<reco::MuonShower>::const_iterator">
+    <field name="values_" transient="true"/>
+    <field name="i_" transient="true"/>
+    <field name="end_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<edm::ValueMap<reco::MuonShower> >"/>
+
   <!-- 
   <class name="edm::reftobase::BaseHolder<reco::Muon>" />
   <class name="edm::reftobase::IndirectVectorHolder<reco::Muon>" />
