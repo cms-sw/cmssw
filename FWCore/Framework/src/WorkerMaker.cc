@@ -39,7 +39,7 @@ Maker::throwConfigurationException(ModuleDescription const& md,
                                    sigc::signal<void, ModuleDescription const&>& post, 
                                    cms::Exception const& iException) const {
   Exception toThrow(errors::Configuration,"Error occurred while creating ");
-  toThrow << md.moduleName() << " with label " << md.moduleLabel() << "\n";
+  toThrow << "for module of type \'"<<md.moduleName() << "\' with label \'" << md.moduleLabel() << "'\n";
   toThrow.append(iException);
   post(md);
   throw toThrow;
@@ -50,8 +50,8 @@ Maker::validateEDMType(std::string const& edmType, WorkerParams const& p) const 
   std::string expected = p.pset_->getUntrackedParameter<std::string>("@module_edm_type");
   if(edmType != expected) {
     Exception toThrow(errors::Configuration,"Error occurred while creating module.\n");
-    toThrow <<  p.pset_->getParameter<std::string>("@module_type") <<  " with label " << p.pset_->getParameter<std::string>("@module_label")
-      << " is of type " << edmType << ", but declared in the configuration as " << expected << ".\n"
+    toThrow <<"Module of type \'"<<  p.pset_->getParameter<std::string>("@module_type") <<  "' with label '" << p.pset_->getParameter<std::string>("@module_label")
+      << "' is of type " << edmType << ", but declared in the configuration as " << expected << ".\n"
       << "Please replace " << expected << " with " << edmType << " in the appropriate configuration file(s).\n";
     throw toThrow;
   }
