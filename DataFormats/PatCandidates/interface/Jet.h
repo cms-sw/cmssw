@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.50 2010/10/04 19:58:24 srappocc Exp $
+// $Id: Jet.h,v 1.51 2010/10/18 16:06:25 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
-  \version  $Id: Jet.h,v 1.50 2010/10/04 19:58:24 srappocc Exp $
+  \version  $Id: Jet.h,v 1.51 2010/10/18 16:06:25 rwolf Exp $
 */
 
 
@@ -65,6 +65,10 @@ namespace pat {
 
 
   class Jet : public PATObject<reco::Jet> {
+    /// make friends with PATJetProducer so that it can set the an initial 
+    /// jet energy scale unequal to raw calling the private initializeJEC
+    /// function, which should be non accessible to any other user 
+    friend class PATJetProducer;
 
     public:
 
@@ -90,64 +94,65 @@ namespace pat {
       /// return the flavour of the parton underlying the jet
       int partonFlavour() const;
 
+  public:
       /// ---- methods for jet corrections ----
 
-      /// return true if the jet carries jet energy correction information
-      bool  hasCorrFactors() const { return !jetEnergyCorrections_.empty(); }
-      /// return true if the jet carries the jet correction factors of a different set, for systematic studies
-      bool  hasCorrFactorSet(const std::string& set) const;
-      /// return the label of the current set of jet energy corrections
-      std::string corrFactorSetLabel() const { return corrFactors_()->getLabel(); }
-      /// return label-names of all available sets of jet energy corrections
-      const std::vector<std::string> corrFactorSetLabels() const;
+      /// returns the labels of all available sets of jet energy corrections
+      const std::vector<std::string> availableJECSets() const;
+      // returns the available JEC Levels for a given jecSet
+      const std::vector<std::string> availableJECLevels(const unsigned int& set=0) const;
+      // returns the available JEC Levels for a given jecSet
+      const std::vector<std::string> availableJECLevels(const std::string& set) const { return availableJECLevels(jecSet(set)); };
+      /// returns true if the jet carries jet energy correction information
+      /// at all
+      bool jecSetsAvailable() const { return !jec_.empty(); }
+      /// returns true if the jet carries a set of jet energy correction 
+      /// factors with the given label
+      bool jecSetAvailable(const std::string& set) const {return (jecSet(set)>=0); };
+      /// returns true if the jet carries a set of jet energy correction 
+      /// factors with the given label
+      bool jecSetAvailable(const unsigned int& set) const {return (set<jec_.size()); };
+      /// returns the label of the current set of jet energy corrections
+      std::string currentJECSet() const { return currentJECSet_<jec_.size() ? jec_.at(currentJECSet_).jecSet() : std::string("ERROR"); }
       /// return the name of the current step of jet energy corrections
-      std::string corrStep() const;
+      std::string currentJECLevel() const { return currentJECSet_<jec_.size() ? jec_.at(currentJECSet_).jecLevel(currentJECLevel_) : std::string("ERROR"); };
       /// return flavour of the current step of jet energy corrections
-      std::string corrFlavour() const;
-      /// total correction factor to target step, starting from jetCorrStep(),
-      /// for the set of correction factors, which is currently in use
-      float corrFactor(const std::string& step, const std::string& flavour="") const;
-      /// total correction factor to target step, starting from jetCorrStep(),
-      /// for a specific set of correction factors
-      float corrFactor(const std::string& step, const std::string& flavour, const std::string& set) const;
-      /// copy of the jet with correction factor to target step for
-      /// the set of correction factors, which is currently in use 
-      Jet correctedJet(const JetCorrFactors::CorrStep& step) const;
-      /// copy of the jet with correction factor to target step for
-      /// the set of correction factors, which is currently in use 
-      Jet correctedJet(const std::string& step, const std::string& flavour="") const;
-      /// copy of this jet with correction factor to target step
-      /// for a specific set of correction factors
-      Jet correctedJet(const JetCorrFactors::CorrStep& step, const std::string& set) const;
-      /// copy of this jet with correction factor to target step
-      /// for a specific set of correction factors
-      Jet correctedJet(const std::string& step, const std::string& flavour, const std::string& set) const;
-      /// p4 of the jet with correction factor to target step for
-      /// the set of correction factors, which is currently in use 
-      const LorentzVector& correctedP4(const JetCorrFactors::CorrStep& step) const { return correctedJet(step).p4(); };
-      /// p4 of the jet with correction factor to target step for
-      /// the set of correction factors, which is currently in use 
-      const LorentzVector& correctedP4(const std::string& step, const std::string& flavour="") const { return correctedJet(step, flavour).p4(); };
-      /// p4 of the jet with correction factor to target step for
-      /// the set of correction factors, which is currently in use 
-      const LorentzVector& correctedP4(const JetCorrFactors::CorrStep& step, const std::string& set) const { return correctedJet(step, set).p4(); };
-      /// p4 of the jet with correction factor to target step for
-      /// the set of correction factors, which is currently in use 
-      const LorentzVector& correctedP4(const std::string& step, const std::string& flavour, const std::string& set) const { return correctedJet(step, flavour, set).p4(); };
-      /// method to set the energy scale correction factors this will change the jet's momentum! 
-      /// it should only be used by the PATJetProducer; per default the first element in 
-      /// jetEnergyCorrections_ is taken into consideration
-      void setCorrStep(JetCorrFactors::CorrStep step);
-      /// to be used by PATJetProducer: method to set the energy scale correction factors
-      void setCorrFactors(const JetCorrFactors & jetCorrF);
-      /// to be used by PATJetProducer: method to add more sets of energy scale correction factors
-      void addCorrFactors(const JetCorrFactors & jetCorrF);
+      JetCorrFactors::Flavor currentJECFlavor() const { return currentJECFlavor_; };
+      /// correction factor to the given level for a specific set 
+      /// of correction factors, starting from the current level 
+      float jecFactor(const std::string& level, const std::string& flavor="none", const std::string& set="") const;
+      /// correction factor to the given level for a specific set 
+      /// of correction factors, starting from the current level 
+      float jecFactor(const unsigned int& level, const JetCorrFactors::Flavor& flavor=JetCorrFactors::NONE, const unsigned int& set=0) const;
+      /// copy of the jet corrected up to the given level for the set 
+      /// of jet energy correction factors, which is currently in use 
+      Jet correctedJet(const std::string& level, const std::string& flavor="none", const std::string& set="") const;
+      /// copy of the jet corrected up to the given level for the set 
+      /// of jet energy correction factors, which is currently in use 
+      Jet correctedJet(const unsigned int& level, const JetCorrFactors::Flavor& flavor=JetCorrFactors::NONE, const unsigned int& set=0) const;
+      /// p4 of the jet corrected up to the given level for the set 
+      /// of jet energy correction factors, which is currently in use 
+      const LorentzVector& correctedP4(const std::string& level, const std::string& flavor="none", const std::string& set="") const { return correctedJet(level, flavor, set).p4(); };
+      /// p4 of the jet corrected up to the given level for the set 
+      /// of jet energy correction factors, which is currently in use 
+      const LorentzVector& correctedP4(const unsigned int& level, const JetCorrFactors::Flavor& flavor=JetCorrFactors::NONE, const unsigned int& set=0) const { return correctedJet(level, flavor, set).p4(); };
 
-      /// ---- methods for accessing jet uncertainty ----
-      ///relative jet correction factor uncertainty plus/minus 1 sigma
-      float relCorrUncert(const std::string& direction) const;
-
-
+  private:
+      /// index of the set of jec factors with given label; returns -1 if no set
+      /// of jec factors exists with the given label
+      int jecSet(const std::string& label) const;
+      /// update the current JEC set; used by correctedJet
+      void currentJECSet(const unsigned int& set) { currentJECSet_=set; };
+      /// update the current JEC level; used by correctedJet
+      void currentJECLevel(const unsigned int& level) { currentJECLevel_=level; };
+      /// update the current JEC flavor; used by correctedJet
+      void currentJECFlavor(const JetCorrFactors::Flavor& flavor) { currentJECFlavor_=flavor; };
+      /// add more sets of energy correction factors
+      void addJECFactors(const JetCorrFactors& jec) {jec_.push_back(jec); };
+      /// initialize the jet to a given JEC level during creation starting from Uncorrected
+      void initializeJEC(unsigned int level, const JetCorrFactors::Flavor& flavor=JetCorrFactors::NONE, unsigned int set=0);
+      
+  public:
       /// ---- methods for accessing b-tagging info ----
 
       /// get b discriminant from label name
@@ -313,33 +318,33 @@ namespace pat {
       /// neutralHadronEnergy
       float neutralHadronEnergy() const;
 
-      /// chargedHadronEnergyFraction
-      float  chargedHadronEnergyFraction() const {return chargedHadronEnergy()/correctedJet("raw").energy();}
-      /// neutralHadronEnergyFraction
-      float neutralHadronEnergyFraction()  const {return neutralHadronEnergy()/correctedJet("raw").energy();}
-      /// chargedEmEnergyFraction
-      float chargedEmEnergyFraction()      const {return chargedEmEnergy()/correctedJet("raw").energy();}
-      /// neutralEmEnergyFraction
-      float neutralEmEnergyFraction()      const {return neutralEmEnergy()/correctedJet("raw").energy();}
+      /// chargedHadronEnergyFraction (relative to uncorrected jet energy)
+      float chargedHadronEnergyFraction() const {return chargedHadronEnergy()/(jecFactor(0) * energy());}
+      /// neutralHadronEnergyFraction (relative to uncorrected jet energy)
+      float neutralHadronEnergyFraction() const {return neutralHadronEnergy()/(jecFactor(0) * energy());}
+      /// chargedEmEnergyFraction (relative to uncorrected jet energy)
+      float chargedEmEnergyFraction()     const {return chargedEmEnergy()/(jecFactor(0) * energy());}
+      /// neutralEmEnergyFraction (relative to uncorrected jet energy)
+      float neutralEmEnergyFraction()     const {return neutralEmEnergy()/(jecFactor(0) * energy());}
 
       // ---- PF Jet specific information ----
       /// photonEnergy 
       float photonEnergy () const {return pfSpecific().mPhotonEnergy;}
-      /// photonEnergyFraction
+      /// photonEnergyFraction (relative to corrected jet energy)
       float photonEnergyFraction () const {return photonEnergy () / energy ();}
       /// electronEnergy 
       float electronEnergy () const {return pfSpecific().mElectronEnergy;}
-      /// muonEnergy 
+      /// muonEnergy
       float muonEnergy () const {return pfSpecific().mMuonEnergy;}
-      /// muonEnergyFraction
+      /// muonEnergyFraction (relative to corrected jet energy) 
       float muonEnergyFraction () const {return muonEnergy () / energy ();}
       /// HFHadronEnergy 
       float HFHadronEnergy () const {return pfSpecific().mHFHadronEnergy;}
-      /// HFHadronEnergyFraction
+      /// HFHadronEnergyFraction (relative to corrected jet energy) 
       float HFHadronEnergyFraction () const {return HFHadronEnergy () / energy ();}
       /// HFEMEnergy 
       float HFEMEnergy () const {return pfSpecific().mHFEMEnergy;}
-      /// HFEMEnergyFraction
+      /// HFEMEnergyFraction (relative to corrected jet energy) 
       float HFEMEnergyFraction () const {return HFEMEnergy () / energy ();}
 
       /// chargedHadronMultiplicity
@@ -485,12 +490,18 @@ namespace pat {
 
       // ---- energy scale correction factors ----
 
-      /// energy scale correction factors
-      std::vector<pat::JetCorrFactors> jetEnergyCorrections_; 
-      /// the level of the currently applied correction factor
-      pat::JetCorrFactors::CorrStep    jetEnergyCorrectionStep_;
-      /// index in 'jetEnergyCorrections_' of the currently applied correction factor set
-      unsigned activeJetCorrIndex_;
+      // energy scale correction factors; the string carries a potential label if
+      // more then one set of correction factors is embedded. The label corresponds
+      // to the label of the jetCorrFactors module that has been embedded.
+      std::vector<pat::JetCorrFactors> jec_; 
+      // currently applied set of jet energy correction factors (i.e. the index in 
+      // jetEnergyCorrections_)
+      unsigned int currentJECSet_;
+      // currently applied jet energy correction level
+      unsigned int currentJECLevel_;
+      // currently applied jet energy correction flavor (can be NONE, GLUON, UDS, 
+      // CHARM or BOTTOM)
+      JetCorrFactors::Flavor currentJECFlavor_;
 
       // ---- b-tag related members ----
 
