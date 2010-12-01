@@ -2,13 +2,13 @@ import re
 from sys import argv
 from optparse import OptionParser
 parser = OptionParser()
-parser.add_option("-s", "--stat",   dest="stat",   default=False, action="store_true")
-parser.add_option("-a", "--asimov", dest="asimov", default=False, action="store_true")
+parser.add_option("-s", "--stat",   dest="stat",    default=False, action="store_true")
+parser.add_option("-a", "--asimov", dest="asimov",  default=False, action="store_true")
+parser.add_option("-c", "--compiled", dest="cexpr", default=False, action="store_true")
 (options, args) = parser.parse_args()
 
 file = open(args[0], "r")
-#ROOFIT_EXPR = "cexpr"  # change to cexpr to use compiled expressions (faster, but takes more time to start up)
-ROOFIT_EXPR = "expr"  # change to cexpr to use compiled expressions (faster, but takes more time to start up)
+ROOFIT_EXPR = "cexpr" if options.cexpr else "expr"  # change to cexpr to use compiled expressions (faster, but takes more time to start up)
 
 N_OBS_MAX = 10000
 bins      = 1
