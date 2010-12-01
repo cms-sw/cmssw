@@ -107,7 +107,7 @@ MeasurementError RadialStripTopology::measurementError(const LocalPoint& p,  con
     t(yAxisOrientation() * p.x() / yHitToInter),   // tan(strip angle) 
     cs(t/(1+t*t)), s2(t*cs), c2(1-s2),             // rotation matrix
 
-    T2( 1./(std::pow(angularWidth(),2.f) * ( std::pow(p.x(),2.f) + std::pow(yHitToInter,2.f)) )), // 1./tangential measurement unit (local pitch) ^2
+    T2( 1./(std::pow(angularWidth(),2.f) * ( std::pow(p.x(),2.f) + std::pow(yHitToInter,2)) )), // 1./tangential measurement unit (local pitch) ^2
     R2( c2/std::pow(detHeight(),2.f) ),                                    // 1./ radial measurement unit (strip length) ^2
 
     uu(       ( c2*e.xx() - 2*cs*e.xy() + s2*e.yy() )   * T2 ),
