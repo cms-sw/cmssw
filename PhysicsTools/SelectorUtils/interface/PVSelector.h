@@ -16,9 +16,9 @@ class PVSelector : public Selector<edm::EventBase> {
 public:
 
   PVSelector() {}
-
- PVSelector( edm::ParameterSet const & params ) :
-  pvSrc_ (params.getParameter<edm::InputTag>("pvSrc") ) {
+  
+  PVSelector( edm::ParameterSet const & params ) :
+    pvSrc_ (params.getParameter<edm::InputTag>("pvSrc") ) {
     push_back("PV NDOF", params.getParameter<double>("minNdof") );
     push_back("PV Z", params.getParameter<double>("maxZ") );
     push_back("PV RHO", params.getParameter<double>("maxRho") );
@@ -32,7 +32,7 @@ public:
     
     if ( params.exists("cutsToIgnore") )
       setIgnoredCuts( params.getParameter<std::vector<std::string> >("cutsToIgnore") );
-
+    
     retInternal_ = getBitTemplate();
   }
   
@@ -66,7 +66,7 @@ public:
   }
 
   using EventSelector::operator();
-
+  
   edm::Handle<std::vector<reco::Vertex> > const & vertices() const { return h_primVtx; }
 
 private:
