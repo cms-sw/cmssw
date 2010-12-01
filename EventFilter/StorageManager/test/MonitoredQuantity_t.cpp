@@ -69,7 +69,7 @@ void testMonitoredQuantity::accumulateSamples
   double &squareSum
 )
 {
-  assert(!isnan(squareSum));
+  assert(!std::isnan(squareSum));
   for (
     unsigned int i = 1;
     i <= sampleCount;

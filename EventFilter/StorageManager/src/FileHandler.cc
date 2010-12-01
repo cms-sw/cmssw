@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.22 2010/11/04 15:19:16 mommsen Exp $
+// $Id: FileHandler.cc,v 1.23 2010/11/05 10:33:38 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -235,8 +235,13 @@ void FileHandler::moveFileToClosed
 
 unsigned long long FileHandler::checkFileSizeMatch(const std::string& fileName, const unsigned long long& size) const
 {
+#if linux
   struct stat64 statBuff;
   int statStatus = stat64(fileName.c_str(), &statBuff);
+#else
+  struct stat statBuff;
+  int statStatus = stat(fileName.c_str(), &statBuff);
+#endif
   if ( statStatus != 0 )
   {
     _fileRecord->whyClosed = FilesMonitorCollection::FileRecord::inaccessible;

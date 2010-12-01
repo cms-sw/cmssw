@@ -1,11 +1,17 @@
-// $Id: WebPageHelper.cc,v 1.47 2010/05/03 12:19:32 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.48 2010/05/11 17:55:22 mommsen Exp $
 /// @file: WebPageHelper.cc
+
+#ifdef __APPLE__
+#include <sys/param.h>
+#include <sys/mount.h>
+#else
+#include <sys/statfs.h>
+#endif
 
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
-#include <sys/statfs.h>
 
 #include "boost/lexical_cast.hpp"
 

@@ -1,4 +1,4 @@
-// $Id: ConcurrentQueue.h,v 1.7 2010/02/18 11:22:25 mommsen Exp $
+// $Id: ConcurrentQueue.h,v 1.8 2010/02/18 14:45:19 mommsen Exp $
 /// @file: ConcurrentQueue.h 
 
 
@@ -41,8 +41,8 @@ namespace stor
         not put onto the FIFO.
    
      $Author: mommsen $
-     $Revision: 1.7 $
-     $Date: 2010/02/18 11:22:25 $
+     $Revision: 1.8 $
+     $Date: 2010/02/18 14:45:19 $
    */
 
 
@@ -474,11 +474,16 @@ namespace stor
     lock_t lock(_protect_elements);
     if ( _is_full() )
       {
+// CLOCK_MONOTONIC does not exists on macosx.
+#ifdef __APPLE__
+        return false;
+#else
         boost::xtime now;
         if (boost::xtime_get(&now, CLOCK_MONOTONIC) != CLOCK_MONOTONIC) 
           return false; // failed to get the time.
         now.sec += wait_sec;
         _queue_not_full.timed_wait(lock, now);
+#endif
       }
     return _insert_if_possible(item);
   }
@@ -508,11 +513,15 @@ namespace stor
     lock_t lock(_protect_elements);
     if (_size == 0)
       {
+#ifdef __APPLE__
+        return false;
+#else
         boost::xtime now;
         if (boost::xtime_get(&now, CLOCK_MONOTONIC) != CLOCK_MONOTONIC)
           return false; // failed to get the time.
         now.sec += wait_sec;
         _queue_not_empty.timed_wait(lock, now);
+#endif
       }
     return _remove_head_if_possible(item);
   }

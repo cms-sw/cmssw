@@ -1,4 +1,4 @@
-// $Id: EventDistributor.cc,v 1.19 2010/05/12 12:22:37 mommsen Exp $
+// $Id: EventDistributor.cc,v 1.20 2010/09/08 15:22:57 mommsen Exp $
 /// @file: EventDistributor.cc
 
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
@@ -178,7 +178,7 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
 
       DQMEventMonitorCollection& dqmEventMonColl = _sharedResources->
         _statisticsReporter->getDQMEventMonitorCollection();
-      dqmEventMonColl.getDiscardedDQMEventCountsMQ().addSample(discardedDQMEvents);
+      dqmEventMonColl.getDiscardedDQMEventCountsMQ().addSample(static_cast<uint64_t>(discardedDQMEvents));
 
       DataSenderMonitorCollection& dataSenderMonColl = _sharedResources->
         _statisticsReporter->getDataSenderMonitorCollection();

@@ -1,4 +1,9 @@
+#ifdef __APPLE__
+#include <sys/param.h>
+#include <sys/mount.h>
+#else
 #include <sys/statfs.h>
+#endif
 
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 #include "cppunit/extensions/HelperMacros.h"
@@ -79,9 +84,13 @@ testResourceMonitorCollection::diskSize()
     diskUsage( new ResourceMonitorCollection::DiskUsage() );
   diskUsage->pathName = "/tmp";
   CPPUNIT_ASSERT_THROW( _rmc->retrieveDiskSize(diskUsage), stor::exception::DiskSpaceAlarm );
-
+#ifdef __APPLE__
+  struct statfs buf;
+  CPPUNIT_ASSERT( statfs(diskUsage->pathName.c_str(), &buf) == 0 );
+#else
   struct statfs64 buf;
   CPPUNIT_ASSERT( statfs64(diskUsage->pathName.c_str(), &buf) == 0 );
+#endif
   CPPUNIT_ASSERT( buf.f_blocks );
   double diskSize = static_cast<double>(buf.f_blocks * buf.f_bsize) / 1024 / 1024 / 1024;
 
@@ -154,8 +163,13 @@ testResourceMonitorCollection::diskUsage()
   ResourceMonitorCollection::DiskUsagePtr diskUsagePtr = _rmc->_diskUsageList[0];
   CPPUNIT_ASSERT( diskUsagePtr.get() != 0 );
 
+#ifdef __APPLE__
+  struct statfs buf;
+  CPPUNIT_ASSERT( statfs(dwParams._filePath.c_str(), &buf) == 0 );
+#else
   struct statfs64 buf;
   CPPUNIT_ASSERT( statfs64(dwParams._filePath.c_str(), &buf) == 0 );
+#endif
   CPPUNIT_ASSERT( buf.f_blocks );
   double relDiskUsage = (1 - static_cast<double>(buf.f_bavail) / buf.f_blocks) * 100;
 

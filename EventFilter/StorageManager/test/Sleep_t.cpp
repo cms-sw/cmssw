@@ -70,8 +70,6 @@ private:
 void
 testSleep::setUp()
 {
-  timespec res;
-  clock_getres(CLOCK_REALTIME, &res);
   _timer.start();
   _timer.stop();  
   _resolution = 2.0 * _timer.realTime();

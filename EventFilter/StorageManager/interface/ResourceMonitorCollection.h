@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.25 2010/04/12 12:05:43 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.26 2010/04/12 15:25:26 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
@@ -8,6 +8,9 @@
 #include <vector>
 #include <string>
 #include <errno.h>
+#ifdef __APPLE__
+typedef int error_t;
+#endif
 
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
@@ -30,8 +33,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.25 $
-   * $Date: 2010/04/12 12:05:43 $
+   * $Revision: 1.26 $
+   * $Date: 2010/04/12 15:25:26 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection

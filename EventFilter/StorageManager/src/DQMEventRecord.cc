@@ -1,4 +1,4 @@
-// $Id: DQMEventRecord.cc,v 1.14 2010/04/30 07:44:56 mommsen Exp $
+// $Id: DQMEventRecord.cc,v 1.15 2010/05/17 15:59:09 mommsen Exp $
 /// @file: DQMEventRecord.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
@@ -68,7 +68,8 @@ double DQMEventRecord::writeFile(std::string filePrefix, bool endRunFlag)
   double size =
     DQMInstance::writeFile(filePrefix, endRunFlag);
   _dqmEventMonColl.getWrittenDQMEventSizeMQ().addSample( size / 0x100000 );
-  _dqmEventMonColl.getNumberOfWrittenGroupsMQ().addSample( dqmGroups_.size() );
+  // Remove ambiguity on the size by casting it to uint64_t.
+  _dqmEventMonColl.getNumberOfWrittenGroupsMQ().addSample( static_cast<uint64_t>(dqmGroups_.size()) );
   return size;
 }
 

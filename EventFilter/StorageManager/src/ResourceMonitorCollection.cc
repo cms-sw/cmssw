@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.37 2010/08/23 13:56:48 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.38 2010/10/19 06:15:35 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <stdio.h>
@@ -7,7 +7,12 @@
 #include <iomanip>
 #include <sys/types.h>
 #include <sys/stat.h>
+#ifdef __APPLE__
+#include <sys/param.h>
+#include <sys/mount.h>
+#else
 #include <sys/statfs.h>
+#endif
 #include <fcntl.h>
 #include <dirent.h>
 #include <fnmatch.h>
@@ -236,8 +241,13 @@ void ResourceMonitorCollection::calcDiskUsage()
 
 void ResourceMonitorCollection::retrieveDiskSize(DiskUsagePtr diskUsage)
 {
+#if __APPLE__
+  struct statfs buf;
+  int retVal = statfs(diskUsage->pathName.c_str(), &buf);
+#else
   struct statfs64 buf;
   int retVal = statfs64(diskUsage->pathName.c_str(), &buf);
+#endif
   if(retVal==0) {
     unsigned int blksize = buf.f_bsize;
     diskUsage->diskSize = static_cast<double>(buf.f_blocks * blksize) / 1024 / 1024 / 1024;
@@ -617,7 +627,11 @@ int ResourceMonitorCollection::getProcessCount(const std::string& processName, c
   struct dirent **namelist;
   int n;
   
+#if __APPLE__
+  return -1;
+#else 
   n = scandir("/proc", &namelist, filter, 0);
+#endif
   if (n < 0) return -1;
   
   while(n--)
