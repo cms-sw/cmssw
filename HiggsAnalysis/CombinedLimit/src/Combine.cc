@@ -128,6 +128,26 @@ void doCombination(TString hlfFile, const std::string &dataset, double &limit, i
     }
     fileToLoad = "model.hlf";
   }
+
+  if (getenv("CMSSW_BASE")) {
+      if (verbose) std::cout << "CMSSW_BASE is set, so will try to get include dir for roofit from scram." << std::endl;
+      FILE *pipe = popen("scram tool tag roofitcore INCLUDE", "r"); 
+      if (pipe) {
+          char buff[1023];
+          if (fgets(buff, 1023, pipe)) {
+              if (buff[0] == '/') {
+                  // must also remove the line break
+                  int ilast = strlen(buff)-1;
+                  while (ilast > 0 && isspace(buff[ilast])) { buff[ilast--] = '\0'; }
+                  // then pass it to root
+                  gSystem->AddIncludePath(TString::Format(" -I%s ", buff));
+                  if (verbose) std::cout << "Adding " << buff << " to include path" << std::endl;
+              } else { std::cout << "scram tool tag roofitcore INCLUDE returned " << buff << " which doesn't look like an include dir." << std::endl; }
+          } else { std::cerr << "Failed to read from pipe 'scram tool tag roofitcore INCLUDE'" << std::endl; }
+          pclose(pipe);
+      } else { std::cerr << "Failed to invoke 'scram tool tag roofitcore INCLUDE'" << std::endl; }
+  }
+
   // Load the model, but going in a temporary directory to avoid polluting the current one with garbage from 'cexpr'
   RooStats::HLFactory hlf("factory", fileToLoad);
   gSystem->cd(pwd);
