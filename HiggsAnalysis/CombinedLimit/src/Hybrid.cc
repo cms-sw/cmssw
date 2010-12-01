@@ -29,8 +29,10 @@ bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit) {
   hc->PatchSetExtended(w->pdf("model_b")->canBeExtended()); // Number counting, each dataset has 1 entry 
   hc->SetNumberOfToys(nToys_);
   
+  typedef std::pair<double,double> CLs_t;
+
   double clsTarget = 1 - cl; 
-  double clsMin = 1, clsMax = 0, clsMinErr = 0, clsMaxErr = 0;
+  CLs_t clsMin(1,0), clsMax(0,0);
   double rMin   = 0, rMax = r->getMax();
   
   std::cout << "Search for upper limit to the limit" << std::endl;
@@ -48,46 +50,71 @@ bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit) {
   rMax = r->getMax();
   
   std::cout << "Now doing proper bracketing & bisection" << std::endl;
+  bool lucky = false;
   do {
-    r->setVal(0.5*(rMin+rMax));
-    hcResult = hc->GetHypoTest();
-    if (hcResult == 0) {
+    CLs_t clsMid = eval(r, 0.5*(rMin+rMax), hc, clsTarget);
+    if (clsMid.second == -1) {
       std::cerr << "Hypotest failed" << std::endl;
       return false;
     }
-    double clsMid = hcResult->CLs(), clsMidErr = hcResult->CLsError();
-    std::cout << "r = " << r->getVal() << ": CLs = " << clsMid << " +/- " << clsMidErr << std::endl;
-    while (fabs(clsMid-clsTarget) < 3*clsMidErr && clsMidErr >= clsAccuracy_) {
-      HybridResult *more = hc->GetHypoTest();
-      hcResult->Add(more);
-      clsMid    = hcResult->CLs(); 
-      clsMidErr = hcResult->CLsError();
-      std::cout << "r = " << r->getVal() << ": CLs = " << clsMid << " +/- " << clsMidErr << std::endl;
-    }
-    if (verbose) {
-      std::cout << "r = " << r->getVal() << ": \n" <<
-	"\tCLs      = " << hcResult->CLs()      << " +/- " << hcResult->CLsError()      << "\n" <<
-	"\tCLb      = " << hcResult->CLb()      << " +/- " << hcResult->CLbError()      << "\n" <<
-	"\tCLsplusb = " << hcResult->CLsplusb() << " +/- " << hcResult->CLsplusbError() << "\n" <<
-	std::endl;
-    }
-    if (fabs(clsMid-clsTarget) <= clsAccuracy_) {
+    if (fabs(clsMid.first-clsTarget) <= clsAccuracy_) {
       std::cout << "reached accuracy." << std::endl;
+      lucky = true;
       break;
     }
-    if ((clsMid>clsTarget) == (clsMax>clsTarget)) {
-      rMax = r->getVal(); clsMax = clsMid; clsMaxErr = clsMidErr;
+    if ((clsMid.first>clsTarget) == (clsMax.first>clsTarget)) {
+      rMax = r->getVal(); clsMax = clsMid;
     } else {
-      rMin = r->getVal(); clsMin = clsMid; clsMinErr = clsMidErr;
+      rMin = r->getVal(); clsMin = clsMid;
     }
   } while (rMax-rMin > std::max(rAbsAccuracy_, rRelAccuracy_ * r->getVal()));
-  if (clsMinErr == 0 && clsMaxErr == 0) {
-    std::cerr << "Error: both boundaries have no passing/failing toys.\n";
-    return false;
-  }
+
   limit = r->getVal();
+  if (lucky && rInterval_) {
+      std::cout << "\n -- HypoTestInverter (before determining interval) -- \n";
+      std::cout << "Limit: r < " << limit << " +/- " << (rMax - rMin) << " @ " <<cl * 100<<"% CL\n";
+
+      double rBoundLow  = limit - 0.5*std::max(rAbsAccuracy_, rRelAccuracy_ * limit);
+      for (r->setVal(rMin); r->getVal() < rBoundLow  && (fabs(clsMin.first-clsTarget) >= clsAccuracy_); rMin = r->getVal()) {
+        clsMax = eval(r, 0.5*(r->getVal()+limit), hc, clsTarget);
+      }
+
+      double rBoundHigh = limit + 0.5*std::max(rAbsAccuracy_, rRelAccuracy_ * limit);
+      for (r->setVal(rMax); r->getVal() > rBoundHigh && (fabs(clsMax.first-clsTarget) >= clsAccuracy_); rMax = r->getVal()) {
+        clsMax = eval(r, 0.5*(r->getVal()+limit), hc, clsTarget);
+      }
+  } 
   std::cout << "\n -- HypoTestInverter -- \n";
-  std::cout << "Limit: r < " << limit << " +/- " << (rMax - rMin) << "@" <<cl * 100<<"% CL\n";
-  
+  std::cout << "Limit: r < " << limit << " +/- " << 0.5*(rMax - rMin) << " @ " <<cl * 100<<"% CL\n";
   return true;
 }
+
+std::pair<double, double> Hybrid::eval(RooRealVar *r, double rVal, RooStats::HybridCalculatorOriginal *hc, double clsTarget, bool adaptive) {
+    using namespace RooStats;
+    r->setVal(rVal);
+    std::auto_ptr<HybridResult> hcResult(hc->GetHypoTest());
+    if (hcResult.get() == 0) {
+        std::cerr << "Hypotest failed" << std::endl;
+        return std::pair<double, double>(-1,-1);
+    }
+    double clsMid = hcResult->CLs(), clsMidErr = hcResult->CLsError();
+    std::cout << "r = " << rVal << ": CLs = " << clsMid << " +/- " << clsMidErr << std::endl;
+    if (adaptive) {
+        while (fabs(clsMid-clsTarget) < 3*clsMidErr && clsMidErr >= clsAccuracy_) {
+            std::auto_ptr<HybridResult> more(hc->GetHypoTest());
+            hcResult->Add(more.get());
+            clsMid    = hcResult->CLs(); 
+            clsMidErr = hcResult->CLsError();
+            std::cout << "r = " << rVal << ": CLs = " << clsMid << " +/- " << clsMidErr << std::endl;
+        }
+    }
+    if (verbose) {
+        std::cout << "r = " << r->getVal() << ": \n" <<
+            "\tCLs      = " << hcResult->CLs()      << " +/- " << hcResult->CLsError()      << "\n" <<
+            "\tCLb      = " << hcResult->CLb()      << " +/- " << hcResult->CLbError()      << "\n" <<
+            "\tCLsplusb = " << hcResult->CLsplusb() << " +/- " << hcResult->CLsplusbError() << "\n" <<
+            std::endl;
+    }
+    return std::pair<double, double>(clsMid, clsMidErr);
+} 
+
