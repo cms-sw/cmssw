@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Mon Nov 22 11:05:57 CET 2010
-// $Id$
+// $Id: FWInvMassDialog.cc,v 1.1 2010/11/22 21:35:08 matevz Exp $
 //
 
 // system include files
@@ -19,7 +19,10 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
+
 #include "TClass.h"
+#include "TMath.h"
 
 #include "TGTextView.h"
 #include "TGButton.h"
@@ -37,7 +40,7 @@
 //
 
 FWInvMassDialog::FWInvMassDialog(FWSelectionManager* sm) :
-   TGMainFrame(gClient->GetRoot(), 420, 220),
+   TGMainFrame(gClient->GetRoot(), 470, 240),
    m_selectionMgr(sm),
    m_text(0),
    m_button(0)
@@ -121,13 +124,16 @@ void FWInvMassDialog::Calculate()
 
    addLine(TString::Format(" %d items in selection", (int) sted.size()));
    addLine("");
-   addLine("---------------------------------------+--------------");
-   addLine("      pT           pz           mass   | Collection");
-   addLine("---------------------------------------+--------------");
+   addLine("--------------------------------------------------+--------------");
+   addLine("      px          py          pz          pT      | Collection");
+   addLine("--------------------------------------------------+--------------");
 
-   TClass *rc_class = TClass::GetClass(typeid(reco::Candidate));
+   TClass *rc_class  = TClass::GetClass(typeid(reco::Candidate));
+   TClass *rtb_class = TClass::GetClass(typeid(reco::TrackBase));
 
-   math::XYZTLorentzVector sum;
+   math::XYZVector sum;
+   double          sum_len_sqr = 0;
+   double          sum_len_xy_sqr = 0;
 
    for (std::set<FWModelId>::const_iterator i = sted.begin(); i != sted.end(); ++i)
    {
@@ -136,26 +142,52 @@ void FWInvMassDialog::Calculate()
       TClass *model_class = const_cast<TClass*>(i->item()->modelType());
       void   *model_data  = const_cast<void*>  (i->item()->modelData(i->index()));
 
+      math::XYZVector v;
+      bool            ok_p = false;
+
       reco::Candidate *rc = reinterpret_cast<reco::Candidate*>
          (model_class->DynamicCast(rc_class, model_data));
 
       if (rc != 0)
       {
-         const math::XYZTLorentzVector &v = rc->p4();
-         line = TString::Format("  %10.3f, %+11.3f, %10.3f", v.pt(), v.pz(), v.mass());
-         sum += v;
+         ok_p = true;
+         v.SetXYZ(rc->px(), rc->py(), rc->pz());
       }
       else
       {
-         line = TString::Format("  ------ not a reco::Candidate ------");
+         reco::TrackBase *rtb = reinterpret_cast<reco::TrackBase*>
+            (model_class->DynamicCast(rtb_class, model_data));
+
+         if (rtb != 0)
+         {
+            ok_p = true;
+            v.SetXYZ(rtb->px(), rtb->py(), rtb->pz());
+         }
+      }
+
+      if (ok_p)
+      {
+         sum            += v;
+         sum_len_sqr    += v.mag2();
+         sum_len_xy_sqr += v.perp2();
+
+         line = TString::Format("  %+10.3f  %+10.3f  %+10.3f  %10.3f", v.x(), v.y(), v.z(), TMath::Sqrt(v.perp2()));
+
+      }
+      else
+      {
+         line = TString::Format("  -------- not a Candidate or TrackBase --------");
       }
       line += TString::Format("  | %s[%d]", i->item()->name().c_str(), i->index());
 
       addLine(line);
    }
 
-   addLine("-------------------------------------------------------");
-   addLine(TString::Format("  %10.3f, %+11.3f, %10.3f", sum.pt(), sum.pz(), sum.mass()));
+   addLine("--------------------------------------------------+--------------");
+   addLine(TString::Format("  %+10.3f  %+10.3f  %+10.3f  %10.3f  | Sum", sum.x(), sum.y(), sum.z(), TMath::Sqrt(sum.perp2())));
+   addLine("");
+   addLine(TString::Format("m  = %10.3f", TMath::Sqrt(sum_len_sqr    - sum.mag2())));
+   addLine(TString::Format("mT = %10.3f", TMath::Sqrt(sum_len_xy_sqr - sum.perp2())));
 
    endUpdate();
 }
