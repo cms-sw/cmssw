@@ -33,7 +33,9 @@ class oldSchemaNames(object):
         self.trgtable='TRG'
         self.hlttable='HLT'
         self.trghltmaptable='TRGHLTMAP'
-
+#
+# Query section
+#
 def intlistToRange(mylist):
     '''
     [1,2,3,4,5] ->[(1,5)]
@@ -42,7 +44,7 @@ def intlistToRange(mylist):
     '''
     result=[]
     low=mylist[0]
-    high=x.low
+    high=low
     for i,j in CommonUtil.pairwise(mylist):
         if i+1==j:
             x.high=j
@@ -54,32 +56,216 @@ def intlistToRange(mylist):
             result.append((low,high))
             low=j
     return result
-
-def getBranchRangeById(schema,mybranch_id):
+#
+# RevisionAPI
+#
+def entryIdByName(schema,datatableName,entryname,branchrevisionFilter):
     '''
-    select revision_id from revisions where branch_id=:branch_id 
+    entries of given name related to the given datatable in the range of branch filter
+    select e.entry_id,r.revision_id from entrytable e,revisions r where r.revision_id=e.revision_id e.name=:entryname
+    return entry_id
+    '''
+    try:
+        result=None
+        qHandle=schema.newQuery()
+        qHandle.addToTableList( nameDealer.revisionTableName(),'r'  )
+        qHandle.addToTableList( nameDealer.entryTableName(datatableName),'e' )
+        qHandle.addToOutputList('e.ENTRY_ID','entry_id')
+        qHandle.addToOutputList('r.REVISION_ID','revision_id')
+        qCondition=coral.AttributeList()
+        qCondition.extend('entryname','string')
+        qCondition['entryname'].setData(entryname)
+        qConditionStr='r.REVISION_ID=e.REVISION_ID  AND e.NAME=:entryname'
+        qResult=coral.AttributeList()
+        qResult.extend('entry_id','unsigned long long')
+        qResult.extend('revision_id','unsigned long long')
+        qHandle.defineOutput(qResult)
+        qHandle.setCondition(qConditionStr,qCondition)
+        cursor=qHandle.execute()
+        while cursor.next():
+            entry_id=cursor.currentRow()['entry_id'].data()
+            revision_id=cursor.currentRow()['revision_id'].data()
+            if revision_id in branchrevisionFilter:
+               result=entry_id
+        return result
+    except Exception,e :
+        raise RuntimeError(' migrateSchema.entryIdByName: '+str(e))
+    
+def allDataVersionById(schema,datatableName,entry_id,branchrevisionFilter):
+    '''
+    all data version of the given entry whose revision falls in branch range
+    select d.data_id,r.revision_id from datatable d, datarevisiontable r where d.entry_id=:entry_id and d.data_id=r.data_id
+    return max(data_id) 
+    '''
+    try:
+        result=[]
+        qHandle=schema.newQuery()
+        qHandle.addToTableList( datatableName,'d' )
+        qHandle.addToTableList( nameDealer.revmapTableName(datatableName), 'r')
+        qHandle.addToOutputList('d.DATA_ID','data_id')
+        qHandle.addToOutputList('r.REVISION_ID','revision_id')
+        qCondition=coral.AttributeList()
+        qCondition.extend('entry_id','unsigned long long')
+        qCondition['entry_id'].setData(entry_id)
+        qConditionStr='d.DATA_ID=r.DATA_ID  AND d.ENTRY_ID=:entry_id'
+        qResult=coral.AttributeList()
+        qResult.extend('data_id','unsigned long long')
+        qResult.extend('revision_id','unsigned long long')
+        qHandle.defineOutput(qResult)
+        qHandle.setCondition(qConditionStr,qCondition)
+        cursor=qHandle.execute()
+        while cursor.next():
+            data_id=cursor.currentRow()['data_id'].data()
+            revision_id=cursor.currentRow()['revision_id'].data()
+            if revision_id in branchrevisionFilter:
+                result.append(data_id)        
+    except Exception,e :
+        raise RuntimeError(' migrateSchema.allDataVersionById: '+str(e))     
+
+def lastestDataVersionById(schema,datatableName,entry_id,branchrevisionFilter):
+    '''
+    latest data version of the given entry whose revision falls in branch range
+    select d.data_id,r.revision_id from datatable d, datarevisiontable r where d.entry_id=:entry_id and d.data_id=r.data_id
+    return max(data_id) 
+    '''
+    result=allDataVersionById(schema,datatableName,entry_id,branchrevisionFilter)
+    if result and len(result)!=0: return max(result)
+    return None
+
+def allDataVersionByName(schema,datatableName,entryname,branchrevisionFilter):
+    '''
+    all data version of the given entry whose revision falls in branch range
+    select d.data_id,r.revision_id from datatable d, datarevisiontable r where  d.data_id=r.data_id and d.entry_id=:entry_id
+    return [data_id]
     '''
     result=[]
-    mylist=[]
-    dbsession.transaction().start(True)
-    qHandle=dbsession.nominalSchema().newQuery()
-    qHandle.addToTableList(nameDealer.revisiontableName())
-    qHandle.addToOutputList('REVISION_ID','revision_id')
-    qCondition=coral.AttributeList()
-    qCondition.extend('branch_id','unsigned long long')
-    qCondition['branch_id'].setData(mybranch_id)
-    qResult=coral.AttributeList()
-    qResult.extend('revision_id','unsigned long long')
-    qHandle.defineOutput(qResult)
-    qHandle.setCondition('BRANCH_ID=:branch_id',qCondition)
-    cursor=qHandle.execute()
-    while cursor.next():
-        revision_id=cursor.currentRow()['revision_id'].data()
-        mylist.append(revision_id)
-    del qHandle
-    result=intlistToRange(mylist)
+    try:
+        qHandle=schema.newQuery()
+        qHandle.addToTableList( datatableName,'d' )
+        qHandle.addToTableList( nameDealer.revmapTableName(datatableName), 'r')
+        qHandle.addToTableList( nameDealer.entryTableName(datatableName),'e' )
+        qHandle.addToOutputList('d.DATA_ID','data_id')
+        qHandle.addToOutputList('r.REVISION_ID','revision_id')
+        qConditionStr='e.ENTRY_ID=d.ENTRY_ID AND d.DATA_ID=r.DATA_ID and e.NAME=:entryname'
+        qCondition=coral.AttributeList()
+        qCondition.extend('entryname','string')
+        qCondition['entryname'].setData(entryname)
+        qResult=coral.AttributeList()
+        qResult.extend('data_id','unsigned long long')
+        qResult.extend('revision_id','unsigned long long')
+        qHandle.defineOutput(qResult)
+        qHandle.setCondition(qConditionStr,qCondition)
+        cursor=qHandle.execute()
+        while cursor.next():
+            data_id=cursor.currentRow()['data_id'].data()
+            revision_id=cursor.currentRow()['revision_id'].data()
+            if revision_id in branchrevisionFilter:
+                result.append(data_id)
+    except Exception,e :
+        raise RuntimeError(' migrateSchema.latestDataVersionByName: '+str(e))
     return result
 
+def latestDataVersionByName(schema,datatableName,entryname,branchrevisionFilter):
+    '''
+    latest data version of the given entry by name whose revision falls in branch range
+    select d.data_id,r.revision_id from datatable d, datarevisiontable r,dataentriestable e where e.entry_id=d.entry_id and d.data_id=r.data_id  and e.name=:entryname
+    return max(data_id)
+    '''
+    result=allDataVersionByName(schema,datatableName,entryname,branchrevisionFilter)
+    if result and len(result)!=0: return max(result)
+    return None
+
+def getBranchByName(schema,branchName):
+    '''
+    select (revision_id,branch_id) from revisions where name=:branchName
+    '''
+    try:
+         qHandle=schema.newQuery()
+         qHandle.addToTableList( nameDealer.revisionTableName() )
+         qHandle.addToOutputList('REVISION_ID','revision_id')
+         qHandle.addToOutputList('BRANCH_ID','branch_id')
+         qCondition=coral.AttributeList()
+         qCondition.extend('name','string')
+         qCondition['name'].setData(branchName)
+         qResult=coral.AttributeList()
+         qResult.extend('revision_id','unsigned long long')
+         qResult.extend('branch_id','unsigned long long')
+         qHandle.defineOutput(qResult)
+         qHandle.setCondition('NAME=:name',qCondition)
+         cursor=qHandle.execute()
+         while cursor.next():
+             revision_id=cursor.currentRow()['revision_id'].data()
+             branch_id=cursor.currentRow()['branch_id'].data()
+         del qHandle
+         return (revision_id,branch_id)
+    except Exception,e :
+        raise RuntimeError(' migrateSchema.getBranchByName: '+str(e))
+    
+def revisionsInBranchName(schema,branchname):
+    '''
+    returns all revisions in a branch
+    
+    '''
+    result=[]
+    try:
+        (revision_id,branch_id)=getBranchByName(schema,branchname)
+        result=revisionsInBranch(schema,revision_id)
+        return result
+    except Exception,e :
+        raise RuntimeError(' migrateSchema.revisionsInBranchName: '+str(e))
+    
+def revisionsInBranch(schema,branchid):
+    '''
+    returns ranges of values for a branch
+    result=[revision_id]
+    select distinct branch_id from revisions where branch_id>:branchid;
+    select revision_id from revisions where branch_id=:branchid and revision_id not in (branch_ids);
+    if the branchid matches and the revisionid is not in the branchid collection, then this revision is in the branch
+    require also revisionid>branchid
+    '''
+    result=[]
+    try:
+        nextbranches=[]
+        nextbranchesStr=''
+        qHandle=schema.newQuery()
+        qHandle.addToTableList( nameDealer.revisionTableName() )
+        qHandle.addToOutputList('distinct BRANCH_ID','branch_id')
+        qCondition=coral.AttributeList()
+        qCondition.extend('branchid','unsigned long long')
+        qCondition['branchid'].setData(branchid)
+        qResult=coral.AttributeList()
+        qResult.extend('branch_id','unsigned long long')
+        qHandle.defineOutput(qResult)
+        qHandle.setCondition('BRANCH_ID>:branchid',qCondition)
+        cursor=qHandle.execute()
+        while cursor.next():
+            nextbranches.append(cursor.currentRow()['branch_id'].data())
+        del qHandle
+        print 'nextbranches ',nextbranches
+        conditionStr='BRANCH_ID=:branchid'
+        if len(nextbranches)!=0:
+            nextbranchesStr=','.join([str(x) for x in nextbranches])
+            print nextbranchesStr
+            conditionStr+=' AND REVISION_ID NOT IN ('+nextbranchesStr+')'
+            print conditionStr
+        qHandle=schema.newQuery()
+        qHandle.addToTableList( nameDealer.revisionTableName() )
+        qHandle.addToOutputList('REVISION_ID','revision_id')
+        qCondition=coral.AttributeList()
+        qCondition.extend('branchid','unsigned long long')
+        qCondition['branchid'].setData(branchid)
+        qResult=coral.AttributeList()
+        qResult.extend('revision_id','unsigned long long')
+        qHandle.defineOutput(qResult)
+        qHandle.setCondition(conditionStr,qCondition)
+        cursor=qHandle.execute()
+        while cursor.next():
+            result.append(cursor.currentRow()['revision_id'].data())
+        del qHandle
+        return result
+    except Exception,e :
+        raise RuntimeError(' migrateSchema.revisionsInBranch: '+str(e))
+    
 def isOldSchema(dbsession):
     '''
     if there is no lumidata table, then it is old schema
@@ -92,6 +278,9 @@ def isOldSchema(dbsession):
     dbsession.transaction().commit()
     return not result
 
+#
+# Schema manipulation section
+#
 def createNewTables(dbsession):
     '''
     create new tables if not exist
@@ -289,7 +478,9 @@ def dropNewSchema(dbsession):
     '''
     dropNewTables(dbsession)
     restoreOldTables(dbsession)
-
+#
+# Schema transfer section
+#
 def getOldTrgData(dbsession,runnum):
     '''
     generate new data_id for trgdata
@@ -485,11 +676,12 @@ def bookNewRevision(schema,datatableName):
     data_id=iddealer.generateNextIDForTable(datatableName)
     return (revision_id,data_id)
 
-def addEntryToBranch(schema,datatableName,revision_id,entry_id,data_id,branchname,name='',comment=''):
+def addEntryToBranch(schema,datatableName,revision_id,entry_id,data_id,branchname,name,comment=''):
     (parentrevision_id,parentbranch_id)=getBranchByName(schema,branchname)
+    print 'addEntryToBranch ',parentrevision_id,parentbranch_id
     addEntry(schema,datatableName,revision_id,entry_id,data_id,parentrevision_id,name,comment)
      
-def addEntry(schema,datatableName,revision_id,entry_id,data_id,branch_id=0,name='',comment=''):
+def addEntry(schema,datatableName,revision_id,entry_id,data_id,branch_id,name,comment=''):
     '''
     1.allocate and insert a new revision into the revisions table
     2.allocate and insert a new entry into the entry table with the new revision
@@ -507,23 +699,24 @@ def addEntry(schema,datatableName,revision_id,entry_id,data_id,branch_id=0,name=
     tabrowDefDict={}
     tabrowDefDict['REVISION_ID']='unsigned long long'
     tabrowDefDict['BRANCH_ID']='unsigned long long'
-    tabrowDefDict['NAME']='string'
     tabrowDefDict['COMMENT']='string'
     tabrowDefDict['CTIME']='time stamp'
     tabrowValueDict={}
     tabrowValueDict['REVISION_ID']=revision_id
     tabrowValueDict['BRANCH_ID']=branch_id
-    tabrowValueDict['NAME']=name
     tabrowValueDict['COMMENT']=comment
     tabrowValueDict['CTIME']=coral.TimeStamp()
     db.insertOneRow(revisiontableName,tabrowDefDict,tabrowValueDict)
     
     tabrowDefDict={}
-    tabrowDefDict['ENTRY_ID']='unsigned long long'
+    tabrowDefDict['ENTRY_ID']='unsigned long long'    
     tabrowDefDict['REVISION_ID']='unsigned long long'
+    tabrowDefDict['NAME']='string'
+    
     tabrowValueDict={}
     tabrowValueDict['ENTRY_ID']=entry_id
     tabrowValueDict['REVISION_ID']=revision_id
+    tabrowValueDict['NAME']=name
     db.insertOneRow(entrytableName,tabrowDefDict,tabrowValueDict)
 
     tabrowDefDict={}
@@ -534,7 +727,7 @@ def addEntry(schema,datatableName,revision_id,entry_id,data_id,branch_id=0,name=
     tabrowValueDict['DATA_ID']=data_id
     db.insertOneRow(revtableName,tabrowDefDict,tabrowValueDict)
     
-def addRevision(schema,datatableName,revision_id,data_id,branch_id=0,name='',comment=''):
+def addRevision(schema,datatableName,revision_id,data_id,branch_id=0,comment=''):
     '''
     1.insert a new revision into the revisions table
     2.insert into data_id, revision_id pair to  datatable_rev 
@@ -548,12 +741,10 @@ def addRevision(schema,datatableName,revision_id,data_id,branch_id=0,name='',com
     tabrowDefDict={}
     tabrowDefDict['REVISION_ID']='unsigned long long'
     tabrowDefDict['BRANCH_ID']='unsigned long long'
-    tabrowDefDict['NAME']='string'
     tabrowDefDict['COMMENT']='string'
     tabrowValueDict={}
     tabrowValueDict['REVISION_ID']=revision_id
     tabrowValueDict['BRANCH_ID']=branch_id
-    tabrowValueDict['NAME']=name
     tabrowValueDict['COMMENT']=comment
     db.insertOneRow(revisiontableName,tabrowDefDict,tabrowValueDict)
 
@@ -614,32 +805,6 @@ def createNewBranch(schema,name,comment='',parentname=None):
     tabrowValueDict['CTIME']=coral.TimeStamp()
     db.insertOneRow(nameDealer.revisionTableName(),tabrowDefDict, tabrowValueDict )
     return revision_id
-
-def getBranchByName(schema,branchName):
-    '''
-    select branch_id from revisions where name=:branchName
-    '''
-    try:
-         qHandle=schema.newQuery()
-         qHandle.addToTableList( nameDealer.revisionTableName() )
-         qHandle.addToOutputList('REVISION_ID','revision_id')
-         qHandle.addToOutputList('BRANCH_ID','branch_id')
-         qCondition=coral.AttributeList()
-         qCondition.extend('name','string')
-         qCondition['name'].setData(branchName)
-         qResult=coral.AttributeList()
-         qResult.extend('revision_id','unsigned long long')
-         qResult.extend('branch_id','unsigned long long')
-         qHandle.defineOutput(qResult)
-         qHandle.setCondition('NAME=:name',qCondition)
-         cursor=qHandle.execute()
-         while cursor.next():
-             revision_id=cursor.currentRow()['revision_id'].data()
-             branch_id=cursor.currentRow()['branch_id'].data()
-         del qHandle
-         return (revision_id,branch_id)
-    except Exception,e :
-        raise RuntimeError(' migrateSchema.getBranchByName: '+str(e))
     
 def createLumiNorm(dbsession,name,inputdata,branchName='LUMINORM',comment=''):
     '''
@@ -839,41 +1004,43 @@ def main():
     if args.debug:
         msg=coral.MessageStream('')
         msg.setMsgVerbosity(coral.message_Level_Debug)
-    if isOldSchema(dbsession):
-        print 'is old schema'
-        createNewSchema(dbsession)
-    else:
-        print 'is new schema'
-        dropNewSchema(dbsession)
-        print 'creating new schema'
-        createNewSchema(dbsession)
-        print 'done'
-    dbsession.transaction().start(False)
-    createNewBranch(dbsession.nominalSchema(),'TRUNK',comment='root',parentname=None)
-    createNewBranch(dbsession.nominalSchema(),'LUMIDATA',comment='root of lumidata',parentname='TRUNK')
-    createNewBranch(dbsession.nominalSchema(),'LUMINORM',comment='root of luminorm',parentname='TRUNK')
-    createNewBranch(dbsession.nominalSchema(),'TRGDATA',comment='root of trgdata',parentname='TRUNK')
-    createNewBranch(dbsession.nominalSchema(),'HLTDATA',comment='root of hltdata',parentname='TRUNK')
+    #if isOldSchema(dbsession):
+    #    print 'is old schema'
+    #    createNewSchema(dbsession)
+    #else:
+       # print 'is new schema'
+       # dropNewSchema(dbsession)
+       # print 'creating new schema'
+       # createNewSchema(dbsession)
+       # print 'done'
+    #dbsession.transaction().start(False)
+    #createNewBranch(dbsession.nominalSchema(),'TRUNK',comment='root',parentname=None)
+    #createNewBranch(dbsession.nominalSchema(),'DATA',comment='root of data',parentname='TRUNK')
+    #createNewBranch(dbsession.nominalSchema(),'LUMINORM',comment='root of norm',parentname='TRUNK')
+    #dbsession.transaction().commit()
+    #normdef={'DEFAULTNORM':6370.0,'NORM_1':6370.0,'ENERGY_1':3.5e03,'NORM_2':1.625,'ENERGY_2':0.9e03}
+    #createLumiNorm(dbsession,'pp7TeV',normdef,branchName='LUMINORM')
+    #trgresult=getOldTrgData(dbsession,runnumber)
+    #hltresult=getOldHLTData(dbsession,runnumber)
+    #transferLumiData(dbsession,runnumber,branchName='DATA')
+    #transfertrgData(dbsession,runnumber,trgresult,branchName='DATA')
+    #transferhltData(dbsession,runnumber,hltresult,branchName='DATA')
+    #hinormdef={'DEFAULTNORM':2.38,'NORM_1':2.38,'ENERGY_1':3.5e03,'NORM_2':2.38,'ENERGY_2':3.5e03}
+    #createLumiNorm(dbsession,'hi7TeV',normdef,branchName='LUMINORM')
+
+    dbsession.transaction().start(True)
+    (trunkid,branch_id)=getBranchByName(dbsession.nominalSchema(),'TRUNK')
+    print 'TRUNK revision_id,branch_id ',trunkid,branch_id
+    (databranchid,branch_id)=getBranchByName(dbsession.nominalSchema(),'DATA')
+    print 'DATA revision_id,branch_id ',databranchid,branch_id
+    (normbranchid,branch_id)=getBranchByName(dbsession.nominalSchema(),'LUMINORM')
+    print 'LUMINORM revision_id,branch_id ',normbranchid,branch_id
+    revrange=revisionsInBranchName(dbsession.nominalSchema(),'DATA')
+    latestLumiDataId=latestDataVersionByName(dbsession.nominalSchema(),nameDealer.lumidataTableName(),str(runnumber),revrange);
+    print 'latest lumidata for  ',runnumber,latestLumiDataId
     dbsession.transaction().commit()
-    normdef={'DEFAULTNORM':6.37,'NORM_1':6.37,'ENERGY_1':3.5e03,'NORM_2':1.625,'ENERGY_2':0.9e03}
-    createLumiNorm(dbsession,'pp7TeV',normdef,branchName='LUMINORM')
-    trgresult=getOldTrgData(dbsession,runnumber)
-    hltresult=getOldHLTData(dbsession,runnumber)
-    transferLumiData(dbsession,runnumber,branchName='LUMIDATA')
-    transfertrgData(dbsession,runnumber,trgresult,branchName='TRGDATA')
-    transferhltData(dbsession,runnumber,hltresult,branchName='HLTDATA')
-    hinormdef={'DEFAULTNORM':2.38,'NORM_1':2.38,'ENERGY_1':3.5e03,'NORM_2':2.38,'ENERGY_2':3.5e03}
-    createLumiNorm(dbsession,'hi7TeV',normdef,branchName='LUMINORM')
     del dbsession
     del svc
-    #print trgresult[0]
-    #print len(trgresult[0].split(','))
-    #print trgresult[1]
-    #print '==========='
-    #print hltresult[0]
-    #print len(hltresult[0].split(','))
-    #print hltresult[1]
-    #print result
 if __name__=='__main__':
     main()
     
