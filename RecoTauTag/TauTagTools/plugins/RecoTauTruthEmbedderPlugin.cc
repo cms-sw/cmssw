@@ -16,6 +16,7 @@
 
 #include "RecoTauTag/RecoTau/interface/RecoTauBuilderPlugins.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
+#include "RecoTauTag/RecoTau/interface/PFTauDecayModeTools.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -69,7 +70,7 @@ void RecoTauTruthEmbedder::operator()(PFTau& tau) const {
     tau.setalternatLorentzVect(truth->p4());
     // Store our generator decay mode
     tau.setbremsRecoveryEOverPLead(
-        reco::PFTau::translateDecayMode(
+        reco::tau::translateDecayMode(
             helpers::nCharged(*truth),
             helpers::nGammas(*truth)/2)
         );
