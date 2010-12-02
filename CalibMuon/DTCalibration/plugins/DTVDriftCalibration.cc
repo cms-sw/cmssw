@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/18 20:33:11 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/11/26 21:46:46 $
+ *  $Revision: 1.10 $
  *  \author M. Giunta
  */
 
@@ -78,8 +78,8 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset): select_(pset
   theVDriftOutputFile = pset.getUntrackedParameter<string>("vDriftFileName");
 
   // Get the synchronizer
-  theSync = DTTTrigSyncFactory::get()->create(pset.getUntrackedParameter<string>("tTrigMode"),
-                                              pset.getUntrackedParameter<ParameterSet>("tTrigModeConfig"));
+  theSync = DTTTrigSyncFactory::get()->create(pset.getParameter<string>("tTrigMode"),
+                                              pset.getParameter<ParameterSet>("tTrigModeConfig"));
 
   // get parameter set for DTCalibrationMap constructor
   theCalibFilePar =  pset.getUntrackedParameter<ParameterSet>("calibFileConfig");
