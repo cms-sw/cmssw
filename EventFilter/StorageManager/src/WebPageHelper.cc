@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.48 2010/05/11 17:55:22 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.49 2010/12/01 13:44:48 eulisse Exp $
 /// @file: WebPageHelper.cc
 
 #ifdef __APPLE__
@@ -36,11 +36,9 @@ boost::mutex WebPageHelper::_xhtmlMakerMutex;
 
 WebPageHelper::WebPageHelper
 (
-  xdaq::ApplicationDescriptor* appDesc,
-  const std::string SMversion
+  xdaq::ApplicationDescriptor* appDesc
 ) :
-_appDescriptor(appDesc),
-_smVersion(SMversion)
+_appDescriptor(appDesc)
 {
   // set application icon for hyperdaq
   appDesc->setAttribute("icon", "/evf/images/smicon.jpg");
@@ -82,18 +80,7 @@ void WebPageHelper::defaultWebPage
   StatisticsReporterPtr statReporter = sharedResources->_statisticsReporter;
 
   // Create the body with the standard header
-  XHTMLMaker::Node* body = createWebPageBody(maker, statReporter);
-
-  // Show host name:
-  XHTMLMaker::Node* hn_table = maker.addNode( "table", body );
-  XHTMLMaker::Node* hn_tbody = maker.addNode( "tbody", hn_table );
-  XHTMLMaker::Node* hn_tr = maker.addNode( "tr", hn_tbody );
-  XHTMLMaker::Node* hn_td = maker.addNode( "td", hn_tr );
-  std::string hname( "Running on host: " );
-  hname += sharedResources->_configuration->getDiskWritingParams()._hostName;
-  maker.addText( hn_td, hname );
-
-  //TODO: Failed printout
+  XHTMLMaker::Node* body = createWebPageBody(maker, "Main", sharedResources);
 
   // Run and event summary
   addDOMforRunMonitor(maker, body, statReporter->getRunMonitorCollection());
@@ -127,7 +114,7 @@ void WebPageHelper::storedDataWebPage
   StatisticsReporterPtr statReporter = sharedResources->_statisticsReporter;
   
   // Create the body with the standard header
-  XHTMLMaker::Node* body = createWebPageBody(maker, statReporter); 
+  XHTMLMaker::Node* body = createWebPageBody(maker, "Stored Data", sharedResources); 
 
   addDOMforStoredData(maker, body, statReporter->getStreamsMonitorCollection());
 
@@ -155,13 +142,13 @@ void WebPageHelper::filesWebPage
   StatisticsReporterPtr statReporter = sharedResources->_statisticsReporter;
   
   // Create the body with the standard header
-  XHTMLMaker::Node* body = createWebPageBody(maker, statReporter);
+  XHTMLMaker::Node* body = createWebPageBody(maker, "Files", sharedResources);
 
   addDOMforFiles(maker, body, statReporter->getFilesMonitorCollection());  
 
   addDOMforSMLinks(maker, body);
   
-   // Dump the webpage to the output stream
+  // Dump the webpage to the output stream
   maker.out(*out);
 }
 
@@ -169,578 +156,31 @@ void WebPageHelper::filesWebPage
 //////////////////////////////
 //// Consumer statistics: ////
 //////////////////////////////
-void WebPageHelper::consumerStatistics( xgi::Output* out,
-                                        const SharedResourcesPtr resPtr )
+void WebPageHelper::consumerStatistics
+(
+  xgi::Output* out,
+  const SharedResourcesPtr sharedResources
+)
 {
 
   // Get lock, initialize maker:
-  boost::mutex::scoped_lock lock( _xhtmlMakerMutex );
+  boost::mutex::scoped_lock lock(_xhtmlMakerMutex);
   XHTMLMonitor theMonitor;
   XHTMLMaker maker;
 
-  // Make header:
-  XHTMLMaker::Node* body = createWebPageBody( maker, resPtr->_statisticsReporter );
+  // Create the body with the standard header
+  XHTMLMaker::Node* body = createWebPageBody(maker, "Consumer Statistics", sharedResources);
 
-  //////////////////////////
-  //// Event Consumers: ////
-  //////////////////////////
+  addDOMforEventConsumers(maker, body, sharedResources);
 
-  {
-    // Title:
-    XHTMLMaker::AttrMap title_attr;
-    title_attr[ "style" ] = "text-align:center;font-weight:bold";
-    XHTMLMaker::Node* title = maker.addNode( "p", body, title_attr );
-    maker.addText( title, "Consumer Statistics" );
+  maker.addNode("hr", body);
 
-    //
-    //// Consumer summary table: ////
-    //
+  addDOMforDQMEventConsumers(maker, body, sharedResources);
 
-    XHTMLMaker::AttrMap table_attr;
-    XHTMLMaker::Node* cs_table = maker.addNode( "table", body, table_attr );
-    XHTMLMaker::Node* cs_tbody = maker.addNode( "tbody", cs_table );
-
-    // Header cell attributes:
-    XHTMLMaker::AttrMap th_attr;
-    th_attr[ "style" ] = "border-style:solid;border-width:1px;padding:1px;white-space:nowrap";
-    th_attr[ "valign" ] = "bottom";
-    XHTMLMaker::AttrMap th_attr_2r = th_attr;
-    th_attr_2r[ "rowspan" ] = "2";
-    XHTMLMaker::AttrMap th_attr_multicol = th_attr;
-    th_attr_multicol[ "colspan" ] = "5";
-
-    // Cell attributes:
-    XHTMLMaker::AttrMap cell_attr;
-    cell_attr[ "style" ] = "border-width:1px;padding:2px;white-space:nowrap;border-style:outset;border-color=gray;-moz-border-radius:3px;";
-
-    //
-    //// Cell titles: ////
-    //
-
-    // First row:
-
-    XHTMLMaker::Node* cs_top_row = maker.addNode( "tr", cs_tbody );
-
-    XHTMLMaker::Node* cs_th_id = maker.addNode( "th", cs_top_row, th_attr_2r );
-    maker.addText( cs_th_id, "ID" );
-
-    XHTMLMaker::Node* cs_th_name = maker.addNode( "th", cs_top_row, th_attr_2r );
-    maker.addText( cs_th_name, "Name" );
-
-    XHTMLMaker::Node* cs_th_rhost = maker.addNode( "th", cs_top_row, th_attr_2r );
-    maker.addText( cs_th_rhost, "Consumer Host" );
-
-    XHTMLMaker::Node* cs_th_status = maker.addNode( "th", cs_top_row, th_attr_2r );
-    maker.addText( cs_th_status, "Status" );
-
-    XHTMLMaker::Node* cs_th_hlt = maker.addNode( "th", cs_top_row, th_attr_2r );
-    maker.addText( cs_th_hlt, "HLT Output Module" );
-
-    XHTMLMaker::Node* cs_th_filters = maker.addNode( "th", cs_top_row, th_attr_2r );
-    maker.addText( cs_th_filters, "Filters" );
-
-    XHTMLMaker::Node* cs_th_policy = maker.addNode( "th", cs_top_row, th_attr_2r );
-    maker.addText( cs_th_policy, "Enquing Policy" );
-
-    XHTMLMaker::Node* cs_th_queue_size = maker.addNode( "th", cs_top_row, th_attr_2r );
-    maker.addText( cs_th_queue_size, "Queue Size" );
-
-    XHTMLMaker::Node* cs_th_in_queue = maker.addNode( "th", cs_top_row, th_attr_2r );
-    maker.addText( cs_th_in_queue, "Events In Queue" );
-
-    XHTMLMaker::Node* cs_th_overall = maker.addNode( "th", cs_top_row, th_attr_multicol );
-    maker.addText( cs_th_overall, "Overall" );
-
-    XHTMLMaker::Node* cs_th_recent = maker.addNode( "th", cs_top_row, th_attr_multicol );
-    maker.addText( cs_th_recent, "Recent" );
-
-    // Second row:
-
-    XHTMLMaker::Node* cs_top_row_2 = maker.addNode( "tr", cs_tbody );
-
-    XHTMLMaker::Node* cs_th_queued = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_queued, "Events Enqueued" );
-
-    XHTMLMaker::Node* cs_th_served = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_served, "Events Served" );
-
-    XHTMLMaker::Node* cs_th_served_rate = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_served_rate, "Served Event Rate, Hz" );
-
-    XHTMLMaker::Node* cs_th_event_size = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_event_size, "Average Event Size, kB" );
-
-    XHTMLMaker::Node* cs_th_bw = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_bw, "Bandwidth, kB/s" );
-
-    XHTMLMaker::Node* cs_th_queued_recent = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_queued_recent, "Events Enqueued" );
-
-    XHTMLMaker::Node* cs_th_served_recent = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_served_recent, "Events Served" );
-
-    XHTMLMaker::Node* cs_th_served_rate_recent = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_served_rate_recent, "Served Event Rate, Hz" );
-
-    XHTMLMaker::Node* cs_th_event_size_recent = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_event_size_recent, "Average Event Size, kB" );
-
-    XHTMLMaker::Node* cs_th_bw_recent = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_bw_recent, "Bandwidth, kB/s" );
-
-    boost::shared_ptr<RegistrationCollection> rc = resPtr->_registrationCollection;
-    RegistrationCollection::ConsumerRegistrations regs;
-    rc->getEventConsumers( regs );
-
-    EventConsumerMonitorCollection& eventConsumerCollection =
-      resPtr->_statisticsReporter->getEventConsumerMonitorCollection();
-
-    boost::shared_ptr<EventQueueCollection> qcoll_ptr = resPtr->_eventConsumerQueueCollection;
-
-    //
-    //// Loop over consumers: ////
-    //
-
-    bool even_row = false;
-
-    for( RegistrationCollection::ConsumerRegistrations::const_iterator it = regs.begin();
-         it != regs.end(); ++it )
-      {
-
-        // Row:
-        XHTMLMaker::AttrMap td_attr = cell_attr;
-        if( even_row )
-          {
-            td_attr[ "style" ] = cell_attr[ "style" ] + std::string( "background-color:#e0e0e0;" );
-            even_row = false;
-          }
-        else
-          {
-            even_row = true;
-          }
-        XHTMLMaker::Node* cs_tr = maker.addNode( "tr", cs_tbody );
-
-        // ID:
-        std::ostringstream cid_oss;
-        cid_oss << (*it)->consumerID();
-        XHTMLMaker::Node* cs_td_id = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_id, cid_oss.str() );
-
-        // Name:
-        XHTMLMaker::Node* cs_td_name = maker.addNode( "td", cs_tr, td_attr );
-        if ( (*it)->isProxyServer() )
-          maker.addText( cs_td_name, "Proxy Server" );
-        else
-          maker.addText( cs_td_name, (*it)->consumerName() );
-
-        // Host:
-        XHTMLMaker::Node* cs_td_rhost = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_rhost, (*it)->remoteHost() );
-
-        // Status:
-        XHTMLMaker::AttrMap status_attr;
-        std::string status_message = "";
-        if( (*it)->isStale() )
-          {
-            status_attr[ "style" ] = td_attr[ "style" ] + std::string( "color:brown;" );
-            status_message = "Stale";
-          }
-        else
-          {
-            status_attr[ "style" ] = td_attr[ "style" ] + std::string( "color:green;" );
-            status_message = "Active";
-          }
-        XHTMLMaker::Node* cs_td_status = maker.addNode( "td", cs_tr, status_attr );
-        maker.addText( cs_td_status, status_message );
-
-        // HLT output module:
-        XHTMLMaker::Node* cs_td_hlt = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_hlt, (*it)->outputModuleLabel() );
-
-        // Filter list:
-        std::string fl_str;
-        const EventConsumerRegistrationInfo::FilterList fl = (*it)->selEvents();
-        std::string fl_str_tmp = (*it)->triggerSelection();
-
-        if (!fl_str_tmp.empty()) fl_str = fl_str_tmp;
-        else 
-          for( EventConsumerRegistrationInfo::FilterList::const_iterator lit = fl.begin();
-               lit != fl.end(); ++lit )
-            {
-              if( lit != fl.begin() )
-                {
-                  fl_str += "&nbsp;&nbsp;";
-                }
-              fl_str += *lit;
-            }
-        XHTMLMaker::Node* cs_td_filters = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_filters, fl_str );
-
-        // Policy:
-        std::ostringstream policy_oss;
-        policy_oss << (*it)->queuePolicy();
-        XHTMLMaker::Node* cs_td_policy = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_policy, policy_oss.str() );
-
-        // Queue size:
-        XHTMLMaker::Node* cs_td_q_size = maker.addNode( "td", cs_tr, td_attr );
-        maker.addInt( cs_td_q_size, (*it)->queueSize() );
-
-        // Events in queue:
-        const uint32_t nevents_in_queue = qcoll_ptr->size( (*it)->queueId() );
-        XHTMLMaker::Node* cs_td_in_q = maker.addNode( "td", cs_tr, td_attr );
-        maker.addInt( cs_td_in_q, nevents_in_queue );
-
-        // Events enqueued:
-        std::ostringstream eq_oss;
-        std::ostringstream eq_oss_recent;
-        MonitoredQuantity::Stats eq_stats;
-        bool eq_found = eventConsumerCollection.getQueued( (*it)->queueId(), eq_stats );
-        if( eq_found )
-          {
-            eq_oss << eq_stats.getSampleCount();
-            eq_oss_recent << eq_stats.getSampleCount( MonitoredQuantity::RECENT );
-          }
-        else
-          {
-            eq_oss << "Not found";
-            eq_oss_recent << "Not found";
-          }
-
-        // Number, rate, size and bandwidth of served events:
-        std::ostringstream es_oss;
-        std::ostringstream rate_oss;
-        std::ostringstream es_oss_recent;
-        std::ostringstream rate_oss_recent;
-        std::ostringstream ev_size_oss;
-        std::ostringstream ev_size_oss_recent;
-        std::ostringstream bw_oss;
-        std::ostringstream bw_oss_recent;
-        MonitoredQuantity::Stats es_stats;
-        bool es_found = eventConsumerCollection.getServed( (*it)->queueId(), es_stats );
-        if( es_found )
-          {
-            es_oss << es_stats.getSampleCount();
-            rate_oss << es_stats.getSampleRate();
-            ev_size_oss << ( es_stats.getValueAverage() / (double)1024 );
-            bw_oss << ( es_stats.getValueRate() / (double)1024 );
-            es_oss_recent << es_stats.getSampleCount( MonitoredQuantity::RECENT );
-            rate_oss_recent << es_stats.getSampleRate( MonitoredQuantity::RECENT );
-            ev_size_oss_recent << ( es_stats.getValueAverage( MonitoredQuantity::RECENT ) / (double)1024 );
-            bw_oss_recent << ( es_stats.getValueRate( MonitoredQuantity::RECENT ) / (double)1024 );
-          }
-        else
-          {
-            es_oss << "Not found";
-            rate_oss << "Not found";
-            es_oss_recent << "Not found";
-            rate_oss_recent << "Not found";
-            ev_size_oss << "Not found";
-            ev_size_oss_recent << "Not found";
-            bw_oss << "Not found";
-            bw_oss_recent << "Not found";
-          }
-
-        // Overall:
-        XHTMLMaker::Node* cs_td_eq = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_eq, eq_oss.str() );
-        XHTMLMaker::Node* cs_td_es = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_es, es_oss.str() );
-        XHTMLMaker::Node* cs_td_rate = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_rate, rate_oss.str() );
-        XHTMLMaker::Node* cs_td_ev_size = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_ev_size, ev_size_oss.str() );
-        XHTMLMaker::Node* cs_td_bw = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_bw, bw_oss.str() );
-
-        // Recent:
-        XHTMLMaker::Node* cs_td_eq_r = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_eq_r, eq_oss_recent.str() );
-        XHTMLMaker::Node* cs_td_es_r = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_es_r, es_oss_recent.str() );
-        XHTMLMaker::Node* cs_td_rate_r = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_rate_r, rate_oss_recent.str() );
-        XHTMLMaker::Node* cs_td_ev_size_r = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_ev_size_r, ev_size_oss_recent.str() );
-        XHTMLMaker::Node* cs_td_bw_r = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_bw_r, bw_oss_recent.str() );
-
-      }
-
-  }
-
-  ////////////////////////
-  //// DQM Consumers: ////
-  ////////////////////////
-
-  {
-    // Title:
-    XHTMLMaker::AttrMap title_attr;
-    title_attr[ "style" ] = "text-align:center;font-weight:bold";
-    XHTMLMaker::Node* title = maker.addNode( "p", body, title_attr );
-    maker.addText( title, "DQM Consumer Statistics" );
-
-    //
-    //// Consumer summary table: ////
-    //
-
-    XHTMLMaker::AttrMap table_attr;
-    XHTMLMaker::Node* cs_table = maker.addNode( "table", body, table_attr );
-    XHTMLMaker::Node* cs_tbody = maker.addNode( "tbody", cs_table );
-
-    // Header cell attributes:
-    XHTMLMaker::AttrMap th_attr;
-    th_attr[ "style" ] = "border-style:solid;border-width:1px;padding:1px;white-space:nowrap";
-    th_attr[ "valign" ] = "bottom";
-    XHTMLMaker::AttrMap th_attr_2r = th_attr;
-    th_attr_2r[ "rowspan" ] = "2";
-    XHTMLMaker::AttrMap th_attr_multicol = th_attr;
-    th_attr_multicol[ "colspan" ] = "5";
-
-    // Cell attributes:
-    XHTMLMaker::AttrMap cell_attr;
-    cell_attr[ "style" ] = "border-width:1px;padding:2px;white-space:nowrap;border-style:outset;border-color=gray;-moz-border-radius:3px;";
-
-    //
-    //// Cell titles: ////
-    //
-
-    // First row:
-
-    XHTMLMaker::Node* cs_top_row = maker.addNode( "tr", cs_tbody );
-
-    XHTMLMaker::Node* cs_th_id = maker.addNode( "th", cs_top_row, th_attr_2r );
-    maker.addText( cs_th_id, "ID" );
-
-    XHTMLMaker::Node* cs_th_name = maker.addNode( "th", cs_top_row, th_attr_2r );
-    maker.addText( cs_th_name, "Name" );
-
-    XHTMLMaker::Node* cs_th_rhost = maker.addNode( "th", cs_top_row, th_attr_2r );
-    maker.addText( cs_th_rhost, "Consumer Host" );
-
-    XHTMLMaker::Node* cs_th_status = maker.addNode( "th", cs_top_row, th_attr_2r );
-    maker.addText( cs_th_status, "Status" );
-
-    XHTMLMaker::Node* cs_th_folder = maker.addNode( "th", cs_top_row, th_attr_2r );
-    maker.addText( cs_th_folder, "Top Level Folder" );
-
-    XHTMLMaker::Node* cs_th_policy = maker.addNode( "th", cs_top_row, th_attr_2r );
-    maker.addText( cs_th_policy, "Enquing Policy" );
-
-    XHTMLMaker::Node* cs_th_queue_size = maker.addNode( "th", cs_top_row, th_attr_2r );
-    maker.addText( cs_th_queue_size, "Queue Size" );
-
-    XHTMLMaker::Node* cs_th_in_queue = maker.addNode( "th", cs_top_row, th_attr_2r );
-    maker.addText( cs_th_in_queue, "Events In Queue" );
-
-    XHTMLMaker::Node* cs_th_overall = maker.addNode( "th", cs_top_row, th_attr_multicol );
-    maker.addText( cs_th_overall, "Overall" );
-
-    XHTMLMaker::Node* cs_th_recent = maker.addNode( "th", cs_top_row, th_attr_multicol );
-    maker.addText( cs_th_recent, "Recent" );
-
-    // Second row:
-
-    XHTMLMaker::Node* cs_top_row_2 = maker.addNode( "tr", cs_tbody );
-
-    XHTMLMaker::Node* cs_th_queued = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_queued, "Events Enqueued" );
-
-    XHTMLMaker::Node* cs_th_served = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_served, "Events Served" );
-
-    XHTMLMaker::Node* cs_th_served_rate = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_served_rate, "Served Event Rate, Hz" );
-
-    XHTMLMaker::Node* cs_th_event_size = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_event_size, "Average Event Size, kB" );
-
-    XHTMLMaker::Node* cs_th_bw = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_bw, "Bandwidth, kB/s" );
-
-    XHTMLMaker::Node* cs_th_queued_recent = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_queued_recent, "Events Enqueued" );
-
-    XHTMLMaker::Node* cs_th_served_recent = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_served_recent, "Events Served" );
-
-    XHTMLMaker::Node* cs_th_served_rate_recent = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_served_rate_recent, "Served Event Rate, Hz" );
-
-    XHTMLMaker::Node* cs_th_event_size_recent = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_event_size_recent, "Average Event Size, kB" );
-
-    XHTMLMaker::Node* cs_th_bw_recent = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_bw_recent, "Bandwidth, kB/s" );
-
-    boost::shared_ptr<RegistrationCollection> rc = resPtr->_registrationCollection;
-    RegistrationCollection::DQMConsumerRegistrations regs;
-    rc->getDQMEventConsumers( regs );
-
-    DQMConsumerMonitorCollection& dqmConsumerCollection =
-      resPtr->_statisticsReporter->getDQMConsumerMonitorCollection();
-
-    boost::shared_ptr<DQMEventQueueCollection> qcoll_ptr = resPtr->_dqmEventConsumerQueueCollection;
-
-    //
-    //// Loop over consumers: ////
-    //
-
-    bool even_row = false;
-
-    for( RegistrationCollection::DQMConsumerRegistrations::const_iterator it = regs.begin();
-         it != regs.end(); ++it )
-      {
-
-        // Row:
-        XHTMLMaker::AttrMap td_attr = cell_attr;
-        if( even_row )
-          {
-            td_attr[ "style" ] = cell_attr[ "style" ] + std::string( "background-color:#e0e0e0;" );
-            even_row = false;
-          }
-        else
-          {
-            even_row = true;
-          }
-        XHTMLMaker::Node* cs_tr = maker.addNode( "tr", cs_tbody );
-
-        // ID:
-        std::ostringstream cid_oss;
-        cid_oss << (*it)->consumerID();
-        XHTMLMaker::Node* cs_td_id = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_id, cid_oss.str() );
-
-        // Name:
-        XHTMLMaker::Node* cs_td_name = maker.addNode( "td", cs_tr, td_attr );
-        if ( (*it)->isProxyServer() )
-          maker.addText( cs_td_name, "Proxy Server" );
-        else
-          maker.addText( cs_td_name, (*it)->consumerName() );
-
-        // Host:
-        XHTMLMaker::Node* cs_td_rhost = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_rhost, (*it)->remoteHost() );
-
-        // Status:
-        XHTMLMaker::AttrMap status_attr;
-        std::string status_message = "";
-        if( (*it)->isStale() )
-          {
-            status_attr[ "style" ] = td_attr[ "style" ] + std::string( "color:brown;" );
-            status_message = "Stale";
-          }
-        else
-          {
-            status_attr[ "style" ] = td_attr[ "style" ] + std::string( "color:green;" );
-            status_message = "Active";
-          }
-        XHTMLMaker::Node* cs_td_status = maker.addNode( "td", cs_tr, status_attr );
-        maker.addText( cs_td_status, status_message );
-
-        // Top level folder:
-        XHTMLMaker::Node* cs_td_top_folder = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_top_folder, (*it)->topLevelFolderName() );
-
-        // Policy:
-        std::ostringstream policy_oss;
-        policy_oss << (*it)->queuePolicy();
-        XHTMLMaker::Node* cs_td_policy = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_policy, policy_oss.str() );
-
-        // Queue size:
-        XHTMLMaker::Node* cs_td_q_size = maker.addNode( "td", cs_tr, td_attr );
-        maker.addInt( cs_td_q_size, (*it)->queueSize() );
-
-        // Events in queue:
-        const uint32_t nevents_in_queue = qcoll_ptr->size( (*it)->queueId() );
-        XHTMLMaker::Node* cs_td_in_q = maker.addNode( "td", cs_tr, td_attr );
-        maker.addInt( cs_td_in_q, nevents_in_queue );
-
-        // Events enqueued:
-        std::ostringstream eq_oss;
-        std::ostringstream eq_oss_recent;
-        MonitoredQuantity::Stats eq_stats;
-        bool eq_found = dqmConsumerCollection.getQueued( (*it)->queueId(), eq_stats );
-        if( eq_found )
-          {
-            eq_oss << eq_stats.getSampleCount();
-            eq_oss_recent << eq_stats.getSampleCount( MonitoredQuantity::RECENT );
-          }
-        else
-          {
-            eq_oss << "Not found";
-            eq_oss_recent << "Not found";
-          }
-
-        // Number, rate, size and bandwidth of served events:
-        std::ostringstream es_oss;
-        std::ostringstream rate_oss;
-        std::ostringstream es_oss_recent;
-        std::ostringstream rate_oss_recent;
-        std::ostringstream ev_size_oss;
-        std::ostringstream ev_size_oss_recent;
-        std::ostringstream bw_oss;
-        std::ostringstream bw_oss_recent;
-        MonitoredQuantity::Stats es_stats;
-        bool es_found = dqmConsumerCollection.getServed( (*it)->queueId(), es_stats );
-        if( es_found )
-          {
-            es_oss << es_stats.getSampleCount();
-            rate_oss << es_stats.getSampleRate();
-            ev_size_oss << ( es_stats.getValueAverage() / (double)1024 );
-            bw_oss << ( es_stats.getValueRate() / (double)1024 );
-            es_oss_recent << es_stats.getSampleCount( MonitoredQuantity::RECENT );
-            rate_oss_recent << es_stats.getSampleRate( MonitoredQuantity::RECENT );
-            ev_size_oss_recent << ( es_stats.getValueAverage( MonitoredQuantity::RECENT ) / (double)1024 );
-            bw_oss_recent << ( es_stats.getValueRate( MonitoredQuantity::RECENT ) / (double)1024 );
-          }
-        else
-          {
-            es_oss << "Not found";
-            rate_oss << "Not found";
-            es_oss_recent << "Not found";
-            rate_oss_recent << "Not found";
-            ev_size_oss << "Not found";
-            ev_size_oss_recent << "Not found";
-            bw_oss << "Not found";
-            bw_oss_recent << "Not found";
-          }
-
-        // Overall:
-        XHTMLMaker::Node* cs_td_eq = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_eq, eq_oss.str() );
-        XHTMLMaker::Node* cs_td_es = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_es, es_oss.str() );
-        XHTMLMaker::Node* cs_td_rate = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_rate, rate_oss.str() );
-        XHTMLMaker::Node* cs_td_ev_size = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_ev_size, ev_size_oss.str() );
-        XHTMLMaker::Node* cs_td_bw = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_bw, bw_oss.str() );
-
-        // Recent:
-        XHTMLMaker::Node* cs_td_eq_r = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_eq_r, eq_oss_recent.str() );
-        XHTMLMaker::Node* cs_td_es_r = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_es_r, es_oss_recent.str() );
-        XHTMLMaker::Node* cs_td_rate_r = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_rate_r, rate_oss_recent.str() );
-        XHTMLMaker::Node* cs_td_ev_size_r = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_ev_size_r, ev_size_oss_recent.str() );
-        XHTMLMaker::Node* cs_td_bw_r = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_bw_r, bw_oss_recent.str() );
-
-      }
-
-  }
-
-  // Links to other pages:
   addDOMforSMLinks(maker, body);
-
-  // Write it:
-  maker.out( *out );
-
+  
+  // Dump the webpage to the output stream
+  maker.out(*out);
 }
 
 
@@ -757,7 +197,7 @@ void WebPageHelper::resourceBrokerOverview
   StatisticsReporterPtr statReporter = sharedResources->_statisticsReporter;
   
   // Create the body with the standard header
-  XHTMLMaker::Node* body = createWebPageBody(maker, statReporter);
+  XHTMLMaker::Node* body = createWebPageBody(maker, "Resource Broker Overview", sharedResources);
 
   addOutputModuleTables(maker, body,
                         statReporter->getDataSenderMonitorCollection());  
@@ -788,7 +228,9 @@ void WebPageHelper::resourceBrokerDetail
   StatisticsReporterPtr statReporter = sharedResources->_statisticsReporter;
   
   // Create the body with the standard header
-  XHTMLMaker::Node* body = createWebPageBody(maker, statReporter);
+  std::ostringstream pageTitle;
+  pageTitle << "Resource Broker " << uniqueRBID << " Detail";
+  XHTMLMaker::Node* body = createWebPageBody(maker, pageTitle.str(), sharedResources);
 
   addResourceBrokerDetails(maker, body, uniqueRBID,
                            statReporter->getDataSenderMonitorCollection());  
@@ -819,7 +261,7 @@ void WebPageHelper::dqmEventWebPage
   StatisticsReporterPtr statReporter = sharedResources->_statisticsReporter;
   
   // Create the body with the standard header
-  XHTMLMaker::Node* body = createWebPageBody(maker, statReporter);
+  XHTMLMaker::Node* body = createWebPageBody(maker, "DQM Event Processor", sharedResources);
 
   addDOMforProcessedDQMEvents(maker, body, statReporter->getDQMEventMonitorCollection());  
   addDOMforDQMEventStatistics(maker, body, statReporter->getDQMEventMonitorCollection());  
@@ -844,7 +286,7 @@ void WebPageHelper::throughputWebPage
   StatisticsReporterPtr statReporter = sharedResources->_statisticsReporter;
 
   // Create the body with the standard header
-  XHTMLMaker::Node* body = createWebPageBody(maker, statReporter);
+  XHTMLMaker::Node* body = createWebPageBody(maker, "Throughput", sharedResources);
 
   addDOMforThroughputStatistics(maker, body, statReporter->getThroughputMonitorCollection());  
 
@@ -867,12 +309,16 @@ std::string WebPageHelper::baseURL() const
 XHTMLMaker::Node* WebPageHelper::createWebPageBody
 (
   XHTMLMaker& maker,
-  const StatisticsReporterPtr statReporter
+  const std::string& pageTitle,
+  const SharedResourcesPtr sharedResources
 )
 {
+  StatisticsReporterPtr statReporter = sharedResources->_statisticsReporter;
+
   std::ostringstream title;
   title << _appDescriptor->getClassName()
-    << " instance " << _appDescriptor->getInstance();
+    << " instance " << _appDescriptor->getInstance()
+    << " - " << pageTitle;
   XHTMLMaker::Node* body = maker.start(title.str());
   
   std::ostringstream stylesheetLink;
@@ -915,13 +361,27 @@ XHTMLMaker::Node* WebPageHelper::createWebPageBody
   tableAttr[ "cellspacing" ] = "1";
   XHTMLMaker::Node* instanceTable = maker.addNode("table", tableDiv, tableAttr);
   XHTMLMaker::Node* instanceTableRow = maker.addNode("tr", instanceTable, _rowAttr);
-  tableDivAttr[ "width" ] = "60%";
+  tableDivAttr[ "width" ] = "30%";
   XHTMLMaker::Node* instanceTableDiv = maker.addNode("td", instanceTableRow, tableDivAttr);
   XHTMLMaker::AttrMap fontAttr;
   fontAttr[ "size" ] = "+2";
   XHTMLMaker::Node* header = maker.addNode("font", instanceTableDiv, fontAttr);
   header = maker.addNode("b", header);
-  maker.addText(header, title.str());
+  maker.addText(header, _appDescriptor->getClassName());
+
+  const std::string cvsVersion = "$Name:$";
+  if ( cvsVersion.length() > 7 ) {
+    const std::string smVersion = "(" + cvsVersion.substr(6, cvsVersion.length()-8) + ")";
+    maker.addText(instanceTableDiv, smVersion);
+  }
+
+  tableDivAttr[ "width" ] = "30%";
+  instanceTableDiv = maker.addNode("td", instanceTableRow, tableDivAttr);
+  header = maker.addNode("font", instanceTableDiv, fontAttr);
+  header = maker.addNode("b", header);
+  std::ostringstream instance;
+  instance << "Instance " << _appDescriptor->getInstance();
+  maker.addText(header, instance.str());
   
   tableDivAttr[ "width" ] = "40%";
   instanceTableDiv = maker.addNode("td", instanceTableRow, tableDivAttr);
@@ -931,12 +391,19 @@ XHTMLMaker::Node* WebPageHelper::createWebPageBody
     statReporter->getStateMachineMonitorCollection().externallyVisibleState());
 
   instanceTableRow = maker.addNode("tr", instanceTable, _rowAttr);
-  instanceTableDiv = maker.addNode("td", instanceTableRow);
-  fontAttr[ "size" ] = "-3";
-  XHTMLMaker::Node* version = maker.addNode("font", instanceTableDiv, fontAttr);
-  maker.addText(version, _smVersion);
+
   instanceTableDiv = maker.addNode("td", instanceTableRow);
   fontAttr[ "size" ] = "-1";
+  XHTMLMaker::Node* timestamp = maker.addNode("font", instanceTableDiv, fontAttr);
+  maker.addText(timestamp,
+    "Page last updated: " + utils::timeStampUTC(utils::getCurrentTime()) );
+
+  instanceTableDiv = maker.addNode("td", instanceTableRow);
+  XHTMLMaker::Node* hostname = maker.addNode("font", instanceTableDiv, fontAttr);
+  maker.addText(hostname, "on " +
+    sharedResources->_configuration->getDiskWritingParams()._hostName );
+ 
+  instanceTableDiv = maker.addNode("td", instanceTableRow);
   XHTMLMaker::Node* innerState = maker.addNode("font", instanceTableDiv, fontAttr);
   maker.addText(innerState, 
     statReporter->getStateMachineMonitorCollection().innerStateName());
@@ -1609,7 +1076,7 @@ void WebPageHelper::addDOMforStoredData
   tableDiv = maker.addNode("th", tableRow, tableValueWidthAttr);
   maker.addText(tableDiv, "max");
   
-  if (smc.getStreamRecordsMQ().size() == 0)
+  if (smc.getStreamRecordsMQ().empty())
   {
     tableRow = maker.addNode("tr", table, _rowAttr);
     tableDiv = maker.addNode("td", tableRow, colspanAttr);
@@ -1785,7 +1252,7 @@ void WebPageHelper::addDOMforFiles(XHTMLMaker& maker,
   maker.addText(tableDiv, "Closing reason");
 
   // File list
-  if (fileRecords.size() == 0)
+  if (fileRecords.empty())
   {
     tableRow = maker.addNode("tr", table, _rowAttr);
     tableDiv = maker.addNode("td", tableRow, colspanAttr);
@@ -1811,6 +1278,468 @@ void WebPageHelper::addDOMforFiles(XHTMLMaker& maker,
     maker.addInt( tableDiv, (*it)->fileSize );
     tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
     maker.addText(tableDiv, (*it)->closingReason());
+  }
+}
+
+
+void WebPageHelper::addDOMforEventConsumers
+(
+  XHTMLMaker& maker,
+  XHTMLMaker::Node *parent,
+  const SharedResourcesPtr sharedResources
+)
+{
+  RegistrationCollection::ConsumerRegistrations consumers;
+  sharedResources->_registrationCollection->getEventConsumers(consumers);
+  
+  EventConsumerMonitorCollection& eventConsumerCollection =
+    sharedResources->_statisticsReporter->getEventConsumerMonitorCollection();
+  
+  
+  XHTMLMaker::Node* table = maker.addNode("table", parent, _tableAttr);
+  
+  XHTMLMaker::Node* tableRow = maker.addNode("tr", table, _rowAttr);
+
+  XHTMLMaker::AttrMap colspanAttr;
+  colspanAttr[ "colspan" ] = "20";
+  XHTMLMaker::Node* tableDiv = maker.addNode("th", tableRow, colspanAttr);
+  maker.addText(tableDiv, "Consumer Statistics");
+
+  XHTMLMaker::AttrMap rowspanAttr;
+  rowspanAttr[ "rowspan" ] = "2";
+
+  XHTMLMaker::AttrMap subColspanAttr;
+  subColspanAttr[ "colspan" ] = "2";
+
+  //Header
+  tableRow = maker.addNode("tr", table, _specialRowAttr);
+  tableDiv = maker.addNode("th", tableRow, rowspanAttr);
+  maker.addText(tableDiv, "ID");
+  tableDiv = maker.addNode("th", tableRow, rowspanAttr);
+  maker.addText(tableDiv, "Name");
+  tableDiv = maker.addNode("th", tableRow, rowspanAttr);
+  maker.addText(tableDiv, "Consumer Host" );
+  tableDiv = maker.addNode("th", tableRow, rowspanAttr);
+  maker.addText(tableDiv, "Status");
+  tableDiv = maker.addNode("th", tableRow, rowspanAttr);
+  maker.addText(tableDiv, "HLT Output Module");
+  tableDiv = maker.addNode("th", tableRow, rowspanAttr);
+  maker.addText(tableDiv, "Filters");
+  tableDiv = maker.addNode("th", tableRow, rowspanAttr);
+  maker.addText(tableDiv, "Enquing Policy");
+  tableDiv = maker.addNode("th", tableRow, rowspanAttr);
+  maker.addText(tableDiv, "Queue Size");
+  tableDiv = maker.addNode("th", tableRow, rowspanAttr);
+  maker.addText(tableDiv, "Events In Queue");
+
+  tableDiv = maker.addNode("th", tableRow, subColspanAttr);
+  maker.addText(tableDiv, "Enqueued Event Rate (Hz)");
+  tableDiv = maker.addNode("th", tableRow, subColspanAttr);
+  maker.addText(tableDiv, "Served Event Rate (Hz)");
+  tableDiv = maker.addNode("th", tableRow, subColspanAttr);
+  maker.addText(tableDiv, "Events Served");
+  tableDiv = maker.addNode("th", tableRow, subColspanAttr);
+  maker.addText(tableDiv, "Average Event Size (kB)");
+  tableDiv = maker.addNode("th", tableRow, subColspanAttr);
+  maker.addText(tableDiv, "Bandwidth (kB/s)");
+
+  tableRow = maker.addNode("tr", table, _specialRowAttr);
+  tableDiv = maker.addNode("th", tableRow);
+  maker.addText(tableDiv, "overall");
+  tableDiv = maker.addNode("th", tableRow);
+  maker.addText(tableDiv, "recent");
+  tableDiv = maker.addNode("th", tableRow);
+  maker.addText(tableDiv, "overall");
+  tableDiv = maker.addNode("th", tableRow);
+  maker.addText(tableDiv, "recent");
+  tableDiv = maker.addNode("th", tableRow);
+  maker.addText(tableDiv, "overall");
+  tableDiv = maker.addNode("th", tableRow);
+  maker.addText(tableDiv, "recent");
+  tableDiv = maker.addNode("th", tableRow);
+  maker.addText(tableDiv, "overall");
+  tableDiv = maker.addNode("th", tableRow);
+  maker.addText(tableDiv, "recent");
+  tableDiv = maker.addNode("th", tableRow);
+  maker.addText(tableDiv, "overall");
+  tableDiv = maker.addNode("th", tableRow);
+  maker.addText(tableDiv, "recent");
+
+  if ( consumers.empty() )
+  {
+    XHTMLMaker::AttrMap messageAttr = colspanAttr;
+    messageAttr[ "align" ] = "center";
+
+    tableRow = maker.addNode("tr", table, _rowAttr);
+    tableDiv = maker.addNode("td", tableRow, messageAttr);
+    maker.addText(tableDiv, "No event consumers have registered yet.");
+    return;
+  }
+  
+  // Loop over consumers
+  bool evenRow = false;
+  
+  for( RegistrationCollection::ConsumerRegistrations::const_iterator
+         it = consumers.begin(), itEnd = consumers.end();
+       it != itEnd; ++it )
+  {
+    // Row:
+    XHTMLMaker::AttrMap rowAttr = _rowAttr;
+    if( evenRow )
+    {
+      rowAttr[ "style" ] = "background-color:#e0e0e0;";
+      evenRow = false;
+    }
+    else
+    {
+      evenRow = true;
+    }
+    tableRow = maker.addNode("tr", table, rowAttr);
+
+    // ID:
+    std::ostringstream cid;
+    cid << (*it)->consumerID();
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addText(tableDiv, cid.str());
+    
+    // Name:
+    tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
+    if ( (*it)->isProxyServer() )
+      maker.addText(tableDiv, "Proxy Server");
+    else
+      maker.addText(tableDiv, (*it)->consumerName());
+
+    // Host:
+    tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
+    maker.addText(tableDiv, (*it)->remoteHost());
+    
+    // Status:
+    XHTMLMaker::AttrMap statusAttr = _tableLabelAttr;
+    std::string statusMessage;
+    if( (*it)->isStale() )
+    {
+      statusAttr[ "style" ] = "color:brown;";
+      statusMessage = "Stale";
+    }
+    else
+    {
+      statusAttr[ "style" ] = "color:green;";
+      statusMessage = "Active";
+    }
+    tableDiv = maker.addNode("td", tableRow, statusAttr);
+    maker.addText(tableDiv, statusMessage);
+    
+    // HLT output module:
+    tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
+    maker.addText(tableDiv, (*it)->outputModuleLabel());
+    
+    // Filter list:
+    std::string filters = (*it)->triggerSelection();
+    if ( filters.empty() )
+    {
+      const EventConsumerRegistrationInfo::FilterList fl = (*it)->selEvents();
+      for( EventConsumerRegistrationInfo::FilterList::const_iterator
+             lit = fl.begin(), litEnd = fl.end();
+           lit != litEnd; ++lit )
+      {
+        if( lit != fl.begin() ) filters += "&nbsp;&nbsp;";
+        filters += *lit;
+      }
+    }
+    tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
+    maker.addText(tableDiv, filters);
+    
+    // Policy:
+    std::ostringstream policy;
+    policy << (*it)->queuePolicy();
+    tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
+    maker.addText(tableDiv, policy.str());
+    
+    // Queue size:
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addInt(tableDiv, (*it)->queueSize());
+    
+    // Events in queue:
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addInt(tableDiv, sharedResources->_eventConsumerQueueCollection->size( (*it)->queueId() ));
+    
+    // Events enqueued:
+    MonitoredQuantity::Stats enqueuedStats;
+    const bool enqueuedFound = eventConsumerCollection.getQueued( (*it)->queueId(), enqueuedStats );
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addDouble(tableDiv,
+      enqueuedFound ? enqueuedStats.getSampleRate(MonitoredQuantity::FULL) : 0
+    );
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addDouble(tableDiv,
+      enqueuedFound ? enqueuedStats.getSampleRate(MonitoredQuantity::RECENT) : 0
+    );
+
+    // Events served:
+    MonitoredQuantity::Stats servedStats;
+    const bool servedFound = eventConsumerCollection.getServed( (*it)->queueId(), servedStats );
+
+    // rate
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addDouble(tableDiv,
+      servedFound ? servedStats.getSampleRate(MonitoredQuantity::FULL) : 0
+    );
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addDouble(tableDiv,
+      servedFound ? servedStats.getSampleRate(MonitoredQuantity::RECENT) : 0
+    );
+      
+    // event counts
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addInt(tableDiv,
+      servedFound ? servedStats.getSampleCount(MonitoredQuantity::FULL) : 0
+    );
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addInt(tableDiv,
+      servedFound ? servedStats.getSampleCount(MonitoredQuantity::RECENT) : 0
+    );
+      
+    // event size
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addDouble(tableDiv,
+      servedFound ? servedStats.getValueAverage(MonitoredQuantity::FULL)/1024 : 0,
+      1);
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addDouble(tableDiv,
+      servedFound ? servedStats.getValueAverage(MonitoredQuantity::RECENT)/1024 : 0,
+      1);
+
+    // bandwidth
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addDouble(tableDiv,
+      servedFound ? servedStats.getValueRate(MonitoredQuantity::FULL)/1024 : 0
+    );
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addDouble(tableDiv,
+      servedFound ? servedStats.getValueRate(MonitoredQuantity::RECENT)/1024 : 0
+    );
+  }
+}
+
+
+void WebPageHelper::addDOMforDQMEventConsumers
+(
+  XHTMLMaker& maker,
+  XHTMLMaker::Node *parent,
+  const SharedResourcesPtr sharedResources
+)
+{
+  RegistrationCollection::DQMConsumerRegistrations consumers;
+  sharedResources->_registrationCollection->getDQMEventConsumers( consumers );
+  
+  DQMConsumerMonitorCollection& dqmConsumerCollection =
+    sharedResources->_statisticsReporter->getDQMConsumerMonitorCollection();
+  
+  
+  XHTMLMaker::Node* table = maker.addNode("table", parent, _tableAttr);
+  
+  XHTMLMaker::Node* tableRow = maker.addNode("tr", table, _rowAttr);
+
+  XHTMLMaker::AttrMap colspanAttr;
+  colspanAttr[ "colspan" ] = "20";
+  XHTMLMaker::Node* tableDiv = maker.addNode("th", tableRow, colspanAttr);
+  maker.addText(tableDiv, "DQM Consumer Statistics");
+
+  XHTMLMaker::AttrMap rowspanAttr;
+  rowspanAttr[ "rowspan" ] = "2";
+
+  XHTMLMaker::AttrMap subColspanAttr;
+  subColspanAttr[ "colspan" ] = "2";
+
+  //Header
+  tableRow = maker.addNode("tr", table, _specialRowAttr);
+  tableDiv = maker.addNode("th", tableRow, rowspanAttr);
+  maker.addText(tableDiv, "ID");
+  tableDiv = maker.addNode("th", tableRow, rowspanAttr);
+  maker.addText(tableDiv, "Name");
+  tableDiv = maker.addNode("th", tableRow, rowspanAttr);
+  maker.addText(tableDiv, "Consumer Host" );
+  tableDiv = maker.addNode("th", tableRow, rowspanAttr);
+  maker.addText(tableDiv, "Status");
+  tableDiv = maker.addNode("th", tableRow, rowspanAttr);
+  maker.addText(tableDiv, "Top Level Folder");
+  tableDiv = maker.addNode("th", tableRow, rowspanAttr);
+  maker.addText(tableDiv, "Enquing Policy");
+  tableDiv = maker.addNode("th", tableRow, rowspanAttr);
+  maker.addText(tableDiv, "Queue Size");
+  tableDiv = maker.addNode("th", tableRow, rowspanAttr);
+  maker.addText(tableDiv, "Events In Queue");
+
+  tableDiv = maker.addNode("th", tableRow, subColspanAttr);
+  maker.addText(tableDiv, "Enqueued Event Rate (Hz)");
+  tableDiv = maker.addNode("th", tableRow, subColspanAttr);
+  maker.addText(tableDiv, "Served Event Rate (Hz)");
+  tableDiv = maker.addNode("th", tableRow, subColspanAttr);
+  maker.addText(tableDiv, "Events Served");
+  tableDiv = maker.addNode("th", tableRow, subColspanAttr);
+  maker.addText(tableDiv, "Average Event Size (kB)");
+  tableDiv = maker.addNode("th", tableRow, subColspanAttr);
+  maker.addText(tableDiv, "Bandwidth (kB/s)");
+
+  tableRow = maker.addNode("tr", table, _specialRowAttr);
+  tableDiv = maker.addNode("th", tableRow);
+  maker.addText(tableDiv, "overall");
+  tableDiv = maker.addNode("th", tableRow);
+  maker.addText(tableDiv, "recent");
+  tableDiv = maker.addNode("th", tableRow);
+  maker.addText(tableDiv, "overall");
+  tableDiv = maker.addNode("th", tableRow);
+  maker.addText(tableDiv, "recent");
+  tableDiv = maker.addNode("th", tableRow);
+  maker.addText(tableDiv, "overall");
+  tableDiv = maker.addNode("th", tableRow);
+  maker.addText(tableDiv, "recent");
+  tableDiv = maker.addNode("th", tableRow);
+  maker.addText(tableDiv, "overall");
+  tableDiv = maker.addNode("th", tableRow);
+  maker.addText(tableDiv, "recent");
+  tableDiv = maker.addNode("th", tableRow);
+  maker.addText(tableDiv, "overall");
+  tableDiv = maker.addNode("th", tableRow);
+  maker.addText(tableDiv, "recent");
+
+  if ( consumers.empty() )
+  {
+    XHTMLMaker::AttrMap messageAttr = colspanAttr;
+    messageAttr[ "align" ] = "center";
+
+    tableRow = maker.addNode("tr", table, _rowAttr);
+    tableDiv = maker.addNode("td", tableRow, messageAttr);
+    maker.addText(tableDiv, "No DQM consumers have registered yet.");
+    return;
+  }
+
+  // Loop over consumers
+  bool evenRow = false;
+
+  for( RegistrationCollection::DQMConsumerRegistrations::const_iterator
+         it = consumers.begin(), itEnd = consumers.end();
+       it != itEnd; ++it )
+  {
+    // Row:
+    XHTMLMaker::AttrMap rowAttr = _rowAttr;
+    if( evenRow )
+    {
+      rowAttr[ "style" ] = "background-color:#e0e0e0;";
+      evenRow = false;
+    }
+    else
+    {
+      evenRow = true;
+    }
+    tableRow = maker.addNode("tr", table, rowAttr);
+
+    // ID:
+    std::ostringstream cid;
+    cid << (*it)->consumerID();
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addText(tableDiv, cid.str());
+    
+    // Name:
+    tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
+    if ( (*it)->isProxyServer() )
+      maker.addText(tableDiv, "Proxy Server");
+    else
+      maker.addText(tableDiv, (*it)->consumerName());
+    
+    // Host:
+    tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
+    maker.addText(tableDiv, (*it)->remoteHost());
+    
+    // Status:
+    XHTMLMaker::AttrMap statusAttr = _tableLabelAttr;
+    std::string statusMessage;
+    if( (*it)->isStale() )
+    {
+      statusAttr[ "style" ] = "color:brown;";
+      statusMessage = "Stale";
+    }
+    else
+    {
+      statusAttr[ "style" ] = "color:green;";
+      statusMessage = "Active";
+    }
+    tableDiv = maker.addNode("td", tableRow, statusAttr);
+    maker.addText(tableDiv, statusMessage);
+    
+    // Top level folder:
+    tableDiv = maker.addNode("td", tableRow, statusAttr);
+    maker.addText(tableDiv, (*it)->topLevelFolderName());
+    
+    // Policy:
+    std::ostringstream policy;
+    policy << (*it)->queuePolicy();
+    tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
+    maker.addText(tableDiv, policy.str());
+    
+    // Queue size:
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addInt(tableDiv, (*it)->queueSize());
+    
+    // Events in queue:
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addInt(tableDiv, sharedResources->_dqmEventConsumerQueueCollection->size( (*it)->queueId() ));
+
+    // Events enqueued:
+    MonitoredQuantity::Stats enqueuedStats;
+    const bool enqueuedFound = dqmConsumerCollection.getQueued( (*it)->queueId(), enqueuedStats );
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addDouble(tableDiv,
+      enqueuedFound ? enqueuedStats.getSampleRate(MonitoredQuantity::FULL) : 0
+    );
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addDouble(tableDiv,
+      enqueuedFound ? enqueuedStats.getSampleRate(MonitoredQuantity::RECENT) : 0
+    );
+
+    // Events served:
+    MonitoredQuantity::Stats servedStats;
+    const bool servedFound = dqmConsumerCollection.getServed( (*it)->queueId(), servedStats );
+
+    // rate
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addDouble(tableDiv,
+      servedFound ? servedStats.getSampleRate(MonitoredQuantity::FULL) : 0
+    );
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addDouble(tableDiv,
+      servedFound ? servedStats.getSampleRate(MonitoredQuantity::RECENT) : 0
+    );
+      
+    // event counts
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addInt(tableDiv,
+      servedFound ? servedStats.getSampleCount(MonitoredQuantity::FULL) : 0
+    );
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addInt(tableDiv,
+      servedFound ? servedStats.getSampleCount(MonitoredQuantity::RECENT) : 0
+    );
+      
+    // event size
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addDouble(tableDiv,
+      servedFound ? servedStats.getValueAverage(MonitoredQuantity::FULL)/1024 : 0,
+      1);
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addDouble(tableDiv,
+      servedFound ? servedStats.getValueAverage(MonitoredQuantity::RECENT)/1024 : 0,
+      1);
+
+    // bandwidth
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addDouble(tableDiv,
+      servedFound ? servedStats.getValueRate(MonitoredQuantity::FULL)/1024 : 0
+    );
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addDouble(tableDiv,
+      servedFound ? servedStats.getValueRate(MonitoredQuantity::RECENT)/1024 : 0
+    );
   }
 }
 
@@ -2187,7 +2116,7 @@ void WebPageHelper::addOutputModuleStatistics(XHTMLMaker& maker,
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Max (KB)");
 
-  if (resultsList.size() == 0)
+  if (resultsList.empty())
   {
     XHTMLMaker::AttrMap messageAttr = colspanAttr;
     messageAttr[ "align" ] = "center";
@@ -2253,7 +2182,7 @@ void WebPageHelper::addOutputModuleSummary(XHTMLMaker& maker,
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Header Size (bytes)");
 
-  if (resultsList.size() == 0)
+  if (resultsList.empty())
   {
     XHTMLMaker::AttrMap messageAttr = colspanAttr;
     messageAttr[ "align" ] = "center";
@@ -2335,7 +2264,7 @@ void WebPageHelper::addResourceBrokerList(XHTMLMaker& maker,
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Last event number received");
 
-  if (rbResultsList.size() == 0)
+  if (rbResultsList.empty())
   {
     XHTMLMaker::AttrMap messageAttr = colspanAttr;
     messageAttr[ "align" ] = "center";
@@ -2646,7 +2575,7 @@ void WebPageHelper::addFilterUnitList(XHTMLMaker& maker,
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Last run number received");
 
-  if (fuResultsList.size() == 0)
+  if (fuResultsList.empty())
   {
     XHTMLMaker::AttrMap messageAttr = colspanAttr;
     messageAttr[ "align" ] = "center";

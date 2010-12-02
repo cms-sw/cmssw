@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.h,v 1.9 2009/08/28 14:35:33 mommsen Exp $
+// $Id: WebPageHelper.h,v 1.10 2009/08/28 16:41:50 mommsen Exp $
 /// @file: WebPageHelper.h
 
 #ifndef StorageManager_WebPageHelper_h
@@ -35,8 +35,8 @@ namespace stor {
    * Helper class to handle web page requests
    *
    * $Author: mommsen $
-   * $Revision: 1.9 $
-   * $Date: 2009/08/28 14:35:33 $
+   * $Revision: 1.10 $
+   * $Date: 2009/08/28 16:41:50 $
    */
   
   class WebPageHelper
@@ -45,8 +45,7 @@ namespace stor {
 
     WebPageHelper
     (
-      xdaq::ApplicationDescriptor*,
-      const std::string SMversion
+      xdaq::ApplicationDescriptor*
     );
 
 
@@ -131,7 +130,7 @@ namespace stor {
     /**
      * Returns the webpage body with the standard header as XHTML node
      */
-    XHTMLMaker::Node* createWebPageBody(XHTMLMaker&, const StatisticsReporterPtr);
+    XHTMLMaker::Node* createWebPageBody(XHTMLMaker&, const std::string& pageTitle, SharedResourcesPtr);
 
     /**
      * Adds the links for the other SM webpages
@@ -197,6 +196,26 @@ namespace stor {
       XHTMLMaker& maker,
       XHTMLMaker::Node *parent,
       FilesMonitorCollection const&
+    );
+
+    /**
+     * Adds statistics for event consumers
+     */
+     void addDOMforEventConsumers
+    (
+      XHTMLMaker& maker,
+      XHTMLMaker::Node *parent,
+      const SharedResourcesPtr
+    );
+
+    /**
+     * Adds statistics for DQM event consumers
+     */
+     void addDOMforDQMEventConsumers
+    (
+      XHTMLMaker& maker,
+      XHTMLMaker::Node *parent,
+      const SharedResourcesPtr
     );
 
     /**
