@@ -114,6 +114,11 @@ process.ecalPreshowerDigis.sourceTag = 'rawDataCollector'
 # RecoLocalCalo.Configuration.ecalLocalRecoSequence_cff
 # RecoLocalCalo.Configuration.hcalLocalReco_cff
 
+#--- To cope with JP Chou pre-reco introduction to bring back hbhe RecHits collection to CaloTowers
+delattr(process,"hbhereco")
+process.hbhereco = process.hbheprereco.clone()
+process.hcalLocalRecoSequence.replace(process.hbheprereco,process.hbhereco)
+
 #------------------------------------------------ processing
 
 process.load('Configuration/StandardSequences/EDMtoMEAtRunEnd_cff')
@@ -129,7 +134,7 @@ process.calotowersClient = cms.EDAnalyzer("CaloTowersClient",
 )
 
 process.hcalrechitsClient = cms.EDAnalyzer("HcalRecHitsClient", 
-     outputFile = cms.untracked.string('HcalRecHitsHarvestingME.root'),
+     outputFile = cms.untracked.string('HcalRecHitsHarvestingME_ZS.root'),
      DQMDirName = cms.string("/") # root directory
 )
 
