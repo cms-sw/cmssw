@@ -58,6 +58,7 @@ class PFTau : public BaseTau {
     const PFJetRef& jetRef() const;
     void setjetRef(const PFJetRef&);
 
+    // DEPRECATED functions to access the PFTauTagInfoRef
     const PFTauTagInfoRef& pfTauTagInfoRef() const;
     void setpfTauTagInfoRef(const PFTauTagInfoRef);
 

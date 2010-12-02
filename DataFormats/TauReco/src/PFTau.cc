@@ -1,11 +1,11 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //using namespace std;
 namespace reco {
 
-PFTau::PFTau()
-{
+PFTau::PFTau() {
     leadPFChargedHadrCandsignedSipt_=NAN;
     isolationPFChargedHadrCandsPtSum_=NAN;
     isolationPFGammaCandsEtSum_=NAN;
@@ -50,7 +50,13 @@ PFTau* PFTau::clone() const { return new PFTau(*this); }
 const PFJetRef& PFTau::jetRef() const {return jetRef_;}
 void PFTau::setjetRef(const PFJetRef& x) {jetRef_=x;}
 
-const PFTauTagInfoRef& PFTau::pfTauTagInfoRef() const {return PFTauTagInfoRef_;}
+const PFTauTagInfoRef& PFTau::pfTauTagInfoRef() const {
+  edm::LogWarning("DeprecatedPFTauMember")
+      << "The PFTauTagInfoRef member is deprecated in the PFTau."
+      << " For access to the underlying PFJet, please use the jetRef() method";
+  return PFTauTagInfoRef_;
+}
+
 void PFTau::setpfTauTagInfoRef(const PFTauTagInfoRef x) {PFTauTagInfoRef_=x;}
 
 const PFCandidateRef& PFTau::leadPFChargedHadrCand() const {return leadPFChargedHadrCand_;}
