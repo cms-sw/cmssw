@@ -17,13 +17,11 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 3_9_2
-setenv CMSSWver2 3_9_4
-setenv OLDRELEASE 392
-setenv NEWRELEASE 394
-setenv OLDPRERELEASE 
-setenv NEWPRERELEASE 
-
+setenv CMSSWver1 3_9_4
+setenv CMSSWver2 3_10_0
+setenv OLDRELEASE 394
+setenv NEWRELEASE 3_10_0
+setenv NEWPRERELEASE pre5
 
 setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
 setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}

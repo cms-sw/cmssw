@@ -17,32 +17,22 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE TrackBasedConversions
-setenv CMSSWver1 3_9_2
-setenv CMSSWver2 3_9_4
-setenv OLDRELEASE 392
-setenv NEWRELEASE 394
-setenv OLDPRERELEASE 
-setenv NEWPRERELEASE 
+setenv CMSSWver1 3_10_0
+setenv CMSSWver2 3_10_0
+setenv OLDRELEASE 3_10_0
+setenv NEWRELEASE 3_10_0
+setenv OLDPRERELEASE pre2
+setenv NEWPRERELEASE pre5
 
 
-setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
-setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
-
+setenv OLDRELEASE ${OLDRELEASE}_${OLDPRERELEASE}
+setenv NEWRELEASE ${NEWRELEASE}_${NEWPRERELEASE}
 
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
-
-
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
-
-
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
-
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
 #setenv WorkDir1    /data/pccmsnd1/b/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
 #setenv WorkDir2    /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
@@ -52,17 +42,17 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #Name of sample (affects output directory name and htmldescription only) 
 
 
-    setenv SAMPLE SingleGammaPt10IDEAL
+#setenv SAMPLE SingleGammaPt10IDEAL
 #setenv SAMPLE SingleGammaPt35IDEAL
-#setenv SAMPLE QCD_Pt_80_120STARTUP
+setenv SAMPLE QCD_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_20_30STARTUP
+
 #TYPE must be one ofPixelMatchGsfElectron, Photon 
 
 #==============END BASIC CONFIGURATION==================
 
 
 #Input root trees for the two cases to be compared 
-
 if ($SAMPLE == SingleGammaPt10IDEAL) then
 
 setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt10.root
@@ -72,7 +62,6 @@ else if ($SAMPLE == SingleGammaPt35IDEAL) then
 
 setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt35.root
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.root
-
 
 else if ($SAMPLE == QCD_Pt_80_120STARTUP) then 
 
@@ -84,9 +73,6 @@ else if ($SAMPLE == QCD_Pt_20_30STARTUP) then
 
 setenv OLDFILE ${WorkDir1}/ConversionValidationRelVal${OLDRELEASE}_QCD_Pt_20_30.root
 setenv NEWFILE ${WorkDir2}/ConversionValidationRelVal${NEWRELEASE}_QCD_Pt_20_30.root
-
-
-
 
 endif
 
@@ -258,6 +244,12 @@ $i->SetMaximum (500);
 $i->SetMaximum (2000);
 } else if ( $i==hDPhiTracksAtVtxBarrel ||  $i==hDPhiTracksAtVtxEndcap ) {
 $i->SetMaximum (1000);
+} else if ( $i==hTkPtPullAll ) {
+$i->SetMaximum (2*250);
+} else if ( $i==hTkPtPullBarrel ) {
+$i->SetMaximum (2*150);
+}  else if ( $i==hTkPtPullEndcap ) {
+$i->SetMaximum (2*200);
 }
 
 $i->SetLineColor(kPink+8);

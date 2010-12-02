@@ -17,17 +17,16 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 3_9_2
-setenv CMSSWver2 3_9_4
+setenv CMSSWver1 3_10_0
+setenv CMSSWver2 3_10_0
+setenv OLDRELEASE 3_10_0
+setenv NEWRELEASE 3_10_0
+setenv OLDPRERELEASE pre2
+setenv NEWPRERELEASE pre5
 
-setenv OLDRELEASE 392
-setenv NEWRELEASE 394
-setenv OLDPRERELEASE 
-setenv NEWPRERELEASE 
 
-
-setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
-setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
+setenv OLDRELEASE ${OLDRELEASE}_${OLDPRERELEASE}
+setenv NEWRELEASE ${NEWRELEASE}_${NEWPRERELEASE}
 
 
 
@@ -37,11 +36,11 @@ setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
+#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
 
 
@@ -54,9 +53,9 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #setenv SAMPLE PhotonJetPt470
 
 #setenv SAMPLE SingleGammaPt10IDEAL
-#setenv SAMPLE SingleGammaPt35IDEAL
+setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
-setenv SAMPLE H130GGgluonfusionSTARTUP
+#setenv SAMPLE H130GGgluonfusionSTARTUP
 #setenv SAMPLE PhotonJets_Pt_10
 #setenv SAMPLE PhotonJets_Pt_10STARTUP
 #setenv SAMPLE GammaJets_Pt_80_120STARTUP
