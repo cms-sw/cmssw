@@ -19,7 +19,7 @@ public:
   Hybrid() ; 
   virtual void applyOptions(const boost::program_options::variables_map &vm) ;
 
-  virtual bool run(RooWorkspace *w, RooAbsData &data, double &limit);
+  virtual bool run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint);
   virtual const std::string & name() const {
     static const std::string name("Hybrid");
     return name;

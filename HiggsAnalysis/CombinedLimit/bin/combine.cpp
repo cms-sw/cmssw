@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
   string name;
   string datacard, dataset;
   int iMass;
-  string whichMethod;
+  string whichMethod, whichHintMethod;
   unsigned int runToys;
   int    seed;
   bool   saveToys;
@@ -78,6 +78,7 @@ int main(int argc, char **argv) {
     ("dataset,D",  po::value<string>(&dataset)->default_value("data_obs"), "Dataset for observed limit")
     ("mass,m",     po::value<int>(&iMass)->default_value(120), "Higgs mass to store in the output tree")
     ("method,M",   po::value<string>(&whichMethod)->default_value("ProfileLikelihood"), methodsDesc.c_str())
+    ("hintMethod,H",  po::value<string>(&whichHintMethod)->default_value(""), "Run first this method to provide a hint on the result")
     ("systematics,S", po::value<bool>(&withSystematics)->default_value(true), "Add systematic uncertainties")
     ("cl,C",   po::value<float>(&cl)->default_value(0.95), "Confidence Level")
     ("toys,t", po::value<unsigned int>(&runToys)->default_value(0), "Number of Toy MC extractions")
@@ -145,8 +146,25 @@ int main(int argc, char **argv) {
     cout << desc;
     return 1003;
   }
-
   cout << ">>> method used to compute upper limit is " << whichMethod << endl;
+
+  if (!whichHintMethod.empty()) {
+      for(i = methods.begin(); i != methods.end(); ++i) {
+          if(whichHintMethod == i->first) {
+              hintAlgo = i->second;
+              hintAlgo->applyOptions(vm);
+              break;
+          }
+      }
+      if(i == methods.end()) {
+          cerr << "Unsupported hint method: " << whichHintMethod << endl;
+          cout << "Usage: options_description [options]\n";
+          cout << desc;
+          return 1003;
+      }
+      cout << ">>> method used to hint where the upper limit is " << whichHintMethod << endl;
+  }
+
   cout << ">>> random number generator seed is " << seed << endl;
   RooRandom::randomGenerator()->SetSeed(seed); 
   

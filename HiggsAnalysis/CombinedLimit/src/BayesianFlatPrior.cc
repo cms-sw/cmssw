@@ -11,7 +11,7 @@
 
 using namespace RooStats;
 
-bool BayesianFlatPrior::run(RooWorkspace *w, RooAbsData &data, double &limit) {
+bool BayesianFlatPrior::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
   RooRealVar *r = w->var("r");
   RooUniform  flatPrior("flatPrior","flatPrior",*r);
   RooArgSet  poi(*r);

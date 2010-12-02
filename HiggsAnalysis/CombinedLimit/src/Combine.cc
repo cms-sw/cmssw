@@ -44,7 +44,7 @@
 using namespace RooStats;
 using namespace RooFit;
 
-LimitAlgo * algo;
+LimitAlgo * algo, * hintAlgo;
 
 Float_t t_cpu_, t_real_;
 TDirectory *writeToysHere = 0;
@@ -95,7 +95,11 @@ bool mklimit(RooWorkspace *w, RooAbsData &data, double &limit) {
   TStopwatch timer;
   bool ret = false;
   try {
-    ret = algo->run(w, data, limit);    
+    double hint = 0; bool hashint = false;
+    if (hintAlgo) {
+        hashint = hintAlgo->run(w, data, hint, 0);
+   }
+    ret = algo->run(w, data, limit, (hashint ? &hint : 0));    
   } catch (std::exception &ex) {
     std::cerr << "Caught exception " << ex.what() << std::endl;
     return false;

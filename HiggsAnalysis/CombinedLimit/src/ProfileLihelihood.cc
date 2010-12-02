@@ -25,7 +25,7 @@ void ProfileLikelihood::applyOptions(const boost::program_options::variables_map
     doSignificance_ = vm.count("significance");
 }
 
-bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit) {
+bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
   std::string minimizerTypeBackup = ROOT::Math::MinimizerOptions::DefaultMinimizerType();
   std::string minimizerAlgoBackup = ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo();
   double      minimizerTollBackup = ROOT::Math::MinimizerOptions::DefaultTolerance();

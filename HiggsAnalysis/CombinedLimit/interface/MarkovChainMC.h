@@ -14,13 +14,13 @@ class MarkovChainMC : public LimitAlgo {
 public:
   MarkovChainMC() ;
   virtual void applyOptions(const boost::program_options::variables_map &vm) ;
-  bool run(RooWorkspace *w, RooAbsData &data, double &limit);
+  bool run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint);
   virtual const std::string & name() const {
     static const std::string name("MarkovChainMC");
     return name;
   }
 private:
-  enum ProposalType { FitP, UniformP, MultiGaussianP };
+  enum ProposalType { FitP, UniformP, MultiGaussianP, TestP };
   std::string proposalTypeName_;
   ProposalType proposalType_;
   bool runMinos_, noReset_, updateProposalParams_;

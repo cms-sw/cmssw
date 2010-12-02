@@ -10,6 +10,7 @@
 #include "RooStats/ProposalHelper.h"
 #include "RooStats/ProposalFunction.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
+#include "HiggsAnalysis/CombinedLimit/interface/TestProposal.h"
 
 using namespace RooStats;
 
@@ -43,6 +44,7 @@ void MarkovChainMC::applyOptions(const boost::program_options::variables_map &vm
     if      (proposalTypeName_ == "fit")     proposalType_ = FitP;
     else if (proposalTypeName_ == "uniform") proposalType_ = UniformP;
     else if (proposalTypeName_ == "gaus")    proposalType_ = MultiGaussianP;
+    else if (proposalTypeName_ == "test")    proposalType_ = TestP;
     else {
         std::cerr << "ERROR: MarkovChainMC: proposal type " << proposalTypeName_ << " not known." << "\n" << options_ << std::endl;
         abort();
@@ -51,10 +53,14 @@ void MarkovChainMC::applyOptions(const boost::program_options::variables_map &vm
     runMinos_ = vm.count("runMinos");
     noReset_  = vm.count("noReset");
 }
-bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit) {
+bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
   RooRealVar *r = w->var("r");
   RooArgSet  poi(*r);
   RooArgSet const &obs = *w->set("observables");
+
+  if ((hint != 0) && (*hint > r->getMin())) {
+    r->setMax(std::min<double>(3*(*hint), r->getMax()));
+  }
 
   if (withSystematics && (w->set("nuisances") == 0)) {
     std::cerr << "ERROR: nuisances not set. Perhaps you wanted to run with no systematics?\n" << std::endl;
@@ -95,6 +101,10 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit) {
         ph.SetVariables(*w->set("nuisances"));
         ph.SetWidthRangeDivisor(proposalHelperWidthRangeDivisor_);
         pdfProp = ph.GetProposalFunction();
+        break;
+    case TestP:
+        pdfProp = new TestProposal();
+        proposalType_ = UniformP; // then behave as if it were uniform
         break;
   }
   if (proposalType_ != UniformP) {

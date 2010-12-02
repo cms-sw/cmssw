@@ -22,7 +22,7 @@ void Hybrid::applyOptions(const boost::program_options::variables_map &vm) {
     rInterval_ = vm.count("rInterval");
 }
 
-bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit) {
+bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
   RooRealVar *r = w->var("r"); r->setConstant(true);
   RooArgSet  poi(*r);
   w->loadSnapshot("clean");

@@ -12,7 +12,7 @@
 
 class BayesianFlatPrior : public LimitAlgo {
 public:
-  virtual bool run(RooWorkspace *w, RooAbsData &data, double &limit);
+  virtual bool run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint);
   virtual const std::string & name() const {
     static const std::string name("BayesianFlatPrior");
     return name;
