@@ -33,6 +33,15 @@ class LMFCorrCoefDat {
 				float p3e);
   LMFCorrCoefDat& setFlag(const LMFLmrSubIOV &iov,
 			  const EcalLogicID &id, int flag);
+  void fetch(const LMFLmrSubIOV &iov); 
+
+  std::vector<float> getParameters(const LMFLmrSubIOV &iov, 
+				   const EcalLogicID &id);
+  std::vector<float> getParameterErrors(const LMFLmrSubIOV &iov, 
+					const EcalLogicID &id);
+  int getFlag(const LMFLmrSubIOV &iov, const EcalLogicID &id);
+
+  int size() const;
   void dump();
   void debug();
   void nodebug();

@@ -90,6 +90,8 @@ public:
     vector<EcalLogicID>::const_iterator i = ecid_vec.begin();
     vector<EcalLogicID>::const_iterator e = ecid_vec.end();
     int count = 0;
+    int check = 1;
+    EcalLogicID testID;  
     while (i != e) {
       if (rand() > RAND_MAX*0.5) {
 	coeff.setP123(subiov1, *i, 1., 2., 3., 0.1, 0.2, 0.3);
@@ -97,13 +99,34 @@ public:
       } else {
 	coeff.setP123(subiov2, *i, 1., 2., 3., 0.1, 0.2, 0.3);
 	coeff.setFlag(subiov2, *i, 0);
+	if (check) {
+	  if (rand() > 0.5*RAND_MAX) {
+	    coeff.dump();
+	    testID = *i;
+	    check = 0;
+	  }
+	}
       }
       i++;
       count++; 
     }
     std::cout << "Data stored for " << count << " xtals" << std::endl;
     coeff.dump();
+    std::cout << std::flush;
     coeff.writeDB();
+    // test reading data back from the database 
+    LMFCorrCoefDat testRead(econn);
+    testRead.debug();
+    std::vector<float> x = testRead.getParameters(subiov2, testID);
+    for (int i = 0; i < 3; i++) {
+      std::cout << x[i] << std::endl;
+    }
+    // test reading data directly from memory (should not access the database
+    coeff.debug();
+    x = coeff.getParameters(subiov2, testID);
+    for (int i = 0; i < 3; i++) {
+      std::cout << x[i] << std::endl;
+    }
     std::cout << "DELETE FROM LMF_CORR_COEF_DAT WHERE LMR_SUB_IOV_ID = "
 	      << subiov1.getID() << ";" << std::endl;
     std::cout << "DELETE FROM LMF_CORR_COEF_DAT WHERE LMR_SUB_IOV_ID = "

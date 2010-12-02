@@ -66,7 +66,8 @@ class LMFDat : public LMFUnique {
     m_data[id][m_keys[key]] = v;
     return *this;
   }
-
+  int size() const { return m_data.size(); }
+  
   std::map<unsigned int, std::string> getReverseMap() const;
 
   /* UNSAFE methods returning data for a given logic_id */

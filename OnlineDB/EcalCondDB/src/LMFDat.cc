@@ -144,9 +144,9 @@ std::string LMFDat::buildSelectSql(int logic_id, int direction) {
     sql << " AND LOGIC_ID = :" << count;
   }
   std::string sqls = sql.str();
-  //  if (m_debug) {
+  if (m_debug) {
     cout << m_className << "::buildSelectSqlDB: " << sqls << endl;
-    //  }
+  }
   return sqls;
 }
 
@@ -229,6 +229,10 @@ void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction)
     try {
       Statement * stmt = m_conn->createStatement();
       std::string sql = buildSelectSql(logic_id, direction);
+      if (logic_id == 0) {
+	// get data for all crystals with a given timestamp
+	stmt->setPrefetchRowCount(131072);
+      }
       stmt->setSQL(sql);
       int count = 1;
       if (logic_id > 0) {
@@ -253,6 +257,7 @@ void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction)
 	this->setData(id, x);
 	x.clear();
       }
+      stmt->setPrefetchRowCount(0);
       m_conn->terminateStatement(stmt);
     }
     catch (oracle::occi::SQLException &e) {
