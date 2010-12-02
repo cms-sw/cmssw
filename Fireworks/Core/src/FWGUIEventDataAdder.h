@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:12:36 EDT 2008
-// $Id: FWGUIEventDataAdder.h,v 1.14 2010/06/05 15:27:43 eulisse Exp $
+// $Id: FWGUIEventDataAdder.h,v 1.15 2010/06/23 12:50:28 eulisse Exp $
 //
 
 // system include files
@@ -54,6 +54,7 @@ public:
 
    // ---------- member functions ---------------------------
    void addNewItem();
+   void addNewItemAndClose();
    void show();
 
    void windowIsClosing();
@@ -61,6 +62,8 @@ public:
    void rowClicked(Int_t iRow,Int_t iButton,Int_t iKeyMod,Int_t,Int_t);
 
    void metadataUpdatedSlot(void);
+
+   void resetNameEntry();
 
 private:
    FWGUIEventDataAdder(const FWGUIEventDataAdder&); // stop default
@@ -78,6 +81,7 @@ private:
    TGTextEntry*      m_name;
    TGCheckButton*    m_doNotUseProcessName;
    TGTextButton*     m_apply;
+   TGTextButton*     m_applyAndClose;
    TGTextEntry*      m_search;
 
    std::string m_purpose;

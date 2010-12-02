@@ -32,8 +32,14 @@ protected:
    FWLayoutBuilder &unindent(void);
    TGCompositeFrame *currentFrame(void) { return m_currentFrame; }
    FWLayoutBuilder &floatLeft(size_t spacing);
+   FWLayoutBuilder &spaceUp(size_t spacing);
    FWLayoutBuilder &spaceDown(size_t spacing);
    FWLayoutBuilder &spaceLeft(size_t spacing);
+   FWLayoutBuilder &spaceRight(size_t spacing);
+   FWLayoutBuilder &frameSpaceUp(size_t spacing);
+   FWLayoutBuilder &frameSpaceDown(size_t spacing);
+   FWLayoutBuilder &frameSpaceLeft(size_t spacing);
+   FWLayoutBuilder &frameSpaceRight(size_t spacing);
    FWLayoutBuilder &expand(bool expandX = true, bool expandY = false);
 
    bool isFloatingLeft() { return m_floatLeft; }
@@ -51,7 +57,8 @@ private:
    bool             m_floatLeft;
    size_t           m_topSpacing;
    size_t           m_leftSpacing;
-   TGLayoutHints    *m_currentHints;
+   TGLayoutHints   *m_currentHints;
+   TGLayoutHints   *m_currentFrameHints;
 };
 
 /** Helper class to construct dialogs in a more readable ways.
@@ -133,8 +140,21 @@ public:
    FWDialogBuilder &endTab(void);
    
    FWDialogBuilder &floatLeft(size_t spacing = 3);
+
+   FWDialogBuilder &spaceUp(size_t spacing = 3);
    FWDialogBuilder &spaceDown(size_t spacing = 3);
+   FWDialogBuilder &spaceUpDown(size_t spacing = 3);
    FWDialogBuilder &spaceLeft(size_t spacing = 3);
+   FWDialogBuilder &spaceRight(size_t spacing = 3);
+   FWDialogBuilder &spaceLeftRight(size_t spacing = 3);
+
+   FWDialogBuilder &frameSpaceUp(size_t spacing = 3);
+   FWDialogBuilder &frameSpaceDown(size_t spacing = 3);
+   FWDialogBuilder &frameSpaceUpDown(size_t spacing = 3);
+   FWDialogBuilder &frameSpaceLeft(size_t spacing = 3);
+   FWDialogBuilder &frameSpaceRight(size_t spacing = 3);
+   FWDialogBuilder &frameSpaceLeftRight(size_t spacing = 3);
+
    FWDialogBuilder &expand(size_t expandX = true, size_t expandY = false);
    FWDialogBuilder &vSpacer(size_t size = 0);
    FWDialogBuilder &hSpacer(size_t size = 0);

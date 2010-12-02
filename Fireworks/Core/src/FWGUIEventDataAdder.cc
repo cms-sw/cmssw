@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.48 2010/06/18 10:17:15 yana Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.49 2010/06/23 12:50:27 eulisse Exp $
 //
 
 // system include files
@@ -448,8 +448,14 @@ FWGUIEventDataAdder::addNewItem()
                             processName,
                             "",
                             largest);
-   m_manager->add( desc);
-   if (m_frame) m_frame->UnmapWindow();
+   m_manager->add(desc);
+}
+
+void
+FWGUIEventDataAdder::addNewItemAndClose()
+{
+   addNewItem();
+   windowIsClosing();
 }
 
 void
@@ -473,6 +479,7 @@ FWGUIEventDataAdder::windowIsClosing()
    m_processName.clear();
    m_productInstanceLabel.clear();
    m_apply->SetEnabled(false);
+   m_applyAndClose->SetEnabled(false);
    
    m_frame->UnmapWindow();
    m_frame->DontCallClose();
@@ -495,28 +502,30 @@ FWGUIEventDataAdder::createWindow()
    m_frame->Connect("CloseWindow()","FWGUIEventDataAdder",this,"windowIsClosing()");
 
    FWDialogBuilder builder(m_frame);
-   TGTextButton* cancelButton;
+   TGTextButton *cancelButton, *resetButton;
    
    builder.indent(10)
           .spaceDown(15)
-          .addLabel("Search:", 9).expand(false).floatLeft(4)
-          .addTextEntry("", &m_search)
-          .spaceDown(10)
+          .addLabel("Search:", 0).expand(false).spaceUp(4).floatLeft(4)
+          .addTextEntry("", &m_search).spaceUp(0)
+          .frameSpaceDown(10)
           .addLabel("Viewable Collections", 8)
-          .spaceDown(5)
+          .frameSpaceDown(5)
           .addTable(m_tableManager, &m_tableWidget).expand(true, true)
-          .addLabel("Name:", 9).expand(false).floatLeft(4)
-          .addTextEntry("", &m_name)
-          .spaceDown(5)
+          .addLabel("Name:", 0).expand(false).spaceUp(4).floatLeft(4)
+          .addTextEntry("", &m_name).spaceUp(0).floatLeft(4)
+          .addTextButton(" Reset  ", &resetButton).expand(false, false)
+          .frameSpaceUpDown(5)
           .addCheckbox("Do not use Process Name and "
                        "instead only get this data "
                        "from the most recent Process",
                        &m_doNotUseProcessName)
-          .spaceDown(15)
+          .frameSpaceDown(15)
           .hSpacer().floatLeft(0)
-          .addTextButton("Cancel", &cancelButton).floatLeft(4).expand(false)
-          .addTextButton("Add Data", &m_apply).expand(false).spaceLeft(25)
-                                              .spaceDown(15);
+          .addTextButton(" Close  ", &cancelButton).expand(false).floatLeft(4)
+          .addTextButton(" Add Data  ", &m_apply).expand(false).floatLeft(4)
+          .addTextButton(" Add Data && Close  ", &m_applyAndClose).expand(false)
+                                .spaceRight(25).spaceDown(15);
 
    m_search->Connect("TextChanged(const char *)", "FWGUIEventDataAdder", 
                      this, "updateFilterString(const char *)");
@@ -528,11 +537,13 @@ FWGUIEventDataAdder::createWindow()
                           "FWGUIEventDataAdder",this,
                           "rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)");
    m_name->SetState(true);
+   resetButton->SetEnabled(true);
+   resetButton->Connect("Clicked()", "FWGUIEventDataAdder", this, "resetNameEntry()");
    m_doNotUseProcessName->SetState(kButtonDown);
-   cancelButton->Connect("Clicked()","FWGUIEventDataAdder", 
-                         this, "windowIsClosing()");
+   cancelButton->Connect("Clicked()","FWGUIEventDataAdder", this, "windowIsClosing()");
    cancelButton->SetEnabled(true);
    m_apply->Connect("Clicked()", "FWGUIEventDataAdder", this, "addNewItem()");
+   m_applyAndClose->Connect("Clicked()", "FWGUIEventDataAdder", this, "addNewItemAndClose()");
    
    m_frame->SetWindowName("Add Collection");
    m_frame->MapSubwindows();
@@ -551,6 +562,12 @@ FWGUIEventDataAdder::metadataUpdatedSlot(void)
 }
 
 void
+FWGUIEventDataAdder::resetNameEntry()
+{
+   m_name->SetText(m_apply->IsEnabled() ? m_moduleLabel.c_str() : "", kFALSE);
+}
+
+void
 FWGUIEventDataAdder::newIndexSelected(int iSelectedIndex)
 {
    if(-1 != iSelectedIndex) {
@@ -566,7 +583,8 @@ FWGUIEventDataAdder::newIndexSelected(int iSelectedIndex)
          m_name->SetText(m_moduleLabel.c_str());
       }
       m_apply->SetEnabled(true);
-      
+      m_applyAndClose->SetEnabled(true);
+
       //Check to see if this is the last process, if it is then we can let the user decide
       // to not use the process name when doing the lookup.  This makes a saved configuration
       // more robust.  However, if they choose a collection not from the last process then we need the

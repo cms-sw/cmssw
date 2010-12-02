@@ -23,7 +23,8 @@ FWLayoutBuilder::FWLayoutBuilder(TGCompositeFrame *window)
      m_floatLeft(false),
      m_topSpacing(0),
      m_leftSpacing(0),
-     m_currentHints(0)
+     m_currentHints(0),
+     m_currentFrameHints(0)
 {
    TGVerticalFrame *mainFrame = new TGVerticalFrame(window);
    TGLayoutHints *hints = new TGLayoutHints(kLHintsExpandX|kLHintsExpandY, 
@@ -35,7 +36,7 @@ FWLayoutBuilder::FWLayoutBuilder(TGCompositeFrame *window)
 FWLayoutBuilder &
 FWLayoutBuilder::newRow(void)
 {
-   m_currentHints = new TGLayoutHints(kLHintsExpandX);
+   m_currentFrameHints = m_currentHints = new TGLayoutHints(kLHintsExpandX);
    m_currentFrame = new TGHorizontalFrame(m_framesStack.back());
    m_framesStack.back()->AddFrame(m_currentFrame, m_currentHints);
    return *this;
@@ -85,6 +86,14 @@ FWLayoutBuilder::floatLeft(size_t spacing)
 }
 
 FWLayoutBuilder &
+FWLayoutBuilder::spaceUp(size_t spacing)
+{
+   if (m_currentHints)
+      m_currentHints->SetPadTop(spacing);
+   return *this;
+}
+
+FWLayoutBuilder &
 FWLayoutBuilder::spaceDown(size_t spacing)
 {
    if (m_currentHints)
@@ -96,7 +105,48 @@ FWLayoutBuilder &
 FWLayoutBuilder::spaceLeft(size_t spacing)
 {
    if (m_currentHints)
+      m_currentHints->SetPadLeft(spacing);
+   return *this;
+}
+
+FWLayoutBuilder &
+FWLayoutBuilder::spaceRight(size_t spacing)
+{
+   if (m_currentHints)
       m_currentHints->SetPadRight(spacing);
+   return *this;
+}
+
+
+FWLayoutBuilder &
+FWLayoutBuilder::frameSpaceUp(size_t spacing)
+{
+   if (m_currentFrameHints)
+      m_currentFrameHints->SetPadTop(spacing);
+   return *this;
+}
+
+FWLayoutBuilder &
+FWLayoutBuilder::frameSpaceDown(size_t spacing)
+{
+   if (m_currentFrameHints)
+      m_currentFrameHints->SetPadBottom(spacing);
+   return *this;
+}
+
+FWLayoutBuilder &
+FWLayoutBuilder::frameSpaceLeft(size_t spacing)
+{
+   if (m_currentFrameHints)
+      m_currentFrameHints->SetPadLeft(spacing);
+   return *this;
+}
+
+FWLayoutBuilder &
+FWLayoutBuilder::frameSpaceRight(size_t spacing)
+{
+   if (m_currentFrameHints)
+      m_currentFrameHints->SetPadRight(spacing);
    return *this;
 }
 
@@ -208,19 +258,22 @@ FWDialogBuilder::addLabel(const char *text, size_t fontSize /*= 12*/,
                           size_t weight /*= 0*/, TGLabel **out /*= 0*/)
 {
    TGLabel *label = new TGLabel(nextFrame(), text);
-   
-   FontStruct_t defaultFontStruct = label->GetDefaultFontStruct();
-   try
+
+   if (fontSize != 0)
    {
-      TGFontPool *pool = gClient->GetFontPool();
-      TGFont* defaultFont = pool->GetFont(defaultFontStruct);
-      FontAttributes_t attributes = defaultFont->GetFontAttributes();
-      label->SetTextFont(pool->GetFont(attributes.fFamily, fontSize, 
-                                       attributes.fWeight, attributes.fSlant));
-   } 
-   catch(...)
-   {
-      // Ignore exceptions.
+      FontStruct_t defaultFontStruct = label->GetDefaultFontStruct();
+      try
+      {
+         TGFontPool *pool = gClient->GetFontPool();
+         TGFont* defaultFont = pool->GetFont(defaultFontStruct);
+         FontAttributes_t attributes = defaultFont->GetFontAttributes();
+         label->SetTextFont(pool->GetFont(attributes.fFamily, fontSize, 
+                                          attributes.fWeight, attributes.fSlant));
+      } 
+      catch(...)
+      {
+         // Ignore exceptions.
+      }
    }
 
    label->SetTextJustify(kTextLeft);
@@ -449,8 +502,23 @@ FWDialogBuilder::floatLeft(size_t spacing /*= 3*/)
 }
 
 FWDialogBuilder &
+FWDialogBuilder::spaceUp(size_t spacing /*= 3*/)
+{
+   FWLayoutBuilder::spaceUp(spacing);
+   return *this;
+}
+
+FWDialogBuilder &
 FWDialogBuilder::spaceDown(size_t spacing /*= 3*/)
 {
+   FWLayoutBuilder::spaceDown(spacing);
+   return *this;
+}
+
+FWDialogBuilder &
+FWDialogBuilder::spaceUpDown(size_t spacing /*= 3*/)
+{
+   FWLayoutBuilder::spaceUp(spacing);
    FWLayoutBuilder::spaceDown(spacing);
    return *this;
 }
@@ -459,6 +527,68 @@ FWDialogBuilder &
 FWDialogBuilder::spaceLeft(size_t spacing)
 {
    FWLayoutBuilder::spaceLeft(spacing);
+   return *this;
+}
+
+FWDialogBuilder &
+FWDialogBuilder::spaceRight(size_t spacing)
+{
+   FWLayoutBuilder::spaceRight(spacing);
+   return *this;
+}
+
+FWDialogBuilder &
+FWDialogBuilder::spaceLeftRight(size_t spacing)
+{
+   FWLayoutBuilder::spaceLeft(spacing);
+   FWLayoutBuilder::spaceRight(spacing);
+   return *this;
+}
+
+
+// Frame spacing
+
+FWDialogBuilder &
+FWDialogBuilder::frameSpaceUp(size_t spacing /*= 3*/)
+{
+   FWLayoutBuilder::frameSpaceUp(spacing);
+   return *this;
+}
+
+FWDialogBuilder &
+FWDialogBuilder::frameSpaceDown(size_t spacing /*= 3*/)
+{
+   FWLayoutBuilder::frameSpaceDown(spacing);
+   return *this;
+}
+
+FWDialogBuilder &
+FWDialogBuilder::frameSpaceUpDown(size_t spacing /*= 3*/)
+{
+   FWLayoutBuilder::frameSpaceUp(spacing);
+   FWLayoutBuilder::frameSpaceDown(spacing);
+   return *this;
+}
+
+FWDialogBuilder &
+FWDialogBuilder::frameSpaceLeft(size_t spacing)
+{
+   FWLayoutBuilder::frameSpaceLeft(spacing);
+   return *this;
+}
+
+FWDialogBuilder &
+FWDialogBuilder::frameSpaceRight(size_t spacing)
+{
+   FWLayoutBuilder::frameSpaceRight(spacing);
+   return *this;
+}
+
+FWDialogBuilder &
+FWDialogBuilder::frameSpaceLeftRight(size_t spacing)
+{
+   FWLayoutBuilder::frameSpaceLeft(spacing);
+   FWLayoutBuilder::frameSpaceRight(spacing);
    return *this;
 }
 
