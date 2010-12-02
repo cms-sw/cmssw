@@ -77,7 +77,7 @@ L1GctJetFinderParams::L1GctJetFinderParams(double rgnEtLsb,
   unsigned expCoeffs = 0;
   if (corrType_ == 2) expCoeffs=8;  // ORCA style
   if (corrType_ == 3) expCoeffs=4;  // Simple
-  if (corrType_ == 4) expCoeffs=11;  // piecewise-cubic
+  if (corrType_ == 4) expCoeffs=15;  // piecewise-cubic
   if (corrType_ == 5) expCoeffs=6;  // PF
 
   // correction types 1 and 4 can have any number of parameters
@@ -238,10 +238,10 @@ double L1GctJetFinderParams::correctionFunction(const double Et, const std::vect
     result = orcaStyleCorrect(Et, coeffs);
     break;
   case 3:  // simple correction (JetMEt style)
-    result = orcaStyleCorrect(Et, coeffs);
+    result = simpleCorrect(Et, coeffs);
     break;
   case 4:  // piecwise cubic correction a la Greg Landsberg et al
-    result = orcaStyleCorrect(Et, coeffs);
+    result = piecewiseCubicCorrect(Et, coeffs);
     break;
   case 5:  // PF correction
     result = pfCorrect(Et, coeffs);
