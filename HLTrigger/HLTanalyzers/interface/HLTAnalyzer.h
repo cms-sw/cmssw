@@ -158,6 +158,10 @@ private:
   edm::InputTag IsoPixelTrackTagL3_;
   edm::InputTag IsoPixelTrackTagL2_; 
   edm::InputTag IsoPixelTrackVerticesTag_;
+  edm::InputTag IsoPixelTrackHBTagL2_;
+  edm::InputTag IsoPixelTrackHBTagL3_;
+  edm::InputTag IsoPixelTrackHETagL2_;
+  edm::InputTag IsoPixelTrackHETagL3_;
 
   // Track OpenHLT input collections
   edm::InputTag PixelTracksTagL3_; 

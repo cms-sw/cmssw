@@ -136,6 +136,10 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   HFRecHitTag_              = conf.getParameter<edm::InputTag> ("HFRecHits");  
   IsoPixelTrackTagL3_       = conf.getParameter<edm::InputTag> ("IsoPixelTracksL3"); 
   IsoPixelTrackTagL2_       = conf.getParameter<edm::InputTag> ("IsoPixelTracksL2");
+  IsoPixelTrackHBTagL2_     = conf.getParameter<edm::InputTag> ("IsoPixelTracksHBL2");
+  IsoPixelTrackHBTagL3_     = conf.getParameter<edm::InputTag> ("IsoPixelTracksHBL3"); 
+  IsoPixelTrackHETagL2_     = conf.getParameter<edm::InputTag> ("IsoPixelTracksHEL2");
+  IsoPixelTrackHETagL3_     = conf.getParameter<edm::InputTag> ("IsoPixelTracksHEL3"); 
   IsoPixelTrackVerticesTag_       = conf.getParameter<edm::InputTag> ("IsoPixelTrackVertices");
   
   // Track OpenHLT input collections
@@ -312,7 +316,11 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<reco::IsolatedPixelTrackCandidateCollection> isopixeltracksL2;	
   edm::Handle<reco::VertexCollection>         isopixeltrackPixVertices;
   edm::Handle<reco::RecoChargedCandidateCollection> pixeltracksL3; 
-
+  edm::Handle<reco::IsolatedPixelTrackCandidateCollection> isopixeltracksHBL2;	
+  edm::Handle<reco::IsolatedPixelTrackCandidateCollection> isopixeltracksHBL3; 
+  edm::Handle<reco::IsolatedPixelTrackCandidateCollection> isopixeltracksHEL2;	
+  edm::Handle<reco::IsolatedPixelTrackCandidateCollection> isopixeltracksHEL3; 
+  
   // Reco vertex collection
   edm::Handle<reco::VertexCollection> recoVertexs;
 
@@ -473,6 +481,10 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   getCollection( iEvent, missing, hfrechits,                HFRecHitTag_,               kHFrechits );   
   getCollection( iEvent, missing, isopixeltracksL3,         IsoPixelTrackTagL3_,        kIsoPixelTracksL3 ); 
   getCollection( iEvent, missing, isopixeltracksL2,         IsoPixelTrackTagL2_,        kIsoPixelTracksL2 );
+  getCollection( iEvent, missing, isopixeltracksHBL2,       IsoPixelTrackHBTagL2_,      kIsoPixelTracksHBL2 );
+  getCollection( iEvent, missing, isopixeltracksHBL3,       IsoPixelTrackHBTagL3_,      kIsoPixelTracksHBL3 ); 
+  getCollection( iEvent, missing, isopixeltracksHEL2,       IsoPixelTrackHETagL2_,      kIsoPixelTracksHEL2 );
+  getCollection( iEvent, missing, isopixeltracksHEL3,       IsoPixelTrackHETagL3_,      kIsoPixelTracksHEL3 ); 
   getCollection( iEvent, missing, isopixeltrackPixVertices, IsoPixelTrackVerticesTag_,   kIsoPixelTrackVertices );
   getCollection( iEvent, missing, pixeltracksL3,            PixelTracksTagL3_,          kPixelTracksL3 ); 
   }
@@ -603,6 +615,10 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 
   if(_DoTracks)
   track_analysis_.analyze( 
+    isopixeltracksHBL2,			  
+    isopixeltracksHBL3,
+    isopixeltracksHEL2,
+    isopixeltracksHEL3,
     isopixeltracksL3, 
     isopixeltracksL2,
     isopixeltrackPixVertices,			  
