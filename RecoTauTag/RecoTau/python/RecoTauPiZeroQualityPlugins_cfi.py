@@ -23,7 +23,7 @@ isInStrip = cms.PSet(
     # Mike pointed out the max value of the strip can be greater than what the
     # intial cuts are and still be consistent.  Until there is a good way to
     # deal with this just cut on the algo name.
-    selection = cms.string('algoIs("%s")' % builders.strips.name.value()),
+    selection = cms.string('algoIs(kStrips)'),
     selectionPassFunction = cms.string(DELTA_M_PIZERO),
     selectionFailValue = cms.double(1000)
 )
