@@ -458,25 +458,31 @@ def main():
         #print 'daydict ',daydict
         days=daydict.keys()
         days.sort()
+        daymin=days[0]
+        daymax=days[-1]
+        #alldays=range(daymin,daymax+1)
         resultbyday={}
         resultbyday['Delivered']=[]
         resultbyday['Recorded']=[]
-        for day in days:
-            daydata=daydict[day]
-            mytransposed=CommonUtil.transposed(daydata,defaultval=0.0)
-            #delivered=sum(mytransposed[0])/1000.0
-            #recorded=sum(mytransposed[1])/1000.0
-            delivered=sum(mytransposed[0])
-            recorded=sum(mytransposed[1])
-            resultbyday['Delivered'].append(delivered)#in nb-1
+        #for day in days:
+        for day in range(daymin,daymax+1):
+            if not daydict.has_key(day):
+                delivered=0.0
+                recorded=0.0
+            else:
+                daydata=daydict[day]
+                mytransposed=CommonUtil.transposed(daydata,defaultval=0.0)
+                delivered=sum(mytransposed[0])
+                recorded=sum(mytransposed[1])
+            resultbyday['Delivered'].append(delivered)
             resultbyday['Recorded'].append(recorded)
             if args.outputfile:
                 reporter.writeRow([day,beginfo[1],endinfo[1],delivered,recorded])
         #print 'beginfo ',beginfo
         #print 'endinfo ',endinfo
         #print resultbyday
-        m.plotPerdayX_Time(days,resultbyday,minTime,maxTime,boundaryInfo=[beginfo,endinfo],annotateBoundaryRunnum=args.annotateboundary,yscale='linear')
-        mlog.plotPerdayX_Time(days,resultbyday,minTime,maxTime,boundaryInfo=[beginfo,endinfo],annotateBoundaryRunnum=args.annotateboundary,yscale='log')
+        m.plotPerdayX_Time( range(daymin,daymax+1) ,resultbyday,minTime,maxTime,boundaryInfo=[beginfo,endinfo],annotateBoundaryRunnum=args.annotateboundary,yscale='linear')
+        mlog.plotPerdayX_Time( range(daymin,daymax+1),resultbyday,minTime,maxTime,boundaryInfo=[beginfo,endinfo],annotateBoundaryRunnum=args.annotateboundary,yscale='log')
     else:
         raise Exception,'must specify the type of x-axi'
 
