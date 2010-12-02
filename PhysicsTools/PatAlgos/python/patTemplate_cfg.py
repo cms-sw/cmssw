@@ -26,6 +26,10 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 ## Standard PAT Configuration File
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
+## internediate step to get the taus working untill they are part of RECO
+process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
+process.p0 = cms.Path(process.PFTau)
+
 ## Output Module Configuration (expects a path 'p')
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
 process.out = cms.OutputModule("PoolOutputModule",
@@ -36,10 +40,5 @@ process.out = cms.OutputModule("PoolOutputModule",
                                # unpack the list of commands 'patEventContent'
                                outputCommands = cms.untracked.vstring('drop *', *patEventContent ) 
                                )
-
-## temporary fix for problems with taus
-from PhysicsTools.PatAlgos.tools.coreTools import *
-removeSpecificPATObjects(process, ['Taus'])
-
 
 process.outpath = cms.EndPath(process.out)
