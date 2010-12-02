@@ -167,5 +167,5 @@ void
 TtFullLepHypothesis::setCandidate(const edm::Handle<std::vector<pat::Jet> >& handle, const int& idx, reco::ShallowClonePtrCandidate*& clone, const std::string& correctionLevel)
 {
   edm::Ptr<pat::Jet> ptr = edm::Ptr<pat::Jet>(handle, idx);
-  clone = new reco::ShallowClonePtrCandidate( ptr, ptr->charge(), ptr->correctedJet(jetCorrectionLevel_, "b").p4(), ptr->vertex() );
+  clone = new reco::ShallowClonePtrCandidate( ptr, ptr->charge(), ptr->correctedJet(jetCorrectionLevel_, "bottom").p4(), ptr->vertex() );
 }
