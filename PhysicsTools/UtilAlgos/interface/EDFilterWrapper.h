@@ -36,7 +36,8 @@
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-
+#include "FWCore/Common/interface/EventBase.h"
+#include "FWCore/Framework/interface/Event.h"
 #include <boost/shared_ptr.hpp>
 
 namespace edm {
@@ -50,7 +51,11 @@ namespace edm {
     /// default destructor
     virtual ~FilterWrapper(){}
     /// everything which has to be done during the event loop. NOTE: We can't use the eventSetup in FWLite so ignore it
-    virtual bool filter(edm::Event& event, const edm::EventSetup& eventSetup){ return (*filter_)(event); }
+    virtual bool filter(edm::Event& event, const edm::EventSetup& eventSetup){ 
+      edm::EventBase & eventBase = dynamic_cast<edm::EventBase &>(event);
+      edm::EventBase const & eventBaseConst = const_cast<edm::EventBase const &>(eventBase);
+      return (*filter_)(eventBaseConst);
+    }
     
   protected:
     /// shared pointer to analysis class of type BasicAnalyzer
