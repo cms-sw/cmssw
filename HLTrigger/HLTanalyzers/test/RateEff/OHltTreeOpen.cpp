@@ -3354,6 +3354,63 @@ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet10") == 0) {
 //     }  
 //   }
   
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoTrackHB") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	
+	bool passL2=false;
+	for(int itrk=0; itrk<ohIsoPixelTrackHBL2N; itrk++){
+	  if( ohIsoPixelTrackHBL2P[itrk]>8.0               &&
+	      TMath::Abs(ohIsoPixelTrackHBL2Eta[itrk])>0.0 &&
+	      TMath::Abs(ohIsoPixelTrackHBL2Eta[itrk])<1.3 &&
+	      ohIsoPixelTrackHBL2MaxNearP[itrk]<2.0)
+	    passL2=true;
+	}
+	
+	bool passL3=false;
+	for(int itrk=0; itrk<ohIsoPixelTrackHBL3N; itrk++){
+	  if( ohIsoPixelTrackHBL3P[itrk]>20.0              &&
+	      TMath::Abs(ohIsoPixelTrackHBL3Eta[itrk])>0.0 &&
+	      TMath::Abs(ohIsoPixelTrackHBL3Eta[itrk])<1.3 &&
+	      ohIsoPixelTrackHBL3MaxNearP[itrk]<2.0)
+	    passL3=true;
+	}
+	
+	if(passL2 && passL3) {
+	  triggerBit[it] = true; 
+	}
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoTrackHE") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	
+	bool passL2=false;
+	for(int itrk=0; itrk<ohIsoPixelTrackHEL2N; itrk++){
+	  if( ohIsoPixelTrackHEL2P[itrk]>12.0              &&
+	      TMath::Abs(ohIsoPixelTrackHEL2Eta[itrk])>0.0 &&
+	      TMath::Abs(ohIsoPixelTrackHEL2Eta[itrk])<2.2 &&
+	      ohIsoPixelTrackHEL2MaxNearP[itrk]<2.0)
+	    passL2=true;
+	}
+	
+	bool passL3=false;
+	for(int itrk=0; itrk<ohIsoPixelTrackHEL3N; itrk++){
+	  if( ohIsoPixelTrackHEL3P[itrk]>38.0              &&
+	      TMath::Abs(ohIsoPixelTrackHEL3Eta[itrk])>0.0 &&
+	      TMath::Abs(ohIsoPixelTrackHEL3Eta[itrk])<2.2 &&
+	      ohIsoPixelTrackHEL3MaxNearP[itrk]<2.0)
+	    passL3=true;
+	}
+	
+	if(passL2 && passL3) {
+	  triggerBit[it] = true; 
+	}
+      }
+    }
+  }
+
   
 /* New cross-triggers, Sept. 2010 */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_MET45") == 0) {  
