@@ -68,6 +68,7 @@ double fMin, fMax;
  unsigned int rebinMuMuNoIso ,rebinMuMu =1 , rebinMuMu1HLT , rebinMuMu2HLT , rebinMuTk , rebinMuSa;
  // assume that the bin size is 1 GeV!!! 
 string ext, region;
+bool nonIsoTemplateFromMC;
 
 template<typename T>
 struct PlotPrefix { };
@@ -97,14 +98,20 @@ int main_t(const vector<string> & v_file){
     TFile * root_file = new TFile(it->c_str(), "read");
     
     // default when region==all
-    TH1 * histoZMuMuNoIso = getHisto(root_file, "nonIsolatedZToMuMuPlots/zMass",rebinMuMuNoIso);
+    //    TH1 * histoZMuMuNoIso = getHisto(root_file, "nonIsolatedZToMuMuPlots/zMass",rebinMuMuNoIso);
+    TH1 * histoZMuMuNoIso = getHisto(root_file, "oneNonIsolatedZToMuMuPlots/zMass",rebinMuMuNoIso);
     TH1 * histoZMuMu = getHisto(root_file, "goodZToMuMuPlots/zMass",rebinMuMu);
     TH1 * histoZMuMu1HLT = getHisto(root_file, "goodZToMuMu1HLTPlots/zMass", rebinMuMu1HLT);
     TH1 * histoZMuMu2HLT = getHisto(root_file, "goodZToMuMu2HLTPlots/zMass", rebinMuMu2HLT);
     TH1 * histoZMuTk = getHisto(root_file, "goodZToMuMuOneTrackPlots/zMass", rebinMuTk);
     TH1 * histoZMuSa = getHisto(root_file, "goodZToMuMuOneStandAloneMuonPlots/zMass", rebinMuSa);
     TH1 * histoZMuSaFromMuMu = getHisto(root_file, "zmumuSaMassHistogram/zMass", rebinMuSa);
-    
+   
+    TH1 * histoZMuMuNoIsoTemplateFromMC= histoZMuMu;
+    if (nonIsoTemplateFromMC) {
+      //      histoZMuMuNoIsoTemplateFromMC = getHisto(root_file, "nonIsolatedZToMuMuPlotsMC/zMass",rebinMuMu);
+      histoZMuMuNoIsoTemplateFromMC = getHisto(root_file, "oneNonIsolatedZToMuMuPlotsMC/zMass",rebinMuMu);
+  }    
     if (region=="barrel"){
       histoZMuMuNoIso = getHisto(root_file, "nonIsolatedZToMuMuPlotsBarrel/zMass",rebinMuMuNoIso);
       histoZMuMu = getHisto(root_file, "goodZToMuMuPlotsBarrel/zMass",rebinMuMu);
@@ -211,10 +218,17 @@ int main_t(const vector<string> & v_file){
     cout << ">>> count of ZMuMu yield in the range [" << fMin << ", " << fMax << "]: " << nZMuMu << endl;
     cout << ">>> count of ZMuMu (1HLT) yield in the range [" << fMin << ", " << fMax << "]: "  << nZMuMu1HLT << endl;
     cout << ">>> count of ZMuMu (2HLT) yield in the range [" << fMin << ", " << fMax << "]: "  << nZMuMu2HLT << endl;
-    funct::RootHistoPdf zPdfMuMuNonIso(*histoZMuMu, fMin, fMax);//imposto le pdf a quella di ZMuMu
-    funct::RootHistoPdf zPdfMuTk = zPdfMuMuNonIso;
-    funct::RootHistoPdf zPdfMuMu1HLT = zPdfMuMuNonIso;
-    funct::RootHistoPdf zPdfMuMu2HLT = zPdfMuMuNonIso;
+    funct::RootHistoPdf zPdfMuMu(*histoZMuMu, fMin, fMax);
+      //assign ZMuMu as pdf
+    funct::RootHistoPdf zPdfMuMuNonIso = zPdfMuMu;
+    if (nonIsoTemplateFromMC) {
+      funct::RootHistoPdf zPdfMuMuNoIsoFromMC(*histoZMuMuNoIsoTemplateFromMC, fMin, fMax);
+      zPdfMuMuNonIso = zPdfMuMuNoIsoFromMC;
+    }    
+    
+    funct::RootHistoPdf zPdfMuTk = zPdfMuMu;
+    funct::RootHistoPdf zPdfMuMu1HLT = zPdfMuMu;
+    funct::RootHistoPdf zPdfMuMu2HLT = zPdfMuMu;
     funct::RootHistoPdf zPdfMuSa(*histoZMuSaFromMuMu, fMin, fMax);
     zPdfMuMuNonIso.rebin(rebinMuMuNoIso/rebinMuMu);
     zPdfMuTk.rebin(rebinMuTk/rebinMuMu);
@@ -227,7 +241,9 @@ int main_t(const vector<string> & v_file){
     //Efficiency term
     Expr zMuMuEff1HLTTerm = _2 * (effTk ^ _2) *  (effSa ^ _2) * (effIso ^ _2) * effHLT * (_1 - effHLT); 
     Expr zMuMuEff2HLTTerm = (effTk ^ _2) *  (effSa ^ _2) * (effIso ^ _2) * (effHLT ^ _2) ; 
-    Expr zMuMuNoIsoEffTerm = (effTk ^ _2) * (effSa ^ _2) * (_1 - (effIso ^ _2)) * (_1 - ((_1 - effHLT)^_2));
+    //    Expr zMuMuNoIsoEffTerm = (effTk ^ _2) * (effSa ^ _2) * (_1 - (effIso ^ _2)) * (_1 - ((_1 - effHLT)^_2));
+    // change to both hlt and one not iso
+    Expr zMuMuNoIsoEffTerm = _2 * (effTk ^ _2) * (effSa ^ _2) * effIso * (_1 - effIso) * (effHLT^_2);
     Expr zMuTkEffTerm = _2 * (effTk ^ _2) * effSa * (_1 - effSa) * (effIso ^ _2) * effHLT;
     Expr zMuSaEffTerm = _2 * (effSa ^ _2) * effTk * (_1 - effTk) * (effIso ^ _2) * effHLT;
     
@@ -510,6 +526,7 @@ int main(int ac, char *av[]) {
     ("rebins,R", po::value<vector<unsigned int> >(), "rebins values: rebinMuMu2HLT , rebinMuMu1HLT , rebinMuMuNoIso , rebinMuSa, rebinMuTk")
     ("chi2,c", "perform chi-squared fit")
     ("plr,p", "perform Poisson likelihood-ratio fit")
+    ("nonIsoTemplateFromMC,I", po::value<bool>(&nonIsoTemplateFromMC)->default_value(false) , "take the template for nonIso sample from MC")
     ("plot-format,f", po::value<string>(&ext)->default_value("eps"), "output plot format")
     ("detectorRegion,r",po::value<string> (&region)->default_value("all"), "detector region in which muons are detected" );   
   po::positional_options_description p;
@@ -549,9 +566,11 @@ int main(int ac, char *av[]) {
 
 
   bool chi2Fit = vm.count("chi2"), plrFit = vm.count("plr");
+  
   if(!(chi2Fit||plrFit))
     cerr << "Warning: no fit performed. Please, specify either -c or -p options or both" << endl;
  
+
   gROOT->SetStyle("Plain");
 
   int ret = 0;
