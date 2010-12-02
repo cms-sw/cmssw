@@ -1,3 +1,17 @@
+2010-12-01 William Tanenbaum <wmtan@fnal.gov>
+
+	* tag V06-04-09
+	* Fix for -Wtype-limits compiler warning due to unsigned__0 comparisons,
+	  which always evaluate to true. Fix also streamlines the relevant code
+	  by using std::string.find() and std::string::rfind() rather than
+	  unnecessary and error prone loops in TriggerSelector.
+
+2010-12-01 Giulio Eulisse <Giulio.Eulisse@cern.ch>
+
+	* tag V06-04-08
+	* Remove unneeded edm::RootAutoLibraryLoader::enable() call from constructor.
+	* Modifications to fix compilation issues on Mac OS X.
+
 2010-11-22 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-04-07
