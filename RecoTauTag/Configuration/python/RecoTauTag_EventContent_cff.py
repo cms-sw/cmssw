@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 #Full Event content
 RecoTauTagFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring(
-        'keep *_pfRecoTauTagInfoProducer_*_*',
         'keep *_ak5PFJetsRecoTauPiZeros_*_*',
         'keep *_hpsPFTauProducer*_*_*',
         'keep *_hpsPFTauDiscrimination*_*_*',
@@ -19,7 +18,6 @@ RecoTauTagFEVT = cms.PSet(
 #RECO content
 RecoTauTagRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
-        'keep *_pfRecoTauTagInfoProducer_*_*',
         'keep *_ak5PFJetsRecoTauPiZeros_*_*',
         'keep *_hpsPFTauProducer*_*_*',
         'keep *_hpsPFTauDiscrimination*_*_*',
@@ -35,7 +33,6 @@ RecoTauTagRECO = cms.PSet(
 #AOD content
 RecoTauTagAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
-        'keep *_pfRecoTauTagInfoProducer_*_*',
         'keep *_ak5PFJetsRecoTauPiZeros_*_*',
         'keep *_hpsPFTauProducer*_*_*',
         'keep *_hpsPFTauDiscrimination*_*_*',
