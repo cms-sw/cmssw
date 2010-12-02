@@ -286,10 +286,22 @@ class matplotRender():
             boundaryInfo [[begintime,begininfo],[endtime,endinfo]]
         '''
         ax=self.__fig.add_subplot(111)
+        t=max(databyday['Delivered'])
+        maxvalues={}
+        keylist=databyday.keys()
+        keylist.sort()
+        minvar=0.1 # we plot only values>0.1
+        for k in keylist:
+            maxvalues[k]=max(databyday[k])
+            
         if yscale=='linear':
             ax.set_yscale('linear')
         elif yscale=='log':
             ax.set_yscale('log')
+            for k in keylist:
+                for i,v in enumerate(databyday[k]):
+                    if databyday[k]<minvar:
+                        databyday[k]=minvar
         else:
             raise 'unsupported yscale ',yscale
         dateFmt=matplotlib.dates.DateFormatter('%d/%m')
@@ -297,7 +309,6 @@ class matplotRender():
         minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)
         ax.xaxis.set_major_formatter(dateFmt)
         ax.set_xlabel(r'Date',position=(0.84,0))
-    
         ax.xaxis.set_major_locator(majorLoc)
         ax.xaxis.set_minor_locator(minorLoc)
         xticklabels=ax.get_xticklabels()
@@ -305,10 +316,7 @@ class matplotRender():
             tx.set_horizontalalignment('right')
         ax.grid(True)
         legendlist=[]
-        keylist=databyday.keys()
-        keylist.sort()
-
-        t=max(databyday['Delivered'])
+     
         denomitor=1.0
         unitstring='$\mu$b$^{-1}$'
         if t>=1.0e3 and t<1.0e06:
@@ -330,7 +338,7 @@ class matplotRender():
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
             ax.plot(days,[y/denomitor for y in databyday[ylabel]],label=ylabel,color=cl,drawstyle='steps')
-            legendlist.append(ylabel+' Max '+'%.2f'%(max(databyday[ylabel])/denomitor)+' '+unitstring)
+            legendlist.append(ylabel+' Max '+'%.2f'%(maxvalues[ylabel]/denomitor)+' '+unitstring)
         ax.legend(tuple(legendlist),loc='upper left')
         ax.set_xbound(lower=matplotlib.dates.date2num(minTime),upper=matplotlib.dates.date2num(maxTime))
         if annotateBoundaryRunnum:
@@ -394,6 +402,7 @@ class matplotRender():
             ax.set_yscale('linear')
         elif yscale=='log':
             ax.set_yscale('log')
+            
         else:
             raise 'unsupported yscale ',yscale
         dateFmt=matplotlib.dates.DateFormatter('%d/%m')
