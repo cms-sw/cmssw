@@ -153,37 +153,35 @@ DoHLTAlCaECALPhiSym = cms.Path(
 #hltIsolPixelTrackL2Filter1E31.MaxPtNearby = cms.double(3.0)
 #hltIsolPixelTrackL2Filter1E31.MinPtTrack = cms.double(3.0)
 
-#DoHLTIsoTrack = cms.Path(
-#    HLTBeginSequence +
-#    hltL1sIsoTrack1E31 +
-    # hltPreIsoTrack1E31 +
-#    HLTL2HcalIsolTrackSequence +
-#    hltIsolPixelTrackProd1E31 +
-#    hltIsolPixelTrackL2Filter1E31 +
-#    HLTDoLocalStripSequence +
-#    hltHITPixelPairSeedGenerator1E31 +
-#    hltHITPixelTripletSeedGenerator1E31 +
-#    hltHITSeedCombiner1E31 +
-#    hltHITCkfTrackCandidates1E31 +
-#    hltHITCtfWithMaterialTracks1E31 +
-#    hltHITIPTCorrector1E31 +
-#    HLTEndSequence)
+DoHLTIsoTrackHE = cms.Path(
+    HLTBeginSequence +
+    hltL1sIsoTrackHE8E29 +
+    hltPreIsoTrackHE8E29 +
+    HLTL2HcalIsolTrackSequenceHE +
+    hltIsolPixelTrackProdHE8E29 +
+    hltIsolPixelTrackL2FilterHE8E29 +
+    HLTDoLocalStripSequence +
+    hltHITPixelTripletSeedGeneratorHE8E29 +
+    hltHITCkfTrackCandidatesHE8E29 +
+    hltHITCtfWithMaterialTracksHE8E29 +
+    hltHITIPTCorrectorHE8E29 +
+    hltIsolPixelTrackL3FilterHE8E29
+    )
 
-#DoHLTIsoTrack8E29 = cms.Path(
-#    HLTBeginSequence +
-#    hltL1sIsoTrack8E29 +
-    # hltPreIsoTrack8E29 +
-#    HLTL2HcalIsolTrackSequence +
-#    hltIsolPixelTrackProd8E29 +
-#    hltIsolPixelTrackL2Filter8E29 +
-#    HLTDoLocalStripSequence +
-#    hltHITPixelPairSeedGenerator8E29 +
-#    hltHITPixelTripletSeedGenerator8E29 +
-#    hltHITSeedCombiner8E29 +
-#    hltHITCkfTrackCandidates8E29 +
-#    hltHITCtfWithMaterialTracks8E29 +
-#    hltHITIPTCorrector8E29 +
-#    HLTEndSequence)
+DoHLTIsoTrackHB = cms.Path(
+    HLTBeginSequence +
+    hltL1sIsoTrackHB8E29 +
+    hltPreIsoTrackHB8E29 +
+    HLTL2HcalIsolTrackSequenceHB +
+    hltIsolPixelTrackProdHB8E29 +
+    hltIsolPixelTrackL2FilterHB8E29 +
+    HLTDoLocalStripSequence +
+    hltHITPixelTripletSeedGeneratorHB8E29 +
+    hltHITCkfTrackCandidatesHB8E29 +
+    hltHITCtfWithMaterialTracksHB8E29 +
+    hltHITIPTCorrectorHB8E29 +
+    hltIsolPixelTrackL3FilterHB8E29
+    )
 
 
 DoHLTMinBiasPixelTracks = cms.Path(
