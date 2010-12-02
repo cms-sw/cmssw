@@ -18,7 +18,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:47 EST 2009
-// $Id: FWTableWidget.h,v 1.13 2010/11/24 10:16:50 amraktad Exp $
+// $Id: FWTableWidget.h,v 1.14 2010/12/02 18:59:43 amraktad Exp $
 //
 
 // system include files
@@ -80,8 +80,9 @@ public:
    void Clicked();
 
    ClassDef(FWTableWidget,0);
-   
-   void dataChanged(bool needs_layout=true);
+
+   void forceLayout() { m_forceLayout = true; }
+   void dataChanged();
 
    void buttonPressedInRowHeader(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY);
    void buttonReleasedInRowHeader(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY);
@@ -100,7 +101,7 @@ private:
    //const FWTableWidget& operator=(const FWTableWidget&); // stop default
 
    // ---------- member data --------------------------------
-   void handleResize(UInt_t w, UInt_t h);
+   bool handleResize(UInt_t w, UInt_t h);
    FWTableManagerBase* m_bodyTable;
    FWTableManagerBase* m_headerTable;
    FWTableManagerBase* m_rowHeaderTable;
@@ -114,11 +115,11 @@ private:
 
    int m_sortedColumn;
    bool m_descendingSort;
+   bool m_forceLayout;
    
    TGGC* m_headerBackground;
    TGGC* m_headerForeground;
    TGGC* m_lineSeparator;
-
 };
 
 

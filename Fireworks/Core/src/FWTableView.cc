@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.28 2010/06/25 13:29:54 matevz Exp $
+// $Id: FWTableView.cc,v 1.29 2010/11/04 22:38:55 amraktad Exp $
 //
 
 // system include files
@@ -568,6 +568,7 @@ FWTableView::selectCollection(Int_t i_coll)
 	  }
      }
 //      columnSelected(-1, 1, 0);
+     if (m_tableWidget) m_tableWidget->forceLayout();
      dataChanged();
 }
 
@@ -625,6 +626,8 @@ void FWTableView::addColumn ()
      m_currentColumn = (int)m_tableManager->m_tableFormats->size() + 1;
      // change needs to be propagated to all tables, because all
      // tables displaying objects of this type are affected
+     // MT -- this is NOT true!!! FIX
+     m_tableWidget->forceLayout();
      m_manager->dataChanged();
 }
 
@@ -641,6 +644,8 @@ void FWTableView::deleteColumn ()
      }
      // change needs to be propagated to all tables, because all
      // tables displaying objects of this type are affected
+     // MT -- this is NOT true!!! FIX
+     m_tableWidget->forceLayout();
      m_manager->dataChanged();
 }
 
@@ -664,6 +669,8 @@ void FWTableView::modifyColumn ()
      m_tableManager->m_tableFormats->at(m_currentColumn) = e;
      // change needs to be propagated to all tables, because all
      // tables displaying objects of this type are affected
+     // MT -- this is NOT true!!! FIX
+     m_tableWidget->forceLayout();
      m_manager->dataChanged();
 }
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:42 EST 2009
-// $Id: FWTableWidget.cc,v 1.19 2010/11/24 16:10:08 amraktad Exp $
+// $Id: FWTableWidget.cc,v 1.20 2010/12/02 18:59:43 amraktad Exp $
 //
 
 // system include files
@@ -51,6 +51,7 @@ TGCompositeFrame(p),
    m_showingHSlider(true),
    m_sortedColumn(-1),
    m_descendingSort(true),
+   m_forceLayout(false),
    m_headerBackground(0),
    m_headerForeground(0),
    m_lineSeparator(0)
@@ -225,7 +226,7 @@ FWTableWidget::Resize(UInt_t w, UInt_t h)
    TGCompositeFrame::Resize(w,h);
 }
 
-void 
+bool 
 FWTableWidget::handleResize(UInt_t w, UInt_t h)
 {
    //std::cout <<"Resize"<<std::endl;
@@ -286,6 +287,8 @@ FWTableWidget::handleResize(UInt_t w, UInt_t h)
    if(redoLayout) {
       Layout();
    }
+
+   return redoLayout;
 }
 
 void    
@@ -445,13 +448,17 @@ namespace
 {
    void rewidth_component(TGFrame *f, bool &resize_p)
    {
-      resize_p = resize_p || f->GetDefaultSize().fWidth != f->GetWidth();
+      UInt_t ow = f->GetWidth();
+      f->Resize(0, f->GetHeight());
+      resize_p = resize_p || ow != f->GetWidth();
    }
 }
 
 void 
-FWTableWidget::dataChanged(bool needs_layout)
+FWTableWidget::dataChanged()
 {
+   bool needs_layout = m_forceLayout; m_forceLayout = false;
+
    m_body->dataChanged();
    if(m_rowHeader) {
       m_rowHeader->dataChanged();
@@ -478,14 +485,14 @@ FWTableWidget::dataChanged(bool needs_layout)
    rewidth_component(m_body, needs_layout);
 
    //this updates sliders to match our new data
-   handleResize(GetWidth(), GetHeight());
+   bool layoutDoneByhandleResize = handleResize(GetWidth(), GetHeight());
+   if (needs_layout && ! layoutDoneByhandleResize)
+      Layout();
+
    gClient->NeedRedraw(m_body);
    if(m_rowHeader) {
       gClient->NeedRedraw(m_rowHeader);
    }
-
-   if (needs_layout)
-      Layout();
 }
 
 void 
