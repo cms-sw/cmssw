@@ -20,7 +20,8 @@ combinatoricRecoTausDiscriminationByLeadingPionPtCut = \
 # Eventually this will come from the global tag
 from RecoTauTag.TauTagTools.TancConditions_cff import TauTagMVAComputerRecord
 TauTagMVAComputerRecord.connect = cms.string(
-    'sqlite_fip:RecoTauTag/RecoTau/data/hpstanc.db'
+    #'sqlite_fip:RecoTauTag/RecoTau/data/hpstanc.db'
+    'sqlite_fip:RecoTauTag/RecoTau/data/fakeRate.db'
 )
 TauTagMVAComputerRecord.toGet[0].tag = cms.string('Tanc')
 # Don't conflict with TaNC global tag
@@ -282,6 +283,11 @@ hpsTancTausDiscriminationByTancLoose = cms.EDProducer(
     )
 )
 
+# Make a very loose cut
+hpsTancTausDiscriminationByTancVLoose = \
+        hpsTancTausDiscriminationByTancLoose.clone()
+hpsTancTausDiscriminationByTancVLoose.Prediscriminants.tancCut.cut = 0.90
+
 hpsTancTausDiscriminationByTancMedium = \
         hpsTancTausDiscriminationByTancLoose.clone()
 hpsTancTausDiscriminationByTancMedium.Prediscriminants.tancCut.cut = 0.97
@@ -314,6 +320,7 @@ hpsTancTauSequence = cms.Sequence(
     + hpsTancTausDiscriminationAgainstCaloMuon
     + hpsTancTausDiscriminationByTancRaw
     + hpsTancTausDiscriminationByTanc
+    + hpsTancTausDiscriminationByTancVLoose
     + hpsTancTausDiscriminationByTancLoose
     + hpsTancTausDiscriminationByTancMedium
     + hpsTancTausDiscriminationByTancTight
