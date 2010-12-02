@@ -98,37 +98,20 @@ void PFTau::setisolationPiZeroCandidates(const std::vector<RecoTauPiZero>& cands
 }
 
 PFTau::hadronicDecayMode PFTau::decayMode() const {
-  return translateDecayMode(signalPFChargedHadrCands().size(),
-      signalPiZeroCandidates().size());
+  unsigned int nCharged = signalPFChargedHadrCands().size();
+  unsigned int nPiZeros = signalPiZeroCandidates().size();
+  // If no tracks exist, this is definitely not a tau!
+  if(!nCharged) return kNull;
+  // Find the maximum number of PiZeros our parameterization can hold
+  const unsigned int maxPiZeros = kOneProngNPiZero;
+  // Determine our track index
+  unsigned int trackIndex = (nCharged-1)*(maxPiZeros+1);
+  // Check if we handle the given number of tracks
+  if(trackIndex >= kRareDecayMode) return kRareDecayMode;
+
+  nPiZeros = (nPiZeros <= maxPiZeros) ? nPiZeros : maxPiZeros;
+  return static_cast<PFTau::hadronicDecayMode>(trackIndex + nPiZeros);
 }
-
-PFTau::hadronicDecayMode PFTau::translateDecayMode(unsigned int nCharged,
-    unsigned int nPiZeros) {
-   // If no tracks exist, this is definitely not a tau!
-   if(!nCharged) return kNull;
-   // Find the maximum number of PiZeros our parameterization can hold
-   const unsigned int maxPiZeros = kOneProngNPiZero;
-   // Determine our track index
-   unsigned int trackIndex = (nCharged-1)*(maxPiZeros+1);
-   // Check if we handle the given number of tracks
-   if(trackIndex >= kRareDecayMode) return kRareDecayMode;
-
-   nPiZeros = (nPiZeros <= maxPiZeros) ? nPiZeros : maxPiZeros;
-   return static_cast<PFTau::hadronicDecayMode>(trackIndex + nPiZeros);
-}
-
-unsigned int PFTau::chargedHadronsInDecayMode(hadronicDecayMode mode)
-{
-   int modeAsInt = static_cast<int>(mode);
-   return (modeAsInt / kOneProngNPiZero) + 1;
-}
-
-unsigned int PFTau::piZerosInDecayMode(hadronicDecayMode mode)
-{
-   int modeAsInt = static_cast<int>(mode);
-   return (modeAsInt % kOneProngNPiZero);
-}
-
 
 
 // Setting information about the isolation region

@@ -22,216 +22,213 @@
 
 
 namespace reco {
-  namespace tau {
-    class RecoTauConstructor;
-  }
-  class PFTau : public BaseTau {
-    public:
-      enum hadronicDecayMode {
-        kNull = -1,
-        kOneProng0PiZero,
-        kOneProng1PiZero,
-        kOneProng2PiZero,
-        kOneProng3PiZero,
-        kOneProngNPiZero,
-        kTwoProng0PiZero,
-        kTwoProng1PiZero,
-        kTwoProng2PiZero,
-        kTwoProng3PiZero,
-        kTwoProngNPiZero,
-        kThreeProng0PiZero,
-        kThreeProng1PiZero,
-        kThreeProng2PiZero,
-        kThreeProng3PiZero,
-        kThreeProngNPiZero,
-        kRareDecayMode
-      };
 
-      PFTau();
-      PFTau(Charge q,const LorentzVector &,const Point & = Point( 0, 0, 0 ) );
-      virtual ~PFTau() {};
-      PFTau* clone() const;
+namespace tau {
+// Forward declaration
+class RecoTauConstructor;
+}
 
-      const PFJetRef& jetRef() const;
-      void setjetRef(const PFJetRef&);
+class PFTau : public BaseTau {
+  public:
+    enum hadronicDecayMode {
+      kNull = -1,
+      kOneProng0PiZero,
+      kOneProng1PiZero,
+      kOneProng2PiZero,
+      kOneProng3PiZero,
+      kOneProngNPiZero,
+      kTwoProng0PiZero,
+      kTwoProng1PiZero,
+      kTwoProng2PiZero,
+      kTwoProng3PiZero,
+      kTwoProngNPiZero,
+      kThreeProng0PiZero,
+      kThreeProng1PiZero,
+      kThreeProng2PiZero,
+      kThreeProng3PiZero,
+      kThreeProngNPiZero,
+      kRareDecayMode
+    };
 
-      const PFTauTagInfoRef& pfTauTagInfoRef() const;
-      void setpfTauTagInfoRef(const PFTauTagInfoRef);
+    PFTau();
+    PFTau(Charge q,const LorentzVector &,const Point & = Point( 0, 0, 0 ) );
+    virtual ~PFTau() {};
+    PFTau* clone() const;
 
-      const PFCandidateRef& leadPFChargedHadrCand() const;
-      const PFCandidateRef& leadPFNeutralCand() const;
-      //Can be either the charged or the neutral one
-      const PFCandidateRef& leadPFCand() const;
+    const PFJetRef& jetRef() const;
+    void setjetRef(const PFJetRef&);
 
-      void setleadPFChargedHadrCand(const PFCandidateRef&);
-      void setleadPFNeutralCand(const PFCandidateRef&);
-      void setleadPFCand(const PFCandidateRef&);
+    const PFTauTagInfoRef& pfTauTagInfoRef() const;
+    void setpfTauTagInfoRef(const PFTauTagInfoRef);
 
-      /// Signed transverse impact parameter significance of the Track
-      /// associated to the leading charged PFCandidate
-      float leadPFChargedHadrCandsignedSipt() const;
-      void setleadPFChargedHadrCandsignedSipt(const float&);
+    const PFCandidateRef& leadPFChargedHadrCand() const;
+    const PFCandidateRef& leadPFNeutralCand() const;
+    //Can be either the charged or the neutral one
+    const PFCandidateRef& leadPFCand() const;
 
-      /// PFCandidates in signal region
-      const PFCandidateRefVector& signalPFCands() const;
-      void setsignalPFCands(const PFCandidateRefVector&);
+    void setleadPFChargedHadrCand(const PFCandidateRef&);
+    void setleadPFNeutralCand(const PFCandidateRef&);
+    void setleadPFCand(const PFCandidateRef&);
 
-      /// Charged hadrons in signal region
-      const PFCandidateRefVector& signalPFChargedHadrCands() const;
-      void setsignalPFChargedHadrCands(const PFCandidateRefVector&);
+    /// Signed transverse impact parameter significance of the Track
+    /// associated to the leading charged PFCandidate
+    float leadPFChargedHadrCandsignedSipt() const;
+    void setleadPFChargedHadrCandsignedSipt(const float&);
 
-      /// Neutral hadrons in signal region
-      const PFCandidateRefVector& signalPFNeutrHadrCands() const;
-      void setsignalPFNeutrHadrCands(const PFCandidateRefVector&);
+    /// PFCandidates in signal region
+    const PFCandidateRefVector& signalPFCands() const;
+    void setsignalPFCands(const PFCandidateRefVector&);
 
-      /// Gamma candidates in signal region
-      const PFCandidateRefVector& signalPFGammaCands() const;
-      void setsignalPFGammaCands(const PFCandidateRefVector&);
+    /// Charged hadrons in signal region
+    const PFCandidateRefVector& signalPFChargedHadrCands() const;
+    void setsignalPFChargedHadrCands(const PFCandidateRefVector&);
 
-      /// PFCandidates in isolation region
-      const PFCandidateRefVector& isolationPFCands() const;
-      void setisolationPFCands(const PFCandidateRefVector&);
+    /// Neutral hadrons in signal region
+    const PFCandidateRefVector& signalPFNeutrHadrCands() const;
+    void setsignalPFNeutrHadrCands(const PFCandidateRefVector&);
 
-      /// Charged candidates in isolation region
-      const PFCandidateRefVector& isolationPFChargedHadrCands() const;
-      void setisolationPFChargedHadrCands(const PFCandidateRefVector&);
+    /// Gamma candidates in signal region
+    const PFCandidateRefVector& signalPFGammaCands() const;
+    void setsignalPFGammaCands(const PFCandidateRefVector&);
 
-      //// Neutral hadrons in isolation region
-      const PFCandidateRefVector& isolationPFNeutrHadrCands() const;
-      void setisolationPFNeutrHadrCands(const PFCandidateRefVector&);
+    /// PFCandidates in isolation region
+    const PFCandidateRefVector& isolationPFCands() const;
+    void setisolationPFCands(const PFCandidateRefVector&);
 
-      /// Gamma candidates in isolation region
-      const PFCandidateRefVector& isolationPFGammaCands() const;
-      void setisolationPFGammaCands(const PFCandidateRefVector&);
+    /// Charged candidates in isolation region
+    const PFCandidateRefVector& isolationPFChargedHadrCands() const;
+    void setisolationPFChargedHadrCands(const PFCandidateRefVector&);
 
-      /// Sum of charged hadron candidate PT in isolation cone; returns NaN
-      /// if isolation region is undefined.
-      float isolationPFChargedHadrCandsPtSum() const;
-      void setisolationPFChargedHadrCandsPtSum(const float&);
+    //// Neutral hadrons in isolation region
+    const PFCandidateRefVector& isolationPFNeutrHadrCands() const;
+    void setisolationPFNeutrHadrCands(const PFCandidateRefVector&);
 
-      /// Sum of gamma candidate PT in isolation cone; returns NaN
-      /// if isolation region is undefined.
-      float isolationPFGammaCandsEtSum() const;
-      void setisolationPFGammaCandsEtSum(const float&);
+    /// Gamma candidates in isolation region
+    const PFCandidateRefVector& isolationPFGammaCands() const;
+    void setisolationPFGammaCands(const PFCandidateRefVector&);
 
-      /// Et of the highest Et HCAL PFCluster
-      float maximumHCALPFClusterEt() const;
-      void setmaximumHCALPFClusterEt(const float&);
+    /// Sum of charged hadron candidate PT in isolation cone; returns NaN
+    /// if isolation region is undefined.
+    float isolationPFChargedHadrCandsPtSum() const;
+    void setisolationPFChargedHadrCandsPtSum(const float&);
 
-      /// Retrieve the association of signal region gamma candidates into candidate PiZeros
-      const std::vector<RecoTauPiZero>& signalPiZeroCandidates() const;
-      void setsignalPiZeroCandidates(const std::vector<RecoTauPiZero>&);
+    /// Sum of gamma candidate PT in isolation cone; returns NaN
+    /// if isolation region is undefined.
+    float isolationPFGammaCandsEtSum() const;
+    void setisolationPFGammaCandsEtSum(const float&);
 
-      /// Retrieve the association of isolation region gamma candidates into candidate PiZeros
-      const std::vector<RecoTauPiZero>& isolationPiZeroCandidates() const;
-      void setisolationPiZeroCandidates(const std::vector<RecoTauPiZero>&);
+    /// Et of the highest Et HCAL PFCluster
+    float maximumHCALPFClusterEt() const;
+    void setmaximumHCALPFClusterEt(const float&);
 
-      /// Retrieve the identified hadronic decay mode according to the number of
-      /// charged and piZero candidates in the signal cone
-      hadronicDecayMode decayMode() const;
+    /// Retrieve the association of signal region gamma candidates into candidate PiZeros
+    const std::vector<RecoTauPiZero>& signalPiZeroCandidates() const;
+    void setsignalPiZeroCandidates(const std::vector<RecoTauPiZero>&);
 
-      /// Reverse mapping of decay modes into multiplicities
-      static unsigned int chargedHadronsInDecayMode(hadronicDecayMode mode);
-      static unsigned int piZerosInDecayMode(hadronicDecayMode mode);
-      static hadronicDecayMode translateDecayMode(unsigned int nCharged,
-          unsigned int nPiZero);
+    /// Retrieve the association of isolation region gamma candidates into candidate PiZeros
+    const std::vector<RecoTauPiZero>& isolationPiZeroCandidates() const;
+    void setisolationPiZeroCandidates(const std::vector<RecoTauPiZero>&);
 
-      //Electron rejection
-      float emFraction() const; // Ecal/Hcal Cluster Energy
-      float hcalTotOverPLead() const; // total Hcal Cluster E / leadPFChargedHadron P
-      float hcalMaxOverPLead() const; // max. Hcal Cluster E / leadPFChargedHadron P
-      float hcal3x3OverPLead() const; // Hcal Cluster E in R<0.184 around Ecal impact point of leading track / leadPFChargedHadron P
-      float ecalStripSumEOverPLead() const; // Simple BremsRecovery Sum E / leadPFChargedHadron P
-      float bremsRecoveryEOverPLead() const; // BremsRecovery Sum E / leadPFChargedHadron P
-      reco::TrackRef electronPreIDTrack() const; // Ref to KF track from Electron PreID
-      float electronPreIDOutput() const; // BDT output from Electron PreID
-      bool electronPreIDDecision() const; // Decision from Electron PreID
+    /// Retrieve the identified hadronic decay mode according to the number of
+    /// charged and piZero candidates in the signal cone
+    hadronicDecayMode decayMode() const;
 
-      void setemFraction(const float&);
-      void sethcalTotOverPLead(const float&);
-      void sethcalMaxOverPLead(const float&);
-      void sethcal3x3OverPLead(const float&);
-      void setecalStripSumEOverPLead(const float&);
-      void setbremsRecoveryEOverPLead(const float&);
-      void setelectronPreIDTrack(const reco::TrackRef&);
-      void setelectronPreIDOutput(const float&);
-      void setelectronPreIDDecision(const bool&);
+    //Electron rejection
+    float emFraction() const; // Ecal/Hcal Cluster Energy
+    float hcalTotOverPLead() const; // total Hcal Cluster E / leadPFChargedHadron P
+    float hcalMaxOverPLead() const; // max. Hcal Cluster E / leadPFChargedHadron P
+    float hcal3x3OverPLead() const; // Hcal Cluster E in R<0.184 around Ecal impact point of leading track / leadPFChargedHadron P
+    float ecalStripSumEOverPLead() const; // Simple BremsRecovery Sum E / leadPFChargedHadron P
+    float bremsRecoveryEOverPLead() const; // BremsRecovery Sum E / leadPFChargedHadron P
+    reco::TrackRef electronPreIDTrack() const; // Ref to KF track from Electron PreID
+    float electronPreIDOutput() const; // BDT output from Electron PreID
+    bool electronPreIDDecision() const; // Decision from Electron PreID
 
-      // For Muon Rejection
-      bool hasMuonReference() const; // check if muon ref exists
-      float caloComp() const;
-      float segComp() const;
-      bool muonDecision() const;
-      void setCaloComp(const float&);
-      void setSegComp(const float&);
-      void setMuonDecision(const bool&);
+    void setemFraction(const float&);
+    void sethcalTotOverPLead(const float&);
+    void sethcalMaxOverPLead(const float&);
+    void sethcal3x3OverPLead(const float&);
+    void setecalStripSumEOverPLead(const float&);
+    void setbremsRecoveryEOverPLead(const float&);
+    void setelectronPreIDTrack(const reco::TrackRef&);
+    void setelectronPreIDOutput(const float&);
+    void setelectronPreIDDecision(const bool&);
 
-      /// return the number of source Candidates
-      /// ( the candidates used to construct this Candidate)
-      /// in the case of taus, there is only one source candidate,
-      /// which is the corresponding PFJet
-      size_type numberOfSourceCandidatePtrs() const {return 1;}
+    // For Muon Rejection
+    bool hasMuonReference() const; // check if muon ref exists
+    float caloComp() const;
+    float segComp() const;
+    bool muonDecision() const;
+    void setCaloComp(const float&);
+    void setSegComp(const float&);
+    void setMuonDecision(const bool&);
 
-      /// return a RefToBase to the source Candidates
-      /// ( the candidates used to construct this Candidate)
-      CandidatePtr sourceCandidatePtr( size_type i ) const;
+    /// return the number of source Candidates
+    /// ( the candidates used to construct this Candidate)
+    /// in the case of taus, there is only one source candidate,
+    /// which is the corresponding PFJet
+    size_type numberOfSourceCandidatePtrs() const {return 1;}
 
-      /// prints information on this PFTau
-      void dump(std::ostream& out=std::cout) const;
+    /// return a RefToBase to the source Candidates
+    /// ( the candidates used to construct this Candidate)
+    CandidatePtr sourceCandidatePtr( size_type i ) const;
 
-    private:
-      friend class reco::tau::RecoTauConstructor;
-      // check overlap with another candidate
-      virtual bool overlap(const Candidate&) const;
+    /// prints information on this PFTau
+    void dump(std::ostream& out=std::cout) const;
 
-      reco::PFJetRef jetRef_;
+  private:
+    friend class reco::tau::RecoTauConstructor;
+    // check overlap with another candidate
+    virtual bool overlap(const Candidate&) const;
 
-      PFTauTagInfoRef PFTauTagInfoRef_;
-      PFCandidateRef leadPFChargedHadrCand_;
-      PFCandidateRef leadPFNeutralCand_, leadPFCand_;
+    reco::PFJetRef jetRef_;
 
-      // SIP
-      float leadPFChargedHadrCandsignedSipt_;
+    PFTauTagInfoRef PFTauTagInfoRef_;
+    PFCandidateRef leadPFChargedHadrCand_;
+    PFCandidateRef leadPFNeutralCand_, leadPFCand_;
 
-      // Signal candidates
-      PFCandidateRefVector selectedSignalPFCands_,
-                           selectedSignalPFChargedHadrCands_,
-                           selectedSignalPFNeutrHadrCands_,
-                           selectedSignalPFGammaCands_;
+    // SIP
+    float leadPFChargedHadrCandsignedSipt_;
 
-      // Isolation candidates
-      PFCandidateRefVector selectedIsolationPFCands_,
-                           selectedIsolationPFChargedHadrCands_,
-                           selectedIsolationPFNeutrHadrCands_,
-                           selectedIsolationPFGammaCands_;
+    // Signal candidates
+    PFCandidateRefVector selectedSignalPFCands_,
+                         selectedSignalPFChargedHadrCands_,
+                         selectedSignalPFNeutrHadrCands_,
+                         selectedSignalPFGammaCands_;
 
-      // Isolation variables
-      float isolationPFChargedHadrCandsPtSum_;
-      float isolationPFGammaCandsEtSum_;
-      float maximumHCALPFClusterEt_;
+    // Isolation candidates
+    PFCandidateRefVector selectedIsolationPFCands_,
+                         selectedIsolationPFChargedHadrCands_,
+                         selectedIsolationPFNeutrHadrCands_,
+                         selectedIsolationPFGammaCands_;
 
-      // Electron rejection variables
-      float emFraction_;
-      float hcalTotOverPLead_;
-      float hcalMaxOverPLead_;
-      float hcal3x3OverPLead_;
-      float ecalStripSumEOverPLead_;
-      float bremsRecoveryEOverPLead_;
-      reco::TrackRef electronPreIDTrack_;
-      float electronPreIDOutput_;
-      bool electronPreIDDecision_;
+    // Isolation variables
+    float isolationPFChargedHadrCandsPtSum_;
+    float isolationPFGammaCandsEtSum_;
+    float maximumHCALPFClusterEt_;
 
-      // Muon rejection variables
-      float caloComp_;
-      float segComp_;
-      bool muonDecision_;
+    // Electron rejection variables
+    float emFraction_;
+    float hcalTotOverPLead_;
+    float hcalMaxOverPLead_;
+    float hcal3x3OverPLead_;
+    float ecalStripSumEOverPLead_;
+    float bremsRecoveryEOverPLead_;
+    reco::TrackRef electronPreIDTrack_;
+    float electronPreIDOutput_;
+    bool electronPreIDDecision_;
 
-      // Association of gamma candidates into PiZeros
-      std::vector<reco::RecoTauPiZero> signalPiZeroCandidates_;
-      std::vector<reco::RecoTauPiZero> isolationPiZeroCandidates_;
-  };
+    // Muon rejection variables
+    float caloComp_;
+    float segComp_;
+    bool muonDecision_;
 
-  std::ostream & operator<<(std::ostream& out, const PFTau& c);
+    // Association of gamma candidates into PiZeros
+    std::vector<reco::RecoTauPiZero> signalPiZeroCandidates_;
+    std::vector<reco::RecoTauPiZero> isolationPiZeroCandidates_;
+};
+
+std::ostream & operator<<(std::ostream& out, const PFTau& c);
 
 }
 #endif
