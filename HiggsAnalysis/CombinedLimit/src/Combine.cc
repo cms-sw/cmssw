@@ -37,9 +37,11 @@
 #include <RooWorkspace.h>
 
 #include <RooStats/HLFactory.h>
-#include "boost/filesystem.hpp"
+#include <boost/filesystem.hpp>
+#include <boost/program_options.hpp>
 
 #include "HiggsAnalysis/CombinedLimit/interface/LimitAlgo.h"
+#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
 
 using namespace RooStats;
 using namespace RooFit;
@@ -50,48 +52,36 @@ Float_t t_cpu_, t_real_;
 TDirectory *writeToysHere = 0;
 TDirectory *sprnwriteToysHere = 0;
 TDirectory *readToysFromHere = 0;
-int  verbose;
-bool withSystematics;
-float cl;
+int  verbose = 1;
+bool withSystematics = 1;
+float cl = 0.95;
 
-void printRDH(RooDataHist *data) {
-  std::vector<std::string> varnames, catnames;
-  const RooArgSet *b0 = data->get(0);
-  TIterator *iter = b0->createIterator();
-  for (RooAbsArg *a = 0; (a = (RooAbsArg *)iter->Next()) != 0; ) {
-    if (a->InheritsFrom("RooRealVar")) {
-      varnames.push_back(a->GetName());
-    } else if (a->InheritsFrom("RooCategory")) {
-      catnames.push_back(a->GetName());
-    }
+
+Combine::Combine() :
+    options_("Common options"), 
+    rMin_(std::numeric_limits<float>::quiet_NaN()), 
+    rMax_(std::numeric_limits<float>::quiet_NaN())
+{
+    namespace po = boost::program_options;
+
+    options_.add_options()
+        ("systematics,S", po::value<bool>(&withSystematics)->default_value(true), "Add systematic uncertainties")
+        ("cl,C",   po::value<float>(&cl)->default_value(0.95), "Confidence Level")
+        ("rMin",   po::value<float>(&rMin_), "Override minimum value for signal strength")
+        ("rMax",   po::value<float>(&rMax_), "Override maximum value for signal strength")
+    ;
+}
+
+void Combine::applyOptions(const boost::program_options::variables_map &vm) 
+{
+  if(withSystematics) {
+    std::cout << ">>> including systematics" << std::endl;
+  } else {
+    std::cout << ">>> no systematics included" << std::endl;
   }
-  delete iter;
-  size_t nv = varnames.size(), nc = catnames.size();
-  printf(" bin  ");
-  for (size_t j = 0; j < nv; ++j) { printf("%10.10s  ", varnames[j].c_str()); }
-  for (size_t j = 0; j < nc; ++j) { printf("%10.10s  ", catnames[j].c_str()); }
-  printf("  weight\n");
-  for (int i = 0, nb = data->numEntries(); i < nb; ++i) {
-    const RooArgSet *bin = data->get(i);
-    printf("%4d  ",i);
-    for (size_t j = 0; j < nv; ++j) { printf("%10g  ",    bin->getRealValue(varnames[j].c_str())); }
-    for (size_t j = 0; j < nc; ++j) { printf("%10.10s  ", bin->getCatLabel(catnames[j].c_str())); }
-    printf("%8.3f\n", data->weight(*bin,0));
-  }
 }
 
-void printRAD(const RooAbsData *d) {
-  if (d->InheritsFrom("RooDataHist")) printRDH((RooDataHist*)d);
-  else d->get(0)->Print("V");
-}
-
-void printPdf(RooWorkspace *w, const char *pdfName) {
-  std::cout << "PDF " << pdfName << " parameters." << std::endl;
-  std::auto_ptr<RooArgSet> params(w->pdf("model_b")->getVariables());
-  params->Print("V");
-}
-
-bool mklimit(RooWorkspace *w, RooAbsData &data, double &limit) {
+bool Combine::mklimit(RooWorkspace *w, RooAbsData &data, double &limit) {
   TStopwatch timer;
   bool ret = false;
   try {
@@ -107,7 +97,7 @@ bool mklimit(RooWorkspace *w, RooAbsData &data, double &limit) {
   if ((ret == false) && (verbose > 1)) {
     std::cout << "Failed for method " << algo->name() << "\n";
     std::cout << "  --- DATA ---\n";
-    printRAD(&data);
+    utils::printRAD(&data);
     std::cout << "  --- MODEL ---\n";
     w->Print("V");
   }
@@ -116,7 +106,7 @@ bool mklimit(RooWorkspace *w, RooAbsData &data, double &limit) {
   return ret;
 }
 
-void doCombination(TString hlfFile, const std::string &dataset, double &limit, int &iToy, TTree *tree, int nToys) {
+void Combine::run(TString hlfFile, const std::string &dataset, double &limit, int &iToy, TTree *tree, int nToys) {
   TString pwd(gSystem->pwd());
   TString tmpDir = "roostats-XXXXXX"; 
   mkdtemp(const_cast<char *>(tmpDir.Data()));
@@ -174,14 +164,20 @@ void doCombination(TString hlfFile, const std::string &dataset, double &limit, i
     }
   }
 
-  /*
-    RooMsgService::instance().setStreamStatus(0,kFALSE);
-    RooMsgService::instance().setStreamStatus(1,kFALSE);
-    RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
-  */
+  if (verbose < 0) {
+      RooMsgService::instance().setStreamStatus(0,kFALSE);
+      RooMsgService::instance().setStreamStatus(1,kFALSE);
+      RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
+  }
+
   const RooArgSet * observables = w->set("observables");
   const RooArgSet * nuisances   = w->set("nuisances");
+
+  if (!isnan(rMin_)) w->var("r")->setMin(rMin_);
+  if (!isnan(rMax_)) w->var("r")->setMax(rMax_);
+
   w->saveSnapshot("clean", w->allVars());
+
   if (nToys == 0) { // observed (usually it's the Asimov data set)
     RooAbsData *dobs = w->data(dataset.c_str());
     if (dobs == 0) {
@@ -189,7 +185,7 @@ void doCombination(TString hlfFile, const std::string &dataset, double &limit, i
       return;
     }
     std::cout << "Computing limit starting from observation" << std::endl;
-    printRAD(dobs);
+    utils::printRAD(dobs);
     if (mklimit(w,*dobs,limit)) tree->Fill();
   }
   
@@ -211,12 +207,11 @@ void doCombination(TString hlfFile, const std::string &dataset, double &limit, i
       RooAbsData *absdata_toy = 0;
       if (readToysFromHere == 0) {
 	w->loadSnapshot("clean");
-	printPdf(w, "model_b");
+	utils::printPdf(w, "model_b");
 	if (withSystematics) {
-	  RooArgSet *vars = w->pdf("model_b")->getVariables();
+	  std::auto_ptr<RooArgSet> vars(w->pdf("model_b")->getVariables());
 	  *vars = *systDs->get(iToy-1);
-	  delete vars;
-	  printPdf(w, "model_b");
+	  utils::printPdf(w, "model_b");
 	}
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
 	if (w->pdf("model_b")->canBeExtended()) {
@@ -234,9 +229,9 @@ void doCombination(TString hlfFile, const std::string &dataset, double &limit, i
 	  return;
 	}
       }
-      printRAD(absdata_toy);
+      utils::printRAD(absdata_toy);
       w->loadSnapshot("clean");
-      printPdf(w, "model_b");
+      utils::printPdf(w, "model_b");
       if (mklimit(w,*absdata_toy,limit)) {
 	tree->Fill();
 	++nLimits;

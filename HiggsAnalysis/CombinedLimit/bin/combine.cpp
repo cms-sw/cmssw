@@ -54,8 +54,9 @@ int main(int argc, char **argv) {
   string whichMethod, whichHintMethod;
   unsigned int runToys;
   int    seed;
-  bool   saveToys;
   string toysFile;
+
+  Combine combiner;
 
   map<string, LimitAlgo *> methods;
   algo = new Hybrid(); methods.insert(make_pair(algo->name(), algo));
@@ -76,16 +77,15 @@ int main(int argc, char **argv) {
     ("name,n",     po::value<string>(&name)->default_value("Test"), "Name of the job")
     ("datacard,d", po::value<string>(&datacard), "Datacard file")
     ("dataset,D",  po::value<string>(&dataset)->default_value("data_obs"), "Dataset for observed limit")
-    ("mass,m",     po::value<int>(&iMass)->default_value(120), "Higgs mass to store in the output tree")
-    ("method,M",   po::value<string>(&whichMethod)->default_value("ProfileLikelihood"), methodsDesc.c_str())
+    ("method,M",      po::value<string>(&whichMethod)->default_value("ProfileLikelihood"), methodsDesc.c_str())
     ("hintMethod,H",  po::value<string>(&whichHintMethod)->default_value(""), "Run first this method to provide a hint on the result")
-    ("systematics,S", po::value<bool>(&withSystematics)->default_value(true), "Add systematic uncertainties")
-    ("cl,C",   po::value<float>(&cl)->default_value(0.95), "Confidence Level")
+    ("mass,m",     po::value<int>(&iMass)->default_value(120), "Higgs mass to store in the output tree")
     ("toys,t", po::value<unsigned int>(&runToys)->default_value(0), "Number of Toy MC extractions")
     ("seed,s", po::value<int>(&seed)->default_value(123456), "Toy MC random seed")
     ("saveToys,w", "Save results of toy MC")
-    ("toysFile,f", po::value<string>(&toysFile)->default_value(""), "Toy MC output file")
+    ("toysFile,f", po::value<string>(&toysFile)->default_value(""), "Toy MC input file")
     ;
+  desc.add(combiner.options());
   for(map<string, LimitAlgo *>::const_iterator i = methods.begin(); i != methods.end(); ++i) {
     if(i->second->options().options().size() != 0) 
       desc.add(i->second->options());
@@ -110,9 +110,6 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  // handle bool options
-  saveToys = vm.count("saveToys");
-
   if(name == "") {
     cerr << "Missing name" << endl;
     cout << "Usage: options_description [options]\n";
@@ -126,11 +123,7 @@ int main(int argc, char **argv) {
     return 1002;
   }
 
-  if(withSystematics) {
-    cout << ">>> including systematics" << endl;
-  } else {
-    cout << ">>> no systematics included" << endl;
-  }
+  combiner.applyOptions(vm);
 
   map<string, LimitAlgo *>::const_iterator i;
   for(i = methods.begin(); i != methods.end(); ++i) {
@@ -165,9 +158,9 @@ int main(int argc, char **argv) {
       cout << ">>> method used to hint where the upper limit is " << whichHintMethod << endl;
   }
 
-  cout << ">>> random number generator seed is " << seed << endl;
+  std::cout << ">>> random number generator seed is " << seed << std::endl;
   RooRandom::randomGenerator()->SetSeed(seed); 
-  
+
   TString massName = TString::Format("mH%d.", iMass);
   TString toyName  = "";  if (runToys !=  0) toyName  = TString::Format("%d.", seed);
   TString fileName = "higgsCombine" + name + "."+whichMethod+"."+massName+toyName+"root";
@@ -183,14 +176,14 @@ int main(int argc, char **argv) {
   t->Branch("t_cpu",   &t_cpu_,  "t_cpu/F");
   t->Branch("t_real",  &t_real_, "t_real/F");
   
-  //if (saveToys) writeToysHere = new RooWorkspace("toys","toys"); 
-  if (saveToys) writeToysHere = test->mkdir("toys","toys"); 
-  if (toysFile != "") readToysFromHere = TFile::Open(TString(toysFile.c_str()));
+  //if (vm.count("saveToys")) writeToysHere = new RooWorkspace("toys","toys"); 
+  if (vm.count("saveToys")) writeToysHere = test->mkdir("toys","toys"); 
+  if (toysFile != "")       readToysFromHere = TFile::Open(TString(toysFile.c_str()));
   
   syst = withSystematics;
   mass = iMass;
   iChannel = 0;
-  doCombination(datacard, dataset, limit, iToy, t, runToys);
+  combiner.run(datacard, dataset, limit, iToy, t, runToys);
   
   test->WriteTObject(t);
   test->Close();
