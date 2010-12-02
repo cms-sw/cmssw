@@ -16,8 +16,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/METReco/interface/HcalNoiseSummary.h"
-
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/GenMET.h"
@@ -65,6 +63,7 @@ CaloTowerAnalyzer::CaloTowerAnalyzer(const edm::ParameterSet & iConfig)
 
   caloTowersLabel_     = iConfig.getParameter<edm::InputTag>("CaloTowersLabel");
   HLTResultsLabel_     = iConfig.getParameter<edm::InputTag>("HLTResultsLabel");  
+  HcalNoiseSummaryTag_ = iConfig.getParameter<edm::InputTag>("HcalNoiseSummary");
   
   if(iConfig.exists("HLTBitLabels"))
     HLTBitLabel_         = iConfig.getParameter<std::vector<edm::InputTag> >("HLTBitLabels");
@@ -233,10 +232,9 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     return;
   }
 
-  edm::InputTag HcalNoiseSummaryTag;
 
   edm::Handle<HcalNoiseSummary> HNoiseSummary;
-  iEvent.getByLabel(HcalNoiseSummaryTag,HNoiseSummary);
+  iEvent.getByLabel(HcalNoiseSummaryTag_,HNoiseSummary);
   if (!HNoiseSummary.isValid()) {
     LogDebug("") << "CaloTowerAnalyzer: Could not find Hcal NoiseSummary product" << std::endl;
   }
