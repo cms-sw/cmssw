@@ -233,8 +233,8 @@ class RemoveSpecificPATObjects(ConfigToolBase):
         names=self._parameters['names'].value
         outputInProcess=self._parameters['outputInProcess'].value
         postfix=self._parameters['postfix'].value
+        
         ## remove pre object production steps from the default sequence
-
         for obj in range(len(names)):
             if( names[obj] == 'Photons' ):
                 removeIfInSequence(process, 'patPhotonIsolation', "patDefaultSequence", postfix)
@@ -302,12 +302,18 @@ class RemoveSpecificPATObjects(ConfigToolBase):
                     applyPostfix(process,"cleanPatCandidateSummary",postfix).candidates.remove( 
                         cms.InputTag(jetCollectionString('clean')+postfix) )
                 else:
-                    applyPostfix(process,"patCandidateSummary",postfix).candidates.remove(
-                        cms.InputTag('pat'+names[obj]+postfix) )
-                    applyPostfix(process,"selectedPatCandidateSummary",postfix).candidates.remove( 
-                        cms.InputTag('selectedPat'+names[obj]+postfix) )
-                    getattr(process,"cleanPatCandidateSummary"+postfix).candidates.remove(
-                        cms.InputTag('cleanPat'+names[obj]+postfix) )
+                    ## check whether module is in sequence or not
+                    result = [ m.label()[:-len(postfix)] for m in listModules( getattr(process,"patDefaultSequence"+postfix))]
+                    result.extend([ m.label()[:-len(postfix)] for m in listSequences( getattr(process,"patDefaultSequence"+postfix))]  )
+                    if applyPostfix(process,"patCandidateSummary",postfix) in result :
+                        applyPostfix(process,"patCandidateSummary",postfix).candidates.remove(
+                            cms.InputTag('pat'+names[obj]+postfix) )
+                    if applyPostfix(process,"selectedPatCandidateSummary",postfix) in result :
+                        applyPostfix(process,"selectedPatCandidateSummary",postfix).candidates.remove( 
+                            cms.InputTag('selectedPat'+names[obj]+postfix) )
+                    if applyPostfix(process,"cleanPatCandidateSummary",postfix) in result :
+                        applyPostfix(process,"cleanPatCandidateSummary",postfix).candidates.remove(
+                            cms.InputTag('cleanPat'+names[obj]+postfix) )
         ## remove cleaning for the moment; in principle only the removed object
         ## could be taken out of the checkOverlaps PSet
         if ( outputInProcess ):
