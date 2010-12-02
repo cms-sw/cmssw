@@ -4,56 +4,72 @@
 #include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
 
 namespace reco {
-   class RecoTauPiZero : public CompositePtrCandidate {
-      public:
+class RecoTauPiZero : public CompositePtrCandidate {
+  public:
+    enum PiZeroAlgorithm {
+      // Algorithm where each photon becomes a pi zero
+      kUndefined = 0,
+      kTrivial = 1,
+      kCombinatoric = 2,
+      kStrips = 3
+    };
 
-         RecoTauPiZero():CompositePtrCandidate(),algoName_(""){ this->setPdgId(111); }
-         RecoTauPiZero(const std::string& algoName):
-           CompositePtrCandidate(), algoName_(algoName) { this->setPdgId(111); }
+    RecoTauPiZero():CompositePtrCandidate(),algoName_(kUndefined){
+      this->setPdgId(111); }
 
-         /// constructor from values
-         RecoTauPiZero(Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
-               int pdgId = 111, int status = 0, bool integerCharge = true, const std::string& algoName=""):
-            CompositePtrCandidate( q, p4, vtx, pdgId, status, integerCharge ),algoName_(algoName) {}
+    RecoTauPiZero(PiZeroAlgorithm algoName):
+        CompositePtrCandidate(), algoName_(algoName) { this->setPdgId(111); }
 
-         /// constructor from values
-         RecoTauPiZero(Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
-               int pdgId = 111, int status = 0, bool integerCharge = true, const std::string& algoName="" ):
-            CompositePtrCandidate( q, p4, vtx, pdgId, status, integerCharge ),algoName_(algoName) {}
+    /// constructor from values
+    RecoTauPiZero(Charge q, const LorentzVector& p4,
+                  const Point& vtx = Point( 0, 0, 0 ),
+                  int pdgId = 111, int status = 0, bool integerCharge = true,
+                  PiZeroAlgorithm algoName=kUndefined):
+        CompositePtrCandidate(
+            q, p4, vtx, pdgId, status, integerCharge ),algoName_(algoName) {}
 
-         /// constructor from a Candidate
-         explicit RecoTauPiZero( const Candidate & p, const std::string& algoName=""):
-            CompositePtrCandidate(p),algoName_(algoName) { this->setPdgId(111); }
+    /// constructor from values
+    RecoTauPiZero(Charge q, const PolarLorentzVector& p4,
+                  const Point& vtx = Point( 0, 0, 0 ),
+                  int pdgId = 111, int status = 0, bool integerCharge = true,
+                  PiZeroAlgorithm algoName=kUndefined):
+        CompositePtrCandidate(
+            q, p4, vtx, pdgId, status, integerCharge ),algoName_(algoName) {}
 
-         /// destructor
-         ~RecoTauPiZero(){};
+    /// constructor from a Candidate
+    explicit RecoTauPiZero(
+        const Candidate & p, PiZeroAlgorithm algoName=kUndefined):
+        CompositePtrCandidate(p),algoName_(algoName) { this->setPdgId(111); }
 
-         /// Number of PFGamma constituents
-         size_t numberOfGammas() const;
+    /// destructor
+    ~RecoTauPiZero(){};
 
-         /// Number of electron constituents
-         size_t numberOfElectrons() const;
+    /// Number of PFGamma constituents
+    size_t numberOfGammas() const;
 
-         /// Maximum DeltaPhi between a constituent and the four vector
-         double maxDeltaPhi() const;
+    /// Number of electron constituents
+    size_t numberOfElectrons() const;
 
-         /// Maxmum DeltaEta between a constituent and the four vector
-         double maxDeltaEta() const;
+    /// Maximum DeltaPhi between a constituent and the four vector
+    double maxDeltaPhi() const;
 
-         /// Algorithm that built this piZero
-         const std::string& algo() const;
+    /// Maxmum DeltaEta between a constituent and the four vector
+    double maxDeltaEta() const;
 
-         /// Check whether a given algo produced this pi zero
-         bool algoIs(const std::string& algo) const;
+    /// Algorithm that built this piZero
+    PiZeroAlgorithm algo() const;
 
-         void print(std::ostream& out=std::cout) const;
+    /// Check whether a given algo produced this pi zero
+    bool algoIs(PiZeroAlgorithm algo) const;
 
-      private:
-         std::string algoName_;
+    void print(std::ostream& out=std::cout) const;
 
-   };
+  private:
+    PiZeroAlgorithm algoName_;
 
-   std::ostream & operator<<(std::ostream& out, const RecoTauPiZero& c);
+};
+
+std::ostream & operator<<(std::ostream& out, const RecoTauPiZero& c);
 
 }
 

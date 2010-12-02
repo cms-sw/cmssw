@@ -47,13 +47,12 @@ double RecoTauPiZero::maxDeltaEta() const
   return maxDEta;
 }
 
-const std::string& RecoTauPiZero::algo() const {
+RecoTauPiZero::PiZeroAlgorithm RecoTauPiZero::algo() const {
   return algoName_;
 }
 
-bool RecoTauPiZero::algoIs(const std::string& algo) const {
-  bool result = (algoName_ == algo);
-  return result;
+bool RecoTauPiZero::algoIs(RecoTauPiZero::PiZeroAlgorithm algo) const {
+  return (algoName_ == algo);
 }
 
 namespace {
