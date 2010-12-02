@@ -62,25 +62,7 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-                                '/store/data/Run2010B/MinimumBias/RAW/v1/000/146/511/F43D188C-7BC7-DF11-B1C8-00304879EE3E.root',
-                                '/store/data/Run2010B/MinimumBias/RAW/v1/000/146/511/D682093A-56C7-DF11-A939-001617DBD5AC.root',
-                                '/store/data/Run2010B/MinimumBias/RAW/v1/000/146/511/968DEC22-5BC7-DF11-87F5-0030487CAEAC.root',
-                                '/store/data/Run2010B/MinimumBias/RAW/v1/000/146/511/94C04FB2-78C7-DF11-86E4-003048D2BE08.root',
-                                '/store/data/Run2010B/MinimumBias/RAW/v1/000/146/511/8CEC7EBC-7FC7-DF11-9ED2-001D09F24493.root',
-                                '/store/data/Run2010B/MinimumBias/RAW/v1/000/146/511/86044E5C-77C7-DF11-902B-001D09F28F25.root',
-                                '/store/data/Run2010B/MinimumBias/RAW/v1/000/146/511/6EC49446-5DC7-DF11-B529-001D09F2447F.root',
-                                '/store/data/Run2010B/MinimumBias/RAW/v1/000/146/511/626A9195-63C7-DF11-8640-001617E30F58.root',
-                                '/store/data/Run2010B/MinimumBias/RAW/v1/000/146/511/60C3055C-72C7-DF11-946C-003048D37560.root',
-                                '/store/data/Run2010B/MinimumBias/RAW/v1/000/146/511/608BFC4B-69C7-DF11-95C9-0015C5FDE067.root',
-                                '/store/data/Run2010B/MinimumBias/RAW/v1/000/146/511/5EEA6071-5FC7-DF11-8699-003048D2BC42.root',
-                                '/store/data/Run2010B/MinimumBias/RAW/v1/000/146/511/426B8B67-66C7-DF11-A95D-000423D98B6C.root',
-                                '/store/data/Run2010B/MinimumBias/RAW/v1/000/146/511/3A168679-61C7-DF11-AAA2-003048F11114.root',
-                                '/store/data/Run2010B/MinimumBias/RAW/v1/000/146/511/28AD7271-6BC7-DF11-B09E-0030487C7828.root',
-                                '/store/data/Run2010B/MinimumBias/RAW/v1/000/146/511/2801608B-6FC7-DF11-A582-001D09F2B2CF.root',
-                                '/store/data/Run2010B/MinimumBias/RAW/v1/000/146/511/1AC021D5-6CC7-DF11-861D-001D09F2924F.root',
-                                '/store/data/Run2010B/MinimumBias/RAW/v1/000/146/511/16620D83-58C7-DF11-A0B8-001D09F23A20.root',
-                                '/store/data/Run2010B/MinimumBias/RAW/v1/000/146/511/1218758E-74C7-DF11-B72D-001D09F24FEC.root',
-                                '/store/data/Run2010B/MinimumBias/RAW/v1/000/146/511/0813DBF5-83C7-DF11-A2C3-003048F118C6.root'
+                                '/store/data/Run2010B/Commissioning/RAW/v1/000/149/181/10429293-69E2-DF11-84F4-0030487CD6DA.root'
     )
 )
 
@@ -172,6 +154,8 @@ if (MENU == "GRun"):
         process.DoHLTAlCaECALPhiSym,
         process.DoHLTAlCaPi0Eta8E29,
         process.DoHLTMinBiasPixelTracks,
+        process.DoHLTIsoTrackHE,
+        process.DoHLTIsoTrackHB,
         process.analyzeThis)
         
 elif (MENU == "LUMI8e29"):
