@@ -62,8 +62,6 @@ FWPFEcalRecHitRPProxyBuilder::calculateEt( const TEveVector &centre, float E )
 void
 FWPFEcalRecHitRPProxyBuilder::build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc )
 {
-   cleanLocal();
-
    for( unsigned int index = 0; index < static_cast<unsigned int>( iItem->size() ); index++ )
    {
       TEveCompound *itemHolder = createCompound();
