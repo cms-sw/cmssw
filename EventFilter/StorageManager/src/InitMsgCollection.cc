@@ -1,4 +1,4 @@
-// $Id: InitMsgCollection.cc,v 1.12 2010/05/11 15:17:41 mommsen Exp $
+// $Id: InitMsgCollection.cc,v 1.13 2010/05/17 15:59:10 mommsen Exp $
 /// @file: InitMsgCollection.cc
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
@@ -50,7 +50,7 @@ bool InitMsgCollection::addIfUnique(InitMsgView const& initMsgView)
   bool addToList = true;
 
   // if this is the first INIT message that we've seen, we just add it
-  if (initMsgList_.size() == 0) {
+  if (initMsgList_.empty()) {
     this->add(initMsgView);
   }
 
@@ -138,7 +138,7 @@ InitMsgSharedPtr InitMsgCollection::getLastElement() const
   boost::mutex::scoped_lock sl(listLock_);
 
   InitMsgSharedPtr ptrToLast;
-  if (initMsgList_.size() > 0) {
+  if (!initMsgList_.empty()) {
     ptrToLast = initMsgList_.back().first;
   }
   return ptrToLast;
@@ -221,7 +221,7 @@ std::string InitMsgCollection::getSelectionHelpString() const
   boost::mutex::scoped_lock sl(listLock_);
 
   // nothing much we can say if the collection is empty
-  if (initMsgList_.size() == 0) {
+  if (initMsgList_.empty()) {
     return "No information is available about the available triggers.";
   }
 
