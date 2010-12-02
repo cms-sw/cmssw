@@ -5,6 +5,7 @@ parser = OptionParser()
 parser.add_option("-s", "--stat",   dest="stat",    default=False, action="store_true")
 parser.add_option("-a", "--asimov", dest="asimov",  default=False, action="store_true")
 parser.add_option("-c", "--compiled", dest="cexpr", default=False, action="store_true")
+parser.add_option("-u", "--uniform",  dest="uniform", default=False, action="store_true")
 (options, args) = parser.parse_args()
 
 file = open(args[0], "r")
@@ -75,7 +76,10 @@ POI = set(r);
 
 if nuisances: 
     print "/// ----- nuisances -----"
-    for n in range(nuisances): print "thetaPdf_%d = Gaussian(theta_%d[-5,5], 0, 1);" % (n,n)
+    if options.uniform:
+        for n in range(nuisances): print "thetaPdf_%d = Uniform(theta_%d[-1,1]);" % (n,n)
+    else:
+        for n in range(nuisances): print "thetaPdf_%d = Gaussian(theta_%d[-5,5], 0, 1);" % (n,n)
     print "nuisances   =  set(", ",".join(["theta_%d"    % n for n in range(nuisances)]),");"
     print "nuisancePdf = PROD(", ",".join(["thetaPdf_%d" % n for n in range(nuisances)]),");"
 
@@ -85,7 +89,10 @@ for b in range(bins):
         strexpr = '%g ' % exp[b][p]; args = ""
         for n in range(nuisances):
             if systs[n][b][p] != 1.0:
-                strexpr += " * pow(%f,theta_%d)" % (systs[n][b][p], n)
+                if options.uniform:
+                    strexpr += " * pow(%f,ErfInverse(theta_%d))" % (systs[n][b][p], n)
+                else:
+                    strexpr += " * pow(%f,theta_%d)" % (systs[n][b][p], n)
                 args    += ", theta_%d" % n
         if args != "":
             print "n_exp_bin%d_proc%d = %s('%s'%s);" % (b, p, ROOFIT_EXPR, strexpr, args)
