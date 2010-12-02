@@ -81,7 +81,7 @@ RecoTauPiZeroCombinatoricPlugin::operator()(
     const Candidate::LorentzVector totalP4;
     std::auto_ptr<RecoTauPiZero> piZero(
         new RecoTauPiZero(0, totalP4, Candidate::Point(0, 0, 0),
-                          111, 10001, true, name()));
+                          111, 10001, true, RecoTauPiZero::kCombinatoric));
     // Add our daughters from this combination
     for (ComboGenerator::combo_iterator candidate = combo->combo_begin();
         candidate != combo->combo_end();  ++candidate) {

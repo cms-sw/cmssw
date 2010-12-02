@@ -95,7 +95,8 @@ RecoTauPiZeroStripPlugin::return_type RecoTauPiZeroStripPlugin::operator()(
     cands.pop_front();
 
     // Add a new candidate to our collection using this seed
-    std::auto_ptr<RecoTauPiZero> strip(new RecoTauPiZero(*seed, name()));
+    std::auto_ptr<RecoTauPiZero> strip(new RecoTauPiZero(
+            *seed, RecoTauPiZero::kStrips));
     strip->addDaughter(seed);
 
     // Find all other objects in the strip

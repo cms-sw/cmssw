@@ -1,11 +1,11 @@
 /*
- * =====================================================================================
+ * ============================================================================
  *       Filename:  RecoTauMVATransform.cc
  *
  *    Description:  Transform TaNC output according to decay mode.
  *        Created:  10/22/2010 15:36:12
  *         Author:  Evan K. Friis (UC Davis), evan.klose.friis@cern.ch
- * =====================================================================================
+ * ============================================================================
  */
 
 #include <boost/foreach.hpp>
@@ -13,6 +13,7 @@
 #include <memory>
 
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
+#include "RecoTauTag/RecoTau/interface/PFTauDecayModeTools.h"
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
@@ -74,7 +75,7 @@ RecoTauMVATransform::RecoTauMVATransform(const edm::ParameterSet& pset)
         transform.getParameter<edm::ParameterSet>("transform");
     // Get the acutal decay mode
     reco::PFTau::hadronicDecayMode decayMode =
-        reco::PFTau::translateDecayMode(nCharged, nPiZeros);
+        reco::tau::translateDecayMode(nCharged, nPiZeros);
 
     if (!transforms_.count(decayMode)) {
       // Add it

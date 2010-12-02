@@ -45,7 +45,8 @@ RecoTauPiZeroBuilderPlugin::return_type RecoTauPiZeroTrivialPlugin::operator()(
 
   BOOST_FOREACH(const PFCandidatePtr& gamma, pfGammaCands) {
     std::auto_ptr<RecoTauPiZero> piZero(new RecoTauPiZero(
-            0, (*gamma).p4(), (*gamma).vertex(), 22, 1000, true, name()));
+            0, (*gamma).p4(), (*gamma).vertex(), 22, 1000, true,
+            RecoTauPiZero::kTrivial));
     piZero->addDaughter(gamma);
     output.push_back(piZero);
   }

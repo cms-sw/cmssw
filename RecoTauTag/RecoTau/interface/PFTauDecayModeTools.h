@@ -1,5 +1,5 @@
-#ifndef RecoTauTag_RecoTau_RecoTauCommonUtilities_h
-#define RecoTauTag_RecoTau_RecoTauCommonUtilities_h
+#ifndef RecoTauTag_RecoTau_PFTauDecayModeTools_h
+#define RecoTauTag_RecoTau_PFTauDecayModeTools_h
 
 /*
  * Tools to help deal with the PFTau::hadronicDecayMode

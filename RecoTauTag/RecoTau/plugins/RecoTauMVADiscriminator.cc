@@ -25,6 +25,7 @@
 
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauMVAHelper.h"
+#include "RecoTauTag/RecoTau/interface/PFTauDecayModeTools.h"
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
@@ -72,7 +73,7 @@ RecoTauMVADiscriminator::RecoTauMVADiscriminator(const edm::ParameterSet& pset)
   for (VPSet::const_iterator mva = mvas.begin(); mva != mvas.end(); ++mva) {
     unsigned int nCharged = mva->getParameter<unsigned int>("nCharged");
     unsigned int nPiZeros = mva->getParameter<unsigned int>("nPiZeros");
-    reco::PFTau::hadronicDecayMode decayMode = reco::PFTau::translateDecayMode(
+    reco::PFTau::hadronicDecayMode decayMode = reco::tau::translateDecayMode(
         nCharged, nPiZeros);
     // Check to ensure this decay mode is not already added
     if (!mvas_.count(decayMode)) {
