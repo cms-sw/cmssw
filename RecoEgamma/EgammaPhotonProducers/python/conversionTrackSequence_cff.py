@@ -58,12 +58,13 @@ inOutOutInConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conversionTra
 #merge ecalseeded collections with collection from general tracks
 #trackeronly flag is forwarded from the generaltrack-based collections
 #ecalseeded flag is forwarded from the ecal seeded collection
-#arbitratedmerged and arbitratedmergedecalgeneral flags is set based on shared hit matching, arbitration by nhits then chi^2/ndof
+#arbitratedmerged flag is set based on shared hit matching, arbitration by nhits then chi^2/ndof
+#arbitratedmergedecalgeneral flag is set based on shared hit matching, precedence given to generalTracks
 generalInOutOutInConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conversionTrackMerger_cfi.conversionTrackMerger.clone(
     TrackProducer1 = cms.string('inOutOutInConversionTrackMerger'),
     TrackProducer2 = cms.string('generalConversionTrackProducer'),
     arbitratedMergedPreferCollection = cms.int32(3),
-    arbitratedMergedEcalGeneralPreferCollection = cms.int32(3),        
+    arbitratedMergedEcalGeneralPreferCollection = cms.int32(2),        
 )
 
 #merge the result of the above with the collection from gsf tracks
