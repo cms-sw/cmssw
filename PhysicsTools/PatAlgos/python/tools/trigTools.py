@@ -618,10 +618,6 @@ class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
                             jetColl = coll + jetAlgo + jetType
                             dictEmbedders[ jetColl ] = dictPatObjects[ objects ]
 
-        # Load default producers from existing config file, if needed
-        if not hasattr( process, 'patTriggerMatchEmbedderDefaultSequence' ):
-            process.load( "PhysicsTools.PatAlgos.triggerLayer1.triggerMatchEmbedder_cfi" )
-
         # Switch on PAT trigger matching if needed
         for matcher in triggerMatchers:
             if matcher not in _modulesInSequence( process, sequence ):
@@ -643,15 +639,19 @@ class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
         patTriggerEventContent = []
         for srcInput in dictConfig.keys():
             if dictEmbedders.has_key( srcInput ):
-                label      = srcInput + 'TriggerMatch'
-                trigEmbMod = getattr( process, label )
+                label = srcInput + 'TriggerMatch'
                 if label in _modulesInSequence( process, sequence ):
                     print '%s():'%( self._label )
                     print '    PAT trigger match embedder %s exists already in sequence %s'%( label, sequence )
                     print '    ==> entry moved to proper place'
                     print _longLine
                     removeIfInSequence( process, label, 'patTriggerSequence' )
-                trigEmbMod.matches         += cms.VInputTag( dictConfig[ srcInput ] )
+                # Configure embedder module
+                module         = cms.EDProducer( dictEmbedders[ srcInput ] )
+                module.src     = cms.InputTag( srcInput )
+                module.matches = cms.VInputTag( dictConfig[ srcInput ] )
+                setattr( process, label, module )
+                trigEmbMod = getattr( process, label )
                 process.patTriggerSequence *= trigEmbMod
                 # Add event content
                 patTriggerEventContent += [ 'drop *_%s_*_*'%( srcInput )
