@@ -18,7 +18,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:47 EST 2009
-// $Id: FWTableWidget.h,v 1.12 2010/09/22 09:58:51 eulisse Exp $
+// $Id: FWTableWidget.h,v 1.13 2010/11/24 10:16:50 amraktad Exp $
 //
 
 // system include files
@@ -81,7 +81,7 @@ public:
 
    ClassDef(FWTableWidget,0);
    
-   void dataChanged();
+   void dataChanged(bool needs_layout=true);
 
    void buttonPressedInRowHeader(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY);
    void buttonReleasedInRowHeader(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY);
