@@ -89,15 +89,15 @@ ${DB}/%.db: ${XML}/%.xml signalfiles.list backgroundfiles.list trainMVA_cfg.py
 
 signalfiles.list:
 	ls /data1/friis/TauMVATraining2/Ztautau/signal_training*.root \
-	  | tail -n 100 \
+	  | tail -n 200 \
 	  | awk 'NR % 3 != 0' | sed "s|^|file:|" >> $@
 
 backgroundfiles.list:
 	ls /data1/friis/TauMVATraining2/Background_Run2010A/background_training*.root \
-	  | tail -n 100 \
+	  | tail -n 150 \
 	  | awk 'NR % 3 != 0' | sed "s|^|file:|" >> $@
 	ls /data1/friis/TauMVATraining2/Background_Run2010B/background_training*.root \
-	  | tail -n 100  \
+	  | tail -n 150  \
 	  | awk 'NR % 3 != 0' | sed "s|^|file:|" >> $@
 
 # unbiased testing datasets

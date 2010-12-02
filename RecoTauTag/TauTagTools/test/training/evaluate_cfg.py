@@ -57,10 +57,10 @@ if options.signal == 1:
     #minGammaEt = PFTauQualityCuts.isolationQualityCuts.minGammaEt,
 #)
 
-_KIN_CUT = "pt > 20 & abs(eta) < 2.5"
 
 process = cms.Process("Eval")
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(40000) )
+#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(40000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 
 # DQM store, PDT sources etc
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
@@ -96,11 +96,18 @@ process.kinematicSignalJets = cms.EDFilter(
 )
 process.signalSpecific = cms.Sequence(process.kinematicSignalJets)
 
+process.kinematicTrueTaus = cms.EDFilter(
+    "GenJetSelector",
+    src = cms.InputTag("selectedTrueHadronicTaus"),
+    cut = cms.string(_KIN_CUT),
+)
+process.signalSpecific += process.kinematicTrueTaus
+
 # Reselect our signal jets, using only those matched to true taus
 process.signalJetsDMTruthMatching = cms.EDProducer(
     "GenJetMatcher",
     src = cms.InputTag("kinematicSignalJets"),
-    matched = cms.InputTag("selectedTrueHadronicTaus"),
+    matched = cms.InputTag("kinematicTrueTaus"),
     mcPdgId     = cms.vint32(),                      # n/a
     mcStatus    = cms.vint32(),                      # n/a
     checkCharge = cms.bool(False),
@@ -137,11 +144,8 @@ print process.PFTau.remove(process.shrinkingConePFTauDiscriminationAgainstElectr
 print process.PFTau.remove(process.shrinkingConePFTauDiscriminationAgainstMuon)
 print process.PFTau.remove(process.hpsPFTauDiscriminationAgainstElectron)
 print process.PFTau.remove(process.hpsPFTauDiscriminationAgainstMuon)
-
-print "Adding kinematic selection to cleaners"
-process.hpsPFTauProducer.outputSelection = cms.string(_KIN_CUT)
-process.hpsTancTaus.outputSelection = cms.string(_KIN_CUT)
-process.shrinkingConePFTauProducer.outputSelection = cms.string(_KIN_CUT)
+print process.PFTau.remove(process.hpsTancTausDiscriminationAgainstElectron)
+print process.PFTau.remove(process.hpsTancTausDiscriminationAgainstMuon)
 
 # RecoTau modifier that takes a PFJet -> tau GenJet matching and embed the true
 # four vector and decay mode in unused PFTau variables
@@ -150,8 +154,6 @@ jetMatchModifier = cms.PSet(
         name = cms.string('embed'),
         plugin = cms.string('RecoTauTruthEmbedder')
 )
-
-
 # Figure out how to deal with our events - are they signal or background?
 if _SIGNAL:
     process.specific = process.signalSpecific
@@ -166,6 +168,26 @@ else:
         cut = cms.string(_KIN_CUT), # take everything
         filter = cms.bool(False)
     )
+
+print "Adding kinematic selection to cleaners"
+# Only add the pt threshold for signal
+if _SIGNAL:
+    process.hpsPFTauProducer.outputSelection = cms.string(_KIN_CUT)
+    process.hpsTancTaus.outputSelection = cms.string(_KIN_CUT)
+    process.shrinkingConePFTauProducer.outputSelection = cms.string(_KIN_CUT)
+
+#process.hpsPFTauProducer.outputSelection = cms.string('pt > 15 & abs(eta) < 2.5')
+#process.hpsTancTaus.outputSelection = cms.string('pt > 15 & abs(eta) < 2.5')
+#process.shrinkingConePFTauProducer.outputSelection = cms.string('pt > 15 & abs(eta) < 2.5')
+
+#EK apply cut on true pt
+#if _SIGNAL:
+    #for producer in [process.hpsPFTauProducer, process.hpsTancTaus,
+                     #process.shrinkingConePFTauProducer]:
+        #current_selection = producer.outputSelection.value()
+        #producer.outputSelection = current_selection + " && alternatLorentzVect.pt() > 20 "
+
+
 
 # For signal, make some plots of the matching information
 process.mediumShrinkingTaus = cms.EDFilter(

@@ -37,45 +37,52 @@ def make_perf_curve(signal, background, signal_denom, background_denom):
             signal_integral.append(signal_total)
             background_integral.append(background_total)
 
-    output = ROOT.TGraph(len(signal_integral)-1)
+
+    points = []
 
     for index, (signal, background) in enumerate(zip(
         signal_integral, background_integral)[0:-1]):
         #print "Signal failing:", signal
         #print "Background failing:", background
-        output.SetPoint(index, (signal_total-signal)*1./signal_denom,
-                        (background_total-background)*1./background_denom)
-        #print index, 1-signal/signal_denom, 1-background/background_denom
+        eff = (signal_total-signal)*1./signal_denom
+        fr = (background_total-background)*1./background_denom
+        if fr > 0.8:
+            continue
+        points.append((eff, fr))
+
+    output = ROOT.TGraph(len(signal_integral)-1)
+    for index, (eff, fr) in enumerate(points):
+        output.SetPoint(index, eff, fr)
 
     return output
 
 # Get the discriminators to plot
 discriminators = {}
 discriminators['hpsPFTauProducer'] = [
-    'hpsPFTauDiscriminationByDecayModeFinding',
+    #'hpsPFTauDiscriminationByDecayModeFinding',
     'hpsPFTauDiscriminationByLooseIsolation',
     'hpsPFTauDiscriminationByMediumIsolation',
     'hpsPFTauDiscriminationByTightIsolation',
 ]
 
 discriminators['shrinkingConePFTauProducer'] = [
-    'shrinkingConePFTauDiscriminationByLeadingPionPtCut',
+    #'shrinkingConePFTauDiscriminationByLeadingPionPtCut',
     'shrinkingConePFTauDiscriminationByIsolation',
-    'shrinkingConePFTauDiscriminationByTrackIsolation',
-    'shrinkingConePFTauDiscriminationByECALIsolation',
+    #'shrinkingConePFTauDiscriminationByTrackIsolation',
+    #'shrinkingConePFTauDiscriminationByECALIsolation',
     'shrinkingConePFTauDiscriminationByTaNC',
     'shrinkingConePFTauDiscriminationByTaNCfrOnePercent',
     'shrinkingConePFTauDiscriminationByTaNCfrHalfPercent',
     'shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent',
-    'shrinkingConePFTauDiscriminationByTaNCfrTenthPercent'
+    #'shrinkingConePFTauDiscriminationByTaNCfrTenthPercent'
 ]
 
 discriminators['hpsTancTaus'] = [
     #'hpsTancTausDiscriminationByTancRaw',
     'hpsTancTausDiscriminationByTanc',
-    'hpsTancTausDiscriminationByTancLoose',
-    'hpsTancTausDiscriminationByTancMedium',
-    'hpsTancTausDiscriminationByTancTight',
+    #'hpsTancTausDiscriminationByTancLoose',
+    #'hpsTancTausDiscriminationByTancMedium',
+    #'hpsTancTausDiscriminationByTancTight',
 ]
 
 #del discriminators['shrinkingConePFTauProducer']
@@ -83,8 +90,9 @@ discriminators['hpsTancTaus'] = [
 
 producer_translator = {
     'hpsPFTauProducer' : 'HPS',
-    'shrinkingConePFTauProducer' : 'shrinking',
-    'hpsTancTaus' : 'HPStanc',
+    'shrinkingConePFTauProducer' : 'Shrinking',
+    #'hpsTancTaus' : 'HPStanc',
+    'hpsTancTaus' : 'Hybrid Algo.',
 }
 
 discriminator_translator = {
@@ -96,17 +104,25 @@ discriminator_translator = {
     'shrinkingConePFTauDiscriminationByIsolation' : 'comb. isolation',
     'shrinkingConePFTauDiscriminationByTrackIsolation' : 'track isolation',
     'shrinkingConePFTauDiscriminationByECALIsolation' : 'ecal isolation',
-    'shrinkingConePFTauDiscriminationByTaNC' : 'TaNC v.1',
-    'shrinkingConePFTauDiscriminationByTaNCfrOnePercent' : 'TaNC 1.00% v.1',
-    'shrinkingConePFTauDiscriminationByTaNCfrHalfPercent' : 'TaNC 0.50% v.1',
-    'shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent' : 'TaNC 0.25% v.1',
-    'shrinkingConePFTauDiscriminationByTaNCfrTenthPercent' : 'TaNC 0.10% v.1',
+    'shrinkingConePFTauDiscriminationByTaNC' : 'TaNC ',
+    'shrinkingConePFTauDiscriminationByTaNCfrOnePercent' : 'TaNC 1.00% ',
+    'shrinkingConePFTauDiscriminationByTaNCfrHalfPercent' : 'TaNC 0.50% ',
+    'shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent' : 'TaNC 0.25% ',
+    'shrinkingConePFTauDiscriminationByTaNCfrTenthPercent' : 'TaNC 0.10% ',
     'hpsTancTausDiscriminationByTanc' : 'scan',
     'hpsTancTausDiscriminationByTancLoose' : 'loose',
     'hpsTancTausDiscriminationByTancMedium' : 'medium',
     'hpsTancTausDiscriminationByTancTight' : 'tight',
     'hpsTancTausDiscriminationByTancRaw' : 'no transform',
 }
+
+disc_to_plot = discriminators.keys()
+
+good_colors = [ROOT.EColor.kRed-9, ROOT.EColor.kBlue-9, ROOT.EColor.kBlack]
+disc_to_plot = ['shrinkingConePFTauProducer', 'hpsPFTauProducer', 'hpsTancTaus']
+
+#disc_to_plot = ['shrinkingConePFTauProducer', 'hpsPFTauProducer', ]
+#good_colors = [ROOT.EColor.kRed, ROOT.EColor.kBlue, ROOT.EColor.kBlack]
 
 
 if __name__ == "__main__":
@@ -141,21 +157,24 @@ if __name__ == "__main__":
     #graph_pad.cd()
 
     good_markers = [20, 21, 24, 26, 22, 26, 20, 21, 24, 26, 22 ]
-    good_colors = [ROOT.EColor.kRed, ROOT.EColor.kBlue, ROOT.EColor.kGreen + 2]
+    #good_colors = [ROOT.EColor.kRed, ROOT.EColor.kBlue, ROOT.EColor.kGreen + 2]
     # The background histogram
     histo = ROOT.TH1F("blank", "blank", 100, 0, 1.0)
     histo.SetMinimum(8e-4)
     histo.SetMaximum(0.5)
     histo.GetXaxis().SetTitle("Signal efficiency")
+    histo.GetXaxis().SetRangeUser(0.0, 0.7)
     histo.GetYaxis().SetTitle("Fake rate")
     histo.SetTitle("")
     #histo.SetStat(0)
     histo.Draw()
-    legend = ROOT.TLegend(0.6, 0.1, 0.9, 0.6)
+    #legend = ROOT.TLegend(0.6, 0.2, 0.9, 0.7)
+    legend = ROOT.TLegend(0.15, 0.4, 0.55, 0.85)
     legend.SetFillStyle(0)
+    legend.SetBorderSize(0)
 
     graphs = {}
-    for color, producer in zip(good_colors, discriminators.keys()):
+    for color, producer in zip(good_colors, disc_to_plot):
         graphs[producer] = {}
         for marker, discriminator in zip(good_markers,
                                          discriminators[producer]):
@@ -168,9 +187,10 @@ if __name__ == "__main__":
             )
             new_graph.SetMarkerStyle(marker)
             new_graph.SetMarkerColor(color)
+            new_graph.SetMarkerSize(1.5)
             new_graph.SetLineColor(color)
             new_graph.SetLineStyle(2)
-            new_graph.SetLineWidth(2)
+            new_graph.SetLineWidth(3)
             graphs[producer][discriminator] = new_graph
             print new_graph.GetN()
             if new_graph.GetN() > 1:

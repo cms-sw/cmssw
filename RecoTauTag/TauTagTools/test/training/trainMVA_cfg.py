@@ -207,9 +207,9 @@ process.signalSequence += process.signalPiZeros
 
 # Tau production step
 process.signalRawTaus = combinatoricRecoTaus.clone(
-    "RecoTauProducer",
     jetSrc = cms.InputTag("signalJetsDMMatched"),
     piZeroSrc = cms.InputTag("signalPiZeros"),
+    buildNullTaus = cms.bool(False),
     builders = cms.VPSet(_combinatoricTauConfig),
     modifiers = cms.VPSet(
         #cms.PSet(

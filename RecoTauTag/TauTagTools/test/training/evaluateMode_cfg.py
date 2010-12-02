@@ -197,6 +197,10 @@ process.main += process.pfRecoTauTagInfoProducer
 process.main += process.ak5PFJetsRecoTauPiZeros
 process.main += process.combinatoricRecoTaus
 process.main += process.hpsTancTauSequence
+print process.hpsTancTauSequence.remove(
+    process.hpsTancTausDiscriminationAgainstElectron)
+print process.hpsTancTauSequence.remove(
+    process.hpsTancTausDiscriminationAgainstMuon)
 
 ################################################################################
 ##         Prepare new TaNC discriminator                                    ###

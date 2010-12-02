@@ -23,7 +23,7 @@ kin_plots = cms.VPSet(
     cms.PSet(
         min = cms.untracked.double(0),
         max = cms.untracked.double(100),
-        nbins = cms.untracked.int32(100),
+        nbins = cms.untracked.int32(25),
         name = cms.untracked.string("pt"),
         description = cms.untracked.string("Pt"),
         plotquantity = cms.untracked.string("pt()"),
@@ -32,7 +32,7 @@ kin_plots = cms.VPSet(
     cms.PSet(
         min = cms.untracked.double(-2.5),
         max = cms.untracked.double(2.5),
-        nbins = cms.untracked.int32(100),
+        nbins = cms.untracked.int32(25),
         name = cms.untracked.string("eta"),
         description = cms.untracked.string("Eta"),
         plotquantity = cms.untracked.string("eta()"),
@@ -41,7 +41,7 @@ kin_plots = cms.VPSet(
     cms.PSet(
         min = cms.untracked.double(-3.14),
         max = cms.untracked.double(3.14),
-        nbins = cms.untracked.int32(100),
+        nbins = cms.untracked.int32(25),
         name = cms.untracked.string("phi"),
         description = cms.untracked.string("Phi"),
         plotquantity = cms.untracked.string("phi()"),
@@ -50,7 +50,7 @@ kin_plots = cms.VPSet(
     cms.PSet(
         min = cms.untracked.double(0.0),
         max = cms.untracked.double(10.0),
-        nbins = cms.untracked.int32(100),
+        nbins = cms.untracked.int32(50),
         name = cms.untracked.string("mass"),
         description = cms.untracked.string("mass"),
         plotquantity = cms.untracked.string("mass()"),
@@ -138,8 +138,8 @@ tau_histograms.append(
 
 tau_histograms.append(
     cms.PSet(
-        min = cms.untracked.double(-0.5),
-        max = cms.untracked.double(-0.5),
+        min = cms.untracked.double(-0.2),
+        max = cms.untracked.double(-0.2),
         nbins = cms.untracked.int32(100),
         name = cms.untracked.string("etaRes"),
         description = cms.untracked.string("EtaRes"),
