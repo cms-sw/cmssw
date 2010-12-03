@@ -4,7 +4,7 @@ import os
 usage="--list"
 parser = optparse.OptionParser(usage)
 parser.add_option("--GT")
-parser.add_option("--TLR",default="customise Configuration.DataProcessing.reco_TLR_%s")
+parser.add_option("--TLR",default="--customise Configuration/GlobalRuns/reco_TLR_%s")
 parser.add_option("--options",default="")
 parser.add_option("--output",default="RECO,AOD,DQM")
 parser.add_option("--rel",default="39X")
@@ -33,6 +33,6 @@ for PD in autoAlca:
         recoSpec=':reconstruction_HcalNZS'
         output="RECO,DQM"
 
-    os.system(com%(recoSpec,',ALCA:'+autoAlca[PD],scenario,output,output,options.TLR,customise,PD+'_',scenario,options.GT))
+    os.system(com%(recoSpec,',ALCA:'+autoAlca[PD],scenario,output,output,options.TLR%(options.rel,),customise,PD+'_',scenario,options.GT))
 
 
