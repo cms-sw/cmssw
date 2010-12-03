@@ -252,8 +252,9 @@ namespace edm {
     // std::cerr << "Calling apply rules with protocol: " << protocol << "\n destination: " << destination << "\n " << " on name " << name << std::endl;
 
     ProtocolRules::const_iterator const rulesIterator = protocolRules.find(protocol);
-    if (rulesIterator == protocolRules.end())
+    if (rulesIterator == protocolRules.end()) {
       return "";
+    }
 
     Rules const& rules = (*(rulesIterator)).second;
 
@@ -276,6 +277,9 @@ namespace edm {
       std::string const chain = i->chain;
       if ((direct == true) && (chain != "")) {
         name = applyRules(protocolRules, chain, destination, direct, name);
+        if (name.empty()) {
+          return "";
+        }
       }
 
       boost::regex_match(name, nameMatches, i->pathMatch);
