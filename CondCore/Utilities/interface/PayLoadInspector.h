@@ -99,24 +99,25 @@ namespace cond {
       db.transaction().commit();
     } 
     
-	std::string dumpXML(std::string filename) const {
-		size_t pos = filename.find(".xml");
-		if(pos == std::string::npos)
-			filename.append(".xml");
-		///FIXME: use TBuffer
-		TFile * xml =0;
-		xml = TFile::Open(filename.c_str(), "recreate");
-		xml->WriteObjectAny(m_object.address(), m_object.typeName().c_str(), filename.c_str());
-		xml->Close();
-		return filename;
-	}
+    std::string dumpXML(std::string filename) const {
+      size_t pos = filename.find(".xml");
+      if(pos == std::string::npos)
+	filename.append(".xml");
+      ///FIXME: use TBuffer
+      TFile * xml =0;
+      xml = TFile::Open(filename.c_str(), "recreate");
+      xml->WriteObjectAny(m_object.address(), m_object.typeName().c_str(), filename.c_str());
+      xml->Close();
+      return filename;
+    }
+    
     std::string dump() const {
       std::ostringstream ss; 
       //token parser
       std::pair<std::string,int> oidData = parseToken( m_token );
       ss << m_since << "_"<< oidData.first << "_" << oidData.second;
-	  //std::string filename(ss.str()+".xml");
-	  return this->dumpXML(ss.str()+".xml");
+      //std::string filename(ss.str()+".xml");
+      return this->dumpXML(ss.str()+".xml");
     }
     
     // specialize...
@@ -126,7 +127,6 @@ namespace cond {
       return os.str();
     }
 
-
     // return the real name of the file including extension...
     std::string plot(std::string const & /* filename */,
 		     std::string const &, 
@@ -135,19 +135,25 @@ namespace cond {
 
     // return the real name of the file including extension...
     std::string trend_plot(std::string const & /* filename */,//
-		     std::string const &, 
-			 std::vector<int> const&, std::vector<float> const&, std::vector<std::string> const&) const {return "";}
+			   std::string const &, 
+			   std::vector<int> const&, std::vector<float> const&, std::vector<std::string> const&) const {return "";}
 
     // summary, which takes arguments
     std::string summary_adv(//int const &,
-		     std::string const &, 
+			    std::string const &, 
+			    std::vector<int> const&, std::vector<float> const&, std::vector<std::string> const&) const {return "";}
+    
+    //returns a file in the format chosen by the user (typically root)
+    std::string dumpFile(std::string const & /* filename */,//
+			 std::string const &, 
 			 std::vector<int> const&, std::vector<float> const&, std::vector<std::string> const&) const {return "";}
-
+    
     void extract(Extractor & extractor) const {extractor.computeW(object()); }
 
     Class const & object() const {
       return *(m_object.cast<Class>());
     }
+    
     ora::Object const & ora_object() const { 
       return m_object; 
     }
