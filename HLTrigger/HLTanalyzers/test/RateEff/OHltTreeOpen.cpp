@@ -388,6 +388,30 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleJet45U_ForwardBackward") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if (prescaleResponse(menu,cfg,rcounter,it)) { 
+        int rc = 0; 
+        int rc1 = 0; 
+        int rc2 = 0; 
+         
+        // Loop over all oh jets, select events where both pT of a pair are above threshold and in HF+ and HF- 
+        for (int i=0;i<NrecoJetCal;i++) { 
+          if(recoJetCalPt[i]/0.7 > 45.0 && recoJetCalEta[i] > 3.0 && recoJetCalEta[i] < 5.1) {  // Jet pT/eta cut 
+            ++rc1; 
+          } 
+          if(recoJetCalPt[i]/0.7 > 45.0 && recoJetCalEta[i] > -5.1 && recoJetCalEta[i] < -3.0) {  // Jet pT/eta cut 
+            ++rc2; 
+          } 
+        } 
+        if (rc1!=0 && rc2!=0) rc=1; 
+        if(rc > 0) 
+          { 
+            triggerBit[it] = true;  
+          } 
+      } 
+    } 
+  } 
   //Corrected jets
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleJet15_ForwardBackward") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
@@ -3009,6 +3033,445 @@ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet10") == 0) {
       }
     }
   }  
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_DiJet40U") == 0) {  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	int rc = 0;
+	int njets = 0;
+
+	// apply L2 cut on jets
+	for(int i = 0; i < NohBJetL2; i++)
+	  if(ohBJetL2Et[i] > 40. && abs(ohBJetL2Eta[i]) < 3.0)
+	    njets++;
+
+	// apply b-tag cut
+	for(int i = 0; i < NohBJetL2; i++) {
+	  if(ohBJetL2Et[i] > 10.) { // keep this at 10 even for the 20UU path - also, no eta cut here
+	    if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
+	      if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
+		rc++;
+	      }
+	    }
+	  }
+	}
+	if(rc >= 1 && njets>=2) {
+	  triggerBit[it] = true;
+	}
+      }
+    }
+  }
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_DiJet50U") == 0) {  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	int rc = 0;
+	int njets = 0;
+
+	// apply L2 cut on jets
+	for(int i = 0; i < NohBJetL2; i++)
+	  if(ohBJetL2Et[i] > 50. && abs(ohBJetL2Eta[i]) < 3.0)
+	    njets++;
+
+	// apply b-tag cut
+	for(int i = 0; i < NohBJetL2; i++) {
+	  if(ohBJetL2Et[i] > 10.) { // keep this at 10 even for the 20UU path - also, no eta cut here
+	    if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
+	      if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
+		rc++;
+	      }
+	    }
+	  }
+	}
+	if(rc >= 1 && njets>=2) {
+	  triggerBit[it] = true;
+	}
+      }
+    }
+  }
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_DiJet70U") == 0) {  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	int rc = 0;
+	int njets = 0;
+
+	// apply L2 cut on jets
+	for(int i = 0; i < NohBJetL2; i++)
+	  if(ohBJetL2Et[i] > 70. && abs(ohBJetL2Eta[i]) < 3.0)
+	    njets++;
+
+	// apply b-tag cut
+	for(int i = 0; i < NohBJetL2; i++) {
+	  if(ohBJetL2Et[i] > 10.) { // keep this at 10 even for the 20UU path - also, no eta cut here
+	    if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
+	      if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
+		rc++;
+	      }
+	    }
+	  }
+	}
+	if(rc >= 1 && njets>=2) {
+	  triggerBit[it] = true;
+	}
+      }
+    }
+  }
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_DiJet100U") == 0) {  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	int rc = 0;
+	int njets = 0;
+
+	// apply L2 cut on jets
+	for(int i = 0; i < NohBJetL2; i++)
+	  if(ohBJetL2Et[i] > 100. && abs(ohBJetL2Eta[i]) < 3.0)
+	    njets++;
+
+	// apply b-tag cut
+	for(int i = 0; i < NohBJetL2; i++) {
+	  if(ohBJetL2Et[i] > 10.) { // keep this at 10 even for the 20UU path - also, no eta cut here
+	    if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
+	      if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
+		rc++;
+	      }
+	    }
+	  }
+	}
+	if(rc >= 1 && njets>=2) {
+	  triggerBit[it] = true;
+	}
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_DiJet10U_Mu5") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+     if (prescaleResponse(menu,cfg,rcounter,it)) {
+       int rc = 0;
+       int njets = 0;
+       
+       // apply L2 cut on jets
+       for(int i = 0; i < NohBJetL2; i++)
+	 if(ohBJetL2Et[i] > 10. && abs(ohBJetL2Eta[i]) < 3.0) 
+	   njets++;
+       
+       // apply b-tag cut
+       for(int i = 0; i < NohBJetL2; i++) {
+	 if(ohBJetL2Et[i] > 10.) { // keep this at 10 even for all btag mu paths
+	   if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
+	     if(OpenHlt1L3MuonPassed(5.0, 5.0) >=1 ) {//require at least one L3 muon
+	       if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
+		 rc++;
+	       }
+	     }
+	   }
+	 }
+       }
+       if(rc >= 1 && njets>=2) {
+	 triggerBit[it] = true;
+       }
+     }
+    }
+  }
+  
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_DiJet30U_Mu5") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	int rc = 0;
+	int njets = 0;
+	
+	// apply L2 cut on jets
+	for(int i = 0; i < NohBJetL2; i++)
+	  if(ohBJetL2Et[i] > 30. && abs(ohBJetL2Eta[i]) < 3.0)
+	    njets++;
+	
+	// apply b-tag cut
+	for(int i = 0; i < NohBJetL2; i++) {
+	  if(ohBJetL2Et[i] > 10.) { // keep this at 10 for all btag mu paths - also, no eta cut here
+	    if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
+	      if(OpenHlt1L3MuonPassed(5.0, 5.0) >=1 ) {//require at least one L3 muon
+		if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
+		  rc++;
+		}
+	      }
+	    }
+	  }
+	}
+	if(rc >= 1 && njets>=2) {
+	  triggerBit[it] = true;
+	}
+      }
+    }
+  }
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_DiJet30U_Mu7") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	int rc = 0;
+	int njets = 0;
+	
+	// apply L2 cut on jets
+	for(int i = 0; i < NohBJetL2; i++)
+	  if(ohBJetL2Et[i] > 30. && abs(ohBJetL2Eta[i]) < 3.0)
+	    njets++;
+	
+	// apply b-tag cut
+	for(int i = 0; i < NohBJetL2; i++) {
+	  if(ohBJetL2Et[i] > 10.) { // keep this at 10 for all btag mu paths - also, no eta cut here
+	    if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
+	      if(OpenHlt1L3MuonPassed(7.0, 5.0) >=1 ) {//require at least one L3 muon
+		if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
+		  rc++;
+		}
+	      }
+	    }
+	  }
+	}
+	if(rc >= 1 && njets>=2) {
+	  triggerBit[it] = true;
+	}
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_DiJet50U_Mu5") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	int rc = 0;
+	int njets = 0;
+	
+	// apply L2 cut on jets
+	for(int i = 0; i < NohBJetL2; i++)
+	  if(ohBJetL2Et[i] > 50. && abs(ohBJetL2Eta[i]) < 3.0)
+	    njets++;
+	
+	// apply b-tag cut
+	for(int i = 0; i < NohBJetL2; i++) {
+	  if(ohBJetL2Et[i] > 10.) { // keep this at 10 for all btag mu paths - also, no eta cut here
+	    if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
+	      if(OpenHlt1L3MuonPassed(5.0, 5.0) >=1 ) {//require at least one L3 muon
+		if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
+		  rc++;
+		}
+	      }
+	    }
+	  }
+	}
+	if(rc >= 1 && njets>=2) {
+	  triggerBit[it] = true;
+	}
+      }
+    }
+  }
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_DiJet50U_Mu7") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	int rc = 0;
+	int njets = 0;
+	
+	// apply L2 cut on jets
+	for(int i = 0; i < NohBJetL2; i++)
+	  if(ohBJetL2Et[i] > 50. && abs(ohBJetL2Eta[i]) < 3.0)
+	    njets++;
+	
+	// apply b-tag cut
+	for(int i = 0; i < NohBJetL2; i++) {
+	  if(ohBJetL2Et[i] > 10.) { // keep this at 10 for all btag mu paths - also, no eta cut here
+	    if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
+	      if(OpenHlt1L3MuonPassed(7.0, 5.0) >=1 ) {//require at least one L3 muon
+		if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
+		  rc++;
+		}
+	      }
+	    }
+	  }
+	}
+	if(rc >= 1 && njets>=2) {
+	  triggerBit[it] = true;
+	}
+      }
+    }
+  }
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_DiJet50U_Mu9") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	int rc = 0;
+	int njets = 0;
+	
+	// apply L2 cut on jets
+	for(int i = 0; i < NohBJetL2; i++)
+	  if(ohBJetL2Et[i] > 50. && abs(ohBJetL2Eta[i]) < 3.0)
+	    njets++;
+	
+	// apply b-tag cut
+	for(int i = 0; i < NohBJetL2; i++) {
+	  if(ohBJetL2Et[i] > 10.) { // keep this at 10 for all btag mu paths - also, no eta cut here
+	    if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
+	      if(OpenHlt1L3MuonPassed(9.0, 5.0) >=1 ) {//require at least one L3 muon
+		if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
+		  rc++;
+		}
+	      }
+	    }
+	  }
+	}
+	if(rc >= 1 && njets>=2) {
+	  triggerBit[it] = true;
+	}
+      }
+    }
+  }
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_DiJet70U_Mu9") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	int rc = 0;
+	int njets = 0;
+	
+	// apply L2 cut on jets
+	for(int i = 0; i < NohBJetL2; i++)
+	  if(ohBJetL2Et[i] > 70. && abs(ohBJetL2Eta[i]) < 3.0)
+	    njets++;
+	
+	// apply b-tag cut
+	for(int i = 0; i < NohBJetL2; i++) {
+	  if(ohBJetL2Et[i] > 10.) { // keep this at 10 for all btag mu paths - also, no eta cut here
+	    if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
+	      if(OpenHlt1L3MuonPassed(9.0, 5.0) >=1 ) {//require at least one L3 muon
+		if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
+		  rc++;
+		}
+	      }
+	    }
+	  }
+	}
+	if(rc >= 1 && njets>=2) {
+	  triggerBit[it] = true;
+	}
+      }
+    }
+  }
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_DiJet70U_Mu11") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	int rc = 0;
+	int njets = 0;
+	
+	// apply L2 cut on jets
+	for(int i = 0; i < NohBJetL2; i++)
+	  if(ohBJetL2Et[i] > 70. && abs(ohBJetL2Eta[i]) < 3.0)
+	    njets++;
+	
+	// apply b-tag cut
+	for(int i = 0; i < NohBJetL2; i++) {
+	  if(ohBJetL2Et[i] > 10.) { // keep this at 10 for all btag mu paths - also, no eta cut here
+	    if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
+	      if(OpenHlt1L3MuonPassed(11.0, 5.0) >=1 ) {//require at least one L3 muon
+		if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
+		  rc++;
+		}
+	      }
+	    }
+	  }
+	}
+	if(rc >= 1 && njets>=2) {
+	  triggerBit[it] = true;
+	}
+      }
+    }
+  }
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_DiJet70U_Mu15") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	int rc = 0;
+	int njets = 0;
+	
+	// apply L2 cut on jets
+	for(int i = 0; i < NohBJetL2; i++)
+	  if(ohBJetL2Et[i] > 70. && abs(ohBJetL2Eta[i]) < 3.0)
+	    njets++;
+	
+	// apply b-tag cut
+	for(int i = 0; i < NohBJetL2; i++) {
+	  if(ohBJetL2Et[i] > 10.) { // keep this at 10 for all btag mu paths - also, no eta cut here
+	    if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
+	      if(OpenHlt1L3MuonPassed(15.0, 5.0) >=1 ) {//require at least one L3 muon
+		if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
+		  rc++;
+		}
+	      }
+	    }
+	  }
+	}
+	if(rc >= 1 && njets>=2) {
+	  triggerBit[it] = true;
+	}
+      }
+    }
+  }
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_DiJet100U_Mu11") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	int rc = 0;
+	int njets = 0;
+	
+	// apply L2 cut on jets
+	for(int i = 0; i < NohBJetL2; i++)
+	  if(ohBJetL2Et[i] > 100. && abs(ohBJetL2Eta[i]) < 3.0)
+	    njets++;
+	
+	// apply b-tag cut
+	for(int i = 0; i < NohBJetL2; i++) {
+	  if(ohBJetL2Et[i] > 10.) { // keep this at 10 for all btag mu paths - also, no eta cut here
+	    if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
+	      if(OpenHlt1L3MuonPassed(11.0, 5.0) >=1 ) {//require at least one L3 muon
+		if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
+		  rc++;
+		}
+	      }
+	    }
+	  }
+	}
+	if(rc >= 1 && njets>=2) {
+	  triggerBit[it] = true;
+	}
+      }
+    }
+  }
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_DiJet100U_Mu15") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	int rc = 0;
+	int njets = 0;
+	
+	// apply L2 cut on jets
+	for(int i = 0; i < NohBJetL2; i++)
+	  if(ohBJetL2Et[i] > 100. && abs(ohBJetL2Eta[i]) < 3.0)
+	    njets++;
+	
+	// apply b-tag cut
+	for(int i = 0; i < NohBJetL2; i++) {
+	  if(ohBJetL2Et[i] > 10.) { // keep this at 10 for all btag mu paths - also, no eta cut here
+	    if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
+	      if(OpenHlt1L3MuonPassed(15.0, 5.0) >=1 ) {//require at least one L3 muon
+		if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
+		  rc++;
+		}
+	      }
+	    }
+	  }
+	}
+	if(rc >= 1 && njets>=2) {
+	  triggerBit[it] = true;
+	}
+      }
+    }
+  }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagIP_Jet50") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
@@ -6200,3 +6663,19 @@ int OHltTree::OpenHltL1L2TauMatching(float eta, float phi, float tauThr, float j
   }
   return 0;
 }
+
+int OHltTree::OpenHlt1L3MuonPassed(double pt, double eta) 
+{ 
+  //for BTagMu trigger 
+ 
+  int rcL3 = 0; 
+  // Loop over all oh L3 muons and apply cuts 
+  for (int i=0;i<NohMuL3;i++) {   
+    if(ohMuL3Pt[i] > pt && fabs(ohMuL3Eta[i]) < eta ) { // L3 pT and eta cut  
+      rcL3++; 
+    } 
+  } 
+   
+  return rcL3; 
+ 
+} 

@@ -3618,6 +3618,7 @@ public :
   int OpenHlt2PhotonMassWinPassed(float Et, int L1iso, float Tiso, float Eiso, float HisoBR, float HisoEC,float massLow, float massHigh);
   int OpenHlt2ElectronMassWinPassed(float Et, int L1iso, float Hiso, float massLow, float massHigh); 
   int OpenHlt2Electron1LegIdPassed(float Et,int L1iso,float Tiso,float Hiso);
+  int OpenHlt1L3MuonPassed(double pt,double eta); 
   int OpenHlt1MuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso);
   int OpenHlt2MuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso);
   int OpenHlt1L2MuonPassed(double ptl1,double ptl2,double dr);  
