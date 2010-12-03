@@ -24,14 +24,14 @@ namespace fireworks
       double max = -100;
 
       for( std::vector<double>::const_iterator i = phis.begin();
-	   i != phis.end(); ++i )
+           i != phis.end(); ++i )
       {
-	 double aphi = *i;
-	 // make phi continuous around jet phi
-	 if( aphi - phi > M_PI ) aphi -= 2*M_PI;
-	 if( phi - aphi > M_PI ) aphi += 2*M_PI;
-	 if( aphi > max ) max = aphi;
-	 if( aphi < min ) min = aphi;
+         double aphi = *i;
+         // make phi continuous around jet phi
+         if( aphi - phi > M_PI ) aphi -= 2*M_PI;
+         if( phi - aphi > M_PI ) aphi += 2*M_PI;
+         if( aphi > max ) max = aphi;
+         if( aphi < min ) min = aphi;
       }
 
       if( min > max ) return std::pair<double,double>( 0, 0 );
@@ -40,17 +40,17 @@ namespace fireworks
    }
 
    TEveGeoShape* getShape( const char* name,
-			   TGeoBBox* shape,
-			   Color_t color )
+                           TGeoBBox* shape,
+                           Color_t color )
    {
       TEveGeoShape* egs = new TEveGeoShape( name );
       TColor* c = gROOT->GetColor( color );
       Float_t rgba[4] = { 1, 0, 0, 1 };
       if( c )
       {
-	 rgba[0] = c->GetRed();
-	 rgba[1] = c->GetGreen();
-	 rgba[2] = c->GetBlue();
+         rgba[0] = c->GetRed();
+         rgba[1] = c->GetGreen();
+         rgba[2] = c->GetBlue();
       }
       egs->SetMainColorRGB( rgba[0], rgba[1], rgba[2] );
       egs->SetShape( shape );
@@ -58,9 +58,9 @@ namespace fireworks
    }
 
    void addRhoZEnergyProjection( FWProxyBuilderBase* pb, TEveElement* container,
-				 double r_ecal, double z_ecal,
-				 double theta_min, double theta_max,
-				 double phi )
+                                 double r_ecal, double z_ecal,
+                                 double theta_min, double theta_max,
+                                 double phi )
    {
       TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur());
       double z1 = r_ecal / tan( theta_min );
@@ -78,25 +78,25 @@ namespace fireworks
 
       if( fabs(r2 - r1) > 1 )
       {
-	 TGeoBBox *sc_box = new TGeoBBox( 0., fabs( r2 - r1 ) / 2, 1 );
-	 TEveGeoShape *element = new TEveGeoShape("r-segment");
-	 element->SetShape(sc_box);
-	 TEveTrans &t = element->RefMainTrans();
-	 t(1,4) = 0;
-	 t(2,4) = (r2+r1)/2;
-	 t(3,4) = fabs(z2)>fabs(z1) ? z2 : z1;
-	 pb->setupAddElement(element, container);
+         TGeoBBox *sc_box = new TGeoBBox( 0., fabs( r2 - r1 ) / 2, 1 );
+         TEveGeoShape *element = new TEveGeoShape("r-segment");
+         element->SetShape(sc_box);
+         TEveTrans &t = element->RefMainTrans();
+         t(1,4) = 0;
+         t(2,4) = (r2+r1)/2;
+         t(3,4) = fabs(z2)>fabs(z1) ? z2 : z1;
+         pb->setupAddElement(element, container);
       }
       if( fabs(z2 - z1) > 1 )
       {
-	 TGeoBBox *sc_box = new TGeoBBox( 0., 1, ( z2 - z1 ) / 2 );
-	 TEveGeoShape *element = new TEveGeoShape("z-segment");
-	 element->SetShape( sc_box );
-	 TEveTrans &t = element->RefMainTrans();
-	 t(1,4) = 0;
-	 t(2,4) = fabs(r2)>fabs(r1) ? r2 : r1;
-	 t(3,4) = (z2+z1)/2;
-	 pb->setupAddElement(element, container);
+         TGeoBBox *sc_box = new TGeoBBox( 0., 1, ( z2 - z1 ) / 2 );
+         TEveGeoShape *element = new TEveGeoShape("z-segment");
+         element->SetShape( sc_box );
+         TEveTrans &t = element->RefMainTrans();
+         t(1,4) = 0;
+         t(2,4) = fabs(r2)>fabs(r1) ? r2 : r1;
+         t(3,4) = (z2+z1)/2;
+         pb->setupAddElement(element, container);
       }
    }
 
@@ -118,9 +118,9 @@ namespace fireworks
       if( pos != std::string::npos ) text = text.substr( 0, pos );
       text += " ";
       if( daylight )
-	 text += tzname[1];
+         text += tzname[1];
       else
-	 text += tzname[0];
+         text += tzname[0];
       return text;
    }
   
@@ -244,9 +244,8 @@ namespace fireworks
    }
    //______________________________________________________________________________
 
-   void drawEtScaledBox3D( const float* corners, float energy, float maxEnergy, TEveElement* comp, FWProxyBuilderBase* pb, bool invert )
+   void etScaledBox3DCorners( const float* corners, float energy, float maxEnergy, std::vector<float>& scaledCorners, bool invert)
    {
-      std::vector<float> scaledCorners( 24 );
       std::vector<float> centre( 3, 0 );
 
       for( unsigned int i = 0; i < 24; i += 3 )
@@ -272,13 +271,18 @@ namespace fireworks
       
       if( invert )
          invertBox( scaledCorners );
+   }
 
+   void drawEtScaledBox3D( const float* corners, float energy, float maxEnergy, TEveElement* comp, FWProxyBuilderBase* pb, bool invert )
+   {
+      std::vector<float> scaledCorners( 24 );
+      etScaledBox3DCorners(corners, energy, maxEnergy, scaledCorners, invert);
       addBox( scaledCorners, comp, pb );
    }
-   //______________________________________________________________________________
 
+   //______________________________________________________________________________
    void energyTower3DCorners( const float* corners, float scale,  std::vector<float>& scaledCorners, bool reflect)
-   { 
+   {
       for( int i = 0; i < 24; ++i )
          scaledCorners[i] = corners[i];
       // Coordinates of a front face scaled 
@@ -325,9 +329,8 @@ namespace fireworks
   
    //______________________________________________________________________________
 
-   void drawEtTower3D( const float* corners, float scale, TEveElement* comp, FWProxyBuilderBase* pb, bool reflect )
+   void etTower3DCorners( const float* corners, float scale,  std::vector<float>& scaledCorners, bool reflect)
    {
-      std::vector<float> scaledCorners( 24 );
       for( int i = 0; i < 24; ++i )
          scaledCorners[i] = corners[i];
       // Coordinates of a front face scaled 
@@ -363,6 +366,15 @@ namespace fireworks
             scaledCorners[i + 14] = corners[i + 14] + diff.fZ;
          }
       }
+   }
+
+
+   void drawEtTower3D( const float* corners, float scale, TEveElement* comp, FWProxyBuilderBase* pb, bool reflect )
+   {
+      std::vector<float> scaledCorners( 24 );
+      etTower3DCorners(corners, scale, scaledCorners, reflect);
       addBox( scaledCorners, comp, pb );
    }
-}
+
+
+} // namespace fireworks

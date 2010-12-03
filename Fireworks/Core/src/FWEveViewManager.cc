@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.40 2010/11/26 20:24:48 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.41 2010/12/01 21:40:31 amraktad Exp $
 //
 
 // system include files
@@ -480,7 +480,8 @@ FWEveViewManager::modelChanges(const FWModelIds& iIds)
    std::map<const FWEventItem*, FWInteractionList*>::iterator it = m_interactionLists.find(item);
    if (it != m_interactionLists.end())
    {
-      it->second->modelChanges(iIds);
+      if (!it->second->empty())
+         it->second->modelChanges(iIds);
    }
 }
 
@@ -518,8 +519,8 @@ FWEveViewManager::itemChanged(const FWEventItem* item)
    std::map<const FWEventItem*, FWInteractionList*>::iterator it = m_interactionLists.find(item);
    if (it != m_interactionLists.end())
    {
-      assert(it->second);
-      it->second->itemChanged();
+      if (!it->second->empty())
+         it->second->itemChanged();
    }
 }
 

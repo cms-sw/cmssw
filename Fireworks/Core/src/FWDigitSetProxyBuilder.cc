@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Tue Oct 19 12:00:50 CEST 2010
-// $Id: FWDigitSetProxyBuilder.cc,v 1.1 2010/10/20 19:26:58 amraktad Exp $
+// $Id: FWDigitSetProxyBuilder.cc,v 1.2 2010/11/09 18:37:30 amraktad Exp $
 //
 
 // system include files
@@ -70,7 +70,8 @@ private:
 //==============================================================================
 //==============================================================================
 
-FWDigitSetProxyBuilder::FWDigitSetProxyBuilder()
+FWDigitSetProxyBuilder::FWDigitSetProxyBuilder():
+   m_boxSet(0)
 {
 }
 
@@ -89,16 +90,17 @@ TEveBoxSet* FWDigitSetProxyBuilder::addBoxSetToProduct(TEveElementList* product)
 {
    assert(!product->HasChildren());
    
-   TEveBoxSet* boxSet = new TEveBoxSet();
-   boxSet->SetTooltipCBFoo(getTooltip);
-   boxSet->Reset(TEveBoxSet::kBT_FreeBox, true, 256);
-   FWSecondarySelectableSelector* sel = new FWSecondarySelectableSelector(boxSet->RefSelectedSet(), item());
-   boxSet->SetUserData(sel);
-   boxSet->SetPickable(1);
-   boxSet->SetAlwaysSecSelect(1);
+   m_boxSet = new TEveBoxSet();
+   m_boxSet->SetTooltipCBFoo(getTooltip);
+   m_boxSet->Reset(TEveBoxSet::kBT_FreeBox, true, 256);
+   FWSecondarySelectableSelector* sel = new FWSecondarySelectableSelector(m_boxSet->RefSelectedSet(), item());
+   m_boxSet->SetUserData(sel);
+   m_boxSet->SetPickable(1);
+   m_boxSet->SetAlwaysSecSelect(1);
 
-   product->AddElement(boxSet);
-   return boxSet;
+   product->AddElement(m_boxSet);
+
+   return m_boxSet;
 }
 
 TEveDigitSet* FWDigitSetProxyBuilder::digitSet(TEveElement* product)

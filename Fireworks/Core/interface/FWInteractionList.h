@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel 
 //         Created:  Mon Apr 19 12:48:12 CEST 2010
-// $Id: FWInteractionList.h,v 1.2 2010/04/21 19:24:58 amraktad Exp $
+// $Id: FWInteractionList.h,v 1.3 2010/06/14 14:45:00 amraktad Exp $
 //
 
 // system include files
@@ -39,6 +39,8 @@ public:
    // ---------- const member functions ---------------------
 
    const FWEventItem* item() const { return m_item;}
+   bool empty() const { return m_compounds.empty(); }
+
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------

@@ -183,4 +183,4 @@ FWPFEcalRecHitLegoProxyBuilder::cleanLocal()
 }
 
 //______________________________________________________________________________________________________
-REGISTER_FWPROXYBUILDER( FWPFEcalRecHitLegoProxyBuilder, EcalRecHit, "PF Ecal RecHit", FWViewType::kLegoPFECALBit );
+REGISTER_FWPROXYBUILDER( FWPFEcalRecHitLegoProxyBuilder, EcalRecHit, "Ecal RecHit", FWViewType::kLegoPFECALBit );

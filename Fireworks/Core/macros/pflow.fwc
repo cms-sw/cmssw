@@ -678,7 +678,7 @@
      <string>20</string>
    </config>
    <config name="purpose" version="0">
-     <string>PF Ecal RecHit</string>
+     <string>Ecal RecHit</string>
    </config>
    <config name="transparency" version="0">
      <string>0</string>
