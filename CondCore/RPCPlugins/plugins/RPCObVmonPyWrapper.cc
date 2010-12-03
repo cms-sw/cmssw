@@ -3,15 +3,11 @@
 
 #include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/DbConnectionConfiguration.h"
-#include "CondCore/DBCommon/interface/DbSession.h"
+//#include "CondCore/DBCommon/interface/DbSession.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 
-#include "CondCore/ORA/interface/Database.h"
-#include "CondCore/DBCommon/interface/PoolToken.h"
-
-
-#include "CondCore/ORA/interface/Database.h"
-#include "CondCore/DBCommon/interface/PoolToken.h"
+//#include "CondCore/ORA/interface/Database.h"
+//#include "CondCore/DBCommon/interface/PoolToken.h"
 
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
@@ -20,7 +16,7 @@
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
 //timestamp stuff
-#include "DataFormats/Provenance/interface/Timestamp.h"
+//#include "DataFormats/Provenance/interface/Timestamp.h"
 #include "CoralBase/TimeStamp.h"
 #include <sys/time.h>
 
@@ -36,9 +32,6 @@
 #include "TGraph.h"
 #include "TMultiGraph.h"
 #include "TLegend.h"
-
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #include <string>
 #include <fstream>
@@ -557,7 +550,7 @@ namespace cond {
 namespace condPython {
   template<>
   void defineWhat<RPCObVmon>() {
-
+    using namespace boost::python;
     enum_<cond::rpcobvmon::How>("How")
       .value("detid",cond::rpcobvmon::detid)
       .value("day",cond::rpcobvmon::day) 

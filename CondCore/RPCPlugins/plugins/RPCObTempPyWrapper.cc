@@ -6,20 +6,21 @@
 
 #include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/DbConnectionConfiguration.h"
-#include "CondCore/DBCommon/interface/DbSession.h"
+//#include "CondCore/DBCommon/interface/DbSession.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
 
-#include "CondCore/ORA/interface/Database.h"
-#include "CondCore/DBCommon/interface/PoolToken.h"
+//#include "CondCore/ORA/interface/Database.h"
+//#include "CondCore/DBCommon/interface/PoolToken.h"
 
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometrySurface/interface/Surface.h"
+//#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+//#include "DataFormats/GeometrySurface/interface/Surface.h"
 
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+//#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
 //timestamp stuff
-#include "DataFormats/Provenance/interface/Timestamp.h"
+//#include "DataFormats/Provenance/interface/Timestamp.h"
 #include <sys/time.h>
 
 /////////////////
@@ -174,12 +175,7 @@ namespace cond {
     What  m_what;
     
   };
-
-
-  template<>
-  std::string
-  PayLoadInspector<RPCObTemp>::dump() const {return std::string();}
-
+  
   template<>
   std::string PayLoadInspector<RPCObTemp>::summary() const {
     std::stringstream ss;
@@ -537,7 +533,7 @@ namespace cond {
 namespace condPython {
   template<>
   void defineWhat<RPCObTemp>() {
-
+    using namespace boost::python;
     enum_<cond::rpcobtemp::How>("How")
       .value("detid",cond::rpcobtemp::detid)
       .value("day",cond::rpcobtemp::day) 

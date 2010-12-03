@@ -3,21 +3,22 @@
 
 #include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/DbConnectionConfiguration.h"
-#include "CondCore/DBCommon/interface/DbSession.h"
+//#include "CondCore/DBCommon/interface/DbSession.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
 
-#include "CondCore/ORA/interface/Database.h"
-#include "CondCore/DBCommon/interface/PoolToken.h"
+//#include "CondCore/ORA/interface/Database.h"
+//#include "CondCore/DBCommon/interface/PoolToken.h"
 
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
-#include "CondCore/IOVService/interface/IOVProxy.h"
+//#include "CondCore/IOVService/interface/IOVProxy.h"
 
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
 //timestamp stuff
-#include "DataFormats/Provenance/interface/Timestamp.h"
-#include "CondTools/RPC/interface/RPCRunIOV.h"
+//#include "DataFormats/Provenance/interface/Timestamp.h"
+//#include "CondTools/RPC/interface/RPCRunIOV.h"
 #include <sys/time.h>
 
 /////////////////
@@ -542,13 +543,19 @@ namespace cond {
     
   }
   
+  template<>
+  std::string PayLoadInspector<RPCObGas>::dumpFile(std::string const & filename,
+						   std::string const & opt_string, 
+						   std::vector<int> const& nts,
+						   std::vector<float> const& floats,
+						   std::vector<std::string> const& strings) const { return filename; }
 }
 
 
 namespace condPython {
   template<>
   void defineWhat<RPCObGas>() {
-    
+    using namespace boost::python;
     enum_<cond::rpcobgas::How>("How")
       .value("detid",cond::rpcobgas::detid)
       .value("flowin",cond::rpcobgas::flowin)

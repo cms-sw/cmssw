@@ -27,16 +27,7 @@ namespace cond {
   private:
 
   };
-
-
-  template<>
-  std::string
-  PayLoadInspector<RPCObPVSSmap>::dump() const {
-    std::stringstream ss;
-    return ss.str();
-
-  }
-
+  
   template<>
   std::string PayLoadInspector<RPCObPVSSmap>::summary() const {
     std::stringstream ss;
