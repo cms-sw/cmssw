@@ -14,6 +14,8 @@ namespace HepMC
 class GenEvent;
 }
 
+#include "CLHEP/Random/RandomEngine.h"
+extern CLHEP::HepRandomEngine* tauolaRandomEngine;
 
 namespace gen {
 
