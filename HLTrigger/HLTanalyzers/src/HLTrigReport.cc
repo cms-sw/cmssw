@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/10/07 15:03:13 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/10/07 15:07:09 $
+ *  $Revision: 1.18 $
  *
  *  \author Martin Grunewald
  *
@@ -20,6 +20,7 @@
 #include "Math/QuantFuncMathCore.h"
 
 #include <iomanip>
+#include <cstring>
 
 //
 // constructors and destructor
@@ -51,8 +52,27 @@ HLTrigReport::HLTrigReport(const edm::ParameterSet& iConfig) :
   refPath_("HLTriggerFinalPath"),
   refIndex_(0),
   refRate_(100.0),
+  reportByLumi_(false),
+  reportByRun_(false),
+  reportByJob_(true),
   hltConfig_()
 {
+  const std::string & reportEvery = iConfig.getUntrackedParameter<std::string>("ReportEvery", "job");
+  if (strcasecmp(reportEvery.c_str(), "job") == 0) {
+    reportByLumi_ = false;
+    reportByRun_  = false;
+    reportByJob_  = true;
+  } else if (strcasecmp(reportEvery.c_str(), "run") == 0) {
+    reportByLumi_ = false;
+    reportByRun_  = true;
+    reportByJob_  = false;
+  } else if (strcasecmp(reportEvery.c_str(), "lumi") == 0) {
+    reportByLumi_ = true;
+    reportByRun_  = false;
+    reportByJob_  = false;
+  } else {
+    edm::LogError("Configuration") << "Invalid value for HLTrigReport.ReportEvery: \"" << reportEvery << "\". Valid values are: \"lumi\", \"run\", \"job\".";
+  }
  
   const edm::ParameterSet customDatasets(iConfig.getUntrackedParameter<edm::ParameterSet>("CustomDatasets",edm::ParameterSet()));
   isCustomDatasets_ = (customDatasets != edm::ParameterSet());
@@ -286,10 +306,24 @@ HLTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 void
+HLTrigReport::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+  if (reportByLumi_)
+    dumpReport();
+}
+
+void
+HLTrigReport::endRun(edm::Run const&, edm::EventSetup const&)
+{
+  if (reportByRun_)
+    dumpReport();
+}
+
+void
 HLTrigReport::endJob()
 {
-  dumpReport();
-  return;
+  if (reportByJob_)
+    dumpReport();
 }
 
 void
