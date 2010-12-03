@@ -14,7 +14,7 @@ class FitSlices
 {
 public:
   FitSlices() :
-    rebinX(2), rebinY(2), rebinZ(2), sigma2(0.1), sigma2Min(0.), sigma2Max(10.)
+    rebinX(2), rebinY(2), rebinZ(2), sigma2(0.1), sigma2Min(0.), sigma2Max(10.), useChi2(false)
   {}
 
   // virtual void fit(const TString & inputFileName = "0_MuScleFit.root", const TString & outputFileName = "BiasCheck_0.root",
@@ -30,6 +30,7 @@ public:
 		TFile * inputFile, TDirectory * outputFile)
   {
     FitXslices fitXslices;
+    fitXslices.fitter()->useChi2_ = useChi2;
     fitXslices.fitter()->initMean( xMean, xMin, xMax );
     fitXslices.fitter()->initSigma( sigma, sigmaMin, sigmaMax );
     fitXslices.fitter()->initSigma2( sigma2, sigma2Min, sigma2Max );
@@ -41,7 +42,9 @@ public:
     std::cout << "Fit slices: initialization complete" << std::endl;
     
     //r.c. patch --------------
-    if (histoName=="hRecBestResVSMu_MassVSEtaPhiPlus" || histoName=="hRecBestResVSMu_MassVSEtaPhiMinus") 
+    if (histoName=="hRecBestResVSMu_MassVSEtaPhiPlus" || histoName=="hRecBestResVSMu_MassVSEtaPhiMinus" ||
+	histoName=="hRecBestResVSMu_MassVSPhiPlusPhiMinus" || histoName=="hRecBestResVSMu_MassVSEtaPlusEtaMinus"
+	)
       {
 	TH3* histoPt3 = (TH3*)inputFile->FindObjectAny(histoName);
 	outputFile->mkdir(dirName);
@@ -72,24 +75,23 @@ public:
   unsigned int rebinY;
   unsigned int rebinZ;
   double sigma2, sigma2Min, sigma2Max;
+  bool useChi2;
 
   TH3* rebin3D(const TH3* histo3D)
   {
     unsigned int zbins=histo3D->GetNbinsZ();
     // std::cout<< "number of bins in z (and tempHisto) --> "<<zbins<<std::endl;
     std::map<unsigned int, TH2*> twoDprojection;
-    for(int z=1;z<zbins;++z)
-      {
-	histo3D->GetZaxis()->SetRange(z,z);
-	TH2*tempHisto= (TH2*)histo3D->Project3D("xy");
-	std::stringstream ss;
-	ss << z;
-	tempHisto->SetName(TString(tempHisto->GetName())+ss.str());
-	tempHisto->RebinX(rebinX);
-	tempHisto->RebinY(rebinY);
-	twoDprojection.insert(std::make_pair(z,tempHisto));
-	
-      }
+    for(unsigned int z=1;z<zbins;++z) {
+      histo3D->GetZaxis()->SetRange(z,z);
+      TH2*tempHisto= (TH2*)histo3D->Project3D("xy");
+      std::stringstream ss;
+      ss << z;
+      tempHisto->SetName(TString(tempHisto->GetName())+ss.str());
+      tempHisto->RebinX(rebinX);
+      tempHisto->RebinY(rebinY);
+      twoDprojection.insert(std::make_pair(z,tempHisto));
+    }
     unsigned int xbins, ybins;
     TH3* rebinned3D= new TH3(TString(histo3D->GetName())+"_rebinned",histo3D->GetTitle(),
 			    xbins,histo3D->GetXaxis()->GetXmin(),histo3D->GetXaxis()->GetXmax(),

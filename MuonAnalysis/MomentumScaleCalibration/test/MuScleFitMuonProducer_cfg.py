@@ -39,7 +39,7 @@ process.MuScleFitMuonProducer = cms.EDProducer(
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('myOutputFile.root')
 )
-  
+
 process.p = cms.Path(process.MuScleFitMuonProducer)
 
 process.e = cms.EndPath(process.out)

@@ -38,6 +38,8 @@ public:
 
     fitter_.initAlpha(3., 0., 4.);
     fitter_.initN(1, 0., 100.);
+
+    fitter_.useChi2_ = false;
   }
 
   FitWithRooFit * fitter()
@@ -225,6 +227,7 @@ public:
     unsigned int i=1;
     for( ; it != slices.end(); ++it, ++i ) {
       fitsCanvas->cd(i);
+
       fitter_.fit(it->second, signalType, backgroundType, xMin, xMax);
       
       RooRealVar * mean = fitter_.mean();

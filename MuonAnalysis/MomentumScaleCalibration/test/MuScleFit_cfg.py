@@ -3,23 +3,23 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 
-process.source = cms.Source(
-    "PoolSource",
-    fileNames = cms.untracked.vstring(
-      "file:/home/demattia/3C83C26B-8B91-DF11-9CE6-90E6BAE8CC13.root"
-      # "file:/home/demattia/MuScleFit/PatMuons/onia2MuMuPAT_Summer10-DESIGN_36_V8-X0MAX-v2.root"
-    )
-)
-
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
-)
+# process.source = cms.Source(
+#     "PoolSource",
+#     fileNames = cms.untracked.vstring(
+#       "file:/home/demattia/3C83C26B-8B91-DF11-9CE6-90E6BAE8CC13.root"
+#       # "file:/home/demattia/MuScleFit/PatMuons/onia2MuMuPAT_Summer10-DESIGN_36_V8-X0MAX-v2.root"
+#     )
+# )
+# 
+# process.maxEvents = cms.untracked.PSet(
+#     input = cms.untracked.int32(1000)
+# )
 
 # Use this when running on a tree
-# process.source = cms.Source("EmptySource")
-# process.maxEvents = cms.untracked.PSet(
-#     input = cms.untracked.int32(0)
-# )
+process.source = cms.Source("EmptySource")
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(0)
+)
 
 process.looper = cms.Looper(
     "MuScleFit",
@@ -28,10 +28,10 @@ process.looper = cms.Looper(
     MaxEventsFromRootTree = cms.int32(-1),
     # Specify a file if you want to read events from a root tree in a local file.
     # In this case the input source should be an empty source with 0 events.
-    InputRootTreeFileName = cms.string(""),
+    InputRootTreeFileName = cms.string("/home/demattia/MuScleFit/TreeConversion/NewTree/newTree_oniaSel_upTo148068_19invpb.root"),
     # Specify the file name where you want to save a root tree with the muon pairs.
     # Leave empty if no file should be written.
-    OutputRootTreeFileName = cms.string("newTree.root"),
+    OutputRootTreeFileName = cms.string(""),
 
     # Choose the kind of muons you want to run on
     # -------------------------------------------
@@ -76,6 +76,12 @@ process.looper = cms.Looper(
     doBackgroundFit =   cms.vint32(0, 0),
     doCrossSectionFit = cms.vint32(0, 0),
 
+    # Kinematic cuts on both muons
+    MinMuonEtaFirstRange = cms.untracked.double(-1.),
+    MaxMuonEtaFirstRange = cms.untracked.double(1.),
+    MinMuonEtaSecondRange = cms.untracked.double(-1.),
+    MaxMuonEtaSecondRange = cms.untracked.double(1.),
+
     # Use the probability file or not. If not it will perform a simpler selection taking the muon pair with
     # invariant mass closer to the pdf value and will crash if some fit is attempted.
     UseProbsFile = cms.untracked.bool(True),
@@ -90,10 +96,8 @@ process.looper = cms.Looper(
     # ---------------
     OutputFileName = cms.untracked.string('MuScleFit.root'),
 
-
     # Fit parameters and fix flags (1 = use par)
     # ==========================================
-
 
     # BiasType=0 means no bias to muon momenta
     # ----------------------------------------

@@ -34,16 +34,18 @@ public:
 
     fitter1.rebinZ = 1; // 2 for Z
 
-    fitter1.rebinX = 5;
+    fitter1.useChi2 = false;
+
+    fitter1.rebinX = 2;
     fitter1.sigma2 = 1.;
-    //fitter1.fit(fileNum1+"_MuScleFit.root", "BiasCheck_"+fileNum1+".root", "crystalBall", "exponential", 3.095, 2.8, 3.2, 0.04, 0., 0.1);
-    fitter1.fit(fileNum1+"_MuScleFit.root", "BiasCheck_"+fileNum1+".root", "voigtian", "", 91, 80, 100, 2, 0.1, 10);
+    fitter1.fit(fileNum1+"_MuScleFit.root", "BiasCheck_"+fileNum1+".root", "crystalBall", "exponential", 3.095, 2.8, 3.4, 0.04, 0., 0.);
+    // fitter1.fit(fileNum1+"_MuScleFit.root", "BiasCheck_"+fileNum1+".root", "voigtian", "", 91, 80, 100, 2, 0.1, 10);
 
     if( fileNum2 != "" ) {
-      fitter2.rebinX = 5;
+      fitter2.rebinX = 2;
       fitter2.sigma2 = 1.;
-      //fitter2.fit(fileNum2+"_MuScleFit.root", "BiasCheck_"+fileNum2+".root", "crystalBall", "exponential", 3.095, 2.8, 3.2, 0.04, 0., 0.1);    
-      fitter2.fit(fileNum2+"_MuScleFit.root", "BiasCheck_"+fileNum2+".root", "voigtian", "", 91, 80, 100, 2, 0.1, 10);
+      fitter2.fit(fileNum2+"_MuScleFit.root", "BiasCheck_"+fileNum2+".root", "crystalBall", "exponential", 3.095, 2.8, 3.4, 04, 0., 0.);    
+      // fitter2.fit(fileNum2+"_MuScleFit.root", "BiasCheck_"+fileNum2+".root", "voigtian", "", 91, 80, 100, 2, 0.1, 10);
  
     }
 
@@ -65,8 +67,8 @@ public:
     //r.c. -----------------
 
 
-    compare("MassVsPhiPlus", "uniform", -3.14, 3.14, "muon(+) #phi", "Mass (GeV)");
-    compare("MassVsPhiMinus", "uniform", -3.14, 3.14, "muon(-) #phi", "Mass (GeV)");
+    // compare("MassVsPhiPlus", "uniform", -3.14, 3.14, "muon(+) #phi", "Mass (GeV)");
+    // compare("MassVsPhiMinus", "uniform", -3.14, 3.14, "muon(-) #phi", "Mass (GeV)");
 
     // compare("MassVsPhiPlus", "sinusoidal", -3.14, 3.14, "muon(+) #phi", "Mass (GeV)");
     // compare("MassVsPhiMinus", "sinusoidal", -3.14, 3.14, "muon(-) #phi", "Mass (GeV)");

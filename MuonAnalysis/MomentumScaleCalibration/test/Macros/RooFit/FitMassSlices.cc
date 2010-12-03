@@ -62,7 +62,6 @@ class FitMassSlices : public FitSlices
              signalType, backgroundType,
              inputFile, dir);
 
-
     fitSlice(histoBaseName+"_MassVSPhiPlus", histoBaseTitle+"PhiPlus",
     	     xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
     	     signalType, backgroundType,
@@ -72,6 +71,16 @@ class FitMassSlices : public FitSlices
     	     xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
     	     signalType, backgroundType,
     	     inputFile, dir);
+
+    fitSlice(histoBaseName+"_MassVSPhiPlusPhiMinus", histoBaseTitle+"PhiPlusPhiMinus",
+             xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
+             signalType, backgroundType,
+             inputFile, dir);
+
+    fitSlice(histoBaseName+"_MassVSEtaPlusEtaMinus", histoBaseTitle+"EtaPlusEtaMinus",
+             xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
+             signalType, backgroundType,
+             inputFile, dir);
 
     if( outputFile != 0 ) {
       outputFile->Write();
