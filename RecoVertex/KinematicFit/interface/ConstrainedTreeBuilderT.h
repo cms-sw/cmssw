@@ -206,7 +206,7 @@ ConstrainedTreeBuilderT::covarianceMatrix(std::vector<RefCountedKinematicParticl
   for(  int i_int=0; i_int!=size; ++i_int) {
     RefCountedKinematicParticle const & i = rPart[i_int];   
     //vertex position related components of the matrix
-    double a_i = -0.29979246*(i)->currentState().particleCharge() *
+    double a_i = - (i)->currentState().particleCharge() *
       (i)->magneticField()->inInverseGeV((i)->currentState().globalPosition()).z();
     upper(0,0) = 1;
     upper(1,1) = 1;
