@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_10_0/pre7/GRun/V3
+# /dev/CMSSW_3_10_0/pre8/GRun/V1
 
 import FWCore.ParameterSet.Config as cms
 
@@ -8,11 +8,11 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetBTau_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetBTau_selector.l1tResults = cms.InputTag('')
 streamA_datasetBTau_selector.throw      = cms.bool(False)
-streamA_datasetBTau_selector.triggerConditions = cms.vstring('HLT_BTagMu_DiJet10U_v4', 
-    'HLT_BTagMu_DiJet20U_Mu5_v4', 
-    'HLT_BTagMu_DiJet20U_v4', 
-    'HLT_BTagMu_DiJet30U_Mu5_v4', 
-    'HLT_BTagMu_DiJet30U_v4', 
+streamA_datasetBTau_selector.triggerConditions = cms.vstring('HLT_BTagMu_DiJet10U_v3', 
+    'HLT_BTagMu_DiJet20U_Mu5_v3', 
+    'HLT_BTagMu_DiJet20U_v3', 
+    'HLT_BTagMu_DiJet30U_Mu5_v3', 
+    'HLT_BTagMu_DiJet30U_v3', 
     'HLT_DoubleIsoTau15_OneLeg_Trk5_v4', 
     'HLT_DoubleIsoTau15_Trk5_v4', 
     'HLT_SingleIsoTau20_Trk15_MET25_v4', 
@@ -37,7 +37,7 @@ streamA_datasetCosmics_selector.l1tResults = cms.InputTag('')
 streamA_datasetCosmics_selector.throw      = cms.bool(False)
 streamA_datasetCosmics_selector.triggerConditions = cms.vstring('HLT_L1MuOpen_AntiBPTX_v2', 
     'HLT_L1Tech_BSC_halo', 
-    'HLT_L2Mu0_NoVertex_v2', 
+    'HLT_L2Mu0_NoVertex', 
     'HLT_RPCBarrelCosmics', 
     'HLT_TrackerCosmics')
 
@@ -174,67 +174,67 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMu_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMu_selector.l1tResults = cms.InputTag('')
 streamA_datasetMu_selector.throw      = cms.bool(False)
-streamA_datasetMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu3_HT50U_v4', 
-    'HLT_DoubleMu3_v3', 
-    'HLT_DoubleMu5_v2', 
-    'HLT_IsoMu11_v5', 
-    'HLT_IsoMu13_v5', 
-    'HLT_IsoMu15_v5', 
-    'HLT_IsoMu17_v5', 
-    'HLT_IsoMu9_PFTau15_v3', 
-    'HLT_IsoMu9_v5', 
-    'HLT_L2DoubleMu20_NoVertex_v2', 
-    'HLT_Mu11_Ele8_v2', 
-    'HLT_Mu11_PFTau15_v3', 
-    'HLT_Mu11_v2', 
-    'HLT_Mu13_v2', 
-    'HLT_Mu15_v2', 
-    'HLT_Mu17_v2', 
-    'HLT_Mu19_v2', 
-    'HLT_Mu21_v2', 
-    'HLT_Mu30_NoVertex_v2', 
-    'HLT_Mu3_Ele8_HT70U_v2', 
-    'HLT_Mu5_Ele13_v3', 
-    'HLT_Mu5_Ele17_v3', 
-    'HLT_Mu5_HT100U_v4', 
-    'HLT_Mu5_HT70U_v4', 
-    'HLT_Mu5_Jet50U_v4', 
-    'HLT_Mu5_Jet70U_v4', 
-    'HLT_Mu5_MET45_v4', 
-    'HLT_Mu7_Photon13_Cleaned_L1R_v2', 
-    'HLT_Mu8_Ele8_v2', 
-    'HLT_Mu9_v2')
+streamA_datasetMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu3_HT50U_v3', 
+    'HLT_DoubleMu3_v2', 
+    'HLT_DoubleMu5_v1', 
+    'HLT_IsoMu11_v4', 
+    'HLT_IsoMu13_v4', 
+    'HLT_IsoMu15_v4', 
+    'HLT_IsoMu17_v4', 
+    'HLT_IsoMu9_PFTau15_v2', 
+    'HLT_IsoMu9_v4', 
+    'HLT_L2DoubleMu20_NoVertex_v1', 
+    'HLT_Mu11', 
+    'HLT_Mu11_Ele8_v1', 
+    'HLT_Mu11_PFTau15_v2', 
+    'HLT_Mu13_v1', 
+    'HLT_Mu15_v1', 
+    'HLT_Mu17_v1', 
+    'HLT_Mu19_v1', 
+    'HLT_Mu21_v1', 
+    'HLT_Mu30_NoVertex_v1', 
+    'HLT_Mu3_Ele8_HT70U_v1', 
+    'HLT_Mu5_Ele13_v2', 
+    'HLT_Mu5_Ele17_v2', 
+    'HLT_Mu5_HT100U_v3', 
+    'HLT_Mu5_HT70U_v3', 
+    'HLT_Mu5_Jet50U_v3', 
+    'HLT_Mu5_Jet70U_v3', 
+    'HLT_Mu5_MET45_v3', 
+    'HLT_Mu7_Photon13_Cleaned_L1R_v1', 
+    'HLT_Mu8_Ele8_v1', 
+    'HLT_Mu9')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuMonitor_selector
 streamA_datasetMuMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMuMonitor_selector.l1tResults = cms.InputTag('')
 streamA_datasetMuMonitor_selector.throw      = cms.bool(False)
-streamA_datasetMuMonitor_selector.triggerConditions = cms.vstring('HLT_DoubleMu0_v2', 
+streamA_datasetMuMonitor_selector.triggerConditions = cms.vstring('HLT_DoubleMu0', 
     'HLT_L1DoubleMuOpen', 
     'HLT_L1Mu20', 
     'HLT_L1Mu7_v1', 
     'HLT_L1MuOpen_DT_v2', 
     'HLT_L1MuOpen_v2', 
-    'HLT_L2DoubleMu0_v2', 
-    'HLT_L2Mu30_v2', 
-    'HLT_L2Mu7_v2', 
-    'HLT_Mu0_v3', 
-    'HLT_Mu3_v3', 
-    'HLT_Mu5_v2', 
-    'HLT_Mu7_v2')
+    'HLT_L2DoubleMu0', 
+    'HLT_L2Mu30_v1', 
+    'HLT_L2Mu7_v1', 
+    'HLT_Mu0_v2', 
+    'HLT_Mu3_v2', 
+    'HLT_Mu5', 
+    'HLT_Mu7')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuOnia_selector
 streamA_datasetMuOnia_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMuOnia_selector.l1tResults = cms.InputTag('')
 streamA_datasetMuOnia_selector.throw      = cms.bool(False)
-streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_DoubleMu0_Quarkonium_v2', 
-    'HLT_Mu0_TkMu0_OST_Jpsi_Tight_v4', 
-    'HLT_Mu3_TkMu0_OST_Jpsi_Tight_v4', 
-    'HLT_Mu3_Track3_Jpsi_v4', 
-    'HLT_Mu3_Track5_Jpsi_v4', 
-    'HLT_Mu5_L2Mu0_v2', 
-    'HLT_Mu5_TkMu0_OST_Jpsi_Tight_v3', 
-    'HLT_Mu5_Track0_Jpsi_v3')
+streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_DoubleMu0_Quarkonium_v1', 
+    'HLT_Mu0_TkMu0_OST_Jpsi_Tight_v3', 
+    'HLT_Mu3_TkMu0_OST_Jpsi_Tight_v3', 
+    'HLT_Mu3_Track3_Jpsi_v3', 
+    'HLT_Mu3_Track5_Jpsi_v3', 
+    'HLT_Mu5_L2Mu0', 
+    'HLT_Mu5_TkMu0_OST_Jpsi_Tight_v2', 
+    'HLT_Mu5_Track0_Jpsi_v2')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMultiJet_selector
 streamA_datasetMultiJet_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
