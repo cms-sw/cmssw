@@ -150,6 +150,10 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
 	ref_hist1[nh1]->SetStats(kFALSE);
 	val_hist1[nh1]->SetStats(kFALSE);
       }
+      else {
+	ref_hist1[nh1]->SetStats(kTRUE);
+	val_hist1[nh1]->SetStats(kTRUE);
+      }
 
       //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
       //xAxis

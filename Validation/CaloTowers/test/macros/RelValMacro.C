@@ -159,7 +159,13 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       }
       
       //Set the colors, styles, titles, stat boxes and format axes for the histograms 
-      if (StatSwitch != "Stat" && StatSwitch != "Statrv") ref_hist1[nh1]->SetStats(kFALSE);   
+      ref_hist1[nh1]->SetStats(kTRUE);
+      val_hist1[nh1]->SetStats(kTRUE);
+
+      if (StatSwitch != "Stat" && StatSwitch != "Statrv") {
+        ref_hist1[nh1]->SetStats(kFALSE);
+        val_hist1[nh1]->SetStats(kFALSE);
+      }
 
       //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
       //xAxis
