@@ -152,8 +152,9 @@ KinematicConstrainedVertexUpdatorT< nTrk, nConstraint >::update(const ROOT::Math
   
   //refitted covariance 
   ROOT::Math::SMatrix<double,3+7*nTrk,3+7*nTrk,ROOT::Math::MatRepSym<double,3+7*nTrk> > prod = ROOT::Math::SimilarityT(g,v_g_sym);
-  ROOT::Math::AssignSym::Evaluate(prod, inCov * prod); 
-  ROOT::Math::AssignSym::Evaluate(prod, prod * inCov); 
+  ROOT::Math::SMatrix<double,3+7*nTrk,3+7*nTrk,ROOT::Math::MatRepSym<double,3+7*nTrk> > prod1;
+  ROOT::Math::AssignSym::Evaluate(prod1, inCov * prod); 
+  ROOT::Math::AssignSym::Evaluate(prod, prod1 * inCov); 
   inCov -= prod;
   
   pCov = inCov.template Sub< ROOT::Math::SMatrix<double,3,3,ROOT::Math::MatRepSym<double,3> > >(0,0);
