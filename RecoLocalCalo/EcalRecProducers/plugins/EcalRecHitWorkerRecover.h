@@ -4,9 +4,9 @@
 /** \class EcalRecHitWorkerRecover
   *  Algorithms to recover dead channels
   *
-  *  $Id: EcalRecHitWorkerRecover.h,v 1.6 2010/09/29 16:35:05 ferriff Exp $
-  *  $Date: 2010/09/29 16:35:05 $
-  *  $Revision: 1.6 $
+  *  $Id: EcalRecHitWorkerRecover.h,v 1.7 2010/12/03 12:58:16 argiro Exp $
+  *  $Date: 2010/12/03 12:58:16 $
+  *  $Revision: 1.7 $
   */
 
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerBaseClass.h"
@@ -47,6 +47,7 @@ class EcalRecHitWorkerRecover : public EcalRecHitWorkerBaseClass {
 
                 // isolated dead channels
                 edm::ESHandle<CaloTopology> caloTopology_;
+		edm::ESHandle<CaloGeometry> caloGeometry_;
                 double singleRecoveryThreshold_;
                 std::string singleRecoveryMethod_;
                 bool killDeadChannels_;
