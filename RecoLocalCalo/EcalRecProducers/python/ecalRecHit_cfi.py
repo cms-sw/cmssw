@@ -32,7 +32,7 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     recoverEBVFE  = cms.bool(False),
     recoverEEVFE  = cms.bool(False),
     recoverEBFE = cms.bool(True),
-    recoverEEFE = cms.bool(False),
+    recoverEEFE = cms.bool(True),
     # --- logWarnings for saturated DeadFEs
     # if the logWarningThreshold is negative the Algo will not try recovery (in EE is not tested we may need negative threshold e.g. -1.e+9)
     # if you want to enable recovery but you don't wish to throw logWarnings put the logWarningThresholds very high e.g +1.e+9
