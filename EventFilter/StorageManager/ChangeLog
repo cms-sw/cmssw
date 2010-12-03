@@ -1,3 +1,11 @@
+2010-12-03 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-05-00
+	* Rework SM hyperdaq page: add time stamp and hostname to banner, use
+	  absolute time in throughput monitoring page, bring consumer statistics
+	  page in line with other pages.
+	* Replace a couple of size()==0 calls with empty().
+
 2010-12-01 William Tanenbaum <wmtan@fnal.gov>
 
 	* tag V06-04-09
