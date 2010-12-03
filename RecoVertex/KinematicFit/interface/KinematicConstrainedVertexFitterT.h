@@ -276,7 +276,8 @@ KinematicConstrainedVertexFitterT< nTrk, nConstraint>::fit(std::vector<RefCounte
     return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
   } 
   
-  
+  // std::cout << "new full cov matrix" << std::endl;
+  // std::cout << refCCov << std::endl;  
   
   iterations = nit;
   csum = eq;

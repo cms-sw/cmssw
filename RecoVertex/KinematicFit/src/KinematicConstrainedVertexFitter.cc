@@ -189,6 +189,10 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(std::vector<RefCou
    return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
  } 
 
+  // std::cout << "old full cov matrix" << std::endl;
+  // std::cout << refCCov << std::endl;
+
+
 // cout<<"number of relinearizations "<<nit<<endl;
 // cout<<"value obtained: "<<eq<<endl;
   iterations = nit;
