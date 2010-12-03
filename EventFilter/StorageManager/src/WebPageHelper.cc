@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.50 2010/12/02 15:48:55 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.51 2010/12/03 15:56:48 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #ifdef __APPLE__
@@ -369,8 +369,8 @@ XHTMLMaker::Node* WebPageHelper::createWebPageBody
   header = maker.addNode("b", header);
   maker.addText(header, _appDescriptor->getClassName());
 
-  const std::string cvsVersion = "$Name:$";
-  if ( cvsVersion.length() > 7 ) {
+  const std::string cvsVersion = "$Name:  $";
+  if ( cvsVersion.length() > 9 ) {
     const std::string smVersion = "(" + cvsVersion.substr(6, cvsVersion.length()-8) + ")";
     maker.addText(instanceTableDiv, smVersion);
   }
