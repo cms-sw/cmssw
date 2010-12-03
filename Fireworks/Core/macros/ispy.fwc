@@ -557,22 +557,22 @@
       <string>98</string>
     </config>
     <config name="EventInfoTextSize" version="0">
-      <string>0.0329312</string>
+      <string>0.0293272</string>
     </config>
     <config name="EventInfoPosX" version="0">
-      <string>0.129932</string>
+      <string>0.13801</string>
     </config>
     <config name="EventInfoPosY" version="0">
-      <string>0.995493</string>
+      <string>0.989628</string>
     </config>
     <config name="LogoSize" version="0">
-      <string>0.122418</string>
+      <string>0.092233</string>
     </config>
     <config name="LogoPosX" version="0">
-      <string>0.00449612</string>
+      <string>0.0217</string>
     </config>
     <config name="LogoPosY" version="0">
-      <string>0.996717</string>
+      <string>0.983521</string>
     </config>
     <config name="cameraMatrix0Plain3D" version="0">
       <string>-0.423957</string>
