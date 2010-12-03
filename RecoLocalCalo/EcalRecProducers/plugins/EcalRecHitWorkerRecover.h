@@ -1,13 +1,12 @@
 #ifndef RecoLocalCalo_EcalRecProducers_EcalRecHitWorkerRecover_hh
 #define RecoLocalCalo_EcalRecProducers_EcalRecHitWorkerRecover_hh
 
-/** \class EcalRecHitSimpleAlgo
-  *  Simple algoritm to make rechits from uncalibrated rechits
+/** \class EcalRecHitWorkerRecover
+  *  Algorithms to recover dead channels
   *
-  *  $Id: EcalRecHitWorkerRecover.h,v 1.5 2010/09/29 15:31:27 ferriff Exp $
-  *  $Date: 2010/09/29 15:31:27 $
-  *  $Revision: 1.5 $
-  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
+  *  $Id: EcalRecHitWorkerRecover.h,v 1.6 2010/09/29 16:35:05 ferriff Exp $
+  *  $Date: 2010/09/29 16:35:05 $
+  *  $Revision: 1.6 $
   */
 
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerBaseClass.h"
@@ -15,12 +14,11 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-//#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-//#include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
-//#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
+
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
@@ -39,13 +37,12 @@ class EcalRecHitWorkerRecover : public EcalRecHitWorkerBaseClass {
         protected:
 
                 void insertRecHit( const EcalRecHit &hit, EcalRecHitCollection &collection );
-                bool alreadyInserted( const DetId & id );
+		float recCheckCalib(float energy, int ieta);
+                bool  alreadyInserted( const DetId & id );
+		float estimateEnergy(int ieta, EcalRecHitCollection* hits, 
+				     std::set<DetId> sId, 
+				     std::vector<DetId> vId);
 
-                //edm::ESHandle<EcalIntercalibConstants> ical;
-                //edm::ESHandle<EcalTimeCalibConstants> itime;
-                //edm::ESHandle<EcalADCToGeVConstant> agc;
-                //std::vector<int> v_chstatus_;
-                //edm::ESHandle<EcalChannelStatus> chStatus;
                 edm::ESHandle<EcalLaserDbService> laser;
 
                 // isolated dead channels
@@ -75,6 +72,7 @@ class EcalRecHitWorkerRecover : public EcalRecHitWorkerBaseClass {
                 edm::ESHandle<CaloSubdetectorGeometry> pEEGeom_;
                 const CaloSubdetectorGeometry * ebGeom_;
                 const CaloSubdetectorGeometry * eeGeom_;
+		const CaloGeometry* geo_;
 
                 EcalRecHitSimpleAlgo * rechitMaker_;
 
