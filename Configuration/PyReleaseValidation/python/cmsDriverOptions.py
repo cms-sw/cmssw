@@ -449,6 +449,8 @@ if ("FASTSIM" in options.step and not "VALIDATION" in options.step) or "HARVESTI
     addEndJob = False
 if ("SKIM" in options.step and not "RECO" in options.step):
     addEndJob = False
+if ("ENDJOB" in options.step):
+    addEndJob = False
 if addEndJob:    
     options.step=options.step+',ENDJOB'
 print options.step
