@@ -13,7 +13,7 @@ HLT_L1MuOpen_DT
 HLT_L1MuOpen_AntiBPTX
 HLT_L1Mu
 HLT_L1Mu20
-HLT_Mu20_NoVertex
+HLT_Mu20_NoVertex_v2
 HLT_L1DoubleMuOpen
 HLT_L1SingleEG2
 HLT_L1SingleEG5
@@ -51,7 +51,7 @@ HLT_TechTrigHCALNoise
 HLT_L1_BPTX
 HLT_L1_BPTX_MinusOnly
 HLT_L1_BPTX_PlusOnly
-HLT_L2Mu0_NoVertex
+HLT_L2Mu0_v2_NoVertex_v2
 HLT_L1Bsc2Plus_BptxPlus
 HLT_LogMonitor
 DQM_FEDIntegrity
