@@ -108,6 +108,7 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
     for (unsigned int kk=0; kk<fStates.size(); kk++) {
       std::cout <<  fStates[kk]->currentState().globalMomentum() << 
 	fStates[kk]->currentState().globalPosition() << std::endl;
+      std::cout <<  fStates[kk]->currentState().kinematicParametersError().matrix()<<std::endl;
     }
   } else       std::cout << "old invalid " << kcvFitter_->getNit() << std::endl;
   
@@ -122,6 +123,7 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
     for (unsigned int kk=0; kk<fStates.size(); kk++) {
       std::cout <<  fStates[kk]->currentState().globalMomentum() << 
 	fStates[kk]->currentState().globalPosition() << std::endl;
+      std::cout <<  fStates[kk]->currentState().kinematicParametersError().matrix()<<std::endl;
     }
   } else       std::cout << "new invalid " << kcvFitter.getNit() << std::endl;
 
