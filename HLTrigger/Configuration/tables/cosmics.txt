@@ -51,7 +51,7 @@ HLT_TechTrigHCALNoise
 HLT_L1_BPTX
 HLT_L1_BPTX_MinusOnly
 HLT_L1_BPTX_PlusOnly
-HLT_L2Mu0_v2_NoVertex_v2
+HLT_L2Mu0_NoVertex_v2
 HLT_L1Bsc2Plus_BptxPlus
 HLT_LogMonitor
 DQM_FEDIntegrity
