@@ -40,12 +40,9 @@ TString mainNamePt("hResolPtGenVSMu");
 TString mainNameCotgTheta("hResolCotgThetaGenVSMu");
 TString mainNamePhi("hResolPhiGenVSMu");
 
-void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNames,
-	   const bool doHalfEta, const int minEntries = 100, const int rebinX = 0, const int rebinY = 0 );
+void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNames, const bool doHalfEta, const int minEntries = 100 );
 
-void ResolDraw(const TString numString = "0", const bool doHalfEta = false,
-	       const int minEntries = 100, const int rebinX = 0, const int rebinY = 0)
-{
+void ResolDraw(const TString numString = "0", const bool doHalfEta = false, const int minEntries = 100) {
   // in an interactive ROOT session, edit the file names
   // Target and FileList, then
   // root > .L hadd.C
@@ -97,14 +94,13 @@ void ResolDraw(const TString numString = "0", const bool doHalfEta = false,
   // List of Files
   FileList->Add( TFile::Open(numString+"_MuScleFit.root") );    // 1
 
-  draw( Target, FileList, vecNames, doHalfEta, minEntries, rebinX, rebinY );
+  draw( Target, FileList, vecNames, doHalfEta, minEntries );
 
   Target->Close();
 }
 
-void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNames,
-	   const bool doHalfEta, const int minEntries, const int rebinX, const int rebinY )
-{
+void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNames, const bool doHalfEta, const int minEntries ) {
+
   //  cout << "Target path: " << target->GetPath() << endl;
   TString path( (char*)strstr( target->GetPath(), ":" ) );
   path.Remove( 0, 2 );
@@ -147,21 +143,12 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
           // Perform different fits for different profiles
           TH2F *h2 = (TH2F*)obj;
 
-	  // Rebin X
           int xBins = h2->GetNbinsX();
-	  if( rebinX != 0 ) {
-            h2->RebinX(rebinX);
-            xBins /= rebinX;
-	  }
-          else if( xBins > 50 ) {
+          if( xBins > 50 ) {
             h2->RebinX(2);
             xBins /= 2;
           }
-	  // Rebin Y
-	  if( rebinY != 0 ) {
-            h2->RebinY(rebinY);
-	  }
-
+          // if( namesIt->Contains("PtGenVSMu_ResoVSPt") ) h2->RebinY(8);
           TH1D * h1 = h2->ProjectionX();
           TH1D * h1RMS = h2->ProjectionX();
           // h1->Clear();
@@ -295,7 +282,7 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
       // newdir is now the starting point of another round of merging
       // newdir still knows its depth within the target file via
       // GetPath(), so we can still figure out where we are in the recursion
-      draw( newdir, sourcelist, vecNames, doHalfEta, minEntries, rebinX, rebinY );
+      draw( newdir, sourcelist, vecNames, doHalfEta, minEntries );
     }
     else {
       // object is of no type that we know or can handle

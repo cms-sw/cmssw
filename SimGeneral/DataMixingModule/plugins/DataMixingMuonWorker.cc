@@ -46,11 +46,8 @@ namespace edm
     // Declare the products to produce
 
     DTDigiTagSig_           = ps.getParameter<edm::InputTag>("DTDigiTagSig");
-    DTdigi_collectionSig_   = ps.getParameter<edm::InputTag>("DTdigiCollectionSig");
     RPCDigiTagSig_          = ps.getParameter<edm::InputTag>("RPCDigiTagSig");
-    RPCdigi_collectionSig_  = ps.getParameter<edm::InputTag>("RPCdigiCollectionSig");
 
-    CSCDigiTagSig_                = ps.getParameter<edm::InputTag>("CSCDigiTagSig");
     CSCstripdigi_collectionSig_   = ps.getParameter<edm::InputTag>("CSCstripdigiCollectionSig");
     CSCwiredigi_collectionSig_    = ps.getParameter<edm::InputTag>("CSCwiredigiCollectionSig");
     CSCCompdigi_collectionSig_    = ps.getParameter<edm::InputTag>("CSCCompdigiCollectionSig");
@@ -91,7 +88,7 @@ namespace edm
     Handle<DTDigiCollection> pDTdigis; 
 
     // Get the digis from the event
-    if( e.getByLabel(DTDigiTagSig_.label(), pDTdigis) ) {
+    if( e.getByLabel(DTDigiTagSig_, pDTdigis) ) {
 
     //    LogInfo("DataMixingMuonWorker") << "total # DT Digis: " << DTdigis->size();
 
@@ -116,7 +113,7 @@ namespace edm
     // Get the digis from the event
     Handle<RPCDigiCollection> pRPCdigis; 
 
-    if( e.getByLabel(RPCDigiTagSig_.label(), pRPCdigis) ) {
+    if( e.getByLabel(RPCDigiTagSig_, pRPCdigis) ) {
 
     // Loop over digis, copying them to our own local storage
 
@@ -141,7 +138,7 @@ namespace edm
     // Get the digis from the event
     Handle<CSCStripDigiCollection> pCSCStripdigis; 
 
-    if( e.getByLabel(CSCDigiTagSig_.label(),CSCstripdigi_collectionSig_.label(), pCSCStripdigis) ) {
+    if( e.getByLabel(CSCstripdigi_collectionSig_, pCSCStripdigis) ) {
 
     //if(pCSCStripdigis.isValid() ) { std::cout << "Signal: have CSCStripDigis" << std::endl;}
     //else { std::cout << "Signal: NO CSCStripDigis" << std::endl;}
@@ -169,7 +166,7 @@ namespace edm
     // Get the digis from the event
     Handle<CSCWireDigiCollection> pCSCWiredigis; 
 
-    if( e.getByLabel(CSCDigiTagSig_.label(),CSCwiredigi_collectionSig_.label(), pCSCWiredigis) ) {
+    if( e.getByLabel(CSCwiredigi_collectionSig_, pCSCWiredigis) ) {
    
 
     //if(pCSCWiredigis.isValid() ) { std::cout << "Signal: have CSCWireDigis" << std::endl;}
@@ -201,7 +198,7 @@ namespace edm
 
     //std::cout << "CSCComp label: " << CSCDigiTagSig_.label() << " " << CSCCompdigi_collectionSig_.label() << std::endl;
 
-    if( e.getByLabel(CSCDigiTagSig_.label(),CSCCompdigi_collectionSig_.label(), pCSCComparatordigis) ) {
+    if( e.getByLabel(CSCCompdigi_collectionSig_, pCSCComparatordigis) ) {
    
 
       //if(pCSCComparatordigis.isValid() ) { std::cout << "Signal: have CSCComparatorDigis" << std::endl;}

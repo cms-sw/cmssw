@@ -11,6 +11,7 @@ from DQM.DTMonitorModule.dtDQMOfflineSources_cff import *
 from DQM.RPCMonitorClient.RPCTier0Source_cff import *
 from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
 from DQM.EcalPreshowerMonitorModule.es_dqm_source_offline_cff import *
+from DQM.BeamMonitor.AlcaBeamMonitorHeavyIons_cff import *
 
 DQMOfflineHeavyIonsPreDPG = cms.Sequence( dqmDcsInfo *
                                           ecal_dqm_source_offline *
@@ -27,17 +28,22 @@ DQMOfflineHeavyIonsDPG = cms.Sequence( DQMOfflineHeavyIonsPreDPG *
 
 from DQMOffline.Muon.muonMonitors_cff import *
 #from DQMOffline.JetMET.jetMETDQMOfflineSource_cff import *
-#from DQMOffline.EGamma.egammaDQMOffline_cff import *
-#from DQMOffline.Trigger.DQMOffline_Trigger_cff import *
+from DQMOffline.EGamma.egammaDQMOffline_cff import *
+from DQMOffline.Trigger.DQMOffline_Trigger_cff import *
 #from DQMOffline.RecoB.PrimaryVertexMonitor_cff import *
-#from DQM.Physics.DQMPhysics_cff import *
+from DQM.Physics.DQMPhysics_cff import *
+
+triggerOfflineDQMSource.remove(jetMETHLTOfflineSource)
+egammaDQMOffline.remove(electronAnalyzerSequence)
+photonAnalysis.isHeavyIon = True
 
 DQMOfflineHeavyIonsPrePOG = cms.Sequence( muonMonitors 
                                           #* jetMETDQMOfflineSource
-                                          #* egammaDQMOffline
-                                          #* triggerOfflineDQMSource
+                                          * egammaDQMOffline
+                                          * triggerOfflineDQMSource
                                           #* pvMonitor
-                                          #* dqmPhysics
+                                          * alcaBeamMonitor
+                                          * dqmPhysicsHI
                                           )
 
 DQMOfflineHeavyIonsPOG = cms.Sequence( DQMOfflineHeavyIonsPrePOG *

@@ -55,7 +55,6 @@ private:
 
   unsigned int nall;
 
-  bool saveOnlyHighestPtCandidate_;
 
 };
 
@@ -89,8 +88,7 @@ using namespace reco;
 WMuNuProducer::WMuNuProducer( const ParameterSet & cfg ) :
       // Input collections
       muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
-      metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("met"))),
-      saveOnlyHighestPtCandidate_(cfg.getUntrackedParameter<bool> ("OnlyHighestPtCandidate", true))
+      metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("met")))
 {
   produces< WMuNuCandidateCollection >();
 }
@@ -138,9 +136,7 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
 
 
      // Fill Collection with n muons --> n W Candidates ordered by pt
-
-     WMuNuCandidate* WCandSel = 0; double ptmax=0; int NCands=0;
-
+ 
      for (int indx=0; indx<muonCollectionSize; indx++){ 
             edm::Ptr<reco::Muon> muon(muonCollection,indx);
             if (!muon->isGlobalMuon()) continue;
@@ -149,18 +145,17 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
  
       // Build WMuNuCandidate
       LogTrace("")<<"Building WMuNu Candidate!"; 
-      WMuNuCandidate* WCand = new WMuNuCandidate(muon,met);  NCands++;
+      WMuNuCandidate* WCand = new WMuNuCandidate(muon,met); 
       LogTrace("") << "\t... W mass, W_et: "<<WCand->massT()<<", "<<WCand->eT()<<"[GeV]";
       LogTrace("") << "\t... W_px, W_py: "<<WCand->px()<<", "<< WCand->py() <<"[GeV]";
       LogTrace("") << "\t... acop:  " << WCand->acop();
       LogTrace("") << "\t... Muon pt, px, py, pz: "<<WCand->getMuon().pt()<<", "<<WCand->getMuon().px()<<", "<<WCand->getMuon().py()<<", "<< WCand->getMuon().pz()<<" [GeV]";
       LogTrace("") << "\t... Met  met_et, met_px, met_py : "<<WCand->getNeutrino().pt()<<", "<<WCand->getNeutrino().px()<<", "<<WCand->getNeutrino().py()<<" [GeV]";
-  	if (!saveOnlyHighestPtCandidate_) WMuNuCandidates->push_back(*WCand);
-      else if (muon->pt() > ptmax) { ptmax=muon->pt(); WCandSel=WCand;}   
-      } 
+  	WMuNuCandidates->push_back(*WCand);
+       } 
 
-      if(!saveOnlyHighestPtCandidate_) {std::sort(WMuNuCandidates->begin(),WMuNuCandidates->end(),ptComparator);}      
-      else if(NCands>0) {WMuNuCandidates->push_back(*WCandSel);}
+      std::sort(WMuNuCandidates->begin(),WMuNuCandidates->end(),ptComparator);      
+
       ev.put(WMuNuCandidates);
 
 }

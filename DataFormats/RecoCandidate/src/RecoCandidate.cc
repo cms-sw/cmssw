@@ -1,10 +1,15 @@
-// $Id: RecoCandidate.cc,v 1.13 2008/03/17 14:44:50 slava77 Exp $
+// $Id: RecoCandidate.cc,v 1.14 2008/07/18 15:48:32 gpetrucc Exp $
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace reco;
 
 RecoCandidate::~RecoCandidate() { }
+
+RecoCandidate * RecoCandidate::clone() const {
+   throw cms::Exception("LogicError", "reco::RecoCandidate is abstract, so it's clone() method can't be implemented.\n");
+}
 
 TrackRef RecoCandidate::track() const {
   return TrackRef();

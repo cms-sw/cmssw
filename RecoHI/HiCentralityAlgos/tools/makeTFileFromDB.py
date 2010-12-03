@@ -11,6 +11,10 @@ ivars.parseArguments()
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('DUMMY')
+
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = 'MC_38Y_V13::All'
+
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(13))
 process.source = cms.Source("EmptyIOVSource",
                             timetype = cms.string("runnumber"),
@@ -23,22 +27,16 @@ process.TFileService = cms.Service('TFileService',
                                    fileName = cms.string('centralityfile.root')
                                    )
 
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = "sqlite_file:CentralityTables.db"
-process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-                                      process.CondDBCommon,
-                                      toGet = cms.VPSet(cms.PSet(record = cms.string('HeavyIonRcd'),
-                                                                 tag = cms.string('TestTag_A01')
-                                                                 )
-                                                        )
-                                      )
+process.HeavyIonGlobalParameters = cms.PSet(
+       centralityVariable = cms.string("HFhits"),
+          nonDefaultGlauberModel = cms.string("AMPT_2760GeV"),
+          centralitySrc = cms.InputTag("hiCentrality")
+          )
 
 process.makeCentralityTableTFile = cms.EDAnalyzer('CentralityTableProducer',
+                                                  isMC = cms.untracked.bool(True),
                                                   makeDBFromTFile = cms.untracked.bool(False),
-                                                  makeTFileFromDB = cms.untracked.bool(True),
-                                                  inputTFile = cms.string("/net/hisrv0001/home/yetkin/CMSSW_3_5_2/src/RecoHI/HiCentralityAlgos/macros/test.root"),
-                                                  rootTag = cms.string("HFhitBins"),
-                                                  nBins = cms.int32(20)
+                                                  makeTFileFromDB = cms.untracked.bool(True)
                                                   )
 
 process.step  = cms.Path(process.makeCentralityTableTFile)

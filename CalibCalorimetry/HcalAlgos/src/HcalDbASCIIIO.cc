@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.56 2010/04/26 18:51:36 devildog Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.55 2010/02/26 07:09:46 kukartse Exp $
 //
 #include <vector>
 #include <string>
@@ -428,9 +428,9 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalChannelQuality* fObject
 //      {
     uint32_t mystatus;
     if (items[4] == "(hex)")
-      sscanf(items[5].c_str(),"%X", &mystatus);
+      sscanf(items[4].c_str(),"%X", &mystatus);
     else if (items[4] == "(dec)")
-      sscanf(items[5].c_str(),"%u", &mystatus);
+      sscanf(items[4].c_str(),"%u", &mystatus);
     else
       {
 	edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n value field must contain the base: one of (hex), (dec)" << std::endl;

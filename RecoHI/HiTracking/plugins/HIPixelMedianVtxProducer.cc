@@ -65,7 +65,7 @@ void HIPixelMedianVtxProducer::produce
 	std::vector<const reco::Track *> tracks;
 	for (unsigned int i=0; i<tracks_.size(); i++)
 	{
-		if (tracks_[i].pt() > thePtMin)
+	        if (tracks_[i].pt() > thePtMin && std::fabs(tracks_[i].vz()) < 100000.)
 		{
 			reco::TrackRef recTrack(trackCollection, i);
 			tracks.push_back( &(*recTrack));

@@ -5,12 +5,12 @@ from PhysicsTools.PFCandProducer.Tools.jetTools import jetAlgo
 
 
 #allPfJets = RecoJets.JetProducers.ic5PFJets_cfi.iterativeCone5PFJets.clone()
-pfJets = jetAlgo('AK5')
+allPfJets = jetAlgo('AK5')
 
-#pfJets.src = 'allPfJets'
-#pfJets.ptMin = 10
+pfJets.src = 'allPfJets'
+pfJets.ptMin = 10
 
 pfJetSequence = cms.Sequence(
-#    allPfJets *
+    allPfJets *
     pfJets 
     )

@@ -358,6 +358,7 @@ sub addProd()
     if (!exists $cache->{PACKS}{$pack}){$cache->{PACKS}{$pack}=[];}
     push @{$cache->{PACKS}{$pack}},$prod;
     if(exists $c->{USE}){&addDirectDeps($c->{USE},$cache->{PRODS}{$prod}{DEPS},$cache);}
+    if((exists $c->{EXPORT}) && (exists $c->{EXPORT}{USE})){&addDirectDeps($c->{EXPORT}{USE},$cache->{PRODS}{$prod}{DEPS},$cache);}
   }
 }
 

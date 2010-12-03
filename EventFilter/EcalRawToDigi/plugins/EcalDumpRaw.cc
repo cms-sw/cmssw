@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
 /*
- * $Id: EcalDumpRaw.cc,v 1.1 2010/06/30 08:46:20 pgras Exp $
+ * $Id: EcalDumpRaw.cc,v 1.1 2010/06/21 22:41:47 pgras Exp $
  *
  * Author: Ph Gras. CEA/IRFU - Saclay
  *
@@ -581,9 +581,9 @@ bool EcalDumpRaw::decode(const uint32_t* data, int iWord64, ostream& out){
         if(fedId_ < 628) tccType_ = ebmTcc_;
         else tccType_ = ebpTcc_;
       } else if(nTts_ == 16){//Inner EE TCC (TCC48)
-        tccType_ = eeOuterTcc_;
-      } else if(nTts_ == 28){//Outer EE TCC (TCC48)
         tccType_ = eeInnerTcc_;
+      } else if(nTts_ == 28){//Outer EE TCC (TCC48)
+        tccType_ = eeOuterTcc_;
       } else {
         cerr << "Error in #TT field of TCC block."
           "This field is normally used to determine type of TCC "

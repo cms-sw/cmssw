@@ -38,11 +38,11 @@ CaloTowerCreatorForTauHLT::~CaloTowerCreatorForTauHLT() {
 }
 
 void CaloTowerCreatorForTauHLT::produce( Event& evt, const EventSetup& ) {
-  Handle<CaloTowerCollection> caloTowers;
+  edm::Handle<CaloTowerCollection> caloTowers;
   evt.getByLabel( mtowers, caloTowers );
 
   // imitate L1 seeds
-  Handle<L1JetParticleCollection> jetsgen;
+  edm::Handle<L1JetParticleCollection> jetsgen;
   evt.getByLabel(mTauTrigger, jetsgen);
   std::auto_ptr<CaloTowerCollection> cands( new CaloTowerCollection );
   cands->reserve( caloTowers->size() );

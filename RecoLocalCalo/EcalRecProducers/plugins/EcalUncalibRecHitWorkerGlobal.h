@@ -5,9 +5,9 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using a weights method
   *
-  *  $Id: EcalUncalibRecHitWorkerGlobal.h,v 1.8 2010/07/28 15:10:03 innocent Exp $
-  *  $Date: 2010/07/28 15:10:03 $
-  *  $Revision: 1.8 $
+  *  $Id: EcalUncalibRecHitWorkerGlobal.h,v 1.17 2010/10/17 16:26:11 franzoni Exp $
+  *  $Date: 2010/10/17 16:26:11 $
+  *  $Revision: 1.17 $
   *  \author R. Bruneliere - A. Zabi
   */
 
@@ -76,8 +76,14 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
                 double EBtimeNconst_;
                 double EEtimeConstantTerm_;
                 double EEtimeNconst_;
-                double outOfTimeThreshEB_;
-                double outOfTimeThreshEE_;
+                double outOfTimeThreshG12pEB_;
+                double outOfTimeThreshG12mEB_;
+                double outOfTimeThreshG61pEB_;
+                double outOfTimeThreshG61mEB_;
+                double outOfTimeThreshG12pEE_;
+                double outOfTimeThreshG12mEE_;
+                double outOfTimeThreshG61pEE_;
+                double outOfTimeThreshG61mEE_;
                 double amplitudeThreshEB_;
                 double amplitudeThreshEE_;
                 double ebSpikeThresh_;

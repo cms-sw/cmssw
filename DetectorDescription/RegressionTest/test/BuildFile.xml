@@ -1,42 +1,36 @@
 
-<bin file="TestIntegration.cpp" name="DetectorDescriptionRegressionTestDDErrorReport">
-  <flags TEST_RUNNER_ARGS=" /bin/bash DetectorDescription/RegressionTest/test run_DDErrorReport.sh" />
-  <use   name="FWCore/Utilities" />
-</bin>
+ <use name="DetectorDescription/Core"/>
+ <use name="DetectorDescription/ExprAlgo"/>
+ <use name="DetectorDescription/Algorithm"/>
+ <use name="DetectorDescription/RegressionTest"/>
+ <use name="DetectorDescription/Parser"/>
+ <use name="xerces-c"/>
 
-<bin file="TestIntegration.cpp" name="DetectorDescriptionRegressionTestDOMCount">
-  <flags TEST_RUNNER_ARGS=" /bin/bash DetectorDescription/RegressionTest/test run_DOMCount.sh" />
-  <use   name="FWCore/Utilities" />
-</bin>
+ <bin file="TestIntegration.cpp" name="DetectorDescriptionRegressionTestDDDReport">
+   <flags TEST_RUNNER_ARGS=" /bin/bash DetectorDescription/RegressionTest/test run_dddreport.sh" />
+   <use   name="FWCore/Utilities" />
+ </bin>
+
+ <bin file="TestIntegration.cpp" name="DetectorDescriptionRegressionTestDOMCount">
+   <flags TEST_RUNNER_ARGS=" /bin/bash DetectorDescription/RegressionTest/test run_domcount.sh" />
+   <use   name="FWCore/Utilities" />
+ </bin>
 
 <bin file="DDErrorReport.cpp">
-  <use name="FWCore/PluginManager"/>
-  <use name="DetectorDescription/Core"/>
-  <use name="DetectorDescription/Parser"/>
-  <use name="boost_program_options"/>
-  <use name="DetectorDescription/RegressionTest"/>
+ <use name="FWCore/Utilities"/>
+ <use name="FWCore/PluginManager"/>
 </bin>
 
 <bin file="html_ddd.cpp">
-  <use name="FWCore/PluginManager"/>
-  <use name="DetectorDescription/Base"/>
-  <use name="DetectorDescription/Core"/>
-  <use name="DetectorDescription/Parser"/>
-  <use name="DetectorDescription/RegressionTest"/>
+ <use name="FWCore/Utilities"/>
+ <use name="FWCore/PluginManager"/>
 </bin>
 
-<bin file="testrot.cpp">
-  <use name="DetectorDescription/RegressionTest"/>
-</bin>
+# <bin file=DOMCount.cpp></bin>
 
-<bin file="reg_ddcore.cpp">
-  <use name="DetectorDescription/RegressionTest"/>
-</bin>
-
-<bin file="reg_ddparser.cpp">
-  <use name="DetectorDescription/RegressionTest"/>
-</bin>
-
+<bin name="test_DDD_rot file=testrot.cpp"></bin>
+<bin name="test_DDD_reg_ddcore file=reg_ddcore.cpp"></bin>
+<bin name="test_DDD_reg_ddparser file=reg_ddparser.cpp"></bin>
 #<bin name=test_DDD_dump_const file=const_dump.cpp">
 # <use name=DetectorDescription/Core>
 # <use name=DetectorDescription/ExprAlgo>

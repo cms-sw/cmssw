@@ -12,13 +12,14 @@ ROOT::Cintex::Cintex::Enable();
 PFRootEventManager em("particleFlow.opt");
 
 // em.printRecHits_ = true;
-if(em.tree() ) {
-  int n =  em.tree()->GetEntries();
+if( em.ev_ && em.ev_->isValid() ) {
+  int n =  em.ev_->size();
   for(unsigned i=0; i<n; i++) {
     em.processEntry(i);
     // em.print();
   }
   em.write();
+  em.ev_->getTFile()->cd();
 }
 gApplication->Terminate(); 
 }

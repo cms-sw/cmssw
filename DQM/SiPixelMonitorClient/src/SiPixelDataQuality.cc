@@ -362,9 +362,9 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   if(me_err && me_evt){
     for(int i=1; i!=41; i++)for(int j=1; j!=22; j++)
       if(me_err->getBinContent(i,j)>0){
-        n_errors_pixel_=n_errors_pixel_+me_err->getBinContent(i,j);
-        if(i<33) n_errors_barrel_=n_errors_barrel_+me_err->getBinContent(i,j);
-        if(i>32) n_errors_endcap_=n_errors_endcap_+me_err->getBinContent(i,j);
+        n_errors_pixel_=n_errors_pixel_+int(me_err->getBinContent(i,j));
+        if(i<33) n_errors_barrel_=n_errors_barrel_+int(me_err->getBinContent(i,j));
+        if(i>32) n_errors_endcap_=n_errors_endcap_+int(me_err->getBinContent(i,j));
       }
     int NProcEvts = me_evt->getIntValue();
     if(NProcEvts>0){
@@ -634,9 +634,9 @@ void SiPixelDataQuality::computeGlobalQualityFlagByLumi(DQMStore * bei,
   float PixelRate_LS = 0.;
   MonitorElement * me = bei->get("Pixel/AdditionalPixelErrors/byLumiErrors");
   if(me){
-    int nEvents_LS = me->getBinContent(0) - nEvents_lastLS_;
-    int nBarrelErrors_LS = me->getBinContent(1);
-    int nEndcapErrors_LS = me->getBinContent(2);
+    double nEvents_LS = me->getBinContent(0) - nEvents_lastLS_;
+    double nBarrelErrors_LS = me->getBinContent(1);
+    double nEndcapErrors_LS = me->getBinContent(2);
     BarrelRate_LS = nBarrelErrors_LS / nEvents_LS / 32.; // normalize to nevents and nFEDchannels
     EndcapRate_LS = nEndcapErrors_LS / nEvents_LS / 8.;
     PixelRate_LS = (nBarrelErrors_LS + nEndcapErrors_LS) / nEvents_LS / 40.;
@@ -916,7 +916,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
                 break;   
               }
             }
-	    int NDigis = 0;
+	    double NDigis = 0;
 	    if(full_path.find("ndigis")!=string::npos) NDigis = me->getEntries(); 
 	    float weight = (allmodsVec->GetBinContent(fedId+1))+NDigis;
 	    //cout<<"DIGIS: "<<currDir<<" , "<<fedId<<" , "<<weight<<" , "<<NDigis<<endl;

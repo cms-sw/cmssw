@@ -2,7 +2,12 @@
 #include "OraDatabaseSchema.h"
 #include "PoolDatabaseSchema.h"
 
-std::string ora::IMainTable::schemaVersionParameterName(){
+std::string ora::poolSchemaVersion(){
+  static std::string s_version("POOL");
+  return s_version;
+}
+
+std::string ora::IMainTable::versionParameterName(){
   static std::string s_name("SCHEMA_VERSION");
   return s_name;
 }

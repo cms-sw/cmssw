@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-# last update: $Date: 2010/07/07 10:35:03 $ by $Author: mussgill $
+# last update: $Date: 2010/09/22 13:00:35 $ by $Author: mussgill $
 ###############################################################
 # Tracker Alignment
 ###############################################################
@@ -60,6 +60,7 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkNoHLT_Output_cff import *
 # HCAL calibration with min.bias
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_Output_cff import *
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBiasHI_Output_cff import *
 # HCAL calibration with Zmuu (HO)
 #  include "Calibration/HcalAlCaRecoProducers/data/ALCARECOHcalCalZMuMu_Output.cff"
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHO_Output_cff import *

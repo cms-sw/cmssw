@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.36 2010/07/20 15:16:57 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.38 2010/10/19 06:15:35 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <stdio.h>
@@ -240,11 +240,11 @@ void ResourceMonitorCollection::retrieveDiskSize(DiskUsagePtr diskUsage)
   int retVal = statfs64(diskUsage->pathName.c_str(), &buf);
   if(retVal==0) {
     unsigned int blksize = buf.f_bsize;
-    diskUsage->diskSize = buf.f_blocks * blksize / 1024 / 1024 / 1024;
+    diskUsage->diskSize = static_cast<double>(buf.f_blocks * blksize) / 1024 / 1024 / 1024;
     diskUsage->absDiskUsage =
       diskUsage->diskSize -
-      buf.f_bavail * blksize / 1024 / 1024 / 1024;
-    diskUsage->relDiskUsage = (100 * (diskUsage->absDiskUsage / diskUsage->diskSize)); 
+      static_cast<double>(buf.f_bavail * blksize) / 1024 / 1024 / 1024;
+    diskUsage->relDiskUsage = (100 * (diskUsage->absDiskUsage / diskUsage->diskSize));
     if ( diskUsage->relDiskUsage > _dwParams._highWaterMark )
     {
       emitDiskSpaceAlarm(diskUsage);

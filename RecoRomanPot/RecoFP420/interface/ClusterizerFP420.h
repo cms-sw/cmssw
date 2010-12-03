@@ -9,7 +9,6 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SimG4CMS/FP420/interface/FP420NumberingScheme.h"
 //#include "SimG4Core/Watcher/interface/SimWatcher.h"
 
 #include "RecoRomanPot/RecoFP420/interface/FP420ClusterMain.h"
@@ -25,7 +24,7 @@
 #include<vector>
 #include<map>
 #include<iostream>
-
+using namespace std;
 
 
 
@@ -59,11 +58,10 @@ namespace cms
 
     ClusterCollectionFP420* soutput;
    
-    FP420NumberingScheme * theFP420NumberingScheme;
     
     std::vector<ClusterNoiseFP420> noise;
     bool UseNoiseBadElectrodeFlagFromDB_;
-    int sn0, pn0, dn0, rn0;
+    int sn0, pn0, dn0;
     int verbosity;
   };
 }

@@ -106,15 +106,8 @@ process.SiPixelHistoryDQMService = cms.Service(
       cms.PSet( keyName = cms.untracked.string("SUMOFF_ndigis"), quantitiesToExtract = cms.untracked.vstring("user_ymean") ),
       cms.PSet( keyName = cms.untracked.string("SUMOFF_size_OffTrack"), quantitiesToExtract = cms.untracked.vstring("user_ymean") ),
       cms.PSet( keyName = cms.untracked.string("SUMOFF_size_OnTrack" ), quantitiesToExtract = cms.untracked.vstring("user_ymean") ),
-      cms.PSet( keyName = cms.untracked.string("ntracks_generalTracks" ), quantitiesToExtract = cms.untracked.vstring("user_A") ),
-      cms.PSet( keyName = cms.untracked.string("ntracks_generalTracks" ), quantitiesToExtract = cms.untracked.vstring("user_B") ),
-
-      cms.PSet( keyName = cms.untracked.string("bigEventRate" ), quantitiesToExtract = cms.untracked.vstring("user_ymean") ),
-      cms.PSet( keyName = cms.untracked.string("bigFpixClusterEventRate" ), quantitiesToExtract = cms.untracked.vstring("user_ymean") ),
-      cms.PSet( keyName = cms.untracked.string("pixEventRate" ), quantitiesToExtract = cms.untracked.vstring("user_ymean") )
-
-      #cms.PSet( keyName = cms.untracked.string("ntracks_rsWithMaterialTracksP5" ), quantitiesToExtract = cms.untracked.vstring("user_A") ),
-      #cms.PSet( keyName = cms.untracked.string("ntracks_rsWithMaterialTracksP5" ), quantitiesToExtract = cms.untracked.vstring("user_B") )
+      cms.PSet( keyName = cms.untracked.string("ntracks_rsWithMaterialTracksP5" ), quantitiesToExtract = cms.untracked.vstring("user_A") ),
+      cms.PSet( keyName = cms.untracked.string("ntracks_rsWithMaterialTracksP5" ), quantitiesToExtract = cms.untracked.vstring("user_B") )
       #cms.PSet( keyName = cms.untracked.string("ntracks_rsWithMaterialTracksP5" ), quantitiesToExtract = cms.untracked.vstring("userB") ), # pixel/All, FPix/BPix
       )
     )

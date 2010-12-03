@@ -27,7 +27,7 @@ void DCCEESRPBlock::addSRFlagToCollection(){
    
     if( n!=0 && n%4==0 ) my16Bitp_++;
  
-     ushort srFlag =  ( *my16Bitp_ >> ( (n-(n/4)*4) * 3 ) )  &  SRP_SRFLAG_MASK ;
+     unsigned short srFlag =  ( *my16Bitp_ >> ( (n-(n/4)*4) * 3 ) )  &  SRP_SRFLAG_MASK ;
      srFlags_[n] = srFlag;
      if(unpackInternalData_){
        std::vector<EcalSrFlag*> srs = mapper_->getSrFlagPointer(n+1);
