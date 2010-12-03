@@ -216,6 +216,17 @@ SKIMStreamMuonTrack = cms.FilteredStream(
 
 #####################
 
+SKIMStreamMuonDPG = cms.FilteredStream(
+        responsible = 'Muon DPG',
+        name = 'MuonDPG',
+        paths = (muonTracksSkimPath,pathdtSkim,pathHLTdtSkim,pathCSCSkim,pathrpcTecSkim,),
+        content = skimContent.outputCommands,
+        selectEvents = cms.untracked.PSet(),
+        dataTier = cms.untracked.string('RAW-RECO')
+        )
+
+#####################
+
 from DPGAnalysis.Skims.valSkim_cff import *
 relvaltrackSkimPath = cms.Path( relvaltrackSkim )
 relvalmuonSkimPath = cms.Path( relvalmuonSkim )
