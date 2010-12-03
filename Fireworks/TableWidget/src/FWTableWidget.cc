@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:42 EST 2009
-// $Id: FWTableWidget.cc,v 1.20 2010/12/02 18:59:43 amraktad Exp $
+// $Id: FWTableWidget.cc,v 1.21 2010/12/02 20:03:10 amraktad Exp $
 //
 
 // system include files
@@ -444,16 +444,6 @@ FWTableWidget::columnClicked(Int_t column, Int_t btn, Int_t keyMod)
    Emit("columnClicked(Int_t,Int_t,Int_t)",args);      
 }
 
-namespace
-{
-   void rewidth_component(TGFrame *f, bool &resize_p)
-   {
-      UInt_t ow = f->GetWidth();
-      f->Resize(0, f->GetHeight());
-      resize_p = resize_p || ow != f->GetWidth();
-   }
-}
-
 void 
 FWTableWidget::dataChanged()
 {
@@ -463,7 +453,6 @@ FWTableWidget::dataChanged()
    if(m_rowHeader) {
       m_rowHeader->dataChanged();
       m_rowHeader->setWidthOfTextInColumns(m_rowHeader->widthOfTextInColumns());
-      rewidth_component(m_rowHeader, needs_layout);
    }
    //set sizes
    std::vector<unsigned int> columnWidths = m_body->widthOfTextInColumns();
@@ -479,20 +468,19 @@ FWTableWidget::dataChanged()
          }
       }
       m_header->setWidthOfTextInColumns(columnWidths);
-      rewidth_component(m_header, needs_layout);
    } 
    m_body->setWidthOfTextInColumns(columnWidths);
-   rewidth_component(m_body, needs_layout);
 
    //this updates sliders to match our new data
    bool layoutDoneByhandleResize = handleResize(GetWidth(), GetHeight());
    if (needs_layout && ! layoutDoneByhandleResize)
+   {
       Layout();
-
-   gClient->NeedRedraw(m_body);
-   if(m_rowHeader) {
-      gClient->NeedRedraw(m_rowHeader);
    }
+   gClient->NeedRedraw(m_body);
+   if (m_header) gClient->NeedRedraw(m_header);
+   if (m_rowHeader) gClient->NeedRedraw(m_rowHeader);
+   
 }
 
 void 
