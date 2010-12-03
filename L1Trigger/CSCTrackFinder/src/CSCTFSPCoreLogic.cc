@@ -6,6 +6,14 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <iostream>
 
+//vpp_generated CSCTFSPCoreLogic::sp_;
+vpp_generated_2010_01_22 CSCTFSPCoreLogic::sp_2010_01_22_;
+vpp_generated_2010_07_28 CSCTFSPCoreLogic::sp_2010_07_28_;
+vpp_generated_2010_09_01 CSCTFSPCoreLogic::sp_2010_09_01_;
+vpp_generated_2010_10_11 CSCTFSPCoreLogic::sp_2010_10_11_;
+
+
+
 // takes a trigger container and loads the first n bx of data into io_
 void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<csctf::TrackStub>& theStubs,
 				const unsigned& endcap, const unsigned& sector,
