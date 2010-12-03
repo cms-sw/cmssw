@@ -394,14 +394,16 @@ namespace cond {
     TCanvas c("Vmon","Vmon",1200,700);
     c.Divide(2,2);
     
-    TVirtualPad *p1=c.cd(1);
+    //TVirtualPad *p1=c.cd(1);
     //    p1->SetLogy(1);
+    c.cd(1);
     vDistr->SetFillColor(4);
     vDistr->SetLineColor(4);
     vDistr->Draw();
     
-    TVirtualPad *p2=c.cd(2);
+    //TVirtualPad *p2=c.cd(2);
     //    p2->SetLogy(1);
+    c.cd(2);
     rmsDistr->SetFillColor(3);
     rmsDistr->SetLineColor(3);
     rmsDistr->Draw();
@@ -410,7 +412,7 @@ namespace cond {
      TGraph *vRmsDistr=new TGraph(means.size(),static_cast<const float *>(&rmss[0]),static_cast<const float *>(&means[0]));
      vRmsDistr->SetMarkerStyle(7);
      vRmsDistr->SetMarkerColor(2);
-     TF1 *func=new TF1("linearF",linearF,minRms,maxRms,1);
+     //TF1 *func=new TF1("linearF",linearF,minRms,maxRms,1);
      //  vRmsDistr->Fit("linearF","r");
      vRmsDistr->GetXaxis()->SetTitle("HV RMS (V)");
      vRmsDistr->GetYaxis()->SetTitle("HV Means (V)");

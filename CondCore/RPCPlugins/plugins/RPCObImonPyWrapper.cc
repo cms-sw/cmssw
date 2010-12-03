@@ -393,7 +393,7 @@ namespace cond {
     iRmsDistr->SetMarkerStyle(7);
     iRmsDistr->SetMarkerColor(2);
     TF1 *func=new TF1("linearF",linearF,minRms,maxRms,1);
-    iRmsDistr->Fit("linearF","r");
+    iRmsDistr->Fit(func,"r");
     iRmsDistr->GetXaxis()->SetTitle("Current RMS (#muA)");
     iRmsDistr->GetYaxis()->SetTitle("Current Means (#muA)");
     iRmsDistr->Draw("AP");
