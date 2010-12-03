@@ -22,8 +22,8 @@
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "Fireworks/ParticleFlow/interface/FWLegoEvePFCandidate.h"
-#include "Fireworks/ParticleFlow/interface/setTrackTypePF.h"
+#include "FWPFLegoCandidate.h"
+#include "Fireworks/ParticleFlow/interface/setTrackTypePF.h"   // NB: This has to come after FWPFLegoCandidate include
 
 // forward declarations
 
@@ -68,12 +68,13 @@ FWPFCandidatesLegoProxyBuilder::~FWPFCandidatesLegoProxyBuilder()
 // member functions
 //
 void 
-FWPFCandidatesLegoProxyBuilder::build(const reco::PFCandidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* vc)
+FWPFCandidatesLegoProxyBuilder::build(const reco::PFCandidate &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc)
 {
-   FWLegoEvePFCandidate* evePFCandidate = new FWLegoEvePFCandidate( iData , vc, context());
-   evePFCandidate->SetMarkerColor(item()->defaultDisplayProperties().color());
-   fireworks::setTrackTypePF( iData,  evePFCandidate);
-   setupAddElement( evePFCandidate, &oItemHolder );
+   FWPFLegoCandidate *candidate = new FWPFLegoCandidate( vc, context(), iData.energy(), iData.et(), iData.pt(),
+                                                         iData.eta(), iData.phi() );
+   candidate->SetMarkerColor( item()->defaultDisplayProperties().color() );
+   fireworks::setTrackTypePF( iData, candidate );
+   setupAddElement( candidate, &oItemHolder );
 }
 
 void
@@ -84,8 +85,8 @@ FWPFCandidatesLegoProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType
       if ((*i)->HasChildren())
       {
          TEveElement* el = (*i)->FirstChild();  // there is only one child added in this proxy builder
-         FWLegoEvePFCandidate* cand = dynamic_cast<FWLegoEvePFCandidate*> (el);  
-         cand->updateScale(vc, context());
+         FWPFLegoCandidate *candidate = dynamic_cast<FWPFLegoCandidate*> (el);
+         candidate->updateScale(vc, context());
       }
    }
 }
@@ -98,10 +99,10 @@ FWPFCandidatesLegoProxyBuilder::localModelChanges(const FWModelId& iId, TEveElem
    if ((parent)->HasChildren())
    {
       TEveElement* el = (parent)->FirstChild();  // we know there is only one child added in this proxy builder
-      FWLegoEvePFCandidate* cand = dynamic_cast<FWLegoEvePFCandidate*> (el); 
+      FWPFLegoCandidate *candidate = dynamic_cast<FWPFLegoCandidate*> (el);
       const FWDisplayProperties& dp = item()->modelInfo(iId.index()).displayProperties();
-      cand->SetMarkerColor( dp.color());
-      cand->ElementChanged();
+      candidate->SetMarkerColor( dp.color());
+      candidate->ElementChanged();
    }  
 }
 

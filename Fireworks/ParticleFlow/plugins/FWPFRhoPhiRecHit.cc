@@ -3,7 +3,7 @@
 //______________________________________________________________________________________________________
 FWPFRhoPhiRecHit::FWPFRhoPhiRecHit( FWProxyBuilderBase *pb, TEveCompound *iH, const FWViewContext *vc,
                                     float E, float et, double lPhi, double rPhi, std::vector<TEveVector> &bCorners )
-: m_hasChild(false), m_energy(E), m_et(et), m_lPhi(lPhi), m_rPhi(rPhi), m_currentScale(1.0)
+: m_hasChild(false), m_energy(E), m_et(et), m_lPhi(lPhi), m_rPhi(rPhi)
 {
    buildRecHit( pb, iH, vc, bCorners );
 }
@@ -81,7 +81,6 @@ FWPFRhoPhiRecHit::updateScale( const FWViewContext *vc )
    }
    TEveProjected *proj = *(m_ls)->BeginProjecteds();
    proj->UpdateProjection();
-   m_currentScale = scale;
    
    m_corners[2] = sc2 + v2;      // New top left of tower
    m_corners[3] = sc1 + v1;      // New top right of tower

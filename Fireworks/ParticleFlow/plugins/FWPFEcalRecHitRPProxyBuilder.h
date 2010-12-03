@@ -12,6 +12,9 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "Fireworks/ParticleFlow/plugins/FWPFRhoPhiRecHit.h"
 
+#include "Fireworks/Core/interface/FWViewContext.h"
+#include "Fireworks/Core/interface/FWViewEnergyScale.h"
+
 
 //-----------------------------------------------------------------------------
 // FWPFEcalRecHitRPProxyBuilder

@@ -20,14 +20,14 @@ FWPFClusterRPProxyBuilder::calculateEt( const reco::PFCluster &cluster, float E 
 
 //______________________________________________________________________________________________________________________________________________
 void
-FWPFClusterRPProxyBuilder::build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc )
+FWPFClusterRPProxyBuilder::sharedBuild( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc, float R )
 {
    float et, energy, phi;
    float size = 1.f;    // Stored in scale
-   float ecalR = context().caloR1();
+   float ecalR = R;
    TEveVector vec;
 
-   energy = getEnergy( iData );
+   energy = iData.energy();
    et = calculateEt( iData, energy );
    context().voteMaxEtAndEnergy(et, energy);
    
@@ -71,6 +71,28 @@ FWPFClusterRPProxyBuilder::scaleProduct( TEveElementList *parent, FWViewType::ET
    }
 }
 
+//______________________________________________________________________________________________________________________________________________
+void
+FWPFEcalClusterRPProxyBuilder::build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc )
+{
+   PFLayer::Layer layer = iData.layer();
+   if( layer < 0 )
+   {
+      sharedBuild( iData, iIndex, oItemHolder, vc, context().caloR1() );
+   }
+}
+
+//______________________________________________________________________________________________________________________________________________
+void
+FWPFHcalClusterRPProxyBuilder::build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc )
+{
+   PFLayer::Layer layer = iData.layer();
+   if( layer > 0 )
+   {
+      sharedBuild( iData, iIndex, oItemHolder, vc, 177.f );
+   }
+}
+
 //______________________________________________________________________________________________________
-REGISTER_FWPROXYBUILDER( FWPFEcalClusterRPProxyBuilder, reco::PFCluster, "PF Cluster - ECAL", FWViewType::kRhoPhiPFBit );
-REGISTER_FWPROXYBUILDER( FWPFHcalClusterRPProxyBuilder, reco::PFCluster, "PF Cluster - HCAL", FWViewType::kRhoPhiBit );
+REGISTER_FWPROXYBUILDER( FWPFEcalClusterRPProxyBuilder, reco::PFCluster, "PF Cluster", FWViewType::kRhoPhiPFBit );
+REGISTER_FWPROXYBUILDER( FWPFHcalClusterRPProxyBuilder, reco::PFCluster, "PF Cluster", FWViewType::kRhoPhiBit );

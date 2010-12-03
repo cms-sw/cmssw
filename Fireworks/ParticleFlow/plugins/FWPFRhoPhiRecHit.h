@@ -44,7 +44,6 @@ class FWPFRhoPhiRecHit
       float                         m_et;
       Double_t                      m_lPhi;
       Double_t                      m_rPhi;
-      Double_t                      m_currentScale;
       TEveScalableStraightLineSet   *m_ls;
       FWPFRhoPhiRecHit              *m_child;         // Pointer to child (the next stacked tower)
       std::vector<TEveVector>       m_corners;

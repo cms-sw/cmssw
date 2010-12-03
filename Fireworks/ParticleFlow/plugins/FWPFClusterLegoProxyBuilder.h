@@ -19,8 +19,9 @@
 #include "TEveBox.h"
 
 
-
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Base ProxyBuilder
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
 class FWPFClusterLegoProxyBuilder : public FWProxyBuilderTemplate<reco::PFCluster>
 {
     public:
@@ -31,33 +32,35 @@ class FWPFClusterLegoProxyBuilder : public FWProxyBuilderTemplate<reco::PFCluste
       virtual ~FWPFClusterLegoProxyBuilder(){}
 
       // ------------------------- member functions -------------------------------
-      virtual void build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext* );
       virtual void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );
       virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
       virtual void localModelChanges( const FWModelId &iId, TEveElement *iCompound,
                                         FWViewType::EType viewType, const FWViewContext *vc );
-
-      virtual float getEnergy( const reco::PFCluster &iData ) const = 0;
    
       REGISTER_PROXYBUILDER_METHODS();
+
+   protected:
+      // ------------------------- member functions -------------------------------
+      void  sharedBuild( const reco::PFCluster &iData, TEveCompound *itemHolder, const FWViewContext *vc );
+      float calculateEt( const reco::PFCluster &cluster, float E );
 
    private:
       // Disable default copy constructor
       FWPFClusterLegoProxyBuilder( const FWPFClusterLegoProxyBuilder& );
       // Disable default assignment operator
       const FWPFClusterLegoProxyBuilder& operator=( const FWPFClusterLegoProxyBuilder& );
-
-      // ------------------------- member functions -------------------------------
-      float calculateET( const reco::PFCluster &cluster, float E );
 };
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ECAL
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
 class FWPFEcalClusterLegoProxyBuilder : public FWPFClusterLegoProxyBuilder
 {
    public:
       FWPFEcalClusterLegoProxyBuilder(){}
       virtual ~FWPFEcalClusterLegoProxyBuilder(){}
 
-      virtual float getEnergy( const reco::PFCluster &iData ) const { return iData.energy(); }
+      virtual void build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext* );
 
       REGISTER_PROXYBUILDER_METHODS();
 
@@ -66,13 +69,16 @@ class FWPFEcalClusterLegoProxyBuilder : public FWPFClusterLegoProxyBuilder
       const FWPFEcalClusterLegoProxyBuilder& operator=( const FWPFEcalClusterLegoProxyBuilder& );
 };
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+// HCAL
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
 class FWPFHcalClusterLegoProxyBuilder : public FWPFClusterLegoProxyBuilder
 {
    public:
       FWPFHcalClusterLegoProxyBuilder(){}
       virtual ~FWPFHcalClusterLegoProxyBuilder(){}
 
-      virtual float getEnergy( const reco::PFCluster &iData ) const { return iData.energy(); }
+      virtual void build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext* );
 
       REGISTER_PROXYBUILDER_METHODS();
 

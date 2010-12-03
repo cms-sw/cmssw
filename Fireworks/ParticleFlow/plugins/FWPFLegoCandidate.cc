@@ -1,44 +1,41 @@
 #include "FWPFLegoCandidate.h"
 
-#include "TEveCaloData.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
-#include "Fireworks/Core/interface/fwLog.h"
 
 //______________________________________________________________________________________________________________________________________________
-FWPFLegoCandidate::FWPFLegoCandidate( const LegoCandidateData &lc, const FWViewContext *vc, const fireworks::Context &context )
+FWPFLegoCandidate::FWPFLegoCandidate( const FWViewContext *vc, const fireworks::Context &context, float energy, float et, float pt,
+                                      float eta, float phi )
+: m_energy(energy), m_et(et), m_pt(pt), m_eta(eta), m_phi(phi)
 {
-   float pt = lc.pt;
-   float eta = lc.eta;
-   float phi = lc.phi;
-   m_et = lc.et;
-   m_energy = lc.energy;
-   float base = 0.001;     // Floor offset 1%
-    
+   float base = 0.001;  // Floor offset 1%
+
    // First vertical line
    FWViewEnergyScale *caloScale = vc->getEnergyScale();
    float val = caloScale->getPlotEt() ? m_et : m_energy;
 
-   AddLine(eta,phi, base, 
-           eta,phi, base + val*caloScale->getScaleFactorLego());
-    
+   AddLine( m_eta, m_phi, base,
+            m_eta, m_phi, base + val * caloScale->getScaleFactorLego() );
+
    AddMarker( 0, 1.f );
    SetMarkerStyle( 3 );
    SetMarkerSize( 0.01 );
    SetDepthTest( false );
-    
+
    // Circle pt
    const unsigned int nLineSegments = 20;
-   const double jetRadius = log( 1 + pt ) / log(10) / 5.f;
+   const double radius = log( 1 + m_pt ) / log(10) / 5.f;
+   //const double radius = m_pt / 100.f;
+   const double twoPi = 2 * TMath::Pi();
 
-   for( unsigned int iphi = 0; iphi < nLineSegments; iphi++ )
+   for( unsigned int iPhi = 0; iPhi < nLineSegments; ++iPhi )
    {
-      AddLine( eta + jetRadius * cos( 2 * TMath::Pi() / nLineSegments * iphi ),
-               phi + jetRadius * sin( TMath::TwoPi() / nLineSegments * iphi ),
+      AddLine( m_eta + radius * cos( twoPi / nLineSegments * iPhi ),
+               m_phi + radius * sin( twoPi / nLineSegments * iPhi ),
                base,
-               eta + jetRadius * cos( TMath::TwoPi() / nLineSegments*( iphi+1 ) ),
-               phi + jetRadius * sin( TMath::TwoPi() / nLineSegments*( iphi+1 ) ),
+               m_eta + radius * cos( twoPi / nLineSegments * ( iPhi + 1 ) ),
+               m_phi + radius * sin( twoPi / nLineSegments * ( iPhi + 1 ) ),
                base );
    }
 }
@@ -49,18 +46,17 @@ FWPFLegoCandidate::updateScale( const FWViewContext *vc, const fireworks::Contex
 {
    FWViewEnergyScale *caloScale = vc->getEnergyScale();
    float val = caloScale->getPlotEt() ? m_et : m_energy;
-
-   // printf("update scale %f \n", getScale(vc, context)); fflush(stdout);
+   float scaleFac = caloScale->getScaleFactorLego();
 
    // Resize first line
    TEveChunkManager::iterator li( GetLinePlex() );
    li.next();
-   TEveStraightLineSet::Line_t &l = * (TEveStraightLineSet::Line_t*) li();
-   l.fV2[2] = l.fV1[2] + val*caloScale->getScaleFactorLego();
+   TEveStraightLineSet::Line_t &l = * ( TEveStraightLineSet::Line_t* ) li();
+   l.fV2[2] = l.fV1[2] + val * scaleFac;
 
-   // move end point (marker)
+   // Move end point (marker)
    TEveChunkManager::iterator mi( GetMarkerPlex() );
    mi.next();
-   TEveStraightLineSet::Marker_t &m = * (TEveStraightLineSet::Marker_t *) mi();
-   m.fV[2] = l.fV2[2]; // Set to new top of line
+   TEveStraightLineSet::Marker_t &m = * ( TEveStraightLineSet::Marker_t* ) mi();
+   m.fV[2] = l.fV2[2];   // Set to new top of line
 }

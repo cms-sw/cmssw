@@ -10,8 +10,10 @@
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
 
-using namespace std;
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Base ProxyBuilder
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
 class FWPFClusterRPProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PFCluster>
 {
    public:
@@ -22,16 +24,13 @@ class FWPFClusterRPProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PFCl
       virtual ~FWPFClusterRPProxyBuilder(){}
 
        // ------------------------- member functions -------------------------------
-      virtual void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext *vc );
       virtual void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );
       virtual bool havePerViewProduct( FWViewType::EType ) const { return true; }
       virtual void cleanLocal() { m_clusters.clear(); }
 
-      virtual float getEnergy( const reco::PFCluster &iData ) const = 0;
-
       REGISTER_PROXYBUILDER_METHODS();
 
-   private:
+   protected:
       struct ScalableLines
       {
          ScalableLines( TEveScalableStraightLineSet *ls, float et, float e, const FWViewContext *vc ) :
@@ -43,40 +42,50 @@ class FWPFClusterRPProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PFCl
       };
       std::vector<ScalableLines> m_clusters;
 
-      FWPFClusterRPProxyBuilder( const FWPFClusterRPProxyBuilder& );                       // Disable default
-      const FWPFClusterRPProxyBuilder& operator=( const FWPFClusterRPProxyBuilder& );      // Disable default
-
-        // ------------------------- member functions -------------------------------
+       // ------------------------- member functions -------------------------------
       float calculateEt( const reco::PFCluster &cluster, float E );
-};
 
-class FWPFHcalClusterRPProxyBuilder : public FWPFClusterRPProxyBuilder
-{
-   public:
-      FWPFHcalClusterRPProxyBuilder(){}
-      virtual ~FWPFHcalClusterRPProxyBuilder(){}
-
-      virtual float getEnergy( const reco::PFCluster &iData ) const { return iData.energy(); }
-
-      REGISTER_PROXYBUILDER_METHODS();
+      virtual void sharedBuild( const reco::PFCluster &cluster, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc, float radius );
 
    private:
-      FWPFHcalClusterRPProxyBuilder( const FWPFHcalClusterRPProxyBuilder& );
-      const FWPFHcalClusterRPProxyBuilder& operator=( const FWPFHcalClusterRPProxyBuilder& );
+      FWPFClusterRPProxyBuilder( const FWPFClusterRPProxyBuilder& );                       // Disable default
+      const FWPFClusterRPProxyBuilder& operator=( const FWPFClusterRPProxyBuilder& );      // Disable default
 };
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ECAL
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
 class FWPFEcalClusterRPProxyBuilder : public FWPFClusterRPProxyBuilder
 {
    public:
       FWPFEcalClusterRPProxyBuilder(){}
       virtual ~FWPFEcalClusterRPProxyBuilder(){}
 
-      virtual float getEnergy( const reco::PFCluster &iData ) const { return iData.energy(); }
+      virtual void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
 
       REGISTER_PROXYBUILDER_METHODS();
 
    private:
       FWPFEcalClusterRPProxyBuilder( const FWPFEcalClusterRPProxyBuilder& );
       const FWPFEcalClusterRPProxyBuilder& operator=( const FWPFEcalClusterRPProxyBuilder& );
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+// HCAL
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+class FWPFHcalClusterRPProxyBuilder : public FWPFClusterRPProxyBuilder
+{
+   public:
+      FWPFHcalClusterRPProxyBuilder(){}
+      virtual ~FWPFHcalClusterRPProxyBuilder(){}
+
+      virtual void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
+
+      REGISTER_PROXYBUILDER_METHODS();
+
+   private:
+      FWPFHcalClusterRPProxyBuilder( const FWPFHcalClusterRPProxyBuilder& );
+      const FWPFHcalClusterRPProxyBuilder& operator=( const FWPFHcalClusterRPProxyBuilder& );
 };
 #endif
