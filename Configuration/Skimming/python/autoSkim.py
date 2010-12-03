@@ -1,7 +1,7 @@
 autoSkim = {
     'MinimumBias':'MuonTrack+HSCP+BeamBkg+LogError+ValSkim+TPG',
     'ZeroBias':'LogError',
-    'Commissioning':'DT+L1MuBit+RPC+MuonTrack+CSCHLT+CSCAlone+LogError',
+    'Commissioning':'MuonDPG+LogError',
     'Cosmics':'CSC+CosmicSP+LogError',
     'Mu' : 'WZMu+TPG+LogError+DiLeptonMu+SingleMu',    
     'EG':'WZEG+LogError+DiLeptonEle+SuperCluster',
