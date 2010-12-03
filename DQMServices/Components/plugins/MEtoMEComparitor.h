@@ -13,7 +13,7 @@
 //
 // Original Author:  jean-roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Tue Nov 30 18:55:50 CET 2010
-// $Id$
+// $Id: MEtoMEComparitor.h,v 1.1 2010/12/03 12:41:15 vlimant Exp $
 //
 //
 
@@ -68,11 +68,13 @@ class MEtoMEComparitor : public edm::EDAnalyzer {
   template <class T,class where> void product();
 
   DQMStore * _dbe;
-  edm::InputTag _MEtoEDMTag_ref;
-  edm::InputTag _MEtoEDMTag_new;
+  std::string _moduleLabel;
+  
   std::string _lumiInstance;
   std::string _runInstance;
 
+  std::string _process_ref;
+  std::string _process_new;
   double _KSgoodness;
   
       // ----------member data ---------------------------

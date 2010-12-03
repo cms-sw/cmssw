@@ -13,7 +13,7 @@
 //
 // Original Author:  jean-roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Tue Nov 30 18:55:50 CET 2010
-// $Id$
+// $Id: MEtoMEComparitor.cc,v 1.1 2010/12/03 12:41:15 vlimant Exp $
 //
 //
 
@@ -22,10 +22,18 @@
 MEtoMEComparitor::MEtoMEComparitor(const edm::ParameterSet& iConfig)
 
 {
-  _MEtoEDMTag_ref = iConfig.getParameter<edm::InputTag>("MEtoEDMTag_ref");
-  _MEtoEDMTag_new = iConfig.getParameter<edm::InputTag>("MEtoEDMTag_new");
+  _moduleLabel = iConfig.getParameter<std::string>("MEtoEDMLabel");
+  
   _lumiInstance = iConfig.getParameter<std::string>("lumiInstance");
   _runInstance = iConfig.getParameter<std::string>("runInstance");
+
+  _process_ref = iConfig.getParameter<std::string>("processRef");
+  _process_new = iConfig.getParameter<std::string>("processNew");
+
+  if (iConfig.getParameter<bool>("autoProcess")){
+    //get the last two process from the provenance
+
+  }
   _KSgoodness = iConfig.getParameter<double>("KSgoodness");
 
   _dbe = edm::Service<DQMStore>().operator->();
@@ -108,13 +116,13 @@ void MEtoMEComparitor::compare(const W& where,const std::string & instance){
 
   edm::Handle<MEtoEDM<T> > metoedm_ref;
   edm::Handle<MEtoEDM<T> > metoedm_new;
-  where.getByLabel(edm::InputTag(_MEtoEDMTag_ref.label(),
+  where.getByLabel(edm::InputTag(_moduleLabel,
 				 instance,
-				 _MEtoEDMTag_ref.process()),
+				 _process_ref),
 		   metoedm_ref);
-  where.getByLabel(edm::InputTag(_MEtoEDMTag_new.label(),
+  where.getByLabel(edm::InputTag(_moduleLabel,
 				 instance,
-				 _MEtoEDMTag_new.process()),
+				 _process_new),
 		   metoedm_new);
 
   typedef typename MEtoEDM<T>::MEtoEDMObject MEtoEDMObject; 
