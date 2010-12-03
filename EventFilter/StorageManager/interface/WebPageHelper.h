@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.h,v 1.10 2009/08/28 16:41:50 mommsen Exp $
+// $Id: WebPageHelper.h,v 1.11 2010/12/02 15:51:09 mommsen Exp $
 /// @file: WebPageHelper.h
 
 #ifndef StorageManager_WebPageHelper_h
@@ -35,8 +35,8 @@ namespace stor {
    * Helper class to handle web page requests
    *
    * $Author: mommsen $
-   * $Revision: 1.10 $
-   * $Date: 2009/08/28 16:41:50 $
+   * $Revision: 1.11 $
+   * $Date: 2010/12/02 15:51:09 $
    */
   
   class WebPageHelper
@@ -255,7 +255,8 @@ namespace stor {
     (
       XHTMLMaker& maker,
       XHTMLMaker::Node* table,
-      const ThroughputMonitorCollection::Stats::Snapshot&
+      const ThroughputMonitorCollection::Stats::Snapshot&,
+      bool const isAverage = false
     );
 
     /**

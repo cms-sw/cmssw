@@ -1,4 +1,4 @@
-// $Id: MonitoredQuantity.cc,v 1.6 2009/10/13 15:08:34 mommsen Exp $
+// $Id: MonitoredQuantity.cc,v 1.7 2010/03/19 13:20:18 mommsen Exp $
 /// @file: MonitoredQuantity.cc
 
 #include "EventFilter/StorageManager/interface/MonitoredQuantity.h"
@@ -76,6 +76,7 @@ void MonitoredQuantity::calculateStatistics(utils::time_point_t currentTime)
   double latestValueMin;
   double latestValueMax;
   utils::duration_t latestDuration;
+  utils::time_point_t latestSnapshotTime;
   double latestLastLatchedSampleValue;
   {
     boost::mutex::scoped_lock sl(_accumulationMutex);
@@ -86,6 +87,7 @@ void MonitoredQuantity::calculateStatistics(utils::time_point_t currentTime)
     latestValueMin = _workingValueMin;
     latestValueMax = _workingValueMax;
     latestDuration = currentTime - _lastCalculationTime;
+    latestSnapshotTime = currentTime;
     latestLastLatchedSampleValue = _workingLastSampleValue;
 
     _lastCalculationTime = currentTime;
@@ -117,6 +119,7 @@ void MonitoredQuantity::calculateStatistics(utils::time_point_t currentTime)
     _binValueMin[_workingBinId] = latestValueMin;
     _binValueMax[_workingBinId] = latestValueMax;
     _binDuration[_workingBinId] = latestDuration;
+    _binSnapshotTime[_workingBinId] = latestSnapshotTime;
 
     if (latestDuration > 0.0) {
       _lastLatchedValueRate = latestValueSum / latestDuration;
@@ -230,6 +233,7 @@ void MonitoredQuantity::_reset_results()
     _binValueMin[idx] =  INFINITY;
     _binValueMax[idx] = -INFINITY;
     _binDuration[idx] = 0.0;
+    _binSnapshotTime[idx] = 0.0;
   }
 
   _fullSampleCount = 0;
@@ -312,6 +316,7 @@ void MonitoredQuantity::setNewTimeWindowForRecentResults(utils::duration_t inter
     _binValueMin.reserve(_binCount);
     _binValueMax.reserve(_binCount);
     _binDuration.reserve(_binCount);
+    _binSnapshotTime.reserve(_binCount);
 
     _reset_results();
   }
@@ -356,12 +361,14 @@ MonitoredQuantity::getStats(Stats& s) const
   s.recentBinnedSampleCounts.resize(_binCount);
   s.recentBinnedValueSums.resize(_binCount);
   s.recentBinnedDurations.resize(_binCount);
+  s.recentBinnedSnapshotTimes.resize(_binCount);
   unsigned int sourceBinId = _workingBinId;
   for (unsigned int idx = 0; idx < _binCount; ++idx) {
     if (sourceBinId >= _binCount) {sourceBinId = 0;}
     s.recentBinnedSampleCounts[idx] = _binSampleCount[sourceBinId];
     s.recentBinnedValueSums[idx] = _binValueSum[sourceBinId];
     s.recentBinnedDurations[idx] = _binDuration[sourceBinId];
+    s.recentBinnedSnapshotTimes[idx] = _binSnapshotTime[sourceBinId];
     ++sourceBinId;
   }
 

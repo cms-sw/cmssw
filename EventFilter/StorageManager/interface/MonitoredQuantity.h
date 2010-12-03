@@ -1,4 +1,4 @@
-// $Id: MonitoredQuantity.h,v 1.5 2009/10/13 15:08:33 mommsen Exp $
+// $Id: MonitoredQuantity.h,v 1.6 2010/03/19 13:20:37 mommsen Exp $
 /// @file: MonitoredQuantity.h 
 
 #ifndef StorageManager_MonitoredQuantity_h
@@ -22,8 +22,8 @@ namespace stor
    * and provides timing information on the samples.
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/10/13 15:08:33 $
+   * $Revision: 1.6 $
+   * $Date: 2010/03/19 13:20:37 $
    */
 
   class MonitoredQuantity
@@ -156,6 +156,7 @@ namespace stor
     std::vector<double> _binValueMin;
     std::vector<double> _binValueMax;
     std::vector<utils::duration_t> _binDuration;
+    std::vector<utils::time_point_t> _binSnapshotTime;
 
     long long _fullSampleCount;
     double _fullSampleRate;
@@ -216,6 +217,7 @@ namespace stor
     std::vector<long long> recentBinnedSampleCounts;
     std::vector<double> recentBinnedValueSums;
     std::vector<utils::duration_t> recentBinnedDurations;
+    std::vector<utils::time_point_t> recentBinnedSnapshotTimes;
 
     double lastSampleValue;
     double lastValueRate;

@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.h,v 1.13 2010/02/15 13:45:21 mommsen Exp $
+// $Id: ThroughputMonitorCollection.h,v 1.14 2010/02/15 15:11:28 mommsen Exp $
 /// @file: ThroughputMonitorCollection.h 
 
 #ifndef StorageManager_ThroughputMonitorCollection_h
@@ -15,6 +15,7 @@
 #include "EventFilter/StorageManager/interface/FragmentQueue.h"
 #include "EventFilter/StorageManager/interface/MonitorCollection.h"
 #include "EventFilter/StorageManager/interface/StreamQueue.h"
+#include "EventFilter/StorageManager/interface/Utils.h"
 
 namespace stor {
 
@@ -23,8 +24,8 @@ namespace stor {
    * through the storage manager.
    *
    * $Author: mommsen $
-   * $Revision: 1.13 $
-   * $Date: 2010/02/15 13:45:21 $
+   * $Revision: 1.14 $
+   * $Date: 2010/02/15 15:11:28 $
    */
   
   class ThroughputMonitorCollection : public MonitorCollection
@@ -199,6 +200,7 @@ namespace stor {
       struct Snapshot
       {
         double relativeTime; //s since first entry
+        utils::time_point_t absoluteTime;
         double poolUsage; //bytes
         double entriesInFragmentQueue;
         double memoryUsedInFragmentQueue; //MB

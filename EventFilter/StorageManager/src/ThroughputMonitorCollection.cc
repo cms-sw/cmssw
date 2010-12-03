@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.cc,v 1.17 2010/02/16 09:59:36 mommsen Exp $
+// $Id: ThroughputMonitorCollection.cc,v 1.18 2010/12/01 13:44:48 eulisse Exp $
 /// @file: ThroughputMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"
@@ -155,30 +155,45 @@ void ThroughputMonitorCollection::do_getStats(Stats& stats, const unsigned int s
     Stats::Snapshot snapshot;
 
     snapshot.relativeTime = relativeTime;
+    snapshot.absoluteTime = fqEntryCountMQ.recentBinnedSnapshotTimes[idx];
 
     // memory pool usage
-    snapshot.poolUsage = poolUsageMQ.recentBinnedValueSums[idx];
+    snapshot.poolUsage = poolUsageMQ.recentBinnedSampleCounts[idx]>0 ? 
+      poolUsageMQ.recentBinnedValueSums[idx]/poolUsageMQ.recentBinnedSampleCounts[idx] :
+      0;
 
     // number of fragments in fragment queue
-    snapshot.entriesInFragmentQueue = fqEntryCountMQ.recentBinnedValueSums[idx];
+    snapshot.entriesInFragmentQueue = fqEntryCountMQ.recentBinnedSampleCounts[idx]>0 ?
+      fqEntryCountMQ.recentBinnedValueSums[idx]/fqEntryCountMQ.recentBinnedSampleCounts[idx] :
+      0;
 
     // memory usage in fragment queue
-    snapshot.memoryUsedInFragmentQueue = fqMemoryUsedMQ.recentBinnedValueSums[idx];
+    snapshot.memoryUsedInFragmentQueue = fqMemoryUsedMQ.recentBinnedSampleCounts[idx]>0 ?
+      fqMemoryUsedMQ.recentBinnedValueSums[idx]/fqMemoryUsedMQ.recentBinnedSampleCounts[idx] :
+      0;
 
     // rate/bandwidth of fragments popped from fragment queue
     getRateAndBandwidth(fragSizeMQ, idx, snapshot.fragmentQueueRate, snapshot.fragmentQueueBandwidth);
 
     // number of events in fragment store
-    snapshot.fragmentStoreSize = fsEntryCountMQ.recentBinnedValueSums[idx];
+    snapshot.fragmentStoreSize = fsEntryCountMQ.recentBinnedSampleCounts[idx]>0 ?
+      fsEntryCountMQ.recentBinnedValueSums[idx]/fsEntryCountMQ.recentBinnedSampleCounts[idx]>0 :
+      0;
 
     // memory usage in fragment store
-    snapshot.fragmentStoreMemoryUsed = fsMemoryUsedMQ.recentBinnedValueSums[idx];
+    snapshot.fragmentStoreMemoryUsed = fsMemoryUsedMQ.recentBinnedSampleCounts[idx]>0 ?
+      fsMemoryUsedMQ.recentBinnedValueSums[idx]/fsMemoryUsedMQ.recentBinnedSampleCounts[idx] :
+      0;
 
     // number of events in stream queue
-    snapshot.entriesInStreamQueue = sqEntryCountMQ.recentBinnedValueSums[idx];
+    snapshot.entriesInStreamQueue = sqEntryCountMQ.recentBinnedSampleCounts[idx]>0 ?
+      sqEntryCountMQ.recentBinnedValueSums[idx]/sqEntryCountMQ.recentBinnedSampleCounts[idx]>0 :
+      0;
 
     // memory usage in stream queue
-    snapshot.memoryUsedInStreamQueue = sqMemoryUsedMQ.recentBinnedValueSums[idx];
+    snapshot.memoryUsedInStreamQueue = sqMemoryUsedMQ.recentBinnedSampleCounts[idx]>0 ?
+      sqMemoryUsedMQ.recentBinnedValueSums[idx]/sqMemoryUsedMQ.recentBinnedSampleCounts[idx] :
+      0;
 
     // rate/bandwidth of events popped from stream queue
     getRateAndBandwidth(eventSizeMQ, idx, snapshot.streamQueueRate, snapshot.streamQueueBandwidth);
@@ -187,10 +202,14 @@ void ThroughputMonitorCollection::do_getStats(Stats& stats, const unsigned int s
     getRateAndBandwidth(diskWriteMQ, idx, snapshot.writtenEventsRate, snapshot.writtenEventsBandwidth);
 
     // number of dqm events in DQMEvent queue
-    snapshot.entriesInDQMQueue = dqEntryCountMQ.recentBinnedValueSums[idx];
+    snapshot.entriesInDQMQueue = dqEntryCountMQ.recentBinnedSampleCounts[idx]>0 ?
+      dqEntryCountMQ.recentBinnedValueSums[idx]/dqEntryCountMQ.recentBinnedSampleCounts[idx] :
+      0;
 
     // memory usage in DQMEvent queue
-    snapshot.memoryUsedInDQMQueue = dqMemoryUsedMQ.recentBinnedValueSums[idx];
+    snapshot.memoryUsedInDQMQueue = dqMemoryUsedMQ.recentBinnedSampleCounts[idx]>0 ?
+      dqMemoryUsedMQ.recentBinnedValueSums[idx]/dqMemoryUsedMQ.recentBinnedSampleCounts[idx] :
+      0;
 
     // rate/bandwidth of dqm events popped from DQMEvent queue
     getRateAndBandwidth(dqmEventSizeMQ, idx, snapshot.dqmQueueRate, snapshot.dqmQueueBandwidth);
@@ -211,7 +230,13 @@ void ThroughputMonitorCollection::do_getStats(Stats& stats, const unsigned int s
     stats.snapshots.push_back(snapshot);
   }
 
-  stats.average /= stats.snapshots.size();
+  const size_t snapshotCount = stats.snapshots.size();
+  if (snapshotCount > 0)
+  {
+    stats.average /= snapshotCount;
+    stats.average.relativeTime =
+      stats.snapshots[0].absoluteTime - stats.snapshots[snapshotCount-1].absoluteTime;
+  }
 }
 
 
@@ -272,14 +297,14 @@ void ThroughputMonitorCollection::getRateAndBandwidth
 ) const
 {
   if (stats.recentBinnedDurations[idx] > 0.0)
-    {
-      rate =
-        stats.recentBinnedSampleCounts[idx] / stats.recentBinnedDurations[idx];
-
-      bandwidth =
-        stats.recentBinnedValueSums[idx] / (1024*1024) 
-        / stats.recentBinnedDurations[idx];
-    }
+  {
+    rate =
+      stats.recentBinnedSampleCounts[idx] / stats.recentBinnedDurations[idx];
+    
+    bandwidth =
+      stats.recentBinnedValueSums[idx] / (1024*1024) 
+      / stats.recentBinnedDurations[idx];
+  }
 }
 
 

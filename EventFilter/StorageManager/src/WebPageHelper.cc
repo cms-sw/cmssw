@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.49 2010/12/01 13:44:48 eulisse Exp $
+// $Id: WebPageHelper.cc,v 1.50 2010/12/02 15:48:55 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #ifdef __APPLE__
@@ -396,7 +396,7 @@ XHTMLMaker::Node* WebPageHelper::createWebPageBody
   fontAttr[ "size" ] = "-1";
   XHTMLMaker::Node* timestamp = maker.addNode("font", instanceTableDiv, fontAttr);
   maker.addText(timestamp,
-    "Page last updated: " + utils::timeStampUTC(utils::getCurrentTime()) );
+    "Page last updated: " + utils::asctimeUTC(utils::getCurrentTime()) );
 
   instanceTableDiv = maker.addNode("td", instanceTableRow);
   XHTMLMaker::Node* hostname = maker.addNode("font", instanceTableDiv, fontAttr);
@@ -1894,7 +1894,7 @@ void WebPageHelper::addDOMforThroughputStatistics(XHTMLMaker& maker,
   // Header
   tableRow = maker.addNode("tr", table, _specialRowAttr);
   tableDiv = maker.addNode("th", tableRow);
-  maker.addText(tableDiv, "Relative Time (sec)");
+  maker.addText(tableDiv, "Time (UTC)");
   tableDiv = maker.addNode("th", tableRow);
   maker.addText(tableDiv, "Memory pool usage (bytes)");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
@@ -1939,7 +1939,7 @@ void WebPageHelper::addDOMforThroughputStatistics(XHTMLMaker& maker,
   ThroughputMonitorCollection::Stats stats;
   tmc.getStats(stats);
 
-  addRowForThroughputStatistics(maker, table, stats.average);
+  addRowForThroughputStatistics(maker, table, stats.average, true);
  
   for (ThroughputMonitorCollection::Stats::Snapshots::const_iterator
          it = stats.snapshots.begin(),
@@ -1950,7 +1950,7 @@ void WebPageHelper::addDOMforThroughputStatistics(XHTMLMaker& maker,
     addRowForThroughputStatistics(maker, table, (*it));
   }
 
-  addRowForThroughputStatistics(maker, table, stats.average);
+  addRowForThroughputStatistics(maker, table, stats.average, true);
 }
 
 
@@ -1958,23 +1958,26 @@ void WebPageHelper::addRowForThroughputStatistics
 (
   XHTMLMaker& maker,
   XHTMLMaker::Node* table,
-  const ThroughputMonitorCollection::Stats::Snapshot& snapshot
+  const ThroughputMonitorCollection::Stats::Snapshot& snapshot,
+  const bool isAverage
 )
 {
   XHTMLMaker::Node* tableRow = maker.addNode("tr", table, _rowAttr);
   XHTMLMaker::Node* tableDiv;
   XHTMLMaker::AttrMap tableValueAttr = _tableValueAttr;
 
-  if (snapshot.relativeTime < 0)
+  if (isAverage)
   {
     tableValueAttr[ "style" ] = "background-color: yellow;";
     tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-    maker.addText(tableDiv, "Avg");
+    std::ostringstream avg;
+    avg << "<" << std::fixed << std::setprecision(0) << snapshot.relativeTime << "s>";
+    maker.addText(tableDiv, avg.str());
   }
   else
   {
-    tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-    maker.addDouble( tableDiv, snapshot.relativeTime, 2 );
+    tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
+    maker.addText( tableDiv, utils::timeStampUTC(snapshot.absoluteTime) );
   }
 
   // memory pool usage
