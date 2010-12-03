@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_10_0/pre7/HIon/V1 (CMSSW_3_10_0_pre6_HLT1)
+# /dev/CMSSW_3_10_0/pre7/HIon/V2 (CMSSW_3_10_0_pre6_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_10_0/pre7/HIon/V1')
+  tableName = cms.string('/dev/CMSSW_3_10_0/pre7/HIon/V2')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -3031,6 +3031,11 @@ process.hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     EcalAcceptSeverityLevel = cms.uint32( 3 ),
     UseHcalRecoveredHits = cms.bool( True ),
     UseEcalRecoveredHits = cms.bool( True ),
+    UseRejectedHitsOnly = cms.bool( False ),
+    HcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
+    EcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
+    UseRejectedRecoveredHcalHits = cms.bool( False ),
+    UseRejectedRecoveredEcalHits = cms.bool( False ),
     EBGrid = cms.vdouble(  ),
     EBWeights = cms.vdouble(  ),
     EEGrid = cms.vdouble(  ),
@@ -3749,6 +3754,11 @@ process.hltTowerMakerForHcal = cms.EDProducer( "CaloTowersCreator",
     EcalAcceptSeverityLevel = cms.uint32( 3 ),
     UseHcalRecoveredHits = cms.bool( True ),
     UseEcalRecoveredHits = cms.bool( True ),
+    UseRejectedHitsOnly = cms.bool( False ),
+    HcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
+    EcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
+    UseRejectedRecoveredHcalHits = cms.bool( False ),
+    UseRejectedRecoveredEcalHits = cms.bool( False ),
     EBGrid = cms.vdouble(  ),
     EBWeights = cms.vdouble(  ),
     EEGrid = cms.vdouble(  ),
@@ -3977,6 +3987,11 @@ process.hltStoppedHSCPTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     EcalAcceptSeverityLevel = cms.uint32( 3 ),
     UseHcalRecoveredHits = cms.bool( True ),
     UseEcalRecoveredHits = cms.bool( True ),
+    UseRejectedHitsOnly = cms.bool( False ),
+    HcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
+    EcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
+    UseRejectedRecoveredHcalHits = cms.bool( False ),
+    UseRejectedRecoveredEcalHits = cms.bool( False ),
     EBGrid = cms.vdouble(  ),
     EBWeights = cms.vdouble(  ),
     EEGrid = cms.vdouble(  ),
