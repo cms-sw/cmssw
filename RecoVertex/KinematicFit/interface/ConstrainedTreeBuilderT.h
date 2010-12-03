@@ -241,7 +241,7 @@ ConstrainedTreeBuilderT::covarianceMatrix(std::vector<RefCountedKinematicParticl
   */
   
   ROOT::Math::SMatrix<double,4*nTrk+3,4*nTrk+3, ROOT::Math::MatRepSym<double,4*nTrk+3> > reduced;
-  FitCov transform=ROOT::Math::Similarity(jac,fit_cov_sym); // similarityT???
+  FitCov transform=ROOT::Math::SimilarityT(jac,fit_cov_sym); // similarityT???
   
   //jacobian to add matrix components
   ROOT::Math::SMatrix<double,7,4*nTrk+3> jac_t;
