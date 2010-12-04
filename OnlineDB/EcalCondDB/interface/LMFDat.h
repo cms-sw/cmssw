@@ -26,14 +26,16 @@ class LMFDat : public LMFUnique {
 	 oracle::occi::Connection* conn);
   ~LMFDat() { }
 
+  virtual std::string foreignKeyName() const;
+
   LMFDat& setLMFRunIOV(const LMFRunIOV &iov) {
-    setInt("lmfRunIOV_id", iov.getID());
-    attach("lmfRunIOV", (LMFUnique*)&iov);
+    setInt(foreignKeyName(), iov.getID());
+    attach(foreignKeyName(), (LMFUnique*)&iov);
     return *this;
   }
   LMFRunIOV getLMFRunIOV() const {
     LMFRunIOV runiov(m_env, m_conn);
-    runiov.setByID(getInt("lmfRunIOV_id"));
+    runiov.setByID(getInt(foreignKeyName()));
     return runiov;
   }
 
@@ -121,7 +123,7 @@ class LMFDat : public LMFUnique {
   void dump() const ;
   void dump(int n) const ;
   virtual void dump(int n, int max) const ;
-  virtual int fetchData() throw(std::runtime_error);
+  std::map<int, std::vector<float> > fetchData() throw(std::runtime_error);
   void fetch() throw(std::runtime_error);
   void fetch(int logic_id) throw(std::runtime_error);
   void fetch(int logic_id, const Tm &tm) throw(std::runtime_error);

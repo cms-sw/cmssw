@@ -39,6 +39,7 @@ class LMFCorrCoefDat {
 				   const EcalLogicID &id);
   std::vector<float> getParameterErrors(const LMFLmrSubIOV &iov, 
 					const EcalLogicID &id);
+  std::vector<Tm> getTimes(const LMFLmrSubIOV &iov);
   int getFlag(const LMFLmrSubIOV &iov, const EcalLogicID &id);
 
   int size() const;
@@ -49,6 +50,7 @@ class LMFCorrCoefDat {
 
  private:
   std::map<int, LMFCorrCoefDatComponent *> m_data;
+  std::map<int, LMFLmrSubIOV *>            m_subiov;
   oracle::occi::Environment* m_env;
   oracle::occi::Connection* m_conn;
   bool                      m_debug;

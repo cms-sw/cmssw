@@ -22,17 +22,21 @@ LMFDat::LMFDat(oracle::occi::Environment* env,
   m_max = -1;
 }
 
+std::string LMFDat::foreignKeyName() const {
+  return "lmfRunIOV";
+}
+
 int LMFDat::getLMFRunIOVID() {
-  int id = getInt("lmfRunIOV_id");
+  int id = getInt(foreignKeyName());
   if (id == 0) {
     // try to get it from the list of foreign keys
     std::map<std::string, LMFUnique*>::iterator i = 
-      m_foreignKeys.find("lmfRunIOV");
+      m_foreignKeys.find(foreignKeyName());
     if (i != m_foreignKeys.end()) {
       LMFRunIOV *iov = (LMFRunIOV*)(i->second);
       if (iov != NULL) {
 	id = iov->fetchID();
-	setInt("lmfRunIOV_id", id);
+	setInt(foreignKeyName(), id);
       }
     }
   }
@@ -195,7 +199,7 @@ void LMFDat::fetch(const EcalLogicID &id, const Tm &tm)
 void LMFDat::fetch(const EcalLogicID &id, const Tm &tm, int direction) 
   throw(std::runtime_error)
 {
-  setInt("lmfRunIOV_id", 0); /* set the LMF_IOV_ID to undefined */
+  setInt(foreignKeyName(), 0); /* set the LMF_IOV_ID to undefined */
   fetch(id.getLogicID(), &tm, direction);
 }
 
@@ -252,7 +256,7 @@ void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction)
 	}
 	int id = rset->getInt(2);
 	if (timestamp != NULL) {
-	  setInt("lmfRunIOV_id", rset->getInt(1));
+	  setInt(foreignKeyName(), rset->getInt(1));
 	}
 	this->setData(id, x);
 	x.clear();
@@ -269,7 +273,7 @@ void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction)
 
 bool LMFDat::isValid() {
   bool ret = true;
-  if (m_foreignKeys.find("lmfRunIOV") == m_foreignKeys.end()) {
+  if (m_foreignKeys.find(foreignKeyName()) == m_foreignKeys.end()) {
     ret = false;
     m_Error += " Can't find lmfRunIOV within foreign keys.";
     if (m_debug) {
@@ -280,15 +284,16 @@ bool LMFDat::isValid() {
   return ret;
 }
 
-int LMFDat::fetchData() 
+std::map<int, std::vector<float> > LMFDat::fetchData() 
   throw(std::runtime_error)
 {
   // see if any of the data is already in the database
-  int s = m_data.size();
+  std::map<int, std::vector<float> > s = m_data;
   std::string sql = "SELECT LOGIC_ID FROM " + getTableName() + " WHERE "
     + getIovIdFieldName() + " = :1";
   if (m_debug) {
-    cout << m_className << ":: data items for this object = " << s << endl;
+    cout << m_className << ":: candidate data items to be written = " 
+	 << s.size() << endl;
     cout << m_className << "   Executing " << sql;
     cout << " where " << getIovIdFieldName() << " = " 
 	 << getLMFRunIOVID() << endl;
@@ -299,16 +304,16 @@ int LMFDat::fetchData()
     stmt->setInt(1, getLMFRunIOVID());
     stmt->setPrefetchRowCount(131072);
     ResultSet* rset = stmt->executeQuery();
-    std::map<int, std::vector<float> >::iterator i = m_data.end();
-    std::map<int, std::vector<float> >::iterator e = m_data.end();
+    std::map<int, std::vector<float> >::iterator i = s.end();
+    std::map<int, std::vector<float> >::iterator e = s.end();
     while (rset->next()) {
       if (m_debug) {
 	cout << m_className << ":: checking " << rset->getInt(1) << endl
 	     << std::flush;
       }
-      i = m_data.find(rset->getInt(1));
+      i = s.find(rset->getInt(1));
       if (i != e) {
-	m_data.erase(i);
+	s.erase(i);
       }
     }
     stmt->setPrefetchRowCount(0);
@@ -317,10 +322,9 @@ int LMFDat::fetchData()
   catch (oracle::occi::SQLException &e) {
     throw(std::runtime_error(m_className + "::fetchData:  "+e.getMessage()));
   }
-  s = m_data.size();
   if (m_debug) {
-    cout << m_className << ":: data items for this object now is = " << s 
-	 << endl;
+    cout << m_className << ":: data items to write = " 
+	 << s.size() << endl;
   }
   return s;
 }
@@ -338,14 +342,15 @@ int LMFDat::writeDB()
   }
   // write data on the database
   int ret = 0;
-  if (fetchData() != 0) {
+  std::map<int, std::vector<float> > data2write = fetchData();
+  if (data2write.size() > 0) {
     this->checkConnection();
     bool ok = check();
     // write
     if (ok && isValid()) {
       std::list<dvoid *> bufPointers;
       int nParameters = m_keys.size(); 
-      int nData = m_data.size();
+      int nData = data2write.size();
       if (m_debug) {
 	cout << m_className << ": # data items = " << nData << endl;
 	cout << m_className << ": # parameters = " << nParameters << endl;
@@ -368,10 +373,10 @@ int LMFDat::writeDB()
 	  floatSize[i] = sizeof(int);
 	}
 	// build the data array for first column: the same run iov id
-	LMFRunIOV *runiov = (LMFRunIOV*)m_foreignKeys["lmfRunIOV"];
+	LMFRunIOV *runiov = (LMFRunIOV*)m_foreignKeys[foreignKeyName()];
 	int iov_id = runiov->getID();
-	std::map<int, std::vector<float> >::const_iterator b = m_data.begin();
-	std::map<int, std::vector<float> >::const_iterator e = m_data.end();
+	std::map<int, std::vector<float> >::const_iterator b = data2write.begin();
+	std::map<int, std::vector<float> >::const_iterator e = data2write.end();
 	for (int i = 0; i < nData; i++) {
 	  iovid_vec[i] = iov_id;
 	}
@@ -389,7 +394,7 @@ int LMFDat::writeDB()
 	// for each column build the data array
 	oracle::occi::Type type = oracle::occi::OCCIFLOAT;
 	for (int i = 0; i < nParameters; i++) {
-	  b = m_data.begin();
+	  b = data2write.begin();
 	  // loop on all logic ids
 	  c = 0;
 	  while (b != e) {
@@ -445,9 +450,12 @@ int LMFDat::writeDB()
 	  bi++;
 	}
 	m_conn->terminateStatement(stmt);
+	m_conn->commit();
 	ret = nData;
       } catch (oracle::occi::SQLException &e) {
-	throw(std::runtime_error(m_className + "::writeDB: " + e.getMessage()));
+	throw(std::runtime_error(m_className + "::writeDB: " + 
+				 e.getMessage()));
+	m_conn->rollback();
       }
     } else {
       cout << m_className << "::writeDB: Cannot write because " << 

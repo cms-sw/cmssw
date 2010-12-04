@@ -41,6 +41,7 @@ class LMFCorrCoefDatComponent: public LMFDat {
   std::vector<float>  getParameterErrors(const EcalLogicID &id);
   int                 getFlag(const EcalLogicID &id);
   
+  std::string foreignKeyName() const;
   std::string getTableName() const;
   std::string getIovIdFieldName() const;
   int writeDB() throw(std::runtime_error);

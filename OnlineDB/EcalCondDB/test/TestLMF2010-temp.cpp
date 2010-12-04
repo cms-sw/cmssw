@@ -113,13 +113,24 @@ public:
     std::cout << "Data stored for " << count << " xtals" << std::endl;
     coeff.dump();
     std::cout << std::flush;
+    std::vector<float> xx = coeff.getParameters(subiov2, testID);
+    for (int i = 0; i < 3; i++) {
+      std::cout << xx[i] << std::endl;
+    }
+    std::cout << "Before write" << std::endl;
     coeff.writeDB();
+    std::cout << "After write" << std::endl;
+    std::vector<float> xy = coeff.getParameters(subiov2, testID);
+    for (int i = 0; i < 3; i++) {
+      std::cout << xy[i] << std::endl;
+    }
     // test reading data back from the database 
     LMFCorrCoefDat testRead(econn);
     testRead.debug();
     std::vector<float> x = testRead.getParameters(subiov2, testID);
+    std::vector<Tm> y    = testRead.getTimes(subiov2);
     for (int i = 0; i < 3; i++) {
-      std::cout << x[i] << std::endl;
+      std::cout << x[i] << " " << y[i].str() << std::endl;
     }
     // test reading data directly from memory (should not access the database
     coeff.debug();

@@ -29,6 +29,10 @@ void LMFCorrCoefDatComponent::init() {
   }
 }
 
+std::string LMFCorrCoefDatComponent::foreignKeyName() const {
+  return "lmfLmrSubIOV";
+}
+
 std::string LMFCorrCoefDatComponent::getTableName() const {
   return "LMF_CORR_COEF_DAT";
 }
@@ -38,8 +42,8 @@ std::string LMFCorrCoefDatComponent::getIovIdFieldName() const {
 }
 
 LMFCorrCoefDatComponent& LMFCorrCoefDatComponent::setLMFLmrSubIOV(const LMFLmrSubIOV &iov) {
-  setInt("lmfRunIOV", iov.getID());
-  attach("lmfRunIOV", (LMFUnique*)&iov);
+  setInt(foreignKeyName(), iov.getID());
+  attach(foreignKeyName(), (LMFUnique*)&iov);
   return *this;
 }
 
@@ -74,12 +78,12 @@ LMFCorrCoefDatComponent& LMFCorrCoefDatComponent::setFlag(const EcalLogicID &id,
 
 LMFLmrSubIOV LMFCorrCoefDatComponent::getLMFLmrSubIOV() const {
   LMFLmrSubIOV iov(m_env, m_conn);
-  iov.setByID(getInt("lmfRunIOV"));
+  iov.setByID(getInt(foreignKeyName()));
   return iov;
 }
 
 int LMFCorrCoefDatComponent::getLMFLmrSubIOVID() const {
-  return getInt("lmfRunIOV");
+  return getInt(foreignKeyName());
 }
 
 std::vector<float>  LMFCorrCoefDatComponent::getParameters(const EcalLogicID &id) {

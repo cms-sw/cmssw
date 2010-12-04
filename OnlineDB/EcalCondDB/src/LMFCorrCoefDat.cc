@@ -25,10 +25,18 @@ LMFCorrCoefDat::~LMFCorrCoefDat() {
     i++;
   }
   m_data.clear();
+  std::map<int, LMFLmrSubIOV*>::iterator si = m_subiov.begin(); 
+  std::map<int, LMFLmrSubIOV*>::iterator se = m_subiov.end(); 
+  while (si != se) {
+    delete si->second;
+    si++;
+  }
+  m_subiov.clear();
 }
 
 void LMFCorrCoefDat::init() {
   m_data.clear();
+  m_subiov.clear();
   m_env = NULL;
   m_conn = NULL;
   nodebug();
@@ -78,11 +86,15 @@ LMFCorrCoefDatComponent* LMFCorrCoefDat::find(const LMFLmrSubIOV &iov) {
     return m_data[iov.getID()];
   } else {
     LMFCorrCoefDatComponent *c = new LMFCorrCoefDatComponent();
+    LMFLmrSubIOV *subiov = new LMFLmrSubIOV();
     if (m_conn != NULL) {
       c->setConnection(m_env, m_conn);
+      subiov->setConnection(m_env, m_conn);
     }
     c->setLMFLmrSubIOV(iov);
+    *subiov = iov;
     m_data[iov.getID()] = c;
+    m_subiov[iov.getID()] = subiov;
     return c;
   }
 }
@@ -141,15 +153,22 @@ void LMFCorrCoefDat::fetch(const LMFLmrSubIOV &iov)
     comp->setLMFLmrSubIOV(iov);
     comp->fetch();
     m_data[iov.getID()] = comp;
+    LMFLmrSubIOV *subiov = new LMFLmrSubIOV(m_env, m_conn);
+    *subiov = iov;
+    m_subiov[iov.getID()] = subiov;
   } else if (m_debug) {
     std::cout << "Found in memory." << std::endl
 	      << std::flush;
   }
 }
 
+std::vector<Tm> LMFCorrCoefDat::getTimes(const LMFLmrSubIOV &iov) {
+  return iov.getTimes();
+}
+
 std::vector<float> LMFCorrCoefDat::getParameters(const LMFLmrSubIOV &iov,
 						 const EcalLogicID &id) {
-  std::vector<float> x;
+  std::vector<float> x(3);
   int key = iov.getID();
   fetch(iov);
   if (m_data.find(key) != m_data.end()) {
