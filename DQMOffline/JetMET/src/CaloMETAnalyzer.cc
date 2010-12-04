@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/09/23 20:39:13 $
- *  $Revision: 1.52 $
+ *  $Date: 2010/11/03 17:02:18 $
+ *  $Revision: 1.53 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -806,19 +806,12 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       int vertex_number     = vertexCollection.size();
       reco::VertexCollection::const_iterator v = vertexCollection.begin();
       double vertex_chi2    = v->normalizedChi2();
-      //double vertex_d0      = sqrt(v->x()*v->x()+v->y()*v->y());
-      //double vertex_numTrks = v->tracksSize();
       double vertex_ndof    = v->ndof();
       bool   fakeVtx        = v->isFake();
-      double vertex_sumTrks = 0.0;
       double vertex_Z       = v->z();
-      for (reco::Vertex::trackRef_iterator vertex_curTrack = v->tracks_begin(); vertex_curTrack!=v->tracks_end(); vertex_curTrack++) {
-	vertex_sumTrks += (*vertex_curTrack)->pt();
-      }
       
       if (  !fakeVtx
 	    && vertex_number>=_nvtx_min
-	    //&& vertex_numTrks>_nvtxtrks_min
 	    && vertex_ndof   >_vtxndof_min
 	    && vertex_chi2   <_vtxchi2_max
 	    && fabs(vertex_Z)<_vtxz_max ) 

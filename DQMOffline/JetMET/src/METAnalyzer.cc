@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/09/29 12:24:55 $
- *  $Revision: 1.36 $
+ *  $Date: 2010/11/03 17:02:22 $
+ *  $Revision: 1.37 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -721,19 +721,12 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       int vertex_number     = vertexCollection.size();
       VertexCollection::const_iterator v = vertexCollection.begin();
       double vertex_chi2    = v->normalizedChi2();
-      //double vertex_d0      = sqrt(v->x()*v->x()+v->y()*v->y());
-      //double vertex_numTrks = v->tracksSize();
       double vertex_ndof    = v->ndof();
       bool   fakeVtx        = v->isFake();
-      double vertex_sumTrks = 0.0;
       double vertex_Z       = v->z();
-      for (Vertex::trackRef_iterator vertex_curTrack = v->tracks_begin(); vertex_curTrack!=v->tracks_end(); vertex_curTrack++) {
-	vertex_sumTrks += (*vertex_curTrack)->pt();
-      }
       
       if (  !fakeVtx
 	    && vertex_number>=_nvtx_min
-	    //&& vertex_numTrks>_nvtxtrks_min
 	    && vertex_ndof   >_vtxndof_min
 	    && vertex_chi2   <_vtxchi2_max
 	    && fabs(vertex_Z)<_vtxz_max ) bPrimaryVertex = true;
