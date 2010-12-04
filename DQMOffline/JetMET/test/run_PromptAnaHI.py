@@ -75,45 +75,32 @@ process.load("DQMServices.Core.DQM_cfg")
 
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
-#
-# BeamHaloData producer
-#
-process.load("Configuration/StandardSequences/Geometry_cff")
-process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load("Configuration/StandardSequences/MagneticField_cff")
-process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
-process.load("RecoMET/Configuration/RecoMET_BeamHaloId_cff")
-#process.GlobalTag.globaltag ='GR_R_38X_V13A::All'
+###for HI running
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration.StandardSequences.Geometry_cff')
+process.load('Configuration.StandardSequences.Reconstruction_cff')
+process.load('RecoJets.JetAssociationProducers.trackExtrapolator_cfi')
+process.load('RecoJets.JetAssociationProducers.ak7JTA_cff') 
+process.load('RecoJets.JetAssociationProducers.ak5JTA_cff')
+process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
+process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+
+#process.GlobalTag.globaltag ='MC_39Y_V2::All'
+#process.GlobalTag.globaltag ='MC_310_V1::All'
 process.GlobalTag.globaltag ='GR10_P_V12::All'
 
 # the task - JetMET objects
 if iscosmics =="True":
   process.load("DQMOffline.JetMET.jetMETDQMOfflineSourceCosmic_cff")
 else:
-  process.load("DQMOffline.JetMET.jetMETDQMOfflineSource_cff")
+  process.load("DQMOffline.JetMET.jetMETDQMOfflineSourceHI_cff")
 
 process.jetMETAnalyzer.OutputMEsInRootFile = cms.bool(True)
 process.jetMETAnalyzer.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
 process.jetMETAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
 process.jetMETAnalyzer.processname = cms.string(trigger_set)
-#process.jetMETAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","","HLT8E29")
-#process.jetMETAnalyzer.processname = cms.string("HLT8E29")
-
-if allhist=="True":
-  process.jetMETAnalyzer.DoJetPtAnalysis = cms.untracked.bool(True)
-  process.jetMETAnalyzer.DoJetPtCleaning = cms.untracked.bool(True)
-  process.jetMETAnalyzer.DoIterativeCone = cms.untracked.bool(True)
-
-#process.jetMETAnalyzer.caloMETAnalysis.verbose = cms.int32(1)
-
-if allhist=="True":
-  process.jetMETAnalyzer.caloMETAnalysis.allSelection       = cms.bool(True)
-  process.jetMETAnalyzer.caloMETNoHFAnalysis.allSelection   = cms.bool(True)
-  process.jetMETAnalyzer.caloMETHOAnalysis.allSelection     = cms.bool(True)
-  process.jetMETAnalyzer.caloMETNoHFHOAnalysis.allSelection = cms.bool(True)
-  process.jetMETAnalyzer.pfMETAnalysis.allSelection         = cms.bool(True)
-  process.jetMETAnalyzer.tcMETAnalysis.allSelection         = cms.bool(True)
-  process.jetMETAnalyzer.mucorrMETAnalysis.allSelection     = cms.bool(True)
 
 # check # of bins
 process.load("DQMServices.Components.DQMStoreStats_cfi")
@@ -176,14 +163,12 @@ process.options = cms.untracked.PSet(
 )
 
 if iscosmics=="True":
-  process.p = cms.Path(process.BeamHaloId
-                     * process.jetMETDQMOfflineSourceCosmic
+  process.p = cms.Path(process.jetMETDQMOfflineSourceCosmic
                      #* process.dqmStoreStats
                      #* process.MEtoEDMConverter
                      )
 else:
-  process.p = cms.Path(process.BeamHaloId
-                     * process.jetMETDQMOfflineSource
+  process.p = cms.Path(process.jetMETDQMOfflineSource
                      #* process.dqmStoreStats
                      #* process.MEtoEDMConverter
                      )
