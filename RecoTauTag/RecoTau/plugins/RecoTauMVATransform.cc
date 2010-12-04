@@ -29,7 +29,6 @@ namespace {
 std::auto_ptr<TGraph> buildTransform(const edm::ParameterSet &pset) {
   double min = pset.getParameter<double>("min");
   double max = pset.getParameter<double>("max");
-  std::cout << "Building transform" << std::endl;
   const std::vector<double> &values =
       pset.getParameter<std::vector<double> >("transform");
   double stepSize = (max - min)/(values.size()-1);
