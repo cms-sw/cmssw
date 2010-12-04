@@ -8,7 +8,6 @@ AnalyzeBeamHalo.StandardDQM = cms.bool(True)
 
 jetMETAnalyzer.DoPFJetAnalysis  = cms.untracked.bool(False)
 jetMETAnalyzer.DoJPTJetAnalysis = cms.untracked.bool(False)
-jetMETAnalyzer.DoIterativeCone  = cms.untracked.bool(False)
 jetMETAnalyzer.DoDiJetSelection = cms.untracked.bool(False)
 
 jetMETAnalyzer.AKJetsCollectionLabel  = cms.InputTag("iterativeConePu5CaloJets")
@@ -17,7 +16,7 @@ jetMETAnalyzer.CleaningParameters.vertexLabel = cms.InputTag("hiSelectedVertex")
 
 jetMETAnalyzer.DoPFJetCleaning  = cms.untracked.bool(False)
 jetMETAnalyzer.DoJPTJetCleaning = cms.untracked.bool(False)
-jetMETAnalyzer.DoJetCleaning    = cms.untracked.bool(False)
+jetMETAnalyzer.DoJetCleaning    = cms.untracked.bool(True)
 
 jetMETAnalyzer.DoCaloMETAnalysis            = cms.untracked.bool(False)
 jetMETAnalyzer.DoTcMETAnalysis              = cms.untracked.bool(False)
