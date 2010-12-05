@@ -30,8 +30,8 @@ private:
   unsigned int nToys_;
   double clsAccuracy_, rAbsAccuracy_, rRelAccuracy_;
   bool   rInterval_;
-
-  std::pair<double,double> eval(RooRealVar *r, double rVal, RooStats::HybridCalculatorOriginal *hc, double clsTarget, bool adaptive=true) ;
+  bool CLs_;
+  std::pair<double,double> eval(RooRealVar *r, double rVal, RooStats::HybridCalculatorOriginal *hc, bool adaptive=false, double clsTarget=-1) ;
 };
 
 #endif
