@@ -51,9 +51,9 @@ const PFJetRef& PFTau::jetRef() const {return jetRef_;}
 void PFTau::setjetRef(const PFJetRef& x) {jetRef_=x;}
 
 const PFTauTagInfoRef& PFTau::pfTauTagInfoRef() const {
-  edm::LogWarning("DeprecatedPFTauMember")
-      << "The PFTauTagInfoRef member is deprecated in the PFTau."
-      << " For access to the underlying PFJet, please use the jetRef() method";
+//  edm::LogWarning("DeprecatedPFTauMember")
+//      << "The PFTauTagInfoRef member is deprecated in the PFTau."
+//      << " For access to the underlying PFJet, please use the jetRef() method";
   return PFTauTagInfoRef_;
 }
 
