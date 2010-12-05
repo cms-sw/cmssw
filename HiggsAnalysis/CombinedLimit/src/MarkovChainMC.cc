@@ -129,12 +129,38 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, const 
   if (verbose > 0) {
     std::cout << "\n -- MCMC, flat prior -- " << "\n";
     std::cout << "Limit: r < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
-    std::cout << "Interval:    [ " << mcInt->LowerLimit(*r)             << " , " << mcInt->UpperLimit(*r)             << " ] @ " << cl * 100 << "% CL" << std::endl;
-    std::cout << "Interval DH: [ " << mcInt->LowerLimitByDataHist(*r)   << " , " << mcInt->UpperLimitByDataHist(*r)   << " ] @ " << cl * 100 << "% CL" << std::endl;
-    std::cout << "Interval H:  [ " << mcInt->LowerLimitByHist(*r)       << " , " << mcInt->UpperLimitByHist(*r)       << " ] @ " << cl * 100 << "% CL" << std::endl;
-    //std::cout << "Interval K:  [ " << mcInt->LowerLimitByKeys(*r)       << " , " << mcInt->UpperLimitByKeys(*r)       << " ] @ " << cl * 100 << "% CL" << std::endl;
-    std::cout << "Interval S:  [ " << mcInt->LowerLimitShortest(*r)     << " , " << mcInt->UpperLimitShortest(*r)     << " ] @ " << cl * 100 << "% CL" << std::endl;
-    std::cout << "Interval TF: [ " << mcInt->LowerLimitTailFraction(*r) << " , " << mcInt->UpperLimitTailFraction(*r) << " ] @ " << cl * 100 << "% CL" << std::endl;
+
+    if (verbose > 1) std::cout << "Getting uncertainty for TF interval" << std::endl;
+    if (verbose > 1) printf("  CL %7.5f Limit %9.5f\n", cl, limit);
+    double clLo, clHi;
+    for (clHi = 1.0; clHi - cl > 0.0005; clHi = 0.5*(cl+clHi)) {
+        mcInt->SetConfidenceLevel(clHi);
+        double xlimit = mcInt->UpperLimitTailFraction(*r);
+        if (verbose > 1) printf("  CL %7.5f Limit %9.5f\n", clHi, xlimit);
+        if (xlimit == limit) { 
+            clHi += (clHi - cl);
+            if (verbose > 1) std::cout << " ... found boundary\n"; 
+            break; 
+        }
+    }
+    for (clLo = 0.0; cl - clLo > 0.0005; clLo = 0.5*(cl+clLo)) {
+        mcInt->SetConfidenceLevel(clLo);
+        double xlimit = mcInt->UpperLimitTailFraction(*r);
+        if (verbose > 1) printf("  CL %7.5f Limit %9.5f\n", clLo, xlimit);
+        if (xlimit == limit) { 
+            if (verbose > 1) std::cout << " ... found boundary\n"; 
+            clLo -= (cl - clLo);
+            break; 
+        }
+    }
+    mcInt->SetConfidenceLevel(clHi); 
+    double limHi = mcInt->UpperLimitTailFraction(*r);
+    mcInt->SetConfidenceLevel(clLo); 
+    double limLo = mcInt->UpperLimitTailFraction(*r);
+        
+    std::cout << "       r < " << limLo << " @ " << clLo * 100 << "% CL" << std::endl;
+    std::cout << "       r < " << limHi << " @ " << clHi * 100 << "% CL" << std::endl;
+    std::cout << "       unertainty: " << 0.5*(limHi-limLo) << std::endl;
   }
   return true;
 }
