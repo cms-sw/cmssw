@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_10_0/pre8/GRun/V1 (CMSSW_3_10_0_pre6_HLT2)
+# /dev/CMSSW_3_10_0/pre6/GRun/V14 (CMSSW_3_10_0_pre6_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_10_0/pre8/GRun/V1')
+  tableName = cms.string('/dev/CMSSW_3_10_0/pre6/GRun/V14')
 )
 
 streams = cms.PSet( 
@@ -817,115 +817,53 @@ datasets = cms.PSet(
     'HLT_HcalCalibration' )
 )
 
-BTagRecord = cms.ESSource( "EmptyESSource",
+hltESSBTagRecord = cms.ESSource( "EmptyESSource",
   recordName = cms.string( "JetTagComputerRecord" ),
   iovIsRunNotTime = cms.bool( True ),
   appendToDataLabel = cms.string( "" ),
   firstValid = cms.vuint32( 1 )
 )
-L2RelativeCorrectionService = cms.ESSource( "LXXXCorrectionService",
+hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
+  recordName = cms.string( "HcalSeverityLevelComputerRcd" ),
+  iovIsRunNotTime = cms.bool( True ),
+  appendToDataLabel = cms.string( "" ),
+  firstValid = cms.vuint32( 1 )
+)
+hltESSL2RelativeCorrectionService = cms.ESSource( "LXXXCorrectionService",
   appendToDataLabel = cms.string( "" ),
   level = cms.string( "L2Relative" ),
   algorithm = cms.string( "IC5Calo" ),
   section = cms.string( "" ),
   era = cms.string( "Summer09_7TeV_ReReco332" )
 )
-L3AbsoluteCorrectionService = cms.ESSource( "LXXXCorrectionService",
+hltESSL3AbsoluteCorrectionService = cms.ESSource( "LXXXCorrectionService",
   appendToDataLabel = cms.string( "" ),
   level = cms.string( "L3Absolute" ),
   algorithm = cms.string( "IC5Calo" ),
   section = cms.string( "" ),
   era = cms.string( "Summer09_7TeV_ReReco332" )
 )
-MCJetCorrectorIcone5 = cms.ESSource( "JetCorrectionServiceChain",
+hltESSMCJetCorrectorIcone5 = cms.ESSource( "JetCorrectionServiceChain",
   appendToDataLabel = cms.string( "" ),
-  correctors = cms.vstring( 'L2RelativeCorrectionService',
-    'L3AbsoluteCorrectionService' ),
-  label = cms.string( "MCJetCorrectorIcone5" )
+  correctors = cms.vstring( 'hltESSL2RelativeCorrectionService',
+    'hltESSL3AbsoluteCorrectionService' ),
+  label = cms.string( "hltESSMCJetCorrectorIcone5" )
 )
-MCJetCorrectorIcone5HF07 = cms.ESSource( "LXXXCorrectionService",
+hltESSMCJetCorrectorIcone5HF07 = cms.ESSource( "LXXXCorrectionService",
   appendToDataLabel = cms.string( "" ),
   level = cms.string( "L2Relative" ),
   algorithm = cms.string( "" ),
   section = cms.string( "" ),
   era = cms.string( "HLT" )
 )
-MCJetCorrectorIcone5Unit = cms.ESSource( "LXXXCorrectionService",
+hltESSMCJetCorrectorIcone5Unit = cms.ESSource( "LXXXCorrectionService",
   appendToDataLabel = cms.string( "" ),
   level = cms.string( "L2RelativeFlat" ),
   algorithm = cms.string( "" ),
   section = cms.string( "" ),
   era = cms.string( "HLT" )
 )
-essourceSev = cms.ESSource( "EmptyESSource",
-  recordName = cms.string( "HcalSeverityLevelComputerRcd" ),
-  iovIsRunNotTime = cms.bool( True ),
-  appendToDataLabel = cms.string( "" ),
-  firstValid = cms.vuint32( 1 )
-)
 
-hltHIPixelLayerPairs = cms.ESProducer( "SeedingLayersESProducer",
-  appendToDataLabel = cms.string( "" ),
-  ComponentName = cms.string( "hltHIPixelLayerPairs" ),
-  layerList = cms.vstring( 'BPix1+BPix2',
-    'BPix1+BPix3',
-    'BPix2+BPix3',
-    'BPix1+FPix1_pos',
-    'BPix1+FPix1_neg',
-    'BPix1+FPix2_pos',
-    'BPix1+FPix2_neg',
-    'BPix2+FPix1_pos',
-    'BPix2+FPix1_neg',
-    'BPix2+FPix2_pos',
-    'BPix2+FPix2_neg',
-    'FPix1_pos+FPix2_pos',
-    'FPix1_neg+FPix2_neg' ),
-  BPix = cms.PSet( 
-    useErrorsFromParam = cms.bool( True ),
-    hitErrorRPhi = cms.double( 0.0027 ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
-    HitProducer = cms.string( "hltHISiPixelRecHits" ),
-    hitErrorRZ = cms.double( 0.0060 )
-  ),
-  FPix = cms.PSet( 
-    useErrorsFromParam = cms.bool( True ),
-    hitErrorRPhi = cms.double( 0.0051 ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
-    HitProducer = cms.string( "hltHISiPixelRecHits" ),
-    hitErrorRZ = cms.double( 0.0036 )
-  ),
-  TEC = cms.PSet(  )
-)
-hltHIPixelLayerTriplets = cms.ESProducer( "SeedingLayersESProducer",
-  appendToDataLabel = cms.string( "" ),
-  ComponentName = cms.string( "hltHIPixelLayerTriplets" ),
-  layerList = cms.vstring( 'BPix1+BPix2+BPix3',
-    'BPix1+BPix2+FPix1_pos',
-    'BPix1+BPix2+FPix1_neg',
-    'BPix1+FPix1_pos+FPix2_pos',
-    'BPix1+FPix1_neg+FPix2_neg' ),
-  BPix = cms.PSet( 
-    useErrorsFromParam = cms.bool( True ),
-    hitErrorRPhi = cms.double( 0.0027 ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
-    HitProducer = cms.string( "hltHISiPixelRecHits" ),
-    hitErrorRZ = cms.double( 0.0060 )
-  ),
-  FPix = cms.PSet( 
-    useErrorsFromParam = cms.bool( True ),
-    hitErrorRPhi = cms.double( 0.0051 ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
-    HitProducer = cms.string( "hltHISiPixelRecHits" ),
-    hitErrorRZ = cms.double( 0.0036 )
-  ),
-  TEC = cms.PSet(  )
-)
-AnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
-  ComponentName = cms.string( "AnalyticalPropagator" ),
-  PropagationDirection = cms.string( "alongMomentum" ),
-  MaxDPhi = cms.double( 1.6 ),
-  appendToDataLabel = cms.string( "" )
-)
 AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   ComponentName = cms.string( "AnyDirectionAnalyticalPropagator" ),
   PropagationDirection = cms.string( "anyDirection" ),
@@ -937,43 +875,6 @@ CaloTopologyBuilder = cms.ESProducer( "CaloTopologyBuilder",
 )
 CaloTowerConstituentsMapBuilder = cms.ESProducer( "CaloTowerConstituentsMapBuilder",
   MapFile = cms.untracked.string( "Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz" ),
-  appendToDataLabel = cms.string( "" )
-)
-Chi2EstimatorForRefit = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
-  ComponentName = cms.string( "Chi2EstimatorForRefit" ),
-  MaxChi2 = cms.double( 100000.0 ),
-  nSigma = cms.double( 3.0 ),
-  appendToDataLabel = cms.string( "" )
-)
-Chi2MeasurementEstimator = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
-  ComponentName = cms.string( "Chi2" ),
-  MaxChi2 = cms.double( 30.0 ),
-  nSigma = cms.double( 3.0 ),
-  appendToDataLabel = cms.string( "" )
-)
-DummyDetLayerGeometry = cms.ESProducer( "DetLayerGeometryESProducer",
-  ComponentName = cms.string( "DummyDetLayerGeometry" ),
-  appendToDataLabel = cms.string( "" )
-)
-ESUnpackerWorkerESProducer = cms.ESProducer( "ESUnpackerWorkerESProducer",
-  ComponentName = cms.string( "esRawToRecHit" ),
-  appendToDataLabel = cms.string( "" ),
-  DCCDataUnpacker = cms.PSet(  LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ) ),
-  RHAlgo = cms.PSet( 
-    Type = cms.string( "ESRecHitWorker" ),
-    ESGain = cms.int32( 2 ),
-    ESMIPkeV = cms.double( 81.08 ),
-    ESMIPADC = cms.double( 55.0 ),
-    ESBaseline = cms.int32( 0 ),
-    ESRecoAlgo = cms.int32( 0 )
-  )
-)
-EcalRegionCablingESProducer = cms.ESProducer( "EcalRegionCablingESProducer",
-  appendToDataLabel = cms.string( "" ),
-  esMapping = cms.PSet(  LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ) )
-)
-EcalTrigTowerConstituentsMapBuilder = cms.ESProducer( "EcalTrigTowerConstituentsMapBuilder",
-  MapFile = cms.untracked.string( "Geometry/EcalMapping/data/EndCap_TTMap.txt" ),
   appendToDataLabel = cms.string( "" )
 )
 EcalUnpackerWorkerESProducer = cms.ESProducer( "EcalUnpackerWorkerESProducer",
@@ -1004,134 +905,6 @@ EcalUnpackerWorkerESProducer = cms.ESProducer( "EcalUnpackerWorkerESProducer",
     laserCorrection = cms.bool( False )
   )
 )
-FastSteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorESProducer",
-  ComponentName = cms.string( "FastSteppingHelixPropagatorAny" ),
-  PropagationDirection = cms.string( "anyDirection" ),
-  useInTeslaFromMagField = cms.bool( False ),
-  SetVBFPointer = cms.bool( False ),
-  useMagVolumes = cms.bool( True ),
-  VBFName = cms.string( "VolumeBasedMagneticField" ),
-  ApplyRadX0Correction = cms.bool( True ),
-  AssumeNoMaterial = cms.bool( False ),
-  NoErrorPropagation = cms.bool( False ),
-  debug = cms.bool( False ),
-  useMatVolumes = cms.bool( True ),
-  useIsYokeFlag = cms.bool( True ),
-  returnTangentPlane = cms.bool( True ),
-  sendLogWarning = cms.bool( False ),
-  useTuningForL2Speed = cms.bool( True ),
-  useEndcapShiftsInZ = cms.bool( False ),
-  endcapShiftInZPos = cms.double( 0.0 ),
-  endcapShiftInZNeg = cms.double( 0.0 ),
-  appendToDataLabel = cms.string( "" )
-)
-FastSteppingHelixPropagatorOpposite = cms.ESProducer( "SteppingHelixPropagatorESProducer",
-  ComponentName = cms.string( "FastSteppingHelixPropagatorOpposite" ),
-  PropagationDirection = cms.string( "oppositeToMomentum" ),
-  useInTeslaFromMagField = cms.bool( False ),
-  SetVBFPointer = cms.bool( False ),
-  useMagVolumes = cms.bool( True ),
-  VBFName = cms.string( "VolumeBasedMagneticField" ),
-  ApplyRadX0Correction = cms.bool( True ),
-  AssumeNoMaterial = cms.bool( False ),
-  NoErrorPropagation = cms.bool( False ),
-  debug = cms.bool( False ),
-  useMatVolumes = cms.bool( True ),
-  useIsYokeFlag = cms.bool( True ),
-  returnTangentPlane = cms.bool( True ),
-  sendLogWarning = cms.bool( False ),
-  useTuningForL2Speed = cms.bool( True ),
-  useEndcapShiftsInZ = cms.bool( False ),
-  endcapShiftInZPos = cms.double( 0.0 ),
-  endcapShiftInZNeg = cms.double( 0.0 ),
-  appendToDataLabel = cms.string( "" )
-)
-FitterRK = cms.ESProducer( "KFTrajectoryFitterESProducer",
-  ComponentName = cms.string( "FitterRK" ),
-  Propagator = cms.string( "RungeKuttaTrackerPropagator" ),
-  Updator = cms.string( "KFUpdator" ),
-  Estimator = cms.string( "Chi2" ),
-  RecoGeometry = cms.string( "DummyDetLayerGeometry" ),
-  minHits = cms.int32( 3 ),
-  appendToDataLabel = cms.string( "" )
-)
-FittingSmootherRK = cms.ESProducer( "KFFittingSmootherESProducer",
-  ComponentName = cms.string( "FittingSmootherRK" ),
-  Fitter = cms.string( "FitterRK" ),
-  Smoother = cms.string( "SmootherRK" ),
-  EstimateCut = cms.double( -1.0 ),
-  LogPixelProbabilityCut = cms.double( -16.0 ),
-  MinNumberOfHits = cms.int32( 5 ),
-  RejectTracks = cms.bool( True ),
-  BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
-  NoInvalidHitsBeginEnd = cms.bool( False ),
-  appendToDataLabel = cms.string( "" )
-)
-GlobalTrackingGeometryESProducer = cms.ESProducer( "GlobalTrackingGeometryESProducer",
-  appendToDataLabel = cms.string( "" )
-)
-HITTRHBuilderWithoutRefit = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
-  ComponentName = cms.string( "HITTRHBuilderWithoutRefit" ),
-  StripCPE = cms.string( "Fake" ),
-  PixelCPE = cms.string( "Fake" ),
-  Matcher = cms.string( "Fake" ),
-  ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
-  appendToDataLabel = cms.string( "" )
-)
-KFFitterSmootherForL2Muon = cms.ESProducer( "KFFittingSmootherESProducer",
-  ComponentName = cms.string( "KFFitterSmootherForL2Muon" ),
-  Fitter = cms.string( "KFTrajectoryFitterForL2Muon" ),
-  Smoother = cms.string( "KFTrajectorySmootherForL2Muon" ),
-  EstimateCut = cms.double( -1.0 ),
-  LogPixelProbabilityCut = cms.double( -16.0 ),
-  MinNumberOfHits = cms.int32( 5 ),
-  RejectTracks = cms.bool( True ),
-  BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
-  NoInvalidHitsBeginEnd = cms.bool( False ),
-  appendToDataLabel = cms.string( "" )
-)
-KFSmootherForMuonTrackLoader = cms.ESProducer( "KFTrajectorySmootherESProducer",
-  ComponentName = cms.string( "KFSmootherForMuonTrackLoader" ),
-  Propagator = cms.string( "SmartPropagatorAnyOpposite" ),
-  Updator = cms.string( "KFUpdator" ),
-  Estimator = cms.string( "Chi2" ),
-  RecoGeometry = cms.string( "DummyDetLayerGeometry" ),
-  errorRescaling = cms.double( 10.0 ),
-  minHits = cms.int32( 3 ),
-  appendToDataLabel = cms.string( "" )
-)
-KFTrajectoryFitterForL2Muon = cms.ESProducer( "KFTrajectoryFitterESProducer",
-  ComponentName = cms.string( "KFTrajectoryFitterForL2Muon" ),
-  Propagator = cms.string( "FastSteppingHelixPropagatorAny" ),
-  Updator = cms.string( "KFUpdator" ),
-  Estimator = cms.string( "Chi2" ),
-  RecoGeometry = cms.string( "DummyDetLayerGeometry" ),
-  minHits = cms.int32( 3 ),
-  appendToDataLabel = cms.string( "" )
-)
-KFTrajectorySmootherForL2Muon = cms.ESProducer( "KFTrajectorySmootherESProducer",
-  ComponentName = cms.string( "KFTrajectorySmootherForL2Muon" ),
-  Propagator = cms.string( "FastSteppingHelixPropagatorOpposite" ),
-  Updator = cms.string( "KFUpdator" ),
-  Estimator = cms.string( "Chi2" ),
-  RecoGeometry = cms.string( "DummyDetLayerGeometry" ),
-  errorRescaling = cms.double( 100.0 ),
-  minHits = cms.int32( 3 ),
-  appendToDataLabel = cms.string( "" )
-)
-KFUpdatorESProducer = cms.ESProducer( "KFUpdatorESProducer",
-  ComponentName = cms.string( "KFUpdator" ),
-  appendToDataLabel = cms.string( "" )
-)
-L3MuKFFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
-  ComponentName = cms.string( "L3MuKFFitter" ),
-  Propagator = cms.string( "SmartPropagatorAny" ),
-  Updator = cms.string( "KFUpdator" ),
-  Estimator = cms.string( "Chi2" ),
-  RecoGeometry = cms.string( "DummyDetLayerGeometry" ),
-  minHits = cms.int32( 3 ),
-  appendToDataLabel = cms.string( "" )
-)
 MaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   ComponentName = cms.string( "PropagatorWithMaterial" ),
   PropagationDirection = cms.string( "alongMomentum" ),
@@ -1141,78 +914,6 @@ MaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   ptMin = cms.double( -1.0 ),
   appendToDataLabel = cms.string( "" )
 )
-hltMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
-  ComponentName = cms.string( "hltMeasurementTracker" ),
-  PixelCPE = cms.string( "PixelCPEGeneric" ),
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
-  HitMatcher = cms.string( "StandardMatcher" ),
-  Regional = cms.bool( True ),
-  OnDemand = cms.bool( True ),
-  UsePixelModuleQualityDB = cms.bool( True ),
-  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
-  UsePixelROCQualityDB = cms.bool( True ),
-  DebugPixelROCQualityDB = cms.untracked.bool( False ),
-  UseStripModuleQualityDB = cms.bool( True ),
-  DebugStripModuleQualityDB = cms.untracked.bool( False ),
-  UseStripAPVFiberQualityDB = cms.bool( True ),
-  DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
-  MaskBadAPVFibers = cms.bool( True ),
-  UseStripStripQualityDB = cms.bool( True ),
-  DebugStripStripQualityDB = cms.untracked.bool( False ),
-  SiStripQualityLabel = cms.string( "" ),
-  switchOffPixelsIfEmpty = cms.bool( True ),
-  pixelClusterProducer = cms.string( "hltSiPixelClusters" ),
-  stripClusterProducer = cms.string( "hltSiStripClusters" ),
-  stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
-  appendToDataLabel = cms.string( "" ),
-  inactivePixelDetectorLabels = cms.VInputTag(  ),
-  inactiveStripDetectorLabels = cms.VInputTag(  ),
-  badStripCuts = cms.PSet( 
-    TIB = cms.PSet( 
-      maxBad = cms.uint32( 9999 ),
-      maxConsecutiveBad = cms.uint32( 9999 )
-    ),
-    TOB = cms.PSet( 
-      maxBad = cms.uint32( 9999 ),
-      maxConsecutiveBad = cms.uint32( 9999 )
-    ),
-    TEC = cms.PSet( 
-      maxBad = cms.uint32( 9999 ),
-      maxConsecutiveBad = cms.uint32( 9999 )
-    ),
-    TID = cms.PSet( 
-      maxBad = cms.uint32( 9999 ),
-      maxConsecutiveBad = cms.uint32( 9999 )
-    )
-  )
-)
-MuonCkfTrajectoryBuilder = cms.ESProducer( "MuonCkfTrajectoryBuilderESProducer",
-  ComponentName = cms.string( "muonCkfTrajectoryBuilder" ),
-  updator = cms.string( "KFUpdator" ),
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  propagatorProximity = cms.string( "SteppingHelixPropagatorAny" ),
-  estimator = cms.string( "Chi2" ),
-  TTRHBuilder = cms.string( "WithTrackAngle" ),
-  MeasurementTrackerName = cms.string( "hltMeasurementTracker" ),
-  trajectoryFilterName = cms.string( "muonCkfTrajectoryFilter" ),
-  useSeedLayer = cms.bool( False ),
-  rescaleErrorIfFail = cms.double( 1.0 ),
-  deltaEta = cms.double( 0.1 ),
-  deltaPhi = cms.double( 0.1 ),
-  appendToDataLabel = cms.string( "" ),
-  maxCand = cms.int32( 5 ),
-  lostHitPenalty = cms.double( 30.0 ),
-  intermediateCleaning = cms.bool( False ),
-  alwaysUseInvalidHits = cms.bool( True )
-)
-MuonDetLayerGeometryESProducer = cms.ESProducer( "MuonDetLayerGeometryESProducer",
-  appendToDataLabel = cms.string( "" )
-)
-MuonTransientTrackingRecHitBuilderESProducer = cms.ESProducer( "MuonTransientTrackingRecHitBuilderESProducer",
-  ComponentName = cms.string( "MuonRecHitBuilder" ),
-  appendToDataLabel = cms.string( "" )
-)
 OppositeMaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   ComponentName = cms.string( "PropagatorWithMaterialOpposite" ),
   PropagationDirection = cms.string( "oppositeToMomentum" ),
@@ -1220,106 +921,6 @@ OppositeMaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( False ),
   ptMin = cms.double( -1.0 ),
-  appendToDataLabel = cms.string( "" )
-)
-PixelCPEGenericESProducer = cms.ESProducer( "PixelCPEGenericESProducer",
-  ComponentName = cms.string( "PixelCPEGeneric" ),
-  eff_charge_cut_lowX = cms.double( 0.0 ),
-  eff_charge_cut_lowY = cms.double( 0.0 ),
-  eff_charge_cut_highX = cms.double( 1.0 ),
-  eff_charge_cut_highY = cms.double( 1.0 ),
-  size_cutX = cms.double( 3.0 ),
-  size_cutY = cms.double( 3.0 ),
-  EdgeClusterErrorX = cms.double( 50.0 ),
-  EdgeClusterErrorY = cms.double( 85.0 ),
-  inflate_errors = cms.bool( False ),
-  inflate_all_errors_no_trk_angle = cms.bool( False ),
-  UseErrorsFromTemplates = cms.bool( True ),
-  TruncatePixelCharge = cms.bool( True ),
-  IrradiationBiasCorrection = cms.bool( False ),
-  DoCosmics = cms.bool( False ),
-  LoadTemplatesFromDB = cms.bool( True ),
-  appendToDataLabel = cms.string( "" ),
-  TanLorentzAnglePerTesla = cms.double( 0.106 ),
-  PixelErrorParametrization = cms.string( "NOTcmsim" ),
-  Alpha2Order = cms.bool( True ),
-  ClusterProbComputationFlag = cms.int32( 0 )
-)
-RungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
-  ComponentName = cms.string( "RungeKuttaTrackerPropagator" ),
-  PropagationDirection = cms.string( "alongMomentum" ),
-  Mass = cms.double( 0.105 ),
-  MaxDPhi = cms.double( 1.6 ),
-  useRungeKutta = cms.bool( True ),
-  ptMin = cms.double( -1.0 ),
-  appendToDataLabel = cms.string( "" )
-)
-SiStripRegionConnectivity = cms.ESProducer( "SiStripRegionConnectivity",
-  EtaDivisions = cms.untracked.uint32( 20 ),
-  PhiDivisions = cms.untracked.uint32( 20 ),
-  EtaMax = cms.untracked.double( 2.5 )
-)
-SmartPropagator = cms.ESProducer( "SmartPropagatorESProducer",
-  ComponentName = cms.string( "SmartPropagator" ),
-  PropagationDirection = cms.string( "alongMomentum" ),
-  Epsilon = cms.double( 5.0 ),
-  TrackerPropagator = cms.string( "PropagatorWithMaterial" ),
-  MuonPropagator = cms.string( "SteppingHelixPropagatorAlong" ),
-  appendToDataLabel = cms.string( "" )
-)
-SmartPropagatorAny = cms.ESProducer( "SmartPropagatorESProducer",
-  ComponentName = cms.string( "SmartPropagatorAny" ),
-  PropagationDirection = cms.string( "alongMomentum" ),
-  Epsilon = cms.double( 5.0 ),
-  TrackerPropagator = cms.string( "PropagatorWithMaterial" ),
-  MuonPropagator = cms.string( "SteppingHelixPropagatorAny" ),
-  appendToDataLabel = cms.string( "" )
-)
-SmartPropagatorAnyOpposite = cms.ESProducer( "SmartPropagatorESProducer",
-  ComponentName = cms.string( "SmartPropagatorAnyOpposite" ),
-  PropagationDirection = cms.string( "oppositeToMomentum" ),
-  Epsilon = cms.double( 5.0 ),
-  TrackerPropagator = cms.string( "PropagatorWithMaterialOpposite" ),
-  MuonPropagator = cms.string( "SteppingHelixPropagatorAny" ),
-  appendToDataLabel = cms.string( "" )
-)
-SmartPropagatorOpposite = cms.ESProducer( "SmartPropagatorESProducer",
-  ComponentName = cms.string( "SmartPropagatorOpposite" ),
-  PropagationDirection = cms.string( "oppositeToMomentum" ),
-  Epsilon = cms.double( 5.0 ),
-  TrackerPropagator = cms.string( "PropagatorWithMaterialOpposite" ),
-  MuonPropagator = cms.string( "SteppingHelixPropagatorOpposite" ),
-  appendToDataLabel = cms.string( "" )
-)
-SmootherRK = cms.ESProducer( "KFTrajectorySmootherESProducer",
-  ComponentName = cms.string( "SmootherRK" ),
-  Propagator = cms.string( "RungeKuttaTrackerPropagator" ),
-  Updator = cms.string( "KFUpdator" ),
-  Estimator = cms.string( "Chi2" ),
-  RecoGeometry = cms.string( "DummyDetLayerGeometry" ),
-  errorRescaling = cms.double( 100.0 ),
-  minHits = cms.int32( 3 ),
-  appendToDataLabel = cms.string( "" )
-)
-SteppingHelixPropagatorAlong = cms.ESProducer( "SteppingHelixPropagatorESProducer",
-  ComponentName = cms.string( "SteppingHelixPropagatorAlong" ),
-  PropagationDirection = cms.string( "alongMomentum" ),
-  useInTeslaFromMagField = cms.bool( False ),
-  SetVBFPointer = cms.bool( False ),
-  useMagVolumes = cms.bool( True ),
-  VBFName = cms.string( "VolumeBasedMagneticField" ),
-  ApplyRadX0Correction = cms.bool( True ),
-  AssumeNoMaterial = cms.bool( False ),
-  NoErrorPropagation = cms.bool( False ),
-  debug = cms.bool( False ),
-  useMatVolumes = cms.bool( True ),
-  useIsYokeFlag = cms.bool( True ),
-  returnTangentPlane = cms.bool( True ),
-  sendLogWarning = cms.bool( False ),
-  useTuningForL2Speed = cms.bool( False ),
-  useEndcapShiftsInZ = cms.bool( False ),
-  endcapShiftInZPos = cms.double( 0.0 ),
-  endcapShiftInZNeg = cms.double( 0.0 ),
   appendToDataLabel = cms.string( "" )
 )
 SteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorESProducer",
@@ -1343,76 +944,9 @@ SteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorESProducer"
   endcapShiftInZNeg = cms.double( 0.0 ),
   appendToDataLabel = cms.string( "" )
 )
-SteppingHelixPropagatorOpposite = cms.ESProducer( "SteppingHelixPropagatorESProducer",
-  ComponentName = cms.string( "SteppingHelixPropagatorOpposite" ),
-  PropagationDirection = cms.string( "oppositeToMomentum" ),
-  useInTeslaFromMagField = cms.bool( False ),
-  SetVBFPointer = cms.bool( False ),
-  useMagVolumes = cms.bool( True ),
-  VBFName = cms.string( "VolumeBasedMagneticField" ),
-  ApplyRadX0Correction = cms.bool( True ),
-  AssumeNoMaterial = cms.bool( False ),
-  NoErrorPropagation = cms.bool( False ),
-  debug = cms.bool( False ),
-  useMatVolumes = cms.bool( True ),
-  useIsYokeFlag = cms.bool( True ),
-  returnTangentPlane = cms.bool( True ),
-  sendLogWarning = cms.bool( False ),
-  useTuningForL2Speed = cms.bool( False ),
-  useEndcapShiftsInZ = cms.bool( False ),
-  endcapShiftInZPos = cms.double( 0.0 ),
-  endcapShiftInZNeg = cms.double( 0.0 ),
-  appendToDataLabel = cms.string( "" )
-)
-StraightLinePropagator = cms.ESProducer( "StraightLinePropagatorESProducer",
-  ComponentName = cms.string( "StraightLinePropagator" ),
-  PropagationDirection = cms.string( "alongMomentum" ),
-  appendToDataLabel = cms.string( "" )
-)
-TTRHBuilderPixelOnly = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
-  ComponentName = cms.string( "TTRHBuilderPixelOnly" ),
-  StripCPE = cms.string( "Fake" ),
-  PixelCPE = cms.string( "PixelCPEGeneric" ),
-  Matcher = cms.string( "StandardMatcher" ),
-  ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
-  appendToDataLabel = cms.string( "" )
-)
-TrackerRecoGeometryESProducer = cms.ESProducer( "TrackerRecoGeometryESProducer",
-  appendToDataLabel = cms.string( "" )
-)
 TransientTrackBuilderESProducer = cms.ESProducer( "TransientTrackBuilderESProducer",
   ComponentName = cms.string( "TransientTrackBuilder" ),
   appendToDataLabel = cms.string( "" )
-)
-bJetRegionalTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  ComponentName = cms.string( "bJetRegionalTrajectoryBuilder" ),
-  updator = cms.string( "KFUpdator" ),
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  estimator = cms.string( "Chi2" ),
-  TTRHBuilder = cms.string( "WithTrackAngle" ),
-  MeasurementTrackerName = cms.string( "hltMeasurementTracker" ),
-  trajectoryFilterName = cms.string( "bJetRegionalTrajectoryFilter" ),
-  maxCand = cms.int32( 1 ),
-  lostHitPenalty = cms.double( 30.0 ),
-  intermediateCleaning = cms.bool( True ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  appendToDataLabel = cms.string( "" )
-)
-bJetRegionalTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
-  ComponentName = cms.string( "bJetRegionalTrajectoryFilter" ),
-  appendToDataLabel = cms.string( "" ),
-  filterPset = cms.PSet( 
-    minimumNumberOfHits = cms.int32( 5 ),
-    minHitsMinPt = cms.int32( 3 ),
-    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-    maxLostHits = cms.int32( 1 ),
-    maxNumberOfHits = cms.int32( 8 ),
-    maxConsecLostHits = cms.int32( 1 ),
-    chargeSignificance = cms.double( -1.0 ),
-    nSigmaMinPt = cms.double( 5.0 ),
-    minPt = cms.double( 1.0 )
-  )
 )
 caloDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "CaloDetIdAssociator" ),
@@ -1421,21 +955,6 @@ caloDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   nEta = cms.int32( 70 ),
   nPhi = cms.int32( 72 ),
   includeBadChambers = cms.bool( False )
-)
-ckfBaseTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
-  ComponentName = cms.string( "ckfBaseTrajectoryFilter" ),
-  appendToDataLabel = cms.string( "" ),
-  filterPset = cms.PSet( 
-    minimumNumberOfHits = cms.int32( 5 ),
-    minHitsMinPt = cms.int32( 3 ),
-    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-    maxLostHits = cms.int32( 1 ),
-    maxNumberOfHits = cms.int32( -1 ),
-    maxConsecLostHits = cms.int32( 1 ),
-    chargeSignificance = cms.double( -1.0 ),
-    nSigmaMinPt = cms.double( 5.0 ),
-    minPt = cms.double( 0.9 )
-  )
 )
 ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "EcalDetIdAssociator" ),
@@ -1508,29 +1027,47 @@ hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
   RecoveredRecHitBits = cms.vstring( 'TimingAddedBit',
     'TimingSubtractedBit' )
 )
-hltCkfTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  ComponentName = cms.string( "hltCkfTrajectoryBuilder" ),
-  updator = cms.string( "KFUpdator" ),
+hltESPAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
+  ComponentName = cms.string( "hltESPAnalyticalPropagator" ),
+  PropagationDirection = cms.string( "alongMomentum" ),
+  MaxDPhi = cms.double( 1.6 ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPChi2EstimatorForRefit = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
+  ComponentName = cms.string( "hltESPChi2EstimatorForRefit" ),
+  MaxChi2 = cms.double( 100000.0 ),
+  nSigma = cms.double( 3.0 ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPChi2MeasurementEstimator = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
+  ComponentName = cms.string( "hltESPChi2MeasurementEstimator" ),
+  MaxChi2 = cms.double( 30.0 ),
+  nSigma = cms.double( 3.0 ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPCkfTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
+  ComponentName = cms.string( "hltESPCkfTrajectoryBuilder" ),
+  updator = cms.string( "hltESPKFUpdator" ),
   propagatorAlong = cms.string( "PropagatorWithMaterial" ),
   propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  estimator = cms.string( "Chi2" ),
-  TTRHBuilder = cms.string( "WithTrackAngle" ),
-  MeasurementTrackerName = cms.string( "hltMeasurementTracker" ),
-  trajectoryFilterName = cms.string( "ckfBaseTrajectoryFilter" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
+  trajectoryFilterName = cms.string( "hltESPCkfTrajectoryFilter" ),
   maxCand = cms.int32( 5 ),
   lostHitPenalty = cms.double( 30.0 ),
   intermediateCleaning = cms.bool( True ),
   alwaysUseInvalidHits = cms.bool( True ),
   appendToDataLabel = cms.string( "" )
 )
-hltCkfTrajectoryBuilderMumu = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  ComponentName = cms.string( "hltCkfTrajectoryBuilderMumu" ),
-  updator = cms.string( "KFUpdator" ),
+hltESPCkfTrajectoryBuilderMumu = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
+  ComponentName = cms.string( "hltESPCkfTrajectoryBuilderMumu" ),
+  updator = cms.string( "hltESPKFUpdator" ),
   propagatorAlong = cms.string( "PropagatorWithMaterial" ),
   propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  estimator = cms.string( "Chi2" ),
-  TTRHBuilder = cms.string( "WithTrackAngle" ),
-  MeasurementTrackerName = cms.string( "hltMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
   trajectoryFilterName = cms.string( "hltCkfTrajectoryFilterMumu" ),
   maxCand = cms.int32( 3 ),
   lostHitPenalty = cms.double( 30.0 ),
@@ -1538,8 +1075,23 @@ hltCkfTrajectoryBuilderMumu = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
   alwaysUseInvalidHits = cms.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
-hltCkfTrajectoryFilterMumu = cms.ESProducer( "TrajectoryFilterESProducer",
-  ComponentName = cms.string( "hltCkfTrajectoryFilterMumu" ),
+hltESPCkfTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
+  ComponentName = cms.string( "hltESPCkfTrajectoryFilter" ),
+  appendToDataLabel = cms.string( "" ),
+  filterPset = cms.PSet( 
+    minimumNumberOfHits = cms.int32( 5 ),
+    minHitsMinPt = cms.int32( 3 ),
+    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+    maxLostHits = cms.int32( 1 ),
+    maxNumberOfHits = cms.int32( -1 ),
+    maxConsecLostHits = cms.int32( 1 ),
+    chargeSignificance = cms.double( -1.0 ),
+    nSigmaMinPt = cms.double( 5.0 ),
+    minPt = cms.double( 0.9 )
+  )
+)
+hltESPCkfTrajectoryFilterMumu = cms.ESProducer( "TrajectoryFilterESProducer",
+  ComponentName = cms.string( "hltESPCkfTrajectoryFilterMumu" ),
   appendToDataLabel = cms.string( "" ),
   filterPset = cms.PSet( 
     minimumNumberOfHits = cms.int32( 5 ),
@@ -1553,19 +1105,73 @@ hltCkfTrajectoryFilterMumu = cms.ESProducer( "TrajectoryFilterESProducer",
     minPt = cms.double( 3.0 )
   )
 )
-hltKFFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
-  ComponentName = cms.string( "hltKFFitter" ),
-  Propagator = cms.string( "PropagatorWithMaterial" ),
-  Updator = cms.string( "KFUpdator" ),
-  Estimator = cms.string( "Chi2" ),
-  RecoGeometry = cms.string( "DummyDetLayerGeometry" ),
-  minHits = cms.int32( 3 ),
+hltESPDummyDetLayerGeometry = cms.ESProducer( "DetLayerGeometryESProducer",
+  ComponentName = cms.string( "hltESPDummyDetLayerGeometry" ),
   appendToDataLabel = cms.string( "" )
 )
-hltKFFittingSmoother = cms.ESProducer( "KFFittingSmootherESProducer",
-  ComponentName = cms.string( "hltKFFittingSmoother" ),
-  Fitter = cms.string( "hltKFFitter" ),
-  Smoother = cms.string( "hltKFSmoother" ),
+hltESPESUnpackerWorker = cms.ESProducer( "ESUnpackerWorkerESProducer",
+  ComponentName = cms.string( "hltESPESUnpackerWorker" ),
+  appendToDataLabel = cms.string( "" ),
+  DCCDataUnpacker = cms.PSet(  LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ) ),
+  RHAlgo = cms.PSet( 
+    Type = cms.string( "ESRecHitWorker" ),
+    ESGain = cms.int32( 2 ),
+    ESMIPkeV = cms.double( 81.08 ),
+    ESMIPADC = cms.double( 55.0 ),
+    ESBaseline = cms.int32( 0 ),
+    ESRecoAlgo = cms.int32( 0 )
+  )
+)
+hltESPEcalRegionCablingESProducer = cms.ESProducer( "EcalRegionCablingESProducer",
+  appendToDataLabel = cms.string( "" ),
+  esMapping = cms.PSet(  LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ) )
+)
+hltESPFastSteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorESProducer",
+  ComponentName = cms.string( "hltESPFastSteppingHelixPropagatorAny" ),
+  PropagationDirection = cms.string( "anyDirection" ),
+  useInTeslaFromMagField = cms.bool( False ),
+  SetVBFPointer = cms.bool( False ),
+  useMagVolumes = cms.bool( True ),
+  VBFName = cms.string( "VolumeBasedMagneticField" ),
+  ApplyRadX0Correction = cms.bool( True ),
+  AssumeNoMaterial = cms.bool( False ),
+  NoErrorPropagation = cms.bool( False ),
+  debug = cms.bool( False ),
+  useMatVolumes = cms.bool( True ),
+  useIsYokeFlag = cms.bool( True ),
+  returnTangentPlane = cms.bool( True ),
+  sendLogWarning = cms.bool( False ),
+  useTuningForL2Speed = cms.bool( True ),
+  useEndcapShiftsInZ = cms.bool( False ),
+  endcapShiftInZPos = cms.double( 0.0 ),
+  endcapShiftInZNeg = cms.double( 0.0 ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPFastSteppingHelixPropagatorOpposite = cms.ESProducer( "SteppingHelixPropagatorESProducer",
+  ComponentName = cms.string( "hltESPFastSteppingHelixPropagatorOpposite" ),
+  PropagationDirection = cms.string( "oppositeToMomentum" ),
+  useInTeslaFromMagField = cms.bool( False ),
+  SetVBFPointer = cms.bool( False ),
+  useMagVolumes = cms.bool( True ),
+  VBFName = cms.string( "VolumeBasedMagneticField" ),
+  ApplyRadX0Correction = cms.bool( True ),
+  AssumeNoMaterial = cms.bool( False ),
+  NoErrorPropagation = cms.bool( False ),
+  debug = cms.bool( False ),
+  useMatVolumes = cms.bool( True ),
+  useIsYokeFlag = cms.bool( True ),
+  returnTangentPlane = cms.bool( True ),
+  sendLogWarning = cms.bool( False ),
+  useTuningForL2Speed = cms.bool( True ),
+  useEndcapShiftsInZ = cms.bool( False ),
+  endcapShiftInZPos = cms.double( 0.0 ),
+  endcapShiftInZNeg = cms.double( 0.0 ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPFittingSmootherRK = cms.ESProducer( "KFFittingSmootherESProducer",
+  ComponentName = cms.string( "hltESPFittingSmootherRK" ),
+  Fitter = cms.string( "hltESPTrajectoryFitterRK" ),
+  Smoother = cms.string( "hltESPTrajectorySmootherRK" ),
   EstimateCut = cms.double( -1.0 ),
   LogPixelProbabilityCut = cms.double( -16.0 ),
   MinNumberOfHits = cms.int32( 5 ),
@@ -1574,19 +1180,203 @@ hltKFFittingSmoother = cms.ESProducer( "KFFittingSmootherESProducer",
   NoInvalidHitsBeginEnd = cms.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
-hltKFSmoother = cms.ESProducer( "KFTrajectorySmootherESProducer",
-  ComponentName = cms.string( "hltKFSmoother" ),
+hltESPHIPixelLayerPairs = cms.ESProducer( "SeedingLayersESProducer",
+  appendToDataLabel = cms.string( "" ),
+  ComponentName = cms.string( "hltESPHIPixelLayerPairs" ),
+  layerList = cms.vstring( 'BPix1+BPix2',
+    'BPix1+BPix3',
+    'BPix2+BPix3',
+    'BPix1+FPix1_pos',
+    'BPix1+FPix1_neg',
+    'BPix1+FPix2_pos',
+    'BPix1+FPix2_neg',
+    'BPix2+FPix1_pos',
+    'BPix2+FPix1_neg',
+    'BPix2+FPix2_pos',
+    'BPix2+FPix2_neg',
+    'FPix1_pos+FPix2_pos',
+    'FPix1_neg+FPix2_neg' ),
+  BPix = cms.PSet( 
+    useErrorsFromParam = cms.bool( True ),
+    hitErrorRPhi = cms.double( 0.0027 ),
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
+    HitProducer = cms.string( "hltHISiPixelRecHits" ),
+    hitErrorRZ = cms.double( 0.0060 )
+  ),
+  FPix = cms.PSet( 
+    useErrorsFromParam = cms.bool( True ),
+    hitErrorRPhi = cms.double( 0.0051 ),
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
+    HitProducer = cms.string( "hltHISiPixelRecHits" ),
+    hitErrorRZ = cms.double( 0.0036 )
+  ),
+  TEC = cms.PSet(  )
+)
+hltESPHIPixelLayerTriplets = cms.ESProducer( "SeedingLayersESProducer",
+  appendToDataLabel = cms.string( "" ),
+  ComponentName = cms.string( "hltESPHIPixelLayerTriplets" ),
+  layerList = cms.vstring( 'BPix1+BPix2+BPix3',
+    'BPix1+BPix2+FPix1_pos',
+    'BPix1+BPix2+FPix1_neg',
+    'BPix1+FPix1_pos+FPix2_pos',
+    'BPix1+FPix1_neg+FPix2_neg' ),
+  BPix = cms.PSet( 
+    useErrorsFromParam = cms.bool( True ),
+    hitErrorRPhi = cms.double( 0.0027 ),
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
+    HitProducer = cms.string( "hltHISiPixelRecHits" ),
+    hitErrorRZ = cms.double( 0.0060 )
+  ),
+  FPix = cms.PSet( 
+    useErrorsFromParam = cms.bool( True ),
+    hitErrorRPhi = cms.double( 0.0051 ),
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
+    HitProducer = cms.string( "hltHISiPixelRecHits" ),
+    hitErrorRZ = cms.double( 0.0036 )
+  ),
+  TEC = cms.PSet(  )
+)
+hltESPHITTRHBuilderWithoutRefit = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
+  ComponentName = cms.string( "hltESPHITTRHBuilderWithoutRefit" ),
+  StripCPE = cms.string( "Fake" ),
+  PixelCPE = cms.string( "Fake" ),
+  Matcher = cms.string( "Fake" ),
+  ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPKFFittingSmoother = cms.ESProducer( "KFFittingSmootherESProducer",
+  ComponentName = cms.string( "hltESPKFFittingSmoother" ),
+  Fitter = cms.string( "hltESPKFTrajectoryFitter" ),
+  Smoother = cms.string( "hltESPKFTrajectorySmoother" ),
+  EstimateCut = cms.double( -1.0 ),
+  LogPixelProbabilityCut = cms.double( -16.0 ),
+  MinNumberOfHits = cms.int32( 5 ),
+  RejectTracks = cms.bool( True ),
+  BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
+  NoInvalidHitsBeginEnd = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPKFFittingSmootherForL2Muon = cms.ESProducer( "KFFittingSmootherESProducer",
+  ComponentName = cms.string( "hltESPKFFittingSmootherForL2Muon" ),
+  Fitter = cms.string( "hltESPKFTrajectoryFitterForL2Muon" ),
+  Smoother = cms.string( "hltESPKFTrajectorySmootherForL2Muon" ),
+  EstimateCut = cms.double( -1.0 ),
+  LogPixelProbabilityCut = cms.double( -16.0 ),
+  MinNumberOfHits = cms.int32( 5 ),
+  RejectTracks = cms.bool( True ),
+  BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
+  NoInvalidHitsBeginEnd = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPKFTrajectoryFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
+  ComponentName = cms.string( "hltESPKFTrajectoryFitter" ),
   Propagator = cms.string( "PropagatorWithMaterial" ),
-  Updator = cms.string( "KFUpdator" ),
-  Estimator = cms.string( "Chi2" ),
-  RecoGeometry = cms.string( "DummyDetLayerGeometry" ),
+  Updator = cms.string( "hltESPKFUpdator" ),
+  Estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" ),
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPKFTrajectoryFitterForL2Muon = cms.ESProducer( "KFTrajectoryFitterESProducer",
+  ComponentName = cms.string( "hltESPKFTrajectoryFitterForL2Muon" ),
+  Propagator = cms.string( "hltESPFastSteppingHelixPropagatorAny" ),
+  Updator = cms.string( "hltESPKFUpdator" ),
+  Estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" ),
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPKFTrajectorySmoother = cms.ESProducer( "KFTrajectorySmootherESProducer",
+  ComponentName = cms.string( "hltESPKFTrajectorySmoother" ),
+  Propagator = cms.string( "PropagatorWithMaterial" ),
+  Updator = cms.string( "hltESPKFUpdator" ),
+  Estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" ),
   errorRescaling = cms.double( 100.0 ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
 )
-hltMixedLayerPairs = cms.ESProducer( "SeedingLayersESProducer",
+hltESPKFTrajectorySmootherForL2Muon = cms.ESProducer( "KFTrajectorySmootherESProducer",
+  ComponentName = cms.string( "hltESPKFTrajectorySmootherForL2Muon" ),
+  Propagator = cms.string( "hltESPFastSteppingHelixPropagatorOpposite" ),
+  Updator = cms.string( "hltESPKFUpdator" ),
+  Estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" ),
+  errorRescaling = cms.double( 100.0 ),
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPKFTrajectorySmootherForMuonTrackLoader = cms.ESProducer( "KFTrajectorySmootherESProducer",
+  ComponentName = cms.string( "hltESPKFTrajectorySmootherForMuonTrackLoader" ),
+  Propagator = cms.string( "hltESPSmartPropagatorAnyOpposite" ),
+  Updator = cms.string( "hltESPKFUpdator" ),
+  Estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" ),
+  errorRescaling = cms.double( 10.0 ),
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPKFUpdator = cms.ESProducer( "KFUpdatorESProducer",
+  ComponentName = cms.string( "hltESPKFUpdator" ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPL3MuKFTrajectoryFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
+  ComponentName = cms.string( "hltESPL3MuKFTrajectoryFitter" ),
+  Propagator = cms.string( "hltESPSmartPropagatorAny" ),
+  Updator = cms.string( "hltESPKFUpdator" ),
+  Estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" ),
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
+  ComponentName = cms.string( "hltESPMeasurementTracker" ),
+  PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
+  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  HitMatcher = cms.string( "StandardMatcher" ),
+  Regional = cms.bool( True ),
+  OnDemand = cms.bool( True ),
+  UsePixelModuleQualityDB = cms.bool( True ),
+  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
+  UsePixelROCQualityDB = cms.bool( True ),
+  DebugPixelROCQualityDB = cms.untracked.bool( False ),
+  UseStripModuleQualityDB = cms.bool( True ),
+  DebugStripModuleQualityDB = cms.untracked.bool( False ),
+  UseStripAPVFiberQualityDB = cms.bool( True ),
+  DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
+  MaskBadAPVFibers = cms.bool( True ),
+  UseStripStripQualityDB = cms.bool( True ),
+  DebugStripStripQualityDB = cms.untracked.bool( False ),
+  SiStripQualityLabel = cms.string( "" ),
+  switchOffPixelsIfEmpty = cms.bool( True ),
+  pixelClusterProducer = cms.string( "hltSiPixelClusters" ),
+  stripClusterProducer = cms.string( "hltSiStripClusters" ),
+  stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
   appendToDataLabel = cms.string( "" ),
-  ComponentName = cms.string( "hltMixedLayerPairs" ),
+  inactivePixelDetectorLabels = cms.VInputTag(  ),
+  inactiveStripDetectorLabels = cms.VInputTag(  ),
+  badStripCuts = cms.PSet( 
+    TIB = cms.PSet( 
+      maxBad = cms.uint32( 9999 ),
+      maxConsecutiveBad = cms.uint32( 9999 )
+    ),
+    TOB = cms.PSet( 
+      maxBad = cms.uint32( 9999 ),
+      maxConsecutiveBad = cms.uint32( 9999 )
+    ),
+    TEC = cms.PSet( 
+      maxBad = cms.uint32( 9999 ),
+      maxConsecutiveBad = cms.uint32( 9999 )
+    ),
+    TID = cms.PSet( 
+      maxBad = cms.uint32( 9999 ),
+      maxConsecutiveBad = cms.uint32( 9999 )
+    )
+  )
+)
+hltESPMixedLayerPairs = cms.ESProducer( "SeedingLayersESProducer",
+  appendToDataLabel = cms.string( "" ),
+  ComponentName = cms.string( "hltESPMixedLayerPairs" ),
   layerList = cms.vstring( 'BPix1+BPix2',
     'BPix1+BPix3',
     'BPix2+BPix3',
@@ -1611,41 +1401,41 @@ hltMixedLayerPairs = cms.ESProducer( "SeedingLayersESProducer",
   BPix = cms.PSet( 
     useErrorsFromParam = cms.bool( True ),
     hitErrorRPhi = cms.double( 0.0027 ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
     HitProducer = cms.string( "hltSiPixelRecHits" ),
     hitErrorRZ = cms.double( 0.0060 )
   ),
   FPix = cms.PSet( 
     useErrorsFromParam = cms.bool( True ),
     hitErrorRPhi = cms.double( 0.0051 ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
     HitProducer = cms.string( "hltSiPixelRecHits" ),
     hitErrorRZ = cms.double( 0.0036 )
   ),
   TEC = cms.PSet( 
     useRingSlector = cms.bool( True ),
-    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     minRing = cms.int32( 1 ),
     maxRing = cms.int32( 1 )
   )
 )
-hltMuTrackJpsiTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  ComponentName = cms.string( "hltMuTrackJpsiTrajectoryBuilder" ),
-  updator = cms.string( "KFUpdator" ),
+hltESPMuTrackJpsiTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
+  ComponentName = cms.string( "hltESPMuTrackJpsiTrajectoryBuilder" ),
+  updator = cms.string( "hltESPKFUpdator" ),
   propagatorAlong = cms.string( "PropagatorWithMaterial" ),
   propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  estimator = cms.string( "Chi2" ),
-  TTRHBuilder = cms.string( "WithTrackAngle" ),
-  MeasurementTrackerName = cms.string( "hltMeasurementTracker" ),
-  trajectoryFilterName = cms.string( "hltMuTrackJpsiTrajectoryFilter" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
+  trajectoryFilterName = cms.string( "hltESPMuTrackJpsiTrajectoryFilter" ),
   maxCand = cms.int32( 1 ),
   lostHitPenalty = cms.double( 30.0 ),
   intermediateCleaning = cms.bool( True ),
   alwaysUseInvalidHits = cms.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
-hltMuTrackJpsiTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
-  ComponentName = cms.string( "hltMuTrackJpsiTrajectoryFilter" ),
+hltESPMuTrackJpsiTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
+  ComponentName = cms.string( "hltESPMuTrackJpsiTrajectoryFilter" ),
   appendToDataLabel = cms.string( "" ),
   filterPset = cms.PSet( 
     minimumNumberOfHits = cms.int32( 5 ),
@@ -1659,9 +1449,71 @@ hltMuTrackJpsiTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
     minPt = cms.double( 1.0 )
   )
 )
-hltPixelLayerPairs = cms.ESProducer( "SeedingLayersESProducer",
+hltESPMuonCkfTrajectoryBuilder = cms.ESProducer( "MuonCkfTrajectoryBuilderESProducer",
+  ComponentName = cms.string( "hltESPMuonCkfTrajectoryBuilder" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  propagatorProximity = cms.string( "SteppingHelixPropagatorAny" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
+  trajectoryFilterName = cms.string( "hltESPMuonCkfTrajectoryFilter" ),
+  useSeedLayer = cms.bool( False ),
+  rescaleErrorIfFail = cms.double( 1.0 ),
+  deltaEta = cms.double( 0.1 ),
+  deltaPhi = cms.double( 0.1 ),
   appendToDataLabel = cms.string( "" ),
-  ComponentName = cms.string( "hltPixelLayerPairs" ),
+  maxCand = cms.int32( 5 ),
+  lostHitPenalty = cms.double( 30.0 ),
+  intermediateCleaning = cms.bool( False ),
+  alwaysUseInvalidHits = cms.bool( True )
+)
+hltESPMuonCkfTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
+  ComponentName = cms.string( "hltESPMuonCkfTrajectoryFilter" ),
+  appendToDataLabel = cms.string( "" ),
+  filterPset = cms.PSet( 
+    chargeSignificance = cms.double( -1.0 ),
+    minHitsMinPt = cms.int32( 3 ),
+    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+    maxLostHits = cms.int32( 1 ),
+    maxNumberOfHits = cms.int32( -1 ),
+    maxConsecLostHits = cms.int32( 1 ),
+    minimumNumberOfHits = cms.int32( 5 ),
+    nSigmaMinPt = cms.double( 5.0 ),
+    minPt = cms.double( 0.9 )
+  )
+)
+hltESPMuonTransientTrackingRecHitBuilder = cms.ESProducer( "MuonTransientTrackingRecHitBuilderESProducer",
+  ComponentName = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPPixelCPEGeneric = cms.ESProducer( "PixelCPEGenericESProducer",
+  ComponentName = cms.string( "hltESPPixelCPEGeneric" ),
+  eff_charge_cut_lowX = cms.double( 0.0 ),
+  eff_charge_cut_lowY = cms.double( 0.0 ),
+  eff_charge_cut_highX = cms.double( 1.0 ),
+  eff_charge_cut_highY = cms.double( 1.0 ),
+  size_cutX = cms.double( 3.0 ),
+  size_cutY = cms.double( 3.0 ),
+  EdgeClusterErrorX = cms.double( 50.0 ),
+  EdgeClusterErrorY = cms.double( 85.0 ),
+  inflate_errors = cms.bool( False ),
+  inflate_all_errors_no_trk_angle = cms.bool( False ),
+  UseErrorsFromTemplates = cms.bool( True ),
+  TruncatePixelCharge = cms.bool( True ),
+  IrradiationBiasCorrection = cms.bool( False ),
+  DoCosmics = cms.bool( False ),
+  LoadTemplatesFromDB = cms.bool( True ),
+  appendToDataLabel = cms.string( "" ),
+  TanLorentzAnglePerTesla = cms.double( 0.106 ),
+  PixelErrorParametrization = cms.string( "NOTcmsim" ),
+  Alpha2Order = cms.bool( True ),
+  ClusterProbComputationFlag = cms.int32( 0 )
+)
+hltESPPixelLayerPairs = cms.ESProducer( "SeedingLayersESProducer",
+  appendToDataLabel = cms.string( "" ),
+  ComponentName = cms.string( "hltESPPixelLayerPairs" ),
   layerList = cms.vstring( 'BPix1+BPix2',
     'BPix1+BPix3',
     'BPix2+BPix3',
@@ -1678,22 +1530,22 @@ hltPixelLayerPairs = cms.ESProducer( "SeedingLayersESProducer",
   BPix = cms.PSet( 
     useErrorsFromParam = cms.bool( True ),
     hitErrorRPhi = cms.double( 0.0027 ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
     HitProducer = cms.string( "hltSiPixelRecHits" ),
     hitErrorRZ = cms.double( 0.0060 )
   ),
   FPix = cms.PSet( 
     useErrorsFromParam = cms.bool( True ),
     hitErrorRPhi = cms.double( 0.0051 ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
     HitProducer = cms.string( "hltSiPixelRecHits" ),
     hitErrorRZ = cms.double( 0.0036 )
   ),
   TEC = cms.PSet(  )
 )
-hltPixelLayerTriplets = cms.ESProducer( "SeedingLayersESProducer",
+hltESPPixelLayerTriplets = cms.ESProducer( "SeedingLayersESProducer",
   appendToDataLabel = cms.string( "" ),
-  ComponentName = cms.string( "hltPixelLayerTriplets" ),
+  ComponentName = cms.string( "hltESPPixelLayerTriplets" ),
   layerList = cms.vstring( 'BPix1+BPix2+BPix3',
     'BPix1+BPix2+FPix1_pos',
     'BPix1+BPix2+FPix1_neg',
@@ -1702,77 +1554,42 @@ hltPixelLayerTriplets = cms.ESProducer( "SeedingLayersESProducer",
   BPix = cms.PSet( 
     useErrorsFromParam = cms.bool( True ),
     hitErrorRPhi = cms.double( 0.0027 ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
     HitProducer = cms.string( "hltSiPixelRecHits" ),
     hitErrorRZ = cms.double( 0.0060 )
   ),
   FPix = cms.PSet( 
     useErrorsFromParam = cms.bool( True ),
     hitErrorRPhi = cms.double( 0.0051 ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
     HitProducer = cms.string( "hltSiPixelRecHits" ),
     hitErrorRZ = cms.double( 0.0036 )
   ),
   TEC = cms.PSet(  )
 )
-hoDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
-  ComponentName = cms.string( "HODetIdAssociator" ),
+hltESPPixelLayerTripletsHITHB = cms.ESProducer( "SeedingLayersESProducer",
   appendToDataLabel = cms.string( "" ),
-  etaBinSize = cms.double( 0.087 ),
-  nEta = cms.int32( 30 ),
-  nPhi = cms.int32( 72 ),
-  includeBadChambers = cms.bool( False )
-)
-muonCkfTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
-  ComponentName = cms.string( "muonCkfTrajectoryFilter" ),
-  appendToDataLabel = cms.string( "" ),
-  filterPset = cms.PSet( 
-    chargeSignificance = cms.double( -1.0 ),
-    minHitsMinPt = cms.int32( 3 ),
-    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-    maxLostHits = cms.int32( 1 ),
-    maxNumberOfHits = cms.int32( -1 ),
-    maxConsecLostHits = cms.int32( 1 ),
-    minimumNumberOfHits = cms.int32( 5 ),
-    nSigmaMinPt = cms.double( 5.0 ),
-    minPt = cms.double( 0.9 )
-  )
-)
-muonDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
-  ComponentName = cms.string( "MuonDetIdAssociator" ),
-  appendToDataLabel = cms.string( "" ),
-  etaBinSize = cms.double( 0.125 ),
-  nEta = cms.int32( 48 ),
-  nPhi = cms.int32( 48 ),
-  includeBadChambers = cms.bool( False )
-)
-navigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
-  ComponentName = cms.string( "SimpleNavigationSchool" ),
-  appendToDataLabel = cms.string( "" )
-)
-pixellayertripletsHITHB = cms.ESProducer( "SeedingLayersESProducer",
-  appendToDataLabel = cms.string( "" ),
-  ComponentName = cms.string( "PixelLayerTripletsHITHB" ),
+  ComponentName = cms.string( "hltESPPixelLayerTripletsHITHB" ),
   layerList = cms.vstring( 'BPix1+BPix2+BPix3' ),
   BPix = cms.PSet( 
     useErrorsFromParam = cms.bool( True ),
     hitErrorRPhi = cms.double( 0.0027 ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
     HitProducer = cms.string( "hltSiPixelRecHits" ),
     hitErrorRZ = cms.double( 0.0060 )
   ),
   FPix = cms.PSet( 
     useErrorsFromParam = cms.bool( True ),
     hitErrorRPhi = cms.double( 0.0051 ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
     HitProducer = cms.string( "hltSiPixelRecHits" ),
     hitErrorRZ = cms.double( 0.0036 )
   ),
   TEC = cms.PSet(  )
 )
-pixellayertripletsHITHE = cms.ESProducer( "SeedingLayersESProducer",
+hltESPPixelLayerTripletsHITHE = cms.ESProducer( "SeedingLayersESProducer",
   appendToDataLabel = cms.string( "" ),
-  ComponentName = cms.string( "PixelLayerTripletsHITHE" ),
+  ComponentName = cms.string( "hltESPPixelLayerTripletsHITHE" ),
   layerList = cms.vstring( 'BPix1+BPix2+FPix1_pos',
     'BPix1+BPix2+FPix1_neg',
     'BPix1+FPix1_pos+FPix2_pos',
@@ -1780,39 +1597,137 @@ pixellayertripletsHITHE = cms.ESProducer( "SeedingLayersESProducer",
   BPix = cms.PSet( 
     useErrorsFromParam = cms.bool( True ),
     hitErrorRPhi = cms.double( 0.0027 ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
     HitProducer = cms.string( "hltSiPixelRecHits" ),
     hitErrorRZ = cms.double( 0.0060 )
   ),
   FPix = cms.PSet( 
     useErrorsFromParam = cms.bool( True ),
     hitErrorRPhi = cms.double( 0.0051 ),
-    TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
     HitProducer = cms.string( "hltSiPixelRecHits" ),
     hitErrorRZ = cms.double( 0.0036 )
   ),
   TEC = cms.PSet(  )
 )
-preshowerDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
-  ComponentName = cms.string( "PreshowerDetIdAssociator" ),
-  appendToDataLabel = cms.string( "" ),
-  etaBinSize = cms.double( 0.1 ),
-  nEta = cms.int32( 60 ),
-  nPhi = cms.int32( 30 ),
-  includeBadChambers = cms.bool( False )
-)
-siPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESProducer",
+hltESPRungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  ComponentName = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
+  PropagationDirection = cms.string( "alongMomentum" ),
+  Mass = cms.double( 0.105 ),
+  MaxDPhi = cms.double( 1.6 ),
+  useRungeKutta = cms.bool( True ),
+  ptMin = cms.double( -1.0 ),
   appendToDataLabel = cms.string( "" )
 )
-softLeptonByDistance = cms.ESProducer( "LeptonTaggerByDistanceESProducer",
+hltESPSiStripRegionConnectivity = cms.ESProducer( "SiStripRegionConnectivity",
+  EtaDivisions = cms.untracked.uint32( 20 ),
+  PhiDivisions = cms.untracked.uint32( 20 ),
+  EtaMax = cms.untracked.double( 2.5 )
+)
+hltESPSmartPropagator = cms.ESProducer( "SmartPropagatorESProducer",
+  ComponentName = cms.string( "hltESPSmartPropagator" ),
+  PropagationDirection = cms.string( "alongMomentum" ),
+  Epsilon = cms.double( 5.0 ),
+  TrackerPropagator = cms.string( "PropagatorWithMaterial" ),
+  MuonPropagator = cms.string( "hltESPSteppingHelixPropagatorAlong" ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPSmartPropagatorAny = cms.ESProducer( "SmartPropagatorESProducer",
+  ComponentName = cms.string( "hltESPSmartPropagatorAny" ),
+  PropagationDirection = cms.string( "alongMomentum" ),
+  Epsilon = cms.double( 5.0 ),
+  TrackerPropagator = cms.string( "PropagatorWithMaterial" ),
+  MuonPropagator = cms.string( "SteppingHelixPropagatorAny" ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPSmartPropagatorAnyOpposite = cms.ESProducer( "SmartPropagatorESProducer",
+  ComponentName = cms.string( "hltESPSmartPropagatorAnyOpposite" ),
+  PropagationDirection = cms.string( "oppositeToMomentum" ),
+  Epsilon = cms.double( 5.0 ),
+  TrackerPropagator = cms.string( "PropagatorWithMaterialOpposite" ),
+  MuonPropagator = cms.string( "SteppingHelixPropagatorAny" ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPSmartPropagatorOpposite = cms.ESProducer( "SmartPropagatorESProducer",
+  ComponentName = cms.string( "hltESPSmartPropagatorOpposite" ),
+  PropagationDirection = cms.string( "oppositeToMomentum" ),
+  Epsilon = cms.double( 5.0 ),
+  TrackerPropagator = cms.string( "PropagatorWithMaterialOpposite" ),
+  MuonPropagator = cms.string( "hltESPSteppingHelixPropagatorOpposite" ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPSoftLeptonByDistance = cms.ESProducer( "LeptonTaggerByDistanceESProducer",
   appendToDataLabel = cms.string( "" ),
   distance = cms.double( 0.5 )
 )
-softLeptonByPt = cms.ESProducer( "LeptonTaggerByPtESProducer",
+hltESPSoftLeptonByPt = cms.ESProducer( "LeptonTaggerByPtESProducer",
   appendToDataLabel = cms.string( "" ),
   ipSign = cms.string( "any" )
 )
-trackCounting3D2nd = cms.ESProducer( "TrackCountingESProducer",
+hltESPSteppingHelixPropagatorAlong = cms.ESProducer( "SteppingHelixPropagatorESProducer",
+  ComponentName = cms.string( "hltESPSteppingHelixPropagatorAlong" ),
+  PropagationDirection = cms.string( "alongMomentum" ),
+  useInTeslaFromMagField = cms.bool( False ),
+  SetVBFPointer = cms.bool( False ),
+  useMagVolumes = cms.bool( True ),
+  VBFName = cms.string( "VolumeBasedMagneticField" ),
+  ApplyRadX0Correction = cms.bool( True ),
+  AssumeNoMaterial = cms.bool( False ),
+  NoErrorPropagation = cms.bool( False ),
+  debug = cms.bool( False ),
+  useMatVolumes = cms.bool( True ),
+  useIsYokeFlag = cms.bool( True ),
+  returnTangentPlane = cms.bool( True ),
+  sendLogWarning = cms.bool( False ),
+  useTuningForL2Speed = cms.bool( False ),
+  useEndcapShiftsInZ = cms.bool( False ),
+  endcapShiftInZPos = cms.double( 0.0 ),
+  endcapShiftInZNeg = cms.double( 0.0 ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPSteppingHelixPropagatorOpposite = cms.ESProducer( "SteppingHelixPropagatorESProducer",
+  ComponentName = cms.string( "hltESPSteppingHelixPropagatorOpposite" ),
+  PropagationDirection = cms.string( "oppositeToMomentum" ),
+  useInTeslaFromMagField = cms.bool( False ),
+  SetVBFPointer = cms.bool( False ),
+  useMagVolumes = cms.bool( True ),
+  VBFName = cms.string( "VolumeBasedMagneticField" ),
+  ApplyRadX0Correction = cms.bool( True ),
+  AssumeNoMaterial = cms.bool( False ),
+  NoErrorPropagation = cms.bool( False ),
+  debug = cms.bool( False ),
+  useMatVolumes = cms.bool( True ),
+  useIsYokeFlag = cms.bool( True ),
+  returnTangentPlane = cms.bool( True ),
+  sendLogWarning = cms.bool( False ),
+  useTuningForL2Speed = cms.bool( False ),
+  useEndcapShiftsInZ = cms.bool( False ),
+  endcapShiftInZPos = cms.double( 0.0 ),
+  endcapShiftInZNeg = cms.double( 0.0 ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPStraightLinePropagator = cms.ESProducer( "StraightLinePropagatorESProducer",
+  ComponentName = cms.string( "hltESPStraightLinePropagator" ),
+  PropagationDirection = cms.string( "alongMomentum" ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPTTRHBWithTrackAngle = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
+  ComponentName = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
+  Matcher = cms.string( "StandardMatcher" ),
+  ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPTTRHBuilderPixelOnly = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
+  ComponentName = cms.string( "hltESPTTRHBuilderPixelOnly" ),
+  StripCPE = cms.string( "Fake" ),
+  PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
+  Matcher = cms.string( "StandardMatcher" ),
+  ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPTrackCounting3D2nd = cms.ESProducer( "TrackCountingESProducer",
   appendToDataLabel = cms.string( "" ),
   nthTrack = cms.int32( 2 ),
   impactParameterType = cms.int32( 0 ),
@@ -1821,23 +1736,30 @@ trackCounting3D2nd = cms.ESProducer( "TrackCountingESProducer",
   maximumDistanceToJetAxis = cms.double( 0.07 ),
   trackQualityClass = cms.string( "any" )
 )
-trajBuilderL3 = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  ComponentName = cms.string( "trajBuilderL3" ),
-  updator = cms.string( "KFUpdator" ),
+hltESPTrajectoryBuilderL3 = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
+  ComponentName = cms.string( "hltESPTrajectoryBuilderL3" ),
+  updator = cms.string( "hltESPKFUpdator" ),
   propagatorAlong = cms.string( "PropagatorWithMaterial" ),
   propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  estimator = cms.string( "Chi2" ),
-  TTRHBuilder = cms.string( "WithTrackAngle" ),
-  MeasurementTrackerName = cms.string( "hltMeasurementTracker" ),
-  trajectoryFilterName = cms.string( "trajFilterL3" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
+  trajectoryFilterName = cms.string( "hltESPTrajectoryFilterL3" ),
   maxCand = cms.int32( 5 ),
   lostHitPenalty = cms.double( 30.0 ),
   intermediateCleaning = cms.bool( True ),
   alwaysUseInvalidHits = cms.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
-trajFilterL3 = cms.ESProducer( "TrajectoryFilterESProducer",
-  ComponentName = cms.string( "trajFilterL3" ),
+hltESPTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
+  ComponentName = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
+  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
+  appendToDataLabel = cms.string( "" ),
+  fractionShared = cms.double( 0.5 ),
+  allowSharedFirstHit = cms.bool( False )
+)
+hltESPTrajectoryFilterL3 = cms.ESProducer( "TrajectoryFilterESProducer",
+  ComponentName = cms.string( "hltESPTrajectoryFilterL3" ),
   appendToDataLabel = cms.string( "" ),
   filterPset = cms.PSet( 
     minimumNumberOfHits = cms.int32( 5 ),
@@ -1851,19 +1773,84 @@ trajFilterL3 = cms.ESProducer( "TrajectoryFilterESProducer",
     minPt = cms.double( 0.9 )
   )
 )
-hltTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
-  ComponentName = cms.string( "hltTrajectoryCleanerBySharedHits" ),
-  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
-  appendToDataLabel = cms.string( "" ),
-  fractionShared = cms.double( 0.5 ),
-  allowSharedFirstHit = cms.bool( False )
+hltESPTrajectoryFitterRK = cms.ESProducer( "KFTrajectoryFitterESProducer",
+  ComponentName = cms.string( "hltESPTrajectoryFitterRK" ),
+  Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
+  Updator = cms.string( "hltESPKFUpdator" ),
+  Estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" ),
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
 )
-ttrhbwr = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
-  ComponentName = cms.string( "WithTrackAngle" ),
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
-  PixelCPE = cms.string( "PixelCPEGeneric" ),
-  Matcher = cms.string( "StandardMatcher" ),
-  ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
+hltESPTrajectorySmootherRK = cms.ESProducer( "KFTrajectorySmootherESProducer",
+  ComponentName = cms.string( "hltESPTrajectorySmootherRK" ),
+  Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
+  Updator = cms.string( "hltESPKFUpdator" ),
+  Estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" ),
+  errorRescaling = cms.double( 100.0 ),
+  minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPbJetRegionalTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
+  ComponentName = cms.string( "hltESPbJetRegionalTrajectoryBuilder" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
+  trajectoryFilterName = cms.string( "hltESPbJetRegionalTrajectoryFilter" ),
+  maxCand = cms.int32( 1 ),
+  lostHitPenalty = cms.double( 30.0 ),
+  intermediateCleaning = cms.bool( True ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
+)
+hltESPbJetRegionalTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
+  ComponentName = cms.string( "hltESPbJetRegionalTrajectoryFilter" ),
+  appendToDataLabel = cms.string( "" ),
+  filterPset = cms.PSet( 
+    minimumNumberOfHits = cms.int32( 5 ),
+    minHitsMinPt = cms.int32( 3 ),
+    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+    maxLostHits = cms.int32( 1 ),
+    maxNumberOfHits = cms.int32( 8 ),
+    maxConsecLostHits = cms.int32( 1 ),
+    chargeSignificance = cms.double( -1.0 ),
+    nSigmaMinPt = cms.double( 5.0 ),
+    minPt = cms.double( 1.0 )
+  )
+)
+hoDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
+  ComponentName = cms.string( "HODetIdAssociator" ),
+  appendToDataLabel = cms.string( "" ),
+  etaBinSize = cms.double( 0.087 ),
+  nEta = cms.int32( 30 ),
+  nPhi = cms.int32( 72 ),
+  includeBadChambers = cms.bool( False )
+)
+muonDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
+  ComponentName = cms.string( "MuonDetIdAssociator" ),
+  appendToDataLabel = cms.string( "" ),
+  etaBinSize = cms.double( 0.125 ),
+  nEta = cms.int32( 48 ),
+  nPhi = cms.int32( 48 ),
+  includeBadChambers = cms.bool( False )
+)
+navigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
+  ComponentName = cms.string( "SimpleNavigationSchool" ),
+  appendToDataLabel = cms.string( "" )
+)
+preshowerDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
+  ComponentName = cms.string( "PreshowerDetIdAssociator" ),
+  appendToDataLabel = cms.string( "" ),
+  etaBinSize = cms.double( 0.1 ),
+  nEta = cms.int32( 60 ),
+  nPhi = cms.int32( 30 ),
+  includeBadChambers = cms.bool( False )
+)
+siPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESProducer",
   appendToDataLabel = cms.string( "" )
 )
 
@@ -2080,7 +2067,7 @@ hltEcalRawToRecHitFacility = cms.EDProducer( "EcalRawToRecHitFacility",
 )
 hltESRawToRecHitFacility = cms.EDProducer( "EcalRawToRecHitFacility",
     sourceTag = cms.InputTag( "rawDataCollector" ),
-    workerName = cms.string( "esRawToRecHit" )
+    workerName = cms.string( "hltESPESUnpackerWorker" )
 )
 hltEcalRegionalRestFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     sourceTag = cms.InputTag( "hltEcalRawToRecHitFacility" ),
@@ -2752,7 +2739,7 @@ hltMCJetCorJetIcone5HF07 = cms.EDProducer( "CaloJetCorrectionProducer",
     src = cms.InputTag( "hltIterativeCone5CaloJets" ),
     verbose = cms.untracked.bool( False ),
     alias = cms.untracked.string( "MCJetCorJetIcone5" ),
-    correctors = cms.vstring( 'MCJetCorrectorIcone5HF07' )
+    correctors = cms.vstring( 'hltESSMCJetCorrectorIcone5HF07' )
 )
 hlt1jet15U = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5HF07" ),
@@ -3182,7 +3169,7 @@ hltMCJetCorJetIcone5Regional = cms.EDProducer( "CaloJetCorrectionProducer",
     src = cms.InputTag( "hltIterativeCone5CaloJetsRegional" ),
     verbose = cms.untracked.bool( False ),
     alias = cms.untracked.string( "corJetIcone5" ),
-    correctors = cms.vstring( 'MCJetCorrectorIcone5' )
+    correctors = cms.vstring( 'hltESSMCJetCorrectorIcone5' )
 )
 hltDoubleJet15UForwardBackward = cms.EDFilter( "HLTForwardBackwardJetsFilter",
     inputTag = cms.InputTag( "hltIterativeCone5CaloJetsRegional" ),
@@ -4166,7 +4153,7 @@ hltL2Muons = cms.EDProducer( "L2MuonProducer",
     InputObjects = cms.InputTag( "hltL2MuonSeeds" ),
     L2TrajBuilderParameters = cms.PSet( 
       DoRefit = cms.bool( False ),
-      SeedPropagator = cms.string( "FastSteppingHelixPropagatorAny" ),
+      SeedPropagator = cms.string( "hltESPFastSteppingHelixPropagatorAny" ),
       FilterParameters = cms.PSet( 
         NumberOfSigma = cms.double( 3.0 ),
         FitDirection = cms.string( "insideOut" ),
@@ -4184,14 +4171,14 @@ hltL2Muons = cms.EDProducer( "L2MuonProducer",
         CSCRecSegmentLabel = cms.InputTag( "hltCscSegments" ),
         EnableDTMeasurement = cms.bool( True ),
         RPCRecSegmentLabel = cms.InputTag( "hltRpcRecHits" ),
-        Propagator = cms.string( "FastSteppingHelixPropagatorAny" ),
+        Propagator = cms.string( "hltESPFastSteppingHelixPropagatorAny" ),
         EnableCSCMeasurement = cms.bool( True )
       ),
       NavigationType = cms.string( "Standard" ),
       SeedTransformerParameters = cms.PSet( 
-        Fitter = cms.string( "KFFitterSmootherForL2Muon" ),
-        MuonRecHitBuilder = cms.string( "MuonRecHitBuilder" ),
-        Propagator = cms.string( "FastSteppingHelixPropagatorAny" ),
+        Fitter = cms.string( "hltESPKFFittingSmootherForL2Muon" ),
+        MuonRecHitBuilder = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" ),
+        Propagator = cms.string( "hltESPFastSteppingHelixPropagatorAny" ),
         UseSubRecHits = cms.bool( False ),
         NMinRecHits = cms.uint32( 2 ),
         RescaleError = cms.double( 100.0 )
@@ -4216,24 +4203,24 @@ hltL2Muons = cms.EDProducer( "L2MuonProducer",
         BWSeedType = cms.string( "fromGenerator" ),
         EnableDTMeasurement = cms.bool( True ),
         RPCRecSegmentLabel = cms.InputTag( "hltRpcRecHits" ),
-        Propagator = cms.string( "FastSteppingHelixPropagatorAny" ),
+        Propagator = cms.string( "hltESPFastSteppingHelixPropagatorAny" ),
         EnableCSCMeasurement = cms.bool( True )
       ),
       DoSeedRefit = cms.bool( False )
     ),
     ServiceParameters = cms.PSet( 
-      Propagators = cms.untracked.vstring( 'FastSteppingHelixPropagatorAny',
-        'FastSteppingHelixPropagatorOpposite' ),
+      Propagators = cms.untracked.vstring( 'hltESPFastSteppingHelixPropagatorAny',
+        'hltESPFastSteppingHelixPropagatorOpposite' ),
       RPCLayers = cms.bool( True ),
       UseMuonNavigation = cms.untracked.bool( True )
     ),
     TrackLoaderParameters = cms.PSet( 
-      Smoother = cms.string( "KFSmootherForMuonTrackLoader" ),
+      Smoother = cms.string( "hltESPKFTrajectorySmootherForMuonTrackLoader" ),
       DoSmoothing = cms.bool( False ),
       MuonUpdatorAtVertexParameters = cms.PSet( 
         MaxChi2 = cms.double( 1000000.0 ),
         BeamSpotPosition = cms.vdouble( 0.0, 0.0, 0.0 ),
-        Propagator = cms.string( "FastSteppingHelixPropagatorOpposite" ),
+        Propagator = cms.string( "hltESPFastSteppingHelixPropagatorOpposite" ),
         BeamSpotPositionErrors = cms.vdouble( 0.1, 0.1, 5.3 )
       ),
       VertexConstraint = cms.bool( True ),
@@ -4349,7 +4336,7 @@ hltSiPixelClusters = cms.EDProducer( "SiPixelClusterProducer",
 )
 hltSiPixelRecHits = cms.EDProducer( "SiPixelRecHitConverter",
     src = cms.InputTag( "hltSiPixelClusters" ),
-    CPE = cms.string( "PixelCPEGeneric" )
+    CPE = cms.string( "hltESPPixelCPEGeneric" )
 )
 hltSiStripRawToClustersFacility = cms.EDProducer( "SiStripRawToClusters",
     ProductLabel = cms.InputTag( "rawDataCollector" ),
@@ -4372,21 +4359,21 @@ hltSiStripRawToClustersFacility = cms.EDProducer( "SiStripRawToClusters",
 )
 hltSiStripClusters = cms.EDProducer( "MeasurementTrackerSiStripRefGetterProducer",
     InputModuleLabel = cms.InputTag( "hltSiStripRawToClustersFacility" ),
-    measurementTrackerName = cms.string( "hltMeasurementTracker" )
+    measurementTrackerName = cms.string( "hltESPMeasurementTracker" )
 )
 hltL3TrajSeedOIState = cms.EDProducer( "TSGFromL2Muon",
     PtCut = cms.double( 1.0 ),
     PCut = cms.double( 2.5 ),
     MuonCollectionLabel = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' ),
     ServiceParameters = cms.PSet( 
-      Propagators = cms.untracked.vstring( 'SteppingHelixPropagatorOpposite',
-        'SteppingHelixPropagatorAlong' ),
+      Propagators = cms.untracked.vstring( 'hltESPSteppingHelixPropagatorOpposite',
+        'hltESPSteppingHelixPropagatorAlong' ),
       RPCLayers = cms.bool( True ),
       UseMuonNavigation = cms.untracked.bool( True )
     ),
     MuonTrackingRegionBuilder = cms.PSet(  ),
     TkSeedGenerator = cms.PSet( 
-      propagatorCompatibleName = cms.string( "SteppingHelixPropagatorOpposite" ),
+      propagatorCompatibleName = cms.string( "hltESPSteppingHelixPropagatorOpposite" ),
       option = cms.uint32( 3 ),
       ComponentName = cms.string( "TSGForRoadSearch" ),
       errorMatrixPset = cms.PSet( 
@@ -4458,7 +4445,7 @@ hltL3TrajSeedOIState = cms.EDProducer( "TSGFromL2Muon",
           )
         )
       ),
-      propagatorName = cms.string( "SteppingHelixPropagatorAlong" ),
+      propagatorName = cms.string( "hltESPSteppingHelixPropagatorAlong" ),
       manySeeds = cms.bool( False ),
       copyMuonRecHit = cms.bool( False ),
       maxChi2 = cms.double( 40.0 )
@@ -4475,8 +4462,8 @@ hltL3TrajSeedOIState = cms.EDProducer( "TSGFromL2Muon",
 hltL3TrackCandidateFromL2OIState = cms.EDProducer( "CkfTrajectoryMaker",
     trackCandidateAlso = cms.bool( True ),
     src = cms.InputTag( "hltL3TrajSeedOIState" ),
-    TrajectoryBuilder = cms.string( "muonCkfTrajectoryBuilder" ),
-    TrajectoryCleaner = cms.string( "hltTrajectoryCleanerBySharedHits" ),
+    TrajectoryBuilder = cms.string( "hltESPMuonCkfTrajectoryBuilder" ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
     useHitsSplitting = cms.bool( False ),
@@ -4494,11 +4481,11 @@ hltL3TkTracksFromL2OIState = cms.EDProducer( "TrackProducer",
     useHitsSplitting = cms.bool( False ),
     clusterRemovalInfo = cms.InputTag( "" ),
     alias = cms.untracked.string( "" ),
-    Fitter = cms.string( "hltKFFittingSmoother" ),
+    Fitter = cms.string( "hltESPKFFittingSmoother" ),
     Propagator = cms.string( "PropagatorWithMaterial" ),
     src = cms.InputTag( "hltL3TrackCandidateFromL2OIState" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
-    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     AlgorithmName = cms.string( "undefAlgorithm" ),
     NavigationSchool = cms.string( "" )
 )
@@ -4513,22 +4500,22 @@ hltL3MuonsOIState = cms.EDProducer( "L3MuonProducer",
         HitThreshold = cms.int32( 1 ),
         MuonHitsOption = cms.int32( 1 ),
         Chi2CutRPC = cms.double( 1.0 ),
-        Fitter = cms.string( "L3MuKFFitter" ),
+        Fitter = cms.string( "hltESPL3MuKFTrajectoryFitter" ),
         DTRecSegmentLabel = cms.InputTag( "hltDt4DSegments" ),
-        TrackerRecHitBuilder = cms.string( "WithTrackAngle" ),
-        MuonRecHitBuilder = cms.string( "MuonRecHitBuilder" ),
+        TrackerRecHitBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+        MuonRecHitBuilder = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" ),
         RefitDirection = cms.string( "insideOut" ),
         CSCRecSegmentLabel = cms.InputTag( "hltCscSegments" ),
         PropDirForCosmics = cms.bool( False ),
         Chi2CutDT = cms.double( 10.0 ),
         RefitRPCHits = cms.bool( True ),
         SkipStation = cms.int32( -1 ),
-        Propagator = cms.string( "SmartPropagatorAny" ),
+        Propagator = cms.string( "hltESPSmartPropagatorAny" ),
         TrackerSkipSystem = cms.int32( -1 )
       ),
       ScaleTECxFactor = cms.double( -1.0 ),
-      TrackerRecHitBuilder = cms.string( "WithTrackAngle" ),
-      MuonRecHitBuilder = cms.string( "MuonRecHitBuilder" ),
+      TrackerRecHitBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      MuonRecHitBuilder = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" ),
       MuonTrackingRegionBuilder = cms.PSet( 
         EtaR_UpperLimit_Par1 = cms.double( 0.25 ),
         Eta_fixed = cms.double( 0.2 ),
@@ -4549,19 +4536,19 @@ hltL3MuonsOIState = cms.EDProducer( "L3MuonProducer",
         Phi_min = cms.double( 0.05 ),
         UseVertex = cms.bool( False ),
         Rescale_Dz = cms.double( 3.0 ),
-        MeasurementTrackerName = cms.string( "hltMeasurementTracker" )
+        MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" )
       ),
       RefitRPCHits = cms.bool( True ),
       PCut = cms.double( 2.5 ),
       TrackTransformer = cms.PSet( 
         DoPredictionsOnly = cms.bool( False ),
-        Fitter = cms.string( "L3MuKFFitter" ),
-        TrackerRecHitBuilder = cms.string( "WithTrackAngle" ),
-        Smoother = cms.string( "KFSmootherForMuonTrackLoader" ),
-        MuonRecHitBuilder = cms.string( "MuonRecHitBuilder" ),
+        Fitter = cms.string( "hltESPL3MuKFTrajectoryFitter" ),
+        TrackerRecHitBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+        Smoother = cms.string( "hltESPKFTrajectorySmootherForMuonTrackLoader" ),
+        MuonRecHitBuilder = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" ),
         RefitDirection = cms.string( "insideOut" ),
         RefitRPCHits = cms.bool( True ),
-        Propagator = cms.string( "SmartPropagatorAny" )
+        Propagator = cms.string( "hltESPSmartPropagatorAny" )
       ),
       GlobalMuonTrackMatcher = cms.PSet( 
         Pt_threshold1 = cms.double( 0.0 ),
@@ -4581,7 +4568,7 @@ hltL3MuonsOIState = cms.EDProducer( "L3MuonProducer",
         DeltaRCut_3 = cms.double( 1.0 ),
         DeltaDCut_2 = cms.double( 10.0 ),
         DeltaRCut_1 = cms.double( 0.1 ),
-        Propagator = cms.string( "SmartPropagator" ),
+        Propagator = cms.string( "hltESPSmartPropagator" ),
         Quality_1 = cms.double( 20.0 )
       ),
       PtCut = cms.double( 1.0 ),
@@ -4589,10 +4576,10 @@ hltL3MuonsOIState = cms.EDProducer( "L3MuonProducer",
       tkTrajLabel = cms.InputTag( "hltL3TkTracksFromL2OIState" )
     ),
     ServiceParameters = cms.PSet( 
-      Propagators = cms.untracked.vstring( 'SmartPropagatorAny',
+      Propagators = cms.untracked.vstring( 'hltESPSmartPropagatorAny',
         'SteppingHelixPropagatorAny',
-        'SmartPropagator',
-        'SteppingHelixPropagatorOpposite' ),
+        'hltESPSmartPropagator',
+        'hltESPSteppingHelixPropagatorOpposite' ),
       RPCLayers = cms.bool( True ),
       UseMuonNavigation = cms.untracked.bool( True )
     ),
@@ -4601,10 +4588,10 @@ hltL3MuonsOIState = cms.EDProducer( "L3MuonProducer",
       beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
       SmoothTkTrack = cms.untracked.bool( False ),
       MuonSeededTracksInstance = cms.untracked.string( "L2Seeded" ),
-      Smoother = cms.string( "KFSmootherForMuonTrackLoader" ),
+      Smoother = cms.string( "hltESPKFTrajectorySmootherForMuonTrackLoader" ),
       MuonUpdatorAtVertexParameters = cms.PSet( 
         MaxChi2 = cms.double( 1000000.0 ),
-        Propagator = cms.string( "SteppingHelixPropagatorOpposite" ),
+        Propagator = cms.string( "hltESPSteppingHelixPropagatorOpposite" ),
         BeamSpotPositionErrors = cms.vdouble( 0.1, 0.1, 5.3 )
       ),
       VertexConstraint = cms.bool( False ),
@@ -4617,7 +4604,7 @@ hltL3TrajSeedOIHit = cms.EDProducer( "TSGFromL2Muon",
     MuonCollectionLabel = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' ),
     ServiceParameters = cms.PSet( 
       Propagators = cms.untracked.vstring( 'PropagatorWithMaterial',
-        'SmartPropagatorAnyOpposite' ),
+        'hltESPSmartPropagatorAnyOpposite' ),
       RPCLayers = cms.bool( True ),
       UseMuonNavigation = cms.untracked.bool( True )
     ),
@@ -4704,8 +4691,8 @@ hltL3TrajSeedOIHit = cms.EDProducer( "TSGFromL2Muon",
         ResetMethod = cms.string( "matrix" ),
         MaxChi2 = cms.double( 40.0 ),
         UseVertexState = cms.bool( True ),
-        Propagator = cms.string( "SmartPropagatorAnyOpposite" ),
-        MeasurementTrackerName = cms.string( "hltMeasurementTracker" )
+        Propagator = cms.string( "hltESPSmartPropagatorAnyOpposite" ),
+        MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" )
       ),
       skipTSG = cms.PSet(  ),
       PSetNames = cms.vstring( 'skipTSG',
@@ -4714,7 +4701,7 @@ hltL3TrajSeedOIHit = cms.EDProducer( "TSGFromL2Muon",
     TrackerSeedCleaner = cms.PSet( 
       cleanerFromSharedHits = cms.bool( True ),
       ptCleaner = cms.bool( True ),
-      TTRHBuilder = cms.string( "WithTrackAngle" ),
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
       beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
       directionCleaner = cms.bool( True )
     ),
@@ -4729,8 +4716,8 @@ hltL3TrajSeedOIHit = cms.EDProducer( "TSGFromL2Muon",
 hltL3TrackCandidateFromL2OIHit = cms.EDProducer( "CkfTrajectoryMaker",
     trackCandidateAlso = cms.bool( True ),
     src = cms.InputTag( "hltL3TrajSeedOIHit" ),
-    TrajectoryBuilder = cms.string( "muonCkfTrajectoryBuilder" ),
-    TrajectoryCleaner = cms.string( "hltTrajectoryCleanerBySharedHits" ),
+    TrajectoryBuilder = cms.string( "hltESPMuonCkfTrajectoryBuilder" ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
     useHitsSplitting = cms.bool( False ),
@@ -4748,11 +4735,11 @@ hltL3TkTracksFromL2OIHit = cms.EDProducer( "TrackProducer",
     useHitsSplitting = cms.bool( False ),
     clusterRemovalInfo = cms.InputTag( "" ),
     alias = cms.untracked.string( "" ),
-    Fitter = cms.string( "hltKFFittingSmoother" ),
+    Fitter = cms.string( "hltESPKFFittingSmoother" ),
     Propagator = cms.string( "PropagatorWithMaterial" ),
     src = cms.InputTag( "hltL3TrackCandidateFromL2OIHit" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
-    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     AlgorithmName = cms.string( "undefAlgorithm" ),
     NavigationSchool = cms.string( "" )
 )
@@ -4767,22 +4754,22 @@ hltL3MuonsOIHit = cms.EDProducer( "L3MuonProducer",
         HitThreshold = cms.int32( 1 ),
         MuonHitsOption = cms.int32( 1 ),
         Chi2CutRPC = cms.double( 1.0 ),
-        Fitter = cms.string( "L3MuKFFitter" ),
+        Fitter = cms.string( "hltESPL3MuKFTrajectoryFitter" ),
         DTRecSegmentLabel = cms.InputTag( "hltDt4DSegments" ),
-        TrackerRecHitBuilder = cms.string( "WithTrackAngle" ),
-        MuonRecHitBuilder = cms.string( "MuonRecHitBuilder" ),
+        TrackerRecHitBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+        MuonRecHitBuilder = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" ),
         RefitDirection = cms.string( "insideOut" ),
         CSCRecSegmentLabel = cms.InputTag( "hltCscSegments" ),
         PropDirForCosmics = cms.bool( False ),
         Chi2CutDT = cms.double( 10.0 ),
         RefitRPCHits = cms.bool( True ),
         SkipStation = cms.int32( -1 ),
-        Propagator = cms.string( "SmartPropagatorAny" ),
+        Propagator = cms.string( "hltESPSmartPropagatorAny" ),
         TrackerSkipSystem = cms.int32( -1 )
       ),
       ScaleTECxFactor = cms.double( -1.0 ),
-      TrackerRecHitBuilder = cms.string( "WithTrackAngle" ),
-      MuonRecHitBuilder = cms.string( "MuonRecHitBuilder" ),
+      TrackerRecHitBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      MuonRecHitBuilder = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" ),
       MuonTrackingRegionBuilder = cms.PSet( 
         EtaR_UpperLimit_Par1 = cms.double( 0.25 ),
         Eta_fixed = cms.double( 0.2 ),
@@ -4803,19 +4790,19 @@ hltL3MuonsOIHit = cms.EDProducer( "L3MuonProducer",
         Phi_min = cms.double( 0.05 ),
         UseVertex = cms.bool( False ),
         Rescale_Dz = cms.double( 3.0 ),
-        MeasurementTrackerName = cms.string( "hltMeasurementTracker" )
+        MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" )
       ),
       RefitRPCHits = cms.bool( True ),
       PCut = cms.double( 2.5 ),
       TrackTransformer = cms.PSet( 
         DoPredictionsOnly = cms.bool( False ),
-        Fitter = cms.string( "L3MuKFFitter" ),
-        TrackerRecHitBuilder = cms.string( "WithTrackAngle" ),
-        Smoother = cms.string( "KFSmootherForMuonTrackLoader" ),
-        MuonRecHitBuilder = cms.string( "MuonRecHitBuilder" ),
+        Fitter = cms.string( "hltESPL3MuKFTrajectoryFitter" ),
+        TrackerRecHitBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+        Smoother = cms.string( "hltESPKFTrajectorySmootherForMuonTrackLoader" ),
+        MuonRecHitBuilder = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" ),
         RefitDirection = cms.string( "insideOut" ),
         RefitRPCHits = cms.bool( True ),
-        Propagator = cms.string( "SmartPropagatorAny" )
+        Propagator = cms.string( "hltESPSmartPropagatorAny" )
       ),
       GlobalMuonTrackMatcher = cms.PSet( 
         Pt_threshold1 = cms.double( 0.0 ),
@@ -4835,7 +4822,7 @@ hltL3MuonsOIHit = cms.EDProducer( "L3MuonProducer",
         DeltaRCut_3 = cms.double( 1.0 ),
         DeltaDCut_2 = cms.double( 10.0 ),
         DeltaRCut_1 = cms.double( 0.1 ),
-        Propagator = cms.string( "SmartPropagator" ),
+        Propagator = cms.string( "hltESPSmartPropagator" ),
         Quality_1 = cms.double( 20.0 )
       ),
       PtCut = cms.double( 1.0 ),
@@ -4843,10 +4830,10 @@ hltL3MuonsOIHit = cms.EDProducer( "L3MuonProducer",
       tkTrajLabel = cms.InputTag( "hltL3TkTracksFromL2OIHit" )
     ),
     ServiceParameters = cms.PSet( 
-      Propagators = cms.untracked.vstring( 'SmartPropagatorAny',
+      Propagators = cms.untracked.vstring( 'hltESPSmartPropagatorAny',
         'SteppingHelixPropagatorAny',
-        'SmartPropagator',
-        'SteppingHelixPropagatorOpposite' ),
+        'hltESPSmartPropagator',
+        'hltESPSteppingHelixPropagatorOpposite' ),
       RPCLayers = cms.bool( True ),
       UseMuonNavigation = cms.untracked.bool( True )
     ),
@@ -4855,10 +4842,10 @@ hltL3MuonsOIHit = cms.EDProducer( "L3MuonProducer",
       beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
       SmoothTkTrack = cms.untracked.bool( False ),
       MuonSeededTracksInstance = cms.untracked.string( "L2Seeded" ),
-      Smoother = cms.string( "KFSmootherForMuonTrackLoader" ),
+      Smoother = cms.string( "hltESPKFTrajectorySmootherForMuonTrackLoader" ),
       MuonUpdatorAtVertexParameters = cms.PSet( 
         MaxChi2 = cms.double( 1000000.0 ),
-        Propagator = cms.string( "SteppingHelixPropagatorOpposite" ),
+        Propagator = cms.string( "hltESPSteppingHelixPropagatorOpposite" ),
         BeamSpotPositionErrors = cms.vdouble( 0.1, 0.1, 5.3 )
       ),
       VertexConstraint = cms.bool( False ),
@@ -4897,7 +4884,7 @@ hltL3TrajSeedIOHit = cms.EDProducer( "TSGFromL2Muon",
       Phi_min = cms.double( 0.1 ),
       UseVertex = cms.bool( False ),
       Rescale_Dz = cms.double( 3.0 ),
-      MeasurementTrackerName = cms.string( "hltMeasurementTracker" )
+      MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" )
     ),
     TkSeedGenerator = cms.PSet( 
       ComponentName = cms.string( "DualByL2TSG" ),
@@ -4907,7 +4894,7 @@ hltL3TrajSeedIOHit = cms.EDProducer( "TSGFromL2Muon",
           ComponentName = cms.string( "TSGFromOrderedHits" ),
           OrderedHitsFactoryPSet = cms.PSet( 
             ComponentName = cms.string( "StandardHitTripletGenerator" ),
-            SeedingLayers = cms.string( "hltPixelLayerTriplets" ),
+            SeedingLayers = cms.string( "hltESPPixelLayerTriplets" ),
             GeneratorPSet = cms.PSet( 
               useBending = cms.bool( True ),
               useFixedPreFiltering = cms.bool( False ),
@@ -4919,7 +4906,7 @@ hltL3TrajSeedIOHit = cms.EDProducer( "TSGFromL2Muon",
               extraHitRZtolerance = cms.double( 0.06 )
             )
           ),
-          TTRHBuilder = cms.string( "WithTrackAngle" )
+          TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
         ),
         PSetNames = cms.vstring( 'firstTSG',
           'secondTSG' ),
@@ -4932,10 +4919,10 @@ hltL3TrajSeedIOHit = cms.EDProducer( "TSGFromL2Muon",
             OrderedHitsFactoryPSet = cms.PSet( 
               maxElement = cms.uint32( 0 ),
               ComponentName = cms.string( "StandardHitPairGenerator" ),
-              SeedingLayers = cms.string( "hltMixedLayerPairs" ),
+              SeedingLayers = cms.string( "hltESPMixedLayerPairs" ),
               useOnDemandTracker = cms.untracked.int32( 0 )
             ),
-            TTRHBuilder = cms.string( "WithTrackAngle" )
+            TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
           ),
           etaSeparation = cms.double( 2.0 ),
           barrelTSG = cms.PSet(  )
@@ -4946,10 +4933,10 @@ hltL3TrajSeedIOHit = cms.EDProducer( "TSGFromL2Muon",
           OrderedHitsFactoryPSet = cms.PSet( 
             maxElement = cms.uint32( 0 ),
             ComponentName = cms.string( "StandardHitPairGenerator" ),
-            SeedingLayers = cms.string( "hltPixelLayerPairs" ),
+            SeedingLayers = cms.string( "hltESPPixelLayerPairs" ),
             useOnDemandTracker = cms.untracked.int32( 0 )
           ),
-          TTRHBuilder = cms.string( "WithTrackAngle" )
+          TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
         )
       ),
       skipTSG = cms.PSet(  ),
@@ -4959,7 +4946,7 @@ hltL3TrajSeedIOHit = cms.EDProducer( "TSGFromL2Muon",
     TrackerSeedCleaner = cms.PSet( 
       cleanerFromSharedHits = cms.bool( True ),
       ptCleaner = cms.bool( True ),
-      TTRHBuilder = cms.string( "WithTrackAngle" ),
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
       beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
       directionCleaner = cms.bool( True )
     ),
@@ -4974,8 +4961,8 @@ hltL3TrajSeedIOHit = cms.EDProducer( "TSGFromL2Muon",
 hltL3TrackCandidateFromL2IOHit = cms.EDProducer( "CkfTrajectoryMaker",
     trackCandidateAlso = cms.bool( True ),
     src = cms.InputTag( "hltL3TrajSeedIOHit" ),
-    TrajectoryBuilder = cms.string( "muonCkfTrajectoryBuilder" ),
-    TrajectoryCleaner = cms.string( "hltTrajectoryCleanerBySharedHits" ),
+    TrajectoryBuilder = cms.string( "hltESPMuonCkfTrajectoryBuilder" ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
     useHitsSplitting = cms.bool( False ),
@@ -4993,11 +4980,11 @@ hltL3TkTracksFromL2IOHit = cms.EDProducer( "TrackProducer",
     useHitsSplitting = cms.bool( False ),
     clusterRemovalInfo = cms.InputTag( "" ),
     alias = cms.untracked.string( "" ),
-    Fitter = cms.string( "hltKFFittingSmoother" ),
+    Fitter = cms.string( "hltESPKFFittingSmoother" ),
     Propagator = cms.string( "PropagatorWithMaterial" ),
     src = cms.InputTag( "hltL3TrackCandidateFromL2IOHit" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
-    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     AlgorithmName = cms.string( "undefAlgorithm" ),
     NavigationSchool = cms.string( "" )
 )
@@ -5012,22 +4999,22 @@ hltL3MuonsIOHit = cms.EDProducer( "L3MuonProducer",
         HitThreshold = cms.int32( 1 ),
         MuonHitsOption = cms.int32( 1 ),
         Chi2CutRPC = cms.double( 1.0 ),
-        Fitter = cms.string( "L3MuKFFitter" ),
+        Fitter = cms.string( "hltESPL3MuKFTrajectoryFitter" ),
         DTRecSegmentLabel = cms.InputTag( "hltDt4DSegments" ),
-        TrackerRecHitBuilder = cms.string( "WithTrackAngle" ),
-        MuonRecHitBuilder = cms.string( "MuonRecHitBuilder" ),
+        TrackerRecHitBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+        MuonRecHitBuilder = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" ),
         RefitDirection = cms.string( "insideOut" ),
         CSCRecSegmentLabel = cms.InputTag( "hltCscSegments" ),
         PropDirForCosmics = cms.bool( False ),
         Chi2CutDT = cms.double( 10.0 ),
         RefitRPCHits = cms.bool( True ),
         SkipStation = cms.int32( -1 ),
-        Propagator = cms.string( "SmartPropagatorAny" ),
+        Propagator = cms.string( "hltESPSmartPropagatorAny" ),
         TrackerSkipSystem = cms.int32( -1 )
       ),
       ScaleTECxFactor = cms.double( -1.0 ),
-      TrackerRecHitBuilder = cms.string( "WithTrackAngle" ),
-      MuonRecHitBuilder = cms.string( "MuonRecHitBuilder" ),
+      TrackerRecHitBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      MuonRecHitBuilder = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" ),
       MuonTrackingRegionBuilder = cms.PSet( 
         EtaR_UpperLimit_Par1 = cms.double( 0.25 ),
         Eta_fixed = cms.double( 0.2 ),
@@ -5048,19 +5035,19 @@ hltL3MuonsIOHit = cms.EDProducer( "L3MuonProducer",
         Phi_min = cms.double( 0.05 ),
         UseVertex = cms.bool( False ),
         Rescale_Dz = cms.double( 3.0 ),
-        MeasurementTrackerName = cms.string( "hltMeasurementTracker" )
+        MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" )
       ),
       RefitRPCHits = cms.bool( True ),
       PCut = cms.double( 2.5 ),
       TrackTransformer = cms.PSet( 
         DoPredictionsOnly = cms.bool( False ),
-        Fitter = cms.string( "L3MuKFFitter" ),
-        TrackerRecHitBuilder = cms.string( "WithTrackAngle" ),
-        Smoother = cms.string( "KFSmootherForMuonTrackLoader" ),
-        MuonRecHitBuilder = cms.string( "MuonRecHitBuilder" ),
+        Fitter = cms.string( "hltESPL3MuKFTrajectoryFitter" ),
+        TrackerRecHitBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+        Smoother = cms.string( "hltESPKFTrajectorySmootherForMuonTrackLoader" ),
+        MuonRecHitBuilder = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" ),
         RefitDirection = cms.string( "insideOut" ),
         RefitRPCHits = cms.bool( True ),
-        Propagator = cms.string( "SmartPropagatorAny" )
+        Propagator = cms.string( "hltESPSmartPropagatorAny" )
       ),
       GlobalMuonTrackMatcher = cms.PSet( 
         Pt_threshold1 = cms.double( 0.0 ),
@@ -5080,7 +5067,7 @@ hltL3MuonsIOHit = cms.EDProducer( "L3MuonProducer",
         DeltaRCut_3 = cms.double( 1.0 ),
         DeltaDCut_2 = cms.double( 10.0 ),
         DeltaRCut_1 = cms.double( 0.1 ),
-        Propagator = cms.string( "SmartPropagator" ),
+        Propagator = cms.string( "hltESPSmartPropagator" ),
         Quality_1 = cms.double( 20.0 )
       ),
       PtCut = cms.double( 1.0 ),
@@ -5088,10 +5075,10 @@ hltL3MuonsIOHit = cms.EDProducer( "L3MuonProducer",
       tkTrajLabel = cms.InputTag( "hltL3TkTracksFromL2IOHit" )
     ),
     ServiceParameters = cms.PSet( 
-      Propagators = cms.untracked.vstring( 'SmartPropagatorAny',
+      Propagators = cms.untracked.vstring( 'hltESPSmartPropagatorAny',
         'SteppingHelixPropagatorAny',
-        'SmartPropagator',
-        'SteppingHelixPropagatorOpposite' ),
+        'hltESPSmartPropagator',
+        'hltESPSteppingHelixPropagatorOpposite' ),
       RPCLayers = cms.bool( True ),
       UseMuonNavigation = cms.untracked.bool( True )
     ),
@@ -5100,10 +5087,10 @@ hltL3MuonsIOHit = cms.EDProducer( "L3MuonProducer",
       beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
       SmoothTkTrack = cms.untracked.bool( False ),
       MuonSeededTracksInstance = cms.untracked.string( "L2Seeded" ),
-      Smoother = cms.string( "KFSmootherForMuonTrackLoader" ),
+      Smoother = cms.string( "hltESPKFTrajectorySmootherForMuonTrackLoader" ),
       MuonUpdatorAtVertexParameters = cms.PSet( 
         MaxChi2 = cms.double( 1000000.0 ),
-        Propagator = cms.string( "SteppingHelixPropagatorOpposite" ),
+        Propagator = cms.string( "hltESPSteppingHelixPropagatorOpposite" ),
         BeamSpotPositionErrors = cms.vdouble( 0.1, 0.1, 5.3 )
       ),
       VertexConstraint = cms.bool( False ),
@@ -5564,11 +5551,11 @@ hltPixelTracks = cms.EDProducer( "PixelTrackProducer",
         extraHitRZtolerance = cms.double( 0.06 ),
         maxElement = cms.uint32( 10000 )
       ),
-      SeedingLayers = cms.string( "hltPixelLayerTriplets" )
+      SeedingLayers = cms.string( "hltESPPixelLayerTriplets" )
     ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
-      TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" )
+      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" )
     ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
@@ -5735,14 +5722,14 @@ hltL3TrajectorySeedNoVtx = cms.EDProducer( "TSGFromL2Muon",
     PCut = cms.double( 2.5 ),
     MuonCollectionLabel = cms.InputTag( "hltL2Muons" ),
     ServiceParameters = cms.PSet( 
-      Propagators = cms.untracked.vstring( 'SteppingHelixPropagatorOpposite',
-        'SteppingHelixPropagatorAlong' ),
+      Propagators = cms.untracked.vstring( 'hltESPSteppingHelixPropagatorOpposite',
+        'hltESPSteppingHelixPropagatorAlong' ),
       RPCLayers = cms.bool( True ),
       UseMuonNavigation = cms.untracked.bool( True )
     ),
     MuonTrackingRegionBuilder = cms.PSet(  ),
     TkSeedGenerator = cms.PSet( 
-      propagatorCompatibleName = cms.string( "SteppingHelixPropagatorOpposite" ),
+      propagatorCompatibleName = cms.string( "hltESPSteppingHelixPropagatorOpposite" ),
       option = cms.uint32( 3 ),
       ComponentName = cms.string( "TSGForRoadSearch" ),
       errorMatrixPset = cms.PSet( 
@@ -5814,7 +5801,7 @@ hltL3TrajectorySeedNoVtx = cms.EDProducer( "TSGFromL2Muon",
           )
         )
       ),
-      propagatorName = cms.string( "SteppingHelixPropagatorAlong" ),
+      propagatorName = cms.string( "hltESPSteppingHelixPropagatorAlong" ),
       manySeeds = cms.bool( False ),
       copyMuonRecHit = cms.bool( False ),
       maxChi2 = cms.double( 40.0 )
@@ -5831,8 +5818,8 @@ hltL3TrajectorySeedNoVtx = cms.EDProducer( "TSGFromL2Muon",
 hltL3TrackCandidateFromL2NoVtx = cms.EDProducer( "CkfTrajectoryMaker",
     trackCandidateAlso = cms.bool( True ),
     src = cms.InputTag( "hltL3TrajectorySeedNoVtx" ),
-    TrajectoryBuilder = cms.string( "muonCkfTrajectoryBuilder" ),
-    TrajectoryCleaner = cms.string( "hltTrajectoryCleanerBySharedHits" ),
+    TrajectoryBuilder = cms.string( "hltESPMuonCkfTrajectoryBuilder" ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
     useHitsSplitting = cms.bool( False ),
@@ -5850,11 +5837,11 @@ hltL3TkTracksFromL2NoVtx = cms.EDProducer( "TrackProducer",
     useHitsSplitting = cms.bool( False ),
     clusterRemovalInfo = cms.InputTag( "" ),
     alias = cms.untracked.string( "" ),
-    Fitter = cms.string( "hltKFFittingSmoother" ),
+    Fitter = cms.string( "hltESPKFFittingSmoother" ),
     Propagator = cms.string( "PropagatorWithMaterial" ),
     src = cms.InputTag( "hltL3TrackCandidateFromL2NoVtx" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
-    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     AlgorithmName = cms.string( "undefAlgorithm" ),
     NavigationSchool = cms.string( "" )
 )
@@ -6110,12 +6097,12 @@ hltMu3TrackJpsiPixelMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilter",
 hltMuTrackJpsiTrackSeeds = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
     InputCollection = cms.InputTag( "hltMuTrackJpsiPixelTrackSelector" ),
     useProtoTrackKinematics = cms.bool( False ),
-    TTRHBuilder = cms.string( "WithTrackAngle" )
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
 )
 hltMuTrackJpsiCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltMuTrackJpsiTrackSeeds" ),
-    TrajectoryBuilder = cms.string( "hltMuTrackJpsiTrajectoryBuilder" ),
-    TrajectoryCleaner = cms.string( "hltTrajectoryCleanerBySharedHits" ),
+    TrajectoryBuilder = cms.string( "hltESPMuTrackJpsiTrajectoryBuilder" ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
     useHitsSplitting = cms.bool( False ),
@@ -6133,11 +6120,11 @@ hltMuTrackJpsiCtfTracks = cms.EDProducer( "TrackProducer",
     useHitsSplitting = cms.bool( False ),
     clusterRemovalInfo = cms.InputTag( "" ),
     alias = cms.untracked.string( "hltMuTrackJpsiCtfTracks" ),
-    Fitter = cms.string( "FittingSmootherRK" ),
-    Propagator = cms.string( "RungeKuttaTrackerPropagator" ),
+    Fitter = cms.string( "hltESPFittingSmootherRK" ),
+    Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
     src = cms.InputTag( "hltMuTrackJpsiCkfTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
-    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     AlgorithmName = cms.string( "undefAlgorithm" ),
     NavigationSchool = cms.string( "" )
 )
@@ -7049,7 +7036,7 @@ hltL1IsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
       r2MinF = cms.double( -0.15 ),
       OrderedHitsFactoryPSet = cms.PSet( 
         ComponentName = cms.string( "StandardHitPairGenerator" ),
-        SeedingLayers = cms.string( "hltMixedLayerPairs" ),
+        SeedingLayers = cms.string( "hltESPMixedLayerPairs" ),
         useOnDemandTracker = cms.untracked.int32( 0 ),
         maxElement = cms.uint32( 0 )
       ),
@@ -7093,7 +7080,7 @@ hltL1IsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
       applyHOverECut = cms.bool( False ),
       hOverEHFMinE = cms.double( 999999.0 ),
       beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
-      measurementTrackerName = cms.string( "hltMeasurementTracker" )
+      measurementTrackerName = cms.string( "hltESPMeasurementTracker" )
     )
 )
 hltL1NonIsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
@@ -7105,7 +7092,7 @@ hltL1NonIsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
       r2MinF = cms.double( -0.15 ),
       OrderedHitsFactoryPSet = cms.PSet( 
         ComponentName = cms.string( "StandardHitPairGenerator" ),
-        SeedingLayers = cms.string( "hltMixedLayerPairs" ),
+        SeedingLayers = cms.string( "hltESPMixedLayerPairs" ),
         useOnDemandTracker = cms.untracked.int32( 0 ),
         maxElement = cms.uint32( 0 )
       ),
@@ -7149,7 +7136,7 @@ hltL1NonIsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
       applyHOverECut = cms.bool( False ),
       hOverEHFMinE = cms.double( 999999.0 ),
       beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
-      measurementTrackerName = cms.string( "hltMeasurementTracker" )
+      measurementTrackerName = cms.string( "hltESPMeasurementTracker" )
     )
 )
 hltL1NonIsoHLTNonIsoSingleElectronEt10PixelMatchFilter = cms.EDFilter( "HLTElectronPixelMatchFilter",
@@ -7263,8 +7250,8 @@ hltL1NonIsoHLTNonIsoSingleElectronEt12TighterEleIdPixelMatchFilter = cms.EDFilte
 )
 hltCkfL1IsoTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltL1IsoStartUpElectronPixelSeeds" ),
-    TrajectoryBuilder = cms.string( "hltCkfTrajectoryBuilder" ),
-    TrajectoryCleaner = cms.string( "hltTrajectoryCleanerBySharedHits" ),
+    TrajectoryBuilder = cms.string( "hltESPCkfTrajectoryBuilder" ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
     useHitsSplitting = cms.bool( False ),
@@ -7282,11 +7269,11 @@ hltCtfL1IsoWithMaterialTracks = cms.EDProducer( "TrackProducer",
     useHitsSplitting = cms.bool( False ),
     clusterRemovalInfo = cms.InputTag( "" ),
     alias = cms.untracked.string( "ctfWithMaterialTracks" ),
-    Fitter = cms.string( "hltKFFittingSmoother" ),
+    Fitter = cms.string( "hltESPKFFittingSmoother" ),
     Propagator = cms.string( "PropagatorWithMaterial" ),
     src = cms.InputTag( "hltCkfL1IsoTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
-    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     AlgorithmName = cms.string( "undefAlgorithm" ),
     NavigationSchool = cms.string( "" )
 )
@@ -7296,8 +7283,8 @@ hltPixelMatchElectronsL1Iso = cms.EDProducer( "EgammaHLTPixelMatchElectronProduc
 )
 hltCkfL1NonIsoTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltL1NonIsoStartUpElectronPixelSeeds" ),
-    TrajectoryBuilder = cms.string( "hltCkfTrajectoryBuilder" ),
-    TrajectoryCleaner = cms.string( "hltTrajectoryCleanerBySharedHits" ),
+    TrajectoryBuilder = cms.string( "hltESPCkfTrajectoryBuilder" ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
     useHitsSplitting = cms.bool( False ),
@@ -7315,11 +7302,11 @@ hltCtfL1NonIsoWithMaterialTracks = cms.EDProducer( "TrackProducer",
     useHitsSplitting = cms.bool( False ),
     clusterRemovalInfo = cms.InputTag( "" ),
     alias = cms.untracked.string( "ctfWithMaterialTracks" ),
-    Fitter = cms.string( "hltKFFittingSmoother" ),
+    Fitter = cms.string( "hltESPKFFittingSmoother" ),
     Propagator = cms.string( "PropagatorWithMaterial" ),
     src = cms.InputTag( "hltCkfL1NonIsoTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
-    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     AlgorithmName = cms.string( "undefAlgorithm" ),
     NavigationSchool = cms.string( "" )
 )
@@ -7684,13 +7671,13 @@ hltL1IsoEgammaRegionalPixelSeedGenerator = cms.EDProducer( "EgammaHLTRegionalPix
     OrderedHitsFactoryPSet = cms.PSet( 
       maxElement = cms.uint32( 0 ),
       ComponentName = cms.string( "StandardHitPairGenerator" ),
-      SeedingLayers = cms.string( "hltPixelLayerPairs" )
+      SeedingLayers = cms.string( "hltESPPixelLayerPairs" )
     )
 )
 hltL1IsoEgammaRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltL1IsoEgammaRegionalPixelSeedGenerator" ),
-    TrajectoryBuilder = cms.string( "hltCkfTrajectoryBuilder" ),
-    TrajectoryCleaner = cms.string( "hltTrajectoryCleanerBySharedHits" ),
+    TrajectoryBuilder = cms.string( "hltESPCkfTrajectoryBuilder" ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
     useHitsSplitting = cms.bool( False ),
@@ -7708,11 +7695,11 @@ hltL1IsoEgammaRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProducer",
     useHitsSplitting = cms.bool( False ),
     clusterRemovalInfo = cms.InputTag( "" ),
     alias = cms.untracked.string( "hltEgammaRegionalCTFFinalFitWithMaterial" ),
-    Fitter = cms.string( "hltKFFittingSmoother" ),
+    Fitter = cms.string( "hltESPKFFittingSmoother" ),
     Propagator = cms.string( "PropagatorWithMaterial" ),
     src = cms.InputTag( "hltL1IsoEgammaRegionalCkfTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
-    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     AlgorithmName = cms.string( "undefAlgorithm" ),
     NavigationSchool = cms.string( "" )
 )
@@ -7730,13 +7717,13 @@ hltL1NonIsoEgammaRegionalPixelSeedGenerator = cms.EDProducer( "EgammaHLTRegional
     OrderedHitsFactoryPSet = cms.PSet( 
       maxElement = cms.uint32( 0 ),
       ComponentName = cms.string( "StandardHitPairGenerator" ),
-      SeedingLayers = cms.string( "hltPixelLayerPairs" )
+      SeedingLayers = cms.string( "hltESPPixelLayerPairs" )
     )
 )
 hltL1NonIsoEgammaRegionalCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltL1NonIsoEgammaRegionalPixelSeedGenerator" ),
-    TrajectoryBuilder = cms.string( "hltCkfTrajectoryBuilder" ),
-    TrajectoryCleaner = cms.string( "hltTrajectoryCleanerBySharedHits" ),
+    TrajectoryBuilder = cms.string( "hltESPCkfTrajectoryBuilder" ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
     useHitsSplitting = cms.bool( False ),
@@ -7754,11 +7741,11 @@ hltL1NonIsoEgammaRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProduce
     useHitsSplitting = cms.bool( False ),
     clusterRemovalInfo = cms.InputTag( "" ),
     alias = cms.untracked.string( "hltEgammaRegionalCTFFinalFitWithMaterial" ),
-    Fitter = cms.string( "hltKFFittingSmoother" ),
+    Fitter = cms.string( "hltESPKFFittingSmoother" ),
     Propagator = cms.string( "PropagatorWithMaterial" ),
     src = cms.InputTag( "hltL1NonIsoEgammaRegionalCkfTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
-    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     AlgorithmName = cms.string( "undefAlgorithm" ),
     NavigationSchool = cms.string( "" )
 )
@@ -8137,7 +8124,7 @@ hltActivityStartUpElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
       OrderedHitsFactoryPSet = cms.PSet( 
         maxElement = cms.uint32( 0 ),
         ComponentName = cms.string( "StandardHitPairGenerator" ),
-        SeedingLayers = cms.string( "hltMixedLayerPairs" ),
+        SeedingLayers = cms.string( "hltESPMixedLayerPairs" ),
         useOnDemandTracker = cms.untracked.int32( 0 )
       ),
       DeltaPhi1Low = cms.double( 0.23 ),
@@ -8158,7 +8145,7 @@ hltActivityStartUpElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
       dynamicPhiRoad = cms.bool( False ),
       ePhiMax1 = cms.double( 0.04 ),
       DeltaPhi2 = cms.double( 0.0040 ),
-      measurementTrackerName = cms.string( "hltMeasurementTracker" ),
+      measurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
       SizeWindowENeg = cms.double( 0.675 ),
       nSigmasDeltaZ1 = cms.double( 5.0 ),
       rMaxI = cms.double( 0.2 ),
@@ -9250,7 +9237,7 @@ hltL1IsoStartUpElectronPixelSeedsLowPt = cms.EDProducer( "ElectronSeedProducer",
       r2MinF = cms.double( -0.08 ),
       OrderedHitsFactoryPSet = cms.PSet( 
         ComponentName = cms.string( "StandardHitPairGenerator" ),
-        SeedingLayers = cms.string( "hltMixedLayerPairs" ),
+        SeedingLayers = cms.string( "hltESPMixedLayerPairs" ),
         useOnDemandTracker = cms.untracked.int32( 0 ),
         maxElement = cms.uint32( 0 )
       ),
@@ -9294,7 +9281,7 @@ hltL1IsoStartUpElectronPixelSeedsLowPt = cms.EDProducer( "ElectronSeedProducer",
       applyHOverECut = cms.bool( False ),
       hOverEHFMinE = cms.double( 999999.0 ),
       beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
-      measurementTrackerName = cms.string( "hltMeasurementTracker" )
+      measurementTrackerName = cms.string( "hltESPMeasurementTracker" )
     )
 )
 hltL1NonIsoStartUpElectronPixelSeedsLowPt = cms.EDProducer( "ElectronSeedProducer",
@@ -9306,7 +9293,7 @@ hltL1NonIsoStartUpElectronPixelSeedsLowPt = cms.EDProducer( "ElectronSeedProduce
       r2MinF = cms.double( -0.08 ),
       OrderedHitsFactoryPSet = cms.PSet( 
         ComponentName = cms.string( "StandardHitPairGenerator" ),
-        SeedingLayers = cms.string( "hltMixedLayerPairs" ),
+        SeedingLayers = cms.string( "hltESPMixedLayerPairs" ),
         useOnDemandTracker = cms.untracked.int32( 0 ),
         maxElement = cms.uint32( 0 )
       ),
@@ -9350,7 +9337,7 @@ hltL1NonIsoStartUpElectronPixelSeedsLowPt = cms.EDProducer( "ElectronSeedProduce
       applyHOverECut = cms.bool( False ),
       hOverEHFMinE = cms.double( 999999.0 ),
       beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
-      measurementTrackerName = cms.string( "hltMeasurementTracker" )
+      measurementTrackerName = cms.string( "hltESPMeasurementTracker" )
     )
 )
 hltL1NonIsoDoublePhotonEt4eeResPixelMatchFilter = cms.EDFilter( "HLTElectronPixelMatchFilter",
@@ -9366,8 +9353,8 @@ hltL1NonIsoDoublePhotonEt4eeResPixelMatchFilter = cms.EDFilter( "HLTElectronPixe
 )
 hltCkfL1IsoStartUpWindowTrackCandidatesLowPt = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltL1IsoStartUpElectronPixelSeedsLowPt" ),
-    TrajectoryBuilder = cms.string( "hltCkfTrajectoryBuilder" ),
-    TrajectoryCleaner = cms.string( "hltTrajectoryCleanerBySharedHits" ),
+    TrajectoryBuilder = cms.string( "hltESPCkfTrajectoryBuilder" ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
     useHitsSplitting = cms.bool( False ),
@@ -9385,11 +9372,11 @@ hltCtfL1IsoStartUpWindowWithMaterialTracksLowPt = cms.EDProducer( "TrackProducer
     useHitsSplitting = cms.bool( False ),
     clusterRemovalInfo = cms.InputTag( "" ),
     alias = cms.untracked.string( "ctfWithMaterialTracksLowPt" ),
-    Fitter = cms.string( "hltKFFittingSmoother" ),
+    Fitter = cms.string( "hltESPKFFittingSmoother" ),
     Propagator = cms.string( "PropagatorWithMaterial" ),
     src = cms.InputTag( "hltCkfL1IsoStartUpWindowTrackCandidatesLowPt" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
-    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     AlgorithmName = cms.string( "undefAlgorithm" ),
     NavigationSchool = cms.string( "" )
 )
@@ -9399,8 +9386,8 @@ hltPixelMatchStartUpWindowElectronsL1IsoLowPt = cms.EDProducer( "EgammaHLTPixelM
 )
 hltCkfL1NonIsoStartUpWindowTrackCandidatesLowPt = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltL1NonIsoStartUpElectronPixelSeedsLowPt" ),
-    TrajectoryBuilder = cms.string( "hltCkfTrajectoryBuilder" ),
-    TrajectoryCleaner = cms.string( "hltTrajectoryCleanerBySharedHits" ),
+    TrajectoryBuilder = cms.string( "hltESPCkfTrajectoryBuilder" ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
     useHitsSplitting = cms.bool( False ),
@@ -9418,11 +9405,11 @@ hltCtfL1NonIsoStartUpWindowWithMaterialTracksLowPt = cms.EDProducer( "TrackProdu
     useHitsSplitting = cms.bool( False ),
     clusterRemovalInfo = cms.InputTag( "" ),
     alias = cms.untracked.string( "ctfWithMaterialTracksLowPt" ),
-    Fitter = cms.string( "hltKFFittingSmoother" ),
+    Fitter = cms.string( "hltESPKFFittingSmoother" ),
     Propagator = cms.string( "PropagatorWithMaterial" ),
     src = cms.InputTag( "hltCkfL1NonIsoStartUpWindowTrackCandidatesLowPt" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
-    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     AlgorithmName = cms.string( "undefAlgorithm" ),
     NavigationSchool = cms.string( "" )
 )
@@ -11413,7 +11400,7 @@ hltL25TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     ),
     OrderedHitsFactoryPSet = cms.PSet( 
       ComponentName = cms.string( "StandardHitPairGenerator" ),
-      SeedingLayers = cms.string( "hltPixelLayerPairs" ),
+      SeedingLayers = cms.string( "hltESPPixelLayerPairs" ),
       maxElement = cms.uint32( 0 )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
@@ -11421,12 +11408,12 @@ hltL25TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
     ),
-    TTRHBuilder = cms.string( "WithTrackAngle" )
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
 )
 hltL25TauCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltL25TauPixelSeeds" ),
-    TrajectoryBuilder = cms.string( "trajBuilderL3" ),
-    TrajectoryCleaner = cms.string( "hltTrajectoryCleanerBySharedHits" ),
+    TrajectoryBuilder = cms.string( "hltESPTrajectoryBuilderL3" ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
     useHitsSplitting = cms.bool( False ),
@@ -11444,11 +11431,11 @@ hltL25TauCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     useHitsSplitting = cms.bool( False ),
     clusterRemovalInfo = cms.InputTag( "" ),
     alias = cms.untracked.string( "ctfWithMaterialTracks" ),
-    Fitter = cms.string( "FittingSmootherRK" ),
-    Propagator = cms.string( "RungeKuttaTrackerPropagator" ),
+    Fitter = cms.string( "hltESPFittingSmootherRK" ),
+    Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
     src = cms.InputTag( "hltL25TauCkfTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
-    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     AlgorithmName = cms.string( "undefAlgorithm" ),
     NavigationSchool = cms.string( "" )
 )
@@ -11517,7 +11504,7 @@ hltL3TauSingleTrack15PixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsED
     ),
     OrderedHitsFactoryPSet = cms.PSet( 
       ComponentName = cms.string( "StandardHitPairGenerator" ),
-      SeedingLayers = cms.string( "hltPixelLayerPairs" ),
+      SeedingLayers = cms.string( "hltESPPixelLayerPairs" ),
       maxElement = cms.uint32( 0 )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
@@ -11525,12 +11512,12 @@ hltL3TauSingleTrack15PixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsED
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
     ),
-    TTRHBuilder = cms.string( "WithTrackAngle" )
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
 )
 hltL3TauSingleTrack15CkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltL3TauSingleTrack15PixelSeeds" ),
-    TrajectoryBuilder = cms.string( "trajBuilderL3" ),
-    TrajectoryCleaner = cms.string( "hltTrajectoryCleanerBySharedHits" ),
+    TrajectoryBuilder = cms.string( "hltESPTrajectoryBuilderL3" ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
     useHitsSplitting = cms.bool( False ),
@@ -11548,11 +11535,11 @@ hltL3TauSingleTrack15CtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     useHitsSplitting = cms.bool( False ),
     clusterRemovalInfo = cms.InputTag( "" ),
     alias = cms.untracked.string( "ctfWithMaterialTracks" ),
-    Fitter = cms.string( "FittingSmootherRK" ),
-    Propagator = cms.string( "RungeKuttaTrackerPropagator" ),
+    Fitter = cms.string( "hltESPFittingSmootherRK" ),
+    Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
     src = cms.InputTag( "hltL3TauSingleTrack15CkfTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
-    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     AlgorithmName = cms.string( "undefAlgorithm" ),
     NavigationSchool = cms.string( "" )
 )
@@ -11716,7 +11703,7 @@ hltL3TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     ),
     OrderedHitsFactoryPSet = cms.PSet( 
       ComponentName = cms.string( "StandardHitPairGenerator" ),
-      SeedingLayers = cms.string( "hltPixelLayerPairs" ),
+      SeedingLayers = cms.string( "hltESPPixelLayerPairs" ),
       maxElement = cms.uint32( 0 )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
@@ -11724,12 +11711,12 @@ hltL3TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
     ),
-    TTRHBuilder = cms.string( "WithTrackAngle" )
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
 )
 hltL3TauCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltL3TauPixelSeeds" ),
-    TrajectoryBuilder = cms.string( "trajBuilderL3" ),
-    TrajectoryCleaner = cms.string( "hltTrajectoryCleanerBySharedHits" ),
+    TrajectoryBuilder = cms.string( "hltESPTrajectoryBuilderL3" ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
     useHitsSplitting = cms.bool( False ),
@@ -11747,11 +11734,11 @@ hltL3TauCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     useHitsSplitting = cms.bool( False ),
     clusterRemovalInfo = cms.InputTag( "" ),
     alias = cms.untracked.string( "ctfWithMaterialTracks" ),
-    Fitter = cms.string( "FittingSmootherRK" ),
-    Propagator = cms.string( "RungeKuttaTrackerPropagator" ),
+    Fitter = cms.string( "hltESPFittingSmootherRK" ),
+    Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
     src = cms.InputTag( "hltL3TauCkfTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
-    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     AlgorithmName = cms.string( "undefAlgorithm" ),
     NavigationSchool = cms.string( "" )
 )
@@ -11890,7 +11877,7 @@ hltBSoftMuonL25TagInfosU = cms.EDProducer( "SoftLepton",
     muonSelection = cms.uint32( 0 )
 )
 hltBSoftMuonL25BJetTagsUByDR = cms.EDProducer( "JetTagProducer",
-    jetTagComputer = cms.string( "softLeptonByDistance" ),
+    jetTagComputer = cms.string( "hltESPSoftLeptonByDistance" ),
     tagInfos = cms.VInputTag( 'hltBSoftMuonL25TagInfosU' )
 )
 hltBSoftMuonL25FilterUByDR = cms.EDFilter( "HLTJetTag",
@@ -11912,11 +11899,11 @@ hltBSoftMuonL3TagInfosU = cms.EDProducer( "SoftLepton",
     muonSelection = cms.uint32( 0 )
 )
 hltBSoftMuonL3BJetTagsUByPt = cms.EDProducer( "JetTagProducer",
-    jetTagComputer = cms.string( "softLeptonByPt" ),
+    jetTagComputer = cms.string( "hltESPSoftLeptonByPt" ),
     tagInfos = cms.VInputTag( 'hltBSoftMuonL3TagInfosU' )
 )
 hltBSoftMuonL3BJetTagsUByDR = cms.EDProducer( "JetTagProducer",
-    jetTagComputer = cms.string( "softLeptonByDistance" ),
+    jetTagComputer = cms.string( "hltESPSoftLeptonByDistance" ),
     tagInfos = cms.VInputTag( 'hltBSoftMuonL3TagInfosU' )
 )
 hltBSoftMuonL3FilterUByDR = cms.EDFilter( "HLTJetTag",
@@ -11975,11 +11962,11 @@ hltBSoftMuonSelL3TagInfosU = cms.EDProducer( "SoftLepton",
     muonSelection = cms.uint32( 0 )
 )
 hltBSoftMuonSelL3BJetTagsUByPt = cms.EDProducer( "JetTagProducer",
-    jetTagComputer = cms.string( "softLeptonByPt" ),
+    jetTagComputer = cms.string( "hltESPSoftLeptonByPt" ),
     tagInfos = cms.VInputTag( 'hltBSoftMuonSelL3TagInfosU' )
 )
 hltBSoftMuonSelL3BJetTagsUByDR = cms.EDProducer( "JetTagProducer",
-    jetTagComputer = cms.string( "softLeptonByDistance" ),
+    jetTagComputer = cms.string( "hltESPSoftLeptonByDistance" ),
     tagInfos = cms.VInputTag( 'hltBSoftMuonSelL3TagInfosU' )
 )
 hltBSoftMuonSelL3FilterUByDR = cms.EDFilter( "HLTJetTag",
@@ -13264,7 +13251,7 @@ hltPFJetPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     ),
     OrderedHitsFactoryPSet = cms.PSet( 
       ComponentName = cms.string( "StandardHitPairGenerator" ),
-      SeedingLayers = cms.string( "hltPixelLayerPairs" ),
+      SeedingLayers = cms.string( "hltESPPixelLayerPairs" ),
       maxElement = cms.uint32( 0 )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
@@ -13272,12 +13259,12 @@ hltPFJetPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
     ),
-    TTRHBuilder = cms.string( "WithTrackAngle" )
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
 )
 hltPFJetCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltPFJetPixelSeeds" ),
-    TrajectoryBuilder = cms.string( "trajBuilderL3" ),
-    TrajectoryCleaner = cms.string( "hltTrajectoryCleanerBySharedHits" ),
+    TrajectoryBuilder = cms.string( "hltESPTrajectoryBuilderL3" ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
     useHitsSplitting = cms.bool( False ),
@@ -13295,11 +13282,11 @@ hltPFJetCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     useHitsSplitting = cms.bool( False ),
     clusterRemovalInfo = cms.InputTag( "" ),
     alias = cms.untracked.string( "ctfWithMaterialTracks" ),
-    Fitter = cms.string( "FittingSmootherRK" ),
-    Propagator = cms.string( "RungeKuttaTrackerPropagator" ),
+    Fitter = cms.string( "hltESPFittingSmootherRK" ),
+    Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
     src = cms.InputTag( "hltPFJetCkfTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
-    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     AlgorithmName = cms.string( "ctf" ),
     NavigationSchool = cms.string( "" )
 )
@@ -14136,7 +14123,7 @@ hltPixelTracksForMinBias = cms.EDProducer( "PixelTrackProducer",
     ),
     OrderedHitsFactoryPSet = cms.PSet( 
       ComponentName = cms.string( "StandardHitTripletGenerator" ),
-      SeedingLayers = cms.string( "hltPixelLayerTriplets" ),
+      SeedingLayers = cms.string( "hltESPPixelLayerTriplets" ),
       GeneratorPSet = cms.PSet( 
         useBending = cms.bool( True ),
         useFixedPreFiltering = cms.bool( False ),
@@ -14150,7 +14137,7 @@ hltPixelTracksForMinBias = cms.EDProducer( "PixelTrackProducer",
     ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
-      TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" )
+      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" )
     ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
@@ -14384,11 +14371,11 @@ hltHITPixelTracksHB = cms.EDProducer( "PixelTrackProducer",
         extraHitRZtolerance = cms.double( 0.06 ),
         maxElement = cms.uint32( 10000 )
       ),
-      SeedingLayers = cms.string( "PixelLayerTripletsHITHB" )
+      SeedingLayers = cms.string( "hltESPPixelLayerTripletsHITHB" )
     ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByConformalMappingAndLine" ),
-      TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
+      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
       fixImpactParameter = cms.double( 0.0 )
     ),
     FilterPSet = cms.PSet( 
@@ -14485,19 +14472,19 @@ hltHITPixelTripletSeedGeneratorHB8E29 = cms.EDProducer( "SeedGeneratorFromRegion
         extraHitRZtolerance = cms.double( 0.06 ),
         maxElement = cms.uint32( 10000 )
       ),
-      SeedingLayers = cms.string( "hltPixelLayerTriplets" )
+      SeedingLayers = cms.string( "hltESPPixelLayerTriplets" )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
     SeedCreatorPSet = cms.PSet( 
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
     ),
-    TTRHBuilder = cms.string( "WithTrackAngle" )
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
 )
 hltHITCkfTrackCandidatesHB8E29 = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltHITPixelTripletSeedGeneratorHB8E29" ),
-    TrajectoryBuilder = cms.string( "hltCkfTrajectoryBuilder" ),
-    TrajectoryCleaner = cms.string( "hltTrajectoryCleanerBySharedHits" ),
+    TrajectoryBuilder = cms.string( "hltESPCkfTrajectoryBuilder" ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
     useHitsSplitting = cms.bool( False ),
@@ -14515,11 +14502,11 @@ hltHITCtfWithMaterialTracksHB8E29 = cms.EDProducer( "TrackProducer",
     useHitsSplitting = cms.bool( False ),
     clusterRemovalInfo = cms.InputTag( "" ),
     alias = cms.untracked.string( "hltHITCtfWithMaterialTracksHB8E29" ),
-    Fitter = cms.string( "hltKFFittingSmoother" ),
+    Fitter = cms.string( "hltESPKFFittingSmoother" ),
     Propagator = cms.string( "PropagatorWithMaterial" ),
     src = cms.InputTag( "hltHITCkfTrackCandidatesHB8E29" ),
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     AlgorithmName = cms.string( "undefAlgorithm" ),
     NavigationSchool = cms.string( "" )
 )
@@ -14577,11 +14564,11 @@ hltHITPixelTracksHE = cms.EDProducer( "PixelTrackProducer",
         extraHitRZtolerance = cms.double( 0.06 ),
         maxElement = cms.uint32( 10000 )
       ),
-      SeedingLayers = cms.string( "PixelLayerTripletsHITHE" )
+      SeedingLayers = cms.string( "hltESPPixelLayerTripletsHITHE" )
     ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByConformalMappingAndLine" ),
-      TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
+      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
       fixImpactParameter = cms.double( 0.0 )
     ),
     FilterPSet = cms.PSet( 
@@ -14678,19 +14665,19 @@ hltHITPixelTripletSeedGeneratorHE8E29 = cms.EDProducer( "SeedGeneratorFromRegion
         extraHitRZtolerance = cms.double( 0.06 ),
         maxElement = cms.uint32( 10000 )
       ),
-      SeedingLayers = cms.string( "hltPixelLayerTriplets" )
+      SeedingLayers = cms.string( "hltESPPixelLayerTriplets" )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
     SeedCreatorPSet = cms.PSet( 
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
     ),
-    TTRHBuilder = cms.string( "WithTrackAngle" )
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
 )
 hltHITCkfTrackCandidatesHE8E29 = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltHITPixelTripletSeedGeneratorHE8E29" ),
-    TrajectoryBuilder = cms.string( "hltCkfTrajectoryBuilder" ),
-    TrajectoryCleaner = cms.string( "hltTrajectoryCleanerBySharedHits" ),
+    TrajectoryBuilder = cms.string( "hltESPCkfTrajectoryBuilder" ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
     useHitsSplitting = cms.bool( False ),
@@ -14708,11 +14695,11 @@ hltHITCtfWithMaterialTracksHE8E29 = cms.EDProducer( "TrackProducer",
     useHitsSplitting = cms.bool( False ),
     clusterRemovalInfo = cms.InputTag( "" ),
     alias = cms.untracked.string( "hltHITCtfWithMaterialTracksHE8E29" ),
-    Fitter = cms.string( "hltKFFittingSmoother" ),
+    Fitter = cms.string( "hltESPKFFittingSmoother" ),
     Propagator = cms.string( "PropagatorWithMaterial" ),
     src = cms.InputTag( "hltHITCkfTrackCandidatesHE8E29" ),
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     AlgorithmName = cms.string( "undefAlgorithm" ),
     NavigationSchool = cms.string( "" )
 )
@@ -14797,7 +14784,7 @@ hltPixelTracksForHighMult = cms.EDProducer( "PixelTrackProducer",
     ),
     OrderedHitsFactoryPSet = cms.PSet( 
       ComponentName = cms.string( "StandardHitTripletGenerator" ),
-      SeedingLayers = cms.string( "hltPixelLayerTriplets" ),
+      SeedingLayers = cms.string( "hltESPPixelLayerTriplets" ),
       GeneratorPSet = cms.PSet( 
         useBending = cms.bool( True ),
         useFixedPreFiltering = cms.bool( False ),
@@ -14811,7 +14798,7 @@ hltPixelTracksForHighMult = cms.EDProducer( "PixelTrackProducer",
     ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
-      TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" )
+      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" )
     ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),

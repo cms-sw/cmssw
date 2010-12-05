@@ -530,6 +530,11 @@ class ConfDB(object):
       self.options['esmodules'].append( "-L1GtTriggerMaskTechTrigTrivialProducer" )
       self.options['esmodules'].append( "-sistripconn" )
 
+      self.options['esmodules'].append( "-hltESPEcalTrigTowerConstituentsMapBuilder" )
+      self.options['esmodules'].append( "-hltESPGlobalTrackingGeometryESProducer" )
+      self.options['esmodules'].append( "-hltESPMuonDetLayerGeometryESProducer" )
+      self.options['esmodules'].append( "-hltESPTrackerRecoGeometryESProducer" )
+
       self.options['services'].append( "-PrescaleService" )
       self.options['services'].append( "-MessageLogger" )
       self.options['services'].append( "-DQM" )
