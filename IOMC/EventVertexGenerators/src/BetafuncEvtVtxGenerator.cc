@@ -1,5 +1,5 @@
 
-// $Id: BetafuncEvtVtxGenerator.cc,v 1.9 2009/05/07 09:01:59 fabiocos Exp $
+// $Id: BetafuncEvtVtxGenerator.cc,v 1.10 2009/05/25 12:46:04 fabiocos Exp $
 /*
 ________________________________________________________________________
 
@@ -73,14 +73,14 @@ HepMC::FourVector* BetafuncEvtVtxGenerator::newVertex() {
 	double tmp_sigz = fRandom->fire(0., fSigmaZ);
 	Z = tmp_sigz + fZ0;
 
-	double tmp_sigx = BetaFunction(tmp_sigz,fZ0); 
+	double tmp_sigx = BetaFunction(Z,fZ0); 
 	X = fRandom->fire(0.,tmp_sigx) + fX0; // + Z*fdxdz ;
 
-	double tmp_sigy = BetaFunction(tmp_sigz,fZ0);
+	double tmp_sigy = BetaFunction(Z,fZ0);
 	Y = fRandom->fire(0.,tmp_sigy) + fY0; // + Z*fdydz;
 
-    double tmp_sigt = fRandom->fire(0., fSigmaZ);
-    double T = tmp_sigt + fTimeOffset; 
+	double tmp_sigt = fRandom->fire(0., fSigmaZ);
+	double T = tmp_sigt + fTimeOffset; 
 
 	if ( fVertex == 0 ) fVertex = new HepMC::FourVector();
 	fVertex->set(X,Y,Z,T);
