@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/12/06 14:06:29 $
- *  $Revision: 1.26 $
+ *  $Date: 2010/12/06 14:44:19 $
+ *  $Revision: 1.27 $
  *
  *  \author Martin Grunewald
  *
@@ -21,6 +21,7 @@
 
 #include <iomanip>
 #include <cstring>
+#include <sstream>
 
 //
 // constructors and destructor
@@ -353,19 +354,23 @@ HLTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 void
-HLTrigReport::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+HLTrigReport::endLuminosityBlock(edm::LuminosityBlock const & lumi, edm::EventSetup const & setup)
 {
   if (reportByLumi_) {
-    dumpReport();
+    std::stringstream stream;
+    stream << "Summary for Run " << lumi.run() << ", LumiSection " << lumi.luminosityBlock();
+    dumpReport(stream.str());
     reset();
   }
 }
 
 void
-HLTrigReport::endRun(edm::Run const&, edm::EventSetup const&)
+HLTrigReport::endRun(edm::Run const & run, edm::EventSetup const & setup)
 {
   if (reportByRun_) {
-    dumpReport();
+    std::stringstream stream;
+    stream << "Summary for Run " << run.run();
+    dumpReport(stream.str());
     reset();
   }
 }
@@ -380,7 +385,7 @@ HLTrigReport::endJob()
 }
 
 void
-HLTrigReport::dumpReport()
+HLTrigReport::dumpReport(std::string const & header /* = std::string() */)
 {
   // final printout of accumulated statistics
 
@@ -392,6 +397,8 @@ HLTrigReport::dumpReport()
 
   LogVerbatim("HLTrigReport") << dec << endl;
   LogVerbatim("HLTrigReport") << "HLT-Report " << "---------- Event  Summary ------------" << endl;
+  if (not header.empty())
+    LogVerbatim("HLTrigReport") << "HLT-Report " << header << endl;
   LogVerbatim("HLTrigReport") << "HLT-Report"
 	 << " Events total = " << nEvents_
 	 << " wasrun = " << nWasRun_
