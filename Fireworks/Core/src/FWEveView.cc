@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.49 2010/11/27 22:41:40 amraktad Exp $
+// $Id: FWEveView.cc,v 1.50 2010/12/05 17:33:47 amraktad Exp $
 //
 
 
@@ -307,6 +307,7 @@ FWEveView::setupEnergyScale()
    // configure TEveCaloViz
    if (calo)
    {
+      calo->SetPlotEt(energyScale->getPlotEt());
       if (FWViewType::isLego(typeId()))
       {
          float f = energyScale->getScaleFactorLego();
