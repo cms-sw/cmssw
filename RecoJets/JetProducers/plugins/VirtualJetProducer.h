@@ -13,6 +13,7 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 
 #include "RecoJets/JetProducers/interface/PileUpSubtractor.h"
+#include "RecoJets/JetProducers/interface/AnomalousTower.h"
 
 #include "fastjet/JetDefinition.hh"
 #include "fastjet/ClusterSequence.hh"
@@ -20,6 +21,7 @@
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ActiveAreaSpec.hh"
 
+#include <memory>
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
@@ -162,13 +164,6 @@ protected:
   bool                  doPUOffsetCorr_;            // add the pileup calculation from offset correction? 
   std::string           puSubtractorName_;
 
-  // anomalous cell cuts
-  unsigned int          maxBadEcalCells_;           // maximum number of bad ECAL cells
-  unsigned int          maxRecoveredEcalCells_;     // maximum number of recovered ECAL cells
-  unsigned int          maxProblematicEcalCells_;   // maximum number of problematic ECAL cells
-  unsigned int          maxBadHcalCells_;           // maximum number of bad HCAL cells        
-  unsigned int          maxRecoveredHcalCells_;	    // maximum number of recovered HCAL cells  
-  unsigned int          maxProblematicHcalCells_;   // maximum number of problematic HCAL cells
 
   std::vector<edm::Ptr<reco::Candidate> > inputs_;  // input candidates [View, PtrVector and CandCollection have limitations]
   reco::Particle::Point           vertex_;          // Primary vertex 
@@ -188,6 +183,8 @@ protected:
   std::string                     jetCollInstanceName_;       // instance name for output jet collection
   boost::shared_ptr<PileUpSubtractor>  subtractor_;
 
+private:
+  std::auto_ptr<AnomalousTower>   anomalousTowerDef_;  // anomalous tower definition
 };
 
 

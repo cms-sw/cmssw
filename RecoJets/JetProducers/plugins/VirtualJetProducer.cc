@@ -113,14 +113,9 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   , doAreaFastjet_ (iConfig.getParameter<bool>         ("doAreaFastjet"))
   , doRhoFastjet_  (iConfig.getParameter<bool>         ("doRhoFastjet"))
   , doPUOffsetCorr_(iConfig.getParameter<bool>         ("doPUOffsetCorr"))
-  , maxBadEcalCells_        (iConfig.getParameter<unsigned>("maxBadEcalCells"))
-  , maxRecoveredEcalCells_  (iConfig.getParameter<unsigned>("maxRecoveredEcalCells"))
-  , maxProblematicEcalCells_(iConfig.getParameter<unsigned>("maxProblematicEcalCells"))
-  , maxBadHcalCells_        (iConfig.getParameter<unsigned>("maxBadHcalCells"))
-  , maxRecoveredHcalCells_  (iConfig.getParameter<unsigned>("maxRecoveredHcalCells"))
-  , maxProblematicHcalCells_(iConfig.getParameter<unsigned>("maxProblematicHcalCells"))
   , jetCollInstanceName_ ("")
 {
+  anomalousTowerDef_ = std::auto_ptr<AnomalousTower>(new AnomalousTower(iConfig));
 
   //
   // additional parameters to think about:
@@ -350,18 +345,11 @@ void VirtualJetProducer::inputTowers( )
 //______________________________________________________________________________
 bool VirtualJetProducer::isAnomalousTower(reco::CandidatePtr input)
 {
-  if (!makeCaloJet(jetTypeE)) return false;
-  const CaloTower* tower=dynamic_cast<const CaloTower*>(input.get());
-  if (0==tower) return false;
-  if (tower->numBadEcalCells()        >maxBadEcalCells_        ||
-      tower->numRecoveredEcalCells()  >maxRecoveredEcalCells_  ||
-      tower->numProblematicEcalCells()>maxProblematicEcalCells_||
-      tower->numBadHcalCells()        >maxBadHcalCells_        ||
-      tower->numRecoveredHcalCells()  >maxRecoveredHcalCells_  ||
-      tower->numProblematicHcalCells()>maxProblematicHcalCells_) return true;
-  return false;
+  if (!makeCaloJet(jetTypeE)) 
+      return false;
+  else
+      return (*anomalousTowerDef_)(*input);
 }
-
 
 //------------------------------------------------------------------------------
 // This is pure virtual. 
