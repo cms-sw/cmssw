@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Mar 26 12:25:02 CET 2010
-// $Id: FWViewType.cc,v 1.15 2010/11/21 11:18:14 amraktad Exp $
+// $Id: FWViewType.cc,v 1.16 2010/11/21 20:52:25 amraktad Exp $
 //
 
 // system include files
@@ -41,8 +41,8 @@ FWViewType::static_initializer::static_initializer()
   sName[kLego         ] = "Lego";
   sName[kLegoHF       ] = "HF";
   sName[kTable        ] = "Table";
-  sName[kTableTrigger ] = "TriggerTable";
-  sName[kTableL1      ] = "L1TriggerTable";
+  sName[kTableTrigger ] = "HLT Table";
+  sName[kTableL1      ] = "L1 Table";
   sName[kLegoPFECAL   ] = "PF ECAL Lego";
   sName[kRhoPhiPF     ] = "PF Rho Phi";
 }
@@ -89,6 +89,25 @@ FWViewType::idToName(int id)
 {
  
   return sName[id];
+}
+
+const std::string& 
+FWViewType::checkNameWithViewVersion(const std::string& refName, unsigned int version)
+{
+   //  printf("version %d %s \n", version, refName.c_str());
+   if (version < 2)
+   {
+      if (refName == "TriggerTable") 
+         return idToName(FWViewType::kTableTrigger);
+      else if (refName == "L1TriggerTable")
+         return idToName(FWViewType::kTableL1);
+   }
+   else if (version < 3)
+   {
+      if (refName == "3D Lego") 
+         return idToName(FWViewType::kLego);
+   }
+   return refName;
 }
 
 bool

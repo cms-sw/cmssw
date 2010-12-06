@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Mon Mar 22 12:08:40 CET 2010
-// $Id: FWViewType.h,v 1.13 2010/11/21 11:18:13 amraktad Exp $
+// $Id: FWViewType.h,v 1.14 2010/11/21 20:52:24 amraktad Exp $
 //
 #include <string>
 
@@ -32,7 +32,7 @@ public:
    static static_initializer init_statics;
    
    enum EType { k3D, kRhoPhi, kRhoZ, kISpy, kLego, kLegoHF, kGlimpse,
-                kTable, kTableTrigger, kTableL1,
+                kTable, kTableL1, kTableTrigger,
                 kRhoPhiPF, kLegoPFECAL,
                 kTypeSize };
    
@@ -62,12 +62,15 @@ public:
    static const std::string& idToName(int);
    static bool isProjected(int);
    static bool isLego(int);
+
+   static const std::string&  checkNameWithViewVersion(const std::string& name, unsigned int viewVersion);
    
    FWViewType(EType);
    virtual ~FWViewType();
 
    const std::string& name() const;
    EType id() const;
+
 
 private: 
    const EType m_id;

@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.225 2010/11/21 20:52:25 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.226 2010/11/22 21:35:08 matevz Exp $
 
 //
 
@@ -147,7 +147,7 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
       for (int i = 0 ; i < FWViewType::kTypeSize; ++i)
       {
-         bool separator = (i == FWViewType::kGlimpse || i == FWViewType::kTableL1);
+         bool separator = (i == FWViewType::kGlimpse || i == FWViewType::kTableTrigger);
          CSGAction* action = m_cmsShowMainFrame->createNewViewerAction(FWViewType::idToName(i), separator);
          action->activated.connect(boost::bind(&FWGUIManager::newViewSlot, this, FWViewType::idToName(i)));
       }
@@ -1199,8 +1199,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
       {
          float weight = atof((areaIt->second).valueForKey("weight")->value().c_str());
          TEveWindowSlot* slot = ( m_viewMap.size() || (primSlot == 0) ) ? m_viewSecPack->NewSlotWithWeight(weight) : primSlot;
-         std::string name = it->first;
-         if (name == "3D Lego") name = FWViewType::idToName(FWViewType::kLego); 	 
+         std::string name = FWViewType::checkNameWithViewVersion(it->first, it->second.version());
          ViewMap_i lastViewIt = createView(name, slot);
          lastViewIt->second->setFrom(it->second);
 
@@ -1222,8 +1221,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    else
    {  // create views with same weight in old version
       for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it) {
-         std::string name = it->first;
-         if (name == "3D Lego") name =  FWViewType::idToName(FWViewType::kLego);
+         std::string name = FWViewType::checkNameWithViewVersion(it->first, it->second.version());       
          createView(name, m_viewMap.size() ? m_viewSecPack->NewSlot() : primSlot); 	 
 
          ViewMap_i lastViewIt = m_viewMap.end(); lastViewIt--;
