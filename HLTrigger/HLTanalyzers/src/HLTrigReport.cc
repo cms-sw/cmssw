@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/12/06 11:40:44 $
- *  $Revision: 1.21 $
+ *  $Date: 2010/12/06 11:52:08 $
+ *  $Revision: 1.22 $
  *
  *  \author Martin Grunewald
  *
@@ -107,6 +107,10 @@ HLTrigReport::~HLTrigReport()
 //
 // member functions
 //
+void
+HLTrigReport::reset()
+{
+}
 
 void
 HLTrigReport::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
