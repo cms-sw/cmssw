@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/12/06 11:52:08 $
- *  $Revision: 1.22 $
+ *  $Date: 2010/12/06 13:04:56 $
+ *  $Revision: 1.23 $
  *
  *  \author Martin Grunewald
  *
@@ -324,22 +324,28 @@ HLTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void
 HLTrigReport::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
-  if (reportByLumi_)
+  if (reportByLumi_) {
     dumpReport();
+    reset();
+  }
 }
 
 void
 HLTrigReport::endRun(edm::Run const&, edm::EventSetup const&)
 {
-  if (reportByRun_)
+  if (reportByRun_) {
     dumpReport();
+    reset();
+  }
 }
 
 void
 HLTrigReport::endJob()
 {
-  if (reportByJob_)
+  if (reportByJob_) {
     dumpReport();
+    reset();
+  }
 }
 
 void
