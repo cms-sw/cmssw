@@ -34,7 +34,7 @@
 
 using namespace reco;
 
-void GsfElectronProducer::fillDescriptions( edm::ConfigurationDescriptions & descriptions )
+/* void GsfElectronProducer::fillDescriptions( edm::ConfigurationDescriptions & descriptions )
  {
   edm::ParameterSetDescription desc ;
 
@@ -149,7 +149,7 @@ void GsfElectronProducer::fillDescriptions( edm::ConfigurationDescriptions & des
 
   descriptions.add("produceGsfElectrons",desc) ;
  }
-
+ */
 GsfElectronProducer::GsfElectronProducer( const edm::ParameterSet& iConfig )
 {
   //register your products

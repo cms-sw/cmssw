@@ -21,7 +21,7 @@ class GsfElectronProducer : public edm::EDProducer
  {
   public:
 
-    static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
+    //static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
 
     explicit GsfElectronProducer( const edm::ParameterSet & ) ;
     virtual ~GsfElectronProducer();
