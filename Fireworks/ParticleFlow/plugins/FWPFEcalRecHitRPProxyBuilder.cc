@@ -89,6 +89,7 @@ FWPFEcalRecHitRPProxyBuilder::build( const FWEventItem *iItem, TEveElementList *
          if( ( lPhi == phi ) || ( ( lPhi < phi + 0.0005 ) && ( lPhi > phi - 0.0005 ) ) )
          {
             m_towers[i]->addChild( this, itemHolder, vc, E, et );
+            context().voteMaxEtAndEnergy( et, E );
             added = true;
             break;
          }

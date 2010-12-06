@@ -45,6 +45,7 @@ class FWPFEcalRecHitLegoProxyBuilder : public FWProxyBuilderTemplate<EcalRecHit>
       // needed by LegoRecHit
       TEveVector  calculateCentre( const std::vector<TEveVector> & corners ) const;
       float getMaxValLog(bool et) const { return et ? m_maxEtLog : m_maxEnergyLog; }
+      float getMaxVal( bool et ) const { return et ? m_maxEt : m_maxEnergy; }
 
       REGISTER_PROXYBUILDER_METHODS();
 
@@ -63,6 +64,8 @@ class FWPFEcalRecHitLegoProxyBuilder : public FWProxyBuilderTemplate<EcalRecHit>
       float calculateEt( const TEveVector &centre, float E );
 
       // --------------------------- Data Members ---------------------------------
+      float m_maxEnergy;
+      float m_maxEt;
       float m_maxEnergyLog;
       float m_maxEtLog;
       std::vector<FWPFLegoRecHit*> m_recHits;

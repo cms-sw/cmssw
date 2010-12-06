@@ -74,6 +74,9 @@ FWPFCandidatesLegoProxyBuilder::build(const reco::PFCandidate &iData, unsigned i
                                                          iData.eta(), iData.phi() );
    candidate->SetMarkerColor( item()->defaultDisplayProperties().color() );
    fireworks::setTrackTypePF( iData, candidate );
+
+   context().voteMaxEtAndEnergy( iData.et(), iData.et() );
+
    setupAddElement( candidate, &oItemHolder );
 }
 

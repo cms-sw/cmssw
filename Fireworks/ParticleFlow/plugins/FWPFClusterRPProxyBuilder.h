@@ -63,6 +63,7 @@ class FWPFEcalClusterRPProxyBuilder : public FWPFClusterRPProxyBuilder
       virtual ~FWPFEcalClusterRPProxyBuilder(){}
 
       virtual void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
+      virtual bool visibilityModelChanges(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*);
 
       REGISTER_PROXYBUILDER_METHODS();
 
@@ -81,6 +82,7 @@ class FWPFHcalClusterRPProxyBuilder : public FWPFClusterRPProxyBuilder
       virtual ~FWPFHcalClusterRPProxyBuilder(){}
 
       virtual void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
+      virtual bool visibilityModelChanges(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*);
 
       REGISTER_PROXYBUILDER_METHODS();
 

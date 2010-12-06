@@ -71,26 +71,75 @@ FWPFClusterRPProxyBuilder::scaleProduct( TEveElementList *parent, FWViewType::ET
    }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ECAL
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
 //______________________________________________________________________________________________________________________________________________
 void
 FWPFEcalClusterRPProxyBuilder::build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc )
 {
    PFLayer::Layer layer = iData.layer();
-   if( layer < 0 )
+   const FWEventItem::ModelInfo &info = item()->modelInfo( iIndex );
+   if( info.displayProperties().isVisible() )
+   {
+      if( layer < 0 )
+         sharedBuild( iData, iIndex, oItemHolder, vc, context().caloR1() );
+      else
+         sharedBuild( iData, iIndex, oItemHolder, vc, 177.f );
+   }
+}
+
+//______________________________________________________________________________________________________________________________________________
+bool
+FWPFEcalClusterRPProxyBuilder::visibilityModelChanges( const FWModelId &iId, TEveElement *itemHolder,
+                                                   FWViewType::EType viewType, const FWViewContext *vc )
+{
+   const FWEventItem::ModelInfo &info = iId.item()->modelInfo( iId.index() );
+   const reco::PFCluster &iData = modelData( iId.index() );
+   PFLayer::Layer layer = iData.layer();
+
+   //build
+   if( info.displayProperties().isVisible() && itemHolder->NumChildren() == 0 )
+   {
+      if( layer < 0 )
+         sharedBuild( iData, iId.index(), *itemHolder, vc, context().caloR1() );
+      else
+         sharedBuild( iData, iId.index(), *itemHolder, vc, 177.f );
+      return true;
+   }
+   return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+// HCAL
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//______________________________________________________________________________________________________________________________________________
+void
+FWPFHcalClusterRPProxyBuilder::build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc )
+{
+   //PFLayer::Layer layer = iData.layer();
+   const FWEventItem::ModelInfo &info = item()->modelInfo( iIndex );
+   if( info.displayProperties().isVisible() )
    {
       sharedBuild( iData, iIndex, oItemHolder, vc, context().caloR1() );
    }
 }
 
 //______________________________________________________________________________________________________________________________________________
-void
-FWPFHcalClusterRPProxyBuilder::build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc )
+bool
+FWPFHcalClusterRPProxyBuilder::visibilityModelChanges( const FWModelId &iId, TEveElement *itemHolder,
+                                                   FWViewType::EType viewType, const FWViewContext *vc )
 {
-   PFLayer::Layer layer = iData.layer();
-   if( layer > 0 )
+   const FWEventItem::ModelInfo &info = iId.item()->modelInfo( iId.index() );
+   const reco::PFCluster &iData = modelData( iId.index() );
+
+   //build
+   if( info.displayProperties().isVisible() && itemHolder->NumChildren() == 0 )
    {
-      sharedBuild( iData, iIndex, oItemHolder, vc, 177.f );
+      sharedBuild( iData, iId.index(), *itemHolder, vc, context().caloR1() );
+      return true;
    }
+   return false;
 }
 
 //______________________________________________________________________________________________________

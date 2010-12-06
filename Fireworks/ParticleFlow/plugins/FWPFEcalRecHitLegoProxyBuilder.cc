@@ -4,11 +4,19 @@
 void
 FWPFEcalRecHitLegoProxyBuilder::scaleProduct( TEveElementList *parent, FWViewType::EType type, const FWViewContext *vc )
 {
+   FWViewEnergyScale *caloScale = vc->getEnergyScale();
+   bool b = caloScale->getPlotEt();
+   float maxVal = getMaxVal( b );
    typedef std::vector<FWPFLegoRecHit*> rh;
 
    // printf("FWPFEcalRecHitLegoProxyBuilder::scaleProduct >> scale %f \n", caloScale->getValToHeight());
    for( rh::iterator i = m_recHits.begin(); i != m_recHits.end(); ++i )
+   {  // Tallest tower needs deciding still
+      if( (*i)->isTallest() == false && (*i)->getEtEnergy( b ) == maxVal )
+         (*i)->setIsTallest( true );
+
       (*i)->updateScale( vc);
+   }
 }
 
 //______________________________________________________________________________________________________
@@ -22,10 +30,8 @@ FWPFEcalRecHitLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveEle
          TEveStraightLineSet* line =dynamic_cast<TEveStraightLineSet*>(*i);
          if (line)
          {
-            //const FWDisplayProperties &p = item()->modelInfo(iId.index()).displayProperties();
-            //line->SetMarkerColor(p.color());
-            line->SetMarkerColor( kBlack );
-            line->StampObjProps();
+            const FWDisplayProperties &p = item()->modelInfo( iId.index() ).displayProperties();
+            line->SetMarkerColor( p.color() );
          }
       }
    }
@@ -87,7 +93,6 @@ FWPFEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList
          continue;
 
       int k = 3;
-      //for( i = 0, j = 3; i < 4, j > -1; ++i, --j )
       for( int i = 0; i < 4; ++i )
       {
          int j = k * 3;
@@ -106,23 +111,24 @@ FWPFEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList
       centre = calculateCentre( etaphiCorners );
       energy = iData.energy();
       et = calculateEt( centre, energy );
+      context().voteMaxEtAndEnergy( et, energy );
 
       if( energy > maxEnergy )
          maxEnergy = energy;
       if( energy > maxEt )
          maxEt = et;
 
-      m_maxEnergyLog = log(maxEnergy);
-      m_maxEtLog = log(maxEt);
-
       if (iItem->modelInfo(index).displayProperties().isVisible())
       {
          FWPFLegoRecHit *recHit = new FWPFLegoRecHit( etaphiCorners, itemHolder, this, vc, energy, et );
-         //recHit->setSquareColor(item()->defaultDisplayProperties().color());
-         recHit->setSquareColor( kBlack );
+         recHit->setSquareColor(item()->defaultDisplayProperties().color());
          m_recHits.push_back( recHit );
       }
    }
+      m_maxEnergy = maxEnergy;
+      m_maxEt = maxEt;
+      m_maxEnergyLog = log(maxEnergy);
+      m_maxEtLog = log(maxEt);
 }
 
 //______________________________________________________________________________________________________
@@ -163,8 +169,7 @@ FWPFEcalRecHitLegoProxyBuilder::visibilityModelChanges(const FWModelId& iId, TEv
 
       {
          FWPFLegoRecHit *recHit = new FWPFLegoRecHit( etaphiCorners, itemHolder, this, vc, energy, et );
-         //recHit->setSquareColor(item()->defaultDisplayProperties().color());
-         recHit->setSquareColor( kBlack );
+         recHit->setSquareColor(item()->defaultDisplayProperties().color());
          m_recHits.push_back( recHit );
       }
       return true;

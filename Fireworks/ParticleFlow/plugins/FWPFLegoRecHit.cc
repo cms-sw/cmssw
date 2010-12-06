@@ -3,7 +3,7 @@
 //______________________________________________________________________________________________________
 FWPFLegoRecHit::FWPFLegoRecHit( const std::vector<TEveVector> &corners, TEveElement *comp, FWPFEcalRecHitLegoProxyBuilder *pb,
                                 const FWViewContext *vc, float e, float et )
-   : m_builder(pb), m_energy(e), m_et(et)
+   : m_builder(pb), m_energy(e), m_et(et), m_isTallest(false)
 {
    buildTower( corners, vc );
    buildLineSet( corners, vc );
@@ -96,7 +96,7 @@ FWPFLegoRecHit::updateScale( const FWViewContext *vc )
    }
    c *= 0.25;
    // Scale lineset 
-   float s = log( 1 + val ) /m_builder->getMaxValLog(caloScale->getPlotEt());
+   float s = log( 1 + val ) / m_builder->getMaxValLog(caloScale->getPlotEt());
    float d = 0.5 * ( m_tower->GetVertex(1)[0]  -m_tower->GetVertex(0)[0]);
    d *= s;
    float z =  scale * 1.001;
@@ -104,6 +104,13 @@ FWPFLegoRecHit::updateScale( const FWViewContext *vc )
    setLine(1, c.fX + d, c.fY -d, z, c.fX + d, c.fY +d, z);
    setLine(2, c.fX + d, c.fY +d, z, c.fX - d, c.fY +d, z);
    setLine(3, c.fX - d, c.fY +d, z, c.fX - d, c.fY -d, z);
+
+   if( m_isTallest )
+   {
+      // This is the tallest tower and hence two additional lines needs scaling
+      setLine( 4, c.fX - d, c.fY - d, z, c.fX + d, c.fY + d, z );
+      setLine( 5, c.fX - d, c.fY + d, z, c.fX + d, c.fY - d, z );
+   }
 
    TEveStraightLineSet::Marker_t* m = ((TEveStraightLineSet::Marker_t*)(m_ls->GetMarkerPlex().Atom(0)));
    m->fV[0] = c.fX; m->fV[1] = c.fY; m->fV[2] = z;
@@ -113,6 +120,7 @@ FWPFLegoRecHit::updateScale( const FWViewContext *vc )
    m_ls->StampTransBBox();
 }
 
+//______________________________________________________________________________________________________
 void FWPFLegoRecHit::setLine(int idx, float x1, float y1, float z1, float x2, float y2, float z2)
 {
    // AMT: this func should go in TEveStraightLineSet class
@@ -126,4 +134,32 @@ void FWPFLegoRecHit::setLine(int idx, float x1, float y1, float z1, float x2, fl
    l->fV2[0] = x2;
    l->fV2[1] = y2;
    l->fV2[2] = z2;
+}
+
+//______________________________________________________________________________________________________
+void
+FWPFLegoRecHit::setIsTallest( bool b )
+{
+   m_isTallest = b;
+   
+   if( m_isTallest )
+   {
+      TEveVector vec;
+      addLine( vec, vec );
+      addLine( vec, vec );
+   }
+}
+
+//______________________________________________________________________________________________________
+void
+FWPFLegoRecHit::addLine( float x1, float y1, float z1, float x2, float y2, float z2 )
+{
+   m_ls->AddLine( x1, y1, z1, x2, y2, z2 );
+}
+
+//______________________________________________________________________________________________________
+void
+FWPFLegoRecHit::addLine( const TEveVector &v1, const TEveVector &v2 )
+{
+   m_ls->AddLine(v1.fX, v1.fY, v1.fZ, v2.fX, v2.fY, v2.fZ);
 }

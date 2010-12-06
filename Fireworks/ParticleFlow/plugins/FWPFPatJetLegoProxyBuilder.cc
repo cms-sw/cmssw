@@ -24,11 +24,11 @@ FWPFPatJetLegoProxyBuilder<T>::build(const T& iData, unsigned int iIndex, TEveEl
       const reco::PFCandidatePtr pfCandPtr = *ic;
 
       FWLegoEvePFCandidate* evePFCandidate = new FWLegoEvePFCandidate( *pfCandPtr, vc, FWProxyBuilderBase::context() );
-
-      evePFCandidate->SetLineWidth(3);
       evePFCandidate->SetMarkerColor(FWProxyBuilderBase::item()->defaultDisplayProperties().color());
       fireworks::setTrackTypePF( (*pfCandPtr), evePFCandidate);
       FWProxyBuilderBase::setupAddElement( evePFCandidate, &oItemHolder );
+
+      FWProxyBuilderBase::context().voteMaxEtAndEnergy(iData.et(), iData.energy());
    }
 }
 
