@@ -17,7 +17,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 #	'file:gen.root'
 #	'/store/relval/CMSSW_3_6_0_pre5/RelValHiggs200ChargedTaus/GEN-SIM-DIGI-RAW-HLTDEBUG/START36_V3-v1/0010/E09B3F44-E13D-DF11-995D-00304867BFA8.root'
-	'file:/tmp/slehti/rawHpm.root'
+	'rfio:/castor/cern.ch/user/s/slehti/HiggsAnalysisData/test_H120_100_1_08t_RAW_RECO.root'
     ) 
 )
 
