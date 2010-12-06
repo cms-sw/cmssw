@@ -24,7 +24,6 @@
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 
-
 class FWPFEcalRecHitLegoProxyBuilder : public FWProxyBuilderTemplate<EcalRecHit>
 {
    public:

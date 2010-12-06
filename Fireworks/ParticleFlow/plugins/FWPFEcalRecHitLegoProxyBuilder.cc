@@ -106,6 +106,15 @@ FWPFEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList
          --k;
       }
 
+      float dPhi1 = etaphiCorners[2].fY - etaphiCorners[1].fY;
+      float dPhi2 = etaphiCorners[3].fY - etaphiCorners[0].fY;
+
+      if( dPhi1 > 1 )
+         etaphiCorners[2].fY = etaphiCorners[2].fY - ( 2 * TMath::Pi() );
+      if( dPhi2 > 1 )
+         etaphiCorners[3].fY = etaphiCorners[3].fY - ( 2 * TMath::Pi() );
+
+
       centre = calculateCentre( etaphiCorners );
       energy = iData.energy();
       et = calculateEt( centre, energy );
@@ -159,8 +168,17 @@ FWPFEcalRecHitLegoProxyBuilder::visibilityModelChanges(const FWModelId& iId, TEv
          etaphiCorners[i+4].fX = etaphiCorners[i].fX;
          etaphiCorners[i+4].fY = etaphiCorners[i].fY;       // Top can simply be plotted exactly over the top of the bottom face
          etaphiCorners[i+4].fZ = 0.001;
+
          // printf("%f %f %d \n",  etaphiCorners[i].fX, etaphiCorners[i].fY, i);
       }
+
+      float dPhi1 = etaphiCorners[2].fY - etaphiCorners[1].fY;
+      float dPhi2 = etaphiCorners[3].fY - etaphiCorners[0].fY;
+
+      if( dPhi1 > 1 )
+         etaphiCorners[2].fY = etaphiCorners[2].fY - ( 2 * TMath::Pi() );
+      if( dPhi2 > 1 )
+         etaphiCorners[3].fY = etaphiCorners[3].fY - ( 2 * TMath::Pi() );
 
       centre = calculateCentre( etaphiCorners );
       energy = iData.energy();
