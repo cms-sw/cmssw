@@ -7,8 +7,8 @@
  *  This class is an EDAnalyzer implementing TrigReport (statistics
  *  printed to log file) for HL triggers
  *
- *  $Date: 2010/12/06 11:52:18 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/12/06 14:06:29 $
+ *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
@@ -45,9 +45,9 @@ class HLTrigReport : public edm::EDAnalyzer {
       void reset(bool changed = false);     // reset all counters
 
       edm::InputTag hlTriggerResults_;      // Input tag for TriggerResults
+      bool          configured_;            // is HLTConfigProvider configured ?
 
       unsigned int  nEvents_;               // number of events processed
-
       unsigned int  nWasRun_;               // # where at least one HLT was run
       unsigned int  nAccept_;               // # of accepted events
       unsigned int  nErrors_;               // # where at least one HLT had error

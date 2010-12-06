@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/12/06 13:10:57 $
- *  $Revision: 1.25 $
+ *  $Date: 2010/12/06 14:06:29 $
+ *  $Revision: 1.26 $
  *
  *  \author Martin Grunewald
  *
@@ -27,6 +27,7 @@
 //
 HLTrigReport::HLTrigReport(const edm::ParameterSet& iConfig) :
   hlTriggerResults_ (iConfig.getParameter<edm::InputTag> ("HLTriggerResults")),
+  configured_(false),
   nEvents_(0),
   nWasRun_(0),
   nAccept_(0),
@@ -246,11 +247,32 @@ HLTrigReport::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 {
   bool changed = true;
   if (hltConfig_.init(iRun, iSetup, hlTriggerResults_.process(), changed)) {
+    configured_ = true;
     if (changed) {
-      // dump previous
       dumpReport();
       reset(true);
     }
+  } else {
+    dumpReport();
+    // cannot initialize the HLT menu - reset and clear all counters and tables
+    configured_ = false;
+    nEvents_    = 0;
+    nWasRun_    = 0;
+    nAccept_    = 0;
+    nErrors_    = 0;
+    hlWasRun_.clear();
+    hltL1s_.clear();
+    hltPre_.clear();
+    hlAccept_.clear();
+    hlAccTot_.clear();
+    hlErrors_.clear();
+    posL1s_.clear();
+    posPre_.clear();
+    hlNames_.clear();
+    hlIndex_.clear();
+    hlAccTotDS_.clear();
+    dsIndex_.clear();
+    dsAccTotS_.clear();
   }
 }
 
@@ -272,14 +294,18 @@ HLTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (HLTR.isValid()) {
     if (HLTR->wasrun()) nWasRun_++;
     const bool accept(HLTR->accept());
-    LogDebug("HLTrigReport") << "HL TriggerResults decision: " << accept;
+    LogDebug("HLTrigReport") << "HLT TriggerResults decision: " << accept;
     if (accept) ++nAccept_;
     if (HLTR->error() ) nErrors_++;
   } else {
-    LogDebug("HLTrigReport") << "HL TriggerResults with label ["+hlTriggerResults_.encode()+"] not found!";
+    LogDebug("HLTrigReport") << "HLT TriggerResults with label ["+hlTriggerResults_.encode()+"] not found!";
     nErrors_++;
     return;
   }
+
+  // HLTConfigProvider not configured - cannot produce any detailed statistics
+  if (not configured_)
+    return;
 
   // decision for each HL algorithm
   const unsigned int n(hlNames_.size());
@@ -324,8 +350,6 @@ HLTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
 
-  return;
-
 }
 
 void
@@ -366,9 +390,6 @@ HLTrigReport::dumpReport()
 
   if ((n==0) && (nEvents_==0)) return;
 
-  double scale = hlAccept_[refIndex_]>0 ? refRate_/hlAccept_[refIndex_] : 0.;
-  double alpha = 1 - (1.0 - .6854)/2; // for the Clopper-Pearson 68% CI
-
   LogVerbatim("HLTrigReport") << dec << endl;
   LogVerbatim("HLTrigReport") << "HLT-Report " << "---------- Event  Summary ------------" << endl;
   LogVerbatim("HLTrigReport") << "HLT-Report"
@@ -377,6 +398,13 @@ HLTrigReport::dumpReport()
 	 << " passed = " << nAccept_
 	 << " errors = " << nErrors_
 	 << endl;
+
+  // HLTConfigProvider not configured - cannot produce any detailed statistics
+  if (not configured_)
+    return;
+
+  double scale = hlAccept_[refIndex_]>0 ? refRate_/hlAccept_[refIndex_] : 0.;
+  double alpha = 1 - (1.0 - .6854)/2; // for the Clopper-Pearson 68% CI
 
   LogVerbatim("HLTrigReport") << endl;
   LogVerbatim("HLTrigReport") << "HLT-Report " << "---------- HLTrig Summary ------------" << endl;
