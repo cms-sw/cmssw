@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedProducer.cc,v 1.19 2010/09/24 20:54:11 chamont Exp $
+// $Id: ElectronSeedProducer.cc,v 1.17 2010/07/29 12:05:31 chamont Exp $
 //
 //
 
@@ -32,106 +32,26 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include <string>
 
 using namespace reco ;
 
-void ElectronSeedProducer::fillDescriptions( edm::ConfigurationDescriptions & descriptions )
- {
-  edm::ParameterSetDescription desc ;
-  desc.add<edm::InputTag>("barrelSuperClusters",edm::InputTag("correctedHybridSuperClusters")) ;
-  desc.add<edm::InputTag>("endcapSuperClusters",edm::InputTag("correctedMulti5x5SuperClustersWithPreshower")) ;
-  edm::ParameterSetDescription descSeedConfiguration ;
-
-  // steering
-  descSeedConfiguration.add<bool>("fromTrackerSeeds",true) ;
-  descSeedConfiguration.add<edm::InputTag>("initialSeeds",edm::InputTag("newCombinedSeeds")) ;
-  descSeedConfiguration.add<bool>("preFilteredSeeds",false) ;
-  descSeedConfiguration.add<bool>("useRecoVertex",false) ;
-  descSeedConfiguration.add<edm::InputTag>("vertices",edm::InputTag("offlinePrimaryVerticesWithBS")) ;
-  descSeedConfiguration.add<edm::InputTag>("beamSpot",edm::InputTag("offlineBeamSpot")) ;
-  descSeedConfiguration.add<bool>("dynamicPhiRoad",true) ;
-  descSeedConfiguration.add<bool>("searchInTIDTEC",true) ; //  possibility to inhibit extended forward coverage
-
-  // specify where to get the hits from
-  descSeedConfiguration.add<std::string>("measurementTrackerName","") ;
-
-  // SC filtering
-  descSeedConfiguration.add<double>("SCEtCut",4.0) ;
-
-  // H/E
-  descSeedConfiguration.add<bool>("applyHOverECut",true) ;
-  descSeedConfiguration.add<double>("hOverEConeSize",0.15) ;
-  //descSeedConfiguration.add<double>("maxHOverE",0.1) ;
-  descSeedConfiguration.add<double>("maxHOverEBarrel",0.15) ;
-  descSeedConfiguration.add<double>("maxHOverEEndcaps",0.15) ;
-  descSeedConfiguration.add<double>("maxHBarrel",0.0) ;
-  descSeedConfiguration.add<double>("maxHEndcaps",0.0) ;
-  // H/E rechits
-  descSeedConfiguration.add<edm::InputTag>("hcalRecHits",edm::InputTag("hbhereco")) ; // OBSOLETE
-  descSeedConfiguration.add<double>("hOverEHBMinE",0.7) ;         // OBSOLETE
-  descSeedConfiguration.add<double>("hOverEHFMinE",0.8) ;         // OBSOLETE
-  // H/E towers
-  descSeedConfiguration.add<edm::InputTag>("hcalTowers",edm::InputTag("towerMaker")) ;
-  descSeedConfiguration.add<double>("hOverEPtMin",0.) ;
-
-  // r/z windows
-  descSeedConfiguration.add<double>("nSigmasDeltaZ1",5.) ; // in case beam spot is used for the matching
-  descSeedConfiguration.add<double>("deltaZ1WithVertex",25.) ; // in case reco vertex is used for the matching
-  descSeedConfiguration.add<double>("z2MinB",-0.09) ; // barrel
-  descSeedConfiguration.add<double>("z2MaxB",0.09) ; // barrel
-  descSeedConfiguration.add<double>("r2MinF",-0.15) ; // forward
-  descSeedConfiguration.add<double>("r2MaxF",0.15) ; // forward
-  descSeedConfiguration.add<double>("rMinI",-0.2) ; // intermediate region SC in EB and 2nd hits in PXF
-  descSeedConfiguration.add<double>("rMaxI",0.2) ; // intermediate region SC in EB and 2nd hits in PXF
-
-  // phi windows (dynamic)
-  descSeedConfiguration.add<double>("LowPtThreshold",5.0) ;
-  descSeedConfiguration.add<double>("HighPtThreshold",35.0) ;
-  descSeedConfiguration.add<double>("SizeWindowENeg",0.675) ;
-  descSeedConfiguration.add<double>("DeltaPhi1Low",0.23) ;
-  descSeedConfiguration.add<double>("DeltaPhi1High",0.08) ;
-  descSeedConfiguration.add<double>("DeltaPhi2B",0.008) ; // barrel
-  descSeedConfiguration.add<double>("DeltaPhi2F",0.012) ; // forward
-
-  // phi windows (non dynamic, overwritten in case dynamic is selected)
-  descSeedConfiguration.add<double>("ePhiMin1",-0.125) ;
-  descSeedConfiguration.add<double>("ePhiMax1",0.075) ;
-  descSeedConfiguration.add<double>("pPhiMin1",-0.075) ;
-  descSeedConfiguration.add<double>("pPhiMax1",0.125) ;
-  descSeedConfiguration.add<double>("PhiMin2B",-0.002) ; // barrel
-  descSeedConfiguration.add<double>("PhiMax2B",0.002) ; // barrel
-  descSeedConfiguration.add<double>("PhiMin2F",-0.003) ; // forward
-  descSeedConfiguration.add<double>("PhiMax2F",0.003) ; // forward
-
-  edm::ParameterSetDescription descOrderedHitsFactoryPSet ;
-  descOrderedHitsFactoryPSet.add<std::string>("ComponentName","StandardHitPairGenerator") ;
-  descOrderedHitsFactoryPSet.addUntracked<int>("useOnDemandTracker",-1) ;
-  descOrderedHitsFactoryPSet.setAllowAnything() ;
-
-  descSeedConfiguration.add<edm::ParameterSetDescription>("OrderedHitsFactoryPSet",descOrderedHitsFactoryPSet) ;
-  descSeedConfiguration.setAllowAnything() ;
-
-  desc.add<edm::ParameterSetDescription>("SeedConfiguration",descSeedConfiguration) ;
-  descriptions.add("produceElectronSeeds",desc) ;
- }
-
 ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
- : seedFilter_(0), applyHOverECut_(true), hcalHelper_(0)
+ : beamSpotTag_("offlineBeamSpot"),
+   //conf_(iConfig),
+   seedFilter_(0), applyHOverECut_(true), hcalHelper_(0)
    , caloGeom_(0), caloGeomCacheId_(0), caloTopo_(0), caloTopoCacheId_(0)
  {
   conf_ = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration") ;
@@ -141,9 +61,13 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
   fromTrackerSeeds_ = conf_.getParameter<bool>("fromTrackerSeeds") ;
   prefilteredSeeds_ = conf_.getParameter<bool>("preFilteredSeeds") ;
 
-  beamSpotTag_ = conf_.getParameter<edm::InputTag>("beamSpot") ;
+  // new beamSpot tag
+  if (conf_.exists("beamSpot"))
+   { beamSpotTag_ = conf_.getParameter<edm::InputTag>("beamSpot") ; }
 
   // for H/E
+//  if (conf_.exists("applyHOverECut"))
+//   { applyHOverECut_ = conf_.getParameter<bool>("applyHOverECut") ; }
   applyHOverECut_ = conf_.getParameter<bool>("applyHOverECut") ;
   if (applyHOverECut_)
    {
