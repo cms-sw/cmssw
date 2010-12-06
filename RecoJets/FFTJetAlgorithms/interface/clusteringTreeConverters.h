@@ -34,11 +34,15 @@ namespace fftjetcms {
         reco::PattRecoTree<Real,reco::PattRecoPeak<Real> >* out);
 
     // The function below restores sparse clustering tree of fftjet::Peak
-    // objects using the PattRecoTree
+    // objects using the PattRecoTree. The "completeEventScale" parameter
+    // should be set to the appropriate scale in case the complete event
+    // was written out and its scale not stored in the event. If the complete
+    // event was not written out, the scale must be set to 0.
     template<class Real>
     void sparsePeakTreeFromStorable(
         const reco::PattRecoTree<Real,reco::PattRecoPeak<Real> >& in,
         const std::vector<double>* scaleSetIfNotAdaptive,
+        double completeEventScale,
         fftjet::SparseClusteringTree<fftjet::Peak,long>* out);
 
     // The function below makes PattRecoTree storable in the event
@@ -50,11 +54,15 @@ namespace fftjetcms {
         reco::PattRecoTree<Real,reco::PattRecoPeak<Real> >* out);
 
     // The function below restores dense clustering tree of fftjet::Peak
-    // objects using the PattRecoTree
+    // objects using the PattRecoTree. The "completeEventScale" parameter
+    // should be set to the appropriate scale in case the complete event
+    // was written out and its scale not stored in the event. If the complete
+    // event was not written out, the scale must be set to 0.
     template<class Real>
     void densePeakTreeFromStorable(
         const reco::PattRecoTree<Real,reco::PattRecoPeak<Real> >& in,
         const std::vector<double>* scaleSetIfNotAdaptive,
+        double completeEventScale,
         fftjet::AbsClusteringTree<fftjet::Peak,long>* out);
 }
 
@@ -131,6 +139,7 @@ namespace fftjetcms {
     void sparsePeakTreeFromStorable(
         const reco::PattRecoTree<Real,reco::PattRecoPeak<Real> >& in,
         const std::vector<double>* scaleSetIfNotAdaptive,
+        const double completeEventScale,
         fftjet::SparseClusteringTree<fftjet::Peak,long>* out)
     {
         typedef fftjet::SparseClusteringTree<fftjet::Peak,long> SparseTree;
@@ -185,11 +194,16 @@ namespace fftjetcms {
             // There may be the "complete event" scale added at the end.
             // Reserve a sufficient number of scales to take this into
             // account.
-            out->reserveScales(nsc + 2U);
+            if (completeEventScale)
+                out->reserveScales(nsc + 2U);
+            else
+                out->reserveScales(nsc + 1U);
             out->addScale(DBL_MAX);
             const double* scales = &(*scaleSetIfNotAdaptive)[0];
             for (unsigned i=0; i<nsc; ++i)
                 out->addScale(scales[i]);
+            if (completeEventScale)
+                out->addScale(completeEventScale);
         }
         else
         {
@@ -283,6 +297,7 @@ namespace fftjetcms {
     void densePeakTreeFromStorable(
         const reco::PattRecoTree<Real,reco::PattRecoPeak<Real> >& in,
         const std::vector<double>* scaleSetIfNotAdaptive,
+        const double completeEventScale,
         fftjet::AbsClusteringTree<fftjet::Peak,long>* out)
     {
         typedef fftjet::AbsClusteringTree<fftjet::Peak,long> DenseTree;
@@ -300,38 +315,32 @@ namespace fftjetcms {
 
         const std::vector<StoredNode>& nodes(in.getNodes());
         const unsigned n = nodes.size();
-        
-        //out->reserveNodes(n + 1U);
         double hessian[3] = {0., 0., 0.};
                 
         const std::vector<Real>& scales (in.getScales());
         unsigned int scnum     = 0;
         std::vector<fftjet::Peak> clusters;
         const unsigned scsize1 = scales.size();
-        const unsigned scsize2 = scaleSetIfNotAdaptive ?
-            scaleSetIfNotAdaptive->size() : 0;
+        unsigned scsize2 = scaleSetIfNotAdaptive ? scaleSetIfNotAdaptive->size() : 0;
+        if (scsize2 && completeEventScale) ++scsize2;
         const unsigned scsize  = (scsize1==0?scsize2:scsize1);
-                    
-        if (scsize1==0 && scsize2==0)  
-        throw cms::Exception("FFTJetBadConfig")
-                << " No scales passed to the function: "
-                   "densePeakTreeFromStorable() "
+
+        if (scsize == 0)  
+            throw cms::Exception("FFTJetBadConfig")
+                << " No scales passed to the function densePeakTreeFromStorable()"
                 << std::endl;
-        
+
         // to check whether the largest level equals the size of scale vector
         const double* sc_not_ad = scsize2 ? &(*scaleSetIfNotAdaptive)[0] : 0;
 
         unsigned templevel = n ? nodes[0].originalLevel() : 1;
         for (unsigned i=0; i<n; ++i)
         {
-            
             const StoredNode& snode(nodes[i]);
             const StoredPeak& p(snode.getCluster());
             p.hessian(hessian);
         
-            unsigned levelNumber = snode.originalLevel();
-
-               
+            const unsigned levelNumber = snode.originalLevel();
 
             if (templevel != levelNumber) 
             {
@@ -342,10 +351,9 @@ namespace fftjetcms {
                 const double scale = ( (scsize1==0) ? sc_not_ad[scnum] : scales[scnum] );
                 out->insert(scale, clusters, 0L);
                 clusters.clear();
-                templevel = levelNumber ;
+                templevel = levelNumber;
                 ++scnum;
             }
-            
 
             fftjet::Peak apeak(p.eta(), p.phi(), p.magnitude(),
                                hessian, p.driftSpeed(),
@@ -353,8 +361,6 @@ namespace fftjetcms {
                                p.scale(), p.nearestNeighborDistance(),
                                1.0, 0.0, 0.0,
                                p.clusterRadius(), p.clusterSeparation());
-            
-
             clusters.push_back(apeak);
                
             if (i==(n-1) && levelNumber!=scsize) 
@@ -362,8 +368,9 @@ namespace fftjetcms {
                     << "bad scales, please check the scales"
                     << std::endl;
         }
-        
-        const double scale = ( (scsize1==0) ? sc_not_ad[scnum] : scales[scnum] );
+
+        const double scale = scsize1 ? scales[scnum] : completeEventScale ? 
+            completeEventScale : sc_not_ad[scnum];
         out->insert(scale, clusters, 0L);
     }
 }
