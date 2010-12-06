@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Mon Nov 22 11:05:57 CET 2010
-// $Id: FWInvMassDialog.cc,v 1.1 2010/11/22 21:35:08 matevz Exp $
+// $Id: FWInvMassDialog.cc,v 1.2 2010/12/01 16:47:09 matevz Exp $
 //
 
 // system include files
@@ -125,15 +125,15 @@ void FWInvMassDialog::Calculate()
    addLine(TString::Format(" %d items in selection", (int) sted.size()));
    addLine("");
    addLine("--------------------------------------------------+--------------");
-   addLine("      px          py          pz          pT      | Collection");
+   addLine("       px          py          pz          pT     | Collection");
    addLine("--------------------------------------------------+--------------");
 
    TClass *rc_class  = TClass::GetClass(typeid(reco::Candidate));
    TClass *rtb_class = TClass::GetClass(typeid(reco::TrackBase));
 
    math::XYZVector sum;
-   double          sum_len_sqr = 0;
-   double          sum_len_xy_sqr = 0;
+   double          sum_len = 0;
+   double          sum_len_xy = 0;
 
    for (std::set<FWModelId>::const_iterator i = sted.begin(); i != sted.end(); ++i)
    {
@@ -167,9 +167,9 @@ void FWInvMassDialog::Calculate()
 
       if (ok_p)
       {
-         sum            += v;
-         sum_len_sqr    += v.mag2();
-         sum_len_xy_sqr += v.perp2();
+         sum        += v;
+         sum_len    += TMath::Sqrt(v.mag2());
+         sum_len_xy += TMath::Sqrt(v.perp2());
 
          line = TString::Format("  %+10.3f  %+10.3f  %+10.3f  %10.3f", v.x(), v.y(), v.z(), TMath::Sqrt(v.perp2()));
 
@@ -186,8 +186,8 @@ void FWInvMassDialog::Calculate()
    addLine("--------------------------------------------------+--------------");
    addLine(TString::Format("  %+10.3f  %+10.3f  %+10.3f  %10.3f  | Sum", sum.x(), sum.y(), sum.z(), TMath::Sqrt(sum.perp2())));
    addLine("");
-   addLine(TString::Format("m  = %10.3f", TMath::Sqrt(sum_len_sqr    - sum.mag2())));
-   addLine(TString::Format("mT = %10.3f", TMath::Sqrt(sum_len_xy_sqr - sum.perp2())));
+   addLine(TString::Format("m  = %10.3f", TMath::Sqrt(TMath::Max(0.0, sum_len    * sum_len    - sum.mag2()))));
+   addLine(TString::Format("mT = %10.3f", TMath::Sqrt(TMath::Max(0.0, sum_len_xy * sum_len_xy - sum.perp2()))));
 
    endUpdate();
 }
