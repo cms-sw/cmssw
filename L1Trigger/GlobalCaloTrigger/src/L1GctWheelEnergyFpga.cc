@@ -162,7 +162,7 @@ void L1GctWheelEnergyFpga::process()
 void L1GctWheelEnergyFpga::setInputEnergy(unsigned i, int ex, int ey, unsigned et, unsigned ht)
 {
   // Set the three input values from this Leaf card
-  if (i>=0 && i<MAX_LEAF_CARDS) {
+  if (i<MAX_LEAF_CARDS) { // i >= 0, since i is unsigned
     m_inputEx.at(i).setValue(ex);
     m_inputEy.at(i).setValue(ey);
     m_inputEt.at(i).setValue(et);
