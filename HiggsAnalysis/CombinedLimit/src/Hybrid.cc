@@ -15,12 +15,17 @@ LimitAlgo("Hybrid specific options") {
         ("rAbsAcc", boost::program_options::value<double>(&rAbsAccuracy_)->default_value(0.1),   "Absolute accuracy on r to reach to terminate the scan")
         ("rRelAcc", boost::program_options::value<double>(&rRelAccuracy_)->default_value(0.05),  "Relative accuracy on r to reach to terminate the scan")
         ("cls",     boost::program_options::value<bool>(&CLs_)->default_value(true),  "Use CLs if true (default), CLsplusb if false")
+        ("testStat",boost::program_options::value<std::string>(&testStat_)->default_value("LEP"),  "Test statistics: LEP, TEV.")
         ("rInterval", "Always try to compute an interval on r even after having found a point satisfiying the CL")
     ;
 }
 
 void Hybrid::applyOptions(const boost::program_options::variables_map &vm) {
     rInterval_ = vm.count("rInterval");
+    if (testStat_ != "LEP" && testStat_ != "TEV") {
+        std::cerr << "Error: test statistics should be one of 'LEP' or 'TEV', and not '" << testStat_ << "'" << std::endl;
+        abort();
+    }
 }
 
 bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
@@ -41,20 +46,24 @@ bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit, const double 
   } else {
     hc->UseNuisance(false);
   }
-  hc->SetTestStatistic(1); // 3 = TeV
+  hc->SetTestStatistic(testStat_ == "LEP" ? 1 : 3); // 3 = TeV
   hc->PatchSetExtended(w->pdf("model_b")->canBeExtended()); // Number counting, each dataset has 1 entry 
   hc->SetNumberOfToys(nToys_);
+  
+  if ((hint != 0) && (*hint > r->getMin())) {
+    r->setMax(std::min<double>(3*(*hint), r->getMax()));
+  }
   
   typedef std::pair<double,double> CLs_t;
 
   double clsTarget = 1 - cl; 
   CLs_t clsMin(1,0), clsMax(0,0);
-  double rMin   = 0, rMax = r->getMax();
-  
+  double rMin = 0, rMax = r->getMax();
+
   std::cout << "Search for upper limit to the limit" << std::endl;
   for (;;) {
     CLs_t clsMax = eval(r, r->getMax(), hc);
-    if (clsMax.first == 0) break;
+    if (clsMax.first == 0 || clsMax.first + 3 * fabs(clsMax.second) < cl ) break;
     r->setMax(r->getMax()*2);
     if (r->getVal()/rMax >= 20) { 
       std::cerr << "Cannot set higher limit: at r = " << r->getVal() << " still get " << (CLs_ ? "CLs" : "CLsplusb") << " = " << clsMax.first << std::endl;
@@ -83,10 +92,11 @@ bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit, const double 
     }
   } while (rMax-rMin > std::max(rAbsAccuracy_, rRelAccuracy_ * r->getVal()));
 
-  limit = r->getVal();
-  if (lucky && rInterval_) {
+  if (lucky) {
+    limit = r->getVal();
+    if (rInterval_) {
       std::cout << "\n -- HypoTestInverter (before determining interval) -- \n";
-      std::cout << "Limit: r < " << limit << " +/- " << (rMax - rMin) << " @ " <<cl * 100<<"% CL\n";
+      std::cout << "Limit: r < " << limit << " +/- " << 0.5*(rMax - rMin) << " @ " <<cl * 100<<"% CL\n";
 
       double rBoundLow  = limit - 0.5*std::max(rAbsAccuracy_, rRelAccuracy_ * limit);
       for (r->setVal(rMin); r->getVal() < rBoundLow  && (fabs(clsMin.first-clsTarget) >= clsAccuracy_); rMin = r->getVal()) {
@@ -97,7 +107,10 @@ bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit, const double 
       for (r->setVal(rMax); r->getVal() > rBoundHigh && (fabs(clsMax.first-clsTarget) >= clsAccuracy_); rMax = r->getVal()) {
         clsMax = eval(r, 0.5*(r->getVal()+limit), hc, true, clsTarget);
       }
-  } 
+    }
+  } else {
+    limit = 0.5*(rMax+rMin);
+  }
   std::cout << "\n -- HypoTestInverter -- \n";
   std::cout << "Limit: r < " << limit << " +/- " << 0.5*(rMax - rMin) << " @ " <<cl * 100<<"% CL\n";
   return true;
@@ -105,10 +118,14 @@ bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit, const double 
 
 std::pair<double, double> Hybrid::eval(RooRealVar *r, double rVal, RooStats::HybridCalculatorOriginal *hc, bool adaptive, double clsTarget) {
     using namespace RooStats;
+    RooFit::MsgLevel globalKill = RooMsgService::instance().globalKillBelow();
+    RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
+
     r->setVal(rVal);
     std::auto_ptr<HybridResult> hcResult(hc->GetHypoTest());
     if (hcResult.get() == 0) {
         std::cerr << "Hypotest failed" << std::endl;
+        RooMsgService::instance().setGlobalKillBelow(globalKill);
         return std::pair<double, double>(-1,-1);
     }
     double clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
@@ -130,6 +147,7 @@ std::pair<double, double> Hybrid::eval(RooRealVar *r, double rVal, RooStats::Hyb
             "\tCLsplusb = " << hcResult->CLsplusb() << " +/- " << hcResult->CLsplusbError() << "\n" <<
             std::endl;
     }
+    RooMsgService::instance().setGlobalKillBelow(globalKill);
     return std::pair<double, double>(clsMid, clsMidErr);
 } 
 

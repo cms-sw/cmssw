@@ -69,6 +69,7 @@ Combine::Combine() :
         ("cl,C",   po::value<float>(&cl)->default_value(0.95), "Confidence Level")
         ("rMin",   po::value<float>(&rMin_), "Override minimum value for signal strength")
         ("rMax",   po::value<float>(&rMax_), "Override maximum value for signal strength")
+        ("compile", "Compile expressions instead of interpreting them")
     ;
 }
 
@@ -78,7 +79,8 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm)
     std::cout << ">>> including systematics" << std::endl;
   } else {
     std::cout << ">>> no systematics included" << std::endl;
-  }
+  } 
+  compiledExpr_ = vm.count("compile");
 }
 
 bool Combine::mklimit(RooWorkspace *w, RooAbsData &data, double &limit) {
@@ -117,11 +119,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
     fileToLoad = (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile);
   }  else {
     TString txtFile = (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile);
-    if (!withSystematics) {
-      gSystem->Exec("python -m HiggsAnalysis.CombinedLimit.lands2hlf --stat '"+txtFile+"' > model.hlf"); 
-    } else {
-      gSystem->Exec("python -m HiggsAnalysis.CombinedLimit.lands2hlf '"+txtFile+"' > model.hlf"); 
-    }
+    TString options = "";
+    if (!withSystematics) options += " --stat ";
+    if (compiledExpr_)    options += " --compiled ";
+    gSystem->Exec("python -m HiggsAnalysis.CombinedLimit.lands2hlf "+options+" '"+txtFile+"' > model.hlf"); 
     fileToLoad = "model.hlf";
   }
 

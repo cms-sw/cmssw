@@ -33,6 +33,7 @@ class Combine {
         boost::program_options::options_description options_;
 
         float rMin_, rMax_;
+        bool compiledExpr_;
 };
 
 
