@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.40 2010/09/07 17:43:04 amraktad Exp $
+// $Id: CmsShowEDI.cc,v 1.41 2010/09/15 18:14:22 amraktad Exp $
 //
 
 // system include files
@@ -51,7 +51,7 @@
 
 //
 // constants, enums and typedefs
-//
+///
 
 //
 // static data member definitions
@@ -142,6 +142,8 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    m_selectError->SetBackgroundColor(TGFrame::GetDefaultFrameBackground());
    m_selectError->ChangeOptions(0);
 
+   m_filterExpressionEntry->setValidator(m_validator);
+
    m_colorSelectWidget->Connect("ColorChosen(Color_t)", "CmsShowEDI", this, "changeItemColor(Color_t)");
    m_opacitySlider->Connect("PositionChanged(Int_t)", "CmsShowEDI", this, "changeItemOpacity(Int_t)");
    m_isVisibleButton->Connect("Toggled(Bool_t)", "CmsShowEDI", this, "toggleItemVisible(Bool_t)");
@@ -159,7 +161,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    MapSubwindows();
    Resize(GetDefaultSize());
    Layout();
-   
+
    fillEDIFrame();
 }
 
