@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/12/06 11:14:51 $
- *  $Revision: 1.20 $
+ *  $Date: 2010/12/06 11:40:44 $
+ *  $Revision: 1.21 $
  *
  *  \author Martin Grunewald
  *
@@ -153,7 +153,7 @@ HLTrigReport::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 	}
       }
 
-      // fill the matrices of hlIndex_, hlAccTotDS_ and dsIndex_, dsAccTotS_
+      // if not overridden, reload the datasets and streams
       if (not isCustomDatasets_) {
         datasetNames_    = hltConfig_.datasetNames();
         datasetContents_ = hltConfig_.datasetContents();
@@ -162,12 +162,17 @@ HLTrigReport::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
         streamNames_     = hltConfig_.streamNames();
         streamContents_  = hltConfig_.streamContents();
       }
+
+      // fill the matrices of hlIndex_, hlAccTotDS_
       hlIndex_.clear();
+      hlIndex_.resize(datasetNames_.size());
       hlAccTotDS_.clear();
+      hlAccTotDS_.resize(datasetNames_.size());
       for (unsigned int ds = 0; ds < datasetNames_.size(); ds++) {
-        hlIndex_.push_back(vector<unsigned int>());
-        hlAccTotDS_.push_back(vector<unsigned int>());
-        for (unsigned int p=0; p<datasetContents_[ds].size(); p++) {
+        unsigned int size = datasetContents_[ds].size();
+        hlIndex_[ds].reserve(size);
+        hlAccTotDS_[ds].reserve(size);
+        for (unsigned int p = 0; p < size; ++p) {
           unsigned int i = hltConfig_.triggerIndex(datasetContents_[ds][p]);
           if (i<n) {
             hlIndex_[ds].push_back(i);
@@ -175,12 +180,17 @@ HLTrigReport::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
           }
         }
       }
+
+      // fill the matrices of dsIndex_, dsAccTotS_
       dsIndex_.clear();
+      dsIndex_.resize(streamNames_.size());
       dsAccTotS_.clear();
-      for (unsigned int s=0; s<streamNames_.size(); s++) {
-        dsIndex_.push_back(vector<unsigned int>());
-        dsAccTotS_.push_back(vector<unsigned int>());
-        for (unsigned int ds=0; ds<streamContents_[s].size(); ds++) {
+      dsAccTotS_.resize(streamNames_.size());
+      for (unsigned int s = 0; s < streamNames_.size(); ++s) {
+        unsigned int size = streamContents_[s].size();
+        dsIndex_.reserve(size);
+        dsAccTotS_.reserve(size);
+        for (unsigned int ds = 0; ds < size; ++ds) {
           unsigned int i = 0;
           for (; i<datasetNames_.size(); i++) if (datasetNames_[i] == streamContents_[s][ds]) 
             break;
