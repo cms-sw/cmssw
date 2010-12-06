@@ -42,7 +42,7 @@ class ElectronSeedProducer : public edm::EDProducer
  {
   public:
 
-    static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
+    //static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
 
     explicit ElectronSeedProducer( const edm::ParameterSet & ) ;
     virtual void beginRun( edm::Run &, edm::EventSetup const & ) ;

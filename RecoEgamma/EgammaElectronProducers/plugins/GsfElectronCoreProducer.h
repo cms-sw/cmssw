@@ -29,7 +29,7 @@ class GsfElectronCoreProducer : public edm::EDProducer
  {
   public:
 
-    static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
+    //static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
 
     explicit GsfElectronCoreProducer( const edm::ParameterSet & conf ) ;
     virtual ~GsfElectronCoreProducer() ;

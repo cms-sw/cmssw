@@ -17,15 +17,15 @@
 
 using namespace reco ;
 
-void GsfElectronCoreProducer::fillDescriptions( edm::ConfigurationDescriptions & descriptions )
- {
-  edm::ParameterSetDescription desc ;
-  desc.add<edm::InputTag>("gsfTracks",edm::InputTag("electronGsfTracks")) ;
-  desc.add<edm::InputTag>("ctfTracks",edm::InputTag("generalTracks")) ;
-  desc.add<edm::InputTag>("pfSuperClusters",edm::InputTag("pfElectronTranslator:pf")) ;
-  desc.add<edm::InputTag>("pfSuperClusterTrackMap",edm::InputTag("pfElectronTranslator:pf")) ;
-  descriptions.add("produceGsfElectronCores",desc) ;
- }
+// void GsfElectronCoreProducer::fillDescriptions( edm::ConfigurationDescriptions & descriptions )
+ // {
+  // edm::ParameterSetDescription desc ;
+  // desc.add<edm::InputTag>("gsfTracks",edm::InputTag("electronGsfTracks")) ;
+  // desc.add<edm::InputTag>("ctfTracks",edm::InputTag("generalTracks")) ;
+  // desc.add<edm::InputTag>("pfSuperClusters",edm::InputTag("pfElectronTranslator:pf")) ;
+  // desc.add<edm::InputTag>("pfSuperClusterTrackMap",edm::InputTag("pfElectronTranslator:pf")) ;
+  // descriptions.add("produceGsfElectronCores",desc) ;
+ // }
 
 GsfElectronCoreProducer::GsfElectronCoreProducer( const edm::ParameterSet & config )
  {
