@@ -38,7 +38,7 @@ using namespace isodeposit;
 
 EwkMuLumiMonitorDQM::EwkMuLumiMonitorDQM( const ParameterSet & cfg ) :
   // Input collections
-  trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
+   trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
   trigEv_(cfg.getUntrackedParameter<edm::InputTag> ("triggerEvent")),
   muonTag_(cfg.getUntrackedParameter<edm::InputTag>("muons")),
   trackTag_(cfg.getUntrackedParameter<edm::InputTag>("tracks")),
@@ -48,8 +48,8 @@ EwkMuLumiMonitorDQM::EwkMuLumiMonitorDQM( const ParameterSet & cfg ) :
  // Main cuts 
   // massMin_(cfg.getUntrackedParameter<double>("MtMin", 20.)),
   //   massMax_(cfg.getUntrackedParameter<double>("MtMax", 2000.)) 
-  hltPath_(cfg.getUntrackedParameter<std::string> ("hltPath")) ,
-  L3FilterName_(cfg.getUntrackedParameter<std::string> ("L3FilterName")),           
+   //  hltPath_(cfg.getUntrackedParameter<std::string> ("hltPath")) ,
+   //  L3FilterName_(cfg.getUntrackedParameter<std::string> ("L3FilterName")),           
   ptMuCut_(cfg.getUntrackedParameter<double>("ptMuCut")),
   etaMuCut_(cfg.getUntrackedParameter<double>("etaMuCut")),
   isRelativeIso_(cfg.getUntrackedParameter<bool>("IsRelativeIso")),
@@ -63,13 +63,15 @@ EwkMuLumiMonitorDQM::EwkMuLumiMonitorDQM( const ParameterSet & cfg ) :
   mtMin_(cfg.getUntrackedParameter<double>("mtMin")),
   mtMax_(cfg.getUntrackedParameter<double>("mtMax")),
   acopCut_(cfg.getUntrackedParameter<double>("acopCut")), 
-  dxyCut_(cfg.getUntrackedParameter<double>("DxyCut")){
+  dxyCut_(cfg.getUntrackedParameter<double>("DxyCut")) {
+ // just to initialize
+  isValidHltConfig_ = false;
+
 }
 
 
 
-
-void EwkMuLumiMonitorDQM::beginRun(const Run& r, const EventSetup&) {
+void EwkMuLumiMonitorDQM::beginRun(const Run& r, const EventSetup&iSetup) {
       nall =  0;
       nEvWithHighPtMu=0; 
       nInKinRange=  0;
@@ -83,6 +85,14 @@ void EwkMuLumiMonitorDQM::beginRun(const Run& r, const EventSetup&) {
       nGlbTrk =0;
       nTMass =0;
       nW=0;
+
+  // passed as parameter to HLTConfigProvider::init(), not yet used
+  bool isConfigChanged = false;
+
+  // isValidHltConfig_ used to short-circuit analyze() in case of problems
+  isValidHltConfig_ = hltConfigProvider_.init( r, iSetup, "HLT", isConfigChanged );
+  //std::cout << "hlt config trigger is valid??" << isValidHltConfig_ << std::endl; 
+
   }
 
 
@@ -231,22 +241,103 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
       isZGlbTrk_=false;      
       isW_=false;
       // Trigger
+      bool trigger_fired = false;
+      
       Handle<TriggerResults> triggerResults;
       if (!ev.getByLabel(trigTag_, triggerResults)) {
 	//LogWarning("") << ">>> TRIGGER collection does not exist !!!";
 	return;
       }
+      
       ev.getByLabel(trigTag_, triggerResults); 
-      const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
-      bool trigger_fired = false;
+      /*
+	const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
+
+	
       for (unsigned int i=0; i<triggerResults->size(); i++) {
-        std::string trigName = trigNames.triggerName(i);
+      std::string trigName = trigNames.triggerName(i);
+      //std::cout << " trigName == " << trigName << std::endl;
 	if ( trigName == hltPath_ && triggerResults->accept(i)) {
-	  trigger_fired = true;
-	  hlt_sel=true;
-	  nhlt++;
+	trigger_fired = true;
+	hlt_sel=true;
+	nhlt++;
 	}
-      }   
+	} 
+      */
+      // see the trigger single muon which are present
+      string lowestMuonUnprescaledTrig = "";
+      bool lowestMuonUnprescaledTrigFound = false;
+      const std::vector<std::string>& triggerNames = hltConfigProvider_.triggerNames();
+      for (unsigned int ts = 0; ts< triggerNames.size() ; ts++){
+	string trig = triggerNames[ts];
+	unsigned int f = trig.find("HLT_Mu");
+	if ( (f != std::string::npos)  ) {
+	  // std::cout << "single muon trigger present: " << trig << std::endl; 
+	  // See if the trigger is prescaled; 
+	  /// number of prescale sets available
+	  bool prescaled = false;
+	  const unsigned int prescaleSize = hltConfigProvider_.prescaleSize() ;
+	  for (unsigned int ps= 0; ps<  prescaleSize; ps++){
+	    const unsigned int prescaleValue = hltConfigProvider_.prescaleValue(ps, trig) ;
+	    if (prescaleValue != 1) prescaled =true;
+	    //	std::cout<< " prescaleValue[" << ps << "] =" << prescaleValue <<std::endl;
+	  }
+	  if (!prescaled){
+	    //looking now for the lowest hlt path not prescaled, with name of the form HLT_MuX or HLTMuX_vY
+	    for (unsigned int n=9; n<100 ; n++ ){
+	      string lowestTrig= "HLT_Mu";
+              string lowestTrigv0 = "copy";
+	      std::stringstream out;
+	      out << n;
+	      std::string s = out.str(); 
+              lowestTrig.append(s);
+	      lowestTrigv0 = lowestTrig;  
+	      for (unsigned int v = 1; v<10 ; v++ ){
+		lowestTrig.append("_v");
+		std::stringstream oout;
+		oout << v;
+		std::string ss = oout.str(); 
+		lowestTrig.append(ss);
+		if (trig==lowestTrig) lowestMuonUnprescaledTrig = trig ;
+		if (trig==lowestTrig) lowestMuonUnprescaledTrigFound = true ;
+		if (trig==lowestTrig) break ;
+	      }	
+	      if (lowestMuonUnprescaledTrigFound) break; 
+	     
+	      lowestTrig = lowestTrigv0;
+	      if (trig==lowestTrig) lowestMuonUnprescaledTrig = trig ;
+	      //      if (trig==lowestTrig) {std::cout << " before break, lowestTrig lowest single muon trigger present unprescaled: " << lowestTrig << std::endl; }
+	      if (trig==lowestTrig) lowestMuonUnprescaledTrigFound = true ;
+	      if (trig==lowestTrig) break ;
+	    }
+	    if (lowestMuonUnprescaledTrigFound) break; 
+	  }
+	}
+      }
+      //  std::cout << "after break, lowest single muon trigger present unprescaled: " << lowestMuonUnprescaledTrig << std::endl; 
+      unsigned int triggerIndex; // index of trigger path
+      
+      // See if event passed trigger paths
+      std::string hltPath_ = lowestMuonUnprescaledTrig;
+ 
+      triggerIndex = hltConfigProvider_.triggerIndex(hltPath_);
+      if (triggerIndex < triggerResults->size()) trigger_fired = triggerResults->accept(triggerIndex);
+      std::string L3FilterName_="";
+      if (trigger_fired){
+	const std::vector<std::string>& moduleLabs = hltConfigProvider_.moduleLabels(hltPath_); 
+      /*for (unsigned int k =0; k < moduleLabs.size()-1 ; k++){
+	std::cout << "moduleLabs[" << k << "] == " << moduleLabs[k] << std::endl;
+      }
+      */
+      // the l3 filter name is just the last module.... 
+	unsigned int moduleLabsSizeMinus2 = moduleLabs.size() - 2 ;
+	//	std::cout<<"moduleLabs[" << moduleLabsSizeMinus2 << "]== "<< moduleLabs[moduleLabsSizeMinus2] << std::endl;        
+         
+	L3FilterName_ = moduleLabs[moduleLabsSizeMinus2];
+       
+      }
+
+      
       edm::Handle< trigger::TriggerEvent > handleTriggerEvent;
       LogTrace("") << ">>> Trigger bit: " << trigger_fired << " (" << hltPath_ << ")";
       if ( ! ev.getByLabel( trigEv_, handleTriggerEvent ))  {
@@ -259,6 +350,7 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
       std::vector<reco::Particle>  HLTMuMatched; 
       for ( size_t ia = 0; ia < handleTriggerEvent->sizeFilters(); ++ ia) {
 	std::string fullname = handleTriggerEvent->filterTag(ia).encode();
+	//std::cout<< "fullname::== " << fullname<< std::endl;
 	std::string name;
 	size_t p = fullname.find_first_of(':');
 	if ( p != std::string::npos) {
@@ -270,7 +362,11 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 	if ( &toc !=0 ) {
 	  const trigger::Keys & k = handleTriggerEvent->filterKeys(ia);
 	  for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
-	    if (name == L3FilterName_  ) { 
+	    // looking at all the single muon l3 trigger present, for example hltSingleMu15L3Filtered15.....
+	    if (name == L3FilterName_  ) {
+	      // trigger_fired = true;
+	      hlt_sel=true;
+	      nhlt++; 
 	      HLTMuMatched.push_back(toc[*ki].particle());
 	      nMuHLT++;     
 	    }
@@ -384,10 +480,13 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 		  } 
 		} else {
 		  // ZGlbGlb when at least one of the two muon is not isolated and at least one HLT matched, used as control sample for the isolation efficiency
-		  isZGoldenNoIso_=true;
-		  nNotIso++;
-		  massNotIso_->Fill(mass);
-		  highMassNotIso_->Fill(mass);
+		  // filling events with one muon not isolated and both hlt mathced  
+		  if (((isMu1Iso &&  !isMu2Iso) || (!isMu1Iso &&  isMu2Iso )) && (isZGolden2HLT_ && isZGolden1HLT_)  ) {
+		    isZGoldenNoIso_=true;
+		    nNotIso++;
+		    massNotIso_->Fill(mass);
+		    highMassNotIso_->Fill(mass);
+		  }
 		  /*
 		    if (pt1 > pt2) {
 		    highest_muptNotIso_ -> Fill (pt1);
