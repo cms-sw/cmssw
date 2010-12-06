@@ -536,46 +536,60 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
 							 bool useNumXtals)
 {
 
-  edm::Handle<EcalRecHitCollection> ecalhitsCollH;
+  edm::Handle<EcalRecHitCollection> ecalhitsCollEB;
+  edm::Handle<EcalRecHitCollection> ecalhitsCollEE;
 
-  double peta = photon->superCluster()->position().eta();
-  if (fabs(peta) > 1.479){
-    iEvent.getByLabel(endcapecalProducer_,endcapecalCollection_, ecalhitsCollH);
-  }
-  else{
-    iEvent.getByLabel(barrelecalProducer_,barrelecalCollection_, ecalhitsCollH);
-  }
-  const EcalRecHitCollection* rechitsCollection_ = ecalhitsCollH.product();
+  iEvent.getByLabel(endcapecalProducer_,endcapecalCollection_, ecalhitsCollEE);
+  
+  iEvent.getByLabel(barrelecalProducer_,barrelecalCollection_, ecalhitsCollEB);
+ 
+  const EcalRecHitCollection* rechitsCollectionEE_ = ecalhitsCollEE.product();
+  const EcalRecHitCollection* rechitsCollectionEB_ = ecalhitsCollEB.product();
 
   //Get the channel status from the db
   edm::ESHandle<EcalChannelStatus> chStatus;
   iSetup.get<EcalChannelStatusRcd>().get(chStatus);
 
-  std::auto_ptr<CaloRecHitMetaCollectionV> RecHits(0); 
-  RecHits = std::auto_ptr<CaloRecHitMetaCollectionV>(new EcalRecHitMetaCollection(*rechitsCollection_));
+  std::auto_ptr<CaloRecHitMetaCollectionV> RecHitsEE(0); 
+  RecHitsEE = std::auto_ptr<CaloRecHitMetaCollectionV>(new EcalRecHitMetaCollection(*rechitsCollectionEE_));
+ 
+  std::auto_ptr<CaloRecHitMetaCollectionV> RecHitsEB(0); 
+  RecHitsEB = std::auto_ptr<CaloRecHitMetaCollectionV>(new EcalRecHitMetaCollection(*rechitsCollectionEB_));
 
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
-  double ecalIsol=0.;
+  
+  EgammaRecHitIsolation phoIsoEB(RCone,
+				 RConeInner,
+				 etaSlice,
+				 etMin,
+				 eMin,
+				 geoHandle,
+				 &(*RecHitsEB),
+				 DetId::Ecal);
 
+  phoIsoEB.setVetoClustered(vetoClusteredHits);
+  phoIsoEB.setUseNumCrystals(useNumXtals);
+  phoIsoEB.doSpikeRemoval(ecalhitsCollEB.product(),chStatus.product(),severityLevelCut_,severityRecHitThreshold_,spId_,spikeIdThreshold_);
 
-  EgammaRecHitIsolation phoIso(RCone,
-			       RConeInner,
-                   etaSlice,
-			       etMin,
-			       eMin,
-			       geoHandle,
-			       &(*RecHits),
-			       DetId::Ecal);
+  double ecalIsolEB = phoIsoEB.getEtSum(photon);
 
-  phoIso.setVetoClustered(vetoClusteredHits);
-  phoIso.setUseNumCrystals(useNumXtals);
-  if(fabs(peta) < 1.479) 
-    phoIso.doSpikeRemoval(ecalhitsCollH.product(),chStatus.product(),severityLevelCut_,severityRecHitThreshold_,spId_,spikeIdThreshold_);
+  EgammaRecHitIsolation phoIsoEE(RCone,
+				 RConeInner,
+				 etaSlice,
+				 etMin,
+				 eMin,
+				 geoHandle,
+				 &(*RecHitsEE),
+				 DetId::Ecal);
 
-  ecalIsol = phoIso.getEtSum(photon);
+  phoIsoEE.setVetoClustered(vetoClusteredHits);
+  phoIsoEE.setUseNumCrystals(useNumXtals);
+
+  double ecalIsolEE = phoIsoEE.getEtSum(photon);
   //  delete phoIso;
-
+  double ecalIsol = ecalIsolEB + ecalIsolEE;
+  
   return ecalIsol;
   
 
