@@ -53,20 +53,7 @@ globalreco_plusPL= cms.Sequence(globalreco*ctfTracksPixelLess)
 
 reducedRecHits = cms.Sequence ( reducedEcalRecHitsSequence * reducedHcalRecHitsSequence )
 
-from RecoEgamma.EgammaElectronProducers.electronSequence_cff import *
-from RecoEgamma.EgammaPhotonProducers.photonSequence_cff import *
-from RecoEgamma.EgammaPhotonProducers.conversionSequence_cff import *
-from RecoEgamma.EgammaPhotonProducers.conversionTrackSequence_cff import *
-from RecoEgamma.EgammaPhotonProducers.trackerOnlyConversionSequence_cff import *
-from RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff import *
-from RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoDetIdsSequence_cff import *
-from RecoEgamma.PhotonIdentification.photonId_cff import *
-from RecoEgamma.ElectronIdentification.electronIdSequence_cff import *
-from RecoEgamma.EgammaHFProducers.hfEMClusteringSequence_cff import *
-  
-egammarecoFullNoConv=cms.Sequence(egammareco_woConvPhotons*interestingEgammaIsoDetIds*photonIDSequence*eIdSequence*hfEMClusteringSequence)
- 
-highlevelreco = cms.Sequence(particleFlowReco*reducedRecHits*egammarecoFullNoConv*jetHighLevelReco*tautagging*metrecoPlusHCALNoise*btagging*recoPFMET*regionalCosmicTracksSeq*muoncosmichighlevelreco)
+highlevelreco = cms.Sequence(particleFlowReco*reducedRecHits*egammarecoFull*jetHighLevelReco*tautagging*metrecoPlusHCALNoise*btagging*recoPFMET*PFTau*regionalCosmicTracksSeq*muoncosmichighlevelreco)
 
 
 from FWCore.Modules.logErrorHarvester_cfi import *
@@ -75,31 +62,30 @@ from FWCore.Modules.logErrorHarvester_cfi import *
 reconstruction         = cms.Sequence(localreco        *globalreco       *highlevelreco*logErrorHarvester)
 
 #need a fully expanded sequence copy
-reconstruction_fromRECO = reconstruction.expandAndClone() # copy does not work well
-reconstruction_fromRECO.remove(siPixelClusters)
-reconstruction_fromRECO.remove(siStripZeroSuppression)
-reconstruction_fromRECO.remove(siStripClusters)
-reconstruction_fromRECO.remove(dt1DRecHits)
-reconstruction_fromRECO.remove(dt1DCosmicRecHits)
-reconstruction_fromRECO.remove(csc2DRecHits)
-reconstruction_fromRECO.remove(rpcRecHits)
-reconstruction_fromRECO.remove(ecalGlobalUncalibRecHit)
-reconstruction_fromRECO.remove(ecalDetIdToBeRecovered)
-reconstruction_fromRECO.remove(ecalRecHit)
-reconstruction_fromRECO.remove(ecalCompactTrigPrim)
-reconstruction_fromRECO.remove(ecalTPSkim)
-reconstruction_fromRECO.remove(ecalPreshowerRecHit)
-reconstruction_fromRECO.remove(selectDigi)
-reconstruction_fromRECO.remove(hbheprereco)
-reconstruction_fromRECO.remove(hbhereco)
-reconstruction_fromRECO.remove(hfreco)
-reconstruction_fromRECO.remove(horeco)
-reconstruction_fromRECO.remove(hcalnoise)
-reconstruction_fromRECO.remove(zdcreco)
-reconstruction_fromRECO.remove(castorreco)
-#reconstruction_fromRECO.remove()
-#reconstruction_fromRECO.remove()
-#reconstruction_fromRECO.remove()
+modulesToRemove = list() # copy does not work well
+modulesToRemove.append(siPixelClusters)
+modulesToRemove.append(siStripZeroSuppression)
+modulesToRemove.append(siStripClusters)
+modulesToRemove.append(dt1DRecHits)
+modulesToRemove.append(dt1DCosmicRecHits)
+modulesToRemove.append(csc2DRecHits)
+modulesToRemove.append(rpcRecHits)
+modulesToRemove.append(ecalGlobalUncalibRecHit)
+modulesToRemove.append(ecalDetIdToBeRecovered)
+modulesToRemove.append(ecalRecHit)
+modulesToRemove.append(ecalCompactTrigPrim)
+modulesToRemove.append(ecalTPSkim)
+modulesToRemove.append(ecalPreshowerRecHit)
+modulesToRemove.append(selectDigi)
+modulesToRemove.append(hbheprereco)
+modulesToRemove.append(hbhereco)
+modulesToRemove.append(hfreco)
+modulesToRemove.append(horeco)
+modulesToRemove.append(hcalnoise)
+modulesToRemove.append(zdcreco)
+modulesToRemove.append(castorreco)
+reconstruction_fromRECO = reconstruction.copyAndExclude(modulesToRemove)
+
 
 
 #sequences with additional stuff
