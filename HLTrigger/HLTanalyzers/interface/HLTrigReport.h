@@ -7,8 +7,8 @@
  *  This class is an EDAnalyzer implementing TrigReport (statistics
  *  printed to log file) for HL triggers
  *
- *  $Date: 2010/10/07 00:57:03 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/12/03 17:28:24 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -40,9 +40,9 @@ class HLTrigReport : public edm::EDAnalyzer {
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-      void dumpReport();
-
    private:
+      void dumpReport();
+      void reset();                         // reset all counters
 
       edm::InputTag hlTriggerResults_;      // Input tag for TriggerResults
 
