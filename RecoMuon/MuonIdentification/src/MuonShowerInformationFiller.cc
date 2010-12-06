@@ -4,7 +4,7 @@
  *
  *  Description: class for muon shower identification
  *
- *  $Date: 2011/11/20 17:02:00 $
+ *  $Date: 2010/12/01 09:43:25 $
  *  $Revision: 1.1 $
  *
  *  \author: A. Svyatkovskiy, Purdue University
@@ -736,7 +736,7 @@ vector<double> MuonShowerInformationFiller::stationShowerRSizes(const reco::Muon
          } //at least two hits
       }
      if (muonRecHitsThetaBest.size() > 1 && muonRecHitsPhiBest.size() > 1) 
-      stationShowerRSize.at(stat) = pow(pow(muonRecHitsPhiBest.front()->globalPosition().phi()-muonRecHitsPhiBest.back()->globalPosition().phi(),2)+pow(muonRecHitsThetaBest.front()->globalPosition().theta()-muonRecHitsThetaBest.back()->globalPosition().theta(),2),0.5);
+      stationShowerRSize.at(stat) = sqrt(pow(muonRecHitsPhiBest.front()->globalPosition().phi()-muonRecHitsPhiBest.back()->globalPosition().phi(),2)+pow(muonRecHitsThetaBest.front()->globalPosition().theta()-muonRecHitsThetaBest.back()->globalPosition().theta(),2));
     }//not empty container
   }//loop over stations
 
