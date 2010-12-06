@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/10/07 15:07:09 $
- *  $Revision: 1.18 $
+ *  $Date: 2010/12/03 17:28:26 $
+ *  $Revision: 1.19 $
  *
  *  \author Martin Grunewald
  *
@@ -73,7 +73,7 @@ HLTrigReport::HLTrigReport(const edm::ParameterSet& iConfig) :
   } else {
     edm::LogError("Configuration") << "Invalid value for HLTrigReport.ReportEvery: \"" << reportEvery << "\". Valid values are: \"lumi\", \"run\", \"job\".";
   }
- 
+
   const edm::ParameterSet customDatasets(iConfig.getUntrackedParameter<edm::ParameterSet>("CustomDatasets",edm::ParameterSet()));
   isCustomDatasets_ = (customDatasets != edm::ParameterSet());
   if (isCustomDatasets_) {
@@ -113,7 +113,7 @@ HLTrigReport::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 {
   using namespace std;
   using namespace edm;
-  
+
   bool changed (true);
   if (hltConfig_.init(iRun,iSetup,hlTriggerResults_.process(),changed)) {
     if (changed) {
@@ -123,7 +123,6 @@ HLTrigReport::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
       nWasRun_=0;
       nAccept_=0;
       nErrors_=0;
-      // const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTR);
       hlNames_=hltConfig_.triggerNames();
       const unsigned int n(hlNames_.size());
       hlWasRun_.resize(n);
@@ -158,32 +157,32 @@ HLTrigReport::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
       hlIndex_.clear();
       hlAccTotDS_.clear();
       dsAccTotS_.clear();
-      if(!isCustomDatasets_){
-        datasetNames_ = hltConfig_.datasetNames();
+      if (not isCustomDatasets_) {
+        datasetNames_    = hltConfig_.datasetNames();
         datasetContents_ = hltConfig_.datasetContents();
       }
-      if(!isCustomStreams_){
-        streamNames_ = hltConfig_.streamNames();
-        streamContents_ = hltConfig_.streamContents();
+      if (not isCustomStreams_) {
+        streamNames_     = hltConfig_.streamNames();
+        streamContents_  = hltConfig_.streamContents();
       }
-      for(unsigned int ds=0; ds<datasetNames_.size(); ds++){
+      for (unsigned int ds = 0; ds < datasetNames_.size(); ds++) {
         hlIndex_.push_back(vector<unsigned int>());
         hlAccTotDS_.push_back(vector<unsigned int>());
-        for(unsigned int p=0; p<datasetContents_[ds].size(); p++){
+        for (unsigned int p=0; p<datasetContents_[ds].size(); p++) {
           unsigned int i = hltConfig_.triggerIndex(datasetContents_[ds][p]);
-          if(i<n){
+          if (i<n) {
             hlIndex_[ds].push_back(i);
             hlAccTotDS_[ds].push_back(0);
           }
         }
-      }   
-      for(unsigned int s=0; s<streamNames_.size(); s++){
+      }
+      for (unsigned int s=0; s<streamNames_.size(); s++) {
         dsIndex_.push_back(vector<unsigned int>());
         dsAccTotS_.push_back(vector<unsigned int>());
-        for(unsigned int ds=0; ds<streamContents_[s].size(); ds++){
+        for (unsigned int ds=0; ds<streamContents_[s].size(); ds++) {
           unsigned int i = 0;
-          for(; i<datasetNames_.size(); i++) if(datasetNames_[i] == streamContents_[s][ds]) break;
-          if(i<datasetNames_.size() && hlIndex_[i].size()>0){ // report only datasets that have at least one path otherwise crash
+          for (; i<datasetNames_.size(); i++) if (datasetNames_[i] == streamContents_[s][ds]) break;
+          if (i<datasetNames_.size() && hlIndex_[i].size()>0) { // report only datasets that have at least one path otherwise crash
             dsIndex_[s].push_back(i);
             dsAccTotS_[s].push_back(0);
           }
@@ -191,14 +190,14 @@ HLTrigReport::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
       }
 
       refIndex_ = hltConfig_.triggerIndex(refPath_);
-      if(refIndex_ >= n) {
+      if (refIndex_ >= n) {
 	refIndex_ = 0;
 	LogWarning("HLTrigReport")
 	  << "Requested reference path '"+refPath_+"' not in HLT menu. "
 	  << "Using HLTriggerFinalPath instead.";
 	refPath_ = "HLTriggerFinalPath";
 	refIndex_ = hltConfig_.triggerIndex(refPath_);
-	if(refIndex_ >= n) {
+	if (refIndex_ >= n) {
 	  refIndex_ = 0;
 	  LogWarning("HLTrigReport")
 	    << "Requested reference path '"+refPath_+"' not in HLT menu. "
@@ -230,8 +229,8 @@ HLTrigReport::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
   }
   return;
 }
-      
-    
+
+
 // ------------ method called to produce the data  ------------
 void
 HLTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -263,7 +262,7 @@ HLTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool acceptedByPrevoiusPaths = false;
   for (unsigned int i=0; i!=n; ++i) {
     if (HLTR->wasrun(i)) hlWasRun_[i]++;
-    if (HLTR->accept(i)){
+    if (HLTR->accept(i)) {
       acceptedByPrevoiusPaths = true;
       hlAccept_[i]++;
     }
@@ -281,9 +280,9 @@ HLTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // calculate accumulation of accepted events by a path within a dataset
   std::vector<bool> acceptedByDS(hlIndex_.size(), false);
-  for (size_t ds=0; ds<hlIndex_.size(); ++ds){
-    for (size_t p=0; p<hlIndex_[ds].size(); ++p){
-      if (acceptedByDS[ds] || HLTR->accept(hlIndex_[ds][p])){
+  for (size_t ds=0; ds<hlIndex_.size(); ++ds) {
+    for (size_t p=0; p<hlIndex_[ds].size(); ++p) {
+      if (acceptedByDS[ds] || HLTR->accept(hlIndex_[ds][p])) {
         acceptedByDS[ds] = true;
         hlAccTotDS_[ds][p]++;
       }
@@ -291,10 +290,10 @@ HLTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   // calculate accumulation of accepted events by a dataset within a stream
-  for (size_t s=0; s<dsIndex_.size(); ++s){
+  for (size_t s=0; s<dsIndex_.size(); ++s) {
     bool acceptedByS = false;
-    for (size_t ds=0; ds<dsIndex_[s].size(); ++ds){
-      if (acceptedByS || acceptedByDS[dsIndex_[s][ds]]){
+    for (size_t ds=0; ds<dsIndex_[s].size(); ++ds) {
+      if (acceptedByS || acceptedByDS[dsIndex_[s][ds]]) {
         acceptedByS = true;
         dsAccTotS_[s][ds]++;
       }
@@ -377,7 +376,7 @@ HLTrigReport::dumpReport()
 	   << static_cast<float>(100*hlAccept_[i])/
 	      static_cast<float>(max(hltPre_[i],1u)) << " "
            << right << setw(7) << fixed << setprecision(1) << scale*hlAccept_[i] << " "
-           << right << setw(7) << fixed << setprecision(1) << 
+           << right << setw(7) << fixed << setprecision(1) <<
               ((hlAccept_[refIndex_]-hlAccept_[i] > 0) ? refRate_*ROOT::Math::beta_quantile(alpha, hlAccept_[i]+1, hlAccept_[refIndex_]-hlAccept_[i]) : 0) << " "
            << right << setw(7) << hlAccTot_[i] << " "
            << right << setw(7) << fixed << setprecision(1) << scale*hlAccTot_[i] << " "
@@ -386,7 +385,7 @@ HLTrigReport::dumpReport()
     }
 
     // now for each dataset
-    for (size_t ds=0; ds<hlIndex_.size(); ++ds){
+    for (size_t ds=0; ds<hlIndex_.size(); ++ds) {
       LogVerbatim("HLTrigReport") << endl;
       LogVerbatim("HLTrigReport") << "HLT-Report " << "---------- Dataset Summary: " << datasetNames_[ds] << " ------------" << endl;
       LogVerbatim("HLTrigReport") << "HLT-Report "
@@ -401,8 +400,8 @@ HLTrigReport::dumpReport()
          << right << setw(7) << "HLTtot" << " "
          << right << setw(7) << "RateTot" << " "
          << right << setw(7) << "Errors" << " "
-         << "Name" << endl;  
-      for (size_t p=0; p<hlIndex_[ds].size(); ++p){
+         << "Name" << endl;
+      for (size_t p=0; p<hlIndex_[ds].size(); ++p) {
         LogVerbatim("HLTrigReport") << "HLT-Report "
            << right << setw(7) << p << " "
            << right << setw(7) << hlWasRun_[hlIndex_[ds][p]] << " "
@@ -423,7 +422,7 @@ HLTrigReport::dumpReport()
     }
 
     // now for each stream
-    for (size_t s=0; s<dsIndex_.size(); ++s){
+    for (size_t s=0; s<dsIndex_.size(); ++s) {
       LogVerbatim("HLTrigReport") << endl;
       LogVerbatim("HLTrigReport") << "HLT-Report " << "---------- Stream Summary: " << streamNames_[s] << " ------------" << endl;
       LogVerbatim("HLTrigReport") << "HLT-Report "
@@ -434,14 +433,14 @@ HLTrigReport::dumpReport()
          << right << setw(10) << "RateHi" << " "
          << right << setw(10) << "RateTot" << " "
          << "Name" << endl;
-      for (size_t ds=0;ds<dsIndex_[s].size(); ++ds){
+      for (size_t ds=0;ds<dsIndex_[s].size(); ++ds) {
         unsigned int acceptedDS = hlAccTotDS_[dsIndex_[s][ds]][hlIndex_[dsIndex_[s][ds]].size()-1];
         LogVerbatim("HLTrigReport") << "HLT-Report "
            << right << setw(10) << ds << " "
            << right << setw(10) << acceptedDS << " "
            << right << setw(10) << dsAccTotS_[s][ds] << " "
            << right << setw(10) << fixed << setprecision(1) << scale*acceptedDS << " "
-           << right << setw(10) << fixed << setprecision(1) << 
+           << right << setw(10) << fixed << setprecision(1) <<
               ((hlAccept_[refIndex_]-acceptedDS > 0) ? refRate_*ROOT::Math::beta_quantile(alpha, acceptedDS+1, hlAccept_[refIndex_]-acceptedDS) : 0) << " "
            << right << setw(10) << fixed << setprecision(1) << scale*dsAccTotS_[s][ds] << " "
            << datasetNames_[dsIndex_[s][ds]] << endl;
