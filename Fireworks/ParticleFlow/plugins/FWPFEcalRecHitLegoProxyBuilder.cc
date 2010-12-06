@@ -17,8 +17,6 @@ FWPFEcalRecHitLegoProxyBuilder::scaleProduct( TEveElementList *parent, FWViewTyp
 
       (*i)->updateScale( vc);
    }
-
-   printf( "I'm here\n");
 }
 
 //______________________________________________________________________________________________________
