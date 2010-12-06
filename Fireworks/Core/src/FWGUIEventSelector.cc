@@ -46,7 +46,7 @@ FWGUIEventSelector::FWGUIEventSelector(TGCompositeFrame* p, FWHLTValidator* vali
    AddFrame(labFrame, new TGLayoutHints(kLHintsBottom, 2, 2, 2, 2));
    m_nEvents = new TGLabel(labFrame, "");
    m_nEvents->SetTextJustify(kTextLeft);
-   labFrame->AddFrame(m_nEvents,  new TGLayoutHints(kLHintsBottom));
+   labFrame->AddFrame(m_nEvents,  new TGLayoutHints(kLHintsBottom|kLHintsExpandX));
    updateNEvents();
   
    // ---------------- enable
