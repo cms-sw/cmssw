@@ -8,7 +8,7 @@ L1GctConfigProducers = cms.ESProducer("L1GctConfigProducers",
     MHtJetEtThreshold = cms.double(10.0),
     RctRegionEtLSB = cms.double(0.25),
     GctHtLSB = cms.double(0.25),
-    ConvertEtValuesToEnergy = cms.bool(False)
+    ConvertEtValuesToEnergy = cms.bool(False),
 
     # The CalibrationStyle should be "None", "PiecewiseCubic", "Simple" or "PF"
     # "PowerSeries", "ORCAStyle" are also available, but not recommended
