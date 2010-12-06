@@ -38,7 +38,7 @@ CSCCFEBDataWord * CSCCFEBTimeSlice::timeSample(int layer, int channel) const
   int layerIndex = layerInverseGrayCode[layer-1];
   unsigned channelIndex = channelInverseGrayCode[channel-1];
   unsigned scaBin = channelIndex*6 + layerIndex;
-  assert(scaBin >= 0 && scaBin < 96);
+  assert(scaBin < 96U); // scaBin >= 0, since scaBin is unsigned
   return timeSample(scaBin);
 }
 

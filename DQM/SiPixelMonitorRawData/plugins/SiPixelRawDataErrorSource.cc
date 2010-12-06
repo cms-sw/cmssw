@@ -136,7 +136,7 @@ void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::Eve
   for (struct_iter2 = theFEDStructure.begin() ; struct_iter2 != theFEDStructure.end() ; struct_iter2++) {
     
     int numberOfFEDErrors = (*struct_iter2).second->fillFED(*input);
-    if((*struct_iter2).first >= 0 && (*struct_iter2).first <= 31) nEventBPIXFEDErrors = nEventBPIXFEDErrors + numberOfFEDErrors;
+    if((*struct_iter2).first <= 31) nEventBPIXFEDErrors = nEventBPIXFEDErrors + numberOfFEDErrors; // (*struct_iter2).first >= 0, since (*struct_iter2).first is unsigned
     if((*struct_iter2).first >= 32 && (*struct_iter2).first <= 39) nEventFPIXFEDErrors = nEventFPIXFEDErrors + numberOfFEDErrors;    
     nErrors = nErrors + numberOfFEDErrors;
   }

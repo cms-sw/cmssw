@@ -28,7 +28,7 @@ class MixCollection {
 
   // get object the index of which -in the whole collection- is known
    const T & getObject(unsigned int ip) const { 
-     if (ip<0 || ip>=(unsigned int)size()) throw cms::Exception("BadIndex")<<"MixCollection::getObject called with an invalid index!";
+     if (ip>=(unsigned int)size()) throw cms::Exception("BadIndex")<<"MixCollection::getObject called with an invalid index!"; // ip >= 0, since ip is unsigned
      int n=ip;
 /*
 -    int iframe=0;

@@ -55,7 +55,7 @@ LASConstants::~LASConstants() {
 ///
 double LASConstants::GetEndcapBsKink( unsigned int det, unsigned int ring , unsigned int beam ) const {
   
-  if( ! ( ( det == 0 || det == 1 ) && ( ring == 0 || ring == 1 ) && ( beam >= 0 && beam < 8 ) ) ) {
+  if( ! ( ( det == 0 || det == 1 ) && ( ring == 0 || ring == 1 ) && ( beam < 8U ) ) ) { // beam >= 0, since beam is unsigned
     throw cms::Exception( " [LASConstants::GetEndcapBsKink]" ) << " ** ERROR: no such element: det " << det << ", ring " << ring << ", beam " << beam << "." << std::endl;
   }
 
@@ -72,7 +72,7 @@ double LASConstants::GetEndcapBsKink( unsigned int det, unsigned int ring , unsi
 ///
 double LASConstants::GetAlignmentTubeBsKink( unsigned int beam ) const {
   
-  if( beam < 0 || beam >= 8 ) {
+  if( beam >= 8U ) { // beam >= 0, since beam is unsigned
     throw cms::Exception( " [LASConstants::GetAlignmentTubeBsKink]" ) << " ** ERROR: no such beam: " << beam << "." << std::endl;
   }
 
@@ -89,7 +89,7 @@ double LASConstants::GetAlignmentTubeBsKink( unsigned int beam ) const {
 ///
 double LASConstants::GetTecRadius( unsigned int ring ) const {
 
-  if( ring < 0 || ring > 1 ) {
+  if( ring > 1U ) { // ring >= 0, since ring is unsigned
     throw cms::Exception( " [LASConstants::GetTecRadius]" ) << " ** ERROR: no such ring: " << ring << "." << std::endl;
   }
 

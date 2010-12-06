@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store QIE coder parameters for one channel
 $Author: ratnikov
-$Date: 2005/12/15 23:38:04 $
-$Revision: 1.1 $
+$Date: 2006/01/11 20:21:22 $
+$Revision: 1.2 $
 */
 
 #include <iostream>
@@ -54,7 +54,7 @@ float HcalQIECoder::slope (unsigned fCapId, unsigned fRange) const {
 }
   
 void HcalQIECoder::setOffset (unsigned fCapId, unsigned fRange, float fValue) {
-  if (fCapId >= 0 && fRange >= 0 && fCapId < 4 && fRange < 4) {
+  if (fCapId < 4U && fRange < 4U) { // fCapId >= 0 and fRange >= 0, since fCapId and fRange are unsigned
     *((&mOffset00) + index (fRange, fCapId)) = fValue;
   }
   else {
@@ -63,7 +63,7 @@ void HcalQIECoder::setOffset (unsigned fCapId, unsigned fRange, float fValue) {
 }
 
 void HcalQIECoder::setSlope (unsigned fCapId, unsigned fRange, float fValue) {
-  if (fCapId >= 0 && fRange >= 0 && fCapId < 4 && fRange < 4) {
+  if (fCapId < 4U && fRange < 4U) { // fCapId >= 0 and fRange >= 0, since fCapId and fRange are unsigned
     *((&mSlope00) + index (fRange, fCapId)) = fValue;
   }
   else {

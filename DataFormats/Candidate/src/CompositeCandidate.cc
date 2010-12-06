@@ -1,4 +1,4 @@
-// $Id: CompositeCandidate.cc,v 1.13 2008/07/22 06:07:44 llista Exp $
+// $Id: CompositeCandidate.cc,v 1.14 2008/12/05 12:15:19 hegner Exp $
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -41,11 +41,11 @@ Candidate::iterator CompositeCandidate::begin() { return iterator(new iterator_i
 Candidate::iterator CompositeCandidate::end() { return iterator(new iterator_imp_specific(dau.end())); }    
 
 const Candidate * CompositeCandidate::daughter(size_type i) const { 
-  return (i >= 0 && i < numberOfDaughters()) ? & dau[ i ] : 0;
+  return (i < numberOfDaughters()) ? & dau[ i ] : 0; // i >= 0, since i is unsigned
 }
 
 Candidate * CompositeCandidate::daughter(size_type i) { 
-  Candidate * d = (i >= 0 && i < numberOfDaughters()) ? & dau[ i ] : 0;
+  Candidate * d = (i < numberOfDaughters()) ? & dau[ i ] : 0; // i >= 0, since i is unsigned
   return d;
 }
 

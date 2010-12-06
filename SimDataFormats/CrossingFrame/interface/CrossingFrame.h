@@ -114,7 +114,7 @@ class CrossingFrame
 
   const T & getObject(unsigned int ip) const { 
     //ip is position in the MixCollection (i.e. signal + pileup)
-    if (ip<0 || ip>getNrSignals()+getNrPileups()) throw cms::Exception("BadIndex")<<"CrossingFrame::getObject called with an invalid index- index was "<<ip<<"!";
+    if (ip>getNrSignals()+getNrPileups()) throw cms::Exception("BadIndex")<<"CrossingFrame::getObject called with an invalid index- index was "<<ip<<"!"; // ip >=0, since ip is unsigned
     if (ip<getNrSignals()) {
       return *(signals_[ip]);
     }

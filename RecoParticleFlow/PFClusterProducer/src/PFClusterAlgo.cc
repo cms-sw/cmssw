@@ -1568,7 +1568,7 @@ const reco::PFRecHit&
 PFClusterAlgo::rechit(unsigned i, 
 		      const reco::PFRecHitCollection& rechits ) {
 
-  if( i < 0 || i >= rechits.size() ) {
+  if(i >= rechits.size() ) { // i >= 0, since i is unsigned
     string err = "PFClusterAlgo::rechit : out of range";
     throw std::out_of_range(err);
   }
@@ -1580,7 +1580,7 @@ PFClusterAlgo::rechit(unsigned i,
 
 bool PFClusterAlgo::masked(unsigned rhi) const {
 
-  if(rhi<0 || rhi>=mask_.size() ) {
+  if(rhi>=mask_.size() ) { // rhi >= 0, since rhi is unsigned
     string err = "PFClusterAlgo::masked : out of range";
     throw std::out_of_range(err);
   }
@@ -1591,7 +1591,7 @@ bool PFClusterAlgo::masked(unsigned rhi) const {
 
 unsigned PFClusterAlgo::color(unsigned rhi) const {
 
-  if(rhi<0 || rhi>=color_.size() ) {
+  if(rhi>=color_.size() ) { // rhi >= 0, since rhi is unsigned
     string err = "PFClusterAlgo::color : out of range";
     throw std::out_of_range(err);
   }
@@ -1603,7 +1603,7 @@ unsigned PFClusterAlgo::color(unsigned rhi) const {
 
 bool PFClusterAlgo::isSeed(unsigned rhi) const {
 
-  if(rhi<0 || rhi>=seedStates_.size() ) {
+  if(rhi>=seedStates_.size() ) { // rhi >= 0, since rhi is unsigned
     string err = "PFClusterAlgo::isSeed : out of range";
     throw std::out_of_range(err);
   }
@@ -1614,7 +1614,7 @@ bool PFClusterAlgo::isSeed(unsigned rhi) const {
 
 void PFClusterAlgo::paint(unsigned rhi, unsigned color ) {
 
-  if(rhi<0 || rhi>=color_.size() ) {
+  if(rhi>=color_.size() ) { // rhi >= 0, since rhi is unsigned
     string err = "PFClusterAlgo::color : out of range";
     throw std::out_of_range(err);
   }

@@ -1,4 +1,4 @@
-// $Id: CompositePtrCandidate.cc,v 1.2 2008/04/21 15:38:38 llista Exp $
+// $Id: CompositePtrCandidate.cc,v 1.3 2008/07/10 15:19:17 cbern Exp $
 #include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -28,7 +28,7 @@ Candidate::iterator CompositePtrCandidate::end() {
 }    
 
 const Candidate * CompositePtrCandidate::daughter( size_type i ) const { 
-  return ( i >= 0 && i < numberOfDaughters() ) ? & * dau[ i ] : 0;
+  return ( i < numberOfDaughters() ) ? & * dau[ i ] : 0; // i >= 0, since i is unsigned
 }
 
 const Candidate * CompositePtrCandidate::mother( size_type i ) const { 

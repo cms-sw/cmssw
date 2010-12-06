@@ -1,4 +1,4 @@
-// $Id: CompositeRefBaseCandidate.cc,v 1.8 2008/04/22 10:59:31 cbern Exp $
+// $Id: CompositeRefBaseCandidate.cc,v 1.9 2008/07/10 15:19:17 cbern Exp $
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -28,7 +28,7 @@ Candidate::iterator CompositeRefBaseCandidate::end() {
 }    
 
 const Candidate * CompositeRefBaseCandidate::daughter( size_type i ) const { 
-  return ( i >= 0 && i < numberOfDaughters() ) ? & * dau[ i ] : 0;
+  return ( i < numberOfDaughters() ) ? & * dau[ i ] : 0; // i >= 0, since i is unsigned
 }
 
 const Candidate * CompositeRefBaseCandidate::mother( size_type i ) const { 

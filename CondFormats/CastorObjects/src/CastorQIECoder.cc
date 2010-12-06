@@ -51,8 +51,8 @@ float CastorQIECoder::slope (unsigned fCapId, unsigned fRange) const {
 }
   
 void CastorQIECoder::setOffset (unsigned fCapId, unsigned fRange, float fValue) {
-  if (fCapId >= 0 && fRange >= 0 && fCapId < 4 && fRange < 4) {
-    *((&mOffset00) + index (fRange, fCapId)) = fValue;
+  if (fCapId < 4U && fRange < 4U) { // fCapId >= 0 and fRange >= 0, since fCapId and fRange are unsigned
+     *((&mOffset00) + index (fRange, fCapId)) = fValue;
   }
   else {
     std::cerr << "CastorQIECoder::setOffset-> Wrong parameters capid/range: " << fCapId << '/' << fRange << std::endl;
@@ -60,7 +60,7 @@ void CastorQIECoder::setOffset (unsigned fCapId, unsigned fRange, float fValue) 
 }
 
 void CastorQIECoder::setSlope (unsigned fCapId, unsigned fRange, float fValue) {
-  if (fCapId >= 0 && fRange >= 0 && fCapId < 4 && fRange < 4) {
+  if (fCapId < 4U && fRange < 4U) { // fCapId >= 0 and fRange >= 0, since fCapId and fRange are unsigned
     *((&mSlope00) + index (fRange, fCapId)) = fValue;
   }
   else {

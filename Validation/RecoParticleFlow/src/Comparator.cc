@@ -339,7 +339,7 @@ void Comparator::Draw( const char* key0, const char* key1, Mode mode) {
 }
 
 TH1* Comparator::Histo( const char* key, unsigned dirIndex) {
-  if(dirIndex<0 || dirIndex>1) { 
+  if(dirIndex>1U) { // dirIndex >= 0, since dirIndex is unsigned
     cerr<<"bad dir index: "<<dirIndex<<endl;
     return 0;
   }

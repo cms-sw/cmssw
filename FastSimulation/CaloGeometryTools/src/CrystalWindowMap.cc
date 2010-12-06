@@ -48,7 +48,7 @@ CrystalWindowMap::CrystalWindowMap(const CaloGeometryHelper *calo,const std::vec
 bool 
 CrystalWindowMap::getCrystalWindow(unsigned iq,std::vector<unsigned>&  cw ) const
 {
-  if(iq>=0&&iq<size_)
+  if(iq<size_) // iq >= 0, since iq is unsigned
     {
       cw=myNeighbours_[iq];
       return true;
@@ -61,7 +61,7 @@ bool
 CrystalWindowMap::getCrystalWindow(unsigned iq,const std::vector<unsigned>*  cw) const
 {
   
-  if(iq>=0&&iq<size_)
+  if(iq<size_) // iq >= 0, since iq is unsigned
     {
       cw=&myNeighbours_[iq];
       return true;

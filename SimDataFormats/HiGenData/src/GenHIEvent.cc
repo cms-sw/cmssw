@@ -17,8 +17,7 @@ void GenHIEvent::setGenParticles(const reco::GenParticleCollection* input) const
 
 const std::vector<reco::GenParticleRef> GenHIEvent::getSubEvent(unsigned int sub_id) const {
 
-  if(sub_id > subevents_.size() || sub_id < 0){
-
+  if(sub_id > subevents_.size()){ // sub_id >= 0, since sub_id is unsigned
   }
 
   return subevents_[sub_id];

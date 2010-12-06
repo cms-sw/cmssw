@@ -4,8 +4,8 @@
  *  A regional muon trigger candidate as received by the GMT
 */
 //
-//   $Date: 2007/04/02 15:44:10 $
-//   $Revision: 1.5 $
+//   $Date: 2007/09/06 13:48:48 $
+//   $Revision: 1.6 $
 //
 //   Author :
 //   H. Sakulin                    HEPHY Vienna
@@ -138,7 +138,7 @@ unsigned L1MuRegionalCand::readDataField(unsigned start, unsigned count) const {
 }
 
 void L1MuRegionalCand::writeDataField(unsigned start, unsigned count, unsigned value) {
-  if ( value < (unsigned)0 || value >= (unsigned)( 1 << count ) ) edm::LogWarning("ValueOutOfRange") 
+  if ( value >= ( 1U << count ) ) edm::LogWarning("ValueOutOfRange") // value >= 0, since value is unsigned
          << "L1MuRegionalCand::writeDataField(): value " << value  
 	 << " out of range for data field with bit width "  << count;
 

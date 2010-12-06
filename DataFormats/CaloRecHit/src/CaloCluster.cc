@@ -17,7 +17,7 @@ void CaloCluster::reset() {
 string CaloCluster::printHitAndFraction(unsigned i) const {
   
   ostringstream out; 
-  if( i<0 || i>=hitsAndFractions().size() ) 
+  if( i>=hitsAndFractions().size() ) // i >= 0, since i is unsigned
     out<<"out of range "<<i; 
   else
     out<<"( "<<hitsAndFractions()[i].first

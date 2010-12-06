@@ -137,7 +137,7 @@ void BaseCrystal::computeBasicProperties()
 
 void BaseCrystal::getLateralEdges(unsigned i,XYZPoint& a,XYZPoint& b)const
 {
-  if(i>=0&&i<4)
+  if(i<4U) // i >= 0, since i is unsigned
     {
       a=corners_[i];
       b=corners_[i+4]; 
@@ -184,7 +184,7 @@ void BaseCrystal::getBackSide(std::vector<XYZPoint>& corners) const
 
 void BaseCrystal::getLateralSide(unsigned i,XYZPoint &a,XYZPoint &b,XYZPoint &c,XYZPoint &d) const
 {
-  if(i>=0&&i<4)
+  if(i<4U) // i >= 0, since i is unsigned
     {
       getLateralEdges(i,a,b);
       getLateralEdges((i+1)%4,c,d);
@@ -193,7 +193,7 @@ void BaseCrystal::getLateralSide(unsigned i,XYZPoint &a,XYZPoint &b,XYZPoint &c,
 
 void BaseCrystal::getLateralSide(unsigned i,std::vector<XYZPoint>& corners) const
 {
-  if(corners.size()==4&&i>=0&&i<4)
+  if(corners.size()==4&&i<4U) // i >= 0, since i is unsigned
     {
       corners[0]=corners_[i];
       corners[1]=corners_[i+4];

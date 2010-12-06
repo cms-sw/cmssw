@@ -1,4 +1,4 @@
-// $Id: CompositeRefCandidate.cc,v 1.7 2007/09/18 05:49:13 llista Exp $
+// $Id: CompositeRefCandidate.cc,v 1.8 2007/09/21 14:13:05 llista Exp $
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -28,11 +28,11 @@ Candidate::iterator CompositeRefCandidate::end() {
 }    
 
 const Candidate * CompositeRefCandidate::daughter( size_type i ) const { 
-  return ( i >= 0 && i < numberOfDaughters() ) ? & * dau[ i ] : 0;
+  return ( i < numberOfDaughters() ) ? & * dau[ i ] : 0; // i >= 0, since i is unsigned
 }
 
 const Candidate * CompositeRefCandidate::mother( size_type i ) const { 
-  return ( i >= 0 && i < numberOfMothers() ) ? & * mom[ i ] : 0;
+  return ( i < numberOfMothers() ) ? & * mom[ i ] : 0; // i >= 0, since i is unsigned
 }
 
 Candidate * CompositeRefCandidate::daughter( size_type i ) { 

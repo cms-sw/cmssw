@@ -82,7 +82,7 @@ void PFBlock::associatedElements( unsigned i,
   
   // i is too large
   if( i > elements_.size() ) return;
-  assert(i>=0);
+  // assert(i>=0); i >= 0, since i is unsigned
   
   for(unsigned ie=0; ie<elements_.size(); ie++) {
     
