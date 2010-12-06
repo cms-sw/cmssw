@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/12/06 13:04:56 $
- *  $Revision: 1.23 $
+ *  $Date: 2010/12/06 13:06:25 $
+ *  $Revision: 1.24 $
  *
  *  \author Martin Grunewald
  *
@@ -74,7 +74,7 @@ HLTrigReport::HLTrigReport(const edm::ParameterSet& iConfig) :
     edm::LogError("Configuration") << "Invalid value for HLTrigReport.ReportEvery: \"" << reportEvery << "\". Valid values are: \"lumi\", \"run\", \"job\".";
   }
 
-  const edm::ParameterSet customDatasets(iConfig.getUntrackedParameter<edm::ParameterSet>("CustomDatasets",edm::ParameterSet()));
+  const edm::ParameterSet customDatasets(iConfig.getUntrackedParameter<edm::ParameterSet>("CustomDatasets", edm::ParameterSet()));
   isCustomDatasets_ = (customDatasets != edm::ParameterSet());
   if (isCustomDatasets_) {
     datasetNames_ = customDatasets.getParameterNamesForType<std::vector<std::string> >();
@@ -83,7 +83,7 @@ HLTrigReport::HLTrigReport(const edm::ParameterSet& iConfig) :
     }
   }
 
-  const edm::ParameterSet customStreams (iConfig.getUntrackedParameter<edm::ParameterSet>("CustomStreams" ,edm::ParameterSet()));
+  const edm::ParameterSet customStreams (iConfig.getUntrackedParameter<edm::ParameterSet>("CustomStreams" , edm::ParameterSet()));
   isCustomStreams_  = (customStreams  != edm::ParameterSet());
   if (isCustomStreams_ ) {
     streamNames_ = customStreams.getParameterNamesForType<std::vector<std::string> >();
@@ -93,7 +93,7 @@ HLTrigReport::HLTrigReport(const edm::ParameterSet& iConfig) :
   }
 
   refPath_ = iConfig.getUntrackedParameter<std::string>("ReferencePath","HLTriggerFinalPath");
-  refRate_ = iConfig.getUntrackedParameter<double>("ReferenceRate",100.0);
+  refRate_ = iConfig.getUntrackedParameter<double>("ReferenceRate", 100.0);
   refIndex_= 0;
 
   LogDebug("HLTrigReport")
@@ -119,7 +119,7 @@ HLTrigReport::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
   using namespace edm;
 
   bool changed (true);
-  if (hltConfig_.init(iRun,iSetup,hlTriggerResults_.process(),changed)) {
+  if (hltConfig_.init(iRun, iSetup, hlTriggerResults_.process(), changed)) {
     if (changed) {
       // dump previous
       dumpReport();
@@ -222,29 +222,7 @@ HLTrigReport::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 	}
       }
     }
-  } else {
-    // dump previous
-    dumpReport();
-    // clear
-    nEvents_=0;
-    nWasRun_=0;
-    nAccept_=0;
-    nErrors_=0;
-    hlWasRun_.clear();
-    hltL1s_.clear();
-    hltPre_.clear();
-    hlAccept_.clear();
-    hlAccTot_.clear();
-    hlErrors_.clear();
-    posL1s_.clear();
-    posPre_.clear();
-    hlNames_.clear();
-    hlIndex_.clear();
-    hlAccTotDS_.clear();
-    dsIndex_.clear();
-    dsAccTotS_.clear();
   }
-  return;
 }
 
 
@@ -261,7 +239,7 @@ HLTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // get hold of TriggerResults
   Handle<TriggerResults> HLTR;
-  iEvent.getByLabel(hlTriggerResults_,HLTR);
+  iEvent.getByLabel(hlTriggerResults_, HLTR);
   if (HLTR.isValid()) {
     if (HLTR->wasrun()) nWasRun_++;
     const bool accept(HLTR->accept());
@@ -397,7 +375,7 @@ HLTrigReport::dumpReport()
 	   << right << setw(7) << hlAccept_[i] << " "
 	   << right << setw(9) << fixed << setprecision(5)
 	   << static_cast<float>(100*hlAccept_[i])/
-	      static_cast<float>(max(hltPre_[i],1u)) << " "
+	      static_cast<float>(max(hltPre_[i], 1u)) << " "
            << right << setw(7) << fixed << setprecision(1) << scale*hlAccept_[i] << " "
            << right << setw(7) << fixed << setprecision(1) <<
               ((hlAccept_[refIndex_]-hlAccept_[i] > 0) ? refRate_*ROOT::Math::beta_quantile(alpha, hlAccept_[i]+1, hlAccept_[refIndex_]-hlAccept_[i]) : 0) << " "
@@ -433,7 +411,7 @@ HLTrigReport::dumpReport()
            << right << setw(7) << hlAccept_[hlIndex_[ds][p]] << " "
            << right << setw(9) << fixed << setprecision(5)
            << static_cast<float>(100*hlAccept_[hlIndex_[ds][p]])/
-              static_cast<float>(max(hltPre_[hlIndex_[ds][p]],1u)) << " "
+              static_cast<float>(max(hltPre_[hlIndex_[ds][p]], 1u)) << " "
            << right << setw(7) << fixed << setprecision(1) << scale*hlAccept_[hlIndex_[ds][p]] << " "
            << right << setw(7) << fixed << setprecision(1) <<
               ((hlAccept_[refIndex_]-hlAccept_[hlIndex_[ds][p]] > 0) ? refRate_*ROOT::Math::beta_quantile(alpha, hlAccept_[hlIndex_[ds][p]]+1, hlAccept_[refIndex_]-hlAccept_[hlIndex_[ds][p]]) : 0) << " "
