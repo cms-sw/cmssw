@@ -17,6 +17,8 @@ FWPFEcalRecHitLegoProxyBuilder::scaleProduct( TEveElementList *parent, FWViewTyp
 
       (*i)->updateScale( vc);
    }
+
+   printf( "I'm here\n");
 }
 
 //______________________________________________________________________________________________________
@@ -72,8 +74,6 @@ FWPFEcalRecHitLegoProxyBuilder::calculateEt( const TEveVector &centre, float E )
 void
 FWPFEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc )
 {
-   //cleanLocal called before the build, no need to free recHit vec
-
    float maxEnergy = 0.0f;
    float maxEt = 0.0f;
    size_t itemSize = iItem->size(); //cache size
@@ -129,6 +129,8 @@ FWPFEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList
       m_maxEt = maxEt;
       m_maxEnergyLog = log(maxEnergy);
       m_maxEtLog = log(maxEt);
+
+      scaleProduct( product, FWViewType::kLegoPFECAL, vc );
 }
 
 //______________________________________________________________________________________________________
