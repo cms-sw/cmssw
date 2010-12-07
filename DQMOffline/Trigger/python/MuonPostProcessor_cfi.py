@@ -2,17 +2,16 @@ import FWCore.ParameterSet.Config as cms
 
 hLTMuonPostVal = cms.EDAnalyzer("DQMGenericClient",
 
-    #subDirs        = cms.untracked.vstring('HLT/Muon/Distributions/HLT_Mu15/*',
-	#									   'HLT/Muon/Distributions/HLT_L1Mu/*'),
-								
-								subDirs = cms.untracked.vstring( "HLT/Muon/Distributions/*"),
-
+    # subDirs = cms.untracked.vstring('HLT/Muon/Distributions/HLT_Mu15/*',
+    #                                 'HLT/Muon/Distributions/HLT_L1Mu/*'),
+    subDirs        = cms.untracked.vstring("HLT/Muon/Distributions/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     outputFileName = cms.untracked.string(''),
     commands       = cms.vstring(),
     resolution     = cms.vstring(),
-    
-    efficiency     = cms.vstring(
+    efficiency     = cms.vstring(),
+
+    efficiencyProfile = cms.vstring(
 
 	    #### Comma Checking --- check for trailing commas by searching
    	    ###  this file for the regexp "[^,rf]
@@ -33,7 +32,7 @@ hLTMuonPostVal = cms.EDAnalyzer("DQMGenericClient",
 		"fakeEffEta_L3Filtered 'Efficiency for Fakes passing L3Filtered; AOD Muon Eta; #Fakes / #HLT Muons' fakeHltCandEta_L3Filtered allHltCandEta_L3Filtered", 
 		"fakeEffPhi_L3Filtered 'Efficiency for Fakes passing L3Filtered; AOD Muon Phi; #Fakes / #HLT Muons' fakeHltCandPhi_L3Filtered allHltCandPhi_L3Filtered",
 
-        #######################    L1Filtered   #########################
+        #######################    L1Filtered   ##############################
 		
         "recEffEta_L1Filtered '#eta Efficiency for L1Filtered; #eta of Reconstructed Muon;# Rec #mu Matched to L3Iso / # All rec muons' recPassEta_L1Filtered recPassEta_All", 
         "recEffPhi_L1Filtered '#phi Efficiency for L1Filtered; #phi of Reconstructed Muon;# Rec #mu Matched to L3Iso / # All rec muons' recPassPhi_L1Filtered recPassPhi_All", 
@@ -50,7 +49,7 @@ hLTMuonPostVal = cms.EDAnalyzer("DQMGenericClient",
 		"fakeEffPhi_L1Filtered 'Efficiency for Fakes passing L1Filtered; AOD Muon Phi; #Fakes / #HLT Muons' fakeHltCandPhi_L1Filtered allHltCandPhi_L1Filtered",
 
 
-        #######################    L2Filtered   #########################
+        #######################    L2Filtered   ##############################
 		
         "recEffEta_L2Filtered '#eta Efficiency for L2Filtered; #eta of Reconstructed Muon;# Rec #mu Matched to L3Iso / # All rec muons' recPassEta_L2Filtered recPassEta_All", 
         "recEffPhi_L2Filtered '#phi Efficiency for L2Filtered; #phi of Reconstructed Muon;# Rec #mu Matched to L3Iso / # All rec muons' recPassPhi_L2Filtered recPassPhi_All", 
@@ -67,7 +66,7 @@ hLTMuonPostVal = cms.EDAnalyzer("DQMGenericClient",
 		"fakeEffPhi_L2Filtered 'Efficiency for Fakes passing L2Filtered; AOD Muon Phi; #Fakes / #HLT Muons' fakeHltCandPhi_L2Filtered allHltCandPhi_L2Filtered",
 
 
-		#######################    L3 PreFiltered   #########################
+		#######################    L3 PreFiltered   ##################
 
         "recEffEta_L3PreFiltered '#eta Efficiency for L3PreFiltered; #eta of Reconstructed Muon;# Rec #mu Matched to L3Pre / # All rec muons' recPassEta_L3PreFiltered recPassEta_All", 
         "recEffPhi_L3PreFiltered '#phi Efficiency for L3PreFiltered; #phi of Reconstructed Muon;# Rec #mu Matched to L3Pre / # All rec muons' recPassPhi_L3PreFiltered recPassPhi_All", 
@@ -82,7 +81,7 @@ hLTMuonPostVal = cms.EDAnalyzer("DQMGenericClient",
 		"fakeEffPhi_L3PreFiltered 'Efficiency for Fakes passing L3PreFiltered; AOD Muon Phi; #Fakes / #HLT Muons' fakeHltCandPhi_L3PreFiltered allHltCandPhi_L3PreFiltered",
 
 
-		#######################    L3 IsoFiltered   #########################
+		#######################    L3 IsoFiltered   ##################
 
         "recEffEta_L3IsoFiltered '#eta Efficiency for L3IsoFiltered; #eta of Reconstructed Muon;# Rec #mu Matched to L3Iso / # All rec muons' recPassEta_L3IsoFiltered recPassEta_All", 
         "recEffPhi_L3IsoFiltered '#phi Efficiency for L3IsoFiltered; #phi of Reconstructed Muon;# Rec #mu Matched to L3Iso / # All rec muons' recPassPhi_L3IsoFiltered recPassPhi_All", 
@@ -95,13 +94,6 @@ hLTMuonPostVal = cms.EDAnalyzer("DQMGenericClient",
 		"fakeEffEta_L3IsoFiltered 'Efficiency for Fakes passing L3IsoFiltered; AOD Muon Eta; #Fakes / #HLT Muons' fakeHltCandEta_L3IsoFiltered allHltCandEta_L3IsoFiltered", 
 		"fakeEffPhi_L3IsoFiltered 'Efficiency for Fakes passing L3IsoFiltered; AOD Muon Phi; #Fakes / #HLT Muons' fakeHltCandPhi_L3IsoFiltered allHltCandPhi_L3IsoFiltered",
 
-
-
-
-		
-
-
-		
 
     )
 )
