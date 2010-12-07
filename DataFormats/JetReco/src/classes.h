@@ -275,6 +275,7 @@ namespace {
     reco::FFTJetProducerSummary fftjet_smry;
     edm::Wrapper<reco::FFTJetProducerSummary> wr_fftjet_smry;
 
+    reco::FFTGenJet jet_fft_1;
     reco::FFTGenJetCollection o2_fft_1;
     reco::FFTGenJetRef r2_fft_1;
     reco::FFTGenJetFwdRef fwdr2_fft_1;
@@ -296,6 +297,7 @@ namespace {
     edm::Association<reco::FFTGenJetCollection> a_gj_fft_1;
     edm::Wrapper<edm::Association<reco::FFTGenJetCollection> > w_a_gj_fft_1;
 
+    reco::FFTCaloJet jet_fft_2;
     reco::FFTCaloJetCollection o2_fft_2;
     reco::FFTCaloJetRef r2_fft_2;
     reco::FFTCaloJetFwdRef fwdr2_fft_2;
@@ -317,6 +319,7 @@ namespace {
     edm::Association<reco::FFTCaloJetCollection> a_gj_fft_2;
     edm::Wrapper<edm::Association<reco::FFTCaloJetCollection> > w_a_gj_fft_2;
 
+    reco::FFTBasicJet jet_fft_3;
     reco::FFTBasicJetCollection o2_fft_3;
     reco::FFTBasicJetRef r2_fft_3;
     reco::FFTBasicJetFwdRef fwdr2_fft_3;
@@ -338,6 +341,7 @@ namespace {
     edm::Association<reco::FFTBasicJetCollection> a_gj_fft_3;
     edm::Wrapper<edm::Association<reco::FFTBasicJetCollection> > w_a_gj_fft_3;
 
+    reco::FFTPFJet jet_fft_4;
     reco::FFTPFJetCollection o2_fft_4;
     reco::FFTPFJetRef r2_fft_4;
     reco::FFTPFJetFwdRef fwdr2_fft_4;
@@ -359,6 +363,7 @@ namespace {
     edm::Association<reco::FFTPFJetCollection> a_gj_fft_4;
     edm::Wrapper<edm::Association<reco::FFTPFJetCollection> > w_a_gj_fft_4;
 
+    reco::FFTTrackJet jet_fft_6;
     reco::FFTTrackJetCollection o2_fft_6;
     reco::FFTTrackJetRef r2_fft_6;
     reco::FFTTrackJetFwdRef fwdr2_fft_6;
@@ -380,6 +385,7 @@ namespace {
     edm::Association<reco::FFTTrackJetCollection> a_gj_fft_6;
     edm::Wrapper<edm::Association<reco::FFTTrackJetCollection> > w_a_gj_fft_6;
 
+    reco::FFTJPTJet jet_fft_7;
     reco::FFTJPTJetCollection o2_fft_7;
     reco::FFTJPTJetRef r2_fft_7;
     reco::FFTJPTJetFwdRef fwdr2_fft_7;

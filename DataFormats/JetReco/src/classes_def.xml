@@ -255,6 +255,7 @@
    <class name="reco::FFTJetProducerSummary" />
    <class name="edm::Wrapper<reco::FFTJetProducerSummary>" />
 
+   <class name="reco::FFTGenJet" />
    <class name="reco::FFTGenJetCollection" />
    <class name="reco::FFTGenJetRef" />
    <class name="reco::FFTGenJetFwdRef" />
@@ -276,6 +277,7 @@
    <class name="edm::Association<reco::FFTGenJetCollection>" />
    <class name="edm::Wrapper<edm::Association<reco::FFTGenJetCollection> >" />
 
+   <class name="reco::FFTCaloJet" />
    <class name="reco::FFTCaloJetCollection" />
    <class name="reco::FFTCaloJetRef" />
    <class name="reco::FFTCaloJetFwdRef" />
@@ -297,6 +299,7 @@
    <class name="edm::Association<reco::FFTCaloJetCollection>" />
    <class name="edm::Wrapper<edm::Association<reco::FFTCaloJetCollection> >" />
 
+   <class name="reco::FFTBasicJet" />
    <class name="reco::FFTBasicJetCollection" />
    <class name="reco::FFTBasicJetRef" />
    <class name="reco::FFTBasicJetFwdRef" />
@@ -318,6 +321,7 @@
    <class name="edm::Association<reco::FFTBasicJetCollection>" />
    <class name="edm::Wrapper<edm::Association<reco::FFTBasicJetCollection> >" />
 
+   <class name="reco::FFTPFJet" />
    <class name="reco::FFTPFJetCollection" />
    <class name="reco::FFTPFJetRef" />
    <class name="reco::FFTPFJetFwdRef" />
@@ -339,6 +343,7 @@
    <class name="edm::Association<reco::FFTPFJetCollection>" />
    <class name="edm::Wrapper<edm::Association<reco::FFTPFJetCollection> >" />
 
+   <class name="reco::FFTTrackJet" />
    <class name="reco::FFTTrackJetCollection" />
    <class name="reco::FFTTrackJetRef" />
    <class name="reco::FFTTrackJetFwdRef" />
@@ -360,6 +365,7 @@
    <class name="edm::Association<reco::FFTTrackJetCollection>" />
    <class name="edm::Wrapper<edm::Association<reco::FFTTrackJetCollection> >" />
 
+   <class name="reco::FFTJPTJet" />
    <class name="reco::FFTJPTJetCollection" />
    <class name="reco::FFTJPTJetRef" />
    <class name="reco::FFTJPTJetFwdRef" />
