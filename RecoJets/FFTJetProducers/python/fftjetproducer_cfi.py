@@ -10,8 +10,9 @@ fftjet_jet_maker = cms.EDProducer(
     # Label for the input clustering tree (must be sparse)
     treeLabel = cms.InputTag("fftjetpatreco", "FFTJetPatternRecognition"),
     #
-    # Is input tree stored in single or double precision?
-    storeInSinglePrecision = cms.bool(fftjet_single_precision),
+    # Do we have the complete event at the lowest clustering tree scale?
+    insertCompleteEvent = cms.bool(fftjet_insert_complete_event),
+    completeEventScale = cms.double(fftjet_complete_event_scale),
     #
     # The initial set of scales used by the pattern recognition stage.
     # This is also the final set unless clustering tree construction
@@ -38,8 +39,8 @@ fftjet_jet_maker = cms.EDProducer(
     # only when "doPVCorrection" is True
     srcPVs = cms.InputTag("offlinePrimaryVertices"),
     #
-    # Anomalous calo tower definition (by default, do not reject anything)
-    anomalous = fftjet_anomalous_tower_allpass,
+    # Anomalous calo tower definition (comes from RecoJets default)
+    anomalous = fftjet_anomalous_tower_default,
     #
     # Magnitude correction factors (used only with gridded algorithms)
     etaDependentMagnutideFactors = cms.vdouble(),

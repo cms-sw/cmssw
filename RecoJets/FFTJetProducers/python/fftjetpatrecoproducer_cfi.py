@@ -16,9 +16,6 @@ fftjet_patreco_producer = cms.EDProducer(
     # flag, otherwise this module will not produce anything at all.
     makeClusteringTree = cms.bool(True),
     #
-    # Store output tree data in single or double precision?
-    storeInSinglePrecision = cms.bool(fftjet_single_precision),
-    #
     # Verify data conversion? For trees, this is only meaningful with
     # double precision storage. Grids, however, will always be verified
     # if this flag is set.
@@ -44,13 +41,13 @@ fftjet_patreco_producer = cms.EDProducer(
     convolverMinBin = cms.uint32(0),
     convolverMaxBin = cms.uint32(fftjet_large_int),
     #
-    # Insert complete event at the end when the dense tree is constructed?
-    insertCompleteEvent = cms.bool(True),
+    # Insert complete event at the end when the clustering tree is constructed?
+    insertCompleteEvent = cms.bool(fftjet_insert_complete_event),
     #
     # The scale variable for the complete event. Should be smaller than
     # any other pattern recognition scale but not too small so that the
     # tree can be nicely visualized in the ln(scale) space.
-    completeEventScale = cms.double(0.05),
+    completeEventScale = cms.double(fftjet_complete_event_scale),
     #
     # The grid data cutoff for the complete event
     completeEventDataCutoff = cms.double(0.0),
@@ -120,6 +117,6 @@ fftjet_patreco_producer = cms.EDProducer(
     # Clustering tree distance functor
     TreeDistanceCalculator = fftjet_fixed_bandwidth_distance,
     #
-    # Anomalous calo tower definition (by default, do not reject anything)
-    anomalous = fftjet_anomalous_tower_allpass
+    # Anomalous calo tower definition (comes from JetProducers default)
+    anomalous = fftjet_anomalous_tower_default
 )

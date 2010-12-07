@@ -1,5 +1,6 @@
 import math
 import FWCore.ParameterSet.Config as cms
+import RecoJets.JetProducers.AnomalousCellParameters_cfi as anom
 
 # Common definitions for FFTJet interface modules
 
@@ -9,9 +10,10 @@ fftjet_large_int = pow(2,31) - 1
 # Global phi-to-eta bandwidth ratio
 fftjet_phi_to_eta_bw_ratio = 1.0
 
-# Are we storing our objects in single or double precision
-# (when applicable)?
-fftjet_single_precision = True
+# Are we including the complete event at the lowest scale
+# of the clustering tree?
+fftjet_insert_complete_event = False
+fftjet_complete_event_scale = 0.05
 
 # The standard eta range for various algos
 fftjet_standard_eta_range = 5.2
@@ -60,6 +62,8 @@ fftjet_grid_128_72 = cms.PSet(
 #
 # Definitions for anomalous towers
 # 
+fftjet_anomalous_tower_default = anom.AnomalousCellParameters
+
 fftjet_anomalous_tower_allpass = cms.PSet(
     maxBadEcalCells = cms.uint32(fftjet_large_int),
     maxRecoveredEcalCells = cms.uint32(fftjet_large_int),

@@ -33,8 +33,9 @@ fftjet_tree_dumper = cms.EDAnalyzer(
     # Eta limit for the plot
     etaMax = cms.double(fftjet_standard_eta_range),
     #
-    # Is input tree data stored in single or double precision?
-    storeInSinglePrecision = cms.bool(fftjet_single_precision),
+    # Do we have the complete event at the lowest tree scale?
+    insertCompleteEvent = cms.bool(fftjet_insert_complete_event),
+    completeEventScale = cms.double(fftjet_complete_event_scale),
     #
     # The initial set of scales used by the pattern recognition stage.
     # This is also the final set unless clustering tree construction
