@@ -21,7 +21,7 @@ namespace  colinearityKinematic {
 }
 
 template<enum colinearityKinematic::ConstraintDim Dim>                                 
-class ColinearityKinematicConstraintT : public MultiTrackKinematicConstraintT<int(Dim),2>{
+class ColinearityKinematicConstraintT : public MultiTrackKinematicConstraintT<2,int(Dim)>{
 
 private:
   double a_1;
@@ -34,7 +34,7 @@ private:
 
 public:
 
-  typedef MultiTrackKinematicConstraintT<int(Dim),2> super;
+  typedef MultiTrackKinematicConstraintT<2,int(Dim)> super;
 
   ColinearityKinematicConstraintT(){}
   
