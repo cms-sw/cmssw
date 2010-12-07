@@ -171,10 +171,10 @@ else:
 
 print "Adding kinematic selection to cleaners"
 # Only add the pt threshold for signal
-if _SIGNAL:
-    process.hpsPFTauProducer.outputSelection = cms.string(_KIN_CUT)
-    process.hpsTancTaus.outputSelection = cms.string(_KIN_CUT)
-    process.shrinkingConePFTauProducer.outputSelection = cms.string(_KIN_CUT)
+#if _SIGNAL:
+    #process.hpsPFTauProducer.outputSelection = cms.string(_KIN_CUT)
+    #process.hpsTancTaus.outputSelection = cms.string(_KIN_CUT)
+    #process.shrinkingConePFTauProducer.outputSelection = cms.string(_KIN_CUT)
 
 #process.hpsPFTauProducer.outputSelection = cms.string('pt > 15 & abs(eta) < 2.5')
 #process.hpsTancTaus.outputSelection = cms.string('pt > 15 & abs(eta) < 2.5')

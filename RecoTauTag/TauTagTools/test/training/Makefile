@@ -94,10 +94,10 @@ signalfiles.list:
 
 backgroundfiles.list:
 	ls /data1/friis/TauMVATraining2/Background_Run2010A/background_training*.root \
-	  | tail -n 150 \
+	  | tail -n 250 \
 	  | awk 'NR % 3 != 0' | sed "s|^|file:|" >> $@
 	ls /data1/friis/TauMVATraining2/Background_Run2010B/background_training*.root \
-	  | tail -n 150  \
+	  | tail -n 250  \
 	  | awk 'NR % 3 != 0' | sed "s|^|file:|" >> $@
 
 # unbiased testing datasets
