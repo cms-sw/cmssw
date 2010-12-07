@@ -27,7 +27,12 @@ def customise(process):
   keepMC = cms.untracked.vstring("keep *_*_zMusExtracted_*",
                                  "keep *_*_zmmCands_*",
                                  "keep *_dimuonsGlobal_*_*",
-                                 'keep *_generator_*_*'
+                                 "keep *_generator_*_*",
+                                 "keep *_PhotonIDProd_*_*",
+                                 "keep *_photons_*_*",
+                                 "keep *_photonCore_*_*",
+                                 "keep *_genParticles_*_*",
+                                 "keep *_particleFlow_*_*",
   )
   outputModule.outputCommands.extend(keepMC)
 

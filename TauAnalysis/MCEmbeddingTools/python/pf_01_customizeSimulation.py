@@ -62,9 +62,10 @@ def customise(process):
   process.offlinePrimaryVerticesWithBS.TrackLabel = cms.InputTag("tmfTracks")
   process.offlinePrimaryVertices.TrackLabel = cms.InputTag("tmfTracks")
   process.muons.TrackExtractorPSet.inputTrackCollection = cms.InputTag("tmfTracks")
-  # I don't know why I added the following two lines, so I disable them for the moment
-  #process.offlinePrimaryVertices.beamSpotLabel = cms.InputTag("offlineBeamSpot","","RECO")
-  #process.offlinePrimaryVerticesWithBS.beamSpotLabel = cms.InputTag("offlineBeamSpot","","RECO")
+  # it should be the best solution to take the original beam spot for the
+  # reconstruction of the new primary vertex
+  process.offlinePrimaryVertices.beamSpotLabel = cms.InputTag("offlineBeamSpot","","RECO")
+  process.offlinePrimaryVerticesWithBS.beamSpotLabel = cms.InputTag("offlineBeamSpot","","RECO")
   
   try:
   	process.metreco.remove(process.BeamHaloId)
@@ -84,10 +85,15 @@ def customise(process):
   outputModule.outputCommands = process.AODSIMEventContent.outputCommands
   keepMC = cms.untracked.vstring("keep *_*_zMusExtracted_*",
                                  "keep *_dimuonsGlobal_*_*",
-                                 'keep *_generator_*_*',
+                                 "keep *_generator_*_*",
                                  "keep *_tmfTracks_*_SELECTandSIM",
                                  "keep *_offlinePrimaryVertices_*_SELECTandSIM",
                                  "keep *_offlinePrimaryVerticesWithBS_*_SELECTandSIM",
+                                 "keep *_PhotonIDProd_*_*",
+                                 "keep *_photons_*_*",
+                                 "keep *_photonCore_*_*",
+                                 "keep *_genParticles_*_*",
+                                 "keep *_particleFlow_*_*",
   )
   outputModule.outputCommands.extend(keepMC)
 
