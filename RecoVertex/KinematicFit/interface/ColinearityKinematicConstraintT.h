@@ -103,15 +103,15 @@ void ColinearityKinematicConstraintT<Dim>::fillValue() const {
 
   // H_phi:
   vl(0)  = atan2(p1vy,p1vx) - atan2(p2vy,p2vx);
-  if ( vl(0) >  M_PI ) vl(1) -= 2.0*M_PI;
-  if ( vl(0) <= -M_PI ) vl(1) += 2.0*M_PI;
+  if ( vl(0) >  M_PI ) vl(0) -= 2.0*M_PI;
+  if ( vl(0) <= -M_PI ) vl(0) += 2.0*M_PI;
   // H_theta:
   if (Dim==colinearityKinematic::PhiTheta) {  
     double pt1  = sqrt(p1(3)*p1(3)+p1(4)*p1(4));
     double pt2  = sqrt(p2(3)*p2(3)+p2(4)*p2(4));
     vl(1)  = atan2(pt1,p1(5)) - atan2(pt2,p2(5));
-    if ( vl(1) >  M_PI ) vl(2) -= 2.0*M_PI;
-    if ( vl(1) <= -M_PI ) vl(2) += 2.0*M_PI;
+    if ( vl(1) >  M_PI ) vl(1) -= 2.0*M_PI;
+    if ( vl(1) <= -M_PI ) vl(1) += 2.0*M_PI;
   }
 }
 
