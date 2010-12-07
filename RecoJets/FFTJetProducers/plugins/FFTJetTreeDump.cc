@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Sun Jun 20 14:32:36 CDT 2010
-// $Id$
+// $Id: FFTJetTreeDump.cc,v 1.1 2010/12/06 17:33:19 igv Exp $
 //
 //
 
@@ -86,6 +86,8 @@ private:
     const std::string outputPrefix;
     const double etaMax;
     const bool storeInSinglePrecision;
+    const bool insertCompleteEvent;
+    const double completeEventScale;
 
     // Distance calculator for the clustering tree
     std::auto_ptr<fftjet::AbsDistanceCalculator<fftjet::Peak> > distanceCalc;
@@ -115,7 +117,9 @@ FFTJetTreeDump::FFTJetTreeDump(const edm::ParameterSet& ps)
       treeLabel(ps.getParameter<edm::InputTag>("treeLabel")),
       outputPrefix(ps.getParameter<std::string>("outputPrefix")),
       etaMax(ps.getParameter<double>("etaMax")),
-      storeInSinglePrecision(ps.getParameter<bool>("storeInSinglePrecision")),
+      storeInSinglePrecision(true),
+      insertCompleteEvent(ps.getParameter<bool>("insertCompleteEvent")),
+      completeEventScale(ps.getParameter<double>("completeEventScale")),
       counter(0)
 {
     if (etaMax < 0.0)
@@ -180,15 +184,18 @@ void FFTJetTreeDump::processTreeData(const edm::Event& iEvent,
     edm::Handle<StoredTree> input;
     iEvent.getByLabel(treeLabel, input);
 
+    const double eventScale = insertCompleteEvent ? completeEventScale : 0.0;
     if (input->isSparse())
     {
-        sparsePeakTreeFromStorable(*input, iniScales.get(), &sparseTree);
+        sparsePeakTreeFromStorable(*input, iniScales.get(),
+                                   eventScale, &sparseTree);
         sparseFormatter->setTree(sparseTree, runNum, evNum);
         file << *sparseFormatter << std::endl;
     }
     else
     {
-        densePeakTreeFromStorable(*input, iniScales.get(), clusteringTree);
+        densePeakTreeFromStorable(*input, iniScales.get(),
+                                  eventScale, clusteringTree);
         denseFormatter->setTree(*clusteringTree, runNum, evNum);
         file << *denseFormatter << std::endl;
     }

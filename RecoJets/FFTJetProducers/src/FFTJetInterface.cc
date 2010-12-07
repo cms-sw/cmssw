@@ -15,6 +15,12 @@ using namespace fftjetcms;
 
 namespace fftjetcms {
 
+bool FFTJetInterface::storeInSinglePrecision() const 
+{
+    return true;
+}
+
+
 FFTJetInterface::JetType FFTJetInterface::parse_jet_type(
     const std::string& name)
 {
@@ -47,8 +53,20 @@ FFTJetInterface::FFTJetInterface(const edm::ParameterSet& ps)
           ps.getParameter<std::vector<double> >(
               "etaDependentMagnutideFactors")),
       init_param(edm::ParameterSet, anomalous),
+      init_param(bool, insertCompleteEvent),
+      init_param(double, completeEventScale),
       vertex_(0.0, 0.0, 0.0)
 {
+      if (insertCompleteEvent && completeEventScale <= 0.0)
+	throw cms::Exception("FFTJetBadConfig")
+	  << "Bad scale for the complete event : must be positive"
+	  << std::endl;
+}
+
+
+double FFTJetInterface::getEventScale() const
+{
+     return insertCompleteEvent ? completeEventScale : 0.0;
 }
 
 

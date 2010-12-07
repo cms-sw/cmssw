@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Sun Jun 20 14:32:36 CDT 2010
-// $Id$
+// $Id: FFTJetProducer.cc,v 1.1 2010/12/06 17:33:19 igv Exp $
 //
 //
 
@@ -124,7 +124,6 @@ FFTJetProducer::FFTJetProducer(const edm::ParameterSet& ps)
     : FFTJetInterface(ps),
       myConfiguration(ps),
       init_param(edm::InputTag, treeLabel),
-      init_param(bool, storeInSinglePrecision),
       init_param(bool, useGriddedAlgorithm),
       init_param(bool, reuseExistingGrid),
       init_param(unsigned, maxIterations),
@@ -198,7 +197,7 @@ void FFTJetProducer::loadSparseTreeData(const edm::Event& iEvent)
         throw cms::Exception("FFTJetBadConfig") 
             << "The stored clustering tree is not sparse" << std::endl;
 
-    sparsePeakTreeFromStorable(*input, iniScales.get(), &sparseTree);
+    sparsePeakTreeFromStorable(*input, iniScales.get(), getEventScale(), &sparseTree);
     sparseTree.sortNodes();
 }
 
@@ -644,7 +643,7 @@ void FFTJetProducer::produce(edm::Event& iEvent,
                              const edm::EventSetup& iSetup)
 {
     // Load the clustering tree made by FFTJetPatRecoProducer
-    if (storeInSinglePrecision)
+    if (storeInSinglePrecision())
         loadSparseTreeData<float>(iEvent);
     else
         loadSparseTreeData<double>(iEvent);

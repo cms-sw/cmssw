@@ -21,7 +21,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Sun Jun 20 14:32:36 CDT 2010
-// $Id$
+// $Id: FFTJetProducer.h,v 1.1 2010/12/06 17:33:19 igv Exp $
 //
 //
 
@@ -191,9 +191,6 @@ private:
 
     // Label for the tree produced by FFTJetPatRecoProducer
     const edm::InputTag treeLabel;
-
-    // Is the tree stored in single or double precision?
-    const bool storeInSinglePrecision;
 
     // Are we going to use energy flow discretization grid as input
     // to jet reconstruction?

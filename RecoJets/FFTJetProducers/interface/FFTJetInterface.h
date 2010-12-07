@@ -11,7 +11,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  June 29 2010
-// $Id$
+// $Id: FFTJetInterface.h,v 1.1 2010/12/06 17:33:18 igv Exp $
 //
 //
 
@@ -74,6 +74,8 @@ namespace fftjetcms {
 
     void loadInputCollection(const edm::Event&);
     void discretizeEnergyFlow();
+    double getEventScale() const;
+    bool storeInSinglePrecision() const;
 
     const reco::Particle::Point& vertexUsed() const {return vertex_;}
 
@@ -116,6 +118,8 @@ namespace fftjetcms {
     FFTJetInterface(const FFTJetInterface&);
     FFTJetInterface& operator=(const FFTJetInterface&);
 
+    const bool insertCompleteEvent;
+    const double completeEventScale;
     reco::Particle::Point vertex_;
   };
 }

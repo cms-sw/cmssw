@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Tue Jun 15 12:45:45 CDT 2010
-// $Id$
+// $Id: FFTJetPatRecoProducer.cc,v 1.1 2010/12/06 17:33:19 igv Exp $
 //
 //
 
@@ -120,15 +120,10 @@ protected:
     // The following parameters will define the behavior
     // of the algorithm wrt insertion of the complete event
     // into the clustering tree
-    const bool insertCompleteEvent;
-    const double completeEventScale;
     const double completeEventDataCutoff;
 
     // Are we going to make clustering trees?
     const bool makeClusteringTree;
-
-    // Are we going to store the results in single or double precision?
-    const bool storeInSinglePrecision;
 
     // Are we going to verify the data conversion for double precision
     // storage?
@@ -152,19 +147,16 @@ private:
 FFTJetPatRecoProducer::FFTJetPatRecoProducer(const edm::ParameterSet& ps)
     : FFTJetInterface(ps),
       clusteringTree(0),
-      insertCompleteEvent(ps.getParameter<bool>("insertCompleteEvent")),
-      completeEventScale(ps.getParameter<double>("completeEventScale")),
       completeEventDataCutoff(ps.getParameter<double>("completeEventDataCutoff")),
       makeClusteringTree(ps.getParameter<bool>("makeClusteringTree")),
-      storeInSinglePrecision(ps.getParameter<bool>("storeInSinglePrecision")),
-      verifyDataConversion(ps.getUntrackedParameter<bool>("verifyDataConversion",true)),
+      verifyDataConversion(ps.getUntrackedParameter<bool>("verifyDataConversion",false)),
       storeDiscretizationGrid(ps.getParameter<bool>("storeDiscretizationGrid")),
       sparsify(ps.getParameter<bool>("sparsify"))
 {
     // register your products
     if (makeClusteringTree)
     {
-        if (storeInSinglePrecision)
+      if (storeInSinglePrecision())
             produces<reco::PattRecoTree<float,reco::PattRecoPeak<float> > >(outputLabel);
         else
             produces<reco::PattRecoTree<double,reco::PattRecoPeak<double> > >(outputLabel);
@@ -211,14 +203,15 @@ FFTJetPatRecoProducer::FFTJetPatRecoProducer(const edm::ParameterSet& ps)
 
     // Make sure that all standard scales are larger than the
     // complete event scale
-    if (completeEventScale <= 0.0)
-        throw cms::Exception("FFTJetBadConfig")
-            << "bad scale for complete event" << std::endl;
-    const unsigned nscales = iniScales->size();
-    for (unsigned i=0; i<nscales; ++i)
-        if (completeEventScale >= (*iniScales)[i])
-            throw cms::Exception("FFTJetBadConfig")
-                << "incompatible scale for complete event" << std::endl;
+    if (getEventScale() > 0.0)
+    {
+      const double cs = getEventScale();
+      const unsigned nscales = iniScales->size();
+      for (unsigned i=0; i<nscales; ++i)
+        if (cs >= (*iniScales)[i])
+	  throw cms::Exception("FFTJetBadConfig")
+	    << "incompatible scale for complete event" << std::endl;
+    }
 
     // At this point we are ready to build the clustering sequencer
     sequencer = std::auto_ptr<Sequencer>(new Sequencer(
@@ -343,9 +336,8 @@ fftjet::PeakFinder FFTJetPatRecoProducer::buildPeakFinder(const edm::ParameterSe
 
 FFTJetPatRecoProducer::~FFTJetPatRecoProducer()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+    // do anything here that needs to be done at desctruction time
+    // (e.g. close files, deallocate resources etc.)
     delete clusteringTree;
 }
 
@@ -365,13 +357,11 @@ void FFTJetPatRecoProducer::buildSparseProduct(edm::Event& ev) const
                              tree.get());
 
     // Check that we can restore the tree
-    if (verifyDataConversion && !storeInSinglePrecision)
+    if (verifyDataConversion && !storeInSinglePrecision())
     {
         SparseTree check;
         const std::vector<double>& scalesUsed(sequencer->getInitialScales());
-        sparsePeakTreeFromStorable(*tree, &scalesUsed, &check);
-        if (!sequencer->maxAdaptiveScales() && insertCompleteEvent)
-            check.addScale(completeEventScale);
+        sparsePeakTreeFromStorable(*tree, &scalesUsed, getEventScale(), &check);
         if (sparseTree != check)
             throw cms::Exception("FFTJetInterface")
                 << "Data conversion failed for sparse clustering tree"
@@ -394,11 +384,11 @@ void FFTJetPatRecoProducer::buildDenseProduct(edm::Event& ev) const
                             tree.get());
 
     // Check that we can restore the tree
-    if (verifyDataConversion && !storeInSinglePrecision)
+    if (verifyDataConversion && !storeInSinglePrecision())
     {
         ClusteringTree check(distanceCalc.get());
         const std::vector<double>& scalesUsed(sequencer->getInitialScales());
-        densePeakTreeFromStorable(*tree, &scalesUsed, &check);
+        densePeakTreeFromStorable(*tree, &scalesUsed, getEventScale(), &check);
         if (*clusteringTree != check)
             throw cms::Exception("FFTJetInterface")
                 << "Data conversion failed for dense clustering tree"
@@ -419,8 +409,8 @@ void FFTJetPatRecoProducer::produce(
     if (makeClusteringTree)
     {
         sequencer->run(*energyFlow, clusteringTree);
-        if (insertCompleteEvent)
-            sequencer->insertCompleteEvent(completeEventScale, *energyFlow,
+        if (getEventScale() > 0.0)
+	    sequencer->insertCompleteEvent(getEventScale(), *energyFlow,
                                            clusteringTree, completeEventDataCutoff);
 
         if (sparsify)
@@ -432,14 +422,14 @@ void FFTJetPatRecoProducer::produce(
             // This is the way we want it in storage because the stored
             // tree does not include daughter ordering info explicitly.
 
-            if (storeInSinglePrecision)
+            if (storeInSinglePrecision())
                 buildSparseProduct<float>(iEvent);
             else
                 buildSparseProduct<double>(iEvent);
         }
         else
         {
-            if (storeInSinglePrecision)
+	    if (storeInSinglePrecision())
                 buildDenseProduct<float>(iEvent);
             else
                 buildDenseProduct<double>(iEvent);
