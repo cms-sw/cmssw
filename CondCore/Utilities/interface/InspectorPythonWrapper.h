@@ -32,12 +32,13 @@ namespace {
     class_<Wrapper>("Object",init<>()) 
       .def(init<cond::IOVElementProxy>())
       .def("dump",&Wrapper::dump)
-	  .def("dumpXML",&Wrapper::dumpXML)
+      .def("dumpXML",&Wrapper::dumpXML)
       .def("plot",&Wrapper::plot)
       .def("summary",&Wrapper::summary) 
       .def("extract",&Wrapper::extract)
       .def("trend_plot",&Wrapper::trend_plot)
-	  .def("summary_adv",&Wrapper::summary_adv)
+      .def("summary_adv",&Wrapper::summary_adv)
+      .def("dumpFile", &Wrapper::dumpFile)
       ; 
   }
 }
