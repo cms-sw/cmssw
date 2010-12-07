@@ -97,9 +97,8 @@ public:
   }
   static void notValid();
 
-  bool hasError() const {
-    return (theFreeState && theFreeState->hasError()) || theLocalErrorValid;
-  }
+  bool hasError() const;
+  
   void missingError(char const * where) const;
 
 // access global parameters/errors
@@ -134,16 +133,7 @@ public:
   }
 
 
-  FreeTrajectoryState* freeTrajectoryState(bool withErrors = true) const {
-    if(!isValid()) notValid();
-    checkGlobalParameters();
-    //if(hasError()) { // let's start like this to see if we alloc less
-    if(withErrors && hasError()) { // this is the right thing
-      checkCartesianError();
-      checkCurvilinError();
-    }
-    return &(*theFreeState);
-  }
+  FreeTrajectoryState* freeTrajectoryState(bool withErrors = true) const;
   
   const MagneticField *magneticField() const { return theField; }
 

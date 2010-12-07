@@ -348,3 +348,20 @@ BasicSingleTrajectoryState::rescaleError(double factor) {
     else theLocalError *= (factor*factor);
   }
 }
+
+FreeTrajectoryState* 
+BasicSingleTrajectoryState::freeTrajectoryState(bool withErrors) const {
+  if(!isValid()) notValid();
+  checkGlobalParameters();
+  //if(hasError()) { // let's start like this to see if we alloc less
+  if(withErrors && hasError()) { // this is the right thing
+    checkCartesianError();
+    checkCurvilinError();
+  }
+  return &(*theFreeState);
+}
+
+bool 
+BasicSingleTrajectoryState::hasError() const {
+  return (theFreeState && theFreeState->hasError()) || theLocalErrorValid;
+}
