@@ -314,6 +314,9 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
 #ifdef DebugLog  
     LogDebug("HFShower") << " nSpotsInStep = " << nSpotsInStep;
 #endif
+
+
+
     for (G4int ispot = 0 ;  ispot < nSpotsInStep ; ispot++) {
       spotCounter++;
       G4double u1 = G4UniformRand();
@@ -378,32 +381,28 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
 
       if(SpotPosition0 == 0) continue;
 
-#ifdef DebugLog
       double energyratio = emSpotEnergy/(preStepPoint->GetTotalEnergy()/(nSpots*e25Scale));
+#ifdef DebugLog
+
       if (theFillHisto) {
 	em_ratio->Fill(SpotPosition0.z()/cm,energyratio);
       }
 #endif
-      //      if (G4UniformRand()>  0.0033*energyratio) continue;
-      if (G4UniformRand()>  0.0033) continue;
 
-//       if (emSpotEnergy/GeV < 0.0029) continue;
-//       if (energyratio > 4) continue;
+      if (G4UniformRand()>  0.0030*energyratio) continue;
+      if (emSpotEnergy/GeV < 0.0005) continue;
+      if (energyratio > 15) continue;
 
       double zshift =0;
-      if(SpotPosition0.z() > 0) zshift = 22;
-      if(SpotPosition0.z() < 0) zshift = -22;
+      if(SpotPosition0.z() > 0) zshift = 18;
+      if(SpotPosition0.z() < 0) zshift = -18;
 
       G4ThreeVector gfshift(0,0,zshift*(pow(100,0.1)/pow(preStepPoint->GetTotalEnergy()/GeV,0.1)));
 
       G4ThreeVector SpotPosition = gfshift + SpotPosition0;
 
-      //      double p = 1/15000;
-      //      if(G4UniformRand() > exp(-p*(11150+1650-SpotPosition.z()))) continue;
-
-
       oneHit.position = SpotPosition;
-      //oneHit.position = SpotPosition0; //noshift
+
       oneHit.time     = timeGlobal;
       oneHit.edep     = emSpotEnergy/GeV;
       hit.push_back(oneHit);
