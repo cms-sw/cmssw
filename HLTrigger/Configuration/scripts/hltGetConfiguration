@@ -18,7 +18,7 @@ globalTag = {
   'FULL': 'auto:startup',
   'GRun': 'auto:startup',       # use as default
   'data': 'auto:hltonline',
-  'HIon': 'auto:startup',
+  'HIon': 'auto:starthi',
 }
 
 

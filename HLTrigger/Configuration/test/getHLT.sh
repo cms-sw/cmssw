@@ -74,7 +74,7 @@ function getConfigForOnline() {
     hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPP                               > OnLine_HLT_$NAME.py 
   elif [ "$NAME" == "HIon" ]; then
     hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:hltonline    > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag START39_V4HI::All > OnLine_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:starthi      > OnLine_HLT_$NAME.py
   else
     hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME             --globaltag auto:hltonline    > OnData_HLT_$NAME.py
     hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME                                           > OnLine_HLT_$NAME.py
