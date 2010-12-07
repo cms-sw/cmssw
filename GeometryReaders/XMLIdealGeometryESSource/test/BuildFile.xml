@@ -16,3 +16,5 @@
 </library>
 <library   file="TestCompareDDDumpFiles.cc">
 </library>
+<library file="TestCompareDDSpecsDumpFiles.cc">
+</library>
