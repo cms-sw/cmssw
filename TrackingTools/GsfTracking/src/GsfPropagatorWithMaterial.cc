@@ -125,7 +125,7 @@ GsfPropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts,
 }
 
 
-void GsfPropagatorWithMaterial::setPropagationDirection (PropagationDirection dir) {
+void GsfPropagatorWithMaterial::setPropagationDirection (PropagationDirection dir) const {
   theGeometricalPropagator->setPropagationDirection(dir);
   Propagator::setPropagationDirection(dir);
 }

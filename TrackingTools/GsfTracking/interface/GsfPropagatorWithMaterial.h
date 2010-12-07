@@ -130,7 +130,8 @@ class GsfPropagatorWithMaterial : public Propagator {
   virtual bool setMaxDirectionChange( float phiMax) { 
     return theGeometricalPropagator->setMaxDirectionChange(phiMax);
   }
-  virtual void setPropagationDirection (PropagationDirection dir);
+
+ virtual void setPropagationDirection (PropagationDirection dir) const;
 
   enum MaterialLocation {atSource, atDestination, fromDirection};
   /** Choice of location for including material effects:

@@ -12,8 +12,8 @@
  *  only be included when propagating from a TrajectoryStateOnSurface.
  *  Ported from ORCA.
  *
- *  $Date: 2007/07/12 02:58:11 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/11/12 18:49:19 $
+ *  $Revision: 1.10 $
  *  \author todorov, cerati
  */
 
@@ -96,7 +96,7 @@ public:
     return theGeometricalPropagator->setMaxDirectionChange(phiMax);
   }
   /// Propagation direction
-  virtual void setPropagationDirection (PropagationDirection dir);
+  virtual void setPropagationDirection (PropagationDirection dir) const;
 
   enum MaterialLocation {atSource, atDestination, fromDirection};
   /** Choice of location for including material effects:

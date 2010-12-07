@@ -113,7 +113,8 @@ public:
   virtual bool setMaxDirectionChange( float phiMax) { 
     return thePropagator->setMaxDirectionChange(phiMax);
   }
-  virtual void setPropagationDirection (PropagationDirection dir);
+
+ virtual void setPropagationDirection (PropagationDirection dir) const;
 
   /// access to single state propagator
   inline const Propagator& propagator () const

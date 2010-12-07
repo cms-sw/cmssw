@@ -41,7 +41,7 @@ GsfPropagatorAdapter::propagateWithPath (const FreeTrajectoryState& fts,
   return thePropagator->propagateWithPath(fts,cylinder);
 }
 
-void GsfPropagatorAdapter::setPropagationDirection (PropagationDirection dir) {
+void GsfPropagatorAdapter::setPropagationDirection (PropagationDirection dir) const {
   thePropagator->setPropagationDirection(dir);
   Propagator::setPropagationDirection(dir);
 }

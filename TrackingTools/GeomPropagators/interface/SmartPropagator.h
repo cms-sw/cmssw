@@ -59,7 +59,7 @@ class SmartPropagator : public Propagator {
     }
 
     ///setting the direction fo both components
-    void setPropagationDirection (PropagationDirection dir)
+    void setPropagationDirection (PropagationDirection dir) const
     {
       Propagator::setPropagationDirection (dir);
       getTkPropagator()->setPropagationDirection(dir);

@@ -47,7 +47,7 @@ class BeamHaloPropagator : public Propagator {
     }
 
 
-    void setPropagationDirection (PropagationDirection dir)
+    void setPropagationDirection (PropagationDirection dir) const
     {
       Propagator::setPropagationDirection(dir);
       getEndCapTkPropagator()->setPropagationDirection(dir);

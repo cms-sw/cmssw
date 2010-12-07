@@ -4,8 +4,8 @@
 /** \class KFTrajectoryFitter
  *  A Standard Kalman fit. Ported from ORCA
  *
- *  $Date: 2008/10/15 09:06:48 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/07/03 01:11:06 $
+ *  $Revision: 1.9 $
  *  \author todorov, cerati
  */
 
@@ -34,9 +34,9 @@ public:
 		     const TrajectoryStateUpdator& aUpdator,
 		     const MeasurementEstimator& aEstimator,
 		     int minHits = 3) :
-    thePropagator(aPropagator.clone()),
-    theUpdator(aUpdator.clone()),
-    theEstimator(aEstimator.clone()),
+    thePropagator(&aPropagator),
+    theUpdator(&aUpdator),
+    theEstimator(&aEstimator),
     minHits_(minHits),
     theGeometry(0){ // to be fixed. Why this first constructor is needed? who is using it? Can it be removed?
       if(!theGeometry) theGeometry = &dummyGeometry;
@@ -47,15 +47,15 @@ public:
 		     const MeasurementEstimator* aEstimator,
 		     int minHits = 3,
 		     const DetLayerGeometry* detLayerGeometry=0) : 
-    thePropagator(aPropagator->clone()),
-    theUpdator(aUpdator->clone()),
-    theEstimator(aEstimator->clone()),
+    thePropagator(aPropagator),
+    theUpdator(aUpdator),
+    theEstimator(aEstimator),
     minHits_(minHits),
     theGeometry(detLayerGeometry){
       if(!theGeometry) theGeometry = &dummyGeometry;
     }
 
-  virtual ~KFTrajectoryFitter(); 
+  ~KFTrajectoryFitter(){}
   
   virtual std::vector<Trajectory> fit(const Trajectory& aTraj) const;
   virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
@@ -76,7 +76,7 @@ public:
   
 private:
   const DetLayerGeometry dummyGeometry;
-  Propagator* thePropagator;
+  const Propagator* thePropagator;
   const TrajectoryStateUpdator* theUpdator;
   const MeasurementEstimator* theEstimator;
   int minHits_;

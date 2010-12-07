@@ -92,7 +92,7 @@ class RKTestPropagator : public Propagator {
   TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& ts, 
                                      const Plane& plane) const {return theRKProp->propagate(ts,plane);}
 
-  virtual void setPropagationDirection(PropagationDirection dir) {
+  virtual void setPropagationDirection(PropagationDirection dir) const {
     theRKProp->setPropagationDirection(dir);
   }
 

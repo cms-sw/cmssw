@@ -129,7 +129,7 @@ public:
    *  The values "alongMomentum" and "oppositeToMomentum" provide the
    *  functionality of the ex-UnidirectionalPropagator.
    */
-  virtual void setPropagationDirection(PropagationDirection dir) {
+  virtual void setPropagationDirection(PropagationDirection dir) const {
     theDir = dir;
   }
 
@@ -162,7 +162,7 @@ public:
 
 private:
 
-  PropagationDirection theDir;
+  mutable PropagationDirection theDir;
 };
 
 #endif // CommonDet_Propagator_H
