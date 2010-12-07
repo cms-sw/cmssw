@@ -65,9 +65,7 @@ def L1THLT2(process):
     return(process)
 
 
-def HLTData(process):
-#   modifications when running on real data (currently pp [not HI] only!)
-
+def HLTDropPrevious(process):
 #   drop on input the previous HLT results
     process.source.inputCommands = cms.untracked.vstring (
         'keep *',
@@ -75,45 +73,6 @@ def HLTData(process):
         'drop *_TriggerResults_*_*',
         'drop *_hltTriggerSummaryAOD_*_*',
     )
-
-#   override the L1 menu
-    if 'toGet' not in process.GlobalTag.__dict__:
-        process.GlobalTag.toGet = cms.VPSet()
-    process.GlobalTag.toGet.append(
-        cms.PSet(  
-            record  = cms.string( "L1GtTriggerMenuRcd" ),
-            tag     = cms.string( "L1GtTriggerMenu_L1Menu_Commissioning2010_v4_mc" ),
-            connect = cms.untracked.string( process.GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T') )
-        )
-    )
-
-#   override RAW data name to rn on data
-    process.hltFEDSelector.inputTag                      = "source"
-    process.hltGetRaw.RawDataCollection                  = "source"
-    process.hltGtDigis.DaqGtInputTag                     = "source"
-    process.hltGctDigis.inputLabel                       = "source"
-    process.hltScalersRawToDigi.scalersInputTag          = "source"
-    process.hltSiPixelDigis.InputLabel                   = "source"
-    process.hltMuonCSCDigis.InputObjects                 = "source"
-    process.hltMuonDTDigis.inputLabel                    = "source"
-    process.hltDTTFUnpacker.DTTF_FED_Source              = "source"
-    process.hltEcalRawToRecHitFacility.sourceTag         = "source"
-    process.hltESRawToRecHitFacility.sourceTag           = "source"
-    process.hltHcalDigis.InputLabel                      = "source"
-    process.hltMuonRPCDigis.InputLabel                   = "source"
-    process.hltSiStripRawToClustersFacility.ProductLabel = "source"
-    process.hltL1EventNumberNZS.rawInput                 = "source"
-    process.hltDTROMonitorFilter.inputLabel              = "source"
-    process.hltEcalCalibrationRaw.inputTag               = "source"
-    process.hltHcalCalibTypeFilter.InputTag              = "source"
-    process.hltDTDQMEvF.inputLabel                       = "source"
-    process.hltEcalDigis.InputLabel                      = "source"
-    process.hltEBHltTask.FEDRawDataCollection            = "source"
-    process.hltEEHltTask.FEDRawDataCollection            = "source"
-    process.hltL1tfed.rawTag                             = "source"
-    process.hltSiPixelDigisWithErrors.InputLabel         = "source"
-    process.hltSiPixelHLTSource.RawInput                 = "source"
-    process.hltSiStripFEDCheck.RawDataTag                = "source"
 
     process=Base(process)
     
