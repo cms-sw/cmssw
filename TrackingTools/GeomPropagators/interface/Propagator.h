@@ -165,4 +165,20 @@ private:
   mutable PropagationDirection theDir;
 };
 
+class SetPropagationDirection {
+private:
+  Propagator const & prop;
+  PropagationDirection oldDir;
+public:
+  SetPropagationDirection(Propagator const & iprop, PropagationDirection dir) : 
+    prop(iprop),
+    oldDir(iprop.propagationDirection()) {
+    prop.setPropagationDirection(dir);
+  }
+  ~SetPropagationDirection() {
+    prop.setPropagationDirection(oldDir);
+  }
+};
+
+
 #endif // CommonDet_Propagator_H

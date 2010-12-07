@@ -14,13 +14,7 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
-KFTrajectoryFitter::~KFTrajectoryFitter() {
 
-  delete thePropagator;
-  delete theUpdator;
-  delete theEstimator;
-
-}
 
 
 std::vector<Trajectory> KFTrajectoryFitter::fit(const Trajectory& aTraj) const {
@@ -48,13 +42,13 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 {
   if(hits.empty()) return std::vector<Trajectory>();
 
+
   if (aSeed.direction() == alongMomentum) {
-    thePropagator->setPropagationDirection(alongMomentum);
   } else if (aSeed.direction() == oppositeToMomentum){
-    thePropagator->setPropagationDirection(oppositeToMomentum);
   } else {
     throw cms::Exception("KFTrajectoryFitter","TrajectorySeed::direction() requested but not set");
   }
+  SetPropagationDirection setDir(*thePropagator,aSeed.direction());
 
   LogDebug("TrackFitters")
     <<" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
