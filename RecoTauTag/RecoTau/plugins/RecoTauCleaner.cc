@@ -163,7 +163,7 @@ void RecoTauCleanerImpl<Prod>::produce(edm::Event& evt,
 }
 
 typedef RecoTauCleanerImpl<reco::PFTauCollection> RecoTauCleaner;
-typedef RecoTauCleanerImpl<edm::RefToBaseVector<reco::PFTau> > RecoTauRefCleaner;
+typedef RecoTauCleanerImpl<reco::PFTauRefVector> RecoTauRefCleaner;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(RecoTauCleaner);
