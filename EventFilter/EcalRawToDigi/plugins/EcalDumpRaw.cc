@@ -498,7 +498,7 @@ bool EcalDumpRaw::decode(const uint32_t* data, int iWord64, ostream& out){
                 << " (" << colorNames[(data[1]>>6)&0x3] << ")"
                 << " DCC ID: " << dccId_;
       int l;
-      if(dccId_>=10 && dccId_<=46 && side_ >=0 && side_ <= 1){
+      if(dccId_>=10 && dccId_<=46 && side_ <= 1){ // side >= 0, since side is unsigned
         l = lme(dccId_, side_);
       } else{
         l = -1;//indicates error
