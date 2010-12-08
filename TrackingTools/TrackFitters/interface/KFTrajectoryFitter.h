@@ -4,8 +4,8 @@
 /** \class KFTrajectoryFitter
  *  A Standard Kalman fit. Ported from ORCA
  *
- *  $Date: 2009/07/03 01:11:06 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/12/07 13:56:04 $
+ *  $Revision: 1.10 $
  *  \author todorov, cerati
  */
 
@@ -30,18 +30,24 @@ private:
 public:
 
 
+  // backward compatible (too many places it uses as such...)
   KFTrajectoryFitter(const Propagator& aPropagator,
 		     const TrajectoryStateUpdator& aUpdator,
 		     const MeasurementEstimator& aEstimator,
-		     int minHits = 3) :
-    thePropagator(&aPropagator),
-    theUpdator(&aUpdator),
-    theEstimator(&aEstimator),
+		     int minHits = 3,
+		     const DetLayerGeometry* detLayerGeometry=0) :
+    thePropagator(aPropagator.clone()),
+    theUpdator(aUpdator.clone()),
+    theEstimator(aEstimator.clone()),
+    theGeometry(detLayerGeometry),
     minHits_(minHits),
-    theGeometry(0){ // to be fixed. Why this first constructor is needed? who is using it? Can it be removed?
-      if(!theGeometry) theGeometry = &dummyGeometry;
+    owner(true){ 
+    if(!theGeometry) theGeometry = &dummyGeometry;
+    // FIXME. Why this first constructor is needed? who is using it? Can it be removed?
+    // it is uses in many many places
     }
   
+
   KFTrajectoryFitter(const Propagator* aPropagator,
 		     const TrajectoryStateUpdator* aUpdator,
 		     const MeasurementEstimator* aEstimator,
@@ -50,12 +56,19 @@ public:
     thePropagator(aPropagator),
     theUpdator(aUpdator),
     theEstimator(aEstimator),
+    theGeometry(detLayerGeometry),
     minHits_(minHits),
-    theGeometry(detLayerGeometry){
+    owner(false){ {
       if(!theGeometry) theGeometry = &dummyGeometry;
     }
 
-  ~KFTrajectoryFitter(){}
+  ~KFTrajectoryFitter(){
+    if (owner) {
+      delete thePropagator;
+      delete theUpdator;
+      delete theEstimator;
+    }
+  }
   
   virtual std::vector<Trajectory> fit(const Trajectory& aTraj) const;
   virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
@@ -71,16 +84,22 @@ public:
   
   virtual KFTrajectoryFitter* clone() const
   {
-    return new KFTrajectoryFitter(thePropagator,theUpdator,theEstimator,minHits_,theGeometry);
+    return owner ? 
+      new KFTrajectoryFitter(*thePropagator,*theUpdator,*theEstimator,minHits_,theGeometry) :
+      new KFTrajectoryFitter(thePropagator,theUpdator,theEstimator,minHits_,theGeometry);
   }
   
 private:
-  const DetLayerGeometry dummyGeometry;
+  KFTrajectoryFitter(KFTrajectoryFitter const&);
+		     
+
+  static const DetLayerGeometry dummyGeometry;
   const Propagator* thePropagator;
   const TrajectoryStateUpdator* theUpdator;
   const MeasurementEstimator* theEstimator;
-  int minHits_;
   const DetLayerGeometry* theGeometry;
+  int minHits_;
+  bool owner;
 };
 
 #endif //CD_KFTrajectoryFitter_H_
