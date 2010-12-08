@@ -261,12 +261,12 @@ class HLTProcess(object):
       self.data = re.sub( r'cms\.untracked\.InputTag\( "source" \)', r'cms.untracked.InputTag( "rawDataCollector" )', self.data)
       self.data = re.sub( r'cms\.string\( "source" \)',              r'cms.string( "rawDataCollector" )',             self.data)
 
-      # override the preshower baseline setting for MC - needed for 3.5.x (x >= 7) and 3.6.x
-      self.data += """
-# override the preshower baseline setting for MC
-if 'ESUnpackerWorkerESProducer' in %(dict)s:
-    %(process)sESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
-"""
+#      # override the preshower baseline setting for MC - needed for 3.5.x (x >= 7) and 3.6.x
+#      self.data += """
+## override the preshower baseline setting for MC
+#if 'ESUnpackerWorkerESProducer' in %(dict)s:
+#    %(process)sESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
+#"""
 
 
   def unprescale(self, configuration):
