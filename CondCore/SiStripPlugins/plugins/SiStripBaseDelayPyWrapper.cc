@@ -1,5 +1,4 @@
-
-#include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
+#include "CondFormats/SiStripObjects/interface/SiStripBaseDelay.h"
 
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
@@ -10,10 +9,10 @@
 namespace cond {
 
   template<>
-  class ValueExtractor<SiStripDetVOff>: public  BaseValueExtractor<SiStripDetVOff> {
+  class ValueExtractor<SiStripBaseDelay>: public  BaseValueExtractor<SiStripBaseDelay> {
   public:
 
-    typedef SiStripDetVOff Class;
+    typedef SiStripBaseDelay Class;
     typedef ExtractWhat<Class> What;
     static What what() { return What();}
 
@@ -31,22 +30,22 @@ namespace cond {
 
   template<>
   std::string
-  PayLoadInspector<SiStripDetVOff>::dump() const {
+  PayLoadInspector<SiStripBaseDelay>::dump() const {
     std::stringstream ss;
     return ss.str();
     
   }
   
   template<>
-  std::string PayLoadInspector<SiStripDetVOff>::summary() const {
+  std::string PayLoadInspector<SiStripBaseDelay>::summary() const {
     std::stringstream ss;
-    object().printDebug(ss);
+    object().printSummary(ss);
     return ss.str();
   }
   
 
   template<>
-  std::string PayLoadInspector<SiStripDetVOff>::plot(std::string const & filename,
+  std::string PayLoadInspector<SiStripBaseDelay>::plot(std::string const & filename,
 						   std::string const &, 
 						   std::vector<int> const&, 
 						   std::vector<float> const& ) const {
@@ -58,4 +57,4 @@ namespace cond {
 
 }
 
-PYTHON_WRAPPER(SiStripDetVOff,SiStripDetVOff);
+PYTHON_WRAPPER(SiStripBaseDelay,SiStripBaseDelay);
