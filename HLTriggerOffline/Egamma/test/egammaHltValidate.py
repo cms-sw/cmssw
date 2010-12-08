@@ -22,6 +22,8 @@ outputRootFile="DQM_V0001_HLT_R000000001.root"
 
 
 # Datasets to run on
+# could actually get rid of the version string in the datasets
+# as we explicitly require the release in the DBS query ?
 knownDatasets = {
     "photonJet" : {
         "dataset": "/RelValPhotonJets_Pt_10/CMSSW_%(version)s*/GEN-SIM-DIGI-RAW-HLTDEBUG",
@@ -163,7 +165,7 @@ def findDataSetFromSampleName(sampleSpec, version, cdToReleaseDir):
 
     datasetToSearchFor= knownDatasets[sampleSpec]['dataset'] % { "version": version }
 
-    dbs_cmd = 'dbs search --query="find dataset where dataset=' + datasetToSearchFor + ' and site=srm-cms.cern.ch" | grep "HLTDEBUG"'
+    dbs_cmd = 'dbs search --query="find dataset where dataset=' + datasetToSearchFor + ' and site=srm-cms.cern.ch and release = CMSSW_' + version + '" | grep "HLTDEBUG"'
 
     cmssw_release_dir = findCMSSWreleaseDir(version)
 
