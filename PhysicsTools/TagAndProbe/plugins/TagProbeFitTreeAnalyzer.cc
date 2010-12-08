@@ -34,9 +34,13 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset):
 {
   fitter.setQuiet(pset.getUntrackedParameter("Quiet",false));
 
-  if (pset.existsAs<uint32_t>("binsForMassPlots")) {
+  if (pset.existsAs<bool>("binnedFit")) {
+    bool binned = pset.getParameter<bool>("binnedFit");
+    fitter.setBinnedFit(binned, binned ? pset.getParameter<uint32_t>("binsForFit") : 0);
+  } else if (pset.existsAs<uint32_t>("binsForMassPlots")) {
     fitter.setBinsForMassPlots(pset.getParameter<uint32_t>("binsForMassPlots"));
   }
+
   if (pset.existsAs<std::string>("WeightVariable")) {
     fitter.setWeightVar(pset.getParameter<std::string>("WeightVariable"));
   }
@@ -107,7 +111,11 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset):
   const ParameterSet efficiencies = pset.getParameter<ParameterSet>("Efficiencies");
   vector<string> efficiencyNames = efficiencies.getParameterNamesForType<ParameterSet>();
   for (vector<string>::const_iterator name = efficiencyNames.begin(); name != efficiencyNames.end(); name++) {
-    calculateEfficiency(*name, efficiencies.getParameter<ParameterSet>(*name));
+    try {
+        calculateEfficiency(*name, efficiencies.getParameter<ParameterSet>(*name));
+    } catch (std::exception &ex) {
+        throw cms::Exception("Error", ex.what());
+    }
   }
 }
 

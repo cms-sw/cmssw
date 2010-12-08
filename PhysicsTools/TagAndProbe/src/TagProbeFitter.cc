@@ -1,4 +1,5 @@
 #include "PhysicsTools/TagAndProbe/interface/TagProbeFitter.h"
+#include <stdexcept>
 //#include "TagProbeFitter.h"
 
 #include "TROOT.h"
@@ -62,6 +63,8 @@ TagProbeFitter::TagProbeFitter(vector<string> inputFileNames, string inputDirect
   gStyle->SetPaintTextFormat(".2f");
 
   quiet = false;
+
+  binnedFit = false;
 }
 
 TagProbeFitter::~TagProbeFitter(){
@@ -130,6 +133,9 @@ string TagProbeFitter::calculateEfficiency(string dirName, vector<string> effCat
   //collect unbinned variables
   for(vector<string>::iterator v=unbinnedVariables.begin(); v!=unbinnedVariables.end(); v++){
     dataVars.addClone(variables[v->c_str()]);
+    if (binnedFit && (v == unbinnedVariables.begin())) {
+        ((RooRealVar&)dataVars[v->c_str()]).setBins(massBins);
+    }
   }
   //collect the binned variables and the corresponding bin categories
   RooArgSet binnedVariables;
@@ -359,8 +365,16 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
   setInitialValues(w);  
   RooFitResult* res;
 
-  double totPassing = w->data("data")->sumEntries("_efficiencyCategory_==_efficiencyCategory_::Passed");
-  double totFailing = w->data("data")->sumEntries("_efficiencyCategory_==_efficiencyCategory_::Failed");
+  RooAbsData *data = w->data("data");
+  if (binnedFit) { 
+    const RooArgSet *obs = data->get(0);
+    RooDataHist *bdata = new RooDataHist("data_binned", "data_binned", *obs, *data); 
+    w->import(*bdata);
+    data = bdata;
+  }
+
+  double totPassing = data->sumEntries("_efficiencyCategory_==_efficiencyCategory_::Passed");
+  double totFailing = data->sumEntries("_efficiencyCategory_==_efficiencyCategory_::Failed");
 
   //******* The block of code below is to make the fit converge faster.
   // ****** This part is OPTIONAL, i.e., off be default. User can activate this
@@ -391,11 +405,11 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
       // fix them
       varFixer(w,true);
       //do fit 
-      w->pdf("simPdf")->fitTo(*w->data("data"), Save(true), Extended(true), NumCPU(numCPU), PrintLevel(quiet?-1:1), PrintEvalErrors(quiet?-1:1), Warnings(!quiet));
+      w->pdf("simPdf")->fitTo(*data, Save(true), Extended(true), NumCPU(numCPU), PrintLevel(quiet?-1:1), PrintEvalErrors(quiet?-1:1), Warnings(!quiet));
       //release vars
       varFixer(w,false);
       //do fit 
-      w->pdf("simPdf")->fitTo(*w->data("data"), Save(true), Extended(true), NumCPU(numCPU), PrintLevel(quiet?-1:1), PrintEvalErrors(quiet?-1:1), Warnings(!quiet));
+      w->pdf("simPdf")->fitTo(*data, Save(true), Extended(true), NumCPU(numCPU), PrintLevel(quiet?-1:1), PrintEvalErrors(quiet?-1:1), Warnings(!quiet));
       //save vars
       varSaver(w);
       // now we have a starting point. Fit will converge faster.
@@ -410,7 +424,7 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
     //fix vars
     varFixer(w,true);
     //do fit
-    res = w->pdf("simPdf")->fitTo(*w->data("data"), Save(true), Extended(true), NumCPU(numCPU), Minos(*w->var("efficiency")), PrintLevel(quiet?-1:1), PrintEvalErrors(quiet?-1:1), Warnings(!quiet));
+    res = w->pdf("simPdf")->fitTo(*data, Save(true), Extended(true), NumCPU(numCPU), Minos(*w->var("efficiency")), PrintLevel(quiet?-1:1), PrintEvalErrors(quiet?-1:1), Warnings(!quiet));
   }//if(!fixVars.empty())
   
   // (default = true) if we don't want to fix any parameters or want to fit each bin with all parameters floating
@@ -419,7 +433,7 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
     varFixer(w,false);
     
     //do fit
-    res = w->pdf("simPdf")->fitTo(*w->data("data"), Save(true), Extended(true), NumCPU(numCPU), Minos(*w->var("efficiency")), PrintLevel(quiet?-1:1), PrintEvalErrors(quiet?-1:1), Warnings(!quiet));
+    res = w->pdf("simPdf")->fitTo(*data, Save(true), Extended(true), NumCPU(numCPU), Minos(*w->var("efficiency")), PrintLevel(quiet?-1:1), PrintEvalErrors(quiet?-1:1), Warnings(!quiet));
   }
 
 
@@ -469,10 +483,22 @@ void TagProbeFitter::createPdf(RooWorkspace* w, vector<string>& pdfCommands){
   // setup the simultaneous extended pdf
   w->factory("expr::numSignalPass('efficiency*numSignalAll', efficiency, numSignalAll[0.,1e10])");
   w->factory("expr::numSignalFail('(1-efficiency)*numSignalAll', efficiency, numSignalAll)");
-  w->factory("SUM::pdfPass(numSignalPass*signal, numBackgroundPass[0.,1e10]*backgroundPass)");
-  w->factory("SUM::pdfFail(numSignalFail*signal, numBackgroundFail[0.,1e10]*backgroundFail)");
+  TString sPass = "signal", sFail = "signal";
+  if (w->pdf("signalPass") != 0 && w->pdf("signalFail") != 0) {
+    if (w->pdf("signal") != 0) throw std::logic_error("You must either define one 'signal' PDF or two PDFs ('signalPass', 'signalFail'), not both!"); 
+    sPass = "signalPass"; sFail = "signalFail";
+  } else if (w->pdf("signal") != 0) {
+    if (w->pdf("signalPass") != 0 || w->pdf("signalFail") != 0) {
+        throw std::logic_error("You must either define one 'signal' PDF or two PDFs ('signalPass', 'signalFail'), not both!"); 
+    }
+  } else {
+    throw std::logic_error("You must either define one 'signal' PDF or two PDFs ('signalPass', 'signalFail')");
+  }
+  w->factory("SUM::pdfPass(numSignalPass*"+sFail+", numBackgroundPass[0.,1e10]*backgroundPass)");
+  w->factory("SUM::pdfFail(numSignalFail*"+sPass+", numBackgroundFail[0.,1e10]*backgroundFail)");
   w->factory("SIMUL::simPdf(_efficiencyCategory_, Passed=pdfPass, Failed=pdfFail)");
   // signalFractionInPassing is not used in the fit just to set the initial values
+  if (w->pdf("simPdf") == 0) throw std::runtime_error("Could not create simultaneous fit pdf.");
   if(w->var("signalFractionInPassing") == 0)
     w->factory("signalFractionInPassing[0.9]");
 }
@@ -523,7 +549,7 @@ void TagProbeFitter::setInitialValues(RooWorkspace* w){
 void TagProbeFitter::saveFitPlot(RooWorkspace* w){
   // save refferences for convenience
   RooCategory& efficiencyCategory = *w->cat("_efficiencyCategory_");
-  RooAbsData* dataAll = w->data("data");
+  RooAbsData* dataAll = (binnedFit ? w->data("data_binned") : w->data("data") );
   RooAbsData* dataPass = dataAll->reduce(Cut("_efficiencyCategory_==_efficiencyCategory_::Passed")); 
   RooAbsData* dataFail = dataAll->reduce(Cut("_efficiencyCategory_==_efficiencyCategory_::Failed")); 
   RooAbsPdf& pdf = *w->pdf("simPdf");
@@ -767,124 +793,3 @@ void TagProbeFitter::varRestorer(RooWorkspace* w){
   }
 }
 
-
-int main(int argc, char* argv[]){
-  // create test input file
-  TFile out("testTree.root","recreate");
-  out.mkdir("Test")->cd();
-  // pt
-  RooRealVar pt("pt","pt",1,10);
-  RooGenericPdf ptPdf("ptPdf","1",pt);
-  // eta
-  RooRealVar eta("eta","eta",-2.5,2.5);
-  // passing
-  RooCategory passing("passing","passing");
-  passing.defineType("Passed",1);
-  passing.defineType("Failed",0);
-  // efficiency value
-  RooRealVar a("a","a",0.9) ;
-  RooRealVar b("b","b",1) ;
-  RooRealVar c("c","c",3) ;
-//  RooFormulaVar efficiency("efficiency", "a/(1+exp(-b*(pt-c)))", RooArgList(a, b, c, pt)) ;
-  RooRealVar efficiency("efficiency", "efficiency", 0.9, 0.0, 1.0);
-  RooPlot* curve = pt.frame();
-  efficiency.plotOn(curve);
-  curve->Write("efficiencyCurve");
-  RooEfficiency passingPdf("passingPdf", "passingPdf", efficiency, passing, "Passed");
-  // mass
-  RooRealVar mass("mass", "mass", 2.6, 3.6);
-  RooRealVar mean("mean", "mean", 3.1, 3.0, 3.2);
-  RooRealVar sigma("sigma", "sigma", 0.03, 0.01, 0.05);
-  RooGaussian signal("signal", "signal", mass, mean, sigma);
-  RooRealVar numSignalAll("numSignalAll", "numSignalAll", 1000., 0., 1e10);
-  RooExtendPdf signalExt("signalExt", "signalExt", signal, numSignalAll);
-  RooProdPdf signalPdf("signalPdf", "signalPdf", RooArgSet(signalExt, ptPdf), Conditional(passingPdf,passing));
-  
-  RooRealVar cPass("cPass", "cPass", 0.1, -1, 1);
-  RooChebychev backgroundPass("backgroundPass", "backgroundPass", mass, cPass);
-  RooRealVar numBackgroundPass("numBackgroundPass", "numBackgroundPass", 1000., 0., 1e10);
-  RooExtendPdf backgroundPassPdf("backgroundPassPdf", "backgroundPassPdf", backgroundPass, numBackgroundPass);
-  
-  RooRealVar cFail("cFail", "cFail", 0.1, -1, 1);
-  RooChebychev backgroundFail("backgroundFail", "backgroundFail", mass, cFail);
-  RooRealVar numBackgroundFail("numBackgroundFail", "numBackgroundFail", 1000., 0., 1e10);
-  RooExtendPdf backgroundFailPdf("backgroundFailPdf", "backgroundFailPdf", backgroundFail, numBackgroundFail);
-  
-  RooSimultaneous backgroundPdf("backgroundPdf", "backgroundPdf", passing);
-  backgroundPdf.addPdf(backgroundPassPdf, "Passed");
-  backgroundPdf.addPdf(backgroundFailPdf, "Failed");
-  RooProdPdf backgroundPtPdf("backgroundPtPdf", "backgroundPtPdf", backgroundPdf, ptPdf);
-  // mc_true, True=signal, False=background
-  RooCategory mc_true("mc_true","mc_true");
-  mc_true.defineType("True",1);
-  mc_true.defineType("False",0);
-
-  RooSimultaneous model("model", "model", mc_true);
-  model.addPdf(signalPdf, "True");
-  model.addPdf(backgroundPtPdf, "False");
-
-  RooDataSet* data = model.generate(RooArgSet(mass, pt, eta, passing, mc_true));
-  data->tree()->Write("fitter_tree");
-  
-  out.Close();
-  // end of generation
-  
-  // fit the test input
-  vector<string> inputs;
-  inputs.push_back("testTree.root");
-  TagProbeFitter f(inputs, "Test", "fitter_tree", "myplots.root", 1, true);
-
-  f.addVariable("mass", "tag-probe mass", 2.6, 3.6, "GeV/c^{2}");
-  f.addVariable("pt", "probe pT", 1., 10., "GeV/c");
-  f.addVariable("eta", "probe #eta", -2.1, 2.1, "");
-  f.addCategory("mc_true_idx", "MC True", "c[true=1,false=0]");
-  f.addCategory("passing_idx", "isPassing", "c[pass=1,fail=0]");
-
-  vector<string> pdfCommands;
-  pdfCommands.push_back("efficiency[0.9,0,1]");
-  pdfCommands.push_back("Gaussian::signal(mass, mean[3.1,3.0,3.2], sigma[0.03,0.01,0.05])");
-  pdfCommands.push_back("Chebychev::backgroundPass(mass, cPass[0,-1,1])");
-  pdfCommands.push_back("Chebychev::backgroundFail(mass, cFail[0,-1,1])");
-  f.addPdf("g", pdfCommands);
-  vector<string> pdfCommands2;
-  pdfCommands2.push_back("efficiency[0.9,0,1]");
-  pdfCommands2.push_back("Gaussian::signal(mass, mean[3.1,3.0,3.2], sigma[0.03,0.01,0.05])");
-  pdfCommands2.push_back("Chebychev::backgroundPass(mass, {cPass[0,-1,1], cPass2[0,-1,1]})");
-  pdfCommands2.push_back("Chebychev::backgroundFail(mass, {cFail[0,-1,1], cFail2[0,-1,1]})");
-  f.addPdf("g2", pdfCommands2);
-
-  vector<string> unbinnedVariables;
-  unbinnedVariables.push_back("mass");
-
-  map<string, vector<double> >binnedReals;
-  vector<double> ptBins;
-  ptBins.push_back(1.);
-  ptBins.push_back(4.5);
-  ptBins.push_back(8.);
-  ptBins.push_back(10.);
-  binnedReals["pt"] = ptBins;
-  vector<double> etaBins;
-  etaBins.push_back(-2.5);
-//  etaBins.push_back(-1.2);
-//  etaBins.push_back(0.);
-//  etaBins.push_back(1.2);
-  etaBins.push_back(2.5);
-  binnedReals["eta"] = etaBins;
-
-  map<string, vector<string> > binnedStates;
-
-  vector<string> binToPDFmap;
-  binToPDFmap.push_back("g");
-  binToPDFmap.push_back("*pt_bin0*");
-  binToPDFmap.push_back("g2");
-
-  f.calculateEfficiency("pt_eta", "passing_idx", "pass", unbinnedVariables, binnedReals, binnedStates, binToPDFmap, true);
-
-  vector<string> mcBins;
-  mcBins.push_back("true");
-  binnedStates["mc_true_idx"] = mcBins;
-
-  vector<string> emptyMap; //no fits here
-
-  f.calculateEfficiency("pt_eta_mcTrue", "passing_idx", "pass", unbinnedVariables, binnedReals, binnedStates, emptyMap, true);
-}

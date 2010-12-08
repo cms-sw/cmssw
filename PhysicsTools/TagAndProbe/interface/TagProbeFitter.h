@@ -44,6 +44,8 @@ class TagProbeFitter {
 
   std::string calculateEfficiency(std::string dirName, std::vector<std::string> efficiencyCategories, std::vector<std::string> efficiencyStates, std::vector<std::string>& unbinnedVariables, std::map<std::string, std::vector<double> >& binnedReals, std::map<std::string, std::vector<std::string> >& binnedCategories, std::vector<std::string>& binToPDFmap, bool saveWork);
 
+  /// set if to do a binned fit 
+  void setBinnedFit(bool binned, int bins=0) { binnedFit = binned; massBins = bins; }
 
   /// set number of bins to use when making the plots; 0 = automatic
   void setBinsForMassPlots(int bins) ;
@@ -69,6 +71,9 @@ class TagProbeFitter {
 
   ///the default option wether to save the workspace for each bin
   bool saveWorkspace;
+
+  ///do binned fit; 0 = automatic, 1 = yes, -1 = no. d
+  int binnedFit;
 
   ///number of bins to use in mass shape plots; 0 = automatic
   int massBins;
