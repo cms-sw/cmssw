@@ -188,6 +188,7 @@ hpsTancTausDiscriminationByDecayModeSelection = hpsSelectionDiscriminator.clone(
 )
 
 from RecoTauTag.Configuration.HPSPFTaus_cfi import requireDecayMode,\
+        hpsPFTauDiscriminationByVLooseIsolation,\
         hpsPFTauDiscriminationByLooseIsolation,\
         hpsPFTauDiscriminationByMediumIsolation,\
         hpsPFTauDiscriminationByTightIsolation
@@ -234,6 +235,11 @@ hpsTancRequireDecayMode.decayMode.Producer = cms.InputTag(
     "hpsTancTausDiscriminationByDecayModeSelection")
 
 # Build the isolation discriminators
+hpsTancTausDiscriminationByVLooseIsolation = \
+        hpsPFTauDiscriminationByVLooseIsolation.clone(
+            PFTauProducer = cms.InputTag("hpsTancTaus"),
+            Prediscriminants = hpsTancRequireDecayMode
+        )
 hpsTancTausDiscriminationByLooseIsolation = \
         hpsPFTauDiscriminationByLooseIsolation.clone(
             PFTauProducer = cms.InputTag("hpsTancTaus"),
@@ -324,6 +330,7 @@ hpsTancTauSequence = cms.Sequence(
     + hpsTancTausDiscriminationByTancMedium
     + hpsTancTausDiscriminationByTancTight
     + hpsTancTausDiscriminationByDecayModeSelection
+    + hpsTancTausDiscriminationByVLooseIsolation
     + hpsTancTausDiscriminationByLooseIsolation
     + hpsTancTausDiscriminationByMediumIsolation
     + hpsTancTausDiscriminationByTightIsolation
