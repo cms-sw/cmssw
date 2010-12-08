@@ -74,9 +74,12 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj, bool doBackF
   TSOS startingState = measvec[actualLast].updatedState();
   startingState.rescaleError(100.);
 
-  KFTrajectoryFitter backFitter( *thePropagatorAlong,
-				 KFUpdator(),
-				 Chi2MeasurementEstimator( 100., 3),
+  // avoid cloning...
+  KFUpdator const aKFUpdator;
+  Chi2MeasurementEstimator const aChi2MeasurementEstimator( 100., 3);
+  KFTrajectoryFitter backFitter( thePropagatorAlong.product(),
+				 &aKFUpdator;
+				 &aChi2MeasurementEstimator,
 				 firstHits.size());
 
   PropagationDirection backFitDirection = traj.direction() == alongMomentum ? oppositeToMomentum: alongMomentum;
