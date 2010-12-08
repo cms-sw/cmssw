@@ -349,6 +349,13 @@ parser.add_option("--this-project-area",
                   help="instead of creating a new project area and checking out files from CVS, use the current CMSSW project area in use",
                   )
 
+parser.add_option("--follow",
+                  dest="followCmsRunoutput",
+                  default = False,
+                  action = "store_true",
+                  help="show output of cmsRun task (in addition to writing it to a log file)",
+                  )
+
 (options, ARGV) = parser.parse_args()
 
 sampleSpec = None
@@ -572,7 +579,14 @@ if os.path.exists(logfile):
 
 
 print "Starting cmsRun " + absoluteOutputConfigFile + " >& " + logfile
-execCmd("eval `scramv1 runtime -sh` && cmsRun " + absoluteOutputConfigFile + " >& " + logfile)
+
+cmd = "eval `scramv1 runtime -sh` && cmsRun " + absoluteOutputConfigFile
+
+if options.followCmsRunoutput:
+    cmd += " 2>&1 | tee " + logfile
+else:
+    cmd += " >& " + logfile
+execCmd(cmd )
 
 # check whether the expected output file was created
 # and rename it 
