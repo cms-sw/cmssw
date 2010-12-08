@@ -478,7 +478,14 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
 void TagProbeFitter::createPdf(RooWorkspace* w, vector<string>& pdfCommands){
   // create the signal and background pdfs defined by the user
   for(unsigned int i=0; i<pdfCommands.size(); i++){
-    w->factory(pdfCommands[i].c_str());
+    const std::string & command = pdfCommands[i];
+    if (command.find("#import ") == 0) {
+        TDirectory *here = gDirectory;
+        w->import(command.substr(8).c_str());
+        here->cd();
+    } else {
+        w->factory(command.c_str());
+    }
   }
   // setup the simultaneous extended pdf
   w->factory("expr::numSignalPass('efficiency*numSignalAll', efficiency, numSignalAll[0.,1e10])");
