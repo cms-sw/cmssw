@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-# adapted to python and extended based on a shell script by Michael Anderson
+# adapted to python and extended (by Andre Holzner) based on a
+# shell script by Michael Anderson
 #
 # To use, type for example:
 #  hltValidate 3_5_5
@@ -243,17 +244,54 @@ def ensureProjectAreaNotExisting(version):
         sys.exit(1)
 
 #----------------------------------------------------------------------
+
+def cleanVersion(version):
+    """ removes CMSSW_ from the version string if it starts with it """
+
+    prefix = "CMSSW_"
+
+    if version.startswith(prefix):
+        return version[len(prefix):]
+    else:
+        return version
+
+#----------------------------------------------------------------------
+
+def getCMSSWVersionFromEnvironment():
+    """ determines the CMSSW version from environment variables """
+
+    varname = "CMSSW_VERSION"
+
+    if not os.environ.has_key(varname):
+        print >> sys.stderr,"The environment variable " + varname + " is not set."
+        print >> sys.stderr,"It looks like you have not initialized a runtime"
+        print >> sys.stderr,"environment for CMSSW but want to use the 'current one'."
+        print >> sys.stderr
+        print >> sys.stderr,"Try running cmsenv and then run this script again."
+        sys.exit(1)
+
+    return cleanVersion(os.environ[varname])
+
+#----------------------------------------------------------------------
 # main
 #----------------------------------------------------------------------
 from optparse import OptionParser
 
 parser = OptionParser("""
 
-  usage: %prog [options] sample cmssw-version
+  usage: %prog [options] [sample] [cmssw-version]
 
     e.g. %prog photonJet 3_5_6
-
+         %prog --this-project-area photonJet
+         %prog --file=rfio://castor/cern.ch/cms/store/... 3_5_6
+         %prog --file=rfio://castor/cern.ch/cms/store/... --this-project-area
+         
   Produces the histogram files for E/gamma path validation.
+
+  sample is required unless input files are specified directly using the --file=... option.
+
+  cmssw-version is required unless the option --this-project-area is given
+
 """
 )
 
@@ -321,15 +359,7 @@ sampleSpec = None
 
 
 if options.useThisProjectArea:
-
-    if not os.environ.has_key("CMSSW_BASE"):
-        print >> sys.stderr,"The environment variable CMSSW_BASE is not set."
-        print >> sys.stderr,"It looks like you have not initialized a runtime"
-        print >> sys.stderr,"environment for CMSSW but want to use the 'current one'."
-        print >> sys.stderr
-        print >> sys.stderr,"Try running cmsenv and then run this script again."
-        sys.exit(1)
-
+    version = getCMSSWVersionFromEnvironment()
 
 # default (input) config file
 
@@ -341,25 +371,19 @@ if options.configFile == None:
         options.configFile = "test/test_cfg.py"
 
 #----------------------------------------
-
+# TODO: we should do things which take more than
+#       a second only AFTER checking the consistency
+#       of the command line arguments...
 
 if len(options.direct_input_files) == 0:
-    if len(ARGV) != 2:
-        print >> sys.stderr, \
-            "Provide sample and CMSSW version!" +\
-            "  example: " +\
-            os.path.basename(sys.argv[0]) + " photonJet 3_5_6"
-
+    if len(ARGV) < 1:
+        print >> sys.stderr, "No data sample specified. Try the -h option to get more detailed usage help."
         print >> sys.stderr
         print >> sys.stderr,"known samples are: " + " ".join(knownDatasets.keys())
         print >> sys.stderr
         sys.exit(1)
 
-    sampleSpec = ARGV[0]
-    version=ARGV[1]
-
-    if not options.useThisProjectArea:
-        ensureProjectAreaNotExisting(version)
+    sampleSpec = ARGV.pop(0)
 
     # check whether we know the specified sample
     if not knownDatasets.has_key(sampleSpec):
@@ -367,7 +391,21 @@ if len(options.direct_input_files) == 0:
         sys.exit(1)
 
     if not options.useThisProjectArea:
+
+        if len(ARGV) < 1:
+            print >> sys.stderr, "No CMSSW version specified. Try the -h option to get more detailed usage help."
+            print >> sys.stderr
+            sys.exit(1)
+
+        version= cleanVersion(ARGV.pop())
+
+        ensureProjectAreaNotExisting(version)
         createProjectArea(version)
+    else:
+        # get cmssw version from the environment
+        # this was actually done already before
+        pass
+    
 
     datasetToCheck = findDataSetFromSampleName(sampleSpec, version, not options.useThisProjectArea)
 
@@ -393,21 +431,31 @@ if len(options.direct_input_files) == 0:
     FILES=[ x for x in FILES if x.endswith('.root') ]
 
 else:
-    # a single input file was specified
-    if len(ARGV) != 1:
-        print >> sys.stderr,"if a input files were specified directly, you must provide exactly one non-option argument (the CMSSW version)"
-        sys.exit(1)
-
-    version=ARGV[0]
-
+    # input files were specified explicitly (instead of a dataset)
     FILES = options.direct_input_files[:]
 
     datasetToCheck = "(undefined dataset)"
 
     if not options.useThisProjectArea:
+        if len(ARGV) < 1:
+            print >> sys.stderr, "No CMSSW version specified. Try the -h option to get more detailed usage help."
+            print >> sys.stderr
+            sys.exit(1)
+
+        version=cleanVersion(ARGV.pop(0))
         ensureProjectAreaNotExisting(version)
         createProjectArea(version)
+    else:
+        # get cmssw version from the environment
+        # this was actually done already before
+        pass
 
+#----------------------------------------
+
+if len(ARGV) != 0:
+    print >> sys.stderr,"too many positional (non-option) arguments specified. Try the -h option to get more detailed usage help."
+    print >> sys.stderr
+    sys.exit(1)
 
 #----------------------------------------
 # determine the absolute path of the input configuration
