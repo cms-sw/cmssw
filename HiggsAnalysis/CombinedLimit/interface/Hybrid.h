@@ -31,7 +31,7 @@ private:
   double clsAccuracy_, rAbsAccuracy_, rRelAccuracy_;
   bool   rInterval_;
   bool CLs_;
-  std::string testStat_;
+  std::string rule_, testStat_;
   std::pair<double,double> eval(RooRealVar *r, double rVal, RooStats::HybridCalculatorOriginal *hc, bool adaptive=false, double clsTarget=-1) ;
 };
 

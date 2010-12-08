@@ -14,16 +14,24 @@ LimitAlgo("Hybrid specific options") {
         ("clsAcc",  boost::program_options::value<double>(&clsAccuracy_ )->default_value(0.005), "Absolute accuracy on CLs to reach to terminate the scan")
         ("rAbsAcc", boost::program_options::value<double>(&rAbsAccuracy_)->default_value(0.1),   "Absolute accuracy on r to reach to terminate the scan")
         ("rRelAcc", boost::program_options::value<double>(&rRelAccuracy_)->default_value(0.05),  "Relative accuracy on r to reach to terminate the scan")
-        ("cls",     boost::program_options::value<bool>(&CLs_)->default_value(true),  "Use CLs if true (default), CLsplusb if false")
-        ("testStat",boost::program_options::value<std::string>(&testStat_)->default_value("LEP"),  "Test statistics: LEP, TEV.")
+        ("rule",    boost::program_options::value<std::string>(&rule_)->default_value("CLs"),    "Rule to use: CLs, CLsplusb")
+        ("testStat",boost::program_options::value<std::string>(&testStat_)->default_value("LEP"),"Test statistics: LEP, TEV, Atlas.")
         ("rInterval", "Always try to compute an interval on r even after having found a point satisfiying the CL")
     ;
 }
 
 void Hybrid::applyOptions(const boost::program_options::variables_map &vm) {
+    if (rule_ == "CLs") {
+        CLs_ = true;
+    } else if (rule_ == "CLsplusb") {
+        CLs_ = false;
+    } else {
+        std::cerr << "ERROR: rule must be either 'CLs' or 'CLsplusb'" << std::endl;
+        abort();
+    }
     rInterval_ = vm.count("rInterval");
-    if (testStat_ != "LEP" && testStat_ != "TEV") {
-        std::cerr << "Error: test statistics should be one of 'LEP' or 'TEV', and not '" << testStat_ << "'" << std::endl;
+    if (testStat_ != "LEP" && testStat_ != "TEV" && testStat_ != "Atlas") {
+        std::cerr << "Error: test statistics should be one of 'LEP' or 'TEV' or 'Atlas', and not '" << testStat_ << "'" << std::endl;
         abort();
     }
 }
@@ -46,7 +54,16 @@ bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit, const double 
   } else {
     hc->UseNuisance(false);
   }
-  hc->SetTestStatistic(testStat_ == "LEP" ? 1 : 3); // 3 = TeV
+  if (testStat_ == "LEP") {
+    hc->SetTestStatistic(1);
+    r->setConstant(true);
+  } else if (testStat_ == "TEV") {
+    hc->SetTestStatistic(3);
+    r->setConstant(true);
+  } else if (testStat_ == "Atlas") {
+    hc->SetTestStatistic(3);
+    r->setConstant(false);
+  }
   hc->PatchSetExtended(w->pdf("model_b")->canBeExtended()); // Number counting, each dataset has 1 entry 
   hc->SetNumberOfToys(nToys_);
   

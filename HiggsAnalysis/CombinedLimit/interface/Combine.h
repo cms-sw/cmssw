@@ -34,6 +34,7 @@ class Combine {
 
         float rMin_, rMax_;
         bool compiledExpr_;
+        std::string prior_;
 };
 
 

@@ -11,13 +11,15 @@
 
 using namespace RooStats;
 
+
+
 bool BayesianFlatPrior::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
   RooRealVar *r = w->var("r");
-  RooUniform  flatPrior("flatPrior","flatPrior",*r);
+  RooAbsPdf *prior = w->pdf("prior"); if (prior == 0) { std::cerr << "ERROR: missing prior" << std::endl; abort(); }
   RooArgSet  poi(*r);
   double rMax = r->getMax();
   for (;;) {
-    BayesianCalculator bcalc(data, *w->pdf("model_s"), poi, flatPrior, (withSystematics ? w->set("nuisances") : 0));
+    BayesianCalculator bcalc(data, *w->pdf("model_s"), poi, *prior, (withSystematics ? w->set("nuisances") : 0));
     bcalc.SetLeftSideTailFraction(0);
     bcalc.SetConfidenceLevel(cl); 
     std::auto_ptr<SimpleInterval> bcInterval(bcalc.GetInterval());

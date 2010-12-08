@@ -21,20 +21,20 @@ MarkovChainMC::MarkovChainMC() :
         ("iteration,i", boost::program_options::value<unsigned int>(&iterations_)->default_value(20000), "Number of iterations")
         ("burnInSteps,b", boost::program_options::value<unsigned int>(&burnInSteps_)->default_value(50), "Burn in steps")
         ("nBins,B", boost::program_options::value<unsigned int>(&numberOfBins_)->default_value(1000), "Number of bins")
-        ("proposal,p", boost::program_options::value<std::string>(&proposalTypeName_)->default_value("gaus"), 
+        ("proposal", boost::program_options::value<std::string>(&proposalTypeName_)->default_value("gaus"), 
                               "Proposal function to use: 'fit', 'uniform', 'gaus'")
         ("runMinos",          "Run MINOS when fitting the data")
         ("noReset",           "Don't reset variable state after fit")
         ("updateProposalParams", 
                 boost::program_options::value<bool>(&updateProposalParams_)->default_value(false), 
                 "Control ProposalHelper::SetUpdateProposalParameters")
-        ("proposalHelperCacheSize", 
+        ("propHelperCacheSize", 
                 boost::program_options::value<unsigned int>(&proposalHelperCacheSize_)->default_value(100), 
                 "Cache Size for ProposalHelper")
-        ("proposalHelperWidthRangeDivisor", 
+        ("propHelperWidthRangeDivisor", 
                 boost::program_options::value<float>(&proposalHelperWidthRangeDivisor_)->default_value(5.), 
                 "Sets the fractional size of the gaussians in the proposal")
-        ("proposalHelperUniformFraction", 
+        ("propHelperUniformFraction", 
                 boost::program_options::value<float>(&proposalHelperUniformFraction_)->default_value(0), 
                 "Add a fraction of uniform proposals to the algorithm")
     ;
@@ -68,7 +68,7 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, const 
   }
   
   w->loadSnapshot("clean");
-  RooUniform  flatPrior("flatPrior","flatPrior",*r);
+  RooAbsPdf *prior = w->pdf("prior"); if (prior == 0) { std::cerr << "ERROR: missing prior" << std::endl; abort(); }
   std::auto_ptr<RooFitResult> fit(0);
   if (proposalType_ == FitP) {
       fit.reset(w->pdf("model_s")->fitTo(data, RooFit::Save(), RooFit::Minos(runMinos_)));
@@ -120,7 +120,7 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, const 
   mc.SetProposalFunction(*pdfProp);
   mc.SetNumBins (numberOfBins_) ; // bins to use for RooRealVars in histograms
   mc.SetLeftSideTailFraction(0);
-  mc.SetPriorPdf(flatPrior);
+  mc.SetPriorPdf(*prior);
   
   std::auto_ptr<MCMCInterval> mcInt((MCMCInterval*)mc.GetInterval()); 
   if (proposalType_ == UniformP) delete pdfProp; // unfortunately, it looks like the ProposalHelper owns its proposal

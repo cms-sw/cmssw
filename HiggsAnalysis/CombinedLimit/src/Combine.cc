@@ -69,6 +69,7 @@ Combine::Combine() :
         ("cl,C",   po::value<float>(&cl)->default_value(0.95), "Confidence Level")
         ("rMin",   po::value<float>(&rMin_), "Override minimum value for signal strength")
         ("rMax",   po::value<float>(&rMax_), "Override maximum value for signal strength")
+        ("prior",  po::value<std::string>(&prior_)->default_value("flat"), "Prior to use, for methods that require it and if it's not already in the input file: 'flat' (default), '1/sqrt(r)'")
         ("compile", "Compile expressions instead of interpreting them")
     ;
 }
@@ -177,6 +178,14 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
   if (!isnan(rMin_)) w->var("r")->setMin(rMin_);
   if (!isnan(rMax_)) w->var("r")->setMax(rMax_);
 
+  if (w->pdf("prior") != 0) {
+    std::cout << "Will use prior in from the input workspace" << std::endl;
+  } else if (prior_ == "flat") {
+    w->factory("Uniform::prior(r)");
+  } else if (prior_ == "1/sqrt(r)") {
+    w->factory("EXPR::prior(\"1/sqrt(r)\",r)");
+  } 
+  
   w->saveSnapshot("clean", w->allVars());
 
   if (nToys == 0) { // observed (usually it's the Asimov data set)
