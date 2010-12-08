@@ -125,7 +125,6 @@ string TagProbeFitter::calculateEfficiency(string dirName, vector<string> effCat
   //make a directory corresponding to this efficiency binning
   gDirectory->mkdir(dirName.c_str())->cd();
 
-
   RooArgSet dataVars;
 
   //collect unbinned variables
@@ -281,10 +280,7 @@ string TagProbeFitter::calculateEfficiency(string dirName, vector<string> effCat
     
     cout<<"Fitting bin:  "<<dirName<<endl;
     //make a directory for each bin
-    // gDirectory->mkdir(dirName)->cd();
-    TDirectory *dir = (TDirectory *) gDirectory->Get(dirName);
-    if (!dir) dir = gDirectory->mkdir(dirName,dirName);
-    dir->cd();
+    gDirectory->mkdir(dirName)->cd();
 
 
     //create a workspace
@@ -335,10 +331,7 @@ string TagProbeFitter::calculateEfficiency(string dirName, vector<string> effCat
   
   //save the efficiency data
   fitEfficiency.Write();
-  //gDirectory->mkdir("fit_eff_plots")->cd();
-  TDirectory *dir = (TDirectory *) gDirectory->Get("fit_eff_plots");
-  if (!dir) dir = gDirectory->mkdir("fit_eff_plots","fit_eff_plots");
-  dir->cd();
+  gDirectory->mkdir("fit_eff_plots")->cd();
   saveEfficiencyPlots(fitEfficiency, effName, binnedVariables, mappedCategories);
   gDirectory->cd("..");
 
@@ -348,10 +341,7 @@ string TagProbeFitter::calculateEfficiency(string dirName, vector<string> effCat
   gDirectory->cd("..");*/
 
   cntEfficiency.Write();
-  //gDirectory->mkdir("cnt_eff_plots")->cd();
-  dir = (TDirectory *) gDirectory->Get("cnt_eff_plots");
-  if (!dir) dir = gDirectory->mkdir("cnt_eff_plots","cnt_eff_plots");
-  dir->cd();
+  gDirectory->mkdir("cnt_eff_plots")->cd();
   saveEfficiencyPlots(cntEfficiency, effName, binnedVariables, mappedCategories);
   gDirectory->cd("..");
   //empty string means no error
@@ -435,7 +425,6 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
 
 
   // save everything
-  outputFile->cd();
   res->Write("fitresults");
   w->saveSnapshot("finalState",w->components());
   saveFitPlot(w);
@@ -478,10 +467,10 @@ void TagProbeFitter::createPdf(RooWorkspace* w, vector<string>& pdfCommands){
     w->factory(pdfCommands[i].c_str());
   }
   // setup the simultaneous extended pdf
-  w->factory("expr::numSignalPass('efficiency*numSignalAll', efficiency, numSignalAll[0,1e10])");
+  w->factory("expr::numSignalPass('efficiency*numSignalAll', efficiency, numSignalAll[0.,1e10])");
   w->factory("expr::numSignalFail('(1-efficiency)*numSignalAll', efficiency, numSignalAll)");
-  w->factory("SUM::pdfPass(numSignalPass*signal, numBackgroundPass[0,1e10]*backgroundPass)");
-  w->factory("SUM::pdfFail(numSignalFail*signal, numBackgroundFail[0,1e10]*backgroundFail)");
+  w->factory("SUM::pdfPass(numSignalPass*signal, numBackgroundPass[0.,1e10]*backgroundPass)");
+  w->factory("SUM::pdfFail(numSignalFail*signal, numBackgroundFail[0.,1e10]*backgroundFail)");
   w->factory("SIMUL::simPdf(_efficiencyCategory_, Passed=pdfPass, Failed=pdfFail)");
   // signalFractionInPassing is not used in the fit just to set the initial values
   if(w->var("signalFractionInPassing") == 0)
