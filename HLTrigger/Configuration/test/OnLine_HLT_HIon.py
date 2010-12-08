@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_10_0/pre6/HIon/V14 (CMSSW_3_10_0_pre6_HLT2)
+# /dev/CMSSW_3_10_0/pre6/HIon/V15 (CMSSW_3_10_0_pre6_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_10_0/pre6/HIon/V14')
+  tableName = cms.string('/dev/CMSSW_3_10_0/pre6/HIon/V15')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -808,10 +808,6 @@ process.hltESPESUnpackerWorker = cms.ESProducer( "ESUnpackerWorkerESProducer",
   DCCDataUnpacker = cms.PSet(  LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ) ),
   RHAlgo = cms.PSet( 
     Type = cms.string( "ESRecHitWorker" ),
-    ESGain = cms.int32( 2 ),
-    ESMIPkeV = cms.double( 81.08 ),
-    ESMIPADC = cms.double( 55.0 ),
-    ESBaseline = cms.int32( 0 ),
     ESRecoAlgo = cms.int32( 0 )
   )
 )
@@ -4976,10 +4972,6 @@ process.HLTDQMOutput = cms.EndPath( process.hltPreHLTDQM + process.hltPreHLTDQMS
 process.HLTDQMResultsOutput = cms.EndPath( process.hltPreHLTDQMResults + process.hltPreHLTDQMResultsSmart + process.hltOutputHLTDQMResults )
 process.NanoDSTOutput = cms.EndPath( process.hltPreNanoDST + process.hltOutputNanoDST )
 
-
-# override the preshower baseline setting for MC
-if 'ESUnpackerWorkerESProducer' in process.__dict__:
-    process.ESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
 
 # override the process name
 process.setName_('HLTHIon')
