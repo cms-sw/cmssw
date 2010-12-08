@@ -241,21 +241,6 @@ def ensureProjectAreaNotExisting(version):
         sys.exit(1)
 
 #----------------------------------------------------------------------
-def usage():
-
-    print >> sys.stderr,"""
-
-    usage: """ + os.path.basename(sys.argv[0]) + """ [ options ]  sample cmssw-version
-
-         e.g. """ + os.path.basename(sys.argv[0]) + """ photonJet 3_5_6
-
-
-
-    """
-
-    sys.exit(1)
-
-#----------------------------------------------------------------------
 # main
 #----------------------------------------------------------------------
 from optparse import OptionParser
