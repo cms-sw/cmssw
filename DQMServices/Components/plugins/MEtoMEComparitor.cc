@@ -13,11 +13,15 @@
 //
 // Original Author:  jean-roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Tue Nov 30 18:55:50 CET 2010
-// $Id: MEtoMEComparitor.cc,v 1.2 2010/12/03 18:30:03 vlimant Exp $
+// $Id: MEtoMEComparitor.cc,v 1.3 2010/12/03 18:34:00 vlimant Exp $
 //
 //
 
 #include "MEtoMEComparitor.h"
+
+#include "classlib/utils/StringList.h"
+#include "classlib/utils/StringOps.h"
+
 
 MEtoMEComparitor::MEtoMEComparitor(const edm::ParameterSet& iConfig)
 
@@ -35,7 +39,10 @@ MEtoMEComparitor::MEtoMEComparitor(const edm::ParameterSet& iConfig)
 
   }
   _KSgoodness = iConfig.getParameter<double>("KSgoodness");
-
+  _diffgoodness = iConfig.getParameter<double>("Diffgoodness");
+  _dirDepth = iConfig.getParameter<unsigned int>("dirDepth");
+  _overallgoodness = iConfig.getParameter<double>("OverAllgoodness");
+  
   _dbe = edm::Service<DQMStore>().operator->();
 
 
@@ -159,32 +166,6 @@ void MEtoMEComparitor::compare(const W& where,const std::string & instance){
     }
   }
 
-
-  /*
-  for (unsigned int i_new=0; i_new!= metoedmobject_new.size() &&  countMe++<= 200; ++i_new){
-    const std::string & pathname = metoedmobject_new[i_new].name;
-    //const std::string name(metoedmobject_new[i_new].object.GetName());
-    
-    if (metoedmobject_new[i_new].object.GetEntries()==0 ||
-	metoedmobject_new[i_new].object.Integral()==0){
-      countMe--;
-      continue;
-    }
-
-    bool there=false;
-    for (unsigned int i_ref=0; i_ref!= metoedmobject_ref.size() ; ++i_ref){
-      if (metoedmobject_ref[i_ref].name == pathname){
-	mapping[pathname]=std::make_pair(&metoedmobject_new[i_new], &metoedmobject_ref[i_ref]);
-	there=true;
-	break;
-      }
-    }
-    if (!there)
-    LogDebug("MEtoMEComparitor")<<metoedmobject_new[i_new].object.GetName()<<"is unmatched in "<<pathname;
-  }
-  */
-
-
   LogDebug("MEtoMEComparitor")<<"found "<<mapping.size()<<" pairs of plots";
   countMe=0;
 
@@ -193,6 +174,11 @@ void MEtoMEComparitor::compare(const W& where,const std::string & instance){
   unsigned int nHollow=0;
   unsigned int nGoodKS=0;
   unsigned int nBadKS=0;
+  unsigned int nBadDiff=0;
+  unsigned int nGoodDiff=0;
+
+  typedef std::map<std::string, std::pair<unsigned int,unsigned int> > Subs;
+  Subs subSystems;
 
   for (Mapping_iterator it = mapping.begin();
        it!=mapping.end(); 
@@ -205,23 +191,50 @@ void MEtoMEComparitor::compare(const W& where,const std::string & instance){
     const T * h_ref = &it->second.second->object;
     const T * h_new = &it->second.first->object;
 
+    lat::StringList dir = lat::StringOps::split(it->second.second->name,"/");
+    std::string subsystem = dir[0];
+    if (dir.size()>=_dirDepth)
+      for (unsigned int iD=1;iD!=_dirDepth;++iD) subsystem+="/"+dir[iD];
+    subSystems[subsystem].first++;
 
     if (h_ref->GetEntries()!=0 && h_ref->Integral()!=0){
       double KS=0;
+      bool cannotComputeKS=false;
       try {
 	KS = h_new->KolmogorovTest(h_ref);
       }
       catch( cms::Exception& exception ){
-	edm::LogInfo("MEtoMEComparitor")<<" KolmogorovTest is not happy on : "<<h_new->GetName()<<std::endl;
+	cannotComputeKS=true;
       }
       if (KS<_KSgoodness){
-	edm::LogInfo("MEtoMEComparitor")<<"for "<<h_new->GetName()
-					<<" in "<<it->first    
-					<<" the KS is "<<KS;
-	
+
+	unsigned int total_ref=0;
+	unsigned int absdiff=0;
+	for (unsigned int iBin=0;
+	     iBin!=(unsigned int)h_new->GetNbinsX()+1 ;
+	     ++iBin){
+	  total_ref+=h_ref->GetBinContent(iBin);
+	  absdiff=std::abs(h_new->GetBinContent(iBin) - h_ref->GetBinContent(iBin));
+	}
+	double relativediff=1;
+	if (total_ref!=0){
+	  relativediff=absdiff / (double) total_ref;
+	}
+	if (relativediff > _diffgoodness ){
+	  edm::LogWarning("MEtoMEComparitor")<<"for "<<h_new->GetName()
+					     <<" in "<<it->first    
+					     <<" the KS is "<<KS*100.<<" %"
+					     <<" and the relative diff is: "<<relativediff*100.<<" %"
+					     <<((cannotComputeKS)?"bad":"good");
+	    //std::string(" KolmogorovTest is not happy on : ")+h_new->GetName() : "";
 	//there you want to output the plots somewhere
 	keepBadHistograms(h_new,h_ref);
 
+	nBadDiff++;
+	subSystems[subsystem].second++;
+	}else{
+	  nGoodDiff++;
+	}
 	nBadKS++;
       }
       else
@@ -237,14 +250,29 @@ void MEtoMEComparitor::compare(const W& where,const std::string & instance){
     }
     
   }
-
+  
   if (mapping.size()!=0){
-    edm::LogInfo("MEtoMEComparitor")<<" Summary :"
-	     <<"\n not matched : "<<nNoMatch
-	     <<"\n empty : "<<nEmpty
-	     <<"\n integral zero : "<<nHollow
-	     <<"\n good KS : "<<nGoodKS
-	     <<"\n bad KS : "<<nBadKS;
+    std::stringstream summary;
+    summary<<" Summary :"
+	   <<"\n not matched : "<<nNoMatch
+	   <<"\n empty : "<<nEmpty
+	   <<"\n integral zero : "<<nHollow
+	   <<"\n good KS : "<<nGoodKS
+	   <<"\n bad KS : "<<nBadKS
+	   <<"\n bad diff : "<<nBadDiff
+	   <<"\n godd diff : "<<nGoodDiff;
+    bool tell=false;
+    for (Subs::iterator iSub=subSystems.begin();
+	 iSub!=subSystems.end();++iSub){
+      double fraction = 1-(iSub->second.second / (double)iSub->second.first);
+      summary<<std::endl<<"Subsytem: "<<iSub->first<<" has "<< fraction*100<<" % goodness";
+      if (fraction < _overallgoodness)
+	tell=true;
+    }
+    if (tell)
+      edm::LogWarning("MEtoMEComparitor")<<summary.str();
+    else
+      edm::LogInfo("MEtoMEComparitor")<<summary.str();
   }
   
 }
