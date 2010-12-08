@@ -41,8 +41,8 @@ setTauSource(hpsPFTauDiscriminationByLooseIsolation, 'hpsPFTauProducer')
 hpsPFTauDiscriminationByLooseIsolation.Prediscriminants = requireDecayMode
 
 hpsPFTauDiscriminationByVLooseIsolation = hpsPFTauDiscriminationByLooseIsolation.clone()
-hpsPFTauDiscriminationByVLooseIsolation.isolationQualityCuts.minTrackPt = 1.3
-hpsPFTauDiscriminationByVLooseIsolation.isolationQualityCuts.minGammaEt = 1.8
+hpsPFTauDiscriminationByVLooseIsolation.qualityCuts.isolationQualityCuts.minTrackPt = 1.3
+hpsPFTauDiscriminationByVLooseIsolation.qualityCuts.isolationQualityCuts.minGammaEt = 1.8
 
 #Define a discriminator By Medium Isolation!
 #You need to loosen qualityCuts for this
