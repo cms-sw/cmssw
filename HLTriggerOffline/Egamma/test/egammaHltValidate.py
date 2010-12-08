@@ -150,7 +150,7 @@ def findCMSSWreleaseDir(version):
             return directory
 
 #----------------------------------------------------------------------
-def findDataSetFromSampleName(sampleSpec, version):
+def findDataSetFromSampleName(sampleSpec, version, cdToReleaseDir):
     """ from the given sample specification (e.g. photonJet), tries to get
     the relval dataset from DBS for the given CMSSW version.
 
@@ -167,12 +167,16 @@ def findDataSetFromSampleName(sampleSpec, version):
 
     cmssw_release_dir = findCMSSWreleaseDir(version)
 
-    cmd_parts = [
-        'cd ' + cmssw_release_dir,
-        "eval `scramv1 runtime -sh`",
-        "cd - > /dev/null",   # this seems to print a line in some cases
-        dbs_cmd,
-        ]
+    cmd_parts = []
+
+    if cdToReleaseDir:
+        cmd_parts.extend([
+            'cd ' + cmssw_release_dir,
+            "eval `scramv1 runtime -sh`",
+            "cd - > /dev/null",   # this seems to print a line in some cases
+            ])
+
+    cmd_parts.append(dbs_cmd)
 
     allDatasetsToCheck=os.popen("  && ".join(cmd_parts)).readlines()
     allDatasetsToCheck = [ x.strip() for x in allDatasetsToCheck ]
@@ -292,9 +296,9 @@ parser.add_option("--cvstag",
 
 parser.add_option("--cfg",
                   dest="configFile",
-                  default = "test/test_cfg.py",
+                  default = None,
                   type="str",
-                  help="Base config file (relative to HLTriggerOffline/Egamma) to run with cmsRun. Change this e.g. when you want to run on data instead of MC.",
+                  help="Base config file (relative to HLTriggerOffline/Egamma if using files from CVS or relative to the current path if the option --this-project-area is given) to run with cmsRun. Change this e.g. when you want to run on data instead of MC.",
                   metavar="CFG_FILE.py")
 
 parser.add_option("--cfg-add",
@@ -312,11 +316,45 @@ parser.add_option("--num-events",
                   help="set maxEvents to run over a limited number of events",
                   metavar="NUM")
 
+
+parser.add_option("--this-project-area",
+                  dest="useThisProjectArea",
+                  default = False,
+                  action = "store_true",
+                  help="instead of creating a new project area and checking out files from CVS, use the current CMSSW project area in use",
+                  )
+
 (options, ARGV) = parser.parse_args()
 
 sampleSpec = None
 
 #----------------------------------------
+# sanity checks
+#----------------------------------------
+
+
+if options.useThisProjectArea:
+
+    if not os.environ.has_key("CMSSW_BASE"):
+        print >> sys.stderr,"The environment variable CMSSW_BASE is not set."
+        print >> sys.stderr,"It looks like you have not initialized a runtime"
+        print >> sys.stderr,"environment for CMSSW but want to use the 'current one'."
+        print >> sys.stderr
+        print >> sys.stderr,"Try running cmsenv and then run this script again."
+        sys.exit(1)
+
+
+# default (input) config file
+
+if options.configFile == None:
+
+    if options.useThisProjectArea:
+        options.configFile = os.path.join(os.environ['CMSSW_BASE'],"src/HLTriggerOffline/Egamma/test/test_cfg.py")
+    else:
+        options.configFile = "test/test_cfg.py"
+
+#----------------------------------------
+
 
 if len(options.direct_input_files) == 0:
     if len(ARGV) != 2:
@@ -333,28 +371,35 @@ if len(options.direct_input_files) == 0:
     sampleSpec = ARGV[0]
     version=ARGV[1]
 
-    ensureProjectAreaNotExisting(version)
+    if not options.useThisProjectArea:
+        ensureProjectAreaNotExisting(version)
 
     # check whether we know the specified sample
     if not knownDatasets.has_key(sampleSpec):
         print >> sys.stderr,"unknown sample " + sampleSpec + ", known samples are: " + " ".join(knownDatasets.keys())
         sys.exit(1)
 
-    createProjectArea(version)
+    if not options.useThisProjectArea:
+        createProjectArea(version)
 
-    datasetToCheck = findDataSetFromSampleName(sampleSpec, version)    
+    datasetToCheck = findDataSetFromSampleName(sampleSpec, version, not options.useThisProjectArea)
 
     # Get the file names in the dataset path, and format it for python files
     print "\n\nGetting file names for"
     print "  ",datasetToCheck
 
     cmssw_release_dir = findCMSSWreleaseDir(version)
-    cmd_parts = [
+    cmd_parts = []
+
+    if not options.useThisProjectArea:
+        cmd_parts.extend([
         'cd ' + cmssw_release_dir,
         "eval `scramv1 runtime -sh`",
         "cd -",
-        "dbs lsf --path=" + datasetToCheck,
-        ]
+            ])
+
+    cmd_parts.append("dbs lsf --path=" + datasetToCheck)
+
 
     FILES=os.popen(" && ".join(cmd_parts)).readlines()
     FILES=[ x.strip() for x in FILES ]
@@ -370,42 +415,72 @@ else:
 
     FILES = options.direct_input_files[:]
 
-    ensureProjectAreaNotExisting(version)
-
     datasetToCheck = "(undefined dataset)"
 
-    createProjectArea(version)
+    if not options.useThisProjectArea:
+        ensureProjectAreaNotExisting(version)
+        createProjectArea(version)
+
+
+#----------------------------------------
+# determine the absolute path of the input configuration
+# file 
+#----------------------------------------
+
+if options.useThisProjectArea:
+    absoluteInputConfigFile = options.configFile
+
+    import tempfile
+    absoluteOutputConfigFile = tempfile.NamedTemporaryFile(suffix = ".py").name
+
+else:
+    # we have already chdird into the project area and into src/
+    
+    absoluteInputConfigFile = os.path.join(
+        os.path.join(os.getcwd(),module),
+        options.configFile)
+
+
+    absoluteOutputConfigFile = os.path.join(
+        os.path.join(os.getcwd(),module),
+        "test_cfg_new.py")
+
+#----------------------------------------
+
 
 ###################################
 # Check out module and build it
 
-print "Checking out tag '" + options.cvstag + "' of " + module
+if not options.useThisProjectArea:
+    print "Checking out tag '" + options.cvstag + "' of " + module
+    execCmd(" cvs -Q co -r " + options.cvstag + " " + module)
 
-execCmd("cvs -Q co -r " + options.cvstag + " " + module)
+    execCmd("scramv1 b")
+    os.chdir(module)
 
 #--------------------
 # check if the (possibly user specified) config file does exist
 # or not. Note that we can do this only AFTER the CVS checkout
-if not os.path.exists(os.path.join(module,options.configFile)):
-    print >> sys.stderr,"config file " + options.configFile + " does not exist"
+if not os.path.exists(absoluteInputConfigFile):
+    print >> sys.stderr,"config file " + absoluteInputConfigFile + " does not exist"
     print os.getcwd()
     sys.exit(1)
 #--------------------
 
-
-execCmd("scramv1 b")
-os.chdir(module)
-
 # Place file names in python config file
-print "Placing into " + options.configFile + " and copying to test_cfg_new.py"
+print "taking config file " + absoluteInputConfigFile + " and copying to " + absoluteOutputConfigFile 
 
 #----------------------------------------
 # append things to the config file
 #----------------------------------------
-fout = open(options.configFile,"a")
+fout = open(absoluteOutputConfigFile,"w")
+
+# first copy all the lines of the original config file
+fout.write(open(absoluteInputConfigFile).read())
+
+
 print >> fout,"process.source.fileNames = " + str(FILES)
 print >> fout,"process.post.dataSet = cms.untracked.string('" + datasetToCheck +"')"
-
 
 # replace all HLT process names by something
 # else if specified by the user
@@ -453,10 +528,16 @@ if options.num_events != None:
 fout.close()
 
 #----------------------------------------
-shutil.copy(options.configFile, "test_cfg_new.py")
 logfile = os.path.join(os.getcwd(),"log")
-print "Starting cmsRun test_cfg_new.py >& " + logfile
-execCmd("eval `scramv1 runtime -sh` && cmsRun test_cfg_new.py >& " + logfile)
+
+if os.path.exists(logfile):
+    print >> sys.stderr,"the log file (" + logfile + ") exists already, this might causing problems"
+    print >> sys.stderr,"with your shell. Stopping here."
+    sys.exit(1)
+
+
+print "Starting cmsRun " + absoluteOutputConfigFile + " >& " + logfile
+execCmd("eval `scramv1 runtime -sh` && cmsRun " + absoluteOutputConfigFile + " >& " + logfile)
 
 # check whether the expected output file was created
 # and rename it 
