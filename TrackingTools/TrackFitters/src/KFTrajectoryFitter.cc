@@ -45,10 +45,10 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 
   if (aSeed.direction() == anyDirection) 
     throw cms::Exception("KFTrajectoryFitter","TrajectorySeed::direction() requested but not set");
-  }
+  
   SetPropagationDirection setDir(*thePropagator,aSeed.direction());
 
-ifdef EDM_LM_DEBUG
+#ifdef EDM_LM_DEBUG
   LogDebug("TrackFitters")
     <<" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
     <<" KFTrajectoryFitter::fit starting with " << hits.size() <<" HITS";

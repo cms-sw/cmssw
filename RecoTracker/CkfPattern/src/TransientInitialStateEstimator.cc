@@ -78,7 +78,7 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj, bool doBackF
   KFUpdator const aKFUpdator;
   Chi2MeasurementEstimator const aChi2MeasurementEstimator( 100., 3);
   KFTrajectoryFitter backFitter( thePropagatorAlong.product(),
-				 &aKFUpdator;
+				 &aKFUpdator,
 				 &aChi2MeasurementEstimator,
 				 firstHits.size());
 

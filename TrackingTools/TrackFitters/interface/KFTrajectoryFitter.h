@@ -4,8 +4,8 @@
 /** \class KFTrajectoryFitter
  *  A Standard Kalman fit. Ported from ORCA
  *
- *  $Date: 2010/12/07 13:56:04 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/12/08 09:34:04 $
+ *  $Revision: 1.11 $
  *  \author todorov, cerati
  */
 
@@ -58,7 +58,7 @@ public:
     theEstimator(aEstimator),
     theGeometry(detLayerGeometry),
     minHits_(minHits),
-    owner(false){ {
+    owner(false){
       if(!theGeometry) theGeometry = &dummyGeometry;
     }
 
