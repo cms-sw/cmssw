@@ -40,6 +40,8 @@ namespace cond {
   template<>
   std::string PayLoadInspector<SiStripDetVOff>::summary() const {
     std::stringstream ss;
+    object().printSummary(ss);
+    ss << std::endl;
     object().printDebug(ss);
     return ss.str();
   }
