@@ -99,8 +99,9 @@ def customise(process):
   process.generator.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = options.mdtau 
   process.newSource.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = options.mdtau 
 
+  print "options.overrideBeamSpot", options.overrideBeamSpot
   if options.overrideBeamSpot != 0:
-    bs = cms.string("BeamSpotObjects_2009_LumiBased_v16_offline") # 38x data gt
+    bs = cms.string("BeamSpotObjects_2009_LumiBased_v17_offline") # 38x data gt
     #bs = cms.string("BeamSpotObjects_2009_v14_offline") # 36x data gt
     #  tag = cms.string("Early10TeVCollision_3p8cm_31X_v1_mc_START"), # 35 default
     #  tag = cms.string("Realistic900GeVCollisions_10cm_STARTUP_v1_mc"), # 36 default
@@ -122,6 +123,11 @@ def customise(process):
     process.source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
     process.source.lumisToProcess.extend(myLumis)
 
+  try:
+    process.newSource.ZTauTau.minVisibleTransverseMomentum = cms.untracked.double(__MINVISPT__)
+    process.generator.ZTauTau.minVisibleTransverseMomentum = cms.untracked.double(__MINVISPT__)
+  except:
+    pass
   try:
     process.generator.ZTauTau.TauolaOptions.InputCards.mdtau = __MDTAU__
     process.generator.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = __MDTAU__
