@@ -37,7 +37,12 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 process.p = cms.EndPath(process.post+process.dqmSaver)
 
-process.testW = cms.Path(process.egammaValidationSequence)
+process.testW = cms.Path(
+
+    # require generated particles in fiducial volume
+    process.egammaSelectors *     
+
+    process.egammaValidationSequence)
 
 process.DQMStore.verbose = 0
 process.DQM.collectorHost = ''
