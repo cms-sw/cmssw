@@ -579,7 +579,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(TempTrajectory& startingTraj,
   // Fitter (need to create it here since the propagation direction
   // might change between different starting trajectories)
   //
-  KFTrajectoryFitter fitter(*theBackwardPropagator,updator(),estimator());
+  KFTrajectoryFitter fitter(&(*theBackwardPropagator),&updator(),&estimator());
   //
   TempTrajectoryContainer reFitted;
   TrajectorySeed::range rseedHits = startingTraj.seed().recHits();
