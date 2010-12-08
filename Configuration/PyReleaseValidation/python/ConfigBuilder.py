@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.264 $"
+__version__ = "$Revision: 1.265 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -507,7 +507,7 @@ class ConfigBuilder(object):
         self.DIGIDefaultSeq='pdigi'
         self.DATAMIXDefaultSeq=None
         self.DIGI2RAWDefaultSeq='DigiToRaw'
-        self.HLTDefaultSeq=None
+        self.HLTDefaultSeq='GRun'
         self.L1DefaultSeq=None
         self.HARVESTINGDefaultSeq=None
         self.ALCAHARVESTDefaultSeq=None
@@ -565,6 +565,7 @@ class ConfigBuilder(object):
             self.eventcontent='FEVT'
 
         if self._options.scenario=='HeavyIons':
+	    self.HLTDefaultSeq = 'HIon'
 	    if not self._options.himix:
 		    self.GENDefaultSeq='pgen_hi'
 	    else:
@@ -878,13 +879,6 @@ class ConfigBuilder(object):
         self.process.L1simulation_step = cms.Path(self.process.SimL1Emulator)
         self.schedule.append(self.process.L1simulation_step)
 
-    def hardCodedTriggerMenuFromConditions(self):
-            #horible hack!!! hardwire based on global tag to sync with l1
-            if 'MC' in self._options.conditions or 'DESIGN' in self._options.conditions or 'IDEAL' in self._options.conditions:
-                    return '1E31'
-            else:
-                    return '8E29'
-
     def prepare_HLT(self, sequence = None):
         """ Enrich the schedule with the HLT simulation step"""
         loadDir='HLTrigger'
@@ -893,17 +887,20 @@ class ConfigBuilder(object):
                 fastSim=True
                 loadDir='FastSimulation'
         if not sequence:
-            menu=self.hardCodedTriggerMenuFromConditions()
-            print 'loading %s menu'%(menu,)
-            self.loadAndRemember("%s/Configuration/HLT_%s_cff"%(loadDir,menu))
+		print "no specification of the hlt menu has been given, should never happen"
+		raise  Exception('no HLT sequence provided')
         else:
-            # let the HLT package decide for the scenarios available
-            listOfImports=[]
-            t=__import__('%s.Configuration.ConfigBuilder'%(loadDir,),globals(),locals(),['getConfigsForScenario'])
-            listOfImports = t.getConfigsForScenario(sequence)
-            for file in listOfImports:
-                self.loadAndRemember(file)
-
+		if ',' in sequence:
+			#case where HLT:something:something was provided
+			self.executeAndRemember('import HLTrigger.Configuration.Utilities')
+			optionsForHLTConfig=''
+			self.executeAndRemember('process.loadConfiguration("%s"%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
+		else:
+			dataSpec=''
+			if self._options.isData:
+				dataSpec='_data'
+			self.loadAndRemember('%s/Configuration/HLT_%s%s_cff'%(loadDir,sequence,dataSpec))
+			
         self.schedule.append(self.process.HLTSchedule)
         [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
 	if (fastSim and 'HLT' in self.stepMap.keys()):
@@ -1249,7 +1246,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.264 $"),
+					    (version=cms.untracked.string("$Revision: 1.265 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
