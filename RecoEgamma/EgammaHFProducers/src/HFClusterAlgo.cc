@@ -104,8 +104,9 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
       if (j2!=hf.end())
          eshort*=m_correctionByEta[indexByEta(j2->id())];
       if (((elong-eshort)/(elong+eshort))>m_maximumSL) continue;
-      if ((m_usePMTFlag)&&(j->flagField(4,1))) continue;
-      if ((m_usePulseFlag)&&(j->flagField(1,1))) continue;
+      //if ((m_usePMTFlag)&&(j->flagField(4,1))) continue;
+      //if ((m_usePulseFlag)&&(j->flagField(1,1))) continue;
+      if((isPMTHit(*j))&&(m_usePMTFlag)) continue;
 
       HFCompleteHit ahit;
       double eta=geom.getPosition(j->id()).eta();
@@ -246,19 +247,32 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 	  if (dp==0 && de==0) clusterOk=false; // somehow, the seed is hosed
 	  continue;
 	}
+	 
+	if((il!=hf.end())&&(isPMTHit(*il))){
+	  if (dp==0 && de==0) clusterOk=false; // somehow, the seed is hosed
+	  continue;//continue to next hit, do not include this one in cluster
+	}
 	
-	// cut on "PMT HIT" flag
-	if ((il!=hf.end())&&(il->flagField(4,1))&&(m_usePMTFlag)) {//HFPET flag for lone/short doil->flagField(0,1)
-	  if (dp==0 && de==0) clusterOk=false; // somehow, the seed is hosed
-	  continue;//continue to next hit, do not include this one in cluster
-	}
 
-	// cut on "Pulse shape HIT" flag
-	if ((il!=hf.end())&&(il->flagField(1,1))&&(m_usePulseFlag)) {//HF DIGI TIME flag
-	  if (dp==0 && de==0) clusterOk=false; // somehow, the seed is hosed
-	  continue;//continue to next hit, do not include this one in cluster
-	}
-       
+	 /*
+
+	 old pmt code
+	 // cut on "PMT HIT" flag
+	 if ((il!=hf.end())&&(il->flagField(4,1))&&(m_usePMTFlag)) {//HFPET flag for lone/short doil->flagField(0,1)
+	 if (dp==0 && de==0) clusterOk=false; // somehow, the seed is hosed
+	 continue;//continue to next hit, do not include this one in cluster
+	 }
+	 
+	 // cut on "Pulse shape HIT" flag
+	 if ((il!=hf.end())&&(il->flagField(1,1))&&(m_usePulseFlag)) {//HF DIGI TIME flag
+	 if (dp==0 && de==0) clusterOk=false; // somehow, the seed is hosed
+	 continue;//continue to next hit, do not include this one in cluster
+	 }
+	 */
+ 
+
+
+
 	if (e_long > m_minTowerEnergy && il!=hf.end()) {
 
 	  // record usage
@@ -376,4 +390,19 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 
   return clusterOk;
   
+}
+bool HFClusterAlgo::isPMTHit(const HFRecHit& hfr){
+  bool pmthit=false;
+  int depth=hfr.id().depth();
+  if(depth==1)
+    if((hfr.flagField(0,1))&&(m_usePMTFlag)) pmthit=true;//shortlong=e9e1?
+  if(depth==2)
+    if((hfr.flagField(4,1))&&(m_usePMTFlag)) pmthit=true;//PET for short
+
+  if((hfr.flagField(1,1))&&(m_usePulseFlag)) pmthit=true;
+  
+
+  return pmthit;
+
+
 }

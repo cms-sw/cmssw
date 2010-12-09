@@ -35,6 +35,7 @@ public:
 private:
   friend class CompareHFCompleteHitET;
   friend class CompareHFCore;
+ 
   double m_minTowerEnergy, m_seedThreshold,m_maximumSL,m_maximumRenergy;
   bool m_usePMTFlag;
   bool m_usePulseFlag;
@@ -46,7 +47,7 @@ private:
     HcalDetId id;
     double energy, et;
   };
-
+ bool isPMTHit(const HFRecHit& hfr);
   bool makeCluster(const HcalDetId& seedid,
 		   const HFRecHitCollection& hf, 
 		   const CaloGeometry& geom,
