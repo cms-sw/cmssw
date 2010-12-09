@@ -12,6 +12,8 @@
 #include "CommonTools/RecoAlgos/interface/TrackingParticleSelector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
+#include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
+
 class DQMStore;
 class MonitorElement;
 class MuonServiceProxy;
@@ -33,14 +35,11 @@ class RecoMuonValidator : public edm::EDAnalyzer
   unsigned int verbose_;
 
   edm::InputTag simLabel_;
-  edm::InputTag trkMuLabel_;
-  edm::InputTag staMuLabel_;
-  edm::InputTag glbMuLabel_;
   edm::InputTag muonLabel_;
+  std::string muonSelection_;
 
-  edm::InputTag trkMuAssocLabel_;
-  edm::InputTag staMuAssocLabel_;
-  edm::InputTag glbMuAssocLabel_;
+  edm::InputTag muAssocLabel_;
+  const MuonAssociatorByHits * assoByHits;
   
   std::string outputFileName_;
   std::string subDir_;
@@ -52,10 +51,12 @@ class RecoMuonValidator : public edm::EDAnalyzer
   bool doAssoc_;
 
   TrackingParticleSelector tpSelector_;
-  TrackAssociatorBase* trkMuAssociator_, * staMuAssociator_, * glbMuAssociator_;
+
+  // Track to use
+  MuonAssociatorByHits::MuonTrackType trackType_;
 
   struct MuonME;
-  MuonME * trkMuME_, * staMuME_, * glbMuME_;
+  MuonME * muonME_;
 
   struct CommonME;
   CommonME * commonME_;
