@@ -11,8 +11,8 @@
      <Notes on implementation>
 */
 //
-// Jason Slaunwhite, based on code from Jeff Klukas
-// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.15 2010/03/16 14:35:40 slaunwhj Exp $
+// Jason Slaunwhite and Jeff Klukas
+// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.16 2010/07/21 04:23:22 wmtan Exp $
 //
 //
 
@@ -27,18 +27,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
-
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-
 #include "DQMOffline/Trigger/interface/HLTMuonMatchAndPlot.h"
-#include "DQMOffline/Trigger/interface/HLTMuonOverlap.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-//#include "CommonTools/Utilities/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "TFile.h"
@@ -67,7 +62,6 @@ private:
 
   int theNumberOfTriggers;
   std::vector<HLTMuonMatchAndPlot*> theTriggerAnalyzers;
-  //HLTMuonOverlap *theOverlapAnalyzer;
 
   bool weHaveProcessedTheFirstRun;
   bool useDQMStore;
@@ -110,22 +104,10 @@ OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
   
   theHltProcessName = initialPset.getParameter<string>("HltProcessName");
 
-  //string defRecoLabel = initialPset.getUntrackedParameter<string>("RecoLabel","");
-  //string highPtTracksLabel =  initialPset.getParameter <string> ("highPtTrackCollection");
-
-  //vector<string> recoCollectionNames = initialPset.getParameter < vector<string> > ("allCollectionNames");
-
-  
-  // make analyzers for each collection. Push the collections into a vector
-  //vector <string> recoCollectionNames;
-  //if (defRecoLabel != "") recoCollectionNames.push_back(defRecoLabel);
-  //if (highPtTracksLabel != "") recoCollectionNames.push_back(highPtTracksLabel);
-
   customCollection = initialPset.getParameter<vector<edm::ParameterSet> > ("customCollection");
 
   weHaveProcessedTheFirstRun = false;
 
-  
 }
 
 void OfflineDQMMuonTrigAnalyzer::beginRun(edm::Run const& currentRun, edm::EventSetup const& currentEventSetup) {
@@ -135,7 +117,8 @@ void OfflineDQMMuonTrigAnalyzer::beginRun(edm::Run const& currentRun, edm::Event
     weHaveProcessedTheFirstRun= true;
     vector<edm::ParameterSet>::iterator iPSet;
 
-    LogTrace ("HLTMuonVal") << "customCollection is a vector of size = " << customCollection.size() << std::endl
+    LogTrace ("HLTMuonVal") << "customCollection is a vector of size = " 
+                            << customCollection.size() << std::endl
                             << "looping over entries" << std::endl;
 
     
@@ -169,9 +152,10 @@ void OfflineDQMMuonTrigAnalyzer::beginRun(edm::Run const& currentRun, edm::Event
 
       if (dbe_) {
 
-        string description = customName + ", reco cuts = " + customCuts
-          + ", hlt cuts = " + hltCuts + ", trackCollection = " + targetTrackCollection
-          + ", required triggers, ";
+        string description = customName + ", reco cuts = " + customCuts +
+          ", hlt cuts = " + hltCuts + 
+          ", trackCollection = " + targetTrackCollection +
+          ", required triggers, ";
 
         // add the required triggers
         for (vector <string>::const_iterator trigit = requiredTriggers.begin();
@@ -249,19 +233,6 @@ void OfflineDQMMuonTrigAnalyzer::beginRun(edm::Run const& currentRun, edm::Event
   
     vector<string> parsedMuonTrigNames;
 
-    // declare a bunch of trigger name patterns that you'd like to match
-    // and do the matching
-    // the end of line anchor removes matches to
-    // multi-object triggers
-    TPRegexp l1l2MuTrigExp   ("HLT_L[12]Mu[^_]*$");
-    TPRegexp isoMuTrigExp    ("HLT_[iI]soMu[^_]*$");
-    TPRegexp normalMuExp     ("HLT_Mu[^_]*$");
-    TPRegexp l1l2DoubleExp   ("HLT_L[12]DoubleMu[^_]*$");
-    TPRegexp normalDoubleExp ("HLT_DoubleMu[^_]*$");
-
-
-  
-  
     for (iDumpName = validTriggerNames.begin();
          iDumpName != validTriggerNames.end();
          iDumpName++) {
@@ -320,7 +291,6 @@ void OfflineDQMMuonTrigAnalyzer::beginRun(edm::Run const& currentRun, edm::Event
       numSelectors++;
       iName++;
     }
-    //theOverlapAnalyzer = new HLTMuonOverlap( initialPset );    
     theNumberOfTriggers = theTriggerAnalyzers.size();
 
     LogTrace ("HLTMuonVal") << "You have created " << theNumberOfTriggers
@@ -367,7 +337,6 @@ OfflineDQMMuonTrigAnalyzer::~OfflineDQMMuonTrigAnalyzer()
     delete *thisAnalyzer;
   } 
   theTriggerAnalyzers.clear();
-  //delete theOverlapAnalyzer;
 }
 
 
@@ -403,8 +372,6 @@ OfflineDQMMuonTrigAnalyzer::beginJob()
     << "Looking at a vector of analyzers, with size " << theTriggerAnalyzers.size() << endl;
 
 
-  
-  //theOverlapAnalyzer ->begin();
 }
 
 void 
@@ -440,7 +407,7 @@ OfflineDQMMuonTrigAnalyzer::endJob() {
     {
       (*thisAnalyzer)->finish();
     }
-  //theOverlapAnalyzer ->finish();
+
 }
 
 //define this as a plug-in

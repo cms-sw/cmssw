@@ -6,9 +6,9 @@
  *    1. A set of selection cuts
  *    2. A trigger name
  *  
- *  $Author: slaunwhj $
- *  $Date: 2010/03/16 14:35:40 $
- *  $Revision: 1.16 $
+ *  $Author: elmer $
+ *  $Date: 2010/08/11 13:28:00 $
+ *  $Revision: 1.17 $
  */
 
 
@@ -235,52 +235,13 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   //useMuonFromGenerator = false; // = ( theGenLabel  == "" ) ? false : true;
   useMuonFromReco      = true; // = ( theRecoLabel == "" ) ? false : true;
 
-  //define default parameters so that you don't crash
-
-  vector <double> etaDefault;
-  etaDefault.push_back(15);
-  etaDefault.push_back(-2.1);
-  etaDefault.push_back(2.1);
-
-  theEtaParameters   = pset.getUntrackedParameter< vector<double> >("EtaParameters", etaDefault);
-  
-  vector <double> phiDefault;
-  phiDefault.push_back(15);
-  phiDefault.push_back(-3.2);
-  phiDefault.push_back(3.2);
-
-  thePhiParameters   = pset.getUntrackedParameter< vector<double> >("PhiParameters", phiDefault);
-
-  // leave this vector of size 0
-  vector <double> ptDefault;
-
-  //  pt parameters are a different story
-  //  it's a vector of doubles but it unpacked
-  //  as bin low edges
-  thePtParameters    = pset.getUntrackedParameter< vector<double> >("PtParameters", ptDefault);
-
-  
-  vector <double> resDefault;
-  resDefault.push_back(10);
-  resDefault.push_back(-0.1);
-  resDefault.push_back(0.1);
-  theResParameters = pset.getUntrackedParameter < vector<double> >("ResParameters", resDefault);  
-
-  vector <double> d0Default;
-  d0Default.push_back(10);
-  d0Default.push_back(-2.0);
-  d0Default.push_back(2.0);
-
-  theD0Parameters = pset.getUntrackedParameter <vector<double> > ("D0Parameters", d0Default);
-
-  vector <double> z0Default;
-  z0Default.push_back(10);
-  z0Default.push_back(-25);
-  z0Default.push_back(25);
-
-  theZ0Parameters = pset.getUntrackedParameter < vector<double> > ("Z0Parameters", z0Default);
-
-  
+  theEtaParameters = pset.getUntrackedParameter< vector<double> >("EtaParameters");
+  thePhiParameters = pset.getUntrackedParameter< vector<double> >("PhiParameters");
+  // gives bin low edges
+  thePtParameters  = pset.getUntrackedParameter< vector<double> >("PtParameters");
+  theResParameters = pset.getUntrackedParameter < vector<double> >("ResParameters");  
+  theD0Parameters  = pset.getUntrackedParameter <vector<double> > ("D0Parameters");
+  theZ0Parameters = pset.getUntrackedParameter < vector<double> > ("Z0Parameters");
   
   int numPtBinEdge = 0;
   if ( thePtParameters.size() > 100) {
@@ -311,78 +272,7 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   }
 
 
-  
-  // Duplicate the pt parameters for some 2D histos
-//   for(int i =0; i < 2; i++){
-//     for (std::vector<double>::const_iterator iNum = theMaxPtParameters.begin();
-//          iNum != theMaxPtParameters.end();
-//          iNum++){
-      
-//       // if this is the # of bins, then
-//       // halve the number of bins.
-//       if (iNum == theMaxPtParameters.begin()){
-//         theMaxPtParameters2d.push_back(floor((*iNum)/2));
-//       } else {
-//         theMaxPtParameters2d.push_back((*iNum));
-//       }
-//     }
-//   }
-
-//   // Duplicate the eta parameters for some 2D histos
-//   for(int i =0; i < 2; i++){
-//     for (std::vector<double>::const_iterator iNum = theEtaParameters.begin();
-//          iNum != theEtaParameters.end();
-//          iNum++){
-//       // if this is the nBins param, halve it
-//       if (iNum ==  theEtaParameters.begin()){
-//         theEtaParameters2d.push_back(floor((*iNum)/2));      
-//       } else {
-//         theEtaParameters2d.push_back(*iNum);                   
-//       }
-      
-//       // also fill the eta/phi plot parameters
-//       // but don't worry about doubleing bins
-//       // if (i < 1){
-//       //         if (iNum ==  theEtaParameters.begin()){
-//       //           thePhiEtaParameters2d.push_back(floor((*iNum)/2));      
-//       //         } else {
-//       //           thePhiEtaParameters2d.push_back(*iNum);      
-      
-//       //         } 
-      
-//       //       }
-//     }
-//   }
-
-//   // Duplicate the pt parameters for some 2D histos
-//   for(int i =0; i < 2; i++){
-//     for (std::vector<double>::const_iterator iNum = thePhiParameters.begin();
-//          iNum != thePhiParameters.end();
-//          iNum++){
-
-//       if (iNum == thePhiParameters.begin()) {
-//         thePhiParameters2d.push_back(floor((*iNum)/2));
-//       } else {
-//         thePhiParameters2d.push_back(*iNum);
-//       }
-
-//       //       if (i < 1){
-      
-//       //         // if (iNum ==  theEtaParameters.begin()){
-//       //         //           thePhiEtaParameters2d.push_back(floor((*iNum)/2));      
-//       //         //         } else {
-//       //         //           thePhiEtaParameters2d.push_back(*iNum);      
-      
-//       //         //         } 
-      
-//       //       }
-//     }
-//   }
-
-
-
   //=======================================
-
 
 
   theL1DrCut     = pset.getUntrackedParameter<double>("L1DrCut", 0.4);
@@ -392,7 +282,7 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   
   //==========================================
   // Hard-coded parameters
-  // Make modifibly from script later
+  // To be made modifiable from script later
   //==========================================
 
 
@@ -405,15 +295,6 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   thePhiEtaParameters2d.push_back(-3.15);
   thePhiEtaParameters2d.push_back(3.15);
   
-  
-  // theD0Parameters.push_back(25);
-  // theD0Parameters.push_back(-50.0);
-  // theD0Parameters.push_back(50.0);
-  
-  //   theZ0Parameters.push_back(25);
-  //   theZ0Parameters.push_back(-100);
-  //   theZ0Parameters.push_back(100);
-
   theChargeParameters.push_back(3);
   theChargeParameters.push_back(-1.5);
   theChargeParameters.push_back(1.5);
@@ -437,30 +318,7 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   thePhiParameters0Pi.push_back(0);
   thePhiParameters0Pi.push_back(3.2);
 
-  // theDeltaPhiVsPhiParameters.push_back(50);
-  //   theDeltaPhiVsPhiParameters.push_back(-3.15);
-  //   theDeltaPhiVsPhiParameters.push_back(3.15);
-  //   theDeltaPhiVsPhiParameters.push_back(50);
-  //   theDeltaPhiVsPhiParameters.push_back(0);
-  //   theDeltaPhiVsPhiParameters.push_back(3.2);
 
-//   theDeltaPhiVsZ0Parameters.push_back(theZ0Parameters[0]);
-//   theDeltaPhiVsZ0Parameters.push_back(theZ0Parameters[1]);
-//   theDeltaPhiVsZ0Parameters.push_back(theZ0Parameters[2]);
-//   theDeltaPhiVsZ0Parameters.push_back(50);
-//   theDeltaPhiVsZ0Parameters.push_back(0);
-//   theDeltaPhiVsZ0Parameters.push_back(3.2);
-
-//   theDeltaPhiVsD0Parameters.push_back(theD0Parameters[0]);
-//   theDeltaPhiVsD0Parameters.push_back(theD0Parameters[1]);
-//   theDeltaPhiVsD0Parameters.push_back(theD0Parameters[2]);
-//   theDeltaPhiVsD0Parameters.push_back(50);
-//   theDeltaPhiVsD0Parameters.push_back(0);
-//   theDeltaPhiVsD0Parameters.push_back(3.2);
-      
-  
-
-  
   dbe_ = 0 ;
   if ( pset.getUntrackedParameter<bool>("DQMStore", false) ) {
     dbe_ = Service<DQMStore>().operator->();
@@ -556,20 +414,8 @@ bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<Matc
   // clear the matches from the last event
   myRecMatches.clear();
 
-  // a fake hlt cand is an hlt object not matched to a
-  // reco object
-  //  std::vector< std::vector<HltFakeStruct> > myHltFakeCands(numHltLabels);
-
-  myHltFakeCands.clear();
-  for (unsigned iLabel = 0; iLabel < numHltLabels; iLabel++){
-
-    std::vector<HltFakeStruct> tempFake;
-    
-    myHltFakeCands.push_back(tempFake);
-    
-  }
-
-  
+  // a fake hlt cand is an hlt object not matched to a reco object
+  myHltFakeCands.assign(numHltLabels, std::vector<HltFakeStruct>)
 
   // Update event numbers
   // meNumberOfEvents->Fill(eventNumber);
@@ -609,7 +455,6 @@ bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<Matc
 
   LogTrace ("HLTMuonVal") << "\n\n\n\nDone getting gen, now getting reco\n\n\n";
   
-
   
   //std::vector<MatchStruct> highPtMatches;
   
