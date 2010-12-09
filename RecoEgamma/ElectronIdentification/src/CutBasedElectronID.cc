@@ -321,26 +321,27 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
   }
 
   if (type_ == "classbased" && (version_ == "V06" || version_ == "")) { 
-    std::vector<double> cutIsoSum = cuts_.getParameter<std::vector<double> >("cutiso_sum");
-    std::vector<double> cutIsoSumCorr = cuts_.getParameter<std::vector<double> >("cutiso_sumoet");
-    std::vector<double> cuthoe = cuts_.getParameter<std::vector<double> >("cuthoe");
-    std::vector<double> cutsee = cuts_.getParameter<std::vector<double> >("cutsee");
-    std::vector<double> cutdphi = cuts_.getParameter<std::vector<double> >("cutdphiin");
-    std::vector<double> cutdeta = cuts_.getParameter<std::vector<double> >("cutdetain");
-    std::vector<double> cuteopin = cuts_.getParameter<std::vector<double> >("cuteseedopcor");
-    std::vector<double> cutmishits = cuts_.getParameter<std::vector<double> >("cutfmishits");
-    std::vector<double> cutip = cuts_.getParameter<std::vector<double> >("cutip_gsf");
+    std::vector<double> cutIsoSum      = cuts_.getParameter<std::vector<double> >("cutiso_sum");
+    std::vector<double> cutIsoSumCorr  = cuts_.getParameter<std::vector<double> >("cutiso_sumoet");
+    std::vector<double> cuthoe         = cuts_.getParameter<std::vector<double> >("cuthoe");
+    std::vector<double> cutsee         = cuts_.getParameter<std::vector<double> >("cutsee");
+    std::vector<double> cutdphi        = cuts_.getParameter<std::vector<double> >("cutdphiin");
+    std::vector<double> cutdeta        = cuts_.getParameter<std::vector<double> >("cutdetain");
+    std::vector<double> cuteopin       = cuts_.getParameter<std::vector<double> >("cuteseedopcor");
+    std::vector<double> cutmishits     = cuts_.getParameter<std::vector<double> >("cutfmishits");
+    std::vector<double> cutdcotdist    = cuts_.getParameter<std::vector<double> >("cutdcotdist");
+    std::vector<double> cutip          = cuts_.getParameter<std::vector<double> >("cutip_gsf");
     std::vector<double> cutIsoSumCorrl = cuts_.getParameter<std::vector<double> >("cutiso_sumoetl");
-    std::vector<double> cuthoel = cuts_.getParameter<std::vector<double> >("cuthoel");
-    std::vector<double> cutseel = cuts_.getParameter<std::vector<double> >("cutseel");
-    std::vector<double> cutdphil = cuts_.getParameter<std::vector<double> >("cutdphiinl");
-    std::vector<double> cutdetal = cuts_.getParameter<std::vector<double> >("cutdetainl");
-    std::vector<double> cutipl = cuts_.getParameter<std::vector<double> >("cutip_gsfl");
+    std::vector<double> cuthoel        = cuts_.getParameter<std::vector<double> >("cuthoel");
+    std::vector<double> cutseel        = cuts_.getParameter<std::vector<double> >("cutseel");
+    std::vector<double> cutdphil       = cuts_.getParameter<std::vector<double> >("cutdphiinl");
+    std::vector<double> cutdetal       = cuts_.getParameter<std::vector<double> >("cutdetainl");
+    std::vector<double> cutipl         = cuts_.getParameter<std::vector<double> >("cutip_gsfl");
     
     int result = 0;
     
-    const int ncuts = 9;
-    std::vector<bool> cut_results(9, false);
+    const int ncuts = 10;
+    std::vector<bool> cut_results(ncuts, false);
     
     float iso_sum = tkIso + ecalIso + hcalIso;
     float scEta = electron->superCluster()->eta();
@@ -352,7 +353,12 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
     float eseedopincor = eSeedOverPin + fBrem;
     if(fBrem < 0)
       eseedopincor = eSeedOverPin;
-    
+
+    float dist = (electron->convDist() == -9999.? 9999:electron->convDist());
+    float dcot = (electron->convDcot() == -9999.? 9999:electron->convDcot());
+
+    float dcotdistcomb = ((0.04 - std::max(dist, dcot)) > 0?(0.04 - std::max(dist, dcot)):0);
+
     for (int cut=0; cut<ncuts; cut++) {
       switch (cut) {
       case 0:
@@ -382,6 +388,9 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
       case 8:
         cut_results[cut] = (mishits < cutmishits[cat]);
         break;
+      case 9:
+        cut_results[cut] = (dcotdistcomb < cutdcotdist[cat]);
+        break;
       }
     }
     
@@ -398,7 +407,7 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
       result = result + 8;
     
     // Conversion part
-    if (cut_results[8])
+    if (cut_results[8] and cut_results[9])
       result = result + 4;
     
     return result;
