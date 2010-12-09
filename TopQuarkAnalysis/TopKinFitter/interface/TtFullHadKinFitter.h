@@ -48,7 +48,7 @@ class TtFullHadKinFitter : public TopKinFitter {
 
   /// kinematic fit interface
   int fit(const std::vector<pat::Jet>& jets);
-  int fit(const std::vector<pat::Jet>& jets, const std::vector<edm::ParameterSet> udscResolutions, const std::vector<edm::ParameterSet> bResolutions);
+  int fit(const std::vector<pat::Jet>& jets, const std::vector<edm::ParameterSet> udscResolutions, const std::vector<edm::ParameterSet> bResolutions, const double resolutionSmearFactor);
   /// return fitted b quark candidate
   const pat::Particle fittedB() const { return (fitter_->getStatus()==0 ? fittedB_ : pat::Particle()); };
   /// return fitted b quark candidate
@@ -125,7 +125,7 @@ class TtFullHadKinFitter : public TopKinFitter {
     KinFit();
     /// special constructor  
     KinFit(bool useBTagging, unsigned int bTags, std::string bTagAlgo, double minBTagValueBJet, double maxBTagValueNonBJet,
-	   std::vector<edm::ParameterSet> udscResolutions, std::vector<edm::ParameterSet> bResolutions,
+	   std::vector<edm::ParameterSet> udscResolutions, std::vector<edm::ParameterSet> bResolutions, double resolutionSmearFactor,
 	   std::string jetCorrectionLevel, int maxNJets, int maxNComb,
 	   unsigned int maxNrIter, double maxDeltaS, double maxF, unsigned int jetParam, std::vector<unsigned> constraints, double mW, double mTop);
     /// default destructor  
@@ -140,9 +140,10 @@ class TtFullHadKinFitter : public TopKinFitter {
       maxBTagValueNonBJet_ = maxBTagValueNonBJet;
     }
     /// set resolutions
-    void setResolutions(std::vector<edm::ParameterSet> udscResolutions, std::vector<edm::ParameterSet> bResolutions){
-      udscResolutions_ = udscResolutions;
-      bResolutions_    = bResolutions;
+    void setResolutions(std::vector<edm::ParameterSet> udscResolutions, std::vector<edm::ParameterSet> bResolutions, double resolutionSmearFactor = 1.){
+      udscResolutions_       = udscResolutions;
+      bResolutions_          = bResolutions;
+      resolutionSmearFactor_ = resolutionSmearFactor;
     }
     /// set parameters for fitter
     void setFitter(int maxNJets, unsigned int maxNrIter, double maxDeltaS, double maxF,
@@ -208,6 +209,8 @@ class TtFullHadKinFitter : public TopKinFitter {
     double maxBTagValueNonBJet_;
     /// store the resolutions for the jets
     std::vector<edm::ParameterSet> udscResolutions_, bResolutions_;
+    /// smearing factor for jet energy resolutions
+    double resolutionSmearFactor_;
     /// correction level for jets
     std::string jetCorrectionLevel_;
     /// maximal number of jets (-1 possible to indicate 'all')
