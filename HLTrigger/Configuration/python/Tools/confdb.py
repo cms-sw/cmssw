@@ -6,7 +6,7 @@
 
 import sys
 import re
-import shlex, subprocess
+from pipe import pipe as _pipe
 
 
 # available "type"s and relative global tags
@@ -57,17 +57,6 @@ class ConnectionHLTMenu(object):
       else:
         self.db   = 'hltdev'
         self.name = self.value
-
-
-# wrapper around subprocess to simplify te interface
-def _pipe(cmdline, input = None):
-  args = shlex.split(cmdline)
-  if input is not None:
-    command = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=None)
-  else:
-    command = subprocess.Popen(args, stdin=None, stdout=subprocess.PIPE, stderr=None)
-  (out, err) = command.communicate(input)
-  return out
 
 
 class HLTProcess(object):
