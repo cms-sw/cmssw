@@ -32,8 +32,7 @@ public:
 
   /// Return a new LocalError, rotated by an angle defined by the direction (x,y)
   LocalError rotate(float x, float y) { 
-    double mag = sqrt(x*x+y*y);
-    return rotateCosSin( x/mag, y/mag);
+    return rotateCosSin( x, y, 1.f/(x*x+y*y) );
   }
 
   /// Return a new LocalError, rotated by an angle phi
@@ -42,10 +41,10 @@ public:
   }
 
   /// Return a new LocalError, rotated by an angle defined by it's cosine and sine
-  LocalError rotateCosSin( double c, double s) {
-    return LocalError( c*c*xx() - 2*c*s*xy() + s*s*yy(),
-		       c*s*xx() + (c*c-s*s)*xy() - c*s*yy(),
-		       s*s*xx() + 2*c*s*xy() + c*c*yy());
+  LocalError rotateCosSin( float c, float s, float mag2i=1.f) {
+    return LocalError( mag2i*( (c*c)*xx() + (s*s)*yy() - 2.f*(c*s)*xy()),
+		       mag2i*( (c*s)*(xx() - yy()) +  (c*c-s*s)*xy()) ,
+		       mag2i*( (s*s)*xx() + (c*c)*yy() + 2.f*(c*s)*xy());
   }
 
 private:
