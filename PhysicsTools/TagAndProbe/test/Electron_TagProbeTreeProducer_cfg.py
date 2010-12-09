@@ -372,6 +372,7 @@ process.ext_ToNearestJet_sequence = cms.Sequence(
 ##              |___/
 ## 
 process.Tag = process.PassingHLT.clone()
+process.Tag.InputProducer = cms.InputTag( "PassingWP80" )
 process.TagMatchedSuperClusterCandsClean = cms.EDProducer("ElectronMatchedCandidateProducer",
    src     = cms.InputTag("goodSuperClustersClean"),
    ReferenceElectronCollection = cms.untracked.InputTag("Tag"),
