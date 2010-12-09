@@ -7,6 +7,7 @@ parser.add_option("-S", "--signal",   dest="signal",   default=False, action="st
 parser.add_option("-a", "--asimov",   dest="asimov",   default=False, action="store_true")
 parser.add_option("-o", "--optimize", dest="optimize", default=False, action="store_true")
 parser.add_option("-l", "--label",    dest="label",    type="string", default="hww")
+parser.add_option("-4", "--4th-gen",  dest="sm4",      default=False, action="store_true")
 (options, args) = parser.parse_args()
 
 if len(args) < 1: raise RuntimeError, "Usage: errorMatrix2Lands.py [options] errorMatrix.txt "
@@ -24,6 +25,7 @@ for l in file:
     if not m: break
     mh = m.group(1)
     yields = [float(x) for x in m.group(2).split()];
+    if len(yields) != len(processnames)+1: raise RuntimeError, "Length of yields does not match with process names"
     data[mh] = { 'obs':yields[0], 'exp':yields[1:], 'processnames':processnames[:], 'nuis':[] }
 
 # read nuisances
@@ -44,10 +46,10 @@ if not options.stat:
             if sysname != mh+" Stats":
                 data[mh]['nuis'].append(syseff)
             else:   
-                nproc = len(syseff)-1
-                data[mh]['nuis'].append(syseff[0:2] + [0] * (nproc-1))
+                nproc = len(syseff)-(1 if options.sm4 else 0)
+                data[mh]['nuis'].append(syseff[0:(2 if options.sm4 else 1)] + [0] * (nproc-1))
                 for i in range(1,nproc):
-                    data[mh]['nuis'].append([(x if j == i+1 else 0) for j,x in enumerate(syseff)])
+                    data[mh]['nuis'].append([(x if j == i+(1 if options.sm4 else 0) else 0) for j,x in enumerate(syseff)])
 
 if options.optimize:
     for mh in data.keys():
@@ -60,15 +62,16 @@ if options.optimize:
         
 if options.asimov:
     for mh in data.keys():
-        data[mh]['obs'] = sum(data[mh]['exp'][2:])
+        data[mh]['obs'] = sum(data[mh]['exp'][(2 if options.sm4 else 1):])
         if options.signal: data[mh]['obs'] += data[mh]['exp'][0]
 
 print "Generating datacards: " 
-for (isig,name) in enumerate(['SM', '4G']):
+models = [ 'SM', '4G' ] if options.sm4 else [ 'SM' ]
+for (isig,name) in enumerate(models):
     for mh,D in  data.items():
         # prepare variables
-        nproc = len(D['exp'])-1 # there's 1 more column, as it has both SM and 4G
-        indices = [isig] + range(2,nproc+1)
+        nproc = len(D['exp'])-(1 if options.sm4 else 0) # there's 1 more column, as it has both SM and 4G
+        indices = [isig] + range(len(models),nproc+(1 if options.sm4 else 0))
         # open file
         filename = "%s-%s-mH%s.txt" % (options.label,name,mh)
         fout = open(filename, "w")
@@ -85,6 +88,6 @@ for (isig,name) in enumerate(['SM', '4G']):
         fout.write( "bin " + ("1 "*nproc) + "\n" )
         fout.write( "process " + (" ".join([D['processnames'][i] for i in indices])) + "\n" )
         fout.write( "process " + (" ".join([str(i) for i in range(nproc)])) + "\n")
-        fout.write( "rate " + str(D['exp'][isig])+ " " + (" ".join([str(f) for f in D['exp'][2:]])) + "\n")
+        fout.write( "rate " + str(D['exp'][isig])+ " " + (" ".join([str(f) for f in D['exp'][(2 if options.sm4 else 1):]])) + "\n")
         for (inuis,N) in enumerate(D['nuis']):
             fout.write( str(inuis+1) + " lnN " + (" ".join([str(1.0+N[i]) for i in indices])) + "\n")
