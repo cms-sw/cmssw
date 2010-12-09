@@ -217,8 +217,13 @@ int HcalSeverityLevelComputer::getSeverityLevel(const DetId& myid, const uint32_
   HcalGenericDetId myId(myid);
   HcalGenericDetId::HcalGenericSubdetector mysubdet = myId.genericSubdet();
 
-  for (unsigned i=(SevDef.size()-1); i >= 0; i--)
+  // for (unsigned i=(SevDef.size()-1); i >= 0; i--) // Wrong
+  // Since i is unsigned, i >= 0 is always true,
+  // and the loop termination condition is never reached.
+  // We offset the loop index by one to fix this.
+  for (size_t j=(SevDef.size()); j > 0; j--)
     {
+      size_t i = j - 1;
       switch (mysubdet)
 	{
 	case HcalGenericDetId::HcalGenBarrel : case HcalGenericDetId::HcalGenEndcap : 
