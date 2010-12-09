@@ -32,8 +32,9 @@ conversions = cms.EDProducer("ConvertedPhotonProducer",
     maxDelta = cms.double(0.01),#delta of parameters
     maxReducedChiSq = cms.double(225.),#maximum chi^2 per degree of freedom before fit is terminated
     minChiSqImprovement = cms.double(50.),#threshold for "significant improvement" in the fit termination logic
-    maxNbrOfIterations = cms.int32(40) #maximum number of convergence iterations
-
+    maxNbrOfIterations = cms.int32(40), #maximum number of convergence iterations
+#    MVA_weights_location = cms.string('RecoEgamma/EgammaTools/data/TMVAnalysis_Likelihood.weights.txt')
+    MVA_weights_location = cms.string('RecoEgamma/EgammaTools/data/TMVAnalysis_Likelihood.weights.xml')
 
  )
 

@@ -86,6 +86,7 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
 
   maxNumOfCandidates_        = conf_.getParameter<int>("maxNumOfCandidates");
   risolveAmbiguity_ = conf_.getParameter<bool>("risolveConversionAmbiguity");  
+  likelihoodWeights_= conf_.getParameter<std::string>("MVA_weights_location");
   
  
   // use onfiguration file to setup output collection names
@@ -99,6 +100,9 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   
   // instantiate the Track Pair Finder algorithm
   theTrackPairFinder_ = new ConversionTrackPairFinder ();
+  edm::FileInPath path_mvaWeightFile(likelihoodWeights_.c_str() );      
+  theLikelihoodCalc_ = new ConversionLikelihoodCalculator();
+  theLikelihoodCalc_->setWeightsFile(path_mvaWeightFile.fullPath().c_str());
   // instantiate the Vertex Finder algorithm
   theVertexFinder_ = new ConversionVertexFinder ( conf_);
 
@@ -131,7 +135,6 @@ void  ConvertedPhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & th
   // Transform Track into TransientTrack (needed by the Vertex fitter)
   theEventSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theTransientTrackBuilder_);
 
-  theLikelihoodCalc_ = new ConversionLikelihoodCalculator();
   
 }
 
@@ -455,8 +458,10 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
 
 	double like = -999.;
 	reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackInnPos, trackPin, trackPout, like, algo);
-	like = theLikelihoodCalc_->calculateLikelihood(newCandidate, es );
-        newCandidate.setMVAout(like);
+//    like = theLikelihoodCalc_->calculateLikelihood(newCandidate, es );
+	like = theLikelihoodCalc_->calculateLikelihood( newCandidate );
+//    std::cout << "like = " << like << std::endl;
+    newCandidate.setMVAout(like);
 	outputConvPhotonCollection.push_back(newCandidate);
 	
 	
@@ -541,7 +546,7 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
 	    } // bool On/Off one track case recovery using generalTracks  
 	    double like = -999.;
 	    reco::Conversion  newCandidate(scPtrVec,  trackPairRef,  trkPositionAtEcal, theConversionVertex, matchingBC,  minAppDist, trackInnPos, trackPin, trackPout, like, algo);
-	    like = theLikelihoodCalc_->calculateLikelihood(newCandidate, es);
+	    like = theLikelihoodCalc_->calculateLikelihood(newCandidate);
 	    newCandidate.setMVAout(like);
 	    outputConvPhotonCollection.push_back(newCandidate);
 	      
