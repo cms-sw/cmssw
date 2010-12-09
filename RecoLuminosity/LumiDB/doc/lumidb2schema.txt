@@ -1,30 +1,36 @@
 1.          
 create table revisions(
      revision_id uint64 PK,
-     branch_id uint64 not null,
-     name string,
+     branch_id uint64 not null, 
+     branch_name string,
+     name string, unique
      comment string,
      ctime   timestamp
 )
 create table revisions_id(     #id helper table
      nextid uint64 PK
 )
-create index revisions_branchid_idx on revision(branchid)
+create index revisions_branch_id on revision(branchid)
 
 2.
 create table luminorms(
      data_id  uint64 PK
      entry_id    uint64 not null references luminorms_entries(entry_id),
+     entry_name  string,
      defaultnorm  float not null,
      norm_1       float,
      energy_1     float,
      norm_2       float,
      energy_2     float
 )
+
 create table luminorms_entries(   #versionable entity helper table
      entry_id uint64 PK,
-     revision_id uint64 not null references revisions(revision_id)
+     revision_id uint64 not null references revisions(revision_id),
+     name    string
 )
+
+
 create table luminorms_id(          #id helper table
      nextid uint64 PK
 )
@@ -39,21 +45,27 @@ create table luminorms_rev(
 create table lumidata(             #verionable data table
      data_id uint64 PK,
      entry_id    uint64 not null references lumidata_entries(entry_id),
+     entry_name string,
      source     string,
      runnum     uint32
 )
+create index lumidata_entry_id on lumidata(entry_id);
+
 create table lumidata_id(          #id helper table
      nextid uint64 PK
 )
 create table lumidata_entries(       #versionable entity table
      entry_id     uint64 not null   ,
-     revision_id  uint64 not null references revision(revision_id)
+     revision_id  uint64 not null references revision(revision_id),
+     name    string	  
 )
 create table lumidata_rev(   
     data_id uint64 not null references lumidata(data_id),
     revision_id uint64 not null references revision(revision_id) 
 )
 constraint lumidata_rev_uc unique(data_id,revision_id)
+create index lumidata_rev_revision_id on lumidata_rev(revision_id);
+
 create table lumidata_entries_id(   
      nextid uint64 PK
 )
@@ -91,6 +103,7 @@ create table lumidetail(           #data table
      lumidata_id  uint64 not null references lumidata(data_id),
      runnum       uint32, (redundant)
      cmslsnum     uint32,
+     lumilsnum    uint32,
      algoname     string,
      bxlumivalue  blob,
      bxlumierror    blob,
@@ -100,6 +113,7 @@ create table lumidetail(           #data table
 create table trgdata(                #verionable data table
      data_id uint64 PK,
      entry_id  uint64 not null references trgdata_entries(entry_id),
+     entry_name string,    
      source string,
      runnum   uint32,
      bitzeroname string,
@@ -112,7 +126,8 @@ create table trgdata_rev(
 constraint trgdata_rev_uc unique(data_id,revision_id)
 create table trgdata_entries(       
      entry_id    uint64 not null	     ,
-     revision_id uint64 not null references revisions(revision_id) 
+     revision_id uint64 not null references revisions(revision_id),
+     name    string	 
 )
 create table trgdata_id(             #id helper table
      nextid uint64 PK
@@ -136,6 +151,7 @@ create table lstrg(          #data table
 create table hltdata(                #vesionable data table
     data_id uint64 PK,	     
     entry_id    uint64 not null references hltdata_entries(entry_id),
+    entry_name string,
     runnum    uint32,
     source    string,
     npath    uint32,
@@ -144,6 +160,7 @@ create table hltdata(                #vesionable data table
 create table hltdata_entries(       
      entry_id    uint64 PK,
      revision_id uint64 not null references revisions(revision_id) ,
+     name    string
 )
 create table hltdata_id(         
      nextid uint64 PK

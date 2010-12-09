@@ -20,6 +20,7 @@ def createTables(schema):
             revisionsTab.insertColumn( 'REVISION_ID','unsigned long long')
             revisionsTab.insertColumn( 'BRANCH_ID','unsigned long long')
             revisionsTab.insertColumn( 'NAME', 'string')
+            revisionsTab.insertColumn( 'BRANCH_NAME', 'string')
             revisionsTab.insertColumn( 'COMMENT', 'string')
             revisionsTab.insertColumn( 'CTIME', 'time stamp',6)
             revisionsTab.setPrimaryKey( 'REVISION_ID' )
@@ -470,12 +471,12 @@ if __name__ == "__main__":
     tables=createTables(schema)
     print 'created new ',tables
     session.transaction().commit()
-    session.transaction().start(False)
-    tables=dropTables(schema,tables)
-    session.transaction().commit()
-    print 'droped new ',tables
-    session.transaction().start(False)
-    tables=createOldSchema(schema)
-    session.transaction().commit()
-    print 'created old ',tables
+    #session.transaction().start(False)
+    #tables=dropTables(schema,tables)
+    #session.transaction().commit()
+    #print 'droped new ',tables
+    #session.transaction().start(False)
+    #tables=createOldSchema(schema)
+    #session.transaction().commit()
+    #print 'created old ',tables
     del session
