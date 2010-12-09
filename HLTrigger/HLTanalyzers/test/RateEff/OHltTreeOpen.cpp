@@ -1,5 +1,3 @@
-
-
 //////////////////////////////////////////////////////////////////
 // OpenHLT definitions
 //////////////////////////////////////////////////////////////////
@@ -2226,6 +2224,22 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }       
     }       
   } 
+  else if ("OpenHLT_DoubleEle17_SW_L1R") {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHlt1ElectronSamHarperPassed(17.0, 0, 
+					   999., 999.,
+					   999., 999.,
+					   999., 999.,
+					   0.15, 0.15,
+					   999., 999.,
+					   999., 999.,
+					   999., 999.)>=2) {
+	  triggerBit[it] = true;
+	}
+      }
+    }
+  }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleEle10_SW_1EleId_L1R") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
@@ -4852,6 +4866,50 @@ int OHltTree::OpenHltElecTauL2SCPassed(float elecEt, int elecL1iso, float elecTi
 	  }
 	}
       }
+    }
+  }
+
+  return rc;
+}
+
+int OHltTree::OpenHlt1ElectronSamHarperPassed(float Et, int L1iso, 
+					      float Tiso, float Tisoratio, 
+					      float HisooverETbarrel, float HisooverETendcap, 
+					      float EisooverETbarrel, float EisooverETendcap,
+					      float hoverebarrel, float hovereendcap,
+					      float r9barrel, float r9endcap,
+					      float detabarrel, float detaendcap,
+					      float dphibarrel, float dphiendcap)
+{
+  float barreleta = 1.479;
+  float endcapeta = 2.65;
+
+  int rc = 0;
+  // Loop over all oh electrons
+  for (int i=0;i<NohEle;i++) {
+    //          float ohEleE = ohEleEt[i]/(sin(2*atan(exp(-1.0 * ohEleEta[i]))));
+    float ohEleHoverE = ohEleHforHoverE[i]/ohEleE[i];
+    if ( ohEleEt[i] > Et) {
+      if( TMath::Abs(ohEleEta[i]) < endcapeta )
+	if ( (ohEleHiso[i]/ohEleEt[i] < HisooverETbarrel && TMath::Abs(ohEleEta[i]) < barreleta) ||
+	     (barreleta < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < endcapeta && (ohEleHiso[i]/ohEleEt[i] < HisooverETendcap)) )
+	  if ( (TMath::Abs(ohEleEta[i]) < barreleta && (ohEleEiso[i]/ohEleEt[i] < EisooverETbarrel)) ||
+	       (barreleta < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < endcapeta && (ohEleEiso[i]/ohEleEt[i] < EisooverETendcap)) )
+	    if (ohEleNewSC[i]==1)
+	      if (ohElePixelSeeds[i]>0)
+		if ( ((TMath::Abs(ohEleEta[i]) < barreleta) && (ohEleHoverE < hoverebarrel)) ||
+		     ((barreleta < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < endcapeta) && (ohEleHoverE < hovereendcap)))
+		  if ( (ohEleTiso[i] < Tiso && ohEleTiso[i] != -999.) || (Tiso == 9999.) )
+		    if (ohEleTiso[i]/ohEleEt[i] < Tisoratio)
+		      if ( ohEleL1iso[i] >= L1iso )   // L1iso is 0 or 1
+			if ( (TMath::Abs(ohEleEta[i]) < barreleta && ohEleClusShap[i] < r9barrel) ||
+			     (barreleta < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < endcapeta && ohEleClusShap[i] < r9endcap) )
+			  if ( (TMath::Abs(ohEleEta[i]) < barreleta && ohEleDeta[i] < detabarrel) ||
+			       (barreleta < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < endcapeta && ohEleDeta[i] < detaendcap) )
+			    if( (TMath::Abs(ohEleEta[i]) < barreleta && ohEleDphi[i] < dphibarrel) ||
+				(barreleta < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < endcapeta && ohEleDphi[i] < detaendcap) )
+			      if( ohEleL1Dupl[i] == false) // remove double-counted L1 SCs
+				rc++;
     }
   }
 

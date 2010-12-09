@@ -3619,6 +3619,13 @@ public :
   int OpenHlt1ElectronPassed(float Et,int L1iso,float Tiso,float Hiso);
   int OpenHlt1LWElectronPassed(float Et,int L1iso,float Tiso,float Hiso); 
   int OpenHlt1EleIdLWElectronPassed(float Et,int L1iso,float Tiso,float Hiso); 
+  int OpenHlt1ElectronSamHarperPassed(float Et, int L1iso, float Tiso, float Tisoratio,
+				      float HisooverETbarrel, float HisooverETendcap,
+				      float EisooverETbarrel, float EisooverETendcap,
+				      float hoverebarrel, float hovereendcap,
+				      float r9barrel, float r9endcap,
+				      float detabarrel, float detaendcap,
+				      float dphibarrel, float dphiendcap);
   int OpenHlt1ElectronEleIDPassed(float Et,int L1iso,float Tiso,float Hiso); 
   int OpenHlt1PhotonPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC);
   int OpenHlt1PhotonLooseEcalIsoPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC);
