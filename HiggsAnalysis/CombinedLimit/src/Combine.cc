@@ -37,8 +37,11 @@
 #include <RooWorkspace.h>
 
 #include <RooStats/HLFactory.h>
+#include <RooStats/RooStatsUtils.h>
+
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
+
 
 #include "HiggsAnalysis/CombinedLimit/interface/LimitAlgo.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
@@ -154,14 +157,33 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
     std::cerr << "Could not read HLF from file " <<  (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile) << std::endl;
     return;
   }
+
+  const RooArgSet * observables = w->set("observables");
+  if (observables == 0) {
+    std::cerr << "ERROR: the model must define a RooArgSet 'observables'" << std::endl;
+    abort();
+  }
+
+  if (w->pdf("model_s") == 0) {
+    std::cerr << "ERROR: the model must define a RooAbsPdf 'model_s'" << std::endl;
+    abort();
+  }
+
+  if (w->var("r") == 0 || w->set("POI") == 0) {
+    std::cerr << "ERROR: the model must define a RooRealVar 'r' for the signal strength, and a RooArgSet 'POI' with the parameters of interest." << std::endl;
+    abort();
+  }
+
+
   if (w->data(dataset.c_str()) == 0) {
+    std::cout << "Dataset " << dataset.c_str() << " not found, will try to generate the expected dataset from the 'model_b' pdf" << std::endl;
     if (w->pdf("model_b")->canBeExtended()) {
-      RooDataHist *bdata_obs = w->pdf("model_b")->generateBinned(*w->set("observables"), RooFit::Asimov()); 
+      RooDataHist *bdata_obs = w->pdf("model_b")->generateBinned(*observables, RooFit::Asimov()); 
       bdata_obs->SetName(dataset.c_str());
       w->import(*bdata_obs);
     } else {
-      RooDataSet *data_obs = new RooDataSet(dataset.c_str(), dataset.c_str(), *w->set("observables")); 
-      data_obs->add(*w->set("observables"));
+      RooDataSet *data_obs = new RooDataSet(dataset.c_str(), dataset.c_str(), *observables); 
+      data_obs->add(*observables);
       w->import(*data_obs);
     }
   }
@@ -172,7 +194,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
       RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
   }
 
-  const RooArgSet * observables = w->set("observables");
   const RooArgSet * nuisances   = w->set("nuisances");
 
   if (!isnan(rMin_)) w->var("r")->setMin(rMin_);
@@ -185,7 +206,18 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
   } else if (prior_ == "1/sqrt(r)") {
     w->factory("EXPR::prior(\"1/sqrt(r)\",r)");
   } 
-  
+
+  if (withSystematics && nuisances == 0) {
+    RooArgSet * nuisancesGuess = w->pdf("model_s")->getParameters(*observables);
+    RooStats::RemoveConstantParameters(nuisancesGuess);
+    nuisancesGuess->remove(*w->set("POI"), true, true);
+    nuisancesGuess->setName("nuisances");
+    w->import(*nuisancesGuess);
+    std::cout << "Guessing the nuisances from the parameters of the model after removing observables and POIs: " << std::endl;
+    nuisancesGuess->Print();
+    delete nuisancesGuess;
+    nuisances = w->set("nuisances");
+  }  
   w->saveSnapshot("clean", w->allVars());
 
   if (nToys == 0) { // observed (usually it's the Asimov data set)
