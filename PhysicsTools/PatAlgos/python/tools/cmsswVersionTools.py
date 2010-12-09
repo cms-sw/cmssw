@@ -3,11 +3,10 @@ import FWCore.ParameterSet.Config as cms
 from FWCore.GuiBrowsers.ConfigToolBase import *
 from PhysicsTools.PatAlgos.tools.helpers import *
 from PhysicsTools.PatAlgos.tools.jetTools import *
+from Configuration.PyReleaseValidation.autoCond import autoCond
 
-
-## ------------------------------------------------------
-## Re-configuration of PATJetProducer
-## ------------------------------------------------------
+import os
+from subprocess import *
 
 
 ## ------------------------------------------------------
@@ -23,7 +22,7 @@ def run36xOn35xInput(process,
     of PAT on 35X input samples.
 
     process : process
-    ------------------------------------------------------------------    
+    ------------------------------------------------------------------
     """
     print "*********************************************************************"
     print "NOTE TO USER: when running on 35X sample with 36X s/w versions you   "
@@ -41,15 +40,15 @@ def run36xOn35xInput(process,
         cms.InputTag("jetBProbabilityBJetTags"),
         cms.InputTag("jetProbabilityBJetTags"),
         cms.InputTag("simpleSecondaryVertexBJetTags"),
-        cms.InputTag("softElectronByPtBJetTags"),                
+        cms.InputTag("softElectronByPtBJetTags"),
         cms.InputTag("softElectronByIP3dBJetTags"),
         cms.InputTag("softMuonBJetTags"),
-        cms.InputTag("softMuonByPtBJetTags"),                
+        cms.InputTag("softMuonByPtBJetTags"),
         cms.InputTag("softMuonByIP3dBJetTags"),
         cms.InputTag("trackCountingHighEffBJetTags"),
         cms.InputTag("trackCountingHighPurBJetTags"),
     )
-    if genJets != "" : 
+    if genJets != "" :
         print "*********************************************************************"
         print "NOTE TO USER: when running on 31X samples re-recoed in 3.5.x         "
         print "              with this CMSSW version of PAT                         "
@@ -73,18 +72,18 @@ class RunBTagging35X(ConfigToolBase):
     Define sequence to run b tagging on AOD input for a given jet
     collection including a JetTracksAssociatorAtVertex module with
     name 'jetTracksAssociatorAtVertex' + 'label'.
-    
+
     Return value is a pair of (sequence, labels) where 'sequence'
     is the cms.Sequence, and 'labels' is a vector with the follow-
     ing entries:
-    
+
      * labels['jta']      = the name of the JetTrackAssociator module
      * labels['tagInfos'] = a list of names of the TagInfo modules
      * labels['jetTags '] = a list of names of the JetTag modules
 
     This is a re-implementation to run the 36X version of PAT on 35X
     input samples.
-    ------------------------------------------------------------------     
+    ------------------------------------------------------------------
     """
     _label='runBTagging35X'
     _defaultParameters=dicttypes.SortedKeysDict()
@@ -98,7 +97,7 @@ class RunBTagging35X(ConfigToolBase):
 
     def getDefaultParameters(self):
         return self._defaultParameters
- 
+
     def __call__(self,process,
                  jetCollection     = None,
                  label             = None,
@@ -113,8 +112,8 @@ class RunBTagging35X(ConfigToolBase):
         self.setParameter('label',label)
         self.setParameter('postfix',postfix)
 
-        return self.apply(process) 
-        
+        return self.apply(process)
+
     def apply(self, process):
         jetCollection=self._parameters['jetCollection'].value
         label=self._parameters['label'].value
@@ -122,7 +121,7 @@ class RunBTagging35X(ConfigToolBase):
 
         if hasattr(process, "addAction"):
             process.disableRecording()
-            
+
         try:
             comment=inspect.stack(2)[2][4][0].rstrip("\n")
             if comment.startswith("#"):
@@ -144,34 +143,34 @@ class RunBTagging35X(ConfigToolBase):
         print "               - take out soft electron tagger information, which    "
         print "                 is not available on 35X.                            "
         print "*********************************************************************"
-        
+
         if (label == ''):
         ## label is not allowed to be empty
-            raise ValueError, "label for re-running b tagging is not allowed to be empty"        
+            raise ValueError, "label for re-running b tagging is not allowed to be empty"
 
         ## import track associator & b tag configuration
         process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
         from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex
         process.load("RecoBTag.Configuration.RecoBTag_cff")
         import RecoBTag.Configuration.RecoBTag_cff as btag
-        
+
         # add negative tag infos
         import PhysicsTools.PatAlgos.recoLayer0.bTagging_cff as nbtag
-        
+
         ## define jetTracksAssociator; for switchJetCollection
         ## the label is 'AOD' as empty labels will lead to crashes
         ## of crab. In this case the postfix label is skiped,
         ## otherwise a postfix label is added as for the other
         ## labels
         jtaLabel = 'jetTracksAssociatorAtVertex'+postfix
-        
+
         if (not label == 'AOD'):
             jtaLabel  += label
-        ## define tag info labels (compare with jetProducer_cfi.py)        
+        ## define tag info labels (compare with jetProducer_cfi.py)
         ipTILabel = 'impactParameterTagInfos'     + label
         svTILabel = 'secondaryVertexTagInfos'     + label
         smTILabel = 'softMuonTagInfos'            + label
-    
+
         ## produce tag infos
         setattr( process, ipTILabel, btag.impactParameterTagInfos.clone(jetTracks = cms.InputTag(jtaLabel)) )
         setattr( process, svTILabel, btag.secondaryVertexTagInfos.clone(trackIPTagInfos = cms.InputTag(ipTILabel)) )
@@ -179,7 +178,7 @@ class RunBTagging35X(ConfigToolBase):
 
         ## make VInputTag from strings
         def vit(*args) : return cms.VInputTag( *[ cms.InputTag(x) for x in args ] )
-    
+
         ## produce btags
         setattr( process, 'jetBProbabilityBJetTags'+label, btag.jetBProbabilityBJetTags.clone(tagInfos = vit(ipTILabel)) )
         setattr( process, 'jetProbabilityBJetTags' +label, btag.jetProbabilityBJetTags.clone (tagInfos = vit(ipTILabel)) )
@@ -191,9 +190,9 @@ class RunBTagging35X(ConfigToolBase):
         setattr( process, 'softMuonBJetTags'+label, btag.softMuonBJetTags.clone(tagInfos = vit(smTILabel)) )
         setattr( process, 'softMuonByPtBJetTags'+label, btag.softMuonByPtBJetTags.clone(tagInfos = vit(smTILabel)) )
         setattr( process, 'softMuonByIP3dBJetTags'+label, btag.softMuonByIP3dBJetTags.clone(tagInfos = vit(smTILabel)) )
-        
+
         ## define vector of (output) labels
-        labels = { 'jta'      : jtaLabel, 
+        labels = { 'jta'      : jtaLabel,
                    'tagInfos' : (ipTILabel,svTILabel,smTILabel),
                    'jetTags'  : [ (x + label) for x in ('jetBProbabilityBJetTags',
                                                         'jetProbabilityBJetTags',
@@ -208,7 +207,7 @@ class RunBTagging35X(ConfigToolBase):
                                                         )
                                   ]
                    }
-        
+
         ## extend an existing sequence by otherLabels
         def mkseq(process, firstlabel, *otherlabels):
             seq = getattr(process, firstlabel)
@@ -220,7 +219,7 @@ class RunBTagging35X(ConfigToolBase):
         ## add b tags to the process
         setattr( process, 'btaggingJetTags'+label,  mkseq(process, *(labels['jetTags'])  ) )
         ## add a combined sequence to the process
-        seq = mkseq(process, 'btaggingTagInfos'+label, 'btaggingJetTags' + label) 
+        seq = mkseq(process, 'btaggingTagInfos'+label, 'btaggingJetTags' + label)
         setattr( process, 'btagging'+label, seq )
         ## return the combined sequence and the labels defined above
 
@@ -230,7 +229,7 @@ class RunBTagging35X(ConfigToolBase):
             process.addAction(action)
         return (seq, labels)
 
-      
+
 runBTagging35X=RunBTagging35X()
 
 
@@ -243,7 +242,7 @@ class AddJetCollection35X(ConfigToolBase):
     replaces before calling addJetCollection will also affect the
     new jet collections. This is a re-implementation to run the
     36X version of PAT on 35X input samples.
-    ------------------------------------------------------------------    
+    ------------------------------------------------------------------
     """
     _label='addJetCollection35X'
     _defaultParameters=dicttypes.SortedKeysDict()
@@ -263,10 +262,10 @@ class AddJetCollection35X(ConfigToolBase):
         self.addParameter(self._defaultParameters,'jetIdLabel',"ak5", " specify the label prefix of the xxxJetID object; in general it is the jet collection tag like ak5, kt4 sc5, aso. For more information have a look to SWGuidePATTools#add_JetCollection")
         self.addParameter(self._defaultParameters,'standardAlgo',"AK5", "standard algorithm label of the collection from which the clones for the new jet collection will be taken from (note that this jet collection has to be available in the event before hand)")
         self.addParameter(self._defaultParameters,'standardType',"Calo", "standard constituent type label of the collection from which the clones for the new jet collection will be taken from (note that this jet collection has to be available in the event before hand)")
-        
+
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
-        
+
     def getDefaultParameters(self):
         return self._defaultParameters
 
@@ -285,7 +284,7 @@ class AddJetCollection35X(ConfigToolBase):
                  jetIdLabel         = None,
                  standardAlgo       = None,
                  standardType       = None):
-    
+
         if jetCollection  is None:
             jetCollection=self._defaultParameters['jetCollection'].value
         if algoLabel is None:
@@ -329,10 +328,10 @@ class AddJetCollection35X(ConfigToolBase):
         self.setParameter('jetIdLabel',jetIdLabel)
         self.setParameter('standardAlgo',standardAlgo)
         self.setParameter('standardType',standardType)
-   
-        self.apply(process) 
-        
-    def toolCode(self, process):        
+
+        self.apply(process)
+
+    def toolCode(self, process):
         jetCollection=self._parameters['jetCollection'].value
         algoLabel=self._parameters['algoLabel'].value
         typeLabel=self._parameters['typeLabel'].value
@@ -348,13 +347,13 @@ class AddJetCollection35X(ConfigToolBase):
         standardAlgo=self._parameters['standardAlgo'].value
         standardType=self._parameters['standardType'].value
 
-        ## define common label for pre pat jet 
-        ## creation steps in makePatJets    
+        ## define common label for pre pat jet
+        ## creation steps in makePatJets
         #label=standardAlgo+standardType
 
         ## create old module label from standardAlgo
         ## and standardType and return
-        def oldLabel(prefix=''):        
+        def oldLabel(prefix=''):
             return jetCollectionString(prefix, '', '')
 
         ## create new module label from old module
@@ -383,7 +382,7 @@ class AddJetCollection35X(ConfigToolBase):
             setattr( process, newLabel(hook), newModule)
             ## add new module to default sequence
             ## just behind the hookModule
-            process.patDefaultSequence.replace( hookModule, hookModule*newModule )        
+            process.patDefaultSequence.replace( hookModule, hookModule*newModule )
 
         print "*********************************************************************"
         print "NOTE TO USER: when running on 35X sample with 36X s/w versions you   "
@@ -399,17 +398,17 @@ class AddJetCollection35X(ConfigToolBase):
 
         ## add a clone of patJets
         addClone(oldLabel(), jetSource = jetCollection)
-        ## add a clone of selectedPatJets    
+        ## add a clone of selectedPatJets
         addClone(oldLabel('selected'), src=cms.InputTag(newLabel(oldLabel())))
-        ## add a clone of cleanPatJets    
+        ## add a clone of cleanPatJets
         if( doL1Cleaning ):
             addClone(oldLabel('clean'), src=cms.InputTag(newLabel(oldLabel('selected'))))
-        ## add a clone of countPatJets    
+        ## add a clone of countPatJets
         if( doL1Counters ):
             if( doL1Cleaning ):
                 addClone(oldLabel('count'), src=cms.InputTag(newLabel(oldLabel('clean'))))
             else:
-                addClone(oldLabel('count'), src=cms.InputTag(newLabel(oldLabel('selected'))))            
+                addClone(oldLabel('count'), src=cms.InputTag(newLabel(oldLabel('selected'))))
 
         ## get attributes of new module
         l1Jets = getattr(process, newLabel(oldLabel()))
@@ -432,11 +431,11 @@ class AddJetCollection35X(ConfigToolBase):
         fixInputTag(l1Jets.genPartonMatch)
         fixInputTag(l1Jets.JetPartonMapSource)
 
-        ## make VInputTag from strings 
+        ## make VInputTag from strings
         def vit(*args) : return cms.VInputTag( *[ cms.InputTag(x) for x in args ] )
 
         if (doJTA or doBTagging):
-            ## add clone of jet track association        
+            ## add clone of jet track association
             process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
             from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex
             ## add jet track association module to processes
@@ -448,7 +447,7 @@ class AddJetCollection35X(ConfigToolBase):
             fixInputTag(l1Jets.jetChargeSource)
         else:
             ## switch embedding of track association and jet
-            ## charge estimate to 'False'        
+            ## charge estimate to 'False'
             l1Jets.addAssociatedTracks = False
             l1Jets.addJetCharge = False
 
@@ -466,7 +465,7 @@ class AddJetCollection35X(ConfigToolBase):
         else:
             ## switch general b tagging info switch off
             l1Jets.addBTagInfo = False
-        
+
         if (doJetID):
             l1Jets.addJetID = cms.bool(True)
             jetIdLabelNew = jetIdLabel + 'JetID'
@@ -482,14 +481,14 @@ class AddJetCollection35X(ConfigToolBase):
             if (jetCorrLabel == "None"):
                 raise ValueError, "In addJetCollection 'jetCorrLabel' must be set to 'None' (without quotes)"
             ## check for the correct format
-            if type(jetCorrLabel) != type(('AK5','Calo')): 
+            if type(jetCorrLabel) != type(('AK5','Calo')):
                 raise ValueError, "In addJetCollection 'jetCorrLabel' must be 'None', or of type ('Algo','Type')"
 
             ## add clone of jetCorrFactors
             addClone('patJetCorrFactors', jetSource = jetCollection)
             switchJECParameters( getattr(process,newLabel('patJetCorrFactors')), jetCorrLabel[0], jetCorrLabel[1], oldAlgo='AK5',oldType='Calo' )
             fixVInputTag(l1Jets.jetCorrFactorsSource)
-        
+
             ## switch type1MET corrections off for PFJets
             if( jetCollection.__str__().find('PFJets')>=0 ):
                 print '================================================='
@@ -497,7 +496,7 @@ class AddJetCollection35X(ConfigToolBase):
                 print 'of type %s%s.' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1])
                 print 'Users are recommened to use pfMET together with  '
                 print 'PFJets.'
-                print '================================================='            
+                print '================================================='
                 doType1MET=False
 
             ## add a clone of the type1MET correction for the new jet collection
@@ -513,7 +512,7 @@ class AddJetCollection35X(ConfigToolBase):
                                           )
                              )
                 ## add a clone of the type1MET correction
-                ## and the following muonMET correction  
+                ## and the following muonMET correction
                 addClone('metJESCorAK5CaloJet', inputUncorJetsLabel = jetCollection.value(),
                          corrector = cms.string('%s%sL2L3' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1]))
                          )
@@ -525,9 +524,9 @@ class AddJetCollection35X(ConfigToolBase):
         else:
             ## switch jetCorrFactors off
             l1Jets.addJetCorrFactors = False
-        
-       
-       
+
+
+
 addJetCollection35X=AddJetCollection35X()
 
 
@@ -538,7 +537,7 @@ class SwitchJetCollection35X(ConfigToolBase):
     Switch the collection of jets in PAT from the default value to a
     new jet collection. This is a re-implementation to run the 36X
     version of PAT on 35X input samples.
-    ------------------------------------------------------------------    
+    ------------------------------------------------------------------
     """
     _label='switchJetCollection35X'
     _defaultParameters=dicttypes.SortedKeysDict()
@@ -553,7 +552,7 @@ class SwitchJetCollection35X(ConfigToolBase):
         self.addParameter(self._defaultParameters,'doJetID',True, "add jetId variables to the added jet collection")
         self.addParameter(self._defaultParameters,'jetIdLabel',"ak5", " specify the label prefix of the xxxJetID object; in general it is the jet collection tag like ak5, kt4 sc5, aso. For more information have a look to SWGuidePATTools#add_JetCollection")
         self.addParameter(self._defaultParameters,'postfix',"", "postfix of default sequence")
-        
+
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
@@ -570,7 +569,7 @@ class SwitchJetCollection35X(ConfigToolBase):
                  doJetID            = None,
                  jetIdLabel         = None,
                  postfix            = None):
-                 
+
         if jetCollection  is None:
             jetCollection=self._defaultParameters['jetCollection'].value
         if doJTA is None:
@@ -599,9 +598,9 @@ class SwitchJetCollection35X(ConfigToolBase):
         self.setParameter('doJetID',doJetID)
         self.setParameter('jetIdLabel',jetIdLabel)
         self.setParameter('postfix',postfix)
-        
-        self.apply(process) 
-        
+
+        self.apply(process)
+
     def toolCode(self, process):
         jetCollection=self._parameters['jetCollection'].value
         doJTA=self._parameters['doJTA'].value
@@ -616,7 +615,7 @@ class SwitchJetCollection35X(ConfigToolBase):
 
         ## save label of old input jet collection
         oldLabel = applyPostfix(process, "patJets", postfix).jetSource;
-    
+
         ## replace input jet collection for generator matches
 	applyPostfix(process, "patJetPartonMatch", postfix).src = jetCollection
 	applyPostfix(process, "patJetGenJetMatch", postfix).src = jetCollection
@@ -624,15 +623,15 @@ class SwitchJetCollection35X(ConfigToolBase):
 	applyPostfix(process, "patJetPartonAssociation", postfix).jets = jetCollection
         ## replace input jet collection for pat jet production
 	applyPostfix(process, "patJets", postfix).jetSource = jetCollection
-    
+
         ## make VInputTag from strings
         def vit(*args) : return cms.VInputTag( *[ cms.InputTag(x) for x in args ] )
 
         if (doJTA or doBTagging):
             ## replace jet track association
             process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
-            from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex            
-            setattr(process, "jetTracksAssociatorAtVertex"+postfix, ak5JetTracksAssociatorAtVertex.clone(jets = jetCollection)) 
+            from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex
+            setattr(process, "jetTracksAssociatorAtVertex"+postfix, ak5JetTracksAssociatorAtVertex.clone(jets = jetCollection))
             getattr(process, "patDefaultSequence"+postfix).replace(
                 applyPostfix(process, "patJetCharge", postfix),
                 getattr(process, "jetTracksAssociatorAtVertex" + postfix) #module with postfix that is not n patDefaultSequence
@@ -679,7 +678,7 @@ class SwitchJetCollection35X(ConfigToolBase):
         else:
             applyPostfix(process, "patJets", postfix).addJetID = cms.bool(False)
 
-            
+
         if (jetCorrLabel!=None):
             ## replace jet energy corrections; catch
             ## a couple of exceptions first
@@ -688,11 +687,11 @@ class SwitchJetCollection35X(ConfigToolBase):
             if (jetCorrLabel == "None"):
                 raise ValueError, "In switchJetCollection 'jetCorrLabel' must be set to 'None' (without quotes)"
             ## check for the correct format
-            if (type(jetCorrLabel)!=type(('AK5','Calo'))): 
+            if (type(jetCorrLabel)!=type(('AK5','Calo'))):
                 raise ValueError, "In switchJetCollection 'jetCorrLabel' must be 'None', or of type ('Algo','Type')"
 
             ## switch JEC parameters to the new jet collection
-            applyPostfix(process, "patJetCorrFactors", postfix).jetSource = jetCollection            
+            applyPostfix(process, "patJetCorrFactors", postfix).jetSource = jetCollection
             switchJECParameters(applyPostfix(process, "patJetCorrFactors", postfix), jetCorrLabel[0], jetCorrLabel[1], oldAlgo='AK5',oldType='Calo')
 
             ## switch type1MET corrections off for PFJets
@@ -702,7 +701,7 @@ class SwitchJetCollection35X(ConfigToolBase):
                 print 'of type %s%s.' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1])
                 print 'Users are recommened to use pfMET together with  '
                 print 'PFJets.'
-                print '================================================='                   
+                print '================================================='
                 doType1MET=False
 
             ## redo the type1MET correction for the new jet collection
@@ -718,8 +717,8 @@ class SwitchJetCollection35X(ConfigToolBase):
                                           )
                              )
                 ## configure the type1MET correction the following muonMET
-                ## corrections have the metJESCorAK5CaloJet as input and 
-                ## are automatically correct  
+                ## corrections have the metJESCorAK5CaloJet as input and
+                ## are automatically correct
                 applyPostfix(process, "metJESCorAK5CaloJet", postfix).inputUncorJetsLabel = jetCollection.value()
                 applyPostfix(process, "metJESCorAK5CaloJet", postfix).corrector = '%s%sL2L3' % (jetCorrLabel[0].swapcase(), jetCorrLabel[1])
         else:
@@ -728,6 +727,169 @@ class SwitchJetCollection35X(ConfigToolBase):
             ## switch embedding of jetCorrFactors off
             ## for pat jet production
             applyPostfix(process, "patJets", postfix).addJetCorrFactors = False
-        
+
 
 switchJetCollection35X=SwitchJetCollection35X()
+
+
+## ------------------------------------------------------
+## Automatic pick-up of RelVal input files
+## ------------------------------------------------------
+
+class PickRelValInputFiles( ConfigToolBase ):
+    """  Picks up RelVal input files automatically and
+  returns a vector of strings with the paths to be used in [PoolSource].fileNames
+    PickRelValInputFiles( cmsswVersion, relVal, dataTier, condition, globalTag, maxVersions, skipFiles, numberOfFiles, debug )
+    - cmsswVersion : CMSSW release to pick up the RelVal files from
+                     optional; default: the current release (determined automatically from environment)
+    . relVal       : RelVal sample to be used
+                     optional; default: 'RelValTTbar'
+    - dataTier     : data tier to be used
+                     optional; default: 'GEN-SIM-RECO'
+    - condition    : identifier of GlobalTag as defined in Configurations/PyReleaseValidation/python/autoCond.py
+                     possibly overwritten by 'globalTag'
+                     optional; default: 'startup'
+    - globalTag    : name of GlobalTag to be used
+                     optional; default: determined automatically as defined by 'condition' in Configurations/PyReleaseValidation/python/autoCond.py
+    - maxVersions  : max. versioning number of RelVal to check
+                     optional; default: 9
+    - skipFiles    : number of files to skip for a found RelVal sample
+                     optional; default: 0
+    - numberOfFiles: number of files to pick up
+                     setting it to 0, returns all found ('skipFiles' remains active though)
+                     optional; default: 1
+    - debug        : switch to enable enhanced messages in 'stdout'
+                     optional; default: False
+    """
+
+    _label             = 'pickRelValInputFiles'
+    _defaultParameters = dicttypes.SortedKeysDict()
+
+    def getDefaultParameters( self ):
+        return self._defaultParameters
+
+    def __init__( self ):
+        ConfigToolBase.__init__( self )
+        self.addParameter( self._defaultParameters, 'cmsswVersion' , os.getenv( "CMSSW_VERSION" )                                        , 'auto from environment' )
+        self.addParameter( self._defaultParameters, 'relVal'       , 'RelValTTbar'                                                       , '' )
+        self.addParameter( self._defaultParameters, 'dataTier'     , 'GEN-SIM-RECO'                                                      , '' )
+        self.addParameter( self._defaultParameters, 'condition'    , 'startup'                                                           , '' )
+        self.addParameter( self._defaultParameters, 'globalTag'    , autoCond[ self.getDefaultParameters()[ 'condition' ].value ][ : -5 ], 'auto from \'condition\'' )
+        self.addParameter( self._defaultParameters, 'maxVersions'  , 9                                                                   , '' )
+        self.addParameter( self._defaultParameters, 'skipFiles'    , 0                                                                   , '' )
+        self.addParameter( self._defaultParameters, 'numberOfFiles', 1                                                                   , '' )
+        self.addParameter( self._defaultParameters, 'debug'        , False                                                               , '' )
+        self._parameters = copy.deepcopy( self._defaultParameters )
+        self._comment = ""
+
+    def __call__( self
+                , cmsswVersion  = None
+                , relVal        = None
+                , dataTier      = None
+                , condition     = None
+                , globalTag     = None
+                , maxVersions   = None
+                , skipFiles     = None
+                , numberOfFiles = None
+                , debug         = None
+                ):
+        if cmsswVersion is None:
+            cmsswVersion = self.getDefaultParameters()[ 'cmsswVersion' ].value
+        if relVal is None:
+            relVal = self.getDefaultParameters()[ 'relVal' ].value
+        if dataTier is None:
+            dataTier = self.getDefaultParameters()[ 'dataTier' ].value
+        if condition is None:
+            condition = self.getDefaultParameters()[ 'condition' ].value
+        if globalTag is None:
+            globalTag = autoCond[ condition ][ : -5 ] # auto from 'condition'
+        if maxVersions is None:
+            maxVersions = self.getDefaultParameters()[ 'maxVersions' ].value
+        if skipFiles is None:
+            skipFiles = self.getDefaultParameters()[ 'skipFiles' ].value
+        if numberOfFiles is None:
+            numberOfFiles = self.getDefaultParameters()[ 'numberOfFiles' ].value
+        if debug is None:
+            debug = self.getDefaultParameters()[ 'debug' ].value
+        self.setParameter( 'cmsswVersion' , cmsswVersion )
+        self.setParameter( 'relVal'       , relVal )
+        self.setParameter( 'dataTier'     , dataTier )
+        self.setParameter( 'condition'    , condition )
+        self.setParameter( 'globalTag'    , globalTag )
+        self.setParameter( 'maxVersions'  , maxVersions )
+        self.setParameter( 'skipFiles'    , skipFiles )
+        self.setParameter( 'numberOfFiles', numberOfFiles )
+        self.setParameter( 'debug'        , debug )
+        return self.apply()
+
+    def apply( self ):
+        cmsswVersion  = self._parameters[ 'cmsswVersion'  ].value
+        relVal        = self._parameters[ 'relVal'        ].value
+        dataTier      = self._parameters[ 'dataTier'      ].value
+        condition     = self._parameters[ 'condition'     ].value # only used for GT determination in initialization, if GT not explicitly given
+        globalTag     = self._parameters[ 'globalTag'     ].value
+        maxVersions   = self._parameters[ 'maxVersions'   ].value
+        skipFiles     = self._parameters[ 'skipFiles'     ].value
+        numberOfFiles = self._parameters[ 'numberOfFiles' ].value
+        debug         = self._parameters[ 'debug'         ].value
+        if debug:
+            print 'DEBUG %s: Called with...'%( self._label )
+            for key in self._parameters.keys():
+               print '    %s:\t'%( key ),
+               print self._parameters[ key ].value,
+               if self._parameters[ key ].value is self.getDefaultParameters()[ key ].value:
+                   print ' (default)'
+               else:
+                   print
+
+        command      = 'nsls'
+        rfdirPath    = '/store/relval/%s/%s/%s/%s-v'%( cmsswVersion, relVal, dataTier, globalTag )
+        argument     = '/castor/cern.ch/cms%s'%( rfdirPath )
+        filePaths    = []
+        validVersion = 0
+
+        for version in range( maxVersions, 0, -1 ):
+            filePaths = []
+            fileCount = 0
+            if debug:
+                print 'DEBUG %s: Checking directory \'%s%i\''%( self._label, argument, version )
+            directories = Popen( [ command, '%s%i'%( argument, version ) ], stdout = PIPE, stderr = PIPE ).communicate()[0]
+            for directory in directories.splitlines():
+                files = Popen( [ command, '%s%i/%s'%( argument, version, directory ) ], stdout = PIPE, stderr = PIPE ).communicate()[0]
+                for file in files.splitlines():
+                    if len( file ) > 0:
+                        if debug:
+                            print 'DEBUG %s: File \'%s\' found'%( self._label, file )
+                        fileCount += 1
+                        validVersion = version
+                    if fileCount > skipFiles:
+                        filePath = '%s%i/%s/%s'%( rfdirPath, version, directory, file )
+                        filePaths.append( filePath )
+                    if numberOfFiles != 0 and len( filePaths ) >= numberOfFiles:
+                        break
+                if debug:
+                    print 'DEBUG %s: %i file(s) found'%( self._label, fileCount )
+                if numberOfFiles != 0 and len( filePaths ) >= numberOfFiles:
+                    break
+            if numberOfFiles != 0:
+              if len( filePaths ) >= numberOfFiles:
+                break
+            elif validVersion > 0:
+              break
+
+        if validVersion == 0:
+            print 'ERROR pickRelValInputFiles()'
+            print '    No RelVal file(s) found at all in \'%s*\''%( argument )
+        elif len( filePaths ) == 0:
+            print 'ERROR pickRelValInputFiles()'
+            print '    No RelVal file(s) picked up in \'%s%i\''%( argument, validVersion )
+        elif len( filePaths ) < numberOfFiles:
+            print 'WARNING pickRelValInputFiles()'
+            print '    Only %i RelVal files picked up in \'%s%i\''%( len( filePaths ), argument, validVersion )
+
+        if debug:
+            print 'DEBUG %s: returning %i file(s)\n%s'%( self._label, len( filePaths ), filePaths )
+        return filePaths
+
+pickRelValInputFiles = PickRelValInputFiles()
+
