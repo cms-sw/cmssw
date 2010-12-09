@@ -18,6 +18,10 @@ hcalClient = cms.EDAnalyzer("HcalMonitorClient",
 
                             # Specify whether LS-by-LS certification should be created
                             saveByLumiSection = cms.untracked.bool(False),
+
+
+                            # When enabled, this checks for NaN values in the channel status, and counts any such channels as errors in the reportSummary:
+                            UseBadChannelStatusInSummary = cms.untracked.bool(False),
                             
                             # each client has a 'minerrror' (double) rate
                             # (minimum fraction of events that must be bad to be considered a problem),

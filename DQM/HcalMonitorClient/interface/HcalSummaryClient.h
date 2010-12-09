@@ -53,6 +53,7 @@ class HcalSummaryClient : public HcalBaseDQClient {
   double status_global_, status_HB_, status_HE_, status_HO_, status_HF_;
   double status_HO0_, status_HO12_, status_HFlumi_;
   int NLumiBlocks_;
+  bool UseBadChannelStatusInSummary_;  // if turned on, the channel status DB output is checked and any channels reporting 'NaN' are counted as bad in the summary.
 
   std::vector<HcalBaseDQClient*> clients_;
   std::map<std::string, int> subdetCells_;

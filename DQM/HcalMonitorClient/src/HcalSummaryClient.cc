@@ -15,8 +15,8 @@
 /*
  * \file HcalSummaryClient.cc
  * 
- * $Date: 2010/08/10 21:20:49 $
- * $Revision: 1.102 $
+ * $Date: 2010/09/17 13:47:10 $
+ * $Revision: 1.103 $
  * \author J. Temple
  * \brief Summary Client class
  */
@@ -50,6 +50,8 @@ HcalSummaryClient::HcalSummaryClient(std::string myname, const edm::ParameterSet
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
   NLumiBlocks_ = ps.getUntrackedParameter<int>("NLumiBlocks",4000);
+  UseBadChannelStatusInSummary_ = ps.getUntrackedParameter<bool>("UseBadChannelStatusInSummary",false);
+
   // These aren't used in summary client, are they?
   badChannelStatusMask_   = ps.getUntrackedParameter<int>("Summary_BadChannelStatusMask",
 							  ps.getUntrackedParameter<int>("BadChannelStatusMask",0));
@@ -206,6 +208,15 @@ void HcalSummaryClient::analyze(int LS)
  
       int etabins=-9999;
       int phibins=-9999;
+  
+      // Get Channel Status histograms here
+      std::vector<MonitorElement*> chStat;
+      chStat.push_back(dqmStore_->get(prefixME_+"HcalInfo/ChannelStatus/HB HE HF Depth 1 ChannelStatus"));
+      chStat.push_back(dqmStore_->get(prefixME_+"HcalInfo/ChannelStatus/HB HE HF Depth 2 ChannelStatus"));
+      chStat.push_back(dqmStore_->get(prefixME_+"HcalInfo/ChannelStatus/HE Depth 3 ChannelStatus"));
+      chStat.push_back(dqmStore_->get(prefixME_+"HcalInfo/ChannelStatus/HO Depth 4 ChannelStatus"));
+
+
       for (int d=0;d<4;++d)
 	{
 	  etabins=(SummaryMapByDepth->depth[d])->getNbinsX();
@@ -220,6 +231,75 @@ void HcalSummaryClient::analyze(int LS)
 		  // for |ieta|>39, iphi%4!=3 cells are unphysical
 		  if (abs(ieta)>20 && phi%2==0) continue;
 		  if (abs(ieta)>39 && phi%4!=3) continue;
+
+		  // First loop calculates "local" error rates for each individual client
+		  // This must be done separately from the SummaryMap overall loop, because that loop issues a
+		  // 'break' the first time an error is found (to avoid double-counting multiple errors in a single channel).
+		  for (unsigned int cl=0;cl<clients_.size();++cl)
+		    {
+		      if (clients_[cl]->ProblemCellsByDepth==0) continue;
+
+		      if ((clients_[cl]->ProblemCellsByDepth)->depth[d]==0) continue;
+		      if ((clients_[cl]->ProblemCellsByDepth)->depth[d]->getBinContent(eta,phi)>clients_[cl]->minerrorrate_)
+			{
+			  if (isHF(eta-1,d+1)) 
+			    {
+			      ++localHF[cl];
+			      if ((d==0 && (abs(ieta)==33 || abs(ieta)==34)) ||   // depth 1, rings 33,34
+				  (d==1 && (abs(ieta)==35 || abs(ieta)==36)))     // depth 2, rings 35,36
+				++localHFlumi[cl]; 
+			    }
+			  else if (isHO(eta-1,d+1)) 
+			    {
+			      ++localHO[cl];
+			      if (abs(ieta)<5) ++localHO0[cl]; 
+			      else ++localHO12[cl]; 
+			    }
+			  else if (isHB(eta-1,d+1)) ++localHB[cl];
+			  else if (isHE(eta-1,d+1)) ++localHE[cl];
+			}
+		    } // for (loop on clients_.size() to determine individual client error rates)
+
+		  // Check for certification errors -- do we want to add some extra warnings (filling channel status db plot with new value, etc?) in this case?
+
+		  if (UseBadChannelStatusInSummary_ && chStat[d]!=0)
+		    {
+		      double chanStat=chStat[d]->getBinContent(eta,phi);
+		      // chanStat<0 indicates original status from database was <0; this is counted as an error,
+		      // since such values should never appear in the database.
+		      if (chanStat<0)
+			{
+			  if (isHF(eta-1,d+1))
+			    {
+			      ++status_HF_;
+			      if ((d==0 && (abs(ieta)==33 || abs(ieta)==34)) ||   // depth 1, rings 33,34
+			      (d==1 && (abs(ieta)==35 || abs(ieta)==36)))     // depth 2, rings 35,36
+				{
+			      ++status_HFlumi_; 
+				}
+			      continue; // don't bother looking at individual clients for results; channel status is already corrupted
+			    }
+			  else if (isHO(eta-1,d+1))
+			    {
+			      ++status_HO_;
+			      if (abs(ieta)<5) 
+				++status_HO0_; 
+			      else ++status_HO12_; 
+			      continue;
+			    }
+			  else if (isHB(eta-1,d+1))
+			    {
+			      ++status_HB_;
+			      continue;
+			    }
+			  else if (isHE(eta-1,d+1))
+			    {
+			      ++status_HE_;
+			      continue;
+			    }
+			} // if (chanStat<0)
+		    } // if (UseBadChannelStatusInSummary_)
+
 		  // loop over all client tests
 		 
 		  // SummaryMapByDepth is slightly different from previous version -- it now just shows cells
@@ -244,44 +324,22 @@ void HcalSummaryClient::analyze(int LS)
 			      ++status_HF_;
 			      if ((d==0 && (abs(ieta)==33 || abs(ieta)==34)) ||   // depth 1, rings 33,34
 				  (d==1 && (abs(ieta)==35 || abs(ieta)==36)))     // depth 2, rings 35,36
-				++status_HFlumi_; 
+				{
+				  ++status_HFlumi_; 
+				}
 			    }
 			  else if (isHO(eta-1,d+1)) 
 			    {
 			      ++status_HO_;
-			      if (abs(ieta)<5) ++status_HO0_; 
+			      if (abs(ieta)<5) 
+				  ++status_HO0_; 
 			      else ++status_HO12_; 
 			    }
 			  else if (isHB(eta-1,d+1)) ++status_HB_;
 			  else if (isHE(eta-1,d+1)) ++status_HE_;
-			  break; // man, this break causes problems for certificationMap!!!
+			  break; // man, this break causes problems for certificationMap!!! -- Jason;   WHY?  -- Jeff
 			}
-		    } // for (1st loop on clients_.size()
-
-		  for (unsigned int cl=0;cl<clients_.size();++cl)
-		    {
-		      if (clients_[cl]->ProblemCellsByDepth==0) continue;
-
-		      if ((clients_[cl]->ProblemCellsByDepth)->depth[d]==0) continue;
-		      if ((clients_[cl]->ProblemCellsByDepth)->depth[d]->getBinContent(eta,phi)>clients_[cl]->minerrorrate_)
-			{
-			  if (isHF(eta-1,d+1)) 
-			    {
-			      ++localHF[cl];
-			      if ((d==0 && (abs(ieta)==33 || abs(ieta)==34)) ||   // depth 1, rings 33,34
-				  (d==1 && (abs(ieta)==35 || abs(ieta)==36)))     // depth 2, rings 35,36
-				++localHFlumi[cl]; 
-			    }
-			  else if (isHO(eta-1,d+1)) 
-			    {
-			      ++localHO[cl];
-			      if (abs(ieta)<5) ++localHO0[cl]; 
-			      else ++localHO12[cl]; 
-			    }
-			  else if (isHB(eta-1,d+1)) ++localHB[cl];
-			  else if (isHE(eta-1,d+1)) ++localHE[cl];
-			}
-		    } // for (2nd loop on clients_.size()
+		    } // for (main loop on clients_.size() to calculate reportSummary statuses)
 		}
 	    }
 	} // for (int d=0;d<4;++d)
@@ -558,6 +616,7 @@ void HcalSummaryClient::fillReportSummaryLSbyLS(int LS)
 	  status_HFlumi=me->getBinContent(7,1);
 
 	  status_global=status_HB+status_HE+status_HO+status_HF;
+	  if (debug_>1) std::cout <<"<HcalSummaryClient::fillReportsummaryLSbyLS>   BAD CHANNELS*EVENTS = HB: "<<status_HB<<" HE: "<<status_HE<<" HO: "<<status_HO<<" HO0: "<<status_HO0<<" HO12: "<<status_HO12<<" HF:"<<status_HF<<" HFlumi: "<<status_HFlumi<<"  TOTAL BAD CHANNELS*EVENTS = "<<status_global<<"  TOTAL EVENTS = "<<events<<std::endl;
 
 	  it=subdetCells_.find("HB");
 	  totalcells+=it->second;
@@ -592,7 +651,7 @@ void HcalSummaryClient::fillReportSummaryLSbyLS(int LS)
 	    status_HFlumi=1-(status_HFlumi)/events/it->second;
 	  if (totalcells>0)
 	    status_global=1-status_global/events/totalcells;
-	  //std::cout <<"STATUS = "<<status_HB<<" "<<status_HE<<" "<<status_HO<<" "<<status_HF<<"  GLOBAL = "<<status_global<<std::endl;
+	  if (debug_>1) std::cout <<"<HcalSummaryClient::fillReportsummaryLSbyLS>   STATUS= HB: "<<status_HB<<" HE: "<<status_HE<<" HO: "<<status_HO<<" HO0: "<<status_HO0<<" HO12: "<<status_HO12<<" HF:"<<status_HF<<" HFlumi: "<<status_HFlumi<<"  GLOBAL STATUS = "<<status_global<<"  TOTAL EVENTS = "<<events<<std::endl;
 	} // if (events(>0)
     } // if (me!=0)
 

@@ -1,8 +1,8 @@
 /*
  * \file HcalMonitorClient.cc
  * 
- * $Date: 2010/05/10 19:45:47 $
- * $Revision: 1.98 $
+ * $Date: 2010/07/15 22:39:02 $
+ * $Revision: 1.99 $
  * \author J. Temple
  * 
  */
@@ -244,6 +244,8 @@ void HcalMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c)
       if (i->det()!=DetId::Hcal) continue; // not an hcal cell
       HcalDetId id=HcalDetId(*i);
       int status=(chanquality_->getValues(id))->getValue();
+      //if (status!=status) status=-1;  // protects against NaN values
+      // The above line doesn't seem to work in identifying NaNs;  ints for bad values come back as negative numbers (at least in run 146501)
       if (status==0) continue;
       badchannelmap[id]=status;
 
@@ -256,7 +258,12 @@ void HcalMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c)
       if (id.subdet()==HcalForward)
 	ieta>0 ? ++ieta: --ieta;
 
-      double logstatus = log2(1.*status)+1;
+      double logstatus = 0;
+      // Fill ChannelStatus value with '-1' when a 'NaN' occurs
+      if (status<0)
+	logstatus=-1*(log2(-1.*status)+1);
+      else
+	logstatus=log2(1.*status)+1;
       if (ChannelStatus->depth[depth-1]) ChannelStatus->depth[depth-1]->Fill(ieta,iphi,logstatus);
     }
     
