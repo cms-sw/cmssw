@@ -210,6 +210,7 @@ FWTrackResidualDetailView::build (const FWModelId &id, const reco::Track* track)
    const char* res_str= "residuals in Si detector local x-y coord.";
    TPaveText *pt = new TPaveText(0.0,0.91, 1,0.99,"blNDC");
    pt->SetBorderSize(0);
+   pt->SetFillColor(kWhite);
    pt->AddText(res_str);
    pt->Draw();
    

@@ -255,6 +255,7 @@ void
 FWTrackHitsDetailView::makeLegend( void )
 {
    m_legend = new TLegend( 0.01, 0.01, 0.99, 0.99, 0, "NDC" );
+   m_legend->SetFillColor(kWhite);
    m_legend->SetTextSize( 0.07 );
    m_legend->SetBorderSize( 0 );
    m_legend->SetMargin( 0.15 );
