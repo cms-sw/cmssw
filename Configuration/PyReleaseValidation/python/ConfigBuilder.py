@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.265 $"
+__version__ = "$Revision: 1.266 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -329,6 +329,15 @@ class ConfigBuilder(object):
         """Add conditions to the process"""
         # remove FrontierConditions_GlobalTag only for backwards compatibility
         # the option can be a list of GT name and connection string
+	print self._options.conditions
+	if 'auto:' in self._options.conditions:
+		from autoCond import autoCond
+		key=self._options.conditions.split(':')[-1]
+		if key not in autoCond:
+			raise Exception('no correspondance for '+self._options.conditions+'\n available keys are'+','.join(autoCond.keys()))
+		else:
+			self._options.conditions = autoCond[key]
+
         conditions = self._options.conditions.replace("FrontierConditions_GlobalTag,",'').split(',')
         gtName = str( conditions[0] )
         if len(conditions) > 1:
@@ -1246,7 +1255,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.265 $"),
+					    (version=cms.untracked.string("$Revision: 1.266 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )

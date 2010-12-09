@@ -387,17 +387,6 @@ if options.fileout=="" and not first_step in ("HARVESTING", "ALCAHARVEST"):
 # (in addition list conditions in name)
 python_config_filename = standardFileName
 
-# check if we have "auto" conditions, if so, expand them properly:
-if 'auto:' in options.conditions:
-    from autoCond import autoCond
-    key=options.conditions.split(':')[-1]
-    if key not in autoCond:
-        print 'no correspondance for',options.conditions
-        print 'available keys are',autoCond.keys()
-        raise
-    else:
-        options.conditions = autoCond[key]
-    
 # now treat the conditions...
 conditionsSP = options.conditions.split(',')
 if len(conditionsSP) > 1:
