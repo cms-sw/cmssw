@@ -11,9 +11,9 @@ def removeModulesNotOnAPathExcluding( process, keepList=() ):
     
     modulesOnPaths = set()
     for p in process.paths_():
-        modulesOnPaths.update( (x for x in getattr(process,p).moduleDependencies().iterkeys()))        
+        modulesOnPaths.update( (x for x in getattr(process,p).moduleNames()))        
     for p in process.endpaths_():
-        modulesOnPaths.update( (x for x in getattr(process,p).moduleDependencies().iterkeys()))
+        modulesOnPaths.update( (x for x in getattr(process,p).moduleNames()))
 
     notOnPaths = allMods.difference(modulesOnPaths)
     

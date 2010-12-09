@@ -686,9 +686,6 @@ class Process(object):
             self.endpaths_()[endpathname].visit(endpathValidator)
             self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.__dict__)
         processPSet.addVString(False, "@filters_on_endpaths", endpathValidator.filtersOnEndpaths)
-        # all the placeholders should be resolved now, so...
-        if self.schedule_() != None:
-            self.schedule_().enforceDependencies()
 
     def prune(self):
         """ Remove clutter from the process which we think is unnecessary:
@@ -1012,10 +1009,10 @@ process.schedule = cms.Schedule(process.p2,process.p)
             p.b = EDAnalyzer("YourAnalyzer")
             p.c = EDAnalyzer("OurAnalyzer")
             p.s = Sequence(p.a*p.b)
-            self.assertEqual(str(p.s),'a*b')
+            self.assertEqual(str(p.s),'a+b')
             self.assertEqual(p.s.label_(),'s')
             path = Path(p.c+p.s)
-            self.assertEqual(str(path),'c+a*b')
+            self.assertEqual(str(path),'c+a+b')
             p._validateSequence(path, 'p1')
             notInProcess = EDAnalyzer('NotInProcess')
             p2 = Path(p.c+p.s*notInProcess)
@@ -1029,17 +1026,17 @@ process.schedule = cms.Schedule(process.p2,process.p)
             path = Path(p.a)
             path *= p.b
             path += p.c
-            self.assertEqual(str(path),'a*b+c')
+            self.assertEqual(str(path),'a+b+c')
             path = Path(p.a*p.b+p.c)
-            self.assertEqual(str(path),'a*b+c')
+            self.assertEqual(str(path),'a+b+c')
 #            path = Path(p.a)*p.b+p.c #This leads to problems with sequences
 #            self.assertEqual(str(path),'((a*b)+c)')
             path = Path(p.a+ p.b*p.c)
-            self.assertEqual(str(path),'a+b*c')
+            self.assertEqual(str(path),'a+b+c')
             path = Path(p.a*(p.b+p.c))
-            self.assertEqual(str(path),'a*(b+c)')
+            self.assertEqual(str(path),'a+b+c')
             path = Path(p.a*(p.b+~p.c))
-            self.assertEqual(str(path),'a*(b+~c)')
+            self.assertEqual(str(path),'a+b+~c')
             p.es = ESProducer("AnESProducer")
             self.assertRaises(TypeError,Path,p.es)
 
@@ -1093,7 +1090,9 @@ process.schedule = cms.Schedule(process.p2,process.p)
             p.c = EDProducer("MyProd")
             path1 = Path(p.c*Sequence(p.a+p.b))
             s = Schedule(path1)
-            s.enforceDependencies()
+            self.assert_('a' in s.moduleNames())
+            self.assert_('b' in s.moduleNames())
+            self.assert_('c' in s.moduleNames())
             
 
         def testImplicitSchedule(self):
@@ -1218,28 +1217,6 @@ process.prefer("juicer",
 
 """)
 
-        def testFindDependencies(self):
-            p = Process("test")
-            p.a = EDProducer("MyProd")
-            p.b = EDProducer("YourProd")
-            p.c = EDProducer("OurProd")
-            path = Path(p.a)
-            path *= p.b
-            path += p.c
-            deps= path.moduleDependencies()
-            self.assertEqual(deps['a'],set())
-            self.assertEqual(deps['b'],set(['a']))
-            self.assertEqual(deps['c'],set())
-
-            path *=p.a
-            self.assertRaises(RuntimeError,path.moduleDependencies)
-            path = Path(p.a*(p.b+p.c))
-            deps = path.moduleDependencies()
-            self.assertEqual(deps['a'],set())
-            self.assertEqual(deps['b'],set(['a']))
-            self.assertEqual(deps['c'],set(['a']))
-            #deps= path.moduleDependencies()
-            #print deps['a']
         def testFreeze(self):
             process = Process("Freeze")
             m = EDProducer("M", p=PSet(i = int32(1)))
