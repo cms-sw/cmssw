@@ -22,6 +22,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "Geometry/CommonTopologies/interface/Topology.h"
 
 //--- For the configuration:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -40,6 +41,9 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
+
+
+
 #include <ext/hash_map>
 
 #include <iostream>
@@ -47,93 +51,104 @@
 
 
 class MagneticField;
-class PixelCPEBase : public PixelClusterParameterEstimator {
+class PixelCPEBase : public PixelClusterParameterEstimator 
+{
  public:
   // PixelCPEBase( const DetUnit& det );
-  PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0, const SiPixelLorentzAngle * lorentzAngle = 0, const SiPixelCPEGenericErrorParm * genErrorParm = 0, const SiPixelTemplateDBObject * templateDBobject = 0);
-    
+  PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0, 
+	       const SiPixelLorentzAngle * lorentzAngle = 0, const SiPixelCPEGenericErrorParm * genErrorParm = 0, 
+	       const SiPixelTemplateDBObject * templateDBobject = 0);
+
+  //~PixelCPEBase()
+  //{
+  //  delete loc_trk_pred;
+  //}
+  
   //--------------------------------------------------------------------------
   // Obtain the angles from the position of the DetUnit.
   // LocalValues is typedef for pair<LocalPoint,LocalError> 
   //--------------------------------------------------------------------------
   inline LocalValues localParameters( const SiPixelCluster & cl, 
 				      const GeomDetUnit    & det ) const 
-  {
-    nRecHitsTotal_++ ;
-    setTheDet( det, cl );
-    computeAnglesFromDetPosition(cl, det);
-    
-		// localPosition( cl, det ) must be called before localError( cl, det ) !!!
-		LocalPoint lp = localPosition( cl, det );
-		LocalError le = localError( cl, det );        
-        
-    return std::make_pair( lp, le );
-  }
-
+    {
+      nRecHitsTotal_++ ;
+      setTheDet( det, cl );
+      computeAnglesFromDetPosition(cl, det);
+      
+      // localPosition( cl, det ) must be called before localError( cl, det ) !!!
+      LocalPoint lp = localPosition( cl, det );
+      LocalError le = localError( cl, det );        
+      
+      return std::make_pair( lp, le );
+    }
+  
   //--------------------------------------------------------------------------
   // In principle we could use the track too to obtain alpha and beta.
   //--------------------------------------------------------------------------
   inline LocalValues localParameters( const SiPixelCluster & cl,
 				      const GeomDetUnit    & det, 
 				      const LocalTrajectoryParameters & ltp) const 
-  {
-    nRecHitsTotal_++ ;
-    setTheDet( det, cl );
-    computeAnglesFromTrajectory(cl, det, ltp);
-
-    // localPosition( cl, det ) must be called before localError( cl, det ) !!!
-		LocalPoint lp = localPosition( cl, det ); 
-		LocalError le = localError( cl, det );        
-
-    return std::make_pair( lp, le );
-  } 
-
+    {
+      nRecHitsTotal_++ ;
+      setTheDet( det, cl );
+      computeAnglesFromTrajectory(cl, det, ltp);
+      
+      // localPosition( cl, det ) must be called before localError( cl, det ) !!!
+      LocalPoint lp = localPosition( cl, det ); 
+      LocalError le = localError( cl, det );        
+      
+      return std::make_pair( lp, le );
+    } 
+  
   //--------------------------------------------------------------------------
   // The third one, with the user-supplied alpha and beta
   //--------------------------------------------------------------------------
   inline LocalValues localParameters( const SiPixelCluster & cl,
 				      const GeomDetUnit    & det, 
 				      float alpha, float beta) const 
-  {
-    nRecHitsTotal_++ ;
-    alpha_ = alpha;
-    beta_  = beta;
-    double HalfPi = 0.5*TMath::Pi();
-    cotalpha_ = tan(HalfPi - alpha_);
-    cotbeta_  = tan(HalfPi - beta_ );
-    setTheDet( det, cl );
-
-		// localPosition( cl, det ) must be called before localError( cl, det ) !!!
-		LocalPoint lp = localPosition( cl, det ); 
-		LocalError le = localError( cl, det );        
-
-    return std::make_pair( lp, le );
-  }
-
-
-	//--------------------------------------------------------------------------
+    {
+      nRecHitsTotal_++ ;
+      alpha_ = alpha;
+      beta_  = beta;
+      double HalfPi = 0.5*TMath::Pi();
+      cotalpha_ = tan(HalfPi - alpha_);
+      cotbeta_  = tan(HalfPi - beta_ );
+      setTheDet( det, cl );
+      
+      // localPosition( cl, det ) must be called before localError( cl, det ) !!!
+      LocalPoint lp = localPosition( cl, det ); 
+      LocalError le = localError( cl, det );        
+      
+      return std::make_pair( lp, le );
+    }
+  
+  
+  //--------------------------------------------------------------------------
   // Allow the magnetic field to be set/updated later.
   //--------------------------------------------------------------------------
   inline void setMagField(const MagneticField *mag) const { magfield_ = mag; }
-
-	//--------------------------------------------------------------------------
+  
+  //--------------------------------------------------------------------------
   // This is where the action happens.
   //--------------------------------------------------------------------------
   virtual LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det) const;  // = 0, take out dk 8/06
   virtual LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det) const = 0;
   
-
-
+  
+  
   //--------------------------------------------------------------------------
   //--- Accessors of other auxiliary quantities
   inline float probabilityX()  const { return probabilityX_ ;  }
   inline float probabilityY()  const { return probabilityY_ ;  }
   inline float probabilityXY() const {
-    if ( probabilityX_ !=0 && probabilityY_ !=0 ) {
-      return probabilityX_ * probabilityY_ * (1 - log(probabilityX_ * probabilityY_) ) ;
-    }
-    else return 0;
+    if ( probabilityX_ !=0 && probabilityY_ !=0 ) 
+      {
+	return probabilityX_ * probabilityY_ * (1 - log(probabilityX_ * probabilityY_) ) ;
+      }
+    else 
+      return 0;
   }
+  
   inline float probabilityQ()  const { return probabilityQ_ ;  }
   inline float qBin()          const { return qBin_ ;          }
   inline bool  isOnEdge()      const { return isOnEdge_ ;      }
@@ -144,10 +159,11 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
   //--- Flag to control how SiPixelRecHits compute clusterProbability().
   //--- Note this is set via the configuration file, and it's simply passed
   //--- to each TSiPixelRecHit.
-  inline unsigned int clusterProbComputationFlag() const { 
-    return clusterProbComputationFlag_ ; 
-  }
-
+  inline unsigned int clusterProbComputationFlag() const 
+    { 
+      return clusterProbComputationFlag_ ; 
+    }
+  
   
   //-----------------------------------------------------------------------------
   //! A convenience method to fill a whole SiPixelRecHitQuality word in one shot.
@@ -169,14 +185,19 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
   //---------------------------------------------------------------------------
   //--- Detector-level quantities
   mutable const PixelGeomDetUnit * theDet;
-  mutable const RectangularPixelTopology * theTopol;
+  
+  // gavril : replace RectangularPixelTopology with PixelTopology
+  //mutable const RectangularPixelTopology * theTopol;
+  mutable const PixelTopology * theTopol;
+  
+
   mutable GeomDetType::SubDetector thePart;
   mutable EtaCorrection theEtaFunc;
   mutable float theThickness;
   mutable float thePitchX;
   mutable float thePitchY;
-  mutable float theOffsetX;
-  mutable float theOffsetY;
+  //mutable float theOffsetX;
+  //mutable float theOffsetY;
   mutable float theNumOfRow;
   mutable float theNumOfCol;
   mutable float theDetZ;
@@ -203,6 +224,12 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
 
   // ggiurgiu@jhu.edu (10/18/2008)
   mutable bool with_track_angle; 
+
+  // ggiurgiu@jhu.edu (12/01/2010) : Needed for calling topology methods 
+  // with track angles to handle surface deformations (bows/kinks)
+  mutable Topology::LocalTrackPred* loc_trk_pred;
+
+  mutable LocalTrajectoryParameters loc_traj_param;
 
   //--- Probability
   mutable float probabilityX_ ; 
@@ -320,7 +347,11 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
   struct Param 
   {
     Param() : topology(0), drift(0.0, 0.0, 0.0) {}
-    RectangularPixelTopology const * topology;
+    
+    // giurgiu@jhu.edu 12/09/2010: switch to PixelTopology
+    //RectangularPixelTopology const * topology;
+    PixelTopology const * topology;
+
     LocalVector drift;
   };
   

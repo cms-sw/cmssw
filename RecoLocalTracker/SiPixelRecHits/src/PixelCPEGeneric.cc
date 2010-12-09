@@ -100,7 +100,13 @@ PixelCPEGeneric::measurementPosition(const SiPixelCluster& cluster,
 				     const GeomDetUnit & det) const
 {
   LocalPoint lp = localPosition(cluster,det);
-  return theTopol->measurementPosition(lp);
+
+  // ggiurgiu@jhu.edu 12/09/2010 : trk angles needed for bow/kink correction
+  if ( with_track_angle ) 
+    return theTopol->measurementPosition(lp, Topology::LocalTrackAngles( loc_traj_param.dxdz(), loc_traj_param.dydz() ) );
+  else
+    return theTopol->measurementPosition(lp);
+
 }
 
 
@@ -116,8 +122,8 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 {
   setTheDet( det, cluster );  //!< Initialize this det unit
   computeLorentzShifts();  //!< correctly compute lorentz shifts in X and Y
-	templID_ = templateDBobject_->getTemplateID(theDet->geographicalId().rawId());
-	if ( UseErrorsFromTemplates_ )
+  templID_ = templateDBobject_->getTemplateID(theDet->geographicalId().rawId());
+  if ( UseErrorsFromTemplates_ )
     {
       bool fpix;  //!< barrel(false) or forward(true)
       if ( thePart == GeomDetEnumerators::PixelBarrel )
@@ -133,7 +139,7 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
       LocalVector Bfield = detFrame.toLocal( bfield );
       float locBz = Bfield.z();
       //cout << "PixelCPEGeneric::localPosition(...) : locBz = " << locBz << endl;
-
+      
       pixmx  = -999.9; // max pixel charge for truncation of 2-D cluster
       sigmay = -999.9; // CPE Generic y-error for multi-pixel cluster
       deltay = -999.9; // CPE Generic y-bias for multi-pixel cluster
@@ -201,8 +207,24 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 				      cluster.maxPixelCol() );
 
   //--- These two now converted into the local
-  LocalPoint local_URcorn_LLpix = theTopol->localPosition(meas_URcorn_LLpix);
-  LocalPoint local_LLcorn_URpix = theTopol->localPosition(meas_LLcorn_URpix);
+  
+  LocalPoint local_URcorn_LLpix;
+  LocalPoint local_LLcorn_URpix;
+
+
+  // PixelCPEGeneric can be used with or without track angles
+  // If PixelCPEGeneric is called with track angles, use them to correct for bows/kinks:
+  if ( with_track_angle )
+    {
+      local_URcorn_LLpix = theTopol->localPosition(meas_URcorn_LLpix, *loc_trk_pred);
+      local_LLcorn_URpix = theTopol->localPosition(meas_LLcorn_URpix, *loc_trk_pred);
+    }
+  else
+    {
+      local_URcorn_LLpix = theTopol->localPosition(meas_URcorn_LLpix);
+      local_LLcorn_URpix = theTopol->localPosition(meas_LLcorn_URpix);
+    }
+
   if (theVerboseLevel > 20) {
     cout  
       << "\n\t >>> cluster.x = " << cluster.x()
@@ -257,37 +279,37 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 			     
   // Apply irradiation corrections.
   if ( IrradiationBiasCorrection_ )
-	{
-		if ( cluster.sizeX() == 1 )
     {
-      // sanity chack
-      if ( cluster.maxPixelRow() != cluster.minPixelRow() )
-				throw cms::Exception("PixelCPEGeneric::localPosition") 
-					<< "\nERROR: cluster.maxPixelRow() != cluster.minPixelRow() although x-size = 1 !!!!! " << "\n\n";
-
-      // Find if pixel is double (big). 
-      bool bigInX = theTopol->isItBigPixelInX( cluster.maxPixelRow() );
-    
-      if ( !bigInX ) 
+      if ( cluster.sizeX() == 1 )
 	{
-	  //cout << "Apply correction dx1 = " << dx1 << " to xPos = " << xPos << endl;
-	  xPos -= dx1;
+	  // sanity chack
+	  if ( cluster.maxPixelRow() != cluster.minPixelRow() )
+	    throw cms::Exception("PixelCPEGeneric::localPosition") 
+	      << "\nERROR: cluster.maxPixelRow() != cluster.minPixelRow() although x-size = 1 !!!!! " << "\n\n";
+	  
+	  // Find if pixel is double (big). 
+	  bool bigInX = theTopol->isItBigPixelInX( cluster.maxPixelRow() );
+	  
+	  if ( !bigInX ) 
+	    {
+	      //cout << "Apply correction dx1 = " << dx1 << " to xPos = " << xPos << endl;
+	      xPos -= dx1;
+	    }
+	  else           
+	    {
+	      //cout << "Apply correction dx2 = " << dx2 << " to xPos = " << xPos << endl;
+	      xPos -= dx2;
+	    }
 	}
-      else           
+      else if ( cluster.sizeX() > 1 )
 	{
-	  //cout << "Apply correction dx2 = " << dx2 << " to xPos = " << xPos << endl;
-	  xPos -= dx2;
+	  //cout << "Apply correction correction_deltax = " << deltax << " to xPos = " << xPos << endl;
+	  xPos -= deltax;
 	}
-    }
-  else if ( cluster.sizeX() > 1 )
-    {
-      //cout << "Apply correction correction_deltax = " << deltax << " to xPos = " << xPos << endl;
-      xPos -= deltax;
-    }
-  else
-    throw cms::Exception("PixelCPEGeneric::localPosition") 
-      << "\nERROR: Unphysical cluster x-size = " <<  (int)cluster.sizeX() << "\n\n";
-
+      else
+	throw cms::Exception("PixelCPEGeneric::localPosition") 
+	  << "\nERROR: Unphysical cluster x-size = " <<  (int)cluster.sizeX() << "\n\n";
+      
   if ( cluster.sizeY() == 1 )
     {
       // sanity chack
@@ -357,7 +379,7 @@ generic_position_formula( int size,                //!< Size of this projection.
   //--- center of the pixel.
   if ( size == 1 ) 
     {
-      // gavril, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
+      // ggiurgiu@jhu.edu, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
       if ( IrradiationBiasCorrection_ ) 
 	return geom_center;
       else

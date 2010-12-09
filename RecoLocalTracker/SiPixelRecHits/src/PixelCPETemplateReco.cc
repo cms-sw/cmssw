@@ -94,7 +94,17 @@ PixelCPETemplateReco::measurementPosition(const SiPixelCluster& cluster,
 					  const GeomDetUnit & det) const
 {
   LocalPoint lp = localPosition(cluster,det);
-  return theTopol->measurementPosition(lp);
+ 
+  // ggiurgiu@jhu.edu 12/09/2010 : trk angles needed to correct for bows/kinks
+  if ( with_track_angle )
+    return theTopol->measurementPosition(lp, Topology::LocalTrackAngles( loc_traj_param.dxdz(), loc_traj_param.dydz() ) );
+  else
+    {
+      edm::LogError("From file: PixelCPETemplateReco.cc, function: PixelCPETemplateReco::measurementPosition(...)") <<
+	"Should never be here. PixelCPETemplateReco should always be called with track angles. This is a bad error !!! " << ierr << "\n";
+  
+      return theTopol->measurementPosition( lp ); 
+    }
 }
 
 
@@ -108,9 +118,9 @@ PixelCPETemplateReco::measurementPosition(const SiPixelCluster& cluster,
 LocalPoint
 PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDetUnit & det) const 
 {
-	setTheDet( det, cluster );
-	templID_ = templateDBobject_->getTemplateID(theDet->geographicalId());
-
+  setTheDet( det, cluster );
+  templID_ = templateDBobject_->getTemplateID(theDet->geographicalId());
+  
   //int ierr;   //!< return status
   int ID = templID_; //!< take the template ID that was selected by the constructor [Morris, 6/25/2008]
 
@@ -144,8 +154,20 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
   
   // Store these offsets (to be added later) in a LocalPoint after tranforming 
   // them from measurement units (pixel units) to local coordinates (cm)
-  LocalPoint lp = theTopol->localPosition( MeasurementPoint(tmp_x, tmp_y) );
-    
+  
+  // ggiurgiu@jhu.edu 12/09/2010 : update call with trk angles needed for bow/kink corrections
+  LocalPoint lp;
+  
+  if ( with_track_angle )
+    lp = theTopol->localPosition( MeasurementPoint(tmp_x, tmp_y), *loc_trk_pred );
+  else
+    {
+      edm::LogError("From file: PixelCPETemplateReco.cc, function: PixelCPETemplateReco::measurementPosition(...)") <<
+	"Should never be here. PixelCPETemplateReco should always be called with track angles. This is a bad error !!! " << ierr << "\n";
+      
+      lp = theTopol->localPosition( MeasurementPoint(tmp_x, tmp_y) );
+    }
+
   const std::vector<SiPixelCluster::Pixel> & pixVec = cluster.pixels();
   std::vector<SiPixelCluster::Pixel>::const_iterator 
     pixIter = pixVec.begin(), pixEnd = pixVec.end();
@@ -192,7 +214,7 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
       int irow = int(pixIter->x) - row_offset;   // &&& do we need +0.5 ???
       int icol = int(pixIter->y) - col_offset;   // &&& do we need +0.5 ???
       
-      // Gavril : what do we do here if the row/column is larger than cluster_matrix_size_x/cluster_matrix_size_y = 7/21 ?
+      // ggiurgiu@jhu.edu : what do we do here if the row/column is larger than cluster_matrix_size_x/cluster_matrix_size_y = 7/21 ?
       // Ignore them for the moment...
       if ( irow<cluster_matrix_size_x && icol<cluster_matrix_size_y )
 	// 02/13/2008 ggiurgiu@fnal.gov typecast pixIter->adc to float
@@ -256,7 +278,7 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
       LogDebug("PixelCPETemplateReco::localPosition") <<
 	"reconstruction failed with error " << ierr << "\n";
 
-      // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
+      // ggiurgiu@jhu.edu: what do we do in this case ? For now, just return the cluster center of gravity in microns
       // In the x case, apply a rough Lorentz drift average correction
       // To do: call PixelCPEGeneric whenever PixelTempReco2D fails
       double lorentz_drift = -999.9;
@@ -266,10 +288,23 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
 	lorentz_drift = 10.0; // in microns
       else 
 	throw cms::Exception("PixelCPETemplateReco::localPosition :") 
-	  << "A non-pixel detector type in here?" << "\n";
-
-      templXrec_ = theTopol->localX( cluster.x() ) - lorentz_drift * micronsToCm; // very rough Lorentz drift correction
-      templYrec_ = theTopol->localY( cluster.y() );
+	  << "A non-pixel detector type in here?" << "\n";    
+      
+      // ggiurgiu@jhu.edu, 21/09/2010 : trk angles needed to correct for bows/kinks
+      if ( with_track_angle )
+	{
+	  templXrec_ = theTopol->localX( cluster.x(), *loc_trk_pred ) - lorentz_drift * micronsToCm; // rough Lorentz drift correction
+	  templYrec_ = theTopol->localY( cluster.y(), *loc_trk_pred ); 
+	}
+      else
+	{
+	  edm::LogError("From file: PixelCPETemplateReco.cc, function: PixelCPETemplateReco::measurementPosition(...)") 
+	    << "Should never be here. PixelCPETemplateReco should always be called with track angles. This is a bad error !!! " 
+	    << ierr << "\n";
+	  
+	  templXrec_ = theTopol->localX( cluster.x() ) - lorentz_drift * micronsToCm; // rough Lorentz drift correction
+	  templYrec_ = theTopol->localY( cluster.y() );
+	}
 
     }
   else if ( UseClusterSplitter_ && templQbin_ == 0 )
@@ -287,7 +322,7 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
 	  LogDebug("PixelCPETemplateReco::localPosition") <<
 	    "reconstruction failed with error " << ierr << "\n";
 	  
-	  // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
+	  // ggiurgiu@jhu.edu: what do we do in this case ? For now, just return the cluster center of gravity in microns
 	  // In the x case, apply a rough Lorentz drift average correction
 	  // To do: call PixelCPEGeneric whenever PixelTempReco2D fails
 	  double lorentz_drift = -999.9;
@@ -299,9 +334,22 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
 	    throw cms::Exception("PixelCPETemplateReco::localPosition :") 
 	      << "A non-pixel detector type in here?" << "\n";
 
-	  templXrec_ = theTopol->localX( cluster.x() ) - lorentz_drift * micronsToCm; // very rough Lorentz drift correction
-	  templYrec_ = theTopol->localY( cluster.y() );
+	  // ggiurgiu@jhu.edu, 12/09/2010 : trk angles needed to correct for bows/kinks
+	  if ( with_track_angle )
+	    {
+	      templXrec_ = theTopol->localX( cluster.x(),*loc_trk_pred ) - lorentz_drift * micronsToCm; // rough Lorentz drift correction
+	      templYrec_ = theTopol->localY( cluster.y(),*loc_trk_pred );
+	    }
+	  else
+	    {
+	      edm::LogError("From file: PixelCPETemplateReco.cc, function: PixelCPETemplateReco::measurementPosition(...)") 
+		<< "Should never be here. PixelCPETemplateReco should always be called with track angles. This is a bad error !!! " 
+		<< ierr << "\n";	      
 
+	      templXrec_ = theTopol->localX( cluster.x() ) - lorentz_drift * micronsToCm; // very rough Lorentz drift correction
+	      templYrec_ = theTopol->localY( cluster.y() );
+
+	    }
 	}
       else
 	{

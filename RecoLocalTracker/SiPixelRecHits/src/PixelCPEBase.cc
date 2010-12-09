@@ -41,7 +41,8 @@ const float degsPerRad = 57.29578;
 //  A fairly boring constructor.  All quantities are DetUnit-dependent, and
 //  will be initialized in setTheDet().
 //-----------------------------------------------------------------------------
-PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, const SiPixelLorentzAngle * lorentzAngle, const SiPixelCPEGenericErrorParm * genErrorParm, const SiPixelTemplateDBObject * templateDBobject)
+PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, const SiPixelLorentzAngle * lorentzAngle, 
+			   const SiPixelCPEGenericErrorParm * genErrorParm, const SiPixelTemplateDBObject * templateDBobject)
   : theDet(0), nRecHitsTotal_(0), nRecHitsUsedEdge_(0),
     probabilityX_(0.0), probabilityY_(0.0),
     probabilityQ_(0.0), qBin_(0),
@@ -129,8 +130,11 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
   theThickness = theDet->surface().bounds().thickness();
 
   //--- Cache the topology.
-  theTopol
-    = dynamic_cast<const RectangularPixelTopology*>( & (theDet->specificTopology()) );
+  // ggiurgiu@jhu.edu 12/09/2010 : no longer need to dynamyc cast to RectangularPixelTopology
+  //theTopol
+  //= dynamic_cast<const RectangularPixelTopology*>( & (theDet->specificTopology()) );
+
+  theTopol = &(theDet->specificTopology());
 
   //---- The geometrical description of one module/plaquette
   theNumOfRow = theTopol->nrows();      // rows in x
@@ -140,10 +144,14 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
   thePitchY = pitchxy.second;           // pitch along y
 
   //--- Find the offset
-  MeasurementPoint  offset = 
-    theTopol->measurementPosition( LocalPoint(0., 0.) );  
-  theOffsetX = offset.x();
-  theOffsetY = offset.y();
+  // ggiurgiu@jhu.edu 12/09/2010 : this piece is deprecated
+  //MeasurementPoint offset = 
+  //theTopol->measurementPosition( LocalPoint(0.0, 0.0), 
+  //			   Topology::LocalTrackAngles( LocalTrajectoryParameters::dxdz(), 
+  //						       LocalTrajectoryParameters::dydz() ) );  
+  //
+  //theOffsetX = offset.x();
+  //theOffsetY = offset.y();
 
   //--- Find if the E field is flipped: i.e. whether it points
   //--- from the beam, or towards the beam.  (The voltages are
@@ -195,11 +203,11 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
 			       << " theThickness = " << theThickness
 			       << " thePitchX  = " << thePitchX 
 			       << " thePitchY  = " << thePitchY 
-			       << " theOffsetX = " << theOffsetX 
-			       << " theOffsetY = " << theOffsetY 
+	// << " theOffsetX = " << theOffsetX 
+	// << " theOffsetY = " << theOffsetY 
 			       << " theLShiftX  = " << theLShiftX;
     }
-
+	
 }
 
 //-----------------------------------------------------------------------------
@@ -225,9 +233,11 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl,
   float xcenter = cl.x();
   float ycenter = cl.y();
   
-  // get the cluster position in local coordinates (cm) 
+  // get the cluster position in local coordinates (cm)
+
+  // ggiurgiu@jhu.edu 12/09/2010 : This function is called without track info, therefore there are no track 
+  // angles to provide here. Call the default localPosition (without track info)
   LocalPoint lp = theTopol->localPosition( MeasurementPoint(xcenter, ycenter) );
-  //float lp_mod = sqrt( lp.x()*lp.x() + lp.y()*lp.y() + lp.z()*lp.z() );
 
   // get the cluster position in global coordinates (cm)
   GlobalPoint gp = theDet->surface().toGlobal( lp );
@@ -286,6 +296,8 @@ computeAnglesFromTrajectory( const SiPixelCluster & cl,
 			     const GeomDetUnit    & det, 
 			     const LocalTrajectoryParameters & ltp) const
 {
+  loc_traj_param = ltp;
+
   LocalVector localDir = ltp.momentum()/ltp.momentum().mag();
   
   // &&& Or, maybe we need to move to the local frame ???
@@ -318,7 +330,11 @@ computeAnglesFromTrajectory( const SiPixelCluster & cl,
   
   with_track_angle = true;
 
-}
+
+  // ggiurgiu@jhu.edu 12/09/2010 : needed to correct for bows/kinks
+  AlgebraicVector5 vec_trk_parameters = ltp.mixedFormatVector();
+  loc_trk_pred = &Topology::LocalTrackPred( vec_trk_parameters );
+  }
 
 //-----------------------------------------------------------------------------
 //  Estimate theAlpha for barrel, based on the det position.
@@ -356,8 +372,16 @@ PixelCPEBase::measurementPosition( const SiPixelCluster& cluster,
 				   const GeomDetUnit & det) const {
 
   LocalPoint lp = localPosition(cluster,det);
-  return theTopol->measurementPosition(lp);
+
+  // ggiurgiu@jhu.edu 12/09/2010 : trk angles needed for bow/kink correction
+
+  if ( with_track_angle )
+    return theTopol->measurementPosition( lp, Topology::LocalTrackAngles( loc_traj_param.dxdz(), loc_traj_param.dydz() ) );
+  else 
+    return theTopol->measurementPosition( lp );
+
 }
+
 
 //-----------------------------------------------------------------------------
 //  Once we have the position, feed it to the topology to give us
@@ -369,7 +393,12 @@ PixelCPEBase::measurementError( const SiPixelCluster& cluster, const GeomDetUnit
 {
   LocalPoint lp( localPosition(cluster, det) );
   LocalError le( localError(   cluster, det) );
-  return theTopol->measurementError( lp, le );
+
+  // ggiurgiu@jhu.edu 12/09/2010 : trk angles needed for bow/kink correction
+  if ( with_track_angle )
+    return theTopol->measurementError( lp, le, Topology::LocalTrackAngles( loc_traj_param.dxdz(), loc_traj_param.dydz() ) );
+  else 
+    return theTopol->measurementError( lp, le );
 }
 
 //-----------------------------------------------------------------------------
@@ -414,7 +443,11 @@ float PixelCPEBase::lorentzShiftX() const
     {
       //cout << "--------------- new ----------------------" << endl;
       //cout << "p.topology = " << p.topology << endl;
-      p.topology = (RectangularPixelTopology*)( & ( theDet->specificTopology() ) );    
+      
+      // ggiurgiu@jhu.edu 12/09/2010 : no longer need to cast
+      //p.topology = (RectangularPixelTopology*)( & ( theDet->specificTopology() ) );          
+      p.topology = &( theDet->specificTopology() );   
+
       p.drift = driftDirection(magfield_->inTesla(theDet->surface().position()) );
       dir = p.drift;
       //cout << "p.topology = " << p.topology << endl;
@@ -455,7 +488,10 @@ float PixelCPEBase::lorentzShiftY() const
     {
       //cout << "--------------- new y ----------------------" << endl;
       //cout << "p.topology y = " << p.topology << endl;
-      p.topology = (RectangularPixelTopology*)( & ( theDet->specificTopology() ) );    
+      
+      //p.topology = (RectangularPixelTopology*)( & ( theDet->specificTopology() ) );    
+      p.topology = &( theDet->specificTopology() );
+
       p.drift = driftDirection(magfield_->inTesla(theDet->surface().position()) );
       dir = p.drift;
       //cout << "p.topology y = " << p.topology << endl;
