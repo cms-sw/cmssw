@@ -6,13 +6,15 @@
  *  Copyright 2010 FNAL. All rights reserved.
  *
  */
-#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
+
+#include "Fireworks/Core/interface/FWDigitSetProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
-class FWCastorRecHitProxyBuilder : public FWSimpleProxyBuilderTemplate<CastorRecHit>
+class FWCastorRecHitProxyBuilder : public FWDigitSetProxyBuilder
 {
 public:
    FWCastorRecHitProxyBuilder( void ) {}  
@@ -21,23 +23,32 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   // Disable default copy constructor
    FWCastorRecHitProxyBuilder( const FWCastorRecHitProxyBuilder& );
-   // Disable default assignment operator
    const FWCastorRecHitProxyBuilder& operator=( const FWCastorRecHitProxyBuilder& );
 
-   void build( const CastorRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
+   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );	
 };
 
-void
-FWCastorRecHitProxyBuilder::build( const CastorRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) 
+void FWCastorRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-   const float* corners = item()->getGeom()->getCorners( iData.detid());
-   if( corners == 0 ) {
+   const CastorRecHitCollection* collection = 0;
+   iItem->get( collection );
+   if (! collection)
       return;
+
+
+   TEveBoxSet* boxSet = addBoxSetToProduct(product);
+   for (std::vector<CastorRecHit>::const_iterator it = collection->begin() ; it != collection->end(); ++it)
+   {  
+      const float* corners = item()->getGeom()->getCorners((*it).detid());
+      if (corners == 0) 
+         continue;
+
+      std::vector<float> scaledCorners(24);
+      fireworks::energyTower3DCorners(corners, (*it).energy() * 10, scaledCorners);
+
+      addBox(boxSet, &scaledCorners[0]);
    }
-   // FIXME: Every other shapes is inverted.
-   fireworks::drawEnergyTower3D( corners, iData.energy() * 10, &oItemHolder, this );
 }
 
-REGISTER_FWPROXYBUILDER( FWCastorRecHitProxyBuilder, CastorRecHit, "Castor RecHit", FWViewType::kISpyBit );
+REGISTER_FWPROXYBUILDER( FWCastorRecHitProxyBuilder, CastorRecHitCollection, "Castor RecHit", FWViewType::kISpyBit );

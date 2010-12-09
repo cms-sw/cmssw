@@ -2,8 +2,8 @@
  * \file BeamMonitorBx.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/07/29 22:15:24 $
- * $Revision: 1.12 $
+ * $Date: 2010/08/31 23:16:59 $
+ * $Revision: 1.13 $
  *
  */
 
@@ -556,7 +556,7 @@ void BeamMonitorBx::weight(double& mean,double& meanError,const double& val,cons
 	mean = mean/(meanError*meanError) + val/(valError*valError);
     }
     mean = mean/tmpError;
-    meanError = sqrt(1/tmpError);
+    meanError = std::sqrt(1/tmpError);
 }
 
 //--------------------------------------------------------

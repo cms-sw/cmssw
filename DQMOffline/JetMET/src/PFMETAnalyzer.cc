@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/09/23 20:39:08 $
- *  $Revision: 1.30 $
+ *  $Date: 2010/09/29 12:24:59 $
+ *  $Revision: 1.31 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -739,6 +739,13 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       bTechTriggersNOT = false;
     }
   
+  if (_techTrigsAND.size()==0)
+    bTechTriggersAND = true;
+  if (_techTrigsOR.size()==0)
+    bTechTriggersOR = true;
+  if (_techTrigsNOT.size()==0)
+    bTechTriggersNOT = false;
+
   bTechTriggers = bTechTriggersAND && bTechTriggersOR && !bTechTriggersNOT;
 
   // ==========================================================

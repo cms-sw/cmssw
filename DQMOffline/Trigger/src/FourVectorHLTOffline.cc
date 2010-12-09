@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.89 2010/10/05 03:15:25 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.87 2010/09/03 11:05:26 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -24,8 +24,7 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig): cu
   fSelectedPhotons = new reco::PhotonCollection;
   fSelectedJets = new reco::CaloJetCollection;
   fSelectedMet = new reco::CaloMETCollection;
-  //fSelectedTaus = new reco::CaloTauCollection;
-  fSelectedTaus = new reco::PFTauCollection;
+  fSelectedTaus = new reco::CaloTauCollection;
 
   dbe_ = Service < DQMStore > ().operator->();
   if ( ! dbe_ ) {
@@ -141,52 +140,14 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig): cu
 
   sumEtMin_ = iConfig.getUntrackedParameter<double>("sumEtMin",10.0);
 
-  // Muon quality cuts
-  //////////////////////////
-  dxyCut_ = iConfig.getUntrackedParameter<double>("DxyCut", 0.2);   // dxy < 0.2 cm 
-  normalizedChi2Cut_ = iConfig.getUntrackedParameter<double>("NormalizedChi2Cut", 10.); // chi2/ndof (of global fit) <10.0
-  trackerHitsCut_ = iConfig.getUntrackedParameter<int>("TrackerHitsCut", 11);  // Tracker Hits >10 
-  pixelHitsCut_ = iConfig.getUntrackedParameter<int>("PixelHitsCut", 1); // Pixel Hits >0
-  muonHitsCut_ = iConfig.getUntrackedParameter<int>("MuonHitsCut", 1);  // Valid Muon Hits >0 
-  isAlsoTrackerMuon_ = iConfig.getUntrackedParameter<bool>("IsAlsoTrackerMuon", true);
-  nMatchesCut_ = iConfig.getUntrackedParameter<int>("NMatchesCut", 2); // At least 2 Chambers with matches 
-
-  // Electron quality cuts
-  //////////////////////////
-	eleMaxOver3x3_  =  iConfig.getUntrackedParameter<double>("eleMaxOver3x3", 0.9);
-  // Ecal Barrel
-  dr03TkSumPtEB_ =  iConfig.getUntrackedParameter<double>("dr03TkSumPtEB", 3.0);
-	dr04EcalRecHitSumEtEB_ = iConfig.getUntrackedParameter<double>("dr04EcalRecHitSumEtEB", 4.0);
-	dr04HcalTowerSumEtEB_ =  iConfig.getUntrackedParameter<double>("dr04HcalTowerSumEtEB", 5.0);
-	hadronicOverEmEB_ =    iConfig.getUntrackedParameter<double>("hadronicOverEmEB", 0.05);
-	deltaPhiSuperClusterTrackAtVtxEB_ = iConfig.getUntrackedParameter<double>("deltaPhiSuperClusterTrackAtVtxEB", 0.2);
-	deltaEtaSuperClusterTrackAtVtxEB_ = iConfig.getUntrackedParameter<double>("deltaEtaSuperClusterTrackAtVtxEB", 0.006);
-	sigmaIetaIetaEB_ = iConfig.getUntrackedParameter<double>("sigmaIetaIetaEB", 0.01);
-  //spikes
-	sigmaIetaIetaSpikesEB_ = iConfig.getUntrackedParameter<double>("sigmaIetaIetaSpikesEB", 0.002);
-
-  // Ecal Endcap
-	dr03TkSumPtEC_ =  iConfig.getUntrackedParameter<double>("dr03TkSumPtEC", 1.5);
-	dr04EcalRecHitSumEtEC_ = iConfig.getUntrackedParameter<double>("dr04EcalRecHitSumEtEC", 2.5);
-	dr04HcalTowerSumEtEC_ =  iConfig.getUntrackedParameter<double>("dr04HcalTowerSumEtEC", 0.7);
-	hadronicOverEmEC_ =  iConfig.getUntrackedParameter<double>("hadronicOverEmEC", 0.025);
-	deltaPhiSuperClusterTrackAtVtxEC_ = iConfig.getUntrackedParameter<double>("deltaPhiSuperClusterTrackAtVtxEC", 0.2);
-	deltaEtaSuperClusterTrackAtVtxEC_ = iConfig.getUntrackedParameter<double>("deltaEtaSuperClusterTrackAtVtxEC", 0.006);
-	sigmaIetaIetaEC_ = iConfig.getUntrackedParameter<double>("sigmaIetaIetaEC", 0.03);
-  //spikes
-	sigmaIetaIetaSpikesEC_ = iConfig.getUntrackedParameter<double>("sigmaIetaIetaSpikesEC", 0.002);
-
-  // Jet ID cuts
-  //////////////////////////
-  emEnergyFractionJet_ = iConfig.getUntrackedParameter<double>("emEnergyFractionJet",0.01);
-  fHPDJet_ = iConfig.getUntrackedParameter<double>("fHPDJet",0.98);
-  n90Jet_ = iConfig.getUntrackedParameter<int>("n90Jet",2);
-
-  // Tau discriminators
-  ////////////////////////////
-  tauDscrmtrLabel1_ = iConfig.getUntrackedParameter("tauDscrmtrLabel1", std::string("shrinkingConePFTauDiscriminationByLeadingTrackFinding"));
-  tauDscrmtrLabel2_ = iConfig.getUntrackedParameter("tauDscrmtrLabel2", std::string("shrinkingConePFTauDiscriminationByLeadingTrackPtCut"));
-  tauDscrmtrLabel3_ = iConfig.getUntrackedParameter("tauDscrmtrLabel3", std::string("shrinkingConePFTauDiscriminationByIsolation"));
+      // Muon quality cuts
+      dxyCut_ = iConfig.getUntrackedParameter<double>("DxyCut", 0.2);   // dxy < 0.2 cm 
+      normalizedChi2Cut_ = iConfig.getUntrackedParameter<double>("NormalizedChi2Cut", 10.); // chi2/ndof (of global fit) <10.0
+      trackerHitsCut_ = iConfig.getUntrackedParameter<int>("TrackerHitsCut", 11);  // Tracker Hits >10 
+      pixelHitsCut_ = iConfig.getUntrackedParameter<int>("PixelHitsCut", 1); // Pixel Hits >0
+      muonHitsCut_ = iConfig.getUntrackedParameter<int>("MuonHitsCut", 1);  // Valid Muon Hits >0 
+      isAlsoTrackerMuon_ = iConfig.getUntrackedParameter<bool>("IsAlsoTrackerMuon", true);
+      nMatchesCut_ = iConfig.getUntrackedParameter<int>("NMatchesCut", 2); // At least 2 Chambers with matches 
 
   specialPaths_ = iConfig.getParameter<std::vector<std::string > >("SpecialPaths");
 
@@ -197,7 +158,6 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig): cu
   pathsSummaryHLTPathsPerLSFolder_ = iConfig.getUntrackedParameter ("individualPathsPerLSFolder",std::string("HLT/FourVector/PathsSummary/HLT LS/"));
   pathsIndividualHLTPathsPerLSFolder_ = iConfig.getUntrackedParameter ("individualPathsPerLSFolder",std::string("HLT/FourVector/PathsSummary/HLT LS/Paths/"));
   pathsSummaryHLTPathsPerBXFolder_ = iConfig.getUntrackedParameter ("individualPathsPerBXFolder",std::string("HLT/FourVector/PathsSummary/HLT BX/"));
-
 
   fLumiFlag = true;
   ME_HLTAll_LS = NULL;
@@ -314,13 +274,11 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     edm::LogInfo("FourVectorHLTOffline") << "gsfElectrons not found, ";
   selectElectrons(iEvent, iSetup, gsfElectrons);
 
-  //edm::Handle<reco::CaloTauCollection> tauHandle;
-  edm::Handle<reco::PFTauCollection> tauHandle;
+  edm::Handle<reco::CaloTauCollection> tauHandle;
   iEvent.getByLabel("caloRecoTauProducer",tauHandle);
   if(!tauHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "tauHandle not found, ";
-  //selectTaus(tauHandle);
-  selectTaus(iEvent);
+  selectTaus(tauHandle);
 
   edm::Handle<reco::CaloJetCollection> jetHandle;
   iEvent.getByLabel("iterativeCone5CaloJets",jetHandle);
@@ -394,8 +352,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   muoMon.pushL1TriggerType(TriggerL1Mu);
   
   // tau Monitor
-  //objMonData<reco::CaloTauCollection>  tauMon;
-  objMonData<reco::PFTauCollection>  tauMon;
+  objMonData<reco::CaloTauCollection>  tauMon;
   //tauMon.setReco(tauHandle);
   tauMon.setReco(fSelTausHandle);
   tauMon.setLimits(tauEtaMax_, tauEtMin_, tauDRMatch_, tauL1DRMatch_, dRMax_, thresholdFactor_);
@@ -2390,27 +2347,24 @@ void FourVectorHLTOffline::selectElectrons(const edm::Event& iEvent, const edm::
       
       EcalClusterLazyTools lazyTool(iEvent, iSetup, recHitsEBTag_, recHitsEETag_); 
       const reco::CaloCluster* bc = iter->superCluster()->seed().get(); // get the basic cluster
-      
+      //eleMaxOver3x3_.push_back( lazyTool.eMax(*bc) / lazyTool.e3x3(*bc)  );
       float eleMaxOver3x3 = ( lazyTool.eMax(*bc) / lazyTool.e3x3(*bc)  );
 
-      // Only ecalDriven electrons
-      if(! iter->ecalDriven() ) continue;
-
-      if(eleMaxOver3x3 > eleMaxOver3x3_) continue;
+      if(eleMaxOver3x3 > 0.9) continue;
 
       // Barrel 
       if(iter->isEB()) {
 
         if (
-				  iter->dr03TkSumPt()         < dr03TkSumPtEB_ && 
-				  iter->dr04EcalRecHitSumEt() < dr04EcalRecHitSumEtEB_ && 
-				  iter->dr04HcalTowerSumEt()  < dr04HcalTowerSumEtEB_ &&
-				  iter->hadronicOverEm()      < hadronicOverEmEB_ &&
-				  fabs(iter->deltaPhiSuperClusterTrackAtVtx()) < deltaPhiSuperClusterTrackAtVtxEB_ && 
-				  fabs(iter->deltaEtaSuperClusterTrackAtVtx()) < deltaEtaSuperClusterTrackAtVtxEB_ &&
-				  iter->sigmaIetaIeta() < sigmaIetaIetaEB_ &&
+				  iter->dr03TkSumPt()         < 3.0 && // 7.0 && 
+				  iter->dr04EcalRecHitSumEt() < 4.0 && // 5.0 &&
+				  iter->dr04HcalTowerSumEt()  < 5.0 &&
+				  iter->hadronicOverEm()      < 0.05 &&
+				  fabs(iter->deltaPhiSuperClusterTrackAtVtx()) < 02 && // 0.8 &&
+				  fabs(iter->deltaEtaSuperClusterTrackAtVtx()) < 0.006 &&
+				  iter->sigmaIetaIeta() < 0.01 &&
           //spikes
-				  iter->sigmaIetaIeta() > sigmaIetaIetaSpikesEB_
+				  iter->sigmaIetaIeta() > 0.002
         ) {
 
             fSelectedElectrons->push_back(*iter);
@@ -2422,15 +2376,15 @@ void FourVectorHLTOffline::selectElectrons(const edm::Event& iEvent, const edm::
       // EndCap
       else if(iter->isEE()) {
         if (
-				  iter->dr03TkSumPt()         < dr03TkSumPtEC_ && 
-				  iter->dr04EcalRecHitSumEt() < dr04EcalRecHitSumEtEC_ && 
-				  iter->dr04HcalTowerSumEt()  < dr04HcalTowerSumEtEC_ && 
-				  iter->hadronicOverEm()      < hadronicOverEmEC_ && 
-				  fabs(iter->deltaPhiSuperClusterTrackAtVtx()) < deltaPhiSuperClusterTrackAtVtxEC_ && 
-				  fabs(iter->deltaEtaSuperClusterTrackAtVtx()) < deltaEtaSuperClusterTrackAtVtxEC_ && 
-				  iter->sigmaIetaIeta() < sigmaIetaIetaEC_ && 
+				  iter->dr03TkSumPt()         < 1.5 && // 8.0 && 
+				  iter->dr04EcalRecHitSumEt() < 2.5 && // 3.0 &&
+				  iter->dr04HcalTowerSumEt()  < 0.7 && // 2.0 &&
+				  iter->hadronicOverEm()      < 0.025 && // 0.04 &&
+				  fabs(iter->deltaPhiSuperClusterTrackAtVtx()) < 0.2 && // 0.7 &&
+				  fabs(iter->deltaEtaSuperClusterTrackAtVtx()) < 0.006 && // 0.008 &&
+				  iter->sigmaIetaIeta() < 0.03 && 
           //spikes
-				  iter->sigmaIetaIeta() > sigmaIetaIetaSpikesEC_
+				  iter->sigmaIetaIeta() > 0.002
         ) {
 
             fSelectedElectrons->push_back(*iter);
@@ -2493,9 +2447,10 @@ void FourVectorHLTOffline::selectJets(const edm::Event& iEvent, const edm::Handl
     {
 
        jetID->calculate(iEvent, *iter);
-       if (iter->emEnergyFraction() > emEnergyFractionJet_ &&
-           jetID->fHPD() < fHPDJet_ &&
-           iter->n90() >= n90Jet_ 
+       if (iter->emEnergyFraction() > 0.01 &&
+           //iter->fHPD() < 0.98 &&
+           jetID->fHPD() < 0.98 &&
+           iter->n90() >= 2 
            ){ 
 
                 fSelectedJets->push_back(*iter);
@@ -2534,51 +2489,27 @@ void FourVectorHLTOffline::selectMet(const edm::Handle<reco::CaloMETCollection> 
 
 }
 
-
-void FourVectorHLTOffline::selectTaus(const edm::Event& iEvent)
+void FourVectorHLTOffline::selectTaus(const edm::Handle<reco::CaloTauCollection> & tauHandle)
 {
   // for every event, first clear vector of selected objects
   fSelectedTaus->clear();
 
-  //first read the tau collection
-  edm::Handle<reco::PFTauCollection> tauHandle;  
-  iEvent.getByLabel("shrinkingConePFTauProducer",tauHandle);
+  if(tauHandle.isValid()) { 
 
-  //Now access a discriminator and see if it passed the tag
-  edm::Handle<reco::PFTauDiscriminator> dscrmt1H;
-  iEvent.getByLabel(tauDscrmtrLabel1_,dscrmt1H);
-  edm::Handle<reco::PFTauDiscriminator> dscrmt2H;
-  iEvent.getByLabel(tauDscrmtrLabel2_,dscrmt2H);
-  edm::Handle<reco::PFTauDiscriminator> dscrmt3H;
-  iEvent.getByLabel(tauDscrmtrLabel3_,dscrmt3H);
+    for( reco::CaloTauCollection::const_iterator iter = tauHandle->begin(), iend = tauHandle->end(); iter != iend; ++iter )
+    {
 
-  if(tauHandle.isValid() && dscrmt1H.isValid() && dscrmt2H.isValid() && dscrmt3H.isValid()) { 
-
-    for(unsigned int i=0;i<tauHandle->size();++i) {
-
-        //create a ref to the PF Tau 
-        reco::PFTauRef pfTauRef(tauHandle,i);
-
-        float outputDiscmnt1 = (*dscrmt1H)[pfTauRef]; // this should be >0.5 to pass
-        float outputDiscmnt2 = (*dscrmt2H)[pfTauRef]; // this should be >0.5 to pass
-        float outputDiscmnt3 = (*dscrmt3H)[pfTauRef]; // this should be >0.5 to pass
-
-        if(outputDiscmnt1>0.5 && outputDiscmnt2>0.5 && outputDiscmnt3 >0.5) {
-
-          fSelectedTaus->push_back((*tauHandle)[i]);
-
-        }
+      fSelectedTaus->push_back(*iter);
 
     } // end for
-
   
-    edm::Handle<reco::PFTauCollection> localSelTauHandle(fSelectedTaus,tauHandle.provenance());
+    edm::Handle<reco::CaloTauCollection> localSelTauHandle(fSelectedTaus,tauHandle.provenance());
     fSelTausHandle = localSelTauHandle;
 
   } // end if
 
-}
 
+}
 
 int FourVectorHLTOffline::getHltThresholdFromName(const string & name)
 {

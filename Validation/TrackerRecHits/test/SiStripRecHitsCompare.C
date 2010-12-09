@@ -50,7 +50,7 @@ void SiStripRecHitsCompare()
       if (strcmp(ref_obj->IsA()->GetName(),"TObjString")==0) {
 
          TObjString * rversion = dynamic_cast< TObjString*> (ref_obj);
-         sprintf(rver, "old: %s", rversion->GetName());
+         sprintf(rver, "%s", rversion->GetName());
          std::cout<<" Ref. version =" << rver<<std::endl;
          break;
       }
@@ -65,7 +65,7 @@ void SiStripRecHitsCompare()
       if (strcmp(new_obj->IsA()->GetName(),"TObjString")==0) {
 
          TObjString * cversion = dynamic_cast< TObjString*> (new_obj);
-         sprintf(cver, "new: %s", cversion->GetName());
+         sprintf(cver, "%s", cversion->GetName());
          std::cout<<" Cur version =" << cver<<std::endl;
          break;
 
@@ -149,7 +149,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TIB/Adc_sas_layer1tib",newadctib[4]);
  sdir->GetObject("TIB/Adc_sas_layer2tib",newadctib[5]);
  
- Strip0 = new TCanvas("Strip0","Strip0",1600,1000);
+ Strip0 = new TCanvas("Strip0","Strip0",800,500);
  Strip0->Divide(2,3);
  for (Int_t i=0; i<6; i++) {
    Strip0->cd(i+1);
@@ -186,7 +186,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TIB/Nstp_sas_layer1tib",newnstptib[4]);
  sdir->GetObject("TIB/Nstp_sas_layer2tib",newnstptib[5]);
 
- Strip1 = new TCanvas("Strip1","Strip1",1600,1000);
+ Strip1 = new TCanvas("Strip1","Strip1",800,500);
  Strip1->Divide(2,3);
  for (Int_t i=0; i<6; i++) {
    Strip1->cd(i+1);
@@ -222,7 +222,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TIB/Posx_sas_layer1tib",newpostib[4]);
  sdir->GetObject("TIB/Posx_sas_layer2tib",newpostib[5]);
 
- Strip2 = new TCanvas("Strip2","Strip2",1600,1000);
+ Strip2 = new TCanvas("Strip2","Strip2",800,500);
   Strip2->Divide(2,3);
   for (Int_t i=0; i<6; i++) {
     Strip2->cd(i+1);
@@ -259,7 +259,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TIB/Errx_sas_layer1tib",newerrxtib[4]);
  sdir->GetObject("TIB/Errx_sas_layer2tib",newerrxtib[5]);
 
-  Strip3 = new TCanvas("Strip3","Strip3",1600,1000);
+  Strip3 = new TCanvas("Strip3","Strip3",800,500);
   Strip3->Divide(2,3);
   for (Int_t i=0; i<6; i++) {
     Strip3->cd(i+1);
@@ -295,7 +295,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TIB/Res_sas_layer1tib",newrestib[4]);
  sdir->GetObject("TIB/Res_sas_layer2tib",newrestib[5]);
 
-  Strip4 = new TCanvas("Strip4","Strip4",1600,1000);
+  Strip4 = new TCanvas("Strip4","Strip4",800,500);
   Strip4->Divide(2,3);
   for (Int_t i=0; i<6; i++) {
     Strip4->cd(i+1);
@@ -331,7 +331,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TIB/Pull_MF_sas_layer1tib",newpulltib[4]);
  sdir->GetObject("TIB/Pull_MF_sas_layer2tib",newpulltib[5]);
  
- Strip31 = new TCanvas("Strip31","Strip31",1600,1000);
+ Strip31 = new TCanvas("Strip31","Strip31",800,500);
  Strip31->Divide(2,3);
  for (Int_t i=0; i<6; i++) {
    Strip31->cd(i+1);
@@ -368,7 +368,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TIB/Chi2_sas_layer2tib",newchi2tib[5]);
 
 
-  Strip5 = new TCanvas("Strip5","Strip5",1600,1000);
+  Strip5 = new TCanvas("Strip5","Strip5",800,500);
   Strip5->Divide(2,3);
   for (Int_t i=0; i<6; i++) {
     Strip5->cd(i+1);
@@ -417,7 +417,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TIB/Resx_matched_layer2tib",newmatchedtib[10]);
  sdir->GetObject("TIB/Resy_matched_layer2tib",newmatchedtib[11]);
 
- Strip6 = new TCanvas("Strip6","Strip6",1600,1000);
+ Strip6 = new TCanvas("Strip6","Strip6",800,500);
  Strip6->Divide(4,3);
  for (Int_t i=0; i<12; i++) {
    Strip6->cd(i+1);
@@ -478,7 +478,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TOB/Adc_sas_layer1tob",newadctob[6]);
  sdir->GetObject("TOB/Adc_sas_layer2tob",newadctob[7]);
  
- Strip7 = new TCanvas("Strip7","Strip7",1600,1000);
+ Strip7 = new TCanvas("Strip7","Strip7",800,500);
  Strip7->Divide(3,3);
  for (Int_t i=0; i<8; i++) {
    Strip7->cd(i+1);
@@ -518,7 +518,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TOB/Nstp_sas_layer1tob",newnstptob[6]);
  sdir->GetObject("TOB/Nstp_sas_layer2tob",newnstptob[7]);
 
- Strip8 = new TCanvas("Strip8","Strip8",1600,1000);
+ Strip8 = new TCanvas("Strip8","Strip8",800,500);
  Strip8->Divide(3,3);
  for (Int_t i=0; i<8; i++) {
    Strip8->cd(i+1);
@@ -558,7 +558,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TOB/Posx_sas_layer1tob",newpostob[6]);
  sdir->GetObject("TOB/Posx_sas_layer2tob",newpostob[7]);
 
- Strip9 = new TCanvas("Strip9","Strip9",1600,1000);
+ Strip9 = new TCanvas("Strip9","Strip9",800,500);
   Strip9->Divide(3,3);
   for (Int_t i=0; i<8; i++) {
     Strip9->cd(i+1);
@@ -599,7 +599,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TOB/Errx_sas_layer1tob",newerrxtob[6]);
  sdir->GetObject("TOB/Errx_sas_layer2tob",newerrxtob[7]);
 
-  Strip10 = new TCanvas("Strip10","Strip10",1600,1000);
+  Strip10 = new TCanvas("Strip10","Strip10",800,500);
   Strip10->Divide(2,3);
   for (Int_t i=0; i<8; i++) {
     Strip10->cd(i+1);
@@ -640,7 +640,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TOB/Res_sas_layer1tob",newrestob[6]);
  sdir->GetObject("TOB/Res_sas_layer2tob",newrestob[7]);
 
-  Strip11 = new TCanvas("Strip11","Strip11",1600,1000);
+  Strip11 = new TCanvas("Strip11","Strip11",800,500);
   Strip11->Divide(3,3);
   for (Int_t i=0; i<8; i++) {
     Strip11->cd(i+1);
@@ -680,7 +680,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TOB/Pull_MF_sas_layer1tob",newpulltob[6]);
  sdir->GetObject("TOB/Pull_MF_sas_layer2tob",newpulltob[7]);
  
- Strip32 = new TCanvas("Strip32","Strip32",1600,1000);
+ Strip32 = new TCanvas("Strip32","Strip32",800,500);
  Strip32->Divide(3,3);
  for (Int_t i=0; i<8; i++) {
    Strip32->cd(i+1);
@@ -721,7 +721,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TOB/Chi2_sas_layer1tob",newchi2tob[6]);
  sdir->GetObject("TOB/Chi2_sas_layer2tob",newchi2tob[7]);
 
-  Strip12 = new TCanvas("Strip12","Strip12",1600,1000);
+  Strip12 = new TCanvas("Strip12","Strip12",800,500);
   Strip12->Divide(3,3);
   for (Int_t i=0; i<8; i++) {
     Strip12->cd(i+1);
@@ -770,7 +770,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TOB/Resx_matched_layer2tob",newmatchedtob[10]);
  sdir->GetObject("TOB/Resy_matched_layer2tob",newmatchedtob[11]);
 
- Strip13 = new TCanvas("Strip13","Strip13",1600,1000);
+ Strip13 = new TCanvas("Strip13","Strip13",800,500);
  Strip13->Divide(4,3);
  for (Int_t i=0; i<12; i++) {
    Strip13->cd(i+1);
@@ -827,7 +827,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TID/Adc_sas_layer1tid",newadctid[3]);
  sdir->GetObject("TID/Adc_sas_layer2tid",newadctid[4]);
  
- Strip14 = new TCanvas("Strip14","Strip14",1600,1000);
+ Strip14 = new TCanvas("Strip14","Strip14",800,500);
  Strip14->Divide(2,3);
  for (Int_t i=0; i<5; i++) {
    Strip14->cd(i+1);
@@ -861,7 +861,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TID/Nstp_sas_layer1tid",newnstptid[3]);
  sdir->GetObject("TID/Nstp_sas_layer2tid",newnstptid[4]);
 
- Strip15 = new TCanvas("Strip15","Strip15",1600,1000);
+ Strip15 = new TCanvas("Strip15","Strip15",800,500);
  Strip15->Divide(2,3);
  for (Int_t i=0; i<5; i++) {
    Strip15->cd(i+1);
@@ -895,7 +895,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TID/Posx_sas_layer1tid",newpostid[3]);
  sdir->GetObject("TID/Posx_sas_layer2tid",newpostid[4]);
 
- Strip16 = new TCanvas("Strip16","Strip16",1600,1000);
+ Strip16 = new TCanvas("Strip16","Strip16",800,500);
   Strip16->Divide(2,3);
   for (Int_t i=0; i<5; i++) {
     Strip16->cd(i+1);
@@ -930,7 +930,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TID/Errx_sas_layer1tid",newerrxtid[3]);
  sdir->GetObject("TID/Errx_sas_layer2tid",newerrxtid[4]);
 
-  Strip17 = new TCanvas("Strip17","Strip17",1600,1000);
+  Strip17 = new TCanvas("Strip17","Strip17",800,500);
   Strip17->Divide(2,3);
   for (Int_t i=0; i<5; i++) {
     Strip17->cd(i+1);
@@ -965,7 +965,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TID/Res_sas_layer1tid",newrestid[3]);
  sdir->GetObject("TID/Res_sas_layer2tid",newrestid[4]);
 
-  Strip18 = new TCanvas("Strip18","Strip18",1600,1000);
+  Strip18 = new TCanvas("Strip18","Strip18",800,500);
   Strip18->Divide(2,3);
   for (Int_t i=0; i<5; i++) {
     Strip18->cd(i+1);
@@ -999,7 +999,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TID/Pull_MF_sas_layer1tid",newpulltid[3]);
  sdir->GetObject("TID/Pull_MF_sas_layer2tid",newpulltid[4]);
  
- Strip33 = new TCanvas("Strip33","Strip33",1600,1000);
+ Strip33 = new TCanvas("Strip33","Strip33",800,500);
  Strip33->Divide(2,3);
  for (Int_t i=0; i<5; i++) {
    Strip33->cd(i+1);
@@ -1033,7 +1033,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TID/Chi2_sas_layer1tid",newchi2tid[3]);
  sdir->GetObject("TID/Chi2_sas_layer2tid",newchi2tid[4]);
 
-  Strip19 = new TCanvas("Strip19","Strip19",1600,1000);
+  Strip19 = new TCanvas("Strip19","Strip19",800,500);
   Strip19->Divide(2,3);
   for (Int_t i=0; i<5; i++) {
     Strip19->cd(i+1);
@@ -1082,7 +1082,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TID/Resy_matched_layer2tid",newmatchedtid[11]);
 
 
- Strip20 = new TCanvas("Strip20","Strip20",1600,1000);
+ Strip20 = new TCanvas("Strip20","Strip20",800,500);
  Strip20->Divide(4,3);
  for (Int_t i=0; i<12; i++) {
    Strip20->cd(i+1);
@@ -1118,7 +1118,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TID/Chi2_matched_layer1tid",newmatchedchi2tid[4]);
  sdir->GetObject("TID/Chi2_matched_layer2tid",newmatchedchi2tid[5]);
 
-  Strip21 = new TCanvas("Strip21","Strip21",1600,1000);
+  Strip21 = new TCanvas("Strip21","Strip21",800,500);
   Strip21->Divide(2,3);
   for (Int_t i=0; i<5; i++) {
     Strip21->cd(i+1);
@@ -1186,7 +1186,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TEC/Adc_sas_layer2tec",newadctec[8]);
  sdir->GetObject("TEC/Adc_sas_layer5tec",newadctec[9]);
  
- Strip22 = new TCanvas("Strip22","Strip22",1600,1000);
+ Strip22 = new TCanvas("Strip22","Strip22",800,500);
  Strip22->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
    Strip22->cd(i+1);
@@ -1230,7 +1230,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TEC/Nstp_sas_layer2tec",newnstptec[8]);
  sdir->GetObject("TEC/Nstp_sas_layer5tec",newnstptec[9]);
 
- Strip23 = new TCanvas("Strip23","Strip23",1600,1000);
+ Strip23 = new TCanvas("Strip23","Strip23",800,500);
  Strip23->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
    Strip23->cd(i+1);
@@ -1274,7 +1274,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TEC/Posx_sas_layer2tec",newpostec[8]);
  sdir->GetObject("TEC/Posx_sas_layer5tec",newpostec[9]);
 
- Strip24 = new TCanvas("Strip24","Strip24",1600,1000);
+ Strip24 = new TCanvas("Strip24","Strip24",800,500);
   Strip24->Divide(4,3);
   for (Int_t i=0; i<10; i++) {
     Strip24->cd(i+1);
@@ -1320,7 +1320,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TEC/Errx_sas_layer5tec",newerrxtec[9]);
 
 
-  Strip25 = new TCanvas("Strip25","Strip25",1600,1000);
+  Strip25 = new TCanvas("Strip25","Strip25",800,500);
   Strip25->Divide(4,3);
   for (Int_t i=0; i<10; i++) {
     Strip25->cd(i+1);
@@ -1365,7 +1365,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TEC/Res_sas_layer2tec",newrestec[8]);
  sdir->GetObject("TEC/Res_sas_layer5tec",newrestec[9]);
 
-  Strip26 = new TCanvas("Strip26","Strip26",1600,1000);
+  Strip26 = new TCanvas("Strip26","Strip26",800,500);
   Strip26->Divide(4,3);
   for (Int_t i=0; i<10; i++) {
     Strip26->cd(i+1);
@@ -1409,7 +1409,7 @@ void SiStripRecHitsCompare()
   sdir->GetObject("TEC/Pull_MF_sas_layer2tec",newpulltec[8]);
   sdir->GetObject("TEC/Pull_MF_sas_layer5tec",newpulltec[9]);
   
-  Strip34 = new TCanvas("Strip34","Strip34",1600,1000);
+  Strip34 = new TCanvas("Strip34","Strip34",800,500);
   Strip34->Divide(4,3);
   for (Int_t i=0; i<10; i++) {
     Strip34->cd(i+1);
@@ -1453,7 +1453,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TEC/Chi2_sas_layer2tec",newchi2tec[8]);
  sdir->GetObject("TEC/Chi2_sas_layer5tec",newchi2tec[9]);
 
-  Strip27 = new TCanvas("Strip27","Strip27",1600,1000);
+  Strip27 = new TCanvas("Strip27","Strip27",800,500);
   Strip27->Divide(4,3);
   for (Int_t i=0; i<10; i++) {
     Strip27->cd(i+1);
@@ -1501,7 +1501,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TEC/Errx_matched_layer5tec",newmatchedtec[10]);
  sdir->GetObject("TEC/Erry_matched_layer5tec",newmatchedtec[11]);
 
- Strip28 = new TCanvas("Strip28","Strip28",1600,1000);
+ Strip28 = new TCanvas("Strip28","Strip28",800,500);
  Strip28->Divide(4,3);
  for (Int_t i=0; i<12; i++) {
    Strip28->cd(i+1);
@@ -1537,7 +1537,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TEC/Resx_matched_layer5tec",newmatchedrestec[4]);
  sdir->GetObject("TEC/Resy_matched_layer5tec",newmatchedrestec[5]);
 
- Strip29 = new TCanvas("Strip29","Strip29",1600,1000);
+ Strip29 = new TCanvas("Strip29","Strip29",800,500);
  Strip29->Divide(2,3);
  for (Int_t i=0; i<6; i++) {
    Strip29->cd(i+1);
@@ -1567,7 +1567,7 @@ void SiStripRecHitsCompare()
  sdir->GetObject("TEC/Chi2_matched_layer2tec",newmatchedchi2tec[1]);
  sdir->GetObject("TEC/Chi2_matched_layer5tec",newmatchedchi2tec[2]);
  
- Strip30 = new TCanvas("Strip30","Strip30",1600,1000);
+ Strip30 = new TCanvas("Strip30","Strip30",800,500);
  Strip30->Divide(1,3);
  for (Int_t i=0; i<3; i++) {
    Strip30->cd(i+1);

@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2010/04/15 12:04:46 $
- * $Revision: 1.39 $
+ * $Date: 2010/04/16 14:11:06 $
+ * $Revision: 1.40 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
@@ -102,6 +102,8 @@ void DTSegmentUpdator::fit(DTRecSegment4D* seg)  const {
   if(seg->hasPhi()) fit(seg->phiSegment());
   if(seg->hasZed()) fit(seg->zSegment());
 
+  const DTChamber* theChamber = theGeom->chamber(seg->chamberId());
+
   if(seg->hasPhi() && seg->hasZed() ) {
 
     DTChamberRecSegment2D *segPhi=seg->phiSegment();
@@ -112,11 +114,14 @@ void DTSegmentUpdator::fit(DTRecSegment4D* seg)  const {
     LocalVector dirPhiInCh= segPhi->localDirection();
 
     // Zed seg is in SL one
-    GlobalPoint glbPosZ = ( theGeom->superLayer(segZed->superLayerId()) )->toGlobal(segZed->localPosition());
-    LocalPoint posZInCh = ( theGeom->chamber(segZed->superLayerId().chamberId()) )->toLocal(glbPosZ);
+    const DTSuperLayer* zSL = theChamber->superLayer(segZed->superLayerId());
+    LocalPoint zPos(segZed->localPosition().x(), 
+		    (zSL->toLocal(theChamber->toGlobal(segPhi->localPosition()))).y(),
+		    0.);
 
-    GlobalVector glbDirZ = (theGeom->superLayer(segZed->superLayerId()) )->toGlobal(segZed->localDirection());
-    LocalVector dirZInCh = (theGeom->chamber(segZed->superLayerId().chamberId()) )->toLocal(glbDirZ);
+    LocalPoint posZInCh = theChamber->toLocal(zSL->toGlobal(zPos));
+
+    LocalVector dirZInCh = theChamber->toLocal(zSL->toGlobal(segZed->localDirection()));
 
     LocalPoint posZAt0 = posZInCh + dirZInCh*(-posZInCh.z())/cos(dirZInCh.theta());
 
