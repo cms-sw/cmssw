@@ -10,7 +10,7 @@ class TrajectoryStateOnSurface;
 class Propagator;
 class Bounds;
 
-class NavSurface : public ReferenceCounted // : public virtual Surface 
+class NavSurface : public ReferenceCountedInConditions // : public virtual Surface 
 {
 public:
 
