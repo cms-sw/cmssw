@@ -191,7 +191,7 @@ namespace {
       //std::cout << "jetPTthreshold = " << jetPTthreshold << std::endl;
       //std::cout << "jet->pt() = " << jet->pt() << std::endl;
       //std::cout << "jet->pt()*corrector.correction(*jet) = " << jet->pt()*corrector.correction(*jet) << std::endl;
-      if( jet->pt()*corrector.correction(*jet) > jetPTthreshold ) {
+      if( jet->pt()*corrector.correction(*jet) > jetPTthreshold && jet->photonEnergyFraction() < jetEMfracLimit ) {
 	double corr = corrector.correction (*jet) - 1.; // correction itself
 	DeltaPx +=  jet->px() * corr;
 	DeltaPy +=  jet->py() * corr;
@@ -310,7 +310,7 @@ namespace {
       //std::cout << "jetPTthreshold = " << jetPTthreshold << std::endl;
       //std::cout << "jet->pt() = " << jet->pt() << std::endl;
       //std::cout << "jet->pt()*corrector.correction(*jet) = " << jet->pt()*corrector.correction(*jet) << std::endl;
-      if( jet->pt()*corrector.correction(*jet) > jetPTthreshold ) {
+      if( jet->pt()*corrector.correction(*jet) > jetPTthreshold && jet->photonEnergyFraction() < jetEMfracLimit ) {
 	double corr = corrector.correction (*jet) - 1.; // correction itself
 	DeltaPx +=  jet->px() * corr;
 	DeltaPy +=  jet->py() * corr;
