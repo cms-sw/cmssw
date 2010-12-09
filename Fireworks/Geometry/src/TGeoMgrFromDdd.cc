@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jul  2 16:11:42 CEST 2010
-// $Id: TGeoMgrFromDdd.cc,v 1.4 2010/11/19 16:37:18 yana Exp $
+// $Id: TGeoMgrFromDdd.cc,v 1.5 2010/11/26 10:04:16 yana Exp $
 //
 
 #include "Fireworks/Geometry/interface/TGeoMgrFromDdd.h"
@@ -318,6 +318,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    //implementation taken from SimG4Core/Geometry/src/DDG4SolidConverter.cc
 	    static DDRotationMatrix s_rot( ROOT::Math::RotationX( 90.*deg ));
 	    DDPseudoTrap pt( iSolid );
+
 	    double r = pt.radius();
 	    bool atMinusZ = pt.atMinusZ();
 	    double x = 0;
@@ -338,6 +339,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    /* calculate the displacement of the tubs w.r.t. to the trap,
 	       determine the opening angle of the tubs */
 	    double delta = sqrt( r * r - x * x );
+
 	    if( r < 0 && abs( r ) >= x )
 	    {
 	      intersec = true; // intersection solid
@@ -483,12 +485,15 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	      std::string s= "TruncTubs " + std::string( tt.name().fullname()) + ": startPhi != 0 not supported!";
 	      throw DDException( s );
 	    }
+	    
 	    startPhi = 0.;
 	    double r( cutAtStart );
 	    double R( cutAtDelta );
-	    std::auto_ptr<TGeoShape> tubs( new TGeoTubeSeg( name.c_str(), rIn, rOut, zHalf, startPhi, startPhi + deltaPhi ));
+	    
+	    // Note: startPhi is always 0.0
+	    std::auto_ptr<TGeoShape> tubs( new TGeoTubeSeg( name.c_str(), rIn/cm, rOut/cm, zHalf/cm, startPhi, deltaPhi/deg ));
 
-	    double boxX( 30. * rOut ), boxY( 20. * rOut ); // exaggerate dimensions - does not matter, it's subtracted!
+	    double boxX( rOut ), boxY( rOut ); // exaggerate dimensions - does not matter, it's subtracted!
 	    
 	    // width of the box > width of the tubs
 	    double boxZ( 1.1 * zHalf );
@@ -497,36 +502,32 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    double cath = r - R * cos( deltaPhi );
 	    double hypo = sqrt( r * r + R * R - 2. * r * R * cos( deltaPhi ));
 	    double cos_alpha = cath / hypo;
-	    
 	    double alpha = -acos( cos_alpha );
-
+	    
 	    // rotationmatrix of box w.r.t. tubs
-	    static DDRotationMatrix s_rot( ROOT::Math::RotationX( 90. * deg ) * ROOT::Math::RotationZ( -alpha ));
+	    static DDRotationMatrix s_rot( ROOT::Math::RotationZ( alpha ) * ROOT::Math::RotationX( 90. * deg ));
 	    
 	    // center point of the box
 	    double xBox;
 	    if( !cutInside )
 	    {
-	      xBox = r + boxY / sin( abs( alpha ));
+	      xBox = r + boxX / sin( fabs( alpha ));
 	    }
 	    else
 	    {
-	      xBox = -( boxY/sin(abs(alpha))-r);
+	      xBox = - ( boxX / sin( fabs( alpha )) - r );
 	    }
-	    
-	    std::auto_ptr<TGeoShape> box( new TGeoBBox( name.c_str(), boxX/cm, boxY/cm, boxZ/cm ));
+	    std::auto_ptr<TGeoShape> box( new TGeoBBox( name.c_str(), boxX/cm, boxZ/cm, boxY/cm ));
 
 	    TGeoSubtraction* sub = new TGeoSubtraction( tubs.release(),
 						        box.release(),
 						        0,
 						        createPlacement( s_rot,
-								        DDTranslation( xBox,
-										       0.,
-										       0. )));
+									 DDTranslation( xBox,
+										        0.,
+										        0. )));
 	    rSolid = new TGeoCompositeShape( iName.c_str(),
-					     sub );
-	    
-	    
+	    				     sub );
 	    break;   
 	 }
 	 case ddunion:
