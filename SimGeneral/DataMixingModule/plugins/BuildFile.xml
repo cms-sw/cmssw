@@ -1,4 +1,0 @@
-<use   name="SimGeneral/DataMixingModule"/>
-<library   file="*.cc" name="SimGeneralDataMixingModulePlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

@@ -1,8 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="DataFormats/CSCDigi"/>
-<use   name="DataFormats/DetId"/>
-<use   name="boost"/>
-<bin   name="testCSCDigis" file="testCSCDigis.cpp">
-  <use   name="cppunit"/>
-  <use   name="DataFormats/FEDRawData"/>
-</bin>

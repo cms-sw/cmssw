@@ -1,9 +1,0 @@
-<use   name="FWCore/Utilities"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="Geometry/CaloGeometry"/>
-<use   name="Geometry/EcalCommonData"/>
-<use   name="SimDataFormats/EcalTestBeam"/>
-<use   name="clhep"/>
-<export>
-  <lib   name="1"/>
-</export>

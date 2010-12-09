@@ -1,4 +1,0 @@
-<use   name="DQM/Physics"/>
-<library   file="*.cc" name="DQMPhysicsPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

@@ -1,8 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="Geometry/Records"/>
-<use   name="Geometry/MuonNumbering"/>
-<use   name="DetectorDescription/Core"/>
-<use   name="CoralBase"/>
-<flags   EDM_PLUGIN="1"/>
-<library   file="MuonNumberingTester.cc" name="testGeometryMuonNumbering">
-</library>

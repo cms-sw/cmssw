@@ -1,8 +1,0 @@
-<use   name="Geometry/CaloTopology"/>
-<use   name="Geometry/EcalMapping"/>
-<use   name="DataFormats/EcalDigi"/>
-<use   name="DataFormats/EcalDetId"/>
-<use   name="boost"/>
-<export>
-  <lib   name="1"/>
-</export>

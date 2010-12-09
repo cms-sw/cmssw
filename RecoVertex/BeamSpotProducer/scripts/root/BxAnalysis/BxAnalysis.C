@@ -1,3 +1,0 @@
-void BxAnalysis(){
-NtupleChecker();
-}

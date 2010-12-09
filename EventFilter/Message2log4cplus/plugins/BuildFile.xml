@@ -1,5 +1,0 @@
-<library   file="*.cc" name="EventFilterMessage2log4cplusPlugins">
-  <flags   EDM_PLUGIN="1"/>
-  <use   name="EventFilter/Message2log4cplus"/>
-  <use   name="FWCore/ServiceRegistry"/>
-</library>

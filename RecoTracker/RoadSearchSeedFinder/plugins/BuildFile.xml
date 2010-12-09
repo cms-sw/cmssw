@@ -1,5 +1,0 @@
-<use   name="DataFormats/RoadSearchSeed"/>
-<use   name="RecoTracker/RoadSearchSeedFinder"/>
-<library   name="RecoTrackerRoadSearchSeedFinderPlugin" file="*.cc">
-  <flags   EDM_PLUGIN="1"/>
-</library>

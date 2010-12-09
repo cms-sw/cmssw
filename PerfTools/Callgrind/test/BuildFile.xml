@@ -1,4 +1,0 @@
-<use   name="PerfTools/Callgrind"/>
-<bin   name="testPerfToolsCallgrind" file="testRunner.cpp,ProfilerServiceTest.cppunit.cc">
-  <use   name="cppunit"/>
-</bin>

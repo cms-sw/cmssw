@@ -1,8 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="PhysicsTools/CandUtils"/>
-<use   name="TopQuarkAnalysis/TopTools"/>
-<use   name="DataFormats/PatCandidates"/>
-<use   name="AnalysisDataFormats/TopObjects"/>
-<export>
-  <lib   name="1"/>
-</export>

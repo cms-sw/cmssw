@@ -1,8 +1,0 @@
-#!/bin/bash
-dir=`dirname $0`
-eval `scramv1 runtime -sh`
-echo "Runs CMSSW...."
-cmsRun "$dir/../data/EcalElecEmulExample.cfg"
-[ -e xconnect_universal.txt ] || ln -s "$dir/../data/xconnect_universal.txt" .
-echo "Runs GenABIO to generate individual SRP board files..."
-GenABIO

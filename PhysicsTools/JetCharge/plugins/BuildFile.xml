@@ -1,7 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="PhysicsTools/JetCharge"/>
-<use   name="DataFormats/JetReco"/>
-<use   name="DataFormats/TrackReco"/>
-<library   file="*.cc" name="PhysicsToolsJetChargePlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

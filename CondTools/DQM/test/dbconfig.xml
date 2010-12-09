@@ -1,5 +1,0 @@
-<dbconfiguration>
-   <detector name='DQM' offline_connect='sqlite_file:DQMSummaryTestBuild.db'>
-      <poolsetup mappingdir='src/CondFormats/DQMObjects/xml' mappingfile='*.xml' library='CondFormatsDQMObjects' />
-   </detector>
-</dbconfiguration>

@@ -1,7 +1,0 @@
-<use   name="Alignment/CommonAlignment"/>
-<use   name="Geometry/CommonTopologies"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/Utilities"/>
-<export>
-  <lib   name="1"/>
-</export>

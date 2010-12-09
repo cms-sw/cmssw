@@ -1,6 +1,0 @@
-<export>
-  <lib   name="1"/>
-</export>
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="FWCore/Utilities"/>
-<use   name="clhep"/>

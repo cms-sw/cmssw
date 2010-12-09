@@ -1,8 +1,0 @@
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/Utilities"/>
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="TrackingTools/AnalyticalJacobians"/>
-<use   name="TrackingTools/TrajectoryState"/>
-<export>
-  <lib   name="1"/>
-</export>

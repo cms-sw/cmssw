@@ -1,8 +1,0 @@
-destDB oracle://cms_orcoff_prep/CMS_COND_GEOMETRY
-tag XMLFILE_Geometry_TagXX_ExtendedX0Min_mc
-inputtag
-since
-Timetype runnumber
-IOVCheck offline
-usertext Geometry validation special X0Min for Tracker. TagXX
-

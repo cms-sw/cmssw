@@ -1,7 +1,0 @@
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="TrackingTools/TrajectoryState"/>
-<use   name="MagneticField/Engine"/>
-<use   name="boost"/>
-<use   name="clhep"/>
-<bin   file="testTSOS.cpp">
-</bin>

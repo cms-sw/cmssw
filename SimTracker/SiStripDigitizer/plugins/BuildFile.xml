@@ -1,6 +1,0 @@
-<use   name="SimTracker/SiStripDigitizer"/>
-<use   name="MagneticField/Records"/>
-<use   name="MagneticField/Engine"/>
-<library   file="*.cc" name="SimTrackerSiStripDigitizerPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

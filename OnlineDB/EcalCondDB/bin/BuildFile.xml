@@ -1,9 +1,0 @@
-<bin   file="cmsecal_rootplot.cpp">
-  <use   name="rootgraphics"/>
-  <use   name="boost"/>
-  <use   name="boost_program_options"/>
-</bin>
-<bin   file="cmsecal_write_offline_det_id.cpp">
-  <use   name="DataFormats/EcalDetId"/>
-  <use   name="RelationalAccess"/>
-</bin>

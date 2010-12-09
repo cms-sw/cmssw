@@ -1,5 +1,0 @@
-<use   name="rootrflx"/>
-<use   name="DataFormats/HepMCCandidate"/>
-<export>
-  <lib   name="1"/>
-</export>

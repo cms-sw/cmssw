@@ -1,7 +1,0 @@
-<environment>
-  <use   name="boost"/>
-</environment>
-<bin   name="testFWCoreRootAutoLibraryLoader" file="*.cppunit.cpp">
-  <use   name="cppunit"/>
-  <use   name="FWCore/RootAutoLibraryLoader"/>
-</bin>

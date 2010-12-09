@@ -1,7 +1,0 @@
-<use   name="GeneratorInterface/ExhumeInterface"/>
-<library   file="ExhumeGeneratorFilter.cc" name="GeneratorInterfaceExhumeFilter">
-  <use   name="GeneratorInterface/Core"/>
-  <use   name="GeneratorInterface/ExternalDecays"/>
-  <flags   FFLAGS="-w"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>

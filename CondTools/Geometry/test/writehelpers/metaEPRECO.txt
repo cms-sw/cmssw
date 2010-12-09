@@ -1,9 +1,0 @@
-destDB oracle://cms_orcoff_prep/CMS_COND_GEOMETRY
-tag EPRECO_Geometry_TagXX
-inputtag 
-since 
-till 
-Timetype runnumber
-IOVCheck offline
-usertext Geometry payload for Ecal Preshower Reco TagXX
-

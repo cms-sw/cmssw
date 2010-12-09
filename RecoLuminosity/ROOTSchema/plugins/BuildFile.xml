@@ -1,8 +1,0 @@
-<library   file="LumiFileWriter.cc" name="RecoLuminosityLumiFileWriterPlugin">
-  <flags   EDM_PLUGIN="1"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/PluginManager"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="RecoLuminosity/TCPReceiver"/>
-  <use   name="RecoLuminosity/ROOTSchema"/>
-</library>

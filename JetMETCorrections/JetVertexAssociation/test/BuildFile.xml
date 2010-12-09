@@ -1,9 +1,0 @@
-<use   name="root"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/JetReco"/>
-<use   name="clhep"/>
-<library   file="AnalysisJV.cc" name="AnalysisJV">
-  <flags   EDM_PLUGIN="1"/>
-</library>

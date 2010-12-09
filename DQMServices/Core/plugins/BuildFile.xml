@@ -1,4 +1,0 @@
-<use   name="DQMServices/Core"/>
-<library   file="*.cc" name="DQMServicesCorePlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

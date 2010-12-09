@@ -1,4 +1,0 @@
-<library   file="module.cc" name="GeometryEcalCommonDataPlugins">
-  <use   name="Geometry/EcalCommonData"/>
-</library>
-<flags   EDM_PLUGIN="1"/>

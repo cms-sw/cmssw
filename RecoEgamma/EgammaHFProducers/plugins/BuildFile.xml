@@ -1,4 +1,0 @@
-<use   name="RecoEgamma/EgammaHFProducers"/>
-<library   file="*.cc" name="RecoEgammaEgammaHFProducersPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

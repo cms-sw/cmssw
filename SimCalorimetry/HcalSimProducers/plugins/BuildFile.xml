@@ -1,4 +1,0 @@
-<use   name="SimCalorimetry/HcalSimProducers"/>
-<library   file="*.cc" name="SimCalorimetryHcalSimProducersPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

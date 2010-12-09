@@ -1,6 +1,0 @@
-<use   name="DataFormats/TrackReco"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="xerces-c"/>
-<export>
-  <lib   name="1"/>
-</export>

@@ -1,7 +1,0 @@
-<use   name="TrackingTools/TrackFitters"/>
-<use   name="TrackingTools/RecoGeometry"/>
-<use   name="TrackingTools/DetLayers"/>
-<use   name="TrackingTools/KalmanUpdators"/>
-<library   file="*.cc" name="TrackingToolsTrackFittersPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

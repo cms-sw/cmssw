@@ -1,5 +1,0 @@
-<export>
-  <lib   name="1"/>
-</export>
-<use   name="RecoVertex/KalmanVertexFit"/>
-<use   name="CommonTools/Statistics"/>

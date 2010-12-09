@@ -1,8 +1,0 @@
-<use   name="CalibCalorimetry/HcalAlgos"/>
-<use   name="CondFormats/HcalObjects"/>
-<use   name="CondTools/Hcal"/>
-<use   name="CondCore/DBCommon"/>
-<use   name="CondCore/IOVService"/>
-<use   name="DataFormats/HcalDetId"/>
-<bin   file="HcalPedestalValidator.cc">
-</bin>

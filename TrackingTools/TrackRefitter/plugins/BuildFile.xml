@@ -1,5 +1,0 @@
-<use   name="TrackingTools/TrackRefitter"/>
-<use   name="FWCore/Framework"/>
-<library   file="*.cc" name="TrackingToolsTrackRefitterPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

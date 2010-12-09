@@ -1,7 +1,0 @@
-<use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/GeometryCommonDetAlgo"/>
-<use   name="DataFormats/GeometryVector"/>
-<use   name="RecoVertex/VertexPrimitives"/>
-<export>
-  <lib   name="1"/>
-</export>

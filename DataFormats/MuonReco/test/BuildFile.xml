@@ -1,4 +1,0 @@
-<use   name="DataFormats/MuonReco"/>
-<bin   name="testDataFormatsMuonReco" file="testMuon.cc,testRunner.cpp">
-  <use   name="cppunit"/>
-</bin>

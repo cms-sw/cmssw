@@ -1,6 +1,0 @@
-<use   name="DataFormats/Math"/>
-<use   name="SimGeneral/HepPDTRecord"/>
-<use   name="rootmath"/>
-<export>
-  <lib   name="1"/>
-</export>

@@ -1,8 +1,0 @@
-<use   name="Geometry/CommonDetUnit"/>
-<use   name="Geometry/Records"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="rootcore"/>
-<library   file="GlobalTrackingGeometryTest.cc" name="testGlobalTrackingGeometry">
-  <flags   EDM_PLUGIN="1"/>
-</library>

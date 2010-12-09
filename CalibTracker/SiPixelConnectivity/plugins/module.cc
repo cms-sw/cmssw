@@ -1,6 +1,0 @@
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "PixelToFEDAssociateFromAsciiESProducer.h"
-#include "PixelToLNKAssociateFromAsciiESProducer.h"
-
-DEFINE_FWK_EVENTSETUP_MODULE(PixelToFEDAssociateFromAsciiESProducer);
-DEFINE_FWK_EVENTSETUP_MODULE(PixelToLNKAssociateFromAsciiESProducer);

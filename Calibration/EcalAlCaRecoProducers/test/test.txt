@@ -1,6 +1,0 @@
-3_1_0_pre4
-----------
-
-PhiSym:
-
-cmsDriver.py testALCA -s ALCA:Configuration/StandardSequences/AlCaRecoStream_EcalCalPhiSym_cff:EcalCalPhiSym+DQM -n 1000 --filein rfio:/castor/cern.ch/cms//store/relval/CMSSW_3_1_0_pre4/RelValQCD_Pt_50_80/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_30X_v1/0001/049F044C-7516-DE11-8AB7-001A92971BC8.root --eventcontent FEVT --conditions=FrontierConditions_GlobalTag,IDEAL_30X::All

@@ -1,8 +1,0 @@
-<bin   file="DOMCount.cpp">
-  <use   name="DetectorDescription/Core"/>
-  <use   name="DetectorDescription/ExprAlgo"/>
-  <use   name="DetectorDescription/Algorithm"/>
-  <use   name="DetectorDescription/RegressionTest"/>
-  <use   name="DetectorDescription/Parser"/>
-  <use   name="xerces-c"/>
-</bin>

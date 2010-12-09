@@ -1,6 +1,0 @@
-<use   name="boost"/>
-<use   name="rootrflx"/>
-<use   name="DataFormats/Common"/>
-<export>
-  <lib   name="1"/>
-</export>

@@ -1,6 +1,0 @@
-<use   name="boost"/>
-<use   name="cppunit"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/EcalDigi"/>
-<bin   file="EcalDigi_t.cpp">
-</bin>

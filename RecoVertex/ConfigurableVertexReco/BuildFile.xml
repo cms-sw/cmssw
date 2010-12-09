@@ -1,9 +1,0 @@
-<export>
-  <lib   name="1"/>
-</export>
-<use   name="FWCore/ParameterSet"/>
-<use   name="RecoVertex/AdaptiveVertexFit"/>
-<use   name="RecoVertex/TrimmedKalmanVertexFinder"/>
-<use   name="RecoVertex/AdaptiveVertexFinder"/>
-<use   name="RecoVertex/MultiVertexFit"/>
-<use   name="DataFormats/Math"/>

@@ -1,8 +1,0 @@
-<use   name="DataFormats/EcalDetId"/>
-<use   name="DataFormats/HcalDetId"/>
-<use   name="DataFormats/CaloTowers"/>
-<use   name="DataFormats/GeometryVector"/>
-<use   name="clhep"/>
-<export>
-  <lib   name="1"/>
-</export>

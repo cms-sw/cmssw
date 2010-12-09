@@ -1,5 +1,0 @@
-<use   name="DQMServices/Core"/>
-<use   name="xerces-c"/>
-<export>
-  <lib   name="1"/>
-</export>

@@ -1,6 +1,0 @@
-<environment>
-  <bin   file="TestEdmFastMerge.cpp">
-    <flags   TEST_RUNNER_ARGS=" /bin/bash IOPool/Common/test TestEdmFastMerge.sh"/>
-    <use   name="FWCore/Utilities"/>
-  </bin>
-</environment>

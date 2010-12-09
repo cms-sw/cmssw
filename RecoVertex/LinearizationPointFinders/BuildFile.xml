@@ -1,9 +1,0 @@
-<use   name="DataFormats/GeometryVector"/>
-<use   name="FWCore/Utilities"/>
-<use   name="RecoVertex/VertexPrimitives"/>
-<use   name="RecoVertex/VertexTools"/>
-<use   name="TrackingTools/PatternTools"/>
-<use   name="TrackingTools/TransientTrack"/>
-<export>
-  <lib   name="1"/>
-</export>

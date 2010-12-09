@@ -1,8 +1,0 @@
-<use   name="boost"/>
-<use   name="boost_filesystem"/>
-<use   name="sigcpp"/>
-<use   name="rootrflx"/>
-<use   name="FWCore/Utilities"/>
-<export>
-  <lib   name="1"/>
-</export>

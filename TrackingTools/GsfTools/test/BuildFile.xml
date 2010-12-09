@@ -1,9 +1,0 @@
-<use   name="TrackingTools/GsfTools"/>
-<use   name="TrackingTools/AnalyticalJacobians"/>
-<use   name="rootmath"/>
-<bin   file="KullbackLeiblerDistance_t.cpp">
-</bin>
-<bin   file="traceSymMult_t.cpp">
-</bin>
-<bin   file="Gauss_t.cpp">
-</bin>

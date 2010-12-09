@@ -1,8 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="CondCore/ESSources"/>
-<use   name="CondFormats/Alignment"/>
-<use   name="CondFormats/AlignmentRecord"/>
-<flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>

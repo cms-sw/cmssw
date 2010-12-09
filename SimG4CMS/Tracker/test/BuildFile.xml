@@ -1,9 +1,0 @@
-<use   name="SimDataFormats/TrackingHit"/>
-<use   name="SimDataFormats/Track"/>
-<use   name="SimDataFormats/Vertex"/>
-<use   name="SimDataFormats/GeneratorProducts"/>
-<use   name="Geometry/TrackerNumberingBuilder"/>
-<use   name="FWCore/Framework"/>
-<flags   EDM_PLUGIN="1"/>
-<library   file="SimHitTrackerAnalyzer.cc" name="testSimG4CMSTracker">
-</library>

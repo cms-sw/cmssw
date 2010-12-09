@@ -1,6 +1,0 @@
-<use   name="CLHEP"/>
-<use   name="SimDataFormats/TrackingHit"/>
-<use   name="SimDataFormats/CrossingFrame"/>
-<export>
-  <lib   name="1"/>
-</export>

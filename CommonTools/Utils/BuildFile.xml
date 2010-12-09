@@ -1,7 +1,0 @@
-<use   name="FWCore/Utilities"/>
-<use   name="rootrflx"/>
-<use   name="boost"/>
-<use   name="roothistmatrix"/>
-<export>
-  <lib   name="1"/>
-</export>

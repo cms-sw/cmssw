@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE PoolDatabase SYSTEM "InMemory">
- <PoolDatabase >
-  <PoolContainer name="HcalGainWidths" >
-   <Class name="HcalGainWidths"  mapping_version="HcalGainWidths_automatic_default" >
-   </Class >
-  </PoolContainer >
- </PoolDatabase >
-

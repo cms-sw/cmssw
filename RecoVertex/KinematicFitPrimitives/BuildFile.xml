@@ -1,6 +1,0 @@
-<use   name="TrackingTools/TransientTrack"/>
-<use   name="TrackingTools/GeomPropagators"/>
-<export>
-  <lib   name="1"/>
-</export>
-<use   name="RecoVertex/VertexPrimitives"/>

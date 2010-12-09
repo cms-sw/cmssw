@@ -1,6 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="TrackingTools/TrajectoryFiltering"/>
-<library   file="*.cc" name="TrackingToolsTrajectoryFilteringPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

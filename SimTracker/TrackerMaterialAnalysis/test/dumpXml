@@ -1,8 +1,0 @@
-#! /bin/bash
-
-cat $1 | grep 'name' | sed -e '/SpecPar/ {
-      N
-      N
-      s/" eval="true">\n *<Parameter name="TrackerRadLength" value="\|"\/>\n *<Parameter name="TrackerXi" value="/\t/g
-      s/ *<SpecPar name="\|"\/>//g
-    }'

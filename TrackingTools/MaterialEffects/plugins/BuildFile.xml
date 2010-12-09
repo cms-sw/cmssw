@@ -1,5 +1,0 @@
-<use   name="TrackingTools/Records"/>
-<use   name="TrackingTools/MaterialEffects"/>
-<library   file="*.cc" name="TrackingToolsMaterialEffectsPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

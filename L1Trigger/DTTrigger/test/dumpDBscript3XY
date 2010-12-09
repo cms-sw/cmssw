@@ -1,9 +1,0 @@
-setenv NRUN $1
-setenv FILE conf${NRUN}.db
-touch ${FILE}
-cmscond_export_iov -D CondFormatsDTObjects -P /afs/cern.ch/cms/DB/conddb -s oracle://cms_orcoff_prod/CMS_COND_31X_DT -d sqlite_file:${FILE} -t DT_config_V02 -b ${NRUN} -e ${NRUN}
-
-sqlite3 ${FILE} << ENDOFCOMMANDS
-update iov_data set iov_time=1;
-ENDOFCOMMANDS
-

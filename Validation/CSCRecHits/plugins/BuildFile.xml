@@ -1,6 +1,0 @@
-<library   file="Module.cc" name="ValidationCSCRecHitsPlugin">
-  <use   name="FWCore/Framework"/>
-  <use   name="Validation/CSCRecHits"/>
-  <use   name="clhep"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>

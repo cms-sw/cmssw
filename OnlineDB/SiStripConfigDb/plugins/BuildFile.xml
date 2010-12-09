@@ -1,5 +1,0 @@
-<library   file="*.cc" name="OnlineDBSiStripConfigDbPlugins">
-  <use   name="FWCore/ServiceRegistry"/>
-  <use   name="OnlineDB/SiStripConfigDb"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>

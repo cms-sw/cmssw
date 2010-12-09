@@ -1,7 +1,0 @@
-<use   name="rootrflx"/>
-<use   name="rootcore"/>
-<use   name="DataFormats/Common"/>
-<use   name="SimDataFormats/Vertex"/>
-<export>
-  <lib   name="1"/>
-</export>

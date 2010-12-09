@@ -1,5 +1,0 @@
-<lcgdict>
-<class name="LTCDigi"/>
-<class name="std::vector<LTCDigi>"/>
-<class name="edm::Wrapper<std::vector<LTCDigi> >" splitLevel="0"/>
-</lcgdict>

@@ -1,5 +1,0 @@
-<use   name="rootgpad"/>
-<use   name="DataFormats/PatCandidates"/>
-<export>
-  <lib   name="1"/>
-</export>

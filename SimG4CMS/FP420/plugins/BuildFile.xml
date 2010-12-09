@@ -1,4 +1,0 @@
-<use   name="SimG4CMS/FP420"/>
-<library   file="*.cc" name="SimG4CMSFP420Plugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

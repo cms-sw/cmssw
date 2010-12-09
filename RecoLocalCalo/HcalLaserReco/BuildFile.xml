@@ -1,9 +1,0 @@
-<flags   EDM_PLUGIN="1"/>
-<use   name="DataFormats/FEDRawData"/>
-<use   name="FWCore/Framework"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/HcalDigi"/>
-<use   name="boost"/>
-<export>
-  <lib   name="1"/>
-</export>

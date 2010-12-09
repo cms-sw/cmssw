@@ -1,4 +1,0 @@
-<use   name="CalibTracker/SiPixelConnectivity"/>
-<library   file="*.cc" name="CalibTrackerSiPixelConnectivityPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

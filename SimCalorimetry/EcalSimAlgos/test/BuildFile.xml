@@ -1,9 +1,0 @@
-<environment>
-  <use   name="SimCalorimetry/EcalSimAlgos"/>
-  <use   name="SimCalorimetry/CaloSimAlgos"/>
-  <use   name="rootgraphics"/>
-  <bin   file="testEcalShape.cpp">
-  </bin>
-  <bin   file="testCorrNoise.cpp">
-  </bin>
-</environment>

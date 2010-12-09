@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE PoolDatabase SYSTEM "InMemory">
- <PoolDatabase >
-  <PoolContainer name="HcalElectronicsMap" >
-   <Class name="HcalElectronicsMap"  mapping_version="HcalElectronicsMap_automatic_default" >
-   </Class >
-  </PoolContainer >
- </PoolDatabase >
-

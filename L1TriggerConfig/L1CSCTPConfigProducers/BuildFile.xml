@@ -1,9 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="CondFormats/CSCObjects"/>
-<use   name="CondFormats/DataRecord"/>
-<flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>

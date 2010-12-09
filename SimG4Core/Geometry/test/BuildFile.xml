@@ -1,4 +1,0 @@
-<use   name="DetectorDescription/Core"/>
-<use   name="geant4core"/>
-
-<bin  name="testVolumes" file="testVolumes.cpp"></bin>

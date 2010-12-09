@@ -1,7 +1,0 @@
-<use   name="FWCore/MessageLogger"/>
-<use   name="TrackingTools/Records"/>
-<library   file="RKTest.cc" name="RKTest">
-  <use   name="TrackPropagation/RungeKutta"/>
-  <use   name="MagneticField/Engine"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>

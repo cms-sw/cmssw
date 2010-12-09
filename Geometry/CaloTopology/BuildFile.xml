@@ -1,9 +1,0 @@
-<use   name="DataFormats/CaloTowers"/>
-<use   name="DataFormats/HcalDetId"/>
-<use   name="DataFormats/EcalDetId"/>
-<use   name="DataFormats/Common"/>
-<use   name="boost"/>
-<use   name="Geometry/CaloGeometry"/>
-<export>
-  <lib   name="1"/>
-</export>

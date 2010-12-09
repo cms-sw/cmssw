@@ -1,6 +1,0 @@
-<use   name="rootrflx"/>
-<use   name="clhepheader"/>
-<use   name="boost"/>
-<export>
-  <lib   name="1"/>
-</export>

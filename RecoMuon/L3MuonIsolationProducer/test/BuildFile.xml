@@ -1,9 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/Utilities"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="RecoMuon/MuonIsolation"/>
-<use   name="CLHEP"/>
-<use   name="root"/>
-<library   file="L3MuonIsolationAnalyzer.cc" name="L3MuonIsolationAnalyzer">
-  <flags   EDM_PLUGIN="1"/>
-</library>

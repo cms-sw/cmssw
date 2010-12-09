@@ -1,6 +1,0 @@
-<use   name="MagneticField/Engine"/>
-<use   name="RecoLocalTracker/SiStripRecHitConverter"/>
-<use   name="CalibTracker/Records"/>
-<library   file="*.cc" name="RecoLocalTrackerSiStripRecHitConverterPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

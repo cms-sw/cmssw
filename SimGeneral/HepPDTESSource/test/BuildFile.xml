@@ -1,7 +1,0 @@
-<library   file="HepPDTAnalyzer.cc" name="HepPDTAnalyzer">
-  <flags   EDM_PLUGIN="1"/>
-  <use   name="SimGeneral/HepPDTRecord"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="SimDataFormats/GeneratorProducts"/>
-</library>

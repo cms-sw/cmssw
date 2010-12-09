@@ -1,4 +1,0 @@
-<use   name="CondTools/L1Trigger"/>
-<library   file="*.cc" name="CondToolsL1TriggerPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

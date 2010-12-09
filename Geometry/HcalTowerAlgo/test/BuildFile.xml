@@ -1,4 +1,0 @@
-<use   name="Geometry/HcalTowerAlgo"/>
-<use   name="boost"/>
-<bin   file="HcalGeometryTest.cpp">
-</bin>

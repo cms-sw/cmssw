@@ -1,7 +1,0 @@
-<use   name="boost"/>
-<use   name="DataFormats/HcalRecHit"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<library   file="HcalRecHitDump.cc" name="HcalRecHitDump">
-  <flags   EDM_PLUGIN="1"/>
-</library>

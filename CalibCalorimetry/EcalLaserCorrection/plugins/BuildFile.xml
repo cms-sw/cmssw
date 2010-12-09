@@ -1,4 +1,0 @@
-<use   name="CalibCalorimetry/EcalLaserCorrection"/>
-<library   file="*.cc" name="CalibCalorimetryEcalLaserCorrectionService">
-  <flags   EDM_PLUGIN="1"/>
-</library>

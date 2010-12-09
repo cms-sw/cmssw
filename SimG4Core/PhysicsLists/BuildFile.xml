@@ -1,8 +1,0 @@
-<export>
-  <lib   name="1"/>
-</export>
-<use   name="FWCore/MessageLogger"/>
-<use   name="SimG4Core/Physics"/>
-<use   name="SimG4Core/MagneticField"/>
-<use   name="geant4core"/>
-<use   name="heppdt"/>

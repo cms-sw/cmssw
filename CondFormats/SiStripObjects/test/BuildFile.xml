@@ -1,8 +1,0 @@
-<bin   name="TestSiStripLatency" file="TestSiStripLatency.cc">
-  <use   name="CondFormats/SiStripObjects"/>
-</bin>
-
-<bin name="TestCondFormatsSiStripObjects" file="UnitTests/TestSiStripConfObject.cc,UnitTests/TestSiStripBaseDelay.cc,UnitTests/MasterTestCondFormatsSiStripObjects.cpp">
-   <use name="CondFormats/SiStripObjects"/>
-   <use name="cppunit"/>
-</bin>

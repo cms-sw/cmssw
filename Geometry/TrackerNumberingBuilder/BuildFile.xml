@@ -1,6 +1,0 @@
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="DetectorDescription/Core"/>
-<use   name="DetectorDescription/Base"/>
-<export>
-  <lib   name="1"/>
-</export>

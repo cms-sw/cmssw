@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE PoolDatabase SYSTEM "InMemory">
- <PoolDatabase >
-  <PoolContainer name="BlobPedestals" >
-   <Class table="BLOBPEDESTALS" id_columns="ID" name="BlobPedestals" mapping_version="basic" >
-     <Blob column="NOISEDATA" name="m_pedestals"/>
-   </Class >
-  </PoolContainer >
- </PoolDatabase >

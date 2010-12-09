@@ -1,9 +1,0 @@
-<export>
-  <lib   name="1"/>
-</export>
-<use   name="SimDataFormats/EncodedEventId"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="CLHEP"/>
-<use   name="rootcore"/>

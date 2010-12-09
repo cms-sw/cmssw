@@ -1,8 +1,0 @@
-<use   name="TopQuarkAnalysis/TopKinFitter"/>
-<use   name="PhysicsTools/KinFitter"/>
-<use   name="DataFormats/PatCandidates"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/Framework"/>
-<library   file="*.cc" name="TopQuarkAnalysisTopKinFitterPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

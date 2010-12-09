@@ -1,8 +1,0 @@
-<use   name="CalibCalorimetry/CastorCalib"/>
-<use   name="CalibFormats/CastorObjects"/>
-<use   name="DataFormats/HcalDigi"/>
-<use   name="DataFormats/HcalRecHit"/>
-<use   name="FWCore/MessageLogger"/>
-<export>
-  <lib   name="1"/>
-</export>

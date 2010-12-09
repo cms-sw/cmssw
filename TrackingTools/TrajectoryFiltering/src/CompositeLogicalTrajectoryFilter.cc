@@ -1,1 +1,0 @@
-#include "TrackingTools/TrajectoryFiltering/interface/CompositeLogicalTrajectoryFilter.h"

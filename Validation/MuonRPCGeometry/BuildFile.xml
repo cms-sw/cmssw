@@ -1,9 +1,0 @@
-<use   name="DataFormats/MuonDetId"/>
-<use   name="FWCore/Framework"/>
-<use   name="Geometry/CommonDetUnit"/>
-<use   name="Geometry/CommonTopologies"/>
-<use   name="Geometry/Records"/>
-<use   name="Geometry/RPCGeometry"/>
-<export>
-  <lib   name="1"/>
-</export>

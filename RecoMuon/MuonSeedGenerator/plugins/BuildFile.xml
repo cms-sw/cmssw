@@ -1,4 +1,0 @@
-<use   name="RecoMuon/MuonSeedGenerator"/>
-<library   file="*.cc" name="RecoMuonMuonSeedGeneratorPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

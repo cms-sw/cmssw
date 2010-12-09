@@ -1,6 +1,0 @@
-<?xml version="1.0" ?>
-<dbconfiguration>
-  <detector name='L1T' offline_connect='sqlite_file:l1config.db'>
-     <poolsetup mappingdir='src/CondFormats/L1TObjects/xml' mappingfile='*.xml' library='CondFormatsL1TObjects' />
-  </detector>
-</dbconfiguration>

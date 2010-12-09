@@ -1,8 +1,0 @@
-<use   name="hepmc"/>
-<use   name="SimDataFormats/GeneratorProducts"/>
-<use   name="SimGeneral/HepPDTRecord"/>
-<use   name="FWCore/ParameterSet"/>
-<flags   FFLAGS="-O"/>
-<export>
-  <lib   name="1"/>
-</export>

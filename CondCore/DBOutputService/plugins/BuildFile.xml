@@ -1,4 +1,0 @@
-<library   file="*.cc" name="CondCoreDBOutputServicePlugins">
-  <use   name="CondCore/DBOutputService"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>

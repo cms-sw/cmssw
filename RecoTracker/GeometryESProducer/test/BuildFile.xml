@@ -1,9 +1,0 @@
-<use   name="TrackingTools/DetLayers"/>
-<use   name="FWCore/Framework"/>
-<use   name="RecoTracker/TkDetLayers"/>
-<use   name="RecoTracker/Record"/>
-<use   name="Geometry/TrackerNumberingBuilder"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<flags   EDM_PLUGIN="1"/>
-<library   file="TrackerRecoGeometryAnalyzer.cc" name="testRecoTrackerGeometryESProducer">
-</library>

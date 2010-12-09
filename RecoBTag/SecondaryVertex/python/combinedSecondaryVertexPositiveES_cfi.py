@@ -1,7 +1,0 @@
-import FWCore.ParameterSet.Config as cms
-
-import RecoBTag.SecondaryVertex.combinedSecondaryVertexES_cfi
-
-combinedSecondaryVertexPositive = RecoBTag.SecondaryVertex.combinedSecondaryVertexES_cfi.combinedSecondaryVertex.clone()
-combinedSecondaryVertexPositive.trackSelection.sip3dSigMin = 0
-combinedSecondaryVertexPositive.trackPseudoSelection.sip3dSigMin = 0

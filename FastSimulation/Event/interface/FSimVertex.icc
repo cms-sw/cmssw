@@ -1,6 +1,0 @@
-#include "FastSimulation/Event/interface/FSimTrack.h"
-#include "FastSimulation/Event/interface/FBaseSimEvent.h"
-
-inline const FSimTrack& FSimVertex::parent() const{ return mom_->track(parentIndex()); }
-
-inline const FSimTrack& FSimVertex::daughter(int i) const { return mom_->track(daugh_[i]); }

@@ -1,9 +1,0 @@
-<use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
-<use name="CondFormats/GeometryObjects"/>
-<use name="CondCore/ESSources"/>
-<use name="Geometry/Records"/>
-<use name="CondFormats/DataRecord"/>   
-<library file="plugin.cc" name="CondCoreGeometryPluginsPlugins">
- <flags EDM_PLUGIN="1"/>
-</library>

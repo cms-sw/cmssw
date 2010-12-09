@@ -1,9 +1,0 @@
-th.header { font-size: large; color: red; text-align: left; padding-top: 1em;}
-td.libs   { font-size: normal; color: ; padding-left: 2em; }
-tr.trace  { font-size: small; }
-td.func   { font-family: "Courier New", "courier", monospace; text-indent: -2em; padding-left: 2.5em; }
-td.lib    { font-family: "Courier New", "courier", monospace; color: navy;}
-a         { text-decoration: none; }
-a.obj     { color: #007700; }
-a.func    { color: #000077; }
-a:hover  { text-decoration: underline; }

@@ -1,5 +1,0 @@
-<use   name="DataFormats/EcalDigi"/>
-<use   name="DataFormats/EcalDetId"/>
-<use   name="FWCore/MessageLogger"/>
-<export>
-</export>

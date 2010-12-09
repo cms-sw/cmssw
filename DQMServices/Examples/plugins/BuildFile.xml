@@ -1,7 +1,0 @@
-<library   file="*.cc" name="DQMServicesExamplesPlugins">
-  <flags   EDM_PLUGIN="1"/>
-  <use   name="DQMServices/Examples"/>
-  <use   name="FWCore/MessageLogger"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="DQMServices/Core"/>
-</library>

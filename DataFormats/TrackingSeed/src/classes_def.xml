@@ -1,5 +1,0 @@
-<lcgdict>
-  <class name="TrackingSeed"/>
-  <class name="std::vector<TrackingSeed>"/>
-  <class name="edm::Wrapper<std::vector<TrackingSeed> >"/>
-</lcgdict>

@@ -1,5 +1,0 @@
-<use   name="DataFormats/MuonDetId"/>
-<use   name="DetectorDescription/Core"/>
-<export>
-  <lib   name="1"/>
-</export>

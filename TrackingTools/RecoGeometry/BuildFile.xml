@@ -1,7 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="RecoTracker/Record"/>
-<use   name="RecoMuon/Records"/>
-<use   name="boost"/>
-<export>
-  <lib   name="1"/>
-</export>

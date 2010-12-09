@@ -1,4 +1,0 @@
-<bin   name="TestMuScleFit" file="UnitTests/TestBackgroundHandler.cc, UnitTests/TestCrossSectionHandler.cc, UnitTests/MasterTestMuScleFit.cpp">
-  <use   name="MuonAnalysis/MomentumScaleCalibration"/>
-  <use   name="cppunit"/>
-</bin>

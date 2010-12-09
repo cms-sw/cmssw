@@ -1,5 +1,0 @@
-<use   name="TrackingTools/Records"/>
-<use   name="RecoVertex/NuclearInteractionProducer"/>
-<library   file="*.cc" name="RecoVertexNuclearInteractionProducerPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

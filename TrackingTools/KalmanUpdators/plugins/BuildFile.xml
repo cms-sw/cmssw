@@ -1,6 +1,0 @@
-<use   name="TrackingTools/KalmanUpdators"/>
-<use   name="TrackingTools/Records"/>
-<use   name="MagneticField/Engine"/>
-<library   file="*.cc" name="TrackingToolsKalmanUpdatorsPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

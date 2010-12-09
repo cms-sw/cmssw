@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE PoolDatabase SYSTEM "InMemory">
- <PoolDatabase >
-  <PoolContainer name="CSCBadChambers" >
-   <Class name="CSCBadChambers"  mapping_version="CSCBadChambers_automatic_default" >
-   </Class >
-  </PoolContainer >
- </PoolDatabase >

@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE PoolDatabase SYSTEM "InMemory">
- <PoolDatabase >
-  <PoolContainer name="PGeometricDetExtra" >
-   <Class table="PGEOMETRICDETEXTRA" id_columns="ID" name="PGeometricDetExtra" mapping_version="PGeometricDetExtra_automatic_default" >
-     <Blob column="DPGEOMDETEXTRAS" name="pgdes_" />
-   </Class >
-  </PoolContainer >
- </PoolDatabase >

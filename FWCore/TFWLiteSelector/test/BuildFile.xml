@@ -1,4 +1,0 @@
-<bin   file="TestRunnerFWCoreTFWLiteSelector.cpp">
-  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/TFWLiteSelector/test run_all_t.sh"/>
-  <use   name="FWCore/Utilities"/>
-</bin>

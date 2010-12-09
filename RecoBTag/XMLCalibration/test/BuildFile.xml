@@ -1,5 +1,0 @@
-<use   name="RecoBTag/XMLCalibration"/>
-<use   name="FWCore/Framework"/>
-<flags   EDM_PLUGIN="1"/>
-<library   file="XMLCalibrationTest.cc" name="testRecoBTagXMLCalibration">
-</library>

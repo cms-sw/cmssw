@@ -1,9 +1,0 @@
-<library   file="stubs/*.cc" name="testMagneticFieldGeomBuilder">
-  <use   name="boost"/>
-  <use   name="clhep"/>
-  <use   name="MagneticField/Engine"/>
-  <use   name="MagneticField/Records"/>
-  <use   name="MagneticField/Interpolation"/>
-  <use   name="MagneticField/VolumeBasedEngine"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>

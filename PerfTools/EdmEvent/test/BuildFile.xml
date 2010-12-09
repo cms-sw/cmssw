@@ -1,6 +1,0 @@
-<bin   name="test_branchSizes" file="branchSizes.cpp">
-  <flags   NO_TESTRUN="1"/>
-  <use   name="FWCore/FWLite"/>
-  <use   name="rootgraphics"/>
-  <use   name="boost_program_options"/>
-</bin>

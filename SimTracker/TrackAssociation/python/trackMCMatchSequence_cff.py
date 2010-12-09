@@ -1,9 +1,0 @@
-import FWCore.ParameterSet.Config as cms
-
-from SimTracker.TrackAssociation.trackMCMatch_cfi import *
-from SimTracker.TrackAssociation.standAloneMuonsMCMatch_cfi import *
-from SimTracker.TrackAssociation.globalMuonsMCMatch_cfi import *
-from SimTracker.TrackAssociation.allTrackMCMatch_cfi import *
-from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cff import *
-trackMCMatchSequence = cms.Sequence(trackMCMatch*standAloneMuonsMCMatch*globalMuonsMCMatch*allTrackMCMatch*trackingParticleRecoTrackAsssociation*assoc2secStepTk*assoc2thStepTk*assoc2GsfTracks*assocOutInConversionTracks*assocInOutConversionTracks)
-

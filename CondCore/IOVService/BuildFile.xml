@@ -1,7 +1,0 @@
-<flags   GENREFLEX_ARGS="--"/>
-<use   name="rootrflx"/>
-<use   name="CondFormats/Common"/>
-<use   name="CondCore/DBCommon"/>
-<export>
-  <lib   name="1"/>
-</export>

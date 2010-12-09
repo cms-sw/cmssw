@@ -1,4 +1,0 @@
-<bin   file="TrackerRunCertification.C">
-  <use   name="root"/>
-  <flags   LDFLAGS="-lXMLIO"/>
-</bin>

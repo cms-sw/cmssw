@@ -1,4 +1,0 @@
-<use   name="CalibCalorimetry/CaloMiscalibTools"/>
-<library   file="*.cc" name="CalibCalorimetryCaloMiscalibToolsPlugin">
-  <flags   EDM_PLUGIN="1"/>
-</library>

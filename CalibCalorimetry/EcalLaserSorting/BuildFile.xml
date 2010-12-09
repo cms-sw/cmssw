@@ -1,6 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="IOPool/Streamer"/>
-<use   name="DataFormats/FEDRawData"/>
-<flags   EDM_PLUGIN="1"/>
-<export>
-</export>

@@ -1,8 +1,0 @@
-<use   name="RecoTracker/Record"/>
-<use   name="RecoTracker/SiTrackerMRHTools"/>
-<use   name="RecoTracker/TkDetLayers"/>
-<use   name="RecoTracker/MeasurementDet"/>
-<use   name="TrackingTools/KalmanUpdators"/>
-<library   file="*.cc" name="RecoTrackerSiTrackerMRHUpdatorPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

@@ -1,9 +1,0 @@
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="DataFormats/GeometryVector"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="MagneticField/Engine"/>
-<use   name="MagneticField/Layers"/>
-<use   name="MagneticField/VolumeGeometry"/>
-<export>
-  <lib   name="1"/>
-</export>

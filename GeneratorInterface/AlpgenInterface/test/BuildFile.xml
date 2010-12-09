@@ -1,6 +1,0 @@
-<library name="GeneratorInterfaceAlpgenExtractor" file="AlpgenExtractor.cc">
- <use name="FWCore/Framework"/>
- <use name="FWCore/ParameterSet"/>
- <use name="SimDataFormats/GeneratorProducts"/>
- <flags EDM_PLUGIN="1"/>
-</library>

@@ -1,6 +1,0 @@
-<use   name="DataFormats/Provenance"/>
-<use   name="DataFormats/FWLite"/>
-<use   name="rootcore"/>
-<export>
-  <lib   name="1"/>
-</export>

@@ -1,2 +1,0 @@
-#  Tell ROOT where to find rootlogon.C:
-Rint.Logon: rootlogon.C

@@ -1,4 +1,0 @@
-cd ../src
-cmsenv
-cd -
-export TNS_ADMIN=/nfshome0/popcondev/conddb

@@ -1,4 +1,0 @@
-<use   name="QCDAnalysis/ChargedHadronSpectra"/>
-<library   file="*.cc" name="QCDAnalysisChargedHadronSpectraPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

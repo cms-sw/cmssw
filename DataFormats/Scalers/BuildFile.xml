@@ -1,7 +1,0 @@
-<flags   LCGDICT_ARGS="--deep"/>
-<use   name="DataFormats/Common"/>
-<use   name="boost"/>
-<use   name="rootrflx"/>
-<export>
-  <lib   name="1"/>
-</export>

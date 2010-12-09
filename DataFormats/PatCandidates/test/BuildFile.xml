@@ -1,6 +1,0 @@
-<use   name="boost"/>
-<use   name="cppunit"/>
-<use   name="DataFormats/PatCandidates"/>
-<bin   name="testKinResolutions" file="testKinParametrizations.cc,testKinResolutions.cc,testRunner.cpp">
-  <flags   NO_TESTRUN="1"/>
-</bin>

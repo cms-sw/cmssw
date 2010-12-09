@@ -1,6 +1,0 @@
-<use   name="FWCore/MessageLogger"/>
-<use   name="SimDataFormats/CaloHit"/>
-<use   name="SimDataFormats/TrackingHit"/>
-<export>
-  <lib   name="1"/>
-</export>

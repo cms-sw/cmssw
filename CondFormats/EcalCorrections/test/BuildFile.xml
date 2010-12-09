@@ -1,4 +1,0 @@
-<use   name="CondFormats/EcalCorrections"/>
-<bin   name="testEcalShowerContainmentCorrections" file="testEcalShowerContaimentCorrections.cc">
-  <use   name="cppunit"/>
-</bin>

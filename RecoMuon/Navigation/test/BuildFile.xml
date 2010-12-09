@@ -1,8 +1,0 @@
-<use   name="RecoMuon/DetLayers"/>
-<use   name="RecoMuon/Navigation"/>
-<use   name="RecoMuon/Records"/>
-<use   name="TrackingTools/DetLayers"/>
-<use   name="FWCore/Framework"/>
-<flags   EDM_PLUGIN="1"/>
-<library   file="MuonNavigationTest.cc" name="testRecoMuonNavigation">
-</library>

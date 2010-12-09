@@ -1,4 +1,0 @@
-<use   name="DQMOffline/Ecal"/>
-<library   file="plugins.cc" name="DQMOfflineEcalPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

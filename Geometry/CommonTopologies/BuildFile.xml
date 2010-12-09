@@ -1,5 +1,0 @@
-<use   name="FWCore/MessageLogger"/>
-<use   name="Utilities/General"/>
-<export>
-  <lib   name="1"/>
-</export>

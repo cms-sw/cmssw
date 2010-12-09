@@ -1,7 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="DataFormats/TrackReco"/>
-<flags   EDM_PLUGIN="1"/>
-<library   file="*.cc" name="RoadSearchTrackReader">
-</library>

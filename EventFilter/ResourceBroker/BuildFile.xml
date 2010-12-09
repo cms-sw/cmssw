@@ -1,7 +1,0 @@
-<export>
-  <lib   name="1"/>
-</export>
-<use   name="EventFilter/ShmBuffer"/>
-<use   name="EventFilter/Utilities"/>
-<use   name="DataFormats/FEDRawData"/>
-<use   name="xdaq"/>

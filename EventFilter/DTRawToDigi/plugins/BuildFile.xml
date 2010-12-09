@@ -1,9 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="DataFormats/FEDRawData"/>
-<use   name="DataFormats/DTDigi"/>
-<use   name="CondFormats/DTObjects"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="boost"/>
-<library   file="*.cc" name="EventFilterDTRawToDigiPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

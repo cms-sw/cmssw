@@ -1,7 +1,0 @@
-<use   name="RecoTracker/TrackProducer"/>
-<use   name="RecoTracker/TkDetLayers"/>
-<use   name="RecoTracker/SiTrackerMRHTools"/>
-<use   name="TrackingTools/TransientTrack"/>
-<library   file="*.cc" name="RecoTrackerTrackProducerPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

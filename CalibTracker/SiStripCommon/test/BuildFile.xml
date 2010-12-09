@@ -1,7 +1,0 @@
-<library   file="plugins/*.cc" name="testCalibTrackerSiStripCommonPlugins">
-  <use   name="CalibTracker/SiStripCommon"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/MessageLogger"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>

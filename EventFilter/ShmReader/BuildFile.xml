@@ -1,8 +1,0 @@
-<use   name="FWCore/MessageLogger"/>
-<use   name="IORawData/DaqSource"/>
-<use   name="EventFilter/ShmBuffer"/>
-<use   name="DataFormats/FEDRawData"/>
-<flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>

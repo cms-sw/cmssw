@@ -1,6 +1,0 @@
-<use   name="DetectorDescription/Core"/>
-<use   name="clhep"/>
-<use   name="rootmath"/>
-<export>
-  <lib   name="1"/>
-</export>

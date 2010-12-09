@@ -1,7 +1,0 @@
-<use   name="Geometry/TrackerNumberingBuilder"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="RecoTracker/TkDetLayers"/>
-<use   name="RecoTracker/Record"/>
-<library   file="*.cc" name="RecoTrackerGeometryESProducerPlugin">
-  <flags   EDM_PLUGIN="1"/>
-</library>

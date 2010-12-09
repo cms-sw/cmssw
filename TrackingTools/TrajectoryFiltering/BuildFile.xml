@@ -1,8 +1,0 @@
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="TrackingTools/PatternTools"/>
-<use   name="TrackingTools/TrajectoryParametrization"/>
-<use   name="TrackingTools/TrajectoryState"/>
-<export>
-  <lib   name="1"/>
-</export>

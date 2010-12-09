@@ -1,7 +1,0 @@
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="clhep"/>
-<use   name="root"/>
-<export>
-  <lib   name="1"/>
-</export>

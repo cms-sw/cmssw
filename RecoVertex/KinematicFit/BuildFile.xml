@@ -1,5 +1,0 @@
-<use   name="RecoVertex/KalmanVertexFit"/>
-<export>
-  <lib   name="1"/>
-</export>
-<use   name="RecoVertex/KinematicFitPrimitives"/>

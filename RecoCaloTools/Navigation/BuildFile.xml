@@ -1,5 +1,0 @@
-<use   name="DataFormats/EcalDetId"/>
-<use   name="DataFormats/HcalDetId"/>
-<use   name="Geometry/CaloTopology"/>
-<export>
-</export>

@@ -1,9 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="DataFormats/DTRecHit"/>
-<use   name="Geometry/Records"/>
-<use   name="Geometry/DTGeometry"/>
-<use   name="Validation/DTRecHits"/>
-<use   name="root"/>
-<library   file="*.cc" name="ValidationDTRecHitsPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

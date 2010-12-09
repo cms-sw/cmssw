@@ -1,9 +1,0 @@
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/EgammaCandidates"/>
-<use   name="DataFormats/JetReco"/>
-<use   name="DataFormats/MuonReco"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="root"/>
-<flags   EDM_PLUGIN="1"/>

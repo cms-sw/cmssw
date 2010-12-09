@@ -1,8 +1,0 @@
-<use   name="CondFormats/DataRecord"/>
-<use   name="FWCore/Framework"/>
-<use   name="Geometry/Records"/>
-<use   name="MagneticField/Records"/>
-<use   name="boost"/>
-<export>
-  <lib   name="1"/>
-</export>

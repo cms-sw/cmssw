@@ -1,4 +1,0 @@
-<use   name="DataFormats/HcalDetId"/>
-<export>
-  <lib   name="1"/>
-</export>

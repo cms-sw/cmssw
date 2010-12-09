@@ -1,7 +1,0 @@
-<use   name="SimDataFormats/Track"/>
-<use   name="SimDataFormats/Vertex"/>
-<use   name="clhep"/>
-<use   name="SimDataFormats/CrossingFrame"/>
-<export>
-  <lib   name="1"/>
-</export>

@@ -1,7 +1,0 @@
-<use   name="DataFormats/HcalDetId"/>
-<use   name="DataFormats/CaloTowers"/>
-<use   name="Geometry/CaloTopology"/>
-<bin   file="testCaloTowerTopology.cpp">
-</bin>
-<bin   file="testHcalTopology.cpp">
-</bin>

@@ -1,5 +1,0 @@
-<use   name="RecoLocalTracker/SiPixelClusterizer"/>
-<use   name="CalibTracker/SiPixelESProducers"/>
-<library   file="*.cc" name="RecoLocalTrackerSiPixelClusterizerPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

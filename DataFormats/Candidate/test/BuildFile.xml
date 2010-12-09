@@ -1,4 +1,0 @@
-<bin   name="testDataFormatsCandidate" file="testCompositeCandidate.cc,testCandidate.cc,testParticle.cc,testRunner.cpp">
-  <use   name="DataFormats/Candidate"/>
-  <use   name="cppunit"/>
-</bin>
