@@ -17,9 +17,9 @@ namespace cms
 
 LTCTriggerBitsFilter::LTCTriggerBitsFilter(const edm::ParameterSet& ps){
    AcceptFromBits = ps.getParameter< std::vector<unsigned> >("AcceptFromBits");
-   // check if bits > 7 , they are uint but still check if < 0 to avoid funny automatic conversions
+   // check if bits > 7
    for( std::vector<uint32_t>::iterator ibit = AcceptFromBits.begin(); ibit != AcceptFromBits.end(); ibit++){
-     if( (*ibit > 7) || (*ibit < 0) ) {
+     if( *ibit > 7U ) { // *ibit >= 0, since *ibit is unsigned
       edm::LogInfo("LTCTriggerBitsFilter")<< *ibit<<" is not a valid bit, it will be ignored. Bits can go from 0 to 7";
       AcceptFromBits.erase(ibit);
       --ibit; // ! go back one as the nr. of elements changed. this way make sure no element is skipped

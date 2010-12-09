@@ -40,7 +40,7 @@ void PixelFEDLink::add(const ROCs & rocs)
 string PixelFEDLink::print(int depth) const
 {
   ostringstream out;
-  if (id() < 0) return  out.str();
+  // if (id() < 0) return  out.str(); // id() >= 0, since it returns an unsigned
 
   if (depth-- >=0 ) {
     if(id()<10) out <<"  LNK:  "<<id(); else  out <<"  LNK: "<<id();
