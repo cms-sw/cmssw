@@ -49,7 +49,7 @@ class ParticleListDrawer : public edm::EDAnalyzer {
 
     edm::InputTag src_;
     edm::ESHandle<ParticleDataTable> pdt_;
-    unsigned int maxEventsToPrint_; 
+    int maxEventsToPrint_; // Must be signed, because -1 is used for no limit
     unsigned int nEventAnalyzed_;
     bool printOnlyHardInteraction_;
     bool printVertex_;
@@ -81,7 +81,7 @@ void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByLabel (src_, particles );
   iSetup.getData( pdt_ );
 
-  if(maxEventsToPrint_ < 0 || nEventAnalyzed_ < maxEventsToPrint_) {
+  if(maxEventsToPrint_ < 0 || nEventAnalyzed_ < static_cast<unsigned int>(maxEventsToPrint_)) {
     ostringstream out;
     char buf[256];
 
