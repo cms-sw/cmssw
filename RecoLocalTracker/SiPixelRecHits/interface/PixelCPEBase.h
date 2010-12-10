@@ -21,7 +21,7 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
 
 //--- For the configuration:
@@ -58,11 +58,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0, 
 	       const SiPixelLorentzAngle * lorentzAngle = 0, const SiPixelCPEGenericErrorParm * genErrorParm = 0, 
 	       const SiPixelTemplateDBObject * templateDBobject = 0);
-
-  //~PixelCPEBase()
-  //{
-  //  delete loc_trk_pred;
-  //}
   
   //--------------------------------------------------------------------------
   // Obtain the angles from the position of the DetUnit.
@@ -225,12 +220,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   // ggiurgiu@jhu.edu (10/18/2008)
   mutable bool with_track_angle; 
 
-  // ggiurgiu@jhu.edu (12/01/2010) : Needed for calling topology methods 
-  // with track angles to handle surface deformations (bows/kinks)
-  mutable Topology::LocalTrackPred* loc_trk_pred;
-
-  mutable LocalTrajectoryParameters loc_traj_param;
-
   //--- Probability
   mutable float probabilityX_ ; 
   mutable float probabilityY_ ; 
@@ -276,6 +265,12 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   
   bool  alpha2Order;                          // switch on/off E.B effect.
   
+  // ggiurgiu@jhu.edu (12/01/2010) : Needed for calling topology methods 
+  // with track angles to handle surface deformations (bows/kinks)
+  //mutable Topology::LocalTrackPred* loc_trk_pred;
+  mutable Topology::LocalTrackPred loc_trk_pred_;
+
+  mutable LocalTrajectoryParameters loc_traj_param_;
   
   //---------------------------------------------------------------------------
   //  Methods.

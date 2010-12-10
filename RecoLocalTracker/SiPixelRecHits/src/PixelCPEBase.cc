@@ -46,11 +46,14 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
   : theDet(0), nRecHitsTotal_(0), nRecHitsUsedEdge_(0),
     probabilityX_(0.0), probabilityY_(0.0),
     probabilityQ_(0.0), qBin_(0),
-    isOnEdge_(0), hasBadPixels_(0), spansTwoROCs_(0),
-    hasFilledProb_(0), clusterProbComputationFlag_(0)
+    isOnEdge_(0), hasBadPixels_(0),
+    spansTwoROCs_(0),
+    hasFilledProb_(0), clusterProbComputationFlag_(0),
+    loc_trk_pred_(0.0, 0.0, 0.0, 0.0)
 {
   //--- Lorentz angle tangent per Tesla
   //   theTanLorentzAnglePerTesla =
+
   //     conf.getParameter<double>("TanLorentzAnglePerTesla");
   lorentzAngle_ = lorentzAngle;
   /*	if(!lorentzAngle_)
@@ -296,7 +299,7 @@ computeAnglesFromTrajectory( const SiPixelCluster & cl,
 			     const GeomDetUnit    & det, 
 			     const LocalTrajectoryParameters & ltp) const
 {
-  loc_traj_param = ltp;
+  loc_traj_param_ = ltp;
 
   LocalVector localDir = ltp.momentum()/ltp.momentum().mag();
   
@@ -333,8 +336,10 @@ computeAnglesFromTrajectory( const SiPixelCluster & cl,
 
   // ggiurgiu@jhu.edu 12/09/2010 : needed to correct for bows/kinks
   AlgebraicVector5 vec_trk_parameters = ltp.mixedFormatVector();
-  loc_trk_pred = &Topology::LocalTrackPred( vec_trk_parameters );
-  }
+  //loc_trk_pred = &Topology::LocalTrackPred( vec_trk_parameters );
+  loc_trk_pred_ = Topology::LocalTrackPred( vec_trk_parameters );
+  
+}
 
 //-----------------------------------------------------------------------------
 //  Estimate theAlpha for barrel, based on the det position.
@@ -376,7 +381,7 @@ PixelCPEBase::measurementPosition( const SiPixelCluster& cluster,
   // ggiurgiu@jhu.edu 12/09/2010 : trk angles needed for bow/kink correction
 
   if ( with_track_angle )
-    return theTopol->measurementPosition( lp, Topology::LocalTrackAngles( loc_traj_param.dxdz(), loc_traj_param.dydz() ) );
+    return theTopol->measurementPosition( lp, Topology::LocalTrackAngles( loc_traj_param_.dxdz(), loc_traj_param_.dydz() ) );
   else 
     return theTopol->measurementPosition( lp );
 
@@ -396,7 +401,7 @@ PixelCPEBase::measurementError( const SiPixelCluster& cluster, const GeomDetUnit
 
   // ggiurgiu@jhu.edu 12/09/2010 : trk angles needed for bow/kink correction
   if ( with_track_angle )
-    return theTopol->measurementError( lp, le, Topology::LocalTrackAngles( loc_traj_param.dxdz(), loc_traj_param.dydz() ) );
+    return theTopol->measurementError( lp, le, Topology::LocalTrackAngles( loc_traj_param_.dxdz(), loc_traj_param_.dydz() ) );
   else 
     return theTopol->measurementError( lp, le );
 }

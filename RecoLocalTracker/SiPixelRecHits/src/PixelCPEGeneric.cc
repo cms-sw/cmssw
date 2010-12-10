@@ -103,7 +103,7 @@ PixelCPEGeneric::measurementPosition(const SiPixelCluster& cluster,
 
   // ggiurgiu@jhu.edu 12/09/2010 : trk angles needed for bow/kink correction
   if ( with_track_angle ) 
-    return theTopol->measurementPosition(lp, Topology::LocalTrackAngles( loc_traj_param.dxdz(), loc_traj_param.dydz() ) );
+    return theTopol->measurementPosition(lp, Topology::LocalTrackAngles( loc_traj_param_.dxdz(), loc_traj_param_.dydz() ) );
   else
     return theTopol->measurementPosition(lp);
 
@@ -216,8 +216,8 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
   // If PixelCPEGeneric is called with track angles, use them to correct for bows/kinks:
   if ( with_track_angle )
     {
-      local_URcorn_LLpix = theTopol->localPosition(meas_URcorn_LLpix, *loc_trk_pred);
-      local_LLcorn_URpix = theTopol->localPosition(meas_LLcorn_URpix, *loc_trk_pred);
+      local_URcorn_LLpix = theTopol->localPosition(meas_URcorn_LLpix, loc_trk_pred_);
+      local_LLcorn_URpix = theTopol->localPosition(meas_LLcorn_URpix, loc_trk_pred_);
     }
   else
     {
