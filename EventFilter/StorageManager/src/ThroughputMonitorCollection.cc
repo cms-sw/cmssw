@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.cc,v 1.18 2010/12/01 13:44:48 eulisse Exp $
+// $Id: ThroughputMonitorCollection.cc,v 1.19 2010/12/03 15:56:48 mommsen Exp $
 /// @file: ThroughputMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"
@@ -6,7 +6,11 @@
 
 using namespace stor;
 
-ThroughputMonitorCollection::ThroughputMonitorCollection(const utils::duration_t& updateInterval) :
+ThroughputMonitorCollection::ThroughputMonitorCollection
+(
+  const utils::duration_t& updateInterval,
+  const unsigned int& throuphputAveragingCycles
+) :
   MonitorCollection(updateInterval),
   _binCount(static_cast<int>(300/updateInterval)),
   _poolUsageMQ(updateInterval, _binCount),
@@ -27,6 +31,7 @@ ThroughputMonitorCollection::ThroughputMonitorCollection(const utils::duration_t
   _dqmEventProcessorIdleTimeMQ(updateInterval, _binCount),
   _currentFragmentStoreSize(0),
   _currentFragmentStoreMemoryUsedMB(0),
+  _throuphputAveragingCycles(throuphputAveragingCycles),
   _pool(0)
 {}
 
@@ -423,37 +428,36 @@ void ThroughputMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSp
   infoSpaceItems.push_back(std::make_pair("fragmentProcessorBusy", &_fragmentProcessorBusy));
   infoSpaceItems.push_back(std::make_pair("diskWriterBusy", &_diskWriterBusy));
   infoSpaceItems.push_back(std::make_pair("dqmEventProcessorBusy", &_dqmEventProcessorBusy));
+  infoSpaceItems.push_back(std::make_pair("deltaT", &_deltaT));
 }
 
 
 void ThroughputMonitorCollection::do_updateInfoSpaceItems()
 {
   Stats stats;
-  getStats(stats, 1);
-  if ( stats.snapshots.empty() ) return;
+  getStats(stats, _throuphputAveragingCycles);
 
-  Stats::Snapshots::const_iterator it = stats.snapshots.begin();
-
-  _poolUsage = static_cast<unsigned int>(it->poolUsage);
-  _entriesInFragmentQueue = static_cast<unsigned int>(it->entriesInFragmentQueue);
-  _memoryUsedInFragmentQueue = it->memoryUsedInFragmentQueue;
-  _fragmentQueueRate = it->fragmentQueueRate;
-  _fragmentQueueBandwidth = it->fragmentQueueBandwidth;
-  _fragmentStoreSize = static_cast<unsigned int>(it->fragmentStoreSize);
-  _fragmentStoreMemoryUsed = it->fragmentStoreMemoryUsed;
-  _entriesInStreamQueue = static_cast<unsigned int>(it->entriesInStreamQueue);
-  _memoryUsedInStreamQueue = it->memoryUsedInStreamQueue;
-  _streamQueueRate = it->streamQueueRate;
-  _streamQueueBandwidth = it->streamQueueBandwidth;
-  _writtenEventsRate = it->writtenEventsRate;
-  _writtenEventsBandwidth = it->writtenEventsBandwidth;
-  _entriesInDQMQueue = static_cast<unsigned int>(it->entriesInDQMQueue);
-  _memoryUsedInDQMQueue = it->memoryUsedInDQMQueue;
-  _dqmQueueRate = it->dqmQueueRate;
-  _dqmQueueBandwidth = it->dqmQueueBandwidth;
-  _fragmentProcessorBusy = it->fragmentProcessorBusy;
-  _diskWriterBusy = it->diskWriterBusy;
-  _dqmEventProcessorBusy = it->dqmEventProcessorBusy;
+  _poolUsage = static_cast<unsigned int>(stats.average.poolUsage);
+  _entriesInFragmentQueue = static_cast<unsigned int>(stats.average.entriesInFragmentQueue);
+  _memoryUsedInFragmentQueue = stats.average.memoryUsedInFragmentQueue;
+  _fragmentQueueRate = stats.average.fragmentQueueRate;
+  _fragmentQueueBandwidth = stats.average.fragmentQueueBandwidth;
+  _fragmentStoreSize = static_cast<unsigned int>(stats.average.fragmentStoreSize);
+  _fragmentStoreMemoryUsed = stats.average.fragmentStoreMemoryUsed;
+  _entriesInStreamQueue = static_cast<unsigned int>(stats.average.entriesInStreamQueue);
+  _memoryUsedInStreamQueue = stats.average.memoryUsedInStreamQueue;
+  _streamQueueRate = stats.average.streamQueueRate;
+  _streamQueueBandwidth = stats.average.streamQueueBandwidth;
+  _writtenEventsRate = stats.average.writtenEventsRate;
+  _writtenEventsBandwidth = stats.average.writtenEventsBandwidth;
+  _entriesInDQMQueue = static_cast<unsigned int>(stats.average.entriesInDQMQueue);
+  _memoryUsedInDQMQueue = stats.average.memoryUsedInDQMQueue;
+  _dqmQueueRate = stats.average.dqmQueueRate;
+  _dqmQueueBandwidth = stats.average.dqmQueueBandwidth;
+  _fragmentProcessorBusy = stats.average.fragmentProcessorBusy;
+  _diskWriterBusy = stats.average.diskWriterBusy;
+  _dqmEventProcessorBusy = stats.average.dqmEventProcessorBusy;
+  _deltaT = stats.average.relativeTime;
 }
 
 

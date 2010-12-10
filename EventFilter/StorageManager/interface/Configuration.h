@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.22 2010/09/09 08:01:16 mommsen Exp $
+// $Id: Configuration.h,v 1.23 2010/09/28 16:25:29 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -109,6 +109,7 @@ namespace stor
     utils::duration_t _DQMEPdeqWaitTime;
     utils::duration_t _staleFragmentTimeOut;
     utils::duration_t _monitoringSleepSec;
+    unsigned int _throuphputAveragingCycles;
   };
 
   /**
@@ -160,8 +161,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.22 $
-   * $Date: 2010/09/09 08:01:16 $
+   * $Revision: 1.23 $
+   * $Date: 2010/09/28 16:25:29 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -381,6 +382,7 @@ namespace stor
     xdata::Double _DQMEPdeqWaitTime;
     xdata::Double _staleFragmentTimeOut;
     xdata::Double _monitoringSleepSec;
+    xdata::UnsignedInteger32 _throuphputAveragingCycles;
 
     xdata::String _sataUser;
     xdata::String _injectWorkersUser;

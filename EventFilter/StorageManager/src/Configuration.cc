@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.36 2010/09/28 16:25:29 mommsen Exp $
+// $Id: Configuration.cc,v 1.37 2010/12/10 13:23:42 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -257,6 +257,7 @@ namespace stor
   
     _workerThreadParamCopy._staleFragmentTimeOut = 60;
     _workerThreadParamCopy._monitoringSleepSec = 1;
+    _workerThreadParamCopy._throuphputAveragingCycles = 10;
   }
 
   void Configuration::setResourceMonitorDefaults()
@@ -410,6 +411,7 @@ namespace stor
     _DQMEPdeqWaitTime = _workerThreadParamCopy._DQMEPdeqWaitTime;
     _staleFragmentTimeOut = _workerThreadParamCopy._staleFragmentTimeOut;
     _monitoringSleepSec = _workerThreadParamCopy._monitoringSleepSec;
+    _throuphputAveragingCycles = _workerThreadParamCopy._throuphputAveragingCycles;
 
     // bind the local xdata variables to the infospace
     infoSpace->fireItemAvailable("FPdeqWaitTime", &_FPdeqWaitTime);
@@ -417,6 +419,7 @@ namespace stor
     infoSpace->fireItemAvailable("DQMEPdeqWaitTime", &_DQMEPdeqWaitTime);
     infoSpace->fireItemAvailable("staleFragmentTimeOut", &_staleFragmentTimeOut);
     infoSpace->fireItemAvailable("monitoringSleepSec", &_monitoringSleepSec);
+    infoSpace->fireItemAvailable("throuphputAveragingCycles", &_throuphputAveragingCycles);
   }
 
   void Configuration::
@@ -553,6 +556,7 @@ namespace stor
 
     _workerThreadParamCopy._staleFragmentTimeOut = _staleFragmentTimeOut;
     _workerThreadParamCopy._monitoringSleepSec = _monitoringSleepSec;
+    _workerThreadParamCopy._throuphputAveragingCycles = _throuphputAveragingCycles;
   }
 
   void Configuration::updateLocalResourceMonitorData()

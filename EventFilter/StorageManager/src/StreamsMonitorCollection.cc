@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.cc,v 1.11 2010/03/19 17:33:54 mommsen Exp $
+// $Id: StreamsMonitorCollection.cc,v 1.12 2010/03/25 09:14:03 mommsen Exp $
 /// @file: StreamsMonitorCollection.cc
 
 #include <string>
@@ -157,8 +157,6 @@ void StreamsMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpace
 {
   infoSpaceItems.push_back(std::make_pair("storedEvents",  &_storedEvents));
   infoSpaceItems.push_back(std::make_pair("storedVolume",  &_storedVolume));
-  // Leave parameter with typo (bandwith) for backwards compatibility
-  infoSpaceItems.push_back(std::make_pair("bandwithToDisk",  &_bandwidthToDisk));
   infoSpaceItems.push_back(std::make_pair("bandwidthToDisk",  &_bandwidthToDisk));
   infoSpaceItems.push_back(std::make_pair("streamNames",  &_streamNames));
   infoSpaceItems.push_back(std::make_pair("eventsPerStream",  &_eventsPerStream));

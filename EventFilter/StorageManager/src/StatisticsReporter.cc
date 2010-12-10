@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.cc,v 1.17 2010/03/16 17:55:57 mommsen Exp $
+// $Id: StatisticsReporter.cc,v 1.18 2010/04/12 15:25:05 mommsen Exp $
 /// @file: StatisticsReporter.cc
 
 #include <sstream>
@@ -42,7 +42,8 @@ _resourceMonCollection(600*_monitoringSleepSec, _alarmHandler),
 _stateMachineMonCollection(_monitoringSleepSec),
 _eventConsumerMonCollection(_monitoringSleepSec),
 _dqmConsumerMonCollection(_monitoringSleepSec),
-_throughputMonCollection(_monitoringSleepSec),
+_throughputMonCollection(_monitoringSleepSec,
+  sr->_configuration->getWorkerThreadParams()._throuphputAveragingCycles),
 _monitorWL(0),
 _doMonitoring(_monitoringSleepSec>0)
 {

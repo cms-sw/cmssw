@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.cc,v 1.13 2009/09/24 09:54:27 mommsen Exp $
+// $Id: DataSenderMonitorCollection.cc,v 1.14 2010/05/03 12:19:05 mommsen Exp $
 /// @file: DataSenderMonitorCollection.cc
 
 #include <string>
@@ -500,7 +500,6 @@ void DataSenderMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSp
   infoSpaceItems.push_back(std::make_pair("activeEPs", &_activeEPs));
   infoSpaceItems.push_back(std::make_pair("outstandingDataDiscards", &_outstandingDataDiscards));
   infoSpaceItems.push_back(std::make_pair("outstandingDQMDiscards", &_outstandingDQMDiscards));
-  infoSpaceItems.push_back(std::make_pair("staleChains", &_faultyEvents)); // depreciated naming
   infoSpaceItems.push_back(std::make_pair("faultyEvents", &_faultyEvents));
   infoSpaceItems.push_back(std::make_pair("ignoredDiscards", &_ignoredDiscards));
 }

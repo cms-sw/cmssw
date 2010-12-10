@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.h,v 1.14 2010/02/15 15:11:28 mommsen Exp $
+// $Id: ThroughputMonitorCollection.h,v 1.15 2010/12/03 15:56:48 mommsen Exp $
 /// @file: ThroughputMonitorCollection.h 
 
 #ifndef StorageManager_ThroughputMonitorCollection_h
@@ -24,15 +24,19 @@ namespace stor {
    * through the storage manager.
    *
    * $Author: mommsen $
-   * $Revision: 1.14 $
-   * $Date: 2010/02/15 15:11:28 $
+   * $Revision: 1.15 $
+   * $Date: 2010/12/03 15:56:48 $
    */
   
   class ThroughputMonitorCollection : public MonitorCollection
   {
   public:
 
-    explicit ThroughputMonitorCollection(const utils::duration_t& updateInterval);
+    explicit ThroughputMonitorCollection
+    (
+      const utils::duration_t& updateInterval,
+      const unsigned int& throuphputAveragingCycles
+    );
 
     int getBinCount() const {return _binCount;}
 
@@ -320,6 +324,7 @@ namespace stor {
 
     unsigned int _currentFragmentStoreSize;
     double _currentFragmentStoreMemoryUsedMB;
+    unsigned int _throuphputAveragingCycles;
 
     toolbox::mem::Pool* _pool;
 
@@ -344,6 +349,7 @@ namespace stor {
     xdata::Double            _fragmentProcessorBusy;     //Fragment processor busy percentage
     xdata::Double            _diskWriterBusy;            //Disk writer busy percentage
     xdata::Double            _dqmEventProcessorBusy;     //DQM event processor busy percentage
+    xdata::Double            _deltaT;                    //Time in s over which above values are averaged
   };
   
 } // namespace stor
