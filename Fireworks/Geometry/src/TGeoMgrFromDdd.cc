@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jul  2 16:11:42 CEST 2010
-// $Id: TGeoMgrFromDdd.cc,v 1.6 2010/12/09 16:31:05 yana Exp $
+// $Id: TGeoMgrFromDdd.cc,v 1.7 2010/12/10 08:27:31 yana Exp $
 //
 
 #include "Fireworks/Geometry/interface/TGeoMgrFromDdd.h"
@@ -36,6 +36,7 @@
 #include "TGeoTube.h"
 #include "TGeoArb8.h"
 #include "TGeoTrd2.h"
+#include "TGeoTorus.h"
 
 #include "Math/GenVector/RotationX.h"
 #include "Math/GenVector/RotationZ.h"
@@ -429,6 +430,17 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    
 	    break;
 	 }
+         case ddtorus:
+	 {
+	    DDTorus solid( iSolid );
+	    rSolid = new TGeoTorus( iName.c_str(),
+				    solid.rTorus()/cm,
+				    solid.rMin()/cm,
+				    solid.rMax()/cm,
+				    solid.startPhi()/deg,
+				    solid.deltaPhi()/deg);
+	    break;
+	 }	
 	 case ddsubtraction:
 	 {
 	    DDBooleanSolid boolSolid(iSolid);
