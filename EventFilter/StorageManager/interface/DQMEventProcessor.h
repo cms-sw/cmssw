@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessor.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
+// $Id: DQMEventProcessor.h,v 1.4 2009/08/28 16:41:49 mommsen Exp $
 /// @file: DQMEventProcessor.h 
 
 #ifndef StorageManager_DQMEventProcessor_h
@@ -30,8 +30,8 @@ namespace stor {
    * to disk every N lumi-sections.
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.4 $
+   * $Date: 2009/08/28 16:41:49 $
    */
   
   class DQMEventProcessor : public toolbox::lang::Class
@@ -90,7 +90,7 @@ namespace stor {
     xdaq::Application*        _app;
     SharedResourcesPtr        _sharedResources;
 
-    unsigned int              _timeout; // Waiting time in seconds.
+    boost::posix_time::time_duration _timeout;
     bool                      _actionIsActive;
 
     toolbox::task::WorkLoop*  _processWL;      

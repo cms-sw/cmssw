@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessorResources.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
+// $Id: DQMEventProcessorResources.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
 /// @file: DQMEventProcessorResources.h 
 
 
@@ -17,9 +17,9 @@ namespace stor
    * Container class for resources that are needed by the DQMEventProcessor
    * and need to be accessed from multiple threads.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:21 $
+   * $Author: mommsen $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/20 13:06:10 $
    */
 
   class DQMEventProcessorResources
@@ -50,7 +50,7 @@ namespace stor
      * specified DQMProcessingParams.  Also allows a new dequeue timeout
      * value to be specified.
      */
-    void requestConfiguration(DQMProcessingParams, double timeoutValue);
+    void requestConfiguration(DQMProcessingParams const&,  boost::posix_time::time_duration const&);
 
     /**
      * Requests the end-of-run processing
@@ -67,7 +67,7 @@ namespace stor
      * Supplies the new DQMProcessingParams and a new dequeue timeout value
      * if a new configuration is requested.
      */
-    bool getRequests(Requests&, DQMProcessingParams&, double& timeoutValue);
+    bool getRequests(Requests&, DQMProcessingParams&, boost::posix_time::time_duration& timeoutValue);
 
     /**
      * Waits until the requests have been completed.
@@ -92,7 +92,7 @@ namespace stor
     Requests _pendingRequests;
 
     DQMProcessingParams _requestedDQMProcessingParams;
-    double _requestedTimeout;
+    boost::posix_time::time_duration _requestedTimeout;
 
     boost::condition _requestsCondition;
 

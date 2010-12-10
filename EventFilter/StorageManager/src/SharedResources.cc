@@ -1,5 +1,5 @@
 /**
- * $Id: SharedResources.cc,v 1.7 2010/03/03 15:22:23 mommsen Exp $
+ * $Id: SharedResources.cc,v 1.8 2010/03/04 16:59:05 mommsen Exp $
 /// @file: SharedResources.cc
  */
 
@@ -14,6 +14,8 @@
 #include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 
 #include "xcept/tools.h"
+
+#include "boost/date_time/posix_time/posix_time_types.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -36,7 +38,7 @@ namespace stor
       );
       event_ptr stMachEvent( new Fail() );
       // wait maximum 5 seconds until enqueuing succeeds
-      if ( ! _commandQueue->enq_timed_wait( stMachEvent, 5 ) )
+      if ( ! _commandQueue->enq_timed_wait( stMachEvent, boost::posix_time::seconds(5) ) )
       {
         XCEPT_DECLARE_NESTED( stor::exception::StateTransition,
           sentinelException, "Failed to enqueue FAIL event", exception );

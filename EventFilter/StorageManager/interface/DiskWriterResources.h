@@ -1,4 +1,4 @@
-// $Id: DiskWriterResources.h,v 1.6 2010/03/16 19:10:22 mommsen Exp $
+// $Id: DiskWriterResources.h,v 1.7 2010/03/19 13:24:30 mommsen Exp $
 /// @file: DiskWriterResources.h 
 
 
@@ -9,6 +9,7 @@
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
 
+#include "boost/date_time/posix_time/posix_time_types.hpp"
 #include "boost/thread/condition.hpp"
 #include "boost/thread/mutex.hpp"
 
@@ -24,8 +25,8 @@ namespace stor
    * and need to be accessed from multiple threads.
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2010/03/16 19:10:22 $
+   * $Revision: 1.7 $
+   * $Date: 2010/03/19 13:24:30 $
    */
 
   class DiskWriterResources
@@ -50,11 +51,11 @@ namespace stor
      */
     void requestStreamConfiguration
     (
-      EvtStrConfigListPtr,
-      ErrStrConfigListPtr,
-      DiskWritingParams,
-      unsigned int runNumber,
-      double timeoutValue
+      EvtStrConfigListPtr const,
+      ErrStrConfigListPtr const,
+      DiskWritingParams const&,
+      unsigned int const& runNumber,
+      boost::posix_time::time_duration const& timeoutValue
     );
 
     /**
@@ -77,7 +78,7 @@ namespace stor
       ErrStrConfigListPtr&,
       DiskWritingParams& dwParams,
       unsigned int& runNumber,
-      double& timeoutValue
+      boost::posix_time::time_duration& timeoutValue
     );
 
     /**
@@ -116,7 +117,7 @@ namespace stor
     ErrStrConfigListPtr _requestedErrorStreamConfig;
     DiskWritingParams _requestedDiskWritingParams;
     unsigned int _requestedRunNumber;
-    double _requestedTimeout;
+    boost::posix_time::time_duration _requestedTimeout;
 
     bool _streamChangeInProgress;
     boost::condition _streamChangeCondition;

@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.23 2010/09/28 16:25:29 mommsen Exp $
+// $Id: Configuration.h,v 1.24 2010/12/10 14:31:52 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -17,6 +17,7 @@
 #include "xdata/Boolean.h"
 #include "xdata/Vector.h"
 
+#include "boost/date_time/time_duration.hpp"
 #include "boost/thread/mutex.hpp"
 
 
@@ -104,9 +105,9 @@ namespace stor
    */
   struct WorkerThreadParams
   {
-    utils::duration_t _FPdeqWaitTime;
-    utils::duration_t _DWdeqWaitTime;
-    utils::duration_t _DQMEPdeqWaitTime;
+    boost::posix_time::time_duration _FPdeqWaitTime;
+    boost::posix_time::time_duration _DWdeqWaitTime;
+    boost::posix_time::time_duration _DQMEPdeqWaitTime;
     utils::duration_t _staleFragmentTimeOut;
     utils::duration_t _monitoringSleepSec;
     unsigned int _throuphputAveragingCycles;
@@ -161,8 +162,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.23 $
-   * $Date: 2010/09/28 16:25:29 $
+   * $Revision: 1.24 $
+   * $Date: 2010/12/10 14:31:52 $
    */
 
   class Configuration : public xdata::ActionListener

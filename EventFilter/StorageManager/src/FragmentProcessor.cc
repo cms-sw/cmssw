@@ -1,4 +1,4 @@
-// $Id: FragmentProcessor.cc,v 1.14 2010/02/11 13:35:41 mommsen Exp $
+// $Id: FragmentProcessor.cc,v 1.15 2010/05/11 15:18:28 mommsen Exp $
 /// @file: FragmentProcessor.cc
 
 #include <unistd.h>
@@ -32,7 +32,7 @@ FragmentProcessor::FragmentProcessor( xdaq::Application *app,
 
   WorkerThreadParams workerParams =
     _sharedResources->_configuration->getWorkerThreadParams();
-  _timeout = (unsigned int) workerParams._FPdeqWaitTime;
+  _timeout = workerParams._FPdeqWaitTime;
 }
 
 FragmentProcessor::~FragmentProcessor()
@@ -120,21 +120,7 @@ void FragmentProcessor::processOneFragmentIfPossible()
   {
     utils::time_point_t startTime = utils::getCurrentTime();
 
-    // 27-May-2009, KAB - This is rather ugly. At the moment, we are limited
-    // to wait times of an integer number of seconds by the deq_timed_wait
-    // call below. (The Configuration class enforces this rule.)  Once we
-    // can support sub-second wait times [Boost 1.38?], we can relax this
-    // rule.  In the meantime, the ThroughputMonitorCollection busy time
-    // calculation for this thread gives smoother results if we don't sleep
-    // for full seconds here.  
-    if (_timeout > 0.1)
-    {
-      ::usleep(100000);
-    }
-    else
-    {
-      ::sleep(_timeout);
-    }
+    ::usleep(_timeout.total_microseconds());
 
     utils::duration_t elapsedTime = utils::getCurrentTime() - startTime;
     _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addFragmentProcessorIdleSample(elapsedTime);
@@ -186,7 +172,7 @@ void FragmentProcessor::processAllCommands()
     {
       WorkerThreadParams workerParams =
         _sharedResources->_configuration->getWorkerThreadParams();
-      _timeout = (unsigned int) workerParams._FPdeqWaitTime;
+      _timeout = workerParams._FPdeqWaitTime;
     }
 }
 

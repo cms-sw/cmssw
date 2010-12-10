@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.37 2010/12/10 13:23:42 mommsen Exp $
+// $Id: Configuration.cc,v 1.38 2010/12/10 14:31:52 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -239,21 +239,9 @@ namespace stor
   void Configuration::setWorkerThreadDefaults()
   {
     // set defaults
-    _workerThreadParamCopy._FPdeqWaitTime = 0.25;
-    _workerThreadParamCopy._DWdeqWaitTime = 0.50;
-    _workerThreadParamCopy._DQMEPdeqWaitTime = 0.50;
-
-    // validate the defaults
-    // Currently, this consists of rounding up the values to next
-    // whole number since ConcurrentQueue::deq_timed_wait only takes
-    // integer values.  This can be removed once we switch to Boost 1.38
-    // and we get sub-second intervals.
-    _workerThreadParamCopy._FPdeqWaitTime =
-      ceil(_workerThreadParamCopy._FPdeqWaitTime);
-    _workerThreadParamCopy._DWdeqWaitTime =
-      ceil(_workerThreadParamCopy._DWdeqWaitTime);
-    _workerThreadParamCopy._DQMEPdeqWaitTime =
-      ceil(_workerThreadParamCopy._DQMEPdeqWaitTime);
+    _workerThreadParamCopy._FPdeqWaitTime = boost::posix_time::millisec(250);
+    _workerThreadParamCopy._DWdeqWaitTime = boost::posix_time::millisec(500);
+    _workerThreadParamCopy._DQMEPdeqWaitTime = boost::posix_time::millisec(500);
   
     _workerThreadParamCopy._staleFragmentTimeOut = 60;
     _workerThreadParamCopy._monitoringSleepSec = 1;
@@ -406,9 +394,9 @@ namespace stor
   setupWorkerThreadInfoSpaceParams(xdata::InfoSpace* infoSpace)
   {
     // copy the initial defaults to the xdata variables
-    _FPdeqWaitTime = _workerThreadParamCopy._FPdeqWaitTime;
-    _DWdeqWaitTime = _workerThreadParamCopy._DWdeqWaitTime;
-    _DQMEPdeqWaitTime = _workerThreadParamCopy._DQMEPdeqWaitTime;
+    _FPdeqWaitTime = utils::duration_to_seconds(_workerThreadParamCopy._FPdeqWaitTime);
+    _DWdeqWaitTime = utils::duration_to_seconds(_workerThreadParamCopy._DWdeqWaitTime);
+    _DQMEPdeqWaitTime = utils::duration_to_seconds(_workerThreadParamCopy._DQMEPdeqWaitTime);
     _staleFragmentTimeOut = _workerThreadParamCopy._staleFragmentTimeOut;
     _monitoringSleepSec = _workerThreadParamCopy._monitoringSleepSec;
     _throuphputAveragingCycles = _workerThreadParamCopy._throuphputAveragingCycles;
@@ -538,21 +526,9 @@ namespace stor
 
   void Configuration::updateLocalWorkerThreadData()
   {
-    _workerThreadParamCopy._FPdeqWaitTime = _FPdeqWaitTime;
-    _workerThreadParamCopy._DWdeqWaitTime = _DWdeqWaitTime;
-    _workerThreadParamCopy._DQMEPdeqWaitTime = _DQMEPdeqWaitTime;
-
-    // validate the values
-    // Currently, this consists of rounding up the values to next
-    // whole number since ConcurrentQueue::deq_timed_wait only takes
-    // integer values.  This can be removed once we switch to Boost 1.38
-    // and we get sub-second intervals.
-    _workerThreadParamCopy._FPdeqWaitTime =
-      ceil(_workerThreadParamCopy._FPdeqWaitTime);
-    _workerThreadParamCopy._DWdeqWaitTime =
-      ceil(_workerThreadParamCopy._DWdeqWaitTime);
-    _workerThreadParamCopy._DQMEPdeqWaitTime =
-      ceil(_workerThreadParamCopy._DQMEPdeqWaitTime);
+    _workerThreadParamCopy._FPdeqWaitTime = utils::seconds_to_duration(_FPdeqWaitTime);
+    _workerThreadParamCopy._DWdeqWaitTime = utils::seconds_to_duration(_DWdeqWaitTime);
+    _workerThreadParamCopy._DQMEPdeqWaitTime = utils::seconds_to_duration(_DQMEPdeqWaitTime);
 
     _workerThreadParamCopy._staleFragmentTimeOut = _staleFragmentTimeOut;
     _workerThreadParamCopy._monitoringSleepSec = _monitoringSleepSec;

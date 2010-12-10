@@ -1,4 +1,4 @@
-// $Id: FragmentProcessor.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
+// $Id: FragmentProcessor.h,v 1.4 2009/08/28 16:41:49 mommsen Exp $
 /// @file: FragmentProcessor.h 
 
 #ifndef StorageManager_FragmentProcessor_h
@@ -8,6 +8,7 @@
 #include "toolbox/task/WaitingWorkLoop.h"
 #include "xdaq/Application.h"
 
+#include "boost/date_time/posix_time/posix_time_types.hpp"
 #include "boost/shared_ptr.hpp"
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
@@ -32,8 +33,8 @@ namespace stor {
    * EventDistributor.
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.4 $
+   * $Date: 2009/08/28 16:41:49 $
    */
 
   class FragmentProcessor : public toolbox::lang::Class
@@ -87,7 +88,7 @@ namespace stor {
     FragmentStore                      _fragmentStore;
     EventDistributor                   _eventDistributor;
 
-    unsigned int                       _timeout; // Waiting time in seconds.
+    boost::posix_time::time_duration   _timeout; // Waiting time
     bool                               _actionIsActive;
 
     toolbox::task::WorkLoop*           _processWL;      

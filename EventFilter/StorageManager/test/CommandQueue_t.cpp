@@ -1,6 +1,8 @@
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 #include "cppunit/extensions/HelperMacros.h"
 
+#include "boost/date_time/posix_time/posix_time_types.hpp"
+
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
 
@@ -49,10 +51,10 @@ testCommandQueue::matched_deqs_and_enqs()
   unsigned long wait_usec = 1000; // wait time in microseconds
   typedef boost::shared_ptr<boost::statechart::event_base> event_ptr;
   stor::CommandQueue q;
-  q.enq_timed_wait(event_ptr(new stor::Configure), wait_usec);
+  q.enq_timed_wait(event_ptr(new stor::Configure), boost::posix_time::microseconds(wait_usec));
   CPPUNIT_ASSERT(q.size() == 1);
-  q.enq_timed_wait(event_ptr(new stor::Enable), wait_usec);
-  q.enq_timed_wait(event_ptr(new stor::EmergencyStop), wait_usec);
+  q.enq_timed_wait(event_ptr(new stor::Enable), boost::posix_time::microseconds(wait_usec));
+  q.enq_timed_wait(event_ptr(new stor::EmergencyStop), boost::posix_time::microseconds(wait_usec));
   CPPUNIT_ASSERT(q.size() == 3);
   event_ptr discard;
   CPPUNIT_ASSERT(q.deq_nowait(discard));

@@ -1,4 +1,4 @@
-//$Id: Utils.cc,v 1.15 2010/12/02 15:49:42 mommsen Exp $
+//$Id: Utils.cc,v 1.16 2010/12/03 15:56:48 mommsen Exp $
 /// @file: Utils.cc
 
 #include "EventFilter/StorageManager/interface/Exception.h"
@@ -33,8 +33,20 @@ namespace stor
 	out += static_cast<time_point_t>(in.tv_usec)/(1000*1000);
       }
     } // anonymous namespace
-      
-      
+
+
+    boost::posix_time::time_duration seconds_to_duration(double const& seconds)
+    {
+      const unsigned int fullSeconds = static_cast<unsigned int>(seconds);
+      return boost::posix_time::seconds(fullSeconds)
+        + boost::posix_time::millisec(static_cast<unsigned int>((seconds - fullSeconds)*1000) );
+    }
+    
+    double duration_to_seconds(boost::posix_time::time_duration const& duration)
+    {
+      return static_cast<double>(duration.total_milliseconds()) / 1000;
+    }
+    
     time_point_t getCurrentTime()
     {
       time_point_t result = -1.0;

@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.23 2010/05/11 18:02:25 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.24 2010/10/12 01:41:32 wmtan Exp $
 /// @file: DiskWriter.cc
 
 #include <algorithm>
@@ -30,7 +30,7 @@ _actionIsActive(true)
 {
   WorkerThreadParams workerParams =
     _sharedResources->_configuration->getWorkerThreadParams();
-  _timeout = (unsigned int) workerParams._DWdeqWaitTime;
+  _timeout = workerParams._DWdeqWaitTime;
 }
 
 
@@ -175,7 +175,7 @@ void DiskWriter::checkStreamChangeRequest()
   ErrStrConfigListPtr errCfgList;
   DiskWritingParams newdwParams;
   unsigned int newRunNumber;
-  double newTimeoutValue;
+  boost::posix_time::time_duration newTimeoutValue;
   bool doConfig;
   if (_sharedResources->_diskWriterResources->
     streamChangeRequested(doConfig, evtCfgList, errCfgList, newdwParams, newRunNumber, newTimeoutValue))
@@ -185,7 +185,7 @@ void DiskWriter::checkStreamChangeRequest()
     {
       _dwParams = newdwParams;
       _runNumber = newRunNumber;
-      _timeout = (unsigned int) newTimeoutValue;
+      _timeout = newTimeoutValue;
       _dbFileHandler->configure(_runNumber, _dwParams);
 
       makeFaultyEventStream();

@@ -1,9 +1,10 @@
-// $Id: DiskWriter.h,v 1.10 2010/03/19 13:24:30 mommsen Exp $
+// $Id: DiskWriter.h,v 1.11 2010/05/11 17:58:01 mommsen Exp $
 /// @file: DiskWriter.h 
 
 #ifndef StorageManager_DiskWriter_h
 #define StorageManager_DiskWriter_h
 
+#include "boost/date_time/posix_time/posix_time_types.hpp"
 #include "boost/shared_ptr.hpp"
 
 #include <stdint.h>
@@ -33,8 +34,8 @@ namespace stor {
    * to the appropriate stream file(s) on disk. 
    *
    * $Author: mommsen $
-   * $Revision: 1.10 $
-   * $Date: 2010/03/19 13:24:30 $
+   * $Revision: 1.11 $
+   * $Date: 2010/05/11 17:58:01 $
    */
   
   class DiskWriter : public toolbox::lang::Class
@@ -145,7 +146,7 @@ namespace stor {
     const DbFileHandlerPtr _dbFileHandler;
 
     unsigned int _runNumber;
-    unsigned int _timeout; // Timeout in seconds on stream queue
+    boost::posix_time::time_duration _timeout; // Timeout on stream queue
     utils::time_point_t _lastFileTimeoutCheckTime; // Last time we checked for time-out files
 
     typedef boost::shared_ptr<StreamHandler> StreamHandlerPtr;

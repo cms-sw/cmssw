@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessor.cc,v 1.10 2010/02/11 13:35:41 mommsen Exp $
+// $Id: DQMEventProcessor.cc,v 1.11 2010/03/03 15:25:21 mommsen Exp $
 /// @file: DQMEventProcessor.cc
 
 #include "toolbox/task/WorkLoopFactory.h"
@@ -22,7 +22,7 @@ _dqmEventStore(sr)
 {
   WorkerThreadParams workerParams =
     _sharedResources->_configuration->getWorkerThreadParams();
-  _timeout = static_cast<unsigned int>(workerParams._DQMEPdeqWaitTime);
+  _timeout = workerParams._DQMEPdeqWaitTime;
 }
 
 
@@ -119,13 +119,13 @@ void DQMEventProcessor::processNextDQMEvent()
 
   DQMEventProcessorResources::Requests requests;
   DQMProcessingParams dqmParams;
-  double newTimeoutValue;
+  boost::posix_time::time_duration newTimeoutValue;
   if (_sharedResources->_dqmEventProcessorResources->
     getRequests(requests, dqmParams, newTimeoutValue))
   {
     if (requests.configuration)
     {
-      _timeout = static_cast<unsigned int>(newTimeoutValue);
+      _timeout = newTimeoutValue;
       _dqmEventStore.setParameters(dqmParams);
       checkDirectories(dqmParams);
     }

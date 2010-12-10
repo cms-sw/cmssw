@@ -1,4 +1,4 @@
-// $Id: ConsumerUtils.cc,v 1.10 2010/04/16 14:39:59 mommsen Exp $
+// $Id: ConsumerUtils.cc,v 1.11 2010/04/19 10:35:23 mommsen Exp $
 /// @file: ConsumerUtils.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerID.h"
@@ -17,6 +17,8 @@
 #include "xgi/Input.h"
 #include "xgi/Output.h"
 #include "xgi/exception/Exception.h"
+
+#include "boost/date_time/posix_time/posix_time_types.hpp"
 
 #include <string>
 #include <vector>
@@ -281,7 +283,7 @@ bool ConsumerUtils::addRegistrationInfo(const RegPtr reginfo) const
 {
   if ( !_sharedResources->_registrationCollection->addRegistrationInfo( reginfo ) ) return false;
 
-  return _sharedResources->_registrationQueue->enq_timed_wait( reginfo, 5 );
+  return _sharedResources->_registrationQueue->enq_timed_wait( reginfo, boost::posix_time::seconds(5) );
 }
 
 

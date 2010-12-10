@@ -1,3 +1,10 @@
+
+	* Average the throughput quantities over the last 10 s (configurable
+	  by setting throuphputAveragingCycles). The actual averageing time is
+	  reported in the new infospace variable averagingTime.
+	* Remove obsolete infospace quantities 'bandwithToDisk' and 'staleChains'.
+	* Avoid parsing unusued parameters from the SM stream configuration.
+
 2010-12-03 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-05-01

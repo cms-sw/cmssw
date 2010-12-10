@@ -1,4 +1,4 @@
-// $Id: Utils.h,v 1.9 2010/12/02 15:51:04 mommsen Exp $
+// $Id: Utils.h,v 1.10 2010/12/03 15:56:48 mommsen Exp $
 /// @file: Utils.h 
 
 #ifndef StorageManager_Utils_h
@@ -12,6 +12,8 @@
 #include "xdata/String.h"
 #include "xdata/Vector.h"
 
+#include "boost/date_time/posix_time/posix_time_types.hpp"
+
 
 namespace stor {
 
@@ -21,8 +23,8 @@ namespace stor {
      * Collection of utility functions used in the storage manager
      *
      * $Author: mommsen $
-     * $Revision: 1.9 $
-     * $Date: 2010/12/02 15:51:04 $
+     * $Revision: 1.10 $
+     * $Date: 2010/12/03 15:56:48 $
      */
 
     /**
@@ -41,6 +43,18 @@ namespace stor {
        seconds (including a fractional part).
     */
     typedef double duration_t;
+
+    /**
+       Convert a fractional second count into a boost::posix_time::time_duration
+       type with a resolution of milliseconds.
+    */
+    boost::posix_time::time_duration seconds_to_duration(double const& seconds);
+
+    /**
+       Convert a boost::posix_time::time_duration into fractional seconds with
+       a resolution of milliseconds.
+    */
+    double duration_to_seconds(boost::posix_time::time_duration const&);
 
     /**
        Returns the current point in time. A negative value indicates

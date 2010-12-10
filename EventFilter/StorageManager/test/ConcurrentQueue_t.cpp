@@ -3,6 +3,8 @@
 
 #include "EventFilter/StorageManager/interface/ConcurrentQueue.h"
 #include "FWCore/Utilities/interface/CPUTimer.h"
+
+#include "boost/date_time/posix_time/posix_time_types.hpp"
 #include "boost/thread.hpp"
 #include "boost/shared_ptr.hpp"
 #include "boost/bind.hpp"
@@ -268,7 +270,7 @@ testConcurrentQueue::enq_timing()
       t.reset();
       CPPUNIT_ASSERT(q.size() == 1);
       t.start();
-      CPPUNIT_ASSERT(!q.enq_timed_wait(1, wait_time));
+      CPPUNIT_ASSERT(!q.enq_timed_wait(1, boost::posix_time::seconds(wait_time)));
       t.stop();
       // We somewhat arbitrarily choose 10 milliseconds as "good enough
       // resolution".

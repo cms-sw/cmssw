@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessorResources.cc,v 1.2 2009/06/10 08:15:25 dshpakov Exp $
+// $Id: DQMEventProcessorResources.cc,v 1.3 2009/07/20 13:07:27 mommsen Exp $
 /// @file: DQMEventProcessorResources.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventProcessorResources.h"
@@ -13,7 +13,7 @@ namespace stor
   }
   
   void DQMEventProcessorResources::
-  requestConfiguration(DQMProcessingParams params, double timeoutValue)
+  requestConfiguration(DQMProcessingParams const& params, boost::posix_time::time_duration const& timeoutValue)
   {
     boost::mutex::scoped_lock sl(_requestsMutex);
 
@@ -51,7 +51,7 @@ namespace stor
   }
 
   bool DQMEventProcessorResources::
-  getRequests(Requests& requests, DQMProcessingParams& params, double& timeoutValue)
+  getRequests(Requests& requests, DQMProcessingParams& params, boost::posix_time::time_duration& timeoutValue)
   {
     boost::mutex::scoped_lock sl(_requestsMutex);
 

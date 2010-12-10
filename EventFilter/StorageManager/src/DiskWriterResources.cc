@@ -1,4 +1,4 @@
-// $Id: DiskWriterResources.cc,v 1.5 2010/03/16 19:10:22 mommsen Exp $
+// $Id: DiskWriterResources.cc,v 1.6 2010/03/19 13:24:05 mommsen Exp $
 /// @file: DiskWriterResources.cc
 
 #include "EventFilter/StorageManager/interface/DiskWriterResources.h"
@@ -16,11 +16,11 @@ namespace stor
 
   void DiskWriterResources::requestStreamConfiguration
   (
-    EvtStrConfigListPtr evtStrConfig,
-    ErrStrConfigListPtr errStrConfig,
-    DiskWritingParams dwParams,
-    unsigned int runNumber,
-    double timeoutValue
+    EvtStrConfigListPtr const evtStrConfig,
+    ErrStrConfigListPtr const errStrConfig,
+    DiskWritingParams const& dwParams,
+    unsigned int const& runNumber,
+    boost::posix_time::time_duration const& timeoutValue
   )
   {
     boost::mutex::scoped_lock sl(_streamChangeMutex);
@@ -48,7 +48,7 @@ namespace stor
     ErrStrConfigListPtr& errStrConfig,
     DiskWritingParams& dwParams,
     unsigned int& runNumber,
-    double& timeoutValue
+    boost::posix_time::time_duration& timeoutValue
   )
   {
     boost::mutex::scoped_lock sl(_streamChangeMutex);
