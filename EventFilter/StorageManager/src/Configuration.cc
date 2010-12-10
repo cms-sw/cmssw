@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.35 2010/09/09 08:01:16 mommsen Exp $
+// $Id: Configuration.cc,v 1.36 2010/09/28 16:25:29 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -617,12 +617,6 @@ namespace stor
             std::string requestedOMLabel =
               endPathPSet.getUntrackedParameter<std::string>("SelectHLTOutput",
                                                              std::string());
-            bool useCompression =
-              endPathPSet.getUntrackedParameter<bool>("use_compression", true);
-            unsigned int compressionLevel =
-              endPathPSet.getUntrackedParameter<int>("compression_level", 1);
-            unsigned int maxEventSize =
-              endPathPSet.getUntrackedParameter<int>("max_event_size", 7000000);
             double fractionToDisk =
               endPathPSet.getUntrackedParameter<double>("fractionToDisk", 1);
 
@@ -631,9 +625,6 @@ namespace stor
                                                  newRequestedEvents,
                                                  requestedEvents,
                                                  requestedOMLabel,
-                                                 useCompression,
-                                                 compressionLevel,
-                                                 maxEventSize,
                                                  fractionToDisk);
             evtCfgList->push_back(cfgInfo);
           }

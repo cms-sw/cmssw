@@ -1,4 +1,4 @@
-// $Id: EventStreamConfigurationInfo.h,v 1.6 2009/12/01 13:58:08 mommsen Exp $
+// $Id: EventStreamConfigurationInfo.h,v 1.7 2009/12/01 17:56:15 smorovic Exp $
 /// @file: EventStreamConfigurationInfo.h
 
 #ifndef StorageManager_EventStreamConfigurationInfo_h
@@ -18,9 +18,9 @@ namespace stor
   /**
      Configuration information for the event stream
 
-     $Author: mommsen $
-     $Revision: 1.6 $
-     $Date: 2009/12/01 13:58:08 $
+     $Author: smorovic $
+     $Revision: 1.7 $
+     $Date: 2009/12/01 17:56:15 $
   */
 
   class EventStreamConfigurationInfo
@@ -36,18 +36,12 @@ namespace stor
                                   const std::string& triggerSelection,
                                   const FilterList& selEvents,
                                   const std::string& outputModuleLabel,
-                                  bool useCompression,
-                                  unsigned int compressionLevel,
-                                  unsigned int maxEventSize,
                                   double fractionToDisk ):
       _streamLabel( streamLabel ),
       _maxFileSizeMB( maxFileSizeMB ),
       _triggerSelection( triggerSelection ),
       _selEvents( selEvents ),
       _outputModuleLabel( outputModuleLabel ),
-      _useCompression( useCompression ),
-      _compressionLevel( compressionLevel ),
-      _maxEventSize( maxEventSize ),
       _fractionToDisk( fractionToDisk ),
       _streamId(0)
     {}
@@ -61,9 +55,6 @@ namespace stor
     const std::string& triggerSelection() const { return _triggerSelection; }
     const FilterList& selEvents() const { return _selEvents; }
     const std::string& outputModuleLabel() const { return _outputModuleLabel; }
-    bool useCompression() const { return _useCompression; }
-    unsigned int compressionLevel() const { return _compressionLevel; }
-    unsigned int maxEventSize() const { return _maxEventSize; }
     double fractionToDisk() const { return _fractionToDisk; }
     StreamID streamId() const { return _streamId; }
 
@@ -81,9 +72,6 @@ namespace stor
     std::string _triggerSelection;
     FilterList _selEvents;
     std::string _outputModuleLabel;
-    bool _useCompression;
-    unsigned int _compressionLevel;
-    unsigned int _maxEventSize;
     double _fractionToDisk;
     StreamID _streamId;
 

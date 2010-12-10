@@ -1,4 +1,4 @@
-// $Id: EventStreamConfigurationInfo.cc,v 1.7 2009/12/01 17:50:40 smorovic Exp $
+// $Id: EventStreamConfigurationInfo.cc,v 1.8 2010/08/06 20:24:31 wmtan Exp $
 /// @file: EventStreamConfigurationInfo.cc
 
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
@@ -16,18 +16,8 @@ stor::operator << ( ostream& os,
      << " Stream label: " << ci.streamLabel() << std::endl
      << " Maximum file size, MB: " << ci.maxFileSizeMB() << std::endl
      << " HLT output: " << ci.outputModuleLabel() << std::endl
-     << " Maximum event size, Bytes: " << ci.maxEventSize() << std::endl
      << " Fraction of events written to disk: " << ci.fractionToDisk() << std::endl
      << " Stream Id: " << ci.streamId() << std::endl;
-
-  if( ci.useCompression() )
-    {
-      os << " Compression applied at level " << ci.compressionLevel() << std::endl;
-    }
-  else
-    {
-      os << " Compression not applied" << std::endl;
-    }
 
   os << " Event filters:";
   if (ci.triggerSelection().size()) {
