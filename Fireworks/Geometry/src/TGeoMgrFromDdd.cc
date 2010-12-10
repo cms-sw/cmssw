@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jul  2 16:11:42 CEST 2010
-// $Id: TGeoMgrFromDdd.cc,v 1.5 2010/11/26 10:04:16 yana Exp $
+// $Id: TGeoMgrFromDdd.cc,v 1.6 2010/12/09 16:31:05 yana Exp $
 //
 
 #include "Fireworks/Geometry/interface/TGeoMgrFromDdd.h"
@@ -403,9 +403,9 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    }
 	    else
 	    {
- 	      std::auto_ptr<TGeoShape> box( new TGeoBBox( 1.1*x/cm, sqrt(r*r-x*x)/cm, 1.1*h/cm ));
+ 	      std::auto_ptr<TGeoShape> box( new TGeoBBox( 1.1*x/cm, 1.1*h/cm, sqrt(r*r-x*x)/cm ));
 	      
- 	      TGeoSubtraction* sub = new TGeoSubtraction( tubs.release(),
+	      TGeoSubtraction* sub = new TGeoSubtraction( tubs.release(),
 							  box.release(),
 							  0,
 							  createPlacement( s_rot,
