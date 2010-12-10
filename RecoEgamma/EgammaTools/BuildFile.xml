@@ -10,7 +10,7 @@
 <use   name="PhysicsTools/MVATrainer"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondCore/EgammaPlugins"/>
-<flags LDFLAGS="-lTMVA"/>
+<use name="roottmva">
 <export>
   <lib   name="1"/>
 </export>
