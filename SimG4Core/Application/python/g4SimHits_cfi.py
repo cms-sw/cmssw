@@ -233,7 +233,9 @@ g4SimHits = cms.EDProducer("OscarProducer",
         ApertureTrapped = cms.double(0.22),
         Gain            = cms.double(0.33),
         OnlyLong        = cms.bool(True),
-        CheckSurvive    = cms.bool(False)
+        LambdaMean      = cms.double(350.0),
+        CheckSurvive    = cms.bool(False),
+        ParametrizeLast = cms.untracked.bool(False)
     ),
     HFShowerLibrary = cms.PSet(
         FileName        = cms.FileInPath('SimG4CMS/Calo/data/hfshowerlibrary_lhep_140_edm.root'),

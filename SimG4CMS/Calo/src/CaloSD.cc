@@ -24,8 +24,9 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
 	       int tSlice, bool ignoreTkID) : 
   SensitiveCaloDetector(name, cpv, clg, p),
   G4VGFlashSensitiveDetector(), theTrack(0), preStepPoint(0), eminHit(0), 
-  eminHitD(0), m_trackManager(manager), currentHit(0), timeSlice(tSlice),
-  ignoreTrackID(ignoreTkID), hcID(-1), theHC(0), meanResponse(0) {
+  eminHitD(0), m_trackManager(manager), currentHit(0), runInit(false),
+  timeSlice(tSlice), ignoreTrackID(ignoreTkID), hcID(-1), theHC(0), 
+  meanResponse(0) {
 
   //Add Hcal Sentitive Detector Names
 
@@ -222,7 +223,7 @@ void CaloSD::Initialize(G4HCofThisEvent * HCE) {
   totalHits = 0;
   
 #ifdef DebugLog
-  LogDebug("CaloSim") << "CaloSD : Initialize called for " << GetName(); 
+  edm::LogInfo("CaloSim") << "CaloSD : Initialize called for " << GetName(); 
 #endif
   
   //This initialization is performed at the beginning of an event
@@ -241,7 +242,7 @@ void CaloSD::EndOfEvent(G4HCofThisEvent* ) {
   cleanHitCollection();
   
 #ifdef DebugLog
-  LogDebug("CaloSim") << "CaloSD: EndofEvent entered with " << theHC->entries()
+  edm::LogInfo("CaloSim") << "CaloSD: EndofEvent entered with " << theHC->entries()
                       << " entries";
 #endif
   //  TimeMe("CaloSD:sortAndMergeHits",false);
@@ -253,7 +254,7 @@ void CaloSD::DrawAll() {}
 
 void CaloSD::PrintAll() {
 #ifdef DebugLog
-  LogDebug("CaloSim") << "CaloSD: Collection " << theHC->GetName();
+  edm::LogInfo("CaloSim") << "CaloSD: Collection " << theHC->GetName();
 #endif
   theHC->PrintAllHits();
 } 
@@ -512,6 +513,7 @@ void CaloSD::update(const BeginOfRun *) {
                       << " for e+ = " << epPDG << " for gamma = " << gammaPDG;
 #endif
   initRun();
+  runInit = true;
 } 
 
 void CaloSD::update(const BeginOfEvent *) {
