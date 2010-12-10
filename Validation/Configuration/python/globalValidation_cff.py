@@ -32,6 +32,11 @@ globalPrevalidation = cms.Sequence(
   * photonPrevalidationSequence
 )
 
+# filter/producer "pre-" sequence for validation_preprod
+preprodPrevalidation = cms.Sequence(
+    tracksValidationSelectors
+)
+
 globalValidation = cms.Sequence(   trackerHitsValidation 
                                  + trackerDigisValidation 
                                  + trackerRecHitsValidation 
