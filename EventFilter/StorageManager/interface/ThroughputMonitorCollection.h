@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.h,v 1.15 2010/12/03 15:56:48 mommsen Exp $
+// $Id: ThroughputMonitorCollection.h,v 1.16 2010/12/10 14:31:52 mommsen Exp $
 /// @file: ThroughputMonitorCollection.h 
 
 #ifndef StorageManager_ThroughputMonitorCollection_h
@@ -24,8 +24,8 @@ namespace stor {
    * through the storage manager.
    *
    * $Author: mommsen $
-   * $Revision: 1.15 $
-   * $Date: 2010/12/03 15:56:48 $
+   * $Revision: 1.16 $
+   * $Date: 2010/12/10 14:31:52 $
    */
   
   class ThroughputMonitorCollection : public MonitorCollection
@@ -349,7 +349,7 @@ namespace stor {
     xdata::Double            _fragmentProcessorBusy;     //Fragment processor busy percentage
     xdata::Double            _diskWriterBusy;            //Disk writer busy percentage
     xdata::Double            _dqmEventProcessorBusy;     //DQM event processor busy percentage
-    xdata::Double            _deltaT;                    //Time in s over which above values are averaged
+    xdata::Double            _averagingTime;                    //Time in s over which above values are averaged
   };
   
 } // namespace stor

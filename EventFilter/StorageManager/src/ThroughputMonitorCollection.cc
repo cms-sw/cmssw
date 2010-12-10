@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.cc,v 1.19 2010/12/03 15:56:48 mommsen Exp $
+// $Id: ThroughputMonitorCollection.cc,v 1.20 2010/12/10 14:31:52 mommsen Exp $
 /// @file: ThroughputMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"
@@ -428,7 +428,7 @@ void ThroughputMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSp
   infoSpaceItems.push_back(std::make_pair("fragmentProcessorBusy", &_fragmentProcessorBusy));
   infoSpaceItems.push_back(std::make_pair("diskWriterBusy", &_diskWriterBusy));
   infoSpaceItems.push_back(std::make_pair("dqmEventProcessorBusy", &_dqmEventProcessorBusy));
-  infoSpaceItems.push_back(std::make_pair("deltaT", &_deltaT));
+  infoSpaceItems.push_back(std::make_pair("averagingTime", &_averagingTime));
 }
 
 
@@ -457,7 +457,7 @@ void ThroughputMonitorCollection::do_updateInfoSpaceItems()
   _fragmentProcessorBusy = stats.average.fragmentProcessorBusy;
   _diskWriterBusy = stats.average.diskWriterBusy;
   _dqmEventProcessorBusy = stats.average.dqmEventProcessorBusy;
-  _deltaT = stats.average.relativeTime;
+  _averagingTime = stats.average.relativeTime;
 }
 
 
