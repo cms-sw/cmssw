@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.20 2009/10/12 20:12:24 ferriff Exp $
+ * \version $Id: SuperCluster.h,v 1.21 2009/10/13 10:10:14 ferriff Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -86,6 +86,26 @@ namespace reco {
 
     /// add reference to constituent BasicCluster
     void addPreshowerCluster( const CaloClusterPtr & r ) { preshowerClusters_.push_back( r ); }
+
+    /** Set preshower planes status :
+        0 : both planes working
+        1 : only first plane working
+        2 : only second plane working
+        3 : both planes dead */        
+
+    void setPreshowerPlanesStatus(const uint32_t& status){
+      uint32_t flags = flags_ & flagsMask_;
+      flags_= flags | (status << flagsOffset_);
+    }
+
+    /** Get preshower planes status :
+        0 : both planes working
+        1 : only first plane working
+        2 : only second plane working
+        3 : both planes dead */    
+    const int  getPreshowerPlanesStatus() const {
+      return (flags_>>flagsOffset_);
+    }
 
   private:
 
