@@ -193,6 +193,21 @@ private:
 			    const TrajectoryStateOnSurface& ltp,
 			    std::vector<SiStripRecHit2D>& res) const;
   
+  
+  std::set<SiStripClusterRef> skipClusters_;
+  std::set<SiStripRegionalClusterRef> skipRegClusters_;
+ public:
+  template <typename IT>
+    void setClusterToSkip(IT begin, IT end){
+    skipClusters_.clear();
+    skipClusters_.insert(begin,end);
+  }
+  template <typename IT>
+    void setRegionalClustersToSkip(IT begin, IT end){
+    skipRegClusters_.clear();
+    skipRegClusters_.insert(begin,end);
+  }
+  
 };
 
 #endif

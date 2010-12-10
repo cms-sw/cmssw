@@ -18,6 +18,10 @@ namespace {
     SiPixelClusterRefVector rv1;
     SiPixelClusterRefProd rp1;
     edm::Ref<edm::DetSetVector<SiPixelCluster>,edm::DetSet<SiPixelCluster>,edm::refhelper::FindDetSetForDetSetVector<SiPixelCluster,edm::DetSetVector<SiPixelCluster> > > boguscrap;
+
+    std::vector<edm::Ref<edmNew::DetSetVector<SiPixelCluster>,SiPixelCluster,edmNew::DetSetVector<SiPixelCluster>::FindForDetSetVector> > dsvr_v;
+    edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiPixelCluster>,SiPixelCluster,edmNew::DetSetVector<SiPixelCluster>::FindForDetSetVector> > dsvr;
+    edm::Wrapper<edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiPixelCluster>,SiPixelCluster,edmNew::DetSetVector<SiPixelCluster>::FindForDetSetVector> > > dsvr_w;
   };
 }
 

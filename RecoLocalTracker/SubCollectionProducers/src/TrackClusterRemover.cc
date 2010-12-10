@@ -75,6 +75,9 @@ class TrackClusterRemover : public edm::EDProducer {
 
         // Carries in full removal info about a given det from oldRefs
         void mergeOld(reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices &oldRefs) ;
+
+  std::map<uint32_t, std::vector< SiStripRecHit1D::ClusterRef > > collectedStrip;
+  std::map<uint32_t, std::vector< SiPixelRecHit::ClusterRef  > > collectedPixel;
 };
 
 
@@ -138,6 +141,9 @@ TrackClusterRemover::TrackClusterRemover(const ParameterSet& iConfig):
             throw cms::Exception("Configuration Error") << "TrackClusterRemover: Configuration for subDetID = " << (i+1) << " uses cluster charge, which is not enabled.";
         }
     }
+
+    produces<edmNew::DetSetVector<SiPixelClusterRefNew> >();
+    produces<edmNew::DetSetVector<SiStripRecHit1D::ClusterRef> >();
 }
 
 
@@ -157,7 +163,7 @@ void TrackClusterRemover::mergeOld(ClusterRemovalInfo::Indices &refs,
 template<typename T> 
 auto_ptr<edmNew::DetSetVector<T> >
 TrackClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, const std::vector<uint8_t> &isGood, 
-                                reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices *oldRefs) {  
+			     reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices *oldRefs){
     typedef typename edmNew::DetSetVector<T>             DSV;
     typedef typename edmNew::DetSetVector<T>::FastFiller DSF;
     typedef typename edmNew::DetSet<T>                   DS;
@@ -181,7 +187,8 @@ TrackClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, const s
                 refs.push_back(index); 
                 //std::cout << "TrackClusterRemover::cleanup " << typeid(T).name() << " reference " << index << " to " << (refs.size() - 1) << std::endl;
             }
-        }
+
+	}
         if (outds.empty()) outds.abort(); // not write in an empty DSV
     }
     if (oldRefs != 0) mergeOld(refs, *oldRefs);
@@ -200,6 +207,8 @@ void TrackClusterRemover::process(const SiStripRecHit2D *hit, uint32_t subdet) {
 
 //DBG// cout << "Individual HIT " << cluster.key().first << ", INDEX = " << cluster.key().second << endl;
     strips[cluster.key()] = false;
+
+    collectedStrip[cluster->geographicalId()].push_back(cluster);
 }
 
 void TrackClusterRemover::process(const SiStripRecHit1D *hit, uint32_t subdet) {
@@ -214,6 +223,8 @@ void TrackClusterRemover::process(const SiStripRecHit1D *hit, uint32_t subdet) {
 
 //DBG// cout << "Individual HIT " << cluster.key().first << ", INDEX = " << cluster.key().second << endl;
     strips[cluster.key()] = false;
+
+    collectedStrip[cluster->geographicalId()].push_back(cluster);
 }
 
 
@@ -246,6 +257,8 @@ void TrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
 
         // mark as used
         pixels[cluster.key()] = false;
+	
+	collectedPixel[detid.rawId()].push_back(cluster);
     } else { // aka Strip
         if (!doStrip_) return;
         const type_info &hitType = typeid(*hit);
@@ -352,6 +365,7 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
         }
     }
 
+    
     if (doPixel_) {
         auto_ptr<edmNew::DetSetVector<SiPixelCluster> > newPixelClusters = cleanup(*pixelClusters, pixels, 
                     cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : 0);
@@ -370,7 +384,37 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 
     iEvent.put(cri);
 
+
+
     pixels.clear(); strips.clear(); 
+
+    auto_ptr<edmNew::DetSetVector<SiPixelClusterRefNew> > removedPixelClsuterRefs(new edmNew::DetSetVector<SiPixelClusterRefNew>());
+    auto_ptr<edmNew::DetSetVector<SiStripRecHit1D::ClusterRef> > removedStripClsuterRefs(new edmNew::DetSetVector<SiStripRecHit1D::ClusterRef>());
+
+    for (std::map<uint32_t, std::vector< SiStripRecHit1D::ClusterRef > >::iterator itskiped= collectedStrip.begin();
+	 itskiped!=collectedStrip.end();++itskiped){
+      edmNew::DetSetVector<SiStripRecHit1D::ClusterRef>::FastFiller fill(*removedStripClsuterRefs, itskiped->first);
+      for (std::vector< SiStripRecHit1D::ClusterRef >::iterator topush = itskiped->second.begin();
+	   topush!=itskiped->second.end();++topush){
+	fill.push_back(*topush);
+      }
+      if (fill.empty()) fill.abort();
+    }
+
+    for (std::map<uint32_t, std::vector< SiPixelRecHit::ClusterRef  > >::iterator itskiped= collectedPixel.begin();
+	 itskiped!=collectedPixel.end();++itskiped){  
+      edmNew::DetSetVector<SiPixelClusterRefNew>::FastFiller fill(*removedPixelClsuterRefs, itskiped->first);
+      for (std::vector< SiPixelRecHit::ClusterRef  >::iterator topush = itskiped->second.begin(); 
+	   topush!=itskiped->second.end();++topush){ 
+	fill.push_back(*topush); 
+      }
+      if (fill.empty()) fill.abort();   
+    }
+    iEvent.put( removedPixelClsuterRefs );
+    iEvent.put( removedStripClsuterRefs );
+
+
+
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

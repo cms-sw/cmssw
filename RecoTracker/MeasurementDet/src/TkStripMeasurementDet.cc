@@ -79,8 +79,9 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
       while ( --leftCluster >=  detSet_.begin()) {
         if (isMasked(*leftCluster)) continue;
 	SiStripClusterRef clusterref = edmNew::makeRefTo( handle_, leftCluster ); 
-	//TransientTrackingRecHit::RecHitPointer recHit = buildRecHit(clusterref, 
-	//							    stateOnThisDet);
+	if (skipClusters_.find(clusterref) != skipClusters_.end())
+	  edm::LogWarning("TkStripMeasurementDet")<<"skipping this cluster from last iteration";
+	else{
 	RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
 	bool isCompatible(false);
 	for(RecHitContainer::const_iterator recHit=recHits.begin();recHit!=recHits.end();++recHit){	  
@@ -92,14 +93,16 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 	  }
 	}
 	if(!isCompatible) break; // exit loop on first incompatible hit
+	}
       }
     }
     
     for ( ; rightCluster != detSet_.end(); rightCluster++) {
       if (isMasked(*rightCluster)) continue;
       SiStripClusterRef clusterref = edmNew::makeRefTo( handle_, rightCluster ); 
-      //TransientTrackingRecHit::RecHitPointer recHit = buildRecHit( clusterref, 
-      //								   stateOnThisDet);
+      if (skipClusters_.find(clusterref) != skipClusters_.end())
+	edm::LogWarning("TkStripMeasurementDet")<<"skipping this cluster from last iteration";
+      else{
       RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
       bool isCompatible(false);
       for(RecHitContainer::const_iterator recHit=recHits.begin();recHit!=recHits.end();++recHit){	  
@@ -111,6 +114,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 	}
       }
       if(!isCompatible) break; // exit loop on first incompatible hit
+      }
     }
   }// end block with DetSet
   else{
@@ -122,11 +126,11 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
       const_iterator leftCluster = rightCluster;
       while ( --leftCluster >=  beginCluster) {
         if (isMasked(*leftCluster)) continue;
-	//      TransientTrackingRecHit* recHit = buildRecHit( *leftCluster, 
-	//std::cout << "=====making ref in fastMeas left " << std::endl;
+
 	SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle_,leftCluster-regionalHandle_->begin_record());
-	//TransientTrackingRecHit::RecHitPointer recHit = buildRecHit(clusterref, 
-	//							    stateOnThisDet);
+	if (skipRegClusters_.find(clusterref) != skipRegClusters_.end())
+	  edm::LogWarning("TkStripMeasurementDet")<<"skipping this cluster from last iteration";
+	else{
 	RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
 	bool isCompatible(false);
 	for(RecHitContainer::const_iterator recHit=recHits.begin();recHit!=recHits.end();++recHit){	  
@@ -138,6 +142,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 	  }
 	}
 	if(!isCompatible) break; // exit loop on first incompatible hit
+	}
       }
     }
     
@@ -145,8 +150,9 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
       if (isMasked(*rightCluster)) continue;
       //std::cout << "=====making ref in fastMeas rigth " << std::endl;
       SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle_,rightCluster-regionalHandle_->begin_record());
-      //TransientTrackingRecHit::RecHitPointer recHit = buildRecHit( clusterref, 
-      //								   stateOnThisDet);
+      if (skipRegClusters_.find(clusterref) != skipRegClusters_.end())
+	edm::LogWarning("TkStripMeasurementDet")<<"skipping this cluster from last iteration"; 
+      else{
       RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
       bool isCompatible(false);
       for(RecHitContainer::const_iterator recHit=recHits.begin();recHit!=recHits.end();++recHit){	  
@@ -158,6 +164,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 	}
       }
       if(!isCompatible) break; // exit loop on first incompatible hit
+      }
     }
   }
 
@@ -250,14 +257,20 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
       if (isMasked(*ci)) continue;
       // for ( ClusterIterator ci=theClusterRange.first; ci != theClusterRange.second; ci++) {
       SiStripClusterRef  cluster = edmNew::makeRefTo( handle_, ci ); 
-      result.push_back( buildRecHit( cluster, ts));
+      if (skipClusters_.find(cluster) != skipClusters_.end())
+	edm::LogWarning("TkStripMeasurementDet")<<"skipping this cluster from last iteration";
+      else
+	result.push_back( buildRecHit( cluster, ts));
     }
   }else{
     result.reserve(endCluster - beginCluster);
     for (const_iterator ci = beginCluster ; ci != endCluster; ci++) {      
       if (isMasked(*ci)) continue;
       SiStripRegionalClusterRef clusterRef = edm::makeRefToLazyGetter(regionalHandle_,ci-regionalHandle_->begin_record());     
-      result.push_back( buildRecHit( clusterRef, ts));
+      if (skipRegClusters_.find(clusterRef) != skipRegClusters_.end())
+	edm::LogWarning("TkStripMeasurementDet")<<"skipping this cluster from last iteration";
+      else
+	result.push_back( buildRecHit( clusterRef, ts));
     }
   }
   return result;
@@ -289,14 +302,20 @@ TkStripMeasurementDet::simpleRecHits( const TrajectoryStateOnSurface& ts, std::v
       if (isMasked(*ci)) continue;
       // for ( ClusterIterator ci=theClusterRange.first; ci != theClusterRange.second; ci++) {
       SiStripClusterRef  cluster = edmNew::makeRefTo( handle_, ci ); 
-      buildSimpleRecHit( cluster, ts,result);
+      if (skipClusters_.find(cluster) != skipClusters_.end())
+	edm::LogWarning("TkStripMeasurementDet")<<"skipping this cluster from last iteration";
+      else
+	buildSimpleRecHit( cluster, ts,result);
     }
   }else{
     result.reserve(endCluster - beginCluster);
     for (const_iterator ci = beginCluster ; ci != endCluster; ci++) {      
       if (isMasked(*ci)) continue;
       SiStripRegionalClusterRef clusterRef = edm::makeRefToLazyGetter(regionalHandle_,ci-regionalHandle_->begin_record());     
-      buildSimpleRecHit( clusterRef, ts,result);
+      if (skipRegClusters_.find(clusterRef) != skipRegClusters_.end())
+	edm::LogWarning("TkStripMeasurementDet")<<"skipping this cluster from last iteration";
+      else
+	buildSimpleRecHit( clusterRef, ts,result);
     }
   }
 }
