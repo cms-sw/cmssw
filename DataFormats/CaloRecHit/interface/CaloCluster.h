@@ -7,7 +7,7 @@
  *
  * \author Shahram Rahatlou, INFN
  *
- * \version $Id: CaloCluster.h,v 1.19 2010/08/24 12:42:01 ferriff Exp $
+ * \version $Id: CaloCluster.h,v 1.20 2010/08/24 17:05:24 ferriff Exp $
  * Comments:
  * modified AlgoId enumeration to include cleaning status flags
  * In summary:
@@ -70,7 +70,9 @@ namespace reco {
                  const AlgoID& algoID,
                  uint32_t flags = 0) :
       energy_ (energy), position_ (position), 
-      caloID_(caloID), algoID_(algoID), flags_(flags) {}
+      caloID_(caloID), algoID_(algoID) {
+      flags_=flags&flagsMask_;
+    }
 
     CaloCluster( double energy,
                  const math::XYZPoint& position,
@@ -80,7 +82,9 @@ namespace reco {
 		 const DetId seedId = DetId(0),
                  uint32_t flags = 0) :
       energy_ (energy), position_ (position), caloID_(caloID), 
-	hitsAndFractions_(usedHitsAndFractions), algoID_(algoId), seedId_(seedId), flags_(flags) {}
+      hitsAndFractions_(usedHitsAndFractions), algoID_(algoId),seedId_(seedId){
+      flags_=flags&flagsMask_;
+    }
 
    //FIXME:
    /// temporary compatibility constructor
@@ -90,10 +94,11 @@ namespace reco {
                  const std::vector<DetId > &usedHits,
                  const AlgoId algoId,
                  uint32_t flags = 0) :
-      energy_ (energy), position_ (position),  algoID_(algoId), flags_(flags)
+      energy_ (energy), position_ (position),  algoID_(algoId)
        {
           hitsAndFractions_.reserve(usedHits.size());
           for(size_t i = 0; i < usedHits.size(); i++) hitsAndFractions_.push_back(std::pair< DetId, float > ( usedHits[i],1.));
+	  flags_=flags&flagsMask_;
       }
 
 
@@ -153,10 +158,13 @@ namespace reco {
     AlgoId algo() const { return algoID_; }
     AlgoID algoID() const { return algo(); }
 
-    uint32_t flags() const { return flags_; }
-    void setFlags( uint32_t flags) { flags_ = flags; }
-    bool isInClean()   const { return flags_ < uncleanOnly; }
-    bool isInUnclean() const { return flags_ >= common; }
+    uint32_t flags() const { return flags_&flagsMask_; }
+    void setFlags( uint32_t flags) { 
+      uint32_t reserved = (flags_ & ~flagsMask_);
+      flags_ = (reserved ) | (flags & flagsMask_); 
+    }
+    bool isInClean()   const { return flags() < uncleanOnly; }
+    bool isInUnclean() const { return flags() >= common; }
 
     const CaloID& caloID() const {return caloID_;}
 
@@ -200,8 +208,12 @@ namespace reco {
     DetId		seedId_;
 
     /// flags (e.g. for handling of cleaned/uncleaned SC)
+    /// 4  most significant bits  reserved
+    /// 28 bits for handling of cleaned/uncleaned
     uint32_t            flags_;
 
+    static const uint32_t flagsMask_  =0x0FFFFFFF;
+    static const uint32_t flagsOffset_=28;
   };
 
 }
