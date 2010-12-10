@@ -14,7 +14,7 @@ usage=\
 """%prog <TYPE> [options].
 Example:
 
-%prog reco -s RAW2DIGI,RECO --conditions FrontierConditions_GlobalTag,STARTUP_V4::All --eventcontent RECOSIM
+%prog reco -s RAW2DIGI,RECO --conditions STARTUP_V4::All --eventcontent RECOSIM
 """
 parser = optparse.OptionParser(usage)
 
@@ -29,7 +29,7 @@ parser.add_option("-s", "--step",
                    dest="step")
 
 parser.add_option("--conditions",
-                  help="What conditions to use. Default are frontier conditions 'STARTUP_V4::All' (FrontierConditions_GlobalTag,STARTUP_V4::All)",
+                  help="What conditions to use. Default are frontier conditions 'STARTUP_V4::All' ",
                   default=None,
                   dest="conditions")
 
@@ -84,7 +84,7 @@ parser.add_option("--no_exec",
 # expert settings
 expertSettings.add_option("--beamspot",
                           help="What beam spot to use (from Configuration/StandardSequences). Default depends on scenario",
-                          default=None,
+                          default=defaultOptions.beamspot,
                           dest="beamspot")
 
 expertSettings.add_option("--customise",
@@ -280,26 +280,6 @@ expertSettings.add_option("--hideGen",
 if len(sys.argv)==1:
     raise "Event Type: ", "No event type specified!"
 
-# check whether steps are compatible, but make sure we don't trigger on AlCaxyzHLT and L1Reco
-hltRe = re.compile('.*[,\s]HLT[,\s].*')
-recoRe = re.compile('.*[,\s]RECO[,\s].*')
-if ( hltRe.match(str(options.step)) and recoRe.match(str(options.step))):
-    print "ERROR: HLT and RECO cannot be run in the same process"
-    sys.exit(1)
-    
-# check whether conditions given
-if options.conditions == None:
-    if (options.step.find('SKIM')!=-1):
-        options.conditions = 'auto:mc'
-    else:
-        print "ERROR: No conditions given!\nPlease specify conditions. E.g. via --conditions=FrontierConditions_GlobalTag,IDEAL_30X::All"
-        sys.exit(1)
-            
-# sanity check options specifying data or mc
-if options.isData and options.isMC:
-    print "ERROR: You may specify only --data or --mc, not both"
-    sys.exit(1)
-
 # check in case of ALCAOUTPUT case for alca splitting
 if options.triggerResultsProcess == None and "ALCAOUTPUT" in options.step:
     print "ERROR: If ALCA splitting is requested, the name of the process in which the alca producers ran needs to be specified. E.g. via --triggerResultsProcess RECO"
@@ -483,11 +463,4 @@ if not options.isData and not options.isMC:
     else:
         print 'We have determined that this is real data (if not, rerun cmsDriver.py with --mc)'
     
-# force the HeavyIons scenario is the himix option is chosen
-if options.himix and not options.scenario=='HeavyIons':
-   print "From the presence of the himix option, we have determined that this is heavy ions and will use '--scenario HeavyIons'."
-   options.scenario='HeavyIons'
-
-
-#options.outfile_name = options.dirout+options.fileout
 

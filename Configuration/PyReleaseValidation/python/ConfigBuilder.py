@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.266 $"
+__version__ = "$Revision: 1.267 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -17,7 +17,7 @@ defaultOptions.datamix = 'DataOnSim'
 defaultOptions.pileup = 'NoPileUp'
 defaultOptions.geometry = 'DB'
 defaultOptions.geometryExtendedOptions = ['ExtendedGFlash','Extended','NoCastor']
-defaultOptions.magField = 'Default'
+defaultOptions.magField = '38T'
 defaultOptions.conditions = 'auto:startup'
 defaultOptions.scenarioOptions=['pp','cosmics','nocoll','HeavyIons']
 defaultOptions.harvesting= 'AtRunEnd'
@@ -28,6 +28,7 @@ defaultOptions.arguments = ""
 defaultOptions.name = "NO NAME GIVEN"
 defaultOptions.evt_type = ""
 defaultOptions.filein = []
+defaultOptions.secondfilein = ""
 defaultOptions.customisation_file = ""
 defaultOptions.particleTable = 'pythiapdt'
 defaultOptions.particleTableList = ['pythiapdt','pdt']
@@ -40,14 +41,7 @@ defaultOptions.hltProcess = ''
 defaultOptions.inlineEventContent = True
 defaultOptions.inlineObjets =''
 defaultOptions.hideGen=False
-
-# the pile up map
-pileupMap = {'156BxLumiPileUp': 2.0,
-             'LowLumiPileUp': 7.1,
-             'NoPileUp': 0,
-             'InitialPileUp': 3.8,
-             'HighLumiPileUp': 25.4
-             }
+defaultOptions.beamspot='Realistic7TeVCollision'
 
 # some helper routines
 def dumpPython(process,name):
@@ -58,15 +52,6 @@ def dumpPython(process,name):
 		return "process."+name+" = " + theObject.dumpPython()+"\n"
 	else:
 		return "process."+name+" = " + theObject.dumpPython()+"\n"
-
-def findName(object,dictionary):
-    for name, item in dictionary.iteritems():
-        if item == object:
-            return name
-
-def availableFileOptions(nameTemplate, path="Configuration/StandardSequences" ):
-    """returns existing filenames given a name template"""
-    pass
 
 
 class ConfigBuilder(object):
@@ -79,8 +64,8 @@ class ConfigBuilder(object):
 
         self._options = options
 
-	
-
+	if self._options.isData and options.isMC:
+		raise Exception("ERROR: You may specify only --data or --mc, not both")
 
         # what steps are provided by this class?
         stepList = [re.sub(r'^prepare_', '', methodName) for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
@@ -172,7 +157,10 @@ class ConfigBuilder(object):
 	self.addedObjects.append(("Input source","source"))
         if self._options.filein:
            if self._options.filetype == "EDM":
-               self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(self._options.filein))
+               self.process.source=cms.Source("PoolSource",
+					      fileNames = cms.untracked.vstring(self._options.filein))
+	       if self._options.secondfilein:
+		       self.process.source.secondaryFileNames = cms.untracked.vstring(self._options.secondfilein)
            elif self._options.filetype == "LHE":
                self.process.source=cms.Source("LHESource", fileNames = cms.untracked.vstring(self._options.filein))
            elif self._options.filetype == "MCDB":
@@ -206,7 +194,7 @@ class ConfigBuilder(object):
                 self.process.source.inputCommands = cms.untracked.vstring('drop *','keep *_generator_*_*','keep *_g4SimHits_*_*')
                 self.process.source.dropDescendantsOfDroppedBranches=cms.untracked.bool(False)
 
-	    return
+	return
 
     def addOutput(self):
         """ Add output module to the process """
@@ -262,38 +250,18 @@ class ConfigBuilder(object):
         """
         Add selected standard sequences to the process
         """
-        conditionsSP=self._options.conditions.split(',')
-
-        # here we check if we have fastsim or fullsim
-	if "FASTSIM" in self.stepMap.keys():
-            self.loadAndRemember('FastSimulation/Configuration/RandomServiceInitialization_cff')
-
-            # pile up handling for fastsim
-            # TODO - do we want a map config - number or actual values?
-            if self._options.pileup not in pileupMap.keys():
-                    print "Pile up option",self._options.pileup,"unknown."
-                    print "Possible options are:", pileupMap.keys()
-                    sys.exit(-1)
-            else:
-                    self.loadAndRemember("FastSimulation.PileUpProducer.PileUpSimulator7TeV_cfi")
-                    self.loadAndRemember("FastSimulation/Configuration/FamosSequences_cff")
-                    self.executeAndRemember('process.famosPileUp.PileUpSimulator = process.PileUpSimulatorBlock.PileUpSimulator')
-                    self.executeAndRemember("process.famosPileUp.PileUpSimulator.averageNumber = %s" %pileupMap[self._options.pileup])
-
-        # no fast sim
-        else:
-            # load the pile up file
-            if not self.PileupCFF == '':
-                    try:
+	# load the pile up file
+	if not self.PileupCFF == '':
+		try:
                         self.loadAndRemember(self.PileupCFF)
-                    except ImportError:
+		except ImportError:
                         print "Pile up option",self._options.pileup,"unknown."
                         raise
-
-            # load the geometry file
-            try:
+		
+	# load the geometry file
+	try:
                 self.loadAndRemember(self.GeometryCFF)
-            except ImportError:
+	except ImportError:
                 print "Geometry option",self._options.geometry,"unknown."
                 raise
 
@@ -327,9 +295,11 @@ class ConfigBuilder(object):
 
     def addConditions(self):
         """Add conditions to the process"""
-        # remove FrontierConditions_GlobalTag only for backwards compatibility
+
         # the option can be a list of GT name and connection string
-	print self._options.conditions
+	if not self._options.conditions:
+		raise Exception("ERROR: No conditions given!\nPlease specify conditions. E.g. via --conditions=IDEAL_30X::All")
+
 	if 'auto:' in self._options.conditions:
 		from autoCond import autoCond
 		key=self._options.conditions.split(':')[-1]
@@ -338,7 +308,8 @@ class ConfigBuilder(object):
 		else:
 			self._options.conditions = autoCond[key]
 
-        conditions = self._options.conditions.replace("FrontierConditions_GlobalTag,",'').split(',')
+	#it is insane to keep this replace in: dependency on changes in DataProcessing
+	conditions = self._options.conditions.replace("FrontierConditions_GlobalTag,",'').split(',')
         gtName = str( conditions[0] )
         if len(conditions) > 1:
           connect   = str( conditions[1] )
@@ -347,8 +318,6 @@ class ConfigBuilder(object):
 
         # FULL or FAST SIM ?
 	if "FASTSIM" in self.stepMap.keys():
-            self.loadAndRemember('FastSimulation/Configuration/CommonInputs_cff')
-
             if "START" in gtName:
                 self.executeAndRemember("# Apply ECAL/HCAL miscalibration")
                 self.executeAndRemember("process.ecalRecHit.doMiscalib = True")
@@ -359,12 +328,11 @@ class ConfigBuilder(object):
             # Apply Tracker and Muon misalignment
             self.executeAndRemember("# Apply Tracker and Muon misalignment")
             self.executeAndRemember("process.famosSimHits.ApplyAlignment = True")
-            self.executeAndRemember("process.misalignedTrackerGeometry.applyAlignment = True\n")
+            self.executeAndRemember("process.misalignedTrackerGeometry.applyAlignment = True")
             self.executeAndRemember("process.misalignedDTGeometry.applyAlignment = True")
-            self.executeAndRemember("process.misalignedCSCGeometry.applyAlignment = True\n")
+            self.executeAndRemember("process.misalignedCSCGeometry.applyAlignment = True")
 
-        else:
-            self.loadAndRemember(self.ConditionsDefaultCFF)
+	self.loadAndRemember(self.ConditionsDefaultCFF)
 
         # set the global tag
         self.executeAndRemember("process.GlobalTag.globaltag = '%s'" % gtName)
@@ -538,8 +506,6 @@ class ConfigBuilder(object):
 	self.REPACKDefaultSeq='DigiToRawRepack'
 	
         self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
-        self.defaultMagField='38T'
-        self.defaultBeamSpot='Realistic7TeVCollision'
 
         # if fastsim switch event content
 	if "FASTSIM" in self.stepMap.keys():
@@ -559,7 +525,7 @@ class ConfigBuilder(object):
 
         if self._options.scenario=='nocoll' or self._options.scenario=='cosmics':
             self.SIMDefaultCFF="Configuration/StandardSequences/SimNOBEAM_cff"
-            self.defaultBeamSpot='NoSmear'
+            self._options.beamspot='NoSmear'
 
         if self._options.scenario=='cosmics':
             self.DIGIDefaultCFF="Configuration/StandardSequences/DigiCosmics_cff"
@@ -573,6 +539,10 @@ class ConfigBuilder(object):
             self.DQMDefaultSeq='DQMOfflineCosmics'
             self.eventcontent='FEVT'
 
+	if self._options.himix:
+		print "From the presence of the himix option, we have determined that this is heavy ions and will use '--scenario HeavyIons'."
+		self._options.scenario='HeavyIons'
+		
         if self._options.scenario=='HeavyIons':
 	    self.HLTDefaultSeq = 'HIon'
 	    if not self._options.himix:
@@ -597,28 +567,28 @@ class ConfigBuilder(object):
 		    
 
         # the magnetic field
-        if self._options.magField=='Default':
-            self._options.magField=self.defaultMagField
         self.magFieldCFF = 'Configuration/StandardSequences/MagneticField_'+self._options.magField.replace('.','')+'_cff'
         self.magFieldCFF = self.magFieldCFF.replace("__",'_')
-        if self._options.gflash==True:
-                self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'GFlash_cff'
-        else:
-                self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'_cff'
+
+	# the geometry
+	if 'FASTSIM' in self.stepMap:
+		self.GeometryCFF='FastSimulation/Configuration/Geometries_cff'
+	else:
+		if self._options.gflash==True:
+			self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'GFlash_cff'
+		else:
+			self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'_cff'
 
         # Mixing
         if self._options.isMC==True and self._options.himix==False:
-            self.PileupCFF='Configuration/StandardSequences/Mixing'+self._options.pileup+'_cff'
+		if 'FASTSIM' in self.stepMap:
+			self.PileupCFF='FastSimulation/PileUpProducer/PileUpSimulator_'+self._options.pileup+'_cff'
+		else:
+			self.PileupCFF='Configuration/StandardSequences/Mixing'+self._options.pileup+'_cff'
         elif self._options.isMC==True and self._options.himix==True:
             self.PileupCFF='Configuration/StandardSequences/HiEventMixing_cff'
         else:
             self.PileupCFF=''
-
-        # beamspot
-        if self._options.beamspot != None:
-            self.beamspot=self._options.beamspot
-        else:
-            self.beamspot=self.defaultBeamSpot
 
         if self._options.eventcontent != None:
             self.eventcontent=self._options.eventcontent
@@ -796,9 +766,9 @@ class ConfigBuilder(object):
 		self.executeAndRemember('process.%s.remove(process.genJetMET)'%(genSeqName,))
 	else:
 		try:
-			self.loadAndRemember('Configuration/StandardSequences/VtxSmeared'+self.beamspot+'_cff')
+			self.loadAndRemember('Configuration/StandardSequences/VtxSmeared'+self._options.beamspot+'_cff')
 		except ImportError:
-			print "VertexSmearing type or beamspot",self.beamspot, "unknown."
+			print "VertexSmearing type or beamspot",self._options.beamspot, "unknown."
 			raise
 
 		if self._options.scenario == 'HeavyIons' and self._options.himix:
@@ -1160,6 +1130,9 @@ class ConfigBuilder(object):
 		    setattr(self.process,name+"_step",cms.Path(harvestingstream))
 		    self.schedule.append(getattr(self.process,name+"_step"))
 		    harvestingList.remove(name)
+	    if isinstance(harvestingstream,cms.Path):
+		    self.blacklist_paths.append(harvestingstream)
+			    
 		    
         # This if statment must disappears once some config happens in the alca harvesting step
         if 'alcaHarvesting' in harvestingList:
@@ -1215,10 +1188,7 @@ class ConfigBuilder(object):
             self.executeAndRemember("process.famosSimHits.SimulateCalorimetry = True")
             self.executeAndRemember("process.famosSimHits.SimulateTracking = True")
 
-            # the settings have to be the same as for the generator to stay consistent
-            print '  The pile up is taken from 7 TeV files. To switch to other files remove the inclusion of "PileUpSimulator7TeV_cfi"'
-
-            self.executeAndRemember("process.simulation = cms.Sequence(process.simulationWithFamos)")
+	    self.executeAndRemember("process.simulation = cms.Sequence(process.simulationWithFamos)")
             self.executeAndRemember("process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)")
 
             # since we have HLT here, the process should be called HLT
@@ -1236,26 +1206,25 @@ class ConfigBuilder(object):
         else:
              print "FastSim setting", sequence, "unknown."
              raise ValueError
-        # the vertex smearing settings
-        beamspotName = 'process.%sVtxSmearingParameters' %(self.beamspot)
-        if 'Flat' in self.beamspot:
-            beamspotType = 'Flat'
-        elif 'Gauss' in self.beamspot:
-            beamspotType = 'Gaussian'
-        else:
-            print "  Assuming vertex smearing engine as BetaFunc"
-            beamspotType = 'BetaFunc'
-        self.loadAndRemember('IOMC.EventVertexGenerators.VtxSmearedParameters_cfi')
-        beamspotName = 'process.%sVtxSmearingParameters' %(self.beamspot)
-        self.executeAndRemember('\n# set correct vertex smearing')
-        self.executeAndRemember(beamspotName+'.type = cms.string("%s")'%(beamspotType))
-        self.executeAndRemember('process.famosSimHits.VertexGenerator = '+beamspotName)
-        self.executeAndRemember('process.famosPileUp.VertexGenerator = '+beamspotName)
+
+        if 'Flat' in self._options.beamspot:
+		beamspotType = 'Flat'
+	elif 'Gauss' in self._options.beamspot:
+		beamspotType = 'Gaussian'
+	else:
+		beamspotType = 'BetaFunc'
+	self.loadAndRemember('IOMC.EventVertexGenerators.VtxSmearedParameters_cfi')
+	beamspotName = 'process.%sVtxSmearingParameters' %(self._options.beamspot)
+	self.executeAndRemember(beamspotName+'.type = cms.string("%s")'%(beamspotType))
+	self.executeAndRemember('process.famosSimHits.VertexGenerator = '+beamspotName)
+	self.executeAndRemember('process.famosPileUp.VertexGenerator = '+beamspotName)
+		
+
 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.266 $"),
+					    (version=cms.untracked.string("$Revision: 1.267 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
