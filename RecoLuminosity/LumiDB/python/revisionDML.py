@@ -2,64 +2,61 @@
 # Revision DML API
 #
 
-#def revisionsInBranch(schema,branchid):
-# backup implementation without subquery
-#    '''
-#    returns all revision values in a branch
-#    result=[revision_id]
-#    select distinct branch_id from revisions where branch_id>:branchid;
-#    select revision_id from revisions where branch_id=:branchid and revision_id not in (branch_ids);
-#    if the branchid matches and the revisionid is not in the branchid collection, then this revision is in the branch
-#    select revision_id from revisions where branch_id=:branchid and revision_id not in (select distinct branch_id from revisions where branch_id>:branchid)
-#    require also revisionid>branchid
-#    '''
-#    result=[]
-#    try:
-#        nextbranches=[]
-#        nextbranchesStr=''
-#        qHandle=schema.newQuery()
-#        qHandle.addToTableList( nameDealer.revisionTableName() )
-#        qHandle.addToOutputList('distinct BRANCH_ID','branch_id')
-#        qCondition=coral.AttributeList()
-#        qCondition.extend('branchid','unsigned long long')
-#        qCondition['branchid'].setData(branchid)
-#        qResult=coral.AttributeList()
-#        qResult.extend('branch_id','unsigned long long')
-#        qHandle.defineOutput(qResult)
-#        qHandle.setCondition('BRANCH_ID>:branchid',qCondition)
-#        cursor=qHandle.execute()
-#        while cursor.next():
-#            nextbranches.append(cursor.currentRow()['branch_id'].data())
-#        del qHandle
-#        print 'nextbranches ',nextbranches
-#        conditionStr='BRANCH_ID=:branchid'
-#        if len(nextbranches)!=0:
-#            nextbranchesStr=','.join([str(x) for x in nextbranches])
-#            print nextbranchesStr
-#            conditionStr+=' AND REVISION_ID NOT IN ('+nextbranchesStr+')'
-#            print conditionStr
-#        qHandle=schema.newQuery()
-#        qHandle.addToTableList( nameDealer.revisionTableName() )
-#        qHandle.addToOutputList('REVISION_ID','revision_id')
-#        qCondition=coral.AttributeList()
-#        qCondition.extend('branchid','unsigned long long')
-#        qCondition['branchid'].setData(branchid)
-#        qResult=coral.AttributeList()
-#        qResult.extend('revision_id','unsigned long long')
-#        qHandle.defineOutput(qResult)
-#        qHandle.setCondition(conditionStr,qCondition)
-#        cursor=qHandle.execute()
-#        while cursor.next():
-#            result.append(cursor.currentRow()['revision_id'].data())
-#        del qHandle
-#        return result
-#    except Exception,e :
-#        raise RuntimeError(' revisionDML.revisionsInBranch: '+str(e))
 import coral
 from RecoLuminosity.LumiDB import nameDealer,idDealer,dbUtil
 #==============================
 # SELECT
 #==============================
+def revisionsInBranch(schema,branchid):
+    '''
+    returns all revision values in a branch
+    result=[revision_id]
+    select distinct branch_id from revisions where branch_id>:branchid;
+    select revision_id from revisions where branch_id=:branchid ;
+    if the branchid matches and the revisionid is not in the branchid collection,not 0, then this revision is in the branch
+    require also revisionid>branchid
+    '''
+    result=[]
+    try:
+        nextbranches=[]
+        qHandle=schema.newQuery()
+        qHandle.addToTableList( nameDealer.revisionTableName() )
+        qHandle.addToOutputList('distinct BRANCH_ID','branch_id')
+        qCondition=coral.AttributeList()
+        qCondition.extend('branchid','unsigned long long')
+        qCondition['branchid'].setData(branchid)
+        qResult=coral.AttributeList()
+        qResult.extend('branch_id','unsigned long long')
+        qHandle.defineOutput(qResult)
+        qHandle.setCondition('BRANCH_ID>:branchid',qCondition)
+        cursor=qHandle.execute()
+        while cursor.next():
+            nextbranches.append(cursor.currentRow()['branch_id'].data())
+        del qHandle
+        candidates=[]
+        conditionStr='BRANCH_ID=:branchid and REVISION_ID!=0'
+        qHandle=schema.newQuery()
+        qHandle.addToTableList( nameDealer.revisionTableName() )
+        qHandle.addToOutputList('REVISION_ID','revision_id')
+        qCondition=coral.AttributeList()
+        qCondition.extend('branchid','unsigned long long')
+        qCondition['branchid'].setData(branchid)
+        qResult=coral.AttributeList()
+        qResult.extend('revision_id','unsigned long long')
+        qHandle.defineOutput(qResult)
+        qHandle.setCondition(conditionStr,qCondition)
+        cursor=qHandle.execute()
+        while cursor.next():
+            candidates.append(cursor.currentRow()['revision_id'].data())
+        del qHandle
+        for c in candidates:
+            if c in nextbranches:
+                continue
+            result.append(c)
+        return result
+    except Exception,e :
+        raise RuntimeError(' revisionDML.revisionsInBranch: '+str(e))
+
 def branchType(schema,name):
     '''
     output: tag,branch
@@ -88,43 +85,42 @@ def branchType(schema,name):
         del qHandle
         return result
     except :
-        if qHandle: del qHandle
         raise 
-def revisionsInBranch(schema,branchid):
-    '''
-    returns all revision values in a branch/tag
-    result=[revision_id]
-    select revision_id from revisions where branch_id=:branchid and revision_id not in (select distinct branch_id from revisions where branch_id>:branchid)
-    '''
-    result=[]
-    try:
-        qHandle=schema.newQuery()
-        qHandle.addToTableList( nameDealer.revisionTableName() )
-        qHandle.addToOutputList('REVISION_ID','revision_id')
-        qCondition=coral.AttributeList()
-        qCondition.extend('branchid','unsigned long long')
-        qCondition['branchid'].setData(branchid)
-        qResult=coral.AttributeList()
-        qResult.extend('revision_id','unsigned long long')
-        qHandle.defineOutput(qResult)
-        conditionStr='BRANCH_ID=:branchid AND REVISION_ID NOT IN A'
-        subquery=qHandle.defineSubQuery('A')
-        subquery.addToOutputList('distinct BRANCH_ID')
-        subquery.addToTableList( nameDealer.revisionTableName() )
-        subqueryCondition=coral.AttributeList()
-        subqueryCondition.extend('branchid','unsigned long long')
-        subqueryCondition['branchid'].setData(branchid)
-        subquery.setCondition('BRANCH_ID>:branchid',subqueryCondition)
-        qHandle.addToTableList( 'A')
-        qHandle.setCondition(conditionStr,qCondition)
-        cursor=qHandle.execute()
-        while cursor.next():
-            result.append(cursor.currentRow()['revision_id'].data())
-        del qHandle
-        return result
-    except :
-        if qHandle: del qHandle
-        raise 
+#def revisionsInBranch(schema,branchid):
+#    '''
+#    returns all revision values in a branch/tag
+#    result=[revision_id]
+#    select r.revision_id from revisions r where r.branch_id=:branchid and r.revision_id not in (select distinct a.branch_id from revisions a where a.branch_id>:branchid)
+#    '''
+#    result=[]
+#    try:
+#        qHandle=schema.newQuery()
+#        subquery=qHandle.defineSubQuery('B')
+#        subquery.addToTableList( nameDealer.revisionTableName(),'a' )
+#        subquery.addToOutputList('distinct a.BRANCH_ID')
+#        subqueryCondition=coral.AttributeList()
+#        subqueryCondition.extend('branchid','unsigned long long')
+#        subqueryCondition['branchid'].setData(branchid)
+#        subquery.setCondition('a.BRANCH_ID>:branchid',subqueryCondition)
+#        
+#        qHandle.addToTableList( nameDealer.revisionTableName(),'r' )
+#        qHandle.addToTableList( 'B')
+#        qHandle.addToOutputList('r.REVISION_ID','revision_id')
+#        qCondition=coral.AttributeList()
+#        qCondition.extend('branchid','unsigned long long')
+#        qCondition['branchid'].setData(branchid)
+#        qResult=coral.AttributeList()
+#        qResult.extend('revision_id','unsigned long long')
+#        qHandle.defineOutput(qResult)
+#        conditionStr='r.BRANCH_ID=:branchid AND r.REVISION_ID NOT IN B'
+#        qHandle.setCondition(conditionStr,qCondition)
+#        cursor=qHandle.execute()
+#        while cursor.next():
+#            result.append(cursor.currentRow()['revision_id'].data())
+#        del qHandle
+#        return result
+#    except :
+#        raise 
     
 def revisionsInBranchName(schema,branchname):
     '''
@@ -132,12 +128,11 @@ def revisionsInBranchName(schema,branchname):
     '''
     result=[]
     try:
-        (revision_id,branch_id)=getBranchByName(schema,branchname)
+        (revision_id,branch_id)=branchInfoByName(schema,branchname)
         result=revisionsInBranch(schema,revision_id)
         return result
     except :
         raise 
-    
 def entryInBranch(schema,datatableName,entryname,branch):
     '''
     whether an entry(by name) already exists in the given branch
@@ -180,7 +175,7 @@ def entryInBranch(schema,datatableName,entryname,branch):
         return result
     except :
         raise 
-    
+
 def dataRevisionsOfEntry(schema,datatableName,entry,revrange):
     '''
     all data version of the given entry whose revision falls in branch revision range
@@ -219,7 +214,6 @@ def dataRevisionsOfEntry(schema,datatableName,entry,revrange):
             if revision_id in branchrevisionFilter:
                 result.append(data_id)        
     except :
-        if qHandle: del qHandle
         raise
 
 def lastestDataRevisionOfEntry(schema,datatableName,entry,revrange):
@@ -254,7 +248,7 @@ def branchInfoByName(schema,branchName):
          del qHandle
          return (revision_id,branch_id)
     except Exception,e :
-        raise RuntimeError(' revisionDML.getBranchByName: '+str(e))
+        raise RuntimeError(' revisionDML.branchInfoByName: '+str(e))
     
 
 #=======================================================
@@ -441,7 +435,7 @@ if __name__ == "__main__":
     (branchid,branchparent)=branchInfoByName(schema,'DATA')
     databranchinfo=(branchid,'DATA')
     print databranchinfo
-    for runnum in [1200,1211,1222,1233,1345]:
+    for runnum in [1200,1211,1222,1233,1345,1222,1200]:
         lumientryid=entryInBranch(schema,nameDealer.lumidataTableName(),str(runnum),'DATA')
         trgentryid=entryInBranch(schema,nameDealer.trgdataTableName(),str(runnum),'DATA')
         hltentryid=entryInBranch(schema,nameDealer.hltdataTableName(),str(runnum),'DATA')
@@ -449,26 +443,39 @@ if __name__ == "__main__":
             (revision_id,entry_id,data_id)=bookNewEntry( schema,nameDealer.lumidataTableName() )
             entryinfo=(revision_id,entry_id,str(runnum),data_id)
             addEntry(schema,nameDealer.lumidataTableName(),entryinfo,databranchinfo)
+            #add data here
         else:
             revisioninfo=bookNewRevision( schema,nameDealer.lumidataTableName() )
             addRevision(schema,nameDealer.lumidataTableName(),revisioninfo,databranchinfo)
-            
+            #add data here
         if trgentryid is None:
             (revision_id,entry_id,data_id)=bookNewEntry( schema,nameDealer.trgdataTableName() )
             entryinfo=(revision_id,entry_id,str(runnum),data_id)
             addEntry(schema,nameDealer.trgdataTableName(),entryinfo,databranchinfo)
-                  
+            #add data here
         else:
             revisioninfo=bookNewRevision( schema,nameDealer.trgdataTableName() )
             addRevision(schema,nameDealer.trgdataTableName(),revisioninfo,databranchinfo)      
-            
+             #add data here
         if hltentryid is None:
             (revision_id,entry_id,data_id)=bookNewEntry( schema,nameDealer.hltdataTableName() )
             entryinfo=(revision_id,entry_id,str(runnum),data_id)
-            addEntry(schema,nameDealer.hltdataTableName(),entryinfo,databranchinfo)       
+            addEntry(schema,nameDealer.hltdataTableName(),entryinfo,databranchinfo)
+            #add data here
         else:
             revisioninfo=bookNewRevision( schema,nameDealer.hltdataTableName() )
-            addRevision(schema,nameDealer.hltdataTableName(),revisioninfo,databranchinfo)     
+            addRevision(schema,nameDealer.hltdataTableName(),revisioninfo,databranchinfo)
+            #add data here
+        
     session.transaction().commit()
-    
+    print 'test reading'
+    session.transaction().start(True)
+    print branchType(schema,'DATA')
+    revlist=revisionsInBranchName(schema,'DATA')
+    print revlist
+    lumientry_id=entryInBranch(schema,nameDealer.lumidataTableName(),'1211','DATA')
+    print lumientry_id
+    latestrevision=lastestDataRevisionOfEntry(schema,nameDealer.lumidataTableName(),lumientry_id,revlist)
+    print 'latest data_id for run 1211 ',latestrevision
+    session.transaction().commit()
     del session
