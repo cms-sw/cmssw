@@ -111,6 +111,12 @@ protected:
   MonitorElement* ProblemsCurrentLB;  // show problems just for this LB
  
   int NLumiBlocks_;
+  // Store known channels to be ignored during plots of problems vs LB
+  // store vector of vectors
+  // index 0 = HB, 1 = HE, 2 = HF, 3 HO  (index = subdetector - 1)
+  std::map<unsigned int, int> KnownBadCells_;
+
+  int badChannelStatusMask_;
 };// class HcalBaseDQMonitor : public edm::EDAnalyzer
 
 

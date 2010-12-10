@@ -19,6 +19,9 @@ HcalDeadCellMonitor::HcalDeadCellMonitor(const edm::ParameterSet& ps)
   skipOutOfOrderLS_      = ps.getUntrackedParameter<bool>("skipOutOfOrderLS",true);
   NLumiBlocks_           = ps.getUntrackedParameter<int>("NLumiBlocks",4000);
 
+  badChannelStatusMask_   = ps.getUntrackedParameter<int>("BadChannelStatusMask",
+                                                          ps.getUntrackedParameter<int>("BadChannelStatusMask",
+											(1<<HcalChannelStatus::HcalCellDead)));  // identify channel status values to mask
   // DeadCell-specific parameters
 
   // Collection type info
@@ -79,24 +82,24 @@ void HcalDeadCellMonitor::setup()
   Nevents->setBinLabel(2,"lumiCheck");
  // 1D plots count number of bad cells vs. luminosity block
   ProblemsVsLB=dbe_->bookProfile("TotalDeadCells_HCAL_vs_LS",
-				  "Total Number of Dead Hcal Cells vs lumi section;Lumi Section;Dead Cells", 
+				  "Total Number of Dead Hcal Cells (excluding known problems) vs LS;Lumi Section;Dead Cells", 
 				  NLumiBlocks_,0.5,NLumiBlocks_+0.5,
 				  100,0,10000);
   ProblemsVsLB_HB=dbe_->bookProfile("TotalDeadCells_HB_vs_LS",
-				     "Total Number of Dead HB Cells vs lumi section;Lumi Section;Dead Cells",
+				     "Total Number of Dead HB Cells (excluding known problems) vs LS;Lumi Section;Dead Cells",
 				     NLumiBlocks_,0.5,NLumiBlocks_+0.5,
 				     100,0,10000);
   ProblemsVsLB_HE=dbe_->bookProfile("TotalDeadCells_HE_vs_LS",
-				     "Total Number of Dead HE Cells vs lumi section;Lumi Section;Dead Cells",
+				     "Total Number of Dead HE Cells (excluding known problems) vs LS;Lumi Section;Dead Cells",
 				     NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
   ProblemsVsLB_HO=dbe_->bookProfile("TotalDeadCells_HO_vs_LS",
-				     "Total Number of Dead HO Cells vs lumi section;Lumi Section;Dead Cells",
+				     "Total Number of Dead HO Cells (excluding known problems) vs LS;Lumi Section;Dead Cells",
 				     NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
   ProblemsVsLB_HF=dbe_->bookProfile("TotalDeadCells_HF_vs_LS",
-				     "Total Number of Dead HF Cells vs lumi section;Lumi Section;Dead Cells",
+				     "Total Number of Dead HF Cells (excluding known problems) vs LS;Lumi Section;Dead Cells",
 				     NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
   ProblemsVsLB_HBHEHF=dbe_->bookProfile("TotalDeadCells_HBHEHF_vs_LS",
-				     "Total Number of Dead HBHEHF Cells vs lumi section;Lumi Section;Dead Cells",
+				     "Total Number of Dead HBHEHF Cells (excluding known problems) vs LS;Lumi Section;Dead Cells",
 				     NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
   
   (ProblemsVsLB->getTProfile())->SetMarkerStyle(20);
@@ -338,7 +341,6 @@ void HcalDeadCellMonitor::setup()
     }
 
   this->reset();
-
   return;
 
 } // void HcalDeadCellMonitor::setup(...)
@@ -352,6 +354,27 @@ void HcalDeadCellMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c
   if (mergeRuns_==false)
     this->reset();
 
+  // Get known dead cells for this run
+  KnownBadCells_.clear();
+  if (badChannelStatusMask_>0)
+    {
+      edm::ESHandle<HcalChannelQuality> p;
+      c.get<HcalChannelQualityRcd>().get(p);
+      HcalChannelQuality* chanquality= new HcalChannelQuality(*p.product());
+      std::vector<DetId> mydetids = chanquality->getAllChannels();
+      for (std::vector<DetId>::const_iterator i = mydetids.begin();
+	   i!=mydetids.end();
+	   ++i)
+	{
+	  if (i->det()!=DetId::Hcal) continue; // not an hcal cell
+	  HcalDetId id=HcalDetId(*i);
+	  int status=(chanquality->getValues(id))->getValue();
+	  if ((status & badChannelStatusMask_))
+	    {
+	      KnownBadCells_[id.rawId()]=status;
+	    }
+	} 
+    } // if (badChannelStatusMask_>0)
   return;
 } //void HcalDeadCellMonitor::beginRun(...)
 
@@ -940,6 +963,15 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
   NumBadHO0=0;
   NumBadHO12=0;
 
+  int knownBadHB=0;
+  int knownBadHE=0;
+  int knownBadHF=0;
+  int knownBadHO=0;
+  int knownBadHFLUMI=0;
+  int knownBadHO0=0;
+  int knownBadHO12=0;
+
+
   unsigned int neverpresentHB=0;
   unsigned int neverpresentHE=0;
   unsigned int neverpresentHO=0;
@@ -966,6 +998,10 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
   int etabins=0;
   int phibins=0;
 
+  // Store values for number of bad channels in each lumi section, for plots of ProblemsVsLS.
+  // This is different than the NumBadHB, etc. values, which must included even known bad channels 
+  // in order to calculate reportSummaryByLS values correctly.
+  
   for (unsigned int depth=0;depth<DigiPresentByDepth.depth.size();++depth)
     {
       DigiPresentByDepth.depth[depth]->setBinContent(0,0,ievt_); 
@@ -1003,8 +1039,20 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 		      (deadmon_test_rechits_ && recentoccupancy_rechit[eta][phi][depth]==0  && (deadevt_>=minDeadEventCount_))
 		      )
 		    {
-		      if (subdet==HcalBarrel)       ++NumBadHB;
-		      else if (subdet==HcalEndcap)  ++NumBadHE;
+		      HcalDetId TempID((HcalSubdetector)subdet, ieta, iphi, (int)depth+1);
+		      if (subdet==HcalBarrel)      
+			{ 
+			  ++NumBadHB;
+			  if (KnownBadCells_.find(TempID.rawId())!=KnownBadCells_.end())
+			    ++knownBadHB;
+			}
+		      else if (subdet==HcalEndcap) 
+			{
+			  ++NumBadHE;
+			  if (KnownBadCells_.find(TempID.rawId())!=KnownBadCells_.end())
+			    ++knownBadHE;
+			}
+
 		      else if (subdet==HcalOuter)  
 			{
 			  ++NumBadHO;
@@ -1016,6 +1064,18 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 			      --NumBadHO;
 			      --NumBadHO12;
 			    }
+			  if (KnownBadCells_.find(TempID.rawId())!=KnownBadCells_.end())
+			    {
+			      ++knownBadHO;
+			      if (abs(ieta)<5) ++knownBadHO0;
+			      else ++knownBadHO12;
+			      // Don't include HORing2 if boolean set; subtract away those counters
+			      if (excludeHORing2_==true && abs(ieta)>10 && isSiPM(ieta,iphi,depth+1)==false)
+				{
+				  --knownBadHO;
+				  --knownBadHO12;
+				}
+			    }
 			}
 		      else if (subdet==HcalForward)
 			{
@@ -1024,6 +1084,14 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 			    ++NumBadHFLUMI;
 			  else if (depth==2 && (abs(ieta)==35 || abs(ieta)==36))
 			    ++NumBadHFLUMI;
+			  if (KnownBadCells_.find(TempID.rawId())!=KnownBadCells_.end())
+			    {
+			      ++knownBadHF;
+			      if (depth==1 && (abs(ieta)==33 || abs(ieta)==34))
+				++knownBadHFLUMI;
+			      else if (depth==2 && (abs(ieta)==35 || abs(ieta)==36))
+				++knownBadHFLUMI;
+			    }
 			}
 		    }
 		  if (present_digi[eta][phi][depth]==0)
@@ -1092,13 +1160,13 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
   NumberOfNeverPresentDigisHO->Fill(currentLS,neverpresentHO);
   NumberOfNeverPresentDigisHF->Fill(currentLS,neverpresentHF);
   NumberOfNeverPresentDigis->Fill(currentLS,neverpresentHB+neverpresentHE+neverpresentHO+neverpresentHF);
-  
-  ProblemsVsLB_HB->Fill(currentLS,NumBadHB);
-  ProblemsVsLB_HE->Fill(currentLS,NumBadHE);
-  ProblemsVsLB_HO->Fill(currentLS,NumBadHO);
-  ProblemsVsLB_HF->Fill(currentLS,NumBadHF);
-  ProblemsVsLB_HBHEHF->Fill(currentLS,NumBadHB+NumBadHE+NumBadHF);
-  ProblemsVsLB->Fill(currentLS,NumBadHB+NumBadHE+NumBadHO+NumBadHF);
+
+  ProblemsVsLB_HB->Fill(currentLS,NumBadHB-knownBadHB);
+  ProblemsVsLB_HE->Fill(currentLS,NumBadHE-knownBadHE);
+  ProblemsVsLB_HO->Fill(currentLS,NumBadHO-knownBadHO);
+  ProblemsVsLB_HF->Fill(currentLS,NumBadHF-knownBadHF);
+  ProblemsVsLB_HBHEHF->Fill(currentLS,NumBadHB+NumBadHE+NumBadHF-knownBadHB-knownBadHE-knownBadHF);
+  ProblemsVsLB->Fill(currentLS,NumBadHB+NumBadHE+NumBadHO+NumBadHF-knownBadHB-knownBadHE-knownBadHO-knownBadHF);
   
   if (deadevt_<minDeadEventCount_)
     return;

@@ -5,14 +5,24 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
+// Channel status DB stuff
+
+#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
+#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
+
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+
 #include <cmath>
 #include <iostream>
 #include <fstream>
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2010/11/10 20:00:33 $
-  * $Revision: 1.47 $
+  * $Date: 2010/11/17 19:17:30 $
+  * $Revision: 1.48 $
   * \author J. Temple - Univ. of Maryland
   */
 
