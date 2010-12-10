@@ -24,7 +24,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "Geometry/TrackerTopology/interface/PixelTopology.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
@@ -369,9 +369,12 @@ void ReadPixelRecHit::analyze(const edm::Event& e,
      
     const BoundPlane& plane = theGeomDet->surface(); //for transf.     
     double detThick = theGeomDet->specificSurface().bounds().thickness();
-    const RectangularPixelTopology * topol =
-      dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+    
+    //const RectangularPixelTopology * topol =
+    //dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
  
+    const PixelTopology * topol = &(theGeomDet->specificTopology());
+
     int cols = theGeomDet->specificTopology().ncolumns();
     int rows = theGeomDet->specificTopology().nrows();
 
@@ -511,8 +514,8 @@ void ReadPixelRecHit::analyze(const edm::Event& e,
 	//if(RectangularPixelTopology::isItBigPixelInX(int(pixx))) bigInX=true;
 	//if(RectangularPixelTopology::isItBigPixelInY(int(pixy))) bigInY=true; 
 	
-	bool bigInX = (RectangularPixelTopology::isItBigPixelInX(int(pixx)));
-	bool bigInY = (RectangularPixelTopology::isItBigPixelInY(int(pixy)));
+	bool bigInX = (PixelTopology::isItBigPixelInX(int(pixx)));
+	bool bigInY = (PixelTopology::isItBigPixelInY(int(pixy)));
 	
 	bool edgeInX = topol->isItEdgePixelInX(int(pixx));
 	bool edgeInY = topol->isItEdgePixelInY(int(pixy));
