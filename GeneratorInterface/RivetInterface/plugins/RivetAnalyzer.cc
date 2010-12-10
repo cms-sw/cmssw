@@ -13,15 +13,17 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <cstdlib>
+#include <cstring>
 
 using namespace Rivet;
 using namespace edm;
 
 RivetAnalyzer::RivetAnalyzer(const edm::ParameterSet& pset) : 
-//_analysis(0)
 _analysisHandler("RivetAnalyzer"),
 _isFirstEvent(true)
 {
+
   //retrive the analysis name from paarmeter set
   std::vector<std::string> analysisNames = pset.getParameter<std::vector<std::string> >("AnalysisNames");
   
@@ -32,7 +34,6 @@ _isFirstEvent(true)
 
   //go through the analyses and check those that need the cross section
   const std::set< AnaHandle, AnaHandleLess > & analyses = _analysisHandler.analyses();
-  //std::cout << "BUILT " << analyses.size() << " ANALYSES" << std::endl;
 
   std::set< AnaHandle, AnaHandleLess >::const_iterator ibeg = analyses.begin();
   std::set< AnaHandle, AnaHandleLess >::const_iterator iend = analyses.end();
@@ -46,23 +47,23 @@ _isFirstEvent(true)
       }
       got_xsec = true;
     }
-    //std::cout << "Setting xsection for analysis " << (*iana)->name() << std::endl;
     (*iana)->setCrossSection(xsection);  
   }
 
-
-  //if the analysis requires the cross section take it from the configuration
-  //in such a case, the number has to be in the configuration
-  //if (_analysis->needsCrossSection ()){
-  //  double xsection = pset.getParameter<double>("CrossSection");
-  //  _analysis->setCrossSection(xsection);
-  //}
 }
 
 RivetAnalyzer::~RivetAnalyzer(){
 }
 
 void RivetAnalyzer::beginJob(){
+  //set the environment, very ugly but rivet is monolithic when it comes to paths
+  char * cmsswbase    = getenv("CMSSW_BASE");
+  char * cmsswrelease = getenv("CMSSW_RELEASE_BASE");
+  std::string rivetref, rivetinfo;
+  rivetref = "RIVET_REF_PATH=" + string(cmsswbase) + "/src/GeneratorInterface/RivetInterface/data:" + string(cmsswrelease) + "/src/GeneratorInterface/RivetInterface/data";
+  rivetinfo = "RIVET_INFO_PATH=" + string(cmsswbase) + "/src/GeneratorInterface/RivetInterface/data:" + string(cmsswrelease) + "/src/GeneratorInterface/RivetInterface/data";
+  putenv(strdup(rivetref.c_str()));
+  putenv(strdup(rivetinfo.c_str()));
 }
 
 void RivetAnalyzer::beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup){
@@ -70,6 +71,7 @@ void RivetAnalyzer::beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup)
 }
 
 void RivetAnalyzer::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup){
+  
   //get the hepmc product from the event
   edm::Handle<HepMCProduct> evt;
   iEvent.getByLabel(_hepmcCollection, evt);
