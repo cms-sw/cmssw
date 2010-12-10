@@ -76,6 +76,7 @@ class TrackClusterRemover : public edm::EDProducer {
         // Carries in full removal info about a given det from oldRefs
         void mergeOld(reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices &oldRefs) ;
 
+  bool makeProducts_;
   std::map<uint32_t, std::vector< SiStripRecHit1D::ClusterRef > > collectedStrip;
   std::map<uint32_t, std::vector< SiStripRecHit1D::ClusterRegionalRef > > collectedRegStrip;
   std::map<uint32_t, std::vector< SiPixelRecHit::ClusterRef  > > collectedPixel;
@@ -112,11 +113,14 @@ TrackClusterRemover::TrackClusterRemover(const ParameterSet& iConfig):
     stripClusters_(doStrip_ ? iConfig.getParameter<InputTag>("stripClusters") : InputTag("NONE")),
     pixelClusters_(doPixel_ ? iConfig.getParameter<InputTag>("pixelClusters") : InputTag("NONE")),
     mergeOld_(iConfig.exists("oldClusterRemovalInfo")),
-    oldRemovalInfo_(mergeOld_ ? iConfig.getParameter<InputTag>("oldClusterRemovalInfo") : InputTag("NONE"))
+    oldRemovalInfo_(mergeOld_ ? iConfig.getParameter<InputTag>("oldClusterRemovalInfo") : InputTag("NONE")),
+    makeProducts_(true)
 {
-    if (doPixel_) produces< edmNew::DetSetVector<SiPixelCluster> >();
-    if (doStrip_) produces< edmNew::DetSetVector<SiStripCluster> >();
-    produces< ClusterRemovalInfo >();
+  if (iConfig.exists("iterativeHLT"))
+    makeProducts_=!iConfig.getParameter<bool>("iterativeHLT");
+  if (doPixel_ && makeProducts_) produces< edmNew::DetSetVector<SiPixelCluster> >();
+  if (doStrip_ && makeProducts_) produces< edmNew::DetSetVector<SiStripCluster> >();
+  if (makeProducts_) produces< ClusterRemovalInfo >();
 
     fill(pblocks_, pblocks_+NumberOfParamBlocks, ParamBlock());
     readPSet(iConfig, "Common",-1);
@@ -143,9 +147,11 @@ TrackClusterRemover::TrackClusterRemover(const ParameterSet& iConfig):
         }
     }
 
-    produces<edmNew::DetSetVector<SiPixelClusterRefNew> >();
-    produces<edmNew::DetSetVector<SiStripRecHit1D::ClusterRef> >();
-    produces<edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef> >();
+    if (!makeProducts_){
+      produces<edmNew::DetSetVector<SiPixelClusterRefNew> >();
+      produces<edmNew::DetSetVector<SiStripRecHit1D::ClusterRef> >();
+      produces<edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef> >();
+    }
 }
 
 
@@ -379,14 +385,14 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     }
 
     
-    if (doPixel_) {
+    if (doPixel_ && makeProducts_) {
         auto_ptr<edmNew::DetSetVector<SiPixelCluster> > newPixelClusters = cleanup(*pixelClusters, pixels, 
                     cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : 0);
         OrphanHandle<edmNew::DetSetVector<SiPixelCluster> > newPixels = iEvent.put(newPixelClusters); 
 //DBG// std::cout << "TrackClusterRemover: Wrote pixel " << newPixels.id() << " from " << pixelSourceProdID << std::endl;
         cri->setNewPixelClusters(newPixels);
     }
-    if (doStrip_) {
+    if (doStrip_ && makeProducts_) {
         auto_ptr<edmNew::DetSetVector<SiStripCluster> > newStripClusters = cleanup(*stripClusters, strips, 
                     cri->stripIndices(), mergeOld_ ? &oldRemovalInfo->stripIndices() : 0);
         OrphanHandle<edmNew::DetSetVector<SiStripCluster> > newStrips = iEvent.put(newStripClusters); 
@@ -395,12 +401,11 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     }
 
 
-    iEvent.put(cri);
-
-
+    if (makeProducts_) iEvent.put(cri);
 
     pixels.clear(); strips.clear(); 
 
+    if (!makeProducts_){
     auto_ptr<edmNew::DetSetVector<SiPixelClusterRefNew> > removedPixelClsuterRefs(new edmNew::DetSetVector<SiPixelClusterRefNew>());
     auto_ptr<edmNew::DetSetVector<SiStripRecHit1D::ClusterRef> > removedStripClsuterRefs(new edmNew::DetSetVector<SiStripRecHit1D::ClusterRef>());
     auto_ptr<edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef> > removedStripClsuterRegRefs(new edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef>());
@@ -439,7 +444,7 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       if (fill.empty()) fill.abort();   
     }
     iEvent.put( removedPixelClsuterRefs );
-
+    }
     collectedStrip.clear();
     collectedRegStrip.clear();
     collectedPixel.clear();
