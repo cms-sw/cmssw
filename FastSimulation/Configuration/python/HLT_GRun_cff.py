@@ -135,6 +135,7 @@ HcalGeometryFromDBEP = cms.ESProducer( "HcalGeometryFromDBEP",
   appendToDataLabel = cms.string( "" ),
   applyAlignment = cms.bool( False )
 )
+"""
 SiStripQualityESProducer = cms.ESProducer( "SiStripQualityESProducer",
   appendToDataLabel = cms.string( "" ),
   PrintDebugOutput = cms.bool( False ),
@@ -162,6 +163,7 @@ SiStripQualityESProducer = cms.ESProducer( "SiStripQualityESProducer",
     )
   )
 )
+"""
 XMLFromDBSource = cms.ESProducer( "XMLIdealGeometryESProducer",
   rootDDName = cms.string( "cms:OCMS" ),
   label = cms.string( "Extended" ),
