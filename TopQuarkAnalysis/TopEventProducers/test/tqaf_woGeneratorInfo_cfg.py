@@ -9,7 +9,7 @@ process.MessageLogger.cerr.threshold = 'INFO'
 ## define input
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/data/Run2010B/Mu/AOD/PromptReco-v2/000/148/068/44373387-5DDB-DF11-A923-000423D94494.root'
+    '/store/data/Run2010B/Mu/RECO/Nov4ReReco_v1/0008/F27D338B-D2EA-DF11-9664-00261834B561.root'
     )
 )
 ## define maximal number of events to loop over
@@ -25,7 +25,9 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('MC_38Y_V14::All')
+
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['com10']
 
 #-------------------------------------------------
 # PAT and TQAF configuration
