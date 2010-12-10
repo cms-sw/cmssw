@@ -55,8 +55,8 @@
 #        return result
 #    except Exception,e :
 #        raise RuntimeError(' revisionDML.revisionsInBranch: '+str(e))
-
-
+import coral
+from RecoLuminosity.LumiDB import nameDealer,idDealer,dbUtil
 #==============================
 # SELECT
 #==============================
@@ -68,7 +68,28 @@ def branchType(schema,name):
     if >0: is real branch
     else: is tag
     '''
-    pass
+    result='tag'
+    try:
+        qHandle=schema.newQuery()
+        qHandle.addToTableList( nameDealer.revisionTableName() )
+        qHandle.addToOutputList('count(REVISION_ID)','nchildren')
+        qCondition=coral.AttributeList()
+        qCondition.extend('branch_name','string')
+        qCondition['branch_name'].setData(name)
+        qResult=coral.AttributeList()
+        qResult.extend('nchildren','unsigned int')
+        qHandle.defineOutput(qResult)
+        conditionStr='BRANCH_NAME=:branch_name'
+        qHandle.setCondition(conditionStr,qCondition)
+        cursor=qHandle.execute()
+        while cursor.next():
+            if cursor.currentRow()['nchildren'].data()>0:
+                result='branch'                
+        del qHandle
+        return result
+    except :
+        if qHandle: del qHandle
+        raise 
 def revisionsInBranch(schema,branchid):
     '''
     returns all revision values in a branch/tag
@@ -117,22 +138,20 @@ def revisionsInBranchName(schema,branchname):
     except :
         raise 
     
-def existsEntryInBranch(schema,datatableName,entryname,branch):
+def entryInBranch(schema,datatableName,entryname,branch):
     '''
     whether an entry(by name) already exists in the given branch
     select e.entry_id from entrytable e,revisiontable r where r.revision_id=e.revision_id and e.name=:entryname and r.branch_name=branchname/branch_id
     input:
         if isinstance(branch,str):byname
         else: byid
-    output:
-        (true/false,entry_id/None)
+    output:entry_id/None
     '''
     try:
-        result=(False,None)
+        result=None
         byname=False
         if isinstance(branch,str):
             byname=True
-        result=[false,None]
         qHandle=schema.newQuery()
         qHandle.addToTableList( nameDealer.entryTableName(datatableName),'e' )
         qHandle.addToTableList( nameDealer.revisionTableName(),'r' )
@@ -156,10 +175,10 @@ def existsEntryInBranch(schema,datatableName,entryname,branch):
         cursor=qHandle.execute()
         while cursor.next():
             entry_id=cursor.currentRow()['entry_id'].data()
-            result=(True,entry_id)
+            result=entry_id
+        del qHandle
         return result
     except :
-        if qHandle: del qHandle
         raise 
     
 def dataRevisionsOfEntry(schema,datatableName,entry,revrange):
@@ -247,28 +266,27 @@ def bookNewEntry(schema,datatableName):
     '''
     allocate new revision_id,entry_id,data_id
     '''
-    n=newSchemaNames()
-    entrytableName=nameDealer.entryTableName(datatableName)
-    iddealer=idDealer.idDealer(schema)
-    revision_id=iddealer.generateNextIDForTable(n.revisionstable)
-    data_id=iddealer.generateNextIDForTable(datatableName)
-    entry_id=iddealer.generateNextIDForTable(entrytableName)
-    return (revision_id,entry_id,data_id)
-
+    try:
+        entrytableName=nameDealer.entryTableName(datatableName)
+        iddealer=idDealer.idDealer(schema)
+        revision_id=iddealer.generateNextIDForTable( nameDealer.revisionTableName() )
+        data_id=iddealer.generateNextIDForTable( datatableName)
+        entry_id=iddealer.generateNextIDForTable( nameDealer.entryTableName(datatableName) )
+        return (revision_id,entry_id,data_id)
+    except:
+        raise
+    
 def bookNewRevision(schema,datatableName):
     '''
     allocate new revision_id,data_id
     '''
-    n=newSchemaNames()
-    iddealer=idDealer.idDealer(schema)
-    revision_id=iddealer.generateNextIDForTable(n.revisionstable)
-    data_id=iddealer.generateNextIDForTable(datatableName)
-    return (revision_id,data_id)
-
-def addEntryToBranch(schema,datatableName,revision_id,entry_id,data_id,branchname,name,comment=''):
-    (parentrevision_id,parentbranch_id)=getBranchByName(schema,branchname)
-    print 'addEntryToBranch ',parentrevision_id,parentbranch_id
-    addEntry(schema,datatableName,revision_id,entry_id,data_id,parentrevision_id,name,comment)
+    try:
+        iddealer=idDealer.idDealer(schema)
+        revision_id=iddealer.generateNextIDForTable( nameDealer.revisionTableName() )
+        data_id=iddealer.generateNextIDForTable(datatableName)
+        return (revision_id,data_id)
+    except:
+        raise
      
 def addEntry(schema,datatableName,entryinfo,branchinfo):
     '''
@@ -283,91 +301,174 @@ def addEntry(schema,datatableName,entryinfo,branchinfo):
     insert into datatablename_entries (entry_id,revision_id) values()
     insert into datatablename_rev(data_id,revision_id) values()
     '''
-    revisiontableName=nameDealer.revisionTableName()
-    entrytableName=nameDealer.entryTableName(datatableName)
-    revtableName=nameDealer.revmapTableName(datatableName)
+    try:
+        revisiontableName=nameDealer.revisionTableName()
+        entrytableName=nameDealer.entryTableName(datatableName)
+        revtableName=nameDealer.revmapTableName(datatableName)
+        
+        db=dbUtil.dbUtil(schema)
+        tabrowDefDict={}
+        tabrowDefDict['REVISION_ID']='unsigned long long'
+        tabrowDefDict['BRANCH_ID']='unsigned long long'
+        tabrowDefDict['BRANCH_NAME']='string'
+        tabrowDefDict['CTIME']='time stamp'
+        tabrowValueDict={}
+        tabrowValueDict['REVISION_ID']=entryinfo[0]
+        tabrowValueDict['BRANCH_ID']=branchinfo[0]
+        tabrowValueDict['BRANCH_NAME']=branchinfo[1]
+        tabrowValueDict['CTIME']=coral.TimeStamp()
+        db.insertOneRow(revisiontableName,tabrowDefDict,tabrowValueDict)
+        
+        tabrowDefDict={}
+        tabrowDefDict['REVISION_ID']='unsigned long long'
+        tabrowDefDict['ENTRY_ID']='unsigned long long'    
+        tabrowDefDict['NAME']='string'
+        
+        tabrowValueDict={}
+        tabrowValueDict['REVISION_ID']=entryinfo[0]
+        tabrowValueDict['ENTRY_ID']=entryinfo[1]
+        tabrowValueDict['NAME']=entryinfo[2]
+        db.insertOneRow(entrytableName,tabrowDefDict,tabrowValueDict)
     
-    db=dbUtil.dbUtil(schema)
-    tabrowDefDict={}
-    tabrowDefDict['REVISION_ID']='unsigned long long'
-    tabrowDefDict['BRANCH_ID']='unsigned long long'
-    tabrowDefDict['BRANCH_NAME']='string'
-    tabrowDefDict['CTIME']='time stamp'
-    tabrowValueDict={}
-    tabrowValueDict['REVISION_ID']=entryinfo[0]
-    tabrowValueDict['BRANCH_ID']=branchinfo[0]
-    tabrowValueDict['BRANCH_NAME']=branchinfo[1]
-    tabrowValueDict['CTIME']=coral.TimeStamp()
-    db.insertOneRow(revisiontableName,tabrowDefDict,tabrowValueDict)
+        tabrowDefDict={}
+        tabrowDefDict['REVISION_ID']='unsigned long long'
+        tabrowDefDict['DATA_ID']='unsigned long long'
+        tabrowValueDict={}
+        tabrowValueDict['REVISION_ID']=entryinfo[0]
+        tabrowValueDict['DATA_ID']=entryinfo[3]
+        db.insertOneRow(revtableName,tabrowDefDict,tabrowValueDict)
+    except:
+        raise
     
-    tabrowDefDict={}
-    tabrowDefDict['REVISION_ID']='unsigned long long'
-    tabrowDefDict['ENTRY_ID']='unsigned long long'    
-    tabrowDefDict['NAME']='string'
-    
-    tabrowValueDict={}
-    tabrowValueDict['REVISION_ID']=entryinfo[0]
-    tabrowValueDict['ENTRY_ID']=entryinfo[1]
-    tabrowValueDict['NAME']=entryinfo[2]
-    db.insertOneRow(entrytableName,tabrowDefDict,tabrowValueDict)
-
-    tabrowDefDict={}
-    tabrowDefDict['REVISION_ID']='unsigned long long'
-    tabrowDefDict['DATA_ID']='unsigned long long'
-    tabrowValueDict={}
-    tabrowValueDict['REVISION_ID']=entryinfo[0]
-    tabrowValueDict['DATA_ID']=entryinfo[3]
-    db.insertOneRow(revtableName,tabrowDefDict,tabrowValueDict)
-    
-def addDataRevision(schema,datatableName,revision_id,data_id,branch_id,branch_name):
+def addRevision(schema,datatableName,revisioninfo,branchinfo):
     '''
     1.insert a new revision into the revisions table
     2.insert into data_id, revision_id pair to  datatable_revmap
     insert into revisions(revision_id,branch_id,branch_name,ctime) values()
     insert into datatable_rev(data_id,revision_id) values())
+    input:
+         revisioninfo (revision_id(0),data_id(1))
+         branchinfo  (branch_id(0),branch_name(1))
     '''
-    revisiontableName=nameDealer.revisionTableName()
-    revtableName=nameDealer.revmapTableName(datatableName)
-    
-    db=dbUtil.dbUtil(schema)
-    tabrowDefDict={}
-    tabrowDefDict['REVISION_ID']='unsigned long long'
-    tabrowDefDict['BRANCH_ID']='unsigned long long'
-    tabrowDefDict['BRANCH_NAME']='string'
-    tabrowValueDict={}
-    tabrowValueDict['REVISION_ID']=revision_id
-    tabrowValueDict['BRANCH_ID']=branch_id
-    tabrowValueDict['BRANCH_NAME']=branch_name
-    db.insertOneRow(revisiontableName,tabrowDefDict,tabrowValueDict)
-
-    tabrowDefDict={}
-    tabrowDefDict['REVISION_ID']='unsigned long long'
-    tabrowDefDict['DATA_ID']='unsigned long long'
-    tabrowValueDict={}
-    tabrowValueDict['REVISION_ID']=revision_id
-    tabrowValueDict['DATA_ID']=data_id
-    db.insertOneRow(revtableName,tabrowDefDict,tabrowValueDict)
-
-def createNewBranch(schema,revision_id,name,parent_id,parent_name,comment=''):
+    try:
+        revisiontableName=nameDealer.revisionTableName()
+        revtableName=nameDealer.revmapTableName(datatableName)
+        
+        db=dbUtil.dbUtil(schema)
+        tabrowDefDict={}
+        tabrowDefDict['REVISION_ID']='unsigned long long'
+        tabrowDefDict['BRANCH_ID']='unsigned long long'
+        tabrowDefDict['BRANCH_NAME']='string'
+        tabrowValueDict={}
+        tabrowValueDict['REVISION_ID']=revisioninfo[0]
+        tabrowValueDict['BRANCH_ID']=branchinfo[0]
+        tabrowValueDict['BRANCH_NAME']=branchinfo[1]
+        db.insertOneRow(revisiontableName,tabrowDefDict,tabrowValueDict)
+        
+        tabrowDefDict={}
+        tabrowDefDict['REVISION_ID']='unsigned long long'
+        tabrowDefDict['DATA_ID']='unsigned long long'
+        tabrowValueDict={}
+        tabrowValueDict['REVISION_ID']=revisioninfo[0]
+        tabrowValueDict['DATA_ID']=revisioninfo[1]
+        db.insertOneRow(revtableName,tabrowDefDict,tabrowValueDict)
+    except:
+        raise
+def createBranch(schema,name,parentname,comment=''):
     '''
     create a new branch/tag under given parentnode
     insert into revisions(revision_id,branch_id,branch_name,name,comment,ctime) values()
     '''
-    db=dbUtil.dbUtil(schema)
-    tabrowDefDict={}
-    tabrowDefDict['REVISION_ID']='unsigned long long'
-    tabrowDefDict['BRANCH_ID']='unsigned long long'
-    tabrowDefDict['BRANCH_NAME']='string'
-    tabrowDefDict['NAME']='string'
-    tabrowDefDict['COMMENT']='string'
-    tabrowDefDict['CTIME']='time stamp'
-    tabrowValueDict={}
-    tabrowValueDict['REVISION_ID']=revision_id
-    tabrowValueDict['BRANCH_ID']=parent_id
-    tabrowValueDict['BRANCH_NAME']=parent_name
-    tabrowValueDict['NAME']=name
-    tabrowValueDict['COMMENT']=comment
-    tabrowValueDict['CTIME']=coral.TimeStamp()
-    db.insertOneRow(nameDealer.revisionTableName(),tabrowDefDict, tabrowValueDict )
+    try:
+        parentid=None
+        revisionid=0       
+        if not parentname is None:
+            qHandle=schema.newQuery()
+            qHandle.addToTableList( nameDealer.revisionTableName() )
+            qHandle.addToOutputList( 'REVISION_ID','revision_id' )
+            qCondition=coral.AttributeList()
+            qCondition.extend('parentname','string')
+            qCondition['parentname'].setData(parentname)
+            qResult=coral.AttributeList()
+            qResult.extend('revision_id','unsigned long long')
+            qHandle.defineOutput(qResult)
+            qHandle.setCondition('NAME=:parentname',qCondition)
+            cursor=qHandle.execute()
+            while cursor.next():
+                parentid=cursor.currentRow()['revision_id'].data()
+            del qHandle
+        else:
+            parentname='ROOT'
+        iddealer=idDealer.idDealer(schema)
+        revisionid=iddealer.generateNextIDForTable( nameDealer.revisionTableName() )
+        db=dbUtil.dbUtil(schema)
+        tabrowDefDict={}
+        tabrowDefDict['REVISION_ID']='unsigned long long'
+        tabrowDefDict['BRANCH_ID']='unsigned long long'
+        tabrowDefDict['BRANCH_NAME']='string'
+        tabrowDefDict['NAME']='string'
+        tabrowDefDict['COMMENT']='string'
+        tabrowDefDict['CTIME']='time stamp'
+        tabrowValueDict={}
+        tabrowValueDict['REVISION_ID']=revisionid
+        tabrowValueDict['BRANCH_ID']=parentid
+        tabrowValueDict['BRANCH_NAME']=parentname
+        tabrowValueDict['NAME']=name
+        tabrowValueDict['COMMENT']=comment
+        tabrowValueDict['CTIME']=coral.TimeStamp()
+        db.insertOneRow(nameDealer.revisionTableName(),tabrowDefDict, tabrowValueDict )
+        return (revisionid,parentid,parentname)
+    except:
+        raise
 
-
+if __name__ == "__main__":
+    import sessionManager
+    import lumidbDDL
+    #myconstr='oracle://cms_orcoff_prep/cms_lumi_dev_offline'
+    #authpath='/afs/cern.ch/user/x/xiezhen'
+    myconstr='sqlite_file:test.db'
+    svc=sessionManager.sessionManager(myconstr,debugON=False)
+    session=svc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
+    schema=session.nominalSchema()
+    session.transaction().start(False)
+    tables=lumidbDDL.createTables(schema)
+    trunkinfo=createBranch(schema,'TRUNK',None,comment='main')
+    #print trunkinfo
+    datainfo=createBranch(schema,'DATA','TRUNK',comment='hold data')
+    #print datainfo
+    norminfo=createBranch(schema,'NORM','TRUNK',comment='hold normalization factor')
+    #print norminfo
+    (branchid,branchparent)=branchInfoByName(schema,'DATA')
+    databranchinfo=(branchid,'DATA')
+    print databranchinfo
+    for runnum in [1200,1211,1222,1233,1345]:
+        lumientryid=entryInBranch(schema,nameDealer.lumidataTableName(),str(runnum),'DATA')
+        trgentryid=entryInBranch(schema,nameDealer.trgdataTableName(),str(runnum),'DATA')
+        hltentryid=entryInBranch(schema,nameDealer.hltdataTableName(),str(runnum),'DATA')
+        if lumientryid is None:
+            (revision_id,entry_id,data_id)=bookNewEntry( schema,nameDealer.lumidataTableName() )
+            entryinfo=(revision_id,entry_id,str(runnum),data_id)
+            addEntry(schema,nameDealer.lumidataTableName(),entryinfo,databranchinfo)
+        else:
+            revisioninfo=bookNewRevision( schema,nameDealer.lumidataTableName() )
+            addRevision(schema,nameDealer.lumidataTableName(),revisioninfo,databranchinfo)
+            
+        if trgentryid is None:
+            (revision_id,entry_id,data_id)=bookNewEntry( schema,nameDealer.trgdataTableName() )
+            entryinfo=(revision_id,entry_id,str(runnum),data_id)
+            addEntry(schema,nameDealer.trgdataTableName(),entryinfo,databranchinfo)
+                  
+        else:
+            revisioninfo=bookNewRevision( schema,nameDealer.trgdataTableName() )
+            addRevision(schema,nameDealer.trgdataTableName(),revisioninfo,databranchinfo)      
+            
+        if hltentryid is None:
+            (revision_id,entry_id,data_id)=bookNewEntry( schema,nameDealer.hltdataTableName() )
+            entryinfo=(revision_id,entry_id,str(runnum),data_id)
+            addEntry(schema,nameDealer.hltdataTableName(),entryinfo,databranchinfo)       
+        else:
+            revisioninfo=bookNewRevision( schema,nameDealer.hltdataTableName() )
+            addRevision(schema,nameDealer.hltdataTableName(),revisioninfo,databranchinfo)     
+    session.transaction().commit()
+    
+    del session
