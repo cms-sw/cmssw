@@ -97,12 +97,12 @@ group.add_argument('--mc',
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--full', 
-                    dest    = 'doCff', 
+                    dest    = 'dumpCff', 
                     action  = 'store_false', 
                     default = False, 
                     help    = 'Generate a full configuration file, with minimal modifications (default)' )
 group.add_argument('--cff', 
-                    dest    = 'doCff', 
+                    dest    = 'dumpCff', 
                     action  = 'store_true', 
                     help    = 'Generate a stripped down configuration file fragment, for inclusion by e.g. cmsDriver.py' )
 
@@ -128,14 +128,14 @@ parser.add_argument('--help',
 configuration = parser.parse_args()
 
 # Initialize everything
-menu   = confdb.HLTProcess()
-confdb = confdb.ConfDB(configuration)
+hltmenu  = configuration.menuConfig
+fragment = configuration.dumpCff
+menu     = confdb.HLTProcess(hltmenu, configuration, fragment)
 
 # get the configuration from ConfdB
-menu.getRawConfigurationFromDB(configuration.menuConfig, confdb, configuration.doCff)
-
-# customize the configuration according to the options
-menu.customize(configuration)
+menu.buildOptions()
+menu.getRawConfigurationFromDB()
+menu.customize()
 
 # dump the final configuration
 print menu.dump()
