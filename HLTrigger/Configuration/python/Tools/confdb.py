@@ -37,10 +37,10 @@ class ConnectionL1TMenu(object):
 # type used to store a reference to an HLT configuration
 class ConnectionHLTMenu(object):
   def __init__(self, value):
-    self.value  = value
-    self.db     = None
-    self.name   = None
-    self.run    = None
+    self.value = value
+    self.db    = None
+    self.name  = None
+    self.run   = None
 
     # extract the database and configuration name
     if value:
@@ -60,47 +60,57 @@ class ConnectionHLTMenu(object):
 
 
 class HLTProcess(object):
-  def __init__(self):
-    self.data     = None
-    self.labels   = {}
+  def __init__(self, menu, configuration, fragment = False):
+    self.menu    = menu
+    self.config  = configuration
+    self.data    = None
+    self.labels  = {}
+    self.source  = None
+    self.options = {
+      'essources' : [],
+      'esmodules' : [],
+      'modules'   : [],
+      'services'  : [],
+      'paths'     : [],
+      'psets'     : [],
+    }
+    self.fragment = fragment
 
-  @staticmethod
-  def _build_query(config):
-    if config.run:
-      return '--runNumber %s' % config.run
+
+  def _build_query(self):
+    if self.menu.run:
+      return '--runNumber %s' % self.menu.run
     else:
-      return '--%s --configName %s' % (config.db, config.name)
+      return '--%s --configName %s' % (self.menu.db, self.menu.name)
 
-  @staticmethod
-  def _build_source(src):
-    if src is None:
+  def _build_source(self):
+    if self.source is None:
       return '--noedsources'
     else:
-      return '--input ' + src
+      return '--input ' + self.source
 
-  @staticmethod
-  def _build_options(opts):
-    return ' '.join(['--%s %s' % (key, ','.join(vals)) for key, vals in opts.iteritems() if vals])
+  def _build_options(self):
+    return ' '.join(['--%s %s' % (key, ','.join(vals)) for key, vals in self.options.iteritems() if vals])
 
-  def _build_cmdline(self, config, src, opts, fragment):
-    if not fragment:
-      return 'edmConfigFromDB %s %s %s'       % (self._build_query(config), self._build_source(src), self._build_options(opts))
+  def _build_cmdline(self):
+    if not self.fragment:
+      return 'edmConfigFromDB %s %s %s'       % (self._build_query(), self._build_source(), self._build_options())
     else:
-      return 'edmConfigFromDB --cff %s %s %s' % (self._build_query(config), self._build_source(src), self._build_options(opts))
+      return 'edmConfigFromDB --cff %s %s %s' % (self._build_query(), self._build_source(), self._build_options())
 
-  def getRawConfigurationFromDB(self, config, confdb, fragment):
-    if fragment:
+  def getRawConfigurationFromDB(self):
+    if self.fragment:
       self.labels['process'] = ''
       self.labels['dict']    = 'locals()'
     else:
       self.labels['process'] = 'process.'
       self.labels['dict']    = 'process.__dict__'
 
-    cmdline = self._build_cmdline(config, confdb.source, confdb.options, fragment)
+    cmdline = self._build_cmdline()
     data = _pipe(cmdline)
     
     if 'Exhausted Resultset' in data or 'CONFIG_NOT_FOUND' in data:
-      raise ImportError('%s is not a valid HLT menu' % configuration.menuConfig.value)
+      raise ImportError('%s is not a valid HLT menu' % self.config.menuConfig.value)
 
     self.data = data
 
@@ -110,43 +120,41 @@ class HLTProcess(object):
 
 
   # customize the configuration according to the options
-  def customize(self, configuration):
-    if configuration.doCff:
-
+  def customize(self):
+    if self.fragment:
       # if running on MC, adapt the configuration accordingly
-      self.fixForMC(configuration)
+      self.fixForMC()
 
       # if requested, remove the HLT prescales
-      self.unprescale(configuration)
+      self.unprescale()
 
       # if requested, override all ED/HLTfilters to always pass ("open" mode)
-      self.instrumentOpenMode(configuration)
+      self.instrumentOpenMode()
 
       # if requested or necessary, override the GlobalTag and connection strings
-      #self.overrideGlobalTag(configuration)
+      #self.overrideGlobalTag()
 
       # if requested, override the L1 self from the GlobalTag (using the same connect as the GlobalTag itself)
-      #self.overrideL1Menu(configuration)
+      #self.overrideL1Menu()
 
       # if requested, instrument the self with the modules and EndPath needed for timing studies
-      self.instrumentTiming(configuration)
+      self.instrumentTiming()
 
     else:
-
       # if running on MC, adapt the configuration accordingly
-      self.fixForMC(configuration)
+      self.fixForMC()
 
       # override the process name and adapt the relevant filters
-      self.overrideProcessName(configuration)
+      self.overrideProcessName()
 
       # if required, remove the HLT prescales
-      self.unprescale(configuration)
+      self.unprescale()
 
       # if requested, override all ED/HLTfilters to always pass ("open" mode)
-      self.instrumentOpenMode(configuration)
+      self.instrumentOpenMode()
 
       # manual override some Heavy Ion parameters
-      if configuration.processType in ('HIon', ):
+      if self.config.processType in ('HIon', ):
         self.data += """
 # HIon paths in smart prescalers
 if 'hltPreHLTDQMSmart' in %(dict)s:
@@ -160,22 +168,22 @@ if 'hltPreDQMSmart' in %(dict)s:
 """        
 
       # override the output modules to output root files
-      self.overrideOutput(configuration)
+      self.overrideOutput()
 
       # add global options
       self.addGlobalOptions()
 
       # if requested or necessary, override the GlobalTag and connection strings
-      self.overrideGlobalTag(configuration)
+      self.overrideGlobalTag()
 
       # if requested, override the L1 self from the GlobalTag (using the same connect as the GlobalTag itself)
-      self.overrideL1Menu(configuration)
+      self.overrideL1Menu()
 
       # request summary informations from the MessageLogger
       self.updateMessageLogger()
 
       # if requested, instrument the self with the modules and EndPath needed for timing studies
-      self.instrumentTiming(configuration)
+      self.instrumentTiming()
 
 
   def addGlobalOptions(self):
@@ -191,16 +199,16 @@ if 'hltPreDQMSmart' in %(dict)s:
 """
 
 
-  def fixForMC(self, configuration):
-    if not configuration.runOnData:
+  def fixForMC(self):
+    if not self.config.runOnData:
       # override the raw data collection label
       self.data = re.sub( r'cms\.InputTag\( "source" \)',            r'cms.InputTag( "rawDataCollector" )',           self.data)
       self.data = re.sub( r'cms\.untracked\.InputTag\( "source" \)', r'cms.untracked.InputTag( "rawDataCollector" )', self.data)
       self.data = re.sub( r'cms\.string\( "source" \)',              r'cms.string( "rawDataCollector" )',             self.data)
 
 
-  def unprescale(self, configuration):
-    if configuration.menuUnprescale:
+  def unprescale(self):
+    if self.config.menuUnprescale:
       self.data += """
 # remove the HLT prescales
 if 'PrescaleService' in %(dict)s:
@@ -210,8 +218,8 @@ if 'PrescaleService' in %(dict)s:
 """
 
 
-  def instrumentOpenMode(self, configuration):
-    if configuration.menuOpen:
+  def instrumentOpenMode(self):
+    if self.config.menuOpen:
       # find all EDfilters
       filters = [ match[1] for match in re.findall(r'(process\.)?\b(\w+) = cms.EDFilter', self.data) ] 
       # wrap all EDfilters with "cms.ignore( ... )"
@@ -220,7 +228,7 @@ if 'PrescaleService' in %(dict)s:
       self.data = re_sequence.sub( lambda line: re_filters.sub( r'cms.ignore( \1 )', line.group(0) ), self.data )
 
 
-  def overrideGlobalTag(self, configuration):
+  def overrideGlobalTag(self):
     # overwrite GlobalTag
     # the logic is:
     #   - for running online, do nothing, unless a globaltag has been specified on the command line
@@ -228,8 +236,8 @@ if 'PrescaleService' in %(dict)s:
     #   - for running offline on mc, take the GT from the command line of the configuration.processType
     #      - if the GT is "auto:...", insert the code to read it from Configuration.PyReleaseValidation.autoCond
     text = ''
-    if configuration.runOnline:
-      if configuration.menuGlobalTag:
+    if self.config.runOnline:
+      if self.config.menuGlobalTag:
         text += """
 # override the GlobalTag 
 if 'GlobalTag' in %%(dict)s:
@@ -246,36 +254,36 @@ if 'GlobalTag' in %%(dict)s:
       text += "    %%(process)sGlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'\n"
       text += "    %%(process)sGlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n"
 
-      if configuration.runOnData:
+      if self.config.runOnData:
         # do not override the GlobalTag unless one was specified on the command line 
         pass
       else:
         # check if a specific GlobalTag was specified on the command line, or choose one from the configuration.processType
-        if not configuration.menuGlobalTag:
-          if configuration.processType in globalTag:
-            configuration.menuGlobalTag = globalTag[configuration.processType]
+        if not self.config.menuGlobalTag:
+          if self.config.processType in globalTag:
+            self.config.menuGlobalTag = globalTag[self.config.processType]
           else:
-            configuration.menuGlobalTag = globalTag['GRun']
+            self.config.menuGlobalTag = globalTag['GRun']
 
       # check if the GlobalTag is an autoCond or an explicit tag
-      if not configuration.menuGlobalTag:
+      if not self.config.menuGlobalTag:
         # when running on data, do not override the GlobalTag unless one was specified on the command line
         pass
-      elif configuration.menuGlobalTag[0:5] == 'auto:':
-        configuration.menuGlobalTagAuto = configuration.menuGlobalTag[5:]
+      elif self.config.menuGlobalTag.startswith('auto:'):
+        self.config.menuGlobalTagAuto = self.config.menuGlobalTag[5:]
         text += "    from Configuration.PyReleaseValidation.autoCond import autoCond\n"
         text += "    %%(process)sGlobalTag.globaltag = autoCond['%(menuGlobalTagAuto)s']\n"
       else:
         text += "    %%(process)sGlobalTag.globaltag = '%(menuGlobalTag)s'\n"
 
-    self.data += text % configuration.__dict__
+    self.data += text % self.config.__dict__
 
 
-  def overrideL1Menu(self, configuration):
+  def overrideL1Menu(self):
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
-    if configuration.menuL1.override:
-      if not configuration.menuL1.connect:
-        configuration.menuL1.connect = "%(process)sGlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')"
+    if self.config.menuL1.override:
+      if not self.config.menuL1.connect:
+        self.config.menuL1.connect = "%(process)sGlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')"
       self.data += """
 # override the L1 menu
 if 'GlobalTag' in %%(dict)s:
@@ -286,18 +294,18 @@ if 'GlobalTag' in %%(dict)s:
             connect = cms.untracked.string( %(connect)s )
         )
     )
-""" % configuration.menuL1.__dict__
+""" % self.config.menuL1.__dict__
 
 
-  def overrideOutput(self, configuration):
+  def overrideOutput(self):
     reOutputModuleDef = re.compile(r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\(.*\n([^)].*\n)*\) *\n')
     reOutputModuleRef = re.compile(r' *[+*]? *\b(process\.)?hltOutput(\w+)')    # FIXME this does not cover "hltOutputX + something"
-    if configuration.menuOutput == 'none':
+    if self.config.menuOutput == 'none':
       # drop all output modules
       self.data = reOutputModuleDef.sub('', self.data)
       self.data = reOutputModuleRef.sub('', self.data)
 
-    elif configuration.menuOutput == 'minimal':
+    elif self.config.menuOutput == 'minimal':
       # drop all output modules except "HLTDQMResults"
       repl = lambda match: (match.group(2) == 'HLTDQMResults') and match.group() or ''
       self.data = reOutputModuleDef.sub(repl, self.data)
@@ -312,7 +320,7 @@ if 'GlobalTag' in %%(dict)s:
 
 
   # override the process name and adapt the relevant filters
-  def overrideProcessName(self, configuration):
+  def overrideProcessName(self):
     # the following was stolen and adapted from HLTrigger.Configuration.customL1THLT_Options
     self.data += """
 # override the process name
@@ -336,7 +344,7 @@ if 'hltPreDQMSmart' in %%(dict)s:
 
 if 'hltDQML1SeedLogicScalers' in %%(dict)s:
     %%(process)shltDQML1SeedLogicScalers.processname = '%(processName)s'
-""" % configuration.__dict__
+""" % self.config.__dict__
 
 
   def updateMessageLogger(self):
@@ -350,8 +358,8 @@ if 'MessageLogger' in %(dict)s:
 
 
 
-  def instrumentTiming(self, configuration):
-    if configuration.menuTiming:
+  def instrumentTiming(self):
+    if self.config.menuTiming:
       # instrument the menu with the modules and EndPath needed for timing studies
       self.data += """
 # instrument the menu with the modules and EndPath needed for timing studies
@@ -375,32 +383,18 @@ if 'MessageLogger' in %(dict)s:
 """
 
 
-class ConfDB(object):
-  def __init__(self, config):
-    self.options = {
-      'essources' : [],
-      'esmodules' : [],
-      'modules'   : [],
-      'services'  : [],
-      'paths'     : [],
-      'psets'     : [],
-    }
-    self.source = None
-
+  def buildOptions(self):
     # common configuration for all scenarios
     self.options['services'].append( "-FUShmDQMOutputService" )
     self.options['paths'].append( "-OfflineOutput" )
 
     # adapt source and options to the current scenario
-    self.build_source(config)
-    self.build_options(config)
+    if not self.fragment:
+      self.build_source()
 
-
-  def build_options(self, config):
-    if config.doCff:
+    if self.fragment:
       # extract a configuration file fragment
       self.options['essources'].append( "-GlobalTag" )
-      self.options['essources'].append( "-Level1MenuOverride" )
       self.options['essources'].append( "-HepPDTESSource" )
       self.options['essources'].append( "-XMLIdealGeometryESSource" )
       self.options['essources'].append( "-eegeom" )
@@ -452,7 +446,6 @@ class ConfDB(object):
       self.options['esmodules'].append( "-ZdcGeometryFromDBEP" )
       self.options['esmodules'].append( "-ZdcHardcodeGeometryEP" )
       self.options['esmodules'].append( "-hcal_db_producer" )
-      self.options['esmodules'].append( "-l1GtTriggerMenuXml" )
       self.options['esmodules'].append( "-L1GtTriggerMaskAlgoTrigTrivialProducer" )
       self.options['esmodules'].append( "-L1GtTriggerMaskTechTrigTrivialProducer" )
       self.options['esmodules'].append( "-sistripconn" )
@@ -485,27 +478,15 @@ class ConfDB(object):
       self.options['psets'].append( "-maxEvents" )
       self.options['psets'].append( "-options" )
 
-    else:
-      # extract a *full* configuration file
-      if not config.runOnData or config.menuL1.override:
-        # remove any eventual L1 override from the table
-        self.options['essources'].append( "-Level1MenuOverride" )
-        self.options['esmodules'].append( "-l1GtTriggerMenuXml" )
 
-
-  def build_source(self, configuration):
-    if configuration.runOnline:
+  def build_source(self):
+    if self.config.runOnline:
       # online we always run on data
-      self.source =  "file:/tmp/InputCollection.root"
+      self.source = "file:/tmp/InputCollection.root"
+    elif self.config.runOnData:
+      # offline we can run on data...
+      self.source = "/store/data/Run2010A/MinimumBias/RAW/v1/000/144/011/140DA3FD-AAB1-DF11-8932-001617E30E28.root"
     else:
-      # offline we can run on data, on mc, or on a user-specified dataset
-      if configuration.menuDataset:
-        # query DBS and extract the files for the specified dataset
-        files = _pipe("dbsql 'find file where dataset like %s'" % configuration.menuDataset)
-        files = [ f for f in files.split('\n') if 'store' in f ][0:10]
-        self.source = ','.join(files)
-      elif configuration.runOnData:
-        self.source = "/store/data/Run2010A/MinimumBias/RAW/v1/000/144/011/140DA3FD-AAB1-DF11-8932-001617E30E28.root"
-      else:
-        self.source =  "file:RelVal_DigiL1Raw_%s.root" % configuration.processType
+      # ...or on mc 
+      self.source = "file:RelVal_DigiL1Raw_%s.root" % self.config.processType
 
