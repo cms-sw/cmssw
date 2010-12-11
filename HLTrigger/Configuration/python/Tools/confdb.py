@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 
-# TODO
-# --timing implies --no-output, unless overridden
-# fix prescaler modules with --open
-
 import sys
 import re
 from pipe import pipe as _pipe
@@ -12,10 +8,10 @@ from options import globalTag
 
 class HLTProcess(object):
   def __init__(self, configuration):
-    self.menu    = configuration.menu
-    self.config  = configuration
-    self.data    = None
-    self.source  = None
+    self.config = configuration
+    self.data   = None
+    self.source = None
+
     self.options = {
       'essources' : [],
       'esmodules' : [],
@@ -25,9 +21,9 @@ class HLTProcess(object):
       'psets'     : [],
       'blocks'    : [],
     }
-    self.fragment = configuration.fragment
-    self.labels  = {}
-    if self.fragment:
+
+    self.labels = {}
+    if self.config.fragment:
       self.labels['process'] = ''
       self.labels['dict']    = 'locals()'
     else:
@@ -42,10 +38,10 @@ class HLTProcess(object):
 
 
   def _build_query(self):
-    if self.menu.run:
-      return '--runNumber %s' % self.menu.run
+    if self.config.menu.run:
+      return '--runNumber %s' % self.config.menu.run
     else:
-      return '--%s --configName %s' % (self.menu.db, self.menu.name)
+      return '--%s --configName %s' % (self.config.menu.db, self.config.menu.name)
 
   def _build_source(self):
     if self.source is None:
@@ -57,7 +53,7 @@ class HLTProcess(object):
     return ' '.join(['--%s %s' % (key, ','.join(vals)) for key, vals in self.options.iteritems() if vals])
 
   def _build_cmdline(self):
-    if not self.fragment:
+    if not self.config.fragment:
       return 'edmConfigFromDB %s %s %s'       % (self._build_query(), self._build_source(), self._build_options())
     else:
       return 'edmConfigFromDB --cff %s %s %s' % (self._build_query(), self._build_source(), self._build_options())
@@ -109,21 +105,18 @@ class HLTProcess(object):
 
   # customize the configuration according to the options
   def customize(self):
-    if self.fragment:
+    if self.config.fragment:
       # if running on MC, adapt the configuration accordingly
       self.fixForMC()
+
+      # if requested, adapt the configuration for FastSim
+      self.fixForFastSim()
 
       # if requested, remove the HLT prescales
       self.unprescale()
 
       # if requested, override all ED/HLTfilters to always pass ("open" mode)
       self.instrumentOpenMode()
-
-      # if requested or necessary, override the GlobalTag and connection strings
-      #self.overrideGlobalTag()
-
-      # if requested, override the L1 self from the GlobalTag (using the same connect as the GlobalTag itself)
-      #self.overrideL1Menu()
 
       # if requested, instrument the self with the modules and EndPath needed for timing studies
       self.instrumentTiming()
@@ -193,6 +186,12 @@ if 'hltPreDQMSmart' in %(dict)s:
       self.data = re.sub( r'cms\.InputTag\( "source" \)',            r'cms.InputTag( "rawDataCollector" )',           self.data)
       self.data = re.sub( r'cms\.untracked\.InputTag\( "source" \)', r'cms.untracked.InputTag( "rawDataCollector" )', self.data)
       self.data = re.sub( r'cms\.string\( "source" \)',              r'cms.string( "rawDataCollector" )',             self.data)
+
+
+  def fixForFastSim(self):
+    if self.config.fastsim:
+      # adapt the hle configuration (fragment) to run under fastsim
+      self.data.replace('import FWCore.ParameterSet.Config as cms', 'import FWCore.ParameterSet.Config as cms\nfrom FastSimulation.HighLevelTrigger.HLTSetup_cff import *')
 
 
   def unprescale(self):
@@ -377,10 +376,10 @@ if 'MessageLogger' in %(dict)s:
     self.options['paths'].append( "-OfflineOutput" )
 
     # adapt source and options to the current scenario
-    if not self.fragment:
+    if not self.config.fragment:
       self.build_source()
 
-    if self.fragment or self.config.fastsim:
+    if self.config.fragment or self.config.fastsim:
       # extract a configuration file fragment
       self.options['essources'].append( "-GlobalTag" )
       self.options['essources'].append( "-HepPDTESSource" )

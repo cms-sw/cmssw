@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 
-# TODO
-# --timing implies --no-output, unless overridden
-
 import os
 import argparse
 from extend_argparse import *
@@ -64,12 +61,12 @@ parser.add_argument('--open',
                     dest    = 'open', 
                     action  = 'store_true', 
                     default = False, 
-                    help    = 'Run the HLT in "open" mode, overriding all ED/HLTFilters to always pass' )
+                    help    = 'Run the HLT in "open" mode, overriding all ED/HLTFilters to always pass (implies --unprescale)' )
 parser.add_argument('--timing', 
                     dest    = 'timing', 
                     action  = 'store_true', 
                     default = False,
-                    help    = 'Instrument the menu with the modules and EndPath needed for timing studies' )
+                    help    = 'Instrument the menu with the modules and EndPath needed for timing studies (implies --no-output)' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--output',
@@ -95,6 +92,11 @@ group.add_argument('--mc',
                     dest    = 'data', 
                     action  = 'store_false', 
                     help    = 'Prepare a menu for running on MC (raw events in "rawDataCollector")' )
+group.add_argument('--fastsim',
+                    dest    = 'fastsim',
+                    action  = 'store_true',
+                    default = False,
+                    help    = 'Prepare a menu suitable for Fast Simulation (implies --mc and --fragment)' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--full', 
