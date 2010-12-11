@@ -66,8 +66,9 @@ void InOutConversionSeedFinder::makeSeeds( const edm::Handle<edm::View<reco::Cal
   //std::cout << "Built vector of seeds of size  " << theSeeds_.size() <<  "\n" ;
   
   
-  
-  
+  theOutInTracks_.clear();
+  inputTracks_.clear();
+  theFirstMeasurements_.clear();
   
 }
 
