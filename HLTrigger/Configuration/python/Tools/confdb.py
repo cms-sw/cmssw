@@ -7,56 +7,7 @@
 import sys
 import re
 from pipe import pipe as _pipe
-
-
-# available "type"s and relative global tags
-globalTag = {
-  'FULL': 'auto:startup',
-  'GRun': 'auto:startup',       # use as default
-  'data': 'auto:hltonline',
-  'HIon': 'auto:starthi',
-}
-
-
-# type used to store a reference to an L1 menu
-class ConnectionL1TMenu(object):
-  def __init__(self, value):
-    self.override = None
-    self.connect  = None
-
-    # extract the connection string and configuration name
-    if value:
-      if ':' in value:
-        self.override = "L1GtTriggerMenu_%s_mc" % value.rsplit(':', 1)[1]
-        self.connect  = '"%s"' % value.rsplit(':', 1)[0]
-      else:
-        self.override = "L1GtTriggerMenu_%s_mc" % value
-        self.connect  = None
-
-
-# type used to store a reference to an HLT configuration
-class ConnectionHLTMenu(object):
-  def __init__(self, value):
-    self.value = value
-    self.db    = None
-    self.name  = None
-    self.run   = None
-
-    # extract the database and configuration name
-    if value:
-      if ':' in self.value:
-        (db, name) = self.value.split(':')
-        if db == 'run':
-          self.run  = name
-        elif db in ('hltdev', 'orcoff'):
-          self.db   = db
-          self.name = name
-        else:
-          print 'Unknown ConfDB database "%s", valid values are "hltdev" (default) and "orcoff")' % db
-          sys.exit(1)
-      else:
-        self.db   = 'hltdev'
-        self.name = self.value
+from options import globalTag
 
 
 class HLTProcess(object):
@@ -75,6 +26,11 @@ class HLTProcess(object):
       'psets'     : [],
     }
     self.fragment = fragment
+
+    # get the configuration from ConfdB
+    self.buildOptions()
+    self.getRawConfigurationFromDB()
+    self.customize()
 
 
   def _build_query(self):
@@ -154,7 +110,7 @@ class HLTProcess(object):
       self.instrumentOpenMode()
 
       # manual override some Heavy Ion parameters
-      if self.config.processType in ('HIon', ):
+      if self.config.type in ('HIon', ):
         self.data += """
 # HIon paths in smart prescalers
 if 'hltPreHLTDQMSmart' in %(dict)s:
@@ -200,7 +156,7 @@ if 'hltPreDQMSmart' in %(dict)s:
 
 
   def fixForMC(self):
-    if not self.config.runOnData:
+    if not self.config.data:
       # override the raw data collection label
       self.data = re.sub( r'cms\.InputTag\( "source" \)',            r'cms.InputTag( "rawDataCollector" )',           self.data)
       self.data = re.sub( r'cms\.untracked\.InputTag\( "source" \)', r'cms.untracked.InputTag( "rawDataCollector" )', self.data)
@@ -208,7 +164,7 @@ if 'hltPreDQMSmart' in %(dict)s:
 
 
   def unprescale(self):
-    if self.config.menuUnprescale:
+    if self.config.unprescale:
       self.data += """
 # remove the HLT prescales
 if 'PrescaleService' in %(dict)s:
@@ -219,7 +175,7 @@ if 'PrescaleService' in %(dict)s:
 
 
   def instrumentOpenMode(self):
-    if self.config.menuOpen:
+    if self.config.open:
       # find all EDfilters
       filters = [ match[1] for match in re.findall(r'(process\.)?\b(\w+) = cms.EDFilter', self.data) ] 
       # wrap all EDfilters with "cms.ignore( ... )"
@@ -233,15 +189,15 @@ if 'PrescaleService' in %(dict)s:
     # the logic is:
     #   - for running online, do nothing, unless a globaltag has been specified on the command line
     #   - for running offline on data, only add the pfnPrefix
-    #   - for running offline on mc, take the GT from the command line of the configuration.processType
+    #   - for running offline on mc, take the GT from the command line of the configuration.type
     #      - if the GT is "auto:...", insert the code to read it from Configuration.PyReleaseValidation.autoCond
     text = ''
-    if self.config.runOnline:
-      if self.config.menuGlobalTag:
+    if self.config.online:
+      if self.config.globaltag:
         text += """
 # override the GlobalTag 
 if 'GlobalTag' in %%(dict)s:
-    %%(process)sGlobalTag.globaltag = '%(menuGlobalTag)s'
+    %%(process)sGlobalTag.globaltag = '%(globaltag)s'
 """
 
     else:
@@ -254,36 +210,36 @@ if 'GlobalTag' in %%(dict)s:
       text += "    %%(process)sGlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'\n"
       text += "    %%(process)sGlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n"
 
-      if self.config.runOnData:
+      if self.config.data:
         # do not override the GlobalTag unless one was specified on the command line 
         pass
       else:
-        # check if a specific GlobalTag was specified on the command line, or choose one from the configuration.processType
-        if not self.config.menuGlobalTag:
-          if self.config.processType in globalTag:
-            self.config.menuGlobalTag = globalTag[self.config.processType]
+        # check if a specific GlobalTag was specified on the command line, or choose one from the configuration.type
+        if not self.config.globaltag:
+          if self.config.type in globalTag:
+            self.config.globaltag = globalTag[self.config.type]
           else:
-            self.config.menuGlobalTag = globalTag['GRun']
+            self.config.globaltag = globalTag['GRun']
 
       # check if the GlobalTag is an autoCond or an explicit tag
-      if not self.config.menuGlobalTag:
+      if not self.config.globaltag:
         # when running on data, do not override the GlobalTag unless one was specified on the command line
         pass
-      elif self.config.menuGlobalTag.startswith('auto:'):
-        self.config.menuGlobalTagAuto = self.config.menuGlobalTag[5:]
+      elif self.config.globaltag.startswith('auto:'):
+        self.config.menuGlobalTagAuto = self.config.globaltag[5:]
         text += "    from Configuration.PyReleaseValidation.autoCond import autoCond\n"
         text += "    %%(process)sGlobalTag.globaltag = autoCond['%(menuGlobalTagAuto)s']\n"
       else:
-        text += "    %%(process)sGlobalTag.globaltag = '%(menuGlobalTag)s'\n"
+        text += "    %%(process)sGlobalTag.globaltag = '%(globaltag)s'\n"
 
     self.data += text % self.config.__dict__
 
 
   def overrideL1Menu(self):
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
-    if self.config.menuL1.override:
-      if not self.config.menuL1.connect:
-        self.config.menuL1.connect = "%(process)sGlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')"
+    if self.config.l1.override:
+      if not self.config.l1.connect:
+        self.config.l1.connect = "%(process)sGlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')"
       self.data += """
 # override the L1 menu
 if 'GlobalTag' in %%(dict)s:
@@ -294,18 +250,18 @@ if 'GlobalTag' in %%(dict)s:
             connect = cms.untracked.string( %(connect)s )
         )
     )
-""" % self.config.menuL1.__dict__
+""" % self.config.l1.__dict__
 
 
   def overrideOutput(self):
     reOutputModuleDef = re.compile(r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\(.*\n([^)].*\n)*\) *\n')
     reOutputModuleRef = re.compile(r' *[+*]? *\b(process\.)?hltOutput(\w+)')    # FIXME this does not cover "hltOutputX + something"
-    if self.config.menuOutput == 'none':
+    if self.config.output == 'none':
       # drop all output modules
       self.data = reOutputModuleDef.sub('', self.data)
       self.data = reOutputModuleRef.sub('', self.data)
 
-    elif self.config.menuOutput == 'minimal':
+    elif self.config.output == 'minimal':
       # drop all output modules except "HLTDQMResults"
       repl = lambda match: (match.group(2) == 'HLTDQMResults') and match.group() or ''
       self.data = reOutputModuleDef.sub(repl, self.data)
@@ -324,26 +280,26 @@ if 'GlobalTag' in %%(dict)s:
     # the following was stolen and adapted from HLTrigger.Configuration.customL1THLT_Options
     self.data += """
 # override the process name
-%%(process)ssetName_('%(processName)s')
+%%(process)ssetName_('%(name)s')
 
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in %%(dict)s:
-    %%(process)shltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults', '', '%(processName)s' )
+    %%(process)shltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltDQMHLTScalers' in %%(dict)s:
-    %%(process)shltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults', '', '%(processName)s' )
+    %%(process)shltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreExpressSmart' in %%(dict)s:
-    %%(process)shltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults', '', '%(processName)s' )
+    %%(process)shltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreHLTMONSmart' in %%(dict)s:
-    %%(process)shltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults', '', '%(processName)s' )
+    %%(process)shltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreDQMSmart' in %%(dict)s:
-    %%(process)shltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults', '', '%(processName)s' )
+    %%(process)shltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltDQML1SeedLogicScalers' in %%(dict)s:
-    %%(process)shltDQML1SeedLogicScalers.processname = '%(processName)s'
+    %%(process)shltDQML1SeedLogicScalers.processname = '%(name)s'
 """ % self.config.__dict__
 
 
@@ -359,7 +315,7 @@ if 'MessageLogger' in %(dict)s:
 
 
   def instrumentTiming(self):
-    if self.config.menuTiming:
+    if self.config.timing:
       # instrument the menu with the modules and EndPath needed for timing studies
       self.data += """
 # instrument the menu with the modules and EndPath needed for timing studies
@@ -480,13 +436,13 @@ if 'MessageLogger' in %(dict)s:
 
 
   def build_source(self):
-    if self.config.runOnline:
+    if self.config.online:
       # online we always run on data
       self.source = "file:/tmp/InputCollection.root"
-    elif self.config.runOnData:
+    elif self.config.data:
       # offline we can run on data...
       self.source = "/store/data/Run2010A/MinimumBias/RAW/v1/000/144/011/140DA3FD-AAB1-DF11-8932-001617E30E28.root"
     else:
       # ...or on mc 
-      self.source = "file:RelVal_DigiL1Raw_%s.root" % self.config.processType
+      self.source = "file:RelVal_DigiL1Raw_%s.root" % self.config.type
 
