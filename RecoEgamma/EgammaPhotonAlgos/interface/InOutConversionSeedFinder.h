@@ -4,9 +4,9 @@
 /** \class InOutConversionSeedFinder
  **  
  **
- **  $Id: InOutConversionSeedFinder.h,v 1.11 2008/05/08 20:41:06 nancy Exp $ 
- **  $Date: 2008/05/08 20:41:06 $ 
- **  $Revision: 1.11 $
+ **  $Id: InOutConversionSeedFinder.h,v 1.12 2009/02/12 02:29:05 nancy Exp $ 
+ **  $Date: 2009/02/12 02:29:05 $ 
+ **  $Revision: 1.12 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -60,7 +60,7 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
   
   
   
-  void setTracks(std::vector<Trajectory> in) { theOutInTracks_.clear(); theOutInTracks_ = in;}
+  void setTracks(std::vector<Trajectory> const & in) { theOutInTracks_ = in;}
   
   
   private :
