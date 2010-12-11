@@ -53,8 +53,9 @@ InOutConversionSeedFinder::~InOutConversionSeedFinder() {
 void InOutConversionSeedFinder::makeSeeds( const edm::Handle<edm::View<reco::CaloCluster> > &  allBC )  const  {
   
 
- //std::cout << "  InOutConversionSeedFinder::makeSeeds() " << "\n";
-//std::cout << " Check Calo cluster collection size " << allBC->size() << "\n";  
+  //std::cout << "  InOutConversionSeedFinder::makeSeeds() " << "\n";
+  theSeeds_.clear();
+  //std::cout << " Check Calo cluster collection size " << allBC->size() << "\n";  
   bcCollection_= allBC;
   
   
