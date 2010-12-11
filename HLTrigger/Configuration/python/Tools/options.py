@@ -48,7 +48,7 @@ class ConnectionHLTMenu(object):
 
 
 # options marked with a (*) only apply when creating a whole process configuration
-class HLTProcessOptions(dict):
+class HLTProcessOptions(object):
   def __init__(self):
     self.menu       = None        #     hlt menu
     self.name       = None        # (*) if set, override the process name
@@ -88,4 +88,3 @@ class HLTProcessOptions(dict):
       object.__setattr__(self, 'output',     'none')
     else:
       object.__setattr__(self, name, value)
-
