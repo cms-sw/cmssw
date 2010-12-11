@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.51 2010/10/18 16:06:25 rwolf Exp $
+// $Id: Jet.h,v 1.52 2010/12/01 18:38:42 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
-  \version  $Id: Jet.h,v 1.51 2010/10/18 16:06:25 rwolf Exp $
+  \version  $Id: Jet.h,v 1.52 2010/12/01 18:38:42 rwolf Exp $
 */
 
 
@@ -47,9 +47,9 @@
 // Define typedefs for convenience
 namespace pat {
   class Jet;
-  typedef std::vector<Jet>              JetCollection; 
-  typedef edm::Ref<JetCollection>       JetRef; 
-  typedef edm::RefVector<JetCollection> JetRefVector; 
+  typedef std::vector<Jet>              JetCollection;
+  typedef edm::Ref<JetCollection>       JetRef;
+  typedef edm::RefVector<JetCollection> JetRefVector;
 }
 
 
@@ -65,9 +65,9 @@ namespace pat {
 
 
   class Jet : public PATObject<reco::Jet> {
-    /// make friends with PATJetProducer so that it can set the an initial 
+    /// make friends with PATJetProducer so that it can set the an initial
     /// jet energy scale unequal to raw calling the private initializeJEC
-    /// function, which should be non accessible to any other user 
+    /// function, which should be non accessible to any other user
     friend class PATJetProducer;
 
     public:
@@ -100,16 +100,16 @@ namespace pat {
       /// returns the labels of all available sets of jet energy corrections
       const std::vector<std::string> availableJECSets() const;
       // returns the available JEC Levels for a given jecSet
-      const std::vector<std::string> availableJECLevels(const unsigned int& set=0) const;
+      const std::vector<std::string> availableJECLevels(const int& set=0) const;
       // returns the available JEC Levels for a given jecSet
       const std::vector<std::string> availableJECLevels(const std::string& set) const { return availableJECLevels(jecSet(set)); };
       /// returns true if the jet carries jet energy correction information
       /// at all
       bool jecSetsAvailable() const { return !jec_.empty(); }
-      /// returns true if the jet carries a set of jet energy correction 
+      /// returns true if the jet carries a set of jet energy correction
       /// factors with the given label
       bool jecSetAvailable(const std::string& set) const {return (jecSet(set)>=0); };
-      /// returns true if the jet carries a set of jet energy correction 
+      /// returns true if the jet carries a set of jet energy correction
       /// factors with the given label
       bool jecSetAvailable(const unsigned int& set) const {return (set<jec_.size()); };
       /// returns the label of the current set of jet energy corrections
@@ -118,23 +118,23 @@ namespace pat {
       std::string currentJECLevel() const { return currentJECSet_<jec_.size() ? jec_.at(currentJECSet_).jecLevel(currentJECLevel_) : std::string("ERROR"); };
       /// return flavour of the current step of jet energy corrections
       JetCorrFactors::Flavor currentJECFlavor() const { return currentJECFlavor_; };
-      /// correction factor to the given level for a specific set 
-      /// of correction factors, starting from the current level 
+      /// correction factor to the given level for a specific set
+      /// of correction factors, starting from the current level
       float jecFactor(const std::string& level, const std::string& flavor="none", const std::string& set="") const;
-      /// correction factor to the given level for a specific set 
-      /// of correction factors, starting from the current level 
+      /// correction factor to the given level for a specific set
+      /// of correction factors, starting from the current level
       float jecFactor(const unsigned int& level, const JetCorrFactors::Flavor& flavor=JetCorrFactors::NONE, const unsigned int& set=0) const;
-      /// copy of the jet corrected up to the given level for the set 
-      /// of jet energy correction factors, which is currently in use 
+      /// copy of the jet corrected up to the given level for the set
+      /// of jet energy correction factors, which is currently in use
       Jet correctedJet(const std::string& level, const std::string& flavor="none", const std::string& set="") const;
-      /// copy of the jet corrected up to the given level for the set 
-      /// of jet energy correction factors, which is currently in use 
+      /// copy of the jet corrected up to the given level for the set
+      /// of jet energy correction factors, which is currently in use
       Jet correctedJet(const unsigned int& level, const JetCorrFactors::Flavor& flavor=JetCorrFactors::NONE, const unsigned int& set=0) const;
-      /// p4 of the jet corrected up to the given level for the set 
-      /// of jet energy correction factors, which is currently in use 
+      /// p4 of the jet corrected up to the given level for the set
+      /// of jet energy correction factors, which is currently in use
       const LorentzVector& correctedP4(const std::string& level, const std::string& flavor="none", const std::string& set="") const { return correctedJet(level, flavor, set).p4(); };
-      /// p4 of the jet corrected up to the given level for the set 
-      /// of jet energy correction factors, which is currently in use 
+      /// p4 of the jet corrected up to the given level for the set
+      /// of jet energy correction factors, which is currently in use
       const LorentzVector& correctedP4(const unsigned int& level, const JetCorrFactors::Flavor& flavor=JetCorrFactors::NONE, const unsigned int& set=0) const { return correctedJet(level, flavor, set).p4(); };
 
   private:
@@ -151,7 +151,7 @@ namespace pat {
       void addJECFactors(const JetCorrFactors& jec) {jec_.push_back(jec); };
       /// initialize the jet to a given JEC level during creation starting from Uncorrected
       void initializeJEC(unsigned int level, const JetCorrFactors::Flavor& flavor=JetCorrFactors::NONE, unsigned int set=0);
-      
+
   public:
       /// ---- methods for accessing b-tagging info ----
 
@@ -161,26 +161,26 @@ namespace pat {
       const std::vector<std::pair<std::string, float> > & getPairDiscri() const;
       /// check to see if the given tag info is nonzero
       bool hasTagInfo( const std::string label) const { return tagInfo(label) != 0; }
-      /// get a tagInfo with the given name, or NULL if none is found. 
+      /// get a tagInfo with the given name, or NULL if none is found.
       /// You should omit the 'TagInfos' part from the label
       const reco::BaseTagInfo            * tagInfo(const std::string &label) const;
-      /// get a tagInfo with the given name and type or NULL if none is found. 
+      /// get a tagInfo with the given name and type or NULL if none is found.
       /// If the label is empty or not specified, it returns the first tagInfo of that type (if any one exists)
       /// you should omit the 'TagInfos' part from the label
       const reco::TrackIPTagInfo         * tagInfoTrackIP(const std::string &label="") const;
-      /// get a tagInfo with the given name and type or NULL if none is found. 
+      /// get a tagInfo with the given name and type or NULL if none is found.
       /// If the label is empty or not specified, it returns the first tagInfo of that type (if any one exists)
       /// you should omit the 'TagInfos' part from the label
       const reco::SoftLeptonTagInfo      * tagInfoSoftLepton(const std::string &label="") const;
-      /// get a tagInfo with the given name and type or NULL if none is found. 
+      /// get a tagInfo with the given name and type or NULL if none is found.
       /// If the label is empty or not specified, it returns the first tagInfo of that type (if any one exists)
       /// you should omit the 'TagInfos' part from the label
       const reco::SecondaryVertexTagInfo * tagInfoSecondaryVertex(const std::string &label="") const;
       /// method to add a algolabel-discriminator pair
       void addBDiscriminatorPair(const std::pair<std::string, float> & thePair);
-      /// sets a tagInfo with the given name from an edm::Ptr<T> to it. 
+      /// sets a tagInfo with the given name from an edm::Ptr<T> to it.
       /// If the label ends with 'TagInfos', the 'TagInfos' is stripped out.
-      void  addTagInfo(const std::string &label, 
+      void  addTagInfo(const std::string &label,
 		       const TagInfoFwdPtrCollection::value_type &info) ;
 
 
@@ -209,7 +209,7 @@ namespace pat {
       void setPartonFlavour(int partonFl);
 
 
-      /// methods for jet ID 
+      /// methods for jet ID
       void setJetID( reco::JetID const & id ) { jetID_ = id; }
 
       // ---- jet specific methods ----
@@ -223,17 +223,17 @@ namespace pat {
       /// check to see if the jet is no more than a reco::BasicJet
       bool isBasicJet() const { return !(isCaloJet() || isPFJet() || isJPTJet()); }
       /// retrieve the calo specific part of the jet
-      const CaloSpecific& caloSpecific() const { 
+      const CaloSpecific& caloSpecific() const {
 	if (specificCalo_.empty()) throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a CaloJet.\n";
 	return specificCalo_[0];
       }
       /// retrieve the pf specific part of the jet
-      const JPTSpecific& jptSpecific() const { 
+      const JPTSpecific& jptSpecific() const {
 	if (specificJPT_.empty()) throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a JPTJet.\n";
 	return specificJPT_[0];
       }
       /// retrieve the pf specific part of the jet
-      const PFSpecific& pfSpecific() const { 
+      const PFSpecific& pfSpecific() const {
 	if (specificPF_.empty()) throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a PFJet.\n";
 	return specificPF_[0];
       }
@@ -271,10 +271,10 @@ namespace pat {
 
       /// convert generic constituent to specific type
       //  static CaloTowerPtr caloTower (const reco::Candidate* fConstituent);
-      /// get specific constituent of the CaloJet. 
+      /// get specific constituent of the CaloJet.
       /// if the caloTowers were embedded, this reference is transient only and must not be persisted
       CaloTowerPtr getCaloConstituent (unsigned fIndex) const;
-      /// get the constituents of the CaloJet. 
+      /// get the constituents of the CaloJet.
       /// If the caloTowers were embedded, these reference are transient only and must not be persisted
       std::vector<CaloTowerPtr> const & getCaloConstituents () const;
 
@@ -299,10 +299,10 @@ namespace pat {
       /// electrons that curled in
       const reco::TrackRefVector& elecsOutVertexInCalo() const{return jptSpecific().elecsOutVertexInCalo;}
       /// zero suppression correction
-      const float& zspCorrection() const {return jptSpecific().mZSPCor;} 
+      const float& zspCorrection() const {return jptSpecific().mZSPCor;}
       /// chargedMultiplicity
       float elecMultiplicity () const {return jptSpecific().elecsInVertexInCalo.size()+jptSpecific().elecsInVertexOutCalo.size();}
-  
+
       // ---- JPT or PF Jet specific information ----
 
       /// muonMultiplicity
@@ -328,23 +328,23 @@ namespace pat {
       float neutralEmEnergyFraction()     const {return neutralEmEnergy()/(jecFactor(0) * energy());}
 
       // ---- PF Jet specific information ----
-      /// photonEnergy 
+      /// photonEnergy
       float photonEnergy () const {return pfSpecific().mPhotonEnergy;}
       /// photonEnergyFraction (relative to corrected jet energy)
       float photonEnergyFraction () const {return photonEnergy () / energy ();}
-      /// electronEnergy 
+      /// electronEnergy
       float electronEnergy () const {return pfSpecific().mElectronEnergy;}
       /// muonEnergy
       float muonEnergy () const {return pfSpecific().mMuonEnergy;}
-      /// muonEnergyFraction (relative to corrected jet energy) 
+      /// muonEnergyFraction (relative to corrected jet energy)
       float muonEnergyFraction () const {return muonEnergy () / energy ();}
-      /// HFHadronEnergy 
+      /// HFHadronEnergy
       float HFHadronEnergy () const {return pfSpecific().mHFHadronEnergy;}
-      /// HFHadronEnergyFraction (relative to corrected jet energy) 
+      /// HFHadronEnergyFraction (relative to corrected jet energy)
       float HFHadronEnergyFraction () const {return HFHadronEnergy () / energy ();}
-      /// HFEMEnergy 
+      /// HFEMEnergy
       float HFEMEnergy () const {return pfSpecific().mHFEMEnergy;}
-      /// HFEMEnergyFraction (relative to corrected jet energy) 
+      /// HFEMEnergyFraction (relative to corrected jet energy)
       float HFEMEnergyFraction () const {return HFEMEnergy () / energy ();}
 
       /// chargedHadronMultiplicity
@@ -355,42 +355,42 @@ namespace pat {
       int photonMultiplicity () const {return pfSpecific().mPhotonMultiplicity;}
       /// electronMultiplicity
       int electronMultiplicity () const {return pfSpecific().mElectronMultiplicity;}
-      
+
       /// HFHadronMultiplicity
       int HFHadronMultiplicity () const {return pfSpecific().mHFHadronMultiplicity;}
       /// HFEMMultiplicity
       int HFEMMultiplicity () const {return pfSpecific().mHFEMMultiplicity;}
-      
+
       /// chargedMuEnergy
       float chargedMuEnergy () const {return pfSpecific().mChargedMuEnergy;}
       /// chargedMuEnergyFraction
       float chargedMuEnergyFraction () const {return chargedMuEnergy () / energy ();}
-      
+
       /// neutralMultiplicity
       int neutralMultiplicity () const {return pfSpecific().mNeutralMultiplicity;}
-      
+
       /// convert generic constituent to specific type
       //  static CaloTowerPtr caloTower (const reco::Candidate* fConstituent);
-      /// get specific constituent of the CaloJet. 
+      /// get specific constituent of the CaloJet.
       /// if the caloTowers were embedded, this reference is transient only and must not be persisted
       reco::PFCandidatePtr getPFConstituent (unsigned fIndex) const;
-      /// get the constituents of the CaloJet. 
+      /// get the constituents of the CaloJet.
       /// If the caloTowers were embedded, these reference are transient only and must not be persisted
       std::vector<reco::PFCandidatePtr> const & getPFConstituents () const;
 
-      /// get a pointer to a Candididate constituent of the jet 
+      /// get a pointer to a Candididate constituent of the jet
       ///    If using refactorized PAT, return that. (constituents size > 0)
       ///    Else check the old version of PAT (embedded constituents size > 0)
       ///    Else return the reco Jet number of constituents
       virtual const reco::Candidate * daughter(size_t i) const {
-	if (isCaloJet() || isJPTJet() ) { 
+	if (isCaloJet() || isJPTJet() ) {
 	  if ( embeddedCaloTowers_ ) {
 	    if ( caloTowersFwdPtr_.size() > 0 ) return caloTowersFwdPtr_[i].get();
 	    else if ( caloTowers_.size() > 0 ) return &caloTowers_[i];
 	    else return reco::Jet::daughter(i);
 	  }
 	}
-	if (isPFJet()) { 
+	if (isPFJet()) {
 	  if ( embeddedPFCandidates_ ) {
 	    if ( pfCandidatesFwdPtr_.size() > 0 ) return pfCandidatesFwdPtr_[i].get();
 	    else if ( pfCandidates_.size() > 0 ) return &pfCandidates_[i];
@@ -407,14 +407,14 @@ namespace pat {
       ///    Else check the old version of PAT (embedded constituents size > 0)
       ///    Else return the reco Jet number of constituents
       virtual size_t numberOfDaughters() const {
-	if (isCaloJet() || isJPTJet()) { 
+	if (isCaloJet() || isJPTJet()) {
 	  if ( embeddedCaloTowers_ ) {
 	    if ( caloTowersFwdPtr_.size() > 0 ) return caloTowersFwdPtr_.size();
 	    else if ( caloTowers_.size() > 0 ) return caloTowers_.size();
 	    else return reco::Jet::numberOfDaughters();
 	  }
 	}
-	if (isPFJet()) { 
+	if (isPFJet()) {
 	  if ( embeddedPFCandidates_ ) {
 	    if ( pfCandidatesFwdPtr_.size() > 0 ) return pfCandidatesFwdPtr_.size();
 	    else if ( pfCandidates_.size() > 0 ) return pfCandidates_.size();
@@ -426,7 +426,7 @@ namespace pat {
 
       /// accessing Jet ID information
       reco::JetID const & jetID () const { return jetID_;}
-      
+
 
       /// Access to bare FwdPtr collections
       CaloTowerFwdPtrVector               const & caloTowersFwdPtr()   const { return caloTowersFwdPtr_;}
@@ -436,7 +436,7 @@ namespace pat {
 
       /// Update bare FwdPtr and FwdRef "forward" pointers while keeping the
       /// "back" pointers the same (i.e. the ref "forwarding")
-      void updateFwdCaloTowerFwdPtr( unsigned int index, edm::Ptr<CaloTower> updateFwd ) { 
+      void updateFwdCaloTowerFwdPtr( unsigned int index, edm::Ptr<CaloTower> updateFwd ) {
 	if ( index < caloTowersFwdPtr_.size() ) {
 	  caloTowersFwdPtr_[index] = CaloTowerFwdPtrVector::value_type( updateFwd, caloTowersFwdPtr_[index].backPtr() );
 	} else {
@@ -444,7 +444,7 @@ namespace pat {
 	}
       }
 
-      void updateFwdPFCandidateFwdPtr( unsigned int index, edm::Ptr<reco::PFCandidate> updateFwd ) { 
+      void updateFwdPFCandidateFwdPtr( unsigned int index, edm::Ptr<reco::PFCandidate> updateFwd ) {
 	if ( index < pfCandidatesFwdPtr_.size() ) {
 	  pfCandidatesFwdPtr_[index] = reco::PFCandidateFwdPtrVector::value_type( updateFwd, pfCandidatesFwdPtr_[index].backPtr() );
 	} else {
@@ -453,7 +453,7 @@ namespace pat {
       }
 
 
-      void updateFwdTagInfoFwdPtr( unsigned int index, edm::Ptr<reco::BaseTagInfo> updateFwd ) { 
+      void updateFwdTagInfoFwdPtr( unsigned int index, edm::Ptr<reco::BaseTagInfo> updateFwd ) {
 	if ( index < tagInfosFwdPtr_.size() ) {
 	  tagInfosFwdPtr_[index] = TagInfoFwdPtrCollection::value_type( updateFwd, tagInfosFwdPtr_[index].backPtr() );
 	} else {
@@ -474,7 +474,7 @@ namespace pat {
       CaloTowerCollection caloTowers_; // Compatibility embedding
       CaloTowerFwdPtrVector caloTowersFwdPtr_; // Refactorized content embedding
 
-      
+
       bool embeddedPFCandidates_;
       mutable std::vector<reco::PFCandidatePtr> pfCandidatesTemp_; // to simplify user interface
       reco::PFCandidateCollection pfCandidates_; // Compatibility embedding
@@ -493,13 +493,13 @@ namespace pat {
       // energy scale correction factors; the string carries a potential label if
       // more then one set of correction factors is embedded. The label corresponds
       // to the label of the jetCorrFactors module that has been embedded.
-      std::vector<pat::JetCorrFactors> jec_; 
-      // currently applied set of jet energy correction factors (i.e. the index in 
+      std::vector<pat::JetCorrFactors> jec_;
+      // currently applied set of jet energy correction factors (i.e. the index in
       // jetEnergyCorrections_)
       unsigned int currentJECSet_;
       // currently applied jet energy correction level
       unsigned int currentJECLevel_;
-      // currently applied jet energy correction flavor (can be NONE, GLUON, UDS, 
+      // currently applied jet energy correction flavor (can be NONE, GLUON, UDS,
       // CHARM or BOTTOM)
       JetCorrFactors::Flavor currentJECFlavor_;
 
@@ -509,7 +509,7 @@ namespace pat {
       std::vector<std::string>          tagInfoLabels_;
       edm::OwnVector<reco::BaseTagInfo> tagInfos_; // Compatibility embedding
       TagInfoFwdPtrCollection  tagInfosFwdPtr_; // Refactorized embedding
-  
+
 
       // ---- track related members ----
 
@@ -524,8 +524,8 @@ namespace pat {
 
       // ---- id functions ----
       reco::JetID    jetID_;
-   
-      
+
+
     private:
 
       // ---- helper functions ----
@@ -547,42 +547,42 @@ namespace pat {
   };
 }
 
-inline float pat::Jet::chargedHadronEnergy() const 
+inline float pat::Jet::chargedHadronEnergy() const
 {
   if(isPFJet()){ return pfSpecific().mChargedHadronEnergy; }
   else if( isJPTJet() ){ return jptSpecific().mChargedHadronEnergy; }
   else{ throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a JPTJet nor from PFJet.\n"; }
 }
 
-inline float pat::Jet::neutralHadronEnergy() const 
+inline float pat::Jet::neutralHadronEnergy() const
 {
   if(isPFJet()){ return pfSpecific().mNeutralHadronEnergy; }
   else if( isJPTJet() ){ return jptSpecific().mNeutralHadronEnergy; }
   else{ throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a JPTJet nor from PFJet.\n"; }
 }
 
-inline float pat::Jet::chargedEmEnergy() const 
+inline float pat::Jet::chargedEmEnergy() const
 {
   if(isPFJet()){ return pfSpecific().mChargedEmEnergy; }
   else if( isJPTJet() ){ return jptSpecific().mChargedEmEnergy;}
   else{ throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a JPTJet nor from PFJet.\n"; }
 }
 
-inline float pat::Jet::neutralEmEnergy() const 
+inline float pat::Jet::neutralEmEnergy() const
 {
   if(isPFJet()){ return pfSpecific().mNeutralEmEnergy; }
   else if( isJPTJet() ){ return jptSpecific().mNeutralEmEnergy;}
   else{ throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a JPTJet nor from PFJet.\n"; }
 }
 
-inline int pat::Jet::muonMultiplicity() const 
+inline int pat::Jet::muonMultiplicity() const
 {
   if(isPFJet()){ return pfSpecific().mMuonMultiplicity; }
   else if( isJPTJet() ){ return jptSpecific().muonsInVertexInCalo.size()+jptSpecific().muonsInVertexOutCalo.size();}
   else{ throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a JPTJet nor from PFJet.\n"; }
 }
 
-inline int pat::Jet::chargedMultiplicity() const 
+inline int pat::Jet::chargedMultiplicity() const
 {
   if(isPFJet()){ return pfSpecific().mChargedMultiplicity; }
   else if( isJPTJet() ){ return jptSpecific().muonsInVertexInCalo.size()+jptSpecific().muonsInVertexOutCalo.size()+
