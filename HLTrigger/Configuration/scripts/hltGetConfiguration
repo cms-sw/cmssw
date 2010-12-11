@@ -39,7 +39,7 @@ parser.add_argument('--type',
                     dest    = 'type', 
                     action  = 'store', 
                     metavar = 'TYPE', 
-                    choices = confdb.globalTag, 
+                    choices = options.globalTag, 
                     default = None,
                     help    = 'Set global options acording to a specific HLT luminosity and type (%(choices)s).' )
 parser.add_argument('--globaltag', 
@@ -126,5 +126,5 @@ parser.add_argument('--help',
 
 
 # parse command line arguments and options
-config = parser.parse_args(namespace = options.Options())
+config = parser.parse_args(namespace = options.HLTProcessOptions())
 print confdb.HLTProcess(config).dump()
