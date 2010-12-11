@@ -16,6 +16,7 @@ class HLTProcess(object):
       'essources' : [],
       'esmodules' : [],
       'modules'   : [],
+      'sequences' : [],
       'services'  : [],
       'paths'     : [],
       'psets'     : [],
@@ -180,18 +181,55 @@ if 'hltPreDQMSmart' in %(dict)s:
 """
 
 
+  def _fix_parameter(self, **args):
+    """arguments:
+        name:     parameter name (optional)
+        type:     parameter type (look for tracked and untracked variants)
+        value:    original value
+        replace:  replacement value
+    """
+    if 'name' in args:
+      self.data = re.sub( 
+          r'%(name)s = cms(?P<tracked>(?:\.untracked)?)\.%(type)s\( (?P<quote>["\']?)%(value)s(?P=quote)' % args, 
+          r'%(name)s = cms\g<tracked>.%(type)s( \g<quote>%(replace)s\g<quote>' % args,
+          self.data)
+    else:
+      self.data = re.sub( 
+          r'cms(?P<tracked>(?:\.untracked)?)\.%(type)s\( (?P<quote>["\']?)%(value)s(?P=quote)' % args, 
+          r'cms\g<tracked>.%(type)s( \g<quote>%(replace)s\g<quote>' % args,
+          self.data)
+
+
   def fixForMC(self):
     if not self.config.data:
       # override the raw data collection label
-      self.data = re.sub( r'cms\.InputTag\( "source" \)',            r'cms.InputTag( "rawDataCollector" )',           self.data)
-      self.data = re.sub( r'cms\.untracked\.InputTag\( "source" \)', r'cms.untracked.InputTag( "rawDataCollector" )', self.data)
-      self.data = re.sub( r'cms\.string\( "source" \)',              r'cms.string( "rawDataCollector" )',             self.data)
+      self._fix_parameter(type = 'InputTag', value = 'source', replace = 'rawDataCollector')
+      self._fix_parameter(type = 'string',   value = 'source', replace = 'rawDataCollector')
 
 
   def fixForFastSim(self):
     if self.config.fastsim:
       # adapt the hle configuration (fragment) to run under fastsim
-      self.data.replace('import FWCore.ParameterSet.Config as cms', 'import FWCore.ParameterSet.Config as cms\nfrom FastSimulation.HighLevelTrigger.HLTSetup_cff import *')
+      self.data = re.sub( r'import FWCore.ParameterSet.Config as cms', r'\g<0>\nfrom FastSimulation.HighLevelTrigger.HLTSetup_cff import *', self.data)
+
+      # fix the definition of module
+      self._fix_parameter(                               type = 'InputTag', value = 'hltL1extraParticles',  replace = 'l1extraParticles')
+      self._fix_parameter(name = 'GMTReadoutCollection', type = 'InputTag', value = 'hltGtDigis',           replace = 'gmtDigis')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltGtDigis',           replace = 'gtDigis')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltL1GtObjectMap',     replace = 'gtDigis')
+      self._fix_parameter(name = 'initialSeeds',         type = 'InputTag', value = 'noSeedsHere',          replace = 'globalPixelSeeds:GlobalPixel')
+      self._fix_parameter(name = 'preFilteredSeeds',     type = 'bool',     value = 'True',                 replace = 'False')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltOfflineBeamSpot',   replace = 'offlineBeamSpot')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltMuonCSCDigis',      replace = 'simMuonCSCDigis')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltMuonDTDigis',       replace = 'simMuonDTDigis')
+      self._fix_parameter(                               type = 'InputTag', value = 'hltMuonRPCDigis',      replace = 'simMuonRPCDigis')
+
+      # fix the definition of sequences and paths
+      self.data = re.sub( r'hltMuonCSCDigis',                                       r'cms.SequencePlaceholder( "simMuonCSCDigis" )',  self.data)
+      self.data = re.sub( r'hltMuonDTDigis',                                        r'cms.SequencePlaceholder( "simMuonDTDigis" )',   self.data)
+      self.data = re.sub( r'hltMuonRPCDigis',                                       r'cms.SequencePlaceholder( "simMuonRPCDigis" )',  self.data)
+      self.data = re.sub( r'HLTEndSequence',                                        r'cms.SequencePlaceholder( "HLTEndSequence" )',   self.data)
+      self.data = re.sub( r'hltGtDigis',                                            r'HLTBeginSequence',                              self.data)
 
 
   def unprescale(self):
