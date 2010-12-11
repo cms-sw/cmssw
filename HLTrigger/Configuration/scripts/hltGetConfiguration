@@ -7,7 +7,8 @@ import os
 import argparse
 from extend_argparse import *
 
-import HLTrigger.Configuration.Tools.confdb as confdb
+import HLTrigger.Configuration.Tools.confdb  as confdb
+import HLTrigger.Configuration.Tools.options as options
 
 # define an argparse parser to parse our options
 textwidth = int( os.popen("stty size", "r").read().split()[1] )
@@ -21,98 +22,98 @@ parser = argparse.ArgumentParser(
   add_help          = False )
 
 # required argument
-parser.add_argument('menuConfig',
+parser.add_argument('menu',
                     action  = 'store', 
-                    type    = confdb.ConnectionHLTMenu,
+                    type    = options.ConnectionHLTMenu,
                     metavar = 'MENU', 
                     help    = 'HLT menu to dump from the database. Supported formats are:\n- [hltdev:]/path/to/configuration[/Vn]\n- orcoff:/path/to/configuration[/Vn]\n- run:runnumber\nThe possible databases are "hltdev" (default, used for offline development) and "orcoff:" (ued for online menus). If no version is specified, the latest one is automatically used.\nIf "run:" is used instead, the actual HLT menu for thegiven run number is looked up and used.' )
 
 # options
 parser.add_argument('--process', 
-                    dest    = 'processName', 
+                    dest    = 'name', 
                     action  = 'store', 
                     default = 'HLT', 
                     metavar = 'PROCESS', 
                     help    = 'Override the process name (the default is %(default)s)' )
 parser.add_argument('--type', 
-                    dest    = 'processType', 
+                    dest    = 'type', 
                     action  = 'store', 
                     metavar = 'TYPE', 
                     choices = confdb.globalTag, 
                     default = None,
                     help    = 'Set global options acording to a specific HLT luminosity and type (%(choices)s).' )
 parser.add_argument('--globaltag', 
-                    dest    = 'menuGlobalTag', 
+                    dest    = 'globaltag', 
                     action  = 'store', 
                     metavar = 'TAG', 
                     default = None,
                     help    = 'Override the GlobalTag in the HLT menu:\n- when running on data, the default behaviour is to not override the GobalTag in the HLT menu;\n- when running on MC, the default behaviour is to use the GlobalTag from "type" and the current PyRelVal configuration.\nTo run on data with a different release than the menu was designed for, try "auto:hltonline"' )
 parser.add_argument('--l1', 
-                    dest    = 'menuL1', 
+                    dest    = 'l1', 
                     action  = 'store',
-                    type    = confdb.ConnectionL1TMenu,
-                    default = confdb.ConnectionL1TMenu(None),
+                    type    = options.ConnectionL1TMenu,
+                    default = None,
                     metavar = 'MENU', 
                     help    = 'Override the L1 menu, using the payload "L1GtTriggerMenu_<%(metavar)s>_mc" from the database.\nThe default behaviour is to run with the L1 menu from the GlobalTag' )
 parser.add_argument('--unprescale', 
-                    dest    = 'menuUnprescale', 
+                    dest    = 'unprescale', 
                     action  = 'store_true', 
                     default = False, 
                     help    = 'Run without any HLT prescales' )
 parser.add_argument('--open', 
-                    dest    = 'menuOpen', 
+                    dest    = 'open', 
                     action  = 'store_true', 
                     default = False, 
                     help    = 'Run the HLT in "open" mode, overriding all ED/HLTFilters to always pass' )
 parser.add_argument('--timing', 
-                    dest    = 'menuTiming', 
+                    dest    = 'timing', 
                     action  = 'store_true', 
                     default = False,
                     help    = 'Instrument the menu with the modules and EndPath needed for timing studies' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--output',
-                    dest    = 'menuOutput',
+                    dest    = 'output',
                     action  = 'store',
                     metavar = 'OUTPUT',
                     choices = [ 'all', 'minimal', 'none' ], 
                     default = 'all',
                     help    = 'Use\n- "all" to output all output modules (default),\n- "minimal" to only output the TriggerResults,\n- "none" to drop all output modules' )
 group.add_argument('--no-output',
-                    dest    = 'menuOutput',
+                    dest    = 'output',
                     action  = 'store_const',
                     const   = 'none',
                     help    = 'Same as "--output none"' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--data', 
-                    dest    = 'runOnData', 
+                    dest    = 'data', 
                     action  = 'store_true', 
                     default = True, 
                     help    = 'Prepare a menu for running on data (raw events in "source") (default)' )
 group.add_argument('--mc', 
-                    dest    = 'runOnData', 
+                    dest    = 'data', 
                     action  = 'store_false', 
                     help    = 'Prepare a menu for running on MC (raw events in "rawDataCollector")' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--full', 
-                    dest    = 'dumpCff', 
+                    dest    = 'fragment', 
                     action  = 'store_false', 
                     default = False, 
                     help    = 'Generate a full configuration file, with minimal modifications (default)' )
 group.add_argument('--cff', 
-                    dest    = 'dumpCff', 
+                    dest    = 'fragment', 
                     action  = 'store_true', 
                     help    = 'Generate a stripped down configuration file fragment, for inclusion by e.g. cmsDriver.py' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--online', 
-                    dest    = 'runOnline', 
+                    dest    = 'online', 
                     action  = 'store_true', 
                     help    = 'Generate a configuration file suitable for running online (use the online compliant connection string)' )
 group.add_argument('--offline', 
-                    dest    = 'runOnline', 
+                    dest    = 'online', 
                     action  = 'store_false', 
                     default = False, 
                     help    = 'Generate a configuration file suitable for running offline (override the connection string) (default)' )
@@ -125,17 +126,7 @@ parser.add_argument('--help',
 
 
 # parse command line arguments and options
-configuration = parser.parse_args()
-
-# Initialize everything
-hltmenu  = configuration.menuConfig
-fragment = configuration.dumpCff
-menu     = confdb.HLTProcess(hltmenu, configuration, fragment)
-
-# get the configuration from ConfdB
-menu.buildOptions()
-menu.getRawConfigurationFromDB()
-menu.customize()
-
-# dump the final configuration
-print menu.dump()
+config   = parser.parse_args(namespace = options.Options())
+menu     = config.menu
+fragment = config.fragment
+print confdb.HLTProcess(menu, config, fragment).dump()
