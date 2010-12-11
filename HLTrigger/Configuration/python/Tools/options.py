@@ -63,6 +63,7 @@ class HLTProcessOptions(dict):
     self.timing     = False       #     if set, instrument the menu for timing measurements
     self.output     = 'all'       # (*) output 'all', 'minimal' or 'none' output modules
     self.fragment   = False       #     prepare a configuration fragment (true) or a whole process (false)
+    self.fastsim    = False       #     prepare a configuration fragment suitable for FastSim
 
 
   # convert HLT and L1 menus to a dedicated object representation on the fly

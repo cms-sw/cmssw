@@ -23,6 +23,7 @@ class HLTProcess(object):
       'services'  : [],
       'paths'     : [],
       'psets'     : [],
+      'blocks'    : [],
     }
     self.fragment = configuration.fragment
     self.labels  = {}
@@ -152,7 +153,7 @@ if 'hltPreExpressSmart' in %(dict)s:
     %(process)shltPreExpressSmart.throw = cms.bool( False )
 if 'hltPreDQMSmart' in %(dict)s:
     %(process)shltPreDQMSmart.throw     = cms.bool( False )
-"""        
+"""
 
       # override the output modules to output root files
       self.overrideOutput()
@@ -208,7 +209,7 @@ if 'PrescaleService' in %(dict)s:
   def instrumentOpenMode(self):
     if self.config.open:
       # find all EDfilters
-      filters = [ match[1] for match in re.findall(r'(process\.)?\b(\w+) = cms.EDFilter', self.data) ] 
+      filters = [ match[1] for match in re.findall(r'(process\.)?\b(\w+) = cms.EDFilter', self.data) ]
       # wrap all EDfilters with "cms.ignore( ... )"
       re_filters  = re.compile( r'\b((process\.)?(' + r'|'.join(filters) + r'))\b' )
       re_sequence = re.compile( r'cms\.(Path|Sequence)\((.*)\)' )
@@ -226,7 +227,7 @@ if 'PrescaleService' in %(dict)s:
     if self.config.online:
       if self.config.globaltag:
         text += """
-# override the GlobalTag 
+# override the GlobalTag
 if 'GlobalTag' in %%(dict)s:
     %%(process)sGlobalTag.globaltag = '%(globaltag)s'
 """
@@ -242,7 +243,7 @@ if 'GlobalTag' in %%(dict)s:
       text += "    %%(process)sGlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n"
 
       if self.config.data:
-        # do not override the GlobalTag unless one was specified on the command line 
+        # do not override the GlobalTag unless one was specified on the command line
         pass
       else:
         # check if a specific GlobalTag was specified on the command line, or choose one from the configuration.type
@@ -275,7 +276,7 @@ if 'GlobalTag' in %%(dict)s:
 # override the L1 menu
 if 'GlobalTag' in %%(dict)s:
     %%(process)sGlobalTag.toGet.append(
-        cms.PSet(  
+        cms.PSet(
             record  = cms.string( "L1GtTriggerMenuRcd" ),
             tag     = cms.string( "%(override)s" ),
             connect = cms.untracked.string( %(connect)s )
@@ -299,9 +300,9 @@ if 'GlobalTag' in %%(dict)s:
       self.data = reOutputModuleRef.sub(repl, self.data)
 
     # override the "online" ShmStreamConsumer output modules with "offline" PoolOutputModule's
-    self.data = re.sub( 
+    self.data = re.sub(
       r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\( *"ShmStreamConsumer" *,',
-      r'%(process)shltOutput\2 = cms.OutputModule( "PoolOutputModule",\n    fileName = cms.untracked.string( "output\2.root" ),\n    fastCloning = cms.untracked.bool( False ),', 
+      r'%(process)shltOutput\2 = cms.OutputModule( "PoolOutputModule",\n    fileName = cms.untracked.string( "output\2.root" ),\n    fastCloning = cms.untracked.bool( False ),',
       self.data
     )
 
@@ -379,7 +380,7 @@ if 'MessageLogger' in %(dict)s:
     if not self.fragment:
       self.build_source()
 
-    if self.fragment:
+    if self.fragment or self.config.fastsim:
       # extract a configuration file fragment
       self.options['essources'].append( "-GlobalTag" )
       self.options['essources'].append( "-HepPDTESSource" )
@@ -436,7 +437,6 @@ if 'MessageLogger' in %(dict)s:
       self.options['esmodules'].append( "-L1GtTriggerMaskAlgoTrigTrivialProducer" )
       self.options['esmodules'].append( "-L1GtTriggerMaskTechTrigTrivialProducer" )
       self.options['esmodules'].append( "-sistripconn" )
-
       self.options['esmodules'].append( "-hltESPEcalTrigTowerConstituentsMapBuilder" )
       self.options['esmodules'].append( "-hltESPGlobalTrackingGeometryESProducer" )
       self.options['esmodules'].append( "-hltESPMuonDetLayerGeometryESProducer" )
@@ -465,6 +465,211 @@ if 'MessageLogger' in %(dict)s:
       self.options['psets'].append( "-maxEvents" )
       self.options['psets'].append( "-options" )
 
+    if self.config.fastsim:
+      # remove components not supported or needed by fastsim
+      self.options['essources'].append( "-BTagRecord" )
+
+      self.options['esmodules'].append( "-SiPixelTemplateDBObjectESProducer" )
+      self.options['esmodules'].append( "-TTRHBuilderPixelOnly" )
+      self.options['esmodules'].append( "-WithTrackAngle" )
+      self.options['esmodules'].append( "-trajectoryCleanerBySharedHits" )
+      self.options['esmodules'].append( "-trackCounting3D2nd" )
+      self.options['esmodules'].append( "-navigationSchoolESProducer" )
+      self.options['esmodules'].append( "-muonCkfTrajectoryFilter" )
+      self.options['esmodules'].append( "-ckfBaseTrajectoryFilter" )
+      self.options['esmodules'].append( "-TransientTrackBuilderESProducer" )
+      self.options['esmodules'].append( "-TrackerRecoGeometryESProducer" )
+      self.options['esmodules'].append( "-SteppingHelixPropagatorOpposite" )
+      self.options['esmodules'].append( "-SteppingHelixPropagatorAny" )
+      self.options['esmodules'].append( "-SteppingHelixPropagatorAlong" )
+      self.options['esmodules'].append( "-SmootherRK" )
+      self.options['esmodules'].append( "-SmartPropagatorRK" )
+      self.options['esmodules'].append( "-SmartPropagatorOpposite" )
+      self.options['esmodules'].append( "-SmartPropagatorAnyRK" )
+      self.options['esmodules'].append( "-SmartPropagatorAnyOpposite" )
+      self.options['esmodules'].append( "-SmartPropagatorAny" )
+      self.options['esmodules'].append( "-SmartPropagator" )
+      self.options['esmodules'].append( "-RungeKuttaTrackerPropagator" )
+      self.options['esmodules'].append( "-OppositeMaterialPropagator" )
+      self.options['esmodules'].append( "-MuonTransientTrackingRecHitBuilderESProducer" )
+      self.options['esmodules'].append( "-MuonDetLayerGeometryESProducer" )
+      self.options['esmodules'].append( "-MuonCkfTrajectoryBuilder" )
+      self.options['esmodules'].append( "-hltMeasurementTracker" )
+      self.options['esmodules'].append( "-MaterialPropagator" )
+      self.options['esmodules'].append( "-L3MuKFFitter" )
+      self.options['esmodules'].append( "-KFUpdatorESProducer" )
+      self.options['esmodules'].append( "-KFSmootherForRefitInsideOut" )
+      self.options['esmodules'].append( "-KFSmootherForMuonTrackLoader" )
+      self.options['esmodules'].append( "-KFFitterForRefitInsideOut" )
+      self.options['esmodules'].append( "-GroupedCkfTrajectoryBuilder" )
+      self.options['esmodules'].append( "-GlobalTrackingGeometryESProducer" )
+      self.options['esmodules'].append( "-FittingSmootherRK" )
+      self.options['esmodules'].append( "-FitterRK" )
+      self.options['esmodules'].append( "-hltCkfTrajectoryBuilder" )
+      self.options['esmodules'].append( "-Chi2MeasurementEstimator" )
+      self.options['esmodules'].append( "-Chi2EstimatorForRefit" )
+      self.options['esmodules'].append( "-CaloTowerConstituentsMapBuilder" )
+      self.options['esmodules'].append( "-CaloTopologyBuilder" )
+
+      self.options['services'].append( "-UpdaterService" )
+
+      self.options['blocks'].append( "hltL1NonIsoLargeWindowElectronPixelSeeds::SeedConfiguration" )
+      self.options['blocks'].append( "hltL1IsoLargeWindowElectronPixelSeeds::SeedConfiguration" )
+      self.options['blocks'].append( "hltL1NonIsoStartUpElectronPixelSeeds::SeedConfiguration" )
+      self.options['blocks'].append( "hltL1IsoStartUpElectronPixelSeeds::SeedConfiguration" )
+
+      self.options['modules'].append( "hltL3MuonIsolations" )
+      self.options['modules'].append( "hltPixelVertices" )
+      self.options['modules'].append( "-hltCkfL1IsoTrackCandidates" )
+      self.options['modules'].append( "-hltCtfL1IsoWithMaterialTracks" )
+      self.options['modules'].append( "-hltCkfL1NonIsoTrackCandidates" )
+      self.options['modules'].append( "-hltCtfL1NonIsoWithMaterialTracks" )
+      self.options['modules'].append( "hltPixelMatchLargeWindowElectronsL1Iso" )
+      self.options['modules'].append( "hltPixelMatchLargeWindowElectronsL1NonIso" )
+      self.options['modules'].append( "-hltESRegionalEgammaRecHit" )
+      self.options['modules'].append( "-hltEcalRegionalJetsFEDs" )
+      self.options['modules'].append( "-hltEcalRegionalJetsRecHitTmp" )
+      self.options['modules'].append( "-hltEcalRegionalMuonsFEDs" )
+      self.options['modules'].append( "-hltEcalRegionalMuonsRecHitTmp" )
+      self.options['modules'].append( "-hltEcalRegionalEgammaFEDs" )
+      self.options['modules'].append( "-hltEcalRegionalEgammaRecHitTmp" )
+      self.options['modules'].append( "-hltFEDSelector" )
+      self.options['modules'].append( "-hltL3TrajSeedOIHit" )
+      self.options['modules'].append( "-hltL3TrajSeedIOHit" )
+      self.options['modules'].append( "-hltL3TrackCandidateFromL2OIState" )
+      self.options['modules'].append( "-hltL3TrackCandidateFromL2OIHit" )
+      self.options['modules'].append( "-hltL3TrackCandidateFromL2IOHit" )
+      self.options['modules'].append( "-hltL3TrackCandidateFromL2NoVtx" )
+      self.options['modules'].append( "-hltHcalDigis" )
+      self.options['modules'].append( "-hltHoreco" )
+      self.options['modules'].append( "-hltHfreco" )
+      self.options['modules'].append( "-hltHbhereco" )
+      self.options['modules'].append( "-hltEcalRegionalRestFEDs" )
+      self.options['modules'].append( "-hltEcalRegionalESRestFEDs" )
+      self.options['modules'].append( "-hltEcalRawToRecHitFacility" )
+      self.options['modules'].append( "-hltESRawToRecHitFacility" )
+      self.options['modules'].append( "-hltEcalRegionalJetsRecHit" )
+      self.options['modules'].append( "-hltEcalRegionalMuonsRecHit" )
+      self.options['modules'].append( "-hltEcalRegionalEgammaRecHit" )
+      self.options['modules'].append( "-hltEcalRecHitAll" )
+      self.options['modules'].append( "-hltESRecHitAll" )
+      self.options['modules'].append( "-hltL3TauPixelSeeds" )
+      self.options['modules'].append( "-hltL3TauHighPtPixelSeeds" )
+      self.options['modules'].append( "-hltL3TauCkfTrackCandidates" )
+      self.options['modules'].append( "-hltL3TauCkfHighPtTrackCandidates" )
+      self.options['modules'].append( "-hltL3TauCtfWithMaterialTracks" )
+      self.options['modules'].append( "-hltL25TauPixelSeeds" )
+      self.options['modules'].append( "-hltL25TauCkfTrackCandidates" )
+      self.options['modules'].append( "-hltL25TauCtfWithMaterialTracks" )
+      self.options['modules'].append( "-hltL3TauSingleTrack15CtfWithMaterialTracks" )
+      self.options['modules'].append( "-hltPFJetCtfWithMaterialTracks" )
+      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorStartup" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesStartup" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksStartup" )
+      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorStartupU" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesStartupU" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksStartupU" )
+      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGenerator" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidates" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracks" )
+      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorRelaxed" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesRelaxed" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksRelaxed" )
+      self.options['modules'].append( "-hltPixelTracksForMinBias" )
+      self.options['modules'].append( "-hltPixelTracksForHighMult" )
+      self.options['modules'].append( "-hltMuonCSCDigis" )
+      self.options['modules'].append( "-hltMuonDTDigis" )
+      self.options['modules'].append( "-hltMuonRPCDigis" )
+      self.options['modules'].append( "-hltGtDigis" )
+      self.options['modules'].append( "-hltL1GtTrigReport" )
+      self.options['modules'].append( "hltCsc2DRecHits" )
+      self.options['modules'].append( "hltDt1DRecHits" )
+      self.options['modules'].append( "hltRpcRecHits" )
+
+      self.options['sequences'].append( "-HLTL1IsoEgammaRegionalRecoTrackerSequence" )
+      self.options['sequences'].append( "-HLTL1NonIsoEgammaRegionalRecoTrackerSequence" )
+      self.options['sequences'].append( "-HLTL1IsoElectronsRegionalRecoTrackerSequence" )
+      self.options['sequences'].append( "-HLTL1NonIsoElectronsRegionalRecoTrackerSequence" )
+      self.options['sequences'].append( "-HLTPixelMatchLargeWindowElectronL1IsoTrackingSequence" )
+      self.options['sequences'].append( "-HLTPixelMatchLargeWindowElectronL1NonIsoTrackingSequence" )
+      self.options['sequences'].append( "-HLTPixelTrackingForMinBiasSequence" )
+      self.options['sequences'].append( "-HLTDoLocalStripSequence" )
+      self.options['sequences'].append( "-HLTDoLocalPixelSequence" )
+      self.options['sequences'].append( "-HLTRecopixelvertexingSequence" )
+      self.options['sequences'].append( "-HLTL3TauTrackReconstructionSequence" )
+      self.options['sequences'].append( "-HLTL3TauHighPtTrackReconstructionSequence" )
+      self.options['sequences'].append( "-HLTL25TauTrackReconstructionSequence" )
+      self.options['sequences'].append( "-HLTL3TauSingleTrack15ReconstructionSequence" )
+      self.options['sequences'].append( "-HLTTrackReconstructionForJets" )
+      self.options['sequences'].append( "-HLTEndSequence" )
+      self.options['sequences'].append( "-HLTBeginSequence" )
+      self.options['sequences'].append( "-HLTBeginSequenceNZS" )
+      self.options['sequences'].append( "-HLTBeginSequenceBPTX" )
+      self.options['sequences'].append( "-HLTBeginSequenceAntiBPTX" )
+      self.options['sequences'].append( "-HLTL2HcalIsolTrackSequence" )
+      self.options['sequences'].append( "-HLTL2HcalIsolTrackSequenceHB" )
+      self.options['sequences'].append( "-HLTL2HcalIsolTrackSequenceHE" )
+      self.options['sequences'].append( "-HLTL3HcalIsolTrackSequence" )
+
+      # remove unsupported paths
+      self.options['paths'].append( "-AlCa_EcalEta" )
+      self.options['paths'].append( "-AlCa_EcalPhiSym" )
+      self.options['paths'].append( "-AlCa_EcalPi0" )
+      self.options['paths'].append( "-AlCa_RPCMuonNoHits" )
+      self.options['paths'].append( "-AlCa_RPCMuonNoTriggers" )
+      self.options['paths'].append( "-AlCa_RPCMuonNormalisation" )
+      self.options['paths'].append( "-DQM_FEDIntegrity" )
+      self.options['paths'].append( "-DQM_FEDIntegrity_v*" )
+      self.options['paths'].append( "-HLT_Activity_DT" )
+      self.options['paths'].append( "-HLT_Activity_DT_Tuned" )
+      self.options['paths'].append( "-HLT_Activity_Ecal" )
+      self.options['paths'].append( "-HLT_Activity_EcalREM" )
+      self.options['paths'].append( "-HLT_Activity_Ecal_SC15" )
+      self.options['paths'].append( "-HLT_Activity_Ecal_SC17" )
+      self.options['paths'].append( "-HLT_Activity_Ecal_SC7" )
+      self.options['paths'].append( "-HLT_Activity_L1A" )
+      self.options['paths'].append( "-HLT_Activity_PixelClusters" )
+      self.options['paths'].append( "-HLT_Calibration" )
+      self.options['paths'].append( "-HLT_DTErrors" )
+      self.options['paths'].append( "-HLT_DoubleEle4_SW_eeRes_L1R" )
+      self.options['paths'].append( "-HLT_DoubleEle4_SW_eeRes_L1R_v*" )
+      self.options['paths'].append( "-HLT_DoubleEle5_SW_Upsilon_L1R_v*" )
+      self.options['paths'].append( "-HLT_DoublePhoton4_Jpsi_L1R" )
+      self.options['paths'].append( "-HLT_DoublePhoton4_Upsilon_L1R" )
+      self.options['paths'].append( "-HLT_DoublePhoton4_eeRes_L1R" )
+      self.options['paths'].append( "-HLT_EcalCalibration" )
+      self.options['paths'].append( "-HLT_EgammaSuperClusterOnly_L1R" )
+      self.options['paths'].append( "-HLT_Ele15_SiStrip_L1R" )
+      self.options['paths'].append( "-HLT_Ele20_SiStrip_L1R" )
+      self.options['paths'].append( "-HLT_HFThreshold10" )
+      self.options['paths'].append( "-HLT_HFThreshold3" )
+      self.options['paths'].append( "-HLT_HcalCalibration" )
+      self.options['paths'].append( "-HLT_HcalNZS" )
+      self.options['paths'].append( "-HLT_HcalPhiSym" )
+      self.options['paths'].append( "-HLT_IsoTrackHB_v*" )
+      self.options['paths'].append( "-HLT_IsoTrackHE_v*" )
+      self.options['paths'].append( "-HLT_Jet15U_HcalNoiseFiltered" )
+      self.options['paths'].append( "-HLT_Jet15U_HcalNoiseFiltered_v*" )
+      self.options['paths'].append( "-HLT_L1DoubleMuOpen_Tight" )
+      self.options['paths'].append( "-HLT_L1MuOpen_AntiBPTX" )
+      self.options['paths'].append( "-HLT_L1MuOpen_AntiBPTX_v*" )
+      self.options['paths'].append( "-HLT_Mu0_TkMu0_OST_Jpsi" )
+      self.options['paths'].append( "-HLT_Mu0_TkMu0_OST_Jpsi_Tight_v*" )
+      self.options['paths'].append( "-HLT_Mu0_Track0_Jpsi" )
+      self.options['paths'].append( "-HLT_Mu3_TkMu0_OST_Jpsi" )
+      self.options['paths'].append( "-HLT_Mu3_TkMu0_OST_Jpsi_Tight_v*" )
+      self.options['paths'].append( "-HLT_Mu3_Track0_Jpsi" )
+      self.options['paths'].append( "-HLT_Mu3_Track3_Jpsi" )
+      self.options['paths'].append( "-HLT_Mu3_Track3_Jpsi_v*" )
+      self.options['paths'].append( "-HLT_Mu3_Track5_Jpsi_v*" )
+      self.options['paths'].append( "-HLT_Mu5_TkMu0_OST_Jpsi" )
+      self.options['paths'].append( "-HLT_Mu5_TkMu0_OST_Jpsi_Tight_v*" )
+      self.options['paths'].append( "-HLT_Mu5_Track0_Jpsi" )
+      self.options['paths'].append( "-HLT_Mu5_Track0_Jpsi_v*" )
+      self.options['paths'].append( "-HLT_Random" )
+      self.options['paths'].append( "-HLT_SelectEcalSpikesHighEt_L1R" )
+      self.options['paths'].append( "-HLT_SelectEcalSpikes_L1R" )
+
 
   def build_source(self):
     if self.config.online:
@@ -474,6 +679,6 @@ if 'MessageLogger' in %(dict)s:
       # offline we can run on data...
       self.source = "/store/data/Run2010A/MinimumBias/RAW/v1/000/144/011/140DA3FD-AAB1-DF11-8932-001617E30E28.root"
     else:
-      # ...or on mc 
+      # ...or on mc
       self.source = "file:RelVal_DigiL1Raw_%s.root" % self.config.type
 
