@@ -1,4 +1,3 @@
-
 # available "type"s and relative global tags
 globalTag = {
   'FULL': 'auto:startup',
@@ -69,9 +68,24 @@ class HLTProcessOptions(dict):
   # convert HLT and L1 menus to a dedicated object representation on the fly
   def __setattr__(self, name, value):
     if name is 'menu' and type(value) is not ConnectionHLTMenu:
+      # format 'menu' as needed
       object.__setattr__(self, name, ConnectionHLTMenu(value))
     elif name is 'l1' and type(value) is not ConnectionL1TMenu:
+      # format '--l1' as needed
       object.__setattr__(self, name, ConnectionL1TMenu(value))
+    elif name is 'fastsim' and value:
+      # '--fastsim' implies '--fragment' and '--mc'
+      object.__setattr__(self, 'fastsim',    True)
+      object.__setattr__(self, 'fragment',   True)
+      object.__setattr__(self, 'data',       False)
+    elif name is 'open' and value:
+      # '--open' implies '--unprescale'
+      object.__setattr__(self, 'open',       True)
+      object.__setattr__(self, 'unprescale', True)
+    elif name is 'timing' and value:
+      # '--timing' implies '--no-output'
+      object.__setattr__(self, 'timing',     True)
+      object.__setattr__(self, 'output',     'none')
     else:
       object.__setattr__(self, name, value)
 
