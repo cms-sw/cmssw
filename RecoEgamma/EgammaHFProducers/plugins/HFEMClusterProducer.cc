@@ -22,6 +22,7 @@ HFEMClusterProducer::HFEMClusterProducer(edm::ParameterSet const& conf): hfreco_
 	      conf.getParameter<double>("maximumRenergy"),
 	      conf.getParameter<bool>("usePMTFlag"),
 	      conf.getParameter<bool>("usePulseFlag"),
+	      conf.getParameter<bool>("forcePulseFlagMC"),
 	      conf.getParameter<int>("correctionType"));
 }
 
@@ -38,6 +39,8 @@ void HFEMClusterProducer::produce(edm::Event & e, edm::EventSetup const& iSetup)
   std::auto_ptr<reco::HFEMClusterShapeCollection> retdata1(new HFEMClusterShapeCollection());
   std::auto_ptr<reco::SuperClusterCollection> retdata2(new SuperClusterCollection());
   std::auto_ptr<reco::HFEMClusterShapeAssociationCollection> retdata3(new HFEMClusterShapeAssociationCollection());
+
+  algo_.isMC(!e.isRealData());
  
  
   algo_.clusterize(*hf_hits, *geometry, *retdata1, *retdata2);

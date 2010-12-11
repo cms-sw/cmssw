@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <list> 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+
 using namespace std;
 using namespace reco;
 /** \class HFClusterAlgo
@@ -15,7 +17,10 @@ using namespace reco;
 
 
 HFClusterAlgo::HFClusterAlgo() 
-{}
+{
+  m_isMC=true; // safest
+  
+}
 
 class CompareHFCompleteHitET {
 public:
@@ -41,12 +46,13 @@ static const double MCMaterialCorrections[] = {  1.000,1.000,1.105,0.970,0.965,0
     
 
 void HFClusterAlgo::setup(double minTowerEnergy, double seedThreshold,double maximumSL,double maximumRenergy,
-			  bool usePMTflag,bool usePulseflag, int correctionSet){
+			  bool usePMTflag,bool usePulseflag, bool forcePulseFlagMC, int correctionSet){
   m_seedThreshold=seedThreshold;
   m_minTowerEnergy=minTowerEnergy;
   m_maximumSL=maximumSL;
   m_usePMTFlag=usePMTflag;
   m_usePulseFlag=usePulseflag;
+  m_forcePulseFlagMC=forcePulseFlagMC;
   m_maximumRenergy=maximumRenergy;
   for(int ii=0;ii<13;ii++){
     m_cutByEta.push_back(-1);
@@ -106,7 +112,7 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
       if (((elong-eshort)/(elong+eshort))>m_maximumSL) continue;
       //if ((m_usePMTFlag)&&(j->flagField(4,1))) continue;
       //if ((m_usePulseFlag)&&(j->flagField(1,1))) continue;
-      if((isPMTHit(*j))&&(m_usePMTFlag)) continue;
+      if(isPMTHit(*j)) continue;
 
       HFCompleteHit ahit;
       double eta=geom.getPosition(j->id()).eta();
@@ -392,16 +398,13 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
   
 }
 bool HFClusterAlgo::isPMTHit(const HFRecHit& hfr){
+
   bool pmthit=false;
-  int depth=hfr.id().depth();
-  if(depth==1)
-    if((hfr.flagField(0,1))&&(m_usePMTFlag)) pmthit=true;//shortlong=e9e1?
-  if(depth==2)
-    if((hfr.flagField(4,1))&&(m_usePMTFlag)) pmthit=true;//PET for short
 
-  if((hfr.flagField(1,1))&&(m_usePulseFlag)) pmthit=true;
-  
-
+  if((hfr.flagField(HcalCaloFlagLabels::HFLongShort))&&(m_usePMTFlag)) pmthit=true;
+  if (!(m_isMC && !m_forcePulseFlagMC))
+    if((hfr.flagField(HcalCaloFlagLabels::HFDigiTime))&&(m_usePulseFlag)) pmthit=true;
+ 
   return pmthit;
 
 
