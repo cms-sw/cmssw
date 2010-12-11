@@ -15,7 +15,6 @@ class HLTProcess(object):
     self.menu    = configuration.menu
     self.config  = configuration
     self.data    = None
-    self.labels  = {}
     self.source  = None
     self.options = {
       'essources' : [],
@@ -26,10 +25,18 @@ class HLTProcess(object):
       'psets'     : [],
     }
     self.fragment = configuration.fragment
+    self.labels  = {}
+    if self.fragment:
+      self.labels['process'] = ''
+      self.labels['dict']    = 'locals()'
+    else:
+      self.labels['process'] = 'process.'
+      self.labels['dict']    = 'process.__dict__'
 
     # get the configuration from ConfdB
     self.buildOptions()
     self.getRawConfigurationFromDB()
+    self.expandWildcardOptions()
     self.customize()
 
 
@@ -54,21 +61,45 @@ class HLTProcess(object):
     else:
       return 'edmConfigFromDB --cff %s %s %s' % (self._build_query(), self._build_source(), self._build_options())
 
-  def getRawConfigurationFromDB(self):
-    if self.fragment:
-      self.labels['process'] = ''
-      self.labels['dict']    = 'locals()'
-    else:
-      self.labels['process'] = 'process.'
-      self.labels['dict']    = 'process.__dict__'
 
+  def getRawConfigurationFromDB(self):
     cmdline = self._build_cmdline()
     data = _pipe(cmdline)
-    
     if 'Exhausted Resultset' in data or 'CONFIG_NOT_FOUND' in data:
       raise ImportError('%s is not a valid HLT menu' % self.config.menuConfig.value)
-
     self.data = data
+
+
+  def getPathList(self):
+    cmdline = 'edmConfigFromDB --cff %s --noedsources --noes --noservices --nosequences --nomodules' % self._build_query()
+    data = _pipe(cmdline)
+    if 'Exhausted Resultset' in data or 'CONFIG_NOT_FOUND' in data:
+      raise ImportError('%s is not a valid HLT menu' % self.config.menuConfig.value)
+    filter = re.compile(r' *= *cms.(End)?Path.*')
+    paths  = [ filter.sub('', line) for line in data.splitlines() if filter.search(line) ]
+    return paths
+
+
+  def expandWildcardOptions(self):
+    # for the time being, this is limited only to the --paths option
+    self.options['paths'] = self.expandWildcards(self.options['paths'], self.getPathList())
+
+
+  @staticmethod
+  def expandWildcards(globs, collection):
+    # expand a list of unix-style wildcards matching a given collection
+    # wildcards with no matches are silently discarded
+    matches = []
+    for glob in globs:
+      negate = ''
+      if glob[0] == '-':
+        negate = '-'
+        glob   = glob[1:]
+      # translate a unix-style glob expression into a regular expression
+      filter = re.compile(r'^' + glob.replace('?', '.').replace('*', '.*').replace('[!', '[^') + r'$')
+      matches.extend( negate + element for element in collection if filter.match(element) )
+    return matches
+
 
   # dump the final configuration
   def dump(self):
