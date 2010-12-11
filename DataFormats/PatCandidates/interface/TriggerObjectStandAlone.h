@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerObjectStandAlone
 //
-// $Id: TriggerObjectStandAlone.h,v 1.5 2010/04/20 21:39:46 vadler Exp $
+// $Id: TriggerObjectStandAlone.h,v 1.6 2010/06/16 15:40:52 vadler Exp $
 //
 /**
   \class    pat::TriggerObjectStandAlone TriggerObjectStandAlone.h "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
@@ -19,7 +19,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerObjectStandAlone
 
   \author   Volker Adler
-  \version  $Id: TriggerObjectStandAlone.h,v 1.5 2010/04/20 21:39:46 vadler Exp $
+  \version  $Id: TriggerObjectStandAlone.h,v 1.6 2010/06/16 15:40:52 vadler Exp $
 */
 
 
@@ -50,11 +50,13 @@ namespace pat {
       /// methods
       void addFilterLabel( const std::string & filterLabel ) { if ( ! hasFilterLabel( filterLabel ) ) filterLabels_.push_back( filterLabel ); };
       void addPathName( const std::string & pathName, bool pathLastFilterAccepted = true );
-      std::vector< std::string > filterLabels() const { return filterLabels_; };
+      std::vector< std::string > filterLabels() const                                                                  { return filterLabels_; };
       std::vector< std::string > pathNames( bool pathLastFilterAccepted = true ) const;
       bool                       hasFilterLabel( const std::string & filterLabel ) const;
+      bool                       filter( const std::string & filterLabel ) const                                       { return hasFilterLabel( filterLabel ); };
       bool                       hasPathName( const std::string & pathName, bool pathLastFilterAccepted = true ) const;
-      bool                       hasPathLastFilterAccepted() const { return ( pathLastFilterAccepted_.size() > 0 && pathLastFilterAccepted_.size() == pathNames_.size() );  };
+      bool                       path( const std::string & pathName, bool pathLastFilterAccepted = true ) const        { return hasPathName( pathName, pathLastFilterAccepted ); };
+      bool                       hasPathLastFilterAccepted() const                                                     { return ( pathLastFilterAccepted_.size() > 0 && pathLastFilterAccepted_.size() == pathNames_.size() );  };
       TriggerObject              triggerObject(); // returns "pure" pat::TriggerObject w/o add-on
 
   };

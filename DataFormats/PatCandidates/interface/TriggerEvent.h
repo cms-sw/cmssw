@@ -145,7 +145,7 @@ namespace pat {
       bool addObjectMatchResult( const edm::Handle< TriggerObjectMatch > & trigMatches, const std::string & labelMatcher );       // returns 'false' if 'matcher' alreadey exists
       bool addObjectMatchResult( const edm::OrphanHandle< TriggerObjectMatch > & trigMatches, const std::string & labelMatcher ); // returns 'false' if 'matcher' alreadey exists
       const TriggerObjectCollection     * objects() const { return objects_.get(); };                                             // returns 0 if RefProd is null
-      TriggerObjectRefVector              objects( int filterId ) const;                                                     // transient
+      TriggerObjectRefVector              objects( int filterId ) const;                                                          // transient
 
       /// x-collection related
       TriggerFilterRefVector     pathModules( const std::string & namePath, bool all = true ) const;                          // transient; setting 'all' to 'false' returns the run filters only.

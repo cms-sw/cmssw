@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerObject
 //
-// $Id: TriggerObject.h,v 1.6.6.1 2010/06/16 18:06:20 vadler Exp $
+// $Id: TriggerObject.h,v 1.8 2010/06/26 17:53:57 vadler Exp $
 //
 /**
   \class    pat::TriggerObject TriggerObject.h "DataFormats/PatCandidates/interface/TriggerObject.h"
@@ -18,7 +18,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerObject
 
   \author   Volker Adler
-  \version  $Id: TriggerObject.h,v 1.6.6.1 2010/06/16 18:06:20 vadler Exp $
+  \version  $Id: TriggerObject.h,v 1.8 2010/06/26 17:53:57 vadler Exp $
 */
 
 
@@ -36,6 +36,7 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/Common/interface/RefVectorIterator.h"
 #include "DataFormats/Common/interface/Association.h"
@@ -47,10 +48,10 @@ namespace pat {
   class TriggerObject : public reco::LeafCandidate {
 
       /// data members
-      std::string            collection_;
-      std::vector< int >     filterIds_;  // special filter related ID as defined in enum 'TriggerObjectType' in DataFormats/HLTReco/interface/TriggerTypeDefs.h
-                                          // empty, if object was not used in last active filter
-      reco::CandidateBaseRef refToOrig_;  // reference to original trigger object, meant for 'l1extra' particles to access their additional functionalities
+      std::string                               collection_;
+      std::vector< trigger::TriggerObjectType > filterIds_;  // special filter related ID as defined in enum 'TriggerObjectType' in DataFormats/HLTReco/interface/TriggerTypeDefs.h
+                                                             // empty, if object was not used in last active filter
+      reco::CandidateBaseRef refToOrig_;                     // reference to original trigger object, meant for 'l1extra' particles to access their additional functionalities
 
     public:
 
@@ -64,14 +65,19 @@ namespace pat {
       virtual ~TriggerObject() {};
 
       /// setters & getters
-      void setCollection( const std::string & coll )   { collection_ = coll; };
-      void setCollection( const edm::InputTag & coll ) { collection_ = coll.encode(); };
-      void addFilterId( int filterId )                 { filterIds_.push_back( filterId ); };
-      std::string        collection() const                                { return collection_; };
-      bool               hasCollection( const edm::InputTag & coll ) const { return hasCollection( coll.encode() ); };
-      bool               hasCollection( const std::string & coll ) const;
-      std::vector< int > filterIds() const                                 { return filterIds_; };
-      bool               hasFilterId( int filterId ) const;
+      void setCollection( const std::string & coll )          { collection_ = coll; };
+      void setCollection( const edm::InputTag & coll )        { collection_ = coll.encode(); };
+      void addFilterId( trigger::TriggerObjectType filterId ) { filterIds_.push_back( filterId ); };
+      void addFilterId( int filterId )                        { addFilterId( trigger::TriggerObjectType( filterId ) ); };
+      std::string                               collection() const                                       { return collection_; };
+      bool                                      hasCollection( const edm::InputTag & coll ) const        { return hasCollection( coll.encode() ); };
+      bool                                      hasCollection( const std::string & coll ) const;
+      bool                                      coll( const std::string & coll ) const                   { return hasCollection( coll );};
+      std::vector< trigger::TriggerObjectType > filterIds() const                                        { return filterIds_; };
+      bool                                      hasFilterId( trigger::TriggerObjectType filterId ) const;
+      bool                                      hasFilterId( int filterId ) const                        { return hasFilterId( trigger::TriggerObjectType( filterId ) ); };
+      bool                                      id( trigger::TriggerObjectType filterId ) const          { return hasFilterId( filterId ); };
+      bool                                      id( int filterId ) const                                 { return id( trigger::TriggerObjectType ( filterId ) ); };
       // special general getters for 'l1extra' particles
       const reco::CandidateBaseRef & origObjRef()  const { return refToOrig_; };
       const reco::Candidate        * origObjCand() const { return refToOrig_.get(); };

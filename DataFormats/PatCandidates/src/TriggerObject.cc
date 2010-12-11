@@ -1,5 +1,5 @@
 //
-// $Id: TriggerObject.cc,v 1.6.4.1 2010/06/16 18:06:20 vadler Exp $
+// $Id: TriggerObject.cc,v 1.8 2010/06/26 17:53:57 vadler Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/TriggerObject.h"
@@ -66,7 +66,7 @@ bool TriggerObject::hasCollection( const std::string & coll ) const
   return false;
 }
 
-bool TriggerObject::hasFilterId( int filterId ) const
+bool TriggerObject::hasFilterId( trigger::TriggerObjectType filterId ) const
 {
   for ( size_t iF = 0; iF < filterIds().size(); ++iF ) {
     if ( filterIds().at( iF ) == filterId ) {
