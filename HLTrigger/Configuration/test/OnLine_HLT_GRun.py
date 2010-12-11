@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_10_0/pre6/GRun/V15 (CMSSW_3_10_0_pre6_HLT2)
+# /dev/CMSSW_3_10_0/GRun/V1 (CMSSW_3_10_0_pre6_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_10_0/pre6/GRun/V15')
+  tableName = cms.string('/dev/CMSSW_3_10_0/GRun/V1')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -18322,7 +18322,7 @@ if 'GlobalTag' in process.__dict__:
 # override the L1 menu
 if 'GlobalTag' in process.__dict__:
     process.GlobalTag.toGet.append(
-        cms.PSet(  
+        cms.PSet(
             record  = cms.string( "L1GtTriggerMenuRcd" ),
             tag     = cms.string( "L1GtTriggerMenu_L1Menu_Collisions2010_v0_mc" ),
             connect = cms.untracked.string( process.GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T') )
