@@ -64,12 +64,6 @@ parser.add_argument('--open',
                     action  = 'store_true', 
                     default = False, 
                     help    = 'Run the HLT in "open" mode, overriding all ED/HLTFilters to always pass' )
-parser.add_argument('--dataset', 
-                    dest    = 'menuDataset', 
-                    action  = 'store', 
-                    metavar = 'DATASET',
-                    default = None,
-                    help    = 'Take the input files from the specified %(metavar)s' )
 parser.add_argument('--timing', 
                     dest    = 'menuTiming', 
                     action  = 'store_true', 
