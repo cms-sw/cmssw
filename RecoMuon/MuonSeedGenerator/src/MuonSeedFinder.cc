@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2010/04/16 23:12:37 $
- *  $Revision: 1.30 $
+ *  $Date: 2010/08/10 20:08:37 $
+ *  $Revision: 1.31 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -50,9 +50,6 @@ void MuonSeedFinder::seeds(const MuonTransientTrackingRecHit::MuonRecHitContaine
   const std::string metname = "Muon|RecoMuon|MuonSeedFinder";
 
   //  MuonDumper debug;
-  theBarrel.clear();
-  theOverlap.clear();
-  theEndcap.clear();
 
   int num_bar = 0;
   for ( MuonRecHitContainer::const_iterator iter = hits.begin(); iter!= hits.end(); iter++ ){
@@ -95,6 +92,11 @@ void MuonSeedFinder::seeds(const MuonTransientTrackingRecHit::MuonRecHitContaine
     std::vector<TrajectorySeed> overlapSeeds = theOverlap.seeds();
     result.insert(result.end(), overlapSeeds.begin(), overlapSeeds.end());
   }
+
+  theBarrel.clear();
+  theOverlap.clear();
+  theEndcap.clear();
+
 
 }
 
