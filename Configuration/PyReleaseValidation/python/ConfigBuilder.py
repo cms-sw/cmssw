@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.269 $"
+__version__ = "$Revision: 1.270 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -848,29 +848,56 @@ class ConfigBuilder(object):
 
     def prepare_HLT(self, sequence = None):
         """ Enrich the schedule with the HLT simulation step"""
-        loadDir='HLTrigger'
-        fastSim=False
-	if 'FASTSIM' in self.stepMap.keys():
-                fastSim=True
-                loadDir='FastSimulation'
         if not sequence:
-		print "no specification of the hlt menu has been given, should never happen"
-		raise  Exception('no HLT sequence provided')
+            # pick a "default" HLT menu depending on the scenario 
+            if self._options.scenario == 'pp':
+                sequence = 'GRun'
+            elif self._options.scenario == 'HeavyIons':
+                sequence = 'HIon'
         else:
+                raise Exception('No default HLT menu for scenario "%s", please specify one explicitly.' % self._options.scenario)
+
 		if ',' in sequence:
 			#case where HLT:something:something was provided
+            if 'FASTSIM' in self.stepMap:
+                raise Exception('FastSim does not support "HLT:confdb:key" (yet).')
+
+            tokens = sequence.split(',')
+            if tokens[0] not in ('run', 'hltdev', 'orcoff'):
+                raise Exception('Unsupported confdb database "%s". Valid values are "hltdev" and "orcoff".' % tokens[0]) 
+
+            options = {}
+            options['data'] = self._options.isData
+            if self._options.scenario == 'pp':
+                options['type'] = 'GRun'
+            elif self._options.scenario == 'HeavyIons':
+                options['type'] = 'HIon'
+            else:
+                # FIXME: raise Exception('Scenario "%s" not supported when running HLT.' % self._options.scenario)
+                # default to 'GRun'
+                options['type'] = 'GRun'
+
+            optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in options.iteritems())
 			self.executeAndRemember('import HLTrigger.Configuration.Utilities')
-			optionsForHLTConfig=''
-			self.executeAndRemember('process.loadConfiguration("%s"%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
+            self.executeAndRemember('process.loadHltConfiguration("%s", %s)' % (sequence.replace(',',':'), optionsForHLTConfig))
 		else:
-			dataSpec=''
-			if self._options.isData:
-				dataSpec='_data'
-			self.loadAndRemember('%s/Configuration/HLT_%s%s_cff'%(loadDir,sequence,dataSpec))
+            # case where HLT:something was provided
+            options = {}
+            options['sequence'] = sequence
+            if 'FASTSIM' in self.stepMap:
+                options['folder'] = 'FastSimulation'
+                options['suffix'] = ''
+            elif self._options.isData:
+                options['folder'] = 'HLTrigger'
+                options['suffix'] = '_data'
+            else:   
+                options['folder'] = 'HLTrigger'
+                options['suffix'] = ''
+            self.loadAndRemember('%(folder)s/Configuration/HLT_%(sequence)s%(suffix)s_cff' % options)
 			
         self.schedule.append(self.process.HLTSchedule)
         [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
-	if (fastSim and 'HLT' in self.stepMap.keys()):
+        if 'FASTSIM' in self.stepMap:
                 self.finalizeFastSimHLT()
 
     def prepare_RAW2RECO(self, sequence = None):
@@ -1212,7 +1239,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.269 $"),
+					    (version=cms.untracked.string("$Revision: 1.270 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
