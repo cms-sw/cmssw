@@ -11,8 +11,8 @@ from options import globalTag
 
 
 class HLTProcess(object):
-  def __init__(self, menu, configuration, fragment = False):
-    self.menu    = menu
+  def __init__(self, configuration):
+    self.menu    = configuration.menu
     self.config  = configuration
     self.data    = None
     self.labels  = {}
@@ -25,7 +25,7 @@ class HLTProcess(object):
       'paths'     : [],
       'psets'     : [],
     }
-    self.fragment = fragment
+    self.fragment = configuration.fragment
 
     # get the configuration from ConfdB
     self.buildOptions()

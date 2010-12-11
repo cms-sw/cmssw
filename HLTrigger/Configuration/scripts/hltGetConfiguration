@@ -126,7 +126,5 @@ parser.add_argument('--help',
 
 
 # parse command line arguments and options
-config   = parser.parse_args(namespace = options.Options())
-menu     = config.menu
-fragment = config.fragment
-print confdb.HLTProcess(menu, config, fragment).dump()
+config = parser.parse_args(namespace = options.Options())
+print confdb.HLTProcess(config).dump()
