@@ -33,8 +33,8 @@ class HLTProcess(object):
 
     # get the configuration from ConfdB
     self.buildOptions()
-    self.getRawConfigurationFromDB()
     self.expandWildcardOptions()
+    self.getRawConfigurationFromDB()
     self.customize()
 
 
