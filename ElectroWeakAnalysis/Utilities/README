@@ -14,7 +14,8 @@ you should execute:
 If you prefer to use your own LHAPDF library and files, assumed to be installed 
 under /usr/local, then do:
       1) Edit the file $CMSSW_BASE/config/toolbox/$SCRAM_ARCH/tools/selected/lhapdf.xml
-      2) In that file, change the default for LHAPDF_BASE to "/usr/local"
+      2.a) In that file, change the default for LHAPDF_BASE to "/usr/local"
+      2.b) Change also the field "version" in order to match your insalled version
       3) scram setup lhapdf (and check that environment variables point to /usr/local/...)
       4) touch $CMSSW_BASE/src/ElectroWeakAnalysis/Utilities/BuildFile.xml
       5) cmsenv
@@ -36,9 +37,9 @@ src/PdfWeightProducer.cc
             GenTag = cms.untracked.InputTag("genParticles"),
             PdfInfoTag = cms.untracked.InputTag("generator"),
             PdfSetNames = cms.untracked.vstring(
-                    "cteq65.LHgrid"
+                    "cteq66.LHgrid"
                   , "MRST2006nnlo.LHgrid"
-                  , "MRST2007lomod.LHgrid"
+                  , "NNPDF10_100.LHgrid"
             )
       )
 
@@ -54,9 +55,11 @@ src/PdfWeightProducer.cc
             PdfWeightTags = cms.untracked.VInputTag(
                     "pdfWeights:cteq66"
                   , "pdfWeights:MRST2006nnlo"
-                  , "pdfWeights:MRST2007lomod"
+                  , "pdfWeights:NNPDF10"
             )
       )
+  NOTE: no underscores can be written in a CMSSW product, so NNPDF products will 
+  not keep the last suffix from the original name ("_100" missing in this case).
 
 - A test example for these utilities is "test/PdfSystematicsAnalyzer.py". There, 
   one counts re-weighted events before and after selection, which gives immediate

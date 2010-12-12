@@ -1,3 +1,7 @@
+### NOTE: This is prepared to run on the newest PDFs with LHAPDF >=3.8.4
+### so it requires local installation of LHAPDF libraries in order to run 
+### out of the box. Otherwise, substitute the PDF sets by older sets
+
 import FWCore.ParameterSet.Config as cms
 
 # Process name
@@ -20,47 +24,43 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 # Input files (on disk)
 process.source = cms.Source("PoolSource",
-      fileNames = cms.untracked.vstring("file:/data4/Wmunu_Summer09-MC_31X_V3_AODSIM-v1/0009/F82D4260-507F-DE11-B5D6-00093D128828.root")
+      fileNames = cms.untracked.vstring("file:/ciet3b/data3/Fall10_All_MinimalAOD/WmunuPLUS/WmunuPLUS_1.root")
 )
 
 # Produce PDF weights (maximum is 3)
 process.pdfWeights = cms.EDProducer("PdfWeightProducer",
       # Fix POWHEG if buggy (this PDF set will also appear on output, 
       # so only two more PDF sets can be added in PdfSetNames if not "")
-      #FixPOWHEG = cms.untracked.string("cteq66.LHgrid"),
-      #GenTag = cms.untracked.InputTag("genParticles"),
+      FixPOWHEG = cms.untracked.string("CT10.LHgrid"),
+      GenTag = cms.untracked.InputTag("prunedGenParticles"),
       PdfInfoTag = cms.untracked.InputTag("generator"),
       PdfSetNames = cms.untracked.vstring(
-              "cteq65.LHgrid"
-            #, "MRST2006nnlo.LHgrid"
-            #, "MRST2007lomod.LHgrid"
+              "MSTW2008nlo68cl.LHgrid"
+            , "NNPDF20_100.LHgrid"
       )
 )
 
-### NOTE: the following WMN selectors require the presence of
-### the libraries and plugins fron the ElectroWeakAnalysis/WMuNu package
-### So you need to process the ElectroWeakAnalysis/WMuNu package with
-### some old CMSSW versions (at least <=3_1_2, <=3_3_0_pre4)
-#
-
 # Selector and parameters
-# WMN fast selector (use W candidates in this example)
-process.load("ElectroWeakAnalysis.WMuNu.WMuNuSelection_cff")
+process.goodMuonsForW = cms.EDFilter("MuonViewRefSelector",
+  src = cms.InputTag("muons"),
+  cut = cms.string('isGlobalMuon=1 && isTrackerMuon=1 && abs(eta)<2.1 && abs(globalTrack().dxy)<0.2 && pt>20. && globalTrack().normalizedChi2<10 && globalTrack().hitPattern().numberOfValidTrackerHits>10 && globalTrack().hitPattern().numberOfValidMuonHits>0 && globalTrack().hitPattern().numberOfValidPixelHits>0 && numberOfMatches>1 && (isolationR03().sumPt+isolationR03().emEt+isolationR03().hadEt)<0.15*pt'),
+  filter = cms.bool(True)
+)
 
 # Collect uncertainties for rate and acceptance
 process.pdfSystematics = cms.EDFilter("PdfSystematicsAnalyzer",
       SelectorPath = cms.untracked.string('pdfana'),
       PdfWeightTags = cms.untracked.VInputTag(
-              "pdfWeights:cteq65"
-            #, "pdfWeights:MRST2006nnlo"
-            #, "pdfWeights:MRST2007lomod"
+              "pdfWeights:CT10"
+            , "pdfWeights:MSTW2008nlo68cl"
+            , "pdfWeights:NNPDF20"
       )
 )
 
 # Main path
 process.pdfana = cms.Path(
        process.pdfWeights
-      *process.selectCaloMetWMuNus
+      *process.goodMuonsForW
 )
 
 process.end = cms.EndPath(process.pdfSystematics)
