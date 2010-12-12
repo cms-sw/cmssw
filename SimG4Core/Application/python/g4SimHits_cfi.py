@@ -62,7 +62,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         #        please select "SimG4Core/Physics/DummyPhysics" for type
         #        and turn ON DummyEMPhysics
         #
-        type = cms.string('SimG4Core/Physics/QGSP_BERT_EML'),
+        type = cms.string('SimG4Core/Physics/QGSP_FTFP_BERT_EML'),
         DummyEMPhysics = cms.bool(False),
         CutsPerRegion = cms.bool(True),
         DefaultCutValue = cms.double(1.0), ## cuts in cm
@@ -198,8 +198,8 @@ g4SimHits = cms.EDProducer("OscarProducer",
         BirkC1              = cms.double(0.0052),
         UseShowerLibrary    = cms.bool(False),
         UseParametrize      = cms.bool(True),
-        UsePMTHits          = cms.bool(True),
-        UseFibreBundleHits  = cms.bool(True),
+        UsePMTHits          = cms.bool(False),
+        UseFibreBundleHits  = cms.bool(False),
         TestNumberingScheme = cms.bool(False),
         EminHitHB           = cms.double(0.0),
         EminHitHE           = cms.double(0.0),
