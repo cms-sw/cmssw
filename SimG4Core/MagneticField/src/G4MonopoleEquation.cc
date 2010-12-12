@@ -49,6 +49,7 @@
 //                        the one passed by G4MonopoleTransportation)
 //                       +workaround to pass the electric charge.
 // 
+//  12.07.10  S.Burdin (added equations for the electric charges)
 // -------------------------------------------------------------------
 
 #include "SimG4Core/MagneticField/interface/G4MonopoleEquation.hh"
@@ -64,10 +65,16 @@ G4MonopoleEquation::SetChargeMomentumMass(G4double particleMagneticCharge, // e+
                                           G4double particleElectricCharge,
                                           G4double particleMass)
 {
-   fElCharge = particleElectricCharge;
+  //   fElCharge = particleElectricCharge;
+   fElCharge =eplus* particleElectricCharge*c_light;
    
    
    fMagCharge =  eplus*particleMagneticCharge*c_light ;
+
+//    G4cout << " G4MonopoleEquation: ElectricCharge=" << particleElectricCharge
+// 	  << "; MagneticCharge=" << particleMagneticCharge
+// 	  << G4endl;
+
    
    fMassCof = particleMass*particleMass ; 
 }
@@ -91,6 +98,10 @@ G4MonopoleEquation::EvaluateRhsGivenB(const G4double y[],
 
    G4double inverse_velocity = Energy * pModuleInverse / c_light;
 
+   G4double cofEl     = fElCharge * pModuleInverse ;
+   G4double cofMag = fMagCharge * Energy * pModuleInverse; 
+
+
    dydx[0] = y[3]*pModuleInverse ;                         
    dydx[1] = y[4]*pModuleInverse ;                         
    dydx[2] = y[5]*pModuleInverse ;                    
@@ -100,17 +111,16 @@ G4MonopoleEquation::EvaluateRhsGivenB(const G4double y[],
    //  see http://en.wikipedia.org/wiki/Magnetic_monopole   
    //   G4cout  << "Magnetic charge:  " << magCharge << G4endl;
    
-   // dp/ds = dp/dt * dt/ds = dp/dt / v = Forse / velocity
+   // dp/ds = dp/dt * dt/ds = dp/dt / v = Force / velocity
    
-   // dydx[3] = magCharge * Field[0]  * inverse_velocity  * c_light;    // multiplied by c_light to convert to MeV/mm
-   // dydx[4] = magCharge * Field[1]  * inverse_velocity  * c_light; 
-   // dydx[5] = magCharge * Field[2]  * inverse_velocity  * c_light; 
-
-   dydx[3] = fMagCharge * Field[0]  * inverse_velocity  * c_light;    // multiplied by c_light to convert to MeV/mm
-   dydx[4] = fMagCharge * Field[1]  * inverse_velocity  * c_light; 
-   dydx[5] = fMagCharge * Field[2]  * inverse_velocity  * c_light; 
+   //     dydx[3] = fMagCharge * Field[0]  * inverse_velocity  * c_light;    // multiplied by c_light to convert to MeV/mm
+   //     dydx[4] = fMagCharge * Field[1]  * inverse_velocity  * c_light; 
+   //     dydx[5] = fMagCharge * Field[2]  * inverse_velocity  * c_light; 
    
-//      if (fabs(y[0]-1000.0)<10) {
+   dydx[3] = cofMag * Field[0] + cofEl * (y[4]*Field[2] - y[5]*Field[1]);   
+   dydx[4] = cofMag * Field[1] + cofEl * (y[5]*Field[0] - y[3]*Field[2]); 
+   dydx[5] = cofMag * Field[2] + cofEl * (y[3]*Field[1] - y[4]*Field[0]); 
+   
 //        G4cout << std::setprecision(5)<< "E=" << Energy
 // 	      << "; p="<< 1/pModuleInverse
 // 	      << "; mC="<< magCharge
@@ -121,7 +131,6 @@ G4MonopoleEquation::EvaluateRhsGivenB(const G4double y[],
 // 	      <<"; dydx[4]=" << dydx[4]
 // 	      <<"; dydx[5]=" << dydx[5]
 // 	      << G4endl;
-//      }
 
    dydx[6] = 0.;//not used
 
