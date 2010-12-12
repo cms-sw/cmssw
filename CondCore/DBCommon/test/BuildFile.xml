@@ -29,6 +29,7 @@
 <bin   file="testDbConnection.cc" name="testDbConnection">
 </bin>
 <bin   file="testDbSession.cc" name="testDbSession">
+  <use   name="CondCore/ORA"/>
 </bin>
 <bin   file="testDbSessionIO.cc" name="testDbSessionIO">
 </bin>

@@ -1,6 +1,7 @@
 #include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/ORA/interface/Exception.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "RelationalAccess/ISchema.h"
@@ -103,7 +104,7 @@ int main(){
     std::cout << "######### test 12"<<std::endl;
     s2.getObject(std::string(""));
     std::cout << "ERROR: expected exception not thrown (4)"<<std::endl;
-  } catch ( const cond::Exception& exc ){
+  } catch ( const ora::Exception& exc ){
     std::cout << "Expected error 4: "<<exc.what()<<std::endl;
   }
   
