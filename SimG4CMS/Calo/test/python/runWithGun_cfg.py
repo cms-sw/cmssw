@@ -103,7 +103,7 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
 
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('simevent_QGSP_BERT_EMV.root')
+    fileName = cms.untracked.string('simevent_QGSP_FTFP_BERT_EML.root')
 )
 
 process.Timing = cms.Service("Timing")
@@ -118,7 +118,7 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 process.Tracer = cms.Service("Tracer")
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('runWithGun_QGSP_BERT_EMV.root')
+    fileName = cms.string('runWithGun_QGSP_FTFP_BERT_EML.root')
 )
 
 process.common_maximum_timex = cms.PSet(
@@ -129,7 +129,7 @@ process.common_maximum_timex = cms.PSet(
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.caloSimHitStudy)
 process.outpath = cms.EndPath(process.o1)
 process.caloSimHitStudy.MaxEnergy = 1000.0
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EMV'
+#process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 process.g4SimHits.Physics.MonopoleCharge = 1
 process.g4SimHits.Physics.Verbosity = 0
 process.g4SimHits.CaloSD.UseResponseTables = [1,1,0,1]

@@ -105,7 +105,7 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
   // reference : hep-ex/0001020v1
 
   const G4double energyCutoff     = 1; 
-  const G4int    maxNumberOfSpots = 100000;
+  const G4int    maxNumberOfSpots = 10000000;
 
   G4ThreeVector showerStartingPosition = track->GetPosition()/cm;
   G4ThreeVector showerMomentum = preStepPoint->GetMomentum()/GeV;
@@ -116,7 +116,10 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
   G4double y = ((preStepPoint->GetTotalEnergy())/GeV) / hfcriticalEnergy; // y = E/Ec, criticalEnergy is in GeV
   G4double logY = std::log(y);
 
-  G4double nSpots = 93.0 * std::log(tempZCalo) * std::pow(((preStepPoint->GetTotalEnergy())/GeV),0.876); // total number of spot
+
+  G4double nSpots = 93.0 * std::log(tempZCalo) * ((preStepPoint->GetTotalEnergy())/GeV); // total number of spot due linearization
+  if(preStepPoint->GetTotalEnergy()/GeV < 1.6)  nSpots = 140.4 * std::log(tempZCalo) * std::pow(((preStepPoint->GetTotalEnergy())/GeV),0.876); 
+
 
   //   // implementing magnetic field effects
   double charge = track->GetStep()->GetPreStepPoint()->GetCharge();
@@ -382,27 +385,23 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
       if(SpotPosition0 == 0) continue;
 
       double energyratio = emSpotEnergy/(preStepPoint->GetTotalEnergy()/(nSpots*e25Scale));
-#ifdef DebugLog
 
-      if (theFillHisto) {
-	em_ratio->Fill(SpotPosition0.z()/cm,energyratio);
-      }
-#endif
-
-      if (G4UniformRand()>  0.0030*energyratio) continue;
-      if (emSpotEnergy/GeV < 0.0005) continue;
-      if (energyratio > 15) continue;
+      if (emSpotEnergy/GeV < 0.0001) continue;
+      if (energyratio > 80) continue;
 
       double zshift =0;
       if(SpotPosition0.z() > 0) zshift = 18;
       if(SpotPosition0.z() < 0) zshift = -18;
 
+
       G4ThreeVector gfshift(0,0,zshift*(pow(100,0.1)/pow(preStepPoint->GetTotalEnergy()/GeV,0.1)));
 
       G4ThreeVector SpotPosition = gfshift + SpotPosition0;
 
-      oneHit.position = SpotPosition;
+      double LengthWeight = std::fabs(std::pow(SpotPosition0.z()/11370,1));
+      if (G4UniformRand()>  0.0021 * energyratio * LengthWeight) continue;
 
+      oneHit.position = SpotPosition;
       oneHit.time     = timeGlobal;
       oneHit.edep     = emSpotEnergy/GeV;
       hit.push_back(oneHit);

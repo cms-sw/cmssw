@@ -101,7 +101,7 @@ HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
   fibre = new HFFibre(name, cpv, p);
   attLMeanInv = fibre->attLength(lambdaMean);
   edm::LogInfo("HFShower") << "att. length used for (lambda=" << lambdaMean
-			   << " = " << 1/(attLMeanInv*cm) << " cm";
+			   << ") = " << 1/(attLMeanInv*cm) << " cm";
 }
 
 HFShowerParam::~HFShowerParam() {
@@ -223,14 +223,14 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
 	    if (depth == 2 && zv < gpar[0]) ok = false;
 
 	    //attenuation
-	    double dist = fibre->tShift(localPoint,depth,0); // distance to PMT
+	    double dist = fibre->zShift(localPoint,depth,0); // distance to PMT
 	    double r1   = G4UniformRand();
 #ifdef DebugLog
 	    edm::LogInfo("HFShower") << "HFShowerParam:Distance to PMT " 
 				     << dist << ", exclusion flag " 
 				     << (r1 > exp(-attLMeanInv*zv));
 #endif
-	    if (r1 > exp(-attLMeanInv*zv)) ok = false;
+	    if (r1 > exp(-attLMeanInv*dist)) ok = false;
 	    if (ok) {
 	      double time = fibre->tShift(localPoint,depth,0); //remaining part
 
