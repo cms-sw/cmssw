@@ -17,7 +17,7 @@
 #include "HadronPhysicsQGSP_BERT.hh"
 
 #include "G4EmProcessOptions.hh"
-//#include "G4UrbanMscModel2.hh"  //This MSC model is no longer supported
+#include "G4UrbanMscModel93.hh" 
 
 QGSPCMS_BERT_EMX::QGSPCMS_BERT_EMX(G4LogicalVolumeToDDLogicalPartMap& map, 
 				   const HepPDT::ParticleDataTable * table_,
@@ -72,12 +72,12 @@ QGSPCMS_BERT_EMX::QGSPCMS_BERT_EMX(G4LogicalVolumeToDDLogicalPartMap& map,
     G4EmProcessOptions opt;
     opt.SetApplyCuts(true);
 
-    //    G4UrbanMscModel2* msc_el  = new G4UrbanMscModel2();  // Model 2 is obsolete
-    //G4UrbanMscModel2* msc_pos = new G4UrbanMscModel2();
-    //msc_el->SetRangeFactor(0.04);
-    //msc_pos->SetRangeFactor(0.04);
-    //conf.SetExtraEmModel("e-","msc",msc_el, "HCAL",0.,100.*MeV);
-    //conf.SetExtraEmModel("e+","msc",msc_pos,"HCAL",0.,100.*MeV);
+    G4UrbanMscModel93* msc_el  = new G4UrbanMscModel93();
+    G4UrbanMscModel93* msc_pos = new G4UrbanMscModel93();
+    msc_el->SetRangeFactor(0.04);
+    msc_pos->SetRangeFactor(0.04);
+    conf.SetExtraEmModel("e-","msc",msc_el, "HCAL",0.,100.*MeV);
+    conf.SetExtraEmModel("e+","msc",msc_pos,"HCAL",0.,100.*MeV);
   }
 }
 

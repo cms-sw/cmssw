@@ -1,4 +1,3 @@
-// This routine should be deleted. Pure QGSC is no longer supported.
 #include "QGSCCMS.hh"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
@@ -12,7 +11,7 @@
 #include "G4NeutronTrackingCut.hh"
 
 #include "G4DataQuestionaire.hh"
-//#include "HadronPhysicsQGSC.hh"
+#include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSC.hh"
 
 QGSCCMS::QGSCCMS(G4LogicalVolumeToDDLogicalPartMap& map,
 		 const HepPDT::ParticleDataTable * table_,
@@ -46,9 +45,8 @@ QGSCCMS::QGSCCMS(G4LogicalVolumeToDDLogicalPartMap& map,
     RegisterPhysics( new G4HadronElasticPhysics("elastic",ver));
 
     // Hadron Physics
-    //G4bool quasiElastic=true;
-    //    RegisterPhysics(  new HadronPhysicsQGSC("hadron",quasiElastic));
-    //RegisterPhysics(  new HadronPhysicsQGSC("hadron"));
+    G4bool quasiElastic=true;
+    RegisterPhysics(  new HadronPhysicsQGSC("hadron",quasiElastic));
 
     // Stopping Physics
     //RegisterPhysics( new G4QStoppingPhysics("stopping",ver));

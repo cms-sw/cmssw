@@ -9,7 +9,6 @@
 #include "G4GammaConversion.hh"
 #include "G4PhotoElectricEffect.hh"
 
-//#include "G4MultipleScattering.hh" // Obsolete
 #include "G4hMultipleScattering.hh"
 #include "G4eMultipleScattering.hh"
 
