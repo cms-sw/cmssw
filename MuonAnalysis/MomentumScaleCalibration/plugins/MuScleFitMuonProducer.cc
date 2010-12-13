@@ -10,7 +10,7 @@
 //
 // Original Author:  Marco De Mattia,40 3-B32,+41227671551,
 //         Created:  Tue Jun 22 13:50:22 CEST 2010
-// $Id: MuScleFitMuonProducer.cc,v 1.6 2010/12/13 11:11:44 demattia Exp $
+// $Id: MuScleFitMuonProducer.cc,v 1.7 2010/12/13 11:19:01 demattia Exp $
 //
 //
 
@@ -67,11 +67,9 @@ class MuScleFitMuonProducer : public edm::EDProducer {
 MuScleFitMuonProducer::MuScleFitMuonProducer(const edm::ParameterSet& iConfig) :
   theMuonLabel_( iConfig.getParameter<edm::InputTag>( "MuonLabel" ) ),
   patMuons_( iConfig.getParameter<bool>( "PatMuons" ) ),
+  dbObjectLabel_( iConfig.getUntrackedParameter<std::string>("DbObjectLabel", "") ),
   dbObjectCacheId_(0)
 {
-  dbObjectLabel_ = ( iConfig.exists("DbObjectLabel") ) ?
-    iConfig.getParameter<std::string>("DbObjectLabel") : "";
-
   if ( patMuons_ == true ) {
     produces<pat::MuonCollection>();
   } else {
