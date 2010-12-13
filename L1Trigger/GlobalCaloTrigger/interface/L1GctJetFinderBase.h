@@ -18,6 +18,7 @@
 class L1GctInternJetData;
 class L1GctJetFinderParams;
 class L1GctJetEtCalibrationLut;
+class L1GctChannelMask;
 class L1CaloRegion;
 
 
@@ -129,6 +130,9 @@ public:
   /// Set pointer to calibration Lut - needed to complete the setup
   void setJetEtCalibrationLuts(const lutPtrVector& jfluts);
 
+  /// Set masks for energy summing
+  void setEnergySumMasks(const L1GctChannelMask* chmask);
+
   /// Setup the tau algorithm parameters
   void setupTauAlgo(const bool useImprovedAlgo, const bool ignoreVetoBitsForIsolation) {
     m_useImprovedTauAlgo            = useImprovedAlgo;
@@ -139,7 +143,8 @@ public:
   bool setupOk() const { return m_idInRange
 			   && m_gotNeighbourPointers
 			   && m_gotJetFinderParams
-			   && m_gotJetEtCalLuts; }
+			   && m_gotJetEtCalLuts
+                           && m_gotChannelMask; }
 
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctJetFinderBase& algo);
@@ -231,6 +236,22 @@ public:
   /// Remember whether jet Et calibration Lut pointers have been stored
   bool m_gotJetEtCalLuts;
 
+  /// Remember whether channel mask have been stored
+  bool m_gotChannelMask;
+
+  ///
+  /// *** Geometry parameters ***
+  ///
+  /// Positive/negative eta flag
+  bool m_positiveEtaWheel;
+
+  /// parameter to determine which Regions belong in our acceptance
+  unsigned m_minColThisJf;
+  ///
+  ///---------------------------------------------------------------------------------------
+  ///
+  /// *** Setup parameters for this jetfinder instance ***
+  ///
   /// jetFinder parameters (from EventSetup)
   unsigned m_CenJetSeed;
   unsigned m_FwdJetSeed;
@@ -256,6 +277,23 @@ public:
   // above the isolation threshold, in the eight regions surrounding the central one. 
   unsigned m_tauIsolationThreshold;
 
+  // Thresholds on individual jet energies used in HTT and HTM summing
+  unsigned m_HttSumJetThreshold;
+  unsigned m_HtmSumJetThreshold;
+
+  // Masks for restricting the eta range of energy sums
+  bool m_EttMask[11];
+  bool m_EtmMask[11];
+  bool m_HttMask[11];
+  bool m_HtmMask[11];
+
+  ///
+  /// *** End of setup parameters ***
+  ///
+  ///---------------------------------------------------------------------------------------
+  ///
+  /// *** Start of event data ***
+  ///
   /// input data required for jet finding
   RegionsVector m_inputRegions;
 
@@ -270,9 +308,6 @@ public:
   RawJetVector m_outputJets;
   JetVector m_sortedJets;
 
-  unsigned m_HttSumJetThreshold;
-  unsigned m_HtmSumJetThreshold;
-
   /// output Et strip sums and Ht - refactored
   etTotalType        m_outputEtSum;
   etCompInternJfType m_outputExSum;
@@ -283,6 +318,10 @@ public:
 
   hfTowerSumsType m_outputHfSums;
     
+  ///
+  /// *** End of event data ***
+  ///
+  ///---------------------------------------------------------------------------------------
   //PROTECTED METHODS
   // Return the values of constants that might be changed by different jetFinders.
   // Each jetFinder must define the constants as private and copy the
@@ -313,9 +352,6 @@ public:
   
   /// Calculates Et sum and number of towers over threshold in Hf
   hfTowerSumsType calcHfSums() const;
-
-  /// parameter to determine which Regions belong in our acceptance
-  unsigned m_minColThisJf;
 
  private:
 
