@@ -33,6 +33,7 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
 process.MuScleFitMuonProducer = cms.EDProducer(
     'MuScleFitMuonProducer',
     MuonLabel = cms.InputTag("muons"),
+    dbObjectLabel = cms.string(""),
     PatMuons = cms.bool(False)
 )
 
