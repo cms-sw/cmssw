@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jul  2 16:11:42 CEST 2010
-// $Id: TGeoMgrFromDdd.cc,v 1.7 2010/12/10 08:27:31 yana Exp $
+// $Id: TGeoMgrFromDdd.cc,v 1.8 2010/12/10 13:39:06 yana Exp $
 //
 
 #include "Fireworks/Geometry/interface/TGeoMgrFromDdd.h"
@@ -42,6 +42,7 @@
 #include "Math/GenVector/RotationZ.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <math.h>
 
 TGeoMgrFromDdd::TGeoMgrFromDdd( const edm::ParameterSet& pset )
   : m_level( pset.getUntrackedParameter<int> ( "level", 10 )),
@@ -517,7 +518,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    double alpha = -acos( cos_alpha );
 	    
 	    // rotationmatrix of box w.r.t. tubs
-	    static DDRotationMatrix s_rot( ROOT::Math::RotationZ( alpha ) * ROOT::Math::RotationX( 90. * deg ));
+	    static DDRotationMatrix s_rot( ROOT::Math::RotationZ( -alpha * deg ) * ROOT::Math::RotationX( 90. * deg ));
 	    
 	    // center point of the box
 	    double xBox;
