@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_10_0/HIon/V1 (CMSSW_3_10_0_pre6_HLT2)
+# /dev/CMSSW_3_10_0/HIon/V2 (CMSSW_3_10_0_pre6_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_10_0/HIon/V1')
+  tableName = cms.string('/dev/CMSSW_3_10_0/HIon/V2')
 )
 
 streams = cms.PSet( 
@@ -2594,8 +2594,8 @@ hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     AllowMissingInputs = cms.bool( False ),
     HcalAcceptSeverityLevel = cms.uint32( 11 ),
     EcalAcceptSeverityLevel = cms.uint32( 3 ),
-    UseHcalRecoveredHits = cms.bool( True ),
-    UseEcalRecoveredHits = cms.bool( True ),
+    UseHcalRecoveredHits = cms.bool( False ),
+    UseEcalRecoveredHits = cms.bool( False ),
     UseRejectedHitsOnly = cms.bool( False ),
     HcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
     EcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
@@ -3317,8 +3317,8 @@ hltTowerMakerForHcal = cms.EDProducer( "CaloTowersCreator",
     AllowMissingInputs = cms.bool( True ),
     HcalAcceptSeverityLevel = cms.uint32( 11 ),
     EcalAcceptSeverityLevel = cms.uint32( 3 ),
-    UseHcalRecoveredHits = cms.bool( True ),
-    UseEcalRecoveredHits = cms.bool( True ),
+    UseHcalRecoveredHits = cms.bool( False ),
+    UseEcalRecoveredHits = cms.bool( False ),
     UseRejectedHitsOnly = cms.bool( False ),
     HcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
     EcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
@@ -3550,8 +3550,8 @@ hltStoppedHSCPTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     AllowMissingInputs = cms.bool( True ),
     HcalAcceptSeverityLevel = cms.uint32( 11 ),
     EcalAcceptSeverityLevel = cms.uint32( 3 ),
-    UseHcalRecoveredHits = cms.bool( True ),
-    UseEcalRecoveredHits = cms.bool( True ),
+    UseHcalRecoveredHits = cms.bool( False ),
+    UseEcalRecoveredHits = cms.bool( False ),
     UseRejectedHitsOnly = cms.bool( False ),
     HcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
     EcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
