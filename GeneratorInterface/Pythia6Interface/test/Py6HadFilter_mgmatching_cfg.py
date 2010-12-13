@@ -54,6 +54,12 @@ process.generator = cms.EDFilter("Pythia6HadronizerFilter",
        MEMAIN_qcut = cms.double(30.0),
        MEMAIN_minjets = cms.int32(-1),
        MEMAIN_maxjets = cms.int32(-1),
+       MEMAIN_showerkt = cms.double(0),   # use 1=yes only for pt-ordered showers !
+       MEMAIN_nqmatch = cms.int32(5), #PID of the flavor until which the QCD radiation are kept in the matching procedure; 
+                                      # if nqmatch=4, then all showered partons from b's are NOT taken into account
+				      # Note (JY): I'm not sure what the default is, but -1 results in a throw...
+       MEMAIN_excres = cms.string(""),
+       outTree_flag = cms.int32(0)        # 1=yes, write out the tree for future sanity check
     )    
 )
 
