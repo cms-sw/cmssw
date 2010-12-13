@@ -8,8 +8,8 @@ generalTracksSkim = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
     src = 'generalTracks',
     filter = True,
     applyBasicCuts = True,
-    ptMin = 10.0,
-    nHitMin = 3,
+    ptMin = 20.0,
+    nHitMin = 10,
     chi2nMax = 10.,
 )
 TrackRefitter.TrajectoryInEvent = cms.bool(True)
@@ -28,7 +28,7 @@ highPtTrackEcalDetIds = cms.EDProducer("HighPtTrackEcalDetIdProducer",
 									   #TrackAssociatorParameterBlock
 									   TrackAssociatorParameters=TrackAssociatorParameterBlock.TrackAssociatorParameters,
 									   inputCollection = cms.InputTag("generalTracksSkim"),
-									   TrackPt=cms.double(15.0)
+									   TrackPt=cms.double(20.0)
 									   )
 
 
@@ -64,7 +64,7 @@ reducedHSCPhbhereco = cms.EDProducer("ReduceHcalRecHitCollectionProducer",
 									 recHitsLabel = cms.InputTag("hbhereco",""),
 									 TrackAssociatorParameters=TrackAssociatorParameterBlock.TrackAssociatorParameters,
 									 inputCollection = cms.InputTag("generalTracksSkim"),
-									 TrackPt=cms.double(15.0),					   
+									 TrackPt=cms.double(20.0),					   
 									 reducedHitsCollection = cms.string('')
 )
 
@@ -80,7 +80,55 @@ muonsSkim = cms.EDProducer("UpdatedMuonInnerTrackRef",
 muonSeq = cms.Sequence(muonsSkim)
 
 
-exoticaHSCPSeq = cms.Sequence( trackerSeq+ecalSeq+hcalSeq+muonSeq)
+
+
+HSCPIsolation01 = cms.EDProducer("ProduceIsolationMap",
+                                                                         inputCollection  = cms.InputTag("generalTracksSkim"),
+                                                                         IsolationConeDR  = cms.double(0.1),
+                                                                         TkIsolationPtCut = cms.double(0.0),
+                                                                         TKLabel          = cms.InputTag("generalTracks"),
+                                                                         HCALrecHitsLabel = cms.InputTag("hbhereco",""),
+                                                                         EBrecHitsLabel   = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+                                                                         EErecHitsLabel   = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+                                                                         TrackAssociatorParameters=TrackAssociatorParameterBlock.TrackAssociatorParameters,
+)
+
+HSCPIsolation03 = HSCPIsolation01.clone()
+HSCPIsolation03.IsolationConeDR  = cms.double(0.3)
+
+HSCPIsolation05 = HSCPIsolation01.clone()
+HSCPIsolation05.IsolationConeDR  = cms.double(0.5)
+
+exoticaRecoIsoPhotonSeq = cms.EDFilter("MonoPhotonSkimmer",
+  phoTag = cms.InputTag("photons::RECO"),
+  selectEE = cms.bool(True),
+  ecalisoOffsetEB = cms.double(4.2),
+  ecalisoSlopeEB = cms.double(0.006),
+  hcalisoOffsetEB = cms.double(2.2),
+  hcalisoSlopeEB = cms.double(0.0025),
+  hadoveremEB = cms.double(0.05),
+  minPhoEtEB = cms.double(20.),
+  trackIsoOffsetEB = cms.double(2.),
+  trackIsoSlopeEB =  cms.double(0.001),
+  etaWidthEB  = cms.double(0.013),
+                                  
+  ecalisoOffsetEE = cms.double(4.2),
+  ecalisoSlopeEE = cms.double(0.006),
+  hcalisoOffsetEE = cms.double(2.2),
+  hcalisoSlopeEE = cms.double(0.0025),
+  hadoveremEE = cms.double(0.05),
+  minPhoEtEE = cms.double(20.),
+  trackIsoOffsetEE = cms.double(2.),
+  trackIsoSlopeEE =  cms.double(0.001),
+  etaWidthEE  = cms.double(0.03),
+                                  
+
+ 
+)
+
+
+exoticaHSCPSeq = cms.Sequence( trackerSeq+ecalSeq+hcalSeq+muonSeq+HSCPIsolation01+HSCPIsolation03+HSCPIsolation05)
+exoticaHSCPIsoPhotonSeq = cms.Sequence(exoticaRecoIsoPhotonSeq + trackerSeq+ecalSeq+hcalSeq+muonSeq+HSCPIsolation01+HSCPIsolation03+HSCPIsolation05)
 
 
 
