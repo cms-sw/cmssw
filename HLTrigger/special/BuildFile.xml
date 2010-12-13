@@ -27,6 +27,7 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
+<use   name="Geometry/CommonTopologies"/>
 <use   name="Geometry/CSCGeometry"/>
 <use   name="Geometry/RPCGeometry"/>
 <use   name="Geometry/CaloGeometry"/>
