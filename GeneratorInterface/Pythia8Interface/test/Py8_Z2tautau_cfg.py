@@ -5,7 +5,14 @@ process = cms.Process("TEST")
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource",
+     firstLuminosityBlock = cms.untracked.uint32(1),
+     numberEventsInLuminosityBlock = cms.untracked.uint32(200),
+     firstEvent = cms.untracked.uint32(1),
+     firstRun = cms.untracked.uint32(1),
+     numberEventsInRun = cms.untracked.uint32(1000)
+
+)
 
 process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     maxEventsToPrint = cms.untracked.int32(1),
