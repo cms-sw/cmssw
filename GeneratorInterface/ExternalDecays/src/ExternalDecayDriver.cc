@@ -5,6 +5,8 @@
 #include "GeneratorInterface/ExternalDecays/interface/TauolaInterface.h"
 #include "GeneratorInterface/ExternalDecays/interface/PhotosInterface.h"
 
+#include "GeneratorInterface/ExternalDecays/interface/DecayRandomEngine.h"
+
 #include "HepMC/GenEvent.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -13,6 +15,8 @@
 
 using namespace gen;
 using namespace edm;
+
+CLHEP::HepRandomEngine* decayRandomEngine;
 
 ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
    : fIsInitialized(false),
@@ -30,7 +34,8 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
        << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
           "which appears to be absent.  Please add that service to your configuration\n"
           "or remove the modules that require it." << std::endl;
-    }      
+    } 
+    decayRandomEngine = &rng->getEngine();   
     
     for (unsigned int ip=0; ip<extGenNames.size(); ++ip )
     {
@@ -42,13 +47,11 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
       else if ( curSet == "Tauola" )
       {
          fTauolaInterface = new gen::TauolaInterface(pset.getUntrackedParameter< ParameterSet >(curSet));
-	 tauolaRandomEngine = &rng->getEngine();
       }
 
       else if ( curSet == "Photos" )
       {
          fPhotosInterface = new gen::PhotosInterface();
-	 photosRandomEngine = &rng->getEngine();
       }
 
     }

@@ -15,26 +15,11 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
+#include "GeneratorInterface/ExternalDecays/interface/DecayRandomEngine.h"
+
 using namespace gen;
 using namespace edm;
 using namespace std;
-
-// random number glue: use pythia
-/*
-extern "C"{
-   extern double pyr_(int *idummy);
-
-   void ranmar_(float *rvec, int *lenv)
-   {
-      // produce *lenv random numbers into float vector at rvec
-      int idummy = 0;
-      for(int i = 0; i < *lenv; i++)
-         *rvec++ = pyr_(&idummy);
-   }
-}
-*/
-
-CLHEP::HepRandomEngine* tauolaRandomEngine;
 
 extern "C" {
 
@@ -42,7 +27,7 @@ extern "C" {
   {
 
       for(int i = 0; i < *lenv; i++)
-         *rvec++ = tauolaRandomEngine->flat();
+         *rvec++ = decayRandomEngine->flat();
 
       return;
 

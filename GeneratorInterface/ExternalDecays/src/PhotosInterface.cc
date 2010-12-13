@@ -6,7 +6,8 @@
 #include "GeneratorInterface/ExternalDecays/interface/PhotosInterface.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+// #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "GeneratorInterface/ExternalDecays/interface/DecayRandomEngine.h"
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/IO_HEPEVT.h"
@@ -17,8 +18,6 @@ using namespace edm;
 using namespace std;
 
 
-CLHEP::HepRandomEngine* photosRandomEngine;
-
 extern "C"{
 
    void phoini_( void );
@@ -26,12 +25,12 @@ extern "C"{
 
    double phoran_(int *idummy)
    {
-      return photosRandomEngine->flat();
+      return decayRandomEngine->flat();
    }
 /*
    double phoranc_(int *idummy)
    {
-      return photosRandomEngine->flat();
+      return decayRandomEngine->flat();
    }
 */
 
