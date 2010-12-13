@@ -4,8 +4,39 @@ import FWCore.ParameterSet.Config as cms
 # Modified from Configuration/GenProduction/python/PYTHIA6_Tauola_gg_bbH180_tautau_7TeV_cff.py
 # Import settings for modules
 
-from Configuration.Generator.PythiaUEZ2Settings_cfi import *
 from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
+pythiaUESettingsBlock = cms.PSet(
+	pythiaUESettings = cms.vstring(
+		'MSTU(21)=1     ! Check on possible errors during program execution', 
+		'MSTJ(22)=2     ! Decay those unstable particles', 
+		'PARJ(71)=10 .  ! for which ctau  10 mm', 
+		'MSTP(33)=0     ! no K factors in hard cross sections', 
+		'MSTP(2)=1      ! which order running alphaS', 
+                'MSTP(51)=10042 ! structure function chosen (external PDF CTEQ6L1)',
+                'MSTP(52)=2     ! work with LHAPDF',
+
+		'PARP(82)=1.832 ! pt cutoff for multiparton interactions', 
+		'PARP(89)=1800. ! sqrts for which PARP82 is set', 
+		'PARP(90)=0.275 ! Multiple interactions: rescaling power', 
+
+        'MSTP(95)=6     ! CR (color reconnection parameters)',
+        'PARP(77)=1.016 ! CR',
+        'PARP(78)=0.538 ! CR',
+
+		'PARP(80)=0.1   ! Prob. colored parton from BBR',
+
+		'PARP(83)=0.356 ! Multiple interactions: matter distribution parameter', 
+		'PARP(84)=0.651 ! Multiple interactions: matter distribution parameter', 
+
+		'PARP(62)=1.025 ! ISR cutoff', 
+
+		'MSTP(91)=1     ! Gaussian primordial kT', 
+		'PARP(93)=10.0  ! primordial kT-max', 
+
+		'MSTP(81)=21    ! multiple parton interactions 1 is Pythia default', 
+		'MSTP(82)=4     ! Defines the multi-parton model', 
+	)
+)
 
 	# Define the generator module
 generator = cms.EDFilter("Pythia6GeneratorFilter",
@@ -141,7 +172,7 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
 ProductionFilterSequence = cms.Sequence(generator)
 
 configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/SLHCUpgradeSimulations/Configuration/python/PYTHIA6_Tauola_gg_bbH500_tautau_14TeV_cff.py,v $'),
     annotation = cms.untracked.string('PYTHIA6 - SUSY gg->bbH(500)->2tau, with Tauola at 14TeV')
     )
