@@ -48,6 +48,7 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
       else if ( curSet == "Photos" )
       {
          fPhotosInterface = new gen::PhotosInterface();
+	 photosRandomEngine = &rng->getEngine();
       }
 
     }

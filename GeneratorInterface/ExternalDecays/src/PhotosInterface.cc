@@ -16,20 +16,22 @@ using namespace gen;
 using namespace edm;
 using namespace std;
 
-// random number glue: use pythia
+
+CLHEP::HepRandomEngine* photosRandomEngine;
 
 extern "C"{
 
    void phoini_( void );
    void photos_( int& );
 
-/*
-   void ranmar_(float *rvec, int *lenv)
+   double phoran_(int *idummy)
    {
-      // produce *lenv random numbers into float vector at rvec
-      int idummy = 0;
-      for(int i = 0; i < *lenv; i++)
-         *rvec++ = pyr_(&idummy);
+      return photosRandomEngine->flat();
+   }
+/*
+   double phoranc_(int *idummy)
+   {
+      return photosRandomEngine->flat();
    }
 */
 
@@ -40,20 +42,6 @@ void PhotosInterface::init()
    
    if ( fIsInitialized ) return; // do init only once
    
-
-// FIXME !!!
-// This is a temporary hack - we're re-using master generator's seed to init RANMAR
-/* FIXME !!!
-   This is now off because ranmar has been overriden (see code above) to use pyr_(...)
-   - this way we're using guaranteed initialized rndm generator... BUT !!! in the long
-   run we may want a separate random stream for tauola...
-
-   Service<RandomNumberGenerator> rng;
-   int seed = rng->mySeed() ;
-   int ntot=0, ntot2=0;
-   rmarin_( &seed, &ntot, &ntot2 );
-*/
-
    phoini_();
    
    fIsInitialized = true; 

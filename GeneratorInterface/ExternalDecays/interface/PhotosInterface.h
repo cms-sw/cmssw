@@ -14,15 +14,8 @@ namespace HepMC
 class GenEvent;
 }
 
-
-/*
-extern "C" {
-
-   void phoini_( void );
-   void photos_( int& );
-
-}
-*/
+#include "CLHEP/Random/RandomEngine.h"
+extern CLHEP::HepRandomEngine* photosRandomEngine;
 
 namespace gen {
 
