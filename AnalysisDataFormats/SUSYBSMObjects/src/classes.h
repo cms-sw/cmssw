@@ -1,4 +1,6 @@
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
+#include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPIsolation.h"
+
 namespace {
  namespace {
   susybsm::HSCParticle pa;
@@ -29,6 +31,13 @@ namespace {
   susybsm::TracksEcalRecHitsMap terhm;
   edm::Wrapper<susybsm::TracksEcalRecHitsMap> wr2;
   edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >,edm::RefProd<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > > hlpr1;
+
+  susybsm::HSCPIsolation hscpI;
+  susybsm::HSCPIsolationCollection hscpIc;
+  susybsm::HSCPIsolationValueMap hscpIvm; 
+  edm::Wrapper<susybsm::HSCPIsolation> hscpIW; 
+  edm::Wrapper<susybsm::HSCPIsolationCollection> hscpIcW;
+  edm::Wrapper<susybsm::HSCPIsolationValueMap> hscpIvmW;
   
  }
 }
