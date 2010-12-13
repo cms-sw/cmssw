@@ -35,10 +35,10 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:dummyScale.db'),
+    connect = cms.string('frontier://cms_orcoff_prod/CMS_COND_31X_PHYSICSTOOLS'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('MuScleFitDBobjectRcd'),
-        tag = cms.string('JPsi_1_3_invNb_innerTrack')
+        tag = cms.string('MuScleFit_Scale_Z_20_invNb_innerTrack')
     ))
 )
 

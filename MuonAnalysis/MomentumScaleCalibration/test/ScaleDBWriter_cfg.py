@@ -35,10 +35,10 @@ process.PoolDBOutputService = cms.Service(
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:dummyScale.db'),
+    connect = cms.string('sqlite_file:Z_20_invNb_innerTrack_minusError.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('MuScleFitDBobjectRcd'),
-        tag = cms.string('JPsi_1_3_invNb_innerTrack')
+        tag = cms.string('Z_20_invNb_innerTrack')
     ))
 )
 
@@ -48,7 +48,7 @@ process.DBWriterModule = cms.EDAnalyzer(
     # Specify that we want to write the scale parameters. THIS MUST NOT BE CHANGED.
     Type = cms.untracked.string('scale'),
     # Specify the corrections to use
-    CorrectionsIdentifier = cms.untracked.string('JPsi_1_3_invNb_innerTrack')
+    CorrectionsIdentifier = cms.untracked.string('Z_20_invNb_innerTrack_minusError')
 )
 
 process.p1 = cms.Path(process.DBWriterModule)
