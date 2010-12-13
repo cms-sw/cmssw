@@ -8,8 +8,8 @@ generalTracksSkim = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
     src = 'generalTracks',
     filter = True,
     applyBasicCuts = True,
-    ptMin = 20.0,
-    nHitMin = 10,
+    ptMin = 10.0,
+    nHitMin = 3,
     chi2nMax = 10.,
 )
 TrackRefitter.TrajectoryInEvent = cms.bool(True)
