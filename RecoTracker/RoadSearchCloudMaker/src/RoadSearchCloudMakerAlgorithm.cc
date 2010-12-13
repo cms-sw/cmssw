@@ -48,8 +48,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gpetrucc $
-// $Date: 2008/10/31 11:37:07 $
-// $Revision: 1.55 $
+// $Date: 2008/10/31 16:02:33 $
+// $Revision: 1.56 $
 //
 
 #include <vector>
@@ -87,7 +87,7 @@
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 #include "TrackingTools/RoadSearchHitAccess/interface/RoadSearchDetIdHelper.h"
 
@@ -805,7 +805,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillPixRecHitsIntoCloud(DetId id, co
   unsigned int usedRecHits = 0;
   
   // Get Geometry
-  //const RectangularPixelTopology *topology = dynamic_cast<const RectangularPixelTopology*>(&(tracker->idToDetUnit(id)->topology()));
+  //const PixelTopology *topology = dynamic_cast<const PixelTopology*>(&(tracker->idToDetUnit(id)->topology()));
   
   
   // retrieve vector<SiPixelRecHit> for id

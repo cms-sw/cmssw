@@ -19,7 +19,7 @@ void PixelClusterSelectorTopBottom::produce( edm::Event& event, const edm::Event
     DetId detIdObject( clustSet->detId() );
     edmNew::DetSetVector<SiPixelCluster>::FastFiller spc(*output, detIdObject);
     const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*> (theTracker.idToDet(detIdObject) );
-    const RectangularPixelTopology * topol = dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+    const PixelTopology * topol = (&(theGeomDet->specificTopology()));
     
     for(; clustIt!=end;++clustIt) {
       LocalPoint  lpclust = topol->localPosition(MeasurementPoint((*clustIt).x(),(*clustIt).y()));

@@ -33,13 +33,11 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyBuilder.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
@@ -1368,8 +1366,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 			      
 			      const PixelGeomDetUnit * theGeomDet 
 				= dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(detId) );
-			      //const RectangularPixelTopology * topol 
-			      //= dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+			      //const PixelTopology * topol = (&(theGeomDet->specificTopology()));
 			      
 			      int tmp_nrows = theGeomDet->specificTopology().nrows();
 			      

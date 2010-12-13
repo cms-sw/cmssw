@@ -10,7 +10,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
@@ -116,8 +116,7 @@ void PixelVertexProducerClusters::produce
         DetId id = recHit->geographicalId();
         const PixelGeomDetUnit* pgdu =
           dynamic_cast<const PixelGeomDetUnit*>(theTracker->idToDetUnit(id));
-        const RectangularPixelTopology* theTopol =
-          dynamic_cast<const RectangularPixelTopology*>( &(pgdu->specificTopology()) );
+        const PixelTopology* theTopol = ( &(pgdu->specificTopology()) );
         vector<SiPixelCluster::Pixel> pixels = recHit->cluster()->pixels();
 
         bool pixelOnEdge = false;

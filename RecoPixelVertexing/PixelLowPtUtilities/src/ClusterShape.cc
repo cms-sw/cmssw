@@ -2,7 +2,7 @@
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterData.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 
@@ -98,9 +98,7 @@ void ClusterShape::determineShape
    const SiPixelRecHit& recHit, ClusterData& data)
 {
   // Topology
-  const RectangularPixelTopology * theTopology = 
-    dynamic_cast<const RectangularPixelTopology *>
-      (&(pixelDet.specificTopology())); 
+  const PixelTopology * theTopology = (&(pixelDet.specificTopology())); 
  
   // Initialize
   data.isStraight = true;
