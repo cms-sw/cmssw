@@ -36,6 +36,8 @@ validation = cms.Sequence(cms.SequencePlaceholder("mix")
                          *globalValidation
                          *hltvalidation)
 
+prevalidation_preprod = cms.Sequence( preprodPrevalidation )
+
 validation_preprod = cms.Sequence(
                           basicGenTest_seq
                           +trackingTruthValid
@@ -46,6 +48,7 @@ validation_preprod = cms.Sequence(
                           +muonIdValDQMSeq
                           +hltvalidation_preprod
                           )
+
 validation.remove(condDataValidation)
 validation_prod = cms.Sequence(
              basicGenTest_seq

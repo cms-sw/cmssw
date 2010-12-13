@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.271 $"
+__version__ = "$Revision: 1.272 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -485,7 +485,7 @@ class ConfigBuilder(object):
         self.L1HwValDefaultSeq='L1HwVal'
         self.DQMDefaultSeq='DQMOffline'
         self.FASTSIMDefaultSeq='all'
-        self.VALIDATIONDefaultSeq='prevalidation,validation'
+        self.VALIDATIONDefaultSeq=''
         self.PATLayer0DefaultSeq='all'
         self.ENDJOBDefaultSeq='endOfProcess'
 	self.REPACKDefaultSeq='DigiToRawRepack'
@@ -535,7 +535,7 @@ class ConfigBuilder(object):
 	    else:
 		    self.GENDefaultSeq='pgen_himix'
             self.VALIDATIONDefaultCFF="Configuration/StandardSequences/ValidationHeavyIons_cff"
-            self.VALIDATIONDefaultSeq='validationHeavyIons'
+            self.VALIDATIONDefaultSeq=''
             self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentHeavyIons_cff"
             self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionHeavyIons_cff"
             self.RECODefaultSeq='reconstructionHeavyIons'
@@ -982,12 +982,19 @@ class ConfigBuilder(object):
     def prepare_VALIDATION(self, sequence = 'validation'):
 	    self.loadDefaultOrSpecifiedCFF(sequence,self.VALIDATIONDefaultCFF)
 	    #in case VALIDATION:something:somethingelse -> something,somethingelse
-	    if sequence.split('.')[-1].find(',')!=-1:
-		    prevalSeqName=sequence.split('.')[-1].split(',')[0]
-		    valSeqName=sequence.split('.')[-1].split(',')[1]
+	    sequence=sequence.split('.')[-1]
+	    if sequence.find(',')!=-1:
+		    prevalSeqName=sequence.split(',')[0]
+		    valSeqName=sequence.split(',')[1]
 	    else:
-		    prevalSeqName=''
-		    valSeqName=sequence.split('.')[-1]
+		    postfix=''
+		    if sequence:
+			    postfix='_'+sequence
+		    prevalSeqName='prevalidation'+postfix
+		    valSeqName='validation'+postfix
+		    if not hasattr(self.process,valSeqName):
+			    prevalSeqName=''
+			    valSeqName=sequence
 		    
 	    if not 'DIGI' in self.stepMap and not 'FASTSIM' in self.stepMap:
 		    self.loadAndRemember('Configuration.StandardSequences.ReMixingSeeds_cff')
@@ -1217,7 +1224,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.271 $"),
+					    (version=cms.untracked.string("$Revision: 1.272 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
