@@ -10,12 +10,13 @@
 //
 // Original Author:  Marco De Mattia,40 3-B32,+41227671551,
 //         Created:  Tue Jun 22 13:50:22 CEST 2010
-// $Id: MuScleFitMuonProducer.cc,v 1.2 2010/09/16 13:51:59 demattia Exp $
+// $Id: MuScleFitMuonProducer.cc,v 1.5 2010/11/08 18:13:53 demattia Exp $
 //
 //
 
 // system include files
 #include <memory>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -58,6 +59,7 @@ class MuScleFitMuonProducer : public edm::EDProducer {
   edm::InputTag theMuonLabel_;
   bool patMuons_;
   edm::ESHandle<MuScleFitDBobject> dbObject_;
+  std::string dbObjectLabel_;
   unsigned long long dbObjectCacheId_;
   boost::shared_ptr<MomentumScaleCorrector> corrector_;
 };
@@ -67,7 +69,14 @@ MuScleFitMuonProducer::MuScleFitMuonProducer(const edm::ParameterSet& iConfig) :
   patMuons_( iConfig.getParameter<bool>( "PatMuons" ) ),
   dbObjectCacheId_(0)
 {
-  produces<reco::MuonCollection>();
+  dbObjectLabel_ = ( iConfig.exists("dbObjectLabel") ) ?
+    iConfig.getParameter<std::string>("dbObjectLabel") : "";
+
+  if ( patMuons_ == true ) {
+    produces<pat::MuonCollection>();
+  } else {
+    produces<reco::MuonCollection>();
+  }
 }
 
 
@@ -84,9 +93,9 @@ std::auto_ptr<T> MuScleFitMuonProducer::applyCorrection(const edm::Handle<T> & a
   // Apply the correction and produce the new muons
   for( typename T::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
 
-    std::cout << "Pt before correction = " << muon->pt() << std::endl;
+    //std::cout << "Pt before correction = " << muon->pt() << std::endl;
     double pt = (*corrector_)(*muon);
-    std::cout << "Pt after correction = " << pt << std::endl;
+    //std::cout << "Pt after correction = " << pt << std::endl;
     double eta = muon->eta();
     double phi = muon->phi();
 
@@ -102,12 +111,16 @@ std::auto_ptr<T> MuScleFitMuonProducer::applyCorrection(const edm::Handle<T> & a
 void MuScleFitMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   unsigned long long dbObjectCacheId = iSetup.get<MuScleFitDBobjectRcd>().cacheIdentifier();
-  if( dbObjectCacheId != dbObjectCacheId_ ) {
-    iSetup.get<MuScleFitDBobjectRcd>().get(dbObject_);
+  if ( dbObjectCacheId != dbObjectCacheId_ ) {
+    if ( dbObjectLabel_ != "" ) {
+      iSetup.get<MuScleFitDBobjectRcd>().get(dbObjectLabel_, dbObject_);
+    } else {
+      iSetup.get<MuScleFitDBobjectRcd>().get(dbObject_);
+    }
   }
 
-  std::cout << "identifiers size from dbObject = " << dbObject_->identifiers.size() << std::endl;
-  std::cout << "parameters size from dbObject = " << dbObject_->parameters.size() << std::endl;;
+  //std::cout << "identifiers size from dbObject = " << dbObject_->identifiers.size() << std::endl;
+  //std::cout << "parameters size from dbObject = " << dbObject_->parameters.size() << std::endl;;
 
   // Create the corrector and set the parameters
   corrector_.reset(new MomentumScaleCorrector( dbObject_.product() ) );
