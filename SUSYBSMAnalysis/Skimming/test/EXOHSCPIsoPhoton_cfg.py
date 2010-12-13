@@ -16,7 +16,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'START3X_V26::All'
+process.GlobalTag.globaltag = 'GR_R_38X_V14::All'
 
 #replace fileNames  with the file you want to skim
 process.source = cms.Source("PoolSource",
