@@ -43,7 +43,8 @@ HFGflash::HFGflash(edm::ParameterSet const & p) {
 
   theHelix = new GflashTrajectory;
   theGflashStep = new G4Step();
-  theGflashNavigator = 0;
+  theGflashNavigator = new G4Navigator();
+  //  theGflashNavigator = 0;
   theGflashTouchableHandle = new G4TouchableHistory();
 
 #ifdef DebugLog
@@ -78,8 +79,9 @@ HFGflash::HFGflash(edm::ParameterSet const & p) {
 }
 
 HFGflash::~HFGflash() {
-  if (theHelix) delete theHelix;
+  if (theHelix)      delete theHelix;
   if (theGflashStep) delete theGflashStep;
+  if (theGflashNavigator) delete theGflashNavigator;
 }
 
 
@@ -222,7 +224,7 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
   G4double timeGlobal = track->GetStep()->GetPreStepPoint()->GetGlobalTime();
 
   // this needs to be deleted manually at the end of this loop.
-  theGflashNavigator = new G4Navigator();
+  //  theGflashNavigator = new G4Navigator();
   theGflashNavigator->SetWorldVolume(G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
 
   //   // loop for longitudinal integration
@@ -237,8 +239,7 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
       deltaZInX0 = stepLengthLeftInX0;
       deltaZ     = deltaZInX0 * Gflash::radLength[jCalorimeter];
       stepLengthLeft = 0.0;
-    }
-    else {
+    } else {
       deltaZInX0 = divisionStepInX0;
       deltaZ     = deltaZInX0 * Gflash::radLength[jCalorimeter];
       stepLengthLeft -= deltaZ;
@@ -246,17 +247,12 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
 
     zInX0 += deltaZInX0;
     
-
-    if (!zInX0) return hit;
-    if (!spotBeta*zInX0) return hit;
 #ifdef DebugLog  
     LogDebug("HFShower") << " zInX0 = " << zInX0 << " spotBeta*zInX0 = " << spotBeta*zInX0;
 #endif
-    if (zInX0 < 0.01) return hit;
-    if (spotBeta*zInX0 < 0.00001) return hit;
-    
-    if (!zInX0*beta) return hit;
-    if (zInX0*beta < 0.00001) return hit; 
+    if ((!zInX0) || (!spotBeta*zInX0) || (zInX0 < 0.01) || 
+	(spotBeta*zInX0 < 0.00001) || (!zInX0*beta) || (zInX0*beta < 0.00001)) 
+      return hit;
 
     G4int nSpotsInStep = 0;
 
@@ -267,7 +263,7 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
     if ( energy > energyCutoff  ) {
       preEnergyInGamma  = energyInGamma;
       gammaDist.a().setValue(alpha);  //alpha
- 
+      
       energyInGamma = gammaDist(beta*zInX0); //beta
       G4double energyInDeltaZ  = energyInGamma - preEnergyInGamma;
       deltaEnergy   = std::min(energy,((preStepPoint->GetTotalEnergy())/GeV)*energyInDeltaZ);
@@ -276,8 +272,7 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
       gammaDist.a().setValue(spotAlpha);  //alpha spot
       sigmaInGamma = gammaDist(spotBeta*zInX0); //beta spot
       nSpotsInStep = std::max(1,int(nSpots * (sigmaInGamma - preSigmaInGamma)));
-    }
-    else {
+    } else {
       deltaEnergy = energy;
       preSigmaInGamma  = sigmaInGamma;
       nSpotsInStep = std::max(1,int(nSpots * (1.0 - preSigmaInGamma)));
@@ -325,19 +320,18 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
       G4double u1 = G4UniformRand();
       G4double u2 = G4UniformRand();
       G4double rInRM = 0.0;
-  
+      
       if (u1 < probabilityWeight) {
 	rInRM = rCore * std::sqrt( u2/(1.0-u2) );
-      }
-      else {
+      } else {
 	rInRM = rTail * std::sqrt( u2/(1.0-u2) );
       }
   
       G4double rShower =  rInRM * Gflash::rMoliere[jCalorimeter];
-
+      
       //Uniform & random rotation of spot along the azimuthal angle
       G4double azimuthalAngle = twopi*G4UniformRand();
-
+      
       //Compute global position of generated spots with taking into account magnetic field
       //Divide deltaZ into nSpotsInStep and give a spot a global position
       G4double incrementPath = (deltaZ/nSpotsInStep)*(ispot+0.5 - 0.5*nSpotsInStep);
@@ -361,7 +355,7 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
       timeGlobal += 0.0001*nanosecond;
 
       //fill equivalent changes to a (fake) step associated with a spot 
-
+      
       G4double zInX0_spot = std::abs(pathLength+incrementPath - pathLength0)/Gflash::radLength[jCalorimeter];
 
 #ifdef DebugLog  
@@ -406,7 +400,7 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
       oneHit.edep     = emSpotEnergy/GeV;
       hit.push_back(oneHit);
       nSpots_sd++;
-
+      
     } // end of for spot iteration
 
   } // end of while for longitudinal integration
@@ -415,6 +409,6 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
     em_nSpots_sd->Fill(nSpots_sd);
   }
 #endif
-  delete theGflashNavigator;
+  //  delete theGflashNavigator;
   return hit;
 }
