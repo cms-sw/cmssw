@@ -182,11 +182,6 @@
   <class name="std::vector<pat::EventHypothesis>" />
   <class name="edm::Wrapper<std::vector<pat::EventHypothesis> >" />
 
-  <!-- This should go to DataFormats/HLTReco -->
-  <enum name="trigger::TriggerObjectType" />
-  <class name="std::vector<trigger::TriggerObjectType>" />
-  <class name="std::vector<trigger::TriggerObjectType>::const_iterator" />
-
   <class name="pat::TriggerObject" />
   <class name="std::vector<pat::TriggerObject>" />
   <class name="std::vector<pat::TriggerObject>::const_iterator" />

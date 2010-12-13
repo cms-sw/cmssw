@@ -194,11 +194,6 @@ namespace {
 
   edm::Wrapper<std::vector<pat::EventHypothesis> >	 w_v_eh;
 
-  // This should go to DataFormats/HLTReco
-  std::vector<trigger::TriggerObjectType> v_t_tot;
-  std::vector<trigger::TriggerObjectType>::const_iterator v_t_tot_ci;
-  edm::Wrapper<std::vector<trigger::TriggerObjectType> > w_v_t_tot;
-
   pat::TriggerObjectCollection v_p_to;
   pat::TriggerObjectCollection::const_iterator v_p_to_ci;
   edm::Wrapper<pat::TriggerObjectCollection> w_v_p_to;
