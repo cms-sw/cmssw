@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.h,v 1.14 2010/03/10 15:28:33 merkelp Exp $
+// $Id: SiPixelClusterModule.h,v 1.15 2010/04/19 20:36:53 merkelp Exp $
 //
 //
 //  Updated by: Lukas Wehrli
@@ -26,7 +26,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <boost/cstdint.hpp>
 
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"

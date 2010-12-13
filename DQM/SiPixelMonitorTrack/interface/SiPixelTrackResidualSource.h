@@ -12,7 +12,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelTrackResidualSource.h,v 1.6 2010/03/22 08:34:55 merkelp Exp $
+// $Id: SiPixelTrackResidualSource.h,v 1.7 2010/06/09 01:16:03 merkelp Exp $
 //
 // Updated by: Lukas Wehrli
 // for pixel offline DQM 
@@ -33,7 +33,6 @@
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 #include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "DataFormats/TrackReco/interface/Track.h"

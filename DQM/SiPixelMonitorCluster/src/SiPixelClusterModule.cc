@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.cc,v 1.29 2010/04/19 20:36:53 merkelp Exp $
+// $Id: SiPixelClusterModule.cc,v 1.30 2010/06/11 00:49:53 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -507,7 +507,7 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
      // const TrackerGeometry* tracker = &(* pDD);
       const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(DetId(id_)) );
       //**
-      const RectangularPixelTopology * topol = dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+      const PixelTopology * topol = &(theGeomDet->specificTopology());
       LocalPoint clustlp = topol->localPosition( MeasurementPoint(x, y) );
       GlobalPoint clustgp = theGeomDet->surface().toGlobal( clustlp );
       //**end

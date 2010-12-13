@@ -10,7 +10,7 @@
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
 //         Updated by Lukas Wehrli (plots for clusters on/off track added)
-// $Id: SiPixelTrackResidualSource.cc,v 1.17 2010/04/22 16:11:50 merkelp Exp $
+// $Id: SiPixelTrackResidualSource.cc,v 1.18 2010/06/09 01:16:04 merkelp Exp $
 
 
 #include <iostream>
@@ -32,6 +32,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 
@@ -723,7 +724,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 		continue;
 	      }
 
-	      const RectangularPixelTopology * topol = static_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+	      const PixelTopology * topol = &(theGeomDet->specificTopology());
 	      //fill histograms for clusters on tracks
 	      //correct SiPixelTrackResidualModule
 	      std::map<uint32_t, SiPixelTrackResidualModule*>::iterator pxd = theSiPixelStructure.find((*hit).geographicalId().rawId());
@@ -914,7 +915,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	      if(debug_) std::cout << "NO THEGEOMDET\n";
 	      continue;
 	    }
-	    const RectangularPixelTopology * topol = static_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+	    const PixelTopology * topol = &(theGeomDet->specificTopology());
 	   
 	    //center of gravity (of charge)
 	    float xcenter = di->x();
@@ -1023,7 +1024,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 		if(debug_) std::cout << "NO THEGEOMDET\n";
 		continue;
 	      }
-	      const RectangularPixelTopology * topol = static_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+	      const PixelTopology * topol = &(theGeomDet->specificTopology());
 	      //center of gravity (of charge)
 	      float xcenter = di->x();
 	      float ycenter = di->y();

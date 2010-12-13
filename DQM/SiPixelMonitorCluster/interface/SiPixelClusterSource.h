@@ -19,7 +19,7 @@
 // Updated by: Lukas Wehrli
 // for pixel offline DQM 
 //         Created:  
-// $Id: SiPixelClusterSource.h,v 1.17 2010/03/10 15:28:33 merkelp Exp $
+// $Id: SiPixelClusterSource.h,v 1.18 2010/04/19 20:36:53 merkelp Exp $
 
 #include <memory>
 
@@ -48,7 +48,6 @@
 
 #include <boost/cstdint.hpp>
 
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
