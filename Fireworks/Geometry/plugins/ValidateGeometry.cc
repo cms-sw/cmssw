@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.30 2010/10/05 13:40:29 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.31 2010/10/07 09:56:34 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -28,8 +28,9 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
@@ -162,7 +163,7 @@ void
 ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventSetup)
 {
   eventSetup.get<MuonGeometryRecord>().get(rpcGeometry_);
-  
+
   if ( rpcGeometry_.isValid() )
   {
     std::cout<<"Validating RPC -z endcap geometry"<<std::endl;
@@ -193,7 +194,7 @@ ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventS
 
 
   eventSetup.get<MuonGeometryRecord>().get(cscGeometry_);
-  
+
   if ( cscGeometry_.isValid() )
   {
     std::cout<<"Validating CSC -z geometry"<<std::endl;
@@ -975,8 +976,7 @@ ValidateGeometry::validatePixelTopology(const TrackerGeometry::DetContainer& det
     if ( const PixelGeomDetUnit* det = 
          dynamic_cast<const PixelGeomDetUnit*>(trackerGeometry_->idToDetUnit((*it)->geographicalId())) )
     {           
-      if ( const RectangularPixelTopology* rpt = 
-           dynamic_cast<const RectangularPixelTopology*>(&det->specificTopology()) )
+      if ( const PixelTopology* rpt = &det->specificTopology() )
       { 
         int nrows = rpt->nrows();
         int ncolumns = rpt->ncolumns();
@@ -1033,7 +1033,7 @@ ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer& det
 
     if ( const StripGeomDetUnit* det = 
          dynamic_cast<const StripGeomDetUnit*>(trackerGeometry_->idToDet((*it)->geographicalId())) )
-    {
+      {
       // NOTE: why the difference in dets vs. units between these and pixels? The dynamic cast above 
       // fails for many of the detids...
       
@@ -1046,7 +1046,7 @@ ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer& det
         assert(parameters[1] == nstrips);                             
         assert(parameters[2] == st->stripLength());
         
-        if( const RadialStripTopology* rst = dynamic_cast<const RadialStripTopology*>(st)) 
+        if( const RadialStripTopology* rst = dynamic_cast<const RadialStripTopology*>(&(det->specificType().specificTopology())) ) 
         {
           assert(parameters[0] == 1);
           assert(parameters[3] == rst->yAxisOrientation());
@@ -1068,7 +1068,7 @@ ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer& det
           }
         }
          
-        else if( dynamic_cast<const RectangularStripTopology*>(st))
+        else if( dynamic_cast<const RectangularStripTopology*>(&(det->specificType().specificTopology())) )
         {
           assert(parameters[0] == 2);
           assert(parameters[3] == st->pitch());
@@ -1082,7 +1082,7 @@ ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer& det
           }
         }
         
-        else if( dynamic_cast<const TrapezoidalStripTopology*>(st))  
+        else if( dynamic_cast<const TrapezoidalStripTopology*>(&(det->specificType().specificTopology())) )
         {
           assert(parameters[0] == 3); 
           assert(parameters[3] == st->pitch());                               
