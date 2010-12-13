@@ -13,7 +13,7 @@
 //
 // Original Author:  jean-roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Tue Nov 30 18:55:50 CET 2010
-// $Id: MEtoMEComparitor.cc,v 1.3 2010/12/03 18:34:00 vlimant Exp $
+// $Id: MEtoMEComparitor.cc,v 1.4 2010/12/08 14:32:37 vlimant Exp $
 //
 //
 
@@ -94,24 +94,37 @@ MEtoMEComparitor::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 
 }
 
+
+template <class T>
+void MEtoMEComparitor::book(const std::string & directory,const std::string & type, const T * h){
+  _dbe->setCurrentFolder(type);
+  std::type_info const & tp = typeid(*h);
+  if (tp == typeid(TH1S))
+    _dbe->book1S(h->GetName(),dynamic_cast<TH1S*>(const_cast<T*>(h)));
+  else if (tp == typeid(TH1F))
+    _dbe->book1D(h->GetName(),dynamic_cast<TH1F*>(const_cast<T*>(h)));
+  else if (tp == typeid(TH1D))
+    _dbe->book1DD(h->GetName(),dynamic_cast<TH1D*>(const_cast<T*>(h)));
+}
 template <class T> 
-void keepBadHistograms(const T * h_new, const T * h_ref){
+void MEtoMEComparitor::keepBadHistograms(const std::string & directory, const T * h_new, const T * h_ref){
   //put it in a collection rather.
 
-  /*  
-  _dbe->setCurrentFolder("Differences");
   
   std::string d_n(h_new->GetName());
   d_n+="_diff";
-  T * difference = new T(d_n,
+  T * difference = new T(d_n.c_str(),
 			 h_new->GetTitle(),
 			 h_new->GetNbinsX(),
 			 h_new->GetXaxis()->GetXmin(),
 			 h_new->GetXaxis()->GetXmax());
   difference->Add(h_new);
   difference->Add(h_ref,-1.);
-  */
-  
+
+  book(directory,"Ref",h_ref);
+  book(directory,"New",h_new);
+  book(directory,"Diff",difference);
+  delete difference;
 
 }
 
@@ -225,13 +238,13 @@ void MEtoMEComparitor::compare(const W& where,const std::string & instance){
 					     <<" in "<<it->first    
 					     <<" the KS is "<<KS*100.<<" %"
 					     <<" and the relative diff is: "<<relativediff*100.<<" %"
-					     <<((cannotComputeKS)?"bad":"good");
-	    //std::string(" KolmogorovTest is not happy on : ")+h_new->GetName() : "";
-	//there you want to output the plots somewhere
-	keepBadHistograms(h_new,h_ref);
-
-	nBadDiff++;
-	subSystems[subsystem].second++;
+					     <<" KS"<<((cannotComputeKS)?" not valid":" is valid");
+	  //std::string(" KolmogorovTest is not happy on : ")+h_new->GetName() : "";
+	  //there you want to output the plots somewhere
+	  keepBadHistograms(subsystem,h_new,h_ref);
+	  
+	  nBadDiff++;
+	  subSystems[subsystem].second++;
 	}else{
 	  nGoodDiff++;
 	}
