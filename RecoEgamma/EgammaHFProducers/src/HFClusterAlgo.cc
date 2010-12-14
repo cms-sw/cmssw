@@ -54,6 +54,8 @@ void HFClusterAlgo::setup(double minTowerEnergy, double seedThreshold,double max
   m_usePulseFlag=usePulseflag;
   m_forcePulseFlagMC=forcePulseFlagMC;
   m_maximumRenergy=maximumRenergy;
+  m_correctionSet = correctionSet;
+
   for(int ii=0;ii<13;ii++){
     m_cutByEta.push_back(-1);
   }
