@@ -4,6 +4,10 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
+#include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+
+
 #include <iostream>
 
 class ConstMagneticField : public MagneticField {
@@ -16,6 +20,13 @@ public:
 };
 
 int main() {
+
+  std::cout << "sizes tsos, bsts, fts" << std::endl;
+  std::cout << sizeof( TrajectoryStateOnSurface) << std::endl;
+  std::cout << sizeof(BasicSingleTrajectoryState) << std::endl;
+  std::cout << sizeof(FreeTrajectoryStat) << std::endl;
+
+
   using namespace std;
 
   MagneticField * field = new ConstMagneticField;
