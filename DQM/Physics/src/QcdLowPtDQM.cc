@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.cc,v 1.14 2010/03/03 09:32:40 olzem Exp $
+// $Id: QcdLowPtDQM.cc,v 1.15 2010/11/11 17:27:32 olzem Exp $
 
 #include "DQM/Physics/src/QcdLowPtDQM.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -22,7 +22,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h" 
 #include <TString.h>
 #include <TMath.h>
 #include <TH1F.h>
@@ -835,8 +834,7 @@ void QcdLowPtDQM::fillPixels(const Event &iEvent)
     const PixelGeomDetUnit *pgdu = static_cast<const PixelGeomDetUnit*>(tgeo_->idToDet(id));
 
     if (usePixelQ_) {
-      const RectangularPixelTopology *pixTopo = 
-        static_cast<const RectangularPixelTopology*>(&(pgdu->specificTopology()));
+      const PixelTopology *pixTopo = &(pgdu->specificTopology());
       vector<SiPixelCluster::Pixel> pixels(hit->cluster()->pixels());
       bool pixelOnEdge = false;
       for(std::vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin(); 
