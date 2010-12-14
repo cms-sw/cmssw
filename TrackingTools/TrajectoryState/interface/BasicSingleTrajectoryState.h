@@ -212,13 +212,14 @@ private:
   mutable bool theCartesianErrorUp2Date;
   mutable bool theCurvilinErrorUp2Date;
 
-  mutable LocalTrajectoryParameters theLocalParameters;
   mutable LocalTrajectoryError      theLocalError;
+  mutable LocalTrajectoryParameters theLocalParameters;
   mutable bool                      theLocalParametersValid;
   mutable bool                      theLocalErrorValid;
 
-  ConstReferenceCountingPointer<Surface> theSurfaceP;
   SurfaceSide theSurfaceSide;
+  ConstReferenceCountingPointer<Surface> theSurfaceP;
+
   double theWeight;
   const MagneticField* theField;
 
