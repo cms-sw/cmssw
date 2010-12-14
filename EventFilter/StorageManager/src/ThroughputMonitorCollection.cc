@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.cc,v 1.20 2010/12/10 14:31:52 mommsen Exp $
+// $Id: ThroughputMonitorCollection.cc,v 1.21 2010/12/10 19:33:35 mommsen Exp $
 /// @file: ThroughputMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"
@@ -12,23 +12,23 @@ ThroughputMonitorCollection::ThroughputMonitorCollection
   const unsigned int& throuphputAveragingCycles
 ) :
   MonitorCollection(updateInterval),
-  _binCount(static_cast<int>(300/updateInterval)),
-  _poolUsageMQ(updateInterval, _binCount),
-  _entriesInFragmentQueueMQ(updateInterval, _binCount),
-  _memoryUsedInFragmentQueueMQ(updateInterval, _binCount),
-  _poppedFragmentSizeMQ(updateInterval, _binCount),
-  _fragmentProcessorIdleTimeMQ(updateInterval, _binCount),
-  _entriesInFragmentStoreMQ(updateInterval, _binCount),
-  _memoryUsedInFragmentStoreMQ(updateInterval, _binCount),
-  _entriesInStreamQueueMQ(updateInterval, _binCount),
-  _memoryUsedInStreamQueueMQ(updateInterval, _binCount),
-  _poppedEventSizeMQ(updateInterval, _binCount),
-  _diskWriterIdleTimeMQ(updateInterval, _binCount),
-  _diskWriteSizeMQ(updateInterval, _binCount),
-  _entriesInDQMEventQueueMQ(updateInterval, _binCount),
-  _memoryUsedInDQMEventQueueMQ(updateInterval, _binCount),
-  _poppedDQMEventSizeMQ(updateInterval, _binCount),
-  _dqmEventProcessorIdleTimeMQ(updateInterval, _binCount),
+  _binCount(300),
+  _poolUsageMQ(updateInterval, updateInterval*_binCount),
+  _entriesInFragmentQueueMQ(updateInterval, updateInterval*_binCount),
+  _memoryUsedInFragmentQueueMQ(updateInterval, updateInterval*_binCount),
+  _poppedFragmentSizeMQ(updateInterval, updateInterval*_binCount),
+  _fragmentProcessorIdleTimeMQ(updateInterval, updateInterval*_binCount),
+  _entriesInFragmentStoreMQ(updateInterval, updateInterval*_binCount),
+  _memoryUsedInFragmentStoreMQ(updateInterval, updateInterval*_binCount),
+  _entriesInStreamQueueMQ(updateInterval, updateInterval*_binCount),
+  _memoryUsedInStreamQueueMQ(updateInterval, updateInterval*_binCount),
+  _poppedEventSizeMQ(updateInterval, updateInterval*_binCount),
+  _diskWriterIdleTimeMQ(updateInterval, updateInterval*_binCount),
+  _diskWriteSizeMQ(updateInterval, updateInterval*_binCount),
+  _entriesInDQMEventQueueMQ(updateInterval, updateInterval*_binCount),
+  _memoryUsedInDQMEventQueueMQ(updateInterval, updateInterval*_binCount),
+  _poppedDQMEventSizeMQ(updateInterval, updateInterval*_binCount),
+  _dqmEventProcessorIdleTimeMQ(updateInterval, updateInterval*_binCount),
   _currentFragmentStoreSize(0),
   _currentFragmentStoreMemoryUsedMB(0),
   _throuphputAveragingCycles(throuphputAveragingCycles),
@@ -52,7 +52,7 @@ void ThroughputMonitorCollection::addPoppedFragmentSample(double dataSize)
 void ThroughputMonitorCollection::
 addFragmentProcessorIdleSample(utils::duration_t idleTime)
 {
-  _fragmentProcessorIdleTimeMQ.addSample(idleTime);
+  _fragmentProcessorIdleTimeMQ.addSample(utils::duration_to_seconds(idleTime));
 }
 
 
@@ -65,7 +65,7 @@ void ThroughputMonitorCollection::addPoppedEventSample(double dataSize)
 void ThroughputMonitorCollection::
 addDiskWriterIdleSample(utils::duration_t idleTime)
 {
-  _diskWriterIdleTimeMQ.addSample(idleTime);
+  _diskWriterIdleTimeMQ.addSample(utils::duration_to_seconds(idleTime));
 }
 
 
@@ -84,7 +84,7 @@ void ThroughputMonitorCollection::addPoppedDQMEventSample(double dataSize)
 void ThroughputMonitorCollection::
 addDQMEventProcessorIdleSample(utils::duration_t idleTime)
 {
-  _dqmEventProcessorIdleTimeMQ.addSample(idleTime);
+  _dqmEventProcessorIdleTimeMQ.addSample(utils::duration_to_seconds(idleTime));
 }
 
 
@@ -155,11 +155,11 @@ void ThroughputMonitorCollection::do_getStats(Stats& stats, const unsigned int s
   {
     utils::duration_t binDuration = fqEntryCountMQ.recentBinnedDurations[idx];
     relativeTime -= binDuration;
-    if (binDuration < 0.01) continue; //avoid very short durations
+    if (binDuration < boost::posix_time::milliseconds(10)) continue; //avoid very short durations
 
     Stats::Snapshot snapshot;
 
-    snapshot.relativeTime = relativeTime;
+    snapshot.duration = binDuration;
     snapshot.absoluteTime = fqEntryCountMQ.recentBinnedSnapshotTimes[idx];
 
     // memory pool usage
@@ -239,8 +239,6 @@ void ThroughputMonitorCollection::do_getStats(Stats& stats, const unsigned int s
   if (snapshotCount > 0)
   {
     stats.average /= snapshotCount;
-    stats.average.relativeTime =
-      stats.snapshots[0].absoluteTime - stats.snapshots[snapshotCount-1].absoluteTime;
   }
 }
 
@@ -265,13 +263,13 @@ int ThroughputMonitorCollection::smoothIdleTimesHelper
 ) const
 {
   int workingSize = lastIndex - firstIndex + 1;
-  double idleTimeSum = 0.0;
-  double durationSum = 0.0;
+  double idleTimeSum = 0;
+  double durationSum = 0;
 
   for (int idx = firstIndex; idx <= lastIndex; ++idx)
   {
     idleTimeSum += idleTimes[idx];
-    durationSum += durations[idx];
+    durationSum += utils::duration_to_seconds(durations[idx]);
   }
 
   if (idleTimeSum > durationSum && firstIndex > 0)
@@ -285,7 +283,7 @@ int ThroughputMonitorCollection::smoothIdleTimesHelper
       for (int idx = firstIndex; idx <= lastIndex; ++idx)
       {
         idleTimes[idx] = idleTimeSum / workingSize;
-        durations[idx] = durationSum / workingSize;
+        durations[idx] = utils::seconds_to_duration(durationSum / workingSize);
       }
     }
     return (firstIndex - 1);
@@ -301,14 +299,15 @@ void ThroughputMonitorCollection::getRateAndBandwidth
   double& bandwidth
 ) const
 {
-  if (stats.recentBinnedDurations[idx] > 0.0)
+  const double recentBinnedDuration = utils::duration_to_seconds(stats.recentBinnedDurations[idx]);
+  if (recentBinnedDuration > 0)
   {
     rate =
-      stats.recentBinnedSampleCounts[idx] / stats.recentBinnedDurations[idx];
+      stats.recentBinnedSampleCounts[idx] / recentBinnedDuration;
     
     bandwidth =
       stats.recentBinnedValueSums[idx] / (1024*1024) 
-      / stats.recentBinnedDurations[idx];
+      / recentBinnedDuration;
   }
 }
 
@@ -331,11 +330,11 @@ double ThroughputMonitorCollection::calcBusyPercentage
     // this should only happen if deq_timed_wait timeout >= statistics calculation period
     busyPercentage = 0;
   }
-  else if (stats.recentBinnedValueSums[idx] <= stats.recentBinnedDurations[idx])
+  else if (stats.recentBinnedValueSums[idx] <= utils::duration_to_seconds(stats.recentBinnedDurations[idx]))
   {
     // the thread was busy while it was not idle during the whole reporting duration
     busyPercentage = 100.0 * (1.0 - (stats.recentBinnedValueSums[idx] /
-        stats.recentBinnedDurations[idx]));
+        utils::duration_to_seconds(stats.recentBinnedDurations[idx])));
   }
   else
   {
@@ -457,12 +456,12 @@ void ThroughputMonitorCollection::do_updateInfoSpaceItems()
   _fragmentProcessorBusy = stats.average.fragmentProcessorBusy;
   _diskWriterBusy = stats.average.diskWriterBusy;
   _dqmEventProcessorBusy = stats.average.dqmEventProcessorBusy;
-  _averagingTime = stats.average.relativeTime;
+  _averagingTime = utils::duration_to_seconds(stats.average.duration);
 }
 
 
 ThroughputMonitorCollection::Stats::Snapshot::Snapshot() :
-relativeTime(0),
+duration(boost::posix_time::seconds(0)),
 poolUsage(0),
 entriesInFragmentQueue(0),
 memoryUsedInFragmentQueue(0),
@@ -489,7 +488,7 @@ dqmEventProcessorBusy(0)
 ThroughputMonitorCollection::Stats::Snapshot
 ThroughputMonitorCollection::Stats::Snapshot::operator=(const Snapshot& other)
 {
-  relativeTime = other.relativeTime;
+  duration = other.duration;
   poolUsage = other.poolUsage;
   entriesInFragmentQueue = other.entriesInFragmentQueue;
   memoryUsedInFragmentQueue = other.memoryUsedInFragmentQueue;
@@ -518,7 +517,7 @@ ThroughputMonitorCollection::Stats::Snapshot::operator=(const Snapshot& other)
 ThroughputMonitorCollection::Stats::Snapshot
 ThroughputMonitorCollection::Stats::Snapshot::operator+=(const Snapshot& other)
 {
-  relativeTime = -1;
+  duration += other.duration;
   poolUsage += other.poolUsage;
   entriesInFragmentQueue += other.entriesInFragmentQueue;
   memoryUsedInFragmentQueue += other.memoryUsedInFragmentQueue;
@@ -547,7 +546,6 @@ ThroughputMonitorCollection::Stats::Snapshot::operator+=(const Snapshot& other)
 ThroughputMonitorCollection::Stats::Snapshot
 ThroughputMonitorCollection::Stats::Snapshot::operator/=(const double& value)
 {
-  relativeTime = -1;
   poolUsage /= value;
   entriesInFragmentQueue /= value;
   memoryUsedInFragmentQueue /= value;

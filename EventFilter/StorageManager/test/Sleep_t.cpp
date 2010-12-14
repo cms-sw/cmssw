@@ -10,12 +10,8 @@ void test_helper(edm::CPUTimer& t,
                  double max_sleep)
 {
   t.start();
-  int status = stor::utils::sleep(interval);
+  stor::utils::sleep(interval);
   t.stop();
-  if (interval < 0)
-    CPPUNIT_ASSERT(status == -1);
-  else
-    CPPUNIT_ASSERT(status == 0);
   CPPUNIT_ASSERT(t.realTime() >= min_sleep);
   // maximum sleep time depends too much on the
   // system load to be meaningful
@@ -26,9 +22,7 @@ void test_helper_sleep_until(edm::CPUTimer& t,
                              stor::utils::duration_t interval) 
 {
   stor::utils::time_point_t now = stor::utils::getCurrentTime();
-  int status = stor::utils::sleepUntil(now + interval);
-  if (interval > 0)
-    CPPUNIT_ASSERT(status == 0);
+  stor::utils::sleepUntil(now + interval);
   CPPUNIT_ASSERT(stor::utils::getCurrentTime() >= now+interval);
 }
 
@@ -86,53 +80,49 @@ testSleep::tearDown()
 void 
 testSleep::negative_sleep_duration()
 {
-  test_helper(_timer, -0.1, 0.0, _resolution);
+  test_helper(_timer, boost::posix_time::time_duration(0,-1,0), 0.0, _resolution);
 }
 
 void
 testSleep::zero_sleep_duration()
 {
-  test_helper(_timer, 0.0, 0.0, _max_allowed_shortest_sleep_duration);
+  test_helper(_timer, boost::posix_time::time_duration(0,0,0), 0.0, _max_allowed_shortest_sleep_duration);
 }
 
 void
 testSleep::subsecond_sleep_duration()
 {
-  stor::utils::duration_t dur = 0.01;
-  test_helper(_timer, dur, 0.0, dur+_resolution);
+  test_helper(_timer, boost::posix_time::time_duration(0,0,0,1000), 0.0, 0.1+_resolution);
 }
 
 void
 testSleep::multisecond_sleep_duration()
 {
-  stor::utils::duration_t dur = 3.9;
-  test_helper(_timer, dur, 0.0, dur+_resolution);
+  test_helper(_timer, boost::posix_time::time_duration(0,0,3,9000), 0.0, 3.9+_resolution);
 }
 
 void
 testSleep::negative_sleep_until()
 {
-  test_helper_sleep_until(_timer, -0.02);
+  test_helper_sleep_until(_timer, boost::posix_time::time_duration(0,-1,0));
 }
 
 void
 testSleep::zero_sleep_until()
 {
-  test_helper_sleep_until(_timer, 0);
+  test_helper_sleep_until(_timer, boost::posix_time::time_duration(0,0,0));
 }
 
 void
 testSleep::subsecond_sleep_until()
 {
-  stor::utils::duration_t dur = 0.06;
-  test_helper_sleep_until(_timer, dur);
+  test_helper_sleep_until(_timer, boost::posix_time::time_duration(0,0,0,600));
 }
 
 void
 testSleep::multisecond_sleep_until()
 {
-  stor::utils::duration_t dur = 3.1;
-  test_helper_sleep_until(_timer, dur);
+  test_helper_sleep_until(_timer, boost::posix_time::time_duration(0,0,3,1000));
 }
 
 // This macro writes the 'main' for this test.

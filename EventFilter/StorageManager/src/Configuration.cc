@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.38 2010/12/10 14:31:52 mommsen Exp $
+// $Id: Configuration.cc,v 1.39 2010/12/10 19:38:48 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -179,8 +179,8 @@ namespace stor
     _diskWriteParamCopy._maxFileSizeMB = 0;
     _diskWriteParamCopy._highWaterMark = 90;
     _diskWriteParamCopy._failHighWaterMark = 95;
-    _diskWriteParamCopy._lumiSectionTimeOut = 45.0;
-    _diskWriteParamCopy._fileClosingTestInterval = 5.0;
+    _diskWriteParamCopy._lumiSectionTimeOut = boost::posix_time::seconds(45);
+    _diskWriteParamCopy._fileClosingTestInterval = boost::posix_time::seconds(5);
     _diskWriteParamCopy._fileSizeTolerance = 0.0;
     _diskWriteParamCopy._faultyEventsStream = "";
 
@@ -208,18 +208,18 @@ namespace stor
     _dqmParamCopy._archiveDQM = false;
     _dqmParamCopy._filePrefixDQM = "/tmp/DQM";
     _dqmParamCopy._archiveIntervalDQM = 0;
-    _dqmParamCopy._purgeTimeDQM = 300;
-    _dqmParamCopy._readyTimeDQM = 120;
+    _dqmParamCopy._purgeTimeDQM = boost::posix_time::seconds(300);
+    _dqmParamCopy._readyTimeDQM = boost::posix_time::seconds(120);
     _dqmParamCopy._useCompressionDQM = true;
     _dqmParamCopy._compressionLevelDQM = 1;
   }
 
   void Configuration::setEventServingDefaults()
   {
-    _eventServeParamCopy._activeConsumerTimeout = 60.0;  // seconds
+    _eventServeParamCopy._activeConsumerTimeout = boost::posix_time::seconds(60);
     _eventServeParamCopy._consumerQueueSize = 5;
     _eventServeParamCopy._consumerQueuePolicy = "DiscardOld";
-    _eventServeParamCopy._DQMactiveConsumerTimeout = 60.0;  // seconds
+    _eventServeParamCopy._DQMactiveConsumerTimeout = boost::posix_time::seconds(60);
     _eventServeParamCopy._DQMconsumerQueueSize = 15;
     _eventServeParamCopy._DQMconsumerQueuePolicy = "DiscardOld";
   }
@@ -243,8 +243,8 @@ namespace stor
     _workerThreadParamCopy._DWdeqWaitTime = boost::posix_time::millisec(500);
     _workerThreadParamCopy._DQMEPdeqWaitTime = boost::posix_time::millisec(500);
   
-    _workerThreadParamCopy._staleFragmentTimeOut = 60;
-    _workerThreadParamCopy._monitoringSleepSec = 1;
+    _workerThreadParamCopy._staleFragmentTimeOut = boost::posix_time::seconds(60);
+    _workerThreadParamCopy._monitoringSleepSec = boost::posix_time::seconds(1);
     _workerThreadParamCopy._throuphputAveragingCycles = 10;
   }
 
@@ -282,9 +282,8 @@ namespace stor
     _maxFileSize = _diskWriteParamCopy._maxFileSizeMB;
     _highWaterMark = _diskWriteParamCopy._highWaterMark;
     _failHighWaterMark = _diskWriteParamCopy._failHighWaterMark;
-    _lumiSectionTimeOut = _diskWriteParamCopy._lumiSectionTimeOut;
-    _fileClosingTestInterval =
-      static_cast<int>(_diskWriteParamCopy._fileClosingTestInterval);
+    _lumiSectionTimeOut = utils::duration_to_seconds(_diskWriteParamCopy._lumiSectionTimeOut);
+    _fileClosingTestInterval = _diskWriteParamCopy._fileClosingTestInterval.total_seconds();
     _fileSizeTolerance = _diskWriteParamCopy._fileSizeTolerance;
     _faultyEventsStream = _diskWriteParamCopy._faultyEventsStream;
 
@@ -321,10 +320,10 @@ namespace stor
     // copy the initial defaults to the xdata variables
     _collateDQM = _dqmParamCopy._collateDQM;
     _archiveDQM = _dqmParamCopy._archiveDQM;
-    _archiveIntervalDQM = static_cast<int>(_dqmParamCopy._archiveIntervalDQM);
+    _archiveIntervalDQM = _dqmParamCopy._archiveIntervalDQM;
     _filePrefixDQM = _dqmParamCopy._filePrefixDQM;
-    _purgeTimeDQM = static_cast<int>(_dqmParamCopy._purgeTimeDQM);
-    _readyTimeDQM = static_cast<int>(_dqmParamCopy._readyTimeDQM);
+    _purgeTimeDQM = _dqmParamCopy._purgeTimeDQM.total_seconds();
+    _readyTimeDQM = _dqmParamCopy._readyTimeDQM.total_seconds();
     _useCompressionDQM = _dqmParamCopy._useCompressionDQM;
     _compressionLevelDQM = _dqmParamCopy._compressionLevelDQM;
 
@@ -343,12 +342,10 @@ namespace stor
   setupEventServingInfoSpaceParams(xdata::InfoSpace* infoSpace)
   {
     // copy the initial defaults to the xdata variables
-    _activeConsumerTimeout =
-      static_cast<int>(_eventServeParamCopy._activeConsumerTimeout);
+    _activeConsumerTimeout = _eventServeParamCopy._activeConsumerTimeout.total_seconds();
     _consumerQueueSize = _eventServeParamCopy._consumerQueueSize;
     _consumerQueuePolicy = _eventServeParamCopy._consumerQueuePolicy;
-    _DQMactiveConsumerTimeout =
-      static_cast<int>(_eventServeParamCopy._DQMactiveConsumerTimeout);
+    _DQMactiveConsumerTimeout = _eventServeParamCopy._DQMactiveConsumerTimeout.total_seconds();
     _DQMconsumerQueueSize = _eventServeParamCopy._DQMconsumerQueueSize;
     _DQMconsumerQueuePolicy = _eventServeParamCopy._DQMconsumerQueuePolicy;
 
@@ -397,8 +394,8 @@ namespace stor
     _FPdeqWaitTime = utils::duration_to_seconds(_workerThreadParamCopy._FPdeqWaitTime);
     _DWdeqWaitTime = utils::duration_to_seconds(_workerThreadParamCopy._DWdeqWaitTime);
     _DQMEPdeqWaitTime = utils::duration_to_seconds(_workerThreadParamCopy._DQMEPdeqWaitTime);
-    _staleFragmentTimeOut = _workerThreadParamCopy._staleFragmentTimeOut;
-    _monitoringSleepSec = _workerThreadParamCopy._monitoringSleepSec;
+    _staleFragmentTimeOut = utils::duration_to_seconds(_workerThreadParamCopy._staleFragmentTimeOut);
+    _monitoringSleepSec = utils::duration_to_seconds(_workerThreadParamCopy._monitoringSleepSec);
     _throuphputAveragingCycles = _workerThreadParamCopy._throuphputAveragingCycles;
 
     // bind the local xdata variables to the infospace
@@ -463,8 +460,9 @@ namespace stor
     _diskWriteParamCopy._maxFileSizeMB = _maxFileSize;
     _diskWriteParamCopy._highWaterMark = _highWaterMark;
     _diskWriteParamCopy._failHighWaterMark = _failHighWaterMark;
-    _diskWriteParamCopy._lumiSectionTimeOut = _lumiSectionTimeOut;
-    _diskWriteParamCopy._fileClosingTestInterval = _fileClosingTestInterval;
+    _diskWriteParamCopy._lumiSectionTimeOut = utils::seconds_to_duration(_lumiSectionTimeOut);
+    _diskWriteParamCopy._fileClosingTestInterval =
+      boost::posix_time::seconds( static_cast<int>(_fileClosingTestInterval) );
     _diskWriteParamCopy._fileSizeTolerance = _fileSizeTolerance;
     _diskWriteParamCopy._faultyEventsStream = _faultyEventsStream;
 
@@ -480,24 +478,28 @@ namespace stor
     _dqmParamCopy._archiveDQM = _archiveDQM;
     _dqmParamCopy._archiveIntervalDQM = _archiveIntervalDQM;
     _dqmParamCopy._filePrefixDQM = _filePrefixDQM;
-    _dqmParamCopy._purgeTimeDQM = _purgeTimeDQM;
-    _dqmParamCopy._readyTimeDQM = _readyTimeDQM;
+    _dqmParamCopy._purgeTimeDQM =
+      boost::posix_time::seconds( static_cast<int>(_purgeTimeDQM) );
+    _dqmParamCopy._readyTimeDQM =
+      boost::posix_time::seconds( static_cast<int>(_readyTimeDQM) );
     _dqmParamCopy._useCompressionDQM = _useCompressionDQM;
     _dqmParamCopy._compressionLevelDQM = _compressionLevelDQM;
 
     // make sure that purge time is larger than ready time
     if ( _dqmParamCopy._purgeTimeDQM < _dqmParamCopy._readyTimeDQM )
     {
-      _dqmParamCopy._purgeTimeDQM = _dqmParamCopy._readyTimeDQM + 10;
+      _dqmParamCopy._purgeTimeDQM = _dqmParamCopy._readyTimeDQM + boost::posix_time::seconds(10);
     }
   }
 
   void Configuration::updateLocalEventServingData()
   {
-    _eventServeParamCopy._activeConsumerTimeout = _activeConsumerTimeout;
+    _eventServeParamCopy._activeConsumerTimeout =
+      boost::posix_time::seconds( static_cast<int>(_activeConsumerTimeout) );
     _eventServeParamCopy._consumerQueueSize = _consumerQueueSize;
     _eventServeParamCopy._consumerQueuePolicy = _consumerQueuePolicy;
-    _eventServeParamCopy._DQMactiveConsumerTimeout = _DQMactiveConsumerTimeout;
+    _eventServeParamCopy._DQMactiveConsumerTimeout = 
+      boost::posix_time::seconds( static_cast<int>(_DQMactiveConsumerTimeout) );
     _eventServeParamCopy._DQMconsumerQueueSize = _DQMconsumerQueueSize;
     _eventServeParamCopy._DQMconsumerQueuePolicy = _DQMconsumerQueuePolicy;
 
@@ -530,8 +532,8 @@ namespace stor
     _workerThreadParamCopy._DWdeqWaitTime = utils::seconds_to_duration(_DWdeqWaitTime);
     _workerThreadParamCopy._DQMEPdeqWaitTime = utils::seconds_to_duration(_DQMEPdeqWaitTime);
 
-    _workerThreadParamCopy._staleFragmentTimeOut = _staleFragmentTimeOut;
-    _workerThreadParamCopy._monitoringSleepSec = _monitoringSleepSec;
+    _workerThreadParamCopy._staleFragmentTimeOut = utils::seconds_to_duration(_staleFragmentTimeOut);
+    _workerThreadParamCopy._monitoringSleepSec = utils::seconds_to_duration(_monitoringSleepSec);
     _workerThreadParamCopy._throuphputAveragingCycles = _throuphputAveragingCycles;
   }
 

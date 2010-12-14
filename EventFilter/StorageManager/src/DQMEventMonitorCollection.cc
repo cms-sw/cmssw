@@ -1,4 +1,4 @@
-// $Id: DQMEventMonitorCollection.cc,v 1.8 2010/02/18 11:23:03 mommsen Exp $
+// $Id: DQMEventMonitorCollection.cc,v 1.9 2010/03/08 17:04:26 mommsen Exp $
 /// @file: DQMEventMonitorCollection.cc
 
 #include <string>
@@ -12,16 +12,16 @@ using namespace stor;
 
 DQMEventMonitorCollection::DQMEventMonitorCollection(const utils::duration_t& updateInterval) :
 MonitorCollection(updateInterval),
-_discardedDQMEventCounts(updateInterval, 300),
-_dqmEventSizes(updateInterval, 300),
-_servedDQMEventSizes(updateInterval, 300),
-_writtenDQMEventSizes(updateInterval, 300),
-_dqmEventBandwidth(updateInterval, 300),
-_servedDQMEventBandwidth(updateInterval, 300),
-_writtenDQMEventBandwidth(updateInterval, 300),
-_numberOfGroups(updateInterval, 300),
-_numberOfUpdates(updateInterval, 300),
-_numberOfWrittenGroups(updateInterval, 300)
+_discardedDQMEventCounts(updateInterval, boost::posix_time::seconds(300)),
+_dqmEventSizes(updateInterval, boost::posix_time::seconds(300)),
+_servedDQMEventSizes(updateInterval, boost::posix_time::seconds(300)),
+_writtenDQMEventSizes(updateInterval, boost::posix_time::seconds(300)),
+_dqmEventBandwidth(updateInterval, boost::posix_time::seconds(300)),
+_servedDQMEventBandwidth(updateInterval, boost::posix_time::seconds(300)),
+_writtenDQMEventBandwidth(updateInterval, boost::posix_time::seconds(300)),
+_numberOfGroups(updateInterval, boost::posix_time::seconds(300)),
+_numberOfUpdates(updateInterval, boost::posix_time::seconds(300)),
+_numberOfWrittenGroups(updateInterval, boost::posix_time::seconds(300))
 {}
 
 

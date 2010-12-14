@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.h,v 1.14 2010/05/03 12:16:57 mommsen Exp $
+// $Id: DataSenderMonitorCollection.h,v 1.15 2010/05/17 15:59:09 mommsen Exp $
 /// @file: DataSenderMonitorCollection.h 
 
 #ifndef StorageManager_DataSenderMonitorCollection_h
@@ -26,8 +26,8 @@ namespace stor {
    * and events by their source (resource broker, filter unit, etc.)
    *
    * $Author: mommsen $
-   * $Revision: 1.14 $
-   * $Date: 2010/05/03 12:16:57 $
+   * $Revision: 1.15 $
+   * $Date: 2010/05/17 15:59:09 $
    */
   
   class DataSenderMonitorCollection : public MonitorCollection
@@ -129,7 +129,7 @@ namespace stor {
       MonitoredQuantity eventSize;
       
       OutputModuleRecord(const utils::duration_t& updateInterval) :
-        eventSize(updateInterval,10) {}
+      eventSize(updateInterval,boost::posix_time::seconds(10)) {}
     };
     typedef boost::shared_ptr<OutputModuleRecord> OutModRecordPtr;
     typedef std::map<OutputModuleKey, OutModRecordPtr> OutputModuleRecordMap;
@@ -159,12 +159,16 @@ namespace stor {
         FilterUnitKey fuKey,
         const utils::duration_t& updateInterval
       ) :
-        key(fuKey), shortIntervalEventSize(updateInterval,10),
-        mediumIntervalEventSize(updateInterval,300), dqmEventSize(updateInterval,10),
-        errorEventSize(updateInterval,10),
-        faultyEventSize(updateInterval,10), faultyDQMEventSize(updateInterval,10),
-        dataDiscardCount(updateInterval,10),dqmDiscardCount(updateInterval,10),
-        skippedDiscardCount(updateInterval,10),
+        key(fuKey),
+        shortIntervalEventSize(updateInterval,boost::posix_time::seconds(10)),
+        mediumIntervalEventSize(updateInterval,boost::posix_time::seconds(300)),
+        dqmEventSize(updateInterval,boost::posix_time::seconds(10)),
+        errorEventSize(updateInterval,boost::posix_time::seconds(10)),
+        faultyEventSize(updateInterval,boost::posix_time::seconds(10)),
+        faultyDQMEventSize(updateInterval,boost::posix_time::seconds(10)),
+        dataDiscardCount(updateInterval,boost::posix_time::seconds(10)),
+        dqmDiscardCount(updateInterval,boost::posix_time::seconds(10)),
+        skippedDiscardCount(updateInterval,boost::posix_time::seconds(10)),
         initMsgCount(0), lastRunNumber(0), lastEventNumber(0) {}
     };
     typedef boost::shared_ptr<FilterUnitRecord> FURecordPtr;
@@ -194,11 +198,15 @@ namespace stor {
         ResourceBrokerKey rbKey,
         const utils::duration_t& updateInterval
       ) :
-        key(rbKey), eventSize(updateInterval,10), dqmEventSize(updateInterval,10),
-        errorEventSize(updateInterval,10),
-        faultyEventSize(updateInterval,10), faultyDQMEventSize(updateInterval,10),
-        dataDiscardCount(updateInterval,10),dqmDiscardCount(updateInterval,10),
-        skippedDiscardCount(updateInterval,10),
+        key(rbKey),
+        eventSize(updateInterval,boost::posix_time::seconds(10)),
+        dqmEventSize(updateInterval,boost::posix_time::seconds(10)),
+        errorEventSize(updateInterval,boost::posix_time::seconds(10)),
+        faultyEventSize(updateInterval,boost::posix_time::seconds(10)),
+        faultyDQMEventSize(updateInterval,boost::posix_time::seconds(10)),
+        dataDiscardCount(updateInterval,boost::posix_time::seconds(10)),
+        dqmDiscardCount(updateInterval,boost::posix_time::seconds(10)),
+        skippedDiscardCount(updateInterval,boost::posix_time::seconds(10)),
         initMsgCount(0), lastRunNumber(0), lastEventNumber(0) {}
     };
     typedef boost::shared_ptr<ResourceBrokerRecord> RBRecordPtr;

@@ -1,4 +1,4 @@
-// $Id: FragmentStore.cc,v 1.6 2009/07/20 13:07:27 mommsen Exp $
+// $Id: FragmentStore.cc,v 1.7 2010/02/15 13:47:38 mommsen Exp $
 /// @file: FragmentStore.cc
 
 #include "EventFilter/StorageManager/interface/FragmentStore.h"
@@ -72,9 +72,9 @@ void FragmentStore::resetStaleEventTimes()
   }
 }
 
-const bool FragmentStore::getStaleEvent(I2OChain &chain, double timeout)
+const bool FragmentStore::getStaleEvent(I2OChain &chain, utils::duration_t timeout)
 {
-  const double cutOffTime = utils::getCurrentTime() - timeout;
+  const utils::time_point_t cutOffTime = utils::getCurrentTime() - timeout;
   
   fragmentMap::iterator pos = _store.begin();
   fragmentMap::iterator end = _store.end();

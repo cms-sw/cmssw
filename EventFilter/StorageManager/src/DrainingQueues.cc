@@ -1,4 +1,4 @@
-// $Id: DrainingQueues.cc,v 1.10 2010/03/08 11:55:21 mommsen Exp $
+// $Id: DrainingQueues.cc,v 1.11 2010/08/06 20:24:30 wmtan Exp $
 /// @file: DrainingQueues.cc
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
@@ -107,7 +107,7 @@ DrainingQueues::processStaleFragments() const
   while ( gotStaleEvent && !ed->full() && loopCounter++ < 10 )
   {
     gotStaleEvent = 
-      outermost_context().getFragmentStore()->getStaleEvent(staleEvent, 0);
+      outermost_context().getFragmentStore()->getStaleEvent(staleEvent, boost::posix_time::seconds(0));
     if ( gotStaleEvent )
     {
       outermost_context().getSharedResources()->_discardManager->sendDiscardMessage(staleEvent);

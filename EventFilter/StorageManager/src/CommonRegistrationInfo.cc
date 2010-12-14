@@ -1,4 +1,4 @@
-// $Id: CommonRegistrationInfo.cc,v 1.3 2009/07/20 13:07:27 mommsen Exp $
+// $Id: CommonRegistrationInfo.cc,v 1.4 2010/02/16 10:49:36 mommsen Exp $
 /// @file: CommonRegistrationInfo.cc
 
 #include "EventFilter/StorageManager/interface/CommonRegistrationInfo.h"
@@ -29,7 +29,7 @@ namespace stor
        << "\n Queue id: " << ri._queueId
        << "\n Maximum size of queue: " << ri._queueSize
        << "\n Policy used if queue is full: " << ri._queuePolicy
-       << "\n Time until queue becomes stale (seconds): " << ri._secondsToStale;
+       << "\n Time until queue becomes stale (seconds): " << ri._secondsToStale.total_seconds();
     return os;
   }
 }

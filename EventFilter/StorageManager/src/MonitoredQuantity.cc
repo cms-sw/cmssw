@@ -1,4 +1,4 @@
-// $Id: MonitoredQuantity.cc,v 1.7 2010/03/19 13:20:18 mommsen Exp $
+// $Id: MonitoredQuantity.cc,v 1.8 2010/12/03 15:56:48 mommsen Exp $
 /// @file: MonitoredQuantity.cc
 
 #include "EventFilter/StorageManager/interface/MonitoredQuantity.h"
@@ -26,7 +26,8 @@ void MonitoredQuantity::addSample(const double value)
 
   boost::mutex::scoped_lock sl(_accumulationMutex);
 
-  if (_lastCalculationTime <= 0.0) {
+  if ( _lastCalculationTime.is_not_a_date_time() )
+  {
     _lastCalculationTime = utils::getCurrentTime();
   }
 
@@ -64,7 +65,7 @@ void  MonitoredQuantity::addSampleIfLarger(const double value)
 void MonitoredQuantity::calculateStatistics(utils::time_point_t currentTime)
 {
   if (! _enabled) {return;}
-  if (_lastCalculationTime <= 0.0) {return;}
+  if (_lastCalculationTime.is_not_a_date_time()) {return;}
   if (currentTime - _lastCalculationTime < _expectedCalculationInterval) {return;}
 
   // create local copies of the working values to minimize the
@@ -121,19 +122,14 @@ void MonitoredQuantity::calculateStatistics(utils::time_point_t currentTime)
     _binDuration[_workingBinId] = latestDuration;
     _binSnapshotTime[_workingBinId] = latestSnapshotTime;
 
-    if (latestDuration > 0.0) {
-      _lastLatchedValueRate = latestValueSum / latestDuration;
-    }
-    else {
-      _lastLatchedValueRate = 0.0;
-    }
+    _lastLatchedValueRate = latestValueSum / utils::duration_to_seconds(latestDuration);
 
     _recentSampleCount = 0;
     _recentValueSum = 0.0;
     _recentValueSumOfSquares = 0.0;
     _recentValueMin =  INFINITY;
     _recentValueMax = -INFINITY;
-    _recentDuration = 0.0;
+    _recentDuration = boost::posix_time::seconds(0);
 
     for (unsigned int idx = 0; idx < _binCount; ++idx) {
       _recentSampleCount += _binSampleCount[idx];
@@ -154,14 +150,9 @@ void MonitoredQuantity::calculateStatistics(utils::time_point_t currentTime)
     if (_workingBinId >= _binCount) {_workingBinId = 0;}
 
     // calculate the derived full values
-    if (_fullDuration > 0.0) {
-      _fullSampleRate = static_cast<double>(_fullSampleCount) / _fullDuration;
-      _fullValueRate = static_cast<double>(_fullValueSum) / _fullDuration;
-    }
-    else {
-      _fullSampleRate = 0.0;
-      _fullValueRate = 0.0;
-    }
+    const double fullDuration = utils::duration_to_seconds(_fullDuration);
+    _fullSampleRate = _fullSampleCount / fullDuration;
+    _fullValueRate = _fullValueSum / fullDuration;
 
     if (_fullSampleCount > 0) {
       _fullValueAverage = _fullValueSum / static_cast<double>(_fullSampleCount);
@@ -182,9 +173,10 @@ void MonitoredQuantity::calculateStatistics(utils::time_point_t currentTime)
     }
 
     // calculate the derived recent values
-    if (_recentDuration > 0.0) {
-      _recentSampleRate = static_cast<double>(_recentSampleCount) / _recentDuration;
-      _recentValueRate = static_cast<double>(_recentValueSum) / _recentDuration;
+    const double recentDuration = utils::duration_to_seconds(_recentDuration);
+    if (recentDuration > 0) {
+      _recentSampleRate = _recentSampleCount / recentDuration;
+      _recentValueRate = _recentValueSum / recentDuration;
     }
     else {
       _recentSampleRate = 0.0;
@@ -214,7 +206,7 @@ void MonitoredQuantity::calculateStatistics(utils::time_point_t currentTime)
 
 void MonitoredQuantity::_reset_accumulators()
 {
-  _lastCalculationTime = 0;
+  _lastCalculationTime = boost::posix_time::not_a_date_time;
   _workingSampleCount = 0;
   _workingValueSum = 0.0;
   _workingValueSumOfSquares = 0.0;
@@ -232,8 +224,8 @@ void MonitoredQuantity::_reset_results()
     _binValueSumOfSquares[idx] = 0.0;
     _binValueMin[idx] =  INFINITY;
     _binValueMax[idx] = -INFINITY;
-    _binDuration[idx] = 0.0;
-    _binSnapshotTime[idx] = 0.0;
+    _binDuration[idx] = boost::posix_time::seconds(0);
+    _binSnapshotTime[idx] = boost::posix_time::not_a_date_time;
   }
 
   _fullSampleCount = 0;
@@ -245,7 +237,7 @@ void MonitoredQuantity::_reset_results()
   _fullValueMin =  INFINITY;
   _fullValueMax = -INFINITY;
   _fullValueRate = 0.0;
-  _fullDuration = 0.0;
+  _fullDuration = boost::posix_time::seconds(0);
 
   _recentSampleCount = 0;
   _recentSampleRate = 0.0;
@@ -256,7 +248,7 @@ void MonitoredQuantity::_reset_results()
   _recentValueMin =  INFINITY;
   _recentValueMax = -INFINITY;
   _recentValueRate = 0.0;
-  _recentDuration = 0.0;
+  _recentDuration = boost::posix_time::seconds(0);
   _lastLatchedSampleValue = 0.0;
   _lastLatchedValueRate = 0.0;
 }
@@ -305,7 +297,7 @@ void MonitoredQuantity::setNewTimeWindowForRecentResults(utils::duration_t inter
     // interval for recent stats, keep the last one.
     _binCount = std::max(1U,
       static_cast<unsigned int>(
-        (_intervalForRecentStats / _expectedCalculationInterval) + 0.5
+        (_intervalForRecentStats.total_nanoseconds() / _expectedCalculationInterval.total_nanoseconds()) + 0.5
       )      
     );
 

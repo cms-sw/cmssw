@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.24 2010/12/10 14:31:52 mommsen Exp $
+// $Id: Configuration.h,v 1.25 2010/12/10 19:38:48 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -62,7 +62,7 @@ namespace stor
     bool _collateDQM;
     bool _archiveDQM;
     std::string _filePrefixDQM;
-    utils::duration_t _archiveIntervalDQM;
+    unsigned int _archiveIntervalDQM;
     utils::duration_t _purgeTimeDQM;
     utils::duration_t _readyTimeDQM;
     bool _useCompressionDQM;
@@ -162,8 +162,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.24 $
-   * $Date: 2010/12/10 14:31:52 $
+   * $Revision: 1.25 $
+   * $Date: 2010/12/10 19:38:48 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -348,8 +348,8 @@ namespace stor
     xdata::Integer _maxFileSize;
     xdata::Double _highWaterMark;
     xdata::Double _failHighWaterMark;
-    xdata::Double _lumiSectionTimeOut;
-    xdata::Integer _fileClosingTestInterval;
+    xdata::Double _lumiSectionTimeOut;  // seconds
+    xdata::Integer _fileClosingTestInterval;  // seconds
     xdata::Double _fileSizeTolerance;
     xdata::String _faultyEventsStream;
 
@@ -362,10 +362,10 @@ namespace stor
 
     xdata::Boolean _collateDQM;
     xdata::Boolean _archiveDQM;
-    xdata::Integer _archiveIntervalDQM;
+    xdata::Integer _archiveIntervalDQM;  // lumi sections
     xdata::String  _filePrefixDQM;
-    xdata::Integer _purgeTimeDQM;
-    xdata::Integer _readyTimeDQM;
+    xdata::Integer _purgeTimeDQM;  // seconds
+    xdata::Integer _readyTimeDQM;  // seconds
     xdata::Boolean _useCompressionDQM;
     xdata::Integer _compressionLevelDQM;
 
@@ -378,11 +378,11 @@ namespace stor
     xdata::UnsignedInteger32 _streamQueueSize;
     xdata::UnsignedInteger32 _streamQueueMemoryLimitMB;
 
-    xdata::Double _FPdeqWaitTime;
-    xdata::Double _DWdeqWaitTime;
-    xdata::Double _DQMEPdeqWaitTime;
-    xdata::Double _staleFragmentTimeOut;
-    xdata::Double _monitoringSleepSec;
+    xdata::Double _FPdeqWaitTime;  // seconds
+    xdata::Double _DWdeqWaitTime;  // seconds
+    xdata::Double _DQMEPdeqWaitTime;  // seconds
+    xdata::Double _staleFragmentTimeOut;  // seconds
+    xdata::Double _monitoringSleepSec;  // seconds
     xdata::UnsignedInteger32 _throuphputAveragingCycles;
 
     xdata::String _sataUser;

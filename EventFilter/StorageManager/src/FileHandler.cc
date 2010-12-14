@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.23 2010/11/05 10:33:38 mommsen Exp $
+// $Id: FileHandler.cc,v 1.24 2010/12/01 13:44:48 eulisse Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -31,7 +31,7 @@ FileHandler::FileHandler
 _fileRecord(fileRecord),
 _dbFileHandler(dbFileHandler),
 _firstEntry(utils::getCurrentTime()),
-_lastEntry(0),
+_lastEntry(_firstEntry),
 _diskWritingParams(dwParams),
 _maxFileSize(maxFileSize),
 _cmsver(edm::getReleaseVersion()),
@@ -77,7 +77,7 @@ void FileHandler::writeToSummaryCatalog() const
               << fileSize()                            << ind 
               << events()                              << ind
               << utils::timeStamp(_lastEntry)          << ind
-              << (int) (_lastEntry - _firstEntry)      << ind
+              << (_lastEntry - _firstEntry).total_seconds() << ind
               << _fileRecord->whyClosed << std::endl;
   std::string currentStatString (currentStat.str());
   ofstream of(_diskWritingParams._fileCatalog.c_str(), std::ios_base::ate | std::ios_base::out | std::ios_base::app );
@@ -94,8 +94,8 @@ void FileHandler::updateDatabase() const
       << " --FILECOUNTER "  << _fileRecord->fileCounter
       << " --NEVENTS "      << events()
       << " --FILESIZE "     << fileSize()                          
-      << " --STARTTIME "    << static_cast<int>(_firstEntry)
-      << " --STOPTIME "     << static_cast<int>(_lastEntry)
+      << " --STARTTIME "    << utils::seconds_since_epoch(_firstEntry)
+      << " --STOPTIME "     << utils::seconds_since_epoch(_lastEntry)
       << " --STATUS "       << "closed"
       << " --RUNNUMBER "    << _fileRecord->runNumber
       << " --LUMISECTION "  << _fileRecord->lumiSection
@@ -125,7 +125,7 @@ void FileHandler::insertFileInDatabase() const
       << " --FILECOUNTER "  << _fileRecord->fileCounter
       << " --NEVENTS "      << events()
       << " --FILESIZE "     << fileSize()
-      << " --STARTTIME "    << static_cast<int>(_firstEntry)
+      << " --STARTTIME "    << utils::seconds_since_epoch(_firstEntry)
       << " --STOPTIME 0"
       << " --STATUS open"
       << " --RUNNUMBER "    << _fileRecord->runNumber
@@ -149,7 +149,7 @@ void FileHandler::insertFileInDatabase() const
 
 bool FileHandler::tooOld(const utils::time_point_t currentTime)
 {
-  if (_diskWritingParams._lumiSectionTimeOut > 0 && 
+  if (_diskWritingParams._lumiSectionTimeOut > boost::posix_time::seconds(0) && 
     (currentTime - _lastEntry) > _diskWritingParams._lumiSectionTimeOut)
   {
     closeFile(FilesMonitorCollection::FileRecord::timeout);

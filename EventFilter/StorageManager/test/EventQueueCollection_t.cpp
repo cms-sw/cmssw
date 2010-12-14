@@ -63,7 +63,7 @@ private:
 };
 
 testEventQueueCollection::testEventQueueCollection() :
-_ecmc(1)
+_ecmc(boost::posix_time::seconds(1))
 {}
 
 void
@@ -182,7 +182,7 @@ add_and_pop_helper(boost::shared_ptr<EventQueueCollection> pcoll)
   CPPUNIT_ASSERT(outstanding_bytes() == 0);
   EventQueueCollection& coll = *pcoll;
   // We want events to go bad very rapidly.
-  double expiration_interval = 5;
+  stor::utils::duration_t expiration_interval =  boost::posix_time::seconds(5);
 
   // Make some queues of each flavor, with very little capacity.  We want
   // them to fill rapidly.
@@ -240,7 +240,7 @@ add_and_pop_helper(boost::shared_ptr<EventQueueCollection> pcoll)
   // Now sleep for the expiration interval.
   // Our queues should have all become stale;
   // they should also all be empty.
-  ::sleep(expiration_interval);
+  stor::utils::sleep(expiration_interval);
   std::vector<QueueID> stale_queues;
   coll.clearStaleQueues(stale_queues);
   //CPPUNIT_ASSERT(stale_queues.size() == coll.size());
@@ -266,11 +266,11 @@ testEventQueueCollection::invalid_queueid()
   QueueID id1(DiscardNew, 0);
   QueueID id2(DiscardOld, 0);
 
-  coll.setExpirationInterval(id1, 2.0);
-  coll.setExpirationInterval(id2, 2.0);
+  coll.setExpirationInterval(id1, boost::posix_time::seconds(2));
+  coll.setExpirationInterval(id2, boost::posix_time::seconds(2));
 
-  CPPUNIT_ASSERT(coll.getExpirationInterval(id1) == 0.0);
-  CPPUNIT_ASSERT(coll.getExpirationInterval(id2) == 0.0);
+  CPPUNIT_ASSERT(coll.getExpirationInterval(id1) == boost::posix_time::seconds(0));
+  CPPUNIT_ASSERT(coll.getExpirationInterval(id2) == boost::posix_time::seconds(0));
 
   {
     I2OChain event(allocate_frame_with_sample_header(0,1,1));

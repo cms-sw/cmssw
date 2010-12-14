@@ -1,4 +1,4 @@
-// $Id: ChainData.cc,v 1.12 2010/05/17 15:59:09 mommsen Exp $
+// $Id: ChainData.cc,v 1.13 2010/09/24 10:55:16 mommsen Exp $
 /// @file: ChainData.cc
 
 #include "IOPool/Streamer/interface/HLTInfo.h"
@@ -29,9 +29,6 @@ detail::ChainData::ChainData(const unsigned short i2oMessageCode,
   _streamTags(),
   _eventConsumerTags(),
   _dqmEventConsumerTags(),
-  _creationTime(-1),
-  _lastFragmentTime(-1),
-  _staleWindowStartTime(-1),
   _ref(0),
   _complete(false),
   _faultyBits(INCOMPLETE_MESSAGE),

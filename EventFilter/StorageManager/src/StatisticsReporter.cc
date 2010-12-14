@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.cc,v 1.18 2010/04/12 15:25:05 mommsen Exp $
+// $Id: StatisticsReporter.cc,v 1.19 2010/12/10 14:31:52 mommsen Exp $
 /// @file: StatisticsReporter.cc
 
 #include <sstream>
@@ -34,18 +34,18 @@ _monitoringSleepSec(sr->_configuration->
   getWorkerThreadParams()._monitoringSleepSec),
 _runMonCollection(_monitoringSleepSec, _alarmHandler, sr),
 _fragMonCollection(_monitoringSleepSec),
-_filesMonCollection(5*_monitoringSleepSec),
+_filesMonCollection(_monitoringSleepSec*5),
 _streamsMonCollection(_monitoringSleepSec),
 _dataSenderMonCollection(_monitoringSleepSec, _alarmHandler),
-_dqmEventMonCollection(5*_monitoringSleepSec),
-_resourceMonCollection(600*_monitoringSleepSec, _alarmHandler),
+_dqmEventMonCollection(_monitoringSleepSec*5),
+_resourceMonCollection(_monitoringSleepSec*600, _alarmHandler),
 _stateMachineMonCollection(_monitoringSleepSec),
 _eventConsumerMonCollection(_monitoringSleepSec),
 _dqmConsumerMonCollection(_monitoringSleepSec),
 _throughputMonCollection(_monitoringSleepSec,
   sr->_configuration->getWorkerThreadParams()._throuphputAveragingCycles),
 _monitorWL(0),
-_doMonitoring(_monitoringSleepSec>0)
+_doMonitoring(_monitoringSleepSec>boost::posix_time::seconds(0))
 {
   reset();
   createMonitoringInfoSpace();

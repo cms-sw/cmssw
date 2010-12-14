@@ -1,8 +1,8 @@
-// $Id: DbFileHandler.cc,v 1.7 2010/06/25 11:21:20 mommsen Exp $
+// $Id: DbFileHandler.cc,v 1.8 2010/08/06 20:24:30 wmtan Exp $
 /// @file: DbFileHandler.cc
 
-#include <EventFilter/StorageManager/interface/DbFileHandler.h>
-#include <EventFilter/StorageManager/interface/Exception.h>
+#include "EventFilter/StorageManager/interface/DbFileHandler.h"
+#include "EventFilter/StorageManager/interface/Exception.h"
 
 #include <iomanip>
 
@@ -78,7 +78,7 @@ void DbFileHandler::addReportHeader
   const utils::time_point_t& timestamp
 ) const
 {
-  msg << "Timestamp:" << static_cast<int>(timestamp)
+  msg << "Timestamp:" << utils::seconds_since_epoch(timestamp)
     << "\trun:" << _runNumber
     << "\thost:" << _dwParams._hostName
     << "\tinstance:" << _dwParams._smInstanceString

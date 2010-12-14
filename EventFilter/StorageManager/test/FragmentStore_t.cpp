@@ -175,7 +175,7 @@ void testFragmentStore::testStaleEvent()
   {
     stor::I2OChain frag = getFragment(1,0,1);
     CPPUNIT_ASSERT(frag.complete());
-    bool hasStaleEvent = fragmentStore.getStaleEvent(frag, 0);
+    bool hasStaleEvent = fragmentStore.getStaleEvent(frag, boost::posix_time::seconds(0));
     CPPUNIT_ASSERT(hasStaleEvent == false);
     CPPUNIT_ASSERT(frag.empty());
   }
@@ -198,7 +198,7 @@ void testFragmentStore::testSingleIncompleteEvent()
     }
     CPPUNIT_ASSERT(frag.empty());
     
-    CPPUNIT_ASSERT(fragmentStore.getStaleEvent(frag, 0) == true);
+    CPPUNIT_ASSERT(fragmentStore.getStaleEvent(frag, boost::posix_time::seconds(0)) == true);
     CPPUNIT_ASSERT(!frag.complete());
     CPPUNIT_ASSERT(frag.faulty());
     CPPUNIT_ASSERT(frag.fragmentCount() == totalFragments-1);
@@ -246,7 +246,7 @@ void testFragmentStore::testOneOfManyIncompleteEvent()
     }
 
     // Get the first event which should be stale by now
-    CPPUNIT_ASSERT(fragmentStore.getStaleEvent(frag, 1) == true);
+    CPPUNIT_ASSERT(fragmentStore.getStaleEvent(frag, boost::posix_time::seconds(1)) == true);
     CPPUNIT_ASSERT(!frag.complete());
     CPPUNIT_ASSERT(frag.faulty());
     CPPUNIT_ASSERT(frag.fragmentCount() == totalFragments-1);
@@ -268,7 +268,7 @@ void testFragmentStore::testOneOfManyIncompleteEvent()
       stor::FragKey fragmentKey = frag.fragmentKey();
       CPPUNIT_ASSERT(fragmentKey.event_ == getEventNumber(eventNum));
     }
-    CPPUNIT_ASSERT(fragmentStore.getStaleEvent(frag, 0) == false);
+    CPPUNIT_ASSERT(fragmentStore.getStaleEvent(frag, boost::posix_time::seconds(0)) == false);
     CPPUNIT_ASSERT(frag.empty());
   }
   CPPUNIT_ASSERT(outstanding_bytes() == 0);

@@ -1,4 +1,4 @@
-// $Id: FragmentMonitorCollection.cc,v 1.6 2009/08/24 14:31:52 mommsen Exp $
+// $Id: FragmentMonitorCollection.cc,v 1.7 2009/12/08 15:03:52 mommsen Exp $
 /// @file: FragmentMonitorCollection.cc
 
 #include <string>
@@ -12,12 +12,12 @@ using namespace stor;
 
 FragmentMonitorCollection::FragmentMonitorCollection(const utils::duration_t& updateInterval) :
 MonitorCollection(updateInterval),
-_allFragmentSizes(updateInterval, 5),
-_allFragmentBandwidth(updateInterval, 5),
-_eventFragmentSizes(updateInterval, 5),
-_eventFragmentBandwidth(updateInterval, 5),
-_dqmEventFragmentSizes(updateInterval, 300),
-_dqmEventFragmentBandwidth(updateInterval, 300)
+_allFragmentSizes(updateInterval, boost::posix_time::seconds(5)),
+_allFragmentBandwidth(updateInterval, boost::posix_time::seconds(5)),
+_eventFragmentSizes(updateInterval, boost::posix_time::seconds(5)),
+_eventFragmentBandwidth(updateInterval, boost::posix_time::seconds(5)),
+_dqmEventFragmentSizes(updateInterval, boost::posix_time::seconds(300)),
+_dqmEventFragmentBandwidth(updateInterval, boost::posix_time::seconds(300))
 {}
 
 

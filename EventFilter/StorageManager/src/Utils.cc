@@ -1,8 +1,10 @@
-//$Id: Utils.cc,v 1.16 2010/12/03 15:56:48 mommsen Exp $
+//$Id: Utils.cc,v 1.17 2010/12/10 19:38:48 mommsen Exp $
 /// @file: Utils.cc
 
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
+
+#include "boost/date_time/c_local_time_adjustor.hpp"
 
 #include <iomanip>
 #include <sstream>
@@ -18,64 +20,10 @@ namespace stor
   namespace utils
   {
     
-    namespace
-    {
-      /**
-	 Convert a (POSIX) timeval into a time_point_t.
-      */
-      inline void timeval_to_timepoint(timeval const& in, 
-				       time_point_t& out)
-      {
-	// First set the seconds.
-	out = static_cast<time_point_t>(in.tv_sec);
-	
-	// Then set the microseconds.
-	out += static_cast<time_point_t>(in.tv_usec)/(1000*1000);
-      }
-    } // anonymous namespace
-
-
-    boost::posix_time::time_duration seconds_to_duration(double const& seconds)
-    {
-      const unsigned int fullSeconds = static_cast<unsigned int>(seconds);
-      return boost::posix_time::seconds(fullSeconds)
-        + boost::posix_time::millisec(static_cast<unsigned int>((seconds - fullSeconds)*1000) );
-    }
-    
-    double duration_to_seconds(boost::posix_time::time_duration const& duration)
-    {
-      return static_cast<double>(duration.total_milliseconds()) / 1000;
-    }
-    
-    time_point_t getCurrentTime()
-    {
-      time_point_t result = -1.0;
-      timeval now;
-      if (gettimeofday(&now, 0) == 0) timeval_to_timepoint(now, result);
-      return result;
-    }
-
-    int sleep(duration_t interval)
-    {
-      if (interval < 0) return -1;
-      timespec rqtp;
-      rqtp.tv_sec = static_cast<time_t>(interval); // truncate
-      rqtp.tv_nsec = static_cast<long>((interval-rqtp.tv_sec)*1000*1000*1000);
-      return nanosleep(&rqtp, 0);
-    }
-
-    int sleepUntil(time_point_t theTime)
-    {
-      time_point_t now = getCurrentTime();
-      duration_t interval = theTime - now;
-      return sleep(interval);
-    }
-    
     std::string timeStamp(time_point_t theTime)
     {
-      time_t rawtime = (time_t)theTime;
-      tm ptm;
-      localtime_r(&rawtime, &ptm);
+      typedef boost::date_time::c_local_adjustor<boost::posix_time::ptime> local_adj;
+      tm ptm = boost::posix_time::to_tm( local_adj::utc_to_local(theTime) );
       std::ostringstream timeStampStr;
       timeStampStr << std::setfill('0') << std::setw(2) << ptm.tm_mday      << "/" 
                    << std::setfill('0') << std::setw(2) << ptm.tm_mon+1     << "/"
@@ -89,9 +37,7 @@ namespace stor
 
     std::string timeStampUTC(time_point_t theTime)
     {
-      time_t rawtime = (time_t)theTime;
-      tm ptm;
-      gmtime_r(&rawtime, &ptm);
+      tm ptm = to_tm(theTime);
       std::ostringstream timeStampStr;
       timeStampStr << std::setfill('0') << std::setw(2) << ptm.tm_hour      << ":"
                    << std::setfill('0') << std::setw(2) << ptm.tm_min       << ":"
@@ -102,9 +48,7 @@ namespace stor
 
     std::string asctimeUTC(time_point_t theTime)
     {
-      time_t rawtime = (time_t)theTime;
-      tm ptm;
-      gmtime_r(&rawtime, &ptm);
+      tm ptm =  to_tm(theTime);
       char buf[30];
       asctime_r(&ptm, buf);
       std::ostringstream dateStampStr;
@@ -115,9 +59,8 @@ namespace stor
 
     std::string dateStamp(time_point_t theTime)
     {
-      time_t rawtime = (time_t)theTime;
-      tm ptm;
-      localtime_r(&rawtime, &ptm);
+      typedef boost::date_time::c_local_adjustor<boost::posix_time::ptime> local_adj;
+      tm ptm = boost::posix_time::to_tm( local_adj::utc_to_local(theTime) );
       std::ostringstream dateStampStr;
       dateStampStr << std::setfill('0') << std::setw(4) << ptm.tm_year+1900
                    << std::setfill('0') << std::setw(2) << ptm.tm_mon+1

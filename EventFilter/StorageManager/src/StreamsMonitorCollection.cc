@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.cc,v 1.12 2010/03/25 09:14:03 mommsen Exp $
+// $Id: StreamsMonitorCollection.cc,v 1.13 2010/12/10 14:31:52 mommsen Exp $
 /// @file: StreamsMonitorCollection.cc
 
 #include <string>
@@ -14,7 +14,7 @@ using namespace stor;
 StreamsMonitorCollection::StreamsMonitorCollection(const utils::duration_t& updateInterval) :
 MonitorCollection(updateInterval),
 _updateInterval(updateInterval),
-_timeWindowForRecentResults(30),
+_timeWindowForRecentResults(boost::posix_time::seconds(30)),
 _allStreamsFileCount(updateInterval, _timeWindowForRecentResults),
 _allStreamsVolume(updateInterval, _timeWindowForRecentResults),
 _allStreamsBandwidth(updateInterval, _timeWindowForRecentResults)

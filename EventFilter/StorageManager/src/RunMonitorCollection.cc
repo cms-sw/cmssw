@@ -1,4 +1,4 @@
-// $Id: RunMonitorCollection.cc,v 1.12 2010/05/17 15:59:10 mommsen Exp $
+// $Id: RunMonitorCollection.cc,v 1.13 2010/06/03 14:04:28 mommsen Exp $
 /// @file: RunMonitorCollection.cc
 
 #include <string>
@@ -22,12 +22,12 @@ RunMonitorCollection::RunMonitorCollection
   SharedResourcesPtr sr
 ) :
 MonitorCollection(updateInterval),
-_eventIDsReceived(updateInterval, 1),
-_errorEventIDsReceived(updateInterval, 1),
-_unwantedEventIDsReceived(updateInterval, 1),
-_runNumbersSeen(updateInterval, 1),
-_lumiSectionsSeen(updateInterval, 1),
-_eolsSeen(updateInterval, 1),
+_eventIDsReceived(updateInterval, boost::posix_time::seconds(1)),
+_errorEventIDsReceived(updateInterval, boost::posix_time::seconds(1)),
+_unwantedEventIDsReceived(updateInterval, boost::posix_time::seconds(1)),
+_runNumbersSeen(updateInterval, boost::posix_time::seconds(1)),
+_lumiSectionsSeen(updateInterval, boost::posix_time::seconds(1)),
+_eolsSeen(updateInterval, boost::posix_time::seconds(1)),
 _alarmHandler(ah),
 _sharedResources(sr)
 {}
@@ -148,7 +148,7 @@ void RunMonitorCollection::alarmErrorEvents()
   {
     std::ostringstream msg;
     msg << "Received " << count << " error events in the last "
-      << stats.getDuration(MonitoredQuantity::RECENT) << "s.";
+      << stats.getDuration(MonitoredQuantity::RECENT).total_seconds() << "s.";
     XCEPT_DECLARE( stor::exception::ErrorEvents, xcept, msg.str() );
     _alarmHandler->raiseAlarm( alarmName, AlarmHandler::ERROR, xcept );
   }

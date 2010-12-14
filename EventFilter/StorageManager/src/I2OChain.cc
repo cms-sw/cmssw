@@ -1,4 +1,4 @@
-// $Id: I2OChain.cc,v 1.20 2010/05/03 13:51:09 mommsen Exp $
+// $Id: I2OChain.cc,v 1.21 2010/05/17 15:59:10 mommsen Exp $
 /// @file: I2OChain.cc
 
 #include <algorithm>
@@ -287,21 +287,21 @@ namespace stor
     return _data->fragmentCount();
   }
 
-  double I2OChain::creationTime() const
+  utils::time_point_t I2OChain::creationTime() const
   {
-    if (!_data) return -1;
+    if (!_data) return boost::posix_time::not_a_date_time;
     return _data->creationTime();
   }
 
-  double I2OChain::lastFragmentTime() const
+  utils::time_point_t I2OChain::lastFragmentTime() const
   {
-    if (!_data) return -1;
+    if (!_data) return boost::posix_time::not_a_date_time;
     return _data->lastFragmentTime();
   }
 
-  double I2OChain::staleWindowStartTime() const
+  utils::time_point_t I2OChain::staleWindowStartTime() const
   {
-    if (!_data) return -1;
+    if (!_data) return boost::posix_time::not_a_date_time;
     return _data->staleWindowStartTime();
   }
 

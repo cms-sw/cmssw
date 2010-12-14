@@ -3,7 +3,7 @@
 //
 // (W.Badgett)
 //
-// $Id: DQMServiceManager.cc,v 1.13 2010/04/30 07:44:56 mommsen Exp $
+// $Id: DQMServiceManager.cc,v 1.14 2010/05/17 15:59:10 mommsen Exp $
 //
 // Note: this class is no longer used in the StorageManager, but is still
 // required by the SMProxyServer (Remi Mommsen, May 5, 2009)
@@ -186,10 +186,10 @@ void DQMServiceManager::setParameters(DQMProcessingParams const& dqmParams)
   compressionLevel_ = dqmParams._compressionLevelDQM;
   collateDQM_ = dqmParams._collateDQM;
   archiveDQM_ = dqmParams._archiveDQM;
-  archiveInterval_ = static_cast<int>(dqmParams._archiveIntervalDQM);
+  archiveInterval_ = dqmParams._archiveIntervalDQM;
   filePrefix_ = dqmParams._filePrefixDQM;
-  purgeTime_ = static_cast<int>(dqmParams._purgeTimeDQM);
-  readyTime_ = static_cast<int>(dqmParams._readyTimeDQM);
+  purgeTime_ = dqmParams._purgeTimeDQM.total_seconds();
+  readyTime_ = dqmParams._readyTimeDQM.total_seconds();
 }
 
 DQMInstance * DQMServiceManager::findDQMInstance(int runNumber, 

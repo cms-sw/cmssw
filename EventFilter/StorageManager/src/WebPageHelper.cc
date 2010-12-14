@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.52 2010/12/03 16:01:14 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.53 2010/12/03 16:15:31 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #ifdef __APPLE__
@@ -793,8 +793,7 @@ void WebPageHelper::addDurationToTableHead
 
   XHTMLMaker::Node* tableDiv = maker.addNode("th", tableRow, tableValueWidth);
   std::ostringstream tmpString;
-  tmpString << std::fixed << std::setprecision(0) <<
-      duration << " s";
+  tmpString << duration.total_seconds() << " s";
   maker.addText(tableDiv, tmpString.str());
 }
 
@@ -1088,8 +1087,8 @@ void WebPageHelper::addDOMforStoredData
   tableDiv = maker.addNode("th", tableRow, colspanAttr);
   {
     std::ostringstream tmpString;
-    tmpString << "Mean performance for " << std::fixed << std::setprecision(0) <<
-      allStreamsVolumeStats.getDuration() << " s";
+    tmpString << "Mean performance for " <<
+      allStreamsVolumeStats.getDuration().total_seconds() << " s";
     maker.addText(tableDiv, tmpString.str());
   }
   listStreamRecordsStats(maker, table, smc, MonitoredQuantity::FULL);
@@ -1100,8 +1099,8 @@ void WebPageHelper::addDOMforStoredData
   tableDiv = maker.addNode("th", tableRow, colspanAttr);
   {
     std::ostringstream tmpString;
-    tmpString << "Recent performance for the last " << std::fixed << std::setprecision(0) <<
-      allStreamsVolumeStats.getDuration(MonitoredQuantity::RECENT) << " s";
+    tmpString << "Recent performance for the last " <<
+      allStreamsVolumeStats.getDuration(MonitoredQuantity::RECENT).total_seconds() << " s";
     maker.addText(tableDiv, tmpString.str());
   }
   listStreamRecordsStats(maker, table, smc, MonitoredQuantity::RECENT);
@@ -1803,8 +1802,7 @@ void WebPageHelper::addDOMforDQMEventStatistics(XHTMLMaker& maker,
     tableDiv = maker.addNode("th", tableRow);
     std::ostringstream tmpString;
     tmpString << "Full run (" <<
-      std::fixed << std::setprecision(0) <<
-      stats.dqmEventSizeStats.getDuration(MonitoredQuantity::FULL) <<
+      stats.dqmEventSizeStats.getDuration(MonitoredQuantity::FULL).total_seconds() <<
       " s)";
     maker.addText(tableDiv, tmpString.str());
   }
@@ -1812,8 +1810,7 @@ void WebPageHelper::addDOMforDQMEventStatistics(XHTMLMaker& maker,
     tableDiv = maker.addNode("th", tableRow);
     std::ostringstream tmpString;
     tmpString << "Recent (" <<
-      std::fixed << std::setprecision(0) <<
-      stats.dqmEventSizeStats.getDuration(MonitoredQuantity::RECENT) <<
+      stats.dqmEventSizeStats.getDuration(MonitoredQuantity::RECENT).total_seconds() <<
       " s)";
     maker.addText(tableDiv, tmpString.str());
   }
@@ -1971,7 +1968,7 @@ void WebPageHelper::addRowForThroughputStatistics
     tableValueAttr[ "style" ] = "background-color: yellow;";
     tableDiv = maker.addNode("td", tableRow, tableValueAttr);
     std::ostringstream avg;
-    avg << "<" << std::fixed << std::setprecision(0) << snapshot.relativeTime << "s>";
+    avg << "<" << snapshot.duration.total_seconds() << "s>";
     maker.addText(tableDiv, avg.str());
   }
   else
@@ -2508,7 +2505,7 @@ void WebPageHelper::addResourceBrokerDetails(XHTMLMaker& maker,
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
-  tmpDuration = static_cast<int>(rbResultPtr->eventStats.recentDuration);
+  tmpDuration = rbResultPtr->eventStats.recentDuration.total_seconds();
   tmpText =  "Recent (" + boost::lexical_cast<std::string>(tmpDuration) +
     " sec) Event Rate (Hz)";
   maker.addText(tableDiv, tmpText);
@@ -2517,7 +2514,7 @@ void WebPageHelper::addResourceBrokerDetails(XHTMLMaker& maker,
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
-  tmpDuration = static_cast<int>(rbResultPtr->eventStats.fullDuration);
+  tmpDuration = rbResultPtr->eventStats.fullDuration.total_seconds();
   tmpText =  "Full (" + boost::lexical_cast<std::string>(tmpDuration) +
     " sec) Event Rate (Hz)";
   maker.addText(tableDiv, tmpText);

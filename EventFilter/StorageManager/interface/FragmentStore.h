@@ -1,4 +1,4 @@
-// $Id: FragmentStore.h,v 1.6 2009/08/12 14:56:30 biery Exp $
+// $Id: FragmentStore.h,v 1.7 2010/02/15 13:43:38 mommsen Exp $
 /// @file: FragmentStore.h 
 
 #ifndef StorageManager_FragmentStore_h
@@ -19,9 +19,9 @@ namespace stor {
    *
    * Uses a map of I2OChains to store incomplete events.
    *
-   * $Author: biery $
-   * $Revision: 1.6 $
-   * $Date: 2009/08/12 14:56:30 $
+   * $Author: mommsen $
+   * $Revision: 1.7 $
+   * $Date: 2010/02/15 13:43:38 $
    */
   
   class FragmentStore
@@ -60,7 +60,7 @@ namespace stor {
      * it returns true and the I2OChain contains the faulty event.
      * Otherwise it returns false and the I2OChain is empty.
      */
-    const bool getStaleEvent(I2OChain&, double timeout);
+    const bool getStaleEvent(I2OChain&, utils::duration_t timeout);
 
 
     /**

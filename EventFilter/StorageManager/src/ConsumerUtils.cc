@@ -1,4 +1,4 @@
-// $Id: ConsumerUtils.cc,v 1.11 2010/04/19 10:35:23 mommsen Exp $
+// $Id: ConsumerUtils.cc,v 1.12 2010/12/10 19:38:48 mommsen Exp $
 /// @file: ConsumerUtils.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerID.h"
@@ -375,15 +375,19 @@ EventConsRegPtr ConsumerUtils::parseEventConsumerRegistration(xgi::Input* in) co
   utils::duration_t secondsToStale;
   try
   {
-    secondsToStale =
-      pset.getParameter<utils::duration_t>( "TrackedConsumerTimeOut" );
+    secondsToStale = boost::posix_time::seconds(
+      pset.getParameter<double>( "TrackedConsumerTimeOut" )
+    );
   }
   catch( edm::Exception& e )
   {
-    secondsToStale =
-      pset.getUntrackedParameter<utils::duration_t>( "consumerTimeOut",
-        _sharedResources->_configuration->getEventServingParams()._activeConsumerTimeout);
+    secondsToStale = boost::posix_time::seconds(
+      pset.getUntrackedParameter<double>( "consumerTimeOut", 0)
+    );
   }
+  if (secondsToStale < boost::posix_time::seconds(1))
+    secondsToStale = _sharedResources->_configuration->getEventServingParams()._activeConsumerTimeout;
+
 
   // Queue size
   int queueSize;

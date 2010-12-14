@@ -45,7 +45,7 @@ test_fill_and_go_stale()
   // Make a queue with a short time-to-staleness and small capacity,
   // so we can see it fill up.
   size_t capacity(10);
-  duration_t seconds_to_stale(2.0);
+  duration_t seconds_to_stale = boost::posix_time::seconds(2);
   Q q(capacity, seconds_to_stale);
   CPPUNIT_ASSERT(!q.full());
 
@@ -63,7 +63,7 @@ test_fill_and_go_stale()
 
   // After waiting for our staleness interval, the queue should still
   // be full. But then a call to clearIfStale should clear the queue.
-  ::sleep(static_cast<int>(seconds_to_stale));
+  utils::sleep(seconds_to_stale);
 
   CPPUNIT_ASSERT(q.full());
   CPPUNIT_ASSERT(!q.empty());
@@ -79,13 +79,13 @@ void
 test_pop_freshens_queue()
 {
   size_t capacity(2);
-  duration_t seconds_to_stale(1.0);
+  duration_t seconds_to_stale = boost::posix_time::seconds(1);
   Q q(capacity, seconds_to_stale);
 
   // Push in an event, then let the queue go stale.
   q.enq_nowait(I2OChain(allocate_frame_with_sample_header(0,1,1)));
   CPPUNIT_ASSERT(!q.empty());
-  ::sleep(static_cast<int>(seconds_to_stale));
+  utils::sleep(seconds_to_stale);
 
   // Verify the queue has gone stale.
   CPPUNIT_ASSERT(q.clearIfStale());

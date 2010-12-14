@@ -1,4 +1,4 @@
-// $Id: DQMEventStore.cc,v 1.10 2010/03/06 08:39:03 mommsen Exp $
+// $Id: DQMEventStore.cc,v 1.11 2010/03/09 12:58:04 mommsen Exp $
 /// @file: DQMEventStore.cc
 
 #include "TROOT.h"
@@ -179,9 +179,9 @@ void DQMEventStore::writeAndPurgeStaleDQMInstances()
     if ( it->second->isReady() || it->second->isStale(nowSec) )
     {
       if ( _dqmParams._archiveDQM &&
-           _dqmParams._archiveIntervalDQM > 0 &&
-           ((it->second->getLumiSection() % 
-             static_cast<int>(_dqmParams._archiveIntervalDQM)) == 0) )
+        (_dqmParams._archiveIntervalDQM > 0) &&
+        ((it->second->getLumiSection() % _dqmParams._archiveIntervalDQM) == 0)
+      )
       {
         // The instance is written to file when it is ready and intermediate
         // histograms are written and the lumi section matches the

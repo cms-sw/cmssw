@@ -11,6 +11,7 @@
 #include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/StorageManager/interface/QueueID.h"
 #include "EventFilter/StorageManager/interface/StreamID.h"
+#include "EventFilter/StorageManager/interface/Utils.h"
 
 #include "EventFilter/StorageManager/test/TestHelper.h"
 
@@ -117,8 +118,8 @@ testI2OChain::default_chain()
   CPPUNIT_ASSERT(frag.rbBufferId() == 0);
   CPPUNIT_ASSERT(frag.fuProcessId() == 0);
   CPPUNIT_ASSERT(frag.fuGuid() == 0);
-  CPPUNIT_ASSERT(frag.creationTime() == -1);
-  CPPUNIT_ASSERT(frag.lastFragmentTime() == -1);
+  CPPUNIT_ASSERT(frag.creationTime() == boost::posix_time::not_a_date_time);
+  CPPUNIT_ASSERT(frag.lastFragmentTime() == boost::posix_time::not_a_date_time);
   //CPPUNIT_ASSERT(!frag.getTotalDataSize() == 0);
   size_t memory_consumed_by_zero_frames = outstanding_bytes();
   CPPUNIT_ASSERT(memory_consumed_by_zero_frames == 0);  
@@ -136,8 +137,8 @@ testI2OChain::null_reference()
   CPPUNIT_ASSERT(frag.rbBufferId() == 0);
   CPPUNIT_ASSERT(frag.fuProcessId() == 0);
   CPPUNIT_ASSERT(frag.fuGuid() == 0);
-  CPPUNIT_ASSERT(frag.creationTime() == -1);
-  CPPUNIT_ASSERT(frag.lastFragmentTime() == -1);
+  CPPUNIT_ASSERT(frag.creationTime() == boost::posix_time::not_a_date_time);
+  CPPUNIT_ASSERT(frag.lastFragmentTime() == boost::posix_time::not_a_date_time);
   //CPPUNIT_ASSERT(!frag.getTotalDataSize() == 0);
   size_t memory_consumed_by_zero_frames = outstanding_bytes();
   CPPUNIT_ASSERT(memory_consumed_by_zero_frames == 0);  
@@ -173,8 +174,8 @@ testI2OChain::copy_chain()
   CPPUNIT_ASSERT(outstanding_bytes() == 0);
   {
     stor::I2OChain frag(allocate_frame());
-    double creationTime = frag.creationTime();
-    double lastFragmentTime = frag.lastFragmentTime();
+    stor::utils::time_point_t creationTime = frag.creationTime();
+    stor::utils::time_point_t lastFragmentTime = frag.lastFragmentTime();
     size_t memory_consumed_by_one_frame = outstanding_bytes();
     CPPUNIT_ASSERT(memory_consumed_by_one_frame != 0);
     {
@@ -238,8 +239,8 @@ testI2OChain::swap_chain()
     CPPUNIT_ASSERT(memory_consumed_by_one_frame != 0);
     CPPUNIT_ASSERT(!frag.empty());
     unsigned long* data_location = frag.getBufferData();
-    double creationTime = frag.creationTime();
-    double lastFragmentTime = frag.lastFragmentTime();
+    stor::utils::time_point_t creationTime = frag.creationTime();
+    stor::utils::time_point_t lastFragmentTime = frag.lastFragmentTime();
 
     stor::I2OChain no_frags;
     CPPUNIT_ASSERT(no_frags.empty());
@@ -307,8 +308,8 @@ testI2OChain::release_chain()
     frag.release();
     CPPUNIT_ASSERT(frag.empty());
     CPPUNIT_ASSERT(frag.getBufferData() == 0);
-    CPPUNIT_ASSERT(frag.creationTime() == -1);
-    CPPUNIT_ASSERT(frag.lastFragmentTime() == -1);
+    CPPUNIT_ASSERT(frag.creationTime() == boost::posix_time::not_a_date_time);
+    CPPUNIT_ASSERT(frag.lastFragmentTime() == boost::posix_time::not_a_date_time);
     CPPUNIT_ASSERT(outstanding_bytes() == 0);
     
   }
@@ -610,8 +611,8 @@ testI2OChain::swap_with_valid_header()
     smMsg->fuGUID = value5;
 
     stor::I2OChain frag1(ref);
-    double creationTime1 = frag1.creationTime();
-    double lastFragmentTime1 = frag1.lastFragmentTime();
+    stor::utils::time_point_t creationTime1 = frag1.creationTime();
+    stor::utils::time_point_t lastFragmentTime1 = frag1.lastFragmentTime();
  
     ref = allocate_frame_with_basic_header(I2O_SM_DQM, 0, 1);
     smMsg = (I2O_SM_DQM_MESSAGE_FRAME*) ref->getDataLocation();
@@ -623,8 +624,8 @@ testI2OChain::swap_with_valid_header()
     smMsg->fuGUID = value1;
 
     stor::I2OChain frag2(ref);
-    double creationTime2 = frag2.creationTime();
-    double lastFragmentTime2 = frag2.lastFragmentTime();
+    stor::utils::time_point_t creationTime2 = frag2.creationTime();
+    stor::utils::time_point_t lastFragmentTime2 = frag2.lastFragmentTime();
 
     {
       CPPUNIT_ASSERT(frag1.messageCode() == Header::DQM_EVENT);
@@ -728,8 +729,8 @@ testI2OChain::release_with_valid_header()
 
     initMsgFrag.release();
     CPPUNIT_ASSERT(initMsgFrag.messageCode() == 0);
-    CPPUNIT_ASSERT(initMsgFrag.creationTime() == -1);
-    CPPUNIT_ASSERT(initMsgFrag.lastFragmentTime() == -1);
+    CPPUNIT_ASSERT(initMsgFrag.creationTime() == boost::posix_time::not_a_date_time);
+    CPPUNIT_ASSERT(initMsgFrag.lastFragmentTime() == boost::posix_time::not_a_date_time);
     fragmentKey = initMsgFrag.fragmentKey();
     CPPUNIT_ASSERT(fragmentKey.code_ == 0);
     CPPUNIT_ASSERT(fragmentKey.run_ == 0);
@@ -753,11 +754,11 @@ testI2OChain::add_fragment()
 
     Reference* ref = allocate_frame_with_sample_header(0, 2, 2);
     stor::I2OChain frag1(ref);
-    double creationTime1 = frag1.creationTime();
+    stor::utils::time_point_t creationTime1 = frag1.creationTime();
 
     ref = allocate_frame_with_sample_header(1, 2, 2);
     stor::I2OChain frag2(ref);
-    double lastFragmentTime2 = frag2.lastFragmentTime();
+    stor::utils::time_point_t lastFragmentTime2 = frag2.lastFragmentTime();
     ::usleep((unsigned int) 50);
 
     frag1.addToChain(frag2);
@@ -782,11 +783,11 @@ testI2OChain::add_fragment()
 
     Reference* ref = allocate_frame_with_sample_header(0, 2, 2);
     stor::I2OChain frag2(ref);
-    double creationTime2 = frag2.creationTime();
+    stor::utils::time_point_t creationTime2 = frag2.creationTime();
 
     ref = allocate_frame_with_sample_header(1, 2, 2);
     stor::I2OChain frag1(ref);
-    double lastFragmentTime1 = frag1.lastFragmentTime();
+    stor::utils::time_point_t lastFragmentTime1 = frag1.lastFragmentTime();
     ::usleep((unsigned int) 50);
 
     frag1.addToChain(frag2);
@@ -809,8 +810,8 @@ testI2OChain::add_fragment()
 
     ref = allocate_frame_with_sample_header(0, 2, 2);
     stor::I2OChain frag3(ref);
-    double creationTime3 = frag3.creationTime();
-    double lastFragmentTime3 = frag3.lastFragmentTime();
+    stor::utils::time_point_t creationTime3 = frag3.creationTime();
+    stor::utils::time_point_t lastFragmentTime3 = frag3.lastFragmentTime();
 
     try
       {
@@ -841,15 +842,15 @@ testI2OChain::add_fragment()
 
     Reference* ref = allocate_frame_with_sample_header(0, 3, 1);
     stor::I2OChain frag1(ref);
-    double creationTime1 = frag1.creationTime();
+    stor::utils::time_point_t creationTime1 = frag1.creationTime();
 
     ref = allocate_frame_with_sample_header(1, 3, 1);
     stor::I2OChain frag2(ref);
-    double lastFragmentTime2 = frag2.lastFragmentTime();
+    stor::utils::time_point_t lastFragmentTime2 = frag2.lastFragmentTime();
 
     ref = allocate_frame_with_sample_header(2, 3, 1);
     stor::I2OChain frag3(ref);
-    double lastFragmentTime3 = frag3.lastFragmentTime();
+    stor::utils::time_point_t lastFragmentTime3 = frag3.lastFragmentTime();
     ::usleep((unsigned int) 50);
 
     frag1.addToChain(frag2);
@@ -888,16 +889,16 @@ testI2OChain::add_fragment()
 
     Reference* ref = allocate_frame_with_sample_header(0, 3, 2);
     stor::I2OChain frag3(ref);
-    double creationTime3 = frag3.creationTime();
-    double lastFragmentTime3 = frag3.lastFragmentTime();
+    stor::utils::time_point_t creationTime3 = frag3.creationTime();
+    stor::utils::time_point_t lastFragmentTime3 = frag3.lastFragmentTime();
 
     ref = allocate_frame_with_sample_header(1, 3, 2);
     stor::I2OChain frag2(ref);
-    double creationTime2 = frag2.creationTime();
+    stor::utils::time_point_t creationTime2 = frag2.creationTime();
 
     ref = allocate_frame_with_sample_header(2, 3, 2);
     stor::I2OChain frag1(ref);
-    double lastFragmentTime1 = frag1.lastFragmentTime();
+    stor::utils::time_point_t lastFragmentTime1 = frag1.lastFragmentTime();
     ::usleep((unsigned int) 50);
 
     frag1.addToChain(frag2);
@@ -934,15 +935,15 @@ testI2OChain::add_fragment()
 
     Reference* ref = allocate_frame_with_sample_header(2, 3, 2);
     stor::I2OChain frag1(ref);
-    double creationTime1 = frag1.creationTime();
+    stor::utils::time_point_t creationTime1 = frag1.creationTime();
 
     ref = allocate_frame_with_sample_header(0, 3, 2);
     stor::I2OChain frag2(ref);
-    double lastFragmentTime2 = frag2.lastFragmentTime();
+    stor::utils::time_point_t lastFragmentTime2 = frag2.lastFragmentTime();
 
     ref = allocate_frame_with_sample_header(1, 3, 2);
     stor::I2OChain frag3(ref);
-    double lastFragmentTime3 = frag3.lastFragmentTime();
+    stor::utils::time_point_t lastFragmentTime3 = frag3.lastFragmentTime();
     ::usleep((unsigned int) 50);
 
     frag1.addToChain(frag2);
@@ -979,11 +980,11 @@ testI2OChain::add_fragment()
 
     Reference* ref = allocate_frame_with_sample_header(1, 3, 2);
     stor::I2OChain frag1(ref);
-    double creationTime1 = frag1.creationTime();
+    stor::utils::time_point_t creationTime1 = frag1.creationTime();
 
     ref = allocate_frame_with_sample_header(1, 3, 2);
     stor::I2OChain frag2(ref);
-    double lastFragmentTime2 = frag2.lastFragmentTime();
+    stor::utils::time_point_t lastFragmentTime2 = frag2.lastFragmentTime();
     ::usleep((unsigned int) 50);
 
     frag1.addToChain(frag2);
@@ -1001,7 +1002,7 @@ testI2OChain::add_fragment()
 
     ref = allocate_frame_with_sample_header(0, 3, 2);
     stor::I2OChain frag3(ref);
-    double lastFragmentTime3 = frag3.lastFragmentTime();
+    stor::utils::time_point_t lastFragmentTime3 = frag3.lastFragmentTime();
     ::usleep((unsigned int) 50);
 
     CPPUNIT_ASSERT(frag3.messageCode() != Header::INVALID);
@@ -1054,11 +1055,11 @@ testI2OChain::add_fragment()
 
     Reference* ref = allocate_frame_with_sample_header(0, 2, 2);
     stor::I2OChain frag1(ref);
-    double creationTime1 = frag1.creationTime();
+    stor::utils::time_point_t creationTime1 = frag1.creationTime();
 
     ref = allocate_frame_with_sample_header(1, 2, 2);
     stor::I2OChain frag2(ref);
-    double lastFragmentTime2 = frag2.lastFragmentTime();
+    stor::utils::time_point_t lastFragmentTime2 = frag2.lastFragmentTime();
     ::usleep((unsigned int) 50);
     frag2.markFaulty();
     CPPUNIT_ASSERT(!frag1.faulty());
@@ -1090,8 +1091,8 @@ testI2OChain::chained_references()
     ref1->setNextReference(ref2);
 
     stor::I2OChain frag1(ref1);
-    double creationTime1 = frag1.creationTime();
-    double lastFragmentTime1 = frag1.lastFragmentTime();
+    stor::utils::time_point_t creationTime1 = frag1.creationTime();
+    stor::utils::time_point_t lastFragmentTime1 = frag1.lastFragmentTime();
 
     CPPUNIT_ASSERT(!frag1.empty());
     CPPUNIT_ASSERT(frag1.complete());
@@ -1112,8 +1113,8 @@ testI2OChain::chained_references()
     ref1->setNextReference(ref2);
 
     stor::I2OChain frag1(ref1);
-    double creationTime1 = frag1.creationTime();
-    double lastFragmentTime1 = frag1.lastFragmentTime();
+    stor::utils::time_point_t creationTime1 = frag1.creationTime();
+    stor::utils::time_point_t lastFragmentTime1 = frag1.lastFragmentTime();
 
     CPPUNIT_ASSERT(!frag1.empty());
     CPPUNIT_ASSERT(!frag1.complete());
@@ -1134,8 +1135,8 @@ testI2OChain::chained_references()
     ref1->setNextReference(ref2);
 
     stor::I2OChain frag1(ref1);
-    double creationTime1 = frag1.creationTime();
-    double lastFragmentTime1 = frag1.lastFragmentTime();
+    stor::utils::time_point_t creationTime1 = frag1.creationTime();
+    stor::utils::time_point_t lastFragmentTime1 = frag1.lastFragmentTime();
 
     CPPUNIT_ASSERT(!frag1.empty());
     CPPUNIT_ASSERT(frag1.complete());
@@ -1155,7 +1156,7 @@ testI2OChain::chained_references()
     Reference* ref2 = allocate_frame_with_sample_header(1, 3, 2);
     ref1->setNextReference(ref2);
     stor::I2OChain frag1(ref1);
-    double creationTime1 = frag1.creationTime();
+    stor::utils::time_point_t creationTime1 = frag1.creationTime();
 
     CPPUNIT_ASSERT(!frag1.empty());
     CPPUNIT_ASSERT(!frag1.complete());
@@ -1163,7 +1164,7 @@ testI2OChain::chained_references()
 
     Reference* ref = allocate_frame_with_sample_header(2, 3, 2);
     stor::I2OChain frag2(ref);
-    double lastFragmentTime2 = frag2.lastFragmentTime();
+    stor::utils::time_point_t lastFragmentTime2 = frag2.lastFragmentTime();
     ::usleep((unsigned int) 50);
 
     CPPUNIT_ASSERT(!frag2.empty());
@@ -1192,7 +1193,7 @@ testI2OChain::chained_references()
 
     Reference* ref = allocate_frame_with_sample_header(0, 3, 2);
     stor::I2OChain frag1(ref);
-    double creationTime1 = frag1.creationTime();
+    stor::utils::time_point_t creationTime1 = frag1.creationTime();
 
     CPPUNIT_ASSERT(!frag1.empty());
     CPPUNIT_ASSERT(!frag1.complete());
@@ -1202,7 +1203,7 @@ testI2OChain::chained_references()
     Reference* ref2 = allocate_frame_with_sample_header(2, 3, 2);
     ref1->setNextReference(ref2);
     stor::I2OChain frag2(ref1);
-    double lastFragmentTime2 = frag2.lastFragmentTime();
+    stor::utils::time_point_t lastFragmentTime2 = frag2.lastFragmentTime();
     ::usleep((unsigned int) 50);
 
     CPPUNIT_ASSERT(!frag2.empty());
@@ -1233,7 +1234,7 @@ testI2OChain::chained_references()
     Reference* ref2 = allocate_frame_with_sample_header(2, 3, 2);
     ref1->setNextReference(ref2);
     stor::I2OChain frag1(ref1);
-    double creationTime1 = frag1.creationTime();
+    stor::utils::time_point_t creationTime1 = frag1.creationTime();
 
     CPPUNIT_ASSERT(!frag1.empty());
     CPPUNIT_ASSERT(!frag1.complete());
@@ -1241,7 +1242,7 @@ testI2OChain::chained_references()
 
     Reference* ref = allocate_frame_with_sample_header(0, 3, 2);
     stor::I2OChain frag2(ref);
-    double lastFragmentTime2 = frag2.lastFragmentTime();
+    stor::utils::time_point_t lastFragmentTime2 = frag2.lastFragmentTime();
     ::usleep((unsigned int) 50);
 
     CPPUNIT_ASSERT(!frag2.empty());
@@ -1270,7 +1271,7 @@ testI2OChain::chained_references()
 
     Reference* ref = allocate_frame_with_sample_header(1, 3, 2);
     stor::I2OChain frag1(ref);
-    double creationTime1 = frag1.creationTime();
+    stor::utils::time_point_t creationTime1 = frag1.creationTime();
 
     CPPUNIT_ASSERT(!frag1.empty());
     CPPUNIT_ASSERT(!frag1.complete());
@@ -1280,7 +1281,7 @@ testI2OChain::chained_references()
     Reference* ref2 = allocate_frame_with_sample_header(2, 3, 2);
     ref1->setNextReference(ref2);
     stor::I2OChain frag2(ref1);
-    double lastFragmentTime2 = frag2.lastFragmentTime();
+    stor::utils::time_point_t lastFragmentTime2 = frag2.lastFragmentTime();
     ::usleep((unsigned int) 50);
 
     CPPUNIT_ASSERT(!frag2.empty());
@@ -1311,7 +1312,7 @@ testI2OChain::chained_references()
     Reference* ref2 = allocate_frame_with_sample_header(0, 3, 2);
     ref1->setNextReference(ref2);
     stor::I2OChain frag1(ref1);
-    double creationTime1 = frag1.creationTime();
+    stor::utils::time_point_t creationTime1 = frag1.creationTime();
 
     CPPUNIT_ASSERT(!frag1.empty());
     CPPUNIT_ASSERT(!frag1.complete());
@@ -1319,7 +1320,7 @@ testI2OChain::chained_references()
 
     Reference* ref = allocate_frame_with_sample_header(2, 3, 2);
     stor::I2OChain frag2(ref);
-    double lastFragmentTime2 = frag2.lastFragmentTime();
+    stor::utils::time_point_t lastFragmentTime2 = frag2.lastFragmentTime();
     ::usleep((unsigned int) 50);
 
     CPPUNIT_ASSERT(!frag2.empty());
@@ -1348,7 +1349,7 @@ testI2OChain::chained_references()
 
     Reference* ref = allocate_frame_with_sample_header(0, 3, 2);
     stor::I2OChain frag1(ref);
-    double creationTime1 = frag1.creationTime();
+    stor::utils::time_point_t creationTime1 = frag1.creationTime();
 
     CPPUNIT_ASSERT(!frag1.empty());
     CPPUNIT_ASSERT(!frag1.complete());
@@ -1358,7 +1359,7 @@ testI2OChain::chained_references()
     Reference* ref2 = allocate_frame_with_sample_header(1, 3, 2);
     ref1->setNextReference(ref2);
     stor::I2OChain frag2(ref1);
-    double lastFragmentTime2 = frag2.lastFragmentTime();
+    stor::utils::time_point_t lastFragmentTime2 = frag2.lastFragmentTime();
     ::usleep((unsigned int) 50);
 
     CPPUNIT_ASSERT(!frag2.empty());
@@ -1391,7 +1392,7 @@ testI2OChain::chained_references()
     Reference* ref2 = allocate_frame_with_sample_header(0, 3, 2);
     ref1->setNextReference(ref2);
     stor::I2OChain frag1(ref1);
-    double creationTime1 = frag1.creationTime();
+    stor::utils::time_point_t creationTime1 = frag1.creationTime();
 
     CPPUNIT_ASSERT(!frag1.empty());
     CPPUNIT_ASSERT(!frag1.complete());
@@ -1399,7 +1400,7 @@ testI2OChain::chained_references()
 
     Reference* ref = allocate_frame_with_sample_header(2, 3, 2);
     stor::I2OChain frag2(ref);
-    double lastFragmentTime2 = frag2.lastFragmentTime();
+    stor::utils::time_point_t lastFragmentTime2 = frag2.lastFragmentTime();
     ::usleep((unsigned int) 50);
 
     CPPUNIT_ASSERT(!frag2.empty());
@@ -1430,7 +1431,7 @@ testI2OChain::chained_references()
 
     Reference* ref = allocate_frame_with_sample_header(0, 3, 2);
     stor::I2OChain frag1(ref);
-    double creationTime1 = frag1.creationTime();
+    stor::utils::time_point_t creationTime1 = frag1.creationTime();
 
     CPPUNIT_ASSERT(!frag1.empty());
     CPPUNIT_ASSERT(!frag1.complete());
@@ -1440,7 +1441,7 @@ testI2OChain::chained_references()
     Reference* ref2 = allocate_frame_with_sample_header(2, 3, 2);
     ref1->setNextReference(ref2);
     stor::I2OChain frag2(ref1);
-    double lastFragmentTime2 = frag2.lastFragmentTime();
+    stor::utils::time_point_t lastFragmentTime2 = frag2.lastFragmentTime();
     ::usleep((unsigned int) 50);
 
     CPPUNIT_ASSERT(!frag2.empty());

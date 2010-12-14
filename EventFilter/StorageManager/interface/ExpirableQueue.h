@@ -1,4 +1,4 @@
-// $Id: ExpirableQueue.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
+// $Id: ExpirableQueue.h,v 1.5 2010/02/16 10:49:52 mommsen Exp $
 /// @file: ExpirableQueue.h 
 
 
@@ -19,8 +19,8 @@ namespace stor
      was made.
    
      $Author: mommsen $
-     $Revision: 1.4 $
-     $Date: 2009/07/20 13:06:10 $
+     $Revision: 1.5 $
+     $Date: 2010/02/16 10:49:52 $
    */
 
   template <class T, class Policy>
@@ -35,7 +35,7 @@ namespace stor
        given "time to stale", specified in seconds.
      */
     explicit ExpirableQueue(size_type maxsize=std::numeric_limits<size_type>::max(),
-                            utils::duration_t seconds_to_stale = 120.0,
+                            utils::duration_t staleness_interval = boost::posix_time::seconds(120),
                             utils::time_point_t now = utils::getCurrentTime());
     /**
       Try to remove an event from the queue, without blocking.
@@ -57,7 +57,7 @@ namespace stor
     /**
        Set the staleness interval.
      */
-    void set_staleness_interval(utils::duration_t seconds_to_stale);
+    void set_staleness_interval(utils::duration_t staleness_interval);
 
     /**
        Get the staleness interval.
@@ -111,10 +111,10 @@ namespace stor
   
   template <class T, class Policy>
   ExpirableQueue<T, Policy>::ExpirableQueue(size_type maxsize,
-                                            utils::duration_t seconds_to_stale,
+                                            utils::duration_t staleness_interval,
                                             utils::time_point_t now) :
     _events(maxsize),
-    _staleness_interval(seconds_to_stale),
+    _staleness_interval(staleness_interval),
     _staleness_time(now+_staleness_interval)
   {
   }

@@ -2,6 +2,8 @@
 #include <iomanip>
 #include <ctime>
 
+#include "boost/date_time/posix_time/posix_time.hpp"
+
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 #include "cppunit/extensions/HelperMacros.h"
 
@@ -28,8 +30,11 @@ public:
 void testTime::testDifference()
 {
   utils::time_point_t utilsTime = utils::getCurrentTime();
-  time_t rawTime = time(0);
-  double timeDiff = difftime(rawTime,static_cast<time_t>(utilsTime));
+  struct tm utils_tm = boost::posix_time::to_tm(utilsTime);
+  time_t raw = time(0);
+  struct tm* raw_tm = gmtime(&raw);
+  time_t rawTime = mktime(raw_tm);
+  double timeDiff = difftime(rawTime,mktime(&utils_tm));
 
   std::ostringstream msg;
   msg << std::setiosflags(std::ios::fixed)

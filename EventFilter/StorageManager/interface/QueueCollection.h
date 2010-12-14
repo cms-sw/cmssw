@@ -1,4 +1,4 @@
-// $Id: QueueCollection.h,v 1.6 2010/02/16 10:49:52 mommsen Exp $
+// $Id: QueueCollection.h,v 1.7 2010/04/16 12:29:56 mommsen Exp $
 /// @file: QueueCollection.h 
 
 #ifndef StorageManager_QueueCollection_h
@@ -34,8 +34,8 @@ namespace stor {
    * of QueueIDs of queues the class should be added.
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2010/02/16 10:49:52 $
+   * $Revision: 1.7 $
+   * $Date: 2010/04/16 12:29:56 $
    */
 
   template <class T>
@@ -64,7 +64,7 @@ namespace stor {
     QueueID createQueue(ConsumerID cid,
                         enquing_policy::PolicyTag policy,
                         size_type max = std::numeric_limits<size_type>::max(),
-                        utils::duration_t interval = 120.0,
+                        utils::duration_t interval = boost::posix_time::seconds(120),
                         utils::time_point_t now = utils::getCurrentTime());
 
     /**
@@ -185,8 +185,6 @@ namespace stor {
 
   namespace
   {
-    const utils::duration_t DEFAULT_STALENESS_INTERVAL = 120.0;
-
     void throw_unknown_queueid(QueueID id)
     {
       std::ostringstream msg;
@@ -240,7 +238,7 @@ namespace stor {
   utils::duration_t
   QueueCollection<T>::getExpirationInterval(QueueID id) const
   {
-    utils::duration_t result(0.0);
+    utils::duration_t result = boost::posix_time::seconds(0);
     switch (id.policy()) 
       {
       case enquing_policy::DiscardNew:

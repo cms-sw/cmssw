@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <ctime>
 
 #include "EventFilter/StorageManager/interface/MonitoredQuantity.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
@@ -56,11 +57,12 @@ private:
 };
 
 testMonitoredQuantity::testMonitoredQuantity() :
-_quantity(0.001,0.002), //Only 2 bins deep history for testing, allow fast updates
+_quantity(boost::posix_time::milliseconds(1),boost::posix_time::milliseconds(2)),
+//Only 2 bins deep history for testing, allow fast updates
 
 _multiplier(drand48()*100)
 {
-  srand48(static_cast<long int>(utils::getCurrentTime()));
+  srand48(time(0));
 }
 
 void testMonitoredQuantity::accumulateSamples
@@ -117,24 +119,25 @@ void testMonitoredQuantity::testResults
   CPPUNIT_ASSERT(stats.getValueMax(type) == 
     (cycleCount) ? static_cast<double>(sampleCount)*_multiplier : 1e-9);
 
-  if (stats.getDuration(type) > 0)
+  const double duration = utils::duration_to_seconds(stats.getDuration(type));
+  if (duration > 0)
   {
     CPPUNIT_ASSERT(
       fabs(
         stats.getSampleRate(type) -
-        cycleCount*sampleCount/stats.getDuration(type)
+        cycleCount*sampleCount/duration
       ) < smallValue);    
 
     CPPUNIT_ASSERT(
       fabs(
         stats.getSampleLatency(type) -
-        1e6*stats.getDuration(type)/(cycleCount*sampleCount)
+        1e6*duration/(cycleCount*sampleCount)
       ) < smallValue);    
 
     CPPUNIT_ASSERT(
       fabs(
         stats.getValueRate(type) -
-        stats.getValueSum(type)/stats.getDuration(type)
+        stats.getValueSum(type)/duration
       ) < smallValue);
   }
 

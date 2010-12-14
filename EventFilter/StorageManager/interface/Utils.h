@@ -1,4 +1,4 @@
-// $Id: Utils.h,v 1.10 2010/12/03 15:56:48 mommsen Exp $
+// $Id: Utils.h,v 1.11 2010/12/10 19:38:48 mommsen Exp $
 /// @file: Utils.h 
 
 #ifndef StorageManager_Utils_h
@@ -12,7 +12,9 @@
 #include "xdata/String.h"
 #include "xdata/Vector.h"
 
+#include "boost/date_time/gregorian/gregorian_types.hpp"
 #include "boost/date_time/posix_time/posix_time_types.hpp"
+#include "boost/thread/thread.hpp"
 
 
 namespace stor {
@@ -23,61 +25,54 @@ namespace stor {
      * Collection of utility functions used in the storage manager
      *
      * $Author: mommsen $
-     * $Revision: 1.10 $
-     * $Date: 2010/12/03 15:56:48 $
+     * $Revision: 1.11 $
+     * $Date: 2010/12/10 19:38:48 $
      */
 
     /**
-       time_point_t is used to represent a specific point in time,
-       measured by some specific clock. We rely on the "system
-       clock". The value is represented by the number of seconds
-       (including a fractional part that depends on the resolution of
-       the system clock) since the beginning of the "epoch" (as defined
-       by the system clock).
+       time_point_t is used to represent a specific point in time
     */
-    typedef double time_point_t;
+    typedef boost::posix_time::ptime time_point_t;
 
     /**
        durtion_t is used to represent a duration (the "distance" between
-       two points in time). The value is represented as a number of
-       seconds (including a fractional part).
+       two points in time).
     */
-    typedef double duration_t;
+    typedef boost::posix_time::time_duration duration_t;
 
     /**
        Convert a fractional second count into a boost::posix_time::time_duration
        type with a resolution of milliseconds.
     */
-    boost::posix_time::time_duration seconds_to_duration(double const& seconds);
+    duration_t seconds_to_duration(double const& seconds);
 
     /**
        Convert a boost::posix_time::time_duration into fractional seconds with
        a resolution of milliseconds.
     */
-    double duration_to_seconds(boost::posix_time::time_duration const&);
+    double duration_to_seconds(duration_t const&);
 
     /**
-       Returns the current point in time. A negative value indicates
-       that an error occurred when fetching the time from the operating
-       system.
+       Return the number of seconds since the unix epoch 1-1-1970
+    */
+    long seconds_since_epoch(time_point_t const&);
+
+    /**
+       Returns the current point in time.
     */
     time_point_t getCurrentTime();
 
     /**
        Sleep for at least the given duration. Note that the underlying
        system will round the interval up to an integer multiple of the
-       system's sleep resolution. (The underlying implementation
-       relies upon nanosleep, so see documentation for nanosleep for
-       details). Negative intervals are not allowed, and result in an
-       error (returning -1, and no sleeping).
+       system's sleep resolution.
      */
-    int sleep(duration_t interval);
+    void sleep(duration_t);
 
     /**
-       Sleep until at least the given time_point_t. Uses internally
-       sleep(duration_t). See notes to this method.
+       Sleep until at least the given time_point_t.
     */
-    int sleepUntil(time_point_t);
+    void sleepUntil(time_point_t);
 
     /**
        Converts a time_point_t into a string.
@@ -118,6 +113,46 @@ namespace stor {
     */
     void getStdVector(xdata::Vector<xdata::String>&, std::vector<std::string>&);
     void getXdataVector(const std::vector<std::string>&, xdata::Vector<xdata::String>&);
+
+
+
+
+    ///////////////////////////////////////
+    // inline most commonly used methods //
+    ///////////////////////////////////////
+
+    inline duration_t seconds_to_duration(double const& seconds)
+    {
+      const unsigned int fullSeconds = static_cast<unsigned int>(seconds);
+      return boost::posix_time::seconds(fullSeconds)
+        + boost::posix_time::millisec(static_cast<unsigned int>((seconds - fullSeconds)*1000) );
+    }
+    
+    inline double duration_to_seconds(duration_t const& duration)
+    {
+      return static_cast<double>(duration.total_milliseconds()) / 1000;
+    }
+
+    inline long seconds_since_epoch(time_point_t const& timestamp)
+    {
+      const static boost::posix_time::ptime epoch(boost::gregorian::date(1970,1,1));
+      return (timestamp - epoch).total_seconds();
+    }
+    
+    inline time_point_t getCurrentTime()
+    {
+      return boost::posix_time::ptime(boost::posix_time::microsec_clock::universal_time());
+    }
+
+    inline void sleep(duration_t interval)
+    {
+      boost::this_thread::sleep(interval); 
+    }
+
+    inline void sleepUntil(time_point_t theTime)
+    {
+      boost::this_thread::sleep(theTime);
+    }
 
   } // namespace utils
   

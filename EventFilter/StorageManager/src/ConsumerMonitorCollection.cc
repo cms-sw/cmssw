@@ -1,4 +1,4 @@
-// $Id: ConsumerMonitorCollection.cc,v 1.8 2009/10/05 17:14:07 biery Exp $
+// $Id: ConsumerMonitorCollection.cc,v 1.9 2009/10/06 07:33:16 mommsen Exp $
 /// @file: ConsumerMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerMonitorCollection.h"
@@ -48,7 +48,9 @@ void ConsumerMonitorCollection::addEventSampleToMap( const QueueID& qid,
     // Use pos as a hint to insert, so it can avoid another lookup
     pos = map.insert(pos,
       ConsStatMap::value_type(qid, 
-        boost::shared_ptr<MonitoredQuantity>(new MonitoredQuantity(_updateInterval,10))
+        boost::shared_ptr<MonitoredQuantity>(
+          new MonitoredQuantity(_updateInterval, boost::posix_time::seconds(10))
+        )
       )
     );
   }

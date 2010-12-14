@@ -1,4 +1,4 @@
-// $Id: DQMEventRecord.cc,v 1.15 2010/05/17 15:59:09 mommsen Exp $
+// $Id: DQMEventRecord.cc,v 1.16 2010/12/01 13:44:48 eulisse Exp $
 /// @file: DQMEventRecord.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
@@ -27,8 +27,8 @@ DQMEventRecord::DQMEventRecord
 ) :
 DQMInstance(
   dqmKey.runNumber, dqmKey.lumiSection, dqmKey.lumiSection, 
-  static_cast<int>(dqmParams._purgeTimeDQM),
-  static_cast<int>(dqmParams._readyTimeDQM),
+  dqmParams._purgeTimeDQM.total_seconds(),
+  dqmParams._readyTimeDQM.total_seconds(),
   expectedUpdates
 ),
 _dqmParams(dqmParams),

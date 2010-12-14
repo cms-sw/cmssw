@@ -145,7 +145,7 @@ void testStateMachine::tearDown()
 void testStateMachine::resetStateMachine()
 {
   _sr->_statisticsReporter->
-    getStateMachineMonitorCollection().reset(0);
+    getStateMachineMonitorCollection().reset(boost::posix_time::not_a_date_time);
   _machine->initiate();
 }
 
@@ -459,7 +459,7 @@ void testStateMachine::testStopSequence()
   CPPUNIT_ASSERT( checkState( "Processing" ) );
 
   _sr->_statisticsReporter->
-    getStateMachineMonitorCollection().reset(0);
+    getStateMachineMonitorCollection().reset(boost::posix_time::not_a_date_time);
   stMachEvent.reset( new Stop() );
   processEvent( stMachEvent );
   CPPUNIT_ASSERT( checkState( "Stopped" ) );
@@ -488,7 +488,7 @@ void testStateMachine::testHaltSequence()
 
   resetStateMachine();
   _sr->_statisticsReporter->
-    getStateMachineMonitorCollection().reset(0);
+    getStateMachineMonitorCollection().reset(boost::posix_time::not_a_date_time);
   CPPUNIT_ASSERT( checkState( "Constructed" ) );
 
   stMachEvent.reset( new Configure() );
@@ -500,7 +500,7 @@ void testStateMachine::testHaltSequence()
   CPPUNIT_ASSERT( checkState( "Processing" ) );
 
   _sr->_statisticsReporter->
-    getStateMachineMonitorCollection().reset(0);
+    getStateMachineMonitorCollection().reset(boost::posix_time::not_a_date_time);
   stMachEvent.reset( new Halt() );
   processEvent( stMachEvent );
   CPPUNIT_ASSERT( checkState( "Halted" ) );
@@ -526,7 +526,7 @@ void testStateMachine::testReconfigureSequence()
 
   resetStateMachine();
   _sr->_statisticsReporter->
-    getStateMachineMonitorCollection().reset(0);
+    getStateMachineMonitorCollection().reset(boost::posix_time::not_a_date_time);
   CPPUNIT_ASSERT( checkState( "Constructed" ) );
 
   stMachEvent.reset( new Configure() );
@@ -534,7 +534,7 @@ void testStateMachine::testReconfigureSequence()
   CPPUNIT_ASSERT( checkState( "Stopped" ) );
 
   _sr->_statisticsReporter->
-    getStateMachineMonitorCollection().reset(0);
+    getStateMachineMonitorCollection().reset(boost::posix_time::not_a_date_time);
   stMachEvent.reset( new Reconfigure() );
   processEvent( stMachEvent );
   CPPUNIT_ASSERT( checkState( "Stopped" ) );
@@ -568,7 +568,7 @@ void testStateMachine::testEmergencyStopSequence()
   CPPUNIT_ASSERT( checkState( "Processing" ) );
 
   _sr->_statisticsReporter->
-    getStateMachineMonitorCollection().reset(0);
+    getStateMachineMonitorCollection().reset(boost::posix_time::not_a_date_time);
   stMachEvent.reset( new EmergencyStop() );
   processEvent( stMachEvent );
   CPPUNIT_ASSERT( checkState( "Stopped" ) );

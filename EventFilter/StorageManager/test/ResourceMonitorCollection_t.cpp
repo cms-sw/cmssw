@@ -67,7 +67,7 @@ void
 testResourceMonitorCollection::setUp()
 {
   _ah.reset(new MockAlarmHandler());
-  _rmc = new ResourceMonitorCollection(1, _ah);
+  _rmc = new ResourceMonitorCollection(boost::posix_time::seconds(1), _ah);
 }
 
 void
