@@ -436,6 +436,9 @@ void ReadPixClusters::analyze(const edm::Event& e,
   int numOfPixPerDisk3=0;  
   int numOfPixPerDisk4=0;  
         
+  float aveCharge1 = 0., aveCharge2 = 0., aveCharge3 = 0., 
+    aveCharge4 = 0., aveCharge5 = 0.;
+
   static int module1[416][160] = {{0}};
   static int module2[416][160] = {{0}};
   static int module3[416][160] = {{0}};
@@ -481,9 +484,9 @@ void ReadPixClusters::analyze(const edm::Event& e,
     //int cols = theGeomDet->specificTopology().ncolumns();
     //int rows = theGeomDet->specificTopology().nrows();
     
-
+    //old
     const RectangularPixelTopology * topol =
-       dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+      dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
 
     // barrel ids
     unsigned int layerC=0;
@@ -593,11 +596,12 @@ void ReadPixClusters::analyze(const edm::Event& e,
       int maxPixelCol = clustIt->maxPixelCol();
 
       //unsigned int geoId = clustIt->geographicalId(); // always 0?!
+
       // edge method moved to topologu class
       bool edgeHitX = (topol->isItEdgePixelInX(minPixelRow)) || 
-	(topol->isItEdgePixelInX(maxPixelRow)); 
+ 	(topol->isItEdgePixelInX(maxPixelRow)); 
       bool edgeHitY = (topol->isItEdgePixelInY(minPixelCol)) || 
-	(topol->isItEdgePixelInY(maxPixelCol)); 
+ 	(topol->isItEdgePixelInY(maxPixelCol)); 
 
       bool edgeHitX2 = false; // edge method moved 
       bool edgeHitY2 = false; // to topologu class
@@ -736,6 +740,8 @@ void ReadPixClusters::analyze(const edm::Event& e,
 	  numOfClustersPerDet1++;
 	  numOfClustersPerLay1++;
 
+	  aveCharge1 += ch;
+
 	} else if(layer==2) {
 
 	  hDetMap2->Fill(float(module),float(ladder));
@@ -748,6 +754,8 @@ void ReadPixClusters::analyze(const edm::Event& e,
 	  hsizey2->Fill(float(sizeY));
 	  numOfClustersPerDet2++;
 	  numOfClustersPerLay2++;
+
+	  aveCharge2 += ch;
 
 	} else if(layer==3) {
 
@@ -762,6 +770,8 @@ void ReadPixClusters::analyze(const edm::Event& e,
 	  numOfClustersPerDet3++;
 	  numOfClustersPerLay3++;
 
+	  aveCharge3 += ch;
+
 	} // end if layer
 
       } else if (subid==2 ) {  // endcap
@@ -773,6 +783,7 @@ void ReadPixClusters::analyze(const edm::Event& e,
 	  else cout<<" unknown side "<<side<<endl;
 
 	  hcharge4->Fill(ch);
+	  aveCharge4 += ch;
 
 	} else if(disk==2) { // disk2 -+z
 
@@ -781,6 +792,7 @@ void ReadPixClusters::analyze(const edm::Event& e,
 	  else cout<<" unknown side "<<side<<endl;
 
 	  hcharge5->Fill(ch);
+	  aveCharge5 += ch;
 
 	} else cout<<" unknown disk "<<disk<<endl;
 
@@ -866,17 +878,27 @@ void ReadPixClusters::analyze(const edm::Event& e,
 
   
 
-  if(PRINT) { //  || numOfPixPerLay1>1200 ) {
-    cout<<"run "<<run<<" event "<<event<<" bx "<<bx<<" lumi "<<lumiBlock<<" orbit "<<orbit<<endl;   
-    cout<<"Num of pix "<<numberOfPixels<<" num of clus "<<numberOfClusters<<" max clus per det "
+  if( PRINT || numOf<400 ) {
+    cout<<"run "<<run<<" event "<<event<<" bx "<<bx<<" lumi "<<lumiBlock<<" orbit "<<orbit<<" num "<<countEvents<<endl;   
+    cout<<"Num of pix "<<numberOfPixels<<" num of clus "<<numberOfClusters<<" num of dets "<<numOf
+	<<" max clus per det "
 	<<maxClusPerDet<<" max pix per clu "<<maxPixPerClu<<" count "
 	<<countEvents<<endl;
-    cout<<"Number of clusters per Lay1,2,3: "<<numOfClustersPerLay1<<" "
+    cout<<"Number of clusters per      Lay1,2,3: "<<numOfClustersPerLay1<<" "
 	<<numOfClustersPerLay2<<" "<<numOfClustersPerLay3<<endl;
-    cout<<"Number of pixels per Lay1,2,3: "<<numOfPixPerLay1<<" "
+    cout<<"Number of pixels per        Lay1,2,3: "<<numOfPixPerLay1<<" "
 	<<numOfPixPerLay2<<" "<<numOfPixPerLay3<<endl;
     cout<<"Number of dets with clus in Lay1,2,3: "<<numberOfDetUnits1<<" "
 	<<numberOfDetUnits2<<" "<<numberOfDetUnits3<<endl;
+    cout<<"Number of clus in disks 1,2,3,4     : "<<numOfClustersPerDisk1<<" "
+	<<numOfClustersPerDisk2<<" "<<numOfClustersPerDisk3<<" "<<numOfClustersPerDisk4<<endl;
+    aveCharge1 /= float(numOfClustersPerLay1);
+    aveCharge2 /= float(numOfClustersPerLay2);
+    aveCharge3 /= float(numOfClustersPerLay3);
+    aveCharge4 /= float(numOfClustersPerDisk2 + numOfClustersPerDisk3);
+    aveCharge5 /= float(numOfClustersPerDisk1 + numOfClustersPerDisk4);
+    cout<<" Average charge "<<aveCharge1<<" "<<aveCharge2<<" "<<aveCharge3<<" "
+	<<aveCharge4<<" "<<aveCharge5<<endl;
   }
     
 #ifdef HISTOS
