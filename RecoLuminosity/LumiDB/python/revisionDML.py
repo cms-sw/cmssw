@@ -182,12 +182,12 @@ def dataRevisionsOfEntry(schema,datatableName,entry,revrange):
     select d.data_id,r.revision_id from datatable d, datarevmaptable r where d.entry_id(or name )=:entry and d.data_id=r.data_id
     input: if isinstance(entry,str): d.entry_name=:entry ; else d.entry_id=:entry
     '''
+    qHandle=schema.newQuery()
     try:
         result=[]
         byname=False
         if isinstance(entry,str):
             byname=True
-        qHandle=schema.newQuery()
         qHandle.addToTableList( datatableName,'d' )
         qHandle.addToTableList( nameDealer.revmapTableName(datatableName), 'r')
         qHandle.addToOutputList('d.DATA_ID','data_id')
@@ -211,9 +211,11 @@ def dataRevisionsOfEntry(schema,datatableName,entry,revrange):
         while cursor.next():
             data_id=cursor.currentRow()['data_id'].data()
             revision_id=cursor.currentRow()['revision_id'].data()
-            if revision_id in branchrevisionFilter:
-                result.append(data_id)        
+            if revision_id in revrange:
+                result.append(data_id)
+        return result
     except :
+        del qHandle
         raise
 
 def lastestDataRevisionOfEntry(schema,datatableName,entry,revrange):
