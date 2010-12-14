@@ -318,12 +318,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	    
 	    unsigned int secGsfIndex = selGsfPFRecTracks[(secondaries[isecpfgsf])].trackId();
 	    GsfTrackRef secGsfRef = selGsfPFRecTracks[(secondaries[isecpfgsf])].gsfTrackRef();
-	    TrajectoryStateOnSurface outTSOS = mtsTransform_.outerStateOnSurface((*secGsfRef));
-	    GlobalVector outMomCart;   
-	    if(outTSOS.isValid()){
-	      mtsMode_->momentumFromModeCartesian(outTSOS,outMomCart);
-	    }
-	    
+
 	    if(refsecKF.isNonnull()) {
 	      // NOTE::IT SAVED THE TRACKID OF THE PRIMARY!!! THIS IS USED IN PFBLOCKALGO.CC/H
 	      secpftrack_= GsfPFRecTrack( gsftracks[secGsfIndex].charge(), 

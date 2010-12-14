@@ -532,6 +532,16 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 
   // *****************************   INNER State *************************************
   TrajectoryStateOnSurface inTSOS = mtjstate.innerStateOnSurface((track));
+  TrajectoryStateOnSurface outTSOS = mtjstate.outerStateOnSurface((track));
+
+  if(!inTSOS.isValid() || !outTSOS.isValid()) {
+    if(!inTSOS.isValid())
+      LogWarning("PFTrackTransformer")<<" INNER TSOS NOT VALID ";
+    if(!outTSOS.isValid())
+      LogWarning("PFTrackTransformer")<<" OUTER TSOS NOT VALID ";
+    return false;
+  }
+
   GlobalVector InMom;
   GlobalPoint InPos;
   if(inTSOS.isValid()) {
@@ -851,8 +861,6 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 
 
   // *****************************   OUTER State *************************************
-
-  TrajectoryStateOnSurface outTSOS = mtjstate.outerStateOnSurface((track));
  
   if(outTSOS.isValid()) {
     GlobalVector OutMom;
@@ -1078,8 +1086,6 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     pftrack.addBrem(brem);
     iTrajPos++;
   }
-  else 
-    LogWarning("PFTrackTransformer")<<" OUTER TSOS NOT VALID ";
 
   return true;
 }
