@@ -25,7 +25,9 @@ process.load("Configuration.Generator.TTbar_cfi")
 
 
 # Common inputs, with fake conditions
-process.load("FastSimulation.Configuration.CommonInputs_cff")
+#process.load("FastSimulation.Configuration.CommonInputs_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load('FastSimulation.Configuration.Geometries_cff')
 
 # L1 Emulator and HLT Setup
 process.load("FastSimulation.HighLevelTrigger.HLTSetup_cff")

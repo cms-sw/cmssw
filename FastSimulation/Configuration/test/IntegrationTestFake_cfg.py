@@ -27,11 +27,13 @@ process.load("Configuration.Generator.H200ZZ4L_cfi")
 
 
 # Famos sequences (MC conditions, not Fake anymore!)
-process.load("FastSimulation.Configuration.CommonInputs_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load('FastSimulation.Configuration.Geometries_cff')
+#process.load("FastSimulation.Configuration.CommonInputs_cff")
 from Configuration.PyReleaseValidation.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
 # Allow reading of the tracker geometry from the DB
-process.load('CalibTracker/Configuration/Tracker_DependentRecords_forGlobalTag_nofakes_cff')
+#process.load('CalibTracker/Configuration/Tracker_DependentRecords_forGlobalTag_nofakes_cff')
 
 process.load("FastSimulation.Configuration.FamosSequences_cff")
 
@@ -46,6 +48,7 @@ process.famosPileUp.PileUpSimulator.averageNumber = 5.0
 process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True
 
+#process.load('FastSimulation.Configuration.HLT_GRun_cff')
 
 # Famos with everything !
 #process.p1 = cms.Path(process.ProductionFilterSequence*process.famosWithEverything)
@@ -69,3 +72,5 @@ process.outpath = cms.EndPath(process.o1)
 
 # Make the job crash in case of missing product
 process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound') )
+
+process.schedule = cms.Schedule( process.simulation, process.outpath )

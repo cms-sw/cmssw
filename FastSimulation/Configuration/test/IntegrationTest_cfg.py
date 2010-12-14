@@ -14,7 +14,9 @@ process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 process.load("Configuration.Generator.TTbar_cfi")
 
 # Famos sequences (NO HLT)
-process.load("FastSimulation.Configuration.CommonInputs_cff")
+#process.load("FastSimulation.Configuration.CommonInputs_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load('FastSimulation.Configuration.Geometries_cff')
 process.load("FastSimulation.Configuration.FamosSequences_cff")
 
 # Parametrized magnetic field (new mapping, 4.0 and 3.8T)
