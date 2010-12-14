@@ -2275,10 +2275,11 @@ void SiPixelRecoCompare(char* originalName="DQM_V0001_R000000001__CMSSW_3_1_5__R
     myPV->PVCompute(mePullYvsAlphaZmPanel1, newmePullYvsAlphaZmPanel1, te, 0.2, 0.2);
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();      
-    TPaveStats *s64 = (TPaveStats*)mePullYvsAlphaZmPanel1->GetListOfFunctions()->FindObject("stats");
-    s64->SetX1NDC (0.55); //new x start position
-    s64->SetX2NDC (0.75); //new x end position
-
+    TPaveStats *s138 = (TPaveStats*)mePullYvsAlphaZmPanel1->GetListOfFunctions()->FindObject("stats");
+    if (s138) {
+    	s138->SetX1NDC (0.55); //new x start position
+    	s138->SetX2NDC (0.75); //new x end position
+    }
     can_PullYvsAlpha->cd(3);
     //gPad->SetLogy();
     SetUpProfileHistograms(mePullYvsAlphaZmPanel2, newmePullYvsAlphaZmPanel2, "panel2, z<0, |alpha| (deg)", "pull y", lpull, hpull );
@@ -3271,11 +3272,11 @@ if (1)
     myPV->PVCompute(mePullyZmPanel1, newmePullyZmPanel1, te);
     h_pv->SetBinContent(++bin, myPV->getPV());
     gPad->Update();
-    TPaveStats *s94 = (TPaveStats*)mePullyZmPanel1->GetListOfFunctions()->FindObject("stats");
-    s94->SetX1NDC (0.55); //new x start position
-    s94->SetX2NDC (0.75); //new x end position
-
-
+    TPaveStats *s139 = (TPaveStats*)mePullyZmPanel1->GetListOfFunctions()->FindObject("stats");
+    if (s139) {
+    	s139->SetX1NDC (0.55); //new x start position
+    	s139->SetX2NDC (0.75); //new x end position
+    }
     can_mePully->cd(3);
     //gPad->SetLogy();
     SetUpHistograms(mePullyZmPanel2, newmePullyZmPanel2, "panel2, z<0, pull y" );
