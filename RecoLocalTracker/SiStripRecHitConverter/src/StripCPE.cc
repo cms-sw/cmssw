@@ -1,6 +1,7 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonTopologies/interface/RadialStripTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "boost/bind.hpp"
 #include "boost/lambda/lambda.hpp"
 #include <algorithm>
@@ -108,7 +109,7 @@ fillParam(StripCPE::Param & p, const GeomDetUnit *  det) {
   p.nstrips = p.topology->nstrips(); 
   p.moduleGeom = SiStripDetId(stripdet->geographicalId()).moduleGeometry();
   
-  const RadialStripTopology* rtop = dynamic_cast<const RadialStripTopology*>(p.topology);
+  const RadialStripTopology* rtop = dynamic_cast<const RadialStripTopology*>(&stripdet->specificType().specificTopology());
   p.pitch_rel_err2 = (rtop) 
     ? pow( 0.5 * rtop->angularWidth() * rtop->stripLength()/rtop->localPitch(LocalPoint(0,0,0)), 2) / 12.
     : 0;
