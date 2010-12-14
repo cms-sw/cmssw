@@ -492,7 +492,7 @@ void SiStripHitEffFromCalibTree::makeHotColdMaps() {
     //Initialize all of the histograms													  
     if(maplayer > 0 && maplayer <= 4) { 												  
   	//We are in the TIB														  
-  	temph2 = fs->make<TH2F>(Form("%s%i","TIB", maplayer),"TIB",100,-1,361,100,-100,100);					  
+  	temph2 = fs->make<TH2F>(Form("%s%i","TIB",(int)maplayer),"TIB",100,-1,361,100,-100,100);					  
   	temph2->GetXaxis()->SetTitle("Phi");
 	temph2->GetXaxis()->SetBinLabel(1,TString("360"));
 	temph2->GetXaxis()->SetBinLabel(50,TString("180"));
@@ -503,7 +503,7 @@ void SiStripHitEffFromCalibTree::makeHotColdMaps() {
       } 																  
       else if(maplayer > 4 && maplayer <= 10) { 											  
   	//We are in the TOB														  
-  	temph2 = fs->make<TH2F>(Form("%s%i","TOB", maplayer-4),"TOB",100,-1,361,100,-120,120);				  
+  	temph2 = fs->make<TH2F>(Form("%s%i","TOB",(int)(maplayer-4)),"TOB",100,-1,361,100,-120,120);				  
   	temph2->GetXaxis()->SetTitle("Phi");
 	temph2->GetXaxis()->SetBinLabel(1,TString("360"));
 	temph2->GetXaxis()->SetBinLabel(50,TString("180"));
@@ -515,7 +515,7 @@ void SiStripHitEffFromCalibTree::makeHotColdMaps() {
       else if(maplayer > 10 && maplayer <= 13) {											  
   	//We are in the TID														  
   	//Split by +/-															  
-  	temph2 = fs->make<TH2F>(Form("%s%i","TID-", maplayer-10),"TID-",100,-100,100,100,-100,100);			  
+  	temph2 = fs->make<TH2F>(Form("%s%i","TID-",(int)(maplayer-10)),"TID-",100,-100,100,100,-100,100);			  
   	temph2->GetXaxis()->SetTitle("Global Y");
 	temph2->GetXaxis()->SetBinLabel(1,TString("+Y"));
 	temph2->GetXaxis()->SetBinLabel(50,TString("0"));
@@ -526,7 +526,7 @@ void SiStripHitEffFromCalibTree::makeHotColdMaps() {
 	temph2->GetYaxis()->SetBinLabel(100,TString("+X"));
 	temph2->SetOption("colz");												  
   	HotColdMaps.push_back(temph2);													  
-  	temph2 = fs->make<TH2F>(Form("%s%i","TID+", maplayer-10),"TID+",100,-100,100,100,-100,100);			  
+  	temph2 = fs->make<TH2F>(Form("%s%i","TID+",(int)(maplayer-10)),"TID+",100,-100,100,100,-100,100);			  
   	temph2->GetXaxis()->SetTitle("Global Y");
 	temph2->GetXaxis()->SetBinLabel(1,TString("+Y"));
 	temph2->GetXaxis()->SetBinLabel(50,TString("0"));
@@ -541,7 +541,7 @@ void SiStripHitEffFromCalibTree::makeHotColdMaps() {
       else if(maplayer > 13) {
         //We are in the TEC
         //Split by +/-
-        temph2 = fs->make<TH2F>(Form("%s%i","TEC-", maplayer-13),"TEC-",100,-120,120,100,-120,120);
+        temph2 = fs->make<TH2F>(Form("%s%i","TEC-",(int)(maplayer-13)),"TEC-",100,-120,120,100,-120,120);
         temph2->GetXaxis()->SetTitle("Global Y");
 	temph2->GetXaxis()->SetBinLabel(1,TString("+Y"));
 	temph2->GetXaxis()->SetBinLabel(50,TString("0"));
@@ -552,7 +552,7 @@ void SiStripHitEffFromCalibTree::makeHotColdMaps() {
 	temph2->GetYaxis()->SetBinLabel(100,TString("+X"));
 	temph2->SetOption("colz");
         HotColdMaps.push_back(temph2);
-        temph2 = fs->make<TH2F>(Form("%s%i","TEC+", maplayer-13),"TEC+",100,-120,120,100,-120,120);
+        temph2 = fs->make<TH2F>(Form("%s%i","TEC+",(int)(maplayer-13)),"TEC+",100,-120,120,100,-120,120);
         temph2->GetXaxis()->SetTitle("Global Y");
 	temph2->GetXaxis()->SetBinLabel(1,TString("+Y"));
 	temph2->GetXaxis()->SetBinLabel(50,TString("0"));
