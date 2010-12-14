@@ -15,4 +15,5 @@
   <bin   file="FWLiteHistograms.cc"></bin>
   <bin   file="FWLiteWithPythonConfig.cc"></bin>
   <bin   file="FWLiteWithSelectorUtils.cc"></bin>
+  <bin   file="FWLiteWithBasicAnalyzer.cc"></bin>
 </environment>
