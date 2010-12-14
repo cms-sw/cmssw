@@ -108,11 +108,12 @@ public:
   const MagneticField& magneticField() const {return *theField;}
 
 private:
+  const MagneticField* theField;
+  mutable double cachedCurvature_;
   GlobalPoint theX;
   GlobalVector theP;
   TrackCharge theCharge;
-  const MagneticField* theField;
-  mutable bool hasCurvature_; mutable double cachedCurvature_;
+  mutable bool hasCurvature_; 
   //mutable bool hasMagneticField_; mutable GlobalVector cachedMagneticField_; // 
 
 };
