@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.274 $"
+__version__ = "$Revision: 1.275 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -42,6 +42,7 @@ defaultOptions.inlineEventContent = True
 defaultOptions.inlineObjets =''
 defaultOptions.hideGen=False
 defaultOptions.beamspot='Realistic7TeVCollision'
+defaultOptions.outputDefinition =''
 
 # some helper routines
 def dumpPython(process,name):
@@ -245,9 +246,9 @@ class ConfigBuilder(object):
 			theModuleLabel=anyOf(['l','mL','moduleLabel'],outDefDict,'')
 			# module label has a particular role
 			if not theModuleLabel:
-				tryNames=[theStreamType.replace(theTier,'')+theTier+'output',
-					  theStreamType.replace(theTier,'')+theTier+theFilterName+'output',
-					  theStreamType.replace(theTier,'')+theTier+theFilterName+theSelectEvent.split(',')[0].replace(':','for').replace(' ','')+'output'
+				tryNames=[theStreamType.replace(theTier.replace('-',''),'')+theTier.replace('-','')+'output',
+					  theStreamType.replace(theTier.replace('-',''),'')+theTier.replace('-','')+theFilterName+'output',
+					  theStreamType.replace(theTier.replace('-',''),'')+theTier.replace('-','')+theFilterName+theSelectEvent.split(',')[0].replace(':','for').replace(' ','')+'output'
 					  ]
 				for name in tryNames:
 					if not hasattr(self.process,name):
@@ -256,14 +257,14 @@ class ConfigBuilder(object):
 			if not theModuleLabel:
 				raise Exception("cannot find a module label for specification: "+outDefDictStr)
 			
-			theFileName=anyOf(['fn','fileName'],outDefDict,theModuleLabel+'.root')
+			theFileName=self._options.dirout+anyOf(['fn','fileName'],outDefDict,theModuleLabel+'.root')
 			if not theFileName.endswith('.root'):
 				theFileName+='.root'
 			if len(outDefDict.keys()):
 				raise Exception("unused keys from --output options: "+','.join(outDefDict.keys()))
 			
 			theEventContent = getattr(self.process, theStreamType+"EventContent")
-			if theStreamType=='ALCARECO':
+			if theStreamType=='ALCARECO' and not theFilterName:
 				theFilterName='StreamALCACombined'
 			output = cms.OutputModule("PoolOutputModule",
 						  theEventContent,
@@ -279,7 +280,7 @@ class ConfigBuilder(object):
 
 			if hasattr(self.process,theModuleLabel):
 				raise Exception("the current process already has a module "+theModuleLabel+" defined")
-			print "creating output module ",theModuleLabel
+			#print "creating output module ",theModuleLabel
 			setattr(self.process,theModuleLabel,output)
 			outputModule=getattr(self.process,theModuleLabel)
 			setattr(self.process,theModuleLabel+'_step',cms.EndPath(outputModule))
@@ -1304,7 +1305,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.274 $"),
+                                            (version=cms.untracked.string("$Revision: 1.275 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
