@@ -2,6 +2,15 @@
   <class name="reco::GsfComponent5D"/>
   <class name="std::vector<reco::GsfComponent5D>"/>
 
+  <class name="reco::GsfTangent">
+     <field name="position_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> >" /> 
+     <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t> >" />
+     <field name="deltaP_" iotype="Double32_t" />
+     <field name="sigDeltaP_" iotype="Double32_t" />
+   </class>
+   <class name="std::vector<reco::GsfTangent>"/>
+
+
   <class name="reco::GsfTrackExtra"/>
   <class name="std::vector<reco::GsfTrackExtra>"/>
   <class name="edm::Wrapper<std::vector<reco::GsfTrackExtra> >" splitLevel="0"/>

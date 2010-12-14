@@ -16,10 +16,12 @@
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/CollinearFitAtTM.h"
 
 #include "TrackingTools/GsfTracking/interface/TrajGsfTrackAssociation.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 void 
 GsfTrackProducerBase::putInEvt(edm::Event& evt,
@@ -144,6 +146,45 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
     }
     // ----
 
+    std::vector<reco::GsfTangent> tangents;
+    const Trajectory::DataContainer& measurements = theTraj->measurements();
+    if ( measurements.size()>2 ) {
+      tangents.reserve(measurements.size()-2);
+      Trajectory::DataContainer::const_iterator ibegin,iend;
+      int increment(0);
+      if (theTraj->direction() == alongMomentum) {
+	ibegin = measurements.begin() + 1;
+	iend = measurements.end() - 1;
+	increment = 1;
+      }
+      else {
+	ibegin = measurements.end() - 2;
+	iend = measurements.begin();
+	increment = -1;
+      }
+      math::XYZPoint position;
+      math::XYZVector momentum;
+      Measurement1D deltaP;
+      // only measurements on "mono" detectors
+      for ( Trajectory::DataContainer::const_iterator i=ibegin;
+	    i!=iend; i+=increment ) {
+	if ( i->recHit().get() ) {
+	  DetId detId(i->recHit()->geographicalId());
+	  if ( detId.det()==DetId::Tracker ) {
+	    int subdetId = detId.subdetId();
+	    if ( subdetId==SiStripDetId::TIB || subdetId==SiStripDetId::TID || 
+		 subdetId==SiStripDetId::TOB || subdetId==SiStripDetId::TEC ) {
+	      if ( SiStripDetId(detId).stereo() )  continue;	    
+	    }
+	  }
+	}
+	bool valid = computeModeAtTM(*i,position,momentum,deltaP);
+	if ( valid ) {
+	  tangents.push_back(reco::GsfTangent(position,momentum,deltaP));
+	}
+      }
+    }
+    
 
     //build the GsfTrackExtra
     std::vector<reco::GsfComponent5D> outerStates;
@@ -152,11 +193,13 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
     std::vector<reco::GsfComponent5D> innerStates;
     innerStates.reserve(innertsos.components().size());
     fillStates(innertsos,innerStates);
+    
 
     reco::GsfTrackExtraRef terefGsf = reco::GsfTrackExtraRef ( rGsfTrackExtras, idxGsf ++ );
     track.setGsfExtra( terefGsf );
     selGsfTrackExtras->push_back( reco::GsfTrackExtra (outerStates, outertsos.localParameters().pzSign(),
-						       innerStates, innertsos.localParameters().pzSign()));
+						       innerStates, innertsos.localParameters().pzSign(),
+						       tangents));
 
     if ( innertsos.isValid() ) {
       GsfPropagatorAdapter gsfProp(AnalyticalPropagator(innertsos.magneticField(),anyDirection));
@@ -282,4 +325,86 @@ GsfTrackProducerBase::fillMode (reco::GsfTrack& track, const TrajectoryStateOnSu
     }
   } 
   track.setMode(fts.charge(),mom,cov);
+}
+
+void
+GsfTrackProducerBase::localParametersFromQpMode (const TrajectoryStateOnSurface tsos,
+						 AlgebraicVector5& parameters,
+						 AlgebraicSymMatrix55& covariance) const
+{
+  //
+  // parameters and errors from combined state
+  //
+  parameters = tsos.localParameters().vector();
+  covariance = tsos.localError().matrix();
+  //
+  // mode for parameter 0 (q/p)
+  //
+  MultiGaussianState1D qpState(MultiGaussianStateTransform::multiState1D(tsos,0));
+  GaussianSumUtilities1D qpGS(qpState);
+  if ( !qpGS.modeIsValid() )  return;
+  double qp = qpGS.mode().mean();
+  double varQp = qpGS.mode().variance();
+  //
+  // replace q/p value and variance, rescale correlation terms
+  //   (heuristic procedure - alternative would be mode in 5D ...)
+  //
+  double VarQpRatio = sqrt(varQp/covariance(0,0));
+  parameters(0) = qp;
+  covariance(0,0) = varQp;
+  for ( int i=1; i<5; ++i )  covariance(i,0) *= VarQpRatio;
+}
+
+bool
+GsfTrackProducerBase::computeModeAtTM (const TrajectoryMeasurement& tm,
+				       reco::GsfTrackExtra::Point& position,
+				       reco::GsfTrackExtra::Vector& momentum,
+				       Measurement1D& deltaP) const
+{  
+  //
+  // states
+  //
+  TrajectoryStateOnSurface fwdState = tm.forwardPredictedState();
+  TrajectoryStateOnSurface bwdState = tm.backwardPredictedState();
+  TrajectoryStateOnSurface upState  = tm.updatedState();
+
+
+  if ( !fwdState.isValid() || !bwdState.isValid() || !upState.isValid() ) {
+    return false;
+  }
+  //
+  // position from mean, momentum from mode (in cartesian coordinates)
+  //  following PF code
+  //
+  GlobalPoint pos = upState.globalPosition();
+  position = reco::GsfTrackExtra::Point(pos.x(),pos.y(),pos.z());
+  MultiTrajectoryStateMode mts;
+  GlobalVector mom;
+  bool result = mts.momentumFromModeCartesian(upState,mom);
+  if ( !result ) {
+//     std::cout << "momentumFromModeCartesian failed" << std::endl;
+    return false;
+  }
+  momentum = reco::GsfTrackExtra::Vector(mom.x(),mom.y(),mom.z());
+  //
+  // calculation from deltaP from fit to forward & backward predictions
+  //  (momentum from mode) and hit
+  //
+  // prepare input parameter vectors and covariance matrices
+  AlgebraicVector5 fwdPars = fwdState.localParameters().vector();
+  AlgebraicSymMatrix55 fwdCov = fwdState.localError().matrix();
+  localParametersFromQpMode(fwdState,fwdPars,fwdCov);
+  AlgebraicVector5 bwdPars = bwdState.localParameters().vector();
+  AlgebraicSymMatrix55 bwdCov = bwdState.localError().matrix();
+  localParametersFromQpMode(bwdState,bwdPars,bwdCov);
+  LocalPoint hitPos(0.,0.,0.);
+  LocalError hitErr(-1.,-1.,-1.);
+  if ( tm.recHit()->isValid() ) {
+    hitPos = tm.recHit()->localPosition();
+    hitErr = tm.recHit()->localPositionError();
+  }    
+  CollinearFitAtTM2 collinearFit(fwdPars,fwdCov,bwdPars,bwdCov,hitPos,hitErr);
+  deltaP = collinearFit.deltaP();
+
+  return true;
 }

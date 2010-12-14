@@ -4,8 +4,8 @@
 /** \class GsfTrackProducerBase
  *  Produce Tracks from TrackCandidates
  *
- *  $Date: 2008/03/03 15:06:40 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/09/29 12:35:43 $
+ *  $Revision: 1.9 $
  *  \author cerati
  */
 
@@ -16,6 +16,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfComponent5D.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
 
 // #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
@@ -52,6 +53,17 @@ protected:
 		 const TransverseImpactPointExtrapolator& tipExtrapolator,
 		 TrajectoryStateClosestToBeamLineBuilder& tscblBuilder,
 		 const reco::BeamSpot& bs) const;
+
+private:
+  /// local parameters rescaled with q/p from mode
+  void localParametersFromQpMode (const TrajectoryStateOnSurface tsos,
+				  AlgebraicVector5& parameters,
+				  AlgebraicSymMatrix55& covariance) const;
+  /// position, momentum and estimated deltaP at an intermediate measurement (true if successful)
+  bool computeModeAtTM (const TrajectoryMeasurement& tm,
+			reco::GsfTrackExtra::Point& position,
+			reco::GsfTrackExtra::Vector& momentum,
+			Measurement1D& deltaP) const;
 
 private:
 bool useSplitting;
