@@ -208,15 +208,16 @@ private:
 
   mutable DeepCopyPointer<FreeTrajectoryState> theFreeState;
 
-  mutable bool theGlobalParamsUp2Date;
-  mutable bool theCartesianErrorUp2Date;
-  mutable bool theCurvilinErrorUp2Date;
-
   mutable LocalTrajectoryError      theLocalError;
   mutable LocalTrajectoryParameters theLocalParameters;
   mutable bool                      theLocalParametersValid;
   mutable bool                      theLocalErrorValid;
 
+  mutable bool theGlobalParamsUp2Date;
+  mutable bool theCartesianErrorUp2Date;
+  mutable bool theCurvilinErrorUp2Date;
+
+ 
   SurfaceSide theSurfaceSide;
   ConstReferenceCountingPointer<Surface> theSurfaceP;
 

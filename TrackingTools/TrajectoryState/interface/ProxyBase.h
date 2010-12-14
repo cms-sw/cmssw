@@ -39,11 +39,33 @@ public:
     return *this;
   }
 
+
+  void swap(ProxyBase& other) {
+    std::swap(theData,other.theData);
+  }
+
+
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+  ProxyBase(ProxyBase&& other) {
+    theData = other.theData;
+    other.theData=0;
+  }
+  
+  ProxyBase& operator=(ProxyBase&& other) {
+    if ( theData != other.theData) { 
+      destroy();
+      theData = other.theData;
+      other.theData=0;
+    }
+    return *this;
+  }
+#endif
+
   const T& data() const { check(); return *theData;}
 
   T& unsharedData() {
     check(); 
-    if ( theData->references() > 1) {
+    if ( references() > 1) {
       theData->removeReference();
       theData = Cloner().clone( *theData);
       if (theData) theData->addReference();
@@ -56,9 +78,8 @@ public:
   bool isValid() const { return theData != 0;}
 
   void check() const {
-    if (theData == 0) {
+    if (theData == 0)
       throw TrajectoryStateException("Error: uninitialized ProxyBase used");
-    }
   }
 
   void destroy() { if (isValid()) theData->removeReference();}
@@ -69,5 +90,10 @@ private:
   T* theData;
 };
 
+template <class T, class Cloner >
+inline
+void swap(ProxyBase<T,Cloner>& lh,  const ProxyBase<T,Cloner>& rh) {
+  lh.swap(rh);
+}
 
 #endif // Tracker_ProxyBase_H

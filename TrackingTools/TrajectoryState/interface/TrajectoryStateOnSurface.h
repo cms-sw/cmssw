@@ -90,6 +90,7 @@ public:
   bool isValid() const {
     return Base::isValid() && data().isValid();
   }
+
   bool hasError() const {
     return data().hasError();
   }
