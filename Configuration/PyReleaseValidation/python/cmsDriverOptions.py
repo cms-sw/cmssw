@@ -269,6 +269,10 @@ expertSettings.add_option("--hideGen",
                           help="do not inline the generator information, just load it",
                           default=False,
                           action="store_true")
+expertSettings.add_option("--output",
+                          help="specify the list of output modules using dict",
+                          default='',
+                          dest="outputDefinition")
 
 (options,args) = parser.parse_args() # by default the arg is sys.argv[1:]
 

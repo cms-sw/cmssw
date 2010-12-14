@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.273 $"
+__version__ = "$Revision: 1.274 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -209,12 +209,92 @@ class ConfigBuilder(object):
 
     def addOutput(self):
         """ Add output module to the process """
-        result=""
-        streamTypes=self.eventcontent.split(',')
-        tiers=self._options.datatier.split(',')
-        if len(streamTypes)!=len(tiers):
-                raise Exception("number of event content arguments does not match number of datatier arguments")
+	result=""
+	streamTypes=self.eventcontent.split(',')
+	tiers=self._options.datatier.split(',')
+	if not self._options.outputDefinition and len(streamTypes)!=len(tiers):
+		raise Exception("number of event content arguments does not match number of datatier arguments")
+	if self._options.outputDefinition:
+		if self._options.datatier:
+			print "--datatier & --eventcontent options ignored"
+			
+		def anyOf(listOfKeys,dict,opt=None):
+			for k in listOfKeys:
+				if k in dict:
+					toReturn=dict[k]
+					dict.pop(k)
+					return toReturn
+			if opt!=None:
+				return opt
+			else:
+				raise Exception("any of "+','.join(listOfKeys)+" are mandatory entries of --output options")
+				
+		#new output convention with a list of dict
+		outList = eval(self._options.outputDefinition)
+		for outDefDict in outList:
+			outDefDictStr=outDefDict.__str__()
+			if not isinstance(outDefDict,dict):
+				raise Exception("--output needs to be passed a list of dict"+self._options.outputDefinition+" is invalid")
+		        #requires option: tier
+			theTier=anyOf(['t','tier','dataTier'],outDefDict)
+		        #optional option: eventcontent, filtername, selectEvents, moduleLabel, filename
+			## event content
+			theStreamType=anyOf(['e','ec','eventContent','streamType'],outDefDict,theTier)
+			theFilterName=anyOf(['f','ftN','filterName'],outDefDict,'')
+			theSelectEvent=anyOf(['s','sE','selectEvents'],outDefDict,'')
+			theModuleLabel=anyOf(['l','mL','moduleLabel'],outDefDict,'')
+			# module label has a particular role
+			if not theModuleLabel:
+				tryNames=[theStreamType.replace(theTier,'')+theTier+'output',
+					  theStreamType.replace(theTier,'')+theTier+theFilterName+'output',
+					  theStreamType.replace(theTier,'')+theTier+theFilterName+theSelectEvent.split(',')[0].replace(':','for').replace(' ','')+'output'
+					  ]
+				for name in tryNames:
+					if not hasattr(self.process,name):
+						theModuleLabel=name
+						break
+			if not theModuleLabel:
+				raise Exception("cannot find a module label for specification: "+outDefDictStr)
+			
+			theFileName=anyOf(['fn','fileName'],outDefDict,theModuleLabel+'.root')
+			if not theFileName.endswith('.root'):
+				theFileName+='.root'
+			if len(outDefDict.keys()):
+				raise Exception("unused keys from --output options: "+','.join(outDefDict.keys()))
+			
+			theEventContent = getattr(self.process, theStreamType+"EventContent")
+			if theStreamType=='ALCARECO':
+				theFilterName='StreamALCACombined'
+			output = cms.OutputModule("PoolOutputModule",
+						  theEventContent,
+						  fileName = cms.untracked.string(theFileName),
+						  dataset = cms.untracked.PSet(
+				                     dataTier = cms.untracked.string(theTier),
+						     filterName = cms.untracked.string(theFilterName))
+						  )
+			if not theSelectEvent and hasattr(self.process,'generation_step'):
+				output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
+			if theSelectEvent:
+				output.SelectEvents =cms.untracked.PSet(SelectEvents = cms.vstring(theSelectEvent))
 
+			if hasattr(self.process,theModuleLabel):
+				raise Exception("the current process already has a module "+theModuleLabel+" defined")
+			print "creating output module ",theModuleLabel
+			setattr(self.process,theModuleLabel,output)
+			outputModule=getattr(self.process,theModuleLabel)
+			setattr(self.process,theModuleLabel+'_step',cms.EndPath(outputModule))
+			path=getattr(self.process,theModuleLabel+'_step')
+			self.schedule.append(path)
+
+			if not self._options.inlineEventContent:
+				def doNotInlineEventContent(instance,label = "process."+theStreamType+"EventContent.outputCommands"):
+					return label
+				outputModule.outputCommands.__dict__["dumpPython"] = doNotInlineEventContent
+			result+="\nprocess."+theModuleLabel+" = "+outputModule.dumpPython()
+
+		##ends the --output options model
+		return result
+	
         # if the only step is alca we don't need to put in an output
         if self._options.step.split(',')[0].split(':')[0] == 'ALCA':
             return "\n"
@@ -1224,7 +1304,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.273 $"),
+                                            (version=cms.untracked.string("$Revision: 1.274 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
