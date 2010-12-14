@@ -9,11 +9,12 @@
 /// freedom introduced if larger structure and their components are aligned
 /// simultaneously.
 ///
-///  $Date: 2007/10/08 15:56:00 $
-///  $Revision: 1.6 $
-/// (last update by $Author: cklae $)
+///  $Date: 2010/12/09 19:53:42 $
+///  $Revision: 1.1 $
+/// (last update by $Author: flucke $)
 
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+#include "TMatrixD.h"
 
 class Alignable;
 
@@ -23,22 +24,33 @@ class ParametersToParametersDerivatives
   ParametersToParametersDerivatives(const Alignable &component, const Alignable &mother);
 
   /// Indicate whether able to provide the derivatives.
-  bool isOK() const {return isOK_;}
+  bool isOK() const { return isOK_;}
 
   /// Return the derivative DeltaParam(object)/DeltaParam(composedobject), indices start with 0.
   /// But check isOK() first!
   double operator() (unsigned int indParMother, unsigned int indParComp) const; 
 
+  // Not this - would make the internals public:
+  //  const TMatrixD& matrix() const { return derivatives_;}
+
   private:
+  /// init by choosing the correct detailed init method depending on parameter types
   bool init(const Alignable &component, int typeComponent,
 	    const Alignable &mother,    int typeMother);
+  /// init for component and mother both with RigidBody parameters
   bool initRigidRigid(const Alignable &component, const Alignable &mother);
+  /// init for component with BowedSurface and mother with RigidBody parameters
+  bool initBowedRigid(const Alignable &component, const Alignable &mother);
+  /// init for component with TwoBowedSurfaces and mother with RigidBody parameters
+  bool init2BowedRigid(const Alignable &component, const Alignable &mother);
+
+  typedef ROOT::Math::SMatrix<double,6,9,ROOT::Math::MatRepStd<double,6,9> > AlgebraicMatrix69;
+  AlgebraicMatrix69 dBowed_dRigid(const AlgebraicMatrix66 &f2f,
+				  double halfWidth, double halfLength) const;
 
   /// data members
-  bool            isOK_;
-  AlgebraicMatrix derivatives_;
-
-
+  bool            isOK_; /// can we provide the desired?
+  TMatrixD derivatives_; /// matrix of derivatives
 };
 
 #endif
