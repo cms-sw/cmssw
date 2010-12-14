@@ -444,11 +444,14 @@ def dropNULLConstraints(schema):
     '''
     pass
 
-def createUNIQUEConstraints(schema):
+def createUniqueConstraints(schema):
     '''
     '''
-    pass
-
+    try:
+        revtable=schema.tableHandle(nameDealer.revisionTableName())
+        revtable.schemaEditor().setUniqueConstraint('NAME','revisions_name_uc')
+    except:
+        raise
 def dropUNIQUEConstraints(schema):
     '''
     '''
@@ -470,6 +473,7 @@ if __name__ == "__main__":
     session.transaction().start(False)
     tables=createTables(schema)
     print 'created new ',tables
+    createUniqueConstraints(schema)
     session.transaction().commit()
     #session.transaction().start(False)
     #tables=dropTables(schema,tables)
