@@ -10,6 +10,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/RadialStripTopology.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -188,8 +189,8 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 	uOrientation = deltaPhi(gUDirection.phi(),gPModule.phi()) >= 0. ? +1.F : -1.F;
 	vOrientation = gVDirection.perp() - gPModule.perp() >= 0. ? +1.F : -1.F;
 	
-	if (!dynamic_cast<const RadialStripTopology*>(&detUnit.topology()))continue;
-	const RadialStripTopology& topol = dynamic_cast<const RadialStripTopology&>(detUnit.topology());
+	if (!dynamic_cast<const RadialStripTopology*>(&detUnit.type().topology()))continue;
+	const RadialStripTopology& topol = dynamic_cast<const RadialStripTopology&>(detUnit.type().topology());
 	
 	MeasurementPoint measHitPos = topol.measurementPosition(lPHit);
 	MeasurementPoint measTrkPos = topol.measurementPosition(lPTrk);
