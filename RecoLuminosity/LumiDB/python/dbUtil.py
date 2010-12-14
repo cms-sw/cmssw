@@ -243,6 +243,7 @@ class dbUtil(object):
           description.setName( entrytableName )
           description.insertColumn( 'ENTRY_ID' ,'unsigned long long')
           description.insertColumn( 'REVISION_ID' ,'unsigned long long')
+          description.insertColumn( 'NAME' ,'string')
           tableHandle=self.__schema.createTable( description )
           tableHandle.privilegeManager().grantToPublic(coral.privilege_Select)
         except Exception, e:
