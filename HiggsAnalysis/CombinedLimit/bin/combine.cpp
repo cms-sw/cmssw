@@ -38,6 +38,7 @@
 #include <string>
 #include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Hybrid.h"
+#include "HiggsAnalysis/CombinedLimit/interface/HybridNew.h"
 #include "HiggsAnalysis/CombinedLimit/interface/BayesianFlatPrior.h"
 #include "HiggsAnalysis/CombinedLimit/interface/MarkovChainMC.h"
 #include <map>
@@ -63,6 +64,7 @@ int main(int argc, char **argv) {
   algo = new ProfileLikelihood(); methods.insert(make_pair(algo->name(), algo));
   algo = new BayesianFlatPrior(); methods.insert(make_pair(algo->name(), algo));
   algo = new MarkovChainMC();  methods.insert(make_pair(algo->name(), algo));
+  algo = new HybridNew();  methods.insert(make_pair(algo->name(), algo));
   
   string methodsDesc("Method to extract upper limit. Supported methods are: ");
   for(map<string, LimitAlgo *>::const_iterator i = methods.begin(); i != methods.end(); ++i) {
@@ -166,12 +168,13 @@ int main(int argc, char **argv) {
   TString fileName = "higgsCombine" + name + "."+whichMethod+"."+massName+toyName+"root";
   TFile *test = new TFile(fileName, "RECREATE");
   TTree *t = new TTree("test", "test");
-  int syst, iToy, iChannel; 
+  int syst, iToy, iSeed, iChannel; 
   double mass, limit; 
   t->Branch("limit",&limit,"limit/D");
   t->Branch("mh",   &mass, "mh/D");
   t->Branch("syst", &syst, "syst/I");
   t->Branch("iToy", &iToy, "iToy/I");
+  t->Branch("iSeed", &iSeed, "iSeed/I");
   t->Branch("iChannel", &iChannel, "iChannel/I");
   t->Branch("t_cpu",   &t_cpu_,  "t_cpu/F");
   t->Branch("t_real",  &t_real_, "t_real/F");
@@ -182,6 +185,7 @@ int main(int argc, char **argv) {
   
   syst = withSystematics;
   mass = iMass;
+  iSeed = seed;
   iChannel = 0;
   combiner.run(datacard, dataset, limit, iToy, t, runToys);
   

@@ -220,13 +220,20 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
   }  
   w->saveSnapshot("clean", w->allVars());
 
-  if (nToys == 0) { // observed (usually it's the Asimov data set)
+  if (nToys <= 0) { // observed or asimov
+    iToy = nToys;
     RooAbsData *dobs = w->data(dataset.c_str());
-    if (dobs == 0) {
+    if (iToy == -1) {	
+        if (w->pdf("model_b")->canBeExtended()) {
+	  dobs = w->pdf("model_b")->generateBinned(*observables,RooFit::Extended(),RooFit::Asimov());
+	} else {
+	  dobs = w->pdf("model_b")->generate(*observables,1,RooFit::Asimov());
+	}
+    } else if (dobs == 0) {
       std::cerr << "No observed data '" << dataset << "' in the workspace. Cannot compute limit.\n" << std::endl;
       return;
     }
-    std::cout << "Computing limit starting from observation" << std::endl;
+    std::cout << "Computing limit starting from " << (iToy == 0 ? "observation" : "expected outcome") << std::endl;
     utils::printRAD(dobs);
     if (mklimit(w,*dobs,limit)) tree->Fill();
   }
