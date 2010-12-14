@@ -44,6 +44,7 @@ from FastSimulation.Tracking.IterativeTracking_cff import *
 
 # Calo RecHits producer (with no HCAL miscalibration by default)
 from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
+from RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi import *
 
 # ECAL clusters
 from RecoEcal.Configuration.RecoEcal_cff import *
