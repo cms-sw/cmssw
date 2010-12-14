@@ -16,7 +16,7 @@ Implementation:
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
 //  Philip Hebda, July 2009
-// $Id: TriggerValidator.cc,v 1.22 2010/05/28 13:00:10 olzem Exp $
+// $Id: TriggerValidator.cc,v 1.23 2010/06/27 14:15:01 wmtan Exp $
 //
 //
 
@@ -564,7 +564,7 @@ void TriggerValidator::beginRun(const edm::Run& run, const edm::EventSetup& c)
       hHltPathsAfterMcCuts.push_back(dbe_->book1D(histo_name, hTemp));
     }
 
-  myMuonAnalyzer = new MuonAnalyzer(triggerTag_, muonTag_);
+  myMuonAnalyzer = new MuonAnalyzerSBSM(triggerTag_, muonTag_);
   myMuonAnalyzer->InitializePlots(dbe_, dirname_);
 }
 

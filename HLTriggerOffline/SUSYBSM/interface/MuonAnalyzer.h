@@ -32,11 +32,11 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 
-class MuonAnalyzer {
+class MuonAnalyzerSBSM {
 
  public:
-  MuonAnalyzer(edm::InputTag, edm::InputTag);
-  virtual ~MuonAnalyzer(){};
+  MuonAnalyzerSBSM(edm::InputTag, edm::InputTag);
+  virtual ~MuonAnalyzerSBSM(){};
 
   void InitializePlots(DQMStore *, const std::string);
   void FillPlots(const edm::Event&, const edm::EventSetup&);

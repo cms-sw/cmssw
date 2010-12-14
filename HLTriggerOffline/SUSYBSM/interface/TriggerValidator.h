@@ -18,7 +18,7 @@
 //                   Maurizio Pierini
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
-// $Id: TriggerValidator.h,v 1.14 2010/05/28 10:35:58 chiorbo Exp $
+// $Id: TriggerValidator.h,v 1.15 2010/06/27 14:15:01 wmtan Exp $
 //
 //
 
@@ -176,7 +176,7 @@ class TriggerValidator : public edm::EDAnalyzer {
 
       bool firstEvent;
 
-      MuonAnalyzer* myMuonAnalyzer;
+      MuonAnalyzerSBSM* myMuonAnalyzer;
 };
 
 

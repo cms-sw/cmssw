@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    MuonAnalyzer
-// Class:      MuonAnalyzer
+// Package:    MuonAnalyzerSBSM
+// Class:      MuonAnalyzerSBSM
 // 
-/**\class MuonAnalyzer MuonAnalyzer.cc Muon/MuonAnalyzer/src/MuonAnalyzer.cc
+/**\class MuonAnalyzerSBSM MuonAnalyzerSBSM.cc Muon/MuonAnalyzerSBSM/src/MuonAnalyzerSBSM.cc
 
  Description: <one line class summary>
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Philip Hebda
 //         Created:  Thu Jun 25 09:34:50 CEST 2009
-// $Id: MuonAnalyzer.cc,v 1.1 2010/02/26 10:31:46 chiorbo Exp $
+// $Id: MuonAnalyzerSBSM.cc,v 1.2 2010/10/15 22:44:32 wmtan Exp $
 //
 //
 #include "HLTriggerOffline/SUSYBSM/interface/MuonAnalyzer.h"
@@ -34,13 +34,13 @@ using namespace std;
 using namespace trigger;
 
 
-MuonAnalyzer::MuonAnalyzer(edm::InputTag triggerTag_v, edm::InputTag muonTag_v)
+MuonAnalyzerSBSM::MuonAnalyzerSBSM(edm::InputTag triggerTag_v, edm::InputTag muonTag_v)
 {
   triggerTag_ = triggerTag_v;
   muonTag_ = muonTag_v;
 }
 
-bool MuonAnalyzer::find(vector<int> vec, int element)
+bool MuonAnalyzerSBSM::find(vector<int> vec, int element)
 {
   for(size_t i=0; i<vec.size(); ++i)
     {
@@ -56,7 +56,7 @@ bool MuonAnalyzer::find(vector<int> vec, int element)
 
 // ------------ method called to for each event  ------------
 void
-MuonAnalyzer::FillPlots(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+MuonAnalyzerSBSM::FillPlots(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    Handle<reco::MuonCollection> theMuonCollectionHandle;
    iEvent.getByLabel(muonTag_, theMuonCollectionHandle);
@@ -253,7 +253,7 @@ MuonAnalyzer::FillPlots(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-MuonAnalyzer::InitializePlots(DQMStore* dbe_, string subDir)
+MuonAnalyzerSBSM::InitializePlots(DQMStore* dbe_, string subDir)
 {
    //now do what ever initialization is needed
   int pt_bins=100, eta_bins=100;
@@ -288,4 +288,4 @@ MuonAnalyzer::InitializePlots(DQMStore* dbe_, string subDir)
   hAssocRecoMuonEta_3_ByMuon= dbe_->book1D("AssocRecoMuonEta_3_ByMuon", "Assoc Muon Eta, P_{t}>20, By Muon", eta_bins, eta_floor,eta_ceiling);
 }
 //define this as a plug-in
-//DEFINE_FWK_MODULE(MuonAnalyzer);
+//DEFINE_FWK_MODULE(MuonAnalyzerSBSM);
