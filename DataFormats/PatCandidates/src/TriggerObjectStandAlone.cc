@@ -1,9 +1,9 @@
 //
-// $Id: TriggerObjectStandAlone.cc,v 1.3 2010/04/20 21:39:46 vadler Exp $
+// $Id: TriggerObjectStandAlone.cc,v 1.4 2010/06/16 15:40:53 vadler Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
-
+#include <algorithm>
 
 using namespace pat;
 
@@ -30,22 +30,15 @@ std::vector< std::string > TriggerObjectStandAlone::pathNames( bool pathLastFilt
 
 bool TriggerObjectStandAlone::hasFilterLabel( const std::string & filterLabel ) const
 {
-  for ( unsigned iFilter = 0; iFilter < filterLabels().size(); ++iFilter ) {
-    if ( filterLabel == filterLabels().at( iFilter ) ) {
-      return true;
-    }
-  }
-  return false;
+  return (std::find(filterLabels_.begin(), filterLabels_.end(), filterLabel) != filterLabels_.end());
 }
 
 bool TriggerObjectStandAlone::hasPathName( const std::string & pathName, bool pathLastFilterAccepted ) const
 {
-  for ( unsigned iPath = 0; iPath < pathNames( pathLastFilterAccepted ).size(); ++iPath ) {
-    if ( pathName == pathNames( pathLastFilterAccepted ).at( iPath ) ) {
-      return true;
-    }
-  }
-  return false;
+  if (!hasPathLastFilterAccepted()) pathLastFilterAccepted = false;
+  std::vector<std::string>::const_iterator match = std::find(pathNames_.begin(), pathNames_.end(), pathName);
+  if (match == pathNames_.end()) return false;
+  return (pathLastFilterAccepted ? pathLastFilterAccepted_[match - pathNames_.begin()] : true);
 }
 
 // returns "pure" pat::TriggerObject w/o add-on
