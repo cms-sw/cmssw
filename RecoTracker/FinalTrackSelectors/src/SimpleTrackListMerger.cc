@@ -8,8 +8,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: stenson $
-// $Date: 2010/05/03 23:24:55 $
-// $Revision: 1.25 $
+// $Date: 2010/05/03 23:47:08 $
+// $Revision: 1.26 $
 //
 
 #include <memory>
@@ -471,7 +471,7 @@ namespace cms
        const edm::Ref<reco::TrackCollection> &trkRef = match->val; 
        short oldKey = static_cast<short>(trkRef.key());
        if (trackRefs[oldKey].isNonnull()) {
-         outputTrajs->push_back( Trajectory(*trajRef) );
+         outputTrajs->push_back( *trajRef );
 	 //if making extras and the seeds at the same time, change the seed ref on the trajectory
 	 if (copyExtras_ && makeReKeyedSeeds_)
 	     outputTrajs->back().setSeedRef( seedsRefs[oldKey] );
