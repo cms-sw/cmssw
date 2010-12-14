@@ -42,7 +42,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 // For L1
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
@@ -484,9 +484,7 @@ void ReadPixClusters::analyze(const edm::Event& e,
     //int cols = theGeomDet->specificTopology().ncolumns();
     //int rows = theGeomDet->specificTopology().nrows();
     
-    //old
-    const RectangularPixelTopology * topol =
-      dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+    const PixelTopology * topol = &(theGeomDet->specificTopology());
 
     // barrel ids
     unsigned int layerC=0;
