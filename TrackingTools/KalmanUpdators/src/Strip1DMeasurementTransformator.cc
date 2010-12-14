@@ -1,5 +1,6 @@
 #include "TrackingTools/KalmanUpdators/interface/Strip1DMeasurementTransformator.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "Geometry/CommonTopologies/interface/RadialStripTopology.h"
 
 Strip1DMeasurementTransformator::Strip1DMeasurementTransformator(const TSOS& tsos,
@@ -13,8 +14,8 @@ Strip1DMeasurementTransformator::Strip1DMeasurementTransformator(const TSOS& tso
 
 void Strip1DMeasurementTransformator::init() {
 
-  theTopology = 
-    dynamic_cast<const StripTopology*>(&(hit().detUnit()->topology()));
+  theTopology =  dynamic_cast<const StripTopology*>(&(hit().detUnit()->topology()));
+  theIdealTopology =  dynamic_cast<const StripTopology*>(&(hit().detUnit()->type().topology()));
 }
 
 double Strip1DMeasurementTransformator::hitParameters() const {
@@ -56,7 +57,7 @@ AlgebraicMatrix15 Strip1DMeasurementTransformator::projectionMatrix() const {
   //  H(measurement <- local)
   //  m_meas = H*x_local + c
   AlgebraicMatrix15 H;
-  if(const RadialStripTopology* tmp = dynamic_cast<const RadialStripTopology*>(topology())) {
+  if(const RadialStripTopology* tmp = dynamic_cast<const RadialStripTopology*>(idealTopology())) {
     double yHitToInter = tmp->yDistanceToIntersection( hit().localPosition().y() );
     double t  = tmp->yAxisOrientation() * hit().localPosition().x() / yHitToInter;
     double c2 = 1./(1. + t*t);  // cos(angle)**2
