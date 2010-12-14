@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerObject
 //
-// $Id: TriggerObject.h,v 1.8 2010/06/26 17:53:57 vadler Exp $
+// $Id: TriggerObject.h,v 1.9 2010/12/11 21:25:44 vadler Exp $
 //
 /**
   \class    pat::TriggerObject TriggerObject.h "DataFormats/PatCandidates/interface/TriggerObject.h"
@@ -18,7 +18,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerObject
 
   \author   Volker Adler
-  \version  $Id: TriggerObject.h,v 1.8 2010/06/26 17:53:57 vadler Exp $
+  \version  $Id: TriggerObject.h,v 1.9 2010/12/11 21:25:44 vadler Exp $
 */
 
 
@@ -47,52 +47,87 @@ namespace pat {
 
   class TriggerObject : public reco::LeafCandidate {
 
-      /// data members
-      std::string                               collection_;
-      std::vector< trigger::TriggerObjectType > filterIds_;  // special filter related ID as defined in enum 'TriggerObjectType' in DataFormats/HLTReco/interface/TriggerTypeDefs.h
-                                                             // empty, if object was not used in last active filter
-      reco::CandidateBaseRef refToOrig_;                     // reference to original trigger object, meant for 'l1extra' particles to access their additional functionalities
+      /// Data Members
+
+      /// Label of the collection the trigger object originates from
+      std::string collection_;
+      /// Vector of special identifiers for the trigger object type as defined in
+      /// trigger::TriggerObjectType (DataFormats/HLTReco/interface/TriggerTypeDefs.h),
+      /// possibly empty
+      std::vector< trigger::TriggerObjectType > filterIds_;
+      /// Reference to trigger object,
+      /// meant for 'l1extra' particles to access their additional functionalities,
+      /// empty otherwise
+      reco::CandidateBaseRef refToOrig_;
 
     public:
 
-      /// constructors and desctructor
+      /// Constructors and Destructor
+
+      /// Default constructor
       TriggerObject();
-      TriggerObject( const reco::Particle::LorentzVector & vec, int id = 0 );
-      TriggerObject( const reco::Particle::PolarLorentzVector & vec, int id = 0 );
+      /// Constructor from trigger::TriggerObject
       TriggerObject( const trigger::TriggerObject & trigObj );
+      /// Constructors from reco::Candidate
       TriggerObject( const reco::LeafCandidate & leafCand );
       TriggerObject( const reco::CandidateBaseRef & candRef );
+      /// Constructors from Lorentz-vectors and (optional) PDG ID
+      TriggerObject( const reco::Particle::LorentzVector & vec, int id = 0 );
+      TriggerObject( const reco::Particle::PolarLorentzVector & vec, int id = 0 );
+
+      /// Destructor
       virtual ~TriggerObject() {};
 
-      /// setters & getters
-      void setCollection( const std::string & coll )          { collection_ = coll; };
-      void setCollection( const edm::InputTag & coll )        { collection_ = coll.encode(); };
+      /// Methods
+
+      /// Set the label of the collection the trigger object originates from
+      void setCollection( const std::string & coll )   { collection_ = coll; };
+      void setCollection( const edm::InputTag & coll ) { collection_ = coll.encode(); };
+      /// Add a new trigger object type identifier
       void addFilterId( trigger::TriggerObjectType filterId ) { filterIds_.push_back( filterId ); };
       void addFilterId( int filterId )                        { addFilterId( trigger::TriggerObjectType( filterId ) ); };
-      std::string                               collection() const                                       { return collection_; };
-      bool                                      hasCollection( const edm::InputTag & coll ) const        { return hasCollection( coll.encode() ); };
-      bool                                      hasCollection( const std::string & coll ) const;
-      bool                                      coll( const std::string & coll ) const                   { return hasCollection( coll );};
-      std::vector< trigger::TriggerObjectType > filterIds() const                                        { return filterIds_; };
-      bool                                      hasFilterId( trigger::TriggerObjectType filterId ) const;
-      bool                                      hasFilterId( int filterId ) const                        { return hasFilterId( trigger::TriggerObjectType( filterId ) ); };
-      bool                                      id( trigger::TriggerObjectType filterId ) const          { return hasFilterId( filterId ); };
-      bool                                      id( int filterId ) const                                 { return id( trigger::TriggerObjectType ( filterId ) ); };
-      // special general getters for 'l1extra' particles
+      /// Get the label of the collection the trigger object originates from
+      std::string collection() const { return collection_; };
+      /// Get all trigger object type identifiers
+      std::vector< trigger::TriggerObjectType > filterIds() const { return filterIds_; };
+      /// Checks, if a certain label of original collection is assigned
+      bool hasCollection( const std::string & coll ) const;
+      bool hasCollection( const edm::InputTag & coll ) const { return hasCollection( coll.encode() ); };
+      /// Checks, if a certain trigger object type identifier is assigned
+      bool hasFilterId( trigger::TriggerObjectType filterId ) const;
+      bool hasFilterId( int filterId ) const { return hasFilterId( trigger::TriggerObjectType( filterId ) ); };
+
+      /// Special methods for 'l1extra' particles
+
+      /// General getters
       const reco::CandidateBaseRef & origObjRef()  const { return refToOrig_; };
       const reco::Candidate        * origObjCand() const { return refToOrig_.get(); };
-      // special specific getters for 'l1extra' particles
-      const l1extra::L1EmParticleRef       origL1EmRef()       const;
-      const L1GctEmCand                  * origL1GctEmCand()   const { return origL1EmRef().isNonnull() ? origL1EmRef()->gctEmCand() : 0; };
-      const l1extra::L1EtMissParticleRef   origL1EtMissRef()   const;
-      const L1GctEtMiss                  * origL1GctEtMiss()   const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctEtMiss() : 0; };
-      const L1GctEtTotal                 * origL1GctEtTotal()  const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctEtTotal() : 0; };
-      const L1GctHtMiss                  * origL1GctHtMiss()   const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctHtMiss() : 0; };
-      const L1GctEtHad                   * origL1GctEtHad()    const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctEtHad() : 0; };
-      const l1extra::L1JetParticleRef      origL1JetRef()      const;
-      const L1GctJetCand                 * origL1GctJetCand()  const { return origL1JetRef().isNonnull() ? origL1JetRef()->gctJetCand() : 0; };
-      const l1extra::L1MuonParticleRef     origL1MuonRef()     const;
-      const L1MuGMTExtendedCand          * origL1GmtMuonCand() const { return origL1MuonRef().isNonnull() ? &( origL1MuonRef()->gmtMuonCand() ) : 0; };
+      /// Getters specific to the 'l1extra' particle type for
+      /// - EM
+      const l1extra::L1EmParticleRef origL1EmRef() const;
+      const L1GctEmCand * origL1GctEmCand() const { return origL1EmRef().isNonnull() ? origL1EmRef()->gctEmCand() : 0; };
+      /// - EtMiss
+      const l1extra::L1EtMissParticleRef origL1EtMissRef() const;
+      const L1GctEtMiss  * origL1GctEtMiss()  const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctEtMiss() : 0; };
+      const L1GctEtTotal * origL1GctEtTotal() const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctEtTotal() : 0; };
+      const L1GctHtMiss  * origL1GctHtMiss()  const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctHtMiss() : 0; };
+      const L1GctEtHad   * origL1GctEtHad()   const { return origL1EtMissRef().isNonnull() ? origL1EtMissRef()->gctEtHad() : 0; };
+      /// - Jet
+      const l1extra::L1JetParticleRef origL1JetRef() const;
+      const L1GctJetCand * origL1GctJetCand() const { return origL1JetRef().isNonnull() ? origL1JetRef()->gctJetCand() : 0; };
+      /// - Muon
+      const l1extra::L1MuonParticleRef origL1MuonRef() const;
+      const L1MuGMTExtendedCand * origL1GmtMuonCand() const { return origL1MuonRef().isNonnull() ? &( origL1MuonRef()->gmtMuonCand() ) : 0; };
+
+      /// Special methods for the cut string parser
+      /// - argument types usable in the cut string parser
+      /// - short names for readable configuration files
+
+      /// Calls 'hasCollection(...)'
+      bool coll( const std::string & coll ) const { return hasCollection( coll );};
+      /// Call 'hasFilterId(...)'
+      bool id( trigger::TriggerObjectType filterId ) const { return hasFilterId( filterId ); };
+      bool id( int filterId ) const                        { return hasFilterId( trigger::TriggerObjectType ( filterId ) ); };
 
   };
 
