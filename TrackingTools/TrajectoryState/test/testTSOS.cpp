@@ -24,7 +24,7 @@ int main() {
   std::cout << "sizes tsos, bsts, fts" << std::endl;
   std::cout << sizeof( TrajectoryStateOnSurface) << std::endl;
   std::cout << sizeof(BasicSingleTrajectoryState) << std::endl;
-  std::cout << sizeof(FreeTrajectoryStat) << std::endl;
+  std::cout << sizeof(FreeTrajectoryState) << std::endl;
 
 
   using namespace std;
