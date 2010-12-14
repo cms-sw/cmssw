@@ -187,6 +187,22 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
 
       double conehmaxNearP = spr::chargeIsolationCone(nTracks, trkCaloDirections, a_charIsoR, nNearTRKs, (myverbose>3));
 
+      double eMipDR_1 = spr::eCone_ecal(geo, barrelRecHitsHandle, endcapRecHitsHandle,
+					trkDetItr->pointHCAL, trkDetItr->pointECAL,
+					a_mipR, trkDetItr->directionECAL, nRH_eMipDR,
+					0.030, 0.150);
+      double eECALDR_1= spr::eCone_ecal(geo, barrelRecHitsHandle,  endcapRecHitsHandle,
+				       trkDetItr->pointHCAL, trkDetItr->pointECAL,
+					a_neutIsoR, trkDetItr->directionECAL, nRH_eDR,
+					0.030, 0.150);
+      double eMipDR_2 = spr::eCone_ecal(geo, barrelRecHitsHandle, endcapRecHitsHandle,
+					trkDetItr->pointHCAL, trkDetItr->pointECAL,
+					a_mipR, trkDetItr->directionECAL, nRH_eMipDR,
+					0.060, 0.300);
+      double eECALDR_2= spr::eCone_ecal(geo, barrelRecHitsHandle,  endcapRecHitsHandle,
+				       trkDetItr->pointHCAL, trkDetItr->pointECAL,
+					a_neutIsoR, trkDetItr->directionECAL, nRH_eDR,
+					0.060, 0.300);
       double eMipDR  = spr::eCone_ecal(geo, barrelRecHitsHandle, endcapRecHitsHandle,
 				       trkDetItr->pointHCAL, trkDetItr->pointECAL,
 				       a_mipR, trkDetItr->directionECAL, nRH_eMipDR);
@@ -212,6 +228,10 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
       t_eHCALDR               ->push_back( eHCALDR);
       t_e11x11_20Sig          ->push_back( e11x11_20SigP.first );
       t_e15x15_20Sig          ->push_back( e15x15_20SigP.first );
+      t_eMipDR_1              ->push_back( eMipDR_1);
+      t_eECALDR_1             ->push_back( eECALDR_1);
+      t_eMipDR_2              ->push_back( eMipDR_2);
+      t_eECALDR_2             ->push_back( eECALDR_2);
 
       if (myverbose > 0) {
 	std::cout << "Track p " << pTrack->p() << " pt " << pTrack->pt()
@@ -219,8 +239,10 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
 		  << pTrack->momentum().phi() << " ieta/iphi ("
 		  << closestCell.ieta() << ", " << closestCell.iphi() 
 		  << ") Energy in cone " << hCone << " Charge Isolation "
-		  << conehmaxNearP << " eMIP " << eMipDR
-		  << " Neutral isolation (ECAL) " << eECALDR-eMipDR
+		  << conehmaxNearP << " eMIP (" << eMipDR << ", "
+		  << eMipDR_1 << ", " << eMipDR_2 << ")"
+		  << " Neutral isolation (ECAL) (" << eECALDR-eMipDR << ", "
+		  << eECALDR_1-eMipDR_1 << ", " << eECALDR_2-eMipDR_2 << ")"
 		  << " (ECAL NxN) " << e15x15_20SigP.first-e11x11_20SigP.first
 		  << " (HCAL) " << eHCALDR-hCone << std::endl;
       }
@@ -305,6 +327,10 @@ void IsolatedTracksHcalScale::beginJob() {
   t_eHCALDR             = new std::vector<double>();
   t_e11x11_20Sig        = new std::vector<double>();
   t_e15x15_20Sig        = new std::vector<double>();
+  t_eMipDR_1            = new std::vector<double>();
+  t_eECALDR_1           = new std::vector<double>();
+  t_eMipDR_2            = new std::vector<double>();
+  t_eECALDR_2           = new std::vector<double>();
 
   tree->Branch("t_trackP",            "vector<double>", &t_trackP           );
   tree->Branch("t_trackPt",           "vector<double>", &t_trackPt          );
@@ -319,6 +345,10 @@ void IsolatedTracksHcalScale::beginJob() {
   tree->Branch("t_eHCALDR",           "vector<double>", &t_eHCALDR          );
   tree->Branch("t_e11x11_20Sig",      "vector<double>", &t_e11x11_20Sig     );
   tree->Branch("t_e15x15_20Sig",      "vector<double>", &t_e15x15_20Sig     );
+  tree->Branch("t_eMipDR_1",          "vector<double>", &t_eMipDR_1         );
+  tree->Branch("t_eECALDR_1",         "vector<double>", &t_eECALDR_1        );
+  tree->Branch("t_eMipDR_2",          "vector<double>", &t_eMipDR_2         );
+  tree->Branch("t_eECALDR_2",         "vector<double>", &t_eECALDR_2        );
 
   if (doMC) {
     t_hsimInfoMatched    = new std::vector<double>();
@@ -375,6 +405,10 @@ void IsolatedTracksHcalScale::clearTreeVectors() {
   t_eHCALDR           ->clear();
   t_e11x11_20Sig      ->clear();
   t_e15x15_20Sig      ->clear();
+  t_eMipDR_1          ->clear();
+  t_eECALDR_1         ->clear();
+  t_eMipDR_2          ->clear();
+  t_eECALDR_2         ->clear();
 
   if (doMC) {
     t_hsimInfoMatched    ->clear();

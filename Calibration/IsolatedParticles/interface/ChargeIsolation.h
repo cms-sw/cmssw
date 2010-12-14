@@ -1,4 +1,3 @@
-// -*- C++ -*
 /* 
 Functions to define isolation with respect to charge particles
 
