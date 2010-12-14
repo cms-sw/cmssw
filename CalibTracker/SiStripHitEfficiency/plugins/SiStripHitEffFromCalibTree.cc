@@ -492,7 +492,7 @@ void SiStripHitEffFromCalibTree::makeHotColdMaps() {
     //Initialize all of the histograms													  
     if(maplayer > 0 && maplayer <= 4) { 												  
   	//We are in the TIB														  
-  	temph2 = fs->make<TH2F>(Form("%s%i","TIB",(int)maplayer),"TIB",100,-1,361,100,-100,100);					  
+  	temph2 = fs->make<TH2F>(Form("%s%i","TIB",(int)(maplayer)),"TIB",100,-1,361,100,-100,100);					  
   	temph2->GetXaxis()->SetTitle("Phi");
 	temph2->GetXaxis()->SetBinLabel(1,TString("360"));
 	temph2->GetXaxis()->SetBinLabel(50,TString("180"));
