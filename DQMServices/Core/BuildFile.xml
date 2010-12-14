@@ -4,7 +4,7 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/Version"/>
-<use   name="Iguana/Utilities"/>
+<use   name="classlib"/>
 <use   name="rootcintex"/>
 <use   name="roothistmatrix"/>
 <export>

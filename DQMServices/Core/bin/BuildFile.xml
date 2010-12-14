@@ -1,6 +1,6 @@
 <flags   CPPFLAGS="-DWITHOUT_CMS_FRAMEWORK=0"/>
 <bin   name="DQMCollector" file="DQMCollector.cpp">
-  <use   name="Iguana/Utilities"/>
+  <use   name="classlib"/>
 </bin>
 <bin   name="DQMDumpFile" file="DumpFile.cpp">
   <use   name="DQMServices/Core"/>
