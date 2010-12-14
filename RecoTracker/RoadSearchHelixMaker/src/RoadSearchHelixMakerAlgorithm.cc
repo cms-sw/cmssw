@@ -8,8 +8,8 @@
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/01/21 22:08:55 $
-// $Revision: 1.9 $
+// $Date: 2007/03/07 22:04:03 $
+// $Revision: 1.10 $
 //
 
 #include <vector>
@@ -123,8 +123,7 @@ void RoadSearchHelixMakerAlgorithm::run(const TrackCandidateCollection* input,
 	} else {
 	  recHitGeomDetUnit = tracker->idToDetUnit(recHitId);
 	}
-	const RectangularStripTopology *recHitTopology = 
-	  dynamic_cast<const RectangularStripTopology*>(&(recHitGeomDetUnit->topology()));
+	const StripTopology *recHitTopology = dynamic_cast<const StripTopology*>(&(recHitGeomDetUnit->topology()));
 	double iLength = recHitTopology->stripLength();
 	LocalPoint temp_lpos = recHit->localPosition();
 	LocalPoint temp_lpos_f(temp_lpos.x(),temp_lpos.y()+iLength/2.0,temp_lpos.z());
