@@ -25,7 +25,8 @@ class PhotosInterface;
 	 
 	 void init( const edm::EventSetup& );
 
-	 const std::vector<int>& operatesOnParticles() { return fPDGs; }
+	 const std::vector<int>&         operatesOnParticles() { return fPDGs; }
+	 const std::vector<std::string>& specialSettings()     { return fSpecialSettings; }
 	 
 	 HepMC::GenEvent* decay( HepMC::GenEvent* );
 	 
@@ -33,11 +34,12 @@ class PhotosInterface;
       
       private:
       	 
-	 bool             fIsInitialized;
-	 TauolaInterface* fTauolaInterface;
-	 EvtGenInterface* fEvtGenInterface;
-	 PhotosInterface* fPhotosInterface;
-	 std::vector<int> fPDGs;
+	 bool                     fIsInitialized;
+	 TauolaInterface*         fTauolaInterface;
+	 EvtGenInterface*         fEvtGenInterface;
+	 PhotosInterface*         fPhotosInterface;
+	 std::vector<int>         fPDGs;
+	 std::vector<std::string> fSpecialSettings;
          
    };
 

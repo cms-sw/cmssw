@@ -166,10 +166,11 @@ namespace edm
 
   template <class HAD, class DEC>
   bool
-  GeneratorFilter<HAD, DEC>::beginRun(Run &, EventSetup const& es)
+  GeneratorFilter<HAD, DEC>::beginRun( Run &, EventSetup const& es )
   {
 
-     // we init external decay tools here to mimic how it was in beginRun
+/*
+     // we init external decay tools first, to mimic how it was in beginRun
      // in principle, in a big picture it shouldn't matter but in practice 
      // the output is not identical if we change the order - the reason is
      // that RANMAR is overriden with PYR, thus the order of calls shifts
@@ -194,13 +195,14 @@ namespace edm
             << hadronizer_.classname()
             << "\n";
     }
+*/
     
     return true;
   }
 
   template <class HAD, class DEC>
   bool
-  GeneratorFilter<HAD, DEC>::endRun(Run& r, EventSetup const&)
+  GeneratorFilter<HAD, DEC>::endRun( Run& r, EventSetup const& )
   {
     // If relevant, record the integrated luminosity for this run
     // here.  To do so, we would need a standard function to invoke on
@@ -219,9 +221,32 @@ namespace edm
 
   template <class HAD, class DEC>
   bool
-  GeneratorFilter<HAD, DEC>::beginLuminosityBlock(LuminosityBlock &, EventSetup const&)
+  GeneratorFilter<HAD, DEC>::beginLuminosityBlock( LuminosityBlock &, EventSetup const& es )
   {
+
+    if ( !hadronizer_.initializeForInternalPartons() )
+       throw edm::Exception(errors::Configuration) 
+	 << "Failed to initialize hadronizer "
+	 << hadronizer_.classname()
+	 << " for internal parton generation\n";
+    
+    if ( decayer_ )
+    {
+       decayer_->init(es);
+       if ( !hadronizer_.declareStableParticles( decayer_->operatesOnParticles() ) )
+          throw edm::Exception(errors::Configuration)
+            << "Failed to declare stable particles in hadronizer "
+            << hadronizer_.classname()
+            << "\n";
+       if ( !hadronizer_.declareSpecialSettings( decayer_->specialSettings() ) )
+          throw edm::Exception(errors::Configuration)
+            << "Failed to declare special settings in hadronizer "
+            << hadronizer_.classname()
+            << "\n";
+    }
+
     return true;
+
   }
 
   template <class HAD, class DEC>

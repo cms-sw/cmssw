@@ -47,11 +47,14 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
       else if ( curSet == "Tauola" )
       {
          fTauolaInterface = new gen::TauolaInterface(pset.getUntrackedParameter< ParameterSet >(curSet));
+	 // in the future, here it should be something like:
+	 // fPhotosInterface = new gen::PhotosInterface();
+	 // fPhotosInterface->configureOnlyFor(15);
       }
 
       else if ( curSet == "Photos" )
       {
-         fPhotosInterface = new gen::PhotosInterface();
+         if ( !fPhotosInterface ) fPhotosInterface = new gen::PhotosInterface();
       }
 
     }
@@ -119,7 +122,31 @@ void ExternalDecayDriver::init( const edm::EventSetup& es )
    {
       fPhotosInterface->init();
    }
+   
+   // now do special settings
 
+   // This is TEMPORARY THING, until we switch to tauola++ !!!
+   
+   if ( fPhotosInterface )
+   {
+      fSpecialSettings.push_back( "QED-brem-off:all" );
+   }
+   if ( fTauolaInterface )
+   {
+      // override !
+      fSpecialSettings.clear();
+      fSpecialSettings.push_back( "QED-brem-off:15" );
+   }
+
+/*   will fix shortly, for future tauola++
+   if ( fPhotosInterface )
+   {
+      for ( size_t iss=0; iss<fPhotosInterface->specialSettings().size(); iss++ )
+      {
+         fSpecialSettings.push_back( fPhotosInterface->specialSettings()[iss]; )
+      }
+   }
+*/
    
    fIsInitialized = true;
    

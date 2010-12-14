@@ -52,6 +52,7 @@ namespace gen
      bool initializeForExternalPartons();
      bool initializeForInternalPartons();
      bool declareStableParticles( const std::vector<int> );
+     bool declareSpecialSettings( const std::vector<std::string> );
      
      void finalizeEvent();
 

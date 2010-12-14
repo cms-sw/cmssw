@@ -42,13 +42,15 @@ class Pythia8Hadronizer : public BaseHadronizer {
 	~Pythia8Hadronizer();
  
 	bool initializeForInternalPartons();
-    bool initializeForExternalPartons();
+        bool initializeForExternalPartons();
+	
 	bool declareStableParticles(const std::vector<int> &pdgIds);
+	bool declareSpecialSettings( const std::vector<std::string> );
 
 	void statistics();
 
 	bool generatePartonsAndHadronize();
-    bool hadronize();
+        bool hadronize();
 	bool decay();
 	bool residualDecay();
 	void finalizeEvent();
@@ -235,6 +237,11 @@ bool Pythia8Hadronizer::declareStableParticles(const std::vector<int> &pdgIds)
    return true;
 
 }
+bool Pythia8Hadronizer::declareSpecialSettings( const std::vector<std::string> )
+{
+   return true;
+}
+
 
 void Pythia8Hadronizer::statistics()
 {

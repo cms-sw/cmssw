@@ -713,7 +713,7 @@ bool Pythia6Hadronizer::initializeForInternalPartons()
    return true;
 }
 
-bool Pythia6Hadronizer::declareStableParticles( std::vector<int> pdg )
+bool Pythia6Hadronizer::declareStableParticles( const std::vector<int> pdg )
 {
    
    for ( size_t i=0; i<pdg.size(); i++ )
@@ -733,6 +733,14 @@ bool Pythia6Hadronizer::declareStableParticles( std::vector<int> pdg )
    }
       
    return true;
+}
+
+bool Pythia6Hadronizer::declareSpecialSettings( const std::vector<std::string> )
+{
+   // call_pygive( "MSTJ(39)=15" );
+   // call_pygive( "MSTJ(41)=3" );
+   return true;
+
 }
 
 void Pythia6Hadronizer::imposeProperTime()

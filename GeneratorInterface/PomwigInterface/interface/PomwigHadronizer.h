@@ -21,6 +21,7 @@ namespace gen
         bool initializeForExternalPartons();
 
         bool declareStableParticles(const std::vector<int> &pdgIds);
+	bool declareSpecialSettings( const std::vector<std::string> ) { return true; }
         void statistics();
 
         bool generatePartonsAndHadronize();

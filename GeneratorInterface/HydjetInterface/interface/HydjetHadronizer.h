@@ -1,7 +1,7 @@
 #ifndef HydjetHadronizer_h
 #define HydjetHadronizer_h
 
-// $Id: HydjetHadronizer.h,v 1.6 2009/09/21 09:36:56 loizides Exp $
+// $Id: HydjetHadronizer.h,v 1.7 2010/07/21 14:41:52 yilmaz Exp $
 
 /** \class HydjetHadronizer
 *
@@ -43,6 +43,7 @@ namespace gen
     bool initializeForExternalPartons();
     bool initializeForInternalPartons();
     bool declareStableParticles( const std::vector<int> );
+    bool declareSpecialSettings( const std::vector<std::string> ) { return true; }
 
     void finalizeEvent();
     void statistics();

@@ -84,7 +84,8 @@ class Herwig6Hadronizer : public gen::BaseHadronizer,
 	bool initializeForInternalPartons() { return initialize(0); }
 	bool initializeForExternalPartons() { return initialize(lheRunInfo()->getHEPRUP()); }
 
-	bool declareStableParticles(const std::vector<int> &pdgIds);
+	bool declareStableParticles( const std::vector<int> &pdgIds);
+	bool declareSpecialSettings( const std::vector<std::string> );
 
 	void statistics();
 
@@ -397,6 +398,11 @@ bool Herwig6Hadronizer::declareStableParticles(const std::vector<int> &pdgIds)
 		if (!markStable(*iter))
 			return false;
 	return true;
+}
+
+bool Herwig6Hadronizer::declareSpecialSettings( const std::vector<std::string> )
+{
+   return true;
 }
 
 void Herwig6Hadronizer::statistics()

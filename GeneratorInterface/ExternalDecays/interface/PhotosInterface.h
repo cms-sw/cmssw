@@ -21,21 +21,21 @@ namespace gen {
       public:
       
       // ctor & dtor
-      PhotosInterface() : fIsInitialized(false) {}
-      PhotosInterface( const edm::ParameterSet& ) : fIsInitialized(false){}
+      PhotosInterface(); 
+      PhotosInterface( const edm::ParameterSet& );
       ~PhotosInterface() {}
 
       void init();
-      const std::vector<int>& operatesOnParticles() { return fPDGs; }
+      const std::vector<std::string>& specialSettings() { return fSpecialSettings; }
       HepMC::GenEvent* apply( HepMC::GenEvent* );
+      void configureOnlyFor( int );
       
       private: 
+            
+      int                      fOnlyPDG;
+      std::vector<std::string> fSpecialSettings;      
+      bool                     fIsInitialized;
       
-      // do I need this ???            
-      std::vector<int> fPDGs;
-      
-      // Pythia6Service*                          fPy6Service;
-      bool                                     fIsInitialized;
       
       struct Scaling {
          HepMC::ThreeVector weights;

@@ -246,6 +246,11 @@ bool ExhumeHadronizer::declareStableParticles( std::vector<int> pdg )
 
 }
 
+bool ExhumeHadronizer::declareSpecialSettings( const std::vector<std::string> )
+{
+   return true;
+}
+
 void ExhumeHadronizer::statistics()
 {
   std::ostringstream footer_str;

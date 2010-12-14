@@ -178,7 +178,7 @@ herwigDefaultsBlock = cms.PSet(
 		'set LHEReader:PDFA /cmsPDFSet',
 		'set LHEReader:PDFB /cmsPDFSet',
 		'cd /',
-	)
+	),
 
 	# Default settings for using POWHEG
 	powhegDefaults = cms.vstring(

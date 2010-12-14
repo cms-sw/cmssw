@@ -36,6 +36,35 @@ extern "C"{
 
 }
 
+
+PhotosInterface::PhotosInterface()
+   : fOnlyPDG(-1)
+{
+   fSpecialSettings.push_back("QED-brem-off:all");
+   fIsInitialized = false; 
+}
+
+PhotosInterface::PhotosInterface( const edm::ParameterSet& )
+   : fOnlyPDG(-1)
+{
+   fSpecialSettings.push_back("QED-brem-off:all");
+   fIsInitialized = false;
+}
+
+void PhotosInterface::configureOnlyFor( int ipdg )
+{
+
+   fOnlyPDG = ipdg;
+   std::ostringstream command;
+   command << "QED-brem-off:" << fOnlyPDG ;
+   fSpecialSettings.clear();
+   fSpecialSettings.push_back( command.str() );
+   
+   return;
+
+}
+
+
 void PhotosInterface::init()
 {
    
@@ -84,6 +113,7 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
       HepMC::GenVertex* vtx = evt->barcode_to_vertex( -iv ) ;
       if ( vtx->particles_in_size() != 1 ) continue; // more complex than we need
       if ( vtx->particles_out_size() <= 0 ) continue; // no outcoming particles
+      if ( fOnlyPDG !=-1 && (*(vtx->particles_in_const_begin()))->pdg_id() == fOnlyPDG ) continue;
       // now find at least one "legal" daughter
       bool legalVtx = false;
       for ( HepMC::GenVertex::particle_iterator pitr=vtx->particles_begin(HepMC::children);
