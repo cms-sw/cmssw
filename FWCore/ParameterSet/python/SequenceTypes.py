@@ -622,6 +622,9 @@ class _MutatingSequenceVisitor(object):
                       node.__init__(*children)
                   else:
                       node = nonNulls[0]
+                      for n in nonNulls[1:]:
+                          node = node+n
+
       if node != visitee:
           #we had to replace this node so now we need to 
           # change parent's stack entry as well
@@ -842,6 +845,14 @@ if __name__=="__main__":
             s3.replace(s2,m1)
             s3.visit(namesVisitor)
             self.assertEqual(l,['!m1', 'm1'])
+            
+            s1 = Sequence(m1+m2)
+            s2 = Sequence(m3+m4)
+            s3 = Sequence(s1+s2)
+            s3.replace(m3,m5)
+            l[:] = []
+            s3.visit(namesVisitor)
+            self.assertEqual(l,['m1','m2','m5','m4'])
 
         def testExpandAndClone(self):
             m1 = DummyModule("m1")
@@ -1028,8 +1039,26 @@ if __name__=="__main__":
             def testRaise2():
                 s2 = Sequence(m1*None)
             self.assertRaises(TypeError,testRaise2)
-
-
+        def testInsertInto(self):
+            from FWCore.ParameterSet.Types import vstring
+            class TestPSet(object):
+                def __init__(self):
+                    self._dict = dict()
+                def addVString(self,isTracked,label,value):
+                    self._dict[label]=value
+            a = DummyModule("a")
+            b = DummyModule("b")
+            c = DummyModule("c")
+            d = DummyModule("d")
+            p = Path(a+b+c+d)
+            ps = TestPSet()
+            p.insertInto(ps,"p",dict())
+            self.assertEqual(ps._dict, {"p":vstring("a","b","c","d")})
+            s = Sequence(b+c)
+            p = Path(a+s+d)
+            ps = TestPSet()
+            p.insertInto(ps,"p",dict())
+            self.assertEqual(ps._dict, {"p":vstring("a","b","c","d")})
                         
     unittest.main()
                           
