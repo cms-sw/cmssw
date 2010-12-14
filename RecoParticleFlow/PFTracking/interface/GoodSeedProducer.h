@@ -120,9 +120,6 @@ class GoodSeedProducer : public edm::EDProducer {
       ///Produce the Seed for Ckf tracks?
       bool produceCkfseed_;
 
-      ///Produce the PFtracks for Ckf tracks? 
-      bool produceCkfPFT_;
-
       ///  switch to disable the pre-id
       bool disablePreId_;
 
@@ -142,7 +139,6 @@ class GoodSeedProducer : public edm::EDProducer {
       edm::InputTag pfCLusTagECLabel_;
       edm::InputTag pfCLusTagHCLabel_;
       std::vector<edm::InputTag> tracksContainers_;
-      edm::InputTag muonColl_;
       
 
       std::string fitterName_;

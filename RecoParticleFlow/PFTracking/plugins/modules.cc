@@ -10,6 +10,7 @@
 #include "RecoParticleFlow/PFTracking/plugins/PFDisplacedVertexCandidateProducer.h"
 #include "RecoParticleFlow/PFTracking/plugins/PFDisplacedVertexProducer.h"
 #include "RecoParticleFlow/PFTracking/plugins/PFDisplacedTrackerVertexProducer.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackProducer.h"
 #include "RecoParticleFlow/PFTracking/plugins/PFDisplacedVertexSelector.cc"
 #include "RecoParticleFlow/PFTracking/plugins/SimVertexSelector.cc"
 
@@ -25,3 +26,5 @@ DEFINE_FWK_MODULE(PFDisplacedVertexProducer);
 DEFINE_FWK_MODULE(PFDisplacedTrackerVertexProducer);
 DEFINE_FWK_MODULE(PFDisplacedVertexSelector);
 DEFINE_FWK_MODULE(SimVertexSelector);
+DEFINE_FWK_MODULE(PFTrackProducer);
+

@@ -30,7 +30,7 @@ root rechits_CLEANED_inputTags  particleFlowRecHitHCAL:Cleaned particleFlowClust
 root rechits_PS_inputTag     particleFlowRecHitPS
 
 // Reconstructed tracks branch
-root recTracks_inputTag      trackerDrivenElectronSeeds
+root recTracks_inputTag      pfTrack
 // General Tracks branch
 root stdTracks_inputTag      generalTracks
 // GSF Track branch

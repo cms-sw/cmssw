@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 trackerDrivenElectronSeeds = cms.EDProducer("GoodSeedProducer",
-    ProduceCkfPFTracks = cms.untracked.bool(True),
     MaxEOverP = cms.double(3.0),
     Smoother = cms.string('GsfTrajectorySmoother_forPreId'),
     UseQuality = cms.bool(True),
@@ -22,7 +21,6 @@ trackerDrivenElectronSeeds = cms.EDProducer("GoodSeedProducer",
     PSThresholdFile = cms.string('RecoParticleFlow/PFTracking/data/PSThreshold.dat'),
     MinPt = cms.double(2.0),
     TkColList = cms.VInputTag(cms.InputTag("generalTracks")),
-    MuColl = cms.InputTag("muons"),
     UseTMVA = cms.untracked.bool(True),
     TrackQuality = cms.string('highPurity'),
     MaxPt = cms.double(50.0),
