@@ -7,19 +7,16 @@ from RecoLuminosity.LumiDB import nameDealer,idDealer,dbUtil
 #==============================
 # SELECT
 #==============================
-def revisionsInBranch(schema,branchid):
+def revisionsInTag(schema,tagrevisionid,branchid):
     '''
-    returns all revision values in a branch
+    returns all revisions before tag in selected branch
+    select revision_id from revisions where revision_id!=0 and revision_id<tagrevisionid and branch_id=:branchid
     result=[revision_id]
-    select distinct branch_id from revisions where branch_id>:branchid;
-    select revision_id from revisions where branch_id=:branchid ;
-    if the branchid matches and the revisionid is not in the branchid collection,not 0, then this revision is in the branch
-    require also revisionid>branchid
     '''
     result=[]
+    qHandle=schema.newQuery()
     try:
         nextbranches=[]
-        qHandle=schema.newQuery()
         qHandle.addToTableList( nameDealer.revisionTableName() )
         qHandle.addToOutputList('distinct BRANCH_ID','branch_id')
         qCondition=coral.AttributeList()
@@ -33,6 +30,59 @@ def revisionsInBranch(schema,branchid):
         while cursor.next():
             nextbranches.append(cursor.currentRow()['branch_id'].data())
         del qHandle
+        candidates=[]
+        conditionStr='REVISION_ID!=0 and BRANCH_ID=:branchid and REVISION_ID<:tagrevisionid'
+        qHandle=schema.newQuery()
+        qHandle.addToTableList( nameDealer.revisionTableName() )
+        qHandle.addToOutputList('REVISION_ID','revision_id')
+        qCondition=coral.AttributeList()
+        qCondition.extend('branchid','unsigned long long')
+        qCondition.extend('tagrevisionid','unsigned long long')
+        qCondition['branchid'].setData(branchid)
+        qCondition['tagrevisionid'].setData(tagrevisionid)
+        qResult=coral.AttributeList()
+        qResult.extend('revision_id','unsigned long long')
+        qHandle.defineOutput(qResult)
+        qHandle.setCondition(conditionStr,qCondition)
+        cursor=qHandle.execute()
+        while cursor.next():
+            candidates.append(cursor.currentRow()['revision_id'].data())
+        del qHandle
+        for c in candidates:
+            if c in nextbranches:
+                continue
+            result.append(c)
+        return result
+    except:
+        if qHandle:del qHandle
+        raise
+def revisionsInBranch(schema,branchid):
+    '''
+    returns all revision values in a branch
+    result=[revision_id]
+    select distinct branch_id from revisions where branch_id>:branchid;
+    select revision_id from revisions where branch_id=:branchid ;
+    if the branchid matches and the revisionid is not in the branchid collection,not 0, then this revision is in the branch
+    require also revisionid>branchid
+    '''
+    result=[]
+    qHandle=schema.newQuery()
+    try:
+        nextbranches=[]
+        qHandle.addToTableList( nameDealer.revisionTableName() )
+        qHandle.addToOutputList('distinct BRANCH_ID','branch_id')
+        qCondition=coral.AttributeList()
+        qCondition.extend('branchid','unsigned long long')
+        qCondition['branchid'].setData(branchid)
+        qResult=coral.AttributeList()
+        qResult.extend('branch_id','unsigned long long')
+        qHandle.defineOutput(qResult)
+        qHandle.setCondition('BRANCH_ID>:branchid',qCondition)
+        cursor=qHandle.execute()
+        while cursor.next():
+            nextbranches.append(cursor.currentRow()['branch_id'].data())
+        del qHandle
+        print 'nextbranches ',nextbranches
         candidates=[]
         conditionStr='BRANCH_ID=:branchid and REVISION_ID!=0'
         qHandle=schema.newQuery()
@@ -54,8 +104,9 @@ def revisionsInBranch(schema,branchid):
                 continue
             result.append(c)
         return result
-    except Exception,e :
-        raise RuntimeError(' revisionDML.revisionsInBranch: '+str(e))
+    except:
+        if qHandle: del qHandle
+        raise
 
 def branchType(schema,name):
     '''
@@ -369,11 +420,12 @@ def addRevision(schema,datatableName,revisioninfo,branchinfo):
         tabrowValueDict['DATA_ID']=revisioninfo[1]
         db.insertOneRow(revtableName,tabrowDefDict,tabrowValueDict)
     except:
-        raise
+        raise    
 def createBranch(schema,name,parentname,comment=''):
     '''
     create a new branch/tag under given parentnode
     insert into revisions(revision_id,branch_id,branch_name,name,comment,ctime) values()
+    return (revisionid,parentid,parentname)
     '''
     try:
         parentid=None

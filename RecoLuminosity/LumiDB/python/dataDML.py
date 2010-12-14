@@ -603,7 +603,7 @@ def normdataIdByName(schema,normname,branchfilter):
 #=======================================================
 #   INSERT requires in update transaction
 #=======================================================
-def addTrgRunDataToBranch(schema,runnumber,trgrundata,branchName):
+def addTrgRunDataToBranch(schema,runnumber,trgrundata,branchinfo):
     '''
     input:
        trgrundata [bitnames(0),datasource(1)]
@@ -616,16 +616,21 @@ def addTrgRunDataToBranch(schema,runnumber,trgrundata,branchName):
         bitnames=trgrundata[0]
         bitzeroname=bitnames.split(',')[0]
         datasource=trgrundata[1]
-        (revision_id,entry_id,data_id)=RevisionDML.bookNewEntry(schema,nameDealer.trgdataTableName())
-        tabrowDefDict={'DATA_ID':'unsigned long long','ENTRY_ID':'unsigned long long','SOURCE':'string','RUNNUM':'unsigned int','BITZERONAME':'string','BITNAMECLOB':'string'}
-        tabrowValueDict={'DATA_ID':data_id,'ENTRY_ID':entry_id,'SOURCE':datasource,'RUNNUM':int(runnumber),'BITZERONAME':bitzeroname,'BITNAMECLOB':bitnames}
+        entry_id=revisionDML.entryInBranch(schema,nameDealer.trgdataTableName(),str(runnumber),branchinfo[1])
+        if entry_id is None:
+            (revision_id,entry_id,data_id)=revisionDML.bookNewEntry(schema,nameDealer.trgdataTableName())
+            entryinfo=(revision_id,entry_id,str(runnumber),data_id)
+            revisionDML.addEntry(schema,nameDealer.trgdataTableName(),entryinfo,branchinfo)
+        else:
+            (revision_id,data_id)=revisionDML.bookNewRevision( schema,nameDealer.trgdataTableName() )
+            revisionDML.addRevision(schema,nameDealer.trgdataTableName(),(revision_id,data_id),branchinfo)
+        tabrowDefDict={'DATA_ID':'unsigned long long','ENTRY_ID':'unsigned long long','ENTRY_NAME':'string','SOURCE':'string','RUNNUM':'unsigned int','BITZERONAME':'string','BITNAMECLOB':'string'}
+        tabrowValueDict={'DATA_ID':data_id,'ENTRY_ID':entry_id,'ENTRY_NAME':str(runnumber),'SOURCE':datasource,'RUNNUM':int(runnumber),'BITZERONAME':bitzeroname,'BITNAMECLOB':bitnames}
         db=dbUtil.dbUtil(schema)
         db.insertOneRow(nameDealer.trgdataTableName(),tabrowDefDict,tabrowValueDict)
-        RevisionDML.addEntryToBranch(schema,nameDealer.trgdataTableName(),revision_id,entry_id,data_id,branchName,str(runnumber),comment)
         return [runnumber,revision_id,entry_id,data_id]
-    except Exception,e :
-        raise RuntimeError(' dataDML.addTrgRunDataToBranch: '+str(e))
-    
+    except :
+        raise    
 def addTrgLSData(schema,trglsdata,runnumber,data_id):
     '''
     insert trg per-LS data for given run and data_id, this operation can be split in transaction chuncks 
@@ -652,7 +657,7 @@ def addTrgLSData(schema,trglsdata,runnumber,data_id):
     except Exception,e :
         raise RuntimeError(' dataDML.addTrgLSData: '+str(e))
 
-def addHLTRunDataToBranch(schema,runnumber,hltrundata,branchName):
+def addHLTRunDataToBranch(schema,runnumber,hltrundata,branchinfo):
     '''
     input:
         hltrundata [pathnameclob(0),datasource(1)]
@@ -663,15 +668,21 @@ def addHLTRunDataToBranch(schema,runnumber,hltrundata,branchName):
          pathnames=hltrundata[0]
          datasource=hltrundata[1]
          npath=len(pathnames.split(','))
-         (revision_id,entry_id,data_id)=RevisionDML.bookNewEntry(schema,nameDealer.hltdataTableName())
-         tabrowDefDict={'DATA_ID':'unsigned long long','ENTRY_ID':'unsigned long long','RUNNUM':'unsigned int','SOURCE':'string','NPATH':'unsigned int','PATHNAMECLOB':'string'}
-         tabrowValueDict={'DATA_ID':data_id,'ENTRY_ID':entry_id,'RUNNUM':int(runnumber),'SOURCE':datasource,'NPATH':npath,'PATHNAMECLOB':pathnames}
+         entry_id=revisionDML.entryInBranch(schema,nameDealer.lumidataTableName(),str(runnumber),branchinfo[1])
+         if entry_id is None:
+             (revision_id,entry_id,data_id)=revisionDML.bookNewEntry(schema,nameDealer.hltdataTableName())
+             entryinfo=(revision_id,entry_id,str(runnumber),data_id)
+             revisionDML.addEntry(schema,nameDealer.hltdataTableName(),entryinfo,branchinfo)
+         else:
+             (revision_id,data_id)=revisionDML.bookNewRevision( schema,nameDealer.hltdataTableName() )
+             revisionDML.addRevision(schema,nameDealer.hltdataTableName(),(revision_id,data_id),branchinfo)
+         tabrowDefDict={'DATA_ID':'unsigned long long','ENTRY_ID':'unsigned long long','ENTRY_NAME':'string','RUNNUM':'unsigned int','SOURCE':'string','NPATH':'unsigned int','PATHNAMECLOB':'string'}
+         tabrowValueDict={'DATA_ID':data_id,'ENTRY_ID':entry_id,'ENTRY_NAME':str(runnumber),'RUNNUM':int(runnumber),'SOURCE':datasource,'NPATH':npath,'PATHNAMECLOB':pathnames}
          db=dbUtil.dbUtil(schema)
          db.insertOneRow(nameDealer.hltdataTableName(),tabrowDefDict,tabrowValueDict)
-         RevisionDML.addEntryToBranch(schema,nameDealer.hltdataTableName(),revision_id,entry_id,data_id,branchName,str(runnumber),comment)
          return [runnumber,revision_id,entry_id,data_id]
-    except Exception,e :
-        raise RuntimeError(' dataDML.addTrgLSData: '+str(e))
+    except :
+        raise 
     
 def addHltLSData(schema,hltlsdata,runnumber,data_id):
     '''
@@ -701,7 +712,7 @@ def addLumiRunDataToBranch(schema,runnumber,lumirundata,branchinfo):
     '''
     try:
          datasource=lumirundata[0]
-         entry_id=revisionDML.entryInBranch(schema,nameDealer.lumidataTableName(),str(runnumber),'DATA')
+         entry_id=revisionDML.entryInBranch(schema,nameDealer.lumidataTableName(),str(runnumber),branchinfo[1])
          if entry_id is None:
              (revision_id,entry_id,data_id)=revisionDML.bookNewEntry(schema,nameDealer.lumidataTableName())
              entryinfo=(revision_id,entry_id,str(runnumber),data_id)
@@ -709,8 +720,8 @@ def addLumiRunDataToBranch(schema,runnumber,lumirundata,branchinfo):
          else:
              (revision_id,data_id)=revisionDML.bookNewRevision( schema,nameDealer.lumidataTableName() )
              revisionDML.addRevision(schema,nameDealer.lumidataTableName(),(revision_id,data_id),branchinfo)
-         tabrowDefDict={'DATA_ID':'unsigned long long','ENTRY_ID':'unsigned long long','RUNNUM':'unsigned int','SOURCE':'string'}
-         tabrowValueDict={'DATA_ID':data_id,'ENTRY_ID':entry_id,'RUNNUM':int(runnumber),'SOURCE':datasource}
+         tabrowDefDict={'DATA_ID':'unsigned long long','ENTRY_ID':'unsigned long long','ENTRY_NAME':'string','RUNNUM':'unsigned int','SOURCE':'string'}
+         tabrowValueDict={'DATA_ID':data_id,'ENTRY_ID':entry_id,'ENTRY_NAME':str(runnumber),'RUNNUM':int(runnumber),'SOURCE':datasource}
          db=dbUtil.dbUtil(schema)
          db.insertOneRow(nameDealer.lumidataTableName(),tabrowDefDict,tabrowValueDict)
          return [runnumber,revision_id,entry_id,data_id]
@@ -826,13 +837,16 @@ if __name__ == "__main__":
         norminfo=revisionDML.createBranch(schema,'NORM','TRUNK',comment='hold normalization factor')
         #print norminfo
     except:
-        print 'branch already exists, do nothing'
-        
+        print 'branch already exists, do nothing'       
     (branchid,branchparent)=revisionDML.branchInfoByName(schema,'DATA')
     branchinfo=(branchid,'DATA')
-    for runnum in [1200,1211,1222,1233,1345,1222,1200]:
+    for runnum in [1200,1211,1222,1233,1345]:
         lumirundata=['dummyroot'+str(runnum)+'.root']
         addLumiRunDataToBranch(schema,runnum,lumirundata,branchinfo)
+        trgrundata=['ZeroBias,Pippo,Pippa,Mu15','oracle://cms_orcon_prod/cms_trg']
+        addTrgRunDataToBranch(schema,runnum,trgrundata,branchinfo)
+        hltrundata=['NewHLTPrescale1,NewHLTPrescale2,HLTJet15U','oracle://cms_orcon_prod/cms_runinfo']
+        addHLTRunDataToBranch(schema,runnum,hltrundata,branchinfo)
     session.transaction().commit()
     print 'test reading'
     session.transaction().start(True)
@@ -841,6 +855,33 @@ if __name__ == "__main__":
     print revlist
     lumientry_id=revisionDML.entryInBranch(schema,nameDealer.lumidataTableName(),'1211','DATA')
     latestrevision=revisionDML.lastestDataRevisionOfEntry(schema,nameDealer.lumidataTableName(),lumientry_id,revlist)
-    print 'latest data_id for run 1211 ',latestrevision
+    print 'latest lumi data_id for run 1211 ',latestrevision
+    lumientry_id=revisionDML.entryInBranch(schema,nameDealer.lumidataTableName(),'1222','DATA')
+    latestrevision=revisionDML.lastestDataRevisionOfEntry(schema,nameDealer.lumidataTableName(),lumientry_id,revlist)
+    print 'latest lumi data_id for run 1222 ',latestrevision
+    trgentry_id=revisionDML.entryInBranch(schema,nameDealer.trgdataTableName(),'1222','DATA')
+    latestrevision=revisionDML.lastestDataRevisionOfEntry(schema,nameDealer.trgdataTableName(),trgentry_id,revlist)
+    print 'latest trg data_id for run 1222 ',latestrevision
     session.transaction().commit()
+    print 'tagging data so far as data_orig'
+    session.transaction().start(False)
+    (revisionid,parentid,parentname)=revisionDML.createBranch(schema,'data_orig','DATA',comment='tag of 2010data')
+    session.transaction().commit()
+    session.transaction().start(True)
+    print revisionDML.branchType(schema,'data_orig')
+    revlist=revisionDML.revisionsInTag(schema,revisionid,branchinfo[0])
+    print revlist
+    session.transaction().commit()
+    session.transaction().start(False)
+    for runnum in [1200,1222]:
+        lumirundata=['dummyroot'+str(runnum)+'.root']
+        addLumiRunDataToBranch(schema,runnum,lumirundata,branchinfo)
+        trgrundata=['ZeroBias,Pippo,Pippa,Mu15','oracle://cms_orcon_prod/cms_trg']
+        addTrgRunDataToBranch(schema,runnum,trgrundata,branchinfo)
+        hltrundata=['NewHLTPrescale1,NewHLTPrescale2,HLTJet15U','oracle://cms_orcon_prod/cms_runinfo']
+        addHLTRunDataToBranch(schema,runnum,hltrundata,branchinfo)
+    revlist=revisionDML.revisionsInTag(schema,revisionid,branchinfo[0])
+    print 'revisions in branch DATA',revisionDML.revisionsInBranch(schema,branchinfo[0])
+    session.transaction().commit()
+    print 'revisions in tag data_orig ',revlist
     del session
