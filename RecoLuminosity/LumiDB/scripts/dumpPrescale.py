@@ -82,7 +82,7 @@ def main():
     del svc
     if len(hltdict)<1:
         print 'no result found for',hltpathStr
-        sys.exist(-1)
+        sys.exit(-1)
     runs=hltdict.keys()
     runs.sort()
     for r in runs:
