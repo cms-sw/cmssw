@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 pfTrackElec = cms.EDProducer("PFElecTkProducer",
-    TrajInEvents = cms.bool(True),
+    TrajInEvents = cms.bool(False),
     Fitter = cms.string('GsfElectronFittingSmoother'),
     ModeMomentum = cms.bool(True),
     applyEGSelection = cms.bool(True),        

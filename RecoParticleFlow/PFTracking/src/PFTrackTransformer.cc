@@ -519,3 +519,567 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
   }
   return true;
 }
+
+bool 
+PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack, 
+				       const reco::GsfTrack& track,
+				       const MultiTrajectoryStateTransform& mtjstate) const {
+
+  float PT= track.pt();
+  unsigned int iTrajPos = 0;
+  unsigned int iid = 0; // not anymore saved
+
+
+  // *****************************   INNER State *************************************
+  TrajectoryStateOnSurface inTSOS = mtjstate.innerStateOnSurface((track));
+  GlobalVector InMom;
+  GlobalPoint InPos;
+  if(inTSOS.isValid()) {
+    mtsMode_->momentumFromModeCartesian(inTSOS,InMom);
+    mtsMode_->positionFromModeCartesian(inTSOS,InPos);
+  }
+  else {
+    InMom = GlobalVector(track.pxMode(),track.pyMode(),track.pzMode());
+    InPos = GlobalPoint(0.,0.,0.);
+  }
+
+  float pfmass= (pftrack.algoType()==reco::PFRecTrack::KF_ELCAND) ? 0.0005 : 0.139; 
+  float ptot =  sqrt((InMom.x()*InMom.x())+(InMom.y()*InMom.y())+(InMom.z()*InMom.z()));
+  float pfenergy=sqrt((pfmass*pfmass)+(ptot *ptot));
+  
+  math::XYZTLorentzVector momClosest 
+    = math::XYZTLorentzVector(InMom.x(), InMom.y(), 
+			      InMom.z(), ptot);
+  math::XYZPoint posClosest = track.vertex();
+  pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ClosestApproach,
+				     posClosest,momClosest));
+  
+  BaseParticlePropagator theInnerParticle = 
+    BaseParticlePropagator( RawParticle(XYZTLorentzVector(InMom.x(),
+							  InMom.y(),
+							  InMom.z(),
+							  pfenergy),
+					XYZTLorentzVector(track.vertex().x(),
+							  track.vertex().y(),
+							  track.vertex().z(),
+							  0.)),  //DANIELE Same thing v.x(),v.y(),v.()? 
+			    0.,0.,B_.z());
+  theInnerParticle.setCharge(track.charge());   // Use the chargeMode ??   
+  //BEAMPIPE
+  theInnerParticle.setPropagationConditions(PFGeometry::outerRadius(PFGeometry::BeamPipe), 
+					    PFGeometry::outerZ(PFGeometry::BeamPipe), false);
+  theInnerParticle.propagate();
+  if(theInnerParticle.getSuccess()!=0)
+    pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::BeamPipeOrEndVertex,
+				       math::XYZPoint(theInnerParticle.vertex()),
+				       math::XYZTLorentzVector(theInnerParticle.momentum())));
+  else {
+    PFTrajectoryPoint dummyBeam;
+    pftrack.addPoint(dummyBeam); 
+  }
+  
+
+  // first tjpoint 
+  pftrack.addPoint(PFTrajectoryPoint(iid,-1,
+				     math::XYZPoint(InPos.x(),InPos.y(), InPos.z()),
+				     math::XYZTLorentzVector(InMom.x(),InMom.y(),InMom.z(),InMom.mag())));
+  
+  
+  //######### Photon at INNER State ##########
+
+
+  unsigned int iTrajPoint =  iTrajPos + 2;  
+  double dp_tang = ptot;
+  double sdp_tang = track.ptModeError()*(track.pMode()/track.ptMode());
+  PFBrem brem(dp_tang,sdp_tang,iTrajPoint);
+  BaseParticlePropagator theBremParticle = 
+    BaseParticlePropagator( 
+			   RawParticle(XYZTLorentzVector(InMom.x(),
+							 InMom.y(),
+							 InMom.z(),
+							 dp_tang),
+				       XYZTLorentzVector(InPos.x(),
+							 InPos.y(),
+							 InPos.z(),
+							 0.)),
+			   0.,0.,B_.z());
+  int gamma_charge = 0;
+  theBremParticle.setCharge(gamma_charge);  
+  // add TrajectoryPoint for Brem, PS, ECAL, ECALShowMax, HCAL
+  // Brem Entrance PS Layer1
+  PFTrajectoryPoint dummyClosest;   // Added just to have the right number order in PFTrack.cc
+  brem.addPoint(dummyClosest); 
+  
+  
+  PFTrajectoryPoint dummyBeamPipe;  // Added just to have the right number order in PFTrack.cc
+  brem.addPoint(dummyBeamPipe); 
+  
+  
+  
+  bool isBelowPS=false; 
+  theBremParticle.propagateToPreshowerLayer1(false);
+  if(theBremParticle.getSuccess()!=0)
+    brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS1,
+				    math::XYZPoint(theBremParticle.vertex()),
+				    math::XYZTLorentzVector(theBremParticle.momentum())));
+  else {
+    PFTrajectoryPoint dummyPS1;
+    brem.addPoint(dummyPS1); 
+  }
+  
+  // Brem Entrance PS Layer 2
+  
+  theBremParticle.propagateToPreshowerLayer2(false);
+  if(theBremParticle.getSuccess()!=0){
+    brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS2,
+				    math::XYZPoint(theBremParticle.vertex()),
+				    math::XYZTLorentzVector(theBremParticle.momentum())));
+    isBelowPS=true;
+  }   else {
+    PFTrajectoryPoint dummyPS2;
+    brem.addPoint(dummyPS2); 
+  }
+  
+  theBremParticle.propagateToEcalEntrance(false);
+  
+  if(theBremParticle.getSuccess()!=0){
+    brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALEntrance,
+				    math::XYZPoint(theBremParticle.vertex()),
+				    math::XYZTLorentzVector(theBremParticle.momentum())));
+
+    //  for the first brem give a low default DP of 100 MeV.  
+    double EDepthCorr = 0.01;
+    double ecalShowerDepth     
+      = PFCluster::getDepthCorrection(EDepthCorr,
+				      isBelowPS, 
+				      false);
+    
+    math::XYZPoint meanShower=math::XYZPoint(theBremParticle.vertex())+
+      math::XYZTLorentzVector(theBremParticle.momentum()).Vect().Unit()*ecalShowerDepth;
+    
+    brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALShowerMax,
+				    meanShower,
+				    math::XYZTLorentzVector(theBremParticle.momentum())));}
+  else {
+    if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
+      LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE ECAL HAS FAILED";
+    PFTrajectoryPoint dummyECAL;
+    brem.addPoint(dummyECAL); 
+    PFTrajectoryPoint dummyMaxSh;
+    brem.addPoint(dummyMaxSh); 
+  }
+  
+  
+  
+  //HCAL entrance
+  theBremParticle.propagateToHcalEntrance(false);
+  if(theBremParticle.getSuccess()!=0)
+    brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
+				    math::XYZPoint(theBremParticle.vertex()),
+				    math::XYZTLorentzVector(theBremParticle.momentum())));
+  else{
+    if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
+      LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
+    PFTrajectoryPoint dummyHCALentrance;
+    brem.addPoint(dummyHCALentrance); 
+  }  
+  
+  //HCAL exit
+  theBremParticle.propagateToHcalExit(false);
+  if(theBremParticle.getSuccess()!=0)
+    brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALExit,
+				    math::XYZPoint(theBremParticle.vertex()),
+				    math::XYZTLorentzVector(theBremParticle.momentum())));
+  else{  
+    if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
+      LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL EXIT HAS FAILED";
+    PFTrajectoryPoint dummyHCALexit;
+    brem.addPoint(dummyHCALexit); 
+  }
+  
+  brem.calculatePositionREP();
+  pftrack.addBrem(brem);
+  iTrajPos++;
+
+  
+
+
+  // *****************************   INTERMIDIATE State *************************************
+  //From the new Wolfgang code
+
+
+  vector<GsfTangent> gsftang = track.gsfExtra()->tangents();
+  for(unsigned int iTang = 0; iTang < track.gsfExtra()->tangentsSize(); iTang++) {
+    
+    dp_tang = gsftang[iTang].deltaP().value();
+    sdp_tang = gsftang[iTang].deltaP().error();
+    
+    //check that the vertex of the brem is in the tracker volume
+    if ((sqrt(gsftang[iTang].position().x()*gsftang[iTang].position().x() 
+	      + gsftang[iTang].position().y()*gsftang[iTang].position().y())>110) 
+	||(fabs(gsftang[iTang].position().z())>280)) continue;    
+
+    iTrajPoint = iTrajPos + 2;
+    PFBrem brem(dp_tang,sdp_tang,iTrajPoint);
+
+    GlobalVector p_tang=  GlobalVector(gsftang[iTang].momentum().x(),
+				       gsftang[iTang].momentum().y(),
+				       gsftang[iTang].momentum().z());
+    
+    
+    // ###### track tj points
+    pftrack.addPoint(PFTrajectoryPoint(iid,-1,
+				       math::XYZPoint(gsftang[iTang].position().x(),gsftang[iTang].position().y(),gsftang[iTang].position().z()),
+				       math::XYZTLorentzVector(p_tang.x(),p_tang.y(),p_tang.z(),p_tang.mag())));
+    
+
+    //rescale
+    GlobalVector p_gamma = p_tang *(fabs(dp_tang)/p_tang.mag()); 
+    
+    // GlobalVector 
+
+ 
+    double e_gamma = fabs(dp_tang); // DP = pout-pin so could be negative
+    theBremParticle = BaseParticlePropagator( 
+					     RawParticle(XYZTLorentzVector(p_gamma.x(),
+									   p_gamma.y(),
+									   p_gamma.z(),
+									   e_gamma),
+							 XYZTLorentzVector(gsftang[iTang].position().x(),
+									   gsftang[iTang].position().y(),
+									   gsftang[iTang].position().z(),
+									   0.)),
+					     0.,0.,B_.z());
+   
+    theBremParticle.setCharge(gamma_charge);  
+    
+    
+    PFTrajectoryPoint dummyClosest;   // Added just to have the right number order in PFTrack.cc
+    brem.addPoint(dummyClosest); 
+    
+    
+    PFTrajectoryPoint dummyBeamPipe;  // Added just to have the right number order in PFTrack.cc
+    brem.addPoint(dummyBeamPipe); 
+    
+    
+    
+    isBelowPS=false; 
+    theBremParticle.propagateToPreshowerLayer1(false);
+    if(theBremParticle.getSuccess()!=0)
+      brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS1,
+				      math::XYZPoint(theBremParticle.vertex()),
+				      math::XYZTLorentzVector(theBremParticle.momentum())));
+    else {
+      PFTrajectoryPoint dummyPS1;
+      brem.addPoint(dummyPS1); 
+    }
+    
+    // Brem Entrance PS Layer 2
+    
+    theBremParticle.propagateToPreshowerLayer2(false);
+    if(theBremParticle.getSuccess()!=0){
+      brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS2,
+				      math::XYZPoint(theBremParticle.vertex()),
+				      math::XYZTLorentzVector(theBremParticle.momentum())));
+      isBelowPS=true;
+    }   else {
+      PFTrajectoryPoint dummyPS2;
+      brem.addPoint(dummyPS2); 
+    }
+    
+    theBremParticle.propagateToEcalEntrance(false);
+    
+    if(theBremParticle.getSuccess()!=0){
+      brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALEntrance,
+				      math::XYZPoint(theBremParticle.vertex()),
+				      math::XYZTLorentzVector(theBremParticle.momentum())));
+
+      double ecalShowerDepth     
+	= PFCluster::getDepthCorrection(theBremParticle.momentum().E(),
+					isBelowPS, 
+					false);
+      
+      math::XYZPoint meanShower=math::XYZPoint(theBremParticle.vertex())+
+	math::XYZTLorentzVector(theBremParticle.momentum()).Vect().Unit()*ecalShowerDepth;
+      
+      brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALShowerMax,
+				      meanShower,
+				      math::XYZTLorentzVector(theBremParticle.momentum())));}
+    else {
+      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
+	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE ECAL HAS FAILED";
+      PFTrajectoryPoint dummyECAL;
+      brem.addPoint(dummyECAL); 
+      PFTrajectoryPoint dummyMaxSh;
+      brem.addPoint(dummyMaxSh); 
+    }
+
+
+ 
+    //HCAL entrance
+    theBremParticle.propagateToHcalEntrance(false);
+    if(theBremParticle.getSuccess()!=0)
+      brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
+				      math::XYZPoint(theBremParticle.vertex()),
+				      math::XYZTLorentzVector(theBremParticle.momentum())));
+    else{
+      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
+	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
+      PFTrajectoryPoint dummyHCALentrance;
+      brem.addPoint(dummyHCALentrance); 
+    }  
+    
+    //HCAL exit
+    theBremParticle.propagateToHcalExit(false);
+    if(theBremParticle.getSuccess()!=0)
+      brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALExit,
+				      math::XYZPoint(theBremParticle.vertex()),
+				      math::XYZTLorentzVector(theBremParticle.momentum())));
+    else{  
+      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
+	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL EXIT HAS FAILED";
+      PFTrajectoryPoint dummyHCALexit;
+      brem.addPoint(dummyHCALexit); 
+    }
+    
+    brem.calculatePositionREP();
+    pftrack.addBrem(brem);
+    iTrajPos++;
+  }
+
+
+
+
+  // *****************************   OUTER State *************************************
+
+  TrajectoryStateOnSurface outTSOS = mtjstate.outerStateOnSurface((track));
+ 
+  if(outTSOS.isValid()) {
+    GlobalVector OutMom;
+    GlobalPoint OutPos;
+    
+    // DANIELE ?????  if the out is not valid maybe take the last tangent?
+    // From Wolfgang. It should be always valid 
+
+    mtsMode_->momentumFromModeCartesian(outTSOS,OutMom);
+    mtsMode_->positionFromModeCartesian(outTSOS,OutPos);
+
+
+
+    // last tjpoint 
+    pftrack.addPoint(PFTrajectoryPoint(iid,-1,
+				       math::XYZPoint(OutPos.x(),OutPos.y(), OutPos.z()),
+				       math::XYZTLorentzVector(OutMom.x(),OutMom.y(),OutMom.z(),OutMom.mag())));
+
+    
+    float ptot_out =  sqrt((OutMom.x()*OutMom.x())+(OutMom.y()*OutMom.y())+(OutMom.z()*OutMom.z()));
+    float pfenergy_out =sqrt((pfmass*pfmass)+(ptot_out *ptot_out));
+    BaseParticlePropagator theOutParticle = 
+      BaseParticlePropagator( RawParticle(XYZTLorentzVector(OutMom.x(),
+							    OutMom.y(),
+							    OutMom.z(),
+							    pfenergy_out),
+					  XYZTLorentzVector(OutPos.x(),
+							    OutPos.y(),
+							    OutPos.z(),
+							    0.)), 
+			      0.,0.,B_.z());
+    theOutParticle.setCharge(track.charge());  
+    isBelowPS=false; 
+    theOutParticle.propagateToPreshowerLayer1(false);
+    if(theOutParticle.getSuccess()!=0)
+      pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS1,
+					 math::XYZPoint(theOutParticle.vertex()),
+					 math::XYZTLorentzVector(theOutParticle.momentum())));
+    else {
+      PFTrajectoryPoint dummyPS1;
+      pftrack.addPoint(dummyPS1); 
+    }
+    
+    
+    theOutParticle.propagateToPreshowerLayer2(false);
+    if(theOutParticle.getSuccess()!=0){
+      pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS2,
+					 math::XYZPoint(theOutParticle.vertex()),
+					 math::XYZTLorentzVector(theOutParticle.momentum())));
+      isBelowPS=true;
+    }   else {
+      PFTrajectoryPoint dummyPS2;
+      pftrack.addPoint(dummyPS2); 
+    }
+    
+    theOutParticle.propagateToEcalEntrance(false);
+    
+    if(theOutParticle.getSuccess()!=0){
+      pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALEntrance,
+					 math::XYZPoint(theOutParticle.vertex()),
+					 math::XYZTLorentzVector(theOutParticle.momentum())));
+      double EDepthCorr = 0.01;
+      double ecalShowerDepth     
+	= PFCluster::getDepthCorrection(EDepthCorr,
+					isBelowPS, 
+					false);
+      
+      math::XYZPoint meanShower=math::XYZPoint(theOutParticle.vertex())+
+	math::XYZTLorentzVector(theOutParticle.momentum()).Vect().Unit()*ecalShowerDepth;
+      
+      pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALShowerMax,
+					 meanShower,
+					 math::XYZTLorentzVector(theOutParticle.momentum())));}
+    else {
+      if (PT>5.)
+	LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE ECAL HAS FAILED";
+      PFTrajectoryPoint dummyECAL;
+      pftrack.addPoint(dummyECAL); 
+      PFTrajectoryPoint dummyMaxSh;
+      pftrack.addPoint(dummyMaxSh); 
+    }
+    
+    
+    
+    //HCAL entrance
+    theOutParticle.propagateToHcalEntrance(false);
+    if(theOutParticle.getSuccess()!=0)
+      pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
+					 math::XYZPoint(theOutParticle.vertex()),
+					 math::XYZTLorentzVector(theOutParticle.momentum())));
+    else{
+      if (PT>5.)
+	LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
+      PFTrajectoryPoint dummyHCALentrance;
+      pftrack.addPoint(dummyHCALentrance); 
+    }  
+    
+    //HCAL exit
+    theOutParticle.propagateToHcalExit(false);
+    if(theOutParticle.getSuccess()!=0)
+      pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALExit,
+					 math::XYZPoint(theOutParticle.vertex()),
+					 math::XYZTLorentzVector(theOutParticle.momentum())));
+    else{
+      if (PT>5.)
+	LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL EXIT HAS FAILED";
+      PFTrajectoryPoint dummyHCALexit;
+      pftrack.addPoint(dummyHCALexit); 
+    }
+
+
+
+
+    //######## Photon at the OUTER State ##########
+
+    dp_tang = OutMom.mag();
+    // for the moment same inner error just for semplicity
+    sdp_tang = track.ptModeError()*(track.pMode()/track.ptMode());
+    iTrajPoint = iTrajPos + 2;
+    PFBrem brem(dp_tang,sdp_tang,iTrajPoint);
+
+    theBremParticle =   
+      BaseParticlePropagator( RawParticle(XYZTLorentzVector(OutMom.x(),
+							    OutMom.y(),
+							    OutMom.z(),
+							    dp_tang),
+					  XYZTLorentzVector(OutPos.x(),
+							    OutPos.y(),
+							    OutPos.z(),
+							    0.)), 
+			      0.,0.,B_.z());
+    theBremParticle.setCharge(gamma_charge);  
+    
+    
+    PFTrajectoryPoint dummyClosest;   // Added just to have the right number order in PFTrack.cc
+    brem.addPoint(dummyClosest); 
+    
+    
+    PFTrajectoryPoint dummyBeamPipe;  // Added just to have the right number order in PFTrack.cc
+    brem.addPoint(dummyBeamPipe); 
+    
+    
+    
+    isBelowPS=false; 
+    theBremParticle.propagateToPreshowerLayer1(false);
+    if(theBremParticle.getSuccess()!=0)
+      brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS1,
+				      math::XYZPoint(theBremParticle.vertex()),
+				      math::XYZTLorentzVector(theBremParticle.momentum())));
+    else {
+      PFTrajectoryPoint dummyPS1;
+      brem.addPoint(dummyPS1); 
+    }
+    
+    // Brem Entrance PS Layer 2
+    
+    theBremParticle.propagateToPreshowerLayer2(false);
+    if(theBremParticle.getSuccess()!=0){
+      brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::PS2,
+				      math::XYZPoint(theBremParticle.vertex()),
+				      math::XYZTLorentzVector(theBremParticle.momentum())));
+      isBelowPS=true;
+    }   else {
+      PFTrajectoryPoint dummyPS2;
+      brem.addPoint(dummyPS2); 
+    }
+    
+    theBremParticle.propagateToEcalEntrance(false);
+    
+    if(theBremParticle.getSuccess()!=0){
+      brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALEntrance,
+				      math::XYZPoint(theBremParticle.vertex()),
+				      math::XYZTLorentzVector(theBremParticle.momentum())));
+      double ecalShowerDepth     
+	= PFCluster::getDepthCorrection(theBremParticle.momentum().E(),
+					isBelowPS, 
+					false);
+      
+      math::XYZPoint meanShower=math::XYZPoint(theBremParticle.vertex())+
+	math::XYZTLorentzVector(theBremParticle.momentum()).Vect().Unit()*ecalShowerDepth;
+      
+      brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALShowerMax,
+				      meanShower,
+				      math::XYZTLorentzVector(theBremParticle.momentum())));}
+    else {
+      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
+	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE ECAL HAS FAILED";
+      PFTrajectoryPoint dummyECAL;
+      brem.addPoint(dummyECAL); 
+      PFTrajectoryPoint dummyMaxSh;
+      brem.addPoint(dummyMaxSh); 
+    }
+
+
+ 
+    //HCAL entrance
+    theBremParticle.propagateToHcalEntrance(false);
+    if(theBremParticle.getSuccess()!=0)
+      brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
+				      math::XYZPoint(theBremParticle.vertex()),
+				      math::XYZTLorentzVector(theBremParticle.momentum())));
+    else{
+      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
+	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
+      PFTrajectoryPoint dummyHCALentrance;
+      brem.addPoint(dummyHCALentrance); 
+    }  
+    
+    //HCAL exit
+    theBremParticle.propagateToHcalExit(false);
+    if(theBremParticle.getSuccess()!=0)
+      brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALExit,
+				      math::XYZPoint(theBremParticle.vertex()),
+				      math::XYZTLorentzVector(theBremParticle.momentum())));
+    else{  
+      if ((dp_tang>5.) && ((dp_tang/sdp_tang)>3))
+	LogWarning("PFTrackTransformer")<<"BREM "<<brem<<" PROPAGATION TO THE HCAL EXIT HAS FAILED";
+      PFTrajectoryPoint dummyHCALexit;
+      brem.addPoint(dummyHCALexit); 
+    }
+
+    brem.calculatePositionREP();
+    pftrack.addBrem(brem);
+    iTrajPos++;
+  }
+  else 
+    LogWarning("PFTrackTransformer")<<" OUTER TSOS NOT VALID ";
+
+  return true;
+}

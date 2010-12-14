@@ -49,7 +49,7 @@ PFGsfHelper::PFGsfHelper(const TrajectoryMeasurement& tm){
     mode_Px = 0.;
     mode_Py = 0.;
     mode_Pz = 0.;
-    std::vector<TrajectoryStateOnSurface> components(theForwardState.components());
+    std::vector<TrajectoryStateOnSurface> components(theUpdateState.components());
     unsigned int numb = components.size();
 
     std::vector<SingleGaussianState1D> pxStates; pxStates.reserve(numb);

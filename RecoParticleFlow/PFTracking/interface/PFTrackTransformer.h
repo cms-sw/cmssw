@@ -14,7 +14,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/Math/interface/Vector3D.h"
-
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
 
 
 
@@ -52,6 +53,9 @@ class PFTrackTransformer{
 			 const Trajectory& traj,
 			 const bool& GetMode) const; 
   
+  bool addPointsAndBrems(reco::GsfPFRecTrack& pftrack, 
+			 const reco::GsfTrack& track,
+			 const MultiTrajectoryStateTransform& mtjstate) const; 
 
   void OnlyProp(){
     onlyprop_=true;
@@ -61,6 +65,7 @@ class PFTrackTransformer{
  private:
   ///B field
    math::XYZVector B_;
+   const MultiTrajectoryStateMode *mtsMode_;
 };
 
 #endif

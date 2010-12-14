@@ -138,8 +138,8 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
     gsfPFRecTrackCollectionSecondary(new GsfPFRecTrackCollection);
 
   //read collections of tracks
-  Handle<GsfTrackCollection> gsfelectrons;
-  iEvent.getByLabel(gsfTrackLabel_,gsfelectrons);
+  Handle<GsfTrackCollection> gsftrackscoll;
+  iEvent.getByLabel(gsfTrackLabel_,gsftrackscoll);
 
   //read collections of trajectories
   Handle<vector<Trajectory> > TrajectoryCollection;
@@ -193,144 +193,176 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 				  << " please set useV0=False  RecoParticleFlow/PFTracking/python/pfTrackElec_cfi.py" << endl;
   }
   
-
-
-  if (trajinev_){
-    iEvent.getByLabel(gsfTrackLabel_,TrajectoryCollection); 
-    GsfTrackCollection gsftracks = *(gsfelectrons.product());
-    vector<Trajectory> tjvec= *(TrajectoryCollection.product());
   
 
-    vector<reco::GsfPFRecTrack> selGsfPFRecTracks(0);
-    selGsfPFRecTracks.clear();
+  GsfTrackCollection gsftracks = *(gsftrackscoll.product());	
+  vector<Trajectory> tjvec(0);
+  if (trajinev_){
+    bool foundTraj = iEvent.getByLabel(gsfTrackLabel_,TrajectoryCollection); 
+    if(!foundTraj) 
+      LogError("PFElecTkProducer")
+	<<" cannot get Trajectories of : "
+	<<  gsfTrackLabel_
+	<< " please set TrajInEvents = False in RecoParticleFlow/PFTracking/python/pfTrackElec_cfi.py" << endl;
+    
+    tjvec= *(TrajectoryCollection.product());
+  }
+  
+
+  vector<reco::GsfPFRecTrack> selGsfPFRecTracks(0);
+  selGsfPFRecTracks.clear();
+  
+  
+  for (unsigned int igsf=0; igsf<gsftracks.size();igsf++) {
+    
+    GsfTrackRef trackRef(gsftrackscoll, igsf);
+    
+    int kf_ind=FindPfRef(PfRTkColl,gsftracks[igsf],false);
+    
+    if (kf_ind>=0) {
+      
+      PFRecTrackRef kf_ref(thePfRecTrackCollection,
+			   kf_ind);
+      pftrack_=GsfPFRecTrack( gsftracks[igsf].charge(), 
+			      reco::PFRecTrack::GSF, 
+			      igsf, trackRef,
+			      kf_ref);
+    } else  {
+      PFRecTrackRef dummyRef;
+      pftrack_=GsfPFRecTrack( gsftracks[igsf].charge(), 
+			      reco::PFRecTrack::GSF, 
+			      igsf, trackRef,
+			      dummyRef);
+    }
     
     
-    for (unsigned int igsf=0; igsf<gsftracks.size();igsf++) {
-      
-      GsfTrackRef trackRef(gsfelectrons, igsf);
-      
-      int kf_ind=FindPfRef(PfRTkColl,gsftracks[igsf],false);
-      
-      if (kf_ind>=0) {
-	
-	PFRecTrackRef kf_ref(thePfRecTrackCollection,
-			     kf_ind);
-	pftrack_=GsfPFRecTrack( gsftracks[igsf].charge(), 
-				reco::PFRecTrack::GSF, 
-				igsf, trackRef,
-				kf_ref);
-      } else  {
-	PFRecTrackRef dummyRef;
-	pftrack_=GsfPFRecTrack( gsftracks[igsf].charge(), 
-				reco::PFRecTrack::GSF, 
-				igsf, trackRef,
-				dummyRef);
-      }
-      bool validgsfbrem = pfTransformer_->addPointsAndBrems(pftrack_, 
-							    gsftracks[igsf], 
-							    tjvec[igsf],
-							    modemomentum_);
-      bool passSel = true;
-      if(applySel_) 
-	passSel = applySelection(gsftracks[igsf]);      
-
-
-      if(validgsfbrem && passSel) 
-	selGsfPFRecTracks.push_back(pftrack_);
+    bool validgsfbrem = false;
+    if(trajinev_) {
+      validgsfbrem = pfTransformer_->addPointsAndBrems(pftrack_, 
+						       gsftracks[igsf], 
+						       tjvec[igsf],
+						       modemomentum_);
+    } else {
+      validgsfbrem = pfTransformer_->addPointsAndBrems(pftrack_, 
+						       gsftracks[igsf], 
+						       mtsTransform_);
     }
-    if(selGsfPFRecTracks.size() > 0) {
-      for(unsigned int ipfgsf=0; ipfgsf<selGsfPFRecTracks.size();ipfgsf++) {
+    
+    bool passSel = true;
+    if(applySel_) 
+      passSel = applySelection(gsftracks[igsf]);      
+    
+    
+    if(validgsfbrem && passSel) 
+      selGsfPFRecTracks.push_back(pftrack_);
+  }
+  if(selGsfPFRecTracks.size() > 0) {
+    for(unsigned int ipfgsf=0; ipfgsf<selGsfPFRecTracks.size();ipfgsf++) {
+      
+      vector<unsigned int> secondaries(0);
+      secondaries.clear();
+      bool keepGsf = true;
+      
+      if(applyGsfClean_) {
+	keepGsf = resolveGsfTracks(selGsfPFRecTracks,ipfgsf,secondaries);
+      }
+      
+      //is primary? 
+      if(keepGsf == true) {
+	PFRecTrackRef refprimKF =  selGsfPFRecTracks[ipfgsf].kfPFRecTrackRef();
 	
-	vector<unsigned int> secondaries(0);
-	secondaries.clear();
-	bool keepGsf = true;
-	
-	if(applyGsfClean_) {
-	  keepGsf = resolveGsfTracks(selGsfPFRecTracks,ipfgsf,secondaries);
-	}
-
-	//is primary? 
-	if(keepGsf == true) {
-	  PFRecTrackRef refprimKF =  selGsfPFRecTracks[ipfgsf].kfPFRecTrackRef();
-
-	  // SKIP 5TH STEP IF REQUESTED
-	  if(refprimKF.isNonnull()) {
-	    if(useFifthStep_ == false) {
-	      bool isFifthStepTrack = isFifthStep(refprimKF);
-	      if(isFifthStepTrack)
-		continue;
-	    }
-	  }
-	  
-
-	  // Find kf tracks from converted brem photons
-	  if(convBremFinder_->foundConvBremPFRecTrack(thePfRecTrackCollection,thePrimaryVertexColl,
-						      pfNuclears,pfConversions,pfV0,
-						      useNuclear_,useConversions_,useV0_,
-						      theEcalClusters,selGsfPFRecTracks[ipfgsf])) {
-	    const vector<PFRecTrackRef>& convBremPFRecTracks (convBremFinder_->getConvBremPFRecTracks());
-	    for(unsigned int ii = 0; ii<convBremPFRecTracks.size(); ii++) {
-	      selGsfPFRecTracks[ipfgsf].addConvBremPFRecTrackRef(convBremPFRecTracks[ii]);
-	    }
-	  }
-
-	  // save primaries gsf tracks
-	  gsfPFRecTrackCollection->push_back(selGsfPFRecTracks[ipfgsf]);
-	  
-
-
-	  // NOTE:: THE TRACKID IS USED TO LINK THE PRIMARY GSF TRACK. THIS NEEDS 
-	  // TO BE CHANGED AS SOON AS IT IS POSSIBLE TO CHANGE DATAFORMATS
-	  // A MODIFICATION HERE IMPLIES A MODIFICATION IN PFBLOCKALGO.CC/H
-	  unsigned int primGsfIndex = selGsfPFRecTracks[ipfgsf].trackId();
-	  if(secondaries.size() > 0) {
-	    // loop on secondaries gsf tracks (from converted brems)
-	    for(unsigned int isecpfgsf=0; isecpfgsf<secondaries.size();isecpfgsf++) {
-	      
-	      PFRecTrackRef refsecKF =  selGsfPFRecTracks[(secondaries[isecpfgsf])].kfPFRecTrackRef();
-
-	      // SKIP 5TH STEP IF REQUESTED
-	      if(refsecKF.isNonnull()) {
-		if(useFifthStepSec_ == false) {
-		  bool isFifthStepTrack = isFifthStep(refsecKF);
-		  if(isFifthStepTrack)
-		    continue;
-		}
-	      }
-
-	      unsigned int secGsfIndex = selGsfPFRecTracks[(secondaries[isecpfgsf])].trackId();
-	      GsfTrackRef secGsfRef = selGsfPFRecTracks[(secondaries[isecpfgsf])].gsfTrackRef();;
-	      if(refsecKF.isNonnull()) {
-		// NOTE::IT SAVED THE TRACKID OF THE PRIMARY!!! THIS IS USED IN PFBLOCKALGO.CC/H
-		secpftrack_= GsfPFRecTrack( gsftracks[secGsfIndex].charge(), 
-					    reco::PFRecTrack::GSF, 
-					    primGsfIndex, secGsfRef,
-					    refsecKF);
-		
-	      }
-	      else{
-		PFRecTrackRef dummyRef;
-		// NOTE::IT SAVED THE TRACKID OF THE PRIMARY!!! THIS IS USED IN PFBLOCKALGO.CC/H
-		secpftrack_= GsfPFRecTrack( gsftracks[secGsfIndex].charge(), 
-					    reco::PFRecTrack::GSF, 
-					    primGsfIndex, secGsfRef,
-					    dummyRef);
-	      }
-	      bool validgsfbrem = pfTransformer_->addPointsAndBrems(secpftrack_, 
-								    gsftracks[secGsfIndex], 
-								    tjvec[secGsfIndex],
-								    modemomentum_);
-	      if(validgsfbrem) 
-		gsfPFRecTrackCollectionSecondary->push_back(secpftrack_);
-	    }
+	// SKIP 5TH STEP IF REQUESTED
+	if(refprimKF.isNonnull()) {
+	  if(useFifthStep_ == false) {
+	    bool isFifthStepTrack = isFifthStep(refprimKF);
+	    if(isFifthStepTrack)
+	      continue;
 	  }
 	}
+	
+
+	// Find kf tracks from converted brem photons
+	if(convBremFinder_->foundConvBremPFRecTrack(thePfRecTrackCollection,thePrimaryVertexColl,
+						    pfNuclears,pfConversions,pfV0,
+						    useNuclear_,useConversions_,useV0_,
+						    theEcalClusters,selGsfPFRecTracks[ipfgsf])) {
+	  const vector<PFRecTrackRef>& convBremPFRecTracks (convBremFinder_->getConvBremPFRecTracks());
+	  for(unsigned int ii = 0; ii<convBremPFRecTracks.size(); ii++) {
+	    selGsfPFRecTracks[ipfgsf].addConvBremPFRecTrackRef(convBremPFRecTracks[ii]);
+	  }
+	}
+	
+	// save primaries gsf tracks
+	gsfPFRecTrackCollection->push_back(selGsfPFRecTracks[ipfgsf]);
+	
+	
+	
+	// NOTE:: THE TRACKID IS USED TO LINK THE PRIMARY GSF TRACK. THIS NEEDS 
+	// TO BE CHANGED AS SOON AS IT IS POSSIBLE TO CHANGE DATAFORMATS
+	// A MODIFICATION HERE IMPLIES A MODIFICATION IN PFBLOCKALGO.CC/H
+	unsigned int primGsfIndex = selGsfPFRecTracks[ipfgsf].trackId();
+	if(secondaries.size() > 0) {
+	  // loop on secondaries gsf tracks (from converted brems)
+	  for(unsigned int isecpfgsf=0; isecpfgsf<secondaries.size();isecpfgsf++) {
+	    
+	    PFRecTrackRef refsecKF =  selGsfPFRecTracks[(secondaries[isecpfgsf])].kfPFRecTrackRef();
+	    
+	    // SKIP 5TH STEP IF REQUESTED
+	    if(refsecKF.isNonnull()) {
+	      if(useFifthStepSec_ == false) {
+		bool isFifthStepTrack = isFifthStep(refsecKF);
+		if(isFifthStepTrack)
+		  continue;
+	      }
+	    }
+	    
+	    unsigned int secGsfIndex = selGsfPFRecTracks[(secondaries[isecpfgsf])].trackId();
+	    GsfTrackRef secGsfRef = selGsfPFRecTracks[(secondaries[isecpfgsf])].gsfTrackRef();
+	    TrajectoryStateOnSurface outTSOS = mtsTransform_.outerStateOnSurface((*secGsfRef));
+	    GlobalVector outMomCart;   
+	    if(outTSOS.isValid()){
+	      mtsMode_->momentumFromModeCartesian(outTSOS,outMomCart);
+	    }
+	    
+	    if(refsecKF.isNonnull()) {
+	      // NOTE::IT SAVED THE TRACKID OF THE PRIMARY!!! THIS IS USED IN PFBLOCKALGO.CC/H
+	      secpftrack_= GsfPFRecTrack( gsftracks[secGsfIndex].charge(), 
+					  reco::PFRecTrack::GSF, 
+					  primGsfIndex, secGsfRef,
+					  refsecKF);
+	    }
+	    else{
+	      PFRecTrackRef dummyRef;
+	      // NOTE::IT SAVED THE TRACKID OF THE PRIMARY!!! THIS IS USED IN PFBLOCKALGO.CC/H
+	      secpftrack_= GsfPFRecTrack( gsftracks[secGsfIndex].charge(), 
+					  reco::PFRecTrack::GSF, 
+					  primGsfIndex, secGsfRef,
+					  dummyRef);
+	    }
+
+	    bool validgsfbrem = false;
+	    if(trajinev_) {
+	      validgsfbrem = pfTransformer_->addPointsAndBrems(secpftrack_,
+							       gsftracks[secGsfIndex], 
+							       tjvec[secGsfIndex],
+							       modemomentum_);
+	    } else {
+	      validgsfbrem = pfTransformer_->addPointsAndBrems(secpftrack_,
+							       gsftracks[secGsfIndex], 
+							       mtsTransform_);
+	    }	      
+
+	    if(validgsfbrem) 
+	      gsfPFRecTrackCollectionSecondary->push_back(secpftrack_);
+	  }
+	}
       }
     }
-
-    iEvent.put(gsfPFRecTrackCollection);
-    iEvent.put(gsfPFRecTrackCollectionSecondary,"Secondary");
-  }else LogError("PFEleTkProducer")<<"No trajectory in the events";
+  }
+  
+  iEvent.put(gsfPFRecTrackCollection);
+  iEvent.put(gsfPFRecTrackCollectionSecondary,"Secondary");
+  
   
 }
 // ------------- method for find the corresponding kf pfrectrack ---------------------
@@ -374,9 +406,9 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
 	  gsftk.seedRef()->recHits().second;
  	for(;hit!=hit_end;++hit){
 	  if (!(hit->isValid())) continue;
-
-	  if((hit->geographicalId()==(*hhit)->geographicalId())&&
-	     (((*hhit)->localPosition()-hit->localPosition()).mag()<0.01)) ish++;
+	  if((*hhit)->sharesInput(&*(hit),TrackingRecHit::all))  ish++; 
+	//   if((hit->geographicalId()==(*hhit)->geographicalId())&&
+        //     (((*hhit)->localPosition()-hit->localPosition()).mag()<0.01)) ish++;
  	}	
 	
       }
