@@ -28,7 +28,7 @@ namespace gen {
       void init();
       const std::vector<std::string>& specialSettings() { return fSpecialSettings; }
       HepMC::GenEvent* apply( HepMC::GenEvent* );
-      void configureOnlyFor( int );
+      // --> void configureOnlyFor( int );
       
       private: 
             

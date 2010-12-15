@@ -40,7 +40,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaPylistVerbosity = cms.untracked.int32(1),
     # this shows how to turn ON some of the general Py6 printouts, like banner...
     # --> displayPythiaBanner = cms.untracked.bool(True),
-    # --> displayPythiaCards = cms.untracked.bool(True),
+    displayPythiaCards = cms.untracked.bool(True),
     comEnergy = cms.double(10000.0),
     ExternalDecays = cms.PSet(
         Tauola = cms.untracked.PSet(

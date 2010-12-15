@@ -716,7 +716,7 @@ bool Pythia6Hadronizer::initializeForInternalPartons()
 bool Pythia6Hadronizer::declareStableParticles( const std::vector<int> pdg )
 {
    
-   for ( size_t i=0; i<pdg.size(); i++ )
+   for ( unsigned int i=0; i<pdg.size(); i++ )
    {
       int PyID = HepPID::translatePDTtoPythia( pdg[i] );
       // int PyID = pdg[i]; 
@@ -735,10 +735,35 @@ bool Pythia6Hadronizer::declareStableParticles( const std::vector<int> pdg )
    return true;
 }
 
-bool Pythia6Hadronizer::declareSpecialSettings( const std::vector<std::string> )
+bool Pythia6Hadronizer::declareSpecialSettings( const std::vector<std::string> settings )
 {
-   // call_pygive( "MSTJ(39)=15" );
-   // call_pygive( "MSTJ(41)=3" );
+   
+   for ( unsigned int iss=0; iss<settings.size(); iss++ )
+   {
+      if ( settings[iss].find("QED-brem-off") == std::string::npos ) continue;
+      size_t fnd1 = settings[iss].find(":");
+      if ( fnd1 == std::string::npos ) continue;
+      
+      std::string value = settings[iss].substr (fnd1+1);
+      
+      if ( value == "all" ) 
+      {
+         call_pygive( "MSTJ(41)=3" );
+      }
+      else
+      {
+         int number = atoi(value.c_str());
+         int PyID = HepPID::translatePDTtoPythia( number );
+	 int pyCode = pycomp_( PyID );
+         if ( pyCode > 0 )
+         {
+            std::ostringstream pyCard ;
+            pyCard << "MSTJ(39)=" << pyCode ;
+	    call_pygive( pyCard.str() );
+	 }
+      }
+   }
+   
    return true;
 
 }

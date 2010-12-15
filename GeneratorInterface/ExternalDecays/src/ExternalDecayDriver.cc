@@ -121,6 +121,15 @@ void ExternalDecayDriver::init( const edm::EventSetup& es )
    if ( fPhotosInterface )
    {
       fPhotosInterface->init();
+/*   will fix shortly, for future tauola++
+      if ( fPhotosInterface )
+      {
+         for ( unsigned int iss=0; iss<fPhotosInterface->specialSettings().size(); iss++ )
+         {
+            fSpecialSettings.push_back( fPhotosInterface->specialSettings()[iss]; )
+         }
+      }
+*/
    }
    
    // now do special settings
@@ -137,16 +146,6 @@ void ExternalDecayDriver::init( const edm::EventSetup& es )
       fSpecialSettings.clear();
       fSpecialSettings.push_back( "QED-brem-off:15" );
    }
-
-/*   will fix shortly, for future tauola++
-   if ( fPhotosInterface )
-   {
-      for ( size_t iss=0; iss<fPhotosInterface->specialSettings().size(); iss++ )
-      {
-         fSpecialSettings.push_back( fPhotosInterface->specialSettings()[iss]; )
-      }
-   }
-*/
    
    fIsInitialized = true;
    
