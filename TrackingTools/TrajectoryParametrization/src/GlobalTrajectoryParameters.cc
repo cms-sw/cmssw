@@ -36,6 +36,7 @@ const MagneticField* GlobalTrajectoryParameters::theField=0;
 void GlobalTrajectoryParameters::setMF(const MagneticField* fieldProvider) {
   if (0==fieldProvider) return;
   if (0!=theField && fieldProvider!=theField)
-    std::cout << "GlobalTrajectoryParameters: a different MF????" << std::endl;
+    std::cout << "GlobalTrajectoryParameters: a different MF???? " 
+      theField << " " << fieldProvider << std::endl;
   theField =fieldProvider;
 }
