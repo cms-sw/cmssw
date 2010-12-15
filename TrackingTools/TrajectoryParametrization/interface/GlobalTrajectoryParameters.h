@@ -119,7 +119,7 @@ private:
   GlobalPoint theX;
   GlobalVector theP;
   mutable float cachedCurvature_;
-  TrackCharge theCharge;
+  signed char  theCharge;
   mutable bool hasCurvature_; 
   //mutable bool hasMagneticField_; mutable GlobalVector cachedMagneticField_; // 
 
