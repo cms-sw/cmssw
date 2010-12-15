@@ -5,9 +5,9 @@ GlobalTrajectoryParameters::GlobalTrajectoryParameters(const GlobalPoint& aX,
 						       const GlobalVector& direction,
 						       float transverseCurvature, int, 
 						       const MagneticField* fieldProvider) :
+  theField(fieldProvider),
   theX(aX),  theP(direction), cachedCurvature_(transverseCurvature),  hasCurvature_(true)
 {
-  setMF(fieldProvider);
   float bza = -2.99792458e-3f * theField->inTesla(theX).z();
   float qbpi = bza*direction.perp()/transverseCurvature;
   theP *= std::abs(qbpi);
@@ -29,14 +29,16 @@ GlobalVector GlobalTrajectoryParameters::magneticFieldInInverseGeV( const Global
   return 2.99792458e-3f * theField->inTesla(x);
 }
 
-const MagneticField* GlobalTrajectoryParameters::theField=0;
 
+/*  the field is different as it is attached to each given volume!!!!
+// const MagneticField* GlobalTrajectoryParameters::theField=0;
 #include<iostream>
 // FIXME debug code mostly
 void GlobalTrajectoryParameters::setMF(const MagneticField* fieldProvider) {
   if (0==fieldProvider) return;
   if (0!=theField && fieldProvider!=theField)
     std::cout << "GlobalTrajectoryParameters: a different MF???? " 
-      theField << " " << fieldProvider << std::endl;
+	      << theField << " " << fieldProvider << std::endl;
   theField =fieldProvider;
 }
+*/

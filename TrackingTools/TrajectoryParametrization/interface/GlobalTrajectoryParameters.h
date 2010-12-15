@@ -16,9 +16,10 @@ class MagneticField;
 class GlobalTrajectoryParameters {
 public:
 // construct
-  GlobalTrajectoryParameters() : 
+  GlobalTrajectoryParameters() :
+    theField(0), 
     theX(), theP(), 
-    cachedCurvature_(1.0),
+    cachedCurvature_(0.0),
     theCharge(0),
     hasCurvature_(false)  {}  // we must initialize cache to non-NAN to avoid FPE
 
@@ -29,11 +30,11 @@ public:
                              const GlobalVector& aP,
                              TrackCharge aCharge, 
 			     const MagneticField* fieldProvider) :
+    theField(fieldProvider),
     theX(aX), theP(aP),     
-    cachedCurvature_(1.0),
+    cachedCurvature_(aCharge),
     theCharge(aCharge),
     hasCurvature_(false) {
-    setMF(fieldProvider);
   } // we must initialize cache to non-NAN to avoid FPE
 
   /** Constructing class from global position, direction (unit length) 
@@ -112,10 +113,9 @@ public:
   GlobalVector magneticFieldInInverseGeV( const GlobalPoint& x) const; 
   const MagneticField& magneticField() const {return *theField;}
 
-  static void setMF(const MagneticField* fieldProvider);
 
 private:
-  static const MagneticField* theField;
+  const MagneticField* theField;
   GlobalPoint theX;
   GlobalVector theP;
   mutable float cachedCurvature_;
