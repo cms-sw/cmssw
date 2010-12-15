@@ -40,8 +40,8 @@ class CurvilinearTrajectoryParameters {
    *
    */
 
-  CurvilinearTrajectoryParameters(const AlgebraicVector5& v, bool charged = true);
-  theQbp(charged ? v[0] : 0), thelambda(v[1]), thephi(v[2]), thexT(v[3]), theyT(v4) {}
+  CurvilinearTrajectoryParameters(const AlgebraicVector5& v, bool charged = true) :
+  theQbp(charged ? v[0] : 0), thelambda(v[1]), thephi(v[2]), thexT(v[3]), theyT(v[4]) {}
 
   /**Constructor from vector of parameters
    *Expects a vector of parameters as defined above. For charged particles the charge will be determined by the sign of the first element. For neutral particles the last argument should be false, 
@@ -53,10 +53,10 @@ class CurvilinearTrajectoryParameters {
   /**Constructor from individual  curvilinear parameters
    *Expects parameters as defined above.
    */
-
+  
   CurvilinearTrajectoryParameters(double aQbp, double alambda, double aphi, double axT, double ayT, bool charged = true) :
     theQbp(charged ? aQbp : 0), thelambda(alambda), thephi(aphi), thexT(axT), theyT(ayT) {}
-
+  
   
   /**Constructor from a global vector, global point and track charge
    *
