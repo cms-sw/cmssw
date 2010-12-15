@@ -20,10 +20,11 @@
 
 namespace reco { namespace tau {
 
-template<typename InputType, typename MatchedType>
+template<typename InputType, typename MatchedType, typename OutputType=typename edm::RefToBaseVector<InputType> >
 class AssociationMatchRefSelector : public edm::EDFilter {
   public:
-    typedef typename edm::RefToBaseVector<InputType> OutputType;
+    //typedef typename edm::RefToBaseVector<InputType> OutputType;
+    typedef typename OutputType::value_type OutputValue;
     typedef typename edm::Association<MatchedType> AssocType;
     explicit AssociationMatchRefSelector(const edm::ParameterSet &pset) {
       src_ = pset.getParameter<edm::InputTag>("src");
@@ -41,7 +42,7 @@ class AssociationMatchRefSelector : public edm::EDFilter {
         typename AssocType::reference_type matched = (*match)[input->refAt(i)];
         // Check if matched
         if (matched.isNonnull()) {
-          output->push_back(input->refAt(i));
+          output->push_back(input->refAt(i).template castTo<OutputValue>());
         }
       }
       bool notEmpty = output->size();
@@ -60,12 +61,13 @@ class AssociationMatchRefSelector : public edm::EDFilter {
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
 
 typedef reco::tau::AssociationMatchRefSelector<reco::Candidate,
           reco::GenJetCollection>  CandViewGenJetMatchRefSelector;
 
 typedef reco::tau::AssociationMatchRefSelector<reco::Candidate,
-          reco::PFTauCollection>  CandViewPFTauMatchRefSelector;
+          reco::PFTauCollection, reco::PFTauRefVector>  CandViewPFTauMatchRefSelector;
 
 DEFINE_FWK_MODULE(CandViewGenJetMatchRefSelector);
 DEFINE_FWK_MODULE(CandViewPFTauMatchRefSelector);
