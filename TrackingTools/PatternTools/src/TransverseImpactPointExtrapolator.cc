@@ -43,30 +43,26 @@ TransverseImpactPointExtrapolator::extrapolate (const TrajectoryStateOnSurface t
 TrajectoryStateOnSurface 
 TransverseImpactPointExtrapolator::extrapolate (const FreeTrajectoryState& fts, 
 						const GlobalPoint& vtx, 
-						const Propagator& u) const
+						const Propagator& p) const
 {
   //
-  // use clone of propagator for bidirectional propagation
+  // set propagator for bidirectional propagation
   //
-  DeepCopyPointerByClone<Propagator> p(u.clone());
-  p->setPropagationDirection(anyDirection);
-
+  SetPropagationDirection setter(p,anyDirection);
   return doExtrapolation(fts,vtx,*p);
 } 
 
 TrajectoryStateOnSurface 
 TransverseImpactPointExtrapolator::extrapolate (const TrajectoryStateOnSurface tsos, 
 						const GlobalPoint& vtx, 
-						const Propagator& u) const
+						const Propagator& p) const
 {
   if ( !tsos.isValid() )  return tsos;
   //
-  // use clone of propagator for bidirectional propagation
+  // set propagator for bidirectional propagation
   //
-  DeepCopyPointerByClone<Propagator> p(u.clone());
-  p->setPropagationDirection(anyDirection);
-
-  return doExtrapolation(tsos,vtx,*p);
+  SetPropagationDirection setter(p,anyDirection);
+  return doExtrapolation(tsos,vtx,p);
 } 
 
 TrajectoryStateOnSurface 
