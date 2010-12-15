@@ -1,5 +1,10 @@
 2010-12-15 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
+	* tag V06-06-01
+	* More type fixes to make 32 bit & 64 bit Linux, as well as Mac OS X happy.
+
+2010-12-15 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
 	* tag V06-06-00
 	* Use boost::posix_time::time_duration instead of integer seconds
 	  for ConcurrentQueue timed_wait methods.
