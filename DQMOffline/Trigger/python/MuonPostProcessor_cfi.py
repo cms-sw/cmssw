@@ -11,7 +11,7 @@ hLTMuonPostVal = cms.EDAnalyzer("DQMGenericClient",
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(),
 
-    efficiencyProfile = cms.vstring(
+    efficiencyProfile = cms.untracked.vstring(
 
 	    #### Comma Checking --- check for trailing commas by searching
    	    ###  this file for the regexp "[^,rf]
