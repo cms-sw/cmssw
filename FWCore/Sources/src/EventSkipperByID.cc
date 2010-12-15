@@ -17,8 +17,13 @@ namespace edm {
         whichLumisToProcess_(pset.getUntrackedParameter<std::vector<LuminosityBlockRange> >("lumisToProcess", std::vector<LuminosityBlockRange>())),
         whichEventsToSkip_(pset.getUntrackedParameter<std::vector<EventRange> >("eventsToSkip",std::vector<EventRange>())),
         whichEventsToProcess_(pset.getUntrackedParameter<std::vector<EventRange> >("eventsToProcess",std::vector<EventRange>())),
-	lumi_(),
-	event_() {
+        skippingLumis_(!(whichLumisToSkip_.empty() && whichLumisToProcess_.empty())),
+        skippingEvents_(!(whichEventsToSkip_.empty() && whichEventsToProcess_.empty())),
+        somethingToSkip_(skippingLumis_ || skippingEvents_ || !(firstRun_ <= 1U && firstLumi_ <= 1U && firstEvent_ <= 1U)) {
+    sortAndRemoveOverlaps(whichLumisToSkip_);
+    sortAndRemoveOverlaps(whichLumisToProcess_);
+    sortAndRemoveOverlaps(whichEventsToSkip_);
+    sortAndRemoveOverlaps(whichEventsToProcess_);
   }
 
   EventSkipperByID::~EventSkipperByID() {}
@@ -30,26 +35,6 @@ namespace edm {
       evSkp.reset();
     }
     return evSkp;
-  }
-
-  bool
-  EventSkipperByID::somethingToSkip() const {
-    return !(firstRun_ <= 1U && firstLumi_ <= 1U && firstEvent_ <= 1U &&
-      whichLumisToSkip_.empty() && whichLumisToProcess_.empty() && whichEventsToSkip_.empty() && whichEventsToProcess_.empty());
-  }
-
-  bool
-  EventSkipperByID::skippingLumis() const {
-    return !(whichLumisToSkip_.empty() && whichLumisToProcess_.empty());
-  }
-
-  bool
-  EventSkipperByID::operator()(LuminosityBlockRange const& lumiRange) const {
-    return contains(lumiRange, lumi_);
-  }
-  bool
-  EventSkipperByID::operator()(EventRange const& eventRange) const {
-    return contains(eventRange, event_);
   }
 
   // Determines whether a run, lumi, or event will be skipped based on the run, lumi, and event number.
@@ -84,28 +69,39 @@ namespace edm {
         }
       }
     }
-    // If we get here, the entry was not skipped due to firstRun, firstLuminosityBlock, and/or firstEvent.
-    lumi_ = LuminosityBlockID(run, lumi);
-    if(search_if_in_all(whichLumisToSkip_, *this)) {
-      // The entry is in a lumi specified in whichLumisToSkip.  Skip it.
-      return true;
-    }
-    if(!whichLumisToProcess_.empty() && !search_if_in_all(whichLumisToProcess_, *this)) {
-      // The entry is not in a lumi specified in non-empty whichLumisToProcess.  Skip it.
-      return true;
+    if (skippingLumis()) {
+      // If we get here, the entry was not skipped due to firstRun, firstLuminosityBlock, and/or firstEvent.
+      LuminosityBlockID lumiID = LuminosityBlockID(run, lumi);
+      LuminosityBlockRange lumiRange = LuminosityBlockRange(lumiID, lumiID);
+      bool(*lt)(LuminosityBlockRange const&, LuminosityBlockRange const&) = &lessThan;
+      if(binary_search_all(whichLumisToSkip_, lumiRange, lt)) {
+        // The entry is in a lumi specified in whichLumisToSkip.  Skip it.
+        return true;
+      }
+      if(!whichLumisToProcess_.empty() && !binary_search_all(whichLumisToProcess_, lumiRange, lt)) {
+        // The entry is not in a lumi specified in non-empty whichLumisToProcess.  Skip it.
+        return true;
+      }
     }
     if(event == 0U) {
       // The entry is a lumi entry that was not skipped above.  Keep it.
       return false;
     }
-    event_ = EventID(run, lumi, event);
-    if(search_if_in_all(whichEventsToSkip_, *this)) {
-      // The event is specified in whichEventsToSkip.  Skip it.
-      return true;
-    }
-    if(!whichEventsToProcess_.empty() && !search_if_in_all(whichEventsToProcess_, *this)) {
-      // The event is not specified in non-empty whichEventsToProcess.  Skip it.
-      return true;
+    if (skippingEvents()) {
+      // If we get here, the entry was not skipped due to firstRun, firstLuminosityBlock, and/or firstEvent.
+      EventID eventID = EventID(run, lumi, event);
+      EventRange eventRange = EventRange(eventID, eventID);
+      EventID eventIDNoLumi = EventID(run, 0U, event);
+      EventRange eventRangeNoLumi = EventRange(eventIDNoLumi, eventIDNoLumi);
+      bool(*lt)(EventRange const&, EventRange const&) = &lessThanSpecial;
+      if(binary_search_all(whichEventsToSkip_, eventRange, lt) || binary_search_all(whichEventsToSkip_, eventRangeNoLumi, lt)) {
+        // The entry is an event specified in whichEventsToSkip.  Skip it.
+        return true;
+      }
+      if(!whichEventsToProcess_.empty() && !binary_search_all(whichEventsToProcess_, eventRange, lt) && !binary_search_all(whichEventsToProcess_, eventRangeNoLumi, lt)) {
+        // The entry is not an event specified in non-empty whichEventsToProcess.  Skip it.
+        return true;
+      }
     }
     return false;
   }

@@ -17,11 +17,10 @@ namespace edm {
   public:
     explicit EventSkipperByID(ParameterSet const& pset);
     ~EventSkipperByID();
-    bool operator()(LuminosityBlockRange const& lumiRange) const;
-    bool operator()(EventRange const& eventRange) const;
     bool skipIt(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const;
-    bool somethingToSkip() const;
-    bool skippingLumis() const;
+    bool skippingLumis() const {return skippingLumis_;}
+    bool skippingEvents() const {return skippingEvents_;}
+    bool somethingToSkip() const {return somethingToSkip_;}
     static
     std::auto_ptr<EventSkipperByID>create(ParameterSet const& pset);
     static void fillDescription(ParameterSetDescription & desc);
@@ -35,8 +34,9 @@ namespace edm {
     std::vector<LuminosityBlockRange> whichLumisToProcess_;
     std::vector<EventRange> whichEventsToSkip_;
     std::vector<EventRange> whichEventsToProcess_;
-    mutable LuminosityBlockID lumi_;
-    mutable EventID event_;
+    bool skippingLumis_;
+    bool skippingEvents_;
+    bool somethingToSkip_;
   };
 }
 
