@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.98 2010/09/02 19:54:04 matevz Exp $
+// $Id: CmsShowNavigator.cc,v 1.99 2010/11/10 11:42:00 matevz Exp $
 //
 
 #include "DataFormats/FWLite/interface/Event.h"
@@ -806,7 +806,12 @@ CmsShowNavigator::showEventFilterGUI(const TGWindow* p)
 //______________________________________________________________________________
 
 void
-CmsShowNavigator::setFrom(const FWConfiguration& iFrom) {
+CmsShowNavigator::setFrom(const FWConfiguration& iFrom)
+{
+   m_filesNeedUpdate = true;
+
+   EFilterState oldFilterState =  m_filterState;
+
    int numberOfFilters(0);
    {
       const FWConfiguration* value = iFrom.valueForKey( "EventFilter_total" );
@@ -814,7 +819,10 @@ CmsShowNavigator::setFrom(const FWConfiguration& iFrom) {
       std::istringstream s(value->value());
       s>>numberOfFilters;
    }
+
+   
    m_selectors.clear();
+
    {
       const FWConfiguration* value = iFrom.valueForKey( "EventFilter_enabled" );
       assert(value);
@@ -849,6 +857,37 @@ CmsShowNavigator::setFrom(const FWConfiguration& iFrom) {
       }
       m_selectors.push_back(selector);
    }
+
+   // redesplay new filters in event filter dialog if already mapped
+   if (m_guiFilter)
+   {
+      m_guiFilter->reset();
+      if (m_guiFilter->IsMapped()) m_guiFilter->show(&m_selectors, m_filterMode, m_filterState);
+   }
+   
+   if (!m_files.empty())
+   {
+      // change filters in existing files 
+      for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
+      { 
+         (*file)->filters().clear();
+         for (std::list<FWEventSelector*>::iterator i = m_selectors.begin(); i != m_selectors.end(); ++i)
+            (*file)->filters().push_back(new FWFileEntry::Filter(*i));
+      }
+      
+      
+      // run new filters if enabled, else just reset 
+      if  (m_filterState == kOn)
+         updateFileFilters();
+      else
+         postFiltering_.emit();
+   }
+   
+   // update CmsShowMainFrame checkBoxIcon and button text
+   if (oldFilterState != m_filterState)
+      filterStateChanged_.emit(m_filterState);
+   
+   
 }
 
 void

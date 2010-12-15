@@ -26,7 +26,8 @@ public:
    virtual void CloseWindow();
    
    void show(std::list<FWEventSelector*>* sels, int filterMode, int state);
-   
+   void reset();    
+
    CSGAction* m_applyAction;   
    CSGAction* m_filterDisableAction;     
    CSGAction* m_finishEditAction; 
