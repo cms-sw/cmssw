@@ -41,6 +41,7 @@ class CurvilinearTrajectoryParameters {
    */
 
   CurvilinearTrajectoryParameters(const AlgebraicVector5& v, bool charged = true);
+  theQbp(charged ? v[0] : 0), thelambda(v[1]), thephi(v[2]), thexT(v[3]), theyT(v4) {}
 
   /**Constructor from vector of parameters
    *Expects a vector of parameters as defined above. For charged particles the charge will be determined by the sign of the first element. For neutral particles the last argument should be false, 
@@ -53,7 +54,8 @@ class CurvilinearTrajectoryParameters {
    *Expects parameters as defined above.
    */
 
-  CurvilinearTrajectoryParameters(double aQbp, double alambda, double aphi, double axT, double ayT, bool charged = true);
+  CurvilinearTrajectoryParameters(double aQbp, double alambda, double aphi, double axT, double ayT, bool charged = true) :
+    theQbp(charged ? aQbp : 0), thelambda(alambda), thephi(aphi), thexT(axT), theyT(ayT) {}
 
   
   /**Constructor from a global vector, global point and track charge
@@ -62,11 +64,11 @@ class CurvilinearTrajectoryParameters {
   CurvilinearTrajectoryParameters(const GlobalPoint& aX,const GlobalVector& aP,TrackCharge aCharge);
 
   /// access to the charge
-  TrackCharge charge() const {return theCharge;}
+  TrackCharge charge() const { return (0==Qbp()) ? 0 : ( Qbp()>0 ? 1 : -1) ;}
 
   /// access to the Signed Inverse momentum q/p (zero for neutrals)
   double signedInverseMomentum() const {
-    return charge()==0 ? 0. : theQbp;
+    return  Qbp();
   }
   
   
@@ -74,7 +76,13 @@ class CurvilinearTrajectoryParameters {
    *
    *Vector of parameters as defined above, with the first element q/p.
    */
-  AlgebraicVector5 vector() const ;
+  AlgebraicVector5 vector() const {
+    return AlgebraicVector5(theQbp,
+			    thelambda,
+			    thephi,
+			    thexT,
+			    theyT);
+  }
     
 
   double Qbp() const {    return theQbp;  }
@@ -92,7 +100,6 @@ class CurvilinearTrajectoryParameters {
   double thexT;
   double theyT;
 
-  TrackCharge theCharge;
 };
 
 
