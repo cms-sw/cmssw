@@ -4,6 +4,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "boost/intrusive_ptr.hpp" 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include<algorithm>
 
 class DetLayer;
 
@@ -114,17 +115,32 @@ public:
     theRecHit(aRecHit),
     theEstimate(aEstimate), theLayer(layer) {}
 
-  ~TrajectoryMeasurement() {
-    //
-    // NO! it crashes!!!
-    //
-    //    delete theRecHit;
+ 
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+  TrajectoryMeasurement( TrajectoryMeasurement && rh) :
+    theFwdPredictedState(std::move(rh.theFwdPredictedState)),
+    theBwdPredictedState(std::move(rh.theBwdPredictedState)),
+    theUpdatedState(std::move(rh.theUpdatedState)),
+    theRecHit(std::move(rh.theRecHit)),
+    theEstimate(rh.theEstimate), theLayer(rh.theLayer) {}
+
+  TrajectoryMeasurement & operator=( TrajectoryMeasurement && rh) {
+    using std::swap;
+    swap(theFwdPredictedState,rh.theFwdPredictedState);
+    swap(theBwdPredictedState,rh.theBwdPredictedState);
+    swap(theUpdatedState,rh.theUpdatedState);
+    swap(theRecHit,rh.theRecHit);
+    theEstimate=rh.theEstimate;
+    theLayer=rh.theLayer;
   }
+ 
+#endif
+
 
   /** Access to forward predicted state (from fitter or builder).
    *  To be replaced by forwardPredictedState.
    */
-  TrajectoryStateOnSurface predictedState() const {
+  TrajectoryStateOnSurface  predictedState() const {
     return theFwdPredictedState;
   }
 

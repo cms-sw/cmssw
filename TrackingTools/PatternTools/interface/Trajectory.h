@@ -92,6 +92,31 @@ public:
   {}
 
 
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+  Trajectory(Trajectory && rh) : 
+    theData(std::move(rh.theData)),
+    theChiSquared(rh.theChiSquared), theChiSquaredBad(rh.theChiSquaredBad), theValid(rh.theValid),
+    theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
+    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity),
+    theSeed(std::move(rh.theSeed)), seedRef_(std::move(rh.seedRef_))
+  {}
+
+  Trajectory & operator=(Trajectory && rh) {
+    using std::swap;
+    swap(theData,rh.theData);
+    theChiSquared=rh.theChiSquared;
+    theChiSquaredBad=rh.theChiSquaredBad;
+    theValid=rh.theValid;
+    theNumberOfFoundHits=rh.theNumberOfFoundHits;
+    theNumberOfLostHits=rh.theNumberOfLostHits;
+    theDirection=rh.theDirection; 
+    theDirectionValidity=rh.theDirectionValidity;
+    swap(theSeed,rh.theSeed);
+    swap(seedRef_,rh.seedRef_);
+  }
+
+#endif
+
   /** Reserves space in the vector to avoid lots of allocations when 
       push_back-ing measurements */
   void reserve (unsigned int n) { theData.reserve(n); }
@@ -252,7 +277,7 @@ private:
     bool operator()(const TrajectoryMeasurement& lhs,
                     const TrajectoryMeasurement& rhs) const{ 
       if (lhs.updatedState().isValid() && rhs.updatedState().isValid())
-            return (lhs.updatedState().globalPosition() - thePoint).mag() < (rhs.updatedState().globalPosition() -thePoint).mag();
+            return (lhs.updatedState().globalPosition() - thePoint).mag2() < (rhs.updatedState().globalPosition() -thePoint).mag2();
       else
 	{
 	  edm::LogError("InvalidStateOnMeasurement")<<"an updated state is not valid. result of LessMag comparator will be wrong.";
