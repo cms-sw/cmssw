@@ -64,5 +64,8 @@ class AssociationMatchRefSelector : public edm::EDFilter {
 typedef reco::tau::AssociationMatchRefSelector<reco::Candidate,
           reco::GenJetCollection>  CandViewGenJetMatchRefSelector;
 
+typedef reco::tau::AssociationMatchRefSelector<reco::Candidate,
+          reco::PFTauCollection>  CandViewPFTauMatchRefSelector;
 
 DEFINE_FWK_MODULE(CandViewGenJetMatchRefSelector);
+DEFINE_FWK_MODULE(CandViewPFTauMatchRefSelector);
