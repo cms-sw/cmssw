@@ -7,7 +7,7 @@
  *
  * \author Chris Jones, Cornell
  *
- * $Id: RootAutoLibraryLoader.h,v 1.4 2006/09/29 00:54:16 chrjones Exp $
+ * $Id: RootAutoLibraryLoader.h,v 1.1 2006/12/16 13:31:41 wmtan Exp $
  *
  */
 #include "TClassGenerator.h"
@@ -35,6 +35,7 @@ private:
   RootAutoLibraryLoader();
   RootAutoLibraryLoader(const RootAutoLibraryLoader&); // stop default
   const RootAutoLibraryLoader& operator=(const RootAutoLibraryLoader&); // stop default
+  bool isInitializingCintex_;
 };
 
 }

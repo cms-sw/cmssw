@@ -299,10 +299,12 @@ namespace edm {
    // constructors and destructor
    //
    RootAutoLibraryLoader::RootAutoLibraryLoader() :
-     classNameAttemptingToLoad_(0) {
+     classNameAttemptingToLoad_(0),
+     isInitializingCintex_(true) {
       AssertHandler h();
       gROOT->AddClassGenerator(this);
       ROOT::Cintex::Cintex::Enable();
+      isInitializingCintex_ =false;
 
       //set the special cases
       std::map<std::string, std::string>& specials = cintToReflexSpecialCasesMap();
@@ -361,7 +363,10 @@ namespace edm {
       //std::cout << "looking for " << classname << " load " << (load? "T":"F") << std::endl;
       if (load) {
         //std::cout << " going to call loadLibraryForClass" << std::endl;
-        if (loadLibraryForClass(classname)) {
+        //[ROOT 5.28] When Cintex is in its 'Enable' method it will register callbacks to build
+        // TClasses. During this phase we do not want to actually force TClasses to have to 
+        // come into existence.
+        if (loadLibraryForClass(classname) and not isInitializingCintex_) {
           //use this to check for infinite recursion attempt
           classNameAttemptingToLoad_ = classname;
           // This next call will create the TClass object for the class.
