@@ -89,7 +89,7 @@ public:
 
 
   TrajectoryStateOnSurface( TrajectoryStateOnSurface && rh) :
-    Base(std::foward(rh)){}
+    Base(std::forward(rh)){}
     
   TrajectoryStateOnSurface & operator=(TrajectoryStateOnSurface && rh) {
     Base::swap(rh);
