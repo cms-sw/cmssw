@@ -1,177 +1,228 @@
-
-// $Id: LumiDetails.cc,v 1.8 2010/03/23 15:56:03 xiezhen Exp $
-
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
+#include <cassert>
 #include <iomanip>
+#include <ostream>
 
-//using namespace std;
-static std::vector<float> emptyFloatVec;
-static std::vector<short> emptyShortVec;
-LumiDetails::LumiDetails():m_lumiversion("-1"){}
-LumiDetails::LumiDetails(const std::string& lumiversion):m_lumiversion(lumiversion){
+std::vector<std::string> LumiDetails::m_algoNames;
+
+LumiDetails::LumiDetails() :
+  m_lumiVersion("-1"),
+  m_algoToFirstIndex(kMaxNumAlgos + 1, 0),
+  m_allValues(),
+  m_allErrors(),
+  m_allQualities(),
+  m_allBeam1Intensities(),
+  m_allBeam2Intensities()
+{
 }
-LumiDetails::~LumiDetails(){
-  m_lumivalueMap.clear();
-  m_lumierrorMap.clear();
-  m_lumiqualityMap.clear();
+
+LumiDetails::LumiDetails(std::string const& lumiVersion) :
+  m_lumiVersion(lumiVersion),
+  m_algoToFirstIndex(kMaxNumAlgos + 1, 0),
+  m_allValues(),
+  m_allErrors(),
+  m_allQualities(),
+  m_allBeam1Intensities(),
+  m_allBeam2Intensities()
+
+{
 }
+
+LumiDetails::~LumiDetails() {
+}
+
 void
-LumiDetails::setLumiVersion(const std::string& lumiversion){
-  m_lumiversion=lumiversion;
+LumiDetails::setLumiVersion(std::string const& lumiVersion){
+  m_lumiVersion = lumiVersion;
 }
-std::string 
-LumiDetails::lumiVersion()const{
-  return m_lumiversion;
+
+std::string const&
+LumiDetails::lumiVersion() const {
+  return m_lumiVersion;
 }
+
 bool
-LumiDetails::isValid() const{
-  return (m_lumiversion!="-1"); 
+LumiDetails::isValid() const {
+  return (m_lumiVersion != "-1");
 }
-void 
-LumiDetails::swapValueData(std::map<std::string,std::vector<float> >& data){
-  data.swap(m_lumivalueMap);
-}
-void 
-LumiDetails::swapErrorData(std::map<std::string,std::vector<float> >& data){
-  data.swap(m_lumierrorMap);
-}
-void 
-LumiDetails::swapQualData(std::map<std::string,std::vector<short> >& data){
-  data.swap(m_lumiqualityMap);
-}
-void 
-LumiDetails::copyValueData(const std::map<std::string,std::vector<float> >& data){
-  m_lumivalueMap=data;
-}
-void 
-LumiDetails::copyErrorData(const std::map<std::string,std::vector<float> >& data){
-  m_lumierrorMap=data;
-}
-void 
-LumiDetails::copyQualData(const std::map<std::string,std::vector<short> >& data){
-  m_lumiqualityMap=data;
-}
-float 
-LumiDetails::lumiValue(const std::string& algoname,unsigned int bx) const{
-  if(bx>0){
-    std::map< std::string,std::vector<float> >::const_iterator it=m_lumivalueMap.find(algoname);
-    if(it!=m_lumivalueMap.end()){
-      return it->second.at(bx);
-    }
+
+void
+LumiDetails::fill(AlgoType algo,
+                  std::vector<float> const& values,
+                  std::vector<float> const& errors,
+                  std::vector<short> const& qualities,
+                  std::vector<short> const& beam1Intensities,
+                  std::vector<short> const& beam2Intensities) {
+  checkAlgo(algo);
+  if (values.size() != errors.size() ||
+      values.size() != qualities.size() ||
+      values.size() != beam1Intensities.size() ||
+      values.size() != beam2Intensities.size() ||
+      m_algoToFirstIndex[algo] != m_algoToFirstIndex[algo + 1U]) {
+    throw edm::Exception(edm::errors::LogicError)
+      << "Illegal input values passed to LumiDetails::fill.\n"
+      << "The current implementation of LumiDetails only allows filling\n"
+      << "vectors for each algorithm once and the input vectors must\n"
+      << "all be the same size.\n";
   }
-  return -1.0;
-}
-float 
-LumiDetails::lumiError(const std::string& algoname,unsigned int bx) const{
-  if(bx>0){
-    std::map< std::string,std::vector<float> >::const_iterator it=m_lumierrorMap.find(algoname);
-    if(it!=m_lumierrorMap.end()){
-      return it->second.at(bx);
-    }
+  m_allValues.insert(m_allValues.begin() + m_algoToFirstIndex[algo], values.begin(), values.end());
+  m_allErrors.insert(m_allErrors.begin() + m_algoToFirstIndex[algo], errors.begin(), errors.end());
+  m_allQualities.insert(m_allQualities.begin() + m_algoToFirstIndex[algo], qualities.begin(), qualities.end());
+  m_allBeam1Intensities.insert(m_allBeam1Intensities.begin() + m_algoToFirstIndex[algo], beam1Intensities.begin(), beam1Intensities.end());
+  m_allBeam2Intensities.insert(m_allBeam2Intensities.begin() + m_algoToFirstIndex[algo], beam2Intensities.begin(), beam2Intensities.end());
+  for (unsigned i = algo + 1U; i <= kMaxNumAlgos; ++i) {
+    m_algoToFirstIndex[i] += values.size();
   }
-  return -1.0;
 }
+
+float 
+LumiDetails::lumiValue(AlgoType algo, unsigned int bx) const {
+  checkAlgoAndBX(algo, bx);
+  return m_allValues[m_algoToFirstIndex[algo] + bx];
+}
+
+float 
+LumiDetails::lumiError(AlgoType algo, unsigned int bx) const {
+  checkAlgoAndBX(algo, bx);
+  return m_allErrors[m_algoToFirstIndex[algo] + bx];
+}
+
 short 
-LumiDetails::lumiQuality(const std::string& algoname,unsigned int bx) const{
-  if(bx>0){
-    std::map< std::string,std::vector<short> >::const_iterator it=m_lumiqualityMap.find(algoname);
-    if(it!=m_lumiqualityMap.end()){
-      return it->second.at(bx);
-    }
-  }
-  return -1.0;
-}
-  
-const std::vector<float>& 
-LumiDetails::lumiValuesForAlgo(const std::string& algoname) const{
-  std::map< std::string,std::vector<float> >::const_iterator it;
-  it=m_lumivalueMap.find(algoname);
-  if(it!=m_lumivalueMap.end()){
-    return it->second;
-  }else{
-    return emptyFloatVec;
-  }
-}
-const std::vector<float>& 
-LumiDetails::lumiErrorsForAlgo(const std::string& algoname) const{
-  std::map< std::string,std::vector<float> >::const_iterator it;
-  it=m_lumierrorMap.find(algoname);
-  if(it!=m_lumierrorMap.end()){
-    return it->second;
-  }else{
-    return emptyFloatVec;
-  }
-}
-const std::vector<short>& 
-LumiDetails::lumiQualsForAlgo(const std::string& algoname) const{
-  std::map< std::string,std::vector<short> >::const_iterator it;
-  it=m_lumiqualityMap.find(algoname);
-  if(it!=m_lumiqualityMap.end()){
-    return it->second;
-  }else{
-    return emptyShortVec;
-  }
-}
-const std::map< std::string,std::vector<float> >&
-LumiDetails::allLumiValues()const{
-  return  m_lumivalueMap;
-}
-const std::map< std::string,std::vector<float> >& 
-LumiDetails::allLumiErrors()const{
-  return m_lumierrorMap; 
-}
-const std::map< std::string,std::vector<short> >& 
-LumiDetails::allLumiQuals()const{
-  return m_lumiqualityMap;
-}
-std::vector<std::string>
-LumiDetails::algoNames()const{
-  std::vector<std::string> result;
-  std::map< std::string,std::vector<float> >::const_iterator it;
-  std::map< std::string,std::vector<float> >::const_iterator itBeg=m_lumivalueMap.begin();
-  std::map< std::string,std::vector<float> >::const_iterator itEnd=m_lumivalueMap.end();
-  for(it=itBeg;it!=itEnd;++it){
-    result.push_back(it->first);
-  }
-  return result;
-}
-unsigned int 
-LumiDetails::totalLumiAlgos()const{
-  return m_lumivalueMap.size();
+LumiDetails::lumiQuality(AlgoType algo, unsigned int bx) const {
+  checkAlgoAndBX(algo, bx);
+  return m_allQualities[m_algoToFirstIndex[algo] + bx];
 }
 
-//bool
-//LumiDetails::isProductEqual(LumiDetails const& next) const {
-//}
+short
+LumiDetails::lumiBeam1Intensity(AlgoType algo, unsigned int bx) const {
+  checkAlgoAndBX(algo, bx);
+  return m_allBeam1Intensities[m_algoToFirstIndex[algo] + bx];
+}
 
-std::ostream& operator<<(std::ostream& s, const LumiDetails& lumiDetails) {
+short
+LumiDetails::lumiBeam2Intensity(AlgoType algo, unsigned int bx) const {
+  checkAlgoAndBX(algo, bx);
+  return m_allBeam2Intensities[m_algoToFirstIndex[algo] + bx];
+}
+
+LumiDetails::ValueRange
+LumiDetails::lumiValuesForAlgo(AlgoType algo) const {
+  checkAlgo(algo);
+  return ValueRange(m_allValues.begin() + m_algoToFirstIndex[algo],
+                    m_allValues.begin() + m_algoToFirstIndex[algo + 1U]);
+}
+
+LumiDetails::ErrorRange
+LumiDetails::lumiErrorsForAlgo(AlgoType algo) const {
+  checkAlgo(algo);
+  return ErrorRange(m_allErrors.begin() + m_algoToFirstIndex[algo],
+                    m_allErrors.begin() + m_algoToFirstIndex[algo + 1U]);
+}
+
+LumiDetails::QualityRange
+LumiDetails::lumiQualitiesForAlgo(AlgoType algo) const {
+  checkAlgo(algo);
+  return QualityRange(m_allQualities.begin() + m_algoToFirstIndex[algo],
+                      m_allQualities.begin() + m_algoToFirstIndex[algo + 1U]);
+}
+
+LumiDetails::Beam1IntensityRange
+LumiDetails::lumiBeam1IntensitiesForAlgo(AlgoType algo) const {
+  checkAlgo(algo);
+  return Beam1IntensityRange(m_allBeam1Intensities.begin() + m_algoToFirstIndex[algo],
+                             m_allBeam1Intensities.begin() + m_algoToFirstIndex[algo + 1U]);
+}
+
+LumiDetails::Beam2IntensityRange
+LumiDetails::lumiBeam2IntensitiesForAlgo(AlgoType algo) const {
+  checkAlgo(algo);
+  return Beam2IntensityRange(m_allBeam2Intensities.begin() + m_algoToFirstIndex[algo],
+                             m_allBeam2Intensities.begin() + m_algoToFirstIndex[algo + 1U]);
+}
+
+std::vector<std::string> const&
+LumiDetails::algoNames() {
+  if (m_algoNames.size() != kMaxNumAlgos) {
+    assert(m_algoNames.size() == 0U);
+    m_algoNames.push_back(std::string("OCC1"));
+    m_algoNames.push_back(std::string("OCC2"));
+    m_algoNames.push_back(std::string("ET"));
+    m_algoNames.push_back(std::string("Algo3"));
+    m_algoNames.push_back(std::string("PLT1"));
+    m_algoNames.push_back(std::string("PLT2"));
+    assert(m_algoNames.size() == kMaxNumAlgos);
+  }
+  return m_algoNames;
+}
+
+bool
+LumiDetails::isProductEqual(LumiDetails const& lumiDetails) const {
+
+  if (m_lumiVersion == lumiDetails.m_lumiVersion &&
+      m_algoToFirstIndex == lumiDetails.m_algoToFirstIndex &&
+      m_allValues == lumiDetails.m_allValues &&
+      m_allErrors == lumiDetails.m_allErrors &&
+      m_allQualities == lumiDetails.m_allQualities &&
+      m_allBeam1Intensities == lumiDetails.m_allBeam1Intensities &&
+      m_allBeam2Intensities == lumiDetails.m_allBeam2Intensities) {
+    return true;
+  }
+  return false;
+}
+
+void
+LumiDetails::checkAlgo(AlgoType algo) const {
+  if (algo >= kMaxNumAlgos) {
+    throw edm::Exception(edm::errors::LogicError)
+      << "Algorithm type argument out of range in a call to a function in LumiDetails\n";
+  }
+}
+
+void
+LumiDetails::checkAlgoAndBX(AlgoType algo, unsigned int bx) const {
+  checkAlgo(algo);
+  if (bx >= (m_algoToFirstIndex[algo + 1U] - m_algoToFirstIndex[algo])) {
+    throw edm::Exception(edm::errors::LogicError)
+      << "Branch crossing argument out of range in call to a function in LumiDetails\n";
+  }
+}
+
+std::ostream& operator<<(std::ostream& s, LumiDetails const& lumiDetails) {
   
   s << "\nDumping LumiDetails\n";
-  s << std::setw(12) << "lumi version" <<lumiDetails.lumiVersion() << "\n";
+  s << std::setw(12) << "lumi version " << lumiDetails.lumiVersion() << "\n";
 
-  std::vector<std::string> algoNames=lumiDetails.algoNames();
-  std::vector<std::string>::const_iterator it;
-  std::vector<std::string>::const_iterator itBeg=algoNames.begin();
-  std::vector<std::string>::const_iterator itEnd=algoNames.end();
+  std::vector<std::string>::const_iterator algo = lumiDetails.algoNames().begin();
+  std::vector<std::string>::const_iterator algoEnd = lumiDetails.algoNames().end();
 
-  std::vector<float>::const_iterator valueit;
-  std::vector<float>::const_iterator errorit;
-  std::vector<short>::const_iterator qualityit;
-  for(it=itBeg;it!=itEnd;++it){
-    const std::vector<float>& lumivalues=lumiDetails.lumiValuesForAlgo(*it);
-    
-    const std::vector<float>& lumierrors=lumiDetails.lumiErrorsForAlgo(*it);
-    errorit=lumierrors.begin();
-    const std::vector<short>& lumiqualities=lumiDetails.lumiQualsForAlgo(*it);
-    qualityit=lumiqualities.begin();
-    s << std::setw(12);
-    s << "algorithm:"<<(*it)<< "\n";
-    s << std::setw(12)<< "value"<<std::setw(12)<< "error"<<std::setw(12)<< "quality"<<"\n";
-    for(valueit=lumivalues.begin(); valueit!=lumivalues.end(); ++valueit,++errorit,++qualityit){
-      s <<std::setw(12)<<(*valueit)<<std::setw(12)<<(*errorit)<<std::setw(12)<<(*qualityit)<<"\n";
+  LumiDetails::AlgoType i = 0;
+
+  for( ; algo != algoEnd; ++algo, ++i) {
+
+    std::vector<float>::const_iterator value = lumiDetails.lumiValuesForAlgo(i).first;
+    std::vector<float>::const_iterator valueEnd = lumiDetails.lumiValuesForAlgo(i).second;
+    std::vector<float>::const_iterator error = lumiDetails.lumiErrorsForAlgo(i).first;
+    std::vector<short>::const_iterator quality = lumiDetails.lumiQualitiesForAlgo(i).first;
+    std::vector<short>::const_iterator beam1 = lumiDetails.lumiBeam1IntensitiesForAlgo(i).first;
+    std::vector<short>::const_iterator beam2 = lumiDetails.lumiBeam2IntensitiesForAlgo(i).first;
+
+    s << "algorithm: " << *algo << "\n";
+    s << std::setw(12) << "value"
+      << std::setw(12) << "error"
+      << std::setw(12) << "quality"
+      << std::setw(16) << "beam1Intensity"
+      << std::setw(16) << "beam2Intensity" << "\n";
+
+    for( ; value != valueEnd; ++value, ++error, ++quality, ++beam1, ++beam2){
+      s << std::setw(12) << *value
+        << std::setw(12) << *error
+        << std::setw(12) << *quality
+        << std::setw(16) << *beam1
+        << std::setw(16) << *beam2 << "\n";
     }
-    s<<"\n";
+    s << "\n";
   }
-  return s<<"\n";
+  return s;
 }
