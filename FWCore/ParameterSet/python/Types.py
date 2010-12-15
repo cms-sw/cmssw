@@ -249,6 +249,11 @@ class LuminosityBlockRange(_ParameterTypeBase):
             self.__startSub = startSub
             self.__end      = end
             self.__endSub   = endSub
+        if self.__end < self.__start:
+            raise RuntimeError('LuminosityBlockRange '+str(self.__start)+':'+str(self.__startSub)+'-'+str(self.__end)+':'+str(self.__endSub)+' out of order')
+        # 0 luminosity block number is a special case that means no limit
+        if self.__end == self.__start and (self.__endSub <> 0 and self.__endSub < self.__startSub):
+            raise RuntimeError('LuminosityBlockRange '+str(self.__start)+':'+str(self.__startSub)+'-'+str(self.__end)+':'+str(self.__endSub)+' out of order')
     def start(self):
         return self.__start
     def startSub(self):
@@ -271,13 +276,15 @@ class LuminosityBlockRange(_ParameterTypeBase):
         except IndexError:
             endParts = parts[0].split(":") # If just "1:2" turn into "1:2-1:2"
 
-        if startParts[1].lower() == "max":
+        if startParts[1].lower() == "0":
+            startParts[1] = "1"
+        elif startParts[1].lower() == "max":
             startParts[1] = "0"
-        if startParts[1].lower() == "min":
+        elif startParts[1].lower() == "min":
             startParts[1] = "1"
         if endParts[1].lower() == "max":
             endParts[1] = "0"
-        if endParts[1].lower() == "min":
+        elif endParts[1].lower() == "min":
             endParts[1] = "1"
         return LuminosityBlockRange(int(startParts[0]), int(startParts[1]),
                         int(endParts[0]), int(endParts[1]))
@@ -315,6 +322,11 @@ class EventRange(_ParameterTypeBase):
                 self.__endSub    = args[4]
             else:
                 raise RuntimeError('EventRange ctor must have 4 or 6 arguments')
+        if self.__end < self.__start or (self.__end == self.__start and self.__endLumi < self.__startLumi):
+            raise RuntimeError('EventRange '+str(self.__start)+':'+str(self.__startLumi)+':'+str(self.__startSub)+'-'+str(self.__end)+':'+str(self.__endLumi)+':'+str(self.__endSub)+' out of order')
+        # 0 event number is a special case that means no limit
+        if self.__end == self.__start and self.__endLumi == self.__startLumi and (self.__endSub <> 0 and self.__endSub < self.__startSub):
+            raise RuntimeError('EventRange '+str(self.__start)+':'+str(self.__startLumi)+':'+str(self.__startSub)+'-'+str(self.__end)+':'+str(self.__endLumi)+':'+str(self.__endSub)+' out of order')
     def start(self):
         return self.__start
     def startLumi(self):
@@ -341,21 +353,24 @@ class EventRange(_ParameterTypeBase):
         except IndexError:
             endParts = parts[0].split(":") # If just "1:2" turn into "1:2-1:2"
 
-        if startParts[1].lower() == "max":
-            startParts[1] = "0"
-        if startParts[1].lower() == "min":
-            startParts[1] = "1"
-        if endParts[1].lower() == "max":
-            endParts[1] = "0"
-        if endParts[1].lower() == "min":
-            endParts[1] = "1"
 	brun = startParts[0]
 	erun = endParts[0]
         s = len(startParts)
 	e = len(endParts)
-	if s != e:
+	if s != e or s < 2 or s > 3:
             raise RuntimeError('EventRange ctor must have 4 or 6 arguments')
-        elif s == 3:
+        i = s - 1
+        if startParts[i].lower() == "0":
+            startParts[i] = "1"
+        elif startParts[i].lower() == "max":
+            startParts[i] = "0"
+        elif startParts[i].lower() == "min":
+            startParts[i] = "1"
+        if endParts[i].lower() == "max":
+            endParts[i] = "0"
+        elif endParts[i].lower() == "min":
+            endParts[i] = "1"
+        if s == 3:
             blumi = startParts[1]
             elumi = endParts[1]
             bevent = startParts[2]
