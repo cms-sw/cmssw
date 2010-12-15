@@ -717,6 +717,11 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
   // *****************************   INTERMIDIATE State *************************************
   //From the new Wolfgang code
 
+  // To think if the cout should be removed. 
+  if(track.gsfExtra()->tangentsSize() == 0)
+    LogError("PFTrackTransformer")
+      <<"BE CAREFUL: Gsf Tangents not stored in the event. You need to re-reco the particle-flow with RecoToDisplay_cfg.py and not RecoToDisplay_NoTracking_cfg.py ";
+  
 
   vector<GsfTangent> gsftang = track.gsfExtra()->tangents();
   for(unsigned int iTang = 0; iTang < track.gsfExtra()->tangentsSize(); iTang++) {
@@ -731,6 +736,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 
     iTrajPoint = iTrajPos + 2;
     PFBrem brem(dp_tang,sdp_tang,iTrajPoint);
+
+ 
 
     GlobalVector p_tang=  GlobalVector(gsftang[iTang].momentum().x(),
 				       gsftang[iTang].momentum().y(),

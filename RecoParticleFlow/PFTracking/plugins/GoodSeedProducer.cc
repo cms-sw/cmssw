@@ -417,7 +417,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	      eP=EP;
 	  
 	      float Ytmva=reader->EvaluateMVA( method_ );
-	  
+	      
 	      float BDTcut=thr[ibin+4]; 
 	      if ( Ytmva>BDTcut) GoodTkId=true;
 	      myPreId.setMVA(GoodTkId,Ytmva);
