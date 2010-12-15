@@ -200,7 +200,7 @@ if __name__ == "__main__":
              outputfile.write('''         <div></div>\n''')                 
    elif tauidproduct.find('hps') != -1:
         print 'Entering hps Loop'
-        for discriminator in discriminatorTanc: #Loop on the various discriminators of TaNC
+        for discriminator in discriminatorHps: #Loop on the various discriminators of TaNC
              outputfile.write('''         <div> <!-- DIV-4 -->\n''')
              outputfile.write('''         <br>\n''')
              outputfile.write('''         <center><strong> ''' + discriminator.replace('Isolation',' Isolation') + ''' Efficiency  (compared to ''' + referenceRelease + ''')</strong></center>\n''')
