@@ -87,6 +87,21 @@ public:
 
   virtual ~TrajectoryStateOnSurface() {}
 
+
+  TrajectoryStateOnSurface( TrajectoryStateOnSurface && rh) :
+    Base(std::foward(rh)){}
+    
+  TrajectoryStateOnSurface & operator=(TrajectoryStateOnSurface && rh) {
+    Base::swap(rh);
+    return *this;
+  }
+
+
+  void swap(TrajectoryStateOnSurface & rh) {
+    Base::swap(rh);
+  }
+
+
   bool isValid() const {
     return Base::isValid() && data().isValid();
   }
