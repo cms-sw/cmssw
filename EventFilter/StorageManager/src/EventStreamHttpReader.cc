@@ -17,7 +17,7 @@
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
 
-  $Id: EventStreamHttpReader.cc,v 1.40 2010/05/17 15:59:10 mommsen Exp $
+  $Id: EventStreamHttpReader.cc,v 1.41 2010/08/06 20:24:31 wmtan Exp $
 /// @file: EventStreamHttpReader.cc
 */
 
@@ -36,8 +36,6 @@
 #include <algorithm>
 #include <iterator>
 #include "curl/curl.h"
-
-#include <wait.h>
 
 using namespace std;
 using namespace edm;

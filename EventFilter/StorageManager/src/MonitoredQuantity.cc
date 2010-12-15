@@ -1,4 +1,4 @@
-// $Id: MonitoredQuantity.cc,v 1.9 2010/12/14 12:56:52 mommsen Exp $
+// $Id: MonitoredQuantity.cc,v 1.10 2010/12/15 10:09:14 mommsen Exp $
 /// @file: MonitoredQuantity.cc
 
 #include "EventFilter/StorageManager/interface/MonitoredQuantity.h"
@@ -41,22 +41,37 @@ void MonitoredQuantity::addSample(const double& value)
   _workingLastSampleValue = value;
 }
 
-void  MonitoredQuantity::addSample(const int& value)
+void MonitoredQuantity::addSample(const int& value)
 {
   addSample(static_cast<double>(value));
 }
 
-void  MonitoredQuantity::addSample(const uint32_t& value)
+void MonitoredQuantity::addSample(const unsigned int& value)
 {
   addSample(static_cast<double>(value));
 }
 
-void  MonitoredQuantity::addSample(const uint64_t& value)
+void MonitoredQuantity::addSample(const long& value)
 {
   addSample(static_cast<double>(value));
 }
 
-void  MonitoredQuantity::addSampleIfLarger(const double& value)
+void MonitoredQuantity::addSample(const unsigned long& value)
+{
+  addSample(static_cast<double>(value));
+}
+
+void MonitoredQuantity::addSample(const long long& value)
+{
+  addSample(static_cast<double>(value));
+}
+
+void MonitoredQuantity::addSample(const unsigned long long& value)
+{
+  addSample(static_cast<double>(value));
+}
+
+void MonitoredQuantity::addSampleIfLarger(const double& value)
 {
   if (value > _workingLastSampleValue)
     addSample(value);

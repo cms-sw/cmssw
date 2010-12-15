@@ -1,4 +1,4 @@
-// $Id: XHTMLMaker.cc,v 1.8 2010/08/06 20:24:32 wmtan Exp $
+// $Id: XHTMLMaker.cc,v 1.9 2010/12/15 10:09:14 mommsen Exp $
 /// @file: XHTMLMaker.cc
 
 #include "EventFilter/StorageManager/interface/XHTMLMaker.h"
@@ -177,10 +177,40 @@ void XHTMLMaker::addText( Node* parent, const std::string& data )
   parent->appendChild( txt );
 }
 
-/////////////////////////
-//// Add an int32_t: ////
-/////////////////////////
-void XHTMLMaker::addInt( Node* parent, const int32_t& value )
+/////////////////////
+//// Add an int: ////
+/////////////////////
+void XHTMLMaker::addInt( Node* parent, const int& value )
+{
+    ostringstream tmpString;
+    tmpString << value;
+    addText( parent, tmpString.str() );
+}
+
+//////////////////////////////
+//// Add an unsigned int: ////
+//////////////////////////////
+void XHTMLMaker::addInt( Node* parent, const unsigned int& value )
+{
+    ostringstream tmpString;
+    tmpString << value;
+    addText( parent, tmpString.str() );
+}
+
+/////////////////////
+//// Add a long: ////
+/////////////////////
+void XHTMLMaker::addInt( Node* parent, const long& value )
+{
+    ostringstream tmpString;
+    tmpString << value;
+    addText( parent, tmpString.str() );
+}
+
+///////////////////////////////
+//// Add an unsigned long: ////
+///////////////////////////////
+void XHTMLMaker::addInt( Node* parent, const unsigned long& value )
 {
     ostringstream tmpString;
     tmpString << value;
@@ -188,29 +218,19 @@ void XHTMLMaker::addInt( Node* parent, const int32_t& value )
 }
 
 //////////////////////////
-//// Add an uint32_t: ////
+//// Add a long long: ////
 //////////////////////////
-void XHTMLMaker::addInt( Node* parent, const uint32_t& value )
+void XHTMLMaker::addInt( Node* parent, const long long& value )
 {
     ostringstream tmpString;
     tmpString << value;
     addText( parent, tmpString.str() );
 }
 
-/////////////////////////
-//// Add an int64_t: ////
-/////////////////////////
-void XHTMLMaker::addInt( Node* parent, const int64_t& value )
-{
-    ostringstream tmpString;
-    tmpString << value;
-    addText( parent, tmpString.str() );
-}
-
-//////////////////////////
-//// Add an uint64_t: ////
-//////////////////////////
-void XHTMLMaker::addInt( Node* parent, const uint64_t& value )
+////////////////////////////////////
+//// Add an unsigned long long: ////
+////////////////////////////////////
+void XHTMLMaker::addInt( Node* parent, const unsigned long long& value )
 {
     ostringstream tmpString;
     tmpString << value;

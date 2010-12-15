@@ -2,7 +2,7 @@
  *  An input source for DQM consumers run in cmsRun that connect to
  *  the StorageManager or SMProxyServer to get DQM data.
  *
- *  $Id: DQMHttpSource.cc,v 1.20 2010/05/17 15:59:10 mommsen Exp $
+ *  $Id: DQMHttpSource.cc,v 1.21 2010/08/06 20:24:30 wmtan Exp $
 /// @file: DQMHttpSource.cc
  */
 
@@ -27,7 +27,6 @@
 #include <iostream>
 #include <sys/time.h>
 #include "curl/curl.h"
-#include <wait.h>
 
 using namespace edm;
 using namespace std;

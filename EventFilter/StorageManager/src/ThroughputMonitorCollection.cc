@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.cc,v 1.21 2010/12/10 19:33:35 mommsen Exp $
+// $Id: ThroughputMonitorCollection.cc,v 1.22 2010/12/14 12:56:52 mommsen Exp $
 /// @file: ThroughputMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"
@@ -94,7 +94,7 @@ void ThroughputMonitorCollection::calcPoolUsage()
   {
     try {
       _pool->lock();
-      _poolUsageMQ.addSample( static_cast<uint64_t>(_pool->getMemoryUsage().getUsed()) );
+      _poolUsageMQ.addSample(_pool->getMemoryUsage().getUsed());
       _pool->unlock();
     }
     catch (...)
@@ -352,15 +352,15 @@ void ThroughputMonitorCollection::do_calculateStatistics()
   calcPoolUsage();
 
   if (_fragmentQueue.get() != 0) {
-    _entriesInFragmentQueueMQ.addSample(static_cast<uint64_t>(_fragmentQueue->size()));
+    _entriesInFragmentQueueMQ.addSample(_fragmentQueue->size());
     _memoryUsedInFragmentQueueMQ.addSample( static_cast<double>(_fragmentQueue->used()) / (1024*1024) );
   }
   if (_streamQueue.get() != 0) {
-    _entriesInStreamQueueMQ.addSample(static_cast<uint64_t>(_streamQueue->size()));
+    _entriesInStreamQueueMQ.addSample(_streamQueue->size());
     _memoryUsedInStreamQueueMQ.addSample( static_cast<double>(_streamQueue->used()) / (1024*1024) );
   }
   if (_dqmEventQueue.get() != 0) {
-    _entriesInDQMEventQueueMQ.addSample(static_cast<uint64_t>(_dqmEventQueue->size()));
+    _entriesInDQMEventQueueMQ.addSample(_dqmEventQueue->size());
     _memoryUsedInDQMEventQueueMQ.addSample( static_cast<double>(_dqmEventQueue->used()) / (1024*1024) );
   }
   _entriesInFragmentStoreMQ.addSample(_currentFragmentStoreSize);

@@ -1,4 +1,4 @@
-// $Id: MonitoredQuantity.h,v 1.7 2010/12/03 15:56:48 mommsen Exp $
+// $Id: MonitoredQuantity.h,v 1.8 2010/12/15 10:09:14 mommsen Exp $
 /// @file: MonitoredQuantity.h 
 
 #ifndef StorageManager_MonitoredQuantity_h
@@ -22,8 +22,8 @@ namespace stor
    * and provides timing information on the samples.
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2010/12/03 15:56:48 $
+   * $Revision: 1.8 $
+   * $Date: 2010/12/15 10:09:14 $
    */
 
   class MonitoredQuantity
@@ -52,14 +52,29 @@ namespace stor
     void addSample(const int& value = 1);
 
     /**
-     * Adds the specified uint32_t valued sample value to the monitor instance.
+     * Adds the specified unsigned integer valued sample value to the monitor instance.
      */
-    void addSample(const uint32_t& value = 1);
+    void addSample(const unsigned int& value = 1);
 
     /**
-     * Adds the specified uint64_t valued sample value to the monitor instance.
+     * Adds the specified long valued sample value to the monitor instance.
      */
-    void addSample(const uint64_t& value = 1);
+    void addSample(const long& value = 1);
+
+    /**
+     * Adds the specified unsigned long valued sample value to the monitor instance.
+     */
+    void addSample(const unsigned long& value = 1);
+
+    /**
+     * Adds the specified long long valued sample value to the monitor instance.
+     */
+    void addSample(const long long& value = 1);
+
+    /**
+     * Adds the specified unsigned long long valued sample value to the monitor instance.
+     */
+    void addSample(const unsigned long long& value = 1);
 
     /**
      * Adds the specified double valued sample value to the monitor instance

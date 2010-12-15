@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: XHTMLMaker.h,v 1.8 2010/03/21 08:51:03 elmer Exp $
+// $Id: XHTMLMaker.h,v 1.9 2010/12/15 10:09:14 mommsen Exp $
 /// @file: XHTMLMaker.h 
 
 #ifndef XHTMLMAKER_H
@@ -18,9 +18,9 @@
 /**
    Helper class to build XHTML pages
 
-   $Author: elmer $
-   $Revision: 1.8 $
-   $Date: 2010/03/21 08:51:03 $
+   $Author: mommsen $
+   $Revision: 1.9 $
+   $Date: 2010/12/15 10:09:14 $
 */
 
 class XHTMLMaker
@@ -92,24 +92,34 @@ public:
   void addText( Node* parent, const std::string& );
 
   /**
-     Add an int32_t
+     Add an int
   */
-  void addInt( Node* parent, const int32_t& );
+  void addInt( Node* parent, const int& );
 
   /**
-     Add an uint32_t
+     Add an unsigned int
   */
-  void addInt( Node* parent, const uint32_t& );
+  void addInt( Node* parent, const unsigned int& );
 
   /**
-     Add an int64_t
+     Add a long
   */
-  void addInt( Node* parent, const int64_t& );
+  void addInt( Node* parent, const long& );
 
   /**
-     Add an uint64_t
+     Add an unsigned long
   */
-  void addInt( Node* parent, const uint64_t& );
+  void addInt( Node* parent, const unsigned long& );
+
+  /**
+     Add a long long
+  */
+  void addInt( Node* parent, const long long& );
+
+  /**
+     Add an unsigned long
+  */
+  void addInt( Node* parent, const unsigned long long& );
 
   /**
      Add a double
