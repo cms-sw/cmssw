@@ -1791,6 +1791,50 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }   
     }   
   }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu4_Exclusive") == 0) {    
+    int rc = 0;
+    float ptl2 = 3.0;
+    float ptl3 = 4.0;
+    float drl3 = 2.0;
+    float etal3 = 2.5;
+    float etal2 = 2.5;
+    float deltaphil3 = 2.7;
+    
+
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if (prescaleResponse(menu,cfg,rcounter,it)) { 
+	for (int i=0;i<NohMuL3;i++) {   
+	  for(int j=i+1;j<NohMuL3;j++) {
+	    if( fabs(ohMuL3Eta[i]) < etal3 && fabs(ohMuL3Eta[j]) < etal3 ) { // L3 eta cut   
+	      if(ohMuL3Pt[i] > ptl3 && ohMuL3Pt[j] > ptl3) {  // L3 pT cut         
+		if(ohMuL3Dr[i] < drl3 && ohMuL3Dr[j] < drl3) {  // L3 DR cut 
+		  if((ohMuL3Chg[i] * ohMuL3Chg[j]) < 0) { // opposite charge
+		    float deltaphi = fabs(ohMuL3Phi[i]-ohMuL3Phi[j]); 
+		    if(deltaphi > 3.14159) 
+		      deltaphi = (2.0 * 3.14159) - deltaphi;  
+		    
+		    if(deltaphi > deltaphil3) {
+		      int l2match1 = ohMuL3L2idx[i];
+		      int l2match2 = ohMuL3L2idx[j];
+		      
+		      if ( (fabs(ohMuL2Eta[l2match1]) < etal2) && (fabs(ohMuL2Eta[l2match2]) < etal2)) {  // L2 eta cut  
+			if( (ohMuL2Pt[l2match1] > ptl2) && (ohMuL2Pt[l2match2] > ptl2) ) { // L2 pT cut  
+			  rc++;
+			}
+		      }
+		    }
+		  }
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+    if(rc >=1)
+      triggerBit[it] = true;  
+  
+  } 
  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu5") == 0) {   
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
@@ -2400,6 +2444,25 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
 	}
       }       
     }       
+  }
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Photon70_Cleaned_L1R") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {   
+      if (prescaleResponse(menu,cfg,rcounter,it)) { 
+	if(OpenHlt1PhotonSamHarperPassed(70.,0,          // ET, L1isolation     
+					 999., 999.,       // Track iso barrel, Track iso endcap 
+					 999., 999.,        // Track/pT iso barrel, Track/pT iso endcap   
+					 999., 999.,       // H/ET iso barrel, H/ET iso endcap   
+					 999., 999.,       // E/ET iso barrel, E/ET iso endcap    
+					 0.15, 0.15,       // H/E barrel, H/E endcap   
+					 999., 999.,       // cluster shape barrel, cluster shape endcap   
+					 0.98, 999.,       // R9 barrel, R9 endcap   
+					 999., 999.,       // Deta barrel, Deta endcap   
+					 999., 999.        // Dphi barrel, Dphi endcap   
+					 )>=1) {
+	  triggerBit[it] = true;  
+	}
+      }
+    }
   }
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Photon350_L1R") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
@@ -4666,6 +4729,68 @@ int OHltTree::OpenHltElecTauL2SCPassed(float elecEt, int elecL1iso, float elecTi
     }
   }
 
+  return rc;
+}
+
+int OHltTree::OpenHlt1PhotonSamHarperPassed(float Et, int L1iso, 
+					    float Tisobarrel, float Tisoendcap, 
+					    float Tisoratiobarrel, float Tisoratioendcap, 
+					    float HisooverETbarrel, float HisooverETendcap, 
+					    float EisooverETbarrel, float EisooverETendcap,
+					    float hoverebarrel, float hovereendcap,
+					    float clusshapebarrel, float clusshapeendcap, 
+					    float r9barrel, float r9endcap,
+					    float detabarrel, float detaendcap,
+					    float dphibarrel, float dphiendcap)
+{
+  float barreleta = 1.479;
+  float endcapeta = 2.65;
+  
+  int rc = 0;
+  // Loop over all oh electrons
+  for (int i=0;i<NohPhot;i++) {
+    float ohPhotE = ohPhotEt[i] / (sin(2*atan(exp(-1.0*ohPhotEta[i]))));   
+    float ohPhotHoverE = ohPhotHforHoverE[i]/ohPhotE;
+    cout << ohPhotHoverE << endl;
+    int isbarrel = 0;
+    int isendcap = 0;
+    if(TMath::Abs(ohPhotEta[i]) < barreleta)
+      isbarrel = 1;
+    if(barreleta < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < endcapeta)
+      isendcap = 1;
+
+    if ( ohPhotEt[i] > Et) {
+      if( TMath::Abs(ohPhotEta[i]) < endcapeta ) {
+	    if ( ohPhotL1iso[i] >= L1iso ) {  // L1iso is 0 or 1 
+	      if( ohPhotL1Dupl[i] == false) { // remove double-counted L1 SCs 
+		if ( (isbarrel && ((ohPhotHiso[i]/ohPhotEt[i]) < HisooverETbarrel)) ||
+		     (isendcap && ((ohPhotHiso[i]/ohPhotEt[i]) < HisooverETendcap)) ) {
+		  if ( (isbarrel && ((ohPhotEiso[i]/ohPhotEt[i]) < EisooverETbarrel)) ||
+		       (isendcap && ((ohPhotEiso[i]/ohPhotEt[i]) < EisooverETendcap)) ) {
+		    if ( ((isbarrel) && (ohPhotHoverE < hoverebarrel)) ||
+			 ((isendcap) && (ohPhotHoverE < hovereendcap))) {
+		      if ( (isbarrel && (((ohPhotTiso[i] < Tisobarrel && ohPhotTiso[i] != -999.) || (Tisobarrel == 999.)))) ||
+			   (isendcap && (((ohPhotTiso[i] < Tisoendcap && ohPhotTiso[i] != -999.) || (Tisoendcap == 999.))))) {
+			if (((isbarrel) && (ohPhotTiso[i]/ohPhotEt[i] < Tisoratiobarrel)) ||
+			    ((isendcap) && (ohPhotTiso[i]/ohPhotEt[i] < Tisoratioendcap))) {
+			  if ( (isbarrel && ohPhotClusShap[i] < clusshapebarrel) ||
+			       (isendcap && ohPhotClusShap[i] < clusshapeendcap)) {
+			    if ( (isbarrel && ohPhotR9[i] < r9barrel) || 
+				 (isendcap && ohPhotR9[i] < r9endcap))  {
+				  rc++;
+			    }
+			  }
+			}
+		      }
+		    }
+		  }
+		}
+	      }
+	    }
+      }
+    }
+  }
+  
   return rc;
 }
 

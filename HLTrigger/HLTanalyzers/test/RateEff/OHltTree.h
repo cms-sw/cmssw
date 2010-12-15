@@ -186,7 +186,9 @@ public :
   Float_t         ohPhotHiso[8000];   //[NohPhot]
   Float_t         ohPhotTiso[8000];   //[NohPhot]
   Int_t           ohPhotL1iso[8000];   //[NohPhot]
-  Float_t           ohPhotR9[8000];   //[NohPhot] 
+  Float_t         ohPhotR9[8000];   //[NohPhot] 
+  Float_t         ohPhotHforHoverE[8000];   //[NohPhot] 
+  Float_t         ohPhotClusShap[8000];   //[NohPhot]
   Int_t           NohEle;
   Float_t         ohEleClusShap[8000];   //[NohEle]
   Float_t         ohEleDeta[8000];   //[NohEle]
@@ -1943,7 +1945,9 @@ public :
   TBranch        *b_ohPhotHiso;   //!
   TBranch        *b_ohPhotTiso;   //!
   TBranch        *b_ohPhotL1iso;   //!
-  TBranch        *b_ohPhotR9;   //! 
+  TBranch        *b_ohPhotR9;   //!
+  TBranch        *b_ohPhotHforHoverE;   //! 
+  TBranch        *b_ohPhotClusShap;   //!
   TBranch        *b_NohEle;   //!
   TBranch        *b_ohEleClusShap;   //!
   TBranch        *b_ohEleDeta;   //!
@@ -3629,6 +3633,16 @@ public :
 				      float r9barrel, float r9endcap, 
 				      float detabarrel, float detaendcap, 
 				      float dphibarrel, float dphiendcap);
+  int OpenHlt1PhotonSamHarperPassed(float Et, int L1iso,   
+				    float Tisobarrel, float Tisoendcap,   
+				    float Tisoratiobarrel, float Tisoratioendcap,   
+				    float HisooverETbarrel, float HisooverETendcap,   
+				    float EisooverETbarrel, float EisooverETendcap,  
+				    float hoverebarrel, float hovereendcap,  
+				    float clusshapebarrel, float clusshapeendcap,   
+				    float r9barrel, float r9endcap,  
+				    float detabarrel, float detaendcap,  
+				    float dphibarrel, float dphiendcap); 
   int OpenHlt1ElectronEleIDPassed(float Et,int L1iso,float Tiso,float Hiso); 
   int OpenHlt1PhotonPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC);
   int OpenHlt1PhotonLooseEcalIsoPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC);
@@ -4052,7 +4066,9 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("ohPhotHiso", ohPhotHiso, &b_ohPhotHiso);
   fChain->SetBranchAddress("ohPhotTiso", ohPhotTiso, &b_ohPhotTiso);
   fChain->SetBranchAddress("ohPhotL1iso", ohPhotL1iso, &b_ohPhotL1iso);
-  fChain->SetBranchAddress("ohPhotR9", ohPhotR9, &b_ohPhotR9); 
+  fChain->SetBranchAddress("ohPhotR9", ohPhotR9, &b_ohPhotR9);
+  fChain->SetBranchAddress("ohPhotHforHoverE", ohPhotHforHoverE, &b_ohPhotHforHoverE);
+  fChain->SetBranchAddress("ohPhotClusShap", ohPhotClusShap, &b_ohPhotClusShap);
   fChain->SetBranchAddress("NohEle", &NohEle, &b_NohEle);
   fChain->SetBranchAddress("ohEleClusShap", ohEleClusShap, &b_ohEleClusShap);
   fChain->SetBranchAddress("ohEleDeta", ohEleDeta, &b_ohEleDeta);
