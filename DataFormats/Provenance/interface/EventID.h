@@ -31,9 +31,9 @@ namespace edm {
    typedef unsigned int LuminosityBlockNumber_t;
 
 
-class EventID {
+  class EventID {
 
-   public:
+    public:
       EventID() : run_(0), luminosityBlock_(0), event_(0) {}
       EventID(RunNumber_t iRun, LuminosityBlockNumber_t iLumi, EventNumber_t iEvent) :
         run_(iRun), luminosityBlock_(iLumi), event_(iEvent) {}
@@ -124,9 +124,18 @@ class EventID {
       RunNumber_t run_;
       LuminosityBlockNumber_t luminosityBlock_;
       EventNumber_t event_;
-};
+  };
 
-std::ostream& operator<<(std::ostream& oStream, EventID const& iID);
+  std::ostream& operator<<(std::ostream& oStream, EventID const& iID);
 
+  inline
+  EventID const& min(EventID const& lh, EventID const& rh) {
+    return (rh < lh ? rh : lh);
+  }
+
+  inline
+  EventID const& max(EventID const& lh, EventID const& rh) {
+    return (rh < lh ? lh : rh);
+  }
 }
 #endif

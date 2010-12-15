@@ -4,7 +4,7 @@
 //
 // Package:     DataFormats/Provenance
 // Class  :     LuminosityBlockID
-// 
+//
 /**\class LuminosityBlockID LuminosityBlockID.h DataFormats/Provenance/interface/LuminosityBlockID.h
 
  Description: Holds run and luminosityBlock number.
@@ -29,18 +29,13 @@ namespace edm {
 
    typedef unsigned int LuminosityBlockNumber_t;
 
-   
-class LuminosityBlockID
-{
-
+  class LuminosityBlockID {
    public:
-   
-   
       LuminosityBlockID() : run_(0), luminosityBlock_(0) {}
       explicit LuminosityBlockID(boost::uint64_t id);
       LuminosityBlockID(RunNumber_t iRun, LuminosityBlockNumber_t iLuminosityBlock) :
-	run_(iRun), luminosityBlock_(iLuminosityBlock) {}
-      
+        run_(iRun), luminosityBlock_(iLuminosityBlock) {}
+
       //virtual ~LuminosityBlockID();
 
       // ---------- const member functions ---------------------
@@ -48,7 +43,7 @@ class LuminosityBlockID
       LuminosityBlockNumber_t luminosityBlock() const { return luminosityBlock_; }
 
       boost::uint64_t value() const;
-   
+
       //moving from one LuminosityBlockID to another one
       LuminosityBlockID next() const {
          if(luminosityBlock_ != maxLuminosityBlockNumber()) {
@@ -68,7 +63,7 @@ class LuminosityBlockID
          }
          return LuminosityBlockID(0,0);
       }
-   
+
       LuminosityBlockID previous() const {
          if(luminosityBlock_ > 1) {
             return LuminosityBlockID(run_, luminosityBlock_-1);
@@ -78,14 +73,14 @@ class LuminosityBlockID
          }
          return LuminosityBlockID(0,0);
       }
-      
+
       bool operator==(LuminosityBlockID const& iRHS) const {
          return iRHS.run_ == run_ && iRHS.luminosityBlock_ == luminosityBlock_;
       }
       bool operator!=(LuminosityBlockID const& iRHS) const {
          return ! (*this == iRHS);
       }
-      
+
       bool operator<(LuminosityBlockID const& iRHS) const {
          return doOp<std::less>(iRHS);
       }
@@ -104,12 +99,12 @@ class LuminosityBlockID
       static LuminosityBlockNumber_t maxLuminosityBlockNumber() {
          return 0xFFFFFFFFU;
       }
-   
+
       static LuminosityBlockID firstValidLuminosityBlock() {
          return LuminosityBlockID(1, 1);
       }
       // ---------- member functions ---------------------------
-   
+
    private:
       template<template <typename> class Op>
       bool doOp(LuminosityBlockID const& iRHS) const {
@@ -128,9 +123,19 @@ class LuminosityBlockID
       // ---------- member data --------------------------------
       RunNumber_t run_;
       LuminosityBlockNumber_t luminosityBlock_;
-};
+  };
 
-std::ostream& operator<<(std::ostream& oStream, LuminosityBlockID const& iID);
+  std::ostream& operator<<(std::ostream& oStream, LuminosityBlockID const& iID);
+
+  inline
+  LuminosityBlockID const& min(LuminosityBlockID const& lh, LuminosityBlockID const& rh) {
+    return (rh < lh ? rh : lh);
+  }
+
+  inline
+  LuminosityBlockID const& max(LuminosityBlockID const& lh, LuminosityBlockID const& rh) {
+    return (rh < lh ? lh : rh);
+  }
 
 }
 #endif

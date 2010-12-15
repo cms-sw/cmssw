@@ -19,6 +19,7 @@
 // system include files
 #include <functional>
 #include <iosfwd>
+#include <vector>
 #include "DataFormats/Provenance/interface/EventID.h"
 
 // user include files
@@ -38,6 +39,8 @@ namespace edm {
 
       EventRange(RunNumber_t startRun, LumiNumber_t startLumi, EventNumber_t startEvent,
                  RunNumber_t endRun, LumiNumber_t endLumi, EventNumber_t endEvent);
+
+      EventRange(EventID const& begin, EventID const& end);
 //      virtual ~EventRange();
 
       // ---------- const member functions ---------------------
@@ -67,8 +70,11 @@ namespace edm {
   bool contains(EventRange const& lh, EventID const& rh);
   bool contains_(EventRange const& lh, EventID const& rh);
   bool contains(EventRange const& lh, EventRange const& rh);
+  bool lessThan(EventRange const& lh, EventRange const& rh);
+  bool lessThanSpecial(EventRange const& lh, EventRange const& rh);
   bool overlaps(EventRange const& lh, EventRange const& rh);
   bool distinct(EventRange const& lh, EventRange const& rh);
+  std::vector<EventRange>& sortAndRemoveOverlaps(std::vector<EventRange>& eventRange);
 
 }
 #endif

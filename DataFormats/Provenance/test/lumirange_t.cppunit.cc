@@ -12,8 +12,7 @@
 
 using namespace edm;
 
-class testLumiRange: public CppUnit::TestFixture
-{
+class testLumiRange: public CppUnit::TestFixture {
    CPPUNIT_TEST_SUITE(testLumiRange);
 
    CPPUNIT_TEST(constructTest);
@@ -22,7 +21,7 @@ class testLumiRange: public CppUnit::TestFixture
 
    CPPUNIT_TEST_SUITE_END();
 public:
-      void setUp(){}
+   void setUp(){}
    void tearDown(){}
 
    void constructTest();
@@ -33,9 +32,7 @@ public:
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testLumiRange);
 
-
-void testLumiRange::constructTest()
-{
+void testLumiRange::constructTest() {
    const RunNumber_t rb = 1;
    const RunNumber_t re = 2;
    const LuminosityBlockNumber_t lb = 3;
@@ -46,16 +43,15 @@ void testLumiRange::constructTest()
    LuminosityBlockID    dummy;
 
    CPPUNIT_ASSERT(normal.startRun() == rb);
-   CPPUNIT_ASSERT(normal.endRun()   == re);
+   CPPUNIT_ASSERT(normal.endRun() == re);
    CPPUNIT_ASSERT(normal.startLumi() == lb);
-   CPPUNIT_ASSERT(normal.endLumi()   == le);
+   CPPUNIT_ASSERT(normal.endLumi() == le);
    CPPUNIT_ASSERT(maxed.startLumiID().luminosityBlock() == dummy.maxLuminosityBlockNumber());
    CPPUNIT_ASSERT(maxed.endLumiID().luminosityBlock() == dummy.maxLuminosityBlockNumber());
 
 }
 
-void testLumiRange::comparisonTest()
-{
+void testLumiRange::comparisonTest() {
     const LuminosityBlockID small(1,1);
     const LuminosityBlockID med(7, 2);
     const LuminosityBlockID large(8,10);
@@ -75,8 +71,7 @@ void testLumiRange::comparisonTest()
 
 }
 
-void testLumiRange::overlapTest()
-{
+void testLumiRange::overlapTest() {
 
     const LuminosityBlockRange normal(5,1,8,1);
     const LuminosityBlockRange small(6,1,7,1);
@@ -84,21 +79,59 @@ void testLumiRange::overlapTest()
     const LuminosityBlockRange early(3,1,6,1);
     const LuminosityBlockRange late(7,1,10,1);
 
+    CPPUNIT_ASSERT(contains(normal,normal));
     CPPUNIT_ASSERT(contains(normal,small));
-    CPPUNIT_ASSERT(!contains(normal,late));
-    CPPUNIT_ASSERT(!contains(normal,early));
     CPPUNIT_ASSERT(!contains(normal,large));
-    CPPUNIT_ASSERT(distinct(early,late));
-    CPPUNIT_ASSERT(overlaps(normal,late));
-    CPPUNIT_ASSERT(overlaps(normal,early));
+    CPPUNIT_ASSERT(!contains(normal,early));
+    CPPUNIT_ASSERT(!contains(normal,late));
+    CPPUNIT_ASSERT(!contains(small,normal));
+    CPPUNIT_ASSERT(contains(small,small));
+    CPPUNIT_ASSERT(!contains(small,large));
+    CPPUNIT_ASSERT(!contains(small,early));
+    CPPUNIT_ASSERT(!contains(small,late));
+    CPPUNIT_ASSERT(contains(large,normal));
+    CPPUNIT_ASSERT(contains(large,small));
+    CPPUNIT_ASSERT(contains(large,large));
     CPPUNIT_ASSERT(contains(large,early));
     CPPUNIT_ASSERT(contains(large,late));
-    CPPUNIT_ASSERT(contains(large,large));
-
+    CPPUNIT_ASSERT(!contains(early,normal));
+    CPPUNIT_ASSERT(!contains(early,small));
+    CPPUNIT_ASSERT(!contains(early,large));
+    CPPUNIT_ASSERT(contains(early,early));
+    CPPUNIT_ASSERT(!contains(early,late));
+    CPPUNIT_ASSERT(!contains(late,normal));
+    CPPUNIT_ASSERT(!contains(late,small));
+    CPPUNIT_ASSERT(!contains(late,large));
+    CPPUNIT_ASSERT(!contains(late,early));
+    CPPUNIT_ASSERT(contains(late,late));
+    CPPUNIT_ASSERT(overlaps(normal,normal));
+    CPPUNIT_ASSERT(overlaps(normal,small));
+    CPPUNIT_ASSERT(overlaps(normal,large));
+    CPPUNIT_ASSERT(overlaps(normal,early));
+    CPPUNIT_ASSERT(overlaps(normal,late));
+    CPPUNIT_ASSERT(overlaps(small,normal));
+    CPPUNIT_ASSERT(overlaps(small,small));
+    CPPUNIT_ASSERT(overlaps(small,large));
+    CPPUNIT_ASSERT(overlaps(small,early));
+    CPPUNIT_ASSERT(overlaps(small,late));
+    CPPUNIT_ASSERT(overlaps(large,normal));
+    CPPUNIT_ASSERT(overlaps(large,small));
+    CPPUNIT_ASSERT(overlaps(large,large));
+    CPPUNIT_ASSERT(overlaps(large,early));
+    CPPUNIT_ASSERT(overlaps(large,late));
+    CPPUNIT_ASSERT(overlaps(early,normal));
+    CPPUNIT_ASSERT(overlaps(early,small));
+    CPPUNIT_ASSERT(overlaps(early,large));
+    CPPUNIT_ASSERT(overlaps(early,early));
+    CPPUNIT_ASSERT(!overlaps(early,late));
+    CPPUNIT_ASSERT(overlaps(late,normal));
+    CPPUNIT_ASSERT(overlaps(late,small));
+    CPPUNIT_ASSERT(overlaps(late,large));
+    CPPUNIT_ASSERT(!overlaps(late,early));
+    CPPUNIT_ASSERT(overlaps(late,late));
 }
 
-// void testEventID::iterationTest()
-// {
+// void testEventID::iterationTest() {
 //    EventID first = EventID::firstValidEvent();
 //
 //    EventID second = first.next();
