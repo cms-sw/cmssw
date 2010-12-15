@@ -6,9 +6,9 @@
  *    1. A set of selection cuts
  *    2. A trigger name
  *  
- *  $Author: elmer $
- *  $Date: 2010/08/11 13:28:00 $
- *  $Revision: 1.17 $
+ *  $Author: klukas $
+ *  $Date: 2010/12/09 14:12:51 $
+ *  $Revision: 1.18 $
  */
 
 
@@ -415,7 +415,7 @@ bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<Matc
   myRecMatches.clear();
 
   // a fake hlt cand is an hlt object not matched to a reco object
-  myHltFakeCands.assign(numHltLabels, std::vector<HltFakeStruct>)
+  myHltFakeCands.assign(numHltLabels, std::vector<HltFakeStruct>());
 
   // Update event numbers
   // meNumberOfEvents->Fill(eventNumber);
