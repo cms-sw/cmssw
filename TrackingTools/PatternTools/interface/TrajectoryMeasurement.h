@@ -132,6 +132,9 @@ public:
     swap(theRecHit,rh.theRecHit);
     theEstimate=rh.theEstimate;
     theLayer=rh.theLayer;
+
+    return *this;
+
   }
  
 #endif

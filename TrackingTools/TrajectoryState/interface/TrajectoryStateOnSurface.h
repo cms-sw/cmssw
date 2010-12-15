@@ -200,5 +200,10 @@ public:
 
 };
 
+inline void swap( TrajectoryStateOnSurface & rh,  TrajectoryStateOnSurface & lh) {
+  // use base swap
+  rh.swap(lh);
+}
+
 std::ostream& operator<<(std::ostream& os, const TrajectoryStateOnSurface& tsos);
 #endif

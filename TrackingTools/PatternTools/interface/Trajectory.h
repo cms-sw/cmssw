@@ -113,6 +113,9 @@ public:
     theDirectionValidity=rh.theDirectionValidity;
     swap(theSeed,rh.theSeed);
     swap(seedRef_,rh.seedRef_);
+
+    return *this;
+
   }
 
 #endif
@@ -271,21 +274,6 @@ public:
   const boost::shared_ptr<const TrajectorySeed> & sharedSeed() const { return theSeed; }
 private:
 
-  /// used to determine closest measurement to given point
-  struct LessMag {
-    LessMag(GlobalPoint point) : thePoint(point) {}
-    bool operator()(const TrajectoryMeasurement& lhs,
-                    const TrajectoryMeasurement& rhs) const{ 
-      if (lhs.updatedState().isValid() && rhs.updatedState().isValid())
-            return (lhs.updatedState().globalPosition() - thePoint).mag2() < (rhs.updatedState().globalPosition() -thePoint).mag2();
-      else
-	{
-	  edm::LogError("InvalidStateOnMeasurement")<<"an updated state is not valid. result of LessMag comparator will be wrong.";
-	  return false;
-	}
-      }
-    GlobalPoint thePoint;
-  };
 
   DataContainer theData;
   double theChiSquared;

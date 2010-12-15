@@ -246,6 +246,26 @@ TrajectoryStateOnSurface Trajectory::geometricalInnermostState() const {
 
 }
 
+
+namespace {
+  /// used to determine closest measurement to given point
+  struct LessMag {
+    LessMag(GlobalPoint point) : thePoint(point) {}
+    bool operator()(const TrajectoryMeasurement& lhs,
+                    const TrajectoryMeasurement& rhs) const{ 
+      if (lhs.updatedState().isValid() && rhs.updatedState().isValid())
+	return (lhs.updatedState().globalPosition() - thePoint).mag2() < (rhs.updatedState().globalPosition() -thePoint).mag2();
+      else
+	{
+	  edm::LogError("InvalidStateOnMeasurement")<<"an updated state is not valid. result of LessMag comparator will be wrong.";
+	  return false;
+	}
+    }
+    GlobalPoint thePoint;
+  };
+
+}
+
 TrajectoryMeasurement const & Trajectory::closestMeasurement(GlobalPoint point) const {
   check();
   vector<TrajectoryMeasurement>::const_iterator iter = std::min_element(measurements().begin(), measurements().end(), LessMag(point) );
