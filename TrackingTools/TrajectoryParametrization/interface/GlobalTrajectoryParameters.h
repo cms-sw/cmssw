@@ -17,8 +17,10 @@ class GlobalTrajectoryParameters {
 public:
 // construct
   GlobalTrajectoryParameters() : 
-    theX(), theP(), theCharge(0), theField(0),
-    hasCurvature_(false), cachedCurvature_(1.0) {} // we must initialize cache to non-NAN to avoid FPE
+    theX(), theP(), 
+    cachedCurvature_(1.0),
+    theCharge(0),
+    hasCurvature_(false)  {}  // we must initialize cache to non-NAN to avoid FPE
 
   /** Constructing class from global position, global momentum and charge.
    */
@@ -27,18 +29,21 @@ public:
                              const GlobalVector& aP,
                              TrackCharge aCharge, 
 			     const MagneticField* fieldProvider) :
-    theX(aX), theP(aP), theCharge(aCharge), theField(fieldProvider),
-    hasCurvature_(false), cachedCurvature_(1.0) {} // we must initialize cache to non-NAN to avoid FPE
+    theX(aX), theP(aP),     
+    cachedCurvature_(1.0),
+    theCharge(aCharge),
+    hasCurvature_(false) {
+    setMF(fieldProvider);
+  } // we must initialize cache to non-NAN to avoid FPE
 
   /** Constructing class from global position, direction (unit length) 
    *  and transverse curvature. The fourth int argument is dummy, 
    *  it serves only to distinguish
    *  this constructor from the one above.
    */
-
   GlobalTrajectoryParameters(const GlobalPoint& aX,
                              const GlobalVector& direction,
-                             double transverseCurvature, int, 
+                             float transverseCurvature, int, 
 			     const MagneticField* fieldProvider);
 
   /** Global position.
@@ -65,14 +70,14 @@ public:
   /** Charge divided by (magnitude of) momentum, i.e. q/p.
    */  
 
-  double signedInverseMomentum() const {
+  float signedInverseMomentum() const {
     return theCharge/theP.mag();
   }
 
   /** Charge divided by transverse momentum, i.e. q/p_T.
    */ 
 
-  double signedInverseTransverseMomentum() const {
+  float signedInverseTransverseMomentum() const {
     return theCharge/theP.perp();
   }
 
@@ -81,7 +86,7 @@ public:
    *  counterclockwise rotation of the track with respect to the global z-axis.
    */
 
-  double transverseCurvature() const;
+  float transverseCurvature() const;
 
   /** Vector whose first three elements are the global position coordinates and
    *  whose last three elements are the global momentum coordinates.
@@ -107,11 +112,13 @@ public:
   GlobalVector magneticFieldInInverseGeV( const GlobalPoint& x) const; 
   const MagneticField& magneticField() const {return *theField;}
 
+  static void setMF(const MagneticField* fieldProvider);
+
 private:
-  const MagneticField* theField;
-  mutable double cachedCurvature_;
+  static const MagneticField* theField;
   GlobalPoint theX;
   GlobalVector theP;
+  mutable float cachedCurvature_;
   TrackCharge theCharge;
   mutable bool hasCurvature_; 
   //mutable bool hasMagneticField_; mutable GlobalVector cachedMagneticField_; // 
