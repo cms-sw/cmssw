@@ -13,7 +13,7 @@ using namespace std;
 
 
 GsfTransientTrack::GsfTransientTrack() : 
-  GsfTrack(), GsfTransientTrackAlgo(0), tkr_(), theField(0), initialTSOSAvailable(false),
+  GsfTrack(), tkr_(), theField(0), initialTSOSAvailable(false),
   initialTSCPAvailable(false), blStateAvailable(false), theTIPExtrapolator()
 {}
 
@@ -65,7 +65,7 @@ GsfTransientTrack::GsfTransientTrack( const GsfTransientTrack & tt ) :
   tkr_(tt.persistentTrackRef()), theField(tt.field()), 
   initialFTS(tt.initialFreeState()), initialTSOSAvailable(false),
   initialTSCPAvailable(false),
-  theTIPExtrapolator(AnalyticalPropagator(field, alongMomentum))
+  theTIPExtrapolator(AnalyticalPropagator(tt.field(), alongMomentum))
 {
   if (tt.initialTSOSAvailable) {
     initialTSOS= tt.impactPointState();

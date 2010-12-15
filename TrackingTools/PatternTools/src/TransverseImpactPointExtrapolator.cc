@@ -49,7 +49,7 @@ TransverseImpactPointExtrapolator::extrapolate (const FreeTrajectoryState& fts,
   // set propagator for bidirectional propagation
   //
   SetPropagationDirection setter(p,anyDirection);
-  return doExtrapolation(fts,vtx,*p);
+  return doExtrapolation(fts,vtx,p);
 } 
 
 TrajectoryStateOnSurface 
