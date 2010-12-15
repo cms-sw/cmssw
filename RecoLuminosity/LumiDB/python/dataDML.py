@@ -638,7 +638,31 @@ def addNormToBranch(schema,normname,defaultnorm,optionalnormdata,branchinfo):
         db.insertOneRow(nameDealer.luminormTableName(),tabrowDefDict,tabrowValueDict)
         return [revision_id,entry_id,data_id]
     except :
-        raise     
+        raise
+def addLumiRunDataToBranch(schema,runnumber,lumirundata,branchinfo):
+    '''
+    input:
+          lumirundata [datasource]
+    output:
+          [runnumber,revision_id,entry_id,data_id]
+    '''
+    try:
+         datasource=lumirundata[0]
+         entry_id=revisionDML.entryInBranch(schema,nameDealer.lumidataTableName(),str(runnumber),branchinfo[1])
+         if entry_id is None:
+             (revision_id,entry_id,data_id)=revisionDML.bookNewEntry(schema,nameDealer.lumidataTableName())
+             entryinfo=(revision_id,entry_id,str(runnumber),data_id)
+             revisionDML.addEntry(schema,nameDealer.lumidataTableName(),entryinfo,branchinfo)
+         else:
+             (revision_id,data_id)=revisionDML.bookNewRevision( schema,nameDealer.lumidataTableName() )
+             revisionDML.addRevision(schema,nameDealer.lumidataTableName(),(revision_id,data_id),branchinfo)
+         tabrowDefDict={'DATA_ID':'unsigned long long','ENTRY_ID':'unsigned long long','ENTRY_NAME':'string','RUNNUM':'unsigned int','SOURCE':'string'}
+         tabrowValueDict={'DATA_ID':data_id,'ENTRY_ID':entry_id,'ENTRY_NAME':str(runnumber),'RUNNUM':int(runnumber),'SOURCE':datasource}
+         db=dbUtil.dbUtil(schema)
+         db.insertOneRow(nameDealer.lumidataTableName(),tabrowDefDict,tabrowValueDict)
+         return [runnumber,revision_id,entry_id,data_id]
+    except :
+        raise
 def addTrgRunDataToBranch(schema,runnumber,trgrundata,branchinfo):
     '''
     input:
@@ -666,33 +690,7 @@ def addTrgRunDataToBranch(schema,runnumber,trgrundata,branchinfo):
         db.insertOneRow(nameDealer.trgdataTableName(),tabrowDefDict,tabrowValueDict)
         return [runnumber,revision_id,entry_id,data_id]
     except :
-        raise    
-def addTrgLSData(schema,trglsdata,runnumber,data_id):
-    '''
-    insert trg per-LS data for given run and data_id, this operation can be split in transaction chuncks 
-    input:
-        trglsdata {cmslsnum:[deadtime,bitzeroname,bitzerocount,bitzeroprescale,trgcountBlob,trgprescaleBlob]}
-    result nrows inserted
-    if nrows==0, then this insertion failed
-    '''
-    try:
-        nrows=0
-        bulkvalues=[]   
-        lstrgDefDict=[('DATA_ID','unsigned long long'),('RUNNUM','unsigned int'),('CMSLSNUM','unsigned int'),('DEADTIMECOUNT','unsigned long long'),('BITZEROCOUNT','unsigned int'),('BITZEROPRESCALE','unsigned int'),('PRESCALEBLOB','blob'),('TRGCOUNTBLOB','blob')]
-        for cmslsnum,perlstrg in trglsdata.items():
-            deadtimecount=perlstrg[0]
-            bitzeroname=perlstrg[1]
-            bitzerocount=perlstrg[2]
-            bitzeroprescale=perlstrg[3]
-            trgcountblob=perlstrg[4]
-            trgprescaleblob=perlstrg[5]
-            bulkvalues.append([('DATA_ID',data_id),('RUNNUM',runnumber),('CMSLSNUM',cmslsnum),('DEADTIMECOUNT',deadtimecount),('BITZEROCOUNT',bitzerocount),('BITZEROPRESCALE',bitzeroprescale),('PRESCALEBLOB',trgprescaleblob),('TRGCOUNTBLOB',trgcountblob)])
-        db.bulkInsert(nameDealer.lstrgTableName(),lstrgDefDict,bulkvalues)
-        nrows=len(bulkvalues)
-        return nrows
-    except Exception,e :
-        raise RuntimeError(' dataDML.addTrgLSData: '+str(e))
-
+        raise
 def addHLTRunDataToBranch(schema,runnumber,hltrundata,branchinfo):
     '''
     input:
@@ -719,8 +717,66 @@ def addHLTRunDataToBranch(schema,runnumber,hltrundata,branchinfo):
          return [runnumber,revision_id,entry_id,data_id]
     except :
         raise 
+
+
+
+def insertRunSummaryData(schema,runnumber,runsummarydata):
+    '''
+    input:
+        runsummarydata [hltkey,l1key,fillnum,sequence,starttime,stoptime]
+    output:
     
-def addHltLSData(schema,hltlsdata,runnumber,data_id):
+    '''
+    try:
+        tabrowDefDict=[('RUNNUM','unsigned int'),('HLTKEY','string'),('L1KEY','string'),('FILLNUM','unsigned int'),('SEQUENCE','string'),('STARTTIME','time stamp'),('STOPTIME','time stamp')]
+        tabrowValueDict={'RUNNUM':int(runnumber),'HLTKEY':runsummarydata[0],'L1KEY':runsummarydata[1],'FILLNUM':runsummarydata[2],'SEQUENCE':runsummarydata[3],'STARTTIME':runsummarydata[4],'STOPTIME':runsummarydata[5]}
+        db=dbUtil.dbUtil(schema)
+        db.insertOneRow(nameDealer.cmsrunsummaryTableName(),tabrowDefDict,tabrowValueDict)
+    except :
+        raise   
+def insertTrgHltMap(schema,hltkey,trghltmap):
+    '''
+    input:
+        trghltmap {hltpath,l1seed}
+    output:
+    '''
+    try:
+        nrows=0
+        bulkvalues=[]   
+        trghltDefDict=[('HLTKEY','string'),('HLTPATHNAME','string'),('L1SEED','string')]
+        for hltpath,l1seed in trghltmap.items():
+            bulkvalues.append([('HLTKEY',hltkey),('HLTPATHNAME',hltpath),('L1SEED',l1seed)])
+        db.bulkInsert(nameDealer.trghltMapTableName(),trghltDefDict,bulkvalues)
+        nrows=len(bulkvalues)
+        return nrows
+    except :
+        raise
+def insertTrgLSData(schema,trglsdata,runnumber,data_id):
+    '''
+    insert trg per-LS data for given run and data_id, this operation can be split in transaction chuncks 
+    input:
+        trglsdata {cmslsnum:[deadtime,bitzeroname,bitzerocount,bitzeroprescale,trgcountBlob,trgprescaleBlob]}
+    result nrows inserted
+    if nrows==0, then this insertion failed
+    '''
+    try:
+        nrows=0
+        bulkvalues=[]   
+        lstrgDefDict=[('DATA_ID','unsigned long long'),('RUNNUM','unsigned int'),('CMSLSNUM','unsigned int'),('DEADTIMECOUNT','unsigned long long'),('BITZEROCOUNT','unsigned int'),('BITZEROPRESCALE','unsigned int'),('PRESCALEBLOB','blob'),('TRGCOUNTBLOB','blob')]
+        for cmslsnum,perlstrg in trglsdata.items():
+            deadtimecount=perlstrg[0]
+            bitzeroname=perlstrg[1]
+            bitzerocount=perlstrg[2]
+            bitzeroprescale=perlstrg[3]
+            trgcountblob=perlstrg[4]
+            trgprescaleblob=perlstrg[5]
+            bulkvalues.append([('DATA_ID',data_id),('RUNNUM',runnumber),('CMSLSNUM',cmslsnum),('DEADTIMECOUNT',deadtimecount),('BITZEROCOUNT',bitzerocount),('BITZEROPRESCALE',bitzeroprescale),('PRESCALEBLOB',trgprescaleblob),('TRGCOUNTBLOB',trgcountblob)])
+        db.bulkInsert(nameDealer.lstrgTableName(),lstrgDefDict,bulkvalues)
+        nrows=len(bulkvalues)
+        return nrows
+    except Exception,e :
+        raise RuntimeError(' dataDML.addTrgLSData: '+str(e))
+def insertHltLSData(schema,hltlsdata,runnumber,data_id):
     '''
     input:
          hltlsdata {cmslsnum:[inputcountBlob,acceptcountBlob,prescaleBlob]}
@@ -738,33 +794,8 @@ def addHltLSData(schema,hltlsdata,runnumber,data_id):
         return len(bulkvalues)
     except Exception,e :
         raise RuntimeError(' dataDML.addHltLSData: '+str(e))
-
-def addLumiRunDataToBranch(schema,runnumber,lumirundata,branchinfo):
-    '''
-    input:
-          lumirundata [datasource]
-    output:
-          [runnumber,revision_id,entry_id,data_id]
-    '''
-    try:
-         datasource=lumirundata[0]
-         entry_id=revisionDML.entryInBranch(schema,nameDealer.lumidataTableName(),str(runnumber),branchinfo[1])
-         if entry_id is None:
-             (revision_id,entry_id,data_id)=revisionDML.bookNewEntry(schema,nameDealer.lumidataTableName())
-             entryinfo=(revision_id,entry_id,str(runnumber),data_id)
-             revisionDML.addEntry(schema,nameDealer.lumidataTableName(),entryinfo,branchinfo)
-         else:
-             (revision_id,data_id)=revisionDML.bookNewRevision( schema,nameDealer.lumidataTableName() )
-             revisionDML.addRevision(schema,nameDealer.lumidataTableName(),(revision_id,data_id),branchinfo)
-         tabrowDefDict={'DATA_ID':'unsigned long long','ENTRY_ID':'unsigned long long','ENTRY_NAME':'string','RUNNUM':'unsigned int','SOURCE':'string'}
-         tabrowValueDict={'DATA_ID':data_id,'ENTRY_ID':entry_id,'ENTRY_NAME':str(runnumber),'RUNNUM':int(runnumber),'SOURCE':datasource}
-         db=dbUtil.dbUtil(schema)
-         db.insertOneRow(nameDealer.lumidataTableName(),tabrowDefDict,tabrowValueDict)
-         return [runnumber,revision_id,entry_id,data_id]
-    except :
-        raise
     
-def addLumiLSSummary(schema,lumilsdata,runnumber,data_id):
+def insertLumiLSSummary(schema,lumilsdata,runnumber,data_id):
     '''
     input:
           lumilsdata {lumilsnum:[cmslsnum,cmsalive,instlumi,instlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit,cmsbxindexindexblob,beam1intensity,beam2intensity]}
@@ -794,7 +825,7 @@ def addLumiLSSummary(schema,lumilsdata,runnumber,data_id):
     except Exception,e :
         raise RuntimeError(' dataDML.addHltLSData: '+str(e))
 
-def addLumiLSDetail(schema,lumibxdata,runnumber,data_id):
+def insertLumiLSDetail(schema,lumibxdata,runnumber,data_id):
     '''
     input:
           lumibxdata [[algoname,{lumilsnum:[cmslsnum,bxlumivalue,bxlumierror,bxlumiquality]}],[algoname,{lumilsnum:[cmslsnum,bxlumivalue,bxlumierror,bxlumiquality]}],[algoname,{lumilsnum:[cmslsnum,bxlumivalue,bxlumierror,bxlumiquality]}]]
@@ -939,11 +970,11 @@ if __name__ == "__main__":
     print '===filling data==='
     import generateDummyData
     session.transaction().start(False)
-    #print generateDummyData.runsummary(schema)
-    #print generateDummyData.hlttrgmap(schema)
-    #print generateDummyData.lumiSummary(schema,20)
-    #print generateDummyData.lumiDetail(schema,20)
-    print generateDummyData.trg(schema,20)
-    print generateDummyData.hlt(schema,20)
+    runsummarydata=generateDummyData.runsummary(schema)
+    hlttrgmap=generateDummyData.hlttrgmap(schema)
+    lumisummarydata=generateDummyData.lumiSummary(schema,20)
+    lumidetaildata=generateDummyData.lumiDetail(schema,20)
+    trgdata=generateDummyData.trg(schema,20)
+    hltdata= generateDummyData.hlt(schema,20)
     session.transaction().commit()
     del session
