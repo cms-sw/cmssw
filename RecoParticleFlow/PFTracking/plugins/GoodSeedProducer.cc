@@ -16,8 +16,12 @@
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/ParticleFlowReco/interface/PreId.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"  
@@ -47,7 +51,10 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
  
   tracksContainers_ = 
     iConfig.getParameter< vector < InputTag > >("TkColList");
-  
+
+  muonColl_ = 
+    iConfig.getParameter< InputTag >("MuColl");
+
   minPt_=iConfig.getParameter<double>("MinPt");
   maxPt_=iConfig.getParameter<double>("MaxPt");
   maxEta_=iConfig.getParameter<double>("MaxEta");
@@ -91,6 +98,7 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
 
   //collection to produce
   produceCkfseed_ = iConfig.getUntrackedParameter<bool>("ProduceCkfSeed",false);
+  produceCkfPFT_ = iConfig.getUntrackedParameter<bool>("ProduceCkfPFTracks",true);  
 
   // to disable the electron part (for HI collisions for examples) 
   disablePreId_ = iConfig.getUntrackedParameter<bool>("DisablePreId",false);  
@@ -111,6 +119,10 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
     produces<TrajectorySeedCollection>(preidckf_);
   }
   
+  if(produceCkfPFT_){
+    LogDebug("GoodSeedProducer")<<"PFTracks from CKF tracks will be produced ";
+    produces<PFRecTrackCollection>();
+  }
 
   if(producePreId_){
     LogDebug("GoodSeedProducer")<<"PreId debugging information will be produced ";
@@ -154,6 +166,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //Create empty output collections
   auto_ptr<ElectronSeedCollection> output_preid(new ElectronSeedCollection);
   auto_ptr<TrajectorySeedCollection> output_nopre(new TrajectorySeedCollection);
+  auto_ptr< PFRecTrackCollection > 
+    pOutputPFRecTrackCollection(new PFRecTrackCollection);
   auto_ptr<PreIdCollection> output_preidinfo(new PreIdCollection);
   auto_ptr<edm::ValueMap<reco::PreIdRef> > preIdMap_p(new edm::ValueMap<reco::PreIdRef>);
   edm::ValueMap<reco::PreIdRef>::Filler mapFiller(*preIdMap_p);
@@ -201,6 +215,9 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     if ((*iklus).layer()==-12) ps2Clus.push_back(*iklus);
   }
   
+  Handle< reco::MuonCollection > recMuons;
+  iEvent.getByLabel(muonColl_, recMuons);
+
   //Vector of track collections
   for (unsigned int istr=0; istr<tracksContainers_.size();istr++){
     
@@ -222,9 +239,32 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     //loop over the track collection
     for(unsigned int i=0;i<Tk.size();i++){		
+
+      // reject the track if it's bad quality, except if it has a good global muon fit.
       if (useQuality_ &&
-	  (!(Tk[i].quality(trackQuality_)))) continue;
-      
+	  (!(Tk[i].quality(trackQuality_)))){
+
+	bool isMuCandidate = false;
+
+	TrackRef trackRef(tkRefCollection, i);
+
+	if(recMuons.isValid() ) {
+	  for(unsigned j=0;j<recMuons->size(); j++) {
+	    reco::MuonRef muonref( recMuons, j );
+	    if (muonref->track().isNonnull()) 
+	      if( muonref->track() == trackRef && muonref->isGlobalMuon()){
+		isMuCandidate=true;
+		//cout<<" SAVING TRACK "<<endl;
+		break;
+	      }
+	  }
+	}
+
+	if(!isMuCandidate){
+	  continue;	  
+	}
+	
+      }
       reco::PreId myPreId;
       bool GoodPreId=false;
 
@@ -455,9 +495,32 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	ElectronSeed NewSeed(Seed);
 	NewSeed.setCtfTrack(trackRef);
 	output_preid->push_back(NewSeed);
+	
+      
+	if(produceCkfPFT_){
+	  
+	  PFRecTrack pftrack( trackRef->charge(), 
+			      PFRecTrack::KF_ELCAND, 
+			      i, trackRef );
+	  bool valid = pfTransformer_->addPoints( pftrack, *trackRef, Tj[i] );
+	  if(valid)
+	    pOutputPFRecTrackCollection->push_back(pftrack);		
+	} 
       }else{
 	if (produceCkfseed_){
 	  output_nopre->push_back(Seed);
+	}
+	if(produceCkfPFT_){
+	  
+	  PFRecTrack pftrack( trackRef->charge(), 
+			      PFRecTrack::KF, 
+			      i, trackRef );
+	  
+	  bool valid = pfTransformer_->addPoints( pftrack, *trackRef, Tj[i] );
+	  
+	  if(valid)
+	    pOutputPFRecTrackCollection->push_back(pftrack);		
+	  
 	}
       }
       if(producePreId_ && myPreId.pt()>PtThresholdSavePredId_)
@@ -468,6 +531,9 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	}
     } //end loop on track collection
   } //end loop on the vector of track collections
+  if(produceCkfPFT_){
+    iEvent.put(pOutputPFRecTrackCollection);
+  }
   
   // no disablePreId_ switch, it is simpler to have an empty collection rather than no collection
   iEvent.put(output_preid,preidgsf_);
@@ -499,7 +565,7 @@ GoodSeedProducer::beginRun(edm::Run & run,
   B_=magneticField->inTesla(GlobalPoint(0,0,0));
   
   pfTransformer_= new PFTrackTransformer(B_);
-  pfTransformer_->OnlyProp();
+
 
 
   
@@ -510,7 +576,7 @@ GoodSeedProducer::beginRun(edm::Run & run,
   resMapPhiECAL_ = new PFResolutionMap("ECAL_phi",ecalPhiMap.fullPath().c_str());
 
   if(useTmva_){
-    reader = new TMVA::Reader();
+    reader = new TMVA::Reader("!Color:Silent");
     method_ = conf_.getParameter<string>("TMVAMethod");
     
     reader->AddVariable("eP",&eP);
