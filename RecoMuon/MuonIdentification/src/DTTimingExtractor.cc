@@ -11,7 +11,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: DTTimingExtractor.cc,v 1.8 2010/04/16 21:20:33 slava77 Exp $
+// $Id: DTTimingExtractor.cc,v 1.9 2010/07/01 08:48:10 ptraczyk Exp $
 //
 //
 
@@ -78,6 +78,7 @@ DTTimingExtractor::DTTimingExtractor(const edm::ParameterSet& iConfig)
   DTSegmentTags_(iConfig.getParameter<edm::InputTag>("DTsegments")),
   theHitsMin_(iConfig.getParameter<int>("HitsMin")),
   thePruneCut_(iConfig.getParameter<double>("PruneCut")),
+  theTimeOffset_(iConfig.getParameter<double>("DTTimeOffset")),
   useSegmentT0_(iConfig.getParameter<bool>("UseSegmentT0")),
   doWireCorr_(iConfig.getParameter<bool>("DoWireCorr")),
   requireBothProjections_(iConfig.getParameter<bool>("RequireBothProjections")),
@@ -185,6 +186,8 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 	thisHit.station = station;
 	if (useSegmentT0_ && segm->ist0Valid()) thisHit.timeCorr=segm->t0();
 	else thisHit.timeCorr=0.;
+	thisHit.timeCorr += theTimeOffset_;
+
 	  
 	// signal propagation along the wire correction for unmached theta or phi segment hits
 	if (doWireCorr_ && !bothProjections && tsos.first.isValid()) {

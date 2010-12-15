@@ -11,7 +11,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: CSCTimingExtractor.cc,v 1.3 2010/03/25 14:08:50 jribnik Exp $
+// $Id: CSCTimingExtractor.cc,v 1.4 2010/07/01 08:48:10 ptraczyk Exp $
 //
 //
 
@@ -151,7 +151,7 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
 
       thisHit.distIP = dist;
       thisHit.station = station;
-      thisHit.timeCorr = hiti->tpeak()-theTimeOffset_;
+      thisHit.timeCorr = hiti->tpeak()+theTimeOffset_;
       tms.push_back(thisHit);
       
 //      std::cout << " CSC Hit. Dist= " << dist << "    Time= " << thisHit.timeCorr 

@@ -9,7 +9,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: DTTimingExtractor.h,v 1.3 2010/03/25 14:08:48 jribnik Exp $
+// $Id: DTTimingExtractor.h,v 1.4 2010/07/01 08:48:11 ptraczyk Exp $
 //
 //
 
@@ -82,6 +82,7 @@ private:
   edm::InputTag DTSegmentTags_; 
   unsigned int theHitsMin_;
   double thePruneCut_;
+  double theTimeOffset_;
   bool useSegmentT0_;
   bool doWireCorr_;
   bool requireBothProjections_;
