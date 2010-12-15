@@ -269,7 +269,7 @@ def dataRevisionsOfEntry(schema,datatableName,entry,revrange):
         del qHandle
         raise
 
-def lastestDataRevisionOfEntry(schema,datatableName,entry,revrange):
+def latestDataRevisionOfEntry(schema,datatableName,entry,revrange):
     '''
     return max(data_id) of all datarevisionofEntry
     '''
@@ -529,7 +529,7 @@ if __name__ == "__main__":
     print revlist
     lumientry_id=entryInBranch(schema,nameDealer.lumidataTableName(),'1211','DATA')
     print lumientry_id
-    latestrevision=lastestDataRevisionOfEntry(schema,nameDealer.lumidataTableName(),lumientry_id,revlist)
+    latestrevision=latestDataRevisionOfEntry(schema,nameDealer.lumidataTableName(),lumientry_id,revlist)
     print 'latest data_id for run 1211 ',latestrevision
     session.transaction().commit()
     del session

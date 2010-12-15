@@ -550,7 +550,7 @@ def dataentryIdByRun(schema,runnum,branchfilter):
         raise RuntimeError(' dataDML.dataentryIdByRun: '+str(e))
     
 
-def lastestdataIdByEntry(schema,entryid,datatype,branchfilter):
+def latestdataIdByEntry(schema,entryid,datatype,branchfilter):
     '''
     select l.data_id,rl.revision_id from lumidatatable l,lumirevisions rl where  l.data_id=rl.data_id and l.entry_id=:entryid
     check revision_id is in branch
@@ -603,6 +603,42 @@ def normdataIdByName(schema,normname,branchfilter):
 #=======================================================
 #   INSERT requires in update transaction
 #=======================================================
+def addNormToBranch(schema,normname,defaultnorm,optionalnormdata,branchinfo):
+    '''
+    input:
+       defaultvalue: float
+       optionalnormdata {'norm_1':norm_1,'energy_1':energy_1,'norm_2':norm_2,'energy_2':energy_2}
+    output:
+       [normname,revision_id,entry_id,data_id]
+    '''
+    norm_1=None
+    if optionalnormdata.has_key('norm_1'):
+        norm_1=norm_1
+    energy_1=None
+    if optionalnormdata.has_key('energy_1'):
+        energy_1=energy_1
+    norm_2=None
+    if optionalnormdata.has_key('norm_2'):
+        norm_2=norm_2
+    energy_2=None
+    if optionalnormdata.has_key('energy_2'):
+        energy_2=energy_2
+    try:
+        entry_id=revisionDML.entryInBranch(schema,nameDealer.luminormTableName(),normname,branchinfo[1])
+        if entry_id is None:
+            (revision_id,entry_id,data_id)=revisionDML.bookNewEntry(schema,nameDealer.luminormTableName())
+            entryinfo=(revision_id,entry_id,normname,data_id)
+            revisionDML.addEntry(schema,nameDealer.luminormTableName(),entryinfo,branchinfo)
+        else:
+            (revision_id,data_id)=revisionDML.bookNewRevision( schema,nameDealer.luminormTableName() )
+            revisionDML.addRevision(schema,nameDealer.luminormTableName(),(revision_id,data_id),branchinfo)
+        tabrowDefDict={'DATA_ID':'unsigned long long','ENTRY_ID':'unsigned long long','ENTRY_NAME':'string','DEFAULTNORM':'float','NORM_1':'float','ENERGY_1':'float','NORM_2':'float','ENERGY_2':'float'}
+        tabrowValueDict={'DATA_ID':data_id,'ENTRY_ID':entry_id,'ENTRY_NAME':normname,'DEFAULTNORM':defaultnorm,'NORM_1':norm_1,'ENERGY_1':energy_1,'NORM_2':norm_2,'ENERGY_2':energy_2}
+        db=dbUtil.dbUtil(schema)
+        db.insertOneRow(nameDealer.luminormTableName(),tabrowDefDict,tabrowValueDict)
+        return [revision_id,entry_id,data_id]
+    except :
+        raise     
 def addTrgRunDataToBranch(schema,runnumber,trgrundata,branchinfo):
     '''
     input:
@@ -837,7 +873,11 @@ if __name__ == "__main__":
         norminfo=revisionDML.createBranch(schema,'NORM','TRUNK',comment='hold normalization factor')
         #print norminfo
     except:
-        print 'branch already exists, do nothing'       
+        print 'branch already exists, do nothing'
+    (normbranchid,normbranchparent)=revisionDML.branchInfoByName(schema,'NORM')
+    normbranchinfo=(normbranchid,'NORM')
+    addNormToBranch(schema,'pp7TeV',6370,{},normbranchinfo)
+    addNormToBranch(schema,'hi7TeV',2.38,{},normbranchinfo)
     (branchid,branchparent)=revisionDML.branchInfoByName(schema,'DATA')
     branchinfo=(branchid,'DATA')
     for runnum in [1200,1211,1222,1233,1345]:
@@ -850,17 +890,24 @@ if __name__ == "__main__":
     session.transaction().commit()
     print 'test reading'
     session.transaction().start(True)
+    print '===inspecting NORM branch==='
+    normrevlist=revisionDML.revisionsInBranchName(schema,'NORM')
+    luminormentry_id=revisionDML.entryInBranch(schema,nameDealer.luminormTableName(),'pp7TeV','NORM')
+    latestNorms=revisionDML.latestDataRevisionOfEntry(schema,nameDealer.luminormTableName(),luminormentry_id,normrevlist)
+    print 'latest norm data_id for pp7TeV ',latestNorms
+    
+    print '===inspecting DATA branch==='
     print revisionDML.branchType(schema,'DATA')
     revlist=revisionDML.revisionsInBranchName(schema,'DATA')
     print revlist
     lumientry_id=revisionDML.entryInBranch(schema,nameDealer.lumidataTableName(),'1211','DATA')
-    latestrevision=revisionDML.lastestDataRevisionOfEntry(schema,nameDealer.lumidataTableName(),lumientry_id,revlist)
+    latestrevision=revisionDML.latestDataRevisionOfEntry(schema,nameDealer.lumidataTableName(),lumientry_id,revlist)
     print 'latest lumi data_id for run 1211 ',latestrevision
     lumientry_id=revisionDML.entryInBranch(schema,nameDealer.lumidataTableName(),'1222','DATA')
-    latestrevision=revisionDML.lastestDataRevisionOfEntry(schema,nameDealer.lumidataTableName(),lumientry_id,revlist)
+    latestrevision=revisionDML.latestDataRevisionOfEntry(schema,nameDealer.lumidataTableName(),lumientry_id,revlist)
     print 'latest lumi data_id for run 1222 ',latestrevision
     trgentry_id=revisionDML.entryInBranch(schema,nameDealer.trgdataTableName(),'1222','DATA')
-    latestrevision=revisionDML.lastestDataRevisionOfEntry(schema,nameDealer.trgdataTableName(),trgentry_id,revlist)
+    latestrevision=revisionDML.latestDataRevisionOfEntry(schema,nameDealer.trgdataTableName(),trgentry_id,revlist)
     print 'latest trg data_id for run 1222 ',latestrevision
     session.transaction().commit()
     print 'tagging data so far as data_orig'
