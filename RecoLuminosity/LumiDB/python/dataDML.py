@@ -855,6 +855,10 @@ def completeOldLumiData(schema,runnumber,lsdata,data_id):
 #   DELETE
 #=======================================================
 
+
+#=======================================================
+#   Unit Test
+#=======================================================
 if __name__ == "__main__":
     import sessionManager
     import lumidbDDL,revisionDML
@@ -931,4 +935,15 @@ if __name__ == "__main__":
     print 'revisions in branch DATA',revisionDML.revisionsInBranch(schema,branchinfo[0])
     session.transaction().commit()
     print 'revisions in tag data_orig ',revlist
+
+    print '===filling data==='
+    import generateDummyData
+    session.transaction().start(False)
+    #print generateDummyData.runsummary(schema)
+    #print generateDummyData.hlttrgmap(schema)
+    #print generateDummyData.lumiSummary(schema,20)
+    #print generateDummyData.lumiDetail(schema,20)
+    print generateDummyData.trg(schema,20)
+    print generateDummyData.hlt(schema,20)
+    session.transaction().commit()
     del session
