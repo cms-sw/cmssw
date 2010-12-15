@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.h,v 1.15 2010/05/17 15:59:09 mommsen Exp $
+// $Id: DataSenderMonitorCollection.h,v 1.16 2010/12/14 12:56:51 mommsen Exp $
 /// @file: DataSenderMonitorCollection.h 
 
 #ifndef StorageManager_DataSenderMonitorCollection_h
@@ -26,8 +26,8 @@ namespace stor {
    * and events by their source (resource broker, filter unit, etc.)
    *
    * $Author: mommsen $
-   * $Revision: 1.15 $
-   * $Date: 2010/05/17 15:59:09 $
+   * $Revision: 1.16 $
+   * $Date: 2010/12/14 12:56:51 $
    */
   
   class DataSenderMonitorCollection : public MonitorCollection
@@ -41,9 +41,9 @@ namespace stor {
     {
       bool isValid;
       std::string hltURL;
-      unsigned int hltTid;
-      unsigned int hltInstance;
-      unsigned int hltLocalId;
+      uint32_t hltTid;
+      uint32_t hltInstance;
+      uint32_t hltLocalId;
       std::string hltClassName;
 
       explicit ResourceBrokerKey(I2OChain const& i2oChain)
@@ -80,8 +80,8 @@ namespace stor {
     struct FilterUnitKey
     {
       bool isValid;
-      unsigned int fuProcessId;
-      unsigned int fuGuid;
+      uint32_t fuProcessId;
+      uint32_t fuGuid;
 
       explicit FilterUnitKey(I2OChain const& i2oChain)
       {
@@ -124,7 +124,7 @@ namespace stor {
     {
       std::string name;
       OutputModuleKey id;
-      unsigned int initMsgSize;
+      uint32_t initMsgSize;
       //MonitoredQuantity fragmentSize;
       MonitoredQuantity eventSize;
       
@@ -150,9 +150,9 @@ namespace stor {
       MonitoredQuantity dataDiscardCount;
       MonitoredQuantity dqmDiscardCount;
       MonitoredQuantity skippedDiscardCount;
-      unsigned int initMsgCount;
-      unsigned int lastRunNumber;
-      unsigned long long lastEventNumber;
+      uint32_t initMsgCount;
+      uint32_t lastRunNumber;
+      uint64_t lastEventNumber;
 
       explicit FilterUnitRecord
       (
@@ -189,9 +189,9 @@ namespace stor {
       MonitoredQuantity dataDiscardCount;
       MonitoredQuantity dqmDiscardCount;
       MonitoredQuantity skippedDiscardCount;
-      unsigned int initMsgCount;
-      unsigned int lastRunNumber;
-      unsigned long long lastEventNumber;
+      uint32_t initMsgCount;
+      uint32_t lastRunNumber;
+      uint64_t lastEventNumber;
 
       explicit ResourceBrokerRecord
       (
@@ -219,7 +219,7 @@ namespace stor {
     {
       std::string name;
       OutputModuleKey id;
-      unsigned int initMsgSize;
+      uint32_t initMsgSize;
       MonitoredQuantity::Stats eventStats;
     };
     typedef std::vector< boost::shared_ptr<OutputModuleResult> >
@@ -232,10 +232,10 @@ namespace stor {
     struct ResourceBrokerResult
     {
       ResourceBrokerKey key;
-      unsigned int filterUnitCount;
-      unsigned int initMsgCount;
-      unsigned int lastRunNumber;
-      unsigned long long lastEventNumber;
+      uint32_t filterUnitCount;
+      uint32_t initMsgCount;
+      uint32_t lastRunNumber;
+      uint64_t lastEventNumber;
       MonitoredQuantity::Stats eventStats;
       MonitoredQuantity::Stats dqmEventStats;
       MonitoredQuantity::Stats errorEventStats;
@@ -267,9 +267,9 @@ namespace stor {
     struct FilterUnitResult
     {
       FilterUnitKey key;
-      unsigned int initMsgCount;
-      unsigned int lastRunNumber;
-      unsigned long long lastEventNumber;
+      uint32_t initMsgCount;
+      uint32_t lastRunNumber;
+      uint64_t lastEventNumber;
       MonitoredQuantity::Stats shortIntervalEventStats;
       MonitoredQuantity::Stats mediumIntervalEventStats;
       MonitoredQuantity::Stats dqmEventStats;
@@ -380,8 +380,8 @@ namespace stor {
     virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
     virtual void do_updateInfoSpaceItems();
 
-    void faultyEventsAlarm(const unsigned int&) const;
-    void ignoredDiscardAlarm(const unsigned int&) const;
+    void faultyEventsAlarm(const uint32_t&) const;
+    void ignoredDiscardAlarm(const uint32_t&) const;
 
     bool getAllNeededPointers(I2OChain const& i2oChain,
                               RBRecordPtr& rbRecordPtr,

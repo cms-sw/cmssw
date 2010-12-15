@@ -1,4 +1,4 @@
-// $Id: FilesMonitorCollection.h,v 1.13 2010/05/11 17:55:33 mommsen Exp $
+// $Id: FilesMonitorCollection.h,v 1.14 2010/09/28 16:25:29 mommsen Exp $
 /// @file: FilesMonitorCollection.h 
 
 #ifndef StorageManager_FilesMonitorCollection_h
@@ -24,8 +24,8 @@ namespace stor {
    * A collection of monitoring entities for open and closed files
    *
    * $Author: mommsen $
-   * $Revision: 1.13 $
-   * $Date: 2010/05/11 17:55:33 $
+   * $Revision: 1.14 $
+   * $Date: 2010/09/28 16:25:29 $
    */
   
   class FilesMonitorCollection : public MonitorCollection
@@ -58,10 +58,10 @@ namespace stor {
       std::string        streamLabel;       // datastream label
       std::string        baseFilePath;      // file path w/o the working directory
       std::string        coreFileName;      // file name w/o instance & file ending
-      unsigned int       fileCounter;       // counter of number of coreFileNames used
+      uint32_t           fileCounter;       // counter of number of coreFileNames used
       ClosingReason      whyClosed;         // reason why the given file was closed
       bool               isOpen;            // true if file is in open directory
-      unsigned long long fileSize;          // file size in bytes
+      uint64_t           fileSize;          // file size in bytes
       uint32_t           eventCount;        // number of events
       std::string closingReason();          // reason why file was closed
       std::string fileName();               // full file name

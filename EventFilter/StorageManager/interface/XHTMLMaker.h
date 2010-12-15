@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: XHTMLMaker.h,v 1.7 2010/02/16 09:55:58 mommsen Exp $
+// $Id: XHTMLMaker.h,v 1.8 2010/03/21 08:51:03 elmer Exp $
 /// @file: XHTMLMaker.h 
 
 #ifndef XHTMLMAKER_H
@@ -18,9 +18,9 @@
 /**
    Helper class to build XHTML pages
 
-   $Author: mommsen $
-   $Revision: 1.7 $
-   $Date: 2010/02/16 09:55:58 $
+   $Author: elmer $
+   $Revision: 1.8 $
+   $Date: 2010/03/21 08:51:03 $
 */
 
 class XHTMLMaker
@@ -89,32 +89,32 @@ public:
   /**
      Add text
   */
-  void addText( Node* parent, const std::string& data );
+  void addText( Node* parent, const std::string& );
 
   /**
-     Add an integer
+     Add an int32_t
   */
-  void addInt( Node* parent, int value );
+  void addInt( Node* parent, const int32_t& );
 
   /**
-     Add an unsigned int 32
+     Add an uint32_t
   */
-  void addInt( Node* parent, uint32_t value );
+  void addInt( Node* parent, const uint32_t& );
 
   /**
-     Add a long long
+     Add an int64_t
   */
-  void addInt( Node* parent, long long value );
+  void addInt( Node* parent, const int64_t& );
 
   /**
-     Add a unsigned long long
+     Add an uint64_t
   */
-  void addInt( Node* parent, unsigned long long value );
+  void addInt( Node* parent, const uint64_t& );
 
   /**
      Add a double
   */
-  void addDouble( Node* parent, double value, unsigned int precision = 2 );
+  void addDouble( Node* parent, const double& value, const unsigned int& precision = 2 );
 
   /**
      Dump the page to stdout

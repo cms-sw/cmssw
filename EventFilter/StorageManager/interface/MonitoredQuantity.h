@@ -1,4 +1,4 @@
-// $Id: MonitoredQuantity.h,v 1.6 2010/03/19 13:20:37 mommsen Exp $
+// $Id: MonitoredQuantity.h,v 1.7 2010/12/03 15:56:48 mommsen Exp $
 /// @file: MonitoredQuantity.h 
 
 #ifndef StorageManager_MonitoredQuantity_h
@@ -22,8 +22,8 @@ namespace stor
    * and provides timing information on the samples.
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2010/03/19 13:20:37 $
+   * $Revision: 1.7 $
+   * $Date: 2010/12/03 15:56:48 $
    */
 
   class MonitoredQuantity
@@ -44,28 +44,28 @@ namespace stor
     /**
      * Adds the specified doubled valued sample value to the monitor instance.
      */
-    void addSample(const double value = 1.0);
+    void addSample(const double& value = 1);
 
     /**
      * Adds the specified integer valued sample value to the monitor instance.
      */
-    void addSample(const int value = 1);
+    void addSample(const int& value = 1);
 
     /**
      * Adds the specified uint32_t valued sample value to the monitor instance.
      */
-    void addSample(const uint32_t value = 1);
+    void addSample(const uint32_t& value = 1);
 
     /**
      * Adds the specified uint64_t valued sample value to the monitor instance.
      */
-    void addSample(const uint64_t value = 1);
+    void addSample(const uint64_t& value = 1);
 
     /**
      * Adds the specified double valued sample value to the monitor instance
      * if it is larger than the previously added value.
      */
-    void addSampleIfLarger(const double value);
+    void addSampleIfLarger(const double& value);
 
     /**
      * Forces a calculation of the statistics for the monitored quantity.
@@ -74,7 +74,7 @@ namespace stor
      * will be called once per interval specified by
      * expectedCalculationInterval
      */
-    void calculateStatistics(utils::time_point_t currentTime = 
+    void calculateStatistics(const utils::time_point_t& currentTime = 
                              utils::getCurrentTime());
 
     /**
@@ -103,7 +103,7 @@ namespace stor
      * Specifies a new time interval to be used when calculating
      * "recent" statistics.
      */
-    void setNewTimeWindowForRecentResults(utils::duration_t interval);
+    void setNewTimeWindowForRecentResults(const utils::duration_t& interval);
 
     /**
      * Returns the length of the time window that has been specified
@@ -139,7 +139,7 @@ namespace stor
     void _reset_results();
 
     utils::time_point_t _lastCalculationTime;
-    long long _workingSampleCount;
+    uint64_t _workingSampleCount;
     double _workingValueSum;
     double _workingValueSumOfSquares;
     double _workingValueMin;
@@ -148,9 +148,9 @@ namespace stor
 
     mutable boost::mutex _accumulationMutex;
 
-    unsigned int _binCount;
-    unsigned int _workingBinId;
-    std::vector<long long> _binSampleCount;
+    uint32_t _binCount;
+    uint32_t _workingBinId;
+    std::vector<uint64_t> _binSampleCount;
     std::vector<double> _binValueSum;
     std::vector<double> _binValueSumOfSquares;
     std::vector<double> _binValueMin;
@@ -158,7 +158,7 @@ namespace stor
     std::vector<utils::duration_t> _binDuration;
     std::vector<utils::time_point_t> _binSnapshotTime;
 
-    long long _fullSampleCount;
+    uint64_t _fullSampleCount;
     double _fullSampleRate;
     double _fullValueSum;
     double _fullValueSumOfSquares;
@@ -169,7 +169,7 @@ namespace stor
     double _fullValueRate;
     utils::duration_t _fullDuration;
 
-    long long _recentSampleCount;
+    uint64_t _recentSampleCount;
     double _recentSampleRate;
     double _recentValueSum;
     double _recentValueSumOfSquares;
@@ -191,7 +191,7 @@ namespace stor
 
   struct MonitoredQuantity::Stats
   {
-    long long fullSampleCount;
+    uint64_t fullSampleCount;
     double fullSampleRate;
     double fullValueSum;
     double fullValueSumOfSquares;
@@ -203,7 +203,7 @@ namespace stor
     double fullSampleLatency;
     utils::duration_t fullDuration;
 
-    long long recentSampleCount;
+    uint64_t recentSampleCount;
     double recentSampleRate;
     double recentValueSum;
     double recentValueSumOfSquares;
@@ -214,7 +214,7 @@ namespace stor
     double recentValueRate;
     double recentSampleLatency;
     utils::duration_t recentDuration;
-    std::vector<long long> recentBinnedSampleCounts;
+    std::vector<uint64_t> recentBinnedSampleCounts;
     std::vector<double> recentBinnedValueSums;
     std::vector<utils::duration_t> recentBinnedDurations;
     std::vector<utils::time_point_t> recentBinnedSnapshotTimes;
@@ -223,7 +223,7 @@ namespace stor
     double lastValueRate;
     bool   enabled;
 
-    long long getSampleCount(DataSetType t = FULL) const { return t == RECENT ? recentSampleCount : fullSampleCount; }
+    uint64_t getSampleCount(DataSetType t = FULL) const { return t == RECENT ? recentSampleCount : fullSampleCount; }
     double getValueSum(DataSetType t = FULL) const { return t == RECENT ? recentValueSum : fullValueSum; }
     double getValueAverage(DataSetType t = FULL) const { return t == RECENT ? recentValueAverage : fullValueAverage; }
     double getValueRate(DataSetType t = FULL) const { return t== RECENT ? recentValueRate : fullValueRate; }

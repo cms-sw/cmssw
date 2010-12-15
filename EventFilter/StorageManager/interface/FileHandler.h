@@ -1,4 +1,4 @@
-// $Id: FileHandler.h,v 1.14 2010/11/04 15:19:16 mommsen Exp $
+// $Id: FileHandler.h,v 1.15 2010/11/05 10:33:38 mommsen Exp $
 /// @file: FileHandler.h 
 
 #ifndef StorageManager_FileHandler_h
@@ -25,8 +25,8 @@ namespace stor {
    * Abstract representation of a physical file
    *
    * $Author: mommsen $
-   * $Revision: 1.14 $
-   * $Date: 2010/11/04 15:19:16 $
+   * $Revision: 1.15 $
+   * $Date: 2010/11/05 10:33:38 $
    */
 
   class FileHandler
@@ -38,7 +38,7 @@ namespace stor {
       FilesMonitorCollection::FileRecordPtr,
       const DbFileHandlerPtr,
       const DiskWritingParams&,
-      const unsigned long long& maxFileSize
+      const uint64_t& maxFileSize
      );
     
     virtual ~FileHandler() {};
@@ -62,7 +62,7 @@ namespace stor {
      * Returns true if the additional data size would push the file size
      * beyond maxFileSize.
      */
-    bool tooLarge(const unsigned long& dataSize);
+    bool tooLarge(const uint64_t& dataSize);
 
 
     ////////////////////////////
@@ -72,7 +72,7 @@ namespace stor {
     /**
      * Return the number of events in the file
      */
-    int events() const;
+    uint32_t events() const;
     
     /**
      * Return the luminosity section the file belongs to
@@ -83,7 +83,7 @@ namespace stor {
     /**
      * Return the size of the file in bytes
      */
-    unsigned long long fileSize() const;
+    uint64_t fileSize() const;
 
     /**
      * Close the file
@@ -152,12 +152,12 @@ namespace stor {
      * Check that the file size matches the given size.
      * Returns the actual size.
      */
-    unsigned long long checkFileSizeMatch(const std::string& fileName, const unsigned long long& size) const;
+    uint64_t checkFileSizeMatch(const std::string& fileName, const uint64_t& size) const;
 
     /**
      * Check that the 2 sizes agree
      */
-    bool sizeMismatch(const unsigned long long& initialSize, const unsigned long long& finalSize) const;
+    bool sizeMismatch(const uint64_t& initialSize, const uint64_t& finalSize) const;
 
     /**
      * Changes the file permissions to read-only
@@ -183,7 +183,7 @@ namespace stor {
     /**
      * Return the relative difference btw to file sizes
      */
-    double calcPctDiff(const unsigned long long&, const unsigned long long&) const;
+    double calcPctDiff(const uint64_t&, const uint64_t&) const;
     
 
   private:
@@ -205,7 +205,7 @@ namespace stor {
     
   private:
     
-    const unsigned long long _maxFileSize;          // maximal file size in bytes
+    const uint64_t _maxFileSize;                    // maximal file size in bytes
     
     const std::string  _logPath;                    // log path
     const std::string  _logFile;                    // log file including path

@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.cc,v 1.14 2010/05/03 12:19:05 mommsen Exp $
+// $Id: DataSenderMonitorCollection.cc,v 1.15 2010/12/10 14:31:52 mommsen Exp $
 /// @file: DataSenderMonitorCollection.cc
 
 #include <string>
@@ -73,7 +73,7 @@ void DataSenderMonitorCollection::addInitSample(I2OChain const& i2oChain)
 
   // fetch basic data from the I2OChain
   std::string outModName = i2oChain.outputModuleLabel();
-  unsigned int msgSize = i2oChain.totalDataSize();
+  uint32_t msgSize = i2oChain.totalDataSize();
 
   // look up the monitoring records that we need
   bool pointersAreValid;
@@ -112,8 +112,8 @@ void DataSenderMonitorCollection::addEventSample(I2OChain const& i2oChain)
 
   // fetch basic data from the I2OChain
   double eventSize = static_cast<double>(i2oChain.totalDataSize());
-  unsigned int runNumber = i2oChain.runNumber();
-  unsigned int eventNumber = i2oChain.eventNumber();
+  uint32_t runNumber = i2oChain.runNumber();
+  uint32_t eventNumber = i2oChain.eventNumber();
 
   // look up the monitoring records that we need
   bool pointersAreValid;
@@ -511,12 +511,12 @@ void DataSenderMonitorCollection::do_updateInfoSpaceItems()
 
   _connectedRBs = static_cast<xdata::UnsignedInteger32>(_resourceBrokerMap.size());
 
-  unsigned int localEPCount = 0;
-  unsigned int localActiveEPCount = 0;
+  uint32_t localEPCount = 0;
+  uint32_t localActiveEPCount = 0;
   int localMissingDataDiscardCount = 0;
   int localMissingDQMDiscardCount = 0;
-  unsigned int localFaultyEventsCount = 0;
-  unsigned int localIgnoredDiscardCount = 0;
+  uint32_t localFaultyEventsCount = 0;
+  uint32_t localIgnoredDiscardCount = 0;
   std::map<UniqueResourceBrokerID_t, RBRecordPtr>::const_iterator rbMapIter;
   std::map<UniqueResourceBrokerID_t, RBRecordPtr>::const_iterator rbMapEnd =
     _resourceBrokerMap.end();
@@ -577,7 +577,7 @@ void DataSenderMonitorCollection::do_updateInfoSpaceItems()
 }
 
 
-void DataSenderMonitorCollection::faultyEventsAlarm(const unsigned int& faultyEventsCount) const
+void DataSenderMonitorCollection::faultyEventsAlarm(const uint32_t& faultyEventsCount) const
 {
   const std::string alarmName = "FaultyEvents";
 
@@ -597,7 +597,7 @@ void DataSenderMonitorCollection::faultyEventsAlarm(const unsigned int& faultyEv
 }
 
 
-void DataSenderMonitorCollection::ignoredDiscardAlarm(const unsigned int& ignoredDiscardCount) const
+void DataSenderMonitorCollection::ignoredDiscardAlarm(const uint32_t& ignoredDiscardCount) const
 {
   const std::string alarmName = "IgnoredDiscard";
 

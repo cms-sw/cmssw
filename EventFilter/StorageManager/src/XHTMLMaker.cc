@@ -1,4 +1,4 @@
-// $Id: XHTMLMaker.cc,v 1.7 2010/05/17 15:59:10 mommsen Exp $
+// $Id: XHTMLMaker.cc,v 1.8 2010/08/06 20:24:32 wmtan Exp $
 /// @file: XHTMLMaker.cc
 
 #include "EventFilter/StorageManager/interface/XHTMLMaker.h"
@@ -178,19 +178,29 @@ void XHTMLMaker::addText( Node* parent, const std::string& data )
 }
 
 /////////////////////////
-//// Add an integer: ////
+//// Add an int32_t: ////
 /////////////////////////
-void XHTMLMaker::addInt( Node* parent, int value )
+void XHTMLMaker::addInt( Node* parent, const int32_t& value )
 {
     ostringstream tmpString;
     tmpString << value;
     addText( parent, tmpString.str() );
 }
 
-////////////////////////
+//////////////////////////
 //// Add an uint32_t: ////
-////////////////////////
-void XHTMLMaker::addInt( Node* parent, uint32_t value )
+//////////////////////////
+void XHTMLMaker::addInt( Node* parent, const uint32_t& value )
+{
+    ostringstream tmpString;
+    tmpString << value;
+    addText( parent, tmpString.str() );
+}
+
+/////////////////////////
+//// Add an int64_t: ////
+/////////////////////////
+void XHTMLMaker::addInt( Node* parent, const int64_t& value )
 {
     ostringstream tmpString;
     tmpString << value;
@@ -198,19 +208,9 @@ void XHTMLMaker::addInt( Node* parent, uint32_t value )
 }
 
 //////////////////////////
-//// Add a long long: ////
+//// Add an uint64_t: ////
 //////////////////////////
-void XHTMLMaker::addInt( Node* parent, long long value )
-{
-    ostringstream tmpString;
-    tmpString << value;
-    addText( parent, tmpString.str() );
-}
-
-////////////////////////////////////
-//// Add an unsigned long long: ////
-////////////////////////////////////
-void XHTMLMaker::addInt( Node* parent, unsigned long long value )
+void XHTMLMaker::addInt( Node* parent, const uint64_t& value )
 {
     ostringstream tmpString;
     tmpString << value;
@@ -220,7 +220,7 @@ void XHTMLMaker::addInt( Node* parent, unsigned long long value )
 /////////////////////////////
 //// Add a double value: ////
 /////////////////////////////
-void XHTMLMaker::addDouble( Node* parent, double value, unsigned int precision )
+void XHTMLMaker::addDouble( Node* parent, const double& value, const unsigned int& precision )
 {
     ostringstream tmpString;
     tmpString << fixed << std::setprecision( precision ) << value;

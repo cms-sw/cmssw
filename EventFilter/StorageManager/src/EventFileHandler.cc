@@ -1,4 +1,4 @@
-// $Id: EventFileHandler.cc,v 1.13 2010/09/09 08:01:16 mommsen Exp $
+// $Id: EventFileHandler.cc,v 1.14 2010/09/28 16:25:29 mommsen Exp $
 /// @file: EventFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/EventFileHandler.h>
@@ -17,7 +17,7 @@ EventFileHandler::EventFileHandler
   FilesMonitorCollection::FileRecordPtr fileRecord,
   const DbFileHandlerPtr dbFileHandler,
   const DiskWritingParams& dwParams,
-  const unsigned long long& maxFileSize
+  const uint64_t& maxFileSize
 ) :
 FileHandler(fileRecord, dbFileHandler, dwParams, maxFileSize),
 _writer(new edm::StreamerFileWriter(fileRecord->completeFileName()))

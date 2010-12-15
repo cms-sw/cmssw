@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.24 2010/12/01 13:44:48 eulisse Exp $
+// $Id: FileHandler.cc,v 1.25 2010/12/14 12:56:52 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -26,7 +26,7 @@ FileHandler::FileHandler
   FilesMonitorCollection::FileRecordPtr fileRecord,
   const DbFileHandlerPtr dbFileHandler,
   const DiskWritingParams& dwParams,
-  const unsigned long long& maxFileSize
+  const uint64_t& maxFileSize
 ):
 _fileRecord(fileRecord),
 _dbFileHandler(dbFileHandler),
@@ -176,7 +176,7 @@ bool FileHandler::isFromLumiSection(const uint32_t lumiSection)
 }
 
 
-bool FileHandler::tooLarge(const unsigned long& dataSize)
+bool FileHandler::tooLarge(const uint64_t& dataSize)
 {
   if ( ((fileSize() + dataSize) > _maxFileSize) && (events() > 0) )
   {
@@ -190,13 +190,13 @@ bool FileHandler::tooLarge(const unsigned long& dataSize)
 }
 
 
-int FileHandler::events() const
+uint32_t FileHandler::events() const
 {
   return _fileRecord->eventCount;
 }
 
 
-unsigned long long FileHandler::fileSize() const
+uint64_t FileHandler::fileSize() const
 {
   return _fileRecord->fileSize;
 }
@@ -215,7 +215,7 @@ void FileHandler::moveFileToClosed
   const std::string openFileName(_fileRecord->completeFileName(FilesMonitorCollection::FileRecord::open));
   const std::string closedFileName(_fileRecord->completeFileName(FilesMonitorCollection::FileRecord::closed));
 
-  const unsigned long long openFileSize = checkFileSizeMatch(openFileName, fileSize());
+  const uint64_t openFileSize = checkFileSizeMatch(openFileName, fileSize());
 
   makeFileReadOnly(openFileName);
   try
@@ -233,7 +233,7 @@ void FileHandler::moveFileToClosed
 }
 
 
-unsigned long long FileHandler::checkFileSizeMatch(const std::string& fileName, const unsigned long long& size) const
+uint64_t FileHandler::checkFileSizeMatch(const std::string& fileName, const uint64_t& size) const
 {
 #if linux
   struct stat64 statBuff;
@@ -265,11 +265,11 @@ unsigned long long FileHandler::checkFileSizeMatch(const std::string& fileName, 
     XCEPT_RAISE(stor::exception::FileTruncation, msg.str());
   }
 
-  return statBuff.st_size;
+  return static_cast<uint64_t>(statBuff.st_size);
 }
 
 
-bool FileHandler::sizeMismatch(const unsigned long long& initialSize, const unsigned long long& finalSize) const
+bool FileHandler::sizeMismatch(const uint64_t& initialSize, const uint64_t& finalSize) const
 {
   double pctDiff = calcPctDiff(initialSize, finalSize);
   return (pctDiff > _diskWritingParams._fileSizeTolerance);
@@ -310,11 +310,11 @@ void FileHandler::checkDirectories() const
 }
 
 
-double FileHandler::calcPctDiff(const unsigned long long& value1, const unsigned long long& value2) const
+double FileHandler::calcPctDiff(const uint64_t& value1, const uint64_t& value2) const
 {
   if (value1 == value2) return 0;
-  unsigned long long largerValue = std::max(value1,value2);
-  unsigned long long smallerValue = std::min(value1,value2);
+  uint64_t largerValue = std::max(value1,value2);
+  uint64_t smallerValue = std::min(value1,value2);
   return ( largerValue > 0 ? (largerValue - smallerValue) / largerValue : 0 );
 }
 

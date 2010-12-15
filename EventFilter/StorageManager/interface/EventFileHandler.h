@@ -1,4 +1,4 @@
-// $Id: EventFileHandler.h,v 1.11 2010/03/19 13:24:30 mommsen Exp $
+// $Id: EventFileHandler.h,v 1.12 2010/09/09 08:01:16 mommsen Exp $
 /// @file: EventFileHandler.h 
 
 #ifndef StorageManager_EventFileHandler_h
@@ -22,8 +22,8 @@ namespace stor {
    * Represents a file holding event data
    *
    * $Author: mommsen $
-   * $Revision: 1.11 $
-   * $Date: 2010/03/19 13:24:30 $
+   * $Revision: 1.12 $
+   * $Date: 2010/09/09 08:01:16 $
    */
   
   class EventFileHandler : public FileHandler
@@ -35,7 +35,7 @@ namespace stor {
       FilesMonitorCollection::FileRecordPtr,
       const DbFileHandlerPtr,
       const DiskWritingParams&,
-      const unsigned long long& maxFileSize
+      const uint64_t& maxFileSize
     );
 
     /**

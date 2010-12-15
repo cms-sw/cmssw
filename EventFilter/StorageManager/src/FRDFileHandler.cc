@@ -1,4 +1,4 @@
-// $Id: FRDFileHandler.cc,v 1.13 2010/09/09 08:01:15 mommsen Exp $
+// $Id: FRDFileHandler.cc,v 1.14 2010/09/28 16:25:29 mommsen Exp $
 /// @file: FRDFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/FRDFileHandler.h>
@@ -16,7 +16,7 @@ FRDFileHandler::FRDFileHandler
   FilesMonitorCollection::FileRecordPtr fileRecord,
   const DbFileHandlerPtr dbFileHandler,
   const DiskWritingParams& dwParams,
-  const unsigned long long& maxFileSize
+  const uint64_t& maxFileSize
 ) :
 FileHandler(fileRecord, dbFileHandler, dwParams, maxFileSize),
 _writer(new FRDEventFileWriter(fileRecord->completeFileName()))

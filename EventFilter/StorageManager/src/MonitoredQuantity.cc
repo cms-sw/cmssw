@@ -1,4 +1,4 @@
-// $Id: MonitoredQuantity.cc,v 1.8 2010/12/03 15:56:48 mommsen Exp $
+// $Id: MonitoredQuantity.cc,v 1.9 2010/12/14 12:56:52 mommsen Exp $
 /// @file: MonitoredQuantity.cc
 
 #include "EventFilter/StorageManager/interface/MonitoredQuantity.h"
@@ -20,7 +20,7 @@ _expectedCalculationInterval(expectedCalculationInterval)
   setNewTimeWindowForRecentResults(timeWindowForRecentResults);
 }
 
-void MonitoredQuantity::addSample(const double value)
+void MonitoredQuantity::addSample(const double& value)
 {
   if (! _enabled) {return;}
 
@@ -41,28 +41,28 @@ void MonitoredQuantity::addSample(const double value)
   _workingLastSampleValue = value;
 }
 
-void  MonitoredQuantity::addSample(const int value)
+void  MonitoredQuantity::addSample(const int& value)
 {
   addSample(static_cast<double>(value));
 }
 
-void  MonitoredQuantity::addSample(const uint32_t value)
+void  MonitoredQuantity::addSample(const uint32_t& value)
 {
   addSample(static_cast<double>(value));
 }
 
-void  MonitoredQuantity::addSample(const uint64_t value)
+void  MonitoredQuantity::addSample(const uint64_t& value)
 {
   addSample(static_cast<double>(value));
 }
 
-void  MonitoredQuantity::addSampleIfLarger(const double value)
+void  MonitoredQuantity::addSampleIfLarger(const double& value)
 {
   if (value > _workingLastSampleValue)
     addSample(value);
 }
 
-void MonitoredQuantity::calculateStatistics(utils::time_point_t currentTime)
+void MonitoredQuantity::calculateStatistics(const utils::time_point_t& currentTime)
 {
   if (! _enabled) {return;}
   if (_lastCalculationTime.is_not_a_date_time()) {return;}
@@ -281,7 +281,7 @@ void MonitoredQuantity::disable()
   _enabled = false;
 }
 
-void MonitoredQuantity::setNewTimeWindowForRecentResults(utils::duration_t interval)
+void MonitoredQuantity::setNewTimeWindowForRecentResults(const utils::duration_t& interval)
 {
   // lock the results objects since we're dramatically changing the
   // bins used for the recent results
@@ -354,8 +354,8 @@ MonitoredQuantity::getStats(Stats& s) const
   s.recentBinnedValueSums.resize(_binCount);
   s.recentBinnedDurations.resize(_binCount);
   s.recentBinnedSnapshotTimes.resize(_binCount);
-  unsigned int sourceBinId = _workingBinId;
-  for (unsigned int idx = 0; idx < _binCount; ++idx) {
+  uint32_t sourceBinId = _workingBinId;
+  for (uint32_t idx = 0; idx < _binCount; ++idx) {
     if (sourceBinId >= _binCount) {sourceBinId = 0;}
     s.recentBinnedSampleCounts[idx] = _binSampleCount[sourceBinId];
     s.recentBinnedValueSums[idx] = _binValueSum[sourceBinId];
