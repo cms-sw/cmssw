@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from FastSimulation.Configuration.CommonInputs_cff import *
-
 # Primary vertex smearing.
 from IOMC.EventVertexGenerators.VtxSmearedGauss_cfi import *
 
@@ -44,7 +42,6 @@ from FastSimulation.Tracking.IterativeTracking_cff import *
 
 # Calo RecHits producer (with no HCAL miscalibration by default)
 from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
-from RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi import *
 
 # ECAL clusters
 from RecoEcal.Configuration.RecoEcal_cff import *
@@ -538,8 +535,8 @@ reconstructionWithFamos = cms.Sequence(
     ak5JetTracksAssociatorAtVertex+
     famosTauTaggingSequence+
     reducedRecHits+
-    famosBTaggingSequence+
-    famosPFTauTaggingSequence
+    famosBTaggingSequence#+
+#    famosPFTauTaggingSequence
 )
 
 # Simulation plus reconstruction
