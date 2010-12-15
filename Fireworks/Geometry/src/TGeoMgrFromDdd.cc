@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jul  2 16:11:42 CEST 2010
-// $Id: TGeoMgrFromDdd.cc,v 1.8 2010/12/10 13:39:06 yana Exp $
+// $Id: TGeoMgrFromDdd.cc,v 1.9 2010/12/13 15:20:34 yana Exp $
 //
 
 #include "Fireworks/Geometry/interface/TGeoMgrFromDdd.h"
@@ -518,7 +518,9 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    double alpha = -acos( cos_alpha );
 	    
 	    // rotationmatrix of box w.r.t. tubs
-	    static DDRotationMatrix s_rot( ROOT::Math::RotationZ( -alpha * deg ) * ROOT::Math::RotationX( 90. * deg ));
+	    TGeoRotation rot;
+	    rot.RotateX( 90 );
+	    rot.RotateZ( alpha/deg );
 	    
 	    // center point of the box
 	    double xBox;
@@ -532,13 +534,12 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    }
 	    std::auto_ptr<TGeoShape> box( new TGeoBBox( name.c_str(), boxX/cm, boxZ/cm, boxY/cm ));
 
+	    TGeoTranslation trans( xBox/cm, 0., 0.);
+
 	    TGeoSubtraction* sub = new TGeoSubtraction( tubs.release(),
-						        box.release(),
-						        0,
-						        createPlacement( s_rot,
-									 DDTranslation( xBox,
-										        0.,
-										        0. )));
+							box.release(),
+							0, new TGeoCombiTrans( trans, rot ));
+
 	    rSolid = new TGeoCompositeShape( iName.c_str(),
 	    				     sub );
 	    break;   
