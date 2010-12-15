@@ -4,25 +4,21 @@
 
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
-
-PixelGeomDetUnit::PixelGeomDetUnit( BoundPlane* sp, PixelGeomDetType* type,const GeometricDet* gd): GeomDetUnit(sp),
-												 theType(type),theGD(gd)
+PixelGeomDetUnit::PixelGeomDetUnit( BoundPlane* sp, PixelGeomDetType* type,const GeometricDet* gd) : 
+  GeomDetUnit(sp), theTopology(new ProxyPixelTopology(type, sp)), theGD(gd)
 {
   setDetId(theGD->geographicalID());
 }
 
+const GeomDetType& PixelGeomDetUnit::type() const { return theTopology->type(); }
 
-const GeomDetType& PixelGeomDetUnit::type() const { return *theType;}
+PixelGeomDetType& PixelGeomDetUnit::specificType() const { return theTopology->specificType(); }
 
+const Topology& PixelGeomDetUnit::topology() const { return *theTopology; }
 
-const Topology& PixelGeomDetUnit::topology() const {return specificType().topology();}
-
-const PixelTopology& PixelGeomDetUnit::specificTopology() const { 
-  return specificType().specificTopology();
-}
+const PixelTopology& PixelGeomDetUnit::specificTopology() const { return *theTopology; }
 
 void PixelGeomDetUnit::setSurfaceDeformation(const SurfaceDeformation * deformation)
 {
-  theSurfaceDeformation = deformation;
+  theTopology->setSurfaceDeformation(deformation);
 }
-
