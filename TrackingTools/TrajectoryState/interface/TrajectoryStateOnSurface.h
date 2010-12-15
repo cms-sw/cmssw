@@ -87,15 +87,17 @@ public:
 
   virtual ~TrajectoryStateOnSurface() {}
 
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
 
-  TrajectoryStateOnSurface( TrajectoryStateOnSurface && rh) :
-    Base(std::forward(rh)){}
+  TrajectoryStateOnSurface(TrajectoryStateOnSurface && rh) :
+    Base(std::forward<Base>(rh)){}
     
   TrajectoryStateOnSurface & operator=(TrajectoryStateOnSurface && rh) {
     Base::swap(rh);
     return *this;
   }
 
+#endif
 
   void swap(TrajectoryStateOnSurface & rh) {
     Base::swap(rh);
