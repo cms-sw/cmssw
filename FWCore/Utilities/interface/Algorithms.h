@@ -69,12 +69,19 @@ namespace edm {
     return std::find_if(s.begin(), s.end(), p) != s.end();
   }
 
-  /// wrapper for std::binary_search
+  /// wrappers for std::binary_search
   template <typename ForwardSequence, typename Datum>
   inline
   bool
   binary_search_all(ForwardSequence const& s, Datum const& d) {
     return std::binary_search(s.begin(), s.end(), d);
+  }
+
+  template <typename ForwardSequence, typename Datum, typename Predicate>
+  inline
+  bool
+  binary_search_all(ForwardSequence const& s, Datum const& d, Predicate p) {
+    return std::binary_search(s.begin(), s.end(), d, p);
   }
 
   /// wrappers for std::lower_bound
