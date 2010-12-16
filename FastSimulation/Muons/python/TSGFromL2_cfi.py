@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from FastSimulation.Configuration.blockHLT_GRun_cff import *
-
 from RecoMuon.GlobalTrackingTools.MuonTrackingRegionCommon_cff import *
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 from RecoMuon.TrackingTools.MuonErrorMatrixValues_cff import *
