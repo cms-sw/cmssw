@@ -102,9 +102,6 @@ class ProduceIsolationMap : public edm::EDProducer {
 ProduceIsolationMap::ProduceIsolationMap(const edm::ParameterSet& iConfig)
 {
    TKLabel_          = iConfig.getParameter< edm::InputTag > ("TKLabel");
-   EBrecHitsLabel_   = iConfig.getParameter< edm::InputTag > ("EBrecHitsLabel");
-   EErecHitsLabel_   = iConfig.getParameter< edm::InputTag > ("EErecHitsLabel");
-   HCALrecHitsLabel_ = iConfig.getParameter< edm::InputTag > ("HCALrecHitsLabel");
    inputCollection_  = iConfig.getParameter< edm::InputTag > ("inputCollection");
    TKIsolationPtcut_ = iConfig.getParameter< double >        ("TkIsolationPtCut");
    IsolationConeDR_  = iConfig.getParameter< double >        ("IsolationConeDR");
@@ -115,14 +112,6 @@ ProduceIsolationMap::ProduceIsolationMap(const edm::ParameterSet& iConfig)
    parameters_.loadParameters( parameters );
    trackAssociator_.useDefaultPropagator();
 
-
-   parameters_.theEBRecHitCollectionLabel   = EBrecHitsLabel_;
-   parameters_.theEERecHitCollectionLabel   = EErecHitsLabel_;
-   parameters_.theHBHERecHitCollectionLabel = HCALrecHitsLabel_;
-//   parameters_.dREcal                       = IsolationConeDR_;
-//   parameters_.dRHcal                       = IsolationConeDR_;
-//   parameters_.dRMuon                       = IsolationConeDR_;
-  
    //register your products
     produces<ValueMap<HSCPIsolation> >();
 }
@@ -139,19 +128,7 @@ ProduceIsolationMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace std;
 
    using reco::TrackCollection;
-/*
-   Handle<HBHERecHitCollection> HCALHitsHandle;
-   iEvent.getByLabel(HCALrecHitsLabel_,HCALHitsHandle);
-   if(!HCALHitsHandle.isValid() ){  edm::LogError("ProduceIsolationMap") << "HCAL RecHit collection not found";    return;   }
-   
-   Handle<EcalRecHitCollection> EBHitsHandle;
-   iEvent.getByLabel(EBrecHitsLabel_,EBHitsHandle);
-   if(!EBHitsHandle.isValid() ){  edm::LogError("ProduceIsolationMap") << "EB RecHit collection not found";    return;   }
 
-   Handle<EcalRecHitCollection> EEHitsHandle;
-   iEvent.getByLabel(EErecHitsLabel_,EEHitsHandle);
-   if(!EEHitsHandle.isValid() ){  edm::LogError("ProduceIsolationMap") << "EE RecHit collection not found";    return;   }
-*/
    Handle<TrackCollection> TKHandle;
    iEvent.getByLabel(TKLabel_,TKHandle);
    if(!TKHandle.isValid() ){  edm::LogError("ProduceIsolationMap") << "TK Tracks collection not found";    return;   }
@@ -165,30 +142,31 @@ ProduceIsolationMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(inputCollection_,tkTracks);
    std::vector<HSCPIsolation> IsolationInfoColl(tkTracks->size());
 
-//   parameters_.dREcal = IsolationConeDR_;   parameters_.dRHcal = IsolationConeDR_;   parameters_.dRMuon = IsolationConeDR_;
-
    int TkIndex=0;
    for(TrackCollection::const_iterator itTrack = tkTracks->begin(); itTrack != tkTracks->end(); ++itTrack, TkIndex++) {
-//    if(itTrack->pt()>ptcut_){
-
       TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *itTrack, parameters_, TrackDetectorAssociator::InsideOut);
 
-      //  cout<<"isolation cone "<<IsolationConeDR_<<endl;
-      if(info.hcalRecHits.size()>0){IsolationInfoColl[TkIndex].Set_HCAL_Energy(info.coneEnergy(IsolationConeDR_,TrackDetMatchInfo::HcalRecHits));}
-      if(info.ecalRecHits.size()>0){IsolationInfoColl[TkIndex].Set_ECAL_Energy(info.coneEnergy(IsolationConeDR_,TrackDetMatchInfo::EcalRecHits));}
 
-      double SumPt = 0;
-      double Count = 0;
+      if(info.ecalRecHits.size()>0){IsolationInfoColl[TkIndex].Set_ECAL_Energy(info.coneEnergy(IsolationConeDR_, TrackDetMatchInfo::EcalRecHits));}
+      if(info.hcalRecHits.size()>0){IsolationInfoColl[TkIndex].Set_HCAL_Energy(info.coneEnergy(IsolationConeDR_, TrackDetMatchInfo::HcalRecHits));}
+//      if(info.hcalRecHits.size()>0){IsolationInfoColl[TkIndex].Set_HCAL_Energy(info.hcalConeEnergy());}
+//      if(info.ecalRecHits.size()>0){IsolationInfoColl[TkIndex].Set_ECAL_Energy(info.ecalConeEnergy());}
+
+      double SumPt       = 0;
+      double Count       = 0;
+      double CountHighPt = 0;
       for(TrackCollection::const_iterator itTrack2 = TKHandle->begin(); itTrack2 != TKHandle->end(); ++itTrack2){
-         if(itTrack2->pt()<TKIsolationPtcut_) Count++;
-         if(fabs(itTrack->pt()-itTrack2->pt())<0.001 && fabs(itTrack->eta()-itTrack2->eta())<0.001)continue;
+         if(fabs(itTrack->pt()-itTrack2->pt())<0.1 && fabs(itTrack->eta()-itTrack2->eta())<0.05)continue;
          float dR = deltaR(itTrack->momentum(), itTrack2->momentum());
-         if(dR<IsolationConeDR_){SumPt+= itTrack2->pt();}
+         if(dR>IsolationConeDR_)continue;
+         SumPt+= itTrack2->pt();
+         Count++;
+         if(itTrack2->pt()<TKIsolationPtcut_)continue;
+         CountHighPt++;
       }
-      IsolationInfoColl[TkIndex].Set_TK_Count(Count);
-      IsolationInfoColl[TkIndex].Set_TK_SumEt(SumPt);
-      
-//      cout<<"trk "<<TkIndex<<" p "<<itTrack->p() <<" Eecal "<<IsolationInfoColl[TkIndex].Get_ECAL_Energy() <<" ecal3by3 "<<info.nXnEnergy(TrackDetMatchInfo::EcalRecHits, 1)<<" Hcal "<<IsolationInfoColl[TkIndex].Get_HCAL_Energy()<<" Hcal3by3 " << info.nXnEnergy(TrackDetMatchInfo::HcalRecHits, 1) <<" eop "<<(IsolationInfoColl[TkIndex].Get_ECAL_Energy()+IsolationInfoColl[TkIndex].Get_HCAL_Energy())/itTrack->p() <<" trkiso "<<SumPt/itTrack->pt() <<endl;
+      IsolationInfoColl[TkIndex].Set_TK_CountHighPt(CountHighPt);
+      IsolationInfoColl[TkIndex].Set_TK_Count      (Count);
+      IsolationInfoColl[TkIndex].Set_TK_SumEt      (SumPt);
    }
 
    filler.insert(tkTracks, IsolationInfoColl.begin(), IsolationInfoColl.end());

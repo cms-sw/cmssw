@@ -81,16 +81,21 @@ muonSeq = cms.Sequence(muonsSkim)
 
 
 
+TrackAssociatorParametersForHSCPIsol = TrackAssociatorParameterBlock.TrackAssociatorParameters.clone()
+TrackAssociatorParametersForHSCPIsol.useHO = cms.bool(False)
+TrackAssociatorParametersForHSCPIsol.CSCSegmentCollectionLabel     = cms.InputTag("cscSegments")
+TrackAssociatorParametersForHSCPIsol.DTRecSegment4DCollectionLabel = cms.InputTag("dt4DSegments")
+TrackAssociatorParametersForHSCPIsol.EERecHitCollectionLabel       = cms.InputTag("ecalRecHit","EcalRecHitsEE")
+TrackAssociatorParametersForHSCPIsol.EBRecHitCollectionLabel       = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+TrackAssociatorParametersForHSCPIsol.HBHERecHitCollectionLabel     = cms.InputTag("hbhereco")
+
 
 HSCPIsolation01 = cms.EDProducer("ProduceIsolationMap",
-                                                                         inputCollection  = cms.InputTag("generalTracksSkim"),
-                                                                         IsolationConeDR  = cms.double(0.1),
-                                                                         TkIsolationPtCut = cms.double(10.0),
-                                                                         TKLabel          = cms.InputTag("generalTracks"),
-                                                                         HCALrecHitsLabel = cms.InputTag("hbhereco",""),
-                                                                         EBrecHitsLabel   = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-                                                                         EErecHitsLabel   = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-                                                                         TrackAssociatorParameters=TrackAssociatorParameterBlock.TrackAssociatorParameters,
+      inputCollection  = cms.InputTag("generalTracksSkim"),
+      IsolationConeDR  = cms.double(0.1),
+      TkIsolationPtCut = cms.double(10.0),
+      TKLabel          = cms.InputTag("generalTracks"),
+      TrackAssociatorParameters=TrackAssociatorParametersForHSCPIsol,
 )
 
 HSCPIsolation03 = HSCPIsolation01.clone()
