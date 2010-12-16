@@ -8,8 +8,7 @@ from threading import Thread
 
 class forkit(Thread):
     def __init__(self):
-                print "creating the config in a separate thread"
-                def run(self):
+        Thread.__init__(self)
     def run(self):
         import sys
         import os
@@ -49,10 +48,9 @@ class forkit(Thread):
             os.execvpe(commands[0],commands+[python_config_filename],os.environ)
             sys.exit()
 
+import os
 current = forkit()
-current.run()
-
-
+current.start()
     
 
 
