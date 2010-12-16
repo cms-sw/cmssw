@@ -36,8 +36,7 @@ class  CandidateSelector{
       int   minTrackHits;
       float minTrackP;
       float minTrackPt;
-      float minDedxEstimator1;
-      float minDedxDiscriminator1;
+      float minDedx;
 
       float minMuonP;
       float minMuonPt;      

@@ -20,12 +20,13 @@ BetaCalculatorECAL::BetaCalculatorECAL(const edm::ParameterSet& iConfig) :
    edm::ParameterSet trkParameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
    parameters_.loadParameters( trkParameters ); 
    trackAssociator_.useDefaultPropagator();
+
 }
 
 
-void BetaCalculatorECAL::addInfoToCandidate(HSCParticle& candidate, edm::Handle<reco::TrackCollection>& tracks, edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void BetaCalculatorECAL::addInfoToCandidate(HSCParticle& candidate, edm::Handle<reco::TrackCollection>& tracks, edm::Event& iEvent, const edm::EventSetup& iSetup,  HSCPCaloInfo& caloInfo) {
    bool setCalo = false;
-   CaloBetaMeasurement result;
+   HSCPCaloInfo result;
 
    // EcalDetIdAssociator
    iSetup.get<DetIdAssociatorRecord>().get("EcalDetIdAssociator", ecalDetIdAssociator_);
@@ -195,7 +196,7 @@ void BetaCalculatorECAL::addInfoToCandidate(HSCParticle& candidate, edm::Handle<
    }
 
    if(setCalo) 
-     candidate.setCalo(result);
+     caloInfo = result;
 }
 
 std::vector<SteppingHelixStateInfo> BetaCalculatorECAL::calcEcalDeposit(const FreeTrajectoryState* tkInnerState,

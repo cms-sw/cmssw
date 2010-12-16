@@ -1,6 +1,9 @@
 #include "SUSYBSMAnalysis/HSCP/interface/BetaCalculatorRPC.h"
 
 BetaCalculatorRPC::BetaCalculatorRPC(const edm::ParameterSet& iConfig){
+
+  rpcRecHitsLabel = iConfig.getParameter<edm::InputTag>("rpcRecHits");
+
 }
 
 void BetaCalculatorRPC::algo(std::vector<susybsm::RPCHit4D> HSCPRPCRecHits){
@@ -107,14 +110,18 @@ void BetaCalculatorRPC::algo(std::vector<susybsm::RPCHit4D> HSCPRPCRecHits){
 
 
 
-void BetaCalculatorRPC::addInfoToCandidate(HSCParticle& candidate, const edm::EventSetup& iSetup) {
+void BetaCalculatorRPC::addInfoToCandidate(HSCParticle& candidate, const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
 
+  edm::Handle<RPCRecHitCollection> rpcHits;
+  iEvent.getByLabel(rpcRecHitsLabel,rpcHits);
+
 
   // here we do basically as in RPCHSCPCANDIDATE.cc, but just for the hits on the muon of interest
   RPCBetaMeasurement result;
+  std::vector<RPCHit4D> hits;
   // so, loop on the RPC hits of the muon
   trackingRecHit_iterator start,stop;
   reco::Track track;
@@ -138,24 +145,41 @@ void BetaCalculatorRPC::addInfoToCandidate(HSCParticle& candidate, const edm::Ev
   for(trackingRecHit_iterator recHit = start; recHit != stop; ++recHit) {
     if ( (*recHit)->geographicalId().subdetId() != MuonSubdetId::RPC ) continue;
     if ( (*recHit)->geographicalId().det() != DetId::Muon  ) continue;
-    if (!(*recHit)->isValid()) continue;
+    if (!(*recHit)->isValid()) continue; //Is Valid?
+       
     RPCDetId rollId = (RPCDetId)(*recHit)->geographicalId();
-    RPCGeomServ rpcsrv(rollId);
+
+    typedef std::pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
+    rangeRecHits recHitCollection =  rpcHits->get(rollId);
+    RPCRecHitCollection::const_iterator recHitC;
+    int size = 0;
+    int clusterS=0;
+    for(recHitC = recHitCollection.first; recHitC != recHitCollection.second ; recHitC++) {
+      clusterS=(*recHitC).clusterSize();
+      RPCDetId rollId = (RPCDetId)(*recHitC).geographicalId();
+//      std::cout<<"\t \t \t \t"<<rollId<<" bx "<<(*recHitC).BunchX()<<std::endl;
+      size++;
+    }
+    if(size>1) continue; //Is the only RecHit in this roll.?                                                                                                         
+    if(clusterS>4) continue; //Is the Cluster Size 5 or bigger?    
+    
     LocalPoint recHitPos=(*recHit)->localPosition();
     const RPCRoll* rollasociated = rpcGeo->roll(rollId);
     const BoundPlane & RPCSurface = rollasociated->surface();
+    
     RPCHit4D ThisHit;
     ThisHit.bx = ((RPCRecHit*)(&(**recHit)))->BunchX();
     ThisHit.gp = RPCSurface.toGlobal(recHitPos);
     ThisHit.id = (RPCDetId)(*recHit)->geographicalId().rawId();
-    result.hits.push_back(ThisHit);
+    hits.push_back(ThisHit);
+    
   }
   // here we go on with the RPC procedure 
-  std::sort(result.hits.begin(), result.hits.end());
+  std::sort(hits.begin(), hits.end());
   int lastbx=-7;
   bool increasing = true;
   bool outOfTime = false;
-  for(std::vector<RPCHit4D>::iterator point = result.hits.begin(); point < result.hits.end(); ++point) {
+  for(std::vector<RPCHit4D>::iterator point = hits.begin(); point < hits.end(); ++point) {
     outOfTime |= (point->bx!=0); //condition 1: at least one measurement must have BX!=0
     increasing &= (point->bx>=lastbx); //condition 2: BX must increase when going inside-out.
     lastbx = point->bx;
@@ -163,7 +187,7 @@ void BetaCalculatorRPC::addInfoToCandidate(HSCParticle& candidate, const edm::Ev
   result.isCandidate = (outOfTime&&increasing);
  
   //result.beta = 1; // here we should get some pattern-based estimate
-  algo(result.hits);
+  algo(hits);
   result.beta = beta();
   candidate.setRpc(result);
 }

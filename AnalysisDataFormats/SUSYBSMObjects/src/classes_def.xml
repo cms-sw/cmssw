@@ -1,8 +1,5 @@
 <lcgdict>
    <class name="susybsm::HSCParticle"/>
-   <class name="susybsm::RPCHit4D"/>
-   <class name="std::vector<susybsm::RPCHit4D>"/>
-   <class name="susybsm::CaloBetaMeasurement"/>
    <class name="susybsm::RPCBetaMeasurement"/>
    <class name="susybsm::HSCParticleCollection"/>
    <class name="susybsm::HSCParticleRef"/>
@@ -20,6 +17,13 @@
    <class name="edm::Wrapper<susybsm::HSCPIsolation>"/>
    <class name="edm::Wrapper<susybsm::HSCPIsolationCollection>"/>
    <class name="edm::Wrapper<susybsm::HSCPIsolationValueMap>"/>
-
-
+   <class name="susybsm::HSCPCaloInfo"/>
+   <class name="susybsm::HSCPCaloInfoCollection"/>
+   <class name="susybsm::HSCPCaloInfoValueMap"/>
+   <class name="susybsm::HSCPCaloInfoRef"/>
+   <class name="susybsm::HSCPCaloInfoRefProd"/>
+   <class name="susybsm::HSCPCaloInfoRefVector"/>
+   <class name="edm::Wrapper<susybsm::HSCPCaloInfo>"/>
+   <class name="edm::Wrapper<susybsm::HSCPCaloInfoCollection>"/>
+   <class name="edm::Wrapper<susybsm::HSCPCaloInfoValueMap>"/>
 </lcgdict>

@@ -172,7 +172,9 @@ from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
 
 from SUSYBSMAnalysis.HSCP.HSCPSelections_cff import *
 
-HSCParticleProducer = cms.EDProducer("HSCParticleProducer",
+
+
+HSCParticleProducer = cms.EDFilter("HSCParticleProducer",
    TrackAssociatorParameterBlock, #Needed for ECAL/Track Matching
 
    #DOES THE PRODUCER ACT AS AN EDFILTER?
@@ -186,24 +188,11 @@ HSCParticleProducer = cms.EDProducer("HSCParticleProducer",
 
    #TAG OF THE REQUIRED INPUT COLLECTION (ONLY ACTIVATED CALCULATOR)
    tracks             = cms.InputTag("TrackRefitter"),
+   tracksIsolation    = cms.InputTag("generalTracks"),
    muons              = cms.InputTag("muons"),
-   dedxEstimator1     = cms.InputTag("dedxCNPHarm2"),
-   dedxEstimator2     = cms.InputTag("dedxCNPTru40"),
-   dedxEstimator3     = cms.InputTag("dedxCNPMed"),
-   dedxEstimator4     = cms.InputTag("dedxSTCNPHarm2"),
-   dedxEstimator5     = cms.InputTag("dedxSTCNPTru40"),
-   dedxEstimator6     = cms.InputTag("dedxSTCNPMed"),
-   dedxDiscriminator1 = cms.InputTag("dedxProd"),
-   dedxDiscriminator2 = cms.InputTag("dedxSmi"),
-   dedxDiscriminator3 = cms.InputTag("dedxASmi"),
-   dedxDiscriminator4 = cms.InputTag("dedxSTProd"),
-   dedxDiscriminator5 = cms.InputTag("dedxSTSmi"),
-   dedxDiscriminator6 = cms.InputTag("dedxSTASmi"),
-   muontimingDt       = cms.InputTag("muontiming:dt"),
-   muontimingCsc      = cms.InputTag("muontiming:csc"),
-   muontimingCombined = cms.InputTag("muontiming:combined"),
    EBRecHitCollection = cms.InputTag("ecalRecHit:EcalRecHitsEB"),
    EERecHitCollection = cms.InputTag("ecalRecHit:EcalRecHitsEE"),
+   rpcRecHits         = cms.InputTag("rpcRecHits"),
 
    #TRACK SELECTION FOR THE HSCP SEED
    minMuP             = cms.double(5),

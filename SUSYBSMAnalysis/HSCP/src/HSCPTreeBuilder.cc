@@ -13,7 +13,7 @@
 //
 // Original Author:  Loic QUERTENMONT
 //         Created:  Thu Mar 11 12:19:07 CEST 2010
-// $Id: HSCPTreeBuilder.cc,v 1.5 2010/06/23 17:12:35 querten Exp $
+// $Id: HSCPTreeBuilder.cc,v 1.6 2010/11/17 09:22:21 scooper Exp $
 //
 
 
@@ -268,6 +268,12 @@ HSCPTreeBuilder::HSCPTreeBuilder(const edm::ParameterSet& iConfig)
 
    reccordVertexInfo   = iConfig.getUntrackedParameter<bool>    ("reccordVertexInfo"  ,  true );
    reccordGenInfo      = iConfig.getUntrackedParameter<bool>    ("reccordGenInfo"     ,  false );
+
+   std::cout << "######################################################" << endl;
+   std::cout << "      USE OF THE HSCPTreeBuilder is deprecated!       " << endl;
+   std::cout << "better to use the HSCParticle Producer and then FWLite" << endl;
+   std::cout << "######################################################" << endl;
+
 }
 
 
@@ -507,7 +513,7 @@ HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          Track_dz           [NHSCPs] = -1.0f * track->dz (recoVertex[0].position());
          Track_quality      [NHSCPs] = track->qualityMask();
          Track_charge       [NHSCPs] = track->charge(); 
-         Track_dEdxE1       [NHSCPs] = hscp.dedxEstimator1().dEdx();
+/*         Track_dEdxE1       [NHSCPs] = hscp.dedxEstimator1().dEdx();
          Track_dEdxE1_NOM   [NHSCPs] = hscp.dedxEstimator1().numberOfMeasurements();
          Track_dEdxE1_NOS   [NHSCPs] = hscp.dedxEstimator1().numberOfSaturatedMeasurements();
          Track_dEdxE2       [NHSCPs] = hscp.dedxEstimator2().dEdx();
@@ -525,6 +531,7 @@ HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          Track_dEdxD3       [NHSCPs] = hscp.dedxDiscriminator3().dEdx();
          Track_dEdxD3_NOM   [NHSCPs] = hscp.dedxDiscriminator3().numberOfMeasurements();
          Track_dEdxD3_NOS   [NHSCPs] = hscp.dedxDiscriminator3().numberOfSaturatedMeasurements();
+*/
       }
 
       if(muon.isNonnull() && Hscp_hasMuon){
@@ -535,7 +542,7 @@ HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          Muon_type          [NHSCPs] = muon->type();
          Muon_qualityValid  [NHSCPs] = muon->isQualityValid();
          Muon_charge        [NHSCPs] = muon->charge();
-         Muon_dt_IBeta      [NHSCPs] = hscp.muonTimeDt().inverseBeta();
+/*         Muon_dt_IBeta      [NHSCPs] = hscp.muonTimeDt().inverseBeta();
          Muon_dt_IBeta_err  [NHSCPs] = hscp.muonTimeDt().inverseBetaErr();
          Muon_dt_fIBeta     [NHSCPs] = hscp.muonTimeDt().freeInverseBeta();
          Muon_dt_fIBeta_err [NHSCPs] = hscp.muonTimeDt().freeInverseBetaErr();
@@ -550,18 +557,19 @@ HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          Muon_cb_fIBeta     [NHSCPs] = hscp.muonTimeCombined().freeInverseBeta();
          Muon_cb_fIBeta_err [NHSCPs] = hscp.muonTimeCombined().freeInverseBetaErr();
          Muon_cb_ndof       [NHSCPs] = hscp.muonTimeCombined().nDof();
+*/
       }
 
       if(hscp.hasCaloInfo()){
-         Calo_ecal_crossedE      [NHSCPs] = hscp.calo().ecalCrossedEnergy;
-         Calo_ecal_beta          [NHSCPs] = hscp.calo().ecalBeta;
-         Calo_ecal_beta_err      [NHSCPs] = hscp.calo().ecalBetaError;
-         Calo_ecal_invBeta_err   [NHSCPs] = hscp.calo().ecalInvBetaError;
-         Calo_ecal_dEdx          [NHSCPs] = hscp.calo().ecalDeDx;
-         Calo_ecal_time          [NHSCPs] = hscp.calo().ecalTime;
-         Calo_ecal_time_err      [NHSCPs] = hscp.calo().ecalTimeError;
-         Calo_ecal_numCrysCrossed[NHSCPs] = hscp.calo().ecalCrysCrossed;
-         for(int i=0; i < Calo_ecal_numCrysCrossed[NHSCPs] && i < MAX_ECALCRYS; ++i)
+//         Calo_ecal_crossedE      [NHSCPs] = hscp.calo().ecalCrossedEnergy;
+//         Calo_ecal_beta          [NHSCPs] = hscp.calo().ecalBeta;
+//         Calo_ecal_beta_err      [NHSCPs] = hscp.calo().ecalBetaError;
+//         Calo_ecal_invBeta_err   [NHSCPs] = hscp.calo().ecalInvBetaError;
+//         Calo_ecal_dEdx          [NHSCPs] = hscp.calo().ecalDeDx;
+//         Calo_ecal_time          [NHSCPs] = hscp.calo().ecalTime;
+//         Calo_ecal_time_err      [NHSCPs] = hscp.calo().ecalTimeError;
+//         Calo_ecal_numCrysCrossed[NHSCPs] = hscp.calo().ecalCrysCrossed;
+/*         for(int i=0; i < Calo_ecal_numCrysCrossed[NHSCPs] && i < MAX_ECALCRYS; ++i)
          {
            Calo_ecal_swissCrossKs     [NHSCPs][i] = hscp.calo().ecalSwissCrossKs[i];
            Calo_ecal_e1OverE9s        [NHSCPs][i] = hscp.calo().ecalE1OverE9s[i];
@@ -577,6 +585,7 @@ HSCPTreeBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
            Calo_ecal_timeErrors       [NHSCPs][i] = hscp.calo().ecalTimeErrors[i];
            Calo_ecal_detIds           [NHSCPs][i] = hscp.calo().ecalDetIds[i];
          }
+*/
       }
 
       if(Hscp_hasRpc){

@@ -1,6 +1,7 @@
 #include "SUSYBSMAnalysis/HSCP/interface/BetaCalculatorTK.h"
 
 BetaCalculatorTK::BetaCalculatorTK(const edm::ParameterSet& iConfig){
+/*
   m_dedxEstimator1Tag     = iConfig.getParameter<edm::InputTag>("dedxEstimator1");
   m_dedxEstimator2Tag     = iConfig.getParameter<edm::InputTag>("dedxEstimator2");
   m_dedxEstimator3Tag     = iConfig.getParameter<edm::InputTag>("dedxEstimator3");
@@ -13,11 +14,15 @@ BetaCalculatorTK::BetaCalculatorTK(const edm::ParameterSet& iConfig){
   m_dedxDiscriminator4Tag = iConfig.getParameter<edm::InputTag>("dedxDiscriminator4");
   m_dedxDiscriminator5Tag = iConfig.getParameter<edm::InputTag>("dedxDiscriminator5");
   m_dedxDiscriminator6Tag = iConfig.getParameter<edm::InputTag>("dedxDiscriminator6");
+*/
 }
 
 
 void BetaCalculatorTK::addInfoToCandidate(HSCParticle& candidate, edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+   //Do nothing since all dE/dx object are external and get be accessed via reference
+   return;
+/*
    if(!candidate.hasTrackRef())return;
 
    edm::Handle<DeDxDataValueMap> Estimator1H;
@@ -81,5 +86,6 @@ void BetaCalculatorTK::addInfoToCandidate(HSCParticle& candidate, edm::Event& iE
    candidate.setDedxDiscriminator4(Discriminator4[track]);
    candidate.setDedxDiscriminator5(Discriminator5[track]);
    candidate.setDedxDiscriminator6(Discriminator6[track]);
+*/
 }
 

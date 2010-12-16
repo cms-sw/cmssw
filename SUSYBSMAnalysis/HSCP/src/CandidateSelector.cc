@@ -13,8 +13,7 @@ CandidateSelector::CandidateSelector(const edm::ParameterSet& iConfig){
    minTrackP             = iConfig.getParameter<double> ("minTrackP");
    minTrackPt            = iConfig.getParameter<double> ("minTrackPt");
 
-   minDedxEstimator1     = iConfig.getParameter<double> ("minDedxEstimator1");
-   minDedxDiscriminator1 = iConfig.getParameter<double> ("minDedxDiscriminator1");
+   minDedx               = iConfig.getParameter<double> ("minDedx");
 
    minMuonP              = iConfig.getParameter<double> ("minMuonP");
    minMuonPt             = iConfig.getParameter<double> ("minMuonPt");
@@ -46,24 +45,28 @@ bool CandidateSelector::isSelected(HSCParticle& candidate)
       if(candidate.trackRef()->p()     < minTrackP   ){return false;}
       if(candidate.trackRef()->pt()    < minTrackPt  ){return false;}
 
-      if(candidate.hasDedxEstim1()   && minDedxEstimator1>=0     && candidate.dedxEstimator1    ().dEdx()<minDedxEstimator1)    {return false;}
-      if(candidate.hasDedxDiscrim1() && minDedxDiscriminator1>=0 && candidate.dedxDiscriminator1().dEdx()<minDedxDiscriminator1){return false;}
+//      Need to be implemented using external dE/dx object
+//      if(candidate.hasDedxEstim1()   && minDedxEstimator1>=0     && candidate.dedxEstimator1    ().dEdx()<minDedxEstimator1)    {return false;}
+//      if(candidate.hasDedxDiscrim1() && minDedxDiscriminator1>=0 && candidate.dedxDiscriminator1().dEdx()<minDedxDiscriminator1){return false;}
    }
 
    if(candidate.hasMuonRef()){
       if(candidate.muonRef()->p()     < minMuonP   ){return false;}
       if(candidate.muonRef()->pt()    < minMuonPt  ){return false;}
 
-      if(maxMuTimeDtBeta      >=0 && 1.0/candidate.muonTimeDt().inverseBeta()       > maxMuTimeDtBeta      ){return false;}
-      if(minMuTimeDtNdof      >=0 && 1.0/candidate.muonTimeDt().nDof()              < minMuTimeDtNdof      ){return false;}
-      if(maxMuTimeCscBeta     >=0 && 1.0/candidate.muonTimeCsc().inverseBeta()      > maxMuTimeCscBeta     ){return false;}
-      if(minMuTimeCscNdof     >=0 && 1.0/candidate.muonTimeCsc().nDof()             < minMuTimeCscNdof     ){return false;}
-      if(maxMuTimeCombinedBeta>=0 && 1.0/candidate.muonTimeCombined().inverseBeta() > maxMuTimeCombinedBeta){return false;}
-      if(minMuTimeCombinedNdof>=0 && 1.0/candidate.muonTimeCombined().nDof()        < minMuTimeCombinedNdof){return false;}
+//      Need to be implemented using external timing object
+//      if(maxMuTimeDtBeta      >=0 && 1.0/candidate.muonTimeDt().inverseBeta()       > maxMuTimeDtBeta      ){return false;}
+//      if(minMuTimeDtNdof      >=0 && 1.0/candidate.muonTimeDt().nDof()              < minMuTimeDtNdof      ){return false;}
+//      if(maxMuTimeCscBeta     >=0 && 1.0/candidate.muonTimeCsc().inverseBeta()      > maxMuTimeCscBeta     ){return false;}
+//      if(minMuTimeCscNdof     >=0 && 1.0/candidate.muonTimeCsc().nDof()             < minMuTimeCscNdof     ){return false;}
+//      if(maxMuTimeCombinedBeta>=0 && 1.0/candidate.muonTimeCombined().inverseBeta() > maxMuTimeCombinedBeta){return false;}
+//      if(minMuTimeCombinedNdof>=0 && 1.0/candidate.muonTimeCombined().nDof()        < minMuTimeCombinedNdof){return false;}
    }
 
    if(candidate.hasRpcInfo()  && maxBetaRpc>=0  && candidate.rpc ().beta     > maxBetaRpc ){return false;}
-   if(candidate.hasCaloInfo() && maxBetaEcal>=0 && candidate.calo().ecalBeta > maxBetaEcal){return false;}
+
+//      Need to be implemented using external dE/dx object
+//   if(candidate.hasCaloInfo() && maxBetaEcal>=0 && candidate.calo().ecalBeta > maxBetaEcal){return false;}
 
    return true;
 }

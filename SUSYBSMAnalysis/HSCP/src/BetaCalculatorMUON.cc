@@ -1,14 +1,17 @@
 #include "SUSYBSMAnalysis/HSCP/interface/BetaCalculatorMUON.h"
 
 BetaCalculatorMUON::BetaCalculatorMUON(const edm::ParameterSet& iConfig){
-   m_muontiming_dt       = iConfig.getParameter<InputTag >("muontimingDt"      );
-   m_muontiming_csc      = iConfig.getParameter<InputTag >("muontimingCsc"     );
-   m_muontiming_combined = iConfig.getParameter<InputTag >("muontimingCombined");
+//   m_muontiming_dt       = iConfig.getParameter<InputTag >("muontimingDt"      );
+//   m_muontiming_csc      = iConfig.getParameter<InputTag >("muontimingCsc"     );
+//   m_muontiming_combined = iConfig.getParameter<InputTag >("muontimingCombined");
 }
 
 
 void BetaCalculatorMUON::addInfoToCandidate(HSCParticle& candidate, edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+   //Do nothing since all muonTiming object are external and get be accessed via reference
+   return;
+/*
    if(!candidate.hasMuonRef())return;
    reco::MuonRef muon  = candidate.muonRef();
 
@@ -27,5 +30,6 @@ void BetaCalculatorMUON::addInfoToCandidate(HSCParticle& candidate, edm::Event& 
    candidate.setMuonTimeDt      (timeMap_Dt      [muon]);
    candidate.setMuonTimeCsc     (timeMap_Csc     [muon]);
    candidate.setMuonTimeCombined(timeMap_Combined[muon]);
+*/
 }
 

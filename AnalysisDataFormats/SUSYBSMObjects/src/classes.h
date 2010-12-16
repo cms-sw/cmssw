@@ -1,5 +1,6 @@
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPIsolation.h"
+#include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPCaloInfo.h"
 
 namespace {
  namespace {
@@ -17,9 +18,7 @@ namespace {
   std::vector<std::pair<edm::Ref<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> >,susybsm::DriftTubeTOF> > a;
   std::vector<susybsm::DriftTubeTOF> b;
   */
-  susybsm::RPCHit4D rpc4h;
-  std::vector<susybsm::RPCHit4D> rpc4hv;
-  susybsm::CaloBetaMeasurement calobeta;
+//  susybsm::CaloBetaMeasurement calobeta;
   susybsm::RPCBetaMeasurement rpcbeta;
 //susybsm::DeDxBeta dedxbeta;
   susybsm::HSCParticleCollection hc;
@@ -38,6 +37,17 @@ namespace {
   edm::Wrapper<susybsm::HSCPIsolation> hscpIW; 
   edm::Wrapper<susybsm::HSCPIsolationCollection> hscpIcW;
   edm::Wrapper<susybsm::HSCPIsolationValueMap> hscpIvmW;
+
+  susybsm::HSCPCaloInfo hscpC;
+  susybsm::HSCPCaloInfoCollection hscpCc;
+  susybsm::HSCPCaloInfoRef hscpCr;
+  susybsm::HSCPCaloInfoRefProd hscpCp;
+  susybsm::HSCPCaloInfoRefVector hscpCv;
+  susybsm::HSCPCaloInfoValueMap hscpCvm;
+  edm::Wrapper<susybsm::HSCPCaloInfo> hscpCW;
+  edm::Wrapper<susybsm::HSCPCaloInfoCollection> hscpCcW;
+  edm::Wrapper<susybsm::HSCPCaloInfoValueMap> hscpCvmW;
+
   
  }
 }

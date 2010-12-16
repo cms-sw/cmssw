@@ -26,6 +26,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
+#include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPCaloInfo.h"
 
 using namespace susybsm;
 
@@ -33,7 +34,7 @@ class BetaCalculatorECAL {
 
    public:
        BetaCalculatorECAL(const edm::ParameterSet& iConfig);
-       void  addInfoToCandidate(HSCParticle& candidate, edm::Handle<reco::TrackCollection>& tracks, edm::Event& iEvent, const edm::EventSetup& iSetup);
+       void  addInfoToCandidate(HSCParticle& candidate, edm::Handle<reco::TrackCollection>& tracks, edm::Event& iEvent, const edm::EventSetup& iSetup, HSCPCaloInfo& caloInfo);
 
    private:
        int getDetailedTrackLengthInXtals(std::map<int,GlobalPoint>& trackExitPositionMap,

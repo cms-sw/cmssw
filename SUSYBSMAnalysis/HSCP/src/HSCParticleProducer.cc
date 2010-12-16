@@ -14,7 +14,7 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCParticleProducer.cc,v 1.15 2010/04/17 06:42:51 querten Exp $
+// $Id: HSCParticleProducer.cc,v 1.16 2010/05/01 15:40:48 querten Exp $
 //
 //
 
@@ -31,6 +31,7 @@ HSCParticleProducer::HSCParticleProducer(const edm::ParameterSet& iConfig) {
   // the input collections
   m_trackTag      = iConfig.getParameter<edm::InputTag>("tracks");
   m_muonsTag      = iConfig.getParameter<edm::InputTag>("muons");
+  m_trackIsoTag   = iConfig.getParameter<edm::InputTag>("tracksIsolation");
 
   useBetaFromTk   = iConfig.getParameter<bool>    ("useBetaFromTk"  );
   useBetaFromMuon = iConfig.getParameter<bool>    ("useBetaFromMuon");
@@ -58,6 +59,8 @@ HSCParticleProducer::HSCParticleProducer(const edm::ParameterSet& iConfig) {
 
   // what I produce
   produces<susybsm::HSCParticleCollection >();
+  if(useBetaFromEcal)produces<susybsm::HSCPCaloInfoCollection >();
+
 }
 
 HSCParticleProducer::~HSCParticleProducer() {
@@ -86,12 +89,36 @@ HSCParticleProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
   iEvent.getByLabel(m_trackTag,trackCollectionHandle);
 
+  // information from the tracks iso
+  edm::Handle<reco::TrackCollection> trackIsoCollectionHandle;
+  iEvent.getByLabel(m_trackIsoTag,trackIsoCollectionHandle);
+
+
   // creates the output collection
   susybsm::HSCParticleCollection* hscp = new susybsm::HSCParticleCollection; 
   std::auto_ptr<susybsm::HSCParticleCollection> result(hscp);
 
+  susybsm::HSCPCaloInfoCollection* caloInfoColl = new susybsm::HSCPCaloInfoCollection;
+  std::auto_ptr<susybsm::HSCPCaloInfoCollection> caloInfoCollaptr(caloInfoColl);
+
+
   // Fill the output collection with HSCP Candidate (the candiate only contains ref to muon AND/OR track object)
   *hscp = getHSCPSeedCollection(trackCollectionHandle, muonCollectionHandle);
+
+  // find the track ref for isolation purposed (main track is supposed to be the Iso track after refitting)
+  for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate != hscp->end(); ++hscpcandidate) {
+      // Matching is needed because input track collection and muon inner track may lightly differs due to track refit
+      reco::TrackRef track  = hscpcandidate->trackRef();
+      if(track.isNull())continue;
+      float dRMin=1000; int found = -1;
+      for(unsigned int t=0; t<trackIsoCollectionHandle->size();t++) {
+         reco::TrackRef Isotrack  = reco::TrackRef( trackIsoCollectionHandle, t );
+         if( fabs( (1.0/track->pt())-(1.0/Isotrack->pt())) > maxInvPtDiff) continue;
+         float dR = deltaR(track->momentum(), Isotrack->momentum());
+         if(dR <= minDR && dR < dRMin){ dRMin=dR; found = t;}
+      }
+      if(found>=0)hscpcandidate->setTrackIso(reco::TrackRef( trackIsoCollectionHandle, found ));  
+  }
 
   // compute the TRACKER contribution
   if(useBetaFromTk){
@@ -108,13 +135,18 @@ HSCParticleProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // compute the RPC contribution
   if(useBetaFromRpc){
   for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate != hscp->end(); ++hscpcandidate) {
-      beta_calculator_RPC->addInfoToCandidate(*hscpcandidate, iSetup);
+      beta_calculator_RPC->addInfoToCandidate(*hscpcandidate, iEvent, iSetup);
   }}
 
   // compute the ECAL contribution
-  if(useBetaFromEcal){
-  for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate != hscp->end(); ++hscpcandidate) {
-    beta_calculator_ECAL->addInfoToCandidate(*hscpcandidate,trackCollectionHandle,iEvent,iSetup);
+//  auto_ptr<ValueMap<HSCPCaloInfo> > CaloInfoMap(new ValueMap<HSCPCaloInfo> );
+//  ValueMap<HSCPCaloInfo>::Filler    filler(*CaloInfoMap);
+//  std::vector<HSCPCaloInfo> CaloInfoColl(hscp->size());
+   if(useBetaFromEcal){
+  int Index=0;
+  caloInfoColl->resize(hscp->size());
+  for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate != hscp->end(); ++hscpcandidate, Index++) {
+     beta_calculator_ECAL->addInfoToCandidate(*hscpcandidate,trackCollectionHandle,iEvent,iSetup, (*caloInfoColl)[Index]);
   }}
 
   // cleanup the collection based on the input selection
@@ -124,16 +156,38 @@ HSCParticleProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
      for(unsigned int s=0;s<Selectors.size();s++){decision |= Selectors[s]->isSelected(*hscpcandidate);}
      if(!decision){
         hscp->erase(hscpcandidate);
+        if(useBetaFromEcal)caloInfoColl->erase(caloInfoColl->begin() + i);
         i--;
      }
   }
+  bool filterResult = !Filter_ || (Filter_ && hscp->size()>=1);
 
-   bool filterResult = !Filter_ || (Filter_ && hscp->size()>=1);
+
+
 
   // output result
-  iEvent.put(result); 
+  if(useBetaFromEcal){
+    edm::OrphanHandle<susybsm::HSCPCaloInfoCollection> caloInfoHandle= iEvent.put(caloInfoCollaptr);
+    // adding the reftoCaloInfoObject to the HSCP Object
+    for(int i=0;i<(int)hscp->size();i++) {
+       susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin() + i;
+       hscpcandidate->setCaloInfo(HSCPCaloInfoRef(caloInfoHandle,i));
+    }
+  }
 
-   return filterResult;
+
+  // output result
+  
+
+  edm::OrphanHandle<susybsm::HSCParticleCollection> putHandle = iEvent.put(result); 
+  if(useBetaFromEcal){
+//      edm::RefProd<susybsm::HSCParticleCollection> hscpCollectionHandle = iEvent.getRefBeforePut<susybsm::HSCParticleCollection>();
+//    filler.insert(putHandle, CaloInfoColl.begin(), CaloInfoColl.end());
+//    filler.fill();
+//    iEvent.put(CaloInfoMap);
+  }
+
+  return filterResult;
 }
 
 // ------------ method called once each job just before starting event loop  ------------

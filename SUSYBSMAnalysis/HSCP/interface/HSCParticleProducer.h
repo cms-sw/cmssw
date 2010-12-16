@@ -14,7 +14,7 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCParticleProducer.h,v 1.3 2010/04/15 14:17:26 querten Exp $
+// $Id: HSCParticleProducer.h,v 1.4 2010/05/01 15:40:47 querten Exp $
 
 
 // system include files
@@ -70,6 +70,7 @@ class HSCParticleProducer : public edm::EDFilter {
     bool          Filter_;
 
     edm::InputTag m_trackTag;
+    edm::InputTag m_trackIsoTag;
     edm::InputTag m_muonsTag;
 
     bool         useBetaFromTk;

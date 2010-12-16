@@ -15,8 +15,7 @@ HSCPSelectionEmpty = cms.PSet(
          minTrackP                = cms.double(-1),
          minTrackPt               = cms.double(-1),
 
-         minDedxEstimator1        = cms.double(-1),
-         minDedxDiscriminator1    = cms.double(-1),
+         minDedx                  = cms.double(-1),
 
          minMuonP                 = cms.double(-1),
          minMuonPt                = cms.double(-1),
