@@ -114,8 +114,8 @@ private:
   mutable GlobalPoint globalPosition_;  
   mutable GlobalError globalError_;
   mutable float errorR_,errorZ_,errorRPhi_;
-  mutable bool hasGlobalError_;
   mutable bool hasGlobalPosition_;
+  mutable bool hasGlobalError_;
  
   // hide the clone method for ReferenceCounted. Warning: this method is still 
   // accessible via the bas class TrackingRecHit interface!
