@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul 15 09:17:20 EDT 2005
-// $Id: ReferenceCounted.h,v 1.9 2008/11/03 12:55:25 innocent Exp $
+// $Id: ReferenceCounted.h,v 1.10 2010/12/16 13:38:37 innocent Exp $
 //
 
 // system include files
@@ -85,7 +85,7 @@ inline void intrusive_ptr_release( const BasicReferenceCounted* iRef ) {
 }
 
 
-// #define CMSSW_POOLALLOCATOR
+#define CMSSW_POOLALLOCATOR
 
 #ifdef CMSSW_POOLALLOCATOR
 #include "DataFormats/GeometrySurface/interface/BlockWipedAllocator.h"
@@ -161,7 +161,8 @@ typedef BasicReferenceCounted ReferenceCountedInConditions;
 typedef ReferenceCountedPoolAllocated  ReferenceCountedInEvent;
 
 // just to avoid changing all around 
-typedef ReferenceCountedPoolAllocated ReferenceCounted;
+// typedef ReferenceCountedPoolAllocated ReferenceCounted;
+typedef BasicReferenceCounted ReferenceCounted;
 
 
 

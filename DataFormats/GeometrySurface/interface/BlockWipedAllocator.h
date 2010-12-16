@@ -150,6 +150,7 @@ struct LocalCache : public BlockWipedAllocator::LocalCache {
  */
 class BlockWipedPoolAllocated {
 public:
+  virtual ~BlockWipedPoolAllocated(){}
   // instance counter...
   static int s_alive;
   static void * operator new(size_t s, void * p);

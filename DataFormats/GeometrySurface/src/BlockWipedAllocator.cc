@@ -4,6 +4,7 @@
 BlockWipedAllocator::BlockWipedAllocator( std::size_t typeSize,
 					  std::size_t blockSize):
   m_typeSize(typeSize), m_blockSize(blockSize), m_alive(0){
+  if (typeSize<32) abort(); // throw std::bad_alloc();
   wipe();
 }
   
@@ -123,8 +124,14 @@ static void *  BlockWipedPoolAllocated::operator new(size_t s, void * p) {
   return p;
 }
 
-
+#include<typeinfo>
+#include<iostream>
+struct AQ {
+  virtual ~AQ(){}
+};
 void BlockWipedPoolAllocated::operator delete(void * p, size_t s) {
+  if (0==p) return;
+  // if (s<100) std::cout << typeid(*(BlockWipedPoolAllocated*)(p)).name() << std::endl;
   s_alive--;
   (s_usePool) ? allocator(s).dealloc(p) : ::operator delete(p);
 

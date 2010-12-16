@@ -25,26 +25,27 @@ public:
    *  The error matrix components are actually multiplied with the square 
    *  of the factor.
    */
-  LocalError scale(float s) { 
+  LocalError scale(float s) const { 
     float s2 = s*s;
     return LocalError(s2*xx(), s2*xy(), s2*yy());
   }
 
   /// Return a new LocalError, rotated by an angle defined by the direction (x,y)
-  LocalError rotate(float x, float y) { 
+  LocalError rotate(float x, float y) const { 
     return rotateCosSin( x, y, 1.f/(x*x+y*y) );
   }
 
   /// Return a new LocalError, rotated by an angle phi
-  LocalError rotate(float phi) { 
+  LocalError rotate(float phi) const { 
     return rotateCosSin( cos(phi), sin(phi));
   }
 
   /// Return a new LocalError, rotated by an angle defined by it's cosine and sine
-  LocalError rotateCosSin( float c, float s, float mag2i=1.f) {
+  LocalError rotateCosSin( float c, float s, float mag2i=1.f) const {
     return LocalError( mag2i*( (c*c)*xx() + (s*s)*yy() - 2.f*(c*s)*xy()),
 		       mag2i*( (c*s)*(xx() - yy()) +  (c*c-s*s)*xy()) ,
-		       mag2i*( (s*s)*xx() + (c*c)*yy() + 2.f*(c*s)*xy());
+		       mag2i*( (s*s)*xx() + (c*c)*yy() + 2.f*(c*s)*xy())
+                     );
   }
 
 private:
