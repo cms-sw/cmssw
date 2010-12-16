@@ -38,7 +38,7 @@ struct A1 : public B
 
 struct A2 : public B
 #ifdef BALLOC
-	  , public SizeBlockWipedAllocated<A2> 
+	  , public BlockWipedAllocated<A2> 
 #endif
 {
   virtual A2* clone() const {
@@ -46,14 +46,14 @@ struct A2 : public B
   }
   
   float a;
-  char c[2];
+  char c[12];
   long long  l;
 
 };
 
 struct A3 : public B
 #ifdef BALLOC
-	  , public SizeBlockWipedAllocated<A3> 
+	  , public BlockWipedAllocated<A3> 
 #endif
 {
   virtual A3* clone() const {
@@ -61,7 +61,7 @@ struct A3 : public B
   }
   
   float a;
-  char c[2];
+  char c[12];
   long long  l;
 
 };
@@ -163,28 +163,49 @@ int main(int v, char **) {
     dump();
     { 
       std::vector<BP> v(233);
-      for_each(v.begin(),v.end(),&gen);
+      std::for_each(v.begin(),v.end(),&gen);
       dump("after 233 alloc");
       v.resize(123);
       dump("after 110 distr");
     }
     dump();
     
-    for (int i=0;i<3;i++){
-      std::vector<BP> v(2432);
-      for_each(v.begin(),v.end(),&gen);
-      std::vector<BP> v1(3213);
-      for_each(v1.begin(),v1.end(),&gen);
-      {
-	std::vector<BP> d; d.swap(v);
+    {
+      std::vector<BP> vev;
+      for (int i=0;i<2002;i++){
+	static LocalCache<A3> lc;
+	std::auto_ptr<A3> & ptr = lc.ptr;
+	if (ptr.get()) {
+	  ptr->~A3();
+	  new(ptr.get()) A3;
+	} else {
+	  ptr.reset(new A3);
+	}
+	if (i%5==0) vev.push_back(BP(ptr.release()));			       
       }
-      // alloc disalloc
-      std::vector<BP> vs(514);
-      for_each(vs.begin(),vs.end(),&gen);
-      for_each(vs.begin(),vs.end(),&gen);
+      dump("after 2002/5 local caches");
+    
+      for (int i=0;i<3;i++){
+	std::vector<BP> v(2432);
+	std::for_each(v.begin(),v.end(),&gen);
+	std::vector<BP> v1(3213);
+	std::for_each(v1.begin(),v1.end(),&gen);
+	{
+	  std::vector<BP> d; d.swap(v);
+	}
+	// alloc disalloc
+	std::vector<BP> vs(514);
+	std::for_each(vs.begin(),vs.end(),&gen);
+	std::for_each(vs.begin(),vs.end(),&gen);
+      }
     }
     dump("loop end");
   }
+  std::cout << sizeof(B)
+	    << " " << sizeof(A1)
+	    << " " << sizeof(A2)
+	    << " " << sizeof(A3)
+	    << std::endl;
   return 0;
 }
 

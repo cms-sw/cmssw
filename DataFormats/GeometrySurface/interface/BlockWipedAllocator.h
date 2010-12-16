@@ -39,6 +39,21 @@ public:
   // reset allocator status. does not redime memory
   void wipe() const;
 
+
+  // longliving (static) local caches: to be reset at wipe
+  struct LocalCache {
+    virtual ~LocalCache(){}
+    virtual void reset()=0;
+  };
+
+  void registerCache(LocalCache * c) {
+    localCaches.push_back(c);
+  }
+
+private:
+  std::vector<LocalCache*> localCaches;
+  
+
 protected:
 
   BlockWipedAllocator & me() const;
@@ -119,6 +134,16 @@ BlockWipedAllocator & blockWipedAllocator() {
   return local;
 }
 
+template<typename T>
+struct LocalCache : public BlockWipedAllocator::LocalCache {
+  std::auto_ptr<T> ptr;
+  LocalCache(){ 
+    blockWipedAllocator<sizeof(T)>().registerCache(this);
+  }
+  ~LocalCache(){}
+  void reset(){ ptr.reset();}
+};
+
 
 /*  generaric Basic class
  * 
@@ -140,12 +165,13 @@ public:
   // throw id s_alive!=0???
   static void usePool();
 
+
 private:
   static bool s_usePool;
   // static BlockAllocator * s_allocator;
 };
 
-
+// below: not used
 
 /*  Allocator by type
  * 
@@ -171,10 +197,12 @@ public:
     return allocator().stat();
   }
   
+
 private:
   
   // static BlockAllocator * s_allocator;
 };
+
 
 /*  Allocator by size
  * 

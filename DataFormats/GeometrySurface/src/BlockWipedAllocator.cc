@@ -43,6 +43,9 @@ void BlockWipedAllocator::clear() const {
 }
 
 void BlockWipedAllocator::wipe() const {
+  // reset caches
+  std::for_each(localCaches.begin(),localCaches.end(),boost::bind(&LocalCache::reset,_1));
+
   me().m_current=me().m_blocks.begin();
   me().nextBlock(false);
 }

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul 15 09:17:20 EDT 2005
-// $Id: ReferenceCounted.h,v 1.8 2008/10/24 14:12:51 innocent Exp $
+// $Id: ReferenceCounted.h,v 1.9 2008/11/03 12:55:25 innocent Exp $
 //
 
 // system include files
@@ -89,6 +89,12 @@ inline void intrusive_ptr_release( const BasicReferenceCounted* iRef ) {
 
 #ifdef CMSSW_POOLALLOCATOR
 #include "DataFormats/GeometrySurface/interface/BlockWipedAllocator.h"
+#else
+template<typename T>
+struct LocalCache {
+  std::auto_ptr<T> ptr;
+};
+
 #endif
 
 class ReferenceCountedPoolAllocated
