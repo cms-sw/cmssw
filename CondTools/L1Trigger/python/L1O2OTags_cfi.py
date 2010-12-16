@@ -41,7 +41,7 @@ def initL1O2OTags():
     initL1O2OTags.tagBaseVec[ L1CondEnum.L1CaloGeometry ] = "CRAFT09_hlt"
     initL1O2OTags.tagBaseVec[ L1CondEnum.L1MuDTTFMasks ] = "CRAFT09_hlt"
     initL1O2OTags.tagBaseVec[ L1CondEnum.L1MuGMTChannelMask ] = "CRAFT09_hlt"
-    initL1O2OTags.tagBaseVec[ L1CondEnum.L1RCTChannelMask ] = "CRAFT09_hlt"
+    initL1O2OTags.tagBaseVec[ L1CondEnum.L1RCTChannelMask ] = "CRAFT09v2_hlt"
     initL1O2OTags.tagBaseVec[ L1CondEnum.L1RCTNoisyChannelMask ] = "CRAFT09_hlt"
     initL1O2OTags.tagBaseVec[ L1CondEnum.L1GctChannelMask ] = "CRAFT09_hlt"
 
