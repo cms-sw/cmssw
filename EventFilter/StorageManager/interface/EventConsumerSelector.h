@@ -1,4 +1,4 @@
-// $Id: EventConsumerSelector.h,v 1.4 2009/09/23 13:03:59 mommsen Exp $
+// $Id: EventConsumerSelector.h,v 1.5 2009/12/01 13:58:08 mommsen Exp $
 /// @file: EventConsumerSelector.h 
 
 #ifndef StorageManager_EventConsumerSelector_h
@@ -18,8 +18,8 @@ namespace stor {
    * registration info objects.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/09/23 13:03:59 $
+   * $Revision: 1.5 $
+   * $Date: 2009/12/01 13:58:08 $
    */
 
   class EventConsumerSelector
@@ -31,11 +31,11 @@ namespace stor {
      * Constructs an EventConsumerSelector instance based on the
      * specified registration information.
      */
-    EventConsumerSelector( const EventConsumerRegistrationInfo* configInfo ):
+    EventConsumerSelector( const EventConsumerRegistrationInfo* registrationInfo ):
       _initialized( false ),
       _stale( false ),
       _outputModuleId( 0 ),
-      _configInfo( *configInfo )
+      _registrationInfo( *registrationInfo )
     {}
 
     /**
@@ -59,7 +59,7 @@ namespace stor {
     /**
      * Returns the ID of the queue corresponding to this selector.
      */
-    QueueID const queueId() const { return _configInfo.queueId(); }
+    QueueID const queueId() const { return _registrationInfo.queueId(); }
 
     /**
      * Tests whether this selector has been initialized.
@@ -81,12 +81,18 @@ namespace stor {
     */
     void markAsActive() { _stale = false; }
 
+    /**
+       Comparison:
+    */
+    bool operator<(const EventConsumerSelector& other) const
+    { return ( _registrationInfo < other._registrationInfo ); }
+
   private:
 
     bool _initialized;
     bool _stale;
     unsigned int _outputModuleId;
-    const EventConsumerRegistrationInfo _configInfo;
+    const EventConsumerRegistrationInfo _registrationInfo;
 
     boost::shared_ptr<TriggerSelector> _eventSelector;
 

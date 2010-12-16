@@ -1,4 +1,4 @@
-// $Id: EventConsumerRegistrationInfo.h,v 1.9 2010/04/16 14:39:34 mommsen Exp $
+// $Id: EventConsumerRegistrationInfo.h,v 1.10 2010/04/19 10:35:09 mommsen Exp $
 /// @file: EventConsumerRegistrationInfo.h 
 
 #ifndef StorageManager_EventConsumerRegistrationInfo_h
@@ -20,8 +20,8 @@ namespace stor
    * Holds the registration information from a event consumer.
    *
    * $Author: mommsen $
-   * $Revision: 1.9 $
-   * $Date: 2010/04/16 14:39:34 $
+   * $Revision: 1.10 $
+   * $Date: 2010/04/19 10:35:09 $
    */
 
   class EventConsumerRegistrationInfo: public RegistrationInfoBase
@@ -55,6 +55,9 @@ namespace stor
     // Staleness:
     bool isStale() const { return _stale; }
     void setStaleness( bool s ) { _stale = s; }
+
+    // Comparison:
+    bool operator<(const EventConsumerRegistrationInfo&) const;
 
     // Output:
     std::ostream& write(std::ostream& os) const;

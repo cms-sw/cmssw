@@ -1,10 +1,8 @@
-// $Id: DQMEventConsumerRegistrationInfo.cc,v 1.6 2010/04/16 14:40:14 mommsen Exp $
+// $Id: DQMEventConsumerRegistrationInfo.cc,v 1.7 2010/08/06 20:24:30 wmtan Exp $
 /// @file: DQMEventConsumerRegistrationInfo.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventConsumerRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
-
-using namespace std;
 
 namespace stor
 {
@@ -91,8 +89,20 @@ namespace stor
     return _common._secondsToStale;
   }
 
-  ostream&
-  DQMEventConsumerRegistrationInfo::write(ostream& os) const
+  bool
+  DQMEventConsumerRegistrationInfo::operator<(const DQMEventConsumerRegistrationInfo& other) const
+  {
+    if ( _topLevelFolderName != other.topLevelFolderName() )
+      return ( _topLevelFolderName < other.topLevelFolderName() );
+    if ( _common._queueSize != other.queueSize() )
+      return ( _common._queueSize < other.queueSize() );
+    if ( _common._queuePolicy != other.queuePolicy() )
+      return ( _common._queuePolicy < other.queuePolicy() );
+    return ( _common._secondsToStale < other.secondsToStale() );
+  }
+
+  std::ostream&
+  DQMEventConsumerRegistrationInfo::write(std::ostream& os) const
   {
     os << "DQMEventConsumerRegistrationInfo:"
        << _common

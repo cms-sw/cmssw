@@ -1,4 +1,4 @@
-// $Id: EventStreamConfigurationInfo.h,v 1.7 2009/12/01 17:56:15 smorovic Exp $
+// $Id: EventStreamConfigurationInfo.h,v 1.8 2010/12/10 13:23:42 mommsen Exp $
 /// @file: EventStreamConfigurationInfo.h
 
 #ifndef StorageManager_EventStreamConfigurationInfo_h
@@ -18,9 +18,9 @@ namespace stor
   /**
      Configuration information for the event stream
 
-     $Author: smorovic $
-     $Revision: 1.7 $
-     $Date: 2009/12/01 17:56:15 $
+     $Author: mommsen $
+     $Revision: 1.8 $
+     $Date: 2010/12/10 13:23:42 $
   */
 
   class EventStreamConfigurationInfo
@@ -57,6 +57,9 @@ namespace stor
     const std::string& outputModuleLabel() const { return _outputModuleLabel; }
     double fractionToDisk() const { return _fractionToDisk; }
     StreamID streamId() const { return _streamId; }
+
+    // Comparison:
+    bool operator<(const EventStreamConfigurationInfo&) const;
 
     // Set stream Id:
     void setStreamId( StreamID sid ) { _streamId = sid; }

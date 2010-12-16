@@ -1,4 +1,4 @@
-// $Id: DQMEventConsumerRegistrationInfo.h,v 1.5 2010/02/16 10:49:52 mommsen Exp $
+// $Id: DQMEventConsumerRegistrationInfo.h,v 1.6 2010/04/16 14:39:34 mommsen Exp $
 /// @file: DQMEventConsumerRegistrationInfo.h 
 
 #ifndef StorageManager_DQMEventConsumerRegistrationInfo_h
@@ -17,8 +17,8 @@ namespace stor
    * Holds the registration information for a DQM event consumer.
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2010/02/16 10:49:52 $
+   * $Revision: 1.6 $
+   * $Date: 2010/04/16 14:39:34 $
    */
 
   class DQMEventConsumerRegistrationInfo : public RegistrationInfoBase
@@ -46,6 +46,9 @@ namespace stor
     // Staleness:
     bool isStale() const { return _stale; }
     void setStaleness( bool s ) { _stale = s; }
+
+    // Comparison:
+    bool operator<(const DQMEventConsumerRegistrationInfo&) const;
 
     // Output:
     std::ostream& write(std::ostream& os) const;

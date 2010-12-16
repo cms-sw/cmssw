@@ -1,4 +1,4 @@
-// $Id: EventDistributor.cc,v 1.21 2010/12/01 13:44:48 eulisse Exp $
+// $Id: EventDistributor.cc,v 1.22 2010/12/15 15:29:23 mommsen Exp $
 /// @file: EventDistributor.cc
 
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
@@ -264,13 +264,13 @@ void EventDistributor::registerEventConsumer
     }
   }
   
-  _eventConsumerSelectors.push_back( evtSel );
+  _eventConsumerSelectors.insert( evtSel );
 }
 
 void EventDistributor::registerDQMEventConsumer( const DQMEventConsumerRegistrationInfo* ptr )
 {
   DQMEvtSelPtr dqmEvtSel( new DQMEventSelector(ptr) );
-  _dqmEventSelectors.push_back( dqmEvtSel );
+  _dqmEventSelectors.insert( dqmEvtSel );
 }
 
 void EventDistributor::registerEventStreams( const EvtStrConfigListPtr cl )
@@ -280,7 +280,7 @@ void EventDistributor::registerEventStreams( const EvtStrConfigListPtr cl )
        ++it )
   {
     EvtSelPtr evtSel( new EventStreamSelector(*it) );
-    _eventStreamSelectors.push_back( evtSel );
+    _eventStreamSelectors.insert( evtSel );
   }
 }
 
@@ -292,7 +292,7 @@ void EventDistributor::registerErrorStreams( const ErrStrConfigListPtr cl )
        ++it )
   {
     ErrSelPtr errSel( new ErrorStreamSelector(*it) );
-    _errorStreamSelectors.push_back( errSel );
+    _errorStreamSelectors.insert( errSel );
   }
 }
 

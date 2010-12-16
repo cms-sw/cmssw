@@ -1,4 +1,4 @@
-// $Id: EventConsumerRegistrationInfo.cc,v 1.10 2010/04/19 10:35:23 mommsen Exp $
+// $Id: EventConsumerRegistrationInfo.cc,v 1.11 2010/08/06 20:24:30 wmtan Exp $
 /// @file: EventConsumerRegistrationInfo.cc
 
 #include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
@@ -9,7 +9,6 @@
 #include <iterator>
 #include <ostream>
 
-using namespace std;
 
 namespace stor
 {
@@ -100,9 +99,25 @@ namespace stor
     return _common._secondsToStale;
   }
 
+  bool
+  EventConsumerRegistrationInfo::operator<(const EventConsumerRegistrationInfo& other) const
+  {
+    if ( _outputModuleLabel != other.outputModuleLabel() )
+      return ( _outputModuleLabel < other.outputModuleLabel() );
+    if ( _triggerSelection != other.triggerSelection() )
+      return ( _triggerSelection < other.triggerSelection() );
+    if ( _selEvents != other.selEvents() )
+      return ( _selEvents < other.selEvents() );
+    if ( _common._queueSize != other.queueSize() )
+      return ( _common._queueSize < other.queueSize() );
+    if ( _common._queuePolicy != other.queuePolicy() )
+      return ( _common._queuePolicy < other.queuePolicy() );
+    return ( _common._secondsToStale < other.secondsToStale() );
+  }
 
-  ostream& 
-  EventConsumerRegistrationInfo::write(ostream& os) const
+
+  std::ostream& 
+  EventConsumerRegistrationInfo::write(std::ostream& os) const
   {
     os << "EventConsumerRegistrationInfo:"
        << _common
@@ -114,9 +129,9 @@ namespace stor
     }
     else 
     */
-    copy(_selEvents.begin(), 
-         _selEvents.end(),
-         ostream_iterator<FilterList::value_type>(os, "\n"));
+    std::copy(_selEvents.begin(), 
+              _selEvents.end(),
+              std::ostream_iterator<FilterList::value_type>(os, "\n"));
     
     //     for( unsigned int i = 0; i < _selEvents.size(); ++i )
     //       {

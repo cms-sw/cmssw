@@ -1,4 +1,4 @@
-// $Id: ErrorStreamConfigurationInfo.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
+// $Id: ErrorStreamConfigurationInfo.h,v 1.4 2009/09/11 21:07:06 elmer Exp $
 /// @file: ErrorStreamConfigurationInfo.h 
 
 #ifndef StorageManager_ErrorStreamConfigurationInfo_h
@@ -18,17 +18,15 @@ namespace stor
   /**
      Configuration information for the error stream
 
-     $Author: mommsen $
-     $Revision: 1.3 $
-     $Date: 2009/07/20 13:06:10 $
+     $Author: elmer $
+     $Revision: 1.4 $
+     $Date: 2009/09/11 21:07:06 $
   */
 
   class ErrorStreamConfigurationInfo
   {
 
   public:
-
-    typedef std::vector<std::string> FilterList;
 
     // Constructor:
     ErrorStreamConfigurationInfo( const std::string& streamLabel,
@@ -45,6 +43,9 @@ namespace stor
     const std::string& streamLabel() const { return _streamLabel; }
     const int maxFileSizeMB() const { return _maxFileSizeMB; }
     StreamID streamId() const { return _streamId; }
+
+    // Comparison:
+    bool operator<(const ErrorStreamConfigurationInfo&) const;
 
     // Set stream Id:
     void setStreamId( StreamID sid ) { _streamId = sid; }

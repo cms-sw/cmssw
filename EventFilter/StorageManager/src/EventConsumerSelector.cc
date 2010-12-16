@@ -1,4 +1,4 @@
-// $Id: EventConsumerSelector.cc,v 1.8 2009/12/01 13:58:08 mommsen Exp $
+// $Id: EventConsumerSelector.cc,v 1.9 2009/12/01 17:50:40 smorovic Exp $
 /// @file: EventConsumerSelector.cc
 
 #include <vector>
@@ -17,22 +17,22 @@ void EventConsumerSelector::initialize( const InitMsgView& imv )
 
   if( _initialized ) return;
 
-  if( _configInfo.outputModuleLabel() != imv.outputModuleLabel() ) return; 
+  if( _registrationInfo.outputModuleLabel() != imv.outputModuleLabel() ) return; 
 
   _outputModuleId = imv.outputModuleId();
 
   edm::ParameterSet pset;
-  pset.addParameter<std::string>( "TriggerSelector", _configInfo.triggerSelection() );
-  pset.addParameter<Strings>( "SelectEvents", _configInfo.selEvents() );
+  pset.addParameter<std::string>( "TriggerSelector", _registrationInfo.triggerSelection() );
+  pset.addParameter<Strings>( "SelectEvents", _registrationInfo.selEvents() );
 
   Strings tnames;
   imv.hltTriggerNames( tnames );
 
   std::ostringstream errorMsg;
   errorMsg << "Cannot initialize edm::EventSelector for consumer" <<
-    _configInfo.consumerName() << " running on " << _configInfo.remoteHost() <<
+    _registrationInfo.consumerName() << " running on " << _registrationInfo.remoteHost() <<
     " requesting output module ID" << _outputModuleId <<
-    " with label " << _configInfo.outputModuleLabel() <<
+    " with label " << _registrationInfo.outputModuleLabel() <<
     " and HLT trigger names";
   boost::lambda::placeholder1_type arg1;
   std::for_each(tnames.begin(), tnames.end(), errorMsg << boost::lambda::constant(" ") << arg1);

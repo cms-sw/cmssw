@@ -1,4 +1,4 @@
-// $Id: ErrorStreamSelector.h,v 1.2 2009/06/10 08:15:22 dshpakov Exp $
+// $Id: ErrorStreamSelector.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
 /// @file: ErrorStreamSelector.h 
 
 #ifndef StorageManager_ErrorStreamSelector_h
@@ -15,9 +15,9 @@ namespace stor {
      Accepts or rejects an error event based on the 
      ErrorStreamConfigurationInfo
 
-     $Author: dshpakov $
-     $Revision: 1.4 $
-     $Date: 2009/07/14 10:34:44 $
+     $Author: mommsen $
+     $Revision: 1.3 $
+     $Date: 2009/07/20 13:06:10 $
   */
 
   class ErrorStreamSelector
@@ -38,6 +38,10 @@ namespace stor {
 
     // Accessors:
     const ErrorStreamConfigurationInfo& configInfo() const { return _configInfo; }
+
+    // Comparison:
+    bool operator<(const ErrorStreamSelector& other) const
+    { return ( _configInfo < other.configInfo() ); }
 
   private:
 

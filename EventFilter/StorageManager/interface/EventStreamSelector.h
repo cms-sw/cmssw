@@ -1,4 +1,4 @@
-// $Id: EventStreamSelector.h,v 1.5 2009/11/24 16:38:24 mommsen Exp $
+// $Id: EventStreamSelector.h,v 1.6 2009/12/01 13:58:08 mommsen Exp $
 /// @file: EventStreamSelector.h 
 
 #ifndef StorageManager_EventStreamSelector_h
@@ -18,8 +18,8 @@ namespace stor {
      EventStreamConfigurationInfo
 
      $Author: mommsen $
-     $Revision: 1.5 $
-     $Date: 2009/11/24 16:38:24 $
+     $Revision: 1.6 $
+     $Date: 2009/12/01 13:58:08 $
   */
 
   class EventStreamSelector
@@ -43,6 +43,10 @@ namespace stor {
     unsigned int outputModuleId() const { return _outputModuleId; }
     const EventStreamConfigurationInfo& configInfo() const { return _configInfo; }
     bool isInitialized() const { return _initialized; }
+
+    // Comparison:
+    bool operator<(const EventStreamSelector& other) const
+    { return ( _configInfo < other.configInfo() ); }
 
   private:
 

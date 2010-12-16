@@ -1,4 +1,4 @@
-// $Id: Utils.h,v 1.11 2010/12/10 19:38:48 mommsen Exp $
+// $Id: Utils.h,v 1.12 2010/12/14 12:56:51 mommsen Exp $
 /// @file: Utils.h 
 
 #ifndef StorageManager_Utils_h
@@ -25,8 +25,8 @@ namespace stor {
      * Collection of utility functions used in the storage manager
      *
      * $Author: mommsen $
-     * $Revision: 1.11 $
-     * $Date: 2010/12/10 19:38:48 $
+     * $Revision: 1.12 $
+     * $Date: 2010/12/14 12:56:51 $
      */
 
     /**
@@ -114,7 +114,23 @@ namespace stor {
     void getStdVector(xdata::Vector<xdata::String>&, std::vector<std::string>&);
     void getXdataVector(const std::vector<std::string>&, xdata::Vector<xdata::String>&);
 
-
+    /**
+       Compare items pointed to instead of pointer addresses
+    */
+    template<typename T, class Comp = std::less<T> > 
+    struct ptr_comp 
+    { 
+      bool operator()( T const* const lhs, T const* const rhs ) const 
+      { 
+        return comp( *lhs, *rhs ); 
+      } 
+      bool operator()( boost::shared_ptr<T> const& lhs, boost::shared_ptr<T> const& rhs ) const 
+      { 
+        return comp( *lhs, *rhs ); 
+      } 
+    private: 
+      Comp comp; 
+    }; 
 
 
     ///////////////////////////////////////
