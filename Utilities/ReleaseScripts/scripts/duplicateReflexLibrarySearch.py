@@ -104,16 +104,16 @@ def searchClassDefXml (srcDir):
         for filename in xmlFiles:
             if not filename: continue
             match = srcClassNameRE.search (filename)
-	    if not match:
+            if not match:
                 continue
             packageName = match.group(1)
-	    xmlPackages.append (packageName)
+            xmlPackages.append (packageName)
             matchString = r'\b' + packageName + r'\b'
             packagesREs[packageName] = re.compile (matchString)
             equivList = equivREs.setdefault (packageName, [])
             equivList.append( (packagesREs[packageName], packageName) )
             for equiv in equivDict.get (packageName, []):
-		matchString = r'\b' + equiv + r'\b'
+                matchString = r'\b' + equiv + r'\b'
                 equivList.append( (re.compile (matchString), equiv) )
     #pprint.pprint (equivREs, width=109)
     classDict = {}
@@ -127,7 +127,7 @@ def searchClassDefXml (srcDir):
         simpleObjectREs = []
         if options.lostDefs:
             lostMatch = srcClassNameRE.search (filename)
-	    if lostMatch:
+            if lostMatch:
                 exceptName = lostMatch.group (1)
                 regexList = equivREs[exceptName]
                 if not regexList[0][0].search (exceptName):
@@ -135,7 +135,7 @@ def searchClassDefXml (srcDir):
                     print regexList[0][0]
                     sys.exit()
             else: continue
-	if options.verbose:
+        if options.verbose:
             print "filename", filename
         try:
             xmlObj = xml2obj (filename = filename,
