@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Andres Carrillo Montoya
 //         Created:  Wed Sep 16 14:56:18 CEST 2009
-// $Id: RPCRecHitAli.cc,v 1.10 2010/10/19 19:34:33 wmtan Exp $
+// $Id: RPCRecHitAli.cc,v 1.1 2010/12/16 15:38:10 carrillo Exp $
 //
 //
 
@@ -27,7 +27,22 @@ RPCRecHitAli::RPCRecHitAli(const edm::ParameterSet& iConfig)
 {
   debug=iConfig.getUntrackedParameter<bool>("debug",false);
   rpcRecHitsLabel = iConfig.getParameter<edm::InputTag>("rpcRecHits");
-  produces<RPCRecHitCollection>("RPCRecHitAli");
+  AlignmentinfoFile  = iConfig.getUntrackedParameter<std::string>("AliFileName","/afs/cern.ch/user/c/carrillo/segments/CMSSW_2_2_10/src/DQM/RPCMonitorModule/data/Alignment.dat"); 
+  produces<RPCRecHitCollection>("RPCRecHitAligned");
+  
+  std::ifstream ifin(AlignmentinfoFile.c_str());
+  
+  int rawId;
+  std::string name;
+  float offset;
+  float rms;
+  while (ifin.good()){
+    ifin >>name >>rawId >> offset >> rms;
+    alignmentinfo[rawId]=offset;
+  
+    if(debug) std::cout<<"rawId ="<<rawId<<" offset="<<offset<<std::endl;
+  }
+
 }
 
 
@@ -41,22 +56,51 @@ void RPCRecHitAli::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
   iEvent.getByLabel(rpcRecHitsLabel,rpcRecHits);
 
   RPCRecHitCollection::const_iterator recHit;
+  
+  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
 
-  for (recHit = rpcRecHits->begin(); recHit != rpcRecHits->end(); recHit++) {
-    RPCDetId rollId = (RPCDetId)(*recHit).rpcId();
-    std::cout<<"RollId "<<rollId<<std::endl;
+  _ThePoints = new RPCRecHitCollection();
+
+  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
+    if(dynamic_cast< RPCChamber* >( *it ) != 0 ){
+      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it );
+      std::vector< const RPCRoll*> roles = (ch->rolls());
+
+      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
+	
+	RPCDetId rollId = (*r)->id();
+	
+	typedef std::pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
+	rangeRecHits recHitCollection =  rpcRecHits->get(rollId);
+	RPCRecHitCollection::const_iterator recHit;
+
+	RPCPointVector.clear();
+	for(recHit = recHitCollection.first; recHit != recHitCollection.second ; recHit++){
+	  float newXPosition = 0;
+	  if(alignmentinfo.find(rollId.rawId())==alignmentinfo.end()){
+	    std::cout<<"Warning the RawId = "<<rollId.rawId()<<"is not in the map"<<std::endl;
+	    newXPosition = recHit->localPosition().x();
+	  }else{
+	    if(debug)std::cout<<"correction taking place from:"<<recHit->localPosition().x();
+	    newXPosition=recHit->localPosition().x()+alignmentinfo[rollId.rawId()];
+	    if(debug)std::cout<<" to:"<<newXPosition<<std::endl;
+	  }
+	  RPCRecHit RPCPoint(rollId,recHit->BunchX(),LocalPoint(newXPosition,recHit->localPosition().y(),recHit->localPosition().z()));
+	  RPCPointVector.push_back(RPCPoint);
+	}
+	_ThePoints->put(rollId,RPCPointVector.begin(),RPCPointVector.end());
+      }
+    }
   }
-
   
-  //std::auto_ptr<RPCRecHitCollection> TheCSCPoints(CSCClass.thePoints());  
-  //iEvent.put(rpcRecHits,"RPCRecHitAli"); 
-  
+  std::auto_ptr<RPCRecHitCollection> TheAlignedRPCHits(_ThePoints);
+  iEvent.put(TheAlignedRPCHits,"RPCRecHitAligned");
 }
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-RPCRecHitAli::beginJob()
-{
+RPCRecHitAli::beginJob(){
+  
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-##process = cms.Process("RPCRecHitAlignment")
-process = cms.Process("OWNPARTICLES")
+process = cms.Process("RPCRecHitAlignment")
 
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -10,6 +9,12 @@ process.GlobalTag.globaltag = 'START3X_V18::All'
 
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
+process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
+process.load("Geometry.CSCGeometry.cscGeometry_cfi")
+process.load("Geometry.DTGeometry.dtGeometry_cfi")
+process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
@@ -22,14 +27,6 @@ process.source = cms.Source("PoolSource",
 process.load("RecoLocalMuon.RPCRecHit.rpcRecHitAli_cfi")
 
 process.out = cms.OutputModule("PoolOutputModule",
-  outputCommands = cms.untracked.vstring('drop *',
-        'keep *_dt4DSegments_*_*',
-        'keep *_cscSegments_*_*',
-        'keep *_rpcPointProducer_*_*',
-        'keep *_rpcRecHits_*_*',
-        'keep *_standAloneMuons_*_*',
-        'keep *_cosmicMuons_*_*',
-        'keep *_globalMuons_*_*'),
  fileName = cms.untracked.string('/tmp/carrillo/outs/output.root')
 )
   
