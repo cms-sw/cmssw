@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: TriggerAlgorithm.cc,v 1.4 2010/12/15 19:44:28 vadler Exp $
 //
 
 
@@ -9,8 +9,10 @@
 using namespace pat;
 
 
-/// default constructor
+// Constructors and Destructor
 
+
+// Default constructor
 TriggerAlgorithm::TriggerAlgorithm() :
   name_(),
   alias_(),
@@ -22,8 +24,8 @@ TriggerAlgorithm::TriggerAlgorithm() :
   decisionAfterMask_()
 {}
 
-/// constructor from values
 
+// Constructor from algorithm name only
 TriggerAlgorithm::TriggerAlgorithm( const std::string & name ) :
   name_( name ),
   alias_(),
@@ -35,6 +37,8 @@ TriggerAlgorithm::TriggerAlgorithm( const std::string & name ) :
   decisionAfterMask_()
 {}
 
+
+// Constructor from values
 TriggerAlgorithm::TriggerAlgorithm( const std::string & name, const std::string & alias, bool tech, unsigned bit, unsigned prescale, bool mask, bool decisionBeforeMask, bool decisionAfterMask ) :
   name_( name ),
   alias_( alias),
@@ -45,5 +49,3 @@ TriggerAlgorithm::TriggerAlgorithm( const std::string & name, const std::string 
   decisionBeforeMask_( decisionBeforeMask ),
   decisionAfterMask_( decisionAfterMask )
 {}
-
-/// getters

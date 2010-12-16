@@ -7,18 +7,19 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerEvent
 //
-// $Id: TriggerEvent.h,v 1.8 2010/07/15 21:33:28 vadler Exp $
+// $Id: TriggerEvent.h,v 1.13 2010/12/15 19:44:26 vadler Exp $
 //
 /**
   \class    pat::TriggerEvent TriggerEvent.h "DataFormats/PatCandidates/interface/TriggerEvent.h"
   \brief    Analysis-level trigger event class
 
-   TriggerEvent implements a container for trigger event's information within the 'pat' namespace.
+   TriggerEvent implements a container for trigger event's information within the 'pat' namespace
+   and provides the central entry point to all trigger information in the PAT.
    For detailed information, consult
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerEvent
 
   \author   Volker Adler
-  \version  $Id: TriggerEvent.h,v 1.8 2010/07/15 21:33:28 vadler Exp $
+  \version  $Id: TriggerEvent.h,v 1.13 2010/12/15 19:44:26 vadler Exp $
 */
 
 
@@ -41,131 +42,234 @@ namespace pat {
 
   class TriggerEvent {
 
-      /// event related data members
-      std::string     nameL1Menu_;
-      std::string     nameHltTable_;
-      bool            run_;
-      bool            accept_;
-      bool            error_;
-      bool            physDecl_;
+      /// Data Members
+
+      /// Name of the L1 trigger menu
+      std::string nameL1Menu_;
+      /// Name of the HLT trigger table
+      std::string nameHltTable_;
+      /// Was HLT run?
+      bool run_;
+      /// Did HLT succeed?
+      bool accept_;
+      /// Was HLT in error?
+      bool error_;
+      /// PhysicsDeclared GT bit
+      bool physDecl_;
+      /// LHC fill number
       boost::uint32_t lhcFill_;
+      /// LHC beam mode
+      /// as defined in http://bdidev1.cern.ch/bdisoft/operational/abbdisw_wiki/LHC/BST-config --> Beam mode.
       boost::uint16_t beamMode_;
+      /// LHC beam momentum in GeV
       boost::uint16_t beamMomentum_;
+      /// LHC beam 1 intensity in ???
       boost::uint32_t intensityBeam1_;
+      /// LHC beam 2 intensity in ???
       boost::uint32_t intensityBeam2_;
+      /// LHC master status
+      /// as defined in http://bdidev1.cern.ch/bdisoft/operational/abbdisw_wiki/LHC/BST-config
       boost::uint16_t bstMasterStatus_;
+      /// LHC beam turn counter
       boost::uint32_t turnCount_;
-      float           bCurrentStart_;
-      float           bCurrentStop_;
-      float           bCurrentAvg_;
+      /// CMS magnet current in ??? at start of run
+      float bCurrentStart_;
+      /// CMS magnet current in ??? at end of run
+      float bCurrentStop_;
+      /// CMS magnet current in ??? averaged over run
+      float bCurrentAvg_;
 
-      /// L1 algorithm related data members
+      /// Member collection related data members
+      /// Reference to pat::TriggerAlgorithmCollection in event
       TriggerAlgorithmRefProd algorithms_;
-
-      /// HLT paths related data members
+      /// Reference to pat::TriggerPathCollection in event
       TriggerPathRefProd paths_;
-
-      /// HLT filters related data members
+      /// Reference to pat::TriggerAlgorithmCollection in event
       TriggerFilterRefProd filters_;
-
-      /// objects related data members
-      TriggerObjectRefProd        objects_;
+      /// Reference to pat::TriggerObjectCollection in event
+      TriggerObjectRefProd objects_;
+      /// Table of references to pat::TriggerObjectMatch associations in event
       TriggerObjectMatchContainer objectMatchResults_;
 
     public:
 
-      /// constructors and desctructor
+      /// Constructors and Desctructor
+
+      /// Default constructor
       TriggerEvent() { objectMatchResults_.clear(); };
+      /// Constructor from values, HLT only
       TriggerEvent( const std::string & nameHltTable, bool run = true, bool accept = true, bool error = false, bool physDecl = true );
+      /// Constructor from values, HLT and L1/GT
       TriggerEvent( const std::string & nameL1Menu, const std::string & nameHltTable, bool run = true, bool accept = true, bool error = false, bool physDecl = true );
+
+      /// Destructor
       virtual ~TriggerEvent() {};
 
-      /// event related
-      void setNameL1Menu( const std::string & name )             { nameL1Menu_      = name; };
-      void setNameHltTable( const std::string & name )           { nameHltTable_    = name; };
-      void setRun( bool run )                                    { run_             = run; };
-      void setAccept( bool accept )                              { accept_          = accept; };
-      void setError( bool error )                                { error            = error; };
-      void setPhysDecl( bool physDecl )                          { physDecl_        = physDecl; };
-      void setLhcFill( boost::uint32_t lhcFill )                 { lhcFill_         = lhcFill; };
-      void setBeamMode( boost::uint16_t beamMode )               { beamMode_        = beamMode; };
-      void setBeamMomentum( boost::uint16_t beamMomentum )       { beamMomentum_    = beamMomentum; };
-      void setIntensityBeam1( boost::uint32_t intensityBeam1 )   { intensityBeam1_  = intensityBeam1; };
-      void setIntensityBeam2( boost::uint32_t intensityBeam2 )   { intensityBeam2_  = intensityBeam2; };
+      /// Methods
+
+      /// Set the name of the L1 trigger menu
+      void setNameL1Menu( const std::string & name ) { nameL1Menu_  = name; };
+      /// Set the name of the HLT trigger table
+      void setNameHltTable( const std::string & name ) { nameHltTable_ = name; };
+      /// Set the run flag
+      void setRun( bool run ) { run_ = run; };
+      /// Set the success flag
+      void setAccept( bool accept ) { accept_ = accept; };
+      /// Set the error flag
+      void setError( bool error ) { error = error; };
+      /// Set the PhysicsDeclared GT bit
+      void setPhysDecl( bool physDecl ) { physDecl_ = physDecl; };
+      /// Set the LHC fill number
+      void setLhcFill( boost::uint32_t lhcFill )  { lhcFill_  = lhcFill; };
+      /// Set the LHC beam mode
+      void setBeamMode( boost::uint16_t beamMode ) { beamMode_  = beamMode; };
+      /// Set the LHC beam momentum
+      void setBeamMomentum( boost::uint16_t beamMomentum ) { beamMomentum_ = beamMomentum; };
+      /// Set the LHC beam 1 intensity
+      void setIntensityBeam1( boost::uint32_t intensityBeam1 ) { intensityBeam1_ = intensityBeam1; };
+      /// Set the LHC beam 2 intensity
+      void setIntensityBeam2( boost::uint32_t intensityBeam2 ) { intensityBeam2_ = intensityBeam2; };
+      /// Set the LHC master status
       void setBstMasterStatus( boost::uint16_t bstMasterStatus ) { bstMasterStatus_ = bstMasterStatus; };
-      void setTurnCount( boost::uint32_t turnCount )             { turnCount_       = turnCount; };
-      void setBCurrentStart( float bCurrentStart )               { bCurrentStart_   = bCurrentStart; };
-      void setBCurrentStop( float bCurrentStop )                 { bCurrentStop_    = bCurrentStop; };
-      void setBCurrentAvg( float bCurrentAvg )                   { bCurrentAvg_     = bCurrentAvg; };
-      std::string     nameL1Menu() const      { return nameL1Menu_; };
-      std::string     nameHltTable() const    { return nameHltTable_; };
-      bool            wasRun() const          { return run_; };
-      bool            wasAccept() const       { return accept_; };
-      bool            wasError() const        { return error_; };
-      bool            wasPhysDecl() const     { return physDecl_; };
-      boost::uint32_t lhcFill() const         { return lhcFill_; };
-      boost::uint16_t beamMode() const        { return beamMode_; };
-      boost::uint16_t beamMomentum() const    { return beamMomentum_; };
-      boost::uint32_t intensityBeam1() const  { return intensityBeam1_; };
-      boost::uint32_t intensityBeam2() const  { return intensityBeam2_; };
+      /// Set the LHC beam turn counter
+      void setTurnCount( boost::uint32_t turnCount ) { turnCount_ = turnCount; };
+      /// Set the CMS magnet current at start of run
+      void setBCurrentStart( float bCurrentStart )  { bCurrentStart_ = bCurrentStart; };
+      /// Set the CMS magnet current at end of run
+      void setBCurrentStop( float bCurrentStop ) { bCurrentStop_ = bCurrentStop; };
+      /// Set the CMS magnet current averaged over run
+      void setBCurrentAvg( float bCurrentAvg ) { bCurrentAvg_  = bCurrentAvg; };
+      /// Get the name of the L1 trigger menu
+      std::string nameL1Menu() const { return nameL1Menu_; };
+      /// Get the name of the HLT trigger table
+      std::string nameHltTable() const { return nameHltTable_; };
+      /// Get the run flag
+      bool wasRun() const { return run_; };
+      /// Get the success flag
+      bool wasAccept() const { return accept_; };
+      /// Get the error flag
+      bool wasError() const { return error_; };
+      /// Get the PhysicsDeclared GT bit
+      bool wasPhysDecl() const { return physDecl_; };
+      /// Get the LHC fill number
+      boost::uint32_t lhcFill() const { return lhcFill_; };
+      /// Get the LHC beam mode
+      boost::uint16_t beamMode() const { return beamMode_; };
+      /// Get the LHC beam momentum
+      boost::uint16_t beamMomentum() const { return beamMomentum_; };
+      /// Get the LHC beam 1 intensity
+      boost::uint32_t intensityBeam1() const { return intensityBeam1_; };
+      /// Get the LHC beam 2 intensity
+      boost::uint32_t intensityBeam2() const { return intensityBeam2_; };
+      /// Get the LHC master status
       boost::uint16_t bstMasterStatus() const { return bstMasterStatus_; };
-      boost::uint32_t turnCount() const       { return turnCount_; };
-      float           bCurrentStart() const   { return bCurrentStart_; };
-      float           bCurrentStop() const    { return bCurrentStop_; };
-      float           bCurrentAvg() const     { return bCurrentAvg_; };
+      /// Get the LHC beam turn counter
+      boost::uint32_t turnCount() const { return turnCount_; };
+      /// Get the CMS magnet current at start of run
+      float bCurrentStart() const { return bCurrentStart_; };
+      /// Get the CMS magnet current at end of run
+      float bCurrentStop() const { return bCurrentStop_; };
+      /// Get the CMS magnet current averaged over run
+      float bCurrentAvg() const { return bCurrentAvg_; };
 
-      /// L1 algorithms related
+      /// Set the reference to the pat::TriggerAlgorithmCollection in the event
       void setAlgorithms( const edm::Handle< TriggerAlgorithmCollection > & handleTriggerAlgorithms ) { algorithms_ = TriggerAlgorithmRefProd( handleTriggerAlgorithms ); };
-      const TriggerAlgorithmCollection * algorithms() const { return algorithms_.get(); };          // returns 0 if RefProd is null
-      const TriggerAlgorithm           * algorithm( const std::string & nameAlgorithm ) const;      // returns 0 if algorithm is not found
-      unsigned                           indexAlgorithm( const std::string & nameAlgorithm ) const; // returns size of algorithm collection if algorithm is not found
-      TriggerAlgorithmRefVector          acceptedAlgorithms() const;                                // transient
-      TriggerAlgorithmRefVector          techAlgorithms() const;                                    // transient
-      TriggerAlgorithmRefVector          acceptedTechAlgorithms() const;                            // transient
-      TriggerAlgorithmRefVector          physAlgorithms() const;                                    // transient
-      TriggerAlgorithmRefVector          acceptedPhysAlgorithms() const;                            // transient
+      /// Get a pointer to all L1 algorithms,
+      /// returns 0 if RefProd is null
+      const TriggerAlgorithmCollection * algorithms() const { return algorithms_.get(); };
+      /// Get a pointer to a certain L1 algorithm by name,
+      /// returns 0 if algorithm is not found
+      const TriggerAlgorithm * algorithm( const std::string & nameAlgorithm ) const;
+      /// Get the index of a certain L1 algorithm in the event collection by name,
+      /// returns size of algorithm collection if algorithm is not found
+      unsigned indexAlgorithm( const std::string & nameAlgorithm ) const;
+      /// Get a vector of references to all succeeding L1 algorithms
+      TriggerAlgorithmRefVector acceptedAlgorithms() const;
+      /// Get a vector of references to all technical L1 algorithms
+      TriggerAlgorithmRefVector techAlgorithms() const;
+      /// Get a vector of references to all succeeding technical L1 algorithms
+      TriggerAlgorithmRefVector acceptedTechAlgorithms() const;
+      /// Get a vector of references to all physics L1 algorithms
+      TriggerAlgorithmRefVector physAlgorithms() const;
+      /// Get a vector of references to all succeeding physics L1 algorithms
+      TriggerAlgorithmRefVector acceptedPhysAlgorithms() const;
 
-      /// HLT paths related
+      /// Set the reference to the pat::TriggerPathCollection in the event
       void setPaths( const edm::Handle< TriggerPathCollection > & handleTriggerPaths ) { paths_ = TriggerPathRefProd( handleTriggerPaths ); };
-      const TriggerPathCollection * paths() const { return paths_.get(); };          // returns 0 if RefProd is null
-      const TriggerPath           * path( const std::string & namePath ) const;      // returns 0 if path is not found
-      unsigned                      indexPath( const std::string & namePath ) const; // returns size of path collection if path is not found
-      TriggerPathRefVector          acceptedPaths() const;                           // transient
+      /// Get a pointer to all HLT paths,
+      /// returns 0 if RefProd is null
+      const TriggerPathCollection * paths() const { return paths_.get(); };
+      /// Get a pointer to a certain HLT path by name,
+      /// returns 0 if algorithm is not found
+      const TriggerPath * path( const std::string & namePath ) const;
+      /// Get the index of a certain HLT path in the event collection by name,
+      /// returns size of algorithm collection if algorithm is not found
+      unsigned indexPath( const std::string & namePath ) const;
+      /// Get a vector of references to all succeeding HLT paths
+      TriggerPathRefVector acceptedPaths() const;
 
-      /// HLT filters related
+      /// Set the reference to the pat::TriggerFilterCollection in the event
       void setFilters( const edm::Handle< TriggerFilterCollection > & handleTriggerFilters ) { filters_ = TriggerFilterRefProd( handleTriggerFilters ); };
-      const TriggerFilterCollection * filters() const { return filters_.get(); };           // returns 0 if RefProd is null
-      const TriggerFilter           * filter( const std::string & labelFilter ) const;      // returns 0 if filter is not found
-      unsigned                        indexFilter( const std::string & labelFilter ) const; // returns size of filter collection if filter is not found
-      TriggerFilterRefVector          acceptedFilters() const;                              // transient
+      /// Get a pointer to all HLT filters,
+      /// returns 0 if RefProd is null
+      const TriggerFilterCollection * filters() const { return filters_.get(); };
+      /// Get a pointer to a certain HLT filter by label,
+      /// returns 0 if algorithm is not found
+      const TriggerFilter * filter( const std::string & labelFilter ) const;
+      /// Get the index of a certain HLT filter in the event collection by label,
+      /// returns size of algorithm collection if algorithm is not found
+      unsigned indexFilter( const std::string & labelFilter ) const;
+      /// Get a vector of references to all succeeding HLT filters
+      TriggerFilterRefVector acceptedFilters() const;
 
-      /// objects related
+      /// Set the reference to the pat::TriggerObjectCollection in the event
       void setObjects( const edm::Handle< TriggerObjectCollection > & handleTriggerObjects ) { objects_ = TriggerObjectRefProd( handleTriggerObjects ); };
-      bool addObjectMatchResult( const TriggerObjectMatchRefProd & trigMatches, const std::string & labelMatcher );               // returns 'false' if 'matcher' alreadey exists
-      bool addObjectMatchResult( const edm::Handle< TriggerObjectMatch > & trigMatches, const std::string & labelMatcher );       // returns 'false' if 'matcher' alreadey exists
-      bool addObjectMatchResult( const edm::OrphanHandle< TriggerObjectMatch > & trigMatches, const std::string & labelMatcher ); // returns 'false' if 'matcher' alreadey exists
-      const TriggerObjectCollection     * objects() const { return objects_.get(); };                                             // returns 0 if RefProd is null
-      TriggerObjectRefVector              objects( int filterId ) const;                                                          // transient
+      /// Add a pat::TriggerObjectMatch association
+      /// returns 'false' if 'matcher' alreadey exists
+      bool addObjectMatchResult( const TriggerObjectMatchRefProd               & trigMatches, const std::string & labelMatcher );
+      bool addObjectMatchResult( const edm::Handle< TriggerObjectMatch >       & trigMatches, const std::string & labelMatcher ) { return addObjectMatchResult( TriggerObjectMatchRefProd( trigMatches ), labelMatcher ); };
+      bool addObjectMatchResult( const edm::OrphanHandle< TriggerObjectMatch > & trigMatches, const std::string & labelMatcher ) { return addObjectMatchResult( TriggerObjectMatchRefProd( trigMatches ), labelMatcher ); };
+      /// Get a pointer to all trigger objects,
+      /// returns 0 if RefProd is null
+      const TriggerObjectCollection * objects() const { return objects_.get(); };
+      /// Get a vector of references to all trigger objects by trigger object type
+      TriggerObjectRefVector objects( trigger::TriggerObjectType triggerObjectType ) const;
+      TriggerObjectRefVector objects( int                        triggerObjectType ) const { return objects( trigger::TriggerObjectType( triggerObjectType ) ); }; // for backward compatibility
 
-      /// x-collection related
-      TriggerFilterRefVector     pathModules( const std::string & namePath, bool all = true ) const;                          // transient; setting 'all' to 'false' returns the run filters only.
-      TriggerFilterRefVector     pathFilters( const std::string & namePath ) const;                                           // transient; only active filter modules
-      bool                       filterInPath( const TriggerFilterRef & filterRef, const std::string & namePath ) const;      // returns 'true' if the filter was run
-      TriggerPathRefVector       filterPaths( const TriggerFilterRef & filterRef ) const;                                     // transient
-      std::vector< std::string > filterCollections( const std::string & labelFilter ) const;                                  // returns the used collections, not the configuration
-      TriggerObjectRefVector     filterObjects( const std::string & labelFilter ) const;                                      // transient
-      bool                       objectInFilter( const TriggerObjectRef & objectRef, const std::string & labelFilter ) const;
-      TriggerFilterRefVector     objectFilters( const TriggerObjectRef & objectRef ) const;                                   // transient
-      TriggerObjectRefVector     pathObjects( const std::string & namePath ) const;                                           // transient
-      bool                       objectInPath( const TriggerObjectRef & objectRef, const std::string & namePath ) const;
-      TriggerPathRefVector       objectPaths( const TriggerObjectRef & objectRef  ) const;                                    // transient
+      /// Get a vector of references to all modules assigned to a certain path given by name,
+      /// setting 'all' to 'false' returns the run filters only.
+      TriggerFilterRefVector pathModules( const std::string & namePath, bool all = true ) const;
+      /// Get a vector of references to all active HLT filters assigned to a certain path given by name
+      TriggerFilterRefVector pathFilters( const std::string & namePath ) const;
+      /// Checks, if a filter is assigned to and was run in a certain path given by name
+      bool filterInPath( const TriggerFilterRef & filterRef, const std::string & namePath ) const;
+      /// Get a vector of references to all paths, which have a certain filter assigned
+      TriggerPathRefVector filterPaths( const TriggerFilterRef & filterRef ) const;
+      /// Get a list of all trigger object collections used in a certain filter given by name
+      std::vector< std::string > filterCollections( const std::string & labelFilter ) const;
+      /// Get a vector of references to all objects, which were used in a certain filter given by name
+      TriggerObjectRefVector filterObjects( const std::string & labelFilter ) const;
+      /// Checks, if an object was used in a certain filter given by name
+      bool objectInFilter( const TriggerObjectRef & objectRef, const std::string & labelFilter ) const;
+      /// Get a vector of references to all filters, which have a certain object assigned
+      TriggerFilterRefVector objectFilters( const TriggerObjectRef & objectRef ) const;
+      /// Get a vector of references to all objects, which wree used in a certain path given by name
+      TriggerObjectRefVector pathObjects( const std::string & namePath ) const;
+      /// Checks, if an object was used in a certain path given by name
+      bool objectInPath( const TriggerObjectRef & objectRef, const std::string & namePath ) const;
+      /// Get a vector of references to all paths, which have a certain object assigned
+      TriggerPathRefVector objectPaths( const TriggerObjectRef & objectRef  ) const;
 
-      /// trigger matches
-      std::vector< std::string >          triggerMatchers() const;
+      /// Get a list of all linked trigger matches
+      std::vector< std::string > triggerMatchers() const;
+      /// Get all trigger matches
       const TriggerObjectMatchContainer * triggerObjectMatchResults() const { return &objectMatchResults_; };
-      // pat::TriggerObjectMatch can contain empty references in case no match for a PAT object was found.
-      const TriggerObjectMatch          * triggerObjectMatchResult( const std::string & labelMatcher ) const;                                                              // performs proper "range check" (better than '(*triggerObjectMatchResults())[labelMatcher]'), returns 0 if 'labelMatcher' not found
-      // Further methods are provided by the pat::helper::TriggerMatchHelper in PhysicsTools/PatUtils/interface/TriggerHelper.h
+      /// Get a pointer to a certain trigger match given by label,
+      /// performs proper "range check" (better than '(*triggerObjectMatchResults())[labelMatcher]'),
+      /// returns 0 if matcher not found
+      const TriggerObjectMatch * triggerObjectMatchResult( const std::string & labelMatcher ) const;
+
+      /// Further methods are provided by the pat::helper::TriggerMatchHelper in PhysicsTools/PatUtils/interface/TriggerHelper.h
 
   };
 

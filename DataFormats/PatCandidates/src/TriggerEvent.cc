@@ -1,5 +1,5 @@
 //
-// $Id: TriggerEvent.cc,v 1.11 2010/09/24 21:16:41 vadler Exp $
+// $Id: TriggerEvent.cc,v 1.17 2010/12/15 19:44:28 vadler Exp $
 //
 
 
@@ -9,7 +9,10 @@
 using namespace pat;
 
 
-/// constructor from values
+// Constructors and Destructor
+
+
+// Constructor from values, HLT only
 TriggerEvent::TriggerEvent( const std::string & nameHltTable, bool run, bool accept, bool error, bool physDecl ) :
   nameHltTable_( nameHltTable ),
   run_( run ),
@@ -20,6 +23,8 @@ TriggerEvent::TriggerEvent( const std::string & nameHltTable, bool run, bool acc
   objectMatchResults_.clear();
 }
 
+
+// Constructor from values, HLT and L1/GT
 TriggerEvent::TriggerEvent( const std::string & nameL1Menu, const std::string & nameHltTable, bool run, bool accept, bool error, bool physDecl ) :
   nameL1Menu_( nameL1Menu ),
   nameHltTable_( nameHltTable ),
@@ -32,9 +37,10 @@ TriggerEvent::TriggerEvent( const std::string & nameL1Menu, const std::string & 
 }
 
 
-/// algorithms related
+// Methods
 
-/// returns a NULL pointer, if the PAT trigger algorithm is not in the event
+
+// Get a pointer to a certain L1 algorithm by name
 const TriggerAlgorithm * TriggerEvent::algorithm( const std::string & nameAlgorithm ) const
 {
   for ( TriggerAlgorithmCollection::const_iterator iAlgorithm = algorithms()->begin(); iAlgorithm != algorithms()->end(); ++iAlgorithm ) {
@@ -45,16 +51,19 @@ const TriggerAlgorithm * TriggerEvent::algorithm( const std::string & nameAlgori
   return 0;
 }
 
-/// returns the size of the PAT trigger algorithm collection, if the algorithm is not in the event
+
+// Get the index of a certain L1 algorithm in the event collection by name
 unsigned TriggerEvent::indexAlgorithm( const std::string & nameAlgorithm ) const
 {
-  unsigned iAlgorithm = 0;
+  unsigned iAlgorithm( 0 );
   while ( iAlgorithm < algorithms()->size() && algorithms()->at( iAlgorithm ).name() != nameAlgorithm ) {
     ++iAlgorithm;
   }
   return iAlgorithm;
 }
 
+
+// Get a vector of references to all succeeding L1 algorithms
 TriggerAlgorithmRefVector TriggerEvent::acceptedAlgorithms() const
 {
   TriggerAlgorithmRefVector theAcceptedAlgorithms;
@@ -68,6 +77,8 @@ TriggerAlgorithmRefVector TriggerEvent::acceptedAlgorithms() const
   return theAcceptedAlgorithms;
 }
 
+
+// Get a vector of references to all technical L1 algorithms
 TriggerAlgorithmRefVector TriggerEvent::techAlgorithms() const
 {
   TriggerAlgorithmRefVector theTechAlgorithms;
@@ -81,6 +92,8 @@ TriggerAlgorithmRefVector TriggerEvent::techAlgorithms() const
   return theTechAlgorithms;
 }
 
+
+// Get a vector of references to all succeeding technical L1 algorithms
 TriggerAlgorithmRefVector TriggerEvent::acceptedTechAlgorithms() const
 {
   TriggerAlgorithmRefVector theAcceptedTechAlgorithms;
@@ -94,6 +107,8 @@ TriggerAlgorithmRefVector TriggerEvent::acceptedTechAlgorithms() const
   return theAcceptedTechAlgorithms;
 }
 
+
+// Get a vector of references to all physics L1 algorithms
 TriggerAlgorithmRefVector TriggerEvent::physAlgorithms() const
 {
   TriggerAlgorithmRefVector thePhysAlgorithms;
@@ -107,6 +122,8 @@ TriggerAlgorithmRefVector TriggerEvent::physAlgorithms() const
   return thePhysAlgorithms;
 }
 
+
+// Get a vector of references to all succeeding physics L1 algorithms
 TriggerAlgorithmRefVector TriggerEvent::acceptedPhysAlgorithms() const
 {
   TriggerAlgorithmRefVector theAcceptedPhysAlgorithms;
@@ -121,9 +138,7 @@ TriggerAlgorithmRefVector TriggerEvent::acceptedPhysAlgorithms() const
 }
 
 
-/// paths related
-
-/// returns a NULL pointer, if the PAT trigger path is not in the event
+// Get a pointer to a certain HLT path by name
 const TriggerPath * TriggerEvent::path( const std::string & namePath ) const
 {
   for ( TriggerPathCollection::const_iterator iPath = paths()->begin(); iPath != paths()->end(); ++iPath ) {
@@ -134,16 +149,19 @@ const TriggerPath * TriggerEvent::path( const std::string & namePath ) const
   return 0;
 }
 
-/// returns the size of the PAT trigger path collection, if the path is not in the event
+
+// Get the index of a certain HLT path in the event collection by name
 unsigned TriggerEvent::indexPath( const std::string & namePath ) const
 {
-  unsigned iPath = 0;
+  unsigned iPath( 0 );
   while ( iPath < paths()->size() && paths()->at( iPath ).name() != namePath ) {
     ++iPath;
   }
   return iPath;
 }
 
+
+// Get a vector of references to all succeeding HLT paths
 TriggerPathRefVector TriggerEvent::acceptedPaths() const
 {
   TriggerPathRefVector theAcceptedPaths;
@@ -157,9 +175,8 @@ TriggerPathRefVector TriggerEvent::acceptedPaths() const
   return theAcceptedPaths;
 }
 
-/// filters related
 
-/// returns a NULL pointer, if the PAT trigger filter is not in the event
+// Get a pointer to a certain HLT filter by label
 const TriggerFilter * TriggerEvent::filter( const std::string & labelFilter ) const
 {
   for ( TriggerFilterCollection::const_iterator iFilter = filters()->begin(); iFilter != filters()->end(); ++iFilter ) {
@@ -170,16 +187,19 @@ const TriggerFilter * TriggerEvent::filter( const std::string & labelFilter ) co
   return 0;
 }
 
-/// returns the size of the PAT trigger filter collection, if the filter is not in the event
+
+// Get the index of a certain HLT filter in the event collection by label
 unsigned TriggerEvent::indexFilter( const std::string & labelFilter ) const
 {
-  unsigned iFilter = 0;
+  unsigned iFilter( 0 );
   while ( iFilter < filters()->size() && filters()->at( iFilter ).label() != labelFilter ) {
     ++iFilter;
   }
   return iFilter;
 }
 
+
+// Get a vector of references to all succeeding HLT filters
 TriggerFilterRefVector TriggerEvent::acceptedFilters() const
 {
   TriggerFilterRefVector theAcceptedFilters;
@@ -193,9 +213,8 @@ TriggerFilterRefVector TriggerEvent::acceptedFilters() const
   return theAcceptedFilters;
 }
 
-/// objects related
 
-/// returns 'false', if a PAT trigger match with the given name exists already
+// Add a pat::TriggerObjectMatch association
 bool TriggerEvent::addObjectMatchResult( const TriggerObjectMatchRefProd & trigMatches, const std::string & labelMatcher )
 {
   if ( triggerObjectMatchResults()->find( labelMatcher ) == triggerObjectMatchResults()->end() ) {
@@ -204,20 +223,14 @@ bool TriggerEvent::addObjectMatchResult( const TriggerObjectMatchRefProd & trigM
   }
   return false;
 }
-bool TriggerEvent::addObjectMatchResult( const edm::Handle< TriggerObjectMatch > & trigMatches, const std::string & labelMatcher )
-{
-  return addObjectMatchResult( TriggerObjectMatchRefProd( trigMatches ), labelMatcher );
-}
-bool TriggerEvent::addObjectMatchResult( const edm::OrphanHandle< TriggerObjectMatch > & trigMatches, const std::string & labelMatcher )
-{
-  return addObjectMatchResult( TriggerObjectMatchRefProd( trigMatches ), labelMatcher );
-}
 
-TriggerObjectRefVector TriggerEvent::objects( int filterId ) const
+
+// Get a vector of references to all trigger objects by trigger object type
+TriggerObjectRefVector TriggerEvent::objects( trigger::TriggerObjectType triggerObjectType ) const
 {
   TriggerObjectRefVector theObjects;
   for ( unsigned iObject = 0; iObject < objects()->size(); ++iObject ) {
-    if ( objects()->at( iObject ).hasFilterId( filterId ) ) {
+    if ( objects()->at( iObject ).hasTriggerObjectType( triggerObjectType ) ) {
       const TriggerObjectRef objectRef( objects(), iObject );
       theObjects.push_back( objectRef );
     }
@@ -225,8 +238,8 @@ TriggerObjectRefVector TriggerEvent::objects( int filterId ) const
   return theObjects;
 }
 
-/// x-collection related
 
+// Get a vector of references to all modules assigned to a certain path given by name
 TriggerFilterRefVector TriggerEvent::pathModules( const std::string & namePath, bool all ) const
 {
   TriggerFilterRefVector thePathFilters;
@@ -241,6 +254,8 @@ TriggerFilterRefVector TriggerEvent::pathModules( const std::string & namePath, 
   return thePathFilters;
 }
 
+
+// Get a vector of references to all active HLT filters assigned to a certain path given by name
 TriggerFilterRefVector TriggerEvent::pathFilters( const std::string & namePath ) const
 {
   TriggerFilterRefVector thePathFilters;
@@ -253,6 +268,8 @@ TriggerFilterRefVector TriggerEvent::pathFilters( const std::string & namePath )
   return thePathFilters;
 }
 
+
+// Checks, if a filter is assigned to and was run in a certain path given by name
 bool TriggerEvent::filterInPath( const TriggerFilterRef & filterRef, const std::string & namePath ) const
 {
   TriggerFilterRefVector theFilters = pathFilters( namePath );
@@ -264,6 +281,8 @@ bool TriggerEvent::filterInPath( const TriggerFilterRef & filterRef, const std::
   return false;
 }
 
+
+// Get a vector of references to all paths, which have a certain filter assigned
 TriggerPathRefVector TriggerEvent::filterPaths( const TriggerFilterRef & filterRef ) const
 {
   TriggerPathRefVector theFilterPaths;
@@ -279,6 +298,8 @@ TriggerPathRefVector TriggerEvent::filterPaths( const TriggerFilterRef & filterR
   return theFilterPaths;
 }
 
+
+// Get a list of all trigger object collections used in a certain filter given by name
 std::vector< std::string > TriggerEvent::filterCollections( const std::string & labelFilter ) const
 {
   std::vector< std::string > theFilterCollections;
@@ -302,6 +323,8 @@ std::vector< std::string > TriggerEvent::filterCollections( const std::string & 
   return theFilterCollections;
 }
 
+
+// Get a vector of references to all objects, which were used in a certain filter given by name
 TriggerObjectRefVector TriggerEvent::filterObjects( const std::string & labelFilter ) const
 {
   TriggerObjectRefVector theFilterObjects;
@@ -316,11 +339,15 @@ TriggerObjectRefVector TriggerEvent::filterObjects( const std::string & labelFil
   return theFilterObjects;
 }
 
+
+// Checks, if an object was used in a certain filter given by name
 bool TriggerEvent::objectInFilter( const TriggerObjectRef & objectRef, const std::string & labelFilter ) const {
   if ( filter( labelFilter ) ) return filter( labelFilter )->hasObjectKey( objectRef.key() );
   return false;
 }
 
+
+// Get a vector of references to all filters, which have a certain object assigned
 TriggerFilterRefVector TriggerEvent::objectFilters( const TriggerObjectRef & objectRef ) const
 {
   TriggerFilterRefVector theObjectFilters;
@@ -334,6 +361,8 @@ TriggerFilterRefVector TriggerEvent::objectFilters( const TriggerObjectRef & obj
   return theObjectFilters;
 }
 
+
+// Get a vector of references to all objects, which wree used in a certain path given by name
 TriggerObjectRefVector TriggerEvent::pathObjects( const std::string & namePath ) const
 {
   TriggerObjectRefVector thePathObjects;
@@ -348,6 +377,8 @@ TriggerObjectRefVector TriggerEvent::pathObjects( const std::string & namePath )
   return thePathObjects;
 }
 
+
+// Checks, if an object was used in a certain path given by name
 bool TriggerEvent::objectInPath( const TriggerObjectRef & objectRef, const std::string & namePath ) const
 {
   TriggerFilterRefVector theFilters = pathFilters( namePath );
@@ -359,6 +390,8 @@ bool TriggerEvent::objectInPath( const TriggerObjectRef & objectRef, const std::
   return false;
 }
 
+
+// Get a vector of references to all paths, which have a certain object assigned
 TriggerPathRefVector TriggerEvent::objectPaths( const TriggerObjectRef & objectRef ) const
 {
   TriggerPathRefVector theObjectPaths;
@@ -372,8 +405,8 @@ TriggerPathRefVector TriggerEvent::objectPaths( const TriggerObjectRef & objectR
   return theObjectPaths;
 }
 
-/// trigger matches
 
+// Get a list of all linked trigger matches
 std::vector< std::string > TriggerEvent::triggerMatchers() const
 {
   std::vector< std::string > theMatchers;
@@ -383,6 +416,8 @@ std::vector< std::string > TriggerEvent::triggerMatchers() const
   return theMatchers;
 }
 
+
+// Get a pointer to a certain trigger match given by label
 const TriggerObjectMatch * TriggerEvent::triggerObjectMatchResult( const std::string & labelMatcher ) const
 {
   const TriggerObjectMatchContainer::const_iterator iMatch( triggerObjectMatchResults()->find( labelMatcher ) );

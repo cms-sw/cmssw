@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerFilter
 //
-// $Id: TriggerFilter.h,v 1.5 2010/04/20 21:39:46 vadler Exp $
+// $Id: TriggerFilter.h,v 1.9 2010/12/15 19:44:26 vadler Exp $
 //
 /**
   \class    pat::TriggerFilter TriggerFilter.h "DataFormats/PatCandidates/interface/TriggerFilter.h"
@@ -18,7 +18,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerFilter
 
   \author   Volker Adler
-  \version  $Id: TriggerFilter.h,v 1.5 2010/04/20 21:39:46 vadler Exp $
+  \version  $Id: TriggerFilter.h,v 1.9 2010/12/15 19:44:26 vadler Exp $
 */
 
 
@@ -30,52 +30,91 @@
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefVectorIterator.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
 namespace pat {
 
   class TriggerFilter {
 
-      /// data members
-      std::string             label_;
-      std::string             type_;
+      /// Data Members
+
+      /// Label of the filter
+      std::string label_;
+      /// CMSSW module type
+      std::string type_;
+      /// Indeces of trigger objects in pat::TriggerObjectCollection in event
+      /// as produced together with the pat::TriggerFilterCollection
       std::vector< unsigned > objectKeys_;
-      std::vector< int >      objectIds_; // special filter related object ID as defined in enum 'TriggerObjectType' in DataFormats/HLTReco/interface/TriggerTypeDefs.h
-      int                     status_;    // -1: not run, 0: failed, 1: succeeded
+      /// List of (unique) special identifiers for the trigger object types used as defined in
+      /// trigger::TriggerObjectType (DataFormats/HLTReco/interface/TriggerTypeDefs.h),
+      /// possibly empty
+      std::vector< trigger::TriggerObjectType > triggerObjectTypes_;
+      /// Indicator for filter status: -1: not run, 0: failed, 1: succeeded
+      int status_;
 
     public:
 
-      /// constructors and desctructor
+      /// Constructors and Desctructor
+
+      /// Default constructor
       TriggerFilter();
+      /// Constructor from std::string for filter label
       TriggerFilter( const std::string & label, int status = -1 );
+      /// Constructor from edm::InputTag for filter label
       TriggerFilter( const edm::InputTag & tag, int status = -1 );
+
+      /// Destructor
       virtual ~TriggerFilter() {};
 
-      /// setters & getters
+      /// Methods
+
+      /// Set the filter label
       void setLabel( const std::string & label ) { label_ = label; };
-      void setType( const std::string & type )   { type_  = type; };
-      void addObjectKey( unsigned objectKey )    { if ( ! hasObjectKey( objectKey ) ) objectKeys_.push_back( objectKey ); };
-      void addObjectId( int objectId )           { if ( ! hasObjectId( objectId ) )   objectIds_.push_back( objectId ); };
-      bool setStatus( int status ); // only -1,0,1 accepted; returns 'false' (and does not modify the status) otherwise
-      std::string             label() const      { return label_; };
-      std::string             type() const       { return type_; };
+      /// Set the filter module type
+      void setType( const std::string & type ) { type_  = type; };
+      /// Add a new trigger object collection index
+      void addObjectKey( unsigned objectKey ) { if ( ! hasObjectKey( objectKey ) ) objectKeys_.push_back( objectKey ); };
+      /// Add a new trigger object type identifier
+      void addTriggerObjectType( trigger::TriggerObjectType triggerObjectType ) { if ( ! hasTriggerObjectType( triggerObjectType ) ) triggerObjectTypes_.push_back( triggerObjectType ); };
+      void addTriggerObjectType( int triggerObjectType )                        { addTriggerObjectType( trigger::TriggerObjectType( triggerObjectType ) ); };
+      void addObjectId( trigger::TriggerObjectType triggerObjectType ) { addTriggerObjectType( triggerObjectType ); };                               // for backward compatibility
+      void addObjectId( int triggerObjectType )                        { addTriggerObjectType( trigger::TriggerObjectType( triggerObjectType ) ); }; // for backward compatibility
+      /// Set the filter status,
+      /// only -1,0,1 accepted; returns 'false' (and does not modify the status) otherwise
+      bool setStatus( int status );
+      /// Get the filter label
+      std::string label() const { return label_; };
+      /// Get the filter module type
+      std::string type() const { return type_; };
+      /// Get all trigger object collection indeces
       std::vector< unsigned > objectKeys() const { return objectKeys_; };
-      std::vector< int >      objectIds() const  { return objectIds_; };
-      int                     status() const     { return status_; };
-      bool                    hasObjectKey( unsigned objectKey ) const;
-      bool                    hasObjectId( int objectId ) const;
+      /// Get all trigger object type identifiers
+//       std::vector< trigger::TriggerObjectType > triggerObjectTypes() const { return triggerObjectTypes_; };
+//       std::vector< trigger::TriggerObjectType > objectIds()          const { return triggerObjectTypes(); }; // for backward compatibility
+      std::vector< int > triggerObjectTypes() const;  // for backward compatibilit
+      std::vector< int > objectIds()          const { return triggerObjectTypes(); }; // for double backward compatibility
+      /// Get the filter status
+      int status() const { return status_; };
+      /// Checks, if a certain trigger object collection index is assigned
+      bool hasObjectKey( unsigned objectKey ) const;
+      /// Checks, if a certain trigger object type identifier is assigned
+      bool hasTriggerObjectType( trigger::TriggerObjectType triggerObjectType ) const;
+      bool hasTriggerObjectType( int triggerObjectType )                        const { return hasTriggerObjectType( trigger::TriggerObjectType( triggerObjectType ) ); };
+      bool hasObjectId( trigger::TriggerObjectType triggerObjectType ) const { return hasTriggerObjectType( triggerObjectType ); };                               // for backward compatibility
+      bool hasObjectId( int triggerObjectType )                        const { return hasTriggerObjectType( trigger::TriggerObjectType( triggerObjectType ) ); }; // for backward compatibility
 
   };
 
 
-  /// collection of TriggerFilter
+  /// Collection of TriggerFilter
   typedef std::vector< TriggerFilter >                      TriggerFilterCollection;
-  /// persistent reference to an item in a TriggerFilterCollection
+  /// Persistent reference to an item in a TriggerFilterCollection
   typedef edm::Ref< TriggerFilterCollection >               TriggerFilterRef;
-  /// persistent reference to a TriggerFilterCollection product
+  /// Persistent reference to a TriggerFilterCollection product
   typedef edm::RefProd< TriggerFilterCollection >           TriggerFilterRefProd;
-  /// vector of persistent references to items in the same TriggerFilterCollection
+  /// Vector of persistent references to items in the same TriggerFilterCollection
   typedef edm::RefVector< TriggerFilterCollection >         TriggerFilterRefVector;
-  /// const iterator over vector of persistent references to items in the same TriggerFilterCollection
+  /// Const iterator over vector of persistent references to items in the same TriggerFilterCollection
   typedef edm::RefVectorIterator< TriggerFilterCollection > TriggerFilterRefVectorIterator;
 
 }
