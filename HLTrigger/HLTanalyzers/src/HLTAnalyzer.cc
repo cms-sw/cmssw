@@ -122,6 +122,8 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   L1NonIsoPixelSeedsLW_     = conf.getParameter<edm::InputTag> ("PixelSeedL1NonIsoLargeWindows");
   L1IsoPixelSeedsSS_        = conf.getParameter<edm::InputTag> ("PixelSeedL1IsoSiStrip");
   L1NonIsoPixelSeedsSS_     = conf.getParameter<edm::InputTag> ("PixelSeedL1NonIsoSiStrip");
+  IsoR9_                    = conf.getParameter<edm::InputTag> ("SpikeCleaningIsol");  
+  NonIsoR9_                 = conf.getParameter<edm::InputTag> ("SpikeCleaningNonIsol");   
 
   // AlCa OpenHLT input collections  
   EERecHitTag_              = conf.getParameter<edm::InputTag> ("EERecHits"); 
@@ -161,7 +163,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   HltTree = new TTree("HltTree", "");
 
   treeWeight=xSection_*filterEff_;
-  cout << "\n Setting HltTree weight to " << treeWeight << " = " << xSection_ << "*" << filterEff_ << " (cross section * gen filter efficiency)\n" << endl;
+  std::cout << "\n Setting HltTree weight to " << treeWeight << " = " << xSection_ << "*" << filterEff_ << " (cross section * gen filter efficiency)\n" << std::endl;
 
   // Setup the different analysis
   jet_analysis_.setup(conf, HltTree);
@@ -174,6 +176,11 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   hlt_analysis_.setup(conf, HltTree);
   vrt_analysis_.setup(conf, HltTree);
   evt_header_.setup(HltTree);
+}
+
+void HLTAnalyzer::beginRun(const edm::Run& run, const edm::EventSetup& c){ 
+
+  hlt_analysis_.beginRun(run, c);
 }
 
 // Boiler-plate "analyze" method declaration for an analyzer module.
@@ -190,18 +197,18 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 
   // These declarations create handles to the types of records that you want
   // to retrieve from event "iEvent".
-  edm::Handle<CaloJetCollection>                    recjets;
-  edm::Handle<CaloJetCollection>                    reccorjets;
-  edm::Handle<GenJetCollection>                     genjets;
+  edm::Handle<reco::CaloJetCollection>              recjets;
+  edm::Handle<reco::CaloJetCollection>              reccorjets;
+  edm::Handle<reco::GenJetCollection>               genjets;
   edm::Handle<CaloTowerCollection>                  caloTowers;
-  edm::Handle<CaloMETCollection>                    recmet;
-  edm::Handle<GenMETCollection>                     genmet;
-  edm::Handle<METCollection>                        ht;
-  edm::Handle<CandidateView>                        mctruth;
+  edm::Handle<reco::CaloMETCollection>              recmet;
+  edm::Handle<reco::GenMETCollection>               genmet;
+  edm::Handle<reco::METCollection>                  ht;
+  edm::Handle<reco::CandidateView>                  mctruth;
   edm::Handle<GenEventInfoProduct>                  genEventInfo;
   edm::Handle<std::vector<SimTrack> >               simTracks;
   edm::Handle<std::vector<SimVertex> >              simVertices;
-  edm::Handle<MuonCollection>                       muon;
+  edm::Handle<reco::MuonCollection>                 muon;
   edm::Handle<edm::TriggerResults>                  hltresults;
   edm::Handle<l1extra::L1EmParticleCollection>      l1extemi, l1extemn;
   edm::Handle<l1extra::L1MuonParticleCollection>    l1extmu;
@@ -211,8 +218,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle< L1GctHFBitCountsCollection >         gctBitCounts ;
   edm::Handle< L1GctHFRingEtSumsCollection >        gctRingSums ;
 
-  edm::Handle<RecoChargedCandidateCollection>       mucands2, mucands3;
-  edm::Handle<RecoChargedCandidateCollection>       oniaPixelCands, oniaTrackCands;
+  edm::Handle<reco::RecoChargedCandidateCollection> mucands2, mucands3;
+  edm::Handle<reco::RecoChargedCandidateCollection> oniaPixelCands, oniaTrackCands;
   edm::Handle<edm::ValueMap<bool> >                 isoMap2,  isoMap3;
   edm::Handle<reco::HLTTauCollection>               taus;
 
@@ -230,14 +237,18 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<reco::JetTagCollection>               hPerformanceBJetsL3;
 
   // egamma OpenHLT input collections
-  edm::Handle<GsfElectronCollection>                electrons;
-  edm::Handle<PhotonCollection>                     photons;
+  edm::Handle<reco::GsfElectronCollection>          electrons;
+  edm::Handle<reco::PhotonCollection>               photons;
+  edm::Handle<reco::RecoEcalCandidateIsolationMap>    photonR9IsoHandle; 
+  edm::Handle<reco::RecoEcalCandidateIsolationMap>    photonR9NonIsoHandle;  
   edm::Handle<reco::ElectronCollection>             electronIsoHandle;
   edm::Handle<reco::ElectronCollection>             electronIsoHandleLW;
   edm::Handle<reco::ElectronCollection>             electronIsoHandleSS;
   edm::Handle<reco::ElectronCollection>             electronNonIsoHandle;
   edm::Handle<reco::ElectronCollection>             electronNonIsoHandleLW;
   edm::Handle<reco::ElectronCollection>             electronNonIsoHandleSS;
+  edm::Handle<reco::RecoEcalCandidateIsolationMap>    electronR9IsoHandle; 
+  edm::Handle<reco::RecoEcalCandidateIsolationMap>    electronR9NonIsoHandle;  
   edm::Handle<reco::ElectronIsolationMap>           NonIsoTrackEleIsolMap;
   edm::Handle<reco::ElectronIsolationMap>           NonIsoTrackEleIsolMapLW;
   edm::Handle<reco::ElectronIsolationMap>           NonIsoTrackEleIsolMapSS;
@@ -278,15 +289,15 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<reco::VertexCollection> recoVertexs;
 
   // new stuff for the egamma EleId
-   edm::InputTag ecalRechitEBTag (string("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
-   edm::InputTag ecalRechitEETag (string("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
+   edm::InputTag ecalRechitEBTag (std::string("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
+   edm::InputTag ecalRechitEETag (std::string("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
    EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBTag, ecalRechitEETag);
 
   edm::ESHandle<MagneticField>                theMagField;
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  edm::InputTag BSProducer_(string("hltOfflineBeamSpot"));
+  edm::InputTag BSProducer_(std::string("hltOfflineBeamSpot"));
 
   // get EventSetup stuff needed for the AlCa pi0 path
   edm::ESHandle< EcalElectronicsMapping > ecalmapping;
@@ -357,10 +368,10 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 
   //Read offline eleID results
   std::vector<edm::Handle<edm::ValueMap<float> > > eIDValueMap(4); 
-//   edm::InputTag electronLabelRobustTight_(string("eidRobustTight"));
-//   edm::InputTag electronLabelTight_(string("eidTight"));
-//   edm::InputTag electronLabelRobustLoose_(string("eidRobustLoose"));
-//   edm::InputTag electronLabelLoose_(string("eidLoose"));
+//   edm::InputTag electronLabelRobustTight_(std::string("eidRobustTight"));
+//   edm::InputTag electronLabelTight_(std::string("eidTight"));
+//   edm::InputTag electronLabelRobustLoose_(std::string("eidRobustLoose"));
+//   edm::InputTag electronLabelLoose_(std::string("eidLoose"));
 //   getCollection( iEvent, missing, eIDValueMap[0],   electronLabelRobustLoose_      ,       "EleId Robust-Loose");
 //   getCollection( iEvent, missing, eIDValueMap[1],   electronLabelRobustTight_      ,       "EleId Robust-Tight");
 //   getCollection( iEvent, missing, eIDValueMap[2],   electronLabelLoose_      ,       "EleId Loose");
@@ -373,6 +384,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   getCollection( iEvent, missing, EcalNonIsolMap,           EcalNonIso_,                kEcalNonIso);
   getCollection( iEvent, missing, HcalIsolMap,              HcalIsoPho_,                kHcalIsoPho);
   getCollection( iEvent, missing, HcalNonIsolMap,           HcalNonIsoPho_,             kHcalNonIsoPho);
+  getCollection( iEvent, missing, photonR9IsoHandle,        IsoR9_,                     kIsoR9); 
+  getCollection( iEvent, missing, photonR9NonIsoHandle,     NonIsoR9_,                  kNonIsoR9);  
   getCollection( iEvent, missing, electronIsoHandleLW,      IsoElectronLW_,             kIsoElectron);
   getCollection( iEvent, missing, electronIsoHandleSS,      IsoElectronSS_,             kIsoElectron);
   getCollection( iEvent, missing, electronIsoHandle,        IsoElectron_,               kIsoElectron);
@@ -395,6 +408,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   getCollection( iEvent, missing, NonIsoTrackEleIsolMap,    NonIsoEleTrackIsol_,        kNonIsoEleTrackIsol);
   getCollection( iEvent, missing, TrackNonIsolMap,          NonIsoPhoTrackIsol_,        kNonIsoPhoTrackIsol);
   getCollection( iEvent, missing, TrackIsolMap,             IsoPhoTrackIsol_,           kIsoPhoTrackIsol);
+  getCollection( iEvent, missing, electronR9IsoHandle,      IsoR9_,                     kIsoR9);  
+  getCollection( iEvent, missing, electronR9NonIsoHandle,   NonIsoR9_,                  kNonIsoR9);   
   getCollection( iEvent, missing, eerechits,                EERecHitTag_,               kEErechits ); 
   getCollection( iEvent, missing, ebrechits,                EBRecHitTag_,               kEBrechits );  
   getCollection( iEvent, missing, pi0eerechits,             pi0EERecHitTag_,            kpi0EErechits );  
@@ -485,6 +500,10 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
      theMagField,
      BSPosition,
      eIDValueMap,
+     photonR9IsoHandle, 
+     photonR9NonIsoHandle, 
+     electronR9IsoHandle, 
+     electronR9NonIsoHandle, 
      HltTree);
 
   mct_analysis_.analyze(
@@ -569,6 +588,10 @@ void HLTAnalyzer::endJob() {
 
   if (m_file)
     m_file->cd();
+
+  const edm::ParameterSet &thepset = edm::getProcessParameterSet();   
+  TList *list = HltTree->GetUserInfo();   
+  list->Add(new TObjString(thepset.dump().c_str()));   
   
   HltTree->SetWeight(treeWeight);
   HltTree->Write();

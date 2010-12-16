@@ -12,8 +12,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -62,8 +60,8 @@ class GeomDet;
 class TrajectoryStateOnSurface;
 
 
-using namespace edm;
-using namespace std;
+
+
 
 typedef std::vector<TrajectoryMeasurement>          MeasurementContainer;
 typedef std::pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
@@ -87,7 +85,7 @@ private:
 
   virtual void endJob();
 
-  string RPCDataLabel;
+  std::string RPCDataLabel;
   
   //edm::InputTag RPCRecHits;
 

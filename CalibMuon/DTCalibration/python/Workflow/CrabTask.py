@@ -5,28 +5,23 @@ import os
 
 #class CrabTask(Thread):
 class CrabTask:
-    def __init__(self, dir, crab_cfg, pset=None, pset_name='mypset.py'):
+    def __init__(self, desc, crab_cfg, pset, pset_name='pset.py'):
         #Thread.__init__(self)
-        self.dir = dir
+        self.desc = desc
   
         self.crabCfg_name = 'crab.cfg'
         self.crab_cfg = crab_cfg
   
         self.pset_name = pset_name
         self.pset = pset
-        self.initializeTask(dir=self.dir)
+        #self.initializeTask(dir=self.desc)
 
     def initializeTask(self, dir):
         if not os.path.exists(dir): os.makedirs(dir)
 
-        # Write pset 
-        if self.pset:
-            self.crab_cfg.set('CMSSW','pset',self.pset_name)
-            open(dir + '/' + self.pset_name,'w').write(self.pset) 
+        open(dir + '/' + self.crabCfg_name,'w').write(self.crab_cfg)
+        open(dir + '/' + self.pset_name,'w').write(self.pset)
 
-        # Write CRAB cfg
-        self.crab_cfg.write(open(dir + '/' + self.crabCfg_name,'w'))
-         
     def create(self,dir):
         self.project = crabCreate(dir,self.crabCfg_name)
         return self.project
@@ -44,8 +39,8 @@ class CrabTask:
     #    crabWatch(getOutput,self.project) 
         
     def run(self):
-        #self.initializeTask(dir=self.dir)
-        proj = self.create(self.dir) 
+        self.initializeTask(dir=self.desc)
+        proj = self.create(self.desc) 
         self.submit()
         return proj
 
@@ -78,13 +73,13 @@ if __name__ == '__main__':
     pset_opts = {'GLOBALTAG':'CRAFT_31X::All',
                  'DIGITEMPLATE':'muonDTDigis'}
 
-    dir = 'Run%s'%run
-    dir += '/Ttrig/Production'
+    desc = 'Run%s'%run
+    desc += '/Ttrig/Production'
 
     crab_cfg = replaceTemplate(crab_template,**crab_opts)
     pset = replaceTemplate(pset_template,**pset_opts)
 
-    prod = CrabTask(dir,crab_cfg,pset,pset_name)
+    prod = CrabTask(desc,crab_cfg,pset,pset_name)
     project = prod.run()
 
     print "Sent jobs with project",project

@@ -26,7 +26,8 @@ class BoxContentDialogTestCase(unittest.TestCase):
         self._boxContentDialog.addButton("&label","str(object.label)")
         self.app.connect(self._boxContentDialog, SIGNAL("scriptChanged"), self.scriptChanged)
         self._boxContentDialog.onScreen()
-        self.app.exec_()
+        if not hasattr(unittest,"NO_GUI_TEST"):
+            self.app.exec_()
         
     def scriptChanged(self,script):
         logging.debug(self.__class__.__name__ +': script changed '+str(script))

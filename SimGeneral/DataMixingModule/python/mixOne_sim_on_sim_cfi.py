@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import hcalSimBlock
 
-mixData = cms.EDFilter("DataMixingModule",
+mixData = cms.EDProducer("DataMixingModule",
           hcalSimBlock,
     input = cms.SecSource("PoolSource",
         nbPileupEvents = cms.PSet(
@@ -126,10 +126,10 @@ EBdigiProducerSig = cms.InputTag("simEcalUnsuppressedDigis"),
     EBDigiCollectionDM   = cms.string('EBDigiCollectionDM'),
     EEDigiCollectionDM   = cms.string('EEDigiCollectionDM'),
     ESDigiCollectionDM   = cms.string(''),
-    HBHEDigiCollectionDM = cms.string('HBHEDigiCollectionDM'),
-    HODigiCollectionDM   = cms.string('HODigiCollectionDM'),
-    HFDigiCollectionDM   = cms.string('HFDigiCollectionDM'),
-    ZDCDigiCollectionDM  = cms.string('ZDCDigiCollectionDM')
+    HBHEDigiCollectionDM = cms.string(''),
+    HODigiCollectionDM   = cms.string(''),
+    HFDigiCollectionDM   = cms.string(''),
+    ZDCDigiCollectionDM  = cms.string('')
 )
 
 

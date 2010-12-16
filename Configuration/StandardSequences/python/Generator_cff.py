@@ -50,13 +50,15 @@ GeneInfo = cms.Sequence(genParticles)
 genJetMET = cms.Sequence(genJetParticles*recoGenJets+genMETParticles*recoGenMET)
 pgen = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+GeneInfo+genJetMET)
 
-hiGenJets = cms.Sequence(hiGenParticlesForJets*hiRecoGenJets)
+# sequence for bare generator result only, without vertex smearing and analysis objects added
 
+pgen_genonly = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer"))
 
 #
 # this sequence is intended for HI runs/studies;
-# it'll be modified, as HI-specific "genParts" will be included
 #
+
+hiGenJets = cms.Sequence(hiGenParticlesForJets*hiRecoGenJets)
 
 from PhysicsTools.HepMCCandAlgos.HiGenParticles_cfi import *
 

@@ -17,6 +17,7 @@
 </library>
 <library   file="BeamSpotOnlineProducer.cc" name="BeamSpotOnlineProducer">
   <flags   EDM_PLUGIN="1"/>
+  <use name="DataFormats/L1GlobalTrigger"/>
 </library>
 <library   file="BeamSpotAnalyzer.cc" name="BeamSpotAnalyzer">
   <use   name="clhep"/>

@@ -29,12 +29,12 @@ ElectronMcSignalValidator/h_ele_PtoPttrue 1 0 1 0 0 0 0 0
 ElectronMcSignalValidator/h_ele_PtoPttrue_barrel 1 0 1 0 0 0 0 0
 ElectronMcSignalValidator/h_ele_PtoPttrue_endcaps 1 0 1 0 0 0 1 0
 ElectronMcSignalValidator/h_scl_EoEtrue_barrel_new 1 0 1 0 0 0 0 0
-ElectronMcSignalValidator/h_scl_EoEtrue_barrel_etagap_new 1 0 1  0 0 0 0 0
-ElectronMcSignalValidator/h_scl_EoEtrue_barrel_phigap_new 1 0 1 0 0 0 1 0
+ElectronMcSignalValidator/h_scl_EoEtrue_barrel_new_etagap 1 0 1  0 0 0 0 0
+ElectronMcSignalValidator/h_scl_EoEtrue_barrel_new_phigap 1 0 1 0 0 0 1 0
 ElectronMcSignalValidator/h_scl_EoEtrue_ebeegap_new 1 0 1 0 0 0 1 0
 ElectronMcSignalValidator/h_scl_EoEtrue_endcaps_new 1 0 1 0 0 0 0 0
-ElectronMcSignalValidator/h_scl_EoEtrue_endcaps_deegap_new 1 0 1 0 0 0 0 0
-ElectronMcSignalValidator/h_scl_EoEtrue_endcaps_ringgap_new 1 0 1 0 0 0 1 0
+ElectronMcSignalValidator/h_scl_EoEtrue_endcaps_new_deegap 1 0 1 0 0 0 0 0
+ElectronMcSignalValidator/h_scl_EoEtrue_endcaps_new_ringgap 1 0 1 0 0 0 1 0
 ElectronMcSignalValidator/h_ele_EtaMnEtaTrue 1 0 1 0 0 0 0 0
 ElectronMcSignalValidator/h_ele_EtaMnEtaTrue_barrel 1 0 1 0 0 0 0 0
 ElectronMcSignalValidator/h_ele_EtaMnEtaTrue_endcaps 1 0 1 0 0 0 1 0
@@ -149,12 +149,12 @@ Isolation sums
 
 ElectronMcSignalValidator/h_ele_tkSumPt_dr03 1 1 1 0 0 0 1 0
 ElectronMcSignalValidator/h_ele_ecalRecHitSumEt_dr03 1 1 1  0 0 0 1 0
-ElectronMcSignalValidator/h_ele_hcalDepth1TowerSumEt_dr03 1 1 1  0 0 0 0 0
-ElectronMcSignalValidator/h_ele_hcalDepth2TowerSumEt_dr03 1 1 1 0 0 0 1 0
+ElectronMcSignalValidator/h_ele_hcalTowerSumEt_dr03_depth1 1 1 1  0 0 0 0 0
+ElectronMcSignalValidator/h_ele_hcalTowerSumEt_dr03_depth2 1 1 1 0 0 0 1 0
 ElectronMcSignalValidator/h_ele_tkSumPt_dr04 1 1 1 0 0 0 1 0
 ElectronMcSignalValidator/h_ele_ecalRecHitSumEt_dr04 1 1 1 0 0 0 1 0
-ElectronMcSignalValidator/h_ele_hcalDepth1TowerSumEt_dr04 1 1 1 0 0 0 0 0
-ElectronMcSignalValidator/h_ele_hcalDepth2TowerSumEt_dr04 1 1 1 0 0 0 1 1
+ElectronMcSignalValidator/h_ele_hcalTowerSumEt_dr04_depth1 1 1 1 0 0 0 0 0
+ElectronMcSignalValidator/h_ele_hcalTowerSumEt_dr04_depth2 1 1 1 0 0 0 1 1
 
 Distributions for all reconstructed electrons (i.e. not requiring a match with mc truth)
 

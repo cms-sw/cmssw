@@ -1,5 +1,8 @@
 #include <map>
 #include <string>
+#include <iomanip>
+#include <sstream>
+#include <iostream>
 
 #include "TH1.h"
 
@@ -10,74 +13,31 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
 /// maximal number of bins used for the jet
 /// response plots
 static const unsigned int MAXBIN=8;
-/// binning used fro the jet response plots 
+/// binning used for the jet response plots 
 /// (NOTE BINS must have a length of MAXBIN
 /// +1)
-static const float BINS[]={0., 10., 20., 40., 60., 80., 100., 125., 150.};
+static const float BINS[]={30., 40., 50., 60., 70., 80., 100., 125., 150.};
 
 /**
    \class   PatJetAnalyzer PatJetAnalyzer.h "PhysicsTools/PatAlgos/plugins/PatJetAnalyzer.h"
 
-   \brief   module to analyze pat::Jets in the contect of a more complex exercise (detailed below).
+   \brief   Module to analyze pat::Jets in the context of a more complex exercise.
 
-   Exercise 1:
+   Basic quantities of jets like the transverse momentum, eta and phi as well as the 
+   invariant dijet mass are plotted. Basic histograms for a jet energy response plot 
+   as a function of the pt of the reference object are filled. As reference matched 
+   partons are chosen. Input parameters are:
 
-   (a)
-   Make yourself familiar with the JetCorrFactors module of PAT. Inspect it using the standard 
-   input file you used during the morning session and python in interactive mode (NB: use 
-   python -i myfile_cfg.py). Make sure to understand the use and meaning of the parameters of 
-   the module. Find out where the corresponding cfi file is located within the PatAlgos package.  
+    - src       --> input for the pat jet collection (edm::InputTag).
 
-   (b)
-   Make sure you understand how to retrieve jets with transvers momentum (pt) at different 
-   correction levels of the jet energy scale (JES) from a pat::Jet. 
-
-   (c)
-   With the standard ttbar input sample you used during the morning session, compare the pt 
-   of all pat::Jets with the pt of all reco::Jets at the following correction levels of the jet 
-   energy scale (JES): Raw, L2Relative, L3Absolute. Use the most actual corrections for 7 TeV 
-   data.
-
-   (d)
-   With the standard ttbar input sample you used during the morning session make a jet pt 
-   response plot at the following correction levels of the JES: Raw, L2Relative, L3Absolute, 
-   L5Flavor, L7Parton. Use the most actual corrections for 7 TeV data. Choose the L5Flavor and 
-   L7Parton corrections to be determined from a ttbar sample instead of a QCD dijet sample 
-   (which is the default configuration in the standard workflow of PAT). For the response 
-   compare the pat::Jet to the matched generator jet or to a matched parton of status 3. You 
-   may use the PatBasicExample to start from.
-   
-   As an extension you may distinguish between b-jets and light quark jets (based on the pdgId 
-   of the matched status 3 parton) when plotting the jet response.
-
-
-   Solution  :
-
-   (c)
-   We choose a simple implementation of an EDAnalyzer, which takes the following parameters: 
-    - src       : input for the pat  jet collection (edm::InputTag).
-    - reco      : input for the reco jet collection (edm::InputTag).
-    - corrLevel : string for the pat jet correction level.
-   The corrLevel string is expected to be of the form corrType:flavorType. The parameter 
-   reco is optional; it can be omitted in the configuration file if not needed. We neglect 
-   a complex parsing to check for allowed concrete substrings for the correction level or 
-   correction flavor for the sake of simplicity; the user should take care of a proper input 
-   here. Illegal strings will lead to an edm::Exception of the jet correction service. In a 
-   corresponding cff file this module will be cloned for each correction level as mentioned 
-   in the exercise.
-
-   (d)
-   For the sake of simplicity we restrict ourselves to the example of partons. The partons 
-   are restricted to quarks (with masses below the top quark) only. A variable binning to 
-   fill the basic histograms and the number of bins are defined as static const's outside 
-   the class definition. Both, parton and generator jet matching are already provided to 
-   best CMS knowledge by the configuration of the pat::Jet (check the configuration of the 
-   patJetPartonMatch and the patJetGenJetMatch module and the WorkBookMCTruthMatch TWiki for 
-   more details). We clone and re-use the module for each correction level mentioned in the 
-   exercise.
+    - corrLevel --> string for the pat jet correction level.
 */
 
 class PatJetAnalyzer : public edm::EDAnalyzer {
@@ -89,101 +49,100 @@ public:
   ~PatJetAnalyzer(){};
   
 private:
-  /// everything that needs to be done before the event loop
-  virtual void beginJob();
   /// everything that needs to be done during the even loop
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
-  /// everything that needs to be done after the event loop
-  virtual void endJob();
-  /// deduce correction level for pat::Jet; label is 
-  /// expected to be of type 'corrLevel:flavorType'
-  std::string corrLevel() { return corrLevel_.substr(0, corrLevel_.find(':')); };  
-  /// deduce potential flavor type for pat::Jet; label
-  /// is expected to be of type 'corrLevel:flavorType' 
-  std::string corrFlavor() { return corrLevel_.substr(corrLevel_.find(':')+1); }; 
+
+  /// check if histogram was booked
+  bool booked(const std::string histName) const { return hists_.find(histName.c_str())!=hists_.end(); };
+  /// fill histogram if it had been booked before
+  void fill(const std::string histName, double value) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(value); };
+  // print jet pt for each level of energy corrections
+  void print(edm::View<pat::Jet>::const_iterator& jet, unsigned int idx);
 
 private:  
-  /// simple map to contain all histograms; 
-  /// histograms are booked in the beginJob() 
-  /// method (for 1-dim histograms)
-  std::map<std::string,TH1F*> hist1D_; 
   /// correction level for pat jet
   std::string corrLevel_;
   /// pat jets
-  edm::InputTag jetsPat_;
-  /// reco jets
-  edm::InputTag jetsReco_;
+  edm::InputTag jets_;
+  /// management of 1d histograms
+  std::map<std::string,TH1F*> hists_; 
 };
 
-#include "DataFormats/PatCandidates/interface/Jet.h"
 
-PatJetAnalyzer::PatJetAnalyzer(const edm::ParameterSet& cfg) : hist1D_(),
+PatJetAnalyzer::PatJetAnalyzer(const edm::ParameterSet& cfg):
   corrLevel_(cfg.getParameter<std::string>("corrLevel")),
-  jetsPat_(cfg.getParameter<edm::InputTag>("src"))
+  jets_(cfg.getParameter<edm::InputTag>("src"))
 {
-  if(cfg.existsAs<std::string>("reco")){
-    // can be omitted in the cfi file
-    jetsReco_=cfg.getParameter<edm::InputTag>("reco");
-  }
+  // register TFileService
+  edm::Service<TFileService> fs;
+
+  // jet multiplicity
+  hists_["mult" ]=fs->make<TH1F>("mult" , "N_{Jet}"          ,   15,   0.,   15.);
+  // jet pt (for all jets)
+  hists_["pt"   ]=fs->make<TH1F>("pt"   , "p_{T}(Jet) [GeV]" ,   60,   0.,  300.);
+  // jet eta (for all jets)
+  hists_["eta"  ]=fs->make<TH1F>("eta"  , "#eta (Jet)"       ,   60,  -3.,    3.);
+  // jet phi (for all jets)
+  hists_["phi"  ]=fs->make<TH1F>("phi"  , "#phi (Jet)"       ,   60,  3.2,   3.2);
+  // dijet mass (if available)
+  hists_["mass" ]=fs->make<TH1F>("mass" , "M_{jj} [GeV]"     ,   50,   0.,  500.);
+  // basic histograms for jet energy response
+  for(unsigned int idx=0; idx<MAXBIN; ++idx){
+    char buffer [10]; sprintf (buffer, "jes_%i", idx);
+    char title  [50]; sprintf (title , "p_{T}^{rec}/p_{T}^{gen} [%i GeV - %i GeV]", (int)BINS[idx], (int)BINS[idx+1]);
+    hists_[buffer]=fs->make<TH1F>(buffer, title,  100, 0., 2.);
+  }  
 }
 
 void
 PatJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
-  edm::Handle<edm::View<pat::Jet> > jetsPat;
-  event.getByLabel(jetsPat_,jetsPat);
+  // recieve jet collection label
+  edm::Handle<edm::View<pat::Jet> > jets;
+  event.getByLabel(jets_,jets);
 
-  size_t nPat =0;
-  for(edm::View<pat::Jet>::const_iterator jet=jetsPat->begin(); jet!=jetsPat->end(); ++jet){
-    hist1D_["jetPtPat"]->Fill(jet->correctedJet(corrLevel(), corrFlavor()).pt());
-    if(jet->correctedJet(corrLevel(), corrFlavor()).pt()>20){ ++nPat; }
+  // loop jets
+  for(edm::View<pat::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
+    // print jec factors
+    // print(jet, jet-jets->begin());
 
-    if( jet->genParton() && abs(jet->genParton()->pdgId())<6 ){
-      double resp=( jet->pt()-jet->genParton()->pt() )/jet->genParton()->pt();
+    // fill basic kinematics
+    fill( "pt" , jet->correctedJet(corrLevel_).pt());
+    fill( "eta", jet->eta());
+    fill( "phi", jet->phi());
+    // basic plots for jet responds plot as a function of pt
+    if( jet->genJet() ){
+      double resp=jet->correctedJet(corrLevel_).pt()/jet->genJet()->pt();
       for(unsigned int idx=0; idx<MAXBIN; ++idx){
-	if(BINS[idx]<=jet->genParton()->pt() && jet->genParton()->pt()<BINS[idx+1]){
+	if(BINS[idx]<=jet->genJet()->pt() && jet->genJet()->pt()<BINS[idx+1]){
 	  char buffer [10]; sprintf (buffer, "jes_%i", idx);
-	  hist1D_[buffer]->Fill( resp );
+	  fill( buffer, resp );
 	}
       }
     }
   }
-  hist1D_["jetMultPat"]->Fill(nPat);
+  // jet multiplicity
+  fill( "mult" , jets->size());
+  // invariant dijet mass for first two leading jets
+  if(jets->size()>1){ fill( "mass", ((*jets)[0].p4()+(*jets)[1].p4()).mass());}
+}
 
-  if(!jetsReco_.label().empty()){
-    edm::Handle<edm::View<reco::Jet> > jetsReco;
-    event.getByLabel(jetsReco_,jetsReco);
-    
-    size_t nReco=0;
-    for(edm::View<reco::Jet>::const_iterator jet=jetsReco->begin(); jet!=jetsReco->end(); ++jet){
-      hist1D_["jetPtReco"]->Fill(jet->pt());
-      if(jet->pt()>20){ ++nReco; }
+void
+PatJetAnalyzer::print(edm::View<pat::Jet>::const_iterator& jet, unsigned int idx)
+{
+  //edm::LogInfo log("JEC");
+  std::cout << "[" << idx << "] :: eta=" << std::setw(10) << jet->eta() << " phi=" << std::setw(10) << jet->phi() << " size: " << jet->availableJECLevels().size() << std::endl;
+  for(unsigned int idx=0; idx<jet->availableJECLevels().size(); ++idx){
+    pat::Jet correctedJet;
+    if(jet->availableJECLevels()[idx].find("L5Flavor")!=std::string::npos|| 
+       jet->availableJECLevels()[idx].find("L7Parton")!=std::string::npos ){
+      correctedJet=jet->correctedJet(idx, pat::JetCorrFactors::UDS);
     }
-    hist1D_["jetMultReco"]->Fill(nReco);
+    else{
+      correctedJet=jet->correctedJet(idx, pat::JetCorrFactors::NONE );
+    }
+    std::cout << std::setw(10) << correctedJet.currentJECLevel() << " pt=" << std::setw(10) << correctedJet.pt() << std::endl;
   }
-}
-
-void 
-PatJetAnalyzer::beginJob()
-{
-  // register TFileService
-  edm::Service<TFileService> fs;
-
-  for(unsigned int idx=0; idx<MAXBIN; ++idx){
-    char buffer [10]; sprintf (buffer, "jes_%i", idx);
-    hist1D_[buffer]=fs->make<TH1F>(buffer, "(pt_{rec}-pt_{gen})/pt_{rec}",  80, 10., 10.);
-  }  
-  hist1D_["jetMultPat" ]=fs->make<TH1F>("jetMultPat" , "N_{>20}(jet)" ,   10, 0.,  10.);
-  hist1D_["jetPtPat"   ]=fs->make<TH1F>("jetPtPat"   , "pt_{all}(jet)",  150, 0., 300.);
-  if(jetsReco_.label().empty()) return;
-
-  hist1D_["jetMultReco"]=fs->make<TH1F>("jetMultReco", "N_{>20}(jet)" ,   10, 0.,  10.);
-  hist1D_["jetPtReco"  ]=fs->make<TH1F>("jetPtReco"  , "pt_{all}(jet)",  150, 0., 300.);
-}
-
-void 
-PatJetAnalyzer::endJob() 
-{
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

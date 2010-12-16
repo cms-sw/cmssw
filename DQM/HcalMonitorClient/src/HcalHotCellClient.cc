@@ -11,8 +11,8 @@
 /*
  * \file HcalHotCellClient.cc
  * 
- * $Date: 2010/03/25 21:24:52 $
- * $Revision: 1.71 $
+ * $Date: 2010/08/02 18:47:13 $
+ * $Revision: 1.73 $
  * \author J. Temple
  * \brief Hot Cell Client class
  */
@@ -83,6 +83,8 @@ void HcalHotCellClient::calculateProblems()
   // Get histograms that are used in testing
   TH2F* HotAboveThresholdByDepth[4];
   TH2F* HotAlwaysAboveThresholdByDepth[4];
+  TH2F* HotAboveETThresholdByDepth[4];
+  TH2F* HotAlwaysAboveETThresholdByDepth[4];
   TH2F* HotNeighborsByDepth[4];
 
   std::vector<std::string> name = HcalEtaPhiHistNames();
@@ -95,9 +97,19 @@ void HcalHotCellClient::calculateProblems()
       // Assume histograms aren't found by default
       HotAboveThresholdByDepth[i]=0;
       HotAlwaysAboveThresholdByDepth[i]=0;
+      HotAboveETThresholdByDepth[i]=0;
+      HotAlwaysAboveETThresholdByDepth[i]=0;
       HotNeighborsByDepth[i]=0;
 
-      std::string s=subdir_+"hot_rechit_above_threshold/"+name[i]+"Hot Cells Above Energy Threshold";
+      std::string s=subdir_+"hot_rechit_above_threshold/"+name[i]+"Hot Cells Above ET Threshold";
+      me=dqmStore_->get(s.c_str());
+      if (me!=0)HotAboveETThresholdByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, HotAboveETThresholdByDepth[i], debug_);
+
+      s=subdir_+"hot_rechit_always_above_threshold/"+name[i]+"Hot Cells Persistently Above ET Threshold";
+      me=dqmStore_->get(s.c_str());
+      if (me!=0)HotAlwaysAboveETThresholdByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, HotAlwaysAboveETThresholdByDepth[i], debug_);
+
+      s=subdir_+"hot_rechit_above_threshold/"+name[i]+"Hot Cells Above Energy Threshold";
       me=dqmStore_->get(s.c_str());
       if (me!=0)HotAboveThresholdByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, HotAboveThresholdByDepth[i], debug_);
 
@@ -121,13 +133,12 @@ void HcalHotCellClient::calculateProblems()
   for (unsigned int d=0;ProblemCellsByDepth!=0 && d<ProblemCellsByDepth->depth.size();++d)
     {
       if (ProblemCellsByDepth->depth[d]==0) continue;
-      if (HotAboveThresholdByDepth[d]) totalevents = HotAboveThresholdByDepth[d]->GetBinContent(0);
-      else if (HotAlwaysAboveThresholdByDepth[d]) totalevents = HotAlwaysAboveThresholdByDepth[d]->GetBinContent(0);
-      else if (neighbortest==true && HotNeighborsByDepth[d]) totalevents = HotNeighborsByDepth[d]->GetBinContent(0);
-      else
-	{
-	  if (debug_>0) std::cout <<"<HcalHotCellClient::calculateProblems> No evaluation histograms found; no valid hot tests enabled?" << std::endl;
-	}
+      if (HotAboveETThresholdByDepth[d]) totalevents = std::max(totalevents, HotAboveETThresholdByDepth[d]->GetBinContent(0));
+      else if (HotAlwaysAboveETThresholdByDepth[d]) totalevents = std::max(totalevents, HotAlwaysAboveETThresholdByDepth[d]->GetBinContent(0));
+      else if (HotAboveThresholdByDepth[d]) totalevents = std::max(totalevents, HotAboveThresholdByDepth[d]->GetBinContent(0));
+      else if (HotAlwaysAboveThresholdByDepth[d]) totalevents = std::max(totalevents, HotAlwaysAboveThresholdByDepth[d]->GetBinContent(0));
+      else if (neighbortest==true && HotNeighborsByDepth[d]) totalevents = std::max(totalevents, HotNeighborsByDepth[d]->GetBinContent(0));
+      else if (debug_>0) std::cout <<"<HcalHotCellClient::calculateProblems> No evaluation histograms found; no valid hot tests enabled?" << std::endl;
       if (totalevents==0 || totalevents<minevents_) continue;
       enoughevents_=true; // kind of a hack here
       etabins=(ProblemCellsByDepth->depth[d]->getTH2F())->GetNbinsX();
@@ -141,6 +152,8 @@ void HcalHotCellClient::calculateProblems()
 	    {
 	      problemvalue=0; // problem fraction sums over all three tests
 	      // If cell is never-present in all runs, then problemvalue = event
+	      if (HotAboveETThresholdByDepth[d]!=0)
+		problemvalue+=HotAboveETThresholdByDepth[d]->GetBinContent(eta+1,phi+1);
 	      if (HotAboveThresholdByDepth[d]!=0)
 		problemvalue+=HotAboveThresholdByDepth[d]->GetBinContent(eta+1,phi+1);
 	      if (HotAlwaysAboveThresholdByDepth[d]!=0)

@@ -4,15 +4,15 @@ from PhysicsTools.PFCandProducer.Isolation.tools_cfi import *
 from PhysicsTools.PFCandProducer.Isolation.pfElectronIsolationFromDeposits_cff import *
 
 
-isoDepElectronWithCharged   = isoDepositReplace( 'pfElectronsPtGt5',
+isoDepElectronWithCharged   = isoDepositReplace( 'pfSelectedElectrons',
                                               'pfAllChargedHadrons' )
-isoDepElectronWithNeutral   = isoDepositReplace( 'pfElectronsPtGt5',
+isoDepElectronWithNeutral   = isoDepositReplace( 'pfSelectedElectrons',
                                               'pfAllNeutralHadrons' )
-isoDepElectronWithPhotons   = isoDepositReplace( 'pfElectronsPtGt5',
+isoDepElectronWithPhotons   = isoDepositReplace( 'pfSelectedElectrons',
                                               'pfAllPhotons' )
-# isoElectronWithElectrons = isoDepositReplace( 'pfElectronsPtGt5',
+# isoElectronWithElectrons = isoDepositReplace( 'pfSelectedElectrons',
 # 'pfAllElectrons' )
-# isoElectronWithMuons     = isoDepositReplace( 'pfElectronsPtGt5',
+# isoElectronWithMuons     = isoDepositReplace( 'pfSelectedElectrons',
 #                                               'pfAllMuons' )
 
 pfElectronIsoDepositsSequence = cms.Sequence(

@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.11 2010/07/04 10:51:49 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.12 2010/07/04 11:25:25 dinardo Exp $
 //
 //
 
@@ -136,14 +136,15 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       MonitorElement* Vx_XY;
       
       MonitorElement* goodVxCounter;
-
-      MonitorElement* fitResults;
+      MonitorElement* goodVxCountHistory;
 
       MonitorElement* hitCounter;
+      MonitorElement* hitCountHistory;
 
       MonitorElement* reportSummary;
       MonitorElement* reportSummaryMap;
       
+      MonitorElement* fitResults;
 
       // ######################
       // # Internal variables #
@@ -153,11 +154,13 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       edm::TimeValue_t beginTimeOfFit;
       edm::TimeValue_t endTimeOfFit;
       unsigned int nBinsHistoricalPlot;
+      unsigned int nBinsWholeHistory;
       unsigned int runNumber;
       unsigned int lumiCounter;
       unsigned int lumiCounterHisto;
       unsigned int totalHits;
       unsigned int maxLumiIntegration;
+      unsigned int prescaleHistory;
       unsigned int numberGoodFits;
       unsigned int numberFits;
       unsigned int beginLumiOfFit;

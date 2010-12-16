@@ -27,6 +27,7 @@ class ElectronMcSignalValidator : public ElectronValidator
 
     edm::InputTag electronCollection_;
     edm::InputTag  mcTruthCollection_;
+    edm::InputTag beamSpotTag_ ;
     bool readAOD_;
     std::string outputFile_ ;
 
@@ -170,13 +171,13 @@ class ElectronMcSignalValidator : public ElectronValidator
     MonitorElement *h1_scl_EoEtrue_endcaps_ringgap;
     MonitorElement *h1_scl_EoEtrue_barrel_new;
     MonitorElement *h1_scl_EoEtrue_endcaps_new;
-    MonitorElement *h1_scl_EoEtrue_barrel_eg_new;
-    MonitorElement *h1_scl_EoEtrue_endcaps_eg_new;
-    MonitorElement *h1_scl_EoEtrue_barrel_etagap_new;
-    MonitorElement *h1_scl_EoEtrue_barrel_phigap_new;
+    MonitorElement *h1_scl_EoEtrue_barrel_new_eg;
+    MonitorElement *h1_scl_EoEtrue_endcaps_new_eg;
+    MonitorElement *h1_scl_EoEtrue_barrel_new_etagap;
+    MonitorElement *h1_scl_EoEtrue_barrel_new_phigap;
     MonitorElement *h1_scl_EoEtrue_ebeegap_new;
-    MonitorElement *h1_scl_EoEtrue_endcaps_deegap_new;
-    MonitorElement *h1_scl_EoEtrue_endcaps_ringgap_new;
+    MonitorElement *h1_scl_EoEtrue_endcaps_new_deegap;
+    MonitorElement *h1_scl_EoEtrue_endcaps_new_ringgap;
     MonitorElement *h1_scl_Et_ ;
     MonitorElement *h2_scl_EtVsEta_ ;
     MonitorElement *h2_scl_EtVsPhi_ ;
@@ -425,12 +426,12 @@ class ElectronMcSignalValidator : public ElectronValidator
 
     MonitorElement *h1_ele_tkSumPt_dr03;
     MonitorElement *h1_ele_ecalRecHitSumEt_dr03;
-    MonitorElement *h1_ele_hcalDepth1TowerSumEt_dr03;
-    MonitorElement *h1_ele_hcalDepth2TowerSumEt_dr03;
+    MonitorElement *h1_ele_hcalTowerSumEt_dr03_depth1;
+    MonitorElement *h1_ele_hcalTowerSumEt_dr03_depth2;
     MonitorElement *h1_ele_tkSumPt_dr04;
     MonitorElement *h1_ele_ecalRecHitSumEt_dr04;
-    MonitorElement *h1_ele_hcalDepth1TowerSumEt_dr04;
-    MonitorElement *h1_ele_hcalDepth2TowerSumEt_dr04;
+    MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth1;
+    MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth2;
 
  } ;
 

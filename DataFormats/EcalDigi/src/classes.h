@@ -23,6 +23,8 @@ namespace {
     EEDigiCollection theEE_;
     ESDigiCollection theES_;
     EcalTrigPrimDigiCollection theETP_;
+    EcalTrigPrimCompactColl theETP2_;
+    
     EBSrFlagCollection theEBSRF_;
     EESrFlagCollection theEESRF_;
     EcalPnDiodeDigiCollection theEPN_;
@@ -33,6 +35,7 @@ namespace {
     edm::Wrapper<EEDigiCollection> anotherEEw_;
     edm::Wrapper<ESDigiCollection> anotherESw_;
     edm::Wrapper<EcalTrigPrimDigiCollection> anotherETPw_;
+    edm::Wrapper<EcalTrigPrimCompactColl> anotherETP2w_;
     edm::Wrapper<EBSrFlagCollection> anotherEBSRFw_;
     edm::Wrapper<EESrFlagCollection> anotherEESRFw_;
     edm::Wrapper<EcalPnDiodeDigiCollection> anotherEPNw_;

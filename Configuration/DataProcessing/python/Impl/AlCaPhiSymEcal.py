@@ -37,7 +37,8 @@ class AlCaPhiSymEcal(Scenario):
 
         """
 
-        skims = ['EcalCalPhiSym']
+        skims = ['EcalCalPhiSym',
+                 'DQM']
         step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
@@ -162,7 +163,7 @@ class AlCaPhiSymEcal(Scenario):
         """
         options = defaultOptions
         options.scenario = "pp"
-        options.step = "HARVESTING:dqmHarvesting"
+        options.step = "HARVESTING:alcaHarvesting"
         options.isMC = False
         options.isData = True
         options.beamspot = None
@@ -185,6 +186,6 @@ class AlCaPhiSymEcal(Scenario):
         process.source.fileNames = cms.untracked(cms.vstring())
         process.maxEvents.input = -1
         process.dqmSaver.workflow = datasetName
-        process.dqmSaver.saveByLumiSection = 1
+        # process.dqmSaver.saveByLumiSection = 1
 
         return process

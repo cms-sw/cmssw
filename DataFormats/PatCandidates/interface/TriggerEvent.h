@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerEvent
 //
-// $Id: TriggerEvent.h,v 1.6 2010/04/21 10:04:13 vadler Exp $
+// $Id: TriggerEvent.h,v 1.7 2010/06/16 15:40:52 vadler Exp $
 //
 /**
   \class    pat::TriggerEvent TriggerEvent.h "DataFormats/PatCandidates/interface/TriggerEvent.h"
@@ -18,7 +18,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerEvent
 
   \author   Volker Adler
-  \version  $Id: TriggerEvent.h,v 1.6 2010/04/21 10:04:13 vadler Exp $
+  \version  $Id: TriggerEvent.h,v 1.7 2010/06/16 15:40:52 vadler Exp $
 */
 
 
@@ -29,6 +29,7 @@
 
 #include <string>
 #include <vector>
+#include <boost/cstdint.hpp>
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -41,12 +42,22 @@ namespace pat {
   class TriggerEvent {
 
       /// event related data members
-      std::string nameL1Menu_;
-      std::string nameHltTable_;
-      bool        run_;
-      bool        accept_;
-      bool        error_;
-      bool        physDecl_;
+      std::string     nameL1Menu_;
+      std::string     nameHltTable_;
+      bool            run_;
+      bool            accept_;
+      bool            error_;
+      bool            physDecl_;
+      boost::uint32_t lhcFill_;
+      boost::uint16_t beamMode_;
+      boost::uint16_t beamMomentum_;
+      boost::uint32_t intensityBeam1_;
+      boost::uint32_t intensityBeam2_;
+      boost::uint16_t bstMasterStatus_;
+      boost::uint32_t turnCount_;
+      float           bCurrentStart_;
+      float           bCurrentStop_;
+      float           bCurrentAvg_;
 
       /// L1 algorithm related data members
       TriggerAlgorithmRefProd algorithms_;
@@ -70,18 +81,38 @@ namespace pat {
       virtual ~TriggerEvent() {};
 
       /// event related
-      void setNameL1Menu( const std::string & name )   { nameL1Menu_   = name; };
-      void setNameHltTable( const std::string & name ) { nameHltTable_ = name; };
-      void setRun( bool run )                          { run_          = run; };
-      void setAccept( bool accept )                    { accept_       = accept; };
-      void setError( bool error )                      { error         = error; };
-      void setPhysDecl( bool physDecl )                { physDecl_     = physDecl; };
-      std::string nameL1Menu() const   { return nameL1Menu_; };
-      std::string nameHltTable() const { return nameHltTable_; };
-      bool        wasRun() const       { return run_; };
-      bool        wasAccept() const    { return accept_; };
-      bool        wasError() const     { return error_; };
-      bool        wasPhysDecl() const  { return physDecl_; };
+      void setNameL1Menu( const std::string & name )             { nameL1Menu_      = name; };
+      void setNameHltTable( const std::string & name )           { nameHltTable_    = name; };
+      void setRun( bool run )                                    { run_             = run; };
+      void setAccept( bool accept )                              { accept_          = accept; };
+      void setError( bool error )                                { error            = error; };
+      void setPhysDecl( bool physDecl )                          { physDecl_        = physDecl; };
+      void setLhcFill( boost::uint32_t lhcFill )                 { lhcFill_         = lhcFill; };
+      void setBeamMode( boost::uint16_t beamMode )               { beamMode_        = beamMode; };
+      void setBeamMomentum( boost::uint16_t beamMomentum )       { beamMomentum_    = beamMomentum; };
+      void setIntensityBeam1( boost::uint32_t intensityBeam1 )   { intensityBeam1_  = intensityBeam1; };
+      void setIntensityBeam2( boost::uint32_t intensityBeam2 )   { intensityBeam2_  = intensityBeam2; };
+      void setBstMasterStatus( boost::uint16_t bstMasterStatus ) { bstMasterStatus_ = bstMasterStatus; };
+      void setTurnCount( boost::uint32_t turnCount )             { turnCount_       = turnCount; };
+      void setBCurrentStart( float bCurrentStart )               { bCurrentStart_   = bCurrentStart; };
+      void setBCurrentStop( float bCurrentStop )                 { bCurrentStop_    = bCurrentStop; };
+      void setBCurrentAvg( float bCurrentAvg )                   { bCurrentAvg_     = bCurrentAvg; };
+      std::string     nameL1Menu() const      { return nameL1Menu_; };
+      std::string     nameHltTable() const    { return nameHltTable_; };
+      bool            wasRun() const          { return run_; };
+      bool            wasAccept() const       { return accept_; };
+      bool            wasError() const        { return error_; };
+      bool            wasPhysDecl() const     { return physDecl_; };
+      boost::uint32_t lhcFill() const         { return lhcFill_; };
+      boost::uint16_t beamMode() const        { return beamMode_; };
+      boost::uint16_t beamMomentum() const    { return beamMomentum_; };
+      boost::uint32_t intensityBeam1() const  { return intensityBeam1_; };
+      boost::uint32_t intensityBeam2() const  { return intensityBeam2_; };
+      boost::uint16_t bstMasterStatus() const { return bstMasterStatus_; };
+      boost::uint32_t turnCount() const       { return turnCount_; };
+      float           bCurrentStart() const   { return bCurrentStart_; };
+      float           bCurrentStop() const    { return bCurrentStop_; };
+      float           bCurrentAvg() const     { return bCurrentAvg_; };
 
       /// L1 algorithms related
       void setAlgorithms( const edm::Handle< TriggerAlgorithmCollection > & handleTriggerAlgorithms ) { algorithms_ = TriggerAlgorithmRefProd( handleTriggerAlgorithms ); };

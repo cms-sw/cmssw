@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.19 2010/06/26 17:53:57 vadler Exp $
+// $Id: PATTriggerProducer.cc,v 1.20.2.2 2010/11/05 17:33:37 vadler Exp $
 //
 
 
@@ -29,6 +29,8 @@ using namespace edm;
 
 
 PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
+  nameProcess_( iConfig.getParameter< std::string >( "processName" ) ),
+  autoProcessName_( nameProcess_  == "*" ),
   onlyStandAlone_( iConfig.getParameter< bool >( "onlyStandAlone" ) ),
   // L1 configuration parameters
   addL1Algos_( false ),
@@ -40,9 +42,16 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
   tagL1ExtraTauJet_(),
   tagL1ExtraETM_(),
   tagL1ExtraHTM_(),
+  autoProcessNameL1ExtraMu_( false ),
+  autoProcessNameL1ExtraNoIsoEG_( false ),
+  autoProcessNameL1ExtraIsoEG_( false ),
+  autoProcessNameL1ExtraCenJet_( false ),
+  autoProcessNameL1ExtraForJet_( false ),
+  autoProcessNameL1ExtraTauJet_( false ),
+  autoProcessNameL1ExtraETM_( false ),
+  autoProcessNameL1ExtraHTM_( false ),
   saveL1Refs_( false ),
   // HLT configuration parameters
-  nameProcess_( iConfig.getParameter< std::string >( "processName" ) ),
   tagTriggerResults_( "TriggerResults" ),
   tagTriggerEvent_( "hltTriggerSummaryAOD" ),
   hltPrescaleLabel_(),
@@ -56,35 +65,83 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
   if ( iConfig.exists( "addL1Algos" ) ) addL1Algos_ = iConfig.getParameter< bool >( "addL1Algos" );
   if ( iConfig.exists( "l1ExtraMu" ) ) {
     tagL1ExtraMu_ = iConfig.getParameter< InputTag >( "l1ExtraMu" );
-    if ( tagL1ExtraMu_.process().empty() ) tagL1ExtraMu_ = InputTag( tagL1ExtraMu_.label(), tagL1ExtraMu_.instance(), nameProcess_ );
+    if ( tagL1ExtraMu_.process().empty() ) {
+      if ( ! autoProcessName_ ) {
+        tagL1ExtraMu_ = InputTag( tagL1ExtraMu_.label(), tagL1ExtraMu_.instance(), nameProcess_ );
+      } else {
+        autoProcessNameL1ExtraMu_ = true;
+      }
+    }
   }
   if ( iConfig.exists( "l1ExtraNoIsoEG" ) ) {
     tagL1ExtraNoIsoEG_ = iConfig.getParameter< InputTag >( "l1ExtraNoIsoEG" );
-    if ( tagL1ExtraNoIsoEG_.process().empty() ) tagL1ExtraNoIsoEG_ = InputTag( tagL1ExtraNoIsoEG_.label(), tagL1ExtraNoIsoEG_.instance(), nameProcess_ );
+    if ( tagL1ExtraNoIsoEG_.process().empty() ) {
+      if ( ! autoProcessName_ ) {
+        tagL1ExtraNoIsoEG_ = InputTag( tagL1ExtraNoIsoEG_.label(), tagL1ExtraNoIsoEG_.instance(), nameProcess_ );
+      } else {
+        autoProcessNameL1ExtraNoIsoEG_ = true;
+      }
+    }
   }
   if ( iConfig.exists( "l1ExtraIsoEG" ) ) {
     tagL1ExtraIsoEG_ = iConfig.getParameter< InputTag >( "l1ExtraIsoEG" );
-    if ( tagL1ExtraIsoEG_.process().empty() ) tagL1ExtraIsoEG_ = InputTag( tagL1ExtraIsoEG_.label(), tagL1ExtraIsoEG_.instance(), nameProcess_ );
+    if ( tagL1ExtraIsoEG_.process().empty() ) {
+      if ( ! autoProcessName_ ) {
+        tagL1ExtraIsoEG_ = InputTag( tagL1ExtraIsoEG_.label(), tagL1ExtraIsoEG_.instance(), nameProcess_ );
+      } else {
+        autoProcessNameL1ExtraIsoEG_ = true;
+      }
+    }
   }
   if ( iConfig.exists( "l1ExtraCenJet" ) ) {
     tagL1ExtraCenJet_ = iConfig.getParameter< InputTag >( "l1ExtraCenJet" );
-    if ( tagL1ExtraCenJet_.process().empty() ) tagL1ExtraCenJet_ = InputTag( tagL1ExtraCenJet_.label(), tagL1ExtraCenJet_.instance(), nameProcess_ );
+    if ( tagL1ExtraCenJet_.process().empty() ) {
+      if ( ! autoProcessName_ ) {
+        tagL1ExtraCenJet_ = InputTag( tagL1ExtraCenJet_.label(), tagL1ExtraCenJet_.instance(), nameProcess_ );
+      } else {
+        autoProcessNameL1ExtraCenJet_ = true;
+      }
+    }
   }
   if ( iConfig.exists( "l1ExtraForJet" ) ) {
     tagL1ExtraForJet_ = iConfig.getParameter< InputTag >( "l1ExtraForJet" );
-    if ( tagL1ExtraForJet_.process().empty() ) tagL1ExtraForJet_ = InputTag( tagL1ExtraForJet_.label(), tagL1ExtraForJet_.instance(), nameProcess_ );
+    if ( tagL1ExtraForJet_.process().empty() ) {
+      if ( ! autoProcessName_ ) {
+        tagL1ExtraForJet_ = InputTag( tagL1ExtraForJet_.label(), tagL1ExtraForJet_.instance(), nameProcess_ );
+      } else {
+        autoProcessNameL1ExtraForJet_ = true;
+      }
+    }
   }
   if ( iConfig.exists( "l1ExtraTauJet" ) ) {
     tagL1ExtraTauJet_ = iConfig.getParameter< InputTag >( "l1ExtraTauJet" );
-    if ( tagL1ExtraTauJet_.process().empty() ) tagL1ExtraTauJet_ = InputTag( tagL1ExtraTauJet_.label(), tagL1ExtraTauJet_.instance(), nameProcess_ );
+    if ( tagL1ExtraTauJet_.process().empty() ) {
+      if ( ! autoProcessName_ ) {
+        tagL1ExtraTauJet_ = InputTag( tagL1ExtraTauJet_.label(), tagL1ExtraTauJet_.instance(), nameProcess_ );
+      } else {
+        autoProcessNameL1ExtraTauJet_ = true;
+      }
+    }
   }
   if ( iConfig.exists( "l1ExtraETM" ) ) {
     tagL1ExtraETM_ = iConfig.getParameter< InputTag >( "l1ExtraETM" );
-    if ( tagL1ExtraETM_.process().empty() ) tagL1ExtraETM_ = InputTag( tagL1ExtraETM_.label(), tagL1ExtraETM_.instance(), nameProcess_ );
+    if ( tagL1ExtraETM_.process().empty() ) {
+      if ( ! autoProcessName_ ) {
+        tagL1ExtraETM_ = InputTag( tagL1ExtraETM_.label(), tagL1ExtraETM_.instance(), nameProcess_ );
+      } else {
+        autoProcessNameL1ExtraETM_ = true;
+      }
+    }
   }
   if ( iConfig.exists( "l1ExtraHTM" ) ) {
     tagL1ExtraHTM_ = iConfig.getParameter< InputTag >( "l1ExtraHTM" );
-    if ( tagL1ExtraHTM_.process().empty() ) tagL1ExtraHTM_ = InputTag( tagL1ExtraHTM_.label(), tagL1ExtraHTM_.instance(), nameProcess_ );
+    if ( tagL1ExtraHTM_.process().empty() ) {
+      if ( ! autoProcessName_ ) {
+        tagL1ExtraHTM_ = InputTag( tagL1ExtraHTM_.label(), tagL1ExtraHTM_.instance(), nameProcess_ );
+      } else {
+        autoProcessNameL1ExtraHTM_ = true;
+      }
+    }
   }
   if ( iConfig.exists( "saveL1Refs" ) ) saveL1Refs_ = iConfig.getParameter< bool >( "saveL1Refs" );
   // HLT configuration parameters
@@ -109,7 +166,12 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
 
 void PATTriggerProducer::beginRun( Run & iRun, const EventSetup & iSetup )
 {
+  if ( autoProcessName_ && ( nameProcess_ == "*" ) ) return;
+  beginConstRun( iRun, iSetup );
+}
 
+void PATTriggerProducer::beginConstRun( const Run & iRun, const EventSetup & iSetup )
+{
   // Initialize
   hltConfigInit_ = false;
 
@@ -140,7 +202,12 @@ void PATTriggerProducer::beginRun( Run & iRun, const EventSetup & iSetup )
 
 void PATTriggerProducer::beginLuminosityBlock( LuminosityBlock & iLuminosityBlock, const EventSetup & iSetup )
 {
+  if ( autoProcessName_ && ( nameProcess_ == "*" ) ) return;
+  beginConstLuminosityBlock( iLuminosityBlock, iSetup );
+}
 
+void PATTriggerProducer::beginConstLuminosityBlock( const LuminosityBlock & iLuminosityBlock, const EventSetup & iSetup )
+{
   // Extract pre-scales
   if ( hltConfigInit_ ) {
     // Start from run
@@ -168,11 +235,34 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
   // HLT
 
   // Get and check HLT event data
+  Handle< trigger::TriggerEvent > handleTriggerEvent;
 
+  if ( autoProcessName_) {
+    iEvent.getByLabel( edm::InputTag(tagTriggerEvent_.label(), tagTriggerEvent_.instance()), handleTriggerEvent );
+    if ( ! handleTriggerEvent.failedToGet() ) {
+        const edm::Provenance *meta = handleTriggerEvent.provenance();
+        if ( meta->processName() != nameProcess_ ) {
+            nameProcess_ = meta->processName();
+            LogInfo( "autoProcessName" ) << "Discovered trigger process name " << nameProcess_;
+            tagTriggerResults_ = InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), nameProcess_ );
+            tagTriggerEvent_   = InputTag( tagTriggerEvent_.label(),   tagTriggerEvent_.instance(),   nameProcess_ );
+            if ( autoProcessNameL1ExtraMu_ )      tagL1ExtraMu_      = InputTag( tagL1ExtraMu_.label()     , tagL1ExtraMu_.instance()     , nameProcess_ );
+            if ( autoProcessNameL1ExtraNoIsoEG_ ) tagL1ExtraNoIsoEG_ = InputTag( tagL1ExtraNoIsoEG_.label(), tagL1ExtraNoIsoEG_.instance(), nameProcess_ );
+            if ( autoProcessNameL1ExtraIsoEG_ )   tagL1ExtraIsoEG_   = InputTag( tagL1ExtraIsoEG_.label()  , tagL1ExtraIsoEG_.instance()  , nameProcess_ );
+            if ( autoProcessNameL1ExtraCenJet_ )  tagL1ExtraCenJet_  = InputTag( tagL1ExtraCenJet_.label() , tagL1ExtraCenJet_.instance() , nameProcess_ );
+            if ( autoProcessNameL1ExtraForJet_ )  tagL1ExtraForJet_  = InputTag( tagL1ExtraForJet_.label() , tagL1ExtraForJet_.instance() , nameProcess_ );
+            if ( autoProcessNameL1ExtraTauJet_ )  tagL1ExtraTauJet_  = InputTag( tagL1ExtraTauJet_.label() , tagL1ExtraTauJet_.instance() , nameProcess_ );
+            if ( autoProcessNameL1ExtraETM_ )     tagL1ExtraETM_     = InputTag( tagL1ExtraETM_.label()    , tagL1ExtraETM_.instance()    , nameProcess_ );
+            if ( autoProcessNameL1ExtraHTM_ )     tagL1ExtraHTM_     = InputTag( tagL1ExtraHTM_.label()    , tagL1ExtraHTM_.instance()    , nameProcess_ );
+            beginConstRun( iEvent.getRun(), iSetup );
+            beginConstLuminosityBlock( iEvent.getLuminosityBlock(), iSetup );
+        }
+    }
+  } else {
+    iEvent.getByLabel( tagTriggerEvent_, handleTriggerEvent );
+  }
   Handle< TriggerResults > handleTriggerResults;
   iEvent.getByLabel( tagTriggerResults_, handleTriggerResults );
-  Handle< trigger::TriggerEvent > handleTriggerEvent;
-  iEvent.getByLabel( tagTriggerEvent_, handleTriggerEvent );
   bool goodHlt( hltConfigInit_ );
   if ( goodHlt ) {
     if( ! handleTriggerResults.isValid() ) {

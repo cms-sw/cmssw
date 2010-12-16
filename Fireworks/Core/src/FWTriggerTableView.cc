@@ -2,22 +2,79 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.cc,v 1.9 2010/06/16 17:08:39 amraktad Exp $
+// $Id: FWTriggerTableView.cc,v 1.4 2010/01/21 23:04:48 chrjones Exp $
 //
 
 // system include files
+#include <stdlib.h>
+#include <algorithm>
+#include <boost/bind.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/numeric/conversion/converter.hpp>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
 #include <boost/regex.hpp>
 
+// FIXME
+// need camera parameters
+#define private public
+#include "TGLPerspectiveCamera.h"
+#undef private
+
+
+#include "TRootEmbeddedCanvas.h"
+#include "THStack.h"
+#include "TCanvas.h"
+#include "TClass.h"
+#include "TH2F.h"
+#include "TView.h"
+#include "TColor.h"
+#include "TEveScene.h"
+#include "TGLViewer.h"
+#include "TSystem.h"
+//EVIL, but only way I can avoid a double delete of TGLEmbeddedViewer::fFrame
+#define private public
+#include "TGLEmbeddedViewer.h"
+#undef private
+#include "TGComboBox.h"
+#include "TGLabel.h"
+#include "TGTextView.h"
+#include "TGTextEntry.h"
+#include "TEveViewer.h"
+#include "TEveManager.h"
 #include "TEveWindow.h"
+#include "TEveElement.h"
+#include "TEveRGBAPalette.h"
+#include "TEveCalo.h"
+#include "TEveElement.h"
+#include "TEveRGBAPalette.h"
+#include "TEveLegoEventHandler.h"
+#include "TGLWidget.h"
+#include "TGLScenePad.h"
+#include "TGLFontManager.h"
+#include "TEveTrans.h"
+#include "TGeoTube.h"
+#include "TEveGeoNode.h"
+#include "TEveStraightLineSet.h"
+#include "TEveText.h"
+#include "TGeoArb8.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWColorManager.h"
-#include "Fireworks/Core/interface/FWConfiguration.h"
+#include "Fireworks/Core/interface/FWCustomIconsButton.h"
+#include "Fireworks/Core/interface/FWModelChangeManager.h"
+#include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWTriggerTableView.h"
 #include "Fireworks/Core/interface/FWTriggerTableViewManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWEveValueScaler.h"
+#include "Fireworks/Core/interface/FWConfiguration.h"
+#include "Fireworks/Core/interface/BuilderUtils.h"
+#include "Fireworks/Core/interface/FWExpressionEvaluator.h"
 #include "Fireworks/Core/interface/FWTriggerTableViewTableManager.h"
-#include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
+#include "Fireworks/Core/src/FWExpressionValidator.h"
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
 
 #include "DataFormats/FWLite/interface/Handle.h"
@@ -108,29 +165,6 @@ FWTriggerTableView::typeName() const
 }
 
 void
-FWTriggerTableView::addTo( FWConfiguration& iTo ) const
-{
-	// are we the first FWTriggerTableView to go into the configuration?  If
-	// we are, then we are responsible for writing out the list of
-	// types (which we do by letting FWTriggerTableViewManager::addToImpl
-	// write into our configuration)
-	if( this == m_manager->m_views.front().get())
-		m_manager->addToImpl( iTo );
-	
-	// then there is the stuff we have to do anyway: remember which is
-	// a sorted column
-	FWConfiguration main( 1 );
-	FWConfiguration sortColumn( m_tableWidget->sortedColumn());
-	main.addKeyValue( kSortColumn, sortColumn );
-	FWConfiguration descendingSort( m_tableWidget->descendingSort());
-	main.addKeyValue( kDescendingSort, descendingSort );
-	iTo.addKeyValue( kTableView, main );
-	
-	// take care of parameters
-	FWConfigurableParameterizable::addTo( iTo );
-}
-
-void
 FWTriggerTableView::saveImageTo(const std::string& iName) const {
 }
 
@@ -153,7 +187,7 @@ void FWTriggerTableView::dataChanged ()
             hTriggerResults.getByLabel(*event,"TriggerResults","",m_process.value().c_str());
             triggerNames = &event->triggerNames(*hTriggerResults);
          } catch (cms::Exception&) {
-            fwLog(fwlog::kWarning) << " no trigger results with process name HLT is available" << std::endl;
+            std::cout << "Warning: no trigger results with process name HLT is available" << std::endl;
             m_tableManager->dataChanged();
             return;
          }
@@ -190,10 +224,11 @@ FWTriggerTableView::fillAverageAcceptFractions()
       hTriggerResults.getByLabel(*m_event,"TriggerResults","","HLT");
       edm::TriggerNames const* triggerNames(0);
       try{
+         hTriggerResults.getByLabel(*m_event,"TriggerResults","","HLT");
          triggerNames = &m_event->triggerNames(*hTriggerResults);
       } catch (cms::Exception&) {
-         fwLog(fwlog::kError) <<" exception caught while trying to get trigger info"<<std::endl;
-         break;
+         std::cout <<"error occurred while trying to get trigger info"<<std::endl;
+         return;
       }
 
       for(unsigned int i=0; i<triggerNames->size(); ++i) {
@@ -211,49 +246,17 @@ FWTriggerTableView::fillAverageAcceptFractions()
 }
 
 void 
-FWTriggerTableView::updateFilter( void )
-{
-	dataChanged();
+FWTriggerTableView::updateFilter(){
+  dataChanged();
 }
 
 //
 // static member functions
 //
 const std::string&
-FWTriggerTableView::staticTypeName( void )
+FWTriggerTableView::staticTypeName()
 {
-   static std::string s_name( "TriggerTable" );
+   static std::string s_name("TriggerTable");
    return s_name;
-}
-
-void
-FWTriggerTableView::setFrom( const FWConfiguration& iFrom )
-{
-	if( this == m_manager->m_views.front().get())
-		m_manager->setFrom( iFrom );
-
-	const FWConfiguration *main = iFrom.valueForKey( kTableView );
-	if( main != 0 )
-	{
-		const FWConfiguration *sortColumn = main->valueForKey( kSortColumn );
-		const FWConfiguration *descendingSort = main->valueForKey( kDescendingSort );
-		if( sortColumn != 0 && descendingSort != 0 ) 
-		{
-			unsigned int sort = sortColumn->version();
-			bool descending = descendingSort->version();
-			if( sort < (( unsigned int ) m_tableManager->numberOfColumns()))
-				m_tableWidget->sort( sort, descending );
-		}
-	} 
-	else
-	{
-		// configuration doesn't contain info for the table.  Be forgiving.
-		fwLog( fwlog::kError ) 
-		<< "This configuration file contains trigger tables, but no column information.  "
-		<< "(It is probably old.)  Using defaults." << std::endl;
-	}
-	
-	// take care of parameters
-	FWConfigurableParameterizable::setFrom( iFrom );
 }
 

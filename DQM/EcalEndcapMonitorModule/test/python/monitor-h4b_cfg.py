@@ -232,7 +232,6 @@ process.ecalUncalibHit.EEdigiCollection = 'ecalEBunpacker:eeDigis'
 process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
 process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 
-process.ecalEndcapMonitorClient.maskFile = ''
 process.ecalEndcapMonitorClient.location = 'H4B'
 #process.ecalEndcapMonitorClient.superModules = [10]
 process.ecalEndcapMonitorClient.superModules = [4, 5, 6]

@@ -6,14 +6,22 @@ patEventContentNoCleaning = [
     'keep *_selectedPatMuons*_*_*',
     'keep *_selectedPatTaus*_*_*',
     'keep *_selectedPatJets*_*_*',
+    'drop *_selectedPatJets_pfCandidates_*', ## drop for default patJets which are CaloJets    
+    'drop *_*PF_caloTowers_*',    
+    'drop *_*JPT_pfCandidates_*',
+    'drop *_*Calo_pfCandidates_*',
     'keep *_patMETs*_*_*',
     'keep *_selectedPatPFParticles*_*_*',
     'keep *_selectedPatTrackCands*_*_*'
 ]
 
 patEventContent = [
-    'keep *_selectedPatJets*_*_*',       # keep refactorized pat jet elements
-    'drop patJets_selectedPatJets*_*_*', # drop the actual selected pat jets, they're redundant
+    'keep *_selectedPatJets*_*_*',           ## keep refactorized pat jet elements
+    'drop patJets_selectedPatJets*_*_*',     ## drop the actual selected pat jets, they're redundant
+    'drop *_selectedPatJets_pfCandidates_*', ## drop for default patJets which are CaloJets    
+    'drop *_*PF_caloTowers_*',               ## drop collections not needed for the corresponding jet types
+    'drop *_*JPT_pfCandidates_*',            ## drop collections not needed for the corresponding jet types
+    'drop *_*Calo_pfCandidates_*',           ## drop collections not needed for the corresponding jet types
     'keep *_cleanPatPhotons*_*_*',
     'keep *_cleanPatElectrons*_*_*',
     'keep *_cleanPatMuons*_*_*',
@@ -45,7 +53,7 @@ patTriggerEventContent = [
     'keep patTriggerObjects_patTrigger_*_*',
     'keep patTriggerFilters_patTrigger_*_*',
     'keep patTriggerPaths_patTrigger_*_*',
-    'keep patTriggerEvent_patTriggerEvent_*_*'
+    'keep *_patTriggerEvent_*_*'
 ]
 patTriggerStandAloneEventContent = [
     'keep patTriggerObjectStandAlones_patTrigger_*_*',
@@ -57,12 +65,12 @@ patTriggerL1RefsEventContent = [
 ]
 
 patEventContentTriggerMatch = [
-    'keep *_cleanPatPhotonsTriggerMatch_*_*',
-    'keep *_cleanPatElectronsTriggerMatch_*_*',
-    'keep *_cleanPatMuonsTriggerMatch_*_*',
-    'keep *_cleanPatTausTriggerMatch_*_*',
-    'keep *_cleanPatJetsTriggerMatch_*_*',
-    'keep *_patMETsTriggerMatch_*_*'
+    'keep *_*PatPhotons*TriggerMatch_*_*',
+    'keep *_*PatElectrons*TriggerMatch_*_*',
+    'keep *_*PatMuons*TriggerMatch_*_*',
+    'keep *_*PatTaus*TriggerMatch_*_*',
+    'keep *_*PatJets*TriggerMatch_*_*',
+    'keep *_patMETs*TriggerMatch_*_*'
 ]
 
 patHiEventContent = [

@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio (Update: Amnon Harel)
-  \version  $Id: JetIDSelectionFunctor.h,v 1.9 2010/04/25 17:06:33 hegner Exp $
+  \version  $Id: JetIDSelectionFunctor.h,v 1.15 2010/08/31 20:31:50 srappocc Exp $
 */
 
 
@@ -32,6 +32,8 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
 
   enum Version_t { CRAFT08, PURE09, DQM09, N_VERSIONS };
   enum Quality_t { MINIMAL, LOOSE_AOD, LOOSE, TIGHT, N_QUALITY};
+
+  JetIDSelectionFunctor() {}
 
 
   JetIDSelectionFunctor( edm::ParameterSet const & parameters ) {
@@ -125,6 +127,35 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
     set( "TIGHT_fls", use_dqm_09 );
     set( "TIGHT_foot", use_dqm_09 );
 
+
+
+
+    index_MINIMAL_EMF_       = index_type(&bits_, "MINIMAL_EMF");
+						                      
+    index_LOOSE_AOD_fHPD_    = index_type(&bits_, "LOOSE_AOD_fHPD");
+    index_LOOSE_AOD_N90Hits_ = index_type(&bits_, "LOOSE_AOD_N90Hits");
+    index_LOOSE_AOD_EMF_     = index_type(&bits_, "LOOSE_AOD_EMF");
+						                      
+    index_LOOSE_fHPD_        = index_type(&bits_, "LOOSE_fHPD");
+    index_LOOSE_N90Hits_     = index_type(&bits_, "LOOSE_N90Hits");
+    index_LOOSE_EMF_         = index_type(&bits_, "LOOSE_EMF");
+						                      
+    index_TIGHT_fHPD_        = index_type(&bits_, "TIGHT_fHPD");
+    index_TIGHT_EMF_         = index_type(&bits_, "TIGHT_EMF");
+						                      
+    index_LOOSE_nHit_        = index_type(&bits_, "LOOSE_nHit");
+    index_LOOSE_als_         = index_type(&bits_, "LOOSE_als");
+    index_LOOSE_fls_         = index_type(&bits_, "LOOSE_fls");
+    index_LOOSE_foot_        = index_type(&bits_, "LOOSE_foot");
+						                      
+    index_TIGHT_nHit_        = index_type(&bits_, "TIGHT_nHit");
+    index_TIGHT_als_         = index_type(&bits_, "TIGHT_als");
+    index_TIGHT_fls_         = index_type(&bits_, "TIGHT_fls");
+    index_TIGHT_foot_        = index_type(&bits_, "TIGHT_foot");
+    index_widths_            = index_type(&bits_, "widths");
+    index_EF_N90Hits_        = index_type(&bits_, "EF_N90Hits");
+    index_EF_EMF_            = index_type(&bits_, "EF_EMF");
+
     // now set the return values for the ignored parts
     bool use_loose_aod = false;
     bool use_loose = false;
@@ -202,15 +233,21 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
   // 
   bool operator()( const pat::Jet & jet, pat::strbitset & ret )  
   {
-    if ( ! jet.isCaloJet() ) {
-      edm::LogWarning( "NYI" )<<"Criteria for pat::Jet-s other than CaloJets are not yet implemented";
+    if ( ! jet.isCaloJet() && !jet.isJPTJet() ) {
+      edm::LogWarning( "NYI" )<<"Criteria for pat::Jet-s other than CaloJets and JPTJets are not yet implemented";
       return false;
     }
     if ( version_ == CRAFT08 ) return craft08Cuts( jet.p4(), jet.emEnergyFraction(), jet.jetID(), ret );
     if ( version_ == PURE09 || version_ == DQM09 ) {
       unsigned int nHit = count_hits( jet.getCaloConstituents() );
-      return fwd09Cuts( jet.p4(), jet.emEnergyFraction(), jet.etaetaMoment(), jet.phiphiMoment(), nHit,
-			jet.jetID(), ret );
+      if ( jet.currentJECLevel() == "Uncorrected" ) {
+	return fwd09Cuts( jet.p4(), jet.emEnergyFraction(), jet.etaetaMoment(), jet.phiphiMoment(), nHit,
+			  jet.jetID(), ret );
+      }
+      else {
+	return fwd09Cuts( jet.correctedP4("Uncorrected"), jet.emEnergyFraction(), jet.etaetaMoment(), jet.phiphiMoment(), nHit,
+			  jet.jetID(), ret );
+      }
     }
     edm::LogWarning( "BadInput | NYI" )<<"Requested version ("<<version_<<") is unknown";
     return false;
@@ -288,13 +325,13 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
     double corrPt = correctedP4.pt();
     double emf = emEnergyFraction;
 
-    if ( ignoreCut("MINIMAL_EMF") || abs_eta > 2.6 || emf > 0.01 ) passCut( ret, "MINIMAL_EMF");
+    if ( ignoreCut(index_MINIMAL_EMF_) || abs_eta > 2.6 || emf > 0.01 ) passCut( ret, index_MINIMAL_EMF_);
             
     if ( quality_ == LOOSE_AOD ) {
       // loose fhpd cut from aod
-      if ( ignoreCut("LOOSE_AOD_fHPD")    || jetID.approximatefHPD < 0.98 ) passCut( ret, "LOOSE_AOD_fHPD");
+      if ( ignoreCut(index_LOOSE_AOD_fHPD_)    || jetID.approximatefHPD < 0.98 ) passCut( ret, index_LOOSE_AOD_fHPD_);
       // loose n90 hits cut
-      if ( ignoreCut("LOOSE_AOD_N90Hits") || jetID.hitsInN90 > 1 ) passCut( ret, "LOOSE_AOD_N90Hits");
+      if ( ignoreCut(index_LOOSE_AOD_N90Hits_) || jetID.hitsInN90 > 1 ) passCut( ret, index_LOOSE_AOD_N90Hits_);
       
       // loose EMF Cut from aod
       bool emf_loose = true;
@@ -304,14 +341,14 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
 	if( emEnergyFraction <= -0.9 ) emf_loose = false;
 	if( corrPt > 80 && emEnergyFraction >= 1 ) emf_loose = false;
       }
-      if ( ignoreCut("LOOSE_AOD_EMF") || emf_loose ) passCut(ret, "LOOSE_AOD_EMF");
+      if ( ignoreCut(index_LOOSE_AOD_EMF_) || emf_loose ) passCut(ret, index_LOOSE_AOD_EMF_);
 	
     }
     else if ( quality_ == LOOSE || quality_ == TIGHT ) {
       // loose fhpd cut
-      if ( ignoreCut("LOOSE_fHPD")    || jetID.fHPD < 0.98 ) passCut( ret, "LOOSE_fHPD");
+      if ( ignoreCut(index_LOOSE_fHPD_)    || jetID.fHPD < 0.98 ) passCut( ret, index_LOOSE_fHPD_);
       // loose n90 hits cut
-      if ( ignoreCut("LOOSE_N90Hits") || jetID.n90Hits > 1 ) passCut( ret, "LOOSE_N90Hits");
+      if ( ignoreCut(index_LOOSE_N90Hits_) || jetID.n90Hits > 1 ) passCut( ret, index_LOOSE_N90Hits_);
 
       // loose EMF Cut
       bool emf_loose = true;
@@ -321,13 +358,13 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
 	if( emEnergyFraction <= -0.9 ) emf_loose = false;
 	if( corrPt > 80 && emEnergyFraction >= 1 ) emf_loose = false;
       }
-      if ( ignoreCut("LOOSE_EMF") || emf_loose ) passCut(ret, "LOOSE_EMF");
+      if ( ignoreCut(index_LOOSE_EMF_) || emf_loose ) passCut(ret, index_LOOSE_EMF_);
  
       if ( quality_ == TIGHT ) {
 	// tight fhpd cut
 	bool tight_fhpd = true;
 	if ( corrPt >= 25 && jetID.fHPD >= 0.95 ) tight_fhpd = false; // this was supposed to use raw pT, see AN2009/087 :-(
-	if ( ignoreCut("TIGHT_fHPD") || tight_fhpd ) passCut(ret, "TIGHT_fHPD");
+	if ( ignoreCut(index_TIGHT_fHPD_) || tight_fhpd ) passCut(ret, index_TIGHT_fHPD_);
 	
 	// tight emf cut
 	bool tight_emf = true;
@@ -347,7 +384,7 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
 	    
 	  } // end if HF
 	}// end if outside HBHE
-	if ( ignoreCut("TIGHT_EMF") || tight_emf ) passCut(ret, "TIGHT_EMF");
+	if ( ignoreCut(index_TIGHT_EMF_) || tight_emf ) passCut(ret, index_TIGHT_EMF_);
       }// end if tight
     }// end if loose or tight
 
@@ -385,82 +422,82 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
     // - but using raw pTs
     // ========================
 
-    if ( (!HBHE) || ignoreCut("MINIMAL_EMF") || emf > 0.01 ) passCut( ret, "MINIMAL_EMF");
+    if ( (!HBHE) || ignoreCut(index_MINIMAL_EMF_) || emf > 0.01 ) passCut( ret, index_MINIMAL_EMF_);
             
     // loose fhpd cut from AOD
-    if ( (!HBHE) || ignoreCut("LOOSE_AOD_fHPD") || jetID.approximatefHPD < 0.98 ) passCut( ret, "LOOSE_AOD_fHPD");
+    if ( (!HBHE) || ignoreCut(index_LOOSE_AOD_fHPD_) || jetID.approximatefHPD < 0.98 ) passCut( ret, index_LOOSE_AOD_fHPD_);
     // loose n90 hits cut from AOD
-    if ( (!HBHE) || ignoreCut("LOOSE_AOD_N90Hits") || jetID.hitsInN90 > 1 ) passCut( ret, "LOOSE_AOD_N90Hits");
+    if ( (!HBHE) || ignoreCut(index_LOOSE_AOD_N90Hits_) || jetID.hitsInN90 > 1 ) passCut( ret, index_LOOSE_AOD_N90Hits_);
 
     // loose fhpd cut
-    if ( (!HBHE) || ignoreCut("LOOSE_fHPD") || jetID.fHPD < 0.98 ) passCut( ret, "LOOSE_fHPD");
+    if ( (!HBHE) || ignoreCut(index_LOOSE_fHPD_) || jetID.fHPD < 0.98 ) passCut( ret, index_LOOSE_fHPD_);
     // loose n90 hits cut
-    if ( (!HBHE) || ignoreCut("LOOSE_N90Hits") || jetID.n90Hits > 1 ) passCut( ret, "LOOSE_N90Hits");
+    if ( (!HBHE) || ignoreCut(index_LOOSE_N90Hits_) || jetID.n90Hits > 1 ) passCut( ret, index_LOOSE_N90Hits_);
  
     // tight fhpd cut
-    if ( (!HBHE) || ignoreCut("TIGHT_fHPD") || rawPt < 25 || jetID.fHPD < 0.95 ) passCut(ret, "TIGHT_fHPD");
+    if ( (!HBHE) || ignoreCut(index_TIGHT_fHPD_) || rawPt < 25 || jetID.fHPD < 0.95 ) passCut(ret, index_TIGHT_fHPD_);
       
     // tight emf cut
-    if ( (!HBHE) || ignoreCut("TIGHT_EMF") || HB || rawPt < 55 || emf < 1 ) passCut(ret, "TIGHT_EMF");
+    if ( (!HBHE) || ignoreCut(index_TIGHT_EMF_) || HB || rawPt < 55 || emf < 1 ) passCut(ret, index_TIGHT_EMF_);
 
  
     // EF - these cuts are only used in "tight", but there's no need for this test here.
 
-    if( (!EF) || ignoreCut( "EF_N90Hits" ) 
+    if( (!EF) || ignoreCut( index_EF_N90Hits_ ) 
 	|| jetID.n90Hits > 1 + 1.5 * TMath::Max( 0., lnpt - 1.5 ) ) 
-      passCut( ret, "EF_N90Hits" );
+      passCut( ret, index_EF_N90Hits_ );
 
-    if( (!EF) || ignoreCut( "EF_EMF" ) 
+    if( (!EF) || ignoreCut( index_EF_EMF_ ) 
 	|| emf > TMath::Max( -0.9, -0.1 - 0.05 * TMath::Power( TMath::Max( 0., 5 - lnpt ), 2. ) ) )
-      passCut( ret, "EF_EMF" );
+      passCut( ret, index_EF_EMF_ );
 
     // both EF and HF
 
-    if( ( !( EF || HF ) ) || ignoreCut( "TIGHT_fls" )
+    if( ( !( EF || HF ) ) || ignoreCut( index_TIGHT_fls_ )
 	|| ( EF && jetID.fLS < TMath::Min( 0.8, 0.1 + 0.016 * TMath::Power( TMath::Max( 0., 6 - lnpt ), 2.5 ) ) )
 	|| ( HFa && jetID.fLS < TMath::Min( 0.6, 0.05 + 0.045 * TMath::Power( TMath::Max( 0., 7.5 - lnE ), 2.2 ) ) ) 
 	|| ( HFb && jetID.fLS < TMath::Min( 0.1, 0.05 + 0.07 * TMath::Power( TMath::Max( 0., 7.8 - lnE ), 2. ) ) ) )
-      passCut( ret, "TIGHT_fls" );
+      passCut( ret, index_TIGHT_fls_ );
 
-    if( ( !( EF || HF ) ) || ignoreCut( "widths" )
+    if( ( !( EF || HF ) ) || ignoreCut( index_widths_ )
 	|| ( 1E-10 < etaWidth && etaWidth < 0.12 && 
 	     1E-10 < phiWidth && phiWidth < 0.12 ) )
-      passCut( ret, "widths" );
+      passCut( ret, index_widths_ );
 
     // HF cuts
 
-    if( (!HF) || ignoreCut( "LOOSE_nHit" ) 
+    if( (!HF) || ignoreCut( index_LOOSE_nHit_ ) 
 	|| ( HFa && nHit > 1 + 2.4*( lnpt - 1. ) ) 
 	|| ( HFb && nHit > 1 + 3.*( lnpt - 1. ) ) )
-      passCut( ret, "LOOSE_nHit" );
+      passCut( ret, index_LOOSE_nHit_ );
 
-    if( (!HF) || ignoreCut( "LOOSE_als" )
+    if( (!HF) || ignoreCut( index_LOOSE_als_ )
 	|| ( emf < 0.6 + 0.05 * TMath::Power( TMath::Max( 0., 9 - lnE ), 1.5 ) &&
 	     emf > -0.2 - 0.041 * TMath::Power( TMath::Max( 0., 7.5 - lnE ), 2.2 ) ) )
-      passCut( ret, "LOOSE_als" ); 
+      passCut( ret, index_LOOSE_als_ ); 
       
-    if( (!HF) || ignoreCut( "LOOSE_fls" )
+    if( (!HF) || ignoreCut( index_LOOSE_fls_ )
 	|| ( HFa && jetID.fLS < TMath::Min( 0.9, 0.1 + 0.05 * TMath::Power( TMath::Max( 0., 7.5 - lnE ), 2.2 ) ) )
 	|| ( HFb && jetID.fLS < TMath::Min( 0.6, 0.1 + 0.065 * TMath::Power( TMath::Max( 0., 7.5 - lnE ), 2.2 ) ) ) )
-      passCut( ret, "LOOSE_fls" ); 
+      passCut( ret, index_LOOSE_fls_ ); 
 
-    if( (!HF) || ignoreCut( "LOOSE_foot" )
+    if( (!HF) || ignoreCut( index_LOOSE_foot_ )
 	|| jetID.fHFOOT < 0.9 )
-      passCut( ret, "LOOSE_foot" );
+      passCut( ret, index_LOOSE_foot_ );
       
-    if( (!HF) || ignoreCut( "TIGHT_nHit" )
+    if( (!HF) || ignoreCut( index_TIGHT_nHit_ )
 	|| ( HFa && nHit > 1 + 2.7*( lnpt - 0.8 ) ) 
 	|| ( HFb && nHit > 1 + 3.5*( lnpt - 0.8 ) ) )
-      passCut( ret, "TIGHT_nHit" );
+      passCut( ret, index_TIGHT_nHit_ );
 
-    if( (!HF) || ignoreCut( "TIGHT_als" ) 
+    if( (!HF) || ignoreCut( index_TIGHT_als_ ) 
 	|| ( emf < 0.5 + 0.057 * TMath::Power( TMath::Max( 0., 9 - lnE ), 1.5 ) &&
 	     emf > TMath::Max( -0.6, -0.1 - 0.026 * TMath::Power( TMath::Max( 0., 8 - lnE ), 2.2 ) ) ) )
-      passCut( ret, "TIGHT_als" ); 
+      passCut( ret, index_TIGHT_als_ ); 
 
-    if( (!HF) || ignoreCut( "TIGHT_foot" ) 
+    if( (!HF) || ignoreCut( index_TIGHT_foot_ ) 
 	|| jetID.fLS < 0.5 )
-      passCut( ret, "TIGHT_foot" );
+      passCut( ret, index_TIGHT_foot_ );
 
     setIgnored( ret );    
 
@@ -471,6 +508,32 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
   
   Version_t version_;
   Quality_t quality_;
+
+  index_type index_MINIMAL_EMF_       ;
+			    
+  index_type index_LOOSE_AOD_fHPD_    ;
+  index_type index_LOOSE_AOD_N90Hits_ ;
+  index_type index_LOOSE_AOD_EMF_     ;
+			    
+  index_type index_LOOSE_fHPD_        ;
+  index_type index_LOOSE_N90Hits_     ;
+  index_type index_LOOSE_EMF_         ;
+			    
+  index_type index_TIGHT_fHPD_        ;
+  index_type index_TIGHT_EMF_         ;
+			    
+  index_type index_LOOSE_nHit_        ;
+  index_type index_LOOSE_als_         ;
+  index_type index_LOOSE_fls_         ;
+  index_type index_LOOSE_foot_        ;
+  
+  index_type index_TIGHT_nHit_        ;
+  index_type index_TIGHT_als_         ;
+  index_type index_TIGHT_fls_         ;
+  index_type index_TIGHT_foot_        ;
+  index_type index_widths_            ;
+  index_type index_EF_N90Hits_        ;
+  index_type index_EF_EMF_            ;
   
 };
 

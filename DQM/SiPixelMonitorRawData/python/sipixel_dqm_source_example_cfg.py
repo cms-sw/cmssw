@@ -24,16 +24,13 @@ process.siPixelDigis.IncludeErrors = True
 
 process.load("DQM.SiPixelMonitorRawData.SiPixelMonitorRawData_cfi")
 process.SiPixelRawDataErrorSource.saveFile = True
-#process.SiPixelHLTSource.isPIB = False
+#process.SiPixelRawDataErrorSource.isPIB = True
 process.SiPixelRawDataErrorSource.slowDown = False
 #process.SiPixelHLTSource.reducedSet = False
 process.SiPixelRawDataErrorSource.modOn = True
 process.SiPixelRawDataErrorSource.ladOn = False
 process.SiPixelRawDataErrorSource.bladeOn = False
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
-)
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
@@ -42,11 +39,12 @@ process.source = cms.Source("PoolSource",
     )
 )
 
+
 ##
 ## number of events
 ##
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1) )
+    input = cms.untracked.int32(1000) )
 
 
 process.p1 = cms.Path(process.siPixelDigis*process.SiPixelRawDataErrorSource)

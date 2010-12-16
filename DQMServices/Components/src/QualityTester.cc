@@ -1,8 +1,8 @@
 /*
  * \file QualityTester.cc
  *
- * $Date: 2010/01/27 13:11:38 $
- * $Revision: 1.17 $
+ * $Date: 2010/02/09 17:43:02 $
+ * $Revision: 1.18 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -10,9 +10,10 @@
 #include "DQMServices/Components/interface/QualityTester.h"
 #include "DQMServices/ClientConfig/interface/QTestHandle.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include <FWCore/ParameterSet/interface/FileInPath.h>
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <stdio.h>
 #include <sstream>
 #include <math.h>

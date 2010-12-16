@@ -61,8 +61,8 @@ cmsRun $runbasedir/src/CondCore/DBOutputService/test/python/writeKeyed_cfg.py
 cmscond_list_iov -c sqlite:keys.db -t KeyTest -s
 cmscond_list_iov -c sqlite:keys.db -t ConfTest
 pool_list_object_relational_mapping -c sqlite_file:keys.db
-$runbasedir/bin/$SCRAM_ARCH/CondDataProxy_t -c sqlite_file:keys.db -t ConfTest -k KeyTest -r ExDwarfListRcd -a 15
-$runbasedir/bin/$SCRAM_ARCH/CondDataProxy_t -c sqlite_file:keys.db -t ConfTest -k KeyTest -r ExDwarfListRcd -a 99
+$runbasedir/test/$SCRAM_ARCH/CondDataProxy_t -c sqlite_file:keys.db -t ConfTest -k KeyTest -r ExDwarfListRcd -a 15
+$runbasedir/test/$SCRAM_ARCH/CondDataProxy_t -c sqlite_file:keys.db -t ConfTest -k KeyTest -r ExDwarfListRcd -a 99
 
 
 echo "test refresh"

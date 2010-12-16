@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from TopQuarkAnalysis.TopObjectResolutions.stringResolutions_etEtaPhi_cff import *
+
 kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
     jets = cms.InputTag("selectedPatJets"),
 
@@ -28,25 +30,21 @@ kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
     # ------------------------------------------------
     # option to use b-tagging
     # ------------------------------------------------
+    useBTagging         = cms.bool(True),
     bTagAlgo            = cms.string("trackCountingHighPurBJetTags"),
     minBTagValueBJet    = cms.double(3.0),
     maxBTagValueNonBJet = cms.double(3.0),
-    bTags               = cms.uint32(2), # if set to 1 also tries to take 2 if possible
+    bTags               = cms.uint32(2), # minimal number of b-tagged
+                                         # jets, if more are available
+                                         # they will be used
 
     # ------------------------------------------------
-    ## specify jet correction level as
-    ## No Correction : raw                                     
-    ## L1Offset      : off
-    ## L2Relative    : rel
-    ## L3Absolute    : abs
-    ## L4Emf         : emf
-    ## L5Hadron      : had
-    ## L6UE          : ue
-    ## L7Parton      : part
-    ## a flavor specification will be
-    ## added automatically, when chosen
+    ## specify jet correction level as, Uncorrected,
+    ## L1Offset, L2Relative, L3Absolute, L4Emf, 
+    ## L5Hadron, L6UE, L7Parton, a flavor specifica-
+    ## tion will be added automatically, when chosen     
     # ------------------------------------------------
-    jetCorrectionLevel = cms.string("abs"),
+    jetCorrectionLevel = cms.string("L3Absolute"),
                                       
     # ------------------------------------------------
     # settings for the KinFitter
@@ -73,7 +71,13 @@ kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
     # set mass values used in the constraints
     # ------------------------------------------------    
     mW   = cms.double(80.4),
-    mTop = cms.double(173.)
+    mTop = cms.double(173.),
+
+    # ------------------------------------------------
+    # resolutions used for the kinematic fit
+    # ------------------------------------------------
+    udscResolutions = udscResolution.functions,
+    bResolutions    = bjetResolution.functions
 )
 
 

@@ -48,6 +48,9 @@ class connectstrParser(object):
         result='frontier://'
         for k,v in parameterDict.items():
             ##if attr name=url, concatenate; if attrname=value discard
+            if k=='load' and v[0][0]=='balance':
+                result+='(loadbalance='+v[0][1]+')'
+                continue
             for (attrname,attrvalue) in v:
                 if attrname=='url':
                     if k=='server':
@@ -89,7 +92,7 @@ if __name__ == '__main__':
     parser.parse()
     print parser.protocol(),parser.service(),parser.schemaname(),parser.needsitelocalinfo(),parser.servlettotranslate()
     if parser.needsitelocalinfo():
-        sitelocalconfig='/afs/cern.ch/user/x/xiezhen/w1/lumical/CMSSW_3_5_0_pre5/src/RecoLuminosity/LumiDB/site-local-config.xml'
+        sitelocalconfig='/afs/cern.ch/user/x/xiezhen/w1/site-local-config.xml'
         frontierparser=cacheconfigParser.cacheconfigParser()
         frontierparser.parse(sitelocalconfig)
         print 'full frontier string'

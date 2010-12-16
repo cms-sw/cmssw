@@ -61,16 +61,7 @@ process.dtDigiMonitor.ResetCycle = 999999999
 # message logger
 process.MessageLogger = cms.Service("MessageLogger",
                                     destinations = cms.untracked.vstring('cout'),
-                                    categories = cms.untracked.vstring('DTSynchNoise'), 
-                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('INFO'),
-                                                              noLineBreaks = cms.untracked.bool(False),
-                                                              DEBUG = cms.untracked.PSet(
-                                                                      limit = cms.untracked.int32(0)),
-                                                              INFO = cms.untracked.PSet(
-                                                                      limit = cms.untracked.int32(0)),
-                                                              DTSynchNoise = cms.untracked.PSet(
-                                                                      limit = cms.untracked.int32(-1))
-                                                              )
+                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING'))
                                     )
 
 process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver)

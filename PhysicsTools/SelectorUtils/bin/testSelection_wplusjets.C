@@ -62,7 +62,8 @@ int main ( int argc, char ** argv )
        ++ev) {
     ret.set(false);
     
-    // bool passed = wPlusJets(ev, ret);
+    wPlusJets(ev, ret);
+
     std::vector<reco::ShallowClonePtrCandidate> const & electrons =  wPlusJets.selectedElectrons();
     std::vector<reco::ShallowClonePtrCandidate> const & muons     =  wPlusJets.selectedMuons();
     std::vector<reco::ShallowClonePtrCandidate> const & jets      =  wPlusJets.cleanedJets();
@@ -95,9 +96,9 @@ int main ( int argc, char ** argv )
    
   } //end event loop
   
-  //cout << "Printing" << endl;
+  cout << "Printing" << endl;
   wPlusJets.print(std::cout);
-  //cout << "We're done!" << endl;
+  cout << "We're done!" << endl;
   
   return 0;
 }

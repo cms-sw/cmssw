@@ -97,6 +97,7 @@ namespace reco {
     /*       return  CandidateBaseRef(sourceRef_); */
     /*     } */
 
+    //using reco::Candidate::setSourceCandidatePtr;
     void setSourceCandidatePtr(const PFCandidatePtr& ptr) { sourcePtr_ = ptr; }
 
     size_t numberOfSourceCandidatePtrs() const { 
@@ -304,6 +305,9 @@ namespace reco {
                                      const PFCandidate& c );
   
   private:
+    /// Polymorphic overlap
+    virtual bool overlap( const Candidate & ) const;
+
     void setFlag(unsigned shift, unsigned flag, bool value);
 
     bool flag(unsigned shift, unsigned flag) const;

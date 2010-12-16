@@ -11,13 +11,13 @@ endif
 # library extensions
 ifeq ($(shell uname), Linux)
 		CC := c++
-		COMPILERFLAGS := -Wall -O2 -m32 -fPIC ${USER_CXXFLAGS}
+		COMPILERFLAGS := -Wall -O2 -m32 -fPIC
 		SO_EXT := so
 		MAKESHAREDLIB := -shared
 else
 	ifeq ($(shell uname), Darwin)
 		CC := c++-4.0
-		COMPILERFLAGS := -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5 -arch i386 -Wall -O2 -fPIC ${USER_CXXFLAGS}
+		COMPILERFLAGS := -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5 -arch i386 -Wall -O2 -fPIC
 		SO_EXT := dylib
 		MAKESHAREDLIB := -mmacosx-version-min=10.5 -dynamiclib
 	endif

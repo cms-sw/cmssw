@@ -10,7 +10,7 @@ namespace edm {
     boost::uint32_t totalIntensityBeam1;
     boost::uint32_t totalIntensityBeam2;
 
-    bool isProductEqual(ConditionsInLumiBlock const& newThing) {
+    bool isProductEqual(ConditionsInLumiBlock const& newThing) const {
       return ((totalIntensityBeam1 == newThing.totalIntensityBeam1) &&
 	      (totalIntensityBeam2 == newThing.totalIntensityBeam2));
     }
@@ -26,7 +26,7 @@ namespace edm {
     float BStartCurrent;
     float BStopCurrent;
     float BAvgCurrent;
-    bool isProductEqual(ConditionsInRunBlock const& newThing) {
+    bool isProductEqual(ConditionsInRunBlock const& newThing) const {
       return (lhcFillNumber == newThing.lhcFillNumber);
     }
   };

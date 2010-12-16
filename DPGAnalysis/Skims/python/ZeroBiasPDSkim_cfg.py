@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/ZeroBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined ZeroBias skim')
 )
@@ -75,7 +75,7 @@ process.goodvertex=cms.Path(process.primaryVertexFilter+process.noscraping)
 
 
 process.gvout = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('/tmp/malgeri/ZB_vertex.root'),
+    fileName = cms.untracked.string('/tmp/azzi/ZB_vertex.root'),
     outputCommands = process.FEVTEventContent.outputCommands,
     dataset = cms.untracked.PSet(
     	      dataTier = cms.untracked.string('RAW-RECO'),
@@ -85,12 +85,40 @@ process.gvout = cms.OutputModule("PoolOutputModule",
     )
 )
 
+
+#################################logerrorharvester############################################
+process.load("FWCore.Modules.logErrorFilter_cfi")
+from Configuration.StandardSequences.RawToDigi_Data_cff import gtEvmDigis
+
+process.gtEvmDigis = gtEvmDigis.clone()
+process.stableBeam = cms.EDFilter("HLTBeamModeFilter",
+                                  L1GtEvmReadoutRecordTag = cms.InputTag("gtEvmDigis"),
+                                  AllowedBeamMode = cms.vuint32(11)
+                                  )
+
+process.logerrorpath=cms.Path(process.gtEvmDigis+process.stableBeam+process.logErrorFilter)
+
+process.outlogerr = cms.OutputModule("PoolOutputModule",
+                               outputCommands =  process.FEVTEventContent.outputCommands,
+                               fileName = cms.untracked.string('/tmp/azzi/logerror_filter.root'),
+                               dataset = cms.untracked.PSet(
+                                  dataTier = cms.untracked.string('RAW-RECO'),
+                                  filterName = cms.untracked.string('Skim_logerror')),
+                               
+                               SelectEvents = cms.untracked.PSet(
+    SelectEvents = cms.vstring("logerrorpath")
+    ))
+
+#===========================================================
+
 ###########################################################################
 process.options = cms.untracked.PSet(
  wantSummary = cms.untracked.bool(True)
 )
 
-process.outpath = cms.EndPath(process.gvout)
+#Killed gvskim 
+#process.outpath = cms.EndPath(process.gvout+process.outlogerr)
+process.outpath = cms.EndPath(process.outlogerr)
 
 
 

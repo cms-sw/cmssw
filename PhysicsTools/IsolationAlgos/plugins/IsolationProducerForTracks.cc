@@ -32,6 +32,7 @@ private:
 #include <vector>
 
 using namespace edm;
+using namespace std;
 using namespace reco;
 
 typedef edm::ValueMap<float> TkIsoMap;

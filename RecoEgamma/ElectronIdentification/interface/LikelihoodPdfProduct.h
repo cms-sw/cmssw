@@ -24,7 +24,7 @@ class LikelihoodPdfProduct {
   void addPdf(const char* specname, const char* name, bool splitPdf=false);
 
   //! set the fraction of one category for a given species
-  void setSplitFrac(const char* specname, const char* catName, float frac);
+  void setSplitFrac(const char* specname, const char* catName, float frac=1.0);
 
   //! get the likelihood ratio p(a priori) * L(specName) / L_tot
   float getRatio(const char* specName, std::vector<float> measurements, std::string);

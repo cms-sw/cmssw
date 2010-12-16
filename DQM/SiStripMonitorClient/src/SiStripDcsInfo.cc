@@ -308,7 +308,9 @@ void SiStripDcsInfo::addBadModules() {
     
   dqmStore_->cd();
   std::string mdir = "MechanicalView";
-  if (!SiStripUtility::goToDir(dqmStore_, mdir)) return;
+  if (!SiStripUtility::goToDir(dqmStore_, mdir)) {
+    dqmStore_->setCurrentFolder("SiStrip/"+mdir);
+  }
   std::string mechanical_dir = dqmStore_->pwd();
   std::string tag = "DCSError";
 

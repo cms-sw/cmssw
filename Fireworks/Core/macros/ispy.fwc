@@ -1,1204 +1,1592 @@
-<config name="top" version="1">
- <config name="EventItems" version="1">
-  <config name="ECal" version="3">
-   <config name="type" version="0">
-     <string>edm::SortedCollection&lt;CaloTower,edm::StrictWeakOrdering&lt;CaloTower&gt; &gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>towerMaker</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string></string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string>(abs(eta)&lt;1.5&amp;&amp;energy&gt;0.2)||(energy&gt;0.5)</string>
-   </config>
-   <config name="color" version="0">
-     <string>8</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>t</string>
-   </config>
-   <config name="layer" version="0">
-     <string>2</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>ECal</string>
-   </config>
-  </config>
-  <config name="HCal" version="3">
-   <config name="type" version="0">
-     <string>edm::SortedCollection&lt;CaloTower,edm::StrictWeakOrdering&lt;CaloTower&gt; &gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>towerMaker</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string></string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string>energy&gt;0.5</string>
-   </config>
-   <config name="color" version="0">
-     <string>5</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>t</string>
-   </config>
-   <config name="layer" version="0">
-     <string>2</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>HCal</string>
-   </config>
-  </config>
-  <config name="Jets" version="3">
-   <config name="type" version="0">
-     <string>std::vector&lt;reco::CaloJet&gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>iterativeCone5CaloJets</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string></string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string>$.pt()&gt;10</string>
-   </config>
-   <config name="color" version="0">
-     <string>0</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>t</string>
-   </config>
-   <config name="layer" version="0">
-     <string>3</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>Jets</string>
-   </config>
-  </config>
-  <config name="Tracks" version="3">
-   <config name="type" version="0">
-     <string>std::vector&lt;reco::Track&gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>generalTracks</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string></string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string>$.pt()&gt;1</string>
-   </config>
-   <config name="color" version="0">
-     <string>4</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>t</string>
-   </config>
-   <config name="layer" version="0">
-     <string>1</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>Tracks</string>
-   </config>
-  </config>
-  <config name="Muons" version="3">
-   <config name="type" version="0">
-     <string>std::vector&lt;reco::Muon&gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>muons</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string></string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string>$.isStandAloneMuon()</string>
-   </config>
-   <config name="color" version="0">
-     <string>8</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>t</string>
-   </config>
-   <config name="layer" version="0">
-     <string>5</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>Muons</string>
-   </config>
-  </config>
-  <config name="Electrons" version="3">
-   <config name="type" version="0">
-     <string>std::vector&lt;reco::GsfElectron&gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>gsfElectrons</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string></string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string>$.hadronicOverEm()&lt;0.05</string>
-   </config>
-   <config name="color" version="0">
-     <string>7</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>t</string>
-   </config>
-   <config name="layer" version="0">
-     <string>3</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>Electrons</string>
-   </config>
-  </config>
-  <config name="Vertices" version="3">
-   <config name="type" version="0">
-     <string>std::vector&lt;reco::Vertex&gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>offlinePrimaryVertices</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string></string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string></string>
-   </config>
-   <config name="color" version="0">
-     <string>0</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>t</string>
-   </config>
-   <config name="layer" version="0">
-     <string>10</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>Vertices</string>
-   </config>
-  </config>
-  <config name="DT-segments" version="3">
-   <config name="type" version="0">
-     <string>edm::RangeMap&lt;DTChamberId,edm::OwnVector&lt;DTRecSegment4D,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>dt4DSegments</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string></string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string></string>
-   </config>
-   <config name="color" version="0">
-     <string>5</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>t</string>
-   </config>
-   <config name="layer" version="0">
-     <string>1</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>DT-segments</string>
-   </config>
-  </config>
-  <config name="CSC-segments" version="3">
-   <config name="type" version="0">
-     <string>edm::RangeMap&lt;CSCDetId,edm::OwnVector&lt;CSCSegment,edm::ClonePolicy&lt;CSCSegment&gt; &gt;,edm::ClonePolicy&lt;CSCSegment&gt; &gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>cscSegments</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string></string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string></string>
-   </config>
-   <config name="color" version="0">
-     <string>5</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>t</string>
-   </config>
-   <config name="layer" version="0">
-     <string>1</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>CSC-segments</string>
-   </config>
-  </config>
-  <config name="MET" version="3">
-   <config name="type" version="0">
-     <string>std::vector&lt;reco::MET&gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>tcMet</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string></string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string>et()&gt;20</string>
-   </config>
-   <config name="color" version="0">
-     <string>8</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>t</string>
-   </config>
-   <config name="layer" version="0">
-     <string>11</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>recoMET</string>
-   </config>
-  </config>
-  <config name="EB RecHits" version="3">
-   <config name="type" version="0">
-     <string>edm::SortedCollection&lt;EcalRecHit,edm::StrictWeakOrdering&lt;EcalRecHit&gt; &gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>ecalRecHit</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string>EcalRecHitsEB</string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string>energy&gt;0.25</string>
-   </config>
-   <config name="color" version="0">
-     <string>8</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>t</string>
-   </config>
-   <config name="layer" version="0">
-     <string>20</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>Ecal RecHit</string>
-   </config>
-  </config>
-  <config name="EE RecHits" version="3">
-   <config name="type" version="0">
-     <string>edm::SortedCollection&lt;EcalRecHit,edm::StrictWeakOrdering&lt;EcalRecHit&gt; &gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>ecalRecHit</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string>EcalRecHitsEE</string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string>energy&gt;0.8</string>
-   </config>
-   <config name="color" version="0">
-     <string>8</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>t</string>
-   </config>
-   <config name="layer" version="0">
-     <string>21</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>Ecal RecHit</string>
-   </config>
-  </config>
-  <config name="ES RecHits" version="3">
-   <config name="type" version="0">
-     <string>edm::SortedCollection&lt;EcalRecHit,edm::StrictWeakOrdering&lt;EcalRecHit&gt; &gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>ecalPreshowerRecHit</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string>EcalRecHitsES</string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string>energy&gt;0.001</string>
-   </config>
-   <config name="color" version="0">
-     <string>11</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>t</string>
-   </config>
-   <config name="layer" version="0">
-     <string>22</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>Ecal RecHit</string>
-   </config>
-  </config>
-  <config name="HBHE RecHits" version="3">
-   <config name="type" version="0">
-     <string>edm::SortedCollection&lt;HBHERecHit,edm::StrictWeakOrdering&lt;HBHERecHit&gt; &gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>hbhereco</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string></string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string>energy&gt;0.75</string>
-   </config>
-   <config name="color" version="0">
-     <string>5</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>t</string>
-   </config>
-   <config name="layer" version="0">
-     <string>23</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>HBHE RecHit</string>
-   </config>
-  </config>
-  <config name="HO RecHits" version="3">
-   <config name="type" version="0">
-     <string>edm::SortedCollection&lt;HORecHit,edm::StrictWeakOrdering&lt;HORecHit&gt; &gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>horeco</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string></string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string>energy&gt;3.3</string>
-   </config>
-   <config name="color" version="0">
-     <string>7</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>t</string>
-   </config>
-   <config name="layer" version="0">
-     <string>24</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>HO RecHit</string>
-   </config>
-  </config>
-  <config name="HF RecHits" version="3">
-   <config name="type" version="0">
-     <string>edm::SortedCollection&lt;HFRecHit,edm::StrictWeakOrdering&lt;HFRecHit&gt; &gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>hfreco</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string></string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string>energy&gt;3.3</string>
-   </config>
-   <config name="color" version="0">
-     <string>1</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>t</string>
-   </config>
-   <config name="layer" version="0">
-     <string>25</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>HF RecHit</string>
-   </config>
-  </config>
- </config>
- <config name="EventNavigator" version="1">
-  <config name="EventFilter0_enabled" version="0">
-    <string>1</string>
-  </config>
-  <config name="EventFilter0_selection" version="0">
-    <string>$Tracks.pt()&gt;1</string>
-  </config>
-  <config name="EventFilter0_comment" version="0">
-    <string></string>
-  </config>
-  <config name="EventFilter1_enabled" version="0">
-    <string>0</string>
-  </config>
-  <config name="EventFilter1_selection" version="0">
-    <string>$Jets.pt()&gt;100</string>
-  </config>
-  <config name="EventFilter1_comment" version="0">
-    <string></string>
-  </config>
-  <config name="EventFilter2_enabled" version="0">
-    <string>0</string>
-  </config>
-  <config name="EventFilter2_selection" version="0">
-    <string>HLT_Mu9</string>
-  </config>
-  <config name="EventFilter2_comment" version="0">
-    <string></string>
-  </config>
-  <config name="EventFilter_total" version="0">
-    <string>3</string>
-  </config>
-  <config name="EventFilter_enabled" version="0">
-    <string>0</string>
-  </config>
- </config>
- <config name="GUI" version="1">
-  <config name="main window" version="2">
-   <config name="x" version="0">
-     <string>26</string>
-   </config>
-   <config name="y" version="0">
-     <string>22</string>
-   </config>
-   <config name="width" version="0">
-     <string>1263</string>
-   </config>
-   <config name="height" version="0">
-     <string>828</string>
-   </config>
-   <config name="leftWeight" version="0">
-     <string>1.23438</string>
-   </config>
-   <config name="rightWeight" version="0">
-     <string>0.765627</string>
-   </config>
-  </config>
-  <config name="views" version="1">
-   <config name="iSpy" version="2">
-    <config name="Overlay Event Info" version="0">
-      <string>2</string>
-    </config>
-    <config name="Show Logo" version="0">
-      <string>1</string>
-    </config>
-    <config name="Line width" version="0">
-      <string>2</string>
-    </config>
-    <config name="Show Muon Barrel" version="0">
-      <string>1</string>
-    </config>
-    <config name="Show Muon Endcap" version="0">
-      <string>1</string>
-    </config>
-    <config name="Show Pixel Barrel" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Pixel Endcap" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Tracker Barrel" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Tracker Endcap" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Wire Frame" version="0">
-      <string>0</string>
-    </config>
-    <config name="Detector Transparency" version="0">
-      <string>98</string>
-    </config>
-    <config name="EventInfoTextSize" version="0">
-      <string>0.0329312</string>
-    </config>
-    <config name="EventInfoPosX" version="0">
-      <string>0.129932</string>
-    </config>
-    <config name="EventInfoPosY" version="0">
-      <string>0.995493</string>
-    </config>
-    <config name="LogoSize" version="0">
-      <string>0.122418</string>
-    </config>
-    <config name="LogoPosX" version="0">
-      <string>0.00449612</string>
-    </config>
-    <config name="LogoPosY" version="0">
-      <string>0.996717</string>
-    </config>
-    <config name="cameraMatrix0Plain3D" version="0">
-      <string>-0.423957</string>
-    </config>
-    <config name="cameraMatrix1Plain3D" version="0">
-      <string>-0.819568</string>
-    </config>
-    <config name="cameraMatrix2Plain3D" version="0">
-      <string>0.385448</string>
-    </config>
-    <config name="cameraMatrix3Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix4Plain3D" version="0">
-      <string>0.888199</string>
-    </config>
-    <config name="cameraMatrix5Plain3D" version="0">
-      <string>-0.45946</string>
-    </config>
-    <config name="cameraMatrix6Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix7Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix8Plain3D" version="0">
-      <string>0.177097</string>
-    </config>
-    <config name="cameraMatrix9Plain3D" version="0">
-      <string>0.342354</string>
-    </config>
-    <config name="cameraMatrix10Plain3D" version="0">
-      <string>0.92273</string>
-    </config>
-    <config name="cameraMatrix11Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix12Plain3D" version="0">
-      <string>-1313.49</string>
-    </config>
-    <config name="cameraMatrix13Plain3D" version="0">
-      <string>-2833.66</string>
-    </config>
-    <config name="cameraMatrix14Plain3D" version="0">
-      <string>1211.87</string>
-    </config>
-    <config name="cameraMatrix15Plain3D" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrixBase0Plain3D" version="0">
-      <string>-1</string>
-    </config>
-    <config name="cameraMatrixBase1Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase2Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase3Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase4Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase5Plain3D" version="0">
-      <string>-0</string>
-    </config>
-    <config name="cameraMatrixBase6Plain3D" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrixBase7Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase8Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase9Plain3D" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrixBase10Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase11Plain3D" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrixBase12Plain3D" version="0">
-      <string>-0.180542</string>
-    </config>
-    <config name="cameraMatrixBase13Plain3D" version="0">
-      <string>0.521286</string>
-    </config>
-    <config name="cameraMatrixBase14Plain3D" version="0">
-      <string>24.0227</string>
-    </config>
-    <config name="cameraMatrixBase15Plain3D" version="0">
-      <string>1</string>
-    </config>
-    <config name="Plain3D FOV" version="0">
-      <string>27.4742</string>
-    </config>
-   </config>
-   <config name="Rho Phi" version="2">
-    <config name="Overlay Event Info" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Logo" version="0">
-      <string>0</string>
-    </config>
-    <config name="Line width" version="0">
-      <string>1</string>
-    </config>
-    <config name="Calo compression" version="0">
-      <string>1</string>
-    </config>
-    <config name="Muon compression" version="0">
-      <string>0.2</string>
-    </config>
-    <config name="Show projection axes" version="0">
-      <string>0</string>
-    </config>
-    <config name="Compress detectors" version="0">
-      <string>0</string>
-    </config>
-    <config name="Calo scale (GeV/meter)" version="0">
-      <string>2</string>
-    </config>
-    <config name="Calo auto scale" version="0">
-      <string>1</string>
-    </config>
-    <config name="Show calo endcaps" version="0">
-      <string>1</string>
-    </config>
-    <config name="Show HF" version="0">
-      <string>1</string>
-    </config>
-    <config name="EventInfoTextSize" version="0">
-      <string>0.03</string>
-    </config>
-    <config name="EventInfoPosX" version="0">
-      <string>0.05</string>
-    </config>
-    <config name="EventInfoPosY" version="0">
-      <string>0.95</string>
-    </config>
-    <config name="LogoSize" version="0">
-      <string>0.2</string>
-    </config>
-    <config name="LogoPosX" version="0">
-      <string>0.02</string>
-    </config>
-    <config name="LogoPosY" version="0">
-      <string>0.98</string>
-    </config>
-    <config name="cameraZoomRho Phi" version="0">
-      <string>1.67554</string>
-    </config>
-    <config name="cameraMatrix0Rho Phi" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrix1Rho Phi" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix2Rho Phi" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix3Rho Phi" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix4Rho Phi" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix5Rho Phi" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrix6Rho Phi" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix7Rho Phi" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix8Rho Phi" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix9Rho Phi" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix10Rho Phi" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrix11Rho Phi" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix12Rho Phi" version="0">
-      <string>2337.41</string>
-    </config>
-    <config name="cameraMatrix13Rho Phi" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix14Rho Phi" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix15Rho Phi" version="0">
-      <string>1</string>
-    </config>
-   </config>
-   <config name="Rho Z" version="2">
-    <config name="Overlay Event Info" version="0">
-      <string>0</string>
-    </config>
-    <config name="Show Logo" version="0">
-      <string>0</string>
-    </config>
-    <config name="Line width" version="0">
-      <string>1</string>
-    </config>
-    <config name="Calo compression" version="0">
-      <string>1</string>
-    </config>
-    <config name="Muon compression" version="0">
-      <string>0.2</string>
-    </config>
-    <config name="Show projection axes" version="0">
-      <string>0</string>
-    </config>
-    <config name="Compress detectors" version="0">
-      <string>0</string>
-    </config>
-    <config name="Calo scale (GeV/meter)" version="0">
-      <string>2</string>
-    </config>
-    <config name="Calo auto scale" version="0">
-      <string>1</string>
-    </config>
-    <config name="EventInfoTextSize" version="0">
-      <string>0.03</string>
-    </config>
-    <config name="EventInfoPosX" version="0">
-      <string>0.05</string>
-    </config>
-    <config name="EventInfoPosY" version="0">
-      <string>0.95</string>
-    </config>
-    <config name="LogoSize" version="0">
-      <string>0.2</string>
-    </config>
-    <config name="LogoPosX" version="0">
-      <string>0.02</string>
-    </config>
-    <config name="LogoPosY" version="0">
-      <string>0.98</string>
-    </config>
-    <config name="cameraZoomRho Z" version="0">
-      <string>1.55271</string>
-    </config>
-    <config name="cameraMatrix0Rho Z" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrix1Rho Z" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix2Rho Z" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix3Rho Z" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix4Rho Z" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix5Rho Z" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrix6Rho Z" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix7Rho Z" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix8Rho Z" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix9Rho Z" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix10Rho Z" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraMatrix11Rho Z" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix12Rho Z" version="0">
-      <string>2855.02</string>
-    </config>
-    <config name="cameraMatrix13Rho Z" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix14Rho Z" version="0">
-      <string>0</string>
-    </config>
-    <config name="cameraMatrix15Rho Z" version="0">
-      <string>1</string>
-    </config>
-   </config>
-  </config>
-  <config name="view area" version="2">
-   <config name="iSpy" version="2">
-    <config name="weight" version="0">
-      <string>1.23438</string>
-    </config>
-    <config name="undocked" version="0">
-      <string>0</string>
-    </config>
-   </config>
-   <config name="Rho Phi" version="2">
-    <config name="weight" version="0">
-      <string>1.14822</string>
-    </config>
-    <config name="undocked" version="0">
-      <string>0</string>
-    </config>
-   </config>
-   <config name="Rho Z" version="2">
-    <config name="weight" version="0">
-      <string>0.884859</string>
-    </config>
-    <config name="undocked" version="0">
-      <string>0</string>
-    </config>
-   </config>
-  </config>
-  <config name="controllers" version="1">
-  </config>
-  <config name="color control" version="1">
-   <config name="background color" version="0">
-     <string>black</string>
-   </config>
-   <config name="brightness" version="0">
-     <string>0</string>
-   </config>
-  </config>
- </config>
- <config name="L1TriggerTables" version="1">
- </config>
- <config name="Tables" version="1">
-  <config name="CaloRecHit" version="1">
-    <string>id</string>
-    <string>detid.rawId</string>
-    <string>0</string>
-    <string>energy</string>
-    <string>energy</string>
-    <string>3</string>
-    <string>time</string>
-    <string>time</string>
-    <string>3</string>
-    <string>flags</string>
-    <string>flags</string>
-    <string>0</string>
-  </config>
-  <config name="CaloTower" version="1">
-    <string>emEt</string>
-    <string>emEt</string>
-    <string>1</string>
-    <string>hadEt</string>
-    <string>hadEt</string>
-    <string>1</string>
-    <string>et</string>
-    <string>et</string>
-    <string>1</string>
-    <string>eta</string>
-    <string>eta</string>
-    <string>3</string>
-    <string>phi</string>
-    <string>phi</string>
-    <string>3</string>
-  </config>
-  <config name="edm::RangeMap&lt;CSCDetId,edm::OwnVector&lt;CSCSegment,edm::ClonePolicy&lt;CSCSegment&gt; &gt;,edm::ClonePolicy&lt;CSCSegment&gt; &gt;" version="1">
-    <string>number of segments</string>
-    <string>size</string>
-    <string>0</string>
-  </config>
-  <config name="edm::RangeMap&lt;DTChamberId,edm::OwnVector&lt;DTRecSegment4D,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;" version="1">
-    <string>number of segments</string>
-    <string>size</string>
-    <string>0</string>
-  </config>
-  <config name="reco::CaloJet" version="1">
-    <string>Pt</string>
-    <string>pt</string>
-    <string>1</string>
-    <string>eta</string>
-    <string>eta</string>
-    <string>3</string>
-    <string>phi</string>
-    <string>phi</string>
-    <string>3</string>
-    <string>ECAL</string>
-    <string>p4().E() * emEnergyFraction()</string>
-    <string>1</string>
-    <string>HCAL</string>
-    <string>p4().E() * energyFractionHadronic()</string>
-    <string>1</string>
-    <string>emf</string>
-    <string>emEnergyFraction()</string>
-    <string>3</string>
-    <string>size_eta</string>
-    <string>sqrt(etaetaMoment)</string>
-    <string>3</string>
-    <string>size_phi</string>
-    <string>sqrt(phiphiMoment)</string>
-    <string>3</string>
-  </config>
-  <config name="reco::GenParticle" version="1">
-    <string>pT</string>
-    <string>pt</string>
-    <string>1</string>
-    <string>eta</string>
-    <string>eta</string>
-    <string>3</string>
-    <string>phi</string>
-    <string>phi</string>
-    <string>3</string>
-    <string>status</string>
-    <string>status</string>
-    <string>0</string>
-    <string>pdgId</string>
-    <string>pdgId</string>
-    <string>0</string>
-  </config>
-  <config name="reco::GsfElectron" version="1">
-    <string>pT</string>
-    <string>pt</string>
-    <string>1</string>
-    <string>eta</string>
-    <string>eta</string>
-    <string>3</string>
-    <string>phi</string>
-    <string>phi</string>
-    <string>3</string>
-    <string>E/p</string>
-    <string>eSuperClusterOverP</string>
-    <string>3</string>
-    <string>H/E</string>
-    <string>hadronicOverEm</string>
-    <string>3</string>
-    <string>fbrem</string>
-    <string>(trackMomentumAtVtx().R() - trackMomentumOut().R()) / trackMomentumAtVtx().R()</string>
-    <string>3</string>
-    <string>dei</string>
-    <string>deltaEtaSuperClusterTrackAtVtx()</string>
-    <string>3</string>
-    <string>dpi</string>
-    <string>deltaPhiSuperClusterTrackAtVtx()</string>
-    <string>3</string>
-    <string>charge</string>
-    <string>charge</string>
-    <string>0</string>
-  </config>
-  <config name="reco::Jet" version="1">
-    <string>pT</string>
-    <string>pt</string>
-    <string>1</string>
-    <string>eta</string>
-    <string>eta</string>
-    <string>3</string>
-    <string>phi</string>
-    <string>phi</string>
-    <string>3</string>
-  </config>
-  <config name="reco::MET" version="1">
-    <string>MET</string>
-    <string>et</string>
-    <string>1</string>
-    <string>phi</string>
-    <string>phi</string>
-    <string>3</string>
-    <string>sumEt</string>
-    <string>sumEt</string>
-    <string>1</string>
-    <string>mEtSig</string>
-    <string>mEtSig</string>
-    <string>3</string>
-  </config>
-  <config name="reco::Muon" version="1">
-    <string>pT</string>
-    <string>pt</string>
-    <string>1</string>
-    <string>global</string>
-    <string>isGlobalMuon</string>
-    <string>-2</string>
-    <string>tracker</string>
-    <string>isTrackerMuon</string>
-    <string>-2</string>
-    <string>SA</string>
-    <string>isStandAloneMuon</string>
-    <string>-2</string>
-    <string>calo</string>
-    <string>isCaloMuon</string>
-    <string>-2</string>
-    <string>tr pt</string>
-    <string>track().pt()</string>
-    <string>1</string>
-    <string>eta</string>
-    <string>eta</string>
-    <string>3</string>
-    <string>phi</string>
-    <string>phi</string>
-    <string>3</string>
-    <string>matches</string>
-    <string>numberOfMatches('SegmentArbitration')</string>
-    <string>0</string>
-    <string>d0</string>
-    <string>track().d0()</string>
-    <string>3</string>
-    <string>d0 / d0Err</string>
-    <string>track().d0() / track().d0Error()</string>
-    <string>3</string>
-    <string>charge</string>
-    <string>charge</string>
-    <string>0</string>
-  </config>
-  <config name="reco::Photon" version="1">
-    <string>pT</string>
-    <string>pt</string>
-    <string>1</string>
-    <string>eta</string>
-    <string>eta</string>
-    <string>3</string>
-    <string>phi</string>
-    <string>phi</string>
-    <string>3</string>
-    <string>H/E</string>
-    <string>hadronicOverEm</string>
-    <string>3</string>
-  </config>
-  <config name="reco::Track" version="1">
-    <string>pT</string>
-    <string>pt</string>
-    <string>1</string>
-    <string>eta</string>
-    <string>eta</string>
-    <string>3</string>
-    <string>phi</string>
-    <string>phi</string>
-    <string>3</string>
-    <string>d0</string>
-    <string>d0</string>
-    <string>5</string>
-    <string>d0Err</string>
-    <string>d0Error</string>
-    <string>5</string>
-    <string>dz</string>
-    <string>dz</string>
-    <string>5</string>
-    <string>dzErr</string>
-    <string>dzError</string>
-    <string>5</string>
-    <string>vx</string>
-    <string>vx</string>
-    <string>5</string>
-    <string>vy</string>
-    <string>vy</string>
-    <string>5</string>
-    <string>vz</string>
-    <string>vz</string>
-    <string>5</string>
-    <string>pixel hits</string>
-    <string>hitPattern().numberOfValidPixelHits()</string>
-    <string>0</string>
-    <string>strip hits</string>
-    <string>hitPattern().numberOfValidStripHits()</string>
-    <string>0</string>
-    <string>chi2</string>
-    <string>chi2</string>
-    <string>3</string>
-    <string>ndof</string>
-    <string>ndof</string>
-    <string>0</string>
-    <string>charge</string>
-    <string>charge</string>
-    <string>0</string>
-  </config>
-  <config name="reco::Vertex" version="1">
-    <string>x</string>
-    <string>x</string>
-    <string>5</string>
-    <string>xError</string>
-    <string>xError</string>
-    <string>5</string>
-    <string>y</string>
-    <string>y</string>
-    <string>5</string>
-    <string>yError</string>
-    <string>yError</string>
-    <string>5</string>
-    <string>z</string>
-    <string>z</string>
-    <string>5</string>
-    <string>zError</string>
-    <string>zError</string>
-    <string>5</string>
-    <string>tracks</string>
-    <string>tracksSize</string>
-    <string>0</string>
-    <string>chi2</string>
-    <string>chi2</string>
-    <string>3</string>
-    <string>ndof</string>
-    <string>ndof</string>
-    <string>0</string>
-  </config>
-  <config name="typeNames" version="1">
-    <string>CaloRecHit</string>
-    <string>CaloTower</string>
-    <string>edm::RangeMap&lt;CSCDetId,edm::OwnVector&lt;CSCSegment,edm::ClonePolicy&lt;CSCSegment&gt; &gt;,edm::ClonePolicy&lt;CSCSegment&gt; &gt;</string>
-    <string>edm::RangeMap&lt;DTChamberId,edm::OwnVector&lt;DTRecSegment4D,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;</string>
-    <string>reco::CaloJet</string>
-    <string>reco::GenParticle</string>
-    <string>reco::GsfElectron</string>
-    <string>reco::Jet</string>
-    <string>reco::MET</string>
-    <string>reco::Muon</string>
-    <string>reco::Photon</string>
-    <string>reco::Track</string>
-    <string>reco::Vertex</string>
-  </config>
- </config>
- <config name="TriggerTables" version="1">
- </config>
-</config>
+FWConfiguration* fwConfig() {
+  FWConfiguration* top_p = new FWConfiguration(1);
+  FWConfiguration& top = *top_p;
+{
+  FWConfiguration topa(1);
+{
+  FWConfiguration topaa(3);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("edm::SortedCollection<CaloTower,edm::StrictWeakOrdering<CaloTower> >");
+  topaa.addKeyValue("type", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("towerMaker");
+  topaa.addKeyValue("moduleLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("productInstanceLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("processName", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("$.emEt()>0.2");
+  topaa.addKeyValue("filterExpression", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("8");
+  topaa.addKeyValue("color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("f");
+  topaa.addKeyValue("isVisible", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("2");
+  topaa.addKeyValue("layer", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("ECal");
+  topaa.addKeyValue("purpose", topaaa);
+}
+  topa.addKeyValue("ECal", topaa);
+}
+{
+  FWConfiguration topaa(3);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("edm::SortedCollection<CaloTower,edm::StrictWeakOrdering<CaloTower> >");
+  topaa.addKeyValue("type", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("towerMaker");
+  topaa.addKeyValue("moduleLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("productInstanceLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("processName", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("$.hadEt()+$.outerEt()>0.2");
+  topaa.addKeyValue("filterExpression", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("5");
+  topaa.addKeyValue("color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("f");
+  topaa.addKeyValue("isVisible", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("2");
+  topaa.addKeyValue("layer", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("HCal");
+  topaa.addKeyValue("purpose", topaaa);
+}
+  topa.addKeyValue("HCal", topaa);
+}
+{
+  FWConfiguration topaa(3);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("std::vector<reco::CaloJet>");
+  topaa.addKeyValue("type", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("iterativeCone5CaloJets");
+  topaa.addKeyValue("moduleLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("productInstanceLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("processName", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("$.pt()>10");
+  topaa.addKeyValue("filterExpression", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("12");
+  topaa.addKeyValue("color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("t");
+  topaa.addKeyValue("isVisible", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("3");
+  topaa.addKeyValue("layer", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("Jets");
+  topaa.addKeyValue("purpose", topaaa);
+}
+  topa.addKeyValue("Jets", topaa);
+}
+{
+  FWConfiguration topaa(3);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("std::vector<reco::Track>");
+  topaa.addKeyValue("type", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("generalTracks");
+  topaa.addKeyValue("moduleLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("productInstanceLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("processName", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("$.pt()>1");
+  topaa.addKeyValue("filterExpression", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("0");
+  topaa.addKeyValue("color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("t");
+  topaa.addKeyValue("isVisible", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("1");
+  topaa.addKeyValue("layer", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("Tracks");
+  topaa.addKeyValue("purpose", topaaa);
+}
+  topa.addKeyValue("Tracks", topaa);
+}
+{
+  FWConfiguration topaa(3);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("std::vector<reco::Muon>");
+  topaa.addKeyValue("type", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("muons");
+  topaa.addKeyValue("moduleLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("productInstanceLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("processName", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("$.isStandAloneMuon()");
+  topaa.addKeyValue("filterExpression", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("8");
+  topaa.addKeyValue("color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("t");
+  topaa.addKeyValue("isVisible", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("5");
+  topaa.addKeyValue("layer", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("Muons");
+  topaa.addKeyValue("purpose", topaaa);
+}
+  topa.addKeyValue("Muons", topaa);
+}
+{
+  FWConfiguration topaa(3);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("std::vector<reco::GsfElectron>");
+  topaa.addKeyValue("type", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("gsfElectrons");
+  topaa.addKeyValue("moduleLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("productInstanceLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("processName", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("$.hadronicOverEm()<0.05");
+  topaa.addKeyValue("filterExpression", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("9");
+  topaa.addKeyValue("color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("t");
+  topaa.addKeyValue("isVisible", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("3");
+  topaa.addKeyValue("layer", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("Electrons");
+  topaa.addKeyValue("purpose", topaaa);
+}
+  topa.addKeyValue("Electrons", topaa);
+}
+{
+  FWConfiguration topaa(3);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("std::vector<reco::Vertex>");
+  topaa.addKeyValue("type", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("offlinePrimaryVertices");
+  topaa.addKeyValue("moduleLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("productInstanceLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("processName", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("filterExpression", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("0");
+  topaa.addKeyValue("color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("t");
+  topaa.addKeyValue("isVisible", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("10");
+  topaa.addKeyValue("layer", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("Vertices");
+  topaa.addKeyValue("purpose", topaaa);
+}
+  topa.addKeyValue("Vertices", topaa);
+}
+{
+  FWConfiguration topaa(3);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("edm::RangeMap<DTChamberId,edm::OwnVector<DTRecSegment4D,edm::ClonePolicy<DTRecSegment4D> >,edm::ClonePolicy<DTRecSegment4D> >");
+  topaa.addKeyValue("type", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("dt4DSegments");
+  topaa.addKeyValue("moduleLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("productInstanceLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("processName", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("filterExpression", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("0");
+  topaa.addKeyValue("color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("t");
+  topaa.addKeyValue("isVisible", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("1");
+  topaa.addKeyValue("layer", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("DT-segments");
+  topaa.addKeyValue("purpose", topaaa);
+}
+  topa.addKeyValue("DT-segments", topaa);
+}
+{
+  FWConfiguration topaa(3);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> >");
+  topaa.addKeyValue("type", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("cscSegments");
+  topaa.addKeyValue("moduleLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("productInstanceLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("processName", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("filterExpression", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("0");
+  topaa.addKeyValue("color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("t");
+  topaa.addKeyValue("isVisible", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("1");
+  topaa.addKeyValue("layer", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("CSC-segments");
+  topaa.addKeyValue("purpose", topaaa);
+}
+  topa.addKeyValue("CSC-segments", topaa);
+}
+{
+  FWConfiguration topaa(3);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("std::vector<reco::Photon>");
+  topaa.addKeyValue("type", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("photons");
+  topaa.addKeyValue("moduleLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("productInstanceLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("processName", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("hadronicOverEm < 0.2");
+  topaa.addKeyValue("filterExpression", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("9");
+  topaa.addKeyValue("color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("t");
+  topaa.addKeyValue("isVisible", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("1");
+  topaa.addKeyValue("layer", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("Photons");
+  topaa.addKeyValue("purpose", topaaa);
+}
+  topa.addKeyValue("Photons", topaa);
+}
+{
+  FWConfiguration topaa(3);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("std::vector<reco::MET>");
+  topaa.addKeyValue("type", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("tcMet");
+  topaa.addKeyValue("moduleLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("productInstanceLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("RECO");
+  topaa.addKeyValue("processName", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("et()>20");
+  topaa.addKeyValue("filterExpression", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("8");
+  topaa.addKeyValue("color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("t");
+  topaa.addKeyValue("isVisible", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("11");
+  topaa.addKeyValue("layer", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("recoMET");
+  topaa.addKeyValue("purpose", topaaa);
+}
+  topa.addKeyValue("MET", topaa);
+}
+{
+  FWConfiguration topaa(3);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >");
+  topaa.addKeyValue("type", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("ecalRecHit");
+  topaa.addKeyValue("moduleLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("EcalRecHitsEB");
+  topaa.addKeyValue("productInstanceLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("processName", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("energy>0.25");
+  topaa.addKeyValue("filterExpression", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("8");
+  topaa.addKeyValue("color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("t");
+  topaa.addKeyValue("isVisible", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("12");
+  topaa.addKeyValue("layer", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("Ecal RecHit");
+  topaa.addKeyValue("purpose", topaaa);
+}
+  topa.addKeyValue("EB RecHit", topaa);
+}
+{
+  FWConfiguration topaa(3);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >");
+  topaa.addKeyValue("type", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("ecalRecHit");
+  topaa.addKeyValue("moduleLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("EcalRecHitsEE");
+  topaa.addKeyValue("productInstanceLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("processName", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("energy>0.75");
+  topaa.addKeyValue("filterExpression", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("8");
+  topaa.addKeyValue("color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("t");
+  topaa.addKeyValue("isVisible", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("13");
+  topaa.addKeyValue("layer", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("Ecal RecHit");
+  topaa.addKeyValue("purpose", topaaa);
+}
+  topa.addKeyValue("EE RecHit", topaa);
+}
+{
+  FWConfiguration topaa(3);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >");
+  topaa.addKeyValue("type", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("ecalPreshowerRecHit");
+  topaa.addKeyValue("moduleLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("EcalRecHitsES");
+  topaa.addKeyValue("productInstanceLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("processName", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("energy>0.001");
+  topaa.addKeyValue("filterExpression", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("9");
+  topaa.addKeyValue("color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("t");
+  topaa.addKeyValue("isVisible", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("14");
+  topaa.addKeyValue("layer", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("Ecal RecHit");
+  topaa.addKeyValue("purpose", topaaa);
+}
+  topa.addKeyValue("ES RecHit", topaa);
+}
+{
+  FWConfiguration topaa(3);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >,edm::ClonePolicy<CSCRecHit2D> >");
+  topaa.addKeyValue("type", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("csc2DRecHits");
+  topaa.addKeyValue("moduleLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("productInstanceLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("processName", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("filterExpression", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("3");
+  topaa.addKeyValue("color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("t");
+  topaa.addKeyValue("isVisible", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("15");
+  topaa.addKeyValue("layer", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("CSC Rec Hits");
+  topaa.addKeyValue("purpose", topaaa);
+}
+  topa.addKeyValue("CSC 2DRecHits", topaa);
+}
+{
+  FWConfiguration topaa(3);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("edm::RangeMap<DTLayerId,edm::OwnVector<DTRecHit1DPair,edm::ClonePolicy<DTRecHit1DPair> >,edm::ClonePolicy<DTRecHit1DPair> >");
+  topaa.addKeyValue("type", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("dt1DRecHits");
+  topaa.addKeyValue("moduleLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("productInstanceLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("processName", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("filterExpression", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("9");
+  topaa.addKeyValue("color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("t");
+  topaa.addKeyValue("isVisible", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("16");
+  topaa.addKeyValue("layer", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("DT Rec Hits");
+  topaa.addKeyValue("purpose", topaaa);
+}
+  topa.addKeyValue("DT RecHits", topaa);
+}
+{
+  FWConfiguration topaa(3);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >");
+  topaa.addKeyValue("type", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("hbhereco");
+  topaa.addKeyValue("moduleLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("productInstanceLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("processName", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("energy>0.8");
+  topaa.addKeyValue("filterExpression", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("5");
+  topaa.addKeyValue("color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("t");
+  topaa.addKeyValue("isVisible", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("17");
+  topaa.addKeyValue("layer", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("HBHE RecHit");
+  topaa.addKeyValue("purpose", topaaa);
+}
+  topa.addKeyValue("HBHE RecHits", topaa);
+}
+{
+  FWConfiguration topaa(3);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> >");
+  topaa.addKeyValue("type", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("hfreco");
+  topaa.addKeyValue("moduleLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("productInstanceLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("processName", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("energy>10.");
+  topaa.addKeyValue("filterExpression", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("3");
+  topaa.addKeyValue("color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("t");
+  topaa.addKeyValue("isVisible", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("18");
+  topaa.addKeyValue("layer", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("HF RecHit");
+  topaa.addKeyValue("purpose", topaaa);
+}
+  topa.addKeyValue("HF RecHits", topaa);
+}
+{
+  FWConfiguration topaa(3);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >");
+  topaa.addKeyValue("type", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("horeco");
+  topaa.addKeyValue("moduleLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("productInstanceLabel", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("");
+  topaa.addKeyValue("processName", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("energy>2.5");
+  topaa.addKeyValue("filterExpression", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("7");
+  topaa.addKeyValue("color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("t");
+  topaa.addKeyValue("isVisible", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("19");
+  topaa.addKeyValue("layer", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("HO RecHit");
+  topaa.addKeyValue("purpose", topaaa);
+}
+  topa.addKeyValue("HO RecHits", topaa);
+}
+  top.addKeyValue("EventItems", topa);
+}
+{
+  FWConfiguration topa(1);
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("1");
+  topa.addKeyValue("EventFilter0_enabled", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("$Tracks.pt()>1");
+  topa.addKeyValue("EventFilter0_selection", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("");
+  topa.addKeyValue("EventFilter0_comment", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("0");
+  topa.addKeyValue("EventFilter1_enabled", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("$Jets.pt()>100");
+  topa.addKeyValue("EventFilter1_selection", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("");
+  topa.addKeyValue("EventFilter1_comment", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("0");
+  topa.addKeyValue("EventFilter2_enabled", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("HLT_Mu9");
+  topa.addKeyValue("EventFilter2_selection", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("");
+  topa.addKeyValue("EventFilter2_comment", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("3");
+  topa.addKeyValue("EventFilter_total", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("0");
+  topa.addKeyValue("EventFilter_enabled", topaa);
+}
+  top.addKeyValue("EventNavigator", topa);
+}
+{
+  FWConfiguration topa(1);
+{
+  FWConfiguration topaa(2);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("0");
+  topaa.addKeyValue("x", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("0");
+  topaa.addKeyValue("y", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("961");
+  topaa.addKeyValue("width", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("695");
+  topaa.addKeyValue("height", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("1.99779");
+  topaa.addKeyValue("leftWeight", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("0.00221866");
+  topaa.addKeyValue("rightWeight", topaaa);
+}
+  topa.addKeyValue("main window", topaa);
+}
+{
+  FWConfiguration topaa(1);
+{
+  FWConfiguration topaaa(1);
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("Show Muon Barrel", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("Show Muon Endcap", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("Show Pixel Barrel", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("Show Pixel Endcap", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("Show Tracker Barrel", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("Show Tracker Endcap", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("Show Wire Frame", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("95");
+  topaaa.addKeyValue("Detector Transparency", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("3");
+  topaaa.addKeyValue("Line width", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("-0.596358");
+  topaaa.addKeyValue("cameraMatrix0Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("-0.458771");
+  topaaa.addKeyValue("cameraMatrix1Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.6587");
+  topaaa.addKeyValue("cameraMatrix2Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrix3Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.609741");
+  topaaa.addKeyValue("cameraMatrix4Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("-0.7926");
+  topaaa.addKeyValue("cameraMatrix5Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrix6Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrix7Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.522087");
+  topaaa.addKeyValue("cameraMatrix8Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.401635");
+  topaaa.addKeyValue("cameraMatrix9Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.752405");
+  topaaa.addKeyValue("cameraMatrix10Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrix11Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("-2512.74");
+  topaaa.addKeyValue("cameraMatrix12Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("-1943.72");
+  topaaa.addKeyValue("cameraMatrix13Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("2742.29");
+  topaaa.addKeyValue("cameraMatrix14Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("cameraMatrix15Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("-1");
+  topaaa.addKeyValue("cameraMatrixBase0Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrixBase1Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrixBase2Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrixBase3Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrixBase4Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrixBase5Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("cameraMatrixBase6Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrixBase7Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrixBase8Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("cameraMatrixBase9Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrixBase10Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrixBase11Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("-0.913312");
+  topaaa.addKeyValue("cameraMatrixBase12Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.243634");
+  topaaa.addKeyValue("cameraMatrixBase13Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("-4.04005");
+  topaaa.addKeyValue("cameraMatrixBase14Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("cameraMatrixBase15Plain3D", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("27.7201");
+  topaaa.addKeyValue("Plain3D FOV", topaaaa);
+}
+  topaa.addKeyValue("3D", topaaa);
+}
+  topa.addKeyValue("views", topaa);
+}
+{
+  FWConfiguration topaa(2);
+{
+  FWConfiguration topaaa(2);
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1.99779");
+  topaaa.addKeyValue("weight", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("undocked", topaaaa);
+}
+  topaa.addKeyValue("3D", topaaa);
+}
+  topa.addKeyValue("view area", topaa);
+}
+{
+  FWConfiguration topaa(1);
+  topa.addKeyValue("controllers", topaa);
+}
+{
+  FWConfiguration topaa(1);
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("black");
+  topaa.addKeyValue("background color", topaaa);
+}
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("0");
+  topaa.addKeyValue("brightness", topaaa);
+}
+  topa.addKeyValue("color control", topaa);
+}
+  top.addKeyValue("GUI", topa);
+}
+{
+  FWConfiguration topa(1);
+{
+  FWConfiguration topaa(1);
+  topaa.addValue("emEt");
+  topaa.addValue("emEt");
+  topaa.addValue("1");
+  topaa.addValue("hadEt");
+  topaa.addValue("hadEt");
+  topaa.addValue("1");
+  topaa.addValue("et");
+  topaa.addValue("et");
+  topaa.addValue("1");
+  topaa.addValue("eta");
+  topaa.addValue("eta");
+  topaa.addValue("3");
+  topaa.addValue("phi");
+  topaa.addValue("phi");
+  topaa.addValue("3");
+  topa.addKeyValue("CaloTower", topaa);
+}
+{
+  FWConfiguration topaa(1);
+  topaa.addValue("number of segments");
+  topaa.addValue("size");
+  topaa.addValue("0");
+  topa.addKeyValue("edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> >", topaa);
+}
+{
+  FWConfiguration topaa(1);
+  topaa.addValue("number of segments");
+  topaa.addValue("size");
+  topaa.addValue("0");
+  topa.addKeyValue("edm::RangeMap<DTChamberId,edm::OwnVector<DTRecSegment4D,edm::ClonePolicy<DTRecSegment4D> >,edm::ClonePolicy<DTRecSegment4D> >", topaa);
+}
+{
+  FWConfiguration topaa(1);
+  topaa.addValue("Pt");
+  topaa.addValue("pt");
+  topaa.addValue("1");
+  topaa.addValue("eta");
+  topaa.addValue("eta");
+  topaa.addValue("3");
+  topaa.addValue("phi");
+  topaa.addValue("phi");
+  topaa.addValue("3");
+  topaa.addValue("ECAL");
+  topaa.addValue("p4().E() * emEnergyFraction()");
+  topaa.addValue("1");
+  topaa.addValue("HCAL");
+  topaa.addValue("p4().E() * energyFractionHadronic()");
+  topaa.addValue("1");
+  topaa.addValue("emf");
+  topaa.addValue("emEnergyFraction()");
+  topaa.addValue("3");
+  topaa.addValue("size_eta");
+  topaa.addValue("sqrt(etaetaMoment)");
+  topaa.addValue("3");
+  topaa.addValue("size_phi");
+  topaa.addValue("sqrt(phiphiMoment)");
+  topaa.addValue("3");
+  topa.addKeyValue("reco::CaloJet", topaa);
+}
+{
+  FWConfiguration topaa(1);
+  topaa.addValue("pT");
+  topaa.addValue("pt");
+  topaa.addValue("1");
+  topaa.addValue("eta");
+  topaa.addValue("eta");
+  topaa.addValue("3");
+  topaa.addValue("phi");
+  topaa.addValue("phi");
+  topaa.addValue("3");
+  topaa.addValue("status");
+  topaa.addValue("status");
+  topaa.addValue("0");
+  topaa.addValue("pdgId");
+  topaa.addValue("pdgId");
+  topaa.addValue("0");
+  topa.addKeyValue("reco::GenParticle", topaa);
+}
+{
+  FWConfiguration topaa(1);
+  topaa.addValue("pT");
+  topaa.addValue("pt");
+  topaa.addValue("1");
+  topaa.addValue("eta");
+  topaa.addValue("eta");
+  topaa.addValue("3");
+  topaa.addValue("phi");
+  topaa.addValue("phi");
+  topaa.addValue("3");
+  topaa.addValue("E/p");
+  topaa.addValue("eSuperClusterOverP");
+  topaa.addValue("3");
+  topaa.addValue("H/E");
+  topaa.addValue("hadronicOverEm");
+  topaa.addValue("3");
+  topaa.addValue("fbrem");
+  topaa.addValue("(trackMomentumAtVtx().R() - trackMomentumOut().R()) / trackMomentumAtVtx().R()");
+  topaa.addValue("3");
+  topaa.addValue("dei");
+  topaa.addValue("deltaEtaSuperClusterTrackAtVtx()");
+  topaa.addValue("3");
+  topaa.addValue("dpi");
+  topaa.addValue("deltaPhiSuperClusterTrackAtVtx()");
+  topaa.addValue("3");
+  topaa.addValue("charge");
+  topaa.addValue("charge");
+  topaa.addValue("0");
+  topa.addKeyValue("reco::GsfElectron", topaa);
+}
+{
+  FWConfiguration topaa(1);
+  topaa.addValue("pT");
+  topaa.addValue("pt");
+  topaa.addValue("1");
+  topaa.addValue("eta");
+  topaa.addValue("eta");
+  topaa.addValue("3");
+  topaa.addValue("phi");
+  topaa.addValue("phi");
+  topaa.addValue("3");
+  topa.addKeyValue("reco::Jet", topaa);
+}
+{
+  FWConfiguration topaa(1);
+  topaa.addValue("MET");
+  topaa.addValue("et");
+  topaa.addValue("1");
+  topaa.addValue("phi");
+  topaa.addValue("phi");
+  topaa.addValue("3");
+  topaa.addValue("sumEt");
+  topaa.addValue("sumEt");
+  topaa.addValue("1");
+  topaa.addValue("mEtSig");
+  topaa.addValue("mEtSig");
+  topaa.addValue("3");
+  topa.addKeyValue("reco::MET", topaa);
+}
+{
+  FWConfiguration topaa(1);
+  topaa.addValue("pT");
+  topaa.addValue("pt");
+  topaa.addValue("1");
+  topaa.addValue("global");
+  topaa.addValue("isGlobalMuon");
+  topaa.addValue("-2");
+  topaa.addValue("tracker");
+  topaa.addValue("isTrackerMuon");
+  topaa.addValue("-2");
+  topaa.addValue("SA");
+  topaa.addValue("isStandAloneMuon");
+  topaa.addValue("-2");
+  topaa.addValue("calo");
+  topaa.addValue("isCaloMuon");
+  topaa.addValue("-2");
+  topaa.addValue("tr pt");
+  topaa.addValue("track().pt()");
+  topaa.addValue("1");
+  topaa.addValue("eta");
+  topaa.addValue("eta");
+  topaa.addValue("3");
+  topaa.addValue("phi");
+  topaa.addValue("phi");
+  topaa.addValue("3");
+  topaa.addValue("matches");
+  topaa.addValue("numberOfMatches('SegmentArbitration')");
+  topaa.addValue("0");
+  topaa.addValue("d0");
+  topaa.addValue("track().d0()");
+  topaa.addValue("3");
+  topaa.addValue("d0 / d0Err");
+  topaa.addValue("track().d0() / track().d0Error()");
+  topaa.addValue("3");
+  topaa.addValue("charge");
+  topaa.addValue("charge");
+  topaa.addValue("0");
+  topa.addKeyValue("reco::Muon", topaa);
+}
+{
+  FWConfiguration topaa(1);
+  topaa.addValue("pT");
+  topaa.addValue("pt");
+  topaa.addValue("1");
+  topaa.addValue("eta");
+  topaa.addValue("eta");
+  topaa.addValue("3");
+  topaa.addValue("phi");
+  topaa.addValue("phi");
+  topaa.addValue("3");
+  topaa.addValue("H/E");
+  topaa.addValue("hadronicOverEm");
+  topaa.addValue("3");
+  topa.addKeyValue("reco::Photon", topaa);
+}
+{
+  FWConfiguration topaa(1);
+  topaa.addValue("pT");
+  topaa.addValue("pt");
+  topaa.addValue("1");
+  topaa.addValue("eta");
+  topaa.addValue("eta");
+  topaa.addValue("3");
+  topaa.addValue("phi");
+  topaa.addValue("phi");
+  topaa.addValue("3");
+  topaa.addValue("d0");
+  topaa.addValue("d0");
+  topaa.addValue("5");
+  topaa.addValue("d0Err");
+  topaa.addValue("d0Error");
+  topaa.addValue("5");
+  topaa.addValue("dz");
+  topaa.addValue("dz");
+  topaa.addValue("5");
+  topaa.addValue("dzErr");
+  topaa.addValue("dzError");
+  topaa.addValue("5");
+  topaa.addValue("vx");
+  topaa.addValue("vx");
+  topaa.addValue("5");
+  topaa.addValue("vy");
+  topaa.addValue("vy");
+  topaa.addValue("5");
+  topaa.addValue("vz");
+  topaa.addValue("vz");
+  topaa.addValue("5");
+  topaa.addValue("pixel hits");
+  topaa.addValue("hitPattern().numberOfValidPixelHits()");
+  topaa.addValue("0");
+  topaa.addValue("strip hits");
+  topaa.addValue("hitPattern().numberOfValidStripHits()");
+  topaa.addValue("0");
+  topaa.addValue("chi2");
+  topaa.addValue("chi2");
+  topaa.addValue("3");
+  topaa.addValue("ndof");
+  topaa.addValue("ndof");
+  topaa.addValue("0");
+  topaa.addValue("charge");
+  topaa.addValue("charge");
+  topaa.addValue("0");
+  topa.addKeyValue("reco::Track", topaa);
+}
+{
+  FWConfiguration topaa(1);
+  topaa.addValue("x");
+  topaa.addValue("x");
+  topaa.addValue("5");
+  topaa.addValue("xError");
+  topaa.addValue("xError");
+  topaa.addValue("5");
+  topaa.addValue("y");
+  topaa.addValue("y");
+  topaa.addValue("5");
+  topaa.addValue("yError");
+  topaa.addValue("yError");
+  topaa.addValue("5");
+  topaa.addValue("z");
+  topaa.addValue("z");
+  topaa.addValue("5");
+  topaa.addValue("zError");
+  topaa.addValue("zError");
+  topaa.addValue("5");
+  topaa.addValue("tracks");
+  topaa.addValue("tracksSize");
+  topaa.addValue("0");
+  topaa.addValue("chi2");
+  topaa.addValue("chi2");
+  topaa.addValue("3");
+  topaa.addValue("ndof");
+  topaa.addValue("ndof");
+  topaa.addValue("0");
+  topa.addKeyValue("reco::Vertex", topaa);
+}
+{
+  FWConfiguration topaa(1);
+  topaa.addValue("CaloTower");
+  topaa.addValue("edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> >");
+  topaa.addValue("edm::RangeMap<DTChamberId,edm::OwnVector<DTRecSegment4D,edm::ClonePolicy<DTRecSegment4D> >,edm::ClonePolicy<DTRecSegment4D> >");
+  topaa.addValue("reco::CaloJet");
+  topaa.addValue("reco::GenParticle");
+  topaa.addValue("reco::GsfElectron");
+  topaa.addValue("reco::Jet");
+  topaa.addValue("reco::MET");
+  topaa.addValue("reco::Muon");
+  topaa.addValue("reco::Photon");
+  topaa.addValue("reco::Track");
+  topaa.addValue("reco::Vertex");
+  topa.addKeyValue("typeNames", topaa);
+}
+  top.addKeyValue("Tables", topa);
+}
+{
+  FWConfiguration topa(1);
+  top.addKeyValue("TriggerTables", topa);
+}
+
+  return top_p;
+}

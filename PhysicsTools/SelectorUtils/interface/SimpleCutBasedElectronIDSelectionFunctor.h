@@ -61,6 +61,8 @@ ________________________________________________________________________________
                many thanks to Sal Rappoccio
     Imperial College London
     7 June 2010, first commit for CMSSW_3_6_1_patchX
+    11July 2010, implementing the ICHEP Egamma recommendation for 
+                 removing the Delta Eta cut in the endcaps
 ___________________________________________________________________________________
 
 */
@@ -73,6 +75,7 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
   enum Version_t { relIso95=0, cIso95,  relIso90, cIso90, relIso85, cIso85, 
 		   relIso80, cIso80,  relIso70, cIso70, relIso60, cIso60, NONE };
   
+  SimpleCutBasedElectronIDSelectionFunctor() {}
   
   // initialize it by inserting directly the cut values in a parameter set
   SimpleCutBasedElectronIDSelectionFunctor( edm::ParameterSet const & parameters, 
@@ -155,7 +158,7 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
       set("sihih_EB",    1.0e-02);
       set("dphi_EB",     8.0e-01);
       set("deta_EB",     7.0e-03);
-      set("hoe_EB",      5.0e-01);
+      set("hoe_EB",      1.5e-01);
       set("cIso_EB",     10000. );
       
       set("trackIso_EE", 8.0e-02);
@@ -178,7 +181,7 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
       set("sihih_EB",    1.0e-02);
       set("dphi_EB",     8.0e-01);
       set("deta_EB",     7.0e-03);
-      set("hoe_EB",      5.0e-01);
+      set("hoe_EB",      1.5e-01);
       set("cIso_EB",     1.5e-01);
       			       					      
       set("trackIso_EE", 100000.);

@@ -1,11 +1,7 @@
 #ifndef HLTrigger_HLTfilters_TriggerExpressionParser_h
 #define HLTrigger_HLTfilters_TriggerExpressionParser_h
 
-#include <boost/version.hpp>
-#if BOOST_VERSION < 104000
-#error "Boost 1.40 or later is needed, for Spirit 2.0 or later"
-#endif
-
+// Note: this requires Boost 1.41 or higher, for Spirit 2.1 or higher
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/spirit/include/qi.hpp>
 
@@ -18,64 +14,8 @@
 
 namespace triggerExpression {
 
-namespace qi { 
-  // Boost 1.41 has Spirit 2.1, with all the parser components available in the spirit::qi namespace
-  using namespace boost::spirit::qi;
-
-#if BOOST_VERSION < 104100
-  // Boost 1.40 has Spirit 2.0, so we need to import the needed components explicitly
-  using namespace boost::spirit::arg_names;
-  using boost::spirit::char_;
-  using boost::spirit::wchar;
-  using boost::spirit::lit;
-  using boost::spirit::wlit;
-  using boost::spirit::eol;
-  using boost::spirit::eoi;
-  using boost::spirit::bin;
-  using boost::spirit::oct;
-  using boost::spirit::hex;
-  using boost::spirit::byte;
-  using boost::spirit::word;
-  using boost::spirit::dword;
-  using boost::spirit::big_word;
-  using boost::spirit::big_dword;
-  using boost::spirit::little_word;
-  using boost::spirit::little_dword;
-  using boost::spirit::qword;
-  using boost::spirit::big_qword;
-  using boost::spirit::little_qword;
-  using boost::spirit::pad;
-  using boost::spirit::ushort;
-  using boost::spirit::ulong;
-  using boost::spirit::uint;
-  using boost::spirit::uint_;
-  using boost::spirit::short_;
-  using boost::spirit::long_;
-  using boost::spirit::int_;
-  using boost::spirit::ulong_long;
-  using boost::spirit::long_long;
-  using boost::spirit::float_;
-  using boost::spirit::double_;
-  using boost::spirit::long_double;
-  using boost::spirit::left_align;
-  using boost::spirit::right_align;
-  using boost::spirit::center;
-  using boost::spirit::delimit;
-  using boost::spirit::verbatim;
-  using boost::spirit::none;
-  using boost::spirit::eps;
-  using boost::spirit::lexeme;
-  using boost::spirit::lazy;
-  using boost::spirit::omit;
-  using boost::spirit::raw;
-  using boost::spirit::stream;
-  using boost::spirit::wstream;
-  using boost::spirit::token;
-#endif
-}
-namespace ascii { 
-  using namespace boost::spirit::ascii; 
-}
+namespace qi = boost::spirit::qi;
+namespace ascii = boost::spirit::ascii;
 
 using boost::phoenix::new_;
 using boost::spirit::unused_type;
@@ -87,18 +27,10 @@ public:
   Parser() : 
     Parser::base_type(expression)
   {
-#if BOOST_VERSION < 104100
-    alnum            = +(qi::char_('a', 'z') | qi::char_('A', 'Z') | qi::char_('0', '9') | qi::char_('_', '_') | qi::char_('*', '*') | qi::char_('?', '?'));
-    token_hlt       %= qi::raw[qi::lexeme["HLT_"    >> alnum]];
-    token_alca      %= qi::raw[qi::lexeme["AlCa_"   >> alnum]];
-    token_l1        %= qi::raw[qi::lexeme["L1_"     >> alnum]];
-    token_l1tech    %= qi::raw[qi::lexeme["L1Tech_" >> alnum]];
-#else
     token_hlt       %= qi::raw[qi::lexeme["HLT_"    >> +(qi::char_("a-zA-Z0-9_*?"))]];
     token_alca      %= qi::raw[qi::lexeme["AlCa_"   >> +(qi::char_("a-zA-Z0-9_*?"))]];
     token_l1        %= qi::raw[qi::lexeme["L1_"     >> +(qi::char_("a-zA-Z0-9_*?"))]];
     token_l1tech    %= qi::raw[qi::lexeme["L1Tech_" >> +(qi::char_("a-zA-Z0-9_*?"))]];
-#endif
 
     token            = ( token_hlt                      [qi::_val = new_<HLTReader>(qi::_1)]
                        | token_alca                     [qi::_val = new_<HLTReader>(qi::_1)]
@@ -132,9 +64,6 @@ private:
   typedef qi::rule<Iterator, std::string(), ascii::space_type> name_rule;
   typedef qi::rule<Iterator, Evaluator*(),  ascii::space_type> rule;
 
-#if BOOST_VERSION < 104100
-  void_rule alnum;
-#endif
   name_rule token_hlt;
   name_rule token_alca;
   name_rule token_l1;
@@ -161,11 +90,7 @@ Evaluator * parse(const T & text) {
   Iterator end   = text.end();
 
   // the interface of qi::phrase_parse has changed between Boost 1.40 (Spirit 2.0) and Boost 1.41 (Spirit 2.1)
-#if BOOST_VERSION < 104100
-  bool result = qi::phrase_parse( begin, end, parser, evaluator, ascii::space );
-#else
   bool result = qi::phrase_parse( begin, end, parser, ascii::space, evaluator );
-#endif
 
   if (not result or begin != end) {
     delete evaluator;
@@ -184,11 +109,7 @@ inline Evaluator * parse(const char * text) {
   const char * end   = text + strlen(text);
 
   // the interface of qi::phrase_parse has changed between Boost 1.40 (Spirit 2.0) and Boost 1.41 (Spirit 2.1)
-#if BOOST_VERSION < 104100
-  bool result = qi::phrase_parse( begin, end, parser, evaluator, ascii::space );
-#else
   bool result = qi::phrase_parse( begin, end, parser, ascii::space, evaluator );
-#endif
 
   if (not result or begin != end) {
     delete evaluator;

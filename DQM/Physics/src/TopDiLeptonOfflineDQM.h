@@ -55,7 +55,7 @@ namespace TopDiLeptonOffline {
     /// book histograms in subdirectory _directory_
     void book(std::string directory);
     /// fill monitor histograms with electronId and jetCorrections
-    void fill(const edm::Event& event, const edm::EventSetup& setup);
+    void fill(const edm::Event& event, const edm::EventSetup& setup) const;
 
   private:
     /// deduce monitorPath from label, the label is expected
@@ -67,8 +67,6 @@ namespace TopDiLeptonOffline {
     /// determine dileptonic decay channel 
     DecayChannel decayChannel(const std::vector<const reco::Muon*>& muons, const std::vector<const reco::GsfElectron*>& elecs) const;
 
-    /// set labels for event logging histograms
-    void loggerBinLabels(std::string hist);
     /// set configurable labels for trigger monitoring histograms
     void triggerBinLabels(std::string channel, const std::vector<std::string> labels);
     /// fill trigger monitoring histograms
@@ -80,8 +78,6 @@ namespace TopDiLeptonOffline {
     void fill(const std::string histName, double value) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(value); };
     /// fill histogram if it had been booked before (2-dim version)
     void fill(const std::string histName, double xValue, double yValue) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(xValue, yValue); };
-    /// fill histogram if it had been booked before (2-dim version)
-    void fill(const std::string histName, double xValue, double yValue, double zValue) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(xValue, yValue, zValue); };
 
   private:
     /// verbosity level for booking
@@ -92,7 +88,18 @@ namespace TopDiLeptonOffline {
     edm::InputTag elecs_, muons_, jets_; 
     /// considers a vector of METs
     std::vector<edm::InputTag> mets_;
-
+    /// electronId
+    edm::InputTag electronId_;
+    /// extra selection on muons
+    StringCutObjectSelector<reco::Muon>* muonSelect_;
+    /// extra isolation criterion on muon
+    StringCutObjectSelector<reco::Muon>* muonIso_;
+    /// extra selection on electrons
+    StringCutObjectSelector<reco::GsfElectron>* elecSelect_;
+    /// extra isolation criterion on electron
+    StringCutObjectSelector<reco::GsfElectron>* elecIso_;
+    /// jetCorrector
+    std::string jetCorrector_;
     /// trigger table
     edm::InputTag triggerTable_;
     /// trigger paths for monitoring, expected 
@@ -100,65 +107,14 @@ namespace TopDiLeptonOffline {
     std::vector<std::string> elecMuPaths_;
     /// trigger paths for di muon channel
     std::vector<std::string> diMuonPaths_;
-
-    /// electronId
-    edm::InputTag electronId_;
-    /// extra isolation criterion on electron
-    StringCutObjectSelector<reco::GsfElectron>* elecIso_;
-    /// extra selection on electrons
-    StringCutObjectSelector<reco::GsfElectron>* elecSelect_;
-
-    /// extra isolation criterion on muon
-    StringCutObjectSelector<reco::Muon>* muonIso_;
-    /// extra selection on muons
-    StringCutObjectSelector<reco::Muon>* muonSelect_;
-
-    /// jetCorrector
-    std::string jetCorrector_;
-    /// jetID as an extra selection type 
-    edm::InputTag jetIDLabel_;
-    /// extra jetID selection on calo jets
-    StringCutObjectSelector<reco::JetID>* jetIDSelect_;
-    /// extra selection on jets (here given as std::string as it depends
-    /// on the the jet type, which selections are valid and which not)
-    std::string jetSelect_;
     /// mass window upper and lower edge
     double lowerEdge_, upperEdge_;
 
-    /// number of logged interesting events
-    int elecMuLogged_, diMuonLogged_, diElecLogged_;
     /// storage manager
     DQMStore* store_;
     /// histogram container  
     std::map<std::string,MonitorElement*> hists_;
   };
-
-  inline void 
-  MonitorEnsemble::loggerBinLabels(std::string hist)
-  {
-    // set axes titles for selected events
-    hists_[hist.c_str()]->getTH1()->SetOption("TEXT");
-    hists_[hist.c_str()]->setBinLabel( 1 , "Run"             , 1);
-    hists_[hist.c_str()]->setBinLabel( 2 , "Block"           , 1);
-    hists_[hist.c_str()]->setBinLabel( 3 , "Event"           , 1);
-    hists_[hist.c_str()]->setBinLabel( 6 , "pt_{L2L3}(jet1)" , 1);
-    hists_[hist.c_str()]->setBinLabel( 7 , "pt_{L2L3}(jet2)" , 1);
-    hists_[hist.c_str()]->setBinLabel( 8 , "MET_{Calo}"      , 1);
-    hists_[hist.c_str()]->setAxisTitle("logged evts"         , 2);
-
-    if(hist=="diMuonLogger_"){
-      hists_[hist.c_str()]->setBinLabel( 4 , "pt(muon)" , 1);
-      hists_[hist.c_str()]->setBinLabel( 5 , "pt(muon)" , 1);
-    }
-    if(hist=="diElecLogger_"){
-      hists_[hist.c_str()]->setBinLabel( 4 , "pt(elec)" , 1);
-      hists_[hist.c_str()]->setBinLabel( 5 , "pt(elec)" , 1);
-    }
-    if(hist=="elecMuLogger_"){
-      hists_[hist.c_str()]->setBinLabel( 4 , "pt(elec)" , 1);
-      hists_[hist.c_str()]->setBinLabel( 5 , "pt(muon)" , 1);
-    }
-  }
 
   inline void 
   MonitorEnsemble::triggerBinLabels(std::string channel, const std::vector<std::string> labels)

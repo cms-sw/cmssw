@@ -36,7 +36,7 @@ public:
    // the default color for the hits.
    FWECALDetailViewBuilder(const fwlite::Event *event, const DetIdToMatrix* geom,
                            float eta, float phi, int size = 50,
-                           Color_t defaultColor = kMagenta+1)
+                           Color_t defaultColor = kMagenta+2)
       : m_event(event), m_geom(geom),
         m_eta(eta), m_phi(phi), m_size(size),
         m_defaultColor(defaultColor){
@@ -51,15 +51,15 @@ public:
 
    // show superclusters using two alternating colors
    // to make adjacent clusters visible
-   void showSuperClusters(Color_t color1=kGreen+2, Color_t color2=kTeal);
+   void showSuperClusters(Color_t color1, Color_t color2);
 
    // show a specific supercluster in a specific color
-   void showSuperCluster(const reco::SuperCluster &cluster, Color_t color=kYellow);
+   void showSuperCluster(const reco::SuperCluster &cluster, Color_t color);
 
    // add legends; returns final y
    double makeLegend(double x0 = 0.02, double y0 = 0.95,
-                     Color_t clustered1=kGreen+1, Color_t clustered2=kTeal,
-                     Color_t supercluster=kYellow);
+                     Color_t clustered1=-1, Color_t clustered2=-1,
+                     Color_t supercluster=-1);
 
 private:
 

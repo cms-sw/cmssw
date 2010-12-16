@@ -8,13 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:15 CDT 2008
-// $Id: CSGConnector.cc,v 1.4 2009/08/26 18:59:20 amraktad Exp $
+// $Id: CSGConnector.cc,v 1.3 2008/11/06 22:05:24 amraktad Exp $
 //
 
 // system include files
 
 // user include files
 #include "Fireworks/Core/src/CSGConnector.h"
+#include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/interface/CSGActionSupervisor.h"
 
 ClassImp(CSGConnector)

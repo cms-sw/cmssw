@@ -81,6 +81,10 @@ SiStripElectronSeedGenerator::SiStripElectronSeedGenerator(const edm::ParameterS
    monoMaxHits_(pset.getParameter<int>("monoMaxHits")),
    maxSeeds_(pset.getParameter<int>("maxSeeds"))
 {
+  // use of a theMeasurementTrackerName
+  if (pset.exists("measurementTrackerName"))
+   { theMeasurementTrackerName = pset.getParameter<std::string>("measurementTrackerName") ; }
+
   // new beamSpot tag
   if (pset.exists("beamSpot"))
    { beamSpotTag_ = pset.getParameter<edm::InputTag>("beamSpot") ; }
@@ -106,7 +110,7 @@ void SiStripElectronSeedGenerator::setupES(const edm::EventSetup& setup) {
   }
 
   if (cacheIDCkfComp_!=setup.get<CkfComponentsRecord>().cacheIdentifier()) {
-    setup.get<CkfComponentsRecord>().get(measurementTrackerHandle);
+    setup.get<CkfComponentsRecord>().get(theMeasurementTrackerName,measurementTrackerHandle);
     cacheIDCkfComp_=setup.get<CkfComponentsRecord>().cacheIdentifier();
     theMeasurementTracker = measurementTrackerHandle.product();
   }

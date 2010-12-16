@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.36 2010/04/20 16:09:29 srappocc Exp $
+// $Id: PATMuonProducer.cc,v 1.38 2010/07/22 19:34:46 srappocc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -208,6 +208,38 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       
       MuonBaseRef muonBaseRef(muonRef);
       Muon aMuon(muonBaseRef);
+
+      if ( useUserData_ ) {
+	userDataHelper_.add( aMuon, iEvent, iSetup );
+      }
+
+      // embed high level selection
+      if ( embedHighLevelSelection_ ) {
+	// get the tracks
+	reco::TrackRef innerTrack = muonBaseRef->innerTrack();
+	reco::TrackRef globalTrack= muonBaseRef->globalTrack();
+	// Make sure the collection it points to is there
+	if ( innerTrack.isNonnull() && innerTrack.isAvailable() ) {
+	  unsigned int nhits = innerTrack->numberOfValidHits();
+	  aMuon.setNumberOfValidHits( nhits );
+	  // Correct to PV, or beam spot
+	  if ( !usePV_ ) {
+	    double corr_d0 = -1.0 * innerTrack->dxy( beamPoint );
+	    aMuon.setDB( corr_d0, -1.0 );
+	  } else {
+	    reco::TransientTrack tt = trackBuilder->build(innerTrack);
+	    std::pair<bool,Measurement1D> result = IPTools::absoluteTransverseImpactParameter(tt, primaryVertex);
+	    double d0_corr = result.second.value();
+	    double d0_err = result.second.error();
+	    aMuon.setDB( d0_corr, d0_err );
+	  }
+	}
+
+	if ( globalTrack.isNonnull() && globalTrack.isAvailable() ) {
+	  double norm_chi2 = globalTrack->chi2() / globalTrack->ndof();
+	  aMuon.setNormChi2( norm_chi2 );
+	}
+      }
 
       reco::PFCandidateRef pfRef(pfMuons,index);
       //reco::PFCandidatePtr ptrToMother(pfMuons,index);

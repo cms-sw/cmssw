@@ -1,10 +1,8 @@
 #!/bin/bash
 first=$1
 last=$2
-type=$3
 arg1=''
 arg2=''
-arg3=''
 if [ -z $first ]; then
   echo
 else
@@ -15,15 +13,10 @@ if [ -z $last ]; then
 else
   arg2="-l $last"
 fi
-if [ -z $type ]; then
-    echo
-else
-  arg3="-t $type"
-fi
 psdir="`whoami`_`date +%d%m%y%H%M`"
 mkdir $psdir
 export MEPSDIR=${PWD}/$psdir;
 echo 'postscript files will be written in ' $MEPSDIR
-runGUI -d $arg1 $arg2 $arg3
+runGUI -d $arg1 $arg2
 ls $MEPSDIR
 

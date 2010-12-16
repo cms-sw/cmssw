@@ -22,15 +22,12 @@ class ESElectronicsMapper {
   int getFED(int zside, int plane, int x, int y);
   std::vector<int> GetListofFEDs(const std::vector<int> eeFEDs) const ;
   void GetListofFEDs(std::vector<int> eeFEDs, std::vector<int> & esFEDs) const ;
-  int getKCHIP(const ESDetId& id);
-  int getKCHIP(int zside, int plane, int x, int y);
 
  private:
 
   edm::FileInPath lookup_;
 
   int fed_[2][2][40][40];
-  int kchip_[2][2][40][40];
   std::map < int, std::vector<int>  > ee_es_map_;
 
   

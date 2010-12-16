@@ -9,7 +9,7 @@ def auto_inspect():
     if not ACTIVATE_INSPECTION:
         return [("unknown","unknown","unknown")]
     stack = inspect.stack()
-    while len(stack)>=1 and len(stack[0])>=2 and 'ParameterSet' in stack[0][1]:
+    while len(stack)>=1 and len(stack[0])>=2 and ('FWCore/ParameterSet' in stack[0][1] or 'FWCore/GuiBrowsers' in stack[0][1]):
         stack = stack[1:]
     if len(stack)>=1 and len(stack[0])>=3:
        return stack
@@ -165,6 +165,23 @@ def new_recurseResetModified_(self, o):
             self.recurseResetModified_(item)
 cms.Process.recurseResetModified_=new_recurseResetModified_
 
+def new_recurseDumpModifiedShort_(self, name, o, allow_seq):
+    names = set()
+    if isinstance(o, cms._ModuleSequenceType) and allow_seq:
+        if o._isModified:
+            names.add(name)
+    if isinstance(o, cms._Parameterizable):
+        for key in o.parameterNames_():
+            value = getattr(o,key)
+            names |= self.recurseDumpModifiedShort_("%s.%s"%(name,key),value,allow_seq)
+        for mod in o._modifications:
+            names.add('%s.%s' % (name, mod['name']))
+    if isinstance(o, cms._ValidatingListBase):
+        for index, item in enumerate(o):
+            names |= self.recurseDumpModifiedShort_("%s[%s]"%(name,index),item,allow_seq)
+    return names
+cms.Process.recurseDumpModifiedShort_=new_recurseDumpModifiedShort_
+
 def new_recurseDumpModifications_(self, name, o, comments=True):
     dumpPython = ""
     if isinstance(o, cms._ModuleSequenceType):
@@ -234,6 +251,18 @@ def new_dumpModifications(self,comments=True):
             dumpModifications += dumpPython
     return dumpModifications
 cms.Process.dumpModifications=new_dumpModifications
+
+def new_dumpModificationsShort(self, module=True, process=True, sequence=True):
+    names = set()
+    for name, o in self.items_():
+        names |= self.recurseDumpModifiedShort_(name, o, sequence)
+    if module:
+        names = set([n.split('.')[0] for n in names])
+    if process:
+        return '\n'.join(['process.%s'%n for n in sorted(list(names))])
+    else:
+        return '\n'.join(sorted(list(names)))
+cms.Process.dumpModificationsShort=new_dumpModificationsShort
 
 def new_dumpModificationsWithObjects(self):
     modifications = []
@@ -470,7 +499,27 @@ if __name__=='__main__':
             #self.assert_('process.ex.eight' in mods)
             #self.assert_('process.ex.nine' in mods)
             self.assert_('process.ex.newvpset' in mods)
+        
+        def testShort(self):
+            process = cms.Process('unittest')
+            for i in range(10):
+                setattr(process, 'f%s'%i, cms.EDFilter('f%s'%i, **dict([(c, cms.string(c)) for c in 'abcdef'])))
+            process.seq1 = cms.Sequence(process.f0*process.f1*process.f2)
+            process.seq2 = cms.Sequence(process.f3*process.f4*process.f5)
             
+            self.assertEqual(process.dumpModificationsShort(), '')
+            
+            process.seq1.replace(process.f0, process.f6*process.f7)
+            
+            self.assert_('process.seq1' in process.dumpModificationsShort())
+            
+            process.f8.a = cms.string('b')
+            
+            self.assert_('process.f8' in process.dumpModificationsShort())
+            self.assert_('process.f8.a' in process.dumpModificationsShort(False))
+            
+            
+
         def testSeq(self):
             process = cms.Process('unittest')
             for i in range(10):

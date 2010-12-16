@@ -29,7 +29,7 @@ namespace cond
   
   void SQLMonitoringService::setLevel( const std::string& contextKey, coral::monitor::Level level )
   {
-    Repository::const_iterator rit;
+    Repository::iterator rit;
     
     if( ( rit = m_events.find( contextKey ) ) == m_events.end() )
       {        
@@ -88,8 +88,7 @@ namespace cond
       
       (*rit).second.active = false;
     }
-  
-  //relaxing filter on coral monitoring level due to a bug in the connection pool
+
   void SQLMonitoringService::record( const std::string& contextKey, coral::monitor::Source source, coral::monitor::Type type, const std::string& description )
     {
       Repository::iterator rit;
@@ -98,75 +97,75 @@ namespace cond
         throw coral::MonitoringException( "Monitoring for session " + contextKey + " not initialized...", "MonitoringService::record", this->name() );
       
       bool                  active = (*rit).second.active;
-      //coral::monitor::Level level  = (*rit).second.level;
-       
-      if( active/* && (type & level)*/ )
+      coral::monitor::Level level  = (*rit).second.level;
+      
+      if( active && (type & level) )
       {
-	(*rit).second.stream.push_back( coral::monitor::createEvent( source, type, description ) );
+        (*rit).second.stream.push_back( coral::monitor::createEvent( source, type, description ) );
       }
     }
 
   void SQLMonitoringService::record( const std::string& contextKey, coral::monitor::Source source, coral::monitor::Type type, const std::string& description, int data )
   {
     Repository::iterator rit;
-
+    
     if( ( rit = m_events.find( contextKey ) ) == m_events.end() )
       throw coral::MonitoringException( "Monitoring for session " + contextKey + " not initialized...", "MonitoringService::record", this->name() );
     
     bool                  active = (*rit).second.active;
-    //coral::monitor::Level level  = (*rit).second.level;
+    coral::monitor::Level level  = (*rit).second.level;
     
-    if( active/* && (type & level)*/ )
+    if( active && (type & level) )
       {
-	(*rit).second.stream.push_back( coral::monitor::createEvent( source, type, description, data ) );
+        (*rit).second.stream.push_back( coral::monitor::createEvent( source, type, description, data ) );
       }
   }
 
   void SQLMonitoringService::record( const std::string& contextKey, coral::monitor::Source source, coral::monitor::Type type, const std::string& description, long long data )
   {
     Repository::iterator rit;
-
+    
     if( ( rit = m_events.find( contextKey ) ) == m_events.end() )
       throw coral::MonitoringException( "Monitoring for session " + contextKey + " not initialized...", "MonitoringService::record", this->name() );
     
     bool                  active = (*rit).second.active;
-    //coral::monitor::Level level  = (*rit).second.level;
+    coral::monitor::Level level  = (*rit).second.level;
     
-    if( active/* && (type & level)*/ )
+    if( active && (type & level) )
       {
-	(*rit).second.stream.push_back( coral::monitor::createEvent( source, type, description, data ) );
+        (*rit).second.stream.push_back( coral::monitor::createEvent( source, type, description, data ) );
       }
   }
 
   void SQLMonitoringService::record( const std::string& contextKey, coral::monitor::Source source, coral::monitor::Type type, const std::string& description, double data )
     {
       Repository::iterator rit;
-
+      
       if( ( rit = m_events.find( contextKey ) ) == m_events.end() )
         throw coral::MonitoringException( "Monitoring for session " + contextKey + " not initialized...", "MonitoringService::record", this->name() );
 
       bool                  active = (*rit).second.active;
-      //coral::monitor::Level level  = (*rit).second.level;
+      coral::monitor::Level level  = (*rit).second.level;
       
-      if( active/* && (type & level)*/ )
+      if( active && (type & level) )
       {
-	(*rit).second.stream.push_back( coral::monitor::createEvent( source, type, description, data ) );
+        (*rit).second.stream.push_back( coral::monitor::createEvent( source, type, description, data ) );
       }
     }
 
   void SQLMonitoringService::record( const std::string& contextKey, coral::monitor::Source source, coral::monitor::Type type, const std::string& description, const std::string& data )
     {
       Repository::iterator rit;
-
+      
       if( ( rit = m_events.find( contextKey ) ) == m_events.end() )
         throw coral::MonitoringException( "Monitoring for session " + contextKey + " not initialized...", "MonitoringService::record", this->name() );
 
       bool                  active = (*rit).second.active;
-      //coral::monitor::Level level  = (*rit).second.level;
+      coral::monitor::Level level  = (*rit).second.level;
       
-      if( active /*&& (type & level)*/ )
+      if( active && (type & level) )
       {
-	(*rit).second.stream.push_back( coral::monitor::createEvent( source, type, description, data ) );
+        (*rit).second.stream.push_back( coral::monitor::createEvent( source, type, description, data ) );
       }
     }
 
@@ -220,18 +219,18 @@ namespace cond
   void SQLMonitoringService::reportOnEvent( EventStream::const_iterator& it, std::ostream& os ) const
   {
     if(it->m_source == coral::monitor::Statement)
-      {
-	os << (*it).m_description << ";"<< std::endl;
-      }
+    {
+      os << (*it).m_description << ";"<< std::endl;
+    }
   }
   
 
   void SQLMonitoringService::reportOnEvent( EventStream::const_iterator& it,coral::MessageStream& os ) const
     {
-      if(it->m_source == coral::monitor::Statement)
-	{
-	  os << (*it).m_description <<coral::MessageStream::flush;
-	}
+    if(it->m_source == coral::monitor::Statement)
+    {
+      os << (*it).m_description <<coral::MessageStream::flush;
+    }
     }
 
   void SQLMonitoringService::reportForSession( Repository::const_iterator& it, std::ostream& os ) const

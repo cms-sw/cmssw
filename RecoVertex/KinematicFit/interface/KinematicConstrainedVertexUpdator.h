@@ -29,8 +29,8 @@ public:
  * Returns refitted vector of 7n+3 parameters and corresponding
  * covariance matrix, where n - number of tracks.
  */ 
- pair<pair<vector<KinematicState>, AlgebraicMatrix >, RefCountedKinematicVertex > 
-  update(const AlgebraicVector& inState, const AlgebraicMatrix& inCov, vector<KinematicState> lStates, 
+ std::pair<std::pair<std::vector<KinematicState>, AlgebraicMatrix >, RefCountedKinematicVertex > 
+  update(const AlgebraicVector& inState, const AlgebraicMatrix& inCov, std::vector<KinematicState> lStates, 
                                    const GlobalPoint& lPoint,MultiTrackKinematicConstraint * cs)const;
  
 private:

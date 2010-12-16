@@ -1,5 +1,3 @@
-#ifndef PrimaryVertexProducerAlgorithm_H
-#define PrimaryVertexProducerAlgorithm_H
 // -*- C++ -*-
 //
 // Package:    PrimaryVertexProducerAlgorithm
@@ -15,7 +13,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: PrimaryVertexProducerAlgorithm.h,v 1.12 2010/03/03 09:45:21 werdmann Exp $
+// $Id: PrimaryVertexProducerAlgorithm.h,v 1.11 2010/02/12 04:56:36 werdmann Exp $
 //
 //
 
@@ -72,5 +70,3 @@ private:
   bool fFailsafe;
 
 };
-#endif
-

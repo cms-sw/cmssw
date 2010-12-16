@@ -34,7 +34,8 @@ class FindDialogTestCase(unittest.TestCase):
         self._findDialog.findNext()
         self.assertEqual(self._found,True)
         self._findDialog.onScreen()
-        self.app.exec_()
+        if not hasattr(unittest,"NO_GUI_TEST"):
+            self.app.exec_()
         
     def found(self,object):
         logging.debug(self.__class__.__name__ +': found '+str(object))

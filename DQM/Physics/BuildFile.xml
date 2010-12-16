@@ -13,10 +13,6 @@
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="Geometry/TrackerTopology"/>
 <use   name="JetMETCorrections/Objects"/>
-<use   name="RecoEcal/EgammaCoreTools"/>
-<use   name="DataFormats/EcalRecHit"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="CondFormats/EcalObjects"/>
 <export>
   <lib   name="1"/>
 </export>

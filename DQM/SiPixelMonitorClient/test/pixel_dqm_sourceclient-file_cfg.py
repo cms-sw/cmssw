@@ -37,14 +37,14 @@ process.dqmSaver.saveByLumiSection = 1
 process.dqmSaver.saveByRun = 1
 process.dqmSaver.saveAtJobEnd = True
 process.qTester = cms.EDAnalyzer("QualityTester",
-    qtList = cms.untracked.FileInPath('DQM/SiPixelMonitorClient/test/sipixel_tier0_qualitytest.xml'),
+    qtList = cms.untracked.FileInPath('DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml'),
     prescaleFactor = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
     testInEventloop = cms.untracked.bool(False),
     qtestOnEndRun = cms.untracked.bool(True),
     qtestOnEndJob = cms.untracked.bool(True),
     qtestOnEndLumi = cms.untracked.bool(True),
-    verboseQT = cms.untracked.bool(False)
+    verboseQT = cms.untracked.bool(True)
 )
 
 ##----## Pixel DQM P5/OFFLINE:
@@ -113,7 +113,7 @@ process.source = cms.Source("PoolSource",
 	    )
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(999)
 )
 
 ##----## Sequences and Paths:

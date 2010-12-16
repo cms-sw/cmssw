@@ -1,5 +1,5 @@
 //
-// $Id: DeltaRNearestObjectComputer.cc,v 1.1 2009/12/15 22:45:12 gpetrucc Exp $
+// $Id: DeltaRNearestObjectComputer.cc,v 1.2 2010/02/26 22:30:50 wdd Exp $
 //
 
 /**
@@ -7,12 +7,13 @@
   \brief    Matcher of reconstructed objects to L1 Muons 
             
   \author   Giovanni Petrucciani
-  \version  $Id: DeltaRNearestObjectComputer.cc,v 1.1 2009/12/15 22:45:12 gpetrucc Exp $
+  \version  $Id: DeltaRNearestObjectComputer.cc,v 1.2 2010/02/26 22:30:50 wdd Exp $
 */
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Math/interface/deltaR.h"

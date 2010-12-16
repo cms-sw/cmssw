@@ -5,7 +5,7 @@
  *  Concrete implementation of a DTTTrigBaseCorrection.
  *  Computes residual correction for tTrig
  *
- *  $Revision: 1.3 $
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 
@@ -40,12 +40,9 @@ private:
 
   TFile* rootFile_;  
 
-  std::string rootBaseDir_;
   bool useFit_;
-  std::string dbLabel_;
-  bool useSlopesCalib_;
 
-  double vDriftEff_[5][14][4][3];
+  std::string dbLabel;
 
   const DTTtrig *tTrigMap_;
   const DTMtime *mTimeMap_;

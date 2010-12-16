@@ -56,9 +56,9 @@ class testStateMachine : public CppUnit::TestFixture
 
 private:
   // Typedefs:
-  typedef map< string, shared_ptr<event_base> > EventMap;
-  typedef vector<string> EventList;
-  typedef vector<TransitionRecord> TransitionList;
+  typedef std::map<std::string, shared_ptr<event_base> > EventMap;
+  typedef std::vector<std::string> EventList;
+  typedef std::vector<TransitionRecord> TransitionList;
 
 public:
   void setUp();
@@ -80,7 +80,7 @@ private:
   void resetStateMachine();
   void processEvent( stor::event_ptr requestedEvent );
   bool checkState( const std::string& expected );
-  void checkSignals( const EventList& elist, const string& expected);
+  void checkSignals( const EventList& elist, const std::string& expected);
   bool checkHistory( const TransitionList& steps );
 
   static xdaq::Application* _app;
@@ -172,12 +172,12 @@ void testStateMachine::processEvent( stor::event_ptr requestedEvent )
 ////////////////////////////////////////////
 bool testStateMachine::checkState( const std::string& expected )
 {
-  const string actual = _machine->getCurrentStateName();
+  const std::string actual = _machine->getCurrentStateName();
   if( actual != expected )
   {
-    cerr << "Expecting " << expected << ", got " << actual << endl;
+    std::cerr << "Expecting " << expected << ", got " << actual << std::endl;
     _sr->_statisticsReporter->
-      getStateMachineMonitorCollection().dumpHistory( cerr );
+      getStateMachineMonitorCollection().dumpHistory( std::cerr );
     return false;
   }
   return true;
@@ -189,7 +189,7 @@ bool testStateMachine::checkState( const std::string& expected )
 void testStateMachine::checkSignals
 (
   const EventList& elist,
-  const string& expected
+  const std::string& expected
 )
 {
   EventMap emap;
@@ -252,32 +252,32 @@ bool testStateMachine::checkHistory( const TransitionList& steps )
   
   if( !ok )
   {
-    cerr << "**** History mismatch ****" << endl;
-    cerr << "Actual:" << endl;
+    std::cerr << "**** History mismatch ****" << std::endl;
+    std::cerr << "Actual:" << std::endl;
     for( unsigned int i = 0; i < hsize; ++i )
     {
       if( h[i].isEntry() )
       {
-        cerr << " entered ";
+        std::cerr << " entered ";
       }
       else
       {
-        cerr << " exited ";
+        std::cerr << " exited ";
       }
-      cerr << h[i].stateName() << endl;
+      std::cerr << h[i].stateName() << std::endl;
     }
-    cerr << "Expected:" << endl;
+    std::cerr << "Expected:" << std::endl;
     for( unsigned int j = 0; j < ssize; ++j )
     {
       if( steps[j].isEntry() )
       {
-        cerr << " entered ";
+        std::cerr << " entered ";
       }
       else
       {
-        cerr << " exited ";
+        std::cerr << " exited ";
       }
-      cerr << steps[j].stateName() << endl;
+      std::cerr << steps[j].stateName() << std::endl;
     }
   }
   return ok;
@@ -289,7 +289,7 @@ void testStateMachine::testConstructed()
   resetStateMachine();
   CPPUNIT_ASSERT( checkState( "Constructed" ) );
 
-  cout << endl << "**** Testing illegal signals in Constructed state ****" << endl;
+  std::cout << std::endl << "**** Testing illegal signals in Constructed state ****" << std::endl;
 
   EventList elist;
   elist.push_back( "Configure" );
@@ -316,7 +316,7 @@ void testStateMachine::testHalted()
   processEvent( stMachEvent );
   CPPUNIT_ASSERT( checkState( "Halted" ) );
 
-  cout << endl << "**** Testing illegal signals in Halted state ****" << endl;
+  std::cout << std::endl << "**** Testing illegal signals in Halted state ****" << std::endl;
 
   EventList elist;
   elist.push_back( "Configure" );
@@ -338,7 +338,7 @@ void testStateMachine::testStopped()
   processEvent( stMachEvent );
   CPPUNIT_ASSERT( checkState( "Stopped" ) );
 
-  cout << endl << "**** Testing illegal signals in Stopped state ****" << endl;
+  std::cout << std::endl << "**** Testing illegal signals in Stopped state ****" << std::endl;
 
   EventList elist;
   elist.push_back( "Reconfigure" );
@@ -370,7 +370,7 @@ void testStateMachine::testProcessing()
   processEvent( stMachEvent );
   CPPUNIT_ASSERT( checkState( "Processing" ) );
 
-  cout << endl << "**** Testing illegal signals in Processing state ****" << endl;
+  std::cout << std::endl << "**** Testing illegal signals in Processing state ****" << std::endl;
 
   EventList elist;
   elist.push_back( "Halt" );
@@ -399,7 +399,7 @@ void testStateMachine::testFail()
   processEvent( stMachEvent );
   CPPUNIT_ASSERT( checkState( "Failed" ) );
 
-  cout << endl << "**** Making sure no signal changes Failed state ****" << endl;
+  std::cout << std::endl << "**** Making sure no signal changes Failed state ****" << std::endl;
 
   EventList elist;
   checkSignals( elist, "Failed" );
@@ -423,7 +423,7 @@ void testStateMachine::testEnableSequence()
   processEvent( stMachEvent );
   CPPUNIT_ASSERT( checkState( "Processing" ) );
 
-  cout << endl << "**** Testing if Enable does the right sequence ****" << endl;
+  std::cout << std::endl << "**** Testing if Enable does the right sequence ****" << std::endl;
 
   TransitionList steps;
   steps.push_back( TransitionRecord( "Normal", true ) );
@@ -463,7 +463,7 @@ void testStateMachine::testStopSequence()
   processEvent( stMachEvent );
   CPPUNIT_ASSERT( checkState( "Stopped" ) );
 
-  cout << endl << "**** Testing if Stopping goes through the right sequence ****" << endl;
+  std::cout << std::endl << "**** Testing if Stopping goes through the right sequence ****" << std::endl;
 
   TransitionList steps;
   steps.push_back( TransitionRecord( "Processing", false ) );
@@ -504,7 +504,7 @@ void testStateMachine::testHaltSequence()
   processEvent( stMachEvent );
   CPPUNIT_ASSERT( checkState( "Halted" ) );
 
-  cout << endl << "**** Testing if Halt does the right sequence ****" << endl;
+  std::cout << std::endl << "**** Testing if Halt does the right sequence ****" << std::endl;
 
   TransitionList steps;
   steps.push_back( TransitionRecord( "Processing", false ) );
@@ -538,7 +538,7 @@ void testStateMachine::testReconfigureSequence()
   processEvent( stMachEvent );
   CPPUNIT_ASSERT( checkState( "Stopped" ) );
 
-  cout << endl << "**** Testing if Reconfigure triggers the right sequence ****" << endl;
+  std::cout << std::endl << "**** Testing if Reconfigure triggers the right sequence ****" << std::endl;
 
   TransitionList steps;
   steps.push_back( TransitionRecord( "Stopped", false ) );
@@ -572,7 +572,7 @@ void testStateMachine::testEmergencyStopSequence()
   processEvent( stMachEvent );
   CPPUNIT_ASSERT( checkState( "Stopped" ) );
 
-  cout << endl << "**** Testing if EmergencyStop triggers the right sequence ****" << endl;
+  std::cout << std::endl << "**** Testing if EmergencyStop triggers the right sequence ****" << std::endl;
 
   TransitionList steps;
   steps.push_back( TransitionRecord( "Processing", false ) );
@@ -590,7 +590,7 @@ void testStateMachine::testAllStatesGoToFailed()
 {
   stor::event_ptr stMachEvent;
 
-  cout << endl << "**** Making sure Constructed can go to Failed ****" << endl;
+  std::cout << std::endl << "**** Making sure Constructed can go to Failed ****" << std::endl;
 
   // Constructed:
   resetStateMachine();
@@ -601,7 +601,7 @@ void testStateMachine::testAllStatesGoToFailed()
   CPPUNIT_ASSERT( checkState( "Failed" ) );
   _machine->terminate();
 
-  cout << endl << "**** Making sure Halted can go to Failed ****" << endl;
+  std::cout << std::endl << "**** Making sure Halted can go to Failed ****" << std::endl;
 
   // Halted:
   resetStateMachine();
@@ -612,7 +612,7 @@ void testStateMachine::testAllStatesGoToFailed()
   CPPUNIT_ASSERT( checkState( "Failed" ) );
   _machine->terminate();
 
-  cout << endl << "**** Making sure Stopped can go to Failed ****" << endl;
+  std::cout << std::endl << "**** Making sure Stopped can go to Failed ****" << std::endl;
 
   // Stopped:
   resetStateMachine();
@@ -627,7 +627,7 @@ void testStateMachine::testAllStatesGoToFailed()
   CPPUNIT_ASSERT( checkState( "Failed" ) );
   _machine->terminate();
  
-  cout << endl << "**** Making sure Processing can go to Failed ****" << endl;
+  std::cout << std::endl << "**** Making sure Processing can go to Failed ****" << std::endl;
 
   // Processing:
   resetStateMachine();
