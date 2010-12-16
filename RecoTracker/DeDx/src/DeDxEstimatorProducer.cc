@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxEstimatorProducer.cc,v 1.27 2010/05/25 14:40:08 querten Exp $
+// $Id: DeDxEstimatorProducer.cc,v 1.29 2010/06/30 09:47:57 querten Exp $
 //
 //
 
@@ -142,7 +142,7 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
   iEvent.getByLabel(m_trajTrackAssociationTag, trajTrackAssociationHandle);
-  const TrajTrackAssociationCollection TrajToTrackMap = *trajTrackAssociationHandle.product();
+  const TrajTrackAssociationCollection & TrajToTrackMap = *trajTrackAssociationHandle.product();
 
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
   iEvent.getByLabel(m_tracksTag,trackCollectionHandle);
