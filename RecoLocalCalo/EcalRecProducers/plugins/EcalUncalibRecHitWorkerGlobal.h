@@ -5,9 +5,9 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using a weights method
   *
-  *  $Id: EcalUncalibRecHitWorkerGlobal.h,v 1.17 2010/10/17 16:26:11 franzoni Exp $
-  *  $Date: 2010/10/17 16:26:11 $
-  *  $Revision: 1.17 $
+  *  $Id: EcalUncalibRecHitWorkerGlobal.h,v 1.18 2010/10/17 16:30:04 franzoni Exp $
+  *  $Date: 2010/10/17 16:30:04 $
+  *  $Revision: 1.18 $
   *  \author R. Bruneliere - A. Zabi
   */
 
@@ -52,6 +52,9 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
 
                 template < class C > int isSaturated(const C & digi);
 
+		double timeCorrectionEB(float ampliEB);
+		double timeCorrectionEE(float ampliEE);
+
                 // weights method
                 edm::ESHandle<EcalWeightXtalGroups>  grps;
                 edm::ESHandle<EcalTBWeights> wgts;
@@ -69,6 +72,12 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
                 std::vector<double> EEamplitudeFitParameters_; 
                 std::pair<double,double> EBtimeFitLimits_;  
                 std::pair<double,double> EEtimeFitLimits_;  
+		bool                doEBtimeCorrection_;
+		bool                doEEtimeCorrection_;
+                std::vector<double> EBtimeCorrAmplitudeBins_; 
+                std::vector<double> EBtimeCorrShiftBins_; 
+                std::vector<double> EEtimeCorrAmplitudeBins_; 
+                std::vector<double> EEtimeCorrShiftBins_; 
                 EcalUncalibRecHitRatioMethodAlgo<EBDataFrame> ratioMethod_barrel_;
                 EcalUncalibRecHitRatioMethodAlgo<EEDataFrame> ratioMethod_endcap_;
 
