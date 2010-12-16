@@ -1,7 +1,7 @@
 /**
  *  \file Implementation of helper functions
  *
- *  $Id: DOMHelperFunctions.cc,v 1.3 2010/07/29 16:38:48 fay Exp $
+ *  $Id: DOMHelperFunctions.cc,v 1.4 2010/10/18 22:04:24 wmtan Exp $
  */
 
 
@@ -93,7 +93,8 @@ DOMElement*  xuti::writeCell(xercesc::DOMNode* node,
   } else if (detid.subdetId() == EcalEndcap){
     
     // is it a EcalScDetId ?
-    if((!(uint)detid <<15)&1) {
+    uint ScIdCheck = detid.rawId()  & 0x00008000;
+    if(ScIdCheck == 0) {
       stringstream value_s;
       value_s <<EEDetId(detid).ix() ;
   
