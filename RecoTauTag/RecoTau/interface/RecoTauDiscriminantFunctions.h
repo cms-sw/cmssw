@@ -65,6 +65,7 @@ double ImpactParameterSignificance(Tau tau);
 
 double Pt(Tau tau) { return tau.pt(); }
 double Eta(Tau tau) { return tau.eta(); }
+double AbsEta(Tau tau) { return std::abs(tau.eta()); }
 double Mass(Tau tau) { return tau.mass(); }
 double DecayMode(Tau tau) { return tau.decayMode(); }
 

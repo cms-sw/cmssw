@@ -56,6 +56,7 @@ TAU_DISC_PLUGIN(ImpactParameterSignificance);
 
 TAU_DISC_PLUGIN(Pt);
 TAU_DISC_PLUGIN(Eta);
+TAU_DISC_PLUGIN(AbsEta);
 TAU_DISC_PLUGIN(Mass);
 TAU_DISC_PLUGIN(DecayMode);
 TAU_DISC_PLUGIN(OutlierN);
