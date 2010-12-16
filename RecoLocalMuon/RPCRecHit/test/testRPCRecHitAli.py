@@ -4,7 +4,6 @@ process = cms.Process("RPCRecHitAlignment")
 
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = "MC_3XY_V15::All"
 process.GlobalTag.globaltag = 'START3X_V18::All'
 
 
@@ -16,7 +15,7 @@ process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
