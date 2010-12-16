@@ -15,23 +15,27 @@ namespace susybsm {
    public:
       // constructor
       HSCPIsolation(){
-         TK_Count     = -1;
-         TK_SumEt     = -1;
-         ECAL_Energy  = -1;
-         HCAL_Energy  = -1;
+         TK_CountHighPt = -1;
+         TK_Count       = -1;
+         TK_SumEt       = -1;
+         ECAL_Energy    = -1;
+         HCAL_Energy    = -1;
       }
 
-   void   Set_TK_Count   (double value){TK_Count    = value;}
-   void   Set_TK_SumEt   (double value){TK_SumEt    = value;}
-   void   Set_ECAL_Energy(double value){ECAL_Energy = value;}
-   void   Set_HCAL_Energy(double value){HCAL_Energy = value;}
+   void   Set_TK_CountHighPt(double value){TK_CountHighPt = value;}
+   void   Set_TK_Count      (double value){TK_Count       = value;}
+   void   Set_TK_SumEt      (double value){TK_SumEt       = value;}
+   void   Set_ECAL_Energy   (double value){ECAL_Energy    = value;}
+   void   Set_HCAL_Energy   (double value){HCAL_Energy    = value;}
 
-   double Get_TK_Count   ()            {return TK_Count    ;}
-   double Get_TK_SumEt   ()            {return TK_SumEt    ;}
-   double Get_ECAL_Energy()            {return ECAL_Energy ;}
-   double Get_HCAL_Energy()            {return HCAL_Energy ;}
+   double Get_TK_CountHighPt()            {return TK_CountHighPt;}
+   double Get_TK_Count      ()            {return TK_Count      ;}
+   double Get_TK_SumEt      ()            {return TK_SumEt      ;}
+   double Get_ECAL_Energy   ()            {return ECAL_Energy   ;}
+   double Get_HCAL_Energy   ()            {return HCAL_Energy   ;}
 
    public:
+      double TK_CountHighPt;
       double TK_Count;
       double TK_SumEt;
       double ECAL_Energy;
