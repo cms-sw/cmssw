@@ -20,21 +20,21 @@
 class LumiDetails {
 public:
 
+  // If in the future additional algorithm names are added,
+  // it is important that they be added at the end of the list.
+  // The LumiDetails::algoNames function in LumiDetails.cc also
+  // would need to be updated to keep the list of names in sync.
   enum Algos {
     kOCC1,
     kOCC2,
     kET,
-    kAlgo3,
-    kPLT1,
-    kPLT2,
+    kPLT,
     kMaxNumAlgos
   };
   typedef unsigned int AlgoType;
   typedef std::pair<std::vector<float>::const_iterator, std::vector<float>::const_iterator> ValueRange;
   typedef std::pair<std::vector<float>::const_iterator, std::vector<float>::const_iterator> ErrorRange;
   typedef std::pair<std::vector<short>::const_iterator, std::vector<short>::const_iterator> QualityRange;
-  typedef std::pair<std::vector<short>::const_iterator, std::vector<short>::const_iterator> Beam1IntensityRange;
-  typedef std::pair<std::vector<short>::const_iterator, std::vector<short>::const_iterator> Beam2IntensityRange;
 
   LumiDetails();
   explicit LumiDetails(std::string const& lumiVersion);
@@ -50,21 +50,22 @@ public:
   void fill(AlgoType algo,
             std::vector<float> const& values,
             std::vector<float> const& errors,
-            std::vector<short> const& qualities,
-	    std::vector<short> const& beam1Intensities,
-            std::vector<short> const& beam2Intensities);
+            std::vector<short> const& qualities);
+
+  void fillBeamIntensities(std::vector<short> const& beam1Intensities,
+                           std::vector<short> const& beam2Intensities);
 
   float lumiValue(AlgoType algo, unsigned int bx) const;
   float lumiError(AlgoType algo, unsigned int bx) const;
   short lumiQuality(AlgoType algo, unsigned int bx) const;
-  short lumiBeam1Intensity(AlgoType algo, unsigned int bx) const;
-  short lumiBeam2Intensity(AlgoType algo, unsigned int bx) const;
+  short lumiBeam1Intensity(unsigned int bx) const;
+  short lumiBeam2Intensity(unsigned int bx) const;
 
   ValueRange lumiValuesForAlgo(AlgoType algo) const;
   ErrorRange lumiErrorsForAlgo(AlgoType algo) const;
   QualityRange lumiQualitiesForAlgo(AlgoType algo) const;
-  Beam1IntensityRange lumiBeam1IntensitiesForAlgo(AlgoType algo) const;
-  Beam2IntensityRange lumiBeam2IntensitiesForAlgo(AlgoType algo) const;
+  std::vector<short> const& lumiBeam1Intensities() const;
+  std::vector<short> const& lumiBeam2Intensities() const;
 
   bool isProductEqual(LumiDetails const& lumiDetails) const;
 
@@ -90,8 +91,8 @@ private:
   std::vector<float> m_allValues;
   std::vector<float> m_allErrors;
   std::vector<short> m_allQualities;
-  std::vector<short> m_allBeam1Intensities;
-  std::vector<short> m_allBeam2Intensities;
+  std::vector<short> m_beam1Intensities;
+  std::vector<short> m_beam2Intensities;
 };
 
 std::ostream& operator<<(std::ostream & s, LumiDetails const& lumiDetails);

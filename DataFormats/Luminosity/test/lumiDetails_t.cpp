@@ -42,11 +42,9 @@ TestLumiDetails::testConstructor() {
   CPPUNIT_ASSERT(v2[0] == std::string("OCC1"));
   CPPUNIT_ASSERT(v2[1] == std::string("OCC2"));
   CPPUNIT_ASSERT(v2[2] == std::string("ET"));
-  CPPUNIT_ASSERT(v2[3] == std::string("Algo3"));
-  CPPUNIT_ASSERT(v2[4] == std::string("PLT1"));
-  CPPUNIT_ASSERT(v2[5] == std::string("PLT2"));
-  CPPUNIT_ASSERT(v1.size() == 6U);
-  CPPUNIT_ASSERT(v2.size() == 6U);
+  CPPUNIT_ASSERT(v2[3] == std::string("PLT"));
+  CPPUNIT_ASSERT(v1.size() == 4U);
+  CPPUNIT_ASSERT(v2.size() == 4U);
 }
 
 void
@@ -77,7 +75,9 @@ TestLumiDetails::testFill() {
   beam2.push_back(14);
   beam2.push_back(15);
 
-  lumiDetails.fill(2, val, err, qual, beam1, beam2);
+  lumiDetails.fill(2, val, err, qual);
+  lumiDetails.fillBeamIntensities(beam1, beam2);
+
 
   std::vector<float> val0;
   val0.push_back(1.0);
@@ -88,20 +88,12 @@ TestLumiDetails::testFill() {
   std::vector<short> qual0;
   qual0.push_back(7);
 
-  std::vector<short> beam1_0;
-  beam1_0.push_back(10);
-
-  std::vector<short> beam2_0;
-  beam2_0.push_back(113);
-
-  lumiDetails.fill(0, val0, err0, qual0, beam1_0, beam2_0);
+  lumiDetails.fill(0, val0, err0, qual0);
 
   std::vector<float> val1;
   std::vector<float> err1; 
   std::vector<short> qual1;
-  std::vector<short> beam1_1;
-  std::vector<short> beam2_1;
-  lumiDetails.fill(1, val1, err1, qual1, beam1_1, beam2_1);
+  lumiDetails.fill(1, val1, err1, qual1);
 
   std::vector<float> val3;
   val3.push_back(11.0);
@@ -115,21 +107,7 @@ TestLumiDetails::testFill() {
   qual3.push_back(31);
   qual3.push_back(31);
 
-  std::vector<short> beam1_3;
-  beam1_3.push_back(31);
-  beam1_3.push_back(31);
-
-  std::vector<short> beam2_3;
-  beam2_3.push_back(31);
-  beam2_3.push_back(31);
-
-  lumiDetails.fill(3, val3, err3, qual3, beam1_3, beam2_3);
-  qual3[0] = 32;
-  qual3[1] = 33;
-  lumiDetails.fill(5, val3, err3, qual3, beam1_3, beam2_3);
-  beam1_3[1] = 100;
-  beam2_3[1] = 100;
-  lumiDetails.fill(4, val3, err3, qual3, beam1_3, beam2_3);
+  lumiDetails.fill(3, val3, err3, qual3);
 
   LumiDetails::ValueRange rangeVal = lumiDetails.lumiValuesForAlgo(2);
   std::cout << "values\n";
@@ -170,31 +148,33 @@ TestLumiDetails::testFill() {
   CPPUNIT_ASSERT(lumiDetails.lumiQuality(2,1) == 8);
   CPPUNIT_ASSERT(lumiDetails.lumiQuality(2,2) == 9);
 
-  LumiDetails::Beam1IntensityRange rangeBeam1 = lumiDetails.lumiBeam1IntensitiesForAlgo(2);
+  std::vector<short> const& beam1Intensities = lumiDetails.lumiBeam1Intensities();
   std::cout << "beam1Intensities\n";
   i = 10;
-  for (std::vector<short>::const_iterator beam1 = rangeBeam1.first;
-       beam1 != rangeBeam1.second; ++beam1, ++i) {
-    std::cout << *beam1 << " ";
+  for (std::vector<short>::const_iterator beam1 = beam1Intensities.begin(),
+	                               beam1End = beam1Intensities.end();
+       beam1 != beam1End; ++beam1, ++i) {
+    std::cout << *beam1 << "\n";
     CPPUNIT_ASSERT(*beam1 == i);
   }
   std::cout << "\n";
-  CPPUNIT_ASSERT(lumiDetails.lumiBeam1Intensity(2,0) == 10);
-  CPPUNIT_ASSERT(lumiDetails.lumiBeam1Intensity(2,1) == 11);
-  CPPUNIT_ASSERT(lumiDetails.lumiBeam1Intensity(2,2) == 12);
+  CPPUNIT_ASSERT(lumiDetails.lumiBeam1Intensity(0) == 10);
+  CPPUNIT_ASSERT(lumiDetails.lumiBeam1Intensity(1) == 11);
+  CPPUNIT_ASSERT(lumiDetails.lumiBeam1Intensity(2) == 12);
 
-  LumiDetails::Beam2IntensityRange rangeBeam2 = lumiDetails.lumiBeam2IntensitiesForAlgo(2);
+  std::vector<short> const& beam2Intensities = lumiDetails.lumiBeam2Intensities();
   std::cout << "beam2Intensities\n";
   i = 13;
-  for (std::vector<short>::const_iterator beam2 = rangeBeam2.first;
-       beam2 != rangeBeam2.second; ++beam2, ++i) {
-    std::cout << *beam2 << " ";
+  for (std::vector<short>::const_iterator beam2 = beam2Intensities.begin(),
+	                               beam2End = beam2Intensities.end();
+       beam2 != beam2End; ++beam2, ++i) {
+    std::cout << *beam2 << "\n";
     CPPUNIT_ASSERT(*beam2 == i);
   }
   std::cout << "\n";
-  CPPUNIT_ASSERT(lumiDetails.lumiBeam2Intensity(2,0) == 13);
-  CPPUNIT_ASSERT(lumiDetails.lumiBeam2Intensity(2,1) == 14);
-  CPPUNIT_ASSERT(lumiDetails.lumiBeam2Intensity(2,2) == 15);
+  CPPUNIT_ASSERT(lumiDetails.lumiBeam2Intensity(0) == 13);
+  CPPUNIT_ASSERT(lumiDetails.lumiBeam2Intensity(1) == 14);
+  CPPUNIT_ASSERT(lumiDetails.lumiBeam2Intensity(2) == 15);
 
   CPPUNIT_ASSERT(lumiDetails.isProductEqual(lumiDetails));
 

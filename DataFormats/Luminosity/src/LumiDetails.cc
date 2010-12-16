@@ -13,8 +13,8 @@ LumiDetails::LumiDetails() :
   m_allValues(),
   m_allErrors(),
   m_allQualities(),
-  m_allBeam1Intensities(),
-  m_allBeam2Intensities()
+  m_beam1Intensities(),
+  m_beam2Intensities()
 {
 }
 
@@ -24,9 +24,8 @@ LumiDetails::LumiDetails(std::string const& lumiVersion) :
   m_allValues(),
   m_allErrors(),
   m_allQualities(),
-  m_allBeam1Intensities(),
-  m_allBeam2Intensities()
-
+  m_beam1Intensities(),
+  m_beam2Intensities()
 {
 }
 
@@ -52,14 +51,10 @@ void
 LumiDetails::fill(AlgoType algo,
                   std::vector<float> const& values,
                   std::vector<float> const& errors,
-                  std::vector<short> const& qualities,
-                  std::vector<short> const& beam1Intensities,
-                  std::vector<short> const& beam2Intensities) {
+                  std::vector<short> const& qualities) {
   checkAlgo(algo);
   if (values.size() != errors.size() ||
       values.size() != qualities.size() ||
-      values.size() != beam1Intensities.size() ||
-      values.size() != beam2Intensities.size() ||
       m_algoToFirstIndex[algo] != m_algoToFirstIndex[algo + 1U]) {
     throw edm::Exception(edm::errors::LogicError)
       << "Illegal input values passed to LumiDetails::fill.\n"
@@ -70,11 +65,16 @@ LumiDetails::fill(AlgoType algo,
   m_allValues.insert(m_allValues.begin() + m_algoToFirstIndex[algo], values.begin(), values.end());
   m_allErrors.insert(m_allErrors.begin() + m_algoToFirstIndex[algo], errors.begin(), errors.end());
   m_allQualities.insert(m_allQualities.begin() + m_algoToFirstIndex[algo], qualities.begin(), qualities.end());
-  m_allBeam1Intensities.insert(m_allBeam1Intensities.begin() + m_algoToFirstIndex[algo], beam1Intensities.begin(), beam1Intensities.end());
-  m_allBeam2Intensities.insert(m_allBeam2Intensities.begin() + m_algoToFirstIndex[algo], beam2Intensities.begin(), beam2Intensities.end());
   for (unsigned i = algo + 1U; i <= kMaxNumAlgos; ++i) {
     m_algoToFirstIndex[i] += values.size();
   }
+}
+
+void
+LumiDetails::fillBeamIntensities(std::vector<short> const& beam1Intensities,
+                                 std::vector<short> const& beam2Intensities) {
+  m_beam1Intensities = beam1Intensities;
+  m_beam2Intensities = beam2Intensities;
 }
 
 float 
@@ -96,15 +96,13 @@ LumiDetails::lumiQuality(AlgoType algo, unsigned int bx) const {
 }
 
 short
-LumiDetails::lumiBeam1Intensity(AlgoType algo, unsigned int bx) const {
-  checkAlgoAndBX(algo, bx);
-  return m_allBeam1Intensities[m_algoToFirstIndex[algo] + bx];
+LumiDetails::lumiBeam1Intensity(unsigned int bx) const {
+  return m_beam1Intensities.at(bx);
 }
 
 short
-LumiDetails::lumiBeam2Intensity(AlgoType algo, unsigned int bx) const {
-  checkAlgoAndBX(algo, bx);
-  return m_allBeam2Intensities[m_algoToFirstIndex[algo] + bx];
+LumiDetails::lumiBeam2Intensity(unsigned int bx) const {
+  return m_beam2Intensities.at(bx);
 }
 
 LumiDetails::ValueRange
@@ -128,30 +126,28 @@ LumiDetails::lumiQualitiesForAlgo(AlgoType algo) const {
                       m_allQualities.begin() + m_algoToFirstIndex[algo + 1U]);
 }
 
-LumiDetails::Beam1IntensityRange
-LumiDetails::lumiBeam1IntensitiesForAlgo(AlgoType algo) const {
-  checkAlgo(algo);
-  return Beam1IntensityRange(m_allBeam1Intensities.begin() + m_algoToFirstIndex[algo],
-                             m_allBeam1Intensities.begin() + m_algoToFirstIndex[algo + 1U]);
+std::vector<short> const&
+LumiDetails::lumiBeam1Intensities() const {
+  return m_beam1Intensities;
 }
 
-LumiDetails::Beam2IntensityRange
-LumiDetails::lumiBeam2IntensitiesForAlgo(AlgoType algo) const {
-  checkAlgo(algo);
-  return Beam2IntensityRange(m_allBeam2Intensities.begin() + m_algoToFirstIndex[algo],
-                             m_allBeam2Intensities.begin() + m_algoToFirstIndex[algo + 1U]);
+std::vector<short> const&
+LumiDetails::lumiBeam2Intensities() const {
+  return m_beam2Intensities;
 }
 
 std::vector<std::string> const&
 LumiDetails::algoNames() {
   if (m_algoNames.size() != kMaxNumAlgos) {
     assert(m_algoNames.size() == 0U);
+    // If in the future additional algorithm names are added,
+    // it is important that they be added at the end of the list.
+    // The Algos enum in LumiDetails.h also would need to be
+    // updated to keep the list of names in sync.
     m_algoNames.push_back(std::string("OCC1"));
     m_algoNames.push_back(std::string("OCC2"));
     m_algoNames.push_back(std::string("ET"));
-    m_algoNames.push_back(std::string("Algo3"));
-    m_algoNames.push_back(std::string("PLT1"));
-    m_algoNames.push_back(std::string("PLT2"));
+    m_algoNames.push_back(std::string("PLT"));
     assert(m_algoNames.size() == kMaxNumAlgos);
   }
   return m_algoNames;
@@ -165,8 +161,8 @@ LumiDetails::isProductEqual(LumiDetails const& lumiDetails) const {
       m_allValues == lumiDetails.m_allValues &&
       m_allErrors == lumiDetails.m_allErrors &&
       m_allQualities == lumiDetails.m_allQualities &&
-      m_allBeam1Intensities == lumiDetails.m_allBeam1Intensities &&
-      m_allBeam2Intensities == lumiDetails.m_allBeam2Intensities) {
+      m_beam1Intensities == lumiDetails.m_beam1Intensities &&
+      m_beam2Intensities == lumiDetails.m_beam2Intensities) {
     return true;
   }
   return false;
@@ -205,24 +201,33 @@ std::ostream& operator<<(std::ostream& s, LumiDetails const& lumiDetails) {
     std::vector<float>::const_iterator valueEnd = lumiDetails.lumiValuesForAlgo(i).second;
     std::vector<float>::const_iterator error = lumiDetails.lumiErrorsForAlgo(i).first;
     std::vector<short>::const_iterator quality = lumiDetails.lumiQualitiesForAlgo(i).first;
-    std::vector<short>::const_iterator beam1 = lumiDetails.lumiBeam1IntensitiesForAlgo(i).first;
-    std::vector<short>::const_iterator beam2 = lumiDetails.lumiBeam2IntensitiesForAlgo(i).first;
 
     s << "algorithm: " << *algo << "\n";
     s << std::setw(12) << "value"
       << std::setw(12) << "error"
-      << std::setw(12) << "quality"
-      << std::setw(16) << "beam1Intensity"
-      << std::setw(16) << "beam2Intensity" << "\n";
+      << std::setw(12) << "quality" << "\n";
 
-    for( ; value != valueEnd; ++value, ++error, ++quality, ++beam1, ++beam2){
+    for( ; value != valueEnd; ++value, ++error, ++quality){
       s << std::setw(12) << *value
         << std::setw(12) << *error
-        << std::setw(12) << *quality
-        << std::setw(16) << *beam1
-        << std::setw(16) << *beam2 << "\n";
+        << std::setw(12) << *quality << "\n";
     }
     s << "\n";
   }
+  s << "beam 1 intensities:\n";
+  std::vector<short> const& beam1Intensities = lumiDetails.lumiBeam1Intensities();
+  for (std::vector<short>::const_iterator intensity = beam1Intensities.begin(),
+	                                       iEnd = beam1Intensities.end();
+       intensity != iEnd; ++intensity) {
+    s << *intensity << "\n";
+  }
+  s << "\nbeam 2 intensities:\n";
+  std::vector<short> const& beam2Intensities = lumiDetails.lumiBeam2Intensities();
+  for (std::vector<short>::const_iterator intensity = beam2Intensities.begin(),
+	                                       iEnd = beam2Intensities.end();
+       intensity != iEnd; ++intensity) {
+    s << *intensity << "\n";
+  }
+  s << "\n";
   return s;
 }
