@@ -456,8 +456,7 @@ if 'MessageLogger' in %(dict)s:
       self.options['esmodules'].append( "-RPCGeometryESModule" )
       self.options['esmodules'].append( "-SiStripGainESProducer" )
       self.options['esmodules'].append( "-SiStripRecHitMatcherESProducer" )
-      if not self.config.fastsim:
-        self.options['esmodules'].append( "-SiStripQualityESProducer" )
+      self.options['esmodules'].append( "-SiStripQualityESProducer" )
       self.options['esmodules'].append( "-StripCPEfromTrackAngleESProducer" )
       self.options['esmodules'].append( "-TrackerDigiGeometryESModule" )
       self.options['esmodules'].append( "-TrackerGeometricDetESModule" )
