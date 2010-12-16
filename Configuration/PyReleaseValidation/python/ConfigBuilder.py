@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.275 $"
+__version__ = "$Revision: 1.276 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -244,6 +244,7 @@ class ConfigBuilder(object):
 			theFilterName=anyOf(['f','ftN','filterName'],outDefDict,'')
 			theSelectEvent=anyOf(['s','sE','selectEvents'],outDefDict,'')
 			theModuleLabel=anyOf(['l','mL','moduleLabel'],outDefDict,'')
+			theExtraOutputCommands=anyOf(['o','oC','outputCommands'],outDefDict,'')
 			# module label has a particular role
 			if not theModuleLabel:
 				tryNames=[theStreamType.replace(theTier.replace('-',''),'')+theTier.replace('-','')+'output',
@@ -262,12 +263,15 @@ class ConfigBuilder(object):
 				theFileName+='.root'
 			if len(outDefDict.keys()):
 				raise Exception("unused keys from --output options: "+','.join(outDefDict.keys()))
-			
-			theEventContent = getattr(self.process, theStreamType+"EventContent")
+			if theStreamType=='ALL':
+				theEventContent = cms.PSet(outputCommands = cms.untracked.vstring('keep *'))
+			else:
+				theEventContent = getattr(self.process, theStreamType+"EventContent")
+				
 			if theStreamType=='ALCARECO' and not theFilterName:
 				theFilterName='StreamALCACombined'
 			output = cms.OutputModule("PoolOutputModule",
-						  theEventContent,
+						  theEventContent.clone(),
 						  fileName = cms.untracked.string(theFileName),
 						  dataset = cms.untracked.PSet(
 				                     dataTier = cms.untracked.string(theTier),
@@ -277,7 +281,7 @@ class ConfigBuilder(object):
 				output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
 			if theSelectEvent:
 				output.SelectEvents =cms.untracked.PSet(SelectEvents = cms.vstring(theSelectEvent))
-
+			
 			if hasattr(self.process,theModuleLabel):
 				raise Exception("the current process already has a module "+theModuleLabel+" defined")
 			#print "creating output module ",theModuleLabel
@@ -287,10 +291,18 @@ class ConfigBuilder(object):
 			path=getattr(self.process,theModuleLabel+'_step')
 			self.schedule.append(path)
 
-			if not self._options.inlineEventContent:
-				def doNotInlineEventContent(instance,label = "process."+theStreamType+"EventContent.outputCommands"):
+			if not self._options.inlineEventContent and hasattr(self.process,theStreamType+"EventContent"):
+				def doNotInlineEventContent(instance,label = "cms.untracked.vstring(process."+theStreamType+"EventContent.outputCommands)"):
 					return label
 				outputModule.outputCommands.__dict__["dumpPython"] = doNotInlineEventContent
+			if theExtraOutputCommands:
+				if not isinstance(theExtraOutputCommands,list):
+					raise Exception("extra ouput command in --option must be a list of strings")
+				if hasattr(self.process,theStreamType+"EventContent"):
+					self.executeAndRemember('process.%s.outputCommands.extend(%s)'%(theModuleLabel,theExtraOutputCommands))
+				else:
+					outputModule.outputCommands.extend(theExtraOutputCommands)
+
 			result+="\nprocess."+theModuleLabel+" = "+outputModule.dumpPython()
 
 		##ends the --output options model
@@ -1305,7 +1317,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.275 $"),
+                                            (version=cms.untracked.string("$Revision: 1.276 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
