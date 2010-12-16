@@ -127,6 +127,7 @@ namespace edm {
          }
          RetrievedDataMap::value_type& retrievedData = *itRetrievedData;
          if(itRetrievedData->second.first != r->cacheIdentifier()) {
+            itRetrievedData->second.first = r->cacheIdentifier();
             for(std::map<eventsetup::DataKey,bool>::iterator itDatum = retrievedData.second.second.begin(), itDatumEnd = retrievedData.second.second.end();
                 itDatum != itDatumEnd;
                 ++itDatum) {
