@@ -2026,10 +2026,10 @@ testI2OChain::stream_and_queue_tags()
     CPPUNIT_ASSERT(eventMsgFrag.getDQMEventConsumerTags().size() == 1);
 
     std::vector<stor::StreamID> streamTags = eventMsgFrag.getStreamTags();
-    CPPUNIT_ASSERT(streamTags[0] == streamA);
-    CPPUNIT_ASSERT(streamTags[1] == streamB);
-    CPPUNIT_ASSERT(streamTags[2] == streamC);
-
+    CPPUNIT_ASSERT(std::count(streamTags.begin(),streamTags.end(),streamA) == 1);
+    CPPUNIT_ASSERT(std::count(streamTags.begin(),streamTags.end(),streamB) == 1);
+    CPPUNIT_ASSERT(std::count(streamTags.begin(),streamTags.end(),streamC) == 1);
+    
     streamTags.push_back(999);
     CPPUNIT_ASSERT(eventMsgFrag.getStreamTags().size() == 3);
   }
