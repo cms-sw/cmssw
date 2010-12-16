@@ -306,20 +306,21 @@ TkGluedMeasurementDet::HitCollectorForFastMeasurements::HitCollectorForFastMeasu
 void
 TkGluedMeasurementDet::HitCollectorForFastMeasurements::add(SiStripMatchedRecHit2D const& hit2d) 
 {
-    static std::auto_ptr<TSiStripMatchedRecHit> cache;
-    TSiStripMatchedRecHit::buildInPlace( cache, geomDet_, &hit2d, matcher_ );
-    std::pair<bool,double> diffEst = est_.estimate( stateOnThisDet_, *cache);
-    if ( diffEst.first) {
-        cache->clonePersistentHit(); // clone and take ownership of the persistent 2D hit
-        target_.push_back( 
-                TrajectoryMeasurement( stateOnThisDet_, 
-                                       RecHitPointer(cache.release()), 
-                                       diffEst.second)
-                );
-    } else {
-        cache->clearPersistentHit(); // drop ownership
-    } 
-    hasNewHits_ = true; //FIXME: see also what happens moving this within testAndPush
+  static LocalCache<TSiStripMatchedRecHit> lcache; // in case of pool allocator it will be cleared centrally
+  std::auto_ptr<TSiStripMatchedRecHit> & cache = lcache.ptr;
+  TSiStripMatchedRecHit::buildInPlace( cache, geomDet_, &hit2d, matcher_ );
+  std::pair<bool,double> diffEst = est_.estimate( stateOnThisDet_, *cache);
+  if ( diffEst.first) {
+    cache->clonePersistentHit(); // clone and take ownership of the persistent 2D hit
+    target_.push_back( 
+		      TrajectoryMeasurement( stateOnThisDet_, 
+					     RecHitPointer(cache.release()), 
+					     diffEst.second)
+		       );
+  } else {
+    cache->clearPersistentHit(); // drop ownership
+  } 
+  hasNewHits_ = true; //FIXME: see also what happens moving this within testAndPush
 }
 
 void
