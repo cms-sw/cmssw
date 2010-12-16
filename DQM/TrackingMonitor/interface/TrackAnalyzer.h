@@ -8,7 +8,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackAnalyzer.h,v 1.7 2010/04/19 21:54:38 dutta Exp $
+// $Id: TrackAnalyzer.h,v 1.8 2010/11/23 19:20:30 borrell Exp $
 
 #include <memory>
 #include <fstream>
@@ -70,6 +70,7 @@ class TrackAnalyzer
         MonitorElement* yPointOfClosestApproach;
         MonitorElement* yPointOfClosestApproachVsZ0;
         MonitorElement* zPointOfClosestApproach;
+	MonitorElement* algorithm;
 
         MonitorElement* NumberOfTOBRecHitsPerTrack;
         MonitorElement* NumberOfTOBRecHitsPerTrackVsPhiProfile;
