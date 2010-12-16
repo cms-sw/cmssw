@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.276 $"
+__version__ = "$Revision: 1.277 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -69,15 +69,6 @@ class ConfigBuilder(object):
                 raise Exception("ERROR: You may specify only --data or --mc, not both")
         if not self._options.conditions:
                 raise Exception("ERROR: No conditions given!\nPlease specify conditions. E.g. via --conditions=IDEAL_30X::All")
-        if 'auto:' in self._options.conditions:
-                from autoCond import autoCond
-                key=self._options.conditions.split(':')[-1]
-                if key not in autoCond:
-                        raise Exception('no correspondance for '+self._options.conditions+'\n available keys are'+','.join(autoCond.keys()))
-                else:
-                        self._options.conditions = autoCond[key]
-
-
 
         # what steps are provided by this class?
         stepList = [re.sub(r'^prepare_', '', methodName) for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
@@ -400,6 +391,14 @@ class ConfigBuilder(object):
     def addConditions(self):
         """Add conditions to the process"""
 
+        if 'auto:' in self._options.conditions:
+                from autoCond import autoCond
+                key=self._options.conditions.split(':')[-1]
+                if key not in autoCond:
+                        raise Exception('no correspondance for '+self._options.conditions+'\n available keys are'+','.join(autoCond.keys()))
+                else:
+                        self._options.conditions = autoCond[key]
+
         # the option can be a list of GT name and connection string
 
         #it is insane to keep this replace in: dependency on changes in DataProcessing
@@ -650,10 +649,10 @@ class ConfigBuilder(object):
 
         # the geometry
         if 'FASTSIM' in self.stepMap:
-                if 'START' in self._options.conditions:
+                if 'start' in self._options.conditions.lower():
                         self.GeometryCFF='FastSimulation/Configuration/Geometries_START_cff'
                 else:
-                        self.GeometryCFF='FastSimulation/Configuration/Geometries_cff'
+                        self.GeometryCFF='FastSimulation/Configuration/Geometries_MC_cff'
         else:
                 if self._options.gflash==True:
                         self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'GFlash_cff'
@@ -1317,7 +1316,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.276 $"),
+                                            (version=cms.untracked.string("$Revision: 1.277 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
