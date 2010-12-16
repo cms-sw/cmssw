@@ -47,7 +47,8 @@ create table lumidata(             #verionable data table
      entry_id    uint64 not null references lumidata_entries(entry_id),
      entry_name string,
      source     string,
-     runnum     uint32
+     runnum     uint32,
+     nominalenergy float,
 )
 create index lumidata_entry_id on lumidata(entry_id);
 
@@ -94,7 +95,7 @@ create table lumisummary(         #data table
      beamenergy float,
      cmsbxindexblob blob,
      beamintensityblob_1 blob,
-     beamintesnsityblob_2 blob,
+     beamintensityblob_2 blob,
      numorbit       uint32,
      startorbit   uint32
 )

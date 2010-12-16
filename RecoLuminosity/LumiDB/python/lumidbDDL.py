@@ -52,6 +52,7 @@ def createTables(schema):
             lumidataTab.insertColumn( 'ENTRY_NAME','string')
             lumidataTab.insertColumn( 'SOURCE', 'string')
             lumidataTab.insertColumn( 'RUNNUM', 'unsigned int')
+            lumidataTab.insertColumn( 'NOMINALENERGY', 'float')
             lumidataTab.setPrimaryKey( 'DATA_ID' )
             db.createTable(lumidataTab,withIdTable=True,withEntryTables=True,withRevMapTable=True)
             created.append(nameDealer.lumidataTableName())

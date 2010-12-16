@@ -406,10 +406,14 @@ def addRevision(schema,datatableName,revisioninfo,branchinfo):
         tabrowDefDict['REVISION_ID']='unsigned long long'
         tabrowDefDict['BRANCH_ID']='unsigned long long'
         tabrowDefDict['BRANCH_NAME']='string'
+        tabrowDefDict['CTIME']='time stamp'
+
         tabrowValueDict={}
         tabrowValueDict['REVISION_ID']=revisioninfo[0]
         tabrowValueDict['BRANCH_ID']=branchinfo[0]
         tabrowValueDict['BRANCH_NAME']=branchinfo[1]
+        tabrowValueDict['CTIME']=coral.TimeStamp()
+        
         db.insertOneRow(revisiontableName,tabrowDefDict,tabrowValueDict)
         
         tabrowDefDict={}
@@ -526,7 +530,7 @@ if __name__ == "__main__":
     session.transaction().start(True)
     print branchType(schema,'DATA')
     revlist=revisionsInBranchName(schema,'DATA')
-    print revlist
+    print 'DATA revlist ',revlist
     lumientry_id=entryInBranch(schema,nameDealer.lumidataTableName(),'1211','DATA')
     print lumientry_id
     latestrevision=latestDataRevisionOfEntry(schema,nameDealer.lumidataTableName(),lumientry_id,revlist)
