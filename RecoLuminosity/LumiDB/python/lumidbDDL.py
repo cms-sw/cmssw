@@ -122,7 +122,7 @@ def createTables(schema):
         if not schema.existsTable(nameDealer.lumisummaryTableName() ):
             summary=coral.TableDescription()
             summary.setName( nameDealer.lumisummaryTableName() )
-            summary.insertColumn('LUMISUMMARY_ID','unsigned long long')
+            summary.insertColumn( 'DATA_ID','unsigned long long')
             summary.insertColumn('RUNNUM','unsigned int')
             summary.insertColumn('CMSLSNUM','unsigned int')
             summary.insertColumn('LUMILSNUM','unsigned int')
@@ -147,12 +147,15 @@ def createTables(schema):
         if not schema.existsTable(nameDealer.lumidetailTableName() ):
             detail=coral.TableDescription()
             detail.setName( nameDealer.lumidetailTableName() )
-            detail.insertColumn('LUMIDETAIL_ID','unsigned long long')
-            detail.insertColumn('LUMISUMMARY_ID','unsigned long long')
+            detail.insertColumn('DATA_ID','unsigned long long')
+            detail.insertColumn('RUNNUM','unsigned int')
+            detail.insertColumn('CMSLSNUM','unsigned long long')
+            detail.insertColumn('LUMILSNUM','unsigned long long')
+            detail.insertColumn('ALGONAME','string')
             detail.insertColumn('BXLUMIVALUE','blob')
             detail.insertColumn('BXLUMIERROR','blob')
             detail.insertColumn('BXLUMIQUALITY','blob')
-            detail.insertColumn('ALGONAME','string')
+
             db.createTable(detail,withIdTable=False)
             created.append(nameDealer.lumidetailTableName())
             
@@ -161,8 +164,9 @@ def createTables(schema):
             cmsrunsummary.setName( nameDealer.cmsrunsummaryTableName() )
             cmsrunsummary.insertColumn('RUNNUM','unsigned int')
             cmsrunsummary.insertColumn('HLTKEY','string')
-            cmsrunsummary.insertColumn('FILLNUM','unsigned int')
+            cmsrunsummary.insertColumn('L1KEY','string')
             cmsrunsummary.insertColumn('SEQUENCE','string')
+            cmsrunsummary.insertColumn('FILLNUM','unsigned int')
             cmsrunsummary.insertColumn('STARTTIME','time stamp',6)
             cmsrunsummary.insertColumn('STOPTIME','time stamp',6)
             cmsrunsummary.setPrimaryKey('RUNNUM')

@@ -17,6 +17,7 @@ def lumiSummary(schema,nlumils):
         instlumierror=0.56
         instlumiquality=2
         beamstatus='STABLE BEAMS'
+        beamenergy=3.5e03
         cmsbxindex=array.array('I')
         beam1intensity=array.array('f')
         beam2intensity=array.array('f')
@@ -31,7 +32,7 @@ def lumiSummary(schema,nlumils):
         beam2intensityBlob=CommonUtil.packArraytoBlob(beam2intensity)
         if not perlsdata.has_key(lumilsnum):
             perlsdata[lumilsnum]=[]
-        perlsdata[lumilsnum].extend([cmslsnum,cmsalive,instlumi,instlumierror,instlumiquality,beamstatus,cmsbxindexBlob,beam1intensityBlob,beam2intensityBlob])
+        perlsdata[lumilsnum].extend([cmslsnum,cmsalive,instlumi,instlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit,cmsbxindexBlob,beam1intensityBlob,beam2intensityBlob])
     o.append(perlsdata)
     return o
 def lumiDetail(schema,nlumils):
@@ -42,7 +43,6 @@ def lumiDetail(schema,nlumils):
     o=[]
     algos=['OCC1','OCC2','ET']
     for algoname in algos:
-        o.append(algoname)
         perlsdata={}
         for lumilsnum in range(1,nlumils+1):
             cmslsnum=0
@@ -62,7 +62,7 @@ def lumiDetail(schema,nlumils):
             if not perlsdata.has_key(lumilsnum):
                 perlsdata[lumilsnum]=[]
             perlsdata[lumilsnum].extend([cmslsnum,bxlumivalueBlob,bxlumierrorBlob,bxlumiqualityBlob])           
-        o.append(perlsdata)
+        o.append((algoname,perlsdata))
     return o
 def trg(schema,nls):
     '''
