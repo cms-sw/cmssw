@@ -57,7 +57,7 @@ eval `scramv1 run -sh`
 if [ -f o2o-setIOV.lock ]
     then
     echo "$0 already running.  Aborting process."  | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
-    tail -2 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
+    tail -3 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
     exit 50
 else
     touch o2o-setIOV.lock
