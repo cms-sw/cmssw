@@ -311,7 +311,7 @@ namespace edm
 	unsigned int sizenew = (iEB->second).size();
 	unsigned int sizeold = EB_old.size();
 
-	unsigned int max_samp = max(sizenew, sizeold);
+	unsigned int max_samp = std::max(sizenew, sizeold);
 
 	// samples from different events can be of different lengths - sum all
 	// that overlap.
@@ -425,7 +425,7 @@ namespace edm
 	unsigned int sizenew = (iEE->second).size();
 	unsigned int sizeold = EE_old.size();
 
-	unsigned int max_samp = max(sizenew, sizeold);
+	unsigned int max_samp = std::max(sizenew, sizeold);
 
 	// samples from different events can be of different lengths - sum all
 	// that overlap.
@@ -525,7 +525,7 @@ namespace edm
 	unsigned int sizenew = (iES->second).size();
 	unsigned int sizeold = ES_old.size();
 	uint16_t rawdat = 0;
-	unsigned int max_samp = max(sizenew, sizeold);
+	unsigned int max_samp = std::max(sizenew, sizeold);
 
 	// samples from different events can be of different lengths - sum all
 	// that overlap.
@@ -547,7 +547,7 @@ namespace edm
 	  // add values
 	  adc_sum = adc_new + adc_old;
 	  // make data word of gain, rawdata
-	  adc_sum = min(adc_sum,4095); //first 12 bits of (uint)
+	  adc_sum = std::min(adc_sum,4095); //first 12 bits of (uint)
 	  data = adc_sum+(rawdat&0xF000); // data is 14 bit word with gain as MSBs
 	  ES_old.setSample(isamp,data);
 	}

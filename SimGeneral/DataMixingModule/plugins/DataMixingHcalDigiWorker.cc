@@ -460,7 +460,7 @@ namespace edm
 
 	if(sizenew > sizeold) usenew = true;
 
-	unsigned int max_samp = max(sizenew, sizeold);
+	unsigned int max_samp = std::max(sizenew, sizeold);
 
 	CaloSamples HB_bigger(currentID,max_samp);	
 
@@ -555,7 +555,7 @@ namespace edm
         unsigned int sizenew = (iHO->second).size();
         unsigned int sizeold = HO_old.size();
 
-        unsigned int max_samp = max(sizenew, sizeold);
+        unsigned int max_samp = std::max(sizenew, sizeold);
 
         CaloSamples HO_bigger(currentID,max_samp);
 
@@ -646,7 +646,7 @@ namespace edm
         unsigned int sizenew = (iHF->second).size();
         unsigned int sizeold = HF_old.size();
 
-        unsigned int max_samp = max(sizenew, sizeold);
+        unsigned int max_samp = std::max(sizenew, sizeold);
 
         CaloSamples HF_bigger(currentID,max_samp);
 
@@ -738,7 +738,7 @@ namespace edm
         unsigned int sizenew = (iZDC->second).size();
         unsigned int sizeold = ZDC_old.size();
 
-        unsigned int max_samp = max(sizenew, sizeold);
+        unsigned int max_samp = std::max(sizenew, sizeold);
 
         CaloSamples ZDC_bigger(currentID,max_samp);
 
