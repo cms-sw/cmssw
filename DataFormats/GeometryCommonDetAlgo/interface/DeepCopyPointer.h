@@ -1,6 +1,9 @@
 #ifndef DeepCopyPointer_H
 #define DeepCopyPointer_H
 
+
+#include<algorithm>
+
 /** A "smart" pointer that implements deep copy and ownership.
  *  In other words, when the pointer is copied it copies the 
  *  object it points to using "new". It also deletes the
@@ -13,23 +16,27 @@ template <class T>
 class DeepCopyPointer {
 public:
   
+  ~DeepCopyPointer() { delete theData;}
+
   DeepCopyPointer() : theData(0) {}
 
   DeepCopyPointer( T* t) : theData(t) {}
 
-  DeepCopyPointer( const DeepCopyPointer& other) {
-    if (other.theData) theData = new T( *other); else theData = 0;
+
+
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+  // straight from http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2006/n2027.html
+
+  DeepCopyPointer( DeepCopyPointer&& other) : theData(other.theData) {
+    other.theData=0;
   }
 
-  ~DeepCopyPointer() { delete theData;}
-
-  DeepCopyPointer& operator=( const DeepCopyPointer& other) {
-    if ( theData != other.theData) {
-      delete theData;
-      if (other.theData) theData = new T( *other); else theData = 0;
-    }
+  DeepCopyPointer& operator=( DeepCopyPointer&& other) {
+    std::swap(theData,other.theData);
     return *this;
   }
+#endif
+
 
   /// Assing a new bare pointer to this DeepCopyPointer, taking ownership of it.
   /// The old content of this DeepCopyPointer is deleted 
