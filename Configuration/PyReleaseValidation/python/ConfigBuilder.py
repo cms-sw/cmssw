@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.277 $"
+__version__ = "$Revision: 1.278 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -346,13 +346,26 @@ class ConfigBuilder(object):
         Add selected standard sequences to the process
         """
         # load the pile up file
-        if not self.PileupCFF == '':
-                try:
-                        self.loadAndRemember(self.PileupCFF)
-                except ImportError:
-                        print "Pile up option",self._options.pileup,"unknown."
-                        raise
+	if self._options.pileup:
+		pileupSpec=self._options.pileup.split(',')[0]
+		from Configuration.StandardSequences.Mixing import Mixing,defineMixing
+		if not pileupSpec in Mixing and '.' not in pileupSpec:
+			raise Exception(pileupSpec+' is not a know mixing scenario:\n available are: '+'\n'.join(Mixing.keys()))
+		if '.' in pileupSpec:
+			mixingDict={'file':pileupSpec}
+		else:
+			mixingDict=Mixing[pileupSpec]
+		if len(self._options.pileup.split(','))>1:
+			mixingDict.update(eval(self._options.pileup[self._options.pileup.find(',')+1:]))
+		self.loadAndRemember(mixingDict['file'])
+		mixingDict.pop('file')
+		specialization=defineMixing(mixingDict,'FASTSIM' in self.stepMap)
+		for command in specialization:
+			self.executeAndRemember(command)
+		if len(mixingDict)!=0:
+			raise Exception('unused mixing specification: '+mixingDict.keys().__str__())
 
+		
         # load the geometry file
         try:
                 self.loadAndRemember(self.GeometryCFF)
@@ -660,15 +673,14 @@ class ConfigBuilder(object):
                         self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'_cff'
 
         # Mixing
+	#not driven by a default cff anymore
+	if self._options.isData:
+		self._options.pileup=None
         if self._options.isMC==True and self._options.himix==False:
                 if 'FASTSIM' in self.stepMap:
-                        self.PileupCFF='FastSimulation/PileUpProducer/PileUpSimulator_'+self._options.pileup+'_cff'
-                else:
-                        self.PileupCFF='Configuration/StandardSequences/Mixing'+self._options.pileup+'_cff'
+			self._options.pileup='FS_'+self._options.pileup
         elif self._options.isMC==True and self._options.himix==True:
-            self.PileupCFF='Configuration/StandardSequences/HiEventMixing_cff'
-        else:
-            self.PileupCFF=''
+		self._options.pileup='HiMix'
 
         if self._options.eventcontent != None:
             self.eventcontent=self._options.eventcontent
@@ -1316,7 +1328,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.277 $"),
+                                            (version=cms.untracked.string("$Revision: 1.278 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
