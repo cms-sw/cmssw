@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/07/14 15:30:06 $
- *  $Revision: 1.29 $
+ *  $Date: 2010/12/17 14:10:01 $
+ *  $Revision: 1.30 $
  *
  *  \author Martin Grunewald
  *
@@ -58,19 +58,19 @@ class HLTConfigProvider {
 
   /// Accessors (const methods)
 
-  /// RunID                                                                     
+  /// RunID
   const edm::RunID& runID() const {
     return hltConfigData_->runID();
   }
-  /// process name                                                              
+  /// process name
   const std::string& processName() const {
     return hltConfigData_->processName();
   }
-  /// init                                                                      
-  const bool init() const {
-    return hltConfigData_->init();
+  /// initialised?
+  const bool inited() const {
+    return hltConfigData_->inited();
   }
-  /// changed                                                                   
+  /// changed?
   const bool changed() const {
     return hltConfigData_->changed();
   }

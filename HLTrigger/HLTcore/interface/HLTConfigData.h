@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/07/14 15:30:06 $
- *  $Revision: 1.29 $
+ *  $Date: 2010/12/17 14:10:01 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -58,9 +58,9 @@ class HLTConfigData {
   const edm::RunID& runID() const;
   /// process name
   const std::string& processName() const;
-  /// init
-  const bool init() const;
-  /// changed
+  /// inititialised?
+  const bool inited() const;
+  /// changed?
   const bool changed() const;
 
   /// number of trigger paths in trigger table
@@ -160,7 +160,8 @@ class HLTConfigData {
  public:
   /// c'tor
   HLTConfigData():
-    runID_(0), processName_(""), init_(false), changed_(true), processPSet_(),
+    runID_(0), processName_(""),
+    inited_(false), changed_(true), processPSet_(),
     tableName_(), triggerNames_(), moduleLabels_(),
     triggerIndex_(), moduleIndex_(),
     hltL1GTSeeds_(),
@@ -172,7 +173,7 @@ class HLTConfigData {
 
   edm::RunID  runID_;
   std::string processName_;
-  bool init_;
+  bool inited_;
   bool changed_;
   edm::ParameterSet processPSet_;
 

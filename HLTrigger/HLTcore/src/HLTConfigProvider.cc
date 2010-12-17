@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/07/14 15:30:08 $
- *  $Revision: 1.50 $
+ *  $Date: 2010/12/17 14:10:01 $
+ *  $Revision: 1.51 $
  *
  *  \author Martin Grunewald
  *
@@ -21,5 +21,5 @@ bool HLTConfigProvider::init(const edm::Run& iRun,
     hltConfigData_=hltConfigService_->hltConfigData(processName);
   }
   changed=hltConfigData_->changed();
-  return  hltConfigData_->init();
+  return  hltConfigData_->inited();
 }

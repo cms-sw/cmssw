@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/07/14 15:30:08 $
- *  $Revision: 1.50 $
+ *  $Date: 2010/12/17 14:10:01 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -62,14 +62,14 @@ void HLTConfigData::init(const edm::ProcessHistory& iHistory, const std::string&
      ParameterSet processPSet;
      if ((processPSet_!=ParameterSet()) && (processConfiguration.parameterSetID() == processPSet_.id())) {
        changed_=false;
-       init_=true;
+       inited_=true;
        return;
      } else if (pset::Registry::instance()->getMapped(processConfiguration.parameterSetID(),processPSet)) {
        if (processPSet==ParameterSet()) {
 	 clear();
 	 LogError("HLTConfigData") << "ProcessPSet found is empty!";
 	 changed_=true;
-	 init_=false;
+	 inited_=false;
 	 return;
        } else {
 	 clear();
@@ -77,21 +77,21 @@ void HLTConfigData::init(const edm::ProcessHistory& iHistory, const std::string&
 	 processPSet_=processPSet;
 	 extract();
 	 changed_=true;
-	 init_=true;
+	 inited_=true;
 	 return;
        }
      } else {
        clear();
        LogError("HLTConfigData") << "ProcessPSet not found in regsistry!";
        changed_=true;
-       init_=false;
+       inited_=false;
        return;
      }
    } else {
      LogError("HLTConfigData") << "Falling back to processName-only init!";
      clear();
      init(processName);
-     if (!init_) {
+     if (!inited_) {
        LogError("HLTConfigData") << "ProcessName not found in history!";
      }
      return;
@@ -194,7 +194,7 @@ void HLTConfigData::clear()
 
    runID_       = RunID(0);
    processName_ = "";
-   init_        = false;
+   inited_      = false;
    changed_     = true;
 
    processPSet_ = ParameterSet();
@@ -463,8 +463,8 @@ const edm::RunID& HLTConfigData::runID() const {
 const std::string& HLTConfigData::processName() const {
   return processName_;
 }
-const bool HLTConfigData::init() const {
-  return init_;
+const bool HLTConfigData::inited() const {
+  return inited_;
 }
 const bool HLTConfigData::changed() const {
   return changed_;
