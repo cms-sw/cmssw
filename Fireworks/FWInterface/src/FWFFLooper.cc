@@ -165,15 +165,20 @@ FWFFLooper::FWFFLooper(edm::ParameterSet const&ps)
    setGeometryFilename(geometryFilename);
    setConfigFilename(displayConfigFilename);
 
-   CmsShowTaskExecutor::TaskFunctor f;
-
-   if (!geometryFilename.empty())
+   if( !geometryFilename.empty())
    {
-      f=boost::bind(&CmsShowMainBase::loadGeometry,this);
-      startupTasks()->addTask(f);
+      loadDefaultGeometryFile();
    }
 
    m_MagField = new CmsEveMagField();
+}
+
+void
+FWFFLooper::loadDefaultGeometryFile( void )
+{
+   CmsShowTaskExecutor::TaskFunctor f;
+   f=boost::bind( &CmsShowMainBase::loadGeometry, this );
+   startupTasks()->addTask( f );
 }
 
 void
@@ -264,11 +269,18 @@ FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
    {
       if (m_context->getGeom() == 0)
       {
-         guiManager()->updateStatus("Loading geometry...");
-         edm::ESTransientHandle<FWRecoGeometry> geoh;
-         iSetup.get<FWRecoGeometryRecord>().get(geoh);
-         getGeom().initMap(geoh.product()->idToName);
-         m_context->setGeom(&(getGeom()));
+	 try
+	 {
+	    guiManager()->updateStatus("Loading geometry...");
+	    edm::ESTransientHandle<FWRecoGeometry> geoh;
+	    iSetup.get<FWRecoGeometryRecord>().get(geoh);
+	    getGeom().initMap(geoh.product()->idToName);
+	    m_context->setGeom(&(getGeom()));
+	 }
+	 catch( const cms::Exception& exception )
+	 {
+	    loadDefaultGeometryFile();
+	 }
       }
 
       setupViewManagers();
@@ -296,11 +308,15 @@ FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
    {
       printf("Could not extract run-conditions get-result=%d, is-valid=%d\n", res, runCond.isValid());
 
-      edm::ESHandle<RunInfo> sum;
-      iSetup.get<RunInfoRcd>().get(sum);
+      const edm::eventsetup::EventSetupRecord* rec = iSetup.find( edm::eventsetup::EventSetupRecordKey::makeKey<RunInfoRcd>());
+      if( 0 != rec )
+      {
+	 edm::ESHandle<RunInfo> sum;
+	 iSetup.get<RunInfoRcd>().get(sum);
 
-      current = sum->m_avg_current;
-      printf("Got current from RunInfoRcd %f\n", sum->m_avg_current);
+	 current = sum->m_avg_current;
+	 printf("Got current from RunInfoRcd %f\n", sum->m_avg_current);
+      }
    }
 
    static_cast<CmsEveMagField*>(m_MagField)->SetFieldByCurrent(current);
