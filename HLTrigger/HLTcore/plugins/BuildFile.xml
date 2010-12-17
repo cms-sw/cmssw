@@ -8,5 +8,6 @@
   <use   name="DataFormats/RecoCandidate"/>
   <use   name="HLTrigger/HLTcore"/>
   <use   name="FWCore/PrescaleService"/>
+  <use   name="FWCore/ServiceRegistry"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
