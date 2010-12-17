@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_10_0/GRun/V2 (CMSSW_3_10_0_pre6_HLT2)
+# /dev/CMSSW_3_10_0/GRun/V3 (CMSSW_3_10_0_pre6_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_10_0/GRun/V2')
+  tableName = cms.string('/dev/CMSSW_3_10_0/GRun/V3')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -2192,6 +2192,8 @@ process.DQMStore = cms.Service( "DQMStore",
 process.DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
     getSCInfo = cms.untracked.bool( True ),
     processingMode = cms.untracked.string( "HLT" )
+)
+process.HLTConfigService = cms.Service( "HLTConfigService",
 )
 process.MessageLogger = cms.Service( "MessageLogger",
     destinations = cms.untracked.vstring( 'warnings',
