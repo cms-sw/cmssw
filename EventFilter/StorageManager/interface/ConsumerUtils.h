@@ -1,4 +1,4 @@
-// $Id: ConsumerUtils.h,v 1.6 2010/04/16 12:31:34 mommsen Exp $
+// $Id: ConsumerUtils.h,v 1.7 2010/04/16 14:39:05 mommsen Exp $
 /// @file: ConsumerUtils.h 
 
 #ifndef StorageManager_ConsumerUtils_h
@@ -32,8 +32,8 @@ namespace stor
      Handles consumer requests and responses
 
      $Author: mommsen $
-     $Revision: 1.6 $
-     $Date: 2010/04/16 12:31:34 $
+     $Revision: 1.7 $
+     $Date: 2010/04/16 14:39:05 $
   */
 
   class ConsumerUtils
@@ -141,7 +141,7 @@ namespace stor
     /**
       Extract consumer ID from header request:
     */
-    ConsumerID getConsumerID(xgi::Input*) const;
+    ConsumerID getConsumerId(xgi::Input*) const;
 
     /**
       Send header to consumer:

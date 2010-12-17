@@ -38,9 +38,8 @@
   </bin>
   <bin   file="EventStreamConfigurationInfo_t.cpp">
   </bin>
-  <bin   file="EventConsumerRegistrationInfo_t.cpp">
-  </bin>
-  <bin   file="DQMEventConsumerRegistrationInfo_t.cpp">
+  <bin   file="ConsumerRegistrationInfo_t.cpp">
+    <use   name="cppunit"/>
   </bin>
   <bin   file="workloop_t.cpp">
   </bin>

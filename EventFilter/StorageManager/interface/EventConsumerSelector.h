@@ -1,4 +1,4 @@
-// $Id: EventConsumerSelector.h,v 1.5 2009/12/01 13:58:08 mommsen Exp $
+// $Id: EventConsumerSelector.h,v 1.6 2010/12/16 16:35:29 mommsen Exp $
 /// @file: EventConsumerSelector.h 
 
 #ifndef StorageManager_EventConsumerSelector_h
@@ -18,8 +18,8 @@ namespace stor {
    * registration info objects.
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/12/01 13:58:08 $
+   * $Revision: 1.6 $
+   * $Date: 2010/12/16 16:35:29 $
    */
 
   class EventConsumerSelector
@@ -84,8 +84,7 @@ namespace stor {
     /**
        Comparison:
     */
-    bool operator<(const EventConsumerSelector& other) const
-    { return ( _registrationInfo < other._registrationInfo ); }
+    bool operator<(const EventConsumerSelector& other) const;
 
   private:
 

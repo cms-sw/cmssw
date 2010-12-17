@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.53 2010/12/03 16:15:31 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.54 2010/12/14 12:56:52 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #ifdef __APPLE__
@@ -1397,7 +1397,7 @@ void WebPageHelper::addDOMforEventConsumers
 
     // ID:
     std::ostringstream cid;
-    cid << (*it)->consumerID();
+    cid << (*it)->consumerId();
     tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
     maker.addText(tableDiv, cid.str());
     
@@ -1436,8 +1436,8 @@ void WebPageHelper::addDOMforEventConsumers
     std::string filters = (*it)->triggerSelection();
     if ( filters.empty() )
     {
-      const EventConsumerRegistrationInfo::FilterList fl = (*it)->selEvents();
-      for( EventConsumerRegistrationInfo::FilterList::const_iterator
+      const Strings fl = (*it)->eventSelection();
+      for( Strings::const_iterator
              lit = fl.begin(), litEnd = fl.end();
            lit != litEnd; ++lit )
       {
@@ -1635,7 +1635,7 @@ void WebPageHelper::addDOMforDQMEventConsumers
 
     // ID:
     std::ostringstream cid;
-    cid << (*it)->consumerID();
+    cid << (*it)->consumerId();
     tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
     maker.addText(tableDiv, cid.str());
     

@@ -1,4 +1,4 @@
-// $Id: DQMEventSelector.cc,v 1.3 2009/07/20 13:07:27 mommsen Exp $
+// $Id: DQMEventSelector.cc,v 1.4 2010/12/16 16:35:29 mommsen Exp $
 /// @file: DQMEventSelector.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventSelector.h"
@@ -12,6 +12,15 @@ bool DQMEventSelector::acceptEvent( const I2OChain& ioc )
   if( _registrationInfo.topLevelFolderName() == ioc.topFolderName() ) return true;
   return false;
 }
+
+
+bool DQMEventSelector::operator<(const DQMEventSelector& other) const
+{
+  if ( queueId() != other.queueId() )
+    return ( queueId() < other.queueId() );
+  return ( _registrationInfo < other._registrationInfo );
+}
+
 
 
 /// emacs configuration

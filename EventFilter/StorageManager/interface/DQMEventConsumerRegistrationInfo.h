@@ -1,4 +1,4 @@
-// $Id: DQMEventConsumerRegistrationInfo.h,v 1.6 2010/04/16 14:39:34 mommsen Exp $
+// $Id: DQMEventConsumerRegistrationInfo.h,v 1.7 2010/12/16 16:35:29 mommsen Exp $
 /// @file: DQMEventConsumerRegistrationInfo.h 
 
 #ifndef StorageManager_DQMEventConsumerRegistrationInfo_h
@@ -7,6 +7,7 @@
 #include <iosfwd>
 #include <string>
 
+#include "IOPool/Streamer/interface/HLTInfo.h"
 #include "EventFilter/StorageManager/interface/RegistrationInfoBase.h"
 #include "EventFilter/StorageManager/interface/CommonRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
@@ -17,8 +18,8 @@ namespace stor
    * Holds the registration information for a DQM event consumer.
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2010/04/16 14:39:34 $
+   * $Revision: 1.7 $
+   * $Date: 2010/12/16 16:35:29 $
    */
 
   class DQMEventConsumerRegistrationInfo : public RegistrationInfoBase
@@ -49,6 +50,8 @@ namespace stor
 
     // Comparison:
     bool operator<(const DQMEventConsumerRegistrationInfo&) const;
+    bool operator==(const DQMEventConsumerRegistrationInfo&) const;
+    bool operator!=(const DQMEventConsumerRegistrationInfo&) const;
 
     // Output:
     std::ostream& write(std::ostream& os) const;
@@ -56,10 +59,10 @@ namespace stor
     // Implementation of the Template Method pattern.
     virtual void do_registerMe(EventDistributor*);
     virtual QueueID do_queueId() const;
-    virtual void do_setQueueID(QueueID const& id);
+    virtual void do_setQueueId(QueueID const& id);
     virtual std::string do_consumerName() const;
-    virtual ConsumerID do_consumerID() const;
-    virtual void do_setConsumerID(ConsumerID const& id);
+    virtual ConsumerID do_consumerId() const;
+    virtual void do_setConsumerId(ConsumerID const& id);
     virtual int do_queueSize() const;
     virtual enquing_policy::PolicyTag do_queuePolicy() const;
     virtual utils::duration_t do_secondsToStale() const;

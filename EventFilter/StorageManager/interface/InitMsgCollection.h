@@ -1,10 +1,8 @@
-// $Id: InitMsgCollection.h,v 1.10 2010/05/17 15:59:09 mommsen Exp $
+// $Id: InitMsgCollection.h,v 1.11 2010/08/06 20:24:30 wmtan Exp $
 /// @file: InitMsgCollection.h 
 
 #ifndef StorageManager_InitMsgCollection_h
 #define StorageManager_InitMsgCollection_h
-
-#include "EventFilter/StorageManager/interface/ConsumerID.h"
 
 #include "IOPool/Streamer/interface/InitMessage.h"
 
@@ -23,9 +21,9 @@ namespace stor
      that have been received by the storage manager and will be sent
      to event consumers and written to output streams.
 
-     $Author: mommsen $
-     $Revision: 1.10 $
-     $Date: 2010/05/17 15:59:09 $
+     $Author: wmtan $
+     $Revision: 1.11 $
+     $Date: 2010/08/06 20:24:30 $
   */
 
   typedef std::vector<unsigned char> InitMsgBuffer;

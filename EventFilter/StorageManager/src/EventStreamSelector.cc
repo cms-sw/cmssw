@@ -1,4 +1,4 @@
-// $Id: EventStreamSelector.cc,v 1.11 2009/12/01 17:50:40 smorovic Exp $
+// $Id: EventStreamSelector.cc,v 1.12 2010/02/08 11:57:59 mommsen Exp $
 /// @file: EventStreamSelector.cc
 
 #include <cstdlib>
@@ -35,7 +35,7 @@ void EventStreamSelector::initialize( const InitMsgView& imv )
 
   edm::ParameterSet pset;
   pset.addParameter<std::string>( "TriggerSelector", _configInfo.triggerSelection() );
-  pset.addParameter<Strings>( "SelectEvents", _configInfo.selEvents() );
+  pset.addParameter<Strings>( "SelectEvents", _configInfo.eventSelection() );
 
   Strings tnames;
   imv.hltTriggerNames( tnames );

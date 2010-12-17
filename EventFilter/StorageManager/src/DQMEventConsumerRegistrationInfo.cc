@@ -1,4 +1,4 @@
-// $Id: DQMEventConsumerRegistrationInfo.cc,v 1.7 2010/08/06 20:24:30 wmtan Exp $
+// $Id: DQMEventConsumerRegistrationInfo.cc,v 1.8 2010/12/16 16:35:29 mommsen Exp $
 /// @file: DQMEventConsumerRegistrationInfo.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventConsumerRegistrationInfo.h"
@@ -48,7 +48,7 @@ namespace stor
   }
 
   void
-  DQMEventConsumerRegistrationInfo::do_setQueueID(QueueID const& id)
+  DQMEventConsumerRegistrationInfo::do_setQueueId(QueueID const& id)
   {
     _common._queueId = id;
   }
@@ -60,13 +60,13 @@ namespace stor
   }
 
   ConsumerID
-  DQMEventConsumerRegistrationInfo::do_consumerID() const
+  DQMEventConsumerRegistrationInfo::do_consumerId() const
   {
     return _common._consumerId;
   }
 
   void
-  DQMEventConsumerRegistrationInfo::do_setConsumerID(ConsumerID const& id)
+  DQMEventConsumerRegistrationInfo::do_setConsumerId(ConsumerID const& id)
   {
     _common._consumerId = id;
   }
@@ -99,6 +99,23 @@ namespace stor
     if ( _common._queuePolicy != other.queuePolicy() )
       return ( _common._queuePolicy < other.queuePolicy() );
     return ( _common._secondsToStale < other.secondsToStale() );
+  }
+
+  bool
+  DQMEventConsumerRegistrationInfo::operator==(const DQMEventConsumerRegistrationInfo& other) const
+  {
+    return (
+      _topLevelFolderName == other.topLevelFolderName() &&
+      _common._queueSize == other.queueSize() &&
+      _common._queuePolicy == other.queuePolicy() &&
+      _common._secondsToStale == other.secondsToStale()
+    );
+  }
+
+  bool
+  DQMEventConsumerRegistrationInfo::operator!=(const DQMEventConsumerRegistrationInfo& other) const
+  {
+    return ! ( *this == other );
   }
 
   std::ostream&

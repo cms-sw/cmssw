@@ -1,4 +1,4 @@
-// $Id: DQMEventSelector.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
+// $Id: DQMEventSelector.h,v 1.4 2010/12/16 16:35:29 mommsen Exp $
 /// @file: DQMEventSelector.h 
 
 #ifndef StorageManager_DQMEventSelector_h
@@ -16,8 +16,8 @@ namespace stor
    * DQM event selector
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.4 $
+   * $Date: 2010/12/16 16:35:29 $
    */
 
   class DQMEventSelector
@@ -59,8 +59,7 @@ namespace stor
     /**
        Comparison:
     */
-    bool operator<(const DQMEventSelector& other) const
-    { return ( _registrationInfo < other._registrationInfo ); }
+    bool operator<(const DQMEventSelector& other) const;
 
   private:
 

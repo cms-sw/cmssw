@@ -1,4 +1,4 @@
-// $Id: RegistrationInfoBase.h,v 1.4 2010/02/16 10:49:52 mommsen Exp $
+// $Id: RegistrationInfoBase.h,v 1.5 2010/04/16 14:39:34 mommsen Exp $
 /// @file: RegistrationInfoBase.h 
 
 #ifndef StorageManager_RegistrationInfoBase_h
@@ -22,8 +22,8 @@ namespace stor {
    * registration info objects.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2010/02/16 10:49:52 $
+   * $Revision: 1.5 $
+   * $Date: 2010/04/16 14:39:34 $
    */
 
   class RegistrationInfoBase
@@ -57,7 +57,7 @@ namespace stor {
     /**
        Set the consumer ID.
      */
-    void setQueueID(QueueID const& id);
+    void setQueueId(QueueID const& id);
 
     /**
      * Returns the enquing policy requested by the consumer
@@ -73,12 +73,12 @@ namespace stor {
     /**
        Returns the ID given to this consumer.
      */
-    ConsumerID consumerID() const;
+    ConsumerID consumerId() const;
 
     /**
        Set the consumer ID.
      */
-    void setConsumerID(const ConsumerID& id);
+    void setConsumerId(const ConsumerID& id);
 
     /**
        Returns the queue Size
@@ -94,10 +94,10 @@ namespace stor {
   private:
     virtual void do_registerMe(EventDistributor*) = 0;
     virtual QueueID do_queueId() const = 0;
-    virtual void do_setQueueID(QueueID const& id) = 0;
+    virtual void do_setQueueId(QueueID const& id) = 0;
     virtual std::string do_consumerName() const = 0;
-    virtual ConsumerID do_consumerID() const = 0;
-    virtual void do_setConsumerID(ConsumerID const& id) = 0;
+    virtual ConsumerID do_consumerId() const = 0;
+    virtual void do_setConsumerId(ConsumerID const& id) = 0;
     virtual int do_queueSize() const = 0;
     virtual enquing_policy::PolicyTag do_queuePolicy() const = 0;
     virtual utils::duration_t do_secondsToStale() const = 0;
@@ -108,7 +108,7 @@ namespace stor {
   inline
   bool RegistrationInfoBase::isValid()
   {
-    return consumerID().isValid();
+    return consumerId().isValid();
   }
 
   inline
@@ -124,9 +124,9 @@ namespace stor {
   }
 
   inline
-  void RegistrationInfoBase::setQueueID(QueueID const& id)
+  void RegistrationInfoBase::setQueueId(QueueID const& id)
   {
-    do_setQueueID(id);
+    do_setQueueId(id);
   }
 
   inline
@@ -142,15 +142,15 @@ namespace stor {
   }
 
   inline
-  ConsumerID RegistrationInfoBase::consumerID() const
+  ConsumerID RegistrationInfoBase::consumerId() const
   {
-    return do_consumerID();
+    return do_consumerId();
   }
 
   inline
-  void RegistrationInfoBase::setConsumerID(ConsumerID const& id)
+  void RegistrationInfoBase::setConsumerId(ConsumerID const& id)
   {
-    do_setConsumerID(id);
+    do_setConsumerId(id);
   }
 
   inline

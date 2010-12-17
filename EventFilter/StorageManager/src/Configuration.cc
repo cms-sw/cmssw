@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.39 2010/12/10 19:38:48 mommsen Exp $
+// $Id: Configuration.cc,v 1.40 2010/12/14 12:56:52 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -594,7 +594,7 @@ namespace stor
               endPathPSet.getParameter<std::string> ("streamLabel");
             int maxFileSizeMB = endPathPSet.getParameter<int> ("maxSize");
             std::string newRequestedEvents = endPathPSet.getUntrackedParameter("TriggerSelector",std::string());
-            EventStreamConfigurationInfo::FilterList requestedEvents =
+            Strings requestedEvents =
               edm::EventSelector::getEventSelectionVString(endPathPSet);
             std::string requestedOMLabel =
               endPathPSet.getUntrackedParameter<std::string>("SelectHLTOutput",

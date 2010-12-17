@@ -1,4 +1,4 @@
-// $Id: EventStreamConfigurationInfo.cc,v 1.9 2010/12/10 13:23:43 mommsen Exp $
+// $Id: EventStreamConfigurationInfo.cc,v 1.10 2010/12/16 16:35:29 mommsen Exp $
 /// @file: EventStreamConfigurationInfo.cc
 
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
@@ -13,8 +13,8 @@ bool EventStreamConfigurationInfo::operator<(const EventStreamConfigurationInfo&
     return ( _outputModuleLabel < other.outputModuleLabel() );
   if ( _triggerSelection != other.triggerSelection() )
     return ( _triggerSelection < other.triggerSelection() );
-  if ( _selEvents != other.selEvents() )
-    return ( _selEvents < other.selEvents() );
+  if ( _eventSelection != other.eventSelection() )
+    return ( _eventSelection < other.eventSelection() );
   if ( _streamLabel != other.streamLabel() )
     return ( _streamLabel < other.streamLabel() );
   if ( _streamId != other.streamId() )
@@ -43,9 +43,9 @@ std::ostream& stor::operator<<
     os << std::endl << ci.triggerSelection();
   }
   else
-    for( unsigned int i = 0; i < ci.selEvents().size(); ++i )
+    for( unsigned int i = 0; i < ci.eventSelection().size(); ++i )
     {
-      os << std::endl << "  " << ci.selEvents()[i];
+      os << std::endl << "  " << ci.eventSelection()[i];
     }
   
   return os;

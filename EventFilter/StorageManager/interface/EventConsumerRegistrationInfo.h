@@ -1,4 +1,4 @@
-// $Id: EventConsumerRegistrationInfo.h,v 1.10 2010/04/19 10:35:09 mommsen Exp $
+// $Id: EventConsumerRegistrationInfo.h,v 1.11 2010/12/16 16:35:29 mommsen Exp $
 /// @file: EventConsumerRegistrationInfo.h 
 
 #ifndef StorageManager_EventConsumerRegistrationInfo_h
@@ -10,6 +10,7 @@
 
 #include "boost/shared_ptr.hpp"
 
+#include "IOPool/Streamer/interface/HLTInfo.h"
 #include "EventFilter/StorageManager/interface/RegistrationInfoBase.h"
 #include "EventFilter/StorageManager/interface/CommonRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
@@ -20,8 +21,8 @@ namespace stor
    * Holds the registration information from a event consumer.
    *
    * $Author: mommsen $
-   * $Revision: 1.10 $
-   * $Date: 2010/04/19 10:35:09 $
+   * $Revision: 1.11 $
+   * $Date: 2010/12/16 16:35:29 $
    */
 
   class EventConsumerRegistrationInfo: public RegistrationInfoBase
@@ -29,15 +30,14 @@ namespace stor
 
   public:
 
-    typedef std::vector<std::string> FilterList;
-
     /**
      * Constructs an instance with the specified registration information.
      */
     EventConsumerRegistrationInfo( const std::string& consumerName,
                                    const std::string& triggerSelection,
-                                   const FilterList& selEvents,
+                                   const Strings& eventSelection,
                                    const std::string& outputModuleLabel,
+                                   const bool& uniqueEvents,
                                    const int& queueSize,
                                    const enquing_policy::PolicyTag& queuePolicy,
                                    const utils::duration_t& secondsToStale,
@@ -47,8 +47,9 @@ namespace stor
 
     // Accessors:
     const std::string& triggerSelection() const { return _triggerSelection; }
-    const FilterList& selEvents() const { return _selEvents; }
+    const Strings& eventSelection() const { return _eventSelection; }
     const std::string& outputModuleLabel() const { return _outputModuleLabel; }
+    const bool& uniqueEvents() const { return _uniqueEvents; }
     bool isProxyServer() const { return _isProxy; }
     const std::string& remoteHost() const { return _remoteHost; }
 
@@ -58,6 +59,8 @@ namespace stor
 
     // Comparison:
     bool operator<(const EventConsumerRegistrationInfo&) const;
+    bool operator==(const EventConsumerRegistrationInfo&) const;
+    bool operator!=(const EventConsumerRegistrationInfo&) const;
 
     // Output:
     std::ostream& write(std::ostream& os) const;
@@ -65,10 +68,10 @@ namespace stor
     // Implementation of Template Method pattern.
     virtual void do_registerMe(EventDistributor*);
     virtual QueueID do_queueId() const;
-    virtual void do_setQueueID(QueueID const& id);
+    virtual void do_setQueueId(QueueID const& id);
     virtual std::string do_consumerName() const;
-    virtual ConsumerID do_consumerID() const;
-    virtual void do_setConsumerID(ConsumerID const& id);
+    virtual ConsumerID do_consumerId() const;
+    virtual void do_setConsumerId(ConsumerID const& id);
     virtual int do_queueSize() const;
     virtual enquing_policy::PolicyTag do_queuePolicy() const;
     virtual utils::duration_t do_secondsToStale() const;
@@ -78,8 +81,9 @@ namespace stor
     CommonRegistrationInfo _common;
 
     std::string _triggerSelection;
-    FilterList _selEvents;
+    Strings _eventSelection;
     std::string _outputModuleLabel;
+    bool _uniqueEvents;
     bool _isProxy;
     bool _stale;
     std::string _remoteHost;

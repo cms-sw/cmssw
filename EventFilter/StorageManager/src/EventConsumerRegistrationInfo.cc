@@ -1,4 +1,4 @@
-// $Id: EventConsumerRegistrationInfo.cc,v 1.11 2010/08/06 20:24:30 wmtan Exp $
+// $Id: EventConsumerRegistrationInfo.cc,v 1.12 2010/12/16 16:35:29 mommsen Exp $
 /// @file: EventConsumerRegistrationInfo.cc
 
 #include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
@@ -16,16 +16,18 @@ namespace stor
   EventConsumerRegistrationInfo::EventConsumerRegistrationInfo
   ( const std::string& consumerName,
     const std::string& triggerSelection,
-    const FilterList& selEvents,
+    const Strings& eventSelection,
     const std::string& outputModuleLabel,
+    const bool& uniqueEvents,
     const int& queueSize,
     const enquing_policy::PolicyTag& queuePolicy,
     const utils::duration_t& secondsToStale,
     const std::string& remoteHost ) :
     _common( consumerName, queueSize, queuePolicy, secondsToStale ),
     _triggerSelection( triggerSelection ),
-    _selEvents( selEvents ),
+    _eventSelection( eventSelection ),
     _outputModuleLabel( outputModuleLabel ),
+    _uniqueEvents( uniqueEvents ),
     _stale( false ),
     _remoteHost( remoteHost )
   {
@@ -58,7 +60,7 @@ namespace stor
   }
 
   void
-  EventConsumerRegistrationInfo::do_setQueueID(QueueID const& id)
+  EventConsumerRegistrationInfo::do_setQueueId(QueueID const& id)
   {
     _common._queueId = id;
   }
@@ -70,13 +72,13 @@ namespace stor
   }
 
   ConsumerID
-  EventConsumerRegistrationInfo::do_consumerID() const
+  EventConsumerRegistrationInfo::do_consumerId() const
   {
     return _common._consumerId;
   }
 
   void
-  EventConsumerRegistrationInfo::do_setConsumerID(ConsumerID const& id)
+  EventConsumerRegistrationInfo::do_setConsumerId(ConsumerID const& id)
   {
     _common._consumerId = id;
   }
@@ -106,8 +108,10 @@ namespace stor
       return ( _outputModuleLabel < other.outputModuleLabel() );
     if ( _triggerSelection != other.triggerSelection() )
       return ( _triggerSelection < other.triggerSelection() );
-    if ( _selEvents != other.selEvents() )
-      return ( _selEvents < other.selEvents() );
+    if ( _eventSelection != other.eventSelection() )
+      return ( _eventSelection < other.eventSelection() );
+    if ( _uniqueEvents != other.uniqueEvents() )
+      return ( _uniqueEvents < other.uniqueEvents() );
     if ( _common._queueSize != other.queueSize() )
       return ( _common._queueSize < other.queueSize() );
     if ( _common._queuePolicy != other.queuePolicy() )
@@ -115,6 +119,25 @@ namespace stor
     return ( _common._secondsToStale < other.secondsToStale() );
   }
 
+  bool
+  EventConsumerRegistrationInfo::operator==(const EventConsumerRegistrationInfo& other) const
+  {
+    return (
+      _outputModuleLabel == other.outputModuleLabel() &&
+      _triggerSelection == other.triggerSelection() &&
+      _eventSelection == other.eventSelection() &&
+      _uniqueEvents == other.uniqueEvents() &&
+      _common._queueSize == other.queueSize() &&
+      _common._queuePolicy == other.queuePolicy() &&
+      _common._secondsToStale == other.secondsToStale()
+    );
+  }
+
+  bool
+  EventConsumerRegistrationInfo::operator!=(const EventConsumerRegistrationInfo& other) const
+  {
+    return ! ( *this == other );
+  }
 
   std::ostream& 
   EventConsumerRegistrationInfo::write(std::ostream& os) const
@@ -129,13 +152,13 @@ namespace stor
     }
     else 
     */
-    std::copy(_selEvents.begin(), 
-              _selEvents.end(),
-              std::ostream_iterator<FilterList::value_type>(os, "\n"));
+    std::copy(_eventSelection.begin(), 
+              _eventSelection.end(),
+              std::ostream_iterator<Strings::value_type>(os, "\n"));
     
-    //     for( unsigned int i = 0; i < _selEvents.size(); ++i )
+    //     for( unsigned int i = 0; i < _eventSelection.size(); ++i )
     //       {
-    //         os << '\n' << "  " << _selEvents[i];
+    //         os << '\n' << "  " << _eventSelection[i];
     //       }
 
     return os;

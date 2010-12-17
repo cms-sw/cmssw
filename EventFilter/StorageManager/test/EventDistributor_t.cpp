@@ -506,9 +506,9 @@ void testEventDistributor::testConsumerSelection()
   QueueID queueId1(enquing_policy::DiscardOld, 1);
   consInfo.reset(new EventConsumerRegistrationInfo(
       "Test Consumer", sel, selections, "hltOutputDQM",
-      queueId1.index(), queueId1.policy(),
+      false, queueId1.index(), queueId1.policy(),
       boost::posix_time::seconds(120), "localhost"));
-  consInfo->setQueueID( queueId1 );
+  consInfo->setQueueId( queueId1 );
 
   _eventDistributor->registerEventConsumer(&(*consInfo));
   
@@ -536,9 +536,9 @@ void testEventDistributor::testConsumerSelection()
   QueueID queueId2(enquing_policy::DiscardNew, 2);
   consInfo.reset(new EventConsumerRegistrationInfo(
       "Test Consumer", sel, selections, "hltOutputDQM", 
-      queueId2.index(), queueId2.policy(),
+      false, queueId2.index(), queueId2.policy(),
       boost::posix_time::seconds(120), "localhost" ));
-  consInfo->setQueueID( queueId2 );
+  consInfo->setQueueId( queueId2 );
   
   _eventDistributor->registerEventConsumer(&(*consInfo));
   
@@ -592,9 +592,9 @@ void testEventDistributor::testConsumerSelection()
   QueueID queueId3(enquing_policy::DiscardOld, 3);
   consInfo.reset(new EventConsumerRegistrationInfo(
       "Test Consumer", sel, selections, "hltOutputDQM",
-      queueId3.index(), queueId3.policy(),
+      false, queueId3.index(), queueId3.policy(),
       boost::posix_time::seconds(120), "localhost"));
-  consInfo->setQueueID( queueId3 );
+  consInfo->setQueueId( queueId3 );
   consInfo->registerMe(&(*_eventDistributor));
     
   CPPUNIT_ASSERT(_eventDistributor->configuredConsumerCount() == 3);
@@ -609,9 +609,9 @@ void testEventDistributor::testConsumerSelection()
   QueueID queueId4(enquing_policy::DiscardNew, 4);
   consInfo.reset(new EventConsumerRegistrationInfo(
       "Test Consumer", sel, selections, "hltOutputDQM",
-      queueId4.index(), queueId4.policy(),
+      false, queueId4.index(), queueId4.policy(),
       boost::posix_time::seconds(120), "localhost"));
-  consInfo->setQueueID( queueId4 );
+  consInfo->setQueueId( queueId4 );
   
   consInfo->registerMe(&(*_eventDistributor));
   
@@ -759,9 +759,9 @@ void testEventDistributor::testDuplicatedConsumerSelection()
   QueueID queueId(enquing_policy::DiscardOld, 1);
   consInfo.reset(new EventConsumerRegistrationInfo(
       "Test Consumer", sel, selections, "hltOutputDQM",
-      queueId.index(), queueId.policy(),
+      false, queueId.index(), queueId.policy(),
       boost::posix_time::seconds(120), "localhost"));
-  consInfo->setQueueID( queueId );
+  consInfo->setQueueId( queueId );
   
   _eventDistributor->registerEventConsumer(&(*consInfo));
   
@@ -812,9 +812,9 @@ void testEventDistributor::testDuplicatedConsumerSelection()
   boost::shared_ptr<EventConsumerRegistrationInfo> consInfo2;
   consInfo2.reset(new EventConsumerRegistrationInfo(
       "Test Consumer 2", sel, selections, "hltOutputDQM",
-      queueId.index(), queueId.policy(),
+      false, queueId.index(), queueId.policy(),
       boost::posix_time::seconds(120), "remotehost"));
-  consInfo2->setQueueID( queueId );
+  consInfo2->setQueueId( queueId );
   
   _eventDistributor->registerEventConsumer(&(*consInfo2));
   
@@ -937,7 +937,7 @@ void testEventDistributor::testDQMMessages()
       boost::posix_time::seconds(10),
       "localhost" )
   );
-  ri1->setQueueID( qid1 );
+  ri1->setQueueId( qid1 );
   _eventDistributor->registerDQMEventConsumer( &( *ri1 ) );
 
   // Consumer for ECAL:
@@ -949,7 +949,7 @@ void testEventDistributor::testDQMMessages()
       qid2.index(), qid2.policy(),
       boost::posix_time::seconds(10), "localhost" )
   );
-  ri2->setQueueID( qid2 );
+  ri2->setQueueId( qid2 );
   _eventDistributor->registerDQMEventConsumer( &( *ri2 ) );
 
   // HCAL event:
@@ -989,7 +989,7 @@ void testEventDistributor::testDQMMessages()
       qid3.index(), qid3.policy(),
       boost::posix_time::seconds(10), "localhost" )
   );
-  ri3->setQueueID( qid3 );
+  ri3->setQueueId( qid3 );
   _eventDistributor->registerDQMEventConsumer( &( *ri3 ) );
 
   // Another HCAL event:
@@ -1049,7 +1049,7 @@ void testEventDistributor::testDuplicatedDQMConsumerSelection()
       boost::posix_time::seconds(10),
       "localhost" )
   );
-  ri1->setQueueID( qid1 );
+  ri1->setQueueId( qid1 );
   _eventDistributor->registerDQMEventConsumer( &( *ri1 ) );
 
   CPPUNIT_ASSERT(_eventDistributor->configuredConsumerCount() == 1);
@@ -1069,7 +1069,7 @@ void testEventDistributor::testDuplicatedDQMConsumerSelection()
       boost::posix_time::seconds(10),
       "remotehost" )
   );
-  ri2->setQueueID( qid1 );
+  ri2->setQueueId( qid1 );
   _eventDistributor->registerDQMEventConsumer( &( *ri2 ) );
 
   CPPUNIT_ASSERT(_eventDistributor->configuredConsumerCount() == 1);
@@ -1094,7 +1094,7 @@ void testEventDistributor::testDuplicatedDQMConsumerSelection()
       boost::posix_time::seconds(10),
       "remotehost" )
   );
-  ri3->setQueueID( qid2 );
+  ri3->setQueueId( qid2 );
   _eventDistributor->registerDQMEventConsumer( &( *ri3 ) );
 
   CPPUNIT_ASSERT(_eventDistributor->configuredConsumerCount() == 2);

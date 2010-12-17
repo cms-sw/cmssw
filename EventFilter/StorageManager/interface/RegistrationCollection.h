@@ -1,4 +1,4 @@
-// $Id: RegistrationCollection.h,v 1.5 2010/04/16 12:31:34 mommsen Exp $
+// $Id: RegistrationCollection.h,v 1.6 2010/04/16 14:39:34 mommsen Exp $
 /// @file: RegistrationCollection.h 
 
 #ifndef StorageManager_RegistrationCollection_h
@@ -22,8 +22,8 @@ namespace stor
      Keep a collection of registered event and DQM event consumers.
 
      $Author: mommsen $
-     $Revision: 1.5 $
-     $Date: 2010/04/16 12:31:34 $
+     $Revision: 1.6 $
+     $Date: 2010/04/16 14:39:34 $
   */
 
   class RegistrationCollection
@@ -39,7 +39,7 @@ namespace stor
        Return next available consumer ID or 0 if no registration is
        allowed.
     */
-    ConsumerID getConsumerID();
+    ConsumerID getConsumerId();
 
     /**
        Add registration info. Return false if no registration is allowed.
@@ -87,7 +87,7 @@ namespace stor
 
     mutable boost::mutex _lock;
 
-    ConsumerID _nextConsumerID;
+    ConsumerID _nextConsumerId;
 
     bool _registrationAllowed;
       

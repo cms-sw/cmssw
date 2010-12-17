@@ -1,4 +1,4 @@
-// $Id: RegistrationCollection.cc,v 1.8 2010/04/16 12:31:58 mommsen Exp $
+// $Id: RegistrationCollection.cc,v 1.9 2010/04/16 14:40:14 mommsen Exp $
 /// @file: RegistrationCollection.cc
 
 #include "EventFilter/StorageManager/interface/RegistrationCollection.h"
@@ -10,13 +10,13 @@ using namespace stor;
 RegistrationCollection::RegistrationCollection()
 {
   boost::mutex::scoped_lock sl( _lock );
-  _nextConsumerID = ConsumerID(0);
+  _nextConsumerId = ConsumerID(0);
   _registrationAllowed = false;
 }
 
 RegistrationCollection::~RegistrationCollection() {}
 
-ConsumerID RegistrationCollection::getConsumerID()
+ConsumerID RegistrationCollection::getConsumerId()
 {
   boost::mutex::scoped_lock sl( _lock );
   
@@ -25,7 +25,7 @@ ConsumerID RegistrationCollection::getConsumerID()
     return ConsumerID(0);
   }
   
-  return ++_nextConsumerID;
+  return ++_nextConsumerId;
 }
 
 bool
@@ -34,7 +34,7 @@ RegistrationCollection::addRegistrationInfo( const RegPtr ri )
   boost::mutex::scoped_lock sl( _lock );
   if( _registrationAllowed )
   {
-    ConsumerID cid = ri->consumerID();
+    ConsumerID cid = ri->consumerId();
     RegistrationMap::iterator pos = _consumers.lower_bound(cid);
     
     if ( pos != _consumers.end() && !(_consumers.key_comp()(cid, pos->first)) )

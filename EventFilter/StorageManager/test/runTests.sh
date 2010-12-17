@@ -7,9 +7,8 @@ source testSetup.sh
 tests="\
  CommandQueue_t\
  ConcurrentQueue_t\
- DQMEventConsumerRegistrationInfo_t\
+ ConsumerRegistrationInfo_t\
  EnquingPolicyTag_t\
- EventConsumerRegistrationInfo_t\
  MockNotifier_t\
  EventDistributor_t\
  EventQueueCollection_t\

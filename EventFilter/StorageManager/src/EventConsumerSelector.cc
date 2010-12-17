@@ -1,4 +1,4 @@
-// $Id: EventConsumerSelector.cc,v 1.9 2009/12/01 17:50:40 smorovic Exp $
+// $Id: EventConsumerSelector.cc,v 1.10 2010/12/16 16:35:29 mommsen Exp $
 /// @file: EventConsumerSelector.cc
 
 #include <vector>
@@ -23,7 +23,7 @@ void EventConsumerSelector::initialize( const InitMsgView& imv )
 
   edm::ParameterSet pset;
   pset.addParameter<std::string>( "TriggerSelector", _registrationInfo.triggerSelection() );
-  pset.addParameter<Strings>( "SelectEvents", _registrationInfo.selEvents() );
+  pset.addParameter<Strings>( "SelectEvents", _registrationInfo.eventSelection() );
 
   Strings tnames;
   imv.hltTriggerNames( tnames );
@@ -77,6 +77,13 @@ bool EventConsumerSelector::acceptEvent( const I2OChain& ioc )
   return _eventSelector->wantAll()
     || _eventSelector->acceptEvent( &hlt_out[0], ioc.hltTriggerCount() );
 
+}
+
+bool EventConsumerSelector::operator<(const EventConsumerSelector& other) const
+{
+  if ( queueId() != other.queueId() )
+    return ( queueId() < other.queueId() );
+  return ( _registrationInfo < other._registrationInfo );
 }
 
 

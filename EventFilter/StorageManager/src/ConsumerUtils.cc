@@ -1,4 +1,4 @@
-// $Id: ConsumerUtils.cc,v 1.12 2010/12/10 19:38:48 mommsen Exp $
+// $Id: ConsumerUtils.cc,v 1.13 2010/12/14 12:56:52 mommsen Exp $
 /// @file: ConsumerUtils.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerID.h"
@@ -36,7 +36,7 @@ void ConsumerUtils::processConsumerRegistrationRequest(xgi::Input* in, xgi::Outp
        createEventConsumerQueue(reginfo) &&
        addRegistrationInfo(reginfo) )
   {
-    writeConsumerRegistration( out, reginfo->consumerID() );
+    writeConsumerRegistration( out, reginfo->consumerId() );
   }
   else
   {  
@@ -50,7 +50,7 @@ EventConsRegPtr ConsumerUtils::createEventConsumerRegistrationInfo(xgi::Input* i
   EventConsRegPtr reginfo;
   if ( _sharedResources.get() == NULL ) return reginfo;
 
-  ConsumerID cid = _sharedResources->_registrationCollection->getConsumerID();
+  ConsumerID cid = _sharedResources->_registrationCollection->getConsumerId();
   if ( !cid.isValid() ) return reginfo;
 
   std::string errorMsg = "Error parsing an event consumer registration request";
@@ -92,7 +92,7 @@ EventConsRegPtr ConsumerUtils::createEventConsumerRegistrationInfo(xgi::Input* i
     writeErrorString( out, errorMsg );
     return reginfo;
   }
-  reginfo->setConsumerID( cid );
+  reginfo->setConsumerId( cid );
   return reginfo;
 }
 
@@ -100,22 +100,18 @@ EventConsRegPtr ConsumerUtils::createEventConsumerRegistrationInfo(xgi::Input* i
 bool ConsumerUtils::createEventConsumerQueue(EventConsRegPtr reginfo) const
 {
   QueueID qid =
-    _sharedResources->_eventConsumerQueueCollection->createQueue(
-      reginfo->consumerID(),
-      reginfo->queuePolicy(),
-      reginfo->queueSize(),
-      reginfo->secondsToStale());
+    _sharedResources->_eventConsumerQueueCollection->createQueue(reginfo);
 
   if( !qid.isValid() ) return false;
   
-  reginfo->setQueueID( qid );
+  reginfo->setQueueId( qid );
   return true;
 }
 
 
 void ConsumerUtils::processConsumerHeaderRequest(xgi::Input* in, xgi::Output* out) const
 {
-  ConsumerID cid = getConsumerID( in );
+  ConsumerID cid = getConsumerId( in );
   if( !cid.isValid() )
   {
     writeEmptyBuffer( out );
@@ -145,7 +141,7 @@ void ConsumerUtils::processConsumerHeaderRequest(xgi::Input* in, xgi::Output* ou
 
 void ConsumerUtils::processConsumerEventRequest(xgi::Input* in, xgi::Output* out) const
 {
-  ConsumerID cid = getConsumerID( in );
+  ConsumerID cid = getConsumerId( in );
   if( !cid.isValid() )
   {
     writeEmptyBuffer( out );
@@ -178,7 +174,7 @@ void ConsumerUtils::processDQMConsumerRegistrationRequest(xgi::Input* in, xgi::O
        createDQMEventConsumerQueue(reginfo) &&
        addRegistrationInfo(reginfo) )
   {
-    writeConsumerRegistration( out, reginfo->consumerID() );
+    writeConsumerRegistration( out, reginfo->consumerId() );
   }
   else
   {  
@@ -191,7 +187,7 @@ DQMEventConsRegPtr ConsumerUtils::createDQMEventConsumerRegistrationInfo(xgi::In
   DQMEventConsRegPtr dqmreginfo;
   if ( _sharedResources.get() == NULL ) return dqmreginfo;
 
-  ConsumerID cid = _sharedResources->_registrationCollection->getConsumerID();
+  ConsumerID cid = _sharedResources->_registrationCollection->getConsumerId();
   if ( !cid.isValid() ) return dqmreginfo;
 
   std::string errorMsg = "Error parsing a DQM event consumer registration request";
@@ -233,14 +229,14 @@ DQMEventConsRegPtr ConsumerUtils::createDQMEventConsumerRegistrationInfo(xgi::In
     writeErrorString( out, errorMsg );
     return dqmreginfo;
   }
-  dqmreginfo->setConsumerID( cid );
+  dqmreginfo->setConsumerId( cid );
   return dqmreginfo;
 }
 
 
 void ConsumerUtils::processDQMConsumerEventRequest(xgi::Input* in, xgi::Output* out) const
 {
-  ConsumerID cid = getConsumerID( in );
+  ConsumerID cid = getConsumerId( in );
   if( !cid.isValid() )
   {
     writeEmptyBuffer( out );
@@ -266,15 +262,11 @@ void ConsumerUtils::processDQMConsumerEventRequest(xgi::Input* in, xgi::Output* 
 bool ConsumerUtils::createDQMEventConsumerQueue(DQMEventConsRegPtr reginfo) const
 {
   QueueID qid =
-    _sharedResources->_dqmEventConsumerQueueCollection->createQueue(
-      reginfo->consumerID(),
-      reginfo->queuePolicy(),
-      reginfo->queueSize(),
-      reginfo->secondsToStale());
+    _sharedResources->_dqmEventConsumerQueueCollection->createQueue(reginfo);
 
   if( !qid.isValid() ) return false;
   
-  reginfo->setQueueID( qid );
+  reginfo->setQueueId( qid );
   return true;
 }
 
@@ -300,20 +292,20 @@ EventConsRegPtr ConsumerUtils::parseEventConsumerRegistration(xgi::Input* in) co
   }
 
   std::string name = "unknown";
-  std::string pset_str = "<>";
+  std::string psetStr = "<>";
   
-  const std::string l_str = in->getenv( "CONTENT_LENGTH" );
-  unsigned long l = std::atol( l_str.c_str() );
+  const std::string lengthStr = in->getenv( "CONTENT_LENGTH" );
+  unsigned long length = std::atol( lengthStr.c_str() );
   
-  const std::string remote_host = in->getenv( "REMOTE_HOST" );
+  const std::string remoteHost = in->getenv( "REMOTE_HOST" );
 
-  if( l > 0 )
+  if( length > 0 )
   {
-    std::auto_ptr< std::vector<char> > buf( new std::vector<char>(l) );
-    in->read( &(*buf)[0], l );
+    std::auto_ptr< std::vector<char> > buf( new std::vector<char>(length) );
+    in->read( &(*buf)[0], length );
     ConsRegRequestView req( &(*buf)[0] );
     name = req.getConsumerName();
-    pset_str = req.getRequestParameterSet();
+    psetStr = req.getRequestParameterSet();
   }
   else
   {
@@ -321,44 +313,44 @@ EventConsRegPtr ConsumerUtils::parseEventConsumerRegistration(xgi::Input* in) co
       "Bad request length" );
   }
 
-  const edm::ParameterSet pset( pset_str );
+  const edm::ParameterSet pset( psetStr );
   
   //
   //// Check if HLT output module is there: ////
   //
   
-  std::string sel_hlt_out = "";
+  std::string outputModuleLabel = "";
   
   try
   {
     // new-style consumer
-    sel_hlt_out = pset.getParameter<std::string>( "TrackedHLTOutMod" );
+    outputModuleLabel = pset.getParameter<std::string>( "TrackedHLTOutMod" );
   }
   catch( edm::Exception& e )
   {
     // old-style consumer or param not specified
-    sel_hlt_out =
+    outputModuleLabel =
       pset.getUntrackedParameter<std::string>( "SelectHLTOutput", "" );
   }
   
-  if( sel_hlt_out == "" )
+  if( outputModuleLabel == "" )
   {
     XCEPT_RAISE( stor::exception::ConsumerRegistration,
       "No HLT output module specified" );
   }
   
   // Event filters:
-  std::string sel_events_new = std::string();
+  std::string triggerSelection = std::string();
   try
   {
-    sel_events_new = pset.getParameter<std::string>("TriggerSelector");
+    triggerSelection = pset.getParameter<std::string>("TriggerSelector");
   }
   catch (edm::Exception& e) {}
   
-  EventConsumerRegistrationInfo::FilterList sel_events;
+  Strings eventSelection;
   try
   {
-    sel_events = pset.getParameter<Strings>( "TrackedEventSelection" );
+    eventSelection = pset.getParameter<Strings>( "TrackedEventSelection" );
   }
   catch( edm::Exception& e )
   {
@@ -367,8 +359,19 @@ EventConsRegPtr ConsumerUtils::parseEventConsumerRegistration(xgi::Input* in) co
         edm::ParameterSet() );
     if ( ! tmpPSet1.empty() )
     {
-      sel_events = tmpPSet1.getParameter<Strings>( "SelectEvents" );
+      eventSelection = tmpPSet1.getParameter<Strings>( "SelectEvents" );
     }
+  }
+
+  // Request unique events
+  bool uniqueEvents;
+  try
+  {
+    uniqueEvents = pset.getParameter<bool>( "TrackedUniqueEvents" );
+  }
+  catch( edm::Exception& e )
+  {
+    uniqueEvents = pset.getUntrackedParameter<bool>( "uniqueEvents", false);
   }
 
   // Consumer time-out
@@ -432,13 +435,14 @@ EventConsRegPtr ConsumerUtils::parseEventConsumerRegistration(xgi::Input* in) co
   }
 
   EventConsRegPtr cr( new EventConsumerRegistrationInfo( name,
-                                                         sel_events_new,
-                                                         sel_events,
-                                                         sel_hlt_out,
+                                                         triggerSelection,
+                                                         eventSelection,
+                                                         outputModuleLabel,
+                                                         uniqueEvents,
                                                          queueSize,
                                                          queuePolicy,
                                                          secondsToStale,
-                                                         remote_host ) );
+                                                         remoteHost ) );
   return cr;
 }
 
@@ -599,7 +603,7 @@ void ConsumerUtils::writeErrorString(xgi::Output* out, const std::string errorSt
 //////////////////////////////////////////////////
 //// Extract consumer ID from header request: ////
 //////////////////////////////////////////////////
-ConsumerID ConsumerUtils::getConsumerID(xgi::Input* in) const
+ConsumerID ConsumerUtils::getConsumerId(xgi::Input* in) const
 {
 
   if( in == 0 )

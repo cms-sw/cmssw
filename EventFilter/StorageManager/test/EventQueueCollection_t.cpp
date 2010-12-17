@@ -4,6 +4,7 @@
 #include "EventFilter/StorageManager/interface/ConsumerID.h"
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
 #include "EventFilter/StorageManager/interface/EventConsumerMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/EventQueueCollection.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/I2OChain.h"
@@ -20,8 +21,10 @@
 
 using stor::ConsumerID;
 using stor::EventQueueCollection;
+using stor::EventConsumerRegistrationInfo;
 using stor::I2OChain;
 using stor::QueueID;
+using stor::EventConsRegPtr;
 using stor::testhelper::allocate_frame_with_sample_header;
 using stor::testhelper::outstanding_bytes;
 
@@ -43,6 +46,8 @@ class testEventQueueCollection : public CppUnit::TestFixture
   CPPUNIT_TEST(invalid_queueid);
   CPPUNIT_TEST(clear_all_queues);
   CPPUNIT_TEST(remove_all_queues);
+  CPPUNIT_TEST(shared_queues);
+
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -57,6 +62,7 @@ public:
   void invalid_queueid();
   void clear_all_queues();
   void remove_all_queues();
+  void shared_queues();
 
 private:
   stor::EventConsumerMonitorCollection _ecmc;
@@ -89,7 +95,11 @@ testEventQueueCollection::create_queues()
   // correctly.
   ConsumerID cid1;
   cid1.value = 109;
-  QueueID id1 = c.createQueue(cid1, DiscardNew, 10);
+  EventConsRegPtr ecri1( 
+    new EventConsumerRegistrationInfo(
+      "cid1", "", Strings(), "", false, 10, DiscardNew, boost::posix_time::seconds(120), ""));
+  ecri1->setConsumerId(cid1);
+  QueueID id1 = c.createQueue(ecri1);
   CPPUNIT_ASSERT(c.size() == 1);
   CPPUNIT_ASSERT(id1.policy() == DiscardNew);
   CPPUNIT_ASSERT(id1.index() == 0);
@@ -97,21 +107,33 @@ testEventQueueCollection::create_queues()
 
   ConsumerID cid2;
   cid2.value = 9234;
-  QueueID id2 = c.createQueue(cid2, DiscardOld, 20);
+  EventConsRegPtr ecri2( 
+    new EventConsumerRegistrationInfo(
+      "cid2", "", Strings(), "", false, 20, DiscardOld, boost::posix_time::seconds(120), ""));
+  ecri2->setConsumerId(cid2);
+  QueueID id2 = c.createQueue(ecri2);
   CPPUNIT_ASSERT(c.size() == 2);
   CPPUNIT_ASSERT(id2.policy() == DiscardOld);
   CPPUNIT_ASSERT(id2.index() == 0);
 
   ConsumerID cid3;
   cid3.value = 2;
-  QueueID id3 = c.createQueue(cid3, DiscardOld, 20);
+  EventConsRegPtr ecri3( 
+    new EventConsumerRegistrationInfo(
+      "cid3", "", Strings(), "", false, 20, DiscardOld, boost::posix_time::seconds(120), ""));
+  ecri3->setConsumerId(cid3);
+  QueueID id3 = c.createQueue(ecri3);
   CPPUNIT_ASSERT(c.size() == 3);
   CPPUNIT_ASSERT(id3.index() == 1);
 
   // Other policies should not allow creation
   ConsumerID cid4;
   cid4.value = 16;
-  QueueID id4 = c.createQueue(cid4, FailIfFull, 1);
+  EventConsRegPtr ecri4( 
+    new EventConsumerRegistrationInfo(
+      "cid4", "", Strings(), "", false, 1, FailIfFull, boost::posix_time::seconds(120), ""));
+  ecri4->setConsumerId(cid4);
+  QueueID id4 = c.createQueue(ecri4);
   CPPUNIT_ASSERT(c.size() == 3);
   CPPUNIT_ASSERT(!id4.isValid());
 
@@ -119,7 +141,8 @@ testEventQueueCollection::create_queues()
   ConsumerID invalid;
   invalid.value = 0;
   CPPUNIT_ASSERT(!invalid.isValid());
-  QueueID id5 = c.createQueue(invalid, FailIfFull);
+  ecri3->setConsumerId(invalid);
+  QueueID id5 = c.createQueue(ecri3);
   CPPUNIT_ASSERT(c.size() == 3);
   CPPUNIT_ASSERT(!id5.isValid());
 }
@@ -168,11 +191,19 @@ create_queues_helper(boost::shared_ptr<EventQueueCollection> pcoll)
 {
   ConsumerID cid;
   cid.value = 0;
+  EventConsRegPtr ecriNew(
+    new EventConsumerRegistrationInfo(
+      "cid1", "", Strings(), "", false, 10, DiscardNew, boost::posix_time::seconds(120), ""));
+  EventConsRegPtr ecriOld(
+    new EventConsumerRegistrationInfo(
+      "cid1", "", Strings(), "", false, 10, DiscardOld, boost::posix_time::seconds(120), ""));
   for (int i = 0; i < 1000; ++i)
     {
       ::usleep(2000); // 2000 microseconds
-      pcoll->createQueue(++cid, DiscardNew);
-      pcoll->createQueue(++cid, DiscardOld);
+      ecriNew->setConsumerId(++cid);
+      ecriOld->setConsumerId(++cid);
+      pcoll->createQueue(ecriNew);
+      pcoll->createQueue(ecriOld);
     }
 }
 
@@ -189,11 +220,25 @@ add_and_pop_helper(boost::shared_ptr<EventQueueCollection> pcoll)
   stor::utils::time_point_t now = stor::utils::getCurrentTime();
 
   ConsumerID cid;
-  QueueID q1 = coll.createQueue(++cid, DiscardOld, 2, expiration_interval, now);
+  EventConsRegPtr ecri1(
+    new EventConsumerRegistrationInfo(
+      "cid1", "", Strings(), "", false, 2, DiscardOld, expiration_interval, ""));
+  ecri1->setConsumerId(++cid);
+  QueueID q1 = coll.createQueue(ecri1);
   CPPUNIT_ASSERT(q1.isValid());
-  QueueID q2 = coll.createQueue(++cid, DiscardNew, 2, expiration_interval, now);
+
+  EventConsRegPtr ecri2(
+    new EventConsumerRegistrationInfo(
+      "cid2", "", Strings(), "", false, 2, DiscardNew, expiration_interval, ""));
+  ecri2->setConsumerId(++cid);
+  QueueID q2 = coll.createQueue(ecri2);
   CPPUNIT_ASSERT(q2.isValid());
-  QueueID q3 = coll.createQueue(++cid, DiscardNew, 1, expiration_interval, now);
+
+  EventConsRegPtr ecri3(
+    new EventConsumerRegistrationInfo(
+      "cid3", "", Strings(), "", false, 1, DiscardNew, expiration_interval, ""));
+  ecri3->setConsumerId(++cid);
+  QueueID q3 = coll.createQueue(ecri3);
   CPPUNIT_ASSERT(q3.isValid());
 
   // Make some chains, tagging them, and inserting them into the
@@ -309,10 +354,31 @@ testEventQueueCollection::clear_all_queues()
   CPPUNIT_ASSERT(outstanding_bytes() == 0);
   EventQueueCollection coll(_ecmc);
   ConsumerID cid;
-  QueueID q1 = coll.createQueue(++cid, DiscardNew);
-  QueueID q2 = coll.createQueue(++cid, DiscardOld);
-  QueueID q3 = coll.createQueue(++cid, DiscardOld);
-  QueueID q4 = coll.createQueue(++cid, DiscardNew);
+
+  EventConsRegPtr ecri1( 
+    new EventConsumerRegistrationInfo(
+      "cid1", "", Strings(), "", false, 10, DiscardNew, boost::posix_time::seconds(120), ""));
+  ecri1->setConsumerId(++cid);
+  QueueID q1 = coll.createQueue(ecri1);
+
+  EventConsRegPtr ecri2( 
+    new EventConsumerRegistrationInfo(
+      "cid2", "", Strings(), "", false, 10, DiscardOld, boost::posix_time::seconds(120), ""));
+  ecri2->setConsumerId(++cid);
+  QueueID q2 = coll.createQueue(ecri2);
+
+  EventConsRegPtr ecri3( 
+    new EventConsumerRegistrationInfo(
+      "cid3", "", Strings(), "", false, 10, DiscardOld, boost::posix_time::seconds(120), ""));
+  ecri3->setConsumerId(++cid);
+  QueueID q3 = coll.createQueue(ecri3);
+
+  EventConsRegPtr ecri4( 
+    new EventConsumerRegistrationInfo(
+      "cid4", "", Strings(), "", false, 10, DiscardNew, boost::posix_time::seconds(120), ""));
+  ecri4->setConsumerId(++cid);
+  QueueID q4 = coll.createQueue(ecri4);
+
   CPPUNIT_ASSERT(coll.size() == 4);
   
   for (int i = 0; i < 100; ++i)
@@ -346,12 +412,104 @@ testEventQueueCollection::remove_all_queues()
 {
   EventQueueCollection coll(_ecmc);
   ConsumerID cid;
-  QueueID q1 = coll.createQueue(++cid, DiscardNew);
-  QueueID q2 = coll.createQueue(++cid, DiscardOld);
-  QueueID q3 = coll.createQueue(++cid, DiscardOld);
-  QueueID q4 = coll.createQueue(++cid, DiscardNew);
+
+  EventConsRegPtr ecri1( 
+    new EventConsumerRegistrationInfo(
+      "cid1", "", Strings(), "", false, 10, DiscardNew, boost::posix_time::seconds(120), ""));
+  ecri1->setConsumerId(++cid);
+  QueueID q1 = coll.createQueue(ecri1);
+
+  EventConsRegPtr ecri2( 
+    new EventConsumerRegistrationInfo(
+      "cid2", "", Strings(), "", false, 10, DiscardOld, boost::posix_time::seconds(120), ""));
+  ecri2->setConsumerId(++cid);
+  QueueID q2 = coll.createQueue(ecri2);
+
+  EventConsRegPtr ecri3( 
+    new EventConsumerRegistrationInfo(
+      "cid3", "", Strings(), "", false, 10, DiscardOld, boost::posix_time::seconds(120), ""));
+  ecri3->setConsumerId(++cid);
+  QueueID q3 = coll.createQueue(ecri3);
+
+  EventConsRegPtr ecri4( 
+    new EventConsumerRegistrationInfo(
+      "cid4", "", Strings(), "", false, 10, DiscardNew, boost::posix_time::seconds(120), ""));
+  ecri4->setConsumerId(++cid);
+  QueueID q4 = coll.createQueue(ecri4);
 
   CPPUNIT_ASSERT(coll.size() == 4);
+  coll.removeQueues();
+  CPPUNIT_ASSERT(coll.size() == 0);  
+}
+
+
+void
+testEventQueueCollection::shared_queues()
+{
+  EventQueueCollection coll(_ecmc);
+  ConsumerID cid;
+
+  EventConsRegPtr ecri1( 
+    new EventConsumerRegistrationInfo(
+      "cid1", "", Strings(), "", true, 10, DiscardNew, boost::posix_time::seconds(120), ""));
+  ecri1->setConsumerId(++cid);
+  QueueID q1 = coll.createQueue(ecri1);
+  CPPUNIT_ASSERT(coll.size() == 1);
+
+  // different policy
+  EventConsRegPtr ecri2( 
+    new EventConsumerRegistrationInfo(
+      "cid2", "", Strings(), "", true, 10, DiscardOld, boost::posix_time::seconds(120), ""));
+  ecri2->setConsumerId(++cid);
+  QueueID q2 = coll.createQueue(ecri2);
+  CPPUNIT_ASSERT(coll.size() == 2);
+  CPPUNIT_ASSERT(q1 != q2);
+
+  // shared with q1
+  EventConsRegPtr ecri3( 
+    new EventConsumerRegistrationInfo(
+      "cid3", "", Strings(), "", true, 10, DiscardNew, boost::posix_time::seconds(120), ""));
+  ecri3->setConsumerId(++cid);
+  QueueID q3 = coll.createQueue(ecri3);
+  CPPUNIT_ASSERT(coll.size() == 2);
+  CPPUNIT_ASSERT(q1 == q3);
+
+  // shared with q2
+  EventConsRegPtr ecri4( 
+    new EventConsumerRegistrationInfo(
+      "cid4", "", Strings(), "", true, 10, DiscardOld, boost::posix_time::seconds(120), ""));
+  ecri4->setConsumerId(++cid);
+  QueueID q4 = coll.createQueue(ecri4);
+  CPPUNIT_ASSERT(coll.size() == 2);
+  CPPUNIT_ASSERT(q2 == q4);
+
+  // different size
+  EventConsRegPtr ecri5( 
+    new EventConsumerRegistrationInfo(
+      "cid5", "", Strings(), "", true, 20, DiscardNew, boost::posix_time::seconds(120), ""));
+  ecri5->setConsumerId(++cid);
+  QueueID q5 = coll.createQueue(ecri5);
+  CPPUNIT_ASSERT(coll.size() == 3);
+  CPPUNIT_ASSERT(q4 != q5);
+
+  // different timeout
+  EventConsRegPtr ecri6( 
+    new EventConsumerRegistrationInfo(
+      "cid6", "", Strings(), "", true, 10, DiscardNew, boost::posix_time::seconds(20), ""));
+  ecri6->setConsumerId(++cid);
+  QueueID q6 = coll.createQueue(ecri6);
+  CPPUNIT_ASSERT(coll.size() == 4);
+  CPPUNIT_ASSERT(q4 != q6);
+
+  // same as queue q5
+  EventConsRegPtr ecri7( 
+    new EventConsumerRegistrationInfo(
+      "cid7", "", Strings(), "", true, 20, DiscardNew, boost::posix_time::seconds(120), ""));
+  ecri7->setConsumerId(++cid);
+  QueueID q7 = coll.createQueue(ecri7);
+  CPPUNIT_ASSERT(coll.size() == 4);
+  CPPUNIT_ASSERT(q5 == q7);
+
   coll.removeQueues();
   CPPUNIT_ASSERT(coll.size() == 0);  
 }

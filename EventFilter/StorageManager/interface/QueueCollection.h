@@ -1,4 +1,4 @@
-// $Id: QueueCollection.h,v 1.7 2010/04/16 12:29:56 mommsen Exp $
+// $Id: QueueCollection.h,v 1.8 2010/12/14 12:56:51 mommsen Exp $
 /// @file: QueueCollection.h 
 
 #ifndef StorageManager_QueueCollection_h
@@ -16,9 +16,11 @@
 #include "EventFilter/StorageManager/interface/ConcurrentQueue.h"
 #include "EventFilter/StorageManager/interface/ConsumerID.h"
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
+#include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/ExpirableQueue.h"
 #include "EventFilter/StorageManager/interface/QueueID.h"
+#include "EventFilter/StorageManager/interface/RegistrationInfoBase.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
 #include "EventFilter/StorageManager/interface/ConsumerMonitorCollection.h"
 
@@ -34,8 +36,8 @@ namespace stor {
    * of QueueIDs of queues the class should be added.
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2010/04/16 12:29:56 $
+   * $Revision: 1.8 $
+   * $Date: 2010/12/14 12:56:51 $
    */
 
   template <class T>
@@ -61,12 +63,17 @@ namespace stor {
       maximum size. It returns a unique identifier to later identify
       requests originating from this consumer.
     */
-    QueueID createQueue(ConsumerID cid,
-                        enquing_policy::PolicyTag policy,
-                        size_type max = std::numeric_limits<size_type>::max(),
-                        utils::duration_t interval = boost::posix_time::seconds(120),
-                        utils::time_point_t now = utils::getCurrentTime());
-
+    QueueID createQueue
+    (
+      const EventConsRegPtr,
+      const utils::time_point_t& now = utils::getCurrentTime()
+    );
+    QueueID createQueue
+    (
+      const RegPtr,
+      const utils::time_point_t& now = utils::getCurrentTime()
+    );
+    
     /**
        Remove all contained queues. Note that this has the effect of
        clearing all the queues as well.
@@ -81,26 +88,26 @@ namespace stor {
     /**
        Add an event to all queues matching the specifications.
      */
-    void addEvent(T const& event);
+    void addEvent(T const&);
 
     /**
       Remove and return an event from the queue for the consumer with
       the given id. If there is no event in that queue, an empty
       event is returned.
      */
-    T popEvent(QueueID id);
+    T popEvent(QueueID);
 
     /**
       Remove and return an event from the queue for the consumer with
       the given ConsumerID. If there is no event in that queue, an
       empty event is returned.
      */
-    T popEvent(ConsumerID id);
+    T popEvent(ConsumerID);
 
     /**
        Clear the queue with the given QueueID.
      */
-    void clearQueue(QueueID id);
+    void clearQueue(QueueID);
 
     /**
        Clear all the contained queues.
@@ -110,17 +117,17 @@ namespace stor {
     /**
        Test to see if the queue with the given QueueID is empty.
     */
-    bool empty(QueueID id) const;
+    bool empty(QueueID) const;
 
     /**
        Test to see if the queue with the given QueueID is full.
      */
-    bool full(QueueID id) const;
+    bool full(QueueID) const;
 
     /**
        Get number of elements in queue
     */
-    size_type size( QueueID id ) const;
+    size_type size(QueueID) const;
 
     /**
        Clear queues which are 'stale'; a queue is stale if it hasn't
@@ -155,8 +162,11 @@ namespace stor {
 
     std::vector<expirable_discard_new_queue_ptr> _discard_new_queues;
     std::vector<expirable_discard_old_queue_ptr> _discard_old_queues;
-    typedef std::map<ConsumerID, QueueID>        map_type;
-    map_type                                     _queue_id_lookup;
+    typedef std::map<ConsumerID, QueueID>        id_lookup_t;
+    id_lookup_t                                  _queue_id_lookup;
+    typedef std::map<EventConsRegPtr, QueueID,
+                     utils::ptr_comp<EventConsumerRegistrationInfo> > reginfo_lookup_t;
+    reginfo_lookup_t                             _queue_reginfo_lookup;
     ConsumerMonitorCollection& _consumer_monitor_collection;
 
     /*
@@ -171,6 +181,9 @@ namespace stor {
     */
     
     void _enqueue_event(QueueID const& id, T const& event);
+    //QueueID get_queue(const EventConsRegPtr, const utils::time_point_t&);
+    QueueID get_queue(const RegPtr, const utils::time_point_t&);
+
   };
 
   //------------------------------------------------------------------
@@ -265,44 +278,100 @@ namespace stor {
   }
 
   template <class T>
-  QueueID 
-  QueueCollection<T>::createQueue(ConsumerID cid,
-                                    enquing_policy::PolicyTag policy,
-				    size_type max,
-                                    utils::duration_t interval,
-                                    utils::time_point_t now)
+  QueueID
+  QueueCollection<T>::createQueue
+  (
+    const EventConsRegPtr reginfo,
+    const utils::time_point_t& now
+  )
   {
-    QueueID result;
+    QueueID qid;
+    const ConsumerID& cid = reginfo->consumerId();
+    
+    // We don't proceed if the given ConsumerID is invalid, or if
+    // we've already seen that value before.
+    if (!cid.isValid()) return qid;
+    write_lock_t lock_lookup(_protect_lookup);
+    if (_queue_id_lookup.find(cid) != _queue_id_lookup.end()) return qid;
+
+    if ( reginfo->uniqueEvents() )
+    {
+      // another consumer wants to share the
+      // queue to get unique events.
+      reginfo_lookup_t::const_iterator it =
+        _queue_reginfo_lookup.find(reginfo);
+      if ( it != _queue_reginfo_lookup.end() )
+        return (it->second);
+    }
+
+    qid = get_queue(reginfo, now);
+    _queue_id_lookup[cid] = qid;
+    _queue_reginfo_lookup[reginfo] = qid;
+    return qid;
+  }
+
+  template <class T>
+  QueueID 
+  QueueCollection<T>::createQueue
+  (
+    const RegPtr reginfo,
+    const utils::time_point_t& now
+  )
+  {
+    QueueID qid;
+    const ConsumerID& cid = reginfo->consumerId();
 
     // We don't proceed if the given ConsumerID is invalid, or if
     // we've already seen that value before.
-    if (!cid.isValid()) return result;
+    if (!cid.isValid()) return qid;
     write_lock_t lock_lookup(_protect_lookup);
-    if (_queue_id_lookup.find(cid) != _queue_id_lookup.end()) return result;
+    if (_queue_id_lookup.find(cid) != _queue_id_lookup.end()) return qid;
+    qid = get_queue(reginfo, now);
+    _queue_id_lookup[cid] = qid;
+    return qid;
+  }
 
-    if (policy == enquing_policy::DiscardNew)
-      {
- 	write_lock_t lock(_protect_discard_new_queues);
-        expirable_discard_new_queue_ptr newborn(new expirable_discard_new_queue_t(max,
-                                                                                  interval,
-                                                                                  now));
-        _discard_new_queues.push_back(newborn);
-        result = QueueID(enquing_policy::DiscardNew,
- 			 _discard_new_queues.size()-1);
-      }
-    else if (policy == enquing_policy::DiscardOld)
-      {
-	write_lock_t lock(_protect_discard_old_queues);
-        expirable_discard_old_queue_ptr newborn(new expirable_discard_old_queue_t(max,
-                                                                                  interval,
-                                                                                  now));
-	_discard_old_queues.push_back(newborn);
-	result = QueueID(enquing_policy::DiscardOld,
-			 _discard_old_queues.size()-1);
-
-      }
-    _queue_id_lookup[cid] = result;
-    return result;
+  template <class T>
+  QueueID
+  QueueCollection<T>::get_queue
+  (
+    const RegPtr reginfo,
+    const utils::time_point_t& now
+  )
+  {
+    if (reginfo->queuePolicy() == enquing_policy::DiscardNew)
+    {
+      write_lock_t lock(_protect_discard_new_queues);
+      expirable_discard_new_queue_ptr newborn(
+        new expirable_discard_new_queue_t(
+        reginfo->queueSize(),
+        reginfo->secondsToStale(),
+        now
+        )
+      );
+      _discard_new_queues.push_back(newborn);
+      return QueueID(
+        enquing_policy::DiscardNew,
+        _discard_new_queues.size()-1
+      );
+    }
+    else if (reginfo->queuePolicy() == enquing_policy::DiscardOld)
+    {
+      write_lock_t lock(_protect_discard_old_queues);
+      expirable_discard_old_queue_ptr newborn(
+        new expirable_discard_old_queue_t(
+          reginfo->queueSize(),
+          reginfo->secondsToStale(),
+          now
+        )
+      );
+      _discard_old_queues.push_back(newborn);
+      return QueueID(
+        enquing_policy::DiscardOld,
+        _discard_old_queues.size()-1
+      );
+    }
+    return QueueID();
   }
 
   template <class T>
@@ -392,7 +461,7 @@ namespace stor {
     {
       // Scope to control lifetime of lock.
       read_lock_t lock(_protect_lookup);
-      map_type::const_iterator i = _queue_id_lookup.find(cid);
+      id_lookup_t::const_iterator i = _queue_id_lookup.find(cid);
       if (i == _queue_id_lookup.end()) return result;
       id = i->second;
     }
