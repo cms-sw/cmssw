@@ -17,14 +17,16 @@ namespace {
 }
 
 float CastorQIECoder::charge (const CastorQIEShape& fShape, unsigned fAdc, unsigned fCapId) const {
-  unsigned range = fShape.range (fAdc);
-  return (fShape.center (fAdc) - offset (fCapId, range)) / slope (fCapId, range);
+  //unsigned range = fShape.range (fAdc);
+  //return (fShape.center (fAdc) - offset (fCapId, range)) / slope (fCapId, range);
+  return (fShape.center (fAdc) - 0) / 1;
 }
 
 unsigned CastorQIECoder::adc (const CastorQIEShape& fShape, float fCharge, unsigned fCapId) const {
   // search for the range
   for (unsigned range = 0; range < 4; range++) {
-    float qieCharge = fCharge * slope (fCapId, range) + offset (fCapId, range);
+    //float qieCharge = fCharge * slope (fCapId, range) + offset (fCapId, range);
+    float qieCharge = fCharge * 1 + 0;
     unsigned minBin = 32*range;
     float qieChargeMax = fShape.highEdge (minBin + 31);
     if (qieCharge <= qieChargeMax) {
