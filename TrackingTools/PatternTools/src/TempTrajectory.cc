@@ -34,10 +34,23 @@ void TempTrajectory::pop() {
 void TempTrajectory::push( const TrajectoryMeasurement& tm) {
   push( tm, tm.estimate());
 }
+void TempTrajectory::push( TrajectoryMeasurement&& tm) {
+  push( std::forward(tm), tm.estimate());
+}
 
-void TempTrajectory::push( const TrajectoryMeasurement& tm, double chi2Increment)
-{
+void TempTrajectory::push( const TrajectoryMeasurement& tm, double chi2Increment){
+  pushAux(tm,chi2Increment);
   theData.push_back(tm);
+}
+
+void TempTrajectory::push(TrajectoryMeasurement&& tm, double chi2Increment){
+  pushAux(tm,chi2Increment);
+  theData.push_back(std::forward(tm));
+}
+
+
+void TempTrajectory::pushAux( const TrajectoryMeasurement& tm, double chi2Increment)
+{
   if ( tm.recHit()->isValid()) {
     theNumberOfFoundHits++;
    }

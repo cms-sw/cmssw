@@ -43,6 +43,10 @@ class _bqueue_item {
     private:
         _bqueue_item() : back(0), value(), refCount(0) { }
         _bqueue_item(boost::intrusive_ptr< _bqueue_item<T> > tail, const T &val) : back(tail), value(val), refCount(0) { }
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+        _bqueue_item(boost::intrusive_ptr< _bqueue_item<T> > tail, T &&val) : 
+	  back(tail), value(std::move(val)), refCount(0) { }
+#endif
         boost::intrusive_ptr< _bqueue_item<T> > back;
         T value;
         size_t refCount;
@@ -85,12 +89,40 @@ class bqueue {
         bqueue() : m_size(0), m_bound(), m_head(m_bound), m_tail(m_bound) { }
         ~bqueue() { }
         bqueue(const bqueue<T> &cp) : m_size(cp.m_size), m_bound(cp.m_bound), m_head(cp.m_head), m_tail(cp.m_tail) { }
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+
+  bqueue(bqueue<T> &&cp) : 
+    m_size(cp.m_size),
+    m_bound(std::move(cp.m_bound)), m_head(std::move(cp.m_head)), m_tail(std::move(cp.m_tail)) { }
+
+  bqueue & operator=(bqueue<T> &&cp) {
+    using std::swap;
+    m_size=cp.m_size;
+    swap(m_bound,cp.m_bound);
+    swap(m_head,cp.m_head); 
+    swap(m_tail,cp.m_tail);
+    return *this;
+    }
+#endif
+
+      void swap(bqueue<T> &cp) {
+          using std::swap;
+	  swap(m_size,cp.m_size);
+	  swap(m_bound,cp.m_bound);
+	  swap(m_head,cp.m_head); 
+	  swap(m_tail,cp.m_tail);
+      }
+
         bqueue<T> fork() {
             return bqueue<T>(m_size,m_bound,m_head,m_tail);
         }
         void push_back(const T& val) {
             m_tail = itemptr(new item(this->m_tail, val)); 
             if ((++m_size) == 1) { m_head = m_tail; };
+        }
+        void push_back(T&& val) {
+	  m_tail = itemptr(new item(this->m_tail, std::forward<T>(val))); 
+	  if ((++m_size) == 1) { m_head = m_tail; };
         }
         void pop_back() {
             assert(m_size > 0);
@@ -121,10 +153,11 @@ class bqueue {
         }
         // connect 'other' at the tail of this. will reset 'other' to an empty sequence
         void join(bqueue<T> &other) {
+            using std::swap;
             if (m_size == 0) {
-                std::swap(m_head,other.m_head);
-                std::swap(m_tail,other.m_tail);
-                std::swap(m_size,other.m_size);
+                swap(m_head,other.m_head);
+                swap(m_tail,other.m_tail);
+                swap(m_size,other.m_size);
             } else {
                 other.m_head->back = this->m_tail;
                 m_tail = other.m_tail;
@@ -145,7 +178,10 @@ class bqueue {
         itemptr m_bound, m_head, m_tail;
         
 };
-
+  template<typename T>
+  void swap(bqueue<T> &rh, bqueue<T> &rh) {
+    rh.swap(lh);
+  }
 
 }
 
