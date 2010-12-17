@@ -17,11 +17,11 @@ CSCAnodeData2007::CSCAnodeData2007(const CSCALCTHeader & header)
   for(unsigned int k=0; k<theALCTDigis.size(); k++){
            alctBX_.push_back(theALCTDigis[k].getFullBX());
      }
-/*
-  for(unsigned int k=0; k<alctBX_.size(); k++)
-     std::cout << alctBX_[k] << " | ";
-  std::cout << std::endl;
-*/
+
+  //for(unsigned int k=0; k<alctBX_.size(); k++)
+  //   std::cout << alctBX_[k] << " | ";
+  //std::cout << std::endl;
+
 }
 
 
@@ -38,11 +38,11 @@ CSCAnodeData2007::CSCAnodeData2007(const CSCALCTHeader & header ,
   for(unsigned int k=0; k<theALCTDigis.size(); k++){
            alctBX_.push_back(theALCTDigis[k].getFullBX());
      }
-/*
-  for(unsigned int k=0; k<alctBX_.size(); k++)
-     std::cout << std::dec << alctBX_[k] << " | ";
-  std::cout << std::endl;
-*/
+
+  //for(unsigned int k=0; k<alctBX_.size(); k++)
+  //   std::cout << std::dec << alctBX_[k] << " | ";
+  //std::cout << std::endl;
+
 }
 
 
@@ -66,32 +66,32 @@ std::vector<CSCWireDigi> CSCAnodeData2007::wireDigis(int layer) const {
   uint32_t tbinbits=0;
   uint32_t wireGroup=0;
   /// BX from ACT (first component)
-  uint32_t wireGroupBX=alctBX_[0];
-    for(int layerPart = 0; layerPart <layerParts_; ++layerPart) {
-      ///we know how many layer parts are there from ALCT header 
-      for (int j=0; (j<12)&&((layerPart*12+j)<maxWireGroups_) ;++j) {
-	///loop over 12 bits in each word (each bit is one wiregroup) 
-	///we want to stop if we reached the maxWireGroups
-	for(int tbin = 0; tbin < nTimeBins_; ++tbin) { ///loop over tbins
-	  CSCAnodeDataFrame2007 frame = findFrame(tbin, layer, layerPart);
-	  if(frame.data() != 0) {
-	    if(frame.isHit(j)) {
-	      tbinbits=tbinbits + (1<<tbin);
-	    }
+  for(int layerPart = 0; layerPart <layerParts_; ++layerPart) {
+    ///we know how many layer parts are there from ALCT header 
+    for (int j=0; (j<12)&&((layerPart*12+j)<maxWireGroups_) ;++j) {
+      ///loop over 12 bits in each word (each bit is one wiregroup) 
+      ///we want to stop if we reached the maxWireGroups
+      for(int tbin = 0; tbin < nTimeBins_; ++tbin) { ///loop over tbins
+	CSCAnodeDataFrame2007 frame = findFrame(tbin, layer, layerPart);
+	if(frame.data() != 0) {
+	  if(frame.isHit(j)) {
+	    tbinbits=tbinbits + (1<<tbin);
 	  }
-	}//end of tbin loop
-	if (tbinbits !=0 ) {
-	  wireGroup = (layerPart*12+j)+1;
-           /// BX from ACT incoded in wireGroup
-          wireGroup = wireGroup | (wireGroupBX << 16);
-	  CSCWireDigi digi(wireGroup, tbinbits);
-	    LogTrace ("CSCAnodeData|CSCRawToDigi") << "Layer " << layer << " " << digi;
-	  digis.push_back(digi);
-	  tbinbits=0;
 	}
-      }///end of the loop over bits in the data frame
-    }///end of the loop over layer parts
-
+      }//end of tbin loop
+      if (tbinbits !=0 ) {
+	wireGroup = (layerPart*12+j)+1;
+	/// BX from ACT incoded in wireGroup
+	uint32_t wireGroupBX=alctBX_[0];
+	wireGroup = wireGroup | (wireGroupBX << 16);
+	CSCWireDigi digi(wireGroup, tbinbits);
+	LogTrace ("CSCAnodeData|CSCRawToDigi") << "Layer " << layer << " " << digi;
+	digis.push_back(digi);
+	tbinbits=0;
+      }
+    }///end of the loop over bits in the data frame
+  }///end of the loop over layer parts
+  
   return digis;
 }
 
