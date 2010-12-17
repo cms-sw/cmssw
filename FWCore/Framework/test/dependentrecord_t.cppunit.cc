@@ -298,7 +298,7 @@ void testdependentrecord::timeAndRunTest()
    CPPUNIT_ASSERT(overlapInterval == finder.findIntervalFor(depRecordKey, 
                                                             edm::IOVSyncValue(edm::EventID(1, 1, 1),edm::Timestamp(2))));
 
-
+   //Change only run/lumi/event based provider
    const edm::ValidityInterval definedInterval3( edm::IOVSyncValue(edm::EventID(1,1,6)), 
                                                  edm::IOVSyncValue(edm::EventID(1, 1, 10)));
    dummyProvider1->setValidityInterval(definedInterval3);
@@ -309,6 +309,7 @@ void testdependentrecord::timeAndRunTest()
    CPPUNIT_ASSERT(overlapInterval2 == finder.findIntervalFor(depRecordKey, 
                                                             edm::IOVSyncValue(edm::EventID(1, 1, 6),edm::Timestamp(5))));
 
+   //Change only time based provider
    const edm::ValidityInterval definedInterval4(edm::IOVSyncValue(edm::Timestamp(7)), 
 						edm::IOVSyncValue(edm::Timestamp(10)));
    dummyProvider2->setValidityInterval(definedInterval4);
@@ -318,6 +319,80 @@ void testdependentrecord::timeAndRunTest()
 
    CPPUNIT_ASSERT(overlapInterval3 == finder.findIntervalFor(depRecordKey, 
                                                             edm::IOVSyncValue(edm::EventID(1, 1, 7),edm::Timestamp(7))));
+   //Change both but make run/lumi/event 'closer' by having same lumi
+   {
+      const edm::ValidityInterval runLumiInterval( edm::IOVSyncValue(edm::EventID(1,2,11)), 
+                                                   edm::IOVSyncValue(edm::EventID(1, 3, 20)));
+      dummyProvider1->setValidityInterval(runLumiInterval);
+      
+      const edm::ValidityInterval timeInterval(edm::IOVSyncValue(edm::Timestamp(1ULL<<32)), 
+                                                   edm::IOVSyncValue(edm::Timestamp(5ULL<<32)));
+      dummyProvider2->setValidityInterval(timeInterval);
+
+      const edm::ValidityInterval overlapInterval(runLumiInterval.first(),
+                                                   edm::IOVSyncValue::invalidIOVSyncValue());
+      
+      CPPUNIT_ASSERT(overlapInterval == finder.findIntervalFor(depRecordKey, 
+                                                                edm::IOVSyncValue(edm::EventID(1, 2, 12),edm::Timestamp(3ULL<<32))));
+      
+   }
+
+   //Change both but make time 'closer'
+   {
+      const edm::ValidityInterval runLumiInterval( edm::IOVSyncValue(edm::EventID(1,3,21)), 
+                                                  edm::IOVSyncValue(edm::EventID(1, 10, 40)));
+      dummyProvider1->setValidityInterval(runLumiInterval);
+      
+      const edm::ValidityInterval timeInterval(edm::IOVSyncValue(edm::Timestamp(7ULL<<32)), 
+                                               edm::IOVSyncValue(edm::Timestamp(10ULL<<32)));
+      dummyProvider2->setValidityInterval(timeInterval);
+      
+      const edm::ValidityInterval overlapInterval(timeInterval.first(),
+                                                  edm::IOVSyncValue::invalidIOVSyncValue());
+      
+      CPPUNIT_ASSERT(overlapInterval == finder.findIntervalFor(depRecordKey, 
+                                                               edm::IOVSyncValue(edm::EventID(1, 4, 30),edm::Timestamp(8ULL<<32))));
+   }
+
+   //Change both but make run/lumi/event 'closer'
+   {
+      const edm::ValidityInterval runLumiInterval( edm::IOVSyncValue(edm::EventID(1,11,41)), 
+                                                  edm::IOVSyncValue(edm::EventID(1, 20, 60)));
+      dummyProvider1->setValidityInterval(runLumiInterval);
+      
+      const edm::ValidityInterval timeInterval(edm::IOVSyncValue(edm::Timestamp(11ULL<<32)), 
+                                               edm::IOVSyncValue(edm::Timestamp(100ULL<<32)));
+      dummyProvider2->setValidityInterval(timeInterval);
+      
+      const edm::ValidityInterval overlapInterval(runLumiInterval.first(),
+                                                  edm::IOVSyncValue::invalidIOVSyncValue());
+      
+      CPPUNIT_ASSERT(overlapInterval == finder.findIntervalFor(depRecordKey, 
+                                                               edm::IOVSyncValue(edm::EventID(1, 12, 50),edm::Timestamp(70ULL<<32))));
+   }
+
+   //Change both and make it ambiguous because of different run #
+   {
+      const edm::ValidityInterval runLumiInterval( edm::IOVSyncValue(edm::EventID(2,1,0)), 
+                                                  edm::IOVSyncValue(edm::EventID(6, 0, 0)));
+      dummyProvider1->setValidityInterval(runLumiInterval);
+      
+      const edm::ValidityInterval timeInterval(edm::IOVSyncValue(edm::Timestamp(200ULL<<32)), 
+                                               edm::IOVSyncValue(edm::Timestamp(500ULL<<32)));
+      dummyProvider2->setValidityInterval(timeInterval);
+      
+      const edm::ValidityInterval overlapInterval(timeInterval.first(),
+                                                  edm::IOVSyncValue::invalidIOVSyncValue());
+      
+      CPPUNIT_ASSERT(overlapInterval == finder.findIntervalFor(depRecordKey, 
+                                                               edm::IOVSyncValue(edm::EventID(4, 12, 50),edm::Timestamp(400ULL<<32))));
+   }
+   
+   //First reset back to the state expected by the following tests
+   dummyProvider1->setValidityInterval(definedInterval3);
+   dummyProvider2->setValidityInterval(definedInterval4);   
+   CPPUNIT_ASSERT(overlapInterval3 == finder.findIntervalFor(depRecordKey, 
+                                                             edm::IOVSyncValue(edm::EventID(1, 1, 7),edm::Timestamp(7))));
    
    //check with invalid intervals
    const edm::ValidityInterval invalid(edm::IOVSyncValue::invalidIOVSyncValue(),edm::IOVSyncValue::invalidIOVSyncValue());
