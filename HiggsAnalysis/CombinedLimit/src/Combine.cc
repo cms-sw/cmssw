@@ -294,8 +294,17 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
       delete absdata_toy;
     }
     expLimit /= nLimits;
-    if (verbose > 0)
-      cout << "mean   expected limit: r < " << expLimit << " @ " << cl*100 << "%CL (" <<nLimits << " toyMC)" << endl;
+    if (verbose > 0) {
+      double rms = 0;
+      for (std::vector<double>::const_iterator itl = limitHistory.begin(); itl != limitHistory.end(); ++itl) {
+        rms += pow(*itl-expLimit, 2);
+      }
+      if (nLimits > 1) {
+        rms = sqrt(rms/(nLimits-1)/nLimits);
+        cout << "mean   expected limit: r < " << expLimit << " +/- " << rms << " @ " << cl*100 << "%CL (" <<nLimits << " toyMC)" << endl;
+      } else {
+        cout << "mean   expected limit: r < " << expLimit << " @ " << cl*100 << "%CL (" <<nLimits << " toyMC)" << endl;
+      }
       sort(limitHistory.begin(), limitHistory.end());
       if (nLimits > 0) {
           double medianLimit = (nLimits % 2 == 0 ? 0.5*(limitHistory[nLimits/2]+limitHistory[nLimits/2+1]) : limitHistory[nLimits/2]);
@@ -307,6 +316,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
           cout << "   68% expected band : " << lo68 << " < r < " << hi68 << endl;
           cout << "   95% expected band : " << lo95 << " < r < " << hi95 << endl;
       }
+    }
   }
 
   boost::filesystem::remove_all(tmpDir.Data());
