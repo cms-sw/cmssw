@@ -15,6 +15,18 @@ cd TauID/ZTT_recoFiles/
 `Summarize`
 label=`echo $CMSSW_VERSION | awk -FCMSSW_ '{print $2}'`
 `Compare compareTo=$PastResults/CMSSW_3_9_4/TauID/ZTT_recoFiles/ testLabel=$label referenceLabel=3_9_4`
-`Compare compareTo=../QCD_recoFiles/ testLabel=ZTT referenceLabel=QCD scale=log`
+`Compare compareTo=../QCD_recoFiles/ testLabel=ZTT referenceLabel=QCD scale=smartlog`
 `BuildWebpage`
-`SubmitResults`
+if [ -z "$DISPLAY" ]; then
+    echo "Display not set. Impossible to open the page"
+else
+    `firefox index.html`
+fi
+
+echo 'Do you want to submit the result? [y/n]'
+read answer
+if [ $answer = 'y' ]; then
+    `SubmitResults`
+else
+    exit
+fi
