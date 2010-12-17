@@ -22,7 +22,16 @@ public:
 
   DeepCopyPointer( T* t) : theData(t) {}
 
+  DeepCopyPointer( const DeepCopyPointer& other) {
+    if (other.theData) theData = new T( *other); else theData = 0;
+  }
 
+  DeepCopyPointer& operator=( const DeepCopyPointer& other) {
+    if ( theData != other.theData) {
+      delete theData;
+      if (other.theData) theData = new T( *other); else theData = 0;
+    }
+  }
 
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
   // straight from http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2006/n2027.html
