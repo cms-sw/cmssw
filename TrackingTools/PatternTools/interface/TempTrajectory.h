@@ -115,7 +115,7 @@ public:
     theSeed(std::move(rh.theSeed))
   {}
 
-  Trajectory & operator=(Trajectory && rh) {
+  TempTrajectory & operator=(TempTrajectory && rh) {
     using std::swap;
     swap(theData,rh.theData);
     theChiSquared=rh.theChiSquared;
@@ -147,8 +147,9 @@ public:
    *  of tm.estimate() . 
    */
   void push( const TrajectoryMeasurement& tm);
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   void push(TrajectoryMeasurement&& tm);
-
+#endif
     /** Add a new sets of measurements to a Trajectory
    *  The sorting of hits in the other trajectory must match the one
    *  inside this trajectory (that is, both along or both opposite to momentum)
@@ -167,8 +168,9 @@ public:
    *  by chi2Increment. Useful e.g. in trajectory smoothing.
    */
   void push( const TrajectoryMeasurement& tm, double chi2Increment);
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   void push( TrajectoryMeasurement&& tm, double chi2Increment);
-
+#endif
   /** Remove the last measurement from the trajectory.
    */
   void pop();

@@ -34,20 +34,24 @@ void TempTrajectory::pop() {
 void TempTrajectory::push( const TrajectoryMeasurement& tm) {
   push( tm, tm.estimate());
 }
+
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
 void TempTrajectory::push( TrajectoryMeasurement&& tm) {
-  push( std::forward(tm), tm.estimate());
+  push( std::forward<TrajectoryMeasurement>(tm), tm.estimate());
 }
+#endif
 
 void TempTrajectory::push( const TrajectoryMeasurement& tm, double chi2Increment){
   pushAux(tm,chi2Increment);
   theData.push_back(tm);
 }
 
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
 void TempTrajectory::push(TrajectoryMeasurement&& tm, double chi2Increment){
   pushAux(tm,chi2Increment);
-  theData.push_back(std::forward(tm));
+  theData.push_back(std::move(tm));
 }
-
+#endif
 
 void TempTrajectory::pushAux( const TrajectoryMeasurement& tm, double chi2Increment)
 {

@@ -179,7 +179,7 @@ class bqueue {
         
 };
   template<typename T>
-  void swap(bqueue<T> &rh, bqueue<T> &rh) {
+  void swap(bqueue<T> &rh, bqueue<T> &lh) {
     rh.swap(lh);
   }
 
