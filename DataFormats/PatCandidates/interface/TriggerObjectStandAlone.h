@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerObjectStandAlone
 //
-// $Id: TriggerObjectStandAlone.h,v 1.15 2010/12/15 19:44:27 vadler Exp $
+// $Id: TriggerObjectStandAlone.h,v 1.9 2010/12/16 18:39:17 vadler Exp $
 //
 /**
   \class    pat::TriggerObjectStandAlone TriggerObjectStandAlone.h "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
@@ -20,7 +20,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerObjectStandAlone
 
   \author   Volker Adler
-  \version  $Id: TriggerObjectStandAlone.h,v 1.15 2010/12/15 19:44:27 vadler Exp $
+  \version  $Id: TriggerObjectStandAlone.h,v 1.9 2010/12/16 18:39:17 vadler Exp $
 */
 
 
@@ -103,7 +103,7 @@ namespace pat {
       bool path( const std::string & pathName, unsigned pathLastFilterAccepted = true ) const { return hasPathName( pathName, pathLastFilterAccepted ); };
       /// Calls 'hasCollection(...)' (method override)
 // FIXME: Currently implememnts the method coll(..) rather than hasCollection(...) in order to avoid segmentation violations from the cut string parser
-//       bool coll( const std::string & collName ) const { return hasCollection( collName ) };
+//       virtual bool coll( const std::string & collName ) const { return hasCollection( collName ); };
       bool coll( const std::string & collName ) const;
 
   };
