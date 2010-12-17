@@ -1,6 +1,8 @@
 #ifndef DeepCopyPointerByClone_H
 #define DeepCopyPointerByClone_H
 
+#include<algorithm>
+
 /** Same as DeepCopyPointer, except that it copies the object
  *  pointed to wsing the clone() virtual copy constructor.
  */
