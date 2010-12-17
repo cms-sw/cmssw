@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.278 $"
+__version__ = "$Revision: 1.279 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -599,6 +599,7 @@ class ConfigBuilder(object):
 
         # if fastsim switch event content
         if "FASTSIM" in self.stepMap.keys():
+		self.GENDefaultSeq='pgen_genonly'
                 self.EVTCONTDefaultCFF = "FastSimulation/Configuration/EventContent_cff"
                 self.VALIDATIONDefaultCFF = "FastSimulation.Configuration.Validation_cff"
 
@@ -851,12 +852,7 @@ class ConfigBuilder(object):
         self.loadDefaultOrSpecifiedCFF(sequence,self.GENDefaultCFF)
         genSeqName=sequence.split('.')[-1]
 
-        # no vtx smearing for fastsim
-        if 'FASTSIM' in self.stepMap:
-                self.executeAndRemember('process.%s.remove(process.VertexSmearing)'%(genSeqName,))
-                self.executeAndRemember('process.%s.remove(process.GeneInfo)'%(genSeqName,))
-                self.executeAndRemember('process.%s.remove(process.genJetMET)'%(genSeqName,))
-        else:
+        if not 'FASTSIM' in self.stepMap:
                 try:
                         self.loadAndRemember('Configuration/StandardSequences/VtxSmeared'+self._options.beamspot+'_cff')
                 except ImportError:
@@ -1328,7 +1324,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.278 $"),
+                                            (version=cms.untracked.string("$Revision: 1.279 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
