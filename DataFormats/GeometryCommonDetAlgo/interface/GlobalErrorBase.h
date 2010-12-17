@@ -40,6 +40,20 @@ public:
    */
   GlobalErrorBase(const NullMatrix &) : theCartesianError(0) {}
 
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+  GlobalErrorBase(GlobalErrorBase const & o) :  theCartesianError(o.theCartesianError){}
+  GlobalErrorBase(GlobalErrorBase && o) :  theCartesianError(std::move(o.theCartesianError)){}
+
+  GlobalErrorBase & operator=(GlobalErrorBase && o) {
+    theCartesianError=std::move(o.theCartesianError);
+    return *this;
+  }
+  GlobalErrorBase & operator=(GlobalErrorBase const & o) {
+    theCartesianError=o.theCartesianError;
+    return *this;
+  }
+#endif
+
   /**
    * Constructor.
    * The symmetric matrix stored as a lower triangular matrix

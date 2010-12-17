@@ -108,6 +108,10 @@ namespace edm {
     OwnVector();
     OwnVector(size_type);
     OwnVector(OwnVector const&);
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+    OwnVector(OwnVector&&);
+#endif
+
     ~OwnVector();
 
     iterator begin();
@@ -120,6 +124,10 @@ namespace edm {
     const_reference operator[](size_type) const;
 
     OwnVector<T, P> & operator=(OwnVector<T, P> const&);
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+    OwnVector<T, P> & operator=(OwnVector<T, P>&&);
+#endif
+
 
     void reserve(size_t);
     template <typename D> void push_back(D*& d);
@@ -175,42 +183,60 @@ namespace edm {
     inline void fixup() const { fixup_(data_); }
     inline void touch() { fixup_.touch(); }
   };
-
+  
   template<typename T, typename P>
   inline OwnVector<T, P>::OwnVector() : data_() {
   }
-
+  
   template<typename T, typename P>
   inline OwnVector<T, P>::OwnVector(size_type n) : data_(n) {
   }
-
+  
   template<typename T, typename P>
   inline OwnVector<T, P>::OwnVector(OwnVector<T, P> const& o) : data_(o.size()) {
     size_type current = 0;
     for (const_iterator i = o.begin(), e = o.end(); i != e; ++i,++current)
       data_[current] = policy_type::clone(*i);
+    fixup_ = o.fixup_;
   }
-
+  
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+  template<typename T, typename P>
+  inline OwnVector<T, P>::OwnVector(OwnVector<T, P> && o)  {
+    data_.swap(o.data_);
+    fixup_ = o.fixup_;
+  }
+#endif
+  
   template<typename T, typename P>
   inline OwnVector<T, P>::~OwnVector() {
     destroy();
   }
-
+  
   template<typename T, typename P>
   inline OwnVector<T, P> & OwnVector<T, P>::operator=(OwnVector<T, P> const& o) {
     OwnVector<T,P> temp(o);
     swap(temp);
+    return *this;
+  }
+  
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+  template<typename T, typename P>
+  inline OwnVector<T, P> & OwnVector<T, P>::operator=(OwnVector<T, P> && o) {
+    data_.swap(o.data_);
     fixup_ = o.fixup_;
     return *this;
   }
-
+#endif
+  
+  
   template<typename T, typename P>
   inline typename OwnVector<T, P>::iterator OwnVector<T, P>::begin() {
     fixup();
     touch();
     return iterator(data_.begin());
   }
-
+  
   template<typename T, typename P>
   inline typename OwnVector<T, P>::iterator OwnVector<T, P>::end() {
     fixup();

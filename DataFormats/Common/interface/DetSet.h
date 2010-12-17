@@ -8,7 +8,7 @@ associated with a common DetId with a DetId instance, holding the
 common DetId value. The collected objects may or may not contain their
 own copy of the common DetId.
 
-$Id: DetSet.h,v 1.11 2009/02/06 18:24:49 elmer Exp $
+$Id: DetSet.h,v 1.12 2009/05/07 13:54:22 elmer Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -35,6 +35,16 @@ namespace edm {
     DetSet() : id(0), data() { }
     /// constructor by detector identifier
     explicit DetSet(det_id_type i) : id(i), data() { }
+
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+    DetSet(DetSet<T> && rh) : id(rh.id), data(std::move(rh.data)){}
+    
+    DetSet<T> & operator=(DetSet<T> && rh)  {
+      id = rh.id;
+      data.swap(rh.data);
+      return * this;
+    }
+#endif
 
     iterator begin() { return data.begin(); }
     iterator end() { return data.end(); }
