@@ -171,14 +171,14 @@ process.PassingWP95.cut = cms.string(
     process.goodElectrons.cut.value() +
     " && (gsfTrack.trackerExpectedHitsInner.numberOfHits <= 1)"
     " && ((isEB"
-    " && ( dr03TkSumPt/p4.Pt < 0.15 && dr03EcalRecHitSumEt/p4.Pt < 2.0 && dr03HcalTowerSumEt/p4.Pt < 0.12 )"                     
+    " && ( dr03TkSumPt/p4.Pt < 0.15 && dr03EcalRecHitSumEt/p4.Pt < 2.0 && dr03HcalTowerSumEt/p4.Pt < 0.12 )" 
     " && (sigmaIetaIeta<0.01)"
     " && ( -0.8<deltaPhiSuperClusterTrackAtVtx<0.8 )"
     " && ( -0.007<deltaEtaSuperClusterTrackAtVtx<0.007 )"
     " && (hadronicOverEm<0.15)"
     ")"
     " || (isEE"
-    " && (dr03TkSumPt/p4.Pt < 0.08 && dr03EcalRecHitSumEt/p4.Pt < 0.06  && dr03HcalTowerSumEt/p4.Pt < 0.05 )"                     
+    " && (dr03TkSumPt/p4.Pt < 0.08 && dr03EcalRecHitSumEt/p4.Pt < 0.06  && dr03HcalTowerSumEt/p4.Pt < 0.05 )"  
     " && (sigmaIetaIeta<0.03)"
     " && ( -0.7<deltaPhiSuperClusterTrackAtVtx<0.7 )"
     " && ( -0.01<deltaEtaSuperClusterTrackAtVtx<0.01 )"
@@ -287,12 +287,17 @@ process.PassingWP60.cut = cms.string(
 ##   | |___| | |___ 
 ##    \____|_|\____|
 ##   
-process.load("RecoEgamma.ElectronIdentification.cutsInCategoriesElectronIdentificationV06_cfi")
+process.load("RecoEgamma.ElectronIdentification.cutsInCategoriesElectronIdentificationV06_DataTuning_cfi")
 process.eIDSequence = cms.Sequence(
     process.eidVeryLoose+
     process.eidLoose+                
-    process.eidMedium+ process.eidTight+
-    process.eidSuperTight+ process.eidHyperTight1
+    process.eidMedium+
+    process.eidTight+
+    process.eidSuperTight+
+    process.eidHyperTight1+
+    process.eidHyperTight2+
+    process.eidHyperTight3+
+    process.eidHyperTight4    
     )
                          
 ##    _____     _                         __  __       _       _     _             
@@ -326,12 +331,12 @@ process.superClusterDRToNearestJet = cms.EDProducer("DeltaRNearestJetComputer",
        # ^^--- NOTA BENE: if probes are defined by ref, as in this case, 
        #       this must be the full collection, not the subset by refs.
     objects = cms.InputTag(JET_COLL),
-    objectSelection = cms.string(JET_CUTS + " && pt > 15.0"),
+    objectSelection = cms.string(JET_CUTS + " && pt > 20.0"),
 )
 process.JetMultiplicityInSCEvents = cms.EDProducer("CandMultiplicityCounter",
     probes = cms.InputTag("goodSuperClusters"),
     objects = cms.InputTag(JET_COLL),
-    objectSelection = cms.string(JET_CUTS + " && pt > 15.0"),
+    objectSelection = cms.string(JET_CUTS + " && pt > 20.0"),
 )
 process.SCConvRejVars = cms.EDProducer("ElectronConversionRejectionVars",
     probes = cms.InputTag("goodSuperClusters")
@@ -871,7 +876,10 @@ process.GsfElectronToIdToHLT.variables.probe_eidCicLoose = cms.InputTag("eidLoos
 process.GsfElectronToIdToHLT.variables.probe_eidCicMedium = cms.InputTag("eidMedium")
 process.GsfElectronToIdToHLT.variables.probe_eidCicTight = cms.InputTag("eidTight")
 process.GsfElectronToIdToHLT.variables.probe_eidCicSuperTight = cms.InputTag("eidSuperTight")
-process.GsfElectronToIdToHLT.variables.probe_eidCicHyperTight = cms.InputTag("eidHyperTight1")
+process.GsfElectronToIdToHLT.variables.probe_eidCicHyperTight1 = cms.InputTag("eidHyperTight1")
+process.GsfElectronToIdToHLT.variables.probe_eidCicHyperTight2 = cms.InputTag("eidHyperTight2")
+process.GsfElectronToIdToHLT.variables.probe_eidCicHyperTight3 = cms.InputTag("eidHyperTight3")
+process.GsfElectronToIdToHLT.variables.probe_eidCicHyperTight4 = cms.InputTag("eidHyperTight4")
 process.GsfElectronToIdToHLT.variables.probe_dist = cms.InputTag("GsfConvRejVars","dist")
 process.GsfElectronToIdToHLT.variables.probe_dcot = cms.InputTag("GsfConvRejVars","dcot")
 process.GsfElectronToIdToHLT.variables.probe_convradius = cms.InputTag("GsfConvRejVars","convradius")
@@ -883,7 +891,10 @@ process.GsfElectronToIdToHLT.tagVariables.eidCicLoose = cms.InputTag("eidLoose")
 process.GsfElectronToIdToHLT.tagVariables.eidCicMedium = cms.InputTag("eidMedium")
 process.GsfElectronToIdToHLT.tagVariables.eidCicTight = cms.InputTag("eidTight")
 process.GsfElectronToIdToHLT.tagVariables.eidCicSuperTight = cms.InputTag("eidSuperTight")
-process.GsfElectronToIdToHLT.tagVariables.eidCicHyperTight = cms.InputTag("eidHyperTight1")
+process.GsfElectronToIdToHLT.tagVariables.eidCicHyperTight1 = cms.InputTag("eidHyperTight1")
+process.GsfElectronToIdToHLT.tagVariables.eidCicHyperTight2 = cms.InputTag("eidHyperTight2")
+process.GsfElectronToIdToHLT.tagVariables.eidCicHyperTight3 = cms.InputTag("eidHyperTight3")
+process.GsfElectronToIdToHLT.tagVariables.eidCicHyperTight4 = cms.InputTag("eidHyperTight4")
 process.GsfElectronToIdToHLT.tagVariables.dist = cms.InputTag("GsfConvRejVars","dist")
 process.GsfElectronToIdToHLT.tagVariables.dcot = cms.InputTag("GsfConvRejVars","dcot")
 process.GsfElectronToIdToHLT.tagVariables.convradius = cms.InputTag("GsfConvRejVars","convradius")

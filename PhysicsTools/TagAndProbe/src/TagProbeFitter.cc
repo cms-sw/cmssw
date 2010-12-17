@@ -484,7 +484,9 @@ void TagProbeFitter::createPdf(RooWorkspace* w, vector<string>& pdfCommands){
         w->import(command.substr(8).c_str());
         here->cd();
     } else {
-        w->factory(command.c_str());
+      TDirectory *here = gDirectory;
+      w->factory(command.c_str());
+      here->cd();
     }
   }
   // setup the simultaneous extended pdf

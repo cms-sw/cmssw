@@ -17,16 +17,29 @@ TriggerCandProducer<object>::TriggerCandProducer(const edm::ParameterSet& iConfi
     iConfig.getUntrackedParameter<edm::InputTag>("triggerEventTag",
 						 dTriggerEventTag);
   const edm::InputTag dTriggerResults("TriggerResults","","HLT");
+
+
+  // By default, trigger results are labeled "TriggerResults" with process name "HLT" in the event.
   triggerResultsTag_ = iConfig.getUntrackedParameter<edm::InputTag>("triggerResultsTag", 
 								    dTriggerResults);
   hltTags_ = iConfig.getParameter<std::vector<edm::InputTag> >("hltTags");
   
-  delRMatchingCut_ = iConfig.getUntrackedParameter<double>("triggerDelRMatch",
-							   0.30);
+  // Trigger-matching window. We use some default deltaR.
+  delRMatchingCut_ = iConfig.getUntrackedParameter<double>("triggerDelRMatch", 0.30);
+
+
+
   // ******************************************** //
-  //Trigger path VS L1 trigger filter. Trigger Path is default.
+  //Whether using HLT trigger path name or the actual trigger filter name. Trigger path is default.
   isFilter_ = iConfig.getUntrackedParameter<bool>("isTriggerFilter",false);
+
+
+  // By default, do not print debugging information for each event.
   printIndex_ = iConfig.getUntrackedParameter<bool>("verbose",false);
+
+  // By default, perform trigger-matching with only unprescaled trigger.
+  matchUnprescaledTriggerOnly_ = iConfig.getUntrackedParameter<bool>("matchUnprescaledTriggerOnly",true);
+
 
   //  produces< edm::PtrVector<object> >();
   produces< edm::RefToBaseVector<object> >();
@@ -68,6 +81,12 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
     return;    
   }
 
+
+  // if user is using prescaled path, print out some loud warning message.
+  if( !matchUnprescaledTriggerOnly_ )
+    edm::LogInfo("info")<< "******** Warning: You are using a prescaled trigger for matching: Are you sure you want to do this ??? ";
+
+
    // Get the input collection
    edm::Handle<edm::View<object> > candHandle;
    try
@@ -93,11 +112,10 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
    std::map<std::string, bool> triggerUnprescaled;
    for (std::vector<edm::InputTag>::const_iterator iMyHLT = hltTags_.begin(); 
         iMyHLT != hltTags_.end(); ++iMyHLT) {
-     if ((triggerInMenu.find((*iMyHLT).label()) == triggerInMenu.end()) &&
-         (triggerUnprescaled.find((*iMyHLT).label()) == triggerUnprescaled.end())) {
+     if ( triggerInMenu.find((*iMyHLT).label()) == triggerInMenu.end() ) 
        triggerInMenu[(*iMyHLT).label()] = false;
+     if ( triggerUnprescaled.find((*iMyHLT).label()) == triggerUnprescaled.end() ) 
        triggerUnprescaled[(*iMyHLT).label()] = false;
-     }
    }
    for (std::vector<std::string>::const_iterator iHLT = activeHLTPathsInThisEvent.begin(); 
         iHLT != activeHLTPathsInThisEvent.end(); ++iHLT) {
@@ -105,9 +123,8 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
           iMyHLT != hltTags_.end(); ++iMyHLT) {
        if ((*iMyHLT).label() == *iHLT) {
          triggerInMenu[(*iMyHLT).label()] = true;
-         if (hltConfig_.prescaleValue(event, eventSetup, *iHLT) == 1) {
-           triggerUnprescaled[(*iMyHLT).label()] = true;
-         }
+         if (hltConfig_.prescaleValue(event, eventSetup, *iHLT) == 1) 
+           triggerUnprescaled[(*iMyHLT).label()] = true;         
        }
      }
    }
@@ -115,7 +132,10 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
    unsigned int i = 0;
    for (std::map<std::string, bool>::const_iterator iMyHLT = triggerInMenu.begin(); 
         iMyHLT != triggerInMenu.end(); ++iMyHLT) {
-     if (iMyHLT->second && triggerUnprescaled[iMyHLT->first]) {
+     bool isRightPath = iMyHLT->second;
+     if(matchUnprescaledTriggerOnly_) 
+       isRightPath = isRightPath && triggerUnprescaled[iMyHLT->first];
+     if (isRightPath) {
        theRightHLTTag_ = edm::InputTag(iMyHLT->first, "", hltTags_[0].process());
        ++numOKHLTPaths;
      }
@@ -257,6 +277,14 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
    
 
 
+
+
+
+
+
+
+
+
 // ---- method called once each job just before starting event loop  ---
 template<class object>
 void TriggerCandProducer<object>::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup){
@@ -284,10 +312,23 @@ void TriggerCandProducer<object>::beginRun(edm::Run& iRun, edm::EventSetup const
     std::cout << "HLT configuration changed !" << std::endl;
 }
 
+
+
+
+
+
+
+
+
+
+
 template<class object>
 void TriggerCandProducer<object>::beginJob() {
   filterName_ = "";
 }
+
+
+
 
 
 
