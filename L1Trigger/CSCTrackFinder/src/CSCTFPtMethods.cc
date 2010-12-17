@@ -1010,7 +1010,7 @@ float CSCTFPtMethods::Pt2Stn2010(int type, float eta, float dphi, int fr, int me
           PTsolv = PTsolv*1.2;
           if(PTsolv > 137.5) PTsolv = 137.5;
           if(fabs(dphi) <= 0.002 && PTsolv < 120.)PTsolv = 140.;
-          if( fabs(dphi) <= 0.01 && (type == 12 || type == 14) && PTsolv < 120.)PTsolv = 140.;
+          if( fabs(dphi) <= 0.01 && (type == 11 || type == 12 || type == 14) && PTsolv < 120.)PTsolv = 140.;
           dphi = - dphi; //return to correct sing dphi
 
     } //if(fabs(eta_TracMy) 
@@ -1020,7 +1020,7 @@ float CSCTFPtMethods::Pt2Stn2010(int type, float eta, float dphi, int fr, int me
     if(Pt > 10 && fabs(dphi) >= 0.1 ) std::cout << "iF = 0 for dphi = " << dphi <<" and Pt = " << Pt << std::endl;
                                                                     
     //if(Pt > 100 && (type == 12 || type == 14) && fabs(eta) <= 1.2 && dphi > 0.015 )std::cout << "dphi = " << dphi << " eta = " << eta << std::endl; 
-    if(Pt < 10 && (type == 12 || type == 14) && fabs(eta) <= 1.2 && dphi < 0.01)std::cout << "dphi = " << dphi << " eta = " << eta <<   std::endl; 
+    //if(Pt < 10 && (type == 12 || type == 14) && fabs(eta) <= 1.2 && dphi < 0.01)std::cout << "dphi = " << dphi << " eta = " << eta <<   std::endl; 
     //      return (Pt>0.0) ? Pt : 0.0;
 
     float Pt_min = trigger_scale->getPtScale()->getLowEdge(1);// 0 GeV

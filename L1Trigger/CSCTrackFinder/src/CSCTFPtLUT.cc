@@ -44,6 +44,7 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es)
       isBinary(false)
 {
 	pt_method = 4;
+        //std::cout << "pt_method from 4 " << std::endl; 
 	lowQualityFlag = 4;
 	isBeamStartConf = true;
 	pt_lut = new ptdat[1<<21];
@@ -102,6 +103,7 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset,
   // 12 - Anna's: for fw 20101011 <- 2011 data taking 
           //with improvments at ME1/1a: find max pt for 3 links hypothesis
   pt_method = pset.getUntrackedParameter<unsigned>("PtMethod",4);
+  //std::cout << "pt_method from pset " << std::endl; 
   // what does this mean???
   lowQualityFlag = pset.getUntrackedParameter<unsigned>("LowQualityFlag",4);
 
@@ -176,7 +178,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
   mode = address.track_mode;
   fr = address.track_fr;
   charge = address.delta_phi_sign;
-  quality = trackQuality(eta, mode);
+  quality = trackQuality(eta, mode, fr);
   unsigned front_pt, rear_pt;
   front_pt = 0.; rear_pt = 0.;
   unsigned front_quality, rear_quality;
@@ -626,7 +628,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 }
 
 
-unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode) const
+unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode, const unsigned& fr) const
 {
  // eta and mode should be only 4-bits, since that is the input to the large LUT
     if (eta>15 || mode>15)
@@ -680,15 +682,24 @@ unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode) con
     case 11:
       // single LCTs
       quality = 1;
+      // overlap region
+      if(pt_method > 10 && fr == 0) quality = 2;
+      if(pt_method > 10 && fr == 1) quality = 3;
       break;
     case 12:
       quality = 3;
+      // overlap region
+      if(pt_method > 10 && fr == 0) quality = 2;
+      if(pt_method > 10 && fr == 1) quality = 3;
       break;
     case 13:
       quality = 2;
       break;
     case 14:
       quality = 2;
+      // overlap region
+      if(pt_method > 10 && fr == 0) quality = 2;
+      if(pt_method > 10 && fr == 1) quality = 3;
       break;
     case 15:
       // halo triggers

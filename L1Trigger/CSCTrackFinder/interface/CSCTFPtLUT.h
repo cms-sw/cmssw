@@ -52,7 +52,8 @@ public:
 
 
   ptdat calcPt(const ptadd&) const;
-  unsigned trackQuality(const unsigned& eta, const unsigned& mode) const;
+  //unsigned trackQuality(const unsigned& eta, const unsigned& mode) const;
+  unsigned trackQuality(const unsigned& eta, const unsigned& mode, const unsigned& fr) const;
   void readLUT();
 };
 
