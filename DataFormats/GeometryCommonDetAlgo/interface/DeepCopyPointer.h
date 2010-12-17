@@ -31,6 +31,7 @@ public:
       delete theData;
       if (other.theData) theData = new T( *other); else theData = 0;
     }
+    return *this;
   }
 
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
