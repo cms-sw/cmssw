@@ -1615,7 +1615,9 @@ namespace cscdqm {
       /**  LOG_DEBUG <<  "***  CATHODE PART  DEBUG: Layer=" << nLayer <<"  Number of Clusters=" << Clus.size() << "      ***"; */
       /**  Number of Clusters Histograms */
       if (getCSCHisto(h::CSC_CFEB_NUMBER_OF_CLUSTERS_LY_XX, crateID, dmbID, nLayer, mo)) {
-        if(Clus.size() >= 0)  mo->Fill(Clus.size());
+        // Allways true because Clus.size() = unsigned
+        // if (Clus.size() >= 0)  
+        mo->Fill(Clus.size());
       }
 
       for(uint32_t u = 0; u < Clus.size(); u++){
