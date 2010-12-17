@@ -641,10 +641,9 @@ unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode, con
     switch (mode) {
     case 2:
       quality = 3;
+      if(pt_method > 10 && eta < 3) quality = 2; //eta < 1.2  
       break;
     case 3:
-      quality = 3;
-      break;
     case 4:
       /// DEA try increasing quality
       //        quality = 2;
@@ -656,13 +655,14 @@ unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode, con
 	quality = 3;
       break;
     case 6:
-      if (eta>=3)
+      if (eta>=3) // eta > 1.2
 	quality = 2;
       else
 	quality = 1;
       break;
     case 7:
       quality = 2;
+      if(pt_method > 10 && eta < 3) quality = 1; //eta < 1.2  
       break;
     case 8:
       quality = 1;
