@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.42 2010/07/29 15:19:45 chamont Exp $
+// $Id: PixelHitMatcher.cc,v 1.43 2010/09/21 17:06:14 chamont Exp $
 //
 //
 
@@ -253,6 +253,10 @@ PixelHitMatcher::compatibleSeeds
        } // end loop on second seed hit
      } // end loop on first seed hit
    } // end loop on seeds
+
+  mapTsos_.clear() ;
+  mapTsos2_.clear() ;
+
   return result ;
  }
 
