@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 30 19:37:22 EDT 2005
-// $Id: DependentRecordIntervalFinder.cc,v 1.10 2009/12/04 22:11:41 chrjones Exp $
+// $Id: DependentRecordIntervalFinder.cc,v 1.11 2009/12/04 22:43:53 chrjones Exp $
 //
 
 // system include files
@@ -31,8 +31,7 @@ namespace edm {
 // constructors and destructor
 //
 DependentRecordIntervalFinder::DependentRecordIntervalFinder(const EventSetupRecordKey& iKey) :
-  providers_(),
-  m_previousSyncTo(IOVSyncValue::invalidIOVSyncValue())
+  providers_()
 {
    findingRecordWithKey(iKey);
 }
@@ -78,6 +77,8 @@ DependentRecordIntervalFinder::setIntervalFor(const EventSetupRecordKey& iKey,
                                                const IOVSyncValue& iTime, 
                                                ValidityInterval& oInterval)
 {
+   //NOTE: oInterval is the last value that was used so if nothing changed do not modify oInterval
+   
    //I am assuming that an invalidTime is always less then the first valid time
    assert(IOVSyncValue::invalidIOVSyncValue() < IOVSyncValue::beginOfTime());
    if(providers_.size() == 0 && alternate_.get() == 0 ) {
@@ -129,28 +130,31 @@ DependentRecordIntervalFinder::setIntervalFor(const EventSetupRecordKey& iKey,
        newInterval.setLast(IOVSyncValue::invalidIOVSyncValue());
      }
      oInterval = newInterval;
-     m_previousSyncTo = iTime;
      return;
    }
    //handle the case where some providers use time and others use run/lumi/event
    // in this case all we can do is find an IOV which changed since last time
    // and use its start time to do the synching and use an 'invalid' end time
    // so the system always checks back to see if something has changed
+   if (previousIOVs_.empty()) {
+      std::vector<ValidityInterval> tmp(providers_.size(),ValidityInterval());
+      previousIOVs_.swap(tmp);
+   }
 
+   std::vector<ValidityInterval>::iterator itIOVs = previousIOVs_.begin();
    for(Providers::iterator itProvider = providers_.begin(), itProviderEnd = providers_.end();
        itProvider != itProviderEnd;
-       ++itProvider) {
+       ++itProvider, ++itIOVs) {
       if((*itProvider)->setValidityIntervalFor(iTime)) {
          ValidityInterval providerInterval = (*itProvider)->validityInterval();
-	 if(!providerInterval.validFor(m_previousSyncTo)) {
+	 if(*itIOVs != providerInterval) {
+           *itIOVs = providerInterval;
 	   //NOTE if the above is never true than old interval should be fine
 	   providerInterval.setLast(IOVSyncValue::invalidIOVSyncValue());
 	   oInterval = providerInterval;
-	   break;
          }
       }
    }
-   m_previousSyncTo = iTime;
 }
 
 //
