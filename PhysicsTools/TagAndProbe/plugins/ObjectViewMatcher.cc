@@ -36,6 +36,9 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+
+
 #include <memory>
 #include <vector>
 #include <sstream>
@@ -63,6 +66,11 @@ private:
   double                     deltaRMax_;
   
   std::string  moduleLabel_;
+
+  StringCutObjectSelector<T1,true> objCut_; // lazy parsing, to allow cutting on variables not in reco::Candidate class
+  StringCutObjectSelector<T2,true> objMatchCut_; // lazy parsing, to allow cutting on variables not in reco::Candidate class
+
+
   unsigned int nObjectsTot_;
   unsigned int nObjectsMatch_;
 };
@@ -80,6 +88,8 @@ ObjectViewMatcher<T1, T2>::ObjectViewMatcher(const edm::ParameterSet& iConfig)
   , srcObjects_ (iConfig.getParameter<std::vector<edm::InputTag> >("srcObjectsToMatch"))
   , deltaRMax_  (iConfig.getParameter<double>                ("deltaRMax"))
   , moduleLabel_(iConfig.getParameter<std::string>                ("@module_label"))
+  , objCut_(iConfig.existsAs<std::string>("srcObjectSelection") ? iConfig.getParameter<std::string>("srcObjectSelection") : "", true)
+  ,objMatchCut_(iConfig.existsAs<std::string>("srcObjectsToMatchSelection") ? iConfig.getParameter<std::string>("srcObjectsToMatchSelection") : "", true)
   , nObjectsTot_(0)
   , nObjectsMatch_(0)
 {
@@ -117,11 +127,15 @@ void ObjectViewMatcher<T1, T2>::produce(edm::Event& iEvent,const edm::EventSetup
  
     for (unsigned int iObject=0;iObject<candidates->size();iObject++) {
       const T1& candidate = candidates->at(iObject);
+      if (!objCut_(candidate)) continue;
+
+
       for (unsigned int iObj=0;iObj<objects->size();iObj++) {
 	const T2& obj = objects->at(iObj);
+	if (!objMatchCut_(obj)) continue;
 	double deltaR = reco::deltaR(candidate,obj);
 	if (deltaR<deltaRMax_)  isMatch[iObject] = true;
-      } 
+      }
     } 
   }
   

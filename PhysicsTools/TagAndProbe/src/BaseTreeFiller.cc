@@ -165,7 +165,7 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
 
         for(unsigned int ind=0;ind<recVtxs->size();ind++) {
           if (!((*recVtxs)[ind].isFake()) && ((*recVtxs)[ind].ndof()>4) 
-              && (fabs((*recVtxs)[ind].z())<=15.0) &&  
+              && (fabs((*recVtxs)[ind].z())<=24.0) &&  
               ((*recVtxs)[ind].position().Rho()<=2.0) ) {
             mNPV_++;
             if(mNPV_==1) { // store the first good primary vertex

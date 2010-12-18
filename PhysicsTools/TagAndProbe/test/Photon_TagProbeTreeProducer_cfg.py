@@ -57,37 +57,24 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMConverter_*_*")
 
 
-#----------------------PROBE DEFINITION------------------------#
-#--------------------------------------------------------------#
+
+##  ____  _           _                                _               
+## |  _ \| |__   ___ | |_ ___  _ __    _ __  _ __ ___ | |__   ___  ___ 
+## | |_) | '_ \ / _ \| __/ _ \| '_ \  | '_ \| '__/ _ \| '_ \ / _ \/ __|
+## |  __/| | | | (_) | || (_) | | | | | |_) | | | (_) | |_) |  __/\__ \
+## |_|   |_| |_|\___/ \__\___/|_| |_| | .__/|_|  \___/|_.__/ \___||___/
+##                                    |_|                              
 
 #basic probe photon selection
 #keep EB and EE efficiencies separate
-process.probePhotons = cms.EDFilter("PhotonSelector",
-    src = cms.InputTag("photons", "", RECOProcess),                                      
-    cut = cms.string("hadronicOverEm<0.5 && pt>10 && abs(eta)<1.479")
-    )
-
-process.goodAODTracks = cms.EDFilter("TrackSelector",
-    src = cms.InputTag("generalTracks"),
-    cut = cms.string('pt > 20.0 && quality("highPurity")')
-   )
-
 #loose track match requirement cuts down on non-Z-electron background
-process.trackMatchedProbePhotons = cms.EDProducer("TrackMatchedPhotonProducer",
-    srcObject = cms.InputTag("probePhotons"),
-    srcObjectsToMatch = cms.VInputTag(cms.InputTag("goodAODTracks")),
+process.probePhotons = cms.EDProducer("TrackMatchedPhotonProducer",
+    srcObject = cms.InputTag("photons", "", RECOProcess),
+    srcObjectsToMatch = cms.VInputTag(cms.InputTag("generalTracks")),
+    srcObjectSelection = cms.string("hadronicOverEm<0.5 && pt>10 && abs(eta)<1.479"),
+    srcObjectsToMatchSelection = cms.string('pt > 20.0 && quality("highPurity")'),                                            
     deltaRMax = cms.double(0.1)
     )
-
-#--------------------------------------------------------------#
-#----------------------PROBE DEFINITION------------------------#
-
-
-
-process.sc_sequence = cms.Sequence( process.probePhotons + process.goodAODTracks + 
-                                    process.trackMatchedProbePhotons)
-
-
 
 ##     ___           _       _   _             
 ##    |_ _|___  ___ | | __ _| |_(_) ___  _ __  
@@ -99,26 +86,22 @@ process.sc_sequence = cms.Sequence( process.probePhotons + process.goodAODTracks
 #  Isolation ################
 #ECAL and HCAL only
 process.probePhotonsPassingIsolation = cms.EDFilter("PhotonRefSelector",
-    src = cms.InputTag("trackMatchedProbePhotons"),
+    src = cms.InputTag("probePhotons"),
     cut = cms.string("(ecalRecHitSumEtConeDR04 < (0.006*pt + 4.2)) && (hcalTowerSumEtConeDR04 < (0.0025*pt + 2.2 ))")
     )
 
-##    _____ _           _                     ___    _ 
-##   | ____| | ___  ___| |_ _ __ ___  _ __   |_ _|__| |
-##   |  _| | |/ _ \/ __| __| '__/ _ \| '_ \   | |/ _` |
-##   | |___| |  __/ (__| |_| | | (_) | | | |  | | (_| |
-##   |_____|_|\___|\___|\__|_|  \___/|_| |_| |___\__,_|
-##   
-#photon ID
+##  ____  _           _                ___    _ 
+## |  _ \| |__   ___ | |_ ___  _ __   |_ _|__| |
+## | |_) | '_ \ / _ \| __/ _ \| '_ \   | |/ _` |
+## |  __/| | | | (_) | || (_) | | | |  | | (_| |
+## |_|   |_| |_|\___/ \__\___/|_| |_| |___\__,_|
+##        
 #track isolation
 process.probePhotonsPassingId = process.probePhotonsPassingIsolation.clone()
 process.probePhotonsPassingId.cut = cms.string(
     process.probePhotonsPassingIsolation.cut.value() +
     " && (hadronicOverEm < 0.05) && (trkSumPtHollowConeDR04 < (0.001*pt + 2.0)"
     " && (sigmaIetaIeta < 0.013))")
-
-
-
                          
 ##    _____     _                         __  __       _       _     _             
 ##   |_   _| __(_) __ _  __ _  ___ _ __  |  \/  | __ _| |_ ___| |__ (_)_ __   __ _ 
@@ -149,9 +132,9 @@ process.probePhotonsPassingHLT = cms.EDProducer(
 
 ## Here we show how to use a module to compute an external variable
 #producer of dR < 0.5 photon-cleaned jets
-process.cleanJets = cms.EDProducer(
-    "JetViewCleaner",
+process.cleanJets = cms.EDProducer("JetViewCleaner",
     srcObject = cms.InputTag(JET_COLL, "", "RECO"),
+    srcObjectSelection = cms.string(JET_CUTS),
     srcObjectsToRemove = cms.VInputTag( cms.InputTag("photons", "", RECOProcess)),
     deltaRMin = cms.double(0.5)  
     )
@@ -159,7 +142,7 @@ process.cleanJets = cms.EDProducer(
 
 #produce dR(photon, nearest IDed uncorrected jet passing cuts on corrected eta and pT)
 process.photonDRToNearestJet = cms.EDProducer("DeltaRNearestJetComputer",
-    probes = cms.InputTag("trackMatchedProbePhotons"),
+    probes = cms.InputTag("probePhotons"),
        # ^^--- NOTA BENE: if probes are defined by ref, as in this case, 
        #       this must be the full collection, not the subset by refs.
     objects = cms.InputTag("cleanJets"),
@@ -168,9 +151,8 @@ process.photonDRToNearestJet = cms.EDProducer("DeltaRNearestJetComputer",
 
 
 #count jets passing cuts
-process.JetMultiplicity = cms.EDProducer(
-    "CandMultiplicityCounter",
-    probes = cms.InputTag("trackMatchedProbePhotons"),
+process.JetMultiplicity = cms.EDProducer("CandMultiplicityCounter",
+    probes = cms.InputTag("probePhotons"),
     objects = cms.InputTag("cleanJets"),
     objectSelection = cms.string(JET_CUTS),
     )
@@ -191,7 +173,7 @@ process.ext_ToNearestJet_sequence = cms.Sequence(
 ##              |___/                                              
 
 #step 1: tag should be tightly matched to a track
-process.trackMatchedPhotons = process.trackMatchedProbePhotons.clone()
+process.trackMatchedPhotons = process.probePhotons.clone()
 
 
 #step 2: tag should have good shower shape, a pixel seed, have good H/E, be reasonably high pT, and be in 
@@ -204,8 +186,7 @@ process.goodPhotons = cms.EDFilter(
     )
 
 #step 3: tag should have fired the HLT path under study
-process.Tag = cms.EDProducer(
-    "trgMatchedPhotonProducer",                     
+process.Tag = cms.EDProducer("trgMatchedPhotonProducer",                     
     InputProducer = cms.InputTag("goodPhotons"),
     hltTags = cms.VInputTag(
     cms.InputTag(HLTPath1,"",InputTagProcess),
@@ -217,10 +198,12 @@ process.Tag = cms.EDProducer(
     )
 
 
-process.ele_sequence = cms.Sequence(
-    process.probePhotonsPassingIsolation + process.probePhotonsPassingId +
+process.photon_sequence = cms.Sequence(
+    process.probePhotons +
+    process.probePhotonsPassingIsolation +
+    process.probePhotonsPassingId +
     process.probePhotonsPassingHLT + 
-    (process.trackMatchedPhotons * process.goodPhotons * process.Tag)  
+    process.trackMatchedPhotons + process.goodPhotons + process.Tag
     )
 
 
@@ -233,7 +216,7 @@ process.ele_sequence = cms.Sequence(
 ##   
 #  Tag & probe selection ######
 process.tagPhoton = cms.EDProducer("CandViewShallowCloneCombiner",
-                                   decay = cms.string("Tag trackMatchedProbePhotons"),
+                                   decay = cms.string("Tag probePhotons"),
                                    checkCharge = cms.bool(False),
                                    cut = cms.string("60 < mass < 120")
                                    )
@@ -264,7 +247,7 @@ process.McMatchTag = cms.EDFilter("MCTruthDeltaRMatcherNew",
     checkCharge = cms.bool(True)
 )
 process.McMatchPhoton = process.McMatchTag.clone()
-process.McMatchPhoton.src = cms.InputTag("trackMatchedProbePhotons")
+process.McMatchPhoton.src = cms.InputTag("probePhotons")
 process.McMatchIso = process.McMatchTag.clone()
 process.McMatchIso.src = cms.InputTag("probePhotonsPassingIsolation")
 process.McMatchId = process.McMatchTag.clone()
@@ -469,7 +452,7 @@ process.PhotonToIsolation = cms.EDAnalyzer("TagProbeFitTreeProducer",
         probe_passingId = cms.InputTag("probePhotonsPassingId"),
     ),
     probeMatches  = cms.InputTag("McMatchPhoton"),
-    allProbes     = cms.InputTag("trackMatchedProbePhotons")
+    allProbes     = cms.InputTag("probePhotons")
 )
 process.PhotonToIsolation.variables.probe_dRjet = cms.InputTag("photonDRToNearestJet")
 process.PhotonToIsolation.variables.probe_nJets = cms.InputTag("JetMultiplicity")
@@ -506,7 +489,7 @@ process.IdToHLT.allProbes     = cms.InputTag("probePhotonsPassingId")
 process.PhotonToHLT = process.PhotonToIsolation.clone()
 process.PhotonToHLT.tagProbePairs = cms.InputTag("tagPhoton")
 process.PhotonToHLT.probeMatches  = cms.InputTag("McMatchPhoton")
-process.PhotonToHLT.allProbes     = cms.InputTag("trackMatchedProbePhotons")
+process.PhotonToHLT.allProbes     = cms.InputTag("probePhotons")
 
 
 process.tree_sequence = cms.Sequence(
@@ -525,7 +508,7 @@ process.tree_sequence = cms.Sequence(
 
 if MC_flag:
     process.tagAndProbe = cms.Path(
-        process.sc_sequence + process.ele_sequence +
+        process.photon_sequence +
         process.ext_ToNearestJet_sequence + 
         process.allTagsAndProbes +
         process.mc_sequence + 
@@ -533,7 +516,7 @@ if MC_flag:
         )
 else:
     process.tagAndProbe = cms.Path(
-        process.sc_sequence + process.ele_sequence +
+        process.photon_sequence +
         process.ext_ToNearestJet_sequence + 
         process.allTagsAndProbes +
         process.tree_sequence

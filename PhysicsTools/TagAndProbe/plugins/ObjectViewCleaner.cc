@@ -39,6 +39,9 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
+
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+
 #include <memory>
 #include <vector>
 #include <sstream>
@@ -66,6 +69,9 @@ private:
   double                     deltaRMin_;
   
   std::string  moduleLabel_;
+  StringCutObjectSelector<T,true> objKeepCut_; // lazy parsing, to allow cutting on variables not in reco::Candidate class
+  StringCutObjectSelector<reco::Candidate,true> objRemoveCut_; // lazy parsing, to allow cutting on variables 
+
   unsigned int nObjectsTot_;
   unsigned int nObjectsClean_;
 };
@@ -85,6 +91,8 @@ ObjectViewCleaner<T>::ObjectViewCleaner(const edm::ParameterSet& iConfig)
   , srcObjects_ (iConfig.getParameter<vector<edm::InputTag> >("srcObjectsToRemove"))
   , deltaRMin_  (iConfig.getParameter<double>                ("deltaRMin"))
   , moduleLabel_(iConfig.getParameter<string>                ("@module_label"))
+  , objKeepCut_(iConfig.existsAs<std::string>("srcObjectSelection") ? iConfig.getParameter<std::string>("srcObjectSelection") : "", true)
+  ,objRemoveCut_(iConfig.existsAs<std::string>("srcObjectsToRemoveSelection") ? iConfig.getParameter<std::string>("srcObjectsToRemoveSelection") : "", true)
   , nObjectsTot_(0)
   , nObjectsClean_(0)
 {
@@ -124,8 +132,12 @@ void ObjectViewCleaner<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSe
     
     for (unsigned int iObject=0;iObject<candidates->size();iObject++) {
       const T& candidate = candidates->at(iObject);
+      if (!objKeepCut_(candidate)) isClean[iObject] = false;
+
       for (unsigned int iObj=0;iObj<objects->size();iObj++) {
 	const reco::Candidate& obj = objects->at(iObj);
+	if (!objRemoveCut_(obj)) continue;
+
 	double deltaR = reco::deltaR(candidate,obj);
 	if (deltaR<deltaRMin_)  isClean[iObject] = false;
       }
