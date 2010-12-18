@@ -12,6 +12,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
       '/store/relval/CMSSW_3_9_5/RelValTTbar/GEN-SIM-RECO/START39_V6-v1/0008/0AEEDFA4-88FA-DF11-B6FF-001A92811718.root'
+     #'/store/relval/CMSSW_3_10_0_pre9/RelValTTbar/GEN-SIM-RECO/START310_V2-v1/0026/10693CB7-8B07-E011-8EEC-0026189438DC.root'
     )
 )
 ## Maximal Number of Events
@@ -108,8 +109,8 @@ process.preferJetCorrections = cms.ESPrefer( "PoolDBESSource", "dbJetCorrections
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 ## internediate step to get the taus working untill they are part of RECO
-process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
-process.p0 = cms.Path(process.PFTau)
+#process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
+#process.p0 = cms.Path(process.PFTau)
 
 ## Output Module Configuration (expects a path 'p')
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
