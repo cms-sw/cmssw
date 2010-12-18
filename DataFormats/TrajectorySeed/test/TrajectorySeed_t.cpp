@@ -13,7 +13,7 @@ int main() {
   for (int i=0; i!=100; ++i) 
     c.push_back(new SiStripMatchedRecHit2D);
 
-  for (int j=0; j!=1000; ++j;) {
+  for (int j=0; j!=100; ++j) {
     TV v;
     for (int i=0; i!=1000; ++i) 
       v.push_back(TrajectorySeed(PTrajectoryStateOnDet(), c, anyDirection));
