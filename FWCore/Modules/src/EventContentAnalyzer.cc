@@ -26,6 +26,7 @@
 #include <vector>
 
 // user include files
+#include "Reflex/Member.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Provenance/interface/Provenance.h"

@@ -19,6 +19,7 @@
 #include <algorithm>
 
 #include "Reflex/Base.h"
+#include "Reflex/Member.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
