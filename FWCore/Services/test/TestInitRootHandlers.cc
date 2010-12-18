@@ -20,7 +20,8 @@
 #include <iomanip>
 #include <sstream>
 #include <algorithm>
-// #include "FWCore/Utilities/interface/Algorithms.h"
+
+#include "Reflex/Member.h"
 
 // user include files
 #include "FWCore/Framework/interface/MakerMacros.h"
