@@ -73,7 +73,7 @@
      fileNames   = cms.vstring('file:patTuple.root'),   ## mandatory
      outputFile  = cms.string('analyzePatBasics.root'), ## mandatory
      maxEvents   = cms.int32(-1),                       ## optional
-     reportAfter = cms.uint32(10),                      ## optional
+     outputEvery = cms.uint32(10),                      ## optional
      ##...
      muons = cms.InputTag('cleanPatMuons')              ## input for the simple example above
    )
@@ -136,7 +136,7 @@ namespace fwlite {
     // read maximal number of events to be processed (if it exists)
     if(cfg.existsAs<int>("maxEvents")){ maxEvents_=cfg.getParameter<int>("maxEvents"); }
     // read number of events after which to report progress (if it exists)
-    if(cfg.existsAs<unsigned int>("reportAfter")){ reportAfter_=cfg.getParameter<unsigned int>("reportAfter"); }    
+    if(cfg.existsAs<unsigned int>("outputEvery")){ reportAfter_=cfg.getParameter<unsigned int>("outputEvery"); }    
 
     if(directory.empty()){
       // create analysis class of type BasicAnalyzer
