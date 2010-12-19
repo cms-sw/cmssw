@@ -37,7 +37,7 @@ namespace {
     void print() const {
       std::cout << "TrajectorySegmentBuilder stat\nGroup/Seg/Lock "
 		<< totGroup<<'/'<<totSeg<<'/'<<totLockHits
-		<< std<<endl;
+		<< std::endl;
     }
     StatCount() { zero();}
     ~StatCount() { print();}
