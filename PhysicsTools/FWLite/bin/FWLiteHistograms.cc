@@ -15,12 +15,17 @@
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "PhysicsTools/FWLite/interface/TFileService.h"
 #include "PhysicsTools/FWLite/interface/CommandLineParser.h"
 
 
 int main(int argc, char* argv[]) 
 {
+  // define what muon you are using; this is necessary as FWLite is not 
+  // capable of reading edm::Views
+  using pat::Muon;
+
   // ----------------------------------------------------------------------
   // First Part: 
   //
@@ -80,16 +85,16 @@ int main(int argc, char* argv[])
 	  std::cout << "  processing event: " << ievt << std::endl;
 
 	// Handle to the muon collection
-	edm::Handle<std::vector<reco::Muon> > muons;
-	event.getByLabel(std::string("muons"), muons);
+	edm::Handle<std::vector<Muon> > muons;
+	event.getByLabel(std::string("cleanPatMuons"), muons);
 	
 	// loop muon collection and fill histograms
-	for(std::vector<reco::Muon>::const_iterator mu1=muons->begin(); mu1!=muons->end(); ++mu1){
+	for(std::vector<Muon>::const_iterator mu1=muons->begin(); mu1!=muons->end(); ++mu1){
 	  muonPt_ ->Fill( mu1->pt () );
 	  muonEta_->Fill( mu1->eta() );
 	  muonPhi_->Fill( mu1->phi() );	  
 	  if( mu1->pt()>20 && fabs(mu1->eta())<2.1 ){
-	    for(std::vector<reco::Muon>::const_iterator mu2=muons->begin(); mu2!=muons->end(); ++mu2){
+	    for(std::vector<Muon>::const_iterator mu2=muons->begin(); mu2!=muons->end(); ++mu2){
 	      if(mu2>mu1){ // prevent double conting
 		if( mu1->charge()*mu2->charge()<0 ){ // check only muon pairs of unequal charge 
 		  if( mu2->pt()>20 && fabs(mu2->eta())<2.1 ){
