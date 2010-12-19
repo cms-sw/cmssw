@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerObject
 //
-// $Id: TriggerObject.h,v 1.16 2010/12/15 19:44:27 vadler Exp $
+// $Id: TriggerObject.h,v 1.11 2010/12/16 18:39:17 vadler Exp $
 //
 /**
   \class    pat::TriggerObject TriggerObject.h "DataFormats/PatCandidates/interface/TriggerObject.h"
@@ -18,7 +18,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerObject
 
   \author   Volker Adler
-  \version  $Id: TriggerObject.h,v 1.16 2010/12/15 19:44:27 vadler Exp $
+  \version  $Id: TriggerObject.h,v 1.11 2010/12/16 18:39:17 vadler Exp $
 */
 
 
@@ -132,8 +132,7 @@ namespace pat {
       /// - short names for readable configuration files
 
       /// Calls 'hasCollection(...)'
-// FIXME: This needs to be masked for the moment, since the cut string parser can't deal with method overiding in derived classes.
-//       virtual bool coll( const std::string & collName ) const { return hasCollection( collName );};
+      virtual bool coll( const std::string & collName ) const { return hasCollection( collName );};
       /// Call 'hasFilterId(...)'
       bool type( trigger::TriggerObjectType triggerObjectType ) const { return hasTriggerObjectType( triggerObjectType ); };
       bool type( int                        triggerObjectType ) const { return hasTriggerObjectType( trigger::TriggerObjectType ( triggerObjectType ) ); };

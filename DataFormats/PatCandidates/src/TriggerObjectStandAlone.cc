@@ -1,5 +1,5 @@
 //
-// $Id: TriggerObjectStandAlone.cc,v 1.15 2010/12/15 19:44:28 vadler Exp $
+// $Id: TriggerObjectStandAlone.cc,v 1.7 2010/12/16 18:39:17 vadler Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
@@ -137,9 +137,7 @@ bool TriggerObjectStandAlone::hasPathName( const std::string & pathName, bool pa
 
 
 // Checks, if a certain label of original collection is assigned (method overrides)
-// FIXME: Currently implements the method coll(..) rather than hasCollection(...) in order to avoid segmentation violations from the cut string parser
-// bool TriggerObjectStandAlone::hasCollection( const std::string & collName ) const
-bool TriggerObjectStandAlone::coll( const std::string & collName ) const
+bool TriggerObjectStandAlone::hasCollection( const std::string & collName ) const
 {
   // Move to wild-card parser, if needed only
   if ( collName.find( wildcard_ ) != std::string::npos ) {
