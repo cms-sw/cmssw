@@ -6,8 +6,8 @@
  *  
  *  This class provides a Service to get hold of the HLT Configuration
  *
- *  $Date: 2010/07/14 15:30:06 $
- *  $Revision: 1.29 $
+ *  $Date: 2010/12/17 14:10:01 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -43,8 +43,8 @@ namespace edm {
 	
     public:
       /// Initialisation
-      void init(const edm::Run& iRun, const edm::EventSetup& iSetup,
-		const std::string& processName);
+      bool init(const edm::Run& iRun, const edm::EventSetup& iSetup,
+		const std::string& processName, bool& changed);
       
       /// Access to config
       const HLTConfigData* hltConfigData(const std::string& processName) const ;

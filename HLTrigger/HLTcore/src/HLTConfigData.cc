@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/12/17 14:10:01 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/12/17 14:42:37 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -17,7 +17,7 @@
 
 #include <iostream>
 
-void HLTConfigData::init(const edm::Run& iRun, const edm::EventSetup& iSetup, const std::string& processName) {
+bool HLTConfigData::init(const edm::Run& iRun, const edm::EventSetup& iSetup, const std::string& processName, bool& changed) {
 
    using namespace std;
    using namespace edm;
@@ -32,7 +32,8 @@ void HLTConfigData::init(const edm::Run& iRun, const edm::EventSetup& iSetup, co
    /// defer iSetup access to when actually needed:
    /// l1GtUtils_->retrieveL1EventSetup(iSetup);
 
-   return;
+   changed=changed_;
+   return inited_;
 
 }
 

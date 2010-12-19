@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/12/17 14:10:01 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/12/17 14:42:37 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -32,7 +32,7 @@
 class HLTConfigData {
 
  public:
-  void init(const edm::Run& iRun, const edm::EventSetup& iSetup, const std::string& processName);
+  bool init(const edm::Run& iRun, const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
 
  private:
   /// real init method

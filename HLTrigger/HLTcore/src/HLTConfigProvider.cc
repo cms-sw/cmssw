@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/12/17 14:10:01 $
- *  $Revision: 1.51 $
+ *  $Date: 2010/12/17 14:42:37 $
+ *  $Revision: 1.52 $
  *
  *  \author Martin Grunewald
  *
@@ -16,10 +16,12 @@ bool HLTConfigProvider::init(const edm::Run& iRun,
 			     const std::string& processName,
 			     bool& changed) {
   processName_=processName;
-  if (hltConfigService_!=0) {
-    hltConfigService_->init(iRun,iSetup,processName);
+  if (hltConfigService_==0) {
+    changed=hltConfigData_->changed();
+    return  hltConfigData_->inited();
+  } else {
+    const bool inited(hltConfigService_->init(iRun,iSetup,processName,changed));
     hltConfigData_=hltConfigService_->hltConfigData(processName);
+    return inited;
   }
-  changed=hltConfigData_->changed();
-  return  hltConfigData_->inited();
 }

@@ -3,8 +3,8 @@
  *  
  *  This class provides a Service to get hold of the HLT Configuration
  *
- *  $Date: 2010/07/14 15:30:06 $
- *  $Revision: 1.29 $
+ *  $Date: 2010/12/17 14:10:01 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -29,16 +29,19 @@ namespace edm {
   namespace service {
 
     /// Initialisation
-    void HLTConfigService::init(const edm::Run& iRun,
+    bool HLTConfigService::init(const edm::Run& iRun,
 				const edm::EventSetup& iSetup,
-				const std::string& processName) {
+				const std::string& processName,
+				bool& changed) {
       if (hltMap_.find(processName)==hltMap_.end()) {
 	hltMap_[processName]=HLTConfigData();
-	hltMap_[processName].init(iRun,iSetup,processName);
+	return hltMap_[processName].init(iRun,iSetup,processName,changed);
       } else if (hltMap_[processName].runID()!=iRun.id()) {
-	hltMap_[processName].init(iRun,iSetup,processName);
+	return hltMap_[processName].init(iRun,iSetup,processName,changed);
+      } else {
+	changed=hltMap_[processName].changed();
+	return  hltMap_[processName].inited();
       }
-      return;
     }
     
     /// Access to config
