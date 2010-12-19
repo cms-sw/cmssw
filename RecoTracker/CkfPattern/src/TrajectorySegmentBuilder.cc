@@ -331,6 +331,8 @@ TrajectorySegmentBuilder::redoMeasurements (const TempTrajectory& traj,
 						 traj.lastMeasurement().updatedState(),
 						 theGeomPropagator,theEstimator);
     
+    if (theDbgFlg && !compat.first) cout << " 0";
+
     if(!compat.first) continue;
     const MeasurementDet* mdet = theMeasurementTracker->idToDet(idet->det()->geographicalId());
     vector<TM> tmp
