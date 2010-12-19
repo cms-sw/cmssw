@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
   algo = new ProfileLikelihood(); methods.insert(make_pair(algo->name(), algo));
   algo = new BayesianFlatPrior(); methods.insert(make_pair(algo->name(), algo));
   algo = new MarkovChainMC();  methods.insert(make_pair(algo->name(), algo));
-  algo = new HybridNew();  methods.insert(make_pair(algo->name(), algo));
+  //algo = new HybridNew();  methods.insert(make_pair(algo->name(), algo));
   
   string methodsDesc("Method to extract upper limit. Supported methods are: ");
   for(map<string, LimitAlgo *>::const_iterator i = methods.begin(); i != methods.end(); ++i) {
@@ -100,27 +100,30 @@ int main(int argc, char **argv) {
     po::store(po::command_line_parser(argc, argv).
 	      options(desc).positional(p).run(), vm);
     po::notify(vm);
-  } catch(...) {
-    cerr << "Invalid options" << endl;
-    cout << "Usage: options_description [options]\n";
+  } catch(std::exception &ex) {
+    cerr << "Invalid options: " << ex.what() << endl;
+    cout << "Invalid options: " << ex.what() << endl;
     cout << desc;
+    return 999;
+  } catch(...) {
+    cerr << "Unidentified error parsing options." << endl;
     return 1000;
   }
   if(vm.count("help")) {
-    cout << "Usage: options_description [options]\n";
+    cout << "Usage: combine [options]\n";
     cout << desc;
     return 0;
   }
 
   if(name == "") {
     cerr << "Missing name" << endl;
-    cout << "Usage: options_description [options]\n";
+    cout << "Usage: combine [options]\n";
     cout << desc;
     return 1001;
   }
   if(datacard == "") {
     cerr << "Missing datacard file" << endl;
-    cout << "Usage: options_description [options]\n";
+    cout << "Usage: combine [options]\n";
     cout << desc;
     return 1002;
   }
@@ -137,7 +140,7 @@ int main(int argc, char **argv) {
   }
   if(i == methods.end()) {
     cerr << "Unsupported method: " << whichMethod << endl;
-    cout << "Usage: options_description [options]\n";
+    cout << "Usage: combine [options]\n";
     cout << desc;
     return 1003;
   }
