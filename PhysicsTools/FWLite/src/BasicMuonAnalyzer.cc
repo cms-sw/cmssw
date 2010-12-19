@@ -8,9 +8,11 @@ BasicMuonAnalyzer::BasicMuonAnalyzer(const edm::ParameterSet& cfg, TFileDirector
   edm::BasicAnalyzer::BasicAnalyzer(cfg, fs),
   muons_(cfg.getParameter<edm::InputTag>("muons"))
 {
-  hists_["muonPt" ] = fs.make<TH1F>("muonPt", "pt",    100,  0.,300.);
-  hists_["muonEta"] = fs.make<TH1F>("muonEta","eta",   100, -3.,  3.);
-  hists_["muonPhi"] = fs.make<TH1F>("muonPhi","phi",   100, -5.,  5.); 
+  hists_["muonPt"  ] = fs.make<TH1F>("muonPt"  , "pt"  ,  100,  0., 300.);
+  hists_["muonEta" ] = fs.make<TH1F>("muonEta" , "eta" ,  100, -3.,   3.);
+  hists_["muonPhi" ] = fs.make<TH1F>("muonPhi" , "phi" ,  100, -5.,   5.); 
+  hists_["muonPhi" ] = fs.make<TH1F>("muonPhi" , "phi" ,  100, -5.,   5.); 
+  hists_["mumuMass"] = fs.make<TH1F>("mumuMass", "mass",   90, 30., 120.);
 }
 
 /// everything that needs to be done during the event loop
@@ -22,9 +24,20 @@ BasicMuonAnalyzer::analyze(const edm::EventBase& event)
   event.getByLabel(muons_, muons);
 
   // loop muon collection and fill histograms
-  for(unsigned i=0; i<muons->size(); ++i){
-    hists_["muonPt" ]->Fill( (*muons)[i].pt()  );
-    hists_["muonEta"]->Fill( (*muons)[i].eta() );
-    hists_["muonPhi"]->Fill( (*muons)[i].phi() );
- }
+  for(std::vector<reco::Muon>::const_iterator mu1=muons->begin(); mu1!=muons->end(); ++mu1){
+    hists_["muonPt" ]->Fill( mu1->pt () );
+    hists_["muonEta"]->Fill( mu1->eta() );
+    hists_["muonPhi"]->Fill( mu1->phi() );
+    if( mu1->pt()>20 && fabs(mu1->eta())<2.1 ){
+      for(std::vector<reco::Muon>::const_iterator mu2=muons->begin(); mu2!=muons->end(); ++mu2){
+	if(mu2>mu1){ // prevent double conting
+	  if( mu1->charge()*mu2->charge()<0 ){ // check only muon pairs of unequal charge 
+	    if( mu2->pt()>20 && fabs(mu2->eta())<2.1 ){
+	      hists_["mumuMass"]->Fill( (mu1->p4()+mu2->p4()).mass() );
+	    }
+	  }
+	}
+      }
+    }
+  }
 }
