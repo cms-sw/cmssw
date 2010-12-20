@@ -579,7 +579,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	  ieta=id.ieta();
 	  iphi=id.iphi();
 	  
-	  unsigned int index;
+	  int index=-1;
 	  if ((HcalSubdetector)(id.subdet())==HcalBarrel)
 	    {
 	      HBtotalX+=HBHEiter->energy()*cos(PI*iphi/36.);
@@ -669,8 +669,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	  HOtotalY+=HOiter->energy()*sin(PI*iphi/36.);
 	  HOtotalE+=HOiter->energy();
 
-	  unsigned int index;
-	  index=ieta+ETA_OFFSET_HO;
+	  int index=ieta+ETA_OFFSET_HO;
 	  if (index<0 || index>HOETASIZE) continue;
 	  HO_weightedX[index]+=HOiter->energy()*cos(PI*iphi/36.);
 	  HO_weightedY[index]+=HOiter->energy()*sin(PI*iphi/36.);
@@ -867,8 +866,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	    HFtotalY+=HFiter->energy()*sin(PI*iphi/36.);
 	    HFtotalE+=HFiter->energy();
 
-	    unsigned int index;
-	    index=ieta+ETA_OFFSET_HF;
+	    int index=ieta+ETA_OFFSET_HF;
 	    if (index<0 || index>HFETASIZE) continue;
 	    HF_weightedX[index]+=HFiter->energy()*cos(PI*iphi/36.);
 	    HF_weightedY[index]+=HFiter->energy()*sin(PI*iphi/36.);
