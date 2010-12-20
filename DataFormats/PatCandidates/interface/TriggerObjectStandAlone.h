@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerObjectStandAlone
 //
-// $Id: TriggerObjectStandAlone.h,v 1.10 2010/12/17 17:23:26 vadler Exp $
+// $Id: TriggerObjectStandAlone.h,v 1.11 2010/12/19 21:06:43 vadler Exp $
 //
 /**
   \class    pat::TriggerObjectStandAlone TriggerObjectStandAlone.h "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
@@ -20,7 +20,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerObjectStandAlone
 
   \author   Volker Adler
-  \version  $Id: TriggerObjectStandAlone.h,v 1.10 2010/12/17 17:23:26 vadler Exp $
+  \version  $Id: TriggerObjectStandAlone.h,v 1.11 2010/12/19 21:06:43 vadler Exp $
 */
 
 
@@ -41,6 +41,9 @@ namespace pat {
       /// An element is true, if the corresponding path succeeded and the trigger object was used in the last filter.
       /// The vector is empty for data (size 0), if the according information is not available in data.
       std::vector< bool > pathLastFilterAccepted_;
+
+      /// Constants
+
       /// Constant defining the wild-card used in 'hasAnyName()'
       static const char wildcard_ = '*';
 
@@ -97,7 +100,7 @@ namespace pat {
       /// Calls 'hasFilterLabel(...)'
       bool filter( const std::string & filterLabel ) const { return hasFilterLabel( filterLabel ); };
       /// Calls 'hasPathName(...)'
-      bool path( const std::string & pathName, unsigned pathLastFilterAccepted = true ) const { return hasPathName( pathName, pathLastFilterAccepted ); };
+      bool path( const std::string & pathName, unsigned pathLastFilterAccepted = 1 ) const { return hasPathName( pathName, bool( pathLastFilterAccepted ) ); };
       /// Calls 'hasCollection(...)' (method override)
       virtual bool coll( const std::string & collName ) const { return hasCollection( collName ); };
 

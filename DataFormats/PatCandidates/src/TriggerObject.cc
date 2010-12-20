@@ -1,5 +1,5 @@
 //
-// $Id: TriggerObject.cc,v 1.16 2010/12/15 19:44:28 vadler Exp $
+// $Id: TriggerObject.cc,v 1.11 2010/12/16 18:39:17 vadler Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/TriggerObject.h"
@@ -30,13 +30,16 @@ TriggerObject::TriggerObject( const trigger::TriggerObject & trigObj ) :
 }
 
 
-// Constructors from reco::Candidate
+// Constructors from base class object
 TriggerObject::TriggerObject( const reco::LeafCandidate & leafCand ) :
   reco::LeafCandidate( leafCand ),
   refToOrig_()
 {
   triggerObjectTypes_.clear();
 }
+
+
+// Constructors from base candidate reference (for 'l1extra' particles)
 TriggerObject::TriggerObject( const reco::CandidateBaseRef & candRef ) :
   reco::LeafCandidate( *candRef ),
   refToOrig_( candRef )

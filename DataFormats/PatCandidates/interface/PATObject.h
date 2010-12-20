@@ -1,5 +1,5 @@
 //
-// $Id: PATObject.h,v 1.29 2010/06/03 11:39:55 vadler Exp $
+// $Id: PATObject.h,v 1.30 2010/06/16 15:40:51 vadler Exp $
 //
 
 #ifndef DataFormats_PatCandidates_PATObject_h
@@ -15,7 +15,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Volker Adler, Sal Rappoccio
-  \version  $Id: PATObject.h,v 1.29 2010/06/03 11:39:55 vadler Exp $
+  \version  $Id: PATObject.h,v 1.30 2010/06/16 15:40:51 vadler Exp $
 */
 
 
@@ -66,20 +66,47 @@ namespace pat {
       /// duplicated functions using char* instead of std::string are needed in order to work properly in CINT command lines
       const TriggerObjectStandAloneCollection & triggerObjectMatches() const { return triggerObjectMatchesEmbedded_; };
       const TriggerObjectStandAlone           * triggerObjectMatch( const size_t idx = 0 ) const;
-      const TriggerObjectStandAloneCollection   triggerObjectMatchesByFilterID( const unsigned id ) const;                     // \ filter IDs are defined in enum trigger::TriggerObjectType
-      const TriggerObjectStandAlone           * triggerObjectMatchByFilterID( const unsigned id, const size_t idx = 0 ) const; // / (DataFormats/HLTReco/interface/TriggerTypeDefs.h)
+      // trigger object types are defined in enum trigger::TriggerObjectType (DataFormats/HLTReco/interface/TriggerTypeDefs.h)
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByType( const trigger::TriggerObjectType triggerObjectType ) const;
+      const TriggerObjectStandAlone           * triggerObjectMatchByType( const trigger::TriggerObjectType triggerObjectType, const size_t idx = 0 ) const;
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByType( const unsigned triggerObjectType ) const {
+        return triggerObjectMatchesByType( trigger::TriggerObjectType( triggerObjectType ) );
+      };
+      const TriggerObjectStandAlone           * triggerObjectMatchByType( const unsigned triggerObjectType, const size_t idx = 0 ) const {
+        return triggerObjectMatchByType( trigger::TriggerObjectType( triggerObjectType ), idx );
+      };
+      // for backward compatibility
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByFilterID( const unsigned triggerObjectType ) const {
+        return triggerObjectMatchesByType( trigger::TriggerObjectType( triggerObjectType ) );
+      };
+      // for backward compatibility
+      const TriggerObjectStandAlone           * triggerObjectMatchByFilterID( const unsigned triggerObjectType, const size_t idx = 0 ) const {
+        return triggerObjectMatchByType( trigger::TriggerObjectType( triggerObjectType ), idx );
+      };
       const TriggerObjectStandAloneCollection   triggerObjectMatchesByCollection( const std::string & coll ) const;
-      const TriggerObjectStandAloneCollection   triggerObjectMatchesByCollection( const char        * coll ) const { return triggerObjectMatchesByCollection( std::string( coll ) ); };
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByCollection( const char        * coll ) const {
+        return triggerObjectMatchesByCollection( std::string( coll ) );
+      };
       const TriggerObjectStandAlone           * triggerObjectMatchByCollection( const std::string & coll, const size_t idx = 0 ) const;
-      const TriggerObjectStandAlone           * triggerObjectMatchByCollection( const char        * coll, const size_t idx = 0 ) const { return triggerObjectMatchByCollection( std::string( coll ), idx ); };
+      const TriggerObjectStandAlone           * triggerObjectMatchByCollection( const char        * coll, const size_t idx = 0 ) const {
+        return triggerObjectMatchByCollection( std::string( coll ), idx );
+      };
       const TriggerObjectStandAloneCollection   triggerObjectMatchesByFilter( const std::string & labelFilter ) const;
-      const TriggerObjectStandAloneCollection   triggerObjectMatchesByFilter( const char        * labelFilter ) const { return triggerObjectMatchesByFilter( std::string( labelFilter ) ); };
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByFilter( const char        * labelFilter ) const {
+        return triggerObjectMatchesByFilter( std::string( labelFilter ) );
+      };
       const TriggerObjectStandAlone           * triggerObjectMatchByFilter( const std::string & labelFilter, const size_t idx = 0 ) const;
-      const TriggerObjectStandAlone           * triggerObjectMatchByFilter( const char        * labelFilter, const size_t idx = 0 ) const { return triggerObjectMatchByFilter( std::string( labelFilter ), idx ); };
+      const TriggerObjectStandAlone           * triggerObjectMatchByFilter( const char        * labelFilter, const size_t idx = 0 ) const {
+        return triggerObjectMatchByFilter( std::string( labelFilter ), idx );
+      };
       const TriggerObjectStandAloneCollection   triggerObjectMatchesByPath( const std::string & namePath, const bool pathLastFilterAccepted = false ) const;
-      const TriggerObjectStandAloneCollection   triggerObjectMatchesByPath( const char        * namePath, const bool pathLastFilterAccepted = false ) const { return triggerObjectMatchesByPath( std::string( namePath ), pathLastFilterAccepted ); };
+      const TriggerObjectStandAloneCollection   triggerObjectMatchesByPath( const char        * namePath, const bool pathLastFilterAccepted = false ) const {
+        return triggerObjectMatchesByPath( std::string( namePath ), pathLastFilterAccepted );
+      };
       const TriggerObjectStandAlone           * triggerObjectMatchByPath( const std::string & namePath, const bool pathLastFilterAccepted = false, const size_t idx = 0 ) const;
-      const TriggerObjectStandAlone           * triggerObjectMatchByPath( const char        * namePath, const bool pathLastFilterAccepted = false, const size_t idx = 0 ) const { return triggerObjectMatchByPath( std::string( namePath ), pathLastFilterAccepted, idx ); };
+      const TriggerObjectStandAlone           * triggerObjectMatchByPath( const char        * namePath, const bool pathLastFilterAccepted = false, const size_t idx = 0 ) const {
+        return triggerObjectMatchByPath( std::string( namePath ), pathLastFilterAccepted, idx );
+      };
       /// add a trigger match
       void addTriggerObjectMatch( const TriggerObjectStandAlone & trigObj ) { triggerObjectMatchesEmbedded_.push_back( trigObj ); };
 
@@ -370,19 +397,19 @@ namespace pat {
   }
 
   template <class ObjectType>
-  const TriggerObjectStandAloneCollection PATObject<ObjectType>::triggerObjectMatchesByFilterID( const unsigned id ) const {
+  const TriggerObjectStandAloneCollection PATObject<ObjectType>::triggerObjectMatchesByType( const trigger::TriggerObjectType triggerObjectType ) const {
     TriggerObjectStandAloneCollection matches;
     for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
-      if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasFilterId( id ) ) matches.push_back( *( triggerObjectMatch( i ) ) );
+      if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasTriggerObjectType( triggerObjectType ) ) matches.push_back( *( triggerObjectMatch( i ) ) );
     }
     return matches;
   }
 
   template <class ObjectType>
-  const TriggerObjectStandAlone * PATObject<ObjectType>::triggerObjectMatchByFilterID( const unsigned id, const size_t idx ) const {
+  const TriggerObjectStandAlone * PATObject<ObjectType>::triggerObjectMatchByType( const trigger::TriggerObjectType triggerObjectType, const size_t idx ) const {
     std::vector< size_t > refs;
     for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
-      if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasFilterId( id ) ) refs.push_back( i );
+      if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasTriggerObjectType( triggerObjectType ) ) refs.push_back( i );
     }
     if ( idx >= refs.size() ) return 0;
     TriggerObjectStandAloneRef ref( &triggerObjectMatchesEmbedded_, refs.at( idx ) );

@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerObject
 //
-// $Id: TriggerObject.h,v 1.11 2010/12/16 18:39:17 vadler Exp $
+// $Id: TriggerObject.h,v 1.12 2010/12/19 21:06:43 vadler Exp $
 //
 /**
   \class    pat::TriggerObject TriggerObject.h "DataFormats/PatCandidates/interface/TriggerObject.h"
@@ -18,7 +18,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerObject
 
   \author   Volker Adler
-  \version  $Id: TriggerObject.h,v 1.11 2010/12/16 18:39:17 vadler Exp $
+  \version  $Id: TriggerObject.h,v 1.12 2010/12/19 21:06:43 vadler Exp $
 */
 
 
@@ -69,8 +69,9 @@ namespace pat {
       TriggerObject();
       /// Constructor from trigger::TriggerObject
       TriggerObject( const trigger::TriggerObject & trigObj );
-      /// Constructors from reco::Candidate
+      /// Constructors from base class object
       TriggerObject( const reco::LeafCandidate    & leafCand );
+      /// Constructors from base candidate reference (for 'l1extra' particles)
       TriggerObject( const reco::CandidateBaseRef & candRef );
       /// Constructors from Lorentz-vectors and (optional) PDG ID
       TriggerObject( const reco::Particle::LorentzVector      & vec, int id = 0 );
@@ -97,7 +98,7 @@ namespace pat {
       std::vector< int > triggerObjectTypes() const;                                  // for backward compatibility
       std::vector< int > filterIds()          const { return triggerObjectTypes(); }; // for double backward compatibility
       /// Checks, if a certain label of original collection is assigned
-      virtual bool hasCollection( const std::string & collName ) const;
+      virtual bool hasCollection( const std::string   & collName ) const;
       virtual bool hasCollection( const edm::InputTag & collName ) const { return hasCollection( collName.encode() ); };
       /// Checks, if a certain trigger object type identifier is assigned
       bool hasTriggerObjectType( trigger::TriggerObjectType triggerObjectType ) const;
@@ -132,8 +133,8 @@ namespace pat {
       /// - short names for readable configuration files
 
       /// Calls 'hasCollection(...)'
-      virtual bool coll( const std::string & collName ) const { return hasCollection( collName );};
-      /// Call 'hasFilterId(...)'
+      virtual bool coll( const std::string & collName ) const { return hasCollection( collName ); };
+      /// Calls 'hasTriggerObjectType(...)'
       bool type( trigger::TriggerObjectType triggerObjectType ) const { return hasTriggerObjectType( triggerObjectType ); };
       bool type( int                        triggerObjectType ) const { return hasTriggerObjectType( trigger::TriggerObjectType ( triggerObjectType ) ); };
       bool id( trigger::TriggerObjectType triggerObjectType ) const { return hasTriggerObjectType( triggerObjectType ); };                                // for backward compatibility
