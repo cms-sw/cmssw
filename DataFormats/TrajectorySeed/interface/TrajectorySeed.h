@@ -43,6 +43,14 @@ class TrajectorySeed {
     std::swap(dir_,rh.dir_);
   }
 
+  TrajectorySeed(TrajectorySeed const & o) :
+    hits_(o.hits_),  tsos_(o.tsos_), dir_(o.dir_) {}
+
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+  TrajectorySeed(TrajectorySeed && o) :
+    hits_(std::move(o.hits_)),  tsos_(std::move(o.tsos_)), dir_(std::move(o.dir_)) {}
+#endif
+
   range recHits() const {
     return std::make_pair(hits_.begin(), hits_.end());
   }
@@ -58,6 +66,10 @@ class TrajectorySeed {
   PTrajectoryStateOnDet tsos_;
   PropagationDirection dir_;
 };
+
+void swap(TrajectorySeed & rh, TrajectorySeed & lh) { 
+  rh.swap(lh);
+}
 
 typedef TrajectorySeed BasicTrajectorySeed;
 
