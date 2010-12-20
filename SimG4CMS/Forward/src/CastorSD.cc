@@ -563,15 +563,16 @@ uint32_t CastorSD::rotateUnitID(uint32_t unitID, G4Track* track, CastorShowerEve
   // if(trackZ<0)  // Good for revision 1.8 of CastorNumberingScheme
   if(trackZ>0)  // Good for revision 1.9 of CastorNumberingScheme
   {
-    sec -= dSec ;
-    if(sec<0) sec += 16;
-    if(sec>15) sec -= 16;
-  } else
-  {
-  if( dSec<0 ) sec += 16 ;
-  sec += dSec ;
-  aux  = (int) (sec/16) ;
-  sec -= aux*16 ;
+    int sec1 = sec-dSec;
+    //    sec -= dSec ;
+    if(sec1<0) sec1  += 16;
+    if(sec1>15) sec1 -= 16;
+    sec = (uint32_t)(sec1);
+  } else {
+    if( dSec<0 ) sec += 16 ;
+    sec += dSec ;
+    aux  = (int) (sec/16) ;
+    sec -= aux*16 ;
   }
   sec  = sec<<4 ;
   newUnitID = complement | sec ;
