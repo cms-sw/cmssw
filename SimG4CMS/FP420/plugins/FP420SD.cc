@@ -284,7 +284,7 @@ void FP420SD::ResetForNewPrimary() {
 
 void FP420SD::StoreHit(FP420G4Hit* hit){
 
-  if (primID<0) return;
+  //  if (primID<0) return;
   if (hit == 0 ) {
     edm::LogWarning("FP420Sim") << "FP420SD: hit to be stored is NULL !!";
     return;
