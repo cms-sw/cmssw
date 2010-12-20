@@ -82,14 +82,19 @@ class WorkFlowRunner(Thread):
                     self.npass = [0,0,0,0]
                     self.nfail = [0,0,0,0]
 
-                    logStat = 'Step1-NOTRUN Step2-NOTRUN Step3-NOTRUN  Step4-NOTRUN ' 
+                    logStat = 'Step1-NOTRUN Step2-NOTRUN Step3-NOTRUN Step4-NOTRUN ' 
                     self.report+='%s_%s %s - time %s; exit: %s %s %s %s \n' % (self.wf.numId, self.wf.nameId, logStat, 0, 0,0,0,0)
                     return
                 
                 files  = None
                 events = None
-                if realDataMatch.group("files") : files=realDataMatch.group("files")
-                if realDataMatch.group("events"): events=realDataMatch.group("events")
+                if realDataMatch.group("files"): 
+                  files  = realDataMatch.group("files")
+                if realDataMatch.group("events"): 
+                  events = realDataMatch.group("events")
+                  if self.wf.cmdStep2 and ' -n ' not in self.wf.cmdStep2: self.wf.cmdStep2 += ' -n ' + events
+                  if self.wf.cmdStep3 and ' -n ' not in self.wf.cmdStep3: self.wf.cmdStep3 += ' -n ' + events
+                  if self.wf.cmdStep4 and ' -n ' not in self.wf.cmdStep4: self.wf.cmdStep4 += ' -n ' + events
 
                 print "run, files, events, label", run, files, events, label 
                 cmd += 'dbs search --noheader --url=http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet '
@@ -130,7 +135,7 @@ class WorkFlowRunner(Thread):
         if self.wf.cmdStep2 and retStep1 == 0:
             fullcmd = preamble
             fullcmd += self.wf.cmdStep2
-            if ' -n ' not in fullcmd : fullcmd += ' -n "-1" '
+            if ' -n ' not in fullcmd : fullcmd += ' -n -1 '
             fullcmd += ' --fileout file:reco.root '
             print '=====>>> ', self.wf.nameId, self.wf.numId
 
@@ -153,7 +158,7 @@ class WorkFlowRunner(Thread):
             if self.wf.cmdStep3 and retStep2 == 0:
                 fullcmd = preamble
                 fullcmd += self.wf.cmdStep3
-                if ' -n ' not in fullcmd : fullcmd += ' -n "-1" '
+                if ' -n ' not in fullcmd : fullcmd += ' -n -1 '
                 # FIXME: dirty hack for beam-spot dedicated relval
                 if not '134' in str(self.wf.numId):
                     fullcmd += ' --filein file:reco.root --fileout file:step3.root '
@@ -164,7 +169,7 @@ class WorkFlowRunner(Thread):
                 if self.wf.cmdStep4 and retStep3 == 0:
                     fullcmd = preamble
                     fullcmd += self.wf.cmdStep4
-                    if ' -n ' not in fullcmd : fullcmd += ' -n "-1" '
+                    if ' -n ' not in fullcmd : fullcmd += ' -n -1 '
                     # FIXME: dirty hack for beam-spot dedicated relval
                     if not '134' in str(self.wf.numId):
                         fullcmd += ' --filein file:step3.root '
