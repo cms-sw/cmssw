@@ -22,10 +22,10 @@ HelixBarrelPlaneCrossingByCircle( const GlobalPoint& pos,
 
 void HelixBarrelPlaneCrossingByCircle::init()
 {
-  double pabs = theStartingDir.mag();
+  double pabsI = 1./theStartingDir.mag();
   double pt   = theStartingDir.perp();
-  theCosTheta = theStartingDir.z()/pabs;
-  theSinTheta = pt / pabs;
+  theCosTheta = theStartingDir.z()*pabsI;
+  theSinTheta = pt*pabsI;
 
   // protect for zero curvature case
   const double sraightLineCutoff = 1.e-7;
@@ -36,8 +36,9 @@ void HelixBarrelPlaneCrossingByCircle::init()
     // circle parameters
     // position of center of curvature is on a line perpendicular
     // to startingDir and at a distance 1/curvature.
-    theXCenter = theStartingPos.x() - theStartingDir.y() / (pt*theRho);
-    theYCenter = theStartingPos.y() + theStartingDir.x() / (pt*theRho);
+    double o = 1./(pt*theRho);
+    theXCenter = theStartingPos.x() - theStartingDir.y()*o;
+    theYCenter = theStartingPos.y() + theStartingDir.x()*o;
     useStraightLine = false;
   }
 }
@@ -73,14 +74,14 @@ HelixBarrelPlaneCrossingByCircle::pathLength( const Plane& plane)
     nfac = ny/nx;
     dfac = distToPlane/nx;
     B = distCy - nfac*distCx;  // only part of B, may have large cancelation
-    C = 2.*dfac*distCx + dfac*dfac;
+    C = (2.*distCx + dfac)*dfac;
   }
   else {
     solveForX = true;
     nfac = nx/ny;
     dfac = distToPlane/ny;
     B = distCx - nfac*distCy; // only part of B, may have large cancelation
-    C = 2.*dfac*distCy + dfac*dfac;
+    C = (2.*distCy + dfac)*dfac;
   }
   B -= nfac*dfac; B *= 2;  // the rest of B (normally small)
   A = 1.+ nfac*nfac;

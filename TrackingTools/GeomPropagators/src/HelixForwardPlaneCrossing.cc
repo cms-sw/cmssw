@@ -24,13 +24,15 @@ HelixForwardPlaneCrossing::HelixForwardPlaneCrossing(const PositionType& point,
   double px = direction.x();
   double py = direction.y();
   double pz = direction.z();
-  double pt = px*px+py*py;
-  double p = sqrt(pt+pz*pz);
-  pt = sqrt(pt);
-  theCosPhi0 = px/pt;
-  theSinPhi0 = py/pt;
-  theCosTheta = pz/p;
-  theSinTheta = pt/p;
+  double pt2 = px*px+py*py;
+  double p2 = pt2+pz*pz;
+  double pI = 1./sqrt(p2);
+  double ptI = 1./sqrt(pt2);
+  theCosPhi0 = px*ptI;
+  theSinPhi0 = py*ptI;
+  theCosTheta = pz*pI;
+  theSinTheta = pt2*ptI*pI;
+
 }
 //
 // Propagation status  and path length to intersection
@@ -40,8 +42,10 @@ HelixForwardPlaneCrossing::pathLength(const Plane& plane) {
   //
   // Protect against p_z=0 and calculate path length
   //
-  if ( fabs(theCosTheta/theSinTheta)<FLT_MIN )  return std::pair<bool,double>(false,0);
+  if ( std::abs(theCosTheta/theSinTheta)<FLT_MIN )  return std::pair<bool,double>(false,0);
+
   double dS = (plane.position().z()-theZ0) / theCosTheta;
+
   if ( (thePropDir==alongMomentum && dS<0.) ||
        (thePropDir==oppositeToMomentum && dS>0.) )  return std::pair<bool,double>(false,0);
   //
@@ -67,11 +71,13 @@ HelixForwardPlaneCrossing::position (double s) const {
   // Calculate with appropriate formulation of full helix formula or with 
   //   2nd order approximation.
   //
-  if ( fabs(theCachedDPhi)>1.e-4 ) {
+  if ( std::abs(theCachedDPhi)>1.e-4 ) {
     // "standard" helix formula
-    return PositionType(theX0+(-theSinPhi0*(1.-theCachedCDPhi)+theCosPhi0*theCachedSDPhi)/theRho,
-			theY0+(theCosPhi0*(1.-theCachedCDPhi)+theSinPhi0*theCachedSDPhi)/theRho,
-			theZ0+theCachedS*theCosTheta);
+    // "standard" helix formula
+    double or = 1./theRho;
+    return PositionTypeDouble(theX0+(-theSinPhi0*(1.-theCachedCDPhi)+theCosPhi0*theCachedSDPhi)*or,
+			      theY0+( theCosPhi0*(1.-theCachedCDPhi)+theSinPhi0*theCachedSDPhi)*or,
+			      theZ0+theCachedS*theCosTheta);
   }
   else {
     // 2nd order

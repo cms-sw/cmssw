@@ -25,7 +25,7 @@ public:
 				    const PropagationDirection propDir = alongMomentum) :
     theX0(x0), theY0(y0), theZ0(z0),
     theCosPhi0(cosPhi0), theSinPhi0(sinPhi0),
-    theCosTheta(cosTheta), theSinTheta(sinTheta),
+    theCosTheta(cosTheta), theSinThetaI(1./sinTheta),
     theRho(rho), 
     thePropDir(propDir) {}
 
@@ -75,7 +75,7 @@ private:
 private:
   const double theX0,theY0,theZ0;
   double theCosPhi0,theSinPhi0;
-  double theCosTheta,theSinTheta;
+  double theCosTheta,theSinThetaI;
   const double theRho;
   const PropagationDirection thePropDir;
 

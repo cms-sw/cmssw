@@ -9,11 +9,11 @@ HelixArbitraryPlaneCrossing::HelixArbitraryPlaneCrossing(const PositionType& poi
 							 const DirectionType& direction,
 							 const float curvature,
 							 const PropagationDirection propDir) :
+  theQuadraticCrossingFromStart(point,direction,curvature,propDir),
   theX0(point.x()),
   theY0(point.y()),
   theZ0(point.z()),
   theRho(curvature),
-  theQuadraticCrossingFromStart(point,direction,curvature,propDir),
   thePropDir(propDir),
   theCachedS(0),
   theCachedDPhi(0.),
@@ -26,13 +26,14 @@ HelixArbitraryPlaneCrossing::HelixArbitraryPlaneCrossing(const PositionType& poi
   double px = direction.x();
   double py = direction.y();
   double pz = direction.z();
-  double pt = px*px+py*py;
-  double p = sqrt(pt+pz*pz);
-  pt = sqrt(pt);
-  theCosPhi0 = px/pt;
-  theSinPhi0 = py/pt;
-  theCosTheta = pz/p;
-  theSinTheta = pt/p;
+  double pt2 = px*px+py*py;
+  double p2 = pt2+pz*pz;
+  double pI = 1./sqrt(p2);
+  double ptI = 1./sqrt(pt2);
+  theCosPhi0 = px*ptI;
+  theSinPhi0 = py*ptI;
+  theCosTheta = pz*pI;
+  theSinTheta = pt*pI;
 }
 //
 // Propagation status and path length to intersection
@@ -60,7 +61,6 @@ HelixArbitraryPlaneCrossing::pathLength(const Plane& plane) {
   int iteration(maxIterations);
   double dSTotal(0.);
   //
-  bool first(true);
   while ( notAtSurface(plane,xnew,safeMaxDist) ) {
     //
     // return empty solution vector if no convergence after maxIterations iterations
@@ -69,23 +69,14 @@ HelixArbitraryPlaneCrossing::pathLength(const Plane& plane) {
       edm::LogInfo("HelixArbitraryPlaneCrossing") << "pathLength : no convergence";
       return std::pair<bool,double>(false,0);
     }
-    //
-    // Use existing 2nd order object at first pass, create temporary object
-    // for subsequent passes.
-    //
-    std::pair<bool,double> deltaS2;
-    if ( first ) {
-      first = false;
-      deltaS2 = theQuadraticCrossingFromStart.pathLength(plane);
-    }
-    else {
-      HelixArbitraryPlaneCrossing2Order quadraticCrossing(xnew.x(),xnew.y(),xnew.z(),
-							  pnew.x(),pnew.y(),
-							  theCosTheta,theSinTheta,
-							  theRho,
-							  anyDirection);
-      deltaS2 = quadraticCrossing.pathLength(plane);
-    }
+
+    HelixArbitraryPlaneCrossing2Order quadraticCrossing(xnew.x(),xnew.y(),xnew.z(),
+							pnew.x(),pnew.y(),
+							theCosTheta,theSinTheta,
+							theRho,
+							anyDirection);
+    
+    std::pair<bool,double> deltaS2 = quadraticCrossing.pathLength(plane);
     if ( !deltaS2.first )  return deltaS2;
     //
     // Calculate and sort total pathlength (max. 2 solutions)
@@ -137,10 +128,11 @@ HelixArbitraryPlaneCrossing::positionInDouble (double s) const {
   //   2nd order approximation.
   //
 //    if ( fabs(theCachedDPhi)>1.e-1 ) {
-  if ( fabs(theCachedDPhi)>1.e-4 ) {
+  if ( std::abs(theCachedDPhi)>1.e-4 ) {
     // "standard" helix formula
-    return PositionTypeDouble(theX0+(-theSinPhi0*(1.-theCachedCDPhi)+theCosPhi0*theCachedSDPhi)/theRho,
-			      theY0+(theCosPhi0*(1.-theCachedCDPhi)+theSinPhi0*theCachedSDPhi)/theRho,
+    double or = 1./theRho;
+    return PositionTypeDouble(theX0+(-theSinPhi0*(1.-theCachedCDPhi)+theCosPhi0*theCachedSDPhi)*or,
+			      theY0+( theCosPhi0*(1.-theCachedCDPhi)+theSinPhi0*theCachedSDPhi)*or,
 			      theZ0+theCachedS*theCosTheta);
     }
 //    else if ( fabs(theCachedDPhi)>theNumericalPrecision ) {
@@ -180,7 +172,7 @@ HelixArbitraryPlaneCrossing::directionInDouble (double s) const {
     theCachedCDPhi = cos(theCachedDPhi);
   }
 
-  if ( fabs(theCachedDPhi)>1.e-4 ) {
+  if ( std::abs(theCachedDPhi)>1.e-4 ) {
     // full helix formula
     return DirectionTypeDouble(theCosPhi0*theCachedCDPhi-theSinPhi0*theCachedSDPhi,
 			       theSinPhi0*theCachedCDPhi+theCosPhi0*theCachedSDPhi,
@@ -197,8 +189,8 @@ bool HelixArbitraryPlaneCrossing::notAtSurface (const Plane& plane,
 						const PositionTypeDouble& point,
 						const float maxDist) const {
   float dz = plane.localZ(Surface::GlobalPoint(point.x(),point.y(),point.z()));
-  return fabs(dz)>maxDist;
+  return std::abs(dz)>maxDist;
 }
 
-const float HelixArbitraryPlaneCrossing::theNumericalPrecision = 5.e-7;
-const float HelixArbitraryPlaneCrossing::theMaxDistToPlane = 1.e-4;
+const float HelixArbitraryPlaneCrossing::theNumericalPrecision = 5.e-7f;
+const float HelixArbitraryPlaneCrossing::theMaxDistToPlane = 1.e-4f;

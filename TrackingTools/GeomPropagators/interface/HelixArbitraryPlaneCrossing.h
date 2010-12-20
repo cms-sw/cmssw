@@ -52,12 +52,13 @@ private:
 			    const float) const;
 
 private:
+  HelixArbitraryPlaneCrossing2Order theQuadraticCrossingFromStart;
+
+
   const double theX0,theY0,theZ0;
   double theCosPhi0,theSinPhi0;
   double theCosTheta,theSinTheta;
   const double theRho;
-
-  HelixArbitraryPlaneCrossing2Order theQuadraticCrossingFromStart;
 
   const PropagationDirection thePropDir;
 

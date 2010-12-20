@@ -22,13 +22,14 @@ HelixArbitraryPlaneCrossing2Order::HelixArbitraryPlaneCrossing2Order(const Posit
   double px = direction.x();
   double py = direction.y();
   double pz = direction.z();
-  double pt = px*px+py*py;
-  double p = sqrt(pt+pz*pz);
-  pt = sqrt(pt);
-  theCosPhi0 = px/pt;
-  theSinPhi0 = py/pt;
-  theCosTheta = pz/p;
-  theSinTheta = pt/p;
+  double pt2 = px*px+py*py;
+  double p2 = pt2+pz*pz;
+  double pI = 1./sqrt(p2);
+  double ptI = 1./sqrt(pt2);
+  theCosPhi0 = px*ptI;
+  theSinPhi0 = py*ptI;
+  theCosTheta = pz*pI;
+  theSinThetaI = p2*pI*ptI; //  (1/(pt/p)) = p/pt = p*ptI and p = p2/p = p2*pI
 }
 
 //
@@ -50,7 +51,7 @@ HelixArbitraryPlaneCrossing2Order::pathLength(const Plane& plane) {
   // in approximation (without curvature-related factors).
   //
   double ceq1 = theRho*(nPx*theSinPhi0-nPy*theCosPhi0);
-  double ceq2 = nPx*theCosPhi0 + nPy*theSinPhi0 + nPz*theCosTheta/theSinTheta;
+  double ceq2 = nPx*theCosPhi0 + nPy*theSinPhi0 + nPz*theCosTheta*theSinThetaI;
   double ceq3 = cP;
   //
   // Check for degeneration to linear equation (zero
@@ -67,16 +68,16 @@ HelixArbitraryPlaneCrossing2Order::pathLength(const Plane& plane) {
       double deq = deq1+2*deq2;
       if ( deq<0. )  return std::pair<bool,double>(false,0);
       double ceq = -0.5*(ceq2+(ceq2>0?1:-1)*sqrt(deq));
-      dS1 = -2*ceq/ceq1/theSinTheta;
-      dS2 = ceq3/ceq/theSinTheta;
+      dS1 = -2*(ceq/ceq1)*theSinThetaI;
+      dS2 = (ceq3/ceq)*theSinThetaI;
     }
     else {
       //
       // Solution by expansion of sqrt(1+deq)
       //
-      double ceq = ceq2/ceq1/theSinTheta;
+      double ceq = (ceq2/ceq1)*theSinThetaI;
       double deq = deq2/deq1;
-      deq *= (1-deq/2);
+      deq *= (1-0.5*deq);
       dS1 = -ceq*deq;
       dS2 = ceq*(2+deq);
     }
@@ -85,13 +86,14 @@ HelixArbitraryPlaneCrossing2Order::pathLength(const Plane& plane) {
     //
     // Special case: linear equation
     //
-    dS1 = dS2 = -ceq3/ceq2*(1/theSinTheta);
+    dS1 = dS2 = -(ceq3/ceq2)*theSinThetaI;
   }
   //
   // Choose and return solution
   //
   return solutionByDirection(dS1,dS2);
 }
+
 //
 // Position after a step of path length s (2nd order)
 //
@@ -107,10 +109,10 @@ HelixArbitraryPlaneCrossing2Order::position (double s) const {
 HelixArbitraryPlaneCrossing2Order::PositionTypeDouble
 HelixArbitraryPlaneCrossing2Order::positionInDouble (double s) const {
   // based on path length in the transverse plane
-  double st = s*theSinTheta;
-  return PositionTypeDouble(theX0+(theCosPhi0-st*0.5*theRho*theSinPhi0)*st,
-			    theY0+(theSinPhi0+st*0.5*theRho*theCosPhi0)*st,
-			    theZ0+st*theCosTheta/theSinTheta);
+  double st = s/theSinThetaI;
+  return PositionTypeDouble(theX0+(theCosPhi0-(st*0.5*theRho)*theSinPhi0)*st,
+			    theY0+(theSinPhi0+(st*0.5*theRho)*theCosPhi0)*st,
+			    theZ0+st*theCosTheta*theSinThetaI);
 }
 //
 // Direction after a step of path length 2 (2nd order) (in double precision)
@@ -127,10 +129,10 @@ HelixArbitraryPlaneCrossing2Order::direction (double s) const {
 HelixArbitraryPlaneCrossing2Order::DirectionTypeDouble
 HelixArbitraryPlaneCrossing2Order::directionInDouble (double s) const {
   // based on delta phi
-  double dph = s*theRho*theSinTheta;
-  return DirectionTypeDouble(theCosPhi0-(theSinPhi0+0.5*theCosPhi0*dph)*dph,
-			     theSinPhi0+(theCosPhi0-0.5*theSinPhi0*dph)*dph,
-			     theCosTheta/theSinTheta);
+  double dph = s*theRho/theSinThetaI;
+  return DirectionTypeDouble(theCosPhi0-(theSinPhi0+0.5*dph*theCosPhi0)*dph,
+			     theSinPhi0+(theCosPhi0-0.5*dph*theSinPhi0)*dph,
+			     theCosTheta*theSinThetaI);
 }
 //
 // Choice of solution according to propagation direction
@@ -146,7 +148,7 @@ HelixArbitraryPlaneCrossing2Order::solutionByDirection(const double dS1,
   }
   else {
     // use same logic for both directions (invert if necessary)
-    int propSign = thePropDir==alongMomentum ? 1 : -1;
+    double propSign = thePropDir==alongMomentum ? 1 : -1;
     double s1(propSign*dS1);
     double s2(propSign*dS2);
     // sort
