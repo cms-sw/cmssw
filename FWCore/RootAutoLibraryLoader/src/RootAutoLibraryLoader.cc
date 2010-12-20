@@ -306,7 +306,7 @@ namespace edm {
 #else
      classNameAttemptingToLoad_(0) {
 #endif
-      AssertHandler h();
+      AssertHandler h;
       gROOT->AddClassGenerator(this);
       ROOT::Cintex::Cintex::Enable();
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,6)
