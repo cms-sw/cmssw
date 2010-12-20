@@ -14,7 +14,7 @@ process.WBosonAnalyzer = cms.PSet(
         metSrc       = cms.InputTag('patMETs'),
         muonPtMin    = cms.double(20.0),
         metMin       = cms.double(20.0),
-        cutsToIgnore = cms.vstring('MET')
+       #cutsToIgnore = cms.vstring('MET')
         )
 )
 
