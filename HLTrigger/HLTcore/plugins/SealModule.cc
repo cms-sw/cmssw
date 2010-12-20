@@ -1,8 +1,5 @@
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
-#include "HLTrigger/HLTcore/interface/HLTConfigService.h"
-using edm::service::HLTConfigService;
-DEFINE_FWK_SERVICE(HLTConfigService);
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

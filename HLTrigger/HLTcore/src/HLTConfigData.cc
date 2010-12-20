@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/12/17 14:42:37 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/12/19 22:23:53 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -17,211 +17,34 @@
 
 #include <iostream>
 
-bool HLTConfigData::init(const edm::Run& iRun, const edm::EventSetup& iSetup, const std::string& processName, bool& changed) {
-
-   using namespace std;
-   using namespace edm;
-
-   LogInfo("HLTConfigData")
-     << "Called (R) with processName '"
-     << processName << "' for " << iRun.id() << endl;
-
-   const ProcessHistory& processHistory(iRun.processHistory());
-   init(processHistory,processName);
-
-   /// defer iSetup access to when actually needed:
-   /// l1GtUtils_->retrieveL1EventSetup(iSetup);
-
-   changed=changed_;
-   return inited_;
-
-}
-
-void HLTConfigData::init(const edm::ProcessHistory& iHistory, const std::string& processName) {
-
-   using namespace std;
-   using namespace edm;
-
-   /// Check uniqueness (uniqueness should [soon] be enforced by Fw)
-   const ProcessHistory::const_iterator hb(iHistory.begin());
-   const ProcessHistory::const_iterator he(iHistory.end());
-   unsigned int n(0);
-   for (ProcessHistory::const_iterator hi=hb; hi!=he; ++hi) {
-     if (hi->processName()==processName) {n++;}
-   }
-   if (n>1) {
-     clear();
-     LogError("HLTConfigData") << " ProcessName '"<< processName
-				   << " found " << n
-				   << " times in history!" << endl;
-     return;
-   }
-
-   ///
-   ProcessConfiguration processConfiguration;
-   if (iHistory.getConfigurationForProcess(processName,processConfiguration)) {
-     ParameterSet processPSet;
-     if ((processPSet_!=ParameterSet()) && (processConfiguration.parameterSetID() == processPSet_.id())) {
-       changed_=false;
-       inited_=true;
-       return;
-     } else if (pset::Registry::instance()->getMapped(processConfiguration.parameterSetID(),processPSet)) {
-       if (processPSet==ParameterSet()) {
-	 clear();
-	 LogError("HLTConfigData") << "ProcessPSet found is empty!";
-	 changed_=true;
-	 inited_=false;
-	 return;
-       } else {
-	 clear();
-	 processName_=processName;
-	 processPSet_=processPSet;
-	 extract();
-	 changed_=true;
-	 inited_=true;
-	 return;
-       }
-     } else {
-       clear();
-       LogError("HLTConfigData") << "ProcessPSet not found in regsistry!";
-       changed_=true;
-       inited_=false;
-       return;
-     }
-   } else {
-     LogError("HLTConfigData") << "Falling back to processName-only init!";
-     clear();
-     init(processName);
-     if (!inited_) {
-       LogError("HLTConfigData") << "ProcessName not found in history!";
-     }
-     return;
-   }
-}
-
-void HLTConfigData::init(const std::string& processName)
+HLTConfigData::HLTConfigData(const edm::ParameterSet* iPSet):
+  processPSet_(iPSet),
+  tableName_(), triggerNames_(), moduleLabels_(),
+  triggerIndex_(), moduleIndex_(),
+  hltL1GTSeeds_(),
+  streamNames_(), streamIndex_(), streamContents_(),
+  datasetNames_(), datasetIndex_(), datasetContents_(),
+  hltPrescaleTable_()
 {
-   using namespace std;
-   using namespace edm;
-
-   // Obtain ParameterSetID for requested process (with name
-   // processName) from pset registry
-   string pNames("");
-   string hNames("");
-   ParameterSet   pset;
-   ParameterSetID psetID;
-   unsigned int   nPSets(0);
-   const edm::pset::Registry * registry_(pset::Registry::instance());
-   const edm::pset::Registry::const_iterator rb(registry_->begin());
-   const edm::pset::Registry::const_iterator re(registry_->end());
-   for (edm::pset::Registry::const_iterator i = rb; i != re; ++i) {
-     if (i->second.exists("@process_name")) {
-       const std::string pName(i->second.getParameter<string>("@process_name"));
-       pNames += pName+" ";
-       if ( pName == processName ) {
-	 psetID = i->first;
-	 nPSets++;
-	 if ((processPSet_!=ParameterSet()) && (processPSet_.id()==psetID)) {
-	   hNames += tableName();
-	 } else if (registry_->getMapped(psetID,pset)) {
-	   if (pset.exists("HLTConfigVersion")) {
-	     const ParameterSet HLTPSet(pset.getParameter<ParameterSet>("HLTConfigVersion"));
-	     if (HLTPSet.exists("tableName")) {
-	       hNames += HLTPSet.getParameter<string>("tableName")+" ";
-	     }
-	   }
-	 }
-       }
-     }
-   }
-
-   LogVerbatim("HLTConfigData") << "Unordered list of all process names found: "
-				    << pNames << "." << endl;
-
-   LogVerbatim("HLTConfigData") << "HLT TableName of each selected process: "
-				    << hNames << "." << endl;
-
-   if (nPSets==0) {
-     clear();
-     LogError("HLTConfigData") << " Process name '"
-				   << processName
-				   << "' not found in registry!" << endl;
-     return;
-   }
-   if (psetID==ParameterSetID()) {
-     clear();
-     LogError("HLTConfigData") << " Process name '"
-				   << processName
-				   << "' found but ParameterSetID invalid!"
-				   << endl;
-     return;
-   }
-   if (nPSets>1) {
-     clear();
-     LogError("HLTConfigData") << " Process name '"
-				   << processName
-				   << " found " << nPSets
-				   << " times in registry!" << endl;
-     return;
-   }
-
-   // Obtain ParameterSet from ParameterSetID
-   if (!(registry_->getMapped(psetID,pset))) {
-     clear();
-     LogError("HLTConfigData") << " ProcessPSet for ProcessPSetID '"
-				   << psetID
-				   << "' not found in registry!" << endl;
-     return;
-   }
-
-   if ((processName_!=processName) || (processPSet_!=pset)) {
-     clear();
-     processName_=processName;
-     processPSet_=pset;
-     extract();
-   }
-
-   return;
-
+  if(processPSet_->id().isValid()){
+    extract();
+  }
 }
 
-void HLTConfigData::clear()
+static  const edm::ParameterSet* s_dummy()
 {
-   using namespace std;
-   using namespace edm;
-   using namespace trigger;
+  static edm::ParameterSet dummy;
+  dummy.registerIt();
+  return &dummy;
+}
 
-   // clear all data members
+HLTConfigData::HLTConfigData():
+processPSet_(s_dummy())
+{  
+}
 
-   runID_       = RunID(0);
-   processName_ = "";
-   inited_      = false;
-   changed_     = true;
-
-   processPSet_ = ParameterSet();
-
-   tableName_   = "/dev/null";
-
-   triggerNames_.clear();
-   moduleLabels_.clear();
-
-   triggerIndex_.clear();
-   moduleIndex_.clear();
-
-   hltL1GTSeeds_.clear();
-
-   streamNames_.clear();
-   streamContents_.clear();
-   streamIndex_.clear();
-
-   datasetNames_.clear();
-   datasetContents_.clear();
-   datasetIndex_.clear();
-
-   hltPrescaleTable_ = HLTPrescaleTable();
-   *l1GtUtils_       = L1GtUtils();
-
-   return;
+edm::ParameterSetID HLTConfigData::id() const {
+  return processPSet_->id();
 }
 
 void HLTConfigData::extract()
@@ -231,8 +54,8 @@ void HLTConfigData::extract()
    using namespace trigger;
 
    // Obtain PSet containing table name (available only in 2_1_10++ files)
-   if (processPSet_.exists("HLTConfigVersion")) {
-     const ParameterSet HLTPSet(processPSet_.getParameter<ParameterSet>("HLTConfigVersion"));
+   if (processPSet_->exists("HLTConfigVersion")) {
+     const ParameterSet HLTPSet(processPSet_->getParameter<ParameterSet>("HLTConfigVersion"));
      if (HLTPSet.exists("tableName")) {
        tableName_=HLTPSet.getParameter<string>("tableName");
      }
@@ -241,13 +64,13 @@ void HLTConfigData::extract()
 				    << tableName();
 
    // Extract trigger paths (= paths - end_paths)
-   triggerNames_= processPSet_.getParameter<ParameterSet>("@trigger_paths").getParameter<vector<string> >("@trigger_paths");
+   triggerNames_= processPSet_->getParameter<ParameterSet>("@trigger_paths").getParameter<vector<string> >("@trigger_paths");
 
    // Obtain module labels of all modules on all trigger paths
    const unsigned int n(size());
    moduleLabels_.reserve(n);
    for (unsigned int i=0;i!=n; ++i) {
-     moduleLabels_.push_back(processPSet_.getParameter<vector<string> >(triggerNames_[i]));
+     moduleLabels_.push_back(processPSet_->getParameter<vector<string> >(triggerNames_[i]));
    }
 
    // Fill index maps for fast lookup
@@ -280,8 +103,8 @@ void HLTConfigData::extract()
    }
 
    // Extract and fill streams information
-   if (processPSet_.existsAs<ParameterSet>("streams",true)) {
-     const ParameterSet streams(processPSet_.getParameterSet("streams"));
+   if (processPSet_->existsAs<ParameterSet>("streams",true)) {
+     const ParameterSet streams(processPSet_->getParameterSet("streams"));
      streamNames_=streams.getParameterNamesForType<vector<string> >();
      sort(streamNames_.begin(),streamNames_.end());
      const unsigned int n(streamNames_.size());
@@ -295,8 +118,8 @@ void HLTConfigData::extract()
    }
 
    // Extract and fill datasets information
-   if (processPSet_.existsAs<ParameterSet>("datasets",true)) {
-     const ParameterSet datasets(processPSet_.getParameterSet("datasets"));
+   if (processPSet_->existsAs<ParameterSet>("datasets",true)) {
+     const ParameterSet datasets(processPSet_->getParameterSet("datasets"));
      datasetNames_=datasets.getParameterNamesForType<vector<string> >();
      sort(datasetNames_.begin(),datasetNames_.end());
      const unsigned int n(datasetNames_.size());
@@ -314,15 +137,15 @@ void HLTConfigData::extract()
    string prescaleName("");
    const string preS("PrescaleService");
    const string preT("PrescaleTable");
-   if (processPSet_.exists(preS)) {
+   if (processPSet_->exists(preS)) {
      prescaleName=preS;
-   } else if ( processPSet_.exists(preT)) {
+   } else if ( processPSet_->exists(preT)) {
      prescaleName=preT;
    }
    if (prescaleName=="") {
      hltPrescaleTable_=HLTPrescaleTable();
    } else {
-     const ParameterSet iPS(processPSet_.getParameter<ParameterSet>(prescaleName));
+     const ParameterSet iPS(processPSet_->getParameter<ParameterSet>(prescaleName));
      string defaultLabel(iPS.getUntrackedParameter<string>("lvl1DefaultLabel",""));
      vector<string> labels;
      if (iPS.exists("lvl1Labels")) {
@@ -458,19 +281,6 @@ void HLTConfigData::dump(const std::string& what) const {
    return;
 }
 
-const edm::RunID& HLTConfigData::runID() const {
-  return runID_;
-}
-const std::string& HLTConfigData::processName() const {
-  return processName_;
-}
-const bool HLTConfigData::inited() const {
-  return inited_;
-}
-const bool HLTConfigData::changed() const {
-  return changed_;
-}
-
 unsigned int HLTConfigData::size() const {
   return triggerNames_.size();
 }
@@ -526,7 +336,7 @@ unsigned int HLTConfigData::moduleIndex(const std::string& trigger, const std::s
 }
 
 const std::string HLTConfigData::moduleType(const std::string& module) const {
-  if (processPSet_.exists(module)) {
+  if (processPSet_->exists(module)) {
     return modulePSet(module).getParameter<std::string>("@module_type");
   } else {
     return "";
@@ -534,12 +344,12 @@ const std::string HLTConfigData::moduleType(const std::string& module) const {
 }
 
 const edm::ParameterSet& HLTConfigData::processPSet() const {
-  return processPSet_;
+  return *processPSet_;
 }
 
 const edm::ParameterSet HLTConfigData::modulePSet(const std::string& module) const {
-  if (processPSet_.exists(module)) {
-    return processPSet_.getParameter<edm::ParameterSet>(module);
+  if (processPSet_->exists(module)) {
+    return processPSet_->getParameter<edm::ParameterSet>(module);
   } else {
     return edm::ParameterSet();
   }
@@ -617,88 +427,10 @@ const std::vector<std::string>& HLTConfigData::datasetContent(const std::string&
   return datasetContent(datasetIndex(dataset));
 }
 
-int HLTConfigData::prescaleSet(const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  // return hltPrescaleTable_.set();
-  l1GtUtils_->retrieveL1EventSetup(iSetup);
-  int errorTech(0);
-  const int psfsiTech(l1GtUtils_->prescaleFactorSetIndex(iEvent,L1GtUtils::TechnicalTrigger,errorTech));
-  int errorPhys(0);
-  const int psfsiPhys(l1GtUtils_->prescaleFactorSetIndex(iEvent,L1GtUtils::AlgorithmTrigger,errorPhys));
-  assert(psfsiTech==psfsiPhys);
-  if ( (errorTech==0) && (errorPhys==0) &&
-       (psfsiTech>=0) && (psfsiPhys>=0) && (psfsiTech==psfsiPhys) ) {
-    return psfsiPhys;
-  } else {
-    /// error - notify user!
-    edm::LogError("HLTConfigData")
-      << " Error in determining HLT prescale set index from L1 data using L1GtUtils: "
-      << " Tech/Phys error = " << errorTech << "/" << errorPhys
-      << " Tech/Phys psfsi = " << psfsiTech << "/" << psfsiPhys;
-    return -1;
-  }
-}
-
 unsigned int HLTConfigData::prescaleValue(unsigned int set, const std::string& trigger) const {
   return hltPrescaleTable_.prescale(set,trigger);
 }
 
-unsigned int HLTConfigData::prescaleValue(const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& trigger) const {
-  const int set(prescaleSet(iEvent,iSetup));
-  if (set<0) {
-    return 1;
-  } else {
-    return prescaleValue(static_cast<unsigned int>(set),trigger);
-  }
-}
-
-std::pair<int,int>  HLTConfigData::prescaleValues(const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& trigger) const {
-
-  // start with setting both L1T and HLT prescale values to 0
-  std::pair<int,int> result(std::pair<int,int>(0,0));
-
-  // get HLT prescale (possible if HLT prescale set index is correctly found)
-  const int set(prescaleSet(iEvent,iSetup));
-  if (set<0) {
-    result.second = -1;
-  } else {
-    result.second = static_cast<int>(prescaleValue(static_cast<unsigned int>(set),trigger));
-  }
-
-  // get L1T prescale - works only for those hlt trigger paths with
-  // exactly one L1GT seed module which has exactly one L1T name as seed
-  const unsigned int nL1GTSeedModules(hltL1GTSeeds(trigger).size());
-  if (nL1GTSeedModules==0) {
-    // no L1 seed module on path hence no L1 seed hence formally no L1 prescale
-    result.first=1;
-  } else if (nL1GTSeedModules==1) {
-    l1GtUtils_->retrieveL1EventSetup(iSetup);
-    const std::string l1tname(hltL1GTSeeds(trigger).at(0).second);
-    int               l1error(0);
-    result.first = l1GtUtils_->prescaleFactor(iEvent,l1tname,l1error);
-    if (l1error!=0) {
-      edm::LogError("HLTConfigData")
-	<< " Error in determining L1T prescale for HLT path: '"	<< trigger
-	<< "' with L1T seed: '" << l1tname
-	<< "' using L1GtUtils: error code: " << l1error
-	<< ". (Note: only a single L1T name, not a bit number, is allowed as seed for a proper determination of the L1T prescale!)";
-      result.first = -1;
-    }
-  } else {
-    /// error - can't handle properly multiple L1GTSeed modules
-    std::string dump("'"+hltL1GTSeeds(trigger).at(0).second+"'");
-    for (unsigned int i=1; i!=nL1GTSeedModules; ++i) {
-      dump += " * '"+hltL1GTSeeds(trigger).at(i).second+"'";
-    }
-    edm::LogError("HLTConfigData")
-      << " Error in determining L1T prescale for HLT path: '" << trigger
-      << "' has multiple L1GTSeed modules, " << nL1GTSeedModules
-      << ", with L1 seeds: " << dump
-      << ". (Note: at most one L1GTSeed module is allowed for a proper determination of the L1T prescale!)";
-    result.first = -1;
-  }
-
-  return result;
-}
 
 unsigned int HLTConfigData::prescaleSize() const {
   return hltPrescaleTable_.size();

@@ -6,30 +6,21 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/12/17 14:10:01 $
- *  $Revision: 1.30 $
+ *  $Date: 2010/12/17 14:42:37 $
+ *  $Revision: 1.31 $
  *
  *  \author Martin Grunewald
  *
  */
 
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include <map>
+#include <string>
+#include <vector>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/HLTReco/interface/HLTPrescaleTable.h"
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigData.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigService.h"
-
-#include "DataFormats/Provenance/interface/ProcessHistory.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -41,6 +32,13 @@
 //
 // class declaration
 //
+namespace edm {
+  class Run;
+  class Event;
+  class LuminosityBlock;
+  class ProcessHistory;
+  class ParameterSet;
+}
 
 class HLTConfigProvider {
 
@@ -60,19 +58,19 @@ class HLTConfigProvider {
 
   /// RunID
   const edm::RunID& runID() const {
-    return hltConfigData_->runID();
+    return runID_;
   }
   /// process name
   const std::string& processName() const {
-    return hltConfigData_->processName();
+    return processName_;
   }
   /// initialised?
   const bool inited() const {
-    return hltConfigData_->inited();
+    return inited_;
   }
   /// changed?
   const bool changed() const {
-    return hltConfigData_->changed();
+    return changed_;
   }
 
   /// number of trigger paths in trigger table
@@ -214,21 +212,18 @@ class HLTConfigProvider {
 
   /// HLT Prescales
   /// current (default) prescale set index - to be taken from L1GtUtil via Event
-  int prescaleSet(const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-    return hltConfigData_->prescaleSet(iEvent,iSetup); // negative => error
-  }
+  int prescaleSet(const edm::Event& iEvent, const edm::EventSetup& iSetup) const;
+  
   /// prescale value in specific prescale set for a specific trigger path
   unsigned int prescaleValue(unsigned int set, const std::string& trigger) const {
     return hltConfigData_->prescaleValue(set,trigger);
   }
   /// combining the two methods above
-  unsigned int prescaleValue(const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& trigger) const {
-    return hltConfigData_->prescaleValue(iEvent,iSetup,trigger);
-  }
+  unsigned int prescaleValue(const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& trigger) const;
+  
   /// Combined L1T (pair.first) and HLT (pair.second) prescales per HLT path
-  std::pair<int,int> prescaleValues(const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& trigger) const {
-    return hltConfigData_->prescaleValues(iEvent,iSetup,trigger);
-  }
+  std::pair<int,int> prescaleValues(const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& trigger) const;
+
   // any one negative => error in retrieving this (L1T or HLT) prescale
 
 
@@ -246,29 +241,24 @@ class HLTConfigProvider {
 
  public:
   /// c'tor
-  HLTConfigProvider():
-    hltConfigService_(0),
-    processName_(""),
-    hltConfigData_(0)
-  {
-    if(edm::Service<edm::service::HLTConfigService>().isAvailable()) {
-      hltConfigService_ = edm::Service<edm::service::HLTConfigService>().operator->();
-    } else {
-      edm::LogError("HLTConfigProvider") << "HLTConfigService unavailable!";
-      hltConfigData_ = new HLTConfigData();
-    }
-  }
+  HLTConfigProvider();
+  
   /// d'tor
-  ~HLTConfigProvider()
-  {
-    if (hltConfigService_==0) delete hltConfigData_;
-  }
+  ~HLTConfigProvider();
   
  private:
+  void getDataFrom(const edm::ParameterSetID& iID, const std::string& iProcessName );
+  void init(const edm::ProcessHistory& iHistory, const std::string& processName);
+  void init(const std::string& processName);
+  void clear();
+  
   /// data members
-  edm::service::HLTConfigService* hltConfigService_;
+  edm::RunID  runID_;
   std::string processName_;
+  bool inited_;
+  bool changed_;
+  boost::shared_ptr<L1GtUtils> l1GtUtils_;
   const HLTConfigData* hltConfigData_;
-
+  
 };
 #endif
