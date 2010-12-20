@@ -3,7 +3,7 @@
 
 /*
  *
- * $Id: EcalTBReadout.h,v 1.2 2009/06/15 19:46:00 heltsley Exp $
+ * $Id: EcalTBReadout.h,v 1.3 2009/06/18 16:44:00 heltsley Exp $
  *
  */
 
@@ -17,46 +17,53 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 
-class EcalTBReadout {
+class EcalTBReadout 
+{
+   public:
 
-public:
+      EcalTBReadout(const std::string theEcalTBInfoLabel);
+      ~EcalTBReadout(){};
 
-  // The following is not yet used, but will be the primary
-  // constructor when the parameter set system is available.
-  //
-  EcalTBReadout(const std::string theEcalTBInfoLabel);
-  ~EcalTBReadout(){};
+      /// tell the readout which cells exist
+      void setDetIds(const std::vector<DetId> & detIds) {theDetIds = &detIds;}
 
-  /// tell the readout which cells exist
-  void setDetIds(const std::vector<DetId> & detIds) {theDetIds = &detIds;}
+      /// search for the TT to be read
+      void findTTlist( const int& crysId , 
+		       const EcalTrigTowerConstituentsMap& etmap);
 
-  /// search for the TT to be read
-  void findTTlist(const int & crysId, const EcalTrigTowerConstituentsMap& etmap);
+      /// read only the digis from the selected TT
+      void readOut( const EBDigiCollection&             input  , 
+		    EBDigiCollection&                   output , 
+		    const EcalTrigTowerConstituentsMap& etmap    ) ;
 
-  /// read only the digis from the selected TT
-  void readOut(EBDigiCollection & input, EBDigiCollection & output, const EcalTrigTowerConstituentsMap& etmap);
+      /// read only the digis from the selected TT
+      void readOut( const EEDigiCollection&             input  ,
+		    EEDigiCollection&                   output ,
+		    const EcalTrigTowerConstituentsMap& etmap   ) ;
 
-  /// read only the digis from the selected TT
-  void readOut(EEDigiCollection & input, EEDigiCollection & output, const EcalTrigTowerConstituentsMap& etmap);
+      /// master function to be called once per event
+      void performReadout( edm::Event&                         event    , 
+			   const EcalTrigTowerConstituentsMap& theTTmap , 
+			   const EBDigiCollection&             input    , 
+			   EBDigiCollection&                   output     ) ;
 
-  /// master function to be called once per event
-  void performReadout(edm::Event& event, const EcalTrigTowerConstituentsMap & theTTmap, EBDigiCollection & input, EBDigiCollection & output);
+      /// master function to be called once per event
+      void performReadout( edm::Event&                         event    , 
+			   const EcalTrigTowerConstituentsMap& theTTmap , 
+			   const EEDigiCollection&             input    , 
+			   EEDigiCollection&                   output     ) ;
 
-  /// master function to be called once per event
-  void performReadout(edm::Event& event, const EcalTrigTowerConstituentsMap & theTTmap, EEDigiCollection & input, EEDigiCollection & output);
+   private:
 
-private:
+      int theTargetCrystal_;
 
-  int theTargetCrystal_;
+      std::vector<EcalTrigTowerDetId> theTTlist_;
 
-  std::vector<EcalTrigTowerDetId> theTTlist_;
-
-  static const int NCRYMATRIX = 7;
+      static const int NCRYMATRIX = 7;
   
       const std::vector<DetId>* theDetIds;
 
-  std::string ecalTBInfoLabel_;
-
+      std::string ecalTBInfoLabel_;
 };
 
 #endif 
