@@ -1,4 +1,4 @@
-// $Id: ConsumerMonitorCollection.h,v 1.9 2009/10/13 15:08:33 mommsen Exp $
+// $Id: ConsumerMonitorCollection.h,v 1.10 2010/12/20 16:33:21 mommsen Exp $
 /// @file: ConsumerMonitorCollection.h 
 
 #ifndef StorageManager_ConsumerMonitorCollection_h
@@ -21,8 +21,8 @@ namespace stor {
    * A collection of MonitoredQuantities to track consumer activity.
    *
    * $Author: mommsen $
-   * $Revision: 1.9 $
-   * $Date: 2009/10/13 15:08:33 $
+   * $Revision: 1.10 $
+   * $Date: 2010/12/20 16:33:21 $
    */
 
   class ConsumerMonitorCollection: public MonitorCollection
@@ -40,7 +40,7 @@ namespace stor {
     /**
        Add number of discarded events
     */
-    void addDiscardedEvents( const QueueID&, const unsigned int& data_size );
+    void addDiscardedEvents( const QueueID&, const size_t& count );
 
     /**
        Add served sample
