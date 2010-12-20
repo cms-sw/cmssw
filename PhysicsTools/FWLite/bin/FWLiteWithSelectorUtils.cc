@@ -1,10 +1,3 @@
-//#include <memory>
-//#include <string>
-//#include <vector>
-//#include <sstream>
-//#include <fstream>
-//#include <iostream>
-
 #include <TH1F.h>
 #include <TROOT.h>
 #include <TFile.h>
@@ -14,86 +7,13 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 
-#include "DataFormats/PatCandidates/interface/MET.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "PhysicsTools/FWLite/interface/TFileService.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 
 #include "TStopwatch.h"
-#include "PhysicsTools/SelectorUtils/interface/EventSelector.h"
-
-
-
-class WSelector : public EventSelector {
-
-public:
-  /// constructor
-  WSelector(edm::ParameterSet const& params) :
-    muonSrc_(params.getParameter<edm::InputTag>("muonSrc")),
-    metSrc_ (params.getParameter<edm::InputTag>("metSrc")) 
-  {
-    double muonPtMin = params.getParameter<double>("muonPtMin");
-    double metMin    = params.getParameter<double>("metMin");
-    push_back("Muon Pt", muonPtMin );
-    push_back("MET"    , metMin    );
-    set("Muon Pt"); set("MET");
-    wMuon_ = 0; met_ = 0;
-    if ( params.exists("cutsToIgnore") ){
-      setIgnoredCuts( params.getParameter<std::vector<std::string> >("cutsToIgnore") );
-    }
-    retInternal_ = getBitTemplate();
-  }
-  /// destructor
-  virtual ~WSelector() {}
-  /// return muon candidate of W boson
-  pat::Muon const& wMuon() const { return *wMuon_;}
-  /// return MET of W boson
-  pat::MET  const& met()   const { return *met_;  }
-
-  /// here is where the selection occurs
-  virtual bool operator()( edm::EventBase const & event, pat::strbitset & ret){
-    ret.set(false);
-    // Handle to the muon collection
-    edm::Handle<std::vector<pat::Muon> > muons;    
-    // Handle to the MET collection
-    edm::Handle<std::vector<pat::MET> > met;
-    // get the objects from the event
-    bool gotMuons = event.getByLabel(muonSrc_, muons);
-    bool gotMET   = event.getByLabel(metSrc_, met   );
-    // get the MET, require to be > minimum
-    if( gotMET ){
-      met_ = &met->at(0);
-      if( met_->pt() > cut("MET", double()) || ignoreCut("MET") ) 
-	passCut(ret, "MET");
-    }
-    // get the highest pt muon, require to have pt > minimum
-    if( gotMuons ){
-      if( !ignoreCut("Muon Pt") ){
-	if( muons->size() > 0 ){
-	  wMuon_ = &muons->at(0);
-	  if( wMuon_->pt() > cut("Muon Pt", double()) || ignoreCut("Muon Pt") ) 
-	    passCut(ret, "Muon Pt");
-	}
-      } 
-      else{
-	passCut( ret, "Muon Pt");
-      }
-    }
-    setIgnored(ret);
-    return (bool)ret;
-  }
-
-protected:
-  /// muon input
-  edm::InputTag muonSrc_;
-  /// met input
-  edm::InputTag metSrc_;
-  /// muon candidate from W boson
-  pat::Muon const* wMuon_;
-  /// MET from W boson
-  pat::MET const* met_;
-};
+#include "PhysicsTools/FWLite/interface/WSelector.h"
+//#include "PhysicsTools/FWLite/interface/WSelectorFast.h"
 
 
 int main(int argc, char* argv[]) 
