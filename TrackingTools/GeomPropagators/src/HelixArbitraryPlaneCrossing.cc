@@ -61,6 +61,7 @@ HelixArbitraryPlaneCrossing::pathLength(const Plane& plane) {
   int iteration(maxIterations);
   double dSTotal(0.);
   //
+  bool first = true;
   while ( notAtSurface(plane,xnew,safeMaxDist) ) {
     //
     // return empty solution vector if no convergence after maxIterations iterations
@@ -70,13 +71,25 @@ HelixArbitraryPlaneCrossing::pathLength(const Plane& plane) {
       return std::pair<bool,double>(false,0);
     }
 
-    HelixArbitraryPlaneCrossing2Order quadraticCrossing(xnew.x(),xnew.y(),xnew.z(),
-							pnew.x(),pnew.y(),
-							theCosTheta,theSinTheta,
-							theRho,
-							anyDirection);
-    
-    std::pair<bool,double> deltaS2 = quadraticCrossing.pathLength(plane);
+    //
+    // Use existing 2nd order object at first pass, create temporary object
+    // for subsequent passes.
+    //
+    std::pair<bool,double> deltaS2;
+    if ( first ) {
+      first = false;
+      deltaS2 = theQuadraticCrossingFromStart.pathLength(plane);
+    }
+    else {
+      HelixArbitraryPlaneCrossing2Order quadraticCrossing(xnew.x(),xnew.y(),xnew.z(),
+							  pnew.x(),pnew.y(),
+							  theCosTheta,theSinTheta,
+							  theRho,
+							  anyDirection);
+      
+      deltaS2 = quadraticCrossing.pathLength(plane);
+    }
+     
     if ( !deltaS2.first )  return deltaS2;
     //
     // Calculate and sort total pathlength (max. 2 solutions)
