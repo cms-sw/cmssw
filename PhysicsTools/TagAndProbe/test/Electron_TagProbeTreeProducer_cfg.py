@@ -42,6 +42,7 @@ JET_CUTS = "abs(eta)<2.6 && chargedHadronEnergyFraction>0 && electronEnergyFract
 ##
 process = cms.Process("TagProbe")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load("Configuration.StandardSequences.Geometry_cff")
 process.GlobalTag.globaltag = GLOBAL_TAG
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -288,6 +289,8 @@ process.PassingWP60.cut = cms.string(
 ##    \____|_|\____|
 ##   
 process.load("RecoEgamma.ElectronIdentification.cutsInCategoriesElectronIdentificationV06_DataTuning_cfi")
+process.load("RecoEgamma.ElectronIdentification.electronIdLikelihoodExt_cfi")
+
 process.eIDSequence = cms.Sequence(
     process.eidVeryLoose+
     process.eidLoose+                
@@ -297,8 +300,14 @@ process.eIDSequence = cms.Sequence(
     process.eidHyperTight1+
     process.eidHyperTight2+
     process.eidHyperTight3+
-    process.eidHyperTight4    
+    process.eidHyperTight4+
+    process.eidLikelihoodExt
     )
+
+
+
+
+
                          
 ##    _____     _                         __  __       _       _     _             
 ##   |_   _| __(_) __ _  __ _  ___ _ __  |  \/  | __ _| |_ ___| |__ (_)_ __   __ _ 
@@ -880,6 +889,7 @@ process.GsfElectronToIdToHLT.variables.probe_eidCicHyperTight1 = cms.InputTag("e
 process.GsfElectronToIdToHLT.variables.probe_eidCicHyperTight2 = cms.InputTag("eidHyperTight2")
 process.GsfElectronToIdToHLT.variables.probe_eidCicHyperTight3 = cms.InputTag("eidHyperTight3")
 process.GsfElectronToIdToHLT.variables.probe_eidCicHyperTight4 = cms.InputTag("eidHyperTight4")
+process.GsfElectronToIdToHLT.variables.probe_eidLikelihood = cms.InputTag("eidLikelihoodExt")
 process.GsfElectronToIdToHLT.variables.probe_dist = cms.InputTag("GsfConvRejVars","dist")
 process.GsfElectronToIdToHLT.variables.probe_dcot = cms.InputTag("GsfConvRejVars","dcot")
 process.GsfElectronToIdToHLT.variables.probe_convradius = cms.InputTag("GsfConvRejVars","convradius")
@@ -895,6 +905,7 @@ process.GsfElectronToIdToHLT.tagVariables.eidCicHyperTight1 = cms.InputTag("eidH
 process.GsfElectronToIdToHLT.tagVariables.eidCicHyperTight2 = cms.InputTag("eidHyperTight2")
 process.GsfElectronToIdToHLT.tagVariables.eidCicHyperTight3 = cms.InputTag("eidHyperTight3")
 process.GsfElectronToIdToHLT.tagVariables.eidCicHyperTight4 = cms.InputTag("eidHyperTight4")
+process.GsfElectronToIdToHLT.tagVariables.eidLikelihood = cms.InputTag("eidLikelihoodExt")
 process.GsfElectronToIdToHLT.tagVariables.dist = cms.InputTag("GsfConvRejVars","dist")
 process.GsfElectronToIdToHLT.tagVariables.dcot = cms.InputTag("GsfConvRejVars","dcot")
 process.GsfElectronToIdToHLT.tagVariables.convradius = cms.InputTag("GsfConvRejVars","convradius")
