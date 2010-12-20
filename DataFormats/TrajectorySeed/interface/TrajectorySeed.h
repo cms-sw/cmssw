@@ -46,9 +46,21 @@ class TrajectorySeed {
   TrajectorySeed(TrajectorySeed const & o) :
     hits_(o.hits_),  tsos_(o.tsos_), dir_(o.dir_) {}
 
+  TrajectorySeed & operator=(TrajectorySeed const & o) {
+    TrajectorySeed tmp(o); swap(tmp);   
+    return *this;
+  }
+
+
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
   TrajectorySeed(TrajectorySeed && o) :
     hits_(std::move(o.hits_)),  tsos_(std::move(o.tsos_)), dir_(std::move(o.dir_)) {}
+
+  TrajectorySeed & operator=(TrajectorySeed && o) {
+    swap(o);   
+    return *this;
+  }
+
 #endif
 
   range recHits() const {
