@@ -156,6 +156,26 @@ class Hist(object):
         self.underflow, self.overflow = 0, 0
         self.binlabels = None
         self.entries = n
+    def __add__(self, b):
+        """Return the sum of self and b: x.__add__(y) <==> x + y"""
+        c = copy.copy(self)
+        for i in range(len(self)):
+            c.y[i] += b.y[i]
+            c.yerr[i] += b.yerr[i]
+        c.overflow += b.overflow
+        c.underflow += b.underflow
+        return c
+    def __sub__(self, b):
+        """Return the difference of self and b: x.__sub__(y) <==> x - y"""
+        c = copy.copy(self)
+        for i in range(len(self)):
+            c.y[i] -= b.y[i]
+            c.yerr[i] -= b.yerr[i]
+        c.overflow -= b.overflow
+        c.underflow -= b.underflow
+        return c
+    def __div__(self, denominator):
+        return self.divide(denominator)
     def __getitem__(self, index):
         """Return contents of indexth bin: x.__getitem__(y) <==> x[y]"""
         return self.y[index]
@@ -269,8 +289,6 @@ class Hist(object):
         quotient.y = eff
         quotient.yerr = [lower_err, upper_err]
         return quotient
-    def __div__(self, denominator):
-        return self.divide(denominator)
 
 class HistStack(object):
     """

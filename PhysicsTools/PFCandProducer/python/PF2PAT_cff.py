@@ -17,13 +17,6 @@ from PhysicsTools.PFCandProducer.TopProjectors.pfNoTau_cfi import *
 # generator tools
 from PhysicsTools.PFCandProducer.genForPF2PAT_cff import *
 
-# To reconstruct genjets without the neutrinos
-from RecoJets.Configuration.GenJetParticles_cff import *
-from RecoJets.Configuration.RecoGenJets_cff import *
-genParticlesForJets.ignoreParticleIDs.append(14)
-genParticlesForJets.ignoreParticleIDs.append(12)
-genParticlesForJets.ignoreParticleIDs.append(16)
-genParticlesForJets.excludeResonances = False
 
 PF2PAT = cms.Sequence(
     pfMET +

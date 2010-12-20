@@ -26,6 +26,5 @@
   <use   name="L1Trigger/GlobalTriggerAnalyzer"/>
   <use   name="DataFormats/HcalIsolatedTrack"/>
   <use   name="PhysicsTools/HepMCCandAlgos"/>
-  <use   name="PhysicsTools/PatUtils"/>
   <use   name="PhysicsTools/PatAlgos"/>
 </library>

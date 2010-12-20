@@ -9,7 +9,10 @@
 #include <sys/time.h>
 #include <string>
 
-DBReader::DBReader( const edm::ParameterSet& iConfig ) : type_(iConfig.getUntrackedParameter<std::string>("Type"))
+using namespace std;
+using namespace cms;
+
+DBReader::DBReader( const edm::ParameterSet& iConfig ) : type_(iConfig.getUntrackedParameter<string>("Type"))
 {
 }
 
@@ -17,10 +20,10 @@ void DBReader::initialize( const edm::EventSetup& iSetup )
 {
   edm::ESHandle<MuScleFitDBobject> dbObject;
   iSetup.get<MuScleFitDBobjectRcd>().get(dbObject);
-  edm::LogInfo("DBReader") << "[DBReader::analyze] End Reading MuScleFitDBobjectRcd" << std::endl;
+  edm::LogInfo("DBReader") << "[DBReader::analyze] End Reading MuScleFitDBobjectRcd" << endl;
 
-  std::cout << "identifiers size from dbObject = " << dbObject->identifiers.size() << std::endl;
-  std::cout << "parameters size from dbObject = " << dbObject->parameters.size() << std::endl;;
+  cout << "identifiers size from dbObject = " << dbObject->identifiers.size() << endl;
+  cout << "parameters size from dbObject = " << dbObject->parameters.size() << endl;;
 
   // This string is one of: scale, resolution, background.
   // Create the corrector and set the parameters
@@ -28,7 +31,7 @@ void DBReader::initialize( const edm::EventSetup& iSetup )
   else if( type_ == "resolution" ) resolution_.reset(new ResolutionFunction( dbObject.product() ) );
   else if( type_ == "background" ) background_.reset(new BackgroundFunction( dbObject.product() ) );
   else {
-    std::cout << "Error: unrecognized type. Use one of those: 'scale', 'resolution', 'background'" << std::endl;
+    cout << "Error: unrecognized type. Use one of those: 'scale', 'resolution', 'background'" << endl;
     exit(1);
   }
 

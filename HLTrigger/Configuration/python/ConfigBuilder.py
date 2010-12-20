@@ -6,9 +6,19 @@ __triggerTable = {
         'HLTrigger/Configuration/HLT_GRun_cff', 
     ),
 
+    # HLT trigger table running online
+    'GRun_data': ( 
+        'HLTrigger/Configuration/HLT_GRun_data_cff', 
+    ),
+
     # HLT trigger table for the 2009 IDEAL Heavy-Ion menu
     'HIon': ( 
         'HLTrigger/Configuration/HLT_HIon_cff', 
+    ),
+
+    # HLT trigger table for the 2009 IDEAL Heavy-Ion menu
+    'HIon_data': ( 
+        'HLTrigger/Configuration/HLT_HIon_data_cff', 
     )
 }
 

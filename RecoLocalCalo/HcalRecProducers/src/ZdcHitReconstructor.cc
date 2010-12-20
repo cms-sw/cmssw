@@ -96,6 +96,8 @@ void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSet
 	HcalCoderDb coder (*channelCoder, *shape);
 	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
 	(rec->back()).setFlags(0);
+	if (setSaturationFlags_)
+	  saturationFlagSetter_->setSaturationFlag(rec->back(),*i);	
      }
      // return result
      e.put(rec);     

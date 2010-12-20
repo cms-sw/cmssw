@@ -177,7 +177,10 @@ namespace evf
     // flashlist variables, squids
     xdata::Boolean                   squidPresent_; 
 
+    // behavior on error - configurable
     
+    xdata::Boolean                   exitOnError_; 
+
     // HyperDAQ related
     Css                              css_;
 

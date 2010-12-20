@@ -43,14 +43,14 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
       // Match the leptons, by type and deltaR
       dr = DeltaR<reco::Particle, reco::GenParticle>()(solution.getLeptPos(), *(solution.getGenLepp()));
       matchLeptPos = (
-	( ((solution.getWpDecay()=="electron")&&(abs(solution.getGenLepp()->pdgId())==11))
-       || ((solution.getWpDecay()=="muon")&&(abs(solution.getGenLepp()->pdgId())==13)) )
+	( ((solution.getWpDecay()=="electron")&&(std::abs(solution.getGenLepp()->pdgId())==11))
+       || ((solution.getWpDecay()=="muon")&&(std::abs(solution.getGenLepp()->pdgId())==13)) )
        && (dr < 0.1) );
 
       dr = DeltaR<reco::Particle, reco::GenParticle>()(solution.getLeptNeg(), *(solution.getGenLepm()));
       matchLeptNeg = (
-	( ((solution.getWmDecay()=="electron")&&(abs(solution.getGenLepm()->pdgId())==11))
-           || ((solution.getWmDecay()=="muon")&&(abs(solution.getGenLepm()->pdgId())==13)) )
+	( ((solution.getWmDecay()=="electron")&&(std::abs(solution.getGenLepm()->pdgId())==11))
+           || ((solution.getWmDecay()=="muon")&&(std::abs(solution.getGenLepm()->pdgId())==13)) )
 	&& (dr < 0.1) );
     }
 

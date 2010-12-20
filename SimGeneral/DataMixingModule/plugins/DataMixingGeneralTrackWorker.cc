@@ -41,8 +41,7 @@ namespace edm
 
     // declare the products to produce
 
-    GeneralTrackcollectionSig_  = ps.getParameter<edm::InputTag>("SistripdigiCollectionSig");
-    GeneralTrackLabelSig_  = ps.getParameter<edm::InputTag>("SistripLabelSig");
+    GeneralTrackLabelSig_  = ps.getParameter<edm::InputTag>("GeneralTrackLabelSig");
 
     GeneralTrackPileInputTag_ = ps.getParameter<edm::InputTag>("GeneralTrackPileInputTag");
 
@@ -68,7 +67,7 @@ namespace edm
     //edm::Handle<reco::TrackCollection> generalTrkHandle;
     //e.getByLabel("generalTracks", generalTrkHandle);
     edm::Handle<reco::TrackCollection> tracks;
-    e.getByLabel("generalTracks", tracks);
+    e.getByLabel(GeneralTrackLabelSig_, tracks);
 
     if (tracks.isValid()) {
       for (reco::TrackCollection::const_iterator track = tracks->begin();  track != tracks->end();  ++track) {

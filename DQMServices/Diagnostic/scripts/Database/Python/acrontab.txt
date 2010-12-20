@@ -1,2 +1,0 @@
-30 * * * * historydqmprod.cern.ch /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/HDQM/Cron/Scripts/RunSelection/Test/WatchDog.sh > /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/HDQM/Cron/Scripts/RunSelection/Test/WatchDog.log 2>&1
-35 * * * * historydqmweb.cern.ch /home/HDQMWeb/HDQMWeb2/WatchDog.sh > /dev/null 2>&1

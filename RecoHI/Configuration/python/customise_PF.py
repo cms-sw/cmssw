@@ -12,7 +12,8 @@ def customise(process):
     # run tracker-driven electron seeds with heavy-ion tracks
     process.load("TrackingTools.GsfTracking.FwdAnalyticalPropagator_cfi")
     process.load("RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cff")
-    process.trackerDrivenElectronSeeds.UseQuality = cms.bool(False)
+    process.trackerDrivenElectronSeeds.UseQuality = cms.bool(True)
+    process.trackerDrivenElectronSeeds.TrackQuality = cms.string('highPurity')
     process.trackerDrivenElectronSeeds.TkColList = cms.VInputTag("hiSelectedTracks")
     process.trackerDrivenElectronSeeds.ProducePreId = cms.untracked.bool(False)
     process.trackerDrivenElectronSeeds.DisablePreId = cms.untracked.bool(True)

@@ -12,6 +12,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 ## remove MC matching from the default sequence
 # removeMCMatching(process, ['Muons'])
+#runOnData(process)
 
 ## remove certain objects from the default sequence
 # removeAllPATObjectsBut(process, ['Muons'])

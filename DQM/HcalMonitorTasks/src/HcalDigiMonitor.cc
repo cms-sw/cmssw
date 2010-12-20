@@ -39,7 +39,6 @@ HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps)
   
   hltresultsLabel_       = ps.getUntrackedParameter<edm::InputTag>("HLTResultsLabel");
   MinBiasHLTBits_        = ps.getUntrackedParameter<std::vector<std::string> >("MinBiasHLTBits");
-  excludeHORing2_       = ps.getUntrackedParameter<bool>("excludeHORing2",false);
 
   if (debug_>0)
     std::cout <<"<HcalDigiMonitor> Digi shape ADC threshold set to: >" << shapeThresh_ <<" counts above nominal pedestal (3*10)"<< std::endl;
@@ -545,10 +544,6 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	}
       else if (id.subdet()==HcalOuter) 
 	{
-	  // Mark HORing+/-2 channels as present, HO/YB+/-2 has HV off (at 100V).
-	  if (excludeHORing2_==true && rDepth==4)
-	    if (abs(rEta)>=11 && abs(rEta)<=15 && !isSiPM(rEta,rPhi,rDepth)) continue;
-
 	  ++hoHists.count_bad;
 	  if (abs(rEta)<5) ++HO0bad;
 	  else ++HO12bad;
@@ -1223,8 +1218,7 @@ void HcalDigiMonitor::fill_Nevents()
 							    badFibBCNOff[calcEta][phi][d]);
 		      DigiErrorsUnpacker.depth[d]->Fill(iEta, iPhi,
 							badunpackerreport[calcEta][phi][d]);
-		      
-		      DigiErrorsByDepth.depth[d]->Fill(iEta,iPhi,
+		      DigiErrorsByDepth.depth[d]->Fill(iEta, iPhi,
 						       baddigis[calcEta][phi][d]);
 		    } // if (HOpresent_)
 		}//validDetId(HO)

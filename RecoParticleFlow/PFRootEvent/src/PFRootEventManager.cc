@@ -10,6 +10,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 
+#include "DataFormats/FWLite/interface/ChainEvent.h"
+
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFGeometry.h"
 
@@ -61,6 +63,7 @@ PFRootEventManager::PFRootEventManager(const char* file)
   : 
   iEvent_(0),
   options_(0),
+  ev_(0),
   tree_(0),
   outTree_(0),
   outEvent_(0),
@@ -99,13 +102,14 @@ PFRootEventManager::PFRootEventManager(const char* file)
 
 void PFRootEventManager::initializeEventInformation() {
 
-  for( unsigned entry=0; entry<tree_->GetEntries(); ++entry) {
-    readEventAuxiliary( entry ); 
-    
-    mapEventToEntry_[ eventAuxiliary_->run()][eventAuxiliary_->luminosityBlock()][eventAuxiliary_->event()] = entry;
+  unsigned int nev = ev_->size();
+  for ( unsigned int entry = 0; entry < nev; ++entry ) { 
+    ev_->to(entry);
+    const edm::EventBase& iEv = *ev_;
+    mapEventToEntry_[iEv.id().run()][iEv.id().luminosityBlock()][iEv.id().event()] = entry;
   }
 
-  cout<<"Number of events: "<<mapEventToEntry_.size()
+  cout<<"Number of events: "<< nev
       <<" starting with event: "<<mapEventToEntry_.begin()->first<<endl;
 }
 
@@ -116,6 +120,9 @@ void PFRootEventManager::reset() {
     outEvent_->reset();
     outTree_->GetBranch("event")->SetAddress(&outEvent_);
   }  
+
+  if ( ev_ && ev_->isValid() ) 
+    ev_->getTFile()->cd();
 }
 
 
@@ -167,13 +174,15 @@ void PFRootEventManager::readOptions(const char* file,
   if(!outFile_) {
     string outfilename;
     options_->GetOpt("root","outfile", outfilename);
-    if(!outfilename.empty() ) {
-      outFile_ = TFile::Open(outfilename.c_str(), "recreate");
-      
-      bool doOutTree = false;
-      options_->GetOpt("root","outtree", doOutTree);
-      if(doOutTree) {
-        outFile_->cd();
+    bool doOutTree = false;
+    options_->GetOpt("root","outtree", doOutTree);
+    if(doOutTree) {
+      if(!outfilename.empty() ) {
+	outFile_ = TFile::Open(outfilename.c_str(), "recreate");
+	
+	outFile_->cd();
+	//options_->GetOpt("root","outtree", doOutTree);
+	//if(doOutTree) {
         // cout<<"do tree"<<endl;
         outEvent_ = new EventColin();
         outTree_ = new TTree("Eff","");
@@ -349,8 +358,7 @@ void PFRootEventManager::readOptions(const char* file,
   // input root file --------------------------------------------
 
   if( reconnect )
-    connect( inFileName_.c_str() );
-
+    connect(); 
 
   // filter --------------------------------------------------------------
 
@@ -374,7 +382,7 @@ void PFRootEventManager::readOptions(const char* file,
   // clustering parameters -----------------------------------------------
 
   doClustering_ = true;
-  options_->GetOpt("clustering", "on/off", doClustering_);
+  //options_->GetOpt("clustering", "on/off", doClustering_);
   
   bool clusteringDebug = false;
   options_->GetOpt("clustering", "debug", clusteringDebug );
@@ -1350,14 +1358,9 @@ void PFRootEventManager::readOptions(const char* file,
 
 void PFRootEventManager::connect( const char* infilename ) {
 
-  string fname = infilename;
-  if( fname.empty() ) 
-    fname = inFileName_;
+  cout<<"Opening input root files"<<endl;
 
-  
-  cout<<"opening input root file"<<endl;
-
-  options_->GetOpt("root","file", inFileName_);
+  options_->GetOpt("root","file", inFileNames_);
   
 
 
@@ -1368,470 +1371,167 @@ void PFRootEventManager::connect( const char* infilename ) {
     cout<<err<<endl;
   }
 
+  ev_ = new fwlite::ChainEvent(inFileNames_);
 
 
-
-  file_ = TFile::Open(inFileName_.c_str() );
-
-
-  if(!file_ ) return;
-  else if(file_->IsZombie() ) {
+  if ( !ev_ || !ev_->isValid() ) { 
+    cout << "The rootfile(s) " << endl;
+    for ( unsigned int ifile=0; ifile<inFileNames_.size(); ++ifile ) 
+      std::cout << " - " << inFileNames_[ifile] << std::endl;
+    cout << " is (are) not valid file(s) to open" << endl;
     return;
+  } else { 
+    cout << "The rootfile(s) : " << endl;
+    for ( unsigned int ifile=0; ifile<inFileNames_.size(); ++ifile ) 
+      std::cout << " - " << inFileNames_[ifile] << std::endl;
+    cout<<" are opened with " << ev_->size() << " events." <<endl;
   }
-  else 
-    cout<<"rootfile "<<inFileName_
-        <<" opened"<<endl;
-
-  
-
-  tree_ = (TTree*) file_->Get("Events");  
-  if(!tree_) {
-    cerr<<"PFRootEventManager::ReadOptions :";
-    cerr<<"input TTree Events not found in file "
-        <<inFileName_<<endl;
-    return; 
-  }
-
-  tree_->GetEntry();
-   
   
   // hits branches ----------------------------------------------
+  std::string rechitsECALtagname;
+  options_->GetOpt("root","rechits_ECAL_inputTag", rechitsECALtagname);
+  rechitsECALTag_ = edm::InputTag(rechitsECALtagname);
 
-  string rechitsECALbranchname;
-  options_->GetOpt("root","rechits_ECAL_branch", rechitsECALbranchname);
-  
-  rechitsECALBranch_ = tree_->GetBranch(rechitsECALbranchname.c_str());
-  if(!rechitsECALBranch_) {
-    cerr<<"PFRootEventManager::ReadOptions : rechits_ECAL_branch not found : "
-        <<rechitsECALbranchname<<endl;
-  }
+  std::string rechitsHCALtagname;
+  options_->GetOpt("root","rechits_HCAL_inputTag", rechitsHCALtagname);
+  rechitsHCALTag_ = edm::InputTag(rechitsHCALtagname);
 
-  string rechitsHCALbranchname;
-  options_->GetOpt("root","rechits_HCAL_branch", rechitsHCALbranchname);
-  
-  rechitsHCALBranch_ = tree_->GetBranch(rechitsHCALbranchname.c_str());
-  if(!rechitsHCALBranch_) {
-    cerr<<"PFRootEventManager::ReadOptions : rechits_HCAL_branch not found : "
-        <<rechitsHCALbranchname<<endl;
-  }
+  std::string rechitsHFEMtagname;
+  options_->GetOpt("root","rechits_HFEM_inputTag", rechitsHFEMtagname);
+  rechitsHFEMTag_ = edm::InputTag(rechitsHFEMtagname);
 
-  string rechitsHFEMbranchname;
-  options_->GetOpt("root","rechits_HFEM_branch", rechitsHFEMbranchname);
-  
-  rechitsHFEMBranch_ = tree_->GetBranch(rechitsHFEMbranchname.c_str());
-  if(!rechitsHFEMBranch_) {
-    cerr<<"PFRootEventManager::ReadOptions : rechits_HFEM_branch not found : "
-        <<rechitsHFEMbranchname<<endl;
-  }
+  std::string rechitsHFHADtagname;
+  options_->GetOpt("root","rechits_HFHAD_inputTag", rechitsHFHADtagname);
+  rechitsHFHADTag_ = edm::InputTag(rechitsHFHADtagname);
 
-  string rechitsHFHADbranchname;
-  options_->GetOpt("root","rechits_HFHAD_branch", rechitsHFHADbranchname);
-  
-  rechitsHFHADBranch_ = tree_->GetBranch(rechitsHFHADbranchname.c_str());
-  if(!rechitsHFHADBranch_) {
-    cerr<<"PFRootEventManager::ReadOptions : rechits_HFHAD_branch not found : "
-        <<rechitsHFHADbranchname<<endl;
-  }
-
-  std::vector<string> rechitsCLEANEDbranchname;
-  options_->GetOpt("root","rechits_CLEANED_branch", rechitsCLEANEDbranchname);
-  
-  for ( unsigned i=0; i<rechitsCLEANEDbranchname.size(); ++i ) { 
-    rechitsCLEANEDBranch_.push_back(tree_->GetBranch(rechitsCLEANEDbranchname[i].c_str()));
-    if(!rechitsCLEANEDBranch_.back()) {
-      cerr<<"PFRootEventManager::ReadOptions : rechits_CLEANED_branch not found : "
-	  <<rechitsCLEANEDbranchname[i]<<endl;      
-      rechitsCLEANEDBranch_.pop_back();
-    }
-  }
-  rechitsCLEANEDV_.resize(rechitsCLEANEDBranch_.size());
-
-  string rechitsPSbranchname;
-  options_->GetOpt("root","rechits_PS_branch", rechitsPSbranchname);
-  
-  rechitsPSBranch_ = tree_->GetBranch(rechitsPSbranchname.c_str());
-  if(!rechitsPSBranch_) {
-    cerr<<"PFRootEventManager::ReadOptions : rechits_PS_branch not found : "
-        <<rechitsPSbranchname<<endl;
-  }
+  std::vector<string> rechitsCLEANEDtagnames;
+  options_->GetOpt("root","rechits_CLEANED_inputTags", rechitsCLEANEDtagnames);
+  for ( unsigned tags = 0; tags<rechitsCLEANEDtagnames.size(); ++tags )
+    rechitsCLEANEDTags_.push_back(edm::InputTag(rechitsCLEANEDtagnames[tags]));
+  rechitsCLEANEDV_.resize(rechitsCLEANEDTags_.size());
+  rechitsCLEANEDHandles_.resize(rechitsCLEANEDTags_.size());
 
 
-  // clusters branches ----------------------------------------------
+  // Tracks branches
+  std::string rechitsPStagname;
+  options_->GetOpt("root","rechits_PS_inputTag", rechitsPStagname);
+  rechitsPSTag_ = edm::InputTag(rechitsPStagname);
 
-  
-  clustersECALBranch_ = 0;
-  clustersHCALBranch_ = 0;
-  //COLIN not adding a branch to read HF clusters from the file. 
-  // we never use this functionality anyway for the other detectors
-  clustersPSBranch_ = 0;
+  std::string recTrackstagname;
+  options_->GetOpt("root","recTracks_inputTag", recTrackstagname);
+  recTracksTag_ = edm::InputTag(recTrackstagname);
 
+  std::string primaryVerticestagname;
+  options_->GetOpt("root","primaryVertices_inputTag", primaryVerticestagname);
+  primaryVerticesTag_ = edm::InputTag(primaryVerticestagname);
 
-  if( !doClustering_ ) {
-    string clustersECALbranchname;
-    options_->GetOpt("root","clusters_ECAL_branch", clustersECALbranchname);
-    
-    clustersECALBranch_ = tree_->GetBranch(clustersECALbranchname.c_str());
-    if(!clustersECALBranch_) {
-      cerr <<"PFRootEventManager::ReadOptions : clusters_ECAL_branch not found:"
-           <<clustersECALbranchname<<endl;
-    }
-  
+  std::string stdTrackstagname;
+  options_->GetOpt("root","stdTracks_inputTag", stdTrackstagname);
+  stdTracksTag_ = edm::InputTag(stdTrackstagname);
 
-    string clustersHCALbranchname;
-    options_->GetOpt("root","clusters_HCAL_branch", clustersHCALbranchname);
-    
-    clustersHCALBranch_ = tree_->GetBranch(clustersHCALbranchname.c_str());
-    if(!clustersHCALBranch_) {
-      cerr<<"PFRootEventManager::ReadOptions : clusters_HCAL_branch not found : "
-          <<clustersHCALbranchname<<endl;
-    }
-  
-    string clustersPSbranchname;
-    options_->GetOpt("root","clusters_PS_branch", clustersPSbranchname);
+  std::string gsfrecTrackstagname;
+  options_->GetOpt("root","gsfrecTracks_inputTag", gsfrecTrackstagname);
+  gsfrecTracksTag_ = edm::InputTag(gsfrecTrackstagname);
 
-    clustersPSBranch_ = tree_->GetBranch(clustersPSbranchname.c_str());
-    if(!clustersPSBranch_) {
-      cerr<<"PFRootEventManager::ReadOptions : clusters_PS_branch not found : "
-          <<clustersPSbranchname<<endl;
-    }
-  }
-
-  // other branches ----------------------------------------------
-  
-  
-//   string clustersIslandBarrelbranchname;
-//   clustersIslandBarrelBranch_ = 0;
-//   options_->GetOpt("root","clusters_island_barrel_branch", 
-//                    clustersIslandBarrelbranchname);
-//   if(!clustersIslandBarrelbranchname.empty() ) {
-//     clustersIslandBarrelBranch_ 
-//       = tree_->GetBranch(clustersIslandBarrelbranchname.c_str());
-//     if(!clustersIslandBarrelBranch_) {
-//       cerr<<"PFRootEventManager::ReadOptions : clusters_island_barrel_branch not found : "
-//           <<clustersIslandBarrelbranchname<< endl;
-//     }
-//   }
-//   else {
-//     cerr<<"branch not found: root/clusters_island_barrel_branch"<<endl;
-//   }
-
-  string recTracksbranchname;
-  options_->GetOpt("root","recTracks_branch", recTracksbranchname);
-
-  recTracksBranch_ = tree_->GetBranch(recTracksbranchname.c_str());
-  if(!recTracksBranch_) {
-    cerr<<"PFRootEventManager::ReadOptions : recTracks_branch not found : "
-        <<recTracksbranchname<< endl;
-  }
-
-
-  string primaryVertexbranchname;
-  options_->GetOpt("root","primaryVertex_branch", primaryVertexbranchname);
-
-  primaryVertexBranch_ = tree_->GetBranch(primaryVertexbranchname.c_str());
-  if(!primaryVertexBranch_) {
-    cerr<<"PFRootEventManager::ReadOptions : primaryVertex_branch not found : "
-        <<primaryVertexbranchname<< endl;
-  }
-
-  string stdTracksbranchname;
-  options_->GetOpt("root","stdTracks_branch", stdTracksbranchname);
-
-  stdTracksBranch_ = tree_->GetBranch(stdTracksbranchname.c_str());
-  if(!stdTracksBranch_) {
-    cerr<<"PFRootEventManager::ReadOptions : stdTracks_branch not found : "
-        <<stdTracksbranchname<< endl;
-  }
-  
-  string gsfTracksbranchname; 
-  options_->GetOpt("root","gsfrecTracks_branch",gsfTracksbranchname); 
-  gsfrecTracksBranch_ = tree_->GetBranch(gsfTracksbranchname.c_str()); 
-  if(!gsfrecTracksBranch_) { 
-    cerr<<"PFRootEventManager::ReadOptions : gsfrecTracks_branch not found : " 
-        <<gsfTracksbranchname<< endl; 
-  } 
-
-  useConvBremGsfTracks_ = false;
-  options_->GetOpt("particle_flow", "useConvBremGsfTracks", useConvBremGsfTracks_);
-  if(useConvBremGsfTracks_) {
-    string convBremGsfTracksbranchname; 
-    options_->GetOpt("root","convBremGsfrecTracks_branch",convBremGsfTracksbranchname); 
-    convBremGsfrecTracksBranch_ = tree_->GetBranch(convBremGsfTracksbranchname.c_str()); 
-    if(!convBremGsfrecTracksBranch_) { 
-      cerr<<"PFRootEventManager::ReadOptions : convBremGsfrecTracks_branch not found : " 
-	  <<convBremGsfTracksbranchname<< endl; 
-    } 
-  }
-  
   useConvBremPFRecTracks_ = false;
   options_->GetOpt("particle_flow", "useConvBremPFRecTracks", useConvBremPFRecTracks_);
-
-
-  //muons
-  string muonbranchname;
-  options_->GetOpt("root","muon_branch",muonbranchname); 
-  muonsBranch_= tree_->GetBranch(muonbranchname.c_str());
-  if(!muonsBranch_) { 
-    cerr<<"PFRootEventManager::ReadOptions : muon_branch not found : " 
-        <<muonbranchname<< endl; 
-  } 
-
-  //conversion
-
-   usePFConversions_=false;
-   options_->GetOpt("particle_flow", "usePFConversions", usePFConversions_);
-   if( usePFConversions_ ) {
-     string conversionbranchname;
-     options_->GetOpt("root","conversion_branch",conversionbranchname); 
-     conversionBranch_= tree_->GetBranch(conversionbranchname.c_str());
-     if(!conversionBranch_) { 
-       cerr<<"PFRootEventManager::ReadOptions : conversion_branch not found : " 
-	   <<conversionbranchname<< endl; 
-     } 
-  }
-
-  //V0
-
-   usePFV0s_=false;
-   options_->GetOpt("particle_flow", "usePFV0s", usePFV0s_);
-   if( usePFV0s_ ) {
-    
-    string v0branchname;
-    options_->GetOpt("root","V0_branch",v0branchname); 
-    v0Branch_= tree_->GetBranch(v0branchname.c_str());
-    if(!v0Branch_) { 
-      cerr<<"PFRootEventManager::ReadOptions : V0_branch not found : " 
-	  <<v0branchname<< endl; 
-    } 
+  if ( useConvBremPFRecTracks_ ) { 
+    std::string convBremGsfrecTrackstagname;
+    options_->GetOpt("root","convBremGsfrecTracks_inputTag", convBremGsfrecTrackstagname);
+    convBremGsfrecTracksTag_ = edm::InputTag(convBremGsfrecTrackstagname);
   }
 
 
-  //Displaced Vertexs
+  // muons branch
+  std::string muonstagname;
+  options_->GetOpt("root","muon_inputTag", muonstagname);
+  muonsTag_ = edm::InputTag(muonstagname);
 
+  // conversion
+  usePFConversions_=false;
+  options_->GetOpt("particle_flow", "usePFConversions", usePFConversions_);
+  if( usePFConversions_ ) {
+    std::string conversiontagname;
+    options_->GetOpt("root","conversion_inputTag", conversiontagname);
+    conversionTag_ = edm::InputTag(conversiontagname);
+  }
+
+  // V0
+  usePFV0s_=false;
+  options_->GetOpt("particle_flow", "usePFV0s", usePFV0s_);
+  if( usePFV0s_ ) {
+    std::string v0tagname;
+    options_->GetOpt("root","V0_inputTag", v0tagname);
+    v0Tag_ = edm::InputTag(v0tagname);
+  }
+
+  //Displaced Vertices
   usePFDisplacedVertexs_=false;
-  options_->GetOpt("particle_flow", "usePFDisplacedVertexs", 
-		   usePFDisplacedVertexs_);
+  options_->GetOpt("particle_flow", "usePFDisplacedVertexs", usePFDisplacedVertexs_);
   if( usePFDisplacedVertexs_ ) {
-    
-    string pfDisplacedVertexbranchname;
-    options_->GetOpt("root","PFDisplacedVertex_branch",pfDisplacedVertexbranchname); 
-    pfDisplacedVertexBranch_= tree_->GetBranch(pfDisplacedVertexbranchname.c_str());
-    if(!pfDisplacedVertexBranch_) { 
-      cerr<<"PFRootEventManager::ReadOptions : PFDisplacedVertex_branch not found : " 
-	  <<pfDisplacedVertexbranchname<< endl; 
-    } 
+    std::string pfDisplacedTrackerVertextagname;
+    options_->GetOpt("root","PFDisplacedVertex_inputTag", pfDisplacedTrackerVertextagname);
+    pfDisplacedTrackerVertexTag_ = edm::InputTag(pfDisplacedTrackerVertextagname);
   }
 
+  std::string trueParticlestagname;
+  options_->GetOpt("root","trueParticles_inputTag", trueParticlestagname);
+  trueParticlesTag_ = edm::InputTag(trueParticlestagname);
 
+  std::string MCTruthtagname;
+  options_->GetOpt("root","MCTruth_inputTag", MCTruthtagname);
+  MCTruthTag_ = edm::InputTag(MCTruthtagname);
 
+  std::string caloTowerstagname;
+  options_->GetOpt("root","caloTowers_inputTag", caloTowerstagname);
+  caloTowersTag_ = edm::InputTag(caloTowerstagname);
 
-  string trueParticlesbranchname;
-  options_->GetOpt("root","trueParticles_branch", trueParticlesbranchname);
+  std::string genJetstagname;
+  options_->GetOpt("root","genJets_inputTag", genJetstagname);
+  genJetsTag_ = edm::InputTag(genJetstagname);
 
-  trueParticlesBranch_ = tree_->GetBranch(trueParticlesbranchname.c_str());
-  if(!trueParticlesBranch_) {
-    cerr<<"PFRootEventManager::ReadOptions : trueParticles_branch not found : "
-        <<trueParticlesbranchname<< endl;
-  }
   
+  std::string genParticlesforMETtagname;
+  options_->GetOpt("root","genParticlesforMET_inputTag", genParticlesforMETtagname);
+  genParticlesforMETTag_ = edm::InputTag(genParticlesforMETtagname);
 
-  string MCTruthbranchname;
-  options_->GetOpt("root","MCTruth_branch", MCTruthbranchname);
-
-  MCTruthBranch_ = tree_->GetBranch(MCTruthbranchname.c_str());
-  if(!MCTruthBranch_) {
-    cerr<<"PFRootEventManager::ReadOptions : MCTruth_branch not found : "
-        <<MCTruthbranchname << endl;
-  }
-
-  string caloTowersBranchName;
-  caloTowersBranch_ = 0;
-  options_->GetOpt("root","caloTowers_branch", caloTowersBranchName);
-  if(!caloTowersBranchName.empty() ) {
-    caloTowersBranch_ = tree_->GetBranch(caloTowersBranchName.c_str()); 
-    if(!caloTowersBranch_) {
-      cerr<<"PFRootEventManager::ReadOptions : caloTowers_branch not found : "
-          <<caloTowersBranchName<< endl;
-    }
-  }    
-  
-  // GenParticlesCand   
-  string genParticleCandBranchName;
-  genParticlesforJetsBranch_ = 0;
-  options_->GetOpt("root","genParticleforJets_branch", 
-                   genParticleCandBranchName);
-  if(!genParticleCandBranchName.empty() ){  
-    genParticlesforJetsBranch_= 
-      tree_->GetBranch(genParticleCandBranchName.c_str()); 
-    if(!genParticlesforJetsBranch_) {
-      cerr<<"PFRootEventanager::ReadOptions : "
-          <<"genParticleforJets_branch not found : "
-          <<genParticleCandBranchName<< endl;
-    }  
-  }
-       
-  // calo tower base candidates 
-  string caloTowerCandBranchName;
-  caloTowerBaseCandidatesBranch_ = 0;
-  options_->GetOpt("root","caloTowerBaseCandidates_branch", 
-		   caloTowerCandBranchName);
-  if(!caloTowerCandBranchName.empty() ){  
-    caloTowerBaseCandidatesBranch_= 
-      tree_->GetBranch(caloTowerCandBranchName.c_str()); 
-    if(!caloTowerBaseCandidatesBranch_) {
-      cerr<<"PFRootEventanager::ReadOptions : "
-	  <<"caloTowerBaseCandidates_branch not found : "
-          <<caloTowerCandBranchName<< endl;
-    }  
-  }
+  std::string genParticlesforJetstagname;
+  options_->GetOpt("root","genParticlesforJets_inputTag", genParticlesforJetstagname);
+  genParticlesforJetsTag_ = edm::InputTag(genParticlesforJetstagname);
 
   // PF candidates 
-  string PFCandBranchName;
-  pfCandidatesBranch_ = 0;
-  options_->GetOpt("root","particleFlowCand_branch", 
-		   PFCandBranchName);
-  if(!PFCandBranchName.empty() ){  
-    pfCandidatesBranch_= 
-      tree_->GetBranch(PFCandBranchName.c_str()); 
-    if(!pfCandidatesBranch_) {
-      cerr<<"PFRootEventanager::ReadOptions : "
-	  <<"particleFlowCandidates_branch not found : "
-          <<PFCandBranchName<< endl;
-    }  
-  }
+  std::string pfCandidatetagname;
+  options_->GetOpt("root","particleFlowCand_inputTag", pfCandidatetagname);
+  pfCandidateTag_ = edm::InputTag(pfCandidatetagname);
 
-      
-  string genJetBranchName; 
-  options_->GetOpt("root","genJetBranchName", genJetBranchName);
-  if(!genJetBranchName.empty() ) {
-    genJetBranch_= tree_->GetBranch(genJetBranchName.c_str()); 
-    if(!genJetBranch_) {
-      cerr<<"PFRootEventManager::ReadOptions :genJetBranch_ not found : "
-          <<genJetBranchName<< endl;
-    }
-  }
-  
-  string recCaloBranchName;
-  options_->GetOpt("root","recCaloJetBranchName", recCaloBranchName);
-  if(!recCaloBranchName.empty() ) {
-    recCaloBranch_= tree_->GetBranch(recCaloBranchName.c_str()); 
-    if(!recCaloBranch_) {
-      cerr<<"PFRootEventManager::ReadOptions :recCaloBranch_ not found : "
-          <<recCaloBranchName<< endl;
-    }
-  }
-  string reccorrCaloBranchName;
-  options_->GetOpt("root","reccorrCaloJetBranchName", reccorrCaloBranchName);
-  if(!reccorrCaloBranchName.empty() ) {
-    reccorrCaloBranch_= tree_->GetBranch(reccorrCaloBranchName.c_str()); 
-    if(!reccorrCaloBranch_) {
-      cerr<<"PFRootEventManager::ReadOptions :reccorrCaloBranch_ not found : "
-          <<reccorrCaloBranchName<< endl;
-    }
-  }
-  string recPFBranchName; 
-  options_->GetOpt("root","recPFJetBranchName", recPFBranchName);
-  if(!recPFBranchName.empty() ) {
-    recPFBranch_= tree_->GetBranch(recPFBranchName.c_str()); 
-    if(!recPFBranch_) {
-      cerr<<"PFRootEventManager::ReadOptions :recPFBranch_ not found : "
-          <<recPFBranchName<< endl;
-    }
-  }
+  std::string caloJetstagname;
+  options_->GetOpt("root","CaloJets_inputTag", caloJetstagname);
+  caloJetsTag_ = edm::InputTag(caloJetstagname);
 
-  string recPFMETBranchName; 
-  options_->GetOpt("root","recPFMETBranchName", recPFMETBranchName);
-  if(!recPFMETBranchName.empty() ) {
-    recPFMETBranch_= tree_->GetBranch(recPFMETBranchName.c_str()); 
-    if(!recPFMETBranch_) {
-      cerr<<"PFRootEventManager::ReadOptions :recPFMETBranch_ not found : "
-          <<recPFMETBranchName<< endl;
-    }
-  }
-  string recCaloMETBranchName; 
-  options_->GetOpt("root","recCaloMETBranchName", recCaloMETBranchName);
-  if(!recCaloMETBranchName.empty() ) {
-    recCaloMETBranch_= tree_->GetBranch(recCaloMETBranchName.c_str()); 
-    if(!recCaloMETBranch_) {
-      cerr<<"PFRootEventManager::ReadOptions :recCaloMETBranch_ not found : "
-          <<recCaloMETBranchName<< endl;
-    }
-  }
-  string recTCMETBranchName; 
-  options_->GetOpt("root","recTCMETBranchName", recTCMETBranchName);
-  if(!recTCMETBranchName.empty() ) {
-    recTCMETBranch_= tree_->GetBranch(recTCMETBranchName.c_str()); 
-    if(!recTCMETBranch_) {
-      cerr<<"PFRootEventManager::ReadOptions :recTCMETBranch_ not found : "
-          <<recTCMETBranchName<< endl;
-    }
-  }
-  string genParticlesforMETBranchName; 
-  options_->GetOpt("root","genParticlesforMETBranchName", genParticlesforMETBranchName);
-  if(!genParticlesforMETBranchName.empty() ) {
-    genParticlesforMETBranch_= tree_->GetBranch(genParticlesforMETBranchName.c_str()); 
-    if(!genParticlesforMETBranch_) {
-      cerr<<"PFRootEventManager::ReadOptions :genParticlesforMETBranch_ not found : "
-          <<genParticlesforMETBranchName<< endl;
-    }
-  }
+  std::string corrcaloJetstagname;
+  options_->GetOpt("root","corrCaloJets_inputTag", corrcaloJetstagname);
+  corrcaloJetsTag_ = edm::InputTag(corrcaloJetstagname);
 
-  eventAuxiliaryBranch_ = tree_->GetBranch( "EventAuxiliary" );
+  std::string pfJetstagname;
+  options_->GetOpt("root","PFJets_inputTag", pfJetstagname);
+  pfJetsTag_ = edm::InputTag(pfJetstagname);
 
+  std::string pfMetstagname;
+  options_->GetOpt("root","PFMET_inputTag", pfMetstagname);
+  pfMetsTag_ = edm::InputTag(pfMetstagname);
 
-  setAddresses();
+  std::string caloMetstagname;
+  options_->GetOpt("root","CaloMET_inputTag", caloMetstagname);
+  caloMetsTag_ = edm::InputTag(caloMetstagname);
+
+  std::string tcMetstagname;
+  options_->GetOpt("root","TCMET_inputTag", tcMetstagname);
+  tcMetsTag_ = edm::InputTag(tcMetstagname);
 
 }
 
 
 
-
-void PFRootEventManager::setAddresses() {
-
-  if( rechitsECALBranch_ ) rechitsECALBranch_->SetAddress(&rechitsECAL_);
-  if( rechitsHCALBranch_ ) rechitsHCALBranch_->SetAddress(&rechitsHCAL_);
-  if( rechitsHFEMBranch_ ) rechitsHFEMBranch_->SetAddress(&rechitsHFEM_);
-  if( rechitsHFHADBranch_ ) rechitsHFHADBranch_->SetAddress(&rechitsHFHAD_);
-  for ( unsigned i=0; i<rechitsCLEANEDBranch_.size(); ++i ) { 
-    if( rechitsCLEANEDBranch_[i] ) rechitsCLEANEDBranch_[i]->SetAddress(&rechitsCLEANEDV_[i]);
-  }
-  if( rechitsPSBranch_ ) rechitsPSBranch_->SetAddress(&rechitsPS_);
-  if( clustersECALBranch_ ) clustersECALBranch_->SetAddress( clustersECAL_.get() );
-  if( clustersHCALBranch_ ) clustersHCALBranch_->SetAddress( clustersHCAL_.get() );
-  if( clustersPSBranch_ ) clustersPSBranch_->SetAddress( clustersPS_.get() );
-//   if( clustersIslandBarrelBranch_ ) 
-//     clustersIslandBarrelBranch_->SetAddress(&clustersIslandBarrel_);
-  if( primaryVertexBranch_ ) primaryVertexBranch_->SetAddress(&primaryVertices_);
-  if( recTracksBranch_ ) recTracksBranch_->SetAddress(&recTracks_);
-  if( stdTracksBranch_ ) stdTracksBranch_->SetAddress(&stdTracks_);
-  if( gsfrecTracksBranch_ ) gsfrecTracksBranch_->SetAddress(&gsfrecTracks_);
-  if( convBremGsfrecTracksBranch_ ) convBremGsfrecTracksBranch_->SetAddress(&convBremGsfrecTracks_);
-  if( muonsBranch_ ) muonsBranch_->SetAddress(&muons_); 
-  if( conversionBranch_ ) conversionBranch_->SetAddress(&conversion_); 
-  if( v0Branch_ ) v0Branch_->SetAddress(&v0_);
-  if( pfDisplacedVertexBranch_ ) pfDisplacedVertexBranch_->SetAddress(&pfDisplacedTrackerVertex_);
-
-  if( trueParticlesBranch_ ) trueParticlesBranch_->SetAddress(&trueParticles_);
-  if( MCTruthBranch_ ) { 
-    MCTruthBranch_->SetAddress(&MCTruth_);
-  }
-  if( caloTowersBranch_ ) caloTowersBranch_->SetAddress(&caloTowers_);
-  if( genParticlesforJetsBranch_ ) 
-    genParticlesforJetsBranch_->SetAddress(&genParticlesforJets_);
-//   if( caloTowerBaseCandidatesBranch_ ) {
-//     caloTowerBaseCandidatesBranch_->SetAddress(&caloTowerBaseCandidates_);
-//   }
-  if (genJetBranch_) genJetBranch_->SetAddress(&genJetsCMSSW_);
-  if (recCaloBranch_) recCaloBranch_->SetAddress(&caloJetsCMSSW_);
-  if (reccorrCaloBranch_) reccorrCaloBranch_->SetAddress(&corrcaloJetsCMSSW_);
-  if (recPFBranch_) recPFBranch_->SetAddress(&pfJetsCMSSW_); 
-
-  if (recCaloMETBranch_) recCaloMETBranch_->SetAddress(&caloMetsCMSSW_);
-  if (recTCMETBranch_) recTCMETBranch_->SetAddress(&tcMetsCMSSW_);
-  if (recPFMETBranch_) recPFMETBranch_->SetAddress(&pfMetsCMSSW_); 
-  if (pfCandidatesBranch_) pfCandidatesBranch_->SetAddress(&pfCandCMSSW_); 
-  if (genParticlesforMETBranch_) genParticlesforMETBranch_->SetAddress(&genParticlesCMSSW_); 
-}
 
 
 PFRootEventManager::~PFRootEventManager() {
@@ -1913,24 +1613,30 @@ bool PFRootEventManager::processEntry(int entry) {
 
   iEvent_ = entry;
  
+  bool exists = ev_->to(entry);
+  if ( !exists ) { 
+    std::cout << "Entry " << entry << " does not exist " << std::endl; 
+    return false;
+  }
+  const edm::EventBase& iEvent = *ev_;
+
   if( outEvent_ ) outEvent_->setNumber(entry);
 
-  readEventAuxiliary( entry ); 
-
   if(verbosity_ == VERBOSE  || 
-     // entry < 10000 ||
+     //entry < 10000 ||
      (entry < 100 && entry%10 == 0) || 
      (entry < 1000 && entry%100 == 0) || 
      entry%1000 == 0 ) 
     cout<<"process entry "<< entry 
-	<<", run "<<eventAuxiliary_->run()
-	<<", lumi "<<eventAuxiliary_->luminosityBlock()	
-	<<", event:"<<eventAuxiliary_->event()
+	<<", run "<<iEvent.id().run()
+	<<", lumi "<<iEvent.id().luminosityBlock()	
+	<<", event:"<<iEvent.id().event()
 	<< endl;
 
+  //ev_->getTFile()->cd();
   bool goodevent =  readFromSimulation(entry);
 
-  /*
+  /* 
   std::cout << "Rechits cleaned : " << std::endl;
   for(unsigned i=0; i<rechitsCLEANED_.size(); i++) {
     string seedstatus = "    ";
@@ -1979,7 +1685,6 @@ bool PFRootEventManager::processEntry(int entry) {
     }
   }
 
-  
   if(doParticleFlow_) { 
     particleFlow();
 
@@ -2128,13 +1833,6 @@ bool PFRootEventManager::highPtPFCandidate( double ptMin,
 }
 
 
-void PFRootEventManager::readEventAuxiliary(int entry) {
-  eventAuxiliaryBranch_->SetAddress( &eventAuxiliary_ );
-  eventAuxiliaryBranch_->GetEntry( entry );
-}
-
-
-
 bool PFRootEventManager::readFromSimulation(int entry) {
 
   if (verbosity_ == VERBOSE ) {
@@ -2142,108 +1840,271 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   }
 
 
-  if(!tree_) return false;
+  // if(!tree_) return false;
   
-  setAddresses();
+  const edm::EventBase& iEvent = *ev_;
+  
 
-  if(stdTracksBranch_) { 
-    stdTracksBranch_->GetEntry(entry);
+  bool foundstdTracks = iEvent.getByLabel(stdTracksTag_,stdTracksHandle_);
+  if ( foundstdTracks ) { 
+    stdTracks_ = *stdTracksHandle_;
+    // cout << "Found " << stdTracks_.size() << " standard tracks" << endl;
+  } else { 
+    cerr<<"PFRootEventManager::ProcessEntry : stdTracks Collection not found : "
+        <<entry << " " << stdTracksTag_<<endl;
   }
-  if(MCTruthBranch_) { 
-    MCTruthBranch_->GetEntry(entry);
+
+  bool foundMCTruth = iEvent.getByLabel(MCTruthTag_,MCTruthHandle_);
+  if ( foundMCTruth ) { 
+    MCTruth_ = *MCTruthHandle_;
+    // cout << "Found MC truth" << endl;
+  } else { 
+    cerr<<"PFRootEventManager::ProcessEntry : MCTruth Collection not found : "
+        <<entry << " " << MCTruthTag_<<endl;
   }
-  if(trueParticlesBranch_ ) {
-    trueParticlesBranch_->GetEntry(entry);
+
+  bool foundTP = iEvent.getByLabel(trueParticlesTag_,trueParticlesHandle_);
+  if ( foundTP ) { 
+    trueParticles_ = *trueParticlesHandle_;
+    // cout << "Found " << trueParticles_.size() << " true particles" << endl;
+  } else { 
+    cerr<<"PFRootEventManager::ProcessEntry : trueParticles Collection not found : "
+        <<entry << " " << trueParticlesTag_<<endl;
   }
-  if(rechitsECALBranch_) {
-    rechitsECALBranch_->GetEntry(entry);
+
+  bool foundECAL = iEvent.getByLabel(rechitsECALTag_,rechitsECALHandle_);
+  if ( foundECAL ) { 
+    rechitsECAL_ = *rechitsECALHandle_;
+    // cout << "Found " << rechitsECAL_.size() << " ECAL rechits" << endl;
+  } else { 
+    cerr<<"PFRootEventManager::ProcessEntry : rechitsECAL Collection not found : "
+        <<entry << " " << rechitsECALTag_<<endl;
   }
-  if(rechitsHCALBranch_) {
-    rechitsHCALBranch_->GetEntry(entry);
+
+  bool foundHCAL = iEvent.getByLabel(rechitsHCALTag_,rechitsHCALHandle_);
+  if ( foundHCAL ) { 
+    rechitsHCAL_ = *rechitsHCALHandle_;
+    // cout << "Found " << rechitsHCAL_.size() << " HCAL rechits" << endl;
+  } else { 
+    cerr<<"PFRootEventManager::ProcessEntry : rechitsHCAL Collection not found : "
+        <<entry << " " << rechitsHCALTag_<<endl;
   }
-  if(rechitsHFEMBranch_) {
-    rechitsHFEMBranch_->GetEntry(entry);
+
+  bool foundHFEM = iEvent.getByLabel(rechitsHFEMTag_,rechitsHFEMHandle_);
+  if ( foundHFEM ) { 
+    rechitsHFEM_ = *rechitsHFEMHandle_;
+    // cout << "Found " << rechitsHFEM_.size() << " HFEM rechits" << endl;
+  } else { 
+    cerr<<"PFRootEventManager::ProcessEntry : rechitsHFEM Collection not found : "
+        <<entry << " " << rechitsHFEMTag_<<endl;
   }
-  if(rechitsHFHADBranch_) {
-    rechitsHFHADBranch_->GetEntry(entry);
+
+  bool foundHFHAD = iEvent.getByLabel(rechitsHFHADTag_,rechitsHFHADHandle_);
+  if ( foundHFHAD ) { 
+    rechitsHFHAD_ = *rechitsHFHADHandle_;
+    // cout << "Found " << rechitsHFHAD_.size() << " HFHAD rechits" << endl;
+  } else { 
+    cerr<<"PFRootEventManager::ProcessEntry : rechitsHFHAD Collection not found : "
+        <<entry << " " << rechitsHFHADTag_<<endl;
   }
-  for ( unsigned i=0; i<rechitsCLEANEDBranch_.size(); ++i ) { 
-    if(rechitsCLEANEDBranch_[i]) {
-      rechitsCLEANEDBranch_[i]->GetEntry(entry);
+
+  for ( unsigned i=0; i<rechitsCLEANEDTags_.size(); ++i ) { 
+    bool foundCLEANED = iEvent.getByLabel(rechitsCLEANEDTags_[i],
+					  rechitsCLEANEDHandles_[i]);
+    if ( foundCLEANED ) { 
+      rechitsCLEANEDV_[i] = *(rechitsCLEANEDHandles_[i]);
+      // cout << "Found " << rechitsCLEANEDV_[i].size() << " CLEANED rechits" << endl;
+    } else { 
+      cerr<<"PFRootEventManager::ProcessEntry : rechitsCLEANED Collection not found : "
+	  <<entry << " " << rechitsCLEANEDTags_[i]<<endl;
     }
-  }
-  if(rechitsPSBranch_) {
-    rechitsPSBranch_->GetEntry(entry);  
-  }
-  if(clustersECALBranch_ && !doClustering_) {
-    clustersECALBranch_->GetEntry(entry);
-  }
-  if(clustersHCALBranch_ && !doClustering_) {
-    clustersHCALBranch_->GetEntry(entry);
-  }
-  if(clustersPSBranch_ && !doClustering_) {
-    clustersPSBranch_->GetEntry(entry);
-  }
-  if(clustersIslandBarrelBranch_) {
-    clustersIslandBarrelBranch_->GetEntry(entry);
-  }
-  if(caloTowersBranch_) {
-    caloTowersBranch_->GetEntry(entry);
-  } 
-  if(primaryVertexBranch_) {
-    primaryVertexBranch_->GetEntry(entry);
-  }
-  if(recTracksBranch_) {
-    recTracksBranch_->GetEntry(entry);
-  }
-  if(gsfrecTracksBranch_) {
-    gsfrecTracksBranch_->GetEntry(entry);
-  }
-  if(convBremGsfrecTracksBranch_) {
-    convBremGsfrecTracksBranch_->GetEntry(entry);
-  }
-  if(muonsBranch_) {
-    muonsBranch_->GetEntry(entry);
+
   }
 
-
-  if(conversionBranch_) {
-    conversionBranch_->GetEntry(entry);
+  bool foundPS = iEvent.getByLabel(rechitsPSTag_,rechitsPSHandle_);
+  if ( foundPS ) { 
+    rechitsPS_ = *rechitsPSHandle_;
+    // cout << "Found " << rechitsPS_.size() << " PS rechits" << endl;
+  } else { 
+    cerr<<"PFRootEventManager::ProcessEntry : rechitsPS Collection not found : "
+        <<entry << " " << rechitsPSTag_<<endl;
   }
 
-  if(v0Branch_) {
-    v0Branch_->GetEntry(entry);
+  bool foundCT = iEvent.getByLabel(caloTowersTag_,caloTowersHandle_);
+  if ( foundCT ) { 
+    caloTowers_ = *caloTowersHandle_;
+    // cout << "Found " << caloTowers_.size() << " calo Towers" << endl;
+  } else { 
+    cerr<<"PFRootEventManager::ProcessEntry : caloTowers Collection not found : "
+        <<entry << " " << caloTowersTag_<<endl;
   }
 
-  if(pfDisplacedVertexBranch_) {
-    pfDisplacedVertexBranch_->GetEntry(entry);
+  bool foundPV = iEvent.getByLabel(primaryVerticesTag_,primaryVerticesHandle_);
+  if ( foundPV ) { 
+    primaryVertices_ = *primaryVerticesHandle_;
+    // cout << "Found " << primaryVertices_.size() << " primary vertices" << endl;
+  } else { 
+    cerr<<"PFRootEventManager::ProcessEntry : primaryVertices Collection not found : "
+        <<entry << " " << primaryVerticesTag_<<endl;
   }
 
-  if(genParticlesforJetsBranch_) {
-    genParticlesforJetsBranch_->GetEntry(entry);
-  }
-//   if(caloTowerBaseCandidatesBranch_) {
-//     caloTowerBaseCandidatesBranch_->GetEntry(entry);
-//   }
-  if(genJetBranch_) {
-    genJetBranch_->GetEntry(entry);
-  }
-  if(recCaloBranch_) {
-    recCaloBranch_->GetEntry(entry);
-  }
-  if(reccorrCaloBranch_) {
-    reccorrCaloBranch_->GetEntry(entry);
-  }
-  if(recPFBranch_) {
-    recPFBranch_->GetEntry(entry);
+  bool foundPFV = iEvent.getByLabel(pfDisplacedTrackerVertexTag_,pfDisplacedTrackerVertexHandle_);
+  if ( foundPFV ) { 
+    pfDisplacedTrackerVertex_ = *pfDisplacedTrackerVertexHandle_;
+    // cout << "Found " << pfDisplacedTrackerVertex_.size() << " secondary PF vertices" << endl;
+  } else if ( usePFDisplacedVertexs_ ) { 
+    cerr<<"PFRootEventManager::ProcessEntry : pfDisplacedTrackerVertex Collection not found : "
+        <<entry << " " << pfDisplacedTrackerVertexTag_<<endl;
   }
 
-  tree_->GetEntry( entry, 0 );
+  bool foundrecTracks = iEvent.getByLabel(recTracksTag_,recTracksHandle_);
+  if ( foundrecTracks ) { 
+    recTracks_ = *recTracksHandle_;
+    // cout << "Found " << recTracks_.size() << " PFRecTracks" << endl;
+  } else { 
+    cerr<<"PFRootEventManager::ProcessEntry : recTracks Collection not found : "
+        <<entry << " " << recTracksTag_<<endl;
+  }
+
+  bool foundgsfrecTracks = iEvent.getByLabel(gsfrecTracksTag_,gsfrecTracksHandle_);
+  if ( foundgsfrecTracks ) { 
+    gsfrecTracks_ = *gsfrecTracksHandle_;
+    // cout << "Found " << gsfrecTracks_.size() << " GsfPFRecTracks" << endl;
+  } else { 
+    cerr<<"PFRootEventManager::ProcessEntry : gsfrecTracks Collection not found : "
+        <<entry << " " << gsfrecTracksTag_<<endl;
+  }
+
+  bool foundconvBremGsfrecTracks = iEvent.getByLabel(convBremGsfrecTracksTag_,convBremGsfrecTracksHandle_);
+  if ( foundconvBremGsfrecTracks ) { 
+    convBremGsfrecTracks_ = *convBremGsfrecTracksHandle_;
+    // cout << "Found " << convBremGsfrecTracks_.size() << " ConvBremGsfPFRecTracks" << endl;
+  } else if ( useConvBremPFRecTracks_ ) { 
+    cerr<<"PFRootEventManager::ProcessEntry : convBremGsfrecTracks Collection not found : "
+        <<entry << " " << convBremGsfrecTracksTag_<<endl;
+  }
+
+  bool foundmuons = iEvent.getByLabel(muonsTag_,muonsHandle_);
+  if ( foundmuons ) { 
+    muons_ = *muonsHandle_;
+    // cout << "Found " << muons_.size() << " muons" << endl;
+  } else { 
+    cerr<<"PFRootEventManager::ProcessEntry : muons Collection not found : "
+        <<entry << " " << muonsTag_<<endl;
+  }
+
+  bool foundconversion = iEvent.getByLabel(conversionTag_,conversionHandle_);
+  if ( foundconversion ) { 
+    conversion_ = *conversionHandle_;
+    // cout << "Found " << conversion_.size() << " conversion" << endl;
+  } else if ( usePFConversions_ ) { 
+    cerr<<"PFRootEventManager::ProcessEntry : conversion Collection not found : "
+        <<entry << " " << conversionTag_<<endl;
+  }
+
+  bool foundv0 = iEvent.getByLabel(v0Tag_,v0Handle_);
+  if ( foundv0 ) { 
+    v0_ = *v0Handle_;
+    // cout << "Found " << v0_.size() << " v0" << endl;
+  } else if ( usePFV0s_ ) { 
+    cerr<<"PFRootEventManager::ProcessEntry : v0 Collection not found : "
+        <<entry << " " << v0Tag_<<endl;
+  }
+
+  bool foundgenJets = iEvent.getByLabel(genJetsTag_,genJetsHandle_);
+  if ( foundgenJets ) { 
+    genJetsCMSSW_ = *genJetsHandle_;
+    // cout << "Found " << genJetsCMSSW_.size() << " genJets" << endl;
+  } else { 
+    cerr<<"PFRootEventManager::ProcessEntry : genJets Collection not found : "
+        <<entry << " " << genJetsTag_<<endl;
+  }
+
+  bool foundgenParticlesforJets = iEvent.getByLabel(genParticlesforJetsTag_,genParticlesforJetsHandle_);
+  if ( foundgenParticlesforJets ) { 
+    genParticlesforJets_ = *genParticlesforJetsHandle_;
+    // cout << "Found " << genParticlesforJets_.size() << " genParticlesforJets" << endl;
+  } else { 
+    cerr<<"PFRootEventManager::ProcessEntry : genParticlesforJets Collection not found : "
+        <<entry << " " << genParticlesforJetsTag_<<endl;
+  }
+
+  bool foundgenParticlesforMET = iEvent.getByLabel(genParticlesforMETTag_,genParticlesforMETHandle_);
+  if ( foundgenParticlesforMET ) { 
+    genParticlesCMSSW_ = *genParticlesforMETHandle_;
+    // cout << "Found " << genParticlesCMSSW_.size() << " genParticlesforMET" << endl;
+  } else { 
+    cerr<<"PFRootEventManager::ProcessEntry : genParticlesforMET Collection not found : "
+        <<entry << " " << genParticlesforMETTag_<<endl;
+  }
+
+  bool foundcaloJets = iEvent.getByLabel(caloJetsTag_,caloJetsHandle_);
+  if ( foundcaloJets ) { 
+    caloJetsCMSSW_ = *caloJetsHandle_;
+    // cout << "Found " << caloJetsCMSSW_.size() << " caloJets" << endl;
+  } else { 
+    cerr<<"PFRootEventManager::ProcessEntry : caloJets Collection not found : "
+        <<entry << " " << caloJetsTag_<<endl;
+  }
+
+  bool foundcorrcaloJets = iEvent.getByLabel(corrcaloJetsTag_,corrcaloJetsHandle_);
+  if ( foundcorrcaloJets ) { 
+    corrcaloJetsCMSSW_ = *corrcaloJetsHandle_;
+    // cout << "Found " << corrcaloJetsCMSSW_.size() << " corrcaloJets" << endl;
+  } else { 
+    //cerr<<"PFRootEventManager::ProcessEntry : corrcaloJets Collection not found : "
+    //    <<entry << " " << corrcaloJetsTag_<<endl;
+  }
+
+  bool foundpfJets = iEvent.getByLabel(pfJetsTag_,pfJetsHandle_);
+  if ( foundpfJets ) { 
+    pfJetsCMSSW_ = *pfJetsHandle_;
+    // cout << "Found " << pfJetsCMSSW_.size() << " PFJets" << endl;
+  } else { 
+    cerr<<"PFRootEventManager::ProcessEntry : PFJets Collection not found : "
+        <<entry << " " << pfJetsTag_<<endl;
+  }
+
+  bool foundpfCands = iEvent.getByLabel(pfCandidateTag_,pfCandidateHandle_);
+  if ( foundpfCands ) { 
+    pfCandCMSSW_ = *pfCandidateHandle_;
+    // cout << "Found " << pfCandCMSSW_.size() << " PFCandidates" << endl;
+  } else { 
+    cerr<<"PFRootEventManager::ProcessEntry : PFCandidate Collection not found : "
+        <<entry << " " << pfCandidateTag_<<endl;
+  }
+
+  bool foundpfMets = iEvent.getByLabel(pfMetsTag_,pfMetsHandle_);
+  if ( foundpfMets ) { 
+    pfMetsCMSSW_ = *pfMetsHandle_;
+    //cout << "Found " << pfMetsCMSSW_.size() << " PFMets" << endl;
+  } else { 
+    cerr<<"PFRootEventManager::ProcessEntry : PFMets Collection not found : "
+        <<entry << " " << pfMetsTag_<<endl;
+  }
+
+  bool foundtcMets = iEvent.getByLabel(tcMetsTag_,tcMetsHandle_);
+  if ( foundtcMets ) { 
+    tcMetsCMSSW_ = *tcMetsHandle_;
+    //cout << "Found " << tcMetsCMSSW_.size() << " TCMets" << endl;
+  } else { 
+    cerr<<"TCRootEventManager::ProcessEntry : TCMets Collection not found : "
+        <<entry << " " << tcMetsTag_<<endl;
+  }
+
+  bool foundcaloMets = iEvent.getByLabel(caloMetsTag_,caloMetsHandle_);
+  if ( foundcaloMets ) { 
+    caloMetsCMSSW_ = *caloMetsHandle_;
+    //cout << "Found " << caloMetsCMSSW_.size() << " CALOMets" << endl;
+  } else { 
+    cerr<<"CALORootEventManager::ProcessEntry : CALOMets Collection not found : "
+        <<entry << " " << caloMetsTag_<<endl;
+  }
 
   // now can use the tree
 
   bool goodevent = true;
-  if(trueParticlesBranch_ ) {
+  if(trueParticles_.size() ) {
     // this is a filter to select single particle events.
     if(filterNParticles_ && doTauBenchmark_ &&
        trueParticles_.size() != filterNParticles_ ) {
@@ -2274,21 +2135,21 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   //       fillOutEventWithCaloTowers( caloTowers_ );
   //   } 
 
-  if(rechitsECALBranch_) {
+  if(rechitsECAL_.size()) {
     PreprocessRecHits( rechitsECAL_ , findRecHitNeighbours_);
   }
-  if(rechitsHCALBranch_) {
+  if(rechitsHCAL_.size()) {
     PreprocessRecHits( rechitsHCAL_ , findRecHitNeighbours_);
   }
-  if(rechitsHFEMBranch_) {
+  if(rechitsHFEM_.size()) {
     PreprocessRecHits( rechitsHFEM_ , findRecHitNeighbours_);
   }
-  if(rechitsHFHADBranch_) {
+  if(rechitsHFHAD_.size()) {
     PreprocessRecHits( rechitsHFHAD_ , findRecHitNeighbours_);
   }
   rechitsCLEANED_.clear();
-  for ( unsigned i=0; i<rechitsCLEANEDBranch_.size(); ++i ) { 
-    if(rechitsCLEANEDBranch_[i]) {
+  for ( unsigned i=0; i<rechitsCLEANEDV_.size(); ++i ) { 
+    if(rechitsCLEANEDV_[i].size()) {
       PreprocessRecHits( rechitsCLEANEDV_[i] , false);
       for ( unsigned j=0; j<rechitsCLEANEDV_[i].size(); ++j ) { 
 	rechitsCLEANED_.push_back( (rechitsCLEANEDV_[i])[j] );
@@ -2296,34 +2157,21 @@ bool PFRootEventManager::readFromSimulation(int entry) {
     }
   }
 
-  if(rechitsPSBranch_) {
+  if(rechitsPS_.size()) {
     PreprocessRecHits( rechitsPS_ , findRecHitNeighbours_);
   }
 
-  if ( recTracksBranch_ ) { 
+  if ( recTracks_.size() ) { 
     PreprocessRecTracks( recTracks_);
   }
 
-  if(gsfrecTracksBranch_) {
+  if(gsfrecTracks_.size()) {
     PreprocessRecTracks( gsfrecTracks_);
   }
    
-  if(convBremGsfrecTracksBranch_) {
+  if(convBremGsfrecTracks_.size()) {
     PreprocessRecTracks( convBremGsfrecTracks_);
   }
-
-  //   if(clustersECALBranch_ && !doClustering_) {
-  //     for(unsigned i=0; i<clustersECAL_->size(); i++) 
-  //       (*clustersECAL_)[i].calculatePositionREP();
-  //   }
-  //   if(clustersHCALBranch_ && !doClustering_) {
-  //     for(unsigned i=0; i<clustersHCAL_->size(); i++) 
-  //       (*clustersHCAL_)[i].calculatePositionREP();    
-  //   }
-  //   if(clustersPSBranch_ && !doClustering_) {
-  //     for(unsigned i=0; i<clustersPS_->size(); i++) 
-  //       (*clustersPS_)[i].calculatePositionREP();    
-  //   }
 
   return goodevent;
 }
@@ -2816,9 +2664,6 @@ void PFRootEventManager::particleFlow() {
   edm::OrphanHandle< reco::GsfPFRecTrackCollection > gsftrackh( &gsfrecTracks_, 
 								edm::ProductID(5) );  
   
-  edm::OrphanHandle< reco::GsfPFRecTrackCollection > convBremGsftrackh( &convBremGsfrecTracks_, 
-									edm::ProductID(5) );  
-  
   edm::OrphanHandle< reco::MuonCollection > muonh( &muons_, 
 						   edm::ProductID(6) );
 
@@ -2834,6 +2679,9 @@ void PFRootEventManager::particleFlow() {
 
   edm::OrphanHandle< reco::VertexCollection > vertexh( &primaryVertices_, 
 						       edm::ProductID(10) );  
+
+  edm::OrphanHandle< reco::GsfPFRecTrackCollection > convBremGsftrackh( &convBremGsfrecTracks_, 
+									edm::ProductID(11) );  
   
   vector<bool> trackMask;
   fillTrackMask( trackMask, recTracks_ );
@@ -2950,7 +2798,7 @@ void PFRootEventManager::reconstructGenJets() {
 
 
   // Convert Protojets to GenJets
-    int ijet = 0;
+  int ijet = 0;
   typedef vector <ProtoJet>::const_iterator IPJ;
   for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
     const ProtoJet& protojet = *ipj;
@@ -4608,3 +4456,23 @@ void PFRootEventManager::mcTruthMatching( std::ostream& out,
 
 }//mctruthmatching
 //_____________________________________________________________________________
+
+edm::InputTag 
+PFRootEventManager::stringToTag(const std::vector< std::string >& tagname) { 
+
+  if ( tagname.size() == 1 ) 
+    return edm::InputTag(tagname[0]);
+
+  else if ( tagname.size() == 2 ) 
+    return edm::InputTag(tagname[0], tagname[1]);
+
+  else if ( tagname.size() == 3 ) 
+    return tagname[2] == '*' ? 
+      edm::InputTag(tagname[0], tagname[1]) :
+      edm::InputTag(tagname[0], tagname[1], tagname[2]);
+  else {
+    cout << "Invalid tag name with " << tagname.size() << " strings "<< endl;
+    return edm::InputTag();
+  }
+  
+}

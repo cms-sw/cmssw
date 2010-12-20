@@ -25,16 +25,27 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 from PhysicsTools.PatAlgos.tools.pfTools import *
 
 postfix = "PFlow"
-usePF2PAT(process,runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix=postfix) 
+jetAlgo="AK5"
+usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix) 
+# to run second PF2PAT+PAT with differnt postfix uncomment the following lines
+# and add it to path
+#postfix2 = "PFlow2"
+#jetAlgo2="AK7"
+#usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo2, runOnMC=True, postfix=postfix2) 
 
-# turn to false when running on data
-getattr(process, "patElectrons"+postfix).embedGenMatch = True
-getattr(process, "patMuons"+postfix).embedGenMatch = True
+# to use tau-cleaned jet collection uncomment the following:
+#useTauCleanedPFJets(process, jetAlgo=jetAlgo, postfix=postfix)
+
+# to switch default tau to HPS tau uncomment the following:
+#adaptPFTaus(process,"hpsPFTau",postfix=postfix)
+
 
 # Let it run
 process.p = cms.Path(
 #    process.patDefaultSequence  +
     getattr(process,"patPF2PATSequence"+postfix)
+#    second PF2PAT
+#    + getattr(process,"patPF2PATSequence"+postfix2)
 )
 
 # Add PF2PAT output to the created file
@@ -42,8 +53,19 @@ from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
 #process.load("PhysicsTools.PFCandProducer.PF2PAT_EventContent_cff")
 #process.out.outputCommands =  cms.untracked.vstring('drop *')
 process.out.outputCommands = cms.untracked.vstring('drop *',
+                                                   'keep recoPFCandidates_particleFlow_*_*',
                                                    *patEventContentNoCleaning ) 
 
+
+# top projections in PF2PAT:
+
+process.pfNoPileUpPFlow.enable = True 
+process.pfNoMuonPFlow.enable = False 
+process.pfNoElectronPFlow.enable = True 
+process.pfNoTauPFlow.enable = True 
+process.pfNoJetPFlow.enable = True 
+
+process.pfNoMuon.verbose = True
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following

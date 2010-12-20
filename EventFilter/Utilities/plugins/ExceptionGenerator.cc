@@ -24,18 +24,29 @@ using namespace std;
 namespace evf{
 
     const std::string ExceptionGenerator::menu[menu_items] =  
-      {"Sleep x ms", "SleepForever", "Cms Exception", "Exit with error", "Abort", "Unknown Exception", "Endless loop", "Generate Error Message", "Segfault" };
+      {"Sleep x ms", "SleepForever", "Cms Exception", "Exit with error", "Abort", "Unknown Exception", "Endless loop", "Generate Error Message", "Segfault", 
+      "Burn CPU"};
 
     ExceptionGenerator::ExceptionGenerator( const edm::ParameterSet& pset) : 
-      ModuleWeb("ExceptionGenerator"), actionRequired_(false), actionId_(-1)
+      ModuleWeb("ExceptionGenerator"), 
+      actionId_(pset.getUntrackedParameter<int>("defaultAction",-1)),
+      intqualifier_(pset.getUntrackedParameter<int>("defaultQualifier",0)), 
+      actionRequired_(actionId_!=-1)
     {
       
-
     }
-    void ExceptionGenerator::analyze(const edm::Event & e, const edm::EventSetup& c)
+  void ExceptionGenerator::beginJob()
+  {
+  }
+  void ExceptionGenerator::beginRun(edm::Run& r)
+  {
+  }
+  void ExceptionGenerator::analyze(const edm::Event & e, const edm::EventSetup& c)
     {
+      float dummy = 0.;
       if(actionRequired_) 
 	{
+	  int *pi = 0;
 	  int ind = 0; 
 	  int step = 1; 
 	  switch(actionId_)
@@ -65,8 +76,14 @@ namespace evf{
 	      edm::LogError("TestErrorMessage") << qualifier_;
 	      break;
 	    case 8:
-	      int *pi = 0;
 	      *pi=0;
+	      break;
+	    case 9:
+	      for(unsigned int j=0; j<intqualifier_*1000;j++){
+		dummy += sqrt(log(float(j+1)))/float(j*j);
+	      }
+	      break;
+
 	    }
 	}
     }
@@ -78,7 +95,6 @@ namespace evf{
     
     void ExceptionGenerator::defaultWebPage(xgi::Input *in, xgi::Output *out)
     {
-
       std::string path;
       std::string urn;
       std::string mname;
@@ -89,10 +105,8 @@ namespace evf{
 	  if ( xgi::Utils::hasFormElement(cgi,"exceptiontype") )
 	    {
 	      actionId_ = xgi::Utils::getFormElement(cgi, "exceptiontype")->getIntegerValue();
-	      if(actionId_>0)
-		qualifier_ = xgi::Utils::getFormElement(cgi, "qualifier")->getValue();
-	      else
-		intqualifier_ =  xgi::Utils::getFormElement(cgi, "qualifier")->getIntegerValue();
+	      qualifier_ = xgi::Utils::getFormElement(cgi, "qualifier")->getValue();
+	      intqualifier_ =  xgi::Utils::getFormElement(cgi, "qualifier")->getIntegerValue();
 	      actionRequired_ = true;
 	    }
 	  if ( xgi::Utils::hasFormElement(cgi,"module") )
@@ -102,13 +116,16 @@ namespace evf{
 	    original_referrer_ = cgie.getReferrer();
 	  path = cgie.getPathInfo();
 	  query = cgie.getQueryString();
+	  if(actionId_>=0)
+	    std::cout << " requested action " << actionId_ << " " 
+		      << menu[actionId_] << ". Number of cycles " 
+		      << intqualifier_ << std::endl;
 	}
       catch (const std::exception & e) 
 	{
 	  // don't care if it did not work
 	}
-      
-      
+
       using std::endl;
       *out << "<html>"                                                   << endl;
       *out << "<head>"                                                   << endl;
@@ -166,7 +183,6 @@ namespace evf{
       *out << "</table>"                                                 << endl;
 
       *out << "<hr/>"                                                    << endl;
-
   
       *out << cgicc::form().set("method","GET").set("action", path ) 
 	   << std::endl;
@@ -202,5 +218,7 @@ namespace evf{
       *out << "</body>"                                                  << endl;
       *out << "</html>"                                                  << endl;
     }
-
+  void ExceptionGenerator::publish(xdata::InfoSpace *is)
+  {
+  }
 } // end namespace evf

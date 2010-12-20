@@ -25,7 +25,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.load("Configuration.Generator.MinBias_cfi")
-process.prod = cms.EDAnalyzer("SimHitCaloHitDumper")
+process.prod = cms.EDFilter("SimHitCaloHitDumper")
 
 process.g4SimHits.StackingAction.NeutronThreshold = 0.
 process.g4SimHits.StackingAction.MaxTrackTime = 1e9

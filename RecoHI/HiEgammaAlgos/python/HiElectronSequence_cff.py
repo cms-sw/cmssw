@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # creates the recoGsfTracks_electronGsfTracks__RECO = input GSF tracks
 from TrackingTools.GsfTracking.GsfElectronTracking_cff import *
 ecalDrivenElectronSeeds.SeedConfiguration.initialSeeds = "hiPixelTrackSeeds"
-electronCkfTrackCandidates.src = "hiPixelTrackSeeds"
+electronCkfTrackCandidates.src = "ecalDrivenElectronSeeds"
 
 electronGsfTrackingHi = cms.Sequence(ecalDrivenElectronSeeds *
                                      electronCkfTrackCandidates *

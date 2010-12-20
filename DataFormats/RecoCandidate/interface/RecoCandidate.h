@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.24 2007/10/29 08:19:57 llista Exp $
+ * \version $Id: RecoCandidate.h,v 1.25 2008/07/18 15:48:32 gpetrucc Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
@@ -34,6 +34,9 @@ namespace reco {
     virtual ~RecoCandidate();
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const = 0;
+    /// returns a clone of the Candidate object                                           
+    virtual RecoCandidate * clone() const ;
+
     /// reference to a Track
     virtual reco::TrackRef track() const;
     /// reference to one of multiple Tracks

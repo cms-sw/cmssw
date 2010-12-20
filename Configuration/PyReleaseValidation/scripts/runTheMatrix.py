@@ -253,13 +253,14 @@ class MatrixReader(object):
                              'cmsDriver_highstats_hlt.txt': 'hi-'  ,
                              'cmsDriver_generator.txt'    : 'gen-'  ,
                              # 'cmsDriver_PileUp_hlt.txt'   : 'pu-'  ,
-                             'cmsDriver_realData_hlt.txt' : 'data-'}
+                             # 'cmsDriver_realData_hlt.txt' : 'data-'
+                             }
 
         self.files = ['cmsDriver_standard_hlt.txt' ,
                       'cmsDriver_highstats_hlt.txt',
                       'cmsDriver_generator.txt'    ,
                       # 'cmsDriver_PileUp_hlt.txt'   ,
-                      'cmsDriver_realData_hlt.txt' 
+                      # 'cmsDriver_realData_hlt.txt' 
                       ]
         
         return

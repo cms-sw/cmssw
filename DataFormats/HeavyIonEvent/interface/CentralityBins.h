@@ -20,6 +20,17 @@ class CBin : public TObject {
    float n_hard_var;
    float b_mean;
    float b_var;
+
+   float eccRP_mean;
+   float eccRP_var;
+   float ecc2_mean;
+   float ecc2_var;
+   float ecc3_mean;
+   float ecc3_var;
+
+   float s_mean;
+   float s_var;
+
    ClassDef(CBin,1)
 };
 
@@ -58,12 +69,30 @@ class CentralityBins : public TNamed {
       float bSigma(double value) const { return bSigmaOfBin(getBin(value));}
       float bSigmaOfBin(int bin) const { return table_[bin].b_var;}
 
+      float eccentricityRPMean(double value) const { return eccentricityRPMeanOfBin(getBin(value));}
+      float eccentricityRPMeanOfBin(int bin) const { return table_[bin].eccRP_mean;}
+      float eccentricityRPSigma(double value) const { return eccentricityRPSigmaOfBin(getBin(value));}
+      float eccentricityRPSigmaOfBin(int bin) const { return table_[bin].eccRP_var;}
+      float eccentricityMean(double value) const { return eccentricityMeanOfBin(getBin(value));}
+      float eccentricityMeanOfBin(int bin) const { return table_[bin].ecc2_mean;}
+      float eccentricitySigma(double value) const { return eccentricitySigmaOfBin(getBin(value));}
+      float eccentricitySigmaOfBin(int bin) const { return table_[bin].ecc2_var;}      
+      float triangularityMean(double value) const { return triangularityMeanOfBin(getBin(value));}
+      float triangularityMeanOfBin(int bin) const { return table_[bin].ecc3_mean;}
+      float triangularitySigma(double value) const { return triangularitySigmaOfBin(getBin(value));}
+      float triangularitySigmaOfBin(int bin) const { return table_[bin].ecc3_var;}
+      float areaMean(double value) const { return areaMeanOfBin(getBin(value));}
+      float areaMeanOfBin(int bin) const { return table_[bin].s_mean;}
+      float areaSigma(double value) const { return areaSigmaOfBin(getBin(value));}
+      float areaSigmaOfBin(int bin) const { return table_[bin].s_var;}
+
       // private:
       std::vector<CBin> table_;
       ClassDef(CentralityBins,1)
 };
 
-CentralityBins::RunMap getCentralityFromFile(TFile*, const char* tag, int firstRun = 0, int lastRun = 10);
+CentralityBins::RunMap getCentralityFromFile(TDirectoryFile*, const char* dir, const char* tag, int firstRun = 0, int lastRun = 10);
+CentralityBins::RunMap getCentralityFromFile(TDirectoryFile*, const char* tag, int firstRun = 0, int lastRun = 10);
 
 
 

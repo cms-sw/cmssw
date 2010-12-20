@@ -42,7 +42,6 @@ class LMFPnPrimDat : public LMFColoredTable {
   LMFPnPrimDat& setRMS(EcalLogicID &id, float v);
   LMFPnPrimDat& setM3(EcalLogicID &id, float v);
   LMFPnPrimDat& setPN(EcalLogicID &id, float mean, float rms, float m3);
-  LMFPnPrimDat& setShapeCorr(EcalLogicID &id, float mean);
   LMFPnPrimDat& setPNAoverBMean(EcalLogicID &id, float v);
   LMFPnPrimDat& setPNAoverBRMS(EcalLogicID &id, float v);
   LMFPnPrimDat& setPNAoverBM3(EcalLogicID &id, float v);
@@ -55,7 +54,6 @@ class LMFPnPrimDat : public LMFColoredTable {
   float getPNAoverBMean(EcalLogicID &id);
   float getPNAoverBRMS(EcalLogicID &id);
   float getPNAoverBM3(EcalLogicID &id);
-  float getShapeCor(EcalLogicID &id);
   int getFlag(EcalLogicID &id);
 
   bool isValid();

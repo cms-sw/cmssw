@@ -9,6 +9,8 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "SimG4Core/Watcher/interface/SimWatcher.h"
+
 #include "RecoRomanPot/RecoFP420/interface/FP420RecoMain.h"
 
 #include "DataFormats/FP420Cluster/interface/TrackCollectionFP420.h"
@@ -19,7 +21,7 @@
 #include<vector>
 #include<map>
 #include<iostream>
-
+using namespace std;
 
 
 namespace cms
@@ -45,9 +47,6 @@ namespace cms
 
     FP420RecoMain* sFP420RecoMain_;
     int verbosity;
-    int VtxFlag;
-    std::string m_genReadoutName;
-
   };
 }
 #endif

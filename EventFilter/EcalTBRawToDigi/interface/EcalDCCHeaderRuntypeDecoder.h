@@ -8,7 +8,7 @@ class EcalDCCTBHeaderRuntypeDecoder
  public:
   EcalDCCTBHeaderRuntypeDecoder();
   ~EcalDCCTBHeaderRuntypeDecoder();
-  bool Decode( ulong headerWord,   EcalDCCHeaderBlock * theHeader);
+  bool Decode( unsigned long headerWord,   EcalDCCHeaderBlock * theHeader);
   protected:
   bool WasDecodingOk_;
   void DecodeSetting ( int settings,  EcalDCCHeaderBlock * theHeader );

@@ -5,6 +5,7 @@
 #include "TGraph.h"
 
 #include <iostream>
+#include <cmath>
 
 // fit function
 Double_t fitf(Double_t *x, Double_t *par) {
@@ -96,7 +97,7 @@ EcalRecHit ESRecHitFitAlgo::reconstruct(const ESDataFrame& digi) const {
   int status = (int) results[2];
   delete[] results;
 
-  double mipCalib = (fabs(cos(*it_ang)) != 0.) ? (*it_mip)/fabs(cos(*it_ang)) : 0.;
+  double mipCalib = (std::fabs(cos(*it_ang)) != 0.) ? (*it_mip)/fabs(cos(*it_ang)) : 0.;
   energy *= (mipCalib != 0.) ? MIPGeV_/mipCalib : 0.;
 
   DetId detId = digi.id();

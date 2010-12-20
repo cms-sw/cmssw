@@ -1,5 +1,5 @@
 //
-// $Id: ObjectEnergyScale.h,v 1.1 2008/03/06 09:23:10 llista Exp $
+// $Id: ObjectEnergyScale.h,v 1.2 2010/02/20 21:00:18 wmtan Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_ObjectEnergyScale_h
@@ -15,7 +15,7 @@
      PhysicsTools/PatAlgos/data/ObjectEnergyScale.cfi
 
   \author   Volker Adler
-  \version  $Id: ObjectEnergyScale.h,v 1.1 2008/03/06 09:23:10 llista Exp $
+  \version  $Id: ObjectEnergyScale.h,v 1.2 2010/02/20 21:00:18 wmtan Exp $
 */
 
 
@@ -122,7 +122,7 @@ float pat::ObjectEnergyScale<T>::getSmearing(T& object)
   // overwrite config file parameter 'initialResolution' if required
   if ( useDefaultIniRes_ ) {
     // get initial resolution from input object (and calculate relative initial resolution from absolute value)
-    iniRes_ = (1. / sin(object.theta()) * object.resolutionEt() - object.et() * cos(object.theta()) / pow(sin(object.theta()),2) * object.resolutionTheta()) / object.energy(); // conversion of resEt and resTheta into energy resolution
+    iniRes_ = (1. / sin(object.theta()) * object.resolutionEt() - object.et() * cos(object.theta()) / std::pow(sin(object.theta()),2) * object.resolutionTheta()) / object.energy(); // conversion of resEt and resTheta into energy resolution
   } else if ( ! useIniResByFraction_ ) {
     // calculate relative initial resolution from absolute value
     iniRes_ = iniRes_ / object.energy();
@@ -132,7 +132,7 @@ float pat::ObjectEnergyScale<T>::getSmearing(T& object)
                     (1.+fabs(1.-fabs(worsenRes_)))   * fabs(iniRes_) :
                     fabs(worsenRes_)/object.energy() + fabs(iniRes_); // conversion as protection from "finalRes_<iniRes_"
   // return smearing factor
-  return std::max( gaussian_->fire(1., sqrt(pow(finalRes,2)-pow(iniRes_,2))), 0. ); // protection from negative smearing factors
+  return std::max( gaussian_->fire(1., sqrt(std::pow(finalRes,2)-std::pow(iniRes_,2))), 0. ); // protection from negative smearing factors
 }
 
 
@@ -146,7 +146,7 @@ void pat::ObjectEnergyScale<T>::setScale(T& object)
   }
   // calculate the momentum factor for fixed or not fixed mass
   float factorMomentum = useFixedMass_ && object.p() > 0.                                   ?
-                          sqrt(pow(factor_*object.energy(),2)-object.massSqr()) / object.p() :
+                          sqrt(std::pow(factor_*object.energy(),2)-object.massSqr()) / object.p() :
                           factor_;
   // set shifted & smeared new 4-vector
   object.setP4(reco::Particle::LorentzVector(factorMomentum*object.px(),

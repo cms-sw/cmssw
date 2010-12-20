@@ -11,7 +11,7 @@ PFTauToJetProducer::PFTauToJetProducer(const edm::ParameterSet& iConfig)
 {
 
   tauSrc_ = iConfig.getParameter<edm::InputTag>("Source");
-  produces<reco::PFJetCollection>();
+  produces<reco::CaloJetCollection>();
 }
 
 PFTauToJetProducer::~PFTauToJetProducer(){ }
@@ -22,22 +22,23 @@ void PFTauToJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   using namespace reco;
   using namespace edm;
   using namespace std;
+  CaloJet::Specific specific;
   
-  PFJetCollection * jetCollectionTmp = new PFJetCollection;
+  CaloJetCollection * jetCollectionTmp = new CaloJetCollection;
   edm::Handle<PFTauCollection> tauJets;
     iEvent.getByLabel( tauSrc_, tauJets );
     PFTauCollection::const_iterator i = tauJets->begin();
     for(;i !=tauJets->end(); i++ ) {
-      PFJetRef pippo = i->pfTauTagInfoRef()->pfjetRef();
-      if(pippo.isNonnull())
-	jetCollectionTmp->push_back(*pippo);
+      //      cout <<"Tau Tracks " << i->signalPFChargedHadrCands().size()<<std::endl;
+      CaloJet jet(i->p4(),i->vertex(),specific);
+      jet.setPdgId(15);
+      jetCollectionTmp->push_back(jet);
       
     }
 
-
   
-  std::auto_ptr<reco::PFJetCollection> selectedTaus(jetCollectionTmp);
 
+  auto_ptr<reco::CaloJetCollection> selectedTaus(jetCollectionTmp);
   iEvent.put(selectedTaus);
 
 
