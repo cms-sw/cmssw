@@ -1,8 +1,8 @@
 #include "SimCalorimetry/EcalSimProducers/interface/EcalDigiProducer.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBHitResponse.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/APDSimParameters.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalCoder.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalElectronicsSim.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSimFast.h"
@@ -34,7 +34,6 @@
 #include "CondFormats/DataRecord/interface/ESGainRcd.h"
 #include "CondFormats/ESObjects/interface/ESPedestals.h"
 #include "CondFormats/DataRecord/interface/ESPedestalsRcd.h"
-
 
 EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params ) :
    m_APDDigitizer    ( 0 ) ,
@@ -243,22 +242,25 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params ) :
 					m_ElectronicsSim , 
 					addNoise            ) ;
 
-   if( !m_doFast ) 
+   if( 0 < numESdetId )
    {
-      m_ESElectronicsSim = new ESElectronicsSim( addESNoise ) ;
-      
-      m_ESDigitizer = new ESDigitizer( m_ESResponse       , 
-				       m_ESElectronicsSim ,
-				       addESNoise           );
-   }
-   else
-   {
-      m_ESElectronicsSimFast = new ESElectronicsSimFast( addESNoise ) ; 
+      if( !m_doFast ) 
+      {
+	 m_ESElectronicsSim = new ESElectronicsSim( addESNoise ) ;
+	 
+	 m_ESDigitizer = new ESDigitizer( m_ESResponse       , 
+					  m_ESElectronicsSim ,
+					  addESNoise           );
+      }
+      else
+      {
+	 m_ESElectronicsSimFast = new ESElectronicsSimFast( addESNoise ) ; 
 
-      m_ESDigitizerFast = new ESFastTDigitizer( m_ESResponse           ,
-						m_ESElectronicsSimFast ,
-						addESNoise             ,
-						numESdetId               ) ;
+	 m_ESDigitizerFast = new ESFastTDigitizer( m_ESResponse           ,
+						   m_ESElectronicsSimFast ,
+						   addESNoise             ,
+						   numESdetId               ) ;
+      }
    }
 }
 
@@ -371,6 +373,7 @@ EcalDigiProducer::produce( edm::Event&            event      ,
       std::auto_ptr<MixCollection<PCaloHit> >  barrelHits( EBHits ) ;
       m_BarrelDigitizer->run( *barrelHits   , 
 			      *barrelResult   ) ;
+      cacheEBDigis( &*barrelResult ) ;
 
       edm::LogInfo("DigiInfo") << "EB Digis: " << barrelResult->size() ;
 
@@ -389,6 +392,7 @@ EcalDigiProducer::produce( edm::Event&            event      ,
       m_EndcapDigitizer->run( *endcapHits   ,
 			      *endcapResult   ) ;
       edm::LogInfo("EcalDigi") << "EE Digis: " << endcapResult->size() ;
+      cacheEEDigis( &*endcapResult ) ;
    }
 
    if( isES ) 
@@ -411,10 +415,10 @@ EcalDigiProducer::produce( edm::Event&            event      ,
    // Step D: Put outputs into event
    if( apdSeparateDigi )
       event.put( apdResult,    apdDigiTag         ) ;
+
    event.put( barrelResult,    m_EBdigiCollection ) ;
    event.put( endcapResult,    m_EEdigiCollection ) ;
    event.put( preshowerResult, m_ESdigiCollection ) ;
-
 }
 
 void  
@@ -488,43 +492,46 @@ EcalDigiProducer::checkCalibrations( const edm::EventSetup& eventSetup )
    if( 0 != m_APDCoder ) m_APDCoder->setFullScaleEnergy( EBscale ,
 							 EEscale   ) ;
 
+   if( 0 != m_ESDigitizer     ||
+       0 != m_ESDigitizerFast    )
+   {
+      // ES condition objects
+      edm::ESHandle<ESGain>                hesgain      ;
+      edm::ESHandle<ESMIPToGeVConstant>    hesMIPToGeV  ;
+      edm::ESHandle<ESPedestals>           hesPedestals ;
+      edm::ESHandle<ESIntercalibConstants> hesMIPs      ;
 
-   // ES condition objects
-   edm::ESHandle<ESGain>                hesgain      ;
-   edm::ESHandle<ESMIPToGeVConstant>    hesMIPToGeV  ;
-   edm::ESHandle<ESPedestals>           hesPedestals ;
-   edm::ESHandle<ESIntercalibConstants> hesMIPs      ;
+      eventSetup.get<ESGainRcd>().               get( hesgain      ) ;
+      eventSetup.get<ESMIPToGeVConstantRcd>().   get( hesMIPToGeV  ) ;
+      eventSetup.get<ESPedestalsRcd>().          get( hesPedestals ) ;
+      eventSetup.get<ESIntercalibConstantsRcd>().get( hesMIPs      ) ;
 
-   eventSetup.get<ESGainRcd>().               get( hesgain      ) ;
-   eventSetup.get<ESMIPToGeVConstantRcd>().   get( hesMIPToGeV  ) ;
-   eventSetup.get<ESPedestalsRcd>().          get( hesPedestals ) ;
-   eventSetup.get<ESIntercalibConstantsRcd>().get( hesMIPs      ) ;
-
-   const ESGain*                esgain     ( hesgain.product()      ) ;
-   const ESPedestals*           espeds     ( hesPedestals.product() ) ;
-   const ESIntercalibConstants* esmips     ( hesMIPs.product()      ) ;
-   const ESMIPToGeVConstant*    esMipToGeV ( hesMIPToGeV.product()  ) ;
-   const int ESGain ( 1.1 > esgain->getESGain() ? 1 : 2 ) ;  
-   const double ESMIPToGeV ( ( 1 == ESGain ) ?
-			     esMipToGeV->getESValueLow()  :
-			     esMipToGeV->getESValueHigh()   ) ; 
+      const ESGain*                esgain     ( hesgain.product()      ) ;
+      const ESPedestals*           espeds     ( hesPedestals.product() ) ;
+      const ESIntercalibConstants* esmips     ( hesMIPs.product()      ) ;
+      const ESMIPToGeVConstant*    esMipToGeV ( hesMIPToGeV.product()  ) ;
+      const int ESGain ( 1.1 > esgain->getESGain() ? 1 : 2 ) ;
+      const double ESMIPToGeV ( ( 1 == ESGain ) ?
+				esMipToGeV->getESValueLow()  :
+				esMipToGeV->getESValueHigh()   ) ; 
    
-   m_ESShape->setGain( ESGain );
+      m_ESShape->setGain( ESGain );
 
-   if( !m_doFast )
-   {
-      m_ESElectronicsSim->setGain(      ESGain     ) ;
-      m_ESElectronicsSim->setPedestals( espeds     ) ;
-      m_ESElectronicsSim->setMIPs(      esmips     ) ;
-      m_ESElectronicsSim->setMIPToGeV(  ESMIPToGeV ) ;
-   }
-   else
-   {
-      m_ESDigitizerFast->setGain(           ESGain     ) ;
-      m_ESElectronicsSimFast->setGain(      ESGain     ) ;
-      m_ESElectronicsSimFast->setPedestals( espeds     ) ;
-      m_ESElectronicsSimFast->setMIPs(      esmips     ) ;
-      m_ESElectronicsSimFast->setMIPToGeV(  ESMIPToGeV ) ;
+      if( !m_doFast )
+      {
+	 m_ESElectronicsSim->setGain(      ESGain     ) ;
+	 m_ESElectronicsSim->setPedestals( espeds     ) ;
+	 m_ESElectronicsSim->setMIPs(      esmips     ) ;
+	 m_ESElectronicsSim->setMIPToGeV(  ESMIPToGeV ) ;
+      }
+      else
+      {
+	 m_ESDigitizerFast->setGain(           ESGain     ) ;
+	 m_ESElectronicsSimFast->setGain(      ESGain     ) ;
+	 m_ESElectronicsSimFast->setPedestals( espeds     ) ;
+	 m_ESElectronicsSimFast->setMIPs(      esmips     ) ;
+	 m_ESElectronicsSimFast->setMIPToGeV(  ESMIPToGeV ) ;
+      }
    }
 }
 
@@ -553,20 +560,21 @@ EcalDigiProducer::updateGeometry()
       m_Geometry->getSubdetectorGeometry( DetId::Ecal, EcalBarrel    ) ) ;
    m_EEResponse->setGeometry(
       m_Geometry->getSubdetectorGeometry( DetId::Ecal, EcalEndcap    ) ) ;
-   m_ESResponse->setGeometry( m_Geometry ) ;
-//      m_Geometry->getSubdetectorGeometry( DetId::Ecal, EcalPreshower ) ) ;
+   if( 0 != m_ESResponse ) m_ESResponse->setGeometry( m_Geometry ) ;
 
 
    const std::vector<DetId>& theESDets ( 
+      0 != m_Geometry->getSubdetectorGeometry(DetId::Ecal, EcalPreshower) ?
       m_Geometry->getSubdetectorGeometry(
-	 DetId::Ecal, EcalPreshower)->getValidDetIds() ) ;
+	 DetId::Ecal, EcalPreshower)->getValidDetIds() : 
+      std::vector<DetId>() ) ;
 
    if( !m_doFast ) 
    {
-      m_ESDigitizer->setDetIds( theESDets ) ;
+      if( 0 != m_ESDigitizer ) m_ESDigitizer->setDetIds( theESDets ) ;
    }
    else
    {
-      m_ESDigitizerFast->setDetIds( theESDets ) ; 
+      if( 0 != m_ESDigitizerFast) m_ESDigitizerFast->setDetIds( theESDets ) ; 
    }
 }

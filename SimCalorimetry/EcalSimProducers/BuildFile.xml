@@ -1,3 +1,15 @@
+<export>
+  <lib name="SimCalorimetryEcalSimProducers"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="SimCalorimetry/EcalSimAlgos"/>
+  <use   name="SimDataFormats/CrossingFrame"/>
+  <use   name="SimGeneral/NoiseGenerators"/>
+  <use   name="CondFormats/DataRecord"/>
+  <use   name="CondFormats/ESObjects"/>
+</export>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
@@ -7,5 +19,3 @@
 <use   name="SimGeneral/NoiseGenerators"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/ESObjects"/>
-<export>
-</export>
