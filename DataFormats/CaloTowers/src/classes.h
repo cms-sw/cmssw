@@ -37,5 +37,6 @@ namespace {
     edm::reftobase::RefVectorHolder<CaloTowerRefs> rbrhs;
 
     edm::PtrVector<CaloTower> ptrv;
+    std::vector<edm::Ptr<CaloTower> > vp1;
   };
 }
