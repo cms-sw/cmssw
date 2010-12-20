@@ -1,4 +1,4 @@
-// $Id: EventConsumerRegistrationInfo.h,v 1.11 2010/12/16 16:35:29 mommsen Exp $
+// $Id: EventConsumerRegistrationInfo.h,v 1.12 2010/12/17 18:21:04 mommsen Exp $
 /// @file: EventConsumerRegistrationInfo.h 
 
 #ifndef StorageManager_EventConsumerRegistrationInfo_h
@@ -21,8 +21,8 @@ namespace stor
    * Holds the registration information from a event consumer.
    *
    * $Author: mommsen $
-   * $Revision: 1.11 $
-   * $Date: 2010/12/16 16:35:29 $
+   * $Revision: 1.12 $
+   * $Date: 2010/12/17 18:21:04 $
    */
 
   class EventConsumerRegistrationInfo: public RegistrationInfoBase
@@ -37,6 +37,7 @@ namespace stor
                                    const std::string& triggerSelection,
                                    const Strings& eventSelection,
                                    const std::string& outputModuleLabel,
+                                   const unsigned int& prescale,
                                    const bool& uniqueEvents,
                                    const int& queueSize,
                                    const enquing_policy::PolicyTag& queuePolicy,
@@ -49,6 +50,7 @@ namespace stor
     const std::string& triggerSelection() const { return _triggerSelection; }
     const Strings& eventSelection() const { return _eventSelection; }
     const std::string& outputModuleLabel() const { return _outputModuleLabel; }
+    const unsigned int& prescale() const { return _prescale; }
     const bool& uniqueEvents() const { return _uniqueEvents; }
     bool isProxyServer() const { return _isProxy; }
     const std::string& remoteHost() const { return _remoteHost; }
@@ -83,6 +85,7 @@ namespace stor
     std::string _triggerSelection;
     Strings _eventSelection;
     std::string _outputModuleLabel;
+    unsigned int _prescale;
     bool _uniqueEvents;
     bool _isProxy;
     bool _stale;

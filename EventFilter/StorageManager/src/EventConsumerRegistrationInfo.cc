@@ -1,4 +1,4 @@
-// $Id: EventConsumerRegistrationInfo.cc,v 1.12 2010/12/16 16:35:29 mommsen Exp $
+// $Id: EventConsumerRegistrationInfo.cc,v 1.13 2010/12/17 18:21:05 mommsen Exp $
 /// @file: EventConsumerRegistrationInfo.cc
 
 #include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
@@ -18,6 +18,7 @@ namespace stor
     const std::string& triggerSelection,
     const Strings& eventSelection,
     const std::string& outputModuleLabel,
+    const unsigned int& prescale,
     const bool& uniqueEvents,
     const int& queueSize,
     const enquing_policy::PolicyTag& queuePolicy,
@@ -27,6 +28,7 @@ namespace stor
     _triggerSelection( triggerSelection ),
     _eventSelection( eventSelection ),
     _outputModuleLabel( outputModuleLabel ),
+    _prescale( prescale ),
     _uniqueEvents( uniqueEvents ),
     _stale( false ),
     _remoteHost( remoteHost )
@@ -110,6 +112,8 @@ namespace stor
       return ( _triggerSelection < other.triggerSelection() );
     if ( _eventSelection != other.eventSelection() )
       return ( _eventSelection < other.eventSelection() );
+    if ( _prescale != other.prescale() )
+      return ( _prescale < other.prescale() );
     if ( _uniqueEvents != other.uniqueEvents() )
       return ( _uniqueEvents < other.uniqueEvents() );
     if ( _common._queueSize != other.queueSize() )
@@ -126,6 +130,7 @@ namespace stor
       _outputModuleLabel == other.outputModuleLabel() &&
       _triggerSelection == other.triggerSelection() &&
       _eventSelection == other.eventSelection() &&
+      _prescale == other.prescale() &&
       _uniqueEvents == other.uniqueEvents() &&
       _common._queueSize == other.queueSize() &&
       _common._queuePolicy == other.queuePolicy() &&

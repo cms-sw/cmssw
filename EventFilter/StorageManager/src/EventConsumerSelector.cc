@@ -1,4 +1,4 @@
-// $Id: EventConsumerSelector.cc,v 1.10 2010/12/16 16:35:29 mommsen Exp $
+// $Id: EventConsumerSelector.cc,v 1.11 2010/12/17 18:21:05 mommsen Exp $
 /// @file: EventConsumerSelector.cc
 
 #include <vector>
@@ -59,6 +59,7 @@ void EventConsumerSelector::initialize( const InitMsgView& imv )
     XCEPT_RAISE(stor::exception::InvalidEventSelection, errorMsg.str());
   }
 
+  _acceptedEvents = 0;
   _initialized = true;
 
 }
@@ -74,9 +75,12 @@ bool EventConsumerSelector::acceptEvent( const I2OChain& ioc )
   std::vector<unsigned char> hlt_out;
   ioc.hltTriggerBits( hlt_out );
 
-  return _eventSelector->wantAll()
-    || _eventSelector->acceptEvent( &hlt_out[0], ioc.hltTriggerCount() );
-
+  if ( _eventSelector->wantAll()
+    || _eventSelector->acceptEvent( &hlt_out[0], ioc.hltTriggerCount() ) )
+  {
+    if ( (++_acceptedEvents % _registrationInfo.prescale()) == 0 ) return true;
+  }
+  return false;
 }
 
 bool EventConsumerSelector::operator<(const EventConsumerSelector& other) const

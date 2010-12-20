@@ -47,6 +47,8 @@ class testEventDistributor : public CppUnit::TestFixture
   CPPUNIT_TEST(testDuplicatedStreamSelection);
   CPPUNIT_TEST(testConsumerSelection);
   CPPUNIT_TEST(testDuplicatedConsumerSelection);
+  CPPUNIT_TEST(testSharedConsumerSelection);
+  CPPUNIT_TEST(testPrescaledConsumerSelection);
   CPPUNIT_TEST(testDQMMessages);
   CPPUNIT_TEST(testDuplicatedDQMConsumerSelection);
 
@@ -58,6 +60,8 @@ public:
   void testDuplicatedStreamSelection();
   void testConsumerSelection();
   void testDuplicatedConsumerSelection();
+  void testSharedConsumerSelection();
+  void testPrescaledConsumerSelection();
   void testDQMMessages();
   void testDuplicatedDQMConsumerSelection();
 
@@ -493,11 +497,11 @@ void testEventDistributor::testConsumerSelection()
   CPPUNIT_ASSERT(_eventDistributor->configuredStreamCount() == 0);
   CPPUNIT_ASSERT(_eventDistributor->initializedStreamCount() == 0);
 
-  // *** first consumer ***
-
   Strings selections;
   std::string sel;
   boost::shared_ptr<EventConsumerRegistrationInfo> consInfo;
+
+  // *** first consumer ***
 
   selections.clear();
   selections.push_back("a");
@@ -506,7 +510,7 @@ void testEventDistributor::testConsumerSelection()
   QueueID queueId1(enquing_policy::DiscardOld, 1);
   consInfo.reset(new EventConsumerRegistrationInfo(
       "Test Consumer", sel, selections, "hltOutputDQM",
-      false, queueId1.index(), queueId1.policy(),
+      1, false, 10, queueId1.policy(),
       boost::posix_time::seconds(120), "localhost"));
   consInfo->setQueueId( queueId1 );
 
@@ -536,7 +540,7 @@ void testEventDistributor::testConsumerSelection()
   QueueID queueId2(enquing_policy::DiscardNew, 2);
   consInfo.reset(new EventConsumerRegistrationInfo(
       "Test Consumer", sel, selections, "hltOutputDQM", 
-      false, queueId2.index(), queueId2.policy(),
+      1, false, 10, queueId2.policy(),
       boost::posix_time::seconds(120), "localhost" ));
   consInfo->setQueueId( queueId2 );
   
@@ -592,7 +596,7 @@ void testEventDistributor::testConsumerSelection()
   QueueID queueId3(enquing_policy::DiscardOld, 3);
   consInfo.reset(new EventConsumerRegistrationInfo(
       "Test Consumer", sel, selections, "hltOutputDQM",
-      false, queueId3.index(), queueId3.policy(),
+      1, false, 10, queueId3.policy(),
       boost::posix_time::seconds(120), "localhost"));
   consInfo->setQueueId( queueId3 );
   consInfo->registerMe(&(*_eventDistributor));
@@ -609,7 +613,7 @@ void testEventDistributor::testConsumerSelection()
   QueueID queueId4(enquing_policy::DiscardNew, 4);
   consInfo.reset(new EventConsumerRegistrationInfo(
       "Test Consumer", sel, selections, "hltOutputDQM",
-      false, queueId4.index(), queueId4.policy(),
+      1, false, 10, queueId4.policy(),
       boost::posix_time::seconds(120), "localhost"));
   consInfo->setQueueId( queueId4 );
   
@@ -759,7 +763,7 @@ void testEventDistributor::testDuplicatedConsumerSelection()
   QueueID queueId(enquing_policy::DiscardOld, 1);
   consInfo.reset(new EventConsumerRegistrationInfo(
       "Test Consumer", sel, selections, "hltOutputDQM",
-      false, queueId.index(), queueId.policy(),
+      1, false, 10, queueId.policy(),
       boost::posix_time::seconds(120), "localhost"));
   consInfo->setQueueId( queueId );
   
@@ -812,7 +816,7 @@ void testEventDistributor::testDuplicatedConsumerSelection()
   boost::shared_ptr<EventConsumerRegistrationInfo> consInfo2;
   consInfo2.reset(new EventConsumerRegistrationInfo(
       "Test Consumer 2", sel, selections, "hltOutputDQM",
-      false, queueId.index(), queueId.policy(),
+      1, false, 10, queueId.policy(),
       boost::posix_time::seconds(120), "remotehost"));
   consInfo2->setQueueId( queueId );
   
@@ -863,6 +867,294 @@ void testEventDistributor::testDuplicatedConsumerSelection()
   std::vector<QueueID> queueIdList = eventMsgFrag.getEventConsumerTags();
   CPPUNIT_ASSERT(queueIdList.size() == 1);
   CPPUNIT_ASSERT(std::count(queueIdList.begin(),queueIdList.end(),queueId) == 1);
+}
+
+
+void testEventDistributor::testSharedConsumerSelection()
+{
+  initEventDistributor();
+  
+  CPPUNIT_ASSERT(_eventDistributor->configuredConsumerCount() == 0);
+  CPPUNIT_ASSERT(_eventDistributor->initializedConsumerCount() == 0);
+  CPPUNIT_ASSERT(_sharedResources->_initMsgCollection->size() == 0);
+  CPPUNIT_ASSERT(_eventDistributor->configuredStreamCount() == 0);
+  CPPUNIT_ASSERT(_eventDistributor->initializedStreamCount() == 0);
+
+  Strings selections;
+  selections.push_back("a");
+  selections.push_back("b");
+  const std::string sel = "a || b";
+  boost::shared_ptr<EventConsumerRegistrationInfo> consInfo;
+
+  // *** first consumer ***
+  QueueID qid1(enquing_policy::DiscardOld, 1);
+  consInfo.reset(new EventConsumerRegistrationInfo(
+      "Test Consumer 1", sel, selections, "hltOutputDQM",
+      1, true, 10, qid1.policy(),
+      boost::posix_time::seconds(120), "localhost"));
+  consInfo->setQueueId( qid1 );
+  
+  _eventDistributor->registerEventConsumer(&(*consInfo));
+  
+  CPPUNIT_ASSERT(_eventDistributor->configuredConsumerCount() == 1);
+  CPPUNIT_ASSERT(_eventDistributor->initializedConsumerCount() == 0);
+  CPPUNIT_ASSERT(_sharedResources->_initMsgCollection->size() == 0);
+
+  // *** second consumer - same request, but no unique events ***
+  QueueID qid2(enquing_policy::DiscardOld, 2);
+  consInfo.reset(new EventConsumerRegistrationInfo(
+      "Test Consumer 2", sel, selections, "hltOutputDQM",
+      1, false, 10, qid2.policy(),
+      boost::posix_time::seconds(120), "remotehost"));
+  consInfo->setQueueId( qid2 );
+  
+  _eventDistributor->registerEventConsumer(&(*consInfo));
+  
+  CPPUNIT_ASSERT(_eventDistributor->configuredConsumerCount() == 2);
+  CPPUNIT_ASSERT(_eventDistributor->initializedConsumerCount() == 0);
+  CPPUNIT_ASSERT(_sharedResources->_initMsgCollection->size() == 0);
+
+  // *** third consumer - share with consumer 1 ***
+  consInfo.reset(new EventConsumerRegistrationInfo(
+      "Test Consumer 3", sel, selections, "hltOutputDQM",
+      1, true, 10, qid1.policy(),
+      boost::posix_time::seconds(120), "farawayhost"));
+  consInfo->setQueueId( qid1 );
+  
+  _eventDistributor->registerEventConsumer(&(*consInfo));
+  
+  CPPUNIT_ASSERT(_eventDistributor->configuredConsumerCount() == 2);
+  CPPUNIT_ASSERT(_eventDistributor->initializedConsumerCount() == 0);
+  CPPUNIT_ASSERT(_sharedResources->_initMsgCollection->size() == 0);
+
+  // *** INIT message ***
+
+  Reference* ref = allocate_frame_with_init_msg("hltOutputDQM");
+  stor::I2OChain initMsgFrag(ref);
+  CPPUNIT_ASSERT(initMsgFrag.messageCode() == Header::INIT);
+
+  _eventDistributor->addEventToRelevantQueues(initMsgFrag);
+
+  CPPUNIT_ASSERT(_eventDistributor->configuredConsumerCount() == 2);
+  CPPUNIT_ASSERT(_eventDistributor->initializedConsumerCount() == 2);
+  CPPUNIT_ASSERT(_sharedResources->_initMsgCollection->size() == 1);
+
+  // *** event message ***
+
+  std::vector<unsigned char> hltBits;
+  set_trigger_bit(hltBits, 8, edm::hlt::Ready);
+
+  uint32_t eventNumber = 1;
+  uint32_t hltBitCount = 9;
+  clear_trigger_bits(hltBits);
+  set_trigger_bit(hltBits, 0, edm::hlt::Pass);
+  set_trigger_bit(hltBits, 2, edm::hlt::Pass);
+
+  ref = allocate_frame_with_event_msg("hltOutputDQM", hltBits, hltBitCount,
+                                      eventNumber);
+  stor::I2OChain eventMsgFrag(ref);
+  CPPUNIT_ASSERT(eventMsgFrag.messageCode() == Header::EVENT);
+
+  CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyStream());
+  CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyEventConsumer());
+  CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyDQMEventConsumer());
+
+  _eventDistributor->addEventToRelevantQueues(eventMsgFrag);
+
+  CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyStream());
+  CPPUNIT_ASSERT(eventMsgFrag.isTaggedForAnyEventConsumer());
+  CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyDQMEventConsumer());
+
+  std::vector<QueueID> queueIdList = eventMsgFrag.getEventConsumerTags();
+  CPPUNIT_ASSERT(queueIdList.size() == 2);
+  std::vector<QueueID>::const_iterator it =
+    std::find(queueIdList.begin(), queueIdList.end(), qid1);
+  CPPUNIT_ASSERT(it != queueIdList.end());
+  CPPUNIT_ASSERT(it->index() == 1);
+  CPPUNIT_ASSERT(it->policy() == enquing_policy::DiscardOld);
+  it = std::find(queueIdList.begin(), queueIdList.end(), qid2);
+  CPPUNIT_ASSERT(it != queueIdList.end());
+  CPPUNIT_ASSERT(it->index() == 2);
+  CPPUNIT_ASSERT(it->policy() == enquing_policy::DiscardOld);
+
+}
+
+
+void testEventDistributor::testPrescaledConsumerSelection()
+{
+  initEventDistributor();
+  
+  CPPUNIT_ASSERT(_eventDistributor->configuredConsumerCount() == 0);
+  CPPUNIT_ASSERT(_eventDistributor->initializedConsumerCount() == 0);
+  CPPUNIT_ASSERT(_sharedResources->_initMsgCollection->size() == 0);
+  CPPUNIT_ASSERT(_eventDistributor->configuredStreamCount() == 0);
+  CPPUNIT_ASSERT(_eventDistributor->initializedStreamCount() == 0);
+
+  Strings selections;
+  selections.push_back("a");
+  selections.push_back("b");
+  const std::string sel = "a || b";
+  boost::shared_ptr<EventConsumerRegistrationInfo> consInfo;
+
+  // *** first consumer - unprescaled ***
+  QueueID qid1(enquing_policy::DiscardOld, 1);
+  consInfo.reset(new EventConsumerRegistrationInfo(
+      "Test Consumer 1", sel, selections, "hltOutputDQM",
+      1, false, 10, qid1.policy(),
+      boost::posix_time::seconds(120), "localhost"));
+  consInfo->setQueueId( qid1 );
+  
+  _eventDistributor->registerEventConsumer(&(*consInfo));
+  
+  CPPUNIT_ASSERT(_eventDistributor->configuredConsumerCount() == 1);
+  CPPUNIT_ASSERT(_eventDistributor->initializedConsumerCount() == 0);
+  CPPUNIT_ASSERT(_sharedResources->_initMsgCollection->size() == 0);
+
+  // *** second consumer - prescaled by 3 ***
+  QueueID qid2(enquing_policy::DiscardOld, 2);
+  consInfo.reset(new EventConsumerRegistrationInfo(
+      "Test Consumer 2", sel, selections, "hltOutputDQM",
+      3, false, 10, qid2.policy(),
+      boost::posix_time::seconds(120), "remotehost"));
+  consInfo->setQueueId( qid2 );
+  
+  _eventDistributor->registerEventConsumer(&(*consInfo));
+  
+  CPPUNIT_ASSERT(_eventDistributor->configuredConsumerCount() == 2);
+  CPPUNIT_ASSERT(_eventDistributor->initializedConsumerCount() == 0);
+  CPPUNIT_ASSERT(_sharedResources->_initMsgCollection->size() == 0);
+
+  // *** INIT message ***
+
+  Reference* ref = allocate_frame_with_init_msg("hltOutputDQM");
+  stor::I2OChain initMsgFrag(ref);
+  CPPUNIT_ASSERT(initMsgFrag.messageCode() == Header::INIT);
+
+  _eventDistributor->addEventToRelevantQueues(initMsgFrag);
+
+  CPPUNIT_ASSERT(_eventDistributor->configuredConsumerCount() == 2);
+  CPPUNIT_ASSERT(_eventDistributor->initializedConsumerCount() == 2);
+  CPPUNIT_ASSERT(_sharedResources->_initMsgCollection->size() == 1);
+
+  // *** first event message - does not pass prescale ***
+
+  std::vector<unsigned char> hltBits;
+  set_trigger_bit(hltBits, 8, edm::hlt::Ready);
+
+  uint32_t eventNumber = 1;
+  uint32_t hltBitCount = 9;
+  clear_trigger_bits(hltBits);
+  set_trigger_bit(hltBits, 0, edm::hlt::Pass);
+  set_trigger_bit(hltBits, 2, edm::hlt::Pass);
+
+  {
+    ref = allocate_frame_with_event_msg("hltOutputDQM", hltBits, hltBitCount,
+      eventNumber);
+    stor::I2OChain eventMsgFrag(ref);
+    CPPUNIT_ASSERT(eventMsgFrag.messageCode() == Header::EVENT);
+    
+    CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyStream());
+    CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyEventConsumer());
+    CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyDQMEventConsumer());
+    
+    _eventDistributor->addEventToRelevantQueues(eventMsgFrag);
+    
+    CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyStream());
+    CPPUNIT_ASSERT(eventMsgFrag.isTaggedForAnyEventConsumer());
+    CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyDQMEventConsumer());
+    
+    std::vector<QueueID> queueIdList = eventMsgFrag.getEventConsumerTags();
+    CPPUNIT_ASSERT(queueIdList.size() == 1);
+    std::vector<QueueID>::const_iterator it =
+      std::find(queueIdList.begin(), queueIdList.end(), qid1);
+    CPPUNIT_ASSERT(it != queueIdList.end());
+    CPPUNIT_ASSERT(it->index() == 1);
+  }
+
+  // *** second event message - does not pass prescale ***
+  {
+    eventNumber = 3;
+    
+    ref = allocate_frame_with_event_msg("hltOutputDQM", hltBits, hltBitCount,
+      eventNumber);
+    stor::I2OChain eventMsgFrag(ref);
+    CPPUNIT_ASSERT(eventMsgFrag.messageCode() == Header::EVENT);
+    
+    CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyStream());
+    CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyEventConsumer());
+    CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyDQMEventConsumer());
+    
+    _eventDistributor->addEventToRelevantQueues(eventMsgFrag);
+    
+    CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyStream());
+    CPPUNIT_ASSERT(eventMsgFrag.isTaggedForAnyEventConsumer());
+    CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyDQMEventConsumer());
+    
+    std::vector<QueueID> queueIdList = eventMsgFrag.getEventConsumerTags();
+    CPPUNIT_ASSERT(queueIdList.size() == 1);
+    std::vector<QueueID>::const_iterator it =
+      std::find(queueIdList.begin(), queueIdList.end(), qid1);
+    CPPUNIT_ASSERT(it != queueIdList.end());
+    CPPUNIT_ASSERT(it->index() == 1);
+  }
+
+  // *** third event message - does pass prescale ***
+  {
+    eventNumber = 5;
+    
+    ref = allocate_frame_with_event_msg("hltOutputDQM", hltBits, hltBitCount,
+      eventNumber);
+    stor::I2OChain eventMsgFrag(ref);
+    CPPUNIT_ASSERT(eventMsgFrag.messageCode() == Header::EVENT);
+    
+    CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyStream());
+    CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyEventConsumer());
+    CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyDQMEventConsumer());
+    
+    _eventDistributor->addEventToRelevantQueues(eventMsgFrag);
+    
+    CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyStream());
+    CPPUNIT_ASSERT(eventMsgFrag.isTaggedForAnyEventConsumer());
+    CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyDQMEventConsumer());
+    
+    std::vector<QueueID> queueIdList = eventMsgFrag.getEventConsumerTags();
+    CPPUNIT_ASSERT(queueIdList.size() == 2);
+    std::vector<QueueID>::const_iterator it =
+      std::find(queueIdList.begin(), queueIdList.end(), qid1);
+    CPPUNIT_ASSERT(it != queueIdList.end());
+    CPPUNIT_ASSERT(it->index() == 1);
+    it = std::find(queueIdList.begin(), queueIdList.end(), qid2);
+    CPPUNIT_ASSERT(it != queueIdList.end());
+    CPPUNIT_ASSERT(it->index() == 2);
+  }
+
+  // *** forth event message - does not pass prescale ***
+  {
+    eventNumber = 9;
+    
+    ref = allocate_frame_with_event_msg("hltOutputDQM", hltBits, hltBitCount,
+      eventNumber);
+    stor::I2OChain eventMsgFrag(ref);
+    CPPUNIT_ASSERT(eventMsgFrag.messageCode() == Header::EVENT);
+    
+    CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyStream());
+    CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyEventConsumer());
+    CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyDQMEventConsumer());
+    
+    _eventDistributor->addEventToRelevantQueues(eventMsgFrag);
+    
+    CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyStream());
+    CPPUNIT_ASSERT(eventMsgFrag.isTaggedForAnyEventConsumer());
+    CPPUNIT_ASSERT(!eventMsgFrag.isTaggedForAnyDQMEventConsumer());
+    
+    std::vector<QueueID> queueIdList = eventMsgFrag.getEventConsumerTags();
+    CPPUNIT_ASSERT(queueIdList.size() == 1);
+    std::vector<QueueID>::const_iterator it =
+      std::find(queueIdList.begin(), queueIdList.end(), qid1);
+    CPPUNIT_ASSERT(it != queueIdList.end());
+    CPPUNIT_ASSERT(it->index() == 1);
+  }
+
 }
 
 
@@ -933,7 +1225,7 @@ void testEventDistributor::testDQMMessages()
   ri1.reset( new DQMEventConsumerRegistrationInfo(
       "DQM Consumer 1",
       "HCAL",
-      qid1.index(), qid1.policy(),
+      10, qid1.policy(),
       boost::posix_time::seconds(10),
       "localhost" )
   );
@@ -946,7 +1238,7 @@ void testEventDistributor::testDQMMessages()
   ri2.reset( new DQMEventConsumerRegistrationInfo(
       "DQM Consumer 2",
       "ECAL",
-      qid2.index(), qid2.policy(),
+      10, qid2.policy(),
       boost::posix_time::seconds(10), "localhost" )
   );
   ri2->setQueueId( qid2 );
@@ -986,7 +1278,7 @@ void testEventDistributor::testDQMMessages()
   ri3.reset( new DQMEventConsumerRegistrationInfo(
       "DQM Consumer 3",
       "*",
-      qid3.index(), qid3.policy(),
+      10, qid3.policy(),
       boost::posix_time::seconds(10), "localhost" )
   );
   ri3->setQueueId( qid3 );
@@ -1045,7 +1337,7 @@ void testEventDistributor::testDuplicatedDQMConsumerSelection()
   ri1.reset( new DQMEventConsumerRegistrationInfo(
       "DQM Consumer 1",
       "HCAL",
-      qid1.index(), qid1.policy(),
+      10, qid1.policy(),
       boost::posix_time::seconds(10),
       "localhost" )
   );
@@ -1065,7 +1357,7 @@ void testEventDistributor::testDuplicatedDQMConsumerSelection()
   ri2.reset( new DQMEventConsumerRegistrationInfo(
       "DQM Consumer 2",
       "HCAL",
-      qid1.index(), qid1.policy(),
+      10, qid1.policy(),
       boost::posix_time::seconds(10),
       "remotehost" )
   );
@@ -1090,7 +1382,7 @@ void testEventDistributor::testDuplicatedDQMConsumerSelection()
   ri3.reset( new DQMEventConsumerRegistrationInfo(
       "DQM Consumer 3",
       "HCAL",
-      qid2.index(), qid2.policy(),
+      10, qid2.policy(),
       boost::posix_time::seconds(10),
       "remotehost" )
   );

@@ -1,4 +1,4 @@
-// $Id: EventConsumerSelector.h,v 1.6 2010/12/16 16:35:29 mommsen Exp $
+// $Id: EventConsumerSelector.h,v 1.7 2010/12/17 18:21:04 mommsen Exp $
 /// @file: EventConsumerSelector.h 
 
 #ifndef StorageManager_EventConsumerSelector_h
@@ -18,8 +18,8 @@ namespace stor {
    * registration info objects.
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2010/12/16 16:35:29 $
+   * $Revision: 1.7 $
+   * $Date: 2010/12/17 18:21:04 $
    */
 
   class EventConsumerSelector
@@ -35,7 +35,8 @@ namespace stor {
       _initialized( false ),
       _stale( false ),
       _outputModuleId( 0 ),
-      _registrationInfo( *registrationInfo )
+      _registrationInfo( *registrationInfo ),
+      _acceptedEvents( 0 )
     {}
 
     /**
@@ -92,8 +93,8 @@ namespace stor {
     bool _stale;
     unsigned int _outputModuleId;
     const EventConsumerRegistrationInfo _registrationInfo;
-
     boost::shared_ptr<TriggerSelector> _eventSelector;
+    unsigned long _acceptedEvents;
 
   };
 
