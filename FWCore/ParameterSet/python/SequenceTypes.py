@@ -86,6 +86,11 @@ class _SequenceCollection(_Sequenceable):
         for m in self._collection[1:]:
             returnValue += '+'+m.dumpSequencePython()        
         return returnValue
+    def dumpSequenceConfig(self):
+        returnValue = self._collection[0].dumpSequenceConfig()
+        for m in self._collection[1:]:
+            returnValue += '&'+m.dumpSequenceConfig()        
+        return returnValue
     def visitNode(self,visitor):
         for m in self._collection:
             m.visitNode(visitor)
@@ -134,7 +139,10 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     def __str__(self):
         return str(self._seq)
     def dumpConfig(self, options):
-        return '{'+self._seq.dumpSequenceConfig()+'}\n'
+        s = ''
+        if self._seq is not None:
+            s = self._seq.dumpSequenceConfig()
+        return '{'+s+'}\n'
     def dumpPython(self, options):
         """Returns a string which is the python representation of the object"""
         s=''
@@ -151,6 +159,16 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
             if self._seq is None:
                 return ''
             return '('+self._seq.dumpSequencePython()+')'
+    def dumpSequenceConfig(self):
+        """Returns a string which contains the old config language representation of just the internal sequence"""
+        # only dump the label, if possible
+        if self.hasLabel_():
+            return _Labelable.dumpSequenceConfig(self)
+        else:
+            # dump it verbose
+            if self._seq is None:
+                return ''
+            return '('+self._seq.dumpSequenceConfig()+')'
     def __repr__(self):
         s = ''
         if self._seq is not None:
@@ -748,7 +766,32 @@ if __name__=="__main__":
             p8.visit(moduleVisitor)
             names = [m.label_() for m in l]
             self.assertEqual(names, ['a', 'b', 'c'])
-
+        def testDumpConfig(self):
+            a = DummyModule("a")
+            b = DummyModule('b')
+            p = Path((a*b))
+            #print p.dumpConfig('')
+            self.assertEqual(p.dumpConfig(None),"{a&b}\n")
+            p2 = Path((b+a))
+            #print p2.dumpConfig('')
+            self.assertEqual(p2.dumpConfig(None),"{b&a}\n")
+            c = DummyModule('c')
+            p3 = Path(c*(a+b))
+            #print p3.dumpConfig('')
+            self.assertEqual(p3.dumpConfig(None),"{c&a&b}\n")
+            p4 = Path(c*a+b)
+            #print p4.dumpConfig('')
+            self.assertEqual(p4.dumpConfig(None),"{c&a&b}\n")
+            p5 = Path(a+ignore(b))
+            #print p5.dumpConfig('')
+            self.assertEqual(p5.dumpConfig(None),"{a&-b}\n")
+            p6 = Path(c+a*b)
+            #print p6.dumpConfig('')
+            self.assertEqual(p6.dumpConfig(None),"{c&a&b}\n")
+            p7 = Path(a+~b)
+            self.assertEqual(p7.dumpConfig(None),"{a&!b}\n")
+            p8 = Path((a+b)*c)
+            self.assertEqual(p8.dumpConfig(None),"{a&b&c}\n")        
         def testVisitor(self):
             class TestVisitor(object):
                 def __init__(self, enters, leaves):
