@@ -97,7 +97,6 @@ void PileUpProducer::beginRun(edm::Run & run, edm::EventSetup const& es)
   // Open the root files
   for ( unsigned file=0; file<theNumberOfFiles; ++file ) {
 
-    std::string thisFile;
     if (theFileNames[file].find("file:")==0) {
       fullPath = theFileNames[file].erase(0,5);
     }
