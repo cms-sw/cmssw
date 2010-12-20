@@ -79,7 +79,7 @@ class TrajectorySeed {
   PropagationDirection dir_;
 };
 
-void swap(TrajectorySeed & rh, TrajectorySeed & lh) { 
+inline void swap(TrajectorySeed & rh, TrajectorySeed & lh) { 
   rh.swap(lh);
 }
 
