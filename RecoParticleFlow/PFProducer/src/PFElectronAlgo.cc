@@ -4,7 +4,7 @@
 
 #include "RecoParticleFlow/PFProducer/interface/PFElectronAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
+//#include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementBrem.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
@@ -17,6 +17,9 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFSCEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
+
 #include <iomanip>
 
 using namespace std;
@@ -199,6 +202,11 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
     // They are linked to the GSF tracks they are not considered
     // anymore in the following ecal cluster locking 
 
+    //     cout<<"#########################################################"<<endl;
+    //     cout<<"#####           Process Block:                      #####"<<endl;
+    //     cout<<"#########################################################"<<endl;
+    //     cout<<block<<endl;
+    
     for(unsigned int iEle=0; iEle<trackIs.size(); iEle++) {
       std::multimap<double, unsigned int> gsfElems;
       block.associatedElements( trackIs[iEle],  linkData,
@@ -304,10 +312,13 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	    itkf != kfElems.end(); ++itkf) {
 	  const reco::PFBlockElementTrack * TrkEl  =  
 	    dynamic_cast<const reco::PFBlockElementTrack*>((&elements[itkf->second]));
-	  if(TrkEl->isLinkedToDisplacedVertex()) {
+	  
+	  bool isPrim = isPrimaryTrack(*TrkEl,*GsfEl);
+	  if(!isPrim) 
 	    continue;
-	  }
+	  
 	  if(localactive[itkf->second] == true) {
+
 	    KfGsf_index = itkf->second;
 	    localactive[KfGsf_index] = false;
 	    // Find clusters associated to kftrack using linkbyrechit
@@ -732,7 +743,9 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	    itkf != kfElems.end(); ++itkf) {
 	  const reco::PFBlockElementTrack * TrkEl  =  
 	    dynamic_cast<const reco::PFBlockElementTrack*>((&elements[itkf->second]));
-	  if(TrkEl->isLinkedToDisplacedVertex()) {
+	  bool isPrim = isPrimaryTrack(*TrkEl,*GsfEl);
+
+	  if(!isPrim) {
 
 	    // search for linked ECAL clusters
 	    std::multimap<double, unsigned int> ecalConvElems;
@@ -1447,7 +1460,9 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	const reco::PFBlockElementTrack * KfTk =  
 	  dynamic_cast<const reco::PFBlockElementTrack*>((&elements[(assogsf_index[ielegsf])]));
 	// 19 Mar 2010 do not consider here track from gamma conv
- 	if(KfTk->isLinkedToDisplacedVertex()) continue;
+	
+	bool isPrim = isPrimaryTrack(*KfTk,*GsfEl);
+ 	if(!isPrim) continue;
 	RefKF = KfTk->trackRef();
 	kf_index = assogsf_index[ielegsf];
       }
@@ -1935,7 +1950,8 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	const reco::PFBlockElementTrack * KfTk =  
 	  dynamic_cast<const reco::PFBlockElementTrack*>((&elements[(assogsf_index[ielegsf])]));
 	// 19 Mar 2010 do not consider here track from gamam conv
-	if(KfTk->isLinkedToDisplacedVertex()) continue;
+	bool isPrim = isPrimaryTrack(*KfTk,*GsfEl);
+	if(!isPrim) continue;
  	
 	RefKF = KfTk->trackRef();
 	if (RefKF.isNonnull()) {
@@ -2526,4 +2542,25 @@ unsigned int PFElectronAlgo::whichTrackAlgo(const reco::TrackRef& trackRef) {
     break;
   }
   return Algo;
+}
+bool PFElectronAlgo::isPrimaryTrack(const reco::PFBlockElementTrack& KfEl,
+				    const reco::PFBlockElementGsfTrack& GsfEl) {
+  bool isPrimary = false;
+  
+  GsfPFRecTrackRef gsfPfRef = GsfEl.GsftrackRefPF();
+  
+  if(gsfPfRef.isNonnull()) {
+    PFRecTrackRef  kfPfRef = KfEl.trackRefPF();
+    PFRecTrackRef  kfPfRef_fromGsf = (*gsfPfRef).kfPFRecTrackRef();
+    if(kfPfRef.isNonnull() && kfPfRef_fromGsf.isNonnull()) {
+      reco::TrackRef kfref= (*kfPfRef).trackRef();
+      reco::TrackRef kfref_fromGsf = (*kfPfRef_fromGsf).trackRef();
+      if(kfref.isNonnull() && kfref_fromGsf.isNonnull()) {
+	if(kfref ==  kfref_fromGsf)
+	  isPrimary = true;
+      }
+    }
+  }
+
+  return isPrimary;
 }

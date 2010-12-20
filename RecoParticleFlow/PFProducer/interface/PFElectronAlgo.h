@@ -8,6 +8,8 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "TMVA/Reader.h"
 #include <iostream>
 
@@ -92,6 +94,9 @@ class PFElectronAlgo {
 		 std::vector<bool>& active);
   
   unsigned int whichTrackAlgo(const reco::TrackRef& trackRef);
+
+  bool isPrimaryTrack(const reco::PFBlockElementTrack& KfEl,
+		      const reco::PFBlockElementGsfTrack& GsfEl);
 
   std::vector<reco::PFCandidate> elCandidate_;
   std::vector<reco::PFCandidate> allElCandidate_;

@@ -340,8 +340,6 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
   /// -------------- GSF Primary tracks and brems ---------------------
   std::vector<reco::PFRecTrackRef> convBremPFRecTracks;
   convBremPFRecTracks.clear();
-  std::vector<reco::PFRecTrackRef> primaryKF_GSF;
-  primaryKF_GSF.clear();
   // Super cluster mapping
   superClusters_.clear();
   scpfcRefs_.clear();
@@ -407,11 +405,6 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	}
       }
       
-      // get the kf track that seeded the gsf
-      if(refgsf->kfPFRecTrackRef().isNonnull())
-	primaryKF_GSF.push_back(refgsf->kfPFRecTrackRef());
-      
-
       gsfEl = new reco::PFBlockElementGsfTrack(refgsf, pin, pout);
       
       elements_.push_back( gsfEl);
@@ -452,17 +445,6 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	reco::PFRecTrackRef compPFTkRef = convRef->pfTracks()[iTk];	
 	trkFromConversionElement = new reco::PFBlockElementTrack(convRef->pfTracks()[iTk]);
 	trkFromConversionElement->setConversionRef( convRef->originalConversion(), reco::PFBlockElement::T_FROM_GAMMACONV);
-
-	/// The primary KF tracks associated the GSF seed are not labeled secondary
-	/// This can be changed but PFElectronAlgo.cc needs to changed too. Contact Daniele
-	bool isPrimGSF = false;
-	for(unsigned ikfgsf =0; ikfgsf<primaryKF_GSF.size();ikfgsf++) {
-	  if(compPFTkRef->trackRef() == primaryKF_GSF[ikfgsf]->trackRef()) {
-	    isPrimGSF = true;
-	    continue;
-	  }
-	}
-	if(isPrimGSF) continue;
 
 	elements_.push_back( trkFromConversionElement );
 
@@ -506,18 +488,6 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	    continue;
 	  }
 	} 
-
-	/// The primary KF tracks associated the GSF seed are not labeled secondary
-	/// This can be changed but PFElectronAlgo.cc needs to changed too. Contact Daniele
-	bool isPrimGSF = false;
-	for(unsigned ikfgsf =0; ikfgsf<primaryKF_GSF.size();ikfgsf++) {
-	  reco::TrackBaseRef elemTrackBaseRef(primaryKF_GSF[ikfgsf]->trackRef());
-	  if(newTrackBaseRef == elemTrackBaseRef){  
-	    isPrimGSF = true;
-	    continue;
-	  }
-	} 
-	if(isPrimGSF) continue;
 
 	/// This is a new track not yet included into the elements collection
 	if (bNew) {
@@ -590,17 +560,6 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	    }
 	  }
 
-	  /// The primary KF tracks associated the GSF seed are not labeled secondary
-	  /// This can be changed but PFElectronAlgo.cc needs to changed too. Contact Daniele
-	  bool isPrimGSF = false;
-	  for(unsigned ikfgsf =0; ikfgsf<primaryKF_GSF.size();ikfgsf++) {
-	    reco::TrackBaseRef elemTrackBaseRef(primaryKF_GSF[ikfgsf]->trackRef());
-	    if(newTrackBaseRef == elemTrackBaseRef){  
-	      isPrimGSF = true;
-	      continue;
-	    }
-	  } 
-	  if(isPrimGSF) continue;
 
 	  /// This is a new track not yet included into the elements collection
 	  if (bNew) { 
