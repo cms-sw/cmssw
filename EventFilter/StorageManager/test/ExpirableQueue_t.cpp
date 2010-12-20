@@ -57,9 +57,11 @@ test_fill_and_go_stale()
     }
   CPPUNIT_ASSERT(q.full());
 
-  // An immediate call to clearIfStale() should do nothing.
-  CPPUNIT_ASSERT(!q.clearIfStale());
+  // An immediate call to clearIfStale should do nothing.
+  size_t clearedEvents;
+  CPPUNIT_ASSERT(!q.clearIfStale(utils::getCurrentTime(),clearedEvents));
   CPPUNIT_ASSERT(q.full());
+  CPPUNIT_ASSERT(clearedEvents == 0);
 
   // After waiting for our staleness interval, the queue should still
   // be full. But then a call to clearIfStale should clear the queue.
@@ -68,10 +70,11 @@ test_fill_and_go_stale()
   CPPUNIT_ASSERT(q.full());
   CPPUNIT_ASSERT(!q.empty());
 
-  CPPUNIT_ASSERT(q.clearIfStale());
+  CPPUNIT_ASSERT(q.clearIfStale(utils::getCurrentTime(),clearedEvents));
 
   CPPUNIT_ASSERT(!q.full());
   CPPUNIT_ASSERT(q.empty());
+  CPPUNIT_ASSERT(clearedEvents == capacity);
 }
 
 template <class Q>
@@ -88,15 +91,18 @@ test_pop_freshens_queue()
   utils::sleep(seconds_to_stale);
 
   // Verify the queue has gone stale.
-  CPPUNIT_ASSERT(q.clearIfStale());
+  size_t clearedEvents;
+  CPPUNIT_ASSERT(q.clearIfStale(utils::getCurrentTime(),clearedEvents));
   CPPUNIT_ASSERT(q.empty());
+  CPPUNIT_ASSERT(clearedEvents == 1);
 
   // A queue that has gone stale should remain stale if we add a new
   // event to it.
   q.enq_nowait(I2OChain(allocate_frame_with_sample_header(0,1,1)));
   CPPUNIT_ASSERT(!q.empty());
-  CPPUNIT_ASSERT(q.clearIfStale());
+  CPPUNIT_ASSERT(q.clearIfStale(utils::getCurrentTime(),clearedEvents));
   CPPUNIT_ASSERT(q.empty());
+  CPPUNIT_ASSERT(clearedEvents == 1);
 
   // Popping from the queue should make it non-stale. This must be
   // true *even if the queue is empty*, so that popping does not get
@@ -104,7 +110,8 @@ test_pop_freshens_queue()
    I2OChain popped;
    CPPUNIT_ASSERT(!q.deq_nowait(popped));
    CPPUNIT_ASSERT(q.empty());
-   CPPUNIT_ASSERT(!q.clearIfStale());
+   CPPUNIT_ASSERT(!q.clearIfStale(utils::getCurrentTime(),clearedEvents));
+   CPPUNIT_ASSERT(clearedEvents == 0);
 }
 
 //  -------------------------------------------------------------------

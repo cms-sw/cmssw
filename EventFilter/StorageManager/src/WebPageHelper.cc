@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.54 2010/12/14 12:56:52 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.55 2010/12/17 18:21:05 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #ifdef __APPLE__
@@ -1300,7 +1300,7 @@ void WebPageHelper::addDOMforEventConsumers
   XHTMLMaker::Node* tableRow = maker.addNode("tr", table, _rowAttr);
 
   XHTMLMaker::AttrMap colspanAttr;
-  colspanAttr[ "colspan" ] = "20";
+  colspanAttr[ "colspan" ] = "23";
   XHTMLMaker::Node* tableDiv = maker.addNode("th", tableRow, colspanAttr);
   maker.addText(tableDiv, "Consumer Statistics");
 
@@ -1325,6 +1325,8 @@ void WebPageHelper::addDOMforEventConsumers
   tableDiv = maker.addNode("th", tableRow, rowspanAttr);
   maker.addText(tableDiv, "Filters");
   tableDiv = maker.addNode("th", tableRow, rowspanAttr);
+  maker.addText(tableDiv, "Prescale");
+  tableDiv = maker.addNode("th", tableRow, rowspanAttr);
   maker.addText(tableDiv, "Enquing Policy");
   tableDiv = maker.addNode("th", tableRow, rowspanAttr);
   maker.addText(tableDiv, "Queue Size");
@@ -1333,6 +1335,8 @@ void WebPageHelper::addDOMforEventConsumers
 
   tableDiv = maker.addNode("th", tableRow, subColspanAttr);
   maker.addText(tableDiv, "Enqueued Event Rate (Hz)");
+  tableDiv = maker.addNode("th", tableRow, subColspanAttr);
+  maker.addText(tableDiv, "Discarded Events");
   tableDiv = maker.addNode("th", tableRow, subColspanAttr);
   maker.addText(tableDiv, "Served Event Rate (Hz)");
   tableDiv = maker.addNode("th", tableRow, subColspanAttr);
@@ -1343,6 +1347,10 @@ void WebPageHelper::addDOMforEventConsumers
   maker.addText(tableDiv, "Bandwidth (kB/s)");
 
   tableRow = maker.addNode("tr", table, _specialRowAttr);
+  tableDiv = maker.addNode("th", tableRow);
+  maker.addText(tableDiv, "overall");
+  tableDiv = maker.addNode("th", tableRow);
+  maker.addText(tableDiv, "recent");
   tableDiv = maker.addNode("th", tableRow);
   maker.addText(tableDiv, "overall");
   tableDiv = maker.addNode("th", tableRow);
@@ -1448,6 +1456,10 @@ void WebPageHelper::addDOMforEventConsumers
     tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
     maker.addText(tableDiv, filters);
     
+    // Prescale:
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addInt(tableDiv, (*it)->prescale());
+    
     // Policy:
     std::ostringstream policy;
     policy << (*it)->queuePolicy();
@@ -1472,6 +1484,18 @@ void WebPageHelper::addDOMforEventConsumers
     tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
     maker.addDouble(tableDiv,
       enqueuedFound ? enqueuedStats.getSampleRate(MonitoredQuantity::RECENT) : 0
+    );
+    
+    // Discarded Events:
+    MonitoredQuantity::Stats discardedStats;
+    const bool discardedFound = eventConsumerCollection.getDiscarded( (*it)->queueId(), discardedStats );
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addDouble(tableDiv,
+      discardedFound ? discardedStats.getValueSum(MonitoredQuantity::FULL) : 0, 0
+    );
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addDouble(tableDiv,
+      discardedFound ? discardedStats.getValueSum(MonitoredQuantity::RECENT) : 0, 0
     );
 
     // Events served:

@@ -1,4 +1,4 @@
-// $Id: ConsumerMonitorCollection.cc,v 1.9 2009/10/06 07:33:16 mommsen Exp $
+// $Id: ConsumerMonitorCollection.cc,v 1.10 2010/12/14 12:56:52 mommsen Exp $
 /// @file: ConsumerMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerMonitorCollection.h"
@@ -19,6 +19,14 @@ void ConsumerMonitorCollection::addQueuedEventSample( const QueueID& qid,
 {
   boost::mutex::scoped_lock l( _mutex );
   addEventSampleToMap(qid, data_size, _qmap);
+}
+
+
+void ConsumerMonitorCollection::addDiscardedEvents( const QueueID& qid,
+						    const size_t& count )
+{
+  boost::mutex::scoped_lock l( _mutex );
+  addEventSampleToMap(qid, count, _dmap);
 }
 
 
@@ -75,6 +83,13 @@ bool ConsumerMonitorCollection::getServed( const QueueID& qid,
 }
 
 
+bool ConsumerMonitorCollection::getDiscarded( const QueueID& qid,
+					      MonitoredQuantity::Stats& result )
+{
+  boost::mutex::scoped_lock l( _mutex );
+  return getValueFromMap( qid, result, _dmap );
+}
+
 bool ConsumerMonitorCollection::getValueFromMap( const QueueID& qid,
                                                  MonitoredQuantity::Stats& result,
                                                  const ConsStatMap& map )
@@ -95,6 +110,8 @@ void ConsumerMonitorCollection::resetCounters()
     i->second->reset();
   for( ConsStatMap::iterator i = _smap.begin(); i != _smap.end(); ++i )
     i->second->reset();
+  for( ConsStatMap::iterator i = _dmap.begin(); i != _dmap.end(); ++i )
+    i->second->reset();
 }
 
 
@@ -105,6 +122,8 @@ void ConsumerMonitorCollection::do_calculateStatistics()
     i->second->calculateStatistics();
   for( ConsStatMap::iterator i = _smap.begin(); i != _smap.end(); ++i )
     i->second->calculateStatistics();
+  for( ConsStatMap::iterator i = _dmap.begin(); i != _dmap.end(); ++i )
+    i->second->calculateStatistics();
 }
 
 
@@ -113,6 +132,7 @@ void ConsumerMonitorCollection::do_reset()
   boost::mutex::scoped_lock l( _mutex );
   _qmap.clear();
   _smap.clear();
+  _dmap.clear();
 }
 
 

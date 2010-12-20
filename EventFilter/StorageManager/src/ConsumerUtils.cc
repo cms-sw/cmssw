@@ -1,4 +1,4 @@
-// $Id: ConsumerUtils.cc,v 1.14 2010/12/17 18:21:05 mommsen Exp $
+// $Id: ConsumerUtils.cc,v 1.15 2010/12/20 11:14:24 mommsen Exp $
 /// @file: ConsumerUtils.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerID.h"
@@ -378,11 +378,11 @@ EventConsRegPtr ConsumerUtils::parseEventConsumerRegistration(xgi::Input* in) co
   unsigned int prescale;
   try
   {
-    uniqueEvents = pset.getParameter<unsigned int>( "TrackedPrescale" );
+    prescale = pset.getParameter<unsigned int>( "TrackedPrescale" );
   }
   catch( edm::Exception& e )
   {
-    uniqueEvents = pset.getUntrackedParameter<unsigned int>( "prescale", 1);
+    prescale = pset.getUntrackedParameter<unsigned int>( "prescale", 1);
   }
 
   // Consumer time-out

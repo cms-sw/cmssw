@@ -1,4 +1,4 @@
-// $Id: ExpirableQueue.h,v 1.5 2010/02/16 10:49:52 mommsen Exp $
+// $Id: ExpirableQueue.h,v 1.6 2010/12/14 12:56:51 mommsen Exp $
 /// @file: ExpirableQueue.h 
 
 
@@ -19,8 +19,8 @@ namespace stor
      was made.
    
      $Author: mommsen $
-     $Revision: 1.5 $
-     $Date: 2010/02/16 10:49:52 $
+     $Revision: 1.6 $
+     $Date: 2010/12/14 12:56:51 $
    */
 
   template <class T, class Policy>
@@ -65,9 +65,9 @@ namespace stor
     utils::duration_t staleness_interval() const;    
 
     /**
-       Clear the queue.
+       Clear the queue. Return the number of elements removed.
      */
-    void clear();
+    size_type clear();
 
     /**
        Return true if the queue is empty, and false otherwise.
@@ -87,9 +87,10 @@ namespace stor
     /**
        Return true if the queue is stale, and false if it is not. The
        queue is stale if its staleness_time is before the given
-       time. If the queue is stale, we also clear it.
+       time. If the queue is stale, we also clear it and return the
+       number of cleared events.
     */
-    bool clearIfStale(utils::time_point_t now = utils::getCurrentTime());
+    bool clearIfStale(utils::time_point_t now, size_type& clearedEvents);
 
   private:
     typedef ConcurrentQueue<T, Policy> queue_t;
@@ -152,10 +153,12 @@ namespace stor
 
   template <class T, class Policy>
   inline
-  void
+  typename ExpirableQueue<T, Policy>::size_type
   ExpirableQueue<T, Policy>::clear()
   {
+    const size_type entries = size();
     _events.clear();
+    return entries;
   }  
 
   template <class T, class Policy>
@@ -185,11 +188,18 @@ namespace stor
   template <class T, class Policy>
   inline
   bool
-  ExpirableQueue<T, Policy>::clearIfStale(utils::time_point_t now)
+  ExpirableQueue<T, Policy>::clearIfStale(utils::time_point_t now, size_type& clearedEvents)
   {
-    return (_staleness_time < now)
-      ? _events.clear(), true
-      : false;
+    if (_staleness_time < now)
+    {
+      clearedEvents = clear();
+      return true;
+    }
+    else
+    {
+      clearedEvents = 0;
+      return false;
+    }
   }
 
 } // namespace stor

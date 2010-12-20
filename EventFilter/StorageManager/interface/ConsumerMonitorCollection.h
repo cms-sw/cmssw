@@ -1,4 +1,4 @@
-// $Id: ConsumerMonitorCollection.h,v 1.8 2009/08/28 16:41:49 mommsen Exp $
+// $Id: ConsumerMonitorCollection.h,v 1.9 2009/10/13 15:08:33 mommsen Exp $
 /// @file: ConsumerMonitorCollection.h 
 
 #ifndef StorageManager_ConsumerMonitorCollection_h
@@ -21,8 +21,8 @@ namespace stor {
    * A collection of MonitoredQuantities to track consumer activity.
    *
    * $Author: mommsen $
-   * $Revision: 1.8 $
-   * $Date: 2009/08/28 16:41:49 $
+   * $Revision: 1.9 $
+   * $Date: 2009/10/13 15:08:33 $
    */
 
   class ConsumerMonitorCollection: public MonitorCollection
@@ -38,6 +38,11 @@ namespace stor {
     void addQueuedEventSample( const QueueID&, const unsigned int& data_size );
 
     /**
+       Add number of discarded events
+    */
+    void addDiscardedEvents( const QueueID&, const unsigned int& data_size );
+
+    /**
        Add served sample
     */
     void addServedEventSample( const QueueID&, const unsigned int& data_size );
@@ -51,6 +56,11 @@ namespace stor {
        Get served data size. Return false if consumer ID not found.
     */
     bool getServed( const QueueID& qid, MonitoredQuantity::Stats& result );
+
+    /**
+       Get number of discarded events. Return false if consumer ID not found.
+    */
+    bool getDiscarded( const QueueID& qid, MonitoredQuantity::Stats& result );
 
     /**
        Reset sizes to zero leaving consumers in
@@ -76,6 +86,7 @@ namespace stor {
   protected:
 
     ConsStatMap _qmap; // queued
+    ConsStatMap _dmap; // dropped
     ConsStatMap _smap; // served
 
     mutable boost::mutex _mutex;

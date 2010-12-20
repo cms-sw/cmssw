@@ -1,4 +1,4 @@
-// $Id: QueueCollection.h,v 1.8 2010/12/14 12:56:51 mommsen Exp $
+// $Id: QueueCollection.h,v 1.9 2010/12/17 18:21:04 mommsen Exp $
 /// @file: QueueCollection.h 
 
 #ifndef StorageManager_QueueCollection_h
@@ -36,8 +36,8 @@ namespace stor {
    * of QueueIDs of queues the class should be added.
    *
    * $Author: mommsen $
-   * $Revision: 1.8 $
-   * $Date: 2010/12/14 12:56:51 $
+   * $Revision: 1.9 $
+   * $Date: 2010/12/17 18:21:04 $
    */
 
   template <class T>
@@ -160,8 +160,11 @@ namespace stor {
     mutable read_write_mutex  _protect_discard_old_queues;
     mutable read_write_mutex  _protect_lookup;
 
-    std::vector<expirable_discard_new_queue_ptr> _discard_new_queues;
-    std::vector<expirable_discard_old_queue_ptr> _discard_old_queues;
+    typedef std::vector<expirable_discard_new_queue_ptr> discard_new_queues_t;
+    discard_new_queues_t _discard_new_queues;
+    typedef std::vector<expirable_discard_old_queue_ptr> discard_old_queues_t;
+    discard_old_queues_t _discard_old_queues;
+
     typedef std::map<ConsumerID, QueueID>        id_lookup_t;
     id_lookup_t                                  _queue_id_lookup;
     typedef std::map<EventConsRegPtr, QueueID,
@@ -180,7 +183,7 @@ namespace stor {
       These are helper functions used in the implementation.
     */
     
-    void _enqueue_event(QueueID const& id, T const& event);
+    size_type _enqueue_event(QueueID const& id, T const& event);
     //QueueID get_queue(const EventConsRegPtr, const utils::time_point_t&);
     QueueID get_queue(const RegPtr, const utils::time_point_t&);
 
@@ -378,6 +381,8 @@ namespace stor {
   void
   QueueCollection<T>::removeQueues()
   {
+    clearQueues();
+
     write_lock_t lock_discard_new(_protect_discard_new_queues);
     write_lock_t lock_discard_old(_protect_discard_old_queues);
     _discard_new_queues.clear();
@@ -390,8 +395,8 @@ namespace stor {
   {
     // We obtain locks not because it is unsafe to read the sizes
     // without locking, but because we want consistent values.
-    read_lock_t lock_discard_old(_protect_discard_new_queues);
-    read_lock_t lock_discard_new(_protect_discard_old_queues);
+    read_lock_t lock_discard_new(_protect_discard_new_queues);
+    read_lock_t lock_discard_old(_protect_discard_old_queues);
     return _discard_new_queues.size() + _discard_old_queues.size();
   }
 
@@ -400,17 +405,17 @@ namespace stor {
   QueueCollection<T>::addEvent(T const& event)
   {
 
-    read_lock_t lock_discard_old(_protect_discard_new_queues);
-    read_lock_t lock_discard_new(_protect_discard_old_queues);
+    read_lock_t lock_discard_new(_protect_discard_new_queues);
+    read_lock_t lock_discard_old(_protect_discard_old_queues);
 
     std::vector<QueueID> routes = event.getEventConsumerTags();
-    edm::for_all(routes,
-                 boost::bind(&QueueCollection<T>::_enqueue_event, 
-                             this, _1, event));
 
-    for( std::vector<QueueID>::iterator i = routes.begin(); i != routes.end(); ++i )
+    for( std::vector<QueueID>::const_iterator it = routes.begin(), itEnd = routes.end();
+         it != itEnd; ++it )
       {
-        _consumer_monitor_collection.addQueuedEventSample( *i, event.totalDataSize() );
+        const size_type discardedEvents = _enqueue_event( *it, event );
+        _consumer_monitor_collection.addQueuedEventSample( *it, event.totalDataSize() );
+        _consumer_monitor_collection.addDiscardedEvents( *it, discardedEvents );
       }
 
   }
@@ -479,14 +484,22 @@ namespace stor {
         {
           read_lock_t lock(_protect_discard_new_queues);
           if (id.index() < _discard_new_queues.size())
+          {
+            _consumer_monitor_collection.addDiscardedEvents(
+              id, _discard_new_queues[id.index()]->size() );
             _discard_new_queues[id.index()]->clear();
+          }
           break;
         }
       case enquing_policy::DiscardOld:
         {
           read_lock_t lock(_protect_discard_old_queues);
           if (id.index() < _discard_old_queues.size())
+          {
+            _consumer_monitor_collection.addDiscardedEvents(
+              id, _discard_old_queues[id.index()]->size() );
             _discard_old_queues[id.index()]->clear();
+          }
           break;
         }
       default:
@@ -501,13 +514,31 @@ namespace stor {
   void
   QueueCollection<T>::clearQueues()
   {
-    read_lock_t lock_discard_new(_protect_discard_new_queues);
-    read_lock_t lock_discard_old(_protect_discard_old_queues);
-    edm::for_all(_discard_new_queues, 
-                 boost::bind(&expirable_discard_new_queue_t::clear, _1));
-    edm::for_all(_discard_old_queues, 
-                 boost::bind(&expirable_discard_old_queue_t::clear, _1));
+    {
+      read_lock_t lock_discard_new(_protect_discard_new_queues);
+      const size_type num_queues = _discard_new_queues.size();
+      for (size_type i = 0; i < num_queues; ++i)
+      {
+        _consumer_monitor_collection.addDiscardedEvents(
+          QueueID(enquing_policy::DiscardNew, i),
+          _discard_new_queues[i]->size()
+        );
+        _discard_new_queues[i]->clear();
+      }
+    }
+    {
+      read_lock_t lock_discard_old(_protect_discard_old_queues);
+      const size_type num_queues = _discard_old_queues.size();
+      for (size_type i = 0; i < num_queues; ++i)
+      {
+        _consumer_monitor_collection.addDiscardedEvents(
+          QueueID(enquing_policy::DiscardOld, i),
+          _discard_old_queues[i]->size()
+        );
+        _discard_old_queues[i]->clear();
+      }
 
+    }
   }
 
   template <class T>
@@ -619,41 +650,62 @@ namespace stor {
   {
     result.clear();
     utils::time_point_t now = utils::getCurrentTime();
-    read_lock_t lock_discard_old(_protect_discard_new_queues);
-    read_lock_t lock_discard_new(_protect_discard_old_queues);
-    
-    size_type num_queues = _discard_new_queues.size();
-    for (size_type i = 0; i < num_queues; ++i)
-      {
-        if ( _discard_new_queues[i]->clearIfStale(now))
-          result.push_back(QueueID(enquing_policy::DiscardNew, i));
-      }
 
-    num_queues = _discard_old_queues.size();
-    for (size_type i = 0; i < num_queues; ++i)
+    {
+      read_lock_t lock_discard_new(_protect_discard_new_queues);
+    
+      const size_type num_queues = _discard_new_queues.size();
+      size_type clearedEvents;
+      for (size_type i = 0; i < num_queues; ++i)
       {
-        if ( _discard_old_queues[i]->clearIfStale(now))
-          result.push_back(QueueID(enquing_policy::DiscardOld, i));
+        if ( _discard_new_queues[i]->clearIfStale(now, clearedEvents))
+        {
+          const QueueID id(enquing_policy::DiscardNew, i);
+          _consumer_monitor_collection.addDiscardedEvents(id, clearedEvents);
+          result.push_back(id);
+        }
       }
+    }
+
+    {
+      read_lock_t lock_discard_old(_protect_discard_old_queues);
+      const size_type num_queues = _discard_old_queues.size();
+      size_type clearedEvents;
+       for (size_type i = 0; i < num_queues; ++i)
+      {
+        if ( _discard_old_queues[i]->clearIfStale(now, clearedEvents))
+        {
+          const QueueID id(enquing_policy::DiscardOld, i);
+          _consumer_monitor_collection.addDiscardedEvents(id, clearedEvents);
+          result.push_back(id);
+        }
+      }
+    }
   }
 
   template <class T>
-  void
+  typename QueueCollection<T>::size_type
   QueueCollection<T>::_enqueue_event(QueueID const& id, 
-                                  T const& event)
+                                     T const& event)
   {
     switch (id.policy())
       {
       case enquing_policy::DiscardNew:
         {
           if (id.index() < _discard_new_queues.size())
-            _discard_new_queues[id.index()]->enq_nowait(event);
+          {
+            if ( _discard_new_queues[id.index()]->enq_nowait(event) )
+              return 0; // event was put into the queue
+          }
           break;
         }
       case enquing_policy::DiscardOld:
         {
           if (id.index() < _discard_old_queues.size())
-            _discard_old_queues[id.index()]->enq_nowait(event);
+          {
+            return _discard_old_queues[id.index()]->enq_nowait(event);
+            // returns number of discarded events to make room for new one
+          }
           break;
         }
       default:
@@ -662,6 +714,7 @@ namespace stor {
           // does not return, no break needed
         }
       }
+    return 1; // event could not be entered
   }
   
 } // namespace stor
