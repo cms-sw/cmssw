@@ -114,7 +114,7 @@ int main (int argc, char **argv)
     std::vector<std::string> requestedPaths(vm[kPathsOpt].as<std::vector<std::string> >());
     
     //first find the directory and create a list of files to look at in that directory
-    path directory(requestedPaths[0],boost::filesystem::no_check);
+    path directory(requestedPaths[0]);
     std::vector<std::string> files;
     bool removeMissingFiles = false;
     if(boost::filesystem::is_directory(directory)) {
@@ -140,7 +140,7 @@ int main (int argc, char **argv)
       {
 
         path  filename (*file);
-        path shortName(file->leaf(),boost::filesystem::no_check);
+        path shortName(file->leaf());
         std::string stringName = shortName.string();
         
         static std::string kPluginPrefix(standard::pluginPrefix());
@@ -160,7 +160,7 @@ int main (int argc, char **argv)
       directory = directory.branch_path();
       for(std::vector<std::string>::iterator it=requestedPaths.begin(), itEnd=requestedPaths.end();
           it != itEnd; ++it) {
-        boost::filesystem::path f(*it,boost::filesystem::no_check);
+        boost::filesystem::path f(*it);
         if ( not exists(f) ) {
           std::cerr <<"the file '"<<f.native_file_string()<<"' does not exist"<<std::endl;
           return 1;
@@ -178,7 +178,7 @@ int main (int argc, char **argv)
     }
 
     path cacheFile(directory);
-    cacheFile /= edmplugin::standard::cachefileName();//path(s_cacheFile,boost::filesystem::no_check);
+    cacheFile /= edmplugin::standard::cachefileName();//path(s_cacheFile);
 
     CacheParser::LoadableToPlugins ltp;
     if(exists(cacheFile) ) {

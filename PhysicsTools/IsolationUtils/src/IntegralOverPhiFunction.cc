@@ -16,7 +16,7 @@
 //
 // Original Author:  Christian Veelken, UC Davis
 //         Created:  Thu Nov  2 13:47:40 CST 2006
-// $Id: IntegralOverPhiFunction.cc,v 1.3 2009/01/14 10:53:15 hegner Exp $
+// $Id: IntegralOverPhiFunction.cc,v 1.2 2007/05/28 09:59:50 llista Exp $
 //
 //
 
@@ -34,18 +34,50 @@
 #include "DataFormats/Math/interface/normalizedPhi.h"
 
 //
+// declaration of auxiliary functions
+//
+
+void checkSolutions(unsigned int i, unsigned int& numSolution1, unsigned int& numSolution2, unsigned int& numSolution3, unsigned int& numSolution4);
+
+//
 // constructors and destructor
 //
 
 IntegralOverPhiFunction::IntegralOverPhiFunction()
+  : ROOT::Math::ParamFunction<ROOT::Math::IParametricGradFunctionOneDim>(3)
 { 
   theta0_ = 0.; 
   phi0_ = 0.; 
   alpha_ = 0.; 
+
+// !!! ONLY FOR TESTING
+  numSolutionMin1_ = 0;
+  numSolutionMax1_ = 0;
+  numSolutionMin2_ = 0;
+  numSolutionMax2_ = 0;
+  numSolutionMin3_ = 0;
+  numSolutionMax3_ = 0;
+  numSolutionMin4_ = 0;
+  numSolutionMax4_ = 0;
+//     FOR TESTING ONLY !!!
 }
 
 IntegralOverPhiFunction::~IntegralOverPhiFunction()
-{}
+{
+// !!! ONLY FOR TESTING
+  if ( debugLevel_ > 0 ) {
+    edm::LogVerbatim("") << "<IntegralOverPhiFunction::~IntegralOverPhiFunction>:" << std::endl
+			 << " numSolutionMin1 = " << numSolutionMin1_ << std::endl
+			 << " numSolutionMax1 = " << numSolutionMax1_ << std::endl
+			 << " numSolutionMin2 = " << numSolutionMin2_ << std::endl
+			 << " numSolutionMax2 = " << numSolutionMax2_ << std::endl
+			 << " numSolutionMin3 = " << numSolutionMin3_ << std::endl
+			 << " numSolutionMax3 = " << numSolutionMax3_ << std::endl
+			 << " numSolutionMin4 = " << numSolutionMin4_ << std::endl
+			 << " numSolutionMax4 = " << numSolutionMax4_ << std::endl;
+  }
+//     FOR TESTING ONLY !!!
+}
 
 //
 // member functions
@@ -65,6 +97,24 @@ void IntegralOverPhiFunction::SetParameterAlpha(double alpha)
 {
   alpha_ = alpha;
 }
+
+void IntegralOverPhiFunction::SetParameters(double* param)
+{
+  theta0_ = param[0];
+  phi0_ = param[1];
+  alpha_ = param[2];
+}
+
+double IntegralOverPhiFunction::DoEvalPar(double x, const double* param) const  //FIXME: in the current implementation const is not entirely true
+{
+  theta0_ = param[0];
+  phi0_ = param[1];
+  alpha_ = param[2];
+
+  return DoEval(x);
+}
+
+
 
 double IntegralOverPhiFunction::DoEval(double x) const
 {
@@ -89,15 +139,8 @@ double IntegralOverPhiFunction::DoEval(double x) const
   double cscTheta0 = 1./TMath::Sin(theta0);
 //    (dependend on angle phi0;
 //     azimuth angle of cone axis)
-//    avoid phi0 exactly -Pi/2 or exactly +Pi/2
-//    (numerical expressions become ambiguous)
-  double phi0 = phi0_;
-  if ( phi0 >  (-TMath::Pi()/2 - epsilon) && phi0 <  -TMath::Pi()/2            ) phi0 = -TMath::Pi()/2 - epsilon;
-  if ( phi0 >=  -TMath::Pi()/2            && phi0 < (-TMath::Pi()/2 + epsilon) ) phi0 = -TMath::Pi()/2 + epsilon;
-  if ( phi0 >  ( TMath::Pi()/2 - epsilon) && phi0 <   TMath::Pi()/2            ) phi0 =  TMath::Pi()/2 - epsilon;
-  if ( phi0 >=   TMath::Pi()/2            && phi0 < ( TMath::Pi()/2 + epsilon) ) phi0 =  TMath::Pi()/2 + epsilon;
-  double cosPhi0 = TMath::Cos(phi0);
-  double tanPhi0 = TMath::Tan(phi0);
+  double cosPhi0 = TMath::Cos(phi0_);
+  double tanPhi0 = TMath::Tan(phi0_);
 //    (dependend on angle theta;
 //     polar angle of point within cone)
   double cosTheta = TMath::Cos(x);
@@ -126,7 +169,7 @@ double IntegralOverPhiFunction::DoEval(double x) const
   if ( s <= 0 ) {
     if ( TMath::Abs(x - theta0) >  alpha_ ) return 0;
     if ( TMath::Abs(x - theta0) <= alpha_ ) return 2*TMath::Pi();
-    edm::LogError("") << "Failed to compute return value !";
+    std::cerr << "Error in <IntegralOverPhiFunction::operator()>: failed to compute return value !" << std::endl;
   }
 
   double r = (1./TMath::Sqrt(2.))*(cscTheta*cscTheta*cscTheta0*cscTheta0*TMath::Sqrt(s)*tanPhi0);
@@ -139,11 +182,11 @@ double IntegralOverPhiFunction::DoEval(double x) const
   phi[3] =  TMath::ACos(t + r);
 
   if ( debugLevel_ > 0 ) {
-    edm::LogVerbatim("") << "phi0 = " << phi0 << std::endl
-			 << "phi[0] = " << phi[0] << " (phi[0] - phi0 = " << (phi[0] - phi0)*180/TMath::Pi() << ")" << std::endl
-			 << "phi[1] = " << phi[1] << " (phi[1] - phi0 = " << (phi[1] - phi0)*180/TMath::Pi() << ")" << std::endl
-			 << "phi[2] = " << phi[2] << " (phi[2] - phi0 = " << (phi[2] - phi0)*180/TMath::Pi() << ")" << std::endl
-			 << "phi[3] = " << phi[3] << " (phi[3] - phi0 = " << (phi[3] - phi0)*180/TMath::Pi() << ")" << std::endl;
+    edm::LogVerbatim("") << "phi0 = " << phi0_ << std::endl
+			 << "phi[0] = " << phi[0] << " (phi[0] - phi0 = " << (phi[0] - phi0_)*180/TMath::Pi() << ")" << std::endl
+			 << "phi[1] = " << phi[1] << " (phi[1] - phi0 = " << (phi[1] - phi0_)*180/TMath::Pi() << ")" << std::endl
+			 << "phi[2] = " << phi[2] << " (phi[2] - phi0 = " << (phi[2] - phi0_)*180/TMath::Pi() << ")" << std::endl
+			 << "phi[3] = " << phi[3] << " (phi[3] - phi0 = " << (phi[3] - phi0_)*180/TMath::Pi() << ")" << std::endl;
   }
 
   double phiMin = 0.;
@@ -153,11 +196,19 @@ double IntegralOverPhiFunction::DoEval(double x) const
 //--- search for the two solutions for phi
 //    that have an equal distance to phi0
 //    and are on either side
-      double dPhi_i = phi[i] - phi0;
-      double dPhi_j = phi0 - phi[j];
+      double dPhi_i = phi[i] - phi0_;
+      double dPhi_j = phi0_ - phi[j];
       if ( TMath::Abs(normalizedPhi(dPhi_i - dPhi_j)) < epsilon ) { // map difference in azimuth angle into interval [-pi,+pi] and require it to be negligible
+      //if ( TMath::Abs((phi[i] - phi0_) - (phi0_ - phi[j])) < epsilon ) { // map difference in azimuth angle into interval [-pi,+pi] and require it to be negligible
 	phiMin = TMath::Min(phi[i], phi[j]);
 	phiMax = TMath::Max(phi[i], phi[j]);
+
+// !!! ONLY FOR TESTING
+	if ( phi[i] == phiMin ) checkSolutions(i, numSolutionMin1_, numSolutionMin2_, numSolutionMin3_, numSolutionMin4_);
+	if ( phi[i] == phiMax ) checkSolutions(i, numSolutionMax1_, numSolutionMax2_, numSolutionMax3_, numSolutionMax4_);
+	if ( phi[j] == phiMin ) checkSolutions(j, numSolutionMin1_, numSolutionMin2_, numSolutionMin3_, numSolutionMin4_);
+	if ( phi[j] == phiMax ) checkSolutions(j, numSolutionMax1_, numSolutionMax2_, numSolutionMax3_, numSolutionMax4_);
+//     FOR TESTING ONLY !!!
       }
     }
   }
@@ -166,5 +217,52 @@ double IntegralOverPhiFunction::DoEval(double x) const
     edm::LogError("") << "failed to compute Return Value !" << std::endl;
   }
 
-  return TMath::Abs(normalizedPhi(phi0 - phiMin)) + TMath::Abs(normalizedPhi(phiMax - phi0));
+  return TMath::Abs(normalizedPhi(phi0_ - phiMin)) + TMath::Abs(normalizedPhi(phiMax - phi0_));
 }  
+
+double IntegralOverPhiFunction::DoDerivative(double x) const
+{
+//--- virtual function inherited from ROOT::Math::ParamFunction base class;
+//    not implemented, because not neccessary, but needs to be defined to make code compile...
+  edm::LogWarning("") << "Function not implemented yet !" << std::endl;
+
+  return 0.;
+}
+
+double IntegralOverPhiFunction::DoParameterDerivative(double, const double*, unsigned int) const
+{
+//--- virtual function inherited from ROOT::Math::ParamFunction base class;
+//    not implemented, because not neccessary, but needs to be defined to make code compile...
+  edm::LogWarning("") << "Function not implemented yet !" << std::endl;
+
+  return 0.;
+}
+
+void IntegralOverPhiFunction::DoParameterGradient(double x, double* paramGradient) const
+{
+//--- virtual function inherited from ROOT::Math::ParamFunction base class;
+//    not implemented, because not neccessary, but needs to be defined to make code compile...
+  edm::LogWarning("") << "Function not implemented yet !" << std::endl;
+}
+
+//
+// definition of auxiliary functions
+//
+
+void checkSolutions(unsigned int i, unsigned int& numSolution1, unsigned int& numSolution2, unsigned int& numSolution3, unsigned int& numSolution4)
+{
+  switch ( i ) {
+  case 0 : 
+    ++numSolution1;
+    break;
+  case 1 : 
+    ++numSolution2;
+    break;
+  case 2 : 
+    ++numSolution3;
+    break;
+  case 3 : 
+    ++numSolution4;
+    break;
+  }
+}

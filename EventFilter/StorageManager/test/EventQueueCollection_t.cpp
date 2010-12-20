@@ -170,9 +170,9 @@ create_queues_helper(boost::shared_ptr<EventQueueCollection> pcoll)
   cid.value = 0;
   for (int i = 0; i < 1000; ++i)
     {
+      ::usleep(2000); // 2000 microseconds
       pcoll->createQueue(++cid, DiscardNew);
       pcoll->createQueue(++cid, DiscardOld);
-      ::usleep(2000); // 1000 microseconds
     }
 }
 

@@ -18,7 +18,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 30 19:36:59 EDT 2005
-// $Id: DependentRecordIntervalFinder.h,v 1.8 2007/06/13 11:10:29 chrjones Exp $
+// $Id: DependentRecordIntervalFinder.h,v 1.9 2009/12/01 19:49:01 chrjones Exp $
 //
 
 // system include files
@@ -66,7 +66,7 @@ class DependentRecordIntervalFinder : public EventSetupRecordIntervalFinder
       Providers providers_;
       
       boost::shared_ptr<EventSetupRecordIntervalFinder> alternate_;
-      IOVSyncValue m_previousSyncTo;
+      std::vector<ValidityInterval> previousIOVs_;
 };
 
    }

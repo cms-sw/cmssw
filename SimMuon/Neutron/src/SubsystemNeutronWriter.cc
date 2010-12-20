@@ -29,7 +29,6 @@ SubsystemNeutronWriter::SubsystemNeutronWriter(edm::ParameterSet const& pset)
   theInputTag(pset.getParameter<edm::InputTag>("input")),
   theNeutronTimeCut(pset.getParameter<double>("neutronTimeCut")),
   theTimeWindow(pset.getParameter<double>("timeWindow")),
-  theT0(pset.getParameter<double>("t0")),
   theNEvents(0),
   initialized(false),
   useLocalDetId_(true)
@@ -129,7 +128,6 @@ void SubsystemNeutronWriter::writeHits(int chamberType, edm::PSimHitContainer & 
   sort(chamberHits.begin(), chamberHits.end(), SortByTime());
   edm::PSimHitContainer cluster;
   float startTime = -1000.;
-  float smearing = 0.;
   for(size_t i = 0; i < chamberHits.size(); ++i) {
     PSimHit hit = chamberHits[i];
     float tof = hit.tof();
@@ -140,11 +138,6 @@ void SubsystemNeutronWriter::writeHits(int chamberType, edm::PSimHitContainer & 
     if(tof > theNeutronTimeCut) {
       if(tof > (startTime + theTimeWindow) ) { // 1st in cluster
         startTime = tof;
-        // set the time to be [t0, t0+25] at start of event
-        smearing = theT0;
-        if(theRandFlat) {
-          smearing += theRandFlat->fire(25.);
-        }
         if(!cluster.empty()) {
           LogDebug("SubsystemNeutronWriter") << "filling old cluster";
           writeCluster(chamberType, cluster);
@@ -153,7 +146,13 @@ void SubsystemNeutronWriter::writeHits(int chamberType, edm::PSimHitContainer & 
         LogDebug("SubsystemNeutronWriter") << "starting neutron cluster at time " << startTime 
           << " on detType " << chamberType;
       }
-      adjust(hit, -1.*startTime, smearing);
+      // set the time to be 0 at start of event
+      float adjustment = -1.*startTime;
+      // see if smearing is needed
+      if(theRandFlat) {
+        adjustment += theRandFlat->fire(25.);
+      }
+      adjust(hit, -1.*startTime);
       cluster.push_back( hit );
     }
   }
@@ -174,14 +173,10 @@ void SubsystemNeutronWriter::writeCluster(int chamberType, const edm::PSimHitCon
 }
 
 
-void SubsystemNeutronWriter::adjust(PSimHit & h, float timeOffset, float smearing) {
+void SubsystemNeutronWriter::adjust(PSimHit & h, float timeOffset) {
   unsigned int detId = useLocalDetId_ ? localDetId(h.detUnitId()) : h.detUnitId();
-  float htime = h.timeOfFlight() + timeOffset + smearing;
-  // prevent float precision loss
-  if (h.timeOfFlight() > 1.E+6) {
-    htime = smearing;
-  }
-  h = PSimHit( h.entryPoint(), h.exitPoint(), h.pabs(), htime,
+  h = PSimHit( h.entryPoint(), h.exitPoint(), h.pabs(), 
+               h.timeOfFlight() + timeOffset,
                h.energyLoss(), h.particleType(), 
                detId, h.trackId(),
                h.momentumAtEntry().theta(),
@@ -197,5 +192,4 @@ void SubsystemNeutronWriter::updateCount(int chamberType) {
     ++(entry->second);
   }
 }
-
 

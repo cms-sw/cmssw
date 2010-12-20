@@ -6,8 +6,10 @@
 <use name="Fireworks/Core"/>
 <use name="Fireworks/Geometry"/>
 <use name="rootcore"/>
+<use name="rootinteractive"/>
 <lib name="Geom"/>
 <lib name="Eve"/>
+<lib name="RGL"/>
 <export>
 <lib name="1"/>
 </export>

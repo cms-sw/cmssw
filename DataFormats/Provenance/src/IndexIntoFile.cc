@@ -1043,7 +1043,13 @@ namespace edm {
     }
 
     while (indexToEvent_ >= nEvents_ && type_ != kEnd) {
-      next();
+      while (skipLumiInRun()) {
+        if (indexToEvent_  < nEvents_) {
+          skipEventForward(phIndexOfSkippedEvent, runOfSkippedEvent, lumiOfSkippedEvent, skippedEventEntry);
+          return;
+        }
+      }
+      advanceToNextRun();
     }
     if (type_ == kEnd) {
       phIndexOfSkippedEvent = invalidIndex;

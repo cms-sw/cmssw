@@ -120,11 +120,12 @@ class ConfigEditorTabController(BrowserTabController):
                     self.tab().centerView().setDataObjects(self.dataAccessor().nonSequenceChildren(select))
                 else:
                     self.tab().centerView().setDataObjects([])
-            else:
+            elif self.currentCenterViewClassId() == self.plugin().viewClassId(SequenceStructureView):
                 self.tab().centerView().setArrangeUsingRelations(False)
                 self.tab().centerView().setDataObjects([select])
                 self.tab().centerView().setConnections({})
-        if self.tab().centerView().updateContent(True):
+        if (self.currentCenterViewClassId() == self.plugin().viewClassId(ConnectionStructureView) or self.currentCenterViewClassId() == self.plugin().viewClassId(SequenceStructureView)) and \
+            self.tab().centerView().updateContent(True):
             if not self.dataAccessor().isContainer(select) and self.currentCenterViewClassId() == self.plugin().viewClassId(ConnectionStructureView):
                     self.tab().centerView().select(select,500)
             else:

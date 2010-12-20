@@ -1,13 +1,13 @@
 /**_________________________________________________________________
    class:   PVFitter.cc
    package: RecoVertex/BeamSpotProducer
-   
+
 
 
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
- 
-   version $Id: PVFitter.cc,v 1.14 2010/06/18 19:36:10 yumiceva Exp $
+
+   version $Id: PVFitter.cc,v 1.16 2010/11/03 13:44:17 friis Exp $
 
 ________________________________________________________________**/
 
@@ -51,7 +51,7 @@ PVFitter::PVFitter(const edm::ParameterSet& iConfig): ftree_(0)
 {
 
   debug_             = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("Debug");
-  vertexLabel_     = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<edm::InputTag>("VertexCollection");
+  vertexLabel_     = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<edm::InputTag>("VertexCollection", edm::InputTag("offlinePrimaryVertices"));
   do3DFit_           = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("Apply3DFit");
   //writeTxt_          = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("WriteAscii");
   //outputTxt_         = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<std::string>("AsciiFileName");
@@ -109,7 +109,7 @@ void PVFitter::readEvent(const edm::Event& iEvent)
   //edm::View<reco::Vertex> vertices;
   //const reco::VertexCollection & vertices = 0;
 
-  if ( iEvent.getByLabel("offlinePrimaryVertices", PVCollection ) ) {
+  if ( iEvent.getByLabel(vertexLabel_, PVCollection ) ) {
       //pv = *PVCollection;
       //vertices = *PVCollection;
       hasPVs = true;
@@ -122,13 +122,13 @@ void PVFitter::readEvent(const edm::Event& iEvent)
   if ( iEvent.getByLabel("offlineBeamSpot",recoBeamSpotHandle) )
       refBS = recoBeamSpotHandle.product();
   //-------
-  
- 
+
+
   if ( hasPVs ) {
-      
+
       for (reco::VertexCollection::const_iterator pv = PVCollection->begin(); pv != PVCollection->end(); ++pv ) {
 
-           
+
            //for ( size_t ipv=0; ipv != pv.size(); ++ipv ) {
 
           //--- vertex selection
@@ -165,7 +165,7 @@ void PVFitter::readEvent(const edm::Event& iEvent)
           pvData.posCorr[1] = pv->covariance(0,2)/pv->xError()/pv->zError();
           pvData.posCorr[2] = pv->covariance(1,2)/pv->yError()/pv->zError();
           pvStore_.push_back(pvData);
-          
+
 	  if(ftree_ != 0){
 	    theBeamSpotTreeData_.run(iEvent.id().run());
 	    theBeamSpotTreeData_.lumi(iEvent.luminosityBlock());
@@ -173,15 +173,15 @@ void PVFitter::readEvent(const edm::Event& iEvent)
 	    theBeamSpotTreeData_.pvData(pvData);
 	    ftree_->Fill();
 	  }
-	  
+
 	  if (fFitPerBunchCrossing) bxMap_[bx].push_back(pvData);
 
       }
-    
+
   }
-    
-    
-  
+
+
+
 
 }
 
@@ -196,13 +196,13 @@ bool PVFitter::runBXFitter() {
 
   bool fit_ok = true;
 
-  for ( std::map<int,std::vector<BeamSpotFitPVData> >::const_iterator pvStore = bxMap_.begin(); 
+  for ( std::map<int,std::vector<BeamSpotFitPVData> >::const_iterator pvStore = bxMap_.begin();
 	pvStore!=bxMap_.end(); ++pvStore) {
 
     // first set null beam spot in case
     // fit fails
     fbspotMap[pvStore->first] = reco::BeamSpot();
-    
+
     edm::LogInfo("PVFitter") << " Number of PVs collected for PVFitter: " << (pvStore->second).size() << " in bx: " << pvStore->first << std::endl;
 
     if ( (pvStore->second).size() <= minNrVertices_ ) {
@@ -213,7 +213,7 @@ bool PVFitter::runBXFitter() {
 
     //bool fit_ok = false;
     edm::LogInfo("PVFitter") << "Calculating beam spot with PVs ..." << std::endl;
-    
+
     //
     // LL function and fitter
     //
@@ -272,7 +272,7 @@ bool PVFitter::runBXFitter() {
     minuitx.ReleaseParameter(4);
     minuitx.ReleaseParameter(6);
     minuitx.ReleaseParameter(7);
-   
+
     ierr = minuitx.Minimize();
     if ( ierr ) {
         edm::LogInfo("PVFitter") << "3D beam spot fit failed in 3rd iteration" << std::endl;
@@ -282,7 +282,7 @@ bool PVFitter::runBXFitter() {
     // refit with floating scale factor
     //   minuitx.ReleaseParameter(9);
     //   minuitx.Minimize();
-  
+
     //minuitx.PrintResults(0,0);
 
     fwidthX = minuitx.GetParameter(3);
@@ -327,11 +327,11 @@ bool PVFitter::runBXFitter() {
 bool PVFitter::runFitter() {
 
     edm::LogInfo("PVFitter") << " Number of PVs collected for PVFitter: " << pvStore_.size() << std::endl;
-    
+
     if ( pvStore_.size() <= minNrVertices_ ) return false;
 
-    //bool fit_ok = false;  
-    
+    //bool fit_ok = false;
+
     if ( ! do3DFit_ ) {
       TH1F *h1PVx = (TH1F*) hPVx->ProjectionX("h1PVx", 0, -1, "e");
       TH1F *h1PVy = (TH1F*) hPVy->ProjectionX("h1PVy", 0, -1, "e");
@@ -356,7 +356,7 @@ bool PVFitter::runFitter() {
       matrix(2,2) = gausz->GetParError(1) * gausz->GetParError(1);
       matrix(3,3) = fwidthZerr * fwidthZerr;
       matrix(6,6) = fwidthXerr * fwidthXerr;
-      
+
       fbeamspot = reco::BeamSpot( reco::BeamSpot::Point(gausx->GetParameter(1),
                                                         gausy->GetParameter(1),
                                                         gausz->GetParameter(1) ),
@@ -375,7 +375,7 @@ bool PVFitter::runFitter() {
       //
       FcnBeamSpotFitPV* fcn = new FcnBeamSpotFitPV(pvStore_);
       TFitterMinuit minuitx;
-      minuitx.SetMinuitFCN(fcn); 
+      minuitx.SetMinuitFCN(fcn);
       //
       // fit parameters: positions, widths, x-y correlations, tilts in xz and yz
       //
@@ -451,7 +451,7 @@ bool PVFitter::runFitter() {
       matrix(2,2) = pow( minuitx.GetParError(2), 2);
       matrix(3,3) = fwidthZerr * fwidthZerr;
       matrix(6,6) = fwidthXerr * fwidthXerr;
-      
+
       fbeamspot = reco::BeamSpot( reco::BeamSpot::Point(minuitx.GetParameter(0),
                                                         minuitx.GetParameter(1),
                                                         minuitx.GetParameter(2) ),
@@ -486,7 +486,7 @@ void PVFitter::dumpTxtFile(){
     fasciiFile << "BeamWidthX " << fbeamspot.BeamWidthX() << std::endl;
     fasciiFile << "BeamWidthY " << fbeamspot.BeamWidthY() << std::endl;
   }
-	
+
   for (int i = 0; i<6; ++i) {
     fasciiFile << "Cov("<<i<<",j) ";
     for (int j=0; j<7; ++j) {
@@ -535,7 +535,7 @@ PVFitter::compressStore ()
   }
   pvStore_.resize(iwrite);
   edm::LogInfo("PVFitter") << "Reduced primary vertex store size to "
-                           << pvStore_.size() << " ; new dynamic quality cut = " 
+                           << pvStore_.size() << " ; new dynamic quality cut = "
                            << dynamicQualityCut_ << std::endl;
 
 }
@@ -546,7 +546,7 @@ PVFitter::pvQuality (const reco::Vertex& pv) const
   //
   // determinant of the transverse part of the PV covariance matrix
   //
-  return 
+  return
     pv.covariance(0,0)*pv.covariance(1,1)-
     pv.covariance(0,1)*pv.covariance(0,1);
 }

@@ -10,7 +10,6 @@
 <use   name="Geometry/DTGeometry"/>
 <use   name="MagneticField/Engine"/>
 <use   name="MagneticField/Records"/>
-<use   name="SimMuon/Neutron"/>
 <use   name="CLHEP"/>
 <use   name="root"/>
 <flags   EDM_PLUGIN="1"/>

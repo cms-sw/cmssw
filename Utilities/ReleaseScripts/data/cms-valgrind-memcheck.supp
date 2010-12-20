@@ -1,6 +1,6 @@
 #############################################################################
 #
-# $Id: cms-valgrind-memcheck.supp,v 1.3 2009/05/10 18:27:39 elmer Exp $
+# $Id: cms-valgrind-memcheck.supp,v 1.4 2009/10/27 19:18:47 elmer Exp $
 #
 # Valgrind memcheck suppression file for CMS. This is meant primarily for
 # suppressing problems reported for external packages which are known to
@@ -68,7 +68,7 @@
 
 
 #============================================================================
-# ROOT - taken from ROOT 5.18.00a, will need updating for newer ROOT versions
+# ROOT - taken from ROOT 5.22.00d, will need updating for newer ROOT versions
 
 ######### ROOT's RTTI
 {

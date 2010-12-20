@@ -161,6 +161,8 @@ struct PSetData
    bool        visible;
    // Whether or not any of the children matches the filter.
    bool        childMatches;
+   // Whether or not the contents of the GUI can be edited.
+   bool        editable;
    // Copy of the parameter set associated with this item.
    // We need to keep a copy, because updating a parameter
    // in a parameter set means actually creating a new one,
@@ -199,7 +201,7 @@ struct PathUpdate
 {
    std::string pathName;
    bool passed;
-   bool choiceMaker;
+   size_t  choiceMaker;
 };
 
 /** Attempt to create a table based editor for the PSET. */
@@ -297,6 +299,14 @@ public:
       s_italicRedGC.SetForeground(gVirtualX->GetPixel(kRed-5));
       return s_italicRedGC;
    }
+
+   const TGGC&
+   italicGray()
+   {
+      static TGGC s_italicGrayGC(italicGC());
+      s_italicGrayGC.SetForeground(gVirtualX->GetPixel(kGray+1));
+      return s_italicGrayGC;
+   }
   
    const TGGC&
    redGC()
@@ -342,14 +352,18 @@ public:
 
       m_pathFailedRenderer.setGraphicsContext(&boldRedGC());
       m_pathFailedRenderer.setHighlightContext(&pathBackgroundGC());
+      
+      m_editingDisabledRenderer.setGraphicsContext(&italicGray());
+      m_editingDisabledRenderer.setHighlightContext(&pathBackgroundGC());
 
       // Italic color doesn't seem to show up well event though
       // modules are displayed in italic
       m_modulePassedRenderer.setGraphicsContext(&boldGreenGC());
       m_moduleFailedRenderer.setGraphicsContext(&boldRedGC());
 
-      std::cout << "Available fonts: " << std::endl;
-      gClient->GetFontPool()->Print();
+      // Debug stuff to dump font list.
+//      std::cout << "Available fonts: " << std::endl;
+//      gClient->GetFontPool()->Print();
        
       reset();
    }
@@ -379,6 +393,7 @@ public:
             pathEntry.level= 0;
             pathEntry.parent = -1;
             pathEntry.path = i;
+            pathEntry.editable = false;
 
             PathInfo pathInfo;
             pathInfo.entryId = m_entries.size();
@@ -408,9 +423,10 @@ public:
                moduleEntry.label = pathModules[mi];
                moduleEntry.parent = m_parentStack.back();
                moduleEntry.level = m_parentStack.size();
-               moduleEntry.module = -1;
+               moduleEntry.module = mi;
                moduleEntry.path = i;
                moduleEntry.pset = *ps;
+               moduleEntry.editable = false;
                ModuleInfo moduleInfo;
                moduleInfo.path = m_paths.size() - 1;
                moduleInfo.entry = m_entries.size();
@@ -443,7 +459,7 @@ public:
          for (size_t pi = 0, pe = m_paths.size(); pi != pe; ++pi)
             m_paths[pi].passed = false;
          for (size_t mi = 0, me = m_modules.size(); mi != me; ++mi)
-            m_modules[mi].passed = false; 
+            m_modules[mi].passed = false;
          
          // Update whether or not a given path / module passed selection.
          for (size_t pui = 0, pue = pathUpdates.size(); pui != pue; ++pui)
@@ -591,7 +607,7 @@ public:
 
       int unsortedRow =  m_row_to_index[iSortedRowNumber];
       const PSetData& data = m_entries[unsortedRow];
-   
+
       std::string value;
       std::string label;
 
@@ -609,7 +625,7 @@ public:
       }
       else if (data.level == 1)
       {
-         const ModuleInfo &module = m_modules[data.module];
+         const ModuleInfo &module = m_modules[m_paths[data.path].moduleStart + data.module];
 
          label = data.label + " (" + data.value + ")";
          value = "";
@@ -628,7 +644,11 @@ public:
          else
             label = data.label;
          value = data.value;
-         renderer = &m_renderer;
+         
+         if (data.editable)
+            renderer = &m_renderer;
+         else
+            renderer = &m_editingDisabledRenderer;
       }
 
       renderer->setIndentation(0);
@@ -646,7 +666,7 @@ public:
       // If we are rendering the selected cell,
       // we show the editor.
       if (iCol == 1 && iSortedRowNumber == m_selectedRow && iCol == m_selectedColumn)
-         renderer->showEditor(true);
+         renderer->showEditor(data.editable);
       else
          renderer->showEditor(false);
 
@@ -679,7 +699,6 @@ public:
          T v;
          str >> v;
          bool fail = str.fail();
-         std::cerr << label << v << " " << fail << std::endl;
          if (tracked)
             ps.addParameter(label, v);
          else
@@ -698,6 +717,16 @@ public:
             ps.addUntrackedParameter(label, value);
       }
 
+   void editFileInPath(edm::ParameterSet &ps, bool tracked,
+                       const std::string &label,
+                       const std::string &value)
+      {
+        if (tracked)
+          ps.addParameter(label, edm::FileInPath(value));
+        else
+          ps.addUntrackedParameter(label, edm::FileInPath(value));
+      }
+
    bool editVInputTag(edm::ParameterSet &ps, bool tracked,
                       const std::string &label,
                       const std::string &value)
@@ -705,7 +734,7 @@ public:
         std::vector<edm::InputTag> inputTags;
         std::stringstream iss(value);
         std::string vitem;
-        bool fail;     
+        bool fail = false;
         size_t fst, lst;
 
         while (getline(iss, vitem, ','))
@@ -724,7 +753,6 @@ public:
           if ( nwords > 3 )
           {
             fail = true;
-            std::cerr<< label << value <<" "<< fail <<std::endl;
             return fail;
           }
           else 
@@ -765,7 +793,6 @@ public:
         if ( nwords > 3 ) 
         {
           fail = true;
-          std::cerr<< label << value <<" "<< fail <<std::endl;
         }
         else
         {           
@@ -803,7 +830,6 @@ public:
         if ( nwords > 2 )
         {
           fail = true;    
-          std::cerr<< label << value <<" "<< fail <<std::endl;
         }
         else
         {             
@@ -826,7 +852,6 @@ public:
         return fail;
       }
   
-
   template <typename T>
   void editVectorParameter(edm::ParameterSet &ps, bool tracked,
                            const std::string &label,
@@ -868,7 +893,6 @@ public:
          if (!m_editor)
             return;
          
-         std::cerr << "Editing cancelled" << std::endl;
          m_editor->UnmapWindow(); 
          
       }
@@ -906,10 +930,10 @@ public:
                   editNumericParameter<double>(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                case 'L':
-                  editNumericParameter<int64_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  editNumericParameter<long long>(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                case 'X':
-                  editNumericParameter<int64_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  editNumericParameter<unsigned long long>(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                case 'S':
                   editStringParameter(parent.pset, data.tracked, data.label, m_editor->GetText());
@@ -921,10 +945,10 @@ public:
                   editVectorParameter<uint32_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                case 'l':
-                  editVectorParameter<int64_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  editVectorParameter<long long>(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                case 'x':
-                  editVectorParameter<uint64_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  editVectorParameter<unsigned long long>(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                case 'd':
                   editVectorParameter<double>(parent.pset, data.tracked, data.label, m_editor->GetText());
@@ -941,8 +965,12 @@ public:
                case 'v':
                   editVInputTag(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
+               case 'F':
+                  editFileInPath(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  break;
                default:
                   std::cerr << "unsupported parameter" << std::endl;
+                  m_editor->UnmapWindow();
                   return false;
             }
             data.value = m_editor->GetText();
@@ -972,6 +1000,10 @@ public:
    int selectedRow() const {
       return m_selectedRow;
    }
+
+   int selectedColumn() const {
+      return m_selectedColumn;
+   }
    //virtual void sort (int col, bool reset = false);
    virtual bool rowIsSelected(int row) const 
    {
@@ -997,6 +1029,7 @@ public:
       data.module = m_modules.size() - 1;
       data.path = m_paths.size() - 1;
       data.pset = entry.pset();
+      data.editable = false;
       m_parentStack.push_back(m_entries.size());
       m_entries.push_back(data);
 
@@ -1015,6 +1048,7 @@ public:
       data.type = 'p';
       data.module = m_modules.size() - 1;
       data.path = m_paths.size() - 1;
+      data.editable = false;
       m_parentStack.push_back(m_entries.size());
       m_entries.push_back(data);
 
@@ -1031,6 +1065,7 @@ public:
           vdata.parent = m_parentStack.back();
           vdata.module = m_modules.size() - 1;
           vdata.path = m_paths.size() - 1;
+          vdata.editable = false;
           m_parentStack.push_back(m_entries.size());
           m_entries.push_back(vdata);
           handlePSet(entry.vpset()[i]);
@@ -1107,6 +1142,10 @@ public:
       data.parent = m_parentStack.back();
       data.module = m_modules.size() - 1;
       data.type = entry.typeCode();
+      if (data.label[0] == '@' || data.level > 2)
+         data.editable = false;
+      else
+         data.editable = true;
 
       switch(entry.typeCode())
       {
@@ -1226,12 +1265,12 @@ public:
         }
       case 'F':
         {
-          entry.getFileInPath().write(ss);
-          createScalarString(data, ss.str());
+          createScalarString(data, entry.getFileInPath().relativePath());
           break;
         }
       case 'e':
         {
+          data.editable = false;
           std::vector<edm::EventID> ids;
           ids.resize(entry.getVEventID().size());
           for ( size_t iri = 0, ire = ids.size(); iri != ire; ++iri )
@@ -1241,11 +1280,13 @@ public:
         }
       case 'E':
         {
+          data.editable = false;
           createScalarString(data, entry.getEventID());
           break;
         }
       case 'm':
         {
+          data.editable = false;
           std::vector<edm::LuminosityBlockID> ids;
           ids.resize(entry.getVLuminosityBlockID().size());
           for ( size_t iri = 0, ire = ids.size(); iri != ire; ++iri )
@@ -1255,11 +1296,13 @@ public:
         }
       case 'M':
         {
+          data.editable = false;
           createScalarString(data, entry.getLuminosityBlockID());
           break;
         }
       case 'a':
         {
+          data.editable = false;
           std::vector<edm::LuminosityBlockRange> ranges;
           ranges.resize(entry.getVLuminosityBlockRange().size());
           for ( size_t iri = 0, ire = ranges.size(); iri != ire; ++iri )
@@ -1269,11 +1312,13 @@ public:
         }
       case 'A':
         {
+          data.editable = false;
           createScalarString(data, entry.getLuminosityBlockRange());
           break;
         }
       case 'r':
         {
+          data.editable = false;
           std::vector<edm::EventRange> ranges;
           ranges.resize(entry.getVEventRange().size());
           for ( size_t iri = 0, ire = ranges.size(); iri != ire; ++iri )
@@ -1283,6 +1328,7 @@ public:
         }
       case 'R':
         {
+          data.editable = false;
           createScalarString(data, entry.getEventRange());
           break;          
         }
@@ -1335,6 +1381,9 @@ private:
    mutable FWTextTreeCellRenderer m_pathPassedRenderer;
    mutable FWTextTreeCellRenderer m_pathFailedRenderer;
 
+   // To be used to renderer cells that should appear as disabled.
+   mutable FWTextTreeCellRenderer m_editingDisabledRenderer;
+
    mutable FWTextTreeCellRenderer m_modulePassedRenderer;
    mutable FWTextTreeCellRenderer m_moduleFailedRenderer;
 };
@@ -1373,7 +1422,7 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper, FWGUIManager *guiManager)
           .addTextButton("Apply changes and reload", &m_apply);
 
    TGTextEntry *editor = new TGTextEntry(m_tableWidget->body(), "");
-   editor->SetBackgroundColor(gVirtualX->GetPixel(kCyan-9));
+   editor->SetBackgroundColor(gVirtualX->GetPixel(kYellow-7));
    m_psTable->setCellValueEditor(editor);
    editor->Connect("ReturnPressed()", "FWPathsPopup", this, "applyEditor()");
 
@@ -1439,15 +1488,34 @@ FWPathsPopup::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMo
    if (iColumn == 0)
    {
       m_psTable->setExpanded(iRow);
-      m_psTable->applyEditor();
+
+      // Save and close the previous editor, if required.
+      if (m_psTable->selectedColumn() == 1
+          && m_psTable->selectedRow() != -1)
+      {
+         int oldIndex = m_psTable->rowToIndex()[m_psTable->selectedRow()];
+         PSetData& oldData = m_psTable->data()[oldIndex];
+
+         if (oldData.editable)
+            applyEditor();
+      }
+
       m_psTable->setSelection(iRow, iColumn, iKeyMod);
-   }   
+   }
    else if (iColumn == 1)
    {
+      // If we selected a new cell, save the previous, if required.
+      if (m_psTable->selectedColumn() == 1 
+          && m_psTable->selectedRow() != -1)
+      {
+         int oldIndex = m_psTable->rowToIndex()[m_psTable->selectedRow()];
+         PSetData& oldData = m_psTable->data()[oldIndex];
+         if (oldData.editable)
+            applyEditor();
+      }
+         
       // Clear text on new row click
-      int index = m_psTable->rowToIndex()[iRow];
-      PSetData& data = m_psTable->data()[index];
-      std::cerr << data.label << " clicked" << std::endl;
+      // FIXME: int index = m_psTable->rowToIndex()[iRow];
       m_psTable->setSelection(iRow, iColumn, iKeyMod);
    }
 }
@@ -1517,7 +1585,7 @@ FWPathsPopup::postProcessEvent(edm::Event const& event, edm::EventSetup const& e
    {
       edm::TriggerNames triggerNames = event.triggerNames(*triggerResults);
      
-      for (size_t i = 0, ie = triggerResults->size(); i != ie; ++i)
+      for (size_t i = 0, e = triggerResults->size(); i != e; ++i)
       {
          PathUpdate update;
          update.pathName = triggerNames.triggerName(i);
@@ -1528,6 +1596,7 @@ FWPathsPopup::postProcessEvent(edm::Event const& event, edm::EventSetup const& e
    }
    m_psTable->updateSchedule(m_info);
    m_psTable->update(pathUpdates);
+   m_tableWidget->body()->DoRedraw();
 }
 
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
@@ -1557,7 +1626,6 @@ FWPathsPopup::scheduleReloadEvent()
          if (module.dirty == false)
             continue;
          PSetData &data = m_psTable->entries()[module.entry];
-         std::cerr << "Reloading " << data.label << " " << data.pset << std::endl;
          m_looper->requestChanges(data.label, data.pset);
       }
       m_hasChanges = true;

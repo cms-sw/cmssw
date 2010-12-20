@@ -44,7 +44,7 @@ namespace ZdcSimpleRecAlgoImpl {
 		     int ifirst, int n, bool slewCorrect, const HcalPulseContainmentCorrection* corr, HcalTimeSlew::BiasSetting slewFlavor) {
     CaloSamples tool;
     coder.adc2fC(digi,tool);
-    double ampl=0; int maxI = -1; double maxA = -1e10; float ta=0;
+    double ampl=0; int maxI = -1; double maxA = -1e10; double ta=0;
     double fc_ampl=0;
     for (int i=ifirst; i<tool.size() && i<n+ifirst; i++) {
       int capid=digi[i].capid();
@@ -58,7 +58,7 @@ namespace ZdcSimpleRecAlgoImpl {
       }
     }
     
-    float time=-9999;
+    double time=-9999;
     ////Cannot calculate time value with max ADC sample at first or last position in window....
     if(maxI==0 || maxI==(tool.size()-1)) {      
       LogDebug("HCAL Pulse") << "ZdcSimpleRecAlgo::reconstruct :" 
@@ -70,10 +70,10 @@ namespace ZdcSimpleRecAlgoImpl {
     } else {
       maxA=fabs(maxA);
       int capid=digi[maxI-1].capid();
-      float t0 = fabs((tool[maxI-1]-calibs.pedestal(capid))*calibs.respcorrgain(capid) );
+      double t0 = fabs((tool[maxI-1]-calibs.pedestal(capid))*calibs.respcorrgain(capid) );
       capid=digi[maxI+1].capid();
-      float t2 = fabs((tool[maxI+1]-calibs.pedestal(capid))*calibs.respcorrgain(capid) );    
-      float wpksamp = (t0 + maxA + t2);
+      double t2 = fabs((tool[maxI+1]-calibs.pedestal(capid))*calibs.respcorrgain(capid) );    
+      double wpksamp = (t0 + maxA + t2);
       if (wpksamp!=0) wpksamp=(maxA + 2.0*t2) / wpksamp; 
       time = (maxI - digi.presamples())*25.0 + timeshift_ns_zdc(wpksamp);
       if (corr!=0) {
@@ -97,7 +97,7 @@ namespace ZdcSimpleRecAlgoImpl {
 		     int ifirst, int n, bool slewCorrect, const HcalPulseContainmentCorrection* corr, HcalTimeSlew::BiasSetting slewFlavor) {
     CaloSamples tool;
     coder.adc2fC(digi,tool);
-    double ampl=0; int maxI = -1; double maxA = -1e10; float ta=0;
+    double ampl=0; int maxI = -1; double maxA = -1e10; double ta=0;
     double prenoise = 0; double postnoise = 0; 
     int noiseslices = 0;
     double noise = 0;
@@ -112,14 +112,21 @@ namespace ZdcSimpleRecAlgoImpl {
       noiseslices++;
     }
     
-    if(noiseslices != 0)
-      noise = (prenoise+postnoise)/float(noiseslices);
-    else
+    if(noiseslices != 0) {
+      noise = (prenoise+postnoise)/double(noiseslices);
+    } else {
       noise = 0;
- 
+    }
+ // factor to multiply by noise to make 0 or 1 to handle negative noise situations
+    double noisefactor=1.;
     for (int i=ifirst; i<tool.size() && i<n+ifirst; i++) {
       int capid=digi[i].capid();
-      ta = tool[i]-noise;
+      if(noise<0){
+      // flag hit as having negative noise, and don't subtract anything, because
+      // it will falsely increase the energy
+         noisefactor=0.;
+      } 
+      ta = tool[i]-noisefactor*noise;
       fc_ampl+=ta; 
       ta*= calibs.respcorrgain(capid) ; // fC --> GeV
       ampl+=ta;
@@ -128,35 +135,48 @@ namespace ZdcSimpleRecAlgoImpl {
 	maxI=i;
       }
     }
+//    if(ta<0){
+//      // flag hits that have negative energy
+//    }
 
-    float time=-9999;
+    double time=-9999;
     ////Cannot calculate time value with max ADC sample at first or last position in window....
     if(maxI==0 || maxI==(tool.size()-1)) {      
-      LogDebug("HCAL Pulse") << "ZdcSimpleRecAlgo::reconstruct :" 
+      LogDebug("HCAL Pulse") << "ZdcSimpleRecAlgo::reco2 :" 
 					       << " Invalid max amplitude position, " 
 					       << " max Amplitude: "<< maxI
 					       << " first: "<<ifirst
 					       << " last: "<<(tool.size()-1)
 					       << std::endl;
     } else {
-      maxA=fabs(maxA);
       int capid=digi[maxI-1].capid();
-      float t0 = fabs((tool[maxI-1]-calibs.pedestal(capid))*calibs.respcorrgain(capid) );
+      double Energy0 = ((tool[maxI-1])*calibs.respcorrgain(capid) );
+// if any of the energies used in the weight are negative, make them 0 instead
+// these are actually QIE values, not energy
+      if(Energy0<0){Energy0=0.;}
+      capid=digi[maxI].capid();
+      double Energy1 = ((tool[maxI])*calibs.respcorrgain(capid) ) ;
+      if(Energy1<0){Energy1=0.;}
       capid=digi[maxI+1].capid();
-      float t2 = fabs((tool[maxI+1]-calibs.pedestal(capid))*calibs.respcorrgain(capid) );    
-      float wpksamp = (t0 + maxA + t2);
-      if (wpksamp!=0) wpksamp=(maxA + 2.0*t2) / wpksamp; 
-      time = (maxI - digi.presamples())*25.0 + timeshift_ns_zdc(wpksamp);
+      double Energy2 = ((tool[maxI+1])*calibs.respcorrgain(capid) );
+      if(Energy2<0){Energy2=0.;}
+//
+      double TSWeightEnergy = ((maxI-1)*Energy0 + maxI*Energy1 + (maxI+1)*Energy2);
+      double EnergySum=Energy0+Energy1+Energy2;
+      double AvgTSPos=0.;
+      if (EnergySum!=0) AvgTSPos=TSWeightEnergy/ EnergySum; 
+// If time is zero, set it to the "nonsensical" -99
+// Time should be between 75ns and 175ns (Timeslices 3-7)
+      if(AvgTSPos==0){
+         time=-99;
+      } else {
+         time = (AvgTSPos*25.0);
+      }
       if (corr!=0) {
 	// Apply phase-based amplitude correction:
-	ampl *= corr->getCorrection(fc_ampl);
-	//std::cout << fc_ampl << " --> " << corr->getCorrection(fc_ampl) << std::endl;
+	       ampl *= corr->getCorrection(fc_ampl);
       }
-    
-      if (slewCorrect) time-=HcalTimeSlew::delay(std::max(1.0,fc_ampl),slewFlavor);
     }
-
-    time=time-calibs.timecorr(); // time calibration
     return RecHit(digi.id(),ampl,time);    
   }
 }

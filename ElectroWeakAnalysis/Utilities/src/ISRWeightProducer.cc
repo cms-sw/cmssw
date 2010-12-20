@@ -36,7 +36,7 @@ class ISRWeightProducer : public edm::EDProducer {
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 /////////////////////////////////////////////////////////////////////////////////////
 ISRWeightProducer::ISRWeightProducer(const edm::ParameterSet& pset) {
-      genTag_ = pset.getUntrackedParameter<edm::InputTag> ("GenTag", edm::InputTag("genPArticles"));
+      genTag_ = pset.getUntrackedParameter<edm::InputTag> ("GenTag", edm::InputTag("generator"));
 
   // Pt bin edges
       std::vector<double> defPtEdges;
@@ -71,7 +71,7 @@ void ISRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       if (iEvent.isRealData()) return;
 
       edm::Handle<reco::GenParticleCollection> genParticles;
-      iEvent.getByLabel(genTag_, genParticles);
+      iEvent.getByLabel("genParticles", genParticles);
       unsigned int gensize = genParticles->size();
 
       std::auto_ptr<double> weight (new double);

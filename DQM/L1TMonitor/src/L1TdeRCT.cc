@@ -6,10 +6,6 @@
  * this version contains single channel histos and 1D efficiencies
  */
 
-
-
-
-
 #include "DQM/L1TMonitor/interface/L1TdeRCT.h"
 
 // GCT and RCT data formats
@@ -31,10 +27,6 @@
 #include "TF2.h"
 
 #include <iostream>
-
-#include "CondFormats/RunInfo/interface/RunInfo.h"
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
-
 
 using namespace edm;
 
@@ -77,29 +69,6 @@ const float CHNLMIN = -0.5;
 const float CHNLMAX = 395.5;
 
 bool first = true ;
-
-
-const int L1TdeRCT::crateFED[90]=
-    {613, 614, 603, 702, 718,
-     611, 612, 602, 700, 718,
-     627, 610, 601,716,  722,
-     625, 626, 609, 714, 722,
-     623, 624, 608, 712, 722,
-     621, 622, 607, 710, 720,
-     619, 620, 606, 708, 720,
-     617, 618, 605, 706, 720,
-     615, 616, 604, 704, 718,
-     631, 632, 648, 703, 719,
-     629, 630, 647, 701, 719,
-     645, 628, 646, 717, 723,
-     643, 644, 654, 715, 723,
-     641, 642, 653, 713, 723,
-     639, 640, 652, 711, 721,
-     637, 638, 651, 709, 721,
-     635, 636, 650, 707, 721,
-     633, 634, 649, 705, 719
-};
-
 
 
 L1TdeRCT::L1TdeRCT(const ParameterSet & ps) :
@@ -688,23 +657,6 @@ void L1TdeRCT::beginJob(void)
       dbe->book2D("rctBitUnmatchedDataHfPlusTau2D", "2D HfPlusTau bit for unmatched hardware hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-
-    dbe->setCurrentFolder(histFolder_+"/DBData");
-    fedVectorMonitorRUN_ = dbe->book2D("rctFedVectorMonitorRUN", "FED Vector Monitor Per Run",90,0,90,2,0,2);
-    fedVectorMonitorLS_ = dbe->book2D("rctFedVectorMonitorLS", "FED Vector Monitor Per LS",90,0,90,2,0,2);
-
-    for(unsigned int i=0;i<90;++i) {
-      char fed[10];
-      sprintf(fed,"%d",crateFED[i]);
-      fedVectorMonitorRUN_->getTH2F()->GetXaxis()->SetBinLabel(i+1,fed);
-      fedVectorMonitorLS_->getTH2F()->GetXaxis()->SetBinLabel(i+1,fed);
-    }
-      fedVectorMonitorRUN_->getTH2F()->GetYaxis()->SetBinLabel(1,"OUT");
-      fedVectorMonitorRUN_->getTH2F()->GetYaxis()->SetBinLabel(2,"IN");
-      fedVectorMonitorLS_->getTH2F()->GetYaxis()->SetBinLabel(1,"OUT");
-      fedVectorMonitorLS_->getTH2F()->GetYaxis()->SetBinLabel(2,"IN");
-
-    
 
 // for single channels
 
@@ -1805,48 +1757,3 @@ void L1TdeRCT::DivideME1D(MonitorElement* numerator, MonitorElement* denominator
    res->Divide(num,den,1,1,"");
 
 }
-
-
-void L1TdeRCT::beginRun(const edm::Run& run , const edm::EventSetup& es) 
-{
-  readFEDVector(fedVectorMonitorRUN_,es);
-
-}
-
-void L1TdeRCT::beginLuminosityBlock(const edm::LuminosityBlock& ls,const edm::EventSetup& es)
-{
-  readFEDVector(fedVectorMonitorLS_,es);
-}
-
-void L1TdeRCT::readFEDVector(MonitorElement* histogram,const edm::EventSetup& es)
-{
-  // adding fed mask into channel mask
-  edm::ESHandle<RunInfo> sum;
-  es.get<RunInfoRcd>().get(sum);
-  const RunInfo* summary=sum.product();
-
-  std::vector<int> caloFeds;  // pare down the feds to the intresting ones
-
-  const std::vector<int> Feds = summary->m_fed_in;
-  for(std::vector<int>::const_iterator cf = Feds.begin(); cf != Feds.end(); ++cf){
-    int fedNum = *cf;
-    if(fedNum > 600 && fedNum <724) 
-      caloFeds.push_back(fedNum);
-  }
-  
-  for(unsigned int i=0;i<90;++i) {
-    std::vector<int>::iterator fv = std::find(caloFeds.begin(),caloFeds.end(),crateFED[i]);
-    if(fv!=caloFeds.end()) {
-      histogram->setBinContent(i+1,2,1);
-      histogram->setBinContent(i+1,1,0);
-    }
-    else
-      {
-	histogram->setBinContent(i+1,2,0);
-	histogram->setBinContent(i+1,1,1);
-
-      }
-    
-  }
-  
-} 

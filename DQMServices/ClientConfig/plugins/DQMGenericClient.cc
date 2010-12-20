@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2010/07/23 06:41:17 $
- *  $Revision: 1.19 $
+ *  $Date: 2010/07/30 13:10:15 $
+ *  $Revision: 1.20 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -124,7 +124,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
     opt.title = args[1];
     opt.numerator = args[2];
     opt.denominator = args[3];
-    opt.isProfile = false;
+    opt.isProfile = true;
 
     const string typeName = args.size() == 4 ? "eff" : args[4];
     if ( typeName == "eff" ) opt.type = 1;

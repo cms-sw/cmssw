@@ -71,7 +71,7 @@ subtract_(const uint32_t& detId,std::vector<T>& digis){
       offset = pairMedian(subset);
     }        
 
-    _vmedians.push_back(std::make_pair<short,float>(APV,offset));
+    _vmedians.push_back(std::pair<short,float>(APV,offset));
 
     // remove offset
     fs = digis.begin()+APV*128;

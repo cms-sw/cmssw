@@ -8,12 +8,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.16 2010/09/21 11:39:03 amraktad Exp $
+// $Id: FW3DViewBase.cc,v 1.17 2010/09/23 18:30:00 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
 // user include files
 
+#include "TGButton.h"
 #include "TGLScenePad.h"
 #include "TGLViewer.h"
 #include "TGLPerspectiveCamera.h"
@@ -125,6 +126,10 @@ FW3DViewBase::populateController(ViewerParameterGUI& gui) const
       addParam(&m_showMuonBarrel).
       addParam(&m_showMuonEndcap).
       addParam(&m_showWireFrame);
+
+   gui.requestTab("Style").separator();
+   gui.getTabContainer()->AddFrame(new TGTextButton(gui.getTabContainer(), "Root controls",
+                     Form("TEveGedEditor::SpawnNewEditor((TGLViewer*)0x%lx)", viewerGL())));
 }
 
 

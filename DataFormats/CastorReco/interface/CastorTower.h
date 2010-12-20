@@ -6,7 +6,7 @@
  *
  * \author Hans Van Haevermaet, University of Antwerp
  *
- * \version $Id: CastorTower.h,v 1.4 2010/01/22 14:14:38 hvanhaev Exp $
+ * \version $Id: CastorTower.h,v 1.3 2009/02/27 15:48:45 hvanhaev Exp $
  *
  */
 #include <vector>
@@ -16,28 +16,22 @@
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/SortedCollection.h"
 
-#include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
-//#include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h"
+#include "DataFormats/CastorReco/interface/CastorCell.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 
 namespace reco {
 
   class CastorTower : public LeafCandidate {
   public:
-     
-    typedef edm::SortedCollection<CastorRecHit> CastorRecHitCollection;
-    typedef edm::Ref<CastorRecHitCollection> CastorRecHitRef;
-    typedef edm::RefVector<CastorRecHitCollection> CastorRecHitRefs;
-    
+
     // default constructor. Set energy and position to zero
  
     CastorTower() : energy_(0.), position_(ROOT::Math::XYZPoint(0.,0.,0.)), emEnergy_(0.), hadEnergy_(0.), fem_(0.), depth_(0.), fhot_(0.) { }
 
     // constructor from values
     CastorTower(const double energy, const ROOT::Math::XYZPoint& position, const double emEnergy, const double hadEnergy, const double fem,
-		const double depth, const double fhot, const CastorRecHitRefs& usedRecHits);
+		const double depth, const double fhot, const CastorCellRefVector& usedCells);
 
     /// destructor
     virtual ~CastorTower();
@@ -63,20 +57,20 @@ namespace reco {
     /// tower  hotcell/tot ratio
     double fhot() const { return fhot_; }
 
-    /// vector of used RecHits
-    CastorRecHitRefs getUsedRecHits() const { return usedRecHits_; }
+    /// vector of used Cells
+    CastorCellRefVector getUsedCells() const { return usedCells_; }
 
-    /// fist iterator over CastorRecHit constituents
-    CastorRecHitRefs::iterator rechitsBegin() const { return usedRecHits_.begin(); }
+    /// fist iterator over CastorCell constituents
+    CastorCell_iterator cellsBegin() const { return usedCells_.begin(); }
 
-    /// last iterator over CastorRecHit constituents
-    CastorRecHitRefs::iterator rechitsEnd() const { return usedRecHits_.end(); }
+    /// last iterator over CastorCell constituents
+    CastorCell_iterator cellsEnd() const { return usedCells_.end(); }
 
-    /// number of CastorRecHit constituents
-    size_t rechitsSize() const { return usedRecHits_.size(); }
+    /// number of CastorCell constituents
+    size_t cellsSize() const { return usedCells_.size(); }
 
-    /// add reference to constituent CastorRecHit
-    void add( const CastorRecHitRef& rechit ) { usedRecHits_.push_back( rechit ); }
+    /// add reference to constituent CastorCell
+    void add( const CastorCellRef & cell ) { usedCells_.push_back( cell ); }
 
     /// comparison >= operator
     bool operator >=(const CastorTower& rhs) const { return (energy_>=rhs.energy_); }
@@ -128,8 +122,8 @@ namespace reco {
     /// tower  hotcell/tot ratio
     double fhot_;
 
-    /// references to CastorRecHit constituents
-    CastorRecHitRefs usedRecHits_;
+    /// references to CastorCell constituents
+    CastorCellRefVector usedCells_;
   };
   
   /// collection of CastorTower objects
