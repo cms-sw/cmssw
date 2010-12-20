@@ -71,8 +71,8 @@ LumiDetails::fill(AlgoType algo,
 }
 
 void
-LumiDetails::fillBeamIntensities(std::vector<short> const& beam1Intensities,
-                                 std::vector<short> const& beam2Intensities) {
+LumiDetails::fillBeamIntensities(std::vector<float> const& beam1Intensities,
+                                 std::vector<float> const& beam2Intensities) {
   m_beam1Intensities = beam1Intensities;
   m_beam2Intensities = beam2Intensities;
 }
@@ -95,12 +95,12 @@ LumiDetails::lumiQuality(AlgoType algo, unsigned int bx) const {
   return m_allQualities[m_algoToFirstIndex[algo] + bx];
 }
 
-short
+float
 LumiDetails::lumiBeam1Intensity(unsigned int bx) const {
   return m_beam1Intensities.at(bx);
 }
 
-short
+float
 LumiDetails::lumiBeam2Intensity(unsigned int bx) const {
   return m_beam2Intensities.at(bx);
 }
@@ -126,12 +126,12 @@ LumiDetails::lumiQualitiesForAlgo(AlgoType algo) const {
                       m_allQualities.begin() + m_algoToFirstIndex[algo + 1U]);
 }
 
-std::vector<short> const&
+std::vector<float> const&
 LumiDetails::lumiBeam1Intensities() const {
   return m_beam1Intensities;
 }
 
-std::vector<short> const&
+std::vector<float> const&
 LumiDetails::lumiBeam2Intensities() const {
   return m_beam2Intensities;
 }
@@ -215,15 +215,15 @@ std::ostream& operator<<(std::ostream& s, LumiDetails const& lumiDetails) {
     s << "\n";
   }
   s << "beam 1 intensities:\n";
-  std::vector<short> const& beam1Intensities = lumiDetails.lumiBeam1Intensities();
-  for (std::vector<short>::const_iterator intensity = beam1Intensities.begin(),
+  std::vector<float> const& beam1Intensities = lumiDetails.lumiBeam1Intensities();
+  for (std::vector<float>::const_iterator intensity = beam1Intensities.begin(),
 	                                       iEnd = beam1Intensities.end();
        intensity != iEnd; ++intensity) {
     s << *intensity << "\n";
   }
   s << "\nbeam 2 intensities:\n";
-  std::vector<short> const& beam2Intensities = lumiDetails.lumiBeam2Intensities();
-  for (std::vector<short>::const_iterator intensity = beam2Intensities.begin(),
+  std::vector<float> const& beam2Intensities = lumiDetails.lumiBeam2Intensities();
+  for (std::vector<float>::const_iterator intensity = beam2Intensities.begin(),
 	                                       iEnd = beam2Intensities.end();
        intensity != iEnd; ++intensity) {
     s << *intensity << "\n";

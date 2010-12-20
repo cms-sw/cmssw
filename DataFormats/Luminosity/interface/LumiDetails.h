@@ -52,20 +52,20 @@ public:
             std::vector<float> const& errors,
             std::vector<short> const& qualities);
 
-  void fillBeamIntensities(std::vector<short> const& beam1Intensities,
-                           std::vector<short> const& beam2Intensities);
+  void fillBeamIntensities(std::vector<float> const& beam1Intensities,
+                           std::vector<float> const& beam2Intensities);
 
   float lumiValue(AlgoType algo, unsigned int bx) const;
   float lumiError(AlgoType algo, unsigned int bx) const;
   short lumiQuality(AlgoType algo, unsigned int bx) const;
-  short lumiBeam1Intensity(unsigned int bx) const;
-  short lumiBeam2Intensity(unsigned int bx) const;
+  float lumiBeam1Intensity(unsigned int bx) const;
+  float lumiBeam2Intensity(unsigned int bx) const;
 
   ValueRange lumiValuesForAlgo(AlgoType algo) const;
   ErrorRange lumiErrorsForAlgo(AlgoType algo) const;
   QualityRange lumiQualitiesForAlgo(AlgoType algo) const;
-  std::vector<short> const& lumiBeam1Intensities() const;
-  std::vector<short> const& lumiBeam2Intensities() const;
+  std::vector<float> const& lumiBeam1Intensities() const;
+  std::vector<float> const& lumiBeam2Intensities() const;
 
   bool isProductEqual(LumiDetails const& lumiDetails) const;
 
@@ -91,8 +91,8 @@ private:
   std::vector<float> m_allValues;
   std::vector<float> m_allErrors;
   std::vector<short> m_allQualities;
-  std::vector<short> m_beam1Intensities;
-  std::vector<short> m_beam2Intensities;
+  std::vector<float> m_beam1Intensities;
+  std::vector<float> m_beam2Intensities;
 };
 
 std::ostream& operator<<(std::ostream & s, LumiDetails const& lumiDetails);

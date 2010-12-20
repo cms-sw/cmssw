@@ -51,39 +51,39 @@ void
 TestLumiDetails::testFill() {
   LumiDetails lumiDetails;
   std::vector<float> val;
-  val.push_back(1.0);
-  val.push_back(2.0);
-  val.push_back(3.0);
+  val.push_back(1.0f);
+  val.push_back(2.0f);
+  val.push_back(3.0f);
 
   std::vector<float> err;
-  err.push_back(4.0);
-  err.push_back(5.0);
-  err.push_back(6.0);
+  err.push_back(4.0f);
+  err.push_back(5.0f);
+  err.push_back(6.0f);
  
   std::vector<short> qual;
   qual.push_back(7);
   qual.push_back(8);
   qual.push_back(9);
 
-  std::vector<short> beam1;
-  beam1.push_back(10);
-  beam1.push_back(11);
-  beam1.push_back(12);
+  std::vector<float> beam1;
+  beam1.push_back(10.0f);
+  beam1.push_back(11.0f);
+  beam1.push_back(12.0f);
 
-  std::vector<short> beam2;
-  beam2.push_back(13);
-  beam2.push_back(14);
-  beam2.push_back(15);
+  std::vector<float> beam2;
+  beam2.push_back(13.0f);
+  beam2.push_back(14.0f);
+  beam2.push_back(15.0f);
 
   lumiDetails.fill(2, val, err, qual);
   lumiDetails.fillBeamIntensities(beam1, beam2);
 
 
   std::vector<float> val0;
-  val0.push_back(1.0);
+  val0.push_back(1.0f);
 
   std::vector<float> err0;
-  err0.push_back(4.0);
+  err0.push_back(4.0f);
  
   std::vector<short> qual0;
   qual0.push_back(7);
@@ -96,12 +96,12 @@ TestLumiDetails::testFill() {
   lumiDetails.fill(1, val1, err1, qual1);
 
   std::vector<float> val3;
-  val3.push_back(11.0);
-  val3.push_back(11.0);
+  val3.push_back(11.0f);
+  val3.push_back(11.0f);
 
   std::vector<float> err3;
-  err3.push_back(21.0);
-  err3.push_back(21.0);
+  err3.push_back(21.0f);
+  err3.push_back(21.0f);
  
   std::vector<short> qual3;
   qual3.push_back(31);
@@ -118,9 +118,9 @@ TestLumiDetails::testFill() {
     CPPUNIT_ASSERT(*val == i);
   }
   std::cout << "\n";
-  CPPUNIT_ASSERT(lumiDetails.lumiValue(2,0) == 1);
-  CPPUNIT_ASSERT(lumiDetails.lumiValue(2,1) == 2);
-  CPPUNIT_ASSERT(lumiDetails.lumiValue(2,2) == 3);
+  CPPUNIT_ASSERT(lumiDetails.lumiValue(2,0) == 1.0f);
+  CPPUNIT_ASSERT(lumiDetails.lumiValue(2,1) == 2.0f);
+  CPPUNIT_ASSERT(lumiDetails.lumiValue(2,2) == 3.0f);
 
   LumiDetails::ErrorRange rangeErr = lumiDetails.lumiErrorsForAlgo(2);
   std::cout << "errors\n";
@@ -131,9 +131,9 @@ TestLumiDetails::testFill() {
     CPPUNIT_ASSERT(*err == i);
   }
   std::cout << "\n";
-  CPPUNIT_ASSERT(lumiDetails.lumiError(2,0) == 4);
-  CPPUNIT_ASSERT(lumiDetails.lumiError(2,1) == 5);
-  CPPUNIT_ASSERT(lumiDetails.lumiError(2,2) == 6);
+  CPPUNIT_ASSERT(lumiDetails.lumiError(2,0) == 4.0f);
+  CPPUNIT_ASSERT(lumiDetails.lumiError(2,1) == 5.0f);
+  CPPUNIT_ASSERT(lumiDetails.lumiError(2,2) == 6.0f);
 
   LumiDetails::QualityRange rangeQual = lumiDetails.lumiQualitiesForAlgo(2);
   std::cout << "qualities\n";
@@ -148,33 +148,33 @@ TestLumiDetails::testFill() {
   CPPUNIT_ASSERT(lumiDetails.lumiQuality(2,1) == 8);
   CPPUNIT_ASSERT(lumiDetails.lumiQuality(2,2) == 9);
 
-  std::vector<short> const& beam1Intensities = lumiDetails.lumiBeam1Intensities();
+  std::vector<float> const& beam1Intensities = lumiDetails.lumiBeam1Intensities();
   std::cout << "beam1Intensities\n";
   i = 10;
-  for (std::vector<short>::const_iterator beam1 = beam1Intensities.begin(),
+  for (std::vector<float>::const_iterator beam1 = beam1Intensities.begin(),
 	                               beam1End = beam1Intensities.end();
        beam1 != beam1End; ++beam1, ++i) {
     std::cout << *beam1 << "\n";
     CPPUNIT_ASSERT(*beam1 == i);
   }
   std::cout << "\n";
-  CPPUNIT_ASSERT(lumiDetails.lumiBeam1Intensity(0) == 10);
-  CPPUNIT_ASSERT(lumiDetails.lumiBeam1Intensity(1) == 11);
-  CPPUNIT_ASSERT(lumiDetails.lumiBeam1Intensity(2) == 12);
+  CPPUNIT_ASSERT(lumiDetails.lumiBeam1Intensity(0) == 10.0f);
+  CPPUNIT_ASSERT(lumiDetails.lumiBeam1Intensity(1) == 11.0f);
+  CPPUNIT_ASSERT(lumiDetails.lumiBeam1Intensity(2) == 12.0f);
 
-  std::vector<short> const& beam2Intensities = lumiDetails.lumiBeam2Intensities();
+  std::vector<float> const& beam2Intensities = lumiDetails.lumiBeam2Intensities();
   std::cout << "beam2Intensities\n";
   i = 13;
-  for (std::vector<short>::const_iterator beam2 = beam2Intensities.begin(),
+  for (std::vector<float>::const_iterator beam2 = beam2Intensities.begin(),
 	                               beam2End = beam2Intensities.end();
        beam2 != beam2End; ++beam2, ++i) {
     std::cout << *beam2 << "\n";
     CPPUNIT_ASSERT(*beam2 == i);
   }
   std::cout << "\n";
-  CPPUNIT_ASSERT(lumiDetails.lumiBeam2Intensity(0) == 13);
-  CPPUNIT_ASSERT(lumiDetails.lumiBeam2Intensity(1) == 14);
-  CPPUNIT_ASSERT(lumiDetails.lumiBeam2Intensity(2) == 15);
+  CPPUNIT_ASSERT(lumiDetails.lumiBeam2Intensity(0) == 13.0f);
+  CPPUNIT_ASSERT(lumiDetails.lumiBeam2Intensity(1) == 14.0f);
+  CPPUNIT_ASSERT(lumiDetails.lumiBeam2Intensity(2) == 15.0f);
 
   CPPUNIT_ASSERT(lumiDetails.isProductEqual(lumiDetails));
 
