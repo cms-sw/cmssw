@@ -700,7 +700,7 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
 // 	if(specDetId.glued()) if(subdet==6 || subdet==4){         // check if on double layer in TEC or TID
 	  
 // 	  const GeomDetUnit* theDetUnit = geometry->idToDetUnit(det);
-// 	  const StripTopology& topol=(const StripTopology&)theDetUnit->topology();      
+// 	  const StripTopology& topol=(const StripTopology&)theDetUnit->type().topology();      
 	  
 // 	  // check if radial topology
 // 	  if(dynamic_cast <const RadialStripTopology*>(&topol)){
