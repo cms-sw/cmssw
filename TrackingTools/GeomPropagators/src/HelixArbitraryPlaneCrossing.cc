@@ -33,7 +33,7 @@ HelixArbitraryPlaneCrossing::HelixArbitraryPlaneCrossing(const PositionType& poi
   theCosPhi0 = px*ptI;
   theSinPhi0 = py*ptI;
   theCosTheta = pz*pI;
-  theSinTheta = pt*pI;
+  theSinTheta = pt2*ptI*pI;
 }
 //
 // Propagation status and path length to intersection
@@ -130,9 +130,9 @@ HelixArbitraryPlaneCrossing::positionInDouble (double s) const {
 //    if ( fabs(theCachedDPhi)>1.e-1 ) {
   if ( std::abs(theCachedDPhi)>1.e-4 ) {
     // "standard" helix formula
-    double or = 1./theRho;
-    return PositionTypeDouble(theX0+(-theSinPhi0*(1.-theCachedCDPhi)+theCosPhi0*theCachedSDPhi)*or,
-			      theY0+( theCosPhi0*(1.-theCachedCDPhi)+theSinPhi0*theCachedSDPhi)*or,
+    double o = 1./theRho;
+    return PositionTypeDouble(theX0+(-theSinPhi0*(1.-theCachedCDPhi)+theCosPhi0*theCachedSDPhi)*o,
+			      theY0+( theCosPhi0*(1.-theCachedCDPhi)+theSinPhi0*theCachedSDPhi)*o,
 			      theZ0+theCachedS*theCosTheta);
     }
 //    else if ( fabs(theCachedDPhi)>theNumericalPrecision ) {

@@ -74,9 +74,9 @@ HelixForwardPlaneCrossing::position (double s) const {
   if ( std::abs(theCachedDPhi)>1.e-4 ) {
     // "standard" helix formula
     // "standard" helix formula
-    double or = 1./theRho;
-    return PositionTypeDouble(theX0+(-theSinPhi0*(1.-theCachedCDPhi)+theCosPhi0*theCachedSDPhi)*or,
-			      theY0+( theCosPhi0*(1.-theCachedCDPhi)+theSinPhi0*theCachedSDPhi)*or,
+    double o = 1./theRho;
+    return PositionTypeDouble(theX0+(-theSinPhi0*(1.-theCachedCDPhi)+theCosPhi0*theCachedSDPhi)*o,
+			      theY0+( theCosPhi0*(1.-theCachedCDPhi)+theSinPhi0*theCachedSDPhi)*o,
 			      theZ0+theCachedS*theCosTheta);
   }
   else {
