@@ -264,7 +264,7 @@ class EgammaDQMModuleMaker:
 
             #--------------------
 
-            print >> sys.stderr,"WARNING: unknown module type", module.type_(), " with name " + moduleName
+            print >> sys.stderr,"WARNING: unknown module type", module.type_(), " with name " + moduleName + " in path " + pathName
             
 
                                          
@@ -355,9 +355,16 @@ class EgammaDQMModuleMaker:
         inputType = getattr(self.process, inputCollectionLabel).type_()
         # print >> sys.stderr, "inputType=",inputType,moduleName
 
+        #--------------------
         # sanity check: non-isolated path should be produced by the
         # same type of module
+        #
+        # first check that the non-iso tag is non-empty
+        assert(module.nonIsoTag.moduleLabel != "")
+
         assert(inputType == getattr(self.process, module.nonIsoTag.moduleLabel).type_())
+
+        #--------------------
 
 
         # the following cases seem to have identical PSets ?
@@ -489,3 +496,113 @@ if __name__ == "__main__":
     # print "# ----------------------------------------------------------------------"
 
     print moduleMaker.getResult().dumpPython()
+
+#----------------------------------------------------------------------
+
+def findEgammaPaths(process):
+    """
+    returns a dict:
+
+     {
+       "singleElectron": [ list of single electron path objects ],
+       "doubleElectron": [ list of double electron path objects ],
+       "singlePhoton":   [ list of single photon path objects ],
+       "doublePhoton":   [ list of double photon path objects ],
+     }
+
+     Note that the elements in the lists are path objects, not path names.
+
+     Note also that this is based on the name of the paths using some
+     heuristics.
+     """
+
+    retval = { "singleElectron": [],
+               "doubleElectron": [],
+               "singlePhoton":   [],
+               "doublePhoton":   [],
+               }
+    
+    for path_name, path in process.paths.items():
+
+        # print "XX",path_name.__class__,path.__class__
+
+        if path_name.startswith("AlCa_"):
+            continue
+
+        if path_name.startswith("DQM_"):
+            continue
+
+        if not path_name.startswith("HLT_"):
+            continue
+
+        if path_name.startswith("HLT_Ele"):
+            retval['singleElectron'].append(path)
+            continue
+        
+        if path_name.startswith("HLT_Photon"):
+            retval['singlePhoton'].append(path)
+            continue
+
+        if path_name.startswith("HLT_DoublePhoton"):
+            retval['doublePhoton'].append(path)
+            continue
+
+        if path_name.startswith("HLT_DoubleEle"):
+            retval['doubleElectron'].append(path)
+            continue
+
+    # end of loop over paths
+    return retval
+
+#----------------------------------------------------------------------
+
+def getModuleNamesOfPath(path):
+    """ returns the names of the modules found in the given path.
+
+    Note that these are not guaranteed to be in any particular
+    order.
+    """
+
+    import FWCore.ParameterSet.Modules
+    class Visitor:
+
+        #----------------------------------------
+        def __init__(self):
+            self.module_names_found = set()
+
+        #----------------------------------------
+        def enter(self,visitee):
+
+            if isinstance(visitee, FWCore.ParameterSet.Modules._Module):
+                self.module_names_found.add(visitee.label_())
+
+        #----------------------------------------
+        def leave(self,visitee):
+            pass
+
+        #----------------------------------------
+                
+    visitor = Visitor()
+    path.visit(visitor)
+
+    return visitor.module_names_found
+
+
+#----------------------------------------------------------------------
+def getCXXTypesOfPath(process, path):
+    """ returns the names of (classes) of the C++ types of the modules
+    found in the given path (in no particular order) """
+
+    moduleNames = getModuleNamesOfPath(path)
+
+    retval = set()
+
+    for name in moduleNames:
+
+        module = getattr(process, name)
+
+        retval.add(module.type_())
+
+    return retval
+
+#----------------------------------------------------------------------
