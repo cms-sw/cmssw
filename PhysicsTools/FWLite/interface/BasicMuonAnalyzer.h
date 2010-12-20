@@ -6,7 +6,7 @@
 
 /**
    \class BasicMuonAnalyzer BasicMuonAnalyzer.h "PhysicsTools/FWLite/interface/BasicMuonAnalyzer.h"
-   \brief Example class that can be used both within FWLite and within the ful framework
+   \brief Example class that can be used both within FWLite and within the full framework
 
    This is an example for keeping classes that can be used both within FWLite and within the full 
    framework. The class is derived from the BasicAnalyzer base class, which is an interface for 
