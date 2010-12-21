@@ -100,12 +100,15 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
     }
   }
 
+
+#ifdef EDM_LM_DEBUG
   if (theVolume != 0) {
     LogDebug("RKPropagatorInS")  << "RKPropagatorInS: starting prop to plane in volume with pos " << theVolume->position()
 	      << " Z axis " << theVolume->toGlobal( LocalVector(0,0,1)) ;
 
     LogDebug("RKPropagatorInS")  << "The starting position is " << ts.position() << " (global) "
 	      << theVolume->toLocal(ts.position()) << " (local) " ;
+  
     FrameChanger changer;
     FrameChanger::PlanePtr localPlane = changer.transformPlane( plane, *theVolume);
     LogDebug("RKPropagatorInS")  << "The plane position is " << plane.position() << " (global) "
@@ -117,6 +120,7 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
     std::pair<bool,double> res3 = cross.pathLength(plane);
     LogDebug("RKPropagatorInS")  << "straight line distance " << res3.first << " " << res3.second ;
   }
+#endif
 
   typedef RKAdaptiveSolver<double,RKOneCashKarpStep, 6>   Solver;
   typedef Solver::Vector                                  RKVector;
@@ -168,6 +172,7 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
     stot += sstep;
     CartesianStateAdaptor cur( rkresult);
     double remainingZ = plane.localZ( globalPosition(cur.position()));
+
     if ( fabs(remainingZ) < eps) {
       LogDebug("RKPropagatorInS")  << "On-surface accuracy reached! " << remainingZ ;
       GlobalTrajectoryParameters res( gtpFromVolumeLocal( cur, ts.charge()));
@@ -175,6 +180,7 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
     }
 
     start = rkresult;
+
     if (remainingZ * startZ > 0) {
       LogDebug("RKPropagatorInS")  << "Accuracy not reached yet, trying in same direction again " 
 		<< remainingZ ;
