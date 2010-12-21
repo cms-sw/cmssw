@@ -18,7 +18,7 @@ relval = {
 			'memcheck': (5, ['TTbar']),
 			'pileup': ['TTbar'],
 			'pileupInput': puSTARTUP_TTBAR,
-			'fileInput': [INPUT_MINBIAS+','+INPUT_TTBAR],
+			'fileInput': [INPUT_MINBIAS,INPUT_TTBAR],
 			'cmsdriver': '--eventcontent RECOSIM --conditions auto:startup' },
 
 	'GENSIMDIGI': {	'step': 'GEN-SIM,DIGI',
