@@ -56,8 +56,8 @@ public:
     iov.debug();
     Tm start;
     Tm stop;
-    start.setToString("2010-11-10 10:56:12");
-    stop.setToString("2010-11-11 12:16:17");
+    start.setToString("2010-11-11 20:56:12");
+    stop.setToString("2010-11-12 12:16:17");
     iov.setStart(start);
     iov.setStop(stop);
     econn->insertLmfIOV(&iov);
@@ -96,11 +96,11 @@ public:
       if (rand() > RAND_MAX*0.5) {
 	coeff.setP123(subiov1, *i, 1., 2., 3., 0.1, 0.2, 0.3);
 	coeff.setFlag(subiov1, *i, 0);
-	coeff.setSequence(subiov1, *i, 2);
+	coeff.setSequence(subiov1, *i, 9);
       } else {
 	coeff.setP123(subiov2, *i, 1., 2., 3., 0.1, 0.2, 0.3);
 	coeff.setFlag(subiov2, *i, 0);
-	coeff.setSequence(subiov2, *i, 2);
+	coeff.setSequence(subiov2, *i, 9);
 	if (check) {
 	  if (rand() > 0.5*RAND_MAX) {
 	    coeff.dump();
