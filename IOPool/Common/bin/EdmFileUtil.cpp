@@ -308,5 +308,5 @@ int main(int argc, char* argv[]) {
               << "EdmFileUtil";
     rc = 2;
   }
-  return 0;
+  return rc;
 }
