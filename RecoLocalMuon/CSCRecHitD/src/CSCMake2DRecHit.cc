@@ -202,9 +202,8 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   }
 
   // Calculate wire time to the half bx level using time bins on
-  // Store wire time with a precision of 0.01 as an int (multiply by 100)
-  // Convert from bx to ns (multiply by 25)
-  int scaledWireTime = 100*findWireBx(wHit.timeBinsOn(), tpeak,id)*25; 
+  // Store wire Bx times two in Rec Hit so it can be stored as an int
+  int twiceWireBx = 2*findWireBx(wHit.timeBinsOn(), tpeak);
 
   /// store rechit
 
@@ -216,7 +215,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
      CSCRecHit2D rechit( id, lp0, localerr, L1A_and_strips,                  /// L1A;
      //adcMap, wgroups, tpeak, positionWithinTheStrip,
       adcMap, BX_and_wgroups, tpeak, positionWithinTheStrip,        /// BX
-      sigmaWithinTheStrip/stripWidth, quality, sHit.deadStrip(), wHit.deadWG(), scaledWireTime);
+      sigmaWithinTheStrip/stripWidth, quality, sHit.deadStrip(), wHit.deadWG(), twiceWireBx);
 
   /// To see RecHit content (L1A feature included) (to be commented out)
   // rechit.print();
@@ -251,13 +250,12 @@ void CSCMake2DRecHit::setConditions( const CSCRecoConditions* reco ) {
   recoConditions_ = reco;
 } 
 
-float CSCMake2DRecHit::findWireBx(std::vector <int> timeBinsOn, float tpeak ,const CSCDetId& id) {
+float CSCMake2DRecHit::findWireBx(std::vector <int> timeBinsOn, float tpeak ) {
   // Determine the wire Bx from the vector of time bins on for the wire digi with peak time as an intial estimate.
   // Assumes that a single hit should create either one time bin on or two consecutive time bins on
   // so algorithm looks for bin on nearest to peak time and checks if it has a bin on consecutive with it
-  float anode_bx_offset = recoConditions_->anodeBXoffset(id);
   float wireBx=-1;
-  float timeGuess=tpeak/25.+ anode_bx_offset;  
+  float timeGuess=tpeak/25.+8.2;   // 8.2 is the wire time bin offset
   float diffMin=9999.;
   int bestMatch=-9;
   for (int j=0; j<(int)timeBinsOn.size(); j++) {
@@ -286,5 +284,5 @@ float CSCMake2DRecHit::findWireBx(std::vector <int> timeBinsOn, float tpeak ,con
       unchanged=false;
     }
   }
-  return wireBx - anode_bx_offset; // expect collision muons to be centered near 0 bx
+  return wireBx;
 }

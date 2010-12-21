@@ -144,7 +144,7 @@ void CMSEmNoDeltaRay::ConstructProcess() {
       G4eMultipleScattering* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
       if (reg != 0) {
-	G4UrbanMscModel93* msc_el  = new G4UrbanMscModel93("UrbanMscUni2Safety");
+	G4UrbanMscModel93* msc_el  = new G4UrbanMscModel93();
 	msc_el->SetRangeFactor(0.04);
 	msc->AddEmModel(0,msc_el,reg);
       }
@@ -159,7 +159,7 @@ void CMSEmNoDeltaRay::ConstructProcess() {
       G4eMultipleScattering* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
       if (reg != 0) {
-	G4UrbanMscModel93* msc_pos  = new G4UrbanMscModel93("UrbanMscUni2Safety");
+	G4UrbanMscModel93* msc_pos  = new G4UrbanMscModel93();
 	msc_pos->SetRangeFactor(0.04);
 	msc->AddEmModel(0,msc_pos,reg);
       }

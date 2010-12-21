@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 30 19:37:22 EDT 2005
-// $Id: DependentRecordIntervalFinder.cc,v 1.10 2009/12/04 22:11:41 chrjones Exp $
+// $Id: DependentRecordIntervalFinder.cc,v 1.12 2010/12/17 04:31:54 chrjones Exp $
 //
 
 // system include files
@@ -16,7 +16,6 @@
 // user include files
 #include "FWCore/Framework/interface/DependentRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
-
 
 //
 // constants, enums and typedefs
@@ -31,8 +30,7 @@ namespace edm {
 // constructors and destructor
 //
 DependentRecordIntervalFinder::DependentRecordIntervalFinder(const EventSetupRecordKey& iKey) :
-  providers_(),
-  m_previousSyncTo(IOVSyncValue::invalidIOVSyncValue())
+  providers_()
 {
    findingRecordWithKey(iKey);
 }
@@ -78,6 +76,8 @@ DependentRecordIntervalFinder::setIntervalFor(const EventSetupRecordKey& iKey,
                                                const IOVSyncValue& iTime, 
                                                ValidityInterval& oInterval)
 {
+   //NOTE: oInterval is the last value that was used so if nothing changed do not modify oInterval
+   
    //I am assuming that an invalidTime is always less then the first valid time
    assert(IOVSyncValue::invalidIOVSyncValue() < IOVSyncValue::beginOfTime());
    if(providers_.size() == 0 && alternate_.get() == 0 ) {
@@ -129,28 +129,76 @@ DependentRecordIntervalFinder::setIntervalFor(const EventSetupRecordKey& iKey,
        newInterval.setLast(IOVSyncValue::invalidIOVSyncValue());
      }
      oInterval = newInterval;
-     m_previousSyncTo = iTime;
      return;
    }
    //handle the case where some providers use time and others use run/lumi/event
    // in this case all we can do is find an IOV which changed since last time
    // and use its start time to do the synching and use an 'invalid' end time
    // so the system always checks back to see if something has changed
+   if (previousIOVs_.empty()) {
+      std::vector<ValidityInterval> tmp(providers_.size(),ValidityInterval());
+      previousIOVs_.swap(tmp);
+   }
 
+   //I'm using an heuristic to pick a reasonable starting point for the IOV. The idea is to
+   // assume that lumi sections are 23 seconds long and therefore if we take a difference between
+   // iTime and the beginning of a changed IOV we can pick the changed IOV with the start time 
+   // closest to iTime. This doesn't have to be perfect, we just want to reduce the dependency
+   // on provider order to make the jobs more deterministic
+   
+   bool hadChangedIOV = false;
+   //both start at the smallest value
+   EventID closestID;
+   Timestamp closestTimeStamp(0);
+   std::vector<ValidityInterval>::iterator itIOVs = previousIOVs_.begin();
    for(Providers::iterator itProvider = providers_.begin(), itProviderEnd = providers_.end();
        itProvider != itProviderEnd;
-       ++itProvider) {
+       ++itProvider, ++itIOVs) {
       if((*itProvider)->setValidityIntervalFor(iTime)) {
          ValidityInterval providerInterval = (*itProvider)->validityInterval();
-	 if(!providerInterval.validFor(m_previousSyncTo)) {
-	   //NOTE if the above is never true than old interval should be fine
-	   providerInterval.setLast(IOVSyncValue::invalidIOVSyncValue());
-	   oInterval = providerInterval;
-	   break;
+	 if(*itIOVs != providerInterval) {
+            hadChangedIOV = true;
+            if(providerInterval.first().time().value() == 0) {
+               //this is a run/lumi based one
+               if( closestID < providerInterval.first().eventID()) {
+                  closestID = providerInterval.first().eventID();
+               }
+            } else {
+               if(closestTimeStamp < providerInterval.first().time()) {
+                  closestTimeStamp = providerInterval.first().time();
+               }
+            }
+            *itIOVs = providerInterval;
          }
       }
    }
-   m_previousSyncTo = iTime;
+   if(hadChangedIOV) {
+      if(closestID.run() !=0) {
+         if(closestTimeStamp.value() == 0) {
+            //no time
+            oInterval = ValidityInterval(IOVSyncValue(closestID), IOVSyncValue::invalidIOVSyncValue());
+         } else {
+            if(closestID.run() == iTime.eventID().run()) {
+               //can compare time to lumi
+               const unsigned long long kLumiTimeLength = 23;
+               
+               if( (iTime.eventID().luminosityBlock() - closestID.luminosityBlock())*kLumiTimeLength < 
+                  iTime.time().unixTime() - closestTimeStamp.unixTime() ) {
+                  //closestID was closer
+                  oInterval = ValidityInterval(IOVSyncValue(closestID), IOVSyncValue::invalidIOVSyncValue());
+               } else {
+                  oInterval = ValidityInterval(IOVSyncValue(closestTimeStamp), IOVSyncValue::invalidIOVSyncValue());
+               }
+            } else {
+               //since we don't know how to change run # into time we can't compare
+               // so if we have a time just use it
+               oInterval = ValidityInterval(IOVSyncValue(closestTimeStamp), IOVSyncValue::invalidIOVSyncValue());
+            }
+         }
+      } else {
+         oInterval = ValidityInterval( IOVSyncValue(closestTimeStamp), IOVSyncValue::invalidIOVSyncValue());
+      }
+   }
 }
 
 //

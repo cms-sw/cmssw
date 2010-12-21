@@ -122,7 +122,6 @@ namespace mathSSE {
 
   template<>
   union Vec4<float> {
-    typedef  __m128 nativeType;
     __m128 vec;
     float __attribute__ ((aligned(16))) arr[4];
     OldVec<float> o;
@@ -151,21 +150,12 @@ namespace mathSSE {
     }
     Vec4 get1(unsigned int n) const { 
       return _mm_shuffle_ps(vec, vec, _MM_SHUFFLE(n, n, n, n)); 
-    }
+  }
 
-    float & operator[](unsigned int n) {
-      return arr[n];
-    }
-
-    float operator[](unsigned int n) const {
-      return arr[n];
-    }
-    
   };
   
   template<>
   union Vec2<double> {
-    typedef  __m128d nativeType;
     __m128d vec;
     double __attribute__ ((aligned(16))) arr[2];
         
@@ -291,39 +281,10 @@ inline bool operator==(mathSSE::Vec4F a, mathSSE::Vec4F b) {
   return _mm_movemask_ps(_mm_cmpeq_ps(a.vec,b.vec))==0xf;
 }
 
-inline mathSSE::Vec4F cmpeq(mathSSE::Vec4F a, mathSSE::Vec4F b) {
-  return _mm_cmpeq_ps(a.vec,b.vec);
-}
-
-inline mathSSE::Vec4F cmpgt(mathSSE::Vec4F a, mathSSE::Vec4F b) {
-  return _mm_cmpgt_ps(a.vec,b.vec);
-}
-
-#ifdef __SSE3__
-inline mathSSE::Vec4F hadd(mathSSE::Vec4F a, mathSSE::Vec4F b) {
-  return _mm_hadd_ps(a.vec,b.vec);
-}
-#endif
-
-
 inline mathSSE::Vec4F operator-(mathSSE::Vec4F a) {
   const __m128 neg = _mm_set_ps ( -0.0 , -0.0 , -0.0, -0.0);
   return _mm_xor_ps(a.vec,neg);
 }
-
-inline mathSSE::Vec4F operator&(mathSSE::Vec4F a, mathSSE::Vec4F b) {
-  return  _mm_and_ps(a.vec,b.vec);
-}
-inline mathSSE::Vec4F operator|(mathSSE::Vec4F a, mathSSE::Vec4F b) {
-  return  _mm_or_ps(a.vec,b.vec);
-}
-inline mathSSE::Vec4F operator^(mathSSE::Vec4F a, mathSSE::Vec4F b) {
-  return  _mm_xor_ps(a.vec,b.vec);
-}
-inline mathSSE::Vec4F andnot(mathSSE::Vec4F a, mathSSE::Vec4F b) {
-  return  _mm_andnot_ps(a.vec,b.vec);
-}
-
 
 inline mathSSE::Vec4F operator+(mathSSE::Vec4F a, mathSSE::Vec4F b) {
   return  _mm_add_ps(a.vec,b.vec);
@@ -355,21 +316,6 @@ inline mathSSE::Vec2D operator-(mathSSE::Vec2D a) {
   const __m128d neg = _mm_set_pd ( -0.0 , -0.0);
   return _mm_xor_pd(a.vec,neg);
 }
-
-
-inline mathSSE::Vec2D operator&(mathSSE::Vec2D a, mathSSE::Vec2D b) {
-  return  _mm_and_pd(a.vec,b.vec);
-}
-inline mathSSE::Vec2D operator|(mathSSE::Vec2D a, mathSSE::Vec2D b) {
-  return  _mm_or_pd(a.vec,b.vec);
-}
-inline mathSSE::Vec2D operator^(mathSSE::Vec2D a, mathSSE::Vec2D b) {
-  return  _mm_xor_pd(a.vec,b.vec);
-}
-inline mathSSE::Vec2D andnot(mathSSE::Vec2D a, mathSSE::Vec2D b) {
-  return  _mm_andnot_pd(a.vec,b.vec);
-}
-
 
 inline mathSSE::Vec2D operator+(mathSSE::Vec2D a, mathSSE::Vec2D b) {
   return  _mm_add_pd(a.vec,b.vec);
@@ -498,15 +444,6 @@ namespace mathSSE {
   }
 }
 
-// chephes func
-#include "DataFormats/Math/interface/sse_mathfun.h"
-namespace mathSSE {
-  inline Vec4F log(Vec4F v) { return log_ps(v.vec);}
-  inline Vec4F exp(Vec4F v) { return exp_ps(v.vec);}
-  inline Vec4F sin(Vec4F v) { return sin_ps(v.vec);}
-  inline Vec4F cos(Vec4F v) { return cos_ps(v.vec);}
-  inline void sincos(Vec4F v, Vec4F & s, Vec4F & c) { sincos_ps(v.vec,&s.vec, &c.vec);}
-}
 #endif // CMS_USE_SSE
 
 

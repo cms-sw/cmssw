@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.133 2010/11/30 15:00:06 mommsen Exp $
+// $Id: StorageManager.cc,v 1.132 2010/09/08 15:22:57 mommsen Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/DiskWriter.h"
@@ -37,7 +37,8 @@ using namespace stor;
 
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
-  _webPageHelper( getApplicationDescriptor() )
+  _webPageHelper( getApplicationDescriptor(),
+    "$Id: StorageManager.cc,v 1.132 2010/09/08 15:22:57 mommsen Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 

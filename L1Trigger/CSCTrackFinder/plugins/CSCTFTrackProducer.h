@@ -22,7 +22,7 @@ class CSCTFTrackProducer : public edm::EDProducer
  private:
   CSCTFDTReceiver* my_dtrc;
   bool useDT, TMB07, readDtDirect;
-  edm::InputTag input_module, dt_producer, directProd;
+  edm::InputTag input_module, dt_producer;
   edm::ParameterSet sp_pset ;
   unsigned long long m_scalesCacheID ;
   unsigned long long m_ptScaleCacheID ;

@@ -55,13 +55,6 @@ float CSCRecoConditions::chamberTimingCorrection(const CSCDetId & id) const {
   return theConditions.chamberTimingCorrection(idraw);
 }
 
-float CSCRecoConditions::anodeBXoffset(const CSCDetId & id) const { 
-  CSCChannelTranslator translate;
-  // If ME1/4, set ring = 1
-  CSCDetId idraw = translate.rawCSCDetId( id );
-  return theConditions.anodeBXoffset(idraw);
-}
-
 void CSCRecoConditions::stripWeights( const CSCDetId& id, float* weights ) const {
 
   short int is = id.station();

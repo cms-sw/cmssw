@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/10/28 08:46:01 $
- * $Revision: 1.58 $
+ * $Date: 2010/07/20 20:25:54 $
+ * $Revision: 1.56 $
  *
  */
 
@@ -39,12 +39,7 @@ const char * BeamMonitor::formatFitTime( const time_t & t )  {
   static char ts[] = "yyyy-Mm-dd hh:mm:ss";
   tm * ptm;
   ptm = gmtime ( &t );
-  int year = ptm->tm_year;
-  if (year < 1995) {
-    edm::LogError("BadTimeStamp") << "year reported is " << year << "!! resetting to 2010..." << std::endl;
-    year = 2010;
-  }
-  sprintf( ts, "%4d-%02d-%02d %02d:%02d:%02d", 2010,ptm->tm_mon+1,ptm->tm_mday,(ptm->tm_hour+CEST)%24, ptm->tm_min, ptm->tm_sec);
+  sprintf( ts, "%4d-%02d-%02d %02d:%02d:%02d", ptm->tm_year,ptm->tm_mon+1,ptm->tm_mday,(ptm->tm_hour+CEST)%24, ptm->tm_min, ptm->tm_sec);
 
 #ifdef STRIP_TRAILING_BLANKS_IN_TIMEZONE
   unsigned int b = strlen(ts);
@@ -82,9 +77,9 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   minVtxWgt_      = parameters_.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexMeanWeight");
 
   dbe_            = Service<DQMStore>().operator->();
-
+  
   if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
-
+  
   theBeamFitter = new BeamFitter(parameters_);
   theBeamFitter->resetTrkVector();
   theBeamFitter->resetLSRange();
@@ -117,7 +112,7 @@ void BeamMonitor::beginJob() {
   const int    vxBin = parameters_.getParameter<int>("vxBin");
   const double vxMin  = parameters_.getParameter<double>("vxMin");
   const double vxMax  = parameters_.getParameter<double>("vxMax");
-
+  
   const int    phiBin = parameters_.getParameter<int>("phiBin");
   const double phiMin  = parameters_.getParameter<double>("phiMin");
   const double phiMax  = parameters_.getParameter<double>("phiMax");
@@ -128,15 +123,15 @@ void BeamMonitor::beginJob() {
 
   // create and cd into new folder
   dbe_->setCurrentFolder(monitorName_+"Fit");
-
+  
   h_nTrk_lumi=dbe_->book1D("nTrk_lumi","Num. of selected tracks vs lumi",20,0.5,20.5);
   h_nTrk_lumi->setAxisTitle("Lumisection",1);
   h_nTrk_lumi->setAxisTitle("Num of Tracks",2);
-
+  
   h_d0_phi0 = dbe_->bookProfile("d0_phi0","d_{0} vs. #phi_{0} (Selected Tracks)",phiBin,phiMin,phiMax,dxBin,dxMin,dxMax,"");
   h_d0_phi0->setAxisTitle("#phi_{0} (rad)",1);
   h_d0_phi0->setAxisTitle("d_{0} (cm)",2);
-
+  
   h_vx_vy = dbe_->book2D("trk_vx_vy","Vertex (PCA) position of selected tracks",vxBin,vxMin,vxMax,vxBin,vxMin,vxMax);
   h_vx_vy->getTH2F()->SetOption("COLZ");
   //   h_vx_vy->getTH1()->SetBit(TH1::kCanRebin);
@@ -149,7 +144,7 @@ void BeamMonitor::beginJob() {
   const int nvar_ = 6;
   string coord[nvar_] = {"x","y","z","sigmaX","sigmaY","sigmaZ"};
   string label[nvar_] = {"x_{0} (cm)","y_{0} (cm)","z_{0} (cm)",
-			 "#sigma_{X_{0}} (cm)","#sigma_{Y_{0}} (cm)","#sigma_{Z_{0}} (cm)"};
+			 "#sigma_{X_{0}} (cm)","#sigma_{Y_{0}} (cm)","#sigma_{Z_{0}} (cm)"};  
   for (int i = 0; i < 4; i++) {
     dbe_->setCurrentFolder(monitorName_+"Fit");
     for (int ic=0; ic<nvar_; ++ic) {
@@ -369,12 +364,12 @@ void BeamMonitor::beginJob() {
     summaryContent_[i] = 0.;
     reportSummaryContents[i]->Fill(0./0.);
   }
-
+  
   dbe_->setCurrentFolder(monitorName_+"EventInfo");
 
   reportSummaryMap = dbe_->get(monitorName_+"EventInfo/reportSummaryMap");
   if (reportSummaryMap) dbe_->removeElement(reportSummaryMap->getName());
-
+  
   reportSummaryMap = dbe_->book2D("reportSummaryMap", "Beam Spot Summary Map", 1, 0, 1, 3, 0, 3);
   reportSummaryMap->setAxisTitle("",1);
   reportSummaryMap->setAxisTitle("Fitted Beam Spot",2);
@@ -394,7 +389,6 @@ void BeamMonitor::beginRun(const edm::Run& r, const EventSetup& context) {
   tmpTime = ftimestamp >> 32;
   startTime = refTime =  tmpTime;
   const char* eventTime = formatFitTime(tmpTime);
-  std::cout << "TimeOffset = " << eventTime << std::endl;
   TDatime da(eventTime);
   if (debug_) {
     edm::LogInfo("BeamMonitor") << "TimeOffset = ";
@@ -408,7 +402,7 @@ void BeamMonitor::beginRun(const edm::Run& r, const EventSetup& context) {
 }
 
 //--------------------------------------------------------
-void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
+void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
 				       const EventSetup& context) {
   int nthlumi = lumiSeg.luminosityBlock();
   const edm::TimeValue_t fbegintimestamp = lumiSeg.beginTime().value();
@@ -445,7 +439,7 @@ void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 }
 
 // ----------------------------------------------------------
-void BeamMonitor::analyze(const Event& iEvent,
+void BeamMonitor::analyze(const Event& iEvent, 
 			  const EventSetup& iSetup ) {
   bool readEvent_ = true;
   const int nthlumi = iEvent.luminosityBlock();
@@ -481,7 +475,7 @@ void BeamMonitor::analyze(const Event& iEvent,
     iEvent.getByLabel(tracksLabel_, TrackCollection);
     const reco::TrackCollection *tracks = TrackCollection.product();
     for ( reco::TrackCollection::const_iterator track = tracks->begin();
-	  track != tracks->end(); ++track ) {
+	  track != tracks->end(); ++track ) {    
       h_trkPt->Fill(track->pt());
       h_trkVz->Fill(track->vz());
     }
@@ -511,7 +505,7 @@ void BeamMonitor::analyze(const Event& iEvent,
 
 
 //--------------------------------------------------------
-void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
+void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
 				     const EventSetup& iSetup) {
   int nthlumi = lumiSeg.id().luminosityBlock();
   edm::LogInfo("BeamMonitor") << "Lumi of the last event before endLuminosityBlock: " << nthlumi << endl;
@@ -628,7 +622,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       pvResults->setBinContent(1,3,width);
       pvResults->setBinContent(2,6,meanErr);
       pvResults->setBinContent(2,3,widthErr);
-
+    
       dbe_->setCurrentFolder(monitorName_+"PrimaryVertex/");
       const char* tmpfile;
       TH1D * tmphisto;
@@ -713,7 +707,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
   // Beam Spot Fit:
   vector<BSTrkParameters> theBSvector = theBeamFitter->getBSvector();
   h_nTrk_lumi->ShiftFillLast( theBSvector.size() );
-
+  
   bool countFitting = false;
   if (theBSvector.size() > nthBSTrk_ && theBSvector.size() >= min_Ntrks_) {
     countFitting = true;
@@ -729,7 +723,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
     theBeamFitter->resetCutFlow();
     resetHistos_ = false;
   }
-
+  
   edm::LogInfo("BeamMonitor") << "Fill histos, start from " << nthBSTrk_ + 1 << "th record of selected tracks" << endl;
   unsigned int itrk = 0;
   for (vector<BSTrkParameters>::const_iterator BSTrk = theBSvector.begin();
@@ -958,7 +952,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
     }
   }
 
-  if (resetFitNLumi_ > 0 &&
+  if (resetFitNLumi_ > 0 && 
       ((onlineMode_ && currentlumi%resetFitNLumi_ == 0) ||
        (!onlineMode_ && countLumi_%resetFitNLumi_ == 0))) {
     edm::LogInfo("BeamMonitor") << "Reset track collection for beam fit!!!" <<endl;
@@ -979,7 +973,7 @@ void BeamMonitor::endRun(const Run& r, const EventSetup& context){
 }
 
 //--------------------------------------------------------
-void BeamMonitor::endJob(const LuminosityBlock& lumiSeg,
+void BeamMonitor::endJob(const LuminosityBlock& lumiSeg, 
 			 const EventSetup& iSetup){
   if (!onlineMode_) endLuminosityBlock(lumiSeg, iSetup);
 }

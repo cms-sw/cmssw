@@ -75,14 +75,10 @@ L1GctJetFinderParams::L1GctJetFinderParams(double rgnEtLsb,
 
   // check number of coefficients against expectation
   unsigned expCoeffs = 0;
-  if (corrType_ == 2) expCoeffs=8;  // ORCA style
-  if (corrType_ == 3) expCoeffs=4;  // Simple
-  if (corrType_ == 4) expCoeffs=15;  // piecewise-cubic
-  if (corrType_ == 5) expCoeffs=6;  // PF
+  if (corrType_ == 2) expCoeffs=8;
 
-  // correction types 1 and 4 can have any number of parameters
-  if (corrType_ != 1 &&
-      corrType_ != 4) {
+  // only correction type 1 can have a unknown number of parameters
+  if (corrType_ != 1) {
     std::vector< std::vector<double> >::const_iterator itr;      
     for (itr=jetCorrCoeffs_.begin(); itr!=jetCorrCoeffs_.end(); ++itr) {
       if (itr->size() != expCoeffs) {
@@ -237,15 +233,6 @@ double L1GctJetFinderParams::correctionFunction(const double Et, const std::vect
   case 2:  // ORCA style correction
     result = orcaStyleCorrect(Et, coeffs);
     break;
-  case 3:  // simple correction (JetMEt style)
-    result = simpleCorrect(Et, coeffs);
-    break;
-  case 4:  // piecwise cubic correction a la Greg Landsberg et al
-    result = piecewiseCubicCorrect(Et, coeffs);
-    break;
-  case 5:  // PF correction
-    result = pfCorrect(Et, coeffs);
-    break;
   default:
     result = Et;      
   }
@@ -263,10 +250,7 @@ double L1GctJetFinderParams::powerSeriesCorrect(const double Et, const std::vect
 
 double L1GctJetFinderParams::orcaStyleCorrect(const double Et, const std::vector<double>& coeffs) const
 {
-
-  // The coefficients are arranged in groups of four
-  // The first in each group is a threshold value of Et.
-
+  // The coefficients are arranged in groups of four. The first in each group is a threshold value of Et.
   std::vector<double>::const_iterator next_coeff=coeffs.begin();
   while (next_coeff != coeffs.end()) {
     double threshold = *next_coeff++;
@@ -283,59 +267,6 @@ double L1GctJetFinderParams::orcaStyleCorrect(const double Et, const std::vector
   return Et;
 }
 
-double L1GctJetFinderParams::simpleCorrect(const double Et, const std::vector<double>& coeffs) const
-{
-  // function is :
-  //    Et_out = A + B/[ (log10(Et_in))^C + D ] + E/Et_in
-  // 
-  //    fitcor_as_str = "[0]+[1]/(pow(log10(x),[2])+[3]) + [4]/x"
-  // 
-
-  return coeffs.at(0) + coeffs.at(1)/(pow(log10(Et),coeffs.at(2))+coeffs.at(3)) + (coeffs.at(4)/Et);
-
-}
-
-double L1GctJetFinderParams::piecewiseCubicCorrect(const double Et, const std::vector<double>& coeffs) const
-{
-
-  // The correction fuction is a set of 3rd order polynomials
-  //    Et_out = Et_in + (p0 + p1*Et_in + p2*Et_in^2 + p3*Et_in^3)
-  // with different coefficients for different energy ranges.
-  // The parameters are arranged in groups of five.
-  // The first in each group is a threshold value of input Et,
-  // followed by the four coefficients for the cubic function.
-  double etOut = Et;
-  std::vector<double>::const_iterator next_coeff=coeffs.begin();
-  while (next_coeff != coeffs.end()) {
-
-    // Read the coefficients from the vector
-    double threshold = *next_coeff++;
-    double A = *next_coeff++; //p0
-    double B = *next_coeff++; //p1
-    double C = *next_coeff++; //p2
-    double D = *next_coeff++; //p3
-
-    // Check we are in the right energy range and make correction
-    if (Et>threshold) {
-      etOut += (A + etOut*(B + etOut*(C + etOut*D))) ;
-      break;
-    }
-
-  }
-  return etOut;
-
-}
-
-double  L1GctJetFinderParams::pfCorrect(const double et, const std::vector<double>& coeffs) const
-{  
-  //
-  // corr_factor = [0]+[1]/(pow(log10(x),2)+[2])+[3]*exp(-[4]*(log10(x)-[5])*(log10(x)-[5])) 
-  // Et_out = Et_in * corr_factor
-  //
-
-  return et * (coeffs.at(0)+coeffs.at(1)/(pow(log10(et),2)+coeffs.at(2))+coeffs.at(3)*exp(-coeffs.at(4)*(log10(et)-coeffs.at(5))*(log10(et)-coeffs.at(5))));
-
-}
 
 
 std::ostream& operator << (std::ostream& os, const L1GctJetFinderParams& fn)
@@ -365,22 +296,13 @@ std::ostream& operator << (std::ostream& os, const L1GctJetFinderParams& fn)
     switch (fn.getCorrType())
     {
       case 1:
-        os << "Function = Power series" << std::endl;
+        os << "Power series energy correction for jets is enabled" << std::endl;
         break;
       case 2:
-        os << "Function = ORCA" << std::endl;
-        break;
-      case 3:
-        os << "Function = Simple" << std::endl;
-        break;
-      case 4:
-        os << "Function = PiecewiseCubic" << std::endl;
-        break;
-      case 5:
-        os << "Function = PF" << std::endl;
+        os << "ORCA-style energy correction for jets is enabled" << std::endl;
         break;
       default:
-        os << "Unrecognised" << std::endl;
+        os << "Unrecognised calibration function type" << std::endl;
         break; 
     }
     std::vector< std::vector<double> > jetCoeffs = fn.getJetCorrCoeffs();

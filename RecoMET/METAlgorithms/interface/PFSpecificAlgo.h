@@ -11,23 +11,21 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
 #include "RecoMET/METAlgorithms/interface/SignAlgoResolutions.h"
-#include "RecoMET/METAlgorithms/interface/SignPFSpecificAlgo.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
+#include "RecoMET/METAlgorithms/interface/SigInputObj.h"
 
 
 class PFSpecificAlgo
 {
  public:
-  PFSpecificAlgo() : alsocalcsig(false), pfsignalgo_() {;}
-  
+  PFSpecificAlgo():alsocalcsig(false){;}
   typedef math::XYZTLorentzVector LorentzVector;
   typedef math::XYZPoint Point;
-  void runSignificance(metsig::SignAlgoResolutions & resolutions, edm::Handle<edm::View<reco::PFJet> > jets);
+  void runSignificance(metsig::SignAlgoResolutions & resolutions);
   reco::PFMET addInfo(edm::Handle<edm::View<reco::Candidate> > PFCandidates, CommonMETData met);
 
  private:
+  metsig::SignAlgoResolutions resolutions_;
   bool alsocalcsig;
-  metsig::SignPFSpecificAlgo pfsignalgo_;
 };
 
 #endif

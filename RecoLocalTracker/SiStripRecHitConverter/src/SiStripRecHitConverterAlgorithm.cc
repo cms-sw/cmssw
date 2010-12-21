@@ -261,7 +261,7 @@ match(products& output, LocalVector trackdirection) const
     matcher->doubleMatch(rphiHits.begin(), rphiHits.end(), 
 			 stereoHits.begin(),stereoHits.end(),gluedDet,trackdirection,chelper);
     regional = chelper.regional;
-    nmatch+=chelper.nmatch;
+    nmatch = chelper.nmatch;
 #else 
    // Make simple collection of this (gp:FIXME: why do we need it?)
     SiStripRecHitMatcher::SimpleHitCollection stereoSimpleHits;

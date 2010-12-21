@@ -2,36 +2,44 @@
 #define Alignment_CommonAlignmentParametrization_FrameToFrameDerivative_h
 
 #include "CondFormats/Alignment/interface/Definitions.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 
 /// \class FrameToFrameDerivative
 ///
 /// class for calculating derivatives between different frames
 ///
-///  $Date: 2007/03/12 21:28:48 $
-///  $Revision: 1.5 $
+///  $Date: 2007/10/08 15:56:00 $
+///  $Revision: 1.6 $
 /// (last update by $Author: cklae $)
 
 class Alignable;
 
 class FrameToFrameDerivative
 {
-
   public:
 
   /// Return the derivative DeltaFrame(object)/DeltaFrame(composedobject) 
   AlgebraicMatrix frameToFrameDerivative(const Alignable* object,
 					 const Alignable* composedObject) const;
 
-  private:
+  /// Calculates derivatives DeltaFrame(object)/DeltaFrame(composedobject) 
+  /// using their positions and orientations.
+  /// As a new method it gets a new interface avoiding CLHEP that should anyway be
+  /// replaced by SMatrix at some point...
+  AlgebraicMatrix66 getDerivative(const align::RotationType &objectRot,
+				  const align::RotationType &composeRot,
+				  const align::GlobalPoint &objectPos,
+				  const align::GlobalPoint &composePos) const;
 
+  private:
   /// Helper to transform from RotationType to AlgebraicMatrix
   inline static AlgebraicMatrix transform(const align::RotationType&);
 
   /// Calculates derivatives using the orientation Matrixes and the origin difference vector
-  AlgebraicMatrix getDerivative(const align::RotationType &detUnitRot,
+  AlgebraicMatrix getDerivative(const align::RotationType &objectRot,
 				const align::RotationType &composeRot,
 				const align::GlobalVector &posVec) const;
-
+  
   /// Gets linear approximated euler Angles 
   AlgebraicVector linearEulerAngles(const AlgebraicMatrix &rotDelta) const;
  

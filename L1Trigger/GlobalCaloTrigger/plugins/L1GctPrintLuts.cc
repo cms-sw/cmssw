@@ -169,8 +169,8 @@ int L1GctPrintLuts::configureGct(const edm::EventSetup& c)
     c.get< L1HfRingEtScaleRcd >().get( hfRingEtScale ) ; // which record?
     edm::ESHandle< L1CaloEtScale > htMissScale ;
     c.get< L1HtMissScaleRcd >().get( htMissScale ) ; // which record?
-//     edm::ESHandle< L1GctChannelMask > chanMask ;
-//     c.get< L1GctChannelMaskRcd >().get( chanMask ) ; // which record?
+    edm::ESHandle< L1GctChannelMask > chanMask ;
+    c.get< L1GctChannelMaskRcd >().get( chanMask ) ; // which record?
     edm::ESHandle< L1CaloEtScale > etScale ;
     c.get< L1JetEtScaleRcd >().get( etScale ) ; // which record?
 
@@ -192,11 +192,11 @@ int L1GctPrintLuts::configureGct(const edm::EventSetup& c)
 	<< "Failed to find a L1HtMissScaleRcd:L1CaloEtScale in EventSetup!" << std::endl;
     }
 
-//     if (chanMask.product() == 0) {
-//       success = -1;
-//       edm::LogWarning("L1GctConfigFailure")
-// 	<< "Failed to find a L1GctChannelMaskRcd:L1GctChannelMask in EventSetup!" << std::endl;
-//     }
+    if (chanMask.product() == 0) {
+      success = -1;
+      edm::LogWarning("L1GctConfigFailure")
+	<< "Failed to find a L1GctChannelMaskRcd:L1GctChannelMask in EventSetup!" << std::endl;
+    }
 
     if (success==0) {
       // tell the jet Et Luts about the scales
@@ -211,7 +211,7 @@ int L1GctPrintLuts::configureGct(const edm::EventSetup& c)
       m_gct->setJetFinderParams(jfPars.product());
       m_gct->setHtMissScale(htMissScale.product());
       m_gct->setupHfSumLuts(hfRingEtScale.product());
-      //      m_gct->setChannelMask(chanMask.product());
+      m_gct->setChannelMask(chanMask.product());
   
     }
   }

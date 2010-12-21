@@ -57,16 +57,14 @@ namespace edmtest
     int count=0;
     for( it=myCorr->chamberCorrections.begin();it!=myCorr->chamberCorrections.end(); ++it ){
       count=count+1;
-      //      std::cout<<"Key: ddu_crate*10+ddu_input "<<it->first<<std::endl; 
+      //      std::cout<<"Key: ddu_crate*10+ddu_input "<<it->first<<std::endl;
 
       std::cout<<count<<") ";
       //      std::cout<<it->chamber_label<<"  ";
       std::cout<<it->cfeb_length<<"  ";
       std::cout<<it->cfeb_rev<<"  ";
       std::cout<<it->alct_length<<"  ";
-      std::cout<<it->alct_rev<<"  ";
       std::cout<<it->cfeb_tmb_skew_delay<<"  ";
-      std::cout<<it->anode_bx_offset<<"  ";
       std::cout<<it->cfeb_timing_corr<<"  "<<std::endl;
     }
   }

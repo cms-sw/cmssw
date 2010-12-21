@@ -12,3 +12,10 @@ cond::RefException::RefException( const std::string& from, const std::string& ms
 
 cond::TransactionException::TransactionException( const std::string& from, const std::string& msg):
   cond::Exception(std::string("Transaction Error ")+from+" "+msg){}
+
+namespace cond {
+  void throwException( std::string const& message,
+                       std::string const& methodName ){
+    throw Exception( methodName + ": " + message );
+  }
+}

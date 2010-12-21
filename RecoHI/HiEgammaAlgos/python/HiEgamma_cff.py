@@ -6,7 +6,6 @@ from RecoEcal.EgammaClusterProducers.hybridClusteringSequence_cff import *
 from RecoEcal.EgammaClusterProducers.multi5x5ClusteringSequence_cff import *
 from RecoEcal.EgammaClusterProducers.multi5x5PreshowerClusteringSequence_cff import *
 from RecoEcal.EgammaClusterProducers.preshowerClusteringSequence_cff import *
-from RecoHI.HiEgammaAlgos.HiIsolationCommonParameters_cff import *
 
 hiEcalClusteringSequence = cms.Sequence(islandClusteringSequence*hybridClusteringSequence*multi5x5ClusteringSequence*multi5x5PreshowerClusteringSequence*preshowerClusteringSequence)
 
@@ -30,7 +29,7 @@ photons.minR9Endcap = cms.double(10.)   #0.95
 photons.maxHoverEEndcap = cms.double(0.5)  #0.5
 photons.maxHoverEBarrel = cms.double(0.99)  #0.5
 photons.primaryVertexProducer = cms.string('hiSelectedVertex') # replace the primary vertex
-photons.isolationSumsCalculatorSet.trackProducer = isolationInputParameters.track    # cms.InputTag("highPurityTracks")
+photons.isolationSumsCalculatorSet.trackProducer = cms.InputTag("highPurityTracks")
 
 hiPhotonSequence = cms.Sequence(highPurityTracks*photonSequence)
 

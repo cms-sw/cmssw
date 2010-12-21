@@ -3,7 +3,7 @@
 # generate HLT tables from master table in ConfDB
 #
 
-MASTER="/dev/CMSSW_3_8_1/HLT"                       # no version, take the latest one
+MASTER="/dev/CMSSW_3_10_0/HLT"                      # no version, take the latest one
 TARGET="/online/cosmics/2010/week37/HLT"            # where to store the online-compliant menu
 
 # hltdev

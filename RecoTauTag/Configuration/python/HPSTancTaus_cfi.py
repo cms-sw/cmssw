@@ -316,7 +316,7 @@ hpsTancTauSequence = cms.Sequence(
     + hpsTancTausDiscriminationByLeadingTrackPtCut
     + hpsTancTausDiscriminationAgainstElectron
     + hpsTancTausDiscriminationAgainstMuon
-    + hpsTancTausDiscriminationAgainstCaloMuon
+    #+ hpsTancTausDiscriminationAgainstCaloMuon
     + hpsTancTausDiscriminationByTancRaw
     + hpsTancTausDiscriminationByTanc
     + hpsTancTausDiscriminationByTancVLoose

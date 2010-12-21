@@ -26,7 +26,6 @@ CSCTFTrackProducer::CSCTFTrackProducer(const edm::ParameterSet& pset)
 {
   input_module = pset.getUntrackedParameter<edm::InputTag>("SectorReceiverInput");
   dt_producer  = pset.getUntrackedParameter<edm::InputTag>("DTproducer");
-  directProd   = pset.getUntrackedParameter<edm::InputTag>("DtDirectProd");
   sp_pset = pset.getParameter<edm::ParameterSet>("SectorProcessor");
   useDT = pset.getParameter<bool>("useDT");
   readDtDirect = pset.getParameter<bool>("readDtDirect");
@@ -95,10 +94,9 @@ void CSCTFTrackProducer::produce(edm::Event & e, const edm::EventSetup& c)
 	e.getByLabel(dt_producer.label(),dt_producer.instance(), dttrig);
 	emulStub = my_dtrc->process(dttrig.product());
   } else {
-    edm::Handle<CSCTriggerContainer<csctf::TrackStub> > stubsFromDaq;
-    //e.getByLabel("csctfunpacker","DT",stubsFromDaq);
-	e.getByLabel(directProd.label(),directProd.instance(), stubsFromDaq);
-	const CSCTriggerContainer<csctf::TrackStub>* stubPointer = stubsFromDaq.product();
+    edm::Handle<CSCTriggerContainer<csctf::TrackStub> > stubsFromDt;
+    e.getByLabel("csctfunpacker","DT",stubsFromDt);
+	const CSCTriggerContainer<csctf::TrackStub>* stubPointer = stubsFromDt.product();
 	emulStub.push_many(*stubPointer);
   } 
 

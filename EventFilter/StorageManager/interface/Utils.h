@@ -1,4 +1,4 @@
-// $Id: Utils.h,v 1.9 2010/12/02 15:51:04 mommsen Exp $
+// $Id: Utils.h,v 1.7 2009/08/26 15:16:02 mommsen Exp $
 /// @file: Utils.h 
 
 #ifndef StorageManager_Utils_h
@@ -21,8 +21,8 @@ namespace stor {
      * Collection of utility functions used in the storage manager
      *
      * $Author: mommsen $
-     * $Revision: 1.9 $
-     * $Date: 2010/12/02 15:51:04 $
+     * $Revision: 1.7 $
+     * $Date: 2009/08/26 15:16:02 $
      */
 
     /**
@@ -71,17 +71,6 @@ namespace stor {
        may or may not depend on the actual formatting
     */
     std::string timeStamp(time_point_t);
-
-    /**
-       Converts a time_point_t into a string containg only the time in UTC.
-    */
-    std::string timeStampUTC(time_point_t);
-
-    /**
-       Converts a time_point_t into a string containing the time in UTC
-       formatted as "Www Mmm dd hh:mm:ss yyyy"
-    */
-    std::string asctimeUTC(time_point_t);
 
     /**
        Converts a time_point_t into a string containing only the date.

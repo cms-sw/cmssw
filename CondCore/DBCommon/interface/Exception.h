@@ -30,5 +30,7 @@ namespace cond{
 			 const std::string& msg);
     virtual ~TransactionException() throw(){}
   };
+  
+  void throwException( std::string const& message, std::string const& methodName );
 }
 #endif

@@ -201,9 +201,9 @@ PixelCPEParmError::ypos(const SiPixelCluster& cluster) const
   // Check the validty of the width
   if(effWidth>2*thePitchY) { //  width too large
     float edgeLength = 2*thePitchY; // take care of big pixels
-    if(theTopol->isItBigPixelInY(imin) )
+    if(RectangularPixelTopology::isItBigPixelInY(imin) )
       edgeLength += thePitchY;
-    if(theTopol->isItBigPixelInY(imax) )
+    if(RectangularPixelTopology::isItBigPixelInY(imax) )
       edgeLength += thePitchY;
 
     if(effWidth>edgeLength) effWidth=edgeLength/2.;

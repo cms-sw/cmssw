@@ -16,8 +16,8 @@
 /*
  * \file HcalRawDataClient.cc
  * 
- * $Date: 2010/11/10 20:01:34 $
- * $Revision: 1.7 $
+ * $Date: 2010/03/25 21:30:18 $
+ * $Revision: 1.5 $
  * \author J. St. John
  * \brief Hcal Raw Data Client class
  */
@@ -137,22 +137,22 @@ void HcalRawDataClient::calculateProblems()
 	      
 	      zside=0;
 	      if (isHF(eta,d+1)) // shift ieta by 1 for HF
-		ieta<0 ? zside = -1 : zside = 1;
+	      	ieta<0 ? zside = -1 : zside = 1;
 	      
 	      if (debug_>0) std::cout <<"problemvalue = "<<problemvalue<<"  ieta = "<<zside<<"  iphi = "<<phi+1<<"  d = "<<d+1<<std::endl;
 	      // For problem cells that exceed our allowed rate,
 	      // set the values to -1 if the cells are already marked in the status database
 	      if (problemvalue>minerrorrate_)
-		{
-		  HcalSubdetector subdet=HcalEmpty;
-		  if (isHB(eta,d+1))subdet=HcalBarrel;
-		  else if (isHE(eta,d+1)) subdet=HcalEndcap;
-		  else if (isHF(eta,d+1)) subdet=HcalForward;
-		  else if (isHO(eta,d+1)) subdet=HcalOuter;
-		  HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1));
-		  if (badstatusmap.find(hcalid)!=badstatusmap.end())
-		    problemvalue=999; 		
-		}
+	      	{
+	      	  HcalSubdetector subdet=HcalEmpty;
+	      	  if (isHB(eta,d+1))subdet=HcalBarrel;
+	      	  else if (isHE(eta,d+1)) subdet=HcalEndcap;
+	      	  else if (isHF(eta,d+1)) subdet=HcalForward;
+	      	  else if (isHO(eta,d+1)) subdet=HcalOuter;
+	      	  HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1));
+	      	  if (badstatusmap.find(hcalid)!=badstatusmap.end())
+	      	    problemvalue=999; 		
+	      	}
 	      
 	      ProblemCellsByDepth->depth[d]->setBinContent(eta+1,phi+1,problemvalue);
 	      if (ProblemCells!=0) ProblemCells->Fill(ieta+zside,phi+1,problemvalue);
@@ -252,9 +252,9 @@ void HcalRawDataClient::beginRun(void)
       if (debug_>0) std::cout <<"<HcalRawDataClient::beginRun> dqmStore does not exist!"<<std::endl;
       return;
     }
-
   dqmStore_->setCurrentFolder(subdir_);
   problemnames_.clear();
+
   // Put the appropriate name of your problem summary here
   ProblemCells=dqmStore_->book2D(" ProblemRawData",
 				 " Problem Raw Data Rate for all HCAL;ieta;iphi",
@@ -272,7 +272,6 @@ void HcalRawDataClient::beginRun(void)
   ProblemCellsByDepth->setup(dqmStore_," Problem Raw Data Rate");
   for (unsigned int i=0; i<ProblemCellsByDepth->depth.size();++i)
     problemnames_.push_back(ProblemCellsByDepth->depth[i]->getName());
-
   nevts_=0;
 }
 
@@ -305,6 +304,7 @@ bool HcalRawDataClient::hasErrors_Temp(void)
 		continue;
 	      if (ProblemCellsByDepth->depth[depth]->getBinContent(hist_eta,hist_phi)>minerrorrate_)
 		++problemcount;
+
 	    } // for (int hist_phi=1;...)
 	} // for (int hist_eta=1;...)
     } // for (int depth=0;...)

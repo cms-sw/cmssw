@@ -105,19 +105,19 @@ JetAnalyzerAk5PF = cms.EDAnalyzer("PFJetTester",
     reverseEnergyFractionThreshold = cms.double(0.5)
 )
 
-### IC5 JPT jets
-#JetAnalyzerIC5JPT = cms.EDAnalyzer("JPTJetTester",
-#    src = cms.InputTag("JetPlusTrackZSPCorJetIcone5"),
-#    srcGen = cms.InputTag("iterativeCone5GenJets"),
-##    TurnOnEverything = cms.untracked.string('yes'),
-##    TurnOnEverything = cms.untracked.string('no'),
-##    outputFile = cms.untracked.string('histo.root'),
-##    outputFile = cms.untracked.string('test.root'),
-#    genEnergyFractionThreshold = cms.double(0.05),
-#    genPtThreshold = cms.double(1.0),
-#    RThreshold = cms.double(0.3),
-#    reverseEnergyFractionThreshold = cms.double(0.5)
-#)
+## IC5 JPT jets
+JetAnalyzerIC5JPT = cms.EDAnalyzer("JPTJetTester",
+    src = cms.InputTag("JetPlusTrackZSPCorJetIcone5"),
+    srcGen = cms.InputTag("iterativeCone5GenJets"),
+#    TurnOnEverything = cms.untracked.string('yes'),
+#    TurnOnEverything = cms.untracked.string('no'),
+#    outputFile = cms.untracked.string('histo.root'),
+#    outputFile = cms.untracked.string('test.root'),
+    genEnergyFractionThreshold = cms.double(0.05),
+    genPtThreshold = cms.double(1.0),
+    RThreshold = cms.double(0.3),
+    reverseEnergyFractionThreshold = cms.double(0.5)
+)
 
 ## AntiKt5 JPT jets
 JetAnalyzerAk5JPT = cms.EDAnalyzer("JPTJetTester",

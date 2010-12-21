@@ -2,6 +2,7 @@
 #define DataFormats_BTauReco_SoftLeptonTagInfo_h
 
 #include <vector>
+#include <limits>
 
 #include "DataFormats/BTauReco/interface/RefMacros.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
@@ -12,6 +13,17 @@ namespace reco {
  
 class SoftLeptonProperties {
 public:
+    SoftLeptonProperties() :
+        sip2d(    std::numeric_limits<float>::quiet_NaN() ),
+        sip3d(    std::numeric_limits<float>::quiet_NaN() ),
+        ptRel(    std::numeric_limits<float>::quiet_NaN() ),
+        p0Par(    std::numeric_limits<float>::quiet_NaN() ),
+        etaRel(   std::numeric_limits<float>::quiet_NaN() ),
+        deltaR(   std::numeric_limits<float>::quiet_NaN() ),
+        ratio(    std::numeric_limits<float>::quiet_NaN() ),
+        ratioRel( std::numeric_limits<float>::quiet_NaN() )
+    { }
+
     float sip2d;                            // 2D signed impact parameter
     float sip3d;                            // 3D signed impact parameter
     float ptRel;                            // transverse momentum wrt. the jet axis

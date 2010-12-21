@@ -100,9 +100,6 @@ class L1GctJetFinderParams
   double findCorrectedEt       (const double Et, const std::vector<double>& coeffs) const;
   double powerSeriesCorrect    (const double Et, const std::vector<double>& coeffs) const;
   double orcaStyleCorrect      (const double Et, const std::vector<double>& coeffs) const;
-  double simpleCorrect         (const double Et, const std::vector<double>& coeffs) const;
-  double piecewiseCubicCorrect (const double Et, const std::vector<double>& coeffs) const;
-  double pfCorrect             (const double Et, const std::vector<double>& coeffs) const;
   
  private:
 

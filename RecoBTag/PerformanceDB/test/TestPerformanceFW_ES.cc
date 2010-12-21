@@ -13,16 +13,13 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Nov 25 15:50:50 CET 2008
-// $Id: TestPerformanceFW_ES.cc,v 1.4 2010/11/02 16:29:24 chadwick Exp $
+// $Id: TestPerformanceFW_ES.cc,v 1.2 2009/08/13 12:33:24 tboccali Exp $
 //
 //
 
 
 // system include files
 #include <memory>
-#include <map>
-#include <vector>
-#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -38,8 +35,11 @@
 //
 
 #include "RecoBTag/Records/interface/BTagPerformanceRecord.h"
+
 #include "CondFormats/PhysicsToolsObjects/interface/BinningPointByMap.h"
 #include "RecoBTag/PerformanceDB/interface/BtagPerformance.h"
+//#include "CondFormats/BTagPerformance/interface/BtagPerformancePayloadFromTableEtaJetEt.h"
+//#include "CondFormats/BTagPerformance/interface/BtagPerformancePayloadFromTableEtaJetEtPhi.h"
 
 class TestPerformanceFW_ES : public edm::EDAnalyzer {
 public:
@@ -49,8 +49,6 @@ public:
   
 private:
   std::string name;
-  std::vector<std::string> measureName;
-  std::vector<std::string> measureType;
   virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
@@ -58,12 +56,24 @@ private:
   // ----------member data ---------------------------
 };
 
+//
+// constants, enums and typedefs
+//
 
+//
+// static data member definitions
+//
+
+//
+// constructors and destructor
+//
 TestPerformanceFW_ES::TestPerformanceFW_ES(const edm::ParameterSet& iConfig)
 
 {
-  measureName = iConfig.getParameter< std::vector< std::string > >("measureName");
-  measureType = iConfig.getParameter< std::vector< std::string > >("measureType");
+   //now do what ever initialization is needed
+  std::cout <<" In the constructor"<<std::endl;
+  
+  name =  iConfig.getParameter<std::string>("AlgoName");
 }
 
 
@@ -84,109 +94,52 @@ TestPerformanceFW_ES::~TestPerformanceFW_ES()
 void
 TestPerformanceFW_ES::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::map<std::string,PerformanceResult::ResultType> measureMap;
-  measureMap["BTAGBEFF"]=PerformanceResult::BTAGBEFF;
-  measureMap["BTAGBERR"]=PerformanceResult::BTAGBERR;
-  measureMap["BTAGCEFF"]=PerformanceResult::BTAGCEFF;
-  measureMap["BTAGCERR"]=PerformanceResult::BTAGCERR;
-  measureMap["BTAGLEFF"]=PerformanceResult::BTAGLEFF;
-  measureMap["BTAGLERR"]=PerformanceResult::BTAGLERR;
-  measureMap["BTAGNBEFF"]=PerformanceResult::BTAGNBEFF;
-  measureMap["BTAGNBERR"]=PerformanceResult::BTAGNBERR;
-  measureMap["BTAGBEFFCORR"]=PerformanceResult::BTAGBEFFCORR;
-  measureMap["BTAGBERRCORR"]=PerformanceResult::BTAGBERRCORR;
-  measureMap["BTAGCEFFCORR"]=PerformanceResult::BTAGCEFFCORR;
-  measureMap["BTAGCERRCORR"]=PerformanceResult::BTAGCERRCORR;
-  measureMap["BTAGLEFFCORR"]=PerformanceResult::BTAGLEFFCORR;
-  measureMap["BTAGLERRCORR"]=PerformanceResult::BTAGLERRCORR;
-  measureMap["BTAGNBEFFCORR"]=PerformanceResult::BTAGNBEFFCORR;
-  measureMap["BTAGNBERRCORR"]=PerformanceResult::BTAGNBERRCORR;
-  measureMap["BTAGNBERRCORR"]=PerformanceResult::BTAGNBERRCORR;
-  measureMap["MUEFF"]=PerformanceResult::MUEFF;
-  measureMap["MUERR"]=PerformanceResult::MUERR;
-  measureMap["MUFAKE"]=PerformanceResult::MUFAKE; 
-  measureMap["MUEFAKE"]=PerformanceResult::MUEFAKE;
-
-
   edm::ESHandle<BtagPerformance> perfH;
-  if( measureName.size() != measureType.size() )
-  {
-      std::cout << "measureName, measureType size mismatch!" << std::endl;
-      exit(-1);
-  }
+  std::cout <<" Studying performance with label "<<name <<std::endl;
+  iSetup.get<BTagPerformanceRecord>().get(name,perfH);
+
+  const BtagPerformance & perf = *(perfH.product());
 
 
-  for( size_t iMeasure = 0; iMeasure < measureName.size(); iMeasure++ )
-  {
-      std::cout << "Testing: " << measureName[ iMeasure ] << " of type " << measureType[ iMeasure ] << std::endl;
+  std::cout << "Values: "<<
+    PerformanceResult::BTAGNBEFF<<" " <<
+    PerformanceResult::MUERR<<" " <<
+    std::endl;
 
-//Setup our measurement
-      iSetup.get<BTagPerformanceRecord>().get( measureName[ iMeasure ],perfH);
-      const BtagPerformance & perf = *(perfH.product());
+  // check beff, berr for eta=.6, et=55;
+  BinningPointByMap p;
 
-//Working point
-      std::cout << "Working point: " << perf.workingPoint().cut() << std::endl;
-//Setup the point we wish to test!
-      BinningPointByMap measurePoint;
-      measurePoint.insert(BinningVariables::JetEt,50);
-      measurePoint.insert(BinningVariables::JetAbsEta,0.6);
+  std::cout <<" My Performance Object is indeed a "<<typeid(perfH.product()).name()<<std::endl;
 
-      std::cout << "Is it OK? " << perf.isResultOk( measureMap[ measureType[ iMeasure] ], measurePoint)
-		<< " result at 50 GeV, 0,6 |eta| " << perf.getResult( measureMap[ measureType[ iMeasure] ], measurePoint)
-		<< std::endl;
-
-      std::cout << "Error checking!" << std::endl;
-      measurePoint.reset();
-      measurePoint.insert(BinningVariables::JetEt,0);
-      measurePoint.insert(BinningVariables::JetAbsEta,10);
-
-      std::cout << "Is it OK? " << perf.isResultOk( measureMap[ measureType[ iMeasure] ], measurePoint)
-		<< " result at 0 GeV, 10 |eta| " << perf.getResult( measureMap[ measureType[ iMeasure] ], measurePoint)
-		<< std::endl;
-      std::cout << std::endl;
-  }
+  std::cout <<" test eta=0.6, et=55"<<std::endl;
 
 
+  p.insert(BinningVariables::JetEta,0.6);
+  p.insert(BinningVariables::JetEt,55);
+  std::cout <<" nbeff/nberr ?"<<perf.isResultOk(PerformanceResult::BTAGNBEFF,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGNBERR,p)<<std::endl;
+  std::cout <<" beff/berr ?"<<perf.isResultOk(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGBERR,p)<<std::endl;
+  std::cout <<" beff/berr ="<<perf.getResult(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.getResult(PerformanceResult::BTAGBERR,p)<<std::endl;
 
-  // std::cout << "Values: "<<
-  //   PerformanceResult::BTAGNBEFF<<" " <<
-  //   PerformanceResult::MUERR<<" " <<
-  //   std::endl;
+  std::cout <<" test eta=1.9, et=33"<<std::endl;
+   p.insert(BinningVariables::JetEta,1.9);
+  p.insert(BinningVariables::JetEt,33);
+  std::cout <<" beff/berr ?"<<perf.isResultOk(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGBERR,p)<<std::endl;
+  std::cout <<" beff/berr ="<<perf.getResult(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.getResult(PerformanceResult::BTAGBERR,p)<<std::endl;
 
-  // // check beff, berr for eta=.6, et=55;
-  // BinningPointByMap p;
+  std::cout <<" The WP is defined by a cut at "<<perf.workingPoint().cut()<<std::endl;
+  std::cout <<" Discriminant is "<<perf.workingPoint().discriminantName()<<std::endl;
 
-  // std::cout <<" My Performance Object is indeed a "<<typeid(perfH.product()).name()<<std::endl;
+  std::cout <<" now I ask for a calibration but I do not set eta in the binning point ---> should return all not available "<<std::endl;
+  p.reset();
+  p.insert(BinningVariables::JetNTracks,3);
+  p.insert(BinningVariables::JetEt,55);
+  std::cout <<" beff/berr ?"<<perf.isResultOk(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGBERR,p)<<std::endl;
+  std::cout <<" beff/berr ="<<perf.getResult(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.getResult(PerformanceResult::BTAGBERR,p)<<std::endl;
 
-  // std::cout <<" test eta=0.6, et=55"<<std::endl;
+  //  std::cout <<" now I ask for a calibration which is not present ---> should throw an exception "<<std::endl;
 
-
-  // p.insert(BinningVariables::JetEta,0.6);
-  // p.insert(BinningVariables::JetEt,55);
-  // std::cout <<" nbeff/nberr ?"<<perf.isResultOk(PerformanceResult::BTAGNBEFF,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGNBERR,p)<<std::endl;
-  // std::cout <<" beff/berr ?"<<perf.isResultOk(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGBERR,p)<<std::endl;
-  // std::cout <<" beff/berr ="<<perf.getResult(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.getResult(PerformanceResult::BTAGBERR,p)<<std::endl;
-
-  // std::cout <<" test eta=1.9, et=33"<<std::endl;
-  //  p.insert(BinningVariables::JetEta,1.9);
-  // p.insert(BinningVariables::JetEt,33);
-  // std::cout <<" beff/berr ?"<<perf.isResultOk(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGBERR,p)<<std::endl;
-  // std::cout <<" beff/berr ="<<perf.getResult(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.getResult(PerformanceResult::BTAGBERR,p)<<std::endl;
-
-  // std::cout <<" The WP is defined by a cut at "<<perf.workingPoint().cut()<<std::endl;
-  // std::cout <<" Discriminant is "<<perf.workingPoint().discriminantName()<<std::endl;
-
-  // std::cout <<" now I ask for a calibration but I do not set eta in the binning point ---> should return all not available "<<std::endl;
-  // p.reset();
-  // p.insert(BinningVariables::JetNTracks,3);
-  // p.insert(BinningVariables::JetEt,55);
-  // std::cout <<" beff/berr ?"<<perf.isResultOk(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGBERR,p)<<std::endl;
-  // std::cout <<" beff/berr ="<<perf.getResult(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.getResult(PerformanceResult::BTAGBERR,p)<<std::endl;
-
-  // //  std::cout <<" now I ask for a calibration which is not present ---> should throw an exception "<<std::endl;
-
-  // //  edm::ESHandle<BtagPerformance> perfH2;
-  // //  iSetup.get<BTagPerformanceRecord>().get("TrackCountingHighEff_tight",perfH2);
+  //  edm::ESHandle<BtagPerformance> perfH2;
+  //  iSetup.get<BTagPerformanceRecord>().get("TrackCountingHighEff_tight",perfH2);
   
 
 }

@@ -11,7 +11,7 @@
 #include "CommonTools/CandAlgos/interface/CandCombiner.h"
 
 typedef reco::modules::CandCombiner<
-                         StringCutObjectSelector<reco::Candidate, true>
+                         StringCutObjectSelector<reco::Candidate>
                        > CandViewCombiner;
       
 DEFINE_FWK_MODULE( CandViewCombiner );

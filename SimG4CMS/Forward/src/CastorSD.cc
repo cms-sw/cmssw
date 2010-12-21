@@ -181,11 +181,29 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
     G4int parCode = theTrack->GetDefinition()->GetPDGEncoding();
     if (parCode == mupPDG || parCode == mumPDG ) notaMuon = false;
     
-    if(useShowerLibrary && aboveThreshold && notaMuon && (!backward)) {
+    // angle condition
+    double R=sqrt(hitPoint.x()*hitPoint.x() + hitPoint.y()*hitPoint.y());
+    double theta_up = atan2(178.4-R,std::abs(-15849.5-zint));
+    double theta_down = atan2(39.-R,std::abs(-15710.1-zint));
+    double R_mom=sqrt(hit_mom.x()*hit_mom.x() + hit_mom.y()*hit_mom.y());
+    double theta = atan2(R_mom,std::abs(pz));
+    bool angleok = false;
+    if ( theta > theta_down && theta < theta_up) angleok = true;
+    
+    // OkToUse
+    //double R = sqrt(hitPoint.x()*hitPoint.x() + hitPoint.y()*hitPoint.y());
+    bool dot = false;
+    if ( zint < -14450. && R < 45.) dot = true;
+    bool inRange = true;
+    if ( zint < -14700. || R > 193.) inRange = false;
+    bool OkToUse = false;
+    if ( inRange && !dot) OkToUse = true;
+    
+    if (useShowerLibrary && aboveThreshold && notaMuon && (!backward) && OkToUse && angleok && currentLV == lvCAST ) {
       // Use Castor shower library if energy is above threshold, is not a muon 
       // and is not moving backward 
-      if (currentLV == lvC3EF || currentLV == lvC4EF || 
-	  currentLV == lvC3HF || currentLV == lvC4HF || currentLV == lvCAST ) getFromLibrary(aStep);
+      getFromLibrary(aStep);
+    
 #ifdef debugLog
       LogDebug("ForwardSim") << " Current logical volume is " << nameVolume ;
 #endif
@@ -563,15 +581,16 @@ uint32_t CastorSD::rotateUnitID(uint32_t unitID, G4Track* track, CastorShowerEve
   // if(trackZ<0)  // Good for revision 1.8 of CastorNumberingScheme
   if(trackZ>0)  // Good for revision 1.9 of CastorNumberingScheme
   {
-    sec -= dSec ;
-    if(sec<0) sec += 16;
-    if(sec>15) sec -= 16;
-  } else
-  {
-  if( dSec<0 ) sec += 16 ;
-  sec += dSec ;
-  aux  = (int) (sec/16) ;
-  sec -= aux*16 ;
+    int sec1 = sec-dSec;
+    //    sec -= dSec ;
+    if(sec1<0) sec1  += 16;
+    if(sec1>15) sec1 -= 16;
+    sec = (uint32_t)(sec1);
+  } else {
+    if( dSec<0 ) sec += 16 ;
+    sec += dSec ;
+    aux  = (int) (sec/16) ;
+    sec -= aux*16 ;
   }
   sec  = sec<<4 ;
   newUnitID = complement | sec ;

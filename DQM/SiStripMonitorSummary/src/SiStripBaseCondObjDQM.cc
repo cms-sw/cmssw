@@ -1153,19 +1153,24 @@ void SiStripBaseCondObjDQM::saveTkMap(const std::string& TkMapname, double minVa
     //check that saturation is below x%  below minValue and above minValue, and in case re-arrange.
     float th=hPSet_.getParameter<double>("saturatedFraction");
 
-    size_t i,imin=0,imax=0;
+    size_t imin=0,imax=0;
     float entries=0 ;
-    for(i=0;i<tkMapScaler.size();++i)
+    for(size_t i=0;i<tkMapScaler.size();++i)
       entries+=tkMapScaler[i];
 
     float min=0 ;
-    for(i=0;(i<tkMapScaler.size()) & (min<th);++i){
+    for(size_t i=0;(i<tkMapScaler.size()) && (min<th);++i){
       min+=tkMapScaler[i]/entries;
       imin=i;
     }
 
     float max=0;
-    for(i=tkMapScaler.size()-1;(i>=0) & (max<th);--i){
+    // for(size_t i=tkMapScaler.size()-1;(i>=0) && (max<th);--i){ // Wrong
+    // Since i is unsigned, i >= 0 is always true,
+    // and the loop termination condition is never reached.
+    // We offset the loop index by one to fix this.
+    for(size_t j=tkMapScaler.size();(j>0) && (max<th);--j){ 
+      size_t i = j - 1;
       max+=tkMapScaler[i]/entries;
       imax=i;
     }

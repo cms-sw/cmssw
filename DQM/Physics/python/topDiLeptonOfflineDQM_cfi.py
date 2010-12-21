@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+
 topDiLeptonOfflineDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
   ## ------------------------------------------------------
   ## SETUP
@@ -28,10 +29,7 @@ topDiLeptonOfflineDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     ## will be filled w/o extras
     elecExtras = cms.PSet(
       ## when omitted electron plots will be filled w/o cut on electronId
-      electronId = cms.PSet(
-        src     = cms.InputTag("eidRobustLoose"),
-        pattern = cms.int32(1)
-      ),
+      electronId = cms.InputTag("eidRobustLoose"),
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the electron candidates                                                 
       select = cms.string("pt>5 && abs(eta)<2.4 && abs(gsfTrack.d0)<1 && abs(gsfTrack.dz)<20"),
@@ -59,12 +57,12 @@ topDiLeptonOfflineDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
       ## jetID                                                   
       jetID  = cms.PSet(
         label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        select = cms.string("n90Hits>1 & restrictedEMF<1")
       ),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets
-      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01"), 
+      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01 & emEnergyFraction<0.95"), 
     ),
     ## [optional] : when omitted no mass window will be applied
     ## for the same flavor lepton monitoring plots 

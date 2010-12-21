@@ -22,9 +22,9 @@ process.MessageLogger = cms.Service("MessageLogger",
     categories = cms.untracked.vstring('CaloSim', 
         'EcalSim', 'G4cerr', 'G4cout',
         'HcalSim', 'HFShower'),
-#    debugModules = cms.untracked.vstring('*'),
+    debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
-#        threshold = cms.untracked.string('DEBUG'),
+        threshold = cms.untracked.string('DEBUG'),
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
@@ -32,16 +32,16 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         ),
         CaloSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(-1)
         ),
         EcalSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(-1)
         ),
         G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(-1)
         ),
         HcalSim = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
@@ -138,7 +138,7 @@ process.g4SimHits.SteppingAction = cms.PSet(
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     CheckForHighEtPhotons = cms.untracked.bool(False),
     TrackMin     = cms.untracked.int32(0),
-    TrackMax     = cms.untracked.int32(0),
+    TrackMax     = cms.untracked.int32(99999999),
     TrackStep    = cms.untracked.int32(1),
     EventMin     = cms.untracked.int32(0),
     EventMax     = cms.untracked.int32(0),

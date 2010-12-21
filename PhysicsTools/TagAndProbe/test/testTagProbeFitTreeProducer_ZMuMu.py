@@ -66,7 +66,7 @@ process.probesPassingCal = cms.EDFilter("MuonRefSelector",
 )
 
 ## Here we show how to use a module to compute an external variable
-process.drToNearestJet = cms.EDProducer("DeltaRNearestJetComputer",
+process.drToNearestJet = cms.EDProducer("DeltaRNearestObjectComputer",
     probes = cms.InputTag("muons"),
        # ^^--- NOTA BENE: if probes are defined by ref, as in this case, 
        #       this must be the full collection, not the subset by refs.

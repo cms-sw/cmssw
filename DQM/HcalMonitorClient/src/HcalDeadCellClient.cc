@@ -11,8 +11,8 @@
 /*
  * \file HcalDeadCellClient.cc
  * 
- * $Date: 2010/11/10 20:01:34 $
- * $Revision: 1.71 $
+ * $Date: 2010/05/07 09:09:12 $
+ * $Revision: 1.69 $
  * \author J. Temple
  * \brief Dead Cell Client class
  */
@@ -111,7 +111,7 @@ void HcalDeadCellClient::calculateProblems()
 	  (ProblemCellsByDepth->depth[d]->getTH2F())->SetMinimum(0.);
 	}
     }
-  
+
   // Get histograms that are used in testing
   TH2F* DigiPresentByDepth[4];
   TH2F* RecentMissingDigisByDepth[4];
@@ -144,7 +144,6 @@ void HcalDeadCellClient::calculateProblems()
        s=subdir_+"dead_rechit_often_missing/"+name[i]+"RecHits Failing Energy Threshold Test";
       me=dqmStore_->get(s.c_str());
       if (me!=0)RecentMissingRecHitsByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, RecentMissingRecHitsByDepth[i], debug_);
-
     }
 
   // Because we're clearing and re-forming the problem cell histogram here, we don't need to do any cute
@@ -153,7 +152,6 @@ void HcalDeadCellClient::calculateProblems()
   for (unsigned int d=0;ProblemCellsByDepth!=0 && d<ProblemCellsByDepth->depth.size();++d)
     {
       if (ProblemCellsByDepth->depth[d]==0) continue;
-
       if (DigiPresentByDepth[d]==0) continue;
       // Get number of entries from DigiPresent histogram 
       // (need to do this for offline DQM combinations of output)
@@ -175,24 +173,24 @@ void HcalDeadCellClient::calculateProblems()
 	      // Offline DQM adds up never-present histograms from multiple outputs
 	      // For now, we want offline DQM to show LS-based 'occupancies', rather than simple boolean on/off
 	      // May change in the future?
-	      
+
 	      // If cell is never-present in all runs, then problemvalue = event
 	      if (DigiPresentByDepth[d]!=0 && DigiPresentByDepth[d]->GetBinContent(eta+1,phi+1)==0) 
-		problemvalue=totalevents;
+		  problemvalue=totalevents;
 	      // Rec Hit presence test
 	      else if (RecHitsPresentByDepth[d]!=0)
 		{
 		  if (RecHitsPresentByDepth[d]->GetBinContent(eta+1,phi+1)==0)
-		    problemvalue=totalevents;
+		      problemvalue=totalevents;
 		  else if (RecHitsPresentByDepth[d]->GetBinContent(eta+1,phi+1)>1)
 		    RecHitsPresentByDepth[d]->SetBinContent(eta+1,phi+1,1);
 		}
 	      else
 		{
 		  if (RecentMissingDigisByDepth[d]!=0)
-		    problemvalue+=RecentMissingDigisByDepth[d]->GetBinContent(eta+1,phi+1);
+		      problemvalue+=RecentMissingDigisByDepth[d]->GetBinContent(eta+1,phi+1);
 		  if (RecentMissingRecHitsByDepth[d]!=0)
-		    problemvalue+=RecentMissingRecHitsByDepth[d]->GetBinContent(eta+1,phi+1);
+		      problemvalue+=RecentMissingRecHitsByDepth[d]->GetBinContent(eta+1,phi+1);
 		}
 	      if (problemvalue==0) continue;
 	      problemvalue/=totalevents; // problem value is a rate; should be between 0 and 1
@@ -201,7 +199,7 @@ void HcalDeadCellClient::calculateProblems()
 	      zside=0;
 	      if (isHF(eta,d+1)) // shift ieta by 1 for HF
 		ieta<0 ? zside = -1 : zside = 1;
-	      
+
 	      // For problem cells that exceed our allowed rate,
 	      // set the values to -1 if the cells are already marked in the status database
 	      if (problemvalue>minerrorrate_)
@@ -217,7 +215,6 @@ void HcalDeadCellClient::calculateProblems()
 		}
 	      ProblemCellsByDepth->depth[d]->setBinContent(eta+1,phi+1,problemvalue);
 	      if (ProblemCells!=0) ProblemCells->Fill(ieta+zside,phi+1,problemvalue);
-	      
 	    } // loop on phi
 	} // loop on eta
     } // loop on depth
@@ -239,7 +236,6 @@ void HcalDeadCellClient::calculateProblems()
 	    ProblemCells->setBinContent(eta+1,phi+1,1.);
 	}
     }
-
   FillUnphysicalHEHFBins(*ProblemCellsByDepth);
   FillUnphysicalHEHFBins(ProblemCells);
   return;
@@ -282,7 +278,6 @@ void HcalDeadCellClient::beginRun(void)
   ProblemCellsByDepth->setup(dqmStore_," Problem Dead Cell Rate");
   for (unsigned int i=0; i<ProblemCellsByDepth->depth.size();++i)
     problemnames_.push_back(ProblemCellsByDepth->depth[i]->getName());
-
   nevts_=0;
 }
 
@@ -312,13 +307,14 @@ bool HcalDeadCellClient::hasErrors_Temp(void)
               ieta=CalcIeta(hist_eta,depth+1);
 	      if (ieta==-9999) continue;
 	      if (ProblemCellsByDepth->depth[depth]==0)
-		continue;
+		  continue;
 	      if (ProblemCellsByDepth->depth[depth]->getBinContent(hist_eta,hist_phi)>minerrorrate_)
 		++problemcount;
+
 	    } // for (int hist_phi=1;...)
 	} // for (int hist_eta=1;...)
     } // for (int depth=0;...)
-  
+
   if (problemcount>0) return true;
   return false;
 }
@@ -366,11 +362,11 @@ void HcalDeadCellClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& 
 	      if (d<2)
 		{
 		  if (isHB(hist_eta,d+1)) 
-		    subdet=HcalBarrel;
+		      subdet=HcalBarrel;
 		  else if (isHE(hist_eta,d+1)) 
-		    subdet=HcalEndcap;
+		      subdet=HcalEndcap;
 		  else if (isHF(hist_eta,d+1)) 
-		    subdet=HcalForward;
+		      subdet=HcalForward;
 		}
 	      else if (d==2) 
 		subdet=HcalEndcap;
@@ -382,7 +378,7 @@ void HcalDeadCellClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& 
 	      // Need this to keep from flagging non-existent HE/HF cells
 	      if (!validDetId((HcalSubdetector)(subdet), ieta, iphi, d+1))
 		continue;
-	      
+
 	      int deadcell=0;
 	      if (binval>minerrorrate_)
 		deadcell=1;
@@ -404,11 +400,12 @@ void HcalDeadCellClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& 
 		  else
 		    myqual[myid] &=~mask;
 		}
+	      
 	    } // for (int hist_phi=1;hist_phi<=phibins;++hist_phi)
 	} // for (int hist_eta=1;hist_eta<=etabins;++hist_eta)
     } // for (int d=0;d<4;++d)
-  
-  
+
+
 } //void HcalDeadCellClient::updateChannelStatus
 
 

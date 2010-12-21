@@ -28,6 +28,8 @@ public:
   double              attLength(double lambda);
   double              tShift(G4ThreeVector point, int depth, 
 			     int fromEndAbs=0);
+  double              zShift(G4ThreeVector point, int depth, 
+			     int fromEndAbs=0);
 
 protected:
 

@@ -1,5 +1,3 @@
-// This routine should be deleted. Pure FTFP is no longer supported as a physics list
-
 #include "FTFPCMS.hh"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
@@ -13,7 +11,7 @@
 #include "G4NeutronTrackingCut.hh"
 
 #include "G4DataQuestionaire.hh"
-//#include "HadronPhysicsFTFP.hh" // Removed from G4 9.4 release
+#include "SimG4Core/PhysicsLists/interface/HadronPhysicsFTFP.hh" 
 
 FTFPCMS::FTFPCMS(G4LogicalVolumeToDDLogicalPartMap& map, 
 		 const HepPDT::ParticleDataTable * table_,
@@ -47,7 +45,7 @@ FTFPCMS::FTFPCMS(G4LogicalVolumeToDDLogicalPartMap& map,
     RegisterPhysics( new G4HadronElasticPhysics("elastic",ver,false));
 
     // Hadron Physics
-    //    RegisterPhysics(  new HadronPhysicsFTFP("hadron"));
+    RegisterPhysics(  new HadronPhysicsFTFP("hadron"));
 
     // Stopping Physics
     RegisterPhysics( new G4QStoppingPhysics("stopping"));

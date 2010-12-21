@@ -10,146 +10,32 @@
  Implementation:
      <Notes on implementation>
 */
+//
+// Original Author:  Ursula Berthon, Claude Charlot
+//         Created:  Mon Mar 27 13:22:06 CEST 2006
+// $Id: GsfElectronProducer.cc,v 1.27 2010/03/26 11:45:10 chamont Exp $
+//
+//
 
-#include "GsfElectronProducer.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
-
+// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
+#include "GsfElectronProducer.h"
 
 #include <iostream>
 
 using namespace reco;
 
-/* void GsfElectronProducer::fillDescriptions( edm::ConfigurationDescriptions & descriptions )
- {
-  edm::ParameterSetDescription desc ;
-
-  // input collections
-  desc.add<edm::InputTag>("gsfElectronCores",edm::InputTag("gsfElectronCores")) ;
-  desc.add<edm::InputTag>("hcalTowers",edm::InputTag("towerMaker")) ;
-  desc.add<edm::InputTag>("reducedBarrelRecHitCollection",edm::InputTag("ecalRecHit","EcalRecHitsEB")) ;
-  desc.add<edm::InputTag>("reducedEndcapRecHitCollection",edm::InputTag("ecalRecHit","EcalRecHitsEE")) ;
-  desc.add<edm::InputTag>("pfMVA",edm::InputTag("pfElectronTranslator:pf")) ;
-  desc.add<edm::InputTag>("seedsTag",edm::InputTag("ecalDrivenElectronSeeds")) ;
-  desc.add<edm::InputTag>("beamSpot",edm::InputTag("offlineBeamSpot")) ;
-
-  // backward compatibility mechanism for ctf tracks
-  desc.add<bool>("ctfTracksCheck",true) ;
-  desc.add<edm::InputTag>("ctfTracks",edm::InputTag("generalTracks")) ;
-
-  // steering
-  desc.add<bool>("applyPreselection",true) ;
-  desc.add<bool>("applyEtaCorrection",false) ;
-  desc.add<bool>("applyAmbResolution",true) ;
-  desc.add<unsigned>("ambSortingStrategy",1) ;
-  desc.add<unsigned>("ambClustersOverlapStrategy",1) ;
-  desc.add<bool>("addPflowElectrons",true) ;
-
-  // preselection parameters (ecal driven electrons)
-  desc.add<double>("minSCEtBarrel",4.0) ;
-  desc.add<double>("minSCEtEndcaps",4.0) ;
-  desc.add<double>("minEOverPBarrel",0.0) ;
-  desc.add<double>("maxEOverPBarrel",999999999.) ;
-  desc.add<double>("minEOverPEndcaps",0.0) ;
-  desc.add<double>("maxEOverPEndcaps",999999999.) ;
-  desc.add<double>("maxDeltaEtaBarrel",0.02) ;
-  desc.add<double>("maxDeltaEtaEndcaps",0.02) ;
-  desc.add<double>("maxDeltaPhiBarrel",0.15) ;
-  desc.add<double>("maxDeltaPhiEndcaps",0.15) ;
-  desc.add<double>("hOverEConeSize",0.15) ;
-  desc.add<double>("hOverEPtMin",0.) ;
-  desc.add<double>("maxHOverEBarrel",0.15) ;
-  desc.add<double>("maxHOverEEndcaps",0.15) ;
-  desc.add<double>("maxHBarrel",0.0) ;
-  desc.add<double>("maxHEndcaps",0.0) ;
-  desc.add<double>("maxSigmaIetaIetaBarrel",999999999.) ;
-  desc.add<double>("maxSigmaIetaIetaEndcaps",999999999.) ;
-  desc.add<double>("maxFbremBarrel",999999999.) ;
-  desc.add<double>("maxFbremEndcaps",999999999.) ;
-  desc.add<bool>("isBarrel",false) ;
-  desc.add<bool>("isEndcaps",false) ;
-  desc.add<bool>("isFiducial",false) ;
-  desc.add<bool>("seedFromTEC",true) ;
-  desc.add<double>("maxTIP",999999999.) ;
-  desc.add<double>("minMVA",-0.4) ;
-
-  // preselection parameters (tracker driven only electrons)
-  desc.add<double>("minSCEtBarrelPflow",0.0) ;
-  desc.add<double>("minSCEtEndcapsPflow",0.0) ;
-  desc.add<double>("minEOverPBarrelPflow",0.0) ;
-  desc.add<double>("maxEOverPBarrelPflow",999999999.) ;
-  desc.add<double>("minEOverPEndcapsPflow",0.0) ;
-  desc.add<double>("maxEOverPEndcapsPflow",999999999.) ;
-  desc.add<double>("maxDeltaEtaBarrelPflow",999999999.) ;
-  desc.add<double>("maxDeltaEtaEndcapsPflow",999999999.) ;
-  desc.add<double>("maxDeltaPhiBarrelPflow",999999999.) ;
-  desc.add<double>("maxDeltaPhiEndcapsPflow",999999999.) ;
-  desc.add<double>("hOverEConeSizePflow",0.15) ;
-  desc.add<double>("hOverEPtMinPflow",0.) ;
-  desc.add<double>("maxHOverEBarrelPflow",999999999.) ;
-  desc.add<double>("maxHOverEEndcapsPflow",999999999.) ;
-  desc.add<double>("maxHBarrelPflow",0.0) ;
-  desc.add<double>("maxHEndcapsPflow",0.0) ;
-  desc.add<double>("maxSigmaIetaIetaBarrelPflow",999999999.) ;
-  desc.add<double>("maxSigmaIetaIetaEndcapsPflow",999999999.) ;
-  desc.add<double>("maxFbremBarrelPflow",999999999.) ;
-  desc.add<double>("maxFbremEndcapsPflow",999999999.) ;
-  desc.add<bool>("isBarrelPflow",false) ;
-  desc.add<bool>("isEndcapsPflow",false) ;
-  desc.add<bool>("isFiducialPflow",false) ;
-  desc.add<double>("maxTIPPflow",999999999.) ;
-  desc.add<double>("minMVAPflow",-0.4) ;
-
-  // Isolation algos configuration
-  desc.add<double>("intRadiusBarrelTk",0.015) ;
-  desc.add<double>("intRadiusEndcapTk",0.015) ;
-  desc.add<double>("stripBarrelTk",0.015) ;
-  desc.add<double>("stripEndcapTk",0.015) ;
-  desc.add<double>("ptMinTk",0.7) ;
-  desc.add<double>("maxVtxDistTk",0.2) ;
-  desc.add<double>("maxDrbTk",999999999.) ;
-  desc.add<double>("intRadiusHcal",0.15) ;
-  desc.add<double>("etMinHcal",0.0) ;
-  desc.add<double>("intRadiusEcalBarrel",3.0) ;
-  desc.add<double>("intRadiusEcalEndcaps",3.0) ;
-  desc.add<double>("jurassicWidth",1.5) ;
-  desc.add<double>("etMinBarrel",0.0) ;
-  desc.add<double>("eMinBarrel",0.08) ;
-  desc.add<double>("etMinEndcaps",0.1) ;
-  desc.add<double>("eMinEndcaps",0.0) ;
-  desc.add<bool>("vetoClustered",false) ;
-  desc.add<bool>("useNumCrystals",true) ;
-  desc.add<int>("severityLevelCut",4) ;
-  desc.add<double>("severityRecHitThreshold",5.0) ;
-  desc.add<double>("spikeIdThreshold",0.95) ;
-  desc.add<std::string>("spikeIdString","kSwissCrossBordersIncluded") ;
-  desc.add<std::vector<int> >("recHitFlagsToBeExcluded") ;
-
-  edm::ParameterSetDescription descNested ;
-  descNested.add<std::string>("propagatorAlongTISE","PropagatorWithMaterial") ;
-  descNested.add<std::string>("propagatorOppositeTISE","PropagatorWithMaterialOpposite") ;
-  desc.add<edm::ParameterSetDescription>("TransientInitialStateEstimatorParameters",descNested) ;
-
-  // Corrections
-  desc.add<std::string>("superClusterErrorFunction","EcalClusterEnergyUncertainty") ;
-
-  descriptions.add("produceGsfElectrons",desc) ;
- }
- */
 GsfElectronProducer::GsfElectronProducer( const edm::ParameterSet& iConfig )
 {
   //register your products
@@ -188,6 +74,11 @@ GsfElectronProducer::GsfElectronProducer( const edm::ParameterSet& iConfig )
 		    iConfig.getParameter<double>("maxDeltaEtaEndcapsPflow"),
 		    iConfig.getParameter<double>("maxDeltaPhiBarrelPflow"),
 		    iConfig.getParameter<double>("maxDeltaPhiEndcapsPflow"),
+//		    iConfig.getParameter<double>("hOverEConeSizePflow"),
+//		    iConfig.getParameter<double>("hOverEPtMinPflow"),
+//		    iConfig.getParameter<double>("maxHOverEDepth1BarrelPflow"),
+//		    iConfig.getParameter<double>("maxHOverEDepth1EndcapsPflow"),
+//		    iConfig.getParameter<double>("maxHOverEDepth2Pflow"),
 		    iConfig.getParameter<double>("maxSigmaIetaIetaBarrelPflow"),
 		    iConfig.getParameter<double>("maxSigmaIetaIetaEndcapsPflow"),
 		    iConfig.getParameter<double>("maxFbremBarrelPflow"),

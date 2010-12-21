@@ -8,7 +8,7 @@ from pprint import pprint
 epsilon = 1.e-4
 
 def getPieceFromObject (obj, description):
-    """Returns piece from object """
+    """ """
     parsed = GenObject.parseVariableTofill (description)
     return GenObject.evaluateFunction (obj, parsed)
 

@@ -11,8 +11,8 @@
 /*
  * \file HcalDigiClient.cc
  * 
- * $Date: 2010/11/17 19:17:42 $
- * $Revision: 1.67 $
+ * $Date: 2010/05/07 09:09:12 $
+ * $Revision: 1.64 $
  * \author J. Temple
  * \brief DigiClient class
  */
@@ -148,7 +148,6 @@ void HcalDigiClient::calculateProblems()
   for (unsigned int d=0;ProblemCellsByDepth!=0 && d<ProblemCellsByDepth->depth.size();++d)
     {
       if (ProblemCellsByDepth->depth[d]==0) continue;
-
       if (BadDigisByDepth[d]==0 || GoodDigisByDepth[d]==0) continue;
       totalevents=(int)GoodDigisByDepth[d]->GetBinContent(0,0);
       if (totalevents<minevents_ ) continue;
@@ -163,12 +162,12 @@ void HcalDigiClient::calculateProblems()
 	    {
 	      problemvalue=0; // problem fraction sums over all three tests
 	      if (BadDigisByDepth[d]->GetBinContent(eta+1,phi+1) > 0) // bad cells found
-		problemvalue=(BadDigisByDepth[d]->GetBinContent(eta+1,phi+1)*1./(BadDigisByDepth[d]->GetBinContent(eta+1,phi+1)+GoodDigisByDepth[d]->GetBinContent(eta+1,phi+1)));
+		  problemvalue=(BadDigisByDepth[d]->GetBinContent(eta+1,phi+1)*1./(BadDigisByDepth[d]->GetBinContent(eta+1,phi+1)+GoodDigisByDepth[d]->GetBinContent(eta+1,phi+1)));
 	      
 	      zside=0;
 	      if (isHF(eta,d+1)) // shift ieta by 1 for HF
 		ieta<0 ? zside = -1 : zside = 1;
-	      
+
 	      // For problem cells that exceed our allowed rate,
 	      // set the values to -1 if the cells are already marked in the status database
 	      if (problemvalue>minerrorrate_)
@@ -187,7 +186,7 @@ void HcalDigiClient::calculateProblems()
 	    } // loop on phi
 	} // loop on eta
     } // loop on depth
-  
+
   if (ProblemCells==0)
     {
       if (debug_>0) std::cout <<"<HcalDigiClient::analyze> ProblemCells histogram does not exist!"<<std::endl;
@@ -245,7 +244,6 @@ void HcalDigiClient::beginRun(void)
   ProblemCellsByDepth->setup(dqmStore_," Problem Digi Rate");
   for (unsigned int i=0; i<ProblemCellsByDepth->depth.size();++i)
     problemnames_.push_back(ProblemCellsByDepth->depth[i]->getName());
-
   nevts_=0;
 
   dqmStore_->setCurrentFolder(subdir_+"HFTimingStudy");
@@ -278,13 +276,14 @@ bool HcalDigiClient::hasErrors_Temp(void)
               ieta=CalcIeta(hist_eta,depth+1);
 	      if (ieta==-9999) continue;
 	      if (ProblemCellsByDepth->depth[depth]==0)
-		continue;
+		  continue;
 	      if (ProblemCellsByDepth->depth[depth]->getBinContent(hist_eta,hist_phi)>minerrorrate_)
 		++problemcount;
+
 	    } // for (int hist_phi=1;...)
 	} // for (int hist_eta=1;...)
     } // for (int depth=0;...)
-  
+
   if (problemcount>0) return true;
   return false;
 }

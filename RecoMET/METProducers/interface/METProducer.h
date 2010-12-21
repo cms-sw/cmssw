@@ -33,11 +33,6 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "TH2F.h"
-
-namespace metsig{
-    class SignAlgoResolutions;
-}
-
 namespace cms 
 {
   class METProducer: public edm::EDProducer 
@@ -61,10 +56,8 @@ namespace cms
       std::string alias;
       
       //Calculate MET Significance (not necessary at HLT)
-      bool calculateSignificance_;
-      metsig::SignAlgoResolutions *resolutions_;
-      edm::InputTag jetsLabel_; //used for jet-based significance calculation
-     
+      bool calculateSignificance;
+      
       //Use HF in CaloMET calculation?
       bool noHF;
       

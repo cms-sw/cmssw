@@ -44,8 +44,6 @@ HcalTrigPrimMonitor::setup() {
    dbe_->setCurrentFolder(subdir_ + "TP Occupancy");
    TPOccupancyEta_ = dbe_->book1D("TPOccupancyVsEta", "TPOccupancyVsEta", 65, -32.5, 32.5);
    TPOccupancyPhi_ = dbe_->book1D("TPOccupancyVsPhi", "TPOccupancyVsPhi", 72, 0.5, 72.5);
-   TPOccupancyPhiHFP_ = dbe_->book1D("TPOccupancyHFPVsPhi", "TPOccupancyHFPVsPhi", 72, 0.5, 72.5);
-   TPOccupancyPhiHFM_ = dbe_->book1D("TPOccupancyHFMVsPhi", "TPOccupancyHFMVsPhi", 72, 0.5, 72.5);
    TPOccupancy_ = create_map(subdir_ + "TP Occupancy", "TPOccupancy");
 
    for (int isZS = 0; isZS <= 1; ++isZS) {
@@ -179,20 +177,9 @@ HcalTrigPrimMonitor::processEvent (
 
 
       //
-      if (data_tp->SOI_compressedEt() > 0) {
-         TPOccupancy_->Fill(ieta, iphi);
-         TPOccupancyEta_->Fill(ieta);
-         TPOccupancyPhi_->Fill(iphi);
-
-         if (isHF) {
-            if (ieta > 0) {
-               TPOccupancyPhiHFP_->Fill(iphi);
-            }
-            else {
-               TPOccupancyPhiHFM_->Fill(iphi);
-            }
-         }
-      }
+      TPOccupancy_->Fill(ieta, iphi);
+      TPOccupancyEta_->Fill(ieta);
+      TPOccupancyPhi_->Fill(iphi);
 
       //check missing from emulator
       HcalTrigPrimDigiCollection::const_iterator emul_tp = emul_tp_col->find(data_tp->id());

@@ -175,10 +175,6 @@ cms.PSet(
     tag = cms.untracked.string("Dau1HLTDeltaPtOverPt"),
     quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_HLTDeltaPtOverPt')")
     ),
-cms.PSet(
-    tag = cms.untracked.string("Dau1HLTPt"),
-    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_HLTPt')")
-    ),
     cms.PSet(
     tag = cms.untracked.string("Dau2dxyFromBS"),
     quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_dxyFromBS')")
@@ -376,10 +372,6 @@ cms.PSet(
 cms.PSet(
     tag = cms.untracked.string("Dau2HLTDeltaPtOverPt"),
     quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_HLTDeltaPtOverPt')")
-    ),
-cms.PSet(
-    tag = cms.untracked.string("Dau2HLTPt"),
-    quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_HLTPt')")
     ),
 
 

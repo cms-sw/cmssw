@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2010/09/09 11:49:20 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/07/02 13:34:23 $
+ *  $Revision: 1.3 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"
@@ -37,8 +37,6 @@ void TauValidation::beginJob()
     nEvt = dbe->book1D("nEvt", "n analyzed Events", 1, 0., 1.);
 
     //Kinematics
-    TauPt            = dbe->book1D("TauPt","Tau pT", 100 ,0,100);
-    TauEta           = dbe->book1D("TauEta","Tau eta", 100 ,-2.5,2.5);
     TauProngs        = dbe->book1D("TauProngs","Tau n prongs", 7 ,0,7);
     TauDecayChannels = dbe->book1D("TauDecayChannels","Tau decay channels", 10 ,0,10);
 	TauDecayChannels->setBinLabel(1+undetermined,"?");
@@ -50,7 +48,6 @@ void TauValidation::beginJob()
     	TauDecayChannels->setBinLabel(1+tripi,"3#pi^{#pm}");
     	TauDecayChannels->setBinLabel(1+tripinpi0,"3#pi^{#pm}n#pi^{0}");
 	TauDecayChannels->setBinLabel(1+K,"K");
-	TauDecayChannels->setBinLabel(1+stable,"Stable");
 
     TauMothers        = dbe->book1D("TauMothers","Tau mother particles", 10 ,0,10);
 	TauMothers->setBinLabel(1+other,"?");
@@ -70,24 +67,11 @@ void TauValidation::beginJob()
 	TauSpinEffectsW->setAxisTitle("Energy");
     TauSpinEffectsHpm = dbe->book1D("TauSpinEffectsHpm","Pion energy in Hpm rest frame", 50 ,0,1);
 	TauSpinEffectsHpm->setAxisTitle("Energy");
-
-    TauPhotons        = dbe->book1D("TauPhoton","Photons radiating from tau", 2 ,0,2);
-	TauPhotons->setBinLabel(1,"Fraction of taus radiating photons");
-	TauPhotons->setBinLabel(2,"Fraction of tau pt radiated by photons");
   }
-
-  nTaus              = 0;
-  nTausWithPhotons   = 0;
-  tauPtSum           = 0;
-  photonFromTauPtSum = 0;
-
   return;
 }
 
-void TauValidation::endJob(){
-  return;
-}
-
+void TauValidation::endJob(){return;}
 void TauValidation::beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup)
 {
   ///Get PDT Table
@@ -111,14 +95,11 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
   for(HepMC::GenEvent::particle_const_iterator iter = myGenEvent->particles_begin(); iter != myGenEvent->particles_end(); ++iter) {
     if((*iter)->status()==3) {
       if(abs((*iter)->pdg_id())==15){
-        TauPt->Fill((*iter)->momentum().perp());
-        TauEta->Fill((*iter)->momentum().eta());
 	int mother  = tauMother(*iter);
 	int decaychannel = tauDecayChannel(*iter);
 	tauProngs(*iter);
 	rtau(*iter,mother,decaychannel);
 	spinEffects(*iter,mother,decaychannel);
-	photons(*iter);
       }
     }
   }
@@ -179,7 +160,6 @@ int TauValidation::tauProngs(const HepMC::GenParticle* tau){
 int TauValidation::tauDecayChannel(const HepMC::GenParticle* tau){
 
 	int channel = undetermined;
-	if(tau->status() == 1) channel = stable;
 
 	int eCount   = 0,
 	    muCount  = 0,
@@ -327,32 +307,3 @@ double TauValidation::visibleTauEnergy(const HepMC::GenParticle* tau){
 
 	return p4.E();
 }
-
-void TauValidation::photons(const HepMC::GenParticle* tau){
-
-        if ( tau->end_vertex() ) {
-	      bool photonFromTau = false;
-              HepMC::GenVertex::particle_iterator des;
-              for(des = tau->end_vertex()->particles_begin(HepMC::descendants);
-                  des!= tau->end_vertex()->particles_end(HepMC::descendants);++des ) {
-                        int pid = (*des)->pdg_id();
-			if(pid == 22) {
-				photonFromTauPtSum += (*des)->momentum().perp();
-				photonFromTau = true;
-			} 
-              }
-	      nTaus++;
-	      if(photonFromTau) {
-		tauPtSum += tau->momentum().perp();
-		nTausWithPhotons++;
-	      }
-
-	      double nFrac = double(nTausWithPhotons)/nTaus;
-	      double ptFrac = 0;
-	      if(tauPtSum > 0) ptFrac = photonFromTauPtSum/tauPtSum;
-
-	      TauPhotons->setBinContent(1,nFrac);
-	      TauPhotons->setBinContent(2,ptFrac);
-        }
-}
-

@@ -26,25 +26,6 @@ LMFLmrSubIOV::LMFLmrSubIOV(oracle::occi::Environment* env,
 LMFLmrSubIOV::~LMFLmrSubIOV() {
 }
 
-LMFLmrSubIOV& LMFLmrSubIOV::setLMFIOV(const LMFIOV &iov) {
-  m_lmfIOV = iov.getID();
-  return *this;
-}
-
-LMFLmrSubIOV& LMFLmrSubIOV::setTimes(Tm *t) {
-  m_t[0] = t[0];
-  m_t[1] = t[1];
-  m_t[2] = t[2];
-  return *this;
-}
-
-LMFLmrSubIOV& LMFLmrSubIOV::setTimes(Tm t1, Tm t2, Tm t3) {
-  m_t[0] = t1;
-  m_t[1] = t2;
-  m_t[2] = t3;
-  return *this;
-}
-
 std::string LMFLmrSubIOV::fetchIdSql(Statement *stmt) {
   if (!m_lmfIOV) {
     if (m_debug) {
@@ -91,7 +72,7 @@ std::string LMFLmrSubIOV::writeDBSql(Statement *stmt) {
   if (m_lmfIOV == 0) {
     throw(std::runtime_error(m_className + "::writeDB: LMFIOV not set"));
   }
-  std::string sql = "INSERT INTO LMF_LMR_SUB_IOV (LMR_SUB_IOV_ID, "
+  std::string sql = "INSERT INTO LMF_LMR_SUB_IOV (LMF_LMR_SUB_IOV_ID, "
     "IOV_ID, T1, T2, T3) "
     "VALUES (LMF_LMR_SUB_IOV_ID_SQ.NextVal, :1, :2, :3, :4)";
   stmt->setSQL(sql);

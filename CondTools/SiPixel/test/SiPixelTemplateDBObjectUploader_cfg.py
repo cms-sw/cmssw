@@ -8,7 +8,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "GR10_P_V7::All"
+process.GlobalTag.globaltag = "MC_3XY_V23::All"
 
 MagFieldValue = float(sys.argv[2])
 #version = 'v2'
@@ -19,36 +19,37 @@ if ( MagFieldValue==0 ):
     files_to_upload = cms.vstring(
         "CalibTracker/SiPixelESProducers/data/template_summary_zp0022.out",
         "CalibTracker/SiPixelESProducers/data/template_summary_zp0023.out")
-    theDetIds      = cms.vuint32( 1, 2) # 0 is for all, 1 is Barrel, 2 is EndCap theTemplateIds = cms.vuint32(22,23)
-elif ( MagFieldValue==4 or MagFieldValue==40 ):
+    theDetIds      = cms.vuint32( 1, 2) # 0 is for all, 1 is Barrel, 2 is EndCap
+    theTemplateIds = cms.vuint32(22,23)
+elif(MagFieldValue==4):
     MagFieldString = '4'
     files_to_upload = cms.vstring(
         "CalibTracker/SiPixelESProducers/data/template_summary_zp0018.out",
         "CalibTracker/SiPixelESProducers/data/template_summary_zp0019.out")
     theDetIds      = cms.vuint32( 1, 2)
     theTemplateIds = cms.vuint32(18,19)
-elif ( MagFieldValue==3.8 or MagFieldValue==38 ):
+elif(MagFieldValue==3.8 or MagFieldValue==38):
     MagFieldString = '38'
     files_to_upload = cms.vstring(
         "CalibTracker/SiPixelESProducers/data/template_summary_zp0020.out",
         "CalibTracker/SiPixelESProducers/data/template_summary_zp0021.out")
     theDetIds      = cms.vuint32( 1, 2)
     theTemplateIds = cms.vuint32(20,21)
-elif ( MagFieldValue==2 or MagFieldValue==20 ):
+elif(MagFieldValue==2):
     MagFieldString = '2'
     files_to_upload = cms.vstring(
         "CalibTracker/SiPixelESProducers/data/template_summary_zp0030.out",
         "CalibTracker/SiPixelESProducers/data/template_summary_zp0031.out")
     theDetIds      = cms.vuint32( 1, 2)
     theTemplateIds = cms.vuint32(30,31)
-elif ( MagFieldValue==3 or MagFieldValue==30 ):
+elif(MagFieldValue==3):
     MagFieldString = '3'
     files_to_upload = cms.vstring(
         "CalibTracker/SiPixelESProducers/data/template_summary_zp0032.out",
         "CalibTracker/SiPixelESProducers/data/template_summary_zp0033.out")
     theDetIds      = cms.vuint32( 1, 2)
     theTemplateIds = cms.vuint32(32,33)
-elif( MagFieldValue==3.5 or MagFieldValue==35 ):
+elif(MagFieldValue==3.5 or MagFieldValue==35):
     MagFieldString = '35'
     files_to_upload = cms.vstring(
         "CalibTracker/SiPixelESProducers/data/template_summary_zp0034.out",

@@ -1,4 +1,4 @@
-2# python script Pixel Digitizer testing:
+# python script Pixel Digitizer testing:
 # author: V. Cuplov
 #
 # Process available:
@@ -67,23 +67,22 @@ secFiles = cms.untracked.vstring()
 process.source = cms.Source("PoolSource", fileNames = readFiles, secondaryFileNames = secFiles)
 
 
-readFiles.extend( ['/store/relval/CMSSW_3_10_0_pre5/RelValSingleMuPt10/GEN-SIM-RECO/MC_39Y_V5-v1/0090/AE814955-91F5-DF11-8C95-003048678B20.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValSingleMuPt10/GEN-SIM-RECO/MC_39Y_V5-v1/0087/8C30A969-72F5-DF11-A537-0018F3D096C8.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValSingleMuPt10/GEN-SIM-RECO/MC_39Y_V5-v1/0085/C2E568D8-0DF5-DF11-9EA2-0026189437F5.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValSingleMuPt10/GEN-SIM-RECO/MC_39Y_V5-v1/0085/9A402DD9-15F5-DF11-87D6-003048D15E24.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValSingleMuPt10/GEN-SIM-RECO/MC_39Y_V5-v1/0085/28199BD0-12F5-DF11-9A35-001A92971B5E.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValSingleMuPt10/GEN-SIM-RECO/MC_39Y_V5-v1/0085/023672FD-0DF5-DF11-AE40-003048678CA2.root'] );
+readFiles.extend( ['/store/relval/CMSSW_3_9_0_pre1/RelValSingleMuPt10/GEN-SIM-RECO/MC_38Y_V8-v1/0009/B41A39C8-EF9A-DF11-B13D-0026189438E9.root',
+        '/store/relval/CMSSW_3_9_0_pre1/RelValSingleMuPt10/GEN-SIM-RECO/MC_38Y_V8-v1/0008/B49977EE-E39A-DF11-AD19-001A92971BC8.root',
+        '/store/relval/CMSSW_3_9_0_pre1/RelValSingleMuPt10/GEN-SIM-RECO/MC_38Y_V8-v1/0008/66BBD7EC-E39A-DF11-BA36-001BFCDBD1BC.root',
+        '/store/relval/CMSSW_3_9_0_pre1/RelValSingleMuPt10/GEN-SIM-RECO/MC_38Y_V8-v1/0008/0AA5E55A-E49A-DF11-A795-003048679048.root',
+        '/store/relval/CMSSW_3_9_0_pre1/RelValSingleMuPt10/GEN-SIM-RECO/MC_38Y_V8-v1/0008/00F6D8E4-E39A-DF11-9D74-003048678C9A.root'] );
 
-secFiles.extend( ['/store/relval/CMSSW_3_10_0_pre5/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_39Y_V5-v1/0090/06D49A63-91F5-DF11-B2CE-00261894380B.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_39Y_V5-v1/0086/E0F513AA-2BF5-DF11-863B-001A92810A96.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_39Y_V5-v1/0085/F85C3C87-0BF5-DF11-ABEC-001A92971B8C.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_39Y_V5-v1/0085/CC8F5B4B-17F5-DF11-8419-002354EF3BDF.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_39Y_V5-v1/0085/C046BD12-11F5-DF11-BBE4-0026189438A7.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_39Y_V5-v1/0085/5A335988-14F5-DF11-805C-003048679048.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_39Y_V5-v1/0085/4C5E3F2D-12F5-DF11-B24C-0018F3D096A6.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_39Y_V5-v1/0085/4A2036B3-07F5-DF11-A8AC-001A92971BDC.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_39Y_V5-v1/0085/385FE049-0DF5-DF11-BFE1-00248C0BE016.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_39Y_V5-v1/0085/08E5C3EC-12F5-DF11-9B5C-003048679084.root'] )
+secFiles.extend( ['/store/relval/CMSSW_3_9_0_pre1/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V8-v1/0009/AA330544-079B-DF11-839F-001A9281171E.root',
+        '/store/relval/CMSSW_3_9_0_pre1/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V8-v1/0008/F6ADA2EA-E39A-DF11-A1BC-003048678E2A.root',
+        '/store/relval/CMSSW_3_9_0_pre1/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V8-v1/0008/E4E9DB59-E49A-DF11-9215-0026189438B4.root',
+        '/store/relval/CMSSW_3_9_0_pre1/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V8-v1/0008/583A850E-E59A-DF11-ACEF-00261894388B.root',
+        '/store/relval/CMSSW_3_9_0_pre1/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V8-v1/0008/4CDEE251-E39A-DF11-B23E-0026189438D3.root',
+        '/store/relval/CMSSW_3_9_0_pre1/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V8-v1/0008/3EF481EB-E39A-DF11-BE69-002618943920.root',
+        '/store/relval/CMSSW_3_9_0_pre1/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V8-v1/0008/2E101EEE-E39A-DF11-9B89-0018F3D095EA.root',
+        '/store/relval/CMSSW_3_9_0_pre1/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V8-v1/0008/24178254-E59A-DF11-A4BA-002618943923.root',
+        '/store/relval/CMSSW_3_9_0_pre1/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V8-v1/0008/0CE536EB-E39A-DF11-9546-0018F3D09688.root',
+        '/store/relval/CMSSW_3_9_0_pre1/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V8-v1/0008/0AE04552-E39A-DF11-9E1D-0026189438FE.root'] )
 
 
 
@@ -104,7 +103,7 @@ secFiles.extend( ['/store/relval/CMSSW_3_10_0_pre5/RelValSingleMuPt10/GEN-SIM-DI
 
 # Choose the global tag here:
 #process.GlobalTag.globaltag = 'MC_38Y_V8::All'
-process.GlobalTag.globaltag = 'MC_39Y_V5::All'
+process.GlobalTag.globaltag = 'MC_39Y_V1::All'
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 

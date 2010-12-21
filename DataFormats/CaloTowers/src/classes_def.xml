@@ -20,6 +20,7 @@
   <class name="edm::reftobase::RefVectorHolder<CaloTowerRefs> " />
   <class name="edm::Ptr<CaloTower>"/>
   <class name="edm::PtrVector<CaloTower>"/>
+  <class name="std::vector<edm::Ptr<CaloTower> >"/>
   <class name="edm::FwdPtr<CaloTower>"/>
   <class name="std::vector<edm::FwdPtr<CaloTower> >"/>
 </lcgdict>

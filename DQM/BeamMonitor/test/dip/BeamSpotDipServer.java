@@ -294,14 +294,22 @@ implements Runnable,DipPublicationErrorHandler
 	    System.out.println("Run: " + runnum);
 	    break;
 	case 2:
-	    startTime = tmp[1]+" "+tmp[2]+" "+tmp[3];
-	    startTimeStamp = new Long(tmp[4]);
+	    if (!sourceFile.contains("Pixel")){
+		startTime = tmp[1]+" "+tmp[2]+" "+tmp[3];
+		startTimeStamp = new Long(tmp[4]);
+	    }
+	    else
+		startTime = record.substring(15);
 	    //System.out.println("Time of begin run: " + startTime);
 	    break;
 	case 3:
-	    endTime = tmp[1]+" "+tmp[2]+" "+tmp[3];
-	    endTimeStamp = new Long(tmp[4]);
-	    System.out.println("TimeStamp of fit: " + endTimeStamp + " [sec]");
+	    if (!sourceFile.contains("Pixel")) {
+		endTime = tmp[1]+" "+tmp[2]+" "+tmp[3];
+		endTimeStamp = new Long(tmp[4]);
+		System.out.println("TimeStamp of fit: " + endTimeStamp + " [sec]");
+	    }
+	    else
+		endTime = record.substring(13);
 	    System.out.println("Time of fit: " + endTime);
 	    break;
 	case 4:
@@ -440,8 +448,10 @@ implements Runnable,DipPublicationErrorHandler
      messageCMS.insert("runnum",runnum);
      messageCMS.insert("startTime",startTime);
      messageCMS.insert("endTime",endTime);
-     messageCMS.insert("startTimeStamp",startTimeStamp);
-     messageCMS.insert("endTimeStamp",endTimeStamp);
+     if (!sourceFile.contains("Pixel")) {
+	 messageCMS.insert("startTimeStamp",startTimeStamp);
+	 messageCMS.insert("endTimeStamp",endTimeStamp);
+     }
      messageCMS.insert("lumiRange",lumiRange);
      messageCMS.insert("quality",quality);
      messageCMS.insert("type",type); //Unknown=-1, Fake=0, Tracker=2(Good)
@@ -508,17 +518,26 @@ implements Runnable,DipPublicationErrorHandler
 	 else
 	     if (!alive.get(1) && !alive.get(2)) System.out.println("Publish record to CCC only");
      }
-     DipTimestamp zeit;
-     if (fitTime_) {
-	 long epoch;
-	 epoch = endTimeStamp*1000; //convert to ms
-	 System.out.println("epoch = " + epoch + " [ms]");
-	 zeit = new DipTimestamp(epoch);
-     }
-     else zeit = new DipTimestamp();
+     try
+     {
+      DipTimestamp zeit;
+      if (fitTime_) {
+	  long epoch;
+	  if (!sourceFile.contains("Pixel"))
+	      epoch = endTimeStamp*1000; //convert to ms
+	  else epoch = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss zzz").parse(endTime).getTime();
+	  System.out.println("epoch = " + epoch + " [ms]");
+	  zeit = new DipTimestamp(epoch);
+      }
+      else zeit = new DipTimestamp();
 
-     if(updateCMS_) publicationCMS.send(messageCMS, zeit);
-     publicationLHC.send(messageLHC, zeit);
+      if(updateCMS_) publicationCMS.send(messageCMS, zeit);
+      publicationLHC.send(messageLHC, zeit);
+     } catch (ParseException e) {
+	 System.err.println("ParseException [publishRcd]: " + getDateTime());
+	 System.err.println("Publishing failed due to time parsing because " + e.getMessage());
+	 e.printStackTrace();
+     }
 
      if (qlty_ == qualities[0]) {
 	 if (updateCMS_) publicationCMS.setQualityUncertain(err_);

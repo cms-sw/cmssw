@@ -44,7 +44,9 @@ namespace reco {
 
         /// If the member is found in object o, evaluate and return (value,true)
         /// If the member is not found but o is a Ref/RefToBase/Ptr, (return o.get(), false)
-        std::pair<Reflex::Object,bool> invoke(const Reflex::Object & o) const;
+        /// the actual Reflex::Object where the result is stored will be pushed in vector
+        /// so that, if needed, its destructor can be called
+        std::pair<Reflex::Object,bool> invoke(const Reflex::Object & o, std::vector<Reflex::Object> &v) const;
         
         // convert the output of invoke to a double, if possible
         double retToDouble(const Reflex::Object & o) const;
@@ -53,6 +55,7 @@ namespace reco {
         method::TypeCode            retType_;
         std::vector<MethodInvoker>  invokers_;
         mutable Reflex::Object      storage_;
+        bool                        storageNeedsDestructor_;
         /// true if this invoker just pops out a ref and returns (ref.get(), false)
         bool isRefGet_;
     };
@@ -65,9 +68,11 @@ namespace reco {
       ~LazyInvoker();
       /// invoke method, returns object that points to result (after stripping '*' and '&')
       /// the object is still owned by the LazyInvoker
-      Reflex::Object invoke(const Reflex::Object & o) const;
+      /// the actual Reflex::Object where the result is stored will be pushed in vector
+      /// so that, if needed, its destructor can be called
+      Reflex::Object invoke(const Reflex::Object & o, std::vector<Reflex::Object> &v) const;
       /// invoke and coerce result to double
-      double invokeLast(const Reflex::Object & o) const;
+      double invokeLast(const Reflex::Object & o, std::vector<Reflex::Object> &v) const;
     private:
       std::string name_;
       std::vector<AnyMethodArgument> argsBeforeFixups_;

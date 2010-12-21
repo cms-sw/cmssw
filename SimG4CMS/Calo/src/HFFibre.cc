@@ -121,14 +121,26 @@ double HFFibre::attLength(double lambda) {
     j = 0;
   double att = attL[j];
 #ifdef DebugLog
-  LogDebug("HFShower") << "HFFibre::attLength for Lambda " << lambda
-		       << " index " << i  << " " << j << " Att. Length " 
-		       << att;
+  edm::LogInfo("HFShower") << "HFFibre::attLength for Lambda " << lambda
+			   << " index " << i  << " " << j << " Att. Length " 
+			   << att;
 #endif
   return att;
 }
 
 double HFFibre::tShift(G4ThreeVector point, int depth, int fromEndAbs) {
+
+  double zFibre = zShift(point, depth, fromEndAbs);
+  double time   = zFibre/cFibre;
+#ifdef DebugLog
+  edm::LogInfo("HFShower") << "HFFibre::tShift for point " << point
+			   << " ( depth = " << depth <<", traversed length = " 
+			   << zFibre/cm  << " cm) = " << time/ns << " ns";
+#endif
+  return time;
+}
+
+double HFFibre::zShift(G4ThreeVector point, int depth, int fromEndAbs) {
 
   double zFibre = 0;
   double hR     = sqrt((point.x())*(point.x())+(point.y())*(point.y()));
@@ -153,15 +165,15 @@ double HFFibre::tShift(G4ThreeVector point, int depth, int fromEndAbs) {
     }
     if (depth == 2) zFibre += gpar[0];
   }
-  double time   = zFibre/cFibre;
+
 #ifdef DebugLog
-  LogDebug("HFShower") << "HFFibre::tShift for point " << point
-		       << " (R = " << hR/cm << " cm, Index = " << ieta 
-		       << ", depth = " << depth << ", Fibre Length = " 
-		       << length/cm       << " cm, traversed length = " 
-		       << zFibre/cm  << " cm) = " << time/ns << " ns";
+  edm::LogInfo("HFShower") << "HFFibre::zShift for point " << point
+			   << " (R = " << hR/cm << " cm, Index = " << ieta 
+			   << ", depth = " << depth << ", Fibre Length = " 
+			   << length/cm       << " cm = " << zFibre/cm  
+			   << " cm)";
 #endif
-  return time;
+  return zFibre;
 }
 
 std::vector<double> HFFibre::getDDDArray(const std::string & str, 

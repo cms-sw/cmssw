@@ -157,10 +157,6 @@
   <!-- ==========================================================================================================================
               PAT Dataformats beyond PatObjects
        ========================================================================================================================== -->
-  <class name="std::vector<edm::Ptr<CaloTower> >" />
-  <class name="std::vector<CaloTower>" />
-  <class name="edm::Wrapper<std::vector<CaloTower> >" />
-
   <class name="std::pair<std::string,std::vector<float> >" />
   <class name="edm::Wrapper<std::pair<std::string,std::vector<float> > >" />
   <class name="std::vector<pat::JetCorrFactors::CorrectionFactor>" />

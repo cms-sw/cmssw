@@ -1,13 +1,16 @@
 /* \class PFTauViewRefMerger
  *
- * Producer of merged references to Candidates
+ * Produces a RefVector of PFTaus from a different views of PFTau.
  *
- * \author: Luca Lista, INFN
- * modified: Evan Friis
+ * Note that the collections must all come from the same original collection!
  *
- * TODO = put this bug fix in CandAlgos
+ * Author: Evan K. Friis
  *
  */
+#include <boost/foreach.hpp>
+
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -20,20 +23,19 @@ class PFTauViewRefMerger : public edm::EDProducer {
   public:
     explicit PFTauViewRefMerger(const edm::ParameterSet& cfg) :
         src_(cfg.getParameter<std::vector<edm::InputTag> >("src")) {
-          produces<edm::RefToBaseVector<reco::Candidate> >();
+          produces<reco::PFTauRefVector>();
         }
   private:
     void produce(edm::Event & evt, const edm::EventSetup &) {
-      std::auto_ptr<edm::RefToBaseVector<reco::Candidate> >
-          out(new edm::RefToBaseVector<reco::Candidate>());
-      for(std::vector<edm::InputTag>::const_iterator i = src_.begin();
-          i != src_.end(); ++i) {
+      std::auto_ptr<reco::PFTauRefVector> out(new reco::PFTauRefVector());
+      BOOST_FOREACH(const edm::InputTag& inputSrc, src_) {
         edm::Handle<reco::CandidateView> src;
-        evt.getByLabel(*i, src);
-        reco::CandidateBaseRefVector refs = src->refVector();
-        for(reco::CandidateBaseRefVector::const_iterator j = refs.begin();
-            j != refs.end(); ++j) {
-          out->push_back(*j);
+        evt.getByLabel(inputSrc, src);
+        reco::PFTauRefVector inputRefs =
+            reco::tau::castView<reco::PFTauRefVector>(src);
+        // Merge all the collections
+        BOOST_FOREACH(const reco::PFTauRef tau, inputRefs) {
+          out->push_back(tau);
         }
       }
       evt.put(out);

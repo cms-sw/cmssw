@@ -3,9 +3,9 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.31 2009/05/12 16:47:04 nancy Exp $ 
- **  $Date: 2009/05/12 16:47:04 $ 
- **  $Revision: 1.31 $
+ **  $Id: ConvertedPhotonProducer.h,v 1.32 2010/01/15 18:25:53 nancy Exp $ 
+ **  $Date: 2010/01/15 18:25:53 $ 
+ **  $Revision: 1.32 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -109,7 +109,10 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   double minApproachDisCut_;
   int    maxNumOfCandidates_;
   bool risolveAmbiguity_;
+
+
   ConversionLikelihoodCalculator* theLikelihoodCalc_;
+  std::string likelihoodWeights_;
 
 
 

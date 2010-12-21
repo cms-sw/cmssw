@@ -34,19 +34,19 @@ class LMFLmrSubIOV : public LMFUnique {
     iov.setByID(m_lmfIOV);
     return iov;
   };
-  inline void getTimes(Tm *t1, Tm *t2, Tm *t3) const {
+  inline void getTimes(Tm *t1, Tm *t2, Tm *t3) {
     *t1 = m_t[0];
     *t2 = m_t[1];
     *t3 = m_t[2];
   }
-  std::vector<Tm> getTimes() const {
+  std::vector<Tm> getTimes() {
     std::vector<Tm> v;
     v.push_back(m_t[0]);
     v.push_back(m_t[1]);
     v.push_back(m_t[2]);
     return v;
   }
-  inline void getTimes(Tm *t) const {
+  inline void getTimes(Tm *t) {
     t[0] = m_t[0];
     t[1] = m_t[1];
     t[2] = m_t[2];

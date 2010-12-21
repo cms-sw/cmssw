@@ -41,7 +41,7 @@ def createRunList(c,p='.',o='.',dryrun=False):
             report.writeRow([run])
     else:
         print allruns
-def totalLumivstime(c,p='.',i='',o='.',begTime="03/30/10 10:00:00.00",endTime="11/03/10 00:00:00.00",selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False):
+def totalLumivstime(c,p='.',i='',o='.',begTime="03/30/10 10:00:00.00",endTime=None,selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False):
     '''
     input:
       c connect string
@@ -116,7 +116,7 @@ def totalLumivstimeLastweek(c,p='.',i='',o='.',selectionfile=None,beamstatus=Non
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
         
-def lumiPerDay(c,p='.',i='',o='',begTime="03/30/10 10:00:00.00",endTime="11/03/10 00:00:00.00",selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False):
+def lumiPerDay(c,p='.',i='',o='',begTime="03/30/10 10:00:00.00",endTime=None,selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False):
     '''
     input:
       c connect string
@@ -153,7 +153,7 @@ def lumiPerDay(c,p='.',i='',o='',begTime="03/30/10 10:00:00.00",endTime="11/03/1
     if not dryrun:
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
-def totalLumivsRun(c,p='.',i='',o='',begRun="132440",endRun="149509",selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False):
+def totalLumivsRun(c,p='.',i='',o='',begRun="132440",endRun=None,selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False):
     '''
     input:
       c connect string
@@ -186,7 +186,7 @@ def totalLumivsRun(c,p='.',i='',o='',begRun="132440",endRun="149509",selectionfi
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
 
-def totalLumivsFill(c,p='.',i='',o='',begFill="1005",endFill="1461",selectionfile=None,beamenergy=None,beamstatus=None,beamfluctuation=None,dryrun=False,withTextOutput=False):
+def totalLumivsFill(c,p='.',i='',o='',begFill="1005",endFill=None,selectionfile=None,beamenergy=None,beamstatus=None,beamfluctuation=None,dryrun=False,withTextOutput=False):
     '''
     input:
       c connect string
@@ -237,7 +237,7 @@ def instLumiForRuns(c,runnumbers,p='.',o='',dryrun=False):
         if not dryrun:
             statusAndOutput=commands.getstatusoutput(command)
             print statusAndOutput[1]
-def instPeakPerday(c,p='.',o='.',begTime="03/30/10 10:00:00.00",endTime="11/03/10 00:00:00.00",dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False):
+def instPeakPerday(c,p='.',o='.',begTime="03/30/10 10:00:00.00",endTime=None,dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False):
     '''
     input:
       c connect string

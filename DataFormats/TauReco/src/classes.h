@@ -72,6 +72,7 @@ namespace {
     edm::Ref<std::vector<reco::PFTau> >                         pft_r;
     edm::RefProd<std::vector<reco::PFTau> >                     pft_rp;
     edm::RefVector<std::vector<reco::PFTau> >                   pft_rv;
+    edm::Wrapper<edm::RefVector<std::vector<reco::PFTau> > >         pft_rvw;
     edm::reftobase::Holder<reco::BaseTau,reco::PFTauRef>        pft_rb;
 
     edm::View<reco::PFTau>  jv;

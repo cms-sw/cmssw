@@ -1,4 +1,4 @@
-//$Id: Utils.cc,v 1.15 2010/12/02 15:49:42 mommsen Exp $
+//$Id: Utils.cc,v 1.13 2010/04/13 09:15:39 mommsen Exp $
 /// @file: Utils.cc
 
 #include "EventFilter/StorageManager/interface/Exception.h"
@@ -65,39 +65,15 @@ namespace stor
       tm ptm;
       localtime_r(&rawtime, &ptm);
       std::ostringstream timeStampStr;
-      timeStampStr << std::setfill('0') << std::setw(2) << ptm.tm_mday      << "/" 
-                   << std::setfill('0') << std::setw(2) << ptm.tm_mon+1     << "/"
-                   << std::setfill('0') << std::setw(4) << ptm.tm_year+1900 << ":"
-                   << std::setfill('0') << std::setw(2) << ptm.tm_hour      << "/"
-                   << std::setfill('0') << std::setw(2) << ptm.tm_min       << "/"
+      std::string colon(":");
+      std::string slash("/");
+      timeStampStr << std::setfill('0') << std::setw(2) << ptm.tm_mday      << slash 
+                   << std::setfill('0') << std::setw(2) << ptm.tm_mon+1     << slash
+                   << std::setfill('0') << std::setw(4) << ptm.tm_year+1900 << colon
+                   << std::setfill('0') << std::setw(2) << ptm.tm_hour      << slash
+                   << std::setfill('0') << std::setw(2) << ptm.tm_min       << slash
                    << std::setfill('0') << std::setw(2) << ptm.tm_sec;
       return timeStampStr.str();
-    }
-
-
-    std::string timeStampUTC(time_point_t theTime)
-    {
-      time_t rawtime = (time_t)theTime;
-      tm ptm;
-      gmtime_r(&rawtime, &ptm);
-      std::ostringstream timeStampStr;
-      timeStampStr << std::setfill('0') << std::setw(2) << ptm.tm_hour      << ":"
-                   << std::setfill('0') << std::setw(2) << ptm.tm_min       << ":"
-                   << std::setfill('0') << std::setw(2) << ptm.tm_sec;
-      return timeStampStr.str();
-   }
-
-
-    std::string asctimeUTC(time_point_t theTime)
-    {
-      time_t rawtime = (time_t)theTime;
-      tm ptm;
-      gmtime_r(&rawtime, &ptm);
-      char buf[30];
-      asctime_r(&ptm, buf);
-      std::ostringstream dateStampStr;
-      dateStampStr << buf << " UTC";
-      return dateStampStr.str();
     }
 
 

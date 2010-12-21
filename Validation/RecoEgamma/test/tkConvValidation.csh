@@ -21,8 +21,8 @@ setenv CMSSWver1 3_10_0
 setenv CMSSWver2 3_10_0
 setenv OLDRELEASE 3_10_0
 setenv NEWRELEASE 3_10_0
-setenv OLDPRERELEASE pre2
-setenv NEWPRERELEASE pre5
+setenv OLDPRERELEASE pre5
+setenv NEWPRERELEASE pre7TEST2
 
 
 setenv OLDRELEASE ${OLDRELEASE}_${OLDPRERELEASE}
@@ -34,6 +34,7 @@ setenv NEWRELEASE ${NEWRELEASE}_${NEWPRERELEASE}
 setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
 setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
+
 #setenv WorkDir1    /data/pccmsnd1/b/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
 #setenv WorkDir2    /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 #setenv WorkDir2    /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
@@ -43,8 +44,8 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 
 
 #setenv SAMPLE SingleGammaPt10IDEAL
-#setenv SAMPLE SingleGammaPt35IDEAL
-setenv SAMPLE QCD_Pt_80_120STARTUP
+setenv SAMPLE SingleGammaPt35IDEAL
+#setenv SAMPLE QCD_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_20_30STARTUP
 
 #TYPE must be one ofPixelMatchGsfElectron, Photon 
@@ -61,7 +62,9 @@ setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt10.r
 else if ($SAMPLE == SingleGammaPt35IDEAL) then
 
 setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt35.root
-setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.root
+#setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35TEST.root
+setenv NEWFILE /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_3_10_0_pre7/src/Validation/RecoEgamma/test/PhotonValidationRelVal3_10_0_pre7_SingleGammaPt35TEST.root
+
 
 else if ($SAMPLE == QCD_Pt_80_120STARTUP) then 
 

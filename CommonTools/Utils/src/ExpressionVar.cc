@@ -33,7 +33,7 @@ ExpressionVar::delStorage(Reflex::Object &obj) {
             delete p;
         } else {
             //std::cout << "Calling Destruct on a " << obj.TypeOf().Name(QUALIFIED) << std::endl;
-            obj.Destruct(); 
+            obj.TypeOf().Deallocate(obj.Address());
         }
     }
 }
@@ -43,12 +43,13 @@ void ExpressionVar::initObjects_() {
     std::vector<MethodInvoker>::const_iterator it = methods_.begin(), ed = methods_.end();
     std::vector<Reflex::Object>::iterator itobj = objects_.begin();
     for (; it != ed; ++it, ++itobj) {
-        makeStorage(*itobj, it->method());
+        needsDestructor_.push_back(makeStorage(*itobj, it->method()));
     }
 }
 
-void
+bool
 ExpressionVar::makeStorage(Reflex::Object &obj, const Reflex::Member &member) {
+    bool ret = false;
     static Type tVoid = Type::ByName("void");
     if (member.IsFunctionMember()) {
         Reflex::Type retType = member.TypeOf().ReturnType();
@@ -61,12 +62,14 @@ ExpressionVar::makeStorage(Reflex::Object &obj, const Reflex::Member &member) {
             // in this case, I have to allocate a void *, not an object!
             obj = Reflex::Object(retType, new void *);
         } else {
-            obj = retType.Construct();
+            obj = Reflex::Object(retType, retType.Allocate());
+            ret = retType.IsClass();
             //std::cout << "ExpressionVar: reserved memory at "  << obj.Address() << " for a " << retType.Name(QUALIFIED) << " returned by " << member.Name() << std::endl;
         }
     } else { // no alloc, we don't need it
         obj = Reflex::Object();
     }
+    return ret;
 }
 
 bool ExpressionVar::isValidReturnType(method::TypeCode retType)
@@ -100,7 +103,13 @@ double ExpressionVar::value(const Object & o) const {
   for(itm = methods_.begin(), ito = objects_.begin(); itm != end; ++itm, ++ito) {
       ro = itm->invoke(ro, *ito);
   }
-  return objToDouble(ro, retType_);
+  double ret = objToDouble(ro, retType_);
+  std::vector<Reflex::Object>::reverse_iterator rito, rend = objects_.rend();;
+  std::vector<bool>::const_reverse_iterator ritb;
+  for(rito = objects_.rbegin(), ritb = needsDestructor_.rbegin(); rito != rend; ++rito, ++ritb) {
+      if (*ritb) rito->TypeOf().Destruct(rito->Address(), false);
+  }
+  return ret;
 }
 
 double
@@ -154,8 +163,14 @@ ExpressionLazyVar::value(const Reflex::Object & o) const {
     std::vector<LazyInvoker>::const_iterator it, ed = methods_.end()-1;
     Reflex::Object ro = o;
     for (it = methods_.begin(); it < ed; ++it) {
-        ro = it->invoke(ro);
+        ro = it->invoke(ro, objects_);
     }
-    return it->invokeLast(ro);
+    double ret = it->invokeLast(ro, objects_);
+    std::vector<Reflex::Object>::reverse_iterator rit, red = objects_.rend();
+    for (rit = objects_.rbegin(); rit != red; ++rit) {
+        rit->TypeOf().Destruct(rit->Address(), false);
+    }
+    objects_.clear();
+    return ret;
 }
 

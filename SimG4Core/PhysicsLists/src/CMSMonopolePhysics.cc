@@ -57,11 +57,11 @@ void CMSMonopolePhysics::ConstructParticle() {
   for (unsigned int ii=0; ii<names.size(); ++ii) {
     if (!monopoles[ii]) {
       G4Monopole* mpl = new G4Monopole(names[ii], pdgEncodings[ii],
-				       masses[ii], magCharge, elCharges[ii]);;
+				       masses[ii], ((pdgEncodings[ii] > 0 ) ? magCharge : -magCharge), elCharges[ii]);;
       monopoles[ii] = mpl;
       if (verbose > 0) G4cout << "Create G4Monopole " << names[ii] 
 			      << " of mass " << masses[ii]/CLHEP::GeV
-			      << " GeV, magnetic charge " << magCharge 
+			      << " GeV, magnetic charge " << ((pdgEncodings[ii] > 0) ? magCharge : -magCharge)
 			      << ", electric charge " << elCharges[ii]
 			      << " and PDG encoding " << pdgEncodings[ii]
 			      << " at " << monopoles[ii] << G4endl;

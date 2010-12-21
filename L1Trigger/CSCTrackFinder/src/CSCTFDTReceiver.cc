@@ -1,5 +1,5 @@
 #include <L1Trigger/CSCTrackFinder/src/CSCTFDTReceiver.h>
-#include <L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h>
+#include <L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h>  //temporary fix for Jorge
 #include <L1TriggerConfig/DTTPGConfig/interface/DTConfigTraco.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
@@ -14,8 +14,8 @@ CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChamb
   dtstubs.clear();
   if( !dttrig ) return dtstubs;
 
-  const int dt_minBX = L1MuDTTFConfig::getBxMin();
-  const int dt_maxBX = L1MuDTTFConfig::getBxMax();
+  const int dt_minBX = L1MuDTTFConfig::getBxMin(); //temporary fix for Jorge 
+  const int dt_maxBX = L1MuDTTFConfig::getBxMax(); //temporary fix for Jorge
 
   const int dt_toffs = 0;// changed since DT tpg now centers around zero //abs(dt_maxBX - dt_minBX);
 

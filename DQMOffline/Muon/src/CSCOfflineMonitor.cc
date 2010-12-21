@@ -275,26 +275,26 @@ void CSCOfflineMonitor::beginJob(void){
       hRHRatioQ.push_back(dbe->book1D("hRHRatioQp32","Charge Ratio (Ql+Qr)/Qt (ME +3/2); (Ql+Qr)/Qt",100,-0.1,1.1));
       hRHRatioQ.push_back(dbe->book1D("hRHRatioQp41","Charge Ratio (Ql+Qr)/Qt (ME +4/1); (Ql+Qr)/Qt",100,-0.1,1.1));
       hRHRatioQ.push_back(dbe->book1D("hRHRatioQp42","Charge Ratio (Ql+Qr)/Qt (ME +4/2); (Ql+Qr)/Qt",100,-0.1,1.1));
-      hRHTiming.push_back(dbe->book1D("hRHTimingm42","recHit Time (ME -4/2); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingm41","recHit Time (ME -4/1); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingm32","recHit Time (ME -3/2); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingm31","recHit Time (ME -3/1); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingm22","recHit Time (ME -2/2); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingm21","recHit Time (ME -2/1); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingm11a","recHit Time (ME -1/1a); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingm13","recHit Time (ME -1/3); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingm12","recHit Time (ME -1/2); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingm11b","recHit Time (ME -1/1b); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingp11b","recHit Time (ME +1/1b); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingp12","recHit Time (ME +1/2); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingp13","recHit Time (ME +1/3); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingp11a","recHit Time (ME +1/1a); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingp21","recHit Time (ME +2/1); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingp22","recHit Time (ME +2/2); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingp31","recHit Time (ME +3/1); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingp32","recHit Time (ME +3/2); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingp41","recHit Time (ME +4/1); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingp42","recHit Time (ME +4/2); ns",200,-500.,500.));
+      hRHTiming.push_back(dbe->book1D("hRHTimingm42","recHit Timing (ME -4/2); Time Bin (50 ns)",100,0,10));
+      hRHTiming.push_back(dbe->book1D("hRHTimingm41","recHit Timing (ME -4/1); Time Bin (50 ns)",100,0,10));
+      hRHTiming.push_back(dbe->book1D("hRHTimingm32","recHit Timing (ME -3/2); Time Bin (50 ns)",100,0,10));
+      hRHTiming.push_back(dbe->book1D("hRHTimingm31","recHit Timing (ME -3/1); Time Bin (50 ns)",100,0,10));
+      hRHTiming.push_back(dbe->book1D("hRHTimingm22","recHit Timing (ME -2/2); Time Bin (50 ns)",100,0,10));
+      hRHTiming.push_back(dbe->book1D("hRHTimingm21","recHit Timing (ME -2/1); Time Bin (50 ns)",100,0,10));
+      hRHTiming.push_back(dbe->book1D("hRHTimingm11a","recHit Timing (ME -1/1a); Time Bin (50 ns)",100,0,10));
+      hRHTiming.push_back(dbe->book1D("hRHTimingm13","recHit Timing (ME -1/3); Time Bin (50 ns)",100,0,10));
+      hRHTiming.push_back(dbe->book1D("hRHTimingm12","recHit Timing (ME -1/2); Time Bin (50 ns)",100,0,10));
+      hRHTiming.push_back(dbe->book1D("hRHTimingm11b","recHit Timing (ME -1/1b); Time Bin (50 ns)",100,0,10));
+      hRHTiming.push_back(dbe->book1D("hRHTimingp11b","recHit Timing (ME +1/1b); Time Bin (50 ns)",100,0,10));
+      hRHTiming.push_back(dbe->book1D("hRHTimingp12","recHit Timing (ME +1/2); Time Bin (50 ns)",100,0,10));
+      hRHTiming.push_back(dbe->book1D("hRHTimingp13","recHit Timing (ME +1/3); Time Bin (50 ns)",100,0,10));
+      hRHTiming.push_back(dbe->book1D("hRHTimingp11a","recHit Timing (ME +1/1a); Time Bin (50 ns)",100,0,10));
+      hRHTiming.push_back(dbe->book1D("hRHTimingp21","recHit Timing (ME +2/1); Time Bin (50 ns)",100,0,10));
+      hRHTiming.push_back(dbe->book1D("hRHTimingp22","recHit Timing (ME +2/2); Time Bin (50 ns)",100,0,10));
+      hRHTiming.push_back(dbe->book1D("hRHTimingp31","recHit Timing (ME +3/1); Time Bin (50 ns)",100,0,10));
+      hRHTiming.push_back(dbe->book1D("hRHTimingp32","recHit Timing (ME +3/2); Time Bin (50 ns)",100,0,10));
+      hRHTiming.push_back(dbe->book1D("hRHTimingp41","recHit Timing (ME +4/1); Time Bin (50 ns)",100,0,10));
+      hRHTiming.push_back(dbe->book1D("hRHTimingp42","recHit Timing (ME +4/2); Time Bin (50 ns)",100,0,10));
       hRHstpos.push_back(dbe->book1D("hRHstposm42","Reconstructed Position on Strip (ME -4/2); Strip Widths",120,-0.6,0.6));
       hRHstpos.push_back(dbe->book1D("hRHstposm41","Reconstructed Position on Strip (ME -4/1); Strip Widths",120,-0.6,0.6));
       hRHstpos.push_back(dbe->book1D("hRHstposm32","Reconstructed Position on Strip (ME -3/2); Strip Widths",120,-0.6,0.6));
@@ -927,7 +927,7 @@ void CSCOfflineMonitor::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits,
     if (adcsize != 12) rHratioQ = -99;
 
     // Get the signal timing of this hit
-    float rHtime = (*dRHIter).tpeak();
+    float rHtime = (*dRHIter).tpeak()/50;
  
     // Get pointer to the layer:
     const CSCLayer* csclayer = cscGeom->layer( idrec );

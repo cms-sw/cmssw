@@ -1,8 +1,8 @@
 /**
  * \file AlignmentParameterStore.cc
  *
- *  $Revision: 1.28 $
- *  $Date: 2009/04/28 14:09:17 $
+ *  $Revision: 1.29 $
+ *  $Date: 2010/10/26 20:15:41 $
  *  (last update by $Author: flucke $)
  */
 
@@ -18,8 +18,7 @@
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
-#include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
-#include "Alignment/CommonAlignmentParametrization/interface/AlignmentParametersFactory.h"
+#include "Alignment/CommonAlignmentParametrization/interface/ParametersToParametersDerivatives.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentExtendedCorrelationsStore.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
@@ -635,48 +634,38 @@ bool AlignmentParameterStore
 ::hierarchyConstraints(const Alignable *ali, const align::Alignables &aliComps,
 		       std::vector<std::vector<ParameterId> > &paramIdsVecOut,
 		       std::vector<std::vector<double> > &factorsVecOut,
-		       bool all6, double epsilon) const
+		       bool all, double epsilon) const
 {
-  // Weak point if all6 = false:
+  // Weak point if all = false:
   // Ignores constraints between non-subsequent levels in case the parameter is not considered in
   // the intermediate level, e.g. global z for dets and layers is aligned, but not for rods!
   if (!ali || !ali->alignmentParameters()) return false;
 
-  using namespace AlignmentParametersFactory;
-  const int aliParType = ali->alignmentParameters()->type();
-  if (aliParType != kRigidBody && aliParType != kRigidBody4D) {
-    throw cms::Exception("BadConfig") << "AlignmentParameterStore::hierarchyConstraints"
-				      << " requires 'ali' to have rigid body alignment parameters, but is "
-				      << parametersTypeName(parametersType(aliParType));
-  }
-
   const std::vector<bool> &aliSel= ali->alignmentParameters()->selector();
   paramIdsVecOut.clear();
   factorsVecOut.clear();
-  FrameToFrameDerivative f2fDerivMaker;
 
   bool firstComp = true;
   for (align::Alignables::const_iterator iComp = aliComps.begin(), iCompE = aliComps.end();
        iComp != iCompE; ++iComp) {
-    const int compParType = (*iComp)->alignmentParameters()->type();
-    if (compParType != kRigidBody && compParType != kRigidBody4D) {
+
+    const ParametersToParametersDerivatives p2pDerivs(**iComp, *ali);
+    if (!p2pDerivs.isOK()) {
       throw cms::Exception("BadConfig")
 	<< "AlignmentParameterStore::hierarchyConstraints"
-	<< " requires all 'aliComps' to have rigid body alignment parameters,"
-	<< " but is " << parametersTypeName(parametersType(compParType));
+	<< " Bad match of types of AlignmentParameters classes.\n";
+      return false;
     }
-
-    const AlgebraicMatrix f2fDeriv(f2fDerivMaker.frameToFrameDerivative(*iComp, ali));
     const std::vector<bool> &aliCompSel = (*iComp)->alignmentParameters()->selector();
     for (unsigned int iParMast = 0, iParMastUsed = 0; iParMast < aliSel.size(); ++iParMast) {
-      if (!all6 && !aliSel[iParMast]) continue;// no higher level parameter & constraint deselected
+      if (!all && !aliSel[iParMast]) continue;// no higher level parameter & constraint deselected
       if (firstComp) { // fill output with empty arrays 
 	paramIdsVecOut.push_back(std::vector<ParameterId>());
 	factorsVecOut.push_back(std::vector<double>());
       }
-      for (int iParComp = 0; iParComp < f2fDeriv.num_col(); ++iParComp) {
+      for (unsigned int iParComp = 0; iParComp < aliCompSel.size(); ++iParComp) {
 	if (aliCompSel[iParComp]) {
-	  const double factor = f2fDeriv[iParMast][iParComp]; // switch col/row? GF: Should be fine.
+	  const double factor = p2pDerivs(iParMast, iParComp);
 	  if (fabs(factor) > epsilon) {
 	    paramIdsVecOut[iParMastUsed].push_back(ParameterId(*iComp, iParComp));
 	    factorsVecOut[iParMastUsed].push_back(factor);

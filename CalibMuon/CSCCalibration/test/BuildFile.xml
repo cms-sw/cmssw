@@ -36,15 +36,9 @@
 <library   name="CSCL1TPParametersPopConAnalyzer" file="stubs/CSCL1TPParametersHandler.cc,stubs/CSCL1TPParametersPopConAnalyzer.cc">
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library   name="CSCDBL1TPParametersPopConAnalyzer" file="stubs/CSCDBL1TPParametersHandler.cc,stubs/CSCDBL1TPParametersPopConAnalyzer.cc">
-  <flags   EDM_PLUGIN="1"/>
-</library>
 <library   name="CSCBadChambersPopConAnalyzer" file="stubs/CSCBadChambersHandler.cc,stubs/CSCBadChambersPopConAnalyzer.cc">
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   name="CSCChipSpeedCorrectionPopConAnalyzer" file="stubs/CSCDBChipSpeedCorrectionHandler.cc,stubs/CSCChipSpeedCorrectionPopConAnalyzer.cc">
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   name="Compare" file="stubs/Compare.cc">
   <flags   EDM_PLUGIN="1"/>
 </library>

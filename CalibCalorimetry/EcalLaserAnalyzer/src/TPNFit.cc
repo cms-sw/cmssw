@@ -1,7 +1,7 @@
 /* 
  *  \class TPNFit
  *
- *  $Date: 2009/06/02 12:55:21 $
+ *  $Date: 2007/07/27 18:08:04 $
  *  \author: Patrice Verrecchia - CEA/Saclay
  */
 
@@ -9,10 +9,6 @@
 
 #include <iostream>
 #include "TVectorD.h"
-#include "TF1.h"
-#include "TH1D.h"
-#include "TMath.h"
-#include "TFile.h"
 
 //ClassImp(TPNFit)
 
@@ -38,14 +34,11 @@ void TPNFit::init(int nsamples, int firstsample, int lastsample)
   fNum_samp_after_max = lastsample  ;
   //printf("nsamples=%d firstsample=%d lastsample=%d\n",nsamples,firstsample,lastsample);
 
-  if(fNsamples > NMAXSAMPPN)
+  if(fNsamples > NMAXSAMP2)
           printf("number of PN samples exceed maximum\n");
 
-  for(int k=0;k<NMAXSAMPPN;k++)
+  for(int k=0;k<NMAXSAMP2;k++)
        t[k]= (double) k;
-
-  htmp = new TH1D("htmp","htmp",NMAXSAMPPN,0.,double(NMAXSAMPPN));
-  fPN = new TF1("fPN",fitPN_tp,0.,double(NMAXSAMPPN),5);
 
   return ;
 }
@@ -127,88 +120,3 @@ double TPNFit::doFit(int maxsample, double *adc)
 
   return chi2;
 }
-
-double TPNFit::doFit2( double *adc, double tau1, double tau2, double ampl, 
-		       double time, double qmax )
-{
-
-  //TFile * file = new TFile("/nfshome0/ecallaser/cmssw/CMSSW_3_2_0_dev2/src/CalibCalorimetry/EcalLaserAnalyzer/test.root","RECREATE");
-
-  ampl2=0.0;
-  timeatmax2=0.0;
-
-  htmp->Reset();
-  int imax=0; double max=0.;
-
-  for(int is=0; is<NMAXSAMPPN; is++){
-    htmp->SetBinContent(is+1,adc[is]);
-    if(adc[is]>max){
-      max=adc[is];
-      imax=is;
-    }
-  }
-  for(int is=0; is<NMAXSAMPPN; is++) htmp->SetBinError(is+1,2.);
-    
-  fPN->SetParameter(0,ampl);
-  fPN->SetParameter(1,time);
-  fPN->SetParLimits(0,ampl/2.,ampl*2.);
-  fPN->SetParLimits(1,5.,15.);
-  fPN->FixParameter(2, tau1);
-  fPN->FixParameter(3, tau2);
-  fPN->FixParameter(4, qmax);
-
-  // int isup=(int)(time)+fNum_samp_after_max;
-  // int iinf=(int)(time)-fNum_samp_bef_max;
-  //int isup=(int)(time+10.0);
-  //int iinf=(int)(time-tau1/2.0);
-  int isup=(int)(imax+10.0);
-  int iinf=(int)(imax-tau1/2.0);
-
-  if(isup>50)isup=50;
-  if(iinf<5)iinf=5;
-  
-  int fitStatus= htmp->Fit(fPN,"Q0","",iinf,isup);
-  
-  ampl2=fPN->GetParameter(0);
-  timeatmax2=fPN->GetMaximumX();
-
-  //htmp->Write();
-  //file->Close();
-
-  return double(fitStatus);
-
-}
-
-double TPNFit::fitPN_tp(double *x, double *par)
-{
-  // Convolute SPR with scintillation signal :
-  // s(t)=p3*[p0/p1*exp(-(t-p4)/p1)+(1-p0)/p2*exp(-(t-p4)/p2)]
-
- 
-
-  double amp=par[0];
-  if(amp<-100.)amp=-100.;
-  double t0=par[1];
-  double tau1=par[2];
-  double tau2=par[3];
-  double qmax=par[4];
-  if(t0<1.)t0=1.;
-  if(t0>25.)t0=25.;
-  
-  double a=tau2/(tau2-tau1);
-  double t=x[0];
-  double y=0.;
-  
- 
-  if(t>t0) y= amp*(a*(1.-a)*(TMath::Exp(-(t-t0)/tau1)-TMath::Exp(-(t-t0)/tau2))+
-		   (t-t0)/tau1*(1.-a-(t-t0)/2./tau1)*TMath::Exp(-(t-t0)/tau1))/qmax;
- 
-  return(y);
-}
-
-// TF1* TPNFit::funcPN(double *x, double *par){
-
-//   TF1* func = new TF1("fPN",fitPN_tp,0.,double(NMAXSAMPPN),2);
-//   return func;
-// }
-

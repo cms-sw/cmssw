@@ -30,6 +30,7 @@
 #include "Reflex/Type.h"
 #include "Cintex/Cintex.h"
 #include "TClass.h"
+#include "RVersion.h"
 
 // We cannot use the MessageLogger here because this is also used by standalones that do not have the logger.
 
@@ -299,11 +300,18 @@ namespace edm {
    // constructors and destructor
    //
    RootAutoLibraryLoader::RootAutoLibraryLoader() :
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,6)
+     classNameAttemptingToLoad_(0),
+     isInitializingCintex_(true) {
+#else
      classNameAttemptingToLoad_(0) {
+#endif
       AssertHandler h();
       gROOT->AddClassGenerator(this);
       ROOT::Cintex::Cintex::Enable();
-
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,6)
+      isInitializingCintex_ =false;
+#endif
       //set the special cases
       std::map<std::string, std::string>& specials = cintToReflexSpecialCasesMap();
       if(specials.empty()) {
@@ -361,7 +369,14 @@ namespace edm {
       //std::cout << "looking for " << classname << " load " << (load? "T":"F") << std::endl;
       if (load) {
         //std::cout << " going to call loadLibraryForClass" << std::endl;
-        if (loadLibraryForClass(classname)) {
+        //[ROOT 5.28] When Cintex is in its 'Enable' method it will register callbacks to build
+        // TClasses. During this phase we do not want to actually force TClasses to have to 
+        // come into existence.
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,6)
+        if (loadLibraryForClass(classname) and not isInitializingCintex_) {
+#else
+         if (loadLibraryForClass(classname)) {
+#endif
           //use this to check for infinite recursion attempt
           classNameAttemptingToLoad_ = classname;
           // This next call will create the TClass object for the class.

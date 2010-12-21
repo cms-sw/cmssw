@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedProducer.cc,v 1.17 2010/07/29 12:05:31 chamont Exp $
+// $Id: ElectronSeedProducer.cc,v 1.16 2010/04/30 13:54:23 chamont Exp $
 //
 //
 

@@ -1,13 +1,15 @@
 /** \file FrameToFrameDerivative.cc
  *
- *  $Date: 2007/02/12 16:14:11 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/03/12 21:28:48 $
+ *  $Revision: 1.5 $
  */
-
-#include "Alignment/CommonAlignment/interface/Alignable.h"
 
 #include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
 
+#include "Alignment/CommonAlignment/interface/Alignable.h"
+
+// already in header: #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+#include "DataFormats/CLHEP/interface/Migration.h"
 
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
@@ -21,15 +23,24 @@ FrameToFrameDerivative::frameToFrameDerivative(const Alignable* object,
 
 }
 
+//__________________________________________________________________________________________________
+AlgebraicMatrix66 
+FrameToFrameDerivative::getDerivative(const align::RotationType &objectRot,
+                                      const align::RotationType &composeRot,
+				      const align::GlobalPoint &objectPos,
+				      const align::GlobalPoint &composePos) const
+{
+  return asSMatrix<6,6>(this->getDerivative(objectRot, composeRot, composePos - objectPos));
+}
 
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
-FrameToFrameDerivative::getDerivative(const align::RotationType &detUnitRot,
+FrameToFrameDerivative::getDerivative(const align::RotationType &objectRot,
 				      const align::RotationType &composeRot,
 				      const align::GlobalVector &posVec) const
 {
 
-  AlgebraicMatrix rotDet   = transform(detUnitRot);
+  AlgebraicMatrix rotDet   = transform(objectRot);
   AlgebraicMatrix rotCompO = transform(composeRot);
 
   AlgebraicVector diffVec(3);

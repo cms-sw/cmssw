@@ -18,7 +18,8 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
+
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -49,8 +50,8 @@ private:
   edm::InputTag metTag_;
   bool  metIncludesMuons_;
 
-  // const std::string hltPath_;  
-  //  const std::string L3FilterName_;    
+  const std::string hltPath_;  
+  const std::string L3FilterName_;    
  
   double ptMuCut_;
   double etaMuCut_;
@@ -126,9 +127,6 @@ private:
   bool isZGlbSta_;
   bool isZGlbTrk_;
   bool isW_;
-
-  bool isValidHltConfig_;
-  HLTConfigProvider  hltConfigProvider_;
 
 
 };

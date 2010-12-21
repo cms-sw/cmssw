@@ -18,8 +18,8 @@ class UEAnalysisMPI {
 
   UEAnalysisMPI();
   ~UEAnalysisMPI(){}
-  
-  void mpiAnalysisMC(Float_t,Float_t,Float_t,TClonesArray&);
+
+  void mpiAnalysisMC(float,float,float,TClonesArray*);
   void mpiAnalysisRECO(float,float,float,TClonesArray*);
 
   void Begin(TFile *);

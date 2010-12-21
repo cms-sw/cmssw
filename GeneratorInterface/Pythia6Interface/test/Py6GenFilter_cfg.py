@@ -20,16 +20,9 @@ process.MessageLogger.destinations = ['cerr']
 process.MessageLogger.statistics = []
 process.MessageLogger.fwkJobReports = []
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(5))
 
-###process.source = cms.Source("EmptySource")
-process.source = cms.Source("EmptySource",
-     firstLuminosityBlock = cms.untracked.uint32(1),
-     numberEventsInLuminosityBlock = cms.untracked.uint32(5),
-     firstEvent = cms.untracked.uint32(1),
-     firstRun = cms.untracked.uint32(1),
-     numberEventsInRun = cms.untracked.uint32(10)
-)
+process.source = cms.Source("EmptySource")
 
 from Configuration.Generator.PythiaUESettings_cfi import *
 from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
@@ -39,8 +32,8 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     maxEventsToPrint = cms.untracked.int32(3),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     # this shows how to turn ON some of the general Py6 printouts, like banner...
-    # --> displayPythiaBanner = cms.untracked.bool(True),
-    # --> displayPythiaCards = cms.untracked.bool(True),
+    displayPythiaBanner = cms.untracked.bool(True),
+    displayPythiaCards = cms.untracked.bool(True),
     comEnergy = cms.double(10000.0),
     ExternalDecays = cms.PSet(
         Tauola = cms.untracked.PSet(

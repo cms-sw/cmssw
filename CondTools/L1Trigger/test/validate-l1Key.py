@@ -1,16 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process('L1')
 
-# Define CondDB tags
-from CondTools.L1Trigger.L1CondEnum_cfi import L1CondEnum
-from CondTools.L1Trigger.L1O2OTags_cfi import initL1O2OTags
-initL1O2OTags()
-
 from CondTools.L1Trigger.L1CondDBSource_cff import initCondDBSource
 initCondDBSource(
     process,
     inputDBConnect = 'sqlite_file:l1config.db',
-    tagBaseVec = initL1O2OTags.tagBaseVec,
+    tagBase = 'CRAFT09_hlt',
     includeAllTags = True
 )
 process.maxEvents = cms.untracked.PSet(
@@ -76,8 +71,7 @@ process.load('Configuration/EventContent/EventContent_cff')
 
 # load and configure modules via Global Tag
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
-#process.GlobalTag.globaltag = 'GR10_H_V4::All'
-process.GlobalTag.globaltag = 'GR10_H_V8::All'
+process.GlobalTag.globaltag = 'GR10_H_V4::All'
 process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_31X_GLOBALTAG"
 
 process.p = cms.Path(

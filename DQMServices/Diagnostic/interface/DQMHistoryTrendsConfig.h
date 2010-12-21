@@ -1,6 +1,6 @@
 #ifndef DQMHISTORYTRENDSCONFIG_H
 #define DQMHISTORYTRENDSCONFIG_H
-#include <iostream>
+
 #include <string>
 
 /**
@@ -24,8 +24,6 @@ public:
   {
     // Do not use the range if the defaults were changed
     useYrange = 0;
-    std::cout << "yMin = " << yMin << " YMax = " << yMax << std::endl;
-	
     if ( yMin != 999999 && yMax != -999999) {
       useYrange = 3;
     } else if ( yMin != 999999) {
@@ -33,8 +31,7 @@ public:
     } else if( yMax != -999999 ) {
       useYrange = 2;
     }
-
-   }
+  }
 
 //   /// Used to pass only nRuns
 //   DQMHistoryTrendsConfig(const std::string & inputItem, const std::string & inputCanvasName, const int inputLogY,

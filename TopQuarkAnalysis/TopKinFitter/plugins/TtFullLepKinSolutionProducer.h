@@ -2,7 +2,7 @@
 #define TtFullLepKinSolutionProducer_h
 
 //
-// $Id: TtFullLepKinSolutionProducer.h,v 1.9 2010/05/20 13:44:09 snaumann Exp $
+// $Id: TtFullLepKinSolutionProducer.h,v 1.8 2010/04/30 12:53:46 dammann Exp $
 //
 #include <memory>
 #include <string>
@@ -247,14 +247,14 @@ void TtFullLepKinSolutionProducer::produce(edm::Event & evt, const edm::EventSet
 
         TLorentzVector LV_l1;
         TLorentzVector LV_l2;		
-	TLorentzVector LV_b    = TLorentzVector((*jets)[ib].correctedJet(jetCorrLevel_, "bottom").px(), 
-	                                        (*jets)[ib].correctedJet(jetCorrLevel_, "bottom").py(), 
-						(*jets)[ib].correctedJet(jetCorrLevel_, "bottom").pz(), 
-						(*jets)[ib].correctedJet(jetCorrLevel_, "bottom").energy() );
-        TLorentzVector LV_bbar = TLorentzVector((*jets)[ibbar].correctedJet(jetCorrLevel_, "bottom").px(), 
-	                                        (*jets)[ibbar].correctedJet(jetCorrLevel_, "bottom").py(), 
-						(*jets)[ibbar].correctedJet(jetCorrLevel_, "bottom").pz(), 
-						(*jets)[ibbar].correctedJet(jetCorrLevel_, "bottom").energy());  
+	TLorentzVector LV_b    = TLorentzVector((*jets)[ib].correctedJet(jetCorrLevel_, "b").px(), 
+	                                        (*jets)[ib].correctedJet(jetCorrLevel_, "b").py(), 
+						(*jets)[ib].correctedJet(jetCorrLevel_, "b").pz(), 
+						(*jets)[ib].correctedJet(jetCorrLevel_, "b").energy() );
+        TLorentzVector LV_bbar = TLorentzVector((*jets)[ibbar].correctedJet(jetCorrLevel_, "b").px(), 
+	                                        (*jets)[ibbar].correctedJet(jetCorrLevel_, "b").py(), 
+						(*jets)[ibbar].correctedJet(jetCorrLevel_, "b").pz(), 
+						(*jets)[ibbar].correctedJet(jetCorrLevel_, "b").energy());  
 			
         double xconstraint = 0, yconstraint = 0;
 	

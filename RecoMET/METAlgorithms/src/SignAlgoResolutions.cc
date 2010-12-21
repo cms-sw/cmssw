@@ -14,30 +14,11 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignAlgoResolutions.cc,v 1.6 2009/11/23 14:38:07 fblekman Exp $
+// $Id: SignAlgoResolutions.cc,v 1.5 2009/11/02 11:29:27 fblekman Exp $
 //
 //
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-
 #include <math.h>
-
-#include <cstdlib>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <sys/stat.h>
-
-metsig::SignAlgoResolutions::SignAlgoResolutions(const edm::ParameterSet &iConfig):
-    functionmap_(),
-    ptResol_(0),
-    phiResol_(0)
-{
-  addResolutions(iConfig);
-}
-
-
 
 double metsig::SignAlgoResolutions::eval(const resolutionType & type, const resolutionFunc & func, const double & et, const double & phi, const double & eta) const {
   // derive p from et and eta;
@@ -58,6 +39,9 @@ double metsig::SignAlgoResolutions::eval(const resolutionType & type, const reso
   return getfunc(type,func,x);
 
 }
+metsig::SignAlgoResolutions::SignAlgoResolutions(const edm::ParameterSet &iConfig):functionmap_(){
+  addResolutions(iConfig);
+}
 
 metsig::SigInputObj  metsig::SignAlgoResolutions::evalPF(const reco::PFCandidate *candidate) const {
   double eta = candidate->eta();
@@ -65,8 +49,7 @@ metsig::SigInputObj  metsig::SignAlgoResolutions::evalPF(const reco::PFCandidate
   double et = candidate->energy()*sin(candidate->theta());
   resolutionType thetype;
   std::string name;
-  int type = candidate->particleId();
-  switch (type) 
+  switch (candidate->particleId()) 
     {
     case 1: 
       thetype=PFtype1;name="PFChargedHadron"; break;
@@ -85,71 +68,12 @@ metsig::SigInputObj  metsig::SignAlgoResolutions::evalPF(const reco::PFCandidate
     default:
       thetype=PFtype7;name="PFunknown"; break;
   }
-
-  double d_et=0, d_phi=0; //d_phi here is the error on phi component of the et
-  reco::TrackRef trackRef = candidate->trackRef();
-  if(!trackRef.isNull() && type!=2){
-    d_et = trackRef->ptError();
-    d_phi = et*trackRef->phiError();
-  }
-  else{
-    d_et = eval(thetype,ET,et,phi,eta);
-    d_phi = eval(thetype,PHI,et,phi,eta);
-  }
-
+  double d_et = eval(thetype,ET,et,phi,eta);
+  double d_phi = eval(thetype,PHI,et,phi,eta);
   metsig::SigInputObj resultingobj(name,et,phi,d_et,d_phi);
   return resultingobj;
 }
-
-
-metsig::SigInputObj
-metsig::SignAlgoResolutions::evalPFJet(const reco::PFJet *jet) const{
-
-    double jpt  = jet->pt();
-    double jphi = jet->phi();
-    double jeta = jet->eta();
-    double jdeltapt = 999.;
-    double jdeltapphi = 999.;
-
-    if(jpt<ptResolThreshold_ && jpt<20.){ //use temporary fix for low pT jets
-	double feta = TMath::Abs(jeta);
-	int ieta = feta<5.? int(feta/0.5) : 9; //bin size = 0.5 
-	int ipt  = jpt>3. ? int(jpt-3./2) : 0; //bin size =2, starting from ptmin=3GeV
-	jdeltapt   = jdpt[ieta][ipt];
-	jdeltapphi = jpt*jdphi[ieta][ipt];
-    }
-    else{
-	TF1* fPtEta  = ptResol_->parameterEta("sigma",jeta);
-	TF1* fPhiEta = phiResol_->parameterEta("sigma",jeta);
-	jdeltapt   = jpt>ptResolThreshold_ ? jpt*fPtEta->Eval(jpt)  : jpt*fPtEta->Eval(ptResolThreshold_);
-	jdeltapphi = jpt>ptResolThreshold_ ? jpt*fPhiEta->Eval(jpt) : jpt*fPhiEta->Eval(ptResolThreshold_);
-	delete fPtEta;
-	delete fPhiEta;
-    }
-
-    std::string inputtype = "jet";
-    metsig::SigInputObj obj_jet(inputtype,jpt,jphi,jdeltapt,jdeltapphi);
-    //std::cout << "RESOLUTIONS JET: " << jpt << "   " << jphi<< "   " <<jdeltapt << "   " << jdeltapphi << std::endl;
-    return obj_jet;
-}
-
-
 void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfig){
-    using namespace std;
-
-  // Jet Resolutions - for now load from the files. Migrate to EventSetup asap.
-  metsig::SignAlgoResolutions::initializeJetResolutions( iConfig );
-  
-  ptResolThreshold_ = iConfig.getParameter<double>("ptresolthreshold");
-
-
-    //get temporary low pT pfjet resolutions
-    for (int ieta=0; ieta<10; ieta++){
-      jdpt[ieta] = iConfig.getParameter<std::vector<double> >(Form("jdpt%d", ieta));
-      jdphi[ieta] = iConfig.getParameter<std::vector<double> >(Form("jdphi%d", ieta));
-    }
-
-
   // for now: do this by hand - this can obviously also be done via ESSource etc.
   functionPars etparameters(3,0);
   functionPars phiparameters(1,0);
@@ -157,6 +81,7 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
   // ECAL, BARREL:
   std::vector<double> ebet = iConfig.getParameter<std::vector<double> >("EB_EtResPar");
   std::vector<double> ebphi = iConfig.getParameter<std::vector<double> >("EB_PhiResPar");
+
 
   etparameters[0]=ebet[0];
   etparameters[1]=ebet[1];
@@ -224,7 +149,7 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
   etparameters[0]=pf1et[0];
   etparameters[1]=pf1et[1];
   etparameters[2]=pf1et[2];
-  phiparameters[0]=pf1phi[0];
+  phiparameters[0]=hfphi[0];
   addfunction(PFtype1,ET,etparameters);
   addfunction(PFtype1,PHI,phiparameters);
 
@@ -235,7 +160,7 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
   etparameters[0]=pf2et[0];
   etparameters[1]=pf2et[1];
   etparameters[2]=pf2et[2];
-  phiparameters[0]=pf2phi[0];
+  phiparameters[0]=hfphi[0];
   addfunction(PFtype2,ET,etparameters);
   addfunction(PFtype2,PHI,phiparameters);
 
@@ -246,7 +171,7 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
   etparameters[0]=pf3et[0];
   etparameters[1]=pf3et[1];
   etparameters[2]=pf3et[2];
-  phiparameters[0]=pf3phi[0];
+  phiparameters[0]=hfphi[0];
   addfunction(PFtype3,ET,etparameters);
   addfunction(PFtype3,PHI,phiparameters);
 
@@ -257,9 +182,9 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
   etparameters[0]=pf4et[0];
   etparameters[1]=pf4et[1];
   etparameters[2]=pf4et[2];
-  //phiparameters[0]=pf4phi[0];
+  phiparameters[0]=hfphi[0];
   addfunction(PFtype4,ET,etparameters);
-  addfunction(PFtype4,PHI,pf4phi); //use the same functional form for photon phi error as for pT, pass whole vector
+  addfunction(PFtype4,PHI,phiparameters);
 
   // PF objects:
   // type 5:
@@ -268,9 +193,9 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
   etparameters[0]=pf5et[0];
   etparameters[1]=pf5et[1];
   etparameters[2]=pf5et[2];
-  phiparameters[0]=pf5phi[0];
+  phiparameters[0]=hfphi[0];
   addfunction(PFtype5,ET,etparameters);
-  addfunction(PFtype5,PHI,pf5phi);
+  addfunction(PFtype5,PHI,phiparameters);
 
   // PF objects:
   // type 6:
@@ -279,7 +204,7 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
   etparameters[0]=pf6et[0];
   etparameters[1]=pf6et[1];
   etparameters[2]=pf6et[2];
-  phiparameters[0]=pf6phi[0];
+  phiparameters[0]=hfphi[0];
   addfunction(PFtype6,ET,etparameters);
   addfunction(PFtype6,PHI,phiparameters);
 
@@ -291,28 +216,34 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
   etparameters[0]=pf7et[0];
   etparameters[1]=pf7et[1];
   etparameters[2]=pf7et[2];
-  phiparameters[0]=pf7phi[0];
+  phiparameters[0]=hfphi[0];
   addfunction(PFtype7,ET,etparameters);
   addfunction(PFtype7,PHI,phiparameters);
 
+  //  std::cout << "done adding parameters! " << std::endl;
   return;
 }
 
 void metsig::SignAlgoResolutions::addfunction(resolutionType type, resolutionFunc func, functionPars parameters){
 
+  //  std::cout << "adding function for " << type << " " << func << ", parameters " ;
+  //  for(size_t ii=0; ii<parameters.size();++ii)
+  //    std::cout << parameters[ii] << " ";
+  //  std::cout << std::endl;
   functionCombo mypair(type,func);
   functionmap_[mypair]=parameters;
-
+  
 }
 
 double metsig::SignAlgoResolutions::getfunc(const metsig::resolutionType & type,const metsig::resolutionFunc & func, functionPars & x) const{
   
   double result=0;
   functionCombo mypair(type,func);
-
-  if(functionmap_.count(mypair)==0){
-	return result;
-  }
+  
+ 
+  
+  if(functionmap_.count(mypair)==0)
+    return result;
   
   functionPars values = (functionmap_.find(mypair))->second;
   switch ( func ){
@@ -348,20 +279,10 @@ double metsig::SignAlgoResolutions::EtFunction( const functionPars &x, const fun
 double metsig::SignAlgoResolutions::PhiFunction(const functionPars &x,const  functionPars & par) const
 {
   double et=x[0];
-  if(et<=0.){
+  if(et<=0.)
     return 0.;
-  }
-
-  //if 1 parameter is C provided, returns C*pT, if three parameters N, S, C are provided, it returns the usual resolution value, as for sigmaPt
-  if(par.size()!=1 && par.size()!=3){//only 1 or 3 parameters supported for phi function
-      return 0.;
-  }
-  else if(par.size()==1){
-    return par[0]*et;
-  }
-  else{
-    return et*sqrt((par[2]*par[2])+(par[1]*par[1]/et)+(par[0]*par[0]/(et*et)));
-  }
+  double result = par[0]*et;
+  return result;
 
 }
 double metsig::SignAlgoResolutions::PFunction(const functionPars &x, const functionPars & par) const
@@ -373,34 +294,4 @@ double metsig::SignAlgoResolutions::PFunction(const functionPars &x, const funct
 double metsig::SignAlgoResolutions::PhiConstFunction(const functionPars& x, const functionPars &par) const
 {
   return par[0];
-}
-
-void
-metsig::SignAlgoResolutions::initializeJetResolutions( const edm::ParameterSet &iConfig ) {
-  
-  using namespace std;
-  
-  // only reinitialize the resolutsion if the pointers are zero
-  if ( ptResol_ == 0 ) {
-    string resolutionsAlgo  = iConfig.getParameter<std::string>("resolutionsAlgo");     
-    string resolutionsEra   = iConfig.getParameter<std::string>("resolutionsEra");     
-
-    string cmssw_base(getenv("CMSSW_BASE"));
-    string cmssw_release_base(getenv("CMSSW_RELEASE_BASE"));
-    string path = cmssw_base + "/src/CondFormats/JetMETObjects/data";
-    struct stat st;
-    if (stat(path.c_str(),&st)!=0) {
-      path = cmssw_release_base + "/src/CondFormats/JetMETObjects/data";
-    }
-    if (stat(path.c_str(),&st)!=0) {
-      cerr<<"ERROR: tried to set path but failed, abort."<<endl;
-    }    
-    string era(resolutionsEra);
-    string alg(resolutionsAlgo);
-    string ptFileName  = path + "/" + era + "_PtResolution_" +alg+".txt";
-    string phiFileName = path + "/" + era + "_PhiResolution_"+alg+".txt";
-    
-    ptResol_ = new JetResolution(ptFileName,false);
-    phiResol_ = new JetResolution(phiFileName,false);
-  }
 }

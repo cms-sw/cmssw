@@ -82,15 +82,10 @@ void SiStripCoralIface::doQuery(std::string queryType, coral::TimeStamp startTim
   conditionData[1].data<coral::TimeStamp>() = startTime;
 
   query->setMemoryCacheSize( 100 );
-  std::cout<<"Executing query"<<std::endl;
-  if (debug_) std::cout<<"[SiStripCoralIface::"<<__func__<<"] Dumping all query results:"<<std::endl;
   coral::ICursor& cursor = query->execute();
   int numberRow=0;
   while( cursor.next() ){
     const coral::AttributeList& row = cursor.currentRow();
-    //DEBUG
-    //Output the query results directly to cout,
-    //Can be subsequently parsed by Python validation code
     if( debug_ ) row.toOutputStream( std::cout ) << std::endl;
     numberRow++;
     if (queryType == "STATUSCHANGE") {
@@ -110,7 +105,6 @@ void SiStripCoralIface::doQuery(std::string queryType, coral::TimeStamp startTim
     }
   }
   cursor.close();
-  if (debug_) std::cout<<"[SiStripCoralIface::"<<__func__<<"] Finished dumping query results, "<< numberRow<<" rows were retrieved from PVSS Cond DB (both Pixel and Strip CAEN supplies)"<<std::endl;
   LogTrace("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] " << numberRow << " rows retrieved from PVSS Cond DB";
 }
 

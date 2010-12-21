@@ -26,7 +26,7 @@ cat $filein | grep RelValQCD_Pt_80_120    | grep "GEN-SIM-RECO"              >> 
 cat $filein | grep RelValQCD_Pt_3000_3500 | grep "GEN-SIM-RECO" | grep MC    >> temp.tmp
 cat $filein | grep RelValMinBias          | grep "GEN-SIM-RECO" | grep START >> temp.tmp
 
-cat temp.tmp | sed -e 's%|/%mytempstring%g' | sed -e 's/|//g' | sed -e s/" 9000 "//g | sed -e s/" 0 "//g | sed -e s/True//g | sed -e 's%/%__%g' | sed -e 's%mytempstring%/usr/bin/curl -O -L --capath $X509_CERT_DIR --key $X509_USER_PROXY --cert $X509_USER_PROXY https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_3_9_x/DQM_V0001_R000000001__%g' | sed -e 's/GEN-SIM-RECO/GEN-SIM-RECO.root/g' > getDQMFiles_${label}.csh
+cat temp.tmp | sed -e 's%|/%mytempstring%g' | sed -e 's/|//g' | sed -e s/" 9000 "//g | sed -e s/" 0 "//g | sed -e s/True//g | sed -e 's%/%__%g' | sed -e 's%mytempstring%curl -O -L --capath $X509_CERT_DIR --key $X509_USER_PROXY --cert $X509_USER_PROXY https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_3_9_x/DQM_V0001_R000000001__%g' | sed -e 's/GEN-SIM-RECO/GEN-SIM-RECO.root/g' > getDQMFiles_${label}.csh
 
 cat temp.tmp | sed -e 's%|/%%g' | sed -e 's/|//g' | sed -e s/" 9000 "//g | sed -e s/" 0 "//g | sed -e s/True//g | sed -e 's%/%__%g' | sed -e 's/GEN-SIM-RECO/GEN-SIM-RECO.root/g' > temp1.tmp
 

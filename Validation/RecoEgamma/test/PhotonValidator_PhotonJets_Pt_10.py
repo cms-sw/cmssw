@@ -14,7 +14,7 @@ process.load("Validation.RecoEgamma.photonValidationSequence_cff")
 process.load("Validation.RecoEgamma.photonPostprocessing_cfi")
 process.load("Validation.RecoEgamma.conversionPostprocessing_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'START39_V5::All'
+process.GlobalTag.globaltag = 'START310_V1::All'
 
 
 process.DQMStore = cms.Service("DQMStore");
@@ -34,7 +34,7 @@ from Validation.RecoEgamma.photonValidationSequence_cff import *
 from Validation.RecoEgamma.photonPostprocessing_cfi import *
 from Validation.RecoEgamma.conversionPostprocessing_cfi import *
 
-photonValidation.OutputFileName = 'PhotonValidationRelVal3_10_0_pre5_PhotonJets_Pt_10.root'
+photonValidation.OutputFileName = 'PhotonValidationRelVal3_10_0_pre7_PhotonJets_Pt_10.root'
 
 photonPostprocessing.standalone = cms.bool(True)
 photonPostprocessing.InputFileName = photonValidation.OutputFileName
@@ -51,26 +51,25 @@ noEventSort = cms.untracked.bool(True),
 duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
                             
     fileNames = cms.untracked.vstring(
-        '/store/relval/CMSSW_3_10_0_pre5/RelValPhotonJets_Pt_10/GEN-SIM-RECO/START39_V5-v1/0086/7400430B-70F5-DF11-9E21-001A92810AEA.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValPhotonJets_Pt_10/GEN-SIM-RECO/START39_V5-v1/0085/FACBEC66-00F5-DF11-863D-00261894389A.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValPhotonJets_Pt_10/GEN-SIM-RECO/START39_V5-v1/0085/B8E9135B-FAF4-DF11-88ED-001A92810ACA.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValPhotonJets_Pt_10/GEN-SIM-RECO/START39_V5-v1/0085/9CDD17D7-06F5-DF11-98D8-0026189438D6.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValPhotonJets_Pt_10/GEN-SIM-RECO/START39_V5-v1/0085/2AFB4590-00F5-DF11-A0BD-0018F3D096EA.root'
+        '/store/relval/CMSSW_3_10_0_pre7/RelValPhotonJets_Pt_10/GEN-SIM-RECO/START310_V1-v1/0101/E2D0FE92-F0FC-DF11-966E-0018F3D09676.root',
+        '/store/relval/CMSSW_3_10_0_pre7/RelValPhotonJets_Pt_10/GEN-SIM-RECO/START310_V1-v1/0101/9E2182E7-E8FC-DF11-93DF-003048678B5E.root',
+        '/store/relval/CMSSW_3_10_0_pre7/RelValPhotonJets_Pt_10/GEN-SIM-RECO/START310_V1-v1/0101/723E8CC5-ECFC-DF11-9A22-0018F3D095EC.root',
+        '/store/relval/CMSSW_3_10_0_pre7/RelValPhotonJets_Pt_10/GEN-SIM-RECO/START310_V1-v1/0101/5279082D-39FD-DF11-8C1B-0018F3D096D8.root'
     ),
 
-
     secondaryFileNames = cms.untracked.vstring(
-        '/store/relval/CMSSW_3_10_0_pre5/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V5-v1/0088/2EEC7200-78F5-DF11-A5D3-00304867C0FC.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V5-v1/0085/FE33A9C1-FAF4-DF11-AC86-0018F3D096A6.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V5-v1/0085/F2A7396E-00F5-DF11-9D44-001A92971B74.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V5-v1/0085/EED7926B-FBF4-DF11-BA81-0018F3D095EA.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V5-v1/0085/B2F2D039-01F5-DF11-8D3D-002618943867.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V5-v1/0085/AA4E38DA-FFF4-DF11-8D8E-003048678B84.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V5-v1/0085/8E231794-F9F4-DF11-998C-002618FDA250.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V5-v1/0085/8C758B0C-F9F4-DF11-821C-00304867BEE4.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V5-v1/0085/76AD49EC-01F5-DF11-BD1B-002618FDA248.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V5-v1/0085/3C43EF10-FFF4-DF11-9149-002618943869.root',
-        '/store/relval/CMSSW_3_10_0_pre5/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V5-v1/0085/260837F7-03F5-DF11-BE3C-002618943865.root'
+        '/store/relval/CMSSW_3_10_0_pre7/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START310_V1-v1/0103/9A5A0C53-45FD-DF11-BEC6-00261894389A.root',
+        '/store/relval/CMSSW_3_10_0_pre7/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START310_V1-v1/0101/CA6AAA67-E9FC-DF11-AD36-003048D42D92.root',
+        '/store/relval/CMSSW_3_10_0_pre7/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START310_V1-v1/0101/B497BB2C-EDFC-DF11-98AD-00304867BEDE.root',
+        '/store/relval/CMSSW_3_10_0_pre7/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START310_V1-v1/0101/A2C1496B-EFFC-DF11-B999-001A92971ACE.root',
+        '/store/relval/CMSSW_3_10_0_pre7/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START310_V1-v1/0101/8AAC55F9-E6FC-DF11-B92E-00304867C136.root',
+        '/store/relval/CMSSW_3_10_0_pre7/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START310_V1-v1/0101/665A5653-EEFC-DF11-B233-001A92971BBA.root',
+        '/store/relval/CMSSW_3_10_0_pre7/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START310_V1-v1/0101/5E4A8DAA-E1FC-DF11-85DA-003048678FD6.root',
+        '/store/relval/CMSSW_3_10_0_pre7/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START310_V1-v1/0101/56C45505-F2FC-DF11-A699-001A928116D4.root',
+        '/store/relval/CMSSW_3_10_0_pre7/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START310_V1-v1/0101/48284C92-F0FC-DF11-8197-0018F3D09678.root',
+        '/store/relval/CMSSW_3_10_0_pre7/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START310_V1-v1/0101/109BB16A-EBFC-DF11-A40C-003048678DA2.root'
+
+
     )
  )
 
@@ -91,5 +90,5 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('pippo.root')
 )
 
-process.p1 = cms.Path(process.tpSelection*process.photonValidationSequence*process.photonPostprocessing*process.conversionPostprocessing*process.dqmStoreStats)
+process.p1 = cms.Path(process.tpSelection*process.photonPrevalidationSequence*process.photonValidationSequence*process.photonPostprocessing*process.conversionPostprocessing*process.dqmStoreStats)
 process.schedule = cms.Schedule(process.p1)

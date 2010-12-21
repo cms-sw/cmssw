@@ -11,8 +11,8 @@
 /*
  * \file HcalRecHitClient.cc
  * 
- * $Date: 2010/11/10 20:01:34 $
- * $Revision: 1.50 $
+ * $Date: 2010/03/25 11:02:26 $
+ * $Revision: 1.48 $
  * \author J. Temple
  * \brief Dead Cell Client class
  */
@@ -275,7 +275,7 @@ void HcalRecHitClient::calculateProblems()
 	  (ProblemCellsByDepth->depth[d]->getTH2F())->SetMinimum(0.);
 	}
     }
-  
+
   for (unsigned int d=0;d<ProblemCellsByDepth->depth.size();++d)
     {
       if (ProblemCellsByDepth->depth[d]==0) continue;
@@ -296,7 +296,7 @@ void HcalRecHitClient::calculateProblems()
 	      // Add histograms here when rechit testing decided upon
 	      /*if (DigiPresentByDepth[d]!=0 && DigiPresentByDepth[d]->GetBinContent(eta+1,phi+1)>0) 
 		problemvalue=totalevents; */
-	      
+
 	      if (problemvalue==0) continue;
 	      problemvalue/=totalevents; // problem value is a rate; should be between 0 and 1
 	      problemvalue = std::min(1.,problemvalue);
@@ -304,7 +304,7 @@ void HcalRecHitClient::calculateProblems()
 	      zside=0;
 	      if (isHF(eta,d+1)) // shift ieta by 1 for HF
 		ieta<0 ? zside = -1 : zside = 1;
-	      
+
 	      // For problem cells that exceed our allowed rate,
 	      // set the values to 999 if the cells are already marked in the status database
 	      if (problemvalue>minerrorrate_)
@@ -318,8 +318,8 @@ void HcalRecHitClient::calculateProblems()
 		  if (badstatusmap.find(hcalid)!=badstatusmap.end())
 		    problemvalue=999;
 		}
-	      
-	      
+
+
 	      ProblemCellsByDepth->depth[d]->setBinContent(eta+1,phi+1,problemvalue);
 	      if (ProblemCells!=0) ProblemCells->Fill(ieta+zside,phi+1,problemvalue);
 	    } // loop on phi
@@ -383,7 +383,6 @@ void HcalRecHitClient::beginRun(void)
   ProblemCellsByDepth->setup(dqmStore_," Problem RecHit Rate");
   for (unsigned int i=0; i<ProblemCellsByDepth->depth.size();++i)
     problemnames_.push_back(ProblemCellsByDepth->depth[i]->getName());
-
   nevts_=0;
 
   dqmStore_->setCurrentFolder(subdir_+"Distributions_AllRecHits");
@@ -473,9 +472,10 @@ bool HcalRecHitClient::hasErrors_Temp(void)
               ieta=CalcIeta(hist_eta,depth+1);
 	      if (ieta==-9999) continue;
 	      if (ProblemCellsByDepth->depth[depth]==0)
-		continue;
+		  continue;
 	      if (ProblemCellsByDepth->depth[depth]->getBinContent(hist_eta,hist_phi)>minerrorrate_)
 		++problemcount;
+
 	    } // for (int hist_phi=1;...)
 	} // for (int hist_eta=1;...)
     } // for (int depth=0;...)

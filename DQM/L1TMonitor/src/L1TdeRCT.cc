@@ -689,7 +689,7 @@ void L1TdeRCT::beginJob(void)
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
 
-    dbe->setCurrentFolder(histFolder_+"DBData");
+    dbe->setCurrentFolder(histFolder_+"/DBData");
     fedVectorMonitorRUN_ = dbe->book2D("rctFedVectorMonitorRUN", "FED Vector Monitor Per Run",90,0,90,2,0,2);
     fedVectorMonitorLS_ = dbe->book2D("rctFedVectorMonitorLS", "FED Vector Monitor Per LS",90,0,90,2,0,2);
 

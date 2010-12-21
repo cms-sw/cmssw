@@ -16,6 +16,11 @@ options.register('runNumber',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Run number")
+options.register('tagBase',
+                 'CRAFT_hlt', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "IOV tags = object_{tagBase}")
 options.register('outputDBConnect',
                  'sqlite_file:l1config.db', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -44,64 +49,59 @@ options.register('logTransactions',
 
 # arguments for setting object keys by hand
 options.register('L1MuDTTFMasksRcdKey',
-                 '', #default value
+                 'dummy', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Object key")
 options.register('L1MuGMTChannelMaskRcdKey',
-                 '', #default value
+                 'dummy', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Object key")
 options.register('L1RCTChannelMaskRcdKey',
-                 '', #default value
+                 'dummy', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Object key")
 options.register('L1GctChannelMaskRcdKey',
-                 '', #default value
+                 'dummy', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Object key")
 options.register('L1GtPrescaleFactorsAlgoTrigRcdKey',
-                 '', #default value
+                 'dummy', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Object key")
 options.register('L1GtPrescaleFactorsTechTrigRcdKey',
-                 '', #default value
+                 'dummy', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Object key")
 options.register('L1GtTriggerMaskAlgoTrigRcdKey',
-                 '', #default value
+                 'dummy', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Object key")
 options.register('L1GtTriggerMaskTechTrigRcdKey',
-                 '', #default value
+                 'dummy', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Object key")
 options.register('L1GtTriggerMaskVetoTechTrigRcdKey',
-                 '', #default value
+                 'dummy', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Object key")
 
 options.parseArguments()
 
-# Define CondDB tags
-from CondTools.L1Trigger.L1CondEnum_cfi import L1CondEnum
-from CondTools.L1Trigger.L1O2OTags_cfi import initL1O2OTags
-initL1O2OTags()
-
 if options.keysFromDB == 1:
     process.load("CondTools.L1Trigger.L1ConfigRSKeys_cff")
 else:
     process.load("CondTools.L1Trigger.L1TriggerKeyDummy_cff")
     from CondTools.L1Trigger.L1RSSubsystemParams_cfi import initL1RSSubsystems
-    initL1RSSubsystems( tagBaseVec = initL1O2OTags.tagBaseVec,
+    initL1RSSubsystems( tagBase = options.tagBase,
                         L1MuDTTFMasksRcdKey = options.L1MuDTTFMasksRcdKey,
                         L1MuGMTChannelMaskRcdKey = options.L1MuGMTChannelMaskRcdKey,
                         L1RCTChannelMaskRcdKey = options.L1RCTChannelMaskRcdKey,
@@ -110,8 +110,7 @@ else:
                         L1GtPrescaleFactorsTechTrigRcdKey = options.L1GtPrescaleFactorsTechTrigRcdKey,
                         L1GtTriggerMaskAlgoTrigRcdKey = options.L1GtTriggerMaskAlgoTrigRcdKey,
                         L1GtTriggerMaskTechTrigRcdKey = options.L1GtTriggerMaskTechTrigRcdKey,
-                        L1GtTriggerMaskVetoTechTrigRcdKey = options.L1GtTriggerMaskVetoTechTrigRcdKey,
-                        includeL1RCTNoisyChannelMask = False )
+                        L1GtTriggerMaskVetoTechTrigRcdKey = options.L1GtTriggerMaskVetoTechTrigRcdKey )
     process.L1TriggerKeyDummy.objectKeys = initL1RSSubsystems.params.recordInfo                        
 
 # Get L1TriggerKeyList from DB
@@ -120,9 +119,9 @@ process.outputDB = cms.ESSource("PoolDBESSource",
                                 process.CondDBCommon,
                                 toGet = cms.VPSet(cms.PSet(
     record = cms.string('L1TriggerKeyListRcd'),
-    tag = cms.string('L1TriggerKeyList_' + initL1O2OTags.tagBaseVec[ L1CondEnum.L1TriggerKeyList ] )
-    )),
-                                RefreshEachRun=cms.untracked.bool(True)
+    tag = cms.string('L1TriggerKeyList_' + options.tagBase ),
+    RefreshEachRun=cms.untracked.bool(True)
+    ))
                                 )
 process.outputDB.connect = options.outputDBConnect
 process.outputDB.DBParameters.authenticationPath = options.outputDBAuth
@@ -135,7 +134,7 @@ from CondTools.L1Trigger.L1CondDBPayloadWriter_cff import initPayloadWriter
 initPayloadWriter( process,
                    outputDBConnect = options.outputDBConnect,
                    outputDBAuth = options.outputDBAuth,
-                   tagBaseVec = initL1O2OTags.tagBaseVec )
+                   tagBase = options.tagBase )
 process.L1CondDBPayloadWriter.writeL1TriggerKey = cms.bool(False)
 
 if options.logTransactions == 1:
@@ -151,7 +150,7 @@ from CondTools.L1Trigger.L1CondDBIOVWriter_cff import initIOVWriter
 initIOVWriter( process,
                outputDBConnect = options.outputDBConnect,
                outputDBAuth = options.outputDBAuth,
-               tagBaseVec = initL1O2OTags.tagBaseVec,
+               tagBase = options.tagBase,
                tscKey = '' )
 process.L1CondDBIOVWriter.logKeys = True
 

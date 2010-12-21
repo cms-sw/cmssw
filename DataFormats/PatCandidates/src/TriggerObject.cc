@@ -1,5 +1,5 @@
 //
-// $Id: TriggerObject.cc,v 1.6.4.1 2010/06/16 18:06:20 vadler Exp $
+// $Id: TriggerObject.cc,v 1.9 2010/12/11 21:25:44 vadler Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/TriggerObject.h"
@@ -10,7 +10,8 @@
 using namespace pat;
 
 
-/// default constructor
+/// Constructors and Destructor
+
 
 TriggerObject::TriggerObject() :
   reco::LeafCandidate()
@@ -18,7 +19,6 @@ TriggerObject::TriggerObject() :
   filterIds_.clear();
 }
 
-/// constructors from values
 
 TriggerObject::TriggerObject( const reco::Particle::LorentzVector & vec, int id ) :
   reco::LeafCandidate( 0, vec, reco::Particle::Point( 0., 0., 0. ), id ),
@@ -26,24 +26,32 @@ TriggerObject::TriggerObject( const reco::Particle::LorentzVector & vec, int id 
 {
   filterIds_.clear();
 }
+
+
 TriggerObject::TriggerObject( const reco::Particle::PolarLorentzVector & vec, int id ) :
   reco::LeafCandidate( 0, vec, reco::Particle::Point( 0., 0., 0. ), id ),
   refToOrig_()
 {
   filterIds_.clear();
 }
+
+
 TriggerObject::TriggerObject( const trigger::TriggerObject & trigObj ) :
   reco::LeafCandidate( 0, trigObj.particle().p4(), reco::Particle::Point( 0., 0., 0. ), trigObj.id() ),
   refToOrig_()
 {
   filterIds_.clear();
 }
+
+
 TriggerObject::TriggerObject( const reco::LeafCandidate & leafCand ) :
   reco::LeafCandidate( leafCand ),
   refToOrig_()
 {
   filterIds_.clear();
 }
+
+
 TriggerObject::TriggerObject( const reco::CandidateBaseRef & candRef ) :
   reco::LeafCandidate( *candRef ),
   refToOrig_( candRef )
@@ -51,7 +59,9 @@ TriggerObject::TriggerObject( const reco::CandidateBaseRef & candRef ) :
   filterIds_.clear();
 }
 
-/// getters
+
+/// Methods
+
 
 bool TriggerObject::hasCollection( const std::string & coll ) const
 {
@@ -66,7 +76,8 @@ bool TriggerObject::hasCollection( const std::string & coll ) const
   return false;
 }
 
-bool TriggerObject::hasFilterId( int filterId ) const
+
+bool TriggerObject::hasFilterId( trigger::TriggerObjectType filterId ) const
 {
   for ( size_t iF = 0; iF < filterIds().size(); ++iF ) {
     if ( filterIds().at( iF ) == filterId ) {
@@ -76,8 +87,9 @@ bool TriggerObject::hasFilterId( int filterId ) const
   return false;
 }
 
-/// special specific getters for 'l1extra' particles
-/// with type checking by catching exceptions of type 'InvalidReference'
+
+/// Special methods for 'l1extra' particles
+
 
 const l1extra::L1EmParticleRef TriggerObject::origL1EmRef() const
 {
@@ -90,6 +102,7 @@ const l1extra::L1EmParticleRef TriggerObject::origL1EmRef() const
   return l1Ref;
 }
 
+
 const l1extra::L1EtMissParticleRef TriggerObject::origL1EtMissRef() const
 {
   l1extra::L1EtMissParticleRef l1Ref;
@@ -101,6 +114,7 @@ const l1extra::L1EtMissParticleRef TriggerObject::origL1EtMissRef() const
   return l1Ref;
 }
 
+
 const l1extra::L1JetParticleRef TriggerObject::origL1JetRef() const
 {
   l1extra::L1JetParticleRef l1Ref;
@@ -111,6 +125,7 @@ const l1extra::L1JetParticleRef TriggerObject::origL1JetRef() const
   }
   return l1Ref;
 }
+
 
 const l1extra::L1MuonParticleRef TriggerObject::origL1MuonRef() const
 {

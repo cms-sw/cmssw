@@ -62,7 +62,7 @@ public:
     }
 
     /// get / set algorithm alias
-    inline std::string const & algoAlias() const
+    inline const std::string algoAlias() const
     {
         return m_algoAlias;
     }
@@ -73,7 +73,7 @@ public:
     }
 
     /// get / set the logical expression for the algorithm
-    inline std::string const & algoLogicalExpression() const
+    inline const std::string algoLogicalExpression() const
     {
         return m_algoLogicalExpression;
     }
@@ -89,7 +89,7 @@ public:
     }
 
     /// get / set algorithm bit number
-    inline int algoBitNumber() const
+    inline const int algoBitNumber() const
     {
         return m_algoBitNumber;
     }

@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.40 2010/08/31 16:05:29 srappocc Exp $
+// $Id: Jet.cc,v 1.41 2010/12/01 18:38:42 rwolf Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -14,11 +14,11 @@ Jet::Jet() :
   PATObject<reco::Jet>(reco::Jet()),
   embeddedCaloTowers_(false),
   embeddedPFCandidates_(false),
-  partonFlavour_(0), 
+  partonFlavour_(0),
   jetCharge_(0.),
   isCaloTowerCached_(false),
   isPFCandidateCached_(false)
-{      
+{
 }
 
 /// constructor from a reco::Jet
@@ -26,7 +26,7 @@ Jet::Jet(const reco::Jet & aJet) :
   PATObject<reco::Jet>(aJet),
   embeddedCaloTowers_(false),
   embeddedPFCandidates_(false),
-  partonFlavour_(0), 
+  partonFlavour_(0),
   jetCharge_(0.0),
   isCaloTowerCached_(false),
   isPFCandidateCached_(false)
@@ -39,7 +39,7 @@ Jet::Jet(const edm::Ptr<reco::Jet> & aJetRef) :
   PATObject<reco::Jet>(aJetRef),
   embeddedCaloTowers_(false),
   embeddedPFCandidates_(false),
-  partonFlavour_(0), 
+  partonFlavour_(0),
   jetCharge_(0.0),
   isCaloTowerCached_(false),
   isPFCandidateCached_(false)
@@ -52,7 +52,7 @@ Jet::Jet(const edm::RefToBase<reco::Jet> & aJetRef) :
   PATObject<reco::Jet>(aJetRef),
   embeddedCaloTowers_(false),
   embeddedPFCandidates_(false),
-  partonFlavour_(0), 
+  partonFlavour_(0),
   jetCharge_(0.0),
   isCaloTowerCached_(false),
   isPFCandidateCached_(false)
@@ -61,7 +61,7 @@ Jet::Jet(const edm::RefToBase<reco::Jet> & aJetRef) :
 }
 
 /// constructor helper that tries to import the specific info from the source jet
-void Jet::tryImportSpecific(const reco::Jet& source) 
+void Jet::tryImportSpecific(const reco::Jet& source)
 {
   const std::type_info & type = typeid(source);
   if( type == typeid(reco::CaloJet) ){
@@ -72,17 +72,17 @@ void Jet::tryImportSpecific(const reco::Jet& source)
     reco::CaloJet const * caloJet = 0;
     if ( jptJet.getCaloJetRef().isNonnull() && jptJet.getCaloJetRef().isAvailable() ) {
       caloJet = dynamic_cast<reco::CaloJet const *>( jptJet.getCaloJetRef().get() );
-    } 
+    }
     if ( caloJet != 0 ) {
       specificCalo_.push_back( caloJet->getSpecific() );
-    } 
+    }
     else {
       edm::LogWarning("OptionalProductNotFound") << " in pat::Jet, Attempted to add Calo Specifics to JPT Jets, but failed."
 						 << " Jet ID for JPT Jets will not be available for you." << std::endl;
     }
   } else if( type == typeid(reco::PFJet) ){
     specificPF_.push_back( (static_cast<const reco::PFJet&>(source)).getSpecific() );
-  } 
+  }
 }
 
 /// destructor
@@ -95,13 +95,13 @@ CaloTowerPtr Jet::getCaloConstituent (unsigned fIndex) const {
     if (embeddedCaloTowers_) {
       // Refactorized PAT access
       if ( caloTowersFwdPtr_.size() > 0 ) {
-	return (fIndex < caloTowersFwdPtr_.size() ? 
+	return (fIndex < caloTowersFwdPtr_.size() ?
 		caloTowersFwdPtr_[fIndex].ptr() : CaloTowerPtr());
       }
       // Compatibility PAT access
       else {
 	if ( caloTowers_.size() > 0 ) {
-	  return (fIndex < caloTowers_.size() ? 
+	  return (fIndex < caloTowers_.size() ?
 		  CaloTowerPtr(&caloTowers_, fIndex) : CaloTowerPtr());
 
 	}
@@ -113,19 +113,19 @@ CaloTowerPtr Jet::getCaloConstituent (unsigned fIndex) const {
       const CaloTower* caloTower = dynamic_cast <const CaloTower*> (dau.get());
       if (caloTower != 0) {
 	return CaloTowerPtr(dau.id(), caloTower, dau.key() );
-      } 
+      }
       else {
 	throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of CaloTower type";
       }
-      
-    } 
-    
+
+    }
+
     return CaloTowerPtr ();
 }
 
 
 
-std::vector<CaloTowerPtr> const & Jet::getCaloConstituents () const { 
+std::vector<CaloTowerPtr> const & Jet::getCaloConstituents () const {
   if ( !isCaloTowerCached_ || caloTowers_.size() > 0 ) cacheCaloTowers();
   return caloTowersTemp_;
 }
@@ -137,13 +137,13 @@ reco::PFCandidatePtr Jet::getPFConstituent (unsigned fIndex) const {
     if (embeddedPFCandidates_) {
       // Refactorized PAT access
       if ( pfCandidatesFwdPtr_.size() > 0 ) {
-	return (fIndex < pfCandidatesFwdPtr_.size() ? 
+	return (fIndex < pfCandidatesFwdPtr_.size() ?
 		pfCandidatesFwdPtr_[fIndex].ptr() : reco::PFCandidatePtr());
       }
       // Compatibility PAT access
       else {
 	if ( pfCandidates_.size() > 0 ) {
-	  return (fIndex < pfCandidates_.size() ? 
+	  return (fIndex < pfCandidates_.size() ?
 		  reco::PFCandidatePtr(&pfCandidates_, fIndex) : reco::PFCandidatePtr());
 
 	}
@@ -155,17 +155,17 @@ reco::PFCandidatePtr Jet::getPFConstituent (unsigned fIndex) const {
       const reco::PFCandidate* pfCandidate = dynamic_cast <const reco::PFCandidate*> (dau.get());
       if (pfCandidate) {
 	return reco::PFCandidatePtr(dau.id(), pfCandidate, dau.key() );
-      } 
+      }
       else {
 	throw cms::Exception("Invalid Constituent") << "PFJet constituent is not of PFCandidate type";
       }
-      
-    } 
-    
+
+    }
+
     return reco::PFCandidatePtr ();
 }
 
-std::vector<reco::PFCandidatePtr> const & Jet::getPFConstituents () const { 
+std::vector<reco::PFCandidatePtr> const & Jet::getPFConstituents () const {
   if ( !isPFCandidateCached_ || pfCandidates_.size() > 0 ) cachePFCandidates();
   return pfCandidatesTemp_;
 }
@@ -188,15 +188,15 @@ int Jet::partonFlavour() const {
 
 // initialize the jet to a given JEC level during creation starting from Uncorrected
 void Jet::initializeJEC(unsigned int level, const JetCorrFactors::Flavor& flavor, unsigned int set)
-{ 
-  currentJECSet(set); 
-  currentJECLevel(level); 
-  currentJECFlavor(flavor); 
-  setP4(jec_[set].correction(level, flavor)*p4()); 
+{
+  currentJECSet(set);
+  currentJECLevel(level);
+  currentJECFlavor(flavor);
+  setP4(jec_[set].correction(level, flavor)*p4());
 }
 
 /// return true if this jet carries the jet correction factors of a different set, for systematic studies
-int Jet::jecSet(const std::string& set) const 
+int Jet::jecSet(const std::string& set) const
 {
   for(std::vector<pat::JetCorrFactors>::const_iterator corrFactor=jec_.begin(); corrFactor!=jec_.end(); ++corrFactor)
     if( corrFactor->jecSet()==set ){ return (corrFactor-jec_.begin()); }
@@ -209,25 +209,25 @@ const std::vector<std::string> Jet::availableJECSets() const
   std::vector<std::string> sets;
   for(std::vector<pat::JetCorrFactors>::const_iterator corrFactor=jec_.begin(); corrFactor!=jec_.end(); ++corrFactor)
     sets.push_back(corrFactor->jecSet());
-  return sets;      
+  return sets;
 }
 
-const std::vector<std::string> Jet::availableJECLevels(const unsigned int& set) const
+const std::vector<std::string> Jet::availableJECLevels(const int& set) const
 {
   return set>=0 ? jec_.at(set).correctionLabels() : std::vector<std::string>();
 }
 
-/// correction factor to the given level for a specific set 
-/// of correction factors, starting from the current level 
+/// correction factor to the given level for a specific set
+/// of correction factors, starting from the current level
 float Jet::jecFactor(const std::string& level, const std::string& flavor, const std::string& set) const
 {
   for(unsigned int idx=0; idx<jec_.size(); ++idx){
     if(set.empty() || jec_.at(idx).jecSet()==set){
       if(jec_[idx].jecLevel(level)>=0){
 	return jecFactor(jec_[idx].jecLevel(level), jec_[idx].jecFlavor(flavor), idx);
-      } 
-      else{ 
-	throw cms::Exception("InvalidRequest") << "This JEC level " << level << " does not exist. \n";	
+      }
+      else{
+	throw cms::Exception("InvalidRequest") << "This JEC level " << level << " does not exist. \n";
       }
     }
   }
@@ -235,9 +235,9 @@ float Jet::jecFactor(const std::string& level, const std::string& flavor, const 
 					 << "for a jet energy correction set with label " << set << "\n";
 }
 
-/// correction factor to the given level for a specific set 
-/// of correction factors, starting from the current level 
-float Jet::jecFactor(const unsigned int& level, const JetCorrFactors::Flavor& flavor, const unsigned int& set) const 
+/// correction factor to the given level for a specific set
+/// of correction factors, starting from the current level
+float Jet::jecFactor(const unsigned int& level, const JetCorrFactors::Flavor& flavor, const unsigned int& set) const
 {
   if(!jecSetsAvailable()){
     throw cms::Exception("InvalidRequest") << "This jet does not carry any jet energy correction factor information \n";
@@ -250,30 +250,30 @@ float Jet::jecFactor(const unsigned int& level, const JetCorrFactors::Flavor& fl
 }
 
 /// copy of the jet with correction factor to target step for
-/// the set of correction factors, which is currently in use 
-Jet Jet::correctedJet(const std::string& level, const std::string& flavor, const std::string& set) const 
+/// the set of correction factors, which is currently in use
+Jet Jet::correctedJet(const std::string& level, const std::string& flavor, const std::string& set) const
 {
-  // rescale p4 of the jet; the update of current values is 
+  // rescale p4 of the jet; the update of current values is
   // done within the called jecFactor function
   for(unsigned int idx=0; idx<jec_.size(); ++idx){
     if(set.empty() || jec_.at(idx).jecSet()==set){
       if(jec_[idx].jecLevel(level)>=0){
 	return correctedJet(jec_[idx].jecLevel(level), jec_[idx].jecFlavor(flavor), idx);
-      } 
-      else{ 
-	throw cms::Exception("InvalidRequest") << "This JEC level " << level << " does not exist. \n";	
+      }
+      else{
+	throw cms::Exception("InvalidRequest") << "This JEC level " << level << " does not exist. \n";
       }
     }
   }
-  throw cms::Exception("InvalidRequest") << "This JEC set " << set << " does not exist. \n";	
+  throw cms::Exception("InvalidRequest") << "This JEC set " << set << " does not exist. \n";
 }
 
 /// copy of the jet with correction factor to target step for
-/// the set of correction factors, which is currently in use 
-Jet Jet::correctedJet(const unsigned int& level, const JetCorrFactors::Flavor& flavor, const unsigned int& set) const 
+/// the set of correction factors, which is currently in use
+Jet Jet::correctedJet(const unsigned int& level, const JetCorrFactors::Flavor& flavor, const unsigned int& set) const
 {
   Jet correctedJet(*this);
-  //rescale p4 of the jet 
+  //rescale p4 of the jet
   correctedJet.setP4(jecFactor(level, flavor, set)*p4());
   // update current level, flavor and set
   correctedJet.currentJECSet(set); correctedJet.currentJECLevel(level); correctedJet.currentJECFlavor(flavor);
@@ -310,7 +310,7 @@ const reco::BaseTagInfo * Jet::tagInfo(const std::string &label) const {
 }
 
 
-template<typename T> 
+template<typename T>
 const T *  Jet::tagInfoByType() const {
   // First check the factorized PAT version
     for (size_t i = 0, n = tagInfosFwdPtr_.size(); i < n; ++i) {
@@ -333,26 +333,26 @@ const T *  Jet::tagInfoByType() const {
 
 
 
-const reco::TrackIPTagInfo * 
+const reco::TrackIPTagInfo *
 Jet::tagInfoTrackIP(const std::string &label) const {
-    return (label.empty() ? tagInfoByType<reco::TrackIPTagInfo>() 
+    return (label.empty() ? tagInfoByType<reco::TrackIPTagInfo>()
                           : dynamic_cast<const reco::TrackIPTagInfo *>(tagInfo(label)) );
 }
 
-const reco::SoftLeptonTagInfo * 
+const reco::SoftLeptonTagInfo *
 Jet::tagInfoSoftLepton(const std::string &label) const {
     return (label.empty() ? tagInfoByType<reco::SoftLeptonTagInfo>()
                           : dynamic_cast<const reco::SoftLeptonTagInfo *>(tagInfo(label)) );
 }
 
-const reco::SecondaryVertexTagInfo * 
+const reco::SecondaryVertexTagInfo *
 Jet::tagInfoSecondaryVertex(const std::string &label) const {
     return (label.empty() ? tagInfoByType<reco::SecondaryVertexTagInfo>()
                           : dynamic_cast<const reco::SecondaryVertexTagInfo *>(tagInfo(label)) );
 }
 
 void
-Jet::addTagInfo(const std::string &label, 
+Jet::addTagInfo(const std::string &label,
 		const TagInfoFwdPtrCollection::value_type &info) {
     std::string::size_type idx = label.find("TagInfos");
     if (idx == std::string::npos) {
@@ -438,7 +438,7 @@ void Jet::cacheCaloTowers() const {
 	      icalo = ibegin;
 	    icalo != iend; ++icalo ) {
 	caloTowersTemp_.push_back( CaloTowerPtr(icalo->ptr() ) );
-      }      
+      }
     }
     // Compatibility access
     else if ( caloTowers_.size() > 0 ) {
@@ -449,7 +449,7 @@ void Jet::cacheCaloTowers() const {
 	caloTowersTemp_.push_back( CaloTowerPtr(&caloTowers_, icalo - ibegin ) );
       }
     }
-  } 
+  }
   // Non-embedded access
   else {
     for ( unsigned fIndex = 0; fIndex < numberOfDaughters(); ++fIndex ) {
@@ -457,7 +457,7 @@ void Jet::cacheCaloTowers() const {
       const CaloTower* caloTower = dynamic_cast <const CaloTower*> (dau.get());
       if (caloTower) {
 	caloTowersTemp_.push_back( CaloTowerPtr(dau.id(), caloTower,dau.key() ) );
-      } 
+      }
       else {
 	throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of CaloTower type";
       }
@@ -480,7 +480,7 @@ void Jet::cachePFCandidates() const {
 	      ipf = ibegin;
 	    ipf != iend; ++ipf ) {
 	pfCandidatesTemp_.push_back( reco::PFCandidatePtr(ipf->ptr() ) );
-      }      
+      }
     }
     // Compatibility access
     else if ( pfCandidates_.size() > 0 ) {
@@ -491,7 +491,7 @@ void Jet::cachePFCandidates() const {
 	pfCandidatesTemp_.push_back( reco::PFCandidatePtr(&pfCandidates_, ipf - ibegin ) );
       }
     }
-  } 
+  }
   // Non-embedded access
   else {
     for ( unsigned fIndex = 0; fIndex < numberOfDaughters(); ++fIndex ) {
@@ -499,7 +499,7 @@ void Jet::cachePFCandidates() const {
       const reco::PFCandidate* pfCandidate = dynamic_cast <const reco::PFCandidate*> (dau.get());
       if (pfCandidate) {
 	pfCandidatesTemp_.push_back( reco::PFCandidatePtr(dau.id(), pfCandidate,dau.key() ) );
-      } 
+      }
       else {
 	throw cms::Exception("Invalid Constituent") << "PFJet constituent is not of PFCandidate type";
       }
