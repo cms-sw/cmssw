@@ -134,25 +134,41 @@ firstStep.replace(newSeedFromPairs,stepOneSeedFromTriplets)
 # now step 3 uses triplets
 #thirdStep.replace(thPLSeeds,thSeedFromTriplets)
 
-# remove steps 4 and 5 from iterative tracking
-iterTracking_wo45=iterTracking.copy()
-iterTracking_wo45.remove(fourthStep)
-iterTracking_wo45.remove(fifthStep)
+# remove steps 2-5 from iterative tracking
+iterTracking_wo2345=iterTracking.copy()
+iterTracking_wo2345.remove(secondStep)
+iterTracking_wo2345.remove(thirdStep)
+iterTracking_wo2345.remove(fourthStep)
+iterTracking_wo2345.remove(fifthStep)
 
 # remove iterTrack tracks collection (it comes partially from steps 4-5) and merge4th5thTracks
 # replace them with merge2nd3rdTracks tracks collection
-trackCollectionMerging_woiterTracksand45=trackCollectionMerging.copy()
-trackCollectionMerging_woiterTracksand45.remove(iterTracks)
-trackCollectionMerging_woiterTracksand45.remove(merge4th5thTracks)
-generalTracks.TrackProducer2 = 'merge2nd3rdTracks'
+trackCollectionMerging_woiterTracksand2345=trackCollectionMerging.copy()
+trackCollectionMerging_woiterTracksand2345.remove(iterTracks)
+trackCollectionMerging_woiterTracksand2345.remove(merge4th5thTracks)
+trackCollectionMerging_woiterTracksand2345.remove(merge2nd3rdTracks)
+generalTracks.TrackProducer2 = cms.string('')
 
 # change combined seed (pair seed no more implemented) leave it for backward compatibility with electron reconstruction
-ckftracks_wodEdXandSteps4and5 = ckftracks_wodEdX.copy()
+ckftracks_wodEdXandSteps2345 = ckftracks_wodEdX.copy()
 newCombinedSeeds.seedCollections = cms.VInputTag(
   cms.InputTag('newSeedFromTriplets'),
   cms.InputTag('stepOneSeedFromTriplets'),
 )
-#ckftracks_wodEdXandCombinedSeeds.remove(newCombinedSeeds)
-ckftracks_wodEdXandSteps4and5.replace(iterTracking,iterTracking_wo45)
-ckftracks_wodEdXandSteps4and5.replace(trackCollectionMerging,trackCollectionMerging_woiterTracksand45)
+ckftracks_wodEdXandSteps2345.replace(iterTracking,iterTracking_wo2345)
+ckftracks_wodEdXandSteps2345.replace(trackCollectionMerging,trackCollectionMerging_woiterTracksand2345)
 
+### modify regular tracking sequence to use upgrade version
+### so we can use regular reconstruction step
+iterTracking.remove(secondStep)
+iterTracking.remove(thirdStep)
+iterTracking.remove(fourthStep)
+iterTracking.remove(fifthStep)
+trackCollectionMerging.remove(iterTracks)
+trackCollectionMerging.remove(merge4th5thTracks)
+trackCollectionMerging.remove(merge2nd3rdTracks)
+generalTracks.TrackProducer2 = cms.string('')
+newCombinedSeeds.seedCollections = cms.VInputTag(
+  cms.InputTag('newSeedFromTriplets'),
+  cms.InputTag('stepOneSeedFromTriplets'),
+)
