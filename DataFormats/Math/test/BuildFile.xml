@@ -15,5 +15,5 @@
 </bin>
 <bin   file="SSEMathFun_t.cpp" name="DataFormatsSSEMathFun_t">
 </bin>
-<bin   file="sign.cpp" name="DataFormatsSign_t">
+<bin   file="sign_t.cpp" name="DataFormatsSign_t">
 </bin>
