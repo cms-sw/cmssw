@@ -1,6 +1,6 @@
 #ifndef GeometryVector_oldBasic3DVector_h
 #define GeometryVector_oldBasic3DVector_h
-#ifdef __CINT__ 
+#ifdef __CINT__  && ! ( defined(__REFLEX__)
 #define __REFLEX__
 #endif
 #include "DataFormats/GeometryVector/interface/Basic2DVector.h"

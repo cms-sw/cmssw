@@ -1,11 +1,20 @@
 #ifndef GeometryVector_Basic2DVector_h
 #define GeometryVector_Basic2DVector_h
+#ifdef __CINT__  && ! ( defined(__REFLEX__)
+#define __REFLEX__
+#endif
 
 #include "DataFormats/GeometryVector/interface/Phi.h"
 #include "DataFormats/GeometryVector/interface/PreciseFloatType.h"
 #include "DataFormats/GeometryVector/interface/CoordinateSets.h"
+#ifndef __REFLEX__ 
+#include "DataFormats/Math/interface/SSEVec.h"
+#endif
+
+
 #include <cmath>
 #include <iosfwd>
+
 
 template < class T> 
 class Basic2DVector {
@@ -36,6 +45,18 @@ public:
 
   /// construct from cartesian coordinates
   Basic2DVector( const T& x, const T& y) : theX(x), theY(y) {}
+
+
+#ifndef __REFLEX__
+  // constructor from Vec2 or vec4
+  template<typename U>
+  Basic2DVector(mathSSE::Vec2<U> const& iv) :
+    theX(iv.arr[0]), theY(iv.arr[1]) {}
+  template<typename U>
+  Basic2DVector(mathSSE::Vec4<U> const& iv) :
+    theX(iv.arr[0]), theY(iv.arr[1]) {}
+#endif  
+
 
   /// Cartesian x coordinate
   T x() const { return theX;}
