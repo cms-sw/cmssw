@@ -158,8 +158,8 @@ namespace mathSSE {
       return Vec4(arr[n],arr[n],arr[n],arr[n]);
     }
 
-    Vec2<T> xy() const { return  Vec2<T>(ar[0],arr[1]);}
-    Vec2<T> zw() const { return  Vec2<T>(ar[2],arr[3]);}
+    Vec2<T> xy() const { return  Vec2<T>(arr[0],arr[1]);}
+    Vec2<T> zw() const { return  Vec2<T>(arr[2],arr[3]);}
 
 
 
