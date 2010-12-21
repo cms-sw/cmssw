@@ -29,6 +29,42 @@ namespace mathSSE {
 }
 
 namespace mathSSE {
+  //
+  template<typename T> inline bool samesign(T rh, T lh);
+
+  template<>
+  inline bool
+  __attribute__((always_inline)) __attribute__ ((pure)) samesign<int>(int rh, int lh) {
+    int const mask= 0x80000000;
+    return ((rh^lh)&mask) == 0;
+  }
+
+  template<>
+  inline bool
+  __attribute__((always_inline)) __attribute__ ((pure)) samesign<long long>(long long rh, long long lh) {
+    long long const mask= 0x8000000000000000LL;
+    return ((rh^lh)&mask) == 0;
+  }
+
+  template<>
+  inline bool
+  __attribute__((always_inline)) __attribute__ ((pure)) samesign<float>(float rh, float lh) {
+    union { int i; float f; } a, b;
+    a.f=rh; b.f=lh;
+    return samesign<int>(a.i,b.i);
+  }
+
+  template<>
+  inline bool
+  __attribute__((always_inline)) __attribute__ ((pure)) samesign<double>(double rh, double lh) {
+    union { long long i; double f; } a, b;
+    a.f=rh; b.f=lh;
+    return samesign<long long>(a.i,b.i);
+  }
+}
+
+
+namespace mathSSE {
 #ifdef  CMS_USE_SSE
   //dot
   inline __m128 _mm_dot_ps(__m128 v1, __m128 v2) {
@@ -89,6 +125,15 @@ namespace mathSSE {
       return Vec2(arr[n],arr[n]);
     }
 
+    T & operator[](unsigned int n) {
+      return arr[n];
+    }
+
+    T operator[](unsigned int n) const {
+      return arr[n];
+    }
+
+
     T __attribute__ ((aligned(16))) arr[2];
   };
 
@@ -112,6 +157,11 @@ namespace mathSSE {
     Vec4 get1(unsigned int n) const {
       return Vec4(arr[n],arr[n],arr[n],arr[n]);
     }
+
+    Vec2<T> xy() const { return  Vec2<T>(ar[0],arr[1]);}
+    Vec2<T> zw() const { return  Vec2<T>(ar[2],arr[3]);}
+
+
 
     T __attribute__ ((aligned(16))) arr[4];
     OldVec<T> o;
@@ -149,6 +199,7 @@ namespace mathSSE {
     void set1(float f1) {
      vec =  _mm_set1_ps(f1);
     }
+
     Vec4 get1(unsigned int n) const { 
       return _mm_shuffle_ps(vec, vec, _MM_SHUFFLE(n, n, n, n)); 
     }
@@ -161,6 +212,9 @@ namespace mathSSE {
       return arr[n];
     }
     
+    Vec2<float> xy() const { return  Vec2<float>(ar[0],arr[1]);}
+    Vec2<float> zw() const { return  Vec2<float>(ar[2],arr[3]);}
+
   };
   
   template<>
@@ -245,6 +299,14 @@ namespace mathSSE {
       return Vec4(arr[n],arr[n],arr[n],arr[n]);
     }
 
+    double & operator[](unsigned int n) {
+      return arr[n];
+    }
+
+    double operator[](unsigned int n) const {
+      return arr[n];
+    }
+  
     Vec2<double> xy() const { return vec[0];}
     Vec2<double> zw() const { return vec[1];}
 
@@ -506,6 +568,16 @@ namespace mathSSE {
   inline Vec4F sin(Vec4F v) { return sin_ps(v.vec);}
   inline Vec4F cos(Vec4F v) { return cos_ps(v.vec);}
   inline void sincos(Vec4F v, Vec4F & s, Vec4F & c) { sincos_ps(v.vec,&s.vec, &c.vec);}
+
+  inline float log(float f) { float s; _mm_store_ss(&s,log_ps(_mm_load_ss(&f))); return s;}
+  inline float exp(float f) { float s; _mm_store_ss(&s,exp_ps(_mm_load_ss(&f))); return s;}
+  inline float sin(float f) { float s; _mm_store_ss(&s,sin_ps(_mm_load_ss(&f))); return s;}
+  inline float cos(float f) { float s; _mm_store_ss(&s,log_ps(_mm_load_ss(&f))); return s;}
+  inline void sincos(float f, float & s, float & c) { 
+    __m128 vs, vc; 
+    sincos_ps(_mm_load_ss(&f),&vs, &vc);   
+    _mm_store_ss(&s,vs);_mm_store_ss(&c,vc);   
+  }
 }
 #endif // CMS_USE_SSE
 
