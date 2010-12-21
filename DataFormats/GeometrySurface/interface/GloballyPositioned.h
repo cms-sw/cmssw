@@ -26,8 +26,11 @@ public:
   typedef Vector3DBase<T,GlobalTag>     GlobalVector;
   typedef Vector3DBase<T,LocalTag>      LocalVector;
 
+  static const T iniPhi = 999.9978;
+  static const T iniEta = 999.9978;
+
   GloballyPositioned( const PositionType& pos, const RotationType& rot) :
-    thePos(pos), theRot(rot) {cache();}
+    thePos(pos), theRot(rot) {resetCache();}
 
   virtual ~GloballyPositioned() {}
 
@@ -35,8 +38,14 @@ public:
 
   const RotationType& rotation() const { return theRot;}
 
-  T phi() const { return thePhi;}
-  T eta() const { return theEta;}
+  T phi() const {
+    if (thePhi==iniPhi) thePhi = thePos.barePhi();
+    return thePhi;
+  }
+  T eta() const { 
+    if (theEta==iniEta) theEta = thePos.eta();
+    return theEta;
+  }
 
 
   // multiply inverse is faster
@@ -139,7 +148,7 @@ public:
    */
   void move( const GlobalVector& displacement) {
     thePos += displacement;
-    cache();
+    resetCache();
   }
 
   /** Rotate the frame in the global frame.
@@ -147,7 +156,7 @@ public:
    */
   void rotate( const RotationType& rotation) {
     theRot *= rotation;
-    cache();
+    resetCache();
   }
 
 private:
@@ -155,8 +164,18 @@ private:
   PositionType  thePos;
   RotationType  theRot;
 
-  void cache() {
 
+  void resetCache() {
+    if ((thePos.x() == 0.) && (thePos.y() == 0.)) {
+      thePhi = theEta = 0.; // avoid FPE
+    } else {
+      thePhi = iniPh;
+      theEta = iniEta;
+    }
+  }
+
+
+  void setCache() {
     if ((thePos.x() == 0.) && (thePos.y() == 0.)) {
       thePhi = theEta = 0.; // avoid FPE
     } else {
@@ -165,10 +184,8 @@ private:
     }
   }
   
-  T thePhi;
-  T theEta;
-
-
+  mutable T thePhi;
+  mutable T theEta;
 
 };
   
