@@ -212,8 +212,8 @@ namespace mathSSE {
       return arr[n];
     }
     
-    Vec2<float> xy() const { return  Vec2<float>(ar[0],arr[1]);}
-    Vec2<float> zw() const { return  Vec2<float>(ar[2],arr[3]);}
+    Vec2<float> xy() const { return  Vec2<float>(arr[0],arr[1]);}
+    Vec2<float> zw() const { return  Vec2<float>(arr[2],arr[3]);}
 
   };
   
