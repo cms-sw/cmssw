@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/22 19:00:30 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/02/26 13:50:29 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -172,12 +172,10 @@ vector<TF1*>  DTMeanTimerPlotter::fitTMaxes(vector<TH1D*> hTMaxes){
       functions.push_back((*ith)->GetFunction("rGaus"));
       
       // Get mean, sigma and number of entries of each histogram
-      if(theVerbosityLevel >= 0){
       cout<<"Histo name "<<(*ith)->GetName()<<": "<<endl;
       cout<<"mean  "<<(((*ith)->GetFunction("rGaus"))->GetParameter(1))<<endl;
       cout<<"sigma "<<(((*ith)->GetFunction("rGaus"))->GetParameter(2))<<endl; 
       cout<<"count "<<((*ith)->GetEntries())<<endl<<endl;  
-    }  
    }
    return functions;
  }
