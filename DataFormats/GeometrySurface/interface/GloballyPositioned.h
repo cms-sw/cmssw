@@ -26,8 +26,12 @@ public:
   typedef Vector3DBase<T,GlobalTag>     GlobalVector;
   typedef Vector3DBase<T,LocalTag>      LocalVector;
 
-  static const T iniPhi = 999.9978;
-  static const T iniEta = 999.9978;
+  static T iniPhi() {
+    return 999.9978;
+  }
+  static T iniEta() {
+    return 999.9978;
+  }
 
   GloballyPositioned( const PositionType& pos, const RotationType& rot) :
     thePos(pos), theRot(rot) {resetCache();}
@@ -39,11 +43,11 @@ public:
   const RotationType& rotation() const { return theRot;}
 
   T phi() const {
-    if (thePhi==iniPhi) thePhi = thePos.barePhi();
+    if (thePhi==iniPhi()) thePhi = thePos.barePhi();
     return thePhi;
   }
   T eta() const { 
-    if (theEta==iniEta) theEta = thePos.eta();
+    if (theEta==iniEta()) theEta = thePos.eta();
     return theEta;
   }
 
@@ -169,8 +173,8 @@ private:
     if ((thePos.x() == 0.) && (thePos.y() == 0.)) {
       thePhi = theEta = 0.; // avoid FPE
     } else {
-      thePhi = iniPh;
-      theEta = iniEta;
+      thePhi = iniPhi();
+      theEta = iniEta();
     }
   }
 

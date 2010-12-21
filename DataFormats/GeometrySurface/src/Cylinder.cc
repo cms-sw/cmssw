@@ -32,7 +32,7 @@ Cylinder::tangentPlane (const GlobalPoint& aPoint) const
   // local x normal to y and a vector linking the specified
   // point with the axis
   GlobalVector xPlane(yPlane.cross(aPoint-position()));
-  Scalar size = xPlane.mag();
+  Scalar size = xPlane.mag2();
   if ( size<FLT_MIN ) 
     throw GeometryError("Attempt to construct TangentPlane on cylinder axis");
   xPlane /= size;
