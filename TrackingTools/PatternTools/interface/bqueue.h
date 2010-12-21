@@ -89,8 +89,8 @@ class bqueue {
         bqueue() : m_size(0), m_bound(), m_head(m_bound), m_tail(m_bound) { }
         ~bqueue() { }
         bqueue(const bqueue<T> &cp) : m_size(cp.m_size), m_bound(cp.m_bound), m_head(cp.m_head), m_tail(cp.m_tail) { }
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
 
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   bqueue(bqueue<T> &&cp) : 
     m_size(cp.m_size),
     m_bound(std::move(cp.m_bound)), m_head(std::move(cp.m_head)), m_tail(std::move(cp.m_tail)) { }
@@ -120,10 +120,13 @@ class bqueue {
             m_tail = itemptr(new item(this->m_tail, val)); 
             if ((++m_size) == 1) { m_head = m_tail; };
         }
+
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
         void push_back(T&& val) {
 	  m_tail = itemptr(new item(this->m_tail, std::forward<T>(val))); 
 	  if ((++m_size) == 1) { m_head = m_tail; };
         }
+#endif
         void pop_back() {
             assert(m_size > 0);
             --m_size;
