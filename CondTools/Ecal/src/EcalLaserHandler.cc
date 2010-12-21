@@ -1,33 +1,38 @@
 #include "CondTools/Ecal/interface/EcalLaserHandler.h"
+#include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "CondCore/DBCommon/interface/Time.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
 
-
-
 #include<iostream>
 
 popcon::EcalLaserHandler::EcalLaserHandler(const edm::ParameterSet & ps) 
-  :    m_name(ps.getUntrackedParameter<std::string>("name","EcalLaserHandler")) {
-
-	std::cout << "EcalLaser Source handler constructor\n" << std::endl;
-
-	m_firstRun=static_cast<unsigned long>(atoi( ps.getParameter<std::string>("firstRun").c_str()));
-	m_lastRun=static_cast<unsigned long>(atoi( ps.getParameter<std::string>("lastRun").c_str()));
-	m_sid= ps.getParameter<std::string>("OnlineDBSID");
-	m_user= ps.getParameter<std::string>("OnlineDBUser");
-	m_pass= ps.getParameter<std::string>("OnlineDBPassword");
-	m_locationsource= ps.getParameter<std::string>("LocationSource");
-	m_location=ps.getParameter<std::string>("Location");
-	m_gentag=ps.getParameter<std::string>("GenTag");
-
-	std::cout << m_sid<<"/"<<m_user<<"/"<<m_pass<<"/"<<m_location<<"/"<<m_gentag   << std::endl;
+  : m_name(ps.getUntrackedParameter<std::string>("name","EcalLaserHandler")) {
+  
+  std::cout << "EcalLaser Source handler constructor\n" << std::endl;
+  
+  m_firstRun=static_cast<unsigned long>(atoi(ps.getParameter<std::string>("firstRun").c_str()));
+  m_lastRun=static_cast<unsigned long>(atoi(ps.getParameter<std::string>("lastRun").c_str()));
+  m_sid= ps.getParameter<std::string>("OnlineDBSID");
+  m_user= ps.getParameter<std::string>("OnlineDBUser");
+  m_pass= ps.getParameter<std::string>("OnlineDBPassword");
+  m_locationsource= ps.getParameter<std::string>("LocationSource");
+  m_location=ps.getParameter<std::string>("Location");
+  m_gentag=ps.getParameter<std::string>("GenTag");
+  m_debug=ps.getParameter<bool>("Debug");
+  
+  std::cout << "Starting O2O process on DB: " << m_sid
+	    << " User: "<< m_user << "Location: " << m_location 
+	    << " Tag: " << m_gentag << std::endl;
 }
 
 popcon::EcalLaserHandler::~EcalLaserHandler()
 {
+  // do nothing
 }
+
+/*
 bool popcon::EcalLaserHandler::checkAPDPN(float x, float old_x)
 {
   bool result=true;
@@ -35,30 +40,32 @@ bool popcon::EcalLaserHandler::checkAPDPN(float x, float old_x)
   if((old_x!=1.000 && old_x!=0) && std::abs(x-old_x)/old_x>100.00) result=false; 
   return result;
 }
+*/
 
 void popcon::EcalLaserHandler::getNewObjects()
 {
   std::cerr << "------- " << m_name 
-	    << " - > getNewObjects" << std::endl;
-
-  std::cout << "------- Ecal - > getNewObjects\n";
-
-
-  bool alot_of_printout=false; //usually it was True: FIXME! Put it in the PSet, please
+	    << " ---> getNewObjects" << std::endl;
+  
+  std::cout << "------- Ecal -> getNewObjects\n";
+  
+  
   unsigned long long max_since= 1;
   std::string payloadtoken = "";
-
-  // here popcon tells us which is the last since of the last object in the offline DB
+  
+  // here popcon tells us which is the last since of the last object in the 
+  // offline DB
   max_since=tagInfo().lastInterval.first;
-  std::cout << "max_since : "  << max_since << std::endl;
-
+  std::cout << "Last Object in Offline DB has SINCE = "  << max_since 
+	    << std::endl;
+  
+  /*
   payloadtoken = tagInfo().lastPayloadToken;
   std::cout << " payloadtoken : " << payloadtoken << std::endl;
   Ref payload= lastPayload();
-
-  std::cout << "retrieved last payload "  << std::endl;
   
-
+  std::cout << "retrieved last payload. "  << std::endl;
+  
   // we will copy the last valid record to a temporary object apdpns_temp
   EcalLaserAPDPNRatios* apdpns_temp = new EcalLaserAPDPNRatios();
   
@@ -67,84 +74,117 @@ void popcon::EcalLaserHandler::getNewObjects()
   EcalLaserAPDPNRatios::EcalLaserTimeStamp timestamp;
   EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdpnpair;
 
-
-  const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap& laserRatiosMap = payload->getLaserMap(); 
+  const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap& laserRatiosMap = 
+    payload->getLaserMap(); 
   std::cout << "payload->getLaserMap():  OK " << std::endl;
-  const EcalLaserAPDPNRatios::EcalLaserTimeStampMap& laserTimeMap = payload->getTimeMap(); 
+  const EcalLaserAPDPNRatios::EcalLaserTimeStampMap& laserTimeMap = 
+    payload->getTimeMap(); 
   std::cout << "payload->getTimeMap():  OK " << std::endl;
   std::cout << "going to access objects in the last payload "  << std::endl;
+  */
 
-
-  // loop through barrel
-  for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
-    if(iEta==0) continue;
-    for(int iPhi=EBDetId::MIN_IPHI; iPhi<=EBDetId::MAX_IPHI; ++iPhi) {
-      if (EBDetId::validDetId(iEta,iPhi))
-	{
-	  EBDetId ebdetid(iEta,iPhi);
-	  unsigned int hiee = ebdetid.hashedIndex();    
-	  apdpnpair = laserRatiosMap[ebdetid];
-	  
-	  EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdpnpair_temp; 
-	  apdpnpair_temp.p1 = apdpnpair.p1;
-	  apdpnpair_temp.p2 = apdpnpair.p2;
-	  apdpnpair_temp.p3 = apdpnpair.p3;
-	  apdpns_temp->setValue(ebdetid, apdpnpair_temp);
-	  if (alot_of_printout && hiee%500 == 0 )std::cout <<"hiee = "<< ebdetid.rawId() << "    p1 = " << apdpnpair.p1  <<"    p2 = " << apdpnpair.p2 <<"    p3 = "<<apdpnpair.p3 <<std::endl;
-	}
+  /* connect to the online db to get the list of channels */
+  try {
+    std::cout << "Making connection..." << std::flush;
+    econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
+    std::cout << "Done." << std::endl;
+  } catch (std::runtime_error &e) {
+    std::cout << " connection parameters " << m_sid << "/" << m_user;
+    if (m_debug) {
+      std::cout << "/" << m_pass <<std::endl;
+    } else {
+      std::cout << "/**********" <<std::endl;
     }
-  }
+    std::cerr << e.what() << std::endl;
+    throw cms::Exception("OMDS not available");
+  } 
+
+  /*
+  std::vector<EcalLogicID> crystals_EB  = 
+    econn->getEcalLogicIDSetOrdered( "EB_crystal_angle",
+				     -85,85,1,360,
+				     EcalLogicID::NULLID,EcalLogicID::NULLID,
+				     "EB_crystal_number", 4 );
+  std::vector<EcalLogicID> crystals_EE  = 
+    econn->getEcalLogicIDSetOrdered( "EE_crystal_number",
+				     -1,1,1,100,
+				     1,100,
+				     "EE_crystal_number", 4 );
   
-  std::cout << "going to access Endcap objects in the last payload "  << std::endl;
+  std::vector<EcalLogicID>::const_iterator ieb = crystals_EB.begin();
+  std::vector<EcalLogicID>::const_iterator eeb = crystals_EB.end();
 
-
-  // loop through ecal endcap      
-  for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
-    for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
-      try
-	{
-	  EEDetId eedetidpos(iX,iY,1);
-	  int hi = eedetidpos.hashedIndex();
-		
-	  if (laserRatiosMap.find(eedetidpos)!=laserRatiosMap.end()){
-	    apdpnpair = laserRatiosMap[eedetidpos];
-	    EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdpnpair_temp; 
-	    apdpnpair_temp.p1 = apdpnpair.p1;
-	    apdpnpair_temp.p2 = apdpnpair.p2;
-	    apdpnpair_temp.p3 = apdpnpair.p3;
-	    apdpns_temp->setValue(eedetidpos, apdpnpair_temp);
-	    if (alot_of_printout&& hi%500 == 0 )std::cout <<"hiee = "<< eedetidpos.rawId() << "    p1 = " << apdpnpair.p1  <<"    p2 = " << apdpnpair.p2 <<"    p3 = "<<apdpnpair.p3 <<std::endl;
-	    
-	  } else {
-	    edm::LogError("EcalLaserHandler") << "error with laserRatiosMap!" << std::endl;     
-	  }
-	  
-	  EEDetId eedetidneg(iX,iY,-1);
-	  hi = eedetidneg.hashedIndex();
-
-	  if (laserRatiosMap.find(eedetidneg)!=laserRatiosMap.end()){
-	    apdpnpair = laserRatiosMap[eedetidneg];
-	    EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdpnpair_temp; 
-	    apdpnpair_temp.p1 = apdpnpair.p1;
-	    apdpnpair_temp.p2 = apdpnpair.p2;
-	    apdpnpair_temp.p3 = apdpnpair.p3;
-	    apdpns_temp->setValue(eedetidneg, apdpnpair_temp);
-	   
-	    
-	  } else {
-	    edm::LogError("EcalLaserHandler") << "error with laserRatiosMap!" << std::endl;     
-	  }
-	  
-	}
-      catch (cms::Exception &e) {  }
+  std::cout << "Got list of " << crystals_EB.size() << " crystals in EB" 
+	    << std::endl;
+  std::cout << "Got list of " << crystals_EE.size() << " crystals in EE" 
+	    << std::endl;
+  // loop through barrel
+  int count = 0;
+  // prepare a map to associate logic id's to detids
+  std::map<int, int> detids;
+  while (ieb != eeb) {
+    int iEta = ieb->getID1();
+    int iPhi = ieb->getID2();
+    count++;
+    EBDetId ebdetid(iEta,iPhi);
+    unsigned int hieb = ebdetid.hashedIndex();    
+    detids[ieb->getLogicID()] = hieb;
+    apdpnpair = laserRatiosMap[ebdetid];
+    EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdpnpair_temp; 
+    apdpnpair_temp.p1 = apdpnpair.p1;
+    apdpnpair_temp.p2 = apdpnpair.p2;
+    apdpnpair_temp.p3 = apdpnpair.p3;
+    apdpns_temp->setValue(ebdetid, apdpnpair_temp);
+    if (m_debug && (hieb % 10000) == 0 ) {
+      std::cout << "hieb = "<< hieb << ": " 
+		<< ebdetid.rawId() << "    p1 = " 
+		<< apdpnpair.p1  << "    p2 = " 
+		<< apdpnpair.p2  << "    p3 = "
+		<< apdpnpair.p3 << std::endl;
     }
+    ieb++;
   }
+  std::cout << "Validated " << count << " logic ID's for EB" << std::endl;
+   
+  std::cout << "going to access Endcap objects in the last payload "  << 
+    std::endl;
+  
+  std::vector<EcalLogicID>::const_iterator iee = crystals_EE.begin();
+  std::vector<EcalLogicID>::const_iterator eee = crystals_EE.end();
+
+  count = 0;
+  while (iee != eee) {
+    int iSide = iee->getID1();
+    int iX    = iee->getID2();
+    int iY    = iee->getID3();
+    EEDetId eedetidpos(iX,iY,iSide);
+    int hi = eedetidpos.hashedIndex();
+    detids[iee->getLogicID()] = hi;
+    count ++;
+    if (laserRatiosMap.find(eedetidpos)!=laserRatiosMap.end()){
+      apdpnpair = laserRatiosMap[eedetidpos];
+      EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdpnpair_temp; 
+      apdpnpair_temp.p1 = apdpnpair.p1;
+      apdpnpair_temp.p2 = apdpnpair.p2;
+      apdpnpair_temp.p3 = apdpnpair.p3;
+      apdpns_temp->setValue(eedetidpos, apdpnpair_temp);
+      if (m_debug && (hi % 500) == 0 ) {
+	std::cout << "hiee = "<< eedetidpos.rawId() 
+		  << "    p1 = " << apdpnpair.p1  
+		  << "    p2 = " << apdpnpair.p2 
+		  << "    p3 = " << apdpnpair.p3 
+		  <<std::endl;
+      }
+    } else {
+      edm::LogError("EcalLaserHandler") 
+	<< "Unspecified error with laserRatiosMap!" << std::endl;     
+    }
+    iee++;
+  }
+  std::cout << "Validated " << count << " logic ID's for EE" << std::endl;
 
   unsigned long long start_time_old=0;
   edm::Timestamp t_min= edm::Timestamp(start_time_old);
-
-
-
 
   //loop through light modules
 
@@ -155,32 +195,84 @@ void popcon::EcalLaserHandler::getNewObjects()
     timestamp_temp.t1 = timestamp.t1;
     timestamp_temp.t2 = timestamp.t2;
     timestamp_temp.t3 = timestamp.t3;
-    if(alot_of_printout)    std::cout << "    t1 = " << timestamp.t1.value()  << "    t2 = " << timestamp.t2.value() << "    t3 = " << timestamp.t3.value() << std::endl;
+    if (m_debug) {
+      std::cout << "LMR: " << i 
+		<< "    t1 = " << timestamp.t1.value()  
+		<< "    t2 = " << timestamp.t2.value() 
+		<< "    t3 = " << timestamp.t3.value() << std::endl;
+    }
     apdpns_temp->setTime(i,timestamp_temp);
 
-    if(t_min<timestamp.t3   ) t_min=timestamp.t3;
+    if (t_min<timestamp.t3) t_min=timestamp.t3;
   }
   
-  std::cout <<"WOW: we just retrieved the last valid record from DB "<< std::endl;
+  std::cout <<"WOW: we just retrieved the last valid record from DB "<< 
+    std::endl;
   std::cout <<"this is the t_min "<< t_min.value()<< std::endl;
 
-
-
-
   // here we retrieve all the runs after the last from online DB 
-  
-  std::cout << "Retrieving run list from ONLINE DB ... " << std::endl;
-  try {
-    std::cout << "Making connection..." << std::flush;
-    econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
-    std::cout << "Done." << std::endl;
-  } catch (std::runtime_error &e) {
-    std::cout << " connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<std::endl;
-    std::cerr << e.what() << std::endl;
-    throw cms::Exception("OMDS not available");
-  } 
+  */
+  std::cout << "Retrieving corrections from ONLINE DB ... " << std::endl;
 
-
+  LMFCorrCoefDat data(econn);
+  Tm tmin;
+  tmin.setToMicrosTime(max_since); // verificare che sia nel formato giusto
+  data.fetchAfter(tmin);
+  std::cout << "Got data from online DB" << std::endl << std::flush;
+  std::map<int, std::list<std::vector<float> > > d = data.getParameters();
+  std::map<int, std::list<std::vector<float> > >::const_iterator id =
+    d.begin();
+  std::map<int, std::list<std::vector<float> > >::const_iterator ed =
+    d.end();
+  std::cout << "Looping on data in online DB" << std::endl << std::flush;
+  while (id != ed) {
+    if (m_debug) {
+      std::cout << "====================================================="
+		<< std::endl;
+      std::cout << "Found data for crystal " << id->first << ": " <<
+	id->second.size() << " SUB_IOVs" << std::endl << std::flush; 
+    }
+    std::list<std::vector<float> > listOfTriplets = id->second;
+    std::list<std::vector<float> >::const_iterator ilist = 
+      listOfTriplets.begin(); 
+    std::list<std::vector<float> >::const_iterator elist = 
+      listOfTriplets.end(); 
+    EcalLaserAPDPNRatios* apdpns_popcon = new EcalLaserAPDPNRatios();
+    while (ilist != elist) {
+      std::vector<float> v = *ilist;
+      EcalLaserAPDPNRatios::EcalLaserAPDPNpair ctriplet;
+      ctriplet.p1 = v[3];
+      ctriplet.p2 = v[4];
+      ctriplet.p3 = v[5];
+      EcalLaserAPDPNRatios::EcalLaserTimeStamp ttriplet;
+      ttriplet.t1 = EcalLaserAPDPNRatios::EcalLaserTimeStamp(v[0]);
+      ttriplet.t2 = EcalLaserAPDPNRatios::EcalLaserTimeStamp(v[1]);
+      ttriplet.t3 = EcalLaserAPDPNRatios::EcalLaserTimeStamp(v[2]);
+      int hashedIndex = detids[id->first];
+      apdpns_popcon->setValue(hashedIndex, ctriplet);
+      // lmrindex deve essere uguale al LMR
+      int lmrIndex = 1;
+      apdpns_popcon->setTime(lmrIndex, ttriplet);
+      if (m_debug) {
+	for (int i = 0; i < 6; i++) {
+	  std::cout << v[i] << " "; 
+	}
+	std::cout << std::endl << std::flush;
+      }
+      ilist++;
+    }
+    m_to_transfer.push_back(std::make_pair(apdpns_popcon,t_early));
+    id++;
+  }
+  std::cout << "END OF LOOP" << std::endl << std::flush;
+  // erase the map
+  std::map<int, DetId*>::iterator di = detids.begin();
+  std::map<int, DetId*>::iterator de = detids.end();
+  while (di != de) {
+    delete di->second;
+    di++;
+  }
+  detids.clear();
   /*
   
   // these are the online conditions DB classes 
@@ -501,23 +593,23 @@ void popcon::EcalLaserHandler::getNewObjects()
 	for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
 	  for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
 	    try
-	      {
-		EEDetId eedetidpos(iX,iY,1);
-		int hi = eedetidpos.hashedIndex();
-		
-		if (laserRatiosMap.find(eedetidpos)!=laserRatiosMap.end()){
-		  apdpnpair = laserRatiosMap[eedetidpos];
-		  EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdpnpair_temp; 
-		  apdpnpair_temp.p1 = apdpnpair.p1;
-		  apdpnpair_temp.p2 = apdpnpair.p2;
-		  apdpnpair_temp.p3 = apdpnpair.p3;
-		  apdpns_popcon->setValue(eedetidpos, apdpnpair_temp);
-		  
-		} else {
-		  edm::LogError("EcalLaserHandler") << "error with laserRatiosMap!" << std::endl;     
-		}
-		
-		EEDetId eedetidneg(iX,iY,-1);
+	    {
+	    EEDetId eedetidpos(iX,iY,1);
+	    int hi = eedetidpos.hashedIndex();
+	    
+	    if (laserRatiosMap.find(eedetidpos)!=laserRatiosMap.end()){
+	    apdpnpair = laserRatiosMap[eedetidpos];
+	    EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdpnpair_temp; 
+	    apdpnpair_temp.p1 = apdpnpair.p1;
+	    apdpnpair_temp.p2 = apdpnpair.p2;
+	    apdpnpair_temp.p3 = apdpnpair.p3;
+	    apdpns_popcon->setValue(eedetidpos, apdpnpair_temp);
+	    
+	    } else {
+	    edm::LogError("EcalLaserHandler") << "error with laserRatiosMap!" << std::endl;     
+	    }
+	    
+	    EEDetId eedetidneg(iX,iY,-1);
 		hi = eedetidneg.hashedIndex();
 		
 		if (laserRatiosMap.find(eedetidneg)!=laserRatiosMap.end()){
@@ -533,7 +625,9 @@ void popcon::EcalLaserHandler::getNewObjects()
 		}
 		
 	      }
-	    catch (cms::Exception &e) {  }
+	      catch (cms::Exception &e) {  
+	      std::cout << "Exception in Laser Handler: " << e.toString();
+	      }
 	  }
 	}
 	
@@ -582,7 +676,7 @@ void popcon::EcalLaserHandler::getNewObjects()
 	} else if(the_zero_since!=0) {
 	  // use the first time determined from omds 
 	  t_early=the_zero_since;
-	} else {
+	} else {        m_to_transfer.push_back(std::make_pair(apdpns_popcon,t_early));                                                                                    
 	  t_early=2;
 	}
 
@@ -608,7 +702,7 @@ void popcon::EcalLaserHandler::getNewObjects()
     
   delete econn;
   delete apdpns_temp;  // this is the only one that popcon does not delete 
-  std::cout << "Ecal - > end of getNewObjects -----------\n";
+  std::cout << "Ecal -> end of getNewObjects -----------\n";
 	
 	
 }
