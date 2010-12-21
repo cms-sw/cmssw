@@ -9,11 +9,11 @@ relval = {
 			'igprof': (50, ['TTbar']),
 			'memcheck': (5, ['TTbar']),
 			'pileup': ['TTbar'],
-#???????????			'pileupInput': puSTARTUP,
+#???			'pileupInput': '',
 			'cmsdriver': '--eventcontent RAWSIM --conditions auto:mc' },
 
-	'step2': {	#'step': 'RAW2DIGI-RECO',
-			#'timesize': (8000, ['MinBias','TTbar']),
+	'step2': {	'step': 'RAW2DIGI-RECO',
+			'timesize': (8000, ['MinBias','TTbar']),
 	 		'igprof': (200, ['TTbar']),
 			'memcheck': (5, ['TTbar']),
 			'pileup': ['TTbar'],
@@ -26,7 +26,7 @@ relval = {
 			'igprof': (5, ['TTbar']),
 			'memcheck': (5, ['TTbar']),
 			'pileup': ['TTbar'],
-#???????????			'pileupInput': 
+#???			'pileupInput': '',
 			'fileInput': '',
 			'cmsdriver': '--eventcontent FEVTDEBUG --conditions auto:mc' },
 
