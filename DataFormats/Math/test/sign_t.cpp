@@ -1,4 +1,4 @@
-#include "DataFormats/Math/interface/SSEVect.h"
+#include "DataFormats/Math/interface/SSEVec.h"
 
 #include<cmath>
 #include<iostream>
