@@ -2,6 +2,7 @@
 #include "TrackingTools/GeomPropagators/src/RealQuadEquation.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/Math/interface/SSEVect.h"
 
 #include <algorithm>
 #include <cfloat>
@@ -107,7 +108,7 @@ HelixBarrelPlaneCrossingByCircle::pathLength( const Plane& plane)
   if (solved) {
     theDmag = theD.mag();
     // protect asin (taking some safety margin)
-    double sinAlpha = theDmag*theRho/2.;
+    double sinAlpha = 0.5*theDmag*theRho;
     if ( sinAlpha>(1.-10*DBL_EPSILON) )  sinAlpha = 1.-10*DBL_EPSILON;
     else if ( sinAlpha<-(1.-10*DBL_EPSILON) )  sinAlpha = -(1.-10*DBL_EPSILON);
     theS = theActualDir*2./(theRho*theSinTheta) * asin( sinAlpha);
@@ -137,14 +138,14 @@ HelixBarrelPlaneCrossingByCircle::chooseSolution( const Vector2D& d1,
 
   }
   else {
-    int propSign = thePropDir==alongMomentum ? 1 : -1;
-    if (momProj1*momProj2 < 0) {
+    double propSign = thePropDir==alongMomentum ? 1 : -1;
+    if (!mathSSE::samesign(momProj1,momProj2)) {
       // if different signs return the positive one
       solved = true;
-      theD         = (momProj1*propSign>0) ? d1 : d2;
+      theD         = mathSSE::samesign(momProj1,propSign) ? d1 : d2;
       theActualDir = propSign;
     }
-    else if (momProj1*propSign > 0) {
+    else if (mathSSE::samesign(momProj1,propSign)) {
       // if both positive, return the shortest
       solved = true;
       theD = (d1.mag2()<d2.mag2()) ? d1 : d2;
