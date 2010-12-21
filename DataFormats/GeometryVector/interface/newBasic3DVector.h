@@ -80,7 +80,7 @@ public:
   /// Cartesian z coordinate
   T z() const { return v.o.theZ;}
 
-  // Basic2DVector<T> xy() const { return v.xy();}
+  Basic2DVector<T> xy() const { return v.xy();}
 
   // equality
   bool operator==(const Basic3DVector& rh) const {
