@@ -33,6 +33,17 @@
 	<flags EDM_PLUGIN="1"/>
 </library>
 
+<library file="MFProducer.cc" name="FireworksGeometryMFProducerPlugin">
+        <use name="FWCore/Framework"/>
+        <use name="FWCore/PluginManager"/>
+        <use name="FWCore/ParameterSet"/>
+	<use name="clhep"/>
+	<use name="MagneticField/Engine"/>
+	<use name="MagneticField/Records"/>
+	<use name="rootgpad"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
+
 <library file="DumpFWRecoGeometry.cc" name="FireworksGeometryDumpFWRecoGeometryPlugin">
 	<use name="Fireworks/Geometry"/>
         <lib name="Eve"/>
