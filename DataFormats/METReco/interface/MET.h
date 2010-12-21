@@ -39,6 +39,9 @@ namespace reco
       MET( double sumet_, const LorentzVector& p4_, const Point& vtx_ );
       MET( double sumet_, std::vector<CorrMETData> corr_, 
 	   const LorentzVector& p4_, const Point& vtx_ );
+      //----------------------------------------------------------------- 
+      //explicit clone function
+      MET * clone() const;
       //-----------------------------------------------------------------
       //Define methods to extract elements related to MET
       //scalar sum of transverse energy over all objects

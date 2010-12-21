@@ -72,6 +72,14 @@ MET::MET( double sumet_, std::vector<CorrMETData> corr_,
 }
 //---------------------------------------------------------------------------
 
+
+//----------------------------------------------------------------- 
+//explicit clone function
+MET * MET::clone() const {
+     return new MET( * this );
+}
+//----------------------------------------------------------------- 
+
 // function that calculates the MET significance from the vector information.
 double MET::significance() const {
   if(signif_dxx==0 && signif_dyy==0 && signif_dxy==0 && signif_dyx==0)
