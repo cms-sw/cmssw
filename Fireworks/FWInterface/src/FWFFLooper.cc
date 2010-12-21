@@ -347,7 +347,7 @@ FWFFLooper::duringLoop(const edm::Event &event,
    // it on next iteration.
    if (m_pathsGUI->hasChanges())
    {
-      m_nextEventId = event.id();
+      m_nextEventId = edm::EventID();
       return kStop;
    }
    else
