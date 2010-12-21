@@ -3,32 +3,10 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("myprocess")
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi") 
-process.load ("RecoBTag.PerformanceDB.PoolBTagPerformanceDB100426") 
-process.load ("RecoBTag.PerformanceDB.BTagPerformanceDB100426") 
-process.PoolDBESSource.connect = 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS'
-process.PoolDBESSource.toGet = cms.VPSet(
-    cms.PSet(
-        record = cms.string('PerformanceWPRecord'),
-        tag = cms.string('BTagPTRELSSVMwp_v1_offline'),
-        label = cms.untracked.string('BTagPTRELSSVMwp_v1_offline')
-        ),
-    cms.PSet(
-        record = cms.string('PerformancePayloadRecord'),
-        tag = cms.string('BTagPTRELSSVMtable_v1_offline'),
-        label = cms.untracked.string('BTagPTRELSSVMtable_v1_offline')
-        ),
-    cms.PSet(
-        record = cms.string('PerformanceWPRecord'),
-        tag = cms.string('BTagMISTAGSSVMwp_v1_offline'),
-        label = cms.untracked.string('BTagMISTAGSSVMwp_v1_offline')
-        ),
-    cms.PSet(
-        record = cms.string('PerformancePayloadRecord'),
-        tag = cms.string('BTagMISTAGSSVMtable_v1_offline'),
-        label = cms.untracked.string('BTagMISTAGSSVMtable_v1_offline')
-        )
-    )
-
+process.load ("RecoBTag.PerformanceDB.PoolBTagPerformanceDBMC36X") 
+process.load ("RecoBTag.PerformanceDB.BTagPerformanceDBMC36X")
+process.load ("RecoBTag.PerformanceDB.PoolBTagPerformanceDB1011")
+process.load ("RecoBTag.PerformanceDB.BTagPerformanceDB1011") 
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -39,7 +17,7 @@ process.TFileService = cms.Service("TFileService", fileName = cms.string("perfor
 
 
 process.myrootwriter = cms.EDAnalyzer("BTagPerformaceRootProducerFromSQLITE",
-                                  names = cms.vstring('PTRELSSVM', 'MISTAGSSVM'),
+                                  names = cms.vstring('MCPfTCHEMb', 'MISTAGSSVHEM'),
                                   index = cms.uint32(1001)
                                   )
 
