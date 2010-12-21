@@ -107,7 +107,23 @@ std::vector<float>  LMFCorrCoefDatComponent::getParameters(const EcalLogicID &id
   return v;
 }
 
+std::vector<float>  LMFCorrCoefDatComponent::getParameters(int id) {
+  std::vector<float> v;
+  v.push_back(getData(id, "P1"));
+  v.push_back(getData(id, "P2"));
+  v.push_back(getData(id, "P3"));
+  return v;
+}
+
 std::vector<float>  LMFCorrCoefDatComponent::getParameterErrors(const EcalLogicID &id) {
+  std::vector<float> v;
+  v.push_back(getData(id, "P1E"));
+  v.push_back(getData(id, "P2E"));
+  v.push_back(getData(id, "P3E"));
+  return v;
+}
+
+std::vector<float>  LMFCorrCoefDatComponent::getParameterErrors(int id) {
   std::vector<float> v;
   v.push_back(getData(id, "P1E"));
   v.push_back(getData(id, "P2E"));
@@ -120,6 +136,10 @@ int LMFCorrCoefDatComponent::getFlag(const EcalLogicID &id) {
 }
 
 int LMFCorrCoefDatComponent::getSeqID(const EcalLogicID &id) {
+  return getData(id, "SEQ_ID");
+}
+
+int LMFCorrCoefDatComponent::getSeqID(int id) {
   return getData(id, "SEQ_ID");
 }
 

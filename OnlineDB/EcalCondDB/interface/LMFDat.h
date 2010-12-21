@@ -88,6 +88,7 @@ class LMFDat : public LMFUnique {
   float getData(int id, unsigned int k);
   float getData(const EcalLogicID &id, unsigned int k);
   float getData(const EcalLogicID &id, const std::string &key);
+  float getData(int id, const std::string &key);
 
   /* SAFE methods returning a field of a given logic_id */
   bool getData(int id, unsigned int k, float &ret);

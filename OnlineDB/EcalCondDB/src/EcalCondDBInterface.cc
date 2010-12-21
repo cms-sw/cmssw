@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.27 2010/10/21 20:00:34 wmtan Exp $
+// $Id: EcalCondDBInterface.cc,v 1.28 2010/11/25 13:46:53 organtin Exp $
 
 #include <iostream>
 #include <string>
@@ -128,8 +128,6 @@ EcalLogicID EcalCondDBInterface::getEcalLogicID( string name,
   return EcalLogicID(name, logic_id, id1, id2, id3, mapsTo);
 }
 
-
-
 std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDSet( string name,
 							    int fromId1, int toId1,
 							    int fromId2, int toId2,
@@ -220,6 +218,45 @@ std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDSet( string name,
   }
 
   return result;
+}
+
+std::map<int, int> EcalCondDBInterface::getEcalLogicID2LmrMap() {
+  std::map<int, int> ret;
+  std::vector<EcalLogicID> crystals_EB  =
+    getEcalLogicIDSetOrdered( "EB_crystal_number",
+			      1,36,1,1700,
+			      EcalLogicID::NULLID,EcalLogicID::NULLID,
+			      "EB_crystal_number", EcalLogicID::NULLID);
+  std::vector<EcalLogicID> crystals_EE  =
+    getEcalLogicIDSetOrdered( "EE_crystal_number",
+			      -1,1,1,100,
+			      1,100,
+			      "EE_crystal_number", EcalLogicID::NULLID);
+  std::vector<EcalLogicID> EB_lmr  =
+    getEcalLogicIDSetOrdered( "EB_crystal_number",
+			      1,36,1,1700,
+			      EcalLogicID::NULLID,EcalLogicID::NULLID,
+			      "ECAL_LMR", EcalLogicID::NULLID);
+  std::vector<EcalLogicID> EE_lmr  =
+    getEcalLogicIDSetOrdered( "EE_crystal_number",
+			      -1,1,1,100,
+			      1,100,
+			      "ECAL_LMR", EcalLogicID::NULLID);
+  unsigned int neb = crystals_EB.size();
+  unsigned int nee = crystals_EE.size();
+  if (neb != EB_lmr.size()) {
+    throw(std::runtime_error("ERROR: EB Vectors size do not agree"));
+  }
+  if (nee != EE_lmr.size()) {
+    throw(std::runtime_error("ERROR: EE Vectors size do not agree"));
+  }
+  for (unsigned int i = 0; i < neb; i++) {
+    ret[crystals_EB[i].getLogicID()] = EB_lmr[i].getLogicID() % 100;
+  }
+  for (unsigned int i = 0; i < nee; i++) {
+    ret[crystals_EE[i].getLogicID()] = EE_lmr[i].getLogicID() % 100;
+  }
+  return ret;
 }
 
 std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDSetOrdered( string name,

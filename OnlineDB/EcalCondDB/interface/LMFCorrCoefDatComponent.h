@@ -42,8 +42,11 @@ class LMFCorrCoefDatComponent: public LMFDat {
   int                 getLMFLmrSubIOVID() const;
   std::vector<float>  getParameters(const EcalLogicID &id);
   std::vector<float>  getParameterErrors(const EcalLogicID &id);
+  std::vector<float>  getParameters(int id);
+  std::vector<float>  getParameterErrors(int id);
   int                 getFlag(const EcalLogicID &id);
   int                 getSeqID(const EcalLogicID &id);
+  int                 getSeqID(int id);
   LMFSeqDat           getSequence(const EcalLogicID &id);
   
   std::string foreignKeyName() const;

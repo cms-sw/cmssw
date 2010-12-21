@@ -11,6 +11,7 @@
 #include <map>
 
 #include "OnlineDB/EcalCondDB/interface/LMFCorrCoefDatComponent.h"
+#include "OnlineDB/EcalCondDB/interface/LMFSextuple.h"
 
 class LMFCorrCoefDat {
  public:
@@ -43,7 +44,7 @@ class LMFCorrCoefDat {
   void fetch(int subiov_id);
   void fetch(const LMFLmrSubIOV &iov); 
 
-  std::map<int, std::list<std::vector<float> > > getParameters();
+  std::map<int, std::map<int, LMFSextuple> > getParameters();
   std::list<std::vector<float> > getParameters(int id);
   std::list<std::vector<float> > getParameters(const EcalLogicID &id);
   std::vector<float> getParameters(const LMFLmrSubIOV &iov, 

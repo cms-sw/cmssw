@@ -200,10 +200,43 @@ std::vector<Tm> LMFCorrCoefDat::getTimes(const LMFLmrSubIOV &iov) {
   return iov.getTimes();
 }
 
-std::map<int, std::list<std::vector<float> > > LMFCorrCoefDat::getParameters() {
-  // returns a map whose key is the Logic ID of a crystal and whose value is a list
-  // containing all the collected pairs of triplets
-  std::map<int, std::list<std::vector<float> > > ret;
+std::map<int, std::map<int, LMFSextuple> > LMFCorrCoefDat::getParameters() {
+  // returns a map whose key is the SEQ_ID 
+  std::map<int, std::map<int, LMFSextuple> > ret;
+  std::map<int, LMFCorrCoefDatComponent *>::const_iterator i = m_data.begin();
+  std::map<int, LMFCorrCoefDatComponent *>::const_iterator e = m_data.end();
+  int lmr_sub_iov_id = 0;
+  while (i != e) {
+    LMFSextuple s;
+    // loop on all LMR_SUB_IOVs
+    if (lmr_sub_iov_id != i->first) {
+      // As soon as I find a new LMR_SUB_IOV take the first record and get the
+      // SEQ_ID from it
+      std::list<int> tlist = i->second->getLogicIds();
+      int ecal_logic_id = tlist.front();
+      int this_seq_id = i->second->getSeqID(ecal_logic_id);
+      std::cout << "LMR_SUB_IOV_ID = " << i->first << " " << this_seq_id << std::endl;
+      if (ret.find(this_seq_id) == ret.end()) {
+	std::map<int, LMFSextuple> empty_map;
+	ret[this_seq_id] = empty_map;
+      } 
+      LMFLmrSubIOV lmr_sub_iov = i->second->getLMFLmrSubIOV();
+      lmr_sub_iov.getTimes(&s.t[0], &s.t[1], &s.t[2]); 
+      std::list<int>::const_iterator ixtl = tlist.begin();
+      std::list<int>::const_iterator extl = tlist.end();
+      while (ixtl != extl) {
+	std::vector<float> tvect = i->second->getParameters(*ixtl);
+	for (int i = 0; i < 3; i++) {
+	  s.p[i] = tvect[i];
+	}
+	ret[this_seq_id][*ixtl] = s;
+	ixtl++;
+      }
+      lmr_sub_iov_id = i->first;
+    }
+    i++;
+  }
+  /*
   std::map<int, LMFCorrCoefDatComponent *>::const_iterator i = m_data.begin();
   std::map<int, LMFCorrCoefDatComponent *>::const_iterator e = m_data.end();
   // loop on all components
@@ -230,6 +263,7 @@ std::map<int, std::list<std::vector<float> > > LMFCorrCoefDat::getParameters() {
     }
     i++;
   }
+  */
   return ret;
 }
 

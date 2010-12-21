@@ -572,6 +572,10 @@ float LMFDat::getData(const EcalLogicID &id, const std::string &key) {
   return getData(id.getLogicID(), m_keys[key]);
 }
 
+float LMFDat::getData(int id, const std::string &key) {
+  return getData(id, m_keys[key]);
+}
+
 /* safe */
 
 bool LMFDat::getData(int id, unsigned int k, float &ret) {
