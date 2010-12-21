@@ -105,6 +105,7 @@ class Process(object):
         self.__dict__['_Process__producers'] = {}
         self.__dict__['_Process__source'] = None
         self.__dict__['_Process__looper'] = None
+        self.__dict__['_Process__subProcess'] = None
         self.__dict__['_Process__schedule'] = None
         self.__dict__['_Process__analyzers'] = {}
         self.__dict__['_Process__outputmodules'] = {}
@@ -179,6 +180,12 @@ class Process(object):
     def setLooper_(self,lpr):
         self._placeLooper('looper',lpr)
     looper = property(looper_,setLooper_,doc='the main looper or None if not set')
+    def subProcess_(self):
+        """returns the sub-process which has been added to the Process or None if none have been added"""
+        return self.__subProcess
+    def setSubProcess_(self,lpr):
+        self._placeSubProcess('subProcess',lpr)
+    subProcess = property(subProcess_,setSubProcess_,doc='the SubProcess or None if not set')
     def analyzers_(self):
         """returns a dict of the analyzers which have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__analyzers)
@@ -405,6 +412,11 @@ class Process(object):
             raise ValueError("The label '"+name+"' can not be used for a Looper.  Only 'looper' is allowed.")
         self.__dict__['_Process__looper'] = mod
         self.__dict__[mod.type_()] = mod
+    def _placeSubProcess(self,name,mod):
+        if name != 'subProcess':
+            raise ValueError("The label '"+name+"' can not be used for a SubProcess.  Only 'subProcess' is allowed.")
+        self.__dict__['_Process__subProcess'] = mod
+        self.__dict__[mod.type_()] = mod
     def _placeService(self,typeName,mod):
         self._place(typeName, mod, self.__services)
         self.__dict__[typeName]=mod
@@ -424,7 +436,7 @@ class Process(object):
             if name.startswith('_'):
                 continue
             item = getattr(other,name)
-            if name == "source" or name == "looper":
+            if name == "source" or name == "looper" or name == "subProcess":
                 self.__setattr__(name,item)
             elif isinstance(item,_ModuleSequenceType):
                 seqs[name]=item
@@ -480,6 +492,9 @@ class Process(object):
             config += options.indentation()+"source = "+self.source_().dumpConfig(options)
         if self.looper_():
             config += options.indentation()+"looper = "+self.looper_().dumpConfig(options)
+        if self.subProcess_():
+            config += options.indentation()+"subProcess = "+self.subProcess_().dumpConfig(options)
+
         config+=self._dumpConfigNamedList(self.producers_().iteritems(),
                                   'module',
                                   options)
@@ -594,6 +609,8 @@ class Process(object):
             result += "process.source = "+self.source_().dumpPython(options)
         if self.looper_():
             result += "process.looper = "+self.looper_().dumpPython()
+        if self.subProcess_():
+            result += self.subProcess_().dumpPython(options)
         result+=self._dumpPythonList(self.producers_(), options)
         result+=self._dumpPythonList(self.filters_() , options)
         result+=self._dumpPythonList(self.analyzers_(), options)
@@ -731,6 +748,7 @@ class Process(object):
         self._insertManyInto(processPSet, "@all_modules", all_modules)
         self._insertOneInto(processPSet,  "@all_sources", self.source_())
         self._insertOneInto(processPSet,  "@all_loopers",   self.looper_())
+        self._insertOneInto(processPSet,  "@all_subprocesses",   self.subProcess_())
         self._insertManyInto(processPSet, "@all_esmodules", self.es_producers_())
         self._insertManyInto(processPSet, "@all_essources", self.es_sources_())
         self._insertManyInto(processPSet, "@all_esprefers", self.es_prefers_())
@@ -826,6 +844,40 @@ class FilteredStream(dict):
     def __getattr__(self,attr):
         return self[attr]
 
+class SubProcess(_ConfigureComponent,_Unlabelable):
+   """Allows embedding another process within a parent process. This allows one to 
+   chain processes together directly in one cmsRun job rather than having to run
+   separate jobs which are connected via a temporary file.
+   """
+   def __init__(self,process, selectEvents = untracked.vstring()):
+      """
+      """
+      if not isinstance(process, Process):
+         raise ValueError("the 'process' argument must be of type cms.Process")
+      if not isinstance(selectEvents,vstring):
+         raise ValueError("the 'selectEvents' argument must be of type cms.untracked.vstring")
+      self.__process = process
+      self.__selectEvents = selectEvents
+   def dumpPython(self,options):
+      out = "parentProcess"+str(hash(self))+" = process\n"
+      out += self.__process.dumpPython()
+      out += "childProcess = process\n"
+      out += "process = parentProcess"+str(hash(self))+"\n"
+      out += "process.subProcess = cms.SubProcess( process = childProcess, selectEvents = "+self.__selectEvents.dumpPython(options) +")\n"
+      return out
+   def type_(self):
+      return 'subProcess'
+   def nameInProcessDesc_(self,label):
+      return '@sub_process'
+   def _place(self,label,process):
+      process._placeSubProcess('subProcess',self)
+   def insertInto(self,parameterSet, newlabel):
+      topPSet = parameterSet.newPSet()
+      self.__process.fillProcessDesc(topPSet,topPSet)
+      subProcessPSet = parameterSet.newPSet()
+      self.__selectEvents.insertInto(subProcessPSet,"selectEvents")
+      subProcessPSet.addPSet(False,"process",topPSet)
+      parameterSet.addPSet(False,self.nameInProcessDesc_("subProcess"), subProcessPSet)
 
 if __name__=="__main__":
     import unittest
@@ -1235,6 +1287,35 @@ process.prefer("juicer",
             m2 = m.clone(p = PSet(i = int32(5)), j = int32(8))
             m2.p.i = 6
             m2.j = 8
+        def testSubProcess(self):
+            process = Process("Parent")
+            subProcess = Process("Child")
+            subProcess.a = EDProducer("A")
+            subProcess.p = Path(subProcess.a)
+            process.add_( SubProcess(subProcess) )
+            d = process.dumpPython()
+            equalD ="""import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("Parent")
+
+parentProcess = process
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("Child")
+
+process.a = cms.EDProducer("A")
+
+
+process.p = cms.Path(process.a)
+
+
+childProcess = process
+process = parentProcess
+process.subProcess = cms.SubProcess( process = childProcess, selectEvents = cms.untracked.vstring())
+"""
+            equalD = equalD.replace("parentProcess","parentProcess"+str(hash(process.subProcess)))
+            self.assertEqual(d,equalD)
+      
 
 
     unittest.main()
