@@ -39,7 +39,7 @@ public:
   Basic3DVector( const Basic2DVector<T> & p) : 
     v(p.x(),p.y(),0) {}
 
-
+ 
   /** Explicit constructor from other (possibly unrelated) vector classes 
    *  The only constraint on the argument type is that it has methods
    *  x(), y() and z(), and that these methods return a type convertible to T.
@@ -80,6 +80,7 @@ public:
   /// Cartesian z coordinate
   T z() const { return v.o.theZ;}
 
+  // Basic2DVector<T> xy() const { return v.xy();}
 
   // equality
   bool operator==(const Basic3DVector& rh) const {

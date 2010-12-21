@@ -86,6 +86,9 @@ public:
   /// Cartesian z coordinate
   T z() const { return theZ;}
 
+  Basic2DVector<T> xy() const { return  Basic2DVector<T>(theX,theY);}
+
+
   // equality
   bool operator==(const Basic3DVector& rh) const {
     return x()==rh.x() && y()==rh.y() && z()==rh.z();
