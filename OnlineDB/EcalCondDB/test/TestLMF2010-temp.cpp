@@ -96,9 +96,11 @@ public:
       if (rand() > RAND_MAX*0.5) {
 	coeff.setP123(subiov1, *i, 1., 2., 3., 0.1, 0.2, 0.3);
 	coeff.setFlag(subiov1, *i, 0);
+	coeff.setSequence(subiov1, *i, 2);
       } else {
 	coeff.setP123(subiov2, *i, 1., 2., 3., 0.1, 0.2, 0.3);
 	coeff.setFlag(subiov2, *i, 0);
+	coeff.setSequence(subiov2, *i, 2);
 	if (check) {
 	  if (rand() > 0.5*RAND_MAX) {
 	    coeff.dump();
@@ -137,6 +139,22 @@ public:
     x = coeff.getParameters(subiov2, testID);
     for (int i = 0; i < 3; i++) {
       std::cout << x[i] << std::endl;
+    }
+
+    Tm tmin;
+    tmin.setToString("2010-11-10 00:00:00");
+    LMFCorrCoefDat d(econn);
+    d.debug();
+    d.fetchAfter(tmin);
+    std::list<std::vector<float> > pars = d.getParameters(testID);
+    std::list<std::vector<float> >::const_iterator id = pars.begin();
+    std::list<std::vector<float> >::const_iterator ed = pars.end();
+    while (id != ed) {
+      std::vector<float> f = *id++;
+      for (int i = 0; i < 6; i++) {
+	std::cout << f[i] << " ";
+      }
+      std::cout << std::endl << std::flush;
     }
     std::cout << "DELETE FROM LMF_CORR_COEF_DAT WHERE LMR_SUB_IOV_ID = "
 	      << subiov1.getID() << ";" << std::endl;

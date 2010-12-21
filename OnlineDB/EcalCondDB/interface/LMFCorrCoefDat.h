@@ -33,14 +33,27 @@ class LMFCorrCoefDat {
 				float p3e);
   LMFCorrCoefDat& setFlag(const LMFLmrSubIOV &iov,
 			  const EcalLogicID &id, int flag);
+  LMFCorrCoefDat& setSequence(const LMFLmrSubIOV &iov,
+			      const EcalLogicID &id, int seq_id);
+  LMFCorrCoefDat& setSequence(const LMFLmrSubIOV &iov,
+			      const EcalLogicID &id, 
+			      const LMFSeqDat &seq);
+  void fetchAfter(const Tm &t);
+  void fetch(std::list<int> subiov_ids);
+  void fetch(int subiov_id);
   void fetch(const LMFLmrSubIOV &iov); 
 
+  std::map<int, std::list<std::vector<float> > > getParameters();
+  std::list<std::vector<float> > getParameters(int id);
+  std::list<std::vector<float> > getParameters(const EcalLogicID &id);
   std::vector<float> getParameters(const LMFLmrSubIOV &iov, 
 				   const EcalLogicID &id);
   std::vector<float> getParameterErrors(const LMFLmrSubIOV &iov, 
 					const EcalLogicID &id);
   std::vector<Tm> getTimes(const LMFLmrSubIOV &iov);
   int getFlag(const LMFLmrSubIOV &iov, const EcalLogicID &id);
+  int getSeqID(const LMFLmrSubIOV &iov, const EcalLogicID &id);
+  LMFSeqDat getSequence(const LMFLmrSubIOV &iov, const EcalLogicID &id);
 
   int size() const;
   void dump();

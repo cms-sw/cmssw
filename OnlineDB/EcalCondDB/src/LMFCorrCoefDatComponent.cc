@@ -24,6 +24,7 @@ void LMFCorrCoefDatComponent::init() {
   m_keys["P2E"] = 4;
   m_keys["P3E"] = 5;
   m_keys["FLAG"] = 6;
+  m_keys["SEQ_ID"] = 7;
   for (unsigned int i = 0; i < m_keys.size(); i++) {
     m_type.push_back("NUMBER");
   }
@@ -76,6 +77,18 @@ LMFCorrCoefDatComponent& LMFCorrCoefDatComponent::setFlag(const EcalLogicID &id,
   return *this;
 }
 
+LMFCorrCoefDatComponent& LMFCorrCoefDatComponent::setSequence(const EcalLogicID &id, 
+							      int seq_id) {
+  LMFDat::setData(id, "SEQ_ID", seq_id);
+  return *this;
+}
+
+LMFCorrCoefDatComponent& LMFCorrCoefDatComponent::setSequence(const EcalLogicID &id, 
+							      const LMFSeqDat &seq) {
+  LMFDat::setData(id, "SEQ_ID", seq.getID());
+  return *this;
+}
+
 LMFLmrSubIOV LMFCorrCoefDatComponent::getLMFLmrSubIOV() const {
   LMFLmrSubIOV iov(m_env, m_conn);
   iov.setByID(getInt(foreignKeyName()));
@@ -104,6 +117,17 @@ std::vector<float>  LMFCorrCoefDatComponent::getParameterErrors(const EcalLogicI
 
 int LMFCorrCoefDatComponent::getFlag(const EcalLogicID &id) {
   return getData(id, "FLAG");
+}
+
+int LMFCorrCoefDatComponent::getSeqID(const EcalLogicID &id) {
+  return getData(id, "SEQ_ID");
+}
+
+LMFSeqDat LMFCorrCoefDatComponent::getSequence(const EcalLogicID &id) {
+  int seq_id = getData(id, "SEQ_ID");
+  LMFSeqDat seq(m_env, m_conn);
+  seq.setByID(seq_id);
+  return seq;
 }
 
 int LMFCorrCoefDatComponent::writeDB() 

@@ -81,6 +81,19 @@ LMFCorrCoefDat& LMFCorrCoefDat::setFlag(const LMFLmrSubIOV & iov,
   return *this;
 }
 
+LMFCorrCoefDat& LMFCorrCoefDat::setSequence(const LMFLmrSubIOV & iov, 
+					    const EcalLogicID &id, int seq_id) {
+  find(iov)->setSequence(id, seq_id);
+  return *this;
+}
+
+LMFCorrCoefDat& LMFCorrCoefDat::setSequence(const LMFLmrSubIOV & iov, 
+					    const EcalLogicID &id, 
+					    const LMFSeqDat &seq) {
+  find(iov)->setSequence(id, seq);
+  return *this;
+}
+
 LMFCorrCoefDatComponent* LMFCorrCoefDat::find(const LMFLmrSubIOV &iov) {
   if (m_data.find(iov.getID()) != m_data.end()) {
     return m_data[iov.getID()];
@@ -137,6 +150,27 @@ void LMFCorrCoefDat::nodebug() {
   m_debug = false;
 }
 
+void LMFCorrCoefDat::fetchAfter(const Tm &t) {
+  LMFLmrSubIOV iov(m_env, m_conn);
+  std::list<int> l = iov.getIOVIDsLaterThan(t);
+  fetch(l);
+}
+
+void LMFCorrCoefDat::fetch(std::list<int> subiov_ids) {
+  std::list<int>::const_iterator i = subiov_ids.begin();
+  std::list<int>::const_iterator e = subiov_ids.end();
+  while (i != e) {
+    fetch(*i);
+    i++;
+  }
+}
+
+void LMFCorrCoefDat::fetch(int subiov_id) {
+  LMFLmrSubIOV iov(m_env, m_conn);
+  iov.setByID(subiov_id);
+  fetch(iov);
+}
+
 void LMFCorrCoefDat::fetch(const LMFLmrSubIOV &iov)
 {
   // fetch data with given LMR_SUB_IOV_ID from the database
@@ -164,6 +198,72 @@ void LMFCorrCoefDat::fetch(const LMFLmrSubIOV &iov)
 
 std::vector<Tm> LMFCorrCoefDat::getTimes(const LMFLmrSubIOV &iov) {
   return iov.getTimes();
+}
+
+std::map<int, std::list<std::vector<float> > > LMFCorrCoefDat::getParameters() {
+  // returns a map whose key is the Logic ID of a crystal and whose value is a list
+  // containing all the collected pairs of triplets
+  std::map<int, std::list<std::vector<float> > > ret;
+  std::map<int, LMFCorrCoefDatComponent *>::const_iterator i = m_data.begin();
+  std::map<int, LMFCorrCoefDatComponent *>::const_iterator e = m_data.end();
+  // loop on all components
+  while (i != e) {
+    int subiov_id = i->first;
+    std::list<int> logic_ids = i->second->getLogicIds();
+    std::list<int>::const_iterator il = logic_ids.begin();
+    std::list<int>::const_iterator el = logic_ids.end();
+    // loop on all logic id's in this component
+    while (il != el) {
+      // get p1, p2, p3
+      std::vector<float> p = i->second->getData(*il);
+      // get t1, t2, t3
+      std::vector<Tm> t = m_subiov[subiov_id]->getTimes();
+      // build the six parameters vector
+      std::vector<float> r(6);
+      for (int k = 0; k < 3; k++) {
+	r[k]     = t[k].microsTime();
+	r[k + 3] = p[k];
+      }
+      // add the vector to the resulting map
+      ret[*il].push_back(r);
+      il++;
+    }
+    i++;
+  }
+  return ret;
+}
+
+std::list<std::vector<float> > LMFCorrCoefDat::getParameters(const EcalLogicID 
+							     &id) {
+  return getParameters(id.getLogicID());
+}
+
+std::list<std::vector<float> > LMFCorrCoefDat::getParameters(int id) {
+  std::map<int, LMFCorrCoefDatComponent *>::const_iterator i = m_data.begin();
+  std::map<int, LMFCorrCoefDatComponent *>::const_iterator e = m_data.end();
+  std::list<std::vector<float> > ret;
+  while (i != e) {
+    std::list<int> logic_ids = i->second->getLogicIds();
+    std::list<int>::iterator p = 
+      std::find(logic_ids.begin(), logic_ids.end(), id);
+    if (p != logic_ids.end()) {
+      // the given logic id is contained in at least an element of this map
+      std::vector<float> ppar;
+      std::vector<Tm> tpar;
+      // get P1, P2, P3 and T1, T2, T3
+      i->second->getData(id, ppar);
+      tpar = m_subiov[i->first]->getTimes();
+      // construct the resulting pair of triplets
+      std::vector<float> par(6);
+      for (int k = 0; k < 3; k++) {
+	par[k + 3] = ppar[k];
+	par[k]     = tpar[k].microsTime();
+      }
+      ret.push_back(par);
+    }
+    i++;
+  }
+  return ret;
 }
 
 std::vector<float> LMFCorrCoefDat::getParameters(const LMFLmrSubIOV &iov,
@@ -197,6 +297,26 @@ int LMFCorrCoefDat::getFlag(const LMFLmrSubIOV &iov,
     x = (m_data.find(iov.getID())->second)->getFlag(id);
   }
   return x;
+}
+
+int LMFCorrCoefDat::getSeqID(const LMFLmrSubIOV &iov, 
+			     const EcalLogicID &id) {
+  int x = -1;
+  fetch(iov);
+  if (m_data.find(iov.getID()) != m_data.end()) {
+    x = (m_data.find(iov.getID())->second)->getSeqID(id);
+  }
+  return x;
+}
+
+LMFSeqDat LMFCorrCoefDat::getSequence(const LMFLmrSubIOV &iov, 
+				      const EcalLogicID &id) {
+  LMFSeqDat seq(m_env, m_conn);
+  fetch(iov);
+  if (m_data.find(iov.getID()) != m_data.end()) {
+    seq = (m_data.find(iov.getID())->second)->getSequence(id);
+  }
+  return seq;
 }
 
 int LMFCorrCoefDat::size() const {

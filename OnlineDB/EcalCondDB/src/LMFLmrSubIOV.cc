@@ -111,5 +111,34 @@ void LMFLmrSubIOV::getParameters(ResultSet *rset) {
   }
 }
 
+std::list<int> LMFLmrSubIOV::getIOVIDsLaterThan(const Tm &t) 
+  throw(std::runtime_error) {
+  std::string sql = "SELECT LMR_SUB_IOV_ID FROM LMF_LMR_SUB_IOV WHERE T3 > :1";
+  std::list<int> ret; 
+  if (m_conn != NULL) {
+    try {
+      DateHandler dh(m_env, m_conn);
+      Statement *stmt = m_conn->createStatement();
+      stmt->setPrefetchRowCount(131072);
+      stmt->setSQL(sql);
+      stmt->setDate(1, dh.tmToDate(t));
+      ResultSet *rset = stmt->executeQuery();
+      while (rset->next()) {
+	ret.push_back(rset->getInt(1));
+      }
+      stmt->setPrefetchRowCount(0);
+      m_conn->terminateStatement(stmt);
+    }
+    catch (oracle::occi::SQLException e) {
+      throw(std::runtime_error(m_className + "::getLmrSubIOVLaterThan: " +
+			       e.getMessage()));
+    }
+  } else {
+    throw(std::runtime_error(m_className + "::getLmrSubIOVLaterThan: " +
+			     "Connection not set"));
+  }
+  ret.sort();
+  return ret;
+}
 
 

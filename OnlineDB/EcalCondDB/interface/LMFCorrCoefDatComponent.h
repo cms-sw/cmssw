@@ -16,6 +16,7 @@
 
 #include "OnlineDB/EcalCondDB/interface/LMFDat.h"
 #include "OnlineDB/EcalCondDB/interface/LMFLmrSubIOV.h"
+#include "OnlineDB/EcalCondDB/interface/LMFSeqDat.h"
 
 class LMFCorrCoefDatComponent: public LMFDat {
  public:
@@ -34,12 +35,16 @@ class LMFCorrCoefDatComponent: public LMFDat {
   LMFCorrCoefDatComponent& setP123Errors(const EcalLogicID &id, float p1e, float p2e, 
 				float p3e);
   LMFCorrCoefDatComponent& setFlag(const EcalLogicID &id, int flag);
+  LMFCorrCoefDatComponent& setSequence(const EcalLogicID &id, int seq_id);
+  LMFCorrCoefDatComponent& setSequence(const EcalLogicID &id, const LMFSeqDat &seq);
 
   LMFLmrSubIOV        getLMFLmrSubIOV() const;
   int                 getLMFLmrSubIOVID() const;
   std::vector<float>  getParameters(const EcalLogicID &id);
   std::vector<float>  getParameterErrors(const EcalLogicID &id);
   int                 getFlag(const EcalLogicID &id);
+  int                 getSeqID(const EcalLogicID &id);
+  LMFSeqDat           getSequence(const EcalLogicID &id);
   
   std::string foreignKeyName() const;
   std::string getTableName() const;
