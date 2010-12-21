@@ -1,3 +1,18 @@
+2010-12-21 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-07-00
+	* Add new boolean parameter 'uniqueEvents' for event consumers. If it is set to
+	  'true', the queue might be shared with other event consumers requesting the
+	  same events and queue types. This allows multiple consumers to get unique
+	  events. Otherwise, the same event might be served to multiple consumers.
+	* Assure that the same event cannot be selected multiple times for the same
+	  stream/queue. This was ascertained by construction of the consumer registration,
+	  but might be less reliable with the new scheme.
+	* Introduce new unsigned int parameter 'prescale' for event consumers. It allows
+	  consumers to specify a prescale. The default is 1, i.e. no prescale.
+	* Keep track of number of discarded (dropped) events for each event consumer.
+	* Add and improve several unit-tests to test the new features.
+
 2010-12-15 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-06-01
