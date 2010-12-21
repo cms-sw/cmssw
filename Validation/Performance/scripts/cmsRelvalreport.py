@@ -398,7 +398,8 @@ class Profile:
         #'--track-fds=yes '
         #Adding xml logging
         xmlFileName = self.profile_name.replace(",","-")[:-4] + ".xml"
-        valgrind_options='time valgrind --tool=memcheck `cmsvgsupp` '+\
+        valgrind_options='time valgrind --track-origins=yes '+\
+                               '--tool=memcheck `cmsvgsupp` '+\
                                '--num-callers=20 '+\
                                '--xml=yes '+\
                                '--xml-file=%s '%xmlFileName

@@ -229,7 +229,6 @@ def process_timesize_dir(path, runinfo):
 			print " ======================= end ===================================== "
 			continue
 
-		num_events = read_ConfigurationFromSimulationCandles(path = path, step = step, is_pileup = pileup_type)["num_events"]
 		# TODO: automaticaly detect type of report file!!!
 		(mod_timelog, evt_timelog, rss_data, vsize_data) =loadTimeLog(timelog_f)
 	
@@ -245,7 +244,9 @@ def process_timesize_dir(path, runinfo):
                     pileups[pileup_type] = 1
 	
 		# root file size (number)
-		root_file_size = getRootFileSize(path = path, candle = candle, step = step)
+                root_file_size = getRootFileSize(path = path, candle = candle, step = step.replace(':', '='))
+                # number of events
+                num_events = read_ConfigurationFromSimulationCandles(path = path, step = step, is_pileup = pileup_type)["num_events"]
 
 		#EdmSize
 		edm_report = parserEdmSize.getEdmReport(path = path, candle = candle, step = step)
@@ -320,7 +321,7 @@ def process_memcheck_dir(path, runinfo):
                     pileups[pileup_type] = 1
                 
                 memerror = getMemcheckError(path)
-            
+
                 MemcheckReport = {
                     "jobID": jobID,
                     "release": release,
@@ -426,7 +427,21 @@ def getIgSummary(path):
         candle, sequence, pileup, conditions, process, counterType, events = rest.split("___")
         events = events.replace(".sql3", "")
         igresult.append({"counter_type": counterType, "event": events, "cumcounts": cumCounts, "cumcalls": cumCalls})
-        
+
+    #fail-safe(nasty) fix for the diff (even if it gets fixed in the sqls, won't screw this up again...)
+    for ig in igresult:
+        if 'diff' in ig['event']:
+            eventLast,eventOne = ig['event'].split('_diff_')
+            for part in igresult:
+                if part['counter_type'] == ig['counter_type'] and part['event'] == eventOne:
+                    cumcountsOne = part['cumcounts']
+                    cumcallsOne = part['cumcalls']
+                if part['counter_type'] == ig['counter_type'] and part['event'] == eventLast:
+                    cumcountsLast = part['cumcounts']
+                    cumcallsLast = part['cumcalls']
+            ig['cumcounts'] = cumcountsLast - cumcountsOne
+            ig['cumcalls'] = cumcallsLast - cumcallsOne
+
     return igresult
     
 def getSummaryInfo(database):

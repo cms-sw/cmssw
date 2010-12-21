@@ -681,7 +681,7 @@ def writeCommands(simcandles,
 
             #Set the output file name for Pile up and for regular case:
             if "GEN,SIM-HLT" or "GEN,FASTSIM" or "HLT" in userSteps: # change to make root file output work (without colons)
-                stepToWrite = stepToWrite.replace(":","_")
+                stepToWrite = stepToWrite.replace(":","=")
 
             if '--pileup' in cmsDriverOptions:
                 outfile = stepToWrite + "_PILEUP"
@@ -691,7 +691,7 @@ def writeCommands(simcandles,
             #print stepToWrite
 
             if "GEN,SIM-HLT" or "GEN,FASTSIM" or "HLT" in userSteps: # change it back
-                stepToWrite = stepToWrite.replace("_",":")
+                stepToWrite = stepToWrite.replace("=",":")
 
             OutputFile = setOutputFileOption(acandle,outfile)
             if fstROOTfile:
