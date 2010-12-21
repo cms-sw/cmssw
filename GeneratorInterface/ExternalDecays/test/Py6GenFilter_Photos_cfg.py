@@ -33,7 +33,7 @@ process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(True),
-    maxEventsToPrint = cms.untracked.int32(3),
+    maxEventsToPrint = cms.untracked.int32(20),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     # this shows how to turn ON some of the general Py6 printouts, like banner...
     ## --> displayPythiaBanner = cms.untracked.bool(True),

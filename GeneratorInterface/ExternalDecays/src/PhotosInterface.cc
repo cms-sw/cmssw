@@ -17,6 +17,7 @@ using namespace gen;
 using namespace edm;
 using namespace std;
 
+// const int NMXHEP = HepMC::HEPEVT_Wrapper::max_number_entries() ;
 
 extern "C"{
 
@@ -34,6 +35,10 @@ extern "C"{
    }
 */
 
+//   extern struct {
+//      bool qedrad[NMXHEP];
+//   } phoqed_;
+
 }
 
 
@@ -41,6 +46,7 @@ PhotosInterface::PhotosInterface()
    : fOnlyPDG(-1)
 {
    fSpecialSettings.push_back("QED-brem-off:all");
+   fAvoidTauLeptonicDecays = false;
    fIsInitialized = false; 
 }
 
@@ -98,14 +104,14 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
    
    // loop over HepMC::GenEvent, find vertices
 
-   std::vector<int> barcodes;
+   // std::vector<int> barcodes;   
+   // std::vector<Scaling> scaleFactors;
    
-   //std::vector<double> scaleFactors;
-   // std::vector<HepMC::FourVector> scaleFactors;
-   std::vector<Scaling> scaleFactors;
+   fScaleFactors.clear();
+   
    for ( int ip=0; ip<evt->particles_size(); ip++ )
    {
-      scaleFactors.push_back( Scaling(HepMC::ThreeVector(1.,1.,1.),1) );
+      fScaleFactors.push_back( Scaling(HepMC::ThreeVector(1.,1.,1.),1) );
    }
    
    for ( int iv=1; iv<=evt->vertices_size(); iv++ )
@@ -135,7 +141,7 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
       // first, flush out HEPEVT & tmp barcode storage
       //
       HepMC::HEPEVT_Wrapper::zero_everything();
-      barcodes.clear();
+      fBarcodes.clear();
       
       // add incoming particle
       //
@@ -149,8 +155,27 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
                                                   vtx->position().z(), vtx->position().t() );
       HepMC::HEPEVT_Wrapper::set_status( index, (*(vtx->particles_in_const_begin()))->status() );
       HepMC::HEPEVT_Wrapper::set_parents( index, 0, 0 );
-      barcodes.push_back( (*(vtx->particles_in_const_begin()))->barcode() );
+      fBarcodes.push_back( (*(vtx->particles_in_const_begin()))->barcode() );
+      // phoqed_.qedrad[index-1]=true;
       
+      // special case: avoid tau leptonic decays
+      //
+/*
+      bool tau_leptonic = false;
+      if ( fAvoidTauLeptonicDecays && abs((*(vtx->particles_in_const_begin()))->pdg_id()) == 15 )
+      {      
+         for ( HepMC::GenVertex::particle_iterator pitr=vtx->particles_begin(HepMC::children);
+               pitr != vtx->particles_end(HepMC::children); ++pitr) 
+         {
+	    if ( abs((*pitr)->pdg_id()) == 11 || abs((*pitr)->pdg_id()) == 13 ) // leptonic decay !!!
+	                                                                        // do brem off tau but NOT off decay products
+	    {
+	       tau_leptonic = true;
+	       break;
+	    }	 
+         }
+      }      
+*/     
       // check if mother has ever been "altered" !
       //
       int mbcode =  (*(vtx->particles_in_const_begin()))->barcode();
@@ -161,27 +186,27 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
       for ( HepMC::GenVertex::particle_iterator pitr=vtx->particles_begin(HepMC::children);
             pitr != vtx->particles_end(HepMC::children); ++pitr) 
       {
-         if ( scaleFactors[mbcode-1].flag != 1. )
+         if ( fScaleFactors[mbcode-1].flag != 1. )
 	 {
 	    // yes, mother has been changed - adjust daughters
 	    
 	    vec4 = (*pitr)->momentum();
 	    double mass2 = vec4.m2();
-	    double pxn = vec4.px() * scaleFactors[mbcode-1].weights.x();
-	    double pyn = vec4.py() * scaleFactors[mbcode-1].weights.y();
-	    double pzn = vec4.pz() * scaleFactors[mbcode-1].weights.z();
+	    double pxn = vec4.px() * fScaleFactors[mbcode-1].weights.x();
+	    double pyn = vec4.py() * fScaleFactors[mbcode-1].weights.y();
+	    double pzn = vec4.pz() * fScaleFactors[mbcode-1].weights.z();
 	    double en  = sqrt( pxn*pxn + pyn*pyn + pzn*pzn + mass2 );
 	    (*pitr)->set_momentum( HepMC::FourVector(pxn,pyn,pzn,en) );
 	    int curbcode = (*pitr)->barcode();
-	    double scale = scaleFactors[curbcode-1].weights.x();
-	    scaleFactors[curbcode-1].weights.setX( scale*scaleFactors[mbcode-1].weights.x() );
-	    scale = scaleFactors[curbcode-1].weights.y();
-	    scaleFactors[curbcode-1].weights.setY( scale*scaleFactors[mbcode-1].weights.y() );
-	    scale = scaleFactors[curbcode-1].weights.z();
-	    scaleFactors[curbcode-1].weights.setZ( scale*scaleFactors[mbcode-1].weights.z() );
-	    scaleFactors[curbcode-1].flag = 0;
+	    double scale = fScaleFactors[curbcode-1].weights.x();
+	    fScaleFactors[curbcode-1].weights.setX( scale*fScaleFactors[mbcode-1].weights.x() );
+	    scale = fScaleFactors[curbcode-1].weights.y();
+	    fScaleFactors[curbcode-1].weights.setY( scale*fScaleFactors[mbcode-1].weights.y() );
+	    scale = fScaleFactors[curbcode-1].weights.z();
+	    fScaleFactors[curbcode-1].weights.setZ( scale*fScaleFactors[mbcode-1].weights.z() );
+	    fScaleFactors[curbcode-1].flag = 0;
 	 }
-	 
+	 	 	 
 	 if ( (*pitr)->status() == 1 || (*pitr)->end_vertex() )
 	 {
 	    index++;
@@ -193,11 +218,11 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
             HepMC::HEPEVT_Wrapper::set_position( index, vec4.x(), vec4.y(), vec4.z(), vec4.t() );
 	    HepMC::HEPEVT_Wrapper::set_status( index, (*pitr)->status() );
 	    HepMC::HEPEVT_Wrapper::set_parents( index, 1, 1 );
-	    barcodes.push_back( (*pitr)->barcode() );
+	    fBarcodes.push_back( (*pitr)->barcode() );
 	    lastDau++;
 	 }
       }
-      
+            
       // store, further to set NHEP in HEPEVT
       //
       int nentries = index;
@@ -224,8 +249,28 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
 
       // now check if something has been generated
       //
-      if ( HepMC::HEPEVT_Wrapper::number_entries() > nentries ) 
-      {
+      attachParticles( evt, vtx, nentries );
+
+      // ugh, done with this vertex !
+   
+   }
+   
+   // restore event number in HEPEVT (safety measure, somehow needed by Hw6)
+   HepMC::HEPEVT_Wrapper::set_event_number( evt->event_number() );
+
+   // cross-check printout MODIFIED HepMC::GenEvent
+   // evt->print();
+
+   // return conv.read_next_event();
+   return evt;
+      
+}
+
+void PhotosInterface::attachParticles( HepMC::GenEvent* evt, HepMC::GenVertex* vtx, int nentries )
+{
+
+   if ( HepMC::HEPEVT_Wrapper::number_entries() > nentries ) 
+   {
          // yes, need all corrections and adjustments -
 	 // figure out how many photons and what particles in 
 	 // the decay branch have changes;
@@ -233,10 +278,10 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
 	 // at the same time, add photon(s) to the GenVertex
 	 //	 
 	 int largestBarcode = -1;
-	 int Nbcodes = barcodes.size();
+	 int Nbcodes = fBarcodes.size();
 	 for ( int ip=1; ip<Nbcodes; ip++ )
 	 {
-	    int bcode = barcodes[ip];
+	    int bcode = fBarcodes[ip];
 	    HepMC::GenParticle* prt = evt->barcode_to_particle( bcode );
 	    if ( bcode > largestBarcode ) largestBarcode = bcode;
 	    double px = HepMC::HEPEVT_Wrapper::px(ip+1);
@@ -248,13 +293,13 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
 	     //                 + mom4.py()*mom4.py() 
 		//	      + mom4.pz()*mom4.pz() ) ;
 	    //double pnew = sqrt( px*px + py*py + pz*pz );
-	    double scale = scaleFactors[bcode-1].weights.x();
-	    scaleFactors[bcode-1].weights.setX( scale*(px/mom4.px()) ); 
-	    scale = scaleFactors[bcode-1].weights.y();
-	    scaleFactors[bcode-1].weights.setY( scale*(py/mom4.py()) ); 
-	    scale = scaleFactors[bcode-1].weights.z();
-	    scaleFactors[bcode-1].weights.setZ( scale*(pz/mom4.pz()) );
-	    scaleFactors[bcode-1].flag = 0; 
+	    double scale = fScaleFactors[bcode-1].weights.x();
+	    fScaleFactors[bcode-1].weights.setX( scale*(px/mom4.px()) ); 
+	    scale = fScaleFactors[bcode-1].weights.y();
+	    fScaleFactors[bcode-1].weights.setY( scale*(py/mom4.py()) ); 
+	    scale = fScaleFactors[bcode-1].weights.z();
+	    fScaleFactors[bcode-1].weights.setZ( scale*(pz/mom4.pz()) );
+	    fScaleFactors[bcode-1].flag = 0; 
 	    
 	    prt->set_momentum( HepMC::FourVector(px,py,pz,e) );
 	    
@@ -268,7 +313,7 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
 	 
 	 if ( largestBarcode < evt->particles_size() )
 	 {
-	    // need to adjust barcodes down from the afftcted vertex/particles
+	    // need to adjust barcodes down from the affected vertex/particles
 	    // such that we "free up" barcodes for newly generated photons
 	    // in the middle of the event record
 	    //
@@ -297,22 +342,9 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
 	     NewPart->suggest_barcode( nbcode );
 	     vtx->add_particle_out( NewPart ) ;
 	     // add/shift scale factors towards the end of the list
-	     scaleFactors.push_back( Scaling(HepMC::ThreeVector(1.,1.,1.),1) );
+	     fScaleFactors.push_back( Scaling(HepMC::ThreeVector(1.,1.,1.),1) );
 	 }  
-      } // end of if-statement 
+   } // end of if-statement 
 
-      // ugh, done with this vertex !
-   
-   }
-   
-   // restore event number in HEPEVT (safety measure, somehow needed by Hw6)
-   HepMC::HEPEVT_Wrapper::set_event_number( evt->event_number() );
-
-   // cross-check printout MODIFIED HepMC::GenEvent
-   // evt->print();
-
-   // return conv.read_next_event();
-   return evt;
-      
+   return;
 }
-
