@@ -70,6 +70,7 @@ public:
   void wiper() {
     dump();
     blockWipedPool().wipe();
+    blockWipedPool().clear();  // try to crash
     {
        static int c=0;
        if (20==c) {

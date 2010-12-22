@@ -28,7 +28,7 @@ Cylinder::tangentPlane (const GlobalPoint& aPoint) const
   // to verify, if the point is actually on the cylinder.
   //
   // local y parallel to axis
-  GlobalVector yPlane = rotation().z();
+  GlobalVector yPlane(rotation().z());
   // local x normal to y and a vector linking the specified
   // point with the axis
   GlobalVector xPlane(yPlane.cross(aPoint-position()));

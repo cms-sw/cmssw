@@ -10,8 +10,8 @@
  *  using the static build() methods. 
  *  (The normal constructor will become private in the future).
  *
- *  $Date: 2010/12/22 10:43:10 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/12/22 10:46:28 $
+ *  $Revision: 1.5 $
  */
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
@@ -66,7 +66,7 @@ public:
 
   /// tangent plane to surface from global point
   Plane fastTangent(const GlobalPoint& aPoint) const{
-    GlobalVector yPlane = rotation().z();
+    GlobalVector yPlane(rotation().z());
     GlobalVector xPlane(yPlane.cross(aPoint-position()));
     return Plane(aPoint,RotationType(xPlane, yPlane));
   }
