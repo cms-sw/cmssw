@@ -159,7 +159,7 @@ double EwkMuLumiMonitorDQM::muIso( const reco::Muon & mu )  {
 
 double EwkMuLumiMonitorDQM::tkIso( const reco::Track tk,  Handle< TrackCollection > tracks , Handle<CaloTowerCollection> calotower  )  {        
       double ptSum = 0;
-      for (unsigned  i=0; i< tracks->size(); ++i){ 
+      for (size_t i=0; i< tracks->size(); ++i){ 
 	const reco::Track & elem = tracks->at(i);
 	double elemPt = elem.pt();
 	// same parameter used for muIsolation: dR [0.01, IsoCut03_], |dZ|<0.2, |d_r(xy)|<0.1
@@ -254,7 +254,7 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 	const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
 
 	
-      for (unsigned int i=0; i<triggerResults->size(); i++) {
+      for (size_t i=0; i<triggerResults->size(); i++) {
       std::string trigName = trigNames.triggerName(i);
       //std::cout << " trigName == " << trigName << std::endl;
 	if ( trigName == hltPath_ && triggerResults->accept(i)) {
@@ -268,9 +268,9 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
       string lowestMuonUnprescaledTrig = "";
       bool lowestMuonUnprescaledTrigFound = false;
       const std::vector<std::string>& triggerNames = hltConfigProvider_.triggerNames();
-      for (unsigned int ts = 0; ts< triggerNames.size() ; ts++){
+      for (size_t ts = 0; ts< triggerNames.size() ; ts++){
 	string trig = triggerNames[ts];
-	unsigned int f = trig.find("HLT_Mu");
+	size_t f = trig.find("HLT_Mu");
 	if ( (f != std::string::npos)  ) {
 	  // std::cout << "single muon trigger present: " << trig << std::endl; 
 	  // See if the trigger is prescaled; 
@@ -325,12 +325,12 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
       std::string L3FilterName_="";
       if (trigger_fired){
 	const std::vector<std::string>& moduleLabs = hltConfigProvider_.moduleLabels(hltPath_); 
-      /*for (unsigned int k =0; k < moduleLabs.size()-1 ; k++){
+      /*for (size_t k =0; k < moduleLabs.size()-1 ; k++){
 	std::cout << "moduleLabs[" << k << "] == " << moduleLabs[k] << std::endl;
       }
       */
       // the l3 filter name is just the last module.... 
-	unsigned int moduleLabsSizeMinus2 = moduleLabs.size() - 2 ;
+	size_t moduleLabsSizeMinus2 = moduleLabs.size() - 2 ;
 	//	std::cout<<"moduleLabs[" << moduleLabsSizeMinus2 << "]== "<< moduleLabs[moduleLabsSizeMinus2] << std::endl;        
          
 	L3FilterName_ = moduleLabs[moduleLabsSizeMinus2];
@@ -394,7 +394,7 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
       std::vector<reco::Muon>  highPtGlbMuons; 
       std::vector<reco::Muon>  highPtStaMuons; 
 
-      for (unsigned int i=0; i<muons->size(); i++ ){	
+      for (size_t i=0; i<muons->size(); i++ ){	
         const reco::Muon & mu = muons->at(i);
 	double pt = mu.pt();
 	double eta = mu.eta();
@@ -411,8 +411,8 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 	  nEvWithHighPtMu++;  	 
 	}
       }
-      unsigned int nHighPtGlbMu = highPtGlbMuons.size();
-      unsigned int nHighPtStaMu = highPtStaMuons.size();
+      size_t nHighPtGlbMu = highPtGlbMuons.size();
+      size_t nHighPtStaMu = highPtStaMuons.size();
       if ( hlt_sel &&  (nHighPtGlbMu> 0) ) {
 	// loop on high pt muons if there's at least two with opposite charge build a Z, more then one z candidate is foreseen.........
 	// stop the loop after 10 cicles....  
@@ -617,7 +617,7 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 	    } 
 	    ev.getByLabel(caloTowerTag_, calotower);
             // avoid to loop on more than 5000 trks
-            unsigned int nTrk = tracks->size();
+            size_t nTrk = tracks->size();
             (nTrk> 5000)?   nTrk=5000 : 1; 
 	    for (unsigned int j=0; j<nTrk; j++ ){	
 	      const reco::Track & tk = tracks->at(j);
