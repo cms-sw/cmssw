@@ -3,6 +3,7 @@
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 //#include "CommonReco/RKPropagators/interface/FrameChanger.h"
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
 
 #include <cmath>
 
@@ -85,6 +86,26 @@ int  go() {
     cout << "p_in2p " << p_in2p << endl;
     cout << "p_in3p " << p_in3p << endl;
 */
+
+    // cylinder
+    {
+      std::cout << " Trivial Cylinder" << std::endl;
+      Rotation ll( GlobalVector( 1, 0, ,0), GlobalVector( 0, 1, 0));
+      Cylinder cyl(Position(0,0,0),ll, 5.);
+      Plane t = cyl.fastTangent(GlobalPoint(3.,4.,1.));
+      std::cout << t.position() << " " << t.rotation() << std::endl;
+      std::cout << t.rotation().z()*(t.position()-cyl.position()).unit() << std::endl;
+    }
+
+    {
+      std::cout << " rotated, displaced Cylinder" << std::endl;
+      Rotation ll( GlobalVector( 1, 1, ,1), .3);
+      Cylinder cyl(Position(2,-1,3),ll, 5.);
+      Plane t = cyl.fastTangent(LocalPoint(3.,4.,1.));
+      std::cout << t.position() << " " << t.rotation() << std::endl;
+      std::cout << t.rotation().z()*(t.position()-cyl.position()).unit() << std::endl;
+    }
+
     return 0;
 }
 
