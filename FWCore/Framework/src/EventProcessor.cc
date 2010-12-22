@@ -794,57 +794,9 @@ namespace edm {
     changeState(mFinished);
   }
 
-  bool
-  EventProcessor::doOneEvent(EventID const& id) {
-    boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_, *processConfiguration_));
-    principalCache_.insert(ep);
-    EventPrincipal* pep = 0;
-    try {
-      pep = input_->readEvent(id);
-    }
-    catch(cms::Exception& e) {
-      actions::ActionCodes action = act_table_.find(e.rootCause());
-      if (action == actions::Rethrow) {
-         throw;
-      } else {
-        LogWarning(e.category())
-          << "an exception occurred and all paths for the event are being skipped: \n"
-          << e.what();
-        return true;
-      }
-    }
-    if (pep != 0) {
-      IOVSyncValue ts(ep->id(), ep->time());
-      EventSetup const& es = esp_->eventSetupForInstance(ts);
-      schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*ep, es);
-    }
-    return (pep != 0);
-  }
-
   EventProcessor::StatusCode
   EventProcessor::run(int numberEventsToProcess, bool) {
     return runEventCount(numberEventsToProcess);
-  }
-
-  EventProcessor::StatusCode
-  EventProcessor::run(EventID const& id) {
-    beginJob(); //make sure this was called
-    changeState(mRunID);
-    StateSentry toerror(this);
-    Status rc = epSuccess;
-
-    //make the services available
-    ServiceRegistry::Operate operate(serviceToken_);
-
-    if(!doOneEvent(id)) {
-      changeState(mInputExhausted);
-    } else {
-      changeState(mCountComplete);
-      rc = epInputComplete;
-    }
-    toerror.succeeded();
-    changeState(mFinished);
-    return rc;
   }
 
   EventProcessor::StatusCode

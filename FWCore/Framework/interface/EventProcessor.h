@@ -154,9 +154,6 @@ namespace edm {
     StatusCode run(int numberEventsToProcess, bool repeatable = true);
     StatusCode run();
 
-    // Process one event with the given EventID
-    StatusCode run(EventID const& id);
-
     // Skip the specified number of events.
     // If numberToSkip is negative, we will back up.
     StatusCode skip(int numberToSkip);
@@ -356,8 +353,6 @@ namespace edm {
 
     StatusCode doneAsync(event_processor::Msg m);
     
-    bool doOneEvent(EventID const& id);
-
     StatusCode waitForAsyncCompletion(unsigned int timeout_seconds);
 
     void connectSigs(EventProcessor * ep);
