@@ -2192,7 +2192,7 @@ bool L1GtTriggerMenuXmlParser::parseJetCounts(XERCES_CPP_NAMESPACE::DOMNode* nod
     }
 
     // test if count index is out of range
-    if ((typeIntUInt < 0) || (typeIntUInt > m_numberL1JetCounts)) {
+    if (typeIntUInt > m_numberL1JetCounts) { // typeIntUInt >= 0, since typeIntUInt is unsigned
         LogDebug("L1GtTriggerMenuXmlParser") << "Count index " << typeIntUInt
             << " outside range [0, " << m_numberL1JetCounts << "]" << std::endl;
 
