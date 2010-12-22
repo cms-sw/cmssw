@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/12/22 14:00:00 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/12/22 15:34:00 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -125,6 +125,7 @@ class HLTConfigData {
   const std::vector<std::string>& prescaleLabels() const;
   const std::map<std::string,std::vector<unsigned int> >& prescaleTable() const;
 
+  /// technical: id() function needed for use with ThreadSafeRegistry
   edm::ParameterSetID id() const;
 
  private:
