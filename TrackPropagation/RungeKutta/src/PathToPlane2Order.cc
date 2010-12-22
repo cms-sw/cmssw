@@ -31,12 +31,12 @@ PathToPlane2Order::operator()( const Plane& plane,
 
     Frame::PositionType fpos( theFieldFrame->toGlobal( Frame::LocalPoint(pos)));
     Frame::RotationType frot( localX, localY, localZ);
-// frame in which the field is along Z
+    // frame in which the field is along Z
     Frame frame( fpos, frot);
-
-//    cout << "PathToPlane2Order frame " << frame.position() << endl << frame.rotation() << endl;
-
-// transform the position and direction to that frame
+    
+    //    cout << "PathToPlane2Order frame " << frame.position() << endl << frame.rotation() << endl;
+    
+    // transform the position and direction to that frame
     Frame::LocalPoint localPos = frame.toLocal( fpos); // same as LocalPoint(0,0,0)
 
     //transform momentum from field frame to new frame via global frame
@@ -44,8 +44,7 @@ PathToPlane2Order::operator()( const Plane& plane,
     Frame::LocalVector localMom = frame.toLocal( gmom); 
 
     // transform the plane to the same frame
-    FrameChanger changer;
-    FrameChanger::PlanePtr localPlane = changer.transformPlane( plane, frame);
+    FrameChanger::Plane localPlane =  FrameChanger::transformPlane( plane, frame);
 /*
      cout << "PathToPlane2Order input plane       " << plane.position() << endl 
  	 << plane.rotation() << endl;
@@ -77,7 +76,7 @@ PathToPlane2Order::operator()( const Plane& plane,
 */
     HelixArbitraryPlaneCrossing crossing( localPos.basicVector(), localMom.basicVector(), 
 					  curvature, propDir);
-    std::pair<bool,double> res = crossing.pathLength(*localPlane);
+    std::pair<bool,double> res = crossing.pathLength(localPlane);
 
     return res;
 }

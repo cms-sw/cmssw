@@ -204,7 +204,7 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
     typedef Solver::Vector                                  RKVector;
 
     
-    GlobalPoint sp = cyl.toGlobal(LocalPoint(0.,0.));
+    GlobalPoint sp = cyl.position();
     if (sp.x()!=0. || sp.y()!=0.) {
       throw PropagationException("Cannot propagate to an arbitrary cylinder");
     }

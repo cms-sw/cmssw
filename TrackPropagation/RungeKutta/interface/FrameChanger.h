@@ -6,13 +6,16 @@
 
 class FrameChanger {
 public:
-
-    typedef ReferenceCountingPointer<Plane>     PlanePtr;
-
+  /** Moves the first argument ("plane") to the reference frame given by the second 
+   *  argument ("frame"). The returned frame is not positioned globally!
+   */
     template <typename T>
-    PlanePtr transformPlane( const Plane& plane, const GloballyPositioned<T>& frame) {
-	Surface::Base newFrame = toFrame( plane, frame);
-	return PlanePtr( new Plane( newFrame.position(), newFrame.rotation()));
+    static
+    Plane transformPlane( const Plane& plane, const GloballyPositioned<T>& frame) {
+	typename Plane::RotationType rot = plane.rotation() * frame.rotation().transposed();
+	typename Frame::LocalPoint lpos = frame.toLocal(plane.position());
+	typename Plane::PositionType pos( lpos.basicVector()); // cheat!
+	return Plane(pos, rot);
     }
 
 
@@ -20,6 +23,7 @@ public:
  *  argument ("frame"). The returned frame is not positioned globally!
  */
     template <typename T, typename U>
+    static
     GloballyPositioned<T> toFrame( const GloballyPositioned<T>& plane, 
 				   const GloballyPositioned<U>& frame) {
 	typedef GloballyPositioned<T>                  Plane;
