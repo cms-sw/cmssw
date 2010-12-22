@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/12/19 22:23:52 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/12/20 21:04:02 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -31,12 +31,12 @@
 class HLTConfigData {
 
  public:
+  HLTConfigData();
   HLTConfigData(const edm::ParameterSet* iID);
 
  private:
   /// extract information into data members - called by init() methods
   void extract();
-
 
  public:
   /// Dumping config info to cout
@@ -133,8 +133,6 @@ class HLTConfigData {
 
   edm::ParameterSetID id() const;
 
- public:
-  HLTConfigData();
  private:
 
   std::string processName_;

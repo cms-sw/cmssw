@@ -6,20 +6,18 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/12/17 14:42:37 $
- *  $Revision: 1.31 $
+ *  $Date: 2010/12/20 21:04:02 $
+ *  $Revision: 1.32 $
  *
  *  \author Martin Grunewald
  *
  */
 
-#include <map>
-#include <string>
-#include <vector>
-
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
-
 #include "HLTrigger/HLTcore/interface/HLTConfigData.h"
 
 #include "boost/shared_ptr.hpp"
@@ -32,13 +30,6 @@
 //
 // class declaration
 //
-namespace edm {
-  class Run;
-  class Event;
-  class LuminosityBlock;
-  class ProcessHistory;
-  class ParameterSet;
-}
 
 class HLTConfigProvider {
 
@@ -246,7 +237,9 @@ class HLTConfigProvider {
   /// d'tor
   ~HLTConfigProvider();
   
+  
  private:
+
   void getDataFrom(const edm::ParameterSetID& iID, const std::string& iProcessName );
   void init(const edm::ProcessHistory& iHistory, const std::string& processName);
   void init(const std::string& processName);
