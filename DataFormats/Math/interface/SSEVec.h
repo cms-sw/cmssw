@@ -284,6 +284,22 @@ namespace mathSSE {
       arr[0] = f1; arr[1] = f2; arr[2] = f3; arr[3]=f4;
     }
     
+   Vec4( Vec2<double> ivec0,   Vec2<double> ivec1) {
+      vec[0] = ivec0.vec;
+      vec[1] = ivec1.vec;
+    }
+    
+    Vec4( Vec2<double> ivec0,  double f3, double f4=0) {
+      vec[0] = ivec0.vec;
+      arr[2] = f3; arr[3] = f4;
+    }
+
+   Vec4( Vec2<double> ivec0) {
+      vec[0] = ivec0.vec;
+      vec[1] =  _mm_setzero_pd();
+    }
+
+
     Vec4(OldVec<double> const & ivec) : o(ivec) {}
 
     void set(double f1, double f2, double f3, double f4=0) {

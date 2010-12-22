@@ -24,10 +24,10 @@ namespace mathSSE {
       axis[2].arr[2]=1;
     }
     
-    Rot3( Vec4<T> x,  Vec4<T> y,  Vec4<T> z) {
-      axis[0] =x;
-      axis[1] =y;
-      axis[2] =z;
+    Rot3( Vec4<T> ix,  Vec4<T> iy,  Vec4<T> iz) {
+      axis[0] =ix;
+      axis[1] =iy;
+      axis[2] =iz;
     }
 
     Rot3( T xx, T xy, T xz, T yx, T yy, T yz, T zx, T zy, T zz) {
@@ -42,6 +42,10 @@ namespace mathSSE {
 		   axis[0].arr[2], axis[1].arr[2], axis[2].arr[2]
 		   );
     }
+
+    Vec4<T> x() { return axis[0];}
+    Vec4<T> y() { return axis[1];}
+    Vec4<T> z() { return axis[2];}
 
     // toLocal...
     Vec4<T> rotate(Vec4<T> v) const {
