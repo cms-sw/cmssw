@@ -94,7 +94,7 @@ int  go() {
       Cylinder cyl(Position(0,0,0),ll, 5.);
       Plane t = cyl.fastTangent(GlobalPoint(3.,4.,1.));
       std::cout << t.position() << '\n' << t.rotation() << std::endl;
-      std::cout << t.rotation().z()*(cyl.rotation.z().cross(t.position()-cyl.position())).unit().basicVector() << std::endl;
+      std::cout << t.rotation().x()*cyl.rotation().z().cross( (t.position()-cyl.position()).basicVector() ).unit() << std::endl;
     }
 
     {
@@ -103,7 +103,7 @@ int  go() {
       Cylinder cyl(Position(2,-1,3),ll, 5.);
       Plane t = cyl.fastTangent(LocalPoint(3.,4.,1.));
       std::cout << t.position() << '\n' << t.rotation() << std::endl;
-      std::cout << t.rotation().z()*(cyl.rotation.z().cross(t.position()-cyl.position())).unit().basicVector() << std::endl;
+      std::cout << t.rotation().x()*cyl.rotation().z().cross( (t.position()-cyl.position()).basicVector() ).unit() << std::endl;
     }
 
     return 0;
