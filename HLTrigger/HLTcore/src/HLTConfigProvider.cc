@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/12/22 15:34:01 $
- *  $Revision: 1.55 $
+ *  $Date: 2010/12/22 15:47:25 $
+ *  $Revision: 1.56 $
  *
  *  \author Martin Grunewald
  *
@@ -18,7 +18,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 
 
 typedef edm::detail::ThreadSafeRegistry<edm::ParameterSetID, HLTConfigData> HLTConfigDataRegistry;
@@ -61,12 +60,54 @@ bool HLTConfigProvider::init(const edm::Run& iRun,
 
 }
 
+void HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::string& processName) {
+
+   using namespace std;
+   using namespace edm;
+
+   /// Check uniqueness (uniqueness should [soon] be enforced by Fw)
+   const ProcessHistory::const_iterator hb(iHistory.begin());
+   const ProcessHistory::const_iterator he(iHistory.end());
+   unsigned int n(0);
+   for (ProcessHistory::const_iterator hi=hb; hi!=he; ++hi) {
+     if (hi->processName()==processName) {n++;}
+   }
+   if (n>1) {
+     clear();
+     LogError("HLTConfigProvider") << " ProcessName '"<< processName
+				   << " found " << n
+				   << " times in history!" << endl;
+     return;
+   }
+
+   ///
+   ProcessConfiguration processConfiguration;
+   if (iHistory.getConfigurationForProcess(processName,processConfiguration)) {
+     if ((hltConfigData_ !=s_dummyData()) && (processConfiguration.parameterSetID() == hltConfigData_->id())) {
+       changed_ = false;
+       inited_  = true;
+       return;
+     } else {
+       getDataFrom(processConfiguration.parameterSetID(),processName);
+     }
+   } else {
+     LogError("HLTConfigProvider") << "Falling back to processName-only init!";
+     clear();
+     init(processName);
+     if (!inited_) {
+       LogError("HLTConfigProvider") << "ProcessName not found in history!";
+     }
+     return;
+   }
+}
+
 void HLTConfigProvider::getDataFrom(const edm::ParameterSetID& iID, const std::string& processName )
 {
   //is it in our registry?
   HLTConfigDataRegistry* reg = HLTConfigDataRegistry::instance();
   const HLTConfigData* d = reg->getMapped(iID);
   if(0 != d) {
+    processName_=processName;
     changed_ = true;
     inited_  = true;
     hltConfigData_ = d;
@@ -99,48 +140,6 @@ void HLTConfigProvider::getDataFrom(const edm::ParameterSetID& iID, const std::s
      }
   }
   return;
-}
-
-void HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::string& processName) {
-
-   using namespace std;
-   using namespace edm;
-
-   /// Check uniqueness (uniqueness should [soon] be enforced by Fw)
-   const ProcessHistory::const_iterator hb(iHistory.begin());
-   const ProcessHistory::const_iterator he(iHistory.end());
-   unsigned int n(0);
-   for (ProcessHistory::const_iterator hi=hb; hi!=he; ++hi) {
-     if (hi->processName()==processName) {n++;}
-   }
-   if (n>1) {
-     clear();
-     LogError("HLTConfigProvider") << " ProcessName '"<< processName
-				   << " found " << n
-				   << " times in history!" << endl;
-     return;
-   }
-
-   ///
-   ProcessConfiguration processConfiguration;
-   
-   if (iHistory.getConfigurationForProcess(processName,processConfiguration)) {
-     if ((hltConfigData_ !=s_dummyData()) && (processConfiguration.parameterSetID() == hltConfigData_->id())) {
-       changed_=false;
-       inited_=true;
-       return;
-     } else {
-       getDataFrom(processConfiguration.parameterSetID(),processName);
-     }
-   } else {
-     LogError("HLTConfigProvider") << "Falling back to processName-only init!";
-     clear();
-     init(processName);
-     if (!inited_) {
-       LogError("HLTConfigProvider") << "ProcessName not found in history!";
-     }
-     return;
-   }
 }
 
 void HLTConfigProvider::init(const std::string& processName)
@@ -217,10 +216,6 @@ void HLTConfigProvider::init(const std::string& processName)
 
 void HLTConfigProvider::clear()
 {
-   using namespace std;
-   using namespace edm;
-   using namespace trigger;
-
    // clear all data members
 
    processName_   = "";
