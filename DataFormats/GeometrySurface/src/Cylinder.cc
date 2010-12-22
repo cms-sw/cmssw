@@ -28,11 +28,11 @@ Cylinder::tangentPlane (const GlobalPoint& aPoint) const
   // to verify, if the point is actually on the cylinder.
   //
   // local y parallel to axis
-  GlobalVector yPlane = rotation.z();
+  GlobalVector yPlane = rotation().z();
   // local x normal to y and a vector linking the specified
   // point with the axis
   GlobalVector xPlane(yPlane.cross(aPoint-position()));
-  Scalar size = std::max(std::max(xPlane.x(),xPlane.y()), xPlane.z());
+  Scalar size = std::max(std::max(std::abs(xPlane.x()),std::abs(xPlane.y())), std::abs(xPlane.z()));
   if ( size<FLT_MIN ) 
     throw GeometryError("Attempt to construct TangentPlane on cylinder axis");
 //   // local z defined by x and y (should point outwards from axis)

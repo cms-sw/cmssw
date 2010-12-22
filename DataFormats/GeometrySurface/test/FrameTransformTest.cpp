@@ -90,7 +90,7 @@ int  go() {
     // cylinder
     {
       std::cout << " Trivial Cylinder" << std::endl;
-      Rotation ll( GlobalVector( 1, 0, ,0), GlobalVector( 0, 1, 0));
+      Rotation ll(GlobalVector( 1, 0, ,0), GlobalVector( 0, 1, 0));
       Cylinder cyl(Position(0,0,0),ll, 5.);
       Plane t = cyl.fastTangent(GlobalPoint(3.,4.,1.));
       std::cout << t.position() << " " << t.rotation() << std::endl;

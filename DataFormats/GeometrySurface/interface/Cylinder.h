@@ -10,8 +10,8 @@
  *  using the static build() methods. 
  *  (The normal constructor will become private in the future).
  *
- *  $Date: 2010/12/22 10:17:24 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/12/22 10:43:10 $
+ *  $Revision: 1.4 $
  */
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
@@ -65,14 +65,14 @@ public:
   virtual ReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const;
 
   /// tangent plane to surface from global point
-  Plane fastTangent(const GlobalPoint& apoint) const{
-    GlobalVector yPlane = rotation.z();
+  Plane fastTangent(const GlobalPoint& aPoint) const{
+    GlobalVector yPlane = rotation().z();
     GlobalVector xPlane(yPlane.cross(aPoint-position()));
     return Plane(aPoint,RotationType(xPlane, yPlane));
   }
 
  /// tangent plane to surface from local point
-  Plane fastTangent(const LocalPoint& apoint) const {
+  Plane fastTangent(const LocalPoint& aPoint) const {
     return fastTangent(toGlobal(aPoint));
   } 
 
