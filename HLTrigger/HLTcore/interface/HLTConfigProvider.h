@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/12/20 21:04:02 $
- *  $Revision: 1.32 $
+ *  $Date: 2010/12/22 14:00:00 $
+ *  $Revision: 1.33 $
  *
  *  \author Martin Grunewald
  *
@@ -34,6 +34,13 @@
 class HLTConfigProvider {
 
  public:
+  /// c'tor
+  HLTConfigProvider();
+  
+  /// d'tor
+  ~HLTConfigProvider();
+  
+ public:
   /// Run-dependent initialisation (non-const method)
   ///   "init" return value indicates whether intitialisation has succeeded
   ///   "changed" parameter indicates whether the config has actually changed
@@ -47,10 +54,6 @@ class HLTConfigProvider {
 
   /// Accessors (const methods)
 
-  /// RunID
-  const edm::RunID& runID() const {
-    return runID_;
-  }
   /// process name
   const std::string& processName() const {
     return processName_;
@@ -201,27 +204,30 @@ class HLTConfigProvider {
   }
 
 
-  /// HLT Prescales
-  /// current (default) prescale set index - to be taken from L1GtUtil via Event
-  int prescaleSet(const edm::Event& iEvent, const edm::EventSetup& iSetup) const;
-  
-  /// prescale value in specific prescale set for a specific trigger path
+  /// HLT prescale info
+  /// Number of HLT prescale sets
+  unsigned int prescaleSize() const {
+    return hltConfigData_->prescaleSize();
+  }
+  /// HLT prescale value in specific prescale set for a specific trigger path
   unsigned int prescaleValue(unsigned int set, const std::string& trigger) const {
     return hltConfigData_->prescaleValue(set,trigger);
   }
+
+  /// HLT prescale values via (L1) EventSetup
+  /// current (default) prescale set index - to be taken from L1GtUtil via Event
+  int prescaleSet(const edm::Event& iEvent, const edm::EventSetup& iSetup) const;
+  // negative == error
+  
   /// combining the two methods above
   unsigned int prescaleValue(const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& trigger) const;
   
   /// Combined L1T (pair.first) and HLT (pair.second) prescales per HLT path
   std::pair<int,int> prescaleValues(const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& trigger) const;
-
   // any one negative => error in retrieving this (L1T or HLT) prescale
 
 
   /// low-level data member access 
-  unsigned int prescaleSize() const {
-    return hltConfigData_->prescaleSize();
-  }
   const std::vector<std::string>& prescaleLabels() const {
     return hltConfigData_->prescaleLabels();
   }
@@ -230,14 +236,6 @@ class HLTConfigProvider {
   }
 
 
- public:
-  /// c'tor
-  HLTConfigProvider();
-  
-  /// d'tor
-  ~HLTConfigProvider();
-  
-  
  private:
 
   void getDataFrom(const edm::ParameterSetID& iID, const std::string& iProcessName );
@@ -246,12 +244,11 @@ class HLTConfigProvider {
   void clear();
   
   /// data members
-  edm::RunID  runID_;
   std::string processName_;
   bool inited_;
   bool changed_;
-  boost::shared_ptr<L1GtUtils> l1GtUtils_;
   const HLTConfigData* hltConfigData_;
+  boost::shared_ptr<L1GtUtils> l1GtUtils_;
   
 };
 #endif

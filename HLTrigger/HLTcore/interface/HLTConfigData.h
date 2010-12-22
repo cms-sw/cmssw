@@ -6,19 +6,15 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/12/20 21:04:02 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/12/22 14:00:00 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
  */
 
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DataFormats/HLTReco/interface/HLTPrescaleTable.h"
-
-#include "boost/shared_ptr.hpp"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include<map>
 #include<string>
@@ -39,13 +35,11 @@ class HLTConfigData {
   void extract();
 
  public:
+
   /// Dumping config info to cout
   void dump(const std::string& what) const;
 
   /// Accessors (const methods)
-
-  /// process name
-  const std::string& processName() const;
 
   /// number of trigger paths in trigger table
   unsigned int size() const;
@@ -122,12 +116,12 @@ class HLTConfigData {
   const std::vector<std::string>& datasetContent(const std::string& dataset) const;
 
 
-  /// prescale value in specific prescale set for a specific trigger path
-  unsigned int prescaleValue(unsigned int set, const std::string& trigger) const;
-  /// combining the two methods above
-
-  /// low-level data member access 
+  /// HLT prescale info
+  /// Number of HLT prescale sets
   unsigned int prescaleSize() const;
+  /// HLT prescale value in specific prescale set for a specific trigger path
+  unsigned int prescaleValue(unsigned int set, const std::string& trigger) const;
+  /// low-level data member access 
   const std::vector<std::string>& prescaleLabels() const;
   const std::map<std::string,std::vector<unsigned int> >& prescaleTable() const;
 
@@ -135,7 +129,6 @@ class HLTConfigData {
 
  private:
 
-  std::string processName_;
   const edm::ParameterSet* processPSet_;
 
   std::string tableName_;

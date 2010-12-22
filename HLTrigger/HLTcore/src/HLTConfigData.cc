@@ -2,20 +2,27 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/12/19 22:23:53 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/12/20 21:04:02 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "HLTrigger/HLTcore/interface/HLTConfigData.h"
-
-#include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
 
 #include <iostream>
+
+static const edm::ParameterSet* s_dummy()
+{
+  static edm::ParameterSet dummy;
+  dummy.registerIt();
+  return &dummy;
+}
+
+HLTConfigData::HLTConfigData():
+  processPSet_(s_dummy()) { }
 
 HLTConfigData::HLTConfigData(const edm::ParameterSet* iPSet):
   processPSet_(iPSet),
@@ -26,25 +33,9 @@ HLTConfigData::HLTConfigData(const edm::ParameterSet* iPSet):
   datasetNames_(), datasetIndex_(), datasetContents_(),
   hltPrescaleTable_()
 {
-  if(processPSet_->id().isValid()){
+  if (processPSet_->id().isValid()) {
     extract();
   }
-}
-
-static  const edm::ParameterSet* s_dummy()
-{
-  static edm::ParameterSet dummy;
-  dummy.registerIt();
-  return &dummy;
-}
-
-HLTConfigData::HLTConfigData():
-processPSet_(s_dummy())
-{  
-}
-
-edm::ParameterSetID HLTConfigData::id() const {
-  return processPSet_->id();
 }
 
 void HLTConfigData::extract()
@@ -181,9 +172,7 @@ void HLTConfigData::dump(const std::string& what) const {
    using namespace std;
    using namespace edm;
 
-   if (what=="processName") {
-     cout << "HLTConfigData::dump: ProcessName = " << processName_ << endl;
-   } else if (what=="ProcessPSet") {
+   if (what=="ProcessPSet") {
      cout << "HLTConfigData::dump: ProcessPSet = " << endl << processPSet_ << endl;
    } else if (what=="TableName") {
      cout << "HLTConfigData::dump: TableName = " << tableName_ << endl;
@@ -427,17 +416,21 @@ const std::vector<std::string>& HLTConfigData::datasetContent(const std::string&
   return datasetContent(datasetIndex(dataset));
 }
 
-unsigned int HLTConfigData::prescaleValue(unsigned int set, const std::string& trigger) const {
-  return hltPrescaleTable_.prescale(set,trigger);
-}
-
 
 unsigned int HLTConfigData::prescaleSize() const {
   return hltPrescaleTable_.size();
 }
+unsigned int HLTConfigData::prescaleValue(unsigned int set, const std::string& trigger) const {
+  return hltPrescaleTable_.prescale(set,trigger);
+}
+
 const std::vector<std::string>& HLTConfigData::prescaleLabels() const {
   return hltPrescaleTable_.labels();
 }
 const std::map<std::string,std::vector<unsigned int> >& HLTConfigData::prescaleTable() const {
   return hltPrescaleTable_.table();
+}
+
+edm::ParameterSetID HLTConfigData::id() const {
+  return processPSet_->id();
 }
