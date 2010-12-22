@@ -1,7 +1,5 @@
 #include "iDie.h"
 
-#include "EventFilter/Utilities/interface/CurlUtils.h"
-
 #include "xdaq/NamespaceURI.h"
 
 #include "xoap/SOAPEnvelope.h"
