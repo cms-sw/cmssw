@@ -5,7 +5,7 @@
 // Package:     Services
 // Class  :     EnableFloatingPointExceptions
 // 
-/**\class EnableFloatingPointExceptions EnableFloatingPointExceptions.h FWCore/Services/src/EnableFloatingPointExceptions.h
+/** \class edm::service::EnableFloatingPointExceptions
 
     Description: This service gives cmsRun users the ability to configure the 
     behavior of the Floating Point (FP) environment.  There are two separate
@@ -124,8 +124,8 @@ namespace edm {
          static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
       private:
-         typedef std::string String;
-         typedef ParameterSet PSet;
+
+         void establishModuleEnvironments(ParameterSet const& pset);
 
          void preActions(ModuleDescription const& description,
                          char const* debugInfo);
@@ -133,18 +133,15 @@ namespace edm {
          void postActions(ModuleDescription const& description,
                           char const* debugInfo);
 
-         void controlFpe(bool divByZero, bool invalid, bool overFlow,
-                         bool underFlow, bool precisionDouble) const;
+         void setPrecision(bool precisionDouble);
+
+         void enableAndDisableExcept(fpu_flags_type target);
 
          void echoState() const;
-         void establishDefaultEnvironment(bool precisionDouble);
-         void establishModuleEnvironments(PSet const& pset, bool precisionDouble);
-
 
          fpu_flags_type fpuState_;
          fpu_flags_type defaultState_;
-         fpu_flags_type OSdefault_;
-         std::map<String, fpu_flags_type> stateMap_;
+         std::map<std::string, fpu_flags_type> stateMap_;
          std::stack<fpu_flags_type> stateStack_;
          bool reportSettings_;
       };
