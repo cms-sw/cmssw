@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/12/22 14:00:00 $
- *  $Revision: 1.33 $
+ *  $Date: 2010/12/22 15:34:00 $
+ *  $Revision: 1.34 $
  *
  *  \author Martin Grunewald
  *
@@ -36,9 +36,6 @@ class HLTConfigProvider {
  public:
   /// c'tor
   HLTConfigProvider();
-  
-  /// d'tor
-  ~HLTConfigProvider();
   
  public:
   /// Run-dependent initialisation (non-const method)

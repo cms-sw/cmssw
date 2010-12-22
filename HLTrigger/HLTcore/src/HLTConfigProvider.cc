@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/12/20 21:04:02 $
- *  $Revision: 1.54 $
+ *  $Date: 2010/12/22 15:34:01 $
+ *  $Revision: 1.55 $
  *
  *  \author Martin Grunewald
  *
@@ -35,10 +35,6 @@ HLTConfigProvider::HLTConfigProvider():
   changed_(true),
   hltConfigData_(s_dummyData()),
   l1GtUtils_(new L1GtUtils())
-{
-}
-
-HLTConfigProvider::~HLTConfigProvider()
 {
 }
 
