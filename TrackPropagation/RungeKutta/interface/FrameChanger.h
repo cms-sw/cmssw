@@ -12,6 +12,7 @@ public:
     template <typename T>
     static
     Plane transformPlane( const Plane& plane, const GloballyPositioned<T>& frame) {
+        typedef GloballyPositioned<T>                  Frame;
 	typename Plane::RotationType rot = plane.rotation() * frame.rotation().transposed();
 	typename Frame::LocalPoint lpos = frame.toLocal(plane.position());
 	typename Plane::PositionType pos( lpos.basicVector()); // cheat!

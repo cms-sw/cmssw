@@ -44,7 +44,7 @@ PathToPlane2Order::operator()( const Plane& plane,
     Frame::LocalVector localMom = frame.toLocal( gmom); 
 
     // transform the plane to the same frame
-    FrameChanger::Plane localPlane =  FrameChanger::transformPlane( plane, frame);
+    Plane localPlane =  FrameChanger::transformPlane( plane, frame);
 /*
      cout << "PathToPlane2Order input plane       " << plane.position() << endl 
  	 << plane.rotation() << endl;
