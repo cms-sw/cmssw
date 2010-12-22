@@ -95,9 +95,9 @@ AnalyticalPropagator::propagateWithPath(const FreeTrajectoryState& fts,
   if ( fabs(rho)>1.e-10 && fabs((gtp.transverseCurvature()-rho)/rho)>theMaxDBzRatio ) 
     return TsosWP(TrajectoryStateOnSurface(),0.);
   //
-  // create result on TangentPlane (local parameters & errors are better defined)
+  // create result TSOS on TangentPlane (local parameters & errors are better defined)
   //
-  ReferenceCountingPointer<TangentPlane> plane(cylinder.tangentPlane(x));
+  ReferenceCountingPointer<TangentPlane> plane(cylinder.tangentPlane(x));  // need to be here until tsos is created!
   return propagatedStateWithPath(fts,*plane,gtp,s);
 }
 
