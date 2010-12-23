@@ -22,10 +22,10 @@ public:
   ClosestApproachInRPhi() {status_ = false;}
 
   virtual bool calculate(const TrajectoryStateOnSurface & sta, 
-	 const TrajectoryStateOnSurface & stb);
+			 const TrajectoryStateOnSurface & stb);
 
   virtual bool calculate(const FreeTrajectoryState & sta,
-	const FreeTrajectoryState & stb);
+			 const FreeTrajectoryState & stb);
 
   virtual bool status() const {return status_;}
 
@@ -37,7 +37,7 @@ public:
   /** Returns not only the points, but the full GlobalTrajectoryParemeters 
    *  at the points of closest approach */
   std::pair <GlobalTrajectoryParameters, GlobalTrajectoryParameters >
-	trajectoryParameters () const;
+  trajectoryParameters () const;
 
   /** arithmetic mean of the two points of closest approach */
   virtual GlobalPoint crossingPoint() const;
@@ -54,26 +54,26 @@ public:
 
 private:
 
-  bool calculate(const TrackCharge & chargeA, 
-					const GlobalVector & momentumA, 
-					const GlobalPoint & positionA, 
-					const TrackCharge & chargeB, 
-					const GlobalVector & momentumB, 
-					const GlobalPoint & positionB,
-					const MagneticField& magField);
+  bool compute(const TrackCharge & chargeA, 
+	       const GlobalVector & momentumA, 
+	       const GlobalPoint & positionA, 
+	       const TrackCharge & chargeB, 
+	       const GlobalVector & momentumB, 
+	       const GlobalPoint & positionB);
 
   // given the old Parameters, and a new GlobalPoint,
   // we return the full new GlobalTrajectoryParameters at the
   // Point.
-  GlobalTrajectoryParameters trajectoryParameters ( const GlobalPoint & newpt,
-        const GlobalTrajectoryParameters & oldpar ) const;
+  staitc GlobalTrajectoryParameters
+  newTrajectory( const GlobalPoint & newpt,
+		 const GlobalTrajectoryParameters & oldpar, double bz);
 
   // Computes center coordinates and unsigned radius of circle;
-  void circleParameters(const TrackCharge& charge, 
-			const GlobalVector& momemtum, 
-			const GlobalPoint& position, 
-			double& xc, double& yc, double& r,
-			const MagneticField& magField) const;
+  static void circleParameters(const TrackCharge& charge, 
+			       const GlobalVector& momemtum, 
+			       const GlobalPoint& position, 
+			       double& xc, double& yc, double& r,
+			       double bz);
 
   // Computes crossing points of 2 circles with centres (cx_i, cy_i) 
   // and unsigned radii r_i. 
@@ -94,10 +94,11 @@ private:
 
 
 private:
-  bool status_;
   GlobalPoint posA, posB;
   GlobalTrajectoryParameters paramA, paramB;
-
+  double bz;
+  bool status_;
+  
 };
 
 #endif
