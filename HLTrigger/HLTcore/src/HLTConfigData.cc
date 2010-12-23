@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/12/20 21:04:02 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/12/22 15:34:01 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -14,18 +14,31 @@
 
 #include <iostream>
 
-static const edm::ParameterSet* s_dummy()
+static const edm::ParameterSet* s_dummyPSet()
 {
-  static edm::ParameterSet dummy;
-  dummy.registerIt();
-  return &dummy;
+  static edm::ParameterSet dummyPSet;
+  dummyPSet.registerIt();
+  return &dummyPSet;
 }
 
 HLTConfigData::HLTConfigData():
-  processPSet_(s_dummy()) { }
+  processPSet_(s_dummyPSet()),
+  processName_(""),
+  tableName_(), triggerNames_(), moduleLabels_(),
+  triggerIndex_(), moduleIndex_(),
+  hltL1GTSeeds_(),
+  streamNames_(), streamIndex_(), streamContents_(),
+  datasetNames_(), datasetIndex_(), datasetContents_(),
+  hltPrescaleTable_()
+{
+  if (processPSet_->id().isValid()) {
+    extract();
+  }
+}
 
 HLTConfigData::HLTConfigData(const edm::ParameterSet* iPSet):
   processPSet_(iPSet),
+  processName_(""),
   tableName_(), triggerNames_(), moduleLabels_(),
   triggerIndex_(), moduleIndex_(),
   hltL1GTSeeds_(),
@@ -44,24 +57,37 @@ void HLTConfigData::extract()
    using namespace edm;
    using namespace trigger;
 
+   // Extract process name
+   if (processPSet_->existsAs<string>("@process_name",true)) {
+     processName_= processPSet_->getParameter<string>("@process_name");
+   }
+
    // Obtain PSet containing table name (available only in 2_1_10++ files)
-   if (processPSet_->exists("HLTConfigVersion")) {
+   if (processPSet_->existsAs<ParameterSet>("HLTConfigVersion",true)) {
      const ParameterSet HLTPSet(processPSet_->getParameter<ParameterSet>("HLTConfigVersion"));
-     if (HLTPSet.exists("tableName")) {
+     if (HLTPSet.existsAs<string>("tableName",true)) {
        tableName_=HLTPSet.getParameter<string>("tableName");
      }
    }
-   LogVerbatim("HLTConfigData") << "ProcessPSet with HLT: "
-				    << tableName();
+   LogVerbatim("HLTConfigData") << "ProcessPSet with: "
+				<< processName_ << " "
+				<< tableName();
 
    // Extract trigger paths (= paths - end_paths)
-   triggerNames_= processPSet_->getParameter<ParameterSet>("@trigger_paths").getParameter<vector<string> >("@trigger_paths");
+   if (processPSet_->existsAs<ParameterSet>("@trigger_paths",true)) {
+     const ParameterSet HLTPSet(processPSet_->getParameter<ParameterSet>("@trigger_paths"));
+     if (HLTPSet.existsAs<vector<string> >("@trigger_paths",true)) {
+       triggerNames_= HLTPSet.getParameter<vector<string> >("@trigger_paths");
+     }
+   }
 
    // Obtain module labels of all modules on all trigger paths
    const unsigned int n(size());
    moduleLabels_.reserve(n);
    for (unsigned int i=0;i!=n; ++i) {
-     moduleLabels_.push_back(processPSet_->getParameter<vector<string> >(triggerNames_[i]));
+     if (processPSet_->existsAs<vector<string> >(triggerNames_[i])) {
+       moduleLabels_.push_back(processPSet_->getParameter<vector<string> >(triggerNames_[i]));
+     }
    }
 
    // Fill index maps for fast lookup
@@ -128,9 +154,9 @@ void HLTConfigData::extract()
    string prescaleName("");
    const string preS("PrescaleService");
    const string preT("PrescaleTable");
-   if (processPSet_->exists(preS)) {
+   if (processPSet_->existsAs<ParameterSet>(preS,true)) {
      prescaleName=preS;
-   } else if ( processPSet_->exists(preT)) {
+   } else if ( processPSet_->existsAs<ParameterSet>(preT,true)) {
      prescaleName=preT;
    }
    if (prescaleName=="") {
@@ -139,11 +165,11 @@ void HLTConfigData::extract()
      const ParameterSet iPS(processPSet_->getParameter<ParameterSet>(prescaleName));
      string defaultLabel(iPS.getUntrackedParameter<string>("lvl1DefaultLabel",""));
      vector<string> labels;
-     if (iPS.exists("lvl1Labels")) {
+     if (iPS.existsAs<vector<string> >("lvl1Labels",true)) {
        labels = iPS.getParameter<vector<string> >("lvl1Labels");
      }
      vector<ParameterSet> vpTable;
-     if (iPS.exists("prescaleTable")) {
+     if (iPS.existsAs<ParameterSet>("prescaleTable",true)) {
        vpTable=iPS.getParameter<vector<ParameterSet> >("prescaleTable");
      }
      unsigned int set(0);
@@ -173,7 +199,10 @@ void HLTConfigData::dump(const std::string& what) const {
    using namespace edm;
 
    if (what=="ProcessPSet") {
-     cout << "HLTConfigData::dump: ProcessPSet = " << endl << processPSet_ << endl;
+     cout << "HLTConfigData::dump: ProcessPSet = " << endl << *processPSet_ << endl;
+   } else if (what=="ProcessName") {
+     cout << "HLTConfigData::dump: ProcessName = " << processName_ << endl;
+
    } else if (what=="TableName") {
      cout << "HLTConfigData::dump: TableName = " << tableName_ << endl;
    } else if (what=="Triggers") {

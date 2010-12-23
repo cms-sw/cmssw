@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/12/22 15:47:25 $
- *  $Revision: 1.56 $
+ *  $Date: 2010/12/22 16:37:01 $
+ *  $Revision: 1.57 $
  *
  *  \author Martin Grunewald
  *
@@ -23,16 +23,16 @@
 typedef edm::detail::ThreadSafeRegistry<edm::ParameterSetID, HLTConfigData> HLTConfigDataRegistry;
 
 // an empty dummy config data used when we fail to initialize 
-static const HLTConfigData* s_dummyData()
-{ static HLTConfigData s_dummy;
-  return & s_dummy;
+static const HLTConfigData* s_dummyHLTConfigData()
+{ static HLTConfigData dummyHLTConfigData;
+  return &dummyHLTConfigData;
 }
 
 HLTConfigProvider::HLTConfigProvider():
   processName_(""),
   inited_(false),
   changed_(true),
-  hltConfigData_(s_dummyData()),
+  hltConfigData_(s_dummyHLTConfigData()),
   l1GtUtils_(new L1GtUtils())
 {
 }
@@ -54,6 +54,8 @@ bool HLTConfigProvider::init(const edm::Run& iRun,
 
    /// defer iSetup access to when actually needed:
    /// l1GtUtils_->retrieveL1EventSetup(iSetup);
+
+   hltConfigData_->dump("ProcessPSet");
 
    changed=changed_;
    return inited_;
@@ -83,7 +85,7 @@ void HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::str
    ///
    ProcessConfiguration processConfiguration;
    if (iHistory.getConfigurationForProcess(processName,processConfiguration)) {
-     if ((hltConfigData_ !=s_dummyData()) && (processConfiguration.parameterSetID() == hltConfigData_->id())) {
+     if ((hltConfigData_ !=s_dummyHLTConfigData()) && (processConfiguration.parameterSetID() == hltConfigData_->id())) {
        changed_ = false;
        inited_  = true;
        return;
@@ -119,7 +121,7 @@ void HLTConfigProvider::getDataFrom(const edm::ParameterSetID& iID, const std::s
          edm::LogError("HLTConfigProvider") << "ProcessPSet found is empty!";
          changed_ = true; 
          inited_  = false; 
-         hltConfigData_ = s_dummyData();
+         hltConfigData_ = s_dummyHLTConfigData();
          return; 
        } else { 
          clear(); 
@@ -135,7 +137,7 @@ void HLTConfigProvider::getDataFrom(const edm::ParameterSetID& iID, const std::s
        edm::LogError("HLTConfigProvider") << "ProcessPSet not found in regsistry!";
        changed_ = true;
        inited_  = false;
-       hltConfigData_ = s_dummyData();       
+       hltConfigData_ = s_dummyHLTConfigData();       
        return;
      }
   }
@@ -164,7 +166,7 @@ void HLTConfigProvider::init(const std::string& processName)
        if ( pName == processName ) {
          psetID = i->first;
          nPSets++;
-         if ((hltConfigData_ != s_dummyData()) && (hltConfigData_->id()==psetID)) {
+         if ((hltConfigData_ != s_dummyHLTConfigData()) && (hltConfigData_->id()==psetID)) {
            hNames += tableName();
          } else if ( 0 != (pset = registry_->getMapped(psetID))) {
            if (pset->exists("HLTConfigVersion")) {
@@ -221,7 +223,7 @@ void HLTConfigProvider::clear()
    processName_   = "";
    inited_        = false;
    changed_       = true;
-   hltConfigData_ = s_dummyData();
+   hltConfigData_ = s_dummyHLTConfigData();
    *l1GtUtils_    = L1GtUtils();
 
    return;
