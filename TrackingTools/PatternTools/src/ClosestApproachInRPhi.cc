@@ -158,9 +158,9 @@ ClosestApproachInRPhi::newTrajectory( const GlobalPoint & newpt, const GlobalTra
   double px = cosphi * oldgtp.momentum().x() - sinphi * oldgtp.momentum().y();
   double py = sinphi * oldgtp.momentum().x() + cosphi * oldgtp.momentum().y();
   
-  std::cout << px-npx << " " << py-mpy << std::endl;
+  std::cout << px-npx << " " << py-npy << std::endl;
 
-  GlobalVector vta ( px, py, oldgtp.momentum().z() );
+  GlobalVector vta ( npx, npy, oldgtp.momentum().z() );
   GlobalTrajectoryParameters gta( newpt , vta , oldgtp.charge(), &(oldgtp.magneticField()) );
   return gta;
 }
@@ -170,8 +170,7 @@ ClosestApproachInRPhi::circleParameters(const TrackCharge& charge,
 					const GlobalVector& momentum, 
 					const GlobalPoint& position, 
 					double& xc, double& yc, double& r,
-					double bz) 
-const
+					double bz)
 {
 
   // compute radius of circle
