@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/12/23 11:43:31 $
- *  $Revision: 1.58 $
+ *  $Date: 2010/12/23 12:37:32 $
+ *  $Revision: 1.59 $
  *
  *  \author Martin Grunewald
  *
@@ -220,7 +220,7 @@ void HLTConfigProvider::clear()
    inited_        = false;
    changed_       = true;
    hltConfigData_ = s_dummyHLTConfigData();
-   *l1GtUtils     = L1GtUtils();
+   *l1GtUtils_    = L1GtUtils();
 
    return;
 }
@@ -266,7 +266,7 @@ std::pair<int,int>  HLTConfigProvider::prescaleValues(const edm::Event& iEvent, 
   if (set<0) {
     result.second = -1;
   } else {
-    result.second = static_cast<int>(hltConfigData_->prescaleValue(static_cast<unsigned int>(set),trigger));
+    result.second = static_cast<int>(prescaleValue(static_cast<unsigned int>(set),trigger));
   }
 
   // get L1T prescale - works only for those hlt trigger paths with
