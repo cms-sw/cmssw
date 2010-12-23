@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/12/22 15:34:01 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/12/23 11:43:31 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -297,6 +297,10 @@ void HLTConfigData::dump(const std::string& what) const {
      cout << "HLTConfigData::dump: Unkown dump request: " << what << endl;
    }
    return;
+}
+
+const std::string& HLTConfigData::processName() const {
+  return processName_;
 }
 
 unsigned int HLTConfigData::size() const {

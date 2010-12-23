@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/12/22 16:37:01 $
- *  $Revision: 1.57 $
+ *  $Date: 2010/12/23 11:43:31 $
+ *  $Revision: 1.58 $
  *
  *  \author Martin Grunewald
  *
@@ -45,18 +45,16 @@ bool HLTConfigProvider::init(const edm::Run& iRun,
    using namespace std;
    using namespace edm;
 
-   LogInfo("HLTConfigData")
-     << "Called (R) with processName '"
-     << processName << "' for " << iRun.id() << endl;
+   LogInfo("HLTConfigData") << "Called (R) with processName '"
+			    << processName
+			    << "' for " << iRun.id() << endl;
 
-   const ProcessHistory& processHistory(iRun.processHistory());
-   init(processHistory,processName);
+   init(iRun.processHistory(),processName);
 
    /// defer iSetup access to when actually needed:
    /// l1GtUtils_->retrieveL1EventSetup(iSetup);
 
-   hltConfigData_->dump("ProcessPSet");
-
+   processName_=processName;
    changed=changed_;
    return inited_;
 
@@ -109,7 +107,6 @@ void HLTConfigProvider::getDataFrom(const edm::ParameterSetID& iID, const std::s
   HLTConfigDataRegistry* reg = HLTConfigDataRegistry::instance();
   const HLTConfigData* d = reg->getMapped(iID);
   if(0 != d) {
-    processName_=processName;
     changed_ = true;
     inited_  = true;
     hltConfigData_ = d;
@@ -125,10 +122,9 @@ void HLTConfigProvider::getDataFrom(const edm::ParameterSetID& iID, const std::s
          return; 
        } else { 
          clear(); 
-         processName_=processName;
+         reg->insertMapped( HLTConfigData(processPSet));
          changed_ = true; 
          inited_  = true; 
-         reg->insertMapped( HLTConfigData(processPSet));
          hltConfigData_ = reg->getMapped(processPSet->id());
          return;
        }
@@ -224,7 +220,7 @@ void HLTConfigProvider::clear()
    inited_        = false;
    changed_       = true;
    hltConfigData_ = s_dummyHLTConfigData();
-   *l1GtUtils_    = L1GtUtils();
+   *l1GtUtils     = L1GtUtils();
 
    return;
 }

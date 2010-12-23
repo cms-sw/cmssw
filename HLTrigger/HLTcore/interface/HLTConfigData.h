@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/12/22 16:19:01 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/12/23 11:43:31 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -40,6 +40,9 @@ class HLTConfigData {
   void dump(const std::string& what) const;
 
   /// Accessors (const methods)
+
+  /// process name
+  const std::string& processName() const;
 
   /// number of trigger paths in trigger table
   unsigned int size() const;
