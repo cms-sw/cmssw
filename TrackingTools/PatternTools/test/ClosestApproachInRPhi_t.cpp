@@ -43,7 +43,7 @@ int main() {
     GlobalPoint gp1(1,0,0);
     GlobalVector gv1(1,1,-1);
     GlobalTrajectoryParameters gtp1(gp1,gv1,1,field);
-    double bz = field.inTesla(gp1).z() * 2.99792458e-3;
+    double bz = field->inTesla(gp1).z() * 2.99792458e-3;
     GlobalPoint np(0.504471,    -0.498494,     0.497014);
     GlobalTrajectoryParameters gtpN = ClosestApproachInRPhi::newTrajectory(np,gtp1,bz);
     GlobalTrajectoryParameters gtp2 = ClosestApproachInRPhi::newTrajectory(gp1,gtpN,bz);
