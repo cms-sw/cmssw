@@ -189,10 +189,10 @@ HelixBarrelPlaneCrossingByCircle::direction( double s) const
       double tmp = 0.5*theDmag*theRho;
       if (s < 0) tmp = -tmp;
       // protect sqrt
-      sinPhi = 1.-tmp*tmp;
+      sinPhi = 1.-(tmp*tmp);
       if ( sinPhi<0 )  sinPhi = 0.;
       sinPhi = 2.*tmp*sqrt(sinPhi);
-      cosPhi = 1.-2.*tmp*tmp;
+      cosPhi = 1.-2.*(tmp*tmp);
     }
     else {
       double phi = s*theSinTheta*theRho;

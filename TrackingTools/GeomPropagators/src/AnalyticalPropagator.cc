@@ -139,7 +139,7 @@ bool AnalyticalPropagator::propagateParametersOnCylinder(
   GlobalPoint& x, GlobalVector& p, double& s) const
 {
 
-  GlobalPoint sp = cylinder.toGlobal(LocalPoint(0.,0.));
+  GlobalPoint const & sp = cylinder.position();
   if (sp.x()!=0. || sp.y()!=0.) {
     throw PropagationException("Cannot propagate to an arbitrary cylinder");
   }
