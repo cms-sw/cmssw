@@ -181,7 +181,7 @@ ClosestApproachInRPhi::circleParameters(const TrackCharge& charge,
 
   // signed_r directed towards circle center, along F_Lorentz = q*v X B
   double qob = charge/bz;
-  double signed_r = qov*momentum.transverse();
+  double signed_r = qob*momentum.transverse();
   r = abs(signed_r);
   /** end of temporary code
    */
