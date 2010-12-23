@@ -53,7 +53,7 @@ ClosestApproachInRPhi::crossingPoint() const
 {
   if (!status_)
     throw cms::Exception("TrackingTools/PatternTools","ClosestApproachInRPhi::could not compute track crossing. Check status before calling this method!");
-  return 0.5*(posA.basicVector() + posB.basicVector());
+  return  GlobalPoint(0.5*(posA.basicVector() + posB.basicVector()));
 		     
 }
 
@@ -127,8 +127,8 @@ ClosestApproachInRPhi::trajectoryParameters () const
   if (!status_)
     throw cms::Exception("TrackingTools/PatternTools","ClosestApproachInRPhi::could not compute track crossing. Check status before calling this method!");
   pair <GlobalTrajectoryParameters, GlobalTrajectoryParameters> 
-    ret ( newTrajectory( posA, paramA ),
-          newTrajectory( posB, paramB ) );
+    ret ( newTrajectory( posA, paramA, bz),
+          newTrajectory( posB, paramB, bz) );
   return ret;
 }
 
@@ -136,10 +136,10 @@ GlobalTrajectoryParameters
 ClosestApproachInRPhi::newTrajectory( const GlobalPoint & newpt, const GlobalTrajectoryParameters & oldgtp, double bz )
 {
   // First we need the centers of the circles.
-  double qob = charge/bz;
-  double xc =  oldgtp.position.x() + qob * momentum.y();
-  double yc =  oldgtp.position.y() - qob * momentum.x();
-
+  double qob = oldgtp.charge()/bz;
+  double xc =  oldgtp.position().x() + qob *  oldgtp.momentum().y();
+  double yc =  oldgtp.position().y() - qob *  oldgtp.momentum().x();
+  
   // now we do a translation, move the center of circle to (0,0,0).
   double dx1 = oldgtp.position().x() - xc;
   double dy1 = oldgtp.position().y() - yc;
@@ -148,17 +148,17 @@ ClosestApproachInRPhi::newTrajectory( const GlobalPoint & newpt, const GlobalTra
   // and of course....
   double npx = (newpt.y()-yc)/qob;
   double npy = (xc-newpt.x())/qob;
-
+  
   // now for the angles:
   double cosphi = ( dx1 * dx2 + dy1 * dy2 ) / 
     ( sqrt ( dx1 * dx1 + dy1 * dy1 ) * sqrt ( dx2 * dx2 + dy2 * dy2 ));
   double sinphi = - oldgtp.charge() * sqrt ( 1 - cosphi * cosphi );
-
+  
   // Finally, the new momenta:
   double px = cosphi * oldgtp.momentum().x() - sinphi * oldgtp.momentum().y();
   double py = sinphi * oldgtp.momentum().x() + cosphi * oldgtp.momentum().y();
-
- std:cout << px-npx << " " << py-mpy << std::endl;
+  
+  std::cout << px-npx << " " << py-mpy << std::endl;
 
   GlobalVector vta ( px, py, oldgtp.momentum().z() );
   GlobalTrajectoryParameters gta( newpt , vta , oldgtp.charge(), &(oldgtp.magneticField()) );
