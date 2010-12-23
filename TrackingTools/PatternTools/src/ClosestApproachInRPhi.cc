@@ -6,7 +6,7 @@
 using namespace std;
 
 bool ClosestApproachInRPhi::calculate(const TrajectoryStateOnSurface & sta, 
-			      const TrajectoryStateOnSurface & stb) 
+				      const TrajectoryStateOnSurface & stb) 
 {
   TrackCharge chargeA = sta.charge(); TrackCharge chargeB = stb.charge();
   GlobalVector momentumA = sta.globalMomentum();
@@ -24,7 +24,7 @@ bool ClosestApproachInRPhi::calculate(const TrajectoryStateOnSurface & sta,
 
 
 bool ClosestApproachInRPhi::calculate(const FreeTrajectoryState & sta, 
-			      const FreeTrajectoryState & stb)
+				      const FreeTrajectoryState & stb)
 {
   TrackCharge chargeA = sta.charge(); TrackCharge chargeB = stb.charge();
   GlobalVector momentumA = sta.momentum();
@@ -34,7 +34,7 @@ bool ClosestApproachInRPhi::calculate(const FreeTrajectoryState & sta,
   paramA = sta.parameters();
   paramB = stb.parameters();
   // compute magnetic field ONCE 
-  bz = sta.freeState()->parameters().magneticField().inTesla(positionA).z() * 2.99792458e-3;
+  bz = sta.parameters().magneticField().inTesla(positionA).z() * 2.99792458e-3;
 
   return compute(chargeA, momentumA, positionA, chargeB, momentumB, positionB);
 
@@ -53,7 +53,7 @@ ClosestApproachInRPhi::crossingPoint() const
 {
   if (!status_)
     throw cms::Exception("TrackingTools/PatternTools","ClosestApproachInRPhi::could not compute track crossing. Check status before calling this method!");
-  return 0.5*(posA + posB);
+  return 0.5*(posA.basicVector() + posB.basicVector());
 		     
 }
 
@@ -201,7 +201,7 @@ int
 ClosestApproachInRPhi::transverseCoord(double cxa, double cya, double ra, 
 				       double cxb, double cyb, double rb, 
 				       double & xg1, double & yg1, 
-				       double & xg2, double & yg2) const 
+				       double & xg2, double & yg2)
 {
   int flag = 0;
   double x1, y1, x2, y2;
@@ -268,7 +268,7 @@ double
 ClosestApproachInRPhi::zCoord(const GlobalVector& mom, 
 			      const GlobalPoint& pos, 
 			      double r, double xc, double yc, 
-			      double xg, double yg) const
+			      double xg, double yg)
 {
 
   // starting point

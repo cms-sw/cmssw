@@ -64,7 +64,7 @@ private:
   // given the old Parameters, and a new GlobalPoint,
   // we return the full new GlobalTrajectoryParameters at the
   // Point.
-  staitc GlobalTrajectoryParameters
+  static GlobalTrajectoryParameters
   newTrajectory( const GlobalPoint & newpt,
 		 const GlobalTrajectoryParameters & oldpar, double bz);
 
@@ -83,14 +83,14 @@ private:
   //              on each circle; return value = 2;
   // if the calculation fails (e.g. concentric circles), return value = 0;
 
-  int transverseCoord(double cxa, double cya, double ra, 
-		      double cxb, double cyb, double rb, 
-		      double & xg1, double & yg1, 
-		      double & xg2, double & yg2) const;
+  static int transverseCoord(double cxa, double cya, double ra, 
+			     double cxb, double cyb, double rb, 
+			     double & xg1, double & yg1, 
+			     double & xg2, double & yg2);
 
   // Computes z-coordinate on helix at given transverse coordinates
-  double zCoord(const GlobalVector& mom, const GlobalPoint& pos, 
-		double r, double xc, double yc, double xg, double yg) const;
+  static double zCoord(const GlobalVector& mom, const GlobalPoint& pos, 
+		       double r, double xc, double yc, double xg, double yg);
 
 
 private:
