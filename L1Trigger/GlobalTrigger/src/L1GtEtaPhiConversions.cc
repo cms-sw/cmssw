@@ -111,7 +111,7 @@ void L1GtEtaPhiConversions::convert(const L1CaloGeometry* l1CaloGeometry,
         double phiMuLowEdge = l1MuTriggerScales->getPhiScale()->getLowEdge(phiMuInd);
         double phiMuHighEdge = l1MuTriggerScales->getPhiScale()->getHighEdge(phiMuInd);
 
-        for (unsigned int iCalo = nrGctEmJetPhiBins; iCalo >= 0; --iCalo) {
+        for (unsigned int iCalo = nrGctEmJetPhiBins; iCalo <= nrGctEmJetPhiBins; --iCalo) {
             
             double phiCaloLowEdge = l1CaloGeometry->emJetPhiBinLowEdge(iCalo);
             double phiCaloHighEdge = l1CaloGeometry->emJetPhiBinHighEdge(iCalo);
