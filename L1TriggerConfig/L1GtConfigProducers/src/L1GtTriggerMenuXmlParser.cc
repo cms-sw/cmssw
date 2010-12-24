@@ -2181,7 +2181,6 @@ bool L1GtTriggerMenuXmlParser::parseJetCounts(XERCES_CPP_NAMESPACE::DOMNode* nod
     // they are expressed in  base 10  (values: 0 - m_numberL1JetCounts)
     char* endPtr = const_cast<char*>(type.c_str());
     long int typeInt = strtol(type.c_str(), &endPtr, 10); // base = 10
-    unsigned int typeIntUInt = static_cast<unsigned int>(typeInt);
 
     if (*endPtr != 0) {
 
@@ -2192,14 +2191,14 @@ bool L1GtTriggerMenuXmlParser::parseJetCounts(XERCES_CPP_NAMESPACE::DOMNode* nod
     }
 
     // test if count index is out of range
-    if (typeIntUInt > m_numberL1JetCounts) { // typeIntUInt >= 0, since typeIntUInt is unsigned
-        LogDebug("L1GtTriggerMenuXmlParser") << "Count index " << typeIntUInt
+    if ((typeInt < 0) || (typeInt > static_cast<int>(m_numberL1JetCounts))) {
+        LogDebug("L1GtTriggerMenuXmlParser") << "Count index " << typeInt
             << " outside range [0, " << m_numberL1JetCounts << "]" << std::endl;
 
         return false;
     }
 
-    objParameter[0].countIndex = typeIntUInt;
+    objParameter[0].countIndex = static_cast<unsigned int>(typeInt);
 
     // get count threshold values and fill into structure
     std::vector<boost::uint64_t> tmpValues(nrObj);
@@ -2430,7 +2429,6 @@ bool L1GtTriggerMenuXmlParser::parseHfBitCounts(XERCES_CPP_NAMESPACE::DOMNode* n
     // they are expressed in  base 10
     char* endPtr = const_cast<char*>(type.c_str());
     long int typeInt = strtol(type.c_str(), &endPtr, 10); // base = 10
-    unsigned int typeIntUInt = static_cast<unsigned int>(typeInt);
 
     if (*endPtr != 0) {
 
@@ -2441,14 +2439,14 @@ bool L1GtTriggerMenuXmlParser::parseHfBitCounts(XERCES_CPP_NAMESPACE::DOMNode* n
     }
 
     // test if count index is out of range FIXME introduce m_numberL1HfBitCounts?
-    //if ((typeIntUInt < 0) || (typeIntUInt > m_numberL1HfBitCounts)) {
-    //    LogDebug("L1GtTriggerMenuXmlParser") << "Count index " << typeIntUInt
+    //if ((typeInt < 0) || (typeInt > static_cast<int>(m_numberL1HfBitCounts))) {
+    //    LogDebug("L1GtTriggerMenuXmlParser") << "Count index " << typeInt
     //        << " outside range [0, " << m_numberL1HfBitCounts << "]" << std::endl;
     //
     //    return false;
     //}
 
-    objParameter[0].countIndex = typeIntUInt;
+    objParameter[0].countIndex = static_cast<unsigned int>(typeInt);
 
     // get count threshold values and fill into structure
     std::vector<boost::uint64_t> tmpValues(nrObj);
@@ -2563,7 +2561,6 @@ bool L1GtTriggerMenuXmlParser::parseHfRingEtSums(XERCES_CPP_NAMESPACE::DOMNode* 
     // they are expressed in  base 10
     char* endPtr = const_cast<char*>(type.c_str());
     long int typeInt = strtol(type.c_str(), &endPtr, 10); // base = 10
-    unsigned int typeIntUInt = static_cast<unsigned int>(typeInt);
 
     if (*endPtr != 0) {
 
@@ -2574,14 +2571,14 @@ bool L1GtTriggerMenuXmlParser::parseHfRingEtSums(XERCES_CPP_NAMESPACE::DOMNode* 
     }
 
     // test if ET sum index is out of range FIXME introduce m_numberL1HfRingEtSums?
-    //if ((typeIntUInt < 0) || (typeIntUInt > m_numberL1HfRingEtSums)) {
-    //    LogDebug("L1GtTriggerMenuXmlParser") << "Count index " << typeIntUInt
+    //if ((typeInt < 0) || (typeInt > static_cast<int>(m_numberL1HfRingEtSums))) {
+    //    LogDebug("L1GtTriggerMenuXmlParser") << "Count index " << typeInt
     //        << " outside range [0, " << m_numberL1HfRingEtSums << "]" << std::endl;
     //
     //    return false;
     //}
 
-    objParameter[0].etSumIndex = typeIntUInt;
+    objParameter[0].etSumIndex = static_cast<unsigned int>(typeInt);
 
     // get ET sum threshold values and fill into structure
     std::vector<boost::uint64_t> tmpValues(nrObj);
