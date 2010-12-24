@@ -40,6 +40,7 @@ int main() {
   MagneticField * field = new ConstMagneticField;
 
   {
+    // going back and forth gtp2 should be identical to gpt1....
     GlobalPoint gp1(1,0,0);
     GlobalVector gv1(1,1,-1);
     GlobalTrajectoryParameters gtp1(gp1,gv1,1,field);
@@ -55,6 +56,7 @@ int main() {
 
 
   {
+    // opposite sign, same direction, same origin: the two circles are tangent to each other at gp1
     GlobalPoint gp1(0,0,0);
     GlobalVector gv1(1,1,1);
     GlobalTrajectoryParameters gtp1(gp1,gv1,1,field);
@@ -66,6 +68,9 @@ int main() {
     compute(gtp1,gtp2);
   }
   {
+    // not crossing: the pcas are on the line connecting the two centers
+    // the momenta at the respective pcas shall be parallel as they are perpendicular to the same line
+    // (the one connecting the two centers)
     GlobalPoint gp1(-1,0,0);
     GlobalVector gv1(1,1,1);
     GlobalTrajectoryParameters gtp1(gp1,gv1,-1,field);
@@ -77,6 +82,7 @@ int main() {
     compute(gtp1,gtp2);
   }
   {
+    // crossing (opposite change as above)
     GlobalPoint gp1(-1,0,0);
     GlobalVector gv1(1,1,1);
     GlobalTrajectoryParameters gtp1(gp1,gv1,1,field);
