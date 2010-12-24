@@ -140,11 +140,13 @@ ClosestApproachInRPhi::newTrajectory( const GlobalPoint & newpt, const GlobalTra
   double xc =  oldgtp.position().x() + qob *  oldgtp.momentum().y();
   double yc =  oldgtp.position().y() - qob *  oldgtp.momentum().x();
 
-  // and of course....
-  double npx = (newpt.y()-yc)/qob;
-  double npy = (xc-newpt.x())/qob;
+  // and of course....  
+  double npx = (newpt.y()-yc)*(bz/oldgtp.charge());
+  double npy = (xc-newpt.x())*(bz/oldgtp.charge());
  
-  
+  /*
+   * old code: slow and wrong
+   *
   // now we do a translation, move the center of circle to (0,0,0).
   double dx1 = oldgtp.position().x() - xc;
   double dy1 = oldgtp.position().y() - yc;
@@ -161,6 +163,7 @@ ClosestApproachInRPhi::newTrajectory( const GlobalPoint & newpt, const GlobalTra
   double py = sinphi * oldgtp.momentum().x() + cosphi * oldgtp.momentum().y();
   
   std::cout << px-npx << " " << py-npy << ", " << oldgtp.charge() << std::endl;
+  */
 
   GlobalVector vta ( npx, npy, oldgtp.momentum().z() );
   GlobalTrajectoryParameters gta( newpt , vta , oldgtp.charge(), &(oldgtp.magneticField()) );
