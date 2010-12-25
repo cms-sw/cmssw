@@ -198,7 +198,7 @@ void FedTimingAlgorithm::analyse() {
 
       // Calc local derivative 
       float temp_deriv = 0;
-      if ( static_cast<uint32_t>(bin-1) < 0 ||
+      if ( static_cast<uint32_t>(bin)   < 1 ||
 	   static_cast<uint32_t>(bin+1) >= nbins ) { continue; }
       temp_deriv = bin_contents[bin+1] - bin_contents[bin-1];
       

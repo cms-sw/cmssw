@@ -203,7 +203,7 @@ void ApvTimingAlgorithm::analyse() {
 
       // Calc local derivative 
       float temp = 0.;
-      if ( static_cast<uint32_t>(bin-1) < 0 ||
+      if ( static_cast<uint32_t>(bin)   < 1 ||
 	   static_cast<uint32_t>(bin+1) >= nbins ) { 
 	valid = false; //@@ require complete plateau is found within histo
 	anal->addErrorCode(sistrip::incompletePlateau_);
@@ -292,7 +292,7 @@ void ApvTimingAlgorithm::analyse() {
 	
 	// Calc local derivative_r 
 	float temp_r = 0.;
-	if ( static_cast<uint32_t>(bin_r-1) < 0 ||
+	if ( static_cast<uint32_t>(bin_r)   < 1 ||
 	     static_cast<uint32_t>(bin_r+1) >= nbins ) { 
 	  valid_r = false; //@@ require complete plateau is found_r within histo
 	  anal->addErrorCode(sistrip::incompletePlateau_);
