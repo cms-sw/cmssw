@@ -21,6 +21,18 @@ public:
 
 };
 
+
+namespace {
+  inline GlobalPoint mean ( pair<GlobalPoint, GlobalPoint> pr ) {
+    return GlobalPoint ( 0.5*(pr.first.basicVector() + pr.second.basicVector()) );
+  }
+
+  inline double dist ( pair<GlobalPoint, GlobalPoint> pr ) {
+    return ( pr.first - pr.second ).mag();
+  }
+}
+
+
 void compute(GlobalTrajectoryParameters const & gtp1, GlobalTrajectoryParameters  const & gtp2) {
   ClosestApproachInRPhi ca;
   TwoTrackMinimumDistanceHelixHelix TTMDhh;
@@ -37,14 +49,15 @@ void compute(GlobalTrajectoryParameters const & gtp1, GlobalTrajectoryParameters
   }
 
   std::cout << "TTMDhh" << std::endl
-  bool ok = TTMDhh.calculate(gtp1,gtp2);
-  if(!ok) 
+    bool nok = TTMDhh.calculate(gtp1,gtp2,.0001);
+  if(nok) 
     std::cout << "no intercept!" << std::endl;
   else {
-    std::cout << "distance, xpoint " << TTMDhh.distance() << TTMDhh.crossingPoint() << std::endl;
-    std::pair <GlobalTrajectoryParameters, GlobalTrajectoryParameters > thh = TTMDhh.trajectoryParameters();
-    std::cout << thh.first << std::endl;
-    std::cout << thh.second << std::endl;
+     pair<GlobalPoint, GlobalPoint> pr = TTMDhh.points();
+    std::cout << "distance, xpoint " << distance(pr) << mean(pr) << std::endl;
+    // std::pair <GlobalTrajectoryParameters, GlobalTrajectoryParameters > thh = TTMDhh.trajectoryParameters();
+    // std::cout << thh.first << std::endl;
+    // std::cout << thh.second << std::endl;
   }
 }
 
