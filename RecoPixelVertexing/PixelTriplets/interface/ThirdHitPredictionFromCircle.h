@@ -47,18 +47,6 @@ public:
 private:
   friend class HelixRZ;
 
-  class PointRPhi {
-    public:
-      PointRPhi() {}
-      PointRPhi(double r, double phi) : theR(r), thePhi(phi) {}
-      PointRPhi(const Basic2DVector<double> &p) : theR(p.mag()), thePhi(p.phi()) {}
-      double r() const { return theR; }
-      double phi() const { return thePhi; }
-
-    private:
-      double theR, thePhi;
-  };
-
   double invCenterOnAxis(const Basic2DVector<double> &thirdPoint) const;
 
   Basic2DVector<double> p1, center, axis;
