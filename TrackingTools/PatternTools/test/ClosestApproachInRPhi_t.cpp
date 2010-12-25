@@ -1,6 +1,8 @@
 #define private public
 #include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
+#include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistanceHelixHelix.h"
 #undef private
+
 // #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
@@ -21,9 +23,10 @@ public:
 
 void compute(GlobalTrajectoryParameters const & gtp1, GlobalTrajectoryParameters  const & gtp2) {
   ClosestApproachInRPhi ca;
-  
+  TwoTrackMinimumDistanceHelixHelix TTMDhh;
+
+  std::cout << "CAIR" << std::endl
   bool ok = ca.calculate(gtp1,gtp2);
-  
   if(!ok) 
     std::cout << "no intercept!" << std::endl;
   else {
@@ -31,6 +34,17 @@ void compute(GlobalTrajectoryParameters const & gtp1, GlobalTrajectoryParameters
     std::pair <GlobalTrajectoryParameters, GlobalTrajectoryParameters > tca = ca.trajectoryParameters();
     std::cout << tca.first << std::endl;
     std::cout << tca.second << std::endl;
+  }
+
+  std::cout << "TTMDhh" << std::endl
+  bool ok = TTMDhh.calculate(gtp1,gtp2);
+  if(!ok) 
+    std::cout << "no intercept!" << std::endl;
+  else {
+    std::cout << "distance, xpoint " << TTMDhh.distance() << TTMDhh.crossingPoint() << std::endl;
+    std::pair <GlobalTrajectoryParameters, GlobalTrajectoryParameters > thh = TTMDhh.trajectoryParameters();
+    std::cout << thh.first << std::endl;
+    std::cout << thh.second << std::endl;
   }
 }
 
@@ -56,7 +70,7 @@ int main() {
 
 
   {
-    // opposite sign, same direction, same origin: the two circles are tangent to each other at gp1
+    std::cout <<"opposite sign, same direction, same origin: the two circles are tangent to each other at gp1\n" << std::endl;
     GlobalPoint gp1(0,0,0);
     GlobalVector gv1(1,1,1);
     GlobalTrajectoryParameters gtp1(gp1,gv1,1,field);
@@ -66,11 +80,13 @@ int main() {
     GlobalTrajectoryParameters gtp2(gp2,gv2,-1,field);
     
     compute(gtp1,gtp2);
+    std::cout << std::endl;
+
   }
   {
-    // not crossing: the pcas are on the line connecting the two centers
-    // the momenta at the respective pcas shall be parallel as they are perpendicular to the same line
-    // (the one connecting the two centers)
+     std::cout <<" not crossing: the pcas are on the line connecting the two centers\n"
+	       <<"the momenta at the respective pcas shall be parallel as they are perpendicular to the same line\n"
+	       <<"(the one connecting the two centers)\n" << std::endl;
     GlobalPoint gp1(-1,0,0);
     GlobalVector gv1(1,1,1);
     GlobalTrajectoryParameters gtp1(gp1,gv1,-1,field);
@@ -80,9 +96,10 @@ int main() {
     GlobalTrajectoryParameters gtp2(gp2,gv2,1,field);
     
     compute(gtp1,gtp2);
+   std::cout << std::endl;
   }
   {
-    // crossing (opposite change as above)
+    std::cout <<"crossing (only opposite changes w.r.t. previous)\n" << std::endl;
     GlobalPoint gp1(-1,0,0);
     GlobalVector gv1(1,1,1);
     GlobalTrajectoryParameters gtp1(gp1,gv1,1,field);
@@ -92,8 +109,11 @@ int main() {
     GlobalTrajectoryParameters gtp2(gp2,gv2,-1,field);
 
     compute(gtp1,gtp2);
+    std::cout << std::endl;
   }
- {
+
+  {
+    std::cout <<"crossing\n" << std::endl;
     GlobalPoint gp1(-1,0,0);
     GlobalVector gv1(1,1,1);
     GlobalTrajectoryParameters gtp1(gp1,gv1,-1,field);
@@ -103,6 +123,7 @@ int main() {
     GlobalTrajectoryParameters gtp2(gp2,gv2,1,field);
     
     compute(gtp1,gtp2);
+   std::cout << std::endl;
   }
 
 
