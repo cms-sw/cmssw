@@ -60,6 +60,10 @@ parser.add_option("--photogrammetryScale",
                   type="string",
                   default="1.",
                   dest="photogrammetryScale")
+parser.add_option("--slm",
+                  help="if invoked, apply SLM constraint",
+                  action="store_true",
+                  dest="slm")
 parser.add_option("--fillME11holes",
                   help="use CollisionsOct2010 data to fill holes in ME1/1",
                   action="store_true",
@@ -148,6 +152,7 @@ photogrammetry = options.photogrammetry
 photogrammetryOnlyholes = options.photogrammetryOnlyholes
 photogrammetryOnlyOnePerRing = options.photogrammetryOnlyOnePerRing
 photogrammetryScale = options.photogrammetryScale
+slm = options.slm
 fillME11holes = options.fillME11holes
 disks = options.disks
 minP = options.minP
@@ -191,7 +196,8 @@ for i, mode in enumerate(PATTERN):
 
     bsubfile.append("cd %s" % directory)
 
-    constraints = """echo \"\" > constraints_cff.py"""
+    constraints = """echo \"\" > constraints_cff.py
+"""
     if photogrammetry and (mode == "phipos" or mode == "phiz"):
         diskswitch = ""
         if disks: diskswitch = "--disks "
@@ -218,7 +224,16 @@ python $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/scripts/relativeConst
 cmsRun $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/python/convertToXML_global_cfg.py 
 python $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/scripts/relativeConstraints.py %(inputdb)s_global.xml $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/data/Photogrammetry2007_onlyOnePerRing.%(mode)s PGFrame --scaleErrors %(photogrammetryScale)s %(diskswitch)s>> constraints_cff.py
 """ % vars()
-        
+
+    if slm and (mode == "phipos" or "phiz"):
+        diskswitch = ""
+        if disks: diskswitch = "--disks "
+
+        constraints += """export ALIGNMENT_CONVERTXML=%(inputdb)s
+cmsRun $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/python/convertToXML_global_cfg.py
+python $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/scripts/relativeConstraints.py %(inputdb)s_global.xml $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/data/SLM_test.%(mode)s SLMFrame --scaleErrors 1.0 %(diskswitch)s>> constraints_cff.py
+""" % vars()
+
     if fillME11holes and (mode == "phipos" or mode == "phiz"):
         diskswitch = ""
         if disks: diskswitch = "--disks "
@@ -249,6 +264,7 @@ export ALIGNMENT_JOBNUMBER=%(jobnumber)d
 export ALIGNMENT_INPUTDB=%(inputdb)s
 export ALIGNMENT_GLOBALTAG=%(globaltag)s
 export ALIGNMENT_PHOTOGRAMMETRY='%(photogrammetry)s or %(photogrammetryOnlyholes)s or %(photogrammetryOnlyOnePerRing)s'
+export ALIGNMENT_SLM=%(slm)s
 export ALIGNMENT_FILLME11HOLES='%(fillME11holes)s'
 export ALIGNMENT_DISKS=%(disks)s
 export ALIGNMENT_minP=%(minP)s
@@ -323,6 +339,7 @@ export ALIGNMENT_MODE=%(mode)s
 export ALIGNMENT_INPUTDB=%(inputdb)s
 export ALIGNMENT_GLOBALTAG=%(globaltag)s
 export ALIGNMENT_PHOTOGRAMMETRY='%(photogrammetry)s or %(photogrammetryOnlyholes)s or %(photogrammetryOnlyOnePerRing)s'
+export ALIGNMENT_SLM=%(slm)s
 export ALIGNMENT_FILLME11HOLES='%(fillME11holes)s'
 export ALIGNMENT_DISKS=%(disks)s
 export ALIGNMENT_minP=%(minP)s

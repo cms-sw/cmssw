@@ -8,6 +8,7 @@ mode = os.environ["ALIGNMENT_MODE"]
 inputdb = os.environ["ALIGNMENT_INPUTDB"]
 globaltag = os.environ["ALIGNMENT_GLOBALTAG"]
 photogrammetry = eval(os.environ["ALIGNMENT_PHOTOGRAMMETRY"])
+slm = eval(os.environ["ALIGNMENT_SLM"])
 fillME11holes = eval(os.environ["ALIGNMENT_FILLME11HOLES"])
 disks = (os.environ["ALIGNMENT_DISKS"] == "True")
 
@@ -49,6 +50,11 @@ execfile("constraints_cff.py")
 #     for f in process.looper.algoConfig.fitters:
 #         if "PGFrame" in f.alignables:
 #             f.fixed = cms.string("PGFrame")
+
+if slm and mode in ("phipos", "phiz"):
+    for f in process.looper.algoConfig.fitters:
+        if "SLMFrame" in f.alignables:
+            f.fixed = cms.string("SLMFrame")
 
 process.looper.algoConfig.writeTemporaryFile = "alignment%03d.tmp" % jobnumber
 process.looper.algoConfig.readTemporaryFiles = cms.vstring()
