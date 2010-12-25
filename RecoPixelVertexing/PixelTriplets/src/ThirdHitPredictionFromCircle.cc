@@ -73,7 +73,7 @@ double ThirdHitPredictionFromCircle::angle(double curvature, double radius) cons
   } else {
     double radius2 = sqr(1.0 / curvature);
     double orthog = clamped_sqrt(radius2 - delta2);
-    Basic2DVector<double> lcenter = center - sign * orthog * axis;
+    Basic2DVector<double> lcenter = center - sgn(curvature) * orthog * axis;
  
     double cos = (radius2 + sqr(radius) - lcenter.mag2()) *
                  curvature / (2. * radius);
