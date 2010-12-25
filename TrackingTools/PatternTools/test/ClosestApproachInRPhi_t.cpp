@@ -23,11 +23,11 @@ public:
 
 
 namespace {
-  inline GlobalPoint mean ( pair<GlobalPoint, GlobalPoint> pr ) {
+  inline GlobalPoint mean ( std::pair<GlobalPoint, GlobalPoint> pr ) {
     return GlobalPoint ( 0.5*(pr.first.basicVector() + pr.second.basicVector()) );
   }
 
-  inline double dist ( pair<GlobalPoint, GlobalPoint> pr ) {
+  inline double dist ( std::pair<GlobalPoint, GlobalPoint> pr ) {
     return ( pr.first - pr.second ).mag();
   }
 }
@@ -53,8 +53,8 @@ void compute(GlobalTrajectoryParameters const & gtp1, GlobalTrajectoryParameters
   if(nok) 
     std::cout << "no intercept!" << std::endl;
   else {
-     pair<GlobalPoint, GlobalPoint> pr = TTMDhh.points();
-    std::cout << "distance, xpoint " << distance(pr) << mean(pr) << std::endl;
+     std::pair<GlobalPoint, GlobalPoint> pr = TTMDhh.points();
+     std::cout << "distance, xpoint " << dist(pr) << mean(pr) << std::endl;
     // std::pair <GlobalTrajectoryParameters, GlobalTrajectoryParameters > thh = TTMDhh.trajectoryParameters();
     // std::cout << thh.first << std::endl;
     // std::cout << thh.second << std::endl;
