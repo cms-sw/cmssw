@@ -166,19 +166,20 @@ bool TwoTrackMinimumDistanceHelixHelix::calculate(
 
 
 void TwoTrackMinimumDistanceHelixHelix::finalPoints() const {
-  pointG = GlobalPoint (
-			theG->position().x() + theg * ( sin ( thepG) - thesinpG0) ,
-			theG->position().y() + theg * ( - cos ( thepG) + thecospG0 ),
-			theG->position().z() + theg * ( thetanlambdaG * ( thepG- thepG0 ))
-			);
+  GlobalVector tmpG( sin(thepG) - thesinpG0,
+		   - cos(thepG) + thecospG0,
+		   thetanlambdaG * ( thepG- thepG0 ) 
+		   );
+  pointG = theG->position() + theg * tmpG;
   pathG = ( thepG- thepG0 ) * (theg*sqrt(1+thetanlambdaG*thetanlambdaG)) ;
 
-  pointH = GlobalPoint (
-			theH->position().x() + theh * ( sin ( thepH) - thesinpH0 ),
-			theH->position().y() + theh * ( - cos ( thepH) + thecospH0 ),
-			theH->position().z() + theh * ( thetanlambdaH * ( thepH- thepH0 ))
-			);
+  GlobalVector tmpH( sin(thepH) - thesinpH0,
+		   - cos(thepH) + thecospH0,
+		   thetanlambdaH * ( thepH- thepH0 ) 
+		   );
+  pointH = theH->position() + theh * tmpH;
   pathH = ( thepH- thepH0 ) * (theh*sqrt(1+thetanlambdaH*thetanlambdaH)) ;
+
   pointsUpdated = true;
 }
 
