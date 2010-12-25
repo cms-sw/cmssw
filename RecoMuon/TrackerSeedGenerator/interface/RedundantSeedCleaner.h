@@ -9,7 +9,6 @@
 */
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "RecoMuon/TrackerSeedGenerator/plugins/CompositeTSG.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 

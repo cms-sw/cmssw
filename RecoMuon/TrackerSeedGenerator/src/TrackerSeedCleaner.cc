@@ -2,8 +2,8 @@
  * \class TrackerSeedCleaner
  *  Reference class for seeds cleaning
  *  Seeds Cleaner based on sharedHits cleaning, direction cleaning and pt cleaning
- *  $Date: 2008/11/21 13:47:19 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/03/28 15:35:36 $
+ *  $Revision: 1.8 $
     \author A. Grelli -  Purdue University, Pavia University
  */
 
@@ -33,7 +33,6 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-#include "RecoMuon/TrackerSeedGenerator/plugins/TSGFromL2Muon.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
 
