@@ -37,7 +37,7 @@ void compute(GlobalTrajectoryParameters const & gtp1, GlobalTrajectoryParameters
   ClosestApproachInRPhi ca;
   TwoTrackMinimumDistanceHelixHelix TTMDhh;
 
-  std::cout << "CAIR" << std::endl
+  std::cout << "CAIR" << std::endl;
   bool ok = ca.calculate(gtp1,gtp2);
   if(!ok) 
     std::cout << "no intercept!" << std::endl;
@@ -48,8 +48,8 @@ void compute(GlobalTrajectoryParameters const & gtp1, GlobalTrajectoryParameters
     std::cout << tca.second << std::endl;
   }
 
-  std::cout << "TTMDhh" << std::endl
-    bool nok = TTMDhh.calculate(gtp1,gtp2,.0001);
+  std::cout << "TTMDhh" << std::endl;
+  bool nok = TTMDhh.calculate(gtp1,gtp2,.0001);
   if(nok) 
     std::cout << "no intercept!" << std::endl;
   else {
