@@ -25,24 +25,33 @@ public:
       const GlobalTrajectoryParameters &,
       const float qual=.001 ); // retval=true? error occured.
 
-  std::pair <GlobalPoint, GlobalPoint> points() const;
-  std::pair <double, double> pathLength() const;
+  std::pair <GlobalPoint, GlobalPoint> points() const {
+    if (!pointsUpdated) finalPoints();
+    return pair<GlobalPoint, GlobalPoint> (pointG, pointH);
+  }
 
-  double firstAngle() const;
-  double secondAngle() const;
+  std::pair <double, double> pathLength() const {
+    if (!pointsUpdated) finalPoints();
+    return pair <double, double> ( pathG, pathH);
+  }
+
+
+
+  double firstAngle() const {return thepG;}
+  double secondAngle() constreturn thepH;}
 
 private:
   bool updateCoeffs( const GlobalPoint & , const GlobalPoint & );
   bool oneIteration ( double &, double & ) const;
 
-  inline bool parallelTracks () const;
+// bool parallelTracks () const;
   void finalPoints() const;
 
 private:
   GlobalTrajectoryParameters *theH, *theG;
   // the 'GH-track data' (constants)
   double thea, theb, thec1, thec2, thed1, thed2, thee1, thee2, theg, theh;
-  double thelambdaG, thelambdaH;
+  // double thelambdaG, thelambdaH;
   double thetanlambdaG, thetanlambdaH;
   double thesinpG0, thecospG0;
   double thesinpH0, thecospH0;
@@ -57,7 +66,7 @@ private:
   mutable double pathG, pathH;
   mutable bool pointsUpdated;
 
-  double themaxjump, thesingjac;
+  double themaxjump, thesingjacI;
   int themaxiter;
 
 };

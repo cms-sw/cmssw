@@ -9,9 +9,7 @@ using namespace std;
 
 namespace {
   inline GlobalPoint mean ( pair<GlobalPoint, GlobalPoint> pr ) {
-    return GlobalPoint ( (pr.first.x() + pr.second.x() ) / 2. ,
-        (pr.first.y() + pr.second.y() ) / 2. ,
-        (pr.first.z() + pr.second.z() ) / 2. );
+    return GlobalPoint ( 0.5*(pr.first.basicVector() + pr.second.basicVector()) );
   }
 
   inline double dist ( pair<GlobalPoint, GlobalPoint> pr ) {
@@ -120,11 +118,14 @@ bool
 TwoTrackMinimumDistance::pointsHelixHelix(const GlobalTrajectoryParameters & sta,
                                 const GlobalTrajectoryParameters & stb)
 {
-  if ( ( sta.position() - stb.position() ).mag() < 1e-7 &&
-       ( sta.momentum() - stb.momentum() ).mag() < 1e-7 )
+  if ( ( sta.position() - stb.position() ).mag2() < 1e-7f &&
+       ( sta.momentum() - stb.momentum() ).mag2() < 1e-7f &&
+       sta.charge()==stb.charge()
+       )
   {
     edm::LogWarning ( "TwoTrackMinimumDistance") << "comparing track with itself!";
   };
+
   theCharge = hh;
   if ( theModus == FastMode )
   {
