@@ -4,7 +4,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 // #include <string>
 // #include <sstream>
-// #include <utility>
+#include <utility>
 
 /** \class TwoTrackMinimumDistanceHelixHelix
  *  This is a helper class for TwoTrackMinimumDistance.
@@ -27,18 +27,18 @@ public:
 
   std::pair <GlobalPoint, GlobalPoint> points() const {
     if (!pointsUpdated) finalPoints();
-    return pair<GlobalPoint, GlobalPoint> (pointG, pointH);
+    return std::pair<GlobalPoint, GlobalPoint> (pointG, pointH);
   }
 
   std::pair <double, double> pathLength() const {
     if (!pointsUpdated) finalPoints();
-    return pair <double, double> ( pathG, pathH);
+    return std::pair <double, double> ( pathG, pathH);
   }
 
 
 
   double firstAngle() const {return thepG;}
-  double secondAngle() constreturn thepH;}
+  double secondAngle() const {return thepH;}
 
 private:
   bool updateCoeffs( const GlobalPoint & , const GlobalPoint & );
@@ -48,7 +48,7 @@ private:
   void finalPoints() const;
 
 private:
-  GlobalTrajectoryParameters *theH, *theG;
+  GlobalTrajectoryParameters const *theH, *theG;
   // the 'GH-track data' (constants)
   double thea, theb, thec1, thec2, thed1, thed2, thee1, thee2, theg, theh;
   // double thelambdaG, thelambdaH;

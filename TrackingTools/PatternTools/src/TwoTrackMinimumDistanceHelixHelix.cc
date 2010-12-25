@@ -31,7 +31,7 @@ namespace {
 }
 
 TwoTrackMinimumDistanceHelixHelix::TwoTrackMinimumDistanceHelixHelix():
-theH(), theG(), pointsUpdated(false), themaxjump(20),thesingjacI(1./0.1), themaxiter(4)
+theH(0), theG(0), pointsUpdated(false), themaxjump(20),thesingjacI(1./0.1), themaxiter(4)
 { }
 
 TwoTrackMinimumDistanceHelixHelix::~TwoTrackMinimumDistanceHelixHelix() {}
@@ -45,9 +45,9 @@ bool TwoTrackMinimumDistanceHelixHelix::updateCoeffs(
   const double Gt= theG->momentum().perp();
   //  thelambdaH=asin ( theH->momentum().z() / Hn );
   
-  if ( Hn2 == 0. || Gn2 == 0. ) {
+  if ( Ht == 0. || Gt == 0. ) {
     edm::LogWarning ("TwoTrackMinimumDistanceHelixHelix")
-      << "momentum of input trajectory is zero.";
+      << "transverse momentum of input trajectory is zero.";
     return true;
   };
   
@@ -143,8 +143,8 @@ bool TwoTrackMinimumDistanceHelixHelix::calculate(
 						  const GlobalTrajectoryParameters & G,
 						  const GlobalTrajectoryParameters & H, const float qual ) {
   pointsUpdated = false;
-  theG= (GlobalTrajectoryParameters *) &G;
-  theH= (GlobalTrajectoryParameters *) &H;
+  theG= &G;
+  theH= &H;
   bool retval=false;
   
   if ( updateCoeffs ( theG->position(), theH->position() ) ) return true;
