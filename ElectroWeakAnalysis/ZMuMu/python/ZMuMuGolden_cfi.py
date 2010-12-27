@@ -18,7 +18,7 @@ goodGlobalMuons = cms.EDFilter("MuonViewRefSelector",
 
 zmmCands = cms.EDProducer("CandViewShallowCloneCombiner",
     checkCharge = cms.bool(True),
-    cut = cms.string('mass > 0 & charge=0'),
+    cut = cms.string('mass > 60 & mass<120 & charge=0'),
     decay = cms.string("goodGlobalMuons@+ goodGlobalMuons@-")
 )
 
