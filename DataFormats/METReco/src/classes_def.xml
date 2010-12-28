@@ -28,6 +28,12 @@
   <class name="edm::Wrapper<std::vector<reco::PFMET> >"/>
   <class name="std::vector<reco::PFMET>"/>
 
+  <class name="reco::PFClusterMET"/>
+  <class name="edm::Wrapper<reco::PFClusterMET>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFClusterMET> >"/>
+  <class name="std::vector<reco::PFClusterMET>"/>
+
+
   <class name="reco::GenMET"/>
   <class name="edm::Wrapper<reco::GenMET>"/>
   <class name="edm::Wrapper<std::vector<reco::GenMET> >"/>
@@ -44,6 +50,11 @@
   <class name="edm::RefProd<std::vector<reco::PFMET> >"/>
   <class name="edm::RefVector<std::vector<reco::PFMET>,reco::PFMET,edm::refhelper::FindUsingAdvance<std::vector<reco::PFMET>,reco::PFMET> >"/>
   <class name="edm::Ref<std::vector<reco::PFMET>,reco::PFMET,edm::refhelper::FindUsingAdvance<std::vector<reco::PFMET>,reco::PFMET> >"/>
+
+  <class name="edm::RefProd<std::vector<reco::PFClusterMET> >"/>
+  <class name="edm::RefVector<std::vector<reco::PFClusterMET>,reco::PFClusterMET,edm::refhelper::FindUsingAdvance<std::vector<reco::PFClusterMET>,reco::PFClusterMET> >"/>
+  <class name="edm::Ref<std::vector<reco::PFClusterMET>,reco::PFClusterMET,edm::refhelper::FindUsingAdvance<std::vector<reco::PFClusterMET>,reco::PFClusterMET> >"/>
+
 
   <class name="reco::HcalNoiseHPD">
     <field name="refrechitset_" transient="true"/>
@@ -70,11 +81,13 @@
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::MET>,reco::MET,edm::refhelper::FindUsingAdvance<std::vector<reco::MET>,reco::MET> > >" />
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> > >" />
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::PFMET>,reco::PFMET,edm::refhelper::FindUsingAdvance<std::vector<reco::PFMET>,reco::PFMET> > >" />
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::PFClusterMET>,reco::PFClusterMET,edm::refhelper::FindUsingAdvance<std::vector<reco::PFClusterMET>,reco::PFClusterMET> > >" />
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::GenMET>,reco::GenMET,edm::refhelper::FindUsingAdvance<std::vector<reco::GenMET>,reco::GenMET> > >" />
 
   <class name="edm::reftobase::RefHolder<reco::METRef>" />
   <class name="edm::reftobase::RefHolder<reco::CaloMETRef>" />
   <class name="edm::reftobase::RefHolder<reco::PFMETRef>" />
+  <class name="edm::reftobase::RefHolder<reco::PFClusterMETRef>" />
   <class name="edm::reftobase::RefHolder<reco::GenMETRef>" />
 
 

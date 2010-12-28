@@ -13,6 +13,8 @@
 #include "DataFormats/METReco/interface/CaloMETFwd.h" 
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETFwd.h" 
+#include "DataFormats/METReco/interface/PFClusterMET.h"
+#include "DataFormats/METReco/interface/PFClusterMETFwd.h" 
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETFwd.h" 
 #include "DataFormats/METReco/interface/CommonMETData.h"
@@ -73,6 +75,16 @@ namespace {
     edm::Wrapper< std::vector<reco::PFMET> > dummy20;
     std::vector<reco::PFMET> dummy21;
     edm::reftobase::Holder<reco::Candidate,reco::PFMETRef> rtb4;
+
+    reco::PFClusterMETRef r5;
+    reco::PFClusterMETRefProd rp5;
+    reco::PFClusterMETRefVector rv5;
+    edm::Wrapper<reco::PFClusterMET> dummy36;
+    edm::Wrapper<reco::PFClusterMETCollection> dummy37;
+    edm::Wrapper< std::vector<reco::PFClusterMET> > dummy38;
+    std::vector<reco::PFClusterMET> dummy39;
+    edm::reftobase::Holder<reco::Candidate,reco::PFClusterMETRef> rtb5;
+
 
     reco::HcalNoiseHPD dummy22;
     reco::HcalNoiseHPDCollection dummy23;
