@@ -103,6 +103,7 @@ namespace {
     edm::reftobase::RefHolder<reco::CaloMETRef> dummy33;
     edm::reftobase::RefHolder<reco::GenMETRef> dummy34;
     edm::reftobase::RefHolder<reco::PFMETRef> dummy35;
+    edm::reftobase::RefHolder<reco::PFClusterMETRef> dummy40;
     // used for backward compatibility
     std::vector<CommonMETData> bcv1;
 
