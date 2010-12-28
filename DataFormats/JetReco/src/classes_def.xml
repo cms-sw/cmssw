@@ -105,6 +105,23 @@
   <class name="edm::Wrapper<reco::TrackJetFwdPtrVector>"/>
 
 
+  <class name="reco::PFClusterJet"/>
+  <class name="std::vector<reco::PFClusterJet>"/>
+  <class name="edm::RefVector<std::vector<reco::PFClusterJet>,reco::PFClusterJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFClusterJet>,reco::PFClusterJet> >"/>
+  <class name="edm::Ref<std::vector<reco::PFClusterJet>,reco::PFClusterJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFClusterJet>,reco::PFClusterJet> >"/>
+  <class name="edm::RefProd<std::vector<reco::PFClusterJet> >"/>
+  <class name="edm::Wrapper<std::vector<reco::PFClusterJet> >"/>
+  <class name="edm::Wrapper<reco::PFClusterJetRefVector>"/>
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::PFClusterJet>,reco::PFClusterJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFClusterJet>,reco::PFClusterJet> > >" />
+  <class name="reco::JetTrackMatch<std::vector<reco::PFClusterJet> >"/>
+  <class name="edm::FwdRef<std::vector<reco::PFClusterJet>,reco::PFClusterJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFClusterJet>,reco::PFClusterJet> >"/>
+  <class name="reco::PFClusterJetFwdRefVector"/>
+  <class name="edm::Wrapper<reco::PFClusterJetFwdRefVector>"/>
+  <class name="edm::FwdPtr<reco::PFClusterJet>"/>
+  <class name="reco::PFClusterJetFwdPtrVector"/>
+  <class name="edm::Wrapper<reco::PFClusterJetFwdPtrVector>"/>
+
+
   <class pattern="edm::AssociationVector<*>">
     <field name="transientVector_" transient="true"/>
     <field name="fixed_" transient="true"/>
@@ -173,6 +190,8 @@
   <class name="edm::reftobase::RefHolder<reco::PFJetRef>" />
   <class name="edm::reftobase::Holder<reco::Jet, reco::TrackJetRef>" />
   <class name="edm::reftobase::RefHolder<reco::TrackJetRef>" />
+  <class name="edm::reftobase::Holder<reco::Jet, reco::PFClusterJetRef>" />
+  <class name="edm::reftobase::RefHolder<reco::PFClusterJetRef>" />
   <class name="edm::reftobase::Holder<reco::Jet, reco::JPTJetRef>" />
   <class name="edm::reftobase::RefHolder<reco::JPTJetRef>" />
 
@@ -214,6 +233,10 @@
   <class name="edm::Ptr<reco::Track>" />
   <class name="std::vector<edm::Ptr<reco::Track> >" />
 
+  <class name="edm::Ptr<reco::PFClusterJet>" />
+  <class name="edm::PtrVector<reco::PFClusterJet>" />
+  <class name="edm::Ptr<reco::PFCluster>" />
+  <class name="std::vector<edm::Ptr<reco::PFCluster> >" />
 
 
   <class name="edm::Ptr<reco::JetID>" />

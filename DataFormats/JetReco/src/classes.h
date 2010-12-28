@@ -15,6 +15,7 @@
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/TrackJetCollection.h"
+#include "DataFormats/JetReco/interface/PFClusterJetCollection.h"
 #include "DataFormats/JetReco/interface/GenericJetCollection.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/JetReco/interface/JetTrackMatch.h"
@@ -147,6 +148,21 @@ namespace {
     edm::reftobase::Holder<reco::Candidate, reco::JPTJetRef> rtb7;
     reco::JetTrackMatch<reco::JPTJetCollection> jtm7;
 
+    reco::PFClusterJetCollection o8;
+    reco::PFClusterJetRef r8;
+    reco::PFClusterJetFwdRef fwdr8;
+    reco::PFClusterJetFwdPtr fwdp8;
+    reco::PFClusterJetRefVector rr8;
+    reco::PFClusterJetFwdRefVector fwdrr8;
+    reco::PFClusterJetFwdPtrVector fwdrp8;
+    reco::PFClusterJetRefProd rrr8;
+    edm::Wrapper<reco::PFClusterJetCollection> w8;
+    edm::Wrapper<reco::PFClusterJetRefVector> wrv8;
+    edm::Wrapper<reco::PFClusterJetFwdRefVector> wfwdrv8;
+    edm::Wrapper<reco::PFClusterJetFwdPtrVector> wfwdrp8;
+    edm::reftobase::Holder<reco::Candidate, reco::PFClusterJetRef> rtb8;
+    reco::JetTrackMatch<reco::PFClusterJetCollection> jtm8;
+
 
     edm::reftobase::Holder<reco::Candidate,edm::RefToBase<reco::Jet> >  rtbb6;
 
@@ -201,12 +217,14 @@ namespace {
     edm::reftobase::Holder<reco::Jet, reco::PFJetRef> hpfj;
     edm::reftobase::Holder<reco::Jet, reco::BasicJetRef> hbj;
     edm::reftobase::Holder<reco::Jet, reco::TrackJetRef> htj;
+    edm::reftobase::Holder<reco::Jet, reco::PFClusterJetRef> hpfcj;
     edm::reftobase::RefHolder<reco::CaloJetRef> rhcj;
     edm::reftobase::RefHolder<reco::JPTJetRef> rhjptj;
     edm::reftobase::RefHolder<reco::GenJetRef> rhgj;
     edm::reftobase::RefHolder<reco::PFJetRef> rhpfj;
     edm::reftobase::RefHolder<reco::BasicJetRef> rhbj;
     edm::reftobase::RefHolder<reco::TrackJetRef> rhtj;
+    edm::reftobase::RefHolder<reco::PFClusterJetRef> rhpfcj;
     edm::RefToBaseVector<reco::Jet> jrtbv;
     edm::Wrapper<edm::RefToBaseVector<reco::Jet> > jrtbv_w;
     edm::reftobase::BaseVectorHolder<reco::Jet> * bvhj_p;    // pointer since it's pure virtual
@@ -234,6 +252,12 @@ namespace {
     edm::PtrVector<reco::TrackJet> ptrvtj;
     edm::Ptr<reco::Track> ptrt;
     std::vector<edm::Ptr<reco::Track> > vptrt;
+
+    edm::Ptr<reco::PFClusterJet> ptrpfcj;
+    edm::PtrVector<reco::PFClusterJet> ptrvpfcj;
+    edm::Ptr<reco::PFCluster> ptrpfc;
+    std::vector<edm::Ptr<reco::PFCluster> > vptrpfc;
+
 
 
     edm::Ptr<reco::JetID> ptrjid;
