@@ -15,6 +15,8 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("SLHCUpgradeSimulations.Geometry.mixLowLumPU_stdgeom_cff")
 process.load('Configuration.StandardSequences.GeometryExtended_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration.StandardSequences.Digi_cff')
+process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
@@ -24,7 +26,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -38,7 +40,7 @@ process.options = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-       'rfio:/castor/cern.ch/user/h/hcheung/slhc/stdgeom/363/ttbar/pu50/TTbar_GEN_SIM_DIGI_L1_1_1_i1H.root' )
+       '/store/relval/CMSSW_3_6_3_patch2/RelValTTbar/GEN-SIM/DESIGN_36_V10_PU_special-v1/0106/5C1BF635-8C07-E011-9699-0026189437EC.root')
 )
 
 # Output definition
@@ -69,8 +71,22 @@ process.GlobalTag.globaltag = 'DESIGN_36_V10::All'
 
 ### PhaseI Geometry and modifications ###############################################
 process.Timing =  cms.Service("Timing")
-process.mix.playback = True
+## no playback when doing digis
+#process.mix.playback = True
 #process.MessageLogger.destinations = cms.untracked.vstring("detailedInfo_fullph1geom")
+
+### if pileup we need to set the number
+process.mix.input.nbPileupEvents = cms.PSet(
+  averageNumber = cms.double(50.0)
+)
+### for digis
+process.simSiPixelDigis.MissCalibrate = False
+process.simSiPixelDigis.LorentzAngle_DB = False
+process.simSiPixelDigis.killModules = False
+process.simSiPixelDigis.useDB = False
+process.simSiPixelDigis.DeadModules_DB = False
+### if doing inefficiency at <PU>=50
+process.simSiPixelDigis.AddPixelInefficiency = 20
 
 process.load("SLHCUpgradeSimulations.Geometry.fakeConditions_stdgeom_cff")
 process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
@@ -140,7 +156,13 @@ process.ReadLocalMeasurement = cms.EDAnalyzer("StdHitNtuplizer",
 )
 process.anal = cms.EDAnalyzer("EventContentAnalyzer")
 
+## need this at the end as the validation config redefines random seed with just mix
+process.load("IOMC.RandomEngine.IOMC_cff")
+
 # Path and EndPath definitions
+process.digitisation_step = cms.Path(process.pdigi)
+process.L1simulation_step = cms.Path(process.SimL1Emulator)
+
 process.digi2raw_step = cms.Path(process.DigiToRaw)
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.L1Reco_step = cms.Path(process.L1Reco)
@@ -153,5 +175,6 @@ process.endjob_step 		= cms.Path(process.endOfProcess)
 process.out_step 		= cms.EndPath(process.output)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.mix_step,process.digi2raw_step,process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.endjob_step,process.out_step)
+#process.schedule = cms.Schedule(process.mix_step,process.digi2raw_step,process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.endjob_step,process.out_step)
+process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.endjob_step,process.out_step)
 
