@@ -9,11 +9,13 @@
 #include <TFile.h>
 #include <TSystem.h>
 
-#include "DataFormats/FWLite/interface/Event.h"
+#include "DataFormats/FWLite/interface/ChainEvent.h"
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "PhysicsTools/FWLite/interface/TFileService.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+#include "DataFormats/FWLite/interface/InputSource.h"
+#include "DataFormats/FWLite/interface/OutputFiles.h"
 
 
 /**
@@ -54,9 +56,9 @@
 
      // get the python configuration
      PythonProcessDesc builder(argv[1]);
-     const edm::ParameterSet& cfg = builder.processDesc()->getProcessPSet()->getParameter<edm::ParameterSet>("MuonAnalyzer");
+     edm::ParameterSet cfg = *(builder.processDesc()->getProcessPSet());
      
-     WrappedFWLiteAnalyzer ana(cfg, std::string("analyzeBasicPat"));
+     WrappedFWLiteAnalyzer ana(cfg, std::string("MuonAnalyzer"), std::string("analyzeBasicPat"));
      ana.beginJob();
      ana.analyze();
      ana.endJob();
@@ -68,18 +70,24 @@
    import FWCore.ParameterSet.Config as cms
    
    process = cms.Process("FWLitePlots")
+
+   process.fwliteInput = cms.PSet(
+         fileNames = cms.untracked.vstring('file:patTuple.root'),  ## mandatory
+         maxEvents   = cms.int32(-1),                              ## optional
+         outputEvery = cms.uint32(10),                             ## optional
+   )
+
+   process.fwliteOutput = cms.PSet(
+         fileName = cms.untracked.string('outputHistos.root')  ## mandatory
+   )
+   
    
    process.MuonAnalyzer = cms.PSet(
-     fileNames   = cms.vstring('file:patTuple.root'),   ## mandatory
-     outputFile  = cms.string('analyzePatBasics.root'), ## mandatory
-     maxEvents   = cms.int32(-1),                       ## optional
-     outputEvery = cms.uint32(10),                      ## optional
-     ##...
      muons = cms.InputTag('cleanPatMuons')              ## input for the simple example above
    )
 
 
-   where the parameters fileNames and outputFile are mandatory and the parameters maxEvents and 
+   where the parameters maxEvents and 
    reportAfter are optional. If omitted all events in the file(s) will be looped and no progress
    report will be given. More input files can be given as a vector of strings. Potential histograms 
    per default will be written directely into the file without any furhter directory structure. If
@@ -101,7 +109,7 @@ namespace fwlite {
 
   public:
     /// default constructor
-    AnalyzerWrapper(const edm::ParameterSet& cfg, std::string directory="");
+    AnalyzerWrapper(const edm::ParameterSet& cfg, std::string analyzerName, std::string directory="");
     /// default destructor
     virtual ~AnalyzerWrapper(){};
     /// everything which has to be done before the event loop 
@@ -112,71 +120,64 @@ namespace fwlite {
     virtual void endJob() {  analyzer_->endJob(); }
     
   protected:
+    /// input file handler
+    fwlite::InputSource inputHandler_;
+    /// output file
+    fwlite::OutputFiles outputHandler_;
+    /// TFileService for histogram management
+    fwlite::TFileService fileService_;
     /// maximal number of events to be processed (-1 means to loop over all event)
     int maxEvents_;
     /// number of events after which the progress will be reported (0 means no report)
     unsigned int reportAfter_;
-    /// input file
-    std::vector<std::string> inputFiles_;
-    /// output file
-    std::string outputFile_;
-    /// TFileService for histogram management
-    fwlite::TFileService fileService_;
     /// derived class of type BasicAnalyzer
     boost::shared_ptr<T> analyzer_;
-
   };
 
   /// default contructor
   template<class T>
-    AnalyzerWrapper<T>::AnalyzerWrapper(const edm::ParameterSet& cfg, std::string directory): maxEvents_(-1), reportAfter_(0),
-    inputFiles_(cfg.getParameter<std::vector<std::string> >("fileNames")),
-    fileService_( cfg.getParameter<std::string>("outputFile").c_str()) 
+    AnalyzerWrapper<T>::AnalyzerWrapper(const edm::ParameterSet& cfg, std::string analyzerName, 
+					std::string directory): 
+    inputHandler_( cfg ),
+    outputHandler_( cfg ),
+    fileService_( outputHandler_.file() ),
+    maxEvents_(inputHandler_.maxEvents()),
+    reportAfter_(inputHandler_.reportAfter())
   {
+    edm::ParameterSet const & anaCfg = cfg.getParameter<edm::ParameterSet>(analyzerName.c_str());
     // read maximal number of events to be processed (if it exists)
-    if(cfg.existsAs<int>("maxEvents")){ maxEvents_=cfg.getParameter<int>("maxEvents"); }
-    // read number of events after which to report progress (if it exists)
-    if(cfg.existsAs<unsigned int>("outputEvery")){ reportAfter_=cfg.getParameter<unsigned int>("outputEvery"); }    
 
     if(directory.empty()){
       // create analysis class of type BasicAnalyzer
-      analyzer_ = boost::shared_ptr<T>( new T( cfg, fileService_) );  
+      analyzer_ = boost::shared_ptr<T>( new T( anaCfg, fileService_) );  
     }
     else{
       // create a directory in the file if directory string is non empty
       TFileDirectory dir = fileService_.mkdir(directory.c_str());
-      analyzer_ = boost::shared_ptr<T>( new T( cfg, dir ) );  
+      analyzer_ = boost::shared_ptr<T>( new T( anaCfg, dir ) );  
     }
+
   }
   
   /// everything which has to be done during the event loop. NOTE: the event will be looped inside this function    
   template<class T> 
   void AnalyzerWrapper<T>::analyze(){
     int ievt=0;  
+    std::vector<std::string> const & inputFiles = inputHandler_.files();
     // loop the vector of input files
-    for(unsigned int iFile=0; iFile<inputFiles_.size(); ++iFile){
-      // open the file (dcach save)
-      TFile* inFile = TFile::Open( inputFiles_[iFile].c_str() );
-      if( inFile ){
-	fwlite::Event event(inFile);
-	// loop the event in the file
-	for(event.toBegin(); !event.atEnd(); ++event, ++ievt){
-	  // break loop if maximal number of events is reached 
-	  if(maxEvents_>0 ? ievt+1>maxEvents_ : false) break;
-	  // simple event counter
-	  if(reportAfter_!=0 ? (ievt>0 && ievt%reportAfter_==0) : false) 
-	    std::cout << "  processing event: " << ievt << std::endl;
-	  // analyze event
-	  analyzer_->analyze(event);
-	}
-	// close input file
-	inFile->Close();
-      }
-      // break loop if maximal number of events is reached:
-      // this has to be done twice to stop the file loop as well
+    fwlite::ChainEvent event( inputFiles );
+    for(event.toBegin(); !event.atEnd(); ++event, ++ievt){
+      // break loop if maximal number of events is reached 
       if(maxEvents_>0 ? ievt+1>maxEvents_ : false) break;
+      // simple event counter
+      if(reportAfter_!=0 ? (ievt>0 && ievt%reportAfter_==0) : false) 
+	std::cout << "  processing event: " << ievt << std::endl;
+      // analyze event
+      analyzer_->analyze(event);
     }
+    
   }
+  
   
 }
 
