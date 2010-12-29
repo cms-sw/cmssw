@@ -70,17 +70,17 @@ simulationTtbar = cms.untracked.vstring(
 )
 
 
-ttbarRECO = cms.untracked.vstring(
-    pickRelValInputFiles( relVal = 'RelValZTT', numberOfFiles = 0 )
-)
+#ttbarRECO = cms.untracked.vstring(
+#    pickRelValInputFiles( relVal = 'RelValZTT', numberOfFiles = 0 )
+#)
 
 ttbarJets  = cms.untracked.vstring(
     'rfio:///castor/cern.ch/user/c/cmssup/patTuple_ttbar_jets.root'
 )
 
-zjetsRECO = cms.untracked.vstring(
-    pickRelValInputFiles( relVal = 'RelValZMM', numberOfFiles = 0 )
-)
+#zjetsRECO = cms.untracked.vstring(
+#    pickRelValInputFiles( relVal = 'RelValZMM', numberOfFiles = 0 )
+#)
 
 zjetsTracks  = cms.untracked.vstring(
     'rfio:///castor/cern.ch/user/c/cmssup/patTuple_zjets_tracks.root'

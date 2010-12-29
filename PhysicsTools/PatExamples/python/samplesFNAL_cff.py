@@ -73,13 +73,13 @@ zjetsTrigger  = cms.untracked.vstring(
     'file:/uscms_data/d3/vadler/PATTutorial/Nov10/patTuple_zjets_trigger.root'
 )
 
-zjetsRECO = cms.untracked.vstring(
-    pickRelValInputFiles( relVal = 'RelValZMM', numberOfFiles = 0 )
-)
+#zjetsRECO = cms.untracked.vstring(
+#    pickRelValInputFiles( relVal = 'RelValZMM', numberOfFiles = 0, prepend='/pnfs/cms/WAX/11' )
+#)
 
-ttbarRECO = cms.untracked.vstring(
-    pickRelValInputFiles( relVal = 'RelValZTT', numberOfFiles = 0 )
-)
+#ttbarRECO = cms.untracked.vstring(
+#    pickRelValInputFiles( relVal = 'RelValZTT', numberOfFiles = 0, prepend='/pnfs/cms/WAX/11' )
+#)
 
 # CMSSW_3_8_6 re-reconstruction of muon PD, run 144112, 17717 events AOD
 dataMu = cms.untracked.vstring(
