@@ -8,28 +8,27 @@ configured in the user's main() function, and is set running.
 
 ----------------------------------------------------------------------*/
 
-#include <string>
-#include <vector>
-#include <memory>
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+
+#include "FWCore/Framework/interface/Actions.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/IEventProcessor.h"
+#include "FWCore/Framework/src/PrincipalCache.h"
+#include "FWCore/Framework/src/SignallingProductRegistry.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/condition.hpp"
 #include "boost/utility.hpp"
 
-#include "FWCore/Framework/interface/IEventProcessor.h"
-#include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
-#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
-#include "FWCore/Framework/src/WorkerRegistry.h"
-#include "FWCore/Framework/src/SignallingProductRegistry.h"
-#include "FWCore/Framework/interface/Actions.h"
-#include "DataFormats/Provenance/interface/PassID.h"
-#include "DataFormats/Provenance/interface/ReleaseVersion.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/src/PrincipalCache.h"
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace statemachine {
   class Machine;
@@ -44,7 +43,7 @@ namespace edm {
     class EventSetupProvider;
   }
 
-  namespace event_processor {  
+  namespace event_processor {
     /*
       Several of these state are likely to be transitory in
       the offline because they are completly driven by the
@@ -52,7 +51,7 @@ namespace edm {
     */
     enum State { sInit=0,sJobReady,sRunGiven,sRunning,sStopping,
 		 sShuttingDown,sDone,sJobEnded,sError,sErrorEnded,sEnd,sInvalid };
-    
+
     enum Msg { mSetRun=0, mSkip, mRunAsync, mRunID, mRunCount, mBeginJob,
 	       mStopAsync, mShutdownAsync, mEndJob, mCountComplete,
 	       mInputExhausted, mStopSignal, mShutdownSignal, mFinished,
@@ -71,22 +70,17 @@ namespace edm {
     // 'forcedServices' cause an exception if the same service is specified in 'config'.
     explicit EventProcessor(std::string const& config,
 			    ServiceToken const& token = ServiceToken(),
-			    serviceregistry::ServiceLegacy =
-			      serviceregistry::kOverlapIsError,
-			    std::vector<std::string> const& defaultServices =
-			      std::vector<std::string>(),
-			    std::vector<std::string> const& forcedServices =
-			      std::vector<std::string>());
+			    serviceregistry::ServiceLegacy = serviceregistry::kOverlapIsError,
+			    std::vector<std::string> const& defaultServices = std::vector<std::string>(),
+			    std::vector<std::string> const& forcedServices = std::vector<std::string>());
 
     // Same as previous constructor, but without a 'token'.  Token will be defaulted.
 
    EventProcessor(std::string const& config,
                   std::vector<std::string> const& defaultServices,
-                  std::vector<std::string> const& forcedServices =
-                  std::vector<std::string>());
-    
+                  std::vector<std::string> const& forcedServices = std::vector<std::string>());
 
-    EventProcessor(boost::shared_ptr<edm::ProcessDesc> & processDesc,
+    EventProcessor(boost::shared_ptr<edm::ProcessDesc>& processDesc,
                    ServiceToken const& token,
                    serviceregistry::ServiceLegacy legacy);
 
@@ -118,8 +112,8 @@ namespace edm {
 
     // Concerning the async control functions:
     // The event processor is left with the running thread.
-    // The async thread is stuck at this point and the process 
-    // is likely not going to be able to continue. 
+    // The async thread is stuck at this point and the process
+    // is likely not going to be able to continue.
     // The reason for this timeout could be either an infinite loop
     // or I/O blocking forever.
     // The only thing to do is end the process.
@@ -130,7 +124,7 @@ namespace edm {
 
     // tell the event loop to stop and wait for its completion
     StatusCode stopAsync(unsigned int timeout_secs=60*2);
-    
+
     // tell the event loop to shutdown and wait for the completion
     StatusCode shutdownAsync(unsigned int timeout_secs=60*2);
 
@@ -157,7 +151,7 @@ namespace edm {
     // Skip the specified number of events.
     // If numberToSkip is negative, we will back up.
     StatusCode skip(int numberToSkip);
- 
+
     // Rewind to the first event
     void rewind();
 
@@ -194,57 +188,28 @@ namespace edm {
 
     /// Return the trigger report information on paths,
     /// modules-in-path, modules-in-endpath, and modules.
-    void getTriggerReport(TriggerReport& rep) const;      
+    void getTriggerReport(TriggerReport& rep) const;
 
     /// Clears counters used by trigger report.
     void clearCounters();
 
     // Really should not be public,
-    //   but the EventFilter needs it for now.    
+    //   but the EventFilter needs it for now.
     ServiceToken getToken();
 
     /// signal is emitted after the Event has been created by the
     /// InputSource but before any modules have seen the Event
-    ActivityRegistry::PreProcessEvent &
+    ActivityRegistry::PreProcessEvent&
     preProcessEventSignal() {return preProcessEventSignal_;}
 
     /// signal is emitted after all modules have finished processing
     /// the Event
-    ActivityRegistry::PostProcessEvent &
+    ActivityRegistry::PostProcessEvent&
     postProcessEventSignal() {return postProcessEventSignal_;}
 
     //------------------------------------------------------------------
     //
     // Nested classes and structs below.
-
-    struct CommonParams {
-      CommonParams():
-	processName_(),
-	releaseVersion_(),
-	passID_(),
-	maxEventsInput_(),
-	maxLumisInput_() {
-      }
-
-      CommonParams(std::string const& processName,
-		   ReleaseVersion const& releaseVersion,
-		   PassID const& passID,
-		   int maxEvents,
-		   int maxLumis):
-	processName_(processName),
-	releaseVersion_(releaseVersion),
-	passID_(passID),
-        maxEventsInput_(maxEvents),
-        maxLumisInput_(maxLumis) {
-      }
-      
-      std::string processName_;
-      ReleaseVersion releaseVersion_;
-      PassID passID_;
-      int maxEventsInput_;
-      int maxLumisInput_;
-    }; // struct CommonParams
-
 
     // The function "runToCompletion" will run until the job is "complete",
     // which means:
@@ -266,7 +231,7 @@ namespace edm {
     //   epSignal - processing terminated early, SIGUSR2 encountered
     //   epCountComplete - "runEventCount" processed the number of events
     //                     requested by the argument
-    //   epSuccess - all other cases    
+    //   epSuccess - all other cases
     //
     // We expect that in most cases, processes will call
     // "runToCompletion" once per job and not use "runEventCount".
@@ -344,43 +309,40 @@ namespace edm {
     //
     // Now private functions.
     // init() is used by only by constructors
-    void init(boost::shared_ptr<edm::ProcessDesc> & processDesc,
+    void init(boost::shared_ptr<edm::ProcessDesc>& processDesc,
               ServiceToken const& token,
               serviceregistry::ServiceLegacy);
-                         
+
     StatusCode runCommon(bool onlineStateTransitions, int numberOfEventsToProcess);
     void terminateMachine();
 
     StatusCode doneAsync(event_processor::Msg m);
-    
+
     StatusCode waitForAsyncCompletion(unsigned int timeout_seconds);
 
-    void connectSigs(EventProcessor * ep);
+    void connectSigs(EventProcessor* ep);
 
     void changeState(event_processor::Msg);
     void errorState();
     void setupSignal();
 
-    static void asyncRun(EventProcessor *);
+    static void asyncRun(EventProcessor*);
 
     //------------------------------------------------------------------
     //
     // Data members below.
     // Are all these data members really needed? Some of them are used
     // only during construction, and never again. If they aren't
-    // really needed, we should remove them.    
+    // really needed, we should remove them.
 
     ActivityRegistry::PreProcessEvent             preProcessEventSignal_;
     ActivityRegistry::PostProcessEvent            postProcessEventSignal_;
-    ParameterSet			          maxEventsPset_;
-    ParameterSet			          maxLumisPset_;
     boost::shared_ptr<ActivityRegistry>           actReg_;
     boost::shared_ptr<SignallingProductRegistry>  preg_;
     ServiceToken                                  serviceToken_;
     boost::shared_ptr<InputSource>                input_;
-    std::auto_ptr<eventsetup::EventSetupProvider> esp_;    
+    std::auto_ptr<eventsetup::EventSetupProvider> esp_;
     ActionTable                                   act_table_;
-    WorkerRegistry                                wreg_;
     boost::shared_ptr<ProcessConfiguration>       processConfiguration_;
     std::auto_ptr<Schedule>                       schedule_;
 

@@ -1,10 +1,62 @@
 
 #include "FWCore/Framework/interface/EventProcessor.h"
 
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "DataFormats/Provenance/interface/ParentageRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+
+#include "FWCore/Framework/interface/CommonParams.h"
+#include "FWCore/Framework/interface/ConstProductRegistry.h"
+#include "FWCore/Framework/interface/EDLooperBase.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/EventSetupProviderMaker.h"
+#include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Framework/interface/FileBlock.h"
+#include "FWCore/Framework/interface/InputSourceDescription.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
+#include "FWCore/Framework/interface/LooperFactory.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/ModuleChanger.h"
+#include "FWCore/Framework/interface/OccurrenceTraits.h"
+#include "FWCore/Framework/interface/ProcessingController.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/interface/Schedule.h"
+#include "FWCore/Framework/interface/ScheduleInfo.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/Framework/src/Breakpoints.h"
+#include "FWCore/Framework/src/EPStates.h"
+#include "FWCore/Framework/src/InputSourceFactory.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
+#include "FWCore/ParameterSet/interface/ProcessDesc.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+
+#include "FWCore/Utilities/interface/DebugMacros.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/GetPassID.h"
+#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
+#include "FWCore/Utilities/interface/ExceptionCollector.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
+
+#include "boost/bind.hpp"
+#include "boost/thread/xtime.hpp"
+
 #include <exception>
-#include <utility>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
+#include <utility>
 
 //Used for forking
 #include <unistd.h>
@@ -15,61 +67,6 @@
 #ifndef __APPLE__
 #include <sched.h>
 #endif
-
-#include "boost/bind.hpp"
-#include "boost/thread/xtime.hpp"
-
-#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
-#include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
-#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
-#include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
-#include "DataFormats/Provenance/interface/ParentageRegistry.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "FWCore/Utilities/interface/DebugMacros.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Version/interface/GetReleaseVersion.h"
-#include "FWCore/Utilities/interface/GetPassID.h"
-#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
-#include "FWCore/Utilities/interface/ExceptionCollector.h"
-
-#include "FWCore/Framework/interface/IOVSyncValue.h"
-#include "FWCore/Framework/interface/SourceFactory.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/LooperFactory.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/Framework/interface/TriggerNamesService.h"
-#include "FWCore/Framework/interface/InputSourceDescription.h"
-#include "FWCore/Framework/interface/EventSetupProvider.h"
-#include "FWCore/Framework/interface/OccurrenceTraits.h"
-#include "FWCore/Framework/interface/FileBlock.h"
-
-#include "FWCore/Framework/src/Breakpoints.h"
-#include "FWCore/Framework/src/InputSourceFactory.h"
-
-#include "FWCore/ParameterSet/interface/ProcessDesc.h"
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
-
-#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "FWCore/Framework/interface/Schedule.h"
-#include "FWCore/Framework/interface/EDLooperBase.h"
-#include "FWCore/Framework/interface/ScheduleInfo.h"
-#include "FWCore/Framework/interface/ModuleChanger.h"
-#include "FWCore/Framework/interface/ProcessingController.h"
-
-
-#include "FWCore/Framework/src/EPStates.h"
-
-#include "FWCore/Framework/interface/EventSetupRecord.h"
 
 using edm::serviceregistry::ServiceLegacy;
 using edm::serviceregistry::kOverlapIsError;
@@ -231,12 +228,12 @@ namespace edm {
   // ---------------------------------------------------------------
   boost::shared_ptr<InputSource>
   makeInput(ParameterSet& params,
-            EventProcessor::CommonParams const& common,
+            CommonParams const& common,
             ProductRegistry& preg,
             PrincipalCache& pCache,
             boost::shared_ptr<ActivityRegistry> areg,
             boost::shared_ptr<ProcessConfiguration> processConfiguration) {
-    ParameterSet * main_input = params.getPSetForUpdate("@main_input");
+    ParameterSet* main_input = params.getPSetForUpdate("@main_input");
     if (main_input == 0) {
       throw edm::Exception(errors::Configuration, "FailedInputSource")
         << "Configuration of primary input source has failed\n";
@@ -298,133 +295,14 @@ namespace edm {
   }
 
   // ---------------------------------------------------------------
-  static
-  std::auto_ptr<eventsetup::EventSetupProvider>
-  makeEventSetupProvider(ParameterSet const& params) {
-    using namespace edm::eventsetup;
-    std::vector<std::string> prefers =
-      params.getParameter<std::vector<std::string> >("@all_esprefers");
-
-    if(prefers.empty()) {
-      return std::auto_ptr<EventSetupProvider>(new EventSetupProvider());
-    }
-
-    EventSetupProvider::PreferredProviderInfo preferInfo;
-    EventSetupProvider::RecordToDataMap recordToData;
-
-    //recordToData.insert(std::make_pair(std::string("DummyRecord"),
-    //      std::make_pair(std::string("DummyData"), std::string())));
-    //preferInfo[ComponentDescription("DummyProxyProvider", "", false)]=
-    //      recordToData;
-
-    for(std::vector<std::string>::iterator itName = prefers.begin(), itNameEnd = prefers.end();
-        itName != itNameEnd;
-        ++itName) {
-        recordToData.clear();
-        ParameterSet preferPSet = params.getParameter<ParameterSet>(*itName);
-        std::vector<std::string> recordNames = preferPSet.getParameterNames();
-        for(std::vector<std::string>::iterator itRecordName = recordNames.begin(),
-            itRecordNameEnd = recordNames.end();
-            itRecordName != itRecordNameEnd;
-            ++itRecordName) {
-
-          if((*itRecordName)[0] == '@') {
-            //this is a 'hidden parameter' so skip it
-            continue;
-          }
-
-          //this should be a record name with its info
-          try {
-            std::vector<std::string> dataInfo =
-              preferPSet.getParameter<std::vector<std::string> >(*itRecordName);
-        
-            if(dataInfo.empty()) {
-              //FUTURE: empty should just mean all data
-              throw edm::Exception(errors::Configuration)
-                << "The record named "
-                << *itRecordName << " specifies no data items";
-            }
-            //FUTURE: 'any' should be a special name
-            for(std::vector<std::string>::iterator itDatum = dataInfo.begin(),
-                itDatumEnd = dataInfo.end();
-                itDatum != itDatumEnd;
-                ++itDatum){
-              std::string datumName(*itDatum, 0, itDatum->find_first_of("/"));
-              std::string labelName;
-
-              if(itDatum->size() != datumName.size()) {
-                labelName = std::string(*itDatum, datumName.size()+1);
-              }
-              recordToData.insert(std::make_pair(std::string(*itRecordName),
-                                                 std::make_pair(datumName,
-                                                                labelName)));
-            }
-          } catch(cms::Exception const& iException) {
-            cms::Exception theError("ESPreferConfigurationError");
-            theError << "While parsing the es_prefer statement for type="
-                     << preferPSet.getParameter<std::string>("@module_type")
-                     << " label=\""
-                     << preferPSet.getParameter<std::string>("@module_label")
-                     << "\" an error occurred.";
-            theError.append(iException);
-            throw theError;
-          }
-        }
-        preferInfo[ComponentDescription(preferPSet.getParameter<std::string>("@module_type"),
-                                        preferPSet.getParameter<std::string>("@module_label"),
-                                        false)]
-          = recordToData;
-      }
-    return std::auto_ptr<EventSetupProvider>(new EventSetupProvider(&preferInfo));
-  }
-
-  // ---------------------------------------------------------------
-  void
-  fillEventSetupProvider(eventsetup::EventSetupProvider& cp,
-                         ParameterSet& params,
-                         EventProcessor::CommonParams const& common) {
-    using namespace edm::eventsetup;
-    std::vector<std::string> providers =
-      params.getParameter<std::vector<std::string> >("@all_esmodules");
-
-    for(std::vector<std::string>::iterator itName = providers.begin(), itNameEnd = providers.end();
-        itName != itNameEnd;
-        ++itName) {
-      ParameterSet * providerPSet = params.getPSetForUpdate(*itName);
-      providerPSet->registerIt();
-      ModuleFactory::get()->addTo(cp,
-                                    *providerPSet,
-                                    common.processName_,
-                                    common.releaseVersion_,
-                                    common.passID_);
-      }
-
-    std::vector<std::string> sources =
-      params.getParameter<std::vector<std::string> >("@all_essources");
-
-    for(std::vector<std::string>::iterator itName = sources.begin(), itNameEnd = sources.end();
-        itName != itNameEnd;
-        ++itName) {
-      ParameterSet * providerPSet = params.getPSetForUpdate(*itName);
-      providerPSet->registerIt();
-      SourceFactory::get()->addTo(cp,
-                                    *providerPSet,
-                                    common.processName_,
-                                    common.releaseVersion_,
-                                    common.passID_);
-    }
-  }
-
-  // ---------------------------------------------------------------
   boost::shared_ptr<EDLooperBase>
   fillLooper(eventsetup::EventSetupProvider& cp,
                          ParameterSet& params,
-                         EventProcessor::CommonParams const& common) {
+                         CommonParams const& common) {
     using namespace edm::eventsetup;
     boost::shared_ptr<EDLooperBase> vLooper;
 
-    std::vector<std::string> loopers =
-      params.getParameter<std::vector<std::string> >("@all_loopers");
+    std::vector<std::string> loopers = params.getParameter<std::vector<std::string> >("@all_loopers");
 
     if(loopers.size() == 0) {
        return vLooper;
@@ -436,7 +314,7 @@ namespace edm {
         itName != itNameEnd;
         ++itName) {
 
-      ParameterSet * providerPSet = params.getPSetForUpdate(*itName);
+      ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
       providerPSet->registerIt();
       vLooper = LooperFactory::get()->addTo(cp,
                                     *providerPSet,
@@ -456,15 +334,12 @@ namespace edm {
                                 std::vector<std::string> const& forcedServices) :
     preProcessEventSignal_(),
     postProcessEventSignal_(),
-    maxEventsPset_(),
-    maxLumisPset_(),
     actReg_(new ActivityRegistry),
     preg_(new SignallingProductRegistry),
     serviceToken_(),
     input_(),
     esp_(),
     act_table_(),
-    wreg_(actReg_),
     processConfiguration_(),
     schedule_(),
     state_(sInit),
@@ -499,15 +374,12 @@ namespace edm {
                                 std::vector<std::string> const& forcedServices) :
     preProcessEventSignal_(),
     postProcessEventSignal_(),
-    maxEventsPset_(),
-    maxLumisPset_(),
     actReg_(new ActivityRegistry),
     preg_(new SignallingProductRegistry),
     serviceToken_(),
     input_(),
     esp_(),
     act_table_(),
-    wreg_(actReg_),
     processConfiguration_(),
     schedule_(),
     state_(sInit),
@@ -542,15 +414,12 @@ namespace edm {
                  serviceregistry::ServiceLegacy legacy) :
     preProcessEventSignal_(),
     postProcessEventSignal_(),
-    maxEventsPset_(),
-    maxLumisPset_(),
     actReg_(new ActivityRegistry),
     preg_(new SignallingProductRegistry),
     serviceToken_(),
     input_(),
     esp_(),
     act_table_(),
-    wreg_(actReg_),
     processConfiguration_(),
     schedule_(),
     state_(sInit),
@@ -580,15 +449,12 @@ namespace edm {
   EventProcessor::EventProcessor(std::string const& config, bool isPython):
     preProcessEventSignal_(),
     postProcessEventSignal_(),
-    maxEventsPset_(),
-    maxLumisPset_(),
     actReg_(new ActivityRegistry),
     preg_(new SignallingProductRegistry),
     serviceToken_(),
     input_(),
     esp_(),
     act_table_(),
-    wreg_(actReg_),
     processConfiguration_(),
     schedule_(),
     state_(sInit),
@@ -632,25 +498,22 @@ namespace edm {
 
     boost::shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
 
-
     ParameterSet optionsPset(parameterSet->getUntrackedParameter<ParameterSet>("options", ParameterSet()));
     fileMode_ = optionsPset.getUntrackedParameter<std::string>("fileMode", "");
     emptyRunLumiMode_ = optionsPset.getUntrackedParameter<std::string>("emptyRunLumiMode", "");
-    forceESCacheClearOnNewRun_ = optionsPset.getUntrackedParameter<bool>("forceEventSetupCacheClearOnNewRun",false);
+    forceESCacheClearOnNewRun_ = optionsPset.getUntrackedParameter<bool>("forceEventSetupCacheClearOnNewRun", false);
     ParameterSet forking = optionsPset.getUntrackedParameter<ParameterSet>("multiProcesses", ParameterSet());
     numberOfForkedChildren_ = forking.getUntrackedParameter<int>("maxChildProcesses", 0);
     numberOfSequentialEventsPerChild_ = forking.getUntrackedParameter<unsigned int>("maxSequentialEventsPerChild", 1);
     setCpuAffinity_ = forking.getUntrackedParameter<bool>("setCpuAffinity", false);
-    std::vector<ParameterSet> excluded = forking.getUntrackedParameter<std::vector<ParameterSet> >("eventSetupDataToExcludeFromPrefetching",std::vector<ParameterSet>());
-    for(std::vector<ParameterSet>::const_iterator itPS=excluded.begin(),itPSEnd=excluded.end();
+    std::vector<ParameterSet> excluded = forking.getUntrackedParameter<std::vector<ParameterSet> >("eventSetupDataToExcludeFromPrefetching", std::vector<ParameterSet>());
+    for(std::vector<ParameterSet>::const_iterator itPS = excluded.begin(), itPSEnd = excluded.end();
         itPS != itPSEnd;
         ++itPS) {
       eventSetupDataToExcludeFromPrefetching_[itPS->getUntrackedParameter<std::string>("record")].insert(
-                                                std::make_pair(itPS->getUntrackedParameter<std::string>("type","*"),
-                                                               itPS->getUntrackedParameter<std::string>("label","")));
+                                                std::make_pair(itPS->getUntrackedParameter<std::string>("type", "*"),
+                                                               itPS->getUntrackedParameter<std::string>("label", "")));
     }
-    maxEventsPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet());
-    maxLumisPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxLuminosityBlocks", ParameterSet());
 
     boost::shared_ptr<std::vector<ParameterSet> > pServiceSets = processDesc->getServicesPSets();
     //makeParameterSets(config, parameterSet, pServiceSets);
@@ -663,7 +526,7 @@ namespace edm {
         it != itEnd;
         ++it) {
       if(it->exists("@save_config")) {
-        parameterSet->addParameter(it->getParameter<std::string>("@service_type"),*it);
+        parameterSet->addParameter(it->getParameter<std::string>("@service_type"), *it);
       }
     }
     // Copy slots that hold all the registered callback functions like
@@ -700,11 +563,12 @@ namespace edm {
     CommonParams common = CommonParams(processName,
                            getReleaseVersion(),
                            getPassID(),
-                               maxEventsPset_.getUntrackedParameter<int>("input", -1),
-                               maxLumisPset_.getUntrackedParameter<int>("input", -1));
+                           parameterSet->getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet()).getUntrackedParameter<int>("input", -1),
+                           parameterSet->getUntrackedParameter<ParameterSet>("maxLuminosityBlocks", ParameterSet()).getUntrackedParameter<int>("input", -1));
 
-    esp_ = makeEventSetupProvider(*parameterSet);
+    esp_ = eventsetup::makeEventSetupProvider(*parameterSet);
     fillEventSetupProvider(*esp_, *parameterSet, common);
+    processConfiguration_.reset(new ProcessConfiguration(processName, getReleaseVersion(), getPassID()));
 
     looper_ = fillLooper(*esp_, *parameterSet, common);
     if (looper_) {
@@ -712,12 +576,11 @@ namespace edm {
       looper_->attachTo(*actReg_);
     }
 
-    processConfiguration_.reset(new ProcessConfiguration(processName, getReleaseVersion(), getPassID()));
     input_ = makeInput(*parameterSet, common, *preg_, principalCache_, actReg_, processConfiguration_);
+
     schedule_ = std::auto_ptr<Schedule>
       (new Schedule(parameterSet,
                     ServiceRegistry::instance().get<TNS>(),
-                    wreg_,
                     *preg_,
                     act_table_,
                     actReg_,
@@ -759,7 +622,6 @@ namespace edm {
     schedule_.reset();
     input_.reset();
     looper_.reset();
-    wreg_.clear();
     actReg_.reset();
 
     pset::Registry* psetRegistry = pset::Registry::instance();
@@ -968,7 +830,7 @@ namespace edm {
       statemachine::Run run = readAndCacheRun();
 
       RunPrincipal& runPrincipal = principalCache_.runPrincipal(run.processHistoryID(), run.runNumber());
-      std::cout <<" prefetching for run "<<runPrincipal.run()<<std::endl;
+      std::cout << " prefetching for run " << runPrincipal.run() << std::endl;
       IOVSyncValue ts(EventID(runPrincipal.run(), 0, 0),
                       runPrincipal.beginTime());
       EventSetup const& es = esp_->eventSetupForInstance(ts);
@@ -985,8 +847,8 @@ namespace edm {
         ExcludedDataMap::const_iterator itExcludeRec = eventSetupDataToExcludeFromPrefetching_.find(itKey->type().name());
         const ExcludedData* excludedData(0);
         if(itExcludeRec != eventSetupDataToExcludeFromPrefetching_.end()) {
-          excludedData=&(itExcludeRec->second);
-          if (excludedData->size()==0 || excludedData->begin()->first=="*") {
+          excludedData = &(itExcludeRec->second);
+          if (excludedData->size() == 0 || excludedData->begin()->first == "*") {
             //skip all items in this record
             continue;
           }
@@ -997,21 +859,21 @@ namespace edm {
           for(std::vector<eventsetup::DataKey>::const_iterator itDataKey = dataKeys.begin(), itDataKeyEnd = dataKeys.end();
               itDataKey != itDataKeyEnd;
               ++itDataKey) {
-            //std::cout <<"  "<<itDataKey->type().name()<<" "<<itDataKey->name().value()<<std::endl;
-            if (0!=excludedData && excludedData->find(std::make_pair(itDataKey->type().name(),itDataKey->name().value()))!=excludedData->end()) {
-              std::cout <<"   excluding:"<<itDataKey->type().name()<<" "<<itDataKey->name().value()<<std::endl;
+            //std::cout << "  " << itDataKey->type().name() << " " << itDataKey->name().value() << std::endl;
+            if (0 != excludedData && excludedData->find(std::make_pair(itDataKey->type().name(), itDataKey->name().value())) != excludedData->end()) {
+              std::cout << "   excluding:" << itDataKey->type().name() << " " << itDataKey->name().value() << std::endl;
               continue;
             }
             try {
               recordPtr->doGet(*itDataKey);
             } catch(cms::Exception& e) {
-             edm::LogWarning("EventSetupPreFetching")<<e.what();
+             edm::LogWarning("EventSetupPreFetching") << e.what();
             }
           }
         }
       }
     }
-    std::cout <<"  done prefetching"<<std::endl;
+    std::cout << "  done prefetching" << std::endl;
 {
     // make the services available
     ServiceRegistry::Operate operate(serviceToken_);
@@ -1138,7 +1000,7 @@ namespace edm {
       pthread_sigmask(SIG_SETMASK, &oldSigSet, NULL);
     }
     if(child_failed) {
-      throw cms::Exception("ForkedChildFailed")<<"child process ended abnormally with exit code "<<child_fail_exit_status;
+      throw cms::Exception("ForkedChildFailed") << "child process ended abnormally with exit code " << child_fail_exit_status;
     }
     return false;
   }
@@ -1258,11 +1120,11 @@ namespace edm {
       // look here - if runAsync not active, just return the last return code
       if(stop_count_ < 0) return last_rc_;
 
-      if(timeout_seconds == 0)
+      if(timeout_seconds == 0) {
         while(stop_count_ == 0) stopper_.wait(sl);
-      else
-        while(stop_count_ == 0 &&
-              (rc = stopper_.timed_wait(sl, timeout)) == true);
+      } else {
+        while(stop_count_ == 0 && (rc = stopper_.timed_wait(sl, timeout)) == true);
+      }
 
       if(rc == false) {
           // timeout occurred
@@ -1415,22 +1277,22 @@ namespace edm {
     }
     catch (cms::Exception& e) {
       LogError("FwkJob") << "cms::Exception caught in "
-                              << "EventProcessor::asyncRun"
-                              << "\n"
-                              << e.explainSelf();
+                         << "EventProcessor::asyncRun"
+                         << "\n"
+                         << e.explainSelf();
       me->last_error_text_ = e.explainSelf();
     }
     catch (std::exception& e) {
       LogError("FwkJob") << "Standard library exception caught in "
-                              << "EventProcessor::asyncRun"
-                              << "\n"
-                              << e.what();
+                         << "EventProcessor::asyncRun"
+                         << "\n"
+                         << e.what();
       me->last_error_text_ = e.what();
     }
     catch (...) {
       LogError("FwkJob") << "Unknown exception caught in "
-                              << "EventProcessor::asyncRun"
-                              << "\n";
+                         << "EventProcessor::asyncRun"
+                         << "\n";
       me->last_error_text_ = "Unknown exception caught";
       rc = epOther;
     }
@@ -1833,10 +1695,10 @@ namespace edm {
       esp_->forceCacheClear();
     }
     EventSetup const& es = esp_->eventSetupForInstance(ts);
-    if(looper_ && looperBeginJobRun_==false) {
+    if(looper_ && looperBeginJobRun_== false) {
       looper_->copyInfo(ScheduleInfo(schedule_.get()));
       looper_->beginOfJob(es);
-      looperBeginJobRun_=true;
+      looperBeginJobRun_ = true;
       looper_->doStartingNewLoop();
     }
     schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionBegin> >(runPrincipal, es);
