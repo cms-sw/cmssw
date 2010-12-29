@@ -1,33 +1,32 @@
 
-#include "FWCore/Framework/interface/Schedule.h"
-#include "FWCore/Utilities/interface/Algorithms.h"
-#include "FWCore/Utilities/interface/ReflexTools.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/OutputModuleDescription.h"
+#include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/interface/TriggerReport.h"
-#include "FWCore/Framework/interface/OutputModuleDescription.h"
-#include "FWCore/Framework/src/OutputWorker.h"
-#include "FWCore/Framework/src/WorkerT.h"
-#include "FWCore/Framework/src/WorkerInPath.h"
-#include "FWCore/Framework/src/WorkerRegistry.h"
-#include "FWCore/Framework/src/WorkerMaker.h"
 #include "FWCore/Framework/src/Factory.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "FWCore/Framework/src/OutputWorker.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
+#include "FWCore/Framework/src/WorkerInPath.h"
+#include "FWCore/Framework/src/WorkerMaker.h"
+#include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/ReflexTools.h"
 
 #include "boost/bind.hpp"
 #include "boost/ref.hpp"
-#include <functional>
 
 #include <algorithm>
+#include <cassert>
 #include <cstdlib>
+#include <functional>
 #include <iomanip>
 #include <list>
-#include <cassert>
 
 namespace edm {
   namespace {
@@ -140,13 +139,12 @@ namespace edm {
 
   Schedule::Schedule(boost::shared_ptr<ParameterSet> proc_pset,
                      service::TriggerNamesService& tns,
-                     WorkerRegistry& wreg,
                      ProductRegistry& preg,
                      ActionTable& actions,
                      boost::shared_ptr<ActivityRegistry> areg,
                      boost::shared_ptr<ProcessConfiguration> processConfiguration):
     pset_(proc_pset),
-    worker_reg_(&wreg),
+    worker_reg_(areg),
     prod_reg_(&preg),
     act_table_(&actions),
     processConfiguration_(processConfiguration),
@@ -231,7 +229,7 @@ namespace edm {
           assert(modulePSet != 0);
           WorkerParams params(*proc_pset, modulePSet, preg,
                               processConfiguration_, *act_table_);
-          Worker* newWorker(wreg.getWorker(params, *itLabel));
+          Worker* newWorker(worker_reg_.getWorker(params, *itLabel));
           if (dynamic_cast<WorkerT<EDProducer>*>(newWorker) ||
               dynamic_cast<WorkerT<EDFilter>*>(newWorker)) {
             unscheduledLabels.insert(*itLabel);
@@ -403,7 +401,7 @@ namespace edm {
       assert(isTracked);
 
       WorkerParams params(*pset_, modpset, *prod_reg_, processConfiguration_, *act_table_);
-      Worker* worker = worker_reg_->getWorker(params, moduleLabel);
+      Worker* worker = worker_reg_.getWorker(params, moduleLabel);
       if (ignoreFilters && filterAction != WorkerInPath::Ignore && dynamic_cast<WorkerT<EDFilter>*>(worker)) {
         // We have a filter on an end path, and the filter is not explicitly ignored.
         // See if the filter is allowed.
@@ -947,8 +945,7 @@ namespace edm {
   }
 
   void
-  fillModuleInPathSummary(Path const&,
-                          ModuleInPathSummary&) {
+  fillModuleInPathSummary(Path const&, ModuleInPathSummary&) {
   }
 
   void
@@ -959,8 +956,7 @@ namespace edm {
     sum.timesPassed  = path.timesPassed(which);
     sum.timesFailed  = path.timesFailed(which);
     sum.timesExcept  = path.timesExcept(which);
-    sum.moduleLabel  =
-      path.getWorker(which)->description().moduleLabel();
+    sum.moduleLabel  = path.getWorker(which)->description().moduleLabel();
   }
 
   void
@@ -1037,5 +1033,4 @@ namespace edm {
     unscheduled_->setEventSetup(es);
     ep.setUnscheduledHandler(unscheduled_);
   }
-
 }

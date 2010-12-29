@@ -58,25 +58,26 @@
 */
 
 #include "DataFormats/Common/interface/HLTGlobalStatus.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/MessageLogger/interface/JobReport.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Actions.h"
-#include "FWCore/Framework/src/Path.h"
-#include "FWCore/Framework/src/RunStopwatch.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
+#include "FWCore/Framework/src/Path.h"
+#include "FWCore/Framework/src/RunStopwatch.h"
 #include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/src/WorkerRegistry.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "boost/shared_ptr.hpp"
 
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
 
 namespace edm {
   namespace service {
@@ -85,10 +86,9 @@ namespace edm {
   class ActivityRegistry;
   class EventSetup;
   class OutputWorker;
-  class UnscheduledCallProducer;
   class RunStopwatch;
+  class UnscheduledCallProducer;
   class WorkerInPath;
-  class WorkerRegistry;
   class Schedule {
   public:
     typedef std::vector<std::string> vstring;
@@ -105,7 +105,6 @@ namespace edm {
 
     Schedule(boost::shared_ptr<ParameterSet> proc_pset,
              service::TriggerNamesService& tns,
-             WorkerRegistry& wregistry,
              ProductRegistry& pregistry,
              ActionTable& actions,
              boost::shared_ptr<ActivityRegistry> areg,
@@ -202,7 +201,7 @@ namespace edm {
     /// modules-in-path, modules-in-endpath, and modules.
     void getTriggerReport(TriggerReport& rep) const;
 
-    /// Return whether a module has reached its maximum count.
+    /// Return whether each output module has reached its maximum count.
     bool const terminate() const;
 
     ///  Clear all the counters in the trigger report.
@@ -256,7 +255,7 @@ namespace edm {
     void addToAllWorkers(Worker* w);
 
     boost::shared_ptr<ParameterSet> pset_;
-    WorkerRegistry*     worker_reg_;
+    WorkerRegistry     worker_reg_;
     ProductRegistry*    prod_reg_;
     ActionTable*        act_table_;
     boost::shared_ptr<ProcessConfiguration> processConfiguration_;
