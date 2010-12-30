@@ -106,11 +106,11 @@ namespace edm {
         ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
         providerPSet->registerIt();
         ModuleFactory::get()->addTo(cp,
-                                      *providerPSet,
-                                      common.processName_,
-                                      common.releaseVersion_,
-                                      common.passID_);
-        }
+                                    *providerPSet,
+                                    common.processName_,
+                                    common.releaseVersion_,
+                                    common.passID_);
+      }
 
       std::vector<std::string> sources =
         params.getParameter<std::vector<std::string> >("@all_essources");
