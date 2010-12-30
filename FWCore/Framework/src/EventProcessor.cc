@@ -827,12 +827,9 @@ namespace edm {
       itemType = input_->nextItemType();
       assert(itemType == InputSource::IsRun);
 
-      statemachine::Run run = readAndCacheRun();
-
-      RunPrincipal& runPrincipal = principalCache_.runPrincipal(run.processHistoryID(), run.runNumber());
-      std::cout << " prefetching for run " << runPrincipal.run() << std::endl;
-      IOVSyncValue ts(EventID(runPrincipal.run(), 0, 0),
-                      runPrincipal.beginTime());
+      std::cout << " prefetching for run " << input_->runAuxiliary()->run() << std::endl;
+      IOVSyncValue ts(EventID(input_->runAuxiliary()->run(), 0, 0),
+                      input_->runAuxiliary()->beginTime());
       EventSetup const& es = esp_->eventSetupForInstance(ts);
 
       //now get all the data available in the EventSetup
