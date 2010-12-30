@@ -103,10 +103,10 @@ namespace edm {
 
     typedef std::vector<WorkerInPath> PathWorkers;
 
-    Schedule(boost::shared_ptr<ParameterSet> proc_pset,
+    Schedule(ParameterSet& proc_pset,
              service::TriggerNamesService& tns,
              ProductRegistry& pregistry,
-             ActionTable& actions,
+             ActionTable const& actions,
              boost::shared_ptr<ActivityRegistry> areg,
              boost::shared_ptr<ProcessConfiguration> processConfiguration);
 
@@ -209,12 +209,9 @@ namespace edm {
 
     /// clone the type of module with label iLabel but configure with iPSet.
     /// Returns true if successful.
-    bool changeModule(std::string const& iLabel,
-                      ParameterSet const& iPSet);
-
+    bool changeModule(std::string const& iLabel, ParameterSet const& iPSet);
 
   private:
-    std::string const& processName() const;
 
     AllWorkers::const_iterator workersBegin() const {
       return all_workers_.begin();
@@ -246,27 +243,33 @@ namespace edm {
     void reportSkipped(LuminosityBlockPrincipal const&) const {}
     void reportSkipped(RunPrincipal const&) const {}
 
-    void fillWorkers(std::string const& name, bool ignoreFilters, PathWorkers& out);
-    void fillTrigPath(int bitpos, std::string const& name, TrigResPtr);
-    void fillEndPath(int bitpos, std::string const& name);
+    void fillWorkers(ParameterSet& proc_pset,
+                     ProductRegistry& preg,
+                     boost::shared_ptr<ProcessConfiguration const> processConfiguration,
+                     std::string const& name, bool ignoreFilters, PathWorkers& out);
+    void fillTrigPath(ParameterSet& proc_pset,
+                      ProductRegistry& preg,
+                      boost::shared_ptr<ProcessConfiguration const> processConfiguration,
+                      int bitpos, std::string const& name, TrigResPtr);
+    void fillEndPath(ParameterSet& proc_pset,
+                     ProductRegistry& preg,
+                     boost::shared_ptr<ProcessConfiguration const> processConfiguration,
+                     int bitpos, std::string const& name);
 
-    void limitOutput();
+    void limitOutput(ParameterSet const& proc_pset);
 
     void addToAllWorkers(Worker* w);
 
-    boost::shared_ptr<ParameterSet> pset_;
-    WorkerRegistry     worker_reg_;
-    ProductRegistry*    prod_reg_;
-    ActionTable*        act_table_;
-    boost::shared_ptr<ProcessConfiguration> processConfiguration_;
-    boost::shared_ptr<ActivityRegistry> actReg_;
+    WorkerRegistry                                worker_reg_;
+    ActionTable const*                            act_table_;
+    boost::shared_ptr<ActivityRegistry>           actReg_;
 
-    State state_;
-    vstring trig_name_list_;
-    vstring               end_path_name_list_;
+    State                    state_;
+    vstring                  trig_name_list_;
+    vstring                  end_path_name_list_;
 
-    TrigResPtr   results_;
-    TrigResPtr   endpath_results_;
+    TrigResPtr               results_;
+    TrigResPtr               endpath_results_;
 
     WorkerPtr                results_inserter_;
     AllWorkers               all_workers_;
@@ -274,14 +277,14 @@ namespace edm {
     TrigPaths                trig_paths_;
     TrigPaths                end_paths_;
 
-    bool                             wantSummary_;
-    int                              total_events_;
-    int                              total_passed_;
-    RunStopwatch::StopwatchPointer   stopwatch_;
+    bool                           wantSummary_;
+    int                            total_events_;
+    int                            total_passed_;
+    RunStopwatch::StopwatchPointer stopwatch_;
 
     boost::shared_ptr<UnscheduledCallProducer> unscheduled_;
 
-    volatile bool       endpathsAreActive_;
+    volatile bool           endpathsAreActive_;
   };
 
   namespace {
