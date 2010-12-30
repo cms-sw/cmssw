@@ -10,7 +10,6 @@ configured in the user's main() function, and is set running.
 
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 
-#include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/IEventProcessor.h"
 #include "FWCore/Framework/src/PrincipalCache.h"
@@ -26,7 +25,9 @@ configured in the user's main() function, and is set running.
 #include "boost/thread/condition.hpp"
 #include "boost/utility.hpp"
 
+#include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -37,8 +38,9 @@ namespace statemachine {
 
 namespace edm {
 
-  class ProcessDesc;
+  class ActionTable;
   class EDLooperBase;
+  class ProcessDesc;
   namespace eventsetup {
     class EventSetupProvider;
   }
@@ -342,7 +344,7 @@ namespace edm {
     ServiceToken                                  serviceToken_;
     boost::shared_ptr<InputSource>                input_;
     std::auto_ptr<eventsetup::EventSetupProvider> esp_;
-    ActionTable                                   act_table_;
+    boost::shared_ptr<ActionTable const>          act_table_;
     boost::shared_ptr<ProcessConfiguration>       processConfiguration_;
     std::auto_ptr<Schedule>                       schedule_;
 

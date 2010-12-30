@@ -558,8 +558,7 @@ namespace edm {
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
-    //parameterSet = builder.getProcessPSet();
-    act_table_ = ActionTable(*parameterSet);
+    act_table_.reset(new ActionTable(*parameterSet));
     CommonParams common = CommonParams(processName,
                            getReleaseVersion(),
                            getPassID(),
@@ -572,17 +571,17 @@ namespace edm {
 
     looper_ = fillLooper(*esp_, *parameterSet, common);
     if (looper_) {
-      looper_->setActionTable(&act_table_);
+      looper_->setActionTable(act_table_.get());
       looper_->attachTo(*actReg_);
     }
 
     input_ = makeInput(*parameterSet, common, *preg_, principalCache_, actReg_, processConfiguration_);
 
     schedule_ = std::auto_ptr<Schedule>
-      (new Schedule(parameterSet,
+      (new Schedule(*parameterSet,
                     ServiceRegistry::instance().get<TNS>(),
                     *preg_,
-                    act_table_,
+                    *act_table_,
                     actReg_,
                     processConfiguration_));
 
@@ -1787,7 +1786,7 @@ namespace edm {
       FDEBUG(1) << "\treadEvent\n";
     }
     catch(cms::Exception& e) {
-      actions::ActionCodes action = act_table_.find(e.rootCause());
+      actions::ActionCodes action = act_table_->find(e.rootCause());
       if (action == actions::Rethrow) {
         throw;
       } else {
