@@ -2,17 +2,18 @@
 #define DataFormats_Provenance_ModuleDescription_h
 
 /*----------------------------------------------------------------------
-  
+
 ModuleDescription: The description of a producer module.
 
 ----------------------------------------------------------------------*/
-#include <string>
-#include <iosfwd>
-#include "boost/shared_ptr.hpp"
-
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
+
+#include "boost/shared_ptr.hpp"
+
+#include <iosfwd>
+#include <string>
 
 namespace edm {
 
@@ -25,20 +26,20 @@ namespace edm {
     ModuleDescription();
 
     ModuleDescription(std::string const& modName,
-		      std::string const& modLabel);
+                      std::string const& modLabel);
 
     ModuleDescription(std::string const& modName,
-		      std::string const& modLabel,
-		      boost::shared_ptr<ProcessConfiguration> procConfig);
+                      std::string const& modLabel,
+                      boost::shared_ptr<ProcessConfiguration const> procConfig);
 
     ModuleDescription(ParameterSetID const& pid,
-		      std::string const& modName,
-		      std::string const& modLabel);
+                      std::string const& modName,
+                      std::string const& modLabel);
 
     ModuleDescription(ParameterSetID const& pid,
-		      std::string const& modName,
-		      std::string const& modLabel,
-		      boost::shared_ptr<ProcessConfiguration> procConfig);
+                      std::string const& modName,
+                      std::string const& modLabel,
+                      boost::shared_ptr<ProcessConfiguration const> procConfig);
 
     ~ModuleDescription();
 
@@ -61,21 +62,21 @@ namespace edm {
     bool operator==(ModuleDescription const& rh) const;
 
     bool operator!=(ModuleDescription const& rh) const;
-    
+
   private:
-  
+
     // ID of parameter set of the creator
     ParameterSetID parameterSetID_;
 
     // The class name of the creator
-    std::string moduleName_;    
+    std::string moduleName_;
 
     // A human friendly string that uniquely identifies the EDProducer
     // and becomes part of the identity of a product that it produces
     std::string moduleLabel_;
 
     // The process configuration.
-    boost::shared_ptr<ProcessConfiguration> processConfigurationPtr_;
+    boost::shared_ptr<ProcessConfiguration const> processConfigurationPtr_;
   };
 
   inline
