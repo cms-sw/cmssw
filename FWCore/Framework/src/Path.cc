@@ -11,7 +11,7 @@ namespace edm {
   Path::Path(int bitpos, std::string const& path_name,
 	     WorkersInPath const& workers,
 	     TrigResPtr trptr,
-	     ActionTable& actions,
+	     ActionTable const& actions,
 	     boost::shared_ptr<ActivityRegistry> areg,
 	     bool isEndPath):
     stopwatch_(),

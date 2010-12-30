@@ -2,7 +2,6 @@
 #define FWCore_Framework_Path_h
 
 /*
-
   Author: Jim Kowalkowski 28-01-06
 
   An object of this type represents one path in a job configuration.
@@ -10,7 +9,6 @@
   an event must pass through when this parh is processed.  The workers
   are held in WorkerInPath wrappers so that per path execution statistics
   can be kept for each worker.
-
 */
 
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
@@ -37,11 +35,11 @@ namespace edm {
     typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
 
     Path(int bitpos, std::string const& path_name,
-	 WorkersInPath const& workers,
-	 TrigResPtr trptr,
-	 ActionTable& actions,
-	 boost::shared_ptr<ActivityRegistry> reg,
-	 bool isEndPath);
+         WorkersInPath const& workers,
+         TrigResPtr trptr,
+         ActionTable const& actions,
+         boost::shared_ptr<ActivityRegistry> reg,
+         bool isEndPath);
 
     template <typename T>
     void processOneOccurrence(typename T::MyPrincipal&, EventSetup const&);
@@ -49,14 +47,14 @@ namespace edm {
     int bitPosition() const { return bitpos_; }
     std::string const& name() const { return name_; }
 
-    std::pair<double,double> timeCpuReal() const {
+    std::pair<double, double> timeCpuReal() const {
       if(stopwatch_) {
-        return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
+        return std::pair<double, double>(stopwatch_->cpuTime(), stopwatch_->realTime());
       }
-      return std::pair<double,double>(0.,0.);
+      return std::pair<double, double>(0., 0.);
     }
 
-    std::pair<double,double> timeCpuReal(unsigned int const i) const {
+    std::pair<double, double> timeCpuReal(unsigned int const i) const {
       return workers_.at(i).timeCpuReal();
     }
 
@@ -90,7 +88,7 @@ namespace edm {
     std::string name_;
     TrigResPtr trptr_;
     boost::shared_ptr<ActivityRegistry> actReg_;
-    ActionTable* act_table_;
+    ActionTable const* act_table_;
 
     WorkersInPath workers_;
 
@@ -113,11 +111,11 @@ namespace edm {
                        int const& nwrwue,
                        hlt::HLTState const& state) :
       a_(a), name_(name), nwrwue_(nwrwue), state_(state) {
-	if (a_) T::prePathSignal(a_, name_);
+        if (a_) T::prePathSignal(a_, name_);
       }
       ~PathSignalSentry() {
         HLTPathStatus status(state_, nwrwue_);
-	if(a_) T::postPathSignal(a_, name_, status);
+        if(a_) T::postPathSignal(a_, name_, status);
       }
     private:
       ActivityRegistry* a_;
@@ -128,14 +126,13 @@ namespace edm {
   }
 
   template <typename T>
-  void Path::processOneOccurrence(typename T::MyPrincipal& ep,
-	     EventSetup const& es) {
+  void Path::processOneOccurrence(typename T::MyPrincipal& ep, EventSetup const& es) {
 
     //Create the PathSignalSentry before the RunStopwatch so that
     // we only record the time spent in the path not from the signal
     int nwrwue = -1;
     std::auto_ptr<PathSignalSentry<T> > signaler(new PathSignalSentry<T>(actReg_.get(), name_, nwrwue, state_));
-                                                                           
+
     // A RunStopwatch, but only if we are processing an event.
     RunStopwatch stopwatch(T::isEvent_ ? stopwatch_ : RunStopwatch::StopwatchPointer());
 
