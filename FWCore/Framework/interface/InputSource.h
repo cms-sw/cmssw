@@ -61,6 +61,9 @@ namespace edm {
   class ConfigurationDescriptions;
   class ParameterSetDescription;
   class ActivityRegistry;
+  namespace multicore {
+    class MessageReceiverForSource;
+  }
 
   class InputSource : private ProductRegistryHelper, private boost::noncopyable {
   public:
@@ -213,7 +216,7 @@ namespace edm {
 
     /// Called by the framework before forking the process
     void doPreForkReleaseResources();
-    void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren);
+    void doPostForkReacquireResources(boost::shared_ptr<edm::multicore::MessageReceiverForSource>);
  
     /// Accessor for the current time, as seen by the input source
     Timestamp const& timestamp() const {return time_;}
@@ -324,6 +327,11 @@ namespace edm {
 
     void setRunPrematurelyRead() {runPrematurelyRead_ = true;}
     void setLumiPrematurelyRead() {lumiPrematurelyRead_ = true;}
+    
+    ///Called by inheriting classes when running multicore when the receiver has told them to
+    /// skip some events.
+    void decreaseRemainingEventsBy(int iSkipped);
+    
   private:
     bool eventLimitReached() const {return remainingEvents_ == 0;}
     bool lumiLimitReached() const {return remainingLumis_ == 0;}
@@ -354,7 +362,7 @@ namespace edm {
     virtual void beginJob();
     virtual void endJob();
     virtual void preForkReleaseResources();
-    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren);
+     virtual void postForkReacquireResources(boost::shared_ptr<multicore::MessageReceiverForSource>);
     virtual bool randomAccess_() const;
     virtual ProcessingController::ForwardState forwardState_() const;
     virtual ProcessingController::ReverseState reverseState_() const;

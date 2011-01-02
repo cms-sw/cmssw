@@ -31,6 +31,7 @@
 #include "FWCore/Framework/src/Breakpoints.h"
 #include "FWCore/Framework/src/EPStates.h"
 #include "FWCore/Framework/src/InputSourceFactory.h"
+#include "FWCore/Framework/interface/MessageReceiverForSource.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -942,7 +943,9 @@ namespace edm {
     if(childIndex < kMaxChildren) {
       jobReport->childAfterFork(jobReportFile, childIndex, kMaxChildren);
       actReg_->postForkReacquireResourcesSignal_(childIndex, kMaxChildren);
-      input_->doPostForkReacquireResources(childIndex, kMaxChildren, numberOfSequentialEventsPerChild_);
+      
+      boost::shared_ptr<edm::multicore::MessageReceiverForSource> receiver( new edm::multicore::MessageReceiverForSource(childIndex, kMaxChildren, numberOfSequentialEventsPerChild_) );
+      input_->doPostForkReacquireResources(receiver);
       schedule_->postForkReacquireResources(childIndex, kMaxChildren);
       //NOTE: sources have to reset themselves by listening to the post fork message
       //rewindInput();

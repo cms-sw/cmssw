@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/interface/MessageReceiverForSource.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -59,10 +60,7 @@ namespace edm {
     secondaryLumiPrincipal_(),
     secondaryEventPrincipal_(secondaryFileSequence_ ? new EventPrincipal(secondaryFileSequence_->fileProductRegistry(), processConfiguration()) : 0),
     branchIDsToReplace_(),
-    numberOfEventsBeforeBigSkip_(0),
-    numberOfEventsInBigSkip_(0),
-    numberOfSequentialEvents_(0),
-    forkedChildIndex_(0)
+    numberOfEventsBeforeBigSkip_(0)
   {
     if (secondaryFileSequence_) {
       boost::array<std::set<BranchID>, NumBranchTypes> idsToReplace;
@@ -195,7 +193,7 @@ namespace edm {
           primaryPrincipal->id() << " is not found in the secondary input files\n";
       }
     }
-    if(0 != numberOfEventsInBigSkip_) {
+    if(receiver_) {
       --numberOfEventsBeforeBigSkip_;
     }
     return primaryPrincipal;
@@ -210,10 +208,18 @@ namespace edm {
 
   InputSource::ItemType
   PoolSource::getNextItemType() {
-    if(0 != numberOfEventsInBigSkip_ &&
+    if(receiver_ &&
        0 == numberOfEventsBeforeBigSkip_) {
-      primaryFileSequence_->skipEvents(numberOfEventsInBigSkip_, principalCache());
-      numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_;
+      receiver_->receive();
+      unsigned long toSkip = receiver_->numberToSkip();
+      if (0 != toSkip) {
+        primaryFileSequence_->skipEvents(toSkip, principalCache());
+        decreaseRemainingEventsBy(toSkip);
+      }
+      numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices();
+      if (0 == numberOfEventsBeforeBigSkip_ or 0==remainingEvents()) {
+        return IsStop;
+      }
     }
     return primaryFileSequence_->getNextItemType();;
   }
@@ -224,23 +230,26 @@ namespace edm {
   }
 
   void
-  PoolSource::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialEvents) {
-    numberOfEventsInBigSkip_ = iNumberOfSequentialEvents * (iNumberOfChildren - 1);
-    forkedChildIndex_ = iChildIndex;
-    numberOfSequentialEvents_ = iNumberOfSequentialEvents;
+  PoolSource::postForkReacquireResources(boost::shared_ptr<edm::multicore::MessageReceiverForSource> iReceiver) {
+    receiver_ = iReceiver;
+    receiver_->receive();
     primaryFileSequence_->reset(principalCache());
     rewind();
+    decreaseRemainingEventsBy(receiver_->numberToSkip());
   }
 
   // Rewind to before the first event that was read.
   void
   PoolSource::rewind_() {
     primaryFileSequence_->rewind_();
-    unsigned int numberToSkip = numberOfSequentialEvents_ * forkedChildIndex_;
-    if(0 != numberToSkip) {
-      primaryFileSequence_->skipEvents(numberToSkip, principalCache());
+    if (receiver_) {
+      unsigned int numberToSkip = receiver_->numberToSkip();
+      if(0 != numberToSkip) {
+        primaryFileSequence_->skipEvents(numberToSkip, principalCache());
+      }
+      numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices();
     }
-    numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_;
+
   }
 
   // Advance "offset" events.  Offset can be positive or negative (or zero).

@@ -60,7 +60,7 @@ namespace edm {
     virtual void setLumi(LuminosityBlockNumber_t lb);
     virtual void rewind_();
 
-    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren);
+    virtual void postForkReacquireResources(boost::shared_ptr<edm::multicore::MessageReceiverForSource>);
     void advanceToNext() ;
     void retreatToPrevious();
 
@@ -85,10 +85,9 @@ namespace edm {
     EventAuxiliary::ExperimentType eType_;
      
     //used when process has been forked
+    boost::shared_ptr<edm::multicore::MessageReceiverForSource> receiver_;
     unsigned int numberOfEventsBeforeBigSkip_;
-    unsigned int numberOfEventsInBigSkip_;
     unsigned int numberOfSequentialEvents_;
-    unsigned int forkedChildIndex_;
   };
 }
 #endif

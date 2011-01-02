@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
+#include <errno.h>
+
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -8,6 +10,7 @@
 #include "FWCore/Framework/interface/ConfigurableInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MessageReceiverForSource.h"
 
 namespace edm {
   //used for defaults
@@ -36,9 +39,8 @@ namespace edm {
     isRealData_(realData),
     eType_(EventAuxiliary::Undefined),
     numberOfEventsBeforeBigSkip_(0),
-    numberOfEventsInBigSkip_(0),
-    numberOfSequentialEvents_(0),
-    forkedChildIndex_(0) { 
+    numberOfSequentialEvents_(0)
+  { 
 
     setTimestamp(Timestamp(presentTime_));
     // We need to map this string to the EventAuxiliary::ExperimentType enumeration
@@ -141,11 +143,11 @@ namespace edm {
   }
 
   void 
-  ConfigurableInputSource::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialEvents) {
-    numberOfEventsInBigSkip_ = iNumberOfSequentialEvents*(iNumberOfChildren-1);
-    numberOfEventsBeforeBigSkip_ = iNumberOfSequentialEvents + 1;
-    forkedChildIndex_ = iChildIndex;
-    numberOfSequentialEvents_ = iNumberOfSequentialEvents;
+  ConfigurableInputSource::postForkReacquireResources(boost::shared_ptr<edm::multicore::MessageReceiverForSource> iReceiver) {
+    receiver_ = iReceiver;
+    receiver_->receive();
+    numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices() + 1;
+    numberOfSequentialEvents_ = receiver_->numberOfConsecutiveIndices();
     repeat();
     rewind();
   }
@@ -157,13 +159,18 @@ namespace edm {
     numberEventsInThisRun_ = 0;
     numberEventsInThisLumi_ = 0;
 
-    unsigned int numberToSkip = numberOfSequentialEvents_*forkedChildIndex_;
-    numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_ + 1;
-    if(numberOfEventsBeforeBigSkip_ < numberToSkip) {
-      numberOfEventsBeforeBigSkip_ = numberToSkip+1;
+    if(receiver_) {
+      unsigned int numberToSkip = receiver_->numberToSkip();
+      numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices() + 1;
+      //NOTE: skip() will decrease numberOfEventsBeforeBigSkip_ and therefore we need
+      // to be sure it is large enough so that it never goes to 0 during the skipping
+      if(numberOfEventsBeforeBigSkip_ < numberToSkip) {
+        numberOfEventsBeforeBigSkip_ = numberToSkip+1;
+      }
+      skip(numberToSkip);
+      decreaseRemainingEventsBy(numberToSkip);
+      numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices() + 1;
     }
-    skip(numberToSkip);
-    numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_ + 1;
     newRun_ = newLumi_ = true;
   }
     
@@ -266,9 +273,20 @@ namespace edm {
   
   void
   ConfigurableInputSource::setRunAndEventInfo() {
-    if(0 != numberOfEventsInBigSkip_ && 0 == --numberOfEventsBeforeBigSkip_) {
-      skip(numberOfEventsInBigSkip_);
-      numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_;
+    if(receiver_ && 0 == --numberOfEventsBeforeBigSkip_) {
+      receiver_->receive();
+      unsigned long numberOfEventsToSkip = receiver_->numberToSkip();
+      if (numberOfEventsToSkip !=0) {
+        skip(numberOfEventsToSkip);
+        decreaseRemainingEventsBy(numberOfEventsToSkip);
+      }
+      numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices();
+      //Since we decrease 'remaining events' count we need to see if we reached 0 and therefore are at the end
+      if(0 == numberOfEventsBeforeBigSkip_ or 0==remainingEvents() or 0 == remainingLuminosityBlocks()) {
+        //this means we are to stop
+        eventID_ = EventID();
+        return;
+      }
     }
     advanceToNext();
     if (eventCreationDelay_ > 0) {usleep(eventCreationDelay_);}

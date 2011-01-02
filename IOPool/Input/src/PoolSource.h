@@ -58,7 +58,7 @@ namespace edm {
     virtual void readManySpecified_(std::vector<EventID> const& events, EventPrincipalVector& result);
     virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
     virtual void preForkReleaseResources();
-    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialEvents);
+    virtual void postForkReacquireResources(boost::shared_ptr<edm::multicore::MessageReceiverForSource>);
     virtual bool randomAccess_() const;
     virtual ProcessingController::ForwardState forwardState_() const;
     virtual ProcessingController::ReverseState reverseState_() const;
@@ -72,10 +72,8 @@ namespace edm {
     boost::array<std::vector<BranchID>, NumBranchTypes>  branchIDsToReplace_;
 
     //used when process has been forked
+    boost::shared_ptr<edm::multicore::MessageReceiverForSource> receiver_;
     unsigned int numberOfEventsBeforeBigSkip_;
-    unsigned int numberOfEventsInBigSkip_;
-    unsigned int numberOfSequentialEvents_;
-    unsigned int forkedChildIndex_;
 
   }; // class PoolSource
   typedef PoolSource PoolRASource;
