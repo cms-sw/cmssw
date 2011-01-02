@@ -20,6 +20,7 @@
 // system include files
 #include <memory>
 #include <vector>
+#include <algorithm>
 
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -54,8 +55,8 @@ private:
    unsigned int index_;
 
    unsigned int multiProcessSequentialEvents_;
-   unsigned int numberOfEventsToSkip_;
-   unsigned int numberOfEventsLeftBeforeSkip_;
+   unsigned int numberOfEventsLeftBeforeSearch_;
+   bool mustSearch_;
 };
 
 //
@@ -73,8 +74,9 @@ EventIDChecker::EventIDChecker(edm::ParameterSet const& iConfig) :
   ids_(iConfig.getUntrackedParameter<std::vector<edm::EventID> >("eventSequence")),
   index_(0),
   multiProcessSequentialEvents_(iConfig.getUntrackedParameter<unsigned int>("multiProcessSequentialEvents")),
-  numberOfEventsToSkip_(0),
-  numberOfEventsLeftBeforeSkip_(0) {
+  numberOfEventsLeftBeforeSearch_(0),
+  mustSearch_(false)
+{
    //now do what ever initialization is needed
 
 }
@@ -92,15 +94,31 @@ EventIDChecker::~EventIDChecker() {
 // member functions
 //
 
+namespace {
+   struct CompareWithoutLumi {
+      CompareWithoutLumi( const edm::EventID& iThis):
+      m_this(iThis) {}
+      bool operator()(const edm::EventID& iOther) {
+         return m_this.run() == iOther.run() && m_this.event() == iOther.event();
+      }
+      edm::EventID m_this;
+   };
+}
+
 // ------------ method called to for each event  ------------
 void
 EventIDChecker::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-   if(0 != numberOfEventsToSkip_) {
-      ++numberOfEventsLeftBeforeSkip_;
-      if(numberOfEventsLeftBeforeSkip_ > multiProcessSequentialEvents_) {
-         numberOfEventsLeftBeforeSkip_ = 1;
-         index_ += numberOfEventsToSkip_;
-      }
+   if(mustSearch_) { 
+      if( 0 == numberOfEventsLeftBeforeSearch_) {
+         numberOfEventsLeftBeforeSearch_ = multiProcessSequentialEvents_;
+         //the event must be after the last event in our list since multicore doesn't go backwards
+         std::vector<edm::EventID>::iterator itFind= std::find_if(ids_.begin()+index_,ids_.end(), CompareWithoutLumi(iEvent.id()));
+         if(itFind == ids_.end()) {
+            throw cms::Exception("MissedEvent") << "The event " << iEvent.id() << "is not in the list.\n";
+         }
+         index_ = itFind-ids_.begin();
+      } 
+      --numberOfEventsLeftBeforeSearch_;
    }
 
    if(index_ >= ids_.size()) {
@@ -134,8 +152,7 @@ EventIDChecker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
 void
 EventIDChecker::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-   numberOfEventsToSkip_ = (iNumberOfChildren - 1) * multiProcessSequentialEvents_;
-   index_ = iChildIndex * multiProcessSequentialEvents_;
+   mustSearch_ = true;
 }
 
 //define this as a plug-in
