@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec 30 10:09:44 CST 2010
-// $Id$
+// $Id: MessageReceiverForSource.h,v 1.1 2011/01/02 19:50:59 chrjones Exp $
 //
 
 // system include files
@@ -32,8 +32,8 @@ namespace edm {
          
       public:
          ///Takes the ID of the posix message queue used for the messages
-         //MessageReceiverForSource(int iQueueID);
-         MessageReceiverForSource(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialEvents);
+         MessageReceiverForSource(int iQueueID);
+         //MessageReceiverForSource(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialEvents);
          //virtual ~MessageReceiverForSource();
          
          // ---------- const member functions ---------------------
@@ -67,15 +67,11 @@ namespace edm {
          const MessageReceiverForSource& operator=(const MessageReceiverForSource&); // stop default
          
          // ---------- member data --------------------------------
-         //int m_queueID;
+         int m_queueID;
          unsigned long m_startIndex;
          unsigned long m_numberOfConsecutiveIndices;
          unsigned long m_numberToSkip;
          
-         //dummy
-         unsigned int m_forkedChildIndex;
-         unsigned int m_numberOfIndicesToSkip;
-         unsigned int m_originalConsecutiveIndices;
       };
    }
 }

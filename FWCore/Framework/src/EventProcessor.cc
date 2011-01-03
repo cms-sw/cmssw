@@ -1,4 +1,8 @@
 
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+
 #include "FWCore/Framework/interface/EventProcessor.h"
 
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
@@ -804,6 +808,39 @@ namespace edm {
       }
       return n;
     }
+    
+    class MessageSenderToSource {
+    public:
+      MessageSenderToSource(int iQueueID, long iNEventsToProcess):
+      m_queueID(iQueueID),
+      m_nEventsToProcess(iNEventsToProcess) {}
+      void operator()() {
+        std::cout <<"I am controller"<<std::endl;
+        //this is the first child and therefore the controller
+        
+        edm::multicore::MessageForSource sndmsg;
+        sndmsg.startIndex = 0;
+        sndmsg.nIndices = m_nEventsToProcess;
+        if(m_nEventsToProcess > 0 && m_nEventsToProcess < m_nEventsToProcess) {
+          sndmsg.nIndices = m_nEventsToProcess;
+        }
+        int value = 0;
+        do {
+          value = msgsnd(m_queueID,&sndmsg, edm::multicore::MessageForSource::sizeForBuffer(),0);
+          //std::cerr <<"worker asked for work"<<std::endl;
+          sndmsg.startIndex += sndmsg.nIndices;
+        } while (value==0);
+        if(errno != EIDRM and errno != EINVAL) {
+          //NOTE: on Linux we sometimes get EINVAL after the queue was removed rather than EIDRM
+          perror("message queue send failed");
+        }
+        return;
+      }
+      
+    private:
+      const int m_queueID;
+      const long m_nEventsToProcess;
+    };
   }
 
   bool
@@ -883,6 +920,14 @@ namespace edm {
     schedule_->preForkReleaseResources();
 }
     installCustomHandler(SIGCHLD, ep_sigchld);
+    
+    //Create a message queue used to set what events each child processes
+    int queueID;
+    if ( -1 == (queueID = msgget(IPC_PRIVATE, IPC_CREAT|0660))) {
+      printf("Error obtaining message queue\n");
+      exit(EXIT_FAILURE);
+    }
+    
 
     unsigned int childIndex = 0;
     unsigned int const kMaxChildren = numberOfForkedChildren_;
@@ -935,6 +980,9 @@ namespace edm {
       }
       if(value < 0) {
         std::cerr << "failed to create a child" << std::endl;
+        //message queue is a system resource so must be cleaned up 
+        // before parent goes away
+        msgctl(queueID, IPC_RMID,0);
         exit(-1);
       }
       childrenIds.push_back(value);
@@ -944,7 +992,7 @@ namespace edm {
       jobReport->childAfterFork(jobReportFile, childIndex, kMaxChildren);
       actReg_->postForkReacquireResourcesSignal_(childIndex, kMaxChildren);
       
-      boost::shared_ptr<edm::multicore::MessageReceiverForSource> receiver( new edm::multicore::MessageReceiverForSource(childIndex, kMaxChildren, numberOfSequentialEventsPerChild_) );
+      boost::shared_ptr<edm::multicore::MessageReceiverForSource> receiver( new edm::multicore::MessageReceiverForSource(queueID) );
       input_->doPostForkReacquireResources(receiver);
       schedule_->postForkReacquireResources(childIndex, kMaxChildren);
       //NOTE: sources have to reset themselves by listening to the post fork message
@@ -973,6 +1021,14 @@ namespace edm {
     sigdelset(&unblockingSigSet, SIGUSR2);
     sigdelset(&unblockingSigSet, SIGINT);
     pthread_sigmask(SIG_BLOCK, &blockingSigSet, &oldSigSet);
+    
+    //create a thread which sends the units of work to workers
+    // we create it after all signals were blocked so that this
+    // thread is never interupted by a signal
+    MessageSenderToSource sender(queueID,numberOfSequentialEventsPerChild_);
+    boost::thread senderThread(sender);
+    
+    
     while(!shutdown_flag && !child_failed && (childrenIds.size() != num_children_done)) {
       sigsuspend(&unblockingSigSet);
       std::cout << "woke from sigwait" << std::endl;
@@ -986,6 +1042,8 @@ namespace edm {
     if(shutdown_flag) {
       std::cout << "asked to shutdown" << std::endl;
     }
+    
+
     if(shutdown_flag || (child_failed && (num_children_done != childrenIds.size()))) {
       std::cout << "must stop children" << std::endl;
       for(std::vector<pid_t>::iterator it = childrenIds.begin(), itEnd = childrenIds.end();
@@ -998,6 +1056,12 @@ namespace edm {
       }
       pthread_sigmask(SIG_SETMASK, &oldSigSet, NULL);
     }
+    //remove message queue, this will cause the message thread to terminate
+    // kill it now since all children already stopped
+    msgctl(queueID, IPC_RMID,0);
+    //now wait for the sender thread to finish. This should be quick since
+    // we killed the message queue
+    senderThread.join();
     if(child_failed) {
       throw cms::Exception("ForkedChildFailed") << "child process ended abnormally with exit code " << child_fail_exit_status;
     }

@@ -8,17 +8,20 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec 30 10:09:50 CST 2010
-// $Id$
+// $Id: MessageReceiverForSource.cc,v 1.1 2011/01/02 19:50:58 chrjones Exp $
 //
 
 // system include files
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include <errno.h>
+#include <string.h>
 
 // user include files
 #include "FWCore/Framework/interface/MessageReceiverForSource.h"
 #include "FWCore/Framework/src/MessageForSource.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace edm::multicore;
 //
@@ -32,15 +35,14 @@ using namespace edm::multicore;
 //
 // constructors and destructor
 //
-/*MessageReceiverForSource::MessageReceiverForSource(int iQueueID):
+MessageReceiverForSource::MessageReceiverForSource(int iQueueID):
 m_queueID(iQueueID),
 m_startIndex(0),
 m_numberOfConsecutiveIndices(0),
 m_numberToSkip(0)
 {
 }
-*/
-
+/*
 MessageReceiverForSource::MessageReceiverForSource(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialEvents):
 m_startIndex(0),
 m_numberOfConsecutiveIndices(0),
@@ -50,6 +52,7 @@ m_numberOfIndicesToSkip( iNumberOfSequentialEvents*(iNumberOfChildren-1) ),
 m_originalConsecutiveIndices(iNumberOfSequentialEvents)
 {
 }
+ */
 
 // MessageReceiverForSource::MessageReceiverForSource(const MessageReceiverForSource& rhs)
 // {
@@ -80,14 +83,14 @@ MessageReceiverForSource::receive()
 {
    unsigned long previousStartIndex = m_startIndex;
    unsigned long previousConsecutiveIndices = m_numberOfConsecutiveIndices;
+   /*
    //DUMMY
    if (m_originalConsecutiveIndices != m_numberOfConsecutiveIndices) {
       m_numberOfConsecutiveIndices = m_originalConsecutiveIndices;
       m_startIndex = m_numberOfConsecutiveIndices*m_forkedChildIndex;
    } else {
       m_startIndex += m_numberOfConsecutiveIndices+m_numberOfIndicesToSkip;
-   }
-   /*
+   }*/
    MessageForSource message;
    errno = 0;
    int value = msgrcv(m_queueID, &message, MessageForSource::sizeForBuffer(), MessageForSource::messageType(), 0);
@@ -97,7 +100,7 @@ MessageReceiverForSource::receive()
    }
    m_startIndex = message.startIndex;
    m_numberOfConsecutiveIndices = message.nIndices;
-    */
+   
    m_numberToSkip = m_startIndex-previousStartIndex-previousConsecutiveIndices;
    return;
 }
