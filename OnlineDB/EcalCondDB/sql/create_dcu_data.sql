@@ -111,3 +111,25 @@ CREATE TABLE DCU_LVR_VOLTAGES_DAT (
  
 ALTER TABLE  DCU_LVR_VOLTAGES_DAT ADD CONSTRAINT DCU_LVR_VOLTAGES_pk PRIMARY KEY (iov_id, logic_id);
 ALTER TABLE  DCU_LVR_VOLTAGES_DAT ADD CONSTRAINT DCU_LVR_VOLTAGES_fk FOREIGN KEY (iov_id) REFERENCES dcu_iov (iov_id);
+
+CREATE TABLE DCU_CCS_DAT (
+  iov_id                NUMBER(10),
+  logic_id              NUMBER(10), -- TT
+  M1_VDD1               BINARY_FLOAT,
+  M2_VDD1               BINARY_FLOAT,
+  M1_VDD2               BINARY_FLOAT,
+  M2_VDD2               BINARY_FLOAT,
+  M1_Vinj               BINARY_FLOAT,
+  M2_Vinj               BINARY_FLOAT
+  M1_VCC                BINARY_FLOAT,
+  M2_VCC                BINARY_FLOAT,
+  M1_DCUTemp            BINARY_FLOAT,
+  M2_DCUTemp            BINARY_FLOAT,
+  CCSTempLow            BINARY_FLOAT,  
+  CCSTempHigh           BINARY_FLOAT
+);
+
+ALTER TABLE  DCU_CCS_DAT ADD CONSTRAINT DCU_CCS_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE  DCU_CCS_DAT ADD CONSTRAINT DCU_CCS_fk FOREIGN KEY (iov_id) REFERENCES dcu_iov (iov_id);
+
+
