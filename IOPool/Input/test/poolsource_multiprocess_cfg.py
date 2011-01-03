@@ -20,17 +20,37 @@ process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring("fil
 ids = cms.VEventID()
 numberOfEventsInRun = 0
 numberOfEventsPerRun = 5
+numberOfEventsInLumi = 0
+numberOfEventsPerLumi = 2
 run = 100
+lumi = 1
 event=0
+ids.append(cms.EventID(run,0,0))
+ids.append(cms.EventID(run,lumi,0))
 for i in xrange(20):
    numberOfEventsInRun +=1
+   numberOfEventsInLumi +=1
    event += 1
    if numberOfEventsInRun > numberOfEventsPerRun:
+      ids.append(cms.EventID(run,lumi,0))
+      ids.append(cms.EventID(run,0,0))
       numberOfEventsInRun=1
+      numberOfEventsInLumi=1
       run += 1
       event = 1
-   ids.append(cms.EventID(run,event))
-process.check = cms.EDAnalyzer("EventIDChecker", 
+      lumi = 1
+      ids.append(cms.EventID(run,0,0))
+      ids.append(cms.EventID(run,lumi,0))
+   if numberOfEventsInLumi > numberOfEventsPerLumi:
+       numberOfEventsInLumi = 1
+       ids.append(cms.EventID(run,lumi,0))
+       lumi += 1
+       ids.append(cms.EventID(run,lumi,0))
+   ids.append(cms.EventID(run,lumi,event))
+ids.append(cms.EventID(run,lumi,0))
+ids.append(cms.EventID(run,0,0))
+
+process.check = cms.EDAnalyzer("MulticoreRunLumiEventChecker", 
                                 eventSequence = cms.untracked(ids),
                                 multiProcessSequentialEvents = process.options.multiProcesses.maxSequentialEventsPerChild)
 process.print1 = cms.OutputModule("AsciiOutputModule")
