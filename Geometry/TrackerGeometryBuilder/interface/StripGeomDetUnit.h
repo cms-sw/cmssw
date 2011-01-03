@@ -5,7 +5,7 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/TrackerTopology/interface/ProxyStripTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/ProxyStripTopology.h"
 
 class StripGeomDetType;
 class StripTopology;
