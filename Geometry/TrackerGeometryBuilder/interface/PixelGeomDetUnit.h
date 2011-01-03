@@ -5,7 +5,7 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/TrackerTopology/interface/ProxyPixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/ProxyPixelTopology.h"
 
 class PixelGeomDetType;
 class PixelTopology;
