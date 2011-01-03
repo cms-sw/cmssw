@@ -120,7 +120,7 @@ CREATE TABLE DCU_CCS_DAT (
   M1_VDD2               BINARY_FLOAT,
   M2_VDD2               BINARY_FLOAT,
   M1_Vinj               BINARY_FLOAT,
-  M2_Vinj               BINARY_FLOAT
+  M2_Vinj               BINARY_FLOAT,
   M1_VCC                BINARY_FLOAT,
   M2_VCC                BINARY_FLOAT,
   M1_DCUTemp            BINARY_FLOAT,
