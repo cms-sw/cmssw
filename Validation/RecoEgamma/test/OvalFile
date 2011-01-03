@@ -38,6 +38,7 @@ Oval is able to check the output channel of an execution and compare it with a r
 The tags below are defining which are lines to be compared. The currently specification is a
 first draft, and we do not yet check the differences that Oval could raise.
 
+<diffnumber expr="^dataset has (\d+) files:$" tolerance="1">
 <diffline expr="^(TH1.Print Name  = [a-zA-Z_]+, Entries= ).*$">
 <diffnumber expr="^TH1.Print Name  = [a-zA-Z_]+, Entries= (\d+),.*$" tolerance="20%">
 <diffnumber expr="^TH1.Print Name  = [a-zA-Z_]+, Entries= \d+, Total sum= (\S+)$" tolerance="10%">
