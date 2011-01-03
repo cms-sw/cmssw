@@ -39,6 +39,8 @@ The tags below are defining which are lines to be compared. The currently specif
 first draft, and we do not yet check the differences that Oval could raise.
 
 <diffnumber expr="^dataset has (\d+) files:$" tolerance="1">
+<error expr="^dataset has 0 files:$">
+
 <diffline expr="^(TH1.Print Name  = [a-zA-Z_]+, Entries= ).*$">
 <diffnumber expr="^TH1.Print Name  = [a-zA-Z_]+, Entries= (\d+),.*$" tolerance="20%">
 <diffnumber expr="^TH1.Print Name  = [a-zA-Z_]+, Entries= \d+, Total sum= (\S+)$" tolerance="10%">
