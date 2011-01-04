@@ -345,9 +345,6 @@ namespace edm {
 
   boost::shared_ptr<LuminosityBlockPrincipal>
   InputSource::readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lbCache) {
-    // Note: For the moment, we do not support saving and restoring the state of the
-    // random number generator if random numbers are generated during processing of lumi blocks
-    // (e.g. beginLuminosityBlock(), endLuminosityBlock())
     lbCache->fillLuminosityBlockPrincipal();
     return lbCache;
   }
@@ -359,7 +356,6 @@ namespace edm {
     assert(!eventLimitReached());
     doneReadAhead_ = false;
 
-    preRead();
     EventPrincipal* result = readEvent_();
     if (result != 0) {
       assert(lbCache->run() == result->run());
@@ -379,7 +375,6 @@ namespace edm {
     EventPrincipal* result = 0;
 
     if (!limitReached()) {
-      preRead();
       result = readIt(eventID);
       if (result != 0) {
         Event event(*result, moduleDescription());
@@ -485,20 +480,11 @@ namespace edm {
   }
 
   void
-  InputSource::preRead() {
-
-    Service<RandomNumberGenerator> rng;
-    if (rng.isAvailable()) {
-      rng->snapShot();
-    }
-  }
-
-  void
   InputSource::postRead(Event& event) {
 
     Service<RandomNumberGenerator> rng;
     if (rng.isAvailable()) {
-      rng->restoreState(event);
+      rng->postEventRead(event);
     }
   }
 

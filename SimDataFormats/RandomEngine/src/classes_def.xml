@@ -2,5 +2,5 @@
   <class pattern="edm::Wrapper<*>"/>
   <class name="std::vector<RandomEngineState>"/>  
   <class name="RandomEngineState"/>
+  <class name="edm::RandomEngineStates"/>
 </lcgdict>
-

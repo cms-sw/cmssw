@@ -1,4 +1,5 @@
 <use   name="DataFormats/Common"/>
+<use   name="FWCore/Utilities"/>
 <use   name="boost"/>
 <use   name="rootrflx"/>
 <export>

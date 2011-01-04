@@ -353,7 +353,6 @@ namespace edm {
     virtual void setLumi(LuminosityBlockNumber_t lb);
     virtual void rewind_();
     virtual void wakeUp_();
-    void preRead();
     void postRead(Event& event);
     virtual void beginLuminosityBlock(LuminosityBlock&);
     virtual void endLuminosityBlock(LuminosityBlock&);

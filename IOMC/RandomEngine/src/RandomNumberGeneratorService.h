@@ -1,138 +1,149 @@
 #ifndef RandomEngine_RandomNumberGeneratorService_h
 #define RandomEngine_RandomNumberGeneratorService_h
-// -*- C++ -*-
-//
-// Package:     RandomEngine
-// Class  :     RandomNumberGeneratorService
-// 
-/**\class RandomNumberGeneratorService RandomNumberGeneratorService.h IOMC/RandomEngine/src/RandomNumberGeneratorService.h
 
- Description: Manages random number engines for modules and the source
+/** \class edm::service::RandomNumberGeneratorService
+
+ Description: Manages random number engines for modules
 
  Usage: See comments in base class, FWCore/Utilities/RandomNumberGenerator.h
 
+\author Chris Jones and W. David Dagenhart, created March 7, 2006
+  (originally in FWCore/Services)
 */
-//
-// Original Authors:  Chris Jones, W. David Dagenhart
-//   Created:  Tue Mar  7 09:43:43 EST 2006 (originally in FWCore/Services)
-//
 
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "SimDataFormats/RandomEngine/interface/RandomEngineState.h"
+
 #include "boost/shared_ptr.hpp"
 
 #include <map>
+#include <vector>
+#include <string>
+#include <stdint.h>
+#include <iosfwd>
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 namespace edm {
   class ParameterSet;
   class ModuleDescription;
-  class EventID;
-  class Timestamp;
+  class LuminosityBlock;
   class Event;
   class EventSetup;
   class ConfigurationDescriptions;
+  struct ActivityRegistry;
 
   namespace service {
 
     class RandomNumberGeneratorService : public RandomNumberGenerator
-    {
-      
+    {      
+
     public:
 
-      RandomNumberGeneratorService(const ParameterSet& iPSet, ActivityRegistry& iRegistry);
+      RandomNumberGeneratorService(ParameterSet const& pset, ActivityRegistry& activityRegistry);
       virtual ~RandomNumberGeneratorService();
 
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-
+      /// Use this to get the random number engine, this is the only function most users should call.
       virtual CLHEP::HepRandomEngine& getEngine() const;    
 
+      /// Exists for backward compatibility.
       virtual uint32_t mySeed() const;
+
+      static void fillDescriptions(ConfigurationDescriptions & descriptions);
 
       // The following functions should not be used by general users.  They
       // should only be called by code designed to work with the service while
       // it is saving the engine state to an event or restoring it from an event
       // and also used to keep track of which module is currently active.
-      // The first 10 functions are called at various points during he main
-      // processing loop.  The next 3 are called by a dedicated producer
-      // module (RandomEngineStateProducer).  The other two by the InputSource
-      // base class.
+      // The first 20 are called either by the InputSource base class
+      // or via the ActivityRegistry.  The next 2 are called by a dedicated
+      // producer module (RandomEngineStateProducer).
 
-      void preModuleConstruction(const ModuleDescription& iDesc);
-      void postModuleConstruction(const ModuleDescription& iDesc);
+      void postForkReacquireResources(unsigned childIndex, unsigned kMaxChildren);
 
-      void preSourceConstruction(const ModuleDescription& iDesc);
-      void postSourceConstruction(const ModuleDescription& iDesc);
+      virtual void preBeginLumi(LuminosityBlock const& lumi);
+      void postBeginLumi(LuminosityBlock const& lumi, EventSetup const& es);
+      virtual void postEventRead(Event const& event);
 
-      void postBeginJob();
-      void postEndJob();
 
-      void preEventProcessing(const edm::EventID&, const edm::Timestamp&);
-      void postEventProcessing(const Event&, const EventSetup&);
+      void preModuleConstruction(ModuleDescription const& description);
+      void postModuleConstruction(ModuleDescription const& description);
 
-      void preModule(const ModuleDescription& iDesc);
-      void postModule(const ModuleDescription& iDesc);
-
-      void preModuleBeginJob(const ModuleDescription& iDesc);
-      void postModuleBeginJob(const ModuleDescription& iDesc);
-
-      void preModuleEndJob(const ModuleDescription& iDesc);
-      void postModuleEndJob(const ModuleDescription& iDesc);
+      void preModuleBeginJob(ModuleDescription const& description);
+      void postModuleBeginJob(ModuleDescription const& description);
 
       void preModuleBeginRun(ModuleDescription const& description);
       void postModuleBeginRun(ModuleDescription const& description);
-      void preModuleEndRun(ModuleDescription const& description);
-      void postModuleEndRun(ModuleDescription const& description);
 
       void preModuleBeginLumi(ModuleDescription const& description);
       void postModuleBeginLumi(ModuleDescription const& description);
+
+      void preModule(ModuleDescription const& description);
+      void postModule(ModuleDescription const& description);
+
       void preModuleEndLumi(ModuleDescription const& description);
       void postModuleEndLumi(ModuleDescription const& description);
 
-      virtual const std::vector<std::string>& getCachedLabels() const;
-      virtual const std::vector<std::vector<uint32_t> >& getCachedStates() const;
-      virtual const std::vector<std::vector<uint32_t> >& getCachedSeeds() const;
+      void preModuleEndRun(ModuleDescription const& description);
+      void postModuleEndRun(ModuleDescription const& description);
 
-      virtual void snapShot();
-      virtual void restoreState(const Event& event);
+      void preModuleEndJob(ModuleDescription const& description);
+      void postModuleEndJob(ModuleDescription const& description);
 
-      // For debugging purposes only
+      virtual std::vector<RandomEngineState> const& getLumiCache() const;
+      virtual std::vector<RandomEngineState> const& getEventCache() const;
+
+      /// For debugging purposes only
       virtual void print();
-
-      void saveEngineState(const std::string& fileName );
-
-      void restoreEngineState(const std::string& fileName);
 
     private:
 
-      RandomNumberGeneratorService(const RandomNumberGeneratorService&); // disallow default
-      
-      const RandomNumberGeneratorService& operator=(const RandomNumberGeneratorService&); // disallow default
-      
+      typedef std::vector<std::string> VString;
+      typedef std::vector<uint32_t> VUint32;
+
+      RandomNumberGeneratorService(RandomNumberGeneratorService const&); // disallow default
+
+      RandomNumberGeneratorService const& operator=(RandomNumberGeneratorService const&); // disallow default
+
       // These two functions are called internally to keep track
       // of which module is currently active
 
-      void push(const std::string& iLabel);
+      void push(std::string const& iLabel);
       void pop();
 
-      void checkEngineType(const std::string& typeFromConfig,
-                           const std::string& typeFromEvent,
-                           const std::string& engineLabel);
+      void readFromLuminosityBlock(LuminosityBlock const& lumi);
+      void readFromEvent(Event const& event);
 
-      void dumpVector(const std::vector<uint32_t> &v);
+      void snapShot(std::vector<RandomEngineState> & cache);
+      void restoreFromCache(std::vector<RandomEngineState> const& cache);
 
-      void stashVector(const std::vector<unsigned long> &v, std::ostream &os);
+      void checkEngineType(std::string const& typeFromConfig,
+                           std::string const& typeFromEvent,
+                           std::string const& engineLabel);
 
-      std::vector<unsigned long> restoreVector(std::istream &is, const int32_t n);
-
-      bool processStanza(std::istream &is);
-
-      bool isEngineNameValid(std::string const &name);
-
-      int32_t expectedSeedCount(std::string const &name);
-
+      void saveStatesToFile(std::string const& fileName);
+      void writeStates(std::vector<RandomEngineState> const& v,
+                       std::ofstream & outFile);
+      void writeVector(VUint32 const& v,
+                       std::ofstream & outFile);
       std::string constructSaveFileName();
 
-      void oldStyleConfig(const ParameterSet& iPSet);
+      void readEventStatesFromTextFile(std::string const& fileName);
+      void readLumiStatesFromTextFile(std::string const& fileName);
+      void readStatesFromFile(std::string const& fileName,
+                              std::vector<RandomEngineState> & cache,
+                              std::string const& whichStates);
+      bool readEngineState(std::istream &is,
+                           std::vector<RandomEngineState> & cache,
+                           std::string const& whichStates, 
+                           bool & saveToCache);
+      void readVector(std::istream &is, unsigned numItems, std::vector<uint32_t> & v);
+
+      void startNewSequencesForEvents();
+
+      void oldStyleConfig(ParameterSet const& pset);
 
       // ---------- member data --------------------------------
 
@@ -147,12 +158,12 @@ namespace edm {
       std::vector<EngineMap::const_iterator> engineStack_;
       EngineMap::const_iterator currentEngine_;
 
-      std::vector<std::string> labelStack_;
+      VString labelStack_;
       std::string currentLabel_;
 
-      // This is only used for beginRun, beginLumi, endRun, and
-      // endLumi in the check that prevents random numbers from
-      // being thrown in those methods.
+      // This is used for beginRun, endRun, endLumi, beginJob, endJob
+      // and constructors in the check that prevents random numbers
+      // from being thrown in those methods.
       std::vector<std::vector<unsigned long> > engineStateStack_;
 
       // This holds the module label used in a previous process
@@ -161,17 +172,13 @@ namespace edm {
       // to restore the random numbers.
       std::string restoreStateLabel_;
 
-      // The state of the engines is cached at the beginning the
-      // processing loop for each event.  The producer module
-      // gets called later and writes these cached vectors into
-      // the event.
-      std::vector<std::string> cachedLabels_;
-      std::vector<std::vector<uint32_t> > cachedStates_;
-      std::vector<std::vector<uint32_t> > cachedSeeds_;
+      std::vector<RandomEngineState> lumiCache_;
+      std::vector<RandomEngineState> eventCache_;
 
       // Keeps track of the seeds used to initialize the engines.
       // Also uses the module label as a key
-      std::map<std::string, std::vector<uint32_t> > seedMap_;
+      std::map<std::string, VUint32> seedMap_;
+      std::map<std::string, std::string> engineNameMap_;
 
       // Keep the name of the file where we want to save the state
       // of all declared engines at the end of each event. A blank
@@ -181,13 +188,27 @@ namespace edm {
       bool saveFileNameRecorded_;
 
       // Keep the name of the file from which we restore the state
-      // of all declared engines at the befinnig of a run. A
+      // of all declared engines at the beginning of a run. A
       // blank name means there isn't one.
       std::string restoreFileName_;
 
-     // Remember if we are dealing with a new-style or old-style
-     // configuration file.
-     bool oldStyle_;
+      // This turns on or off the checks that ensure no random
+      // numbers are generated in a module during construction,
+      // beginJob, beginRun, endLuminosityBlock, endRun or endJob.
+      bool enableChecking_;
+
+      // True before the first beginLumi call
+      bool firstLumi_;
+
+      // In a multiprocess job this will have the index of the child process
+      // incremented by one as each child is forked
+      unsigned childIndex_;
+
+      uint32_t eventSeedOffset_;
+
+      static uint32_t maxSeedRanecu;
+      static uint32_t maxSeedHepJames;
+      static uint32_t maxSeedTRandom3;
     };
   }
 }

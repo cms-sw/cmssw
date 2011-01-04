@@ -3,6 +3,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/Utilities"/>
+<use   name="FWCore/MessageLogger"/>
 <use   name="SimDataFormats/RandomEngine"/>
 <use   name="boost"/>
 <use   name="clhep"/>

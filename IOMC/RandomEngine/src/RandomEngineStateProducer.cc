@@ -1,58 +1,41 @@
 
 #include "IOMC/RandomEngine/src/RandomEngineStateProducer.h"
-
-#include <vector>
-#include <string>
-
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "SimDataFormats/RandomEngine/interface/RandomEngineStates.h"
 #include "FWCore/Framework/interface/Event.h"
-
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "SimDataFormats/RandomEngine/interface/RandomEngineState.h"
+#include <memory>
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-
-RandomEngineStateProducer::RandomEngineStateProducer(edm::ParameterSet const& iConfig) {
-  //register your products
-  produces<std::vector<RandomEngineState> >();
+RandomEngineStateProducer::RandomEngineStateProducer(edm::ParameterSet const& pset) {
+  produces<edm::RandomEngineStates, edm::InLumi>("beginLumi");
+  produces<edm::RandomEngineStates>();
 }
 
 RandomEngineStateProducer::~RandomEngineStateProducer() {
 }
 
 void
-RandomEngineStateProducer::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
-  std::auto_ptr<std::vector<RandomEngineState> > stateVector(new std::vector<RandomEngineState>);
-
+RandomEngineStateProducer::produce(edm::Event& ev, edm::EventSetup const& es) {
   edm::Service<edm::RandomNumberGenerator> randomService;
   if (randomService.isAvailable()) {
-    std::vector<std::string> const& strings = randomService->getCachedLabels();
-    std::vector<std::vector<uint32_t> > const& states = randomService->getCachedStates();
-    std::vector<std::vector<uint32_t> > const& seeds = randomService->getCachedSeeds();
-
-    std::vector<std::string>::const_iterator iString = strings.begin();
-    std::vector<std::vector<uint32_t> >::const_iterator iState = states.begin();
-    std::vector<std::vector<uint32_t> >::const_iterator iSeed = seeds.begin();
-
-    for (; iString != strings.end(); ++iString, ++iState, ++iSeed) {
-      RandomEngineState engineState;
-      engineState.setLabel(*iString);
-      engineState.setState(*iState);
-      engineState.setSeed(*iSeed);
-      stateVector->push_back(engineState);
-    }
-    iEvent.put(stateVector);
+    std::auto_ptr<edm::RandomEngineStates> states(new edm::RandomEngineStates);
+    states->setRandomEngineStates(randomService->getEventCache());
+    ev.put(states);
   }
 }
 
-void 
-RandomEngineStateProducer::beginJob() {
-}
-
-void 
-RandomEngineStateProducer::endJob() {
+void
+RandomEngineStateProducer::beginLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const& es) {
+  edm::Service<edm::RandomNumberGenerator> randomService;
+  if (randomService.isAvailable()) {
+    std::auto_ptr<edm::RandomEngineStates> states(new edm::RandomEngineStates);
+    states->setRandomEngineStates(randomService->getLumiCache());
+    lb.put(states, "beginLumi");
+  }
 }
 
 void

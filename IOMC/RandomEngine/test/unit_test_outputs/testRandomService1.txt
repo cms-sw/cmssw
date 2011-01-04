@@ -1,268 +1,188 @@
-*** TestRandomNumberServiceAnalyzer constructor
+*** TestRandomNumberServiceAnalyzer beginLumi 1/1
 81
+HepJamesRandom
 0.422889
 0.0392907
 0.291227
-0.851084
-0.0841909
-*** TestRandomNumberServiceAnalyzer constructor
+*** TestRandomNumberServiceAnalyzer beginLumi 1/1
 1
+RanecuEngine
 0.999981
 0.203459
 0.668007
-0.461334
-0.732909
-*** TestRandomNumberServiceAnalyzer constructor
+*** TestRandomNumberServiceAnalyzer beginLumi 1/1
 83
+TRandom3
 0.257042
 0.565658
 0.683788
-0.834411
-0.663642
-*** TestRandomNumberServiceAnalyzer constructor
+*** TestRandomNumberServiceAnalyzer beginLumi 1/1
 84
+HepJamesRandom
 0.133504
 0.85941
 0.256103
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/1
+81
+HepJamesRandom
+0.851084
+0.0841909
+0.01745
+12.5332
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/1
+1
+RanecuEngine
+0.461334
+0.732909
+0.332698
+8.7863
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/1
+83
+TRandom3
+0.834411
+0.663642
+0.906853
+2.52147
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/1
+84
+HepJamesRandom
 0.309674
 0.0839297
-*** TestRandomNumberServiceAnalyzer analyze() ***
+0.889512
+30.0878
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/2
 81
-0.01745
-0.285556
+HepJamesRandom
 0.938778
 0.225607
 0.569195
 21.5209
-13.8232
-4.95377
-6.29295
-13.794
-*** TestRandomNumberServiceAnalyzer analyze() ***
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/2
 1
-0.332698
-0.415352
+RanecuEngine
 0.839989
 0.541681
 0.544943
 8.60621
-14.5781
-0.251817
-17.6701
-11.627
-*** TestRandomNumberServiceAnalyzer analyze() ***
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/2
 83
-0.906853
-0.77713
+TRandom3
 0.273733
 0.827367
 0.0782056
 10.309
-9.52653
-9.50013
-15.3909
-2.96509
-*** TestRandomNumberServiceAnalyzer analyze() ***
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/2
 84
-0.889512
-0.0493518
+HepJamesRandom
 0.753251
 0.68063
 0.298945
 1.63885
-19.9464
-25.1397
-19.1634
-10.5913
-*** TestRandomNumberServiceAnalyzer analyze() ***
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/3
 81
+HepJamesRandom
+0.250996
+0.609341
+0.532968
+13.794
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/3
+1
+RanecuEngine
+0.232745
+0.975133
+0.170844
+11.627
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/3
+83
+TRandom3
+0.385716
+0.386736
+0.214575
+2.96509
+*** TestRandomNumberServiceAnalyzer analyze() 1/1/3
+84
+HepJamesRandom
+0.136062
+0.0809463
+0.147144
+10.5913
+*** TestRandomNumberServiceAnalyzer beginLumi 1/2
+81
+HepJamesRandom
+0.422889
+0.0392907
+0.291227
+*** TestRandomNumberServiceAnalyzer beginLumi 1/2
+1
+RanecuEngine
+0.999981
+0.203459
+0.668007
+*** TestRandomNumberServiceAnalyzer beginLumi 1/2
+83
+TRandom3
+0.257042
+0.565658
+0.683788
+*** TestRandomNumberServiceAnalyzer beginLumi 1/2
+84
+HepJamesRandom
+0.133504
+0.85941
+0.256103
+*** TestRandomNumberServiceAnalyzer analyze() 1/2/4
+81
+HepJamesRandom
 0.0107228
 0.444845
 0.317331
-0.0381796
-0.231508
-8.33085
-4.61387
-12.3625
-44.9
-14.5771
-*** TestRandomNumberServiceAnalyzer analyze() ***
+32.6545
+*** TestRandomNumberServiceAnalyzer analyze() 1/2/4
 1
+RanecuEngine
 0.541386
 0.176497
 0.710599
-0.884126
-0.791232
-3.39794
-3.85805
-1.29152
-9.06642
-3.50601
-*** TestRandomNumberServiceAnalyzer analyze() ***
+1.23156
+*** TestRandomNumberServiceAnalyzer analyze() 1/2/4
 83
+TRandom3
 0.604043
 0.282541
 0.00410514
-0.294077
-0.0203133
-5.55142
-7.48342
-30.5496
-2.22619
-9.49113
-*** TestRandomNumberServiceAnalyzer analyze() ***
+12.2392
+*** TestRandomNumberServiceAnalyzer analyze() 1/2/4
 84
+HepJamesRandom
 0.159527
 0.793322
 0.157134
-0.376794
+9.76057
+*** TestRandomNumberServiceAnalyzer analyze() 1/2/5
+81
+HepJamesRandom
+0.231508
+0.434706
+0.630409
+12.3625
+*** TestRandomNumberServiceAnalyzer analyze() 1/2/5
+1
+RanecuEngine
+0.791232
+0.711917
+0.679903
+1.29152
+*** TestRandomNumberServiceAnalyzer analyze() 1/2/5
+83
+TRandom3
+0.0203133
+0.573991
+0.473151
+30.5496
+*** TestRandomNumberServiceAnalyzer analyze() 1/2/5
+84
+HepJamesRandom
 0.56627
-9.43624
-5.83215
+0.389215
+0.558101
 19.8681
-23.1735
-12.5354
-*** TestRandomNumberServiceAnalyzer analyze() ***
-81
-0.415156
-0.419999
-0.407036
-0.366772
-0.953171
-5.70062
-4.14228
-7.89966
-3.94438
-32.5762
-*** TestRandomNumberServiceAnalyzer analyze() ***
-1
-0.992716
-0.050559
-0.133224
-0.27823
-0.086604
-0.136601
-9.92756
-20.6047
-0.533735
-18.054
-*** TestRandomNumberServiceAnalyzer analyze() ***
-83
-0.252537
-0.834577
-0.353193
-0.521067
-0.124564
-20.5945
-9.62329
-8.7966
-4.15089
-1.97447
-*** TestRandomNumberServiceAnalyzer analyze() ***
-84
-0.14851
-0.0568119
-0.418119
-0.614138
-0.781744
-1.14481
-7.7102
-13.1328
-2.2265
-1.80798
-*** TestRandomNumberServiceAnalyzer analyze() ***
-81
-0.681412
-0.661715
-0.561167
-0.740498
-0.218088
-15.3162
-4.86898
-4.77504
-0.612926
-6.09551
-*** TestRandomNumberServiceAnalyzer analyze() ***
-1
-0.45432
-0.229433
-0.201167
-0.27337
-0.238837
-4.39708
-5.66065
-6.87909
-14.4331
-4.48554
-*** TestRandomNumberServiceAnalyzer analyze() ***
-83
-0.242523
-0.34465
-0.422898
-0.915866
-0.694759
-16.7426
-13.0442
-35.9952
-18.7956
-14.3892
-*** TestRandomNumberServiceAnalyzer analyze() ***
-84
-0.364233
-0.188603
-0.543454
-0.111924
-0.127535
-1.4598
-21.9597
-14.2521
-17.2058
-4.53107
-*** TestRandomNumberServiceAnalyzer analyze() ***
-81
-0.11448
-0.598126
-0.354498
-0.295557
-0.879246
-5.05963
-13.2554
-10.0218
-1.9413
-3.2661
-*** TestRandomNumberServiceAnalyzer analyze() ***
-1
-0.987618
-0.916365
-0.0900256
-0.736795
-0.104406
-10.0829
-1.69183
-4.00394
-10.7624
-3.57688
-*** TestRandomNumberServiceAnalyzer analyze() ***
-83
-0.623145
-0.719757
-0.818568
-0.26922
-0.0941939
-5.68492
-6.74376
-4.62086
-15.5872
-15.4852
-*** TestRandomNumberServiceAnalyzer analyze() ***
-84
-0.374457
-0.643483
-0.358439
-0.561513
-0.261717
-13.6817
-3.51531
-13.7842
-0.802311
-1.8735

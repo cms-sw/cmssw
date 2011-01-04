@@ -16,12 +16,12 @@ service.  Prints them to an output file named testRandomNumberService.txt.
 //
 //
 
-//#define JMMTEST
-#define ORIGINAL
-
 #include <memory>
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <sstream>
+#include <unistd.h>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -29,77 +29,70 @@ service.  Prints them to an output file named testRandomNumberService.txt.
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandExponential.h"
 
-//#define DUMP_CONSTRUCTOR
-//#define DUMP_ANALYZER
-
 class TestRandomNumberServiceAnalyzer : public edm::EDAnalyzer {
   public:
-    explicit TestRandomNumberServiceAnalyzer(const edm::ParameterSet&);
+    explicit TestRandomNumberServiceAnalyzer(edm::ParameterSet const& pset);
     ~TestRandomNumberServiceAnalyzer();
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-
-    void beginJob();
-    void endJob();
+    virtual void analyze(edm::Event const& ev, edm::EventSetup const& es);
+    virtual void beginJob();
+    virtual void endJob();
+    virtual void beginRun(edm::Run const& run, edm::EventSetup const& es);
+    virtual void endRun(edm::Run const& run, edm::EventSetup const& es);
+    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es);
+    virtual void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es);
+    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
   private:
     static bool firstFileOpen_;
-#ifdef JMMTEST
-    static int  eventNumber_;
-#endif
+    bool dump_;
+    std::string outFileName_;
+    bool multiprocess_;
+    unsigned childIndex_;
+    unsigned count_;
+    bool firstInPath_;
+    double randomNumberEvent0_;
+    double randomNumberEvent1_;
+    double randomNumberEvent2_;
+    double randomNumberEvent3_;
+    double randomNumberLumi0_;
+    double randomNumberLumi1_;
+    double randomNumberLumi2_;
+    bool multiprocessReplay_;
 };
 
 bool TestRandomNumberServiceAnalyzer::firstFileOpen_ = true;
-#ifdef JMMTEST
-int  TestRandomNumberServiceAnalyzer::eventNumber_ = 0;
-#endif
 
-TestRandomNumberServiceAnalyzer::TestRandomNumberServiceAnalyzer(const edm::ParameterSet& iConfig)
+TestRandomNumberServiceAnalyzer::TestRandomNumberServiceAnalyzer(edm::ParameterSet const& pset) :
+  dump_(pset.getUntrackedParameter<bool>("dump", false)),
+  outFileName_("testRandomService.txt"),
+  multiprocess_(false),
+  childIndex_(0U),
+  count_(0U),
+  firstInPath_(pset.getUntrackedParameter<bool>("firstInPath", false)),
+  randomNumberEvent0_(0.0),
+  randomNumberEvent1_(0.0),
+  randomNumberEvent2_(0.0),
+  randomNumberEvent3_(0.0),
+  randomNumberLumi0_(0.0),
+  randomNumberLumi1_(0.0),
+  randomNumberLumi2_(0.0),
+  multiprocessReplay_(pset.getUntrackedParameter<bool>("multiprocessReplay", false))
 {
-
-  // The first time we open the file we create a new file
-  // After that append to it.  This file is just for testing
-  // purposes, we print out the generated random numbers and
-  // some other things.
-  std::ofstream outFile;
-  if (firstFileOpen_) {
-    outFile.open("testRandomService.txt");
-    firstFileOpen_ = false;
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if (dump_) {
+    rng->print();
+    std::cout << "*** TestRandomNumberServiceAnalyzer constructor " << rng->mySeed() << "\n";
   }
-  else {
-    outFile.open("testRandomService.txt", std::ofstream::out | std::ofstream::app); 
-  }
-
-  // The rest of the code in this function gets repeated in
-  //the analyze function, there are comments there.
-
-  using namespace edm;
-  Service<RandomNumberGenerator> rng;
-
-  outFile << "*** TestRandomNumberServiceAnalyzer constructor\n";
-
-#ifdef DUMP_CONSTRUCTOR
-  rng->print();
-#endif
-
-  outFile << rng->mySeed() << "\n";
-#ifdef JMMTEST
-  rng->saveEngineState("AtConstruction.dat");
-#endif
-
-  CLHEP::HepRandomEngine& engine = rng->getEngine();
-  for (int i = 0; i < 5; ++i) { 
-    double num = engine.flat();
-    outFile << num << "\n";
-  }
-
-  outFile.close();
 }
-
 
 TestRandomNumberServiceAnalyzer::~TestRandomNumberServiceAnalyzer()
 {
@@ -109,32 +102,28 @@ TestRandomNumberServiceAnalyzer::~TestRandomNumberServiceAnalyzer()
 void
 TestRandomNumberServiceAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::ofstream outFile;
-  outFile.open("testRandomService.txt", std::ofstream::out | std::ofstream::app); 
-
-  // Get the service
-  using namespace edm;
-  Service<RandomNumberGenerator> rng;
-
-  outFile << "*** TestRandomNumberServiceAnalyzer analyze() ***\n";
-
-  // This is useful for debugging but normally leave it
-  // commented out because it sends lots of output to std::cout
-  // It prints out the internal state of the service
-
-#ifdef DUMP_ANALYZER
-  rng->print();
-#endif
-
-#ifdef JMMTEST
-  if(eventNumber_ == 0) {
-    rng->saveEngineState("InAnalyzer.dat");
-    ++eventNumber_;
+  // Add some sleep for the different child processes in attempt
+  // to ensure all the child processes get events to process.
+  if (multiprocess_) {
+    sleep(0.025 + childIndex_ * 0.025 + count_ * 0.3);
   }
-#endif
+  ++count_;
 
-  // The first random seed
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if (dump_) {
+    std::cout << "*** TestRandomNumberServiceAnalyzer analyze " << rng->mySeed() << "\n";
+  }
+
+  std::ofstream outFile;
+  outFile.open(outFileName_.c_str(), std::ofstream::out | std::ofstream::app); 
+
+  outFile << "*** TestRandomNumberServiceAnalyzer analyze() "
+          << iEvent.eventAuxiliary().run()
+          << "/" << iEvent.eventAuxiliary().luminosityBlock() 
+          << "/" << iEvent.eventAuxiliary().event() 
+          << "\n";
   outFile << rng->mySeed() << "\n";
+  outFile << rng->getEngine().name() << "\n";
 
   // Get a reference to the engine.  This call can
   // be here or it can be in the module constructor
@@ -145,13 +134,14 @@ TestRandomNumberServiceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   // care of those actions.
   CLHEP::HepRandomEngine& engine = rng->getEngine();
 
-  double randomNumber;
-
   // Generate random numbers distributed flatly between 0 and 1 
-  for (int i = 0; i < 5; ++i) { 
-    randomNumber = engine.flat();
-    outFile << randomNumber << "\n";
-  }
+  randomNumberEvent0_ = engine.flat();
+  randomNumberEvent1_ = engine.flat();
+  randomNumberEvent2_ = engine.flat();
+
+  outFile << randomNumberEvent0_ << "\n";
+  outFile << randomNumberEvent1_ << "\n";
+  outFile << randomNumberEvent2_ << "\n";
 
   // An example of how to generate random numbers using the distributions
   // in CLHEP.  Here we use the exponential distribution.  CLHEP provides
@@ -160,39 +150,180 @@ TestRandomNumberServiceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   CLHEP::RandExponential expDist(engine);
   double mean = 10.0;  // Mean of the exponential
 
-#ifdef ORIGINAL
-  for (int i = 0; i < 5; ++i) {
-    randomNumber = expDist.fire(mean);
-    outFile << randomNumber << "\n";
-  }
-#endif
+  randomNumberEvent3_ = expDist.fire(mean);
+  outFile << randomNumberEvent3_ << "\n";
 
-#ifdef JMMTEST
-  for (int i = 0; i < 50000000; ++i) {
-    randomNumber = expDist.fire(mean);
-    if(i%10000000 == 1)  outFile << randomNumber << "\n";
+  outFile.close();
+
+  if (multiprocess_ && count_ == 1U) {
+    std::ostringstream ss;
+    ss << "child" << childIndex_ << "FirstEvent.txt";
+    std::string filename = ss.str();
+
+    if (firstInPath_) {
+      outFile.open(filename.c_str());
+    }
+    else {
+      outFile.open(filename.c_str(), std::ofstream::app); 
+    }
+    outFile << *currentContext()->moduleLabel() << "\n";
+    outFile << rng->mySeed() << "\n";
+    outFile << rng->getEngine().name() << "\n";
+
+    outFile << "Event random numbers\n";
+    outFile << randomNumberEvent0_ << "\n";
+    outFile << randomNumberEvent1_ << "\n";
+    outFile << randomNumberEvent2_ << "\n";
+    outFile << randomNumberEvent3_ << "\n";
+
+    outFile << "Lumi random numbers\n";
+    outFile << randomNumberLumi0_ << "\n";
+    outFile << randomNumberLumi1_ << "\n";
+    outFile << randomNumberLumi2_ << "\n";
+
+    outFile.close();
   }
-#endif
+
+  if (multiprocess_ || multiprocessReplay_) {
+    std::ostringstream ss;
+    ss << "child" << childIndex_ << "LastEvent.txt";
+    std::string filename = ss.str();
+
+    if (firstInPath_) {
+      outFile.open(filename.c_str());
+    }
+    else {
+      outFile.open(filename.c_str(), std::ofstream::app); 
+    }
+    outFile << *currentContext()->moduleLabel() << "\n";
+    outFile << rng->mySeed() << "\n";
+    outFile << rng->getEngine().name() << "\n";
+
+    outFile << "Event random numbers\n";
+    outFile << randomNumberEvent0_ << "\n";
+    outFile << randomNumberEvent1_ << "\n";
+    outFile << randomNumberEvent2_ << "\n";
+    outFile << randomNumberEvent3_ << "\n";
+
+    outFile << "Lumi random numbers\n";
+    outFile << randomNumberLumi0_ << "\n";
+    outFile << randomNumberLumi1_ << "\n";
+    outFile << randomNumberLumi2_ << "\n";
+
+    outFile.close();
+  }
+
+  if (multiprocess_ || multiprocessReplay_) {
+    std::ostringstream ss;
+    ss << "testRandomServiceL" << iEvent.eventAuxiliary().luminosityBlock()
+	  << "E" << iEvent.eventAuxiliary().event() << ".txt";
+    std::string filename = ss.str();
+
+    if (firstInPath_) {
+      outFile.open(filename.c_str());
+    }
+    else {
+      outFile.open(filename.c_str(), std::ofstream::app); 
+    }
+    outFile << *currentContext()->moduleLabel() << "\n";
+    outFile << rng->mySeed() << "\n";
+    outFile << rng->getEngine().name() << "\n";
+
+    outFile << "Event random numbers\n";
+    outFile << randomNumberEvent0_ << "\n";
+    outFile << randomNumberEvent1_ << "\n";
+    outFile << randomNumberEvent2_ << "\n";
+    outFile << randomNumberEvent3_ << "\n";
+
+    outFile << "Lumi random numbers\n";
+    outFile << randomNumberLumi0_ << "\n";
+    outFile << randomNumberLumi1_ << "\n";
+    outFile << randomNumberLumi2_ << "\n";
+
+    outFile.close();
+  }
+}
+
+void TestRandomNumberServiceAnalyzer::beginJob() {
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if (dump_) {
+    std::cout << "*** TestRandomNumberServiceAnalyzer beginJob " << rng->mySeed() << "\n";
+    std::cout << rng->getEngine().name() << "\n";
+  }
+}
+
+void TestRandomNumberServiceAnalyzer::endJob() {
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if (dump_) {
+    std::cout << "*** TestRandomNumberServiceAnalyzer endJob " << rng->mySeed() << "\n";
+  }
+}
+
+void TestRandomNumberServiceAnalyzer::beginRun(edm::Run const& run, edm::EventSetup const& es) {
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if (dump_) {
+    std::cout << "*** TestRandomNumberServiceAnalyzer beginRun " << rng->mySeed() << "\n";
+  }
+}
+
+void TestRandomNumberServiceAnalyzer::endRun(edm::Run const& run, edm::EventSetup const& es) {
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if (dump_) {
+    std::cout << "*** TestRandomNumberServiceAnalyzer endRun " << rng->mySeed() << "\n";
+  }
+}
+
+void TestRandomNumberServiceAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) {
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if (dump_) {
+    std::cout << "*** TestRandomNumberServiceAnalyzer beginLuminosityBlock " << rng->mySeed() << "\n";
+  }
+
+  // The first time we open the file we create a new file
+  // After that append to it.  This file is just for testing
+  // purposes, we print out the generated random numbers and
+  // some other things.
+  std::ofstream outFile;
+  if (firstFileOpen_) {
+    outFile.open(outFileName_.c_str());
+    firstFileOpen_ = false;
+  }
+  else {
+    outFile.open(outFileName_.c_str(), std::ofstream::out | std::ofstream::app); 
+  }
+
+  outFile << "*** TestRandomNumberServiceAnalyzer beginLumi " << lumi.luminosityBlockAuxiliary().run()
+          << "/" << lumi.luminosityBlockAuxiliary().luminosityBlock()  << "\n";
+  outFile << rng->mySeed() << "\n";
+  outFile << rng->getEngine().name() << "\n";
+
+  CLHEP::HepRandomEngine& engine = rng->getEngine();
+
+  // Generate random numbers distributed flatly between 0 and 1 
+  randomNumberLumi0_ = engine.flat();
+  randomNumberLumi1_ = engine.flat();
+  randomNumberLumi2_ = engine.flat();
+
+  outFile << randomNumberLumi0_ << "\n";
+  outFile << randomNumberLumi1_ << "\n";
+  outFile << randomNumberLumi2_ << "\n";
 
   outFile.close();
 }
 
-void TestRandomNumberServiceAnalyzer::beginJob() {
-
-  using namespace edm;
-  Service<RandomNumberGenerator> rng;
-
-  std::cout << "*** TestRandomNumberServiceAnalyzer beginJob() ***\n";
-  std::cout << rng->mySeed() << "\n";
+void TestRandomNumberServiceAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) {
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if (dump_) {
+    std::cout << "*** TestRandomNumberServiceAnalyzer endLuminosityBlock " << rng->mySeed() << "\n";
+  }
 }
 
-void TestRandomNumberServiceAnalyzer::endJob() {
-
-  using namespace edm;
-  Service<RandomNumberGenerator> rng;
-
-  std::cout << "*** TestRandomNumberServiceAnalyzer endJob() ***\n";
-  std::cout << rng->mySeed() << "\n";
+void TestRandomNumberServiceAnalyzer::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
+  multiprocess_ = true;
+  childIndex_ = iChildIndex;
+  std::ostringstream suffix;
+  suffix << "_" << iChildIndex;
+  outFileName_ = std::string("testRandomService") + suffix.str() + std::string(".txt");
 }
 
 //define this as a plug-in

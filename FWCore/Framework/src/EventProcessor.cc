@@ -7,6 +7,7 @@
 
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
@@ -24,6 +25,7 @@
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/LooperFactory.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/ModuleChanger.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
@@ -47,10 +49,12 @@
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
@@ -1787,6 +1791,13 @@ namespace edm {
   void EventProcessor::beginLumi(ProcessHistoryID const& phid, int run, int lumi) {
     LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(phid, run, lumi);
     input_->doBeginLumi(lumiPrincipal);
+
+    Service<RandomNumberGenerator> rng;
+    if (rng.isAvailable()) {
+      LuminosityBlock lb(lumiPrincipal, ModuleDescription());
+      rng->preBeginLumi(lb);
+    }
+
     // NOTE: Using 0 as the event number for the begin of a lumi block is a bad idea
     // lumi blocks know their start and end times why not also start and end events?
     IOVSyncValue ts(EventID(lumiPrincipal.run(), lumiPrincipal.luminosityBlock(), 0), lumiPrincipal.beginTime());

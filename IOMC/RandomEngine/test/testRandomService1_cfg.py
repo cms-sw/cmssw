@@ -3,11 +3,9 @@
 # in the TestRandomNumberServiceAnalyzer.  The
 # state of the random number engines is saved in
 # two places.  The states are saved in a text file
-# that gets written first after beginRun and then
-# is overwritten after processing each event.
-# The states are also saved into the event data
-# for each event in the root data file produced
-# by the PoolOutputModule.
+# that gets overwritten before modules process each
+# event. The states are also saved into every event
+# and luminosity block.
 
 # The analyzer also writes each generated random number
 # to a text file named testRandomService.txt, which
@@ -16,14 +14,14 @@
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TEST1")
+process = cms.Process("PROD")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
 
     # Tell the service to save the state of all engines
-    # to a separate file written initially after beginJob
-    # and then overwritten after processing each event
-    saveFileName = cms.untracked.string('StashState.data'),
+    # to a separate text file which is overwritten before
+    # modules begin processing on each event.
+    saveFileName = cms.untracked.string('StashState1.data'),
 
     # Next we specify a seed or seeds for each module that
     # uses random numbers.
@@ -38,6 +36,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     # only one seed and initialSeedSet for the other ones.
     # HepJamesRandom requires one seed between 0 and 900000000
     # RanecuEngine requires two seeds between 0 and 2147483647
+    # TRandom3 will take any 32 bit unsigned integer.
 
     t1 = cms.PSet(
         initialSeed = cms.untracked.uint32(81)
@@ -51,21 +50,14 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
         engineName = cms.untracked.string('TRandom3')
     ),
     t4 = cms.PSet(
+        engineName = cms.untracked.string('HepJamesRandom'),
         initialSeed = cms.untracked.uint32(84)
     ),
     t5 = cms.PSet(
         initialSeed = cms.untracked.uint32(191),
         engineName = cms.untracked.string('TRandom3')
     ),
-    # If the source needs random numbers, then it will
-    # also need a seed.  EmptySource does not generate any
-    # random numbers so we do not really need "theSource"
-    # here, I just added to show how it is done for sources
-    # that do need random numbers.
-    theSource = cms.PSet(
-        engineName = cms.untracked.string('RanecuEngine'),
-        initialSeedSet = cms.untracked.vuint32(7, 11)
-    )
+    enableChecking = cms.untracked.bool(True)
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -74,9 +66,16 @@ process.maxEvents = cms.untracked.PSet(
 
 # The RandomNumberGeneratorService should work with
 # any kind of source
-process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource",
+    firstRun = cms.untracked.uint32(1),
+    firstLuminosityBlock = cms.untracked.uint32(1),
+    firstEvent = cms.untracked.uint32(1),
+    numberEventsInRun = cms.untracked.uint32(100),
+    numberEventsInLuminosityBlock = cms.untracked.uint32(3)
+)
 
-process.t1 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
+process.t1 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer",
+                            dump = cms.untracked.bool(True))
 process.t2 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
 process.t3 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
 process.t4 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
@@ -84,8 +83,9 @@ process.t4 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
 # If you do not want to save the state of the random engines
 # leave this line out.
 # Including this producer causes the states to be stored
-# in the event.  The label used here must be referenced
-# in a later process to restore the state of the engines.
+# in the event and luminosity block.  The label used here
+# must be referenced in a later process to restore the state
+# of the engines.
 process.randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
 
 process.out = cms.OutputModule("PoolOutputModule",
