@@ -6,11 +6,43 @@ import FWCore.ParameterSet.Config as cms
 ## | (_| (_) | | | \__ \ || (_| | | | | |_\__ \
 ##  \___\___/|_| |_|___/\__\__,_|_| |_|\__|___/
 ##                                              
-########################
+################################################
+## Following HLT paths are available in "/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/Fall10-START38_V12-v1" MC.
+## Please look into the trigger menu to find out the prescale for these paths.
+##
+## HLT_Ele10_SW_L1R, HLT_Ele12_SW_TightEleId_L1R, HLT_Ele12_SW_TightEleIdIsol_L1R, HLT_Ele12_SW_TightEleIdIsol_NoDEtaInEE_L1R,
+## HLT_Ele17_SW_L1R, HLT_Ele17_SW_CaloEleId_L1R, HLT_Ele17_SW_LooseEleId_L1R, HLT_Ele17_SW_EleId_L1R, 
+## HLT_Ele22_SW_CaloEleId_L1R, HLT_Ele40_SW_L1R, 
+## HLT_DoubleEle4_SW_eeRes_L1R, HLT_DoubleEle10_SW_L1R, 
+## HLT_Photon10_Cleaned_L1R, HLT_Photon15_Cleaned_L1R, HLT_Photon20_NoHE_L1R, HLT_Photon20_Cleaned_L1R, 
+## HLT_Photon30_Cleaned_L1R, HLT_Photon50_NoHE_L1R, HLT_Photon50_NoHE_Cleaned_L1R, HLT_DoublePhoton5_CEP_L1R,
+## HLT_DoublePhoton5_L1R, HLT_DoublePhoton10_L1R, HLT_DoublePhoton15_L1R, HLT_DoublePhoton17_L1R
+################################################
+## Following electron/photon HLT paths are available in Run2010B data (replace "v1" with "v2", "v3" for later runs).
+## Please look into the trigger menu to find out the prescale for these paths.
+##
+## HLT_Ele10_SW_L1R, HLT_Ele12_SW_TightEleId_L1R, HLT_Ele12_SW_TighterEleId_L1R_v1, HLT_Ele12_SW_TighterEleIdIsol_L1R_v1,
+## HLT_Ele17_SW_L1R, HLT_Ele17_SW_TightEleId_L1R, HLT_Ele17_SW_TighterEleId_L1R_v1, HLT_Ele17_SW_TightEleIdIsol_L1R_v1,
+## HLT_Ele17_SW_TighterEleIdIsol_L1R_v1,HLT_Ele17_SW_TightCaloEleId_SC8HE_L1R_v1,HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v1,
+## HLT_Ele27_SW_TightCaloEleIdTrack_L1R_v1, HLT_Ele32_SW_TightCaloEleIdTrack_L1R_v1,  
+## HLT_DoubleEle4_SW_eeRes_L1R, HLT_DoubleEle15_SW_L1R_v1, 
+## HLT_Photon10_Cleaned_L1R, HLT_Photon15_Cleaned_L1R, HLT_Photon17_SC17HE_L1R_v1, HLT_Photon20_NoHE_L1R, 
+## HLT_Photon20_Cleaned_L1R, HLT_Photon30_Cleaned_L1R, HLT_Photon30_Isol_EBOnly_Cleaned_L1R_v1,
+## HLT_Photon35_Isol_Cleaned_L1R_v1, HLT_Photon50_Cleaned_L1R_v1, HLT_Photon50_NoHE_L1R, HLT_Photon70_NoHE_Cleaned_L1R_v1
+## HLT_Photon100_NoHE_Cleaned_L1R_v1, HLT_DoublePhoton5_CEP_L1R, HLT_DoublePhoton17_L1R
+################################################
+
 MC_flag = False
 GLOBAL_TAG = 'GR_R_39X_V4::All'
+if MC_flag:
+    GLOBAL_TAG = 'START38_V12::All'
+
 HLTPath = "HLT_Ele17_SW_TightEleId_L1R"
-OUTPUT_FILE_NAME = "testNewWrite.root" 
+if MC_flag:
+    HLTPath = "HLT_Ele17_SW_LooseEleId_L1R"
+
+
+OUTPUT_FILE_NAME = "testNewWrite.root"
 #HLTPath = "HLT_Ele15_SW_CaloEleId_L1R"
 #HLTPath = "HLT_Ele15_SW_L1R"
 #HLTPath = "HLT_Ele15_LW_L1R"
@@ -73,7 +105,17 @@ process.source = cms.Source("PoolSource",
        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/452/5E17B94C-9DD3-DF11-A952-001617E30F58.root',
        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/452/54CDACD8-94D3-DF11-B6A6-001617E30D12.root',
        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/452/346D9037-96D3-DF11-88DF-001617C3B710.root',
-       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/452/029B8885-95D3-DF11-B1FE-001617E30D4A.root',    
+       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/452/029B8885-95D3-DF11-B1FE-001617E30D4A.root',  
+
+##        '/store/mc/Fall10/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/GEN-SIM-RECO/START38_V12-v1/0008/A0A4E0F2-90CF-DF11-B893-00163EC21201.root',
+##        '/store/mc/Fall10/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/GEN-SIM-RECO/START38_V12-v1/0008/62CCB894-91CF-DF11-99D7-1CC1DE052068.root',
+##        '/store/mc/Fall10/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/GEN-SIM-RECO/START38_V12-v1/0008/223B153C-91CF-DF11-B769-0018FE286D32.root',
+##        '/store/mc/Fall10/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/GEN-SIM-RECO/START38_V12-v1/0008/1E5E9669-91CF-DF11-8BCB-001A648F1E2A.root',
+##        '/store/mc/Fall10/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/GEN-SIM-RECO/START38_V12-v1/0006/FCECED70-35CE-DF11-91A0-1CC1DE052030.root',
+##        '/store/mc/Fall10/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/GEN-SIM-RECO/START38_V12-v1/0006/FC5D8454-7CCE-DF11-9C04-0017A4770C00.root',
+##        '/store/mc/Fall10/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/GEN-SIM-RECO/START38_V12-v1/0006/FC35628B-58CE-DF11-84DB-0018FE283E0C.root',
+##        '/store/mc/Fall10/DYToEE_M-20_CT10_TuneZ2_7TeV-powheg-pythia/GEN-SIM-RECO/START38_V12-v1/0006/F828D75A-43CE-DF11-B389-00163E120701.root',
+       
     )
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )    
@@ -496,14 +538,14 @@ process.allTagsAndProbes = cms.Sequence(
 ##   | |  | | |___  | |  | | (_| | || (__| | | |  __/\__ \
 ##   |_|  |_|\____| |_|  |_|\__,_|\__\___|_| |_|\___||___/
 ##                                                        
-process.McMatchTag = cms.EDFilter("MCTruthDeltaRMatcherNew",
+process.McMatchTag = cms.EDProducer("MCTruthDeltaRMatcherNew",
     matchPDGId = cms.vint32(11),
     src = cms.InputTag("Tag"),
     distMin = cms.double(0.3),
     matched = cms.InputTag("genParticles"),
     checkCharge = cms.bool(True)
 )
-process.McMatchSC = cms.EDFilter("MCTruthDeltaRMatcherNew",
+process.McMatchSC = cms.EDProducer("MCTruthDeltaRMatcherNew",
     matchPDGId = cms.vint32(11),
     src = cms.InputTag("goodSuperClustersClean"),
     distMin = cms.double(0.3),
@@ -917,6 +959,7 @@ process.GsfElectronToIdToHLT.pairVariables.tanphi = cms.InputTag("CSVarsTagGsf",
 
 process.GsfElectronPlusGsfElectron = process.GsfElectronToIdToHLT.clone()
 process.GsfElectronPlusGsfElectron.tagProbePairs = cms.InputTag("GsfGsf")
+process.GsfElectronPlusGsfElectron.tagMatches = cms.InputTag("McMatchGsf")
 process.GsfElectronPlusGsfElectron.pairVariables.costheta = cms.InputTag("CSVarsGsfGsf","costheta")
 process.GsfElectronPlusGsfElectron.pairVariables.sin2theta = cms.InputTag("CSVarsGsfGsf","sin2theta")
 process.GsfElectronPlusGsfElectron.pairVariables.tanphi = cms.InputTag("CSVarsGsfGsf","tanphi")
@@ -963,13 +1006,23 @@ process.tree_sequence = cms.Sequence(
 ##   |  __/ (_| | |_| | | |
 ##   |_|   \__,_|\__|_| |_|
 ##
-process.tagAndProbe = cms.Path(
-    process.sc_sequence + process.ele_sequence + process.eIDSequence + 
-    process.ext_ToNearestJet_sequence + 
-    process.allTagsAndProbes +
-    #process.mc_sequence + 
-    process.tree_sequence
-)
+
+if MC_flag:
+    process.tagAndProbe = cms.Path(
+        process.sc_sequence + process.ele_sequence + process.eIDSequence + 
+        process.ext_ToNearestJet_sequence + 
+        process.allTagsAndProbes +
+        process.mc_sequence + 
+        process.tree_sequence
+        )
+else:
+    process.tagAndProbe = cms.Path(
+        process.sc_sequence + process.ele_sequence + process.eIDSequence + 
+        process.ext_ToNearestJet_sequence + 
+        process.allTagsAndProbes +
+        process.tree_sequence
+        )
+    
 process.TFileService = cms.Service(
     "TFileService", fileName = cms.string( OUTPUT_FILE_NAME )
     )

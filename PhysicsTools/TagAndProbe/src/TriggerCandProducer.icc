@@ -119,6 +119,7 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
    }
    for (std::vector<std::string>::const_iterator iHLT = activeHLTPathsInThisEvent.begin(); 
         iHLT != activeHLTPathsInThisEvent.end(); ++iHLT) {
+     // cout << "######## " << *iHLT << endl;
      for (std::vector<edm::InputTag>::const_iterator iMyHLT = hltTags_.begin(); 
           iMyHLT != hltTags_.end(); ++iMyHLT) {
        if ((*iMyHLT).label() == *iHLT) {
@@ -129,19 +130,27 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
      }
    }
    unsigned int numOKHLTPaths = 0;
-   unsigned int i = 0;
    for (std::map<std::string, bool>::const_iterator iMyHLT = triggerInMenu.begin(); 
         iMyHLT != triggerInMenu.end(); ++iMyHLT) {
-     bool isRightPath = iMyHLT->second;
-     if(matchUnprescaledTriggerOnly_) 
-       isRightPath = isRightPath && triggerUnprescaled[iMyHLT->first];
-     if (isRightPath) {
+     if (iMyHLT->second && triggerUnprescaled[iMyHLT->first]) {
        theRightHLTTag_ = edm::InputTag(iMyHLT->first, "", hltTags_[0].process());
        ++numOKHLTPaths;
      }
-     ++i;
    }
 
+   // in case user wants to perform matching with prescaled trigger, then choose prescale trigger 
+   if(numOKHLTPaths == 0 && !(matchUnprescaledTriggerOnly_) ) {
+     for (std::map<std::string, bool>::const_iterator iMyHLT = triggerInMenu.begin(); 
+	  iMyHLT != triggerInMenu.end(); ++iMyHLT) {
+       if(iMyHLT->second) {
+	 theRightHLTTag_ = edm::InputTag(iMyHLT->first, "", hltTags_[0].process());
+	 ++numOKHLTPaths;
+       }
+     }     
+   }
+
+
+   // some sanity checks
    if (numOKHLTPaths == 0) {
      stringstream err;
      err << "Error: No unprescaled HLT paths in ";
@@ -154,7 +163,8 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
    }
    if (numOKHLTPaths > 1) {
      stringstream err;
-     err << "Error: Multiple unprescaled HLT paths in ";
+     err << "****** Error: There are multiple trigger paths. I cannot figure out how to perform trigger matching :(" << 
+       "   Multiple HLT paths in ";
      err << "run " << event.run() << ", event " << event.id().event() << ", lumi section ";
      err << event.getLuminosityBlock().luminosityBlock() << std::endl;
      err << "Menu name: " << hltConfig_.tableName() << endl;
