@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltMuonPostVal = cms.EDAnalyzer("DQMGenericClient",
+hltMuonEfficiencies = cms.EDAnalyzer("DQMGenericClient",
 
     subDirs        = cms.untracked.vstring("HLT/Muon/Distributions/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
@@ -23,3 +23,35 @@ hltMuonPostVal = cms.EDAnalyzer("DQMGenericClient",
 
 )
 
+ZPars = cms.untracked.PSet(
+    MassDimension = cms.untracked.int32(2),
+    FitFunction = cms.untracked.string("VoigtianPlusExponential"),
+    ExpectedMean = cms.untracked.double(91.),
+    ExpectedSigma = cms.untracked.double(1.),
+    FixedWidth = cms.untracked.double(2.5),
+    FitRangeLow = cms.untracked.double(65),
+    FitRangeHigh = cms.untracked.double(115),
+    SignalRangeLow = cms.untracked.double(81),
+    SignalRangeHigh = cms.untracked.double(101),
+)
+
+zClient = cms.EDAnalyzer("DQMGenericTnPClient",
+  subDirs = cms.untracked.vstring("HLT/Muon/Distributions/*"),
+  #MyDQMrootFolder = cms.untracked.string("HLT/Muon/Distributions/vbtfMuons/HLT_Mu5"),
+  # Set this if you want to save info about each fit
+  # SavePlotsInRootFileName = cms.untracked.string("fittingPlots.root"),
+  Verbose = cms.untracked.bool(False),
+  Efficiencies = cms.untracked.VPSet(
+    ZPars.clone(
+      NumeratorMEname = cms.untracked.string("massVsEta_numer"),
+      DenominatorMEname = cms.untracked.string("massVsEta_denom"),
+      EfficiencyMEname = cms.untracked.string("massVsEta_efficiency"),
+    ),
+  )
+)
+
+
+hltMuonPostVal = cms.Sequence(
+    hltMuonEfficiencies *
+    zClient
+)
