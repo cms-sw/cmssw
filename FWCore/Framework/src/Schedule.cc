@@ -15,7 +15,6 @@
 #include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
-#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"
 
 #include "boost/bind.hpp"
