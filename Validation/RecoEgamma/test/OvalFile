@@ -4,12 +4,14 @@
 <var name="TEST_GLOBAL_STARTUP_TAG" value="START310_V3">
 <var name="TEST_GLOBAL_VERSION" value="v1">
 
-The difffile tag below implies that after each run the eventual file electronHistos.root is automatically
-renamed as "the-oval-target-name".olog.electronHistos.root . This way, we can use the same output file
-name for all the cmsRun configurations, yet keeping a separate copy of each kind of execution.
+The value of OVAL_ENVNAME is automatically set by Oval to the name
+of the current environment, before running any executable. Using it below,
+we have an output file name which is unique for each execution.
 
-<var name="TEST_OUTPUT_FILE" value="electronHistos.root">
-<difffile name="electronHistos.root">
+<var name="TEST_OUTPUT_BASE" value="electronHistos.root">
+<var name="TEST_OUTPUT_FILE" value="electronHistos.${OVAL_ENVNAME}.root">
+<var name="TEST_OUTPUT_LOGS" value="*.${OVAL_ENVNAME}.olog">
+<!--difffile name="electronHistos.root"-->
 
 The DBS_* variables are configuration variables for the script electronDbsDiscovery.py,
 which prepares and send a query to the Data Discovery web server,
@@ -25,7 +27,7 @@ on the ROOT script electronValidation.C.
 
 <var name="VAL_NEW_RELEASE" value="3_11_0_pre2">
 <var name="VAL_REF_RELEASE" value="3_10_0">
-<var name="VAL_COMMENT" value="No electron code change.">
+<var name="VAL_COMMENT" value="Join all released modifications into the trunk.">
 <var name="STORE_RELEASE" value="${VAL_NEW_RELEASE}">
 
 <!--var name="VAL_WEB" value="/afs/cern.ch/user/c/chamont/www/validation"-->
@@ -90,8 +92,8 @@ This set of targets is currently used for the validation of electrons.
     <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
     <executable name="electronDbsDiscovery.py">
     <executable name="cmsRun" args="${VAL_CONFIGURATION}">
-    <executable name="electronStore.csh" args="FullPt35 ${TEST_OUTPUT_FILE}">
-    <executable name="electronValidation.csh" args="FullPt35 ${TEST_OUTPUT_FILE}">
+    <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+    <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
   </environment>
   
   <environment name="FullQcdPt80Pt120">
@@ -101,32 +103,32 @@ This set of targets is currently used for the validation of electrons.
     <var name="VAL_CONFIGURATION" value="ElectronMcFakeValidation_cfg.py">
     <executable name="electronDbsDiscovery.py">
     <executable name="cmsRun" args="${VAL_CONFIGURATION}">
-    <executable name="electronStore.csh" args="FullQcdPt80Pt120 ${TEST_OUTPUT_FILE}">
-    <executable name="electronValidation.csh" args="FullQcdPt80Pt120 ${TEST_OUTPUT_FILE}">
+    <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+    <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
   </environment>
   
   <environment name="FullPt10">
     <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
     <executable name="electronDbsDiscovery.py">
     <executable name="cmsRun" args="${VAL_CONFIGURATION}">
-    <executable name="electronStore.csh" args="FullPt10 ${TEST_OUTPUT_FILE}">
-    <executable name="electronValidation.csh" args="FullPt10 ${TEST_OUTPUT_FILE}">
+    <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+    <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
   </environment>
   
   <environment name="FullTTbar">
     <var name="DBS_SAMPLE" value="RelValTTbar">
     <executable name="electronDbsDiscovery.py">
     <executable name="cmsRun" args="${VAL_CONFIGURATION}">
-    <executable name="electronStore.csh" args="FullTTbar ${TEST_OUTPUT_FILE}">
-    <executable name="electronValidation.csh" args="FullTTbar ${TEST_OUTPUT_FILE}">
+    <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+    <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
   </environment>
   
   <environment name="FullZEEIdeal">
     <var name="DBS_SAMPLE" value="RelValZEE">
     <executable name="electronDbsDiscovery.py">
     <executable name="cmsRun" args="${VAL_CONFIGURATION}">
-    <executable name="electronStore.csh" args="FullZEEIdeal ${TEST_OUTPUT_FILE}">
-    <executable name="electronValidation.csh" args="FullZEEIdeal ${TEST_OUTPUT_FILE}">
+    <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+    <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
   </environment>
   
   <environment name="FullZEEStartup">
@@ -136,8 +138,8 @@ This set of targets is currently used for the validation of electrons.
     <!--var name="DBS_COND" value="STARTUP"-->
     <executable name="electronDbsDiscovery.py">
     <executable name="cmsRun" args="${VAL_CONFIGURATION}">
-    <executable name="electronStore.csh" args="FullZEEStartup ${TEST_OUTPUT_FILE}">
-    <executable name="electronValidation.csh" args="FullZEEStartup ${TEST_OUTPUT_FILE}">
+    <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+    <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
   </environment>
   
 </environment>
@@ -153,8 +155,8 @@ This set of targets is currently used for the validation of electrons.
     <var name="VAL_HISTOS" value="ElectronMcSignalHistos.txt">
     <!--executable name="electronDbsDiscovery.py"-->
     <!--executable name="cmsRun" args="ElectronMcSignalValidation_cfg.py"-->
-    <!--executable name="electronStore.csh" args="HighFlatPt5To100 ${TEST_OUTPUT_FILE}"-->
-    <!--executable name="electronValidation.csh" args="HighFlatPt5To100 ${TEST_OUTPUT_FILE}"-->
+    <!--executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}"-->
+    <!--executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}"-->
   </environment>
 
 </environment>
@@ -180,7 +182,7 @@ FastSim
       <var name="DBS_SAMPLE" value="RelValTTbar">
       <executable name="electronDbsDiscovery.py">
       <executable name="cmsRun" args="${VAL_CONFIGURATION}">
-      <executable name="electronStore.csh" args="FastTTbar ${TEST_OUTPUT_FILE}">
+      <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
       
     </environment>
   
@@ -189,7 +191,7 @@ FastSim
       <var name="DBS_SAMPLE" value="RelValZEE">
       <executable name="electronDbsDiscovery.py">
       <executable name="cmsRun" args="${VAL_CONFIGURATION}">
-      <executable name="electronStore.csh" args="FastZEEIdeal ${TEST_OUTPUT_FILE}">
+      <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
       
     </environment>
   
@@ -199,7 +201,7 @@ FastSim
       <var name="DBS_COND" value="${TEST_GLOBAL_STARTUP_TAG}*FastSim*-${TEST_GLOBAL_VERSION}">
       <executable name="electronDbsDiscovery.py">
       <executable name="cmsRun" args="${VAL_CONFIGURATION}">
-      <executable name="electronStore.csh" args="FastZEEStartup ${TEST_OUTPUT_FILE}">
+      <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
       
     </environment>
   
@@ -209,18 +211,18 @@ FastSim
   
     <environment name="FastVsFastTTbar">
       <var name="DBS_SAMPLE" value="RelValTTbar">
-      <executable name="electronValidation.csh" args="FastTTbar ${TEST_OUTPUT_FILE}">
+      <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
     </environment>
     
     <environment name="FastVsFastZEEIdeal">
       <var name="DBS_SAMPLE" value="RelValZEE">
-      <executable name="electronValidation.csh" args="FastZEEIdeal ${TEST_OUTPUT_FILE}">
+      <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
     </environment>
     
     <environment name="FastVsFastZEEStartup">
       <var name="DBS_SAMPLE" value="RelValZEE">
       <var name="DBS_COND" value="${TEST_GLOBAL_STARTUP_TAG}*FastSim*-${TEST_GLOBAL_VERSION}">
-      <executable name="electronValidation.csh" args="FastZEEStartup ${TEST_OUTPUT_FILE}">
+      <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
     </environment>
         
   </environment>
@@ -230,16 +232,16 @@ FastSim
     <environment name="FastVsFullTTbar">
       <var name="DBS_SAMPLE" value="RelValTTbar">
       <var name="VAL_REF_RELEASE" value="FastSim">
-      <var name="VAL_NEW_FILE" value="cmsRun.FullTTbar.olog.${TEST_OUTPUT_FILE}">
-      <var name="VAL_REF_FILE" value="cmsRun.FastTTbar.olog.${TEST_OUTPUT_FILE}">
+      <var name="VAL_NEW_FILE" value="electronHistos.FullTTbar.root">
+      <var name="VAL_REF_FILE" value="electronHistos.FastTTbar.root">
       <executable name="electronValidation.csh">
     </environment>
     
     <environment name="FastVsFullZEEIdeal">
       <var name="DBS_SAMPLE" value="RelValZEE">
       <var name="VAL_REF_RELEASE" value="FastSim">
-      <var name="VAL_NEW_FILE" value="cmsRun.FullZEEIdeal.olog.${TEST_OUTPUT_FILE}">
-      <var name="VAL_REF_FILE" value="cmsRun.FastZEEIdeal.olog.${TEST_OUTPUT_FILE}">
+      <var name="VAL_NEW_FILE" value="electronHistos.FullZEEIdeal.root">
+      <var name="VAL_REF_FILE" value="electronHistos.FastZEEIdeal.root">
       <executable name="electronValidation.csh">
     </environment>
     
@@ -247,8 +249,8 @@ FastSim
       <var name="DBS_SAMPLE" value="RelValZEE">
       <var name="DBS_COND" value="${TEST_GLOBAL_STARTUP_TAG}*FastSim*-${TEST_GLOBAL_VERSION}">
       <var name="VAL_REF_RELEASE" value="FastSim">
-      <var name="VAL_NEW_FILE" value="cmsRun.FullZEEStartup.olog.${TEST_OUTPUT_FILE}">
-      <var name="VAL_REF_FILE" value="cmsRun.FastZEEStartup.olog.${TEST_OUTPUT_FILE}">
+      <var name="VAL_NEW_FILE" value="electronHistos.FullZEEStartup.root">
+      <var name="VAL_REF_FILE" value="electronHistos.FastZEEStartup.root">
       <executable name="electronValidation.csh">
     </environment>
     
