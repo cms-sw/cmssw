@@ -35,9 +35,10 @@ extern "C"{
    }
 */
 
-//   extern struct {
-//      bool qedrad[NMXHEP];
-//   } phoqed_;
+   extern struct {
+      // bool qedrad[NMXHEP];
+      bool qedrad[4000]; // hardcoded for now...
+   } phoqed_;
 
 }
 
@@ -112,7 +113,15 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
    for ( int ip=0; ip<evt->particles_size(); ip++ )
    {
       fScaleFactors.push_back( Scaling(HepMC::ThreeVector(1.,1.,1.),1) );
+      phoqed_.qedrad[ip]=true;
    }
+   
+   
+   // variables for special treatment of tau leptonic decays
+   //
+   bool tau_leptonic_decay = false;
+   int iTauDescCounter = 0;
+   int nTauDesc = 0;
    
    for ( int iv=1; iv<=evt->vertices_size(); iv++ )
    {
@@ -156,13 +165,11 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
       HepMC::HEPEVT_Wrapper::set_status( index, (*(vtx->particles_in_const_begin()))->status() );
       HepMC::HEPEVT_Wrapper::set_parents( index, 0, 0 );
       fBarcodes.push_back( (*(vtx->particles_in_const_begin()))->barcode() );
-      // phoqed_.qedrad[index-1]=true;
-      
+                  
       // special case: avoid tau leptonic decays
       //
-/*
-      bool tau_leptonic = false;
-      if ( fAvoidTauLeptonicDecays && abs((*(vtx->particles_in_const_begin()))->pdg_id()) == 15 )
+
+      if ( fAvoidTauLeptonicDecays && !tau_leptonic_decay && abs((*(vtx->particles_in_const_begin()))->pdg_id()) == 15 )
       {      
          for ( HepMC::GenVertex::particle_iterator pitr=vtx->particles_begin(HepMC::children);
                pitr != vtx->particles_end(HepMC::children); ++pitr) 
@@ -170,12 +177,28 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
 	    if ( abs((*pitr)->pdg_id()) == 11 || abs((*pitr)->pdg_id()) == 13 ) // leptonic decay !!!
 	                                                                        // do brem off tau but NOT off decay products
 	    {
-	       tau_leptonic = true;
+	       tau_leptonic_decay = true;
 	       break;
 	    }	 
          }
-      }      
-*/     
+         if ( vtx->particles_begin(HepMC::children) == vtx->particles_begin(HepMC::descendants) && 
+              vtx->particles_end(HepMC::children) == vtx->particles_end(HepMC::descendants) ) 
+         {
+	    nTauDesc = vtx->particles_out_size();
+         }
+	 else
+	 {
+            for ( HepMC::GenVertex::particle_iterator pitr1=vtx->particles_begin(HepMC::children);
+                  pitr1 != vtx->particles_end(HepMC::children); ++pitr1) 
+            {
+	       nTauDesc++;
+	    }
+	 }
+         // this is just the 1st tau in the branch, so it's allowed to emit
+	 phoqed_.qedrad[index-1]=true;
+	 iTauDescCounter = 0;
+      }
+     
       // check if mother has ever been "altered" !
       //
       int mbcode =  (*(vtx->particles_in_const_begin()))->barcode();
@@ -220,6 +243,11 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
 	    HepMC::HEPEVT_Wrapper::set_parents( index, 1, 1 );
 	    fBarcodes.push_back( (*pitr)->barcode() );
 	    lastDau++;
+	    if ( fAvoidTauLeptonicDecays && tau_leptonic_decay )
+	    {
+	       phoqed_.qedrad[index-1]=false;
+	       iTauDescCounter++;
+	    }
 	 }
       }
             
@@ -252,6 +280,13 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
       attachParticles( evt, vtx, nentries );
 
       // ugh, done with this vertex !
+      
+      // now some resets
+      //
+      if ( fAvoidTauLeptonicDecays && tau_leptonic_decay && iTauDescCounter == nTauDesc ) // treated tau leptonic decay and have come to the last descendent
+      {
+         tau_leptonic_decay = false;
+      }
    
    }
    
