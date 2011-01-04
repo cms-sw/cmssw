@@ -4,18 +4,22 @@ process = cms.Process("EDMtoMEConvert")
 
 process.load('Configuration.StandardSequences.EDMtoMEAtRunEnd_cff')
 process.load("DQMServices.Components.DQMEnvironment_cfi")
-process.load("DQMOffline.Trigger.MuonPostProcessor_cfi")
+process.load("DQMOffline.Trigger.MuonPostProcessor_cff")
 process.load("DQMOffline.Trigger.MuonHLTValidation_cfi")
 process.load("DQMServices.Components.DQMStoreStats_cfi")
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(-1)
+)
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
     categories = cms.untracked.vstring('HLTMuonVal'),
     debugModules = cms.untracked.vstring('*'),
-    threshold = cms.untracked.string('WARNING'),
+    threshold = cms.untracked.string('INFO'),
     HLTMuonVal = cms.untracked.PSet(
         #threshold = cms.untracked.string('DEBUG'),
-        limit = cms.untracked.int32(100000)
+        limit = cms.untracked.int32(100000),
     ),
 )
 
