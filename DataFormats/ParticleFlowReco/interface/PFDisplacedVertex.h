@@ -194,17 +194,17 @@ namespace reco {
     /// hypothesis are default: "PI" , "KAON", "LAMBDA", "MASSLESS", "CUSTOM"
     /// the value of custom shall be then provided in mass variable
     const math::XYZTLorentzVector 
-      secondaryMomentum(std::string massHypo, 
+      secondaryMomentum(std::string massHypo = "PI", 
 			bool useRefitted = true, double mass = 0.0) const 
       {return momentum(massHypo, T_FROM_VERTEX, useRefitted, mass);}
 
     /// Momentum of primary or merged track calculated with a mass hypothesis.
     const math::XYZTLorentzVector 
-      primaryMomentum(std::string massHypo, 
+      primaryMomentum(std::string massHypo = "PI", 
 		      bool useRefitted = true, double mass = 0.0) const
       {return momentum(massHypo, T_TO_VERTEX, useRefitted, mass);}
 
-    
+
 
     /// Momentum of secondary tracks calculated with a mass hypothesis. Some of those
     /// hypothesis are default: "PI" , "KAON", "LAMBDA", "MASSLESS", "CUSTOM"
@@ -221,6 +221,19 @@ namespace reco {
       {return momentum(massHypo, T_TO_VERTEX, useRefitted, mass);}
 
 
+    void calcKinematics(){
+      defaultPrimaryMomentum_ = momentum("PI", T_TO_VERTEX, false, 0.0);
+      defaultSecondaryMomentum_ = momentum("PI", T_FROM_VERTEX, true, 0.0);
+    }
+
+
+    const double secondaryPt() const 
+      {return defaultPrimaryMomentum_.Pt();}
+
+    /// Momentum of primary or merged track calculated with a mass hypothesis.
+    const double primaryPt() const
+      {return defaultSecondaryMomentum_.Pt();}
+
 
 
     /// Total Charge
@@ -232,7 +245,7 @@ namespace reco {
 
 
     /// Primary Direction
-    const math::XYZVector primaryDirection() const { return primaryDirection_;};
+    const math::XYZVector primaryDirection() const;
 
 
 
@@ -252,6 +265,7 @@ namespace reco {
     bool isKplus_Loose() const { return vertexType_ ==   KPLUS_DECAY_LOOSE;}
     bool isKminus_Loose() const { return vertexType_ ==   KMINUS_DECAY_LOOSE;}
     bool isBSM() const { return vertexType_ ==   BSM_VERTEX;}
+
 
     std::string nameVertexType() const;
 
@@ -300,6 +314,10 @@ namespace reco {
     std::vector < PFTrackHitFullInfo > trackHitFullInfos_;
 
     math::XYZVector primaryDirection_;
+
+    math::XYZTLorentzVector defaultPrimaryMomentum_;
+    math::XYZTLorentzVector defaultSecondaryMomentum_;
+
     
   };
 }
