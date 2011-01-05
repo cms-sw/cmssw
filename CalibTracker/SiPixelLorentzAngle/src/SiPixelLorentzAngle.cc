@@ -213,7 +213,9 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 	  DetId detIdObj = recHit->geographicalId();
 	  const PixelGeomDetUnit * theGeomDet = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(detIdObj) );
 	  if(!theGeomDet) continue;
-	  const RectangularPixelTopology * topol = dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+
+	  const PixelTopology * topol = &(theGeomDet->specificTopology());
+
 	  if(!topol) continue;
 	  PXBDetId pxbdetIdObj(detIdObj);
 	  layer_ = pxbdetIdObj.layer();
@@ -328,7 +330,9 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 	  DetId detIdObj = recHit->geographicalId();
 	  const PixelGeomDetUnit * theGeomDet = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(detIdObj) );
 	  if(!theGeomDet) continue;
-	  const RectangularPixelTopology * topol = dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+	  
+	  const PixelTopology * topol = &(theGeomDet->specificTopology());
+
 	  if(!topol) continue;
 	  PXFDetId pxfdetIdObj(detIdObj);
 	  sideF_ = pxfdetIdObj.side();
@@ -479,7 +483,8 @@ void SiPixelLorentzAngle::endJob()
   cout << "number of used Hits: " << usedHitCounter_ << endl;
 }
 
-inline void SiPixelLorentzAngle::fillPix(const SiPixelCluster & LocPix, const RectangularPixelTopology * topol, Pixinfo& pixinfo)
+inline void SiPixelLorentzAngle::fillPix(const SiPixelCluster & LocPix, const PixelTopology * topol, Pixinfo& pixinfo)
+
 {
   const std::vector<SiPixelCluster::Pixel>& pixvector = LocPix.pixels();
   pixinfo.npix = 0;

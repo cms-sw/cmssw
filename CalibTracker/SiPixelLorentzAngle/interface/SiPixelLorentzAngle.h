@@ -22,7 +22,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // #include "CalibTracker/SiPixelLorentzAngle/interface/TrackLocalAngle.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include <Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h>
@@ -97,7 +97,9 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
   
  private:
   
-  void fillPix(const SiPixelCluster & LocPix, const RectangularPixelTopology * topol, Pixinfo& pixinfo);
+  void fillPix(const SiPixelCluster & LocPix, const PixelTopology * topol, Pixinfo& pixinfo);
+
+
   void findMean(int i, int i_ring);
   
   TFile* hFile_;
