@@ -21,6 +21,7 @@ horeco = cms.EDProducer(
     setHSCPFlags  = cms.bool(True), # HSCP not implemented for horeco; this boolean does nothing
     setSaturationFlags = cms.bool(True),
     setTimingTrustFlags = cms.bool(False), # timing flags currently only implemented for HF
+    setPulseShapeFlags = cms.bool(False),
     saturationParameters=  cms.PSet(maxADCvalue=cms.int32(127))
 ) # horeco
 

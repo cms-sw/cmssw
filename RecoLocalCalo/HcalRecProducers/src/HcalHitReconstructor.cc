@@ -1,4 +1,4 @@
-using namespace std;
+//using namespace std;
 #include "HcalHitReconstructor.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -31,6 +31,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   setHSCPFlags_(conf.getParameter<bool>("setHSCPFlags")),
   setSaturationFlags_(conf.getParameter<bool>("setSaturationFlags")),
   setTimingTrustFlags_(conf.getParameter<bool>("setTimingTrustFlags")),
+  setPulseShapeFlags_(conf.getParameter<bool>("setPulseShapeFlags")),
   dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
   firstauxTS_(conf.getParameter<int>("firstSample")+conf.getParameter<int>("firstAuxOffset"))
 {
@@ -90,6 +91,26 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 								 psHSCP.getParameter<double>("outerMax"),
 								 psHSCP.getParameter<double>("TimingEnergyThreshold"));
       } // if (setHSCPFlags_) 
+    if (setPulseShapeFlags_)
+      {
+        const edm::ParameterSet &psPulseShape = conf.getParameter<edm::ParameterSet>("pulseShapeParameters");
+        hbhePulseShapeFlagSetter_ = new HBHEPulseShapeFlagSetter(
+								 psPulseShape.getParameter<double>("MinimumChargeThreshold"),
+								 psPulseShape.getParameter<unsigned int>("TrianglePeakTS"),
+								 psPulseShape.getParameter<std::vector<double> >("LinearThreshold"),
+								 psPulseShape.getParameter<std::vector<double> >("LinearCut"),
+								 psPulseShape.getParameter<std::vector<double> >("RMS8MaxThreshold"),
+								 psPulseShape.getParameter<std::vector<double> >("RMS8MaxCut"),
+								 psPulseShape.getParameter<std::vector<double> >("LeftSlopeThreshold"),
+								 psPulseShape.getParameter<std::vector<double> >("LeftSlopeCut"),
+								 psPulseShape.getParameter<std::vector<double> >("RightSlopeThreshold"),
+								 psPulseShape.getParameter<std::vector<double> >("RightSlopeCut"),
+								 psPulseShape.getParameter<std::vector<double> >("RightSlopeSmallThreshold"),
+								 psPulseShape.getParameter<std::vector<double> >("RightSlopeSmallCut"),
+								 psPulseShape.getParameter<bool>("UseDualFit"),
+                         psPulseShape.getParameter<bool>("TriangleIgnoreSlow"));
+      }  // if (setPulseShapeFlags_)
+
     produces<HBHERecHitCollection>();
   } else if (!strcasecmp(subd.c_str(),"HO")) {
     subdet_=HcalOuter;
@@ -165,6 +186,7 @@ HcalHitReconstructor::~HcalHitReconstructor() {
   if (hbheFlagSetter_)        delete hbheFlagSetter_;
   if (hfdigibit_)             delete hfdigibit_;
   if (hbheHSCPFlagSetter_)    delete hbheHSCPFlagSetter_;
+  if (hbhePulseShapeFlagSetter_) delete hbhePulseShapeFlagSetter_;
   if (hfS9S1_)                delete hfS9S1_;
   if (hfPET_)                 delete hfPET_;
 }
@@ -236,11 +258,13 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	auxflag+=((i->sample(firstauxTS_).capid())<<28);
 	(rec->back()).setAux(auxflag);
 
-	(rec->back()).setFlags(0);
+	(rec->back()).setFlags(0);  // this sets all flag bits to 0
 	if (hbheTimingShapedFlagSetter_!=0)
 	  hbheTimingShapedFlagSetter_->SetTimingShapedFlags(rec->back());
 	if (setNoiseFlags_)
 	  hbheFlagSetter_->SetFlagsFromDigi(rec->back(),*i,coder,calibrations);
+	if (setPulseShapeFlags_ == true)
+	  hbhePulseShapeFlagSetter_->SetPulseShapeFlags(rec->back(), *i, coder, calibrations);
 	if (setSaturationFlags_)
 	  saturationFlagSetter_->setSaturationFlag(rec->back(),*i);
 	if (correctTiming_)

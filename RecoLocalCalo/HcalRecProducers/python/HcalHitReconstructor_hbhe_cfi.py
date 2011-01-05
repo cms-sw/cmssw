@@ -14,7 +14,7 @@ hbheprereco = cms.EDProducer(
     # Set offset between firstSample value and
     # first sample to be stored in aux word
     firstAuxOffset = cms.int32(0),
-    
+
     # Tags for calculating status flags
     correctTiming             = cms.bool(True),
     setNoiseFlags             = cms.bool(True),
@@ -22,7 +22,8 @@ hbheprereco = cms.EDProducer(
     setSaturationFlags        = cms.bool(True),
     setTimingShapedCutsFlags  = cms.bool(True),
     setTimingTrustFlags       = cms.bool(False), # timing flags currently only implemented for HF
-    
+    setPulseShapeFlags        = cms.bool(True),
+
     flagParameters= cms.PSet(nominalPedestal=cms.double(3.0),  #fC
                              hitEnergyMinimum=cms.double(1.0), #GeV
                              hitMultiplicityThreshold=cms.int32(17),
@@ -45,7 +46,22 @@ hbheprereco = cms.EDProducer(
                                     outerMin      = cms.double(0.), # was 0.
                                     outerMax      = cms.double(0.1), # was 0.1
                                     TimingEnergyThreshold = cms.double(30.)),
-    
+
+    pulseShapeParameters = cms.PSet(MinimumChargeThreshold = cms.double(20),
+                                    TrianglePeakTS = cms.uint32(4),
+                                    LinearThreshold = cms.vdouble(20, 70),
+                                    LinearCut = cms.vdouble(-2, -0.054),
+                                    RMS8MaxThreshold = cms.vdouble(20, 50, 500),
+                                    RMS8MaxCut = cms.vdouble(-13, -11.5, -13),
+                                    LeftSlopeThreshold = cms.vdouble(23, 30, 40, 95, 140),
+                                    LeftSlopeCut = cms.vdouble(2.4, 1.95, 1.7, 1.7, 1.83),
+                                    RightSlopeThreshold = cms.vdouble(40, 60, 100, 140, 200),
+                                    RightSlopeCut = cms.vdouble(6.2, 5.5, 4.75, 4.38, 4.15),
+                                    RightSlopeSmallThreshold = cms.vdouble(60, 80, 110, 140, 200),
+                                    RightSlopeSmallCut = cms.vdouble(1.05, 1.135, 1.175, 1.19, 1.17),
+                                    UseDualFit = cms.bool(False),
+                                    TriangleIgnoreSlow = cms.bool(False)),
+
     # shaped cut parameters are triples of (energy, low time threshold, high time threshold) values.
     # The low and high thresholds must straddle zero (i.e., low<0, high>0); use win_offset to shift.
     # win_gain is applied to both threshold values before win_offset.

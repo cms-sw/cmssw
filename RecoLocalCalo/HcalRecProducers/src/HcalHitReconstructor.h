@@ -19,6 +19,7 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalTimingCorrector.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHETimeProfileStatusBitSetter.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHETimingShapedFlag.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HBHEPulseShapeFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalADCSaturationFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFTimingTrustFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHF_S9S1algorithm.h"
@@ -26,8 +27,8 @@
 
     /** \class HcalHitReconstructor
 	
-    $Date: 2010/07/01 00:00:29 $
-    $Revision: 1.8 $
+    $Date: 2010/07/01 18:54:02 $
+    $Revision: 1.9 $
     \author J. Temple & E. Yazgan
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
@@ -43,6 +44,7 @@
       HBHEStatusBitSetter* hbheFlagSetter_;
       HBHETimeProfileStatusBitSetter* hbheHSCPFlagSetter_;
       HBHETimingShapedFlagSetter* hbheTimingShapedFlagSetter_;
+      HBHEPulseShapeFlagSetter *hbhePulseShapeFlagSetter_;
       HcalHFStatusBitFromDigis*   hfdigibit_;
       HcalHF_S9S1algorithm*       hfS9S1_;
       HcalHF_S9S1algorithm*       hfS8S1_;
@@ -58,6 +60,7 @@
       bool setHSCPFlags_;  // turn on/off HSCP noise flags
       bool setSaturationFlags_; // turn on/off flag indicating ADC saturation
       bool setTimingTrustFlags_; // turn on/off HF timing uncertainty flag 
+      bool setPulseShapeFlags_; //  turn on/off HBHE fit-based noise flags
       bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
 
       int firstauxTS_;
