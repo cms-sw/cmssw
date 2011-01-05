@@ -43,10 +43,10 @@ namespace edm {
 	for (size_t i = 0; i < productProduced_.size(); ++i) productProduced_[i] = false;
   }
 
-  ProductRegistry::ProductRegistry(ProductList const& productList) :
+  ProductRegistry::ProductRegistry(ProductList const& productList, bool toBeFrozen) :
       productList_(productList),
       transients_() {
-    frozen() = true;
+    frozen() = toBeFrozen;
   }
 
   void

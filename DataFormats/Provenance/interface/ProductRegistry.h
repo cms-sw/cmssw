@@ -47,15 +47,14 @@ namespace edm {
 
     // A constructor from the persistent data memebers from another product registry.
     // saves time by not copying the transient components.
-    // The constructed registry will be frozen.
-    explicit ProductRegistry(ProductList const& productList);
+    // The constructed registry will be frozen by default.
+    explicit ProductRegistry(ProductList const& productList, bool toBeFrozen = true);
 
     virtual ~ProductRegistry() {}
 
-
     typedef std::map<BranchKey, ConstBranchDescription> ConstProductList;
-    
-    void addProduct(BranchDescription const& productdesc, bool iFromListener=false);
+
+    void addProduct(BranchDescription const& productdesc, bool iFromListener = false);
 
     void copyProduct(BranchDescription const& productdesc);
 
@@ -90,10 +89,10 @@ namespace edm {
     // return-by-value of the vector so that it may be used in a
     // colon-initialization list.
     std::vector<BranchDescription const*> allBranchDescriptions() const;
-     
-    //NOTE: this is not const since we only want items that have non-const access to this class to be 
+
+    //NOTE: this is not const since we only want items that have non-const access to this class to be
     // able to call this internal iteration
-    template<class T>
+    template<typename T>
     void callForEachBranch(T const& iFunc)  {
       //NOTE: If implementation changes from a map, need to check that iterators are still valid
       // after an insert with the new container, else need to copy the container and iterate over the copy
@@ -114,17 +113,17 @@ namespace edm {
        return transients_.get().constProductList_;
     }
 
-    TransientProductLookupMap & productLookup() const {return transients_.get().productLookup_;}
+    TransientProductLookupMap& productLookup() const {return transients_.get().productLookup_;}
 
-    TransientProductLookupMap & elementLookup() const {return transients_.get().elementLookup_;}
+    TransientProductLookupMap& elementLookup() const {return transients_.get().elementLookup_;}
 
-    //returns the appropriate PriductTransientIndex else 0xFFFFFFFF if no BranchID is available
-    static ProductTransientIndex const kInvalidIndex=0xFFFFFFFF;
+    //returns the appropriate ProductTransientIndex else 0xFFFFFFFF if no BranchID is available
+    static ProductTransientIndex const kInvalidIndex = 0xFFFFFFFF;
     ProductTransientIndex indexFrom(BranchID const& iID) const;
     struct Transients {
       Transients();
       bool frozen_;
-      ConstProductList constProductList_; 
+      ConstProductList constProductList_;
       // Is at least one (run), (lumi), (event) product produced this process?
       boost::array<bool, NumBranchTypes> productProduced_;
       bool anyProductProduced_;
@@ -135,7 +134,7 @@ namespace edm {
       // an EDProduct
       TransientProductLookupMap productLookup_;
       TransientProductLookupMap elementLookup_;
-       
+
       std::map<BranchID, ProductTransientIndex> branchIDToIndex_;
     };
 
@@ -148,8 +147,8 @@ namespace edm {
       transients_.get().anyProductProduced_ = true;
     }
 
-    bool & frozen() const {return transients_.get().frozen_;}
-    
+    bool& frozen() const {return transients_.get().frozen_;}
+
     void initializeLookupTables() const;
     virtual void addCalled(BranchDescription const&, bool iFromListener);
     void throwIfNotFrozen() const;
@@ -157,7 +156,6 @@ namespace edm {
 
     ProductList productList_;
     mutable Transient<Transients> transients_;
-    
   };
 
   inline
@@ -176,10 +174,9 @@ namespace edm {
   std::ostream&
   operator<<(std::ostream& os, ProductRegistry const& pr) {
     pr.print(os);
-    return os;    
+    return os;
   }
 
 } // edm
-
 
 #endif
