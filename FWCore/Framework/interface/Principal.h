@@ -138,6 +138,8 @@ namespace edm {
 
     boost::shared_ptr<BranchMapper> branchMapperPtr() const {return branchMapperPtr_;}
 
+    boost::shared_ptr<DelayedReader> store() const {return store_;}
+
     void maybeFlushCache(TypeID const& tid, InputTag const& tag) const;
 
   protected:
@@ -160,8 +162,6 @@ namespace edm {
     SharedConstGroupPtr const getGroupByIndex(ProductTransientIndex const& oid,
                                         bool resolveProd,
                                         bool fillOnDemand) const;
-
-    boost::shared_ptr<DelayedReader> store() const {return store_;}
 
     // Make my DelayedReader get the EDProduct for a Group or
     // trigger unscheduled execution if required.  The Group is
