@@ -543,10 +543,12 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 			       refittedTrack, 
 			       pattern, vertexTrackType, weight);
 
-
-    displacedVertex.setPrimaryDirection(helper_.primaryVertex());
-
   }
+
+  displacedVertex.setPrimaryDirection(helper_.primaryVertex());
+  displacedVertex.calcKinematics();
+
+
   
   if (debug_) cout << "== End vertexing procedure ==" << endl;
 
