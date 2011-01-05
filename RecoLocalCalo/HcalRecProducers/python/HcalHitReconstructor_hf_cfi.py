@@ -22,7 +22,7 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                         setHSCPFlags  = cms.bool(True),
                         setSaturationFlags = cms.bool(True),
                         setTimingTrustFlags = cms.bool(True),
-                        setPulseShapeFlags = cms.bool(False),
+                        setPulseShapeFlags = cms.bool(False),  # not yet defined for HF
 
                         digistat= cms.PSet(HFdigiflagFirstSample     = cms.int32(3),  # These may be different from samples used for reconstruction
                                            HFdigiflagSamplesToAdd    = cms.int32(4),
