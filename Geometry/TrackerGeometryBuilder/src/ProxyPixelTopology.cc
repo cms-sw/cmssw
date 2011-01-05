@@ -14,7 +14,7 @@ ProxyPixelTopology::ProxyPixelTopology(PixelGeomDetType* type, BoundPlane * bp)
 ////////////////////////////////////////////////////////////////////////////////
 LocalPoint ProxyPixelTopology::localPosition( const MeasurementPoint& mp ) const
 {
-  return this->localPosition(mp, Topology::LocalTrackPred(0., 0., 0., 0.));
+  return specificTopology().localPosition(mp);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ LocalPoint ProxyPixelTopology::localPosition( const MeasurementPoint& mp,
 LocalError ProxyPixelTopology::localError( const MeasurementPoint& mp,
 					   const MeasurementError& me ) const
 {
-  return this->localError(mp, me, Topology::LocalTrackPred(0., 0., 0., 0.));
+  return specificTopology().localError(mp, me);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,15 +44,20 @@ LocalError ProxyPixelTopology::localError( const MeasurementPoint& mp,
 {
   if (!this->surfaceDeformation()) return specificTopology().localError(mp, me);
 
-  // FIXME: Add code to actually use SurfaceDeformation
-
-  return specificTopology().localError(mp, me);
+  // Where does 'mp' "think" it is:
+  const LocalPoint lp(specificTopology().localPosition(mp));
+  const SurfaceDeformation::Local2DVector corr(this->positionCorrection(trkPred));
+  // Where it actually is:
+  const LocalPoint lpNew(lp.x() + corr.x(), lp.y() + corr.y(), lp.z());
+  const MeasurementPoint mpNew(specificTopology().measurementPosition(lpNew));
+  
+  return specificTopology().localError(mpNew, me);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 MeasurementPoint ProxyPixelTopology::measurementPosition( const LocalPoint& lp ) const
 {
-  return this->measurementPosition(lp, Topology::LocalTrackAngles(0., 0.));
+  return specificTopology().measurementPosition(lp);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +76,7 @@ MeasurementPoint ProxyPixelTopology::measurementPosition( const LocalPoint& lp,
 ////////////////////////////////////////////////////////////////////////////////
 MeasurementError ProxyPixelTopology::measurementError( const LocalPoint &lp, const LocalError &le ) const
 {
-  return this->measurementError(lp, le, Topology::LocalTrackAngles(0., 0.));
+  return specificTopology().measurementError(lp, le);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -90,7 +95,7 @@ MeasurementError ProxyPixelTopology::measurementError( const LocalPoint &lp, con
 ////////////////////////////////////////////////////////////////////////////////
 int ProxyPixelTopology::channel( const LocalPoint& lp) const
 {
-  return this->channel(lp, Topology::LocalTrackAngles(0., 0.));
+  return specificTopology().channel(lp);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -108,7 +113,7 @@ int ProxyPixelTopology::channel( const LocalPoint &lp, const Topology::LocalTrac
 ////////////////////////////////////////////////////////////////////////////////
 std::pair<float,float> ProxyPixelTopology::pixel( const LocalPoint& lp ) const
 {
-  return this->pixel(lp, Topology::LocalTrackAngles(0., 0.));
+  return specificTopology().pixel(lp);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -127,7 +132,7 @@ std::pair<float,float> ProxyPixelTopology::pixel( const LocalPoint& lp,
 ////////////////////////////////////////////////////////////////////////////////
 float ProxyPixelTopology::localX(const float mpX) const
 {
-  return this->localX(mpX, Topology::LocalTrackPred(0., 0., 0., 0.));
+  return specificTopology().localX(mpX);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -146,7 +151,7 @@ float ProxyPixelTopology::localX(const float mpX,
 ////////////////////////////////////////////////////////////////////////////////
 float ProxyPixelTopology::localY(const float mpY) const
 {
-  return this->localY(mpY, Topology::LocalTrackPred(0., 0., 0., 0.));
+  return specificTopology().localY(mpY);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

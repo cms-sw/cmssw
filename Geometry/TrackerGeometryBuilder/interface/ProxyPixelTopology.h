@@ -13,13 +13,13 @@
 /// state as a parameter are reimplemented in order to apply
 /// corrections due to the surface deformations.
 //
-/// The 'old' methods without the track predictions call the 'new'
-/// ones with dummy track predictions.
+/// The 'old' methods without the track predictions simply call
+/// the method of the actual topology.
 ///
 ///  \author    : Andreas Mussgiller
 ///  date       : December 2010
 ///  $Revision: 1.1 $
-///  $Date: 2010/12/15 08:48:23 $
+///  $Date: 2011/01/03 10:35:23 $
 ///  (last update by $Author: mussgill $)
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
