@@ -18,7 +18,10 @@ namespace HcalCaloFlagLabels
 		      HSCP_ExpFit=5,
                       HBHETimingTrustBits=6, // 2-bit counter; not yet in use
                       HBHETimingShapedCutsBits=8, // 3-bit counter
-		      HBHEIsolatedNoise=11
+		      HBHEIsolatedNoise=11,
+		      HBHEFlatNoise=12,
+		      HBHESpikeNoise=13,
+		      HBHETriangleNoise=14
   };
 
   enum HFTimingTrustFlag{HFTimingTrustBits=6};
