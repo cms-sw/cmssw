@@ -187,6 +187,20 @@ PFDisplacedVertex::totalCharge() const {
 
 const double
 PFDisplacedVertex::angle_io() const {
+  math::XYZTLorentzVector momentumSec = secondaryMomentum((string) "PI", true);
+
+  math::XYZVector p_out = momentumSec.Vect();
+
+  math::XYZVector p_in = primaryDirection();
+
+  if (p_in.Mag2() < 1e-10) return -1;
+  return acos(p_in.Dot(p_out)/sqrt(p_in.Mag2()*p_out.Mag2()))/TMath::Pi()*180.0; 
+  
+}
+
+const math::XYZVector
+PFDisplacedVertex:: primaryDirection() const { 
+
   math::XYZTLorentzVector momentumPrim = primaryMomentum((string) "PI", true);
   math::XYZTLorentzVector momentumSec = secondaryMomentum((string) "PI", true);
 
@@ -196,19 +210,13 @@ PFDisplacedVertex::angle_io() const {
 
   if (( isThereKindTracks(T_TO_VERTEX) || isThereKindTracks(T_MERGED) ) &&
       momentumPrim.E() >  momentumSec.E()){
-    p_in = momentumPrim.Vect();
+    p_in = momentumPrim.Vect()/sqrt(momentumPrim.Vect().Mag2()+1e-10);
   } else {
     p_in = primaryDirection_;
   }
 
- 
-  if (p_in.Mag2() < 1e-10) return -1;
-  return acos(p_in.Dot(p_out)/sqrt(p_in.Mag2()*p_out.Mag2()))/TMath::Pi()*180.0;
-
- 
-  
+  return p_in;
 }
-
 
 
 const double 
