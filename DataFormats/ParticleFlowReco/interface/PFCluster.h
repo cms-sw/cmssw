@@ -130,7 +130,10 @@ namespace reco {
     }
     
     /// dummy vertex access
-    math::XYZPoint const & vertex() const { return dummyVertex_; }
+    math::XYZPoint const & vertex() const { 
+      static math::XYZPoint dummyVtx(0,0,0);
+      return dummyVtx;      
+    }
     double vx() const { return vertex().x(); }
     double vy() const { return vertex().y(); }
     double vz() const { return vertex().z(); }    
@@ -162,9 +165,6 @@ namespace reco {
     
     /// color (transient)
     int                 color_;
-
-    /// vertex (static)
-    static math::XYZPoint      dummyVertex_;
     
     friend class ::PFClusterAlgo;
   };

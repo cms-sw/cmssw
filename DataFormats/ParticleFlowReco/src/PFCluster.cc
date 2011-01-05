@@ -13,8 +13,6 @@ double PFCluster::depthCorBp_ = 4.0;
 
 unsigned PFCluster::instanceCounter_ = 0;
 
-math::XYZPoint PFCluster::dummyVertex_ = math::XYZPoint( 0., 0., 0. );
-
 PFCluster::PFCluster(PFLayer::Layer layer, double energy,
                      double x, double y, double z ) : 
   CaloCluster( energy, 
