@@ -76,9 +76,15 @@ LocalError ProxyStripTopology::localError(float strip, float stripErr2,
 {
   if (!this->surfaceDeformation()) return specificTopology().localError(strip, stripErr2);
 
-  // FIXME: Add code to actually use SurfaceDeformation
+  // Where does the strip "think" it is:
+  const LocalPoint lp(specificTopology().localPosition(strip));
+  const SurfaceDeformation::Local2DVector corr(this->positionCorrection(trkPred));
 
-  return specificTopology().localError(strip, stripErr2);
+  // Where it actually is:
+  const LocalPoint lpNew(lp.x() + corr.x(), lp.y() + corr.y(), lp.z());
+  float stripNew = specificTopology().strip(lpNew);
+  
+  return specificTopology().localError(stripNew, stripErr2);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -96,9 +102,14 @@ LocalError ProxyStripTopology::localError( const MeasurementPoint& mp,
 {
   if (!this->surfaceDeformation()) return specificTopology().localError(mp, me);
 
-  // FIXME: Add code to actually use SurfaceDeformation
+  // Where does 'mp' "think" it is:
+  const LocalPoint lp(specificTopology().localPosition(mp));
+  const SurfaceDeformation::Local2DVector corr(this->positionCorrection(trkPred));
+  // Where it actually is:
+  const LocalPoint lpNew(lp.x() + corr.x(), lp.y() + corr.y(), lp.z());
+  const MeasurementPoint mpNew(specificTopology().measurementPosition(lpNew));
 
-  return specificTopology().localError(mp, me);
+  return specificTopology().localError(mpNew, me);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
