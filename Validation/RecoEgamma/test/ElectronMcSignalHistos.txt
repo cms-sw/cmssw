@@ -141,10 +141,6 @@ ElectronMcSignalValidator/h_ele_eta_showerFrac 0 0 0 1 ElectronMcSignalValidator
 ElectronMcSignalValidator/h_ele_fbremvsEtamean 0 0 1 0 0 0 1 0
 ElectronMcSignalValidator/h_ele_fbremvsEtamode 0 0 1 0 0 0 1 1
 
-Particle flow mva
-
-ElectronMcSignalValidator/h_ele_mva 1 0 1 0 0 0 1 1
-
 Isolation sums
 
 ElectronMcSignalValidator/h_ele_tkSumPt_dr03 1 1 1 0 0 0 1 0
@@ -187,5 +183,10 @@ Charge mis-ID
 ElectronMcSignalValidator/h_ele_absetaQmisid 0 0 1 1 ElectronMcSignalValidator/h_ele_abseta_matched_qmisid ElectronMcSignalValidator/h_mc_abseta 1 0
 ElectronMcSignalValidator/h_ele_etaQmisid	0 0 1 1 ElectronMcSignalValidator/h_ele_eta_matched_qmisid ElectronMcSignalValidator/h_mc_eta 1 0
 ElectronMcSignalValidator/h_ele_ptQmisid 0 0 1 1 ElectronMcSignalValidator/h_ele_Pt_matched_qmisid ElectronMcSignalValidator/h_mc_Pt 1 0
-ElectronMcSignalValidator/h_ele_zQmisid 0 0 1 1 ElectronMcSignalValidator/h_ele_z_matched_qmisid ElectronMcSignalValidator/h_mc_z 1 0
+ElectronMcSignalValidator/h_ele_zQmisid 0 0 1 1 ElectronMcSignalValidator/h_ele_z_matched_qmisid ElectronMcSignalValidator/h_mc_z 1 1
+
+Provenance and pflow data
+
+ElectronMcSignalValidator/h_ele_provenance 1 0 1 0 0 0 1 0
+ElectronMcSignalValidator/h_ele_mva 1 0 1 0 0 0 1 0
 
