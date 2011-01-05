@@ -19,8 +19,8 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 class SiPixelQuality {
 

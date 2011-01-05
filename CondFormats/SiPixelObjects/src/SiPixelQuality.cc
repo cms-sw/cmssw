@@ -16,7 +16,6 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -139,8 +138,10 @@ const std::vector<LocalPoint> SiPixelQuality::getBadRocPositions(const uint32_t 
 	      //     es.get<TrackerDigiGeometryRecord>().get( geom );
 	      //    const TrackerGeometry& theTracker(*geom);
               const PixelGeomDetUnit * theGeomDet = dynamic_cast<const PixelGeomDetUnit*> (theTracker.idToDet(detid) );
-              RectangularPixelTopology const * topology = dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
-              MeasurementPoint thepoint(global.row, global.col);
+
+	      PixelTopology const * topology = &(theGeomDet->specificTopology());
+
+	      MeasurementPoint thepoint(global.row, global.col);
               LocalPoint localpoint = topology->localPosition(thepoint);
 	      badrocpositions.push_back(localpoint);
          break;
