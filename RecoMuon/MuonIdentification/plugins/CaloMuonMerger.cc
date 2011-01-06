@@ -1,5 +1,5 @@
 //
-// $Id: CaloMuonMerger.cc,v 1.4 2010/08/02 10:45:09 zgecse Exp $
+// $Id: CaloMuonMerger.cc,v 1.5 2010/08/07 18:22:35 zgecse Exp $
 //
 
 /**
@@ -7,7 +7,7 @@
   \brief    Merges reco::CaloMuons, reco::Muons and optionally reco::Tracks avoiding innerTrack duplications in a single reco::Muon collection
             
   \author   Giovanni Petrucciani
-  \version  $Id: CaloMuonMerger.cc,v 1.4 2010/08/02 10:45:09 zgecse Exp $
+  \version  $Id: CaloMuonMerger.cc,v 1.5 2010/08/07 18:22:35 zgecse Exp $
 */
 
 
@@ -32,6 +32,7 @@ public:
 private:
   edm::InputTag muons_;
   StringCutObjectSelector<reco::Muon, false> muonsCut_;
+  bool mergeCaloMuons_;
   edm::InputTag caloMuons_;
   StringCutObjectSelector<reco::CaloMuon, false> caloMuonsCut_;
   double minCaloCompatibility_;
@@ -44,9 +45,10 @@ private:
 CaloMuonMerger::CaloMuonMerger(const edm::ParameterSet & iConfig) :
     muons_(iConfig.getParameter<edm::InputTag>("muons")),
     muonsCut_(iConfig.existsAs<std::string>("muonsCut") ? iConfig.getParameter<std::string>("muonsCut") : ""),
+    mergeCaloMuons_(iConfig.existsAs<bool>("mergeCaloMuons") ? iConfig.getParameter<bool>("mergeCaloMuons") : true),
     caloMuons_(iConfig.getParameter<edm::InputTag>("caloMuons")),
     caloMuonsCut_(iConfig.existsAs<std::string>("caloMuonsCut") ? iConfig.getParameter<std::string>("caloMuonsCut") : ""),
-    minCaloCompatibility_(iConfig.getParameter<double>("minCaloCompatibility")),
+    minCaloCompatibility_(mergeCaloMuons_ ? iConfig.getParameter<double>("minCaloCompatibility") : 0),
     mergeTracks_(iConfig.existsAs<bool>("mergeTracks") ? iConfig.getParameter<bool>("mergeTracks") : false),
     tracks_(mergeTracks_ ? iConfig.getParameter<edm::InputTag>("tracks") : edm::InputTag()),
     tracksCut_(iConfig.existsAs<std::string>("tracksCut") ? iConfig.getParameter<std::string>("tracksCut") : "")
@@ -61,18 +63,18 @@ CaloMuonMerger::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     edm::Handle<std::vector<reco::Track> > tracks;
 
     iEvent.getByLabel(muons_, muons);
-    iEvent.getByLabel(caloMuons_, caloMuons);
+    if(mergeCaloMuons_) iEvent.getByLabel(caloMuons_, caloMuons);
     if(mergeTracks_) iEvent.getByLabel(tracks_, tracks);
 
     std::auto_ptr<std::vector<reco::Muon> >  out(new std::vector<reco::Muon>());
-    out->reserve(caloMuons->size() + muons->size() + (mergeTracks_?tracks->size():0));
+    out->reserve(muons->size() + (mergeTracks_?tracks->size():0));
 
-    // copy reco::Muons, turning on the CaloCompatibility flag if possible
+    // copy reco::Muons, turning on the CaloCompatibility flag if enabled and possible
     for (std::vector<reco::Muon>::const_iterator it = muons->begin(), ed = muons->end(); it != ed; ++it) {
         if(!muonsCut_(*it)) continue;
         out->push_back(*it);
         reco::Muon & mu = out->back();
-        if (mu.track().isNonnull()) {
+        if (mergeCaloMuons_ && mu.track().isNonnull()) {
             if (mu.isCaloCompatibilityValid()) {
                 if (mu.caloCompatibility() >= minCaloCompatibility_) {
                     mu.setType(mu.type() | reco::Muon::CaloMuon);
@@ -81,20 +83,22 @@ CaloMuonMerger::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
         }
     }
 
-    // copy reco::CaloMuon 
-    for (std::vector<reco::CaloMuon>::const_iterator it = caloMuons->begin(), ed = caloMuons->end(); it != ed; ++it) {
-        if(!caloMuonsCut_(*it)) continue;
-        // make a reco::Muon
-        reco::TrackRef track = it->track();
-        double energy = sqrt(track->p() * track->p() + 0.011163691);
-        math::XYZTLorentzVector p4(track->px(), track->py(), track->pz(), energy);
-        out->push_back(reco::Muon(track->charge(), p4, track->vertex()));
-        reco::Muon & mu = out->back();
-        // fill info 
-        mu.setCalEnergy( it->calEnergy() );
-        mu.setCaloCompatibility( it->caloCompatibility() );
-        mu.setInnerTrack( track );
-        mu.setType( reco::Muon::CaloMuon );
+    if (mergeCaloMuons_) {
+        // copy reco::CaloMuon 
+        for (std::vector<reco::CaloMuon>::const_iterator it = caloMuons->begin(), ed = caloMuons->end(); it != ed; ++it) {
+            if(!caloMuonsCut_(*it)) continue;
+            // make a reco::Muon
+            reco::TrackRef track = it->track();
+            double energy = sqrt(track->p() * track->p() + 0.011163691);
+            math::XYZTLorentzVector p4(track->px(), track->py(), track->pz(), energy);
+            out->push_back(reco::Muon(track->charge(), p4, track->vertex()));
+            reco::Muon & mu = out->back();
+            // fill info 
+            mu.setCalEnergy( it->calEnergy() );
+            mu.setCaloCompatibility( it->caloCompatibility() );
+            mu.setInnerTrack( track );
+            mu.setType( reco::Muon::CaloMuon );
+        }
     }
 
     // merge reco::Track avoiding duplication of innerTracks
@@ -111,14 +115,16 @@ CaloMuonMerger::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
                 }
             }
             if(isMuon) continue;
-            bool isCaloMuon = false;
-            for(std::vector<reco::CaloMuon>::const_iterator muon = caloMuons->begin(); muon < caloMuons->end(); muon++){
-                if(muon->innerTrack() == track){
-                    isCaloMuon = true;
-                    break;
+            if (mergeCaloMuons_) {
+                bool isCaloMuon = false;
+                for(std::vector<reco::CaloMuon>::const_iterator muon = caloMuons->begin(); muon < caloMuons->end(); muon++){
+                    if(muon->innerTrack() == track){
+                        isCaloMuon = true;
+                        break;
+                    }
                 }
+                if(isCaloMuon) continue;
             }
-            if(isCaloMuon) continue;
             // make a reco::Muon
             double energy = sqrt(track->p() * track->p() + 0.011163691);
             math::XYZTLorentzVector p4(track->px(), track->py(), track->pz(), energy);
