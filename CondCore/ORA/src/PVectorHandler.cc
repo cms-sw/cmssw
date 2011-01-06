@@ -1,6 +1,8 @@
 #include "CondCore/ORA/interface/Exception.h"
 #include "PVectorHandler.h"
 #include "ClassUtils.h"
+// externals
+#include "RVersion.h"
 
 ora::PVectorIteratorHandler::PVectorIteratorHandler( const Reflex::Environ<long>& collEnv,
                                                      Reflex::CollFuncTable& collProxy,
@@ -105,21 +107,26 @@ size_t ora::PVectorHandler::persistentSize( const void* address ){
 
 ora::IArrayIteratorHandler*
 ora::PVectorHandler::iterate( const void* address ){
-  m_collEnv.fObject = static_cast<char*>(const_cast<void*>(address))+m_vecAttributeOffset;
   if ( ! m_iteratorReturnType ) {
     throwException( "Missing the dictionary information for the value_type member of the container \"" +
                     m_type.Name(Reflex::SCOPED|Reflex::FINAL) + "\"",
                     "PVectorHandler" );
   }
+  m_collEnv.fObject = static_cast<char*>(const_cast<void*>(address))+m_vecAttributeOffset;
   return new PVectorIteratorHandler( m_collEnv,*m_collProxy,m_iteratorReturnType,startElementIndex(address) );
 }
 
 void
 ora::PVectorHandler::appendNewElement( void* address, void* data ){
-  m_collEnv.fObject = static_cast<char*>(address)+m_vecAttributeOffset;
+  void* dest_address = static_cast<char*>(address)+m_vecAttributeOffset;
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,28,0)
+  m_collEnv.fObject = dest_address;
   m_collEnv.fSize = 1;
   m_collEnv.fStart = data;
   m_collProxy->feed_func(&m_collEnv);
+#else
+  m_collProxy->feed_func(data,dest_address,1);
+#endif
 }
 
 void

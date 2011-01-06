@@ -1,10 +1,12 @@
 #include "CondCore/ORA/interface/Exception.h"
 #include "STLContainerHandler.h"
 #include "ClassUtils.h"
+// externals
+#include "RVersion.h"
 
 ora::STLContainerIteratorHandler::STLContainerIteratorHandler( const Reflex::Environ<long>& collEnv,
-                                                                Reflex::CollFuncTable& collProxy,
-                                                                const Reflex::Type& iteratorReturnType ):
+                                                               Reflex::CollFuncTable& collProxy,
+                                                               const Reflex::Type& iteratorReturnType ):
   m_returnType(iteratorReturnType),
   m_collEnv(collEnv),
   m_collProxy(collProxy),
@@ -22,7 +24,6 @@ ora::STLContainerIteratorHandler::increment(){
   m_collEnv.fIdx = 1;
   m_currentElement = m_collProxy.next_func(&m_collEnv);
 }
-
 
 void*
 ora::STLContainerIteratorHandler::object()
@@ -68,37 +69,37 @@ ora::STLContainerHandler::~STLContainerHandler(){
 size_t
 ora::STLContainerHandler::size( const void* address ){
   m_collEnv.fObject = const_cast<void*>(address);
-
   return *(static_cast<size_t*>(m_collProxy->size_func(&m_collEnv)));
 }
 
 
 ora::IArrayIteratorHandler*
 ora::STLContainerHandler::iterate( const void* address ){
-  m_collEnv.fObject = const_cast<void*>(address);
-
   if ( ! m_iteratorReturnType ) {
     throwException( "Missing the dictionary information for the value_type member of the container \"" +
                     m_type.Name(Reflex::SCOPED|Reflex::FINAL) + "\"",
                     "STLContainerHandler::iterate" );
   }
+  m_collEnv.fObject = const_cast<void*>(address);
   return new STLContainerIteratorHandler( m_collEnv,*m_collProxy,m_iteratorReturnType );
 }
 
 
 void
 ora::STLContainerHandler::appendNewElement( void* address, void* data ){
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,28,0)
   m_collEnv.fObject = address;
   m_collEnv.fSize = 1;
   m_collEnv.fStart = data;
-
   m_collProxy->feed_func(&m_collEnv);
+#else
+  m_collProxy->feed_func(data,address,1);
+#endif
 }
 
 void
 ora::STLContainerHandler::clear( const void* address ){
   m_collEnv.fObject = const_cast<void*>(address);
-
   m_collProxy->clear_func(&m_collEnv);
 }
 
