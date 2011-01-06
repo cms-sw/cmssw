@@ -52,27 +52,18 @@ particleFlow = cms.EDProducer("PFProducer",
     usePFConversions = cms.bool(False),
     usePFDecays = cms.bool(False),
 
-    dptRel_DispVtx = cms.double(20.),
+    dptRel_DispVtx = cms.double(10.),
 
     iCfgCandConnector = cms.PSet(
     
-	 bCorrect         =  cms.bool(False), 
-	 bCalibPrimary    =  cms.bool(False),
-	 bCalibSecondary  =  cms.bool(False),
-	 nuclCalibFactors =  cms.vdouble(0.88, 0.28, 0.04)
-
+	 bCorrect         =  cms.bool(True), 
+	 bCalibPrimary    =  cms.bool(True),
+	 nuclCalibFactors =  cms.vdouble(0.8, 0.15, 0.5, -0.5, 0.05),
+         dptRel_PrimaryTrack = cms.double(10.),
+         dptRel_MergedTrack = cms.double(5.)
     ),
 
-    # Suggested configuration
-    #iCfgCandConnector = cms.PSet(
     
-	# bCorrect         =  cms.bool(True), 
-	# bCalibPrimary    =  cms.bool(True),
-	# bCalibSecondary  =  cms.bool(False),
-	# nuclCalibFactors =  cms.vdouble(0.88, 0.28, 0.04)
-
-#    ),                        
-
 
     # Treatment of muons : 
     # Expected energy in ECAL and HCAL, and RMS

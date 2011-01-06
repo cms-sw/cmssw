@@ -21,8 +21,13 @@ class PFCandConnector {
 	 debug_ = false;
 	 bCorrect_ = false;
 	 bCalibPrimary_ =  false;
-	 bCalibSecondary_ =  false;
-	 fConst_ = 1, fNorm_ = 0, fExp_ = 0;
+
+	 fConst_.push_back(1), fConst_.push_back(0);
+	 fNorm_.push_back(0), fNorm_.push_back(0);
+	 fExp_.push_back(0);
+
+	 dptRel_PrimaryTrack_ = 0.;
+         dptRel_MergedTrack_ = 0.;
        }
        
        void setParameters(const edm::ParameterSet& iCfgCandConnector){
@@ -30,15 +35,25 @@ class PFCandConnector {
 	 bCorrect_ = iCfgCandConnector.getParameter<bool>("bCorrect");
 	 /// Flag to calibrate the reconstructed nuclear interactions with primary or merged tracks
 	 bCalibPrimary_ =  iCfgCandConnector.getParameter<bool>("bCalibPrimary");
-	 /// Flag to calibrate the reconstructed nuclear interactions where only secondary tracks are present
-	 bCalibSecondary_ =  iCfgCandConnector.getParameter<bool>("bCalibPrimary");
+
+	 dptRel_PrimaryTrack_ = iCfgCandConnector.getParameter<double>("dptRel_PrimaryTrack");
+         dptRel_MergedTrack_ = iCfgCandConnector.getParameter<double>("dptRel_MergedTrack");
+
+
 	 std::vector<double> nuclCalibFactors = iCfgCandConnector.getParameter<std::vector<double> >("nuclCalibFactors");  
-	 if (nuclCalibFactors.size() == 3) {
-	   fConst_ =  nuclCalibFactors[0]; fNorm_ = nuclCalibFactors[1]; fExp_ = nuclCalibFactors[2];
+
+	 if (nuclCalibFactors.size() == 5) {
+	   fConst_[0] =  nuclCalibFactors[0]; 
+	   fConst_[1] =  nuclCalibFactors[1]; 
+	   
+	   fNorm_[0] = nuclCalibFactors[2]; 
+	   fNorm_[1] = nuclCalibFactors[3]; 
+	   
+	   fExp_[0] = nuclCalibFactors[4];
 	 } else {
 	   std::cout << "Wrong calibration factors for nuclear interactions. The calibration procedure would not be applyed." << std::endl;
 	   bCalibPrimary_ =  false;
-	   bCalibSecondary_ =  false;
+
 	 }
        }
 
@@ -63,7 +78,7 @@ class PFCandConnector {
        bool isSecondaryNucl( const reco::PFCandidate& pf ) const;
 
        /// Return a calibration factor for a reconstructed nuclear interaction
-       double rescaleFactor( const double pt ) const;
+       double rescaleFactor( const double pt, const double cFrac ) const;
 
        /// Collection of primary PFCandidates to be transmitted to the Event
        std::auto_ptr<reco::PFCandidateCollection> pfC_;
@@ -76,8 +91,13 @@ class PFCandConnector {
 
        /// Calibration parameters for the reconstructed nuclear interactions
        bool bCalibPrimary_;
-       bool bCalibSecondary_;
-       double fConst_, fNorm_, fExp_;
+       std::vector< double > fConst_;
+       std::vector< double > fNorm_;
+       std::vector< double > fExp_;
+
+       // Maximal accepatble uncertainty on primary tracks to usem them as MC truth for calibration
+       double dptRel_PrimaryTrack_;
+       double dptRel_MergedTrack_;
 
        /// Useful constants
        static const double pion_mass2;
