@@ -646,14 +646,14 @@ class Process(object):
     def _insertInto(self, parameterSet, itemDict):
         for name,value in itemDict.iteritems():
             value.insertInto(parameterSet, name)
-    def _insertOneInto(self, parameterSet, label, item):
+    def _insertOneInto(self, parameterSet, label, item, tracked):
         vitems = []
         if not item == None:
             newlabel = item.nameInProcessDesc_(label)
             vitems = [newlabel]
             item.insertInto(parameterSet, newlabel)
-        parameterSet.addVString(True, label, vitems)
-    def _insertManyInto(self, parameterSet, label, itemDict):
+        parameterSet.addVString(tracked, label, vitems)
+    def _insertManyInto(self, parameterSet, label, itemDict, tracked):
         l = []
         for name,value in itemDict.iteritems():
           newLabel = value.nameInProcessDesc_(name)
@@ -661,7 +661,7 @@ class Process(object):
           value.insertInto(parameterSet, name)
         # alphabetical order is easier to compare with old language
         l.sort()
-        parameterSet.addVString(True, label, l)
+        parameterSet.addVString(tracked, label, l)
     def _insertServices(self, processDesc, itemDict):
         for name,value in itemDict.iteritems():
            value.insertInto(processDesc)
@@ -745,13 +745,13 @@ class Process(object):
         all_modules.update(self.outputModules_())
         self._insertInto(processPSet, self.psets_())
         self._insertInto(processPSet, self.vpsets_())
-        self._insertManyInto(processPSet, "@all_modules", all_modules)
-        self._insertOneInto(processPSet,  "@all_sources", self.source_())
-        self._insertOneInto(processPSet,  "@all_loopers",   self.looper_())
-        self._insertOneInto(processPSet,  "@all_subprocesses",   self.subProcess_())
-        self._insertManyInto(processPSet, "@all_esmodules", self.es_producers_())
-        self._insertManyInto(processPSet, "@all_essources", self.es_sources_())
-        self._insertManyInto(processPSet, "@all_esprefers", self.es_prefers_())
+        self._insertManyInto(processPSet, "@all_modules", all_modules, True)
+        self._insertOneInto(processPSet,  "@all_sources", self.source_(), True)
+        self._insertOneInto(processPSet,  "@all_loopers", self.looper_(), True)
+        self._insertOneInto(processPSet,  "@all_subprocesses", self.subProcess_(), False)
+        self._insertManyInto(processPSet, "@all_esmodules", self.es_producers_(), True)
+        self._insertManyInto(processPSet, "@all_essources", self.es_sources_(), True)
+        self._insertManyInto(processPSet, "@all_esprefers", self.es_prefers_(), True)
         self._insertPaths(processDesc, processPSet)
         self._insertServices(processDesc, self.services_())
         return processDesc
