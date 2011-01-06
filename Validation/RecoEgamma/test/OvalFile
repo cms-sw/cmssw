@@ -142,6 +142,16 @@ This set of targets is currently used for the validation of electrons.
     <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
   </environment>
   
+  <environment name="FullOldPt35">
+    <var name="DBS_RELEASE" value="CMSSW_3_8_6">
+    <var name="DBS_COND" value="MC_38Y_V13-v1">
+    <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
+    <executable name="electronDbsDiscovery.py">
+    <executable name="cmsRun" args="${VAL_CONFIGURATION}">
+    <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
+    <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
+  </environment>
+  
 </environment>
 
 <environment name="FullSimHighStats">

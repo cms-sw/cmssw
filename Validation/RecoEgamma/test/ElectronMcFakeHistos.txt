@@ -97,10 +97,6 @@ ElectronMcFakeValidator/h_ele_eta_showerFrac 0 0 0 1 ElectronMcFakeValidator/h_e
 ElectronMcFakeValidator/h_ele_fbremvsEtamean 0 0 1 0 0 0 1 0
 ElectronMcFakeValidator/h_ele_fbremvsEtamode 0 0 1 0 0 0 1 1
 
-Particle flow mva
-
-ElectronMcFakeValidator/h_ele_mva 1 0 1 0 0 0 1 1
-
 Isolation sums
 
 ElectronMcFakeValidator/h_ele_tkSumPt_dr03 1 1 1 0 0 0 1 0
@@ -127,6 +123,22 @@ ElectronMcFakeValidator/h_ele_dPhiCl_propOut_all 1 1 1 0 0 0 1 0
 ElectronMcFakeValidator/h_ele_HoE_all 1	1 1 0 0 0 1 0
 ElectronMcFakeValidator/h_ele_mee_all 1	0 1 0 0 0 1 0
 ElectronMcFakeValidator/h_ele_mee_os 1	0 1 0 0 0 1 1
+
+Provenance and pflow data
+
+ElectronMcFakeValidator/h_ele_provenance 1 0 1 0 0 0 1 0
+ElectronMcFakeValidator/h_ele_mva 1 0 1 0 0 0 1 1
+
+Conversion rejection information
+
+ElectronMcFakeValidator/h_ele_convFlags 1 0 1 0 0 0 0 0
+ElectronMcFakeValidator/h_ele_convFlags_all 1 0 1 0 0 0 1 0
+ElectronMcFakeValidator/h_ele_convDist 1 0 1 0 0 0 0 0
+ElectronMcFakeValidator/h_ele_convDist_all 1 0 1 0 0 0 1 0
+ElectronMcFakeValidator/h_ele_convDcot 1 0 1 0 0 0 0 0
+ElectronMcFakeValidator/h_ele_convDcot_all 1 0 1 0 0 0 1 0
+ElectronMcFakeValidator/h_ele_convRadius 1 0 1 0 0 0 0 0
+ElectronMcFakeValidator/h_ele_convRadius_all 1 0 1 0 0 0 1 1
 
 Reconstruction efficiency
 

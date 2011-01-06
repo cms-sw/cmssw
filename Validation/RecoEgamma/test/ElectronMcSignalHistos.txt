@@ -168,16 +168,6 @@ ElectronMcSignalValidator/h_ele_HoE_all 1 1 1 0 0 0 1 0
 ElectronMcSignalValidator/h_ele_mee_all 1 1 1 0 0 0 1 0
 ElectronMcSignalValidator/h_ele_mee_os 1 1 1 0 0 0 1 1
 
-Reconstruction efficiency
-
-ElectronMcSignalValidator/h_ele_absetaEff	0 0 1 1 ElectronMcSignalValidator/h_ele_simAbsEta_matched ElectronMcSignalValidator/h_mc_abseta 1 0
-ElectronMcSignalValidator/h_ele_etaEff 0 0 1 1 ElectronMcSignalValidator/h_ele_simEta_matched ElectronMcSignalValidator/h_mc_eta 1 0
-ElectronMcSignalValidator/h_ele_ptEff 0 0 1 1 ElectronMcSignalValidator/h_ele_simPt_matched ElectronMcSignalValidator/h_mc_Pt 1 0
-ElectronMcSignalValidator/h_ele_phiEff 0 0 1 1 ElectronMcSignalValidator/h_ele_simPhi_matched ElectronMcSignalValidator/h_mc_phi 1 0
-ElectronMcSignalValidator/h_ele_zEff 0 0 1 1 ElectronMcSignalValidator/h_ele_simZ_matched ElectronMcSignalValidator/h_mc_z 1 0
-ElectronMcSignalValidator/h_ele_etaEff_all 0 0 1 1 ElectronMcSignalValidator/h_ele_vertexEta_all ElectronMcSignalValidator/h_mc_eta 1 0
-ElectronMcSignalValidator/h_ele_ptEff_all	0 0 1 1 ElectronMcSignalValidator/h_ele_vertexPt_all ElectronMcSignalValidator/h_mc_Pt 1 1
-
 Charge mis-ID
 
 ElectronMcSignalValidator/h_ele_absetaQmisid 0 0 1 1 ElectronMcSignalValidator/h_ele_abseta_matched_qmisid ElectronMcSignalValidator/h_mc_abseta 1 0
@@ -188,5 +178,26 @@ ElectronMcSignalValidator/h_ele_zQmisid 0 0 1 1 ElectronMcSignalValidator/h_ele_
 Provenance and pflow data
 
 ElectronMcSignalValidator/h_ele_provenance 1 0 1 0 0 0 1 0
-ElectronMcSignalValidator/h_ele_mva 1 0 1 0 0 0 1 0
+ElectronMcSignalValidator/h_ele_mva 1 0 1 0 0 0 1 1
+
+Conversion rejection information
+
+ElectronMcSignalValidator/h_ele_convFlags 1 0 1 0 0 0 0 0
+ElectronMcSignalValidator/h_ele_convFlags_all 1 0 1 0 0 0 1 0
+ElectronMcSignalValidator/h_ele_convDist 1 0 1 0 0 0 0 0
+ElectronMcSignalValidator/h_ele_convDist_all 1 0 1 0 0 0 1 0
+ElectronMcSignalValidator/h_ele_convDcot 1 0 1 0 0 0 0 0
+ElectronMcSignalValidator/h_ele_convDcot_all 1 0 1 0 0 0 1 0
+ElectronMcSignalValidator/h_ele_convRadius 1 0 1 0 0 0 0 0
+ElectronMcSignalValidator/h_ele_convRadius_all 1 0 1 0 0 0 1 1
+
+Reconstruction efficiency
+
+ElectronMcSignalValidator/h_ele_absetaEff	0 0 1 1 ElectronMcSignalValidator/h_ele_simAbsEta_matched ElectronMcSignalValidator/h_mc_abseta 1 0
+ElectronMcSignalValidator/h_ele_etaEff 0 0 1 1 ElectronMcSignalValidator/h_ele_simEta_matched ElectronMcSignalValidator/h_mc_eta 1 0
+ElectronMcSignalValidator/h_ele_ptEff 0 0 1 1 ElectronMcSignalValidator/h_ele_simPt_matched ElectronMcSignalValidator/h_mc_Pt 1 0
+ElectronMcSignalValidator/h_ele_phiEff 0 0 1 1 ElectronMcSignalValidator/h_ele_simPhi_matched ElectronMcSignalValidator/h_mc_phi 1 0
+ElectronMcSignalValidator/h_ele_zEff 0 0 1 1 ElectronMcSignalValidator/h_ele_simZ_matched ElectronMcSignalValidator/h_mc_z 1 0
+ElectronMcSignalValidator/h_ele_etaEff_all 0 0 1 1 ElectronMcSignalValidator/h_ele_vertexEta_all ElectronMcSignalValidator/h_mc_eta 1 0
+ElectronMcSignalValidator/h_ele_ptEff_all	0 0 1 1 ElectronMcSignalValidator/h_ele_vertexPt_all ElectronMcSignalValidator/h_mc_Pt 1 0
 

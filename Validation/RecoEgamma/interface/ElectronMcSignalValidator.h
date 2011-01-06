@@ -432,6 +432,15 @@ class ElectronMcSignalValidator : public ElectronValidator
     MonitorElement *h1_ele_ecalRecHitSumEt_dr04;
     MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth1;
     MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth2;
+    
+    MonitorElement *h1_ele_convFlags;
+    MonitorElement *h1_ele_convFlags_all; 
+    MonitorElement *h1_ele_convDist;
+    MonitorElement *h1_ele_convDist_all;
+    MonitorElement *h1_ele_convDcot;
+    MonitorElement *h1_ele_convDcot_all;
+    MonitorElement *h1_ele_convRadius;
+    MonitorElement *h1_ele_convRadius_all;
 
  } ;
 

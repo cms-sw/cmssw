@@ -430,6 +430,17 @@ void ElectronMcFakeValidator::beginJob()
   // e/g et pflow electrons
   h1_ele_mva = bookH1withSumw2("h_ele_mva","ele identification mva",100,-1.,1.);
   h1_ele_provenance = bookH1withSumw2("h_ele_provenance","ele provenance",5,-2.,3.);
+  
+  // conversion rejection information
+  h1_ele_convFlags = bookH1withSumw2("h_ele_convFlags","conversion rejection flag",10,-1.,10.);
+  h1_ele_convFlags_all = bookH1withSumw2("h_ele_convFlags_all","conversion rejection flag, all electrons",10,-1.,10.);
+  h1_ele_convDist = bookH1withSumw2("h_ele_convDist","distance to the conversion partner",100,-50.,50.);
+  h1_ele_convDist_all = bookH1withSumw2("h_ele_convDist_all","distance to the conversion partner, all electrons",100,-50.,50.);
+  h1_ele_convDcot = bookH1withSumw2("h_ele_convDcot","difference of cot(angle) with the conversion partner",100,-CLHEP::pi,CLHEP::pi);
+  h1_ele_convDcot_all = bookH1withSumw2("h_ele_convDcot_all","difference of cot(angle) with the conversion partner, all electrons",100,-CLHEP::pi,CLHEP::pi);
+  h1_ele_convRadius = bookH1withSumw2("h_ele_convRadius","signed conversion radius",100,0.,10.);
+  h1_ele_convRadius_all = bookH1withSumw2("h_ele_convRadius_all","signed conversion radius, all electrons",100,0.,10.);
+
  }
 
 ElectronMcFakeValidator::~ElectronMcFakeValidator()
@@ -470,6 +481,7 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
     // preselect electrons
     if (gsfIter->pt()>maxPt_ || std::abs(gsfIter->eta())>maxAbsEta_)
      { continue ; }
+     
     h1_ele_EoverP_all->Fill( gsfIter->eSuperClusterOverP() );
     h1_ele_EseedOP_all->Fill( gsfIter->eSeedClusterOverP() );
     h1_ele_EoPout_all->Fill( gsfIter->eSeedClusterOverPout() );
@@ -486,6 +498,7 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
     h1_ele_vertexEta_all->Fill( gsfIter->eta() );
     h1_ele_vertexPt_all->Fill( gsfIter->pt() );
     float enrj1=gsfIter->superCluster()->energy();
+    
     // mee
     reco::GsfElectronCollection::const_iterator gsfIter2 ;
     for
@@ -503,6 +516,13 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
       if (gsfIter->charge()*gsfIter2->charge()<0.)
        { h1_ele_mee_os->Fill(sqrt(mee2)) ; }
      }
+
+    // conversion rejection
+    h1_ele_convFlags_all->Fill( gsfIter->convFlags() );
+    h1_ele_convDist_all->Fill( gsfIter->convDist() );
+    h1_ele_convDcot_all->Fill( gsfIter->convDcot() );
+    h1_ele_convRadius_all->Fill( gsfIter->convRadius() );
+
    }
 
   // association matching object-reco electrons
@@ -853,6 +873,13 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
       h1_ele_ecalRecHitSumEt_dr04->Fill(bestGsfElectron.dr04EcalRecHitSumEt());
       h1_ele_hcalTowerSumEt_dr04_depth1->Fill(bestGsfElectron.dr04HcalDepth1TowerSumEt());
       h1_ele_hcalTowerSumEt_dr04_depth2->Fill(bestGsfElectron.dr04HcalDepth2TowerSumEt());
+      
+      // conversion rejection
+      h1_ele_convFlags->Fill( bestGsfElectron.convFlags() );
+      h1_ele_convDist->Fill( bestGsfElectron.convDist() );
+      h1_ele_convDcot->Fill( bestGsfElectron.convDcot() );
+      h1_ele_convRadius->Fill( bestGsfElectron.convRadius() );
+      
 
      } // gsf electron found
 
