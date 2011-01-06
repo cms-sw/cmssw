@@ -167,8 +167,8 @@ namespace edm {
 
     void swap(Group& rhs) {swap_(rhs);}
 
-  protected:
     virtual GroupData const& groupData() const = 0;
+
     virtual GroupData& groupData() = 0;
 
   private:
