@@ -53,7 +53,8 @@ namespace edm {
       enableChecking_(pset.getUntrackedParameter<bool>("enableChecking")),
       firstLumi_(true),
       childIndex_(0U),
-      eventSeedOffset_(pset.getUntrackedParameter<unsigned>("eventSeedOffset")) {
+      eventSeedOffset_(pset.getUntrackedParameter<unsigned>("eventSeedOffset")),
+      failedToFindStatesInLumi_(false) {
 
       if (!restoreFileName_.empty() && !restoreStateLabel_.empty()) {
         throw edm::Exception(edm::errors::Configuration)
@@ -705,16 +706,10 @@ namespace edm {
       lumi.getByLabel(restoreStateLabel_, "beginLumi", states);
 
       if (!states.isValid()) {
-        throw edm::Exception(edm::errors::ProductNotFound)
-          << "The RandomNumberGeneratorService is trying to restore\n"
-          << "the state of the random engines by reading an object from\n"
-          << "the LuminosityBlock with label \"" << restoreStateLabel_ << "\".  It\n"
-          << "fails to find one.  The label used in the request for the product\n"
-          << "is set in the configuration. It is probably set to the wrong value\n"
-          << "in the configuration file.  It must match the module label\n"
-          << "of the RandomEngineStateProducer that created the product in\n"
-          << "a previous process\n";   
+        failedToFindStatesInLumi_ = true;
+        return;
       }
+      failedToFindStatesInLumi_ = false;
       states->getRandomEngineStates(lumiCache_);
     }
 
@@ -726,18 +721,66 @@ namespace edm {
       event.getByLabel(restoreStateLabel_, states);
 
       if (!states.isValid()) {
+        if (failedToFindStatesInLumi_ && backwardCompatibilityRead(event)) {
+          return;
+        }
+        else {
+          throw edm::Exception(edm::errors::ProductNotFound)
+            << "The RandomNumberGeneratorService is trying to restore\n"
+            << "the state of the random engines by reading a product from\n"
+            << "the Event with label \"" << restoreStateLabel_ << "\".  It\n"
+            << "fails to find one.  The label used in the request for the product\n"
+            << "is set in the configuration. It is probably set to the wrong value\n"
+            << "in the configuration file.  It must match the module label\n"
+            << "of the RandomEngineStateProducer that created the product in\n"
+            << "a previous process\n";
+        }
+      }
+      if (failedToFindStatesInLumi_) {
         throw edm::Exception(edm::errors::ProductNotFound)
           << "The RandomNumberGeneratorService is trying to restore\n"
           << "the state of the random engines by reading a product from\n"
-          << "the Event with label \"" << restoreStateLabel_ << "\".  It\n"
-          << "fails to find one.  The label used in the request for the product\n"
-          << "is set in the configuration. It is probably set to the wrong value\n"
-          << "in the configuration file.  It must match the module label\n"
-          << "of the RandomEngineStateProducer that created the product in\n"
-          << "a previous process\n";   
+          << "the Event and LuminosityBlock with label \"" << restoreStateLabel_ << "\".\n"
+          << "It found the product in the Event but not the one in the LuminosityBlock.\n"
+          << "Either the product in the LuminosityBlock was dropped or\n"
+          << "there is a bug somewhere\n";
       }
-
       states->getRandomEngineStates(eventCache_);
+    }
+
+    bool
+    RandomNumberGeneratorService::backwardCompatibilityRead(Event const& event) {
+
+      Handle<std::vector<RandomEngineState> > states;
+
+      event.getByLabel(restoreStateLabel_, states);
+      if (!states.isValid()) {
+        return false;
+      }
+      for (std::vector<RandomEngineState>::const_iterator state = states->begin(),
+                                                          iEnd = states->end();
+           state != iEnd; ++state) {
+
+        std::vector<RandomEngineState>::iterator cachedState = 
+          std::lower_bound(eventCache_.begin(), eventCache_.end(), *state);
+
+
+        if (cachedState != eventCache_.end() && cachedState->getLabel() == state->getLabel()) {
+          if (cachedState->getSeed().size() != state->getSeed().size() ||
+              cachedState->getState().size() != state->getState().size()) {
+            throw edm::Exception(edm::errors::Configuration)
+              << "In function RandomNumberGeneratorService::backwardCompatibilityRead.\n"
+              << "When attempting to replay processing with the RandomNumberGeneratorService,\n"
+              << "the engine type for each module must be the same in the replay configuration\n"
+              << "and the original configuration.  If this is not the problem, then the data\n"
+              << "is somehow corrupted or there is a bug because the vector in the data containing\n"
+              << "the seeds or engine state is the incorrect size for the type of random engine.\n";
+          }
+          cachedState->setSeed(state->getSeed());
+          cachedState->setState(state->getState());
+        }
+      }
+      return true;
     }
 
     void

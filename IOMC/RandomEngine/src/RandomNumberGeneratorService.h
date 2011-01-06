@@ -115,6 +115,7 @@ namespace edm {
 
       void readFromLuminosityBlock(LuminosityBlock const& lumi);
       void readFromEvent(Event const& event);
+      bool backwardCompatibilityRead(Event const& event);
 
       void snapShot(std::vector<RandomEngineState> & cache);
       void restoreFromCache(std::vector<RandomEngineState> const& cache);
@@ -205,6 +206,8 @@ namespace edm {
       unsigned childIndex_;
 
       uint32_t eventSeedOffset_;
+
+      bool failedToFindStatesInLumi_;
 
       static uint32_t maxSeedRanecu;
       static uint32_t maxSeedHepJames;

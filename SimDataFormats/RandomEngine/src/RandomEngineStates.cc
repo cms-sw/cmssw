@@ -46,8 +46,6 @@ namespace edm {
 
     // Done with error checks.  Now do the work.
 
-    states.resize(moduleLabels_.size());
-
     std::vector<unsigned>::const_iterator seedLength = seedLengths_.begin();
     std::vector<unsigned>::const_iterator seedBegin = seedVectors_.begin();
     std::vector<unsigned>::const_iterator seedEnd = seedVectors_.begin();
@@ -60,6 +58,12 @@ namespace edm {
 	                                       labelEnd = moduleLabels_.end();
          label != labelEnd;
          ++label, ++seedLength, ++stateLength) {
+
+      seedBegin = seedEnd;
+      seedEnd += *seedLength;
+
+      stateBegin = stateEnd;
+      stateEnd += *stateLength;
 
       RandomEngineState randomEngineState;
       randomEngineState.setLabel(*label);
@@ -77,18 +81,12 @@ namespace edm {
             << "the seeds or engine state is the incorrect size for the type of random engine.\n";
         }
 
-        seedBegin = seedEnd;
-        seedEnd += *seedLength;
-
         state->clearSeedVector();
         state->reserveSeedVector(*seedLength);
         for (std::vector<unsigned int>::const_iterator i = seedBegin;
              i != seedEnd; ++i) {
           state->push_back_seedVector(*i);
         }
-
-        stateBegin = stateEnd;
-        stateEnd += *stateLength;
 
         state->clearStateVector();
         state->reserveStateVector(*stateLength);
