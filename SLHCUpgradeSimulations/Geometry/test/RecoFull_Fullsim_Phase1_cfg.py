@@ -17,6 +17,9 @@ process.load("SLHCUpgradeSimulations.Geometry.PhaseI_cmsSimIdealGeometryXML_R39F
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('SLHCUpgradeSimulations.Geometry.Digi_Phase1_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
+process.load('Configuration.StandardSequences.DigiToRaw_cff')
+process.load('Configuration.StandardSequences.RawToDigi_cff')
+process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -50,15 +53,16 @@ process.source = cms.Source("PoolSource",
 # Output definition
 process.output = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
-    outputCommands = process.RECOSIMEventContent.outputCommands,
-    fileName = cms.untracked.string('file:valid_reco.root'),
+    #outputCommands = process.RECOSIMEventContent.outputCommands,
+    outputCommands = cms.untracked.vstring('keep *','drop *_mix_*_*'),
+    fileName = cms.untracked.string('file:reco.root'),
     dataset = cms.untracked.PSet(
         dataTier = cms.untracked.string('GEN-SIM-RECO'),
         filterName = cms.untracked.string('')
     )
 )
 #I'm only interested in the validation stuff
-process.output.outputCommands = cms.untracked.vstring('drop *','keep *_MEtoEDMConverter_*_*')
+#process.output.outputCommands = cms.untracked.vstring('drop *','keep *_MEtoEDMConverter_*_*')
 
 #process.output = cms.OutputModule("PoolOutputModule",
 #         outputCommands = process.AODSIMEventContent.outputCommands,
@@ -73,6 +77,7 @@ process.output.outputCommands = cms.untracked.vstring('drop *','keep *_MEtoEDMCo
 process.GlobalTag.globaltag = 'DESIGN_36_V10::All'
 
 ### PhaseI Geometry and modifications ###############################################
+#process.load("SLHCUpgradeSimulations.Geometry.PhaseI_cmsSimIdealGeometryXML_R39F16_cff")
 process.Timing =  cms.Service("Timing")
 ## no playback when doing digis
 #process.mix.playback = True
@@ -137,53 +142,6 @@ process.thMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
 process.fourthMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
 process.fifthMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
 
-### Now Validation and other user functions #########################################
-process.load("Validation.RecoTrack.cutsTPEffic_cfi")
-process.load("Validation.RecoTrack.cutsTPFake_cfi")
-
-process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
-
-process.load('Configuration.StandardSequences.Validation_cff')
-### look look at OOTB generalTracks and high purity collections
-### for high purity also look at 6 and 8 hit requirements
-### some definitions in Validation/RecoTrack/python/TrackValidation_cff.py
-
-import PhysicsTools.RecoAlgos.recoTrackSelector_cfi
-
-process.cutsRecoTracksHpw6hits = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
-process.cutsRecoTracksHpw6hits.quality=cms.vstring("highPurity")
-process.cutsRecoTracksHpw6hits.minHit=cms.int32(6)
-
-process.cutsRecoTracksHpw8hits = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
-process.cutsRecoTracksHpw8hits.quality=cms.vstring("highPurity")
-process.cutsRecoTracksHpw8hits.minHit=cms.int32(8)
-
-process.trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
-                                           cms.InputTag("cutsRecoTracksHp"),
-                                           cms.InputTag("cutsRecoTracksHpw6hits"),
-                                           cms.InputTag("cutsRecoTracksHpw8hits"),
-                                           cms.InputTag("cutsRecoTracksZeroHp"),
-                                           cms.InputTag("cutsRecoTracksFirstHp")
-#                                           cms.InputTag("cutsRecoTracksSecondHp"),
-#                                           cms.InputTag("cutsRecoTracksThirdHp")
-                                           )
-process.trackValidator.associators = ['TrackAssociatorByHits']
-process.trackValidator.UseAssociators = True
-process.trackValidator.nint = cms.int32(20)
-process.trackValidator.nintpT = cms.int32(100)
-process.trackValidator.maxpT = cms.double(200.0)
-
-process.slhcTracksValidation = cms.Sequence(process.cutsRecoTracksHp*
-                                 process.cutsRecoTracksHpw6hits*
-                                 process.cutsRecoTracksHpw8hits*
-                                 process.cutsRecoTracksZeroHp*
-                                 process.cutsRecoTracksFirstHp*
-#                                 process.cutsRecoTracksSecondHp*
-#                                 process.cutsRecoTracksThirdHp*
-                                 process.trackValidator)
-
-############ end John's changes ###########################
 process.ReadLocalMeasurement = cms.EDAnalyzer("StdHitNtuplizer",
    src = cms.InputTag("siPixelRecHits"),
    stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHit"),
@@ -202,25 +160,34 @@ process.ReadLocalMeasurement = cms.EDAnalyzer("StdHitNtuplizer",
                          'g4SimHitsTrackerHitsPixelEndcapHighTof')
 )
 process.anal = cms.EDAnalyzer("EventContentAnalyzer")
+## already in fake conditions don't add here (might overide?)
+#process.load("RecoVertex.BeamSpotProducer.BeamSpotFakeParameters_cfi")
 
 ## need this at the end as the validation config redefines random seed with just mix
 process.load("IOMC.RandomEngine.IOMC_cff")
 
 ### back to standard job commands ##################################################
 
-# Path and EndPath definitions
-process.mix_step 		= cms.Path(process.mix)
+process.DigiToRaw.remove(process.siPixelRawData)
+process.RawToDigi.remove(process.siPixelDigis)
+
 process.digitisation_step = cms.Path(process.pdigi)
 process.L1simulation_step = cms.Path(process.SimL1Emulator)
 
-process.reconstruction_step 	= cms.Path(process.trackerlocalreco*
-						process.offlineBeamSpot+
-                                                process.recopixelvertexing*process.ckftracks_wodEdXandSteps2345)
+# Path and EndPath definitions
+process.digi2raw_step = cms.Path(process.DigiToRaw)
+process.raw2digi_step = cms.Path(process.RawToDigi)
+process.L1Reco_step = cms.Path(process.L1Reco)
+
+process.reconstruction_step 	= cms.Path(process.reconstruction)
+process.mix_step 		= cms.Path(process.mix)
+#process.reconstruction_step 	= cms.Path(process.trackerlocalreco*
+#						process.offlineBeamSpot+
 #                                                process.recopixelvertexing*process.ckftracks_wodEdXandSteps4and5)
 process.debug_step 		= cms.Path(process.anal)
-process.validation_step 	= cms.Path(process.cutsTPEffic*
-						process.cutsTPFake*
-						process.slhcTracksValidation)
+#process.validation_step 	= cms.Path(process.cutsTPEffic*
+#						process.cutsTPFake*
+#						process.slhcTracksValidation)
 process.user_step 		= cms.Path(process.ReadLocalMeasurement)
 process.endjob_step 		= cms.Path(process.endOfProcess)
 process.out_step 		= cms.EndPath(process.output)
@@ -228,6 +195,6 @@ process.out_step 		= cms.EndPath(process.output)
 # Schedule definition
 #process.schedule = cms.Schedule(process.reconstruction_step,process.endjob_step,process.out_step)
 #process.schedule = cms.Schedule(process.mix_step,process.reconstruction_step,process.validation_step,process.user_step,process.endjob_step,process.out_step)
-#process.schedule = cms.Schedule(process.mix_step,process.reconstruction_step,process.validation_step,process.endjob_step,process.out_step)
-process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.reconstruction_step,process.validation_step,process.user_step,process.endjob_step,process.out_step)
+#process.schedule = cms.Schedule(process.mix_step,process.digi2raw_step,process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.endjob_step,process.out_step)
+process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.endjob_step,process.out_step)
 
