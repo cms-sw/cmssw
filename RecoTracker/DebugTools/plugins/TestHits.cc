@@ -12,7 +12,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"

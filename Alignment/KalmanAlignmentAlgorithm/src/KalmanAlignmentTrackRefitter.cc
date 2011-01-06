@@ -1,7 +1,7 @@
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentTrackRefitter.h"
 
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit1DMomConstraint.h"
 

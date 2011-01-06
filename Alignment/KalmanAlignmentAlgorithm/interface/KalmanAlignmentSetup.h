@@ -2,7 +2,7 @@
 #define Alignment_KalmanAlignmentAlgorithm_KalmanAlignmentSetup_h
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"

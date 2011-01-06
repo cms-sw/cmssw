@@ -13,7 +13,7 @@
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitterRecord.h" 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
 
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 #include "DataFormats/Common/interface/AssociationMap.h"
