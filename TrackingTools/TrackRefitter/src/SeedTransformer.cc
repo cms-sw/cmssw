@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/02/20 14:20:50 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/08/18 09:23:31 $
+ *  $Revision: 1.7 $
  *  \author D. Trocino - University and INFN Torino
  */
 
@@ -35,7 +35,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 

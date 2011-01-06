@@ -8,7 +8,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
