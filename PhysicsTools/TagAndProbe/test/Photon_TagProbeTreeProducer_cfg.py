@@ -11,14 +11,17 @@ MC_flag = False
 #GLOBAL_TAG = "GR_R_38X_V13::All"
 GLOBAL_TAG = 'GR_R_39X_V4::All'
 OUTPUT_FILE_NAME = "Photon_tagProbeTree.root"
-HLTPath1 = "HLT_Photon70_Cleaned_L1R_v1"
-HLTPath2 = "HLT_Photon50_Cleaned_L1R_v1"
-HLTPath3 = "HLT_Photon30_Cleaned_L1R"
+HLTPath1 = "HLT_Photon50_Cleaned_L1R_v1"
+HLTPath2 = "HLT_Photon30_Cleaned_L1R_v1"
+HLTPath3 = "HLT_Photon20_Cleaned_L1R"
 #InputTagProcess = "REDIGI36X"
 InputTagProcess = "HLT"
 RECOProcess = "RECO"
 JET_COLL = "ak5PFJets"
 JET_CUTS = "abs(eta)<2.6 && chargedHadronEnergyFraction>0 && electronEnergyFraction<0.1 && nConstituents>1 && neutralHadronEnergyFraction<0.99 && neutralEmEnergyFraction<0.99 && pt>15.0" 
+ELECTRON_ET_CUT_MIN = 20.0
+ELECTRON_COLL = "gsfElectrons"
+ELECTRON_CUTS = "ecalDrivenSeed==1 && (abs(superCluster.eta)<2.5) && !(1.4442<abs(superCluster.eta)<1.566) && (ecalEnergy*sin(superClusterPosition.theta)>" + str(ELECTRON_ET_CUT_MIN) + ")"
 
 ##    ___            _           _      
 ##   |_ _|_ __   ___| |_   _  __| | ___ 
@@ -71,9 +74,9 @@ process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMCon
 process.probePhotons = cms.EDProducer("TrackMatchedPhotonProducer",
     srcObject = cms.InputTag("photons", "", RECOProcess),
     srcObjectsToMatch = cms.VInputTag(cms.InputTag("generalTracks")),
-    srcObjectSelection = cms.string("hadronicOverEm<0.5 && pt>10 && abs(eta)<1.479"),
-    srcObjectsToMatchSelection = cms.string('pt > 20.0 && quality("highPurity")'),                                            
-    deltaRMax = cms.double(0.1)
+    srcObjectSelection = cms.string("et>20.0 && abs(eta)<2.5"),
+    srcObjectsToMatchSelection = cms.string('pt > 20.0 && quality("highPurity")'),  
+    deltaRMax = cms.double(0.3)
     )
 
 ##     ___           _       _   _             
@@ -85,10 +88,13 @@ process.probePhotons = cms.EDProducer("TrackMatchedPhotonProducer",
                                          
 #  Isolation ################
 #ECAL and HCAL only
-process.probePhotonsPassingIsolation = cms.EDFilter("PhotonRefSelector",
+process.photonIsolation = cms.EDFilter("PhotonRefSelector",
     src = cms.InputTag("probePhotons"),
-    cut = cms.string("(ecalRecHitSumEtConeDR04 < (0.006*pt + 4.2)) && (hcalTowerSumEtConeDR04 < (0.0025*pt + 2.2 ))")
+    cut = cms.string(
+    "(ecalRecHitSumEtConeDR04 < (0.006*pt + 4.2))"
+    " && (hcalTowerSumEtConeDR04 < (0.0025*pt + 2.2 ))"
     )
+)
 
 ##  ____  _           _                ___    _ 
 ## |  _ \| |__   ___ | |_ ___  _ __   |_ _|__| |
@@ -97,12 +103,35 @@ process.probePhotonsPassingIsolation = cms.EDFilter("PhotonRefSelector",
 ## |_|   |_| |_|\___/ \__\___/|_| |_| |___\__,_|
 ##        
 #track isolation
-process.probePhotonsPassingId = process.probePhotonsPassingIsolation.clone()
-process.probePhotonsPassingId.cut = cms.string(
-    process.probePhotonsPassingIsolation.cut.value() +
-    " && (hadronicOverEm < 0.05) && (trkSumPtHollowConeDR04 < (0.001*pt + 2.0)"
-    " && (sigmaIetaIeta < 0.013))")
-                         
+process.photonIDsusydiphoton = process.photonIsolation.clone()
+process.photonIDsusydiphoton.cut = cms.string(
+    "(hadronicOverEm < 0.05) && (trkSumPtHollowConeDR04 < (0.001*pt + 2.0)"
+    " && (sigmaIetaIeta < 0.013))"
+    )
+
+process.photonIDiso = process.photonIsolation.clone()
+process.photonIDiso.cut = cms.string(
+    "hadronicOverEm < 0.05 && ecalRecHitSumEtConeDR04 < 2.4"
+    "&& hcalTowerSumEtConeDR04 < 1.0 && trkSumPtHollowConeDR04 < 0.9"
+    " &&sigmaIetaIeta > 0.001 && !hasPixelSeed"
+    )
+
+process.photonIDreliso = process.photonIsolation.clone()
+process.photonIDreliso.cut = cms.string(
+    "hadronicOverEm < 0.05 && ecalRecHitSumEtConeDR04 < 4.2+0.001*pt"
+    " && hcalTowerSumEtConeDR04 < 2.2+0.003*pt"
+    " && trkSumPtHollowConeDR04 < 2+0.001*pt"
+    " && sigmaIetaIeta > 0.001 && !hasPixelSeed"
+    )
+
+process.photonIDreliso2 = process.photonIsolation.clone()
+process.photonIDreliso2.cut = cms.string(
+    "hadronicOverEm < 0.05 && ecalRecHitSumEtConeDR04 < 4.2+0.001*pt"
+    " && hcalTowerSumEtConeDR04 < 2.2+0.003*pt"
+    " && sigmaIetaIeta > 0.001 && !hasPixelSeed"
+    )
+
+
 ##    _____     _                         __  __       _       _     _             
 ##   |_   _| __(_) __ _  __ _  ___ _ __  |  \/  | __ _| |_ ___| |__ (_)_ __   __ _ 
 ##     | || '__| |/ _` |/ _` |/ _ \ '__| | |\/| |/ _` | __/ __| '_ \| | '_ \ / _` |
@@ -112,7 +141,7 @@ process.probePhotonsPassingId.cut = cms.string(
 ##   
 process.probePhotonsPassingHLT = cms.EDProducer(
     "trgMatchedPhotonProducer",                     
-    InputProducer = cms.InputTag("probePhotonsPassingId"),
+    InputProducer = cms.InputTag("probePhotons"),
     hltTags = cms.VInputTag(
     cms.InputTag(HLTPath1,"",InputTagProcess),
     cms.InputTag(HLTPath2,"",InputTagProcess),
@@ -172,38 +201,39 @@ process.ext_ToNearestJet_sequence = cms.Sequence(
 ##     |_|\__,_|\__, | |____/ \___|_| |_|_| |_|_|\__|_|\___/|_| |_|
 ##              |___/                                              
 
-#step 1: tag should be tightly matched to a track
-process.trackMatchedPhotons = process.probePhotons.clone()
+## tag should be a well reconstructed electron. We use VBTF WP80.
+process.ElectronPassingWP80 = cms.EDFilter("GsfElectronRefSelector",
+    src = cms.InputTag( ELECTRON_COLL ),
+    cut = cms.string( ELECTRON_CUTS  +
+    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
+    " && ((isEB"
+    " && ( dr03TkSumPt/p4.Pt <0.09 && dr03EcalRecHitSumEt/p4.Pt < 0.07 && dr03HcalTowerSumEt/p4.Pt  < 0.1 )"
+    " && (sigmaIetaIeta<0.01)"
+    " && ( -0.06<deltaPhiSuperClusterTrackAtVtx<0.06 )"
+    " && ( -0.004<deltaEtaSuperClusterTrackAtVtx<0.004 )"
+    " && (hadronicOverEm<0.04)"
+    ")"
+    " || (isEE"
+    " && ( dr03TkSumPt/p4.Pt <0.04 && dr03EcalRecHitSumEt/p4.Pt < 0.05 && dr03HcalTowerSumEt/p4.Pt  < 0.025 )"
+    " && (sigmaIetaIeta<0.03)"
+    " && ( -0.03<deltaPhiSuperClusterTrackAtVtx<0.03 )"
+    " && ( -0.007<deltaEtaSuperClusterTrackAtVtx<0.007 )"
+    " && (hadronicOverEm<0.025) "
+    "))"
+    ) 
+)
 
-
-#step 2: tag should have good shower shape, a pixel seed, have good H/E, be reasonably high pT, and be in 
-process.goodPhotons = cms.EDFilter(
-    "PhotonRefSelector",
-    src = cms.InputTag("trackMatchedPhotons"),
-    cut = cms.string("(sigmaIetaIeta < 0.009) && (hasPixelSeed = 1.0) && (hadronicOverEm < 0.05) && (pt > 30.0)"
-                     " && (abs(eta)<1.479) && (abs(abs(superCluster.eta) - 1.479)>=0.1)"
-                     )
-    )
-
-#step 3: tag should have fired the HLT path under study
-process.Tag = cms.EDProducer("trgMatchedPhotonProducer",                     
-    InputProducer = cms.InputTag("goodPhotons"),
-    hltTags = cms.VInputTag(
-    cms.InputTag(HLTPath1,"",InputTagProcess),
-    cms.InputTag(HLTPath2,"",InputTagProcess),
-    cms.InputTag(HLTPath3,"",InputTagProcess)
-    ),
-    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","",InputTagProcess),
-    triggerResultsTag = cms.untracked.InputTag("TriggerResults", "", InputTagProcess)
-    )
-
-
+process.Tag = process.ElectronPassingWP80.clone()
 process.photon_sequence = cms.Sequence(
     process.probePhotons +
-    process.probePhotonsPassingIsolation +
-    process.probePhotonsPassingId +
+    process.photonIsolation +
+    process.photonIDsusydiphoton +
+    process.photonIDiso +
+    process.photonIDreliso +
+    process.photonIDreliso2 +
     process.probePhotonsPassingHLT + 
-    process.trackMatchedPhotons + process.goodPhotons + process.Tag
+    process.ElectronPassingWP80 +
+    process.Tag
     )
 
 
@@ -220,15 +250,21 @@ process.tagPhoton = cms.EDProducer("CandViewShallowCloneCombiner",
                                    checkCharge = cms.bool(False),
                                    cut = cms.string("60 < mass < 120")
                                    )
-process.tagIsoPhotons = process.tagPhoton.clone()
-process.tagIsoPhotons.decay = cms.string("Tag probePhotonsPassingIsolation")
-process.tagIdPhotons = process.tagPhoton.clone()
-process.tagIdPhotons.decay = cms.string("Tag probePhotonsPassingId")
-process.tagHLTPhotons = process.tagPhoton.clone()
-process.tagHLTPhotons.decay = cms.string("Tag probePhotonsPassingHLT")
+process.tagphotonIDsusydiphoton = process.tagPhoton.clone()
+process.tagphotonIDsusydiphoton.decay = cms.string("Tag photonIDsusydiphoton")
+process.tagphotonIDiso = process.tagPhoton.clone()
+process.tagphotonIDiso.decay = cms.string("Tag photonIDiso")
+process.tagphotonIDreliso = process.tagPhoton.clone()
+process.tagphotonIDreliso.decay = cms.string("Tag photonIDreliso")
+process.tagphotonIDreliso2 = process.tagPhoton.clone()
+process.tagphotonIDreliso2.decay = cms.string("Tag photonIDreliso2")
 
 process.allTagsAndProbes = cms.Sequence(
-    process.tagPhoton + process.tagIsoPhotons + process.tagIdPhotons + process.tagHLTPhotons
+    process.tagPhoton +
+    process.tagphotonIDsusydiphoton +
+    process.tagphotonIDiso +
+    process.tagphotonIDreliso +
+    process.tagphotonIDreliso2 
 )
 
 
@@ -248,18 +284,25 @@ process.McMatchTag = cms.EDFilter("MCTruthDeltaRMatcherNew",
 )
 process.McMatchPhoton = process.McMatchTag.clone()
 process.McMatchPhoton.src = cms.InputTag("probePhotons")
-process.McMatchIso = process.McMatchTag.clone()
-process.McMatchIso.src = cms.InputTag("probePhotonsPassingIsolation")
-process.McMatchId = process.McMatchTag.clone()
-process.McMatchId.src = cms.InputTag("probePhotonsPassingId")
+process.McMatchId_susy_diphoton = process.McMatchTag.clone()
+process.McMatchId_susy_diphoton.src = cms.InputTag("photonIDsusydiphoton")
+process.McMatchId_iso = process.McMatchTag.clone()
+process.McMatchId_iso.src = cms.InputTag("photonIDiso")
+process.McMatchId_rel_iso = process.McMatchTag.clone()
+process.McMatchId_rel_iso.src = cms.InputTag("photonIDreliso")
+process.McMatchId_rel_iso_2 = process.McMatchTag.clone()
+process.McMatchId_rel_iso_2.src = cms.InputTag("photonIDreliso2")
 process.McMatchHLT = process.McMatchTag.clone()
 process.McMatchHLT.src = cms.InputTag("probePhotonsPassingHLT")
 
-
 process.mc_sequence = cms.Sequence(
-   process.McMatchTag +  process.McMatchPhoton +
-   process.McMatchIso +
-   process.McMatchId  + process.McMatchHLT
+   process.McMatchTag +
+   process.McMatchPhoton +
+   process.McMatchId_susy_diphoton  +
+   process.McMatchId_iso +
+   process.McMatchId_rel_iso +
+   process.McMatchId_rel_iso_2 +
+   process.McMatchHLT
 )
 
 ############################################################################
@@ -302,51 +345,17 @@ ZVariablesToStore = cms.PSet(
 
 
 TagPhotonVariablesToStore = cms.PSet(
-    photon_eta = cms.string("eta"),
-    photon_pt  = cms.string("pt"),
-    photon_phi  = cms.string("phi"),
-    photon_px  = cms.string("px"),
-    photon_py  = cms.string("py"),
-    photon_pz  = cms.string("pz"),
+    eta = cms.string("eta"),
+    pt  = cms.string("pt"),
+    phi  = cms.string("phi"),
+    px  = cms.string("px"),
+    py  = cms.string("py"),
+    pz  = cms.string("pz"),
     ## super cluster quantities
     sc_energy = cms.string("superCluster.energy"),
     sc_et     = cms.string("superCluster.energy*sin(superCluster.position.theta)"),    
-    sc_x      = cms.string("superCluster.x"),
-    sc_y      = cms.string("superCluster.y"),
-    sc_z      = cms.string("superCluster.z"),
     sc_eta    = cms.string("superCluster.eta"),
     sc_phi    = cms.string("superCluster.phi"),
-    sc_size   = cms.string("superCluster.size"), # number of hits
-    sc_rawEnergy = cms.string("superCluster.rawEnergy"), 
-    sc_preshowerEnergy   = cms.string("superCluster.preshowerEnergy"), 
-    sc_phiWidth   = cms.string("superCluster.phiWidth"), 
-    sc_etaWidth   = cms.string("superCluster.etaWidth"),         
-    ## isolation 
-    photon_trackiso_dr04 = cms.string("trkSumPtHollowConeDR04"),
-    photon_ecaliso_dr04  = cms.string("ecalRecHitSumEtConeDR04"),
-    photon_hcaliso_dr04  = cms.string("hcalTowerSumEtConeDR04"),
-    photon_trackiso_dr03 = cms.string("trkSumPtHollowConeDR03"),
-    photon_ecaliso_dr03  = cms.string("ecalRecHitSumEtConeDR03"),
-    photon_hcaliso_dr03  = cms.string("hcalTowerSumEtConeDR04"),
-    ## classification, location, etc.    
-    photon_isEB           = cms.string("isEB"),
-    photon_isEE           = cms.string("isEE"),
-    photon_isEBEEGap      = cms.string("isEBEEGap"),
-    photon_isEBEtaGap     = cms.string("isEBEtaGap"),
-    photon_isEBPhiGap     = cms.string("isEBPhiGap"),
-    photon_isEEDeeGap     = cms.string("isEEDeeGap"),
-    photon_isEERingGap    = cms.string("isEERingGap"),
-    ## Hcal energy over Ecal Energy
-    photon_HoverE         = cms.string("hadronicOverEm"),
-    photon_HoverE_Depth1  = cms.string("hadronicDepth1OverEm"),
-    photon_HoverE_Depth2  = cms.string("hadronicDepth2OverEm"),
-    ## Cluster shape information
-    photon_sigmaEtaEta  = cms.string("sigmaEtaEta"),
-    photon_sigmaIetaIeta = cms.string("sigmaIetaIeta"),
-    photon_e1x5               = cms.string("e1x5"),
-    photon_e2x5            = cms.string("e2x5"),
-    photon_e5x5               = cms.string("e5x5"),
-    photon_hasPixelSeed = cms.string("hasPixelSeed")
 )
 
 
@@ -430,16 +439,15 @@ else:
          )
 
 
+##    ___                 ___    _ 
+##  |_ _|___  ___       |_ _|__| |
+##   | |/ __|/ _ \       | |/ _` |
+##   | |\__ \ (_) |  _   | | (_| |
+##   |___|___/\___/  ( ) |___\__,_|
+##                   |/            
+##  Photon --> isolation, id  etc.
 
-##     ____      __       __    ___           
-##    / ___|___ / _|      \ \  |_ _|___  ___  
-##   | |  _/ __| |_   _____\ \  | |/ __|/ _ \ 
-##   | |_| \__ \  _| |_____/ /  | |\__ \ (_) |
-##    \____|___/_|        /_/  |___|___/\___/ 
-##   
-
-## loose photon --> isolation
-process.PhotonToIsolation = cms.EDAnalyzer("TagProbeFitTreeProducer",
+process.PhotonToIsoId = cms.EDAnalyzer("TagProbeFitTreeProducer",
     ## pick the defaults
     mcTruthCommonStuff,
     CommonStuffForPhotonProbe,
@@ -447,27 +455,18 @@ process.PhotonToIsolation = cms.EDAnalyzer("TagProbeFitTreeProducer",
     tagProbePairs = cms.InputTag("tagPhoton"),
     arbitration   = cms.string("None"),                      
     flags = cms.PSet(
-        probe_passingIso = cms.InputTag("probePhotonsPassingIsolation"),
+        probe_passingIso = cms.InputTag("photonIsolation"),
         probe_passingHLT = cms.InputTag("probePhotonsPassingHLT"),
-        probe_passingId = cms.InputTag("probePhotonsPassingId"),
+        probe_passingId_susy_diphoton = cms.InputTag("photonIDsusydiphoton"),
+        probe_passingId_iso = cms.InputTag("photonIDiso"),
+        probe_passingId_rel_iso = cms.InputTag("photonIDreliso"),
+        probe_passingId_rel_iso_2 = cms.InputTag("photonIDreliso2"),
     ),
     probeMatches  = cms.InputTag("McMatchPhoton"),
     allProbes     = cms.InputTag("probePhotons")
 )
-process.PhotonToIsolation.variables.probe_dRjet = cms.InputTag("photonDRToNearestJet")
-process.PhotonToIsolation.variables.probe_nJets = cms.InputTag("JetMultiplicity")
-
-##    ___                 __    ___    _ 
-##   |_ _|___  ___        \ \  |_ _|__| |
-##    | |/ __|/ _ \   _____\ \  | |/ _` |
-##    | |\__ \ (_) | |_____/ /  | | (_| |
-##   |___|___/\___/       /_/  |___\__,_|
-##   
-#isolated --> ID'ed photon
-process.IsoToId = process.PhotonToIsolation.clone()
-process.IsoToId.tagProbePairs = cms.InputTag("tagIsoPhotons")
-process.IsoToId.probeMatches  = cms.InputTag("McMatchIso")
-process.IsoToId.allProbes     = cms.InputTag("probePhotonsPassingIsolation")
+process.PhotonToIsoId.variables.probe_dRjet = cms.InputTag("photonDRToNearestJet")
+process.PhotonToIsoId.variables.probe_nJets = cms.InputTag("JetMultiplicity")
 
 
 
@@ -477,27 +476,73 @@ process.IsoToId.allProbes     = cms.InputTag("probePhotonsPassingIsolation")
 ##    | | (_| | |_____/ / |  _  | |___| |  
 ##   |___\__,_|      /_/  |_| |_|_____|_|  
 
-#ID'ed --> HLT photon
-process.IdToHLT = process.PhotonToIsolation.clone()
-process.IdToHLT.tagProbePairs = cms.InputTag("tagIdPhotons")
-process.IdToHLT.probeMatches  = cms.InputTag("McMatchId")
-process.IdToHLT.allProbes     = cms.InputTag("probePhotonsPassingId")
+##  offline selection --> HLT. First specify which quantities to store in the TP tree. 
+if MC_flag:
+    HLTmcTruthCommonStuff = cms.PSet(
+        isMC = cms.bool(MC_flag),
+        tagMatches = cms.InputTag("McMatchTag"),
+        motherPdgId = cms.vint32(22,23),
+        makeMCUnbiasTree = cms.bool(MC_flag),
+        checkMotherInUnbiasEff = cms.bool(MC_flag),
+        mcVariables = cms.PSet(
+          probe_eta = cms.string("eta"),
+          probe_phi  = cms.string("phi"),
+          probe_et  = cms.string("et"),
+          probe_charge = cms.string("charge"),
+        ),
+        mcFlags     =  cms.PSet(
+          probe_flag = cms.string("pt>0")
+        ),      
+        )
+else:
+     HLTmcTruthCommonStuff = cms.PSet(
+         isMC = cms.bool(False)
+         )
 
 
+process.photonIDsusydiphotonToHLT = cms.EDAnalyzer("TagProbeFitTreeProducer",
+    HLTmcTruthCommonStuff,                                
+    variables = cms.PSet(
+      probe_eta = cms.string("eta"),
+      probe_phi  = cms.string("phi"),
+      probe_et  = cms.string("et"),
+    ),
+    ignoreExceptions =  cms.bool (False),
+    addRunLumiInfo   =  cms.bool (False),
+    addEventVariablesInfo   =  cms.bool (False),                                                        
+    tagProbePairs = cms.InputTag("tagphotonIDsusydiphoton"),
+    arbitration   = cms.string("None"),
+    flags = cms.PSet( 
+        probe_passingHLT = cms.InputTag("probePhotonsPassingHLT")        
+    ),
+    probeMatches  = cms.InputTag("McMatchId_susy_diphoton"),
+    allProbes     = cms.InputTag("photonIDsusydiphoton")
+)
 
-#loose --> HLT photon
-process.PhotonToHLT = process.PhotonToIsolation.clone()
-process.PhotonToHLT.tagProbePairs = cms.InputTag("tagPhoton")
-process.PhotonToHLT.probeMatches  = cms.InputTag("McMatchPhoton")
-process.PhotonToHLT.allProbes     = cms.InputTag("probePhotons")
+process.photonIDisoToHLT = process.photonIDsusydiphotonToHLT.clone()
+process.photonIDisoToHLT.tagProbePairs = cms.InputTag("tagphotonIDiso")
+process.photonIDisoToHLT.probeMatches  = cms.InputTag("McMatchId_iso")
+process.photonIDisoToHLT.allProbes     = cms.InputTag("photonIDiso")
+
+process.photonIDrelisoToHLT = process.photonIDsusydiphotonToHLT.clone()
+process.photonIDrelisoToHLT.tagProbePairs = cms.InputTag("tagphotonIDreliso")
+process.photonIDrelisoToHLT.probeMatches  = cms.InputTag("McMatchId_rel_iso")
+process.photonIDrelisoToHLT.allProbes     = cms.InputTag("photonIDreliso")
+
+process.photonIDreliso2ToHLT = process.photonIDsusydiphotonToHLT.clone()
+process.photonIDreliso2ToHLT.tagProbePairs = cms.InputTag("tagphotonIDreliso2")
+process.photonIDreliso2ToHLT.probeMatches  = cms.InputTag("McMatchId_rel_iso_2")
+process.photonIDreliso2ToHLT.allProbes     = cms.InputTag("photonIDreliso2")
+
 
 
 process.tree_sequence = cms.Sequence(
-    process.PhotonToIsolation +
-    process.IsoToId + process.IdToHLT + process.PhotonToHLT
+    process.PhotonToIsoId +
+    process.photonIDsusydiphotonToHLT +
+    process.photonIDisoToHLT +
+    process.photonIDrelisoToHLT +
+    process.photonIDreliso2ToHLT
 )    
-
-
 
 ##    ____       _   _     
 ##   |  _ \ __ _| |_| |__  

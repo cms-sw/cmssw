@@ -48,7 +48,7 @@ OUTPUT_FILE_NAME = "testNewWrite.root"
 #HLTPath = "HLT_Ele15_LW_L1R"
 #HLTPath = "HLT_Photon15_Cleaned_L1R"
 
-ELECTRON_ET_CUT_MIN = 10.0
+ELECTRON_ET_CUT_MIN = 17.0
 ELECTRON_COLL = "gsfElectrons"
 ELECTRON_CUTS = "ecalDrivenSeed==1 && (abs(superCluster.eta)<2.5) && !(1.4442<abs(superCluster.eta)<1.566) && (ecalEnergy*sin(superClusterPosition.theta)>" + str(ELECTRON_ET_CUT_MIN) + ")"
 ####
@@ -334,7 +334,7 @@ process.load("RecoEgamma.ElectronIdentification.cutsInCategoriesElectronIdentifi
 process.load("RecoEgamma.ElectronIdentification.electronIdLikelihoodExt_cfi")
 
 process.eIDSequence = cms.Sequence(
-    process.eidVeryLoose+
+    process.eidVeryLoose+ 
     process.eidLoose+                
     process.eidMedium+
     process.eidTight+
@@ -343,11 +343,32 @@ process.eIDSequence = cms.Sequence(
     process.eidHyperTight2+
     process.eidHyperTight3+
     process.eidHyperTight4+
-    process.eidLikelihoodExt
+    process.eidLikelihoodExt 
     )
 
 
-
+# select a subset of the GsfElectron collection based on the quality stored in a ValueMap
+process.PassingCicVeryLoose = cms.EDProducer("BtagGsfElectronSelector",
+   input     = cms.InputTag( ELECTRON_COLL ),
+   selection = cms.InputTag('eidVeryLoose'),
+   cut       = cms.double(14.5) ### 15== passing all iso,id,tip cuts
+)
+process.PassingCicLoose = process.PassingCicVeryLoose.clone()
+process.PassingCicLoose.selection = cms.InputTag('eidLoose')
+process.PassingCicMedium = process.PassingCicVeryLoose.clone()
+process.PassingCicMedium.selection = cms.InputTag('eidMedium')
+process.PassingCicTight = process.PassingCicVeryLoose.clone()
+process.PassingCicTight.selection = cms.InputTag('eidTight')
+process.PassingCicSuperTight = process.PassingCicVeryLoose.clone()
+process.PassingCicSuperTight.selection = cms.InputTag('eidSuperTight')
+process.PassingCicHyperTight1 = process.PassingCicVeryLoose.clone()
+process.PassingCicHyperTight1.selection = cms.InputTag('eidHyperTight1')
+process.PassingCicHyperTight2 = process.PassingCicVeryLoose.clone()
+process.PassingCicHyperTight2.selection = cms.InputTag('eidHyperTight2')
+process.PassingCicHyperTight3 = process.PassingCicVeryLoose.clone()
+process.PassingCicHyperTight3.selection = cms.InputTag('eidHyperTight3')
+process.PassingCicHyperTight4 = process.PassingCicVeryLoose.clone()
+process.PassingCicHyperTight4.selection = cms.InputTag('eidHyperTight4')
 
 
                          
@@ -448,6 +469,25 @@ process.WP70MatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsC
 process.WP70MatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingWP70")
 process.WP60MatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsClean.clone()
 process.WP60MatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingWP60")
+process.CicVeryLooseMatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsClean.clone()
+process.CicVeryLooseMatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingCicVeryLoose")
+process.CicLooseMatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsClean.clone()
+process.CicLooseMatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingCicLoose")
+process.CicMediumMatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsClean.clone()
+process.CicMediumMatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingCicMedium")
+process.CicTightMatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsClean.clone()
+process.CicTightMatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingCicTight")
+process.CicSuperTightMatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsClean.clone()
+process.CicSuperTightMatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingCicSuperTight")
+process.CicHyperTight1MatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsClean.clone()
+process.CicHyperTight1MatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingCicHyperTight1")
+process.CicHyperTight2MatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsClean.clone()
+process.CicHyperTight2MatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingCicHyperTight2")
+process.CicHyperTight3MatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsClean.clone()
+process.CicHyperTight3MatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingCicHyperTight3")
+process.CicHyperTight4MatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsClean.clone()
+process.CicHyperTight4MatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingCicHyperTight4")
+
 
 process.WP95MatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
 process.WP95MatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingWP95")
@@ -461,6 +501,24 @@ process.WP70MatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
 process.WP70MatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingWP70")
 process.WP60MatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
 process.WP60MatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingWP60")
+process.CicVeryLooseMatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
+process.CicVeryLooseMatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingCicVeryLoose")
+process.CicLooseMatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
+process.CicLooseMatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingCicLoose")
+process.CicMediumMatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
+process.CicMediumMatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingCicMedium")
+process.CicTightMatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
+process.CicTightMatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingCicTight")
+process.CicSuperTightMatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
+process.CicSuperTightMatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingCicSuperTight")
+process.CicHyperTight1MatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
+process.CicHyperTight1MatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingCicHyperTight1")
+process.CicHyperTight2MatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
+process.CicHyperTight2MatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingCicHyperTight2")
+process.CicHyperTight3MatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
+process.CicHyperTight3MatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingCicHyperTight3")
+process.CicHyperTight4MatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
+process.CicHyperTight4MatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingCicHyperTight4")
 
 process.ele_sequence = cms.Sequence(
     process.goodElectrons +
@@ -471,8 +529,18 @@ process.ele_sequence = cms.Sequence(
     process.PassingWP85 +
     process.PassingWP80 +
     process.PassingWP70 +
-    process.PassingWP60 +    
-    process.PassingHLT + process.Tag +
+    process.PassingWP60 +
+    process.PassingCicVeryLoose +
+    process.PassingCicLoose +
+    process.PassingCicMedium +
+    process.PassingCicTight +
+    process.PassingCicSuperTight +
+    process.PassingCicHyperTight1 +
+    process.PassingCicHyperTight2 +
+    process.PassingCicHyperTight3 +
+    process.PassingCicHyperTight4 +       
+    process.PassingHLT +
+    process.Tag +
     process.TagMatchedSuperClusterCandsClean +
     process.TagMatchedPhotonCands +
     process.WP95MatchedSuperClusterCandsClean +
@@ -481,12 +549,30 @@ process.ele_sequence = cms.Sequence(
     process.WP80MatchedSuperClusterCandsClean +
     process.WP70MatchedSuperClusterCandsClean +
     process.WP60MatchedSuperClusterCandsClean +    
+    process.CicVeryLooseMatchedSuperClusterCandsClean +
+    process.CicLooseMatchedSuperClusterCandsClean +
+    process.CicMediumMatchedSuperClusterCandsClean +
+    process.CicTightMatchedSuperClusterCandsClean +
+    process.CicSuperTightMatchedSuperClusterCandsClean +
+    process.CicHyperTight1MatchedSuperClusterCandsClean +
+    process.CicHyperTight2MatchedSuperClusterCandsClean +
+    process.CicHyperTight3MatchedSuperClusterCandsClean +
+    process.CicHyperTight4MatchedSuperClusterCandsClean +
     process.WP95MatchedPhotonCands +
     process.WP90MatchedPhotonCands +
     process.WP85MatchedPhotonCands +
     process.WP80MatchedPhotonCands +
     process.WP70MatchedPhotonCands +
-    process.WP60MatchedPhotonCands 
+    process.WP60MatchedPhotonCands +    
+    process.CicVeryLooseMatchedPhotonCands +
+    process.CicLooseMatchedPhotonCands +
+    process.CicMediumMatchedPhotonCands +
+    process.CicTightMatchedPhotonCands +
+    process.CicSuperTightMatchedPhotonCands +
+    process.CicHyperTight1MatchedPhotonCands +
+    process.CicHyperTight2MatchedPhotonCands +
+    process.CicHyperTight3MatchedPhotonCands +
+    process.CicHyperTight4MatchedPhotonCands         
     )
 
 
@@ -512,24 +598,69 @@ process.tagGsf = process.tagSC.clone()
 process.tagGsf.decay = cms.string("Tag goodElectrons")
 process.tagWP95 = process.tagSC.clone()
 process.tagWP95.decay = cms.string("Tag PassingWP95")
+process.tagWP90 = process.tagSC.clone()
+process.tagWP90.decay = cms.string("Tag PassingWP90")
+process.tagWP85 = process.tagSC.clone()
+process.tagWP85.decay = cms.string("Tag PassingWP85")
 process.tagWP80 = process.tagSC.clone()
 process.tagWP80.decay = cms.string("Tag PassingWP80")
+process.tagWP70 = process.tagSC.clone()
+process.tagWP70.decay = cms.string("Tag PassingWP70")
+process.tagWP60 = process.tagSC.clone()
+process.tagWP60.decay = cms.string("Tag PassingWP60")
+process.tagCicVeryLoose = process.tagSC.clone()
+process.tagCicVeryLoose.decay = cms.string("Tag PassingCicVeryLoose")
+process.tagCicLoose = process.tagSC.clone()
+process.tagCicLoose.decay = cms.string("Tag PassingCicLoose")
+process.tagCicMedium = process.tagSC.clone()
+process.tagCicMedium.decay = cms.string("Tag PassingCicMedium")
+process.tagCicTight = process.tagSC.clone()
+process.tagCicTight.decay = cms.string("Tag PassingCicTight")
+process.tagCicSuperTight = process.tagSC.clone()
+process.tagCicSuperTight.decay = cms.string("Tag PassingCicSuperTight")
+process.tagCicHyperTight1 = process.tagSC.clone()
+process.tagCicHyperTight1.decay = cms.string("Tag PassingCicHyperTight1")
+process.tagCicHyperTight2 = process.tagSC.clone()
+process.tagCicHyperTight2.decay = cms.string("Tag PassingCicHyperTight2")
+process.tagCicHyperTight3 = process.tagSC.clone()
+process.tagCicHyperTight3.decay = cms.string("Tag PassingCicHyperTight3")
+process.tagCicHyperTight4 = process.tagSC.clone()
+process.tagCicHyperTight4.decay = cms.string("Tag PassingCicHyperTight4")
+process.elecMet = process.tagSC.clone()
+process.elecMet.decay = cms.string("pfMet PassingWP90")
+process.elecMet.cut = cms.string("mt > 0")
 
 process.CSVarsTagGsf = cms.EDProducer("ColinsSoperVariablesComputer",
     parentBoson = cms.InputTag("tagGsf")
 )
 process.CSVarsGsfGsf = process.CSVarsTagGsf.clone()
 process.CSVarsGsfGsf.parentBoson = cms.InputTag("GsfGsf")
-process.CSVarsTagWP95 = process.CSVarsTagGsf.clone()
-process.CSVarsTagWP95.parentBoson = cms.InputTag("tagWP95")
-process.CSVarsTagWP80 = process.CSVarsTagGsf.clone()
-process.CSVarsTagWP80.parentBoson = cms.InputTag("tagWP80")
+
+
 
 process.allTagsAndProbes = cms.Sequence(
-    process.tagSC + process.tagPhoton + process.tagGsf +
-    process.GsfGsf + process.tagWP95 + process.tagWP80 +
-    process.CSVarsTagGsf + process.CSVarsTagWP95 +
-    process.CSVarsTagWP80 + process.CSVarsGsfGsf
+    process.tagSC +
+    process.tagPhoton +
+    process.tagGsf +
+    process.GsfGsf +
+    process.tagWP95 +
+    process.tagWP90 +
+    process.tagWP85 +
+    process.tagWP80 +
+    process.tagWP70 +
+    process.tagWP60 +
+    process.tagCicVeryLoose +
+    process.tagCicLoose +
+    process.tagCicMedium +
+    process.tagCicTight +
+    process.tagCicSuperTight +
+    process.tagCicHyperTight1 +
+    process.tagCicHyperTight2 +
+    process.tagCicHyperTight3 +
+    process.tagCicHyperTight4 +
+    process.elecMet + 
+    process.CSVarsTagGsf +
+    process.CSVarsGsfGsf
 )
 
 ##    __  __  ____   __  __       _       _               
@@ -557,14 +688,55 @@ process.McMatchGsf = process.McMatchTag.clone()
 process.McMatchGsf.src = cms.InputTag("goodElectrons")
 process.McMatchWP95 = process.McMatchTag.clone()
 process.McMatchWP95.src = cms.InputTag("PassingWP95")
+process.McMatchWP90 = process.McMatchTag.clone()
+process.McMatchWP90.src = cms.InputTag("PassingWP90")
+process.McMatchWP85 = process.McMatchTag.clone()
+process.McMatchWP85.src = cms.InputTag("PassingWP85")
 process.McMatchWP80 = process.McMatchTag.clone()
 process.McMatchWP80.src = cms.InputTag("PassingWP80")
-
-
+process.McMatchWP70 = process.McMatchTag.clone()
+process.McMatchWP70.src = cms.InputTag("PassingWP70")
+process.McMatchWP60 = process.McMatchTag.clone()
+process.McMatchWP60.src = cms.InputTag("PassingWP60")
+process.McMatchCicVeryLoose = process.McMatchTag.clone()
+process.McMatchCicVeryLoose.src = cms.InputTag("PassingCicVeryLoose")
+process.McMatchCicLoose = process.McMatchTag.clone()
+process.McMatchCicLoose.src = cms.InputTag("PassingCicLoose")
+process.McMatchCicMedium = process.McMatchTag.clone()
+process.McMatchCicMedium.src = cms.InputTag("PassingCicMedium")
+process.McMatchCicTight = process.McMatchTag.clone()
+process.McMatchCicTight.src = cms.InputTag("PassingCicTight")
+process.McMatchCicSuperTight = process.McMatchTag.clone()
+process.McMatchCicSuperTight.src = cms.InputTag("PassingCicSuperTight")
+process.McMatchCicHyperTight1 = process.McMatchTag.clone()
+process.McMatchCicHyperTight1.src = cms.InputTag("PassingCicHyperTight1")
+process.McMatchCicHyperTight2 = process.McMatchTag.clone()
+process.McMatchCicHyperTight2.src = cms.InputTag("PassingCicHyperTight2")
+process.McMatchCicHyperTight3 = process.McMatchTag.clone()
+process.McMatchCicHyperTight3.src = cms.InputTag("PassingCicHyperTight3")
+process.McMatchCicHyperTight4 = process.McMatchTag.clone()
+process.McMatchCicHyperTight4.src = cms.InputTag("PassingCicHyperTight4")
+    
 process.mc_sequence = cms.Sequence(
-   process.McMatchTag + process.McMatchSC +
-   process.McMatchPhoton + process.McMatchGsf + 
-   process.McMatchWP95  + process.McMatchWP80
+   process.McMatchTag +
+   process.McMatchSC +
+   process.McMatchPhoton +
+   process.McMatchGsf + 
+   process.McMatchWP95 +
+   process.McMatchWP90 +
+   process.McMatchWP85 +
+   process.McMatchWP80 +
+   process.McMatchWP70 +   
+   process.McMatchWP60 +
+   process.McMatchCicVeryLoose +
+   process.McMatchCicLoose +
+   process.McMatchCicMedium +
+   process.McMatchCicTight +
+   process.McMatchCicSuperTight +
+   process.McMatchCicHyperTight1 +
+   process.McMatchCicHyperTight2 +
+   process.McMatchCicHyperTight3 +
+   process.McMatchCicHyperTight4    
 )
 
 ############################################################################
@@ -765,7 +937,7 @@ CommonStuffForGsfElectronProbe = cms.PSet(
     addEventVariablesInfo   =  cms.bool (True),
     pairVariables =  cms.PSet(ZVariablesToStore),
     pairFlags     =  cms.PSet(
-          mass60to120 = cms.string("40 < mass < 1000")
+          mass60to120 = cms.string("60 < mass < 120")
     ),
     tagVariables   =  cms.PSet(TagVariablesToStore),
     tagFlags     =  cms.PSet(
@@ -775,7 +947,16 @@ CommonStuffForGsfElectronProbe = cms.PSet(
           isWP85 = cms.InputTag("PassingWP85"),          
           isWP80 = cms.InputTag("PassingWP80"),
           isWP70 = cms.InputTag("PassingWP70"),
-          isWP60 = cms.InputTag("PassingWP60"),          
+          isWP60 = cms.InputTag("PassingWP60"),
+          isCicVeryLoose = cms.InputTag("PassingCicVeryLoose"),
+          isCicLoose = cms.InputTag("PassingCicLoose"),
+          isCicMedium = cms.InputTag("PassingCicMedium"),
+          isCicTight = cms.InputTag("PassingCicTight"),
+          isCicSuperTight = cms.InputTag("PassingCicSuperTight"),          
+          isCicHyperTight1 = cms.InputTag("PassingCicHyperTight1"),
+          isCicHyperTight2 = cms.InputTag("PassingCicHyperTight2"),
+          isCicHyperTight3 = cms.InputTag("PassingCicHyperTight3"),
+          isCicHyperTight4 = cms.InputTag("PassingCicHyperTight4"),          
           passingHLT = cms.InputTag("PassingHLT")     
     ),    
 )
@@ -851,7 +1032,16 @@ process.SuperClusterToGsfElectron = cms.EDAnalyzer("TagProbeFitTreeProducer",
         probe_isWP85 = cms.InputTag("WP85MatchedSuperClusterCandsClean"),        
         probe_isWP80 = cms.InputTag("WP80MatchedSuperClusterCandsClean"),
         probe_isWP70 = cms.InputTag("WP70MatchedSuperClusterCandsClean"),
-        probe_isWP60 = cms.InputTag("WP60MatchedSuperClusterCandsClean"),        
+        probe_isWP60 = cms.InputTag("WP60MatchedSuperClusterCandsClean"),
+        probe_isCicVeryLoose = cms.InputTag("CicVeryLooseMatchedSuperClusterCandsClean"), 
+        probe_isCicLoose = cms.InputTag("CicLooseMatchedSuperClusterCandsClean"), 
+        probe_isCicMedium = cms.InputTag("CicMediumMatchedSuperClusterCandsClean"), 
+        probe_isCicTight = cms.InputTag("CicTightMatchedSuperClusterCandsClean"), 
+        probe_isCicSuperTight = cms.InputTag("CicSuperTightMatchedSuperClusterCandsClean"), 
+        probe_isCicHyperTight1 = cms.InputTag("CicHyperTight1MatchedSuperClusterCandsClean"), 
+        probe_isCicHyperTight2 = cms.InputTag("CicHyperTight2MatchedSuperClusterCandsClean"), 
+        probe_isCicHyperTight3 = cms.InputTag("CicHyperTight3MatchedSuperClusterCandsClean"), 
+        probe_isCicHyperTight4 = cms.InputTag("CicHyperTight4MatchedSuperClusterCandsClean"),        
         probe_passingHLT = cms.InputTag("TagMatchedSuperClusterCandsClean")
     ),
     probeMatches  = cms.InputTag("McMatchSC"),
@@ -880,7 +1070,16 @@ process.PhotonToGsfElectron.flags = cms.PSet(
     probe_isWP85 = cms.InputTag("WP85MatchedPhotonCands"),        
     probe_isWP80 = cms.InputTag("WP80MatchedPhotonCands"),
     probe_isWP70 = cms.InputTag("WP70MatchedPhotonCands"),
-    probe_isWP60 = cms.InputTag("WP60MatchedPhotonCands")        
+    probe_isWP60 = cms.InputTag("WP60MatchedPhotonCands"),
+    probe_isCicVeryLoose = cms.InputTag("CicVeryLooseMatchedPhotonCands"), 
+    probe_isCicLoose = cms.InputTag("CicLooseMatchedPhotonCands"), 
+    probe_isCicMedium = cms.InputTag("CicMediumMatchedPhotonCands"), 
+    probe_isCicTight = cms.InputTag("CicTightMatchedPhotonCands"), 
+    probe_isCicSuperTight = cms.InputTag("CicSuperTightMatchedPhotonCands"), 
+    probe_isCicHyperTight1 = cms.InputTag("CicHyperTight1MatchedPhotonCands"), 
+    probe_isCicHyperTight2 = cms.InputTag("CicHyperTight2MatchedPhotonCands"), 
+    probe_isCicHyperTight3 = cms.InputTag("CicHyperTight3MatchedPhotonCands"), 
+    probe_isCicHyperTight4 = cms.InputTag("CicHyperTight4MatchedPhotonCands")        
     )
 process.PhotonToGsfElectron.probeMatches  = cms.InputTag("McMatchPhoton")
 process.PhotonToGsfElectron.allProbes     = cms.InputTag("goodPhotons")
@@ -904,7 +1103,7 @@ process.PhotonToGsfElectron.variables.probe_passConvRej = cms.InputTag("PhotonCo
 ##  \____|___/_|        /_/  |___|___/\___/  ( ) |___\__,_|
 ##                                           |/            
 ##  gsf electron --> isolation, electron id  etc.
-process.GsfElectronToIdToHLT = cms.EDAnalyzer("TagProbeFitTreeProducer",
+process.GsfElectronToId = cms.EDAnalyzer("TagProbeFitTreeProducer",
     mcTruthCommonStuff, CommonStuffForGsfElectronProbe,                        
     tagProbePairs = cms.InputTag("tagGsf"),
     arbitration   = cms.string("Random2"),
@@ -914,55 +1113,73 @@ process.GsfElectronToIdToHLT = cms.EDAnalyzer("TagProbeFitTreeProducer",
         probe_isWP85 = cms.InputTag("PassingWP85"),        
         probe_isWP80 = cms.InputTag("PassingWP80"),
         probe_isWP70 = cms.InputTag("PassingWP70"),
-        probe_isWP60 = cms.InputTag("PassingWP60"),        
+        probe_isWP60 = cms.InputTag("PassingWP60"),
+        probe_isCicVeryLoose = cms.InputTag("PassingCicVeryLoose"),
+        probe_isCicLoose = cms.InputTag("PassingCicLoose"),
+        probe_isCicMedium = cms.InputTag("PassingCicMedium"),
+        probe_isCicTight = cms.InputTag("PassingCicTight"),
+        probe_isCicSuperTight = cms.InputTag("PassingCicSuperTight"),          
+        probe_isCicHyperTight1 = cms.InputTag("PassingCicHyperTight1"),
+        probe_isCicHyperTight2 = cms.InputTag("PassingCicHyperTight2"),
+        probe_isCicHyperTight3 = cms.InputTag("PassingCicHyperTight3"),
+        probe_isCicHyperTight4 = cms.InputTag("PassingCicHyperTight4"),   
         probe_passingHLT = cms.InputTag("PassingHLT")        
     ),
     probeMatches  = cms.InputTag("McMatchGsf"),
     allProbes     = cms.InputTag("goodElectrons")
 )
-process.GsfElectronToIdToHLT.variables.probe_dRjet = cms.InputTag("GsfDRToNearestJet")
-process.GsfElectronToIdToHLT.variables.probe_nJets = cms.InputTag("JetMultiplicityInGsfEvents")
-process.GsfElectronToIdToHLT.variables.probe_eidCicVeryLoose = cms.InputTag("eidVeryLoose")
-process.GsfElectronToIdToHLT.variables.probe_eidCicLoose = cms.InputTag("eidLoose")
-process.GsfElectronToIdToHLT.variables.probe_eidCicMedium = cms.InputTag("eidMedium")
-process.GsfElectronToIdToHLT.variables.probe_eidCicTight = cms.InputTag("eidTight")
-process.GsfElectronToIdToHLT.variables.probe_eidCicSuperTight = cms.InputTag("eidSuperTight")
-process.GsfElectronToIdToHLT.variables.probe_eidCicHyperTight1 = cms.InputTag("eidHyperTight1")
-process.GsfElectronToIdToHLT.variables.probe_eidCicHyperTight2 = cms.InputTag("eidHyperTight2")
-process.GsfElectronToIdToHLT.variables.probe_eidCicHyperTight3 = cms.InputTag("eidHyperTight3")
-process.GsfElectronToIdToHLT.variables.probe_eidCicHyperTight4 = cms.InputTag("eidHyperTight4")
-process.GsfElectronToIdToHLT.variables.probe_eidLikelihood = cms.InputTag("eidLikelihoodExt")
-process.GsfElectronToIdToHLT.variables.probe_dist = cms.InputTag("GsfConvRejVars","dist")
-process.GsfElectronToIdToHLT.variables.probe_dcot = cms.InputTag("GsfConvRejVars","dcot")
-process.GsfElectronToIdToHLT.variables.probe_convradius = cms.InputTag("GsfConvRejVars","convradius")
-process.GsfElectronToIdToHLT.variables.probe_passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
-process.GsfElectronToIdToHLT.tagVariables.dRjet = cms.InputTag("GsfDRToNearestJet")
-process.GsfElectronToIdToHLT.tagVariables.nJets = cms.InputTag("JetMultiplicityInGsfEvents")
-process.GsfElectronToIdToHLT.tagVariables.eidCicVeryLoose = cms.InputTag("eidVeryLoose")
-process.GsfElectronToIdToHLT.tagVariables.eidCicLoose = cms.InputTag("eidLoose")
-process.GsfElectronToIdToHLT.tagVariables.eidCicMedium = cms.InputTag("eidMedium")
-process.GsfElectronToIdToHLT.tagVariables.eidCicTight = cms.InputTag("eidTight")
-process.GsfElectronToIdToHLT.tagVariables.eidCicSuperTight = cms.InputTag("eidSuperTight")
-process.GsfElectronToIdToHLT.tagVariables.eidCicHyperTight1 = cms.InputTag("eidHyperTight1")
-process.GsfElectronToIdToHLT.tagVariables.eidCicHyperTight2 = cms.InputTag("eidHyperTight2")
-process.GsfElectronToIdToHLT.tagVariables.eidCicHyperTight3 = cms.InputTag("eidHyperTight3")
-process.GsfElectronToIdToHLT.tagVariables.eidCicHyperTight4 = cms.InputTag("eidHyperTight4")
-process.GsfElectronToIdToHLT.tagVariables.eidLikelihood = cms.InputTag("eidLikelihoodExt")
-process.GsfElectronToIdToHLT.tagVariables.dist = cms.InputTag("GsfConvRejVars","dist")
-process.GsfElectronToIdToHLT.tagVariables.dcot = cms.InputTag("GsfConvRejVars","dcot")
-process.GsfElectronToIdToHLT.tagVariables.convradius = cms.InputTag("GsfConvRejVars","convradius")
-process.GsfElectronToIdToHLT.tagVariables.passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
-process.GsfElectronToIdToHLT.pairVariables.costheta = cms.InputTag("CSVarsTagGsf","costheta")
-process.GsfElectronToIdToHLT.pairVariables.sin2theta = cms.InputTag("CSVarsTagGsf","sin2theta")
-process.GsfElectronToIdToHLT.pairVariables.tanphi = cms.InputTag("CSVarsTagGsf","tanphi")
+process.GsfElectronToId.variables.probe_dRjet = cms.InputTag("GsfDRToNearestJet")
+process.GsfElectronToId.variables.probe_nJets = cms.InputTag("JetMultiplicityInGsfEvents")
+process.GsfElectronToId.variables.probe_eidCicVeryLoose = cms.InputTag("eidVeryLoose")
+process.GsfElectronToId.variables.probe_eidCicLoose = cms.InputTag("eidLoose")
+process.GsfElectronToId.variables.probe_eidCicMedium = cms.InputTag("eidMedium")
+process.GsfElectronToId.variables.probe_eidCicTight = cms.InputTag("eidTight")
+process.GsfElectronToId.variables.probe_eidCicSuperTight = cms.InputTag("eidSuperTight")
+process.GsfElectronToId.variables.probe_eidCicHyperTight1 = cms.InputTag("eidHyperTight1")
+process.GsfElectronToId.variables.probe_eidCicHyperTight2 = cms.InputTag("eidHyperTight2")
+process.GsfElectronToId.variables.probe_eidCicHyperTight3 = cms.InputTag("eidHyperTight3")
+process.GsfElectronToId.variables.probe_eidCicHyperTight4 = cms.InputTag("eidHyperTight4")
+process.GsfElectronToId.variables.probe_eidLikelihood = cms.InputTag("eidLikelihoodExt")
+process.GsfElectronToId.variables.probe_dist = cms.InputTag("GsfConvRejVars","dist")
+process.GsfElectronToId.variables.probe_dcot = cms.InputTag("GsfConvRejVars","dcot")
+process.GsfElectronToId.variables.probe_convradius = cms.InputTag("GsfConvRejVars","convradius")
+process.GsfElectronToId.variables.probe_passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
+process.GsfElectronToId.tagVariables.dRjet = cms.InputTag("GsfDRToNearestJet")
+process.GsfElectronToId.tagVariables.nJets = cms.InputTag("JetMultiplicityInGsfEvents")
+process.GsfElectronToId.tagVariables.eidCicVeryLoose = cms.InputTag("eidVeryLoose")
+process.GsfElectronToId.tagVariables.eidCicLoose = cms.InputTag("eidLoose")
+process.GsfElectronToId.tagVariables.eidCicMedium = cms.InputTag("eidMedium")
+process.GsfElectronToId.tagVariables.eidCicTight = cms.InputTag("eidTight")
+process.GsfElectronToId.tagVariables.eidCicSuperTight = cms.InputTag("eidSuperTight")
+process.GsfElectronToId.tagVariables.eidCicHyperTight1 = cms.InputTag("eidHyperTight1")
+process.GsfElectronToId.tagVariables.eidCicHyperTight2 = cms.InputTag("eidHyperTight2")
+process.GsfElectronToId.tagVariables.eidCicHyperTight3 = cms.InputTag("eidHyperTight3")
+process.GsfElectronToId.tagVariables.eidCicHyperTight4 = cms.InputTag("eidHyperTight4")
+process.GsfElectronToId.tagVariables.eidLikelihood = cms.InputTag("eidLikelihoodExt")
+process.GsfElectronToId.tagVariables.dist = cms.InputTag("GsfConvRejVars","dist")
+process.GsfElectronToId.tagVariables.dcot = cms.InputTag("GsfConvRejVars","dcot")
+process.GsfElectronToId.tagVariables.convradius = cms.InputTag("GsfConvRejVars","convradius")
+process.GsfElectronToId.tagVariables.passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
+process.GsfElectronToId.pairVariables.costheta = cms.InputTag("CSVarsTagGsf","costheta")
+process.GsfElectronToId.pairVariables.sin2theta = cms.InputTag("CSVarsTagGsf","sin2theta")
+process.GsfElectronToId.pairVariables.tanphi = cms.InputTag("CSVarsTagGsf","tanphi")
 
 
-process.GsfElectronPlusGsfElectron = process.GsfElectronToIdToHLT.clone()
+process.GsfElectronPlusGsfElectron = process.GsfElectronToId.clone()
 process.GsfElectronPlusGsfElectron.tagProbePairs = cms.InputTag("GsfGsf")
 process.GsfElectronPlusGsfElectron.tagMatches = cms.InputTag("McMatchGsf")
 process.GsfElectronPlusGsfElectron.pairVariables.costheta = cms.InputTag("CSVarsGsfGsf","costheta")
 process.GsfElectronPlusGsfElectron.pairVariables.sin2theta = cms.InputTag("CSVarsGsfGsf","sin2theta")
 process.GsfElectronPlusGsfElectron.pairVariables.tanphi = cms.InputTag("CSVarsGsfGsf","tanphi")
+
+
+process.GsfElectronPlusMet = process.GsfElectronToId.clone()
+process.GsfElectronPlusMet.tagProbePairs = cms.InputTag("elecMet")
+process.GsfElectronPlusMet.tagVariables = cms.PSet()
+process.GsfElectronPlusMet.pairVariables =  cms.PSet(ZVariablesToStore)
+process.GsfElectronPlusMet.pairFlags =  cms.PSet( isMTabove40 = cms.string("mt > 40") )
+process.GsfElectronPlusMet.isMC = cms.bool(False)
+
 
 ##    ___    _       __    _   _ _   _____ 
 ##   |_ _|__| |      \ \  | | | | | |_   _|
@@ -970,34 +1187,162 @@ process.GsfElectronPlusGsfElectron.pairVariables.tanphi = cms.InputTag("CSVarsGs
 ##    | | (_| | |_____/ / |  _  | |___| |  
 ##   |___\__,_|      /_/  |_| |_|_____|_|
 ##
+##  offline selection --> HLT. First specify which quantities to store in the TP tree. 
+if MC_flag:
+    HLTmcTruthCommonStuff = cms.PSet(
+        isMC = cms.bool(MC_flag),
+        tagMatches = cms.InputTag("McMatchTag"),
+        motherPdgId = cms.vint32(22,23),
+        makeMCUnbiasTree = cms.bool(MC_flag),
+        checkMotherInUnbiasEff = cms.bool(MC_flag),
+        mcVariables = cms.PSet(
+          probe_eta = cms.string("eta"),
+          probe_phi  = cms.string("phi"),
+          probe_et  = cms.string("et"),
+          probe_charge = cms.string("charge"),
+        ),
+        mcFlags     =  cms.PSet(
+          probe_flag = cms.string("pt>0")
+        ),      
+        )
+else:
+     HLTmcTruthCommonStuff = cms.PSet(
+         isMC = cms.bool(False)
+         )
+
 ##  WP95 --> HLT
-process.WP95ToHLT = process.GsfElectronToIdToHLT.clone()
-process.WP95ToHLT.tagProbePairs = cms.InputTag("tagWP95")
-process.WP95ToHLT.probeMatches  = cms.InputTag("McMatchWP95")
-process.WP95ToHLT.allProbes     = cms.InputTag("PassingWP95")
-process.WP95ToHLT.pairVariables.costheta = cms.InputTag("CSVarsTagWP95","costheta")
-process.WP95ToHLT.pairVariables.sin2theta = cms.InputTag("CSVarsTagWP95","sin2theta")
-process.WP95ToHLT.pairVariables.tanphi = cms.InputTag("CSVarsTagWP95","tanphi")
+process.WP95ToHLT = cms.EDAnalyzer("TagProbeFitTreeProducer",
+    HLTmcTruthCommonStuff,                                
+    variables = cms.PSet(
+      probe_gsfEle_eta = cms.string("eta"),
+      probe_gsfEle_phi  = cms.string("phi"),
+      probe_gsfEle_et  = cms.string("et"),
+      probe_gsfEle_charge = cms.string("charge"),
+      probe_sc_et    = cms.string("superCluster.energy*sin(superClusterPosition.theta)"),    
+      probe_sc_eta    = cms.string("superCluster.eta"), 
+      probe_sc_phi    = cms.string("superCluster.phi"),
+      probe_gsfEle_isEB           = cms.string("isEB"),
+      probe_gsfEle_isEE           = cms.string("isEE"),
+      probe_gsfEle_isGap          = cms.string("isGap"),
+    ),
+    ignoreExceptions =  cms.bool (False),
+    addRunLumiInfo   =  cms.bool (False),
+    addEventVariablesInfo   =  cms.bool (False),                                                        
+    tagProbePairs = cms.InputTag("tagWP95"),
+    arbitration   = cms.string("Random2"),
+    flags = cms.PSet( 
+        probe_passingHLT = cms.InputTag("PassingHLT")        
+    ),
+    probeMatches  = cms.InputTag("McMatchWP95"),
+    allProbes     = cms.InputTag("PassingWP95")
+)
 
+##  WP90 --> HLT
+process.WP90ToHLT = process.WP95ToHLT.clone()
+process.WP90ToHLT.tagProbePairs = cms.InputTag("tagWP90")
+process.WP90ToHLT.probeMatches  = cms.InputTag("McMatchWP90")
+process.WP90ToHLT.allProbes     = cms.InputTag("PassingWP90")
 
+##  WP85 --> HLT
+process.WP85ToHLT = process.WP95ToHLT.clone()
+process.WP85ToHLT.tagProbePairs = cms.InputTag("tagWP85")
+process.WP85ToHLT.probeMatches  = cms.InputTag("McMatchWP85")
+process.WP85ToHLT.allProbes     = cms.InputTag("PassingWP85")
 
 ##  WP80 --> HLT
-process.WP80ToHLT = process.GsfElectronToIdToHLT.clone()
+process.WP80ToHLT = process.WP95ToHLT.clone()
 process.WP80ToHLT.tagProbePairs = cms.InputTag("tagWP80")
 process.WP80ToHLT.probeMatches  = cms.InputTag("McMatchWP80")
 process.WP80ToHLT.allProbes     = cms.InputTag("PassingWP80")
-process.WP80ToHLT.pairVariables.costheta = cms.InputTag("CSVarsTagWP80","costheta")
-process.WP80ToHLT.pairVariables.sin2theta = cms.InputTag("CSVarsTagWP80","sin2theta")
-process.WP80ToHLT.pairVariables.tanphi = cms.InputTag("CSVarsTagWP80","tanphi")
+
+##  WP70 --> HLT
+process.WP70ToHLT = process.WP95ToHLT.clone()
+process.WP70ToHLT.tagProbePairs = cms.InputTag("tagWP70")
+process.WP70ToHLT.probeMatches  = cms.InputTag("McMatchWP70")
+process.WP70ToHLT.allProbes     = cms.InputTag("PassingWP70")
+
+##  WP60 --> HLT
+process.WP60ToHLT = process.WP95ToHLT.clone()
+process.WP60ToHLT.tagProbePairs = cms.InputTag("tagWP60")
+process.WP60ToHLT.probeMatches  = cms.InputTag("McMatchWP60")
+process.WP60ToHLT.allProbes     = cms.InputTag("PassingWP60")
+
+##  CicVeryLoose --> HLT
+process.CicVeryLooseToHLT = process.WP95ToHLT.clone()
+process.CicVeryLooseToHLT.tagProbePairs = cms.InputTag("tagCicVeryLoose")
+process.CicVeryLooseToHLT.probeMatches  = cms.InputTag("McMatchCicVeryLoose")
+process.CicVeryLooseToHLT.allProbes     = cms.InputTag("PassingCicVeryLoose")
+
+##  CicLoose --> HLT
+process.CicLooseToHLT = process.WP95ToHLT.clone()
+process.CicLooseToHLT.tagProbePairs = cms.InputTag("tagCicLoose")
+process.CicLooseToHLT.probeMatches  = cms.InputTag("McMatchCicLoose")
+process.CicLooseToHLT.allProbes     = cms.InputTag("PassingCicLoose")
+
+##  CicMedium --> HLT
+process.CicMediumToHLT = process.WP95ToHLT.clone()
+process.CicMediumToHLT.tagProbePairs = cms.InputTag("tagCicMedium")
+process.CicMediumToHLT.probeMatches  = cms.InputTag("McMatchCicMedium")
+process.CicMediumToHLT.allProbes     = cms.InputTag("PassingCicMedium")
+
+##  CicTight --> HLT
+process.CicTightToHLT = process.WP95ToHLT.clone()
+process.CicTightToHLT.tagProbePairs = cms.InputTag("tagCicTight")
+process.CicTightToHLT.probeMatches  = cms.InputTag("McMatchCicTight")
+process.CicTightToHLT.allProbes     = cms.InputTag("PassingCicTight")
+
+##  CicSuperTight --> HLT
+process.CicSuperTightToHLT = process.WP95ToHLT.clone()
+process.CicSuperTightToHLT.tagProbePairs = cms.InputTag("tagCicSuperTight")
+process.CicSuperTightToHLT.probeMatches  = cms.InputTag("McMatchCicSuperTight")
+process.CicSuperTightToHLT.allProbes     = cms.InputTag("PassingCicSuperTight")
+
+##  CicHyperTight1 --> HLT
+process.CicHyperTight1ToHLT = process.WP95ToHLT.clone()
+process.CicHyperTight1ToHLT.tagProbePairs = cms.InputTag("tagCicHyperTight1")
+process.CicHyperTight1ToHLT.probeMatches  = cms.InputTag("McMatchCicHyperTight1")
+process.CicHyperTight1ToHLT.allProbes     = cms.InputTag("PassingCicHyperTight1")
+
+##  CicHyperTight2 --> HLT
+process.CicHyperTight2ToHLT = process.WP95ToHLT.clone()
+process.CicHyperTight2ToHLT.tagProbePairs = cms.InputTag("tagCicHyperTight2")
+process.CicHyperTight2ToHLT.probeMatches  = cms.InputTag("McMatchCicHyperTight2")
+process.CicHyperTight2ToHLT.allProbes     = cms.InputTag("PassingCicHyperTight2")
+
+##  CicHyperTight3 --> HLT
+process.CicHyperTight3ToHLT = process.WP95ToHLT.clone()
+process.CicHyperTight3ToHLT.tagProbePairs = cms.InputTag("tagCicHyperTight3")
+process.CicHyperTight3ToHLT.probeMatches  = cms.InputTag("McMatchCicHyperTight3")
+process.CicHyperTight3ToHLT.allProbes     = cms.InputTag("PassingCicHyperTight3")
+
+##  CicHyperTight4 --> HLT
+process.CicHyperTight4ToHLT = process.WP95ToHLT.clone()
+process.CicHyperTight4ToHLT.tagProbePairs = cms.InputTag("tagCicHyperTight4")
+process.CicHyperTight4ToHLT.probeMatches  = cms.InputTag("McMatchCicHyperTight4")
+process.CicHyperTight4ToHLT.allProbes     = cms.InputTag("PassingCicHyperTight4")
 
 
 process.tree_sequence = cms.Sequence(
     process.SuperClusterToGsfElectron +
     process.PhotonToGsfElectron +
-    process.GsfElectronToIdToHLT +
+    process.GsfElectronToId +
     process.GsfElectronPlusGsfElectron +
+    process.GsfElectronPlusMet + 
     process.WP95ToHLT +
-    process.WP80ToHLT
+    process.WP90ToHLT +
+    process.WP85ToHLT + 
+    process.WP80ToHLT +
+    process.WP70ToHLT + 
+    process.WP60ToHLT +
+    process.CicVeryLooseToHLT +
+    process.CicLooseToHLT +
+    process.CicMediumToHLT +
+    process.CicTightToHLT +
+    process.CicSuperTightToHLT +
+    process.CicHyperTight1ToHLT +
+    process.CicHyperTight2ToHLT +
+    process.CicHyperTight3ToHLT +
+    process.CicHyperTight4ToHLT        
 )    
 
 ##    ____       _   _     
@@ -1009,7 +1354,7 @@ process.tree_sequence = cms.Sequence(
 
 if MC_flag:
     process.tagAndProbe = cms.Path(
-        process.sc_sequence + process.ele_sequence + process.eIDSequence + 
+        process.sc_sequence + process.eIDSequence + process.ele_sequence + 
         process.ext_ToNearestJet_sequence + 
         process.allTagsAndProbes +
         process.mc_sequence + 
@@ -1017,7 +1362,7 @@ if MC_flag:
         )
 else:
     process.tagAndProbe = cms.Path(
-        process.sc_sequence + process.ele_sequence + process.eIDSequence + 
+        process.sc_sequence + process.eIDSequence + process.ele_sequence + 
         process.ext_ToNearestJet_sequence + 
         process.allTagsAndProbes +
         process.tree_sequence
