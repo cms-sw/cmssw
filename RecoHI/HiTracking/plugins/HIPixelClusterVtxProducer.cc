@@ -10,7 +10,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
@@ -79,9 +79,8 @@ void HIPixelClusterVtxProducer::produce(edm::Event& ev, const edm::EventSetup& e
         continue;
       const PixelGeomDetUnit *pgdu = static_cast<const PixelGeomDetUnit*>(tgeo->idToDet(id));
       if (1) {
-        const RectangularPixelTopology *pixTopo = 
-          static_cast<const RectangularPixelTopology*>(&(pgdu->specificTopology()));
-	std::vector<SiPixelCluster::Pixel> pixels(hit->cluster()->pixels());
+	const PixelTopology *pixTopo = &(pgdu->specificTopology());
+        std::vector<SiPixelCluster::Pixel> pixels(hit->cluster()->pixels());
         bool pixelOnEdge = false;
         for(std::vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin(); 
             pixel != pixels.end(); ++pixel) {
