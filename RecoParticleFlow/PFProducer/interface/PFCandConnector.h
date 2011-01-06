@@ -36,9 +36,11 @@ class PFCandConnector {
 	 /// Flag to calibrate the reconstructed nuclear interactions with primary or merged tracks
 	 bCalibPrimary_ =  iCfgCandConnector.getParameter<bool>("bCalibPrimary");
 
-	 dptRel_PrimaryTrack_ = iCfgCandConnector.getParameter<double>("dptRel_PrimaryTrack");
-         dptRel_MergedTrack_ = iCfgCandConnector.getParameter<double>("dptRel_MergedTrack");
+	 if(iCfgCandConnector.exists("dptRel_PrimaryTrack")) dptRel_PrimaryTrack_ = iCfgCandConnector.getParameter<double>("dptRel_PrimaryTrack");
+	 else { std::cout << "dptRel_PrimaryTrack doesn't exist. Setting a default safe value 0" << std::endl; dptRel_PrimaryTrack_ = 0;}
 
+	 if(iCfgCandConnector.exists("dptRel_MergedTrack")) dptRel_PrimaryTrack_ = iCfgCandConnector.getParameter<double>("dptRel_MergedTrack");
+	 else { std::cout << "dptRel_MergedTrack doesn't exist. Setting a default safe value 0" << std::endl; dptRel_MergedTrack_ = 0;}
 
 	 std::vector<double> nuclCalibFactors = iCfgCandConnector.getParameter<std::vector<double> >("nuclCalibFactors");  
 
@@ -53,7 +55,6 @@ class PFCandConnector {
 	 } else {
 	   std::cout << "Wrong calibration factors for nuclear interactions. The calibration procedure would not be applyed." << std::endl;
 	   bCalibPrimary_ =  false;
-
 	 }
        }
 
