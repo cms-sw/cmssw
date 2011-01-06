@@ -64,7 +64,7 @@ process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
 						         ),								        
                                          #connect = cms.string('frontier://cmsfrontier.cern.ch:8000/Frontier/CMS_COND_31X_BEAMSPOT')
 #                                         connect = cms.string('sqlite_file:promptCalibConditions_2.db')
-                                         connect = cms.string('sqlite_file:promptCalibConditions_3.db')
+                                         connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_PROMPT/ALCAPROMPTHarvest-Run146514-StreamExpress-ALCAPROMPT-305756.db')
 #                                         connect = cms.string('sqlite_file:ALCAPROMPTHarvest-Run146514-StreamExpress-ALCAPROMPT-305756.db')
                                          #connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_31X_BEAMSPOT')
                                          #connect = cms.string('frontier://PromptProd/CMS_COND_31X_BEAMSPOT')
@@ -76,7 +76,7 @@ process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
 process.DQMoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     outputCommands = process.DQMEventContent.outputCommands,
-    fileName = cms.untracked.string('AlcaBeamMonitorDQM_3_HLT_GT_Cuts.root'),
+    fileName = cms.untracked.string('AlcaBeamMonitorDQM.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('')

@@ -1,8 +1,8 @@
 /*
  * \file AlcaBeamMonitorClient.cc
  * \author Lorenzo Uplegger/FNAL
- * $Date: 2010/10/05 18:07:13 $
- * $Revision: 1.3 $
+ * $Date: 2010/11/08 21:44:51 $
+ * $Revision: 1.4 $
  *
  */
 
@@ -155,7 +155,7 @@ void AlcaBeamMonitorClient::endRun(const Run& iRun, const EventSetup& context){
       	  title = itM->first + "_{0} " + itMMM->first;
       	  if(itMM->first == "lumi"){
             dbe_->setCurrentFolder(monitorName_+"Debug");
-	    itMMM->second = dbe_->book1D(name,title,lastLumi-firstLumi+1,firstLumi-2,lastLumi+2);
+	    itMMM->second = dbe_->book1D(name,title,lastLumi-firstLumi+1,firstLumi-0.5,lastLumi+0.5);
       	  }
           else if(itMM->first == "validation" && itMMM->first == "Lumibased Scalers-DataBase fit"){
             dbe_->setCurrentFolder(monitorName_+"Validation");
