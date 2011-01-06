@@ -6,13 +6,13 @@
  *  This is necessary e.g. when the seed introduced a bias (by using
  *  a beam contraint etc.). Ported from ORCA
  *
- *  $Date: 2010/05/29 13:59:12 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/06/16 15:47:09 $
+ *  $Revision: 1.15 $
  *  \author todorov, cerati
  */
 
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
 
