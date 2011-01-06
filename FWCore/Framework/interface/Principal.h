@@ -142,6 +142,9 @@ namespace edm {
 
     void maybeFlushCache(TypeID const& tid, InputTag const& tag) const;
 
+    SharedConstGroupPtr const getGroup(BranchID const& oid,
+                                       bool resolveProd,
+				       bool fillOnDemand) const;
   protected:
     ProcessHistory& processHistoryUpdate() {
       return *processHistoryPtr_;
@@ -155,10 +158,6 @@ namespace edm {
     Group* getExistingGroup(BranchID const& branchID);
     Group* getExistingGroup(Group const& g);
 
-    //deprecated
-    SharedConstGroupPtr const getGroup(BranchID const& oid,
-                                       bool resolveProd,
-				       bool fillOnDemand) const;
     SharedConstGroupPtr const getGroupByIndex(ProductTransientIndex const& oid,
                                         bool resolveProd,
                                         bool fillOnDemand) const;
