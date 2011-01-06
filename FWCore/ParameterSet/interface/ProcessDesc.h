@@ -2,6 +2,7 @@
 #define ParameterSet_ProcessDesc_h
 
 #include "boost/shared_ptr.hpp"
+#include <string>
 #include <vector>
 
 namespace edm {
@@ -38,6 +39,7 @@ namespace edm {
     void addServices(std::vector<std::string> const& defaultServices,
                      std::vector<std::string> const& forcedServices);
 
+    std::string dump() const;
   private:
 
     //Path and sequence information

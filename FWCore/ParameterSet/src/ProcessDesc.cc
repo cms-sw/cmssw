@@ -94,5 +94,13 @@ namespace edm
     std::reverse(services_->begin(), services_->end());
   }
 
+  std::string ProcessDesc::dump() const {
+    std::string out = pset_->dump();
+    for (std::vector<ParameterSet>::const_iterator it = services_->begin(), itEnd = services_->end(); it != itEnd; ++it) {
+      out += it->dump();
+    }
+    return out;
+  }
+
 
 } // namespace edm
