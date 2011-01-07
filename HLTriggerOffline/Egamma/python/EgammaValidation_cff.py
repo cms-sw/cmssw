@@ -146,4 +146,123 @@ else:
     #----------------------------------------------------------------------
     # new method
     #----------------------------------------------------------------------
-    raise Exception("not yet implemented")
+
+    import sys
+
+    import HLTriggerOffline.Egamma.EgammaHLTValidationUtils as EgammaHLTValidationUtils
+
+    #--------------------
+    # a 'reference' process to take (and analyze) the HLT menu from
+    refProcess = cms.Process("REF")
+
+    refProcess.load("HLTrigger.Configuration.HLT_GRun_cff")
+
+    #--------------------
+
+
+    # maps from Egamma HLT path category to number of type and number of generated
+    # particles required for the histogramming
+    configData = {
+        "singleElectron": { "genPid" : 11, "numGenerated" : 1,},
+        "doubleElectron": { "genPid" : 11, "numGenerated" : 2 },
+        "singlePhoton":   { "genPid" : 22, "numGenerated" : 1 },
+        "doublePhoton":   { "genPid" : 22, "numGenerated" : 2 },
+        }
+
+    pathsByCategory = EgammaHLTValidationUtils.findEgammaPaths(refProcess)
+
+    egammaValidators = []
+    egammaSelectors = []
+    for hltPathCategory, thisCategoryData in configData.iteritems():
+
+        # get the HLT path objects for this category
+        paths = pathsByCategory[hltPathCategory]
+
+        # all paths in the current category share the same
+        # generator level requirement
+        #
+        # add a sequence for this generator level requirement
+
+        generatorRequirementSequence = EgammaHLTValidationUtils.makeGeneratedParticleAndFiducialVolumeFilter(None,
+                                                                                                             thisCategoryData['genPid'],
+                                                                                                             thisCategoryData['numGenerated'])
+
+        # dirty hack: get all modules of this sequence and add them
+        # to globals() (which is not the same as calling globals() in makeGeneratedParticleAndFiducialVolumeFilter)
+        # so that they will be added to the process
+        for module in EgammaHLTValidationUtils.getModulesOfSequence(generatorRequirementSequence):
+            globals()[module.label_()] = module
+
+        # avoid that this variable is added to the process object when importing this _cff
+        # (otherwise the last filter will appear with module name 'module' instead
+        # of the name given by us...)
+        del module
+
+        egammaSelectors.append(generatorRequirementSequence)
+
+        for path in paths:
+
+            # name of the HLT path
+            pathName = path.label_()
+
+            # we currently exclude a few 'problematic' paths (for which we
+            # don't have a full recipe how to produce a monitoring path
+            # for them).
+            #
+            # we exclude paths which contain EDFilters which we don't know
+            # how to handle in the DQM modules
+            moduleCXXtypes = EgammaHLTValidationUtils.getCXXTypesOfPath(refProcess,path)
+            # print >> sys.stderr,"module types:", moduleCXXtypes
+
+            hasProblematicType = False
+
+            for problematicType in [
+                # this list was collected empirically
+                'HLTEgammaTriggerFilterObjectWrapper', 
+                'EgammaHLTPhotonTrackIsolationProducersRegional',
+                ]:
+
+                if problematicType in moduleCXXtypes:
+                    print >> sys.stderr,"SKIPPING PATH",pathName,"BECAUSE DON'T KNOW HOW TO HANDLE A MODULE WITH C++ TYPE",problematicType
+                    hasProblematicType = True
+                    break
+
+            if hasProblematicType:
+                continue
+
+            print >> sys.stderr,"adding E/gamma HLT dqm module for path",pathName
+
+            dqmModuleName = pathName + "_DQM"
+
+            dqmModule = EgammaHLTValidationUtils.EgammaDQMModuleMaker(refProcess, pathName,
+                                                                      thisCategoryData['genPid'],        # type of generated particle
+                                                                      thisCategoryData['numGenerated']   # number of generated particles
+                                                                      ).getResult()
+
+            # add the module to the process object
+            globals()[dqmModuleName] = dqmModule
+
+            # and to the sequence
+            egammaValidators.append(dqmModule)
+
+        # loop over paths
+
+        # if we don't do this, loading this configuration will pick this variable
+        # up and add it to the process object...
+        del path
+        del dqmModule
+
+    # convert from list to sequence ('concatenate' them using '*')
+    import operator
+
+    egammaSelectors = cms.Sequence(reduce(operator.mul, egammaSelectors))
+    
+    # selectors go into separate "prevalidation" sequence
+    egammaValidationSequence   = cms.Sequence(reduce(operator.mul, egammaValidators))
+    egammaValidationSequenceFS = cms.Sequence(reduce(operator.mul, egammaValidators))
+
+    #--------------------
+    # we don't need the MC HLT Menu path any more
+    del refProcess
+
+    #--------------------
