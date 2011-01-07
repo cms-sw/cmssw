@@ -81,7 +81,7 @@ namespace edm {
 
   inline
   std::ostream&
-  operator<<(std::ostream& os, const ModuleDescription& p) {
+  operator<<(std::ostream& os, ModuleDescription const& p) {
     p.write(os);
     return os;
   }

@@ -97,7 +97,7 @@ namespace edm {
     if (rh.releaseVersion() < releaseVersion()) return false;
     if (passID() < rh.passID()) return true;
     return false;
-  } 
+  }
 
   bool
   ModuleDescription::operator==(ModuleDescription const& rh) const {
