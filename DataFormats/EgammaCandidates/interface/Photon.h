@@ -7,7 +7,7 @@
  * stores isolation, shower shape and additional info
  * needed for identification
  * 
- * \version $Id: Photon.h,v 1.32 2010/01/21 19:51:57 sani Exp $
+ * \version $Id: Photon.h,v 1.33 2010/11/17 17:13:11 dlange Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -15,7 +15,7 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 
 namespace reco {
@@ -52,6 +52,10 @@ namespace reco {
     //
     /// Ref to SuperCluster
     reco::SuperClusterRef superCluster() const {return this->photonCore()->superCluster();}
+    /// Ref to PFlow SuperCluster
+    reco::SuperClusterRef pfSuperCluster() const {return this->photonCore()->pfSuperCluster();}
+    /// Ref to PFlow canidate
+    reco::PFCandidateRef pfCandidate() const {return this->photonCore()->pfCandidate();}
     /// vector of references to  Conversion's
     reco::ConversionRefVector conversions() const {return this->photonCore()->conversions() ;}  
     /// Bool flagging photons with a vector of refereces to conversions with size >0
@@ -60,6 +64,7 @@ namespace reco {
     reco::ElectronSeedRefVector electronPixelSeeds() const {return this->photonCore()->electronPixelSeeds();}
     /// Bool flagging photons having a non-zero size vector of Ref to electornPixel seeds
     bool hasPixelSeed() const { if ((this->photonCore()->electronPixelSeeds()).size() > 0 ) return true; else return false; }
+
 
  
     /// position in ECAL: this is th SC position if r9<0.93. If r8>0.93 is position of seed BasicCluster taking shower depth for unconverted photon
@@ -206,10 +211,51 @@ namespace reco {
       
       
     };
+
+
+    struct PflowIsolationVariables
+    {
+            
+      //EcalRecHit isolation
+      float ecalRecHitSumEt;
+      //HcalDepth1Tower isolation
+      float hcalTowerSumEt;
+      //HcalDepth1Tower isolation
+      float hcalDepth1TowerSumEt;
+      //HcalDepth2Tower isolation
+      float hcalDepth2TowerSumEt;
+      //Sum of track pT in a cone of dR
+      float trkSumPtSolidCone;
+      //Sum of track pT in a hollow cone of outer radius, inner radius
+      float trkSumPtHollowCone;
+      //Number of tracks in a cone of dR
+      int nTrkSolidCone;
+      //Number of tracks in a hollow cone of outer radius, inner radius
+      int nTrkHollowCone;
+      
+      PflowIsolationVariables():
+	
+	ecalRecHitSumEt(0),
+	hcalTowerSumEt(0),
+	hcalDepth1TowerSumEt(0),
+	hcalDepth2TowerSumEt(0),
+	trkSumPtSolidCone(0),
+	trkSumPtHollowCone(0),
+	nTrkSolidCone(0),
+	nTrkHollowCone(0)
+	   
+      {}
+      
+      
+    };
+
     
     /// set relevant isolation variables
     void setIsolationVariables ( const IsolationVariables& isolInDr04, const IsolationVariables& isolInDr03) {  isolationR04_ = isolInDr04 ; isolationR03_ = isolInDr03 ;} 
-    /// Isolation variables in cone dR=0.4
+    /// set isolation variables calculated with Pflow
+    void setPflowIsolationVariables ( const PflowIsolationVariables& isolInDr04, const PflowIsolationVariables& isolInDr03) {  pfIsolationR04_ = isolInDr04 ; pfIsolationR03_ = isolInDr03 ;} 
+
+    /// Egamma Isolation variables in cone dR=0.4
     ///Ecal isolation sum calculated from recHits
     float ecalRecHitSumEtConeDR04()      const{return  isolationR04_.ecalRecHitSumEt;}
     /// Hcal isolation sum
@@ -246,6 +292,43 @@ namespace reco {
 
 
 
+    /// Particle Flow Isolation variables in cone dR=0.4
+    ///Ecal isolation sum calculated from recHits
+    float PFecalRecHitSumEtConeDR04()      const{return  pfIsolationR04_.ecalRecHitSumEt;}
+    /// Hcal isolation sum
+    float PFhcalTowerSumEtConeDR04()      const{return  pfIsolationR04_.hcalTowerSumEt ;}
+    /// Hcal-Depth1 isolation sum
+    float PFhcalDepth1TowerSumEtConeDR04()      const{return  pfIsolationR04_.hcalDepth1TowerSumEt;}
+    /// Hcal-Depth2 isolation sum
+    float PFhcalDepth2TowerSumEtConeDR04()      const{return  pfIsolationR04_.hcalDepth2TowerSumEt;}
+    //  Track pT sum c
+    float PFtrkSumPtSolidConeDR04()    const{return   pfIsolationR04_.trkSumPtSolidCone;}
+    //As above, excluding the core at the center of the cone
+    float PFtrkSumPtHollowConeDR04()   const{return   pfIsolationR04_.trkSumPtHollowCone;}
+    //Returns number of tracks in a cone of dR
+    int PFnTrkSolidConeDR04()              const{return   pfIsolationR04_.nTrkSolidCone;}
+    //As above, excluding the core at the center of the cone
+    int PFnTrkHollowConeDR04()            const{return   pfIsolationR04_.nTrkHollowCone;}
+    //
+    /// Particle Flow Isolation variables in cone dR=0.3
+    float PFecalRecHitSumEtConeDR03()      const{return  pfIsolationR03_.ecalRecHitSumEt;}
+    /// Hcal isolation sum
+    float PFhcalTowerSumEtConeDR03()      const{return pfIsolationR03_.hcalTowerSumEt;}
+    /// Hcal-Depth1 isolation sum
+    float PFhcalDepth1TowerSumEtConeDR03()      const{return pfIsolationR03_.hcalDepth1TowerSumEt;}
+    /// Hcal-Depth2 isolation sum
+    float PFhcalDepth2TowerSumEtConeDR03()      const{return pfIsolationR03_.hcalDepth2TowerSumEt;}
+    //  Track pT sum c
+    float PFtrkSumPtSolidConeDR03()    const{return  pfIsolationR03_.trkSumPtSolidCone;}
+    //As above, excluding the core at the center of the cone
+    float PFtrkSumPtHollowConeDR03()   const{return  pfIsolationR03_.trkSumPtHollowCone;}
+    //Returns number of tracks in a cone of dR
+    int PFnTrkSolidConeDR03()              const{return  pfIsolationR03_.nTrkSolidCone;}
+    //As above, excluding the core at the center of the cone
+    int PFnTrkHollowConeDR03()             const{return  pfIsolationR03_.nTrkHollowCone;}
+
+
+
 
 
   private:
@@ -262,6 +345,8 @@ namespace reco {
     IsolationVariables isolationR04_;
     IsolationVariables isolationR03_;
     ShowerShape        showerShapeBlock_;
+    PflowIsolationVariables pfIsolationR04_;
+    PflowIsolationVariables pfIsolationR03_;
 
 
    
