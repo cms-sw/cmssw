@@ -48,7 +48,7 @@ particleFlow = cms.EDProducer("PFProducer",
     rejectTracks_Bad =  cms.bool(True),
     rejectTracks_Step45 = cms.bool(True),
 
-    usePFNuclearInteractions = cms.bool(False),
+    usePFNuclearInteractions = cms.bool(True),
     usePFConversions = cms.bool(False),
     usePFDecays = cms.bool(False),
 
@@ -58,7 +58,7 @@ particleFlow = cms.EDProducer("PFProducer",
     
 	 bCorrect         =  cms.bool(True), 
 	 bCalibPrimary    =  cms.bool(True),
-	 nuclCalibFactors =  cms.vdouble(0.8, 0.15, 0.5, -0.5, 0.05),
+	 nuclCalibFactors =  cms.vdouble(0.8, 0.15, 0.5, 0.5, 0.05),
          dptRel_PrimaryTrack = cms.double(10.),
          dptRel_MergedTrack = cms.double(5.0),
          ptErrorSecondary = cms.double(1.0)

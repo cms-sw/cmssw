@@ -64,9 +64,9 @@ class PFCandConnector {
 	 std::cout << " ====================== The PFCandConnector is switched " << sCorrect.c_str() << " ==================== " << std::endl;
 	 std::string sCalibPrimary = bCalibPrimary_ ? "used for calibration" : "not used for calibration";
 	 if (bCorrect_) std::cout << "Primary Tracks are " << sCalibPrimary.c_str() << std::endl;
-	 if (bCalibPrimary_) std::cout << "Under the condition that the precision on the Primary track is better than " << dptRel_PrimaryTrack_ << " % "
-				       << " and on merged tracks better than " <<  dptRel_MergedTrack_ << " % "
-				       << " and secondary tracks in some cases more precise than " << ptErrorSecondary_ << " GeV"<< std::endl;
+	 if (bCalibPrimary_) std::cout << "Under the condition that the precision on the Primary track is better than " << dptRel_PrimaryTrack_ << " % "<< std::endl;
+	 if (bCalibPrimary_) std::cout << "      and on merged tracks better than " <<  dptRel_MergedTrack_ << " % "<< std::endl;
+	 if (bCalibPrimary_) std::cout << "      and secondary tracks in some cases more precise than " << ptErrorSecondary_ << " GeV"<< std::endl;
 	 if (bCalibPrimary_) std::cout << "factor = (" << fConst_[0] << " + " << fConst_[1] << "*cFrac) - (" 
 				       << fNorm_[0] << " - " << fNorm_[1] << "cFrac)*exp( "
 				       << -1*fExp_[0] << "*pT)"<< std::endl;

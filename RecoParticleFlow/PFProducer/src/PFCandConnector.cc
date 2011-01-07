@@ -130,6 +130,7 @@ PFCandConnector::analyseNuclearWPrim(std::auto_ptr<PFCandidateCollection>& pfCan
 	if (debug_) cout << "\t here is a Secondary Candidate " << ce2  
 			 << " " << pfCand->at(ce2) << endl
 			 << "\t based on the Track " << pfCand->at(ce2).trackRef().key()
+			 << " w p = " << pfCand->at(ce2).trackRef()->p()
 			 << " w pT = " << pfCand->at(ce2).trackRef()->pt()
 			 << " #pm " << pfCand->at(ce2).trackRef()->ptError() << " %"
 			 << " ECAL = " << pfCand->at(ce2).ecalEnergy() 
@@ -214,7 +215,7 @@ PFCandConnector::analyseNuclearWPrim(std::auto_ptr<PFCandidateCollection>& pfCan
   if( ( (ref1->isTherePrimaryTracks() && dpt<dptRel_PrimaryTrack_)  || (ref1->isThereMergedTracks() && dpt<dptRel_MergedTrack_) ) && momentumPrim.E() > momentumSec.E() && momentumSec.E() > 0.1) {
       
     if (bCalibPrimary_){
-      double factor = rescaleFactor( momentumPrim.pt(), momentumSec.Pt()/momentumPrim.Pt()); 
+      double factor = rescaleFactor( momentumPrim.Pt(), momentumSec.E()/momentumPrim.E()); 
       if (debug_) cout << "factor = " << factor << endl;
       if (factor*momentumPrim.Pt() < momentumSec.Pt()) momentumSec = momentumPrim;
       else momentumSec += (1-factor)*momentumPrim;

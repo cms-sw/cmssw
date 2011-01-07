@@ -2588,11 +2588,6 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
 
-  reco::PFBlockElement::TrackType T_TO_DISP = reco::PFBlockElement::T_TO_DISP;
-  reco::PFBlockElement::TrackType T_FROM_DISP = reco::PFBlockElement::T_FROM_DISP;
-  //reco::PFBlockElement::TrackType T_FROM_GAMMACONV = reco::PFBlockElement::T_FROM_GAMMACONV;
-  //reco::PFBlockElement::TrackType T_FROM_V0 = reco::PFBlockElement::T_FROM_V0;
-
   const reco::PFBlockElementTrack* eltTrack 
     = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
 
@@ -2618,7 +2613,8 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
   bool thisIsATrackerTightMuon = PFMuonAlgo::isTrackerTightMuon(elt);
 
   // Or from nuclear inetraction then use the refitted momentum
-  bool isFromDisp  = usePFNuclearInteractions_ && eltTrack->trackType(T_FROM_DISP);
+  bool isFromDisp = isFromSecInt(elt, "secondary");
+  bool isToDisp  = isFromSecInt(elt, "primary");
   //isFromNucl = false;
   bool globalFitUsed = false;
 
@@ -2691,21 +2687,23 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
     // from the not refitted one.
     if (dptRel < dptRel_DispVtx_){
 
-      if (debug_) cout << "Not refitted px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
+      if (debug_) 
+	cout << "Not refitted px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
       //reco::TrackRef trackRef = eltTrack->trackRef();
-      reco::PFDisplacedVertexRef vRef = eltTrack->displacedVertexRef(T_FROM_DISP)->displacedVertexRef();
+      reco::PFDisplacedVertexRef vRef = eltTrack->displacedVertexRef(reco::PFBlockElement::T_FROM_DISP)->displacedVertexRef();
       reco::Track trackRefit = vRef->refittedTrack(trackRef);
       px = trackRefit.px();
       py = trackRefit.py();
       pz = trackRefit.pz();
       energy = sqrt(trackRefit.p()*trackRefit.p() + 0.13957*0.13957);
-      if (debug_) cout << "Refitted px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
+      if (debug_) 
+	cout << "Refitted px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
     
     }
   }
   
-  //  if (debug_) cout << "Final px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
-  
+  if ((isFromDisp || isToDisp) && debug_) cout << "Final px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
+
   // Create a PF Candidate
   math::XYZTLorentzVector momentum(px,py,pz,energy);
   reco::PFCandidate::ParticleType particleType 
@@ -2715,6 +2713,21 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
   pfCandidates_->push_back( PFCandidate( charge, 
                                          momentum,
                                          particleType ) );
+
+  // displaced vertices 
+  if( isFromDisp ) {
+    pfCandidates_->back().setFlag( reco::PFCandidate::T_FROM_DISP, true);
+    pfCandidates_->back().setDisplacedVertexRef( eltTrack->displacedVertexRef(reco::PFBlockElement::T_FROM_DISP)->displacedVertexRef(), reco::PFCandidate::T_FROM_DISP);
+  }
+  
+  // do not label as primary a track which would be recognised as a muon. A muon cannot produce NI. It is with high probability a fake
+  if( isToDisp && !thisIsAMuon ) {
+    pfCandidates_->back().setFlag( reco::PFCandidate::T_TO_DISP, true);
+    pfCandidates_->back().setDisplacedVertexRef( eltTrack->displacedVertexRef(reco::PFBlockElement::T_TO_DISP)->displacedVertexRef(), reco::PFCandidate::T_TO_DISP);
+  }
+
+
+
   if ( thisIsAMuon && globalFitUsed ) 
     pfCandidates_->back().setVertex(  muonRef->combinedMuon()->vertex() );
   else
@@ -2723,17 +2736,7 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
   pfCandidates_->back().setTrackRef( trackRef );
   pfCandidates_->back().setPositionAtECALEntrance( eltTrack->positionAtECALEntrance());
 
-  // displaced vertices 
-  if( eltTrack->trackType(T_FROM_DISP)) {
-    pfCandidates_->back().setFlag( reco::PFCandidate::T_FROM_DISP, true);
-    pfCandidates_->back().setDisplacedVertexRef( eltTrack->displacedVertexRef(T_FROM_DISP)->displacedVertexRef(), reco::PFCandidate::T_FROM_DISP);
-  }
 
-  // do not label as primary a track which would be recognised as a muon. A muon cannot produce NI. It is with high probability a fake
-  if( eltTrack->trackType(T_TO_DISP) && !muonRef.isNonnull()) {
-    pfCandidates_->back().setFlag( reco::PFCandidate::T_TO_DISP, true);
-    pfCandidates_->back().setDisplacedVertexRef( eltTrack->displacedVertexRef(T_TO_DISP)->displacedVertexRef(), reco::PFCandidate::T_TO_DISP);
-  }
 
   // setting the muon ref if there is
   if (muonRef.isNonnull()) {
