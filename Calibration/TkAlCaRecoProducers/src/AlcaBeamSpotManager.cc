@@ -1,8 +1,8 @@
 /** \class AlcaBeamSpotManager
  *  No description available.
  *
- *  $Date: 2010/10/11 22:15:08 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/10/18 16:17:07 $
+ *  $Revision: 1.5 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
 
@@ -81,7 +81,8 @@ void AlcaBeamSpotManager::createWeightedPayloads(void){
   if(beamSpotMap_.size() <= 1){
     return;
   }
-  else if(beamSpotMap_.size() == 2){
+  //Return only if lumibased since the collapsing alghorithm requires the next and next to next lumi sections
+  else if(beamSpotMap_.size() == 2 && beamSpotOutputBase_ == "lumibased"){
     return;
   }
   if(beamSpotOutputBase_ == "lumibased"){
