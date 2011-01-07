@@ -113,22 +113,20 @@ process.photonIDiso = process.photonIsolation.clone()
 process.photonIDiso.cut = cms.string(
     "hadronicOverEm < 0.05 && ecalRecHitSumEtConeDR04 < 2.4"
     "&& hcalTowerSumEtConeDR04 < 1.0 && trkSumPtHollowConeDR04 < 0.9"
-    " &&sigmaIetaIeta > 0.001 && !hasPixelSeed"
+    " &&sigmaIetaIeta > 0.001"
     )
 
 process.photonIDreliso = process.photonIsolation.clone()
 process.photonIDreliso.cut = cms.string(
     "hadronicOverEm < 0.05 && ecalRecHitSumEtConeDR04 < 4.2+0.001*pt"
     " && hcalTowerSumEtConeDR04 < 2.2+0.003*pt"
-    " && trkSumPtHollowConeDR04 < 2+0.001*pt"
-    " && sigmaIetaIeta > 0.001 && !hasPixelSeed"
+    " && trkSumPtHollowConeDR04 < 2+0.001*pt && sigmaIetaIeta > 0.001"
     )
 
 process.photonIDreliso2 = process.photonIsolation.clone()
 process.photonIDreliso2.cut = cms.string(
     "hadronicOverEm < 0.05 && ecalRecHitSumEtConeDR04 < 4.2+0.001*pt"
-    " && hcalTowerSumEtConeDR04 < 2.2+0.003*pt"
-    " && sigmaIetaIeta > 0.001 && !hasPixelSeed"
+    " && hcalTowerSumEtConeDR04 < 2.2+0.003*pt && sigmaIetaIeta > 0.001"
     )
 
 

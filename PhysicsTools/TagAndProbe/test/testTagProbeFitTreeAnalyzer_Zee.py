@@ -104,7 +104,7 @@ process.GsfElectronToId = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
         pdfSignalPlusBackground = cms.vstring(
 ##     "CBExGaussShape::signalRes(mass, mean[2.0946e-01], sigma[8.5695e-04],alpha[3.8296e-04], n[6.7489e+00], sigma_2[2.5849e+00], frac[6.5704e-01])",  ### the signal function goes here
      "CBExGaussShape::signalResPass(mass, mean[2.0946e-01, -5., 5.], sigma[8.5695e-04, 0., 5.],alpha[3.8296e-04], n[6.7489e+00], sigma_2[2.5849e+00], frac[6.5704e-01])",  ### signal resolution for "pass" sample
-     "CBExGaussShape::signalResPass(mass, mean[2.0946e-01, -5., 5.], sigma[8.5695e-04, 0., 5.],alpha[3.8296e-04], n[6.7489e+00], sigma_2[2.5849e+00], frac[6.5704e-01])",  ### signal resolution for "fail" sample     
+     "CBExGaussShape::signalResFail(mass, mean[2.0946e-01, -5., 5.], sigma[8.5695e-04, 0., 5.],alpha[3.8296e-04], n[6.7489e+00], sigma_2[2.5849e+00], frac[6.5704e-01])",  ### signal resolution for "fail" sample     
     "ZGeneratorLineShape::signalPhy(mass)", ### NLO line shape
     "RooExponential::backgroundPass(mass, cPass[-0.02, -5, 0])",
     "RooExponential::backgroundFail(mass, cFail[-0.02, -5, 0])",
@@ -188,67 +188,68 @@ process.GsfElectronToId = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
         ############################################################################################
         ############################################################################################
         ############################################################################################
-##         MCtruth_WP95 = cms.PSet(
-##             EfficiencyBinningSpecificationMC,
-##             EfficiencyCategoryAndState = cms.vstring("probe_isWP95","pass"),
-##         ),
-##         MCtruth_WP90 = cms.PSet(
-##             EfficiencyBinningSpecificationMC,
-##             EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP90","pass"),
-##         ),
-##         MCtruth_WP85 = cms.PSet(
-##             EfficiencyBinningSpecificationMC,    
-##             EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP85","pass"),
-##         ),
-##         MCtruth_WP80 = cms.PSet(
-##             EfficiencyBinningSpecificationMC,   
-##             EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP80","pass"),
-##         ),
-##         MCtruth_WP70 = cms.PSet(
-##             EfficiencyBinningSpecificationMC,    
-##             EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP70","pass"),
-##         ),      
-##         MCtruth_WP60 = cms.PSet(
-##             EfficiencyBinningSpecificationMC,      
-##             EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP60","pass"),
-##         ),
-##         MCtruth_CicVeryLoose = cms.PSet(
-##             EfficiencyBinningSpecificationMC,     
-##             EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicVeryLoose","pass"),
-##         ),
-##         MCtruth_CicLoose = cms.PSet(
-##             EfficiencyBinningSpecificationMC,    
-##             EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicLoose","pass"),
-##         ),
-##         MCtruth_CicMedium = cms.PSet(
-##             EfficiencyBinningSpecificationMC,    
-##             EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicMedium","pass"),
-##         ),
-##         MCtruth_CicTight = cms.PSet(
-##             EfficiencyBinningSpecificationMC,
-##             EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicTight","pass"),
-##         ),
-##         MCtruth_CicSuperTight = cms.PSet(
-##             EfficiencyBinningSpecificationMC,    
-##             EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicSuperTight","pass"),
-##         ),        
-##         MCtruth_CicHyperTight1 = cms.PSet(
-##             EfficiencyBinningSpecificationMC,    
-##             EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight1","pass"),
-##         ),
-##         MCtruth_CicHyperTight2 = cms.PSet(
-##             EfficiencyBinningSpecificationMC,    
-##             EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight2","pass"),
-##         ),
-##         MCtruth_CicHyperTight3 = cms.PSet(
-##             EfficiencyBinningSpecificationMC,    
-##             EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight3","pass"),
-##         ),
-##         MCtruth_CicHyperTight4 = cms.PSet(
-##             EfficiencyBinningSpecificationMC, 
-##             EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight4","pass"),
-##         ),
-        ############################################################################################
+        if isMC:
+        MCtruth_WP95 = cms.PSet(
+            EfficiencyBinningSpecificationMC,
+            EfficiencyCategoryAndState = cms.vstring("probe_isWP95","pass"),
+        ),
+        MCtruth_WP90 = cms.PSet(
+            EfficiencyBinningSpecificationMC,
+            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP90","pass"),
+        ),
+        MCtruth_WP85 = cms.PSet(
+            EfficiencyBinningSpecificationMC,    
+            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP85","pass"),
+        ),
+        MCtruth_WP80 = cms.PSet(
+            EfficiencyBinningSpecificationMC,   
+            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP80","pass"),
+        ),
+        MCtruth_WP70 = cms.PSet(
+            EfficiencyBinningSpecificationMC,    
+            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP70","pass"),
+        ),      
+        MCtruth_WP60 = cms.PSet(
+            EfficiencyBinningSpecificationMC,      
+            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isWP60","pass"),
+        ),
+        MCtruth_CicVeryLoose = cms.PSet(
+            EfficiencyBinningSpecificationMC,     
+            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicVeryLoose","pass"),
+        ),
+        MCtruth_CicLoose = cms.PSet(
+            EfficiencyBinningSpecificationMC,    
+            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicLoose","pass"),
+        ),
+        MCtruth_CicMedium = cms.PSet(
+            EfficiencyBinningSpecificationMC,    
+            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicMedium","pass"),
+        ),
+        MCtruth_CicTight = cms.PSet(
+            EfficiencyBinningSpecificationMC,
+            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicTight","pass"),
+        ),
+        MCtruth_CicSuperTight = cms.PSet(
+            EfficiencyBinningSpecificationMC,    
+            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicSuperTight","pass"),
+        ),        
+        MCtruth_CicHyperTight1 = cms.PSet(
+            EfficiencyBinningSpecificationMC,    
+            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight1","pass"),
+        ),
+        MCtruth_CicHyperTight2 = cms.PSet(
+            EfficiencyBinningSpecificationMC,    
+            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight2","pass"),
+        ),
+        MCtruth_CicHyperTight3 = cms.PSet(
+            EfficiencyBinningSpecificationMC,    
+            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight3","pass"),
+        ),
+        MCtruth_CicHyperTight4 = cms.PSet(
+            EfficiencyBinningSpecificationMC, 
+            EfficiencyCategoryAndState = cms.vstring("probe_passConvRej","pass","probe_isCicHyperTight4","pass"),
+        ),
+        ##########################################################################################
     )
 )
 
