@@ -1872,27 +1872,27 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
 	}
       }   
     }   
-  }
- else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu7") == 0) {   
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt2MuonPassed(0.,0.,7.,2.,0)>=2) {   
-	  triggerBit[it] = true; 
-	}
-      }   
-    }   
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1DoubleMuOpen") == 0) {    
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(1) {    // Pass through
-	  triggerBit[it] = true; 
-	}
-      }    
-    } 
-  }
-  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu0") == 0) {     
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+ }
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu7") == 0) {    
+   if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+     if (prescaleResponse(menu,cfg,rcounter,it)) { 
+       if(OpenHlt2MuonPassed(0.,0.,7.,2.,0)>=2) {    
+	 triggerBit[it] = true;  
+       } 
+     }    
+   }    
+ } 
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1DoubleMuOpen") == 0) {    
+   if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+     if (prescaleResponse(menu,cfg,rcounter,it)) {
+       if(1) {    // Pass through
+	 triggerBit[it] = true; 
+       }
+     }    
+   } 
+ }
+ else if(menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu0") == 0) {     
+   if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	if(OpenHlt2MuonPassed(0.,0.,0.,2.,0)>=2) {     
 	  triggerBit[it] = true; 
@@ -2064,34 +2064,82 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }        
     }        
   }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_SW_EleId_L1R") == 0) {   
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {   
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele17_SW_TighterEleIdIsol_L1R") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1ElectronEleIDPassed(15.,0,9999.,9999.)>=1) {   
-	  triggerBit[it] = true; 
-	}
-      }        
+        if(OpenHlt1ElectronSamHarperPassed(17.,0,          // ET, L1isolation
+                                         999., 999.,       // Track iso barrel, Track iso endcap
+                                         0.15, 0.10,        // Track/pT iso barrel, Track/pT iso endcap
+                                         999., 0.05,       // H/ET iso barrel, H/ET iso endcap
+                                         0.125, 0.075,       // E/ET iso barrel, E/ET iso endcap
+                                         0.05, 0.05,       // H/E barrel, H/E endcap
+                                         0.011, 0.031,       // cluster shape barrel, cluster shape endcap
+                                         0.98, 1.0,       // R9 barrel, R9 endcap
+                                         0.008, 0.007,       // Deta barrel, Deta endcap
+                                         0.1, 0.1        // Dphi barrel, Dphi endcap
+                                         )>=1) {
+          triggerBit[it] = true;
+        }
+      }
+    }
+  }
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele22_SW_TighterEleId_L1R") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if (prescaleResponse(menu,cfg,rcounter,it)) { 
+        if(OpenHlt1ElectronSamHarperPassed(22.,0,          // ET, L1isolation 
+					   999., 999.,       // Track iso barrel, Track iso endcap 
+					   999., 999.,        // Track/pT iso barrel, Track/pT iso endcap 
+					   999., 999.,       // H/ET iso barrel, H/ET iso endcap 
+					   999., 999.,       // E/ET iso barrel, E/ET iso endcap 
+					   0.05, 0.05,       // H/E barrel, H/E endcap 
+					   0.011, 0.031,       // cluster shape barrel, cluster shape endcap 
+					   0.98, 1.0,       // R9 barrel, R9 endcap 
+					   0.008, 0.007,       // Deta barrel, Deta endcap 
+					   0.1, 0.1        // Dphi barrel, Dphi endcap 
+					   )>=1) { 
+          triggerBit[it] = true; 
+        } 
+      } 
     } 
   } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_SW_EleId_L1R") == 0) {   
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {   
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1ElectronEleIDPassed(10.,0,9999.,9999.)>=1) {   
-	  triggerBit[it] = true; 
-	}
-      }        
-    } 
-  } 
- else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele38_SW_EleId_L1R") == 0) {   
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {   
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1ElectronEleIDPassed(38.,0,9999.,9999.)>=1) {   
-	  triggerBit[it] = true; 
-	}
-      }        
-    } 
-  } 
-
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele22_SW_TighterCaloIdIsol_L1R") == 0) {  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if (prescaleResponse(menu,cfg,rcounter,it)) {  
+        if(OpenHlt1ElectronSamHarperPassed(22.,0,          // ET, L1isolation  
+                                           999., 999.,       // Track iso barrel, Track iso endcap  
+                                           0.15, 0.10,        // Track/pT iso barrel, Track/pT iso endcap  
+                                           999., 0.05,       // H/ET iso barrel, H/ET iso endcap  
+                                           0.125, 0.075,       // E/ET iso barrel, E/ET iso endcap  
+                                           0.05, 0.05,       // H/E barrel, H/E endcap  
+                                           0.011, 0.031,       // cluster shape barrel, cluster shape endcap  
+                                           0.98, 1.0,       // R9 barrel, R9 endcap  
+                                           999., 999.,       // Deta barrel, Deta endcap  
+                                           999., 999.        // Dphi barrel, Dphi endcap  
+                                           )>=1) {  
+          triggerBit[it] = true;  
+        }  
+      }  
+    }  
+  }  
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele32_SW_TighterEleId_L1R") == 0) {  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if (prescaleResponse(menu,cfg,rcounter,it)) {  
+        if(OpenHlt1ElectronSamHarperPassed(32.,0,          // ET, L1isolation  
+                                           999., 999.,       // Track iso barrel, Track iso endcap  
+                                           999., 999.,        // Track/pT iso barrel, Track/pT iso endcap  
+                                           999., 999.,       // H/ET iso barrel, H/ET iso endcap  
+                                           999., 999.,       // E/ET iso barrel, E/ET iso endcap  
+                                           0.05, 0.05,       // H/E barrel, H/E endcap  
+                                           0.011, 0.031,       // cluster shape barrel, cluster shape endcap  
+                                           1.0, 1.0,       // R9 barrel, R9 endcap  
+                                           0.008, 0.007,       // Deta barrel, Deta endcap  
+                                           0.1, 0.1        // Dphi barrel, Dphi endcap  
+                                           )>=1) {  
+          triggerBit[it] = true;  
+        }  
+      }  
+    }  
+  }  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleEle5_SW_Jpsi_L1R") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
@@ -2256,81 +2304,6 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_SC15_SW_LooseTrackIso_L1R") == 0) {        
-    float Et = 15.; 
-    int L1iso = 0;  
-    float Tiso = 8.0;  
-    float Hiso = 9999.; 
-    float Tisoratio = 0.5;  
-    int rc = 0; 
-
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	for (int i=0;i<NohEle;i++) {  
-	  if ( ohEleEt[i] > Et) { 
-	    if( TMath::Abs(ohEleEta[i]) < 2.65 ) {
-	      if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05) { 
-		if (ohEleNewSC[i]==1) { 
-		  if (ohElePixelSeeds[i]>0) { 
-		    if ( (ohEleTiso[i] < Tisoratio || (ohEleTiso[i]*ohEleEt[i]) < Tiso) && ohEleTiso[i] != -999.) { 
-		      if ( ohEleL1iso[i] >= L1iso ) {  // L1iso is 0 or 1  
-			for(int j=0;j<NohEle && j != i;j++) { 
-			  if(ohEleEt[j] > 15.) { 
-			    if( TMath::Abs(ohEleEta[j]) < 2.65 ) {
-			      if( ohEleL1Dupl[i] == false && ohEleL1Dupl[j] == false) // remove double-counted L1 SCs 
-				rc++;        
-			    } 
-			  }
-			} 
-		      } 
-		    } 
-		  } 
-		} 
-	      }
-	    } 
-	  } 
-	} 
-      } 
-      if(rc > 0) { 
-	triggerBit[it] = true; 
-      }
-    }         
-  }        
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_SC15_SW_EleId_L1R") == 0) {   
-    float Et = 15.;   
-    int rc = 0;   
- 
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	for (int i=0;i<NohEle;i++) {   
-	  if ( ohEleEt[i] > Et) {   
-	    if( TMath::Abs(ohEleEta[i]) < 2.65 ) {
-	      if (ohEleNewSC[i]==1) {  
-		if (ohElePixelSeeds[i]>0) {  
-		  if ( (TMath::Abs(ohEleEta[i]) < 1.475 && ohEleClusShap[i] < 0.015) ||   
-		       (1.475 < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < 2.65 && ohEleClusShap[i] < 0.04) ) { 
-		    if ( (ohEleDeta[i] < 0.008) && (ohEleDphi[i] < 0.1) ) { 
-		      for(int j=0;j<NohEle && j != i;j++) {  
-			if(ohEleEt[j] > 15.) {  
-			  if(TMath::Abs(ohEleEta[j]) < 2.65) {
-			    if( ohEleL1Dupl[i] == false && ohEleL1Dupl[j] == false) // remove double-counted L1 SCs  
-			      rc++;         
-			  }
-			}  
-		      }
-		    }  
-		  }  
-		}  
-	      }  
-	    }  
-	  }  
-	}  
-      }  
-      if(rc > 0) {  
-	triggerBit[it] = true; 
-      }
-    }    
-  } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele20_SC15_SW_L1R") == 0) {         
     float Et = 20.;  
     int L1iso = 0;   
@@ -2367,72 +2340,6 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     } 
   }  
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele20_SW_EleId_LooseTrackIso_L1R") == 0) {
-    float Et = 20.;
-    float Tiso = 8.0;
-    float Hiso = 9999.;
-    float Tisoratio = 0.5;
-    int L1iso = 0;
-    int rc = 0;
-
-    if ( map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	for (int i=0;i<NohEle;i++) {
-	  if ( ohEleEt[i] > Et) {
-	    if( TMath::Abs(ohEleEta[i]) < 2.65 ) {
-	      if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05)
-		if (ohEleNewSC[i]==1)
-		  if (ohElePixelSeeds[i]>0)
-		    if ( (ohEleTiso[i] < Tisoratio || (ohEleTiso[i]*ohEleEt[i]) < Tiso) && ohEleTiso[i] != -999.)
-		      if ( ohEleL1iso[i] >= L1iso )   // L1iso is 0 or 1
-			if ( (TMath::Abs(ohEleEta[i]) < 1.475 && ohEleClusShap[i] < 0.015) ||
-			     (1.475 < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < 2.65 && ohEleClusShap[i] < 0.04) )
-			  if ( (ohEleDeta[i] < 0.008) && (ohEleDphi[i] < 0.1) )
-			    if( ohEleL1Dupl[i] == false) // remove double-counted L1 SCs
-			      rc++;
-	    }
-	  }
-	}
-	if(rc > 0) {
-	  triggerBit[it] = true; 
-	}
-      }
-    }
-  }
-  
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele25_SW_EleId_LooseTrackIso_L1R") == 0) {    
-    float Et = 25.;    
-    float Tiso = 8.0;    
-    float Hiso = 9999.;  
-    float Tisoratio = 0.5;  
-    int L1iso = 0; 
-    int rc = 0;    
-
-    if ( map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	for (int i=0;i<NohEle;i++) {   
-	  if ( ohEleEt[i] > Et) {   
-	    if( TMath::Abs(ohEleEta[i]) < 2.65 ) {
-	      if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05)   
-		if (ohEleNewSC[i]==1)   
-		  if (ohElePixelSeeds[i]>0)   
-		    if ( (ohEleTiso[i] < Tisoratio || (ohEleTiso[i]*ohEleEt[i]) < Tiso) && ohEleTiso[i] != -999.)   
-		      if ( ohEleL1iso[i] >= L1iso )   // L1iso is 0 or 1   
-			if ( (TMath::Abs(ohEleEta[i]) < 1.475 && ohEleClusShap[i] < 0.015) ||   
-			     (1.475 < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < 2.65 && ohEleClusShap[i] < 0.04) )    
-			  if ( (ohEleDeta[i] < 0.008) && (ohEleDphi[i] < 0.1) )   
-			    if( ohEleL1Dupl[i] == false) // remove double-counted L1 SCs     
-			      rc++;         
-	    }
-	  }   
-	}   
-	if(rc > 0) {   
-	  triggerBit[it] = true; 
-	}
-      }     
-    }  
-  } 
-
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_JPsiUpsilonEE") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
@@ -2491,24 +2398,6 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }     
     }     
   }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon10_LooseEcalIso_L1R") == 0) {     
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1PhotonLooseEcalIsoPassed(10.,0,999.,3.,999.,999.)>=1) {  
-	  triggerBit[it] = true; 
-	}
-      }      
-    }      
-  } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon15_LooseEcalIso_L1R") == 0) {    
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1PhotonLooseEcalIsoPassed(15.,0,999.,3.,999.,999.)>=1) { 
-	  triggerBit[it] = true; 
-	}
-      }     
-    }     
-  }  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon10_L1R") == 0) {    
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
@@ -2573,7 +2462,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
 					 999., 999.,       // E/ET iso barrel, E/ET iso endcap    
 					 0.15, 0.15,       // H/E barrel, H/E endcap   
 					 999., 999.,       // cluster shape barrel, cluster shape endcap   
-					 0.98, 999.,       // R9 barrel, R9 endcap   
+					 0.98, 1.0,       // R9 barrel, R9 endcap   
 					 999., 999.,       // Deta barrel, Deta endcap   
 					 999., 999.        // Dphi barrel, Dphi endcap   
 					 )>=1) {
@@ -2663,33 +2552,6 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoublePhoton5_Jpsi_L1R") == 0) {    
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt2PhotonMassWinPassed(5.,0,999.,999.,999.,999.,2.,4.5)==1) {     
-	  triggerBit[it] = true; 
-	}
-      }     
-    }     
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoublePhoton5_Upsilon_L1R") == 0) {    
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt2PhotonMassWinPassed(5.,0,999.,999.,999.,999.,8.,11.)==1) {     
-	  triggerBit[it] = true; 
-	}
-      }     
-    }     
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoublePhoton5_eeRes_L1R") == 0) {    
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt2PhotonMassWinPassed(5.,0,999.,999.,999.,999.,2.,9999999.)==1) {     
-	  triggerBit[it] = true; 
-	}
-      }     
-    }     
-  }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoublePhoton5_L1R") == 0) {    
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
@@ -2744,42 +2606,6 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }      
     }      
   } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon10_LooseEcalIso_TrackIso_L1R") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1PhotonLooseEcalIsoPassed(10.,0,0.05,3.,999.,999.)>=1) {   
-	  triggerBit[it] = true; 
-	}
-      }
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon20_LooseEcalIso_TrackIso_L1R") == 0) { 
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1PhotonLooseEcalIsoPassed(15.,0,0.05,3.,999.,999.)>=1) {    
-	  triggerBit[it] = true; 
-	}
-      } 
-    }
-  } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon25_LooseEcalIso_TrackIso_L1R") == 0) { 
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1PhotonLooseEcalIsoPassed(25.,0,0.05,3.,999.,999.)>=1) {    
-	  triggerBit[it] = true; 
-	}
-      } 
-    }
-  } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoublePhoton15_VeryLooseEcalIso_L1R") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	if(OpenHlt1PhotonVeryLooseEcalIsoPassed(15.,0,999.,5.,999.,999.)>=2) {     
-	  triggerBit[it] = true; 
-	}
-      }  
-    }
-  }
 
 /* Taus */
 /* Clean up tau code: remove study triggers, _L2R triggers become standard and are removed from names */
@@ -4696,17 +4522,19 @@ void OHltTree::PrintOhltVariables(int level, int type)
     case electron:
       cout << "oh: number of electrons = " << NohEle << endl;
       for (int i=0;i<NohEle;i++) {
+	float ohElePt = ohEleP[i] * TMath::Sin(2*TMath::ATan(TMath::Exp(-1*ohEleEta[i])));
 	cout << "ohEleEt["<<i<<"] = " << ohEleEt[i] << endl;
 	cout << "ohElePhi["<<i<<"] = " << ohElePhi[i] << endl;
 	cout << "ohEleEta["<<i<<"] = " << ohEleEta[i] << endl;
 	cout << "ohEleE["<<i<<"] = " << ohEleE[i] << endl;
 	cout << "ohEleP["<<i<<"] = " << ohEleP[i] << endl;
-	cout << "ohElePt["<<i<<"] =" <<  ohEleP[i] * TMath::Sin(2*TMath::ATan(TMath::Exp(-1*ohEleEta[i]))) << endl;
+	cout << "ohElePt["<<i<<"] =" <<  ohElePt << endl;
 	cout << "ohEleHiso["<<i<<"] = " << ohEleHiso[i] << endl;
 	cout << "ohEleTiso["<<i<<"] = " << ohEleTiso[i] << endl;
 	cout << "ohEleL1iso["<<i<<"] = " << ohEleL1iso[i] << endl;
         cout << "ohEleHiso["<<i<<"]/ohEleEt["<<i<<"] = " << ohEleHiso[i]/ohEleEt[i] << endl; 
         cout << "ohEleEiso["<<i<<"]/ohEleEt["<<i<<"] = " << ohEleEiso[i]/ohEleEt[i] << endl; 
+        cout << "ohEleTiso["<<i<<"]/ohEleEt["<<i<<"] = " << ohEleTiso[i]/ohEleEt[i] << endl;  
         cout << "ohEleHforHoverE["<<i<<"] = " << ohEleHforHoverE[i] << endl; 
         cout << "ohEleHforHoverE["<<i<<"]/ohEleE["<<i<<"] = " << ohEleHforHoverE[i]/ohEleE[i] << endl; 
         cout << "ohEleNewSC["<<i<<"] = " << ohEleNewSC[i] << endl;  
@@ -4715,28 +4543,19 @@ void OHltTree::PrintOhltVariables(int level, int type)
 	cout << "ohEleR9["<<i<<"] = " << ohEleR9[i] << endl;  
         cout << "ohEleDeta["<<i<<"] = " << ohEleDeta[i] << endl; 
         cout << "ohEleDphi["<<i<<"] = " << ohEleDphi[i] << endl; 
-
-	cout << "recoElecE["<<i<<"] = " << recoElecE[i] << endl;
-	cout << "recoElecEt["<<i<<"] = " << recoElecEt[i] << endl;
-	cout << "recoElecPt["<<i<<"] = " << recoElecPt[i] << endl;
-	cout << "recoElecPhi["<<i<<"] = " << recoElecPhi[i] << endl;
-	cout << "recoElecEta["<<i<<"] = " << recoElecEta[i] << endl;
-
       }
-      cout << "oh: number of electrons = " << NohEleLW << endl; 
-      for (int i=0;i<NohEleLW;i++) { 
-	cout << "ohEleEtLW["<<i<<"] = " << ohEleEtLW[i] << endl; 
-	cout << "ohElePhiLW["<<i<<"] = " << ohElePhiLW[i] << endl; 
-	cout << "ohEleEtaLW["<<i<<"] = " << ohEleEtaLW[i] << endl; 
-	cout << "ohEleELW["<<i<<"] = " << ohEleELW[i] << endl; 
-	cout << "ohElePLW["<<i<<"] = " << ohElePLW[i] << endl; 
-	cout << "ohElePtLW["<<i<<"] =" <<  ohElePLW[i] * TMath::Sin(2*TMath::ATan(TMath::Exp(-1*ohEleEtaLW[i]))) << endl; 
-	cout << "ohEleHisoLW["<<i<<"] = " << ohEleHisoLW[i] << endl; 
-	cout << "ohEleTisoLW["<<i<<"] = " << ohEleTisoLW[i] << endl; 
-	cout << "ohEleL1isoLW["<<i<<"] = " << ohEleL1isoLW[i] << endl; 
-	cout << "ohEleHisoLW["<<i<<"]/ohEleEtLW["<<i<<"] = " << ohEleHisoLW[i]/ohEleEtLW[i] << endl; 
-	cout << "ohEleNewSCLW["<<i<<"] = " << ohEleNewSCLW[i] << endl;  
-	cout << "ohElePixelSeedsLW["<<i<<"] = " << ohElePixelSeedsLW[i] << endl; 
+
+      for(int i=0;i<NL1IsolEm;i++) { 
+	cout << "L1IsolEmEt["<<i<<"] = " << L1IsolEmEt[i] << endl;
+	cout << "L1IsolEmE["<<i<<"] = " << L1IsolEmE[i] << endl;
+	cout << "L1IsolEmEta["<<i<<"] = " << L1IsolEmEta[i] << endl;
+	cout << "L1IsolEmPhi["<<i<<"] = " << L1IsolEmPhi[i] << endl;
+      }
+      for(int i=0;i<NL1NIsolEm;i++) {  
+        cout << "L1NIsolEmEt["<<i<<"] = " << L1NIsolEmEt[i] << endl; 
+        cout << "L1NIsolEmE["<<i<<"] = " << L1NIsolEmE[i] << endl; 
+        cout << "L1NIsolEmEta["<<i<<"] = " << L1NIsolEmEta[i] << endl; 
+        cout << "L1NIsolEmPhi["<<i<<"] = " << L1NIsolEmPhi[i] << endl; 
       } 
 
       break;
@@ -4879,56 +4698,6 @@ int OHltTree::OpenHlt2Tau1LegL3IsoPassed(float Et,float L25Tpt, int L25Tiso, flo
   return 0;
 }
 
-// e-tau
-int OHltTree::OpenHltElecTauL2SCPassed(float elecEt, int elecL1iso, float elecTiso, float elecHiso,
-				       float tauEt,float tauL25Tpt, int tauL25Tiso, float tauL3Tpt, int tauL3Tiso)
-{
-  int rc = 0;
-
-  // Loop over all oh taus
-  for (int i=0;i<NohTau;i++) {
-    if (ohTauPt[i] >= tauEt) {
-      if (ohTauEiso[i] < (5 + 0.025*ohTauPt[i] + 0.0015*ohTauPt[i]*ohTauPt[i])) { // sliding cut
-        if (ohTauL25Tpt[i] >= tauL25Tpt) { 
-          if (ohTauL25Tiso[i] >= tauL25Tiso) { 
-            if (ohTauL3Tpt[i] >= tauL3Tpt) { 
-              if (ohTauL3Tiso[i] >= tauL3Tiso) {	
-		
-		// Loop over all oh LW electrons 
-		for (int j=0;j<NohEleLW;j++) { 
-		  if ( ohEleEtLW[j] > elecEt) { 
-		    if ( ohEleHisoLW[j] < elecHiso || ohEleHisoLW[j]/ohEleEtLW[j] < 0.05) {
-		      if (ohEleNewSCLW[j]==1) {
-			if (ohElePixelSeedsLW[j]>0) {
-			  if ( ohEleTisoLW[j] < elecTiso && ohEleTisoLW[j] != -999.) {
-			    if ( ohEleL1isoLW[j] >= elecL1iso ) {  // L1iso is 0 or 1
-
-			      // Check non-collinearity
-			      float deta = (float)TMath::Abs(ohTauEta[i]-ohEleEtaLW[j]);
-			      float dphi = (float)TMath::Abs(TVector2::Phi_mpi_pi((Double_t)(ohTauPhi[i]-ohElePhiLW[j])));
-			      if (deta>0.3 && dphi>0.3) { // box cut			      
-				rc++;
-			      }
-			      
-			    } 
-			  }
-			}
-		      }
-		    }
-		  }
-		}
-		
-	      }
-	    }
-	  }
-	}
-      }
-    }
-  }
-
-  return rc;
-}
-
 int OHltTree::OpenHlt1PhotonSamHarperPassed(float Et, int L1iso, 
 					    float Tisobarrel, float Tisoendcap, 
 					    float Tisoratiobarrel, float Tisoratioendcap, 
@@ -5017,30 +4786,44 @@ int OHltTree::OpenHlt1ElectronSamHarperPassed(float Et, int L1iso,
       isendcap = 1;
 
     if ( ohEleEt[i] > Et) {
-      if( TMath::Abs(ohEleEta[i]) < endcapeta )
-	if (ohEleNewSC[i]==1) 
-	  if (ohElePixelSeeds[i]>0) 
-	    if ( ohEleL1iso[i] >= L1iso )   // L1iso is 0 or 1 
-	      if( ohEleL1Dupl[i] == false) // remove double-counted L1 SCs 
+      if( TMath::Abs(ohEleEta[i]) < endcapeta ) {
+	if (ohEleNewSC[i]<=1) {
+	  if (ohElePixelSeeds[i]>0) {
+	    if ( ohEleL1iso[i] >= L1iso ) {  // L1iso is 0 or 1 
+	      if( ohEleL1Dupl[i] == false) { // remove double-counted L1 SCs 
 		if ( (isbarrel && ((ohEleHiso[i]/ohEleEt[i]) < HisooverETbarrel)) ||
-		     (isendcap && ((ohEleHiso[i]/ohEleEt[i]) < HisooverETendcap)) )
+		     (isendcap && ((ohEleHiso[i]/ohEleEt[i]) < HisooverETendcap)) ) {
 		  if ( (isbarrel && ((ohEleEiso[i]/ohEleEt[i]) < EisooverETbarrel)) ||
-		       (isendcap && ((ohEleEiso[i]/ohEleEt[i]) < EisooverETendcap)) )
+		       (isendcap && ((ohEleEiso[i]/ohEleEt[i]) < EisooverETendcap)) ) {
 		    if ( ((isbarrel) && (ohEleHoverE < hoverebarrel)) ||
-			 ((isendcap) && (ohEleHoverE < hovereendcap)))
+			 ((isendcap) && (ohEleHoverE < hovereendcap))) {
 		      if ( (isbarrel && (((ohEleTiso[i] < Tisobarrel && ohEleTiso[i] != -999.) || (Tisobarrel == 999.)))) ||
-			   (isendcap && (((ohEleTiso[i] < Tisoendcap && ohEleTiso[i] != -999.) || (Tisoendcap == 999.)))))
+			   (isendcap && (((ohEleTiso[i] < Tisoendcap && ohEleTiso[i] != -999.) || (Tisoendcap == 999.))))) {
 			if (((isbarrel) && (ohEleTiso[i]/ohEleEt[i] < Tisoratiobarrel)) ||
-			    ((isendcap) && (ohEleTiso[i]/ohEleEt[i] < Tisoratioendcap)))
+			    ((isendcap) && (ohEleTiso[i]/ohEleEt[i] < Tisoratioendcap))) {
 			  if ( (isbarrel && ohEleClusShap[i] < clusshapebarrel) ||
-			       (isendcap && ohEleClusShap[i] < clusshapeendcap) )
+			       (isendcap && ohEleClusShap[i] < clusshapeendcap) ) {
 			    if ( (isbarrel && ohEleR9[i] < r9barrel) || 
-				 (isendcap && ohEleR9[i] < r9endcap) ) 
+				 (isendcap && ohEleR9[i] < r9endcap) ) {
 			      if ( (isbarrel && TMath::Abs(ohEleDeta[i]) < detabarrel) ||
-				   (isendcap && TMath::Abs(ohEleDeta[i]) < detaendcap) )
+				   (isendcap && TMath::Abs(ohEleDeta[i]) < detaendcap) ) {
 				if( (isbarrel && ohEleDphi[i] < dphibarrel) ||
-				    (isendcap && ohEleDphi[i] < detaendcap) )
+				    (isendcap && ohEleDphi[i] < dphiendcap) ) {
 				  rc++;
+				}
+			      }
+			    }
+			  }
+			}
+		      }
+		    }
+		  }
+		}
+	      }
+	    }
+	  }
+	}
+      }
     }
   }
   
@@ -5068,200 +4851,31 @@ int OHltTree::OpenHlt1ElectronPassed(float Et, int L1iso, float Tiso, float Hiso
   return rc;
 }
 
-int OHltTree::OpenHlt1LWElectronPassed(float Et, int L1iso, float Tiso, float Hiso) 
+int  OHltTree::OpenHlt1PhotonPassed(float Et, int L1iso, float Tiso, float Eiso, float HisoBR, float HisoEC) 
 { 
   int rc = 0; 
-  // Loop over all oh LW electrons 
-  for (int i=0;i<NohEleLW;i++) { 
-    if ( ohEleEtLW[i] > Et) { 
-      if( TMath::Abs(ohEleEtaLW[i]) < 2.65 ) 
-	if ( ohEleHisoLW[i] < Hiso || ohEleHisoLW[i]/ohEleEtLW[i] < 0.05) 
-	  if (ohEleNewSCLW[i]==1) 
-	    if (ohElePixelSeedsLW[i]>0) 
-	      if ( (ohEleTisoLW[i] < Tiso && ohEleTisoLW[i] != -999.) || (Tiso == 9999.) )
-		if ( ohEleL1isoLW[i] >= L1iso )   // L1iso is 0 or 1 
-		  if( ohEleLWL1Dupl[i] == false) // remove double-counted L1 SCs
-		    rc++;       
-    } 
-  }
-  
-  return rc; 
-} 
-
-int OHltTree::OpenHlt1EleIdLWElectronPassed(float Et, int L1iso, float Tiso, float Hiso) 
-{ 
-  int rc = 0; 
-  // Loop over all oh LW electrons 
-  for (int i=0;i<NohEleLW;i++) { 
-    if ( ohEleEtLW[i] > Et) { 
-      if( TMath::Abs(ohEleEtaLW[i]) < 2.65 ) {
-	if ( ohEleHisoLW[i] < Hiso || ohEleHisoLW[i]/ohEleEtLW[i] < 0.05) 
-	  if (ohEleNewSCLW[i]==1) 
-	    if (ohElePixelSeedsLW[i]>0) 
-	      if ( (ohEleTisoLW[i] < Tiso && ohEleTisoLW[i] != -999.) || (Tiso == 9999.) ) 
-	      if ( ohEleL1isoLW[i] >= L1iso )   // L1iso is 0 or 1 
-		if( ohEleLWL1Dupl[i] == false) // remove double-counted L1 SCs
-		  //		  if ( ohEleDetaLW[i] < 0.01 && ohEleDphiLW[i] < 0.09 ) Old definitiion
-		  if ( ohEleDetaLW[i] < 0.008 && ohEleDphiLW[i] < 0.1 ) 
-		    if (
-			(ohEleClusShapLW[i] < 0.015 && TMath::Abs(ohEleEtaLW[i]) < 1.479) ||
-			(ohEleClusShapLW[i] < 0.04 && TMath::Abs(ohEleEtaLW[i]) >= 1.479) 
-			//			(ohEleClusShapLW[i] < 0.014 && ohEleEtaLW[i] < 1.475) || Old definition
-			//			(ohEleClusShapLW[i] < 0.0275 && ohEleEtaLW[i] >= 1.475)
-			 )
-		      rc++;       
+  // Loop over all oh photons 
+  for (int i=0;i<NohPhot;i++) { 
+    if ( ohPhotEt[i] > Et) {  
+      if( TMath::Abs(ohPhotEta[i]) < 2.65 ) {  
+        if ( ohPhotL1iso[i] >= L1iso ) {  
+          if( (ohPhotTiso[i]/ohPhotEt[i]) < Tiso && (ohPhotTiso[i] < 4.0 || Tiso == 999.)) { 
+            if( ohPhotEiso[i] < Eiso ) {  
+              if( (TMath::Abs(ohPhotEta[i]) < 1.479 && ohPhotHiso[i] < HisoBR )  || 
+                  (1.479 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.65 && ohPhotHiso[i] < HisoEC ) ||  
+                  (ohPhotHiso[i]/ohPhotEt[i] < 0.05) ) { 
+                if( ohPhotL1Dupl[i] == false) // remove double-counted L1 SCs   
+                  rc++; 
+              } 
+            } 
+          } 
+        } 
       } 
-    }
-  }
-  
+    } 
+  } 
+ 
   return rc; 
 } 
-
-int OHltTree::OpenHlt1ElectronEleIDPassed(float Et,int L1iso,float Tiso,float Hiso) 
-{ 
-  int rc = 0;  
-  // Loop over all oh electrons  
-  for (int i=0;i<NohEle;i++) {  
-    if ( ohEleEt[i] > Et) {  
-      if( TMath::Abs(ohEleEta[i]) < 2.65 )  
-	if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05)  
-	  if (ohEleNewSC[i]==1)  
-	    if (ohElePixelSeeds[i]>0)  
-	      if ( (ohEleTiso[i] < Tiso && ohEleTiso[i] != -999.) || (Tiso == 9999.) )  
-		if ( ohEleL1iso[i] >= L1iso )   // L1iso is 0 or 1  
-		  if ( (TMath::Abs(ohEleEta[i]) < 1.479 && ohEleClusShap[i] < 0.015) ||  
-		       (1.479 < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < 2.65 && ohEleClusShap[i] < 0.04) )   
-		    if ( (ohEleDeta[i] < 0.008) && (ohEleDphi[i] < 0.1) )  
-		      if( ohEleL1Dupl[i] == false) // remove double-counted L1 SCs    
-			rc++;        
-    }  
-  }  
-  
-  return rc;  
-} 
-
-
-int  OHltTree::OpenHlt1PhotonLooseEcalIsoPassed(float Et, int L1iso, float Tiso, float Eiso, float HisoBR, float HisoEC)
-{
-  int rc = 0;
-  // Loop over all oh photons
-  for (int i=0;i<NohPhot;i++) {
-    if ( ohPhotEt[i] > Et) { 
-      if( TMath::Abs(ohPhotEta[i]) < 2.65 ) {
-	if ( ohPhotL1iso[i] >= L1iso ) { 
-	  if( ohPhotTiso[i]<Tiso ) { 
-	    if( ohPhotEiso[i] < Eiso || (ohPhotEiso[i]/(ohPhotEt[i]*cosh(ohPhotEta[i]))) < 0.1 ) {
-	      if( (TMath::Abs(ohPhotEta[i]) < 1.479 && ohPhotHiso[i] < HisoBR )  ||
-		  (1.479 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.65 && ohPhotHiso[i] < HisoEC ) || 
-		  (ohPhotHiso[i]/ohPhotEt[i] < 0.05) ) {
-		if( ohPhotL1Dupl[i] == false) // remove double-counted L1 SCs 
-		  rc++;
-	      }
-	    }
-	  }
-	}
-      }
-    }
-  }
-
-  return rc;
-}
-
-int  OHltTree::OpenHlt1PhotonVeryLooseEcalIsoPassed(float Et, int L1iso, float Tiso, float Eiso, float HisoBR, float HisoEC)  
-{  
-  int rc = 0;  
-  // Loop over all oh photons  
-  for (int i=0;i<NohPhot;i++) {  
-    if ( ohPhotEt[i] > Et) {   
-      if( TMath::Abs(ohPhotEta[i]) < 2.65 ) { 
-	if ( ohPhotL1iso[i] >= L1iso ) {   
-	  if( ohPhotTiso[i]<Tiso ) {   
-	    if( ohPhotEiso[i] < Eiso || (ohPhotEiso[i]/(ohPhotEt[i]*cosh(ohPhotEta[i]))) < 0.2 ) {
-	      if( (TMath::Abs(ohPhotEta[i]) < 1.479 && ohPhotHiso[i] < HisoBR )  ||  
-                (1.479 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.65 && ohPhotHiso[i] < HisoEC ) ||   
-		  (ohPhotHiso[i]/ohPhotEt[i] < 0.05) ) {  
-		if( ohPhotL1Dupl[i] == false) // remove double-counted L1 SCs  
-		  rc++;  
-	      }  
-	    }
-          }  
-        }  
-      }  
-    }  
-  }  
-
-  return rc;  
-}  
-
-int  OHltTree::OpenHlt1PhotonPassed(float Et, int L1iso, float Tiso, float Eiso, float HisoBR, float HisoEC)
-{
-  int rc = 0;
-  // Loop over all oh photons
-  for (int i=0;i<NohPhot;i++) {
-    if ( ohPhotEt[i] > Et) { 
-      if( TMath::Abs(ohPhotEta[i]) < 2.65 ) { 
-	if ( ohPhotL1iso[i] >= L1iso ) { 
-	  if( (ohPhotTiso[i]/ohPhotEt[i]) < Tiso && (ohPhotTiso[i] < 4.0 || Tiso == 999.)) {
-	    if( ohPhotEiso[i] < Eiso ) { 
-	      if( (TMath::Abs(ohPhotEta[i]) < 1.479 && ohPhotHiso[i] < HisoBR )  ||
-		  (1.479 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.65 && ohPhotHiso[i] < HisoEC ) || 
-		  (ohPhotHiso[i]/ohPhotEt[i] < 0.05) ) {
-		if( ohPhotL1Dupl[i] == false) // remove double-counted L1 SCs  
-		  rc++;
-	      }
-	    }
-	  }
-	}
-      }
-    }
-  }
-
-  return rc;
-}
-
-int  OHltTree::OpenHlt2PhotonMassWinPassed(float Et, int L1iso, float Tiso, float Eiso, float HisoBR, float HisoEC,float massLow, float massHigh)
-{
-  int rc = 0;
-  // Loop over all oh photons
-  for (int i=0;i<NohPhot;i++) {
-    if ( ohPhotEt[i] > Et) { 
-      if( TMath::Abs(ohPhotEta[i]) < 2.65 ) { 
-	if ( ohPhotL1iso[i] >= L1iso ) { 
-	  if( ohPhotTiso[i]<Tiso ) { 
-	    if( ohPhotEiso[i] < Eiso ) { 
-	      if( (TMath::Abs(ohPhotEta[i]) < 1.479 && ohPhotHiso[i] < HisoBR )  ||
-		  (1.479 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.65 && ohPhotHiso[i] < HisoEC ) || 
-		  (ohPhotHiso[i]/ohPhotEt[i] < 0.05) ) {
-		if( ohPhotL1Dupl[i] == false) // remove double-counted L1 SCs  
-		  rc++;
-	      }
-	    }
-	  }
-	}
-      }
-    }
-  }
-
-  TLorentzVector e1;  
-  TLorentzVector e2;  
-  TLorentzVector meson;
-  float mass = 0.;
-  for (int i=0;i<NohEleLW;i++) { 
-    for (int j=0;j<NohEleLW && j != i;j++) {  	  
-      //if (ohElePixelSeedsLW[i]>0 && ohElePixelSeedsLW[j]>0) {
-	e1.SetPtEtaPhiM(ohEleEtLW[i],ohEleEtaLW[i],ohElePhiLW[i],0.); 
-	e2.SetPtEtaPhiM(ohEleEtLW[j],ohEleEtaLW[j],ohElePhiLW[j],0.); 
-	meson = e1 + e2; 
-	mass = meson.M();  
-      //}
-    }
-  }
-  
-  if (rc>=2 && mass>massLow && mass<massHigh)
-    return 1;
-  else
-    return 0;
-}
 
 int  OHltTree::OpenHlt2ElectronMassWinPassed(float Et, int L1iso, float Hiso, float massLow, float massHigh)
 {
