@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: Conversion.h,v 1.16 2010/09/28 10:46:50 nancy Exp $
+ * \version $Id: Conversion.h,v 1.17 2010/11/22 01:54:14 bendavid Exp $
  *
  */
 
@@ -28,7 +28,8 @@ namespace reco {
 				ecalSeeded=1, 
 				trackerOnly=2, 
 				mixed=3, 
-				algoSize=4}; 
+                                pflow=4,
+				algoSize=5}; 
 
       enum ConversionQuality {generalTracksOnly=0, 
 			      arbitratedEcalSeeded=1, 
