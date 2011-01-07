@@ -51,13 +51,13 @@ namespace edm {
       the offline because they are completly driven by the
       data coming from the input source.
     */
-    enum State { sInit=0,sJobReady,sRunGiven,sRunning,sStopping,
-		 sShuttingDown,sDone,sJobEnded,sError,sErrorEnded,sEnd,sInvalid };
+    enum State { sInit = 0, sJobReady, sRunGiven, sRunning, sStopping,
+                 sShuttingDown, sDone, sJobEnded, sError, sErrorEnded, sEnd, sInvalid };
 
-    enum Msg { mSetRun=0, mSkip, mRunAsync, mRunID, mRunCount, mBeginJob,
-	       mStopAsync, mShutdownAsync, mEndJob, mCountComplete,
-	       mInputExhausted, mStopSignal, mShutdownSignal, mFinished,
-	       mAny, mDtor, mException, mInputRewind };
+    enum Msg { mSetRun = 0, mSkip, mRunAsync, mRunID, mRunCount, mBeginJob,
+               mStopAsync, mShutdownAsync, mEndJob, mCountComplete,
+               mInputExhausted, mStopSignal, mShutdownSignal, mFinished,
+               mAny, mDtor, mException, mInputRewind };
 
     class StateSentry;
   }
@@ -71,18 +71,18 @@ namespace edm {
     // 'defaultServices' are overridden by 'config'.
     // 'forcedServices' cause an exception if the same service is specified in 'config'.
     explicit EventProcessor(std::string const& config,
-			    ServiceToken const& token = ServiceToken(),
-			    serviceregistry::ServiceLegacy = serviceregistry::kOverlapIsError,
-			    std::vector<std::string> const& defaultServices = std::vector<std::string>(),
-			    std::vector<std::string> const& forcedServices = std::vector<std::string>());
+                            ServiceToken const& token = ServiceToken(),
+                            serviceregistry::ServiceLegacy = serviceregistry::kOverlapIsError,
+                            std::vector<std::string> const& defaultServices = std::vector<std::string>(),
+                            std::vector<std::string> const& forcedServices = std::vector<std::string>());
 
     // Same as previous constructor, but without a 'token'.  Token will be defaulted.
 
-   EventProcessor(std::string const& config,
-                  std::vector<std::string> const& defaultServices,
-                  std::vector<std::string> const& forcedServices = std::vector<std::string>());
+    EventProcessor(std::string const& config,
+                   std::vector<std::string> const& defaultServices,
+                   std::vector<std::string> const& forcedServices = std::vector<std::string>());
 
-    EventProcessor(boost::shared_ptr<edm::ProcessDesc>& processDesc,
+    EventProcessor(boost::shared_ptr<ProcessDesc>& processDesc,
                    ServiceToken const& token,
                    serviceregistry::ServiceLegacy legacy);
 
@@ -125,14 +125,14 @@ namespace edm {
     // error state.
 
     // tell the event loop to stop and wait for its completion
-    StatusCode stopAsync(unsigned int timeout_secs=60*2);
+    StatusCode stopAsync(unsigned int timeout_secs = 60 * 2);
 
     // tell the event loop to shutdown and wait for the completion
-    StatusCode shutdownAsync(unsigned int timeout_secs=60*2);
+    StatusCode shutdownAsync(unsigned int timeout_secs = 60 * 2);
 
     // wait until async event loop thread completes
     // or timeout occurs (See StatusCode for return values)
-    StatusCode waitTillDoneAsync(unsigned int timeout_seconds=0);
+    StatusCode waitTillDoneAsync(unsigned int timeout_seconds = 0);
 
     // Both of these calls move the EP to the ready to run state but only
     // the first actually sets the run number, the other one just stores
@@ -275,8 +275,6 @@ namespace edm {
     virtual bool endOfLoop();
     virtual void rewindInput();
     virtual void prepareForNextLoop();
-    virtual void writeLumiCache();
-    virtual void writeRunCache();
     virtual bool shouldWeCloseOutput() const;
 
     virtual void doErrorStuff();
@@ -303,15 +301,15 @@ namespace edm {
 
     virtual bool alreadyHandlingException() const;
 
-     //returns 'true' if this was a child and we should continue processing
-     bool forkProcess(std::string const& jobReportFile);
+    //returns 'true' if this was a child and we should continue processing
+    bool forkProcess(std::string const& jobReportFile);
 
   private:
     //------------------------------------------------------------------
     //
     // Now private functions.
     // init() is used by only by constructors
-    void init(boost::shared_ptr<edm::ProcessDesc>& processDesc,
+    void init(boost::shared_ptr<ProcessDesc>& processDesc,
               ServiceToken const& token,
               serviceregistry::ServiceLegacy);
 
@@ -381,7 +379,7 @@ namespace edm {
     int                                           numberOfForkedChildren_;
     unsigned int                                  numberOfSequentialEventsPerChild_;
     bool                                          setCpuAffinity_;
-    typedef std::set<std::pair<std::string,std::string> > ExcludedData;
+    typedef std::set<std::pair<std::string, std::string> > ExcludedData;
     typedef std::map<std::string, ExcludedData> ExcludedDataMap;
     ExcludedDataMap                               eventSetupDataToExcludeFromPrefetching_;
     friend class event_processor::StateSentry;

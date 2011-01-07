@@ -1,27 +1,28 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 #include "FWCore/Framework/interface/InputSource.h"
-#include "PrincipalCache.h"
-#include "FWCore/Framework/interface/InputSourceDescription.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/FileBlock.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/FileBlock.h"
+#include "FWCore/Framework/interface/InputSourceDescription.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/src/PrincipalCache.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
-#include "FWCore/Utilities/interface/do_nothing_deleter.h"
-#include "DataFormats/Provenance/interface/ProcessHistory.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <cassert>
 #include <fstream>
@@ -37,9 +38,9 @@ namespace edm {
           static std::string const th("th");
           // *0, *4 - *9 use "th".
           int lastDigit = count % 10;
-          if (lastDigit >= 4 || lastDigit == 0) return th;
+          if(lastDigit >= 4 || lastDigit == 0) return th;
           // *11, *12, or *13 use "th".
-          if (count % 100 - lastDigit == 10) return th;
+          if(count % 100 - lastDigit == 10) return th;
           return (lastDigit == 1 ? st : (lastDigit == 2 ? nd : rd));
         }
         template <typename T>
@@ -52,7 +53,7 @@ namespace edm {
         // Delete the current process from the process history.  This must be done to maintain consistency
         // for runs or lumis when the principal cache is flushed, because the process history modified flag,
         // stored in the principal, is lost when the cache is flushed.
-          if (!phid.isValid()) {
+          if(!phid.isValid()) {
             return phid;
           }
           ProcessHistory ph;
@@ -60,8 +61,8 @@ namespace edm {
           assert(found);
           ProcessHistory newPH;
           newPH.reserve(ph.size());
-          for (ProcessHistory::const_iterator it = ph.begin(), itEnd = ph.end(); it != itEnd; ++it) {
-            if (processName != it->processName()) {
+          for(ProcessHistory::const_iterator it = ph.begin(), itEnd = ph.end(); it != itEnd; ++it) {
+            if(processName != it->processName()) {
               newPH.push_back(*it);
             }
           }
@@ -93,14 +94,14 @@ namespace edm {
       lumiPrematurelyRead_(false),
       statusFileName_() {
 
-    if (pset.getUntrackedParameter<bool>("writeStatusFile", false)) {
+    if(pset.getUntrackedParameter<bool>("writeStatusFile", false)) {
       std::ostringstream statusfilename;
       statusfilename << "source_" << getpid();
       statusFileName_ = statusfilename.str();
     }
 
     // Secondary input sources currently do not have a product registry.
-    if (primary_) {
+    if(primary_) {
       assert(desc.productRegistry_ != 0);
     }
     std::string const defaultMode("RunsLumisAndEvents");
@@ -113,12 +114,12 @@ namespace edm {
     // input sources have defined descriptions, the defaults in the getUntrackedParameterSet function
     // calls can and should be deleted from the code.
     std::string processingMode = pset.getUntrackedParameter<std::string>("processingMode", defaultMode);
-    if (processingMode == runMode) {
+    if(processingMode == runMode) {
       processingMode_ = Runs;
-    } else if (processingMode == runLumiMode) {
+    } else if(processingMode == runLumiMode) {
       processingMode_ = RunsAndLumis;
-    } else if (processingMode != defaultMode) {
-      throw edm::Exception(errors::Configuration)
+    } else if(processingMode != defaultMode) {
+      throw Exception(errors::Configuration)
         << "InputSource::InputSource()\n"
         << "The 'processingMode' parameter for sources has an illegal value '" << processingMode << "'\n"
         << "Legal values are '" << defaultMode << "', '" << runLumiMode << "', or '" << runMode << "'.\n";
@@ -134,7 +135,7 @@ namespace edm {
     descriptions.addDefault(desc);
   }
 
-  static const std::string kBaseType("Source");
+  static std::string const kBaseType("Source");
 
   std::string const&
   InputSource::baseType() {
@@ -167,11 +168,11 @@ namespace edm {
   InputSource::ItemType
   InputSource::nextItemType_() {
     ItemType itemType = getNextItemType();
-    if (itemType == IsEvent && processingMode() != RunsLumisAndEvents) {
+    if(itemType == IsEvent && processingMode() != RunsLumisAndEvents) {
       readEvent_();
       return nextItemType_();
     }
-    if (itemType == IsLumi && processingMode() == Runs) {
+    if(itemType == IsLumi && processingMode() == Runs) {
       // QQQ skipLuminosityBlock_();
       return nextItemType_();
     }
@@ -180,22 +181,22 @@ namespace edm {
 
   InputSource::ItemType
   InputSource::nextItemType() {
-    if (doneReadAhead_) {
+    if(doneReadAhead_) {
       return state_;
     }
     doneReadAhead_ = true;
     ItemType oldState = state_;
-    if (eventLimitReached()) {
+    if(eventLimitReached()) {
       // If the maximum event limit has been reached, stop.
       state_ = IsStop;
-    } else if (lumiLimitReached()) {
+    } else if(lumiLimitReached()) {
       // If the maximum lumi limit has been reached, stop
       // when reaching a new file, run, or lumi.
-      if (oldState == IsInvalid || oldState == IsFile || oldState == IsRun || processingMode() != RunsLumisAndEvents) {
+      if(oldState == IsInvalid || oldState == IsFile || oldState == IsRun || processingMode() != RunsLumisAndEvents) {
         state_ = IsStop;
       } else {
         ItemType newState = nextItemType_();
-        if (newState == IsEvent) {
+        if(newState == IsEvent) {
           assert (processingMode() == RunsLumisAndEvents);
           state_ = IsEvent;
         } else {
@@ -204,14 +205,14 @@ namespace edm {
       }
     } else {
       ItemType newState = nextItemType_();
-      if (newState == IsStop) {
+      if(newState == IsStop) {
         state_ = IsStop;
-      } else if (newState == IsFile || oldState == IsInvalid) {
+      } else if(newState == IsFile || oldState == IsInvalid) {
         state_ = IsFile;
-      } else if (newState == IsRun || oldState == IsFile) {
+      } else if(newState == IsRun || oldState == IsFile) {
         runAuxiliary_ = readRunAuxiliary();
         state_ = IsRun;
-      } else if (newState == IsLumi || oldState == IsRun) {
+      } else if(newState == IsLumi || oldState == IsRun) {
         assert (processingMode() != Runs);
         lumiAuxiliary_ = readLuminosityBlockAuxiliary();
         state_ = IsLumi;
@@ -220,7 +221,7 @@ namespace edm {
         state_ = IsEvent;
       }
     }
-    if (state_ == IsStop) {
+    if(state_ == IsStop) {
       lumiAuxiliary_.reset();
       runAuxiliary_.reset();
     }
@@ -239,7 +240,7 @@ namespace edm {
 
   void
   InputSource::registerProducts() {
-    if (!typeLabelList().empty()) {
+    if(!typeLabelList().empty()) {
       addToRegistry(typeLabelList().begin(), typeLabelList().end(), moduleDescription(), productRegistryUpdate());
     }
   }
@@ -282,13 +283,13 @@ namespace edm {
 
   void
   InputSource::readAndCacheRun() {
-    if (runPrematurelyRead_) {
+    if(runPrematurelyRead_) {
       runPrematurelyRead_ = false;
       return;
     }
     RunSourceSentry(*this);
     bool merged = principalCache_->merge(runAuxiliary(), productRegistry_);
-    if (!merged) {
+    if(!merged) {
       boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAuxiliary(), productRegistry_, processConfiguration()));
       principalCache_->insert(rp);
     }
@@ -306,13 +307,13 @@ namespace edm {
 
   void
   InputSource::readAndCacheLumi() {
-    if (lumiPrematurelyRead_) {
+    if(lumiPrematurelyRead_) {
       lumiPrematurelyRead_ = false;
       return;
     }
     LumiSourceSentry(*this);
     bool merged = principalCache_->merge(luminosityBlockAuxiliary(), productRegistry_);
-    if (!merged) {
+    if(!merged) {
       boost::shared_ptr<LuminosityBlockPrincipal> lb(
         new LuminosityBlockPrincipal(luminosityBlockAuxiliary(),
                                      productRegistry_,
@@ -357,12 +358,12 @@ namespace edm {
     doneReadAhead_ = false;
 
     EventPrincipal* result = readEvent_();
-    if (result != 0) {
+    if(result != 0) {
       assert(lbCache->run() == result->run());
       assert(lbCache->luminosityBlock() == result->luminosityBlock());
       Event event(*result, moduleDescription());
       postRead(event);
-      if (remainingEvents_ > 0) --remainingEvents_;
+      if(remainingEvents_ > 0) --remainingEvents_;
       ++readCount_;
       setTimestamp(result->time());
       issueReports(result->id());
@@ -374,12 +375,12 @@ namespace edm {
   InputSource::readEvent(EventID const& eventID) {
     EventPrincipal* result = 0;
 
-    if (!limitReached()) {
+    if(!limitReached()) {
       result = readIt(eventID);
-      if (result != 0) {
+      if(result != 0) {
         Event event(*result, moduleDescription());
         postRead(event);
-        if (remainingEvents_ > 0) --remainingEvents_;
+        if(remainingEvents_ > 0) --remainingEvents_;
         ++readCount_;
         issueReports(result->id());
       }
@@ -401,14 +402,14 @@ namespace edm {
 
   void
   InputSource::issueReports(EventID const& eventID) {
-    if(edm::isInfoEnabled()) {
+    if(isInfoEnabled()) {
       LogVerbatim("FwkReport") << "Begin processing the " << readCount_
                                << suffix(readCount_) << " record. Run " << eventID.run()
                                << ", Event " << eventID.event()
                                << ", LumiSection " << eventID.luminosityBlock()
                                << " at " << std::setprecision(3) << TimeOfDay();
     }
-    if (!statusFileName_.empty()) {
+    if(!statusFileName_.empty()) {
       std::ofstream statusFile(statusFileName_.c_str());
       statusFile << eventID << " time: " << std::setprecision(3) << TimeOfDay() << '\n';
       statusFile.close();
@@ -419,60 +420,60 @@ namespace edm {
 
   EventPrincipal*
   InputSource::readIt(EventID const&) {
-      throw edm::Exception(errors::LogicError)
-        << "InputSource::readIt()\n"
-        << "Random access is not implemented for this type of Input Source\n"
-        << "Contact a Framework Developer\n";
+    throw Exception(errors::LogicError)
+      << "InputSource::readIt()\n"
+      << "Random access is not implemented for this type of Input Source\n"
+      << "Contact a Framework Developer\n";
   }
 
   void
   InputSource::setRun(RunNumber_t) {
-      throw edm::Exception(errors::LogicError)
-        << "InputSource::setRun()\n"
-        << "Run number cannot be modified for this type of Input Source\n"
-        << "Contact a Framework Developer\n";
+    throw Exception(errors::LogicError)
+      << "InputSource::setRun()\n"
+      << "Run number cannot be modified for this type of Input Source\n"
+      << "Contact a Framework Developer\n";
   }
 
   void
   InputSource::setLumi(LuminosityBlockNumber_t) {
-      throw edm::Exception(errors::LogicError)
-        << "InputSource::setLumi()\n"
-        << "Luminosity Block ID cannot be modified for this type of Input Source\n"
-        << "Contact a Framework Developer\n";
+    throw Exception(errors::LogicError)
+      << "InputSource::setLumi()\n"
+      << "Luminosity Block ID cannot be modified for this type of Input Source\n"
+      << "Contact a Framework Developer\n";
   }
 
   void
   InputSource::skip(int) {
-      throw edm::Exception(errors::LogicError)
-        << "InputSource::skip()\n"
-        << "Random access is not implemented for this type of Input Source\n"
-        << "Contact a Framework Developer\n";
+    throw Exception(errors::LogicError)
+      << "InputSource::skip()\n"
+      << "Random access is not implemented for this type of Input Source\n"
+      << "Contact a Framework Developer\n";
   }
 
   bool
   InputSource::goToEvent_(EventID const& eventID) {
-      throw edm::Exception(errors::LogicError)
-        << "InputSource::goToEvent_()\n"
-        << "Random access is not implemented for this type of Input Source\n"
-        << "Contact a Framework Developer\n";
-      return true;
+    throw Exception(errors::LogicError)
+      << "InputSource::goToEvent_()\n"
+      << "Random access is not implemented for this type of Input Source\n"
+      << "Contact a Framework Developer\n";
+    return true;
   }
 
 
   void
   InputSource::rewind_() {
-      throw edm::Exception(errors::LogicError)
-        << "InputSource::rewind()\n"
-        << "Rewind is not implemented for this type of Input Source\n"
-        << "Contact a Framework Developer\n";
+    throw Exception(errors::LogicError)
+      << "InputSource::rewind()\n"
+      << "Rewind is not implemented for this type of Input Source\n"
+      << "Contact a Framework Developer\n";
   }
 
   void
   InputSource::decreaseRemainingEventsBy(int iSkipped) {
-    if (-1 ==remainingEvents_ ) {
+    if(-1 == remainingEvents_) {
       return;
     }
-    if (iSkipped < remainingEvents_) {
+    if(iSkipped < remainingEvents_) {
       remainingEvents_ -= iSkipped;
     } else {
       remainingEvents_ = 0;
@@ -481,9 +482,8 @@ namespace edm {
 
   void
   InputSource::postRead(Event& event) {
-
     Service<RandomNumberGenerator> rng;
-    if (rng.isAvailable()) {
+    if(rng.isAvailable()) {
       rng->postEventRead(event);
     }
   }
@@ -526,7 +526,7 @@ namespace edm {
   }
 
   void
-  InputSource::doPostForkReacquireResources(boost::shared_ptr<edm::multicore::MessageReceiverForSource> iReceiver) {
+  InputSource::doPostForkReacquireResources(boost::shared_ptr<multicore::MessageReceiverForSource> iReceiver) {
     postForkReacquireResources(iReceiver);
   }
 
@@ -552,17 +552,10 @@ namespace edm {
   InputSource::endJob() {}
 
   void
-  InputSource::respondToClearingLumiCache() {
-  }
-
-  void
-  InputSource::respondToClearingRunCache() {
-  }
-
-  void
   InputSource::preForkReleaseResources() {}
+
   void
-  InputSource::postForkReacquireResources(boost::shared_ptr<edm::multicore::MessageReceiverForSource>) {}
+  InputSource::postForkReacquireResources(boost::shared_ptr<multicore::MessageReceiverForSource>) {}
 
   bool
   InputSource::randomAccess_() const {

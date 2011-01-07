@@ -1,7 +1,6 @@
 #ifndef FWCore_Framework_InputSource_h
 #define FWCore_Framework_InputSource_h
 
-
 /*----------------------------------------------------------------------
 
 InputSource: Abstract interface for all input sources. Input
@@ -40,27 +39,27 @@ Some examples of InputSource subclasses may be:
 
 ----------------------------------------------------------------------*/
 
-#include <string>
+#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ProcessingController.h"
+#include "FWCore/Framework/interface/ProductRegistryHelper.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 #include "sigc++/signal.h"
 
-#include "DataFormats/Provenance/interface/RunID.h"
-#include "DataFormats/Provenance/interface/RunAuxiliary.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
-#include "FWCore/Framework/interface/ProductRegistryHelper.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/ProcessingController.h"
+#include <string>
 
 namespace edm {
-  class ParameterSet;
-  class ConfigurationDescriptions;
-  class ParameterSetDescription;
   class ActivityRegistry;
+  class ConfigurationDescriptions;
+  class ParameterSet;
+  class ParameterSetDescription;
   namespace multicore {
     class MessageReceiverForSource;
   }
@@ -68,19 +67,19 @@ namespace edm {
   class InputSource : private ProductRegistryHelper, private boost::noncopyable {
   public:
     enum ItemType {
-        IsInvalid,
-        IsStop,
-        IsFile,
-        IsRun,
-        IsLumi,
-        IsEvent,
-        IsRepeat
+      IsInvalid,
+      IsStop,
+      IsFile,
+      IsRun,
+      IsLumi,
+      IsEvent,
+      IsRepeat
     };
 
     enum ProcessingMode {
-        Runs,
-        RunsAndLumis,
-        RunsLumisAndEvents
+      Runs,
+      RunsAndLumis,
+      RunsLumisAndEvents
     };
 
     typedef ProductRegistryHelper::TypeLabelList TypeLabelList;
@@ -216,8 +215,8 @@ namespace edm {
 
     /// Called by the framework before forking the process
     void doPreForkReleaseResources();
-    void doPostForkReacquireResources(boost::shared_ptr<edm::multicore::MessageReceiverForSource>);
- 
+    void doPostForkReacquireResources(boost::shared_ptr<multicore::MessageReceiverForSource>);
+
     /// Accessor for the current time, as seen by the input source
     Timestamp const& timestamp() const {return time_;}
 
@@ -241,12 +240,6 @@ namespace edm {
 
     /// Called by the framework to merge or insert lumi in principal cache.
     boost::shared_ptr<LuminosityBlockAuxiliary> luminosityBlockAuxiliary() const {return lumiAuxiliary_;}
-
-    /// Called by the framework when the run principal cache is cleared
-    void respondToClearingRunCache();
-
-    /// Called by the framework when the lumi principal cache is cleared
-    void respondToClearingLumiCache();
 
     bool randomAccess() const { return randomAccess_(); }
     ProcessingController::ForwardState forwardState() const { return forwardState_(); }
@@ -305,7 +298,7 @@ namespace edm {
 
     ProductRegistry& productRegistryUpdate() const {return const_cast<ProductRegistry&>(*productRegistry_);}
     ItemType state() const{return state_;}
-    void setRunAuxiliary(RunAuxiliary *rp) {runAuxiliary_.reset(rp);}
+    void setRunAuxiliary(RunAuxiliary* rp) {runAuxiliary_.reset(rp);}
     void setLuminosityBlockAuxiliary(LuminosityBlockAuxiliary* lbp) {lumiAuxiliary_.reset(lbp);}
     void resetRunAuxiliary() const {
       runAuxiliary_.reset();
@@ -327,11 +320,11 @@ namespace edm {
 
     void setRunPrematurelyRead() {runPrematurelyRead_ = true;}
     void setLumiPrematurelyRead() {lumiPrematurelyRead_ = true;}
-    
+
     ///Called by inheriting classes when running multicore when the receiver has told them to
     /// skip some events.
     void decreaseRemainingEventsBy(int iSkipped);
-    
+
   private:
     bool eventLimitReached() const {return remainingEvents_ == 0;}
     bool lumiLimitReached() const {return remainingLumis_ == 0;}
