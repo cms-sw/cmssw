@@ -386,6 +386,7 @@ int main()
     HistDp->Write();
     HistXY->Write();
     HistXY2->Write();
+    theFile->Close();
     //    HistNsuccesOld->Write();
     //    HistNsuccesRK->Write();
 }
