@@ -200,7 +200,7 @@ void ElectronMcSignalValidator::beginJob()
   h1_ele_simZ_matched_qmisid = bookH1withSumw2("h_ele_z_matched_qmisid","charge misid vs gen z",xyz_nbin, -25, 25 );
 
   // matched electrons
-  h1_ele_charge = bookH1withSumw2("h_ele_charge","ele charge",5,-2.,2.,"charge");
+  h1_ele_charge = bookH1withSumw2("h_ele_charge","ele charge",5,-2.5,2.5,"charge");
   h2_ele_chargeVsEta = bookH2("h_ele_chargeVsEta","ele charge vs eta",eta2D_nbin,eta_min,eta_max,5,-2.,2.);
   h2_ele_chargeVsPhi = bookH2("h_ele_chargeVsPhi","ele charge vs phi",phi2D_nbin,phi_min,phi_max,5,-2.,2.);
   h2_ele_chargeVsPt = bookH2("h_ele_chargeVsPt","ele charge vs pt",pt_nbin,0.,100.,5,-2.,2.);
@@ -498,10 +498,10 @@ void ElectronMcSignalValidator::beginJob()
   h1_ele_mva = bookH1withSumw2("h_ele_mva","ele identification mva",100,-1.,1.);
   h1_ele_mva_eg = bookH1withSumw2("h_ele_mva_eg","ele identification mva, ecal driven",100,-1.,1.);
   h1_ele_provenance = bookH1withSumw2("h_ele_provenance","ele provenance",5,-2.,3.);
-  
+
   // conversion rejection information
-  h1_ele_convFlags = bookH1withSumw2("h_ele_convFlags","conversion rejection flag",10,-1.,10.);
-  h1_ele_convFlags_all = bookH1withSumw2("h_ele_convFlags_all","conversion rejection flag, all electrons",10,-1.,10.);
+  h1_ele_convFlags = bookH1withSumw2("h_ele_convFlags","conversion rejection flag",5,-2.5,2.5);
+  h1_ele_convFlags_all = bookH1withSumw2("h_ele_convFlags_all","conversion rejection flag, all electrons",5,-2.5,2.5);
   h1_ele_convDist = bookH1withSumw2("h_ele_convDist","distance to the conversion partner",100,-50.,50.);
   h1_ele_convDist_all = bookH1withSumw2("h_ele_convDist_all","distance to the conversion partner, all electrons",100,-50.,50.);
   h1_ele_convDcot = bookH1withSumw2("h_ele_convDcot","difference of cot(angle) with the conversion partner",100,-CLHEP::pi,CLHEP::pi);
@@ -543,7 +543,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
    {
     // preselect electrons
     if (gsfIter->pt()>maxPt_ || std::abs(gsfIter->eta())>maxAbsEta_) continue ;
-    
+
     //
     h1_ele_EoverP_all->Fill(gsfIter->eSuperClusterOverP()) ;
     h1_ele_EseedOP_all->Fill(gsfIter->eSeedClusterOverP()) ;
@@ -598,13 +598,15 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
          { h1_ele_mee_os_gb->Fill(sqrt(mee2)) ; }
        }
      }
-     
+
     // conversion rejection
     h1_ele_convFlags_all->Fill( gsfIter->convFlags() );
-    h1_ele_convDist_all->Fill( gsfIter->convDist() );
-    h1_ele_convDcot_all->Fill( gsfIter->convDcot() );
-    h1_ele_convRadius_all->Fill( gsfIter->convRadius() );
-     
+    if (gsfIter->convFlags()>=0.)
+     {
+      h1_ele_convDist_all->Fill( gsfIter->convDist() );
+      h1_ele_convDcot_all->Fill( gsfIter->convDcot() );
+      h1_ele_convRadius_all->Fill( gsfIter->convRadius() );
+     }
    }
 
   int mcNum=0, gamNum=0, eleNum=0 ;
@@ -696,7 +698,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
   //===============================================
   // association mc-reco
   //===============================================
-  
+
   for ( mcIter=genParticles->begin() ; mcIter!=genParticles->end() ; mcIter++ )
    {
     // number of mc particles
@@ -714,7 +716,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
        { matchingID=true ; }
      }
     if (!matchingID) continue ;
-    
+
     // select requested mother matching gen particle
     // always include single particle with no mother
     const Candidate * mother = mcIter->mother() ;
@@ -725,7 +727,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
        { matchingMotherID = true ; }
      }
     if (!matchingMotherID) continue ;
-    
+
     // electron preselection
     if (mcIter->pt()> maxPt_ || std::abs(mcIter->eta())> maxAbsEta_)
      { continue ; }
@@ -773,7 +775,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
        }
      } // loop over rec ele to look for the best one
     if (! okGsfFound) continue ;
-     
+
     //------------------------------------
     // analysis when the mc track is found
     //------------------------------------
@@ -965,7 +967,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
       h2_ele_seed_drz2VsPt_->Fill(bestGsfElectron.pt(), elseed->dRz2());
       h1_ele_seed_subdet2_->Fill(elseed->subDet2());
      }
-     
+
     // match distributions
     h1_ele_EoP->Fill( bestGsfElectron.eSuperClusterOverP() );
     if (bestGsfElectron.ecalDrivenSeed()) h1_ele_EoP_eg->Fill( bestGsfElectron.eSuperClusterOverP() );
@@ -1111,7 +1113,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
       if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h2_ele_PtinVsPtoutGolden_mean->Fill(bestGsfElectron.gsfTrack()->outerMomentum().Rho(), bestGsfElectron.gsfTrack()->innerMomentum().Rho());
       if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h2_ele_PtinVsPtoutShowering_mean->Fill(bestGsfElectron.gsfTrack()->outerMomentum().Rho(), bestGsfElectron.gsfTrack()->innerMomentum().Rho());
      }
-     
+
     // provenance and pflow data
     h1_ele_mva->Fill(bestGsfElectron.mva());
     if (bestGsfElectron.ecalDrivenSeed()) h1_ele_mva_eg->Fill(bestGsfElectron.mva());
@@ -1132,9 +1134,12 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
 
     // conversion rejection
     h1_ele_convFlags->Fill( bestGsfElectron.convFlags() );
-    h1_ele_convDist->Fill( bestGsfElectron.convDist() );
-    h1_ele_convDcot->Fill( bestGsfElectron.convDcot() );
-    h1_ele_convRadius->Fill( bestGsfElectron.convRadius() );
+    if (bestGsfElectron.convFlags()>=0.)
+     {
+      h1_ele_convDist->Fill( bestGsfElectron.convDist() );
+      h1_ele_convDcot->Fill( bestGsfElectron.convDcot() );
+      h1_ele_convRadius->Fill( bestGsfElectron.convRadius() );
+     }
 
    } // loop over mc particle
 
