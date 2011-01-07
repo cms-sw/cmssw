@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # whether to use the old or newer (automatically adapting
 # to the MC menu) method of configuring the monitoring
 # modules for the HLT paths
-use_new_method = False
+use_new_method = True
 
 
 if not use_new_method:
@@ -147,7 +147,10 @@ else:
     # new method
     #----------------------------------------------------------------------
 
-    import sys
+    import sys, os
+
+    # prefix for printouts
+    msgPrefix = "[" + os.path.basename(__file__) + "]"
 
     import HLTriggerOffline.Egamma.EgammaHLTValidationUtils as EgammaHLTValidationUtils
 
@@ -223,14 +226,14 @@ else:
                 ]:
 
                 if problematicType in moduleCXXtypes:
-                    print >> sys.stderr,"SKIPPING PATH",pathName,"BECAUSE DON'T KNOW HOW TO HANDLE A MODULE WITH C++ TYPE",problematicType
+                    print >> sys.stderr,msgPrefix, "SKIPPING PATH",pathName,"BECAUSE DON'T KNOW HOW TO HANDLE A MODULE WITH C++ TYPE",problematicType
                     hasProblematicType = True
                     break
 
             if hasProblematicType:
                 continue
 
-            print >> sys.stderr,"adding E/gamma HLT dqm module for path",pathName
+            print >> sys.stderr,msgPrefix, "adding E/gamma HLT dqm module for path",pathName
 
             dqmModuleName = pathName + "_DQM"
 

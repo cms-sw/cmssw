@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 import FWCore.ParameterSet.Config as cms
-import sys
+import sys, os
+
+# prefix for printouts
+msgPrefix = "[" + os.path.basename(__file__) + "]"
+
 
 #----------------------------------------------------------------------
 
@@ -282,7 +286,7 @@ class EgammaDQMModuleMaker:
 
             #--------------------
 
-            print >> sys.stderr,"WARNING: unknown module type", module.type_(), " with name " + moduleName + " in path " + pathName
+            print >> sys.stderr,msgPrefix,"WARNING: unknown module type", module.type_(), " with name " + moduleName + " in path " + pathName
                                          
     #----------------------------------------
     
