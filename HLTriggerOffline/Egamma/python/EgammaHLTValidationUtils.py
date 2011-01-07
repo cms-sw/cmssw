@@ -47,7 +47,16 @@ def makeGeneratedParticleAndFiducialVolumeFilter(process, pdgGen, requiredNumber
     adds the needed modules to the process object and
     returns a sequence made of the two filters.
 
-    returns the name of the created module """
+    returns the name of the created module
+
+    if process is not None, are added to the process.
+
+    When using this function from a _cff file, one
+    has to manually add the modules of the returned
+    sequence to globals() (in the calling module, not
+    here, globals() live in a different name space here)
+    
+    """
 
     # name of the physics process
     procName = getProcessName(pdgGen, requiredNumberOfGeneratedObjects)
@@ -59,6 +68,7 @@ def makeGeneratedParticleAndFiducialVolumeFilter(process, pdgGen, requiredNumber
 
     genPartModuleName = 'genpart' + procName
 
+
     genPartModule = cms.EDFilter("PdgIdAndStatusCandViewSelector",
                                  status = cms.vint32(3),
                                  src = cms.InputTag("genParticles"),
@@ -66,7 +76,9 @@ def makeGeneratedParticleAndFiducialVolumeFilter(process, pdgGen, requiredNumber
                                  )
 
     # genPartModule.setLabel(genPartModuleName)
-    setattr(process, genPartModuleName, genPartModule)
+    if process != None:
+        setattr(process, genPartModuleName, genPartModule)
+
     genPartModule.setLabel(genPartModuleName)
 
     #--------------------
@@ -83,18 +95,24 @@ def makeGeneratedParticleAndFiducialVolumeFilter(process, pdgGen, requiredNumber
                                   ptMin = cms.double(2.0)
                                   )
 
-    setattr(process, selectorModuleName, selectorModule)
+    if process != None:
+        setattr(process, selectorModuleName, selectorModule)
+
+    # this is needed if we don't have a process to attach this module to
+    selectorModule.setLabel(selectorModuleName)
 
     #--------------------
     # create the sequence
     #--------------------
 
     return cms.Sequence(
-        # genPartModule * selectorModule
-        getattr(process, genPartModuleName) *
-        # 
-        getattr(process, selectorModuleName)
+        # getattr(process, genPartModuleName)
+        genPartModule 
 
+        *
+
+        # getattr(process, selectorModuleName)
+        selectorModule
         )
 #----------------------------------------------------------------------
 
@@ -265,8 +283,6 @@ class EgammaDQMModuleMaker:
             #--------------------
 
             print >> sys.stderr,"WARNING: unknown module type", module.type_(), " with name " + moduleName + " in path " + pathName
-            
-
                                          
     #----------------------------------------
     
@@ -563,6 +579,10 @@ def getModuleNamesOfPath(path):
     order.
     """
 
+    # this function could actually call getModulesOfSequence(..)
+    # and then produce a set with the unique names of
+    # the modules
+
     import FWCore.ParameterSet.Modules
     class Visitor:
 
@@ -604,5 +624,38 @@ def getCXXTypesOfPath(process, path):
         retval.add(module.type_())
 
     return retval
+
+#----------------------------------------------------------------------
+
+def getModulesOfSequence(sequence):
+    """ returns the modules found in a sequence.
+
+    Note that a module can appear more than once.
+    """
+
+    import FWCore.ParameterSet.Modules
+    class Visitor:
+
+        #----------------------------------------
+        def __init__(self):
+            self.modules_found = []
+
+        #----------------------------------------
+        def enter(self,visitee):
+
+            if isinstance(visitee, FWCore.ParameterSet.Modules._Module):
+                self.modules_found.append(visitee)
+
+        #----------------------------------------
+        def leave(self,visitee):
+            pass
+
+        #----------------------------------------
+                
+    visitor = Visitor()
+    sequence.visitNode(visitor)
+
+    return visitor.modules_found
+
 
 #----------------------------------------------------------------------
