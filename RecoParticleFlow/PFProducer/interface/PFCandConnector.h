@@ -6,7 +6,6 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 // \author : M. Gouzevitch
 // \date : May 2010
 
@@ -28,6 +27,7 @@ class PFCandConnector {
 
 	 dptRel_PrimaryTrack_ = 0.;
          dptRel_MergedTrack_ = 0.;
+	 ptErrorSecondary_ = 0.;
        }
        
        void setParameters(const edm::ParameterSet& iCfgCandConnector){
@@ -39,8 +39,11 @@ class PFCandConnector {
 	 if(iCfgCandConnector.exists("dptRel_PrimaryTrack")) dptRel_PrimaryTrack_ = iCfgCandConnector.getParameter<double>("dptRel_PrimaryTrack");
 	 else { std::cout << "dptRel_PrimaryTrack doesn't exist. Setting a default safe value 0" << std::endl; dptRel_PrimaryTrack_ = 0;}
 
-	 if(iCfgCandConnector.exists("dptRel_MergedTrack")) dptRel_PrimaryTrack_ = iCfgCandConnector.getParameter<double>("dptRel_MergedTrack");
+	 if(iCfgCandConnector.exists("dptRel_MergedTrack")) dptRel_MergedTrack_ = iCfgCandConnector.getParameter<double>("dptRel_MergedTrack");
 	 else { std::cout << "dptRel_MergedTrack doesn't exist. Setting a default safe value 0" << std::endl; dptRel_MergedTrack_ = 0;}
+
+	 if(iCfgCandConnector.exists("ptErrorSecondary")) ptErrorSecondary_ = iCfgCandConnector.getParameter<double>("ptErrorSecondary");
+	 else { std::cout << "ptErrorSecondary doesn't exist. Setting a default safe value 0" << std::endl; ptErrorSecondary_ = 0;}
 
 	 std::vector<double> nuclCalibFactors = iCfgCandConnector.getParameter<std::vector<double> >("nuclCalibFactors");  
 
@@ -56,6 +59,19 @@ class PFCandConnector {
 	   std::cout << "Wrong calibration factors for nuclear interactions. The calibration procedure would not be applyed." << std::endl;
 	   bCalibPrimary_ =  false;
 	 }
+
+	 std::string sCorrect = bCorrect_ ? "On" : "Off";
+	 std::cout << " ====================== The PFCandConnector is switched " << sCorrect.c_str() << " ==================== " << std::endl;
+	 std::string sCalibPrimary = bCalibPrimary_ ? "used for calibration" : "not used for calibration";
+	 if (bCorrect_) std::cout << "Primary Tracks are " << sCalibPrimary.c_str() << std::endl;
+	 if (bCalibPrimary_) std::cout << "Under the condition that the precision on the Primary track is better than " << dptRel_PrimaryTrack_ << " % "
+				       << " and on merged tracks better than " <<  dptRel_MergedTrack_ << " % "
+				       << " and secondary tracks in some cases more precise than " << ptErrorSecondary_ << " GeV"<< std::endl;
+	 if (bCalibPrimary_) std::cout << "factor = (" << fConst_[0] << " + " << fConst_[1] << "*cFrac) - (" 
+				       << fNorm_[0] << " - " << fNorm_[1] << "cFrac)*exp( "
+				       << -1*fExp_[0] << "*pT)"<< std::endl;
+	 std::cout << " =========================================================== " << std::endl;	 
+
        }
 
        void setDebug( bool debug ) {debug_ = debug;}
@@ -99,6 +115,7 @@ class PFCandConnector {
        // Maximal accepatble uncertainty on primary tracks to usem them as MC truth for calibration
        double dptRel_PrimaryTrack_;
        double dptRel_MergedTrack_;
+       double ptErrorSecondary_;
 
        /// Useful constants
        static const double pion_mass2;

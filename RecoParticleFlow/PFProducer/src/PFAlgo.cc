@@ -518,6 +518,17 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     unsigned iTrack = iEle;
     reco::MuonRef muonRef = elements[iTrack].muonRef();    
 
+
+    if (active[iTrack] && isFromSecInt(elements[iEle], "primary")){
+      bool isPrimaryTrack = elements[iEle].displacedVertexRef(PFBlockElement::T_TO_DISP)->displacedVertexRef()->isTherePrimaryTracks();
+      if (isPrimaryTrack) {
+	if (debug_) cout << "Primary Track reconstructed alone" << endl;
+	reconstructTrack(elements[iEle]);
+	active[iTrack] = false;
+      }
+    }
+
+
     if(debug_) { 
       if ( !active[iTrack] ) 
 	cout << "Already used by electrons, muons, conversions" << endl;
@@ -728,25 +739,25 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       std::vector<unsigned> kTrack;
       
       // Some cleaning : secondary tracks without calo's and large momentum must be fake
-      double DPt = trackRef->ptError();
+      double Dpt = trackRef->ptError();
 
       if ( rejectTracks_Step45_ && ecalElems.empty() && 
-	   trackMomentum > 30. && DPt > 0.5 && 
+	   trackMomentum > 30. && Dpt > 0.5 && 
 	   ( trackRef->algo() == TrackBase::iter3 || 
 	     trackRef->algo() == TrackBase::iter4 || 
 	     trackRef->algo() == TrackBase::iter5 ) ) {
 
 	//
-	double dPtRel = DPt/trackRef->pt()*100;
+	double dptRel = Dpt/trackRef->pt()*100;
 	bool isPrimaryOrSecondary = isFromSecInt(elements[iTrack], "all");
 
-	if ( isPrimaryOrSecondary && dPtRel < dptRel_DispVtx_) continue;
+	if ( isPrimaryOrSecondary && dptRel < dptRel_DispVtx_) continue;
 	unsigned nHits =  elements[iTrack].trackRef()->hitPattern().trackerLayersWithMeasurement();
 	unsigned int NLostHit = trackRef->hitPattern().trackerLayersWithoutMeasurement();
 
 	if ( debug_ ) 
 	  std::cout << "A track (algo = " << trackRef->algo() << ") with momentum " << trackMomentum 
-		    << " / " << elements[iTrack].trackRef()->pt() << " +/- " << DPt 
+		    << " / " << elements[iTrack].trackRef()->pt() << " +/- " << Dpt 
 		    << " / " << elements[iTrack].trackRef()->eta() 
 		    << " without any link to ECAL/HCAL and with " << nHits << " (" << NLostHit 
 		    << ") hits (lost hits) has been cleaned" << std::endl;
@@ -985,27 +996,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
       } // Loop ecal elements
 
-      
-      for (unsigned ic=0; ic<tmpi.size();++ic) { 
-	double ecalCal = calibEcal;
-	double ecalRaw = totalEcal;
-	
-	// The ECAL cluster energy is shared at prorata between different tracks
-	if ((*pfCandidates_)[tmpi[ic]].flag(PFCandidate::T_TO_DISP)){
-	  double fraction = (*pfCandidates_)[tmpi[ic]].trackRef()->p()/trackMomentum;
-	  ecalCal = calibEcal*fraction;
-	  ecalRaw = totalEcal*fraction; 
-	}
-
-	(*pfCandidates_)[tmpi[ic]].setEcalEnergy( ecalCal );
-	(*pfCandidates_)[tmpi[ic]].setRawEcalEnergy( ecalRaw );
-	(*pfCandidates_)[tmpi[ic]].setHcalEnergy( 0 );
-	(*pfCandidates_)[tmpi[ic]].setRawHcalEnergy( 0 );
-	(*pfCandidates_)[tmpi[ic]].setPs1Energy( 0 );
-	(*pfCandidates_)[tmpi[ic]].setPs2Energy( 0 );
-	(*pfCandidates_)[tmpi[ic]].addElementInBlock( blockref, kTrack[ic] );
-      }
-      
+      bool bNeutralProduced = false;
+  
       // Create a photon if the ecal energy is too large
       if( connectedToEcal ) {
 	reco::PFClusterRef pivotalRef = elements[iEcal].clusterRef();
@@ -1058,9 +1050,35 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  (*pfCandidates_)[tmpj].setPs1Energy( -1 );
 	  (*pfCandidates_)[tmpj].setPs2Energy( -1 );
 	  (*pfCandidates_)[tmpj].addElementInBlock(blockref, iEcal);
+	  bNeutralProduced = true;
 	  for (unsigned ic=0; ic<kTrack.size();++ic) 
 	    (*pfCandidates_)[tmpj].addElementInBlock( blockref, kTrack[ic] ); 
 	} // End neutral energy
+
+	for (unsigned ic=0; ic<tmpi.size();++ic) { 
+	  
+	  double fraction = (*pfCandidates_)[tmpi[ic]].trackRef()->p()/trackMomentum;
+	  
+	  
+	  double ecalCal = trackMomentum*fraction;
+	  double ecalRaw = trackMomentum*fraction;
+
+	  if (!bNeutralProduced){
+	    ecalCal = calibEcal*fraction;
+	    ecalRaw = totalEcal*fraction;
+	  }
+
+	  if (debug_) cout << "The fraction after photon supression is " << fraction << " calibrated ecal = " << ecalCal << endl;
+
+	  (*pfCandidates_)[tmpi[ic]].setEcalEnergy( ecalCal );
+	  (*pfCandidates_)[tmpi[ic]].setRawEcalEnergy( ecalRaw );
+	  (*pfCandidates_)[tmpi[ic]].setHcalEnergy( 0 );
+	  (*pfCandidates_)[tmpi[ic]].setRawHcalEnergy( 0 );
+	  (*pfCandidates_)[tmpi[ic]].setPs1Energy( 0 );
+	  (*pfCandidates_)[tmpi[ic]].setPs2Energy( 0 );
+	  (*pfCandidates_)[tmpi[ic]].addElementInBlock( blockref, kTrack[ic] );
+	}
+
       } // End connected ECAL
       
     }
@@ -1440,7 +1458,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       // ... and keep anyway the pt error for possible fake rejection
       // ... blow up errors of 5th anf 4th iteration, to reject those
       // ... tracks first (in case it's needed)
-      double DPt = trackRef->ptError();
+      double Dpt = trackRef->ptError();
       double blowError = 1.;
       switch (trackRef->algo()) {
       case TrackBase::ctf:
@@ -1466,7 +1484,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       if ( isPrimaryOrSecondary ) blowError = 1.;
 
       std::pair<unsigned,bool> tkmuon = make_pair(iTrack,thisIsALooseMuon);
-      associatedTracks.insert( make_pair(-DPt*blowError, tkmuon) );     
+      associatedTracks.insert( make_pair(-Dpt*blowError, tkmuon) );     
  
       // Also keep the total track momentum error for comparison with the calo energy
       double Dp = trackRef->qoverpError()*trackMomentum*trackMomentum;
@@ -1810,6 +1828,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 	double dptRel = fabs(it->first)/trackref->pt()*100;
 	bool isSecondary = isFromSecInt(elements[iTrack], "secondary");
+	bool isPrimary = isFromSecInt(elements[iTrack], "primary");
 
 	if ( isSecondary && dptRel < dptRel_DispVtx_ ) continue;
 	// Consider only bad tracks
@@ -1820,16 +1839,20 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	// Reject worst tracks, as long as the total charged momentum 
 	// is larger than the calo energy
 
-	bool isPrimary = isFromSecInt(elements[iTrack], "primary");
-
 	if ( wouldBeTotalChargedMomentum > caloEnergy ) { 
 
-	  if(isPrimary) continue;
+	  if (debug_ && isSecondary) {
+	    cout << "In bad track rejection step dptRel = " << dptRel << " dptRel_DispVtx_ = " << dptRel_DispVtx_ << endl;
+	    cout << "The calo energy would be still smaller even without this track but it is attached to a NI"<< endl;
+	  }
+
+
+	  if(isPrimary || (isSecondary && dptRel < dptRel_DispVtx_)) continue;
 	  active[iTrack] = false;
 	  totalChargedMomentum = wouldBeTotalChargedMomentum;
 	  if ( debug_ )
 	    std::cout << "\tElement  " << elements[iTrack] 
-		      << " rejected (DPt = " << -it->first 
+		      << " rejected (Dpt = " << -it->first 
 		      << " GeV/c, algo = " << trackref->algo() << ")" << std::endl;
 	// Just rescale the nth worst track momentum to equalize the calo energy
 	} else {	
@@ -1843,9 +1866,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  totalChargedMomentum -= trackref->p()*(1.-corrFact);
 	  if ( debug_ ) 
 	    std::cout << "\tElement  " << elements[iTrack] 
-		      << " (DPt = " << -it->first 
+		      << " (Dpt = " << -it->first 
 		      << " GeV/c, algo = " << trackref->algo() 
-		      << ") rescaled by " << corrFact << std::endl;
+		      << ") rescaled by " << corrFact 
+		      << " Now the total charged momentum is " << totalChargedMomentum  << endl;
 	  break;
 	}
       }
@@ -1889,7 +1913,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  
 	  if ( debug_ ) 
 	    std::cout << "\tElement  " << elements[iTrack] 
-		      << " rejected (DPt = " << -it->first 
+		      << " rejected (Dpt = " << -it->first 
 		      << " GeV/c, algo = " << trackref->algo() << ")" << std::endl;
 	  break;
 	default:
@@ -2660,15 +2684,24 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
     } // close (usePFPFMuonMomAssign_)      
   }// close if(thisIsAMuon)
   else if (isFromDisp) {
-    if (debug_) cout << "Not refitted px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
-    //reco::TrackRef trackRef = eltTrack->trackRef();
-    reco::PFDisplacedVertexRef vRef = eltTrack->displacedVertexRef(T_FROM_DISP)->displacedVertexRef();
-    reco::Track trackRefit = vRef->refittedTrack(trackRef);
-    px = trackRefit.px();
-    py = trackRefit.py();
-    pz = trackRefit.pz();
-    energy = sqrt(trackRefit.p()*trackRefit.p() + 0.13957*0.13957);
-    if (debug_) cout << "Refitted px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
+    double Dpt = trackRef->ptError();
+    double dptRel = Dpt/trackRef->pt()*100;
+    //If the track is ill measured it is better to not refit it, since the track information probably would not be used.
+    //In the PFAlgo we use the trackref information. If the track error is too big the refitted information might be very different
+    // from the not refitted one.
+    if (dptRel < dptRel_DispVtx_){
+
+      if (debug_) cout << "Not refitted px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
+      //reco::TrackRef trackRef = eltTrack->trackRef();
+      reco::PFDisplacedVertexRef vRef = eltTrack->displacedVertexRef(T_FROM_DISP)->displacedVertexRef();
+      reco::Track trackRefit = vRef->refittedTrack(trackRef);
+      px = trackRefit.px();
+      py = trackRefit.py();
+      pz = trackRefit.pz();
+      energy = sqrt(trackRefit.p()*trackRefit.p() + 0.13957*0.13957);
+      if (debug_) cout << "Refitted px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
+    
+    }
   }
   
   //  if (debug_) cout << "Final px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
@@ -2690,6 +2723,17 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
   pfCandidates_->back().setTrackRef( trackRef );
   pfCandidates_->back().setPositionAtECALEntrance( eltTrack->positionAtECALEntrance());
 
+  // displaced vertices 
+  if( eltTrack->trackType(T_FROM_DISP)) {
+    pfCandidates_->back().setFlag( reco::PFCandidate::T_FROM_DISP, true);
+    pfCandidates_->back().setDisplacedVertexRef( eltTrack->displacedVertexRef(T_FROM_DISP)->displacedVertexRef(), reco::PFCandidate::T_FROM_DISP);
+  }
+
+  // do not label as primary a track which would be recognised as a muon. A muon cannot produce NI. It is with high probability a fake
+  if( eltTrack->trackType(T_TO_DISP) && !muonRef.isNonnull()) {
+    pfCandidates_->back().setFlag( reco::PFCandidate::T_TO_DISP, true);
+    pfCandidates_->back().setDisplacedVertexRef( eltTrack->displacedVertexRef(T_TO_DISP)->displacedVertexRef(), reco::PFCandidate::T_TO_DISP);
+  }
 
   // setting the muon ref if there is
   if (muonRef.isNonnull()) {
@@ -2707,21 +2751,6 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
       }
     }
   }  
-
-  // displaced vertices 
-
-
-    
-
-  
-  if( eltTrack->trackType(T_FROM_DISP)) {
-    pfCandidates_->back().setFlag( reco::PFCandidate::T_FROM_DISP, true);
-    pfCandidates_->back().setDisplacedVertexRef( eltTrack->displacedVertexRef(T_FROM_DISP)->displacedVertexRef(), reco::PFCandidate::T_FROM_DISP);
-  }
-  if( eltTrack->trackType(T_TO_DISP)) {
-    pfCandidates_->back().setFlag( reco::PFCandidate::T_TO_DISP, true);
-    pfCandidates_->back().setDisplacedVertexRef( eltTrack->displacedVertexRef(T_TO_DISP)->displacedVertexRef(), reco::PFCandidate::T_TO_DISP);
-  }
 
   // conversion...
 

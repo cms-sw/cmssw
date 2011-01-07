@@ -619,9 +619,6 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       }
     
       trackMaskVertex.push_back(bMask);
-
-
-
     }
 
     if (debug_) std::cout << "" << std::endl;
@@ -632,11 +629,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
 
       // this track has been disabled
-      if( (!trackMask.empty() && !trackMask[i]) 
-	  || 
-	  (!trackMaskVertex.empty() && !trackMaskVertex[i]) ) continue;
-      
-      
+      if( (!trackMask.empty() && !trackMask[i])) continue;
       
       reco::PFRecTrackRef ref( trackh,i );
 
@@ -657,13 +650,30 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       if (thisIsAPotentialMuon && debug_) std::cout << "Potential Muon P " <<  ref->trackRef()->p() 
 						    << " pt " << ref->trackRef()->p() << std::endl; 
 
+
+
       reco::PFBlockElement* primaryElement = new reco::PFBlockElementTrack( ref );
 
       if( muId_ != -1 ) {
 	// if a muon has been found
 	reco::MuonRef muonref( muonh, muId_ );
-	primaryElement->setMuonRef( muonref );
-      }
+
+	// If this track was already added to the collection, we just need to find the associated element and 
+	// attach to it the reference
+	if (!trackMaskVertex.empty() && !trackMaskVertex[i]){
+	  reco::TrackRef primaryTrackRef = ref->trackRef();
+	  for(IE iel = elements_.begin(); iel != elements_.end(); iel++){
+	    reco::TrackRef elemTrackRef = (*iel)->trackRef();
+	    if( primaryTrackRef == elemTrackRef ) {
+	      (*iel)->setMuonRef( muonref );
+	      if (debug_) std::cout << "One of the tracks identified in displaced vertices collections was spotted as muon" <<std:: endl;
+	    }
+	  }
+	} else primaryElement->setMuonRef( muonref );
+      } 
+
+      if (!trackMaskVertex.empty() && !trackMaskVertex[i]) continue;
+
       
       // set track type T_FROM_GAMMA for pfrectracks associated to conv brems
       if(useConvBremPFRecTracks_) {

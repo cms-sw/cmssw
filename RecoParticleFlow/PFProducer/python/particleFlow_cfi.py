@@ -60,7 +60,8 @@ particleFlow = cms.EDProducer("PFProducer",
 	 bCalibPrimary    =  cms.bool(True),
 	 nuclCalibFactors =  cms.vdouble(0.8, 0.15, 0.5, -0.5, 0.05),
          dptRel_PrimaryTrack = cms.double(10.),
-         dptRel_MergedTrack = cms.double(5.)
+         dptRel_MergedTrack = cms.double(5.0),
+         ptErrorSecondary = cms.double(1.0)
     ),
 
     
@@ -77,6 +78,7 @@ particleFlow = cms.EDProducer("PFProducer",
     # Number of sigmas for fake track detection
     nsigma_TRACK = cms.double(1.0),
     # Absolute pt error to detect fake tracks in the first three iterations
+    # dont forget to modify also ptErrorSecondary if you modify this parameter
     pt_Error = cms.double(1.0),
     # Factors to be applied in the four and fifth steps to the pt error
     factors_45 = cms.vdouble(10.,100.),

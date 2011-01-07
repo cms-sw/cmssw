@@ -23,7 +23,7 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
 
     # input nuclear interactions 
     PFNuclear = cms.InputTag("pfDisplacedTrackerVertex"),
-    useNuclear = cms.bool(False),
+    useNuclear = cms.bool(True),
 
     # This parameters defines the level of purity of
     # nuclear interactions choosen.
@@ -34,8 +34,6 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     # By default the level 1 is teh safest one.
 
     nuclearInteractionsPurity = cms.uint32(1),                          
-
-
 
     # input muons
     RecMuons = cms.InputTag("muons"),

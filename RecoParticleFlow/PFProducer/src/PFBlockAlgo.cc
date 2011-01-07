@@ -262,7 +262,8 @@ PFBlockAlgo::packLinks( reco::PFBlock& block,
     }
   }
 
-  checkDisplacedVertexLinks( block );
+  // Do not cut the link between the primary track and the clusters. It would be analysed in the PFCandConnector.cc
+  // checkDisplacedVertexLinks( block );
 }
 
 
