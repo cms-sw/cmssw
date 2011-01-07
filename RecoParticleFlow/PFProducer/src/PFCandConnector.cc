@@ -22,7 +22,8 @@ PFCandConnector::connect(std::auto_ptr<PFCandidateCollection>& pfCand) {
   bMask_.clear();
   bMask_.resize(pfCand->size(), false);
 
-   
+  //  debug_ = true;
+
   // loop on primary
   if (bCorrect_){
     if(debug_){
@@ -259,27 +260,19 @@ PFCandConnector::analyseNuclearWSec(std::auto_ptr<PFCandidateCollection>& pfCand
 
   PFDisplacedVertexRef ref1, ref2;  
 
-  PFCandidate secondaryCand = pfCand->at(ce1);
-
-  math::XYZTLorentzVectorD momentumSec = secondaryCand.p4();
-
-
 
   // Check if the track excess was not too large and track may miss some outer hits. This may point to a secondary NI.
 
   double caloEn = pfCand->at(ce1).ecalEnergy() + pfCand->at(ce1).hcalEnergy();
   double deltaEn =  pfCand->at(ce1).p4().E() - caloEn;
   int nMissOuterHits = pfCand->at(ce1).trackRef()->trackerExpectedHitsOuter().numberOfHits();  
-  if (deltaEn > 1  && nMissOuterHits > 1) {
-    math::XYZTLorentzVectorD momentumToAdd = pfCand->at(ce1).p4()*caloEn/pfCand->at(ce1).p4().E();
-    momentumSec = momentumToAdd;
-    if (debug_) cout << "The difference track-calo s really large and the track miss at least 2 hits. A secondary NI may have happened. Let's trust the calo energy" << endl << "add " << momentumToAdd << endl;  
-  }
 
 
-  ref1 = secondaryCand.displacedVertexRef(fT_FROM_DISP_);
+  ref1 = pfCand->at(ce1).displacedVertexRef(fT_FROM_DISP_);
 
-  // ------- check if an electron was not spotted there -------- //
+  // ------- check if an electron or a muon vas spotted as incoming track -------- //
+  // ------- this mean probably that the NI was fake thus we do not correct it -------- /
+
   if (ref1->isTherePrimaryTracks() || ref1->isThereMergedTracks()){
     
     std::vector<reco::Track> refittedTracks = ref1->refittedTracks();
@@ -290,7 +283,7 @@ PFCandConnector::analyseNuclearWSec(std::auto_ptr<PFCandidateCollection>& pfCand
 
       for( unsigned int ce=0; ce < pfCand->size(); ++ce){
 	//	  cout << "PFCand Id = " << (pfCand->at(ce)).particleId() << endl;
-	if ((pfCand->at(ce)).particleId() == reco::PFCandidate::e) {
+	if ((pfCand->at(ce)).particleId() == reco::PFCandidate::e || (pfCand->at(ce)).particleId() == reco::PFCandidate::mu) {
 
 	  if (debug_) cout << " It is an electron and it has a ref to a track " << (pfCand->at(ce)).trackRef().isNonnull() << endl;
 	  
@@ -301,27 +294,40 @@ PFCandConnector::analyseNuclearWSec(std::auto_ptr<PFCandidateCollection>& pfCand
 	    if (debug_) cout << "With Track Ref pt = " << (pfCand->at(ce)).trackRef()->pt() << endl;
 
 	    if (bRef == primaryBaseRef) {
-	      if (debug_) cout << "It is a NI from electron. Discarded." << endl; 
-	      return;
-	    }
-	  }
-	}
+	      if (debug_ && (pfCand->at(ce)).particleId() == reco::PFCandidate::e) cout << "It is a NI from electron. NI Discarded. Just release the candidate." << endl; 
+	      if (debug_ && (pfCand->at(ce)).particleId() == reco::PFCandidate::mu) cout << "It is a NI from muon. NI Discarded. Just release the candidate" << endl; 
+	
+	      // release the track but take care of not overcounting bad tracks. In fact those tracks was protected against destruction in 
+	      // PFAlgo. Now we treat them as if they was treated in PFAlgo
 
-	if ((pfCand->at(ce)).particleId() == reco::PFCandidate::h) {
-	  if ((pfCand->at(ce)).trackRef().isNonnull()){
-	    reco::TrackRef tRef = (pfCand->at(ce)).trackRef();
-	    reco::TrackBaseRef bRef(tRef);
-	    
-	    if (debug_) cout << "Here is a charged hadron with pt = " << bRef->pt() << endl;
+	      if (caloEn < 0.1 && pfCand->at(ce1).trackRef()->ptError() > ptErrorSecondary_) { 
+		cout << "discarded track since no calo energy and ill measured" << endl; 
+		bMask_[ce1] = true;
+	      }
+	      if (caloEn > 0.1 && deltaEn >ptErrorSecondary_  && pfCand->at(ce1).trackRef()->ptError() > ptErrorSecondary_) { 
+		cout << "rescaled momentum of the track since no calo energy and ill measured" << endl;
+		
+		double factor = caloEn/pfCand->at(ce1).p4().E();
+		pfCand->at(ce1).rescaleMomentum(factor);
+	      }
 
-	    if (bRef == primaryBaseRef) {
-	      if (debug_) cout << "It is a NI from hadron. Discarded." << endl; 
 	      return;
 	    }
 	  }
 	}
       }
     }
+  }
+
+
+  PFCandidate secondaryCand = pfCand->at(ce1);
+
+  math::XYZTLorentzVectorD momentumSec = secondaryCand.p4();
+
+  if (deltaEn > ptErrorSecondary_  && nMissOuterHits > 1) {
+    math::XYZTLorentzVectorD momentumToAdd = pfCand->at(ce1).p4()*caloEn/pfCand->at(ce1).p4().E();
+    momentumSec = momentumToAdd;
+    if (debug_) cout << "The difference track-calo s really large and the track miss at least 2 hits. A secondary NI may have happened. Let's trust the calo energy" << endl << "add " << momentumToAdd << endl;  
   }
 
 
@@ -345,7 +351,7 @@ PFCandConnector::analyseNuclearWSec(std::auto_ptr<PFCandidateCollection>& pfCand
 	double caloEn = pfCand->at(ce2).ecalEnergy() + pfCand->at(ce2).hcalEnergy();
 	double deltaEn =  pfCand->at(ce2).p4().E() - caloEn;
 	int nMissOuterHits = pfCand->at(ce2).trackRef()->trackerExpectedHitsOuter().numberOfHits();  
-	if (deltaEn > 1  && nMissOuterHits > 1) {
+	if (deltaEn > ptErrorSecondary_ && nMissOuterHits > 1) {
 	  math::XYZTLorentzVectorD momentumToAdd = pfCand->at(ce2).p4()*caloEn/pfCand->at(ce2).p4().E();
 	  momentumSec += momentumToAdd;
 	  if (debug_) cout << "The difference track-calo s really large and the track miss at least 2 hits. A secondary NI may have happened. Let's trust the calo energy" << endl << "add " << momentumToAdd << endl;  
@@ -460,4 +466,3 @@ PFCandConnector::rescaleFactor( const double pt, const double cFrac ) const {
   return factor;
 
 }
-
