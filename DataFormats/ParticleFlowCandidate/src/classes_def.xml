@@ -36,7 +36,16 @@
   <class name="std::vector<reco::PFCandidateFwdRef>"/>
   <class name="std::vector<reco::PFCandidateFwdPtr>"/>
 
-
+  <class name="reco::PFCandidateElectronExtra">
+<!-- 
+  <field name="mvaVariables_" transient="true"/>
+-->
+  </class>
+  <class name="std::vector<reco::PFCandidateElectronExtra>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFCandidateElectronExtra> >"/>
+  <class name="reco::PFCandidateElectronExtraRef"/>
+  <class name="reco::PFCandidateElectronExtraRefProd"/>
+  <class name="reco::PFCandidateElectronExtraRefVector"/>
 
 </lcgdict>
  

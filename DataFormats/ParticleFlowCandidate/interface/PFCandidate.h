@@ -16,7 +16,9 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtraFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
@@ -168,6 +170,14 @@ namespace reco {
     /// return a reference to the original conversion
     reco::VertexCompositeCandidateRef v0Ref() const { return v0Ref_; }
 
+    /// return a reference to the corresponding GsfElectron if any
+    reco::GsfElectronRef gsfElectronRef() const {return gsfElectronRef_;} 
+
+    /// return a reference to the corresponding SuperCluster if any
+    reco::SuperClusterRef superClusterRef() const {return superClusterRef_;} 
+
+    /// return a reference to the electron extra
+    reco::PFCandidateElectronExtraRef electronExtraRef() const {return pfElectronExtraRef_;}
 
     /// set corrected Ecal energy 
     void setEcalEnergy( float ee ) {ecalEnergy_ = ee;}
@@ -189,6 +199,9 @@ namespace reco {
     
     /// set corrected Hcal energy 
     void setRawHcalEnergy( float eh ) {rawHcalEnergy_ = eh;}
+
+    /// set GsfElectronRef 
+    void setGsfElectronRef (const reco::GsfElectronRef & ref) {gsfElectronRef_ = ref; }
 
     /// return corrected Hcal energy
     double rawHcalEnergy() const { return rawHcalEnergy_;}
@@ -270,6 +283,11 @@ namespace reco {
     void setPositionAtECALEntrance(const math::XYZPointF& pos) {
       positionAtECALEntrance_ = pos;
     } 
+    
+    /// set the PF Electron Extra Ref
+    void setPFElectronExtraRef(const reco::PFCandidateElectronExtraRef& ref) {
+      pfElectronExtraRef_=ref ;
+    }
 
     /// \return position at ECAL entrance
     const math::XYZPointF& positionAtECALEntrance() const {
@@ -389,7 +407,15 @@ namespace reco {
 
     // Reference to a mother V0
     reco::VertexCompositeCandidateRef v0Ref_;
-    
+
+    // Reference to the corresponding GsfElectron if any
+    reco::GsfElectronRef gsfElectronRef_;
+
+    // Reference to the corresponding SuperCluster if any
+    reco::SuperClusterRef superClusterRef_;
+
+    // Reference to the PFCandidateElectronExtra
+    reco::PFCandidateElectronExtraRef pfElectronExtraRef_;
   };
 
   /// particle ID component tag

@@ -17,6 +17,8 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtra.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtraFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
@@ -129,6 +131,9 @@ class PFAlgo {
   void postMuonCleaning( const edm::Handle<reco::MuonCollection>& muonh,
 			 const reco::VertexCollection& primaryVertices );
 
+  // Post Electron Extra Ref
+  void setElectronExtraRef(const edm::OrphanHandle<reco::PFCandidateElectronExtraCollection >& extrah);		   
+
   /// \return collection of candidates
   const std::auto_ptr< reco::PFCandidateCollection >& pfCandidates() const {
     return pfCandidates_;
@@ -138,6 +143,15 @@ class PFAlgo {
   std::auto_ptr< reco::PFCandidateCollection> transferElectronCandidates()  {
     return pfElectronCandidates_;
   }
+
+  /// \return the unfiltered electron extra collection
+  // done this way because the pfElectronExtra is needed later in the code to create the Refs and with an auto_ptr, it would be destroyed
+  std::auto_ptr< reco::PFCandidateElectronExtraCollection> transferElectronExtra()  {
+    std::auto_ptr< reco::PFCandidateElectronExtraCollection> result(new reco::PFCandidateElectronExtraCollection);
+    result->insert(result->end(),pfElectronExtra_.begin(),pfElectronExtra_.end());
+    return result;
+  }
+
 
   /// \return collection of cleaned HF candidates
   std::auto_ptr< reco::PFCandidateCollection >& transferCleanedCandidates() {
@@ -241,6 +255,9 @@ class PFAlgo {
   std::auto_ptr< reco::PFCandidateCollection >    pfPunchThroughHadronCleanedCandidates_;
   /// the collection of  added muon candidates
   std::auto_ptr< reco::PFCandidateCollection >    pfAddedMuonCandidates_;
+
+  /// the unfiltered electron collection 
+  reco::PFCandidateElectronExtraCollection    pfElectronExtra_;
 
   ///Checking if a given cluster is a satellite cluster
   ///of a given charged hadron (track)

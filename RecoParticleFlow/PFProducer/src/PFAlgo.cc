@@ -2,6 +2,7 @@
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"  //PFMuons
 #include "RecoParticleFlow/PFProducer/interface/PFElectronAlgo.h"  
 #include "RecoParticleFlow/PFProducer/interface/PFConversionAlgo.h"  
+#include "RecoParticleFlow/PFProducer/interface/PFElectronExtraEqual.h"
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibrationHF.h"
@@ -42,6 +43,7 @@
 
 #include "boost/graph/adjacency_matrix.hpp" 
 #include "boost/graph/graph_utility.hpp" 
+
 
 using namespace std;
 using namespace reco;
@@ -276,6 +278,9 @@ void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks ) {
   else 
     pfAddedMuonCandidates_.reset( new reco::PFCandidateCollection );
 
+  // not a auto_ptr; shout not be deleted after transfer
+  pfElectronExtra_.clear();
+  
   if( debug_ ) {
     cout<<"*********************************************************"<<endl;
     cout<<"*****           Particle flow algorithm             *****"<<endl;
@@ -377,11 +382,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
   if (usePFElectrons_) {
     if (pfele_->isElectronValidCandidate(blockref,active)){
       // if there is at least a valid candidate is get the vector of pfcandidates
-      std::vector<reco::PFCandidate> PFElectCandidates_;
-      PFElectCandidates_ = pfele_->getElectronCandidates();
-      for ( std::vector<reco::PFCandidate>::iterator ec = PFElectCandidates_.begin();
-	    ec != PFElectCandidates_.end(); ++ec )
-	{
+      const std::vector<reco::PFCandidate> & PFElectCandidates_(pfele_->getElectronCandidates());
+      for ( std::vector<reco::PFCandidate>::const_iterator ec = PFElectCandidates_.begin();
+	    ec != PFElectCandidates_.end(); ++ec ) {
 	  pfCandidates_->push_back(*ec);
 	  // the pfalgo candidates vector is filled
 	}
@@ -391,18 +394,14 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     pfElectronCandidates_->insert(pfElectronCandidates_->end(), 
                                   pfele_->getAllElectronCandidates().begin(), 
                                   pfele_->getAllElectronCandidates().end()); 
-    std::vector<reco::PFCandidate>::const_iterator ec=pfele_->getAllElectronCandidates().begin(); 
-    /*
-    for(;ec!=pfele_->getAllElectronCandidates().end();++ec) 
-      { 
-        unsigned nd=ec->numberOfDaughters(); 
-        for(unsigned i=0;i<nd;++i) 
-	  std::cout << *(PFCandidate*)ec->daughter(i) << std::endl; 
-      } 
-    */
-  }
 
-  
+    
+    pfElectronExtra_.insert(pfElectronExtra_.end(),
+			    pfele_->getElectronExtra().begin(),
+			    pfele_->getElectronExtra().end());
+    }
+
+
   // usePFConversions_ is used to switch ON/OFF the use of the PFConversionAlgo
   if (usePFConversions_ && false) {
     if (pfConversion_->isConversionValidCandidate(blockref, active )){
@@ -3795,3 +3794,54 @@ PFAlgo::postMuonCleaning( const edm::Handle<reco::MuonCollection>& muonh,
 
 }
 
+void PFAlgo::setElectronExtraRef(const edm::OrphanHandle<reco::PFCandidateElectronExtraCollection >& extrah) {
+  if(!usePFElectrons_) return;
+  //  std::cout << " setElectronExtraRef " << std::endl;
+  unsigned size=pfCandidates_->size();
+
+  for(unsigned ic=0;ic<size;++ic) {
+    // select the electrons and add the extra
+    if((*pfCandidates_)[ic].particleId()==PFCandidate::e) {
+      
+      PFElectronExtraEqual myExtraEqual((*pfCandidates_)[ic].gsfTrackRef());
+      std::vector<PFCandidateElectronExtra>::const_iterator it=find_if(pfElectronExtra_.begin(),pfElectronExtra_.end(),myExtraEqual);
+      if(it!=pfElectronExtra_.end()) {
+	//	std::cout << " Index " << it-pfElectronExtra_.begin() << std::endl;
+	reco::PFCandidateElectronExtraRef theRef(extrah,it-pfElectronExtra_.begin());
+	(*pfCandidates_)[ic].setPFElectronExtraRef(theRef);
+      }
+      else {
+	(*pfCandidates_)[ic].setPFElectronExtraRef(PFCandidateElectronExtraRef());
+      }
+    }
+    else  // else save the mva and the extra as well ! 
+      {
+	if((*pfCandidates_)[ic].trackRef().isNonnull()) {
+	  PFElectronExtraKfEqual myExtraEqual((*pfCandidates_)[ic].trackRef());
+	  std::vector<PFCandidateElectronExtra>::const_iterator it=find_if(pfElectronExtra_.begin(),pfElectronExtra_.end(),myExtraEqual);
+	  if(it!=pfElectronExtra_.end()) {
+	    (*pfCandidates_)[ic].set_mva_e_pi(it->mvaVariable(PFCandidateElectronExtra::MVA_MVA));
+	    reco::PFCandidateElectronExtraRef theRef(extrah,it-pfElectronExtra_.begin());
+	    (*pfCandidates_)[ic].setPFElectronExtraRef(theRef);
+	  }	
+	}
+      }
+
+  }
+
+  size=pfElectronCandidates_->size();
+  for(unsigned ic=0;ic<size;++ic) {
+    // select the electrons - this test is actually not needed for this collection
+    if((*pfElectronCandidates_)[ic].particleId()==PFCandidate::e) {
+      // find the corresponding extra
+      PFElectronExtraEqual myExtraEqual((*pfElectronCandidates_)[ic].gsfTrackRef());
+      std::vector<PFCandidateElectronExtra>::const_iterator it=find_if(pfElectronExtra_.begin(),pfElectronExtra_.end(),myExtraEqual);
+      if(it!=pfElectronExtra_.end()) {
+	reco::PFCandidateElectronExtraRef theRef(extrah,it-pfElectronExtra_.begin());
+	(*pfElectronCandidates_)[ic].setPFElectronExtraRef(theRef);
+
+      }
+    }
+  }
+
+}

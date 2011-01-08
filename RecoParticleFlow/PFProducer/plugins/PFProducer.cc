@@ -150,9 +150,12 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   produces<reco::PFCandidateCollection>("CleanedPunchThroughNeutralHadrons");
   produces<reco::PFCandidateCollection>("AddedMuonsAndHadrons");
 
-  if (usePFElectrons_)
+
+  if (usePFElectrons_) {
     produces<reco::PFCandidateCollection>(electronOutputCol_);
-  
+    produces<reco::PFCandidateElectronExtraCollection>(electronExtraOutputCol_);
+  }
+
   double nSigmaECAL 
     = iConfig.getParameter<double>("pf_nsigma_ECAL");
   double nSigmaHCAL 
@@ -463,6 +466,18 @@ PFProducer::produce(Event& iEvent,
   if ( postMuonCleaning_ )
     pfAlgo_->postMuonCleaning( muons, *vertices );
 
+  // Florian 5/01/2011
+  // Save the PFElectron Extra Collection First as to be able to create valid References  
+  if(usePFElectrons_)   {  
+    auto_ptr< reco::PFCandidateElectronExtraCollection >
+      pOutputElectronCandidateExtraCollection( pfAlgo_->transferElectronExtra() ); 
+
+    const edm::OrphanHandle<reco::PFCandidateElectronExtraCollection > electronExtraProd=
+      iEvent.put(pOutputElectronCandidateExtraCollection,electronExtraOutputCol_);      
+    pfAlgo_->setElectronExtraRef(electronExtraProd);
+  }
+
+
   // Save cosmic cleaned muon candidates
   auto_ptr< reco::PFCandidateCollection > 
     pCosmicsMuonCleanedCandidateCollection( pfAlgo_->transferCosmicsMuonCleanedCandidates() ); 
@@ -532,6 +547,7 @@ PFProducer::produce(Event& iEvent,
       auto_ptr< reco::PFCandidateCollection >  
 	pOutputElectronCandidateCollection( pfAlgo_->transferElectronCandidates() ); 
       iEvent.put(pOutputElectronCandidateCollection,electronOutputCol_);
+
     }
 }
 
