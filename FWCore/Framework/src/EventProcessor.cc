@@ -1,8 +1,4 @@
 
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/msg.h>
-
 #include "FWCore/Framework/interface/EventProcessor.h"
 
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
@@ -66,6 +62,9 @@
 #include <iomanip>
 #include <iostream>
 #include <utility>
+
+#include <sys/ipc.h>
+#include <sys/msg.h>
 
 //Used for forking
 #include <sys/types.h>
@@ -592,8 +591,6 @@ namespace edm {
     //   initialize(iToken, iLegacy);
     FDEBUG(2) << parameterSet << std::endl;
     connectSigs(this);
-    ProcessConfigurationRegistry::instance()->insertMapped(*processConfiguration_);
-    BranchIDListHelper::updateRegistries(*preg_);
   }
 
   EventProcessor::~EventProcessor() {

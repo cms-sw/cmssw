@@ -1,10 +1,11 @@
+#include "FWCore/Framework/interface/Schedule.h"
 
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
-#include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/interface/TriggerReport.h"
 #include "FWCore/Framework/src/Factory.h"
@@ -295,6 +296,9 @@ namespace edm {
     // Sanity check: make sure nobody has added a worker after we've
     // already relied on all_workers_ being full.
     assert (all_workers_count == all_workers_.size());
+
+    ProcessConfigurationRegistry::instance()->insertMapped(*processConfiguration);
+    BranchIDListHelper::updateRegistries(preg);
   } // Schedule::Schedule
 
   void
