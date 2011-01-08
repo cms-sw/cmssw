@@ -10,22 +10,22 @@
    \date 19 Jul 2005
 */
 
-#include <map>
-#include <set>
-#include <iosfwd>
-#include <string>
-#include <vector>
-
-#include "boost/array.hpp"
-
-#include "DataFormats/Provenance/interface/BranchKey.h"
-#include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchKey.h"
+#include "DataFormats/Provenance/interface/BranchListIndex.h"
+#include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "DataFormats/Provenance/interface/ProductTransientIndex.h"
 #include "DataFormats/Provenance/interface/Transient.h"
-
 #include "DataFormats/Provenance/interface/TransientProductLookupMap.h"
+
+#include "boost/array.hpp"
+
+#include <iosfwd>
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
 
 namespace edm {
 
@@ -61,9 +61,9 @@ namespace edm {
     void setFrozen(bool initializeLookupInfo = true) const;
 
     std::string merge(ProductRegistry const& other,
-	std::string const& fileName,
-	BranchDescription::MatchMode parametersMustMatch = BranchDescription::Permissive,
-	BranchDescription::MatchMode branchesMustMatch = BranchDescription::Permissive);
+        std::string const& fileName,
+        BranchDescription::MatchMode parametersMustMatch = BranchDescription::Permissive,
+        BranchDescription::MatchMode branchesMustMatch = BranchDescription::Permissive);
 
     void updateFromInput(ProductList const& other);
 
@@ -109,7 +109,7 @@ namespace edm {
     bool anyProducts(BranchType const brType) const;
 
     ConstProductList& constProductList() const {
-	 //throwIfNotFrozen();
+       //throwIfNotFrozen();
        return transients_.get().constProductList_;
     }
 
@@ -136,10 +136,17 @@ namespace edm {
       TransientProductLookupMap elementLookup_;
 
       std::map<BranchID, ProductTransientIndex> branchIDToIndex_;
+
+      BranchListIndex producedBranchListIndex_;
     };
 
     bool productProduced(BranchType branchType) const {return transients_.get().productProduced_[branchType];}
     bool anyProductProduced() const {return transients_.get().anyProductProduced_;}
+    BranchListIndex producedBranchListIndex() const {return transients_.get().producedBranchListIndex_;}
+
+    void setProducedBranchListIndex(BranchListIndex blix) const{
+      transients_.get().producedBranchListIndex_ = blix;
+    }
 
   private:
     void setProductProduced(BranchType branchType) const {
