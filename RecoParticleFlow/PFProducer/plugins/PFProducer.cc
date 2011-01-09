@@ -283,8 +283,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 
 
 
-
-  pfAlgo_->setCandConnectorParameters( iCfgCandConnector );
+  if (usePFNuclearInteractions)
+    pfAlgo_->setCandConnectorParameters( iCfgCandConnector );
 
   // Muon parameters
   std::vector<double> muonHCAL

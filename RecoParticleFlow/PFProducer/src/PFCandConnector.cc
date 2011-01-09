@@ -22,8 +22,6 @@ PFCandConnector::connect(std::auto_ptr<PFCandidateCollection>& pfCand) {
   bMask_.clear();
   bMask_.resize(pfCand->size(), false);
 
-  //  debug_ = true;
-
   // loop on primary
   if (bCorrect_){
     if(debug_){
@@ -31,8 +29,8 @@ PFCandConnector::connect(std::auto_ptr<PFCandidateCollection>& pfCand) {
       cout << "==================== ------------------------------ ===============" << endl;
       cout << "====================         Cand Connector         ===============" << endl;
       cout << "==================== ------------------------------ ===============" << endl;
-      cout << "====================   \tfor " <<  pfCand->size() << " Candidates\t =============" << endl; 
-      cout << "==================== primary calibrated " << bCalibPrimary_ << "=============" << endl;
+      cout << "====================   \tfor " <<  pfCand->size() << " Candidates\t  =============" << endl; 
+      cout << "==================== primary calibrated " << bCalibPrimary_ << "     =============" << endl;
     }
 
     for( unsigned int ce1=0; ce1 < pfCand->size(); ++ce1){

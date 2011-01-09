@@ -70,6 +70,16 @@ class PFAlgo {
   void setCandConnectorParameters( const edm::ParameterSet& iCfgCandConnector ){
     connector_.setParameters(iCfgCandConnector);
   }
+ 
+  void setCandConnectorParameters(bool bCorrect, 
+				  bool bCalibPrimary, 
+				  double dptRel_PrimaryTrack, 
+				  double dptRel_MergedTrack, 
+				  double ptErrorSecondary, 
+				  std::vector<double> nuclCalibFactors){
+    connector_.setParameters(bCorrect, bCalibPrimary, dptRel_PrimaryTrack, dptRel_MergedTrack, ptErrorSecondary, nuclCalibFactors);
+  }
+
 
   void setPFMuonAndFakeParameters(std::vector<double> muonHCAL,
 				  std::vector<double> muonECAL,
