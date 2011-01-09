@@ -40,14 +40,16 @@ int main(int argc, char* argv[])
 
   // get the python configuration
   PythonProcessDesc builder(argv[1]);
-  edm::ParameterSet const& cfg = builder.processDesc()->getProcessPSet()->getParameter<edm::ParameterSet>("MuonAnalyzer");
+  const edm::ParameterSet& in  = builder.processDesc()->getProcessPSet()->getParameter<edm::ParameterSet>("fwliteInput" );
+  const edm::ParameterSet& out = builder.processDesc()->getProcessPSet()->getParameter<edm::ParameterSet>("fwliteOutput");
+  const edm::ParameterSet& ana = builder.processDesc()->getProcessPSet()->getParameter<edm::ParameterSet>("muonAnalyzer");
 
   // now get each parameter
-  int maxEvents_( cfg.getParameter<int>("maxEvents") );
-  unsigned int outputEvery_( cfg.getParameter<unsigned int>("outputEvery") );
-  std::string outputFile_( cfg.getParameter<std::string>("outputFile" ) );
-  std::vector<std::string> inputFiles_( cfg.getParameter<std::vector<std::string> >("fileNames") );
-  edm::InputTag muons_( cfg.getParameter<edm::InputTag>("muons") );
+  int maxEvents_( in.getParameter<int>("maxEvents") );
+  unsigned int outputEvery_( in.getParameter<unsigned int>("outputEvery") );
+  std::string outputFile_( out.getParameter<std::string>("fileName" ) );
+  std::vector<std::string> inputFiles_( in.getParameter<std::vector<std::string> >("fileNames") );
+  edm::InputTag muons_( ana.getParameter<edm::InputTag>("muons") );
 
   // book a set of histograms
   fwlite::TFileService fs = fwlite::TFileService(outputFile_.c_str());
