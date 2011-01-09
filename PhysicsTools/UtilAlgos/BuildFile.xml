@@ -8,6 +8,7 @@
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/Provenance"/>
 <use   name="CommonTools/UtilAlgos"/>
+<use   name="DataFormats/MuonReco"/>
 <use   name="root"/>
 <export>
   <lib   name="1"/>

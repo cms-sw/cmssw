@@ -1,4 +1,10 @@
-<bin   file="mergeTFileServiceHistograms.cpp" name="mergeTFileServiceHistograms">
-  <use   name="root"/>
-  <use   name="boost_program_options"/>
-</bin>
+<use   name="root"/>
+<use   name="boost_program_options"/>
+<use   name="PhysicsTools/FWLite"/>
+<use   name="PhysicsTools/UtilAlgos"/>
+
+<environment>
+  <bin   file="FWLiteWithBasicAnalyzer.cc"></bin>
+  <bin   file="mergeTFileServiceHistograms.cpp"></bin>
+</environment>
+
