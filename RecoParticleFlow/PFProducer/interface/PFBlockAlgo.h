@@ -78,7 +78,8 @@ class PFBlockAlgo {
 		   const T<reco::GsfPFRecTrackCollection>&    gsftrackh,
 		   const T<reco::GsfPFRecTrackCollection>&    convbremgsftrackh,
 		   const T<reco::MuonCollection>&    muonh,
-		   const T<reco::PFDisplacedTrackerVertexCollection>&  displacedh,
+		   const T<reco::PFDisplacedTrackerVertexCollection>&  nuclearh,
+		   const T<reco::PFRecTrackCollection>&    nucleartrackh,
 		   const T<reco::PFConversionCollection>&  conv,
 		   const T<reco::PFV0Collection>&  v0,
 		   const T<reco::PFClusterCollection>&  ecalh,
@@ -109,10 +110,11 @@ class PFBlockAlgo {
     T<reco::GsfPFRecTrackCollection> gsftrackh;
     T<reco::GsfPFRecTrackCollection> convbremgsftrackh;
     T<reco::MuonCollection> muonh;
-    T<reco::PFDisplacedTrackerVertexCollection> displacedh;
+    T<reco::PFDisplacedTrackerVertexCollection> nuclearh;
+    T<reco::PFRecTrackCollection>    nucleartrackh;
     T<reco::PFConversionCollection> convh;
     T<reco::PFV0Collection> v0;
-    setInput<T>( trackh, gsftrackh, convbremgsftrackh, muonh, displacedh, convh, v0, 
+    setInput<T>( trackh, gsftrackh, convbremgsftrackh, muonh, nuclearh, nucleartrackh, convh, v0, 
 		 ecalh, hcalh, hfemh, hfhadh, psh, 
 		 trackMask, ecalMask, hcalMask, psMask); 
   }
@@ -131,10 +133,11 @@ class PFBlockAlgo {
 		  const Mask& psMask = dummyMask_ ) {
     T<reco::GsfPFRecTrackCollection> convbremgsftrackh;
     T<reco::MuonCollection> muonh;
-    T<reco::PFDisplacedTrackerVertexCollection>&  displacedh;
+    T<reco::PFDisplacedTrackerVertexCollection>  nuclearh;
+    T<reco::PFRecTrackCollection>    nucleartrackh;
     T<reco::PFConversionCollection> convh;
     T<reco::PFV0Collection> v0;
-    setInput<T>( trackh, gsftrackh, convbremgsftrackh, muonh, displacedh, convh, v0, ecalh, hcalh, psh, 
+    setInput<T>( trackh, gsftrackh, convbremgsftrackh, muonh, nuclearh, nucleartrackh, convh, v0, ecalh, hcalh, psh, 
 		 trackMask, gsftrackMask,ecalMask, hcalMask, psMask); 
   }
   
@@ -302,7 +305,8 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 		      const T<reco::GsfPFRecTrackCollection>&    gsftrackh, 
 		      const T<reco::GsfPFRecTrackCollection>&    convbremgsftrackh,
 		      const T<reco::MuonCollection>&    muonh,
-		      const T<reco::PFDisplacedTrackerVertexCollection>&  displacedh,
+		      const T<reco::PFDisplacedTrackerVertexCollection>&  nuclearh,
+		      const T<reco::PFRecTrackCollection>&    nucleartrackh,
 		      const T<reco::PFConversionCollection>&  convh,
 		      const T<reco::PFV0Collection>&  v0,
                       const T<reco::PFClusterCollection>&  ecalh,
@@ -334,8 +338,14 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 		 hfhadMask,
                  psMask  );
 
-
-
+  /*
+  if (nucleartrackh.isValid()){
+    for(unsigned i=0;i<nucleartrackh->size(); i++) {
+      reco::PFRecTrackRef trackRef(nucleartrackh,i);
+      std::cout << *trackRef << std::endl;
+    }
+  }
+  */
 
   /// -------------- GSF Primary tracks and brems ---------------------
   std::vector<reco::PFRecTrackRef> convBremPFRecTracks;
@@ -513,11 +523,11 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
   /// The tracks from Displaced Vertices are filled into the elements collection
 
-  if(displacedh.isValid()) {
+  if(nuclearh.isValid()) {
     reco::PFBlockElement* trkFromDisplacedVertexElement = 0;
-    for(unsigned i=0;i<displacedh->size(); i++) {
+    for(unsigned i=0;i<nuclearh->size(); i++) {
 
-      const reco::PFDisplacedTrackerVertexRef dispacedVertexRef( displacedh, i );
+      const reco::PFDisplacedTrackerVertexRef dispacedVertexRef( nuclearh, i );
 
       //      std::cout << "Nuclear Interactions Purity " <<  nuclearInteractionsPurity_ << std::endl;
       //     dispacedVertexRef->displacedVertexRef()->Dump();
@@ -543,8 +553,29 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	}
 	for(unsigned iTk=0;iTk < trackSize; iTk++) {
 
+
+	  // This peace of code looks weired at first but it seems to be necessary to let 
+	  // PFRooTEvent work properly. Since the track position called REPPoint is transient 
+	  // it has to be calculated and the PFRecTrack collection associted to Displaced Vertex is not
+	  // anymore the original collection. So here we match both collections if possible
 	  reco::PFRecTrackRef newPFRecTrackRef = dispacedVertexRef->pfRecTracks()[iTk]; 
+	  reco::TrackBaseRef constTrackBaseRef(newPFRecTrackRef->trackRef());
+
+	  
+	  if (nucleartrackh.isValid()){
+	    for(unsigned i=0;i<nucleartrackh->size(); i++) {
+	      reco::PFRecTrackRef transientPFRecTrackRef(nucleartrackh,i);
+	      reco::TrackBaseRef transientTrackBaseRef(transientPFRecTrackRef->trackRef());
+	      if (constTrackBaseRef==transientTrackBaseRef){
+		newPFRecTrackRef = transientPFRecTrackRef;
+		break;
+	      }
+	    }
+	  }
 	  reco::TrackBaseRef newTrackBaseRef(newPFRecTrackRef->trackRef());
+	  
+
+
 	  bool bNew = true;
 	  reco::PFBlockElement::TrackType blockType;
 
@@ -562,6 +593,9 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
 	  /// This is a new track not yet included into the elements collection
 	  if (bNew) { 
+	    
+
+
 	    trkFromDisplacedVertexElement = new reco::PFBlockElementTrack(newPFRecTrackRef);
 	    elements_.push_back( trkFromDisplacedVertexElement );
 	  }
@@ -628,7 +662,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
 
       // this track has been disabled
-      if( (!trackMask.empty() && !trackMask[i])) continue;
+      if( !trackMask.empty() && !trackMask[i] ) continue;
       
       reco::PFRecTrackRef ref( trackh,i );
 
@@ -669,7 +703,8 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	    }
 	  }
 	} else primaryElement->setMuonRef( muonref );
-      } 
+
+      }
 
       if (!trackMaskVertex.empty() && !trackMaskVertex[i]) continue;
 
@@ -686,6 +721,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	}
       }
       elements_.push_back( primaryElement );
+
     }
 
     if (debug_) std::cout << " " << std::endl;

@@ -22,6 +22,8 @@ PFCandConnector::connect(std::auto_ptr<PFCandidateCollection>& pfCand) {
   bMask_.clear();
   bMask_.resize(pfCand->size(), false);
 
+  // debug_ = true;
+
   // loop on primary
   if (bCorrect_){
     if(debug_){

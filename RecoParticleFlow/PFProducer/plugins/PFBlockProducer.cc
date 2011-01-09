@@ -278,6 +278,8 @@ PFBlockProducer::produce(Event& iEvent,
     LogError("PFBlockProducer")<<" cannot get PS clusters: "
 			       <<inputTagPFClustersPS_<<endl;
     
+  Handle< reco::PFRecTrackCollection > nuclearRecTracks;
+
   if( usePFatHLT_  ) {
      pfBlockAlgo_.setInput( recTracks, 			   
 			   clustersECAL,
@@ -291,6 +293,7 @@ PFBlockProducer::produce(Event& iEvent,
 			   convBremGsfrecTracks,
 			   recMuons, 
 			   pfNuclears,
+			   nuclearRecTracks,
 			   pfConversions,
 			   pfV0,
 			   clustersECAL,
