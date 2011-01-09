@@ -4,6 +4,7 @@ root outtree 0
 
 //colin	mode 1
 
+//root file display.root
 root file ../../Configuration/test/display.root
 
 // filter ------------------------------------------------------------

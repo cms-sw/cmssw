@@ -1500,9 +1500,9 @@ void PFRootEventManager::connect( const char* infilename ) {
   usePFNuclearInteractions_=false;
   options_->GetOpt("particle_flow", "usePFNuclearInteractions", usePFNuclearInteractions_);
   if( usePFNuclearInteractions_ ) {
-    std::string pfDisplacedTrackerVertextagname;
-    options_->GetOpt("root","PFDisplacedVertex_inputTag", pfDisplacedTrackerVertextagname);
-    pfDisplacedTrackerVertexTag_ = edm::InputTag(pfDisplacedTrackerVertextagname);
+    std::string pfNuclearTrackerVertextagname;
+    options_->GetOpt("root","PFDisplacedVertex_inputTag", pfNuclearTrackerVertextagname);
+    pfNuclearTrackerVertexTag_ = edm::InputTag(pfNuclearTrackerVertextagname);
   }
 
   std::string trueParticlestagname;
@@ -1681,7 +1681,7 @@ bool PFRootEventManager::processEntry(int entry) {
     cout<<"number of gsfrecTracks         : "<<gsfrecTracks_.size()<<endl;
     cout<<"number of convBremGsfrecTracks : "<<convBremGsfrecTracks_.size()<<endl;
     cout<<"number of muons                : "<<muons_.size()<<endl;
-    cout<<"number of displaced vertices   : "<<pfDisplacedTrackerVertex_.size()<<endl;
+    cout<<"number of displaced vertices   : "<<pfNuclearTrackerVertex_.size()<<endl;
     cout<<"number of conversions          : "<<conversion_.size()<<endl;
     cout<<"number of v0                   : "<<v0_.size()<<endl;
     cout<<"number of stdTracks            : "<<stdTracks_.size()<<endl;
@@ -1984,13 +1984,13 @@ bool PFRootEventManager::readFromSimulation(int entry) {
         <<entry << " " << primaryVerticesTag_<<endl;
   }
 
-  bool foundPFV = iEvent.getByLabel(pfDisplacedTrackerVertexTag_,pfDisplacedTrackerVertexHandle_);
+  bool foundPFV = iEvent.getByLabel(pfNuclearTrackerVertexTag_,pfNuclearTrackerVertexHandle_);
   if ( foundPFV ) { 
-    pfDisplacedTrackerVertex_ = *pfDisplacedTrackerVertexHandle_;
-    // cout << "Found " << pfDisplacedTrackerVertex_.size() << " secondary PF vertices" << endl;
+    pfNuclearTrackerVertex_ = *pfNuclearTrackerVertexHandle_;
+    // cout << "Found " << pfNuclearTrackerVertex_.size() << " secondary PF vertices" << endl;
   } else if ( usePFNuclearInteractions_ ) { 
-    cerr<<"PFRootEventManager::ProcessEntry : pfDisplacedTrackerVertex Collection not found : "
-        <<entry << " " << pfDisplacedTrackerVertexTag_<<endl;
+    cerr<<"PFRootEventManager::ProcessEntry : pfNuclearTrackerVertex Collection not found : "
+        <<entry << " " << pfNuclearTrackerVertexTag_<<endl;
   }
 
   bool foundrecTracks = iEvent.getByLabel(recTracksTag_,recTracksHandle_);
@@ -2729,11 +2729,11 @@ void PFRootEventManager::particleFlow() {
   edm::OrphanHandle< reco::MuonCollection > muonh( &muons_, 
 						   edm::ProductID(6) );
 
-  edm::OrphanHandle< reco::PFDisplacedTrackerVertexCollection > displacedh( &pfDisplacedTrackerVertex_, 
+  edm::OrphanHandle< reco::PFDisplacedTrackerVertexCollection > nuclearh( &pfNuclearTrackerVertex_, 
                                                           edm::ProductID(7) );
 
 
-  //recoPFRecTracks_pfDisplacedTrackerVertex__TEST.
+  //recoPFRecTracks_pfNuclearTrackerVertex__TEST.
 
   edm::OrphanHandle< reco::PFConversionCollection > convh( &conversion_, 
 							   edm::ProductID(8) );
@@ -2766,7 +2766,7 @@ void PFRootEventManager::particleFlow() {
   
   if ( !useAtHLT )
     pfBlockAlgo_.setInput( trackh, gsftrackh, convBremGsftrackh,
-			   muonh, displacedh, displacedtrackh, convh, v0,
+			   muonh, nuclearh, displacedtrackh, convh, v0,
 			   ecalh, hcalh, hfemh, hfhadh, psh,
 			   trackMask,gsftrackMask,
 			   ecalMask, hcalMask, hfemMask, hfhadMask, psMask );

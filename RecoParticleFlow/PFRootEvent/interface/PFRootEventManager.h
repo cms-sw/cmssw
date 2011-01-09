@@ -544,9 +544,9 @@ class PFRootEventManager {
   reco::PFV0Collection v0_;
 
   /// PFDisplacedVertex
-  edm::Handle<reco::PFDisplacedTrackerVertexCollection> pfDisplacedTrackerVertexHandle_;
-  edm::InputTag pfDisplacedTrackerVertexTag_;
-  reco::PFDisplacedTrackerVertexCollection pfDisplacedTrackerVertex_;
+  edm::Handle<reco::PFDisplacedTrackerVertexCollection> pfNuclearTrackerVertexHandle_;
+  edm::InputTag pfNuclearTrackerVertexTag_;
+  reco::PFDisplacedTrackerVertexCollection pfNuclearTrackerVertex_;
 
   /// true particles
   edm::Handle<reco::PFSimParticleCollection> trueParticlesHandle_;
