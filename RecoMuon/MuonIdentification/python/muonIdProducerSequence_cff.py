@@ -20,5 +20,6 @@ muons.fillGlobalTrackQuality = True
 
 from RecoMuon.MuonIdentification.cosmics_id import *
 
-muonIdProducerSequence = cms.Sequence(glbTrackQual*muons*calomuons*muonEcalDetIds)
+from RecoMuon.MuonIdentification.muonShowerInformationProducer_cff import *
+muonIdProducerSequence = cms.Sequence(glbTrackQual*muons*calomuons*muonEcalDetIds*muonShowerInformation)
 
