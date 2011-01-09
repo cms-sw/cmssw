@@ -12,10 +12,10 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2010/03/08 15:34:44 $
- *  $Revision: 1.46 $
- *  $Date: 2010/03/08 15:34:44 $
- *  $Revision: 1.46 $
+ *  $Date: 2010/09/27 13:39:24 $
+ *  $Revision: 1.49 $
+ *  $Date: 2010/09/27 13:39:24 $
+ *  $Revision: 1.49 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -70,7 +70,7 @@
 #include "RecoMuon/GlobalTrackingTools/interface/MuonTrackingRegionBuilder.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
