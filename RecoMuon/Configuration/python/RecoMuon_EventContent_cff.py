@@ -34,6 +34,7 @@ RecoMuonAOD = cms.PSet(
                                            'keep recoMuons_muons_*_*', 
                                            'keep booledmValueMap_muid*_*_*',
                                            'keep recoMuonTimeExtraedmValueMap_muons_*_*',
+                                           'keep *_muonShowerInformation_*_*',
                                            # Cosmics
                                            'keep recoTracks_cosmicMuons_*_*',
                                            'keep recoTracks_globalCosmicMuons_*_*', 
