@@ -36,16 +36,21 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   firstauxTS_(conf.getParameter<int>("firstSample")+conf.getParameter<int>("firstAuxOffset"))
 {
   std::string subd=conf.getParameter<std::string>("Subdetector");
-  hbheFlagSetter_=0;
-  hbheHSCPFlagSetter_=0;
+  //Set all FlagSetters to 0
+  /* Important to do this!  Otherwise, if the setters are turned off,
+     the "if (XSetter_) delete XSetter_;" commands can crash
+  */
+  hbheFlagSetter_             = 0;
+  hbheHSCPFlagSetter_         = 0;
+  hbhePulseShapeFlagSetter_   = 0;
   hbheTimingShapedFlagSetter_ = 0;
-  hfdigibit_=0;
+  hfdigibit_                  = 0;
 
-  hfS9S1_=0;
-  hfS8S1_=0;
-  hfPET_=0;
-  saturationFlagSetter_=0;
-  HFTimingTrustFlagSetter_=0;
+  hfS9S1_                     = 0;
+  hfS8S1_                     = 0;
+  hfPET_                      = 0;
+  saturationFlagSetter_       = 0;
+  HFTimingTrustFlagSetter_    = 0;
   
   if (setSaturationFlags_)
     {
