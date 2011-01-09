@@ -10,13 +10,12 @@
 #include <TSystem.h>
 
 #include "DataFormats/FWLite/interface/ChainEvent.h"
+#include "DataFormats/FWLite/interface/InputSource.h"
+#include "DataFormats/FWLite/interface/OutputFiles.h"
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "PhysicsTools/FWLite/interface/TFileService.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
-#include "DataFormats/FWLite/interface/InputSource.h"
-#include "DataFormats/FWLite/interface/OutputFiles.h"
-
 
 /**
   \class    FWLiteAnalyzerWrapper FWLiteAnalyzerWrapper.h "PhysicsTools/UtilAlgos/interface/FWLiteAnalyzerWrapper.h"
@@ -56,9 +55,7 @@
 
      // get the python configuration
      PythonProcessDesc builder(argv[1]);
-     edm::ParameterSet cfg = *(builder.processDesc()->getProcessPSet());
-     
-     WrappedFWLiteAnalyzer ana(cfg, std::string("MuonAnalyzer"), std::string("analyzeBasicPat"));
+     WrappedFWLiteAnalyzer ana(*(builder.processDesc()->getProcessPSet()), std::string("MuonAnalyzer"), std::string("analyzeBasicPat"));
      ana.beginJob();
      ana.analyze();
      ana.endJob();
@@ -78,12 +75,11 @@
    )
 
    process.fwliteOutput = cms.PSet(
-         fileName = cms.untracked.string('outputHistos.root')  ## mandatory
+         fileName = cms.untracked.string('outputHistos.root')      ## mandatory
    )
    
-   
-   process.MuonAnalyzer = cms.PSet(
-     muons = cms.InputTag('cleanPatMuons')              ## input for the simple example above
+   process.muonAnalyzer = cms.PSet(
+     muons = cms.InputTag('cleanPatMuons') ## input for the simple example above
    )
 
 
@@ -120,45 +116,39 @@ namespace fwlite {
     virtual void endJob() {  analyzer_->endJob(); }
     
   protected:
-    /// input file handler
+    /// helper class  for input parameter handling
     fwlite::InputSource inputHandler_;
-    /// output file
+    /// helper class for output file handling
     fwlite::OutputFiles outputHandler_;
-    /// TFileService for histogram management
-    fwlite::TFileService fileService_;
     /// maximal number of events to be processed (-1 means to loop over all event)
     int maxEvents_;
     /// number of events after which the progress will be reported (0 means no report)
     unsigned int reportAfter_;
+    /// TFileService for histogram management
+    fwlite::TFileService fileService_;
     /// derived class of type BasicAnalyzer
     boost::shared_ptr<T> analyzer_;
   };
 
   /// default contructor
   template<class T>
-    AnalyzerWrapper<T>::AnalyzerWrapper(const edm::ParameterSet& cfg, std::string analyzerName, 
-					std::string directory): 
-    inputHandler_( cfg ),
-    outputHandler_( cfg ),
-    fileService_( outputHandler_.file() ),
-    maxEvents_(inputHandler_.maxEvents()),
-    reportAfter_(inputHandler_.reportAfter())
+  AnalyzerWrapper<T>::AnalyzerWrapper(const edm::ParameterSet& cfg, std::string analyzerName, std::string directory): 
+  inputHandler_( cfg ), outputHandler_( cfg ), maxEvents_(inputHandler_.maxEvents()), 
+  reportAfter_(inputHandler_.reportAfter()), fileService_( outputHandler_.file() ) 
   {
-    edm::ParameterSet const & anaCfg = cfg.getParameter<edm::ParameterSet>(analyzerName.c_str());
-    // read maximal number of events to be processed (if it exists)
-
+    // analysis specific parameters
+    const edm::ParameterSet& ana = cfg.getParameter<edm::ParameterSet>(analyzerName.c_str());
     if(directory.empty()){
       // create analysis class of type BasicAnalyzer
-      analyzer_ = boost::shared_ptr<T>( new T( anaCfg, fileService_) );  
+      analyzer_ = boost::shared_ptr<T>( new T( ana, fileService_) );  
     }
     else{
       // create a directory in the file if directory string is non empty
       TFileDirectory dir = fileService_.mkdir(directory.c_str());
-      analyzer_ = boost::shared_ptr<T>( new T( anaCfg, dir ) );  
+      analyzer_ = boost::shared_ptr<T>( new T( ana, dir ) );  
     }
-
   }
-  
+    
   /// everything which has to be done during the event loop. NOTE: the event will be looped inside this function    
   template<class T> 
   void AnalyzerWrapper<T>::analyze(){
@@ -175,10 +165,7 @@ namespace fwlite {
       // analyze event
       analyzer_->analyze(event);
     }
-    
   }
-  
-  
 }
 
 #endif
