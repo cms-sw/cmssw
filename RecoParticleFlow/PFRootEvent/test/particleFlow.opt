@@ -4,7 +4,7 @@ root outtree 0
 
 //colin	mode 1
 
-root file display.root
+root file ../../Configuration/test/display.root
 
 // filter ------------------------------------------------------------
 
@@ -31,6 +31,8 @@ root rechits_PS_inputTag     particleFlowRecHitPS
 
 // Reconstructed tracks branch
 root recTracks_inputTag      pfTrack
+// Reconstructed tracks from displaced vertex branch
+root displacedRecTracks_inputTag pfDisplacedTrackerVertex
 // General Tracks branch
 root stdTracks_inputTag      generalTracks
 // GSF Track branch

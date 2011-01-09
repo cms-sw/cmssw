@@ -1445,6 +1445,10 @@ void PFRootEventManager::connect( const char* infilename ) {
   options_->GetOpt("root","recTracks_inputTag", recTrackstagname);
   recTracksTag_ = edm::InputTag(recTrackstagname);
 
+  std::string displacedRecTrackstagname;
+  options_->GetOpt("root","displacedRecTracks_inputTag", displacedRecTrackstagname);
+  displacedRecTracksTag_ = edm::InputTag(displacedRecTrackstagname);
+
   std::string primaryVerticestagname;
   options_->GetOpt("root","primaryVertices_inputTag", primaryVerticestagname);
   primaryVerticesTag_ = edm::InputTag(primaryVerticestagname);
@@ -1998,6 +2002,16 @@ bool PFRootEventManager::readFromSimulation(int entry) {
         <<entry << " " << recTracksTag_<<endl;
   }
 
+  bool founddisplacedRecTracks = iEvent.getByLabel(displacedRecTracksTag_,displacedRecTracksHandle_);
+  if ( founddisplacedRecTracks ) { 
+    displacedRecTracks_ = *displacedRecTracksHandle_;
+    // cout << "Found " << displacedRecTracks_.size() << " PFRecTracks" << endl;
+  } else { 
+    cerr<<"PFRootEventManager::ProcessEntry : displacedRecTracks Collection not found : "
+        <<entry << " " << displacedRecTracksTag_<<endl;
+  }
+
+
   bool foundgsfrecTracks = iEvent.getByLabel(gsfrecTracksTag_,gsfrecTracksHandle_);
   if ( foundgsfrecTracks ) { 
     gsfrecTracks_ = *gsfrecTracksHandle_;
@@ -2203,6 +2217,12 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if ( recTracks_.size() ) { 
     PreprocessRecTracks( recTracks_);
   }
+
+  if ( displacedRecTracks_.size() ) { 
+    cout << "preprocessing rec tracks" << endl;
+    PreprocessRecTracks( displacedRecTracks_);
+  }
+
 
   if(gsfrecTracks_.size()) {
     PreprocessRecTracks( gsfrecTracks_);
@@ -2685,6 +2705,9 @@ void PFRootEventManager::particleFlow() {
   edm::OrphanHandle< reco::PFRecTrackCollection > trackh( &recTracks_, 
                                                           edm::ProductID(1) );  
   
+  edm::OrphanHandle< reco::PFRecTrackCollection > displacedtrackh( &displacedRecTracks_, 
+                                                          edm::ProductID(77) );  
+
   edm::OrphanHandle< reco::PFClusterCollection > ecalh( clustersECAL_.get(), 
                                                         edm::ProductID(2) );  
   
@@ -2743,7 +2766,7 @@ void PFRootEventManager::particleFlow() {
   
   if ( !useAtHLT )
     pfBlockAlgo_.setInput( trackh, gsftrackh, convBremGsftrackh,
-			   muonh, displacedh, convh, v0,
+			   muonh, displacedh, displacedtrackh, convh, v0,
 			   ecalh, hcalh, hfemh, hfhadh, psh,
 			   trackMask,gsftrackMask,
 			   ecalMask, hcalMask, hfemMask, hfhadMask, psMask );
