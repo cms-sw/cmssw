@@ -61,8 +61,11 @@ class MuonShowerInformationFiller {
 	
   public:
 
+    ///constructors
     MuonShowerInformationFiller() {};
     MuonShowerInformationFiller(const edm::ParameterSet&);
+
+    ///destructor
     ~MuonShowerInformationFiller();
    
     /// fill muon shower variables  
@@ -74,20 +77,19 @@ class MuonShowerInformationFiller {
     /// set the services needed
     void setServices(const edm::EventSetup&);
 
-    MuonRecHitContainer findPhiCluster(MuonRecHitContainer&, const GlobalPoint&) const;
-    MuonRecHitContainer findThetaCluster(MuonRecHitContainer&, const GlobalPoint&) const;
-    MuonRecHitContainer recHits4D(const GeomDet*,edm::Handle<DTRecSegment4DCollection>, edm::Handle<CSCSegmentCollection>) const;
-    int numberOfCorrelatedHits(const MuonRecHitContainer&) const;
-    std::vector<double> stationShowerSizes(const reco::Muon&) const; 
-    std::vector<double> stationShowerRSizes(const reco::Muon&) const;
-    std::vector<int> stationUncorrelatedHits(const reco::Muon&) const;
-    std::vector<const GeomDet*> getCompatibleDets(const reco::Track&) const;
+    //set the data members
+    void fillHitsByStation(const reco::Muon&);
 
   protected:
 
     const MuonServiceProxy* getService() const { return theService; }
 
   private:
+
+    std::vector<float> theStationShowerDeltaR;
+    std::vector<float> theStationShowerTSize;
+    std::vector<int>   theAllStationHits;
+    std::vector<int>   theCorrelatedStationHits;
 
     MuonServiceProxy* theService;
 
@@ -97,8 +99,12 @@ class MuonShowerInformationFiller {
     GlobalPoint crossingPoint(const GlobalPoint&, const GlobalPoint&, const BoundDisk& ) const;
     std::vector<const GeomDet*> dtPositionToDets(const GlobalPoint&) const;
     std::vector<const GeomDet*> cscPositionToDets(const GlobalPoint&) const;
-    std::vector<MuonRecHitContainer> fillHitsByStation(const reco::Track&) const; 
     MuonRecHitContainer findPerpCluster(MuonRecHitContainer& muonRecHits) const;
+    MuonRecHitContainer findPhiCluster(MuonRecHitContainer&, const GlobalPoint&) const;
+    MuonRecHitContainer findThetaCluster(MuonRecHitContainer&, const GlobalPoint&) const;
+    MuonRecHitContainer recHits4D(const GeomDet*,edm::Handle<DTRecSegment4DCollection>, edm::Handle<CSCSegmentCollection>) const;
+    int numberOfCorrelatedHits(const MuonRecHitContainer&) const;
+    std::vector<const GeomDet*> getCompatibleDets(const reco::Track&) const;
 
 
    struct LessMag {
@@ -177,8 +183,6 @@ class MuonShowerInformationFiller {
       };
 
     std::string category_;
-    double sizeThreshold1_, sizeThreshold2_;
-    int hitThreshold1_, hitThreshold2_;
 
     unsigned long long theCacheId_TRH;
     unsigned long long theCacheId_MT;
@@ -190,13 +194,13 @@ class MuonShowerInformationFiller {
     edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
 
     edm::InputTag theDTRecHitLabel;
-    edm::InputTag theCSCSegmentsLabel;
     edm::InputTag theCSCRecHitLabel;
+    edm::InputTag theCSCSegmentsLabel;
     edm::InputTag theDT4DRecSegmentLabel;
     edm::Handle<DTRecHitCollection> theDTRecHits;
+    edm::Handle<CSCRecHit2DCollection> theCSCRecHits;
     edm::Handle<CSCSegmentCollection> theCSCSegments;
     edm::Handle<DTRecSegment4DCollection> theDT4DRecSegments;
-    edm::Handle<CSCRecHit2DCollection> theCSCRecHits;
 
     // geometry
     edm::ESHandle<GeometricSearchTracker> theTracker;

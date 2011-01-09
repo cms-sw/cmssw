@@ -4,7 +4,7 @@
  *
  *  Description: class for muon shower identification
  *
- *  $Date: 2010/12/01 09:43:25 $
+ *  $Date: 2011/11/20 17:02:00 $
  *  $Revision: 1.1 $
  *
  *  \author: A. Svyatkovskiy, Purdue University
@@ -70,8 +70,8 @@ using namespace edm;
 MuonShowerInformationFiller::MuonShowerInformationFiller(const edm::ParameterSet& par) :
   theService(0),
   theDTRecHitLabel(par.getParameter<InputTag>("DTRecSegmentLabel")),
-  theCSCSegmentsLabel(par.getParameter<InputTag>("CSCSegmentLabel")),
   theCSCRecHitLabel(par.getParameter<InputTag>("CSCRecSegmentLabel")),
+  theCSCSegmentsLabel(par.getParameter<InputTag>("CSCSegmentLabel")),
   theDT4DRecSegmentLabel(par.getParameter<InputTag>("DT4DRecSegmentLabel"))
 {
 
@@ -86,6 +86,13 @@ MuonShowerInformationFiller::MuonShowerInformationFiller(const edm::ParameterSet
 
   category_ = "MuonShowerInformationFiller";
 
+  for (int istat = 0; istat < 4; istat++) {
+      theStationShowerDeltaR.push_back(0.);
+      theStationShowerTSize.push_back(0.);
+      theAllStationHits.push_back(0);
+      theCorrelatedStationHits.push_back(0);
+  }
+
 }
 
 //
@@ -95,6 +102,9 @@ MuonShowerInformationFiller::~MuonShowerInformationFiller() {
   if (theService) delete theService;
 }
 
+//
+//Fill the MuonShower struct
+//
 reco::MuonShower MuonShowerInformationFiller::fillShowerInformation( const reco::Muon& muon, const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   reco::MuonShower returnShower;
@@ -103,14 +113,17 @@ reco::MuonShower MuonShowerInformationFiller::fillShowerInformation( const reco:
   theService->update(iSetup);
   setEvent(iEvent);
   setServices(theService->eventSetup());
+
+  fillHitsByStation(muon);
+  std::vector<int> nStationHits = theAllStationHits;
+  std::vector<int> nStationCorrelatedHits = theCorrelatedStationHits;
+  std::vector<float> stationShowerSizeT = theStationShowerTSize;
+  std::vector<float> stationShowerDeltaR = theStationShowerDeltaR;
   
-  std::vector<int> nHitsUncorrelated = stationUncorrelatedHits(muon);
-  std::vector<double> showerSizeT = stationShowerSizes(muon);
-  std::vector<double> showerDeltaR = stationShowerRSizes(muon);
-  
-  returnShower.nHitsUncorrelated = nHitsUncorrelated; 
-  returnShower.showerSizeT = showerSizeT;
-  returnShower.showerDeltaR = showerDeltaR; 
+  returnShower.nStationHits = nStationHits; 
+  returnShower.nStationCorrelatedHits = nStationCorrelatedHits;
+  returnShower.stationShowerSizeT = stationShowerSizeT;
+  returnShower.stationShowerDeltaR = stationShowerDeltaR; 
 
   return returnShower;
 
@@ -123,10 +136,16 @@ void MuonShowerInformationFiller::setEvent(const edm::Event& event) {
 
   // get all the necesary products
   event.getByLabel(theDTRecHitLabel, theDTRecHits);
+  event.getByLabel(theCSCRecHitLabel, theCSCRecHits);
   event.getByLabel(theCSCSegmentsLabel, theCSCSegments);
   event.getByLabel(theDT4DRecSegmentLabel, theDT4DRecSegments);
-  event.getByLabel(theCSCRecHitLabel, theCSCRecHits);
 
+  for (int istat = 0; istat < 4; istat++) {
+      theStationShowerDeltaR.at(istat) = 0.;
+      theStationShowerTSize.at(istat) = 0.;
+      theAllStationHits.at(istat) = 0;
+      theCorrelatedStationHits.at(istat) = 0;
+  }
 }
 
 
@@ -152,7 +171,7 @@ void MuonShowerInformationFiller::setServices(const EventSetup& setup) {
 
 
 //
-// Get 4D rechits
+// Get hits owned by segments
 //
 MuonTransientTrackingRecHit::MuonRecHitContainer 
 MuonShowerInformationFiller::recHits4D(const GeomDet* geomDet, 
@@ -190,10 +209,6 @@ MuonShowerInformationFiller::recHits4D(const GeomDet* geomDet,
 
 }
 
-
-//
-// Number of correlated hits
-//
 int MuonShowerInformationFiller::numberOfCorrelatedHits(const MuonTransientTrackingRecHit::MuonRecHitContainer& hits4d) const {
 
   if (hits4d.empty()) return 0;
@@ -294,7 +309,9 @@ MuonShowerInformationFiller::findThetaCluster(MuonTransientTrackingRecHit::MuonR
 
 }
 
-
+//
+//Used to treat overlap region
+//
 MuonTransientTrackingRecHit::MuonRecHitContainer
 MuonShowerInformationFiller::findPerpCluster(MuonTransientTrackingRecHit::MuonRecHitContainer& muonRecHits) const {
 
@@ -329,12 +346,7 @@ vector<const GeomDet*> MuonShowerInformationFiller::getCompatibleDets(const reco
 
   vector<const GeomDet*> total;
   total.reserve(1000);
-/*
-  reco::TrackRef track;
-  if ( muon.isGlobalMuon()  )            track = muon.globalTrack();
-  else if ( muon.isStandAloneMuon() )    track = muon.outerTrack();
-  else return total;
-*/
+
   LogTrace(category_)  << "Consider a track " << track.p() << " eta: " << track.eta() << " phi " << track.phi() << endl;
 
   TrajectoryStateTransform tsTrans;
@@ -379,7 +391,7 @@ vector<const GeomDet*> MuonShowerInformationFiller::getCompatibleDets(const reco
   const vector<DetLayer*>& csclayers = theService->detLayerGeometry()->allCSCLayers();
   for (vector<DetLayer*>::const_iterator iLayer = csclayers.begin(); iLayer != csclayers.end(); ++iLayer) {
 
-    GlobalPoint xPoint = crossingPoint(innerPos, outerPos, dynamic_cast<const ForwardDetLayer*>(*iLayer)); //crossing points of track with cylinder
+    GlobalPoint xPoint = crossingPoint(innerPos, outerPos, dynamic_cast<const ForwardDetLayer*>(*iLayer));
 
     // check if point is inside the detector
     if ((fabs(xPoint.y()) < 1000.0) && (fabs(xPoint.z()) < 1500.0) 
@@ -417,10 +429,6 @@ GlobalPoint MuonShowerInformationFiller::crossingPoint(const GlobalPoint& p1,
 
 }
 
-
-//
-// Intersection point of track with cylinder
-//
 GlobalPoint MuonShowerInformationFiller::crossingPoint(const GlobalPoint& p1,
                                             const GlobalPoint& p2, 
                                             const Cylinder& cyl) const {
@@ -461,7 +469,7 @@ GlobalPoint MuonShowerInformationFiller::crossingPoint(const GlobalPoint& p1,
 
 
 //
-// Intersection point of track with endcap disk
+// Intersection point of track with a forward layer
 //
 GlobalPoint MuonShowerInformationFiller::crossingPoint(const GlobalPoint& p1, 
                                             const GlobalPoint& p2, 
@@ -472,10 +480,6 @@ GlobalPoint MuonShowerInformationFiller::crossingPoint(const GlobalPoint& p1,
    
 }  
 
-
-//
-// Intersection point of track with disk
-//
 GlobalPoint MuonShowerInformationFiller::crossingPoint(const GlobalPoint& p1, 
                                             const GlobalPoint& p2, 
                                             const BoundDisk& disk) const {
@@ -484,9 +488,6 @@ GlobalPoint MuonShowerInformationFiller::crossingPoint(const GlobalPoint& p1,
   int endcap =  diskZ > 0 ? 1 : (diskZ < 0 ? -1 : 0);
   diskZ = diskZ + endcap*dynamic_cast<const SimpleDiskBounds&>(disk.bounds()).thickness()/2.;
 
-  std::cout << "compare z's: " << diskZ  << std::endl;
-
-  // line connection innermost and outermost state on vector
   GlobalVector dp = p1 - p2;
 
   float slopeZ = dp.z()/dp.y();
@@ -680,226 +681,24 @@ vector<const GeomDet*> MuonShowerInformationFiller::cscPositionToDets(const Glob
 
 }
 
-
 //
-// Calculate shower size per station
+//Set class members
 //
-vector<double> MuonShowerInformationFiller::stationShowerRSizes(const reco::Muon& muon) const {
-
-  // initialize
-  vector<double> stationShowerRSize(4,0.0);
+void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
 
   reco::TrackRef track;
-  if ( muon.isGlobalMuon()  )            track = muon.globalTrack();
+  if ( muon.isGlobalMuon() )            track = muon.globalTrack();
   else if ( muon.isStandAloneMuon() )    track = muon.outerTrack();
-  else return stationShowerRSize;
-
-  //fill hits
-  vector<MuonRecHitContainer> muonRecHits = fillHitsByStation(*track);
-  MuonTransientTrackingRecHit::MuonRecHitContainer muonRecHitsPhiTemp, muonRecHitsThetaTemp, muonRecHitsPhiBest, muonRecHitsThetaBest;
-
-  LogTrace(category_) << "StationShowerSizes, we filled 4 vectors for this track, check size before clustering " 
-       << muonRecHits[0].size() << " " 
-       << muonRecHits[1].size() << " " 
-       << muonRecHits[2].size() << " " 
-       << muonRecHits[3].size() << endl;
-
-  // send station hits to the clustering algorithm
-  for ( int stat = 0; stat != 4; stat++ ) {
-    if (muonRecHits[stat].size() > 1) {
-      stable_sort(muonRecHits[stat].begin(), muonRecHits[stat].end(), LessPhi());
-
-      float dphimax = 0;
-      float dthetamax = 0;
-      for (MuonTransientTrackingRecHit::MuonRecHitContainer::const_iterator iseed = muonRecHits[stat].begin(); iseed != muonRecHits[stat].end(); ++iseed) { 
-          if (!(*iseed)->isValid()) continue;
-          GlobalPoint refpoint = (*iseed)->globalPosition(); //starting from the one with smallest value of phi
-          muonRecHitsPhiTemp.clear(); 
-          muonRecHitsThetaTemp.clear();
-          muonRecHitsPhiTemp = findPhiCluster(muonRecHits[stat], refpoint); //get clustered hits for this iseed
-          muonRecHitsThetaTemp = findThetaCluster(muonRecHits[stat], refpoint);
-     if (muonRecHitsPhiTemp.size() > 1) {
-      float dphi = fabs(deltaPhi((float)muonRecHitsPhiTemp.back()->globalPosition().phi(), (float)muonRecHitsPhiTemp.front()->globalPosition().phi()));
-      //if this cluster is bigger than previous, then we keep it
-      //we want to identify the big dphi cluster for each station
-      if (dphi > dphimax) {
-          dphimax = dphi;
-          muonRecHitsPhiBest = muonRecHitsPhiTemp;
-            }
-         } //at least two hits
-     if (muonRecHitsThetaTemp.size() > 1) {
-      float dtheta = fabs((float)muonRecHitsThetaTemp.back()->globalPosition().theta() - (float)muonRecHitsThetaTemp.front()->globalPosition().theta());
-      if (dtheta > dthetamax) {
-          dthetamax = dtheta;
-          muonRecHitsThetaBest = muonRecHitsThetaTemp;
-            }
-         } //at least two hits
-      }
-     if (muonRecHitsThetaBest.size() > 1 && muonRecHitsPhiBest.size() > 1) 
-      stationShowerRSize.at(stat) = sqrt(pow(muonRecHitsPhiBest.front()->globalPosition().phi()-muonRecHitsPhiBest.back()->globalPosition().phi(),2)+pow(muonRecHitsThetaBest.front()->globalPosition().theta()-muonRecHitsThetaBest.back()->globalPosition().theta(),2));
-    }//not empty container
-  }//loop over stations
-
-  return stationShowerRSize;
-}
-
-//
-//
-//
-vector<double> MuonShowerInformationFiller::stationShowerSizes(const reco::Muon& muon) const {
-
-  // initialize
-  vector<double> stationShowerSize(4,0.0);
-
-  reco::TrackRef track;
-  if ( muon.isGlobalMuon()  )            track = muon.globalTrack();
-  else if ( muon.isStandAloneMuon() )    track = muon.outerTrack();
-  else return stationShowerSize;
-
-  //fill hits
-  vector<MuonRecHitContainer> muonRecHits = fillHitsByStation(*track);
-  MuonTransientTrackingRecHit::MuonRecHitContainer muonRecHitsPhiTemp, muonRecHitsPhiBest;
-
-  LogTrace(category_) << "StationShowerSizes, we filled 4 vectors for this track, check size before clustering "
-       << muonRecHits[0].size() << " "
-       << muonRecHits[1].size() << " "
-       << muonRecHits[2].size() << " "
-       << muonRecHits[3].size() << endl;
-
-  // send station hits to the clustering algorithm
-  for ( int stat = 0; stat != 4; stat++ ) {
-    if (!muonRecHits[stat].empty()) {
-      stable_sort(muonRecHits[stat].begin(), muonRecHits[stat].end(), LessPhi());
-
-      float dphimax = 0;
-      for (MuonTransientTrackingRecHit::MuonRecHitContainer::const_iterator iseed = muonRecHits[stat].begin(); iseed != muonRecHits[stat].end(); ++iseed) {
-          if (!(*iseed)->isValid()) continue;
-          GlobalPoint refpoint = (*iseed)->globalPosition(); //starting from the one with smallest value of phi
-          muonRecHitsPhiTemp.clear();
-          muonRecHitsPhiTemp = findPhiCluster(muonRecHits[stat], refpoint); //get clustered hits for this iseed
-     if (muonRecHitsPhiTemp.size() > 1) {
-         float dphi = fabs(deltaPhi((float)muonRecHitsPhiTemp.back()->globalPosition().phi(), (float)muonRecHitsPhiTemp.front()->globalPosition().phi()));
-      if (dphi > dphimax) {
-          dphimax = dphi;
-          muonRecHitsPhiBest = muonRecHitsPhiTemp;
-            }
-         } //at least two hits
-      }//loop over seeds 
-      if (!muonRecHitsPhiBest.empty()) 
-      muonRecHits[stat] = muonRecHitsPhiBest;
-      stable_sort(muonRecHits[stat].begin(), muonRecHits[stat].end(), LessAbsMag());
-      muonRecHits[stat].front();
-      GlobalPoint refpoint = muonRecHits[stat].front()->globalPosition();
-      LogTrace(category_) << "dphimax " << dphimax << " refpoint " << refpoint << endl;
-      stationShowerSize[stat] = refpoint.mag() * dphimax;
-      LogTrace(category_) << stationShowerSize[stat] << endl;
-    }//not empty container
-  }//loop over stations
-
-  LogTrace(category_) << "Cluster sizes "
-       << stationShowerSize.at(0) << " "
-       << stationShowerSize.at(1) << " "
-       << stationShowerSize.at(2) << " "
-       << stationShowerSize.at(3) << endl;
-
-  return stationShowerSize;
-}
-
-//
-// Set station uncorrelated hits
-//
-vector<int> MuonShowerInformationFiller::stationUncorrelatedHits(const reco::Muon& muon) const {
-
-  // initialize
-  int totalsublayer[4] = {12,12,12,8};
-  vector<int> stationUncorrHits(4,0);
-
-  reco::TrackRef track;
-  if ( muon.isGlobalMuon()  )            track = muon.globalTrack();
-  else if ( muon.isStandAloneMuon() )    track = muon.outerTrack();
-  else return stationUncorrHits;
-
-  // fill hits
-  vector<MuonRecHitContainer> muonRecHits = fillHitsByStation(*track);
-
-  // get the list of compatible dets
-  vector<const GeomDet*> compatibleLayers = getCompatibleDets(*track);
-
-  // get 4D rechits and split by station
-  MuonRecHitContainer muSegments[4];
-  
-  for (vector<const GeomDet*>::const_iterator igd = compatibleLayers.begin(); igd != compatibleLayers.end(); igd++ ) {
-  
-    // get det id
-    DetId geoId = (*igd)->geographicalId();
-
-    // skip tracker hits
-    if (geoId.det()!= DetId::Muon) continue;
-
-    // DT 
-    if ( geoId.subdetId() == MuonSubdetId::DT ) {
-         
-      DTChamberId did(geoId.rawId());
-      int station = did.station();
-
-      // split 1D and 4D rechits by station
-      muSegments[station-1] = recHits4D(*igd, theDT4DRecSegments, theCSCSegments);
-          
-    } 
-    else if (geoId.subdetId() == MuonSubdetId::CSC) {
-
-      CSCDetId did(geoId.rawId());
-      int station = did.station();
-
-      // split 1D and 4D rechits by station
-      muSegments[station-1] = recHits4D(*igd, theDT4DRecSegments, theCSCSegments);
-
-    } 
-    else if (geoId.subdetId() == MuonSubdetId::RPC) {
-      LogTrace(category_) << "Wrong subdet id" << endl;
-    } 
-
-  }
-  LogTrace(category_) << "StationUncorrelatedHits, we filled 4 vectors for this track, check their sizes " 
-       << muSegments[0].size() << " "  
-       << muSegments[1].size() << " " 
-       << muSegments[2].size() << " " 
-       << muSegments[3].size() << endl;
-
-  int ncorrelated[4] = {0,0,0,0};
-
-  // calculate number of uncorrelated hits
-  for (int stat = 0; stat < 4; stat++) {
-    ncorrelated[stat] = numberOfCorrelatedHits(muSegments[stat]);     
-    if (ncorrelated[stat] > totalsublayer[stat]) ncorrelated[stat] = totalsublayer[stat];
-    stationUncorrHits[stat] =  max(0, int(muonRecHits[stat].size()) - ncorrelated[stat]);
-  }
-
-  LogTrace(category_) << "Uncorrelated hits "
-       << stationUncorrHits.at(0) << " " 
-       << stationUncorrHits.at(1) << " " 
-       << stationUncorrHits.at(2) << " " 
-       << stationUncorrHits.at(3) << endl;
-
-  return stationUncorrHits;
-
-}
-
-//
-//
-//
-vector<MuonTransientTrackingRecHit::MuonRecHitContainer> MuonShowerInformationFiller::fillHitsByStation(const reco::Track& track) const {
+  else return;
 
   // split 1D rechits by station
   vector<MuonRecHitContainer> muonRecHits(4);
-/*
-  reco::TrackRef track;
-  if ( muon.isGlobalMuon()  )            track = muon.globalTrack();
-  else if ( muon.isStandAloneMuon() )    track = muon.outerTrack();
-  else return muonRecHits;
-*/
+
+  // split 4D rechits by station
+  MuonRecHitContainer muSegments[4];
+
   // get vector of GeomDets compatible with a track
-  vector<const GeomDet*> compatibleLayers = getCompatibleDets(track);
+  vector<const GeomDet*> compatibleLayers = getCompatibleDets(*track);
 
   // for special cases: CSC station 1
   MuonRecHitContainer tmpCSC1;
@@ -909,7 +708,7 @@ vector<MuonTransientTrackingRecHit::MuonRecHitContainer> MuonShowerInformationFi
   for (vector<const GeomDet*>::const_iterator igd = compatibleLayers.begin(); igd != compatibleLayers.end(); igd++ )  {
 
     // get det id
-    DetId geoId = (*igd)->geographicalId();  
+    DetId geoId = (*igd)->geographicalId();
 
     // skip tracker hits
     if (geoId.det()!= DetId::Muon) continue;
@@ -922,6 +721,10 @@ vector<MuonTransientTrackingRecHit::MuonRecHitContainer> MuonShowerInformationFi
       int station = detid.station();
       int wheel = detid.wheel();
 
+      // get 4D rechits per station
+      muSegments[station-1] = recHits4D(*igd, theDT4DRecSegments, theCSCSegments);
+
+      //check overlap certain wheels and stations
       if (abs(wheel) == 2 && station != 4 &&  station != 1) dtOverlapToCheck = true;
 
       // loop over all superlayers of a DT chamber
@@ -947,43 +750,126 @@ vector<MuonTransientTrackingRecHit::MuonRecHitContainer> MuonShowerInformationFi
       int station = did.station();
       int ring = did.ring();
 
-      if ((station == 1 && ring == 3) && dtOverlapToCheck) cscOverlapToCheck = true; 
+      //get 4D rechits by station
+      muSegments[station-1] = recHits4D(*igd, theDT4DRecSegments, theCSCSegments);
+
+      if ((station == 1 && ring == 3) && dtOverlapToCheck) cscOverlapToCheck = true;
 
       // split 1D rechits by station
       CSCRecHit2DCollection::range dRecHits = theCSCRecHits->get(did);
       for (CSCRecHit2DCollection::const_iterator rechit = dRecHits.first; rechit != dRecHits.second; ++rechit) {
 
-        if (!cscOverlapToCheck) { 
+        if (!cscOverlapToCheck) {
            muonRecHits.at(station-1).push_back(MuonTransientTrackingRecHit::specificBuild((&**igd),&*rechit));
-           } else {             
+           } else {
              tmpCSC1.push_back(MuonTransientTrackingRecHit::specificBuild((&**igd),&*rechit));
 
              //sort by perp, then insert to appropriate container
              MuonRecHitContainer temp = findPerpCluster(tmpCSC1);
-             if (temp.empty()) continue; 
+             if (temp.empty()) continue;
 
              float center;
              if (temp.size() > 1) {
                center = (temp.front()->globalPosition().perp() + temp.back()->globalPosition().perp())/2.;
              } else {
                center = temp.front()->globalPosition().perp();
-  	     }
+             }
              temp.clear();
-
+             
              if (center > 550.) {
                 muonRecHits.at(2).insert(muonRecHits.at(2).end(),tmpCSC1.begin(),tmpCSC1.end());
               } else {
               muonRecHits.at(1).insert(muonRecHits.at(1).end(),tmpCSC1.begin(),tmpCSC1.end());
-	  } 
-         tmpCSC1.clear();
-        }
-      }
-    } else if (geoId.subdetId() == MuonSubdetId::RPC) {
-      LogTrace(category_) << "Wrong subdet id" << endl;
-    }
+           }
+           tmpCSC1.clear();
+         }
+       }
+     } else if (geoId.subdetId() == MuonSubdetId::RPC) {
+       LogTrace(category_) << "Wrong subdet id" << endl;
+     }
+  }//loop over GeomDets compatible with a track
 
+  LogTrace(category_) << "Number of hits from DT 4D segments or 2D CSC segments, by station " 
+       << muSegments[0].size() << " "  
+       << muSegments[1].size() << " " 
+       << muSegments[2].size() << " " 
+       << muSegments[3].size() << endl;
+
+  // calculate number of all and correlated hits    
+  for (int stat = 0; stat < 4; stat++) {
+    theCorrelatedStationHits[stat] = numberOfCorrelatedHits(muSegments[stat]);     
+    theAllStationHits[stat] = muonRecHits[stat].size();
   }
+  LogTrace(category_) << "Hits used by the segments, by station "
+       << theCorrelatedStationHits.at(0) << " "
+       << theCorrelatedStationHits.at(1) << " "
+       << theCorrelatedStationHits.at(2) << " "
+       << theCorrelatedStationHits.at(3) << endl;
 
-  return muonRecHits;
+  LogTrace(category_) << "All 1D hits, by station "
+       << theAllStationHits.at(0) << " "
+       << theAllStationHits.at(1) << " "
+       << theAllStationHits.at(2) << " "
+       << theAllStationHits.at(3) << endl;
+
+  //station shower sizes
+  MuonTransientTrackingRecHit::MuonRecHitContainer muonRecHitsPhiTemp, muonRecHitsThetaTemp, muonRecHitsPhiBest, muonRecHitsThetaBest;
+  // send station hits to the clustering algorithm
+  for ( int stat = 0; stat != 4; stat++ ) {
+    if (!muonRecHits[stat].empty()) {
+      stable_sort(muonRecHits[stat].begin(), muonRecHits[stat].end(), LessPhi());
+
+      float dphimax = 0;
+      float dthetamax = 0;
+      for (MuonTransientTrackingRecHit::MuonRecHitContainer::const_iterator iseed = muonRecHits[stat].begin(); iseed != muonRecHits[stat].end(); ++iseed) {
+          if (!(*iseed)->isValid()) continue;
+          GlobalPoint refpoint = (*iseed)->globalPosition(); //starting from the one with smallest value of phi
+          muonRecHitsPhiTemp.clear();
+          muonRecHitsThetaTemp.clear();
+          muonRecHitsPhiTemp = findPhiCluster(muonRecHits[stat], refpoint); //get clustered hits for this iseed
+          muonRecHitsThetaTemp = findThetaCluster(muonRecHits[stat], refpoint);
+     if (muonRecHitsPhiTemp.size() > 1) {
+         float dphi = fabs(deltaPhi((float)muonRecHitsPhiTemp.back()->globalPosition().phi(), (float)muonRecHitsPhiTemp.front()->globalPosition().phi()));
+      if (dphi > dphimax) {
+          dphimax = dphi;
+          muonRecHitsPhiBest = muonRecHitsPhiTemp;
+            }
+         } //at least two hits
+      }//loop over seeds 
+     if (muonRecHitsThetaTemp.size() > 1) {
+      float dtheta = fabs((float)muonRecHitsThetaTemp.back()->globalPosition().theta() - (float)muonRecHitsThetaTemp.front()->globalPosition().theta());
+      if (dtheta > dthetamax) {
+          dthetamax = dtheta;
+          muonRecHitsThetaBest = muonRecHitsThetaTemp;
+            }
+         } //at least two hits
+     //fill deltaRs
+     if (muonRecHitsThetaBest.size() > 1 && muonRecHitsPhiBest.size() > 1)
+      theStationShowerDeltaR.at(stat) = pow(pow(muonRecHitsPhiBest.front()->globalPosition().phi()-muonRecHitsPhiBest.back()->globalPosition().phi(),2)+pow(muonRecHitsThetaBest.front()->globalPosition().theta()-muonRecHitsThetaBest.back()->globalPosition().theta(),2),0.5);
+
+       LogTrace(category_) << "deltaR around a track containing all the station hits, by station "
+       << theStationShowerDeltaR.at(0) << " "
+       << theStationShowerDeltaR.at(1) << " "
+       << theStationShowerDeltaR.at(2) << " "
+       << theStationShowerDeltaR.at(3) << endl;
+
+     //fill showerTs
+      if (!muonRecHitsPhiBest.empty()) {
+      muonRecHits[stat] = muonRecHitsPhiBest;
+      stable_sort(muonRecHits[stat].begin(), muonRecHits[stat].end(), LessAbsMag());
+      muonRecHits[stat].front();
+      GlobalPoint refpoint = muonRecHits[stat].front()->globalPosition();
+      theStationShowerTSize.at(stat) = refpoint.mag() * dphimax;
+      }
+    }//not empty container
+  }//loop over stations
+
+  LogTrace(category_) << "Transverse cluster size, by station "
+       << theStationShowerTSize.at(0) << " "
+       << theStationShowerTSize.at(1) << " "
+       << theStationShowerTSize.at(2) << " "
+       << theStationShowerTSize.at(3) << endl;
+
+  return;
 
 }
