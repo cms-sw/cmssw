@@ -4,18 +4,19 @@
 namespace reco {
     struct MuonShower {
 
-      /// number of muon RecHits not used by the RecSegments 
-      std::vector<int> nHitsUncorrelated;
+      /// number of all the muon RecHits per chamber crossed by a track (1D hits)
+      std::vector<int> nStationHits;
+      /// number of the muon RecHits used by segments per chamber crossed by a track
+      std::vector<int> nStationCorrelatedHits;
       /// the transverse size of the hit cluster
-      std::vector<double> showerSizeT;
-      /// the radius of the cone containing the uncorrelated hits around the track
-      std::vector<double> showerDeltaR;
+      std::vector<float> stationShowerSizeT;
+      /// the radius of the cone containing the all the hits around the track
+      std::vector<float> stationShowerDeltaR;
 
       MuonShower():
-	nHitsUncorrelated(0),
-	showerSizeT(0),showerDeltaR(0)
+	nStationHits(0),nStationCorrelatedHits(0),
+	stationShowerSizeT(0),stationShowerDeltaR(0)
       { }       
     };
 }
 #endif
-
