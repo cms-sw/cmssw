@@ -1175,34 +1175,58 @@ void PFRootEventManager::readOptions(const char* file,
   bool rejectTracks_Bad = true;
   bool rejectTracks_Step45 = true;
   bool usePFConversions = false;   // set true to use PFConversions
-  bool usePFDisplacedVertexs = false;
+  bool usePFNuclearInteractions = false;
   bool usePFV0s = false;
 
-  double dptRel_DispVtx = 20;
 
+  double dptRel_DispVtx = 10;
+  
 
   options_->GetOpt("particle_flow", "usePFConversions", usePFConversions);
-
   options_->GetOpt("particle_flow", "usePFV0s", usePFV0s);
-
-  options_->GetOpt("particle_flow", "usePFDisplacedVertexs", usePFDisplacedVertexs);
-
+  options_->GetOpt("particle_flow", "usePFNuclearInteractions", usePFNuclearInteractions);
   options_->GetOpt("particle_flow", "dptRel_DispVtx",  dptRel_DispVtx);
 
   try { 
     pfAlgo_.setDisplacedVerticesParameters(rejectTracks_Bad,
 					   rejectTracks_Step45,
-					   usePFDisplacedVertexs,
+					   usePFNuclearInteractions,
 					   usePFConversions,
 					   usePFV0s,
 					   dptRel_DispVtx);
+
   }
   catch( std::exception& err ) {
-    cerr<<"exception setting PFAlgo Conversions parameters: "
+    cerr<<"exception setting PFAlgo displaced vertex parameters: "
         <<err.what()<<". terminating."<<endl;
     delete this;
     exit(1);
   }
+
+  bool bCorrect = false;
+  bool bCalibPrimary = false;
+  double dptRel_PrimaryTrack = 0;
+  double dptRel_MergedTrack = 0;
+  double ptErrorSecondary = 0;
+  vector<double> nuclCalibFactors;
+
+  options_->GetOpt("particle_flow", "bCorrect", bCorrect);
+  options_->GetOpt("particle_flow", "bCalibPrimary", bCalibPrimary);
+  options_->GetOpt("particle_flow", "dptRel_PrimaryTrack", dptRel_PrimaryTrack);
+  options_->GetOpt("particle_flow", "dptRel_MergedTrack", dptRel_MergedTrack);
+  options_->GetOpt("particle_flow", "ptErrorSecondary", ptErrorSecondary);
+  options_->GetOpt("particle_flow", "nuclCalibFactors", nuclCalibFactors);
+
+  try { 
+    pfAlgo_.setCandConnectorParameters(bCorrect, bCalibPrimary, dptRel_PrimaryTrack, dptRel_MergedTrack, ptErrorSecondary, nuclCalibFactors);
+  }
+  catch( std::exception& err ) {
+    cerr<<"exception setting PFAlgo cand connector parameters: "
+        <<err.what()<<". terminating."<<endl;
+    delete this;
+    exit(1);
+  }
+
 
 
 
@@ -1468,10 +1492,10 @@ void PFRootEventManager::connect( const char* infilename ) {
     v0Tag_ = edm::InputTag(v0tagname);
   }
 
-  //Displaced Vertices
-  usePFDisplacedVertexs_=false;
-  options_->GetOpt("particle_flow", "usePFDisplacedVertexs", usePFDisplacedVertexs_);
-  if( usePFDisplacedVertexs_ ) {
+ //Displaced Vertices
+  usePFNuclearInteractions_=false;
+  options_->GetOpt("particle_flow", "usePFNuclearInteractions", usePFNuclearInteractions_);
+  if( usePFNuclearInteractions_ ) {
     std::string pfDisplacedTrackerVertextagname;
     options_->GetOpt("root","PFDisplacedVertex_inputTag", pfDisplacedTrackerVertextagname);
     pfDisplacedTrackerVertexTag_ = edm::InputTag(pfDisplacedTrackerVertextagname);
@@ -1960,7 +1984,7 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if ( foundPFV ) { 
     pfDisplacedTrackerVertex_ = *pfDisplacedTrackerVertexHandle_;
     // cout << "Found " << pfDisplacedTrackerVertex_.size() << " secondary PF vertices" << endl;
-  } else if ( usePFDisplacedVertexs_ ) { 
+  } else if ( usePFNuclearInteractions_ ) { 
     cerr<<"PFRootEventManager::ProcessEntry : pfDisplacedTrackerVertex Collection not found : "
         <<entry << " " << pfDisplacedTrackerVertexTag_<<endl;
   }
@@ -2684,6 +2708,9 @@ void PFRootEventManager::particleFlow() {
 
   edm::OrphanHandle< reco::PFDisplacedTrackerVertexCollection > displacedh( &pfDisplacedTrackerVertex_, 
                                                           edm::ProductID(7) );
+
+
+  //recoPFRecTracks_pfDisplacedTrackerVertex__TEST.
 
   edm::OrphanHandle< reco::PFConversionCollection > convh( &conversion_, 
 							   edm::ProductID(8) );

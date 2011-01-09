@@ -507,8 +507,11 @@ class PFRootEventManager {
 
   /// reconstructed tracks
   edm::Handle<reco::PFRecTrackCollection> recTracksHandle_;
+  edm::Handle<reco::PFRecTrackCollection> displacedRecTracksHandle_;
   edm::InputTag recTracksTag_;
+  edm::InputTag displacedRecTracksTag_;
   reco::PFRecTrackCollection    recTracks_;
+  reco::PFRecTrackCollection    displacedRecTracks_;
 
   /// reconstructed GSF tracks
   edm::Handle<reco::GsfPFRecTrackCollection> gsfrecTracksHandle_;
@@ -798,7 +801,7 @@ class PFRootEventManager {
   bool   usePFV0s_;
 
   /// Use of PFDisplacedVertex in PFAlgo
-  bool   usePFDisplacedVertexs_;
+  bool   usePFNuclearInteractions_;
 
   /// Use Secondary Gsf Tracks
   bool useConvBremGsfTracks_;

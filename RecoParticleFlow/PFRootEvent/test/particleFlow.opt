@@ -4,7 +4,7 @@ root outtree 0
 
 //colin	mode 1
 
-root file ../../Configuration/test/display.root
+root file display.root
 
 // filter ------------------------------------------------------------
 
@@ -344,15 +344,6 @@ particle_flow DPtoverPt_Cut  -1. -1. -1. -1. -1.
 particle_flow NHit_Cut 3 3 3 3 3
 particle_flow useIterTracking 1
 
-// This parameters defines the level of purity of
-// nuclear interactions choosen.
-// Level 1 is only high Purity sample labeled as isNucl
-// Level 2 isNucl + isNucl_Loose (2 secondary tracks vertices)
-// Level 3 isNucl + isNucl_Loose + isNucl_Kink
-//         (low purity sample made of 1 primary and 1 secondary track)
-// By default the level 1 is teh safest one.
-particle_flow   nuclearInteractionsPurity 1
-
 
 // Treatment of muons : 
 // Expected energy in ECAL and HCAL, and RMS
@@ -423,25 +414,45 @@ particle_flow   usePFMuonMomAssign      0
 //Use tracking at HLT
 particle_flow   useAtHLT                0
 
-// rejectTracks_Bad
-particle_flow   rejectTracks_Bad   1
 
-// rejectTracks_Step45
-particle_flow   rejectTracks_Step45   1
+//-------- Parameters of Displaced Vertices ------------
 
 
-// PFConversions
-particle_flow   usePFConversions      0
+// ---------- Parameters for PFBlockAlgo ------------
+// This parameters defines the level of purity of
+// nuclear interactions choosen.
+// Level 1 is only high Purity sample labeled as isNucl
+// Level 2 isNucl + isNucl_Loose (2 secondary tracks vertices)
+// Level 3 isNucl + isNucl_Loose + isNucl_Kink
+//         (low purity sample made of 1 primary and 1 secondary track)
+// By default the level 1 is teh safest one.
+particle_flow   nuclearInteractionsPurity 1
 
-// PFDecays
-particle_flow   usePFV0s      0
+ 
+// ---------- Parameters for PFAlgo and "use" parameters for PFBlockAlgo------------
+// It is strongly adviced to keep usePFNuclearInteractions = bCorrect 
 
-// PFDisplacedTrackerVertexs
-particle_flow   usePFDisplacedVertexs 0
-
+// PFDisplacedTrackerVertexs, PFConversions, PFDecays
+particle_flow   rejectTracks_Bad          1
+particle_flow   rejectTracks_Step45       1
+particle_flow   usePFNuclearInteractions  1
+particle_flow   usePFConversions          0
+particle_flow   usePFV0s                  0
 
 // The maximal relative error on the track in a displaced vertex
-particle_flow   dptRel_DispVtx 20
+particle_flow   dptRel_DispVtx           10.0
+
+// Parameters for PFCand Connector
+// The dptRel are given in  while ptErroSecondary in GeV
+
+particle_flow   bCorrect                  1
+particle_flow   bCalibPrimary             1
+particle_flow   dptRel_PrimaryTrack      10.0
+particle_flow   dptRel_MergedTrack        5.0
+particle_flow   ptErrorSecondary          1.0
+particle_flow   nuclCalibFactors          0.8  0.15  0.5  0.5  0.05
+
+// ---------------------------------------------
 
 
 // Naive calibration
