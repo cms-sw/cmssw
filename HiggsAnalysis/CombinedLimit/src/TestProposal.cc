@@ -3,18 +3,37 @@
 #include <iostream>
 #include <memory>
 #include <TIterator.h>
+#include <RooRandom.h>
 #include <RooStats/RooStatsUtils.h>
 
+TestProposal::TestProposal(double divisor) : 
+    RooStats::ProposalFunction(),
+    divisor_(1./divisor)
+{
+}
+     
 
 // Populate xPrime with a new proposed point
 void TestProposal::Propose(RooArgSet& xPrime, RooArgSet& x )
 {
-   static int tries = 0;
-   RooStats::RandomizeCollection(xPrime);
-   if (tries++ < 20) {  
-        std::cout << "TestProposal::Propose: x'" << std::endl; xPrime.Print("V"); 
-        std::cout << "TestProposal::Propose: x " << std::endl; x.Print("V"); 
+   RooStats::SetParameters(&x, &xPrime);
+   std::auto_ptr<TIterator> it(xPrime.createIterator());
+   RooRealVar* var;
+   int n = xPrime.getSize(), j = floor(RooRandom::uniform()*n);
+   for (int i = 0; (var = (RooRealVar*)it->Next()) != NULL; ++i) {
+      if (i == j) {
+        double val = var->getVal(), max = var->getMax(), min = var->getMin(), len = max - min;
+        val += RooRandom::gaussian() * len * divisor_;
+        while (val > max) val -= len;
+        while (val < min) val += len;
+        var->setVal(val);
+        //std::cout << "Proposing a step along " << var->GetName() << std::endl;
+      }
    }
+}
+
+Bool_t TestProposal::IsSymmetric(RooArgSet& x1, RooArgSet& x2) {
+   return true;
 }
 
 // Return the probability of proposing the point x1 given the starting
@@ -22,20 +41,7 @@ void TestProposal::Propose(RooArgSet& xPrime, RooArgSet& x )
 Double_t TestProposal::GetProposalDensity(RooArgSet& x1,
                                           RooArgSet& x2)
 {
-   static int tries = 0;
-   if (tries++ < 20) {  
-       std::cout << "TestProposal::GetProposalDensity: x1" << std::endl; x1.Print("V"); 
-       std::cout << "TestProposal::GetProposalDensity: x2" << std::endl; x2.Print("V"); 
-   }
-   // For a uniform proposal, all points have equal probability and the
-   // value of the proposal density function is:
-   // 1 / (N-dimensional volume of interval)
-   Double_t volume = 1.0;
-   std::auto_ptr<TIterator> it(x1.createIterator());
-   RooRealVar* var;
-   while ((var = (RooRealVar*)it->Next()) != NULL)
-      volume *= (var->getMax() - var->getMin());
-   return 1.0 / volume;
+   return 1.0; // should not be needed
 }
 
 ClassImp(TestProposal)
