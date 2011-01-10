@@ -63,7 +63,7 @@ RandomNumberGeneratorService = cms.Service(
                                 )
     )
 # Mixing Module No PileUp
-from Configuration.StandardSequences.MixingNoPileUp_cff import *
+from SimGeneral.MixingModule.mixNoPU_cfi import *
 # SiStrip Digitizer
 from SimTracker.SiStripDigitizer.SiStripDigi_APVModePeak_cff import *
 simSiStripDigis.ZeroSuppression     = False
