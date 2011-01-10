@@ -27,6 +27,7 @@ protected:
 
   bool runSignificance(RooWorkspace *w, RooAbsData &data, double &limit);
   bool runLimit(RooWorkspace *w, RooAbsData &data, double &limit);
+  void setSilent(bool silent);
 };
 
 #endif

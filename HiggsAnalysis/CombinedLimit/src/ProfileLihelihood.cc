@@ -5,6 +5,7 @@
 #include "RooStats/LikelihoodInterval.h"
 #include "RooStats/HypoTestResult.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
+#include <unistd.h>
 
 #include <Math/MinimizerOptions.h>
 
@@ -26,6 +27,7 @@ void ProfileLikelihood::applyOptions(const boost::program_options::variables_map
 }
 
 bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+  if (verbose < 0) {  freopen("/dev/null", "w", stdout); }
   std::string minimizerTypeBackup = ROOT::Math::MinimizerOptions::DefaultMinimizerType();
   std::string minimizerAlgoBackup = ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo();
   double      minimizerTollBackup = ROOT::Math::MinimizerOptions::DefaultTolerance();
@@ -33,10 +35,10 @@ bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, co
   if (minimizerAlgo_.find(",") != std::string::npos) {
       size_t idx = minimizerAlgo_.find(",");
       std::string type = minimizerAlgo_.substr(0,idx), algo = minimizerAlgo_.substr(idx+1);
-      if (verbose > 0) std::cout << "Set default minimizer to " << type << ", algorithm " << algo << std::endl;
+      if (verbose > 1) std::cout << "Set default minimizer to " << type << ", algorithm " << algo << std::endl;
       ROOT::Math::MinimizerOptions::SetDefaultMinimizer(type.c_str(), algo.c_str());
   } else {
-      if (verbose > 0) std::cout << "Set default minimizer to " << minimizerAlgo_ << std::endl;
+      if (verbose > 1) std::cout << "Set default minimizer to " << minimizerAlgo_ << std::endl;
       ROOT::Math::MinimizerOptions::SetDefaultMinimizer(minimizerAlgo_.c_str());
   }
 
@@ -44,6 +46,7 @@ bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, co
 
   ROOT::Math::MinimizerOptions::SetDefaultTolerance(minimizerTollBackup);
   ROOT::Math::MinimizerOptions::SetDefaultMinimizer(minimizerTypeBackup.c_str(),minimizerAlgoBackup.empty() ? 0 : minimizerAlgoBackup.c_str());
+  if (verbose < 0) {  freopen("/dev/null", "w", stdout); }
   return success;
 }
 
@@ -52,6 +55,7 @@ bool ProfileLikelihood::runLimit(RooWorkspace *w, RooAbsData &data, double &limi
   RooArgSet  poi(*r);
   double rMax = r->getMax();
   bool success = false;
+  if (verbose <= 1) setSilent(true);
   while (!success) {
     ProfileLikelihoodCalculator plcB(data, *w->pdf("model_s"), poi);
     plcB.SetConfidenceLevel(cl);
@@ -66,13 +70,16 @@ bool ProfileLikelihood::runLimit(RooWorkspace *w, RooAbsData &data, double &limi
     }
     if (limit == r->getMin()) {
       std::cerr << "ProfileLikelihoodCalculator failed (returned upper limit equal to the lower bound)" << std::endl;
-      return false;
-    }
-    if (verbose > 0) {
-      std::cout << "\n -- Profile Likelihood -- " << "\n";
-      std::cout << "Limit: r < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
+      break;
     }
     success = true;
+  }
+  if (verbose <= 1) setSilent(false);
+  if (verbose >= 0) {
+      if (success) {
+        std::cout << "\n -- Profile Likelihood -- " << "\n";
+        std::cout << "Limit: r < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
+      }
   }
   return success;
 }
@@ -84,16 +91,30 @@ bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooAbsData &data, doubl
   RooArgSet nullParamValues; 
   nullParamValues.addClone(*r); ((RooRealVar&)nullParamValues["r"]).setVal(0);
   plcS.SetNullParameters(nullParamValues);
+  if (verbose <= 1) setSilent(true);
   std::auto_ptr<HypoTestResult> result(plcS.GetHypoTest());
   if (result.get() == 0) return false;
   limit = result->Significance();
+  if (verbose <= 1) setSilent(false);
   if (limit == 0 && signbit(limit)) {
       std::cerr << "ProfileLikelihoodCalculator failed (returned significance -0)" << std::endl;
       return false;
   }
-  if (verbose > 0) {
-      std::cout << "\n -- Profile Likelihood -- " << "\n";
-      std::cout << "Significance: " << limit << std::endl;
-  }
+  std::cout << "\n -- Profile Likelihood -- " << "\n";
+  std::cout << "Significance: " << limit << std::endl;
   return true;
+}
+
+void ProfileLikelihood::setSilent(bool silent) {
+    static int fdOut_, fdErr_;
+    if (silent) {
+        fdOut_ = dup(1);
+        fdErr_ = dup(2);
+        freopen("/dev/null", "w", stdout);
+        freopen("/dev/null", "w", stderr);
+    } else {
+        char buf[50];
+        sprintf(buf, "/dev/fd/%d", fdOut_); freopen(buf, "w", stdout); 
+        sprintf(buf, "/dev/fd/%d", fdErr_); freopen(buf, "w", stderr); 
+    }
 }
