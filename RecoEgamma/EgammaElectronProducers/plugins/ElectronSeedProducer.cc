@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedProducer.cc,v 1.17 2010/07/29 12:05:31 chamont Exp $
+// $Id: ElectronSeedProducer.cc,v 1.21 2010/12/06 16:26:54 chamont Exp $
 //
 //
 
@@ -71,7 +71,15 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
   applyHOverECut_ = conf_.getParameter<bool>("applyHOverECut") ;
   if (applyHOverECut_)
    {
-    hcalHelper_ = new ElectronHcalHelper(conf_) ;
+    ElectronHcalHelper::Configuration hcalCfg ;
+    hcalCfg.hOverEConeSize = conf_.getParameter<double>("hOverEConeSize") ;
+    if (hcalCfg.hOverEConeSize>0)
+     {
+      hcalCfg.useTowers = true ;
+      hcalCfg.hcalTowers = conf_.getParameter<edm::InputTag>("hcalTowers") ;
+      hcalCfg.hOverEPtMin = conf_.getParameter<double>("hOverEPtMin") ;
+     }
+    hcalHelper_ = new ElectronHcalHelper(hcalCfg) ;
     maxHOverEBarrel_=conf_.getParameter<double>("maxHOverEBarrel") ;
     maxHOverEEndcaps_=conf_.getParameter<double>("maxHOverEEndcaps") ;
     maxHBarrel_=conf_.getParameter<double>("maxHBarrel") ;

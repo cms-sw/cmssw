@@ -2,7 +2,7 @@
 <diffline expr="(Begin processing the \S* record)">
 <diffline expr="(found \S* particles)">
 
-<var name="TEST_GLOBAL_TAG" value="MC_38Y_V9">
+<var name="TEST_GLOBAL_TAG" value="MC_39Y_V5">
 
 <environment name="Pt10">
 
@@ -27,12 +27,12 @@
   Here we try to redo the electrons starting from the core electrons
   from previous rel val samples.
 
-  <var name="DBS_RELEASE" value="CMSSW_3_4_0_pre3">
+  <!--var name="TEST_GLOBAL_TAG" value="MC_31X_V8"-->
+  <var name="TEST_RECO_FILE" value="SingleElectronPt35.root">
+  <var name="DBS_RELEASE" value="CMSSW_3_10_0_pre5">
   <var name="DBS_TIER" value="-RECO">
   <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-v*">
   <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
-  <var name="TEST_GLOBAL_TAG" value="MC_31X_V8">
-  <var name="TEST_RECO_FILE" value="SingleElectronPt35.root">
   <executable name="dbs_discovery.py">
   <executable name="cmsRun" args="egammaCoresToGsfElectrons_cfg.py">
 

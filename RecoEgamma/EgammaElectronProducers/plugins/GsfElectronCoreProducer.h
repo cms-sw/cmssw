@@ -1,53 +1,24 @@
 #ifndef GsfElectronCoreProducer_h
 #define GsfElectronCoreProducer_h
 
-//
-// Package:         RecoEgamma/EgammaElectronProducers
-// Class:           GsfElectronCoreProducer
-//
-// Description:
+#include "GsfElectronCoreBaseProducer.h"
 
-
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-namespace edm
- {
-  class ParameterSet ;
-  class ConfigurationDescriptions ;
- }
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-
-
-
-class GsfElectronCoreProducer : public edm::EDProducer
+class GsfElectronCoreProducer : public GsfElectronCoreBaseProducer
  {
   public:
 
     //static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
 
-    explicit GsfElectronCoreProducer( const edm::ParameterSet & conf ) ;
+    explicit GsfElectronCoreProducer( const edm::ParameterSet & ) ;
     virtual ~GsfElectronCoreProducer() ;
-    virtual void produce( edm::Event& e, const edm::EventSetup & c ) ;
+    virtual void produce( edm::Event &, const edm::EventSetup & ) ;
 
   private:
 
-    edm::InputTag gsfTracksTag_ ;
-    edm::InputTag ctfTracksTag_;
+    edm::InputTag edCoresTag_ ;
     edm::InputTag pfSuperClustersTag_ ;
     edm::InputTag pfSuperClusterTrackMapTag_ ;
 
-    // From Puneeth Kalavase : returns the CTF track that has the highest fraction
-    // of shared hits in Pixels and the inner strip tracker with the electron Track
-    std::pair<reco::TrackRef,float> getCtfTrackRef
-     ( const reco::GsfTrackRef &, edm::Handle<reco::TrackCollection> ctfTracksH ) ;
-
  } ;
-
 
 #endif

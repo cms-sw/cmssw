@@ -7,18 +7,6 @@ import FWCore.ParameterSet.Config as cms
 #==============================================================================
 
 from RecoEgamma.EgammaElectronProducers.gsfElectronModules_cff import *
-gsfElectronSequence = cms.Sequence(gsfElectronCores*gsfElectrons)
-
-
-#==============================================================================
-# OBSOLETE
-#==============================================================================
-
-# module to make seeds
-#from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeedsModules_cff import *
-# module to make track candidates
-#from RecoEgamma.EgammaElectronProducers.gsfElectronCkfTrackCandidateMaker_cff import *
-# module to make gsf tracks (track fit)
-#from RecoEgamma.EgammaElectronProducers.gsfElectronGsfFit_cff import *
+gsfElectronSequence = cms.Sequence(ecalDrivenGsfElectronCores*ecalDrivenGsfElectrons*gsfElectronCores*gsfElectrons)
 
 

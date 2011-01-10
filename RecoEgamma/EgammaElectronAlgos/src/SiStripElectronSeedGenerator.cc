@@ -143,13 +143,15 @@ void  SiStripElectronSeedGenerator::run(edm::Event& e, const edm::EventSetup& se
 
 
 // Find seeds using a supercluster
-void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClusterCollection> seedCluster, edm::Handle<reco::BeamSpot> bs,
-							 reco::ElectronSeedCollection & result) {
-
+void SiStripElectronSeedGenerator::findSeedsFromCluster
+ ( edm::Ref<reco::SuperClusterCollection> seedCluster,
+   edm::Handle<reco::BeamSpot> bs,
+	 reco::ElectronSeedCollection & result )
+ {
   // clear the member vectors of good hits
-  layer1Hits_.clear();
-  layer2Hits_.clear();
-  backupLayer2Hits_.clear();
+  layer1Hits_.clear() ;
+  layer2Hits_.clear() ;
+  backupLayer2Hits_.clear() ;
 
   using namespace std;
 

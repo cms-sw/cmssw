@@ -19,33 +19,38 @@ class ElectronHcalHelper
  {
   public:
 
-    ElectronHcalHelper( const edm::ParameterSet &, bool useTowers =true, bool forPflow =false  ) ;
-    void checkSetup( const edm::EventSetup &  ) ;
+    struct Configuration
+     {
+      // common parameters
+      double hOverEConeSize ;
+
+      // strategy
+      bool useTowers ;
+
+      // specific parameters if use towers
+      edm::InputTag hcalTowers ;
+      double hOverEPtMin ;            // min tower Et for H/E evaluation
+
+      // specific parameters if use rechits
+      edm::InputTag hcalRecHits ;
+      double hOverEHBMinE ;
+      double hOverEHFMinE ;
+     } ;
+
+    ElectronHcalHelper( const Configuration & ) ;
+    void checkSetup( const edm::EventSetup & ) ;
     void readEvent( edm::Event & ) ;
     double hcalESum( const reco::SuperCluster & ) ;
     double hcalESumDepth1( const reco::SuperCluster & ) ;
     double hcalESumDepth2( const reco::SuperCluster & ) ;
     ~ElectronHcalHelper() ;
 
-    double hOverEConeSize() const { return hOverEConeSize_ ; }
+    double hOverEConeSize() const { return cfg_.hOverEConeSize ; }
 
 
   private:
 
-    // common parameters
-    double hOverEConeSize_ ;
-
-    // strategy
-    bool useTowers_ ;
-
-    // specific parameters if use rechits
-    edm::InputTag hcalRecHits_ ;
-    double hOverEHBMinE_ ;
-    double hOverEHFMinE_ ;
-
-    // specific parameters if use towers
-    edm::InputTag hcalTowers_ ;
-    double hOverEPtMin_ ;            // min tower Et for H/E evaluation
+    const Configuration cfg_ ;
 
     // event setup data (rechits strategy)
     unsigned long long caloGeomCacheId_ ;

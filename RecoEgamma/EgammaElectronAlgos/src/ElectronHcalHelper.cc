@@ -8,39 +8,16 @@
 
 using namespace reco ;
 
-ElectronHcalHelper::ElectronHcalHelper( const edm::ParameterSet & conf, bool useTowers, bool forPflow )
- : useTowers_(useTowers), caloGeomCacheId_(0), hbhe_(0), mhbhe_(0), hcalIso_(0), towersH_(0), towerIso1_(0), towerIso2_(0)
- {
-  if (!forPflow)
-   { hOverEConeSize_ = conf.getParameter<double>("hOverEConeSize") ; }
-  else
-   { hOverEConeSize_ = conf.getParameter<double>("hOverEConeSizePflow") ; }
-
-  if (hOverEConeSize_==0)
-   { return ; }
-
-  if (useTowers_)
-   {
-    hcalTowers_ = conf.getParameter<edm::InputTag>("hcalTowers") ;
-    if (!forPflow)
-     { hOverEPtMin_ = conf.getParameter<double>("hOverEPtMin") ; }
-    else
-     { hOverEPtMin_ = conf.getParameter<double>("hOverEPtMinPflow") ; }
-   }
-  else
-   {
-    hcalRecHits_ = conf.getParameter<edm::InputTag>("hcalRecHits") ;
-    hOverEHBMinE_ = conf.getParameter<double>("hOverEHBMinE") ;
-    hOverEHFMinE_ = conf.getParameter<double>("hOverEHFMinE") ;
-   }
- }
+ElectronHcalHelper::ElectronHcalHelper( const Configuration & cfg  )
+ : cfg_(cfg), caloGeomCacheId_(0), hbhe_(0), mhbhe_(0), hcalIso_(0), towersH_(0), towerIso1_(0), towerIso2_(0)
+ {}
 
 void ElectronHcalHelper::checkSetup( const edm::EventSetup & es )
  {
-  if (hOverEConeSize_==0)
+  if (cfg_.hOverEConeSize==0)
    { return ; }
 
-  if (!useTowers_)
+  if (!cfg_.useTowers)
    {
     unsigned long long newCaloGeomCacheId_
      = es.get<CaloGeometryRecord>().cacheIdentifier() ;
@@ -54,20 +31,20 @@ void ElectronHcalHelper::checkSetup( const edm::EventSetup & es )
 
 void ElectronHcalHelper::readEvent( edm::Event & evt )
  {
-  if (hOverEConeSize_==0)
+  if (cfg_.hOverEConeSize==0)
    { return ; }
 
-  if (useTowers_)
+  if (cfg_.useTowers)
    {
     delete towerIso1_ ; towerIso1_ = 0 ;
     delete towerIso2_ ; towerIso2_ = 0 ;
     delete towersH_ ; towersH_ = 0 ;
 
     towersH_ = new edm::Handle<CaloTowerCollection>() ;
-    if (!evt.getByLabel(hcalTowers_,*towersH_))
-     { edm::LogError("ElectronHcalHelper::readEvent")<<"failed to get the hcal towers of label "<<hcalTowers_ ; }
-    towerIso1_ = new EgammaTowerIsolation(hOverEConeSize_,0.,hOverEPtMin_,1,towersH_->product()) ;
-    towerIso2_ = new EgammaTowerIsolation(hOverEConeSize_,0.,hOverEPtMin_,2,towersH_->product()) ;
+    if (!evt.getByLabel(cfg_.hcalTowers,*towersH_))
+     { edm::LogError("ElectronHcalHelper::readEvent")<<"failed to get the hcal towers of label "<<cfg_.hcalTowers ; }
+    towerIso1_ = new EgammaTowerIsolation(cfg_.hOverEConeSize,0.,cfg_.hOverEPtMin,1,towersH_->product()) ;
+    towerIso2_ = new EgammaTowerIsolation(cfg_.hOverEConeSize,0.,cfg_.hOverEPtMin,2,towersH_->product()) ;
    }
   else
    {
@@ -76,18 +53,18 @@ void ElectronHcalHelper::readEvent( edm::Event & evt )
     delete hbhe_ ; hbhe_ = 0 ;
 
     hbhe_=  new edm::Handle<HBHERecHitCollection>() ;
-    if (!evt.getByLabel(hcalRecHits_,*hbhe_))
-     { edm::LogError("ElectronHcalHelper::readEvent")<<"failed to get the rechits of label "<<hcalRecHits_ ; }
+    if (!evt.getByLabel(cfg_.hcalRecHits,*hbhe_))
+     { edm::LogError("ElectronHcalHelper::readEvent")<<"failed to get the rechits of label "<<cfg_.hcalRecHits ; }
     mhbhe_=  new HBHERecHitMetaCollection(**hbhe_) ;
-    hcalIso_ = new EgammaHcalIsolation(hOverEConeSize_,0.,hOverEHBMinE_,hOverEHFMinE_,0.,0.,caloGeom_,mhbhe_) ;
+    hcalIso_ = new EgammaHcalIsolation(cfg_.hOverEConeSize,0.,cfg_.hOverEHBMinE,cfg_.hOverEHFMinE,0.,0.,caloGeom_,mhbhe_) ;
    }
  }
 
 double ElectronHcalHelper::hcalESum( const SuperCluster & sc )
  {
-  if (hOverEConeSize_==0)
+  if (cfg_.hOverEConeSize==0)
    { return 0 ; }
-  if (useTowers_)
+  if (cfg_.useTowers)
    { return(hcalESumDepth1(sc)+hcalESumDepth2(sc)) ; }
   else
    { return hcalIso_->getHcalESum(&sc) ; }
@@ -95,9 +72,9 @@ double ElectronHcalHelper::hcalESum( const SuperCluster & sc )
 
 double ElectronHcalHelper::hcalESumDepth1( const SuperCluster & sc )
  {
-  if (hOverEConeSize_==0)
+  if (cfg_.hOverEConeSize==0)
    { return 0 ; }
-  if (useTowers_)
+  if (cfg_.useTowers)
    { return towerIso1_->getTowerESum(&sc) ; }
   else
    { return hcalIso_->getHcalESumDepth1(&sc) ; }
@@ -105,9 +82,9 @@ double ElectronHcalHelper::hcalESumDepth1( const SuperCluster & sc )
 
 double ElectronHcalHelper::hcalESumDepth2( const SuperCluster & sc )
  {
-  if (hOverEConeSize_==0)
+  if (cfg_.hOverEConeSize==0)
    { return 0 ; }
-  if (useTowers_)
+  if (cfg_.useTowers)
    { return towerIso2_->getTowerESum(&sc) ; }
   else
    { return hcalIso_->getHcalESumDepth2(&sc) ; }
@@ -115,9 +92,9 @@ double ElectronHcalHelper::hcalESumDepth2( const SuperCluster & sc )
 
 ElectronHcalHelper::~ElectronHcalHelper()
  {
-  if (hOverEConeSize_==0)
+  if (cfg_.hOverEConeSize==0)
    { return ; }
-  if (useTowers_)
+  if (cfg_.useTowers)
    {
     delete towerIso1_ ;
     delete towerIso2_ ;
