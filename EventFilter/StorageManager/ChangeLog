@@ -3,7 +3,7 @@
 	* tag V06-07-00
 	* Add new boolean parameter 'uniqueEvents' for event consumers. If it is set to
 	  'true', the queue might be shared with other event consumers requesting the
-	  same events and queue types. This allows multiple consumers to get unique
+	  same events and queue type. This allows multiple consumers to get unique
 	  events. Otherwise, the same event might be served to multiple consumers.
 	* Assure that the same event cannot be selected multiple times for the same
 	  stream/queue. This was ascertained by construction of the consumer registration,
