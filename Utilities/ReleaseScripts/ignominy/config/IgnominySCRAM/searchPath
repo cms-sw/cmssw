@@ -993,8 +993,8 @@ sub _get_scram_variable(){
 sub getScramPath ()
 {
   my $rel=shift;
-  my $sbase=`cd $rel; sh -v scram ver 2>&1 | grep "SCRAMV1_ROOT=" | sed 's|;.*||;s|SCRAMV1_ROOT=||;s|"||g'`;
-  chomp $sbase;
+  my $sbase=`cd $rel; sh -v scram --help 2>&1 | grep SCRAMV1_ROOT=`; chomp $sbase;
+  $sbase=~s/SCRAMV1_ROOT=["']//; $sbase=~s/['"].*//;
   if (!-d "${sbase}/src"){die "ERROR: Could not find SCRAM base path.\n";}
   return $sbase;
 }
