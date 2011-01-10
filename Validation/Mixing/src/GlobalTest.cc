@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: GlobalTest.cc,v 1.8 2009/12/11 15:05:51 ebecheva Exp $
+// $Id: GlobalTest.cc,v 1.9 2009/12/21 14:46:56 ebecheva Exp $
 //
 //
 
@@ -116,7 +116,7 @@ void GlobalTest::beginJob() {
 void GlobalTest::endJob() {
  if (filename_.size() != 0 && dbe_ ) dbe_->save(filename_);
  
- for (int i; i<6; i++) delete [] labels[i];
+ for (int i = 0; i < 6; i++) delete[] labels[i];
 }
 
 //
