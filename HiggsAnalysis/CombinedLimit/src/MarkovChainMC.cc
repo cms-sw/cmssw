@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/CombinedLimit/interface/MarkovChainMC.h"
+#include <stdexcept> 
 #include "RooRealVar.h"
 #include "RooArgSet.h"
 #include "RooUniform.h"
@@ -9,8 +10,10 @@
 #include "RooStats/ModelConfig.h"
 #include "RooStats/ProposalHelper.h"
 #include "RooStats/ProposalFunction.h"
+#include "RooStats/RooStatsUtils.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 #include "HiggsAnalysis/CombinedLimit/interface/TestProposal.h"
+#include "HiggsAnalysis/CombinedLimit/interface/DebugProposal.h"
 
 using namespace RooStats;
 
@@ -19,6 +22,7 @@ MarkovChainMC::MarkovChainMC() :
 {
     options_.add_options()
         ("iteration,i", boost::program_options::value<unsigned int>(&iterations_)->default_value(20000), "Number of iterations")
+        ("tries", boost::program_options::value<unsigned int>(&tries_)->default_value(1), "Number of times to run the MCMC on the same data")
         ("burnInSteps,b", boost::program_options::value<unsigned int>(&burnInSteps_)->default_value(50), "Burn in steps")
         ("nBins,B", boost::program_options::value<unsigned int>(&numberOfBins_)->default_value(1000), "Number of bins")
         ("proposal", boost::program_options::value<std::string>(&proposalTypeName_)->default_value("gaus"), 
@@ -37,6 +41,10 @@ MarkovChainMC::MarkovChainMC() :
         ("propHelperUniformFraction", 
                 boost::program_options::value<float>(&proposalHelperUniformFraction_)->default_value(0), 
                 "Add a fraction of uniform proposals to the algorithm")
+        ("debugProposal", boost::program_options::value<int>(&debugProposal_)->default_value(0), "Printout the first N proposals")
+        ("cropNSigmas", 
+                boost::program_options::value<float>(&cropNSigmas_)->default_value(0),
+                "crop range of all parameters to N times their uncertainty") 
     ;
 }
 
@@ -53,7 +61,34 @@ void MarkovChainMC::applyOptions(const boost::program_options::variables_map &vm
     runMinos_ = vm.count("runMinos");
     noReset_  = vm.count("noReset");
 }
+
 bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+  double sum = 0, sum2 = 0, suma = 0; int num = 0;
+  for (unsigned int i = 0; i < tries_; ++i) {
+      if (int nacc = runOnce(w,data,limit,hint)) {
+          ++num;
+          sum  += limit;
+          sum2 += limit * limit;
+          suma += nacc;
+      }
+  }
+  if (num == 0) return false;
+
+  if (verbose >= 0) {
+      std::cout << "\n -- MarkovChainMC -- " << "\n";
+      limit = sum / num;
+      suma  = suma / (num * double(iterations_));
+      if (num > 1) {
+          double limitErr = sqrt((sum2/num-limit*limit)/(num-1));
+          std::cout << "Limit: r < " << limit << " +/- " << limitErr << " @ " << cl * 100 << "% CL (" << num << " tries)" << std::endl;
+          if (verbose > 0) std::cout << "Average chain acceptance: " << suma << std::endl;
+      } else {
+          std::cout << "Limit: r < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
+      }
+  }
+  return true;
+}
+int MarkovChainMC::runOnce(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) const {
   RooRealVar *r = w->var("r");
   RooArgSet  poi(*r);
   RooArgSet const &obs = *w->set("observables");
@@ -70,11 +105,34 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, const 
   w->loadSnapshot("clean");
   RooAbsPdf *prior = w->pdf("prior"); if (prior == 0) { std::cerr << "ERROR: missing prior" << std::endl; abort(); }
   std::auto_ptr<RooFitResult> fit(0);
-  if (proposalType_ == FitP) {
+  if (proposalType_ == FitP || (cropNSigmas_ > 0)) {
+      if (verbose <= 1) setSilent(true);
       fit.reset(w->pdf("model_s")->fitTo(data, RooFit::Save(), RooFit::Minos(runMinos_)));
+      if (verbose <= 1) setSilent(false);
       if (fit.get() == 0) { std::cerr << "Fit failed." << std::endl; return false; }
       if (verbose > 1) fit->Print("V");
       if (!noReset_) w->loadSnapshot("clean");
+  }
+
+  if (cropNSigmas_ > 0) {
+      const RooArgList &fpf = fit->floatParsFinal();
+      for (int i = 0, n = fpf.getSize(); i < n; ++i) {
+          RooRealVar *fv = dynamic_cast<RooRealVar *>(fpf.at(i));
+          if (std::string("r") == fv->GetName()) continue;
+          RooRealVar *v  = w->var(fv->GetName());
+          double min = v->getMin(), max = v->getMax();
+          if (fv->hasAsymError(false)) {
+              min = (std::max(v->getMin(), fv->getVal() + cropNSigmas_ * fv->getAsymErrorLo()));
+              max = (std::min(v->getMax(), fv->getVal() + cropNSigmas_ * fv->getAsymErrorHi()));
+          } else if (fv->hasError(false)) {
+              min = (std::max(v->getMin(), fv->getVal() - cropNSigmas_ * fv->getError()));
+              max = (std::min(v->getMax(), fv->getVal() + cropNSigmas_ * fv->getError()));
+          }
+          if (verbose > 1) {
+              std::cout << "  " << fv->GetName() << "[" << v->getMin() << ", " << v->getMax() << "] -> [" << min << ", " << max << "]" << std::endl;
+          }
+          v->setMin(min); v->setMax(max);
+      }
   }
 
   ModelConfig modelConfig("sb_model", w);
@@ -82,13 +140,15 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, const 
   modelConfig.SetObservables(obs);
   modelConfig.SetParametersOfInterest(poi);
   if (withSystematics) modelConfig.SetNuisanceParameters(*w->set("nuisances"));
-  
+ 
+  std::auto_ptr<ProposalFunction> ownedPdfProp; 
   ProposalFunction* pdfProp = 0;
   ProposalHelper ph;
   switch (proposalType_) {
     case UniformP:  
         if (verbose) std::cout << "Using uniform proposal" << std::endl;
-        pdfProp = new UniformProposal();
+        ownedPdfProp.reset(new UniformProposal());
+        pdfProp = ownedPdfProp.get();
         break;
     case FitP:
         if (verbose) std::cout << "Using fit proposal" << std::endl;
@@ -103,8 +163,8 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, const 
         pdfProp = ph.GetProposalFunction();
         break;
     case TestP:
-        pdfProp = new TestProposal();
-        proposalType_ = UniformP; // then behave as if it were uniform
+        ownedPdfProp.reset(new TestProposal(proposalHelperWidthRangeDivisor_));
+        pdfProp = ownedPdfProp.get();
         break;
   }
   if (proposalType_ != UniformP) {
@@ -112,55 +172,41 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, const 
       ph.SetCacheSize(proposalHelperCacheSize_);
       if (proposalHelperUniformFraction_ > 0) ph.SetUniformFraction(proposalHelperUniformFraction_);
   }
+
+  std::auto_ptr<DebugProposal> pdfDebugProp(debugProposal_ > 0 ? new DebugProposal(pdfProp, w->pdf("model_s"), &data, debugProposal_) : 0);
   
   MCMCCalculator mc(data, modelConfig);
   mc.SetNumIters(iterations_); 
   mc.SetConfidenceLevel(cl);
   mc.SetNumBurnInSteps(burnInSteps_); 
-  mc.SetProposalFunction(*pdfProp);
+  mc.SetProposalFunction(debugProposal_ > 0 ? *pdfDebugProp : *pdfProp);
   mc.SetNumBins (numberOfBins_) ; // bins to use for RooRealVars in histograms
   mc.SetLeftSideTailFraction(0);
   mc.SetPriorPdf(*prior);
-  
-  std::auto_ptr<MCMCInterval> mcInt((MCMCInterval*)mc.GetInterval()); 
-  if (proposalType_ == UniformP) delete pdfProp; // unfortunately, it looks like the ProposalHelper owns its proposal
+
+  std::auto_ptr<MCMCInterval> mcInt;
+  //if (verbose < 0) setSilent(true);
+  try {  
+      mcInt.reset((MCMCInterval*)mc.GetInterval()); 
+  } catch (std::length_error &ex) {
+      mcInt.reset(0);
+  }
+  //if (verbose < 0) setSilent(false);
   if (mcInt.get() == 0) return false;
   limit = mcInt->UpperLimit(*r);
-  if (verbose > 0) {
-    std::cout << "\n -- MCMC, flat prior -- " << "\n";
-    std::cout << "Limit: r < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
 
-    if (verbose > 1) std::cout << "Getting uncertainty for TF interval" << std::endl;
-    if (verbose > 1) printf("  CL %7.5f Limit %9.5f\n", cl, limit);
-    double clLo, clHi;
-    for (clHi = 1.0; clHi - cl > 0.0005; clHi = 0.5*(cl+clHi)) {
-        mcInt->SetConfidenceLevel(clHi);
-        double xlimit = mcInt->UpperLimitTailFraction(*r);
-        if (verbose > 1) printf("  CL %7.5f Limit %9.5f\n", clHi, xlimit);
-        if (xlimit == limit) { 
-            clHi += (clHi - cl);
-            if (verbose > 1) std::cout << " ... found boundary\n"; 
-            break; 
-        }
+  return mcInt->GetChain()->Size();
+}
+void MarkovChainMC::setSilent(bool silent) const {
+    static int fdOut_, fdErr_;
+    if (silent) {
+        fdOut_ = dup(1);
+        fdErr_ = dup(2);
+        freopen("/dev/null", "w", stdout);
+        freopen("/dev/null", "w", stderr);
+    } else {
+        char buf[50];
+        sprintf(buf, "/dev/fd/%d", fdOut_); freopen(buf, "w", stdout); 
+        sprintf(buf, "/dev/fd/%d", fdErr_); freopen(buf, "w", stderr); 
     }
-    for (clLo = 0.0; cl - clLo > 0.0005; clLo = 0.5*(cl+clLo)) {
-        mcInt->SetConfidenceLevel(clLo);
-        double xlimit = mcInt->UpperLimitTailFraction(*r);
-        if (verbose > 1) printf("  CL %7.5f Limit %9.5f\n", clLo, xlimit);
-        if (xlimit == limit) { 
-            if (verbose > 1) std::cout << " ... found boundary\n"; 
-            clLo -= (cl - clLo);
-            break; 
-        }
-    }
-    mcInt->SetConfidenceLevel(clHi); 
-    double limHi = mcInt->UpperLimitTailFraction(*r);
-    mcInt->SetConfidenceLevel(clLo); 
-    double limLo = mcInt->UpperLimitTailFraction(*r);
-        
-    std::cout << "       r < " << limLo << " @ " << clLo * 100 << "% CL" << std::endl;
-    std::cout << "       r < " << limHi << " @ " << clHi * 100 << "% CL" << std::endl;
-    std::cout << "       unertainty: " << 0.5*(limHi-limLo) << std::endl;
-  }
-  return true;
 }

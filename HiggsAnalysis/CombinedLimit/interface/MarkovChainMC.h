@@ -25,10 +25,16 @@ private:
   ProposalType proposalType_;
   bool runMinos_, noReset_, updateProposalParams_;
   unsigned int iterations_;
+  unsigned int tries_;
   unsigned int burnInSteps_;
   unsigned int numberOfBins_;
   unsigned int proposalHelperCacheSize_;
   float        proposalHelperWidthRangeDivisor_, proposalHelperUniformFraction_;
+  float        cropNSigmas_;
+  int          debugProposal_;
+  // return number of items in chain, 0 for error
+  int runOnce(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) const ;
+  void setSilent(bool silent) const ;
 };
 
 #endif
