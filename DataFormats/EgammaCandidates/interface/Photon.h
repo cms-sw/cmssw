@@ -7,7 +7,7 @@
  * stores isolation, shower shape and additional info
  * needed for identification
  * 
- * \version $Id: Photon.h,v 1.33 2010/11/17 17:13:11 dlange Exp $
+ * \version $Id: Photon.h,v 1.34 2011/01/07 19:57:17 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -215,35 +215,18 @@ namespace reco {
 
     struct PflowIsolationVariables
     {
-            
-      //EcalRecHit isolation
-      float ecalRecHitSumEt;
-      //HcalDepth1Tower isolation
-      float hcalTowerSumEt;
-      //HcalDepth1Tower isolation
-      float hcalDepth1TowerSumEt;
-      //HcalDepth2Tower isolation
-      float hcalDepth2TowerSumEt;
-      //Sum of track pT in a cone of dR
-      float trkSumPtSolidCone;
-      //Sum of track pT in a hollow cone of outer radius, inner radius
-      float trkSumPtHollowCone;
-      //Number of tracks in a cone of dR
-      int nTrkSolidCone;
-      //Number of tracks in a hollow cone of outer radius, inner radius
-      int nTrkHollowCone;
+
+      float chargedHadronIso;
+      float neutralHadronIso;
+      float photonIso ;
+      
       
       PflowIsolationVariables():
 	
-	ecalRecHitSumEt(0),
-	hcalTowerSumEt(0),
-	hcalDepth1TowerSumEt(0),
-	hcalDepth2TowerSumEt(0),
-	trkSumPtSolidCone(0),
-	trkSumPtHollowCone(0),
-	nTrkSolidCone(0),
-	nTrkHollowCone(0)
-	   
+	chargedHadronIso(0),
+	neutralHadronIso(0),
+	photonIso(0)
+      		   
       {}
       
       
@@ -253,7 +236,7 @@ namespace reco {
     /// set relevant isolation variables
     void setIsolationVariables ( const IsolationVariables& isolInDr04, const IsolationVariables& isolInDr03) {  isolationR04_ = isolInDr04 ; isolationR03_ = isolInDr03 ;} 
     /// set isolation variables calculated with Pflow
-    void setPflowIsolationVariables ( const PflowIsolationVariables& isolInDr04, const PflowIsolationVariables& isolInDr03) {  pfIsolationR04_ = isolInDr04 ; pfIsolationR03_ = isolInDr03 ;} 
+    void setPflowIsolationVariables ( const PflowIsolationVariables& pfisol ) {  pfIsolation_ = pfisol;} 
 
     /// Egamma Isolation variables in cone dR=0.4
     ///Ecal isolation sum calculated from recHits
@@ -292,43 +275,10 @@ namespace reco {
 
 
 
-    /// Particle Flow Isolation variables in cone dR=0.4
-    ///Ecal isolation sum calculated from recHits
-    float PFecalRecHitSumEtConeDR04()      const{return  pfIsolationR04_.ecalRecHitSumEt;}
-    /// Hcal isolation sum
-    float PFhcalTowerSumEtConeDR04()      const{return  pfIsolationR04_.hcalTowerSumEt ;}
-    /// Hcal-Depth1 isolation sum
-    float PFhcalDepth1TowerSumEtConeDR04()      const{return  pfIsolationR04_.hcalDepth1TowerSumEt;}
-    /// Hcal-Depth2 isolation sum
-    float PFhcalDepth2TowerSumEtConeDR04()      const{return  pfIsolationR04_.hcalDepth2TowerSumEt;}
-    //  Track pT sum c
-    float PFtrkSumPtSolidConeDR04()    const{return   pfIsolationR04_.trkSumPtSolidCone;}
-    //As above, excluding the core at the center of the cone
-    float PFtrkSumPtHollowConeDR04()   const{return   pfIsolationR04_.trkSumPtHollowCone;}
-    //Returns number of tracks in a cone of dR
-    int PFnTrkSolidConeDR04()              const{return   pfIsolationR04_.nTrkSolidCone;}
-    //As above, excluding the core at the center of the cone
-    int PFnTrkHollowConeDR04()            const{return   pfIsolationR04_.nTrkHollowCone;}
-    //
-    /// Particle Flow Isolation variables in cone dR=0.3
-    float PFecalRecHitSumEtConeDR03()      const{return  pfIsolationR03_.ecalRecHitSumEt;}
-    /// Hcal isolation sum
-    float PFhcalTowerSumEtConeDR03()      const{return pfIsolationR03_.hcalTowerSumEt;}
-    /// Hcal-Depth1 isolation sum
-    float PFhcalDepth1TowerSumEtConeDR03()      const{return pfIsolationR03_.hcalDepth1TowerSumEt;}
-    /// Hcal-Depth2 isolation sum
-    float PFhcalDepth2TowerSumEtConeDR03()      const{return pfIsolationR03_.hcalDepth2TowerSumEt;}
-    //  Track pT sum c
-    float PFtrkSumPtSolidConeDR03()    const{return  pfIsolationR03_.trkSumPtSolidCone;}
-    //As above, excluding the core at the center of the cone
-    float PFtrkSumPtHollowConeDR03()   const{return  pfIsolationR03_.trkSumPtHollowCone;}
-    //Returns number of tracks in a cone of dR
-    int PFnTrkSolidConeDR03()              const{return  pfIsolationR03_.nTrkSolidCone;}
-    //As above, excluding the core at the center of the cone
-    int PFnTrkHollowConeDR03()             const{return  pfIsolationR03_.nTrkHollowCone;}
-
-
-
+    /// Particle Flow Isolation variables 
+    float chargedHadronIso() const {return  pfIsolation_.chargedHadronIso;}
+    float neutralHadronIso() const {return  pfIsolation_.neutralHadronIso;}
+    float photonIso() const {return  pfIsolation_.photonIso;}
 
 
   private:
@@ -345,12 +295,8 @@ namespace reco {
     IsolationVariables isolationR04_;
     IsolationVariables isolationR03_;
     ShowerShape        showerShapeBlock_;
-    PflowIsolationVariables pfIsolationR04_;
-    PflowIsolationVariables pfIsolationR03_;
-
-
-   
-
+    PflowIsolationVariables pfIsolation_;
+ 
 
   };
   
