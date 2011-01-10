@@ -1,4 +1,5 @@
 #include <cassert>
+#include <sstream>
 #include <boost/foreach.hpp>
 
 #include "FWCore/Common/interface/TriggerNames.h"
@@ -48,20 +49,35 @@ void HLTReader::init(const Data & data) {
     unsigned int index = hltMenu.triggerIndex(m_pattern);
     if (index < hltMenu.size())
       m_triggers.push_back( std::make_pair(m_pattern, index) );
-    else
-      if (data.shouldThrow())
-        throw cms::Exception("Configuration") << "requested HLT path \"" << m_pattern << "\" does not exist";
+    else {
+      std::stringstream msg;
+      msg << "requested HLT path \"" << m_pattern << "\" does not exist - known paths are:";
+      if (hltMenu.triggerNames().empty())
+        msg << " (none)";
       else
-        edm::LogWarning("Configuration") << "requested HLT path \"" << m_pattern << "\" does not exist";
+        BOOST_FOREACH(const std::string & p, hltMenu.triggerNames())
+          msg << "\n\t" << p;
+      if (data.shouldThrow())
+        throw cms::Exception("Configuration") << msg.str();
+      else
+        edm::LogWarning("Configuration") << msg.str();
+    }
   } else {
     // expand wildcards in the pattern
     const std::vector< std::vector<std::string>::const_iterator > & matches = edm::regexMatch(hltMenu.triggerNames(), m_pattern);
     if (matches.empty()) {
       // m_pattern does not match any trigger paths
-      if (data.shouldThrow())
-        throw cms::Exception("Configuration") << "requested pattern \"" << m_pattern <<  "\" does not match any HLT paths";
+      std::stringstream msg;
+      msg << "requested pattern \"" << m_pattern <<  "\" does not match any HLT paths - known paths are:";
+      if (hltMenu.triggerNames().empty())
+        msg << " (none)";
       else
-        edm::LogWarning("Configuration") << "requested pattern \"" << m_pattern <<  "\" does not match any HLT paths";
+        BOOST_FOREACH(const std::string & p, hltMenu.triggerNames())
+          msg << "\n\t" << p;
+      if (data.shouldThrow())
+        throw cms::Exception("Configuration") << msg.str();
+      else
+        edm::LogWarning("Configuration") << msg.str();
     } else {
       // store indices corresponding to the matching triggers
       BOOST_FOREACH(const std::vector<std::string>::const_iterator & match, matches) {
