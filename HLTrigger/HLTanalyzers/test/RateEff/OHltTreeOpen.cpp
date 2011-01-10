@@ -6552,3 +6552,42 @@ int OHltTree::OpenHlt1L3MuonPassed(double pt, double eta)
   return rcL3; 
  
 } 
+
+int OHltTree::OpenL1SetSingleJetBit(const float& thresh){
+
+  // count number of L1 central, forward and tau jets above threshold
+
+  int rc=0;
+
+  bool CenJet=false,ForJet=false,TauJet=false;
+
+  //size_t size = sizeof(L1CenJetEt)/sizeof(*L1CenJetEt);
+  const size_t size = 4;
+  // cout << thresh << "\t" << size << endl;
+
+  int ncenjet=0;
+  for (unsigned int i=0;i<size; ++i){
+    if (L1CenJetEt[i] >= thresh) ++ncenjet;
+  }
+  CenJet=ncenjet>=1;
+
+
+  int nforjet=0;
+  for (unsigned int i=0;i<size; ++i){
+    if (L1ForJetEt[i] >= thresh) ++nforjet;
+  }
+  ForJet=nforjet>=1;
+
+  int ntaujet=0;
+  for (unsigned int i=0;i<size; ++i){
+    if (L1TauEt[i] >= thresh) ++ntaujet;
+  }
+  TauJet=ntaujet>=1;
+
+  bool L1SingleJet=(CenJet || ForJet || TauJet );
+
+  if (L1SingleJet) rc=1;
+
+  return ( rc );
+ 
+}

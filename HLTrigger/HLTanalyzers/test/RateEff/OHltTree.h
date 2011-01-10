@@ -3648,6 +3648,8 @@ public :
   int OpenHltRPassed(float Rmin, float MRmin,bool MRP, int NJmax, float jetPt);
   int readRefPrescaleFromFile(TString st); 
 
+  int OpenL1SetSingleJetBit(const float& thresh);
+
   std::map<TString, std::vector<TString> >&
     GetL1SeedsOfHLTPathMap() { return map_L1SeedsOfStandardHLTPath; }; // mapping to all seeds
 
@@ -7137,6 +7139,21 @@ void OHltTree::SetOpenL1Bits()
   map_BitOfStandardHLTPath["OpenL1_Mu3EG5"] = OpenL1_Mu3EG5;
   map_BitOfStandardHLTPath["OpenL1_EG5_HTT100"] = OpenL1_EG5_HTT100;
   map_BitOfStandardHLTPath["OpenL1_SingleMu30"] = OpenL1_SingleMu30;   
+
+  map_BitOfStandardHLTPath["OpenL1_SingleJet6"]  = OpenL1SetSingleJetBit(6)>=1;
+  map_BitOfStandardHLTPath["OpenL1_SingleJet10"] = OpenL1SetSingleJetBit(10)>=1;
+  map_BitOfStandardHLTPath["OpenL1_SingleJet20"] = OpenL1SetSingleJetBit(20)>=1;
+  map_BitOfStandardHLTPath["OpenL1_SingleJet30"] = OpenL1SetSingleJetBit(30)>=1;
+  map_BitOfStandardHLTPath["OpenL1_SingleJet40"] = OpenL1SetSingleJetBit(40)>=1;
+  map_BitOfStandardHLTPath["OpenL1_SingleJet50"] = OpenL1SetSingleJetBit(50)>=1;
+  map_BitOfStandardHLTPath["OpenL1_SingleJet60"] = OpenL1SetSingleJetBit(60)>=1;
+
+  map_BitOfStandardHLTPath["OpenL1_SingleJet16"]  = OpenL1SetSingleJetBit(16)>=1;
+  map_BitOfStandardHLTPath["OpenL1_SingleJet36"]  = OpenL1SetSingleJetBit(36)>=1;
+  map_BitOfStandardHLTPath["OpenL1_SingleJet52"]  = OpenL1SetSingleJetBit(52)>=1;
+  map_BitOfStandardHLTPath["OpenL1_SingleJet68"]  = OpenL1SetSingleJetBit(68)>=1;
+  map_BitOfStandardHLTPath["OpenL1_SingleJet92"]  = OpenL1SetSingleJetBit(92)>=1;
+  map_BitOfStandardHLTPath["OpenL1_SingleJet128"]  = OpenL1SetSingleJetBit(128)>=1;
 
 }
 
