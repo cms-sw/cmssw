@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
   string datacard, dataset;
   int iMass;
   string whichMethod, whichHintMethod;
-  unsigned int runToys;
+  int runToys;
   int    seed;
   string toysFile;
 
@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
     ("method,M",      po::value<string>(&whichMethod)->default_value("ProfileLikelihood"), methodsDesc.c_str())
     ("hintMethod,H",  po::value<string>(&whichHintMethod)->default_value(""), "Run first this method to provide a hint on the result")
     ("mass,m",     po::value<int>(&iMass)->default_value(120), "Higgs mass to store in the output tree")
-    ("toys,t", po::value<unsigned int>(&runToys)->default_value(0), "Number of Toy MC extractions")
+    ("toys,t", po::value<int>(&runToys)->default_value(0), "Number of Toy MC extractions")
     ("seed,s", po::value<int>(&seed)->default_value(123456), "Toy MC random seed")
     ("saveToys,w", "Save results of toy MC")
     ("toysFile,f", po::value<string>(&toysFile)->default_value(""), "Toy MC input file")
@@ -167,7 +167,7 @@ int main(int argc, char **argv) {
   RooRandom::randomGenerator()->SetSeed(seed); 
 
   TString massName = TString::Format("mH%d.", iMass);
-  TString toyName  = "";  if (runToys !=  0) toyName  = TString::Format("%d.", seed);
+  TString toyName  = "";  if (runToys >  0) toyName  = TString::Format("%d.", seed);
   TString fileName = "higgsCombine" + name + "."+whichMethod+"."+massName+toyName+"root";
   TFile *test = new TFile(fileName, "RECREATE");
   TTree *t = new TTree("test", "test");

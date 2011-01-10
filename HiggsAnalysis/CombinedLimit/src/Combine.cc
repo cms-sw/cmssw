@@ -149,6 +149,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
       } else { std::cerr << "Failed to invoke 'scram tool tag roofitcore INCLUDE'" << std::endl; }
   }
 
+  if (verbose <= 1) RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
   // Load the model, but going in a temporary directory to avoid polluting the current one with garbage from 'cexpr'
   RooStats::HLFactory hlf("factory", fileToLoad);
   gSystem->cd(pwd);
@@ -157,6 +158,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
     std::cerr << "Could not read HLF from file " <<  (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile) << std::endl;
     return;
   }
+  if (verbose <= 1) RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
 
   const RooArgSet * observables = w->set("observables");
   if (observables == 0) {
@@ -188,7 +190,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
     }
   }
 
-  if (verbose < 0) {
+  if (verbose < -1) {
       RooMsgService::instance().setStreamStatus(0,kFALSE);
       RooMsgService::instance().setStreamStatus(1,kFALSE);
       RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
@@ -218,6 +220,16 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
     delete nuisancesGuess;
     nuisances = w->set("nuisances");
   }  
+  if (!withSystematics && nuisances != 0) {
+    std::cout << "Will set nuisance parameters to constants: " ;
+    std::auto_ptr<TIterator> iter(nuisances->createIterator());
+    for (TObject *a = iter->Next(); a != 0; a = iter->Next()) {
+       RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
+       if (rrv) { rrv->setConstant(true); std::cout << " " << rrv->GetName(); }
+    }
+    std::cout << std::endl;
+  }
+
   w->saveSnapshot("clean", w->allVars());
 
   if (nToys <= 0) { // observed or asimov
@@ -234,7 +246,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
       return;
     }
     std::cout << "Computing limit starting from " << (iToy == 0 ? "observation" : "expected outcome") << std::endl;
-    utils::printRAD(dobs);
+    if (verbose > 0) utils::printRAD(dobs);
     if (mklimit(w,*dobs,limit)) tree->Fill();
   }
   
@@ -256,11 +268,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
       RooAbsData *absdata_toy = 0;
       if (readToysFromHere == 0) {
 	w->loadSnapshot("clean");
-	utils::printPdf(w, "model_b");
+	if (verbose > 1) utils::printPdf(w, "model_b");
 	if (withSystematics) {
 	  std::auto_ptr<RooArgSet> vars(w->pdf("model_b")->getVariables());
 	  *vars = *systDs->get(iToy-1);
-	  utils::printPdf(w, "model_b");
+	  if (verbose > 0) utils::printPdf(w, "model_b");
 	}
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
 	if (w->pdf("model_b")->canBeExtended()) {
@@ -278,9 +290,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
 	  return;
 	}
       }
-      utils::printRAD(absdata_toy);
+      if (verbose > 0) utils::printRAD(absdata_toy);
       w->loadSnapshot("clean");
-      utils::printPdf(w, "model_b");
+      if (verbose > 1) utils::printPdf(w, "model_b");
       if (mklimit(w,*absdata_toy,limit)) {
 	tree->Fill();
 	++nLimits;
@@ -294,28 +306,26 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
       delete absdata_toy;
     }
     expLimit /= nLimits;
-    if (verbose > 0) {
-      double rms = 0;
-      for (std::vector<double>::const_iterator itl = limitHistory.begin(); itl != limitHistory.end(); ++itl) {
+    double rms = 0;
+    for (std::vector<double>::const_iterator itl = limitHistory.begin(); itl != limitHistory.end(); ++itl) {
         rms += pow(*itl-expLimit, 2);
-      }
-      if (nLimits > 1) {
+    }
+    if (nLimits > 1) {
         rms = sqrt(rms/(nLimits-1)/nLimits);
         cout << "mean   expected limit: r < " << expLimit << " +/- " << rms << " @ " << cl*100 << "%CL (" <<nLimits << " toyMC)" << endl;
-      } else {
+    } else {
         cout << "mean   expected limit: r < " << expLimit << " @ " << cl*100 << "%CL (" <<nLimits << " toyMC)" << endl;
-      }
-      sort(limitHistory.begin(), limitHistory.end());
-      if (nLimits > 0) {
-          double medianLimit = (nLimits % 2 == 0 ? 0.5*(limitHistory[nLimits/2]+limitHistory[nLimits/2+1]) : limitHistory[nLimits/2]);
-          cout << "median expected limit: r < " << medianLimit << " @ " << cl*100 << "%CL (" <<nLimits << " toyMC)" << endl;
-          double hi68 = limitHistory[min<int>(nLimits-1,  ceil(0.84  * nLimits))];
-          double lo68 = limitHistory[min<int>(nLimits-1, floor(0.16  * nLimits))];
-          double hi95 = limitHistory[min<int>(nLimits-1,  ceil(0.975 * nLimits))];
-          double lo95 = limitHistory[min<int>(nLimits-1, floor(0.025 * nLimits))];
-          cout << "   68% expected band : " << lo68 << " < r < " << hi68 << endl;
-          cout << "   95% expected band : " << lo95 << " < r < " << hi95 << endl;
-      }
+    }
+    sort(limitHistory.begin(), limitHistory.end());
+    if (nLimits > 0) {
+        double medianLimit = (nLimits % 2 == 0 ? 0.5*(limitHistory[nLimits/2]+limitHistory[nLimits/2+1]) : limitHistory[nLimits/2]);
+        cout << "median expected limit: r < " << medianLimit << " @ " << cl*100 << "%CL (" <<nLimits << " toyMC)" << endl;
+        double hi68 = limitHistory[min<int>(nLimits-1,  ceil(0.84  * nLimits))];
+        double lo68 = limitHistory[min<int>(nLimits-1, floor(0.16  * nLimits))];
+        double hi95 = limitHistory[min<int>(nLimits-1,  ceil(0.975 * nLimits))];
+        double lo95 = limitHistory[min<int>(nLimits-1, floor(0.025 * nLimits))];
+        cout << "   68% expected band : " << lo68 << " < r < " << hi68 << endl;
+        cout << "   95% expected band : " << lo95 << " < r < " << hi95 << endl;
     }
   }
 
