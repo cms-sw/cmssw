@@ -57,6 +57,11 @@ void MarkovChainMC::applyOptions(const boost::program_options::variables_map &vm
         std::cerr << "ERROR: MarkovChainMC: proposal type " << proposalTypeName_ << " not known." << "\n" << options_ << std::endl;
         abort();
     }
+    if (proposalType_ == MultiGaussianP && !withSystematics) { 
+        std::cerr << "Sorry, the multi-gaussian proposal does not work without systematics.\n" << 
+                     "Please use the flat proposal instead (--proposal flat)\n" << std::endl;
+        abort();
+    }
         
     runMinos_ = vm.count("runMinos");
     noReset_  = vm.count("noReset");
