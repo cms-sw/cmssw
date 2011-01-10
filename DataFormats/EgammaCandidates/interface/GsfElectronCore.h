@@ -10,9 +10,6 @@
 
 #include <vector>
 
-namespace reco
- {
-
 
 /****************************************************************************
  * \class reco::GsfElectronCore
@@ -22,17 +19,70 @@ namespace reco
  * (particle flow). In the latter case, the GsfElectronCore also
  * contains a reference to the pflow supercluster.
  *
- * \author Claude Charlot - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
- * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
- * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
- *
- * \version $Id: GsfElectronCore.h,v 1.7 2009/12/11 09:09:41 chamont Exp $
- *
  ****************************************************************************/
+
+
+namespace reco
+ {
+
+  class GsfElectronCore
+   {
+
+    public :
+
+      // construction
+      GsfElectronCore() ;
+      GsfElectronCore( const GsfTrackRef & ) ;
+      GsfElectronCore * clone() const ;
+      ~GsfElectronCore() {}
+
+      // accessors
+      const GsfTrackRef & gsfTrack() const { return gsfTrack_ ; }
+      const SuperClusterRef & superCluster() const
+       { return (superCluster_.isNull()?pflowSuperCluster_:superCluster_) ; }
+      TrackRef ctfTrack() const { return closestCtfTrack_ ; } // get the CTF track best matching the GTF associated to this electron
+      float ctfGsfOverlap() const { return ctfGsfOverlap_ ; } // measure the fraction of common hits between the GSF and CTF tracks
+      bool ecalDrivenSeed() const { return isEcalDriven_ ; }
+      bool trackerDrivenSeed() const { return isTrackerDriven_ ; }
+
+      // setters
+      void setGsfTrack( const GsfTrackRef & gsfTrack ) { gsfTrack_ = gsfTrack ; }
+      void setSuperCluster( const SuperClusterRef & scl ) { superCluster_ = scl ; }
+      void setCtfTrack( const TrackRef & closestCtfTrack, float ctfGsfOverlap )
+       { closestCtfTrack_ = closestCtfTrack ; ctfGsfOverlap_ = ctfGsfOverlap ; }
+
+      // pflow eventual additionnal info
+      const SuperClusterRef & pflowSuperCluster() const { return pflowSuperCluster_ ; }
+      void setPflowSuperCluster( const SuperClusterRef & scl ) { pflowSuperCluster_ = scl ; }
+
+    private :
+
+      GsfTrackRef gsfTrack_ ;
+      SuperClusterRef superCluster_ ;
+      SuperClusterRef pflowSuperCluster_ ;
+      TrackRef closestCtfTrack_ ; // best matching ctf track
+      float ctfGsfOverlap_ ; // fraction of common hits between the ctf and gsf tracks
+      bool isEcalDriven_ ;
+      bool isTrackerDriven_ ;
+
+   } ;
+
+ }
 
 //*****************************************************************************
 //
+// \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
+// \author Claude Charlot - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
+//
+// \version $Id: GsfElectronCore.h,v 1.8.6.1 2011/01/10 17:15:35 chamont Exp $
+//
 // $Log: GsfElectronCore.h,v $
+// Revision 1.8.6.1  2011/01/10 17:15:35  chamont
+// so to ease the independant production of ecal-driven and tracker-driven gsf electrons
+//
+// Revision 1.8  2010/02/25 15:32:20  chamont
+// make GsfElectronFwd.h a real forward header
+//
 // Revision 1.7  2009/12/11 09:09:41  chamont
 // tranform NARROW into OLDNARROW, and add closestCtfTrack to GsfElectronCore
 //
@@ -58,48 +108,5 @@ namespace reco
 // new interface for fiducial regions
 //
 //*****************************************************************************
-
-
-class GsfElectronCore {
-
-  public :
-
-    // construction
-    GsfElectronCore() ;
-    GsfElectronCore( const GsfTrackRef & ) ;
-    ~GsfElectronCore() {}
-
-    // accessors
-    const GsfTrackRef & gsfTrack() const { return gsfTrack_ ; }
-    const SuperClusterRef & superCluster() const
-     { return (superCluster_.isNull()?pflowSuperCluster_:superCluster_) ; }
-    TrackRef ctfTrack() const { return closestCtfTrack_ ; } // get the CTF track best matching the GTF associated to this electron
-    float ctfGsfOverlap() const { return ctfGsfOverlap_ ; } // measure the fraction of common hits between the GSF and CTF tracks
-    bool ecalDrivenSeed() const { return isEcalDriven_ ; }
-    bool trackerDrivenSeed() const { return isTrackerDriven_ ; }
-
-    // setters
-    void setGsfTrack( const GsfTrackRef & gsfTrack ) { gsfTrack_ = gsfTrack ; }
-    void setSuperCluster( const SuperClusterRef & scl ) { superCluster_ = scl ; }
-    void setCtfTrack( const TrackRef & closestCtfTrack, float ctfGsfOverlap )
-     { closestCtfTrack_ = closestCtfTrack ; ctfGsfOverlap_ = ctfGsfOverlap ; }
-
-    // pflow eventual additionnal info
-    const SuperClusterRef & pflowSuperCluster() const { return pflowSuperCluster_ ; }
-    void setPflowSuperCluster( const SuperClusterRef & scl ) { pflowSuperCluster_ = scl ; }
-
-  private :
-
-    GsfTrackRef gsfTrack_ ;
-    SuperClusterRef superCluster_ ;
-    SuperClusterRef pflowSuperCluster_ ;
-    TrackRef closestCtfTrack_ ; // best matching ctf track
-    float ctfGsfOverlap_ ; // fraction of common hits between the ctf and gsf tracks
-    bool isEcalDriven_ ;
-    bool isTrackerDriven_ ;
-
- } ;
-
- }
 
 #endif

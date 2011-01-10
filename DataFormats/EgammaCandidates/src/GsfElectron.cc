@@ -3,10 +3,10 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
-using namespace reco;
+using namespace reco ;
 
 GsfElectron::GsfElectron()
- : passCutBasedPreselection_(false), passMvaPreslection_(false), mva_(0), fbrem_(0), class_(UNKNOWN) {}
+ : passCutBasedPreselection_(false), passMvaPreslection_(false), ambiguous_(true), mva_(-999999999), fbrem_(0), class_(UNKNOWN) {}
 
 GsfElectron::GsfElectron
  ( const LorentzVector & p4,
@@ -16,15 +16,15 @@ GsfElectron::GsfElectron
    const ClosestCtfTrack & ctfInfo,
    const FiducialFlags & ff, const ShowerShape & ss,
    const ConversionRejection & crv,
-   float fbrem, float mva
+   float fbrem
  )
  : chargeInfo_(chargeInfo),
    core_(core),
    trackClusterMatching_(tcm), trackExtrapolations_(te),
    closestCtfTrack_(ctfInfo),
    fiducialFlags_(ff), showerShape_(ss), conversionRejection_(crv),
-   passCutBasedPreselection_(false), passMvaPreslection_(false),
-   mva_(mva), fbrem_(fbrem), class_(UNKNOWN)
+   passCutBasedPreselection_(false), passMvaPreslection_(false), ambiguous_(true),
+   mva_(-999999999), fbrem_(fbrem), class_(UNKNOWN)
  {
   setCharge(charge) ;
   setP4(p4) ;
@@ -32,6 +32,30 @@ GsfElectron::GsfElectron
   setPdgId(-11*charge) ;
   /*if (ecalDrivenSeed())*/ corrections_.ecalEnergy = superCluster()->energy() ;
 }
+
+GsfElectron::GsfElectron
+ ( const GsfElectron & electron,
+   const GsfElectronCoreRef & core )
+ : RecoCandidate(electron),
+   chargeInfo_(electron.chargeInfo_),
+   core_(core),
+   trackClusterMatching_(electron.trackClusterMatching_),
+   trackExtrapolations_(electron.trackExtrapolations_),
+   closestCtfTrack_(electron.closestCtfTrack_),
+   ambiguousGsfTracks_(electron.ambiguousGsfTracks_),
+   fiducialFlags_(electron.fiducialFlags_),
+   showerShape_(electron.showerShape_),
+   dr03_(electron.dr03_), dr04_(electron.dr04_),
+   conversionRejection_(electron.conversionRejection_),
+   passCutBasedPreselection_(electron.passCutBasedPreselection_),
+   passMvaPreslection_(electron.passMvaPreslection_),
+   ambiguous_(electron.ambiguous_),
+   mva_(electron.mva_),
+   fbrem_(electron.fbrem_),
+   class_(electron.class_),
+   corrections_(electron.corrections_)
+ {
+ }
 
 GsfElectron::GsfElectron
  ( const GsfElectron & electron,
@@ -53,6 +77,7 @@ GsfElectron::GsfElectron
    conversionRejection_(electron.conversionRejection_),
    passCutBasedPreselection_(electron.passCutBasedPreselection_),
    passMvaPreslection_(electron.passMvaPreslection_),
+   ambiguous_(electron.ambiguous_),
    mva_(electron.mva_),
    fbrem_(electron.fbrem_),
    class_(electron.class_),

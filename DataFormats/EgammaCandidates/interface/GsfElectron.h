@@ -32,7 +32,7 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.40.4.1 2010/09/24 21:02:49 chamont Exp $
+ * \version $Id: GsfElectron.h,v 1.41.2.1 2011/01/10 17:15:35 chamont Exp $
  *
  ****************************************************************************/
 
@@ -71,7 +71,12 @@ class GsfElectron : public RecoCandidate
       const FiducialFlags &,
       const ShowerShape &,
       const ConversionRejection &,
-      float fbrem, float mva
+      float fbrem
+     ) ;
+    GsfElectron
+     (
+      const GsfElectron & electron,
+      const GsfElectronCoreRef & core
      ) ;
     GsfElectron
      (
@@ -480,7 +485,7 @@ class GsfElectron : public RecoCandidate
 
 
   //=======================================================
-  // Preselection info
+  // Preselection, Ambiguity and Pflow Information
   //=======================================================
 
   public :
@@ -489,17 +494,21 @@ class GsfElectron : public RecoCandidate
     bool ecalDriven() const ; // return true if ecalDrivenSeed() and passingCutBasedPreselection()
     bool passingCutBasedPreselection() const { return passCutBasedPreselection_ ; }
     bool passingMvaPreselection() const { return passMvaPreslection_ ; }
+    bool ambiguous() const { return ambiguous_ ; }
     float mva() const { return mva_ ; }
 
     // setters
     void setPassCutBasedPreselection( bool flag ) { passCutBasedPreselection_ = flag ; }
     void setPassMvaPreselection( bool flag ) { passMvaPreslection_ = flag ; }
+    void setAmbiguous( bool flag ) { ambiguous_ = flag ; }
+    void setMva( float mva ) { mva_ = mva ; }
 
   private:
 
     // attributes
     bool passCutBasedPreselection_ ;
     bool passMvaPreslection_ ;
+    bool ambiguous_ ;
     float mva_ ; // electron ID variable from mva (tracker driven electrons)
 
 
