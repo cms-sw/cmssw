@@ -9,7 +9,7 @@
 #include <cmath>
 #include <vector>
 #include <string>
-#include <exception>
+#include <stdexcept>
 #include <algorithm>
 
 #include <TCanvas.h>
@@ -164,19 +164,12 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
   if (verbose <= 1) RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
 
   const RooArgSet * observables = w->set("observables");
-  if (observables == 0) {
-    std::cerr << "ERROR: the model must define a RooArgSet 'observables'" << std::endl;
-    abort();
-  }
+  if (observables == 0) throw std::invalid_argument("The model must define a RooArgSet 'observables'");
 
-  if (w->pdf("model_s") == 0) {
-    std::cerr << "ERROR: the model must define a RooAbsPdf 'model_s'" << std::endl;
-    abort();
-  }
+  if (w->pdf("model_s") == 0) throw std::invalid_argument("The model must define a RooAbsPdf 'model_s'");
 
   if (w->var("r") == 0 || w->set("POI") == 0) {
-    std::cerr << "ERROR: the model must define a RooRealVar 'r' for the signal strength, and a RooArgSet 'POI' with the parameters of interest." << std::endl;
-    abort();
+    throw std::invalid_argument("The model must define a RooRealVar 'r' for the signal strength, and a RooArgSet 'POI' with the parameters of interest.");
   }
 
 
@@ -217,11 +210,15 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
     RooStats::RemoveConstantParameters(nuisancesGuess);
     nuisancesGuess->remove(*w->set("POI"), true, true);
     nuisancesGuess->setName("nuisances");
-    w->import(*nuisancesGuess);
-    std::cout << "Guessing the nuisances from the parameters of the model after removing observables and POIs: " << std::endl;
-    nuisancesGuess->Print();
+    if (nuisancesGuess->getSize() > 0) {
+        std::cout << "Guessing the nuisances from the parameters of the model after removing observables and POIs: " << std::endl;
+        w->import(*nuisancesGuess);
+        nuisancesGuess->Print();
+        nuisances = w->set("nuisances");
+    } else {
+        throw std::logic_error("The signal model has no nuisance parameters. Please run the limit tool with no systematics (option -S 0).");
+    }
     delete nuisancesGuess;
-    nuisances = w->set("nuisances");
   }  
   if (!withSystematics && nuisances != 0) {
     std::cout << "Will set nuisance parameters to constants: " ;
@@ -262,8 +259,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
     RooDataSet *systDs = 0;
     if (withSystematics && (readToysFromHere == 0)) {
       if (nuisances == 0 || w->pdf("nuisancePdf") == 0) {
-        std::cerr << "ERROR: nuisances or nuisancePdf not set. Perhaps you wanted to run with no systematics?\n" << std::endl;
-        abort();
+        throw std::logic_error("Running with systematics enabled, but nuisances or nuisancePdf not defined.");
       }
       systDs = w->pdf("nuisancePdf")->generate(*nuisances, nToys);
     }

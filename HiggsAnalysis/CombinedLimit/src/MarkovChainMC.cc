@@ -54,13 +54,13 @@ void MarkovChainMC::applyOptions(const boost::program_options::variables_map &vm
     else if (proposalTypeName_ == "gaus")    proposalType_ = MultiGaussianP;
     else if (proposalTypeName_ == "test")    proposalType_ = TestP;
     else {
-        std::cerr << "ERROR: MarkovChainMC: proposal type " << proposalTypeName_ << " not known." << "\n" << options_ << std::endl;
-        abort();
+        std::cerr << "MarkovChainMC: proposal type " << proposalTypeName_ << " not known." << "\n" << options_ << std::endl;
+        throw std::invalid_argument("MarkovChainMC: unsupported proposal");
     }
     if (proposalType_ == MultiGaussianP && !withSystematics) { 
         std::cerr << "Sorry, the multi-gaussian proposal does not work without systematics.\n" << 
                      "Please use the flat proposal instead (--proposal flat)\n" << std::endl;
-        abort();
+        throw std::invalid_argument("MarkovChainMC: unsupported proposal");
     }
         
     runMinos_ = vm.count("runMinos");
@@ -103,12 +103,11 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooAbsData &data, double &limit, con
   }
 
   if (withSystematics && (w->set("nuisances") == 0)) {
-    std::cerr << "ERROR: nuisances not set. Perhaps you wanted to run with no systematics?\n" << std::endl;
-    abort();
+    throw std::logic_error("MarkovChainMC: running with systematics enabled, but nuisances or nuisancePdf not defined.");
   }
   
   w->loadSnapshot("clean");
-  RooAbsPdf *prior = w->pdf("prior"); if (prior == 0) { std::cerr << "ERROR: missing prior" << std::endl; abort(); }
+  RooAbsPdf *prior = w->pdf("prior"); if (prior == 0) { throw std::logic_error("Missing prior"); }
   std::auto_ptr<RooFitResult> fit(0);
   if (proposalType_ == FitP || (cropNSigmas_ > 0)) {
       if (verbose <= 1) setSilent(true);

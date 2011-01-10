@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "HiggsAnalysis/CombinedLimit/interface/BayesianFlatPrior.h"
 #include "RooRealVar.h"
 #include "RooArgSet.h"
@@ -15,7 +16,7 @@ using namespace RooStats;
 
 bool BayesianFlatPrior::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
   RooRealVar *r = w->var("r");
-  RooAbsPdf *prior = w->pdf("prior"); if (prior == 0) { std::cerr << "ERROR: missing prior" << std::endl; abort(); }
+  RooAbsPdf *prior = w->pdf("prior"); if (prior == 0) { throw std::logic_error("Missing prior"); }
   RooArgSet  poi(*r);
   double rMax = r->getMax();
   for (;;) {

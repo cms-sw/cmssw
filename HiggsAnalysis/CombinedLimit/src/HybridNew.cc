@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include "HiggsAnalysis/CombinedLimit/interface/HybridNew.h"
 #include "RooRealVar.h"
 #include "RooArgSet.h"
@@ -45,13 +47,11 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
     } else if (rule_ == "CLsplusb") {
         CLs_ = false;
     } else {
-        std::cerr << "ERROR: rule must be either 'CLs' or 'CLsplusb'" << std::endl;
-        abort();
+        throw std::invalid_argument("HybridNew: Rule must be either 'CLs' or 'CLsplusb'");
     }
     rInterval_ = vm.count("rInterval");
     if (testStat_ != "LEP" && testStat_ != "TEV" && testStat_ != "Atlas") {
-        std::cerr << "Error: test statistics should be one of 'LEP' or 'TEV' or 'Atlas', and not '" << testStat_ << "'" << std::endl;
-        abort();
+        throw std::invalid_argument("HybridNew: Test statistics should be one of 'LEP' or 'TEV' or 'Atlas'");
     }
 }
 

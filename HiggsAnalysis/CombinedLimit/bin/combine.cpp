@@ -34,8 +34,9 @@
 #include <RooRandom.h>
 #include <iostream>
 #include <cstdlib>
-#include <boost/program_options.hpp>
 #include <string>
+#include <stdexcept>
+#include <boost/program_options.hpp>
 #include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Hybrid.h"
 #include "HiggsAnalysis/CombinedLimit/interface/HybridNew.h"
@@ -128,13 +129,23 @@ int main(int argc, char **argv) {
     return 1002;
   }
 
-  combiner.applyOptions(vm);
+  try {
+    combiner.applyOptions(vm);
+  } catch (std::exception &ex) {
+    cerr << "Error when configuring the combiner:\n\t" << ex.what() << std::endl;
+    return 2001;
+  }
 
   map<string, LimitAlgo *>::const_iterator i;
   for(i = methods.begin(); i != methods.end(); ++i) {
     if(whichMethod == i->first) {
       algo = i->second;
-      algo->applyOptions(vm);
+      try {
+          algo->applyOptions(vm);
+      } catch (std::exception &ex) {
+          cerr << "Error when configuring the algorithm " << whichMethod << ":\n\t" << ex.what() << std::endl;
+          return 2002;
+      }
       break;
     }
   }
@@ -150,7 +161,12 @@ int main(int argc, char **argv) {
       for(i = methods.begin(); i != methods.end(); ++i) {
           if(whichHintMethod == i->first) {
               hintAlgo = i->second;
-              hintAlgo->applyOptions(vm);
+              try {
+                  hintAlgo->applyOptions(vm);
+              } catch (std::exception &ex) {
+                  cerr << "Error when configuring the algorithm " << whichHintMethod << ":\n\t" << ex.what() << std::endl;
+                  return 2002;
+              }
               break;
           }
       }
@@ -190,7 +206,13 @@ int main(int argc, char **argv) {
   mass = iMass;
   iSeed = seed;
   iChannel = 0;
-  combiner.run(datacard, dataset, limit, iToy, t, runToys);
+
+  try {
+     combiner.run(datacard, dataset, limit, iToy, t, runToys);
+  } catch (std::exception &ex) {
+     cerr << "Error when running the combination:\n\t" << ex.what() << std::endl;
+     return 3001;
+  }
   
   test->WriteTObject(t);
   test->Close();

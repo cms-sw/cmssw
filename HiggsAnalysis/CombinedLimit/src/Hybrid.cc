@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "HiggsAnalysis/CombinedLimit/interface/Hybrid.h"
 #include "RooRealVar.h"
 #include "RooArgSet.h"
@@ -27,13 +28,11 @@ void Hybrid::applyOptions(const boost::program_options::variables_map &vm) {
     } else if (rule_ == "CLsplusb") {
         CLs_ = false;
     } else {
-        std::cerr << "ERROR: rule must be either 'CLs' or 'CLsplusb'" << std::endl;
-        abort();
+        throw std::invalid_argument("Hybrid: Rule should be one of 'CLs' or 'CLsplusb'");
     }
     rInterval_ = vm.count("rInterval");
     if (testStat_ != "LEP" && testStat_ != "TEV" && testStat_ != "Atlas") {
-        std::cerr << "Error: test statistics should be one of 'LEP' or 'TEV' or 'Atlas', and not '" << testStat_ << "'" << std::endl;
-        abort();
+        throw std::invalid_argument("Hybrid: Test statistics should be one of 'LEP' or 'TEV' or 'Atlas'");
     }
 }
 
@@ -47,8 +46,7 @@ bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit, const double 
   HybridCalculatorOriginal* hc = new HybridCalculatorOriginal(data,*altModel,*nullModel);
   if (withSystematics) {
     if ((w->set("nuisances") == 0) || (w->pdf("nuisancePdf") == 0)) {
-          std::cerr << "ERROR: nuisances or nuisancePdf not set. Perhaps you wanted to run with no systematics?\n" << std::endl;
-          abort();
+      throw std::logic_error("Hybrid: running with systematics enabled, but nuisances or nuisancePdf not defined.");
     }
     hc->UseNuisance(true);
     hc->SetNuisancePdf(*w->pdf("nuisancePdf"));
