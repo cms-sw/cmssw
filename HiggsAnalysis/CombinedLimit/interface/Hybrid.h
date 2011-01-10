@@ -20,6 +20,8 @@ public:
   virtual void applyOptions(const boost::program_options::variables_map &vm) ;
 
   virtual bool run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint);
+  virtual bool runSignificance(RooStats::HybridCalculatorOriginal *hc, RooWorkspace *w, RooAbsData &data, double &limit, const double *hint);
+  virtual bool runLimit(RooStats::HybridCalculatorOriginal *hc, RooWorkspace *w, RooAbsData &data, double &limit, const double *hint);
   virtual const std::string & name() const {
     static const std::string name("Hybrid");
     return name;

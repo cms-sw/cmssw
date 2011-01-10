@@ -66,7 +66,12 @@ bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit, const double 
   }
   hc->PatchSetExtended(w->pdf("model_b")->canBeExtended()); // Number counting, each dataset has 1 entry 
   hc->SetNumberOfToys(nToys_);
+
+  return doSignificance_ ? runSignificance(hc, w, data, limit, hint) : runLimit(hc, w, data, limit, hint);
+}
   
+bool Hybrid::runLimit(HybridCalculatorOriginal* hc, RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+  RooRealVar *r = w->var("r"); r->setConstant(true);
   if ((hint != 0) && (*hint > r->getMin())) {
     r->setMax(std::min<double>(3*(*hint), r->getMax()));
   }
@@ -131,6 +136,25 @@ bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit, const double 
   std::cout << "\n -- HypoTestInverter -- \n";
   std::cout << "Limit: r < " << limit << " +/- " << 0.5*(rMax - rMin) << " @ " <<cl * 100<<"% CL\n";
   return true;
+}
+
+bool Hybrid::runSignificance(HybridCalculatorOriginal* hc, RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+    using namespace RooStats;
+    //RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
+    RooRealVar *r = w->var("r"); 
+    r->setVal(1);
+    r->setConstant(true);
+    std::auto_ptr<HybridResult> hcResult(hc->GetHypoTest());
+    if (hcResult.get() == 0) {
+        std::cerr << "Hypotest failed" << std::endl;
+        return false;
+    }
+    limit = hcResult->Significance();
+    double sigHi = RooStats::PValueToSignificance( 1 - (hcResult->CLb() + hcResult->CLbError()) ) - limit;
+    double sigLo = RooStats::PValueToSignificance( 1 - (hcResult->CLb() - hcResult->CLbError()) ) - limit;
+    std::cout << "\n -- HypoTestInverter -- \n";
+    std::cout << "Significance: " << limit << "  " << sigLo << "/+" << sigHi << " (CLb " << hcResult->CLb() << " +/- " << hcResult->CLbError() << ")\n";
+    return true;
 }
 
 std::pair<double, double> Hybrid::eval(RooRealVar *r, double rVal, RooStats::HybridCalculatorOriginal *hc, bool adaptive, double clsTarget) {
