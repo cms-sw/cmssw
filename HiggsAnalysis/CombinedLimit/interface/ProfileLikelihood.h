@@ -23,7 +23,6 @@ public:
 protected:
   std::string minimizerAlgo_;
   float       minimizerTolerance_;
-  bool        doSignificance_;
 
   bool runSignificance(RooWorkspace *w, RooAbsData &data, double &limit);
   bool runLimit(RooWorkspace *w, RooAbsData &data, double &limit);

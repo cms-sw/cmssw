@@ -16,6 +16,7 @@ extern TDirectory *readToysFromHere;
 extern LimitAlgo * algo, * hintAlgo ;
 extern int verbose;
 extern bool withSystematics;
+extern bool doSignificance_;
 extern float cl;
 
 class Combine {

@@ -17,13 +17,11 @@ ProfileLikelihood::ProfileLikelihood() :
     options_.add_options()
         ("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value("Minuit2"), "Choice of minimizer (Minuit vs Minuit2)")
         ("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(1e-3),  "Tolerance for minimizer")
-        ("significance",       "Compute significance instead of upper limit")
     ;
 }
 
 void ProfileLikelihood::applyOptions(const boost::program_options::variables_map &vm) 
 {
-    doSignificance_ = vm.count("significance");
 }
 
 bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {

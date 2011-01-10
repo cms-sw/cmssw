@@ -57,6 +57,7 @@ TDirectory *sprnwriteToysHere = 0;
 TDirectory *readToysFromHere = 0;
 int  verbose = 1;
 bool withSystematics = 1;
+bool doSignificance_ = 0;
 float cl = 0.95;
 
 
@@ -74,6 +75,7 @@ Combine::Combine() :
         ("rMax",   po::value<float>(&rMax_), "Override maximum value for signal strength")
         ("prior",  po::value<std::string>(&prior_)->default_value("flat"), "Prior to use, for methods that require it and if it's not already in the input file: 'flat' (default), '1/sqrt(r)'")
         ("compile", "Compile expressions instead of interpreting them")
+        ("significance", "Compute significance instead of upper limit")
     ;
 }
 
@@ -85,6 +87,7 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm)
     std::cout << ">>> no systematics included" << std::endl;
   } 
   compiledExpr_ = vm.count("compile");
+  doSignificance_ = vm.count("significance");
 }
 
 bool Combine::mklimit(RooWorkspace *w, RooAbsData &data, double &limit) {
