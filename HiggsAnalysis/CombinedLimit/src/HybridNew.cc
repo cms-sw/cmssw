@@ -9,14 +9,16 @@
 #include <RooStats/ProfileLikelihoodTestStat.h>
 #include <RooStats/ToyMCSampler.h>
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooFitGlobalKillSentry.h"
 
 using namespace RooStats;
 
 HybridNew::HybridNew() : 
 LimitAlgo("HybridNew specific options") {
     // NOTE: we do NOT re-declare options which are in common with Hybrid method
-    /*
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,28,0)
     options_.add_options()
+    /*
         ("toysH", boost::program_options::value<unsigned int>()->default_value(500),    "Number of Toy MC extractions to compute CLs+b, CLb and CLs")
         ("clsAcc",  boost::program_options::value<double>( )->default_value(0.005), "Absolute accuracy on CLs to reach to terminate the scan")
         ("rAbsAcc", boost::program_options::value<double>()->default_value(0.1),   "Absolute accuracy on r to reach to terminate the scan")
@@ -24,8 +26,10 @@ LimitAlgo("HybridNew specific options") {
         ("rule",    boost::program_options::value<std::string>()->default_value("CLs"),    "Rule to use: CLs, CLsplusb")
         ("testStat",boost::program_options::value<std::string>()->default_value("LEP"),"Test statistics: LEP, TEV, Atlas.")
         ("rInterval", "Always try to compute an interval on r even after having found a point satisfiying the CL")
-    ;
     */
+        ("nCPU", boost::program_options::value<unsigned int>()->default_value(0), "Use N CPUs with PROOF Lite")
+    ;
+#endif
 }
 
 void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
@@ -35,6 +39,7 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
     rRelAccuracy_ = vm["rRelAcc"].as<double>();
     rule_     = vm["rule"].as<std::string>();
     testStat_ = vm["testStat"].as<std::string>();
+    nCpu_     = vm["nCPU"].as<unsigned int>();
     if (rule_ == "CLs") {
         CLs_ = true;
     } else if (rule_ == "CLsplusb") {
@@ -51,6 +56,29 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
 }
 
 bool HybridNew::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+    RooFitGlobalKillSentry silence(RooFit::WARNING);
+    bool ret = doSignificance_ ? runSignificance(w, data, limit, hint) : runLimit(w, data, limit, hint);
+    return ret;
+}
+
+bool HybridNew::runSignificance(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+    RooRealVar *r = w->var("r"); r->setConstant(true);
+    HybridNew::Setup setup;
+    std::auto_ptr<RooStats::HybridCalculator> hc(create(w, data, r, 1.0, setup));
+    std::auto_ptr<HypoTestResult> hcResult(hc->GetHypoTest());
+    if (hcResult.get() == 0) {
+        std::cerr << "Hypotest failed" << std::endl;
+        return false;
+    }
+    limit = hcResult->Significance();
+    double sigHi = RooStats::PValueToSignificance( 1 - (hcResult->CLb() + hcResult->CLbError()) ) - limit;
+    double sigLo = RooStats::PValueToSignificance( 1 - (hcResult->CLb() - hcResult->CLbError()) ) - limit;
+    std::cout << "\n -- Hybrid New -- \n";
+    std::cout << "Significance: " << limit << "  " << sigLo << "/+" << sigHi << " (CLb " << hcResult->CLb() << " +/- " << hcResult->CLbError() << ")\n";
+    return isfinite(limit);
+}
+
+bool HybridNew::runLimit(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
   RooRealVar *r = w->var("r"); r->setConstant(true);
   w->loadSnapshot("clean");
 
@@ -121,75 +149,92 @@ bool HybridNew::run(RooWorkspace *w, RooAbsData &data, double &limit, const doub
 }
 
 std::pair<double, double> HybridNew::eval(RooWorkspace *w, RooAbsData &data, RooRealVar *r, double rVal, bool adaptive, double clsTarget) {
+    HybridNew::Setup setup;
+    std::auto_ptr<RooStats::HybridCalculator> hc(create(w, data, r, rVal, setup));
+    if (verbose) std::cout << "  r = " << rVal << std::endl;
+    std::pair<double, double> ret = eval(*hc, adaptive, clsTarget);
+    return ret;
+}
+
+std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, RooAbsData &data, RooRealVar *r, double rVal, HybridNew::Setup &setup) {
     using namespace RooStats;
-    RooFit::MsgLevel globalKill = RooMsgService::instance().globalKillBelow();
-    RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
 
     const RooArgSet &obs = *w->set("observables");
     const RooArgSet &poi = *w->set("POI");
 
     r->setVal(rVal); 
-    ModelConfig modelConfig("sb_model", w);
-    modelConfig.SetPdf(*w->pdf("model_s"));
-    modelConfig.SetObservables(obs);
-    modelConfig.SetParametersOfInterest(poi);
-    modelConfig.SetNuisanceParameters(*w->set("nuisances"));
-    modelConfig.SetSnapshot(poi);
+    setup.modelConfig = ModelConfig("sb_model", w);
+    setup.modelConfig.SetPdf(*w->pdf("model_s"));
+    setup.modelConfig.SetObservables(obs);
+    setup.modelConfig.SetParametersOfInterest(poi);
+    if (withSystematics) setup.modelConfig.SetNuisanceParameters(*w->set("nuisances"));
+    setup.modelConfig.SetSnapshot(poi);
 
-    ModelConfig modelConfig_bonly("b_model", w);
-    modelConfig_bonly.SetPdf(*w->pdf("model_b"));
-    modelConfig_bonly.SetObservables(obs);
-    modelConfig_bonly.SetParametersOfInterest(poi);
-    modelConfig_bonly.SetNuisanceParameters(*w->set("nuisances"));
-    modelConfig_bonly.SetSnapshot(poi);
+    setup.modelConfig_bonly = ModelConfig("b_model", w);
+    setup.modelConfig_bonly.SetPdf(*w->pdf("model_b"));
+    setup.modelConfig_bonly.SetObservables(obs);
+    setup.modelConfig_bonly.SetParametersOfInterest(poi);
+    if (withSystematics) setup.modelConfig_bonly.SetNuisanceParameters(*w->set("nuisances"));
+    setup.modelConfig_bonly.SetSnapshot(poi);
 
-    std::auto_ptr<TestStatistic> qvar;
     if (testStat_ == "LEP") {
-        qvar.reset(new SimpleLikelihoodRatioTestStat(*modelConfig_bonly.GetPdf(),*modelConfig.GetPdf()));
+        setup.qvar.reset(new SimpleLikelihoodRatioTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf()));
     } else if (testStat_ == "TEV") {
-        qvar.reset(new RatioOfProfiledLikelihoodsTestStat(*modelConfig_bonly.GetPdf(),*modelConfig.GetPdf(), modelConfig.GetSnapshot()));
-        ((RatioOfProfiledLikelihoodsTestStat&)*qvar).SetSubtractMLE(false);
+        setup.qvar.reset(new RatioOfProfiledLikelihoodsTestStat(*setup.modelConfig_bonly.GetPdf(),*setup.modelConfig.GetPdf(), setup.modelConfig.GetSnapshot()));
+        ((RatioOfProfiledLikelihoodsTestStat&)*setup.qvar).SetSubtractMLE(false);
     } else if (testStat_ == "Atlas") {
-        modelConfig_bonly.SetPdf(*w->pdf("model_s"));
+        setup.modelConfig_bonly.SetPdf(*w->pdf("model_s"));
         RooArgSet nullPOI; nullPOI.addClone(*r); 
         ((RooRealVar &)nullPOI["r"]).setVal(0);
-        modelConfig_bonly.SetSnapshot(nullPOI);
-        qvar.reset(new ProfileLikelihoodTestStat(*modelConfig_bonly.GetPdf()));
+        setup.modelConfig_bonly.SetSnapshot(nullPOI);
+        setup.qvar.reset(new ProfileLikelihoodTestStat(*setup.modelConfig_bonly.GetPdf()));
     }
 
-    ToyMCSampler toymcsampler(*qvar, nToys_);
-    if (!w->pdf("model_b")->canBeExtended()) toymcsampler.SetNEventsPerToy(1);
+    setup.toymcsampler = ToyMCSampler(*setup.qvar, nToys_);
+    if (!w->pdf("model_b")->canBeExtended()) setup.toymcsampler.SetNEventsPerToy(1);
 
-    std::auto_ptr<HybridCalculator> hc(new HybridCalculator(data,modelConfig, modelConfig_bonly, &toymcsampler));
-    hc->ForcePriorNuisanceNull(*w->pdf("nuisancePdf"));
-    hc->ForcePriorNuisanceAlt(*w->pdf("nuisancePdf"));
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,28,0)
+    if (nCpu_ > 0) {
+        if (verbose > 1) std::cout << "  Will use " << nCpu_ << " CPUs." << std::endl;
+        setup.pc.reset(new ProofConfig(*w, nCpu_, "", kFALSE)); 
+        setup.toymcsampler.SetProofConfig(setup.pc.get());
+    }   
+#endif
 
-    std::auto_ptr<HypoTestResult> hcResult(hc->GetHypoTest());
+    std::auto_ptr<HybridCalculator> hc(new HybridCalculator(data,setup.modelConfig, setup.modelConfig_bonly, &setup.toymcsampler));
+    if (withSystematics) {
+        hc->ForcePriorNuisanceNull(*w->pdf("nuisancePdf"));
+        hc->ForcePriorNuisanceAlt(*w->pdf("nuisancePdf"));
+    }
+    return hc;
+}
+
+std::pair<double,double> 
+HybridNew::eval(RooStats::HybridCalculator &hc, bool adaptive, double clsTarget) {
+    std::auto_ptr<HypoTestResult> hcResult(hc.GetHypoTest());
     if (hcResult.get() == 0) {
         std::cerr << "Hypotest failed" << std::endl;
-        RooMsgService::instance().setGlobalKillBelow(globalKill);
         return std::pair<double, double>(-1,-1);
     }
     double clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
     double clsMidErr = (CLs_ ? hcResult->CLsError() : hcResult->CLsplusbError());
-    std::cout << "r = " << rVal << (CLs_ ? ": CLs = " : ": CLsplusb = ") << clsMid << " +/- " << clsMidErr << std::endl;
+    if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << clsMid << " +/- " << clsMidErr << std::endl;
     if (adaptive) {
         while (fabs(clsMid-clsTarget) < 3*clsMidErr && clsMidErr >= clsAccuracy_) {
-            std::auto_ptr<HypoTestResult> more(hc->GetHypoTest());
+            std::auto_ptr<HypoTestResult> more(hc.GetHypoTest());
             hcResult->Append(more.get());
             clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
             clsMidErr = (CLs_ ? hcResult->CLsError() : hcResult->CLsplusbError());
-            std::cout << "r = " << rVal << (CLs_ ? ": CLs = " : ": CLsplusb = ") << clsMid << " +/- " << clsMidErr << std::endl;
+            if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << clsMid << " +/- " << clsMidErr << std::endl;
         }
     }
     if (verbose > 0) {
-        std::cout << "r = " << r->getVal() << ": \n" <<
+        std::cout <<
             "\tCLs      = " << hcResult->CLs()      << " +/- " << hcResult->CLsError()      << "\n" <<
             "\tCLb      = " << hcResult->CLb()      << " +/- " << hcResult->CLbError()      << "\n" <<
             "\tCLsplusb = " << hcResult->CLsplusb() << " +/- " << hcResult->CLsplusbError() << "\n" <<
             std::endl;
     }
-    RooMsgService::instance().setGlobalKillBelow(globalKill);
     return std::pair<double, double>(clsMid, clsMidErr);
 } 
 

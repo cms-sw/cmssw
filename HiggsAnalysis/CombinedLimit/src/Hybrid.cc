@@ -4,6 +4,7 @@
 #include "RooStats/HybridCalculatorOriginal.h"
 #include "RooAbsPdf.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooFitGlobalKillSentry.h"
 
 using namespace RooStats;
 
@@ -37,6 +38,7 @@ void Hybrid::applyOptions(const boost::program_options::variables_map &vm) {
 }
 
 bool Hybrid::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+  RooFitGlobalKillSentry silence(RooFit::WARNING);
   RooRealVar *r = w->var("r"); r->setConstant(true);
   RooArgSet  poi(*r);
   w->loadSnapshot("clean");
@@ -140,7 +142,6 @@ bool Hybrid::runLimit(HybridCalculatorOriginal* hc, RooWorkspace *w, RooAbsData 
 
 bool Hybrid::runSignificance(HybridCalculatorOriginal* hc, RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
     using namespace RooStats;
-    //RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
     RooRealVar *r = w->var("r"); 
     r->setVal(1);
     r->setConstant(true);
@@ -152,21 +153,17 @@ bool Hybrid::runSignificance(HybridCalculatorOriginal* hc, RooWorkspace *w, RooA
     limit = hcResult->Significance();
     double sigHi = RooStats::PValueToSignificance( 1 - (hcResult->CLb() + hcResult->CLbError()) ) - limit;
     double sigLo = RooStats::PValueToSignificance( 1 - (hcResult->CLb() - hcResult->CLbError()) ) - limit;
-    std::cout << "\n -- HypoTestInverter -- \n";
+    std::cout << "\n -- Hybrid -- \n";
     std::cout << "Significance: " << limit << "  " << sigLo << "/+" << sigHi << " (CLb " << hcResult->CLb() << " +/- " << hcResult->CLbError() << ")\n";
-    return true;
+    return isfinite(limit);
 }
 
 std::pair<double, double> Hybrid::eval(RooRealVar *r, double rVal, RooStats::HybridCalculatorOriginal *hc, bool adaptive, double clsTarget) {
     using namespace RooStats;
-    RooFit::MsgLevel globalKill = RooMsgService::instance().globalKillBelow();
-    RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
-
     r->setVal(rVal);
     std::auto_ptr<HybridResult> hcResult(hc->GetHypoTest());
     if (hcResult.get() == 0) {
         std::cerr << "Hypotest failed" << std::endl;
-        RooMsgService::instance().setGlobalKillBelow(globalKill);
         return std::pair<double, double>(-1,-1);
     }
     double clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
@@ -188,7 +185,6 @@ std::pair<double, double> Hybrid::eval(RooRealVar *r, double rVal, RooStats::Hyb
             "\tCLsplusb = " << hcResult->CLsplusb() << " +/- " << hcResult->CLsplusbError() << "\n" <<
             std::endl;
     }
-    RooMsgService::instance().setGlobalKillBelow(globalKill);
     return std::pair<double, double>(clsMid, clsMidErr);
 } 
 
