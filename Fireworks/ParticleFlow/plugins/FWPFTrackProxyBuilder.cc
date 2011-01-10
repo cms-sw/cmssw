@@ -27,7 +27,6 @@ FWPFTrackProxyBuilder::getTrack( unsigned int id, const reco::Track &iData )
 void
 FWPFTrackProxyBuilder::cleanLocal()
 {
-   // STILL NEED TO ADD A DELETE WITHOUT CAUSING SEG FAULT!!!
    tracks.clear();
 }
 
