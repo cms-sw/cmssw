@@ -42,7 +42,8 @@ int EcalSeverityLevelAlgo::severityLevel( const DetId id,
 		if ( id.subdetId() == EcalBarrel && spikeFromTiming(*it, recHitEnergyThresholdForTiming) ) return kTime;
                 // filtering on VPT discharges in the endcap
                 // introduced >= kSwisscross to take borders too, SA 20100913
-                if ( id.subdetId() == EcalEndcap && spId >= kSwissCross && ( 1-swissCross(id, recHits, recHitEnergyThresholdForEE, spId) < 0.02*log(recHitE(id, recHits)/4.) )  ) return kWeird;
+                float re = 0; // protect the log function: make the computation possible only for re > 0
+                if ( id.subdetId() == EcalEndcap && spId >= kSwissCross && (re = recHitE(id, recHits)) > 0 && ( 1-swissCross(id, recHits, recHitEnergyThresholdForEE, spId) < 0.02*log(re/4.) )  ) return kWeird;
 
                 // .. not a spike, return the normal severity level
                 return severityLevel( *it, chStatus );
