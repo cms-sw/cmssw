@@ -39,7 +39,7 @@
 
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 
 using namespace std;
 
