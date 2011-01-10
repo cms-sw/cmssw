@@ -872,15 +872,98 @@ class SubProcess(_ConfigureComponent,_Unlabelable):
    def _place(self,label,process):
       process._placeSubProcess('subProcess',self)
    def insertInto(self,parameterSet, newlabel):
+      class ProcessDescAdaptor(object):
+        def __init__(self,pset):
+            self.__pset = pset
+        def addService(self,*l,**d):
+            None
+        def newPSet(self):
+            return self.__pset.newPSet()
+      class ServiceInjectorAdaptor(object):
+        
+        def __init__(self,pset,label):
+            self.__pset = pset
+            self.__label = label
+        def addService(self,pset):
+            self.__pset.addPSet(False,self.__label,pset)
+        def newPSet(self):
+            return self.__pset.newPSet()
       topPSet = parameterSet.newPSet()
-      self.__process.fillProcessDesc(topPSet,topPSet)
+      self.__process.fillProcessDesc(ProcessDescAdaptor(topPSet),topPSet)
       subProcessPSet = parameterSet.newPSet()
       self.__selectEvents.insertInto(subProcessPSet,"selectEvents")
       subProcessPSet.addPSet(False,"process",topPSet)
+      #handle services differently
+      services = parameterSet.newPSet()
+      for n in self.__process.services_():
+         getattr(self.__process,n).insertInto(ServiceInjectorAdaptor(services,n))
+      subProcessPSet.addPSet(False,"services",services)
       parameterSet.addPSet(False,self.nameInProcessDesc_("subProcess"), subProcessPSet)
 
 if __name__=="__main__":
     import unittest
+    class TestMakePSet(object):
+        """Has same interface as the C++ object which creates PSets
+        """
+        def __init__(self):
+            self.values = dict()
+        def __insertValue(self,tracked,label,value):
+            self.values[label]=(tracked,value)
+        def addInt32(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addVInt32(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addUInt32(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addVUInt32(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addInt64(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addVInt64(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addUInt64(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addVUInt64(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addDouble(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addVDouble(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addBool(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addString(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addVString(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addInputTag(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addVInputTag(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addESInputTag(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addVESInputTag(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addEventID(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addVEventID(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addLuminosityBlockID(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addLuminosityBlockID(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addEventRange(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addVEventRange(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addPSet(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addVPSet(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addFileInPath(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def newPSet(self):
+            return TestMakePSet()
+        
     class TestModuleCommand(unittest.TestCase):
         def setUp(self):
             """Nothing to do """
@@ -1292,6 +1375,7 @@ process.prefer("juicer",
             subProcess = Process("Child")
             subProcess.a = EDProducer("A")
             subProcess.p = Path(subProcess.a)
+            subProcess.add_(Service("Foo"))
             process.add_( SubProcess(subProcess) )
             d = process.dumpPython()
             equalD ="""import FWCore.ParameterSet.Config as cms
@@ -1309,13 +1393,19 @@ process.a = cms.EDProducer("A")
 process.p = cms.Path(process.a)
 
 
+process.Foo = cms.Service("Foo")
+
+
 childProcess = process
 process = parentProcess
 process.subProcess = cms.SubProcess( process = childProcess, selectEvents = cms.untracked.vstring())
 """
             equalD = equalD.replace("parentProcess","parentProcess"+str(hash(process.subProcess)))
             self.assertEqual(d,equalD)
-      
-
+            p = TestMakePSet()
+            process.subProcess.insertInto(p,"dummy")
+            self.assertEqual((True,['a']),p.values["@sub_process"][1].values["process"][1].values['@all_modules'])
+            self.assertEqual((True,['p']),p.values["@sub_process"][1].values["process"][1].values['@paths'])
+            self.assertEqual({'@service_type':(True,'Foo')}, p.values["@sub_process"][1].values["services"][1].values['Foo'][1].values)
 
     unittest.main()
