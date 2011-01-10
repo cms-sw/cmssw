@@ -41,7 +41,7 @@ private:
   struct Setup {
     RooStats::ModelConfig modelConfig, modelConfig_bonly;
     std::auto_ptr<RooStats::TestStatistic> qvar;
-    RooStats::ToyMCSampler toymcsampler;
+    std::auto_ptr<RooStats::ToyMCSampler>  toymcsampler;
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,28,0)
     std::auto_ptr<RooStats::ProofConfig> pc;
 #endif

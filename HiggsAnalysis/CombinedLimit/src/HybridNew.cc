@@ -190,18 +190,18 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
         setup.qvar.reset(new ProfileLikelihoodTestStat(*setup.modelConfig_bonly.GetPdf()));
     }
 
-    setup.toymcsampler = ToyMCSampler(*setup.qvar, nToys_);
-    if (!w->pdf("model_b")->canBeExtended()) setup.toymcsampler.SetNEventsPerToy(1);
+    setup.toymcsampler.reset(new ToyMCSampler(*setup.qvar, nToys_));
+    if (!w->pdf("model_b")->canBeExtended()) setup.toymcsampler->SetNEventsPerToy(1);
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,28,0)
     if (nCpu_ > 0) {
         if (verbose > 1) std::cout << "  Will use " << nCpu_ << " CPUs." << std::endl;
         setup.pc.reset(new ProofConfig(*w, nCpu_, "", kFALSE)); 
-        setup.toymcsampler.SetProofConfig(setup.pc.get());
+        setup.toymcsampler->SetProofConfig(setup.pc.get());
     }   
 #endif
 
-    std::auto_ptr<HybridCalculator> hc(new HybridCalculator(data,setup.modelConfig, setup.modelConfig_bonly, &setup.toymcsampler));
+    std::auto_ptr<HybridCalculator> hc(new HybridCalculator(data,setup.modelConfig, setup.modelConfig_bonly, setup.toymcsampler.get()));
     if (withSystematics) {
         hc->ForcePriorNuisanceNull(*w->pdf("nuisancePdf"));
         hc->ForcePriorNuisanceAlt(*w->pdf("nuisancePdf"));
