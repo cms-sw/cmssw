@@ -34,7 +34,6 @@ private:
   int          debugProposal_;
   // return number of items in chain, 0 for error
   int runOnce(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) const ;
-  void setSilent(bool silent) const ;
 };
 
 #endif

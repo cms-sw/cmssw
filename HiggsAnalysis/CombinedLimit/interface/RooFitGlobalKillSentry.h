@@ -3,6 +3,8 @@
 
 #include <RooMsgService.h>
 
+/** This class sets the global kill for RooFit messages to some value when created,
+    and resets it to the old value when destroyed. */
 class RooFitGlobalKillSentry {
     public:
         RooFitGlobalKillSentry(RooFit::MsgLevel level = RooFit::WARNING) :

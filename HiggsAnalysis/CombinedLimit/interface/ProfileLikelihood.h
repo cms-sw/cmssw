@@ -20,13 +20,22 @@ public:
   }
   virtual void applyOptions(const boost::program_options::variables_map &vm) ;
 
+  /// Setup Minimizer configuration on creation, reset the previous one on destruction.
+  class MinimizerSentry {
+     public:
+        MinimizerSentry(std::string &algo, double tolerance);
+        ~MinimizerSentry();
+     private:
+        std::string minimizerTypeBackup, minimizerAlgoBackup;
+        double minimizerTollBackup;
+  };
+
 protected:
   std::string minimizerAlgo_;
   float       minimizerTolerance_;
 
   bool runSignificance(RooWorkspace *w, RooAbsData &data, double &limit);
   bool runLimit(RooWorkspace *w, RooAbsData &data, double &limit);
-  void setSilent(bool silent);
 };
 
 #endif

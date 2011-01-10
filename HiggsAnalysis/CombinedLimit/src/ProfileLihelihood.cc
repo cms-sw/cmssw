@@ -5,7 +5,8 @@
 #include "RooStats/LikelihoodInterval.h"
 #include "RooStats/HypoTestResult.h"
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
-#include <unistd.h>
+#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
+
 
 #include <Math/MinimizerOptions.h>
 
@@ -24,27 +25,34 @@ void ProfileLikelihood::applyOptions(const boost::program_options::variables_map
 {
 }
 
-bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
-  if (verbose < 0) {  freopen("/dev/null", "w", stdout); }
-  std::string minimizerTypeBackup = ROOT::Math::MinimizerOptions::DefaultMinimizerType();
-  std::string minimizerAlgoBackup = ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo();
-  double      minimizerTollBackup = ROOT::Math::MinimizerOptions::DefaultTolerance();
-  ROOT::Math::MinimizerOptions::SetDefaultTolerance(minimizerTolerance_);
-  if (minimizerAlgo_.find(",") != std::string::npos) {
-      size_t idx = minimizerAlgo_.find(",");
-      std::string type = minimizerAlgo_.substr(0,idx), algo = minimizerAlgo_.substr(idx+1);
+ProfileLikelihood::MinimizerSentry::MinimizerSentry(std::string &minimizerAlgo, double tolerance) :
+    minimizerTypeBackup(ROOT::Math::MinimizerOptions::DefaultMinimizerType()),
+    minimizerAlgoBackup(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo()),
+    minimizerTollBackup(ROOT::Math::MinimizerOptions::DefaultTolerance())
+{
+  ROOT::Math::MinimizerOptions::SetDefaultTolerance(tolerance);
+  if (minimizerAlgo.find(",") != std::string::npos) {
+      size_t idx = minimizerAlgo.find(",");
+      std::string type = minimizerAlgo.substr(0,idx), algo = minimizerAlgo.substr(idx+1);
       if (verbose > 1) std::cout << "Set default minimizer to " << type << ", algorithm " << algo << std::endl;
       ROOT::Math::MinimizerOptions::SetDefaultMinimizer(type.c_str(), algo.c_str());
   } else {
-      if (verbose > 1) std::cout << "Set default minimizer to " << minimizerAlgo_ << std::endl;
-      ROOT::Math::MinimizerOptions::SetDefaultMinimizer(minimizerAlgo_.c_str());
+      if (verbose > 1) std::cout << "Set default minimizer to " << minimizerAlgo << std::endl;
+      ROOT::Math::MinimizerOptions::SetDefaultMinimizer(minimizerAlgo.c_str());
   }
+}
 
-  bool success = (doSignificance_ ?  runSignificance(w,data,limit) : runLimit(w,data,limit));
-
+ProfileLikelihood::MinimizerSentry::~MinimizerSentry() 
+{
   ROOT::Math::MinimizerOptions::SetDefaultTolerance(minimizerTollBackup);
   ROOT::Math::MinimizerOptions::SetDefaultMinimizer(minimizerTypeBackup.c_str(),minimizerAlgoBackup.empty() ? 0 : minimizerAlgoBackup.c_str());
-  if (verbose < 0) {  freopen("/dev/null", "w", stdout); }
+}
+
+bool ProfileLikelihood::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) { 
+  MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
+  CloseCoutSentry sentry(verbose < 0);
+
+  bool success = (doSignificance_ ?  runSignificance(w,data,limit) : runLimit(w,data,limit));
   return success;
 }
 
@@ -53,7 +61,8 @@ bool ProfileLikelihood::runLimit(RooWorkspace *w, RooAbsData &data, double &limi
   RooArgSet  poi(*r);
   double rMax = r->getMax();
   bool success = false;
-  if (verbose <= 1) setSilent(true);
+  CloseCoutSentry coutSentry(verbose <= 1); // close standard output and error, so that we don't flood them with minuit messages
+
   while (!success) {
     ProfileLikelihoodCalculator plcB(data, *w->pdf("model_s"), poi);
     plcB.SetConfidenceLevel(cl);
@@ -72,7 +81,7 @@ bool ProfileLikelihood::runLimit(RooWorkspace *w, RooAbsData &data, double &limi
     }
     success = true;
   }
-  if (verbose <= 1) setSilent(false);
+  coutSentry.clear();
   if (verbose >= 0) {
       if (success) {
         std::cout << "\n -- Profile Likelihood -- " << "\n";
@@ -85,15 +94,19 @@ bool ProfileLikelihood::runLimit(RooWorkspace *w, RooAbsData &data, double &limi
 bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooAbsData &data, double &limit) {
   RooRealVar *r = w->var("r");
   RooArgSet  poi(*r);
+
   ProfileLikelihoodCalculator plcS(data, *w->pdf("model_s"), poi);
+
   RooArgSet nullParamValues; 
   nullParamValues.addClone(*r); ((RooRealVar&)nullParamValues["r"]).setVal(0);
   plcS.SetNullParameters(nullParamValues);
-  if (verbose <= 1) setSilent(true);
+
+  CloseCoutSentry coutSentry(verbose <= 1); // close standard output and error, so that we don't flood them with minuit messages
   std::auto_ptr<HypoTestResult> result(plcS.GetHypoTest());
   if (result.get() == 0) return false;
+  coutSentry.clear();
+
   limit = result->Significance();
-  if (verbose <= 1) setSilent(false);
   if (limit == 0 && signbit(limit)) {
       std::cerr << "ProfileLikelihoodCalculator failed (returned significance -0)" << std::endl;
       return false;
@@ -103,16 +116,3 @@ bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooAbsData &data, doubl
   return true;
 }
 
-void ProfileLikelihood::setSilent(bool silent) {
-    static int fdOut_, fdErr_;
-    if (silent) {
-        fdOut_ = dup(1);
-        fdErr_ = dup(2);
-        freopen("/dev/null", "w", stdout);
-        freopen("/dev/null", "w", stderr);
-    } else {
-        char buf[50];
-        sprintf(buf, "/dev/fd/%d", fdOut_); freopen(buf, "w", stdout); 
-        sprintf(buf, "/dev/fd/%d", fdErr_); freopen(buf, "w", stderr); 
-    }
-}

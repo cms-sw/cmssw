@@ -14,6 +14,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
 #include "HiggsAnalysis/CombinedLimit/interface/TestProposal.h"
 #include "HiggsAnalysis/CombinedLimit/interface/DebugProposal.h"
+#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
 
 using namespace RooStats;
 
@@ -110,9 +111,9 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooAbsData &data, double &limit, con
   RooAbsPdf *prior = w->pdf("prior"); if (prior == 0) { throw std::logic_error("Missing prior"); }
   std::auto_ptr<RooFitResult> fit(0);
   if (proposalType_ == FitP || (cropNSigmas_ > 0)) {
-      if (verbose <= 1) setSilent(true);
+      CloseCoutSentry coutSentry(verbose <= 1); // close standard output and error, so that we don't flood them with minuit messages
       fit.reset(w->pdf("model_s")->fitTo(data, RooFit::Save(), RooFit::Minos(runMinos_)));
-      if (verbose <= 1) setSilent(false);
+      coutSentry.clear();
       if (fit.get() == 0) { std::cerr << "Fit failed." << std::endl; return false; }
       if (verbose > 1) fit->Print("V");
       if (!noReset_) w->loadSnapshot("clean");
@@ -189,28 +190,14 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooAbsData &data, double &limit, con
   mc.SetPriorPdf(*prior);
 
   std::auto_ptr<MCMCInterval> mcInt;
-  //if (verbose < 0) setSilent(true);
   try {  
       mcInt.reset((MCMCInterval*)mc.GetInterval()); 
   } catch (std::length_error &ex) {
       mcInt.reset(0);
   }
-  //if (verbose < 0) setSilent(false);
   if (mcInt.get() == 0) return false;
   limit = mcInt->UpperLimit(*r);
 
   return mcInt->GetChain()->Size();
 }
-void MarkovChainMC::setSilent(bool silent) const {
-    static int fdOut_, fdErr_;
-    if (silent) {
-        fdOut_ = dup(1);
-        fdErr_ = dup(2);
-        freopen("/dev/null", "w", stdout);
-        freopen("/dev/null", "w", stderr);
-    } else {
-        char buf[50];
-        sprintf(buf, "/dev/fd/%d", fdOut_); freopen(buf, "w", stdout); 
-        sprintf(buf, "/dev/fd/%d", fdErr_); freopen(buf, "w", stderr); 
-    }
-}
+
