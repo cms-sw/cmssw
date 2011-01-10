@@ -25,9 +25,9 @@ The VAL_* variables are configuration variables for electronValidation.csh,
 which compares the histograms from two releases. electronValidation.csh relies
 on the ROOT script electronValidation.C.
 
-<var name="VAL_NEW_RELEASE" value="3_11_0_pre2_pflow">
-<var name="VAL_REF_RELEASE" value="3_11_0_pre2">
-<var name="VAL_COMMENT" value="Try to split electron core production into two steps.">
+<var name="VAL_NEW_RELEASE" value="3_11_0_pre2">
+<var name="VAL_REF_RELEASE" value="3_10_0">
+<var name="VAL_COMMENT" value="Join all released modifications into the trunk.">
 <var name="STORE_RELEASE" value="${VAL_NEW_RELEASE}">
 
 <!--var name="VAL_WEB" value="/afs/cern.ch/user/c/chamont/www/validation"-->
@@ -85,8 +85,8 @@ This set of targets is currently used for the validation of electrons.
   <var name="VAL_HISTOS" value="ElectronMcSignalHistos.txt">
   <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
   <var name="VAL_CONFIGURATION" value="ElectronMcSignalValidation_cfg.py">
-  <var name="DBS_RELEASE" value="LOCAL">
-  <var name="DBS_COND" value="MC">
+  <!--var name="DBS_RELEASE" value="LOCAL"-->
+  <!--var name="DBS_COND" value="MC"-->
 
   <environment name="FullPt35">
     <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
@@ -135,14 +135,14 @@ This set of targets is currently used for the validation of electrons.
     <var name="DBS_SAMPLE" value="RelValZEE">
     <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
     <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
-    <var name="DBS_COND" value="START">
+    <!--var name="DBS_COND" value="START"-->
     <executable name="electronDbsDiscovery.py">
     <executable name="cmsRun" args="${VAL_CONFIGURATION}">
     <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
     <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
   </environment>
   
-  <environment name="FullOldPt35">
+  <environment name="OldFullPt35">
     <var name="DBS_RELEASE" value="CMSSW_3_8_6">
     <var name="DBS_COND" value="MC_38Y_V13-v1">
     <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
