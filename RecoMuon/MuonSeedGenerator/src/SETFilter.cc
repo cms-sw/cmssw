@@ -15,7 +15,7 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"

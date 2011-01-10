@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HITrackVertexMaker.cc,v 1.4 2009/09/11 15:41:05 kodolova Exp $
+// $Id: HITrackVertexMaker.cc,v 1.6 2009/12/18 11:38:23 kodolova Exp $
 //
 // added CAIR error cut
  
@@ -62,7 +62,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 
 // Geometry includes
 

@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2010/08/26 00:48:26 $
- *  $Revision: 1.85 $
+ *  $Date: 2010/09/02 13:25:27 $
+ *  $Revision: 1.86 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -16,7 +16,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/GeomPropagators/interface/TrackerBounds.h"

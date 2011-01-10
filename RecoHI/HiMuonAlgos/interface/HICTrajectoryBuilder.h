@@ -32,7 +32,7 @@ class TrajectoryFilter;
 #include "RecoHI/HiMuonAlgos/interface/HICConst.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 class TransientTrackingRecHitBuilder;
 class TrajectoryFilter;
