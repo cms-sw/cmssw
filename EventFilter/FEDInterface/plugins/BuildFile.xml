@@ -7,6 +7,4 @@
   <use   name="root"/>
   <use   name="boost"/>
   <flags   EDM_PLUGIN="1"/>
-  <flags   CPPFLAGS="-g"/>
-  <flags   LDFLAGS="-g"/>
 </library>

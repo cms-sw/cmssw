@@ -1,8 +1,6 @@
 <use   name="EventFilter/Utilities"/>
 <use   name="root"/>
 <use   name="rootgraphics"/>
-<flags   CPPFLAGS="-g"/>
-<flags   LDFLAGS="-g"/>
 <export>
   <lib   name="1"/>
 </export>
