@@ -496,7 +496,7 @@ RUN_TPGCONFIG_DAT_11
  TABLESPACE CMS_ECAL_COND_2011_DATA) UPDATE GLOBAL INDEXES;                     
                                                                                 
 ALTER TABLE  DCU_CAPSULE_TEMP_RAW_DAT        SPLIT PARTITION                    
-DCU_CAPSULE_TEMP_RAW_DAT_09                                                     
+DCU_CAPSULE_TEMP_RAW_DAT_0                                                     
  AT (      31402 ) INTO (PARTITION                                              
 DCU_CAPSULE_TEMP_RAW_DAT_10                                                     
 , PARTITION                                                                     
