@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.280 $"
+__version__ = "$Revision: 1.281 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -859,10 +859,10 @@ class ConfigBuilder(object):
 
         if not 'FASTSIM' in self.stepMap:
                 try:
-                        self.loadAndRemember('Configuration/StandardSequences/VtxSmeared'+self._options.beamspot+'_cff')
+			from Configuration.StandardSequences.VtxSmeared import VtxSmeared
+			self.loadAndRemember(VtxSmeared[self._options.beamspot])
                 except ImportError:
-                        print "VertexSmearing type or beamspot",self._options.beamspot, "unknown."
-                        raise
+                        raise Exception("VertexSmearing type or beamspot "+self._options.beamspot+" unknown.")
 
                 if self._options.scenario == 'HeavyIons' and self._options.himix:
                         self.loadAndRemember("SimGeneral/MixingModule/himixGEN_cff")
@@ -1329,7 +1329,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.280 $"),
+                                            (version=cms.untracked.string("$Revision: 1.281 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
