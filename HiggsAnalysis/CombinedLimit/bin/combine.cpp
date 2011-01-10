@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
   algo = new ProfileLikelihood(); methods.insert(make_pair(algo->name(), algo));
   algo = new BayesianFlatPrior(); methods.insert(make_pair(algo->name(), algo));
   algo = new MarkovChainMC();  methods.insert(make_pair(algo->name(), algo));
-  //algo = new HybridNew();  methods.insert(make_pair(algo->name(), algo));
+  algo = new HybridNew();  methods.insert(make_pair(algo->name(), algo));
   
   string methodsDesc("Method to extract upper limit. Supported methods are: ");
   for(map<string, LimitAlgo *>::const_iterator i = methods.begin(); i != methods.end(); ++i) {

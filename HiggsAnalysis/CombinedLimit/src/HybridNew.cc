@@ -14,8 +14,10 @@ using namespace RooStats;
 
 HybridNew::HybridNew() : 
 LimitAlgo("HybridNew specific options") {
+    // NOTE: we do NOT re-declare options which are in common with Hybrid method
+    /*
     options_.add_options()
-        ("toysH,T", boost::program_options::value<unsigned int>()->default_value(500),    "Number of Toy MC extractions to compute CLs+b, CLb and CLs")
+        ("toysH", boost::program_options::value<unsigned int>()->default_value(500),    "Number of Toy MC extractions to compute CLs+b, CLb and CLs")
         ("clsAcc",  boost::program_options::value<double>( )->default_value(0.005), "Absolute accuracy on CLs to reach to terminate the scan")
         ("rAbsAcc", boost::program_options::value<double>()->default_value(0.1),   "Absolute accuracy on r to reach to terminate the scan")
         ("rRelAcc", boost::program_options::value<double>()->default_value(0.05),  "Relative accuracy on r to reach to terminate the scan")
@@ -23,6 +25,7 @@ LimitAlgo("HybridNew specific options") {
         ("testStat",boost::program_options::value<std::string>()->default_value("LEP"),"Test statistics: LEP, TEV, Atlas.")
         ("rInterval", "Always try to compute an interval on r even after having found a point satisfiying the CL")
     ;
+    */
 }
 
 void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
