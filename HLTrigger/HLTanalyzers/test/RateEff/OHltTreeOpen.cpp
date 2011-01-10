@@ -3820,6 +3820,7 @@ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet10") == 0) {
     }
   }
 
+  /*New cross-triggers, Jan. 2011 */ 
   
 /* New cross-triggers, Sept. 2010 */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_MET45") == 0) {  
@@ -4460,6 +4461,294 @@ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet10") == 0) {
       }
     } 
   }
+
+ // Photon Paths (V. Rekovic)
+
+    int lowerEt = 18;
+    int upperEt = 26;
+
+    // Names of Photon Paths With Mass Cut
+    // -------------------------------------
+
+    // No isol
+    char pathNamePhotonPhoton[100];
+    sprintf(pathNamePhotonPhoton,"OpenHLT_Photon%d_Photon%d_L1R",upperEt,lowerEt);
+    // One leg Isol
+    char pathNamePhotonIsolPhoton[100];
+    sprintf(pathNamePhotonIsolPhoton,"OpenHLT_Photon%d_Isol_Photon%d_L1R",upperEt,lowerEt);
+    // One leg Loose Isol
+    char pathNamePhotonLooseIsolPhoton[100];
+    sprintf(pathNamePhotonLooseIsolPhoton,"OpenHLT_Photon%d_LooseIsol_Photon%d_L1R",upperEt,lowerEt);
+    // One leg Looser Isol
+    char pathNamePhotonLooserIsolPhoton[100];
+    sprintf(pathNamePhotonLooserIsolPhoton,"OpenHLT_Photon%d_LooserIsol_Photon%d_L1R",upperEt,lowerEt);
+    // One leg CaloId
+    char pathNamePhotonCaloIdPhoton[100];
+    sprintf(pathNamePhotonCaloIdPhoton,"OpenHLT_Photon%d_CaloId_Photon%d_L1R",upperEt,lowerEt);
+    // One leg Isol + CaloId
+    char pathNamePhotonIsolCaloIdPhoton[100];
+    sprintf(pathNamePhotonIsolCaloIdPhoton,"OpenHLT_Photon%d_Isol_CaloId_Photon%d_L1R",upperEt,lowerEt);
+    // One leg Isol + CaloId + LooseHoverE
+    char pathNamePhotonIsolCaloIdLooseHEPhoton[100];
+    sprintf(pathNamePhotonIsolCaloIdLooseHEPhoton,"OpenHLT_Photon%d_Isol_CaloId_LooseHE_Photon%d_L1R",upperEt,lowerEt);
+    // Both legs Isol
+    char pathNamePhotonIsolPhotonIsol[100];
+    sprintf(pathNamePhotonIsolPhotonIsol,"OpenHLT_Photon%d_Isol_Photon%d_Isol_L1R",upperEt,lowerEt);
+    // Both legs Isol + CaloId
+    char pathNamePhotonIsolCaloIdPhotonIsolCaloId[100];
+    sprintf(pathNamePhotonIsolCaloIdPhotonIsolCaloId,"OpenHLT_Photon%d_Isol_CaloId_Photon%d_Isol_CaloId_L1R",upperEt,lowerEt);
+  
+
+    // Names of Photon Paths With Mass Cut
+    // -----------------------------------
+
+    // One leg Isol + Mass>60
+    char pathNamePhotonIsolPhotonMass60[100];
+    sprintf(pathNamePhotonIsolPhotonMass60,"OpenHLT_Photon%d_Isol_Photon%d_Mass60_L1R",upperEt,lowerEt);
+    // One leg Isol + CaloId + Mass>60
+    char pathNamePhotonIsolCaloIdPhotonMass60[100];
+    sprintf(pathNamePhotonIsolCaloIdPhotonMass60,"OpenHLT_Photon%d_Isol_CaloId_Photon%d_Mass60_L1R",upperEt,lowerEt);
+    // Both legs Isol  + Mass>60
+    char pathNamePhotonIsolPhotonIsolMass60[100];
+    sprintf(pathNamePhotonIsolPhotonIsolMass60,"OpenHLT_Photon%d_Isol_Photon%d_Isol_Mass60_L1R",upperEt,lowerEt);
+    // Both legs Isol + CaloId + Mass>60
+    char pathNamePhotonIsolCaloIdPhotonIsolCaloIdMass60[100];
+    sprintf(pathNamePhotonIsolCaloIdPhotonIsolCaloIdMass60,"OpenHLT_Photon%d_Isol_CaloId_Photon%d_Isol_CaloId_Mass60_L1R",upperEt,lowerEt);
+
+    if (menu->GetTriggerName(it).CompareTo(pathNamePhotonPhoton) == 0) {     
+      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+        if (prescaleResponse(menu,cfg,rcounter,it)) {
+          std::vector<int> firstVector = VectorOpenHlt1PhotonPassed(lowerEt,0,999,999,999,999,0.15,0.98);
+	if(firstVector.size()>=2) {      
+         std::vector<int> secondVector = VectorOpenHlt1PhotonPassed(upperEt,0,999,999,999,999,0.15,0.98);
+  	 if(secondVector.size()>=1) {      
+  	  triggerBit[it] = true; 
+  	 }
+        }
+       }      
+      }      
+    } 
+    else if (menu->GetTriggerName(it).CompareTo(pathNamePhotonIsolPhoton) == 0) {     
+      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+        if (prescaleResponse(menu,cfg,rcounter,it)) {
+          std::vector<int> firstVector = VectorOpenHlt1PhotonPassed(lowerEt,0,999,999,999,999,0.15,0.98);
+	if(firstVector.size()>=2) {      
+         std::vector<int> secondVector = VectorOpenHlt1PhotonPassed(upperEt,0,3,5,3,3,0.15,0.98);
+         if(secondVector.size()>=1) {      
+  	  triggerBit[it] = true; 
+  	 }
+        }
+       }      
+      }      
+    } 
+    else if (menu->GetTriggerName(it).CompareTo(pathNamePhotonLooseIsolPhoton) == 0) {     
+      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+        if (prescaleResponse(menu,cfg,rcounter,it)) {
+          std::vector<int> firstVector = VectorOpenHlt1PhotonPassed(lowerEt,0,999,999,999,999,0.15,0.98);
+	if(firstVector.size()>=2) {      
+          std::vector<int> secondVector = VectorOpenHlt1PhotonPassed(upperEt,0,3.5,5.5,3.5,3.5,0.15,0.98);
+  	 if(secondVector.size()>=1) {      
+  	  triggerBit[it] = true; 
+  	 }
+        }
+       }      
+      }      
+    } 
+    else if (menu->GetTriggerName(it).CompareTo(pathNamePhotonLooserIsolPhoton) == 0) {     
+      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+       if (prescaleResponse(menu,cfg,rcounter,it)) {
+        std::vector<int> firstVector = VectorOpenHlt1PhotonPassed(lowerEt,0,999,999,999,999,0.15,0.98);
+	if(firstVector.size()>=2) {      
+          std::vector<int> secondVector = VectorOpenHlt1PhotonPassed(upperEt,0,4.0,6.0,4.0,4.0,0.15,0.98);
+  	 if(secondVector.size()>=1) {      
+  	  triggerBit[it] = true; 
+  	 }
+        }
+       }      
+      }      
+    } 
+    else if (menu->GetTriggerName(it).CompareTo(pathNamePhotonIsolCaloIdPhoton) == 0) {     
+      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+       if (prescaleResponse(menu,cfg,rcounter,it)) {
+        std::vector<int> firstVector = VectorOpenHlt1PhotonPassed(lowerEt,0,999,999,999,999,0.15,0.98);
+	if(firstVector.size()>=2) {      
+  	 //if(OpenHlt1PhotonPassed(upperEt,0,3,5,3,3,0.15,0.98,0.014,0.035)>=1) {      
+         std::vector<int> secondVector = VectorOpenHlt1PhotonPassed(upperEt,0,3,5,3,3,0.15,0.98,0.014,0.035);
+  	 if(secondVector.size()>=1) {      
+  	  triggerBit[it] = true; 
+  	 }
+        }
+       }      
+      }      
+    } 
+    else if (menu->GetTriggerName(it).CompareTo(pathNamePhotonIsolCaloIdLooseHEPhoton) == 0) {     
+      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+       if (prescaleResponse(menu,cfg,rcounter,it)) {
+        std::vector<int> firstVector = VectorOpenHlt1PhotonPassed(lowerEt,0,999,999,999,999,0.15,0.98);
+	if(firstVector.size()>=2) {      
+  	 //if(OpenHlt1PhotonPassed(upperEt,0,3,5,3,3,0.15,999.98,0.014,0.035)>=1) {      
+         std::vector<int> secondVector = VectorOpenHlt1PhotonPassed(upperEt,0,3,5,3,3,0.15,999.98,0.014,0.035);
+  	 if(secondVector.size()>=1) {      
+  	  triggerBit[it] = true; 
+  	 }
+        }
+       }      
+      }      
+    } 
+    else if (menu->GetTriggerName(it).CompareTo(pathNamePhotonIsolPhotonIsol) == 0) {     
+      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+        if (prescaleResponse(menu,cfg,rcounter,it)) {
+         std::vector<int> firstVector = VectorOpenHlt1PhotonPassed(lowerEt,0,3,5,3,3,0.15,0.98);
+  	 if(firstVector.size()>=2) {      
+         std::vector<int> secondVector = VectorOpenHlt1PhotonPassed(upperEt,0,3,5,3,3,0.15,0.98);
+  	 if(secondVector.size()>=1) {      
+  	  triggerBit[it] = true; 
+  	 }
+        }
+       }      
+      }      
+    } 
+    else if (menu->GetTriggerName(it).CompareTo(pathNamePhotonIsolCaloIdPhotonIsolCaloId) == 0) {     
+      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+        if (prescaleResponse(menu,cfg,rcounter,it)) {
+         std::vector<int> firstVector = VectorOpenHlt1PhotonPassed(lowerEt,0,3,5,3,3,0.15,0.98,0.014,0.035);
+  	 if(firstVector.size()>=2) {      
+         std::vector<int> secondVector = VectorOpenHlt1PhotonPassed(upperEt,0,3,5,3,3,0.15,0.98,0.014,0.035);
+  	 if(secondVector.size()>=1) {      
+  	  triggerBit[it] = true; 
+  	 }
+        }
+       }      
+      }      
+    } 
+
+    // With Mass Cut
+    else if (menu->GetTriggerName(it).CompareTo(pathNamePhotonIsolPhotonMass60) == 0) {     
+      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+        if (prescaleResponse(menu,cfg,rcounter,it)) {
+          std::vector<int> firstVector = VectorOpenHlt1PhotonPassed(lowerEt,0,999,999,999,999,0.15,0.98);
+	if(firstVector.size()>=2) {      
+          std::vector<int> secondVector = VectorOpenHlt1PhotonPassed(upperEt,0,3,5,3,3,0.15,0.98);
+  	 if(secondVector.size()>=1) {      
+
+           TLorentzVector e1;  
+           TLorentzVector e2;  
+           TLorentzVector meson;
+           float mass = 0.;
+           for (unsigned int i=0;i<firstVector.size();i++) { 
+             for (unsigned int j=0;j<secondVector.size() ;j++) {  	  
+
+                 if(firstVector[i] == secondVector[j]) continue;
+                 e1.SetPtEtaPhiM(ohPhotEt[firstVector[i]],ohPhotEta[firstVector[i]],ohPhotPhi[firstVector[i]],0.); 
+                 e2.SetPtEtaPhiM(ohPhotEt[secondVector[j]],ohPhotEta[secondVector[j]],ohPhotPhi[secondVector[j]],0.); 
+                 meson = e1 + e2; 
+                 mass = meson.M();  
+                 
+                 if (mass>60) triggerBit[it] = true; 
+
+             }
+           }
+  
+  	 }
+        }
+       }      
+      }      
+    } 
+    else if (menu->GetTriggerName(it).CompareTo(pathNamePhotonIsolCaloIdPhotonMass60) == 0) {     
+      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+        if (prescaleResponse(menu,cfg,rcounter,it)) {
+          std::vector<int> firstVector = VectorOpenHlt1PhotonPassed(lowerEt,0,999,999,999,999,0.15,0.98);
+	if(firstVector.size()>=2) {      
+          std::vector<int> secondVector = VectorOpenHlt1PhotonPassed(upperEt,0,3,5,3,3,0.15,0.98,0.014,0.035);
+  	 if(secondVector.size()>=1) {      
+
+           TLorentzVector e1;  
+           TLorentzVector e2;  
+           TLorentzVector meson;
+           float mass = 0.;
+           for (unsigned int i=0;i<firstVector.size();i++) { 
+             for (unsigned int j=0;j<secondVector.size() ;j++) {  	  
+
+                 if(firstVector[i] == secondVector[j]) continue;
+                 e1.SetPtEtaPhiM(ohPhotEt[firstVector[i]],ohPhotEta[firstVector[i]],ohPhotPhi[firstVector[i]],0.); 
+                 e2.SetPtEtaPhiM(ohPhotEt[secondVector[j]],ohPhotEta[secondVector[j]],ohPhotPhi[secondVector[j]],0.); 
+                 meson = e1 + e2; 
+                 mass = meson.M();  
+                 
+                 if (mass>60) triggerBit[it] = true; 
+
+             }
+           }
+  
+  	 }
+        }
+       }      
+      }      
+    } 
+    else if (menu->GetTriggerName(it).CompareTo(pathNamePhotonIsolPhotonIsolMass60) == 0) {     
+      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+        if (prescaleResponse(menu,cfg,rcounter,it)) {
+         std::vector<int> firstVector = VectorOpenHlt1PhotonPassed(lowerEt,0,3,5,3,3,0.15,0.98);
+  	 if(firstVector.size()>=2) {      
+         std::vector<int> secondVector = VectorOpenHlt1PhotonPassed(upperEt,0,3,5,3,3,0.15,0.98);
+  	 if(secondVector.size()>=1) {      
+
+           TLorentzVector e1;  
+           TLorentzVector e2;  
+           TLorentzVector meson;
+           float mass = 0.;
+           for (unsigned int i=0;i<firstVector.size();i++) { 
+             for (unsigned int j=0;j<secondVector.size() ;j++) {  	  
+
+                 if(firstVector[i] == secondVector[j]) continue;
+                 e1.SetPtEtaPhiM(ohPhotEt[firstVector[i]],ohPhotEta[firstVector[i]],ohPhotPhi[firstVector[i]],0.); 
+                 e2.SetPtEtaPhiM(ohPhotEt[secondVector[j]],ohPhotEta[secondVector[j]],ohPhotPhi[secondVector[j]],0.); 
+                 meson = e1 + e2; 
+                 mass = meson.M();  
+
+                 if (mass>60) triggerBit[it] = true; 
+
+             }
+           }
+  
+
+  	 }
+        }
+       }      
+      }      
+    } 
+    else if (menu->GetTriggerName(it).CompareTo(pathNamePhotonIsolCaloIdPhotonIsolCaloIdMass60) == 0) {     
+      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+        if (prescaleResponse(menu,cfg,rcounter,it)) {
+         std::vector<int> firstVector = VectorOpenHlt1PhotonPassed(lowerEt,0,3,5,3,3,0.15,0.98,0.014,0.035);
+  	 if(firstVector.size()>=2) {      
+         std::vector<int> secondVector = VectorOpenHlt1PhotonPassed(upperEt,0,3,5,3,3,0.15,0.98,0.014,0.035);
+  	 if(secondVector.size()>=1) {      
+
+           TLorentzVector e1;  
+           TLorentzVector e2;  
+           TLorentzVector meson;
+           float mass = 0.;
+           for (unsigned int i=0;i<firstVector.size();i++) { 
+             for (unsigned int j=0;j<secondVector.size() ;j++) {  	  
+
+                 if(firstVector[i] == secondVector[j]) continue;
+                 e1.SetPtEtaPhiM(ohPhotEt[firstVector[i]],ohPhotEta[firstVector[i]],ohPhotPhi[firstVector[i]],0.); 
+                 e2.SetPtEtaPhiM(ohPhotEt[secondVector[j]],ohPhotEta[secondVector[j]],ohPhotPhi[secondVector[j]],0.); 
+                 meson = e1 + e2; 
+                 mass = meson.M();  
+
+                 if (mass>60) triggerBit[it] = true; 
+
+             }
+           }
+  
+  	 }
+        }
+       }      
+      }      
+    } 
+
   else {
     if(nMissingTriggerWarnings < 10)
       cout << "Warning: the requested trigger " << menu->GetTriggerName(it) << " is not implemented in OHltTreeOpen. No rate will be calculated." << endl;
@@ -4810,6 +5099,119 @@ int OHltTree::OpenHlt1ElectronSamHarperPassed(float Et, int L1iso,
 				if( (isbarrel && ohEleDphi[i] < dphibarrel) ||
 				    (isendcap && ohEleDphi[i] < dphiendcap) ) {
 				  rc++;
+				}
+			      }
+			    }
+			  }
+			}
+		      }
+		    }
+		  }
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+  
+  return rc;
+}
+
+int OHltTree::OpenHlt2ElectronsSamHarperPassed(float Et, int L1iso, 
+					       float Tisobarrel, float Tisoendcap, 
+					       float Tisoratiobarrel, float Tisoratioendcap, 
+					       float HisooverETbarrel, float HisooverETendcap, 
+					       float EisooverETbarrel, float EisooverETendcap,
+					       float hoverebarrel, float hovereendcap,
+					       float clusshapebarrel, float clusshapeendcap, 
+					       float r9barrel, float r9endcap,
+					       float detabarrel, float detaendcap,
+					       float dphibarrel, float dphiendcap)
+{
+  float barreleta = 1.479;
+  float endcapeta = 2.65;
+
+  int rc = 0;
+  int rcsconly = 0;
+
+  // Loop over all oh electrons
+  for (int i=0;i<NohEle;i++) {
+    float ohEleHoverE = ohEleHforHoverE[i]/ohEleE[i];
+    int isbarrel = 0;
+    int isendcap = 0;
+    if(TMath::Abs(ohEleEta[i]) < barreleta)
+      isbarrel = 1;
+    if(barreleta < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < endcapeta)
+      isendcap = 1;
+
+    if ( ohEleEt[i] > Et) {
+      if( TMath::Abs(ohEleEta[i]) < endcapeta ) {
+	if (ohEleNewSC[i]==1) {
+	  if ( ohEleL1iso[i] >= L1iso ) {  // L1iso is 0 or 1 
+	    if( ohEleL1Dupl[i] == false) { // remove double-counted L1 SCs 
+	      if ( (isbarrel && ((ohEleEiso[i]/ohEleEt[i]) < EisooverETbarrel)) ||
+		   (isendcap && ((ohEleEiso[i]/ohEleEt[i]) < EisooverETendcap)) ) {
+		if ( (isbarrel && ((ohEleHiso[i]/ohEleEt[i]) < HisooverETbarrel)) ||
+		     (isendcap && ((ohEleHiso[i]/ohEleEt[i]) < HisooverETendcap)) ) {
+		  if ( ((isbarrel) && (ohEleHoverE < hoverebarrel)) || 
+		       ((isendcap) && (ohEleHoverE < hovereendcap))) { 
+		    if ( (isbarrel && ohEleClusShap[i] < clusshapebarrel) ||
+			 (isendcap && ohEleClusShap[i] < clusshapeendcap) ) {
+		      if ( (isbarrel && ohEleR9[i] < r9barrel) || 
+			   (isendcap && ohEleR9[i] < r9endcap) ) {
+			if (ohElePixelSeeds[i]>0) {
+			  rcsconly++;
+			}
+		      }
+		    }
+		  }
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+  
+  if(rcsconly >= 2) {
+    for (int i=0;i<NohEle;i++) {
+      float ohEleHoverE = ohEleHforHoverE[i]/ohEleE[i];
+      int isbarrel = 0;
+      int isendcap = 0;
+      if(TMath::Abs(ohEleEta[i]) < barreleta)
+	isbarrel = 1;
+      if(barreleta < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < endcapeta)
+	isendcap = 1;
+      
+      if ( ohEleEt[i] > Et) {
+	if( TMath::Abs(ohEleEta[i]) < endcapeta ) {
+	  if (ohEleNewSC[i]<=1) {
+	    if (ohElePixelSeeds[i]>0) {
+	      if ( ohEleL1iso[i] >= L1iso ) {  // L1iso is 0 or 1 
+		if( ohEleL1Dupl[i] == false) { // remove double-counted L1 SCs 
+		  if ( (isbarrel && ((ohEleHiso[i]/ohEleEt[i]) < HisooverETbarrel)) ||
+		       (isendcap && ((ohEleHiso[i]/ohEleEt[i]) < HisooverETendcap)) ) {
+		    if ( (isbarrel && ((ohEleEiso[i]/ohEleEt[i]) < EisooverETbarrel)) ||
+			 (isendcap && ((ohEleEiso[i]/ohEleEt[i]) < EisooverETendcap)) ) {
+		      if ( ((isbarrel) && (ohEleHoverE < hoverebarrel)) ||
+			   ((isendcap) && (ohEleHoverE < hovereendcap))) {
+			if ( (isbarrel && (((ohEleTiso[i] < Tisobarrel && ohEleTiso[i] != -999.) || (Tisobarrel == 999.)))) ||
+			     (isendcap && (((ohEleTiso[i] < Tisoendcap && ohEleTiso[i] != -999.) || (Tisoendcap == 999.))))) {
+			  if (((isbarrel) && (ohEleTiso[i]/ohEleEt[i] < Tisoratiobarrel)) ||
+			      ((isendcap) && (ohEleTiso[i]/ohEleEt[i] < Tisoratioendcap))) {
+			    if ( (isbarrel && ohEleClusShap[i] < clusshapebarrel) ||
+				 (isendcap && ohEleClusShap[i] < clusshapeendcap) ) {
+			      if ( (isbarrel && ohEleR9[i] < r9barrel) || 
+				   (isendcap && ohEleR9[i] < r9endcap) ) {
+				if ( (isbarrel && TMath::Abs(ohEleDeta[i]) < detabarrel) ||
+				     (isendcap && TMath::Abs(ohEleDeta[i]) < detaendcap) ) {
+				  if( (isbarrel && ohEleDphi[i] < dphibarrel) ||
+				      (isendcap && ohEleDphi[i] < dphiendcap) ) {
+				    rc++;
+				  }
 				}
 			      }
 			    }
@@ -6551,6 +6953,33 @@ int OHltTree::OpenHlt1L3MuonPassed(double pt, double eta)
    
   return rcL3; 
  
+} 
+
+vector<int>  OHltTree::VectorOpenHlt1PhotonPassed(float Et, int L1iso, float Tiso, float Eiso, float HisoBR, float HisoEC, float HoverE, float R9, float ClusShapEB, float ClusShapEC) 
+{ 
+  vector<int> rc; 
+  // Loop over all oh photons 
+  for (int i=0;i<NohPhot;i++) { 
+    if ( ohPhotEt[i] > Et) {  
+      if( TMath::Abs(ohPhotEta[i]) < 2.65 ) {  
+        if ( ohPhotL1iso[i] >= L1iso ) {  
+          if( ohPhotTiso[i] < Tiso + 0.001*ohPhotEt[i] ) { 
+            if( ohPhotEiso[i] < Eiso  + 0.006*ohPhotEt[i]) {  
+              if( (TMath::Abs(ohPhotEta[i]) < 1.479 && ohPhotHiso[i] < HisoBR + 0.0025*ohPhotEt[i] && ohEleClusShap[i] < ClusShapEB && ohPhotR9[i] < R9)  || 
+                  (1.479 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.65 && ohPhotHiso[i] < HisoEC + 0.0025*ohPhotEt[i] && ohEleClusShap[i] < ClusShapEC)) {  
+		float EcalEnergy = ohPhotEt[i]/(sin (2*atan(exp(0-ohPhotEta[i])))); 
+		if( ohPhotHforHoverE[i]/EcalEnergy < HoverE) 
+		  if( ohPhotL1Dupl[i] == false) // remove double-counted L1 SCs   
+		    rc.push_back(i); 
+              } 
+            } 
+          } 
+        } 
+      } 
+    } 
+  } 
+ 
+  return rc; 
 } 
 
 int OHltTree::OpenL1SetSingleJetBit(const float& thresh){

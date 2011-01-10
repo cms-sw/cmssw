@@ -3599,6 +3599,16 @@ public :
 				      float r9barrel, float r9endcap, 
 				      float detabarrel, float detaendcap, 
 				      float dphibarrel, float dphiendcap);
+  int OpenHlt2ElectronsSamHarperPassed(float Et, int L1iso,   
+				       float Tisobarrel, float Tisoendcap,   
+				       float Tisoratiobarrel, float Tisoratioendcap,   
+				       float HisooverETbarrel, float HisooverETendcap,   
+				       float EisooverETbarrel, float EisooverETendcap,  
+				       float hoverebarrel, float hovereendcap,  
+				       float clusshapebarrel, float clusshapeendcap,   
+				       float r9barrel, float r9endcap,  
+				       float detabarrel, float detaendcap,  
+				       float dphibarrel, float dphiendcap); 
   int OpenHlt1PhotonSamHarperPassed(float Et, int L1iso,   
 				    float Tisobarrel, float Tisoendcap,   
 				    float Tisoratiobarrel, float Tisoratioendcap,   
@@ -3610,6 +3620,8 @@ public :
 				    float detabarrel, float detaendcap,  
 				    float dphibarrel, float dphiendcap); 
   int OpenHlt1PhotonPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC);
+  std::vector<int> VectorOpenHlt1PhotonPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC,float HoverE=999, 
+					      float R9=999, float ClusShapEB=999, float ClusShapEC=999); 
   int OpenHlt2PhotonMassWinPassed(float Et, int L1iso, float Tiso, float Eiso, float HisoBR, float HisoEC,float massLow, float massHigh);
   int OpenHlt2ElectronMassWinPassed(float Et, int L1iso, float Hiso, float massLow, float massHigh); 
   int OpenHlt2Electron1LegIdPassed(float Et,int L1iso,float Tiso,float Hiso);
