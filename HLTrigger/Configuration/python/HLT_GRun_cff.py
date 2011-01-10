@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_10_0/GRun/V4 (CMSSW_3_10_0_pre6_HLT3)
+# /dev/CMSSW_3_10_0/GRun/V5 (CMSSW_3_10_0_pre6_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_10_0/GRun/V4')
+  tableName = cms.string('/dev/CMSSW_3_10_0/GRun/V5')
 )
 
 streams = cms.PSet( 
@@ -6412,7 +6412,8 @@ hltMuTkMuJpsiTrackerMuons = cms.EDProducer( "MuonIdProducer",
         DoWireCorr = cms.bool( False ),
         RequireBothProjections = cms.bool( False ),
         debug = cms.bool( False ),
-        UseSegmentT0 = cms.bool( False )
+        UseSegmentT0 = cms.bool( False ),
+        DTTimeOffset = cms.double( 2.7 )
       ),
       CSCTimingParameters = cms.PSet( 
         MatchParameters = cms.PSet( 
