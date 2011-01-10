@@ -59,9 +59,9 @@ void HLTReader::init(const Data & data) {
     if (matches.empty()) {
       // m_pattern does not match any trigger paths
       if (data.shouldThrow())
-        throw cms::Exception("Configuration") << "requested m_pattern \"" << m_pattern <<  "\" does not match any HLT paths";
+        throw cms::Exception("Configuration") << "requested pattern \"" << m_pattern <<  "\" does not match any HLT paths";
       else
-        edm::LogWarning("Configuration") << "requested m_pattern \"" << m_pattern <<  "\" does not match any HLT paths";
+        edm::LogWarning("Configuration") << "requested pattern \"" << m_pattern <<  "\" does not match any HLT paths";
     } else {
       // store indices corresponding to the matching triggers
       BOOST_FOREACH(const std::vector<std::string>::const_iterator & match, matches) {
