@@ -211,6 +211,7 @@ int main(int argc, char **argv) {
      combiner.run(datacard, dataset, limit, iToy, t, runToys);
   } catch (std::exception &ex) {
      cerr << "Error when running the combination:\n\t" << ex.what() << std::endl;
+     test->Close();
      return 3001;
   }
   
