@@ -338,6 +338,10 @@ public :
   Int_t           L1HfRing1EtSumNegativeEta;
   Int_t           L1HfTowerCountPositiveEta;
   Int_t           L1HfTowerCountNegativeEta;
+  Int_t           L1HfTowerCountNegativeEtaRing1;
+  Int_t           L1HfTowerCountPositiveEtaRing1;
+  Int_t           L1HfTowerCountNegativeEtaRing2;
+  Int_t           L1HfTowerCountPositiveEtaRing2;
   Int_t           Run;
   Int_t           Event;
   Int_t           LumiBlock;
@@ -748,6 +752,8 @@ public :
   Int_t           OpenL1_DoubleEG10;
   Int_t           OpenL1_DoubleMu0;
   Int_t           OpenL1_ETT220;
+  Int_t           OpenL1_SingleJet20_FwdVeto;
+  Int_t           OpenL1_DoubleEG2_FwdVeto;
 
   // 8E29 and 1E31 MC menus
   Int_t           HLT_L1Jet15; 
@@ -2079,6 +2085,10 @@ public :
   TBranch        *b_L1HfRing1EtSumNegativeEta;   //!
   TBranch        *b_L1HfTowerCountPositiveEta;   //!
   TBranch        *b_L1HfTowerCountNegativeEta;   //!
+  TBranch        *b_L1HfTowerCountNegativeEtaRing1;   //!
+  TBranch        *b_L1HfTowerCountPositiveEtaRing1;   //!
+  TBranch        *b_L1HfTowerCountNegativeEtaRing2;   //!
+  TBranch        *b_L1HfTowerCountPositiveEtaRing2;   //!
   TBranch        *b_Run;   //!
   TBranch        *b_Event;   //!
   TBranch        *b_LumiBlock;  //!
@@ -4218,6 +4228,10 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1HfRing1EtSumNegativeEta", &L1HfRing1EtSumNegativeEta, &b_L1HfRing1EtSumNegativeEta);
   fChain->SetBranchAddress("L1HfTowerCountPositiveEta", &L1HfTowerCountPositiveEta, &b_L1HfTowerCountPositiveEta);
   fChain->SetBranchAddress("L1HfTowerCountNegativeEta", &L1HfTowerCountNegativeEta, &b_L1HfTowerCountNegativeEta);
+  fChain->SetBranchAddress("L1HfTowerCountNegativeEtaRing1", &L1HfTowerCountNegativeEtaRing1, &b_L1HfTowerCountNegativeEtaRing1);
+  fChain->SetBranchAddress("L1HfTowerCountPositiveEtaRing1", &L1HfTowerCountPositiveEtaRing1, &b_L1HfTowerCountPositiveEtaRing1);
+  fChain->SetBranchAddress("L1HfTowerCountNegativeEtaRing2", &L1HfTowerCountNegativeEtaRing2, &b_L1HfTowerCountNegativeEtaRing2);
+  fChain->SetBranchAddress("L1HfTowerCountPositiveEtaRing2", &L1HfTowerCountPositiveEtaRing2, &b_L1HfTowerCountPositiveEtaRing2);
   fChain->SetBranchAddress("Run", &Run, &b_Run);
   fChain->SetBranchAddress("Event", &Event, &b_Event);
   fChain->SetBranchAddress("LumiBlock", &LumiBlock, &b_LumiBlock); 
@@ -7119,6 +7133,8 @@ void OHltTree::SetOpenL1Bits()
   OpenL1_DoubleEG8 = 0;
   OpenL1_DoubleEG10 = 0;
   OpenL1_DoubleMu0 = 0; 
+  OpenL1_SingleJet20_FwdVeto = 0;
+  OpenL1_DoubleEG2_FwdVeto = 0;
 
   if(L1GoodSingleMuPt[0] > 3.0 && (L1NIsolEmEt[0] > 5.0 || L1IsolEmEt[0] > 5.0)) 
     OpenL1_Mu3EG5 = 1; 
@@ -7147,10 +7163,30 @@ void OHltTree::SetOpenL1Bits()
   if(rc >= 2)
     OpenL1_DoubleMu0 = 1;
 
+  if(L1CenJetEt[0] >= 20.0 || L1ForJetEt[0] >= 20.0 || L1TauEt[0] >= 20.0)
+    {
+      if((L1HfTowerCountNegativeEtaRing1 < 2) &&
+         (L1HfTowerCountPositiveEtaRing1 < 2) &&
+         (L1HfTowerCountNegativeEtaRing2 < 2) &&
+         (L1HfTowerCountPositiveEtaRing2 < 2))
+        OpenL1_SingleJet20_FwdVeto = 1;
+    }
+
+  if((L1IsolEmEt[0] > 2 || L1NIsolEmEt[0] > 2) && (L1IsolEmEt[1] > 2 || L1NIsolEmEt[1] > 2))
+    {
+      if((L1HfTowerCountNegativeEtaRing1 < 2) && 
+         (L1HfTowerCountPositiveEtaRing1 < 2) && 
+         (L1HfTowerCountNegativeEtaRing2 < 2) && 
+         (L1HfTowerCountPositiveEtaRing2 < 2)) 
+	OpenL1_DoubleEG2_FwdVeto = 1;
+    }
+
   map_BitOfStandardHLTPath["OpenL1_ZeroBias"] = OpenL1_ZeroBias;
   map_BitOfStandardHLTPath["OpenL1_Mu3EG5"] = OpenL1_Mu3EG5;
   map_BitOfStandardHLTPath["OpenL1_EG5_HTT100"] = OpenL1_EG5_HTT100;
   map_BitOfStandardHLTPath["OpenL1_SingleMu30"] = OpenL1_SingleMu30;   
+  map_BitOfStandardHLTPath["OpenL1_SingleJet20_FwdVeto"] = OpenL1_SingleJet20_FwdVeto;
+  map_BitOfStandardHLTPath["OpenL1_DoubleEG2_FwdVeto"] = OpenL1_DoubleEG2_FwdVeto;
 
   map_BitOfStandardHLTPath["OpenL1_SingleJet6"]  = OpenL1SetSingleJetBit(6)>=1;
   map_BitOfStandardHLTPath["OpenL1_SingleJet10"] = OpenL1SetSingleJetBit(10)>=1;
