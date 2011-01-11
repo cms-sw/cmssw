@@ -15,6 +15,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/TestProposal.h"
 #include "HiggsAnalysis/CombinedLimit/interface/DebugProposal.h"
 #include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooFitGlobalKillSentry.h"
 
 using namespace RooStats;
 
@@ -69,6 +70,9 @@ void MarkovChainMC::applyOptions(const boost::program_options::variables_map &vm
 }
 
 bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, const double *hint) {
+  RooFitGlobalKillSentry silence(verbose > 0 ? RooFit::INFO : RooFit::WARNING);
+
+  CloseCoutSentry coutSentry(verbose <= 0); // close standard output and error, so that we don't flood them with minuit messages
   double sum = 0, sum2 = 0, suma = 0; int num = 0;
   for (unsigned int i = 0; i < tries_; ++i) {
       if (int nacc = runOnce(w,data,limit,hint)) {
@@ -79,6 +83,7 @@ bool MarkovChainMC::run(RooWorkspace *w, RooAbsData &data, double &limit, const 
       }
   }
   if (num == 0) return false;
+  coutSentry.clear();
 
   if (verbose >= 0) {
       std::cout << "\n -- MarkovChainMC -- " << "\n";
@@ -100,7 +105,7 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooAbsData &data, double &limit, con
   RooArgSet const &obs = *w->set("observables");
 
   if ((hint != 0) && (*hint > r->getMin())) {
-    r->setMax(std::min<double>(3*(*hint), r->getMax()));
+    r->setMax(std::min<double>(5*(*hint), r->getMax()));
   }
 
   if (withSystematics && (w->set("nuisances") == 0)) {
