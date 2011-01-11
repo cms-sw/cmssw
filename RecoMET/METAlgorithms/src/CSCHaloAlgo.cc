@@ -50,25 +50,16 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	  // Calculate global phi coordinate for central most rechit in the track
 	  float innermost_global_z = 1500.;
 	  float outermost_global_z = 0.;
-	  GlobalPoint InnerMostGlobalPosition;  // smallest abs(z)
-	  GlobalPoint OuterMostGlobalPosition;  // largest abs(z)
-	  
+	  GlobalPoint InnerMostGlobalPosition(0.,0.,0.);  // smallest abs(z)
+	  GlobalPoint OuterMostGlobalPosition(0.,0.,0.);  // largest abs(z)
+	  int nCSCHits = 0;
 	  for(unsigned int j = 0 ; j < iTrack->extra()->recHits().size(); j++ )
 	    {
 	      edm::Ref<TrackingRecHitCollection> hit( iTrack->extra()->recHits(), j );
+	      if( !hit->isValid() ) continue;
 	      DetId TheDetUnitId(hit->geographicalId());
 	      if( TheDetUnitId.det() != DetId::Muon ) continue;
-	      if( TheDetUnitId.subdetId() != MuonSubdetId::CSC )
-		 {
-		   if( TheDetUnitId.subdetId() != MuonSubdetId::DT )
-		     {
-		       StoreTrack = false;
-		       break;  // definitely, not halo
-		     }
-		   continue;
-		 }
-	      //Its a CSC Track, store it
-	      StoreTrack = true;
+	      if( TheDetUnitId.subdetId() != MuonSubdetId::CSC ) continue;
 
 	      const GeomDetUnit *TheUnit = TheCSCGeometry.idToDetUnit(TheDetUnitId);
 	      LocalPoint TheLocalPosition = hit->localPosition();  
@@ -86,7 +77,19 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 		  outermost_global_z = TMath::Abs(z);
 		  OuterMostGlobalPosition = GlobalPoint( TheGlobalPosition );
 		}
+	      nCSCHits ++;
 	    }
+
+	  if( nCSCHits < 3 ) continue; // This needs to be optimized, but is the minimum 
+ 
+	  if( OuterMostGlobalPosition.x() == 0. || OuterMostGlobalPosition.y() == 0. || OuterMostGlobalPosition.z() == 0. ) 
+	    continue;
+	  if( InnerMostGlobalPosition.x() == 0. || InnerMostGlobalPosition.y() == 0. || InnerMostGlobalPosition.z() == 0. )
+	    continue;
+	  
+	  //Its a CSC Track,store it if it passes halo selection 
+	  StoreTrack = true;	  
+
 	  float deta = TMath::Abs( OuterMostGlobalPosition.eta() - InnerMostGlobalPosition.eta() );
 	  float dphi = TMath::ACos( TMath::Cos( OuterMostGlobalPosition.phi() - InnerMostGlobalPosition.phi() ) ) ;
 	  float theta = iTrack->outerMomentum().theta();
@@ -113,6 +116,8 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	    StoreTrack  = false;
 	  if( iTrack->normalizedChi2() > norm_chi2_threshold )
 	    StoreTrack = false;
+
+
 
 	  if( StoreTrack )
 	    {
