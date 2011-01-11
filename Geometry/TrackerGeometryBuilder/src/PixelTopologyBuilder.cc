@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyBuilder.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 
 PixelTopologyBuilder::PixelTopologyBuilder(){}
