@@ -35,13 +35,13 @@ LimitAlgo("HybridNew specific options") {
 }
 
 void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
-    nToys_       = vm["toysH"].as<unsigned int>();
-    clsAccuracy_  = vm["clsAcc" ].as<double>();
-    rAbsAccuracy_ = vm["rAbsAcc"].as<double>();
-    rRelAccuracy_ = vm["rRelAcc"].as<double>();
-    rule_     = vm["rule"].as<std::string>();
-    testStat_ = vm["testStat"].as<std::string>();
-    nCpu_     = vm["nCPU"].as<unsigned int>();
+    nToys_        = vm.count("toysH")   ? vm["toysH"].as<unsigned int>() : 500;
+    clsAccuracy_  = vm.count("clsAcc" ) ? vm["clsAcc" ].as<double>() : 0.005;
+    rAbsAccuracy_ = vm.count("rAbsAcc") ? vm["rAbsAcc"].as<double>() : 0.1;
+    rRelAccuracy_ = vm.count("rRelAcc") ? vm["rRelAcc"].as<double>() : 0.05;
+    rule_     = vm.count("rule")     ? vm["rule"].as<std::string>()     : "CLs";
+    testStat_ = vm.count("testStat") ? vm["testStat"].as<std::string>() : "LEP";
+    nCpu_     = vm.count("nCPU") ? vm["nCPU"].as<unsigned int>() : 0;
     if (rule_ == "CLs") {
         CLs_ = true;
     } else if (rule_ == "CLsplusb") {
