@@ -17,11 +17,18 @@ trackerDrivenElectronSeeds.TkColList = cms.VInputTag("hiSelectedTracks")
 trackerDrivenElectronSeeds.ProducePreId = cms.untracked.bool(False)
 trackerDrivenElectronSeeds.DisablePreId = cms.untracked.bool(True)
 
+# additions for 3_11_X
+from RecoParticleFlow.PFTracking.pfTrack_cfi import *  
+pfTrack.UseQuality = cms.bool(True) 
+pfTrack.TrackQuality = cms.string('highPurity')   
+pfTrack.TkColList = cms.VInputTag("hiSelectedTracks") 
+
 # run a trimmed down PF sequence with heavy-ion vertex, no electrons, etc.
 from RecoParticleFlow.Configuration.RecoParticleFlow_cff import *
 particleFlowBlock.useConvBremPFRecTracks = cms.bool(False)
 particleFlowBlock.usePFatHLT = cms.bool(True)
 particleFlowBlock.useIterTracking = cms.bool(False)
+particleFlowBlock.useNuclear = cms.bool(False)
 particleFlow.vertexCollection = cms.InputTag("hiSelectedVertex")
 particleFlow.usePFElectrons = cms.bool(False)
 #particleFlowReco.remove(particleFlowTrack)
@@ -32,6 +39,7 @@ particleFlowReco.remove(pfElectronTranslatorSequence)
 from RecoJets.Configuration.RecoPFJets_cff import *
 HiParticleFlowReco = cms.Sequence(particleFlowCluster
                                   * trackerDrivenElectronSeeds
+                                  * pfTrack  
                                   * particleFlowReco
                                   * recoPFJets)
 

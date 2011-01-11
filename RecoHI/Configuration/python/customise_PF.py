@@ -18,11 +18,17 @@ def customise(process):
     process.trackerDrivenElectronSeeds.ProducePreId = cms.untracked.bool(False)
     process.trackerDrivenElectronSeeds.DisablePreId = cms.untracked.bool(True)
 
+    process.load("RecoParticleFlow.PFTracking.pfTrack_cfi")
+    process.pfTrack.UseQuality = cms.bool(True)   
+    process.pfTrack.TrackQuality = cms.string('highPurity')   
+    process.pfTrack.TkColList = cms.VInputTag("hiSelectedTracks")  
+    
     # run a trimmed down PF sequence with heavy-ion vertex, no electrons, etc.
     process.load("RecoParticleFlow.Configuration.RecoParticleFlow_cff")
     process.particleFlowBlock.useConvBremPFRecTracks = cms.bool(False)
     process.particleFlowBlock.usePFatHLT = cms.bool(True)
     process.particleFlowBlock.useIterTracking = cms.bool(False)
+    process.particleFlowBlock.useNuclear = cms.bool(False)
     process.particleFlow.vertexCollection = cms.InputTag("hiSelectedVertex")
     process.particleFlow.usePFElectrons = cms.bool(False)
     #process.particleFlowReco.remove(process.particleFlowTrack)
@@ -32,6 +38,7 @@ def customise(process):
     # define new high-level RECO sequence and add to top-level sequence
     process.load("RecoJets.Configuration.RecoPFJets_cff")
     process.highLevelRecoPbPb = cms.Sequence(process.trackerDrivenElectronSeeds
+                                             * process.pfTrack 
                                              * process.particleFlowReco
                                              * process.recoPFJets)
     process.reconstructionHeavyIons *= process.highLevelRecoPbPb
