@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pfMETAnalyzer = cms.EDAnalyzer("PFMETAnalyzer",
+pfMETDQMAnalyzer = cms.EDAnalyzer("PFMETDQMAnalyzer",
     InputCollection = cms.InputTag('pfMet'),
     MatchCollection = cms.InputTag('met'),
     BenchmarkLabel  = cms.string('PFMET/CompWithCaloMET'),
