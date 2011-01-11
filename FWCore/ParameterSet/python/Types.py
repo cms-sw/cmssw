@@ -937,6 +937,17 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
     def __repr__(self):
         return self.dumpPython()
 
+def makeCppPSet(module,cppPSetMaker):
+    """Extracts all PSets from the module and makes C++ equivalent
+    """
+    # if this isn't a dictionary, treat it as an object which holds PSets
+    if not isinstance(module,dict):
+        module = dict( ( (x,getattr(module,x)) for x in dir(module)) )  
+        
+    for x,p in module.iteritems():
+        if isinstance(p,PSet):
+            p.insertInto(cppPSetMaker,x)
+    return cppPSetMaker
 
 if __name__ == "__main__":
 
