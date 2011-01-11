@@ -37,7 +37,11 @@ DisplayEventContent = cms.PSet(
         'keep recoPFDisplacedVertexs_*_*_*',                      
         'keep recoPFDisplacedTrackerVertexs_*_*_*',                               
         'keep *_correctedHybridSuperClusters_*_*',
-        'keep *_correctedMulti5x5SuperClustersWithPreshower_*_*'                                           
+        'keep *_correctedMulti5x5SuperClustersWithPreshower_*_*',
+        'keep recoGsfTrackExtras_electronGsfTracks_*_*',
+        'keep recoTrackExtras_electronGSGsfTrackCandidates_*_*',
+        'keep recoTrackExtras_electronGsfTracks_*_*',         
+        'keep recoElectronSeeds_electronMergedSeeds_*_*'
                                            )
 )
 
