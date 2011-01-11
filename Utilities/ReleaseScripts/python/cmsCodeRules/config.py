@@ -104,9 +104,8 @@ Configuration[ruleName] = {}
 
 Configuration[ruleName]['description'] = 'Search for "flags" statements in BuildFile'
 Configuration[ruleName]['filesToMatch'] = ['BuildFile', 'BuildFile.xml']
-Configuration[ruleName]['exceptPaths'] = ['Utilities/RFIOAdaptor/BuildFile.xml:4',  #could be file name, dir, fileName:line. Path should be only from that directory
-                                          Utilities/RFIOAdaptor/plugins/BuildFile.xml:8']
-in  which we are searching
+Configuration[ruleName]['exceptPaths'] = ['Utilities/RFIOAdaptor/BuildFile.xml:4',  #could be file name, dir, fileName:line. Path should be only from that directory in  which we are searching
+                                          'Utilities/RFIOAdaptor/plugins/BuildFile.xml:8']
 Configuration[ruleName]['skip']  = [comment]
 Configuration[ruleName]['filter'] = '<\s*(f|F)(l|L)(a|A)(g|G)(s|S)\s+' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = ['EDM_PLUGIN','RIVET_PLUGIN', 'GENREFLEX_ARGS', 'TEST_RUNNER_ARGS', 'INSTALL_SCRIPTS', 'NO_TESTRUN']
