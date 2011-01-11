@@ -36,7 +36,7 @@ ecalGlobalUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     #EXtimeCorrAmplitudes (ADC) and EXtimeCorrShifts (ns) need to have the same number of elements
     #Bins must be ordered in amplitude. First-last bins take care of under-overflows.
     doEBtimeCorrection = cms.bool(False),
-    doEEtimeCorrection = cms.bool(True),
+    doEEtimeCorrection = cms.bool(False),
 
     EBtimeCorrAmplitudeBins = cms.vdouble(
     7.9,    8.9,    10.0,   11.2,   12.5,   14.1,   15.8,   17.7,    19.9,    22.3,   25.0,   28.1,   31.5,   35.3,   39.7,
