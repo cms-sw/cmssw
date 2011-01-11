@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <iostream>
 
-using namespace std;
 
 struct OrderLbSpread { bool operator() (const std::pair<double,unsigned int> & lb1, const std::pair<double,unsigned int> & lb2) { return lb1.first > lb2.first; } };
 struct OrderLbOccup  { bool operator() (const std::pair<unsigned int,unsigned int> & lb1, const std::pair<unsigned int,unsigned int> & lb2) { return lb1.first > lb2.first; } };
@@ -20,10 +19,10 @@ void RPCLinkSynchroHistoMaker::fill(TH1F* hDelay, TH2F* hDelaySpread, TH2F* hTop
   hTopOccup->Reset();
   hTopSpread->Reset();
 
-  typedef vector< pair<unsigned int, unsigned int> > TopOccup;
-  typedef vector< pair<double, unsigned int> > TopSpread;
-  TopOccup topOccup(10,make_pair(0,0));  
-  TopSpread topSpread(10,make_pair(0.,0));
+  typedef std::vector< std::pair<unsigned int, unsigned int> > TopOccup;
+  typedef std::vector< std::pair<double, unsigned int> > TopSpread;
+  TopOccup topOccup(10,std::make_pair(0,0));  
+  TopSpread topSpread(10,std::make_pair(0.,0));
 
   for (unsigned int idx=0; idx < theLinkStat.theLinkStatMap.size(); ++idx) {
     const RPCLinkSynchroStat::BoardAndCounts & bc = theLinkStat.theLinkStatMap[idx]; 
@@ -36,8 +35,8 @@ void RPCLinkSynchroHistoMaker::fill(TH1F* hDelay, TH2F* hDelaySpread, TH2F* hTop
     if (sum==0) continue; 
     for (int i=0; i<=7; ++i) hDelay->Fill(i-3,bc.second.counts()[i]);
 
-    pair<unsigned int, unsigned int> canOccup =  make_pair(sum, idx);
-    pair<double, unsigned int>      canSpread =  make_pair(rms, idx);
+    std::pair<unsigned int, unsigned int> canOccup =  std::make_pair(sum, idx);
+    std::pair<double, unsigned int>      canSpread =  std::make_pair(rms, idx);
     TopOccup::iterator io = upper_bound(topOccup.begin(), topOccup.end(), canOccup, OrderLbOccup()); 
     TopSpread::iterator is = upper_bound(topSpread.begin(), topSpread.end(), canSpread, OrderLbSpread()); 
     if (io != topOccup.end()) { 

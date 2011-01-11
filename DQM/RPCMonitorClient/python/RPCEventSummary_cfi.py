@@ -6,5 +6,5 @@ rpcEventSummary = cms.EDAnalyzer("RPCEventSummary",
    Tier0 = cms.untracked.bool(False),                              
    MinimumRPCEvents = cms.untracked.int32(10000),
    NumberOfEndcapDisks = cms.untracked.int32(3),
-   EnableEndcapSummary = cms.untracked.bool(False)                              
+   EnableEndcapSummary = cms.untracked.bool(True)                              
 )

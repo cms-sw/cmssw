@@ -1,9 +1,9 @@
 /** \class RPCEfficiencySecond
  *
- * Class for RPC Monitoring using RPCDigi and DT and CSC Segments.
+ * Class for RPC Monitoring: use RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2010/05/14 06:05:21 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/08/16 10:16:09 $
+ *  $Revision: 1.7 $
  *
  * \author Camilo Carrillo (Uniandes)
  *

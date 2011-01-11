@@ -1,9 +1,3 @@
-/**************************************
- *         Autor: David Lomidze       *
- *           INFN di Napoli           *
- *           06 March 2009            *
- *************************************/
-
 #include <DQM/RPCMonitorClient/interface/RPCNoisyStripTest.h>
 #include "DQM/RPCMonitorDigi/interface/utils.h"
 
@@ -18,14 +12,10 @@
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
 
-
-using namespace edm;
-using namespace std;
-
-RPCNoisyStripTest::RPCNoisyStripTest(const ParameterSet& ps ){
-  LogVerbatim ("rpcnoisetest") << "[RPCNoisyStripTest]: Constructor";
+RPCNoisyStripTest::RPCNoisyStripTest(const edm::ParameterSet& ps ){
+  edm::LogVerbatim ("rpcnoisetest") << "[RPCNoisyStripTest]: Constructor";
  
-  globalFolder_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
+  globalFolder_ = ps.getUntrackedParameter<std::string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
   prescaleFactor_ = ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
@@ -35,19 +25,19 @@ RPCNoisyStripTest::RPCNoisyStripTest(const ParameterSet& ps ){
 RPCNoisyStripTest::~RPCNoisyStripTest(){dbe_=0;}
 
 void RPCNoisyStripTest::beginJob(DQMStore * dbe){
- LogVerbatim ("rpcnoisetest") << "[RPCNoisyStripTest]: Begin job ";
+ edm::LogVerbatim ("rpcnoisetest") << "[RPCNoisyStripTest]: Begin job ";
  dbe_ = dbe;
 
 }
 
-void RPCNoisyStripTest::endRun(const Run& r, const EventSetup& iSetup,vector<MonitorElement *> meVector, vector<RPCDetId> detIdVector){
- LogVerbatim ("rpcnoisetest") << "[RPCNoisyStripTest]: End run";
+void RPCNoisyStripTest::endRun(const edm::Run& r, const edm::EventSetup& iSetup,std::vector<MonitorElement *> meVector, std::vector<RPCDetId> detIdVector){
+ edm::LogVerbatim ("rpcnoisetest") << "[RPCNoisyStripTest]: End run";
  
  
  MonitorElement* me;
  dbe_->setCurrentFolder( globalFolder_);
 
- stringstream histoName;
+ std::stringstream histoName;
 
  rpcdqm::utils rpcUtils;
 
@@ -148,16 +138,16 @@ void RPCNoisyStripTest::endRun(const Run& r, const EventSetup& iSetup,vector<Mon
  }
 }
 
-void RPCNoisyStripTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context){} 
+void RPCNoisyStripTest::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context){} 
 
-void RPCNoisyStripTest::analyze(const Event& iEvent, const EventSetup& c) {}
+void RPCNoisyStripTest::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {}
 
-void RPCNoisyStripTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {}
+void RPCNoisyStripTest::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {}
 
-void RPCNoisyStripTest::clientOperation(EventSetup const& iSetup) {  
+void RPCNoisyStripTest::clientOperation(edm::EventSetup const& iSetup) {  
 
 
-  LogVerbatim ("rpcnoisetest") <<"[RPCNoisyStripTest]: Client Operation";
+  edm::LogVerbatim ("rpcnoisetest") <<"[RPCNoisyStripTest]: Client Operation";
   
   //Clear Distributions
   int limit = numberOfDisks_ * 2;
@@ -183,16 +173,16 @@ void RPCNoisyStripTest::clientOperation(EventSetup const& iSetup) {
 
 
  
-void  RPCNoisyStripTest::beginRun(const Run& r, const EventSetup& c){}
+void  RPCNoisyStripTest::beginRun(const edm::Run& r, const edm::EventSetup& c){}
 
 void  RPCNoisyStripTest::endJob(){}
 
-void  RPCNoisyStripTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe,EventSetup const& iSetup){
+void  RPCNoisyStripTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe,edm::EventSetup const& iSetup){
 
  //   ESHandle<RPCGeometry> rpcgeo;
 //     iSetup.get<MuonGeometryRecord>().get(rpcgeo);
  
-    stringstream meName;
+    std::stringstream meName;
     
     MonitorElement *  NOISE=NULL;
     MonitorElement * DEVD=NULL;
@@ -216,7 +206,7 @@ void  RPCNoisyStripTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe,Ev
     int entries = (int) myMe -> getEntries();
     int bins = (int) myMe ->getNbinsX();
       
-    vector<float> myvector;
+    std::vector<float> myvector;
 	
     // count alive strips and alive strip values put in the vector
     for(int xbin =1 ; xbin <= bins ; xbin++) {	  

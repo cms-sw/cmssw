@@ -17,40 +17,38 @@
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-using namespace edm;
-using namespace std;
 
-const string RPCChamberQuality::xLabels_[7] = {"Good", "OFF", "Nois.St","Nois.Ch","Part.Dead","Dead","Bad.Shape"};
-const string RPCChamberQuality::regions_[3] = {"EndcapNegative","Barrel","EndcapPositive"};
+const std::string RPCChamberQuality::xLabels_[7] = {"Good", "OFF", "Nois.St","Nois.Ch","Part.Dead","Dead","Bad.Shape"};
+const std::string RPCChamberQuality::regions_[3] = {"EndcapNegative","Barrel","EndcapPositive"};
 
-RPCChamberQuality::RPCChamberQuality(const ParameterSet& ps ){
-  LogVerbatim ("rpceventsummary") << "[RPCChamberQuality]: Constructor";
+RPCChamberQuality::RPCChamberQuality(const edm::ParameterSet& ps ){
+  edm::LogVerbatim ("rpceventsummary") << "[RPCChamberQuality]: Constructor";
   
   prescaleFactor_ =  ps.getUntrackedParameter<int>("PrescaleFactor", 9);
-  prefixDir_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
+  prefixDir_ = ps.getUntrackedParameter<std::string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
   minEvents = ps.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
 }
 
 RPCChamberQuality::~RPCChamberQuality(){
-  LogVerbatim ("rpceventsummary") << "[RPCChamberQuality]: Destructor ";
+  edm::LogVerbatim ("rpceventsummary") << "[RPCChamberQuality]: Destructor ";
   dbe_=0;
 }
 
 void RPCChamberQuality::beginJob(){
-  LogVerbatim ("rpceventsummary") << "[RPCChamberQuality]: Begin job ";
-  dbe_ = Service<DQMStore>().operator->();
+  edm::LogVerbatim ("rpceventsummary") << "[RPCChamberQuality]: Begin job ";
+  dbe_ = edm::Service<DQMStore>().operator->();
 }
 
-void RPCChamberQuality::beginRun(const Run& r, const EventSetup& c){
-  LogVerbatim ("rpceventsummary") << "[RPCChamberQuality]: Begin run";
+void RPCChamberQuality::beginRun(const edm::Run& r, const edm::EventSetup& c){
+  edm::LogVerbatim ("rpceventsummary") << "[RPCChamberQuality]: Begin run";
   
-  init_ = false;  
+  // init_ = false;  
   
   MonitorElement* me;
   dbe_->setCurrentFolder(prefixDir_);
   
-  stringstream histoName;
+  std::stringstream histoName;
   
   rpcdqm::utils rpcUtils;
 
@@ -122,15 +120,15 @@ void RPCChamberQuality::beginRun(const Run& r, const EventSetup& c){
   } 
 }
 
-void RPCChamberQuality::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context){} 
+void RPCChamberQuality::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context){} 
 
-void RPCChamberQuality::analyze(const Event& iEvent, const EventSetup& c) {}
+void RPCChamberQuality::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {}
 
-void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {  
-  LogVerbatim ("rpceventsummary") <<"[RPCChamberQuality]: End of LS transition, performing DQM client operation";
+void RPCChamberQuality::endRun(const edm::Run& r, const edm::EventSetup& c) {
+  edm::LogVerbatim ("rpceventsummary") <<"[RPCChamberQuality]: End Job, performing DQM client operation";
 
    MonitorElement * RpcEvents = NULL;
-   stringstream meName;
+   std::stringstream meName;
    
     
    meName.str("");
@@ -140,17 +138,7 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 
    if(RpcEvents) rpcEvents= (int)RpcEvents->getEntries();
 
-   if(!init_ && rpcEvents < minEvents) return;   
-   else if(!init_) {
-    
-     init_=true;
-
-     numLumBlock_ = prescaleFactor_;
-   }else numLumBlock_++;
-   
-    
-  //check some statements and prescale Factor
-  if(numLumBlock_%prescaleFactor_ == 0) {
+   if(rpcEvents >= minEvents){
     
     MonitorElement * summary[3];
 
@@ -201,11 +189,10 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
   }
 } 
 
+void RPCChamberQuality::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {  }
 
-void RPCChamberQuality::endJob() {}
 
-
-void RPCChamberQuality::performeClientOperation(string MESufix, int region, MonitorElement * quality){
+void RPCChamberQuality::performeClientOperation(std::string MESufix, int region, MonitorElement * quality){
 
 
   MonitorElement * RCQ=NULL;  
@@ -218,7 +205,7 @@ void RPCChamberQuality::performeClientOperation(string MESufix, int region, Moni
   MonitorElement * Chip=NULL;
   MonitorElement * HV=NULL;
   MonitorElement * LV=NULL;
-  stringstream meName; 
+  std::stringstream meName; 
 
   meName.str("");
   meName<<prefixDir_<<"/RPCChamberQuality_"<<MESufix; 

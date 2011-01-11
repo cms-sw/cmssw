@@ -4,18 +4,15 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 //CondFormats
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
-using namespace std;
-using namespace edm;
 
-
-
-RPCDataCertification::RPCDataCertification(const ParameterSet& ps) {
+RPCDataCertification::RPCDataCertification(const edm::ParameterSet& ps) {
 
  numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
 
@@ -30,8 +27,8 @@ RPCDataCertification::~RPCDataCertification() {}
 
 void RPCDataCertification::beginJob(){}
 
-void RPCDataCertification::beginRun(const edm::Run& r, const edm::EventSetup& setup) {
 
+  void RPCDataCertification::beginRun(const edm::Run& r, const edm::EventSetup& setup){
  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
 
  int defaultValue = 1;
@@ -39,9 +36,9 @@ void RPCDataCertification::beginRun(const edm::Run& r, const edm::EventSetup& se
  if(0 != setup.find( recordKey ) ) {
     defaultValue = -1;
     //get fed summary information
-    ESHandle<RunInfo> sumFED;
+    edm::ESHandle<RunInfo> sumFED;
     setup.get<RunInfoRcd>().get(sumFED);    
-    vector<int> FedsInIds= sumFED->m_fed_in;   
+    std::vector<int> FedsInIds= sumFED->m_fed_in;   
     unsigned int f = 0;
     bool flag = false;
     while(!flag && f < FedsInIds.size()) {
@@ -57,7 +54,7 @@ void RPCDataCertification::beginRun(const edm::Run& r, const edm::EventSetup& se
 
 
   // get the DQMStore
-  theDbe = Service<DQMStore>().operator->();
+ theDbe = edm::Service<DQMStore>().operator->();
   
   theDbe->setCurrentFolder("RPC/EventInfo");
   // global fraction
@@ -67,7 +64,7 @@ void RPCDataCertification::beginRun(const edm::Run& r, const edm::EventSetup& se
   CertMap_ = theDbe->book2D( "CertificationSummaryMap","RPC Certification Summary Map",15, -7.5, 7.5, 12, 0.5 ,12.5);
   
   //customize the 2d histo
-  stringstream BinLabel;
+  std::stringstream BinLabel;
   for (int i= 1 ; i<13; i++){
     BinLabel.str("");
     BinLabel<<"Sec"<<i;
@@ -115,7 +112,7 @@ void RPCDataCertification::beginRun(const edm::Run& r, const edm::EventSetup& se
 
   for (int i = -1 * limit; i<= limit;i++ ){//loop on wheels and disks
     if (i>-3 && i<3){//wheels
-      stringstream streams;
+      std::stringstream streams;
       streams << "RPC_Wheel" << i;
       certWheelFractions[i+2] = theDbe->bookFloat(streams.str());
       certWheelFractions[i+2]->Fill(defaultValue);
@@ -125,30 +122,24 @@ void RPCDataCertification::beginRun(const edm::Run& r, const edm::EventSetup& se
     
     int offset = numberOfDisks_;
     if (i>0) offset --; //used to skip case equale to zero
-    stringstream streams;
+    std::stringstream streams;
     streams << "RPC_Disk" << i;
     certDiskFractions[i+2] = theDbe->bookFloat(streams.str());
     certDiskFractions[i+2]->Fill(defaultValue);
   }
 }
 
+void RPCDataCertification::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup) {}
 
 
-void RPCDataCertification::beginLuminosityBlock(const LuminosityBlock& lumi, const  EventSetup& setup) {
-}
-
-
-
-
-void RPCDataCertification::endLuminosityBlock(const LuminosityBlock&  lumi, const  EventSetup& setup){}
-
+void RPCDataCertification::endLuminosityBlock(const edm::LuminosityBlock&  lumi, const  edm::EventSetup& setup){}
 
 
 void RPCDataCertification::endJob() {}
 
 
 
-void RPCDataCertification::analyze(const Event& event, const EventSetup& setup){}
+void RPCDataCertification::analyze(const edm::Event& event, const edm::EventSetup& setup){}
 
 
 

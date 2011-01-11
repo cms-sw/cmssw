@@ -4,8 +4,6 @@
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
-using namespace std;
-using namespace edm;
 RPCDaqInfo::RPCDaqInfo(const edm::ParameterSet& ps) {
  
   FEDRange_.first  = ps.getUntrackedParameter<unsigned int>("MinimumRPCFEDId", 790);
@@ -18,7 +16,7 @@ RPCDaqInfo::RPCDaqInfo(const edm::ParameterSet& ps) {
 
 RPCDaqInfo::~RPCDaqInfo(){}
 
-void RPCDaqInfo::beginLuminosityBlock(const LuminosityBlock& lumiBlock, const  EventSetup& iSetup){
+void RPCDaqInfo::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup){
   
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
 
@@ -26,9 +24,9 @@ void RPCDaqInfo::beginLuminosityBlock(const LuminosityBlock& lumiBlock, const  E
   if(0 != iSetup.find( recordKey ) ) {
 
     //get fed summary information
-    ESHandle<RunInfo> sumFED;
+    edm::ESHandle<RunInfo> sumFED;
     iSetup.get<RunInfoRcd>().get(sumFED);    
-    vector<int> FedsInIds= sumFED->m_fed_in;   
+    std::vector<int> FedsInIds= sumFED->m_fed_in;   
 
     int FedCount=0;
 
@@ -57,7 +55,7 @@ void RPCDaqInfo::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, cons
 void RPCDaqInfo::beginJob(){
 
   dbe_ = 0;
-  dbe_ = Service<DQMStore>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
   
   //fraction of alive FEDs
   dbe_->setCurrentFolder("RPC/EventInfo/DAQContents");
@@ -67,7 +65,7 @@ void RPCDaqInfo::beginJob(){
   
   for (int i = -1 * limit; i<= limit;i++ ){//loop on wheels and disks
     if (i>-3 && i<3){//wheels
-      stringstream streams;
+      std::stringstream streams;
       streams << "RPC_Wheel" << i;
       daqWheelFractions[i+2] = dbe_->bookFloat(streams.str());
       daqWheelFractions[i+2]->Fill(-1);
@@ -78,7 +76,7 @@ void RPCDaqInfo::beginJob(){
     int offset = numberOfDisks_;
     if (i>0) offset --; //used to skip case equale to zero
     
-    stringstream streams;
+    std::stringstream streams;
     streams << "RPC_Disk" << i;
     daqDiskFractions[i+2] = dbe_->bookFloat(streams.str());
     daqDiskFractions[i+2]->Fill(-1);
@@ -93,7 +91,7 @@ void RPCDaqInfo::beginJob(){
   DaqMap_ = dbe_->book2D( "DAQSummaryMap","RPC DAQ Summary Map",15, -7.5, 7.5, 12, 0.5 ,12.5);
 
  //customize the 2d histo
-  stringstream BinLabel;
+  std::stringstream BinLabel;
   for (int i= 1 ; i<=15; i++){
     BinLabel.str("");
     if(i<13){

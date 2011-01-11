@@ -13,13 +13,10 @@
 
 #include <sstream>
 
-using namespace edm;
-using namespace std;
+RPCMultiplicityTest::RPCMultiplicityTest(const edm::ParameterSet& ps ){
+  edm::LogVerbatim ("multiplicity") << "[RPCMultiplicityTest]: Constructor";
 
-RPCMultiplicityTest::RPCMultiplicityTest(const ParameterSet& ps ){
-  LogVerbatim ("multiplicity") << "[RPCMultiplicityTest]: Constructor";
-
-  globalFolder_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
+  globalFolder_ = ps.getUntrackedParameter<std::string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
   prescaleFactor_ = ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
@@ -31,19 +28,19 @@ RPCMultiplicityTest::~RPCMultiplicityTest(){
 
 
 void RPCMultiplicityTest::beginJob(DQMStore *  dbe ){
- LogVerbatim ("multiplicity") << "[RPCMultiplicityTest]: Begin job";
+ edm::LogVerbatim ("multiplicity") << "[RPCMultiplicityTest]: Begin job";
  dbe_=dbe;
 }
 
 
-void RPCMultiplicityTest::endRun(const Run& r, const EventSetup& iSetup,vector<MonitorElement *> meVector, vector<RPCDetId> detIdVector){
+void RPCMultiplicityTest::endRun(const edm::Run& r, const edm::EventSetup& iSetup,std::vector<MonitorElement *> meVector, std::vector<RPCDetId> detIdVector){
 
   edm::LogVerbatim ("multiplicity") << "[RPCMultiplicityTest]: End run";
   
   MonitorElement* me=NULL;
   dbe_->setCurrentFolder(globalFolder_);
   
-  stringstream histoName;
+  std::stringstream histoName;
   
   rpcdqm::utils rpcUtils;
   
@@ -129,13 +126,13 @@ void RPCMultiplicityTest::endRun(const Run& r, const EventSetup& iSetup,vector<M
 }
 
 
-void RPCMultiplicityTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {}
+void RPCMultiplicityTest::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) {}
 
 void RPCMultiplicityTest::analyze(const edm::Event& iEvent, const edm::EventSetup& c){}
 
-void RPCMultiplicityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {}
+void RPCMultiplicityTest::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {}
 
-void RPCMultiplicityTest::clientOperation(EventSetup const& iSetup) {
+void RPCMultiplicityTest::clientOperation(edm::EventSetup const& iSetup) {
 
   edm::LogVerbatim ("multiplicity") <<"[RPCMultiplicityTest]: Client Operation";
 
@@ -157,7 +154,7 @@ void RPCMultiplicityTest::clientOperation(EventSetup const& iSetup) {
   }//End loop on MEs
 }
  
-void RPCMultiplicityTest::beginRun(const Run& r, const EventSetup& c){}
+void RPCMultiplicityTest::beginRun(const edm::Run& r, const edm::EventSetup& c){}
 
  void RPCMultiplicityTest::endJob(){}
 

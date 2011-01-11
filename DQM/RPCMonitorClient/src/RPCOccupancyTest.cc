@@ -9,13 +9,10 @@
 //Geometry
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
-
-using namespace edm;
-using namespace std;
-RPCOccupancyTest::RPCOccupancyTest(const ParameterSet& ps ){
-  LogVerbatim ("rpceventsummary") << "[RPCOccupancyTest]: Constructor";
+RPCOccupancyTest::RPCOccupancyTest(const edm::ParameterSet& ps ){
+  edm::LogVerbatim ("rpceventsummary") << "[RPCOccupancyTest]: Constructor";
   
-  globalFolder_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
+  globalFolder_ = ps.getUntrackedParameter<std::string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
   prescaleFactor_ = ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
@@ -27,18 +24,18 @@ RPCOccupancyTest::~RPCOccupancyTest(){
 }
 
 void RPCOccupancyTest::beginJob(DQMStore * dbe){
- LogVerbatim ("rpceventsummary") << "[RPCOccupancyTest]: Begin job ";
+ edm::LogVerbatim ("rpceventsummary") << "[RPCOccupancyTest]: Begin job ";
  dbe_=dbe;
 }
 
-void RPCOccupancyTest::endRun(const Run& r, const EventSetup& c,vector<MonitorElement *> meVector, vector<RPCDetId> detIdVector){
- LogVerbatim ("rpceventsummary") << "[RPCOccupancyTest]: Begin run";
+void RPCOccupancyTest::endRun(const edm::Run& r, const edm::EventSetup& c,std::vector<MonitorElement *> meVector, std::vector<RPCDetId> detIdVector){
+ edm::LogVerbatim ("rpceventsummary") << "[RPCOccupancyTest]: Begin run";
  
  
  MonitorElement* me;
  dbe_->setCurrentFolder( globalFolder_);
 
- stringstream histoName;
+ std::stringstream histoName;
  rpcdqm::utils rpcUtils;
 
  int limit = numberOfDisks_;
@@ -212,15 +209,15 @@ void RPCOccupancyTest::endRun(const Run& r, const EventSetup& c,vector<MonitorEl
   }
 }
 
-void RPCOccupancyTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context){} 
+void RPCOccupancyTest::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context){} 
 
-void RPCOccupancyTest::analyze(const Event& iEvent, const EventSetup& c) {}
+void RPCOccupancyTest::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {}
 
-void RPCOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {}
+void RPCOccupancyTest::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {}
 
-void RPCOccupancyTest::clientOperation(EventSetup const& iSetup) {
+void RPCOccupancyTest::clientOperation(edm::EventSetup const& iSetup) {
 
-  LogVerbatim ("rpceventsummary") <<"[RPCOccupancyTest]: Client Operation";
+  edm::LogVerbatim ("rpceventsummary") <<"[RPCOccupancyTest]: Client Operation";
 
    MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
    rpcevents_ = RPCEvents -> getEntries(); 
@@ -248,7 +245,7 @@ void RPCOccupancyTest::clientOperation(EventSetup const& iSetup) {
 }
 
 void RPCOccupancyTest::endJob(void) {}
-void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c) {}
+void RPCOccupancyTest::beginRun(const edm:: Run& r, const edm::EventSetup& c) {}
 
 
 void RPCOccupancyTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe){

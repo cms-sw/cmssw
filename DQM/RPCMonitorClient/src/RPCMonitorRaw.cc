@@ -24,10 +24,6 @@
 #include <iomanip>
 #include <bitset>
 
-using namespace std;
-using namespace edm;
-using namespace rpcrawtodigi;
-
 typedef std::map< std::pair<int,int>, int>::const_iterator IT;
 
 RPCMonitorRaw::RPCMonitorRaw(const edm::ParameterSet& cfg)
@@ -134,9 +130,9 @@ void RPCMonitorRaw::analyze(const  edm::Event& ev, const edm::EventSetup& es)
   // readout errors
   //
   for (IT it=counts.theReadoutErrors.begin(); it != counts.theReadoutErrors.end(); ++it) {
-    ReadoutError error(it->first.second);
+    rpcrawtodigi::ReadoutError error(it->first.second);
     LinkBoardElectronicIndex ele = error.where();    
-    ReadoutError::ReadoutErrorType type = error.type();
+    rpcrawtodigi::ReadoutError::ReadoutErrorType type = error.type();
 
     int fed = it->first.first;
     me_e[fed-790]->Fill(type, it->second);

@@ -15,39 +15,36 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-using namespace edm;
-using namespace std;
+
+RPCMon_SS_Dbx_Global::RPCMon_SS_Dbx_Global(const edm::ParameterSet& iConfig ){
 
 
-RPCMon_SS_Dbx_Global::RPCMon_SS_Dbx_Global(const ParameterSet& iConfig ){
+  edm::LogVerbatim ("rpcmonitorerror") << "[RPCMon_SS_Dbx_Global]: Constructor";
 
 
-  LogVerbatim ("rpcmonitorerror") << "[RPCMon_SS_Dbx_Global]: Constructor";
-
-
-  globalFolder_ = iConfig.getUntrackedParameter<string>("GlobalHistogramsFolder","RPC/RecHits/SummaryHistograms");
+  globalFolder_ = iConfig.getUntrackedParameter<std::string>("GlobalHistogramsFolder","RPC/RecHits/SummaryHistograms");
 
   saveRootFile_ =  iConfig.getUntrackedParameter<bool>("SaveRootFile", false);
-  rootFileName_ = iConfig.getUntrackedParameter<string>("RootFileName","out.root");
+  rootFileName_ = iConfig.getUntrackedParameter<std::string>("RootFileName","out.root");
   digiLabel_ = iConfig.getUntrackedParameter<std::string>("DigiLabel","muonRPCDigis");
   numberOfRings_ = iConfig.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
 
 }
 
 RPCMon_SS_Dbx_Global::~RPCMon_SS_Dbx_Global(){
-  LogVerbatim ("rpcmonitorerror") << "[RPCMon_SS_Dbx_Global]: Destructor ";
+  edm::LogVerbatim ("rpcmonitorerror") << "[RPCMon_SS_Dbx_Global]: Destructor ";
   dbe_=0;
 }
 
 void RPCMon_SS_Dbx_Global::beginJob(){
- LogVerbatim ("rpcmonitorerror") << "[RPCMon_SS_Dbx_Global]: Begin job ";
- dbe_ = Service<DQMStore>().operator->();
+ edm::LogVerbatim ("rpcmonitorerror") << "[RPCMon_SS_Dbx_Global]: Begin job ";
+ dbe_ = edm::Service<DQMStore>().operator->();
 }
 
 void RPCMon_SS_Dbx_Global::endJob(){}
 
-void RPCMon_SS_Dbx_Global::beginRun(const Run& r, const EventSetup& c){
-  LogVerbatim ("rpcmonitorerror") << "[RPCMon_SS_Dbx_Global]: Begin run";
+void RPCMon_SS_Dbx_Global::beginRun(const edm::Run& r, const edm::EventSetup& c){
+  edm::LogVerbatim ("rpcmonitorerror") << "[RPCMon_SS_Dbx_Global]: Begin run";
 
   dbe_->setCurrentFolder(globalFolder_);
 
@@ -59,7 +56,7 @@ void RPCMon_SS_Dbx_Global::beginRun(const Run& r, const EventSetup& c){
   me = dbe_->book1D("AfterPulseBxDiff","After Pulse Bx Difference",13,-6.5,6.5);
 }
 
-void RPCMon_SS_Dbx_Global::analyze(const Event& iEvent, const EventSetup&  iSetup) {
+void RPCMon_SS_Dbx_Global::analyze(const edm::Event& iEvent, const edm::EventSetup&  iSetup) {
 
  edm::Handle<RPCDigiCollection> rpcDigis;
   iEvent.getByType(rpcDigis);
@@ -78,13 +75,13 @@ void RPCMon_SS_Dbx_Global::analyze(const Event& iEvent, const EventSetup&  iSetu
    const RPCRoll* roll = dynamic_cast<const RPCRoll* >( pDD->roll(id));
    const RPCDigiCollection::Range& range = (*detUnitIt).second;
    //     std::cout <<" detector "<< id.region()<< std::endl;
-   ostringstream tag;
-   ostringstream name;	
+   std::ostringstream tag;
+   std::ostringstream name;	
    MonitorElement* me;
 
    //get roll name
    RPCGeomServ RPCname(id);
-   string nameRoll = RPCname.name();
+   std::string nameRoll = RPCname.name();
    //get roll number      
    RPCGeomServ RPCnumber(id);
    int nr = RPCnumber.chambernr();
@@ -95,7 +92,7 @@ void RPCMon_SS_Dbx_Global::analyze(const Event& iEvent, const EventSetup&  iSetu
    // Loop over the digis of this DetUnit 
    for (RPCDigiCollection::const_iterator digiIt = range.first;digiIt!=range.second;++digiIt) {
      if (digiIt->strip() < 1 || digiIt->strip() > roll->nstrips() )
-       LogVerbatim ("rpcmonitorerror") <<" XXXX  Problem with detector "<< id << ", strip # " << digiIt->strip();
+       edm::LogVerbatim ("rpcmonitorerror") <<" XXXX  Problem with detector "<< id << ", strip # " << digiIt->strip();
      else {  //Loop on digi2
        for (RPCDigiCollection::const_iterator digiIt2 = digiIt; digiIt2!=range.second; ++digiIt2) {
 	 int dstrip = digiIt->strip() - digiIt2->strip();

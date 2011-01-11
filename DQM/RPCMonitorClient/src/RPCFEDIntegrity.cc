@@ -16,17 +16,13 @@
 #include "EventFilter/RPCRawToDigi/interface/DataRecord.h"
 #include "EventFilter/RPCRawToDigi/interface/ReadoutError.h"
 
-
-using namespace edm;
-using namespace std;
-
 typedef std::map<std::pair<int, int>, int >::const_iterator IT;
 
-RPCFEDIntegrity::RPCFEDIntegrity(const ParameterSet& ps ) {
-  LogVerbatim ("rpcfedintegrity") << "[RPCFEDIntegrity]: Constructor";
+RPCFEDIntegrity::RPCFEDIntegrity(const edm::ParameterSet& ps ) {
+  edm::LogVerbatim ("rpcfedintegrity") << "[RPCFEDIntegrity]: Constructor";
 
-  rawCountsLabel_ = ps.getUntrackedParameter<InputTag>("RPCRawCountsInputTag");
-  prefixDir_ = ps.getUntrackedParameter<string>("RPCPrefixDir", "RPC/FEDIntegrity");
+  rawCountsLabel_ = ps.getUntrackedParameter<edm::InputTag>("RPCRawCountsInputTag");
+  prefixDir_ = ps.getUntrackedParameter<std::string>("RPCPrefixDir", "RPC/FEDIntegrity");
   merge_ = ps.getUntrackedParameter<bool>("MergeRuns", false);
   minFEDNum_ =  ps.getUntrackedParameter<int>("MinimumFEDID", 790);
   maxFEDNum_ =  ps.getUntrackedParameter<int>("MaximumFEDID", 792);
@@ -37,29 +33,29 @@ RPCFEDIntegrity::RPCFEDIntegrity(const ParameterSet& ps ) {
 }
 
 RPCFEDIntegrity::~RPCFEDIntegrity(){
-  LogVerbatim ("rpcfedintegrity") << "[RPCFEDIntegrity]: Destructor ";
+  edm::LogVerbatim ("rpcfedintegrity") << "[RPCFEDIntegrity]: Destructor ";
   //  dbe_=0;
 }
 
 void RPCFEDIntegrity::beginJob(){
- LogVerbatim ("rpcfedintegrity") << "[RPCFEDIntegrity]: Begin job ";
- dbe_ = Service<DQMStore>().operator->();
+  edm::LogVerbatim ("rpcfedintegrity") << "[RPCFEDIntegrity]: Begin job ";
+  dbe_ = edm::Service<DQMStore>().operator->();
 }
 
-void RPCFEDIntegrity::beginRun(const Run& r, const EventSetup& c){
- LogVerbatim ("rpcfedintegrity") << "[RPCFEDIntegrity]: Begin run ";
+void RPCFEDIntegrity::beginRun(const edm::Run& r, const edm::EventSetup& c){
+  edm::LogVerbatim ("rpcfedintegrity") << "[RPCFEDIntegrity]: Begin run ";
 
  if (!init_) this->bookFEDMe();
  else if (!merge_) this->reset();
 
 }
 
-void RPCFEDIntegrity::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context){} 
+void RPCFEDIntegrity::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context){} 
 
-void RPCFEDIntegrity::analyze(const Event& iEvent, const EventSetup& c) {
+void RPCFEDIntegrity::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {
   
   //get hold of raw data counts
-  Handle<RPCRawDataCounts> rawCounts;
+  edm::Handle<RPCRawDataCounts> rawCounts;
   iEvent.getByLabel (rawCountsLabel_, rawCounts);
   if(!rawCounts.isValid()) return;
 
@@ -73,9 +69,9 @@ void RPCFEDIntegrity::analyze(const Event& iEvent, const EventSetup& c) {
   }
 }
 
-void RPCFEDIntegrity::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {}
+void RPCFEDIntegrity::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {}
 
-void RPCFEDIntegrity::endRun(const Run& r, const EventSetup& c){}
+void RPCFEDIntegrity::endRun(const edm::Run& r, const edm::EventSetup& c){}
 
 void RPCFEDIntegrity::endJob(){
   dbe_=0;
@@ -103,7 +99,7 @@ void RPCFEDIntegrity::labelBins( MonitorElement * myMe){
   int xbins = myMe->getNbinsX();
   
   if (xbins!= numOfFED_ ) return;
-  stringstream xLabel;
+  std::stringstream xLabel;
 
   for (int i = 0; i<xbins; i++){
     xLabel.str("");

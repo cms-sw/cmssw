@@ -7,14 +7,11 @@
 // //Geometry
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
-
-using namespace edm;
-using namespace std;
-RPCClusterSizeTest::RPCClusterSizeTest(const ParameterSet& ps ){
-  LogVerbatim ("rpceventsummary") << "[RPCClusterSizeTest]: Constructor";
+RPCClusterSizeTest::RPCClusterSizeTest(const edm::ParameterSet& ps ){
+  edm::LogVerbatim ("rpceventsummary") << "[RPCClusterSizeTest]: Constructor";
   
   prescaleFactor_ =  ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
-  globalFolder_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms/");
+  globalFolder_ = ps.getUntrackedParameter<std::string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms/");
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
 }
@@ -22,18 +19,18 @@ RPCClusterSizeTest::RPCClusterSizeTest(const ParameterSet& ps ){
 RPCClusterSizeTest::~RPCClusterSizeTest(){ dbe_=0;}
 
 void RPCClusterSizeTest::beginJob(DQMStore *  dbe){
-  LogVerbatim ("rpceventsummary") << "[RPCClusterSizeTest]: Begin job ";
+  edm::LogVerbatim ("rpceventsummary") << "[RPCClusterSizeTest]: Begin job ";
   dbe_ = dbe;
 }
 
-void RPCClusterSizeTest::endRun(const Run& r, const EventSetup& c,vector<MonitorElement *> meVector, vector<RPCDetId> detIdVector){
-  LogVerbatim ("rpceventsummary") << "[RPCClusterSizeTest]: End run";
+void RPCClusterSizeTest::endRun(const edm::Run& r, const edm::EventSetup& c, std::vector<MonitorElement *> meVector, std::vector<RPCDetId> detIdVector){
+  edm::LogVerbatim ("rpceventsummary") << "[RPCClusterSizeTest]: End run";
   
 
   MonitorElement* me;
   dbe_->setCurrentFolder(globalFolder_);
 
-  stringstream histoName;
+  std::stringstream histoName;
 
   rpcdqm::utils rpcUtils;
 
@@ -161,15 +158,15 @@ void RPCClusterSizeTest::endRun(const Run& r, const EventSetup& c,vector<Monitor
 
 }
 
-void RPCClusterSizeTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context){} 
+void RPCClusterSizeTest::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context){} 
 
-void RPCClusterSizeTest::analyze(const Event& iEvent, const EventSetup& c) {}
+void RPCClusterSizeTest::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {}
 
-void RPCClusterSizeTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {} 
+void RPCClusterSizeTest::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {} 
 
-void RPCClusterSizeTest::clientOperation(EventSetup const& iSetup) {
+void RPCClusterSizeTest::clientOperation(edm::EventSetup const& iSetup) {
   
-  LogVerbatim ("rpceventsummary") <<"[RPCClusterSizeTest]:Client Operation";
+  edm::LogVerbatim ("rpceventsummary") <<"[RPCClusterSizeTest]:Client Operation";
   
   //check some statements and prescale Factor
   if(myClusterMe_.size()==0 || myDetIds_.size()==0)return;
@@ -180,7 +177,7 @@ void RPCClusterSizeTest::clientOperation(EventSetup const& iSetup) {
   MonitorElement * MEAND =NULL;        // Mean ClusterSize, Distribution
   
   
-  stringstream meName;
+  std::stringstream meName;
   RPCDetId detId;
   MonitorElement * myMe;
 
@@ -266,4 +263,4 @@ void RPCClusterSizeTest::clientOperation(EventSetup const& iSetup) {
 } 
 
 void  RPCClusterSizeTest::endJob(void) {}
-void  RPCClusterSizeTest::beginRun(const Run& r, const EventSetup& c) {}
+void  RPCClusterSizeTest::beginRun(const edm::Run& r, const edm::EventSetup& c) {}

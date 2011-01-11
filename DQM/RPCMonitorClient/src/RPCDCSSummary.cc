@@ -11,11 +11,8 @@
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
-using namespace std;
-using namespace edm;
 
-
-RPCDCSSummary::RPCDCSSummary(const ParameterSet& ps) {
+RPCDCSSummary::RPCDCSSummary(const edm::ParameterSet& ps) {
 
  numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
 
@@ -27,20 +24,19 @@ RPCDCSSummary::RPCDCSSummary(const ParameterSet& ps) {
 
 RPCDCSSummary::~RPCDCSSummary() {}
 
-
 void RPCDCSSummary::beginJob() {}
 
-void RPCDCSSummary::beginRun(const edm::Run& r, const edm::EventSetup& setup) {
+void RPCDCSSummary::beginRun(const edm::Run& r, const edm::EventSetup& setup){
  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
 
- defaultValue = 1;
+ int defaultValue = 1;
 
  if(0 != setup.find( recordKey ) ) {
     defaultValue = -1;
     //get fed summary information
-    ESHandle<RunInfo> sumFED;
+    edm::ESHandle<RunInfo> sumFED;
     setup.get<RunInfoRcd>().get(sumFED);    
-    vector<int> FedsInIds= sumFED->m_fed_in;   
+    std::vector<int> FedsInIds= sumFED->m_fed_in;   
     unsigned int f = 0;
     bool flag = false;
     while(!flag && f < FedsInIds.size()) {
@@ -55,7 +51,7 @@ void RPCDCSSummary::beginRun(const edm::Run& r, const edm::EventSetup& setup) {
   }   
 
   // get the DQMStore
-  theDbe = Service<DQMStore>().operator->();
+ theDbe = edm::Service<DQMStore>().operator->();
   
   theDbe->setCurrentFolder("RPC/EventInfo");
   // global fraction
@@ -65,7 +61,7 @@ void RPCDCSSummary::beginRun(const edm::Run& r, const edm::EventSetup& setup) {
   DCSMap_ = theDbe->book2D( "DCSSummaryMap","RPC DCS Summary Map",15, -7.5, 7.5, 12, 0.5 ,12.5);
   
   //customize the 2d histo
-  stringstream BinLabel;
+  std::stringstream BinLabel;
   for (int i= 1 ; i<13; i++){
     BinLabel.str("");
     BinLabel<<"Sec"<<i;
@@ -114,7 +110,7 @@ void RPCDCSSummary::beginRun(const edm::Run& r, const edm::EventSetup& setup) {
 
   for (int i = -1 * limit; i<= limit;i++ ){//loop on wheels and disks
     if (i>-3 && i<3){//wheels
-      stringstream streams;
+      std::stringstream streams;
       streams << "RPC_Wheel" << i;
       dcsWheelFractions[i+2] = theDbe->bookFloat(streams.str());
       dcsWheelFractions[i+2]->Fill(defaultValue);
@@ -124,7 +120,7 @@ void RPCDCSSummary::beginRun(const edm::Run& r, const edm::EventSetup& setup) {
     
     int offset = numberOfDisks_;
     if (i>0) offset --; //used to skip case equale to zero
-    stringstream streams;
+    std::stringstream streams;
     streams << "RPC_Disk" << i;
     dcsDiskFractions[i+2] = theDbe->bookFloat(streams.str());
     dcsDiskFractions[i+2]->Fill(defaultValue);
@@ -133,13 +129,13 @@ void RPCDCSSummary::beginRun(const edm::Run& r, const edm::EventSetup& setup) {
 
 
 
-void RPCDCSSummary::beginLuminosityBlock(const LuminosityBlock& lumi, const  EventSetup& setup) {
+void RPCDCSSummary::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup) {
 }
 
 
 
 
-void RPCDCSSummary::endLuminosityBlock(const LuminosityBlock&  lumi, const  EventSetup& setup){}
+void RPCDCSSummary::endLuminosityBlock(const edm::LuminosityBlock&  lumi, const  edm::EventSetup& setup){}
 
 
 
@@ -147,7 +143,7 @@ void RPCDCSSummary::endJob() {}
 
 
 
-void RPCDCSSummary::analyze(const Event& event, const EventSetup& setup){}
+void RPCDCSSummary::analyze(const edm::Event& event, const edm::EventSetup& setup){}
 
 
 

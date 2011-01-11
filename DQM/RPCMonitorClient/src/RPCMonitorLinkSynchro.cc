@@ -25,10 +25,7 @@
 
 //#include "UserCode/konec/test/R2DTimerObserver.h"
 
-using namespace edm;
 
-//R2DTimerObserver theTimer("**** MY TIMING REPORT ***");
-//TH1D hCPU("hCPU","hCPU",100,0.,1.50);
 
 RPCMonitorLinkSynchro::RPCMonitorLinkSynchro( const edm::ParameterSet& cfg) 
     : theConfig(cfg),
@@ -43,16 +40,16 @@ RPCMonitorLinkSynchro::~RPCMonitorLinkSynchro()
 void RPCMonitorLinkSynchro::beginRun(const edm::Run&, const edm::EventSetup& es)
 {
   if (theCablingWatcher.check(es)) {
-    ESTransientHandle<RPCEMap> readoutMapping;
+    edm::ESTransientHandle<RPCEMap> readoutMapping;
     es.get<RPCEMapRcd>().get(readoutMapping);
     RPCReadOutMapping * cabling = readoutMapping->convert();
-    LogTrace("") << "RPCMonitorLinkSynchro - record has CHANGED!!, read map, VERSION: " << cabling->version();
+    edm::LogInfo("RPCMonitorLinkSynchro") << "RPCMonitorLinkSynchro - record has CHANGED!!, read map, VERSION: " << cabling->version();
     theSynchroStat.init(cabling, theConfig.getUntrackedParameter<bool>("dumpDelays"));
     delete cabling;
   }
 }
 
-void RPCMonitorLinkSynchro::endLuminosityBlock(const LuminosityBlock& ls, const EventSetup& es)
+void RPCMonitorLinkSynchro::endLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es)
 {
 
   RPCLinkSynchroHistoMaker hm(theSynchroStat);
@@ -103,7 +100,7 @@ TObjArray RPCMonitorLinkSynchro::histos() const
 
 void RPCMonitorLinkSynchro::endJob()
 {
-  if (theConfig.getUntrackedParameter<bool>("dumpDelays")) LogInfo("RPCMonitorLinkSynchro DumpDelays") <<  theSynchroStat.dumpDelays();
+  if (theConfig.getUntrackedParameter<bool>("dumpDelays")) edm::LogInfo("RPCMonitorLinkSynchro DumpDelays") <<  theSynchroStat.dumpDelays();
 }
 
 void RPCMonitorLinkSynchro::analyze(const edm::Event& ev, const edm::EventSetup& es)

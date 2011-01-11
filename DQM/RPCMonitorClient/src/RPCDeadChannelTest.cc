@@ -15,14 +15,11 @@
 
 #include <sstream>
 
-using namespace edm;
-using namespace std;
-
-RPCDeadChannelTest::RPCDeadChannelTest(const ParameterSet& ps ){
+RPCDeadChannelTest::RPCDeadChannelTest(const edm::ParameterSet& ps ){
  
-  LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: Constructor";
+  edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: Constructor";
 
-  globalFolder_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
+  globalFolder_ = ps.getUntrackedParameter<std::string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
   prescaleFactor_ = ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
@@ -34,14 +31,14 @@ void RPCDeadChannelTest::beginJob(DQMStore *  dbe ){
   dbe_=dbe;
 }
 
-void RPCDeadChannelTest::endRun(const Run& r, const EventSetup& iSetup,vector<MonitorElement *> meVector, vector<RPCDetId> detIdVector){
+void RPCDeadChannelTest::endRun(const edm::Run& r, const edm::EventSetup& iSetup, std::vector<MonitorElement *> meVector, std::vector<RPCDetId> detIdVector){
 
  edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: End run";
 
  MonitorElement* me;
  dbe_->setCurrentFolder( globalFolder_);
 
- stringstream histoName;
+ std::stringstream histoName;
 
  rpcdqm::utils rpcUtils;
   
@@ -112,13 +109,13 @@ void RPCDeadChannelTest::endRun(const Run& r, const EventSetup& iSetup,vector<Mo
  }  
 }
 
-void RPCDeadChannelTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {}
+void RPCDeadChannelTest::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) {}
 
 void RPCDeadChannelTest::analyze(const edm::Event& iEvent, const edm::EventSetup& c){}
 
-void RPCDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup){}
+void RPCDeadChannelTest::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup){}
 
-void RPCDeadChannelTest::clientOperation( EventSetup const& iSetup){
+void RPCDeadChannelTest::clientOperation( edm::EventSetup const& iSetup){
  
   edm::LogVerbatim ("deadChannel") <<"[RPCDeadChannelTest]:Client Operation";
   
@@ -129,16 +126,16 @@ void RPCDeadChannelTest::clientOperation( EventSetup const& iSetup){
 
 }
  
-void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& c){}
+void RPCDeadChannelTest::beginRun(const edm::Run& r, const edm::EventSetup& c){}
 
 void RPCDeadChannelTest::endJob(){}
 
 //
 //User Defined methods
 //
-void  RPCDeadChannelTest::CalculateDeadChannelPercentage(RPCDetId & detId, MonitorElement * myMe, EventSetup const& iSetup){
+void  RPCDeadChannelTest::CalculateDeadChannelPercentage(RPCDetId & detId, MonitorElement * myMe, edm::EventSetup const& iSetup){
 
-  ESHandle<RPCGeometry> rpcgeo;
+  edm::ESHandle<RPCGeometry> rpcgeo;
   iSetup.get<MuonGeometryRecord>().get(rpcgeo); 
 
   const RPCRoll * rpcRoll = rpcgeo->roll(detId);      
@@ -150,7 +147,7 @@ void  RPCDeadChannelTest::CalculateDeadChannelPercentage(RPCDetId & detId, Monit
    const QReport * theOccupancyQReport = myMe->getQReport("DeadChannel_0");  
    if(theOccupancyQReport) {
      
-     vector<dqm::me_util::Channel> badChannels = theOccupancyQReport->getBadChannels();
+     std::vector<dqm::me_util::Channel> badChannels = theOccupancyQReport->getBadChannels();
      
      if (detId.region()==0)   DEAD = DEADWheel[detId.ring() + 2] ;
      else{

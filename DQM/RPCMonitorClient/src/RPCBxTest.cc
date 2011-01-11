@@ -9,15 +9,14 @@
 # include "TH1F.h"
 
 
-using namespace edm;
-using namespace std;
-RPCBxTest::RPCBxTest(const ParameterSet& ps ){
-  LogVerbatim ("rpcbxtest") << "[RPCBxTest]: Constructor";
+
+RPCBxTest::RPCBxTest(const edm::ParameterSet& ps ){
+  edm::LogVerbatim ("rpcbxtest") << "[RPCBxTest]: Constructor";
   
   prescaleFactor_ =  ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
   
   //Nome della dir per gli istogrammi nuovi . Cominciare sempre con RPC/RecHits/
-  globalFolder_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms/");
+  globalFolder_ = ps.getUntrackedParameter<std::string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms/");
   
   entriesCut_ = ps.getUntrackedParameter<int>("EntriesCut");
   rmsCut_ = ps.getUntrackedParameter<double>("RMSCut");
@@ -30,18 +29,18 @@ RPCBxTest::RPCBxTest(const ParameterSet& ps ){
 RPCBxTest::~RPCBxTest(){ dbe_=0;}
 
 void RPCBxTest::beginJob(DQMStore *  dbe){
-  LogVerbatim ("rpcbxtest") << "[RPCBxTest]: Begin job ";
+  edm::LogVerbatim ("rpcbxtest") << "[RPCBxTest]: Begin job ";
   dbe_ = dbe;
 }
 
 //Qui puoi definitre gli istogrammi nuovi che vuoi riempire
-void RPCBxTest::beginRun(const Run& r, const EventSetup& c,vector<MonitorElement *> meVector, vector<RPCDetId> detIdVector){
-  LogVerbatim ("rpcbxtest") << "[RPCBxTest]: Begin run";
+void RPCBxTest::beginRun(const edm::Run& r, const edm::EventSetup& c, std::vector<MonitorElement *> meVector, std::vector<RPCDetId> detIdVector){
+  edm::LogVerbatim ("rpcbxtest") << "[RPCBxTest]: Begin run";
   
   MonitorElement* me;
   dbe_->setCurrentFolder(globalFolder_);
 
-  stringstream histoName;
+  std::stringstream histoName;
 
   histoName.str("");
   histoName<<"BX_Mean_Distribution_Barrel";  
@@ -159,15 +158,15 @@ void RPCBxTest::beginRun(const Run& r, const EventSetup& c,vector<MonitorElement
 
 }
 
-void RPCBxTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context){
+void RPCBxTest::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context){
 } 
 
-void RPCBxTest::analyze(const Event& iEvent, const EventSetup& c) {}
+void RPCBxTest::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {}
 
-void RPCBxTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) { }
+void RPCBxTest::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) { }
 
 void  RPCBxTest::endJob(void) {
-  LogVerbatim ("rpcbxtest") << "[RPCBxTest]: end job ";
+  edm::LogVerbatim ("rpcbxtest") << "[RPCBxTest]: end job ";
 
 }
 
@@ -182,7 +181,7 @@ void  RPCBxTest::endJob(void) {
 //http://root.cern.ch/root/html522/TH1.html
 
 //Loop sul vettore degli istogrammi (myBXMe_) e prendi le info
-void  RPCBxTest::endRun(const Run& r, const EventSetup& c) {
+void  RPCBxTest::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
   MonitorElement * myMe;
   RPCDetId detId;
@@ -245,7 +244,7 @@ void  RPCBxTest::endRun(const Run& r, const EventSetup& c) {
       
       if(rms <= rmsCut_){
 
-	if(mean> distanceMean_ || mean<-distanceMean_ )  cout<<RPCname.name()<<endl;
+	//if(mean> distanceMean_ || mean<-distanceMean_ )  cout<<RPCname.name()<<endl;
 
 	MEAN->Fill(mean);
 	MEANRing->Fill(mean);
