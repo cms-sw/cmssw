@@ -425,7 +425,8 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 	{
 	  float en=HF->energy();
 	  int ieta=HF->id().ieta();
-	  double fEta=fabs(0.5*(theHFEtaBounds[abs(ieta)-1]+theHFEtaBounds[abs(ieta)]));
+	  // ieta for HF starts at 29, so subtract away 29 when computing fEta
+	  double fEta=fabs(0.5*(theHFEtaBounds[abs(ieta)-28]+theHFEtaBounds[abs(ieta)-29]));
 	  ieta>0 ?  HT_HFP_+=en/cosh(fEta) : HT_HFM_+=en/cosh(fEta);
 	}
     }
