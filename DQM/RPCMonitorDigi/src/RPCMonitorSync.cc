@@ -2,15 +2,12 @@
  *
  *  implementation of RPCMonitorSync class
  *
- *  $Date: 2009/03/28 03:52:46 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/08/27 09:40:11 $
+ *  $Revision: 1.7 $
  *
  * \author Piotr Traczyk
  */
-
 #include <DQM/RPCMonitorDigi/interface/RPCMonitorSync.h>
-
-
 
 // RPC Digi
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
@@ -23,37 +20,35 @@
 #include <ctime>
 #include <sstream>
 
-using namespace std;
-using namespace edm;
 
 // Detector overview historam booking routines
 
-MonitorElement *RPCMonitorSync::barrelOffsetHist(string name, string title ) {
-  stringstream htit;
+MonitorElement *RPCMonitorSync::barrelOffsetHist(std::string name, std::string title ) {
+  std::stringstream htit;
   htit<<"Synchronization offset - "<<title;
   dbe->setCurrentFolder("Global");
   MonitorElement *hist = dbe->book2D(name,htit.str(),18,1,7,24,1,13);
   return hist;
 } 
 
-MonitorElement *RPCMonitorSync::endcapOffsetHist( string name, string title ) {
-  stringstream htit;
+MonitorElement *RPCMonitorSync::endcapOffsetHist( std::string name, std::string title ) {
+  std::stringstream htit;
   htit<<"Synchronization offset - "<<title;
   dbe->setCurrentFolder("Global");
   MonitorElement *hist = dbe->book2D(name,htit.str(),12,1,4,36,1,7);
   return hist;
 } 
 
-MonitorElement *RPCMonitorSync::barrelWidthHist( string name, string title ) {
-  stringstream htit;
+MonitorElement *RPCMonitorSync::barrelWidthHist( std::string name, std::string title ) {
+  std::stringstream htit;
   htit<<"Synchronization width - "<<title;
   dbe->setCurrentFolder("Global");
   MonitorElement *hist = dbe->book2D(name,htit.str(),18,1,7,24,1,13);
   return hist;
 } 
 
-MonitorElement *RPCMonitorSync::endcapWidthHist( string name, string title ) {
-  stringstream htit;
+MonitorElement *RPCMonitorSync::endcapWidthHist( std::string name, std::string title ) {
+  std::stringstream htit;
   htit<<"Synchronization width - "<<title;
   dbe->setCurrentFolder("Global");
   MonitorElement *hist = dbe->book2D(name,htit.str(),12,1,4,36,1,7);
@@ -152,7 +147,7 @@ void RPCMonitorSync::endJob(void)
   MonitorElement *hWidthMEm2 = endcapWidthHist("hWidthMEm2","Endcap Disk -2");
   MonitorElement *hWidthMEm3 = endcapWidthHist("hWidthMEm3","Endcap Disk -3");
  
-  map <uint32_t,timing>::const_iterator ci;
+  std::map <uint32_t,timing>::const_iterator ci;
   float offset,width;
   float xf=0,yf=0;
 
@@ -271,7 +266,7 @@ void RPCMonitorSync::readRPCDAQStrips(const edm::Event& iEvent) {
 
 void RPCMonitorSync::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
   
-   LogInfo (nameInLog) << "Beginning analyzing event " << counter++;
+   edm::LogInfo (nameInLog) << "Beginning analyzing event " << counter++;
 
    //   time_t aTime = iEvent.time().value();
 

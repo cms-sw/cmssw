@@ -273,8 +273,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 {
 
   statistics->Fill(1);
-  //using namespace edm;
-  
+   
   char meIdRPC [128];
   char meIdDT [128];
   char meIdCSC [128];

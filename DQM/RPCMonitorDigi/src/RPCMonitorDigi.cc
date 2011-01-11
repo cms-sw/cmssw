@@ -21,37 +21,34 @@
 ///Log messages
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace std;
-using namespace edm;
-RPCMonitorDigi::RPCMonitorDigi( const ParameterSet& pset ):counter(0){
+RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
 
-  nameInLog = pset.getUntrackedParameter<string>("moduleLogName", "rpcmonitordigi");
+  nameInLog = pset.getUntrackedParameter<std::string>("moduleLogName", "rpcmonitordigi");
 
   saveRootFile  = pset.getUntrackedParameter<bool>("DigiDQMSaveRootFile", false); 
   mergeRuns_  = pset.getUntrackedParameter<bool>("MergeDifferentRuns", false); 
   // saveRootFileEventsInterval  = pset.getUntrackedParameter<int>("DigiEventsInterval", 10000);
-  RootFileName  = pset.getUntrackedParameter<string>("RootFileNameDigi", "RPCMonitor.root"); 
+  RootFileName  = pset.getUntrackedParameter<std::string>("RootFileNameDigi", "RPCMonitor.root"); 
 
-  globalFolder_ = pset.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
-  muonNoise_ = pset.getUntrackedParameter<string>("DataType", "Noise");
+  globalFolder_ = pset.getUntrackedParameter<std::string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
+  muonNoise_ = pset.getUntrackedParameter<std::string>("DataType", "Noise");
 
   dqmshifter = pset.getUntrackedParameter<bool>("dqmshifter", false);
   dqmexpert = pset.getUntrackedParameter<bool>("dqmexpert", false);
   dqmsuperexpert = pset.getUntrackedParameter<bool>("dqmsuperexpert", false);
 
-  RPCRecHitLabel_ = pset.getParameter<InputTag>("RecHitLabel");
-  RPCDigiLabel_ =pset.getParameter<InputTag>("DigiLabel");
+  RPCRecHitLabel_ = pset.getParameter<edm::InputTag>("RecHitLabel");
+  RPCDigiLabel_ =pset.getParameter<edm::InputTag>("DigiLabel");
 }
 
 RPCMonitorDigi::~RPCMonitorDigi(){}
 
 
-
 void RPCMonitorDigi::beginJob(){
-  LogInfo (nameInLog) <<"[RPCMonitorDigi]: Begin job" ;
+  edm::LogInfo (nameInLog) <<"[RPCMonitorDigi]: Begin job" ;
   
   /// get hold of back-end interface
-  dbe = Service<DQMStore>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
 
   dbe->setCurrentFolder(globalFolder_);  
 
@@ -80,7 +77,7 @@ void RPCMonitorDigi::beginJob(){
   dbe->setCurrentFolder(globalFolder_);   
   RPCEvents = dbe -> book1D("RPCEvents", "RPC Events Barrel+EndCap", 1, 0.5, 1.5);
  
-  stringstream binLabel;
+  std::stringstream binLabel;
   for (int i = 1; i<13; i++){
     binLabel.str("");
     binLabel<<"Sec"<<i;
@@ -109,9 +106,9 @@ void RPCMonitorDigi::beginJob(){
 
 }
 
-void RPCMonitorDigi::beginRun(const Run& r, const EventSetup& iSetup){
+void RPCMonitorDigi::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
 
-  LogInfo (nameInLog) <<"Begin Run " ;
+  edm::LogInfo (nameInLog) <<"Begin Run " ;
   
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
 
@@ -159,7 +156,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,const edm::EventSetup& iSe
 
   counter++;
 
-  LogInfo (nameInLog) <<"[RPCMonitorDigi]: Beginning analyzing event " << counter;  
+  edm::LogInfo (nameInLog) <<"[RPCMonitorDigi]: Beginning analyzing event " << counter;  
 
   /// Digis
   edm::Handle<RPCDigiCollection> rpcdigis;
@@ -169,9 +166,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,const edm::EventSetup& iSe
   edm::Handle<RPCRecHitCollection> rpcHits;
   iEvent.getByLabel(RPCRecHitLabel_,rpcHits);
 
-  if(!rpcdigis.isValid() || !rpcHits.isValid()) return;
-
-  map<int,int> bxMap;
+  std::map<int,int> bxMap;
  
   if(rpcdigis->begin()!=rpcdigis->end())  RPCEvents -> Fill(1);
 
@@ -186,21 +181,21 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,const edm::EventSetup& iSe
     
     //get roll name
     RPCGeomServ RPCname(detId);
-    string nameRoll = RPCname.name();
+    std::string nameRoll = RPCname.name();
     //string YLabel = RPCname.shortname(); // to be removed later!!!
-    stringstream os;
+    std::stringstream os;
 
     //get roll number
     rpcdqm::utils prova;
     int nr = prova.detId2RollNr(detId);
     
     //get MEs corresponding to present detId  
-    map<string, MonitorElement*> meMap=meCollection[id]; 
+    std::map<std::string, MonitorElement*> meMap=meCollection[id]; 
     if(meMap.size()==0) continue; 
 
     int region=detId.region();
     int ring;
-    string ringType;
+    std::string ringType;
     if(region == 0) {
       ringType = "Wheel";  
       ring = detId.ring();
@@ -210,15 +205,15 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,const edm::EventSetup& iSe
     }
    
     //get wheel/disk MEs
-    pair<int,int> regionRing(region,ring);
-    map<string, MonitorElement*> meRingMap=meWheelDisk[regionRing];
+    std::pair<int,int> regionRing(region,ring);
+    std::map<std::string, MonitorElement*> meRingMap=meWheelDisk[regionRing];
     if(meRingMap.size()==0) continue;
 
-    vector<pair <int,int> > duplicatedDigi;  
-    vector<int> bxs;     
+    std::vector<std::pair <int,int> > duplicatedDigi;  
+    std::vector<int> bxs;     
 
     //get the RecHits associated to the roll
-    typedef pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
+    typedef std::pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
     rangeRecHits recHitCollection =  rpcHits->get(detId);
  
     int numberOfDigi= 0;
@@ -230,25 +225,25 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,const edm::EventSetup& iSe
       int bx=(*digiItr).bx();
     
       //remove duplicated digis
-      vector<pair <int,int> >::const_iterator itrDuplDigi = find(duplicatedDigi.begin(),duplicatedDigi.end(),make_pair(strip, bx));
+      std::vector<std::pair <int,int> >::const_iterator itrDuplDigi = find(duplicatedDigi.begin(),duplicatedDigi.end(),std::make_pair(strip, bx));
       if(itrDuplDigi!=duplicatedDigi.end() && duplicatedDigi.size()!=0) continue;
     
-      duplicatedDigi.push_back(make_pair(strip, bx));
+      duplicatedDigi.push_back(std::make_pair(strip, bx));
       ++numberOfDigi;
   
       //bunch crossing
-      vector<int>::const_iterator existingBX = find(bxs.begin(),bxs.end(),bx);
+      std::vector<int>::const_iterator existingBX = find(bxs.begin(),bxs.end(),bx);
       if(existingBX==bxs.end())bxs.push_back(bx);
    
       //adding new histo C.Carrillo & A. Cimmino
-      map<int,int>::const_iterator bxItr = bxMap.find((*digiItr).bx());
+      std::map<int,int>::const_iterator bxItr = bxMap.find((*digiItr).bx());
       if (bxItr == bxMap.end()|| bxMap.size()==0 )bxMap[(*digiItr).bx()]=1;
       else bxMap[(*digiItr).bx()]++;
    
       //sector based histograms for dqm shifter
       os.str("");
       os<<"1DOccupancy_"<<ringType<<"_"<<ring;
-      string meId = os.str();
+      std::string meId = os.str();
       if( meRingMap[meId]){
 	meRingMap[meId]->Fill(detId.sector());
 	// label
@@ -413,7 +408,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,const edm::EventSetup& iSe
   }/// end loop on RPC Digi Collection
 
   //adding new histo C.Carrillo & A. Cimmino
-  for (map<int, int>::const_iterator myItr= bxMap.begin(); 
+  for (std::map<int, int>::const_iterator myItr= bxMap.begin(); 
        myItr!=bxMap.end(); myItr++){
     SameBxDigisMeBarrel_ ->Fill((*myItr).second);///must be fixed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   } 
