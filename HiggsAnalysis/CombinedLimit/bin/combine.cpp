@@ -42,6 +42,7 @@
 #include "HiggsAnalysis/CombinedLimit/interface/HybridNew.h"
 #include "HiggsAnalysis/CombinedLimit/interface/BayesianFlatPrior.h"
 #include "HiggsAnalysis/CombinedLimit/interface/MarkovChainMC.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
 #include <map>
 
 using namespace std;
@@ -87,6 +88,7 @@ int main(int argc, char **argv) {
     ("seed,s", po::value<int>(&seed)->default_value(123456), "Toy MC random seed")
     ("saveToys,w", "Save results of toy MC")
     ("toysFile,f", po::value<string>(&toysFile)->default_value(""), "Toy MC input file")
+    ("igpMem", "Setup support for memory profiling using IgProf")
     ;
   desc.add(combiner.options());
   for(map<string, LimitAlgo *>::const_iterator i = methods.begin(); i != methods.end(); ++i) {
@@ -206,6 +208,8 @@ int main(int argc, char **argv) {
   mass = iMass;
   iSeed = seed;
   iChannel = 0;
+
+  if (vm.count("igpMem")) setupIgProfDumpHook();
 
   try {
      combiner.run(datacard, dataset, limit, iToy, t, runToys);
