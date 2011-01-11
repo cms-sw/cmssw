@@ -24,6 +24,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 '/store/mc/Fall10/QCD_Pt_80to120_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/FEF4D100-4CCB-DF11-94CB-00E08178C12F.root')
 )
+process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMConverter_*_*")
 #############   Calo Jets  ###########################
 process.calo = cms.EDAnalyzer("CaloJetPlotsExample",
     JetAlgorithm  = cms.string('ak5CaloJets'),
