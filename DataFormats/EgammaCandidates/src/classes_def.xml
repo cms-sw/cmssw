@@ -9,6 +9,7 @@
   <class name="reco::Photon::FiducialFlags"/>
   <class name="reco::Photon::ShowerShape"/>
   <class name="reco::Photon::IsolationVariables"/>
+  <class name="reco::Photon::PflowIsolationVariables" />
  
   <class name="std::vector<reco::PhotonCore>"/>  
   <class name="edm::RefToBase<reco::PhotonCore>" />
@@ -178,5 +179,6 @@
  
   <class name="edm::Ptr<reco::Photon>" />
   <class name="edm::PtrVector<reco::Photon>" />
+  
 </lcgdict>
 
