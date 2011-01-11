@@ -1,13 +1,12 @@
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
-#include "FWCore/PythonParameterSet/src/PythonModule.h"
 #include "FWCore/PythonParameterSet/src/PythonWrapper.h"
+#include "FWCore/PythonParameterSet/src/initializeModule.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
+
 #include <sstream>
 #include <boost/foreach.hpp>
 
 using namespace boost::python;
-
-bool PythonProcessDesc::initialized_ = false;
 
 PythonProcessDesc::PythonProcessDesc()
 :  theProcessPSet(),
@@ -44,14 +43,7 @@ PythonProcessDesc::PythonProcessDesc(std::string const& config, int argc, char *
 
 void PythonProcessDesc::prepareToRead()
 {
-  char *libFWCoreParameterSet = const_cast<char *>("libFWCoreParameterSet");
-  PyImport_AppendInittab(libFWCoreParameterSet, &initlibFWCoreParameterSet );
-  Py_Initialize();
-  if(!initialized_)
-  {
-    PyImport_ImportModule(libFWCoreParameterSet);
-    initialized_ = true;
-  }
+  edm::python::initializeModule();
 
   theMainModule = object(handle<>(borrowed(PyImport_AddModule(const_cast<char *>("__main__")))));
 

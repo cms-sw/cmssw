@@ -1,4 +1,4 @@
-<bin   name="testPythonParameterSet" file="processbuilder_t.cppunit.cpp,makeprocess_t.cppunit.cc,makepset_t.cppunit.cc">
+<bin   name="testPythonParameterSet" file="processbuilder_t.cppunit.cpp,makeprocess_t.cppunit.cc,makepset_t.cppunit.cc,readpsetsfrom_t.cppunit.cc">
   <use   name="boost"/>
   <use   name="cppunit"/>
   <use   name="FWCore/ParameterSet"/>
