@@ -32,6 +32,7 @@ PFCandidateRef mainTrack(const PFTau& tau);
 // HPStanc variables
 double JetPt(Tau tau);
 double JetEta(Tau tau);
+double AbsJetEta(Tau tau);
 double JetWidth(Tau tau);
 
 double SignalPtFraction(Tau tau);
