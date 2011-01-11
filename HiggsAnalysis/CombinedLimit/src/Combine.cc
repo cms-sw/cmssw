@@ -124,13 +124,18 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
   TString fileToLoad;
   if (hlfFile.EndsWith(".hlf")) {
     fileToLoad = (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile);
+    if (!boost::filesystem::exists(fileToLoad.Data())) throw std::invalid_argument(("File "+fileToLoad+" does not exist").Data());
   }  else {
     TString txtFile = (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile);
+    if (!boost::filesystem::exists(txtFile.Data())) throw std::invalid_argument(("Input file "+txtFile+" does not exist").Data());
     TString options = "";
     if (!withSystematics) options += " --stat ";
     if (compiledExpr_)    options += " --compiled ";
-    gSystem->Exec("python -m HiggsAnalysis.CombinedLimit.lands2hlf "+options+" '"+txtFile+"' > model.hlf"); 
+    int status = gSystem->Exec("python -m HiggsAnalysis.CombinedLimit.lands2hlf "+options+" '"+txtFile+"' > model.hlf"); 
     fileToLoad = "model.hlf";
+    if (status != 0 || !boost::filesystem::exists(fileToLoad.Data())) {
+        throw std::invalid_argument("Failed to convert the input datacard from LandS to RooStats format. The lines above probably contain more information about the error.");
+    }
   }
 
   if (getenv("CMSSW_BASE")) {
