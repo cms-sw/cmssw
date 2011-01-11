@@ -50,14 +50,14 @@ namespace mathSSE {
   template <>
   struct ArrayMask<double, 0> {
     static inline Vec2<double> value() {
-       unsigned long long v[] {0xffffffffffffffffLL,  0xffffffffffffffffLL};
+       unsigned long long v[] = {0xffffffffffffffffLL,  0xffffffffffffffffLL};
        return  *(Vec2<double>*)(v);
     }
   };
   template <>
   struct ArrayMask<double,1> {
     static inline Vec2<double> value() {
-       unsigned long long v[] {0xffffffffffffffffLL,  0x0LL};
+       unsigned long long v[] = {0xffffffffffffffffLL,  0x0LL};
        return  *(Vec2<double>*)(v);
     }
   };
