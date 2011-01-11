@@ -1,4 +1,4 @@
-#include "DQMOffline/PFTau/plugins/PFJetAnalyzer.h"
+#include "DQMOffline/PFTau/plugins/PFMETDQMAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -7,9 +7,7 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/JetCollection.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/METReco/interface/MET.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -17,7 +15,7 @@
 //
 // -- Constructor
 //
-PFJetAnalyzer::PFJetAnalyzer(const edm::ParameterSet& parameterSet)  
+PFMETDQMAnalyzer::PFMETDQMAnalyzer(const edm::ParameterSet& parameterSet)  
   
 {
   pSet_                = parameterSet;
@@ -25,46 +23,47 @@ PFJetAnalyzer::PFJetAnalyzer(const edm::ParameterSet& parameterSet)
   matchLabel_          = pSet_.getParameter<edm::InputTag>("MatchCollection");
   benchmarkLabel_      = pSet_.getParameter<std::string>("BenchmarkLabel"); 
 
-  pfJetMonitor_.setParameters(parameterSet);  
-  
+  pfMETMonitor_.setParameters(parameterSet);  
+
 }
 //
 // -- BeginJob
 //
-void PFJetAnalyzer::beginJob() {
+void PFMETDQMAnalyzer::beginJob() {
 
   Benchmark::DQM_ = edm::Service<DQMStore>().operator->();
   // part of the following could be put in the base class
   std::string path = "ParticleFlow/" + benchmarkLabel_;
   Benchmark::DQM_->setCurrentFolder(path.c_str());
   std::cout<<"Histogram Folder path set to "<< path <<std::endl;
-  pfJetMonitor_.setup(pSet_);  
+  pfMETMonitor_.setup(pSet_);  
 
 }
 //
 // -- Analyze
 //
-void PFJetAnalyzer::analyze(edm::Event const& iEvent, 
+void PFMETDQMAnalyzer::analyze(edm::Event const& iEvent, 
 				      edm::EventSetup const& iSetup) {
-  edm::Handle< edm::View<reco::Jet> > jetCollection;
-  iEvent.getByLabel(inputLabel_, jetCollection);   
+  edm::Handle< edm::View<reco::MET> > metCollection;
+  iEvent.getByLabel(inputLabel_, metCollection);   
   
-  edm::Handle< edm::View<reco::Jet> > matchedJetCollection; 
-  iEvent.getByLabel( matchLabel_, matchedJetCollection);
+  edm::Handle< edm::View<reco::MET> > matchedMetCollection; 
+  iEvent.getByLabel( matchLabel_, matchedMetCollection);
 
-  float maxRes = 0.0;
-  float minRes = 99.99;
-  if (jetCollection.isValid() && matchedJetCollection.isValid()) {
-    pfJetMonitor_.fill( *jetCollection, *matchedJetCollection, minRes, maxRes);
-    
+  if (metCollection.isValid() && matchedMetCollection.isValid()) {
+    float maxRes = 0.0;
+    float minRes = 99.99;
+    pfMETMonitor_.fillOne( (*metCollection)[0], (*matchedMetCollection)[0], minRes, maxRes);    
     edm::ParameterSet skimPS = pSet_.getParameter<edm::ParameterSet>("SkimParameter");
     if (skimPS.getParameter<bool>("switchOn")) {
       if ( minRes < skimPS.getParameter<double>("lowerCutOffOnResolution")) storeBadEvents(iEvent,minRes);
       else if (maxRes > skimPS.getParameter<double>("upperCutOffOnResolution")) storeBadEvents(iEvent,maxRes);
     }
-  }
+  } else {
+    std::cout << inputLabel_ << "  " << matchLabel_ << std::endl;
+  } 
 }
-void PFJetAnalyzer::storeBadEvents(edm::Event const& iEvent, float& val) {
+void PFMETDQMAnalyzer::storeBadEvents(edm::Event const& iEvent, float& val) {
   unsigned int runNb  = iEvent.id().run();
   unsigned int evtNb  = iEvent.id().event();
   unsigned int lumiNb = iEvent.id().luminosityBlock();
@@ -78,10 +77,11 @@ void PFJetAnalyzer::storeBadEvents(edm::Event const& iEvent, float& val) {
   else me = Benchmark::DQM_->bookFloat(eventid_str.str());
   me->Fill(val);  
 }
+
 //
 // -- EndJob
 // 
-void PFJetAnalyzer::endJob() {
+void PFMETDQMAnalyzer::endJob() {
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE (PFJetAnalyzer) ;
+DEFINE_FWK_MODULE (PFMETDQMAnalyzer) ;

@@ -1,5 +1,5 @@
-#ifndef __DQMOffline_PFTau_PFMETAnalyzer__
-#define __DQMOffline_PFTau_PFMETAnalyzer__
+#ifndef __DQMOffline_PFTau_PFMETDQMAnalyzer__
+#define __DQMOffline_PFTau_PFMETDQMAnalyzer__
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -10,10 +10,10 @@
 #include "DQMOffline/PFTau/interface/PFMETMonitor.h"
 
 
-class PFMETAnalyzer: public edm::EDAnalyzer {
+class PFMETDQMAnalyzer: public edm::EDAnalyzer {
  public:
   
-  PFMETAnalyzer(const edm::ParameterSet& parameterSet);
+  PFMETDQMAnalyzer(const edm::ParameterSet& parameterSet);
   
  private:
   void analyze(edm::Event const&, edm::EventSetup const&);

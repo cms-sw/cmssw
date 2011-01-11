@@ -1,5 +1,5 @@
-#ifndef __DQMOffline_PFTau_PFJetAnalyzer__
-#define __DQMOffline_PFTau_PFJetAnalyzer__
+#ifndef __DQMOffline_PFTau_PFJetDQMAnalyzer__
+#define __DQMOffline_PFTau_PFJetDQMAnalyzer__
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -10,10 +10,10 @@
 #include "DQMOffline/PFTau/interface/PFJetMonitor.h"
 
 
-class PFJetAnalyzer: public edm::EDAnalyzer {
+class PFJetDQMAnalyzer: public edm::EDAnalyzer {
  public:
   
-  PFJetAnalyzer(const edm::ParameterSet& parameterSet);
+  PFJetDQMAnalyzer(const edm::ParameterSet& parameterSet);
   
  private:
   void analyze(edm::Event const&, edm::EventSetup const&);
