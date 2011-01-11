@@ -764,7 +764,7 @@ bool Pythia6Hadronizer::declareSpecialSettings( const std::vector<std::string> s
 	    if ( pydat1_.mstj[38] > 0 && pydat1_.mstj[38] != pyCode )
 	    {
                throw edm::Exception(edm::errors::Configuration,"Pythia6Interface") 
-                   <<" Fatal conflict: \n mandatory internal directive to set MSTJ(39)=" << pyCode 
+                   << " Fatal conflict: \n mandatory internal directive to set MSTJ(39)=" << pyCode 
 		   << " overrides user setting MSTJ(39)=" << pydat1_.mstj[38] << " - user will not get expected behaviour \n";	       
 	    }
 	    std::ostringstream pyCard ;
