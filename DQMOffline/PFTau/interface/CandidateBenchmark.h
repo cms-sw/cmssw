@@ -4,6 +4,7 @@
 #include "DQMOffline/PFTau/interface/Benchmark.h"
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /// To plot Candidate quantities
 class CandidateBenchmark : public Benchmark {
@@ -11,11 +12,13 @@ class CandidateBenchmark : public Benchmark {
  public:
 
 
-  CandidateBenchmark(Mode mode) : Benchmark(mode) {}
+  CandidateBenchmark(Mode mode);
   virtual ~CandidateBenchmark();
 
   /// book histograms
   void setup();
+  /// book histograms
+  void setup(const edm::ParameterSet& parameterSet);
 
   template< class C>
   void fill( const C& candidates); 
@@ -33,6 +36,7 @@ class CandidateBenchmark : public Benchmark {
   ///COLIN add this histo
   TH1F*   pdgId_; 
 
+  bool histogramBooked_;
 };
 
 template< class C>
