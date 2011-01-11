@@ -344,19 +344,20 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 				
                 } else {
                                 ratioMethod_barrel_.init( *itdg, pedVec, pedRMSVec, gainRatios );
-				bool gainSwitch = ratioMethod_barrel_.fixMGPAslew(*itdg);
                                 ratioMethod_barrel_.computeTime( EBtimeFitParameters_, EBtimeFitLimits_, EBamplitudeFitParameters_ );
                                 ratioMethod_barrel_.computeAmplitude( EBamplitudeFitParameters_);
                                 EcalUncalibRecHitRatioMethodAlgo<EBDataFrame>::CalculatedRecHit crh = ratioMethod_barrel_.getCalculatedRecHit();
 				double theTimeCorrectionEB=0;
 				if(doEBtimeCorrection_) theTimeCorrectionEB = timeCorrectionEB( uncalibRecHit.amplitude() );
+				// the correction for gain switch (when the sample before is ignored in ratioAlgo) is now included in the configurable correction
+				//      bool gainSwitch = ratioMethod_barrel_.fixMGPAslew(*itdg);
+				//	if(gainSwitch){
+				//	  uncalibRecHit.setJitter( crh.timeMax - 5 - 0.04 + theTimeCorrectionEB);  // introduce additional 1ns shift
+				//	}else{
+				//	  uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEB);
+				//	}
+				uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEB);
 
-				if(gainSwitch){
-				  // introduce additional 1ns shift
-				  uncalibRecHit.setJitter( crh.timeMax - 5 - 0.04 + theTimeCorrectionEB);
-				}else{
-				  uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEB);
-				}
                                 uncalibRecHit.setJitterError( std::sqrt(std::pow(crh.timeError,2) + std::pow(EBtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
                                 uncalibRecHit.setOutOfTimeEnergy( crh.amplitudeMax );
 				// consider flagging as kOutOfTime only if above noise
