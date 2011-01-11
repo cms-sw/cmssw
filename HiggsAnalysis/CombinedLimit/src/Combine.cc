@@ -197,13 +197,16 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, in
   if (!isnan(rMin_)) w->var("r")->setMin(rMin_);
   if (!isnan(rMax_)) w->var("r")->setMax(rMax_);
 
-  if (w->pdf("prior") != 0) {
-    std::cout << "Will use prior in from the input workspace" << std::endl;
-  } else if (prior_ == "flat") {
+  if (prior_ == "flat") {
     w->factory("Uniform::prior(r)");
   } else if (prior_ == "1/sqrt(r)") {
     w->factory("EXPR::prior(\"1/sqrt(r)\",r)");
-  } 
+  } else if (!prior_.empty() && w->pdf(prior_.c_str()) != 0) {
+    std::cout << "Will use prior '" << prior_ << "' in from the input workspace" << std::endl;
+  } else {
+    std::cerr << "Unknown prior '" << prior_ << "'. It's not 'flat' '1/sqrt(r)' or the name of a pdf in the model.\n" << std::endl;
+    throw std::invalid_argument("Bad prior");
+  }
 
   if (withSystematics && nuisances == 0) {
     RooArgSet * nuisancesGuess = w->pdf("model_s")->getParameters(*observables);
