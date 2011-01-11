@@ -7,6 +7,11 @@ root outtree 0
 //root file display.root
 root file ../../Configuration/test/display.root
 
+// Warning: no cleaning of the HF is done in fast sim, due to the absence of timing simulation and to an unreliable transverse shower shape simulation in the HF. 
+//          Thus you shall switch it off in PFRootEvent also by changing the thresholds to the following values: 
+//                                                             clustering thresh_Clean_HFEM            1E5 
+//                                                             clustering thresh_Clean_HFHAD           1E5
+
 // filter ------------------------------------------------------------
 
 // filter   nparticles  1
