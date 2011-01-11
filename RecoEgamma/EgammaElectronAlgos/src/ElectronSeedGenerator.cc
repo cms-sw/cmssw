@@ -65,12 +65,20 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
    sizeWindowENeg_(pset.getParameter<double>("SizeWindowENeg")),
    deltaPhi1Low_(pset.getParameter<double>("DeltaPhi1Low")),
    deltaPhi1High_(pset.getParameter<double>("DeltaPhi1High")),
+   deltaPhi1Coef1_(0.), deltaPhi1Coef2_(0.),
    myMatchEle(0), myMatchPos(0),
    thePropagator(0),
    theMeasurementTracker(0),
    theSetup(0), pts_(0),
    cacheIDMagField_(0),/*cacheIDGeom_(0),*/cacheIDNavSchool_(0),cacheIDCkfComp_(0),cacheIDTrkGeom_(0)
  {
+  // so that deltaPhi1 = deltaPhi1Coef1_ + deltaPhi1Coef2_/clusterEnergyT
+  if (dynamicphiroad_)
+   {
+    deltaPhi1Coef2_ = (deltaPhi1Low_-deltaPhi1High_)/(1./lowPtThreshold_-1./highPtThreshold_) ;
+    deltaPhi1Coef1_ = deltaPhi1Low_ - deltaPhi1Coef2_/lowPtThreshold_ ;
+   }
+
   // use of a theMeasurementTrackerName
   if (pset.exists("measurementTrackerName"))
    { theMeasurementTrackerName = pset.getParameter<std::string>("measurementTrackerName") ; }
@@ -246,9 +254,13 @@ void ElectronSeedGenerator::seedsFromThisCluster
    {
     float clusterEnergyT = clusterEnergy / cosh( EleRelPoint(clusterPos,theBeamSpot->position()).eta() ) ;
 
-    float deltaPhi1 = 0.875/clusterEnergyT + 0.055;
-    if (clusterEnergyT < lowPtThreshold_) deltaPhi1= deltaPhi1Low_;
-    if (clusterEnergyT > highPtThreshold_) deltaPhi1= deltaPhi1High_;
+    float deltaPhi1 ;
+    if (clusterEnergyT < lowPtThreshold_)
+     { deltaPhi1= deltaPhi1Low_ ; }
+    else if (clusterEnergyT > highPtThreshold_)
+     { deltaPhi1= deltaPhi1High_ ; }
+    else
+     { deltaPhi1 = deltaPhi1Coef1_ + deltaPhi1Coef2_/clusterEnergyT ; }
 
     float ephimin1 = -deltaPhi1*sizeWindowENeg_ ;
     float ephimax1 =  deltaPhi1*(1.-sizeWindowENeg_);

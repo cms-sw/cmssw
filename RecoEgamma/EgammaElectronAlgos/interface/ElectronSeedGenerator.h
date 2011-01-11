@@ -90,6 +90,10 @@ class ElectronSeedGenerator
   float deltaPhi2B_;
   float deltaPhi2F_;
 
+  // so that deltaPhi1 = deltaPhi1Coef1_ + deltaPhi1Coef2_/clusterEnergyT
+  double deltaPhi1Coef1_ ;
+  double deltaPhi1Coef2_ ;
+
   PixelHitMatcher *myMatchEle;
   PixelHitMatcher *myMatchPos;
 
