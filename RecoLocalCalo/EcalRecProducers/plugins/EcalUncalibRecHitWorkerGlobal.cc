@@ -122,7 +122,7 @@ double EcalUncalibRecHitWorkerGlobal::timeCorrectionEB(float ampliEB){
     {
       theCorrection = EBtimeCorrShiftBins_.at( myBin );      
     }    
-  else if  ( -1 < myBin   &&   myBin <  ((int)EBtimeCorrAmplitudeBins_.size()) )
+  else if  ( -1 < myBin   &&   myBin <  ((int)EBtimeCorrAmplitudeBins_.size()-1) )
     {
       // interpolate linearly between two assingned points
       theCorrection  = ( EBtimeCorrShiftBins_.at(myBin+1) - EBtimeCorrShiftBins_.at(myBin) );
@@ -159,7 +159,7 @@ double EcalUncalibRecHitWorkerGlobal::timeCorrectionEE(float ampliEE){
     {
       theCorrection = EEtimeCorrShiftBins_.at( myBin );      
     }    
-  else if  ( -1 < myBin   &&   myBin <  ((int)EEtimeCorrAmplitudeBins_.size()) )
+  else if  ( -1 < myBin   &&   myBin <  ((int)EEtimeCorrAmplitudeBins_.size()-1) )
     {
       // interpolate linearly between two assingned points
       theCorrection  = ( EEtimeCorrShiftBins_.at(myBin+1) - EEtimeCorrShiftBins_.at(myBin) );
