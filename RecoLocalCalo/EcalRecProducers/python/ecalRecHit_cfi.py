@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoLocalCalo.EcalRecAlgos.ecalCleaningAlgo import cleaningAlgoConfig 
+
 # rechit producer
 ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     EErechitCollection = cms.string('EcalRecHitsEE'),
@@ -45,5 +47,6 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     eeFEToBeRecovered = cms.InputTag("ecalDetIdToBeRecovered:eeFE"),
     singleChannelRecoveryMethod = cms.string("NeuralNetworks"),
     singleChannelRecoveryThreshold = cms.double(8),
-    triggerPrimitiveDigiCollection = cms.InputTag("ecalDigis:EcalTriggerPrimitives")
+    triggerPrimitiveDigiCollection = cms.InputTag("ecalDigis:EcalTriggerPrimitives"),
+    cleaningConfig=cleaningAlgoConfig,
 )
