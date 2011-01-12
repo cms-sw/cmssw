@@ -107,30 +107,30 @@ EcalRecHit ESRecHitFitAlgo::reconstruct(const ESDataFrame& digi) const {
   EcalRecHit rechit(digi.id(), energy, t0);
 
   if (it_status->getStatusCode() == 1) {
-      rechit.setRecoFlag(EcalRecHit::kESDead);
+      rechit.setFlag(EcalRecHit::kESDead);
   } else {
     if (status == 0) 
-      rechit.setRecoFlag(EcalRecHit::kESGood);
+      rechit.setFlag(EcalRecHit::kESGood);
     else if (status == 5) 
-      rechit.setRecoFlag(EcalRecHit::kESBadRatioFor12);
+      rechit.setFlag(EcalRecHit::kESBadRatioFor12);
     else if (status == 6) 
-      rechit.setRecoFlag(EcalRecHit::kESBadRatioFor23Upper);
+      rechit.setFlag(EcalRecHit::kESBadRatioFor23Upper);
     else if (status == 7) 
-      rechit.setRecoFlag(EcalRecHit::kESBadRatioFor23Lower);
+      rechit.setFlag(EcalRecHit::kESBadRatioFor23Lower);
     else if (status == 8) 
-      rechit.setRecoFlag(EcalRecHit::kESTS1Largest);
+      rechit.setFlag(EcalRecHit::kESTS1Largest);
     else if (status == 9) 
-      rechit.setRecoFlag(EcalRecHit::kESTS3Largest);
+      rechit.setFlag(EcalRecHit::kESTS3Largest);
     else if (status == 10) 
-      rechit.setRecoFlag(EcalRecHit::kESTS3Negative);
+      rechit.setFlag(EcalRecHit::kESTS3Negative);
     else if (status == 11) 
-      rechit.setRecoFlag(EcalRecHit::kESSaturated);
+      rechit.setFlag(EcalRecHit::kESSaturated);
     else if (status == 12) 
-      rechit.setRecoFlag(EcalRecHit::kESTS2Saturated);
+      rechit.setFlag(EcalRecHit::kESTS2Saturated);
     else if (status == 13) 
-      rechit.setRecoFlag(EcalRecHit::kESTS3Saturated);
+      rechit.setFlag(EcalRecHit::kESTS3Saturated);
     else if (status == 14) 
-      rechit.setRecoFlag(EcalRecHit::kESTS13Sigmas);
+      rechit.setFlag(EcalRecHit::kESTS13Sigmas);
   }
 
   return rechit;

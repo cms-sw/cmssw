@@ -1,0 +1,7 @@
+<export>
+</export>
+<library   name="RecoLocalCalo_EcalRecAlgos_plugins" file="*.cc">
+   <use   name="RecoLocalCalo/EcalRecAlgos"/>
+   <use   name="FWCore/ParameterSet"/>
+   <use   name="FWCore/ServiceRegistry"/>
+</library>

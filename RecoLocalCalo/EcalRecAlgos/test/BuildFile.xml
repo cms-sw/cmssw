@@ -1,0 +1,7 @@
+<bin   name="testEcalSeverity" file="testRunner.cpp,testEcalSeverityLevelAlgo.cppunit.cc">
+ 
+  <use   name="DataFormats/EcalRecHit"/>
+  <use   name="cppunit"/>
+  <use   name="RecoLocalCalo/EcalRecAlgos"/>
+
+</bin>
