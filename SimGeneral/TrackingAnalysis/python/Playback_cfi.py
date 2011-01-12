@@ -4,6 +4,6 @@ from Configuration.StandardSequences.Services_cff import *
 del RandomNumberGeneratorService.generator
 RandomNumberGeneratorService.restoreStateLabel = cms.untracked.string('randomEngineStateProducer')
 # from SimGeneral.MixingModule.mixNoPU_cfi import *
-from Configuration.StandardSequences.Mixing156BxLumiPileUp_cff import *
+from SimGeneral.MixingModule.StageA156Bx_cfi import *
 mix.playback = cms.untracked.bool(True)
 

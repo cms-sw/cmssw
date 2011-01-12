@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff import *
 from Configuration.StandardSequences.Simulation_cff import *
-from Configuration.StandardSequences.MixingNoPileUp_cff import *
+from SimGeneral.MixingModule.mixNoPU_cfi import *
 from Configuration.StandardSequences.Reconstruction_cff import *
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 GlobalTag.globaltag = 'MC_31X_V3::All'
