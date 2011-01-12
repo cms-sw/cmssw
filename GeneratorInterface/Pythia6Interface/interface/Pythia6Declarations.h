@@ -26,7 +26,7 @@ extern "C"
    void   txgive_(const char*, int );
    void   txgive_init_(void);
 
-   static bool call_pygive(const std::string &line)
+   inline bool call_pygive(const std::string &line)
    {
       int numWarn = pydat1.mstu[26];	// # warnings
       int numErr = pydat1.mstu[22];	// # errors

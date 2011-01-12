@@ -82,7 +82,7 @@ class Pythia6ServiceWithCallback : public Pythia6Service {
     }
 };
 
-struct {
+static struct {
 	int n, npad, k[5][pyjets_maxn];
 	double p[5][pyjets_maxn], v[5][pyjets_maxn];
 } pyjets_local;
