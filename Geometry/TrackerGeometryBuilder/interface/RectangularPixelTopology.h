@@ -110,16 +110,16 @@ public:
 
 
   // Transform measurement to local coordinates individually in each dimension
-  float localX(const float mpX) const;
-  float localY(const float mpY) const;
+  virtual float localX(const float mpX) const;
+  virtual float localY(const float mpY) const;
 
   //-------------------------------------------------------------
   // Return the BIG pixel information for a given pixel
   //
-  inline static bool isItBigPixelInX(const int ixbin) {
+  virtual bool isItBigPixelInX(const int ixbin) const {
     return ( (ixbin == 79) || (ixbin == 80));
   } 
-  inline static bool isItBigPixelInY(const int iybin) {
+  virtual bool isItBigPixelInY(const int iybin) const {
     int iybin0 = iybin%52;
     return ( (iybin0 == 0) || (iybin0 == 51));
   } 
