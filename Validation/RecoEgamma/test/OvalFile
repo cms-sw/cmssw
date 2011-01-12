@@ -150,7 +150,7 @@ This set of targets is currently used for the validation of electrons.
     <executable name="electronDbsDiscovery.py">
     <executable name="cmsRun" args="${VAL_CONFIGURATION}">
     <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
-    <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
+    <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE} Old_RelValSingleElectronPt35_Mc">
   </environment>
   
 </environment>
@@ -224,18 +224,18 @@ FastSim
   
     <environment name="FastVsFastTTbar">
       <var name="DBS_SAMPLE" value="RelValTTbar">
-      <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
+      <executable name="electronValidation.csh" args="electronHistos.FastTTbar.root">
     </environment>
     
     <environment name="FastVsFastZEEIdeal">
       <var name="DBS_SAMPLE" value="RelValZEE">
-      <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
+      <executable name="electronValidation.csh" args="electronHistos.FastZEEIdeal.root">
     </environment>
     
     <environment name="FastVsFastZEEStartup">
       <var name="DBS_SAMPLE" value="RelValZEE">
       <var name="DBS_COND" value="${TEST_GLOBAL_STARTUP_TAG}*FastSim*-${TEST_GLOBAL_VERSION}">
-      <executable name="electronValidation.csh" args="${TEST_OUTPUT_FILE}">
+      <executable name="electronValidation.csh" args="electronHistos.FastZEEStartup.root">
     </environment>
         
   </environment>
