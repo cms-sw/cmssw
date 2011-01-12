@@ -182,7 +182,7 @@ PhysicsTowerOrganizer::PhysicsTowerOrganizer(const edm::Event& iEvent,
     if(!objectvalidator.validTrack(*track)) continue;
     
     // need a valid extrapolation point
-    if(extrap->positions().size()<=0) continue;
+    if(extrap->positions().size()<=0 || !(extrap->isValid().front())) continue;
     
     // get the point
     const GlobalPoint point(extrap->positions().front().x(),
