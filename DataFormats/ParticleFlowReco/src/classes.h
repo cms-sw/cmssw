@@ -30,6 +30,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"  //Daniele
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementBrem.h"  //Daniele
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h" //Florian
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedTrackerVertex.h"
@@ -202,5 +203,11 @@ namespace {
     edm::Wrapper<std::vector<reco::PreId> > dummy83;
     edm::Wrapper<edm::ValueMap<reco::PreIdRef> > dummy84;
     edm::Ref<std::vector<reco::PreId>,reco::PreId,edm::refhelper::FindUsingAdvance<std::vector<reco::PreId>,reco::PreId> > dummy86;
+
+
+    /* PFBlockElementSuperCluster */
+    reco::PFBlockElementSuperCluster dummy333;
+    std::vector<reco::PFBlockElementSuperCluster> dummy334;
+    edm::Wrapper<std::vector<reco::PFBlockElementSuperCluster> > dummy335;
   };
 }

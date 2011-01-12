@@ -201,6 +201,10 @@
   <class name="edm::Wrapper<edm::ValueMap<reco::PreIdRef> >"/>
   <class name="edm::Ref<std::vector<reco::PreId>,reco::PreId,edm::refhelper::FindUsingAdvance<std::vector<reco::PreId>,reco::PreId> >" />
 
+  <class name="reco::PFBlockElementSuperCluster"/>
+  <class name="std::vector<reco::PFBlockElementSuperCluster>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFBlockElementSuperCluster> >"/>
+
 </selection>
 <exclusion>
   <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >">
