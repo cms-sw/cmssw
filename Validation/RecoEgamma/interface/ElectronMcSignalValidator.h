@@ -25,8 +25,11 @@ class ElectronMcSignalValidator : public ElectronValidator
 
   private:
 
+    edm::InputTag mcTruthCollection_;
     edm::InputTag electronCollection_;
-    edm::InputTag  mcTruthCollection_;
+    edm::InputTag electronCoreCollection_;
+    edm::InputTag electronTrackCollection_;
+    edm::InputTag electronSeedCollection_;
     edm::InputTag beamSpotTag_ ;
     bool readAOD_;
     std::string outputFile_ ;
@@ -68,6 +71,11 @@ class ElectronMcSignalValidator : public ElectronValidator
     MonitorElement *h1_mcNum;
     MonitorElement *h1_eleNum;
     MonitorElement *h1_gamNum;
+
+    MonitorElement *h1_recEleNum_ ;
+    MonitorElement *h1_recCoreNum_ ;
+    MonitorElement *h1_recTrackNum_ ;
+    MonitorElement *h1_recSeedNum_ ;
 
     MonitorElement *h1_simEta;
     MonitorElement *h1_simAbsEta;
@@ -156,8 +164,6 @@ class ElectronMcSignalValidator : public ElectronValidator
     MonitorElement *h2_ele_vertexTIPVsEta;
     MonitorElement *h2_ele_vertexTIPVsPhi;
     MonitorElement *h2_ele_vertexTIPVsPt;
-
-    MonitorElement *h1_recEleNum_;
 
     MonitorElement *h1_scl_En_ ;
     MonitorElement *h1_scl_EoEtrue_barrel;

@@ -10,7 +10,7 @@
 # If you prefer to set the variables and run this script directly,
 # here they are :
 #
-#   $1 : when present, its valeu is duplicated into STORE_FILE.
+#   $1 : when present, its value is duplicated into STORE_FILE.
 #   $... : when present, other arguments are duplicated into STORE_LOGS.
 #
 # Mandatory variables :
@@ -78,6 +78,10 @@ else
   exit 4
 endif
   
+if ( "${STORE_LOGS}" != "" ) then
+  echo "STORE_LOGS = ${STORE_LOGS}"
+endif
+  
 
 #============== Copy ==================
 
@@ -87,6 +91,7 @@ cp -f $STORE_FILE $OUTPUT_DIR
 if ( "${STORE_LOGS}" != "" ) then
   echo cp ${STORE_LOGS} $OUTPUT_DIR
   cp -f ${STORE_LOGS} $OUTPUT_DIR
-  gzip -f $OUTPUT_DIR/*.olog
+  echo "cd $OUTPUT_DIR && gzip -f *.olog"
+  cd $OUTPUT_DIR && gzip -f *.olog
 endif
 

@@ -26,6 +26,9 @@ class ElectronMcFakeValidator : public ElectronValidator
   private:
 
     edm::InputTag electronCollection_;
+    edm::InputTag electronCoreCollection_;
+    edm::InputTag electronTrackCollection_;
+    edm::InputTag electronSeedCollection_;
     edm::InputTag  matchingObjectCollection_;
     edm::InputTag beamSpotTag_;
     bool readAOD_;
@@ -64,7 +67,10 @@ class ElectronMcFakeValidator : public ElectronValidator
     // histos
 
     MonitorElement *h1_matchingObjectNum ;
-    MonitorElement *h1_recEleNum_;
+    MonitorElement *h1_recEleNum_ ;
+    MonitorElement *h1_recCoreNum_ ;
+    MonitorElement *h1_recTrackNum_ ;
+    MonitorElement *h1_recSeedNum_ ;
 
     MonitorElement *h1_matchingObjectEta;
     MonitorElement *h1_matchingObjectAbsEta;

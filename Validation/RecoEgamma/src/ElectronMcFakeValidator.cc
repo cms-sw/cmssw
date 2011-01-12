@@ -45,6 +45,9 @@ ElectronMcFakeValidator::ElectronMcFakeValidator( const edm::ParameterSet & conf
  {
   outputFile_ = conf.getParameter<std::string>("outputFile");
   electronCollection_ = conf.getParameter<edm::InputTag>("electronCollection");
+  electronCoreCollection_ = conf.getParameter<edm::InputTag>("electronCoreCollection");
+  electronTrackCollection_ = conf.getParameter<edm::InputTag>("electronTrackCollection");
+  electronSeedCollection_ = conf.getParameter<edm::InputTag>("electronSeedCollection");
   matchingObjectCollection_ = conf.getParameter<edm::InputTag>("matchingObjectCollection");
   beamSpotTag_ = conf.getParameter<edm::InputTag>("beamSpot");
   readAOD_ = conf.getParameter<bool>("readAOD");
@@ -135,8 +138,11 @@ void ElectronMcFakeValidator::beginJob()
   std::string htitle = "# "+matchingObjectType+"s", xtitle = "N_{"+matchingObjectType+"}" ;
   h1_matchingObjectNum = bookH1withSumw2("h_matchingObjectNum",htitle,fhits_nbin,0.,fhits_max,xtitle) ;
 
-  // rec event
-  h1_recEleNum_= bookH1("h_recEleNum","# rec electrons",20, 0.,20.,"N_{ele}");
+  // rec event collections sizes
+  h1_recEleNum_= bookH1("h_recEleNum","# rec electrons",11, -0.5,10.5,"N_{ele}");
+  h1_recCoreNum_= bookH1("h_recCoreNum","# rec electrons",21, -0.5,20.5,"N_{core}");
+  h1_recTrackNum_= bookH1("h_recTrackNum","# rec electrons",41, -0.5,40.5,"N_{track}");
+  h1_recSeedNum_= bookH1("h_recSeedNum","# rec electrons",101, -0.5,100.5,"N_{seed}");
 
   // mc
   h1_matchingObjectEta = bookH1withSumw2("h_matchingObject_eta",matchingObjectType+" #eta",eta_nbin,eta_min,eta_max,"#eta");
@@ -456,9 +462,12 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
   // get reco electrons
   edm::Handle<reco::GsfElectronCollection> gsfElectrons;
   iEvent.getByLabel(electronCollection_,gsfElectrons);
-  edm::LogInfo("ElectronMcFakeValidator::analyze")
-    <<"Treating event "<<iEvent.id()
-    <<" with "<<gsfElectrons.product()->size()<<" electrons" ;
+  edm::Handle<GsfElectronCoreCollection> gsfElectronCores ;
+  iEvent.getByLabel(electronCoreCollection_,gsfElectronCores) ;
+  edm::Handle<GsfTrackCollection> gsfElectronTracks ;
+  iEvent.getByLabel(electronTrackCollection_,gsfElectronTracks) ;
+  edm::Handle<ElectronSeedCollection> gsfElectronSeeds ;
+  iEvent.getByLabel(electronSeedCollection_,gsfElectronSeeds) ;
 
   // get gen jets
   edm::Handle<reco::GenJetCollection> genJets ;
@@ -469,7 +478,13 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
   iEvent.getByLabel(beamSpotTag_,recoBeamSpotHandle);
   const BeamSpot bs = *recoBeamSpotHandle;
 
+  edm::LogInfo("ElectronMcFakeValidator::analyze")
+    <<"Treating event "<<iEvent.id()
+    <<" with "<<gsfElectrons.product()->size()<<" electrons" ;
   h1_recEleNum_->Fill((*gsfElectrons).size());
+  h1_recCoreNum_->Fill((*gsfElectronCores).size());
+  h1_recTrackNum_->Fill((*gsfElectronTracks).size());
+  h1_recSeedNum_->Fill((*gsfElectronSeeds).size());
 
   // all rec electrons
   reco::GsfElectronCollection::const_iterator gsfIter ;
@@ -518,8 +533,10 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
      }
 
     // conversion rejection
-    h1_ele_convFlags_all->Fill( gsfIter->convFlags() );
-    if (gsfIter->convFlags()>=0.)
+    int flags = gsfIter->convFlags() ;
+    if (flags==-9999) { flags=-1 ; }
+    h1_ele_convFlags_all->Fill(flags);
+    if (flags>=0.)
      {
       h1_ele_convDist_all->Fill( gsfIter->convDist() );
       h1_ele_convDcot_all->Fill( gsfIter->convDcot() );
@@ -878,8 +895,10 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
       h1_ele_hcalTowerSumEt_dr04_depth2->Fill(bestGsfElectron.dr04HcalDepth2TowerSumEt());
 
       // conversion rejection
-      h1_ele_convFlags->Fill( bestGsfElectron.convFlags() );
-      if (bestGsfElectron.convFlags()>=0.)
+      int flags = bestGsfElectron.convFlags() ;
+      if (flags==-9999) { flags=-1 ; }
+      h1_ele_convFlags->Fill(flags);
+      if (flags>=0.)
        {
         h1_ele_convDist->Fill( bestGsfElectron.convDist() );
         h1_ele_convDcot->Fill( bestGsfElectron.convDcot() );

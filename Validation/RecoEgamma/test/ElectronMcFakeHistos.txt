@@ -1,4 +1,11 @@
 
+Collections sizes
+
+ElectronMcFakeValidator/h_recEleNum 1 0 1 0 0 0 1 0
+ElectronMcFakeValidator/h_recCoreNum 1 0 1 0 0 0 1 0
+ElectronMcFakeValidator/h_recTrackNum 1 0 1 0 0 0 1 0
+ElectronMcFakeValidator/h_recSeedNum 1 0 1 0 0 0 1 1
+
 Basic electron quantities
 
 ElectronMcFakeValidator/h_ele_charge 1 0 1 0 0 0 1 0
@@ -110,7 +117,6 @@ ElectronMcFakeValidator/h_ele_hcalTowerSumEt_dr04_depth2	1 1 1 0 0 0 1 1
 
 Distributions for all reconstructed electrons (i.e. not requiring a match with a reco jet)
 
-ElectronMcFakeValidator/h_recEleNum 1 0 1 0 0 0 1 0
 ElectronMcFakeValidator/h_ele_EoverP_all 1 1 1 0 0 0 1 0
 ElectronMcFakeValidator/h_ele_EseedOP_all 1 1 1 0 0 0 1 0
 ElectronMcFakeValidator/h_ele_EoPout_all 1 1 1 0 0 0 1 0

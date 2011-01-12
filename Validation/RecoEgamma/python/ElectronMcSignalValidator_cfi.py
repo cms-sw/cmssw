@@ -20,8 +20,11 @@ electronMcSignalHistosCfg = cms.PSet(
 )
 
 electronMcSignalValidator = cms.EDAnalyzer("ElectronMcSignalValidator",
-  electronCollection = cms.InputTag("gsfElectrons"),
   mcTruthCollection = cms.InputTag("genParticles"),
+  electronCollection = cms.InputTag("gsfElectrons"),
+  electronCoreCollection = cms.InputTag("gsfElectronCores"),
+  electronTrackCollection = cms.InputTag("electronGsfTracks"),
+  electronSeedCollection = cms.InputTag("electronMergedSeeds"),
   beamSpot = cms.InputTag("offlineBeamSpot"),
   readAOD = cms.bool(False),
   outputFile = cms.string(""),
