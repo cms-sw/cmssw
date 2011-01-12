@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.VtxSmearedRealistic7TeVCollision_cff import *
+from IOMC.EventVertexGenerators.VtxSmearedRealistic7TeVCollision_cfi import *
 
 # update source label for vertex smearing:
 VtxSmeared.src = cms.InputTag("generatorNeutrons")

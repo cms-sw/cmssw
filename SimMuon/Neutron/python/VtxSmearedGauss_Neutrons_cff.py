@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.VtxSmearedGauss_cff import *
+from IOMC.EventVertexGenerators.VtxSmearedGauss_cfi import *
 
 # update source label for vertex smearing:
 VtxSmeared.src = cms.InputTag("generatorNeutrons")
