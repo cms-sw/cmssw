@@ -7,6 +7,7 @@ from Validation.CaloTowers.CaloTowersPostProcessor_cff import *
 from Validation.HcalRecHits.hcalRecHitsPostProcessor_cff import *
 from Validation.EventGenerator.PostProcessor_cff import *
 from Validation.RecoEgamma.photonPostProcessor_cff import *
+from Validation.RecoParticleFlow.PFValidationClient_cff import *
 
 postValidation = cms.Sequence(
       recoMuonPostProcessors
@@ -15,6 +16,7 @@ postValidation = cms.Sequence(
     + calotowersPostProcessor
     + hcalrechitsPostProcessor
     + photonPostProcessor    
+    + pfJetClient + pfMETClient
 )
 
 postValidation_preprod = cms.Sequence(
