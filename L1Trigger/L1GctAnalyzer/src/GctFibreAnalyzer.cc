@@ -11,7 +11,7 @@ Description: Analyzer individual fibre channels from the source card.
 //
 // Original Author:  Alex Tapper
 //         Created:  Thu Jul 12 14:21:06 CEST 2007
-// $Id: GctFibreAnalyzer.cc,v 1.14 2008/06/24 22:53:45 jad Exp $
+// $Id: GctFibreAnalyzer.cc,v 1.15 2010/07/19 12:48:16 tapper Exp $
 //
 //
 
@@ -240,7 +240,7 @@ void GctFibreAnalyzer::CheckLogicalID(const L1GctFibreWord fibre)
           //in this case fibre.index() runs from 0-5
           //JF1 comes first, followed by JF2 and JF3
 	
-          if(fibre.index() >=0 && fibre.index() <=5 )	//the compiler warning is because fibre.index() is unsigned int and hence is always >=0
+          if(fibre.index() <=5 )	//the compiler warning is because fibre.index() is unsigned int and hence is always >=0
             {
               rct_phi_region = ( (8 + ((leaf_phi_region%3)*3) + (fibre.index() / 2) ) % 9);
               //fibre.index()/2 will give 0 for 0,1 1 for 2,3 and 2 for 4,5
@@ -281,7 +281,7 @@ void GctFibreAnalyzer::CheckLogicalID(const L1GctFibreWord fibre)
 
       if(jf_type >=0) 
         {
-          if(fibre.index() >=0 && fibre.index() <=7 )
+          if(fibre.index() <=7 )
             {
               rct_phi_region = ( (8 + ((leaf_phi_region%3)*3) + jf_type ) % 9);		//see table below
 
