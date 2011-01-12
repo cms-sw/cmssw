@@ -103,7 +103,6 @@ class HybridClusterAlgo
   // severity levels to discriminate against
   std::vector<int> v_severitylevel_;
   float severityRecHitThreshold_;
-  EcalSeverityLevelAlgo::SpikeId spId_;
   float severitySpikeThreshold_;
 
   bool excludeFromCluster_;
