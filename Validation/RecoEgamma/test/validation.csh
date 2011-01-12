@@ -60,7 +60,7 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #setenv SAMPLE SingleGammaPt10IDEAL
 #setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
-#setenv SAMPLE H130GGgluonfusionSTARTUP
+setenv SAMPLE H130GGgluonfusionSTARTUP
 #setenv SAMPLE PhotonJets_Pt_10STARTUP
 #setenv SAMPLE GammaJets_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_80_120STARTUP
@@ -243,20 +243,6 @@ cat > scaledhistosForPhotons <<EOF
   eResconvAll
   eResconvBarrel
   eResconvEndcap
-  r9All
-  r9Barrel
-  r9Endcap
-  r1All
-  r1Barrel
-  r1Endcap
-  r2All
-  r2Barrel
-  r2Endcap
-  sigmaIetaIetaAll
-  sigmaIetaIetaBarrel
-  sigmaIetaIetaEndcap
-  ecalRecHitSumEtConeDR04Barrel
-  ecalRecHitSumEtConeDR04Endcap
   isoTrkSolidConeDR04All
   isoTrkSolidConeDR04Barrel
   isoTrkSolidConeDR04Endcap
@@ -274,6 +260,20 @@ cat > scaledhistosForPhotonsLogScale <<EOF
   hOverEEndcap
   hcalTowerSumEtConeDR04Barrel
   hcalTowerSumEtConeDR04Endcap
+  r9All
+  r9Barrel
+  r9Endcap
+  r1All
+  r1Barrel
+  r1Endcap
+  r2All
+  r2Barrel
+  r2Endcap
+  sigmaIetaIetaAll
+  sigmaIetaIetaBarrel
+  sigmaIetaIetaEndcap
+  ecalRecHitSumEtConeDR04Barrel
+  ecalRecHitSumEtConeDR04Endcap
 
 
 

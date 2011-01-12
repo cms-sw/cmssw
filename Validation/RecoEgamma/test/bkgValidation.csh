@@ -157,16 +157,6 @@ cat > scaledhistosForBkg <<EOF
   phoBkgEtAll
   phoBkgDEta
   phoBkgDPhi
-  r9BkgBarrel
-  r9BkgEndcap
-  r1BkgBarrel
-  r1BkgEndcap
-  r2BkgBarrel
-  r2BkgEndcap
-  sigmaIetaIetaBkgBarrel
-  sigmaIetaIetaBkgEndcap
-  ecalRecHitSumEtConeDR04BkgBarrel
-  ecalRecHitSumEtConeDR04BkgEndcap
   isoTrkSolidConeDR04BkgBarrel
   isoTrkSolidConeDR04BkgEndcap
   nTrkSolidConeDR04BkgBarrel
@@ -193,10 +183,20 @@ cat > scaledhistosForBkgLogScale <<EOF
   hOverEBkgEndcap
   hcalTowerSumEtConeDR04BkgBarrel
   hcalTowerSumEtConeDR04BkgEndcap
-
   EoverPtracksBkgAll
   EoverPtracksBkgBarrel 
   EoverPtracksBkgEndcap
+  r9BkgBarrel
+  r9BkgEndcap
+  r1BkgBarrel
+  r1BkgEndcap
+  r2BkgBarrel
+  r2BkgEndcap
+  sigmaIetaIetaBkgBarrel
+  sigmaIetaIetaBkgEndcap
+  ecalRecHitSumEtConeDR04BkgBarrel
+  ecalRecHitSumEtConeDR04BkgEndcap
+
 
 EOF
 
