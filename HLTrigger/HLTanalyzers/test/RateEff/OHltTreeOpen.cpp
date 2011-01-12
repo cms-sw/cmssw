@@ -32,7 +32,6 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
     } 
   } 
-
   
   //////////////////////////////////////////////////////////////////
   // Example for pass through triggers, e.g. to be used for L1 seed rates ...
@@ -4522,20 +4521,15 @@ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet10") == 0) {
       }
     } 
   }
-  else {
-    if(nMissingTriggerWarnings < 10)
-      cout << "Warning: the requested trigger " << menu->GetTriggerName(it) << " is not implemented in OHltTreeOpen. No rate will be calculated." << endl;
-    nMissingTriggerWarnings++;
-  }
-
- // Photon Paths (V. Rekovic)
-
+  else if(menu->GetTriggerName(it).BeginsWith("OpenHLT_Photon26")==1) {
+    // Photon Paths (V. Rekovic)
+    
     int lowerEt = 18;
     int upperEt = 26;
-
+    
     // Names of Photon Paths With Mass Cut
     // -------------------------------------
-
+    
     // No isol
     char pathNamePhotonPhoton[100];
     sprintf(pathNamePhotonPhoton,"OpenHLT_Photon%d_Photon%d_L1R",upperEt,lowerEt);
@@ -4563,11 +4557,11 @@ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet10") == 0) {
     // Both legs Isol + CaloId
     char pathNamePhotonIsolCaloIdPhotonIsolCaloId[100];
     sprintf(pathNamePhotonIsolCaloIdPhotonIsolCaloId,"OpenHLT_Photon%d_Isol_CaloId_Photon%d_Isol_CaloId_L1R",upperEt,lowerEt);
-  
-
+    
+    
     // Names of Photon Paths With Mass Cut
     // -----------------------------------
-
+    
     // One leg Isol + Mass>60
     char pathNamePhotonIsolPhotonMass60[100];
     sprintf(pathNamePhotonIsolPhotonMass60,"OpenHLT_Photon%d_Isol_Photon%d_Mass60_L1R",upperEt,lowerEt);
@@ -4814,12 +4808,12 @@ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet10") == 0) {
        }      
       }      
     } 
-
-    //  else {
-    //    if(nMissingTriggerWarnings < 10)
-    //      cout << "Warning: the requested trigger " << menu->GetTriggerName(it) << " is not implemented in OHltTreeOpen. No rate will be calculated." << endl;
-    //    nMissingTriggerWarnings++;
-    //  }
+  }
+  else {
+    if(nMissingTriggerWarnings < 10)
+      cout << "Warning: the requested trigger " << menu->GetTriggerName(it) << " is not implemented in OHltTreeOpen. No rate will be calculated." << endl;
+    nMissingTriggerWarnings++;
+  }
 }
     
 void OHltTree::PrintOhltVariables(int level, int type)

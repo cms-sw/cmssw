@@ -7185,6 +7185,7 @@ void OHltTree::SetOpenL1Bits()
   map_BitOfStandardHLTPath["OpenL1_Mu3EG5"] = OpenL1_Mu3EG5;
   map_BitOfStandardHLTPath["OpenL1_EG5_HTT100"] = OpenL1_EG5_HTT100;
   map_BitOfStandardHLTPath["OpenL1_SingleMu30"] = OpenL1_SingleMu30;   
+  map_BitOfStandardHLTPath["OpenL1_DoubleEG10"] = OpenL1_DoubleEG10;    
   map_BitOfStandardHLTPath["OpenL1_SingleJet20_FwdVeto"] = OpenL1_SingleJet20_FwdVeto;
   map_BitOfStandardHLTPath["OpenL1_DoubleEG2_FwdVeto"] = OpenL1_DoubleEG2_FwdVeto;
 
