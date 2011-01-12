@@ -185,7 +185,7 @@ int main(int argc, char **argv) {
   RooRandom::randomGenerator()->SetSeed(seed); 
 
   TString massName = TString::Format("mH%d.", iMass);
-  TString toyName  = "";  if (runToys >  0) toyName  = TString::Format("%d.", seed);
+  TString toyName  = "";  if (runToys > 0 || vm.count("saveToys")) toyName  = TString::Format("%d.", seed);
   TString fileName = "higgsCombine" + name + "."+whichMethod+"."+massName+toyName+"root";
   TFile *test = new TFile(fileName, "RECREATE");
   TTree *t = new TTree("test", "test");
@@ -202,7 +202,7 @@ int main(int argc, char **argv) {
   
   //if (vm.count("saveToys")) writeToysHere = new RooWorkspace("toys","toys"); 
   if (vm.count("saveToys")) writeToysHere = test->mkdir("toys","toys"); 
-  if (toysFile != "")       readToysFromHere = TFile::Open(TString(toysFile.c_str()));
+  if (toysFile != "")       readToysFromHere = TFile::Open(toysFile.c_str());
   
   syst = withSystematics;
   mass = iMass;

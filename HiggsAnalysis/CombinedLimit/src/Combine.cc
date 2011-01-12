@@ -53,7 +53,6 @@ LimitAlgo * algo, * hintAlgo;
 
 Float_t t_cpu_, t_real_;
 TDirectory *writeToysHere = 0;
-TDirectory *sprnwriteToysHere = 0;
 TDirectory *readToysFromHere = 0;
 int  verbose = 1;
 bool withSystematics = 1;
