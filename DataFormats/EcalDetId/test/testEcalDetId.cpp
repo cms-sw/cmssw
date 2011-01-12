@@ -2,12 +2,12 @@
    \file
    Test suit for EcalDetId
 
-   \version $Id: testEcalDetId.cpp,v 1.14 2008/01/31 10:39:44 muzaffar Exp $
+   \version $Id: testEcalDetId.cpp,v 1.15 2008/06/25 22:11:15 heltsley Exp $
 
    \note This test is not exaustive     
 */
 
-static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.14 2008/01/31 10:39:44 muzaffar Exp $";
+static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.15 2008/06/25 22:11:15 heltsley Exp $";
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -177,9 +177,10 @@ void testEcalDetId::testEEDetId(){
     CPPUNIT_ASSERT(EEDetId(detIds[i]).hashedIndex()==i);
     CPPUNIT_ASSERT(EEDetId::unhashIndex(i)==detIds[i]);
   }
+  CPPUNIT_ASSERT(holes==0);
   //FIXME hope a better test...
-  CPPUNIT_ASSERT(holes>EEDetId::kSizeForDenseIndexing/100);
-  CPPUNIT_ASSERT(holes<EEDetId::kSizeForDenseIndexing/10);
+  //CPPUNIT_ASSERT(holes>EEDetId::kSizeForDenseIndexing/100);
+  //CPPUNIT_ASSERT(holes<EEDetId::kSizeForDenseIndexing/10);
 }
 
 void testEcalDetId::testESDetId(){
