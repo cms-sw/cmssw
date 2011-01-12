@@ -11,7 +11,6 @@
 <use   name="HLTrigger/HLTcore"/>
 <use   name="Geometry/Records"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="Geometry/TrackerTopology"/>
 <use   name="JetMETCorrections/Objects"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="DataFormats/EcalRecHit"/>

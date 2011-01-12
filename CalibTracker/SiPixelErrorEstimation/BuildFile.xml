@@ -15,7 +15,6 @@
 <use   name="Geometry/Records"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="Geometry/TrackerNumberingBuilder"/>
-<use   name="Geometry/TrackerTopology"/>
 <use   name="MagneticField/Records"/>
 <use   name="RecoTracker/TransientTrackingRecHit"/>
 <use   name="SimDataFormats/Track"/>
