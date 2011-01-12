@@ -222,7 +222,8 @@ def switchToPFTauByType(process,
     mapping = { 'shrinkingConePFTau' : switchToPFTauShrinkingCone,
                 'fixedConePFTau' : switchToPFTauFixedCone,
                 'hpsPFTau' : switchToPFTauHPS,
-                'caloRecoTau' : switchToCaloTau }
+                'caloRecoTau' : switchToCaloTau,
+                'hpsTancPFTau' : switchToPFTauHPSpTaNC }
     mapping[pfTauType](process, pfTauLabelOld = pfTauLabelOld, pfTauLabelNew = pfTauLabelNew,
                        patTauLabel = patTauLabel, postfix = postfix)
 
