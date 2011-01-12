@@ -1,5 +1,6 @@
 #include "DQMOffline/PFTau/interface/Benchmark.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -25,7 +26,7 @@ TH1F* Benchmark::book1D(const char* histname, const char* title,
 			int nbins, float xmin, float xmax) {
   // DQM_ has to be initialized in a child analyzer.
   if(DQM_) {
-    cout<<"booking "<<histname<<endl;
+    edm::LogInfo("Benchmark") << " Benchmark::book1D " << "booking "<<histname;
     return DQM_->book1D(histname,title,nbins,xmin, xmax)->getTH1F();
   }
   else if(dir_){
@@ -44,7 +45,7 @@ TH2F* Benchmark::book2D(const char* histname, const char* title,
 			int nbinsy, float ymin, float ymax ) {
   // DQM_ has to be initialized in a child analyzer.
   if(DQM_) {
-    cout<<"booked "<<histname<<endl;
+    edm::LogInfo("Benchmark") << " Benchmark::book2D "<<"booked "<<histname;
     return DQM_->book2D(histname,title,nbinsx,xmin, xmax, nbinsy, ymin, ymax)->getTH2F();
   }
   else if(dir_) {
@@ -62,7 +63,7 @@ TH2F* Benchmark::book2D(const char* histname, const char* title,
 			int nbinsx, float* xbins,
 			int nbinsy, float ymin, float ymax ) {
   if(DQM_) {
-    cout<<"booked "<<histname<<endl;
+    edm::LogInfo("Benchmark") << " Benchmark::book2D " << " booked "<<histname;
     
     // need to build the y bin array manually, due to a missing 
     // function in DQMStore

@@ -1,5 +1,7 @@
 #include "DQMOffline/PFTau/plugins/PFMETDQMAnalyzer.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,7 +37,7 @@ void PFMETDQMAnalyzer::beginJob() {
   // part of the following could be put in the base class
   std::string path = "ParticleFlow/" + benchmarkLabel_;
   Benchmark::DQM_->setCurrentFolder(path.c_str());
-  std::cout<<"Histogram Folder path set to "<< path <<std::endl;
+  edm::LogInfo("PFJMETDQMAnalyzer") << " PFMETDQMAnalyzer::beginJob " <<"Histogram Folder path set to "<< path;
   pfMETMonitor_.setup(pSet_);  
 
 }
@@ -59,9 +61,7 @@ void PFMETDQMAnalyzer::analyze(edm::Event const& iEvent,
       if ( minRes < skimPS.getParameter<double>("lowerCutOffOnResolution")) storeBadEvents(iEvent,minRes);
       else if (maxRes > skimPS.getParameter<double>("upperCutOffOnResolution")) storeBadEvents(iEvent,maxRes);
     }
-  } else {
-    std::cout << inputLabel_ << "  " << matchLabel_ << std::endl;
-  } 
+  }
 }
 void PFMETDQMAnalyzer::storeBadEvents(edm::Event const& iEvent, float& val) {
   unsigned int runNb  = iEvent.id().run();

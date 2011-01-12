@@ -1,5 +1,7 @@
 #include "DQMOffline/PFTau/plugins/PFJetDQMAnalyzer.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -37,7 +39,7 @@ void PFJetDQMAnalyzer::beginJob() {
   // part of the following could be put in the base class
   std::string path = "ParticleFlow/" + benchmarkLabel_;
   Benchmark::DQM_->setCurrentFolder(path.c_str());
-  std::cout<<"Histogram Folder path set to "<< path <<std::endl;
+  edm::LogInfo("PFJetDQMAnalyzer") << " PFJetDQMAnalyzer::beginJob " << "Histogram Folder path set to "<< path;
   pfJetMonitor_.setup(pSet_);  
 
 }

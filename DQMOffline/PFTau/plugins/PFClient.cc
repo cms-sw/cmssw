@@ -24,10 +24,6 @@ PFClient::PFClient(const edm::ParameterSet& parameterSet)
 void PFClient::beginJob() {
 
   dqmStore_ = edm::Service<DQMStore>().operator->();
-  for (std::vector<std::string>::const_iterator it = folderNames_.begin();
-       it != folderNames_.end(); it++) {
-    std::cout << (*it) << std::endl;
-  } 
 }
 //
 // -- EndJobBegin Run
@@ -104,8 +100,6 @@ void PFClient::createResolutionPlots(std::string& folder, std::string& name) {
 	me_slice->setBinContent(iy,th->GetBinContent(ix,iy)); 
       }
       getHistogramParameters(me_slice, average, rms, mean, sigma);
-      //      std::cout << "pt " << th->GetBinCenter(ix) << "  : " 
-      //                << average << " " << rms << " " << mean << " " << sigma << std::endl;
       me_average->setBinContent(ix,average);
       me_rms->setBinContent(ix,rms);
       me_mean->setBinContent(ix,mean);
