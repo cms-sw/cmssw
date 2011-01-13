@@ -3,6 +3,9 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "TMath.h"
 
+// to enable debugs
+//#define PFLOW_DEBUG
+
 double 
 LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track, 
 					    const reco::PFCluster&  cluster,
@@ -11,7 +14,7 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
   
 #ifdef PFLOW_DEBUG
   if( debug ) 
-    cout<<"entering test link by rechit function"<<endl;
+    std::cout<<"entering test link by rechit function"<<std::endl;
 #endif
 
   //cluster position
@@ -51,8 +54,8 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
   case PFLayer::ECAL_ENDCAP:
 #ifdef PFLOW_DEBUG
     if( debug )
-      cout << "Fetching Ecal Resolution Maps"
-	   << endl;
+      std::cout << "Fetching Ecal Resolution Maps"
+	   << std::endl;
 #endif
     // did not reach ecal, cannot be associated with a cluster.
     if( ! atECAL.isValid() ) return -1.;   
@@ -75,8 +78,8 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
   case PFLayer::HCAL_ENDCAP:  
 #ifdef PFLOW_DEBUG
     if( debug )
-      cout << "Fetching Hcal Resolution Maps"
-	   << endl;
+      std::cout << "Fetching Hcal Resolution Maps"
+	   << std::endl;
 #endif
     if( isBrem ) {  
       return  -1.;
@@ -113,8 +116,8 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
     //PreShower (No resolution maps yet)
 #ifdef PFLOW_DEBUG
     if( debug )
-      cout << "No link by rechit possible for pre-shower yet!"
-	   << endl;
+      std::cout << "No link by rechit possible for pre-shower yet!"
+	   << std::endl;
 #endif
     return -1.;
   default:
@@ -145,12 +148,12 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
 					 tracketa, trackphi);
   
 #ifdef PFLOW_DEBUG
-  if(debug) cout<<"test link by rechit "<< dist <<" "<<endl;
+  if(debug) std::cout<<"test link by rechit "<< dist <<" "<<std::endl;
   if(debug){
-    cout<<" clustereta "  << clustereta 
+    std::cout<<" clustereta "  << clustereta 
 	<<" clusterphi "  << clusterphi 
 	<<" tracketa " << tracketa
-	<<" trackphi " << trackphi << endl;
+	<<" trackphi " << trackphi << std::endl;
   }
 #endif
   
@@ -207,17 +210,17 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
       
 #ifdef PFLOW_DEBUG
       if( debug ) {
-	cout << rhit         << " Hcal RecHit=" 
+	std::cout << rhit         << " Hcal RecHit=" 
 	     << posrep.Eta() << " " 
 	     << posrep.Phi() << " "
 	     << rechit_cluster.energy() 
-	     << endl; 
+	     << std::endl; 
 	for ( unsigned jc=0; jc<4; ++jc ) 
-	  cout<<"corners "<<jc<<" "<<corners[jc].Eta()
-	      <<" "<<corners[jc].Phi()<<endl;
+	  std::cout<<"corners "<<jc<<" "<<corners[jc].Eta()
+	      <<" "<<corners[jc].Phi()<<std::endl;
 	
-	cout << "RecHit SizeEta=" << rhsizeEta
-	     << " SizePhi=" << rhsizePhi << endl;
+	std::cout << "RecHit SizeEta=" << rhsizeEta
+	     << " SizePhi=" << rhsizePhi << std::endl;
       }
 #endif
       
@@ -230,12 +233,12 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
       
 #ifdef PFLOW_DEBUG
       if( debug ){
-	cout << "distance=" 
+	std::cout << "distance=" 
 	     << deta << " " 
 	     << dphi << " ";
 	if(deta < (rhsizeEta/2.) && dphi < (rhsizePhi/2.))
-	  cout << " link here !" << endl;
-	else cout << endl;
+	  std::cout << " link here !" << std::endl;
+	else std::cout << std::endl;
       }
 #endif
       
@@ -251,13 +254,13 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
 	const math::XYZPoint& posxyz 
 	  = rechit_cluster.position();
 	
-	cout << "RH " << posxyz.X()
+	std::cout << "RH " << posxyz.X()
 	     << " "   << posxyz.Y()
-	     << endl;
+	     << std::endl;
 	
-	cout << "TRACK " << track_X
+	std::cout << "TRACK " << track_X
 	     << " "      << track_Y
-	     << endl;
+	     << std::endl;
       }
 #endif
       
@@ -273,10 +276,10 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
 	
 #ifdef PFLOW_DEBUG
 	if( debug ){
-	  cout<<"corners "<<jc
+	  std::cout<<"corners "<<jc
 	      << " " << cornerposxyz.X()
 	      << " " << cornerposxyz.Y()
-	      << endl;
+	      << std::endl;
 	}
 #endif
       }//loop corners
@@ -303,7 +306,7 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
   if( linkedbyrechit ) {
 #ifdef PFLOW_DEBUG
     if( debug ) 
-      cout << "Track and Cluster LINKED BY RECHIT" << endl;
+      std::cout << "Track and Cluster LINKED BY RECHIT" << std::endl;
 #endif
     /*    
     //if ( distance > 40. || distance < -100. ) 
@@ -349,7 +352,7 @@ LinkByRecHit::testECALAndPSByRecHit( const reco::PFCluster& clusterECAL,
 
 #ifdef PFLOW_DEBUG
   if( debug ) 
-    cout<<"entering test link by rechit function for ECAL and PS"<<endl;
+    std::cout<<"entering test link by rechit function for ECAL and PS"<<std::endl;
 #endif
 
   //ECAL cluster position
@@ -402,8 +405,8 @@ LinkByRecHit::testECALAndPSByRecHit( const reco::PFCluster& clusterECAL,
     const math::XYZPoint& posxyz = rechit_cluster.position() * zPS/zECAL;
 #ifdef PFLOW_DEBUG
     if( debug ){
-      cout << "Ecal rechit " << posxyz.X() << " "   << posxyz.Y() << endl;
-      cout << "PS cluster  " << xPS << " " << yPS << endl;
+      std::cout << "Ecal rechit " << posxyz.X() << " "   << posxyz.Y() << std::endl;
+      std::cout << "PS cluster  " << xPS << " " << yPS << std::endl;
     }
 #endif
     
@@ -418,10 +421,10 @@ LinkByRecHit::testECALAndPSByRecHit( const reco::PFCluster& clusterECAL,
       
 #ifdef PFLOW_DEBUG
       if( debug ){
-	cout<<"corners "<<jc
+	std::cout<<"corners "<<jc
 	    << " " << cornerpos.X() << " " << x[jc] 
 	    << " " << cornerpos.Y() << " " << y[jc]
-	    << endl;
+	    << std::endl;
       }
 #endif
     }//loop corners
