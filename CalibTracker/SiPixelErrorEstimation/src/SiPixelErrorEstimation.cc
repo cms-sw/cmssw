@@ -945,7 +945,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 			      else if ( tmp_nrows == 160 ) 
 				half = 0;
 			      else 
-				// cout << "-------------------------------------------------- Wrong module size !!!" << endl;
+				cout << "-------------------------------------------------- Wrong module size !!!" << endl;
 			      
 			      float tmp1 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
 			      float tmp2 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
