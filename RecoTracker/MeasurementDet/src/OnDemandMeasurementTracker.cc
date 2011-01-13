@@ -18,7 +18,6 @@
 
 #include "TrackingTools/MeasurementDet/interface/MeasurementDetException.h"
 
-#include "RecoLocalTracker/SiPixelRecHits/interface/CPEFromDetPosition.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "RecoLocalTracker/Records/interface/TrackerCPERecord.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
