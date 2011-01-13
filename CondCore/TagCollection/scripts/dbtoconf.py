@@ -81,7 +81,11 @@ account=[]
 label=[]
 
 os.system('rm -f '+TMPTAG)
-os.system('cmscond_tagtree_list -c '+CONNSTRINGGLOBTAG+' -T '+GLOBTAG+' > '+TMPTAG)
+tagtree_cmd = 'cmscond_tagtree_list -c '+CONNSTRINGGLOBTAG+' -T '+GLOBTAG
+if AUTHPATH != '':
+    tagtree_cmd += ' -P ' + AUTHPATH
+
+os.system(tagtree_cmd +' > '+TMPTAG)
 
 nlines=0
 tmp=open(TMPTAG,'r')
@@ -106,7 +110,11 @@ while tmp:
         parent.append(myparser(line,'parent:'))
         tag.append(myparser(line,'tag:'))
         pfn.append(myparser(line,'pfn:'))
-
+        record.append(myparser(line,'record:'))
+        label.append(myparser(line,'label:'))
+        object.append(myparser(line,'object:'))
+        connstring.append(myparser(line,'pfn:').split('/CMS_COND')[0])
+        account.append('CMS_COND'+myparser(line,'pfn:').split('/CMS_COND')[1])
 #    print nlines,line
 
 tmp.close()
@@ -124,38 +132,43 @@ if len(leafnode)!=len(parent) or len(leafnode)!=len(tag) or len(leafnode)!=len(p
 #print root,node,globparent
 
 
-for i in range(0,len(leafnode)):
-    command='cmscond_taginventory_list -c '+CONNSTRINGGLOBTAG+' -t '+tag[i]
-    #    print "COMMAND=",command
-    # put in a loop until it succeed
-    for ntime in range(0,MAXRETRIES):
-        fullout=commands.getoutput(command)
-    # 'cmscond_taginventory_list -c'+CONNSTRINGGLOBTAG+' -t '+tag[i])
-        linesout=fullout.split('\n')
-        #        print fullout
-        # print len(linesout)
-        if(len(linesout)>1):
-            # success
-            break
-        print "Try: ",ntime, ".....",tag[i]
-        time.sleep(0.5)
-    if(len(linesout)<=1):
-        print "Unable to get information on tag:",tag[i]," after ", MAXRETRIES, "retries"
-        print "Giving up here..."
-        sys.exit(1)
+# for i in range(0,len(leafnode)):
+#     command='cmscond_taginventory_list -c '+CONNSTRINGGLOBTAG+' -t '+tag[i]
+#     if AUTHPATH != '':
+#         command += ' -P ' + AUTHPATH
 
-    for i2 in range(0,len(linesout)):
-        if linesout[i2].split()[2]==pfn[i]:
-               #same pfn and tag
-           object.append(linesout[i2].split()[3])
-           record.append(linesout[i2].split()[4])
-           if CONNREP!='':
-               connstring.append(CONNREP)
-           else:
-               connstring.append(pfn[i].split('/CMS_COND')[0])
-           account.append('CMS_COND'+pfn[i].split('/CMS_COND')[1])
-           #print "TAG: " + tag[i] + " LABEL: " + linesout[i2].split()[5]
-           label.append(linesout[i2].split()[5])
+#     # print "COMMAND=",command
+#     # put in a loop until it succeed
+#     for ntime in range(0,MAXRETRIES):
+#         fullout=commands.getoutput(command)
+#     # 'cmscond_taginventory_list -c'+CONNSTRINGGLOBTAG+' -t '+tag[i])
+#         linesout=fullout.split('\n')
+#         #        print fullout
+#         # print len(linesout)
+#         if(len(linesout)>1):
+#             # success
+#             break
+#         print "Try: ",ntime, ".....",tag[i]
+#         time.sleep(0.5)
+#     if(len(linesout)<=1):
+#         print "Unable to get information on tag:",tag[i]," after ", MAXRETRIES, "retries"
+#         print "Giving up here..."
+#         sys.exit(1)
+
+#     # print tag[i]
+#     for i2 in range(0,len(linesout)):
+#         # print linesout[i2]
+#         if linesout[i2].split()[2]==pfn[i]:
+#                #same pfn and tag
+#            object.append(linesout[i2].split()[3])
+#            record.append(linesout[i2].split()[4])
+#            if CONNREP!='':
+#                connstring.append(CONNREP)
+#            else:
+#                connstring.append(pfn[i].split('/CMS_COND')[0])
+#            account.append('CMS_COND'+pfn[i].split('/CMS_COND')[1])
+#            #print "TAG: " + tag[i] + " LABEL: " + linesout[i2].split()[5]
+#            label.append(linesout[i2].split()[5])
 
 #    print "Leafnode:",i,leafnode[i]
 #    print "Parent=",parent[i]
@@ -171,7 +184,7 @@ for i in range(0,len(leafnode)):
 # open output conf file
 conf=open(CONFFILE,'w')
 conf.write('[COMMON]\n')
-conf.write('connect=sqlite_file:dbtoconf.db\n')
+conf.write('connect=sqlite_file:' + GLOBTAG + '.db\n')
 conf.write('#connect=oracle://cms_orcoff_int2r/'+ACCOUNT+'\n')
 conf.write('#connect=oracle://cms_orcon_prod/'+ACCOUNT+'\n')
 conf.write('\n')
