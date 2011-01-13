@@ -173,10 +173,11 @@ void ora::PrimitiveMapping::process( MappingElement& parentElement,
                                      const std::string& attributeName,
                                      const std::string& attributeNameForSchema,
                                      const std::string& scopeNameForSchema ){
-  const std::type_info* attrType = &m_type.TypeInfo();
-  if(m_type.IsEnum()) attrType = &typeid(int);
-  if(ClassUtils::isTypeString( m_type )) attrType = &typeid(std::string);
-  //std::string typeName = ClassUtils::demangledName(*attrType);
+  Reflex::Type t = ClassUtils::resolvedType( m_type );
+  const std::type_info* attrType = &t.TypeInfo();
+  if(t.IsEnum()) attrType = &typeid(int);
+  //std::string tn = ClassUtils::demangledName(*attrType);
+  if(ClassUtils::isTypeString( t )) attrType = &typeid(std::string);
   std::string typeName = coral::AttributeSpecification::typeNameForId(*attrType);
   
   processLeafElement(parentElement,
