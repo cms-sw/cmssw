@@ -11,9 +11,6 @@
 
 // Our own stuff
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelRecHitConverter.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/CPEFromDetPosition.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEInitial.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEParmError.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPETemplateReco.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGeneric.h"
 

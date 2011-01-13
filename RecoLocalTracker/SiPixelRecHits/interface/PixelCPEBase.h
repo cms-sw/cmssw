@@ -16,7 +16,6 @@
 #include "TMath.h"
 
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/EtaCorrection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitQuality.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
@@ -187,7 +186,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   
 
   mutable GeomDetType::SubDetector thePart;
-  mutable EtaCorrection theEtaFunc;
+  //mutable EtaCorrection theEtaFunc;
   mutable float theThickness;
   mutable float thePitchX;
   mutable float thePitchY;

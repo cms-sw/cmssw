@@ -6,8 +6,6 @@
 //--- Our components which we want Framework to know about:
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 //--- The CPE ES Producers
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEInitialESProducer.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEParmErrorESProducer.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGenericESProducer.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPETemplateRecoESProducer.h"
 //---- The RecHit ED producer
