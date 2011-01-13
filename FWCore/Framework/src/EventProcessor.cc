@@ -568,8 +568,8 @@ namespace edm {
                            parameterSet->getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet()).getUntrackedParameter<int>("input", -1),
                            parameterSet->getUntrackedParameter<ParameterSet>("maxLuminosityBlocks", ParameterSet()).getUntrackedParameter<int>("input", -1));
 
-    espController_ = std::auto_ptr<eventsetup::EventSetupsController>( new eventsetup::EventSetupsController);
-    esp_ = espController_->makeProvider(*parameterSet, common);
+    std::auto_ptr<eventsetup::EventSetupsController> espController(new eventsetup::EventSetupsController);
+    esp_ = espController->makeProvider(*parameterSet, common);
     processConfiguration_.reset(new ProcessConfiguration(processName, getReleaseVersion(), getPassID()));
 
     looper_ = fillLooper(*esp_, *parameterSet, common);
