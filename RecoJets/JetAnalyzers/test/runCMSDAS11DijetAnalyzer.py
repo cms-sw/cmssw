@@ -14,19 +14,30 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('/store/mc/Fall10/QCD_Pt_80to120_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/FEF4D100-4CCB-DF11-94CB-00E08178C12F.root')
 )
+
+##-------------------- Communicate with the DB -----------------------
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = 'START38_V13::All'
+
 #############   Include the jet corrections ##########
 process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
 # set the record's IOV. Must be defined once. Choose ANY correction service. #
 
 #############   Correct Calo Jets on the fly #########
 process.dijetAna = cms.EDAnalyzer("CMSDAS11DijetAnalyzer",
-                                  jetSrc = cms.InputTag("caloJetsAK7"),
+                                  jetSrc = cms.InputTag("ak7CaloJets"),
                                   vertexSrc = cms.InputTag("offlinePrimaryVertices"),
-                                  jetCorrections = cms.string("")
+                                  jetCorrections = cms.string("ak7CaloL2L3Residual"),
+                                  innerDeltaEta = cms.double(1.3),
+                                  outerDeltaEta = cms.double(3.0),
+                                  JESbias = cms.double(1.0)
 )
 
 #############   Path       ###########################
 process.p = cms.Path(process.dijetAna)
+
+
 #############   Format MessageLogger #################
 process.MessageLogger.cerr.FwkReport.reportEvery = 10
 

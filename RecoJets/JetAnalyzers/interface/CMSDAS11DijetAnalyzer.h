@@ -33,10 +33,34 @@ class CMSDAS11DijetAnalyzer : public edm::EDAnalyzer {
   edm::InputTag jetSrc;
   edm::InputTag vertexSrc;
   std::string jetCorrections;
+  double innerDeltaEta;
+  double outerDeltaEta;
+  double JESbias;
 
   // Histograms to be filled
   TH1D* hVertexZ;
   TH1D* hJetCorrPt;
+  TH1D* hJetRawPt;
+  TH1D* hJetEta;
+  TH1D* hJetPhi;
+  TH1D* hJetEMF;
+
+  TH1D* hRawDijetMass;
+  TH1D* hCorDijetMass;
+  TH1D* hJet1Pt;
+  TH1D* hJet1Eta;
+  TH1D* hJet1Phi;
+  TH1D* hJet1EMF;
+  TH1D* hJet2Pt;
+  TH1D* hJet2Eta;
+  TH1D* hJet2Phi;
+  TH1D* hJet2EMF;
+  TH1D* hDijetDeltaPhi;
+  TH1D* hDijetDeltaEta;
+
+  TH1D* hInnerDijetMass;
+  TH1D* hOuterDijetMass;
+
 };
 
 
