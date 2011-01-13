@@ -18,14 +18,14 @@
 #=============BEGIN CONFIGURATION=================
 setenv TYPE TrackBasedConversions
 setenv RUNTYPE Central
-setenv STARTUP False
+setenv STARTUP True
 
 setenv CMSSWver1 3_10_0
 setenv CMSSWver2 3_11_0
 setenv OLDRELEASE 3_10_0
 setenv NEWRELEASE 3_11_0
 setenv OLDPRERELEASE 
-setenv NEWPRERELEASE pre2
+setenv NEWPRERELEASE pre3
 
 if ( $STARTUP == True) then
 setenv OLDGLOBALTAG START310_V3-v1
@@ -61,8 +61,8 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 
 #Name of sample (affects output directory name and htmldescription only) 
 #setenv SAMPLE SingleGammaPt10IDEAL
-setenv SAMPLE SingleGammaPt35IDEAL
-#setenv SAMPLE QCD_Pt_80_120STARTUP
+#setenv SAMPLE SingleGammaPt35IDEAL
+setenv SAMPLE QCD_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_20_30STARTUP
 
 if ( $RUNTYPE == Central ) then
@@ -85,7 +85,7 @@ setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt10.r
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt10.root
 else if ( $RUNTYPE == Central ) then
 setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt10__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
-setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt10__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
+setenv NEWFILE ${WorkDir2}/DQM_V0002_R000000001__RelValSingleGammaPt10__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
 endif
 
 
@@ -96,7 +96,7 @@ setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt35.r
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.root
 else if ( $RUNTYPE == Central ) then
 setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt35__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
-setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt35__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
+setenv NEWFILE ${WorkDir2}/DQM_V0002_R000000001__RelValSingleGammaPt35__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
 endif
 
 
