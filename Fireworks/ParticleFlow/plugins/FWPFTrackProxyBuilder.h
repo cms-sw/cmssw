@@ -14,12 +14,10 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 
-using namespace std;
-
 class FWPFTrackProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track>
 {
    public:
-      FWPFTrackProxyBuilder(){}
+      FWPFTrackProxyBuilder();
       virtual ~FWPFTrackProxyBuilder(){}
 
       REGISTER_PROXYBUILDER_METHODS();
@@ -32,8 +30,11 @@ class FWPFTrackProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track>
       virtual void buildViewType(const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*);
       virtual void cleanLocal();
 
-      TEveTrack           *getTrack( unsigned int id, const reco::Track &iData );
+      TEveTrack               *getTrack( unsigned int id, const reco::Track &iData );
 
+      TEveTrackPropagator     *m_trackerTrackPropagator;
+      TEveTrackPropagator     *m_trackPropagator;
+      FWMagField              *m_magField;
       std::vector<TEveTrack*> tracks;
 };
 #endif
