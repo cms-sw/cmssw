@@ -147,7 +147,7 @@ FWPFEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList
 }
 
 //______________________________________________________________________________________________________
-/*bool
+bool
 FWPFEcalRecHitLegoProxyBuilder::visibilityModelChanges(const FWModelId& iId, TEveElement* itemHolder,
                                                        FWViewType::EType viewType, const FWViewContext* vc)
 {
@@ -192,6 +192,11 @@ FWPFEcalRecHitLegoProxyBuilder::visibilityModelChanges(const FWModelId& iId, TEv
       if( dPhi4 > 1 )
          etaphiCorners[3].fY = etaphiCorners[3].fY + ( 2 * TMath::Pi() );
 
+      centre = calculateCentre( etaphiCorners );
+      energy = iData.energy();
+      et = calculateEt( centre, energy );
+      context().voteMaxEtAndEnergy( et, energy );
+
       {
          FWPFLegoRecHit *recHit = new FWPFLegoRecHit( etaphiCorners, itemHolder, this, vc, energy, et );
          recHit->setSquareColor(item()->defaultDisplayProperties().color());
@@ -200,7 +205,7 @@ FWPFEcalRecHitLegoProxyBuilder::visibilityModelChanges(const FWModelId& iId, TEv
       return true;
    }
    return false;
-}*/
+}
 
 //______________________________________________________________________________________________________
 void
