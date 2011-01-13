@@ -3,7 +3,7 @@
    Implementation of class EcalSeverityLevelAlgo
 
    \author Stefano Argiro
-   \version $Id$
+   \version $Id: EcalSeverityLevelAlgo.cc,v 1.33 2011/01/12 13:40:32 argiro Exp $
    \date 10 Jan 2011
 */
 
@@ -31,13 +31,6 @@ EcalSeverityLevelAlgo::EcalSeverityLevel
 EcalSeverityLevelAlgo::severityLevel(const DetId& id, 	   
 				     const EcalRecHitCollection& rhs, 
 				     const edm::EventSetup& es) const{
-
-  // if the detid is within our rechits, evaluate from flag
-  EcalRecHitCollection::const_iterator rh;
-  if ( (rh=rhs.find(id))  != rhs.end()  )
-    return severityLevel(*rh);
-  
-  // else evaluate from dbstatus
   
   edm::ESHandle<EcalChannelStatus> pChannelStatus;
   es.get<EcalChannelStatusRcd>().get(pChannelStatus);
@@ -55,6 +48,15 @@ EcalSeverityLevelAlgo::severityLevel(const DetId& id,
 				     const EcalChannelStatus& chs) const{
 
 
+  // if the detid is within our rechits, evaluate from flag
+ EcalRecHitCollection::const_iterator rh= rhs.find(id);
+  if ( rh != rhs.end()  )
+    return severityLevel(*rh);
+
+
+  // else evaluate from dbstatus
+ 
+
   EcalChannelStatus::const_iterator chIt = chs.find( id );
   uint16_t dbStatus = 0;
   if ( chIt != chs.end() ) {
@@ -64,21 +66,26 @@ EcalSeverityLevelAlgo::severityLevel(const DetId& id,
 	 << id.rawId() 
 	 << "! something wrong with EcalChannelStatus in your DB? ";
   }
+ 
+
   // check if the bit corresponding to that dbStatus is set in the mask
   // This implementation implies that the statuses have a priority
   for (size_t i=0; i< dbstatusMask_.size();++i){
-     if ((dbstatusMask_[i] & 0x1<<dbStatus)) return EcalSeverityLevel(i);
+    uint32_t tmp = 0x1<<dbStatus;
+    if (dbstatusMask_[i] & tmp) return EcalSeverityLevel(i);
   }
 
   // no matching
-  edm::LogWarning("EcalSeverityLevelAlgo")<< "Unmatched DB status, returning kBad";
-  return kBad;
+  LogDebug("EcalSeverityLevelAlgo")<< 
+    "Unmatched DB status, returning kGood";
+  return kGood;
 }
 
 
 EcalSeverityLevelAlgo::EcalSeverityLevel 
 EcalSeverityLevelAlgo::severityLevel(const EcalRecHit& rh) const{
-   
+  
+
   // check if the bit corresponding to that dbStatus is set in the mask
   // This implementation implies that the severity have a priority... 
   for (size_t i=0; i< flagMask_.size();++i){
@@ -91,8 +98,8 @@ EcalSeverityLevelAlgo::severityLevel(const EcalRecHit& rh) const{
   }
 
   // no matching
-  edm::LogWarning("EcalSeverityLevelAlgo")<< "Unmatched Flag , returning kBad";
-  return kBad;
+  LogDebug("EcalSeverityLevelAlgo")<< "Unmatched Flag , returning kGood";
+  return kGood;
 }
 
 

@@ -1,6 +1,6 @@
 /* Implementation of class EcalCleaningAlgo
    \author Stefano Argiro
-   \version $Id$
+   \version $Id: EcalCleaningAlgo.cc,v 1.1 2011/01/12 13:40:32 argiro Exp $
    \date 20 Dec 2010
 */    
 
@@ -105,7 +105,7 @@ EcalCleaningAlgo::checkTopology(const DetId& id,
 
   float e6e2value = e6e2(id,rhs);
   float e6e2thresh = e6e2thresh_ ;
-  if (isNearCrack(id) && energy < cThreshold_double_ * tightenCrack_e1_double_ )
+  if (isNearCrack(id) && energy < cThreshold_double_ *tightenCrack_e1_double_ )
     return EcalRecHit::kGood;
 
   if  (energy <  cThreshold_double_) return EcalRecHit::kGood;
@@ -129,9 +129,7 @@ EcalCleaningAlgo::checkTopology(const DetId& id,
 float EcalCleaningAlgo::e4e1(const DetId& id, 
 			     const EcalRecHitCollection& rhs){
 
-
-  EBDetId ebId( id );
-  
+ 
   float s4 = 0;
   float e1 = recHitE( id, rhs );
   
