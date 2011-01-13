@@ -10,7 +10,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
@@ -92,6 +91,11 @@ void CMSDAS11DijetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventS
   // require at least two jets to continue
   if(selectedJets.size()<2) return;
 
+  //sort by corrected pt (not the same order as raw pt, sometimes)
+  sort(selectedJets.begin(), selectedJets.end(), compare_JetPt);
+
+  //Get the mass of the two leading jets.  Needs their 4-vectors...
+  float corMass = (selectedJets[0].p4()+selectedJets[1].p4()).M();
   
   ////////////////////////////////////////////
   // Make Plots
@@ -105,6 +109,7 @@ void CMSDAS11DijetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventS
   return;
 
 }
+
 
 
 DEFINE_FWK_MODULE(CMSDAS11DijetAnalyzer);
