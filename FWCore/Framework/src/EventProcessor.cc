@@ -95,6 +95,26 @@ namespace edm {
   using namespace event_processor;
 
   namespace {
+    template <typename T>
+    class ScheduleSignalSentry {
+    public:
+      ScheduleSignalSentry(ActivityRegistry* a, typename T::MyPrincipal* principal, EventSetup const* es) :
+           a_(a), principal_(principal), es_(es) {
+        if (a_) T::preScheduleSignal(a_, principal_);
+      }
+      ~ScheduleSignalSentry() {
+        if (a_) if (principal_) T::postScheduleSignal(a_, principal_, es_);
+      }
+
+    private:
+      // We own none of these resources.
+      ActivityRegistry* a_;
+      typename T::MyPrincipal* principal_;
+      EventSetup const* es_;
+    };
+  }
+
+  namespace {
 
     // the next two tables must be kept in sync with the state and
     // message enums from the header
@@ -1737,7 +1757,11 @@ namespace edm {
       looperBeginJobRun_ = true;
       looper_->doStartingNewLoop();
     }
-    schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionBegin> >(runPrincipal, es);
+    {
+      typedef OccurrenceTraits<RunPrincipal, BranchActionBegin> Traits;
+      ScheduleSignalSentry<Traits> sentry(actReg_.get(), &runPrincipal, &es);
+      schedule_->processOneOccurrence<Traits>(runPrincipal, es);
+    }
     FDEBUG(1) << "\tbeginRun " << run.runNumber() << "\n";
     if(looper_) {
       looper_->doBeginRun(runPrincipal, es);
@@ -1750,7 +1774,11 @@ namespace edm {
     IOVSyncValue ts(EventID(runPrincipal.run(), LuminosityBlockID::maxLuminosityBlockNumber(), EventID::maxEventNumber()),
                     runPrincipal.endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
-    schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionEnd> >(runPrincipal, es);
+    {
+      typedef OccurrenceTraits<RunPrincipal, BranchActionEnd> Traits;
+      ScheduleSignalSentry<Traits> sentry(actReg_.get(), &runPrincipal, &es);
+      schedule_->processOneOccurrence<Traits>(runPrincipal, es);
+    }
     FDEBUG(1) << "\tendRun " << run.runNumber() << "\n";
     if(looper_) {
       looper_->doEndRun(runPrincipal, es);
@@ -1771,7 +1799,11 @@ namespace edm {
     // lumi blocks know their start and end times why not also start and end events?
     IOVSyncValue ts(EventID(lumiPrincipal.run(), lumiPrincipal.luminosityBlock(), 0), lumiPrincipal.beginTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
-    schedule_->processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionBegin> >(lumiPrincipal, es);
+    {
+      typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionBegin> Traits;
+      ScheduleSignalSentry<Traits> sentry(actReg_.get(), &lumiPrincipal, &es);
+      schedule_->processOneOccurrence<Traits>(lumiPrincipal, es);
+    }
     FDEBUG(1) << "\tbeginLumi " << run << "/" << lumi << "\n";
     if(looper_) {
       looper_->doBeginLuminosityBlock(lumiPrincipal, es);
@@ -1786,7 +1818,11 @@ namespace edm {
     IOVSyncValue ts(EventID(lumiPrincipal.run(), lumiPrincipal.luminosityBlock(), EventID::maxEventNumber()),
                     lumiPrincipal.endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
-    schedule_->processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionEnd> >(lumiPrincipal, es);
+    {
+      typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionEnd> Traits;
+      ScheduleSignalSentry<Traits> sentry(actReg_.get(), &lumiPrincipal, &es);
+      schedule_->processOneOccurrence<Traits>(lumiPrincipal, es);
+    }
     FDEBUG(1) << "\tendLumi " << run << "/" << lumi << "\n";
     if(looper_) {
       looper_->doEndLuminosityBlock(lumiPrincipal, es);
@@ -1847,7 +1883,11 @@ namespace edm {
 
     IOVSyncValue ts(pep->id(), pep->time());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
-    schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*pep, es);
+    {
+      typedef OccurrenceTraits<EventPrincipal, BranchActionBegin> Traits;
+      ScheduleSignalSentry<Traits> sentry(actReg_.get(), pep, &es);
+      schedule_->processOneOccurrence<Traits>(*pep, es);
+    }
 
     if(looper_) {
       bool randomAccess = input_->randomAccess();

@@ -288,26 +288,6 @@ namespace edm {
     volatile bool           endpathsAreActive_;
   };
 
-  namespace {
-    template <typename T>
-    class ScheduleSignalSentry {
-    public:
-      ScheduleSignalSentry(ActivityRegistry* a, typename T::MyPrincipal* ep, EventSetup const* es) :
-           a_(a), ep_(ep), es_(es) {
-        if (a_) T::preScheduleSignal(a_, ep_);
-      }
-      ~ScheduleSignalSentry() {
-        if (a_) if (ep_) T::postScheduleSignal(a_, ep_, es_);
-      }
-
-    private:
-      // We own none of these resources.
-      ActivityRegistry* a_;
-      typename T::MyPrincipal*  ep_;
-      EventSetup const* es_;
-    };
-  }
-
   // -----------------------------
   // ProcessOneOccurrence is a functor that has bound a specific
   // Principal and Event Setup, and can be called with a Path, to
@@ -386,11 +366,7 @@ namespace edm {
       setupOnDemandSystem(dynamic_cast<EventPrincipal&>(ep), es);
     }
     try {
-      //If the ScheduleSignalSentry object is used, it must live for the entire time the event is
-      // being processed
-      std::auto_ptr<ScheduleSignalSentry<T> > sentry;
       try {
-         sentry = std::auto_ptr<ScheduleSignalSentry<T> >(new ScheduleSignalSentry<T>(actReg_.get(), &ep, &es));
         //make sure the unscheduled items see this transition [Event will be a no-op]
         unscheduled_->runNow<T>(ep, es);
         if (runTriggerPaths<T>(ep, es)) {
