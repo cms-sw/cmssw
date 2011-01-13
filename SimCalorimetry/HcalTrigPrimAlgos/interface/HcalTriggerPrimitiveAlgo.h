@@ -30,7 +30,8 @@ public:
            const HcalTPGCompressor* outcoder,
            const HBHEDigiCollection& hbheDigis,
            const HFDigiCollection& hfDigis,
-           HcalTrigPrimDigiCollection& result);
+           HcalTrigPrimDigiCollection& result,
+           float rctlsb);
 
   void runZS(HcalTrigPrimDigiCollection& tp);
   void runFEFormatError(const FEDRawDataCollection* rawraw,
@@ -47,7 +48,7 @@ public:
 
   /// adds the actual RecHits
   void analyze(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
-  void analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
+  void analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, float rctlsb);
 
    // Member initialized by constructor
   const HcaluLUTTPGCoder* incoder_;

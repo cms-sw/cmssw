@@ -373,7 +373,7 @@ void CaloTPGTranscoderULUT::setup(const edm::EventSetup& es, Mode mode=All) cons
    float rctlsb =lutMetadata_->getRctLsb();
    if (rctlsb != 0.25 && rctlsb != 0.5)
       throw cms::Exception("RCTLSB") << " value=" << rctlsb << " (should be 0.25 or 0.5)" << std::endl;
-   rctlsb_factor_ = rctlsb == 0.25 ? 1./4 : 1./8;
+   rctlsb_factor_ = rctlsb;
 
    if (compressionFile_.empty() && decompressionFile_.empty()) {
       loadHCALCompress();

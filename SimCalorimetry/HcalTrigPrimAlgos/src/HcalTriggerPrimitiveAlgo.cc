@@ -43,7 +43,8 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
                                    const HcalTPGCompressor* outcoder,
                                    const HBHEDigiCollection& hbheDigis,
                                    const HFDigiCollection& hfDigis,
-                                   HcalTrigPrimDigiCollection& result) {
+                                   HcalTrigPrimDigiCollection& result,
+                                   float rctlsb) {
 
    incoder_=dynamic_cast<const HcaluLUTTPGCoder*>(incoder);
    outcoder_=outcoder;
@@ -70,7 +71,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
       result.push_back(HcalTriggerPrimitiveDigi(mapItr->first));
       HcalTrigTowerDetId detId(mapItr->second.id());
       if(detId.ietaAbs() >= theTrigTowerGeometry.firstHFTower())
-         { analyzeHF(mapItr->second, result.back());}
+         { analyzeHF(mapItr->second, result.back(), rctlsb);}
          else{analyze(mapItr->second, result.back());}
    }
    return;
@@ -245,7 +246,7 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTrigger
 }
 
 
-void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result) {
+void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, float rctlsb) {
    std::vector<bool> finegrain(numberOfSamples_, false);
    HcalTrigTowerDetId detId(samples.id());
 
@@ -277,8 +278,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, HcalTrigg
 
    for (int ibin = 0; ibin < numberOfSamples_; ++ibin) {
       int idx = ibin + shift;
-      // TODO get LSB from DB.
-      output[ibin] = samples[idx] / 4;
+      output[ibin] = samples[idx] / (rctlsb == 0.25 ? 4 : 8);
       if (output[ibin] > 0x3FF) output[ibin] = 0x3FF;
    }
    outcoder_->compress(output, finegrain, result);

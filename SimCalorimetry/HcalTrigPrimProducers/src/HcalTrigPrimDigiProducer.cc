@@ -20,6 +20,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+#include "CondFormats/HcalObjects/interface/HcalLutMetadata.h"
 
 #include <algorithm>
 
@@ -51,7 +52,7 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& e, const edm::EventSetup& eve
   e.getByLabel(inputLabel_[0],hbheDigis);
   e.getByLabel(inputLabel_[1],hfDigis);
 
-  // get the conditions, for the decoding
+  // Step A: get the conditions, for the decoding
   edm::ESHandle<HcalTPGCoder> inputCoder;
   eventSetup.get<HcalTPGRecord>().get(inputCoder);
 
@@ -59,12 +60,16 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& e, const edm::EventSetup& eve
   eventSetup.get<CaloTPGRecord>().get(outTranscoder);
   outTranscoder->setup(eventSetup,CaloTPGTranscoder::HcalTPG);
 
+  edm::ESHandle<HcalLutMetadata> lutMetadata;
+  eventSetup.get<HcalLutMetadataRcd>().get(lutMetadata);
+  float rctlsb = lutMetadata->getRctLsb();
+
   // Step B: Create empty output
   std::auto_ptr<HcalTrigPrimDigiCollection> result(new HcalTrigPrimDigiCollection());
 
   // Step C: Invoke the algorithm, passing in inputs and getting back outputs.
   theAlgo.run(inputCoder.product(),outTranscoder->getHcalCompressor().get(),
-	      *hbheDigis,  *hfDigis, *result);
+	      *hbheDigis,  *hfDigis, *result, rctlsb);
 
   // Step C.1: Run FE Format Error / ZS for real data.
   if (runFrontEndFormatError){
