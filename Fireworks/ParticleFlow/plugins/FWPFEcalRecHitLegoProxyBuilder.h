@@ -34,7 +34,7 @@ class FWPFEcalRecHitLegoProxyBuilder : public FWProxyBuilderTemplate<EcalRecHit>
       static std::string typeOfBuilder() { return "simple#"; }
 
       virtual void build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext* );
-      virtual bool visibilityModelChanges(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*);
+      //virtual bool visibilityModelChanges(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*);
 
 
       virtual void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );

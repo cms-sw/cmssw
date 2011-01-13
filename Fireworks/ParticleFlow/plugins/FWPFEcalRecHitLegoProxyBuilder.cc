@@ -95,11 +95,11 @@ FWPFEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList
       {
          int j = k * 3;
          TEveVector cv = TEveVector( corners[j], corners[j+1], corners[j+2] );
-         etaphiCorners[i].fX = cv.Eta();                 // Conversion of rechit X/Y values for plotting in Eta/Phi
+         etaphiCorners[i].fX = cv.Eta();                                     // Conversion of rechit X/Y values for plotting in Eta/Phi
          etaphiCorners[i].fY = cv.Phi();
          etaphiCorners[i].fZ = 0.0;
    
-         etaphiCorners[i+4].fX = etaphiCorners[i].fX;    // Top can simply be plotted exactly over the top of the bottom face
+         etaphiCorners[i+4].fX = etaphiCorners[i].fX;              // Top can simply be plotted exactly over the top of the bottom face
          etaphiCorners[i+4].fY = etaphiCorners[i].fY;
          etaphiCorners[i+4].fZ = 0.001;
          // printf("%f %f %d \n",  etaphiCorners[i].fX, etaphiCorners[i].fY, i);
@@ -108,11 +108,17 @@ FWPFEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList
 
       float dPhi1 = etaphiCorners[2].fY - etaphiCorners[1].fY;
       float dPhi2 = etaphiCorners[3].fY - etaphiCorners[0].fY;
+      float dPhi3 = etaphiCorners[1].fY - etaphiCorners[2].fY;
+      float dPhi4 = etaphiCorners[0].fY - etaphiCorners[3].fY;
 
       if( dPhi1 > 1 )
          etaphiCorners[2].fY = etaphiCorners[2].fY - ( 2 * TMath::Pi() );
       if( dPhi2 > 1 )
          etaphiCorners[3].fY = etaphiCorners[3].fY - ( 2 * TMath::Pi() );
+      if( dPhi3 > 1 )
+         etaphiCorners[2].fY = etaphiCorners[2].fY + ( 2 * TMath::Pi() );
+      if( dPhi4 > 1 )
+         etaphiCorners[3].fY = etaphiCorners[3].fY + ( 2 * TMath::Pi() );
 
 
       centre = calculateCentre( etaphiCorners );
@@ -141,7 +147,7 @@ FWPFEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList
 }
 
 //______________________________________________________________________________________________________
-bool
+/*bool
 FWPFEcalRecHitLegoProxyBuilder::visibilityModelChanges(const FWModelId& iId, TEveElement* itemHolder,
                                                        FWViewType::EType viewType, const FWViewContext* vc)
 {
@@ -174,16 +180,17 @@ FWPFEcalRecHitLegoProxyBuilder::visibilityModelChanges(const FWModelId& iId, TEv
 
       float dPhi1 = etaphiCorners[2].fY - etaphiCorners[1].fY;
       float dPhi2 = etaphiCorners[3].fY - etaphiCorners[0].fY;
+      float dPhi3 = etaphiCorners[1].fY - etaphiCorners[2].fY;
+      float dPhi4 = etaphiCorners[0].fY - etaphiCorners[3].fY;
 
       if( dPhi1 > 1 )
          etaphiCorners[2].fY = etaphiCorners[2].fY - ( 2 * TMath::Pi() );
       if( dPhi2 > 1 )
          etaphiCorners[3].fY = etaphiCorners[3].fY - ( 2 * TMath::Pi() );
-
-      centre = calculateCentre( etaphiCorners );
-      energy = iData.energy();
-      et = calculateEt( centre, energy );
-      context().voteMaxEtAndEnergy(et, energy);
+      if( dPhi3 > 1 )
+         etaphiCorners[2].fY = etaphiCorners[2].fY + ( 2 * TMath::Pi() );
+      if( dPhi4 > 1 )
+         etaphiCorners[3].fY = etaphiCorners[3].fY + ( 2 * TMath::Pi() );
 
       {
          FWPFLegoRecHit *recHit = new FWPFLegoRecHit( etaphiCorners, itemHolder, this, vc, energy, et );
@@ -193,7 +200,7 @@ FWPFEcalRecHitLegoProxyBuilder::visibilityModelChanges(const FWModelId& iId, TEv
       return true;
    }
    return false;
-}
+}*/
 
 //______________________________________________________________________________________________________
 void
