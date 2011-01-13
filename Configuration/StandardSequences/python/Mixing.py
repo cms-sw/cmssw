@@ -55,6 +55,7 @@ addMixingScenario("LowLumiPileUp4Sources_ProdStep1",{'file': 'SimGeneral.MixingM
 addMixingScenario("LowLumiPileUp_ProdStep1",{'file': 'SimGeneral.MixingModule.mixLowLumPU_mixProdStep1_cfi'})
 addMixingScenario("NoPileUp",{'file': 'SimGeneral.MixingModule.mixNoPU_cfi'})
 addMixingScenario("E7TeV_ProbDist_2010Data_BX156",{'file': 'SimGeneral.MixingModule.mix_E7TeV_ProbDist_2010Data_BX156_cfi'})
+addMixingScenario("E8TeV_ProbDist_2011EarlyData_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_ProbDist_2011EarlyData_50ns_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 
 ##fastsim section
