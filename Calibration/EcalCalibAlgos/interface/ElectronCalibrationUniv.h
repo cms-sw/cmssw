@@ -16,7 +16,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO, Radek Ofierzynski
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: ElectronCalibrationUniv.h,v 1.5 2010/01/04 15:07:17 ferriff Exp $
+// $Id: ElectronCalibrationUniv.h,v 1.6 2010/07/30 02:40:20 wmtan Exp $
 //
 //
 
@@ -61,6 +61,7 @@ class ElectronCalibrationUniv : public edm::EDAnalyzer {
       ~ElectronCalibrationUniv();
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void beginJob();
       virtual void beginRun(edm::Run const &, edm::EventSetup const&);
       virtual void endJob();
    private:
@@ -140,7 +141,8 @@ class ElectronCalibrationUniv : public edm::EDAnalyzer {
       TH1F * EoP;
       TH1F * EoP_all;
       TH1F * calibs;
-      TH1F * calibsEndCap;
+      TH1F * calibsEndCapMinus;
+      TH1F * calibsEndCapPlus;
       TH1F * e9Overe25;
       TH1F * e25OverScE;
       TH2F * Map;
@@ -148,14 +150,17 @@ class ElectronCalibrationUniv : public edm::EDAnalyzer {
 
       TH1F * PinOverPout;
       TH1F * eSeedOverPout;
-      TH1F * MisCalibs;
-      TH1F * RatioCalibs;
-      TH1F * DiffCalibs;
-      TH1F * RatioCalibsNoCuts;
-      TH1F * DiffCalibsNoCuts;
-     TH1F * MisCalibsEndCap;
-      TH1F * RatioCalibsEndCap;
-      TH1F * DiffCalibsEndCap;
+/*       TH1F * MisCalibs; */
+/*       TH1F * RatioCalibs; */
+/*       TH1F * DiffCalibs; */
+/*       TH1F * RatioCalibsNoCuts; */
+/*       TH1F * DiffCalibsNoCuts; */
+/*      TH1F * MisCalibsEndCapMinus; */
+/*      TH1F * MisCalibsEndCapPlus; */
+/*       TH1F * RatioCalibsEndCapMinus; */
+/*       TH1F * RatioCalibsEndCapPlus; */
+/*       TH1F * DiffCalibsEndCapMinus; */
+/*       TH1F * DiffCalibsEndCapPlus; */
 
       TH1F * e25NoCuts;
       TH1F * e9NoCuts;
@@ -165,22 +170,27 @@ class ElectronCalibrationUniv : public edm::EDAnalyzer {
       TH1F * calibsNoCuts;
       TH1F * e9Overe25NoCuts;
       TH1F * e25OverScENoCuts;
-      TH2F * MapEndCap;
+      TH2F * MapEndCapMinus;
+      TH2F * MapEndCapPlus;
       TH1F * E25oPNoCuts;
       TH2F * Map3Dcalib;
-      TH2F * Map3DcalibEndCap;
+      TH2F * Map3DcalibEndCapMinus;
+      TH2F * Map3DcalibEndCapPlus;
       TH2F * Map3DcalibNoCuts;
       TH1F * calibinter;
-      TH1F * calibinterEndCap;
+      TH1F * calibinterEndCapMinus;
+      TH1F * calibinterEndCapPlus;
       TH1F * calibinterNoCuts;
       HouseholderDecomposition * MyHH;
       TH1F * PinOverPoutNoCuts;
       TH1F * eSeedOverPoutNoCuts;
 
       TH2F * GeneralMap;
-      TH2F * GeneralMapEndCap;
+      TH2F * GeneralMapEndCapMinus;
+      TH2F * GeneralMapEndCapPlus;
       TH2F * GeneralMapBeforePt;
-      TH2F * GeneralMapEndCapBeforePt;
+      TH2F * GeneralMapEndCapMinusBeforePt;
+      TH2F * GeneralMapEndCapPlusBeforePt;
 
       TH2F * MapCor1;
       TH2F * MapCor2;
@@ -193,7 +203,7 @@ class ElectronCalibrationUniv : public edm::EDAnalyzer {
       TH2F * MapCor9;
       TH2F * MapCor10;
       TH2F * MapCor11;
-      TH2F * MapCorCalib;
+      //      TH2F * MapCorCalib;
 
       TH2F * MapCor1NoCuts;
       TH2F * MapCor2NoCuts;
@@ -206,7 +216,8 @@ class ElectronCalibrationUniv : public edm::EDAnalyzer {
       TH2F * MapCor9NoCuts;
       TH2F * MapCor10NoCuts;
       TH2F * MapCor11NoCuts;
-      TH2F * MapCorCalibEndCap;
+/*       TH2F * MapCorCalibEndCapMinus; */
+/*       TH2F * MapCorCalibEndCapPlus; */
 
       TH2F * MapCor1ESeed;
       TH2F * MapCor2ESeed;
@@ -221,7 +232,8 @@ class ElectronCalibrationUniv : public edm::EDAnalyzer {
       TH2F * MapCor11ESeed;
 
       TH2F * E25oPvsEta;
-      TH2F * E25oPvsEtaEndCap;
+      TH2F * E25oPvsEtaEndCapMinus;
+      TH2F * E25oPvsEtaEndCapPlus;
 
       TH1F * PinMinPout; 
       TH1F * PinMinPoutNoCuts;
