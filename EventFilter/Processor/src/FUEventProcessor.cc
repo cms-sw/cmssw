@@ -78,7 +78,6 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , logRingIndex_(logRingSize_)
   , logWrap_(false)
   , nbSubProcesses_(0)
-  , sq_(0)
   , nblive_(0)
   , nbdead_(0)
   , nbTotalDQM_(0)
@@ -88,7 +87,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , wlReceivingMonitor_(0)
   , asReceiveMsgAndRead_(0)
   , receivingM_(false)
-  , isChildProcess_(false)
+  , myProcess_(0)
   , wlSupervising_(0)
   , asSupervisor_(0)
   , supervising_(false)
@@ -109,6 +108,8 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , vulture_(0)
   , vp_(0)
 {
+  using namespace utils;
+
   names_.push_back("nbProcessed"    );
   names_.push_back("nbAccepted"     );
   names_.push_back("epMacroStateInt");
@@ -256,32 +257,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   pthread_mutex_init(&stop_lock_,0);
   pthread_mutex_init(&pickup_lock_,0);
 
-  std::ostringstream ost;
-  ost  << "<div id=\"ve\">2.2.7 (" << edm::getReleaseVersion() <<")</div>"
-       << "<div id=\"ou\">" << outPut_.toString() << "</div>"
-       << "<div id=\"sh\">" << hasShMem_.toString() << "</div>"
-       << "<div id=\"mw\">" << hasModuleWebRegistry_.toString() << "</div>"
-       << "<div id=\"sw\">" << hasServiceWebRegistry_.toString() << "</div>";
-  
-  xdata::Serializable *monsleep = 0;
-  xdata::Serializable *lstimeout = 0;
-  try{
-    monsleep = ispace->find("monSleepSec");
-    lstimeout = ispace->find("lsTimeOut");
-  }
-  catch(xdata::exception::Exception e){
-  }
-  
-  if(monsleep!=0)
-    ost << "<div id=\"ms\">" << monsleep->toString() << "</div>";
-  if(lstimeout!=0)
-    ost << "<div id=\"lst\">" << lstimeout->toString() << "</div>";
-  char cbuf[sizeof(struct utsname)];
-  struct utsname* buf = (struct utsname*)cbuf;
-  uname(buf);
-  ost << "<div id=\"sysinfo\">" << buf->sysname << " " << buf->nodename 
-      << " " << buf->release << " " << buf->version << " " << buf->machine << "</div>";
-  updaterStatic_ = ost.str();
+  makeStaticInfo();
   startSupervisorLoop();  
 
   if(vulture_==0) vulture_ = new Vulture(true);
@@ -410,7 +386,6 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
   evtProcessor_.resetLumiSectionReferenceIndex();
   //classic appl will return here 
   if(nbSubProcesses_.value_==0) return enableClassic();
-
   //protect manipulation of subprocess array
   pthread_mutex_lock(&start_lock_);
   subs_.clear();
@@ -423,7 +398,7 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
       retval = subs_[i].forkNew();
       if(retval==0)
 	{
-	  isChildProcess_=true;
+	  myProcess_ = &subs_[i];
 	  int retval = pthread_mutex_destroy(&stop_lock_);
 	  if(retval != 0) perror("error");
 	  retval = pthread_mutex_init(&stop_lock_,0);
@@ -437,7 +412,7 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 	    LOG4CPLUS_WARN(getApplicationLogger()," ***Slave Failed to shutdown ptHTTP");
 	  }
 	  fsm_.disableRcmsStateNotification();
-	  return enableMPEPSlave(i);
+	  return enableMPEPSlave();
 	  // the loop is broken in the child 
 	}
     }
@@ -667,12 +642,12 @@ void FUEventProcessor::spotlightWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "<hr/>"                                                    << std::endl;
   
   std::ostringstream ost;
-  if(isChildProcess_) 
+  if(myProcess_) 
     ost << "/SubWeb?process=" << getpid() << "&method=moduleWeb&";
   else
     ost << "/moduleWeb?";
   urn += ost.str();
-  if(evtProcessor_ && (isChildProcess_ || nbSubProcesses_.value_==0))
+  if(evtProcessor_ && (myProcess_ || nbSubProcesses_.value_==0))
     evtProcessor_.taskWebPage(in,out,urn);
   else if(evtProcessor_)
     evtProcessor_.summaryWebPage(in,out,urn);
@@ -843,7 +818,7 @@ bool FUEventProcessor::receiving(toolbox::task::WorkLoop *)
 {
   MsgBuf msg;
   try{
-    sq_->rcv(msg); //will receive only messages from Master
+    myProcess_->rcvSlave(msg,false); //will receive only messages from Master
     if(msg->mtype==MSQM_MESSAGE_TYPE_STOP)
       {
 	pthread_mutex_lock(&stop_lock_);
@@ -866,7 +841,7 @@ bool FUEventProcessor::receiving(toolbox::task::WorkLoop *)
 	}
 	stopClassic(); // call the normal sequence of stopping - as this is allowed to fail provisions must be made ...@@@EM
 	MsgBuf msg1(0,MSQS_MESSAGE_TYPE_STOP);
-	sq_->post(msg1);
+	myProcess_->postSlave(msg1,false);
 	fclose(stdout);
 	fclose(stderr);
 	exit(EXIT_SUCCESS);
@@ -933,7 +908,7 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		  pid_t rr = subs_[i].forkNew();
 		  if(rr==0)
 		    {
-		      isChildProcess_=true;
+		      myProcess_=&subs_[i];
 		      scalersUpdates_ = 0;
 		      try{
 			pt::PeerTransport * ptr =
@@ -968,7 +943,7 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 
 		      evtProcessor_.adjustLsIndexForRestart();
 		      evtProcessor_.resetPackedTriggerReport();
-		      enableMPEPSlave(i);
+		      enableMPEPSlave();
 		      return false; // exit the supervisor loop immediately in the child !!!
 		    }
 		  else
@@ -1166,11 +1141,11 @@ bool FUEventProcessor::scalers(toolbox::task::WorkLoop* wl)
       wlScalersActive_ = false;
       return false;
     }
-  if(isChildProcess_) 
+  if(myProcess_) 
     {
       //      std::cout << getpid() << "going to post on control queue from scalers" << std::endl;
-      int ret = sq_->post(evtProcessor_.getPackedTriggerReport());
-      if(ret!=0)      std::cout << "scalers workloop, error posting to sq_ " << errno << std::endl;
+      int ret = myProcess_->postSlave(evtProcessor_.getPackedTriggerReport(),false);
+      if(ret!=0)      std::cout << "scalers workloop, error posting to sqs_ " << errno << std::endl;
       scalersUpdates_++;
     }
   else
@@ -1184,6 +1159,7 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
   MsgBuf msg(MAX_MSG_SIZE,MSQS_MESSAGE_TYPE_TRR);
   evtProcessor_.resetPackedTriggerReport();
   bool atLeastOneProcessUpdatedSuccessfully = false;
+  int msgCount = 0;
   for (unsigned int i = 0; i < subs_.size(); i++)
     {
       if(subs_[i].alive()>0)
@@ -1192,6 +1168,7 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
 	  int ret = 0;
 	  try{
 	    ret = subs_[i].rcv(msg,false);
+	    msgCount++;
 	  }
 	  catch(evf::Exception &e)
 	    {
@@ -1205,7 +1182,7 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
 	  if(ret==MSQS_MESSAGE_TYPE_TRR) {
 	    TriggerReportStatic *trp = (TriggerReportStatic *)msg->mtext;
 	    if(trp->lumiSection > evtProcessor_.getLumiSectionReferenceIndex()){
-	      std::cout << "postpone handing of msg from slot " << i << " with Ls " <<  trp->lumiSection
+	      std::cout << "postpone handling of msg from slot " << i << " with Ls " <<  trp->lumiSection
 			<< " should be " << evtProcessor_.getLumiSectionReferenceIndex() << std::endl;
 	      subs_[i].post(msg,false);
 	    }else{
@@ -1222,7 +1199,7 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
   }
   else{
     LOG4CPLUS_WARN(getApplicationLogger(),"Summarize loop: no process updated successfully ");          
-    evtProcessor_.withdrawLumiSectionIncrement();
+    if(msgCount==0) evtProcessor_.withdrawLumiSectionIncrement();
   }
   if(fsm_.stateName()->toString()!="Enabled"){
     wlScalersActive_ = false;
@@ -1237,7 +1214,7 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 {
   MsgBuf msg;
   try{
-    sqm_->rcv(msg); //will receive only messages from Master
+    myProcess_->rcvSlave(msg,true); //will receive only messages from Master
     switch(msg->mtype)
       {
       case MSQM_MESSAGE_TYPE_MCS:
@@ -1247,7 +1224,7 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	  evtProcessor_.microState(in,&out);
 	  MsgBuf msg1(out.str().size(),MSQS_MESSAGE_TYPE_MCR);
 	  strncpy(msg1->mtext,out.str().c_str(),out.str().size());
-	  sqm_->post(msg1);
+	  myProcess_->postSlave(msg1,true);
 	  break;
 	}
       
@@ -1272,7 +1249,7 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	  if(dqm) data->dqm    = dqm->value_; else data->dqm = 0;
 	  data->trp            = scalersUpdates_;
 	  //	  monitorInfoSpace_->unlock();  
-	  sqm_->post(msg1);
+	  myProcess_->postSlave(msg1,true);
 	  if(exitOnError_.value_)
 	  { 
 	    // after each monitoring cycle check if we are in inconsistent state and exit if configured to do so  
@@ -1347,7 +1324,7 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	  if(bytesToSend==0)
 	    {
 	      snprintf(msg1->mtext, NUMERIC_MESSAGE_SIZE, "%d", bytesToSend);
-	      sqm_->post(msg1);
+	      myProcess_->postSlave(msg1,true);
 	    }
 	  while(bytesToSend !=0){
 	    unsigned int msgSize = bytesToSend>MAX_PIPE_BUFFER_SIZE ? MAX_PIPE_BUFFER_SIZE : bytesToSend;
@@ -1355,7 +1332,7 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	    write(anonymousPipe_[PIPE_WRITE],
 		  out.str().c_str()+MAX_PIPE_BUFFER_SIZE*cycle,
 		  msgSize);
-	    sqm_->post(msg1);
+	    myProcess_->postSlave(msg1,true);
 	    bytesToSend -= msgSize;
 	    cycle++;
 	  }
@@ -1443,11 +1420,9 @@ bool FUEventProcessor::enableClassic()
   localLog("-I- Start completed");
   return retval;
 }
-bool FUEventProcessor::enableMPEPSlave(int ind)
+bool FUEventProcessor::enableMPEPSlave()
 {
   //all this happens only in the child process
-  sq_ = new SlaveQueue(ind);
-  sqm_ = new SlaveQueue(200+ind);
   startReceivingLoop();
   startReceivingMonitorLoop();
   evtProcessor_.resetWaiting();
@@ -1492,12 +1467,15 @@ bool FUEventProcessor::stopClassic()
   try {
     LOG4CPLUS_INFO(getApplicationLogger(),"Start stopping :) ...");
     edm::EventProcessor::StatusCode rc = evtProcessor_.stop();
-    if(rc != edm::EventProcessor::epTimedOut) 
+    if(rc == edm::EventProcessor::epSuccess) 
       fsm_.fireEvent("StopDone",this);
     else
       {
 	//	epMState_ = evtProcessor_->currentStateName();
-	reasonForFailedState_ = "EventProcessor stop timed out";
+	if(rc == edm::EventProcessor::epTimedOut)
+	  reasonForFailedState_ = "EventProcessor stop timed out";
+	else
+	  reasonForFailedState_ = "EventProcessor did not receive STOP event";
 	fsm_.fireFailed(reasonForFailedState_,this);
 	localLog(reasonForFailedState_);
       }
@@ -1555,14 +1533,14 @@ void FUEventProcessor::microState(xgi::Input *in,xgi::Output *out)
   try{
     evtProcessor_.stateNameFromIndex(0);
     evtProcessor_.moduleNameFromIndex(0);
-  if(isChildProcess_) {std::cout << "microstate called for child! bail out" << std::endl; return;}
+  if(myProcess_) {std::cout << "microstate called for child! bail out" << std::endl; return;}
   *out << "<tr><td>" << fsm_.stateName()->toString() 
-       << "</td><td>"<< (isChildProcess_ ? "S" : "M") <<"</td><td>" << nblive_ << "</td><td>"
+       << "</td><td>"<< (myProcess_ ? "S" : "M") <<"</td><td>" << nblive_ << "</td><td>"
        << nbdead_ << "</td><td><a href=\"/" << urn << "/procStat\">" << getpid() <<"</a></td>";
   evtProcessor_.microState(in,out);
   *out << "<td>" << nbTotalDQM_ 
        << "</td><td>" << evtProcessor_.getScalersUpdates() << "</td></tr>";
-  if(nbSubProcesses_.value_!=0 && !isChildProcess_) 
+  if(nbSubProcesses_.value_!=0 && !myProcess_) 
     {
       pthread_mutex_lock(&start_lock_);
       for(unsigned int i = 0; i < subs_.size(); i++)
@@ -1651,68 +1629,117 @@ void FUEventProcessor::microState(xgi::Input *in,xgi::Output *out)
 
 void FUEventProcessor::updater(xgi::Input *in,xgi::Output *out)
 {
+  using namespace utils;
+
   *out << updaterStatic_;
-  *out << "<div id=\"loads\">"; 
-  utils::uptime(out);
-  *out << "</div>";
-  *out << "<div id=\"st\">" << fsm_.stateName()->toString() << "</div>"
-       << "<div id=\"ru\">" << runNumber_.toString() << "</div>"
-       << "<div id=\"nsl\">" << nbSubProcesses_.value_ << "</div>"
-       << "<div id=\"cl\">" << getApplicationDescriptor()->getClassName() 
-       << (nbSubProcesses_.value_ > 0 ? "MP " : " ") << "</div>"
-       << "<div id=\"in\">" << getApplicationDescriptor()->getInstance() << "</div>";
-  if(fsm_.stateName()->toString() != "Halted" && fsm_.stateName()->toString() != "halting")
-    *out << "<div id=\"hlt\"><a href=\"" << configString_.toString() << "\">HLT Config</a></div>" << std::endl;
+  mDiv(out,"loads");
+  uptime(out);
+  cDiv(out);
+  mDiv(out,"st",fsm_.stateName()->toString());
+  mDiv(out,"ru",runNumber_.toString());
+  mDiv(out,"nsl",nbSubProcesses_.value_);
+  mDiv(out,"cl");
+  *out << getApplicationDescriptor()->getClassName() 
+       << (nbSubProcesses_.value_ > 0 ? "MP " : " ");
+  cDiv(out);
+  mDiv(out,"in",getApplicationDescriptor()->getInstance());
+  if(fsm_.stateName()->toString() != "Halted" && fsm_.stateName()->toString() != "halting"){
+    mDiv(out,"hlt");
+    *out << "<a href=\"" << configString_.toString() << "\">HLT Config</a>";
+    cDiv(out);
+    *out << std::endl;
+  }
   else
-    *out << "<div id=\"hlt\">Not yet...</div>" << std::endl;  
-  *out << "<div id=\"sq\">" << squidPresent_.toString() << "</div>"
-       << "<div id=\"vwl\">" << (supervising_ ? "Active" : "Not Initialized") << "</div>"
-       << "<div id=\"mwl\">" << evtProcessor_.wlMonitoring() << "</div>";
+    mDiv(out,"hlt","Not yet...");
+
+  mDiv(out,"sq",squidPresent_.toString());
+  mDiv(out,"vwl",(supervising_ ? "Active" : "Not Initialized"));
+  mDiv(out,"mwl",evtProcessor_.wlMonitoring());
   if(nbProcessed != 0 && nbAccepted != 0)
     {
-      *out << "<div id=\"tt\">" << ((xdata::UnsignedInteger32*)nbProcessed)->value_ << "</div>"
-	   << "<div id=\"ac\">" << ((xdata::UnsignedInteger32*)nbAccepted)->value_ << "</div>";
+      mDiv(out,"tt",((xdata::UnsignedInteger32*)nbProcessed)->value_);
+      mDiv(out,"ac",((xdata::UnsignedInteger32*)nbAccepted)->value_);
     }
   else
     {
-      *out << "<div id=\"tt\">" << 0 << "</div>"
-	   << "<div id=\"ac\">" << 0 << "</div>";
+      mDiv(out,"tt",0);
+      mDiv(out,"ac",0);
     }
-  if(!isChildProcess_)
-    *out<< "<div id=\"swl\">" << (wlSummarizeActive_ ? "Active" : "Inactive") << "</div>";
+  if(!myProcess_)
+    mDiv(out,"swl",(wlSummarizeActive_ ? "Active" : "Inactive"));
   else
-    *out<< "<div id=\"swl\">" << (wlScalersActive_ ? "Active" : "Inactive") << "</div>";
-  *out<< "<div id=\"idi\">" << iDieUrl_.value_ << "</div>";
+    mDiv(out,"swl",(wlScalersActive_ ? "Active" : "Inactive"));
+
+  mDiv(out,"idi",iDieUrl_.value_);
   if(vp_!=0){
-    *out << "<div id=\"vpi\">" << (unsigned int) vp_ << "</div>";
+    mDiv(out,"vpi",(unsigned int) vp_);
     if(vulture_->hasStarted()>=0)
-      *out<< "<div id=\"vul\">Prowling</div>";
+      mDiv(out,"vul","Prowling");
     else
-      *out<< "<div id=\"vul\">Dead</div>";
+      mDiv(out,"vul","Dead");
   }
   else{
-    *out<< "<div id=\"vul\">" << (vulture_==0 ? "Nope" : "Hatching") << "</div>";
+    mDiv(out,"vul",(vulture_==0 ? "Nope" : "Hatching"));
   }    
-  if(evtProcessor_)
-    *out << "<div id=\"ll\">" << evtProcessor_.lastLumi().ls
-	 << "," << evtProcessor_.lastLumi().proc << "," << evtProcessor_.lastLumi().acc << "</div>";
-    
-  *out << "<div id=\"lg\">";
+  if(evtProcessor_){
+    mDiv(out,"ll");
+    *out << evtProcessor_.lastLumi().ls
+	 << "," << evtProcessor_.lastLumi().proc << "," << evtProcessor_.lastLumi().acc;
+    cDiv(out);
+  }
+  mDiv(out,"lg");
   for(unsigned int i = logRingIndex_; i<logRingSize_; i++)
     *out << logRing_[i] << std::endl;
   if(logWrap_)
     for(unsigned int i = 0; i<logRingIndex_; i++)
       *out << logRing_[i] << std::endl;
-  *out << "</div>" << std::endl;
+  cDiv(out);
+  
 }
+
 void FUEventProcessor::procStat(xgi::Input *in, xgi::Output *out)
 {
   evf::utils::procStat(out);
 }
+
 void FUEventProcessor::sendMessageOverMonitorQueue(MsgBuf &buf)
 {
-  sqm_->post(buf);
+  if(myProcess_) myProcess_->postSlave(buf,true);
 }
 
+void FUEventProcessor::makeStaticInfo()
+{
+  using namespace utils;
+  std::ostringstream ost;
+  mDiv(&ost,"ve");
+  ost<< "$Revision$ (" << edm::getReleaseVersion() <<")";
+  cDiv(&ost);
+  mDiv(&ost,"ou",outPut_.toString());
+  mDiv(&ost,"sh",hasShMem_.toString());
+  mDiv(&ost,"mw",hasModuleWebRegistry_.toString());
+  mDiv(&ost,"sw",hasServiceWebRegistry_.toString());
+  
+  xdata::Serializable *monsleep = 0;
+  xdata::Serializable *lstimeout = 0;
+  try{
+    monsleep  = applicationInfoSpace_->find("monSleepSec");
+    lstimeout = applicationInfoSpace_->find("lsTimeOut");
+  }
+  catch(xdata::exception::Exception e){
+  }
+  
+  if(monsleep!=0)
+    mDiv(&ost,"ms",monsleep->toString());
+  if(lstimeout!=0)
+    mDiv(&ost,"lst",lstimeout->toString());
+  char cbuf[sizeof(struct utsname)];
+  struct utsname* buf = (struct utsname*)cbuf;
+  uname(buf);
+  mDiv(&ost,"sysinfo");
+  ost << buf->sysname << " " << buf->nodename 
+      << " " << buf->release << " " << buf->version << " " << buf->machine;
+  cDiv(&ost);
+  updaterStatic_ = ost.str();
+}
 
 XDAQ_INSTANTIATOR_IMPL(evf::FUEventProcessor)
