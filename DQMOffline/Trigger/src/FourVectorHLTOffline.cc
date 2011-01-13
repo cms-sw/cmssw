@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.91 2010/10/28 13:57:42 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.92 2010/10/28 14:27:01 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -1911,7 +1911,8 @@ void FourVectorHLTOffline::countHLTGroupBXHitsEndLumiBlock(const int& lumi)
         int binNumber = b+1; // add one to get right bin
 
         // update  the bin content  but normalized to the whole columb (BX windw +/- 2)
-        hist_All_Norm->SetBinContent(lumi+1,binNumber,float(updatedLumiCount[b])/entireBXWindowUpdatedLumiCount);
+        if(entireBXWindowUpdatedLumiCount != 0)
+         hist_All_Norm->SetBinContent(lumi+1,binNumber,float(updatedLumiCount[b])/entireBXWindowUpdatedLumiCount);
 
       } // end for bx b
     
